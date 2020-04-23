@@ -56,9 +56,9 @@
 :root[lwt-tree] panel[type="autocomplete-richlistbox"]:-moz-lwtheme {
   margin-top: -1px;
   padding: 2px 0;
-  background: var(--autocomplete-popup-background);
-  color: var(--autocomplete-popup-color);
-  border-color: var(--autocomplete-popup-border-color);
+  background: var(--arrowpanel-background);
+  color: var(--arrowpanel-color);
+  border-color: var(--arrowpanel-border-color);
   scrollbar-color: rgba(249,249,250,.4) rgba(20,20,25,.3);
 }
 
@@ -74,14 +74,14 @@
 
 :root[lwt-tree] #msgIdentityPopup {
   -moz-appearance: none;
-  border: 1px solid var(--autocomplete-popup-border-color);
+  border: 1px solid var(--arrowpanel-border-color);
   border-radius: 2px;
-  background-color: var(--autocomplete-popup-background);
+  background-color: var(--arrowpanel-background);
 }
 
 :root[lwt-tree] #msgIdentityPopup > menuitem {
   -moz-appearance: none;
-  color: var(--autocomplete-popup-color);
+  color: var(--arrowpanel-color);
 }
 
 :root[lwt-tree] #msgIdentityPopup >  menuitem[_moz-menuactive="true"] {
@@ -95,7 +95,7 @@
 
 :root[lwt-tree] #msgIdentityPopup > menuseparator {
   -moz-appearance: none;
-  border-top: 1px solid var(--autocomplete-popup-color);
+  border-top: 1px solid var(--arrowpanel-color);
   opacity: 0.5;
 }
 
@@ -378,10 +378,8 @@ menulist::part(description) {
 }
 
 #TextColorButton {
-  margin-top: 2px;
-  margin-bottom: 9px;
-  margin-inline-start: 2px;
-  margin-inline-end: 9px;
+  margin-block: 2px 9px;
+  margin-inline: 2px 9px;
 }
 
 #TextColorButton[color="mixed"] {
@@ -390,10 +388,8 @@ menulist::part(description) {
 }
 
 #BackgroundColorButton {
-  margin-top: 9px;
-  margin-bottom: 2px;
-  margin-inline-start: 9px;
-  margin-inline-end: 2px;
+  margin-block: 9px 2px;
+  margin-inline: 9px 2px;
 }
 
 /* :::: Reorder Attachments Panel :::: */
@@ -751,8 +747,7 @@ label.extra-recipients-label {
 }
 
 .aw-firstColBox label {
-  margin-top: 4px;
-  margin-bottom: 0;
+  margin-block: 4px 0;
 }
 
 .address-extra-recipients label:focus:not(:hover),
@@ -790,4 +785,190 @@ label.extra-recipients-label {
 #MsgHeadersToolbar[brighttext] #msgSubject:focus,
 #MsgHeadersToolbar[brighttext] .address-container[focused="true"] {
   background-color: var(--lwt-toolbar-field-background-color);
+}
+
+/* ..... format buttons ..... */
+
+#AbsoluteFontSizeButton {
+  list-style-image: url("chrome://messenger/skin/icons/size.svg");
+}
+
+#DecreaseFontSizeButton {
+  list-style-image: url("chrome://messenger/skin/icons/decrease.svg");
+}
+
+#IncreaseFontSizeButton {
+  list-style-image: url("chrome://messenger/skin/icons/increase.svg");
+}
+
+#boldButton {
+  list-style-image: url("chrome://messenger/skin/icons/bold.svg");
+}
+
+#italicButton {
+  list-style-image: url("chrome://messenger/skin/icons/italics.svg");
+}
+
+#underlineButton {
+  list-style-image: url("chrome://messenger/skin/icons/underline.svg");
+}
+
+#ulButton {
+  list-style-image: url("chrome://messenger/skin/icons/bullet-list.svg");
+}
+
+#olButton {
+  list-style-image: url("chrome://messenger/skin/icons/number-list.svg");
+}
+
+#outdentButton {
+  list-style-image: url("chrome://messenger/skin/icons/outdent.svg");
+}
+
+#indentButton {
+  list-style-image: url("chrome://messenger/skin/icons/indent.svg");
+}
+
+#InsertPopupButton {
+  list-style-image: url("chrome://messenger/skin/icons/image.svg");
+}
+
+#AlignPopupButton {
+  list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
+}
+
+#smileButtonMenu {
+  list-style-image: url("chrome://messenger/skin/icons/smiley.svg");
+}
+
+/* ..... align menu ..... */
+
+#AlignPopup > menuitem {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#AlignLeftItem, #AlignPopupButton[state="left"] {
+  list-style-image: url("chrome://messenger/skin/icons/left-align.svg");
+}
+
+#AlignCenterItem, #AlignPopupButton[state="center"] {
+  list-style-image: url("chrome://messenger/skin/icons/center-align.svg");
+}
+
+#AlignRightItem, #AlignPopupButton[state="right"] {
+  list-style-image: url("chrome://messenger/skin/icons/right-align.svg");
+}
+
+#AlignJustifyItem, #AlignPopupButton[state="justify"] {
+  list-style-image: url("chrome://messenger/skin/icons/justify.svg");
+}
+
+/* ..... insert menu ..... */
+
+#InsertPopup > menuitem {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#InsertLinkItem {
+  list-style-image: url("chrome://messenger/skin/icons/link.svg");
+}
+
+#InsertAnchorItem {
+  list-style-image: url("chrome://messenger/skin/icons/anchor.svg");
+}
+
+#InsertImageItem {
+  list-style-image: url("chrome://messenger/skin/icons/image.svg");
+}
+
+#InsertHRuleItem {
+  list-style-image: url("chrome://messenger/skin/icons/hline.svg");
+}
+
+#InsertTableItem {
+  list-style-image: url("chrome://messenger/skin/icons/table.svg");
+}
+
+/* ..... smiley menu ..... */
+
+#smileySmile > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-smile.png");
+  -moz-image-region: auto;
+}
+
+#smileyFrown > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-frown.png");
+  -moz-image-region: auto;
+}
+
+#smileyWink > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-wink.png");
+  -moz-image-region: auto;
+}
+
+#smileyTongue > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-tongue-out.png");
+  -moz-image-region: auto;
+}
+
+#smileyLaughing > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-laughing.png");
+  -moz-image-region: auto;
+}
+
+#smileyEmbarassed > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-embarassed.png");
+  -moz-image-region: auto;
+}
+
+#smileyUndecided > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-undecided.png");
+  -moz-image-region: auto;
+}
+
+#smileySurprise > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-surprised.png");
+  -moz-image-region: auto;
+}
+
+#smileyKiss > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-kiss.png");
+  -moz-image-region: auto;
+}
+
+#smileyYell > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-yell.png");
+  -moz-image-region: auto;
+}
+
+#smileyCool > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-cool.png");
+  -moz-image-region: auto;
+}
+
+#smileyMoney > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-money-mouth.png");
+  -moz-image-region: auto;
+}
+
+#smileyFoot > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-foot-in-mouth.png");
+  -moz-image-region: auto;
+}
+
+#smileyInnocent > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-innocent.png");
+  -moz-image-region: auto;
+}
+
+#smileyCry > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-cry.png");
+  -moz-image-region: auto;
+}
+
+#smileySealed > .menu-iconic-left {
+  list-style-image: url("chrome://communicator/skin/icons/smileys/smiley-sealed.png");
+  -moz-image-region: auto;
 }

@@ -64,8 +64,7 @@ toolbar[nowindowdrag="true"] {
 
 /* Findbar */
 .findbar-container {
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding-block: 2px;
 }
 
 #findbar-replaceButton {
@@ -248,24 +247,89 @@ menulist::part(description) {
   border-bottom: none;
   background-color: rgb(242, 242, 242) !important;
   padding-block: 4px;
-  margin-left: 3px;
-  margin-right: 3px;
+  margin-inline: 3px;
 }
 
 #FormatToolbar toolbarseparator {
   background-image: none;
 }
 
-toolbarbutton.formatting-button {
-  -moz-appearance: toolbarbutton;
-  height: 22px;
-  margin: 0px;
-  padding: 0;
-  border: 0;
+#FormatToolbar menulist {
+  -moz-appearance: none;
+  min-height: 24px;
+  color: inherit;
+  margin: 0 4px !important;
+  padding: 1px 6px;
+  border: 1px solid;
   border-radius: 3px;
-  color: -moz-dialogText;
-  min-width: 28px;
-  list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons.png");
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  transition: background-color 150ms;
+}
+
+#FormatToolbar menulist:not([disabled="true"]):not([open="true"]):hover {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  color: inherit;
+}
+
+#FormatToolbar menulist[open="true"] {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+#FormatToolbar menulist[disabled="true"] {
+  opacity: .6;
+}
+
+#FormatToolbar menulist::part(label-box) {
+  -moz-appearance: none;
+  padding-inline-end: 12px;
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: 9px 7px;
+  background-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#FormatToolbar menulist:-moz-locale-dir(rtl)::part(label-box) {
+  background-position: left;
+}
+
+toolbarbutton.formatting-button {
+  -moz-appearance: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  margin-inline: 1px;
+  padding-inline: 4px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+}
+
+toolbarbutton.formatting-button:not([disabled="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+  border-color: var(--toolbarbutton-hover-bordercolor);
+}
+
+toolbarbutton.formatting-button:not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+.formatting-button > .toolbarbutton-menu-dropmarker {
+  list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
+.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker {
+  opacity: 0.4;
 }
 
 #FontFaceSelect {
@@ -273,518 +337,11 @@ toolbarbutton.formatting-button {
 }
 
 #ColorButtons {
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-inline-start: 3px;
-  margin-inline-end: 5px;
-}
-
-#AlignPopupButton, #InsertPopupButton, #smileButtonMenu {
- margin-inline-end: 9px;
-}
-
-#AbsoluteFontSizeButton:-moz-locale-dir(rtl),
-#IncreaseFontSizeButton:-moz-locale-dir(rtl),
-#underlineButton:-moz-locale-dir(rtl),
-#indentButton:-moz-locale-dir(rtl),
-#boldButton:-moz-locale-dir(ltr),
-#ulButton:-moz-locale-dir(ltr) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-#AbsoluteFontSizeButton:-moz-locale-dir(ltr),
-#IncreaseFontSizeButton:-moz-locale-dir(ltr),
-#underlineButton:-moz-locale-dir(ltr),
-#indentButton:-moz-locale-dir(ltr),
-#boldButton:-moz-locale-dir(rtl),
-#ulButton:-moz-locale-dir(rtl) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menu-dropmarker,
-toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-menubutton-dropmarker::part(icon),
-toolbarbutton.formatting-button:not(:hover):-moz-window-inactive > .toolbarbutton-icon,
-toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
-  > .toolbarbutton-menu-dropmarker,
-toolbarbutton.formatting-button:not(:hover):-moz-window-inactive
-  > .toolbarbutton-menubutton-dropmarker::part(icon) {
-  opacity: .5;
-}
-
-toolbarbutton.formatting-button > .toolbarbutton-menu-dropmarker,
-toolbarbutton.formatting-button > .toolbarbutton-menubutton-dropmarker {
-  list-style-image: url(chrome://messenger/skin/icons/toolbarbutton-arrow.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-toolbarbutton.toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
-toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon) {
-  width: 9px;
-  height: 7px;
-}
-
-#AbsoluteFontSizeButton {
-  -moz-image-region: rect(180px 20px 192px 0px);
-}
-
-#AbsoluteFontSizeButton[disabled="true"] {
-  -moz-image-region: rect(180px 60px 192px 40px) !important;
-}
-
-#IncreaseFontSizeButton {
-  -moz-image-region: rect(0px 20px 12px 0px);
-}
-
-#IncreaseFontSizeButton[disabled="true"] {
-  -moz-image-region: rect(0px 60px 12px 40px) !important;
-}
-
-#DecreaseFontSizeButton {
-  -moz-image-region: rect(12px 20px 24px 0px);
-}
-
-#DecreaseFontSizeButton[disabled="true"] {
-  -moz-image-region: rect(12px 60px 24px 40px) !important;
-}
-
-#InsertPopupButton {
-  -moz-image-region: rect(72px 20px 84px 0px);
-}
-
-#InsertPopupButton[disabled="true"] {
-  -moz-image-region: rect(72px 60px 84px 40px);
-}
-
-#ulButton {
-  -moz-image-region: rect(84px 20px 96px 0px);
-}
-
-#ulButton[disabled="true"] {
-  -moz-image-region: rect(84px 60px 96px 40px) !important;
-}
-
-#olButton {
-  -moz-image-region: rect(96px 20px 108px 0px);
-}
-
-#olButton[disabled="true"] {
-    -moz-image-region: rect(96px 60px 108px 40px) !important;
-}
-
-#smileButtonMenu {
-  -moz-image-region: rect(108px 20px 120px 0px);
-}
-
-#smileButtonMenu[disabled="true"] {
-   -moz-image-region: rect(108px 60px 120px 40px) !important;
-}
-
-#boldButton {
-  -moz-image-region: rect(120px 20px 132px 0px);
-}
-
-#boldButton[disabled="true"] {
-  -moz-image-region: rect(120px 60px 132px 40px) !important;
-}
-
-#underlineButton {
-  -moz-image-region: rect(132px 20px 144px 0px);
-}
-
-#underlineButton[disabled="true"] {
-  -moz-image-region: rect(132px 60px 144px 40px) !important;
-}
-
-#italicButton {
-  -moz-image-region: rect(144px 20px 156px 0px);
-}
-
-#italicButton[disabled="true"] {
-  -moz-image-region: rect(144px 60px 156px 40px) !important;
-}
-
-#outdentButton {
-  -moz-image-region: rect(156px 20px 168px 0px);
-}
-
-#outdentButton[disabled="true"] {
-   -moz-image-region: rect(156px 60px 168px 40px) !important;
-}
-
-#indentButton {
-  -moz-image-region: rect(168px 20px 180px 0px);
-}
-
-#indentButton[disabled="true"] {
-  -moz-image-region: rect(168px 60px 180px 40px) !important;
-}
-
-#AlignPopupButton {
-    -moz-image-region: rect(36px 20px 48px 0px);
-}
-
-#AlignPopupButton[disabled="true"] {
-  -moz-image-region: rect(36px 60px 48px 40px) !important;
-}
-
-/* ..... align menu ..... */
-
-#AlignPopup > menuitem {
-  list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons.png");
-}
-
-#AlignLeftItem, #AlignPopupButton[state="left"] {
-  -moz-image-region: rect(36px 20px 48px 0px);
-}
-
-#AlignLeftItem:hover {
-  -moz-image-region: rect(36px 40px 48px 20px);
-}
-
-#AlignCenterItem, #AlignPopupButton[state="center"] {
-  -moz-image-region: rect(60px 20px 72px 0px);
-}
-
-#AlignCenterItem:hover {
-  -moz-image-region: rect(60px 40px 72px 20px);
-}
-
-#AlignRightItem, #AlignPopupButton[state="right"] {
-  -moz-image-region: rect(48px 20px 60px 0px);
-}
-
-#AlignRightItem:hover {
-  -moz-image-region: rect(48px 40px 60px 20px);
-}
-
-#AlignJustifyItem, #AlignPopupButton[state="justify"] {
-  -moz-image-region: rect(24px 20px 36px 0px);
-}
-
-#AlignJustifyItem:hover {
-  -moz-image-region: rect(24px 40px 36px 20px);
-}
-
-@media (min-resolution: 2dppx) {
-  toolbarbutton.formatting-button > .toolbarbutton-icon {
-    width: 20px;
-    height: 12px;
-  }
-
-  toolbarbutton.formatting-button {
-    list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons@2x.png");
-  }
-
-  #AbsoluteFontSizeButton {
-    -moz-image-region: rect(360px 40px 384px 0px);
-  }
-
-  #AbsoluteFontSizeButton[disabled="true"] {
-    -moz-image-region: rect(360px 120px 384px 80px) !important;
-  }
-
-  #IncreaseFontSizeButton {
-    -moz-image-region: rect(0px 40px 24px 0px);
-  }
-
-  #IncreaseFontSizeButton[disabled="true"] {
-    -moz-image-region: rect(0px 120px 24px 80px) !important;
-  }
-
-  #DecreaseFontSizeButton {
-    -moz-image-region: rect(24px 40px 48px 0px);
-  }
-
-  #DecreaseFontSizeButton[disabled="true"] {
-    -moz-image-region: rect(24px 120px 48px 80px) !important;
-  }
-
-  #align-justify-button {
-    -moz-image-region: rect(48px 40px 72px 0px);
-  }
-
-  #align-justify-button[disabled="true"] {
-    -moz-image-region: rect(48px 120px 72px 80px);
-  }
-
-  #align-left-button {
-    -moz-image-region: rect(72px 40px 96px 0px);
-  }
-
-  #align-left-button[disabled="true"] {
-    -moz-image-region: rect(72px 120px 96px 80px);
-  }
-
-  #align-right-button {
-    -moz-image-region: rect(96px 40px 120px 0px);
-    border: 1px solid red;
-  }
-
-  #align-right-button[disabled="true"] {
-    -moz-image-region: rect(96px 120px 120px 80px);
-  }
-
-  #align-center-button {
-    -moz-image-region: rect(120px 40px 144px 0px);
-  }
-
-  #align-center-button[disabled="true"] {
-    -moz-image-region: rect(120px 120px 144px 80px);
-  }
-
-  #InsertPopupButton {
-    -moz-image-region: rect(144px 40px 168px 0px);
-  }
-
-  #InsertPopupButton[disabled="true"] {
-    -moz-image-region: rect(144px 120px 168px 80px);
-  }
-
-  #ulButton {
-    -moz-image-region: rect(168px 40px 192px 0px);
-  }
-
-  #ulButton[disabled="true"] {
-    -moz-image-region: rect(168px 120px 192px 80px) !important;
-  }
-
-  #olButton {
-    -moz-image-region: rect(192px 40px 216px 0px);
-  }
-
-  #olButton[disabled="true"] {
-      -moz-image-region: rect(192px 120px 216px 80px) !important;
-  }
-
-  #smileButtonMenu {
-    -moz-image-region: rect(216px 40px 240px 0px);
-  }
-
-  #smileButtonMenu[disabled="true"] {
-     -moz-image-region: rect(216px 120px 240px 80px) !important;
-  }
-
-  #boldButton {
-    -moz-image-region: rect(240px 40px 264px 0px);
-  }
-
-  #boldButton[disabled="true"] {
-    -moz-image-region: rect(240px 120px 264px 80px) !important;
-  }
-
-  #underlineButton {
-    -moz-image-region: rect(264px 40px 288px 0px);
-  }
-
-  #underlineButton[disabled="true"] {
-    -moz-image-region: rect(264px 120px 288px 80px) !important;
-  }
-
-  #italicButton {
-    -moz-image-region: rect(288px 40px 312px 0px);
-  }
-
-  #italicButton[disabled="true"] {
-    -moz-image-region: rect(288px 120px 312px 80px) !important;
-  }
-
-  #outdentButton {
-    -moz-image-region: rect(312px 40px 336px 0px);
-  }
-
-  #outdentButton[disabled="true"] {
-     -moz-image-region: rect(312px 120px 336px 80px) !important;
-  }
-
-  #indentButton {
-    -moz-image-region: rect(336px 40px 360px 0px);
-  }
-
-  #indentButton[disabled="true"] {
-    -moz-image-region: rect(336px 120px 360px 80px) !important;
-  }
-
-  #AlignPopupButton {
-      -moz-image-region: rect(72px 40px 96px 0px);
-  }
-
-  #AlignPopupButton[disabled="true"] {
-    -moz-image-region: rect(72px 120px 96px 80px) !important;
-  }
-
-  #AlignPopup > menuitem {
-    list-style-image: url("chrome://messenger/skin/messengercompose/format-buttons@2x.png");
-  }
-
-  #AlignLeftItem, #AlignPopupButton[state="left"] {
-    -moz-image-region: rect(72px 40px 96px 0px);
-  }
-
-  #AlignLeftItem:hover {
-    -moz-image-region: rect(72px 80px 96px 40px);
-  }
-
-  #AlignCenterItem, #AlignPopupButton[state="center"] {
-    -moz-image-region: rect(120px 40px 144px 0px);
-  }
-
-  #AlignCenterItem:hover {
-    -moz-image-region: rect(120px 80px 144px 40px);
-  }
-
-  #AlignRightItem, #AlignPopupButton[state="right"] {
-    -moz-image-region: rect(96px 40px 120px 0px);
-  }
-
-  #AlignRightItem:hover {
-    -moz-image-region: rect(96px 80px 120px 40px);
-  }
-
-  #AlignJustifyItem, #AlignPopupButton[state="justify"] {
-    -moz-image-region: rect(48px 40px 72px 0px);
-  }
-
-  #AlignJustifyItem:hover {
-    -moz-image-region: rect(48px 80px 72px 40px);
-  }
-}
-
-/* ..... insert menu ..... */
-
-#InsertPopup > menuitem {
-  list-style-image: url("chrome://messenger/skin/messengercompose/insert-menu.png");
-}
-
-#InsertLinkItem {
-  -moz-image-region: rect(0px 16px 16px 0px);
-}
-
-#InsertAnchorItem {
-  -moz-image-region: rect(16px 16px 32px 0px);
-}
-
-#InsertImageItem {
-  -moz-image-region: rect(32px 16px 48px 0px);
-}
-
-#InsertHRuleItem {
-  -moz-image-region: rect(48px 16px 64px 0px);
-}
-
-#InsertTableItem {
-  -moz-image-region: rect(64px 16px 80px 0px);
-}
-
-@media  (min-resolution: 2dppx) {
-  #InsertPopup > menuitem {
-    list-style-image: url("chrome://messenger/skin/messengercompose/insert-menu@2x.png");
-  }
-
-  #InsertLinkItem {
-    -moz-image-region: rect(0px 32px 32px 0px);
-  }
-
-  #InsertAnchorItem {
-    -moz-image-region: rect(32px 32px 64px 0px);
-  }
-
-  #InsertImageItem {
-    -moz-image-region: rect(64px 32px 96px 0px);
-  }
-
-  #InsertHRuleItem {
-    -moz-image-region: rect(96px 32px 128px 0px);
-  }
-
-  #InsertTableItem {
-    -moz-image-region: rect(128px 32px 160px 0px);
-  }
+  margin-block: 0;
+  margin-inline: 3px 5px;
 }
 
 /* ..... smiley menu ..... */
-
-#smileySmile > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_smile.png");
-  -moz-image-region: auto;
-}
-
-#smileyFrown > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_frown.png");
-  -moz-image-region: auto;
-}
-
-#smileyWink > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_wink.png");
-  -moz-image-region: auto;
-}
-
-#smileyTongue > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_tongue_out.png");
-  -moz-image-region: auto;
-}
-
-#smileyLaughing > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_laughing.png");
-  -moz-image-region: auto;
-}
-
-#smileyEmbarassed > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_embarrassed.png");
-  -moz-image-region: auto;
-}
-
-#smileyUndecided > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_undecided.png");
-  -moz-image-region: auto;
-}
-
-#smileySurprise > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_surprised.png");
-  -moz-image-region: auto;
-}
-
-#smileyKiss > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_kiss.png");
-  -moz-image-region: auto;
-}
-
-#smileyYell > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_yell.png");
-  -moz-image-region: auto;
-}
-
-#smileyCool > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_cool.png");
-  -moz-image-region: auto;
-}
-
-#smileyMoney > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_money_mouth.png");
-  -moz-image-region: auto;
-}
-
-#smileyFoot > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_foot_in_mouth.png");
-  -moz-image-region: auto;
-}
-
-#smileyInnocent > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_innocent.png");
-  -moz-image-region: auto;
-}
-
-#smileyCry > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_cry.png");
-  -moz-image-region: auto;
-}
-
-#smileySealed > .menu-iconic-left {
-  list-style-image: url("chrome://messenger/skin/messengercompose/emoticon_sealed.png");
-  -moz-image-region: auto;
-}
 
 @media (min-resolution: 2dppx) {
   #smileySmile > .menu-iconic-left {
@@ -872,13 +429,13 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon)
 
 .ColorPickerLabel {
   border: 1px inset ThreeDFace;
-  margin: 0px;
+  margin: 0;
   padding: 2px;
 }
 
 .color-button {
-  border: 1px solid #A0A0A0;
-  padding: 0px;
+  border: 1px solid #a0a0a0;
+  padding: 0;
   width: 20px;
   height: 13px;
   margin: 2px;
@@ -886,7 +443,7 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon)
 
 .color-button[disabled="true"],
 .color-button[disabled="true"]:hover {
-  border: 1px inset #A0A0A0;
+  border: 1px inset #a0a0a0;
   opacity: 0.5;
 }
 
@@ -965,8 +522,7 @@ toolbarbutton.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker::part(icon)
   width: 29px;
   height: 20px;
   margin-top: -1px;
-  margin-inline-start: -24px;
-  margin-inline-end: -5px;
+  margin-inline: -24px -5px;
   background-color: #888;
 }
 
