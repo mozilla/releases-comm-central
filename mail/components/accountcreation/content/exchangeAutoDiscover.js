@@ -357,6 +357,10 @@ function readAutoDiscoverXML(autoDiscoverXML, username) {
       issuer: config.incoming.hostname,
       scope: config.incoming.owaURL || config.incoming.ewsURL,
     };
+    config.outgoing.oauthSettings = {
+      issuer: config.incoming.hostname,
+      scope: config.incoming.owaURL || config.incoming.ewsURL,
+    };
   }
 
   return config;

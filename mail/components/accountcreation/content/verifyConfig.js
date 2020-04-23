@@ -96,23 +96,30 @@ function verifyConfig(
   inServer.authMethod = config.incoming.auth;
 
   try {
-    // Lookup issuer if needed.
+    // Lookup OAuth2 issuer if needed.
+    // -- Incoming.
     if (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
-      let [issuer, scope] = OAuth2Providers.getHostnameDetails(
-        config.incoming.hostname,
-        config.incoming.port
+      let details = OAuth2Providers.getHostnameDetails(
+        config.incoming.hostname
       );
-      if (!issuer || !scope) {
+      if (!details) {
         throw new Error(
-          `Could not get OAuth2 details for hostname=${config.incoming.hostname}:${config.incoming.port}`
+          `Could not get OAuth2 details for hostname=${config.incoming.hostname}.`
         );
       }
-      gEmailWizardLogger.info(
-        `Saving incoming server OAuth2 details for hostname=${config.incoming.hostname}: issuer=${issuer}, scope=${scope}`
+      config.incoming.oauthSettings = { issuer: details[0], scope: details[1] };
+    }
+    // -- Outgoing.
+    if (config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2) {
+      let details = OAuth2Providers.getHostnameDetails(
+        config.outgoing.hostname
       );
-      inServer.setCharValue("oauth2.scope", scope);
-      inServer.setCharValue("oauth2.issuer", issuer);
-      config.incoming.oauthSettings = { issuer, scope };
+      if (!details) {
+        throw new Error(
+          `Could not get OAuth2 details for hostname=${config.outgoing.hostname}.`
+        );
+      }
+      config.outgoing.oauthSettings = { issuer: details[0], scope: details[1] };
     }
     if (config.incoming.owaURL) {
       inServer.setUnicharValue("owa_url", config.incoming.owaURL);
@@ -139,6 +146,7 @@ function verifyConfig(
       successCallback(config);
     }
   } catch (e) {
+    console.error(e);
     gEmailWizardLogger.error("ERROR: verify logon shouldn't have failed");
     // Avoid pref pollution, clear out server prefs.
     MailServices.accounts.removeIncomingServer(inServer, true);
