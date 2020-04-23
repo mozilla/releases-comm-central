@@ -7,6 +7,8 @@
 set_config('MOZ_THUNDERBIRD', True)
 set_define('MOZ_THUNDERBIRD', True)
 
+set_config('MOZ_APPUPDATE_HOST', 'aus.thunderbird.net')
+
 @depends(target_is_windows, target_is_linux)
 def bundled_fonts(is_windows, is_linux):
     if is_windows or is_linux:
