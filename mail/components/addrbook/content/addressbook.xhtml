@@ -117,6 +117,7 @@
     <command id="cmd_CustomizeABToolbar"
              oncommand="CustomizeMailToolbar('ab-toolbox', 'CustomizeABToolbar')"/>
     <command id="cmd_chatWithCard" oncommand="goDoCommand('cmd_chatWithCard')" disabled="true" />
+    <command id="cmd_rename" oncommand="goDoCommand('cmd_rename');" />
 </commandset>
 
 <keyset id="tasksKeys">
@@ -164,6 +165,7 @@
   <!-- Tab/F6 Keys -->
   <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
   <key keycode="VK_TAB" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
+  <key keycode="VK_F2" command="cmd_rename"/>
   <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control,shift"/>
   <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="control"/>
   <key keycode="VK_F6" oncommand="SwitchPaneFocus(event);" modifiers="shift"/>
@@ -700,10 +702,11 @@
             onselect="DirPaneSelectionChange(); document.commandDispatcher.updateCommands('addrbook-select');"
             ondblclick="DirPaneDoubleClick(event);"
             onclick="DirPaneClick(event);"
-            onblur="goOnEvent(this, 'blur')">
+            onblur="goOnEvent(this, 'blur')"
+            editable="true">
 
         <treecols>
-          <treecol id="DirCol" flex="1" primary="true" hideheader="true"
+          <treecol id="DirCol" flex="1" primary="true" hideheader="true" editable="true"
                    crop="center" persist="width" ignoreincolumnpicker="true"/>
         </treecols>
         <treechildren/>

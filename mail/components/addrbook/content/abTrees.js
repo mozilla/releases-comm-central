@@ -211,6 +211,74 @@ directoryTreeView.prototype = {
   },
 
   /**
+   * Returns true if the selected directory is inline-editable.
+   * @param {int} aRow - the row index of the selected dir/mail list.
+   * @param {int} aCol - not used a directories are represented as rows only.
+   */
+  isEditable(aRow, aCol) {
+    let selectedDirectory = this.getDirectoryAtIndex(aRow);
+
+    // Prevent the renaming of Personal Address Book, Collected Addressses
+    // and All Address Books directories.
+    if (
+      !selectedDirectory ||
+      selectedDirectory.URI == kAllDirectoryRoot + "?" ||
+      selectedDirectory.URI == kPersonalAddressbookURI ||
+      selectedDirectory.URI == kCollectedAddressbookURI
+    ) {
+      return false;
+    }
+    return true;
+  },
+
+  /**
+   * Saves the new name  dir/mail list.
+   * @param {int} aRow - the row index of the selected  dir/mail list.
+   * @param {int} aCol - not used a directories are represented as rows only.
+   * @param {string} aValue - the new name of dir/mail list to be saved.
+   */
+  setCellText(aRow, aCol, aValue) {
+    let selectedDirectory = this.getDirectoryAtIndex(aRow);
+    let newName = aValue.trim();
+
+    // Check if the new name is empty.
+    if (newName.length == 0) {
+      return;
+    }
+
+    // Mailists requires to call the backend to update its name.
+    if (selectedDirectory.isMailList) {
+      // Check if the new name contains 2 spaces.
+      if (newName.match("  ")) {
+        return;
+      }
+
+      // Check if the new name contains the following special characters.
+      for (let char of ',;"<>') {
+        if (newName.includes(char)) {
+          return;
+        }
+      }
+
+      // Do not allow an already existing name.
+      if (MailServices.ab.mailListNameExists(newName)) {
+        return;
+      }
+
+      selectedDirectory.dirName = newName;
+      selectedDirectory.editMailListToDatabase(null);
+    } else {
+      // Do not allow an already existing name.
+      if (MailServices.ab.directoryNameExists(newName)) {
+        return;
+      }
+
+      /* Name is unique, set value */
+      selectedDirectory.dirName = newName;
+    }
+  },
+
+  /**
    * NOTE: This function will result in indeterminate rows being selected.
    *       Callers should take care to re-select a desired row after calling
    *       this function.

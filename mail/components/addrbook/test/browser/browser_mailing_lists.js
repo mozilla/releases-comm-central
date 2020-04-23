@@ -285,8 +285,9 @@ add_task(async () => {
     `address book ("${inputs.abName}") is displayed in the address book list`
   );
 
-  // Double-click on the address book name to reveal the mailing list.
-  global.dirTreeClick(2, 2);
+  // Expand the tree to reveal the mailing list.
+  global.dirTreeClick(2, 1);
+  EventUtils.sendKey("RETURN", global.abWindow);
 
   is(
     global.dirTree.view.getCellText(3, global.dirTree.columns[0]),

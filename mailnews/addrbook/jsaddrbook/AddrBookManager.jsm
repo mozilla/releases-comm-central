@@ -445,6 +445,21 @@ AddrBookManager.prototype = {
     }
     return false;
   },
+
+  /**
+   * Finds out if the directory name already exists.
+   * @param {string} name - The name of a directory to check for.
+   */
+  directoryNameExists(name) {
+    ensureInitialized();
+    for (let dir of store.values()) {
+      if (dir.dirName.toLowerCase() === name.toLowerCase()) {
+        return true;
+      }
+    }
+    return false;
+  },
+
   generateUUID(directoryId, localId) {
     return `${directoryId}#${localId}`;
   },

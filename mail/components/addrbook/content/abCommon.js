@@ -59,6 +59,7 @@ var DirPaneController = {
       case "cmd_printcardpreview":
       case "cmd_newlist":
       case "cmd_newCard":
+      case "cmd_rename":
         return true;
       default:
         return false;
@@ -158,6 +159,18 @@ var DirPaneController = {
       }
       case "cmd_abToggleStartupDir":
         return !!getSelectedDirectoryURI();
+      case "cmd_rename":
+        let selectedDirectoryURI = getSelectedDirectoryURI();
+        // Prevent the renaming of Personal Address Book, Collected Addressses and All Address Books directories
+        if (
+          !selectedDirectoryURI ||
+          selectedDirectoryURI == kAllDirectoryRoot + "?" ||
+          selectedDirectoryURI == kPersonalAddressbookURI ||
+          selectedDirectoryURI == kCollectedAddressbookURI
+        ) {
+          return false;
+        }
+        return true;
       case "cmd_newlist":
       case "cmd_newCard":
         return true;
@@ -190,6 +203,9 @@ var DirPaneController = {
         break;
       case "cmd_newCard":
         AbNewCard();
+        break;
+      case "cmd_rename":
+        AbRenameDirectory();
         break;
     }
   },
@@ -756,6 +772,13 @@ function ChangeDirectoryByURI(uri = kPersonalAddressbookURI) {
 
 function AbNewList() {
   goNewListDialog(getSelectedDirectoryURI());
+}
+
+function AbRenameDirectory() {
+  gDirTree.startEditing(
+    gDirTree.view.selection.currentIndex,
+    gDirTree.columns.getFirstColumn()
+  );
 }
 
 function goNewListDialog(selectedAB) {

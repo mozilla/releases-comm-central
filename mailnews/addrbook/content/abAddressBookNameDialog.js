@@ -62,32 +62,27 @@ function abNameOnLoad() {
 }
 
 function abNameOKButton(event) {
-  var newName = gNameInput.value.trim();
+  let newDirName = gNameInput.value.trim();
 
   // Do not allow an already existing name.
-  for (let ab of MailServices.ab.directories) {
-    if (
-      ab.dirName.toLowerCase() == newName.toLowerCase() &&
-      (!gDirectory || ab.URI != gDirectory.URI)
-    ) {
-      const kAlertTitle = document
-        .getElementById("bundle_addressBook")
-        .getString("duplicateNameTitle");
-      const kAlertText = document
-        .getElementById("bundle_addressBook")
-        .getFormattedString("duplicateNameText", [ab.dirName]);
-      Services.prompt.alert(window, kAlertTitle, kAlertText);
-      event.preventDefault();
-      return;
-    }
+  if (MailServices.ab.directoryNameExists(newDirName)) {
+    const kAlertTitle = document
+      .getElementById("bundle_addressBook")
+      .getString("duplicateNameTitle");
+    const kAlertText = document
+      .getElementById("bundle_addressBook")
+      .getFormattedString("duplicateNameText", [ab.dirName]);
+    Services.prompt.alert(window, kAlertTitle, kAlertText);
+    event.preventDefault();
+    return;
   }
 
   // Either create a new directory or update an existing one depending on what
   // we were given when we started.
   if (gDirectory) {
-    gDirectory.dirName = newName;
+    gDirectory.dirName = newDirName;
   } else {
-    MailServices.ab.newAddressBook(newName, "", kJSDirectory);
+    MailServices.ab.newAddressBook(newDirName, "", kJSDirectory);
   }
 }
 

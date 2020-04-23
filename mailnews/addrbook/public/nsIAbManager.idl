@@ -141,6 +141,15 @@ interface nsIAbManager : nsISupports
   boolean mailListNameExists(in wstring name);
 
   /**
+   * Finds out if the directory name already exists.
+   *
+   * @param  aName      The name of a directory to check for.
+   *
+   * @return            True if a directory called name already exists.
+   */
+  boolean directoryNameExists(in wstring name);
+
+  /**
    * Generates a UUID from a (directory ID, local ID) tuple.
    *
    * Use of this method is preferred in such cases, since it is designed to work
