@@ -71,7 +71,7 @@ function abNameOKButton(event) {
       .getString("duplicateNameTitle");
     const kAlertText = document
       .getElementById("bundle_addressBook")
-      .getFormattedString("duplicateNameText", [ab.dirName]);
+      .getFormattedString("duplicateNameText", [newDirName]);
     Services.prompt.alert(window, kAlertTitle, kAlertText);
     event.preventDefault();
     return;
