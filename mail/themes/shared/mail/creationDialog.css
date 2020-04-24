@@ -108,15 +108,17 @@
 
 .form-icon {
   cursor: pointer;
-  -moz-context-properties: fill, stroke-opacity;
+  -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
+  fill-opacity: 0.7;
   margin-left: -26px;
   margin-right: 10px;
   color: var(--text-color);
+  scale: 0.9;
 }
 
 .icon-info {
-  list-style-image: url("chrome://messenger/skin/icons/info.svg");
+  list-style-image: url("chrome://messenger/skin/icons/information.svg");
 }
 
 .icon-hidden {
@@ -130,6 +132,7 @@
 .icon-warning {
   list-style-image: url("chrome://global/skin/icons/warning.svg");
   color: var(--warning-color);
+  fill-opacity: 1;
 }
 /* END Form Fields style =================================== */
 
