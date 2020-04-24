@@ -529,6 +529,7 @@ AddrBookDirectoryInner.prototype = {
     let oldValue = this.dirName;
     this.setLocalizedStringValue("description", value);
     MailServices.ab.notifyItemPropertyChanged(this, "DirName", oldValue, value);
+    Services.obs.notifyObservers(this, "addrbook-directory-updated", "DirName");
   },
   get dirType() {
     return 101;
@@ -760,6 +761,11 @@ AddrBookDirectoryInner.prototype = {
     MailServices.ab.notifyDirectoryItemDeleted(this, list.asCard);
     MailServices.ab.notifyDirectoryItemDeleted(list.asDirectory, list.asCard);
     MailServices.ab.notifyDirectoryDeleted(this, directory);
+    Services.obs.notifyObservers(
+      list.asDirectory,
+      "addrbook-list-deleted",
+      this.UID
+    );
   },
   hasCard(card) {
     return this._lists.has(card.UID) || this._cards.has(card.UID);
@@ -828,6 +834,7 @@ AddrBookDirectoryInner.prototype = {
     );
     for (let card of cards.enumerate(Ci.nsIAbCard)) {
       MailServices.ab.notifyDirectoryItemDeleted(this, card);
+      Services.obs.notifyObservers(card, "addrbook-contact-deleted", this.UID);
     }
 
     // We could just delete all non-existent cards from list_cards, but a
@@ -911,6 +918,11 @@ AddrBookDirectoryInner.prototype = {
     let newListDirectory = newList.asDirectory;
     MailServices.ab.notifyDirectoryItemAdded(this, newList.asCard);
     MailServices.ab.notifyDirectoryItemAdded(this, newListDirectory);
+    Services.obs.notifyObservers(
+      newList.asDirectory,
+      "addrbook-list-created",
+      this.UID
+    );
     return newListDirectory;
   },
   editMailListToDatabase(listCard) {

@@ -15,19 +15,30 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var book, contact, list, listCard;
 var observer = {
+  topics: [
+    "addrbook-directory-created",
+    "addrbook-directory-updated",
+    "addrbook-directory-deleted",
+    "addrbook-contact-created",
+    "addrbook-contact-updated",
+    "addrbook-contact-deleted",
+    "addrbook-list-created",
+    "addrbook-list-updated",
+    "addrbook-list-deleted",
+    "addrbook-list-member-added",
+    "addrbook-list-member-removed",
+  ],
   setUp() {
     MailServices.ab.addAddressBookListener(observer, Ci.nsIAbListener.all);
-    Services.obs.addObserver(observer, "addrbook-contact-created");
-    Services.obs.addObserver(observer, "addrbook-contact-updated");
-    Services.obs.addObserver(observer, "addrbook-list-updated");
-    Services.obs.addObserver(observer, "addrbook-list-member-added");
+    for (let topic of this.topics) {
+      Services.obs.addObserver(observer, topic);
+    }
   },
   cleanUp() {
     MailServices.ab.removeAddressBookListener(observer);
-    Services.obs.removeObserver(observer, "addrbook-contact-created");
-    Services.obs.removeObserver(observer, "addrbook-contact-updated");
-    Services.obs.removeObserver(observer, "addrbook-list-updated");
-    Services.obs.removeObserver(observer, "addrbook-list-member-added");
+    for (let topic of this.topics) {
+      Services.obs.removeObserver(observer, topic);
+    }
   },
   promiseEvent() {
     return new Promise(resolve => {
@@ -127,7 +138,10 @@ add_task(async function setUp() {
 add_task(async function createAddressBook() {
   let dirPrefId = MailServices.ab.newAddressBook("new book", "", DIR_TYPE);
   book = MailServices.ab.getDirectoryFromId(dirPrefId);
-  observer.checkEvents(["onItemAdded", undefined, book]);
+  observer.checkEvents(
+    ["onItemAdded", undefined, book],
+    ["addrbook-directory-created", book]
+  );
 
   // Check nsIAbDirectory properties.
   equal(book.uuid, "ldap_2.servers.newbook&new book");
@@ -169,13 +183,10 @@ add_task(async function createAddressBook() {
 
 add_task(async function editAddressBook() {
   book.dirName = "updated book";
-  observer.checkEvents([
-    "onItemPropertyChanged",
-    book,
-    "DirName",
-    "new book",
-    "updated book",
-  ]);
+  observer.checkEvents(
+    ["onItemPropertyChanged", book, "DirName", "new book", "updated book"],
+    ["addrbook-directory-updated", book, "DirName"]
+  );
   equal(book.dirName, "updated book");
   equal(
     Services.prefs.getStringPref("ldap_2.servers.newbook.description"),
@@ -272,7 +283,8 @@ add_task(async function createMailingList() {
 
   observer.checkEvents(
     ["onItemAdded", book, listCard],
-    ["onItemAdded", book, list]
+    ["onItemAdded", book, list],
+    ["addrbook-list-created", list, book.UID]
   );
 
   // Check nsIAbDirectory properties.
@@ -312,8 +324,8 @@ add_task(async function addMailingListMember() {
     ["onItemPropertyChanged", contact, null, null, null],
     ["onItemPropertyChanged", contact, null, null, null],
     ["onItemAdded", book, contact],
-    ["onItemAdded", list, contact]
-    // ["addrbook-list-member-added", contact, list.UID] // MDB fires this on dropcard but not addcard?!
+    ["onItemAdded", list, contact],
+    ["addrbook-list-member-added", contact, list.UID]
   );
 
   // Check list enumerations.
@@ -329,7 +341,10 @@ add_task(async function removeMailingListMember() {
   let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   cardArray.appendElement(contact);
   list.deleteCards(cardArray);
-  observer.checkEvents(["onItemRemoved", list, contact]);
+  observer.checkEvents(
+    ["onItemRemoved", list, contact],
+    ["addrbook-list-member-removed", contact, list.UID]
+  );
 
   // Check list enumerations.
   equal(Array.from(list.childNodes).length, 0);
@@ -341,7 +356,8 @@ add_task(async function deleteMailingList() {
   observer.checkEvents(
     ["onItemRemoved", book, listCard],
     ["onItemRemoved", list, listCard],
-    ["onItemRemoved", book, list]
+    ["onItemRemoved", book, list],
+    ["addrbook-list-deleted", list, book.UID]
   );
 });
 
@@ -349,7 +365,10 @@ add_task(async function deleteContact() {
   let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   cardArray.appendElement(contact);
   book.deleteCards(cardArray);
-  observer.checkEvents(["onItemRemoved", book, contact]);
+  observer.checkEvents(
+    ["onItemRemoved", book, contact],
+    ["addrbook-contact-deleted", contact, book.UID]
+  );
 
   // Check enumerations.
   equal(Array.from(book.childNodes).length, 0);
@@ -384,7 +403,10 @@ add_task(async function deleteAddressBook() {
   MailServices.ab.deleteAddressBook(book.URI);
   await deletePromise;
 
-  observer.checkEvents(["onItemRemoved", undefined, book]);
+  observer.checkEvents(
+    ["onItemRemoved", undefined, book],
+    ["addrbook-directory-deleted", book, null]
+  );
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.dirType"));
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.description"));
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.filename"));

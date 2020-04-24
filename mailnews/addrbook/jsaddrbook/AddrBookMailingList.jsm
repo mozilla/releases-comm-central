@@ -137,7 +137,11 @@ AddrBookMailingList.prototype = {
         MailServices.ab.notifyItemPropertyChanged(card, null, null, null);
         MailServices.ab.notifyDirectoryItemAdded(self._parent, card);
         MailServices.ab.notifyDirectoryItemAdded(this, card);
-        // Services.obs.notifyObservers(card, "addrbook-list-member-added", self._uid);
+        Services.obs.notifyObservers(
+          card,
+          "addrbook-list-member-added",
+          self._uid
+        );
         insertStatement.finalize();
         return card;
       },

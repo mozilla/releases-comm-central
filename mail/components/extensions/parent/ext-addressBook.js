@@ -252,18 +252,6 @@ var addressBookCache = new (class extends EventEmitter {
         }
         this.emit("address-book-created", newNode);
       }
-    } else if (item instanceof Ci.nsIAbCard) {
-      item.QueryInterface(Ci.nsIAbCard);
-      if (!item.isMailList && parent.isMailList) {
-        let newNode = this._makeContactNode(item, parent);
-        if (
-          this._mailingLists.has(parent.UID) &&
-          this._mailingLists.get(parent.UID).contacts
-        ) {
-          this._mailingLists.get(parent.UID).contacts.set(newNode.id, newNode);
-        }
-        this.emit("mailing-list-member-added", newNode);
-      }
     }
   }
   // nsIAbListener

@@ -257,6 +257,7 @@ AddrBookManager.prototype = {
         uri = `moz-abldapdirectory://${prefName}`;
         let dir = createDirectoryObject(uri, true);
         this.notifyDirectoryItemAdded(null, dir);
+        Services.obs.notifyObservers(dir, "addrbook-directory-created");
         break;
       }
       case MAPI_DIRECTORY_TYPE: {
@@ -293,6 +294,7 @@ AddrBookManager.prototype = {
         if (AppConstants.platform == "macosx") {
           let dir = createDirectoryObject(uri, true);
           this.notifyDirectoryItemAdded(null, dir);
+          Services.obs.notifyObservers(dir, "addrbook-directory-created");
         } else if (AppConstants.platform == "win") {
           let outlookInterface = Cc[
             "@mozilla.org/addressbook/outlookinterface;1"
@@ -300,6 +302,7 @@ AddrBookManager.prototype = {
           for (let folderURI of outlookInterface.getFolderURIs(uri)) {
             let dir = createDirectoryObject(folderURI, true);
             this.notifyDirectoryItemAdded(null, dir);
+            Services.obs.notifyObservers(dir, "addrbook-directory-created");
           }
         }
         break;
@@ -317,6 +320,7 @@ AddrBookManager.prototype = {
         uri = `jsaddrbook://${file.leafName}`;
         let dir = createDirectoryObject(uri, true);
         this.notifyDirectoryItemAdded(null, dir);
+        Services.obs.notifyObservers(dir, "addrbook-directory-created");
         break;
       }
       default:
@@ -390,9 +394,11 @@ AddrBookManager.prototype = {
           file.remove(false);
         }
         this.notifyDirectoryDeleted(null, dir);
+        Services.obs.notifyObservers(dir, "addrbook-directory-deleted");
       });
     } else {
       this.notifyDirectoryDeleted(null, dir);
+      Services.obs.notifyObservers(dir, "addrbook-directory-deleted");
     }
   },
   addAddressBookListener(listener, notifyFlags) {
