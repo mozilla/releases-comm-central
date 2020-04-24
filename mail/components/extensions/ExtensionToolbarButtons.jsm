@@ -42,7 +42,7 @@ XPCOMUtils.defineLazyGlobalGetters(this, ["InspectorUtils"]);
 
 var DEFAULT_ICON = "chrome://messenger/content/extension.svg";
 
-this.ToolbarButtonAPI = class extends ExtensionAPI {
+var ToolbarButtonAPI = class extends ExtensionAPI {
   constructor(extension, global) {
     super(extension);
     this.global = global;
