@@ -9,7 +9,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
 -->
 
-
 <?xul-overlay href="chrome://global/content/globalOverlay.xhtml"?>
 <?xul-overlay href="chrome://communicator/content/utilityOverlay.xhtml"?>
 
@@ -68,165 +67,159 @@
     <broadcaster id="bcClipbrd" disabled="false"/>
   </broadcasterset>
 
-  <menubar id="main-menubar" grippyhidden="true">
-    <menu label="&enigmail.keyMan.fileMenu.label;"
-          id="menu_File"
-          accesskey="&enigmail.keyMan.fileMenu.accesskey;">
-      <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu()">
+  <toolbar type="menubar">
+    <menubar id="main-menubar">
+      <menu id="menu_File" label="&enigmail.keyMan.fileMenu.label;"
+            accesskey="&enigmail.keyMan.fileMenu.accesskey;">
+        <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu();">
+          <menuitem id="importFromFile"
+                    label="&enigmail.keyMan.importPublicFromFile.label;"
+                    accesskey="&enigmail.keyMan.importPublicFromFile.accesskey;"
+                    oncommand="EnigmailCommon_importKeysFromFile(false);"/>
+          <menuitem id="importFromFile"
+                    label="&enigmail.keyMan.importSecretFromFile.label;"
+                    oncommand="EnigmailCommon_importKeysFromFile(true);"/>
+          <menuitem id="exportKey" label="&enigmail.keyMan.exportToFile.label;"
+                    observes="bcNoKey"
+                    accesskey="&enigmail.keyMan.exportToFile.accesskey;"
+                    oncommand="enigmailExportKeys();"/>
+          <menuitem id="sendKey"
+                    label="&enigmail.keyMan.sendKeys.label;"
+                    accesskey="&enigmail.keyMan.sendKeys.accesskey;"
+                    observes="bcNoKey"
+                    oncommand="enigCreateKeyMsg();"/>
+          <menuitem id="createMail"
+                    label="&enigmail.keyMan.createMail.label;"
+                    accesskey="&enigmail.keyMan.createMail.accesskey;"
+                    observes="bcNoKey"
+                    oncommand="createNewMail();"/>
+          <menuseparator/>
 
-        <menuitem label="&enigmail.keyMan.importPublicFromFile.label;"
-          id="importFromFile"
-          accesskey="&enigmail.keyMan.importPublicFromFile.accesskey;"
-          oncommand="EnigmailCommon_importKeysFromFile(false)"/>
-        <menuitem label="&enigmail.keyMan.importSecretFromFile.label;"
-          id="importFromFile"
-          oncommand="EnigmailCommon_importKeysFromFile(true)"/>
-        <menuitem label="&enigmail.keyMan.exportToFile.label;"
-          id="exportKey"
-          observes="bcNoKey"
-          accesskey="&enigmail.keyMan.exportToFile.accesskey;"
-          oncommand="enigmailExportKeys()"/>
+          <menuitem id="refreshKeys"
+                    label="&enigmail.keyMan.reload.label;"
+                    accesskey="&enigmail.keyMan.reload.accesskey;"
+                    oncommand="clearKeyCache();"/>
 
-        <menuitem label="&enigmail.keyMan.sendKeys.label;"
-          id="sendKey"
-          observes="bcNoKey"
-          accesskey="&enigmail.keyMan.sendKeys.accesskey;"
-          oncommand="enigCreateKeyMsg()"/>
+          <!-- add Close and Exit menu items -->
+          <menuitem id="menu_close"/>
+        </menupopup>
+      </menu>
 
-        <menuitem label="&enigmail.keyMan.createMail.label;"
-          id="createMail"
-          observes="bcNoKey"
-          accesskey="&enigmail.keyMan.createMail.accesskey;"
-          oncommand="createNewMail()"/>
+      <menu label="&enigmail.keyMan.editMenu.label;"
+            accesskey="&enigmail.keyMan.editMenu.accesskey;">
+        <menupopup onpopupshowing="enigmailKeyMenu();">
 
-        <menuseparator/>
+          <menuitem id="importFromClipbrd"
+                    label="&enigmail.keyMan.importFromClipbrd.label;"
+                    accesskey="&enigmail.keyMan.importFromClipbrd.accesskey;"
+                    observes="bcClipbrd"
+                    oncommand="enigmailImportFromClipbrd();"/>
+          <menuitem id="importFromUrl"
+                    label="&enigmail.keyMan.importFromUrl.label;"
+                    accesskey="&enigmail.keyMan.importFromUrl.accesskey;"
+                    oncommand="enigmailImportKeysFromUrl();"/>
+          <menuitem id="copyToClipbrd"
+                    label="&enigmail.keyMan.copyToClipbrd.label;"
+                    accesskey="&enigmail.keyMan.copyToClipbrd.accesskey;"
+                    observes="bcNoKey"
+                    oncommand="enigmailCopyToClipbrd();"/>
 
-        <menuitem label="&enigmail.keyMan.reload.label;"
-                id="refreshKeys"
-                accesskey="&enigmail.keyMan.reload.accesskey;"
-                oncommand="clearKeyCache();"/>
+          <menuseparator/>
 
-        <!-- add Close and Exit menu items -->
-        <menuitem id="menu_close"/>
-      </menupopup>
-    </menu>
+          <!--
+          <menuitem id="revokeKey"
+                    label="&enigmail.keyMan.revokeKey.label;"
+                    accesskey="&enigmail.keyMan.revokeKey.accesskey;"
+                    observes="bcRevoke"
+                    oncommand="enigmailRevokeKey()"/>
+          -->
 
-    <menu label="&enigmail.keyMan.editMenu.label;"
-          accesskey="&enigmail.keyMan.editMenu.accesskey;">
-      <menupopup onpopupshowing="enigmailKeyMenu()">
+          <menuitem id="deleteKey"
+                    label="&enigmail.keyMan.delKey.label;"
+                    accesskey="&enigmail.keyMan.delKey.accesskey;"
+                    key="key_enigDelete"
+                    observes="bcNoKey"
+                    oncommand="enigmailDeleteKey();"/>
 
-        <menuitem label="&enigmail.keyMan.importFromClipbrd.label;"
-                  id="importFromClipbrd"
-                  observes="bcClipbrd"
-                  accesskey="&enigmail.keyMan.importFromClipbrd.accesskey;"
-                  oncommand="enigmailImportFromClipbrd()"/>
-        <menuitem label="&enigmail.keyMan.importFromUrl.label;"
-                  id="importFromUrl"
-                  accesskey="&enigmail.keyMan.importFromUrl.accesskey;"
-                  oncommand="enigmailImportKeysFromUrl()"/>
-        <menuitem label="&enigmail.keyMan.copyToClipbrd.label;"
-                  id="copyToClipbrd"
-                  observes="bcNoKey"
-                  accesskey="&enigmail.keyMan.copyToClipbrd.accesskey;"
-                  oncommand="enigmailCopyToClipbrd()"/>
+          <!--
+          <menuseparator/>
+          <menuitem id="changeExpiry"
+                    label="&enigmail.keyMan.changeExpiry.label;"
+                    observes="bcEditKey"
+                    accesskey="&enigmail.keyMan.changeExpiry.accesskey;"
+                    oncommand="enigEditKeyExpiry();"/>
+          -->
 
-        <menuseparator/>
+          <menuseparator/>
 
-        <!--
-        <menuitem label="&enigmail.keyMan.revokeKey.label;"
-          id="revokeKey"
-          observes="bcRevoke"
-          accesskey="&enigmail.keyMan.revokeKey.accesskey;"
-          oncommand="enigmailRevokeKey()"/>
-        -->
+          <menuitem id="selectAll"
+                    label="&enigmail.keyMan.selectAll.label;"
+                    accesskey="&enigmail.keyMan.selectAll.accesskey;"
+                    oncommand="enigmailSelectAllKeys()"
+                    key="key_selectAll"/>
 
-        <menuitem label="&enigmail.keyMan.delKey.label;"
-          id="deleteKey"
-          key="key_enigDelete"
-          observes="bcNoKey"
-          accesskey="&enigmail.keyMan.delKey.accesskey;"
-          oncommand="enigmailDeleteKey()"/>
+        </menupopup>
+      </menu>
 
-        <!--
-        <menuseparator/>
-        <menuitem id="changeExpiry"
-                  label="&enigmail.keyMan.changeExpiry.label;"
-                  observes="bcEditKey"
-                  accesskey="&enigmail.keyMan.changeExpiry.accesskey;"
-                  oncommand="enigEditKeyExpiry()"/>
-        -->
+        <menu id="viewMenu"
+              label="&enigmail.keyMan.viewMenu.label;"
+              accesskey="&enigmail.keyMan.viewMenu.accesskey;">
+        <menupopup onpopupshowing="enigmailKeyMenu()"> <!-- view menu -->
+          <menuitem id="viewPhoto"
+                    label="&enigmail.keyMan.viewPhoto.label;"
+                    accesskey="&enigmail.keyMan.showPhoto.accesskey;"
+                    observes="bcViewPhoto"
+                    oncommand="enigShowPhoto();"/>
+          <menuitem id="keyDetails"
+                    label="&enigmail.keyMan.keyProps.label;"
+                    accesskey="&enigmail.keyMan.keyDetails.accesskey;"
+                    observes="bcOneKey"
+                    key="key_keyDetails"
+                    oncommand="enigmailKeyDetails();"/>
+          <menuseparator/>
+          <menuitem id="showInvalidKeys"
+                    label="&enigmail.keyMan.showInvalidKeys.label;"
+                    accesskey="&enigmail.keyMan.showInvalidKeys.accesskey;"
+                    type="checkbox"
+                    checked="true"
+                    persist="checked"
+                    oncommand="applyFilter();"/>
+          <menuitem id="showUntrustedKeys"
+                    label="&enigmail.keyMan.showUntrustedKeys.label;"
+                    accesskey="&enigmail.keyMan.showUntrustedKeys.accesskey;"
+                    type="checkbox"
+                    checked="true"
+                    persist="checked"
+                    oncommand="applyFilter();"/>
+          <menuitem id="showOthersKeys"
+                    label="&enigmail.keyMan.showOthersKeys.label;"
+                    accesskey="&enigmail.keyMan.showOthersKeys.accesskey;"
+                    type="checkbox"
+                    checked="true"
+                    persist="checked"
+                    oncommand="applyFilter();"/>
+        </menupopup>
+      </menu>
 
-        <menuseparator/>
-
-        <menuitem id="selectAll"
-                  label="&enigmail.keyMan.selectAll.label;"
-                  accesskey="&enigmail.keyMan.selectAll.accesskey;"
-                  oncommand="enigmailSelectAllKeys()"
-                  key="key_selectAll"/>
-
-      </menupopup>
-    </menu>
-
-      <menu id="viewMenu"
-        label="&enigmail.keyMan.viewMenu.label;"
-        accesskey="&enigmail.keyMan.viewMenu.accesskey;">
-      <menupopup onpopupshowing="enigmailKeyMenu()"> <!-- view menu -->
-        <menuitem label="&enigmail.keyMan.viewPhoto.label;"
-                  id="viewPhoto"
-                  observes="bcViewPhoto"
-                  accesskey="&enigmail.keyMan.showPhoto.accesskey;"
-                  oncommand="enigShowPhoto()"/>
-        <menuitem label="&enigmail.keyMan.keyProps.label;"
-                  id="keyDetails"
-                  observes="bcOneKey"
-                  accesskey="&enigmail.keyMan.keyDetails.accesskey;"
-                  key="key_keyDetails"
-                  oncommand="enigmailKeyDetails()"/>
-        <menuseparator/>
-        <menuitem label="&enigmail.keyMan.showInvalidKeys.label;"
-                  id="showInvalidKeys"
-                  type="checkbox"
-                  checked="true"
-                  persist="checked"
-                  accesskey="&enigmail.keyMan.showInvalidKeys.accesskey;"
-                  oncommand="applyFilter()"/>
-        <menuitem label="&enigmail.keyMan.showUntrustedKeys.label;"
-                  id="showUntrustedKeys"
-                  type="checkbox"
-                  checked="true"
-                  persist="checked"
-                  accesskey="&enigmail.keyMan.showUntrustedKeys.accesskey;"
-                  oncommand="applyFilter()"/>
-        <menuitem label="&enigmail.keyMan.showOthersKeys.label;"
-                  id="showOthersKeys"
-                  type="checkbox"
-                  checked="true"
-                  persist="checked"
-                  accesskey="&enigmail.keyMan.showOthersKeys.accesskey;"
-                  oncommand="applyFilter()"/>
-
-      </menupopup>
-    </menu>
-
-    <menu id="generateMenu"
-          label="&enigmail.keyMan.generateMenu.label;"
-          accesskey="&enigmail.keyMan.generateMenu.accesskey;">
-      <menupopup onpopupshowing="enigmailKeyMenu()"> <!-- generate menu -->
-        <menuitem label="&enigmail.keyMan.generate.label;"
-                  id="genKey"
-                  accesskey="&enigmail.keyMan.generate.accesskey;"
-                  oncommand="EnigKeygen();"/>
-        <!--
-        <menuitem label="&enigmail.keyMan.genRevoke.label;"
-                  id="revokationCertificate"
-                  observes="bcRevoke"
-                  accesskey="&enigmail.keyMan.genRevoke.accesskey;"
-                  oncommand="enigCreateRevokeCert()"/>
-        -->
-      </menupopup>
-    </menu>
-
-  </menubar>
+      <menu id="generateMenu"
+            label="&enigmail.keyMan.generateMenu.label;"
+            accesskey="&enigmail.keyMan.generateMenu.accesskey;">
+        <menupopup onpopupshowing="enigmailKeyMenu();"> <!-- generate menu -->
+          <menuitem id="genKey"
+                    label="&enigmail.keyMan.generate.label;"
+                    accesskey="&enigmail.keyMan.generate.accesskey;"
+                    oncommand="EnigKeygen();"/>
+          <!--
+          <menuitem id="revokationCertificate"
+                    label="&enigmail.keyMan.genRevoke.label;"
+                    accesskey="&enigmail.keyMan.genRevoke.accesskey;"
+                    observes="bcRevoke"
+                    oncommand="enigCreateRevokeCert()"/>
+          -->
+        </menupopup>
+      </menu>
+    </menubar>
+  </toolbar>
 
   <popupset>
     <menupopup id="ctxmenu"
