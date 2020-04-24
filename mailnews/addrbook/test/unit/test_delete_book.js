@@ -13,21 +13,6 @@ function getExistingDirectories() {
   return Array.from(MailServices.ab.directories, d => d.dirPrefId);
 }
 
-function promiseDirectoryRemoved() {
-  return new Promise(resolve => {
-    let observer = {
-      onItemRemoved() {
-        MailServices.ab.removeAddressBookListener(this);
-        resolve();
-      },
-    };
-    MailServices.ab.addAddressBookListener(
-      observer,
-      Ci.nsIAbListener.directoryRemoved
-    );
-  });
-}
-
 add_task(async function clearPref() {
   Assert.deepEqual(getExistingDirectories(), [
     "ldap_2.servers.pab",

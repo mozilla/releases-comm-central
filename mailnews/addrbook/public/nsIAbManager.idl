@@ -46,6 +46,14 @@ interface nsIAbManager : nsISupports
   nsIAbDirectory getDirectoryFromId(in ACString aDirPrefId);
 
   /**
+   * Returns the directory that has the supplied UID.
+   *
+   * @param aUID        The UID of the directory.
+   * @return            The found AB directory.
+   */
+  nsIAbDirectory getDirectoryFromUID(in ACString aUID);
+
+  /**
    * Creates a new address book.
    *
    * @param  aDirName   The description of the address book.

@@ -210,6 +210,15 @@ AddrBookManager.prototype = {
     }
     return null;
   },
+  getDirectoryFromUID(uid) {
+    ensureInitialized();
+    for (let dir of store.values()) {
+      if (dir.UID == uid) {
+        return dir;
+      }
+    }
+    return null;
+  },
   newAddressBook(dirName, uri, type, prefName) {
     function ensureUniquePrefName() {
       let leafName = dirName.replace(/\W/g, "");

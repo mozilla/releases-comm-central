@@ -16,3 +16,18 @@ load("../../../resources/abSetup.js");
 registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });
+
+function promiseDirectoryRemoved() {
+  return new Promise(resolve => {
+    let observer = {
+      onItemRemoved() {
+        MailServices.ab.removeAddressBookListener(this);
+        resolve();
+      },
+    };
+    MailServices.ab.addAddressBookListener(
+      observer,
+      Ci.nsIAbListener.directoryRemoved
+    );
+  });
+}
