@@ -17,6 +17,10 @@
 #include "nsIWritablePropertyBag.h"
 #include "nsIWritablePropertyBag2.h"
 
+#include "mozilla/EditTransactionBase.h"
+
+using mozilla::EditTransactionBase;
+
 #define NS_MESSAGETRANSACTION_IID                    \
   { /* da621b30-1efc-11d3-abe4-00805f8ac968 */       \
     0xda621b30, 0x1efc, 0x11d3, {                    \
@@ -54,6 +58,10 @@ class NS_MSG_BASE nsMsgTxn : public nsITransaction,
   NS_DECL_NSIPROPERTYBAG2
   NS_DECL_NSIWRITABLEPROPERTYBAG
   NS_DECL_NSIWRITABLEPROPERTYBAG2
+
+  NS_IMETHOD GetAsEditTransactionBase(EditTransactionBase**) final {
+    return NS_ERROR_NOT_IMPLEMENTED;
+  }
 
  protected:
   virtual ~nsMsgTxn();
