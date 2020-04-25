@@ -779,7 +779,7 @@ pref("intl.multilingual.downloadEnabled", false);
 // if true, use full page zoom instead of text zoom
 pref("browser.zoom.full", true);
 
-pref("browser.osKeyStore.loglevel", "Warn");
+pref("toolkit.osKeyStore.loglevel", "Warn");
 
 // Developer Tools related preferences
 pref("devtools.debugger.log", false);
