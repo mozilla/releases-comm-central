@@ -108,7 +108,7 @@ class nsMsgSearchDBView : public nsMsgGroupView,
   virtual void SetMsgHdrAt(nsIMsgDBHdr *hdr, nsMsgViewIndex index,
                            nsMsgKey msgKey, uint32_t flags,
                            uint32_t level) override;
-  virtual bool InsertEmptyRows(nsMsgViewIndex viewIndex,
+  virtual void InsertEmptyRows(nsMsgViewIndex viewIndex,
                                int32_t numRows) override;
   virtual void RemoveRows(nsMsgViewIndex viewIndex, int32_t numRows) override;
   virtual nsMsgViewIndex FindHdr(nsIMsgDBHdr *msgHdr,

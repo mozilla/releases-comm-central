@@ -206,7 +206,7 @@ class nsMsgDBView : public nsIMsgDBView,
                               nsMsgKey msgKey, uint32_t flags, uint32_t level);
   virtual void SetMsgHdrAt(nsIMsgDBHdr *hdr, nsMsgViewIndex index,
                            nsMsgKey msgKey, uint32_t flags, uint32_t level);
-  virtual bool InsertEmptyRows(nsMsgViewIndex viewIndex, int32_t numRows);
+  virtual void InsertEmptyRows(nsMsgViewIndex viewIndex, int32_t numRows);
   virtual void RemoveRows(nsMsgViewIndex viewIndex, int32_t numRows);
   nsresult ToggleExpansion(nsMsgViewIndex index, uint32_t *numChanged);
   nsresult ExpandByIndex(nsMsgViewIndex index, uint32_t *pNumExpanded);

@@ -5334,10 +5334,10 @@ nsresult nsMsgDBView::ListIdsInThreadOrder(nsIMsgThread *threadHdr,
   return rv;
 }
 
-bool nsMsgDBView::InsertEmptyRows(nsMsgViewIndex viewIndex, int32_t numRows) {
-  return m_keys.InsertElementsAt(viewIndex, numRows, 0) &&
-         m_flags.InsertElementsAt(viewIndex, numRows, 0) &&
-         m_levels.InsertElementsAt(viewIndex, numRows, 1);
+void nsMsgDBView::InsertEmptyRows(nsMsgViewIndex viewIndex, int32_t numRows) {
+  m_keys.InsertElementsAt(viewIndex, numRows, 0);
+  m_flags.InsertElementsAt(viewIndex, numRows, 0);
+  m_levels.InsertElementsAt(viewIndex, numRows, 1);
 }
 
 void nsMsgDBView::RemoveRows(nsMsgViewIndex viewIndex, int32_t numRows) {
@@ -5362,12 +5362,10 @@ nsMsgDBView::InsertTreeRows(nsMsgViewIndex aIndex, uint32_t aNumRows,
         return NS_ERROR_UNEXPECTED;
   }
 
-  if (m_keys.InsertElementsAt(aIndex, aNumRows, aKey) &&
-      m_flags.InsertElementsAt(aIndex, aNumRows, aFlags) &&
-      m_levels.InsertElementsAt(aIndex, aNumRows, aLevel))
-    return NS_OK;
-
-  return NS_ERROR_UNEXPECTED;
+  m_keys.InsertElementsAt(aIndex, aNumRows, aKey);
+  m_flags.InsertElementsAt(aIndex, aNumRows, aFlags);
+  m_levels.InsertElementsAt(aIndex, aNumRows, aLevel);
+  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -5402,7 +5400,7 @@ nsresult nsMsgDBView::ListIdsInThread(nsIMsgThread *threadHdr,
 
   // Account for the existing thread root.
   numChildren--;
-  if (!InsertEmptyRows(viewIndex, numChildren)) return NS_ERROR_OUT_OF_MEMORY;
+  InsertEmptyRows(viewIndex, numChildren);
 
   // ### need to rework this when we implemented threading in group views.
   if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay &&

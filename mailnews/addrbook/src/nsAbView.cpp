@@ -295,8 +295,7 @@ nsresult nsAbView::EnumerateCards() {
         // If we knew how many cards there was going to be
         // we could allocate an array of the size,
         // instead of growing and copying as we append.
-        DebugOnly<bool> didAppend = mCards.AppendElement(abcard);
-        NS_ASSERTION(didAppend, "failed to append card");
+        mCards.AppendElement(abcard);
       }
     }
   }

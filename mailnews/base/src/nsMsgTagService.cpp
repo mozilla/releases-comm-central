@@ -464,10 +464,7 @@ nsresult nsMsgTagService::RefreshKeyCache() {
   for (uint32_t tagIndex = 0; tagIndex < numTags; tagIndex++) {
     nsAutoCString key;
     tagArray[tagIndex]->GetKey(key);
-    if (!m_keys.InsertElementAt(tagIndex, key)) {
-      rv = NS_ERROR_FAILURE;
-      break;
-    }
+    m_keys.InsertElementAt(tagIndex, key);
   }
   return rv;
 }

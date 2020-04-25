@@ -311,10 +311,10 @@ void nsMsgSearchDBView::SetMsgHdrAt(nsIMsgDBHdr *hdr, nsMsgViewIndex index,
   m_folders.ReplaceObjectAt(folder, index);
 }
 
-bool nsMsgSearchDBView::InsertEmptyRows(nsMsgViewIndex viewIndex,
+void nsMsgSearchDBView::InsertEmptyRows(nsMsgViewIndex viewIndex,
                                         int32_t numRows) {
   for (int32_t i = 0; i < numRows; i++) {
-    if (!m_folders.InsertObjectAt(nullptr, viewIndex + i)) return false;
+    m_folders.InsertObjectAt(nullptr, viewIndex + i);
   }
 
   return nsMsgDBView::InsertEmptyRows(viewIndex, numRows);
@@ -1314,7 +1314,7 @@ nsresult nsMsgSearchDBView::ListIdsInThread(
 
   // Account for the existing thread root.
   numChildren--;
-  if (!InsertEmptyRows(viewIndex, numChildren)) return NS_ERROR_OUT_OF_MEMORY;
+  InsertEmptyRows(viewIndex, numChildren);
 
   bool threadedView = m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay &&
                       !(m_viewFlags & nsMsgViewFlagsType::kGroupBySort);
