@@ -24,6 +24,3 @@ WRAP_LDFLAGS :=
 
 include $(moztopsrcdir)/config/rules.mk
 
-# We're also a bundle.
-LDFLAGS += -bundle
-

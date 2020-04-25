@@ -17,3 +17,6 @@ OS_LIBS += [
     '-framework CoreFoundation',
     '-framework CoreServices',
 ]
+
+# We're also a bundle.
+LDFLAGS += ['-bundle']
