@@ -49,10 +49,10 @@
       <children includes="menupopup"/>
     </content>
 
-    <implementation implements="nsIDOMEventListener">
+    <implementation implements="nsIObserver, nsIDOMEventListener">
       <constructor><![CDATA[
         this._prefs = Services.prefs.getBranch("browser.urlbar.");
-        this._prefs.addObserver("", this.mPrefObserver);
+        this._prefs.addObserver("", this);
 
         this.updatePref("showPopup");
         this.updatePref("autoFill");
@@ -69,22 +69,22 @@
         if (!this._prefs) {
           return;
         }
-        this._prefs.removeObserver("", this.mPrefObserver);
+        this._prefs.removeObserver("", this);
         this._prefs = null;
         this.inputField.removeEventListener("underflow", this);
         this.inputField.removeEventListener("overflow", this);
         this.inputField.controllers.removeController(this._editItemsController);
       ]]></destructor>
 
-      <field name="mPrefObserver"><![CDATA[
-        ({
-          urlbar: this,
-
-          observe: function(aObserver, aBlah, aPref) {
-            this.urlbar.updatePref(aPref);
-          }
-        });
-      ]]></field>
+      <method name="observe">
+        <parameter name="aSubject"/>
+        <parameter name="aTopic"/>
+        <parameter name="aData"/>
+        <body><![CDATA[
+          if (aTopic == "nsPref:changed")
+            this.updatePref(aData);
+        ]]></body>
+      </method>
 
       <method name="updatePref">
         <parameter name="aPref"/>
@@ -347,21 +347,19 @@
       <xul:box role="search-box" class="autocomplete-search-box"/>
     </content>
 
-    <implementation>
+    <implementation implements="nsIObserver">
       <constructor><![CDATA[
         // listen for changes to default search engine
-        Services.prefs.addObserver("browser.search", this.mObserver);
-        Services.prefs.addObserver("browser.urlbar", this.mObserver);
-        Services.obs.addObserver(this.mObserver,
-                                 "browser-search-engine-modified");
+        Services.prefs.addObserver("browser.search", this);
+        Services.prefs.addObserver("browser.urlbar", this);
+        Services.obs.addObserver(this, "browser-search-engine-modified");
         this.updateEngines();
       ]]></constructor>
 
       <destructor><![CDATA[
-        Services.prefs.removeObserver("browser.search", this.mObserver);
-        Services.prefs.removeObserver("browser.urlbar", this.mObserver);
-        Services.obs.removeObserver(this.mObserver,
-                                    "browser-search-engine-modified");
+        Services.prefs.removeObserver("browser.search", this);
+        Services.prefs.removeObserver("browser.urlbar", this);
+        Services.obs.removeObserver(this, "browser-search-engine-modified");
       ]]></destructor>
 
       <property name="showSearch" onget="return this.mShowSearch;">
@@ -384,29 +382,6 @@
       <field name="mSearchBox">
          document.getAnonymousElementByAttribute(this, "role", "search-box");
       </field>
-
-      <field name="mObserver"><![CDATA[
-        ({
-          resultsPopup: this,
-
-          observe: function(aSubject, aTopic, aData) {
-            switch (aTopic) {
-              case "browser-search-engine-modified":
-                if (aData == "engine-current") {
-                  this.resultsPopup.updateEngines();
-                }
-                break;
-              case "nsPref:changed":
-                if (/^browser\.search\./.test(aData))
-                  this.resultsPopup.updateEngines();
-                else if (aData == "browser.urlbar.showSearch")
-                  this.resultsPopup.updateShowSearch();
-                break;
-              default:
-            }
-          }
-        });
-      ]]></field>
 
       <field name="mInputListener"><![CDATA[
         (function(aEvent) {
@@ -434,6 +409,28 @@
           return null;
         ]]></getter>
       </property>
+
+      <method name="observe">
+        <parameter name="aSubject"/>
+        <parameter name="aTopic"/>
+        <parameter name="aData"/>
+        <body><![CDATA[
+          switch (aTopic) {
+            case "browser-search-engine-modified":
+              if (aData == "engine-current") {
+                this.updateEngines();
+              }
+              break;
+            case "nsPref:changed":
+              if (/^browser\.search\./.test(aData))
+                this.updateEngines();
+              else if (aData == "browser.urlbar.showSearch")
+                this.updateShowSearch();
+              break;
+            default:
+          }
+        ]]></body>
+      </method>
 
       <method name="updateShowSearch">
         <body><![CDATA[
