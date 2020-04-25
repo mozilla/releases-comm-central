@@ -347,19 +347,23 @@
       <xul:box role="search-box" class="autocomplete-search-box"/>
     </content>
 
-    <implementation implements="nsIObserver">
+    <implementation implements="nsIObserver, nsIBrowserSearchInitObserver">
       <constructor><![CDATA[
         // listen for changes to default search engine
         Services.prefs.addObserver("browser.search", this);
         Services.prefs.addObserver("browser.urlbar", this);
         Services.obs.addObserver(this, "browser-search-engine-modified");
-        this.updateEngines();
+        this._initialized = true;
+        Services.search.init(this);
       ]]></constructor>
 
       <destructor><![CDATA[
         Services.prefs.removeObserver("browser.search", this);
         Services.prefs.removeObserver("browser.urlbar", this);
-        Services.obs.removeObserver(this, "browser-search-engine-modified");
+        if (this._initialized) {
+          this._initialized = false;
+          Services.obs.removeObserver(this, "browser-search-engine-modified");
+        }
       ]]></destructor>
 
       <property name="showSearch" onget="return this.mShowSearch;">
@@ -399,6 +403,7 @@
         });
       ]]></field>
 
+      <field name="_initialized">false</field>
       <field name="mEnginesReady">false</field>
 
       <property name="overrideValue" readonly="true">
@@ -423,7 +428,7 @@
               break;
             case "nsPref:changed":
               if (/^browser\.search\./.test(aData))
-                this.updateEngines();
+                Services.search.init(this);
               else if (aData == "browser.urlbar.showSearch")
                 this.updateShowSearch();
               break;
@@ -435,6 +440,20 @@
       <method name="updateShowSearch">
         <body><![CDATA[
           this.showSearch = Services.prefs.getBoolPref("browser.urlbar.showSearch");
+        ]]></body>
+      </method>
+
+      <method name="onInitComplete">
+        <parameter name="aStatus"/>
+        <body><![CDATA[
+          if (!this._initialized)
+            return;
+          if (Components.isSuccessCode(aStatus)) {
+            // Refresh the engines.
+            this.updateEngines();
+          } else {
+            Cu.reportError("Cannot initialize search service, bailing out: " + aStatus);
+          }
         ]]></body>
       </method>
 
