@@ -9,10 +9,12 @@
 #include "nsDirectoryServiceUtils.h"
 #include "nsIPrefBranch.h"
 #include "nsDirectoryServiceDefs.h"
-#include "nsIPrefLocalizedString.h"
+#include "mozilla/intl/LocaleService.h"
 #include "nsIPrefService.h"
 #include "nsArrayEnumerator.h"
 #include "nsEnumeratorUtils.h"
+
+using mozilla::intl::LocaleService;
 
 NS_IMPL_ISUPPORTS(nsSuiteDirectoryProvider,
                    nsIDirectoryServiceProvider,
@@ -211,33 +213,6 @@ nsSuiteDirectoryProvider::AppendDistroSearchDirs(nsIProperties* aDirSvc,
 
     localePlugins->AppendNative(NS_LITERAL_CSTRING("locale"));
 
-    nsCString locale;
-    nsCOMPtr<nsIPrefLocalizedString> prefString;
-    rv = prefs->GetComplexValue("general.useragent.locale",
-                                NS_GET_IID(nsIPrefLocalizedString),
-                                getter_AddRefs(prefString));
-    if (NS_SUCCEEDED(rv)) {
-      nsAutoString wLocale;
-      prefString->GetData(wLocale);
-      CopyUTF16toUTF8(wLocale, locale);
-    } else {
-      rv = prefs->GetCharPref("general.useragent.locale", locale);
-    }
-
-    if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIFile> curLocalePlugins;
-      rv = localePlugins->Clone(getter_AddRefs(curLocalePlugins));
-      if (NS_SUCCEEDED(rv)) {
-
-        curLocalePlugins->AppendNative(locale);
-        rv = curLocalePlugins->Exists(&exists);
-        if (NS_SUCCEEDED(rv) && exists) {
-          array.AppendObject(curLocalePlugins);
-          return; // all done
-        }
-      }
-    }
-
     // we didn't append the locale dir - try the default one
     nsCString defLocale;
     rv = prefs->GetCharPref("distribution.searchplugins.defaultLocale",
@@ -246,11 +221,27 @@ nsSuiteDirectoryProvider::AppendDistroSearchDirs(nsIProperties* aDirSvc,
       nsCOMPtr<nsIFile> defLocalePlugins;
       rv = localePlugins->Clone(getter_AddRefs(defLocalePlugins));
       if (NS_SUCCEEDED(rv)) {
-
         defLocalePlugins->AppendNative(defLocale);
         rv = defLocalePlugins->Exists(&exists);
-        if (NS_SUCCEEDED(rv) && exists)
+        if (NS_SUCCEEDED(rv) && exists) {
           array.AppendObject(defLocalePlugins);
+          return; // all done
+        }
+      }
+    }
+
+    // we didn't have a defaultLocale, use the user agent locale
+    nsAutoCString locale;
+    LocaleService::GetInstance()->GetAppLocaleAsLangTag(locale);
+
+    nsCOMPtr<nsIFile> curLocalePlugins;
+    rv = localePlugins->Clone(getter_AddRefs(curLocalePlugins));
+    if (NS_SUCCEEDED(rv)) {
+      curLocalePlugins->AppendNative(locale);
+      rv = curLocalePlugins->Exists(&exists);
+      if (NS_SUCCEEDED(rv) && exists) {
+        array.AppendObject(curLocalePlugins);
+        return; // all done
       }
     }
   }
