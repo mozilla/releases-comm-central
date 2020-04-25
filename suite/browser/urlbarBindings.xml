@@ -51,37 +51,37 @@
 
     <implementation implements="nsIDOMEventListener">
       <constructor><![CDATA[
-        this.mPrefs.addObserver("browser.urlbar", this.mPrefObserver);
+        this._prefs = Services.prefs.getBranch("browser.urlbar.");
+        this._prefs.addObserver("", this.mPrefObserver);
 
-        this.updatePref("browser.urlbar.showPopup");
-        this.updatePref("browser.urlbar.autoFill");
-        this.updatePref("browser.urlbar.showSearch");
-        this.updatePref("browser.urlbar.formatting.enabled");
+        this.updatePref("showPopup");
+        this.updatePref("autoFill");
+        this.updatePref("showSearch");
+        this.updatePref("formatting.enabled");
         this.inputField.controllers.insertControllerAt(0, this._editItemsController);
         this.inputField.addEventListener("overflow", this);
         this.inputField.addEventListener("underflow", this);
       ]]></constructor>
 
       <destructor><![CDATA[
+        // Somehow, it's possible for the XBL destructor to fire without the
+        // constructor ever having fired. Fix:
+        if (!this._prefs) {
+          return;
+        }
+        this._prefs.removeObserver("", this.mPrefObserver);
+        this._prefs = null;
         this.inputField.removeEventListener("underflow", this);
         this.inputField.removeEventListener("overflow", this);
         this.inputField.controllers.removeController(this._editItemsController);
-        this.mPrefs.removeObserver("browser.urlbar", this.mPrefObserver);
       ]]></destructor>
-
-      <field name="mPrefs">
-        Cc["@mozilla.org/preferences-service;1"]
-          .getService(Ci.nsIPrefService)
-          .getBranch(null);
-      </field>
 
       <field name="mPrefObserver"><![CDATA[
         ({
           urlbar: this,
 
           observe: function(aObserver, aBlah, aPref) {
-            if (/^browser\.urlbar\./.test(aPref))
-              this.urlbar.updatePref(aPref);
+            this.urlbar.updatePref(aPref);
           }
         });
       ]]></field>
@@ -89,14 +89,14 @@
       <method name="updatePref">
         <parameter name="aPref"/>
         <body><![CDATA[
-          if (aPref == "browser.urlbar.showPopup") {
-            this.showPopup = this.mPrefs.getBoolPref(aPref);
-          } else if (aPref == "browser.urlbar.autoFill") {
-            this.autoFill = this.mPrefs.getBoolPref(aPref);
-          } else if (aPref == "browser.urlbar.showSearch") {
-            this.minResultsForPopup = this.mPrefs.getBoolPref(aPref) ?  0 : 1;
-          } else if (aPref == "browser.urlbar.formatting.enabled") {
-            this._formattingEnabled = this.mPrefs.getBoolPref(aPref);
+          if (aPref == "showPopup") {
+            this.showPopup = this._prefs.getBoolPref(aPref);
+          } else if (aPref == "autoFill") {
+            this.autoFill = this._prefs.getBoolPref(aPref);
+          } else if (aPref == "showSearch") {
+            this.minResultsForPopup = this._prefs.getBoolPref(aPref) ?  0 : 1;
+          } else if (aPref == "formatting.enabled") {
+            this._formattingEnabled = this._prefs.getBoolPref(aPref);
             this._formatValue(this._formattingEnabled && !this.focused);
           }
         ]]></body>
@@ -350,18 +350,18 @@
     <implementation>
       <constructor><![CDATA[
         // listen for changes to default search engine
-        this.mPrefs.addObserver("browser.search", this.mObserver);
-        this.mPrefs.addObserver("browser.urlbar", this.mObserver);
-        this.mObSvc.addObserver(this.mObserver,
-                                "browser-search-engine-modified");
+        Services.prefs.addObserver("browser.search", this.mObserver);
+        Services.prefs.addObserver("browser.urlbar", this.mObserver);
+        Services.obs.addObserver(this.mObserver,
+                                 "browser-search-engine-modified");
         this.updateEngines();
       ]]></constructor>
 
       <destructor><![CDATA[
-        this.mPrefs.removeObserver("browser.search", this.mObserver);
-        this.mPrefs.removeObserver("browser.urlbar", this.mObserver);
-        this.mObSvc.removeObserver(this.mObserver,
-                                   "browser-search-engine-modified");
+        Services.prefs.removeObserver("browser.search", this.mObserver);
+        Services.prefs.removeObserver("browser.urlbar", this.mObserver);
+        Services.obs.removeObserver(this.mObserver,
+                                    "browser-search-engine-modified");
       ]]></destructor>
 
       <property name="showSearch" onget="return this.mShowSearch;">
@@ -385,21 +385,6 @@
          document.getAnonymousElementByAttribute(this, "role", "search-box");
       </field>
 
-      <field name="mPrefs">
-        Cc["@mozilla.org/preferences-service;1"]
-          .getService(Ci.nsIPrefService)
-          .getBranch(null);
-      </field>
-
-      <field name="mObSvc">
-        Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
-      </field>
-
-      <field name="mSearchService">
-        Cc["@mozilla.org/browser/search-service;1"]
-          .getService(Ci.nsIBrowserSearchService);
-      </field>
-
       <field name="mObserver"><![CDATA[
         ({
           resultsPopup: this,
@@ -414,8 +399,8 @@
               case "nsPref:changed":
                 if (/^browser\.search\./.test(aData))
                   this.resultsPopup.updateEngines();
-                else if (/^browser\.urlbar\./.test(aData))
-                  this.resultsPopup.updatePref(aData);
+                else if (aData == "browser.urlbar.showSearch")
+                  this.resultsPopup.updateShowSearch();
                 break;
               default:
             }
@@ -450,11 +435,9 @@
         ]]></getter>
       </property>
 
-      <method name="updatePref">
-        <parameter name="aPref"/>
+      <method name="updateShowSearch">
         <body><![CDATA[
-          if (aPref == "browser.urlbar.showSearch")
-            this.showSearch = this.mPrefs.getBoolPref("browser.urlbar.showSearch");
+          this.showSearch = Services.prefs.getBoolPref("browser.urlbar.showSearch");
         ]]></body>
       </method>
 
@@ -483,7 +466,7 @@
 
       <method name="updateEngines">
         <body><![CDATA[
-          var defaultEngine = this.mSearchService.defaultEngine;
+          var defaultEngine = Services.search.defaultEngine;
           if (defaultEngine) {
             this.clearEngines();
             this.addEngine(defaultEngine.name, defaultEngine.iconURI,
@@ -535,7 +518,7 @@
         // display string to be updated
         if ( (!this.mEnginesReady && this.defaultSearchEngine) ||
              !("mShowSearch" in this) )
-          this.updatePref("browser.urlbar.showSearch");
+          this.updateShowSearch();
 
         if (this.mShowSearch) {
           this.textbox.mSearchInputTO = 0;
@@ -559,9 +542,7 @@
 
     <implementation>
       <constructor><![CDATA[
-        this.navigatorBundle =
-          Cc["@mozilla.org/intl/stringbundle;1"]
-            .getService(Ci.nsIStringBundleService)
+        this.navigatorBundle = Services.strings
             .createBundle("chrome://navigator/locale/navigator.properties");
 
         var text = this.getAttribute("searchvalue");
@@ -571,11 +552,6 @@
 
       <field name="mSelectedIndex">
         -1
-      </field>
-
-      <field name="mSearchService">
-        Cc["@mozilla.org/browser/search-service;1"]
-          .getService(Ci.nsIBrowserSearchService);
       </field>
 
       <property name="activeChild"
@@ -627,7 +603,7 @@
           if (item) {
             // XXXsearch: using default engine for now, this ignores the following values:
             //            item.getAttribute("searchEngine") and item.getAttribute("searchBarUrl")
-            var engine = this.mSearchService.defaultEngine;
+            var engine = Services.search.defaultEngine;
 
             var submission = engine.getSubmission(this.mSearchValue); // HTML response
 
