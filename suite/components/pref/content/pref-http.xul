@@ -19,6 +19,9 @@
       <preference id="general.useragent.compatMode.firefox"
                   name="general.useragent.compatMode.firefox"
                   type="bool"/>
+      <preference id="general.useragent.compatMode.strict-firefox"
+                  name="general.useragent.compatMode.strict-firefox"
+                  type="bool"/>
     </preferences>
 
     <description>&prefPara;</description>
@@ -59,13 +62,21 @@
 
     <groupbox>
       <caption label="&prefUseragent.label;"/>
-      <checkbox id="uaFirefoxCompat"
-                label="&prefFirefoxCompat.label;"
-                accesskey="&prefFirefoxCompat.accesskey;"
-                preference="general.useragent.compatMode.firefox"/>
+      <radiogroup id="uaFirefoxCompat"
+                  oncommand="updateUAPrefs(this);">
+        <radio value="strict"
+               label="&prefFirefoxStrict.label;"
+               accesskey="&prefFirefoxStrict.accesskey;"/>
+        <radio value="none"
+               label="&prefFirefoxNone.label;"
+               accesskey="&prefFirefoxNone.accesskey;"/>
+        <radio value="compat"
+               label="&prefFirefoxCompat2.label;"
+               accesskey="&prefFirefoxCompat2.accesskey;"/>
+      </radiogroup>
     </groupbox>
 
-    <description>&prefCompatWarning;</description>
+    <description>&prefCompatWarning2.desc;</description>
   </prefpane>
 
 </overlay>

@@ -40,6 +40,8 @@ pref("general.smoothScroll", false);
 pref("general.autoScroll", true);
 
 pref("general.useragent.compatMode.firefox", true);
+// See bug 1242294 for how to make this work.
+pref("general.useragent.compatMode.strict-firefox", false);
 
 // 0 = blank, 1 = home (browser.startup.homepage), 2 = last visited page, 3 = resume previous browser session
 pref("browser.startup.page", 1);
