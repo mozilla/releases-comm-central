@@ -1231,6 +1231,9 @@ Enigmail.msg = {
   },
 
   setSecurityParams(newSecurityParams) {
+    if (!gMsgCompose || !gMsgCompose.compFields) {
+      return;
+    }
     gMsgCompose.compFields.composeSecure = newSecurityParams;
   },
 

@@ -31,7 +31,7 @@ var { EnigmailFiles } = ChromeUtils.import(
 var OpenPGPMasterpass = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 ).OpenPGPMasterpass;
-var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm");
+var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );

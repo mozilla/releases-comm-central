@@ -15,19 +15,34 @@ var { MailConstants } = ChromeUtils.import(
   "resource:///modules/MailConstants.jsm"
 );
 
-const { EnigmailLazy } = ChromeUtils.import(
+var { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
 );
 
-const getEnigmailCore = EnigmailLazy.loader(
-  "enigmail/core.jsm",
-  "EnigmailCore"
-);
-const getRNP = EnigmailLazy.loader("enigmail/rnp.jsm", "RNP");
-const getEnigmailWindows = EnigmailLazy.loader(
+var getEnigmailCore = EnigmailLazy.loader("enigmail/core.jsm", "EnigmailCore");
+var getRNP = EnigmailLazy.loader("enigmail/RNP.jsm", "RNP");
+var getGPGME = EnigmailLazy.loader("enigmail/GPGME.jsm", "GPGME");
+var getEnigmailWindows = EnigmailLazy.loader(
   "enigmail/windows.jsm",
   "EnigmailWindows"
 );
+
+/*
+// Enable this block to view syntax errors in these files, which are
+// difficult to see when lazy loading.
+var { GPGME } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/GPGME.jsm"
+);
+var { RNP } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/RNP.jsm"
+);
+var { GPGMELibLoader } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/GPGMELib.jsm"
+);
+var { RNPLibLoader } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/RNPLib.jsm"
+);
+*/
 
 var BondOpenPGP = {
   logException(exc) {
@@ -47,6 +62,9 @@ var BondOpenPGP = {
     }
     this.initDone = true;
     if (!getRNP().init({})) {
+      return;
+    }
+    if (!getGPGME().init({})) {
       return;
     }
 

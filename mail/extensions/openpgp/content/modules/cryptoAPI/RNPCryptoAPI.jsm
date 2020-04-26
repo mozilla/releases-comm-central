@@ -8,7 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["getRNPAPI"];
 
-const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/rnp.jsm");
+const { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Services.scriptloader.loadSubScript(

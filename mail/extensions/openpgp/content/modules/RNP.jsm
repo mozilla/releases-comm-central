@@ -2,24 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-const { RNPLibLoader } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/rnpLib.jsm"
+const EXPORTED_SYMBOLS = ["RNP"];
+
+var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+var { RNPLibLoader } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/RNPLib.jsm"
 );
-const { EnigmailConstants } = ChromeUtils.import(
+var { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
-const { EnigmailTime } = ChromeUtils.import(
+var { EnigmailTime } = ChromeUtils.import(
   "chrome://openpgp/content/modules/time.jsm"
 );
 var { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 );
-const { PgpSqliteDb2 } = ChromeUtils.import(
+var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
 var { uidHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/uidHelper.jsm"
+);
+var { GPGME } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/GPGME.jsm"
 );
 
 const str_encrypt = "encrypt";
@@ -27,8 +32,6 @@ const str_sign = "sign";
 const str_certify = "certify";
 const str_authenticate = "authenticate";
 const RNP_PHOTO_USERID_ID = "(photo)"; // string is harcoded inside RNP
-
-// rnp module
 
 var RNPLib;
 
@@ -632,7 +635,6 @@ var RNP = {
         ).contents;
 
         result.decryptedData = char_array.readString();
-        //console.debug(result.decryptedData);
 
         // ignore "no signature" result, that's ok
         await this.getVerifyDetails(
@@ -647,6 +649,19 @@ var RNP = {
     RNPLib.rnp_input_destroy(input_from_memory);
     RNPLib.rnp_output_destroy(output_to_memory);
     RNPLib.rnp_op_verify_destroy(verify_op);
+
+    if (
+      result.exitCode &&
+      !("alreadyUsedGPGME" in options) &&
+      GPGME.allDependenciesLoaded()
+    ) {
+      // failure processing with RNP, attempt decryption with GPGME
+      let r2 = await GPGME.decrypt(encrypted, RNP.enArmor);
+      if (!r2.exitCode && r2.decryptedData) {
+        options.alreadyUsedGPGME = true;
+        return RNP.decrypt(r2.decryptedData, options);
+      }
+    }
 
     return result;
   },
@@ -1984,8 +1999,50 @@ var RNP = {
     RNPLib.rnp_key_handle_destroy(key);
     return result;
   },
+
+  enArmor(buf, len) {
+    let result = "";
+
+    var input_array = ctypes.cast(buf, ctypes.uint8_t.array(len));
+
+    let input_from_memory = new RNPLib.rnp_input_t();
+    RNPLib.rnp_input_from_memory(
+      input_from_memory.address(),
+      input_array,
+      len,
+      false
+    );
+
+    let max_out = len * 2;
+
+    let output_to_memory = new RNPLib.rnp_output_t();
+    RNPLib.rnp_output_to_memory(output_to_memory.address(), max_out);
+
+    if (RNPLib.rnp_enarmor(input_from_memory, output_to_memory, "message")) {
+      throw new Error("rnp_enarmor failed");
+    }
+
+    let result_buf = new ctypes.uint8_t.ptr();
+    let result_len = new ctypes.size_t();
+    if (
+      !RNPLib.rnp_output_memory_get_buf(
+        output_to_memory,
+        result_buf.address(),
+        result_len.address(),
+        false
+      )
+    ) {
+      let char_array = ctypes.cast(
+        result_buf,
+        ctypes.char.array(result_len.value).ptr
+      ).contents;
+
+      result = char_array.readString();
+    }
+
+    RNPLib.rnp_input_destroy(input_from_memory);
+    RNPLib.rnp_output_destroy(output_to_memory);
+
+    return result;
+  },
 };
-
-// exports
-
-const EXPORTED_SYMBOLS = ["RNP"];

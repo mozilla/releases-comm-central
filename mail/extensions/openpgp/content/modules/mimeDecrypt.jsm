@@ -824,17 +824,8 @@ MimeDecryptHandler.prototype = {
         veri.onStartRequest(this.mimeSvc, this.uri);
         veri.onTextData(data);
         veri.onStopRequest(null, 0);
-      } else if ("outputDecryptedData" in this.mimeSvc) {
-        // TB >= 57
-        this.mimeSvc.outputDecryptedData(data, data.length);
       } else {
-        let gConv = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-          Ci.nsIStringInputStream
-        );
-        gConv.setData(data, data.length);
-        this.mimeSvc.onStartRequest(null, null);
-        this.mimeSvc.onDataAvailable(null, null, gConv, 0, data.length);
-        this.mimeSvc.onStopRequest(null, null, 0);
+        this.mimeSvc.outputDecryptedData(data, data.length);
       }
     } catch (ex) {
       console.debug(ex);

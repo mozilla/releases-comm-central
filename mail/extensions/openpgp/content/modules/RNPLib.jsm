@@ -2,12 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const EXPORTED_SYMBOLS = ["RNPLibLoader"];
+
+var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var systemOS = Services.appinfo.OS.toLowerCase();
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var abi = ctypes.default_abi;
-const { EnigmailApp } = ChromeUtils.import(
+var { EnigmailApp } = ChromeUtils.import(
   "chrome://openpgp/content/modules/app.jsm"
 );
 var { OpenPGPMasterpass } = ChromeUtils.import(
@@ -1071,6 +1073,15 @@ function enableRNPLibJS() {
       rnp_signature_handle_t
     ),
 
+    rnp_enarmor: librnp.declare(
+      "rnp_enarmor",
+      abi,
+      rnp_result_t,
+      rnp_input_t,
+      rnp_output_t,
+      ctypes.char.ptr
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -1140,7 +1151,3 @@ function enableRNPLibJS() {
     RNP_ERROR_EOF: 0x13000004, // 318767108
   };
 }
-
-// exports
-
-const EXPORTED_SYMBOLS = ["RNPLibLoader"];
