@@ -8,7 +8,6 @@
  * Common Enigmail styles for all platforms
  */
 
-
 .action-box {
   width: 100px
 }
@@ -244,13 +243,13 @@
 }
 
 .enigmailKeyImportCaption {
-  list-style-image: url("chrome://openpgp/skin/importSuccess.png");
+  list-style-image: url("chrome://messenger/skin/openpgp/importSuccess.png");
   max-height: 2em;
   max-width: 2em;
 }
 
 .enigmailErrorIcon {
-  list-style-image: url("chrome://openpgp/skin/password-error.svg");
+  list-style-image: url("chrome://messenger/skin/openpgp/password-error.svg");
   padding-top: 5px;
   padding-bottom: 5px;
   height: 2.2em;
@@ -289,30 +288,30 @@ treechildren::-moz-tree-cell-text(fixedWidthFont) {
 .enigmailExpandViewButton {
   width: 9px;
   /* The image's width is 9 pixels */
-  list-style-image: url("chrome://openpgp/skin/twisty-clsd.png");
+  list-style-image: url("chrome://messenger/skin/openpgp/twisty-clsd.png");
 }
 
 .enigmailCollapseViewButton {
   width: 9px;
   /* The image's width is 9 pixels */
-  list-style-image: url("chrome://openpgp/skin/twisty-open.png");
+  list-style-image: url("chrome://messenger/skin/openpgp/twisty-open.png");
 
 }
 
 .enigmailWarningIcon {
-  list-style-image: url("chrome://openpgp/skin/warning-16.png");
+  list-style-image: url("chrome://messenger/skin/openpgp/warning-16.png");
 }
 
 treechildren::-moz-tree-image(enigSignedEncrypted) {
-  list-style-image: url("chrome://openpgp/skin/col-encrypted-signed.png");
+  list-style-image: url("chrome://messenger/skin/openpgp/col-encrypted-signed.png");
 }
 
 treechildren::-moz-tree-image(enigSigned) {
-  list-style-image: url("chrome://openpgp/skin/enigSignOk.png");
+  list-style-image: url("chrome://messenger/skin/openpgp/enigSignOk.png");
 }
 
 treechildren::-moz-tree-image(enigEncrypted) {
-  list-style-image: url("chrome://openpgp/skin/enigEncOk.png");
+  list-style-image: url("chrome://messenger/skin/openpgp/enigEncOk.png");
 }
 
 /*
@@ -359,7 +358,7 @@ treechildren::-moz-tree-cell-text(STYLE) {}
 
 /* a spinning wheel circle */
 .enigmailWheel {
-  list-style-image: url("chrome://openpgp/skin/spinning-wheel.png");
+  list-style-image: url("chrome://messenger/skin/openpgp/spinning-wheel.png");
   max-width: 100%;
   max-height: 100%;
 }
@@ -396,7 +395,7 @@ treechildren::-moz-tree-cell-text(STYLE) {}
 }
 
 .enigmailOkSign {
-  content: url("chrome://openpgp/skin/ok-sign.svg");
+  content: url("chrome://messenger/skin/openpgp/ok-sign.svg");
   padding-left: 5px;
   padding-right: 5px;
   height: 1.3em;

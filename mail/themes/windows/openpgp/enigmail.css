@@ -5,23 +5,22 @@
  */
 
 /**
- * Enigmail styles for Linux
+ * Enigmail styles for Windows (Aero Theme)
  */
 
-@import url("chrome://openpgp/skin/enigmail-common.css"); /* common styles for all platforms */
-
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@import url("chrome://messenger/skin/openpgp/enigmail-common.css"); /* common styles for all platforms */
 
 
 #button-enigmail-decrypt
   {
-    list-style-image : url("chrome://openpgp/skin/decrypt-active-18.svg");
+    list-style-image : url("chrome://messenger/skin/openpgp/decrypt-active-18.svg");
   }
 
 #button-enigmail-decrypt[disabled]
   {
-    list-style-image : url("chrome://openpgp/skin/decrypt-inactive-18.svg");
+    list-style-image : url("chrome://messenger/skin/openpgp/decrypt-inactive-18.svg");
   }
+
 
 
 /***************************************************
@@ -30,7 +29,7 @@
 
 #button-enigmail-encrypt
 {
-  list-style-image : url("chrome://openpgp/skin/encrypt-inactive-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/encrypt-inactive-18.svg");
 }
 
 /* hide label unless text-only mode is enabled */
@@ -39,23 +38,24 @@ toolbar:not([mode="text"]) #button-enigmail-encrypt .toolbarbutton-text {
 }
 
 #button-enigmail-encrypt[disabled] {
-  list-style-image : url("chrome://openpgp/skin/encrypt-disabled-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/encrypt-disabled-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="activeNone"]
 {
-  list-style-image : url("chrome://openpgp/skin/encrypt-active-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/encrypt-active-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="forceYes"]
 {
-  list-style-image : url("chrome://openpgp/skin/encrypt-active-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/encrypt-active-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="forceNo"]
 {
-  list-style-image : url("chrome://openpgp/skin/encrypt-inactive-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/encrypt-inactive-18.svg");
 }
+
 
 
 /***************************************************
@@ -64,7 +64,7 @@ toolbar:not([mode="text"]) #button-enigmail-encrypt .toolbarbutton-text {
 
 #button-enigmail-sign
 {
-  list-style-image : url("chrome://openpgp/skin/sign-inactive-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/sign-inactive-18.svg");
 }
 
 /* hide label unless text-only mode is enabled */
@@ -73,22 +73,22 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
 }
 
 #button-enigmail-sign[disabled] {
-  list-style-image : url("chrome://openpgp/skin/sign-disabled-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/sign-disabled-18.svg");
 }
 
 #button-enigmail-sign[signed="activeNone"]
 {
-  list-style-image : url("chrome://openpgp/skin/sign-active-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/sign-active-18.svg");
 }
 
 #button-enigmail-sign[signed="forceYes"]
 {
-  list-style-image : url("chrome://openpgp/skin/sign-active-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/sign-active-18.svg");
 }
 
 #button-enigmail-sign[signed="forceNo"]
 {
-  list-style-image : url("chrome://openpgp/skin/sign-inactive-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/sign-inactive-18.svg");
 }
 
 /***************************************************
@@ -97,16 +97,16 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
 
 #button-enigmail-attach
 {
-  list-style-image : url("chrome://openpgp/skin/attach-inactive-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/attach-inactive-18.svg");
 }
 
 #button-enigmail-attach[disabled] {
-  list-style-image : url("chrome://openpgp/skin/attach-disabled-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/attach-disabled-18.svg");
 }
 
 #button-enigmail-attach[addPubkey="true"]
 {
-  list-style-image : url("chrome://openpgp/skin/attach-active-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/attach-active-18.svg");
 }
 
 
@@ -116,14 +116,14 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
 
 #enigmail-toolbar-encryptHdr-button
 {
-  list-style-image : url("chrome://openpgp/skin/headerUnprotected-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/headerUnprotected-18.svg");
 }
 
 #enigmail-toolbar-encryptHdr-button[disabled] {
-  list-style-image : url("chrome://openpgp/skin/headerUnprotected-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/headerUnprotected-18.svg");
 }
 
 #enigmail-toolbar-encryptHdr-button[checked="true"]
 {
-  list-style-image : url("chrome://openpgp/skin/headerProtected-18.svg");
+  list-style-image : url("chrome://messenger/skin/openpgp/headerProtected-18.svg");
 }

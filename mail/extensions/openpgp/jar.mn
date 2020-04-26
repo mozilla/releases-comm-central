@@ -15,12 +15,6 @@ openpgp.jar:
   content/openpgp/ui                           (content/ui/*.js)
   content/openpgp/ui                           (content/ui/*.xhtml)
   content/openpgp/ui                           (content/ui/*.css)
-% skin openpgp classic/1.0 %skin/tb-mac/ os=Darwin
-% skin openpgp classic/1.0 %skin/tb-win/ os=WINNT
-% skin openpgp classic/1.0 %skin/tb-linux/
-  skin/tb-mac                                  (skin/tb-mac/*)
-  skin/tb-win                                  (skin/tb-win/*)
-  skin/tb-linux                                (skin/tb-linux/*)
 
 [localization] @AB_CD@.jar:
   openpgp/content/ui/keyPicker.ftl             (content/ui/keyPicker.ftl)

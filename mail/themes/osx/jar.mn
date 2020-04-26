@@ -77,6 +77,7 @@ classic.jar:
   skin/classic/messenger/messengercompose/emotes@2x.png           (mail/compose/emotes@2x.png)
   skin/classic/messenger/downloads/aboutDownloads.css             (mail/downloads/aboutDownloads.css)
   skin/classic/messenger/customizableui/panelUI.css               (customizableui/panelUI.css)
+  skin/classic/messenger/openpgp/enigmail.css                     (openpgp/enigmail.css)
 % skin messenger-newsblog classic/1.0 %skin/classic/messenger-newsblog/
   skin/classic/messenger-newsblog/feed-subscriptions.css         (mail/newsblog/feed-subscriptions.css)
   skin/classic/messenger-newsblog/rss-feed.png                   (mail/newsblog/rss-feed.png)
