@@ -7,7 +7,7 @@
  * into the application.
  */
 
-this.EXPORTED_SYMBOLS = ["ExtensionSupport"];
+const EXPORTED_SYMBOLS = ["ExtensionSupport"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
