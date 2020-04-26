@@ -13,7 +13,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calHashedArray.js
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.item namespace.
 
-this.EXPORTED_SYMBOLS = ["calitem"];
+const EXPORTED_SYMBOLS = ["calitem"];
 
 var calitem = {
   ItemDiff: (function() {

@@ -11,7 +11,7 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.data namespace.
 
-this.EXPORTED_SYMBOLS = ["caldata"]; /* exported caldata */
+const EXPORTED_SYMBOLS = ["caldata"]; /* exported caldata */
 
 class ListenerSet extends Set {
   constructor(iid, iterable) {

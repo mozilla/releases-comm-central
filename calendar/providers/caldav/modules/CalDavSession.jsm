@@ -12,7 +12,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  * Session and authentication tools for the caldav provider
  */
 
-this.EXPORTED_SYMBOLS = ["CalDavSession"]; /* exported CalDavSession */
+const EXPORTED_SYMBOLS = ["CalDavSession"]; /* exported CalDavSession */
 
 const OAUTH_GRACE_TIME = 30 * 1000;
 

@@ -23,7 +23,7 @@ var gCalendarConsole = new ConsoleAPI({
 // to `_service` will require it to already exist.
 var gServiceCache = {};
 
-this.EXPORTED_SYMBOLS = ["cal"];
+const EXPORTED_SYMBOLS = ["cal"];
 var cal = {
   // These functions exist to reduce boilerplate code for creating instances
   // as well as getting services and other (cached) objects.

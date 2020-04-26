@@ -13,7 +13,7 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 // NOTE: This module should not be loaded directly, it is available when including
 // calUtils.jsm under the cal.auth namespace.
 
-this.EXPORTED_SYMBOLS = ["calauth"]; /* exported calauth */
+const EXPORTED_SYMBOLS = ["calauth"]; /* exported calauth */
 
 /**
  * The userContextId of nsIHttpChannel is currently implemented as a uint32, so

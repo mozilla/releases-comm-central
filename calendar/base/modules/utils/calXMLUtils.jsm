@@ -9,7 +9,7 @@
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.xml namespace.
 
-this.EXPORTED_SYMBOLS = ["calxml"]; /* exported calxml */
+const EXPORTED_SYMBOLS = ["calxml"]; /* exported calxml */
 
 var calxml = {
   /**

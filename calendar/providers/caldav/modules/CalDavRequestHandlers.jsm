@@ -10,7 +10,7 @@ var { CalDavLegacySAXRequest } = ChromeUtils.import("resource:///modules/caldav/
 
 /* exported CalDavEtagsHandler, CalDavWebDavSyncHandler, CalDavMultigetSyncHandler */
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "CalDavEtagsHandler",
   "CalDavWebDavSyncHandler",
   "CalDavMultigetSyncHandler",

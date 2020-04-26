@@ -13,7 +13,7 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.iterate namespace.
 
-this.EXPORTED_SYMBOLS = ["caliterate"]; /* exported caliterate */
+const EXPORTED_SYMBOLS = ["caliterate"]; /* exported caliterate */
 
 var caliterate = {
   /**

@@ -8,7 +8,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  *          calStorageTimezone, getTimezone, newDateTime
  */
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "CAL_ITEM_FLAG",
   "getInUtcOrKeepFloating",
   "dateToText",

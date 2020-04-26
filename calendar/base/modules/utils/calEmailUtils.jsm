@@ -13,7 +13,7 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.email namespace.
 
-this.EXPORTED_SYMBOLS = ["calemail"]; /* exported calemail */
+const EXPORTED_SYMBOLS = ["calemail"]; /* exported calemail */
 
 var calemail = {
   /**

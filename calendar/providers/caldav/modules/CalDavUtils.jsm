@@ -10,7 +10,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /* exported CalDavXmlns, CalDavTagsToXmlns, CalDavNsUnresolver, CalDavNsResolver, CalDavXPath,
  *          CalDavXPathFirst */
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "CalDavXmlns",
   "CalDavTagsToXmlns",
   "CalDavNsUnresolver",

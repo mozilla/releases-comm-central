@@ -14,7 +14,7 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.provider namespace.
 
-this.EXPORTED_SYMBOLS = ["calprovider"]; /* exported calprovider */
+const EXPORTED_SYMBOLS = ["calprovider"]; /* exported calprovider */
 
 var calprovider = {
   /**

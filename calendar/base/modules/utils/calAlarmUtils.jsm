@@ -13,7 +13,7 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.alarm namespace.
 
-this.EXPORTED_SYMBOLS = ["calalarms"]; /* exported calalarms */
+const EXPORTED_SYMBOLS = ["calalarms"]; /* exported calalarms */
 
 var calalarms = {
   /**

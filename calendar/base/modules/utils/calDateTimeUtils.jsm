@@ -13,7 +13,7 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.dtz namespace.
 
-this.EXPORTED_SYMBOLS = ["caldtz"]; /* exported caldtz */
+const EXPORTED_SYMBOLS = ["caldtz"]; /* exported caldtz */
 
 var caldtz = {
   /**

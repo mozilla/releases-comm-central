@@ -9,7 +9,7 @@ var { recurrenceRule2String } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 
-this.EXPORTED_SYMBOLS = ["ltn"]; /* exported ltn */
+const EXPORTED_SYMBOLS = ["ltn"]; /* exported ltn */
 var ltn = {};
 
 ltn.invitation = {

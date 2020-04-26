@@ -11,7 +11,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.l10n namespace.
 
-this.EXPORTED_SYMBOLS = ["call10n"]; /* exported call10n */
+const EXPORTED_SYMBOLS = ["call10n"]; /* exported call10n */
 
 /**
  * Gets the value of a string in a .properties file.

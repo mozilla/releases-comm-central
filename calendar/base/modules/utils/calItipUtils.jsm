@@ -17,7 +17,7 @@ ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUti
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.itip namespace.
 
-this.EXPORTED_SYMBOLS = ["calitip"]; /* exported calitip */
+const EXPORTED_SYMBOLS = ["calitip"]; /* exported calitip */
 
 var calitip = {
   /**

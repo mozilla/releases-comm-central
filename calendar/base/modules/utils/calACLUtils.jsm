@@ -11,7 +11,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.acl namespace.
 
-this.EXPORTED_SYMBOLS = ["calacl"]; /* exported calacl */
+const EXPORTED_SYMBOLS = ["calacl"]; /* exported calacl */
 
 var calacl = {
   /**

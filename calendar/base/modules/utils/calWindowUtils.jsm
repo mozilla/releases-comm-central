@@ -12,7 +12,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.window namespace.
 
-this.EXPORTED_SYMBOLS = ["calwindow"]; /* exported calwindow */
+const EXPORTED_SYMBOLS = ["calwindow"]; /* exported calwindow */
 
 var calwindow = {
   /**

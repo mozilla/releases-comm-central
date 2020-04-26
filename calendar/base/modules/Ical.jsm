@@ -44,6 +44,7 @@ function unwrapSingle(type, val) {
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * Portions Copyright (C) Philipp Kewisch, 2011-2015 */
 
+var ICAL;
 
 /* istanbul ignore next */
 /* jshint ignore:start */
@@ -52,7 +53,7 @@ if (typeof module === 'object') {
   ICAL = module.exports;
 } else if (typeof ICAL !== 'object') {/* istanbul ignore next */
   /** @ignore */
-  this.ICAL = {};
+  ICAL = {};
 }
 /* jshint ignore:end */
 

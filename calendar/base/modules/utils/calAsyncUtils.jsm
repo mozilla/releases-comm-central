@@ -11,7 +11,7 @@ var { PromiseUtils } = ChromeUtils.import("resource://gre/modules/PromiseUtils.j
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.async namespace.
 
-this.EXPORTED_SYMBOLS = ["calasync"]; /* exported calasync */
+const EXPORTED_SYMBOLS = ["calasync"]; /* exported calasync */
 
 var cIOL = Ci.calIOperationListener;
 var cIC = Ci.calICalendar;

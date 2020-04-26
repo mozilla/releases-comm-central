@@ -14,7 +14,7 @@ var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSes
             CalDavDeleteItemRequest, CalDavPropfindRequest, CalDavHeaderRequest,
             CalDavPrincipalPropertySearchRequest, CalDavOutboxRequest, CalDavFreeBusyRequest */
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "CalDavGenericRequest",
   "CalDavLegacySAXRequest",
   "CalDavItemRequest",
