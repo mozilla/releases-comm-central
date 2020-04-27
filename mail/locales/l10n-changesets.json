@@ -444,6 +444,16 @@
         ],
         "revision": "default"
     },
+    "pa-IN": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
     "pl": {
         "platforms": [
             "linux",
