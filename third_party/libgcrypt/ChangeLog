@@ -1,3 +1,82 @@
+2019-08-29  Werner Koch  <wk@gnupg.org>
+
+	Release 1.8.5.
+	+ commit 56606331bc2a80536db9fc11ad53695126007298
+
+
+2019-08-16  NIIBE Yutaka  <gniibe@fsij.org>
+
+	ecdsa: Fix unblinding too early.
+	+ commit 1862f402d363dce946c3169d4f4f48c5eee052f1
+	* cipher/ecc-ecdsa.c (_gcry_ecc_ecdsa_sign): Keep the blinding until
+	the last step.
+
+2019-08-09  NIIBE Yutaka  <gniibe@fsij.org>
+
+	dsa,ecdsa: Fix use of nonce, use larger one.
+	+ commit db4e9976cc31b314aafad6626b2894e86ee44d60
+	* cipher/dsa-common.c (_gcry_dsa_modify_k): New.
+	* cipher/pubkey-internal.h (_gcry_dsa_modify_k): New.
+	* cipher/dsa.c (sign): Use _gcry_dsa_modify_k.
+	* cipher/ecc-ecdsa.c (_gcry_ecc_ecdsa_sign): Likewise.
+	* cipher/ecc-gost.c (_gcry_ecc_gost_sign): Likewise.
+
+2019-08-07  NIIBE Yutaka  <gniibe@fsij.org>
+	    Ján Jančár  <johny@neuromancer.sk>
+
+	ecc: Add mitigation against timing attack.
+	+ commit d5407b78cca9f9d318a4f4d2f6ba2b8388584cd9
+	* cipher/ecc-ecdsa.c (_gcry_ecc_ecdsa_sign): Add the order N to K.
+	* mpi/ec.c (_gcry_mpi_ec_mul_point): Compute with NBITS of P or larger.
+
+2019-08-07  NIIBE Yutaka  <gniibe@fsij.org>
+
+	dsa,ecdsa: Allocate secure memory for RFC6979 generation.
+	+ commit 5ad654a330859b140ffb69502c99e269f2cca9f3
+	* cipher/dsa-common.c (_gcry_dsa_gen_rfc6979_k): Use secure memory
+	just like _gcry_dsa_gen_k does.
+
+2019-07-15  NIIBE Yutaka  <gniibe@fsij.org>
+
+	tests: t-mpi-point: Remove implementation dependent checks.
+	+ commit 0147a5e69e497fa0433e61faef77aa6ddf071aea
+	* tests/t-mpi-point.c (basic_ec_math): Remove comparing X and Y,
+	only comparison of Z is relevant, mathematically.
+	Remove useless check, where different values in equivalence class
+	exist.
+	(basic_ec_math_simplified): Likewise.
+
+2018-11-19  Andreas Metzler  <ametzler@bebt.de>
+
+	doc: Fix library initialization examples.
+	+ commit 6faeca72b455541ed6da45c5e71c8eb7b10b8c0b
+
+
+2018-11-14  Werner Koch  <wk@gnupg.org>
+
+	random: Initialize variable as requested by valgrind.
+	+ commit 35e002d4b842f25e3fcb6036c21bdafc5214317e
+	random/jitterentropy-base.c: Init.
+
+2018-11-13  NIIBE Yutaka  <gniibe@fsij.org>
+
+	libgcrypt.m4: Update from master.
+	+ commit 4141caabe76ad092f3487b4516ee481fba837adb
+	* src/libgcrypt.m4: Update from master.
+
+2018-10-30  NIIBE Yutaka  <gniibe@fsij.org>
+
+	libgcrypt.m4: Update from master.
+	+ commit 0216418ab23a690662764098a17002754202a2c2
+	* src/libgcrypt.m4: Update.
+
+	libgrypt.pc: Provide pkg-config file.
+	+ commit 813b002eaf3052586f25b36d0b72668cfad3e0ee
+	* configure.ac: Generate src/libgcrypt.pc.
+	* src/Makefile.am (pkgconfigdir, pkgconfig_DATA): New.
+	(EXTRA_DIST): Add libgcrypt.pc.in.
+	* src/libgcrypt.pc.in: New.
+
 2018-10-26  Werner Koch  <wk@gnupg.org>
 
 	Release 1.8.4.

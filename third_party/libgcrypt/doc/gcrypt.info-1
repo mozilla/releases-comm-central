@@ -1,6 +1,6 @@
-This is gcrypt.info, produced by makeinfo version 6.3 from gcrypt.texi.
+This is gcrypt.info, produced by makeinfo version 6.5 from gcrypt.texi.
 
-This manual is for Libgcrypt (version 1.8.4, 24 October 2018), which is
+This manual is for Libgcrypt (version 1.8.5, 19 November 2018), which is
 GNU's library of cryptographic building blocks.
 
 Copyright (C) 2000, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2011, 2012
@@ -24,7 +24,7 @@ File: gcrypt.info,  Node: Top,  Next: Introduction,  Up: (dir)
 The Libgcrypt Library
 *********************
 
-This manual is for Libgcrypt (version 1.8.4, 24 October 2018), which is
+This manual is for Libgcrypt (version 1.8.5, 19 November 2018), which is
 GNU's library of cryptographic building blocks.
 
 Copyright (C) 2000, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2011, 2012
@@ -320,10 +320,12 @@ runs in a controlled environment where key material floating around in
 memory is not a problem, you should initialize Libgcrypt this way:
 
        /* Version check should be the very first call because it
-          makes sure that important subsystems are initialized. */
-       if (!gcry_check_version (GCRYPT_VERSION))
+          makes sure that important subsystems are initialized.
+          #define NEED_LIBGCRYPT_VERSION to the minimum required version. */
+       if (!gcry_check_version (NEED_LIBGCRYPT_VERSION))
          {
-           fputs ("libgcrypt version mismatch\n", stderr);
+           fprintf (stderr, "libgcrypt is too old (need %s, have %s)\n",
+              NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL));
            exit (2);
          }
 
@@ -340,10 +342,12 @@ against being swapped out to disk and to enable an automatic overwrite
 of used and freed memory, you need to initialize Libgcrypt this way:
 
        /* Version check should be the very first call because it
-          makes sure that important subsystems are initialized. */
-       if (!gcry_check_version (GCRYPT_VERSION))
+          makes sure that important subsystems are initialized.
+          #define NEED_LIBGCRYPT_VERSION to the minimum required version. */
+       if (!gcry_check_version (NEED_LIBGCRYPT_VERSION))
          {
-           fputs ("libgcrypt version mismatch\n", stderr);
+           fprintf (stderr, "libgcrypt is too old (need %s, have %s)\n",
+              NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL));
            exit (2);
          }
 
@@ -5241,9 +5245,9 @@ available through the public API.
 
    (1) Chae Hoon Lim and Pil Joong Lee.  A key recovery attack on
 discrete log-based schemes using a prime order subgroup.  In Burton S.
-Kaliski Jr., editor, Advances in Cryptology: Crypto '97, pages 249­-263,
-Berlin / Heidelberg / New York, 1997.  Springer-Verlag.  Described on
-page 260.
+Kaliski Jr., editor, Advances in Cryptology: Crypto '97, pages
+249­-263, Berlin / Heidelberg / New York, 1997.  Springer-Verlag.
+Described on page 260.
 
 
 File: gcrypt.info,  Node: Random-Number Subsystem Architecture,  Prev: Prime-Number-Generator Subsystem Architecture,  Up: Architecture

@@ -114,6 +114,8 @@ _gcry_ecc_ecdsa_sign (gcry_mpi_t input, ECC_secret_key *skey,
           else
             k = _gcry_dsa_gen_k (skey->E.n, GCRY_STRONG_RANDOM);
 
+          _gcry_dsa_modify_k (k, skey->E.n, qbits);
+
           _gcry_mpi_ec_mul_point (&I, k, &skey->E.G, ctx);
           if (_gcry_mpi_ec_get_affine (x, NULL, &I, ctx))
             {
@@ -126,13 +128,15 @@ _gcry_ecc_ecdsa_sign (gcry_mpi_t input, ECC_secret_key *skey,
         }
       while (!mpi_cmp_ui (r, 0));
 
+      /* Computation of dr, sum, and s are blinded with b.  */
       mpi_mulm (dr, b, skey->d, skey->E.n);
-      mpi_mulm (dr, dr, r, skey->E.n);      /* dr = d*r mod n (blinded with b) */
+      mpi_mulm (dr, dr, r, skey->E.n);      /* dr = d*r mod n */
       mpi_mulm (sum, b, hash, skey->E.n);
-      mpi_addm (sum, sum, dr, skey->E.n);   /* sum = hash + (d*r) mod n  (blinded with b) */
-      mpi_mulm (sum, bi, sum, skey->E.n);   /* undo blinding by b^-1 */
+      mpi_addm (sum, sum, dr, skey->E.n);   /* sum = hash + (d*r) mod n */
       mpi_invm (k_1, k, skey->E.n);         /* k_1 = k^(-1) mod n  */
       mpi_mulm (s, k_1, sum, skey->E.n);    /* s = k^(-1)*(hash+(d*r)) mod n */
+      /* Undo blinding by b^-1 */
+      mpi_mulm (s, bi, s, skey->E.n);
     }
   while (!mpi_cmp_ui (s, 0));
 
