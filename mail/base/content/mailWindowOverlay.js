@@ -3185,7 +3185,7 @@ var gMessageNotificationBar = {
       this.msgNotificationBar.appendNotification(
         junkBarMsg,
         "junkContent",
-        "chrome://messenger/skin/icons/junk.png",
+        "chrome://messenger/skin/icons/junk.svg",
         this.msgNotificationBar.PRIORITY_WARNING_HIGH,
         buttons
       );
