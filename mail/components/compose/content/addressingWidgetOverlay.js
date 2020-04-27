@@ -555,12 +555,10 @@ function recipientOnBeforeKeyDown(event, element) {
     case "Home":
     case "ArrowLeft":
     case "Backspace":
-      // Stop the propagation of these events to not trigger a pill keypress
-      // event when the focus moves on it.
-      event.preventDefault();
-      event.stopPropagation();
-
       if (!element.value && !event.repeat) {
+        // Prevent a pill keypress event when the focus moves on it.
+        event.preventDefault();
+
         let pills = element
           .closest(".address-container")
           .querySelectorAll("mail-address-pill");
