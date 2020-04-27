@@ -255,9 +255,10 @@ fun_writer (void *cookie_arg, const void *buffer, size_t size)
 #ifndef HAVE_W32_SYSTEM
           memset (&srvr_addr, 0, sizeof srvr_addr);
           srvr_addr_un.sun_family = af;
-          if (!*name && (name = socket_dir_cb ()) && *name)
+          if (!*name)
             {
-              if (strlen (name) + 7 < sizeof (srvr_addr_un.sun_path)-1)
+              if ((name = socket_dir_cb ()) && *name
+                  && strlen (name) + 7 < sizeof (srvr_addr_un.sun_path)-1)
                 {
                   strncpy (srvr_addr_un.sun_path,
                            name, sizeof (srvr_addr_un.sun_path)-1);
@@ -270,7 +271,7 @@ fun_writer (void *cookie_arg, const void *buffer, size_t size)
             }
           else
             {
-              if (*name && strlen (name) < sizeof (srvr_addr_un.sun_path)-1)
+              if (strlen (name) < sizeof (srvr_addr_un.sun_path)-1)
                 {
                   strncpy (srvr_addr_un.sun_path,
                            name, sizeof (srvr_addr_un.sun_path)-1);

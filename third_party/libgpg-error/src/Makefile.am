@@ -138,7 +138,6 @@ SUFFIXES = .rc .lo
 	$(LTRCCOMPILE) -i "$<" -o "$@"
 
 gpg_error_res = versioninfo.lo
-no_undefined = -no-undefined
 export_symbols = -export-symbols gpg-error.def
 # i686-w64-mingw32.gcc version 4.9.1 takes the long long helper
 # functions from libgcc_s_sjlj-1.dll and not from a static libgcc.  As
@@ -168,7 +167,6 @@ else
 #
 arch_sources = posix-lock.c posix-lock-obj.h posix-thread.c spawn-posix.c
 gpg_error_res =
-no_undefined =
 export_symbols =
 extra_ltoptions =
 
@@ -190,7 +188,7 @@ else
 endif
 
 libgpg_error_la_LDFLAGS = \
-  $(no_undefined) $(export_symbols) $(libgpg_error_vers_opt) \
+  -no-undefined $(export_symbols) $(libgpg_error_vers_opt) \
   $(extra_ltoptions) -version-info \
   @LIBGPG_ERROR_LT_CURRENT@:@LIBGPG_ERROR_LT_REVISION@:@LIBGPG_ERROR_LT_AGE@
 
@@ -279,13 +277,15 @@ gpg-error.def: Makefile gpg-error.def.in
 # It is correct to use $(CC_FOR_BUILD) here.  We want to run the
 # program at build time.
 mkerrcodes$(EXEEXT_FOR_BUILD): mkerrcodes.c mkerrcodes.h Makefile
-	$(CC_FOR_BUILD) -I. -I$(srcdir) -o $@ $(srcdir)/mkerrcodes.c
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) \
+	$(CPPFLAGS_FOR_BUILD) -I. -I$(srcdir) -o $@ $(srcdir)/mkerrcodes.c
 
 if HAVE_W32CE_SYSTEM
 # It is correct to use $(CC_FOR_BUILD) here.  We want to run the
 # program at build time.
 mkw32errmap$(EXEEXT_FOR_BUILD): mkw32errmap.c mkw32errmap.tab.h Makefile
-	$(CC_FOR_BUILD) -I. -I$(srcdir) -o $@ $(srcdir)/mkw32errmap.c
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) \
+	$(CPPFLAGS_FOR_BUILD) -I. -I$(srcdir) -o $@ $(srcdir)/mkw32errmap.c
 endif
 
 code-from-errno.h: mkerrcodes$(EXEEXT_FOR_BUILD) Makefile
@@ -293,12 +293,13 @@ code-from-errno.h: mkerrcodes$(EXEEXT_FOR_BUILD) Makefile
 
 errnos-sym.h: Makefile mkstrtable.awk errnos.in
 	$(AWK) -f $(srcdir)/mkstrtable.awk -v textidx=2 -v nogettext=1 \
-		-v prefix=GPG_ERR_ -v namespace=errnos_ \
+		-v prefix=GPG_ERR_ -v pkg_namespace=errnos_ \
 		$(srcdir)/errnos.in >$@
 
 
 mkheader$(EXEEXT_FOR_BUILD): mkheader.c Makefile
-	$(CC_FOR_BUILD) -g -O0 -I. -I$(srcdir) -o $@ $(srcdir)/mkheader.c
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) \
+	$(CPPFLAGS_FOR_BUILD) -g -I. -I$(srcdir) -o $@ $(srcdir)/mkheader.c
 
 parts_of_gpg_error_h = 	 	\
 	gpg-error.h.in  	\
@@ -338,11 +339,12 @@ gpgrt.h: gpg-error.h
 
 gpg-error-config: gpgrt-config gpg-error-config-old
 	@echo $(ECHO_N) "Confirm gpg-error-config works... $(ECHO_C)"
-	@if $(srcdir)/gpg-error-config-test.sh --old-new; then \
+	@if ./gpg-error-config-test.sh --old-new; then \
 	  echo "good";                                         \
 	else                                                   \
 	  echo "no";                                           \
 	  echo "***  Please report to <https://bugs.gnupg.org> with gpg-error-config-test.log"; \
+	  exit 1; \
 	fi
 	cp gpg-error-config-old $@
 

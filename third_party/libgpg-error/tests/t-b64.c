@@ -161,6 +161,7 @@ test_b64dec_string (const char *string, const char *expected, const char *title)
     {
       err = gpg_err_code_from_syserror ();
       fail ("gpgrt_b64dec_start failed: %s\n", gpg_strerror (err));
+      free (buffer);
       return err;
     }
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!@INSTALLSHELLPATH@
 # Copyright (C) 1999, 2002, 2003 Free Software Foundation, Inc.
 #
 # This file is free software; as a special exception the author gives

@@ -54,14 +54,29 @@
 #undef X_OK
 #define X_OK F_OK
 
-/* We assume that a HANDLE can be represented by an int which should
- * be true for all i386 systems (HANDLE is defined as void *) and
- * these are the only systems for which Windows is available.  Further
- * we assume that -1 denotes an invalid handle.
- * FIXME: With Windows 64 this is no longer true.
+/* For HANDLE and the internal file descriptor (fd) of this module:
+ * HANDLE can be represented by an intptr_t which should be true for
+ * all systems (HANDLE is defined as void *).  Further, we assume that
+ * -1 denotes an invalid handle.
+ *
+ * Note that a C run-time file descriptor (the exposed one to API) is
+ * always represented by an int.
  */
 #define fd_to_handle(a)  ((HANDLE)(a))
-#define handle_to_fd(a)  ((int)(a))
+#define handle_to_fd(a)  ((intptr_t)(a))
+
+/* For pid_t and HANDLE:
+
+ * We assume that a HANDLE can be represented by an int which should
+ * be true for all i386 systems.
+ *
+ * On 64-bit machine, it is no longer true, as a type, however, as
+ * long as the range of the value in the type HANDLE can be
+ * represented by an int, it works.
+ *
+ * FIXME: Breaking ABI for pid_t will be needed when the value won't
+ * fit within 32-bit range on 64-bit machine.
+ */
 #define pid_to_handle(a) ((HANDLE)(a))
 #define handle_to_pid(a) ((int)(a))
 

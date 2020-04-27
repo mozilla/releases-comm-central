@@ -1,4 +1,4 @@
-#!/bin/sh
+#!@INSTALLSHELLPATH@
 # Copyright (C) 2018 g10 Code GmbH
 #
 # This file is free software; as a special exception the author gives

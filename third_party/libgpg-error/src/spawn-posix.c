@@ -753,7 +753,7 @@ _gpgrt_wait_processes (const char **pgmnames, pid_t *pids, size_t count,
           /* Process PIDS[i] died.  */
           if (r_exitcodes[i] != (pid_t) -1)
             {
-              _gpgrt_log_error ("PID %d was reused", pid);
+              _gpgrt_log_error ("PID %d was reused", (int)pid);
               ec = GPG_ERR_GENERAL;
               break;
             }

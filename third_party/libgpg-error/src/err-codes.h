@@ -319,6 +319,10 @@ static const char msgstr[] =
   gettext_noop ("Wrong name") "\0"
   gettext_noop ("Not authenticated") "\0"
   gettext_noop ("Bad authentication") "\0"
+  gettext_noop ("No Keybox daemon running") "\0"
+  gettext_noop ("Keybox daemon error") "\0"
+  gettext_noop ("Service is not running") "\0"
+  gettext_noop ("Service error") "\0"
   gettext_noop ("System bug detected") "\0"
   gettext_noop ("Unknown DNS error") "\0"
   gettext_noop ("Invalid DNS section") "\0"
@@ -425,6 +429,37 @@ static const char msgstr[] =
   gettext_noop ("User defined error code 14") "\0"
   gettext_noop ("User defined error code 15") "\0"
   gettext_noop ("User defined error code 16") "\0"
+  gettext_noop ("SQL success") "\0"
+  gettext_noop ("SQL error") "\0"
+  gettext_noop ("Internal logic error in SQL library") "\0"
+  gettext_noop ("Access permission denied (SQL)") "\0"
+  gettext_noop ("SQL abort was requested") "\0"
+  gettext_noop ("SQL database file is locked") "\0"
+  gettext_noop ("An SQL table in the database is locked") "\0"
+  gettext_noop ("SQL library ran out of core") "\0"
+  gettext_noop ("Attempt to write a readonly SQL database") "\0"
+  gettext_noop ("SQL operation terminated by interrupt") "\0"
+  gettext_noop ("I/O error during SQL operation") "\0"
+  gettext_noop ("SQL database disk image is malformed") "\0"
+  gettext_noop ("Unknown opcode in SQL file control") "\0"
+  gettext_noop ("Insertion failed because SQL database is full") "\0"
+  gettext_noop ("Unable to open the SQL database file") "\0"
+  gettext_noop ("SQL database lock protocol error") "\0"
+  gettext_noop ("(internal SQL code: empty)") "\0"
+  gettext_noop ("SQL database schema changed") "\0"
+  gettext_noop ("String or blob exceeds size limit (SQL)") "\0"
+  gettext_noop ("SQL abort due to constraint violation") "\0"
+  gettext_noop ("Data type mismatch (SQL)") "\0"
+  gettext_noop ("SQL library used incorrectly") "\0"
+  gettext_noop ("SQL library uses unsupported OS features") "\0"
+  gettext_noop ("Authorization denied (SQL)") "\0"
+  gettext_noop ("(unused SQL code: format)") "\0"
+  gettext_noop ("SQL bind parameter out of range") "\0"
+  gettext_noop ("File opened that is not an SQL database file") "\0"
+  gettext_noop ("Notifications from SQL logger") "\0"
+  gettext_noop ("Warnings from SQL logger") "\0"
+  gettext_noop ("SQL has another row ready") "\0"
+  gettext_noop ("SQL has finished executing") "\0"
   gettext_noop ("System error w/o errno") "\0"
   gettext_noop ("Unknown system error") "\0"
   gettext_noop ("End of file") "\0"
@@ -727,115 +762,150 @@ static const int msgidx[] =
     5807,
     5825,
     5844,
-    5864,
-    5882,
-    5902,
-    5931,
-    5956,
-    5982,
-    6007,
-    6034,
-    6046,
-    6065,
-    6094,
-    6118,
-    6146,
-    6173,
-    6199,
+    5869,
+    5889,
+    5912,
+    5926,
+    5946,
+    5964,
+    5984,
+    6013,
+    6038,
+    6064,
+    6089,
+    6116,
+    6128,
+    6147,
+    6176,
+    6200,
     6228,
-    6252,
-    6277,
-    6304,
-    6333,
-    6350,
-    6375,
-    6398,
-    6420,
-    6439,
-    6461,
-    6494,
-    6524,
-    6547,
-    6582,
-    6598,
-    6618,
-    6638,
-    6655,
-    6682,
-    6695,
-    6717,
+    6255,
+    6281,
+    6310,
+    6334,
+    6359,
+    6386,
+    6415,
+    6432,
+    6457,
+    6480,
+    6502,
+    6521,
+    6543,
+    6576,
+    6606,
+    6629,
+    6664,
+    6680,
+    6700,
+    6720,
     6737,
-    6765,
-    6793,
-    6812,
-    6830,
-    6871,
-    6911,
-    6950,
-    6964,
-    6999,
-    7038,
-    7071,
-    7098,
-    7121,
-    7151,
-    7182,
-    7211,
-    7237,
-    7260,
-    7280,
-    7299,
-    7325,
-    7346,
-    7379,
-    7416,
-    7450,
-    7475,
-    7504,
-    7524,
-    7551,
-    7587,
-    7609,
-    7631,
-    7659,
-    7698,
-    7732,
-    7754,
-    7786,
-    7809,
-    7846,
-    7875,
-    7892,
-    7920,
-    7947,
-    7968,
-    7995,
-    8019,
-    8034,
-    8062,
-    8086,
-    8105,
-    8127,
-    8164,
-    8190,
-    8216,
-    8242,
-    8268,
-    8294,
-    8320,
-    8346,
-    8372,
-    8398,
-    8425,
-    8452,
-    8479,
-    8506,
-    8533,
-    8560,
-    8587,
-    8610,
-    8631,
-    8643
+    6764,
+    6777,
+    6799,
+    6819,
+    6847,
+    6875,
+    6894,
+    6912,
+    6953,
+    6993,
+    7032,
+    7046,
+    7081,
+    7120,
+    7153,
+    7180,
+    7203,
+    7233,
+    7264,
+    7293,
+    7319,
+    7342,
+    7362,
+    7381,
+    7407,
+    7428,
+    7461,
+    7498,
+    7532,
+    7557,
+    7586,
+    7606,
+    7633,
+    7669,
+    7691,
+    7713,
+    7741,
+    7780,
+    7814,
+    7836,
+    7868,
+    7891,
+    7928,
+    7957,
+    7974,
+    8002,
+    8029,
+    8050,
+    8077,
+    8101,
+    8116,
+    8144,
+    8168,
+    8187,
+    8209,
+    8246,
+    8272,
+    8298,
+    8324,
+    8350,
+    8376,
+    8402,
+    8428,
+    8454,
+    8480,
+    8507,
+    8534,
+    8561,
+    8588,
+    8615,
+    8642,
+    8669,
+    8681,
+    8691,
+    8727,
+    8758,
+    8782,
+    8810,
+    8849,
+    8877,
+    8918,
+    8956,
+    8987,
+    9024,
+    9059,
+    9105,
+    9142,
+    9175,
+    9202,
+    9230,
+    9270,
+    9308,
+    9333,
+    9362,
+    9403,
+    9430,
+    9456,
+    9488,
+    9533,
+    9563,
+    9588,
+    9614,
+    9641,
+    9664,
+    9685,
+    9697
   };
 
 static GPG_ERR_INLINE int
@@ -845,20 +915,22 @@ msgidxof (int code)
   : ((code >= 0) && (code <= 213)) ? (code - 0)
   : ((code >= 217) && (code <= 271)) ? (code - 3)
   : ((code >= 273) && (code <= 281)) ? (code - 4)
-  : ((code >= 300) && (code <= 315)) ? (code - 22)
-  : ((code >= 666) && (code <= 666)) ? (code - 372)
-  : ((code >= 711) && (code <= 718)) ? (code - 416)
-  : ((code >= 721) && (code <= 729)) ? (code - 418)
-  : ((code >= 750) && (code <= 752)) ? (code - 438)
-  : ((code >= 754) && (code <= 782)) ? (code - 439)
-  : ((code >= 784) && (code <= 789)) ? (code - 440)
-  : ((code >= 800) && (code <= 804)) ? (code - 450)
-  : ((code >= 815) && (code <= 822)) ? (code - 460)
-  : ((code >= 832) && (code <= 839)) ? (code - 469)
-  : ((code >= 844) && (code <= 844)) ? (code - 473)
-  : ((code >= 848) && (code <= 848)) ? (code - 476)
-  : ((code >= 881) && (code <= 891)) ? (code - 508)
-  : ((code >= 1024) && (code <= 1039)) ? (code - 640)
-  : ((code >= 16381) && (code <= 16383)) ? (code - 15981)
-  : 16384 - 15981);
+  : ((code >= 300) && (code <= 319)) ? (code - 22)
+  : ((code >= 666) && (code <= 666)) ? (code - 368)
+  : ((code >= 711) && (code <= 718)) ? (code - 412)
+  : ((code >= 721) && (code <= 729)) ? (code - 414)
+  : ((code >= 750) && (code <= 752)) ? (code - 434)
+  : ((code >= 754) && (code <= 782)) ? (code - 435)
+  : ((code >= 784) && (code <= 789)) ? (code - 436)
+  : ((code >= 800) && (code <= 804)) ? (code - 446)
+  : ((code >= 815) && (code <= 822)) ? (code - 456)
+  : ((code >= 832) && (code <= 839)) ? (code - 465)
+  : ((code >= 844) && (code <= 844)) ? (code - 469)
+  : ((code >= 848) && (code <= 848)) ? (code - 472)
+  : ((code >= 881) && (code <= 891)) ? (code - 504)
+  : ((code >= 1024) && (code <= 1039)) ? (code - 636)
+  : ((code >= 1500) && (code <= 1528)) ? (code - 1096)
+  : ((code >= 1600) && (code <= 1601)) ? (code - 1167)
+  : ((code >= 16381) && (code <= 16383)) ? (code - 15946)
+  : 16384 - 15946);
 }

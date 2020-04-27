@@ -415,6 +415,13 @@ int gpg_err_code_to_errno (gpg_err_code_t code);
  * (report this) and GPG_ERR_MISSING_ERRNO if ERRNO has the value 0. */
 gpg_err_code_t gpg_err_code_from_syserror (void);
 
+/* Mapper for SQLite primary error codes.  */
+static GPG_ERR_INLINE gpg_error_t
+gpg_err_code_from_sqlite (int sqlres)
+{
+  return sqlres? GPG_ERR_SQL_OK + (sqlres & 0xff) : 0;
+}
+
 
 /* Set the ERRNO variable.  This function is the preferred way to set
  * ERRNO due to peculiarities on WindowsCE.  */

@@ -335,6 +335,10 @@
 313	GPG_ERR_WRONG_NAME		Wrong name
 314	GPG_ERR_NO_AUTH			Not authenticated
 315	GPG_ERR_BAD_AUTH		Bad authentication
+316	GPG_ERR_NO_KEYBOXD		No Keybox daemon running
+317	GPG_ERR_KEYBOXD			Keybox daemon error
+318	GPG_ERR_NO_SERVICE		Service is not running
+319	GPG_ERR_SERVICE			Service error
 # This range is free for use.
 
 666	GPG_ERR_SYSTEM_BUG		System bug detected
@@ -470,7 +474,47 @@
 1038	GPG_ERR_USER_15			User defined error code 15
 1039	GPG_ERR_USER_16			User defined error code 16
 
-# 1040 to 16380 are free to be used.
+# 1040 to 1499 are free to be used.
+
+# 1500 to 1755 are mapped SQLite primary error codes.
+1500	GPG_ERR_SQL_OK		SQL success
+1501	GPG_ERR_SQL_ERROR	SQL error
+1502	GPG_ERR_SQL_INTERNAL	Internal logic error in SQL library
+1503	GPG_ERR_SQL_PERM	Access permission denied (SQL)
+1504	GPG_ERR_SQL_ABORT	SQL abort was requested
+1505	GPG_ERR_SQL_BUSY	SQL database file is locked
+1506	GPG_ERR_SQL_LOCKED	An SQL table in the database is locked
+1507	GPG_ERR_SQL_NOMEM	SQL library ran out of core
+1508	GPG_ERR_SQL_READONLY	Attempt to write a readonly SQL database
+1509	GPG_ERR_SQL_INTERRUPT	SQL operation terminated by interrupt
+1510	GPG_ERR_SQL_IOERR	I/O error during SQL operation
+1511	GPG_ERR_SQL_CORRUPT	SQL database disk image is malformed
+1512	GPG_ERR_SQL_NOTFOUND	Unknown opcode in SQL file control
+1513	GPG_ERR_SQL_FULL	Insertion failed because SQL database is full
+1514	GPG_ERR_SQL_CANTOPEN	Unable to open the SQL database file
+1515	GPG_ERR_SQL_PROTOCOL	SQL database lock protocol error
+1516	GPG_ERR_SQL_EMPTY	(internal SQL code: empty)
+1517	GPG_ERR_SQL_SCHEMA	SQL database schema changed
+1518	GPG_ERR_SQL_TOOBIG	String or blob exceeds size limit (SQL)
+1519	GPG_ERR_SQL_CONSTRAINT	SQL abort due to constraint violation
+1520	GPG_ERR_SQL_MISMATCH	Data type mismatch (SQL)
+1521	GPG_ERR_SQL_MISUSE	SQL library used incorrectly
+1522	GPG_ERR_SQL_NOLFS	SQL library uses unsupported OS features
+1523	GPG_ERR_SQL_AUTH	Authorization denied (SQL)
+1524	GPG_ERR_SQL_FORMAT	(unused SQL code: format)
+1525	GPG_ERR_SQL_RANGE	SQL bind parameter out of range
+1526	GPG_ERR_SQL_NOTADB	File opened that is not an SQL database file
+1527	GPG_ERR_SQL_NOTICE	Notifications from SQL logger
+1528	GPG_ERR_SQL_WARNING	Warnings from SQL logger
+
+# 1529 to 1599 are reserved for newer SQLite primary error codes.
+
+1600	GPG_ERR_SQL_ROW		SQL has another row ready
+1601	GPG_ERR_SQL_DONE	SQL has finished executing
+
+# 1602 to 1755 are reserved for newer SQLite primary error codes.
+
+# 1756 to 16380 are free to be used.
 
 16381	GPG_ERR_MISSING_ERRNO		System error w/o errno
 16382	GPG_ERR_UNKNOWN_ERRNO		Unknown system error

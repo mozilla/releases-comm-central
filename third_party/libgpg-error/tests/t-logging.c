@@ -142,6 +142,7 @@ check_log_info (void)
   if (strcmp (logbuf,
               "t-logging: file '/foo/bar.txt\\nt-logging': not \\x01 found\n"))
     fail ("log_info test failed at line %d\n", __LINE__);
+  free (logbuf);
 
   /* With arguments and byte with bit 7 set in a string arg.  */
   log_info ("file '%s': %s\n", "/foo/bar.txt\n", "not \x81 found");

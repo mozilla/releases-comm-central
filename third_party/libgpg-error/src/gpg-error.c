@@ -168,6 +168,10 @@ const char *gpg_strerror_sym (gpg_error_t err);
 const char *gpg_strsource_sym (gpg_error_t err);
 
 
+/* Parse string STR assuming it is either a single number N or in the
+ * form K.N to denote an error source code K and and error code N.
+ * Returns false on error (e.g. invalid number) or true for valid
+ * codes; if true is returned a full error code is stored at ERR.  */
 static int
 get_err_from_number (char *str, gpg_error_t *err)
 {
@@ -199,6 +203,15 @@ get_err_from_number (char *str, gpg_error_t *err)
 }
 
 
+/* Helper function to parse a symbol either with a "GPG_ERR_SOURCE_"
+ * or "GPG_ERR_" prefix.  If the symbol is not available false is
+ * return; else the symbols value is ORed into the value at ERR
+ * (shifted for a GPG_ERR_SOURCE_) and true returned.  HAVE_SOURCE and
+ * HAVE_CODE are expected to be addresses where a 0 is stored; a 1 is
+ * stored at the respective address to mark whether a code or source
+ * value was found.  If one of those state variables already point to
+ * a true value the function will return 0 and not change the value at
+ * ERR.  */
 static int
 get_err_from_symbol_one (char *str, gpg_error_t *err,
 			 int *have_source, int *have_code)
@@ -251,6 +264,11 @@ get_err_from_symbol_one (char *str, gpg_error_t *err,
 }
 
 
+/* Parse string STR assuming it is either a single symbol C or in the
+ * form S.C to denote an error source symbold S and and error code
+ * symbold C.  Returns false on error (e.g. invalid number) or true
+ * for valid codes; if true is returned a full error code is stored at
+ * ERR.  */
 static int
 get_err_from_symbol (char *str, gpg_error_t *err)
 {
@@ -286,6 +304,44 @@ get_err_from_symbol (char *str, gpg_error_t *err)
 }
 
 
+/* Parse string STR assuming it partial code symbol and store its
+ * value at ERR and return true.  */
+static int
+get_err_from_codesymbol (char *str, gpg_error_t *err)
+{
+  static const char code_prefix[] = "GPG_ERR_";
+  gpg_err_code_t code;
+
+  *err = 0;
+
+  /* Skip an optional prefix.  */
+  if (!strncasecmp (code_prefix, str, sizeof (code_prefix) - 1))
+    str += sizeof (code_prefix) - 1;
+
+  for (code = 0; code < GPG_ERR_CODE_DIM; code++)
+    {
+      const char *code_sym = gpg_strerror_sym (code);
+      if (code_sym
+          && !strcasecmp (str, code_sym + sizeof (code_prefix) - 1))
+        {
+          *err |= code;
+          return 1;
+        }
+    }
+  return 0;
+}
+
+
+/* Helper function to parse a string which maps back to a source or
+ * code value.  If no source or code for the symbold is available
+ * false is return; else the source or code value is ORed into the
+ * value at ERR (shifted for a GPG_ERR_SOURCE_) and true returned.
+ * The match is first tried on source values and then on code values.
+ * HAVE_SOURCE and HAVE_CODE are expected to be addresses where a 0 is
+ * stored; a 1 is stored at the respective address to mark whether a
+ * code or source value was found.  If one of those state variables
+ * already point to a true value the function will return 0 and not
+ * change the value at ERR.  */
 static int
 get_err_from_str_one (char *str, gpg_error_t *err,
 		      int *have_source, int *have_code)
@@ -325,6 +381,11 @@ get_err_from_str_one (char *str, gpg_error_t *err,
 }
 
 
+/* Parse string STR assuming it is either a single desription string C
+ * or in the form S.C to denote an error source descrition S and and
+ * error code description C.  Returns false on error (e.g. invalid
+ * symbol) or true for valid codes; if true is returned a full error
+ * code is stored at ERR.  */
 static int
 get_err_from_str (char *str, gpg_error_t *err)
 {
@@ -336,10 +397,13 @@ get_err_from_str (char *str, gpg_error_t *err)
   char saved_char = 0; /* (avoid warning) */
 
   *err = 0;
+  /* First match on the entire string to handle the case that it is
+   * code description with spaces.  */
   ret = get_err_from_str_one (str, err, &have_source, &have_code);
   if (ret)
     return ret;
 
+  /* Then figure out whether the first string is a simple word.  */
   while (*str2 && ((*str2 >= 'A' && *str2 <= 'Z')
 		   || (*str2 >= 'a' && *str2 <= 'z')
 		   || (*str2 >= '0' && *str2 <= '9')
@@ -493,13 +557,13 @@ main (int argc, char *argv[])
                 "Print all error codes"),
     ARGPARSE_c (CMD_DEFINES, "defines",
                 "Print all error codes as #define lines"),
-    ARGPARSE_c (CMD_LOCALE, "locale",
 #if HAVE_W32_SYSTEM
-                "Return the locale used for gettext"
+    ARGPARSE_c (CMD_LOCALE, "locale",
+                "Return the locale used for gettext"),
 #else
-                "@"
+    ARGPARSE_c (CMD_LOCALE, "locale",
+                "@"),
 #endif
-                ),
     ARGPARSE_s_n (OPT_DESC, "desc",
                   "Print with error description"),
     ARGPARSE_end()
@@ -640,8 +704,15 @@ main (int argc, char *argv[])
     {
       for (i=0; i < argc; i++)
         {
+          /* First check the arg is a number N or K.N,
+           * then check the arg for CODESYM or SOURCESYM.CODESYM,
+           * then check the arg for CODESYM or CODESYM w/o GPG_ERR_ prefix,
+           * then check the arg for code description
+           *                     or symbol dot code description.
+           */
           if (get_err_from_number (argv[i], &err)
               || get_err_from_symbol (argv[i], &err)
+              || get_err_from_codesymbol (argv[i], &err)
               || get_err_from_str (argv[i], &err))
             {
               source_sym = gpg_strsource_sym (err);

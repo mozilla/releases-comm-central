@@ -49,7 +49,7 @@
       .B whateever you want
       @end ifset
 
-    alternativly a special comment may be used:
+    alternatively a special comment may be used:
 
       @c man:.B whatever you want
 
@@ -705,7 +705,7 @@ write_th (FILE *fp)
 
 
 /* Process the texinfo command COMMAND (without the leading @) and
-   write output if needed to FP. REST is the remainer of the line
+   write output if needed to FP. REST is the remainder of the line
    which should either point to an opening brace or to a white space.
    The function returns the number of characters already processed
    from REST.  LEN is the usable length of REST.  TABLE_LEVEL is used to
@@ -725,7 +725,8 @@ proc_texi_cmd (FILE *fp, const char *command, const char *rest, size_t len,
     { "url",     0, "\\fB", "\\fR" },
     { "sc",      0, "\\fB", "\\fR" },
     { "var",     0, "\\fI", "\\fR" },
-    { "samp",    0, "\\(aq", "\\(aq"  },
+    { "samp",    0, "\\(oq", "\\(cq"  },
+    { "kbd",     0, "\\(oq", "\\(cq"  },
     { "file",    0, "\\(oq\\fI","\\fR\\(cq" },
     { "env",     0, "\\(oq\\fI","\\fR\\(cq" },
     { "acronym", 0 },

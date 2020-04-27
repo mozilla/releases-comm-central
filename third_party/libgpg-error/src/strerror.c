@@ -96,8 +96,16 @@ system_strerror_r (int no, char *buf, size_t buflen)
 }
 
 #endif	/* STRERROR_R_CHAR_P */
+#elif defined (HAVE_STRERROR_S)
+/* Now the Windows version.  */
 
-#else	/* HAVE_STRERROR_H */
+static int
+system_strerror_r (int no, char *buf, size_t buflen)
+{
+  return strerror_s (buf, buflen, no);
+}
+
+#else	/* ! HAVE_STRERROR_R && ! HAVE_STRERROR_S */
 /* Without strerror_r(), we can still provide a non-thread-safe
    version.  Maybe we are even lucky and the system's strerror() is
    already thread-safe.  */

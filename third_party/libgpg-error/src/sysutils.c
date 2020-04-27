@@ -180,7 +180,7 @@ _gpgrt_setenv (const char *name, const char *value, int overwrite)
       }
     else
       {
-        if (setenv (name, value, overwrite))
+        if (setenv (name, value ? value : "", overwrite))
           return _gpg_err_code_from_syserror ();
       }
 

@@ -43,7 +43,8 @@ YAT2M_DEP = yat2m-for-build$(EXEEXT_FOR_BUILD)
 CLEANFILES += yat2m-for-build$(EXEEXT_FOR_BUILD)
 
 yat2m-for-build$(EXEEXT_FOR_BUILD): yat2m.c
-	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) -o $@ $(srcdir)/yat2m.c
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) \
+	$(CPPFLAGS_FOR_BUILD) -o $@ $(srcdir)/yat2m.c
 else
 YAT2M_CMD = ./yat2m$(EXEEXT)
 YAT2M_DEP = yat2m$(EXEEXT)

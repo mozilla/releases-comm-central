@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2019-03-19 09:58+0100\n"
+"POT-Creation-Date: 2020-02-07 13:14+0100\n"
 "PO-Revision-Date: 2018-03-21 19:04+0100\n"
 "Last-Translator: Clytie Siddall <clytie@riverland.net.au>\n"
 "Language-Team: Vietnamese <vi-VN@googlegroups.com>\n"
@@ -1364,563 +1364,715 @@ msgid "Bad authentication"
 msgstr "Sự bảo vệ không được hỗ trợ"
 
 #: src/err-codes.h:322
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Không có tác nhân đang chạy"
+
+#: src/err-codes.h:323
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Lỗi trình nền Thẻ Khéo"
+
+#: src/err-codes.h:324
+msgid "Service is not running"
+msgstr ""
+
+#: src/err-codes.h:325
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Lỗi máy phục vụ khoá"
+
+#: src/err-codes.h:326
 msgid "System bug detected"
 msgstr ""
 
-#: src/err-codes.h:323
+#: src/err-codes.h:327
 #, fuzzy
 #| msgid "Unknown system error"
 msgid "Unknown DNS error"
 msgstr "Gặp lỗi hệ thống không rõ"
 
-#: src/err-codes.h:324
+#: src/err-codes.h:328
 #, fuzzy
 #| msgid "Invalid OID string"
 msgid "Invalid DNS section"
 msgstr "Chuỗi OID không hợp lệ"
 
-#: src/err-codes.h:325
+#: src/err-codes.h:329
 #, fuzzy
 #| msgid "Invalid S-expression"
 msgid "Invalid textual address form"
 msgstr "Biểu thức S không hợp lệ"
 
-#: src/err-codes.h:326
+#: src/err-codes.h:330
 #, fuzzy
 msgid "Missing DNS query packet"
 msgstr "Chứng nhận còn thiếu"
 
-#: src/err-codes.h:327
+#: src/err-codes.h:331
 msgid "Missing DNS answer packet"
 msgstr ""
 
-#: src/err-codes.h:328
+#: src/err-codes.h:332
 msgid "Connection closed in DNS"
 msgstr ""
 
-#: src/err-codes.h:329
+#: src/err-codes.h:333
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "Verification failed in DNS"
 msgstr "Lỗi giải mật mã"
 
-#: src/err-codes.h:330
+#: src/err-codes.h:334
 #, fuzzy
 #| msgid "Timeout"
 msgid "DNS Timeout"
 msgstr "Quá giờ"
 
-#: src/err-codes.h:331
+#: src/err-codes.h:335
 #, fuzzy
 #| msgid "General IPC error"
 msgid "General LDAP error"
 msgstr "Lỗi IPC chung"
 
-#: src/err-codes.h:332
+#: src/err-codes.h:336
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP attribute error"
 msgstr "Lỗi chung"
 
-#: src/err-codes.h:333
+#: src/err-codes.h:337
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP name error"
 msgstr "Lỗi chung"
 
-#: src/err-codes.h:334
+#: src/err-codes.h:338
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP security error"
 msgstr "Lỗi Assuan chung"
 
-#: src/err-codes.h:335
+#: src/err-codes.h:339
 #, fuzzy
 #| msgid "General error"
 msgid "General LDAP service error"
 msgstr "Lỗi chung"
 
-#: src/err-codes.h:336
+#: src/err-codes.h:340
 #, fuzzy
 #| msgid "General Assuan error"
 msgid "General LDAP update error"
 msgstr "Lỗi Assuan chung"
 
-#: src/err-codes.h:337
+#: src/err-codes.h:341
 msgid "Experimental LDAP error code"
 msgstr ""
 
-#: src/err-codes.h:338
+#: src/err-codes.h:342
 #, fuzzy
 #| msgid "IPC write error"
 msgid "Private LDAP error code"
 msgstr "Lỗi ghi IPC"
 
-#: src/err-codes.h:339
+#: src/err-codes.h:343
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other general LDAP error"
 msgstr "Lỗi IPC chung"
 
-#: src/err-codes.h:340
+#: src/err-codes.h:344
 #, fuzzy
 #| msgid "IPC connect call failed"
 msgid "LDAP connecting failed (X)"
 msgstr "Lời gọi kết nối IPC bị lỗi"
 
-#: src/err-codes.h:341
+#: src/err-codes.h:345
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral limit exceeded"
 msgstr "Lỗi chung"
 
-#: src/err-codes.h:342
+#: src/err-codes.h:346
 msgid "LDAP client loop"
 msgstr ""
 
-#: src/err-codes.h:343
+#: src/err-codes.h:347
 #, fuzzy
 #| msgid "Card reset required"
 msgid "No LDAP results returned"
 msgstr "Cần thiết lập lại thẻ"
 
-#: src/err-codes.h:344
+#: src/err-codes.h:348
 #, fuzzy
 #| msgid "Element not found"
 msgid "LDAP control not found"
 msgstr "Không tìm thấy phần tử"
 
-#: src/err-codes.h:345
+#: src/err-codes.h:349
 #, fuzzy
 #| msgid "Not supported"
 msgid "Not supported by LDAP"
 msgstr "Không được hỗ trợ"
 
-#: src/err-codes.h:346
+#: src/err-codes.h:350
 #, fuzzy
 #| msgid "Unexpected error"
 msgid "LDAP connect error"
 msgstr "Gặp lỗi bất thường"
 
-#: src/err-codes.h:347
+#: src/err-codes.h:351
 msgid "Out of memory in LDAP"
 msgstr ""
 
-#: src/err-codes.h:348
+#: src/err-codes.h:352
 msgid "Bad parameter to an LDAP routine"
 msgstr ""
 
-#: src/err-codes.h:349
+#: src/err-codes.h:353
 #, fuzzy
 #| msgid "Unsupported operation"
 msgid "User cancelled LDAP operation"
 msgstr "Thao tác không được hỗ trợ"
 
-#: src/err-codes.h:350
+#: src/err-codes.h:354
 #, fuzzy
 #| msgid "Bad certificate"
 msgid "Bad LDAP search filter"
 msgstr "Chứng nhận sai"
 
-#: src/err-codes.h:351
+#: src/err-codes.h:355
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "Unknown LDAP authentication method"
 msgstr "Phần mở rộng không rõ"
 
-#: src/err-codes.h:352
+#: src/err-codes.h:356
 #, fuzzy
 #| msgid "Timeout"
 msgid "Timeout in LDAP"
 msgstr "Quá giờ"
 
-#: src/err-codes.h:353
+#: src/err-codes.h:357
 #, fuzzy
 #| msgid "dirmngr error"
 msgid "LDAP decoding error"
 msgstr "Lỗi dirmngr"
 
-#: src/err-codes.h:354
+#: src/err-codes.h:358
 #, fuzzy
 #| msgid "dirmngr error"
 msgid "LDAP encoding error"
 msgstr "Lỗi dirmngr"
 
-#: src/err-codes.h:355
+#: src/err-codes.h:359
 #, fuzzy
 #| msgid "IPC read error"
 msgid "LDAP local error"
 msgstr "Lỗi đọc IPC"
 
-#: src/err-codes.h:356
+#: src/err-codes.h:360
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot contact LDAP server"
 msgstr "Không phải trình phục vụ IPC"
 
-#: src/err-codes.h:357
+#: src/err-codes.h:361
 #, fuzzy
 #| msgid "Success"
 msgid "LDAP success"
 msgstr "Thành công"
 
-#: src/err-codes.h:358
+#: src/err-codes.h:362
 #, fuzzy
 #| msgid "Configuration error"
 msgid "LDAP operations error"
 msgstr "Lỗi cấu hình"
 
-#: src/err-codes.h:359
+#: src/err-codes.h:363
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP protocol error"
 msgstr "Vi phạm giao thức"
 
-#: src/err-codes.h:360
+#: src/err-codes.h:364
 msgid "Time limit exceeded in LDAP"
 msgstr ""
 
-#: src/err-codes.h:361
+#: src/err-codes.h:365
 msgid "Size limit exceeded in LDAP"
 msgstr ""
 
-#: src/err-codes.h:362
+#: src/err-codes.h:366
 msgid "LDAP compare false"
 msgstr ""
 
-#: src/err-codes.h:363
+#: src/err-codes.h:367
 msgid "LDAP compare true"
 msgstr ""
 
-#: src/err-codes.h:364
+#: src/err-codes.h:368
 #, fuzzy
 #| msgid "Unknown extension"
 msgid "LDAP authentication method not supported"
 msgstr "Phần mở rộng không rõ"
 
-#: src/err-codes.h:365
+#: src/err-codes.h:369
 msgid "Strong(er) LDAP authentication required"
 msgstr ""
 
-#: src/err-codes.h:366
+#: src/err-codes.h:370
 msgid "Partial LDAP results+referral received"
 msgstr ""
 
-#: src/err-codes.h:367
+#: src/err-codes.h:371
 #, fuzzy
 #| msgid "General error"
 msgid "LDAP referral"
 msgstr "Lỗi chung"
 
-#: src/err-codes.h:368
+#: src/err-codes.h:372
 msgid "Administrative LDAP limit exceeded"
 msgstr ""
 
-#: src/err-codes.h:369
+#: src/err-codes.h:373
 msgid "Critical LDAP extension is unavailable"
 msgstr ""
 
-#: src/err-codes.h:370
+#: src/err-codes.h:374
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Confidentiality required by LDAP"
 msgstr "Cần thiết lập lại thẻ"
 
-#: src/err-codes.h:371
+#: src/err-codes.h:375
 msgid "LDAP SASL bind in progress"
 msgstr ""
 
-#: src/err-codes.h:372
+#: src/err-codes.h:376
 msgid "No such LDAP attribute"
 msgstr ""
 
-#: src/err-codes.h:373
+#: src/err-codes.h:377
 #, fuzzy
 #| msgid "Invalid attribute"
 msgid "Undefined LDAP attribute type"
 msgstr "Thuộc tính không hợp lệ"
 
-#: src/err-codes.h:374
+#: src/err-codes.h:378
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate matching in LDAP"
 msgstr "Sự bảo vệ không được hỗ trợ"
 
-#: src/err-codes.h:375
+#: src/err-codes.h:379
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Constraint violation in LDAP"
 msgstr "Vi phạm giao thức"
 
-#: src/err-codes.h:376
+#: src/err-codes.h:380
 msgid "LDAP type or value exists"
 msgstr ""
 
-#: src/err-codes.h:377
+#: src/err-codes.h:381
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid syntax in LDAP"
 msgstr "Tình trạng không hợp lệ"
 
-#: src/err-codes.h:378
+#: src/err-codes.h:382
 #, fuzzy
 #| msgid "No CMS object"
 msgid "No such LDAP object"
 msgstr "Không có đối tượng CMS"
 
-#: src/err-codes.h:379
+#: src/err-codes.h:383
 #, fuzzy
 #| msgid "Hardware problem"
 msgid "LDAP alias problem"
 msgstr "Lỗi phần cứng"
 
-#: src/err-codes.h:380
+#: src/err-codes.h:384
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid DN syntax in LDAP"
 msgstr "Tình trạng không hợp lệ"
 
-#: src/err-codes.h:381
+#: src/err-codes.h:385
 msgid "LDAP entry is a leaf"
 msgstr ""
 
-#: src/err-codes.h:382
+#: src/err-codes.h:386
 #, fuzzy
 #| msgid "Encoding problem"
 msgid "LDAP alias dereferencing problem"
 msgstr "Lỗi mã hoá"
 
-#: src/err-codes.h:383
+#: src/err-codes.h:387
 msgid "LDAP proxy authorization failure (X)"
 msgstr ""
 
-#: src/err-codes.h:384
+#: src/err-codes.h:388
 #, fuzzy
 #| msgid "Unsupported protection"
 msgid "Inappropriate LDAP authentication"
 msgstr "Sự bảo vệ không được hỗ trợ"
 
-#: src/err-codes.h:385
+#: src/err-codes.h:389
 #, fuzzy
 #| msgid "Invalid card"
 msgid "Invalid LDAP credentials"
 msgstr "Thẻ không hợp lệ"
 
-#: src/err-codes.h:386
+#: src/err-codes.h:390
 msgid "Insufficient access for LDAP"
 msgstr ""
 
-#: src/err-codes.h:387
+#: src/err-codes.h:391
 msgid "LDAP server is busy"
 msgstr ""
 
-#: src/err-codes.h:388
+#: src/err-codes.h:392
 msgid "LDAP server is unavailable"
 msgstr ""
 
-#: src/err-codes.h:389
+#: src/err-codes.h:393
 msgid "LDAP server is unwilling to perform"
 msgstr ""
 
-#: src/err-codes.h:390
+#: src/err-codes.h:394
 msgid "Loop detected by LDAP"
 msgstr ""
 
-#: src/err-codes.h:391
+#: src/err-codes.h:395
 #, fuzzy
 #| msgid "Missing action"
 msgid "LDAP naming violation"
 msgstr "Thiếu hành động"
 
-#: src/err-codes.h:392
+#: src/err-codes.h:396
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "LDAP object class violation"
 msgstr "Vi phạm giao thức"
 
-#: src/err-codes.h:393
+#: src/err-codes.h:397
 #, fuzzy
 #| msgid "Operation not yet finished"
 msgid "LDAP operation not allowed on non-leaf"
 msgstr "Thao tác chưa kết thúc"
 
-#: src/err-codes.h:394
+#: src/err-codes.h:398
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation not allowed on RDN"
 msgstr "Thao tác bị hủy bỏ"
 
-#: src/err-codes.h:395
+#: src/err-codes.h:399
 msgid "Already exists (LDAP)"
 msgstr ""
 
-#: src/err-codes.h:396
+#: src/err-codes.h:400
 msgid "Cannot modify LDAP object class"
 msgstr ""
 
-#: src/err-codes.h:397
+#: src/err-codes.h:401
 #, fuzzy
 #| msgid "Line too long"
 msgid "LDAP results too large"
 msgstr "Dòng quá dài"
 
-#: src/err-codes.h:398
+#: src/err-codes.h:402
 #, fuzzy
 #| msgid "Operation cancelled"
 msgid "LDAP operation affects multiple DSAs"
 msgstr "Thao tác bị hủy bỏ"
 
-#: src/err-codes.h:399
+#: src/err-codes.h:403
 msgid "Virtual LDAP list view error"
 msgstr ""
 
-#: src/err-codes.h:400
+#: src/err-codes.h:404
 #, fuzzy
 #| msgid "General IPC error"
 msgid "Other LDAP error"
 msgstr "Lỗi IPC chung"
 
-#: src/err-codes.h:401
+#: src/err-codes.h:405
 #, fuzzy
 #| msgid "Resources exhausted"
 msgid "Resources exhausted in LCUP"
 msgstr "Cạn tài nguyên"
 
-#: src/err-codes.h:402
+#: src/err-codes.h:406
 #, fuzzy
 #| msgid "Protocol violation"
 msgid "Security violation in LCUP"
 msgstr "Vi phạm giao thức"
 
-#: src/err-codes.h:403
+#: src/err-codes.h:407
 #, fuzzy
 #| msgid "Invalid state"
 msgid "Invalid data in LCUP"
 msgstr "Tình trạng không hợp lệ"
 
-#: src/err-codes.h:404
+#: src/err-codes.h:408
 #, fuzzy
 #| msgid "Unsupported certificate"
 msgid "Unsupported scheme in LCUP"
 msgstr "Chứng nhận không được hỗ trợ"
 
-#: src/err-codes.h:405
+#: src/err-codes.h:409
 #, fuzzy
 #| msgid "Card reset required"
 msgid "Reload required in LCUP"
 msgstr "Cần thiết lập lại thẻ"
 
-#: src/err-codes.h:406
+#: src/err-codes.h:410
 #, fuzzy
 #| msgid "Success"
 msgid "LDAP cancelled"
 msgstr "Thành công"
 
-#: src/err-codes.h:407
+#: src/err-codes.h:411
 #, fuzzy
 #| msgid "Not operational"
 msgid "No LDAP operation to cancel"
 msgstr "Không hoạt động được"
 
-#: src/err-codes.h:408
+#: src/err-codes.h:412
 #, fuzzy
 #| msgid "Not operational"
 msgid "Too late to cancel LDAP"
 msgstr "Không hoạt động được"
 
-#: src/err-codes.h:409
+#: src/err-codes.h:413
 #, fuzzy
 #| msgid "Not an IPC server"
 msgid "Cannot cancel LDAP"
 msgstr "Không phải trình phục vụ IPC"
 
-#: src/err-codes.h:410
+#: src/err-codes.h:414
 #, fuzzy
 #| msgid "Decryption failed"
 msgid "LDAP assertion failed"
 msgstr "Lỗi giải mật mã"
 
-#: src/err-codes.h:411
+#: src/err-codes.h:415
 msgid "Proxied authorization denied by LDAP"
 msgstr ""
 
-#: src/err-codes.h:412
+#: src/err-codes.h:416
 msgid "User defined error code 1"
 msgstr "Mã lỗi tự xác định 1"
 
-#: src/err-codes.h:413
+#: src/err-codes.h:417
 msgid "User defined error code 2"
 msgstr "Mã lỗi tự xác định 2"
 
-#: src/err-codes.h:414
+#: src/err-codes.h:418
 msgid "User defined error code 3"
 msgstr "Mã lỗi tự xác định 3"
 
-#: src/err-codes.h:415
+#: src/err-codes.h:419
 msgid "User defined error code 4"
 msgstr "Mã lỗi tự xác định 4"
 
-#: src/err-codes.h:416
+#: src/err-codes.h:420
 msgid "User defined error code 5"
 msgstr "Mã lỗi tự xác định 5"
 
-#: src/err-codes.h:417
+#: src/err-codes.h:421
 msgid "User defined error code 6"
 msgstr "Mã lỗi tự xác định 6"
 
-#: src/err-codes.h:418
+#: src/err-codes.h:422
 msgid "User defined error code 7"
 msgstr "Mã lỗi tự xác định 7"
 
-#: src/err-codes.h:419
+#: src/err-codes.h:423
 msgid "User defined error code 8"
 msgstr "Mã lỗi tự xác định 8"
 
-#: src/err-codes.h:420
+#: src/err-codes.h:424
 msgid "User defined error code 9"
 msgstr "Mã lỗi tự xác định 9"
 
-#: src/err-codes.h:421
+#: src/err-codes.h:425
 msgid "User defined error code 10"
 msgstr "Mã lỗi tự xác định 10"
 
-#: src/err-codes.h:422
+#: src/err-codes.h:426
 msgid "User defined error code 11"
 msgstr "Mã lỗi tự xác định 11"
 
-#: src/err-codes.h:423
+#: src/err-codes.h:427
 msgid "User defined error code 12"
 msgstr "Mã lỗi tự xác định 12"
 
-#: src/err-codes.h:424
+#: src/err-codes.h:428
 msgid "User defined error code 13"
 msgstr "Mã lỗi tự xác định 13"
 
-#: src/err-codes.h:425
+#: src/err-codes.h:429
 msgid "User defined error code 14"
 msgstr "Mã lỗi tự xác định 14"
 
-#: src/err-codes.h:426
+#: src/err-codes.h:430
 msgid "User defined error code 15"
 msgstr "Mã lỗi tự xác định 15"
 
-#: src/err-codes.h:427
+#: src/err-codes.h:431
 msgid "User defined error code 16"
 msgstr "Mã lỗi tự xác định 16"
 
-#: src/err-codes.h:428
+#: src/err-codes.h:432
+#, fuzzy
+#| msgid "Success"
+msgid "SQL success"
+msgstr "Thành công"
+
+#: src/err-codes.h:433
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Lỗi cú pháp"
+
+#: src/err-codes.h:434
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+#: src/err-codes.h:435
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+#: src/err-codes.h:436
+msgid "SQL abort was requested"
+msgstr ""
+
+#: src/err-codes.h:437
+msgid "SQL database file is locked"
+msgstr ""
+
+#: src/err-codes.h:438
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+#: src/err-codes.h:439
+msgid "SQL library ran out of core"
+msgstr ""
+
+#: src/err-codes.h:440
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+#: src/err-codes.h:441
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+#: src/err-codes.h:442
+msgid "I/O error during SQL operation"
+msgstr ""
+
+#: src/err-codes.h:443
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+#: src/err-codes.h:444
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+#: src/err-codes.h:445
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+#: src/err-codes.h:446
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#: src/err-codes.h:447
+#, fuzzy
+#| msgid "Protocol violation"
+msgid "SQL database lock protocol error"
+msgstr "Vi phạm giao thức"
+
+#: src/err-codes.h:448
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+#: src/err-codes.h:449
+msgid "SQL database schema changed"
+msgstr ""
+
+#: src/err-codes.h:450
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+#: src/err-codes.h:451
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+#: src/err-codes.h:452
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+#: src/err-codes.h:453
+msgid "SQL library used incorrectly"
+msgstr ""
+
+#: src/err-codes.h:454
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+#: src/err-codes.h:455
+msgid "Authorization denied (SQL)"
+msgstr ""
+
+#: src/err-codes.h:456
+msgid "(unused SQL code: format)"
+msgstr ""
+
+#: src/err-codes.h:457
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+#: src/err-codes.h:458
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+#: src/err-codes.h:459
+msgid "Notifications from SQL logger"
+msgstr ""
+
+#: src/err-codes.h:460
+msgid "Warnings from SQL logger"
+msgstr ""
+
+#: src/err-codes.h:461
+msgid "SQL has another row ready"
+msgstr ""
+
+#: src/err-codes.h:462
+msgid "SQL has finished executing"
+msgstr ""
+
+#: src/err-codes.h:463
 msgid "System error w/o errno"
 msgstr "Lỗi hệ thống không có số thứ tự lỗi"
 
-#: src/err-codes.h:429
+#: src/err-codes.h:464
 msgid "Unknown system error"
 msgstr "Gặp lỗi hệ thống không rõ"
 
-#: src/err-codes.h:430
+#: src/err-codes.h:465
 msgid "End of file"
 msgstr "Kết thúc tập tin"
 
-#: src/err-codes.h:431
+#: src/err-codes.h:466
 msgid "Unknown error code"
 msgstr "Mã lỗi không rõ"
 
@@ -2016,11 +2168,11 @@ msgstr ""
 msgid "invalid option \"%.50s\"\n"
 msgstr "Mã thao tác không hợp lệ"
 
-#: src/gpg-error.c:458
+#: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr ""
 
-#: src/gpg-error.c:658
+#: src/gpg-error.c:729
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "cảnh báo : không thể nhận ra %s\n"

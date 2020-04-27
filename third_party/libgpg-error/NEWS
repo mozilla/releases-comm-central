@@ -1,3 +1,65 @@
+Noteworthy changes in version 1.37 (2020-02-07) [C28/A28/R0]
+-----------------------------------------------
+
+ * Fixes a build problems when using Gawk 5.0  [#4459]
+
+ * Fixes Bourne shell incompatibilities on Solaris.  [#4574]
+
+ * Improves cross-comiling support.  [#4643]
+
+ * On Windows strerror_s is now used to emulate strerror_r.  [#4539]
+
+ * New error codes to map SQLite primary error codes.
+
+ * Now uses poll(2) instead of select(2) in gpgrt_poll if possible.
+
+ * Fixes a bug in gpgrt_close.  [#4698]
+
+ * Fixes build problem under Cygwin.  [#4474]
+
+ * Fixes a few minor portability bugs.
+
+ * Interface changes relative to the 1.36 release:
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ GPG_ERR_NO_KEYBOXD               NEW.
+ GPG_ERR_KEYBOXD                  NEW.
+ GPG_ERR_NO_SERVICE               NEW.
+ GPG_ERR_SERVICE.                 NEW.
+ GPG_ERR_SQL_OK		          NEW.
+ GPG_ERR_SQL_ERROR	          NEW.
+ GPG_ERR_SQL_INTERNAL	          NEW.
+ GPG_ERR_SQL_PERM	          NEW.
+ GPG_ERR_SQL_ABORT	          NEW.
+ GPG_ERR_SQL_BUSY	          NEW.
+ GPG_ERR_SQL_LOCKED	          NEW.
+ GPG_ERR_SQL_NOMEM	          NEW.
+ GPG_ERR_SQL_READONLY	          NEW.
+ GPG_ERR_SQL_INTERRUPT	          NEW.
+ GPG_ERR_SQL_IOERR	          NEW.
+ GPG_ERR_SQL_CORRUPT	          NEW.
+ GPG_ERR_SQL_NOTFOUND	          NEW.
+ GPG_ERR_SQL_FULL	          NEW.
+ GPG_ERR_SQL_CANTOPEN	          NEW.
+ GPG_ERR_SQL_PROTOCOL	          NEW.
+ GPG_ERR_SQL_EMPTY	          NEW.
+ GPG_ERR_SQL_SCHEMA	          NEW.
+ GPG_ERR_SQL_TOOBIG	          NEW.
+ GPG_ERR_SQL_CONSTRAINT	          NEW.
+ GPG_ERR_SQL_MISMATCH	          NEW.
+ GPG_ERR_SQL_MISUSE	          NEW.
+ GPG_ERR_SQL_NOLFS	          NEW.
+ GPG_ERR_SQL_AUTH	          NEW.
+ GPG_ERR_SQL_FORMAT	          NEW.
+ GPG_ERR_SQL_RANGE	          NEW.
+ GPG_ERR_SQL_NOTADB	          NEW.
+ GPG_ERR_SQL_NOTICE	          NEW.
+ GPG_ERR_SQL_WARNING	          NEW.
+ GPG_ERR_SQL_ROW	          NEW.
+ GPG_ERR_SQL_DONE	          NEW.
+
+ Release-info: https://dev.gnupg.org/T4772
+
+
 Noteworthy changes in version 1.36 (2019-03-19) [C27/A27/R0]
 -----------------------------------------------
 

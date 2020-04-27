@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libgpg-error 1.7\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2019-03-19 09:58+0100\n"
+"POT-Creation-Date: 2020-02-07 13:14+0100\n"
 "PO-Revision-Date: 2018-04-14 21:07+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
@@ -1300,442 +1300,596 @@ msgid "Bad authentication"
 msgstr "Неприйнятне розпізнавання LDAP"
 
 #: src/err-codes.h:322
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Агент не запущено"
+
+#: src/err-codes.h:323
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Помилка фонової служби SmartCard"
+
+#: src/err-codes.h:324
+msgid "Service is not running"
+msgstr ""
+
+#: src/err-codes.h:325
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Помилка сервера ключів"
+
+#: src/err-codes.h:326
 msgid "System bug detected"
 msgstr "Виявлено ваду у системі"
 
-#: src/err-codes.h:323
+#: src/err-codes.h:327
 msgid "Unknown DNS error"
 msgstr "Невідома помилка DNS"
 
-#: src/err-codes.h:324
+#: src/err-codes.h:328
 msgid "Invalid DNS section"
 msgstr "Некоректний розділ DNS"
 
-#: src/err-codes.h:325
+#: src/err-codes.h:329
 msgid "Invalid textual address form"
 msgstr "Некоректний текстовий формат адреси"
 
-#: src/err-codes.h:326
+#: src/err-codes.h:330
 msgid "Missing DNS query packet"
 msgstr "Не вистачає пакета запиту до DNS"
 
-#: src/err-codes.h:327
+#: src/err-codes.h:331
 msgid "Missing DNS answer packet"
 msgstr "Не вистачає пакета із відповіддю DNS"
 
-#: src/err-codes.h:328
+#: src/err-codes.h:332
 msgid "Connection closed in DNS"
 msgstr "З'єднання закрито у DNS"
 
-#: src/err-codes.h:329
+#: src/err-codes.h:333
 msgid "Verification failed in DNS"
 msgstr "Не пройдено перевірку на DNS"
 
-#: src/err-codes.h:330
+#: src/err-codes.h:334
 msgid "DNS Timeout"
 msgstr "Перевищено час очікування на DNS"
 
-#: src/err-codes.h:331
+#: src/err-codes.h:335
 msgid "General LDAP error"
 msgstr "Загальна помилка LDAP"
 
-#: src/err-codes.h:332
+#: src/err-codes.h:336
 msgid "General LDAP attribute error"
 msgstr "Загальна помилка атрибута LDAP"
 
-#: src/err-codes.h:333
+#: src/err-codes.h:337
 msgid "General LDAP name error"
 msgstr "Загальна помилка назви LDAP"
 
-#: src/err-codes.h:334
+#: src/err-codes.h:338
 msgid "General LDAP security error"
 msgstr "Загальна помилка захисту LDAP"
 
-#: src/err-codes.h:335
+#: src/err-codes.h:339
 msgid "General LDAP service error"
 msgstr "Загальна помилка служби LDAP"
 
-#: src/err-codes.h:336
+#: src/err-codes.h:340
 msgid "General LDAP update error"
 msgstr "Загальна помилка оновлення LDAP"
 
-#: src/err-codes.h:337
+#: src/err-codes.h:341
 msgid "Experimental LDAP error code"
 msgstr "Експериментальний код помилки LDAP"
 
-#: src/err-codes.h:338
+#: src/err-codes.h:342
 msgid "Private LDAP error code"
 msgstr "Код конфіденційної помилки LDAP"
 
-#: src/err-codes.h:339
+#: src/err-codes.h:343
 msgid "Other general LDAP error"
 msgstr "Інша загальна помилка LDAP"
 
-#: src/err-codes.h:340
+#: src/err-codes.h:344
 msgid "LDAP connecting failed (X)"
 msgstr "Не вдалося з’єднатися із LDAP (X)"
 
-#: src/err-codes.h:341
+#: src/err-codes.h:345
 msgid "LDAP referral limit exceeded"
 msgstr "Перевищення обмежень щодо спрямовування у LDAP"
 
-#: src/err-codes.h:342
+#: src/err-codes.h:346
 msgid "LDAP client loop"
 msgstr "Циклічний клієнт LDAP"
 
-#: src/err-codes.h:343
+#: src/err-codes.h:347
 msgid "No LDAP results returned"
 msgstr "Не повернуто результатів LDAP"
 
-#: src/err-codes.h:344
+#: src/err-codes.h:348
 msgid "LDAP control not found"
 msgstr "Не знайдено керування LDAP"
 
-#: src/err-codes.h:345
+#: src/err-codes.h:349
 msgid "Not supported by LDAP"
 msgstr "Не підтримується LDAP"
 
-#: src/err-codes.h:346
+#: src/err-codes.h:350
 msgid "LDAP connect error"
 msgstr "Помилка з’єднання LDAP"
 
-#: src/err-codes.h:347
+#: src/err-codes.h:351
 msgid "Out of memory in LDAP"
 msgstr "Не вистачає пам’яті у LDAP"
 
-#: src/err-codes.h:348
+#: src/err-codes.h:352
 msgid "Bad parameter to an LDAP routine"
 msgstr "Помилковий параметр підпрограми LDAP"
 
-#: src/err-codes.h:349
+#: src/err-codes.h:353
 msgid "User cancelled LDAP operation"
 msgstr "Дію LDAP скасовано користувачем"
 
-#: src/err-codes.h:350
+#: src/err-codes.h:354
 msgid "Bad LDAP search filter"
 msgstr "Помилковий фільтр пошуку LDAP"
 
-#: src/err-codes.h:351
+#: src/err-codes.h:355
 msgid "Unknown LDAP authentication method"
 msgstr "Невідомий спосіб розпізнавання LDAP"
 
-#: src/err-codes.h:352
+#: src/err-codes.h:356
 msgid "Timeout in LDAP"
 msgstr "Перевищення часу очікування у LDAP"
 
-#: src/err-codes.h:353
+#: src/err-codes.h:357
 msgid "LDAP decoding error"
 msgstr "Помилка декодування LDAP"
 
-#: src/err-codes.h:354
+#: src/err-codes.h:358
 msgid "LDAP encoding error"
 msgstr "Помилка кодування LDAP"
 
-#: src/err-codes.h:355
+#: src/err-codes.h:359
 msgid "LDAP local error"
 msgstr "Локальна помилка LDAP"
 
-#: src/err-codes.h:356
+#: src/err-codes.h:360
 msgid "Cannot contact LDAP server"
 msgstr "Не вдалося встановити зв’язок із сервером LDAP"
 
-#: src/err-codes.h:357
+#: src/err-codes.h:361
 msgid "LDAP success"
 msgstr "Успіх LDAP"
 
-#: src/err-codes.h:358
+#: src/err-codes.h:362
 msgid "LDAP operations error"
 msgstr "Помилка дій LDAP"
 
-#: src/err-codes.h:359
+#: src/err-codes.h:363
 msgid "LDAP protocol error"
 msgstr "Помилка протоколу LDAP"
 
-#: src/err-codes.h:360
+#: src/err-codes.h:364
 msgid "Time limit exceeded in LDAP"
 msgstr "Перевищено час очікування у LDAP"
 
-#: src/err-codes.h:361
+#: src/err-codes.h:365
 msgid "Size limit exceeded in LDAP"
 msgstr "Перевищено обмеження на розмір у LDAP"
 
-#: src/err-codes.h:362
+#: src/err-codes.h:366
 msgid "LDAP compare false"
 msgstr "Порівняння LDAP: не збігаються"
 
-#: src/err-codes.h:363
+#: src/err-codes.h:367
 msgid "LDAP compare true"
 msgstr "Порівняння LDAP: збігаються"
 
-#: src/err-codes.h:364
+#: src/err-codes.h:368
 msgid "LDAP authentication method not supported"
 msgstr "Підтримки методу розпізнавання LDAP не передбачено"
 
-#: src/err-codes.h:365
+#: src/err-codes.h:369
 msgid "Strong(er) LDAP authentication required"
 msgstr "Потрібен потужніший спосіб розпізнавання LDAP"
 
-#: src/err-codes.h:366
+#: src/err-codes.h:370
 msgid "Partial LDAP results+referral received"
 msgstr "Отримано часткові результати і спрямування LDAP"
 
-#: src/err-codes.h:367
+#: src/err-codes.h:371
 msgid "LDAP referral"
 msgstr "Спрямування LDAP"
 
-#: src/err-codes.h:368
+#: src/err-codes.h:372
 msgid "Administrative LDAP limit exceeded"
 msgstr "Перевищено адміністративне обмеження LDAP"
 
-#: src/err-codes.h:369
+#: src/err-codes.h:373
 msgid "Critical LDAP extension is unavailable"
 msgstr "Недоступне критичне розширення LDAP"
 
-#: src/err-codes.h:370
+#: src/err-codes.h:374
 msgid "Confidentiality required by LDAP"
 msgstr "Конфіденційно потрібне LDAP"
 
-#: src/err-codes.h:371
+#: src/err-codes.h:375
 msgid "LDAP SASL bind in progress"
 msgstr "Виконуємо прив’язування SASL LDAP"
 
-#: src/err-codes.h:372
+#: src/err-codes.h:376
 msgid "No such LDAP attribute"
 msgstr "Немає такого атрибута LDAP"
 
-#: src/err-codes.h:373
+#: src/err-codes.h:377
 msgid "Undefined LDAP attribute type"
 msgstr "Невизначний тип атрибута LDAP"
 
-#: src/err-codes.h:374
+#: src/err-codes.h:378
 msgid "Inappropriate matching in LDAP"
 msgstr "Неприйнятна відповідність у LDAP"
 
-#: src/err-codes.h:375
+#: src/err-codes.h:379
 msgid "Constraint violation in LDAP"
 msgstr "Порушення обмежень у LDAP"
 
-#: src/err-codes.h:376
+#: src/err-codes.h:380
 msgid "LDAP type or value exists"
 msgstr "Тип або значення LDAP існує"
 
-#: src/err-codes.h:377
+#: src/err-codes.h:381
 msgid "Invalid syntax in LDAP"
 msgstr "Некоректний синтаксис у LDAP"
 
-#: src/err-codes.h:378
+#: src/err-codes.h:382
 msgid "No such LDAP object"
 msgstr "Немає такого об’єкта LDAP"
 
-#: src/err-codes.h:379
+#: src/err-codes.h:383
 msgid "LDAP alias problem"
 msgstr "Проблема псевдоніма LDAP"
 
-#: src/err-codes.h:380
+#: src/err-codes.h:384
 msgid "Invalid DN syntax in LDAP"
 msgstr "Некоректний синтаксис DN у LDAP"
 
-#: src/err-codes.h:381
+#: src/err-codes.h:385
 msgid "LDAP entry is a leaf"
 msgstr "Запис LDAP є листком"
 
-#: src/err-codes.h:382
+#: src/err-codes.h:386
 msgid "LDAP alias dereferencing problem"
 msgstr "Проблемі з скасування прив’язки псевдоніма LDAP"
 
-#: src/err-codes.h:383
+#: src/err-codes.h:387
 msgid "LDAP proxy authorization failure (X)"
 msgstr "Помилка уповноваження проксі LDAP (X)"
 
-#: src/err-codes.h:384
+#: src/err-codes.h:388
 msgid "Inappropriate LDAP authentication"
 msgstr "Неприйнятне розпізнавання LDAP"
 
-#: src/err-codes.h:385
+#: src/err-codes.h:389
 msgid "Invalid LDAP credentials"
 msgstr "Некоректні реєстраційні дані LDAP"
 
-#: src/err-codes.h:386
+#: src/err-codes.h:390
 msgid "Insufficient access for LDAP"
 msgstr "Недостатні права доступу до LDAP"
 
-#: src/err-codes.h:387
+#: src/err-codes.h:391
 msgid "LDAP server is busy"
 msgstr "Сервер LDAP зайнято виконанням завдання"
 
-#: src/err-codes.h:388
+#: src/err-codes.h:392
 msgid "LDAP server is unavailable"
 msgstr "Сервер LDAP недоступний"
 
-#: src/err-codes.h:389
+#: src/err-codes.h:393
 msgid "LDAP server is unwilling to perform"
 msgstr "Сервер LDAP не бажає працювати"
 
-#: src/err-codes.h:390
+#: src/err-codes.h:394
 msgid "Loop detected by LDAP"
 msgstr "LDAP виявлено цикл"
 
-#: src/err-codes.h:391
+#: src/err-codes.h:395
 msgid "LDAP naming violation"
 msgstr "Порушення іменування LDAP"
 
-#: src/err-codes.h:392
+#: src/err-codes.h:396
 msgid "LDAP object class violation"
 msgstr "Порушення класу об’єктів LDAP"
 
-#: src/err-codes.h:393
+#: src/err-codes.h:397
 msgid "LDAP operation not allowed on non-leaf"
 msgstr "Дію LDAP не дозволено для об’єктів, які не є листками"
 
-#: src/err-codes.h:394
+#: src/err-codes.h:398
 msgid "LDAP operation not allowed on RDN"
 msgstr "Дію LDAP не дозволено над RDN"
 
-#: src/err-codes.h:395
+#: src/err-codes.h:399
 msgid "Already exists (LDAP)"
 msgstr "Вже існує (LDAP)"
 
-#: src/err-codes.h:396
+#: src/err-codes.h:400
 msgid "Cannot modify LDAP object class"
 msgstr "Не вдалося змінити клас об’єкта LDAP"
 
-#: src/err-codes.h:397
+#: src/err-codes.h:401
 msgid "LDAP results too large"
 msgstr "Результати LDAP є надто великими"
 
-#: src/err-codes.h:398
+#: src/err-codes.h:402
 msgid "LDAP operation affects multiple DSAs"
 msgstr "Дія LDAP стосується декількох DSA"
 
-#: src/err-codes.h:399
+#: src/err-codes.h:403
 msgid "Virtual LDAP list view error"
 msgstr "Помилка перегляду списку віртуальної LDAP"
 
-#: src/err-codes.h:400
+#: src/err-codes.h:404
 msgid "Other LDAP error"
 msgstr "Інша помилка LDAP"
 
-#: src/err-codes.h:401
+#: src/err-codes.h:405
 msgid "Resources exhausted in LCUP"
 msgstr "Вичерпано ресурси у LCUP"
 
-#: src/err-codes.h:402
+#: src/err-codes.h:406
 msgid "Security violation in LCUP"
 msgstr "Порушення захисту у LCUP"
 
-#: src/err-codes.h:403
+#: src/err-codes.h:407
 msgid "Invalid data in LCUP"
 msgstr "Некоректні дані у LCUP"
 
-#: src/err-codes.h:404
+#: src/err-codes.h:408
 msgid "Unsupported scheme in LCUP"
 msgstr "Непідтримувана схема у LCUP"
 
-#: src/err-codes.h:405
+#: src/err-codes.h:409
 msgid "Reload required in LCUP"
 msgstr "Потрібне перезавантаження у LCUP"
 
-#: src/err-codes.h:406
+#: src/err-codes.h:410
 msgid "LDAP cancelled"
 msgstr "LDAP скасовано"
 
-#: src/err-codes.h:407
+#: src/err-codes.h:411
 msgid "No LDAP operation to cancel"
 msgstr "Немає дії LDAP для скасовування"
 
-#: src/err-codes.h:408
+#: src/err-codes.h:412
 msgid "Too late to cancel LDAP"
 msgstr "Запізно для скасовування LDAP"
 
-#: src/err-codes.h:409
+#: src/err-codes.h:413
 msgid "Cannot cancel LDAP"
 msgstr "Не вдалося скасувати LDAP"
 
-#: src/err-codes.h:410
+#: src/err-codes.h:414
 msgid "LDAP assertion failed"
 msgstr "Помилка оцінки LDAP"
 
-#: src/err-codes.h:411
+#: src/err-codes.h:415
 msgid "Proxied authorization denied by LDAP"
 msgstr "Уповноваження за допомогою проксі заборонено LDAP"
 
-#: src/err-codes.h:412
+#: src/err-codes.h:416
 msgid "User defined error code 1"
 msgstr "Визначений користувачем код помилки 1"
 
-#: src/err-codes.h:413
+#: src/err-codes.h:417
 msgid "User defined error code 2"
 msgstr "Визначений користувачем код помилки 2"
 
-#: src/err-codes.h:414
+#: src/err-codes.h:418
 msgid "User defined error code 3"
 msgstr "Визначений користувачем код помилки 3"
 
-#: src/err-codes.h:415
+#: src/err-codes.h:419
 msgid "User defined error code 4"
 msgstr "Визначений користувачем код помилки 4"
 
-#: src/err-codes.h:416
+#: src/err-codes.h:420
 msgid "User defined error code 5"
 msgstr "Визначений користувачем код помилки 5"
 
-#: src/err-codes.h:417
+#: src/err-codes.h:421
 msgid "User defined error code 6"
 msgstr "Визначений користувачем код помилки 6"
 
-#: src/err-codes.h:418
+#: src/err-codes.h:422
 msgid "User defined error code 7"
 msgstr "Визначений користувачем код помилки 7"
 
-#: src/err-codes.h:419
+#: src/err-codes.h:423
 msgid "User defined error code 8"
 msgstr "Визначений користувачем код помилки 8"
 
-#: src/err-codes.h:420
+#: src/err-codes.h:424
 msgid "User defined error code 9"
 msgstr "Визначений користувачем код помилки 9"
 
-#: src/err-codes.h:421
+#: src/err-codes.h:425
 msgid "User defined error code 10"
 msgstr "Визначений користувачем код помилки 10"
 
-#: src/err-codes.h:422
+#: src/err-codes.h:426
 msgid "User defined error code 11"
 msgstr "Визначений користувачем код помилки 11"
 
-#: src/err-codes.h:423
+#: src/err-codes.h:427
 msgid "User defined error code 12"
 msgstr "Визначений користувачем код помилки 12"
 
-#: src/err-codes.h:424
+#: src/err-codes.h:428
 msgid "User defined error code 13"
 msgstr "Визначений користувачем код помилки 13"
 
-#: src/err-codes.h:425
+#: src/err-codes.h:429
 msgid "User defined error code 14"
 msgstr "Визначений користувачем код помилки 14"
 
-#: src/err-codes.h:426
+#: src/err-codes.h:430
 msgid "User defined error code 15"
 msgstr "Визначений користувачем код помилки 15"
 
-#: src/err-codes.h:427
+#: src/err-codes.h:431
 msgid "User defined error code 16"
 msgstr "Визначений користувачем код помилки 16"
 
-#: src/err-codes.h:428
+#: src/err-codes.h:432
+#, fuzzy
+#| msgid "LDAP success"
+msgid "SQL success"
+msgstr "Успіх LDAP"
+
+#: src/err-codes.h:433
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Синтаксична помилка"
+
+#: src/err-codes.h:434
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+#: src/err-codes.h:435
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+#: src/err-codes.h:436
+msgid "SQL abort was requested"
+msgstr ""
+
+#: src/err-codes.h:437
+msgid "SQL database file is locked"
+msgstr ""
+
+#: src/err-codes.h:438
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+#: src/err-codes.h:439
+msgid "SQL library ran out of core"
+msgstr ""
+
+#: src/err-codes.h:440
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+#: src/err-codes.h:441
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+#: src/err-codes.h:442
+msgid "I/O error during SQL operation"
+msgstr ""
+
+#: src/err-codes.h:443
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+#: src/err-codes.h:444
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+#: src/err-codes.h:445
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+#: src/err-codes.h:446
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#: src/err-codes.h:447
+#, fuzzy
+#| msgid "LDAP protocol error"
+msgid "SQL database lock protocol error"
+msgstr "Помилка протоколу LDAP"
+
+#: src/err-codes.h:448
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+#: src/err-codes.h:449
+msgid "SQL database schema changed"
+msgstr ""
+
+#: src/err-codes.h:450
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+#: src/err-codes.h:451
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+#: src/err-codes.h:452
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+#: src/err-codes.h:453
+msgid "SQL library used incorrectly"
+msgstr ""
+
+#: src/err-codes.h:454
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+#: src/err-codes.h:455
+#, fuzzy
+#| msgid "Proxied authorization denied by LDAP"
+msgid "Authorization denied (SQL)"
+msgstr "Уповноваження за допомогою проксі заборонено LDAP"
+
+#: src/err-codes.h:456
+msgid "(unused SQL code: format)"
+msgstr ""
+
+#: src/err-codes.h:457
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+#: src/err-codes.h:458
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+#: src/err-codes.h:459
+msgid "Notifications from SQL logger"
+msgstr ""
+
+#: src/err-codes.h:460
+msgid "Warnings from SQL logger"
+msgstr ""
+
+#: src/err-codes.h:461
+msgid "SQL has another row ready"
+msgstr ""
+
+#: src/err-codes.h:462
+msgid "SQL has finished executing"
+msgstr ""
+
+#: src/err-codes.h:463
 msgid "System error w/o errno"
 msgstr "Системна помилка без номера"
 
-#: src/err-codes.h:429
+#: src/err-codes.h:464
 msgid "Unknown system error"
 msgstr "Невідома системна помилка"
 
-#: src/err-codes.h:430
+#: src/err-codes.h:465
 msgid "End of file"
 msgstr "Кінець файла"
 
-#: src/err-codes.h:431
+#: src/err-codes.h:466
 msgid "Unknown error code"
 msgstr "Помилка з невідомим кодом"
 
@@ -1814,11 +1968,11 @@ msgstr "вихід за межі області пам’яті\n"
 msgid "invalid option \"%.50s\"\n"
 msgstr "некоректний параметр «%.50s»\n"
 
-#: src/gpg-error.c:458
+#: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr "Будь ласка, повідомляйте про помилки тут: <https://bugs.gnupg.org>.\n"
 
-#: src/gpg-error.c:658
+#: src/gpg-error.c:729
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "попередження: не вдалося розпізнати %s\n"

@@ -1,3 +1,198 @@
+2020-02-07  Werner Koch  <wk@gnupg.org>
+
+	Release 1.37.
+	+ commit 36b9924b483198f896c7ca3db233978978141b60
+
+
+2020-02-06  Werner Koch  <wk@gnupg.org>
+
+	tools: Allow error symbol lookup w/o the GPG_ERR_ prefix.
+	+ commit 796b66a9449c442991cc205f8a618dffab54d8a3
+	* src/gpg-error.c (get_err_from_codesymbol): New.
+	(main): Use it here.
+
+	build: Always pass -no-undefined to libtool.
+	+ commit 6e4b5ca624cb7f771c8dd1f12cbad851a5f0d782
+	* src/Makefile.am: Remove no_undefined macro.
+
+2020-01-23  NIIBE Yutaka  <gniibe@fsij.org>
+
+	po: Update Japanese Translation.
+	+ commit d1e4b4b001b3fd34b91403f880a42c4a474cdb83
+
+
+2020-01-07  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Don't use -O0 which is not portable.
+	+ commit a2674207f7fef6d0f96b80838303a2e6a55e7785
+	* src/Makefile.am (mkheader): Remove -O0 option.
+
+2019-12-13  Werner Koch  <wk@gnupg.org>
+
+	New error codes for SQLite.
+	+ commit 308574372055662c76d27f1681b182afddce9166
+	* src/err-codes.h.in: Add GPG_ERR_SQL_ codes.
+	* src/gpg-error.h.in (gpg_err_code_from_sqlite): New.
+
+2019-09-24  NIIBE Yutaka  <gniibe@fsij.org>
+
+	Fix gpg-error.c for preprocessor use.
+	+ commit f73605e039493ca875f992a45730a6c99430fb14
+	* src/gpg-error.c (main): Fix conditional compilation.
+
+2019-09-18  NIIBE Yutaka  <gniibe@fsij.org>
+
+	tests: Fix deallocation of buffer in t-b64.c.
+	+ commit 46bb7eb8c5541d62cd90227bde205f663ef0e6d5
+	* tests/t-b64.c (test_b64dec_string): De-allocate.
+
+	gpgrt_setenv: Define behavior when value=NULL.
+	+ commit 4b8e8ba9f60cb6eb644be5f86b9c19ebf4332763
+	* src/sysutils.c (_gpgrt_setenv): Avoid call with value=NULL.
+
+	logging: Fix the case of using socket_dir_cb which may return NULL.
+	+ commit 521aeecf1e41e8e34bb354cf51bfd37ff7a900c6
+	* src/logging.c (fun_writer): Fix for socket_dir_cb.
+
+	estream: Care about erroneous case for stream close.
+	+ commit f41991480aaa79db55e75363dfbb4f278cb8ea21
+	* src/estream.c (do_list_remove): Only access ITEM->NEXT when it's not
+	null.
+
+2019-09-10  Werner Koch  <wk@gnupg.org>
+
+	core: Fix broken strings (first letter missing)
+	+ commit c1e80f6e8e368c271bbf413d9eaea772ef2062d1
+	src/err-codes.h.in (GPG_ERR_KEYBOXD): Add missing tabs.
+
+2019-09-08  Werner Koch  <wk@gnupg.org>
+
+	estream: Fix dead assigniment.
+	+ commit f7c24427329075adc98eb93d2abb12c087e0f9d2
+	* src/estream-printf.c (pr_string): Here.
+
+2019-09-04  NIIBE Yutaka  <gniibe@fsij.org>
+
+	gpgrt-config: Support Libs.private and Requires.private.
+	+ commit cb877252c4dc787755fb4e1ffc36757453af12eb
+	* src/gpgrt-config.in: Support Libs.private and Requires.private.
+
+2019-08-23  NIIBE Yutaka  <gniibe@fsij.org>
+
+	estream: Fix gpgrt_poll at EOF.
+	+ commit 157b9f6fafb6905fd94c21aaa9e2c103d954a9fc
+	* src/estream.c [HAVE_POLL_H] (_gpgrt_poll): Catch POLLHUP event
+	for want_read.
+
+	estream: Fix gpgrt_poll to prevent waiting indefinitely for others.
+	+ commit ab87480fc201ad687153429aee043ab454fed0a3
+	* src/estream.c (_gpgrt_poll): Go to leave, when something is ready.
+
+2019-08-22  NIIBE Yutaka  <gniibe@fsij.org>
+
+	estream: Fix poll condition.
+	+ commit fc1a7591bdcd64a3df1d2db29afca8e224f64c0a
+	* src/estream.c (_gpgrt_poll): Fix for want_oob.
+
+2019-07-25  NIIBE Yutaka  <gniibe@fsij.org>
+
+	w32: Fix cast to internal fd.
+	+ commit f93a0358dc82886db12c91180dc82e8bb1258ef0
+	* src/estream.c (tmpfd): Use intptr_t.
+
+	estream: Fix IS_INVALID_FD.
+	+ commit 5f9f2c32b038848212bec9d9a95858c18b9a0eee
+	* src/estream.c (IS_INVALID_FD): Simply compare to -1.
+
+2019-07-24  NIIBE Yutaka  <gniibe@fsij.org>
+
+	w32: Fix HANDLE to internal fd conversion.
+	+ commit 655ed9d83889bbb61d4b96755a2bd676622064c8
+	* src/spawn-w32.c (handle_to_fd): Use intptr_t type.
+
+2019-07-18  Daniel Kahn Gillmor  <dkg@fifthhorseman.net>
+
+	build: Use {CFLAGS,CPPFLAGS, LDFLAGS}_FOR_BUILD for helper programs.
+	+ commit 732855a483709345a5c0f49504f45cb8da3f883a
+	* doc/Makefile.am: add CPPFLAGS_FOR_BUILD for yat2m-for-build (other
+	flags were already present).
+	* src/Makefile.am: add {CFLAGS,CPPFLAGS,LDFLAGS}_FOR_BUILD for
+	mkhelper, mkw32errmap, and mkerrcodes.
+
+2019-07-11  NIIBE Yutaka  <gniibe@fsij.org>
+
+	Fix signedness for a single-bit field.
+	+ commit 7ffab1750fdec31d6f6f62c3ff50f1a33eacda5c
+	* src/gpgrt-int.h (struct _gpgrt_b64state): Use unsigned for bit flags.
+
+2019-06-27  Werner Koch  <wk@gnupg.org>
+
+	estream: Add missing malloc check.
+	+ commit 382fddc151fd42cd6d1d02dbedb7b5031cc68958
+	* src/estream.c (_gpgrt_poll): Check for malloc error.
+
+2019-06-27  NIIBE Yutaka  <gniibe@fsij.org>
+
+	estream: Don't use variable length array.
+	+ commit 70a5ea407c71cf094794d3d3375aab7fc2c4eca6
+	* src/estream.c [HAVE_POLL_H] (_gpgrt_poll): No VLA.
+
+2019-06-26  NIIBE Yutaka  <gniibe@fsij.org>
+
+	estream: Use poll(2) when available.
+	+ commit a21a7de8c2cf986235382e7e04805744f6df116e
+	* configure.ac: Detect poll.h.
+	* src/estream.c [HAVE_POLL_H] (_gpgrt_poll): Use poll.
+
+2019-06-18  NIIBE Yutaka  <gniibe@fsij.org>
+
+	tests: Skip the test when pkg-config is too old.
+	+ commit 6c2fc52d72b4dbd9dac44d9c3105dc3e8a4d5605
+	* src/gpg-error-config-test.sh.in: Check pkg-config version.
+
+	build: Take care of POSIX shell path.
+	+ commit 7a7caf4ba1c460c9c36f754fcd0ebfeb4aa5cc6a
+	* configure.ac (INSTALLSHELLPATH): New.
+	* src/Makefile.am: Change invocation of gpg-error-config-test.sh.
+	* src/gpgrt-config.in (INSTALLSHELLPATH): To be substituted.
+	* src/gpg-error-config-test.sh.in: Likewise.
+
+	Portability fix for PID.
+	+ commit 10ae655db22321f0d6efb75f88e169b57ce63375
+	* src/spawn-posix.c (gpgrt_wait_processes): Cast to int.
+
+	build: Add failure exit for gpg-error-config build.
+	+ commit 849ac6abe3ce0001fb11cef0e26df0893468d238
+	* src/Makefile.am (gpg-error-config): Exit 1 on failure.
+
+2019-05-29  NIIBE Yutaka  <gniibe@fsij.org>
+
+	Detect to use strerror_s.
+	+ commit cd49ee71887cb2e7f2ca422fbc5c28f4bd92b3ca
+	* configure.ac [mingw32*] (strerror_s): Detect.
+	* src/strerror.c [HAVE_STRERROR_S] (system_strerror_r): Use strerror_s.
+
+2019-05-14  NIIBE Yutaka  <gniibe@fsij.org>
+
+	tests: Fix a memory leak.
+	+ commit bdb9561a366fa5afee0e855a22390e9282e1abd5
+	* tests/t-logging.c (check_log_info): Free LOGBUF.
+
+2019-05-13  NIIBE Yutaka  <gniibe@fsij.org>
+
+	build: Update m4/iconv.m4.
+	+ commit 07b1b3be179883cbd38446f38ae950f6d94a150b
+	* m4/iconv.m4: Update from gettext 0.20.1.
+
+2019-04-15  NIIBE Yutaka  <gniibe@fsij.org>
+
+	awk: Prepare for Gawk 5.0.
+	+ commit 7865041c77f4f7005282f10f9b6666b19072fbdf
+	* src/Makefile.am: Use pkg_namespace (instead of namespace).
+	* src/mkerrnos.awk: Likewise.
+	* lang/cl/mkerrcodes.awk: Don't escape # in regexp.
+	* src/mkerrcodes.awk, src/mkerrcodes1.awk, src/mkerrcodes2.awk: Ditto.
+
 2019-03-19  Werner Koch  <wk@gnupg.org>
 
 	Release 1.36.

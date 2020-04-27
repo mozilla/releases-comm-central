@@ -29,7 +29,7 @@ min_automake_version="1.14"
 # See below for the LT versions.
 m4_define([mym4_package],[libgpg-error])
 m4_define([mym4_major], [1])
-m4_define([mym4_minor], [36])
+m4_define([mym4_minor], [37])
 
 # Below is m4 magic to extract and compute the revision number, the
 # decimalized short revision number, a beta version string, and a flag
@@ -49,8 +49,8 @@ AC_INIT([mym4_package],[mym4_version], [https://bugs.gnupg.org])
 #   (Interfaces added:			AGE++)
 #   (Interfaces removed:		AGE=0)
 # Note that added error codes don't constitute an interface change.
-LIBGPG_ERROR_LT_CURRENT=27
-LIBGPG_ERROR_LT_AGE=27
+LIBGPG_ERROR_LT_CURRENT=28
+LIBGPG_ERROR_LT_AGE=28
 LIBGPG_ERROR_LT_REVISION=0
 ################################################
 
@@ -190,19 +190,26 @@ AM_GNU_GETTEXT([external])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h locale.h stdint.h sys/select.h sys/time.h \
-                  signal.h])
+                  signal.h poll.h])
 
 AC_FUNC_STRERROR_R
 case "${host_os}" in
+     mingw32*)
+     INSTALLSHELLPATH=/bin/sh
+     AC_CHECK_FUNC([strerror_s])
+     ;;
      solaris*)
+     INSTALLSHELLPATH=/usr/xpg4/bin/sh
      # All versions of Solaris from 2.4 have a thread-safe strerror().
      # Since Solaris 10, in addition strerror_r() exists.
      ;;
      *)
+     INSTALLSHELLPATH=/bin/sh
      AC_CHECK_FUNC([strerror_r], [],
 AC_MSG_WARN([[Without strerror_r, gpg_strerror_r might not be thread-safe]]))
      ;;
 esac
+AC_SUBST(INSTALLSHELLPATH)
 
 AC_FUNC_FORK
 AC_CHECK_FUNCS([flockfile vasprintf mmap rand strlwr stpcpy setenv stat \
@@ -696,6 +703,8 @@ AC_CONFIG_FILES([lang/Makefile lang/cl/Makefile lang/cl/gpg-error.asd])
 AC_CONFIG_FILES([src/versioninfo.rc src/gpg-error.w32-manifest])
 AC_CONFIG_FILES([src/gpg-error.pc])
 AC_CONFIG_FILES([src/gpg-error-config-old:src/gpg-error-config.in], [chmod +x src/gpg-error-config-old])
+AC_CONFIG_FILES([src/gpgrt-config], [chmod +x src/gpgrt-config])
+AC_CONFIG_FILES([src/gpg-error-config-test.sh], [chmod +x src/gpg-error-config-test.sh])
 
 AC_OUTPUT
 

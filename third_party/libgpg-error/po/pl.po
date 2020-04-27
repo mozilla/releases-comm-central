@@ -1,14 +1,14 @@
 # Polish translation for libgpg-error.
 # Copyright (C) 2004, 2005, 2006 Free Software Foundation, Inc.
 # This file is distributed under the same license as the libgpg-error package.
-# Jakub Bogusz <qboosh@pld-linux.org>, 2004-2018.
+# Jakub Bogusz <qboosh@pld-linux.org>, 2004-2019.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: libgpg-error 1.29\n"
+"Project-Id-Version: libgpg-error 1.36\n"
 "Report-Msgid-Bugs-To: translations@gnupg.org\n"
-"POT-Creation-Date: 2019-03-19 09:58+0100\n"
-"PO-Revision-Date: 2018-04-12 19:02+0100\n"
+"POT-Creation-Date: 2020-02-07 13:14+0100\n"
+"PO-Revision-Date: 2019-03-24 09:01+0100\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
 "Language: pl\n"
@@ -1277,454 +1277,604 @@ msgid "Wrong name"
 msgstr "Zła nazwa"
 
 #: src/err-codes.h:320
-#, fuzzy
-#| msgid "Not enabled"
 msgid "Not authenticated"
-msgstr "Nie włączony"
+msgstr "Brak uwierzytelnienia"
 
 #: src/err-codes.h:321
-#, fuzzy
-#| msgid "Inappropriate LDAP authentication"
 msgid "Bad authentication"
-msgstr "Niewłaściwe uwierzytelnienie LDAP"
+msgstr "Niewłaściwe uwierzytelnienie"
 
 #: src/err-codes.h:322
+#, fuzzy
+#| msgid "No agent running"
+msgid "No Keybox daemon running"
+msgstr "Agent nie uruchomiony"
+
+#: src/err-codes.h:323
+#, fuzzy
+#| msgid "SmartCard daemon error"
+msgid "Keybox daemon error"
+msgstr "Błąd demona SmartCard"
+
+#: src/err-codes.h:324
+msgid "Service is not running"
+msgstr ""
+
+#: src/err-codes.h:325
+#, fuzzy
+#| msgid "Keyserver error"
+msgid "Service error"
+msgstr "Błąd serwera kluczy"
+
+#: src/err-codes.h:326
 msgid "System bug detected"
 msgstr "Wykryto błąd systemu"
 
-#: src/err-codes.h:323
+#: src/err-codes.h:327
 msgid "Unknown DNS error"
 msgstr "Nieznany błąd DNS"
 
-#: src/err-codes.h:324
+#: src/err-codes.h:328
 msgid "Invalid DNS section"
 msgstr "Błędna sekcja DNS"
 
-#: src/err-codes.h:325
+#: src/err-codes.h:329
 msgid "Invalid textual address form"
 msgstr "Błędna postać tekstowa adresu"
 
-#: src/err-codes.h:326
+#: src/err-codes.h:330
 msgid "Missing DNS query packet"
 msgstr "Brak pakietu zapytania DNS"
 
-#: src/err-codes.h:327
+#: src/err-codes.h:331
 msgid "Missing DNS answer packet"
 msgstr "Brak pakietu odpowiedzi DNS"
 
-#: src/err-codes.h:328
+#: src/err-codes.h:332
 msgid "Connection closed in DNS"
 msgstr "Połączenie zamknięte przez DNS"
 
-#: src/err-codes.h:329
+#: src/err-codes.h:333
 msgid "Verification failed in DNS"
 msgstr "Weryfikacja przez DNS nie powiodła się"
 
-#: src/err-codes.h:330
+#: src/err-codes.h:334
 msgid "DNS Timeout"
 msgstr "Upłynął limit czasu DNS"
 
-#: src/err-codes.h:331
+#: src/err-codes.h:335
 msgid "General LDAP error"
 msgstr "Błąd ogólny LDAP"
 
-#: src/err-codes.h:332
+#: src/err-codes.h:336
 msgid "General LDAP attribute error"
 msgstr "Błąd ogólny atrybutu LDAP"
 
-#: src/err-codes.h:333
+#: src/err-codes.h:337
 msgid "General LDAP name error"
 msgstr "Błąd ogólny nazwy LDAP"
 
-#: src/err-codes.h:334
+#: src/err-codes.h:338
 msgid "General LDAP security error"
 msgstr "Błąd ogólny bezpieczeństwa LDAP"
 
-#: src/err-codes.h:335
+#: src/err-codes.h:339
 msgid "General LDAP service error"
 msgstr "Błąd ogólny usługi LDAP"
 
-#: src/err-codes.h:336
+#: src/err-codes.h:340
 msgid "General LDAP update error"
 msgstr "Błąd ogólny aktualizacji LDAP"
 
-#: src/err-codes.h:337
+#: src/err-codes.h:341
 msgid "Experimental LDAP error code"
 msgstr "Eksperymentalny kod błędu LDAP"
 
-#: src/err-codes.h:338
+#: src/err-codes.h:342
 msgid "Private LDAP error code"
 msgstr "Prywatny kod błędu LDAP"
 
-#: src/err-codes.h:339
+#: src/err-codes.h:343
 msgid "Other general LDAP error"
 msgstr "Inny błąd ogólny LDAP"
 
-#: src/err-codes.h:340
+#: src/err-codes.h:344
 msgid "LDAP connecting failed (X)"
 msgstr "Połączenie z LDAP nie powiodło się (X)"
 
-#: src/err-codes.h:341
+#: src/err-codes.h:345
 msgid "LDAP referral limit exceeded"
 msgstr "Przekroczony limit odniesień LDAP"
 
-#: src/err-codes.h:342
+#: src/err-codes.h:346
 msgid "LDAP client loop"
 msgstr "Pętla klienta LDAP"
 
-#: src/err-codes.h:343
+#: src/err-codes.h:347
 msgid "No LDAP results returned"
 msgstr "Nie zwrócono wyników LDAP"
 
-#: src/err-codes.h:344
+#: src/err-codes.h:348
 msgid "LDAP control not found"
 msgstr "Nie znaleziono sterowania LDAP"
 
-#: src/err-codes.h:345
+#: src/err-codes.h:349
 msgid "Not supported by LDAP"
 msgstr "Nie obsługiwane przez LDAP"
 
-#: src/err-codes.h:346
+#: src/err-codes.h:350
 msgid "LDAP connect error"
 msgstr "Błąd połączenia z LDAP"
 
-#: src/err-codes.h:347
+#: src/err-codes.h:351
 msgid "Out of memory in LDAP"
 msgstr "Brak pamięci w LDAP"
 
-#: src/err-codes.h:348
+#: src/err-codes.h:352
 msgid "Bad parameter to an LDAP routine"
 msgstr "Błędny parametr procedury LDAP"
 
-#: src/err-codes.h:349
+#: src/err-codes.h:353
 msgid "User cancelled LDAP operation"
 msgstr "Operacja LDAP anulowana przez użytkownika"
 
-#: src/err-codes.h:350
+#: src/err-codes.h:354
 msgid "Bad LDAP search filter"
 msgstr "Błędny filtr wyszukiwania LDAP"
 
-#: src/err-codes.h:351
+#: src/err-codes.h:355
 msgid "Unknown LDAP authentication method"
 msgstr "Nieznana metoda uwierzytelnienia LDAP"
 
-#: src/err-codes.h:352
+#: src/err-codes.h:356
 msgid "Timeout in LDAP"
 msgstr "Limit czasu w LDAP"
 
-#: src/err-codes.h:353
+#: src/err-codes.h:357
 msgid "LDAP decoding error"
 msgstr "Błąd dekodowania LDAP"
 
-#: src/err-codes.h:354
+#: src/err-codes.h:358
 msgid "LDAP encoding error"
 msgstr "Błąd kodowania LDAP"
 
-#: src/err-codes.h:355
+#: src/err-codes.h:359
 msgid "LDAP local error"
 msgstr "Błąd lokalny LDAP"
 
-#: src/err-codes.h:356
+#: src/err-codes.h:360
 msgid "Cannot contact LDAP server"
 msgstr "Nie można połączyć się z serwerem LDAP"
 
-#: src/err-codes.h:357
+#: src/err-codes.h:361
 msgid "LDAP success"
 msgstr "Sukces LDAP"
 
-#: src/err-codes.h:358
+#: src/err-codes.h:362
 msgid "LDAP operations error"
 msgstr "Błąd operacji LDAP"
 
-#: src/err-codes.h:359
+#: src/err-codes.h:363
 msgid "LDAP protocol error"
 msgstr "Błąd protokołu LDAP"
 
-#: src/err-codes.h:360
+#: src/err-codes.h:364
 msgid "Time limit exceeded in LDAP"
 msgstr "Przekroczony limit czasu w LDAP"
 
-#: src/err-codes.h:361
+#: src/err-codes.h:365
 msgid "Size limit exceeded in LDAP"
 msgstr "Przekroczony limit rozmiaru w LDAP"
 
-#: src/err-codes.h:362
+#: src/err-codes.h:366
 msgid "LDAP compare false"
 msgstr "Porównanie LDAP fałszywe"
 
-#: src/err-codes.h:363
+#: src/err-codes.h:367
 msgid "LDAP compare true"
 msgstr "Porównanie LDAP prawdziwe"
 
-#: src/err-codes.h:364
+#: src/err-codes.h:368
 msgid "LDAP authentication method not supported"
 msgstr "Nieobsługiwana metoda uwierzytelnienia LDAP"
 
-#: src/err-codes.h:365
+#: src/err-codes.h:369
 msgid "Strong(er) LDAP authentication required"
 msgstr "Wymagana silniejsze uwierzytelnienie LDAP"
 
-#: src/err-codes.h:366
+#: src/err-codes.h:370
 msgid "Partial LDAP results+referral received"
 msgstr "Otrzymano częściowe wyniki+odniesienie LDAP"
 
-#: src/err-codes.h:367
+#: src/err-codes.h:371
 msgid "LDAP referral"
 msgstr "Odniesienie LDAP"
 
-#: src/err-codes.h:368
+#: src/err-codes.h:372
 msgid "Administrative LDAP limit exceeded"
 msgstr "Przekroczony limit administracyjny LDAP"
 
-#: src/err-codes.h:369
+#: src/err-codes.h:373
 msgid "Critical LDAP extension is unavailable"
 msgstr "Krytyczne rozszerzenie LDAP jest niedostępne"
 
-#: src/err-codes.h:370
+#: src/err-codes.h:374
 msgid "Confidentiality required by LDAP"
 msgstr "Zaufanie wymagane przez LDAP"
 
-#: src/err-codes.h:371
+#: src/err-codes.h:375
 msgid "LDAP SASL bind in progress"
 msgstr "Wiązanie LDAP SASL w trakcie"
 
-#: src/err-codes.h:372
+#: src/err-codes.h:376
 msgid "No such LDAP attribute"
 msgstr "Nie ma takiego atrybutu LDAP"
 
-#: src/err-codes.h:373
+#: src/err-codes.h:377
 msgid "Undefined LDAP attribute type"
 msgstr "Niezdefiniowany typ atrybutu LDAP"
 
-#: src/err-codes.h:374
+#: src/err-codes.h:378
 msgid "Inappropriate matching in LDAP"
 msgstr "Niewłaściwe dopasowanie w LDAP"
 
-#: src/err-codes.h:375
+#: src/err-codes.h:379
 msgid "Constraint violation in LDAP"
 msgstr "Naruszenie ograniczenia w LDAP"
 
-#: src/err-codes.h:376
+#: src/err-codes.h:380
 msgid "LDAP type or value exists"
 msgstr "Typ lub wartość LDAP istnieje"
 
-#: src/err-codes.h:377
+#: src/err-codes.h:381
 msgid "Invalid syntax in LDAP"
 msgstr "Błędna składnia w LDAP"
 
-#: src/err-codes.h:378
+#: src/err-codes.h:382
 msgid "No such LDAP object"
 msgstr "Nie ma takiego obiektu LDAP"
 
-#: src/err-codes.h:379
+#: src/err-codes.h:383
 msgid "LDAP alias problem"
 msgstr "Problem z aliasem LDAP"
 
-#: src/err-codes.h:380
+#: src/err-codes.h:384
 msgid "Invalid DN syntax in LDAP"
 msgstr "Błędna składnia DN w LDAP"
 
-#: src/err-codes.h:381
+#: src/err-codes.h:385
 msgid "LDAP entry is a leaf"
 msgstr "Wpis LDAP jest liściem"
 
-#: src/err-codes.h:382
+#: src/err-codes.h:386
 msgid "LDAP alias dereferencing problem"
 msgstr "Problem z rozwinięciem aliasu LDAP"
 
-#: src/err-codes.h:383
+#: src/err-codes.h:387
 msgid "LDAP proxy authorization failure (X)"
 msgstr "Błąd autoryzacji do proxy LDAP (X)"
 
-#: src/err-codes.h:384
+#: src/err-codes.h:388
 msgid "Inappropriate LDAP authentication"
 msgstr "Niewłaściwe uwierzytelnienie LDAP"
 
-#: src/err-codes.h:385
+#: src/err-codes.h:389
 msgid "Invalid LDAP credentials"
 msgstr "Błędne dane uwierzytelniające LDAP"
 
-#: src/err-codes.h:386
+#: src/err-codes.h:390
 msgid "Insufficient access for LDAP"
 msgstr "Niewystarczający dostęp dla LDAP"
 
-#: src/err-codes.h:387
+#: src/err-codes.h:391
 msgid "LDAP server is busy"
 msgstr "Serwer LDAP jest zajęty"
 
-#: src/err-codes.h:388
+#: src/err-codes.h:392
 msgid "LDAP server is unavailable"
 msgstr "Serwer LDAP jest niedostępny"
 
-#: src/err-codes.h:389
+#: src/err-codes.h:393
 msgid "LDAP server is unwilling to perform"
 msgstr "Serwer LDAP nie zamierza wykonać żądania"
 
-#: src/err-codes.h:390
+#: src/err-codes.h:394
 msgid "Loop detected by LDAP"
 msgstr "Pętla wykryta przez LDAP"
 
-#: src/err-codes.h:391
+#: src/err-codes.h:395
 msgid "LDAP naming violation"
 msgstr "Naruszenie nazw LDAP"
 
-#: src/err-codes.h:392
+#: src/err-codes.h:396
 msgid "LDAP object class violation"
 msgstr "Naruszenie klasy obiektu LDAP"
 
-#: src/err-codes.h:393
+#: src/err-codes.h:397
 msgid "LDAP operation not allowed on non-leaf"
 msgstr "Operacja LDAP nie jest dozwolona na nie-liściu"
 
-#: src/err-codes.h:394
+#: src/err-codes.h:398
 msgid "LDAP operation not allowed on RDN"
 msgstr "Operacja LDAP nie jest dozwolona na RDN"
 
-#: src/err-codes.h:395
+#: src/err-codes.h:399
 msgid "Already exists (LDAP)"
 msgstr "Już istnieje (LDAP)"
 
-#: src/err-codes.h:396
+#: src/err-codes.h:400
 msgid "Cannot modify LDAP object class"
 msgstr "Nie można zmodyfikować klasy obiektu LDAP"
 
-#: src/err-codes.h:397
+#: src/err-codes.h:401
 msgid "LDAP results too large"
 msgstr "Wyniki LDAP zbyt duże"
 
-#: src/err-codes.h:398
+#: src/err-codes.h:402
 msgid "LDAP operation affects multiple DSAs"
 msgstr "Operacja LDAP obejmuje wiele DSA"
 
-#: src/err-codes.h:399
+#: src/err-codes.h:403
 msgid "Virtual LDAP list view error"
 msgstr "Błąd widoku wirtualnej listy LDAP"
 
-#: src/err-codes.h:400
+#: src/err-codes.h:404
 msgid "Other LDAP error"
 msgstr "Inny błąd LDAP"
 
-#: src/err-codes.h:401
+#: src/err-codes.h:405
 msgid "Resources exhausted in LCUP"
 msgstr "Zasoby wyczerpane w LCUP"
 
-#: src/err-codes.h:402
+#: src/err-codes.h:406
 msgid "Security violation in LCUP"
 msgstr "Naruszenie bezpieczeństwa w LCUP"
 
-#: src/err-codes.h:403
+#: src/err-codes.h:407
 msgid "Invalid data in LCUP"
 msgstr "Błędne dane w LCUP"
 
-#: src/err-codes.h:404
+#: src/err-codes.h:408
 msgid "Unsupported scheme in LCUP"
 msgstr "Nieobsługiwany schemat w LCUP"
 
-#: src/err-codes.h:405
+#: src/err-codes.h:409
 msgid "Reload required in LCUP"
 msgstr "Wymagane przeładowanie w LCUP"
 
-#: src/err-codes.h:406
+#: src/err-codes.h:410
 msgid "LDAP cancelled"
 msgstr "LDAP anulowane"
 
-#: src/err-codes.h:407
+#: src/err-codes.h:411
 msgid "No LDAP operation to cancel"
 msgstr "Brak operacji LDAP do anulowania"
 
-#: src/err-codes.h:408
+#: src/err-codes.h:412
 msgid "Too late to cancel LDAP"
 msgstr "Za późno na anulowanie LDAP"
 
-#: src/err-codes.h:409
+#: src/err-codes.h:413
 msgid "Cannot cancel LDAP"
 msgstr "Nie można anulować LDAP"
 
-#: src/err-codes.h:410
+#: src/err-codes.h:414
 msgid "LDAP assertion failed"
 msgstr "Zapewnienie LDAP nie powiodło się"
 
-#: src/err-codes.h:411
+#: src/err-codes.h:415
 msgid "Proxied authorization denied by LDAP"
 msgstr "Autoryzacja przez proxy odrzucona przez LDAP"
 
-#: src/err-codes.h:412
+#: src/err-codes.h:416
 msgid "User defined error code 1"
 msgstr "Zdefiniowany przez użytkownika kod błędu 1"
 
-#: src/err-codes.h:413
+#: src/err-codes.h:417
 msgid "User defined error code 2"
 msgstr "Zdefiniowany przez użytkownika kod błędu 2"
 
-#: src/err-codes.h:414
+#: src/err-codes.h:418
 msgid "User defined error code 3"
 msgstr "Zdefiniowany przez użytkownika kod błędu 3"
 
-#: src/err-codes.h:415
+#: src/err-codes.h:419
 msgid "User defined error code 4"
 msgstr "Zdefiniowany przez użytkownika kod błędu 4"
 
-#: src/err-codes.h:416
+#: src/err-codes.h:420
 msgid "User defined error code 5"
 msgstr "Zdefiniowany przez użytkownika kod błędu 5"
 
-#: src/err-codes.h:417
+#: src/err-codes.h:421
 msgid "User defined error code 6"
 msgstr "Zdefiniowany przez użytkownika kod błędu 6"
 
-#: src/err-codes.h:418
+#: src/err-codes.h:422
 msgid "User defined error code 7"
 msgstr "Zdefiniowany przez użytkownika kod błędu 7"
 
-#: src/err-codes.h:419
+#: src/err-codes.h:423
 msgid "User defined error code 8"
 msgstr "Zdefiniowany przez użytkownika kod błędu 8"
 
-#: src/err-codes.h:420
+#: src/err-codes.h:424
 msgid "User defined error code 9"
 msgstr "Zdefiniowany przez użytkownika kod błędu 9"
 
-#: src/err-codes.h:421
+#: src/err-codes.h:425
 msgid "User defined error code 10"
 msgstr "Zdefiniowany przez użytkownika kod błędu 10"
 
-#: src/err-codes.h:422
+#: src/err-codes.h:426
 msgid "User defined error code 11"
 msgstr "Zdefiniowany przez użytkownika kod błędu 11"
 
-#: src/err-codes.h:423
+#: src/err-codes.h:427
 msgid "User defined error code 12"
 msgstr "Zdefiniowany przez użytkownika kod błędu 12"
 
-#: src/err-codes.h:424
+#: src/err-codes.h:428
 msgid "User defined error code 13"
 msgstr "Zdefiniowany przez użytkownika kod błędu 13"
 
-#: src/err-codes.h:425
+#: src/err-codes.h:429
 msgid "User defined error code 14"
 msgstr "Zdefiniowany przez użytkownika kod błędu 14"
 
-#: src/err-codes.h:426
+#: src/err-codes.h:430
 msgid "User defined error code 15"
 msgstr "Zdefiniowany przez użytkownika kod błędu 15"
 
-#: src/err-codes.h:427
+#: src/err-codes.h:431
 msgid "User defined error code 16"
 msgstr "Zdefiniowany przez użytkownika kod błędu 16"
 
-#: src/err-codes.h:428
+#: src/err-codes.h:432
+#, fuzzy
+#| msgid "LDAP success"
+msgid "SQL success"
+msgstr "Sukces LDAP"
+
+#: src/err-codes.h:433
+#, fuzzy
+#| msgid "Syntax error"
+msgid "SQL error"
+msgstr "Błąd składni"
+
+#: src/err-codes.h:434
+msgid "Internal logic error in SQL library"
+msgstr ""
+
+#: src/err-codes.h:435
+msgid "Access permission denied (SQL)"
+msgstr ""
+
+#: src/err-codes.h:436
+msgid "SQL abort was requested"
+msgstr ""
+
+#: src/err-codes.h:437
+msgid "SQL database file is locked"
+msgstr ""
+
+#: src/err-codes.h:438
+msgid "An SQL table in the database is locked"
+msgstr ""
+
+#: src/err-codes.h:439
+msgid "SQL library ran out of core"
+msgstr ""
+
+#: src/err-codes.h:440
+msgid "Attempt to write a readonly SQL database"
+msgstr ""
+
+#: src/err-codes.h:441
+msgid "SQL operation terminated by interrupt"
+msgstr ""
+
+#: src/err-codes.h:442
+msgid "I/O error during SQL operation"
+msgstr ""
+
+#: src/err-codes.h:443
+msgid "SQL database disk image is malformed"
+msgstr ""
+
+#: src/err-codes.h:444
+msgid "Unknown opcode in SQL file control"
+msgstr ""
+
+#: src/err-codes.h:445
+msgid "Insertion failed because SQL database is full"
+msgstr ""
+
+#: src/err-codes.h:446
+msgid "Unable to open the SQL database file"
+msgstr ""
+
+#: src/err-codes.h:447
+#, fuzzy
+#| msgid "LDAP protocol error"
+msgid "SQL database lock protocol error"
+msgstr "Błąd protokołu LDAP"
+
+#: src/err-codes.h:448
+msgid "(internal SQL code: empty)"
+msgstr ""
+
+#: src/err-codes.h:449
+msgid "SQL database schema changed"
+msgstr ""
+
+#: src/err-codes.h:450
+msgid "String or blob exceeds size limit (SQL)"
+msgstr ""
+
+#: src/err-codes.h:451
+msgid "SQL abort due to constraint violation"
+msgstr ""
+
+#: src/err-codes.h:452
+msgid "Data type mismatch (SQL)"
+msgstr ""
+
+#: src/err-codes.h:453
+msgid "SQL library used incorrectly"
+msgstr ""
+
+#: src/err-codes.h:454
+msgid "SQL library uses unsupported OS features"
+msgstr ""
+
+#: src/err-codes.h:455
+#, fuzzy
+#| msgid "Proxied authorization denied by LDAP"
+msgid "Authorization denied (SQL)"
+msgstr "Autoryzacja przez proxy odrzucona przez LDAP"
+
+#: src/err-codes.h:456
+msgid "(unused SQL code: format)"
+msgstr ""
+
+#: src/err-codes.h:457
+msgid "SQL bind parameter out of range"
+msgstr ""
+
+#: src/err-codes.h:458
+msgid "File opened that is not an SQL database file"
+msgstr ""
+
+#: src/err-codes.h:459
+msgid "Notifications from SQL logger"
+msgstr ""
+
+#: src/err-codes.h:460
+msgid "Warnings from SQL logger"
+msgstr ""
+
+#: src/err-codes.h:461
+msgid "SQL has another row ready"
+msgstr ""
+
+#: src/err-codes.h:462
+msgid "SQL has finished executing"
+msgstr ""
+
+#: src/err-codes.h:463
 msgid "System error w/o errno"
 msgstr "Błąd systemowy bez errno"
 
-#: src/err-codes.h:429
+#: src/err-codes.h:464
 msgid "Unknown system error"
 msgstr "Nieznany błąd systemu"
 
-#: src/err-codes.h:430
+#: src/err-codes.h:465
 msgid "End of file"
 msgstr "Koniec pliku"
 
-#: src/err-codes.h:431
+#: src/err-codes.h:466
 msgid "Unknown error code"
 msgstr "Nieznany kod błędu"
 
@@ -1803,11 +1953,11 @@ msgstr "brak pamięci\n"
 msgid "invalid option \"%.50s\"\n"
 msgstr "błędna opcja ,,%.50s''\n"
 
-#: src/gpg-error.c:458
+#: src/gpg-error.c:522
 msgid "Please report bugs to <https://bugs.gnupg.org>.\n"
 msgstr "Błędy prosimy zgłaszać pod <https://bugs.gnupg.org>.\n"
 
-#: src/gpg-error.c:658
+#: src/gpg-error.c:729
 #, c-format
 msgid "warning: could not recognize %s\n"
 msgstr "uwaga: nie rozpoznano %s\n"

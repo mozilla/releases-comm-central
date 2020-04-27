@@ -268,7 +268,8 @@ GPG_ERR_UNUSABLE_SECKEY                 Unusable secret key
 GPG_ERR_INV_VALUE               Invalid value
 
     NTBTLS: - A DH parameter is out of range
-
+    GnuPG:  - An Assuan server returns a status line with
+              unexpected values.
 
 GPG_ERR_BAD_CERT_CHAIN          Bad certificate chain
 
@@ -481,6 +482,9 @@ GPG_ERR_NOTHING_FOUND           Nothing found
 
 GPG_ERR_WRONG_BLOB_TYPE                 Wrong blob type
 
+    GNUPG: - The keyboxd returns an unexpected blob
+             (e.g. OpenPGP was requested but X.509 returned).
+
 GPG_ERR_MISSING_VALUE           Missing value
 
     GNUPG: - Not enough parameters for a secret key send to gpg-agent.
@@ -567,7 +571,6 @@ GPG_ERR_INV_STATE               Invalid state
 
     NTBTLS: - Data received in an unexpected state.
             - A function is called while not being in the right state.
-
 
 GPG_ERR_DUP_VALUE               Duplicated value
 
@@ -1068,6 +1071,25 @@ GPG_ERR_BAD_AUTH                Bad authentication
     GnuPG: - A smartcard could not be authenticated.  For example
              a wrong authentication key was used with a PIV card.
 
+GPG_ERR_NO_KEYBOXD              No Keyboxd running
+
+    GnuPG: - The keyboxd component is not running
+
+GPG_ERR_KEYBOXD                 Keyboxd error
+
+    GnuPG: - Malfunction in the keyboxd
+
+GPG_ERR_NO_SERVICE              Service is not running
+
+    A component is not running.  Tnis is a generic version of
+    GPG_ERR_NO_AGENT et al.
+
+GPG_ERR_SERVICE                 Service error
+
+    An error occured in a service component.  This is a generic
+    version of GPG_ERR_AGENT et al.
+
+
 GPG_ERR_SYSTEM_BUG              System bug detected
 
    The underlying operating system misbehaved.  For example it wrote
@@ -1133,5 +1155,70 @@ GPG_ERR_LDAP_OTHER_GENERAL      LDAP Other general error
   #define LDAP_UPDATE_ERROR(n)   LDAP_RANGE((n),0x40,0x47) /* 64-69,71 */
   #define LDAP_E_ERROR(n)        LDAP_RANGE((n),0x1000,0x3FFF)
   #define LDAP_X_ERROR(n)        LDAP_RANGE((n),0x4000,0xFFFF)
+
+GPG_ERR_SQL_OK          SQL success
+
+  This code is normally not used because it it mapped to GPG_ERR_NO_ERROR.
+
+GPG_ERR_SQL_ERROR	SQL error
+
+GPG_ERR_SQL_INTERNAL	Internal logic error in SQL library
+
+GPG_ERR_SQL_PERM	Access permission denied (SQL)
+
+GPG_ERR_SQL_ABORT	SQL abort was requested
+
+GPG_ERR_SQL_BUSY	SQL database file is locked
+
+GPG_ERR_SQL_LOCKED	An SQL table in the database is locked
+
+GPG_ERR_SQL_NOMEM	SQL library ran out of core
+
+GPG_ERR_SQL_READONLY	Attempt to write a readonly SQL database
+
+GPG_ERR_SQL_INTERRUPT	SQL operation terminated by interrupt
+
+GPG_ERR_SQL_IOERR	I/O error during SQL operation
+
+GPG_ERR_SQL_CORRUPT	SQL database disk image is malformed
+
+GPG_ERR_SQL_NOTFOUND	Unknown opcode in SQL file control
+
+GPG_ERR_SQL_FULL	Insertion failed because SQL database is full
+
+GPG_ERR_SQL_CANTOPEN	Unable to open the SQL database file
+
+GPG_ERR_SQL_PROTOCOL	SQL database lock protocol error
+
+GPG_ERR_SQL_EMPTY	(internal SQL code: empty)
+
+GPG_ERR_SQL_SCHEMA	SQL database schema changed
+
+GPG_ERR_SQL_TOOBIG	String or blob exceeds size limit (SQL)
+
+GPG_ERR_SQL_CONSTRAINT	SQL abort due to constraint violation
+
+GPG_ERR_SQL_MISMATCH	Data type mismatch (SQL)
+
+GPG_ERR_SQL_MISUSE	SQL library used incorrectly
+
+GPG_ERR_SQL_NOLFS	SQL library uses unsupported OS features
+
+GPG_ERR_SQL_AUTH	Authorization denied (SQL)
+
+GPG_ERR_SQL_FORMAT	(unused SQL code: format)
+
+GPG_ERR_SQL_RANGE	SQL bind parameter out of range
+
+GPG_ERR_SQL_NOTADB	File opened that is not an SQL database file
+
+GPG_ERR_SQL_NOTICE	Notifications from SQL logger
+
+GPG_ERR_SQL_WARNING	Warnings from SQL logger
+
+GPG_ERR_SQL_ROW		SQL has another row ready
+
+GPG_ERR SQL_DONE	SQL has finished executing
+
 
 ## end of errorref.txt

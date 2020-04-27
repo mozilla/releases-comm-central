@@ -1204,7 +1204,6 @@ pr_string (estream_printf_out_t outfnc, void *outfncarg,
 
   if (arg->vt != VALTYPE_STRING)
     return -1;
-  string = value.a_string;
   if (sf)
     string = sf (value.a_string, string_no, sfvalue);
   else

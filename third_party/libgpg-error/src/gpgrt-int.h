@@ -504,9 +504,9 @@ struct _gpgrt_b64state
   unsigned int crc;
   gpg_err_code_t lasterr;
   unsigned int flags;
-  int stop_seen:1;
-  int invalid_encoding:1;
-  int using_decoder:1;
+  unsigned int stop_seen:1;
+  unsigned int invalid_encoding:1;
+  unsigned int using_decoder:1;
 };
 
 gpgrt_b64state_t _gpgrt_b64enc_start (estream_t stream, const char *title);
