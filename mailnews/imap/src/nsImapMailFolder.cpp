@@ -6918,6 +6918,15 @@ void nsImapMailFolder::SetPendingAttributes(
                                           sourceString.get());
     }
 
+    // Carry over HasRe flag.
+    uint32_t flags;
+    uint32_t storeFlags = 0;
+    msgDBHdr->GetFlags(&flags);
+    if (flags & nsMsgMessageFlags::HasRe) {
+      storeFlags = nsMsgMessageFlags::HasRe;
+      mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "flags", storeFlags);
+    }
+
     uint32_t messageSize;
     uint64_t messageOffset;
     nsCString storeToken;
@@ -6933,8 +6942,8 @@ void nsImapMailFolder::SetPendingAttributes(
       // here because it can cause missing parts (inline or attachments)
       // when messages are moved or copied manually or by filter action.
       if (aSetOffline)
-        mDatabase->SetUint32AttributeOnPendingHdr(msgDBHdr, "flags",
-                                                  nsMsgMessageFlags::Offline);
+        mDatabase->SetUint32AttributeOnPendingHdr(
+            msgDBHdr, "flags", storeFlags | nsMsgMessageFlags::Offline);
       mDatabase->SetAttributeOnPendingHdr(msgDBHdr, "storeToken",
                                           storeToken.get());
     }

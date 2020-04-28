@@ -2248,14 +2248,17 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
           // Flags may get changed when deleting the original source message in
           // IMAP. We have a copy of the original flags, but parseMsgState has
           // already tried to decide what those flags should be. Who to believe?
-          // Let's only deal here with the flags that might get changed, Read
-          // and New, and trust upstream code for everything else.
-          uint32_t readAndNew =
-              nsMsgMessageFlags::New | nsMsgMessageFlags::Read;
+          // Let's deal here with the flags that might get changed, Read and
+          // New, and trust upstream code for everything else. However,
+          // we need to carry over HasRe since the subject is copied over
+          // from the original.
+          uint32_t carryOver = nsMsgMessageFlags::New |
+                               nsMsgMessageFlags::Read |
+                               nsMsgMessageFlags::HasRe;
           uint32_t newFlags;
           newHdr->GetFlags(&newFlags);
-          newHdr->SetFlags((newFlags & ~readAndNew) |
-                           ((mCopyState->m_flags) & readAndNew));
+          newHdr->SetFlags((newFlags & ~carryOver) |
+                           ((mCopyState->m_flags) & carryOver));
 
           // Copy other message properties.
           CopyPropertiesToMsgHdr(newHdr, mCopyState->m_message,
