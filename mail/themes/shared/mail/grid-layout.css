@@ -12,6 +12,11 @@
   grid-template-columns: auto auto auto;
 }
 
+.grid-two-column-fr {
+  display: inline-grid;
+  grid-template-columns: auto 1fr;
+}
+
 .grid-three-column-auto-x-auto {
   display: inline-grid;
   grid-template-columns: auto 1fr auto;

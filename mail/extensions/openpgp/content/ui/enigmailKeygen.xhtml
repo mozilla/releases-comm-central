@@ -7,6 +7,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/enigmail.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 
 <?xul-overlay href="chrome://global/content/dialogOverlay.xhtml"?>
 
@@ -67,42 +68,35 @@
     </hbox>
 
     <vbox> <!-- Advanced Tab -->
-      <grid>
-        <columns>
-          <column/>
-          <column flex="1"/>
-        </columns>
-
-        <rows>
-          <row>
-            <hbox align="center">
-              <label value="&enigmail.keyGen.keyType.label;" control="keyType"/>
-            </hbox>
-            <hbox flex="0">
-              <menulist id="keyType" label="&enigmail.keyGen.keyType.rsa;" value="RSA" >
-                <menupopup id="keyTypePopup">
-                  <menuitem id="keySize_rsa" value="RSA" label="&enigmail.keyGen.keyType.rsa;" selected="true" oncommand="updateKeySizeSel(this)"/>
-                  <menuitem id="keyType_ecc" value="ECC" label="&enigmail.keyGen.keyType.ecc;" oncommand="updateKeySizeSel(this)" hidden="true"/>
-                </menupopup>
-              </menulist>
-            </hbox>
-          </row>
-          <row>
-            <hbox align="center">
-              <label value="&enigmail.keyGen.keySize.label;" control="keySize"/>
-            </hbox>
-            <hbox flex="0">
-              <menulist id="keySize" label="3072" value="3072" >
-                <menupopup id="keySizePopup">
-                  <menuitem id="keySize_3072" value="3072" label="3072" selected="true"/>
-                  <menuitem id="keySize_4096" value="4096" label="4096"/>
-                </menupopup>
-              </menulist>
-            </hbox>
-          </row>
-        </rows>
-      </grid>
-  </vbox>
+      <html:div class="grid-two-column-fr">
+        <html:div class="flex-items-center">
+          <html:label for="keyType">
+            &enigmail.keyGen.keyType.label;
+          </html:label>
+        </html:div>
+        <html:div>
+          <menulist id="keyType" label="&enigmail.keyGen.keyType.rsa;" value="RSA">
+            <menupopup id="keyTypePopup">
+              <menuitem id="keySize_rsa" value="RSA" label="&enigmail.keyGen.keyType.rsa;" selected="true" oncommand="updateKeySizeSel(this)"/>
+              <menuitem id="keyType_ecc" value="ECC" label="&enigmail.keyGen.keyType.ecc;" oncommand="updateKeySizeSel(this)" hidden="true"/>
+            </menupopup>
+          </menulist>
+        </html:div>
+        <html:div class="flex-items-center">
+          <html:label for="keySize">
+            &enigmail.keyGen.keySize.label;
+          </html:label>
+        </html:div>
+        <html:div>
+          <menulist id="keySize" label="3072" value="3072">
+            <menupopup id="keySizePopup">
+              <menuitem id="keySize_3072" value="3072" label="3072" selected="true"/>
+              <menuitem id="keySize_4096" value="4096" label="4096"/>
+            </menupopup>
+          </menulist>
+        </html:div>
+      </html:div>
+    </vbox>
   </tabpanels>
 </tabbox>
 

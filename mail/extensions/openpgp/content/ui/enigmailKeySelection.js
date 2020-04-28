@@ -203,6 +203,8 @@ function sortKeys(a, b) {
 function prepareDialog(secretOnly) {
   throw new Error("Not implemented");
   /*
+  UI part is removed from here.
+  https://searchfox.org/comm-central/rev/32109474297be91179f5f8388e778ef9ab5d38ce/mail/extensions/openpgp/content/ui/enigmailKeySelection.xhtml#34-42
   if (window.arguments[INPUT].dialogHeader) {
     var dialogHeader = document.getElementById("dialogHeader");
     if (dialogHeader) {

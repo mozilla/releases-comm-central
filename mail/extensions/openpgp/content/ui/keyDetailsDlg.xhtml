@@ -28,52 +28,56 @@
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/keyDetailsDlg.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyManager.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
 
   <broadcasterset>
     <broadcaster id="ownKeyCommands" hidden="true"/>
   </broadcasterset>
 
-  <hbox >
-    <vbox>
-      <grid>
-        <columns>
-          <column style="min-width:15%;" flex="1"/>
-          <column flex="1"/>
-        </columns>
-        <rows>
-          <row>
-            <label value="&enigmail.keyDetails.userId2.label;" control="userId"/>
-            <html:input id="userId" class="plain" style="white-space: pre;"
-              readonly="true" value="?" multiline="false" size="60"/>
-          </row>
-          <row>
-            <label value="&enigmail.keyDetails.keyType.label;" control="keyType"/>
-            <html:input id="keyType" class="plain" style="white-space: pre;"
-              readonly="true" value="?" multiline="false" size="60"/>
-          </row>
-          <row>
-            <label value="&enigmail.keyDetails.fingerprint.label;" control="fingerprint"/>
-            <html:input id="fingerprint" class="plain" style="white-space: pre;"
-              readonly="true" value="?" multiline="false" size="60"/>
-          </row>
-          <row>
-            <label value="&enigmail.keyDetails.created.label;"/>
-            <html:input id="keyCreated" class="plain" style="white-space: pre;"
-              readonly="true" value="?" multiline="false" size="60"/>
-          </row>
-          <row>
-            <label value="&enigmail.keyDetails.expiry.label;"/>
-            <html:input id="keyExpiry" class="plain" style="white-space: pre;"
-              readonly="true" value="?" multiline="false" size="60"/>
-          </row>
-        </rows>
-      </grid>
-      <vbox class="enigmailCaptionbox" id="alsoknown" flex="1">
-        <html:h1><html:span>&enigmail.keyDetails.alsoKnown.label;:</html:span></html:h1>
-        <richlistbox id="additionalUid" style="height: 4em;" flex="1"/>
-      </vbox>
+  <vbox>
+    <html:table>
+      <html:tr>
+        <html:th>&enigmail.keyDetails.userId2.label;</html:th>
+        <html:td>
+          <html:input id="userId" class="plain" style="white-space: pre;"
+                      readonly="readonly" value="?" size="60"/>
+        </html:td>
+      </html:tr>
+      <html:tr>
+        <html:th>&enigmail.keyDetails.keyType.label;</html:th>
+        <html:td>
+          <html:input id="keyType" class="plain" style="white-space: pre;"
+                      readonly="readonly" value="?" size="60"/>
+        </html:td>
+      </html:tr>
+      <html:tr>
+        <html:th>&enigmail.keyDetails.fingerprint.label;</html:th>
+        <html:td>
+          <html:input id="fingerprint" class="plain" style="white-space: pre;"
+                      readonly="readonly" value="?" size="60"/>
+        </html:td>
+      </html:tr>
+      <html:tr>
+        <html:th>&enigmail.keyDetails.created.label;</html:th>
+        <html:td>
+          <html:input id="keyCreated" class="plain" style="white-space: pre;"
+                      readonly="readonly" value="?" size="60"/>
+        </html:td>
+      </html:tr>
+      <html:tr>
+        <html:th>&enigmail.keyDetails.expiry.label;</html:th>
+        <html:td>
+          <html:input id="keyExpiry" class="plain" style="white-space: pre;"
+                      readonly="readonly" value="?" size="60"/>
+        </html:td>
+      </html:tr>
+    </html:table>
+    <vbox class="enigmailCaptionbox" id="alsoknown" flex="1">
+      <html:h1><html:span>&enigmail.keyDetails.alsoKnown.label;:</html:span></html:h1>
+      <richlistbox id="additionalUid" style="height: 4em;" flex="1"/>
     </vbox>
-  </hbox>
+  </vbox>
 
   <tabbox flex="1" style="margin:5px" id="mainTabs">
     <tabs id="mainTabBox">

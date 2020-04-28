@@ -400,3 +400,8 @@ treechildren::-moz-tree-cell-text(STYLE) {}
   padding-right: 5px;
   height: 1.3em;
 }
+
+th {
+  font-weight: normal;
+  text-align: start;
+}
