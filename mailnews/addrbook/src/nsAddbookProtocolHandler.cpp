@@ -216,8 +216,10 @@ nsresult nsAddbookProtocolHandler::GeneratePrintOutput(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory;
-  rv = abManager->GetDirectory(uri, getter_AddRefs(directory));
-  NS_ENSURE_SUCCESS(rv, rv);
+  if (!uri.Equals(kAllDirectoryRoot "?")) {
+    rv = abManager->GetDirectory(uri, getter_AddRefs(directory));
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
 
   rv = BuildDirectoryXML(directory, aOutput);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -227,11 +229,7 @@ nsresult nsAddbookProtocolHandler::GeneratePrintOutput(
 
 nsresult nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
                                                      nsString &aOutput) {
-  NS_ENSURE_ARG_POINTER(aDirectory);
-
   nsresult rv;
-  nsCOMPtr<nsISimpleEnumerator> cardsEnumerator;
-  nsCOMPtr<nsIAbCard> card;
 
   aOutput.AppendLiteral(
       "<?xml version=\"1.0\"?>\n"
@@ -275,6 +273,12 @@ nsresult nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
   for (int32_t row = 0; row < numRows; row++) {
     nsCOMPtr<nsIAbCard> card;
     view->GetCardFromRow(row, getter_AddRefs(card));
+
+    bool isMailList;
+    if (NS_FAILED(card->GetIsMailList(&isMailList)) || isMailList) {
+      continue;
+    }
+
     nsCString xmlSubstr;
 
     rv = card->TranslateTo(NS_LITERAL_CSTRING("xml"), xmlSubstr);

@@ -179,22 +179,16 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
   mSortColumn.AssignLiteral("");
   mSortDirection.AssignLiteral("");
 
-  nsCString uri;
-  aAddressBook->GetURI(uri);
-  int32_t searchBegin = uri.FindChar('?');
-  nsCString searchQuery(Substring(uri, searchBegin));
-  // This is a special case, a workaround basically, to just have all ABs.
-  if (searchQuery.EqualsLiteral("?")) {
-    searchQuery.AssignLiteral("");
-  }
+  if (aAddressBook) {
+    nsCString uri;
+    aAddressBook->GetURI(uri);
 
-  if (Substring(uri, 0, searchBegin).EqualsLiteral(kAllDirectoryRoot)) {
+    mIsAllDirectoryRootView = false;
+    mDirectory = aAddressBook;
+    rv = EnumerateCards();
+    NS_ENSURE_SUCCESS(rv, rv);
+  } else {
     mIsAllDirectoryRootView = true;
-    // We have special request case to search all addressbooks, so we need
-    // to iterate over all addressbooks.
-    // Since the request is for all addressbooks, the URI must have been
-    // passed with an extra '?'. We still check it for sanity and trim it here.
-    if (searchQuery.Find("??") == 0) searchQuery = Substring(searchQuery, 1);
 
     nsCOMPtr<nsIAbManager> abManager(
         do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
@@ -214,20 +208,10 @@ NS_IMETHODIMP nsAbView::SetView(nsIAbDirectory *aAddressBook,
       // If, for some reason, we are unable to get a directory, we continue.
       if (NS_FAILED(rv)) continue;
 
-      // Get appropriate directory with search query.
-      nsCString uri;
-      directory->GetURI(uri);
-      rv =
-          abManager->GetDirectory(uri + searchQuery, getter_AddRefs(directory));
       mDirectory = directory;
       rv = EnumerateCards();
       NS_ENSURE_SUCCESS(rv, rv);
     }
-  } else {
-    mIsAllDirectoryRootView = false;
-    mDirectory = aAddressBook;
-    rv = EnumerateCards();
-    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   NS_NAMED_LITERAL_STRING(generatedNameColumnId, GENERATED_NAME_COLUMN_ID);
