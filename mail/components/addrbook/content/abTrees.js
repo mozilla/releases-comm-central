@@ -300,6 +300,10 @@ directoryTreeView.prototype = {
       get childNodes() {
         return MailServices.ab.directories;
       },
+
+      get propertiesChromeURI() {
+        return "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml";
+      },
     };
     this._rowMap.push(new abDirTreeItem(rootAB));
 
