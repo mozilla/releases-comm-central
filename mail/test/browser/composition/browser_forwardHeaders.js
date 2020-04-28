@@ -28,8 +28,8 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { to_mime_message } = ChromeUtils.import(
-  "resource://testing-common/mozmill/MessageHelpers.jsm"
+var { MsgHdrToMimeMessage } = ChromeUtils.import(
+  "resource:///modules/gloda/MimeMessage.jsm"
 );
 var {
   plan_for_modal_dialog,
@@ -113,14 +113,18 @@ add_task(function test_forward_inline() {
 
   // test for x-forwarded-message id and exercise the js mime representation as
   // well
-  to_mime_message(fMsgHdr, null, function(aMsgHdr, aMimeMsg) {
-    Assert.equal(
-      aMimeMsg.headers["x-forwarded-message-id"],
-      "<" + oMsgHdr.messageId + ">"
-    );
-    Assert.equal(aMimeMsg.headers.references, "<" + oMsgHdr.messageId + ">");
+  return new Promise(resolve => {
+    MsgHdrToMimeMessage(fMsgHdr, null, function(aMsgHdr, aMimeMsg) {
+      Assert.equal(
+        aMimeMsg.headers["x-forwarded-message-id"],
+        "<" + oMsgHdr.messageId + ">"
+      );
+      Assert.equal(aMimeMsg.headers.references, "<" + oMsgHdr.messageId + ">");
+
+      press_delete(mc);
+      resolve();
+    });
   });
-  press_delete(mc);
 });
 
 add_task(function test_forward_as_attachments() {
@@ -158,16 +162,19 @@ add_task(function test_forward_as_attachments() {
 
   // test for x-forwarded-message id and exercise the js mime representation as
   // well
-  to_mime_message(fMsgHdr, null, function(aMsgHdr, aMimeMsg) {
-    Assert.equal(
-      aMimeMsg.headers["x-forwarded-message-id"],
-      "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
-    );
-    Assert.equal(
-      aMimeMsg.headers.references,
-      "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
-    );
-  });
+  return new Promise(resolve => {
+    MsgHdrToMimeMessage(fMsgHdr, null, function(aMsgHdr, aMimeMsg) {
+      Assert.equal(
+        aMimeMsg.headers["x-forwarded-message-id"],
+        "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
+      );
+      Assert.equal(
+        aMimeMsg.headers.references,
+        "<" + oMsgHdr0.messageId + "> <" + oMsgHdr1.messageId + ">"
+      );
 
-  press_delete(mc);
+      press_delete(mc);
+      resolve();
+    });
+  });
 });

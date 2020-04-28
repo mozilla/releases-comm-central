@@ -21,7 +21,6 @@ TESTING_JS_MODULES.mozmill += [
     'httpd.jsm',
     'JunkHelpers.jsm',
     'KeyboardHelpers.jsm',
-    'MessageHelpers.jsm',
     'MockObjectHelpers.jsm',
     'MouseEventHelpers.jsm',
     'mozmill.jsm',
