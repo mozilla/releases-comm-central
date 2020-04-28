@@ -49,10 +49,7 @@ class nsAbDirProperty : public nsIAbDirectory, public nsSupportsWeakReference {
 
   nsCString mURI;
   nsCString mUID;
-  nsCString mQueryString;
-  nsCString mURINoQuery;
   bool mIsValidURI;
-  bool mIsQueryURI;
 
   /*
    * Note that any derived implementations should ensure that this item

@@ -42,7 +42,7 @@ const JS_DIRECTORY_TYPE = 101;
 const CARDDAV_DIRECTORY_TYPE = 102;
 
 /** Test for valid directory URIs. */
-const URI_REGEXP = /^([\w-]+):\/\/([\w\.-]*)([?/:].*|$)/;
+const URI_REGEXP = /^([\w-]+):\/\/([\w\.-]*)([/:].*|$)/;
 
 /**
  * All registered nsIAbListener objects. Keys to this map are the listeners
@@ -244,8 +244,7 @@ AddrBookManager.prototype = {
           Cr.NS_ERROR_UNEXPECTED
         );
       }
-      // `tail` could either point to a mailing list or a query.
-      // Both of these will be handled differently in future.
+      // `tail` could point to a mailing list.
       return createDirectoryObject(uri);
     }
     throw Components.Exception(

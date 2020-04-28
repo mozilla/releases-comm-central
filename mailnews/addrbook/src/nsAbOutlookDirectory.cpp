@@ -60,10 +60,9 @@ NS_IMETHODIMP nsAbOutlookDirectory::Init(const char* aUri) {
   nsAutoCString entry;
   nsAutoCString stub;
 
-  mAbWinType =
-      getAbWinType(kOutlookDirectoryScheme, mURINoQuery.get(), stub, entry);
+  mAbWinType = getAbWinType(kOutlookDirectoryScheme, mURI.get(), stub, entry);
   if (mAbWinType == nsAbWinType_Unknown) {
-    PRINTF(("Huge problem URI=%s.\n", mURINoQuery.get()));
+    PRINTF(("Huge problem URI=%s.\n", mURI.get()));
     return NS_ERROR_INVALID_ARG;
   }
   nsAbWinHelperGuard mapiAddBook(mAbWinType);
@@ -122,10 +121,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildNodes(
 
   *aNodes = nullptr;
 
-  if (mIsQueryURI) {
-    return NS_NewEmptyEnumerator(aNodes);
-  }
-
   nsresult rv;
   nsCOMPtr<nsIMutableArray> nodeList(
       do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
@@ -149,7 +144,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(
 
   mCardList.Clear();
 
-  rv = mIsQueryURI ? StartSearch() : GetChildCards(cardList, nullptr);
+  rv = GetChildCards(cardList, nullptr);
 
   NS_ENSURE_SUCCESS(rv, rv);
   if (!m_AddressList) {
@@ -200,12 +195,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::GetChildCards(
     }
   }
   return rv;
-}
-
-NS_IMETHODIMP nsAbOutlookDirectory::GetIsQuery(bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = mIsQueryURI;
-  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbOutlookDirectory::HasCard(nsIAbCard* aCard, bool* aHasCard) {
@@ -259,9 +248,6 @@ static nsresult ExtractDirectoryEntry(nsIAbDirectory* aDirectory,
 
 NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
     const nsTArray<RefPtr<nsIAbCard>>& aCards) {
-  if (mIsQueryURI) {
-    return NS_ERROR_NOT_IMPLEMENTED;
-  }
   nsresult retCode = NS_OK;
   nsAbWinHelperGuard mapiAddBook(mAbWinType);
 
@@ -299,9 +285,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
 
 NS_IMETHODIMP nsAbOutlookDirectory::DeleteDirectory(
     nsIAbDirectory* aDirectory) {
-  if (mIsQueryURI) {
-    return NS_ERROR_NOT_IMPLEMENTED;
-  }
   if (!aDirectory) {
     return NS_ERROR_NULL_POINTER;
   }
@@ -336,8 +319,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteDirectory(
 
 NS_IMETHODIMP nsAbOutlookDirectory::AddCard(nsIAbCard* aData,
                                             nsIAbCard** addedCard) {
-  if (mIsQueryURI) return NS_ERROR_NOT_IMPLEMENTED;
-
   NS_ENSURE_ARG_POINTER(aData);
 
   nsresult retCode = NS_OK;
@@ -373,7 +354,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::DropCard(nsIAbCard* aData,
 
 NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory* aMailList,
                                                 nsIAbDirectory** addedList) {
-  if (mIsQueryURI) return NS_ERROR_NOT_IMPLEMENTED;
   NS_ENSURE_ARG_POINTER(aMailList);
   NS_ENSURE_ARG_POINTER(addedList);
   if (m_IsMailList) return NS_OK;
@@ -429,8 +409,6 @@ NS_IMETHODIMP nsAbOutlookDirectory::AddMailList(nsIAbDirectory* aMailList,
 
 NS_IMETHODIMP nsAbOutlookDirectory::EditMailListToDatabase(
     nsIAbCard* listCard) {
-  if (mIsQueryURI) return NS_ERROR_NOT_IMPLEMENTED;
-
   nsresult rv;
   nsString name;
   nsAbWinHelperGuard mapiAddBook(mAbWinType);
@@ -876,10 +854,8 @@ NS_IMETHODIMP nsAbOutlookDirectory::StopQuery(int32_t aContext) {
   return NS_OK;
 }
 
-nsresult nsAbOutlookDirectory::StartSearch(void) {
-  if (!mIsQueryURI) {
-    return NS_ERROR_NOT_IMPLEMENTED;
-  }
+NS_IMETHODIMP nsAbOutlookDirectory::Search(const nsAString& query,
+                                           nsIAbDirSearchListener* listener) {
   nsresult retCode = NS_OK;
 
   retCode = StopSearch();
@@ -892,7 +868,7 @@ nsresult nsAbOutlookDirectory::StartSearch(void) {
       do_CreateInstance(NS_ABDIRECTORYQUERYARGUMENTS_CONTRACTID, &retCode);
   NS_ENSURE_SUCCESS(retCode, retCode);
 
-  retCode = nsAbQueryStringToExpression::Convert(mQueryString,
+  retCode = nsAbQueryStringToExpression::Convert(NS_ConvertUTF16toUTF8(query),
                                                  getter_AddRefs(expression));
   NS_ENSURE_SUCCESS(retCode, retCode);
   retCode = arguments->SetExpression(expression);
@@ -901,13 +877,10 @@ nsresult nsAbOutlookDirectory::StartSearch(void) {
   retCode = arguments->SetQuerySubDirectories(true);
   NS_ENSURE_SUCCESS(retCode, retCode);
 
-  return DoQuery(this, arguments, this, -1, 0, &mSearchContext);
+  return DoQuery(this, arguments, listener, -1, 0, &mSearchContext);
 }
 
 nsresult nsAbOutlookDirectory::StopSearch(void) {
-  if (!mIsQueryURI) {
-    return NS_ERROR_NOT_IMPLEMENTED;
-  }
   return StopQuery(mSearchContext);
 }
 

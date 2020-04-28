@@ -33,7 +33,6 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD GetURI(nsACString& aURI) override;
   NS_IMETHOD GetChildCards(nsISimpleEnumerator** aCards) override;
   NS_IMETHOD GetChildNodes(nsISimpleEnumerator** aNodes) override;
-  NS_IMETHOD GetIsQuery(bool* aResult) override;
   NS_IMETHOD HasCard(nsIAbCard* aCard, bool* aHasCard) override;
   NS_IMETHOD HasDirectory(nsIAbDirectory* aDirectory,
                           bool* aHasDirectory) override;
@@ -56,9 +55,10 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult ExecuteQuery(SRestriction& aRestriction,
                         nsIAbDirSearchListener* aListener, int32_t aResultLimit,
                         int32_t aTimeout, int32_t aThreadId);
+  NS_IMETHOD Search(const nsAString& query,
+                    nsIAbDirSearchListener* listener) override;
 
  protected:
-  nsresult StartSearch();
   nsresult StopSearch();
 
   // Retrieve hierarchy as cards, with an optional restriction

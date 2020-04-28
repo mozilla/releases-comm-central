@@ -228,8 +228,7 @@ nsAbOSXDirectory::~nsAbOSXDirectory() {
   }
 }
 
-NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXDirectory, nsAbDirProperty, nsIAbOSXDirectory,
-                            nsIAbDirSearchListener)
+NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXDirectory, nsAbDirProperty, nsIAbOSXDirectory)
 
 NS_IMETHODIMP
 nsAbOSXDirectory::Init(const char* aUri) {
@@ -253,10 +252,9 @@ nsAbOSXDirectory::Init(const char* aUri) {
   nsCOMPtr<nsIMutableArray> cardList;
   bool isRootOSXDirectory = false;
 
-  if (!mIsQueryURI && mURINoQuery.Length() <= sizeof(NS_ABOSXDIRECTORY_URI_PREFIX))
+  if (mURI.Length() <= sizeof(NS_ABOSXDIRECTORY_URI_PREFIX)) {
     isRootOSXDirectory = true;
 
-  if (mIsQueryURI || isRootOSXDirectory) {
     m_DirPrefId.AssignLiteral("ldap_2.servers.osx");
 
     cards = [[addressBook people] arrayByAddingObjectsFromArray:[addressBook groups]];
@@ -268,7 +266,7 @@ nsAbOSXDirectory::Init(const char* aUri) {
 
     cardList = mCardList;
   } else {
-    nsAutoCString uid(Substring(mURINoQuery, sizeof(NS_ABOSXDIRECTORY_URI_PREFIX) - 1));
+    nsAutoCString uid(Substring(mURI, sizeof(NS_ABOSXDIRECTORY_URI_PREFIX) - 1));
     ABRecord* card = [addressBook recordForUniqueId:[NSString stringWithUTF8String:uid.get()]];
     NS_ASSERTION([card isKindOfClass:[ABGroup class]], "Huh.");
 
@@ -276,8 +274,7 @@ nsAbOSXDirectory::Init(const char* aUri) {
     AppendToString([card valueForProperty:kABGroupNameProperty], m_ListDirName);
 
     ABGroup* group = (ABGroup*)[addressBook
-        recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURINoQuery, 21))
-                                                             .get()]];
+        recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURI, 21)).get()]];
     cards = [[group members] arrayByAddingObjectsFromArray:[group subgroups]];
 
     if (!m_AddressList)
@@ -316,10 +313,9 @@ nsAbOSXDirectory::Init(const char* aUri) {
 
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // If we're not a query directory, we're going to want to
-    // tell the AB Manager that we've added some cards so that they
-    // show up in the address book views.
-    if (!mIsQueryURI) AssertCard(abManager, card);
+    // We're going to want to tell the AB Manager that we've added some cards
+    // so that they show up in the address book views.
+    AssertCard(abManager, card);
   }
 
   if (isRootOSXDirectory) {
@@ -402,10 +398,6 @@ nsresult nsAbOSXDirectory::Update() {
   nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (mIsQueryURI) {
-    return NS_OK;
-  }
-
   ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
   // Due to the horrible way the address book code works wrt mailing lists
   // we have to use a different list depending on what we are. This pointer
@@ -414,8 +406,7 @@ nsresult nsAbOSXDirectory::Update() {
   NSArray *groups, *cards;
   if (m_IsMailList) {
     ABGroup* group = (ABGroup*)[addressBook
-        recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURINoQuery, 21))
-                                                             .get()]];
+        recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURI, 21)).get()]];
     groups = nil;
     cards = [[group members] arrayByAddingObjectsFromArray:[group subgroups]];
 
@@ -465,8 +456,7 @@ nsresult nsAbOSXDirectory::Update() {
   }
 
   card = (ABRecord*)[addressBook
-      recordForUniqueId:[NSString
-                            stringWithUTF8String:nsAutoCString(Substring(mURINoQuery, 21)).get()]];
+      recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURI, 21)).get()]];
   NSString* stringValue = [card valueForProperty:kABGroupNameProperty];
   if (![stringValue isEqualToString:WrapString(m_ListDirName)]) {
     nsAutoString oldValue(m_ListDirName);
@@ -525,8 +515,8 @@ nsresult nsAbOSXDirectory::Update() {
 nsresult nsAbOSXDirectory::AssertChildNodes() {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
-  // Queries and mailing lists can't have childnodes.
-  if (mIsQueryURI || m_IsMailList) {
+  // Mailing lists can't have childnodes.
+  if (m_IsMailList) {
     return NS_OK;
   }
 
@@ -623,8 +613,8 @@ NS_IMETHODIMP
 nsAbOSXDirectory::GetChildNodes(nsISimpleEnumerator** aNodes) {
   NS_ENSURE_ARG_POINTER(aNodes);
 
-  // Queries don't have childnodes.
-  if (mIsQueryURI || m_IsMailList || !m_AddressList) return NS_NewEmptyEnumerator(aNodes);
+  // Mailing lists don't have childnodes.
+  if (m_IsMailList || !m_AddressList) return NS_NewEmptyEnumerator(aNodes);
 
   return NS_NewArrayEnumerator(aNodes, m_AddressList, NS_GET_IID(nsIAbDirectory));
 }
@@ -640,13 +630,6 @@ nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator** aCards) {
                       : NS_NewArrayEnumerator(aCards, mCardList, NS_GET_IID(nsIAbCard));
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
-}
-
-NS_IMETHODIMP
-nsAbOSXDirectory::GetIsQuery(bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = mIsQueryURI;
-  return NS_OK;
 }
 
 /* Recursive method that searches for a child card by URI.  If it cannot find
@@ -812,35 +795,6 @@ nsAbOSXDirectory::HasDirectory(nsIAbDirectory* aDirectory, bool* aHasDirectory) 
   uint32_t pos;
   if (m_AddressList && NS_SUCCEEDED(m_AddressList->IndexOf(0, aDirectory, &pos)))
     *aHasDirectory = true;
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsAbOSXDirectory::OnSearchFinished(int32_t aResult, const nsAString& aErrorMsg) { return NS_OK; }
-
-NS_IMETHODIMP
-nsAbOSXDirectory::OnSearchFoundCard(nsIAbCard* aCard) {
-  nsresult rv;
-  if (!m_AddressList) {
-    m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  if (!mCardList) {
-    mCardList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-  }
-
-  rv = m_AddressList->AppendElement(aCard);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = mCardList->AppendElement(aCard);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsAutoCString ourUuid;
-  GetUuid(ourUuid);
-  aCard->SetDirectoryId(ourUuid);
 
   return NS_OK;
 }

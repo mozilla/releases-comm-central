@@ -16,8 +16,7 @@
 #include "mozilla/Mutex.h"
 
 class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
-                          public nsIAbLDAPDirectory,
-                          public nsIAbDirSearchListener {
+                          public nsIAbLDAPDirectory {
  public:
   NS_DECL_ISUPPORTS_INHERITED
 
@@ -30,7 +29,6 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD GetURI(nsACString& aURI) override;
   NS_IMETHOD GetChildNodes(nsISimpleEnumerator** result) override;
   NS_IMETHOD GetChildCards(nsISimpleEnumerator** result) override;
-  NS_IMETHOD GetIsQuery(bool* aResult) override;
   NS_IMETHOD Search(const nsAString& query,
                     nsIAbDirSearchListener* listener) override;
   NS_IMETHOD HasCard(nsIAbCard* cards, bool* hasCard) override;
@@ -45,7 +43,6 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
   NS_IMETHOD DeleteCards(const nsTArray<RefPtr<nsIAbCard>>& aCards) override;
 
   NS_DECL_NSIABLDAPDIRECTORY
-  NS_DECL_NSIABDIRSEARCHLISTENER
 
  protected:
   virtual ~nsAbLDAPDirectory();
@@ -59,7 +56,6 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
 
   nsInterfaceHashtable<nsISupportsHashKey, nsIAbCard> mCache;
 
-  mozilla::Mutex mLock;
   nsCOMPtr<nsIAbDirectoryQuery> mDirectoryQuery;
 };
 

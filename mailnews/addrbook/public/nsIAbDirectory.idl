@@ -208,12 +208,6 @@ interface nsIAbDirectory : nsISupports {
   void search(in AString query, in nsIAbDirSearchListener listener);
 
   /**
-   * Returns true if this directory represents a query - i.e. the rdf resource
-   * was something like moz-abmdbdirectory://abook.mab?....
-   */
-  readonly attribute boolean isQuery;
-
-  /**
    * Initializes a directory, pointing to a particular
    * URI
    */

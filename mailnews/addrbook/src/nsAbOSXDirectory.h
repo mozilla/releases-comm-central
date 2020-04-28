@@ -51,13 +51,11 @@ class nsIAbOSXDirectory : public nsISupports {
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIAbOSXDirectory, NS_IABOSXDIRECTORY_IID)
 
 class nsAbOSXDirectory final : public nsAbDirProperty,
-                               public nsIAbDirSearchListener,
                                public nsIAbOSXDirectory {
  public:
   nsAbOSXDirectory();
 
   NS_DECL_ISUPPORTS_INHERITED
-  NS_DECL_NSIABDIRSEARCHLISTENER
 
   // nsIAbOSXDirectory method
   NS_IMETHOD Init(const char* aUri) override;
@@ -66,7 +64,6 @@ class nsAbOSXDirectory final : public nsAbDirProperty,
   NS_IMETHOD GetReadOnly(bool* aReadOnly) override;
   NS_IMETHOD GetChildCards(nsISimpleEnumerator** aCards) override;
   NS_IMETHOD GetChildNodes(nsISimpleEnumerator** aNodes) override;
-  NS_IMETHOD GetIsQuery(bool* aResult) override;
   NS_IMETHOD HasCard(nsIAbCard* aCard, bool* aHasCard) override;
   NS_IMETHOD HasDirectory(nsIAbDirectory* aDirectory,
                           bool* aHasDirectory) override;

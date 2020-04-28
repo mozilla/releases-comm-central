@@ -38,17 +38,12 @@
 
 using namespace mozilla;
 
-nsAbLDAPDirectory::nsAbLDAPDirectory()
-    : nsAbDirProperty(),
-      mPerformingQuery(false),
-      mContext(0),
-      mLock("nsAbLDAPDirectory.mLock") {}
+nsAbLDAPDirectory::nsAbLDAPDirectory() : nsAbDirProperty(), mContext(0) {}
 
 nsAbLDAPDirectory::~nsAbLDAPDirectory() {}
 
 NS_IMPL_ISUPPORTS_INHERITED(nsAbLDAPDirectory, nsAbDirProperty,
-                            nsISupportsWeakReference, nsIAbDirSearchListener,
-                            nsIAbLDAPDirectory)
+                            nsISupportsWeakReference, nsIAbLDAPDirectory)
 
 NS_IMETHODIMP nsAbLDAPDirectory::GetPropertiesChromeURI(nsACString& aResult) {
   aResult.AssignLiteral(
@@ -96,8 +91,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildNodes(nsISimpleEnumerator** aResult) {
 NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result) {
   nsresult rv;
 
-  // when offline, we need to get the child cards for the local, replicated mdb
-  // directory
+  // When offline, get the child cards from the local, replicated directory.
   bool offline;
   nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(ioService, NS_ERROR_UNEXPECTED);
@@ -109,20 +103,14 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result) {
     rv = GetReplicationFileName(fileName);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    // if there is no fileName, bail out now.
-    if (fileName.IsEmpty()) return NS_OK;
-
-    // perform the same query, but on the local directory
-    nsAutoCString localDirectoryURI =
-        nsLiteralCString(kJSDirectoryRoot) + fileName;
-    if (mIsQueryURI) {
-      localDirectoryURI.Append('?');
-      localDirectoryURI.Append(mQueryString);
+    // If there is no fileName, bail out now.
+    if (fileName.IsEmpty()) {
+      return NS_NewEmptyEnumerator(result);
     }
 
-    nsCOMPtr<nsIAbManager> abManager(
-        do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
+    // Get the local directory.
+    nsAutoCString localDirectoryURI(nsLiteralCString(kJSDirectoryRoot));
+    localDirectoryURI.Append(fileName);
 
     nsCOMPtr<nsIAbDirectory> directory =
         do_CreateInstance(NS_ABJSDIRECTORY_CONTRACTID, &rv);
@@ -140,22 +128,11 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result) {
   return rv;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::GetIsQuery(bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  *aResult = mIsQueryURI;
-  return NS_OK;
-}
-
 NS_IMETHODIMP nsAbLDAPDirectory::HasCard(nsIAbCard* card, bool* hasCard) {
   nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
-  // Enter lock
-  MutexAutoLock lock(mLock);
-
   *hasCard = mCache.Get(card, nullptr);
-  if (!*hasCard && mPerformingQuery) return NS_ERROR_NOT_AVAILABLE;
-
   return NS_OK;
 }
 
@@ -186,7 +163,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL** aResult) {
      * case where it is not a preference, we need to replace the
      * "moz-abldapdirectory".
      */
-    URI = mURINoQuery;
+    URI = mURI;
     if (StringBeginsWith(URI, nsLiteralCString(kLDAPDirectoryRoot)))
       URI.Replace(0, kLDAPDirectoryRootLen, "ldap://"_ns);
   }
@@ -321,53 +298,9 @@ NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
 }
 
 nsresult nsAbLDAPDirectory::StopSearch() {
-  nsresult rv = Initiate();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Enter lock
-  {
-    MutexAutoLock lockGuard(mLock);
-    if (!mPerformingQuery) return NS_OK;
-    mPerformingQuery = false;
+  if (mDirectoryQuery) {
+    return mDirectoryQuery->StopQuery(mContext);
   }
-  // Exit lock
-
-  if (!mDirectoryQuery) return NS_ERROR_NULL_POINTER;
-
-  return mDirectoryQuery->StopQuery(mContext);
-}
-
-/*
- *
- * nsAbDirSearchListenerContext methods
- *
- */
-NS_IMETHODIMP nsAbLDAPDirectory::OnSearchFinished(
-    int32_t aResult, const nsAString& aErrorMessage) {
-  nsresult rv = Initiate();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  MutexAutoLock lock(mLock);
-  mPerformingQuery = false;
-
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAbLDAPDirectory::OnSearchFoundCard(nsIAbCard* card) {
-  nsresult rv = Initiate();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // Enter lock
-  {
-    MutexAutoLock lock(mLock);
-    mCache.Put(card, card);
-  }
-  // Exit lock
-
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv)) abManager->NotifyDirectoryItemAdded(this, card);
-
   return NS_OK;
 }
 

@@ -22,7 +22,7 @@ using namespace mozilla;
 #define kDefaultPosition 1
 
 nsAbDirProperty::nsAbDirProperty(void)
-    : m_LastModifiedDate(0), mIsValidURI(false), mIsQueryURI(false) {
+    : m_LastModifiedDate(0), mIsValidURI(false) {
   m_IsMailList = false;
   mUID = EmptyCString();
 }
@@ -237,27 +237,10 @@ NS_IMETHODIMP nsAbDirProperty::CopyMailList(nsIAbDirectory* srcList) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetIsQuery(bool* aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
-  // Mailing lists are not queries by default, individual directory types
-  // will override this.
-  *aResult = false;
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsAbDirProperty::Init(const char* aURI) {
-  mURINoQuery = aURI;
   mURI = aURI;
   mIsValidURI = true;
-
-  int32_t searchCharLocation = mURINoQuery.FindChar('?');
-  if (searchCharLocation >= 0) {
-    mQueryString = Substring(mURINoQuery, searchCharLocation + 1);
-    mURINoQuery.SetLength(searchCharLocation);
-    mIsQueryURI = true;
-  }
-
   return NS_OK;
 }
 
