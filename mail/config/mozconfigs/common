@@ -7,7 +7,3 @@ MOZ_REQUIRE_SIGNING=0
 
 # Temporarily disable CLANG_PLUGIN - Bug 1627437
 unset ENABLE_CLANG_PLUGIN
-# Think different.
-if [ -n "$MACOS_SDK_DIR" ]; then
-ac_add_options --disable-clang-plugin
-fi
