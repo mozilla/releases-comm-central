@@ -10,6 +10,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { OAuth2Providers } = ChromeUtils.import(
+  "resource:///modules/OAuth2Providers.jsm"
+);
 
 var gSmtpServer;
 var gSmtpUsername;
@@ -111,6 +114,10 @@ function initSmtpSettings(server) {
   if (MailServices.smtp.defaultServer) {
     onLockPreference();
   }
+
+  // Hide OAuth2 option if we can't use it.
+  let details = OAuth2Providers.getHostnameDetails(server.hostname);
+  document.getElementById("authMethod-oauth2").hidden = !details;
 
   // Hide deprecated/hidden auth options, unless selected
   hideUnlessSelected(document.getElementById("authMethod-anysecure"));
