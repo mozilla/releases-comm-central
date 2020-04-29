@@ -19,11 +19,7 @@ xpcshell:
     run-on-projects: built-projects
     docker-image:
         in-tree: "desktop1604-test"
-    chunks:
-        by-test-platform:
-            linux32/debug: 8
-            linux64/debug: 8
-            default: 4
+    chunks: 4
     instance-size: default
     max-run-time: 5400
     e10s: false
