@@ -1296,9 +1296,12 @@ NS_IMETHODIMP nsMsgDBFolder::WriteToFolderCache(nsIMsgFolderCache *folderCache,
 
   if (!deep) return rv;
 
+  // NOTE: We must use mSubFolders directly, as GetSubFolders() can cause folder
+  // discovery (creation), which we don't need or want here. See bug 1629204.
   nsCOMPtr<nsISimpleEnumerator> enumerator;
-  rv = GetSubFolders(getter_AddRefs(enumerator));
-  if (NS_FAILED(rv)) return rv;
+  rv = NS_NewArrayEnumerator(getter_AddRefs(enumerator), mSubFolders,
+                             NS_GET_IID(nsIMsgFolder));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   bool hasMore;
   while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
