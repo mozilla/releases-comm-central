@@ -576,27 +576,28 @@ MimeDecryptHandler.prototype = {
 
       this.returnStatus.statusFlags |= EnigmailConstants.PGP_MIME_ENCRYPTED;
 
-      if (
-        this.returnStatus.exitCode &&
-        this.returnStatus.decryptedData.length
-      ) {
-        // We got a failure return, however, we got decrypted data.
-        // Did we get any verification failure flags?
-        // If yes, then conclude only verification failed.
-
-        if (
-          this.returnStatus.statusFlags &
-          (EnigmailConstants.BAD_SIGNATURE |
-            EnigmailConstants.UNCERTAIN_SIGNATURE |
-            EnigmailConstants.EXPIRED_SIGNATURE |
-            EnigmailConstants.EXPIRED_KEY_SIGNATURE)
-        ) {
-          this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
+      if (this.returnStatus.exitCode) {
+        // Failure
+        if (this.returnStatus.decryptedData.length) {
+          // However, we got decrypted data.
+          // Did we get any verification failure flags?
+          // If yes, then conclude only verification failed.
+          if (
+            this.returnStatus.statusFlags &
+            (EnigmailConstants.BAD_SIGNATURE |
+              EnigmailConstants.UNCERTAIN_SIGNATURE |
+              EnigmailConstants.EXPIRED_SIGNATURE |
+              EnigmailConstants.EXPIRED_KEY_SIGNATURE)
+          ) {
+            this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
+          } else {
+            this.returnStatus.statusFlags |=
+              EnigmailConstants.DECRYPTION_FAILED;
+          }
         } else {
+          // no data
           this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
         }
-      } else if (this.returnStatus.exitCode) {
-        this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
       } else if (
         !(this.returnStatus.statusFlags & EnigmailConstants.DECRYPTION_FAILED)
       ) {

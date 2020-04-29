@@ -618,24 +618,49 @@ var RNP = {
 
     result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
 
-    if (!result.exitCode) {
+    let useDecryptedData;
+    let processSignature;
+    switch (result.exitCode) {
+      case RNPLib.RNP_SUCCESS:
+        useDecryptedData = true;
+        processSignature = true;
+        break;
+      case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
+        result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+        useDecryptedData = true;
+        processSignature = false;
+        break;
+      case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
+        useDecryptedData = true;
+        processSignature = false;
+        result.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
+        break;
+      default:
+        useDecryptedData = false;
+        processSignature = false;
+        break;
+    }
+
+    if (useDecryptedData) {
       let result_buf = new ctypes.uint8_t.ptr();
       let result_len = new ctypes.size_t();
-      result.exitCode = RNPLib.rnp_output_memory_get_buf(
+      let rv = RNPLib.rnp_output_memory_get_buf(
         output_to_memory,
         result_buf.address(),
         result_len.address(),
         false
       );
 
-      if (!result.exitCode) {
+      if (!rv) {
         let char_array = ctypes.cast(
           result_buf,
           ctypes.char.array(result_len.value).ptr
         ).contents;
 
         result.decryptedData = char_array.readString();
+      }
 
+      if (processSignature) {
         // ignore "no signature" result, that's ok
         await this.getVerifyDetails(
           RNPLib.ffi,
