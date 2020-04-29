@@ -73,7 +73,7 @@ locales = [
 
 [env]
     l = "{l10n_base}/{locale}/"
-    mozilla = "mozilla"
+    mozilla = ".."
 
 
 [[paths]]

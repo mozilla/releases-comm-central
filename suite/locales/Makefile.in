@@ -74,8 +74,6 @@ DIST_SUBDIRS = $(DIST_SUBDIR)
 
 include $(topsrcdir)/config/rules.mk
 
-COMPARE_LOCALES_DEFINES += -Dmozilla=..
-
 include $(topsrcdir)/toolkit/locales/l10n.mk
 
 $(list-txt): $(call mkdir_deps,$(SEARCHPLUGINS_PATH)) $(if $(IS_LANGUAGE_REPACK),FORCE)

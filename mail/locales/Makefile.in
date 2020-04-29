@@ -56,10 +56,6 @@ DIST_SUBDIRS = $(DIST_SUBDIR)
 
 include $(moztopsrcdir)/config/rules.mk
 
-ifeq ($(commreltopsrcdir),comm)
-COMPARE_LOCALES_DEFINES += -Dmozilla=..
-endif
-
 include $(moztopsrcdir)/toolkit/locales/l10n.mk
 
 $(DIST)/branding:
