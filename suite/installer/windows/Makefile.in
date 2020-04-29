@@ -24,10 +24,6 @@ BRANDING_FILES = \
 	wizWatermark.bmp \
 	$(NULL)
 
-ifdef MOZ_UPDATER
-DEFINES += -DMOZ_UPDATER=1
-endif
-
 include $(topsrcdir)/config/config.mk
 
 ifdef IS_LANGUAGE_REPACK
