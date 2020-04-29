@@ -26,7 +26,7 @@ add_task(async function test_attachment_not_empty() {
 
   let file = new FileUtils.File(getTestFilePath("data/bug1358565.eml"));
 
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   wait_for_element_visible(msgc, "attachmentToggle");
   msgc.click(msgc.eid("attachmentToggle"));

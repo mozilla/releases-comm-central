@@ -45,10 +45,10 @@ add_task(function setupModule(module) {
  * Test that replying to an opened .eml message works, and that the reply can
  * be saved as a draft.
  */
-add_task(function test_reply_to_eml_save_as_draft() {
+add_task(async function test_reply_to_eml_save_as_draft() {
   // Open an .eml file.
   let file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let replyWin = open_compose_with_reply(msgc);
 
@@ -71,10 +71,10 @@ add_task(function test_reply_to_eml_save_as_draft() {
  * Test that forwarding an opened .eml message works, and that the forward can
  * be saved as a draft.
  */
-add_task(function test_forward_eml_save_as_draft() {
+add_task(async function test_forward_eml_save_as_draft() {
   // Open an .eml file.
   let file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let replyWin = open_compose_with_forward(msgc);
 
@@ -96,12 +96,12 @@ add_task(function test_forward_eml_save_as_draft() {
 /**
  * Test that MIME encoded subject is decoded when replying to an opened .eml.
  */
-add_task(function test_reply_eml_subject() {
+add_task(async function test_reply_eml_subject() {
   // Open an .eml file whose subject is encoded.
   let file = new FileUtils.File(
     getTestFilePath("data/mime-encoded-subject.eml")
   );
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let replyWin = open_compose_with_reply(msgc);
 
@@ -113,10 +113,10 @@ add_task(function test_reply_eml_subject() {
 /**
  * Test that replying to a base64 encoded .eml works.
  */
-add_task(function test_reply_to_base64_eml() {
+add_task(async function test_reply_to_base64_eml() {
   // Open an .eml file.
   let file = new FileUtils.File(getTestFilePath("data/base64-encoded-msg.eml"));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let compWin = open_compose_with_reply(msgc);
 
@@ -138,10 +138,10 @@ add_task(function test_reply_to_base64_eml() {
 /**
  * Test that forwarding a base64 encoded .eml works.
  */
-add_task(function test_forward_base64_eml() {
+add_task(async function test_forward_base64_eml() {
   // Open an .eml file.
   let file = new FileUtils.File(getTestFilePath("data/base64-encoded-msg.eml"));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let compWin = open_compose_with_forward(msgc);
 

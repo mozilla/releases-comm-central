@@ -20,9 +20,9 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
-function check_eml_window_title(subject, eml) {
+async function check_eml_window_title(subject, eml) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let brandBundle = Services.strings.createBundle(
     "chrome://branding/locale/brand.properties"
@@ -41,10 +41,10 @@ function check_eml_window_title(subject, eml) {
   close_window(msgc);
 }
 
-add_task(function test_eml_empty_subject() {
-  check_eml_window_title("", "./emptySubject.eml");
+add_task(async function test_eml_empty_subject() {
+  await check_eml_window_title("", "./emptySubject.eml");
 });
 
-add_task(function test_eml_normal_subject() {
-  check_eml_window_title("An email", "./evil.eml");
+add_task(async function test_eml_normal_subject() {
+  await check_eml_window_title("An email", "./evil.eml");
 });

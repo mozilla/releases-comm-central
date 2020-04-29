@@ -5,29 +5,30 @@
 "use strict";
 
 const EXPORTED_SYMBOLS = [
+  "add_attachments",
+  "add_cloud_attachments",
+  "assert_previous_text",
+  "async_wait_for_compose_window",
+  "clear_recipients",
+  "close_compose_window",
+  "create_msg_attachment",
+  "delete_attachment",
+  "get_compose_body",
+  "get_first_pill",
+  "get_msg_source",
+  "open_compose_from_draft",
   "open_compose_new_mail",
+  "open_compose_with_edit_as_new",
+  "open_compose_with_element_click",
+  "open_compose_with_forward",
+  "open_compose_with_forward_as_attachments",
   "open_compose_with_reply",
   "open_compose_with_reply_to_all",
   "open_compose_with_reply_to_list",
-  "open_compose_with_forward",
-  "open_compose_with_forward_as_attachments",
-  "open_compose_with_edit_as_new",
-  "open_compose_with_element_click",
-  "open_compose_from_draft",
-  "close_compose_window",
-  "wait_for_compose_window",
   "setup_msg_contents",
-  "clear_recipients",
-  "get_first_pill",
   "toggle_recipient_type",
-  "create_msg_attachment",
-  "add_attachments",
-  "add_cloud_attachments",
-  "delete_attachment",
-  "get_compose_body",
   "type_in_composer",
-  "assert_previous_text",
-  "get_msg_source",
+  "wait_for_compose_window",
 ];
 
 var elib = ChromeUtils.import(
@@ -265,12 +266,20 @@ function close_compose_window(aController, aShouldPrompt) {
  * @return The loaded window of type "msgcompose" wrapped in a MozmillController
  *         that is augmented using augment_controller.
  */
+async function async_wait_for_compose_window(aController, aPromise) {
+  let replyWindow = await aPromise;
+  return _wait_for_compose_window(aController, replyWindow);
+}
+
 function wait_for_compose_window(aController) {
+  let replyWindow = windowHelper.wait_for_new_window("msgcompose");
+  return _wait_for_compose_window(aController, replyWindow);
+}
+
+function _wait_for_compose_window(aController, replyWindow) {
   if (aController === undefined) {
     aController = mc;
   }
-
-  let replyWindow = windowHelper.wait_for_new_window("msgcompose");
 
   let editor = replyWindow.window.document.querySelector("editor");
 

@@ -159,8 +159,8 @@ add_task(function test_dnsPrefetch_message() {
   }
 });
 
-add_task(function test_dnsPrefetch_standaloneMessage() {
-  let msgc = open_selected_message_in_new_window();
+add_task(async function test_dnsPrefetch_standaloneMessage() {
+  let msgc = await open_selected_message_in_new_window();
   assert_selected_and_displayed(msgc, gMsgHdr);
 
   // Check the docshell.

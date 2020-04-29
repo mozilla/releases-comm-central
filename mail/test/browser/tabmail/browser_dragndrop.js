@@ -43,8 +43,8 @@ var {
   "resource://testing-common/mozmill/MouseEventHelpers.jsm"
 );
 var {
+  async_plan_for_new_window,
   close_window,
-  plan_for_new_window,
   wait_for_new_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
@@ -186,7 +186,7 @@ add_task(function test_tab_reorder_tabbar() {
 /**
  * Tests drag'n'drop tab reordering between windows
  */
-add_task(function test_tab_reorder_window() {
+add_task(async function test_tab_reorder_window() {
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -205,7 +205,7 @@ add_task(function test_tab_reorder_window() {
   assert_selected_and_displayed(msgHdrsInFolder[1]);
 
   // ...and then a new 3 pane as our drop target.
-  plan_for_new_window("mail:3pane");
+  let newWindowPromise = async_plan_for_new_window("mail:3pane");
 
   let args = { msgHdr: msgHdrsInFolder[3] };
   args.wrappedJSObject = args;
@@ -218,7 +218,7 @@ add_task(function test_tab_reorder_window() {
     args
   );
 
-  mc2 = wait_for_new_window("mail:3pane");
+  mc2 = await newWindowPromise;
   wait_for_message_display_completion(mc2, true);
 
   // Double check if we are listening to the right window.
@@ -261,7 +261,7 @@ add_task(function test_tab_reorder_window() {
 /**
  * Tests detaching tabs into windows via drag'n'drop
  */
-add_task(function test_tab_reorder_detach() {
+add_task(async function test_tab_reorder_detach() {
   // Ensure only one tab is open, otherwise our test most likey fail anyway.
   mc.tabmail.closeOtherTabs(0);
   assert_number_of_tabs_open(1);
@@ -277,7 +277,7 @@ add_task(function test_tab_reorder_detach() {
   assert_number_of_tabs_open(2);
 
   // ... if every thing works we should expect a new window...
-  plan_for_new_window("mail:3pane");
+  let newWindowPromise = async_plan_for_new_window("mail:3pane");
 
   // ... now start dragging
 
@@ -298,7 +298,7 @@ add_task(function test_tab_reorder_detach() {
   });
 
   // ... and wait for the new window
-  mc2 = wait_for_new_window("mail:3pane");
+  mc2 = await newWindowPromise;
   wait_for_message_display_completion(mc2, true);
 
   Assert.ok(

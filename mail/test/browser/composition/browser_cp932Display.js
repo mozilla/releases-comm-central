@@ -15,9 +15,9 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-add_task(function test_cp932_display() {
+add_task(async function test_cp932_display() {
   let file = new FileUtils.File(getTestFilePath("data/charset-cp932.eml"));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
   let subjectText = msgc.e("expandedsubjectBox").textContent;
   let bodyText = msgc.e("messagepane").contentDocument.querySelector("body")
     .textContent;

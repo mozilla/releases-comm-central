@@ -21,8 +21,6 @@ add_task(async () => {
     let doc = win.document;
 
     await extension.startup();
-    await promiseAnimationFrame(win);
-    await new Promise(resolve => win.setTimeout(resolve));
 
     let buttonId = "test1_mochi_test-messageDisplayAction-toolbarbutton";
     let toolbar = doc.getElementById("header-view-toolbar");
@@ -138,8 +136,7 @@ add_task(async () => {
   let messageWindowPromise = BrowserTestUtils.domWindowOpened();
   MsgOpenNewWindowForMessage();
   let messageWindow = await messageWindowPromise;
-  await new Promise(resolve => messageWindow.setTimeout(resolve));
-  await new Promise(resolve => messageWindow.setTimeout(resolve));
+  await new Promise(resolve => messageWindow.setTimeout(resolve, 100));
   await test_it(extension, messageWindow);
   messageWindow.close();
 
@@ -163,8 +160,7 @@ add_task(async () => {
   messageWindowPromise = BrowserTestUtils.domWindowOpened();
   MsgOpenNewWindowForMessage();
   messageWindow = await messageWindowPromise;
-  await new Promise(resolve => messageWindow.setTimeout(resolve));
-  await new Promise(resolve => messageWindow.setTimeout(resolve));
+  await new Promise(resolve => messageWindow.setTimeout(resolve, 100));
   await test_it(extension, messageWindow);
   messageWindow.close();
 });

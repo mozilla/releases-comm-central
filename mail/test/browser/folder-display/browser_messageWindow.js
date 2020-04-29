@@ -53,14 +53,14 @@ add_task(function setupModule(module) {
 /** The message window controller. */
 var msgc;
 
-add_task(function test_open_message_window() {
+add_task(async function test_open_message_window() {
   be_in_folder(folderA);
 
   // select the first message
   curMessage = select_click_row(0);
 
   // display it
-  msgc = open_selected_message_in_new_window();
+  msgc = await open_selected_message_in_new_window();
   assert_selected_and_displayed(msgc, curMessage);
 });
 

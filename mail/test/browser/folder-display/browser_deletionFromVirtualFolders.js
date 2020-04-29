@@ -136,7 +136,7 @@ function subtest_save_mail_view(savc) {
   savc.window.onOK();
 }
 
-function _open_first_message() {
+async function _open_first_message() {
   // Enter the folder and open a message
   tabFolder = be_in_folder(folder);
   curMessage = select_click_row(0);
@@ -155,17 +155,17 @@ function _open_first_message() {
 
   // Open the window with the message
   switch_tab(tabFolder);
-  msgc = open_selected_message_in_new_window();
+  msgc = await open_selected_message_in_new_window();
   assert_selected_and_displayed(msgc, curMessage);
 }
 
-add_task(function test_open_first_message_in_virtual_folder() {
+add_task(async function test_open_first_message_in_virtual_folder() {
   folder = baseFolder.getChildNamed(baseFolder.prettyName + "-Important");
   if (!folder) {
     throw new Error("DeletionFromVirtualFoldersA-Important was not created!");
   }
 
-  _open_first_message();
+  await _open_first_message();
 });
 
 /**
@@ -252,7 +252,7 @@ add_task(
 /**
  * Open the first message in the smart inbox.
  */
-add_task(function test_open_first_message_in_smart_inbox() {
+add_task(async function test_open_first_message_in_smart_inbox() {
   // Switch to smart folders
   mc.folderTreeView.mode = "smart";
   // Select the smart inbox
@@ -260,7 +260,7 @@ add_task(function test_open_first_message_in_smart_inbox() {
   be_in_folder(folder);
   assert_messages_in_view(setNormal);
   // Open the first message
-  _open_first_message();
+  await _open_first_message();
 });
 
 /**

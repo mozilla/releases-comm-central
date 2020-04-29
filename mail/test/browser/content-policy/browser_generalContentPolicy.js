@@ -60,8 +60,8 @@ var {
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 var {
+  async_plan_for_new_window,
   plan_for_modal_dialog,
-  plan_for_new_window,
   wait_for_modal_dialog,
   wait_for_new_window,
   wait_for_window_close,
@@ -279,12 +279,12 @@ function checkComposeWindow(test, replyType, loadAllowed) {
 /**
  * Check remote content in stand-alone message window, and reload
  */
-function checkStandaloneMessageWindow(test, loadAllowed) {
-  plan_for_new_window("mail:messageWindow");
+async function checkStandaloneMessageWindow(test, loadAllowed) {
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   // Open it
   set_open_message_behavior("NEW_WINDOW");
   open_selected_message();
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
   if (
     test.checkForAllowed(
@@ -304,8 +304,8 @@ function checkStandaloneMessageWindow(test, loadAllowed) {
  * Check remote content in stand-alone message window loaded from .eml file.
  * Make sure there's a notification bar.
  */
-function checkEMLMessageWindow(test, emlFile) {
-  let msgc = open_message_from_file(emlFile);
+async function checkEMLMessageWindow(test, emlFile) {
+  let msgc = await open_message_from_file(emlFile);
   if (!msgc.e("mail-notification-top")) {
     throw new Error(test.type + " has no content notification bar.");
   }
@@ -523,7 +523,7 @@ function checkAllowForHostsWithPerms(test) {
   ++gMsgNo;
 }
 
-add_task(function test_generalContentPolicy() {
+add_task(async function test_generalContentPolicy() {
   be_in_folder(folder);
 
   assert_nothing_selected();
@@ -563,7 +563,7 @@ add_task(function test_generalContentPolicy() {
       }
 
       // Check denied in standalone message window
-      checkStandaloneMessageWindow(TESTS[i], false);
+      await checkStandaloneMessageWindow(TESTS[i], false);
 
       // Now allow the remote content and check result
       allowRemoteContentAndCheck(TESTS[i]);
@@ -576,7 +576,7 @@ add_task(function test_generalContentPolicy() {
     checkComposeWindow(TESTS[i], false, true);
 
     // Check allowed in standalone message window
-    checkStandaloneMessageWindow(TESTS[i], true);
+    await checkStandaloneMessageWindow(TESTS[i], true);
 
     // Check allowed in content tab
     checkContentTab(TESTS[i]);
@@ -593,7 +593,7 @@ add_task(function test_generalContentPolicy() {
     // Only want to do this for the first test case, which is a remote image.
     if (i == 0) {
       let emlFile = saveAsEMLFile(i);
-      checkEMLMessageWindow(TESTS[i], emlFile);
+      await checkEMLMessageWindow(TESTS[i], emlFile);
       emlFile.remove(false);
     }
   }

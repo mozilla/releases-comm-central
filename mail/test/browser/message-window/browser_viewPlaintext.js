@@ -57,20 +57,24 @@ function check_content(aWindow, aExpected, aDontWantToSee) {
  * @param aExpectedPlainText   Expected content when viewed as plain text.
  * @param aExpectedHTML        Expected content when viewed as HTML.
  */
-function checkSingleMessage(aFilePath, aExpectedPlainText, aExpectedHTML) {
+async function checkSingleMessage(
+  aFilePath,
+  aExpectedPlainText,
+  aExpectedHTML
+) {
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
 
   // Load and display as plain text.
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", true);
   Services.prefs.setIntPref("mailnews.display.html_as", 1);
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
   check_content(msgc.window, aExpectedPlainText, aExpectedHTML);
   close_window(msgc);
 
   // Load and display as HTML.
   Services.prefs.setBoolPref("mailnews.display.prefer_plaintext", false);
   Services.prefs.setIntPref("mailnews.display.html_as", 0);
-  msgc = open_message_from_file(file);
+  msgc = await open_message_from_file(file);
   check_content(msgc.window, aExpectedHTML, aExpectedPlainText);
   close_window(msgc);
 }
@@ -79,14 +83,14 @@ function checkSingleMessage(aFilePath, aExpectedPlainText, aExpectedHTML) {
  * Tests that messages with various MIME parts are shown correctly when displayed
  * as plain text or HTML.
  */
-add_task(function test_view() {
+add_task(async function test_view() {
   // First the straight forward tests:
   // 1) multipart/alternative
   // 2) multipart/alternative with embedded multipart/related
   // 3) multipart/alternative with embedded multipart/related embedded in multipart/mixed
-  checkSingleMessage("./test-alt.eml", "Plain Text", "HTML Body");
-  checkSingleMessage("./test-alt-rel.eml", "Plain Text", "HTML Body");
-  checkSingleMessage(
+  await checkSingleMessage("./test-alt.eml", "Plain Text", "HTML Body");
+  await checkSingleMessage("./test-alt-rel.eml", "Plain Text", "HTML Body");
+  await checkSingleMessage(
     "./test-alt-rel-with-attach.eml",
     "Plain Text",
     "HTML Body"
@@ -94,29 +98,41 @@ add_task(function test_view() {
 
   // 4) HTML part missing
   // 5) Plain part missing
-  checkSingleMessage("./test-alt-HTML-missing.eml", "Plain Text", "Plain Text");
-  checkSingleMessage("./test-alt-plain-missing.eml", "HTML Body", "HTML Body");
+  await checkSingleMessage(
+    "./test-alt-HTML-missing.eml",
+    "Plain Text",
+    "Plain Text"
+  );
+  await checkSingleMessage(
+    "./test-alt-plain-missing.eml",
+    "HTML Body",
+    "HTML Body"
+  );
 
   // 6) plain and HTML parts reversed in order
-  checkSingleMessage(
+  await checkSingleMessage(
     "./test-alt-plain-HTML-reversed.eml",
     "Plain Text",
     "HTML Body"
   );
 
   // 7) 3 alt. parts with 2 plain and 1 HTML part
-  checkSingleMessage("./test-triple-alt.eml", "Plain Text", "HTML Body");
+  await checkSingleMessage("./test-triple-alt.eml", "Plain Text", "HTML Body");
 
   // 8) 3 alt. parts with 2 plain and 1 multipart/related
-  checkSingleMessage("./test-alt-rel-text.eml", "Plain Text", "HTML Body");
+  await checkSingleMessage(
+    "./test-alt-rel-text.eml",
+    "Plain Text",
+    "HTML Body"
+  );
 
   // Now some cases that don't work yet.
   // 9) multipart/related with embedded multipart/alternative
-  checkSingleMessage("./test-rel-alt.eml", "HTML Body", "HTML Body");
+  await checkSingleMessage("./test-rel-alt.eml", "HTML Body", "HTML Body");
 
   // Bug 1367156: Rogue message which has an image as the last part.
-  checkSingleMessage("./test-alt-rogue.eml", "Plain Text", "HTML Body");
-  checkSingleMessage("./test-alt-rogue2.eml", "Plain Text", "HTML Body");
+  await checkSingleMessage("./test-alt-rogue.eml", "Plain Text", "HTML Body");
+  await checkSingleMessage("./test-alt-rogue2.eml", "Plain Text", "HTML Body");
 });
 
 registerCleanupFunction(function teardownModule() {

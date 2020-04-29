@@ -58,7 +58,7 @@ add_task(function setupModule(module) {
   folderToStoreMessages = create_folder("FolderWithMessages");
 });
 
-function subtest_replyEditAsNewForward_charset(
+async function subtest_replyEditAsNewForward_charset(
   aAction,
   aFile,
   aCharset,
@@ -68,7 +68,7 @@ function subtest_replyEditAsNewForward_charset(
   be_in_folder(folderToStoreMessages);
 
   let file = new FileUtils.File(getTestFilePath(`data/${aFile}`));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   // Copy the message to a folder. We run the message through a folder
   // since replying/editing as new/forwarding directly to the message
@@ -121,35 +121,51 @@ function subtest_replyEditAsNewForward_charset(
   press_delete(mc);
 }
 
-add_task(function test_replyEditAsNewForward_charsetFromBody() {
+add_task(async function test_replyEditAsNewForward_charsetFromBody() {
   // Check that the charset is taken from the message body (bug 1026989).
-  subtest_replyEditAsNewForward_charset(1, "./multipart-charset.eml", "EUC-KR");
-  subtest_replyEditAsNewForward_charset(2, "./multipart-charset.eml", "EUC-KR");
-  subtest_replyEditAsNewForward_charset(3, "./multipart-charset.eml", "EUC-KR");
+  await subtest_replyEditAsNewForward_charset(
+    1,
+    "./multipart-charset.eml",
+    "EUC-KR"
+  );
+  await subtest_replyEditAsNewForward_charset(
+    2,
+    "./multipart-charset.eml",
+    "EUC-KR"
+  );
+  await subtest_replyEditAsNewForward_charset(
+    3,
+    "./multipart-charset.eml",
+    "EUC-KR"
+  );
   // For "forward as attachment" we use the default charset (which is UTF-8).
-  subtest_replyEditAsNewForward_charset(4, "./multipart-charset.eml", "UTF-8");
+  await subtest_replyEditAsNewForward_charset(
+    4,
+    "./multipart-charset.eml",
+    "UTF-8"
+  );
 });
 
-add_task(function test_reply_noUTF16() {
+add_task(async function test_reply_noUTF16() {
   // Check that a UTF-16 encoded e-mail is forced to UTF-8 when replying (bug 961983).
-  subtest_replyEditAsNewForward_charset(1, "./body-utf16.eml", "UTF-8");
+  await subtest_replyEditAsNewForward_charset(1, "./body-utf16.eml", "UTF-8");
 });
 
-add_task(function test_replyEditAsNewForward_override() {
+add_task(async function test_replyEditAsNewForward_override() {
   // Check that the override is honoured (inspired by bug 1323377).
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     1,
     "./multipart-charset.eml",
     "UTF-8",
     "Unicode"
   );
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     2,
     "./multipart-charset.eml",
     "windows-1252",
     "Western"
   );
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     3,
     "./multipart-charset.eml",
     "ISO-8859-7",
@@ -157,21 +173,21 @@ add_task(function test_replyEditAsNewForward_override() {
   );
 });
 
-add_task(function test_replyEditAsNewForward_enforceDefault() {
+add_task(async function test_replyEditAsNewForward_enforceDefault() {
   // Check that the default is honoured (inspired by bug 1323377).
   Services.prefs.setBoolPref("mailnews.reply_in_default_charset", true);
   Services.prefs.setCharPref("mailnews.send_default_charset", "ISO-8859-7");
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     1,
     "./multipart-charset.eml",
     "ISO-8859-7"
   );
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     2,
     "./multipart-charset.eml",
     "ISO-8859-7"
   );
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     3,
     "./multipart-charset.eml",
     "ISO-8859-7"
@@ -180,27 +196,27 @@ add_task(function test_replyEditAsNewForward_enforceDefault() {
   Services.prefs.clearUserPref("mailnews.send_default_charset");
 });
 
-add_task(function test_replyEditAsNewForward_noPreview() {
+add_task(async function test_replyEditAsNewForward_noPreview() {
   // Check that it works even if the message wasn't viewed before, so
   // switch off the preview pane (bug 1323377).
   be_in_folder(folderToStoreMessages);
   mc.window.goDoCommand("cmd_toggleMessagePane");
 
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     1,
     "./format-flowed.eml",
     "windows-1252",
     null,
     false
   );
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     2,
     "./body-greek.eml",
     "ISO-8859-7",
     null,
     false
   );
-  subtest_replyEditAsNewForward_charset(
+  await subtest_replyEditAsNewForward_charset(
     3,
     "./multipart-charset.eml",
     "EUC-KR",

@@ -69,9 +69,9 @@ function check_content(window) {
   Assert.ok(false, "Failed to find forward container");
 }
 
-function forwardDirect(aFilePath) {
+async function forwardDirect(aFilePath) {
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let cwc = open_compose_with_forward(msgc);
 
@@ -81,11 +81,11 @@ function forwardDirect(aFilePath) {
   close_window(msgc);
 }
 
-function forwardViaFolder(aFilePath) {
+async function forwardViaFolder(aFilePath) {
   be_in_folder(folderToSendFrom);
 
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   // Copy the message to a folder.
   let documentChild = msgc.e("messagepane").contentDocument.firstChild;
@@ -109,10 +109,10 @@ function forwardViaFolder(aFilePath) {
   press_delete(mc);
 }
 
-add_task(function test_utf8_forwarding_from_opened_file() {
-  forwardDirect("./content-utf8-rel-only.eml");
-  forwardDirect("./content-utf8-rel-alt.eml");
-  forwardDirect("./content-utf8-alt-rel.eml");
+add_task(async function test_utf8_forwarding_from_opened_file() {
+  await forwardDirect("./content-utf8-rel-only.eml");
+  await forwardDirect("./content-utf8-rel-alt.eml");
+  await forwardDirect("./content-utf8-alt-rel.eml");
 
   Assert.report(
     false,
@@ -122,17 +122,17 @@ add_task(function test_utf8_forwarding_from_opened_file() {
   );
 });
 
-add_task(function test_utf8_forwarding_from_via_folder() {
-  forwardViaFolder("./content-utf8-rel-only.eml");
-  forwardViaFolder("./content-utf8-rel-alt.eml"); // Also tests HTML part without <html> tag.
-  forwardViaFolder("./content-utf8-alt-rel.eml"); // Also tests <html attr>.
-  forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
+add_task(async function test_utf8_forwarding_from_via_folder() {
+  await forwardViaFolder("./content-utf8-rel-only.eml");
+  await forwardViaFolder("./content-utf8-rel-alt.eml"); // Also tests HTML part without <html> tag.
+  await forwardViaFolder("./content-utf8-alt-rel.eml"); // Also tests <html attr>.
+  await forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
 
   // Repeat the last three in simple HTML view.
   Services.prefs.setIntPref("mailnews.display.html_as", 3);
-  forwardViaFolder("./content-utf8-rel-alt.eml"); // Also tests HTML part without <html> tag.
-  forwardViaFolder("./content-utf8-alt-rel.eml"); // Also tests <html attr>.
-  forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
+  await forwardViaFolder("./content-utf8-rel-alt.eml"); // Also tests HTML part without <html> tag.
+  await forwardViaFolder("./content-utf8-alt-rel.eml"); // Also tests <html attr>.
+  await forwardViaFolder("./content-utf8-alt-rel2.eml"); // Also tests content before <html>.
 
   Assert.report(
     false,

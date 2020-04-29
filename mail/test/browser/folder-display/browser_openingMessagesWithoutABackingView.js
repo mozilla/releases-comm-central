@@ -34,7 +34,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
+var { async_plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -144,17 +144,17 @@ add_task(test_open_multiple_messages_without_backing_views_in_tabs);
 /**
  * Test opening a message without a backing view in a new window.
  */
-function test_open_message_without_backing_view_in_new_window() {
+async function test_open_message_without_backing_view_in_new_window() {
   set_open_message_behavior("NEW_WINDOW");
   be_in_folder(folder);
 
   // Select a message
   let msgHdr = msgHdrsInFolder[6];
 
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   // Open it
   MailUtils.displayMessage(msgHdr);
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   assert_selected_and_displayed(msgc, msgHdr);
@@ -167,15 +167,15 @@ add_task(test_open_message_without_backing_view_in_new_window);
 /**
  * Test reusing an existing window to open a new message.
  */
-function test_open_message_without_backing_view_in_existing_window() {
+async function test_open_message_without_backing_view_in_existing_window() {
   set_open_message_behavior("EXISTING_WINDOW");
   be_in_folder(folder);
 
   // Open up a window
   let firstMsgHdr = msgHdrsInFolder[3];
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   MailUtils.displayMessage(firstMsgHdr);
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   // Open another message
@@ -218,14 +218,14 @@ add_task(
 );
 
 add_task(
-  function test_open_message_without_backing_view_in_new_window_filtered() {
-    test_open_message_without_backing_view_in_new_window();
+  async function test_open_message_without_backing_view_in_new_window_filtered() {
+    await test_open_message_without_backing_view_in_new_window();
   }
 );
 
 add_task(
-  function test_open_message_without_backing_view_in_existing_window_filtered() {
-    test_open_message_without_backing_view_in_existing_window();
+  async function test_open_message_without_backing_view_in_existing_window_filtered() {
+    await test_open_message_without_backing_view_in_existing_window();
   }
 );
 

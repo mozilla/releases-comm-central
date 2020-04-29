@@ -13,6 +13,7 @@ const EXPORTED_SYMBOLS = [
 
   "plan_for_new_window",
   "wait_for_new_window",
+  "async_plan_for_new_window",
   "plan_for_modal_dialog",
   "wait_for_modal_dialog",
   "plan_for_window_close",
@@ -639,6 +640,26 @@ function wait_for_new_window(aWindowType) {
   //  happens.
   mark_action("fdhb", "/wait_for_new_window", [aWindowType]);
   return c;
+}
+
+async function async_plan_for_new_window(aWindowType) {
+  let { BrowserTestUtils } = ChromeUtils.import(
+    "resource://testing-common/BrowserTestUtils.jsm"
+  );
+
+  let domWindow = await BrowserTestUtils.domWindowOpened(null, async win => {
+    await BrowserTestUtils.waitForEvent(win, "load");
+    return (
+      win.document.documentElement.getAttribute("windowtype") == aWindowType
+    );
+  });
+
+  await new Promise(r => domWindow.setTimeout(r));
+  await new Promise(r => domWindow.setTimeout(r));
+
+  let domWindowController = new controller.MozMillController(domWindow);
+  augment_controller(domWindowController, aWindowType);
+  return domWindowController;
 }
 
 /**

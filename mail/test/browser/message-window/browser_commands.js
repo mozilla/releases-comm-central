@@ -34,7 +34,7 @@ add_task(function setupModule(module) {
   make_new_sets_in_folder(folder1, [{ count: 1 }]);
 });
 
-add_task(function test_copy_eml_message() {
+add_task(async function test_copy_eml_message() {
   // First, copy an email to a folder and delete it immediately just so it shows
   // up in the recent folders list. This simplifies navigation of the copy
   // context menu.
@@ -57,7 +57,7 @@ add_task(function test_copy_eml_message() {
 
   // Now, open a .eml file and copy it to our folder.
   let file = new FileUtils.File(getTestFilePath("data/evil.eml"));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let documentChild = msgc.e("messagepane").contentDocument.firstElementChild;
   msgc.rightClick(new elib.Elem(documentChild));

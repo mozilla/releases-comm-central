@@ -685,14 +685,12 @@ function open_selected_message_in_new_tab(aBackground) {
  *
  * @return The MozmillController-wrapped new window.
  */
-function open_selected_message_in_new_window() {
-  mark_action("fdh", "open_selected_message_in_new_window", [
-    "message",
-    mc.folderDisplay.selectedMessage,
-  ]);
-  windowHelper.plan_for_new_window("mail:messageWindow");
+async function open_selected_message_in_new_window() {
+  let newWindowPromise = windowHelper.async_plan_for_new_window(
+    "mail:messageWindow"
+  );
   mc.window.MsgOpenNewWindowForMessage();
-  let msgc = windowHelper.wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
   return msgc;
 }
@@ -741,7 +739,7 @@ function display_message_in_folder_tab(aMsgHdr, aExpectNew3Pane) {
  * @param file  An nsIFile to load the message from.
  * @return      The MozmillController-wrapped new window.
  */
-function open_message_from_file(file) {
+async function open_message_from_file(file) {
   mark_action("fdh", "open_message_from_file", ["file", file.path]);
 
   if (!file.isFile() || !file.isReadable()) {
@@ -758,14 +756,16 @@ function open_message_from_file(file) {
     .setQuery("type=application/x-message-display")
     .finalize();
 
-  windowHelper.plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = windowHelper.async_plan_for_new_window(
+    "mail:messageWindow"
+  );
   mc.window.openDialog(
     "chrome://messenger/content/messageWindow.xhtml",
     "_blank",
     "all,chrome,dialog=no,status,toolbar",
     fileURL
   );
-  let msgc = windowHelper.wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   windowHelper.wait_for_window_focused(msgc.window);
@@ -2449,6 +2449,7 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
     // wait for the document to load so that we don't try and replace it later
     //  and get that stupid assertion
     wait_for_message_display_completion();
+    troller.sleep(500);
     // make sure the content pane is pointed at the right thing
 
     let msgService = troller.folderDisplay.messenger.messageServiceFromURI(

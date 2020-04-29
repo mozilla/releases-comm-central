@@ -264,6 +264,7 @@ add_task(async function testExtensionPopupWindow() {
   await extension.unload();
 
   let extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
+  await new Promise(resolve => extensionPopup.setTimeout(resolve));
   checkABrowser(extensionPopup.document.getElementById("requestFrame"));
   await BrowserTestUtils.closeWindow(extensionPopup);
 });

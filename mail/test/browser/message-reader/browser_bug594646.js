@@ -20,15 +20,15 @@ var { close_window } = ChromeUtils.import(
 
 var gReferenceTextContent;
 
-add_task(function setupModule(module) {
-  gReferenceTextContent = extract_eml_body_textcontent(
+add_task(async function setupModule(module) {
+  gReferenceTextContent = await extract_eml_body_textcontent(
     "./bug594646_reference.eml"
   );
 });
 
-function extract_eml_body_textcontent(eml) {
+async function extract_eml_body_textcontent(eml) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   // Be sure to view message body as Original HTML
   msgc.window.MsgBodyAllowHTML();
@@ -44,8 +44,8 @@ function extract_eml_body_textcontent(eml) {
 /**
  * Checks that the text content is equal for the .eml files.
  */
-function check_eml_textcontent(eml) {
-  let textContent = extract_eml_body_textcontent(eml);
+async function check_eml_textcontent(eml) {
+  let textContent = await extract_eml_body_textcontent(eml);
   Assert.equal(gReferenceTextContent, textContent);
 }
 
@@ -56,10 +56,10 @@ function check_eml_textcontent(eml) {
  *  </head>
  */
 add_task(
-  function test_original_html_characters_head_meta_content_charset_httpEq() {
-    check_eml_textcontent("./bug594646_reversed_order_8bit.eml");
-    check_eml_textcontent("./bug594646_reversed_order_qp.eml");
-    check_eml_textcontent("./bug594646_reversed_order_b64.eml");
+  async function test_original_html_characters_head_meta_content_charset_httpEq() {
+    await check_eml_textcontent("./bug594646_reversed_order_8bit.eml");
+    await check_eml_textcontent("./bug594646_reversed_order_qp.eml");
+    await check_eml_textcontent("./bug594646_reversed_order_b64.eml");
   }
 );
 
@@ -71,10 +71,10 @@ add_task(
  *  </head>
  */
 add_task(
-  function test_original_html_characters_head_meta_httpEq_content_newline_charset() {
-    check_eml_textcontent("./bug594646_newline_charset_8bit.eml");
-    check_eml_textcontent("./bug594646_newline_charset_qp.eml");
-    check_eml_textcontent("./bug594646_newline_charset_b64.eml");
+  async function test_original_html_characters_head_meta_httpEq_content_newline_charset() {
+    await check_eml_textcontent("./bug594646_newline_charset_8bit.eml");
+    await check_eml_textcontent("./bug594646_newline_charset_qp.eml");
+    await check_eml_textcontent("./bug594646_newline_charset_b64.eml");
   }
 );
 
@@ -86,9 +86,9 @@ add_task(
  *  </head>
  */
 add_task(
-  function test_original_html_characters_head_meta_content_charset_newline_httpEq() {
-    check_eml_textcontent("./bug594646_newline_httpequiv_8bit.eml");
-    check_eml_textcontent("./bug594646_newline_httpequiv_qp.eml");
-    check_eml_textcontent("./bug594646_newline_httpequiv_b64.eml");
+  async function test_original_html_characters_head_meta_content_charset_newline_httpEq() {
+    await check_eml_textcontent("./bug594646_newline_httpequiv_8bit.eml");
+    await check_eml_textcontent("./bug594646_newline_httpequiv_qp.eml");
+    await check_eml_textcontent("./bug594646_newline_httpequiv_b64.eml");
   }
 );

@@ -19,9 +19,9 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-function checkMsgFile(aFilePath, aConvertibility) {
+async function checkMsgFile(aFilePath, aConvertibility) {
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   // Creating a reply should not affect convertibility.
   let cwc = open_compose_with_reply(msgc);
@@ -35,13 +35,16 @@ function checkMsgFile(aFilePath, aConvertibility) {
 /**
  * Tests that we only open one compose window for one instance of a draft.
  */
-add_task(function test_msg_convertibility() {
-  checkMsgFile("./format1-plain.eml", Ci.nsIMsgCompConvertible.Plain);
+add_task(async function test_msg_convertibility() {
+  await checkMsgFile("./format1-plain.eml", Ci.nsIMsgCompConvertible.Plain);
 
   // Bug 1385636
-  checkMsgFile("./format1-altering.eml", Ci.nsIMsgCompConvertible.Altering);
+  await checkMsgFile(
+    "./format1-altering.eml",
+    Ci.nsIMsgCompConvertible.Altering
+  );
 
   // Bug 584313
-  checkMsgFile("./format2-style-attr.eml", Ci.nsIMsgCompConvertible.No);
-  checkMsgFile("./format3-style-tag.eml", Ci.nsIMsgCompConvertible.No);
+  await checkMsgFile("./format2-style-attr.eml", Ci.nsIMsgCompConvertible.No);
+  await checkMsgFile("./format3-style-tag.eml", Ci.nsIMsgCompConvertible.No);
 });

@@ -39,9 +39,9 @@ add_task(function setupModule(module) {
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", false);
 });
 
-function subtest_reply_format_flowed(aFlowed) {
+async function subtest_reply_format_flowed(aFlowed) {
   let file = new FileUtils.File(getTestFilePath("data/format-flowed.eml"));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   Services.prefs.setBoolPref("mailnews.send_plaintext_flowed", aFlowed);
 
@@ -72,9 +72,9 @@ function subtest_reply_format_flowed(aFlowed) {
   press_delete();
 }
 
-add_task(function test_reply_format_flowed() {
-  subtest_reply_format_flowed(true);
-  subtest_reply_format_flowed(false);
+add_task(async function test_reply_format_flowed() {
+  await subtest_reply_format_flowed(true);
+  await subtest_reply_format_flowed(false);
 });
 
 registerCleanupFunction(function teardownModule() {

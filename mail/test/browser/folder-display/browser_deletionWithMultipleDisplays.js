@@ -85,7 +85,10 @@ var msgc;
  * Open up the message at aIndex in all our display mechanisms, and check to see
  * if the displays are all correct. This also sets up all our globals.
  */
-function _open_message_in_all_four_display_mechanisms_helper(aFolder, aIndex) {
+async function _open_message_in_all_four_display_mechanisms_helper(
+  aFolder,
+  aIndex
+) {
   // - Select the message in this tab.
   tabFolder = be_in_folder(aFolder);
   curMessage = select_click_row(aIndex);
@@ -106,7 +109,7 @@ function _open_message_in_all_four_display_mechanisms_helper(aFolder, aIndex) {
   // - Open the window with the message
   // need to go back to the folder tab.  (well, should.)
   switch_tab(tabFolder);
-  msgc = open_selected_message_in_new_window();
+  msgc = await open_selected_message_in_new_window();
   assert_selected_and_displayed(msgc, curMessage);
 }
 
@@ -162,9 +165,11 @@ function _verify_message_is_displayed_in(aFlags, aMessage, aIndex) {
  * simplifying our lives (but making us explode forevermore the first time any
  * of the tests fail.)
  */
-add_task(function test_open_first_message_in_all_four_display_mechanisms() {
-  _open_message_in_all_four_display_mechanisms_helper(folder, 0);
-});
+add_task(
+  async function test_open_first_message_in_all_four_display_mechanisms() {
+    await _open_message_in_all_four_display_mechanisms_helper(folder, 0);
+  }
+);
 
 /**
  * Perform a deletion from the folder tab, verify the others update correctly
@@ -258,10 +263,15 @@ add_task(function test_delete_last_message_closes_message_displays() {
  * simplifying our lives (but making us explode forevermore the first time any
  * of the tests fail.)
  */
-add_task(function test_open_last_message_in_all_four_display_mechanisms() {
-  // since we have four messages, index 3 is the last message.
-  _open_message_in_all_four_display_mechanisms_helper(lastMessageFolder, 3);
-});
+add_task(
+  async function test_open_last_message_in_all_four_display_mechanisms() {
+    // since we have four messages, index 3 is the last message.
+    await _open_message_in_all_four_display_mechanisms_helper(
+      lastMessageFolder,
+      3
+    );
+  }
+);
 
 /**
  * Perform a deletion from the folder tab, verify the others update correctly
@@ -328,9 +338,9 @@ add_task(function test_delete_last_message_in_message_window() {
 /**
  * Test "one before" deletion in the folder tab.
  */
-add_task(function test_delete_one_before_message_in_folder_tab() {
+add_task(async function test_delete_one_before_message_in_folder_tab() {
   // Open up message 4 in message tabs and a window (we'll delete message 3).
-  _open_message_in_all_four_display_mechanisms_helper(oneBeforeFolder, 4);
+  await _open_message_in_all_four_display_mechanisms_helper(oneBeforeFolder, 4);
 
   let expectedMessage = mc.dbView.getMsgHdrAt(4);
   select_click_row(3);
@@ -352,14 +362,14 @@ add_task(function test_delete_one_before_message_in_folder_tab() {
 /**
  * Test "one before" deletion in the message tab.
  */
-add_task(function test_delete_one_before_message_in_message_tab() {
+add_task(async function test_delete_one_before_message_in_message_tab() {
   // Open up 3 in a message tab, then select and open up 4 in a background tab
   // and window.
   select_click_row(3);
   tabMessage = open_selected_message_in_new_tab(true);
   let expectedMessage = select_click_row(4);
   tabMessageBackground = open_selected_message_in_new_tab(true);
-  msgc = open_selected_message_in_new_window(true);
+  msgc = await open_selected_message_in_new_window(true);
 
   // Switch to the message tab, and delete.
   switch_tab(tabMessage);
@@ -381,11 +391,11 @@ add_task(function test_delete_one_before_message_in_message_tab() {
 /**
  * Test "one before" deletion in the message window.
  */
-add_task(function test_delete_one_before_message_in_message_window() {
+add_task(async function test_delete_one_before_message_in_message_window() {
   // Open up 3 in a message window, then select and open up 4 in a background
   // and a foreground tab.
   select_click_row(3);
-  msgc = open_selected_message_in_new_window();
+  msgc = await open_selected_message_in_new_window();
   let expectedMessage = select_click_row(4);
   tabMessage = open_selected_message_in_new_tab();
   switch_tab(tabFolder);
@@ -415,9 +425,9 @@ add_task(function test_delete_one_before_message_in_message_window() {
 /**
  * Test "one after" deletion in the folder tab.
  */
-add_task(function test_delete_one_after_message_in_folder_tab() {
+add_task(async function test_delete_one_after_message_in_folder_tab() {
   // Open up message 4 in message tabs and a window (we'll delete message 5).
-  _open_message_in_all_four_display_mechanisms_helper(oneAfterFolder, 4);
+  await _open_message_in_all_four_display_mechanisms_helper(oneAfterFolder, 4);
 
   let expectedMessage = mc.dbView.getMsgHdrAt(4);
   select_click_row(5);
@@ -439,14 +449,14 @@ add_task(function test_delete_one_after_message_in_folder_tab() {
 /**
  * Test "one after" deletion in the message tab.
  */
-add_task(function test_delete_one_after_message_in_message_tab() {
+add_task(async function test_delete_one_after_message_in_message_tab() {
   // Open up 5 in a message tab, then select and open up 4 in a background tab
   // and window.
   select_click_row(5);
   tabMessage = open_selected_message_in_new_tab(true);
   let expectedMessage = select_click_row(4);
   tabMessageBackground = open_selected_message_in_new_tab(true);
-  msgc = open_selected_message_in_new_window(true);
+  msgc = await open_selected_message_in_new_window(true);
 
   // Switch to the message tab, and delete.
   switch_tab(tabMessage);
@@ -468,11 +478,11 @@ add_task(function test_delete_one_after_message_in_message_tab() {
 /**
  * Test "one after" deletion in the message window.
  */
-add_task(function test_delete_one_after_message_in_message_window() {
+add_task(async function test_delete_one_after_message_in_message_window() {
   // Open up 5 in a message window, then select and open up 4 in a background
   // and a foreground tab.
   select_click_row(5);
-  msgc = open_selected_message_in_new_window();
+  msgc = await open_selected_message_in_new_window();
   let expectedMessage = select_click_row(4);
   tabMessage = open_selected_message_in_new_tab();
   switch_tab(tabFolder);
@@ -505,9 +515,9 @@ add_task(function test_delete_one_after_message_in_message_window() {
  * to the beginning of a selection.
  */
 add_task(
-  function test_delete_multiple_messages_with_first_selected_message_open() {
+  async function test_delete_multiple_messages_with_first_selected_message_open() {
     // Open up 2 in a message tab, background tab, and message window.
-    _open_message_in_all_four_display_mechanisms_helper(
+    await _open_message_in_all_four_display_mechanisms_helper(
       multipleDeletionFolder1,
       2
     );
@@ -540,9 +550,9 @@ add_task(
  * to somewhere in the middle of a selection.
  */
 add_task(
-  function test_delete_multiple_messages_with_nth_selected_message_open() {
+  async function test_delete_multiple_messages_with_nth_selected_message_open() {
     // Open up 9 in a message tab, background tab, and message window.
-    _open_message_in_all_four_display_mechanisms_helper(
+    await _open_message_in_all_four_display_mechanisms_helper(
       multipleDeletionFolder1,
       9
     );
@@ -583,9 +593,9 @@ add_task(
  * to the end of a selection.
  */
 add_task(
-  function test_delete_multiple_messages_with_last_selected_message_open() {
+  async function test_delete_multiple_messages_with_last_selected_message_open() {
     // Open up 10 in a message tab, background tab, and message window.
-    _open_message_in_all_four_display_mechanisms_helper(
+    await _open_message_in_all_four_display_mechanisms_helper(
       multipleDeletionFolder1,
       9
     );
@@ -625,9 +635,9 @@ add_task(
  * with message displays open to the beginning of a selection.
  */
 add_task(
-  function test_delete_multiple_messages_including_the_last_one_with_first_open() {
+  async function test_delete_multiple_messages_including_the_last_one_with_first_open() {
     // 10 messages in this folder. Open up message 1 everywhere.
-    _open_message_in_all_four_display_mechanisms_helper(
+    await _open_message_in_all_four_display_mechanisms_helper(
       multipleDeletionFolder2,
       1
     );
@@ -659,9 +669,9 @@ add_task(
  * with message displays open to the middle of a selection.
  */
 add_task(
-  function test_delete_multiple_messages_including_the_last_one_with_nth_open() {
+  async function test_delete_multiple_messages_including_the_last_one_with_nth_open() {
     // 10 messages in this folder. Open up message 7 everywhere.
-    _open_message_in_all_four_display_mechanisms_helper(
+    await _open_message_in_all_four_display_mechanisms_helper(
       multipleDeletionFolder3,
       7
     );
@@ -701,9 +711,9 @@ add_task(
  * with message displays open to the end of a selection.
  */
 add_task(
-  function test_delete_multiple_messages_including_the_last_one_with_last_open() {
+  async function test_delete_multiple_messages_including_the_last_one_with_last_open() {
     // 10 messages in this folder. Open up message 9 everywhere.
-    _open_message_in_all_four_display_mechanisms_helper(
+    await _open_message_in_all_four_display_mechanisms_helper(
       multipleDeletionFolder4,
       9
     );

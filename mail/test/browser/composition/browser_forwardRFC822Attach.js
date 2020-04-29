@@ -39,9 +39,9 @@ add_task(function setupModule(module) {
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 });
 
-function forwardDirect(aFilePath, aExpectedText) {
+async function forwardDirect(aFilePath, aExpectedText) {
   let file = new FileUtils.File(getTestFilePath(`data/${aFilePath}`));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let cwc = open_compose_with_forward_as_attachments(msgc);
 
@@ -64,10 +64,10 @@ function forwardDirect(aFilePath, aExpectedText) {
   press_delete(mc); // clean up the created draft
 }
 
-add_task(function test_forwarding_long_html_line_as_attachment() {
-  forwardDirect("./long-html-line.eml", "We like writing long lines.");
+add_task(async function test_forwarding_long_html_line_as_attachment() {
+  await forwardDirect("./long-html-line.eml", "We like writing long lines.");
 });
 
-add_task(function test_forwarding_feed_message_as_attachment() {
-  forwardDirect("./feed-message.eml", "We like using linefeeds only.");
+add_task(async function test_forwarding_feed_message_as_attachment() {
+  await forwardDirect("./feed-message.eml", "We like using linefeeds only.");
 });

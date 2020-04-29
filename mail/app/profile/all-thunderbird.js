@@ -469,9 +469,6 @@ pref("mail.tabs.drawInTitlebar", true);
 // will only be shown if browser.tabs.drawInTitlebar is true.
 pref("mail.tabs.extraDragSpace", false);
 
-// Disable ParentProcessDocumentChannel.
-pref("browser.tabs.documentchannel.ppdc", false);
-
 // The breakpad report server to link to in about:crashes
 pref("breakpad.reportURL", "https://crash-stats.mozilla.com/report/index/");
 

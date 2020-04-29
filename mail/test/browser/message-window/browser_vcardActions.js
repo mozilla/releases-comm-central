@@ -28,9 +28,9 @@ var {
  * Bug 1374779
  * Check if clicking attached vcard image opens new card dialog and adds a contact.
  */
-add_task(function test_check_vcard_icon() {
+add_task(async function test_check_vcard_icon() {
   let file = new FileUtils.File(getTestFilePath("data/test-vcard-icon.eml"));
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   let newcards = get_cards_in_all_address_books_for_email(
     "meister@example.com"

@@ -83,7 +83,7 @@ function check_image_size(aController, aImage, aSrcStart) {
  * Bug 1352701 and bug 1360443
  * Test that showing an image with cid: URL in a HTML message from file will work.
  */
-add_task(function test_cid_image_load() {
+add_task(async function test_cid_image_load() {
   let file = new FileUtils.File(
     getTestFilePath("data/content-utf8-rel-only.eml")
   );
@@ -93,7 +93,7 @@ add_task(function test_cid_image_load() {
   Assert.ok(msgSource.includes('<img src="cid:'));
 
   // Our image should be in the loaded eml document.
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
   let messageDoc = msgc.e("messagepane").contentDocument;
   let image = messageDoc.getElementById("cidImage");
   check_image_size(msgc, image, "mailbox://");

@@ -46,7 +46,7 @@ var {
 );
 var {
   plan_for_modal_dialog,
-  plan_for_new_window,
+  async_plan_for_new_window,
   plan_for_window_close,
   wait_for_modal_dialog,
   wait_for_new_window,
@@ -226,7 +226,7 @@ add_task(function test_open_multiple_search_results_in_new_tabs() {
 /**
  * Test opening a search result in a new window.
  */
-add_task(function test_open_search_result_in_new_window() {
+add_task(async function test_open_search_result_in_new_window() {
   swc.window.focus();
   set_open_message_behavior("NEW_WINDOW");
 
@@ -234,10 +234,10 @@ add_task(function test_open_search_result_in_new_window() {
   swc.e("threadTree").focus();
   let msgHdr = select_click_row(1, swc);
 
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   // Open it
   open_selected_message(swc);
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   assert_selected_and_displayed(msgc, msgHdr);
@@ -249,16 +249,16 @@ add_task(function test_open_search_result_in_new_window() {
 /**
  * Test reusing an existing window to open another search result.
  */
-add_task(function test_open_search_result_in_existing_window() {
+add_task(async function test_open_search_result_in_existing_window() {
   swc.window.focus();
   set_open_message_behavior("EXISTING_WINDOW");
 
   // Open up a window
   swc.e("threadTree").focus();
   select_click_row(1, swc);
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   open_selected_message(swc);
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   // Select another message and open it

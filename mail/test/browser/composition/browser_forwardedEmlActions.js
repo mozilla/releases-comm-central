@@ -14,9 +14,9 @@ var elib = ChromeUtils.import(
 );
 
 var {
+  async_wait_for_compose_window,
   close_compose_window,
   get_compose_body,
-  wait_for_compose_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
   assert_selected_and_displayed,
@@ -29,8 +29,8 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
+  async_plan_for_new_window,
   close_window,
-  plan_for_new_window,
   wait_for_new_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
@@ -105,20 +105,20 @@ add_task(function setupModule(module) {
  * Helper to open an attached .eml file, invoke the hotkey and check some
  * properties of the composition content we get.
  */
-function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
+async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   be_in_folder(folder);
 
   let msg = select_click_row(0);
   assert_selected_and_displayed(mc, msg);
 
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   mc.click(mc.eid("attachmentName"));
-  let msgWin = wait_for_new_window("mail:messageWindow");
+  let msgWin = await newWindowPromise;
   wait_for_message_display_completion(msgWin, false);
 
-  plan_for_new_window("msgcompose");
+  newWindowPromise = async_plan_for_new_window("msgcompose");
   msgWin.keypress(null, hotkeyToHit, hotkeyModifiers);
-  let compWin = wait_for_compose_window(msgWin);
+  let compWin = await async_wait_for_compose_window(msgWin, newWindowPromise);
 
   let bodyText = get_compose_body(compWin).textContent;
   if (bodyText.includes("html")) {
@@ -153,14 +153,14 @@ function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
  * Test that replying to an attached .eml contains the expected texts.
  */
 add_task(function test_reply_to_attached_eml() {
-  setupWindowAndTest("R", { shiftKey: false, accelKey: true });
+  return setupWindowAndTest("R", { shiftKey: false, accelKey: true });
 });
 
 /**
  * Test that forwarding an attached .eml contains the expected texts.
  */
-add_task(function test_forward_attached_eml() {
-  setupWindowAndTest("L", { shiftKey: false, accelKey: true });
+add_task(async function test_forward_attached_eml() {
+  await setupWindowAndTest("L", { shiftKey: false, accelKey: true });
 
   Assert.report(
     false,

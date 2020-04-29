@@ -15,11 +15,11 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-add_task(function test_base64_display() {
+add_task(async function test_base64_display() {
   let file = new FileUtils.File(
     getTestFilePath("data/base64-with-whitespace.eml")
   );
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
   let bodyText = msgc.e("messagepane").contentDocument.querySelector("body")
     .textContent;
   close_window(msgc);

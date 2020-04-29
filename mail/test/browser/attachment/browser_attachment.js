@@ -43,9 +43,9 @@ var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.import(
 );
 
 var {
+  async_plan_for_new_window,
   close_window,
   plan_for_modal_dialog,
-  plan_for_new_window,
   wait_for_modal_dialog,
   wait_for_new_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
@@ -273,7 +273,7 @@ add_task(function test_long_attachment_name() {
  * "beneath" the attached message (as opposed to all attachments for the root
  * message).
  */
-add_task(function test_attached_message_attachments() {
+add_task(async function test_attached_message_attachments() {
   be_in_folder(folder);
 
   select_click_row(5);
@@ -284,11 +284,11 @@ add_task(function test_attached_message_attachments() {
   Assert.equal(mc.e("attachmentList").itemCount, 3);
 
   // Open the attached email.
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   mc.e("attachmentList")
     .getItemAtIndex(1)
     .attachment.open();
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   // Make sure we have the expected number of attachments in the attached

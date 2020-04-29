@@ -936,6 +936,7 @@ function subtest_change_to_all_header_mode(toDescription) {
   let oldNumLines = help_get_num_lines(toDescription);
 
   change_to_all_header_mode();
+  mc.sleep(500);
   // test that (n more) is gone
   let moreNode = mc.window.document.getElementById("expandedtoBox").more;
   if (!moreNode.collapsed) {

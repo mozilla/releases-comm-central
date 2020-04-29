@@ -35,7 +35,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
+var { async_plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -146,13 +146,13 @@ function addMsgToFolderAndCheckContent(loadAllowed) {
   }
 }
 
-function checkStandaloneMessageWindow(loadAllowed) {
-  plan_for_new_window("mail:messageWindow");
+async function checkStandaloneMessageWindow(loadAllowed) {
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   // Open it
   set_open_message_behavior("NEW_WINDOW");
 
   open_selected_message();
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   // XXX It appears the wait_for_message_display_completion doesn't actually
@@ -212,8 +212,8 @@ add_task(function test_3paneWindowDeniedAgain() {
   }
 });
 
-add_task(function test_checkStandaloneMessageWindowDenied() {
-  checkStandaloneMessageWindow(false);
+add_task(async function test_checkStandaloneMessageWindowDenied() {
+  await checkStandaloneMessageWindow(false);
 });
 
 add_task(function test_checkContentTab() {

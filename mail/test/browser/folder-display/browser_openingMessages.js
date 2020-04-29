@@ -42,7 +42,7 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
+var { async_plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
@@ -133,17 +133,17 @@ add_task(function test_open_multiple_messages_in_tabs() {
 /**
  * Test opening a message in a new window.
  */
-add_task(function test_open_message_in_new_window() {
+add_task(async function test_open_message_in_new_window() {
   set_open_message_behavior("NEW_WINDOW");
   be_in_folder(folder);
 
   // Select a message
   let msgHdr = select_click_row(1);
 
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   // Open it
   open_selected_message();
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   assert_selected_and_displayed(msgc, msgHdr);
@@ -159,15 +159,15 @@ add_task(function test_open_message_in_new_window() {
 /**
  * Test reusing an existing window to open a new message.
  */
-add_task(function test_open_message_in_existing_window() {
+add_task(async function test_open_message_in_existing_window() {
   set_open_message_behavior("EXISTING_WINDOW");
   be_in_folder(folder);
 
   // Open up a window
   select_click_row(1);
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   open_selected_message();
-  let msgc = wait_for_new_window("mail:messageWindow");
+  let msgc = await newWindowPromise;
   wait_for_message_display_completion(msgc, true);
 
   // Select another message and open it

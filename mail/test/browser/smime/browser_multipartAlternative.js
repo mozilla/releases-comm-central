@@ -45,7 +45,7 @@ add_task(function setupModule(module) {
   Services.prefs.setBoolPref("mail.identity.id1.compose_html", true);
 });
 
-add_task(function test_multipart_alternative() {
+add_task(async function test_multipart_alternative() {
   smimeUtils_ensureNSS();
   smimeUtils_loadPEMCertificate(
     new FileUtils.File(getTestFilePath("data/TestCA.pem")),
@@ -55,7 +55,7 @@ add_task(function test_multipart_alternative() {
     new FileUtils.File(getTestFilePath("data/Bob.p12"))
   );
 
-  let msgc = open_message_from_file(
+  let msgc = await open_message_from_file(
     new FileUtils.File(getTestFilePath("data/multipart-alternative.eml"))
   );
 

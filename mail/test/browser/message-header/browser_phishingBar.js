@@ -36,6 +36,7 @@ var {
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"
 );
 var {
+  async_plan_for_new_window,
   close_window,
   plan_for_modal_dialog,
   plan_for_new_window,
@@ -168,10 +169,10 @@ add_task(function test_ignore_phishing_warning_from_message() {
  * Test that when viewing en eml file, choosing ignore hides the phishing
  * notification.
  */
-add_task(function test_ignore_phishing_warning_from_eml() {
+add_task(async function test_ignore_phishing_warning_from_eml() {
   let file = new FileUtils.File(getTestFilePath("data/evil.eml"));
 
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
   assert_ignore_works(msgc);
   close_window(msgc);
 });
@@ -179,21 +180,21 @@ add_task(function test_ignore_phishing_warning_from_eml() {
 /**
  * Test that when viewing an attached eml file, the phishing notification works.
  */
-add_task(function test_ignore_phishing_warning_from_eml_attachment() {
+add_task(async function test_ignore_phishing_warning_from_eml_attachment() {
   let file = new FileUtils.File(getTestFilePath("data/evil-attached.eml"));
 
-  let msgc = open_message_from_file(file);
+  let msgc = await open_message_from_file(file);
 
   // Make sure the root message shows the phishing bar.
   wait_for_notification_to_show(msgc, kBoxId, kNotificationValue);
 
   // Open the attached message.
-  plan_for_new_window("mail:messageWindow");
+  let newWindowPromise = async_plan_for_new_window("mail:messageWindow");
   msgc
     .e("attachmentList")
     .getItemAtIndex(0)
     .attachment.open();
-  let msgc2 = wait_for_new_window("mail:messageWindow");
+  let msgc2 = await newWindowPromise;
   wait_for_message_display_completion(msgc2, true);
 
   // Now make sure the attached message shows the phishing bar.
