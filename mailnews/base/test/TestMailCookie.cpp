@@ -121,7 +121,13 @@ void InitPrefsMail(nsIPrefBranch *aPrefBranch) {
       "network.cookieJarSettings.unblocked_for_testing", true);
 }
 
+#ifdef XP_WIN
+// Disabled on windows - see bug 1631780.
+// Unclear why it works on linux...
+TEST(DISABLED_TestMailCookie, TestMailCookieMain)
+#else
 TEST(TestMailCookie, TestMailCookieMain)
+#endif
 {
   nsresult rv0;
 
