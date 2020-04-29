@@ -10,7 +10,7 @@
  *    http://www.apache.org/licenses/LICENSE-2.0
  */
 
-this.EXPORTED_SYMBOLS = ["twttr"];
+const EXPORTED_SYMBOLS = ["twttr"];
 
 var window = {};
 

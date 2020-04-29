@@ -12,7 +12,7 @@
  * signify whether a message was properly sent to a channel during disconnect.
  */
 
-this.EXPORTED_SYMBOLS = ["capEchoMessage"];
+const EXPORTED_SYMBOLS = ["capEchoMessage"];
 
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

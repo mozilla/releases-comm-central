@@ -4,7 +4,7 @@
 
 // This is to be exported directly onto the IRC prplIProtocol object, directly
 // implementing the commands field before we register them.
-this.EXPORTED_SYMBOLS = ["commands"];
+const EXPORTED_SYMBOLS = ["commands"];
 
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var { ClassInfo } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");

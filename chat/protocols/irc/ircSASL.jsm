@@ -8,7 +8,7 @@
  *   https://ircv3.net/specs/extensions/sasl-3.2
  */
 
-this.EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];
+const EXPORTED_SYMBOLS = ["ircSASL", "capSASL"];
 
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

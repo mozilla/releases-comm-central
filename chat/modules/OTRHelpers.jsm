@@ -33,4 +33,4 @@ var OTRHelpers = {
 
 // exports
 
-this.EXPORTED_SYMBOLS = ["OTRHelpers"];
+const EXPORTED_SYMBOLS = ["OTRHelpers"];

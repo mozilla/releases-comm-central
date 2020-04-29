@@ -12,7 +12,7 @@
  *  https://github.com/atheme/charybdis/blob/master/include/numeric.h
  *  https://github.com/unrealircd/unrealircd/blob/unreal42/include/numeric.h
  */
-this.EXPORTED_SYMBOLS = ["ircNonStandard"];
+const EXPORTED_SYMBOLS = ["ircNonStandard"];
 
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

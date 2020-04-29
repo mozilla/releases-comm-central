@@ -73,7 +73,7 @@
  *     desired flood time?).
  */
 
-this.EXPORTED_SYMBOLS = ["Socket"];
+const EXPORTED_SYMBOLS = ["Socket"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ArrayBufferToBytes, ArrayBufferToHexString } = ChromeUtils.import(

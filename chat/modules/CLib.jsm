@@ -59,4 +59,4 @@ var CLib = {
 
 // exports
 
-this.EXPORTED_SYMBOLS = ["CLib"];
+const EXPORTED_SYMBOLS = ["CLib"];

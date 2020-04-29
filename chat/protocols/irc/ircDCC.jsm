@@ -9,7 +9,7 @@
  *     http://www.irchelp.org/irchelp/rfc/dccspec.html
  */
 
-this.EXPORTED_SYMBOLS = ["ctcpDCC" /* , "dccBase"*/];
+const EXPORTED_SYMBOLS = ["ctcpDCC" /* , "dccBase"*/];
 
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

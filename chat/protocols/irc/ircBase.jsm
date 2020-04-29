@@ -17,7 +17,7 @@
  *   RFC 1459: Internet Relay Chat Protocol
  *     http://tools.ietf.org/html/rfc1459
  */
-this.EXPORTED_SYMBOLS = ["ircBase"];
+const EXPORTED_SYMBOLS = ["ircBase"];
 
 var { setTimeout, clearTimeout, nsSimpleEnumerator } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"

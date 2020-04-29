@@ -1117,4 +1117,4 @@ function enableOTRLibJS() {
 
 // exports
 
-this.EXPORTED_SYMBOLS = ["OTRLibLoader"];
+const EXPORTED_SYMBOLS = ["OTRLibLoader"];

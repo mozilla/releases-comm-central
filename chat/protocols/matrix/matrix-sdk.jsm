@@ -17,7 +17,7 @@ const { Loader, Require, Module } = ChromeUtils.import(
   "resource://devtools/shared/base-loader.js"
 );
 
-this.EXPORTED_SYMBOLS = ["MatrixSDK", "getHttpUriForMxc"];
+const EXPORTED_SYMBOLS = ["MatrixSDK", "getHttpUriForMxc"];
 
 // Set-up loading so require works properly in CommonJS modules.
 //

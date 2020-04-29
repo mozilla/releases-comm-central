@@ -16,7 +16,7 @@
  *  https://www.anope.org/docgen/1.8/
  */
 
-this.EXPORTED_SYMBOLS = ["ircServices", "servicesBase"];
+const EXPORTED_SYMBOLS = ["ircServices", "servicesBase"];
 
 var { setTimeout, clearTimeout } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"

@@ -1406,4 +1406,4 @@ var OTR = {
 
 // exports
 
-this.EXPORTED_SYMBOLS = ["OTR"];
+const EXPORTED_SYMBOLS = ["OTR"];

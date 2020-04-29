@@ -15,7 +15,7 @@
  *   https://ircv3.net/specs/extensions/multi-prefix-3.1
  */
 
-this.EXPORTED_SYMBOLS = ["isupportNAMESX", "capMultiPrefix"];
+const EXPORTED_SYMBOLS = ["isupportNAMESX", "capMultiPrefix"];
 
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

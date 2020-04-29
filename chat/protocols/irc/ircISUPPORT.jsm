@@ -12,7 +12,7 @@
  *     https://tools.ietf.org/html/draft-hardy-irc-isupport-00
  */
 
-this.EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
+const EXPORTED_SYMBOLS = ["ircISUPPORT", "isupportBase"];
 
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

@@ -4,7 +4,7 @@
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   // cleanImMarkup is used to clean up incoming IMs. It will use the global
   // ruleset of acceptable stuff except if another (custom one) is provided.
   "cleanupImMarkup",

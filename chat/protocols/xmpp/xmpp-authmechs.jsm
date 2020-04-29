@@ -10,7 +10,7 @@
 // add-ons can add support for more auth mechanisms easily by adding them
 // in XMPPAuthMechanisms without having to modify XMPPSession.
 
-this.EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
+const EXPORTED_SYMBOLS = ["XMPPAuthMechanisms"];
 
 const { CommonUtils } = ChromeUtils.import(
   "resource://services-common/utils.js"

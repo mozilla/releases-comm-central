@@ -8,7 +8,7 @@
  *     http://www.alien.net.au/irc/ctcp.txt
  */
 
-this.EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
+const EXPORTED_SYMBOLS = ["ircCTCP", "ctcpBase"];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { ircHandlers } = ChromeUtils.import(

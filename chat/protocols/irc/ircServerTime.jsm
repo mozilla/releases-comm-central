@@ -7,7 +7,7 @@
  *   https://ircv3.net/specs/extensions/server-time-3.2
  */
 
-this.EXPORTED_SYMBOLS = ["capServerTime", "tagServerTime"];
+const EXPORTED_SYMBOLS = ["capServerTime", "tagServerTime"];
 
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"

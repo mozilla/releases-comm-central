@@ -4,7 +4,7 @@
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-this.EXPORTED_SYMBOLS = ["ToLocaleFormat"];
+const EXPORTED_SYMBOLS = ["ToLocaleFormat"];
 
 // JS implementation of the deprecated Date.toLocaleFormat.
 // aFormat follows strftime syntax,
