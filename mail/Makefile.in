@@ -23,3 +23,6 @@ libs:: $(DIST)/bin/platform.ini
 	$(PYTHON) $(commtopsrcdir)/build/source_repos.py gen_platformini \
 		$(DIST)/bin/platform.ini
 
+libs::
+	@echo Generating $(MOZ_BUILT_FROM_FILE) for Treeherder.
+	$(PYTHON) $(commtopsrcdir)/build/source_repos.py gen_treeherder_build_links > $(DIST)/$(MOZ_BUILT_FROM_FILE)

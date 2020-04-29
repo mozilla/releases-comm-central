@@ -6,6 +6,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 import sys
 import os
+import json
 
 import buildconfig
 
@@ -13,6 +14,35 @@ sourcestamp_tmpl = """{buildid}
 {comm_repo}/rev/{comm_rev}
 {gecko_repo}/rev/{gecko_rev}
 """
+
+
+def mk_hg_url(repo, revision):
+    """
+    Return a URL to a specific revision in the given repo.
+    """
+    return "{}/rev/{}".format(repo, revision)
+
+
+def gen_treeherder_build_links(output):
+    """
+    Create a JSON file that is used by Treeherder to display "Built from" links.
+    """
+    gecko_repo = buildconfig.substs.get('MOZ_GECKO_SOURCE_REPO')
+    gecko_rev = buildconfig.substs.get('MOZ_GECKO_SOURCE_CHANGESET')
+    comm_repo = buildconfig.substs.get('MOZ_COMM_SOURCE_REPO')
+    comm_rev = buildconfig.substs.get('MOZ_COMM_SOURCE_CHANGESET')
+
+    def mk_built_from_line(repo, revision):
+        repo_name = repo.split('/')[-1]  # Last component of base URL
+        title = "Built from {} revision {}".format(repo_name, revision)
+        url = mk_hg_url(repo, revision)
+        return dict(title=title,
+                    value=revision,
+                    url=url)
+
+    built_from = [mk_built_from_line(gecko_repo, gecko_rev),
+                  mk_built_from_line(comm_repo, comm_rev)]
+    json.dump(built_from, output)
 
 
 def gen_platformini(output, platform_ini):
@@ -65,8 +95,8 @@ def source_repo_header(output):
     output.write('#define MOZ_SOURCE_STAMP {}\n'.format(comm_rev))
 
     if buildconfig.substs.get('MOZ_INCLUDE_SOURCE_INFO'):
-        gecko_source_url = '%s/rev/%s' % (gecko_repo, gecko_rev)
-        comm_source_url = '%s/rev/%s' % (comm_repo, comm_rev)
+        gecko_source_url = mk_hg_url(gecko_repo, gecko_rev)
+        comm_source_url = mk_hg_url(comm_repo, comm_rev)
         output.write('#define MOZ_GECKO_SOURCE_REPO {}\n'.format(gecko_repo))
         output.write('#define MOZ_GECKO_SOURCE_URL {}\n'.format(gecko_source_url))
         output.write('#define MOZ_COMM_SOURCE_REPO {}\n'.format(comm_repo))

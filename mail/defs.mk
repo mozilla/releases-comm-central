@@ -6,3 +6,4 @@
 # subdirectory.
 
 XPI_ROOT_APPID=$(MOZ_APP_ID)
+MOZ_BUILT_FROM_FILE = built_from.json
