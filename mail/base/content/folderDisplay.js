@@ -413,7 +413,12 @@ FolderDisplayWidget.prototype = {
    * The map of stock non-sortable columns. The key must match the column's
    *  xul <treecol> id.
    */
-  COLUMNS_MAP_NOSORT: new Set(["selectCol", "totalCol", "unreadCol"]),
+  COLUMNS_MAP_NOSORT: new Set([
+    "selectCol",
+    "totalCol",
+    "unreadCol",
+    "deleteCol",
+  ]),
 
   /**
    * The set of potential default columns in their default display order.  Each

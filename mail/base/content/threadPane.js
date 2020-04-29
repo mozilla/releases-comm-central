@@ -44,6 +44,11 @@ function ThreadPaneOnClick(event) {
     return;
   }
 
+  if (treeCellInfo.col.id == "deleteCol") {
+    handleDeleteColClick(event);
+    return;
+  }
+
   // Grouped By Sort dummy header row non cycler column doubleclick toggles the
   // thread's open/closed state; tree.js handles it. Cyclers are not currently
   // implemented in group header rows, a click/doubleclick there should
@@ -201,6 +206,33 @@ function HandleSelectColClick(event, row) {
     }
     gFolderDisplay._mostRecentSelectionCounts[1] = 0;
   }
+}
+
+/**
+ * Delete a message without selecting it or loading its content.
+ *
+ * @param {DOMEvent} event - The DOM Event.
+ */
+function handleDeleteColClick(event) {
+  // Prevent deletion if any of the modifier keys was pressed.
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    return;
+  }
+
+  // Simulate a right click on the message row to inherit all the validations
+  // and alerts coming from the "cmd_delete" command.
+  ChangeSelectionWithoutContentLoad(
+    event,
+    event.target.parentNode,
+    event.button == 1
+  );
+
+  // Trigger the message deletion.
+  goDoCommand("cmd_delete");
+
+  // Since a right click wasn't actually triggered, we need to call this method
+  // to restore the previous selection.
+  RestoreSelectionWithoutContentLoad(gFolderDisplay.tree);
 }
 
 function ThreadPaneDoubleClick() {

@@ -39,6 +39,33 @@ treechildren::-moz-tree-image(selectCol) {
   height: 12px;
 }
 
+/* ..... delete column ..... */
+
+.deleteColumnHeader {
+  list-style-image: url("chrome://messenger/skin/icons/delete-col.svg");
+}
+
+treechildren::-moz-tree-image(deleteCol) {
+  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
+}
+
+treechildren::-moz-tree-image(deleteCol) {
+  fill: currentColor;
+  opacity: 0.3;
+  width: 14px;
+}
+
+treechildren::-moz-tree-image(deleteCol, hover),
+treechildren::-moz-tree-image(deleteCol, selected),
+treechildren::-moz-tree-image(deleteCol, imapdeleted) {
+  opacity: 0.6;
+}
+
+treechildren::-moz-tree-image(deleteCol, imapdeleted) {
+  list-style-image: url("chrome://messenger/skin/icons/restore.svg");
+  opacity: 0.6;
+}
+
 /* ..... thread column ..... */
 
 .threadColumnHeader {
@@ -160,13 +187,6 @@ treechildren::-moz-tree-image(subjectCol, new) {
   -moz-image-region: rect(0 96px 16px 80px);
 }
 
-/* IMPORTANT: make sure the imap-deleted column always comes after the replied/forwarded style rules.
-   This ensures that we show that the message is marked as deleted over status information. */
-
-treechildren::-moz-tree-image(subjectCol, imapdeleted) {
-  -moz-image-region: rect(0 80px 16px 64px);
-}
-
 #subjectCol {
   padding-inline-start: 20px;
 }
@@ -196,4 +216,11 @@ treechildren::-moz-tree-image(unreadButtonColHeader) {
 
 treechildren::-moz-tree-image(attachmentCol, attach) {
   margin-inline-start: 0;
+}
+
+treechildren::-moz-tree-image(subjectCol, imapdeleted) {
+  list-style-image: url("chrome://messenger/skin/icons/cancel.svg");
+  fill: #ff0039;
+  width: 12px;
+  margin-inline: 2px 4px;
 }

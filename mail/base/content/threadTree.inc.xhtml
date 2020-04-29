@@ -199,6 +199,17 @@
                                  closemenu="none"
                                  label="&idColumn.label;"
                                  tooltiptext="&idColumn2.tooltip;"/>
+                        <splitter class="tree-splitter"/>
+                        <treecol is="treecol-image" id="deleteCol"
+                                 class="treecol-image deleteColumnHeader"
+                                 persist="hidden ordinal"
+                                 fixed="true"
+                                 cycler="true"
+                                 currentView="unthreaded"
+                                 hidden="true"
+                                 closemenu="none"
+                                 label="&deleteColumn.label;"
+                                 tooltiptext="&deleteColumn.tooltip;"/>
                       </treecols>
 #ifdef MAIN_WINDOW
                     <treechildren ondragstart="ThreadPaneOnDragStart(event);"
