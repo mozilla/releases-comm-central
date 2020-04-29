@@ -537,6 +537,9 @@ function recipientOnBeforeKeyDown(event, element) {
     case "a":
       // Select all the pills if the input is empty.
       if ((event.ctrlKey || event.metaKey) && !element.value) {
+        // Prevent a pill keypress event when the focus moves on it.
+        event.preventDefault();
+
         let previous = element.previousElementSibling;
         if (previous && previous.tagName == "mail-address-pill") {
           document.getElementById("recipientsContainer").selectPills(previous);
