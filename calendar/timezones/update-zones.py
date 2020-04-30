@@ -24,7 +24,7 @@ from datetime import date, timedelta
 # Keep timezone changes from this date onwards. If the zones.json file is becoming
 # too large, consider changing to a later date.
 HISTORY_CUTOFF = 20180101
-FUTURE_CUTOFF = 20221231
+FUTURE_CUTOFF = 20241231
 
 
 class TimezoneUpdater(object):
