@@ -77,7 +77,10 @@ var GPGME = {
       data_ciphertext,
       data_plain
     );
-    GPGMELib.gpgme_data_rewind(data_plain);
+
+    if (GPGMELib.gpgme_data_release(data_ciphertext)) {
+      throw new Error("gpgme_data_release failed");
+    }
 
     let result_len = new ctypes.size_t();
     let result_buf = GPGMELib.gpgme_data_release_and_get_mem(
@@ -85,26 +88,24 @@ var GPGME = {
       result_len.address()
     );
 
-    let unwrapped = ctypes.cast(
-      result_buf,
-      ctypes.char.array(result_len.value).ptr
-    ).contents;
+    if (!result_buf.isNull()) {
+      let unwrapped = ctypes.cast(
+        result_buf,
+        ctypes.char.array(result_len.value).ptr
+      ).contents;
 
-    // The result of decrypt(GPGME_DECRYPT_UNWRAP) is an OpenPGP message.
-    // However, GPGME always returns the results as a binary encoding.
-    // GPG 1.12.0 ignored gpgme_set_armor(context, 1) and
-    // gpgme_data_set_encoding(data_plain, GPGME_DATA_ENCODING_ARMOR).
+      // The result of decrypt(GPGME_DECRYPT_UNWRAP) is an OpenPGP message.
+      // However, GPGME always returns the results as a binary encoding.
+      // GPG 1.12.0 ignored gpgme_set_armor(context, 1) and
+      // gpgme_data_set_encoding(data_plain, GPGME_DATA_ENCODING_ARMOR).
 
-    // TODO: Find a way to pass the binary data directly to the
-    //       RNP.decrypt function for efficiency.
+      // TODO: Find a way to pass the binary data directly to the
+      //       RNP.decrypt function for efficiency.
 
-    result.decryptedData = enArmorCB(unwrapped, result_len.value);
-
-    if (GPGMELib.gpgme_data_release(data_ciphertext)) {
-      throw new Error("gpgme_data_release failed");
+      result.decryptedData = enArmorCB(unwrapped, result_len.value);
+      GPGMELib.gpgme_free(result_buf);
     }
 
-    GPGMELib.gpgme_free(result_buf);
     GPGMELib.gpgme_release(c1);
 
     return result;
