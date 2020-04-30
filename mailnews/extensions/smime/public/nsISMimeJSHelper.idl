@@ -20,23 +20,12 @@ interface nsISMimeJSHelper : nsISupports
    * Obtains detailed information about the certificate availability
    * status of email recipients.
    *
-   * @param compFields - Attributes of the composed message
-   *
+   * @param compFields - Attributes of the composed message.
    * @param emailAddresses - The list of all recipient email addresses
-   *
    * @param certIssuedInfos - If a recipient cert was found, when has it been issued?
-   *
    * @param certExpiredInfos - If a recipient cert was found, when will it expire?
-   *
    * @param certs - The recipient certificates, which can contain null for not found
-   *
    * @param canEncrypt - whether valid certificates have been found for all recipients
-   *
-   * @exception NS_ERROR_FAILURE - unexptected failure
-   *
-   * @exception NS_ERROR_OUT_OF_MEMORY - could not create the out list
-   *
-   * @exception NS_ERROR_INVALID_ARG
    */
   void getRecipientCertsInfo(in nsIMsgCompFields compFields,
                              out Array<AString> emailAddresses,
@@ -50,14 +39,7 @@ interface nsISMimeJSHelper : nsISupports
    * are not yet available.
    *
    * @param compFields - Attributes of the composed message
-   *
    * @returns The list of email addresses without valid certs
-   *
-   * @exception NS_ERROR_FAILURE - unexptected failure
-   *
-   * @exception NS_ERROR_OUT_OF_MEMORY - could not create the out list
-   *
-   * @exception NS_ERROR_INVALID_ARG
    */
   Array<AString> getNoCertAddresses(in nsIMsgCompFields compFields);
 };

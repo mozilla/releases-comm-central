@@ -4,7 +4,6 @@
 
 messenger.jar:
 % content messenger-smime %content/messenger-smime/
-   content/messenger-smime/msgCompSMIMEOverlay.js                   (content/msgCompSMIMEOverlay.js)
    content/messenger-smime/msgHdrViewSMIMEOverlay.js                (content/msgHdrViewSMIMEOverlay.js)
    content/messenger/certpicker.js                                  (../../../mailnews/extensions/smime/content/certpicker.js)
    content/messenger/certpicker.xhtml                               (../../../mailnews/extensions/smime/content/certpicker.xhtml)

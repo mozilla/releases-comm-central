@@ -47,9 +47,8 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 
   nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
 
-  *canEncrypt = false;
+  *canEncrypt = true;
   rv = NS_OK;
-  bool found_blocker = false;
 
   nsCOMPtr<nsIMsgComposeSecure> composeSecure =
       do_CreateInstance(NS_MSGCOMPOSESECURE_CONTRACTID, &rv);
@@ -73,17 +72,13 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
         validity->GetNotAfterLocalDay(certExpiresInfo);
       }
     } else {
-      found_blocker = true;
+      *canEncrypt = false;
     }
     emailAddresses.AppendElement(NS_ConvertUTF8toUTF16(email));
     certIssuedInfos.AppendElement(certIssuedInfo);
     certExpiresInfos.AppendElement(certExpiresInfo);
     certs.AppendElement(cert);
   }
-  if (mailbox_count > 0 && !found_blocker) {
-    *canEncrypt = true;
-  }
-
   return NS_OK;
 }
 

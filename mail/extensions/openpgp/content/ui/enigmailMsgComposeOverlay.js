@@ -1874,36 +1874,22 @@ Enigmail.msg = {
    */
   isSmimeEncryptionPossible() {
     let id = getCurrentIdentity();
-
     if (id.getUnicharAttribute("encryption_cert_name") === "") {
       return false;
     }
 
-    // enable encryption if keys for all recipients are available
-
-    let missingCount = {};
-    let emailAddresses = {};
-
+    // Enable encryption if keys for all recipients are available.
     try {
       if (!gMsgCompose.compFields.hasRecipients) {
         return false;
       }
-      Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
+      let addresses = Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
         .createInstance(Ci.nsISMimeJSHelper)
-        .getNoCertAddresses(
-          gMsgCompose.compFields,
-          missingCount,
-          emailAddresses
-        );
+        .getNoCertAddresses(gMsgCompose.compFields);
+      return addresses.length == 0;
     } catch (e) {
       return false;
     }
-
-    if (missingCount.value === 0) {
-      return true;
-    }
-
-    return false;
   },
 
   /* Manage the wrapping of inline signed mails

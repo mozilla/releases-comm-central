@@ -8,53 +8,52 @@ var gListBox;
 var gViewButton;
 var gBundle;
 
-var gEmailAddresses;
-var gCertIssuedInfos;
-var gCertExpiresInfos;
 var gCerts;
-var gCount;
-
-var gSMimeContractID = "@mozilla.org/messenger-smime/smimejshelper;1";
-var gISMimeJSHelper = Ci.nsISMimeJSHelper;
-var gIX509Cert = Ci.nsIX509Cert;
-var nsICertificateDialogs = Ci.nsICertificateDialogs;
-var nsCertificateDialogs = "@mozilla.org/nsCertificateDialogs;1";
 
 function onLoad() {
-  var params = window.arguments[0];
+  let params = window.arguments[0];
   if (!params) {
     return;
   }
 
-  var helper = Cc[gSMimeContractID].createInstance(gISMimeJSHelper);
-
-  if (!helper) {
-    return;
-  }
+  let helper = Cc[
+    "@mozilla.org/messenger-smime/smimejshelper;1"
+  ].createInstance(Ci.nsISMimeJSHelper);
 
   gListBox = document.getElementById("infolist");
   gViewButton = document.getElementById("viewCertButton");
   gBundle = document.getElementById("bundle_smime_comp_info");
 
-  gEmailAddresses = {};
-  gCertIssuedInfos = {};
-  gCertExpiresInfos = {};
-  gCerts = {};
-  gCount = {};
-  var canEncrypt = {};
+  let allow_ldap_cert_fetching = params.smFields.requireEncryptMessage;
 
-  var allow_ldap_cert_fetching = params.smFields.requireEncryptMessage;
+  let emailAddresses = [];
+  let certIssuedInfos = [];
+  let certExpiresInfos = [];
+  let certs = [];
+  let canEncrypt = false;
 
   while (true) {
     try {
+      // Out parameters - must be objects.
+      let outEmailAddresses = {};
+      let outCertIssuedInfos = {};
+      let outCertExpiresInfos = {};
+      let outCerts = {};
+      let outCanEncrypt = {};
       helper.getRecipientCertsInfo(
         params.compFields,
-        gEmailAddresses,
-        gCertIssuedInfos,
-        gCertExpiresInfos,
-        gCerts,
-        canEncrypt
+        outEmailAddresses,
+        outCertIssuedInfos,
+        outCertExpiresInfos,
+        outCerts,
+        outCanEncrypt
       );
+      // Unwrap to the actual values.
+      emailAddresses = outEmailAddresses.value;
+      certIssuedInfos = outCertIssuedInfos.value;
+      certExpiresInfos = outCertExpiresInfos.value;
+      gCerts = certs = outCerts.value;
+      canEncrypt = outCanEncrypt.value;
     } catch (e) {
       dump(e);
       return;
@@ -63,14 +62,12 @@ function onLoad() {
     if (!allow_ldap_cert_fetching) {
       break;
     }
-
     allow_ldap_cert_fetching = false;
 
-    var missing = [];
-
-    for (let j = gCount.value - 1; j >= 0; --j) {
-      if (!gCerts.value[j]) {
-        missing[missing.length] = gEmailAddresses.value[j];
+    let missing = [];
+    for (let i = 0; i < emailAddresses.length; i++) {
+      if (!certs[i]) {
+        missing.push(emailAddresses[i]);
       }
     }
 
@@ -102,71 +99,62 @@ function onLoad() {
     }
   }
 
-  if (gBundle) {
-    var yes_string = gBundle.getString("StatusYes");
-    var no_string = gBundle.getString("StatusNo");
-    var not_possible_string = gBundle.getString("StatusNotPossible");
-
-    var signed_element = document.getElementById("signed");
-    var encrypted_element = document.getElementById("encrypted");
-
-    if (params.smFields.requireEncryptMessage) {
-      if (params.isEncryptionCertAvailable && canEncrypt.value) {
-        encrypted_element.value = yes_string;
-      } else {
-        encrypted_element.value = not_possible_string;
-      }
+  let signedElement = document.getElementById("signed");
+  let encryptedElement = document.getElementById("encrypted");
+  if (params.smFields.requireEncryptMessage) {
+    if (params.isEncryptionCertAvailable && canEncrypt) {
+      encryptedElement.value = gBundle.getString("StatusYes");
     } else {
-      encrypted_element.value = no_string;
+      encryptedElement.value = gBundle.getString("StatusNotPossible");
     }
-
-    if (params.smFields.signMessage) {
-      if (params.isSigningCertAvailable) {
-        signed_element.value = yes_string;
-      } else {
-        signed_element.value = not_possible_string;
-      }
-    } else {
-      signed_element.value = no_string;
-    }
+  } else {
+    encryptedElement.value = gBundle.getString("StatusNo");
   }
 
-  var imax = gCount.value;
+  if (params.smFields.signMessage) {
+    if (params.isSigningCertAvailable) {
+      signedElement.value = gBundle.getString("StatusYes");
+    } else {
+      signedElement.value = gBundle.getString("StatusNotPossible");
+    }
+  } else {
+    signedElement.value = gBundle.getString("StatusNo");
+  }
 
-  for (let i = 0; i < imax; ++i) {
+  for (let i = 0; i < emailAddresses.length; ++i) {
     let email = document.createXULElement("label");
-    email.setAttribute("value", gEmailAddresses.value[i]);
+    email.setAttribute("value", emailAddresses[i]);
     email.setAttribute("crop", "end");
     email.setAttribute("style", "width: var(--recipientWidth)");
 
     let listitem = document.createXULElement("richlistitem");
     listitem.appendChild(email);
 
-    if (!gCerts.value[i]) {
+    if (!certs[i]) {
       let notFound = document.createXULElement("label");
       notFound.setAttribute("value", gBundle.getString("StatusNotFound"));
       notFound.setAttribute("style", "width: var(--statusWidth)");
-
       listitem.appendChild(notFound);
     } else {
       let status = document.createXULElement("label");
       status.setAttribute("value", "?"); // temporary placeholder
       status.setAttribute("crop", "end");
       status.setAttribute("style", "width: var(--statusWidth)");
+      listitem.appendChild(status);
+
       let issued = document.createXULElement("label");
-      issued.setAttribute("value", gCertIssuedInfos.value[i]);
+      issued.setAttribute("value", certIssuedInfos[i]);
       issued.setAttribute("crop", "end");
       issued.setAttribute("style", "width: var(--issuedWidth)");
+      listitem.appendChild(issued);
+
       let expire = document.createXULElement("label");
-      expire.setAttribute("value", gCertExpiresInfos.value[i]);
+      expire.setAttribute("value", certExpiresInfos[i]);
       expire.setAttribute("crop", "end");
       expire.setAttribute("style", "width: var(--expireWidth)");
-
-      listitem.appendChild(status);
-      listitem.appendChild(issued);
       listitem.appendChild(expire);
 
-      asyncDetermineUsages(gCerts.value[i]).then(results => {
+      asyncDetermineUsages(certs[i]).then(results => {
         let someError = results.some(
           result => result.errorCode !== PRErrorCodeSuccess
         );
@@ -289,7 +277,7 @@ function viewCertHelper(parent, cert) {
 }
 
 function certForRow(aRowIndex) {
-  return gCerts.value[aRowIndex];
+  return gCerts[aRowIndex];
 }
 
 function viewSelectedCert() {

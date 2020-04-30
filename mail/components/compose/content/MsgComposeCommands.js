@@ -4019,38 +4019,40 @@ function onSendSMIME() {
       return;
     }
 
-    Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
+    emailAddresses = Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
       .createInstance(Ci.nsISMimeJSHelper)
-      .getNoCertAddresses(gMsgCompose.compFields, emailAddresses);
+      .getNoCertAddresses(gMsgCompose.compFields);
   } catch (e) {
     return;
   }
 
-  if (emailAddresses.length > 0) {
-    // The rules here: If the current identity has a directoryServer set, then
-    // use that, otherwise, try the global preference instead.
+  if (emailAddresses.length == 0) {
+    return;
+  }
 
-    let autocompleteDirectory;
+  // The rules here: If the current identity has a directoryServer set, then
+  // use that, otherwise, try the global preference instead.
 
-    // Does the current identity override the global preference?
-    if (gCurrentIdentity.overrideGlobalPref) {
-      autocompleteDirectory = gCurrentIdentity.directoryServer;
-    } else if (Services.prefs.getBoolPref("ldap_2.autoComplete.useDirectory")) {
-      // Try the global one
-      autocompleteDirectory = Services.prefs.getCharPref(
-        "ldap_2.autoComplete.directoryServer"
-      );
-    }
+  let autocompleteDirectory;
 
-    if (autocompleteDirectory) {
-      window.openDialog(
-        "chrome://messenger-smime/content/certFetchingStatus.xhtml",
-        "",
-        "chrome,modal,resizable,centerscreen",
-        autocompleteDirectory,
-        emailAddresses.value
-      );
-    }
+  // Does the current identity override the global preference?
+  if (gCurrentIdentity.overrideGlobalPref) {
+    autocompleteDirectory = gCurrentIdentity.directoryServer;
+  } else if (Services.prefs.getBoolPref("ldap_2.autoComplete.useDirectory")) {
+    // Try the global one
+    autocompleteDirectory = Services.prefs.getCharPref(
+      "ldap_2.autoComplete.directoryServer"
+    );
+  }
+
+  if (autocompleteDirectory) {
+    window.openDialog(
+      "chrome://messenger-smime/content/certFetchingStatus.xhtml",
+      "",
+      "chrome,modal,resizable,centerscreen",
+      autocompleteDirectory,
+      emailAddresses
+    );
   }
 }
 

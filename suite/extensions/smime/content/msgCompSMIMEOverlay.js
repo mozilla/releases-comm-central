@@ -259,17 +259,16 @@ var SecurityController =
 
 function onComposerSendMessage()
 {
-  let emailAddresses = new Object();
+  let emailAddresses = [];
 
   try
   {
     if (!gMsgCompose.compFields.composeSecure.requireEncryptMessage)
       return;
 
-    Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
+    emailAddresses = Cc["@mozilla.org/messenger-smime/smimejshelper;1"]
       .createInstance(Ci.nsISMimeJSHelper)
-      .getNoCertAddresses(gMsgCompose.compFields,
-                                  emailAddresses);
+      .getNoCertAddresses(gMsgCompose.compFields);
   }
   catch (e)
   {
@@ -301,7 +300,7 @@ function onComposerSendMessage()
                         "",
                         "chrome,modal,resizable,centerscreen",
                         autocompleteDirectory,
-                        emailAddresses.value);
+                        emailAddresses);
   }
 }
 
