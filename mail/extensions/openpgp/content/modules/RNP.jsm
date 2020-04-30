@@ -179,7 +179,7 @@ var RNP = {
 
     if (onlyKeys) {
       for (let ki = 0; ki < onlyKeys.length; ki++) {
-        let handle = await this.getKeyHandleByIdentifier(onlyKeys[ki]);
+        let handle = await this.getKeyHandleByIdentifier(ffi, onlyKeys[ki]);
 
         let keyObj = {};
         try {
@@ -1269,6 +1269,26 @@ var RNP = {
     if (!userFlags.canceled) {
       for (let ki = 0; ki < keys.length; ki++) {
         let k = keys[ki];
+
+        // We allow importing, if any of the following is true
+        // - it contains a secret key
+        // - it contains at least one user ID
+
+        if (k.userIds.length == 0 && !k.secretAvailable) {
+          continue;
+          // TODO: bug 1634524 requests that we import keys without user
+          //       ID, if we already have this key.
+          //       It hasn't been tested yet how well this works.
+          /*
+          let existingKey = await this.getKeyHandleByIdentifier(RNPLib.ffi, "0x" + k.fpr);
+          if (existingKey.isNull()) {
+            continue;
+          } else {
+            RNPLib.rnp_key_handle_destroy(existingKey);
+          }
+          */
+        }
+
         let impKey = await this.getKeyHandleByIdentifier(tempFFI, "0x" + k.fpr);
 
         let exportFlags =

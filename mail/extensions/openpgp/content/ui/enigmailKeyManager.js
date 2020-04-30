@@ -1369,6 +1369,9 @@ var gKeyListView = {
     }
 
     let keyObj = gKeyList[r.keyNum];
+    if (!keyObj) {
+      return "";
+    }
 
     let keyTrustStyle = "";
 
