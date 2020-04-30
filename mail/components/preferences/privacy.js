@@ -346,10 +346,11 @@ var gPrivacyPane = {
           id: "master-password-os-auth-dialog-caption",
         },
       ]);
+      let win = Services.wm.getMostRecentWindow("");
       let loggedIn = await OSKeyStore.ensureLoggedIn(
         messageText.value,
         captionText.value,
-        window,
+        win,
         false
       );
       if (!loggedIn.authenticated) {
