@@ -1168,7 +1168,8 @@ var gEditorOutputProgressListener = {
       requestSpec &&
       gPersistObj.currentState != gPersistObj.PERSIST_STATE_FINISHED
     ) {
-      document.getElementById("navigator-throbber").setAttribute("busy", "true");
+      document.getElementById("navigator-throbber")
+              .setAttribute("busy", "true");
       try {
         // Add url to progress dialog's list showing each file uploading
         gProgressDialog.SetProgressStatus(GetFilename(requestSpec), "busy");
