@@ -497,7 +497,7 @@ var ResultsPaneController = {
     switch (command) {
       case "cmd_selectAll":
         if (gAbView) {
-          gAbView.selectAll();
+          gAbView.selection.selectAll();
         }
         break;
       case "cmd_delete":
