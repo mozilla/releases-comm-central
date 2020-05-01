@@ -547,6 +547,12 @@ function recipientOnBeforeKeyDown(event, element) {
         }
       }
       break;
+    case " ":
+      // Prevent the typing of a blank space as a first character.
+      if (!element.value.trim()) {
+        event.preventDefault();
+      }
+      break;
     case ",":
       // Don't trigger autocomplete if the typed value is not a valid address.
       if (!isValidAddress(element.value)) {
@@ -558,7 +564,14 @@ function recipientOnBeforeKeyDown(event, element) {
     case "Home":
     case "ArrowLeft":
     case "Backspace":
-      if (!element.value && !event.repeat) {
+      if (
+        !event.repeat &&
+        !element.value.trim() &&
+        !(element.selectionStart + element.selectionEnd)
+      ) {
+        // If unrepeated keydown, empty input or whitespace-only, and cursor at
+        // position 0, move focus into pills. We'll sanitize whitespace on blur.
+
         // Prevent a pill keypress event when the focus moves on it.
         event.preventDefault();
 
@@ -575,10 +588,9 @@ function recipientOnBeforeKeyDown(event, element) {
       }
       break;
     case "Enter":
-      // If no address entered, trim input and move focus to the next available
-      // element, but not for Ctrl+[Shift]+Enter keyboard shortcuts for sending.
+      // If no address entered, move focus to the next available element,
+      // but not for Ctrl+[Shift]+Enter keyboard shortcuts for sending.
       if (!element.value.trim() && !event.ctrlKey) {
-        element.value = "";
         // Block the default focus ring change since we're handling it with a
         // dedicated method.
         event.preventDefault();
@@ -685,7 +697,17 @@ function deselectAllPills() {
  * @param {HTMLElement} element - The element losing focus.
  */
 function resetAddressContainer(element) {
+  element.closest(".address-container").removeAttribute("focused");
+
   let address = element.value.trim();
+  if (!address) {
+    // If input is empty or whitespace only, clear input to remove any leftover
+    // whitespace, reset the input size, and return.
+    element.value = "";
+    element.setAttribute("size", 1);
+    return;
+  }
+
   let listNames = MimeParser.parseHeaderField(
     address,
     MimeParser.HEADER_ADDRESS
@@ -703,11 +725,10 @@ function resetAddressContainer(element) {
     recipientAddPill(element);
   }
 
-  // Reset the input size if no pill was created.
-  if (!address) {
-    element.setAttribute("size", 1);
+  // Trim any remaining input for which we didn't create a pill.
+  if (element.value.trim()) {
+    element.value = element.value.trim();
   }
-  element.closest(".address-container").removeAttribute("focused");
 }
 
 /**
