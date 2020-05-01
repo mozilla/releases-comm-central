@@ -20,12 +20,14 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * (separated on the basis of spaces) or quoted exact phrases to search
  * against multiple fields of the addressbook cards.
  *
- * @param aSearchString The full search string entered by the user.
+ * @param {string} aSearchString - The full search string entered by the user.
  *
- * @return an array of separated search terms from the full search string.
+ * @return {Array} Array of separated search terms from the full search string.
  */
 function getSearchTokens(aSearchString) {
-  let searchString = aSearchString.trim();
+  // Trim leading and trailing whitespace and comma(s) to prevent empty search
+  // words when splitting unquoted parts of search string below.
+  let searchString = aSearchString.replace(/^[,\s]+/,"").replace(/[,\s]+$/,"");
   if (searchString == "") {
     return [];
   }
@@ -34,7 +36,7 @@ function getSearchTokens(aSearchString) {
 
   // Split up multiple search words to create a *foo* and *bar* search against
   // search fields, using the OR-search template from modelQuery for each word.
-  // If the search query has quoted terms as "foo bar", extract them as is.
+  // If the search query has quoted terms like "foo bar", extract them as is.
   let startIndex;
   while ((startIndex = searchString.indexOf('"')) != -1) {
     let endIndex = searchString.indexOf('"', startIndex + 1);
@@ -53,7 +55,10 @@ function getSearchTokens(aSearchString) {
 
   let searchWords = [];
   if (searchString.length != 0) {
-    searchWords = quotedTerms.concat(searchString.split(/\s+/));
+    // Split non-quoted search terms on whitespace and comma(s): Allow flexible
+    // incremental searches, and prevent false negatives for |Last, First| with
+    // |View > Show Name As > Last, First|, where comma is not found in data.
+    searchWords = quotedTerms.concat(searchString.split(/[,\s]+/));
   } else {
     searchWords = quotedTerms;
   }
