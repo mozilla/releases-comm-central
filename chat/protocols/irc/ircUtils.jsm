@@ -55,7 +55,7 @@ var CTCP_TAGS_EXP = new RegExp("[" + Object.keys(CTCP_TAGS).join("") + "]");
 // Remove all CTCP formatting characters.
 function ctcpFormatToText(aString) {
   let next,
-    input = aString,
+    input = TXTToHTML(aString),
     output = "",
     length;
 
