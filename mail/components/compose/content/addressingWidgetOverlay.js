@@ -526,21 +526,21 @@ function getLoadContext() {
 }
 
 /**
- * Handles keydown events for the autocomplete email address inputs in the
- * Message Compose window.
+ * Handle keydown events for autocomplete address inputs in the compose window.
  *
  * @param {Event} event - The DOM keydown event.
- * @param {HTMLElement} element - The element that triggered the keydown event.
  */
-function recipientOnBeforeKeyDown(event, element) {
+function addressInputOnBeforeHandleKeyDown(event) {
+  let input = event.target;
+
   switch (event.key) {
     case "a":
       // Select all the pills if the input is empty.
-      if ((event.ctrlKey || event.metaKey) && !element.value) {
+      if ((event.ctrlKey || event.metaKey) && !input.value) {
         // Prevent a pill keypress event when the focus moves on it.
         event.preventDefault();
 
-        let previous = element.previousElementSibling;
+        let previous = input.previousElementSibling;
         if (previous && previous.tagName == "mail-address-pill") {
           document.getElementById("recipientsContainer").selectPills(previous);
           previous.focus();
@@ -549,25 +549,25 @@ function recipientOnBeforeKeyDown(event, element) {
       break;
     case " ":
       // Prevent the typing of a blank space as a first character.
-      if (!element.value.trim()) {
+      if (!input.value.trim()) {
         event.preventDefault();
       }
       break;
     case ",":
       // Don't trigger autocomplete if the typed value is not a valid address.
-      if (!isValidAddress(element.value)) {
+      if (!isValidAddress(input.value)) {
         return;
       }
       event.preventDefault();
-      element.handleEnter(event);
+      input.handleEnter(event);
       break;
     case "Home":
     case "ArrowLeft":
     case "Backspace":
       if (
         !event.repeat &&
-        !element.value.trim() &&
-        !(element.selectionStart + element.selectionEnd)
+        !input.value.trim() &&
+        !(input.selectionStart + input.selectionEnd)
       ) {
         // If unrepeated keydown, empty input or whitespace-only, and cursor at
         // position 0, move focus into pills. We'll sanitize whitespace on blur.
@@ -575,7 +575,7 @@ function recipientOnBeforeKeyDown(event, element) {
         // Prevent a pill keypress event when the focus moves on it.
         event.preventDefault();
 
-        let pills = element
+        let pills = input
           .closest(".address-container")
           .querySelectorAll("mail-address-pill");
         if (pills.length) {
@@ -590,19 +590,19 @@ function recipientOnBeforeKeyDown(event, element) {
     case "Enter":
       // If no address entered, move focus to the next available element,
       // but not for Ctrl+[Shift]+Enter keyboard shortcuts for sending.
-      if (!element.value.trim() && !event.ctrlKey) {
+      if (!input.value.trim() && !event.ctrlKey) {
         // Block the default focus ring change since we're handling it with a
         // dedicated method.
         event.preventDefault();
-        SetFocusOnNextAvailableElement(element);
+        SetFocusOnNextAvailableElement(input);
       }
       break;
     case "Tab":
       // Trigger the autocomplete controller only if we have a value
       // to prevent interfering with the natural change of focus on Tab.
-      if (element.value.trim()) {
+      if (input.value.trim()) {
         event.preventDefault();
-        element.handleEnter(event);
+        input.handleEnter(event);
       }
       break;
   }
@@ -671,12 +671,12 @@ function recipientClearPills(element) {
 }
 
 /**
- * Force a focused styling on the recipient container of the currently
- * selected input element.
+ * Handle focus event of address inputs: Force a focused styling on the closest
+ * address container of the currently focused input element.
  *
- * @param {HTMLElement} element - The element receiving focus.
+ * @param {HTMLElement} element - The input element receiving focus.
  */
-function highlightAddressContainer(element) {
+function addressInputOnFocus(element) {
   element.closest(".address-container").setAttribute("focused", "true");
   deselectAllPills();
 }
@@ -691,12 +691,12 @@ function deselectAllPills() {
 }
 
 /**
- * Remove the focused styling from the recipient container and create
- * address pills if valid recipients were written.
+ * Handle blur event of address inputs: Remove focused styling from the closest
+ * address container and create address pills if valid recipients were written.
  *
- * @param {HTMLElement} element - The element losing focus.
+ * @param {HTMLElement} element - The input element losing focus.
  */
-function resetAddressContainer(element) {
+function addressInputOnBlur(element) {
   element.closest(".address-container").removeAttribute("focused");
 
   let address = element.value.trim();

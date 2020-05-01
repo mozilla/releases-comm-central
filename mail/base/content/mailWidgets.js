@@ -2221,13 +2221,13 @@
       input.setAttribute("ignoreblurwhilesearching", true);
 
       input.addEventListener("focus", () => {
-        highlightAddressContainer(input);
+        addressInputOnFocus(input);
       });
       input.addEventListener("blur", () => {
-        resetAddressContainer(input);
+        addressInputOnBlur(input);
       });
       input.onBeforeHandleKeyDown = event => {
-        recipientOnBeforeKeyDown(event, input);
+        addressInputOnBeforeHandleKeyDown(event);
         if (event.key != "Tab" || !event.shiftKey) {
           return;
         }

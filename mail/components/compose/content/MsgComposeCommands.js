@@ -3687,7 +3687,7 @@ function ComposeLoad() {
 
   for (let input of document.querySelectorAll(".address-input")) {
     input.onBeforeHandleKeyDown = event =>
-      recipientOnBeforeKeyDown(event, input);
+      addressInputOnBeforeHandleKeyDown(event);
   }
 
   top.controllers.appendController(SecurityController);
