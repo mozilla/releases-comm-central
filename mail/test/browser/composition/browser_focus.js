@@ -35,7 +35,7 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
   let addressingElement = controller.e("toAddrInput");
   let subjectElement = controller.e("msgSubject");
   let attachmentElement = controller.e("attachmentBucket");
-  let contentElement = controller.window.content;
+  let editorElement = controller.e("content-frame");
   let identityElement = controller.e("msgIdentity");
   let extraRecipientsLabel = controller.e("extraRecipientsLabel");
   let bccLabel = controller.e("addr_bcc");
@@ -52,7 +52,7 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
     Assert.equal(attachmentElement, controller.window.WhichElementHasFocus());
   }
   controller.keypress(null, key, { ctrlKey: ctrlTab });
-  Assert.equal(contentElement, controller.window.WhichElementHasFocus());
+  Assert.equal(editorElement, controller.window.WhichElementHasFocus());
   controller.keypress(null, key, { ctrlKey: ctrlTab });
   Assert.equal(identityElement, controller.window.WhichElementHasFocus());
   controller.keypress(null, key, { ctrlKey: ctrlTab });
@@ -76,7 +76,7 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
 
   Assert.equal(identityElement, controller.window.WhichElementHasFocus());
   controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
-  Assert.equal(contentElement, controller.window.WhichElementHasFocus());
+  Assert.equal(editorElement, controller.window.WhichElementHasFocus());
   if (attachmentsExpanded) {
     controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
     Assert.equal(attachmentElement, controller.window.WhichElementHasFocus());

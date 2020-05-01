@@ -2407,7 +2407,7 @@
           for (let item of this.getSiblingPills(pill)) {
             item.removeAttribute("selected");
           }
-          if (event.shiftKey) {
+          if (event.shiftKey && !event.ctrlKey) {
             this.moveFocusToPreviousElement(pill);
             return;
           }

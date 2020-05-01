@@ -7554,20 +7554,33 @@ function GetMsgHeadersToolbarElement() {
 
 /**
  * Determine which element of the fast-track focus ring has focus.
- * Note that only elements of the fast-track focus ring will be returned.
+ * Note that mostly elements of the fast-track focus ring will be returned.
  *
- * @return an element node of the fast-track focus ring if the node or one of
- *         its descendants has focus, otherwise null.
+ * @return {HTMLElement | null} An element node of the fast-track focus ring if
+ *   the node or one of its descendants has focus, sometimes other focused
+ *   elements, otherwise null.
  */
 function WhichElementHasFocus() {
-  let msgAttachmentElement = GetMsgAttachmentElement();
-  let abContactsPanelElement = sidebarDocumentGetElementById("abContactsPanel");
-
-  if (top.document.commandDispatcher.focusedWindow == window.content) {
-    return window.content;
+  // Special-case message body
+  if (document.activeElement == document.getElementById("content-frame")) {
+    return document.getElementById("content-frame");
   }
 
   let currentNode = top.document.commandDispatcher.focusedElement;
+
+  // Special-case Contacts Side Bar's peopleSearchInput so that iteration on
+  // currentNode.parentNode doesn't get stuck on Shadow Root of anonymous input.
+  let peopleSearchInput = sidebarDocumentGetElementById(
+    "peopleSearchInput",
+    "abContactsPanel"
+  );
+  if (
+    currentNode.flattenedTreeParentNode &&
+    currentNode.flattenedTreeParentNode == peopleSearchInput
+  ) {
+    currentNode = peopleSearchInput;
+  }
+
   while (currentNode) {
     if (
       currentNode == document.getElementById("msgIdentity") ||
@@ -7578,14 +7591,16 @@ function WhichElementHasFocus() {
       currentNode == document.getElementById("newsgroupsAddrInput") ||
       currentNode == document.getElementById("followupAddrInput") ||
       currentNode == document.getElementById("msgSubject") ||
+      currentNode == document.getElementById("attachmentBucket") ||
       currentNode == document.getElementById("extraRecipientsLabel") ||
       currentNode == document.getElementById("addr_bcc") ||
       currentNode == document.getElementById("addr_cc") ||
-      currentNode == msgAttachmentElement ||
-      currentNode == abContactsPanelElement
+      currentNode == sidebarDocumentGetElementById("abContactsPanel")
     ) {
       return currentNode;
     }
+    // Iterate parent nodes until we find one that matches.
+    // Applicable for Contacts Sidebar with focus on search input or a contact.
     currentNode = currentNode.parentNode;
   }
 
@@ -7599,8 +7614,7 @@ function WhichElementHasFocus() {
  * The default element to switch to when going in either direction (with or
  * without shift key pressed) is the ToRecipientElement.
  *
- * The only exception is when the MsgHeadersToolbar is collapsed,
- * then the focus will always be on the body of the message.
+ * @param {Event} event - A DOM keyboard event of a fast focus ring shortcut key
  */
 function SwitchElementFocus(event) {
   let focusedElement = WhichElementHasFocus();
@@ -7645,8 +7659,8 @@ function SwitchElementFocus(event) {
       case sidebarDocumentGetElementById("abContactsPanel"):
         SetMsgBodyFrameFocus();
         break;
-      case window.content: // message body
-        // Only set focus to the attachment element if it is shown.
+      case document.getElementById("content-frame"): // message body
+        // Focus attachment bucket if shown, otherwise message subject.
         if (!document.getElementById("attachments-box").collapsed) {
           SetMsgAttachmentElementFocus();
         } else {
@@ -7660,7 +7674,6 @@ function SwitchElementFocus(event) {
         SetFocusOnPreviousAvailableElement(focusedElement);
         break;
       default:
-        // focus on '#msgIdentity'
         SetMsgToRecipientElementFocus();
         break;
     }
@@ -7689,7 +7702,7 @@ function SwitchElementFocus(event) {
       SetFocusOnNextAvailableElement(focusedElement);
       break;
     case document.getElementById("msgSubject"):
-      // Only set focus to the attachment element if it is shown.
+      // Focus attachment bucket if shown, otherwise message body.
       if (!document.getElementById("attachments-box").collapsed) {
         SetMsgAttachmentElementFocus();
       } else {
@@ -7699,7 +7712,7 @@ function SwitchElementFocus(event) {
     case gMsgAttachmentElement:
       SetMsgBodyFrameFocus();
       break;
-    case window.content:
+    case document.getElementById("content-frame"): // message body
       // Focus the search input of contacts side bar if that's available,
       // otherwise focus "From" selector.
       if (sidebar_is_hidden() || !focusContactsSidebarSearchInput()) {
