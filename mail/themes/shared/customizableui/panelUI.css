@@ -108,8 +108,7 @@ panelview {
 
 #appmenu-edit-button {
   margin-inline-start: 0;
-  padding-inline-end: 7px;
-  padding-inline-start: 7px;
+  padding-inline: 7px;
 }
 
 #appmenu-edit-button::after {
@@ -268,8 +267,8 @@ panelview .toolbarbutton-1,
 
 .subviewbutton.panel-subview-footer > .menu-text {
   -moz-appearance: none;
-  padding-inline-end: 6px;
   padding-inline-start: 0 !important; /* to override menu.css on Windows */
+  padding-inline-end: 6px;
   -moz-box-flex: 0;
 }
 
@@ -411,24 +410,16 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
 }
 
 .PanelUI-subView menuseparator {
-  margin-inline-start: -5px;
-  margin-inline-end: -4px;
-}
-
-.PanelUI-subView toolbarseparator {
-  margin-inline-start: 0;
-  margin-inline-end: 0;
+  margin-inline: -5px -4px;
 }
 
 .PanelUI-subView menuseparator.small-separator,
 .PanelUI-subView toolbarseparator.small-separator {
-  margin-left: 5px;
-  margin-right: 5px;
+  margin-inline: 5px;
 }
 
 .cui-widget-panelview menuseparator.small-separator {
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-inline: 10px;
 }
 
 .PanelUI-subView toolbarseparator[orient="vertical"] {
@@ -436,8 +427,7 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
   border-inline-start: 1px solid var(--panel-separator-color);
   border-top: none;
   margin: 0;
-  margin-inline-start: 6px;
-  margin-inline-end: 7px;
+  margin-inline: 6px 7px;
 }
 
 toolbarpaletteitem[place="palette"] > .toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
@@ -445,8 +435,7 @@ toolbarpaletteitem[place="palette"] > .toolbarbutton-1 > .toolbarbutton-menu-dro
 }
 
 #search-container[cui-areatype="menu-panel"] {
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-block: 6px;
 }
 
 toolbarpaletteitem[place="palette"] > #search-container {
@@ -460,8 +449,7 @@ toolbarpaletteitem[place="palette"] > #search-container {
   border: 0;
   margin: 0;
   -moz-box-flex: 1;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding-block: 4px;
   -moz-box-orient: horizontal;
 }
 
@@ -684,8 +672,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   content: "";
   width: 16px;
   height: 16px;
-  margin-inline-start: 10px;
-  margin-inline-end: 12px;
+  margin-inline: 10px 12px;
   display: -moz-box;
 }
 
