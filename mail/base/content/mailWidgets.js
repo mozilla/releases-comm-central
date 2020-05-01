@@ -2459,11 +2459,6 @@
       }
 
       pill.toggleAttribute("selected");
-      if (!pill.hasAttribute("selected") && event.key != " ") {
-        pill.blur();
-      } else {
-        pill.focus();
-      }
 
       // Update the options in the context menu only after the pills were
       // selected and if the event was a right click.
