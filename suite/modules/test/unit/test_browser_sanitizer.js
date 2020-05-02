@@ -290,7 +290,7 @@ var sanTests = {
 
 async function fullSanitize() {
   info("Now doing a full sanitize run");
-  var prefs = Services.prefs.getBranch("privacy.item.");
+  var prefs = Services.prefs.getBranch("privacy.clearOnShutdown.");
 
   Services.prefs.setBoolPref("privacy.sanitize.promptOnSanitize", false);
 

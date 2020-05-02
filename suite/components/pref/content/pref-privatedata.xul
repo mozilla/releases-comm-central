@@ -20,95 +20,150 @@
       <!-- Clear Private Data -->
       <preference id="privacy.sanitize.sanitizeOnShutdown"
                   name="privacy.sanitize.sanitizeOnShutdown"
-                  type="bool"/>
-      <preference id="privacy.sanitize.promptOnSanitize"
-                  name="privacy.sanitize.promptOnSanitize"
                   type="bool"
-                  onchange="updateClearNowButtonLabel();"/>
+                  onchange="updateClearOnShutdownBox(this.value);"/>
+      <!-- Clear Private Data on shutdown -->
+      <preference id="privacy.clearOnShutdown.history"
+                  name="privacy.clearOnShutdown.history"
+                  type="bool"/>
+      <preference id="privacy.clearOnShutdown.urlbar"
+                  name="privacy.clearOnShutdown.urlbar"
+                  type="bool"/>
+      <preference id="privacy.clearOnShutdown.formdata"
+                  name="privacy.clearOnShutdown.formdata"
+                  type="bool"/>
+      <preference id="privacy.clearOnShutdown.passwords"
+                  name="privacy.clearOnShutdown.passwords"
+                  type="bool"/>
+      <preference id="privacy.clearOnShutdown.downloads"
+                  name="privacy.clearOnShutdown.downloads"
+                  type="bool"/>
+      <preference id="privacy.clearOnShutdown.cookies"
+                  name="privacy.clearOnShutdown.cookies"
+                  type="bool"/>
+      <preference id="privacy.clearOnShutdown.cache"
+                  name="privacy.clearOnShutdown.cache"
+                  type="bool"/>
+      <preference id="privacy.clearOnShutdown.offlineApps"
+                  name="privacy.clearOnShutdown.offlineApps"
+                  type="bool"/>
+      <preference id="privacy.clearOnShutdown.sessions"
+                  name="privacy.clearOnShutdown.sessions"
+                  type="bool"/>
 
-      <preference id="privacy.item.history"
-                  name="privacy.item.history"
+      <!-- Clear Private Data manually -->
+      <preference id="privacy.cpd.history"
+                  name="privacy.cpd.history"
                   type="bool"/>
-      <preference id="privacy.item.urlbar"
-                  name="privacy.item.urlbar"
+      <preference id="privacy.cpd.urlbar"
+                  name="privacy.cpd.urlbar"
                   type="bool"/>
-      <preference id="privacy.item.formdata"
-                  name="privacy.item.formdata"
+      <preference id="privacy.cpd.formdata"
+                  name="privacy.cpd.formdata"
                   type="bool"/>
-      <preference id="privacy.item.passwords"
-                  name="privacy.item.passwords"
+      <preference id="privacy.cpd.passwords"
+                  name="privacy.cpd.passwords"
                   type="bool"/>
-      <preference id="privacy.item.downloads"
-                  name="privacy.item.downloads"
+      <preference id="privacy.cpd.downloads"
+                  name="privacy.cpd.downloads"
                   type="bool"/>
-      <preference id="privacy.item.cookies"
-                  name="privacy.item.cookies"
+      <preference id="privacy.cpd.cookies"
+                  name="privacy.cpd.cookies"
                   type="bool"/>
-      <preference id="privacy.item.cache"
-                  name="privacy.item.cache"
+      <preference id="privacy.cpd.cache"
+                  name="privacy.cpd.cache"
                   type="bool"/>
-      <preference id="privacy.item.offlineApps"
-                  name="privacy.item.offlineApps"
+      <preference id="privacy.cpd.offlineApps"
+                  name="privacy.cpd.offlineApps"
                   type="bool"/>
-      <preference id="privacy.item.sessions"
-                  name="privacy.item.sessions"
+      <preference id="privacy.cpd.sessions"
+                  name="privacy.cpd.sessions"
                   type="bool"/>
     </preferences>
 
     <!-- Clear Private Data -->
     <groupbox id="clearPrivateDataGroup">
       <caption label="&clearPrivateData.label;"/>
-
+      <button id="clearDataNow" icon="clear"
+              label="&clearDataDialog.label;"
+              accesskey="&clearDataDialog.accesskey;"
+              oncommand="clearPrivateDataNow();"/>
+      <separator class="thin" />
       <hbox id="clearDataBox" align="center">
         <checkbox id="alwaysClear" flex="1"
                   preference="privacy.sanitize.sanitizeOnShutdown"
                   label="&alwaysClear.label;"
                   accesskey="&alwaysClear.accesskey;"/>
       </hbox>
-      <hbox id="askClearBox">
-        <checkbox id="askBeforeClear" flex="1"
-                  preference="privacy.sanitize.promptOnSanitize"
-                  label="&askBeforeClear.label;"
-                  accesskey="&askBeforeClear.accesskey;"/>
-        <button id="clearDataNow" icon="clear"
-                labelDialog="&clearDataDialog.label;"
-                labelSilent="&clearDataSilent.label;"
-                accesskey="&clearDataDialog.accesskey;"
-                oncommand="clearPrivateDataNow();"/>
+
+      <separator class="thin"/>
+
+      <label id="clearDataSettings"
+             value="&clearData.label;"/>
+
+      <hbox>
+        <groupbox id="clearCpdBox" flex="1">
+          <caption label="&clearData.cpd.label;"/>
+          <checkbox accesskey="&itemHistory.accesskey;"
+                    preference="privacy.cpd.history"
+                    label="&itemHistory.label;"/>
+          <checkbox accesskey="&itemUrlBar.accesskey;"
+                    preference="privacy.cpd.urlbar"
+                    label="&itemUrlBar.label;"/>
+          <checkbox accesskey="&itemDownloads.accesskey;"
+                    preference="privacy.cpd.downloads"
+                    label="&itemDownloads.label;"/>
+          <checkbox accesskey="&itemFormSearchHistory.accesskey;"
+                    preference="privacy.cpd.formdata"
+                    label="&itemFormSearchHistory.label;"/>
+          <checkbox accesskey="&itemCache.accesskey;"
+                    preference="privacy.cpd.cache"
+                    label="&itemCache.label;"/>
+          <checkbox accesskey="&itemCookies.accesskey;"
+                    preference="privacy.cpd.cookies"
+                    label="&itemCookies.label;"/>
+          <checkbox accesskey="&itemOfflineApps.accesskey;"
+                    preference="privacy.cpd.offlineApps"
+                    label="&itemOfflineApps.label;"/>
+          <checkbox accesskey="&itemPasswords.accesskey;"
+                    preference="privacy.cpd.passwords"
+                    label="&itemPasswords.label;"/>
+          <checkbox accesskey="&itemSessions.accesskey;"
+                    preference="privacy.cpd.sessions"
+                    label="&itemSessions.label;"/>
+        </groupbox>
+
+        <groupbox id="clearOnShutdownBox" flex="1">
+          <caption label="&clearData.onShutdown.label;"/>
+          <checkbox accesskey="&itemHistoryS.accesskey;"
+                    preference="privacy.clearOnShutdown.history"
+                    label="&itemHistory.label;"/>
+          <checkbox accesskey="&itemUrlBarS.accesskey;"
+                    preference="privacy.clearOnShutdown.urlbar"
+                    label="&itemUrlBar.label;"/>
+          <checkbox accesskey="&itemDownloadsS.accesskey;"
+                    preference="privacy.clearOnShutdown.downloads"
+                    label="&itemDownloads.label;"/>
+          <checkbox accesskey="&itemFormSearchHistoryS.accesskey;"
+                    preference="privacy.clearOnShutdown.formdata"
+                    label="&itemFormSearchHistory.label;"/>
+          <checkbox accesskey="&itemCacheS.accesskey;"
+                    preference="privacy.clearOnShutdown.cache"
+                    label="&itemCache.label;"/>
+          <checkbox accesskey="&itemCookiesS.accesskey;"
+                    preference="privacy.clearOnShutdown.cookies"
+                    label="&itemCookies.label;"/>
+          <checkbox accesskey="&itemOfflineAppsS.accesskey;"
+                    preference="privacy.clearOnShutdown.offlineApps"
+                    label="&itemOfflineApps.label;"/>
+          <checkbox accesskey="&itemPasswordsS.accesskey;"
+                    preference="privacy.clearOnShutdown.passwords"
+                    label="&itemPasswords.label;"/>
+          <checkbox accesskey="&itemSessionsS.accesskey;"
+                    preference="privacy.clearOnShutdown.sessions"
+                    label="&itemSessions.label;"/>
+        </groupbox>
       </hbox>
-
-      <separator class="thin" />
-      <description>&clearDataSettings.label;</description>
-
-      <vbox class="indent">
-        <checkbox label="&itemHistory.label;"
-                  accesskey="&itemHistory.accesskey;"
-                  preference="privacy.item.history"/>
-        <checkbox label="&itemUrlBar.label;"
-                  accesskey="&itemUrlBar.accesskey;"
-                  preference="privacy.item.urlbar"/>
-        <checkbox label="&itemDownloads.label;"
-                  accesskey="&itemDownloads.accesskey;"
-                  preference="privacy.item.downloads"/>
-        <checkbox label="&itemFormSearchHistory.label;"
-                  accesskey="&itemFormSearchHistory.accesskey;"
-                  preference="privacy.item.formdata"/>
-        <checkbox label="&itemCache.label;"
-                  accesskey="&itemCache.accesskey;"
-                  preference="privacy.item.cache"/>
-        <checkbox label="&itemCookies.label;"
-                  accesskey="&itemCookies.accesskey;"
-                  preference="privacy.item.cookies"/>
-        <checkbox label="&itemOfflineApps.label;"
-                  accesskey="&itemOfflineApps.accesskey;"
-                  preference="privacy.item.offlineApps"/>
-        <checkbox label="&itemPasswords.label;"
-                  accesskey="&itemPasswords.accesskey;"
-                  preference="privacy.item.passwords"/>
-        <checkbox label="&itemSessions.label;"
-                  accesskey="&itemSessions.accesskey;"
-                  preference="privacy.item.sessions"/>
-      </vbox>
     </groupbox>
   </prefpane>
 </overlay>

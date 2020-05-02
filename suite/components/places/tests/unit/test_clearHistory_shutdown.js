@@ -84,15 +84,15 @@ add_task(async function test_execute() {
   Cc["@mozilla.org/suite/suiteglue;1"].getService(Ci.nsIObserver)
     .observe(null, "initial-migration", null);
 
-  Services.prefs.setBoolPref("privacy.item.history", true);
-  Services.prefs.setBoolPref("privacy.item.urlbar", true);
-  Services.prefs.setBoolPref("privacy.item.formdata", true);
-  Services.prefs.setBoolPref("privacy.item.passwords", true);
-  Services.prefs.setBoolPref("privacy.item.downloads", true);
-  Services.prefs.setBoolPref("privacy.item.cookies", true);
-  Services.prefs.setBoolPref("privacy.item.cache", true);
-  Services.prefs.setBoolPref("privacy.item.sessions", true);
-  Services.prefs.setBoolPref("privacy.item.offlineApps", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.history", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.urlbar", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.formdata", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.passwords", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.downloads", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.cookies", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.cache", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.sessions", true);
+  Services.prefs.setBoolPref("privacy.clearOnShutdown.offlineApps", true);
 
   Services.prefs.setBoolPref("privacy.sanitize.sanitizeOnShutdown", true);
   // Unlike Firefox, SeaMonkey still supports the confirmation dialog

@@ -41,7 +41,7 @@ var Sanitizer = {
   },
 
   readSettings: function(aParentWindow) {
-    var itemPrefs = Services.prefs.getBranch("privacy.item.");
+    var itemPrefs = Services.prefs.getBranch("privacy.cpd.");
     for (var itemName in this.items) {
       var item = this.items[itemName];
       if ("clear" in item)
@@ -98,10 +98,11 @@ var Sanitizer = {
 
   // this is called on startup and shutdown, to perform pending sanitizations
   checkSettings: function() {
-    if (this._prefs.getBoolPref("sanitizeOnShutdown") &&
-        !this._prefs.prefHasUserValue("didShutdownSanitize"))
-      this.readSettings();
-    else
+    // Temporary diabled see Bug 1621445 part 3
+    // if (this._prefs.getBoolPref("sanitizeOnShutdown") &&
+    //    !this._prefs.prefHasUserValue("didShutdownSanitize"))
+    //  this.readSettings();
+    // else
       this.clearSettings();
   },
 

@@ -5,23 +5,36 @@
 <!ENTITY sanitizeDialog.title            "Clear Private Data">
 <!ENTITY sanitizeItems.label             "Clear the following items now:">
 
+<!--LOCALIZATION NOTE : Make sure to not have overlapped  accesskeys with
+    pref-privatedata.dtd. These entities are also used in the private data
+    preferences dialog.
+-->
 <!ENTITY itemHistory.label               "Browsing History">
 <!ENTITY itemHistory.accesskey           "B">
+<!ENTITY itemHistoryS.accesskey          "r">
 <!ENTITY itemUrlBar.label                "Location Bar History">
 <!ENTITY itemUrlBar.accesskey            "L">
+<!ENTITY itemUrlBarS.accesskey           "t">
 <!ENTITY itemDownloads.label             "Download History">
 <!ENTITY itemDownloads.accesskey         "D">
+<!ENTITY itemDownloadsS.accesskey        "y">
 <!ENTITY itemFormSearchHistory.label     "Saved Form and Search History">
 <!ENTITY itemFormSearchHistory.accesskey "F">
+<!ENTITY itemFormSearchHistoryS.accesskey "m">
 <!ENTITY itemCache.label                 "Cache">
 <!ENTITY itemCache.accesskey             "a">
+<!ENTITY itemCacheS.accesskey            "e">
 <!ENTITY itemCookies.label               "Cookies">
 <!ENTITY itemCookies.accesskey           "C">
+<!ENTITY itemCookiesS.accesskey          "k">
 <!ENTITY itemOfflineApps.label           "Offline Website Data">
 <!ENTITY itemOfflineApps.accesskey       "O">
+<!ENTITY itemOfflineAppsS.accesskey      "i">
 <!ENTITY itemPasswords.label             "Saved Passwords">
 <!ENTITY itemPasswords.accesskey         "P">
+<!ENTITY itemPasswordsS.accesskey        "v">
 <!ENTITY itemSessions.label              "Authenticated Sessions">
 <!ENTITY itemSessions.accesskey          "S">
+<!ENTITY itemSessionsS.accesskey         "u">
 
 <!ENTITY sanitizeButton.label            "Clear Private Data Now">

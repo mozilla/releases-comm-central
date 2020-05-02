@@ -28,7 +28,7 @@ function test2()
   let temp = {};
   ChromeUtils.import("resource:///modules/Sanitizer.jsm", temp);
   let s = temp.Sanitizer;
-  let prefBranch = prefService.getBranch("privacy.item.");
+  let prefBranch = prefService.getBranch("privacy.clearOnShutdown.");
 
   prefBranch.setBoolPref("cache", false);
   prefBranch.setBoolPref("cookies", false);

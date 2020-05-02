@@ -694,19 +694,33 @@ pref("privacy.popups.prefill_whitelist",          false);
 pref("privacy.popups.remove_blacklist",           true);
 pref("privacy.popups.showBrowserMessage",         true);
 
-// sanitize (clear private data) options
-pref("privacy.item.history",     true);
-pref("privacy.item.urlbar",      true);
-pref("privacy.item.formdata",    true);
-pref("privacy.item.passwords",   false);
-pref("privacy.item.downloads",   true);
-pref("privacy.item.cookies",     false);
-pref("privacy.item.cache",       true);
-pref("privacy.item.sessions",    true);
-pref("privacy.item.offlineApps", false);
+// Sanitize options
 
-pref("privacy.sanitize.sanitizeOnShutdown", false);
+// Sanitize (clear private data manually) options
 pref("privacy.sanitize.promptOnSanitize", true);
+
+pref("privacy.cpd.history", true);
+pref("privacy.cpd.urlbar", true);
+pref("privacy.cpd.formdata", true);
+pref("privacy.cpd.passwords", false);
+pref("privacy.cpd.downloads", true);
+pref("privacy.cpd.cookies", false);
+pref("privacy.cpd.cache", true);
+pref("privacy.cpd.sessions", true);
+pref("privacy.cpd.offlineApps", false);
+
+// Sanitize (clear private data on shutdown) options
+pref("privacy.sanitize.sanitizeOnShutdown", false);
+
+pref("privacy.clearOnShutdown.history", true);
+pref("privacy.clearOnShutdown.urlbar", true);
+pref("privacy.clearOnShutdown.formdata", true);
+pref("privacy.clearOnShutdown.passwords", false);
+pref("privacy.clearOnShutdown.downloads", true);
+pref("privacy.clearOnShutdown.cookies", false);
+pref("privacy.clearOnShutdown.cache", true);
+pref("privacy.clearOnShutdown.sessions", true);
+pref("privacy.clearOnShutdown.offlineApps", false);
 
 pref("privacy.warn_tracking_content", true);
 
@@ -939,17 +953,17 @@ pref("services.sync.prefs.sync.network.cookie.lifetimePolicy", true);
 pref("services.sync.prefs.sync.offline-apps.allow_by_default", true);
 pref("services.sync.prefs.sync.permissions.default.image", true);
 pref("services.sync.prefs.sync.privacy.donottrackheader.enabled", true);
-pref("services.sync.prefs.sync.privacy.item.cache", true);
-pref("services.sync.prefs.sync.privacy.item.cookies", true);
-pref("services.sync.prefs.sync.privacy.item.downloads", true);
-pref("services.sync.prefs.sync.privacy.item.formdata", true);
-pref("services.sync.prefs.sync.privacy.item.history", true);
-pref("services.sync.prefs.sync.privacy.item.offlineApps", true);
-pref("services.sync.prefs.sync.privacy.item.passwords", true);
-pref("services.sync.prefs.sync.privacy.item.sessions", true);
-pref("services.sync.prefs.sync.privacy.item.urlbar", true);
-pref("services.sync.prefs.sync.privacy.sanitize.promptOnSanitize", true);
 pref("services.sync.prefs.sync.privacy.sanitize.sanitizeOnShutdown", true);
+pref("services.sync.prefs.sync.privacy.sanitize.promptOnSanitize", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.cache", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.cookies", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.downloads", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.formdata", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.history", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.offlineApps", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.passwords", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.sessions", true);
+pref("services.sync.prefs.sync.privacy.clearOnShutdown.urlbar", true);
 pref("services.sync.prefs.sync.privacy.trackingprotection.enabled", true);
 pref("services.sync.prefs.sync.privacy.warn_tracking_content", true);
 pref("services.sync.prefs.sync.security.OCSP.enabled", true);

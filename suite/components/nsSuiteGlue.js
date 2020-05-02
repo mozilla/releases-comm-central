@@ -425,7 +425,7 @@ SuiteGlue.prototype = {
    * level.
    */
   _migrateUI() {
-    const UI_VERSION = 7;
+    const UI_VERSION = 8;
 
     // If the pref is not set this is a new or pre SeaMonkey 2.49 profile.
     // We can't tell so we just run migration with version 0.
@@ -540,7 +540,45 @@ SuiteGlue.prototype = {
       }
     }
 
-    // Pretend currentUIVersion 6 and 7 never happened (used in 2.57 for a time).
+    // Pretend currentUIVersion 6 and 7 never happened (used in 2.57 for a
+    // time).
+
+    // Migrate sanitizer options.
+    if (currentUIVersion < 8) {
+      const prefs = [ "history", "urlbar", "formdata", "passwords",
+                      "downloads", "cookies", "cache", "sessions",
+                      "offlineApps" ];
+
+      for (pref of prefs) {
+        try {
+          let prefOld = "privacy.item." + pref;
+
+          // Migrate user value otherwise use default.
+          // Only the names have changed but not the default values.
+          if (Services.prefs.prefHasUserValue(prefOld)) {
+            let prefCpd = "privacy.cpd." + pref;
+            let prefShutdown = "privacy.clearOnShutdown." + pref;
+
+            // If it has a value this should never fail.
+            let oldValue = Services.prefs.getBoolPref(prefOld);
+            Services.prefs.setBoolPref(prefCpd, oldValue);
+            Services.prefs.setBoolPref(prefShutdown, oldValue);
+            Services.prefs.clearUserPref(prefOld);
+          }
+        } catch (ex) {
+          // Better safe than sorry.
+          Cu.reportError(ex);
+        }
+      }
+
+      // We might bring this back later but currently set to default.
+      Services.prefs.clearUserPref("privacy.sanitize.promptOnSanitize");
+
+      // As a precaution set to default if the user has enabled
+      // clearing data on shutdown because there will no longer be
+      // a possible prompt.
+      Services.prefs.clearUserPref("privacy.sanitize.sanitizeOnShutdown");
+    }
 
     // Update the migration version.
     Services.prefs.setIntPref("suite.migration.version", UI_VERSION);
