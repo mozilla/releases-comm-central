@@ -1481,7 +1481,7 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
   let curPos = messenger.navigatePos * 2;
   navDebug(
     "curPos = " +
-      curPos.value +
+      curPos +
       " historyArray.length = " +
       historyArray.length +
       "\n"
@@ -1490,17 +1490,18 @@ function populateHistoryMenu(menuPopup, isBackMenu) {
   var newMenuItem;
   if (gFolderDisplay.selectedMessage) {
     if (!isBackMenu) {
-      curPos.value += 2;
+      curPos += 2;
     } else {
-      curPos.value -= 2;
+      curPos -= 2;
     }
   }
+
   // For populating the back menu, we want the most recently visited
   // messages first in the menu. So we go backward from curPos to 0.
   // For the forward menu, we want to go forward from curPos to the end.
   var relPos = 0;
   for (
-    var i = curPos.value;
+    var i = curPos;
     isBackMenu ? i >= 0 : i < historyArray.length;
     i += isBackMenu ? -2 : 2
   ) {
