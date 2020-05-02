@@ -120,13 +120,13 @@ endif
 
 ident:
 	@printf 'comm_revision '
-	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App SourceStamp
 	@printf 'moz_revision '
-	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/platform.ini' Build SourceStamp
 	@printf 'buildid '
-	@$(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App BuildID
 
 #These make targets call prepare-repackages by setting different UPLOAD_DIR
@@ -172,5 +172,5 @@ l10n-check::
 	echo '#define MOZ_LANG_TITLE Just testing' > x-test/toolkit/defines.inc
 	$(MAKE) installers-x-test L10NBASEDIR='$(PWD)' \
 	    ZIP_IN='$(ZIP_IN)' MOZ_SIMPLE_PACKAGE_NAME=
-	$(PYTHON) $(topsrcdir)/toolkit/mozapps/installer/unpack.py $(DIST)/l10n-stage/$(MOZ_PKG_DIR)$(_RESPATH)
+	$(PYTHON3) $(topsrcdir)/toolkit/mozapps/installer/unpack.py $(DIST)/l10n-stage/$(MOZ_PKG_DIR)$(_RESPATH)
 	cd $(DIST)/l10n-stage && test $$(cat $(MOZ_PKG_DIR)$(_RESPATH)/update.locale) = x-test

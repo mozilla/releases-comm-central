@@ -4,8 +4,8 @@
 
 AB_CD = $(MOZ_UI_LOCALE)
 
-GRE_MILESTONE = $(shell $(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build Milestone)
-MOZ_BUILDID = $(shell $(PYTHON) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
+GRE_MILESTONE = $(shell $(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build Milestone)
+MOZ_BUILDID = $(shell $(PYTHON3) $(moztopsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
 
 # Build a binary bootstrapping with XRE_main
 
