@@ -488,6 +488,7 @@ pref("shell.checkDefaultClient", true);
 pref("shell.checkDefaultApps", 3);
 
 pref("app.releaseNotesURL", "chrome://branding/locale/brand.properties");
+pref("app.troubleshootingURL", "chrome://branding/locale/brand.properties");
 pref("app.vendorURL", "chrome://branding/locale/brand.properties");
 
 // Base URL for web-based support pages.
