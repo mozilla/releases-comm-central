@@ -27,7 +27,9 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 function getSearchTokens(aSearchString) {
   // Trim leading and trailing whitespace and comma(s) to prevent empty search
   // words when splitting unquoted parts of search string below.
-  let searchString = aSearchString.replace(/^[,\s]+/,"").replace(/[,\s]+$/,"");
+  let searchString = aSearchString
+    .replace(/^[,\s]+/, "")
+    .replace(/[,\s]+$/, "");
   if (searchString == "") {
     return [];
   }
