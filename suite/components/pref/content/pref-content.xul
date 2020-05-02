@@ -120,6 +120,9 @@
                 label="&siteSpecific.label;"
                 accesskey="&siteSpecific.accesskey;"
                 preference="browser.zoom.siteSpecific"/>
+      <checkbox id="showZoomStatusPanel"
+                label="&showZoomStatusPanel.label;"
+                preference="browser.zoom.showZoomStatusPanel"/>
       <checkbox id="enableAutomaticImageResizing"
                 label="&enableAutomaticImageResizing.label;"
                 accesskey="&enableAutomaticImageResizing.accesskey;"
@@ -135,9 +138,6 @@
                 label="&blockAutoRefresh.label;"
                 accesskey="&blockAutoRefresh.accesskey;"
                 preference="accessibility.blockautorefresh"/>
-      <checkbox id="showZoomStatusPanel"
-                label="&showZoomStatusPanel.label;"
-                preference="browser.zoom.showZoomStatusPanel"/>
     </vbox>
 
   </prefpane>
