@@ -10,7 +10,7 @@ comm.jar:
    content/communicator/pref/pref-advanced.js                       (content/pref-advanced.js)
    content/communicator/pref/pref-advanced.xul                      (content/pref-advanced.xul)
    content/communicator/pref/pref-appearance.js                     (content/pref-appearance.js)
-   content/communicator/pref/pref-appearance.xul                    (content/pref-appearance.xul)
+*  content/communicator/pref/pref-appearance.xul                    (content/pref-appearance.xul)
 *  content/communicator/pref/pref-applications.xul                  (content/pref-applications.xul)
    content/communicator/pref/pref-applications.js                   (content/pref-applications.js)
    content/communicator/pref/pref-applicationManager.js             (content/pref-applicationManager.js)

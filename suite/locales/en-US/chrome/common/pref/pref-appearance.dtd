@@ -20,6 +20,8 @@
 <!ENTITY textonlyRadio.accesskey                "x">
 <!ENTITY showHideTooltips.label                 "Show Tooltips">
 <!ENTITY showHideTooltips.accesskey             "T">
+<!ENTITY showHideGrippies.label                 "Hide Toolbar Grippies">
+<!ENTITY showHideGrippies.accesskey             "G">
 
 <!ENTITY pref.locales.title                     "User Interface Language">
 <!ENTITY selectLocale.label                     "Select the language for text that appears in dialog boxes, menus, toolbars and button labels:">

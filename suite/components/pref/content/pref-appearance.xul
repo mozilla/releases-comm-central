@@ -24,6 +24,9 @@
       <preference id="browser.chrome.toolbar_tips"
                   name="browser.chrome.toolbar_tips"
                   type="bool"/>
+      <preference id="browser.toolbars.grippyhidden"
+                  name="browser.toolbars.grippyhidden"
+                  type="bool"/>
       <preference id="general.useragent.locale"
                   name="general.useragent.locale"
                   type="string"/>
@@ -66,7 +69,15 @@
                 accesskey="&showHideTooltips.accesskey;"
                 preference="browser.chrome.toolbar_tips"/>
     </vbox>
-
+#ifndef XP_MACOSX
+    <vbox class="box-padded"
+          align="start">
+      <checkbox id="showHideGrippies"
+                label="&showHideGrippies.label;"
+                accesskey="&showHideGrippies.accesskey;"
+                preference="browser.toolbars.grippyhidden"/>
+    </vbox>
+#endif
     <groupbox id="switchLocaleBox" align="start">
       <caption label="&pref.locales.title;"/>
       <description>&selectLocale.label;</description>
