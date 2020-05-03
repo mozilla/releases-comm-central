@@ -20,9 +20,6 @@ const { EnigmailLocale } = ChromeUtils.import(
 const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 );
-const { EnigmailKeyserverURIs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserverUris.jsm"
-);
 const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 );
@@ -244,8 +241,8 @@ const accessHkpInternal = {
     EnigmailLog.DEBUG(
       `keyserver.jsm: accessHkpInternal.accessKeyServer(${keyserver})\n`
     );
-    if (keyserver === null) {
-      keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
+    if (!keyserver) {
+      throw new Error("accessKeyServer requires explicit keyserver parameter");
     }
 
     return new Promise((resolve, reject) => {
@@ -955,10 +952,6 @@ const accessGnuPG = {
     throw new Error("Not implemented");
 
     /*
-    if (keyserver === null) {
-      keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
-    }
-
     let proxyHost = EnigmailHttpProxy.getHttpProxy();
 
     switch (actionFlag) {
@@ -1221,8 +1214,8 @@ const accessGnuPG = {
 };
 
 function getAccessType(keyserver) {
-  if (keyserver === null) {
-    keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
+  if (!keyserver) {
+    throw new Error("getAccessType requires explicit keyserver parameter");
   }
 
   let srv = parseKeyserverUrl(keyserver);

@@ -10,7 +10,7 @@
 /* global GetEnigmailSvc: false, EnigAlert: false, EnigConvertGpgToUnicode: false */
 /* global EnigCleanGuiList: false, EnigGetTrustLabel: false, EnigShowPhoto: false, EnigSignKey: false */
 /* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false, EnigRevokeKey: false */
-/* global EnigCreateRevokeCert: false, EnigmailTimer: false */
+/* global EnigCreateRevokeCert: false, EnigmailTimer: false, EnigmailCryptoAPI: false */
 
 // from enigmailKeyManager.js:
 /* global keyMgrAddPhoto: false, EnigmailCompat: false */
@@ -90,6 +90,7 @@ async function reloadData() {
       keyObj.expiryTime && keyObj.expiryTime < Math.floor(Date.now() / 1000);
 
     let acceptanceIntroText = "";
+    let acceptanceWarningText = "";
     if (keyObj.secretAvailable) {
       setLabel("keyType", EnigmailLocale.getString("keyTypePair2"));
       document.getElementById("ownKeyCommands").removeAttribute("hidden");
@@ -108,6 +109,7 @@ async function reloadData() {
           .getElementById("acceptanceRadio")
           .setAttribute("hidden", "false");
         acceptanceIntroText = EnigmailLocale.getString("keyDoYouAccept");
+        acceptanceWarningText = EnigmailLocale.getString("KeyAcceptWarning");
         gUpdateAllowed = true;
 
         let acceptanceResult = {};
@@ -171,6 +173,7 @@ async function reloadData() {
     }
 
     setText("acceptanceIntro", acceptanceIntroText);
+    setText("acceptanceExplanation", acceptanceWarningText);
     setLabel("keyExpiry", expiryInfo);
     if (keyObj.fpr) {
       gFingerprint = keyObj.fpr;
@@ -613,19 +616,25 @@ SubkeyListView.prototype = {
 
 function sigHandleDblClick(event) {}
 
-function onAccept() {
+async function onAccept() {
   if (gUpdateAllowed && gAcceptanceRadio.value != gOriginalAcceptance) {
-    PgpSqliteDb2.updateAcceptance(
-      gFingerprint,
-      gAllEmails,
-      gAcceptanceRadio.value
+    enableRefresh();
+
+    const cApi = EnigmailCryptoAPI();
+    cApi.sync(
+      PgpSqliteDb2.updateAcceptance(
+        gFingerprint,
+        gAllEmails,
+        gAcceptanceRadio.value
+      )
     );
   }
   return true;
 }
 
-document.addEventListener("dialogaccept", function(event) {
-  if (!onAccept()) {
+document.addEventListener("dialogaccept", async function(event) {
+  let result = await onAccept();
+  if (!result) {
     event.preventDefault();
   } // Prevent the dialog closing.
 });

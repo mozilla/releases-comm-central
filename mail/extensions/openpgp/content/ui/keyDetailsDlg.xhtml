@@ -18,7 +18,7 @@
 <window title="&enigmail.keyDetails.title;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        style="min-width:450px;"
+        style="min-width:60em; min-height:30em"
         persist="width height"
         onload="onLoad();">
 <dialog id="enigmailKeyDetailsDlg"
@@ -90,6 +90,9 @@
        <!-- Acceptance Tab -->
       <vbox id="acceptancePanel">
         <description id="acceptanceIntro"/>
+        <separator class="thin"/>
+        <description id="acceptanceExplanation"/>
+        <separator class="thin"/>
         <radiogroup id="acceptanceRadio" hidden="true">
           <radio id="acceptRejected" value="rejected"
                  label="&enigmail.acceptance.rejected.label;"/>

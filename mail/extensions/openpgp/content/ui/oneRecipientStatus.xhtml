@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/oneRecipientStatus.css" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://openpgp/content/strings/oneRecipientStatus.dtd">
+
+<window title="&oneRecipientStatus.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        style="width: 50em; height: 22em"
+        persist="width height"
+        onload="onLoad();">
+<dialog id="oneRecipientStatus"
+        buttons="accept">
+  <script src="chrome://openpgp/content/ui/oneRecipientStatus.js"/>
+  <script><![CDATA[
+      function resizeColumns() {
+        let list = document.getElementById("infolist");
+        let cols = list.getElementsByTagName("treecol");
+        list.style.setProperty("--keyWidth", cols[0].getBoundingClientRect().width + "px");
+        list.style.setProperty("--statusWidth", cols[1].getBoundingClientRect().width + "px");
+        list.style.setProperty("--issuedWidth", cols[2].getBoundingClientRect().width + "px");
+        list.style.setProperty("--expireWidth", cols[3].getBoundingClientRect().width - 5 + "px");
+      }
+      addEventListener("load", resizeColumns, { once: true });
+      addEventListener("resize", resizeColumns);
+  ]]></script>
+
+  <stringbundle id="bundle_one_recip_info" src="chrome://openpgp/content/strings/oneRecipientStatus.properties"/>
+
+  <description>&oneRecipientStatus.instruction1;</description>
+  <separator class="thin"/>
+  <description>&oneRecipientStatus.instruction2;</description>
+  <separator class="thin"/>
+  <label id="intro" control="infolist"/>
+
+  <richlistbox id="infolist"
+               class="theme-listbox"
+               flex="1"
+               onselect="onSelectionChange(event);">
+    <treecols>
+      <treecol flex="3" label="&oneRecipientStatus.keyId;"/>
+      <treecol flex="4" label="&oneRecipientStatus.status;"/>
+      <treecol flex="1" label="&oneRecipientStatus.createdDate;"/>
+      <treecol flex="1" label="&oneRecipientStatus.expiresDate;"/>
+    </treecols>
+  </richlistbox>
+  <hbox pack="start">
+    <button id="detailsButton" disabled="true"
+            label="&oneRecipientStatus.openDetails;"
+            oncommand="viewSelectedKey();"/>
+    <button id="discoverButton"
+            label="&oneRecipientStatus.discover;"
+            oncommand="discoverKey();"/>
+  </hbox>
+</dialog>
+</window>

@@ -328,6 +328,8 @@ var RNP = {
       if (forListing) {
         keyObj.revoke = true;
       }
+    } else if (this.isExpiredTime(keyObj.expiryTime)) {
+      keyObj.keyTrust = "e";
     } else if (keyObj.secretAvailable) {
       keyObj.keyTrust = "u";
     } else {
@@ -683,7 +685,15 @@ var RNP = {
       // failure processing with RNP, attempt decryption with GPGME
       let r2 = await GPGME.decrypt(encrypted, RNP.enArmor);
       if (!r2.exitCode && r2.decryptedData) {
+        // TODO: obtain info which key ID was used for decryption
+        //       and set result.decryptKey*
+        //       It isn't obvious how to do that with GPGME, because
+        //       gpgme_op_decrypt_result provides the list of all the
+        //       encryption keys, only.
         options.alreadyUsedGPGME = true;
+        // The result may still contain wrapping like compression,
+        // and optional signature data. Recursively call ourselves
+        // to perform the remaining processing.
         return RNP.decrypt(r2.decryptedData, options);
       }
     }
@@ -1757,6 +1767,18 @@ var RNP = {
     return result;
   },
 
+  /**
+   * @param {number} expiryTime - Time to check, in seconds from the epoch.
+   * @return {Boolean} - true if the given time is after now.
+   */
+  isExpiredTime(expiryTime) {
+    if (!expiryTime) {
+      return false;
+    }
+    let nowSeconds = Math.floor(Date.now() / 1000);
+    return nowSeconds > expiryTime;
+  },
+
   isKeyExpired(handle) {
     let expiration = new ctypes.uint32_t();
     if (RNPLib.rnp_key_get_expiration(handle, expiration.address())) {
@@ -1765,14 +1787,12 @@ var RNP = {
     if (!expiration.value) {
       return false;
     }
-    let nowSeconds = Math.floor(Date.now() / 1000);
     let creation = new ctypes.uint32_t();
     if (RNPLib.rnp_key_get_creation(handle, creation.address())) {
       throw new Error("rnp_key_get_creation failed");
     }
     let expirationSeconds = creation.value + expiration.value;
-    let isExpired = nowSeconds > expirationSeconds;
-    return isExpired;
+    return this.isExpiredTime(expirationSeconds);
   },
 
   async findKeyByEmail(id, onlyAcceptableAsPublic = false) {

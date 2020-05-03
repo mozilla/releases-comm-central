@@ -1734,21 +1734,37 @@ function setSecuritySettings(menu_id) {
 function showMessageComposeSecurityStatus() {
   Recipients2CompFields(gMsgCompose.compFields);
 
-  window.openDialog(
-    "chrome://messenger-smime/content/msgCompSecurityInfo.xhtml",
-    "",
-    "chrome,modal,resizable,centerscreen",
-    {
-      compFields: gMsgCompose.compFields,
-      subject: document.getElementById("msgSubject").value,
-      smFields: gSMFields,
-      isSigningCertAvailable:
-        gCurrentIdentity.getUnicharAttribute("signing_cert_name") != "",
-      isEncryptionCertAvailable:
-        gCurrentIdentity.getUnicharAttribute("encryption_cert_name") != "",
-      currentIdentity: gCurrentIdentity,
-    }
-  );
+  if (
+    MailConstants.MOZ_OPENPGP &&
+    BondOpenPGP.allDependenciesLoaded() &&
+    gSelectedTechnologyIsPGP
+  ) {
+    window.openDialog(
+      "chrome://openpgp/content/ui/composeKeyStatus.xhtml",
+      "",
+      "chrome,modal,resizable,centerscreen",
+      {
+        compFields: gMsgCompose.compFields,
+        currentIdentity: gCurrentIdentity,
+      }
+    );
+  } else {
+    window.openDialog(
+      "chrome://messenger-smime/content/msgCompSecurityInfo.xhtml",
+      "",
+      "chrome,modal,resizable,centerscreen",
+      {
+        compFields: gMsgCompose.compFields,
+        subject: document.getElementById("msgSubject").value,
+        smFields: gSMFields,
+        isSigningCertAvailable:
+          gCurrentIdentity.getUnicharAttribute("signing_cert_name") != "",
+        isEncryptionCertAvailable:
+          gCurrentIdentity.getUnicharAttribute("encryption_cert_name") != "",
+        currentIdentity: gCurrentIdentity,
+      }
+    );
+  }
 }
 
 function openEditorContextMenu(popup) {

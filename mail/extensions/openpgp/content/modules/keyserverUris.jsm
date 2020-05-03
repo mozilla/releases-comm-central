@@ -67,7 +67,16 @@ function buildUriOptionsFor(keyserver) {
 
 function getDefaultKeyServer() {
   let keyservers = EnigmailPrefs.getPref(KEYSERVER_PREF).split(/\s*[,;]\s*/g);
-  return keyservers[0];
+  let defKs = keyservers[0];
+  // We don't have great code yet to handle multiple results,
+  // or poisoned results. So avoid SKS.
+  // Let's start with verifying keyservers, only, which return only
+  // one result.
+  if (!defKs.startsWith("vks://")) {
+    console.debug("Not using " + defKs + " in getDefaultKeyServer");
+    return null;
+  }
+  return defKs;
 }
 
 function getUserDefinedKeyserverURIs() {

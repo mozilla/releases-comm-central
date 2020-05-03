@@ -88,8 +88,8 @@ pref("temp.openpgp.logDirectory", "");
 pref("temp.openpgp.keyManShowAllKeys", true);
 
 
-// list of keyservers to use
-pref("temp.openpgp.keyserver", "vks://keys.openpgp.org, hkps://hkps.pool.sks-keyservers.net, hkps://pgp.mit.edu");
+// list of keyservers to use (comma separated list)
+pref("temp.openpgp.keyserver", "vks://keys.openpgp.org");
 
 // auto select the first keyserver in the key server list
 pref("temp.openpgp.autoKeyServerSelection", true);

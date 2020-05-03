@@ -33,6 +33,12 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+const { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
+const { uidHelper } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/uidHelper.jsm"
+);
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 const getWindows = EnigmailLazy.loader(
@@ -65,8 +71,6 @@ let gLoadingKeys = false;
             - TP: TOFU+PGP
 
 */
-
-const TRUSTLEVELS_SORTED = EnigmailTrust.trustLevelsSorted();
 
 var EnigmailKeyRing = {
   /**
@@ -452,7 +456,9 @@ var EnigmailKeyRing = {
    * @return String - if outputFile is NULL, the key block data; "" if a file is written
    */
   extractKey(includeSecretKey, idArray, outputFile, exitCodeObj, errorMsgObj) {
-    EnigmailLog.DEBUG("keyRing.jsm: EnigmailKeyRing.extractKey: %o\n", idArray);
+    EnigmailLog.DEBUG(
+      "keyRing.jsm: EnigmailKeyRing.extractKey: " + idArray + "\n"
+    );
     exitCodeObj.value = -1;
 
     if (includeSecretKey) {
@@ -641,6 +647,63 @@ var EnigmailKeyRing = {
     return exitCode;
   },
 
+  importKeyDataWithConfirmation(window, preview, keyData, isBinary) {
+    let somethingWasImported = false;
+    if (preview.length > 0) {
+      let exitStatus;
+      if (preview.length == 1) {
+        exitStatus = getDialog().confirmDlg(
+          window,
+          EnigmailLocale.getString("doImportOne", [
+            preview[0].name,
+            preview[0].id,
+          ])
+        );
+      } else {
+        exitStatus = getDialog().confirmDlg(
+          window,
+          EnigmailLocale.getString("doImportMultiple", [
+            preview
+              .map(function(a) {
+                return "\t" + a.name + " (" + a.id + ")";
+              })
+              .join("\n"),
+          ])
+        );
+      }
+
+      if (exitStatus) {
+        let errorMsgObj = {};
+        try {
+          exitStatus = EnigmailKeyRing.importKey(
+            window,
+            false,
+            keyData,
+            isBinary,
+            "",
+            errorMsgObj
+          );
+        } catch (ex) {
+          console.debug(ex);
+        }
+
+        if (exitStatus === 0) {
+          let keyList = preview.map(a => a.id);
+          getDialog().keyImportDlg(window, keyList);
+          somethingWasImported = true;
+        } else {
+          getDialog().alert(
+            window,
+            EnigmailLocale.getString("failKeyImport") + "\n" + errorMsgObj.value
+          );
+        }
+      }
+    } else {
+      getDialog().alert(window, EnigmailLocale.getString("noKeyFound"));
+    }
+    return somethingWasImported;
+  },
+
   /**
    * Generate a new key pair with GnuPG
    *
@@ -679,214 +742,158 @@ var EnigmailKeyRing = {
    *
    * @return: found key ID (without leading "0x") or null
    */
-  getValidKeyForRecipient(emailAddr, minTrustLevelIndex, details) {
+  async getValidKeyForRecipient(emailAddr, details) {
     EnigmailLog.DEBUG(
       'keyRing.jsm: getValidKeyForRecipient(): emailAddr="' + emailAddr + '"\n'
     );
-    const TRUSTLEVELS_SORTED = EnigmailTrust.trustLevelsSorted();
-    const fullTrustIndex = TRUSTLEVELS_SORTED.indexOf("f");
+    const FULLTRUSTLEVEL = 2;
 
     emailAddr = emailAddr.toLowerCase();
-    var embeddedEmailAddr = "<" + emailAddr + ">";
 
-    // note: we can't take just the first matched because we might have faked keys as duplicates
     var foundKeyId = null;
-    var foundKeyTrustIndex = null;
+    var foundAcceptanceLevel = null;
 
-    let k = this.getAllKeys(null, "validity", -1);
+    let k = this.getAllKeys(null, null);
     let keyList = k.keyList;
-    let keySortList = k.keySortList;
 
-    // **** LOOP to check against each key
-    // - note: we have sorted the keys according to validity
-    //         to abort the loop as soon as we reach keys that are not valid enough
-    for (var idx = 0; idx < keySortList.length; idx++) {
-      var keyObj = keyList[keySortList[idx].keyNum];
-      var keyTrust = keyObj.keyTrust;
-      var keyTrustIndex = TRUSTLEVELS_SORTED.indexOf(keyTrust);
-      //EnigmailLog.DEBUG("keyRing.jsm: getValidKeyForRecipient():  check key " + keyObj.keyId + "\n");
+    for (var idx = 0; idx < keyList.length; idx++) {
+      var keyObj = keyList[idx];
 
-      // key trust (our sort criterion) too low?
-      // => *** regular END of the loop
-      if (keyTrustIndex < minTrustLevelIndex) {
-        if (!foundKeyId) {
-          if (details) {
-            details.msg = "ProblemNoKey";
-          }
-          let msg =
-            "no key with enough trust level for '" + emailAddr + "' found";
-          EnigmailLog.DEBUG(
-            "keyRing.jsm: getValidKeyForRecipient():  " + msg + "\n"
-          );
-        }
-        return foundKeyId; // **** regular END OF LOOP (return NULL or found single key)
+      switch (keyObj.keyTrust) {
+        case "e":
+        case "r":
+          continue;
       }
 
+      let uidMatch = false;
+      for (let uid of keyObj.userIds) {
+        if (uid.type !== "uid") {
+          continue;
+        }
+        let split = {};
+        if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
+          let uidEmail = split.email.toLowerCase();
+          if (uidEmail === emailAddr) {
+            uidMatch = true;
+            break;
+          }
+        }
+      }
+      if (!uidMatch) {
+        continue;
+      }
       // key valid for encryption?
       if (!keyObj.keyUseFor.includes("E")) {
         //EnigmailLog.DEBUG("keyRing.jsm: getValidKeyForRecipient():  skip key " + keyObj.keyId + " (not provided for encryption)\n");
         continue; // not valid for encryption => **** CONTINUE the LOOP
       }
-      // key disabled?
-      if (keyObj.keyUseFor.includes("D")) {
-        //EnigmailLog.DEBUG("keyRing.jsm: getValidKeyForRecipient():  skip key " + keyObj.keyId + " (disabled)\n");
-        continue; // disabled => **** CONTINUE the LOOP
+
+      let acceptanceLevel;
+      if (keyObj.secretAvailable) {
+        acceptanceLevel = 3;
+      } else {
+        acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
+          keyObj,
+          emailAddr
+        );
       }
 
-      // check against the user ID
-      var userId = keyObj.userId.toLowerCase();
-      if (
-        userId &&
-        (userId == emailAddr || userId.includes(embeddedEmailAddr))
-      ) {
-        if (keyTrustIndex < minTrustLevelIndex) {
-          EnigmailLog.DEBUG(
-            "keyRing.jsm: getValidKeyForRecipient():  matching key=" +
-              keyObj.keyId +
-              " found but not enough trust\n"
-          );
-        } else {
-          // key with enough trust level found
-          EnigmailLog.DEBUG(
-            "keyRing.jsm: getValidKeyForRecipient():  key=" +
-              keyObj.keyId +
-              ' keyTrust="' +
-              keyTrust +
-              '" found\n'
-          );
-
-          // immediately return if a fully or ultimately trusted key is found
-          // (faked keys should not be an issue here, so we don't have to check other keys)
-          if (keyTrustIndex >= fullTrustIndex) {
-            return keyObj.keyId;
-          }
-
-          if (foundKeyId != keyObj.keyId) {
-            // new matching key found (note: might find same key via subkeys)
-            if (foundKeyId) {
-              // different matching keys found
-              if (foundKeyTrustIndex > keyTrustIndex) {
-                return foundKeyId; // OK, previously found key has higher trust level
-              }
-              // error because we have two keys with same trust level
-              // => let the user decide (to prevent from using faked keys with default trust level)
-              if (details) {
-                details.msg = "ProblemMultipleKeys";
-              }
-              let msg =
-                "multiple matching keys with same trust level found for '" +
-                emailAddr +
-                "' ";
-              EnigmailLog.DEBUG(
-                "keyRing.jsm: getValidKeyForRecipient():  " +
-                  msg +
-                  ' trustLevel="' +
-                  keyTrust +
-                  '" (0x' +
-                  foundKeyId +
-                  " and 0x" +
-                  keyObj.keyId +
-                  ")\n"
-              );
-              return null;
-            }
-            // save found key to compare with other matching keys (handling of faked keys)
-            foundKeyId = keyObj.keyId;
-            foundKeyTrustIndex = keyTrustIndex;
-          }
-          continue; // matching key found (again) => **** CONTINUE the LOOP (don't check Sub-UserIDs)
-        }
+      if (acceptanceLevel < 1) {
+        continue;
       }
 
-      // check against the sub user ID
-      // (if we are here, the primary user ID didn't match)
-      // - Note: sub user IDs have NO owner trust
-      for (var subUidIdx = 1; subUidIdx < keyObj.userIds.length; subUidIdx++) {
-        var subUidObj = keyObj.userIds[subUidIdx];
-        var subUserId = subUidObj.userId.toLowerCase();
-        var subUidTrust = subUidObj.keyTrust;
-        var subUidTrustIndex = TRUSTLEVELS_SORTED.indexOf(subUidTrust);
-        //EnigmailLog.DEBUG("keyRing.jsm: getValidKeyForRecipient():  check subUid " + subUidObj.keyId + "\n");
+      // immediately return if a fully or ultimately trusted key is found
+      if (acceptanceLevel >= FULLTRUSTLEVEL) {
+        return keyObj.keyId;
+      }
 
+      if (foundKeyId != keyObj.keyId) {
+        // different matching key found
         if (
-          subUserId &&
-          (subUserId == emailAddr || subUserId.includes(embeddedEmailAddr))
+          !foundKeyId ||
+          (foundKeyId && acceptanceLevel > foundAcceptanceLevel)
         ) {
-          if (subUidTrustIndex < minTrustLevelIndex) {
-            EnigmailLog.DEBUG(
-              "keyRing.jsm: getValidKeyForRecipient():  matching subUid=" +
-                keyObj.keyId +
-                " found but not enough trust\n"
-            );
-          } else {
-            // subkey with enough trust level found
-            EnigmailLog.DEBUG(
-              "keyRing.jsm: getValidKeyForRecipient():  matching subUid in key=" +
-                keyObj.keyId +
-                ' keyTrust="' +
-                keyTrust +
-                '" found\n'
-            );
-
-            if (keyTrustIndex >= fullTrustIndex) {
-              // immediately return if a fully or ultimately trusted key is found
-              // (faked keys should not be an issue here, so we don't have to check other keys)
-              return keyObj.keyId;
-            }
-
-            if (foundKeyId != keyObj.keyId) {
-              // new matching key found (note: might find same key via different subkeys)
-              if (foundKeyId) {
-                // different matching keys found
-                if (foundKeyTrustIndex > subUidTrustIndex) {
-                  return foundKeyId; // OK, previously found key has higher trust level
-                }
-                // error because we have two keys with same trust level
-                // => let the user decide (to prevent from using faked keys with default trust level)
-                if (details) {
-                  details.msg = "ProblemMultipleKeys";
-                }
-                let msg =
-                  "multiple matching keys with same trust level found for '" +
-                  emailAddr +
-                  "' ";
-                EnigmailLog.DEBUG(
-                  "keyRing.jsm: getValidKeyForRecipient():  " +
-                    msg +
-                    ' trustLevel="' +
-                    keyTrust +
-                    '" (0x' +
-                    foundKeyId +
-                    " and 0x" +
-                    keyObj.keyId +
-                    ")\n"
-                );
-                return null;
-              }
-              // save found key to compare with other matching keys (handling of faked keys)
-              foundKeyId = keyObj.keyId;
-              foundKeyTrustIndex = subUidTrustIndex;
-            }
-          }
+          foundKeyId = keyObj.keyId;
+          foundAcceptanceLevel = acceptanceLevel;
         }
       }
-    } // **** LOOP to check against each key
+    }
 
     if (!foundKeyId) {
+      if (details) {
+        details.msg = "ProblemNoKey";
+      }
+      let msg = "no key with enough trust level for '" + emailAddr + "' found";
       EnigmailLog.DEBUG(
-        "keyRing.jsm: getValidKeyForRecipient():  no key for '" +
-          emailAddr +
-          "' found\n"
+        "keyRing.jsm: getValidKeyForRecipient():  " + msg + "\n"
+      );
+    } else {
+      EnigmailLog.DEBUG(
+        "keyRing.jsm: getValidKeyForRecipient():  key=" +
+          keyObj.keyId +
+          '" found\n'
       );
     }
     return foundKeyId;
+  },
+
+  async getKeyAcceptanceLevelForEmail(keyObj, email) {
+    let acceptanceLevel = 0;
+
+    let acceptanceResult = {};
+    try {
+      await PgpSqliteDb2.getAcceptance(keyObj.fpr, email, acceptanceResult);
+    } catch (ex) {
+      console.debug("getAcceptance failed: " + ex);
+      return null;
+    }
+
+    if (acceptanceResult.emailDecided) {
+      switch (acceptanceResult.fingerprintAcceptance) {
+        case "verified":
+          acceptanceLevel = 2;
+          break;
+        case "unverified":
+          acceptanceLevel = 1;
+          break;
+        case "rejected":
+          acceptanceLevel = -1;
+          break;
+        default:
+        case "undecided":
+          acceptanceLevel = 0;
+          break;
+      }
+    }
+    return acceptanceLevel;
+  },
+
+  async getKeyAcceptanceForEmail(keyObj, email) {
+    let acceptanceResult = {};
+    try {
+      await PgpSqliteDb2.getAcceptance(keyObj.fpr, email, acceptanceResult);
+    } catch (ex) {
+      console.debug("getAcceptance failed: " + ex);
+      return null;
+    }
+
+    if (acceptanceResult.emailDecided) {
+      switch (acceptanceResult.fingerprintAcceptance) {
+        case "verified":
+        case "unverified":
+        case "rejected":
+        case "undecided":
+          return acceptanceResult.fingerprintAcceptance;
+      }
+    }
+
+    return "undecided";
   },
 
   /**
    *  Determine the key ID for a set of given addresses
    *
    * @param {Array<String>} addresses: email addresses
-   * @param {String} minTrustLevel:    f for Fully trusted keys / ? for any valid key
    * @param {Object} details:          holds details for invalid keys:
    *                                   - errArray: {
    *                                       * addr {String}: email addresses
@@ -897,14 +904,10 @@ var EnigmailKeyRing = {
    *
    * @return {Boolean}: true if at least one key missing; false otherwise
    */
-  getValidKeysForAllRecipients(
-    addresses,
-    minTrustLevel,
-    details,
-    resultingArray
-  ) {
-    let minTrustLevelIndex = TRUSTLEVELS_SORTED.indexOf(minTrustLevel);
-
+  async getValidKeysForAllRecipients(addresses, details, resultingArray) {
+    if (!addresses) {
+      return null;
+    }
     // check whether each address is or has a key:
     let keyMissing = false;
     if (details) {
@@ -913,40 +916,28 @@ var EnigmailKeyRing = {
     }
     for (let i = 0; i < addresses.length; i++) {
       let addr = addresses[i];
+      if (!addr) {
+        continue;
+      }
       // try to find current address in key list:
       let keyId = null;
       var errMsg = null;
-      if (addr.includes("@")) {
-        // try email match:
-        var addrErrDetails = {};
-        let foundKeyId = this.getValidKeyForRecipient(
-          addr,
-          minTrustLevelIndex,
-          addrErrDetails
+      if (!addr.includes("@")) {
+        throw new Error(
+          "getValidKeysForAllRecipients unexpected lookup for non-email addr: " +
+            addr
         );
-        if (details && addrErrDetails.msg) {
-          errMsg = addrErrDetails.msg;
-        }
-        if (foundKeyId) {
-          keyId = "0x" + foundKeyId.toUpperCase();
-          resultingArray.push(keyId);
-        }
-      } else {
-        // try key match:
-        var keyObj = this.getKeyById(addr);
-
-        if (keyObj) {
-          // if found, check whether the trust level is enough
-          if (
-            TRUSTLEVELS_SORTED.indexOf(keyObj.keyTrust) >= minTrustLevelIndex
-          ) {
-            keyId = "0x" + keyObj.keyId.toUpperCase();
-            resultingArray.push(keyId);
-          }
-        }
       }
 
-      if (keyId) {
+      // try email match:
+      var addrErrDetails = {};
+      let foundKeyId = await this.getValidKeyForRecipient(addr, addrErrDetails);
+      if (details && addrErrDetails.msg) {
+        errMsg = addrErrDetails.msg;
+      }
+      if (foundKeyId) {
+        keyId = "0x" + foundKeyId.toUpperCase();
+        resultingArray.push(keyId);
         if (details) {
           details.keyMap[addr.toLowerCase()] = keyId;
         }
@@ -965,13 +956,103 @@ var EnigmailKeyRing = {
         EnigmailLog.DEBUG(
           'keyRing.jsm: doValidKeysForAllRecipients(): return null (no single valid key found for="' +
             addr +
-            '" with minTrustLevel="' +
-            minTrustLevel +
             '")\n'
         );
       }
     }
     return keyMissing;
+  },
+
+  async getMultValidKeysForOneRecipient(emailAddr) {
+    EnigmailLog.DEBUG(
+      'keyRing.jsm: getMultValidKeysForOneRecipient(): emailAddr="' +
+        emailAddr +
+        '"\n'
+    );
+    emailAddr = emailAddr.toLowerCase();
+    if (emailAddr.startsWith("<") && emailAddr.endsWith(">")) {
+      emailAddr = emailAddr.substr(1, emailAddr.length - 2);
+    }
+
+    let found = [];
+
+    let k = this.getAllKeys(null, null);
+    let keyList = k.keyList;
+
+    for (var idx = 0; idx < keyList.length; idx++) {
+      var keyObj = keyList[idx];
+
+      switch (keyObj.keyTrust) {
+        case "e":
+        case "r":
+          continue;
+        default:
+          break;
+      }
+
+      let uidMatch = false;
+      for (let uid of keyObj.userIds) {
+        if (uid.type !== "uid") {
+          continue;
+        }
+        let split = {};
+        if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
+          let uidEmail = split.email.toLowerCase();
+          if (uidEmail === emailAddr) {
+            uidMatch = true;
+            break;
+          }
+        }
+      }
+      if (!uidMatch) {
+        continue;
+      }
+      // key valid for encryption?
+      if (!keyObj.keyUseFor.includes("E")) {
+        //EnigmailLog.DEBUG("keyRing.jsm: getValidKeyForRecipient():  skip key " + keyObj.keyId + " (not provided for encryption)\n");
+        continue; // not valid for encryption => **** CONTINUE the LOOP
+      }
+      if (!keyObj.secretAvailable) {
+        keyObj.acceptance = await this.getKeyAcceptanceForEmail(
+          keyObj,
+          emailAddr
+        );
+      }
+      found.push(keyObj);
+    }
+    return found;
+  },
+
+  /**
+   *  Determine the key ID for a set of given addresses
+   *
+   * @param {string[]} addresses - Email addresses to get key id for.
+   *
+   * @return {Map<string,keyObj[]>}: map of email addr -> keyObj[]
+   */
+  async getMultValidKeysForMultRecipients(addresses) {
+    if (!addresses) {
+      return null;
+    }
+    let allKeysMap = new Map();
+    for (let i = 0; i < addresses.length; i++) {
+      let addr = addresses[i].toLowerCase();
+      if (!addr) {
+        continue;
+      }
+
+      if (!addr.includes("@")) {
+        throw new Error(
+          "getAllRecipientKeys unexpected lookup for non-email addr: " + addr
+        );
+      }
+
+      let found = await this.getMultValidKeysForOneRecipient(addr);
+      if (found) {
+        allKeysMap.set(addr, found);
+      }
+    }
+    return allKeysMap;
   },
 
   /**

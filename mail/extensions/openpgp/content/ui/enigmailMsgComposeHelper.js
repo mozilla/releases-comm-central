@@ -50,7 +50,7 @@ Enigmail.hlp = {
    * @return: list of all found key (with leading "0x") or null
    *          details in details parameter
    */
-  validKeysForAllRecipients(emailsOrKeys, details) {
+  async validKeysForAllRecipients(emailsOrKeys, details) {
     EnigmailLog.DEBUG("=====> validKeysForAllRecipients()\n");
     EnigmailLog.DEBUG(
       "enigmailMsgComposeHelper.js: validKeysForAllRecipients(): emailsOrKeys='" +
@@ -59,7 +59,7 @@ Enigmail.hlp = {
     );
 
     // use helper to see when we enter and leave this function
-    let resultingArray = this.doValidKeysForAllRecipients(
+    let resultingArray = await this.doValidKeysForAllRecipients(
       emailsOrKeys,
       details
     );
@@ -74,36 +74,11 @@ Enigmail.hlp = {
   },
 
   // helper for validKeysForAllRecipients()
-  doValidKeysForAllRecipients(emailsOrKeys, details) {
+  async doValidKeysForAllRecipients(emailsOrKeys, details) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeHelper.js: doValidKeysForAllRecipients(): emailsOrKeys='" +
         emailsOrKeys +
         "'\n"
-    );
-
-    // check which keys are accepted
-    let minTrustLevel;
-    let acceptedKeys = EnigmailPrefs.getPref("acceptedKeys");
-    switch (acceptedKeys) {
-      case 0: // accept valid/authenticated keys only
-        minTrustLevel = "f"; // first value for trusted keys
-        break;
-      case 1: // accept all but revoked/disabled/expired keys
-        minTrustLevel = "?"; // value between invalid and unknown keys
-        break;
-      default:
-        EnigmailLog.DEBUG(
-          'enigmailMsgComposeOverlay.js: doValidKeysForAllRecipients(): return null (INVALID VALUE for acceptedKeys: "' +
-            acceptedKeys +
-            '")\n'
-        );
-        return null;
-    }
-
-    EnigmailLog.DEBUG(
-      'enigmailMsgComposeHelper.js: doValidKeysForAllRecipients(): find keys with minTrustLevel="' +
-        minTrustLevel +
-        '"\n'
     );
 
     let keyMissing;
@@ -116,9 +91,8 @@ Enigmail.hlp = {
       } catch (ex) {}
 
       // resolve all the email addresses if possible:
-      keyMissing = EnigmailKeyRing.getValidKeysForAllRecipients(
+      keyMissing = await EnigmailKeyRing.getValidKeysForAllRecipients(
         addresses,
-        minTrustLevel,
         details,
         resultingArray
       );
@@ -144,61 +118,5 @@ Enigmail.hlp = {
         '"\n'
     );
     return resultingArray;
-  },
-
-  /**
-   * processConflicts
-   * - handle sign/encrypt/pgpMime conflicts if any
-   * - NOTE: conflicts result into disabling the feature (0/never)
-   * Input parameters:
-   *  @encrypt: email would currently get encrypted
-   *  @sign:    email would currently get signed
-   * @return:  false if error occurred or processing was canceled
-   */
-  processConflicts(encrypt, sign) {
-    // process message about whether we still sign/encrypt
-    let msg = "";
-    msg +=
-      "\n- " + EnigmailLocale.getString(encrypt ? "encryptYes" : "encryptNo");
-    msg += "\n- " + EnigmailLocale.getString(sign ? "signYes" : "signNo");
-    if (EnigmailPrefs.getPref("warnOnRulesConflict") == 2) {
-      EnigmailPrefs.setPref("warnOnRulesConflict", 0);
-    }
-    if (
-      !EnigmailDialog.confirmPref(
-        window,
-        EnigmailLocale.getString("rulesConflict", [msg]),
-        "warnOnRulesConflict"
-      )
-    ) {
-      return false;
-    }
-    return true;
-  },
-
-  /**
-   * determine invalid recipients as returned from GnuPG
-   *
-   * @gpgMsg: output from GnuPG
-   *
-   * @return: space separated list of invalid addresses
-   */
-  getInvalidAddress(gpgMsg) {
-    EnigmailLog.DEBUG(
-      'enigmailMsgComposeHelper.js: getInvalidAddress(): gpgMsg="' +
-        gpgMsg +
-        '"\n\n'
-    );
-    var invalidAddr = [];
-    var lines = gpgMsg.split(/[\n\r]+/);
-    for (var i = 0; i < lines.length; i++) {
-      var m = lines[i].match(/^(INV_RECP \d+ )(.*)$/);
-      if (m && m.length == 3) {
-        try {
-          invalidAddr.push(EnigmailFuncs.stripEmail(m[2].toLowerCase()));
-        } catch (ex) {}
-      }
-    }
-    return invalidAddr.join(" ");
   },
 };

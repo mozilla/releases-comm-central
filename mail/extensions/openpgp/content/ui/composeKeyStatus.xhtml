@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/composeKeyStatus.css" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://openpgp/content/strings/composeKeyStatus.dtd">
+
+<window title="&composeKeyStatus.title;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        style="width: 40em; height: 25em"
+        persist="width height"
+        onload="onLoad();">
+<dialog id="composeKeyStatus"
+        buttons="accept">
+  <script src="chrome://openpgp/content/ui/composeKeyStatus.js"/>
+  <script><![CDATA[
+      function resizeColumns() {
+        let list = document.getElementById("infolist");
+        let cols = list.getElementsByTagName("treecol");
+        list.style.setProperty("--recipientWidth", cols[0].getBoundingClientRect().width + "px");
+        list.style.setProperty("--statusWidth", cols[1].getBoundingClientRect().width + "px");
+      }
+      addEventListener("load", resizeColumns, { once: true });
+      addEventListener("resize", resizeColumns);
+  ]]></script>
+
+  <stringbundle id="bundle_openpgp_comp_info" src="chrome://openpgp/content/strings/composeKeyStatus.properties"/>
+
+  <description>&composeKeyStatus.introNeedKeys;</description>
+
+  <separator class="thin"/>
+  <label value="&composeKeyStatus.keysHeading;" control="infolist"/>
+
+  <richlistbox id="infolist"
+               class="theme-listbox"
+               flex="1"
+               onselect="onSelectionChange(event);">
+    <treecols>
+      <treecol flex="3" label="&composeKeyStatus.recipient;"/>
+      <treecol flex="2" label="&composeKeyStatus.status;"/>
+    </treecols>
+  </richlistbox>
+  <hbox pack="start">
+    <button id="detailsButton" disabled="true"
+            label="&composeKeyStatus.openDetails;"
+            oncommand="viewSelectedEmail();"/>
+  </hbox>
+</dialog>
+</window>

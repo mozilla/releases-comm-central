@@ -38,7 +38,7 @@ var PgpSqliteDb2 = {
     try {
       conn = await this.openDatabase();
       await checkAcceptanceTable(conn);
-      conn.close();
+      await conn.close();
       EnigmailLog.DEBUG(
         `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure - success\n`
       );
@@ -47,7 +47,7 @@ var PgpSqliteDb2 = {
         `sqliteDb.jsm: PgpSqliteDb2 checkDatabaseStructure: ERROR: ${ex}\n`
       );
       if (conn) {
-        conn.close();
+        await conn.close();
       }
     }
   },
@@ -77,7 +77,7 @@ var PgpSqliteDb2 = {
     }
 
     if (myConn && conn) {
-      conn.close();
+      await conn.close();
     }
   },
 
@@ -108,11 +108,11 @@ var PgpSqliteDb2 = {
             }
           });
       }
-      conn.close();
+      await conn.close();
     } catch (ex) {
       console.debug(ex);
       if (conn) {
-        conn.close();
+        await conn.close();
       }
     }
   },
@@ -122,46 +122,47 @@ var PgpSqliteDb2 = {
     try {
       conn = await this.openDatabase();
 
-      await conn.executeTransaction(async function() {
-        fingerprint = fingerprint.toLowerCase();
+      await conn.execute("begin transaction");
 
-        let delObj = { fpr: fingerprint };
+      fingerprint = fingerprint.toLowerCase();
+
+      let delObj = { fpr: fingerprint };
+      await conn.execute(
+        "delete from acceptance_decision where fpr = :fpr",
+        delObj
+      );
+      await conn.execute(
+        "delete from acceptance_email where fpr = :fpr",
+        delObj
+      );
+
+      if (decision !== "undecided") {
+        let decisionObj = {
+          fpr: fingerprint,
+          decision,
+        };
         await conn.execute(
-          "delete from acceptance_decision where fpr = :fpr",
-          delObj
-        );
-        await conn.execute(
-          "delete from acceptance_email where fpr = :fpr",
-          delObj
+          "insert into acceptance_decision values (:fpr, :decision)",
+          decisionObj
         );
 
-        if (decision !== "undecided") {
-          let decisionObj = {
-            fpr: fingerprint,
-            decision,
-          };
+        let insertObj = {
+          fpr: fingerprint,
+        };
+        for (let email of emailArray) {
+          insertObj.email = email.toLowerCase();
           await conn.execute(
-            "insert into acceptance_decision values (:fpr, :decision)",
-            decisionObj
+            "insert into acceptance_email values (:fpr, :email)",
+            insertObj
           );
-
-          let insertObj = {
-            fpr: fingerprint,
-          };
-          for (let email of emailArray) {
-            insertObj.email = email.toLowerCase();
-            await conn.execute(
-              "insert into acceptance_email values (:fpr, :email)",
-              insertObj
-            );
-          }
         }
-      });
-      conn.close();
+      }
+      await conn.execute("commit transaction");
+      await conn.close();
     } catch (ex) {
       console.debug(ex);
       if (conn) {
-        conn.close();
+        await conn.close();
       }
     }
   },
@@ -194,12 +195,12 @@ var EnigmailSqliteDb = {
       conn = await this.openDatabase();
       //await checkAutocryptTable(conn);
       await checkWkdTable(conn);
-      conn.close();
+      await conn.close();
       EnigmailLog.DEBUG(`sqliteDb.jsm: checkDatabaseStructure - success\n`);
     } catch (ex) {
       EnigmailLog.ERROR(`sqliteDb.jsm: checkDatabaseStructure: ERROR: ${ex}\n`);
       if (conn) {
-        conn.close();
+        await conn.close();
       }
     }
   },

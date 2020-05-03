@@ -1,0 +1,12 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!--LOCALIZATION NOTE composeKeyStatus.dtd UI for viewing security status when composing a message -->
+
+<!ENTITY composeKeyStatus.introNeedKeys "To send an end-to-end encrypted message, you must obtain and accept a public key for each recipient.">
+<!ENTITY composeKeyStatus.keysHeading "Availability of OpenPGP keys:">
+<!ENTITY composeKeyStatus.title "OpenPGP Message Security">
+<!ENTITY composeKeyStatus.recipient "Recipient">
+<!ENTITY composeKeyStatus.status "Status">
+<!ENTITY composeKeyStatus.openDetails "Manage keys for selected recipient…">

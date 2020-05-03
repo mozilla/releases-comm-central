@@ -1799,7 +1799,12 @@ Enigmail.msg = {
     let errorMsgObj = {};
     let preview = EnigmailKey.getKeyListFromKeyBlock(keyData, errorMsgObj);
     if (errorMsgObj.value === "") {
-      this.importKeyDataWithConfirmation(preview, keyData, true);
+      EnigmailKeyRing.importKeyDataWithConfirmation(
+        window,
+        preview,
+        keyData,
+        true
+      );
     } else {
       EnigmailDialog.alert(
         window,
@@ -1817,12 +1822,7 @@ Enigmail.msg = {
     }
 
     let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
-    // We don't have great code yet to handle multiple results,
-    // or poisoned results. So avoid SKS.
-    // Let's start with verifying keyservers, only, which return only
-    // one result.
-    if (!defKs.startsWith("vks://")) {
-      console.debug("Not using " + defKs + " in searchSignatureKey");
+    if (!defKs) {
       return;
     }
 
@@ -1835,7 +1835,12 @@ Enigmail.msg = {
         true,
         false
       );
-      this.importKeyDataWithConfirmation(keyList, vks.keyData, true);
+      EnigmailKeyRing.importKeyDataWithConfirmation(
+        window,
+        keyList,
+        vks.keyData,
+        true
+      );
     } else {
       console.debug("searchKeysOnInternet no data in keys.openpgp.org");
     }
@@ -1862,66 +1867,17 @@ Enigmail.msg = {
     let errorMsgObj = {};
     let preview = EnigmailKey.getKeyListFromKeyBlock(keyData, errorMsgObj);
     if (errorMsgObj.value === "") {
-      this.importKeyDataWithConfirmation(preview, keyData, false);
+      EnigmailKeyRing.importKeyDataWithConfirmation(
+        window,
+        preview,
+        keyData,
+        false
+      );
     } else {
       EnigmailDialog.alert(
         window,
         EnigmailLocale.getString("previewFailed") + "\n" + errorMsgObj.value
       );
-    }
-  },
-
-  importKeyDataWithConfirmation(preview, keyData, isBinary) {
-    let exitStatus = -1,
-      errorMsgObj = {};
-    if (preview.length > 0) {
-      if (preview.length == 1) {
-        exitStatus = EnigmailDialog.confirmDlg(
-          window,
-          EnigmailLocale.getString("doImportOne", [
-            preview[0].name,
-            preview[0].id,
-          ])
-        );
-      } else {
-        exitStatus = EnigmailDialog.confirmDlg(
-          window,
-          EnigmailLocale.getString("doImportMultiple", [
-            preview
-              .map(function(a) {
-                return "\t" + a.name + " (" + a.id + ")";
-              })
-              .join("\n"),
-          ])
-        );
-      }
-
-      if (exitStatus) {
-        try {
-          exitStatus = EnigmailKeyRing.importKey(
-            window,
-            false,
-            keyData,
-            isBinary,
-            "",
-            errorMsgObj
-          );
-        } catch (ex) {}
-
-        if (exitStatus === 0) {
-          var keyList = preview.map(function(a) {
-            return a.id;
-          });
-          EnigmailDialog.keyImportDlg(window, keyList);
-        } else {
-          EnigmailDialog.alert(
-            window,
-            EnigmailLocale.getString("failKeyImport") + "\n" + errorMsgObj.value
-          );
-        }
-      }
-    } else {
-      EnigmailDialog.alert(window, EnigmailLocale.getString("noKeyFound"));
     }
   },
 
@@ -2905,7 +2861,12 @@ Enigmail.msg = {
       }
 
       if (errorMsgObj.value === "") {
-        this.importKeyDataWithConfirmation(preview, callbackArg.data, false);
+        EnigmailKeyRing.importKeyDataWithConfirmation(
+          window,
+          preview,
+          callbackArg.data,
+          false
+        );
       } else {
         EnigmailDialog.alert(
           window,
@@ -3121,7 +3082,12 @@ Enigmail.msg = {
         {},
         false
       );
-      this.importKeyDataWithConfirmation(keyList, foundKeys.keyData, true);
+      EnigmailKeyRing.importKeyDataWithConfirmation(
+        window,
+        keyList,
+        foundKeys.keyData,
+        true
+      );
     }
 
     if (foundKeys) {
@@ -3129,12 +3095,7 @@ Enigmail.msg = {
     }
 
     let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
-    // We don't have great code yet to handle multiple results,
-    // or poisoned results. So avoid SKS.
-    // Let's start with verifying keyservers, only, which return only
-    // one result.
-    if (!defKs.startsWith("vks://")) {
-      console.debug("Not using " + defKs + " in searchKeysOnInternet");
+    if (!defKs) {
       return;
     }
 
@@ -3147,7 +3108,12 @@ Enigmail.msg = {
         true,
         false
       );
-      this.importKeyDataWithConfirmation(keyList, vks.keyData, true);
+      EnigmailKeyRing.importKeyDataWithConfirmation(
+        window,
+        keyList,
+        vks.keyData,
+        true
+      );
     } else {
       console.debug("searchKeysOnInternet no data in keys.openpgp.org");
     }
