@@ -991,23 +991,16 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
                                      nsIMsgCopyServiceListener *listener,
                                      bool allowUndo) {
   NS_ENSURE_ARG_POINTER(messages);
-
-  uint32_t messageCount;
-  nsresult rv = messages->GetLength(&messageCount);
-  NS_ENSURE_SUCCESS(rv, rv);
-
+  nsresult rv;
   // Stopgap. Build a parallel array of message headers while we complete
   // removal of nsIArray usage (Bug 1583030).
   nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  msgHeaders.SetCapacity(messageCount);
-  for (uint32_t i = 0; i < messageCount; ++i) {
-    msgHeaders.AppendElement(do_QueryElementAt(messages, i));
-  }
+  MsgHdrsToTArray(messages, msgHeaders);
 
   // shift delete case - (delete to trash is handled in EndMove)
   // this is also the case when applying retention settings.
   if (deleteStorage && !isMove) {
-    MarkMsgsOnPop3Server(messages, POP3_DELETE);
+    MarkMsgsOnPop3Server(msgHeaders, POP3_DELETE);
   }
 
   bool isTrashFolder = mFlags & nsMsgFolderFlags::Trash;
@@ -1040,7 +1033,7 @@ nsMsgLocalMailFolder::DeleteMessages(nsIArray *messages,
     rv = GetDatabaseWOReparse(getter_AddRefs(msgDB));
     if (NS_SUCCEEDED(rv)) {
       if (deleteStorage && isMove && GetDeleteFromServerOnMove())
-        MarkMsgsOnPop3Server(messages, POP3_DELETE);
+        MarkMsgsOnPop3Server(msgHeaders, POP3_DELETE);
 
       nsCOMPtr<nsISupports> msgSupport;
       rv = EnableNotifications(allMessageCountNotifications, false);
@@ -1110,13 +1103,8 @@ nsMsgLocalMailFolder::MarkMessagesRead(nsIArray *aMessages, bool aMarkRead) {
 
   // Stopgap. Build a parallel array of message headers while we complete
   // removal of nsIArray usage (Bug 1583030).
-  uint32_t messageCount;
-  aMessages->GetLength(&messageCount);
   nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  msgHeaders.SetCapacity(messageCount);
-  for (uint32_t i = 0; i < messageCount; ++i) {
-    msgHeaders.AppendElement(do_QueryElementAt(aMessages, i));
-  }
+  MsgHdrsToTArray(aMessages, msgHeaders);
 
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
@@ -1135,13 +1123,8 @@ nsMsgLocalMailFolder::MarkMessagesFlagged(nsIArray *aMessages,
 
   // Stopgap. Build a parallel array of message headers while we complete
   // removal of nsIArray usage (Bug 1583030).
-  uint32_t messageCount;
-  aMessages->GetLength(&messageCount);
   nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  msgHeaders.SetCapacity(messageCount);
-  for (uint32_t i = 0; i < messageCount; ++i) {
-    msgHeaders.AppendElement(do_QueryElementAt(aMessages, i));
-  }
+  MsgHdrsToTArray(aMessages, msgHeaders);
 
   return msgStore->ChangeFlags(msgHeaders, nsMsgMessageFlags::Marked,
                                aMarkFlagged);
@@ -1421,8 +1404,11 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
           // If we're deleting on all moves, we'll mark this message for
           // deletion when we call DeleteMessages on the source folder. So don't
           // mark it for deletion here, in that case.
-          if (!GetDeleteFromServerOnMove())
-            localDstFolder->MarkMsgsOnPop3Server(dstHdrs, POP3_DELETE);
+          if (!GetDeleteFromServerOnMove()) {
+            nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+            MsgHdrsToTArray(dstHdrs, hdrs);
+            localDstFolder->MarkMsgsOnPop3Server(hdrs, POP3_DELETE);
+          }
         }
       }
     }
@@ -2416,9 +2402,11 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
         // if we're deleting on all moves, we'll mark this message for deletion
         // when we call DeleteMessages on the source folder. So don't mark it
         // for deletion here, in that case.
-        if (!GetDeleteFromServerOnMove())
-          localSrcFolder->MarkMsgsOnPop3Server(mCopyState->m_messages,
-                                               POP3_DELETE);
+        if (!GetDeleteFromServerOnMove()) {
+          nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+          MsgHdrsToTArray(mCopyState->m_messages, hdrs);
+          localSrcFolder->MarkMsgsOnPop3Server(hdrs, POP3_DELETE);
+        }
       }
     }
     // lets delete these all at once - much faster that way
@@ -2642,7 +2630,8 @@ nsresult nsMsgLocalMailFolder::CopyMessageTo(
 // The next time we look at mail the message will be deleted from the server.
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::MarkMsgsOnPop3Server(nsIArray *aMessages, int32_t aMark) {
+nsMsgLocalMailFolder::MarkMsgsOnPop3Server(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages, int32_t aMark) {
   nsLocalFolderScanState folderScanState;
   nsCOMPtr<nsIPop3IncomingServer> curFolderPop3MailServer;
   nsCOMArray<nsIPop3IncomingServer>
@@ -2663,20 +2652,13 @@ nsMsgLocalMailFolder::MarkMsgsOnPop3Server(nsIArray *aMessages, int32_t aMark) {
   rv = GetFolderScanState(&folderScanState);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t srcCount;
-  aMessages->GetLength(&srcCount);
-
   // Filter delete requests are always honored, others are subject
   // to the deleteMailLeftOnServer preference.
   int32_t mark;
   mark = (aMark == POP3_FORCE_DEL) ? POP3_DELETE : aMark;
 
-  for (uint32_t i = 0; i < srcCount; i++) {
-    /* get uidl for this message */
-    nsCOMPtr<nsIMsgDBHdr> msgDBHdr(do_QueryElementAt(aMessages, i, &rv));
-
+  for (auto msgDBHdr : aMessages) {
     uint32_t flags = 0;
-
     if (msgDBHdr) {
       msgDBHdr->GetFlags(&flags);
       nsCOMPtr<nsIPop3IncomingServer> msgPop3Server = curFolderPop3MailServer;
@@ -2817,7 +2799,9 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DownloadMessagesForOffline(
   // We're starting a download...
   mDownloadState = DOWNLOAD_STATE_INITED;
 
-  MarkMsgsOnPop3Server(aMessages, POP3_FETCH_BODY);
+  nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+  MsgHdrsToTArray(aMessages, hdrs);
+  MarkMsgsOnPop3Server(hdrs, POP3_FETCH_BODY);
 
   // Pull out all the PARTIAL messages into a new array
   uint32_t srcCount;

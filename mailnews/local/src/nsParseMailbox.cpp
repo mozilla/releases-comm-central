@@ -2087,12 +2087,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
                     ("(Local) Couldn't find local mail folder"));
             break;
           }
-          nsCOMPtr<nsIMutableArray> messages =
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-          if (NS_FAILED(rv) || !messages) break;
-          messages->AppendElement(msgHdr);
           // This action ignores the deleteMailLeftOnServer preference
-          rv = localFolder->MarkMsgsOnPop3Server(messages, POP3_FORCE_DEL);
+          rv = localFolder->MarkMsgsOnPop3Server({&*msgHdr}, POP3_FORCE_DEL);
 
           // If this is just a header, throw it away. It's useless now
           // that the server copy is being deleted.
@@ -2116,11 +2112,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
           uint32_t flags = 0;
           msgHdr->GetFlags(&flags);
           if (flags & nsMsgMessageFlags::Partial) {
-            nsCOMPtr<nsIMutableArray> messages =
-                do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-            if (NS_FAILED(rv) || !messages) break;
-            messages->AppendElement(msgHdr);
-            rv = localFolder->MarkMsgsOnPop3Server(messages, POP3_FETCH_BODY);
+            rv = localFolder->MarkMsgsOnPop3Server({&*msgHdr}, POP3_FETCH_BODY);
             // Don't add this header to the DB, we're going to replace it
             // with the full message.
             m_msgMovedByFilter = true;

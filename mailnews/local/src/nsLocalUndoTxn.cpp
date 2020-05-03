@@ -229,9 +229,11 @@ nsresult nsLocalMoveCopyMsgTxn::UndoTransactionInternal() {
 
       nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
           do_QueryInterface(srcFolder);
-      if (localFolder)
-        localFolder->MarkMsgsOnPop3Server(srcMessages,
-                                          POP3_NONE /*deleteMsgs*/);
+      if (localFolder) {
+        nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+        MsgHdrsToTArray(srcMessages, hdrs);
+        localFolder->MarkMsgsOnPop3Server(hdrs, POP3_NONE /*deleteMsgs*/);
+      }
     } else  // undoing a move means moving the messages back.
     {
       nsCOMPtr<nsIMutableArray> dstMessages =
@@ -335,9 +337,11 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
     } else if (m_canUndelete) {
       nsCOMPtr<nsIMsgLocalMailFolder> localFolder =
           do_QueryInterface(srcFolder);
-      if (localFolder)
-        localFolder->MarkMsgsOnPop3Server(srcMessages,
-                                          POP3_DELETE /*deleteMsgs*/);
+      if (localFolder) {
+        nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+        MsgHdrsToTArray(srcMessages, hdrs);
+        localFolder->MarkMsgsOnPop3Server(hdrs, POP3_DELETE /*deleteMsgs*/);
+      }
 
       rv = srcDB->DeleteMessages(m_srcKeyArray, nullptr);
       srcDB->SetSummaryValid(true);

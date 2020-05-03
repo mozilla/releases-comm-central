@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-interface nsIArray;
 interface nsIMsgWindow;
 interface nsIUrlListener;
 interface nsIMsgDatabase;
@@ -50,7 +49,7 @@ interface nsIMsgLocalMailFolder : nsISupports {
   void copyAllSubFolders(in nsIMsgFolder srcFolder, in nsIMsgWindow msgWindow, in nsIMsgCopyServiceListener listener );
   void onCopyCompleted(in nsISupports aSrcSupport, in boolean aMoveCopySucceeded);
   attribute boolean checkForNewMessagesAfterParsing;
-  void markMsgsOnPop3Server(in nsIArray aMessages, in int32_t aMark);
+  void markMsgsOnPop3Server(in Array<nsIMsgDBHdr> aMessages, in int32_t aMark);
 
   /**
    * File size on disk has possibly changed - update and notify.

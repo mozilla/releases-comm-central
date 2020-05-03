@@ -1878,3 +1878,13 @@ void MsgRemoveQueryPart(nsCString &aSpec) {
   ind = aSpec.Find("/;");
   if (ind != kNotFound) aSpec.SetLength(ind);
 }
+
+void MsgHdrsToTArray(nsIArray *messages, nsTArray<RefPtr<nsIMsgDBHdr>> &out) {
+  uint32_t count;
+  messages->GetLength(&count);
+  out.Clear();
+  out.SetCapacity(count);
+  for (uint32_t i = 0; i < count; ++i) {
+    out.AppendElement(do_QueryElementAt(messages, i));
+  }
+}

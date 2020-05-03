@@ -943,9 +943,12 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           BREAK_ACTION_IF_FALSE(localFolder,
                                 "Current folder not a local folder");
           // This action ignores the deleteMailLeftOnServer preference
-          rv = localFolder->MarkMsgsOnPop3Server(m_searchHitHdrs,
-                                                 POP3_FORCE_DEL);
-          BREAK_ACTION_IF_FAILURE(rv, "MarkMsgsOnPop3Server failed");
+          {
+            nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+            MsgHdrsToTArray(m_searchHitHdrs, hdrs);
+            rv = localFolder->MarkMsgsOnPop3Server(hdrs, POP3_FORCE_DEL);
+            BREAK_ACTION_IF_FAILURE(rv, "MarkMsgsOnPop3Server failed");
+          }
 
           nsCOMPtr<nsIMutableArray> partialMsgs;
           // Delete the partial headers. They're useless now

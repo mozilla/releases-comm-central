@@ -404,6 +404,13 @@ NS_MSG_BASE
 void MsgLogToConsole4(const nsAString &aErrorText, const nsAString &aFilename,
                       uint32_t aLine, uint32_t flags);
 
+/**
+ * Stopgap helper for removal of nsIArray usage (Bug 1583030).
+ * Copy an nsIArray of nsIMsgDBHdrs into an nsTArray.
+ * TODO: Delete this function when we can!
+ */
+void MsgHdrsToTArray(nsIArray *messages, nsTArray<RefPtr<nsIMsgDBHdr>> &out);
+
 // Macro with filename and line number
 #define MSG_LOG_TO_CONSOLE(_text, _flag)                                  \
   MsgLogToConsole4(NS_LITERAL_STRING(_text), NS_LITERAL_STRING(__FILE__), \
