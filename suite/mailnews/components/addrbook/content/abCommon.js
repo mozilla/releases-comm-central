@@ -42,6 +42,8 @@ var DirPaneController =
       case "cmd_properties":
       case "cmd_printcard":
       case "cmd_printcardpreview":
+      case "cmd_print":
+      case "cmd_printpreview":
       case "cmd_newlist":
       case "cmd_newCard":
         return true;
@@ -104,6 +106,12 @@ var DirPaneController =
       case "cmd_printcard":
       case "cmd_printcardpreview":
         return (GetSelectedCardIndex() != -1);
+      case "cmd_print":
+      case "cmd_printpreview":
+        document.querySelectorAll("[command=cmd_print]").forEach(e => {
+          e.disabled = false;
+        });
+        return true;
       case "cmd_properties":
         return (getSelectedDirectoryURI() != null);
       case "cmd_newlist":
@@ -121,6 +129,12 @@ var DirPaneController =
       case "cmd_printcardpreview":
       case "cmd_selectAll":
         SendCommandToResultsPane(command);
+        break;
+      case "cmd_print":
+        AbPrintAddressBook();
+        break;
+      case "cmd_printpreview":
+        AbPrintPreviewAddressBook();
         break;
       case "cmd_delete":
       case "button_delete":
