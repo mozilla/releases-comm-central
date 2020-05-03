@@ -97,7 +97,7 @@ $(FINAL_TARGET)/defaults/profile/bookmarks.html: $(BOOKMARKS_INC_FILE) $(BOOKMAR
 	$(RM) -rf profile/*bookmarks*
 	$(NSINSTALL) -D profile
 	cp $^ profile/
-	$(call py3_action,preprocessor, \
+	$(call py_action,preprocessor, \
 	  -DAB_CD=$(NO_JA_JP_MAC_AB_CD) \
 	  profile/bookmarks.html.in \
 	  -o $@)
@@ -113,7 +113,7 @@ $(FINAL_TARGET)/defaults/profile/panels.rdf: $(PANELS_XTRA_FILE) $(srcdir)/gener
 	sed \
 	  -n 's/.*<RDF:Description about="\(.*\)">.*/        <RDF:li resource="\1"\/>/p' \
 	  profile/panels.extra > profile/panels-urn.inc
-	$(call py3_action,preprocessor, \
+	$(call py_action,preprocessor, \
 	  profile/panels.rdf.in -o $@)
 
 libs:: $(FINAL_TARGET)/defaults/profile/bookmarks.html ;
@@ -200,13 +200,13 @@ endif
 
 ident:
 	@printf 'comm_revision '
-	@$(PYTHON) $(topsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App SourceStamp
 	@printf 'moz_revision '
-	@$(PYTHON) $(topsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/platform.ini' Build SourceStamp
 	@printf 'buildid '
-	@$(PYTHON) $(topsrcdir)/config/printconfigsetting.py \
+	@$(PYTHON3) $(topsrcdir)/config/printconfigsetting.py \
 	    '$(STAGEDIST)/application.ini' App BuildID
 
 ifdef MOZ_IRC

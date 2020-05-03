@@ -9,7 +9,7 @@ ac_add_options --enable-application=comm/suite
 ac_add_options --enable-debug
 ac_add_options --enable-calendar
 
-mk_add_options PROFILE_GEN_SCRIPT='$(PYTHON) @MOZ_OBJDIR@/_profile/pgo/profileserver.py'
+mk_add_options PROFILE_GEN_SCRIPT='$(PYTHON3) @MOZ_OBJDIR@/_profile/pgo/profileserver.py'
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1

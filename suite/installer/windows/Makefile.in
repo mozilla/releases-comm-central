@@ -41,11 +41,11 @@ $(CONFIG_DIR)/setup.exe::
 	$(MKDIR) $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(srcdir)/,$(INSTALLER_FILES)) $(CONFIG_DIR)
 	$(INSTALL) $(addprefix $(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/,$(BRANDING_FILES)) $(CONFIG_DIR)
-	$(PYTHON) $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
+	$(PYTHON3) $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --convert-utf8-utf16le $(topsrcdir)/comm/suite/installer/license.txt $(CONFIG_DIR)/license.txt
-	$(call py3_action,preprocessor,-Fsubstitution $(DEFINES) $(ACDEFINES) \
+	$(call py_action,preprocessor,-Fsubstitution $(DEFINES) $(ACDEFINES) \
 	  $(srcdir)/nsis/defines.nsi.in -o $(CONFIG_DIR)/defines.nsi)
-	$(PYTHON) $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
+	$(PYTHON3) $(topsrcdir)/toolkit/mozapps/installer/windows/nsis/preprocess-locale.py \
 	  --preprocess-locale $(topsrcdir) \
 	  $(PPL_LOCALE_ARGS) $(AB_CD) $(CONFIG_DIR)
 
