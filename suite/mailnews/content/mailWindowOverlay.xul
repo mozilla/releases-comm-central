@@ -1819,6 +1819,8 @@
           </menupopup>
     </toolbarbutton>
     <toolbarbutton id="print-button"
+                   label="&printButton.label;"
+                   tooltiptext="&printButton.tooltip;"
                    observes="button_print"/>
     <toolbarbutton id="button-stop"
                    class="toolbarbutton-1"

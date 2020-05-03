@@ -26,8 +26,4 @@
          modifiers="accel" command="cmd_newMessage"/>
 #endif
   </keyset>
-
-  <toolbarbutton id="print-button"
-                 label="&printButton.label;"
-                 tooltiptext="&printButton.tooltip;"/>
 </overlay>

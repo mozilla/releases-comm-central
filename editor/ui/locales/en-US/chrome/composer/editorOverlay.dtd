@@ -292,8 +292,6 @@
 <!ENTITY cutToolbarCmd.tooltip "Cut">
 <!ENTITY copyToolbarCmd.tooltip "Copy">
 <!ENTITY pasteToolbarCmd.tooltip "Paste">
-<!ENTITY printToolbarCmd.label "Print">
-<!ENTITY printToolbarCmd.tooltip "Print this page">
 <!ENTITY findToolbarCmd.label "Find">
 <!ENTITY findToolbarCmd.tooltip "Find text in page">
 <!ENTITY spellToolbarCmd.label "Spell">

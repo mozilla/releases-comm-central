@@ -660,7 +660,9 @@
     </toolbar>
 
     <toolbarpalette id="MsgComposeToolbarPalette">
-      <toolbarbutton id="print-button"/>
+      <toolbarbutton id="print-button"
+                     label="&printButton.label;"
+                     tooltiptext="&printButton.tooltip;"/>
     </toolbarpalette>
 
   </toolbox>
