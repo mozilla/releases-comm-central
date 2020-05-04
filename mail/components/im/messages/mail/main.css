@@ -68,6 +68,11 @@
   margin-block-end: 0;
 }
 
+.message.outgoing + .message.outgoing,
+.message.incoming + .message.incoming {
+  margin-block: 0;
+}
+
 .outgoing .pseudo {
   color: #0060DF;
 }
@@ -89,23 +94,20 @@
   white-space: nowrap;
 }
 
-.encrypted {
-  display: none;
+.ib-sender.message-encrypted {
+  position: relative;
+}
+
+.ib-sender.message-encrypted::before {
+  position: relative;
+  display: inline-block;
+  content: '';
   width: 11px;
   height: 11px;
-  opacity: 0.35;
+  opacity: 0.5;
   background: url("chrome://messenger/skin/icons/connection-secure.svg") no-repeat center;
   background-size: contain;
-  margin-top: 1px;
-  margin-inline-end: 2px;
-}
-
-.encrypted:hover {
-  opacity: 0.75;
-}
-
-.encrypted.show {
-  display: inline-block;
+  margin-inline-end: 4px;
 }
 
 .usericon {

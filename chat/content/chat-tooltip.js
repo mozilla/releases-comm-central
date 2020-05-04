@@ -336,6 +336,14 @@
 
       this.addRow(this.bundle.GetStringFromName("buddy.account"), account.name);
 
+      // Add encryption status.
+      if (document.tooltipNode.classList.contains("message-encrypted")) {
+        this.addRow(
+          this.bundle.GetStringFromName("otr.tag"),
+          this.bundle.GetStringFromName("message.status")
+        );
+      }
+
       this.requestBuddyInfo(account, aBuddy.normalizedName);
 
       let tooltipInfo = aBuddy.getTooltipInfo();

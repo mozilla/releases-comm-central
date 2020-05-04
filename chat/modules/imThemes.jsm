@@ -51,10 +51,6 @@ XPCOMUtils.defineLazyGetter(this, "gTimeFormatter", () => {
   });
 });
 
-XPCOMUtils.defineLazyGetter(this, "bundle", () =>
-  Services.strings.createBundle("chrome://chat/locale/conversations.properties")
-);
-
 ChromeUtils.defineModuleGetter(
   this,
   "ToLocaleFormat",
@@ -484,16 +480,11 @@ var statusMessageReplacements = {
 
     return msgClass.join(" ");
   },
-  encryptedClass(aMsg) {
-    return aMsg.encrypted ? "show" : "";
-  },
-  encryptedMessage(aMsg) {
-    return bundle.GetStringFromName("message.status");
-  },
 };
 
-function formatSender(aName) {
-  return '<span class="ib-sender">' + TXTToHTML(aName) + "</span>";
+function formatSender(aName, isEncrypted = false) {
+  let otr = isEncrypted ? " message-encrypted" : "";
+  return `<span class="ib-sender${otr}">${TXTToHTML(aName)}</span>`;
 }
 var messageReplacements = {
   userIconPath(aMsg) {
@@ -514,14 +505,15 @@ var messageReplacements = {
     // Fallback to the theme's default icons.
     return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.png";
   },
-  senderScreenName: aMsg => formatSender(aMsg.who),
-  sender: aMsg => formatSender(aMsg.alias || aMsg.who),
+  senderScreenName: aMsg => formatSender(aMsg.who, aMsg.encrypted),
+  sender: aMsg => formatSender(aMsg.alias || aMsg.who, aMsg.encrypted),
   senderColor: aMsg => aMsg.color,
   senderStatusIcon: aMsg => getStatusIconFromBuddy(getBuddyFromMessage(aMsg)),
   messageDirection: aMsg => "ltr",
   // no theme actually use this, don't bother making sure this is the real
   // serverside alias
-  senderDisplayName: aMsg => formatSender(aMsg.alias || aMsg.who),
+  senderDisplayName: aMsg =>
+    formatSender(aMsg.alias || aMsg.who, aMsg.encrypted),
   service: aMsg => aMsg.conversation.account.protocol.name,
   textbackgroundcolor: (aMsg, aFormat) => "transparent", // FIXME?
   __proto__: statusMessageReplacements,

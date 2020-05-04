@@ -144,6 +144,22 @@ p *:any-link img {
   background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(0,0,0,0.18));
 }
 
+.ib-sender.message-encrypted {
+  position: relative;
+}
+
+.ib-sender.message-encrypted::after {
+  position: relative;
+  display: inline-block;
+  content: '';
+  width: 11px;
+  height: 10px;
+  background: url("chrome://messenger/skin/icons/connection-secure.svg") no-repeat center;
+  background-size: contain;
+  margin-inline-start: 4px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
 
 /* used by javascript */
 .eventToggle {

@@ -107,3 +107,21 @@ p *:any-link img {
 .ib-nick[left]:hover {
   opacity: 1;
 }
+
+.ib-sender.message-encrypted {
+  position: relative;
+}
+
+.ib-sender.message-encrypted::after {
+  position: relative;
+  display: inline-block;
+  content: '';
+  width: 11px;
+  height: 11px;
+  opacity: 0.5;
+  background: url("chrome://messenger/skin/icons/connection-secure.svg") no-repeat center;
+  background-size: contain;
+  margin-inline-start: 4px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
