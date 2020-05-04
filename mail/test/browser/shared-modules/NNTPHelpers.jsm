@@ -12,13 +12,15 @@ const EXPORTED_SYMBOLS = [
   "shutdownNNTPServer",
 ];
 
-var folderDisplayHelper = ChromeUtils.import(
-  "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
+);
+var { newsArticle, NNTP_RFC977_handler, nntpDaemon } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Nntpd.jsm"
+);
+var { nsMailServer } = ChromeUtils.import(
+  "resource://testing-common/mailnews/Maild.jsm"
 );
 
 var kSimpleNewsArticle =
@@ -40,39 +42,15 @@ var groups = [
   ["test.filter", true],
 ];
 
-var testHelperModule;
-
-function setupModule() {
-  testHelperModule = {
-    Cc,
-    Ci,
-    Cu,
-    // fake some xpcshell stuff
-    _TEST_FILE: ["mozmill"],
-    do_throw(aMsg) {
-      throw new Error(aMsg);
-    },
-  };
-  folderDisplayHelper.load_via_src_path(
-    "fakeserver/Nntpd.jsm",
-    testHelperModule
-  );
-  folderDisplayHelper.load_via_src_path(
-    "fakeserver/Maild.jsm",
-    testHelperModule
-  );
-}
-setupModule();
-
 // Sets up the NNTP daemon object for use in fake server
 function setupNNTPDaemon() {
-  var daemon = new testHelperModule.nntpDaemon();
+  var daemon = new nntpDaemon();
 
   groups.forEach(function(element) {
     daemon.addGroup(element[0]);
   });
 
-  var article = new testHelperModule.newsArticle(kSimpleNewsArticle);
+  var article = new newsArticle(kSimpleNewsArticle);
   daemon.addArticleToGroup(article, "test.subscribe.simple", 1);
 
   return daemon;
@@ -80,13 +58,13 @@ function setupNNTPDaemon() {
 
 // Startup server
 function startupNNTPServer(daemon, port) {
-  var handler = testHelperModule.NNTP_RFC977_handler;
+  var handler = NNTP_RFC977_handler;
 
   function createHandler(daemon) {
     return new handler(daemon);
   }
 
-  var server = new testHelperModule.nsMailServer(createHandler, daemon);
+  var server = new nsMailServer(createHandler, daemon);
   server.start(port);
   return server;
 }

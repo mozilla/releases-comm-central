@@ -88,7 +88,6 @@ const EXPORTED_SYMBOLS = [
   "kClassicMailLayout",
   "kVerticalMailLayout",
   "kWideMailLayout",
-  "load_via_src_path",
   "make_display_grouped",
   "make_display_threaded",
   "make_display_unthreaded",
@@ -139,9 +138,6 @@ const EXPORTED_SYMBOLS = [
   "smimeUtils_loadCertificateAndKey",
   "smimeUtils_loadPEMCertificate",
   "switch_tab",
-  "SyntheticPartLeaf",
-  "SyntheticPartMultiMixed",
-  "SyntheticPartMultiRelated",
   "throw_and_dump_view_state",
   "toggle_main_menu",
   "toggle_message_pane",
@@ -160,7 +156,6 @@ var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
 var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 // the windowHelper module
@@ -178,8 +173,12 @@ var { MailServices } = ChromeUtils.import(
 );
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-var FILE_LOAD_PATHS = ["../../mochitest/", "../../testing/mochitest/"];
+var { MessageGenerator, MessageScenarioFactory } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+var { SmimeUtils } = ChromeUtils.import(
+  "resource://testing-common/mailnews/smimeUtils.jsm"
+);
 
 /**
  * Server hostname as set in runtest.py
@@ -236,7 +235,10 @@ function setupModule() {
 
   // The xpcshell test resources assume they are loaded into a single global
   //  namespace, so we need to help them out to maintain their delusion.
-  load_via_src_path("resources/logHelper.js", testHelperModule);
+  load_via_src_path(
+    "../../../testing/mochitest/resources/logHelper.js",
+    testHelperModule
+  );
   mark_action = testHelperModule.mark_action;
 
   // Remove the dump appender that got appended; it just adds noise.
@@ -321,32 +323,40 @@ function setupModule() {
 
   // -- the rest of the asyncTestUtils framework (but not actually async)
 
-  load_via_src_path("resources/asyncTestUtils.js", testHelperModule);
-  load_via_src_path("resources/MessageGenerator.jsm", testHelperModule);
-  load_via_src_path("resources/messageModifier.js", testHelperModule);
-  load_via_src_path("resources/messageInjection.js", testHelperModule);
-  load_via_src_path("resources/viewWrapperTestUtils.js", testHelperModule);
-  load_via_src_path("resources/smimeUtils.jsm", testHelperModule);
+  load_via_src_path(
+    "../../../testing/mochitest/resources/asyncTestUtils.js",
+    testHelperModule
+  );
+  load_via_src_path(
+    "../../../testing/mochitest/resources/messageModifier.js",
+    testHelperModule
+  );
+  load_via_src_path(
+    "../../../testing/mochitest/resources/messageInjection.js",
+    testHelperModule
+  );
+  load_via_src_path(
+    "../../../testing/mochitest/resources/viewWrapperTestUtils.js",
+    testHelperModule
+  );
 
   // provide super helpful folder event info (when logHelper cares)
-  load_via_src_path("resources/folderEventLogHelper.js", testHelperModule);
+  load_via_src_path(
+    "../../../testing/mochitest/resources/folderEventLogHelper.js",
+    testHelperModule
+  );
   testHelperModule.registerFolderEventLogHelper();
 
   // messageInjection wants a gMessageGenerator (and so do we)
-  msgGen = new testHelperModule.MessageGenerator();
+  msgGen = new MessageGenerator();
   testHelperModule.gMessageGenerator = msgGen;
-  testHelperModule.gMessageScenarioFactory = new testHelperModule.MessageScenarioFactory(
-    msgGen
-  );
+  testHelperModule.gMessageScenarioFactory = new MessageScenarioFactory(msgGen);
 
   make_new_sets_in_folders = make_new_sets_in_folder =
     testHelperModule.make_new_sets_in_folders;
   add_sets_to_folders = testHelperModule.add_sets_to_folders;
   make_folder_with_sets = testHelperModule.make_folder_with_sets;
   make_virtual_folder = testHelperModule.make_virtual_folder;
-  SyntheticPartLeaf = testHelperModule.SyntheticPartLeaf;
-  SyntheticPartMultiMixed = testHelperModule.SyntheticPartMultiMixed;
-  SyntheticPartMultiRelated = testHelperModule.SyntheticPartMultiRelated;
 
   delete_message_set = testHelperModule.async_delete_messages;
 
@@ -379,15 +389,15 @@ function setupModule() {
 setupModule();
 
 function smimeUtils_ensureNSS() {
-  testHelperModule.SmimeUtils.ensureNSS();
+  SmimeUtils.ensureNSS();
 }
 
 function smimeUtils_loadPEMCertificate(file, certType, loadKey = false) {
-  testHelperModule.SmimeUtils.loadPEMCertificate(file, certType, loadKey);
+  SmimeUtils.loadPEMCertificate(file, certType, loadKey);
 }
 
 function smimeUtils_loadCertificateAndKey(file) {
-  testHelperModule.SmimeUtils.loadCertificateAndKey(file);
+  SmimeUtils.loadCertificateAndKey(file);
 }
 
 function setupAccountStuff() {
@@ -3353,7 +3363,7 @@ function restore_default_window_size() {
 /**
  * Toggle visibility of the Main menu bar.
  *
- * @param aEnabled {boolean}  Whether the menu should be shown or not.
+ * @param {boolean} aEnabled - Whether the menu should be shown or not.
  */
 function toggle_main_menu(aEnabled = true) {
   let menubar = mc.e("mail-toolbar-menubar2");
@@ -3363,27 +3373,23 @@ function toggle_main_menu(aEnabled = true) {
   return state;
 }
 
-/** exported from messageInjection */
+/** exported from messageInjection.js */
 var make_new_sets_in_folders;
 var make_new_sets_in_folder;
 var add_sets_to_folders;
 var delete_message_set;
 var make_folder_with_sets;
 var make_virtual_folder;
-var SyntheticPartLeaf;
-var SyntheticPartMultiMixed;
-var SyntheticPartMultiRelated;
 
 /**
- * Load a file in its own 'module' based on the effective location of the staged copy of
- * test-folder-helpers.js - if you get an error in this function, probably an appropriate relative
- * path in FILE_LOAD_PATHS is missing for your setup.
- *
- * @param aPath A path relative to the comm-central source path (can be just a file name)
+ * Load a file in its own 'module' (scope really), based on the effective
+ * location of the staged FolderDisplayHelpers.jsm module.
+ * @param {String} aPath - A path relative to the module (can be just a file name)
+ * @param {Object} aScope - Scope to load the file into.
  *
  * @return An object that serves as the global scope for the loaded file.
  */
-function load_via_src_path(aPath, aModule) {
+function load_via_src_path(aPath, aScope) {
   let thisFileURL = Cc["@mozilla.org/network/protocol;1?name=resource"]
     .getService(Ci.nsIResProtocolHandler)
     .resolveURI(
@@ -3394,26 +3400,20 @@ function load_via_src_path(aPath, aModule) {
   let thisFile = Services.io.newURI(thisFileURL).QueryInterface(Ci.nsIFileURL)
     .file;
 
-  for (let i = 0; i < FILE_LOAD_PATHS.length; ++i) {
-    let srcPath = os.abspath(FILE_LOAD_PATHS[i], thisFile);
-    let fullPath = os.abspath(aPath, os.getFileForPath(srcPath));
-
-    let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    file.initWithPath(fullPath);
-
-    if (file.exists()) {
-      try {
-        let uri = Services.io.newFileURI(file).spec;
-        Services.scriptloader.loadSubScript(uri, aModule);
-        return;
-      } catch (ex) {
-        throw new Error(
-          "Unable to load file: " + fullPath + " exception: " + ex
-        );
-      }
-    }
+  thisFile.setRelativePath;
+  let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  file.setRelativePath(thisFile, aPath);
+  // The files are at different paths when tests are run locally vs. CI.
+  // Plain js files shouldn't really be loaded from a module, but while we
+  // work on resolving that, try both locations...
+  if (!file.exists()) {
+    file.setRelativePath(thisFile, aPath.replace("/testing", ""));
   }
-
-  // If we've got this far, then we weren't successful, fail out.
-  throw new Error("Could not find " + aPath + " in available paths");
+  if (!file.exists()) {
+    throw new Error(
+      `Could not resolve file ${file.path} for path ${aPath} relative to ${thisFile.path}`
+    );
+  }
+  let uri = Services.io.newFileURI(file).spec;
+  Services.scriptloader.loadSubScript(uri, aScope);
 }

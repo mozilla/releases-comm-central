@@ -28,10 +28,12 @@ var {
   mc,
   msgGen,
   select_click_row,
-  SyntheticPartLeaf,
-  SyntheticPartMultiMixed,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+
+var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 
 var textAttachment =

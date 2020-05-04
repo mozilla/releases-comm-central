@@ -29,9 +29,11 @@ var {
   mc,
   press_delete,
   select_click_row,
-  SyntheticPartLeaf,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
+);
+var { SyntheticPartLeaf } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
 );
 var { wait_for_notification_to_show } = ChromeUtils.import(
   "resource://testing-common/mozmill/NotificationBoxHelpers.jsm"

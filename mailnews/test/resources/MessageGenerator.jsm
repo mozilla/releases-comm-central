@@ -2,7 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["MessageGenerator", "addMessagesToFolder"];
+this.EXPORTED_SYMBOLS = [
+  "MessageGenerator",
+  "addMessagesToFolder",
+  "MessageScenarioFactory",
+  "SyntheticPartLeaf",
+  "SyntheticDegeneratePartEmpty",
+  "SyntheticPartMulti",
+  "SyntheticPartMultiMixed",
+  "SyntheticPartMultiParallel",
+  "SyntheticPartMultiDigest",
+  "SyntheticPartMultiAlternative",
+  "SyntheticPartMultiRelated",
+  "SyntheticPartMultiSignedSMIME",
+  "SyntheticPartMultiSignedPGP",
+  "SyntheticMessage",
+];
 
 /**
  * A list of first names for use by MessageGenerator to create deterministic,

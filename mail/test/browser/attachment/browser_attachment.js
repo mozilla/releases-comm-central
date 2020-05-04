@@ -32,14 +32,16 @@ var {
   plan_to_wait_for_folder_events,
   select_click_row,
   select_none,
-  SyntheticPartLeaf,
-  SyntheticPartMultiMixed,
   wait_for_folder_events,
   wait_for_message_display_completion,
   wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
+var { SyntheticPartLeaf, SyntheticPartMultiMixed } = ChromeUtils.import(
+  "resource://testing-common/mailnews/MessageGenerator.jsm"
+);
+
 var {
   close_window,
   plan_for_modal_dialog,
