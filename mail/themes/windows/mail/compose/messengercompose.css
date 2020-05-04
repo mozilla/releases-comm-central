@@ -368,11 +368,6 @@ toolbar:not(:-moz-lwtheme) {
   margin: 1px 5px;
 }
 
-.autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/icons/folder.png");
-  -moz-image-region: rect(0 160px 16px 144px);
-}
-
 @media (-moz-windows-default-theme) {
   menulist,
   menulist[disabled="true"] {

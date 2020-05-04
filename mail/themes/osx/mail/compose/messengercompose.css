@@ -219,15 +219,6 @@ toolbar[nowindowdrag="true"] {
   margin: 2px 5px;
 }
 
-.autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
-  -moz-image-region: rect(0 160px 16px 144px);
-}
-
-menulist::part(description) {
-  color: #999;
-}
-
 /* ::::: compose toolbar sizer ::::: */
 
 #compose-toolbar-sizer {

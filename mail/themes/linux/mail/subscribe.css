@@ -7,7 +7,6 @@
   ======================================================================= */
 
 @import url("chrome://messenger/skin/messenger.css");
-@import url("chrome://messenger/skin/folderMenus.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
@@ -35,15 +34,14 @@ treechildren::-moz-tree-cell-text(nameColumn, subscribable-false) {
 
 /* IMAP Folders*/
 treechildren::-moz-tree-image(nameColumn) {
-  list-style-image: url("moz-icon://stock/gtk-directory?size=menu");
+  list-style-image: url("chrome://messenger/skin/icons/folder.svg");
   margin-inline-end: 2px;
 }
 
 /* Newsgroups */
 treechildren::-moz-tree-image(nameColumn, serverType-nntp),
 treechildren::-moz-tree-image(nameColumn2, serverType-nntp) {
-  list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
-  -moz-image-region: rect(208px 16px 224px 0px);
+  list-style-image: url("chrome://messenger/skin/icons/globe.svg");
   margin-inline-end: 2px;
 }
 

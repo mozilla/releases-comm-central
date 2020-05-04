@@ -9,11 +9,6 @@ window > vbox,
   font-size: 1.11em;
 }
 
-treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-smtp) {
-  list-style-image: url("chrome://messenger/skin/icons/server.png");
-  -moz-image-region: rect(16px 64px 32px 48px);
-}
-
 #accountActionsButton > .button-box > .button-menu-dropmarker {
   margin-inline-end: 4px;
   list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");

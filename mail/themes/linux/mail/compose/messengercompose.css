@@ -147,11 +147,6 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
   margin: 1px 5px;
 }
 
-.autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
-  list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
-  -moz-image-region: rect(208px 16px 224px 0);
-}
-
 #composeContentBox {
   background-color: -moz-dialog;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;

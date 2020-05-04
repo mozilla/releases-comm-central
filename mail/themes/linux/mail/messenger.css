@@ -533,7 +533,6 @@ treecol.treecol-image:hover:active {
 
 #menu_newVirtualFolder {
   list-style-image: url("chrome://messenger/skin/icons/folder-pane.png");
-  -moz-image-region: rect(128px 16px 144px 0px);
 }
 
 #openMessageFileMenuitem {

@@ -25,3 +25,8 @@
 #autotagPrefix {
   width: 35ch;
 }
+
+#rssSubscriptionsList > treechildren::-moz-tree-image {
+  width: 16px;
+  height: 16px;
+}

@@ -458,6 +458,10 @@ menulist::part(description) {
   list-style-image: url("chrome://global/skin/icons/error.svg");
 }
 
+.autocomplete-richlistitem[type="subscribed-news"] > .ac-site-icon {
+  list-style-image: url("chrome://messenger/skin/icons/newsgroup.svg");
+}
+
 /* :::: attachment notification :::: */
 
 #attachmentReminderText {

@@ -169,6 +169,7 @@
   skin/classic/messenger/shared/compacttheme.css              (../shared/mail/compacttheme.css)
   skin/classic/messenger/shared/creationDialog.css            (../shared/mail/creationDialog.css)
   skin/classic/messenger/shared/EditorDialog.css              (../shared/mail/EditorDialog.css)
+  skin/classic/messenger/shared/folderMenus.css               (../shared/mail/folderMenus.css)
   skin/classic/messenger/shared/folderPane.css                (../shared/mail/folderPane.css)
   skin/classic/messenger/shared/preferences/applications.css  (../shared/mail/preferences/applications.css)
   skin/classic/messenger/shared/preferences/dialog.css        (../shared/mail/preferences/dialog.css)
