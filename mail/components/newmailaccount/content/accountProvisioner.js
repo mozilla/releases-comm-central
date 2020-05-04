@@ -14,9 +14,6 @@ var { XPCOMUtils } = ChromeUtils.import(
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
-var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -25,7 +22,7 @@ var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 // Get a configured logger for this component.
 // To debug, set mail.provider.logging.dump (or .console)="All"
 var gLog = Log4Moz.getConfiguredLogger("mail.provider");
-var stringBundle = new StringBundle(
+var stringBundle = Services.strings.createBundle(
   "chrome://messenger/locale/newmailaccount/accountProvisioner.properties"
 );
 
@@ -180,7 +177,7 @@ var EmailAccountProvisioner = {
       b.appendChild(document.createTextNode(engine.name));
 
       let searchStr = document.createTextNode(
-        stringBundle.get("searchEngineDesc")
+        stringBundle.GetStringFromName("searchEngineDesc")
       );
       let searchElem = document.getElementById("search_engine_desc");
       searchElem.textContent = "";
@@ -272,11 +269,15 @@ var EmailAccountProvisioner = {
       "https://www.mozilla.org/thunderbird/legal/privacy/"
     );
     a.setAttribute("class", "external");
-    a.appendChild(document.createTextNode(stringBundle.get("privacyPolicy")));
+    a.appendChild(
+      document.createTextNode(stringBundle.GetStringFromName("privacyPolicy"))
+    );
 
     let span = document.createElement("span");
     span.appendChild(
-      document.createTextNode(stringBundle.get("privacyDisclaimer"))
+      document.createTextNode(
+        stringBundle.GetStringFromName("privacyDisclaimer")
+      )
     );
     insertHTMLReplacement(span, span.firstChild, "#1", a);
 
@@ -822,17 +823,23 @@ var EmailAccountProvisioner = {
       let a = document.createElement("a");
       a.setAttribute("href", provider.privacy_url);
       a.setAttribute("class", "privacy external " + provider.id);
-      a.appendChild(document.createTextNode(stringBundle.get("privacyPolicy")));
+      a.appendChild(
+        document.createTextNode(stringBundle.GetStringFromName("privacyPolicy"))
+      );
       providerList.appendChild(a);
 
       span = document.createElement("span");
-      span.appendChild(document.createTextNode(stringBundle.get("sepComma")));
+      span.appendChild(
+        document.createTextNode(stringBundle.GetStringFromName("sepComma"))
+      );
       providerList.appendChild(span);
 
       a = document.createElement("a");
       a.setAttribute("href", provider.tos_url);
       a.setAttribute("class", "tos external " + provider.id);
-      a.appendChild(document.createTextNode(stringBundle.get("tos")));
+      a.appendChild(
+        document.createTextNode(stringBundle.GetStringFromName("tos"))
+      );
       providerList.appendChild(a);
 
       span = document.createElement("span");
@@ -843,12 +850,14 @@ var EmailAccountProvisioner = {
         if (i < len - 2) {
           span = document.createElement("span");
           span.appendChild(
-            document.createTextNode(stringBundle.get("sepComma"))
+            document.createTextNode(stringBundle.GetStringFromName("sepComma"))
           );
           providerList.appendChild(span);
         } else if (i == len - 2) {
           span = document.createElement("span");
-          span.appendChild(document.createTextNode(stringBundle.get("sepAnd")));
+          span.appendChild(
+            document.createTextNode(stringBundle.GetStringFromName("sepAnd"))
+          );
           providerList.appendChild(span);
         }
       }
@@ -959,7 +968,9 @@ var EmailAccountProvisioner = {
       if (provider.price && provider.price != "0") {
         providerPrice = document.createTextNode(provider.price);
       } else {
-        providerPrice = document.createTextNode(stringBundle.get("free"));
+        providerPrice = document.createTextNode(
+          stringBundle.GetStringFromName("free")
+        );
       }
       header.querySelector(".price").appendChild(providerPrice);
 
@@ -978,13 +989,17 @@ var EmailAccountProvisioner = {
         //   Or if the provider's price is 0, use "Free".
         let priceStr;
         if (address.price && address.price != "0") {
-          priceStr = stringBundle.get("price", [address.price]);
+          priceStr = stringBundle.formatStringFromName("price", [
+            address.price,
+          ]);
         } else if (address.price && address.price == "0") {
-          priceStr = stringBundle.get("free");
+          priceStr = stringBundle.GetStringFromName("free");
         } else if (provider.price && provider.price != "0") {
-          priceStr = stringBundle.get("price", [provider.price]);
+          priceStr = stringBundle.formatStringFromName("price", [
+            provider.price,
+          ]);
         } else {
-          priceStr = stringBundle.get("free");
+          priceStr = stringBundle.GetStringFromName("free");
         }
 
         let templateElement = document.querySelector("#result_tmpl");
@@ -1036,7 +1051,7 @@ var EmailAccountProvisioner = {
         let more = renderedAddresses - MAX_SMALL_ADDRESSES;
         let moreStr = PluralForm.get(
           more,
-          stringBundle.get("moreOptions")
+          stringBundle.GetStringFromName("moreOptions")
         ).replace("#1", more);
         let last = group.querySelector(
           ".row:nth-child(" + (MAX_SMALL_ADDRESSES + 1) + ")"
@@ -1078,7 +1093,7 @@ var EmailAccountProvisioner = {
    * message about connection problems, and disable the search fields.
    */
   beOffline() {
-    let offlineMsg = stringBundle.get("cannotConnect");
+    let offlineMsg = stringBundle.GetStringFromName("cannotConnect");
     let element = document.getElementById("cannotConnectMessage");
     if (!element.hasChildNodes()) {
       element.appendChild(document.createTextNode(offlineMsg));

@@ -11,10 +11,7 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
-  const { StringBundle } = ChromeUtils.import(
-    "resource:///modules/StringBundle.jsm"
-  );
-  const gGlodaCompleteStrings = new StringBundle(
+  const gGlodaCompleteStrings = Services.strings.createBundle(
     "chrome://messenger/locale/glodaComplete.properties"
   );
 
@@ -350,7 +347,7 @@
       this.setAttribute("is", "gloda-fulltext-all-richlistitem");
       this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation");
-      let label = gGlodaCompleteStrings.get(
+      let label = gGlodaCompleteStrings.GetStringFromName(
         "glodaComplete.messagesMentioningMany.label"
       );
       this._explanation.setAttribute(
@@ -397,7 +394,7 @@
       this.appendChild(this._explanation);
       this.appendChild(this._parameters);
 
-      let label = gGlodaCompleteStrings.get(
+      let label = gGlodaCompleteStrings.GetStringFromName(
         "glodaComplete.messagesMentioning.label"
       );
       this._explanation.setAttribute(
@@ -640,7 +637,7 @@
       this._explanation = document.createXULElement("description");
       this._explanation.classList.add("explanation", "gloda-single");
       this.appendChild(this._explanation);
-      let label = gGlodaCompleteStrings.get(
+      let label = gGlodaCompleteStrings.GetStringFromName(
         "glodaComplete.messagesTagged.label"
       );
       this._explanation.setAttribute(

@@ -22,18 +22,17 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   PluralForm: "resource://gre/modules/PluralForm.jsm",
   Services: "resource://gre/modules/Services.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
-  StringBundle: "resource:///modules/StringBundle.jsm",
 });
 
 const ADDONS_PROPERTIES = "chrome://messenger/locale/addons.properties";
 
 XPCOMUtils.defineLazyGetter(this, "addonsBundle", function() {
-  return new StringBundle(ADDONS_PROPERTIES);
+  return Services.strings.createBundle(ADDONS_PROPERTIES);
 });
 XPCOMUtils.defineLazyGetter(this, "brandShortName", function() {
-  return new StringBundle(
-    "chrome://branding/locale/brand.properties"
-  ).getString("brandShortName");
+  return Services.strings
+    .createBundle("chrome://branding/locale/brand.properties")
+    .GetStringFromName("brandShortName");
 });
 
 XPCOMUtils.defineLazyPreferenceGetter(
@@ -229,7 +228,9 @@ var gXPInstallObserver = {
     let notification = document.getElementById(
       "addon-install-confirmation-notification"
     );
-    messageString = addonsBundle.getString("addonConfirmInstall.message");
+    messageString = addonsBundle.GetStringFromName(
+      "addonConfirmInstall.message"
+    );
     notification.removeAttribute("warning");
     options.learnMoreURL += "find-and-install-add-ons";
 
@@ -238,14 +239,18 @@ var gXPInstallObserver = {
     messageString = messageString.replace("#2", installInfo.installs.length);
 
     let action = {
-      label: addonsBundle.getString("addonInstall.acceptButton2.label"),
-      accessKey: addonsBundle.getString("addonInstall.acceptButton2.accesskey"),
+      label: addonsBundle.GetStringFromName("addonInstall.acceptButton2.label"),
+      accessKey: addonsBundle.GetStringFromName(
+        "addonInstall.acceptButton2.accesskey"
+      ),
       callback: acceptInstallation,
     };
 
     let secondaryAction = {
-      label: addonsBundle.getString("addonInstall.cancelButton.label"),
-      accessKey: addonsBundle.getString("addonInstall.cancelButton.accesskey"),
+      label: addonsBundle.GetStringFromName("addonInstall.cancelButton.label"),
+      accessKey: addonsBundle.GetStringFromName(
+        "addonInstall.cancelButton.accesskey"
+      ),
       callback: () => {},
     };
 
@@ -292,15 +297,17 @@ var gXPInstallObserver = {
         let secondaryActions = null;
 
         if (Services.prefs.prefIsLocked("xpinstall.enabled")) {
-          messageString = addonsBundle.getString(
+          messageString = addonsBundle.GetStringFromName(
             "xpinstallDisabledMessageLocked"
           );
         } else {
-          messageString = addonsBundle.getString("xpinstallDisabledMessage");
+          messageString = addonsBundle.GetStringFromName(
+            "xpinstallDisabledMessage"
+          );
 
           action = {
-            label: addonsBundle.getString("xpinstallDisabledButton"),
-            accessKey: addonsBundle.getString(
+            label: addonsBundle.GetStringFromName("xpinstallDisabledButton"),
+            accessKey: addonsBundle.GetStringFromName(
               "xpinstallDisabledButton.accesskey"
             ),
             callback: () => {
@@ -310,8 +317,10 @@ var gXPInstallObserver = {
 
           secondaryActions = [
             {
-              label: addonsBundle.getString("addonInstall.cancelButton.label"),
-              accessKey: addonsBundle.getString(
+              label: addonsBundle.GetStringFromName(
+                "addonInstall.cancelButton.label"
+              ),
+              accessKey: addonsBundle.GetStringFromName(
                 "addonInstall.cancelButton.accesskey"
               ),
               callback: () => {},
@@ -331,7 +340,7 @@ var gXPInstallObserver = {
         break;
       }
       case "addon-install-origin-blocked": {
-        messageString = addonsBundle.getFormattedString(
+        messageString = addonsBundle.formatStringFromName(
           "xpinstallPromptMessage",
           [brandShortName]
         );
@@ -368,13 +377,13 @@ var gXPInstallObserver = {
       case "addon-install-blocked": {
         let hasHost = !!options.displayURI;
         if (hasHost) {
-          messageString = addonsBundle.getFormattedString(
+          messageString = addonsBundle.formatStringFromName(
             "xpinstallPromptMessage.header",
             ["<>"]
           );
           options.name = options.displayURI.displayHost;
         } else {
-          messageString = addonsBundle.getString(
+          messageString = addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.header.unknown"
           );
         }
@@ -393,18 +402,20 @@ var gXPInstallObserver = {
             message.firstChild.remove();
           }
           if (hasHost) {
-            let text = addonsBundle.getString("xpinstallPromptMessage.message");
+            let text = addonsBundle.GetStringFromName(
+              "xpinstallPromptMessage.message"
+            );
             let b = doc.createElementNS("http://www.w3.org/1999/xhtml", "b");
             b.textContent = options.name;
             let fragment = BrowserUtils.getLocalizedFragment(doc, text, b);
             message.appendChild(fragment);
           } else {
-            message.textContent = addonsBundle.getString(
+            message.textContent = addonsBundle.GetStringFromName(
               "xpinstallPromptMessage.message.unknown"
             );
           }
           let learnMore = doc.getElementById("addon-install-blocked-info");
-          learnMore.textContent = addonsBundle.getString(
+          learnMore.textContent = addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.learnMore"
           );
           learnMore.setAttribute(
@@ -416,8 +427,10 @@ var gXPInstallObserver = {
 
         let secHistogram = Services.telemetry.getHistogramById("SECURITY_UI");
         action = {
-          label: addonsBundle.getString("xpinstallPromptMessage.install"),
-          accessKey: addonsBundle.getString(
+          label: addonsBundle.GetStringFromName(
+            "xpinstallPromptMessage.install"
+          ),
+          accessKey: addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.install.accesskey"
           ),
           callback() {
@@ -429,8 +442,10 @@ var gXPInstallObserver = {
           },
         };
         let dontAllowAction = {
-          label: addonsBundle.getString("xpinstallPromptMessage.dontAllow"),
-          accessKey: addonsBundle.getString(
+          label: addonsBundle.GetStringFromName(
+            "xpinstallPromptMessage.dontAllow"
+          ),
+          accessKey: addonsBundle.GetStringFromName(
             "xpinstallPromptMessage.dontAllow.accesskey"
           ),
           callback: () => {
@@ -467,7 +482,9 @@ var gXPInstallObserver = {
           return;
         }
         notificationID = "addon-progress";
-        messageString = addonsBundle.getString("addonDownloadingAndVerifying");
+        messageString = addonsBundle.GetStringFromName(
+          "addonDownloadingAndVerifying"
+        );
         messageString = PluralForm.get(
           installInfo.installs.length,
           messageString
@@ -488,16 +505,20 @@ var gXPInstallObserver = {
           }
         };
         action = {
-          label: addonsBundle.getString("addonInstall.acceptButton2.label"),
-          accessKey: addonsBundle.getString(
+          label: addonsBundle.GetStringFromName(
+            "addonInstall.acceptButton2.label"
+          ),
+          accessKey: addonsBundle.GetStringFromName(
             "addonInstall.acceptButton2.accesskey"
           ),
           disabled: true,
           callback: () => {},
         };
         let secondaryAction = {
-          label: addonsBundle.getString("addonInstall.cancelButton.label"),
-          accessKey: addonsBundle.getString(
+          label: addonsBundle.GetStringFromName(
+            "addonInstall.cancelButton.label"
+          ),
+          accessKey: addonsBundle.GetStringFromName(
             "addonInstall.cancelButton.accesskey"
           ),
           callback: () => {
@@ -575,7 +596,7 @@ var gXPInstallObserver = {
             args = [install.name, install.addon.id, message];
           }
 
-          messageString = addonsBundle.getFormattedString(error, args);
+          messageString = addonsBundle.formatStringFromName(error, args);
 
           showNotification(
             browser,
@@ -631,11 +652,13 @@ var gXPInstallObserver = {
         let numAddons = installInfo.installs.length;
 
         if (numAddons == 1) {
-          messageString = addonsBundle.getFormattedString("addonInstalled", [
+          messageString = addonsBundle.formatStringFromName("addonInstalled", [
             installInfo.installs[0].name,
           ]);
         } else {
-          messageString = addonsBundle.getString("addonsGenericInstalled");
+          messageString = addonsBundle.GetStringFromName(
+            "addonsGenericInstalled"
+          );
           messageString = PluralForm.get(numAddons, messageString);
           messageString = messageString.replace("#1", numAddons);
         }
@@ -821,13 +844,13 @@ var ExtensionsUI = {
       await data.loadManifest();
       if (data.manifest.experiment_apis) {
         strings.msgs = [
-          addonsBundle.getFormattedString(
+          addonsBundle.formatStringFromName(
             "webextPerms.description.experiment",
             [brandShortName]
           ),
         ];
         if (info.source != "AMO") {
-          strings.experimentWarning = addonsBundle.getString(
+          strings.experimentWarning = addonsBundle.GetStringFromName(
             "webextPerms.experimentWarning"
           );
         }
@@ -965,7 +988,7 @@ var ExtensionsUI = {
       collapseOrigins: true,
     });
     strings.addonName = info.addon.name;
-    strings.learnMore = addonsBundle.getString("webextPerms.learnMore");
+    strings.learnMore = addonsBundle.GetStringFromName("webextPerms.learnMore");
     return strings;
   },
 
@@ -1123,10 +1146,10 @@ var ExtensionsUI = {
     let { browser, window } = getTabBrowser(target);
     let document = window.document;
 
-    let message = addonsBundle.getFormattedString("addonPostInstall.message1", [
-      "<>",
-      brandShortName,
-    ]);
+    let message = addonsBundle.formatStringFromName(
+      "addonPostInstall.message1",
+      ["<>", brandShortName]
+    );
 
     let icon = DEFAULT_EXTENSION_ICON;
     if (addon.isWebExtension) {
@@ -1149,8 +1172,10 @@ var ExtensionsUI = {
       message,
       "addons-notification-icon",
       {
-        label: addonsBundle.getString("addonPostInstall.okay.label"),
-        accessKey: addonsBundle.getString("addonPostInstall.okay.accesskey"),
+        label: addonsBundle.GetStringFromName("addonPostInstall.okay.label"),
+        accessKey: addonsBundle.GetStringFromName(
+          "addonPostInstall.okay.accesskey"
+        ),
         callback: () => {},
       },
       null,

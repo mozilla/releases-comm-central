@@ -4,11 +4,8 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaFundAttr"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-const { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
-
 const { GlodaUtils } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaUtils.jsm"
 );
@@ -32,7 +29,9 @@ const { GlodaContent } = ChromeUtils.import(
  */
 var GlodaFundAttr = {
   providerName: "gloda.fundattr",
-  strings: new StringBundle("chrome://messenger/locale/gloda.properties"),
+  strings: Services.strings.createBundle(
+    "chrome://messenger/locale/gloda.properties"
+  ),
   _log: null,
 
   init() {

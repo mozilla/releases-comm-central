@@ -28,9 +28,6 @@
   const { Services } = ChromeUtils.import(
     "resource://gre/modules/Services.jsm"
   );
-  const { StringBundle } = ChromeUtils.import(
-    "resource:///modules/StringBundle.jsm"
-  );
 
   /**
    * Creates an element, sets attributes on it, including always setting the
@@ -116,7 +113,7 @@
         // using the root-folders for all accounts.
         this._parentFolder = null;
 
-        this._stringBundle = new StringBundle(
+        this._stringBundle = Services.strings.createBundle(
           "chrome://messenger/locale/folderWidgets.properties"
         );
 
@@ -798,7 +795,9 @@
           folder.isServer &&
           folder.server.rootFolder == globalInboxFolder
         ) {
-          return this._stringBundle.get("globalInbox", [folder.prettyName]);
+          return this._stringBundle.formatStringFromName("globalInbox", [
+            folder.prettyName,
+          ]);
         }
         return folder.prettyName;
       }
@@ -907,10 +906,10 @@
         }
 
         if (this._displayformat == "verbose") {
-          return this._stringBundle.getFormattedString("verboseFolderFormat", [
-            folder.prettyName,
-            folder.server.prettyName,
-          ]);
+          return this._stringBundle.formatStringFromName(
+            "verboseFolderFormat",
+            [folder.prettyName, folder.server.prettyName]
+          );
         }
 
         if (this._displayformat == "path") {
@@ -939,17 +938,17 @@
           } else if (noFolders) {
             menulist.setAttribute(
               "label",
-              menupopup._stringBundle.getString("noFolders")
+              menupopup._stringBundle.GetStringFromName("noFolders")
             );
           } else if (menupopup._serversOnly) {
             menulist.setAttribute(
               "label",
-              menupopup._stringBundle.getString("chooseAccount")
+              menupopup._stringBundle.GetStringFromName("chooseAccount")
             );
           } else {
             menulist.setAttribute(
               "label",
-              menupopup._stringBundle.getString("chooseFolder")
+              menupopup._stringBundle.GetStringFromName("chooseFolder")
             );
           }
           menulist.setAttribute("value", folder ? folder.URI : "");

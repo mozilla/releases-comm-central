@@ -1144,14 +1144,16 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
   let notifyBox = FolderPaneController.notificationbox;
   notifyBox.removeTransientNotifications(); // don't want to pile these up
 
-  let bundle = new StringBundle(
+  let bundle = Services.strings.createBundle(
     "chrome://messenger/locale/messenger.properties"
   );
 
   let buttons = [
     {
-      label: bundle.get("learnMoreAboutIgnoreThread"),
-      accessKey: bundle.get("learnMoreAboutIgnoreThreadAccessKey"),
+      label: bundle.GetStringFromName("learnMoreAboutIgnoreThread"),
+      accessKey: bundle.GetStringFromName(
+        "learnMoreAboutIgnoreThreadAccessKey"
+      ),
       popup: null,
       callback(aNotificationBar, aButton) {
         let url = Services.prefs.getCharPref(
@@ -1162,10 +1164,10 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
       },
     },
     {
-      label: bundle.get(
+      label: bundle.GetStringFromName(
         !aSubthreadOnly ? "undoIgnoreThread" : "undoIgnoreSubthread"
       ),
-      accessKey: bundle.get(
+      accessKey: bundle.GetStringFromName(
         !aSubthreadOnly
           ? "undoIgnoreThreadAccessKey"
           : "undoIgnoreSubthreadAccessKey"
@@ -1196,7 +1198,7 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
   let nbrOfThreads = threadIds.size;
 
   if (nbrOfThreads == 1) {
-    let ignoredThreadText = bundle.get(
+    let ignoredThreadText = bundle.GetStringFromName(
       !aSubthreadOnly ? "ignoredThreadFeedback" : "ignoredSubthreadFeedback"
     );
     let subj = aMsgs[0].mime2DecodedSubject || "";
@@ -1213,7 +1215,7 @@ function ShowIgnoredMessageNotification(aMsgs, aSubthreadOnly) {
       buttons
     );
   } else {
-    let ignoredThreadText = bundle.get(
+    let ignoredThreadText = bundle.GetStringFromName(
       !aSubthreadOnly ? "ignoredThreadsFeedback" : "ignoredSubthreadsFeedback"
     );
     let text = PluralForm.get(nbrOfThreads, ignoredThreadText).replace(

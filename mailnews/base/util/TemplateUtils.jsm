@@ -8,17 +8,14 @@ var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
 
 function PluralStringFormatter(aBundleURI) {
-  this._bundle = new StringBundle(aBundleURI);
+  this._bundle = Services.strings.createBundle(aBundleURI);
 }
 
 PluralStringFormatter.prototype = {
   get(aStringName, aReplacements, aPluralCount) {
-    let str = this._bundle.get(aStringName);
+    let str = this._bundle.GetStringFromName(aStringName);
     if (aPluralCount !== undefined) {
       str = PluralForm.get(aPluralCount, str);
     }

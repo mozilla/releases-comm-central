@@ -2,14 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const EXPORTED_SYMBOLS = ["DisplayNameUtils"];
+
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
-
-var EXPORTED_SYMBOLS = ["DisplayNameUtils"];
 
 var DisplayNameUtils = {
   formatDisplayName,
@@ -18,7 +16,7 @@ var DisplayNameUtils = {
 };
 
 // XXX: Maybe the strings for this file should go in a separate bundle?
-var gMessengerBundle = new StringBundle(
+var gMessengerBundle = Services.strings.createBundle(
   "chrome://messenger/locale/messenger.properties"
 );
 
@@ -85,9 +83,11 @@ function formatDisplayName(aEmailAddress, aHeaderDisplayName, aContext, aCard) {
     // specific header; fall back to the version used by the "to" header
     // if nothing else is available.
     try {
-      displayName = gMessengerBundle.getString("header" + aContext + "FieldMe");
+      displayName = gMessengerBundle.GetStringFromName(
+        "header" + aContext + "FieldMe"
+      );
     } catch (e) {
-      displayName = gMessengerBundle.getString("headertoFieldMe");
+      displayName = gMessengerBundle.GetStringFromName("headertoFieldMe");
     }
 
     // Make sure we have an unambiguous name if there are multiple identities
@@ -133,7 +133,7 @@ function formatDisplayNameList(aHeaderValue, aContext) {
     );
     let andOthersStr = "";
     if (addresses.length > 1) {
-      andOthersStr = " " + gMessengerBundle.getString("andOthers");
+      andOthersStr = " " + gMessengerBundle.GetStringFromName("andOthers");
     }
 
     if (displayName) {

@@ -13,9 +13,6 @@
  */
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
 var { PluralForm } = ChromeUtils.import(
   "resource://gre/modules/PluralForm.jsm"
 );
@@ -33,7 +30,7 @@ var { FacetDriver, FacetUtils } = ChromeUtils.import(
   "resource:///modules/gloda/Facet.jsm"
 );
 
-var glodaFacetStrings = new StringBundle(
+var glodaFacetStrings = Services.strings.createBundle(
   "chrome://messenger/locale/glodaFacetView.properties"
 );
 
@@ -60,10 +57,12 @@ const QueryExplanation = {
       return span;
     };
 
-    const searchLabel = glodaFacetStrings.get("glodaFacetView.search.label2");
+    const searchLabel = glodaFacetStrings.GetStringFromName(
+      "glodaFacetView.search.label2"
+    );
     spanify(searchLabel, "explanation-fulltext-label");
 
-    const criteriaText = glodaFacetStrings.get(
+    const criteriaText = glodaFacetStrings.GetStringFromName(
       "glodaFacetView.constraints.query.fulltext." +
         (aMsgSearcher.andTerms ? "and" : "or") +
         "JoinWord"
@@ -89,7 +88,9 @@ const QueryExplanation = {
         return span;
       };
 
-      let label = glodaFacetStrings.get("glodaFacetView.search.label2");
+      let label = glodaFacetStrings.GetStringFromName(
+        "glodaFacetView.search.label2"
+      );
       spanify(label, "explanation-query-label");
 
       let constraintStrings = [];
@@ -99,13 +100,13 @@ const QueryExplanation = {
           return;
         }
         if (constraint[1].attributeName == "involves") {
-          let involvesLabel = glodaFacetStrings.get(
+          let involvesLabel = glodaFacetStrings.GetStringFromName(
             "glodaFacetView.constraints.query.involves.label"
           );
           involvesLabel = involvesLabel.replace("#1", constraint[2].value);
           spanify(involvesLabel, "explanation-query-involves");
         } else if (constraint[1].attributeName == "tag") {
-          const tagLabel = glodaFacetStrings.get(
+          const tagLabel = glodaFacetStrings.GetStringFromName(
             "glodaFacetView.constraints.query.tagged.label"
           );
           const tag = constraint[2];

@@ -1958,11 +1958,9 @@ var Gloda = {
       for (let propName in Gloda._ATTR_LOCALIZED_STRINGS) {
         let attrName = Gloda._ATTR_LOCALIZED_STRINGS[propName];
         try {
-          aStickIn[attrName] = aBundle.get(aPropRoot + propName);
+          aStickIn[attrName] = aBundle.GetStringFromName(aPropRoot + propName);
         } catch (ex) {
-          // do nothing.  nsIStringBundle throws exceptions because it is a
-          //  standard nsresult type of API and our helper buddy does nothing
-          //  to help us.  (StringBundle.js, that is.)
+          // do nothing.  nsIStringBundle throws exceptions when not found
         }
       }
     }

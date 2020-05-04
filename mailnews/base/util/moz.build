@@ -65,7 +65,6 @@ EXTRA_JS_MODULES += [
     'MsgDBCacheManager.jsm',
     'OAuth2.jsm',
     'OAuth2Providers.jsm',
-    'StringBundle.jsm',
     'TemplateUtils.jsm',
     'TraceHelper.jsm',
 ]

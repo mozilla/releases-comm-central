@@ -17,9 +17,7 @@ var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -28,10 +26,10 @@ function check_eml_window_title(subject, eml) {
   let file = new FileUtils.File(getTestFilePath(`data/${eml}`));
   let msgc = open_message_from_file(file);
 
-  let brandBundle = new StringBundle(
+  let brandBundle = Services.strings.createBundle(
     "chrome://branding/locale/brand.properties"
   );
-  let productName = brandBundle.get("brandFullName");
+  let productName = brandBundle.GetStringFromName("brandFullName");
   let expectedTitle = subject;
   if (expectedTitle && AppConstants.platform != "macosx") {
     expectedTitle += " - ";

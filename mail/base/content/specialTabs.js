@@ -15,9 +15,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AddonManager } = ChromeUtils.import(
   "resource://gre/modules/AddonManager.jsm"
 );
-var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
@@ -1114,16 +1111,16 @@ var specialTabs = {
   },
 
   showTelemetryNotification() {
-    var brandBundle = new StringBundle(
+    var brandBundle = Services.strings.createBundle(
       "chrome://branding/locale/brand.properties"
     );
-    var telemetryBundle = new StringBundle(
+    var telemetryBundle = Services.strings.createBundle(
       "chrome://messenger/locale/telemetry.properties"
     );
 
-    var productName = brandBundle.get("brandFullName");
+    var productName = brandBundle.GetStringFromName("brandFullName");
     var serverOwner = Services.prefs.getCharPref(kTelemetryServerOwner);
-    var telemetryText = telemetryBundle.get("telemetryText", [
+    var telemetryText = telemetryBundle.formatStringFromName("telemetryText", [
       productName,
       serverOwner,
     ]);
@@ -1135,16 +1132,20 @@ var specialTabs = {
 
     var buttons = [
       {
-        label: telemetryBundle.get("telemetryYesButtonLabel"),
-        accessKey: telemetryBundle.get("telemetryYesButtonAccessKey"),
+        label: telemetryBundle.GetStringFromName("telemetryYesButtonLabel"),
+        accessKey: telemetryBundle.GetStringFromName(
+          "telemetryYesButtonAccessKey"
+        ),
         popup: null,
         callback(aNotificationBar, aButton) {
           Services.prefs.setBoolPref(kTelemetryEnabled, true);
         },
       },
       {
-        label: telemetryBundle.get("telemetryNoButtonLabel"),
-        accessKey: telemetryBundle.get("telemetryNoButtonAccessKey"),
+        label: telemetryBundle.GetStringFromName("telemetryNoButtonLabel"),
+        accessKey: telemetryBundle.GetStringFromName(
+          "telemetryNoButtonAccessKey"
+        ),
         popup: null,
         callback(aNotificationBar, aButton) {
           Services.prefs.setBoolPref(kTelemetryRejected, true);
@@ -1168,7 +1169,10 @@ var specialTabs = {
       is: "text-link",
     });
     link.className = "telemetry-text-link";
-    link.setAttribute("value", telemetryBundle.get("telemetryLinkLabel"));
+    link.setAttribute(
+      "value",
+      telemetryBundle.GetStringFromName("telemetryLinkLabel")
+    );
     link.addEventListener("click", function() {
       openPrivacyPolicy("tab");
       // Remove the notification on which the user clicked

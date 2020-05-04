@@ -2,17 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
-
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { FacetDriver } = ChromeUtils.import("resource:///modules/gloda/Facet.jsm");
 
 var glodaFacetTabType = {
   name: "glodaFacet",
   perTabPanel: "vbox",
   lastTabId: 0,
-  strings: new StringBundle(
+  strings: Services.strings.createBundle(
     "chrome://messenger/locale/glodaFacetView.properties"
   ),
   modes: {
@@ -42,7 +39,9 @@ var glodaFacetTabType = {
       aTab.query = aArgs.query;
       aTab.collection = aTab.query.getCollection();
 
-      aTab.title = this.strings.get("glodaFacetView.tab.query.label");
+      aTab.title = this.strings.GetStringFromName(
+        "glodaFacetView.tab.query.label"
+      );
       aTab.searchString = null;
     } else if ("searcher" in aArgs) {
       aTab.searcher = aArgs.searcher;
@@ -58,11 +57,13 @@ var glodaFacetTabType = {
       aTab.searchInputValue = aTab.searchString = searchString;
       aTab.title = searchString
         ? searchString
-        : this.strings.get("glodaFacetView.tab.search.label");
+        : this.strings.GetStringFromName("glodaFacetView.tab.search.label");
     } else if ("collection" in aArgs) {
       aTab.collection = aArgs.collection;
 
-      aTab.title = this.strings.get("glodaFacetView.tab.query.label");
+      aTab.title = this.strings.GetStringFromName(
+        "glodaFacetView.tab.query.label"
+      );
       aTab.searchString = null;
     }
 

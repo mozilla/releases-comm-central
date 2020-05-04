@@ -5,9 +5,6 @@
 const EXPORTED_SYMBOLS = ["Notifications"];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
-const { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -66,7 +63,9 @@ var Notifications = {
       return;
     }
 
-    let bundle = new StringBundle("chrome://messenger/locale/chat.properties");
+    let bundle = Services.strings.createBundle(
+      "chrome://messenger/locale/chat.properties"
+    );
     let messageText, icon, name;
     let notificationContent = Services.prefs.getIntPref(
       "mail.chat.notification_info"
@@ -95,10 +94,9 @@ var Notifications = {
         // If there are more messages being bundled, add the count string.
         // ellipsis is a part of bundledMessagePreview so we don't include it here.
         if (aCounter > 0) {
-          let bundledMessage = bundle.getFormattedString(
+          let bundledMessage = bundle.formatStringFromName(
             "bundledMessagePreview",
-            [messageText],
-            1
+            [messageText]
           );
           messageText = PluralForm.get(aCounter, bundledMessage).replace(
             "#1",
@@ -128,10 +126,10 @@ var Notifications = {
         }
 
         if (!messageText) {
-          let bundle = new StringBundle(
+          let bundle = Services.strings.createBundle(
             "chrome://messenger/locale/chat.properties"
           );
-          messageText = bundle.get("messagePreview");
+          messageText = bundle.GetStringFromName("messagePreview");
         }
     }
 

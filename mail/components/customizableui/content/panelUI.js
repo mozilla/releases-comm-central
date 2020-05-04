@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals AppConstants CanDetachAttachments CharsetMenu
-  currentAttachments CustomizableUI ExtensionParent ExtensionSupport FullScreen
+/* globals CanDetachAttachments
+  currentAttachments FullScreen
   getIconForAttachment goUpdateAttachmentCommands initAddonPrefsMenu
   initAppMenuPopup InitAppmenuViewBodyMenu InitAppMessageMenu
   InitAppmenuViewMessagesMenu InitAppFolderViewsMenu InitAppViewSortByMenu
@@ -11,9 +11,32 @@
   InitViewHeadersMenu InitViewLayoutStyleMenu initSearchMessagesMenu
   MozXULElement msgWindow
   onViewToolbarsPopupShowing RefreshCustomViewsPopup RefreshTagsPopup
-  RefreshViewPopup SanitizeAttachmentDisplayName Services ShortcutUtils
-  StringBundle UpdateCharsetMenu updateEditUIVisibility UpdateFullZoomMenu
-  XPCOMUtils */
+  RefreshViewPopup SanitizeAttachmentDisplayName
+  UpdateCharsetMenu updateEditUIVisibility UpdateFullZoomMenu
+   */
+
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { CharsetMenu } = ChromeUtils.import(
+  "resource://gre/modules/CharsetMenu.jsm"
+);
+var { CustomizableUI } = ChromeUtils.import(
+  "resource:///modules/CustomizableUI.jsm"
+);
+var { ExtensionParent } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionParent.jsm"
+);
+var { ExtensionSupport } = ChromeUtils.import(
+  "resource:///modules/ExtensionSupport.jsm"
+);
+var { ShortcutUtils } = ChromeUtils.import(
+  "resource://gre/modules/ShortcutUtils.jsm"
+);
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -1314,7 +1337,7 @@ var gExtensionsNotifications = {
     let tabmail = document.getElementById("tabmail");
     let sideloaded = ExtensionsUI.sideloaded;
     let updates = ExtensionsUI.updates;
-    let bundle = new StringBundle(
+    let bundle = Services.strings.createBundle(
       "chrome://messenger/locale/addons.properties"
     );
 
@@ -1329,7 +1352,7 @@ var gExtensionsNotifications = {
       if (++items > 4) {
         break;
       }
-      let text = bundle.getFormattedString("webextPerms.updateMenuItem", [
+      let text = bundle.formatStringFromName("webextPerms.updateMenuItem", [
         update.addon.name,
       ]);
       this._createAddonButton(text, update.addon.iconURL, evt => {
@@ -1347,7 +1370,7 @@ var gExtensionsNotifications = {
         appName = brandBundle.getString("brandShortName");
       }
 
-      let text = bundle.getFormattedString("webextPerms.sideloadMenuItem", [
+      let text = bundle.formatStringFromName("webextPerms.sideloadMenuItem", [
         addon.name,
         appName,
       ]);

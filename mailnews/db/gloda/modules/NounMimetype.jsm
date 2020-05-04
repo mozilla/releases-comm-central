@@ -4,9 +4,7 @@
 
 this.EXPORTED_SYMBOLS = ["MimeType", "MimeTypeNoun"];
 
-const { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var LOG = Log4Moz.repository.getLogger("gloda.noun.mimetype");
 
@@ -107,7 +105,9 @@ var MimeTypeNoun = {
   clazz: MimeType, // gloda supports clazz as well as class
   allowsArbitraryAttrs: false,
 
-  _strings: new StringBundle("chrome://messenger/locale/gloda.properties"),
+  _strings: Services.strings.createBundle(
+    "chrome://messenger/locale/gloda.properties"
+  ),
 
   // note! update test_noun_mimetype if you change our internals!
   _mimeTypes: {},
@@ -156,7 +156,7 @@ var MimeTypeNoun = {
         categories.push(key);
 
         if (categories.length == 1) {
-          CategoryStringMap[key] = MimeTypeNoun._strings.get(
+          CategoryStringMap[key] = MimeTypeNoun._strings.GetStringFromName(
             "gloda.mimetype.category." + key + ".label"
           );
         }

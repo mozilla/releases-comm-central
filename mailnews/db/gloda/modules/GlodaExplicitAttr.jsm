@@ -11,11 +11,8 @@
 
 this.EXPORTED_SYMBOLS = ["GlodaExplicitAttr"];
 
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-const { StringBundle } = ChromeUtils.import(
-  "resource:///modules/StringBundle.jsm"
-);
-
 const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 const { TagNoun } = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
 const { MailServices } = ChromeUtils.import(
@@ -29,7 +26,9 @@ const { MailServices } = ChromeUtils.import(
  */
 var GlodaExplicitAttr = {
   providerName: "gloda.explattr",
-  strings: new StringBundle("chrome://messenger/locale/gloda.properties"),
+  strings: Services.strings.createBundle(
+    "chrome://messenger/locale/gloda.properties"
+  ),
   _log: null,
   _msgTagService: null,
 
