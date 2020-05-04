@@ -33,6 +33,7 @@ module.exports = {
     isValidCookieStoreId: true,
 
     // These are defined in ext-mail.js.
+    COMPOSE_WINDOW_URI: true,
     ExtensionError: true,
     Tab: true,
     TabmailTab: true,

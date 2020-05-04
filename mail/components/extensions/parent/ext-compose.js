@@ -7,6 +7,15 @@ ChromeUtils.defineModuleGetter(
   "MailServices",
   "resource:///modules/MailServices.jsm"
 );
+ChromeUtils.defineModuleGetter(this, "OS", "resource://gre/modules/osfile.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "toXPCOMArray",
+  "resource:///modules/iteratorUtils.jsm"
+);
+
+// eslint-disable-next-line mozilla/reject-importGlobalProperties
+Cu.importGlobalProperties(["File", "FileReader"]);
 
 async function parseComposeRecipientList(list) {
   if (Array.isArray(list)) {
@@ -48,10 +57,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
   function waitForWindow() {
     return new Promise(resolve => {
       function observer(subject, topic, data) {
-        if (
-          subject.location.href ==
-          "chrome://messenger/content/messengercompose/messengercompose.xhtml"
-        ) {
+        if (subject.location.href == COMPOSE_WINDOW_URI) {
           Services.obs.removeObserver(observer, "chrome-document-loaded");
           resolve(subject.ownerGlobal);
         }
@@ -211,6 +217,34 @@ async function setComposeDetails(composeWindow, details, extension) {
   composeWindow.SetComposeDetails(details);
 }
 
+async function writeTempFile(file) {
+  let tempDir = OS.Constants.Path.tmpDir;
+  let destFile = OS.Path.join(tempDir, file.name);
+
+  let { path: outputPath, file: outputFileWriter } = await OS.File.openUnique(
+    destFile
+  );
+  let outputFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  outputFile.initWithPath(outputPath);
+
+  let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(
+    Ci.nsPIExternalAppLauncher
+  );
+  extAppLauncher.deleteTemporaryFileOnExit(outputFile);
+
+  return new Promise(function(resolve) {
+    let reader = new FileReader();
+    reader.onloadend = async function() {
+      await outputFileWriter.write(new Uint8Array(reader.result));
+      outputFileWriter.close();
+
+      let outputURL = Services.io.newFileURI(outputFile);
+      resolve(outputURL.spec);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
 var composeEventTracker = {
   listeners: new Set(),
 
@@ -264,6 +298,65 @@ var composeEventTracker = {
   },
 };
 
+var composeAttachmentTracker = {
+  _nextId: 1,
+  _attachments: new Map(),
+  _attachmentIds: new Map(),
+
+  getId(attachment, window) {
+    if (this._attachmentIds.has(attachment)) {
+      return this._attachmentIds.get(attachment).id;
+    }
+    let id = this._nextId++;
+    this._attachments.set(id, { attachment, window });
+    this._attachmentIds.set(attachment, { id, window });
+    return id;
+  },
+
+  getAttachment(id) {
+    return this._attachments.get(id);
+  },
+
+  hasAttachment(id) {
+    return this._attachments.has(id);
+  },
+
+  forgetAttachment(attachment) {
+    let id = this._attachmentIds.get(attachment).id;
+    this._attachmentIds.delete(attachment);
+    if (id) {
+      this._attachments.delete(id);
+    }
+  },
+
+  forgetAttachments(window) {
+    if (window.location.href == COMPOSE_WINDOW_URI) {
+      let bucket = window.document.getElementById("attachmentBucket");
+      for (let item of bucket.itemChildren) {
+        this.forgetAttachment(item.attachment);
+      }
+    }
+  },
+
+  async convert(attachment, window) {
+    return {
+      id: this.getId(attachment, window),
+      name: attachment.name,
+    };
+  },
+
+  getFile(id) {
+    let { attachment } = this.getAttachment(id);
+    if (!attachment) {
+      return null;
+    }
+
+    let uri = Services.io.newURI(attachment.url).QueryInterface(Ci.nsIFileURL);
+    return File.createFromNsIFile(uri.file);
+  },
+};
+windowTracker.addCloseListener(composeAttachmentTracker.forgetAttachments);
+
 this.compose = class extends ExtensionAPI {
   getAPI(context) {
     function getComposeTab(tabId) {
@@ -272,10 +365,7 @@ this.compose = class extends ExtensionAPI {
         throw new ExtensionError("Not a valid compose window");
       }
       let location = tab.nativeTab.location.href;
-      if (
-        location !=
-        "chrome://messenger/content/messengercompose/messengercompose.xhtml"
-      ) {
+      if (location != COMPOSE_WINDOW_URI) {
         throw new ExtensionError(`Not a valid compose window: ${location}`);
       }
       return tab;
@@ -305,6 +395,57 @@ this.compose = class extends ExtensionAPI {
             composeEventTracker.addListener(listener);
             return () => {
               composeEventTracker.removeListener(listener);
+            };
+          },
+        }).api(),
+        onAttachmentAdded: new ExtensionCommon.EventManager({
+          context,
+          name: "compose.onAttachmentAdded",
+          register(fire) {
+            async function callback(event) {
+              for (let attachment of event.detail.enumerate(
+                Ci.nsIMsgAttachment
+              )) {
+                attachment = await composeAttachmentTracker.convert(
+                  attachment,
+                  event.target.ownerGlobal
+                );
+                fire.async(
+                  tabManager.convert(event.target.ownerGlobal),
+                  attachment
+                );
+              }
+            }
+
+            windowTracker.addListener("attachments-added", callback);
+            return function() {
+              windowTracker.removeListener("attachments-added", callback);
+            };
+          },
+        }).api(),
+        onAttachmentRemoved: new ExtensionCommon.EventManager({
+          context,
+          name: "compose.onAttachmentRemoved",
+          register(fire) {
+            function callback(event, tab, attachmentId) {
+              for (let attachment of event.detail.enumerate(
+                Ci.nsIMsgAttachment
+              )) {
+                let attachmentId = composeAttachmentTracker.getId(
+                  attachment,
+                  event.target.ownerGlobal
+                );
+                fire.async(
+                  tabManager.convert(event.target.ownerGlobal),
+                  attachmentId
+                );
+                composeAttachmentTracker.forgetAttachment(attachment);
+              }
+            }
+
+            windowTracker.addListener("attachments-removed", callback);
+            return function() {
+              windowTracker.removeListener("attachments-removed", callback);
             };
           },
         }).api(),
@@ -357,6 +498,97 @@ this.compose = class extends ExtensionAPI {
         setComposeDetails(tabId, details) {
           let tab = getComposeTab(tabId);
           return setComposeDetails(tab.nativeTab, details, extension);
+        },
+        async listAttachments(tabId) {
+          let tab = tabManager.get(tabId);
+          if (!tab.isComposeTab) {
+            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
+          }
+          let bucket = tab.nativeTab.document.getElementById(
+            "attachmentBucket"
+          );
+          let attachments = [];
+          for (let item of bucket.itemChildren) {
+            attachments.push(
+              await composeAttachmentTracker.convert(item.attachment, tab.nativeTab)
+            );
+          }
+          return attachments;
+        },
+        async addAttachment(tabId, data) {
+          let tab = tabManager.get(tabId);
+          if (!tab.isComposeTab) {
+            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
+          }
+
+          let attachment = Cc[
+            "@mozilla.org/messengercompose/attachment;1"
+          ].createInstance(Ci.nsIMsgAttachment);
+          attachment.name = data.name || data.file.name;
+          attachment.size = data.file.size;
+          attachment.url = await writeTempFile(data.file);
+
+          tab.nativeTab.AddAttachments([attachment]);
+
+          return composeAttachmentTracker.convert(attachment);
+        },
+        async updateAttachment(tabId, attachmentId, data) {
+          let tab = tabManager.get(tabId);
+          if (!tab.isComposeTab) {
+            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
+          }
+          if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
+            throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
+          }
+          let { attachment, window } = composeAttachmentTracker.getAttachment(
+            attachmentId
+          );
+          if (window != tab.nativeTab) {
+            throw new ExtensionError(
+              `Attachment ${attachmentId} is not associated with tab ${tabId}`
+            );
+          }
+
+          if (data.name) {
+            attachment.name = data.name;
+          }
+          if (data.file) {
+            attachment.size = data.file.size;
+            attachment.url = await writeTempFile(data.file);
+          }
+
+          window.AttachmentsChanged();
+          return composeAttachmentTracker.convert(attachment);
+        },
+        async removeAttachment(tabId, attachmentId) {
+          let tab = tabManager.get(tabId);
+          if (!tab.isComposeTab) {
+            throw new ExtensionError(`Invalid compose tab: ${tabId}`);
+          }
+          if (!composeAttachmentTracker.hasAttachment(attachmentId)) {
+            throw new ExtensionError(`Invalid attachment: ${attachmentId}`);
+          }
+          let { attachment, window } = composeAttachmentTracker.getAttachment(
+            attachmentId
+          );
+          if (window != tab.nativeTab) {
+            throw new ExtensionError(
+              `Attachment ${attachmentId} is not associated with tab ${tabId}`
+            );
+          }
+
+          let bucket = window.document.getElementById("attachmentBucket");
+          let item = bucket.findItemForAttachment(attachment);
+          item.remove();
+
+          window.RemoveAttachments([item]);
+        },
+
+        // This method is not available to the extension code, the extension
+        // code will call .getFile() on the object that is resolved from
+        // promises returned by various API methods.
+        getFile(attachmentId) {
+          return composeAttachmentTracker.getFile(attachmentId);
         },
       },
     };

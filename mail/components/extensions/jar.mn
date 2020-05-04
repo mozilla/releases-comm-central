@@ -6,6 +6,7 @@ messenger.jar:
     content/messenger/ext-mail.json                (ext-mail.json)
     content/messenger/extension.svg                (extension.svg)
 
+    content/messenger/child/ext-compose.js         (child/ext-compose.js)
     content/messenger/child/ext-composeScripts.js  (child/ext-composeScripts.js)
     content/messenger/child/ext-mail.js            (child/ext-mail.js)
     content/messenger/child/ext-menus.js           (child/ext-menus.js)

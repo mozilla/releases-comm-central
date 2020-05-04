@@ -122,6 +122,30 @@
             "optional": true
           }
         }
+      },
+      {
+        "id": "ComposeAttachment",
+        "type": "object",
+        "description": "Represents an attachment in a message being composed.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "A unique identifier for this attachment."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name, as displayed to the user, of this attachment. This is usually but not always the filename of the attached file."
+          }
+        },
+        "functions": [
+          {
+            "name": "getFile",
+            "type": "function",
+            "description": "Retrieves the contents of the attachment as a DOM ``File`` object.",
+            "async": true,
+            "parameters": []
+          }
+        ]
       }
     ],
     "events": [
@@ -158,6 +182,36 @@
             }
           }
         }
+      },
+      {
+        "name": "onAttachmentAdded",
+        "type": "function",
+        "description": "Fired when an attachment is added to a message being composed.",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "attachment",
+            "$ref": "ComposeAttachment"
+          }
+        ]
+      },
+      {
+        "name": "onAttachmentRemoved",
+        "type": "function",
+        "description": "Fired when an attachment is removed from a message being composed.",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "attachmentId",
+            "type": "integer"
+          }
+        ]
       }
     ],
     "functions": [
@@ -261,6 +315,95 @@
           {
             "name": "details",
             "$ref": "ComposeDetails"
+          }
+        ]
+      },
+      {
+        "name": "listAttachments",
+        "type": "function",
+        "description": "Lists all of the attachments of the message being composed in the specified tab.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "addAttachment",
+        "type": "function",
+        "description": "Adds an attachment to the message being composed in the specified tab.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer"
+          },
+          {
+            "name": "data",
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name, as displayed to the user, of this attachment. If not specified, the name of the ``file`` object is used.",
+                "optional": true
+              },
+              "file": {
+                "type": "object",
+                "isInstanceOf": "File",
+                "additionalProperties": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "updateAttachment",
+        "type": "function",
+        "description": "Renames and/or replaces the contents of an attachment to the message being composed in the specified tab.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer"
+          },
+          {
+            "name": "attachmentId",
+            "type": "integer"
+          },
+          {
+            "name": "data",
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name, as displayed to the user, of this attachment. If not specified, the name of the ``file`` object is used.",
+                "optional": true
+              },
+              "file": {
+                "type": "object",
+                "isInstanceOf": "File",
+                "additionalProperties": true,
+                "optional": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "removeAttachment",
+        "type": "function",
+        "description": "Removes an attachment from the message being composed in the specified tab.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer"
+          },
+          {
+            "name": "attachmentId",
+            "type": "integer"
           }
         ]
       }

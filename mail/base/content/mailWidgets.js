@@ -1529,7 +1529,6 @@
     insertItemAt(index, attachment, name) {
       let item = this.ownerDocument.createXULElement("richlistitem");
       item.classList.add("attachmentItem");
-      item.setAttribute("name", name || attachment.name);
       item.setAttribute("role", "option");
 
       let itemContainer = this.ownerDocument.createXULElement("hbox");
@@ -1569,7 +1568,6 @@
       textLabel.setAttribute("flex", "1");
       textLabel.setAttribute("crop", "center");
       textLabel.classList.add("attachmentcell-name");
-      textLabel.setAttribute("value", name || attachment.name);
       textName.appendChild(textLabel);
 
       let spacer = this.ownerDocument.createXULElement("spacer");
@@ -1586,6 +1584,23 @@
       itemContainer.appendChild(textContainer);
       item.appendChild(itemContainer);
 
+      let imageSize = this.sizes[this.getAttribute("view")] || 16;
+      item.setAttribute("imagesize", imageSize);
+      item.setAttribute("context", this.getAttribute("itemcontext"));
+
+      item.attachment = attachment;
+      this.invalidateItem(item, name);
+      this.insertBefore(item, this.getItemAtIndex(index));
+      return item;
+    }
+
+    invalidateItem(item, name) {
+      let attachment = item.attachment;
+      item.setAttribute("name", name || attachment.name);
+      item
+        .querySelector(".attachmentcell-name")
+        .setAttribute("value", name || attachment.name);
+
       let size;
       if (attachment.size != null && attachment.size != -1) {
         size = this.messenger.formatFileSize(attachment.size);
@@ -1594,7 +1609,7 @@
         size = "\u200b";
       }
       item.setAttribute("size", size);
-      sizeLabel.setAttribute("value", size);
+      item.querySelector(".attachmentcell-size").setAttribute("value", size);
 
       // Pick out some nice icons (small and large) for the attachment
       if (attachment.contentType == "text/x-moz-deleted") {
@@ -1639,17 +1654,13 @@
         );
       }
 
-      let imageSize = this.sizes[this.getAttribute("view")] || 16;
-      item.setAttribute("imagesize", imageSize);
-      item.setAttribute("context", this.getAttribute("itemcontext"));
-      item.attachment = attachment;
-
-      let attr = "image" + imageSize;
+      let attr = "image" + item.getAttribute("imagesize");
       if (item.hasAttribute(attr)) {
-        icon.setAttribute("src", item.getAttribute(attr));
+        item
+          .querySelector(".attachmentcell-icon")
+          .setAttribute("src", item.getAttribute(attr));
       }
 
-      this.insertBefore(item, this.getItemAtIndex(index));
       return item;
     }
 

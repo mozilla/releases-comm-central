@@ -2841,6 +2841,13 @@ attachmentWorker.onmessage = function(event, aManage = true) {
  *                                  defaults to true.
  */
 function AttachmentsChanged(aShowPane, aContentChanged = true) {
+  gAttachmentsSize = 0;
+  let bucket = document.getElementById("attachmentBucket");
+  for (let item of bucket.itemChildren) {
+    bucket.invalidateItem(item);
+    gAttachmentsSize += item.attachment.size;
+  }
+
   gContentChanged = aContentChanged;
   updateAttachmentPane(aShowPane);
   attachmentBucketMarkEmptyBucket();
@@ -5859,50 +5866,7 @@ function RemoveAllAttachments() {
     return;
   }
 
-  let fileHandler = Services.io
-    .getProtocolHandler("file")
-    .QueryInterface(Ci.nsIFileProtocolHandler);
-  let removedAttachments = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
-
-  while (bucket.itemCount > 0) {
-    let item = bucket.getItemAtIndex(bucket.itemCount - 1);
-    if (item.attachment.size != -1) {
-      gAttachmentsSize -= item.attachment.size;
-    }
-
-    if (item.attachment.sendViaCloud && item.cloudFileAccount) {
-      let originalUrl = item.originalUrl;
-      if (!originalUrl) {
-        originalUrl = item.attachment.url;
-      }
-      if (item.uploading) {
-        let file = fileHandler.getFileFromURLSpec(originalUrl);
-        item.cloudFileAccount.cancelFileUpload(file);
-      } else {
-        deleteCloudAttachment(
-          item.attachment,
-          item.cloudFileUpload.id,
-          item.cloudFileAccount
-        );
-      }
-    }
-
-    removedAttachments.appendElement(item.attachment);
-    // Let's release the attachment object hold by the node else it won't go
-    // away until the window is destroyed.
-    item.attachment = null;
-    item.remove();
-  }
-
-  if (removedAttachments.length > 0) {
-    // Bug workaround: Force update of selectedCount and selectedItem.
-    bucket.clearSelection();
-
-    AttachmentsChanged();
-    dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
-  }
+  RemoveAttachments(bucket.itemChildren);
 }
 
 /**
@@ -5958,6 +5922,11 @@ function RemoveSelectedAttachment() {
     return;
   }
 
+  RemoveAttachments(bucket.selectedItems);
+}
+
+function RemoveAttachments(items) {
+  let bucket = document.getElementById("attachmentBucket");
   // Remember the current focus index so we can try to restore it when done.
   let focusIndex = bucket.currentIndex;
 
@@ -5968,8 +5937,8 @@ function RemoveSelectedAttachment() {
     Ci.nsIMutableArray
   );
 
-  for (let i = bucket.selectedCount - 1; i >= 0; i--) {
-    let item = bucket.getSelectedItem(i);
+  for (let i = items.length - 1; i >= 0; i--) {
+    let item = items[i];
     if (item.attachment.size != -1) {
       gAttachmentsSize -= item.attachment.size;
     }
@@ -6002,23 +5971,23 @@ function RemoveSelectedAttachment() {
     item.remove();
   }
 
-  // Bug workaround: Force update of selectedCount and selectedItem, both wrong
-  // after item removal, to avoid confusion for listening command controllers.
-  bucket.clearSelection();
-
   // Try to restore original focus or somewhere close by.
-  if (focusIndex < bucket.itemCount) {
-    // If possible,
-    bucket.currentIndex = focusIndex; // restore focus at original position;
+  if (bucket.itemCount == 0) {
+    bucket.currentIndex = -1;
+  } else if (focusIndex < bucket.itemCount) {
+    bucket.currentIndex = focusIndex;
   } else {
-    bucket.currentIndex =
-      bucket.itemCount > 0 // else: if attachments exist,
-        ? bucket.itemCount - 1 // focus last item;
-        : -1; // else: nothing to focus.
+    bucket.currentIndex = bucket.itemCount - 1;
   }
 
-  AttachmentsChanged();
-  dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
+  if (removedAttachments.length > 0) {
+    // Bug workaround: Force update of selectedCount and selectedItem, both wrong
+    // after item removal, to avoid confusion for listening command controllers.
+    bucket.clearSelection();
+
+    AttachmentsChanged();
+    dispatchAttachmentBucketEvent("attachments-removed", removedAttachments);
+  }
 }
 
 function RenameSelectedAttachment() {
