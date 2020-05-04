@@ -63,8 +63,9 @@
     -moz-font-smoothing-background-color: -moz-mac-active-source-list-selection;
   }
 
-  #folderTree treechildren::-moz-tree-twisty(selected),
-  #folderTree treechildren::-moz-tree-cell-text(selected) {
+  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-image(selected),
+  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-twisty(selected),
+  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-cell-text(selected) {
     color: white;
   }
 }
@@ -76,8 +77,9 @@
     font-weight: 400;
   }
 
-  #folderTree treechildren::-moz-tree-twisty(selected, focus),
-  #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
+  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-image(selected, focus),
+  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-twisty(selected, focus),
+  :root:not([lwt-tree]) #folderTree treechildren::-moz-tree-cell-text(selected, focus) {
     color: #282828;
   }
 }

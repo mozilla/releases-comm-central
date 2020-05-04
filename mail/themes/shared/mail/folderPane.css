@@ -1,0 +1,216 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+:root {
+  --default: #363959;
+  --primary: #0060df;
+}
+
+:root[lwt-tree-brighttext] {
+  --default: #f9f9fa;
+  --primary: #45a1ff;
+}
+
+/* ::::: Tabmail ::::: */
+.tabmail-tab,
+#folderTree > treechildren::-moz-tree-image {
+  -moz-context-properties: fill, fill-opacity;
+}
+
+/**
+ * This needs a different rule from the tree because otherwise the margin
+ * applies to the tab.
+ */
+.tabmail-tab[type="folder"] {
+  list-style-image: url("chrome://messenger/skin/icons/folder.svg");
+}
+
+/* ::::: Folder Pane ::::: */
+
+#folderTree > treechildren::-moz-tree-image,
+#accounttree > treechildren::-moz-tree-image {
+  opacity: 0.85;
+  width: 16px;
+  height: auto;
+}
+
+/* reduce the padding set from messenger.css */
+#folderTree > treechildren::-moz-tree-cell-text {
+  padding-inline-start: 3px;
+}
+
+treechildren::-moz-tree-image(folderNameCol) {
+  list-style-image: url("chrome://messenger/skin/icons/folder.svg");
+  margin-inline-end: 2px;
+  fill: var(--default);
+}
+
+/* ..... Inbox ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Inbox"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Inbox) {
+  list-style-image: url("chrome://messenger/skin/icons/inbox.svg");
+}
+
+/* ..... Sent ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Sent"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Sent) {
+  list-style-image: url("chrome://messenger/skin/icons/sent.svg");
+}
+
+/* ..... Outbox ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Outbox"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Outbox) {
+  list-style-image: url("chrome://messenger/skin/icons/outbox.svg");
+}
+
+/* ..... Drafts ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Drafts"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Drafts) {
+  list-style-image: url("chrome://messenger/skin/icons/file-item.svg");
+}
+
+/* ..... Trash ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Trash"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Trash) {
+  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
+}
+
+/* ..... Archives ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Archive"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Archive) {
+  list-style-image: url("chrome://messenger/skin/icons/archive.svg");
+}
+
+/* ..... Templates ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Templates"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Templates) {
+  list-style-image: url("chrome://messenger/skin/icons/template.svg");
+}
+
+/* ..... Junk ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Junk"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Junk) {
+  list-style-image: url("chrome://messenger/skin/icons/junk.svg");
+}
+
+/* ..... Saved Search Folder ..... */
+.tabmail-tab[type="folder"][SpecialFolder="Virtual"],
+treechildren::-moz-tree-image(folderNameCol, specialFolder-Virtual) {
+  list-style-image: url("chrome://messenger/skin/icons/search-folder.svg");
+}
+
+/* ..... Newsgroup ..... */
+.tabmail-tab[type="folder"][ServerType="nntp"],
+treechildren::-moz-tree-image(folderNameCol, serverType-nntp) {
+  list-style-image: url("chrome://messenger/skin/icons/newsgroup.svg");
+}
+
+/* ..... Mail server  ..... */
+.tabmail-tab[type="folder"][IsServer="true"],
+treechildren::-moz-tree-image(folderNameCol, isServer-true) {
+  list-style-image: url("chrome://messenger/skin/icons/message.svg");
+  fill: var(--primary);
+}
+
+/* ..... Feed folder, feed item ..... */
+treechildren::-moz-tree-image(folderNameCol, isFeed-true),
+.tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss),
+.tabmail-tab[type="folder"][IsFeedFolder="true"],
+treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
+  list-style-image: url("chrome://messenger/skin/icons/subscribe.svg");
+  fill: var(--primary);
+}
+
+treechildren::-moz-tree-image(folderNameCol, serverIsPaused),
+treechildren::-moz-tree-cell-text(folderNameCol, serverIsPaused),
+treechildren::-moz-tree-image(folderNameCol, isPaused),
+treechildren::-moz-tree-cell-text(folderNameCol, isPaused) {
+  opacity: 0.4;
+}
+
+treechildren::-moz-tree-image(folderNameCol, isBusy) {
+  list-style-image: url("chrome://messenger/skin/icons/waiting.svg");
+}
+
+treechildren::-moz-tree-image(folderNameCol, hasError) {
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
+  fill: #e62117;
+}
+
+/* ..... Local folders ..... */
+.tabmail-tab[type="folder"][IsServer="true"][ServerType="none"],
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-none) {
+  list-style-image: url("chrome://messenger/skin/icons/folder-local.svg");
+  fill: var(--primary);
+}
+
+/* ..... Secure mail server ..... */
+.tabmail-tab[type="folder"][IsServer="true"][ServerType="imap"][IsSecure="true"],
+.tabmail-tab[type="folder"][IsServer="true"][ServerType="pop3"][IsSecure="true"],
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-pop3, isSecure-true),
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-imap, isSecure-true) {
+  list-style-image: url("chrome://messenger/skin/icons/message-secure.svg");
+  fill: var(--primary);
+}
+
+/* ..... News server ..... */
+.tabmail-tab[type="folder"][IsServer="true"][ServerType="nntp"],
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-nntp) {
+  list-style-image: url("chrome://messenger/skin/icons/globe.svg");
+  fill: var(--primary);
+}
+
+.tabmail-tab[type="folder"][IsServer="true"][ServerType="nntp"][IsSecure="true"],
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-nntp, isSecure-true) {
+  list-style-image: url("chrome://messenger/skin/icons/globe-secure.svg");
+  fill: var(--primary);
+}
+
+/* ::::: All Servers ::::: */
+
+treechildren::-moz-tree-cell-text(hasUnreadMessages-true),
+treechildren::-moz-tree-cell-text(folderNameCol, isServer-true),
+treechildren::-moz-tree-cell-text(closed, subfoldersHaveUnreadMessages-true),
+treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+  font-weight: bold !important;
+}
+
+treechildren::-moz-tree-image(folderNameCol, newMessages-true),
+treechildren::-moz-tree-image(folderNameCol, isServer-true, biffState-NewMail) {
+  opacity: 1 !important;
+  fill: -moz-hyperlinktext !important;
+}
+
+treechildren::-moz-tree-image(folderNameCol, selected, focus),
+treechildren::-moz-tree-image(folderNameCol, newMessages-true, selected, focus) {
+  opacity: 1 !important;
+  fill: currentColor !important;
+}
+
+treechildren::-moz-tree-cell-text(imapdeleted) {
+  text-decoration: line-through;
+}
+
+.tree-folder-checkbox {
+  list-style-image: none;
+}
+
+/* ::::: Folder Summary Popup ::::: */
+
+.folderSummary-message-row {
+  /* This max width ends up dictating the overall width of the popup
+     because it controls how large the preview, subject and sender text can be
+     before cropping kicks in */
+  max-width: 450px;
+}
+
+.folderSummary-subject {
+  font-weight: bold;
+}
+
+.folderSummary-previewText {
+  opacity: 0.6;
+}
