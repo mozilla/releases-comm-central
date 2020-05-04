@@ -56,6 +56,9 @@ var elementslib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
+frame.log = function(obj) {
+  frame.events.fireEvent("log", obj);
+};
 
 // The window map which is used to store information e.g. loaded state of each
 // open chrome and content window.

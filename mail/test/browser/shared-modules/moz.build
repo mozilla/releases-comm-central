@@ -32,7 +32,6 @@ TESTING_JS_MODULES.mozmill += [
     'PromptHelpers.jsm',
     'QuickFilterBarHelpers.jsm',
     'SearchWindowHelpers.jsm',
-    'securable-module.jsm',
     'SubscribeWindowHelpers.jsm',
     'utils.jsm',
     'WindowHelpers.jsm',

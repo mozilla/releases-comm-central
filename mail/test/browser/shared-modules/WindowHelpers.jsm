@@ -34,7 +34,6 @@ var controller = ChromeUtils.import(
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
-var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
@@ -337,8 +336,7 @@ var WindowWatcher = {
       function startTest() {
         self.planForWindowClose(troller.window);
         try {
-          let runner = new frame.Runner();
-          runner.wrapper(self.subTestFunc, troller);
+          self.subTestFunc(troller);
         } finally {
           self.subTestFunc = null;
         }
