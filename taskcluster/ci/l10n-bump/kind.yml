@@ -50,7 +50,6 @@ job-defaults:
                             "win64",
                         ],
                         "path": "mail/locales/shipped-locales",
-                        "format": "shipped-locales",
                     }]
                 default:
                     name: Thunderbird l10n changesets
