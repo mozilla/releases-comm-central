@@ -11,8 +11,6 @@
 
 "use strict";
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
 var { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );

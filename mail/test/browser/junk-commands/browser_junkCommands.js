@@ -4,8 +4,6 @@
 
 "use strict";
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
 var {
   be_in_folder,
   create_folder,

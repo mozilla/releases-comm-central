@@ -11,8 +11,6 @@ const EXPORTED_SYMBOLS = [
   "collectFiles",
 ];
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
 var fdh = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -36,8 +34,9 @@ var kDefaults = {
 };
 
 function getFile(aFilename, aRoot) {
-  let path = os.getFileForPath(aRoot);
-  let file = os.getFileForPath(os.abspath(aFilename, path));
+  var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  file.initWithPath(aRoot);
+  file.append(aFilename);
   Assert.ok(file.exists, "File " + aFilename + " does not exist.");
   return file;
 }

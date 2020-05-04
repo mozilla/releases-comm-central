@@ -8,7 +8,6 @@
 
 "use strict";
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );

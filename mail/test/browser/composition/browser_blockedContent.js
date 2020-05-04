@@ -8,8 +8,6 @@
 
 "use strict";
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
 var {
   get_msg_source,
   open_compose_new_mail,
@@ -93,7 +91,8 @@ add_task(function test_paste_file_urls() {
       return OS.File.setDates(dest, null, null);
     })
     .then(function() {
-      tmpFile = os.getFileForPath(dest);
+      tmpFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      tmpFile.initWithPath(dest);
       Assert.ok(tmpFile.exists(), "tmpFile's not there at " + dest);
 
       tmpFileURL = fileHandler.getURLSpecFromFile(tmpFile);

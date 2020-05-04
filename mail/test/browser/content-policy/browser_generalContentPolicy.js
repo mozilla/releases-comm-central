@@ -25,8 +25,6 @@ var elib = ChromeUtils.import(
 var mozmill = ChromeUtils.import(
   "resource://testing-common/mozmill/mozmill.jsm"
 );
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
 var {
   close_compose_window,
   open_compose_with_forward,
@@ -326,9 +324,9 @@ function saveAsEMLFile(msgNo) {
     Ci.nsIMessenger
   );
   let profD = Services.dirsvc.get("ProfD", Ci.nsIFile);
-  let file = os.getFileForPath(
-    os.abspath("./content-policy-test-" + msgNo + ".eml", profD)
-  );
+  var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  file.initWithFile(profD);
+  file.append("content-policy-test-" + msgNo + ".eml");
   messenger.saveAs(
     msgHdr.folder.getUriForMsg(msgHdr),
     true,

@@ -11,7 +11,6 @@
 var elementslib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
 
 var { gMockExtProtSvcReg } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"

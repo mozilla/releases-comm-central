@@ -11,7 +11,6 @@
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var { close_compose_window, open_compose_new_mail } = ChromeUtils.import(

@@ -8,8 +8,6 @@
 
 "use strict";
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
 var {
   close_compose_window,
   get_msg_source,

@@ -4,8 +4,6 @@
 
 "use strict";
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
 var { wait_for_element_visible } = ChromeUtils.import(
   "resource://testing-common/mozmill/DOMHelpers.jsm"
 );

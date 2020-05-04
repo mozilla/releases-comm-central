@@ -10,8 +10,6 @@
 
 "use strict";
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
-
 var { select_attachments } = ChromeUtils.import(
   "resource://testing-common/mozmill/AttachmentHelpers.jsm"
 );

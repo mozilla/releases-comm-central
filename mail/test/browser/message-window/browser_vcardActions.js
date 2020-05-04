@@ -11,7 +11,6 @@
 var elementslib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
 
 var { get_cards_in_all_address_books_for_email } = ChromeUtils.import(
   "resource://testing-common/mozmill/AddressBookHelpers.jsm"

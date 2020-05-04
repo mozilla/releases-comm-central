@@ -8,7 +8,6 @@ var folder;
 var messenger;
 var epsilon;
 
-var os = ChromeUtils.import("resource://testing-common/mozmill/os.jsm");
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );
