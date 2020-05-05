@@ -449,13 +449,20 @@
       </hbox>
 
       <!-- ** Photo Tab ** -->
-      <hbox id="abPhotoTab" align="center">
-        <vbox align="center" style="min-width: 25ch; max-width: 25ch;">
-          <image id="photo" style="max-width: 25ch; max-height: 25ch;"/>
+      <hbox id="abPhotoTab">
+        <vbox align="center" id="PhotoContainer"
+              style="height: 25ch; width: 25ch;"
+              ondrop="doDropPhoto(event);"
+              ondragenter="checkDropPhoto(event);"
+              ondragover="checkDropPhoto(event);">
+          <image id="photo" style="max-height: 25ch; max-width: 25ch;"/>
+          <hbox id="PhotoDropTarget" flex="1" pack="center" align="center">
+            <description>&PhotoDropTarget.label;</description>
+          </hbox>
         </vbox>
-        <groupbox flex="1">
-          <caption label="&PhotoDesc.label;"/>
-          <radiogroup id="PhotoType" onselect="onSwitchPhotoType(this.value);">
+
+        <vbox flex="1">
+          <radiogroup id="PhotoType" oncommand="onSwitchPhotoType();">
             <vbox id="GenericPhotoContainer">
               <radio id="GenericPhotoType"
                      value="generic"
@@ -464,12 +471,11 @@
               <menulist id="GenericPhotoList"
                         class="indent"
                         flex="1"
-                        oncommand="onSwitchPhotoType('generic');">
+                        oncommand="onSwitchPhotoType('generic', event);">
                 <menupopup>
                   <menuitem label="&DefaultPhoto.label;"
                             selected="true"
-                            value="chrome://messenger/skin/addressbook/icons/contact-generic.png"
-                            image="chrome://messenger/skin/addressbook/icons/contact-generic-tiny.png"/>
+                            value="default"/>
                 </menupopup>
               </menulist>
             </vbox>
@@ -480,11 +486,14 @@
                      label="&PhotoFile.label;"
                      accesskey="&PhotoFile.accesskey;"/>
               <hbox class="indent">
-                <filefield id="PhotoFile" maxlength="255" flex="1"/>
+                <filefield id="PhotoFile"
+                           readonly="true"
+                           maxlength="255"
+                           flex="1"/>
                 <button id="BrowsePhoto"
                         label="&BrowsePhoto.label;"
                         accesskey="&BrowsePhoto.accesskey;"
-                        oncommand="browsePhoto();"/>
+                        oncommand="browsePhoto(event);"/>
               </hbox>
             </vbox>
 
@@ -501,11 +510,20 @@
                 <button id="UpdatePhoto"
                         label="&UpdatePhoto.label;"
                         accesskey="&UpdatePhoto.accesskey;"
-                        oncommand="onSwitchPhotoType('web');"/>
+                        oncommand="onSwitchPhotoType('web', event);"/>
               </hbox>
             </vbox>
           </radiogroup>
-        </groupbox>
+          <hbox id="ProgressContainer" align="begin">
+            <label id="PhotoStatus"/>
+            <spacer flex="2"/>
+            <progressmeter id="PhotoDownloadProgress"
+                           value="0"
+                           mode="determined"
+                           hidden="true"
+                           flex="1"/>
+          </hbox>
+        </vbox>
       </hbox>
     </tabpanels>
   </tabbox>

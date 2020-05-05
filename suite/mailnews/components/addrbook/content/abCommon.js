@@ -2,9 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const {MailServices} = ChromeUtils.import("resource:///modules/MailServices.jsm");
-const {IOUtils} = ChromeUtils.import("resource:///modules/IOUtils.js");
+
+const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.js");
+const { MailServices } =
+  ChromeUtils.import("resource:///modules/MailServices.jsm");
+const { FileUtils } =
+  ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+const { PrivateBrowsingUtils } =
+  ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 
 var gDirTree = null;
 var abList = null;
@@ -27,8 +34,9 @@ const kAllDirectoryRoot = "moz-abdirectory://";
 const kLdapUrlPrefix = "moz-abldapdirectory://";
 const kPersonalAddressbookURI = "moz-abmdbdirectory://abook.mab";
 const kCollectedAddressbookURI = "moz-abmdbdirectory://history.mab";
-// The default image for contacts
-var defaultPhotoURI = "chrome://messenger/skin/addressbook/icons/contact-generic.png";
+// The default, generic contact image is displayed via CSS when the photoURI is
+// blank.
+var defaultPhotoURI = "";
 
 // Controller object for Dir Pane
 var DirPaneController =
@@ -848,66 +856,6 @@ function getPhotoURI(aPhotoName) {
 }
 
 /**
- * Copies the photo at the given URI in a folder named "Photos" in the current
- * profile folder.
- * The filename is randomly generated and is unique.
- * The URI is used to obtain a channel which is then opened synchronously and
- * this stream is written to the new file to store an offline, local copy of the
- * photo.
- *
- * @param aUri The URI of the photo.
- *
- * @return An nsIFile representation of the photo.
- */
-function storePhoto(aUri) {
-  if (!aUri)
-    return false;
-
-  // Get the photos directory and check that it exists
-  var file = getPhotosDir();
-
-  // Create a channel from the URI and open it as an input stream
-  var channel = Services.io.newChannelFromURI(Services.io.newURI(aUri),
-                                         null,
-                                         Services.scriptSecurityManager.getSystemPrincipal(),
-                                         null,
-                                         Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-                                         Ci.nsIContentPolicy.TYPE_INTERNAL_IMAGE);
-
-  var istream = channel.open();
-
-  // Get the photo file
-  file = makePhotoFile(file, findPhotoExt(channel));
-
-  return IOUtils.saveStreamToFile(istream, file);
-}
-
-/**
- * Finds the file extension of the photo identified by the URI, if possible.
- * This function can be overridden (with a copy of the original) for URIs that
- * do not identify the extension or when the Content-Type response header is
- * either not set or isn't 'image/png', 'image/jpeg', or 'image/gif'.
- * The original function can be called if the URI does not match.
- *
- * @param aUri The URI of the photo.
- * @param aChannel The opened channel for the URI.
- *
- * @return The extension of the file, if any, including the period.
- */
-function findPhotoExt(aChannel) {
-  var mimeSvc = Cc["@mozilla.org/mime;1"]
-                  .getService(Ci.nsIMIMEService);
-  var ext = "";
-  var uri = aChannel.URI;
-  if (uri instanceof Ci.nsIURL)
-    ext = uri.fileExtension;
-  try {
-    return mimeSvc.getPrimaryExtension(aChannel.contentType, ext);
-  } catch (e) {}
-  return ext;
-}
-
-/**
  * Generates a unique filename to be used for a local copy of a contact's photo.
  *
  * @param aPath      The path to the folder in which the photo will be saved.
@@ -925,6 +873,296 @@ function makePhotoFile(aDir, aExtension) {
   } while (newFile.exists());
   return newFile;
 }
+
+/**
+ * Public self-contained object for image transfers.
+ * Responsible for file transfer, validating the image and downscaling.
+ * Attention: It is the responsibility of the caller to remove the old photo
+ * and update the card!
+ */
+var gImageDownloader = (function() {
+  let downloadInProgress = false;
+
+  // Current instance of nsIWebBrowserPersist. It is used two times, during
+  // the actual download and for saving canvas data.
+  let downloader;
+
+  // Temporary nsIFile used for download.
+  let tempFile;
+
+  // Images are downsized to this size while keeping the aspect ratio.
+  const maxSize = 300;
+
+  // Callback function for various states
+  let callbackSuccess;
+  let callbackError;
+  let callbackProgress;
+
+  // Start at 4% to show a slight progress initially.
+  const initProgress = 4;
+
+  // Constants indicating error and file transfer status
+  const STATE_TRANSFERRING = 0;
+  const STATE_RESIZING = 1;
+  const STATE_OK = 2;
+  // The URI does not have a valid format.
+  const ERROR_INVALID_URI = 0;
+  // In case of HTTP transfers: server did not answer with a 200 status code.
+  const ERROR_UNAVAILABLE = 1;
+  // The file type is not supported. Only jpeg, png and gif are.
+  const ERROR_INVALID_IMG = 2;
+  // An error occurred while saving the image to the hard drive.
+  const ERROR_SAVE = 4;
+
+
+  /**
+   * Saves a target photo in the profile's photo directory. Only one concurrent
+   * file transfer is supported. Starting a new transfer while another is still
+   * in progress will cancel the former file transfer.
+   *
+   * @param aURI {string}                    URI pointing to the photo.
+   * @param cbSuccess(photoName) {function}  A callback function which is called
+   *                                         on success.
+   *                                         The photo file name is passed in.
+   * @param cbError(state) {function}        A callback function which is called
+   *                                         in case of an error. The error
+   *                                         state is passed in.
+   * @param cbProgress(errcode, percent) {function}  A callback function which
+   *                                                 provides  progress report.
+   *                                                 An error code (see above)
+   *                                                 and the progress percentage
+   *                                                 (0-100) is passed in.
+   * State transitions: STATE_TRANSFERRING -> STATE_RESIZING -> STATE_OK (100%)
+   */
+  function savePhoto(aURI, aCBSuccess, aCBError, aCBProgress) {
+    callbackSuccess = typeof aCBSuccess == "function" ? aCBSuccess : null;
+    callbackError = typeof aCBError == "function" ? aCBError : null;
+    callbackProgress = typeof aCBProgress == "function" ? aCBProgress : null;
+
+    // Make sure that there is no running download.
+    cancelSave();
+    downloadInProgress = true;
+
+    if (callbackProgress) {
+      callbackProgress(STATE_TRANSFERRING, initProgress);
+    }
+
+    downloader = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+                   .createInstance(Ci.nsIWebBrowserPersist);
+    downloader.persistFlags =
+        Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE |
+        Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
+        Ci.nsIWebBrowserPersist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
+    downloader.progressListener = {
+      onProgressChange(aWebProgress, aRequest, aCurSelfProgress,
+                       aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) {
+        if (aMaxTotalProgress > -1 && callbackProgress) {
+          // Download progress is 0-90%, 90-100% is verifying and scaling the
+          // image.
+          let percent =
+              Math.round(initProgress +
+                         (aCurTotalProgress / aMaxTotalProgress) *
+                         (90 - initProgress));
+          callbackProgress(STATE_TRANSFERRING, percent);
+        }
+      },
+      onStateChange(aWebProgress, aRequest, aStateFlag, aStatus) {
+        // Check if the download successfully finished.
+        if ((aStateFlag & Ci.nsIWebProgressListener.STATE_STOP) &&
+            !(aStateFlag & Ci.nsIWebProgressListener.STATE_IS_REQUEST)) {
+          try {
+            // Check the response code in case of an HTTP request to catch 4xx
+            // errors.
+            let http = aRequest.QueryInterface(Ci.nsIHttpChannel);
+            if (http.responseStatus == 200) {
+              verifyImage();
+            } else if (callbackError) {
+              callbackError(ERROR_UNAVAILABLE);
+            }
+          } catch (err) {
+            // The nsIHttpChannel interface is not available - just proceed.
+            verifyImage();
+          }
+        }
+      },
+    };
+
+    let source;
+    try {
+      source = Services.io.newURI(aURI);
+    } catch (err) {
+      if (callbackError) {
+        callbackError(ERROR_INVALID_URI);
+      }
+      return;
+    }
+
+    // Start the transfer to a temporary file.
+    tempFile = FileUtils.getFile("TmpD",
+                                 ["tb-photo-" + new Date().getTime() + ".tmp"]);
+    tempFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, FileUtils.PERMS_FILE);
+    try {
+      // Obtain the privacy context of the browser window that the URL
+      // we are downloading comes from. If, and only if, the URL is not
+      // related to a window, null should be used instead.
+      let privacy = PrivateBrowsingUtils.privacyContextFromWindow(window);
+      downloader.saveURI(source, null, null, null, null, null, tempFile,
+                         privacy);
+    } catch (err) {
+      cleanup();
+      if (callbackError) {
+        callbackError(ERROR_SAVE);
+      }
+    }
+  }
+
+  /**
+   * Verifies the downloaded file to be an image.
+   * Scales the image and starts the saving operation.
+   */
+  function verifyImage() {
+    let img = new Image();
+    img.onerror = function() {
+      cleanup();
+      if (callbackError) {
+        callbackError(ERROR_INVALID_IMG);
+      }
+    };
+    img.onload = function() {
+      if (callbackProgress) {
+        callbackProgress(STATE_RESIZING, 95);
+      }
+
+      // Images are scaled down in two steps to improve quality. Resizing
+      // ratios larger than 2 use a different interpolation algorithm than
+      // small ratios. Resize three times (instead of just two steps) to
+      // improve the final quality.
+      let canvas = downscale(img, 3.8 * maxSize);
+      canvas = downscale(canvas, 1.9 * maxSize);
+      canvas = downscale(canvas, maxSize);
+
+      saveCanvas(canvas);
+
+      if (callbackProgress) {
+        callbackProgress(STATE_OK, 100);
+      }
+
+      // Remove the temporary file.
+      cleanup();
+    };
+
+    if (callbackProgress) {
+      callbackProgress(STATE_RESIZING, 92);
+    }
+
+    img.src = Services.io.newFileURI(tempFile).spec;
+  }
+
+  /**
+   * Scale a graphics object down to a specified maximum dimension while
+   * preserving the aspect ratio. Does not upscale an image.
+   *
+   * @param aGraphicsObject {image | canvas}  Image or canvas object
+   * @param aMaxDimension {integer}           The maximal allowed width or
+   *                                          height
+   *
+   * @return A canvas object.
+   */
+  function downscale(aGraphicsObject, aMaxDimension) {
+    let w = aGraphicsObject.width;
+    let h = aGraphicsObject.height;
+
+    if (w > h && w > aMaxDimension) {
+      h = Math.round(aMaxDimension * h / w);
+      w = aMaxDimension;
+    } else if (h > aMaxDimension) {
+      w = Math.round(aMaxDimension * w / h);
+      h = aMaxDimension;
+    }
+
+    let canvas = document.createElementNS("http://www.w3.org/1999/xhtml",
+                                          "canvas");
+    canvas.width = w;
+    canvas.height = h;
+
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(aGraphicsObject, 0, 0, w, h);
+    return canvas;
+  }
+
+  /**
+   * Cancel a running download (if any).
+   */
+  function cancelSave() {
+    if (!downloadInProgress) {
+      return;
+    }
+
+    // Cancel the nsIWebBrowserPersist file transfer.
+    if (downloader) {
+      downloader.cancelSave();
+    }
+    cleanup();
+  }
+
+  /**
+   * Remove the temporary file and reset internal status.
+   */
+  function cleanup() {
+    if (tempFile) {
+      try {
+        if (tempFile.exists()) {
+          tempFile.remove(false);
+        }
+      } catch (err) {}
+      tempFile = null;
+    }
+
+    downloadInProgress = false;
+  }
+
+  /**
+   * Save the contents of a canvas to the photos directory of the profile.
+   */
+  function saveCanvas(aCanvas) {
+    // Get the photos directory and check that it exists.
+    let file = getPhotosDir();
+    file = makePhotoFile(file, "png");
+
+    // Create a data url from the canvas and then create URIs of the source and
+    // targets.
+    let source = Services.io.newURI(aCanvas.toDataURL("image/png", ""), "UTF8");
+    let target = Services.io.newFileURI(file);
+
+    downloader = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+                   .createInstance(Ci.nsIWebBrowserPersist);
+    downloader.persistFlags =
+        Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE |
+        Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
+        Ci.nsIWebBrowserPersist.PERSIST_FLAGS_CLEANUP_ON_FAILURE;
+    downloader.progressListener = {
+      onStateChange(aWebProgress, aRequest, aFlag, aStatus) {
+        if ((aFlag & Ci.nsIWebProgressListener.STATE_STOP) &&
+            !(aFlag & Ci.nsIWebProgressListener.STATE_IS_REQUEST)) {
+          if (callbackSuccess) {
+            callbackSuccess(file.leafName);
+          }
+        }
+      },
+    };
+
+    // Obtain the privacy context of the browser window that the URL
+    // we are downloading comes from. If, and only if, the URL is not
+    // related to a window, null should be used instead.
+    let privacy = PrivateBrowsingUtils.privacyContextFromWindow(window);
+    downloader.saveURI(source, null, null, null, null, null, target, privacy);
+  }
+
+  // Publicly accessible methods.
+  return { cancelSave, savePhoto, STATE_TRANSFERRING, STATE_RESIZING, STATE_OK,
+           ERROR_UNAVAILABLE, ERROR_INVALID_URI, ERROR_INVALID_IMG,
+           ERROR_SAVE, };
+})();
 
 /**
  * Validates the given year and returns it, if it looks sane.

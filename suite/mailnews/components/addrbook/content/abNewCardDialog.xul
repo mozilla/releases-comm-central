@@ -13,7 +13,8 @@
     id="abcardWindow"
     windowtype="mailnews:newcarddialog"
     onload="OnLoadNewCard()"
-    ondialogaccept="return NewCardOKButton();">
+    ondialogaccept="return NewCardOKButton();"
+    ondialogcancel="return NewCardCancelButton();">
 
   <stringbundleset id="stringbundleset"/>
 

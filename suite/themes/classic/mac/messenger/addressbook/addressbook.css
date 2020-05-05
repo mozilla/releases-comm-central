@@ -355,6 +355,10 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
   min-width: 30px;
 }
 
+#cvPhoto {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
+}
+
 #cvBuddyIcon {
   padding-inline-start: 20px;
   padding-top: 2px;

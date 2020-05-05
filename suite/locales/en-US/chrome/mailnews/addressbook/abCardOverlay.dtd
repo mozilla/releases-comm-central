@@ -141,7 +141,6 @@
 
 <!ENTITY Photo.tab                      "Photo">
 <!ENTITY Photo.accesskey                "o">
-<!ENTITY PhotoDesc.label                "Pick one of the following:">
 <!ENTITY GenericPhoto.label             "Generic Photo">
 <!ENTITY GenericPhoto.accesskey         "G">
 <!ENTITY DefaultPhoto.label             "Default">
@@ -154,3 +153,4 @@
 <!ENTITY PhotoURL.placeholder           "Paste or type the web address of a photo">
 <!ENTITY UpdatePhoto.label              "Update">
 <!ENTITY UpdatePhoto.accesskey          "u">
+<!ENTITY PhotoDropTarget.label          "Drag new photo here">

@@ -39,3 +39,34 @@
 .ZipWidth {
   width: 14ch;
 }
+
+#photo {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
+}
+
+#GenericPhotoList[value="default"] {
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic-tiny.png");
+}
+
+#PhotoContainer {
+  margin: 5px;
+}
+
+#PhotoDropTarget {
+  margin-top: 5px;
+}
+
+#PhotoDropTarget:hover {
+  border: 1px dashed #CACAFF;
+}
+
+#ProgressContainer {
+  max-height: 0;
+  transition: all .5s ease-out;
+  overflow: hidden;
+}
+
+#ProgressContainer.expanded {
+  margin-top: 10px;
+  max-height: 40px; /* something higher than the actual height, but not too large */
+}

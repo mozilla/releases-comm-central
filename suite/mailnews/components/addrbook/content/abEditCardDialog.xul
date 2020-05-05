@@ -10,7 +10,8 @@
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   id="abcardWindow"
   onload="OnLoadEditCard()"
-  ondialogaccept="return EditCardOKButton();">
+  ondialogaccept="return EditCardOKButton();"
+  ondialogcancel="return EditCardCancelButton();">
 
   <stringbundleset id="stringbundleset"/>
   <vbox id="editcard"/>

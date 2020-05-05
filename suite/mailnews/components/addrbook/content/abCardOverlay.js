@@ -71,6 +71,12 @@ var gOnLoadListeners = [];
 var gOkCallback = null;
 var gHideABPicker = false;
 var gPhotoHandlers = {};
+// If any new photos were added to the card, this stores the name of the original
+// and any temporary new filenames used to store photos of the card.
+// 'null' is a valid value when there was no photo (e.g. the generic photo).
+var gOldPhotos = [];
+// If a new photo was added, the name is stored here.
+var gNewPhoto = null;
 
 function OnLoadNewCard()
 {
@@ -235,6 +241,12 @@ function EditCardOKButton()
     gOkCallback();
 
   return true;  // close the window
+}
+
+function EditCardCancelButton()
+{
+  // If a new photo was created, remove it now as it won't be used.
+  purgeOldPhotos(false);
 }
 
 function OnLoadEditCard()
@@ -445,6 +457,12 @@ function NewCardOKButton()
   return true;  // close the window
 }
 
+function NewCardCancelButton()
+{
+  // If a new photo was created, remove it now as it won't be used.
+  purgeOldPhotos(false);
+}
+
 // Move the data from the cardproperty to the dialog
 function GetCardValues(cardproperty, doc)
 {
@@ -511,13 +529,9 @@ function GetCardValues(cardproperty, doc)
   }
   catch (ex) {}
 
-  // Store the original photo URI and update the photo
   // Select the type if there is a valid value stored for that type, otherwise
   // select the generic photo
-  var photoType = cardproperty.getProperty("PhotoType", "");
-  document.getElementById("PhotoType").value = photoType;
   loadPhoto(cardproperty);
-  setCardEditorPhoto(photoType, cardproperty);
 
   updateChatName();
 }
@@ -578,7 +592,16 @@ function CheckAndSetCardValues(cardproperty, doc, check)
   }
   catch (ex) {}
 
-  savePhoto(cardproperty);
+  let photoType = doc.getElementById("PhotoType").value;
+  if (gPhotoHandlers[photoType]) {
+    if (!gPhotoHandlers[photoType].onSave(cardproperty, doc)) {
+      photoType = "generic";
+      onSwitchPhotoType("generic");
+      gPhotoHandlers[photoType].onSave(cardproperty, doc);
+    }
+  }
+  cardproperty.setProperty("PhotoType", photoType);
+  purgeOldPhotos(true);
 
   return true;
 }
@@ -911,23 +934,6 @@ function updateChatName()
 }
 
 /**
- * Updates the photo displayed in the contact editor based on the
- * type of photo selected.  If the type is not recognized, the
- * photo will automatically switch to the generic photo.
- *
- * @param aType The type of photo (web, file, or generic available
- *              by default).
- * @param aCard The nsIAbCard being edited
- *
- */
-function setCardEditorPhoto(aType, aCard)
-{
-  if (!gPhotoHandlers[aType] ||
-      !gPhotoHandlers[aType].onShow(aCard, document, "photo"))
-    gPhotoHandlers["generic"].onShow(aCard, document, "photo");
-}
-
-/**
  * Extract the photo information from an nsIAbCard, and populate
  * the appropriate input fields in the contact editor.  If the
  * nsIAbCard returns an unrecognized PhotoType, the generic
@@ -936,52 +942,58 @@ function setCardEditorPhoto(aType, aCard)
  * @param aCard The nsIAbCard to extract the information from.
  *
  */
-function loadPhoto(aCard)
-{
-  var type = aCard.getProperty("PhotoType", "")
-  if (!gPhotoHandlers[type] ||
-      !gPhotoHandlers[type].onLoad(aCard, document))
-    gPhotoHandlers["generic"].onLoad(aCard, document);
-}
+function loadPhoto(aCard) {
+  var type = aCard.getProperty("PhotoType", "");
 
-/**
- * Given the fields in the current contact editor, commit
- * the photo to an nsIAbCard.  If the photo cannot be saved,
- * the generic contact photo is saved instead.
- *
- * @param aType
- *
- */
-function savePhoto(aCard)
-{
-  var type = document.getElementById("PhotoType").value;
-  if (!gPhotoHandlers[type] ||
-      !gPhotoHandlers[type].onSave(aCard, document))
-    gPhotoHandlers["generic"].onSave(aCard, document);
+  if (!gPhotoHandlers[type] || !gPhotoHandlers[type].onLoad(aCard, document)) {
+    type = "generic";
+    gPhotoHandlers[type].onLoad(aCard, document);
+  }
+
+  document.getElementById("PhotoType").value = type;
+  gPhotoHandlers[type].onShow(aCard, document, "photo");
 }
 
 /**
  * Event handler for when the user switches the type of
- * photo for the nsIAbCard being edited.  Called from
- * abCardOverlay.xul.
+ * photo for the nsIAbCard being edited. Tries to initiate a
+ * photo download.
+ *
+ * @param aPhotoType {string}  The type to switch to
+ * @param aEvent {Event}       The event object if used as an event handler
  */
-function onSwitchPhotoType(aType)
-{
+function onSwitchPhotoType(aPhotoType, aEvent) {
   if (!gEditCard)
     return;
 
-  if (aType != document.getElementById("PhotoType").value)
-    document.getElementById("PhotoType").value = aType;
-  else
-    setCardEditorPhoto(aType, gEditCard.card);
+  // Stop event propagation to the radiogroup command event in case that the
+  // child button is pressed. Otherwise, the download is started twice in a row.
+  if (aEvent) {
+    aEvent.stopPropagation();
+  }
+
+  if (aPhotoType) {
+    if (aPhotoType != document.getElementById("PhotoType").value) {
+      document.getElementById("PhotoType").value = aPhotoType;
+    }
+  } else {
+    aPhotoType = document.getElementById("PhotoType").value;
+  }
+
+  if (gPhotoHandlers[aPhotoType]) {
+    if (!gPhotoHandlers[aPhotoType].onRead(gEditCard.card, document)) {
+      onSwitchPhotoType("generic");
+    }
+  }
 }
 
 /**
  * Removes the photo file at the given path, if present.
  *
  * @param aName The name of the photo to remove from the Photos directory.
+ *              'null' value is allowed and means to remove no file.
  *
- * @return true if the file was deleted.
+ * @return {boolean} True if the file was deleted, false otherwise.
  */
 function removePhoto(aName) {
   if (!aName)
@@ -999,28 +1011,175 @@ function removePhoto(aName) {
 }
 
 /**
+ * Remove previous and temporary photo files from the Photos directory.
+ *
+ * @param aSaved {boolean}  Whether the new card is going to be saved/committed.
+ */
+function purgeOldPhotos(aSaved = true) {
+  // If photo was changed, the array contains at least one member, the original photo.
+  while (gOldPhotos.length > 0) {
+    let photoName = gOldPhotos.pop();
+    if (!aSaved && (gOldPhotos.length == 0)) {
+      // If the saving was cancelled, we want to keep the original photo of the card.
+      break;
+    }
+    removePhoto(photoName);
+  }
+
+  if (aSaved) {
+    // The new photo should stay so we clear the reference to it.
+    gNewPhoto = null;
+  } else {
+    // Changes to card not saved, we don't need the new photo.
+    // It may be null when there was no change of it.
+    removePhoto(gNewPhoto);
+  }
+}
+
+/**
  * Opens a file picker with image filters to look for a contact photo.
  * If the user selects a file and clicks OK then the PhotoURI textbox is set
  * with a file URI pointing to that file and updatePhoto is called.
+ *
+ * @param aEvent {Event} The event object if used as an event handler.
  */
-function browsePhoto() {
-  let nsIFilePicker = Ci.nsIFilePicker;
+function browsePhoto(aEvent) {
+  // Stop event propagation to the radiogroup command event in case that the
+  // child button is pressed. Otherwise, the download is started twice in a row.
+  if (aEvent)
+    aEvent.stopPropagation();
+
   let fp = Cc["@mozilla.org/filepicker;1"]
-             .createInstance(nsIFilePicker);
-  fp.init(window, gAddressBookBundle.getString("browsePhoto"), nsIFilePicker.modeOpen);
+             .createInstance(Ci.nsIFilePicker);
+  fp.init(window, gAddressBookBundle.getString("browsePhoto"),
+          Ci.nsIFilePicker.modeOpen);
+
+  // Open the directory of the currently chosen photo (if any)
+  let currentPhotoFile = document.getElementById("PhotoFile").file
+  if (currentPhotoFile) {
+    fp.displayDirectory = currentPhotoFile.parent;
+  }
 
   // Add All Files & Image Files filters and select the latter
-  fp.appendFilters(nsIFilePicker.filterImages);
-  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.appendFilters(Ci.nsIFilePicker.filterImages);
+  fp.appendFilters(Ci.nsIFilePicker.filterAll);
 
   fp.open(rv => {
-    if (rv != nsIFilePicker.returnOK) {
+    if (rv != Ci.nsIFilePicker.returnOK) {
       return;
     }
     document.getElementById("PhotoFile").file = fp.file;
-    onSwitchPhotoType(document.getElementById("FilePhotoType").value);
+    onSwitchPhotoType("file");
   });
 }
+
+/**
+ * Handlers to add drag and drop support.
+ */
+function checkDropPhoto(aEvent) {
+  // Just allow anything to be dropped. Different types of data are handled
+  // in doDropPhoto() below.
+  aEvent.preventDefault();
+}
+
+function doDropPhoto(aEvent) {
+  aEvent.preventDefault();
+
+  let photoType = "";
+
+  // Check if a file has been dropped.
+  let file = aEvent.dataTransfer.mozGetDataAt("application/x-moz-file", 0);
+  if (file instanceof Ci.nsIFile) {
+    photoType = "file";
+    document.getElementById("PhotoFile").file = file;
+  } else {
+    // Check if a URL has been dropped.
+    let link = aEvent.dataTransfer.getData("URL");
+    if (link) {
+      photoType = "web";
+      document.getElementById("PhotoURI").value = link;
+    } else {
+      // Check if dropped text is a URL.
+      link = aEvent.dataTransfer.getData("text/plain");
+      if (/^(ftps?|https?):\/\//i.test(link)) {
+        photoType = "web";
+        document.getElementById("PhotoURI").value = link;
+      }
+    }
+  }
+
+  onSwitchPhotoType(photoType);
+}
+
+/**
+ * Self-contained object to manage the user interface used for downloading
+ * and storing contact photo images.
+ */
+var gPhotoDownloadUI = (function() {
+  // UI DOM elements
+  let elProgressbar;
+  let elProgressLabel;
+  let elPhotoType;
+  let elProgressContainer;
+
+  window.addEventListener("load", function load(event) {
+    if (!elProgressbar)
+      elProgressbar = document.getElementById("PhotoDownloadProgress");
+    if (!elProgressLabel)
+      elProgressLabel = document.getElementById("PhotoStatus");
+    if (!elPhotoType)
+      elPhotoType = document.getElementById("PhotoType");
+    if (!elProgressContainer)
+      elProgressContainer = document.getElementById("ProgressContainer");
+  }, false);
+
+  function onStart() {
+    elProgressContainer.setAttribute("class", "expanded");
+    elProgressLabel.value = "";
+    elProgressbar.hidden = false;
+    elProgressbar.value = 3; // Start with a tiny visible progress
+  }
+
+  function onSuccess() {
+    elProgressLabel.value = "";
+    elProgressContainer.setAttribute("class", "");
+  }
+
+  function onError(state) {
+    let msg;
+    switch (state) {
+      case gImageDownloader.ERROR_INVALID_URI:
+        msg = gAddressBookBundle.getString("errorInvalidUri");
+        break;
+      case gImageDownloader.ERROR_UNAVAILABLE:
+        msg = gAddressBookBundle.getString("errorNotAvailable");
+        break;
+      case gImageDownloader.ERROR_INVALID_IMG:
+        msg = gAddressBookBundle.getString("errorInvalidImage");
+        break;
+      case gImageDownloader.ERROR_SAVE:
+        msg = gAddressBookBundle.getString("errorSaveOperation");
+        break;
+    }
+    if (msg) {
+      elProgressLabel.value = msg;
+      elProgressbar.hidden = true;
+      onSwitchPhotoType("generic");
+    }
+  }
+
+  function onProgress(state, percent) {
+    elProgressbar.value = percent;
+    elProgressLabel.value = gAddressBookBundle.getString("stateImageSave");
+  }
+
+  return {
+    onStart: onStart,
+    onSuccess: onSuccess,
+    onError: onError,
+    onProgress: onProgress
+  }
+})();
 
 /* A photo handler defines the behaviour of the contact editor
  * for a particular photo type. Each photo handler must implement
@@ -1043,53 +1202,63 @@ function browsePhoto() {
  *   If the function returns false, the generic photo handler onShow
  *   function will be called.
  *
- * onSave: function(aCard, aDocument)
- *   Called when the editor wants to save this photo type.  The
- *   onSave method is responsible for analyzing the photo of this
+ * onRead: function(aCard, aDocument)
+ *   Called when the editor wants to read the user supplied new photo.
+ *   The onRead method is responsible for analyzing the photo of this
  *   type requested by the user, and storing it, as well as the
  *   other fields required by onLoad/onShow to retrieve and display
- *   the photo again.  Returns true on success.  If the function
- *   returns false, the generic photo handler onSave function will
+ *   the photo again. Returns true on success.  If the function
+ *   returns false, the generic photo handler onRead function will
  *   be called.
+ *
+ * onSave: function(aCard, aDocument)
+ *   Called when the editor wants to save this photo type to the card.
+ *   Returns true on success.
  */
 
-var gGenericPhotoHandler =
-{
-
-  onLoad: function(aCard, aDocument)
-  {
+var gGenericPhotoHandler = {
+  onLoad: function(aCard, aDocument) {
     return true;
   },
 
-  onShow: function(aCard, aDocument, aTargetID)
-  {
+  onShow: function(aCard, aDocument, aTargetID) {
+    // XXX TODO: this ignores any other value from the generic photos
+    // menulist than "default".
     aDocument.getElementById(aTargetID)
              .setAttribute("src", defaultPhotoURI);
     return true;
   },
 
-  onSave: function(aCard, aDocument)
-  {
-    // If we had the photo saved locally, clear it.
-    removePhoto(aCard.getProperty("PhotoName", null));
+  onRead: function(aCard, aDocument) {
+    gPhotoDownloadUI.onSuccess();
+
+    newPhotoAdded("", aCard);
+
+    gGenericPhotoHandler.onShow(aCard, aDocument, "photo");
+    return true;
+  },
+
+  onSave: function(aCard, aDocument) {
+    // XXX TODO: this ignores any other value from the generic photos
+    // menulist than "default".
+
+    // Update contact
     aCard.setProperty("PhotoName", "");
     aCard.setProperty("PhotoURI", "");
-    aCard.setProperty("PhotoType", "generic");
     return true;
   }
 };
 
-var gFilePhotoHandler =
-{
+var gFilePhotoHandler = {
 
-  onLoad: function(aCard, aDocument)
-  {
-    var photoURI = aCard.getProperty("PhotoURI", "");
-    try
-    {
-      var file = Services.io.newURI(photoURI)
-                            .QueryInterface(Ci.nsIFileURL)
-                            .file;
+  onLoad: function(aCard, aDocument) {
+    let photoURI = aCard.getProperty("PhotoURI", "");
+    let file;
+    try {
+      // The original file may not exist anymore, but we still display it.
+      file = Services.io.newURI(photoURI)
+                        .QueryInterface(Ci.nsIFileURL)
+                        .file;
     } catch (e) {}
 
     if (!file)
@@ -1099,53 +1268,56 @@ var gFilePhotoHandler =
     return true;
   },
 
-  onShow: function(aCard, aDocument, aTargetID)
-  {
-    var file = aDocument.getElementById("PhotoFile").file;
-    try
-    {
-      var value = Services.io.newFileURI(file).spec;
-    } catch (e) {}
-
-    if (!value)
-      return false;
-
-    aDocument.getElementById(aTargetID).setAttribute("src", value);
+  onShow: function(aCard, aDocument, aTargetID) {
+    let photoName = gNewPhoto || aCard.getProperty("PhotoName", null);
+    let photoURI = getPhotoURI(photoName);
+    aDocument.getElementById(aTargetID).setAttribute("src", photoURI);
     return true;
   },
 
-  onSave: function(aCard, aDocument)
-  {
-    var file = aDocument.getElementById("PhotoFile").file;
+  onRead: function(aCard, aDocument) {
+    let file = aDocument.getElementById("PhotoFile").file;
     if (!file)
       return false;
 
     // If the local file has been removed/renamed, keep the current photo as is.
     if (!file.exists() || !file.isFile())
-      return true;
-
-    var photoURI = Services.io.newFileURI(file).spec;
-
-    var file = storePhoto(photoURI);
-
-    if (!file)
       return false;
 
-    // Remove the original, if any
-    removePhoto(aCard.getProperty("PhotoName", null));
-    aCard.setProperty("PhotoName", file.leafName);
-    aCard.setProperty("PhotoType", "file");
-    aCard.setProperty("PhotoURI", photoURI);
+    let photoURI = Services.io.newFileURI(file).spec;
+
+    gPhotoDownloadUI.onStart();
+
+    let cbSuccess = function(newPhotoName) {
+      gPhotoDownloadUI.onSuccess();
+
+      newPhotoAdded(newPhotoName, aCard);
+      aDocument.getElementById("PhotoFile").setAttribute("PhotoURI", photoURI);
+
+      gFilePhotoHandler.onShow(aCard, aDocument, "photo");
+    };
+
+    gImageDownloader.savePhoto(photoURI, cbSuccess,
+                               gPhotoDownloadUI.onError,
+                               gPhotoDownloadUI.onProgress);
+    return true;
+  },
+
+  onSave: function(aCard, aDocument) {
+    // Update contact
+    if (gNewPhoto) {
+      // The file may not be valid unless the photo has changed.
+      let photoURI = aDocument.getElementById("PhotoFile").getAttribute("PhotoURI");
+      aCard.setProperty("PhotoName", gNewPhoto);
+      aCard.setProperty("PhotoURI", photoURI);
+    }
     return true;
   }
 };
 
-var gWebPhotoHandler =
-{
-
-  onLoad: function(aCard, aDocument)
-  {
-    var photoURI = aCard.getProperty("PhotoURI", null);
+var gWebPhotoHandler = {
+  onLoad: function(aCard, aDocument) {
+    let photoURI = aCard.getProperty("PhotoURI", null);
 
     if (!photoURI)
       return false;
@@ -1154,33 +1326,55 @@ var gWebPhotoHandler =
     return true;
   },
 
-  onShow: function(aCard, aDocument, aTargetID)
-  {
-    var photoURI = aDocument.getElementById("PhotoURI").value;
-
-    if (!photoURI)
+  onShow: function(aCard, aDocument, aTargetID) {
+    let photoName = gNewPhoto || aCard.getProperty("PhotoName", null);
+    if (!photoName)
       return false;
+
+    let photoURI = getPhotoURI(photoName);
 
     aDocument.getElementById(aTargetID).setAttribute("src", photoURI);
     return true;
   },
 
-  onSave: function(aCard, aDocument)
-  {
-    var photoURI = aDocument.getElementById("PhotoURI").value;
-
-    var file = storePhoto(photoURI);
-    if (!file)
+  onRead: function(aCard, aDocument) {
+    let photoURI = aDocument.getElementById("PhotoURI").value;
+    if (!photoURI)
       return false;
 
-    // Remove the original, if any
-    removePhoto(aCard.getProperty("PhotoName", null));
-    aCard.setProperty("PhotoName", file.leafName);
-    aCard.setProperty("PhotoURI", photoURI);
-    aCard.setProperty("PhotoType", "web");
+    gPhotoDownloadUI.onStart();
+
+    let cbSuccess = function(newPhotoName) {
+      gPhotoDownloadUI.onSuccess();
+
+      newPhotoAdded(newPhotoName, aCard);
+
+      gWebPhotoHandler.onShow(aCard, aDocument, "photo");
+
+    }
+
+    gImageDownloader.savePhoto(photoURI, cbSuccess,
+                               gPhotoDownloadUI.onError,
+                               gPhotoDownloadUI.onProgress);
+    return true;
+  },
+
+  onSave: function(aCard, aDocument) {
+    // Update contact
+    if (gNewPhoto) {
+      let photoURI = aDocument.getElementById("PhotoURI").value;
+      aCard.setProperty("PhotoName", gNewPhoto);
+      aCard.setProperty("PhotoURI", photoURI);
+    }
     return true;
   }
 };
+
+function newPhotoAdded(aPhotoName, aCard) {
+  // If we had the photo saved locally, shedule it for removal if card is saved.
+  gOldPhotos.push(gNewPhoto !== null ? gNewPhoto : aCard.getProperty("PhotoName", null));
+  gNewPhoto = aPhotoName;
+}
 
 /* In order for other photo handlers to be recognized for
  * a particular type, they must be registered through this
