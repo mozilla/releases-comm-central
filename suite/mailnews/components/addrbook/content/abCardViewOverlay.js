@@ -15,7 +15,6 @@ var gPhotoDisplayHandlers = {};
 var zListName;
 var zPrimaryEmail;
 var zSecondaryEmail;
-var zScreenName;
 var zNickname;
 var zDisplayName;
 var zWork;
@@ -28,6 +27,15 @@ var zCustom1;
 var zCustom2;
 var zCustom3;
 var zCustom4;
+var zGtalk;
+var zAIM;
+var zYahoo;
+var zSkype;
+var zQQ;
+var zMSN;
+var zICQ;
+var zXMPP;
+var zIRC;
 
 var cvData;
 
@@ -37,7 +45,6 @@ function OnLoadCardView()
 
   zPrimaryEmail = gAddressBookBundle.getString("propertyPrimaryEmail");
   zSecondaryEmail = gAddressBookBundle.getString("propertySecondaryEmail");
-  zScreenName = gAddressBookBundle.getString("propertyScreenName");
   zNickname = gAddressBookBundle.getString("propertyNickname");
   zDisplayName = gAddressBookBundle.getString("propertyDisplayName");
   zListName = gAddressBookBundle.getString("propertyListName");
@@ -51,6 +58,15 @@ function OnLoadCardView()
   zCustom2 = gAddressBookBundle.getString("propertyCustom2");
   zCustom3 = gAddressBookBundle.getString("propertyCustom3");
   zCustom4 = gAddressBookBundle.getString("propertyCustom4");
+  zGtalk = gAddressBookBundle.getString("propertyGtalk");
+  zAIM = gAddressBookBundle.getString("propertyAIM");
+  zYahoo = gAddressBookBundle.getString("propertyYahoo");
+  zSkype = gAddressBookBundle.getString("propertySkype");
+  zQQ = gAddressBookBundle.getString("propertyQQ");
+  zMSN = gAddressBookBundle.getString("propertyMSN");
+  zICQ = gAddressBookBundle.getString("propertyICQ");
+  zXMPP = gAddressBookBundle.getString("propertyXMPP");
+  zIRC = gAddressBookBundle.getString("propertyIRC");
 
   var doc = document;
 
@@ -70,8 +86,6 @@ function OnLoadCardView()
   cvData.cvDisplayName = doc.getElementById("cvDisplayName");
   cvData.cvEmail1Box = doc.getElementById("cvEmail1Box");
   cvData.cvEmail1 = doc.getElementById("cvEmail1");
-  cvData.cvScreennameBox = doc.getElementById("cvScreennameBox");
-  cvData.cvScreenname = doc.getElementById("cvScreenname");
   cvData.cvBuddyIcon = doc.getElementById("cvBuddyIcon");
   cvData.cvListNameBox = doc.getElementById("cvListNameBox");
   cvData.cvListName = doc.getElementById("cvListName");
@@ -129,6 +143,18 @@ function OnLoadCardView()
   cvData.cvWorkWebPage = doc.getElementById("cvWorkWebPage");
   cvData.cvbPhoto = doc.getElementById("cvbPhoto");
   cvData.cvPhoto = doc.getElementById("cvPhoto");
+  // Chat section
+  cvData.cvbChat      = doc.getElementById("cvbChat");
+  cvData.cvhChat      = doc.getElementById("cvhChat");
+  cvData.cvGtalk      = doc.getElementById("cvGtalk");
+  cvData.cvAIM        = doc.getElementById("cvAIM");
+  cvData.cvYahoo      = doc.getElementById("cvYahoo");
+  cvData.cvSkype      = doc.getElementById("cvSkype");
+  cvData.cvQQ         = doc.getElementById("cvQQ");
+  cvData.cvMSN        = doc.getElementById("cvMSN");
+  cvData.cvICQ        = doc.getElementById("cvICQ");
+  cvData.cvXMPP       = doc.getElementById("cvXMPP");
+  cvData.cvIRC        = doc.getElementById("cvIRC");
 }
 
 // XXX todo
@@ -186,10 +212,9 @@ function DisplayCardViewPane(realCard)
   cvSetNodeWithLabel(data.cvNickname, zNickname, card.getProperty("NickName"));
 
   if (card.isMailList) {
-    // email1, display name and screenname always hidden when a mailing list.
+    // email1 and display name always hidden when a mailing list.
     cvSetVisible(data.cvDisplayName, false);
     cvSetVisible(data.cvEmail1Box, false);
-    cvSetVisible(data.cvScreennameBox, false);
 
     visible = HandleLink(data.cvListName, zListName, card.displayName, data.cvListNameBox, "mailto:" + encodeURIComponent(GenerateAddressFromCard(card))) || visible;
   }
@@ -202,10 +227,6 @@ function DisplayCardViewPane(realCard)
     visible = HandleLink(data.cvEmail1, zPrimaryEmail, card.primaryEmail, data.cvEmail1Box, "mailto:" + card.primaryEmail) || visible;
   }
 
-  var goimURL = "aim:goim?screenname=" + card.getProperty("_AimScreenName");
-  var hasScreenName = HandleLink(data.cvScreenname, zScreenName, card.getProperty("_AimScreenName"), data.cvScreennameBox, goimURL);
-
-  visible = hasScreenName || visible;
   visible = HandleLink(data.cvEmail2, zSecondaryEmail, card.getProperty("SecondEmail"), data.cvEmail2Box, "mailto:" + card.getProperty("SecondEmail")) || visible;
 
   // Home section
@@ -233,8 +254,9 @@ function DisplayCardViewPane(realCard)
     visible = cvAddAddressNodes(data.cvAddresses, card.mailListURI);
     cvSetVisible(data.cvbAddresses, visible);
 
-    // Other section, not shown for mailing lists.
+    // Other and Chat sections, not shown for mailing lists.
     cvSetVisible(data.cvbOther, false);
+    cvSetVisible(data.cvbChat, false);
   }
   else {
     // Other section
@@ -275,6 +297,28 @@ function DisplayCardViewPane(realCard)
 
     cvSetVisible(data.cvhOther, visible);
     cvSetVisible(data.cvbOther, visible);
+
+    // Chat section
+    visible = cvSetNodeWithLabel(data.cvGtalk, zGtalk,
+                                 card.getProperty("_GoogleTalk"));
+    visible = cvSetNodeWithLabel(data.cvAIM, zAIM,
+                                 card.getProperty("_AimScreenName")) || visible;
+    visible = cvSetNodeWithLabel(data.cvYahoo, zYahoo,
+                                 card.getProperty("_Yahoo")) || visible;
+    visible = cvSetNodeWithLabel(data.cvSkype, zSkype,
+                                 card.getProperty("_Skype")) || visible;
+    visible = cvSetNodeWithLabel(data.cvQQ, zQQ,
+                                 card.getProperty("_QQ")) || visible;
+    visible = cvSetNodeWithLabel(data.cvMSN, zMSN,
+                                 card.getProperty("_MSN")) || visible;
+    visible = cvSetNodeWithLabel(data.cvICQ, zICQ,
+                                 card.getProperty("_ICQ")) || visible;
+    visible = cvSetNodeWithLabel(data.cvXMPP, zXMPP,
+                                 card.getProperty("_JabberId")) || visible;
+    visible = cvSetNodeWithLabel(data.cvIRC, zIRC,
+                                 card.getProperty("_IRC")) || visible;
+    cvSetVisible(data.cvhChat, visible);
+    cvSetVisible(data.cvbChat, visible);
 
     // hide description section, not show for non-mailing lists
     cvSetVisible(data.cvbDescription, false);
@@ -388,25 +432,12 @@ function cvSetCityStateZip(node, city, state, zip)
 
 function cvSetNode(node, text)
 {
-  if ( node )
-  {
-    if ( !node.hasChildNodes() )
-    {
-      var textNode = document.createTextNode(text);
-      node.appendChild(textNode);
-    }
-    else if ( node.childNodes.length == 1 )
-      node.childNodes[0].nodeValue = text;
+  if (!node)
+    return false;
 
-    var visible;
-
-    if ( text )
-      visible = true;
-    else
-      visible = false;
-
-    cvSetVisible(node, visible);
-  }
+  node.textContent = text;
+  let visible = !!text;
+  cvSetVisible(node, visible);
 
   return visible;
 }

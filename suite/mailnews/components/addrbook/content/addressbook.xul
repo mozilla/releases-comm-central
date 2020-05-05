@@ -364,10 +364,13 @@
                                   id="cmd_SortByPrimaryEmail"
                                   accesskey="&PrimaryEmail.accesskey;"
                                   oncommand="SortResultPane('PrimaryEmail');" name="sortas" type="radio" checked="true"/>
-            <menuitem label="&ScreenName.label;"
-                                  id="cmd_SortBy_AimScreenName"
-                                  accesskey="&ScreenName.accesskey;"
-                                  oncommand="SortResultPane('_AimScreenName');" name="sortas" type="radio" checked="true"/>
+            <menuitem label="&ChatName.label;"
+                      id="cmd_SortByChatName"
+                      accesskey="&ChatName.accesskey;"
+                      oncommand="SortResultPane('ChatName');"
+                      name="sortas"
+                      type="radio"
+                      checked="true"/>
             <menuitem label="&Company.label;"
                                   id="cmd_SortByCompany"
                                   accesskey="&Company.accesskey;"
@@ -579,9 +582,6 @@
                   <description class="CardViewLink" id="cvEmail2Box">
                     <html:a href="" id="cvEmail2"/>
                   </description>
-                  <description class="CardViewLink" id="cvScreennameBox">
-                    <html:a href="" id="cvScreenname"/>
-                  </description>
                 </vbox>
                 <vbox id="cvbHome" class="cardViewGroup">
                   <description class="CardViewHeading" id="cvhHome">&home.heading;</description>
@@ -620,6 +620,18 @@
                   <hbox>
                     <image id="cvBuddyIcon"/>
                   </hbox>
+                </vbox>
+                <vbox id="cvbChat" class="cardViewGroup">
+                  <description class="CardViewHeading" id="cvhChat">&chat.heading;</description>
+                  <description class="CardViewText" id="cvGtalk"/>
+                  <description class="CardViewText" id="cvAIM"/>
+                  <description class="CardViewText" id="cvYahoo"/>
+                  <description class="CardViewText" id="cvSkype"/>
+                  <description class="CardViewText" id="cvQQ"/>
+                  <description class="CardViewText" id="cvMSN"/>
+                  <description class="CardViewText" id="cvICQ"/>
+                  <description class="CardViewText" id="cvXMPP"/>
+                  <description class="CardViewText" id="cvIRC"/>
                 </vbox>
                 <!-- the description and addresses groups are only for
                       mailing lists -->
