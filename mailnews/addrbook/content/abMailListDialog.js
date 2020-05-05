@@ -95,7 +95,7 @@ function updateMailList(mailList, isNewList) {
   let canonicalNewListName = listname.toLowerCase();
   let canonicalOldListName = gOldListName.toLowerCase();
   if (isNewList || canonicalOldListName != canonicalNewListName) {
-    if (mailingListExists(canonicalNewListName)) {
+    if (mailingListExists(listname)) {
       return false;
     }
   }

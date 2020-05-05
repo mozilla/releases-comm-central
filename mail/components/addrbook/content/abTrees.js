@@ -260,8 +260,13 @@ directoryTreeView.prototype = {
         }
       }
 
-      // Do not allow an already existing name.
-      if (MailServices.ab.mailListNameExists(newName)) {
+      // Prevent duplicate names but allow case change in case canonical name is the same.
+      let canonicalNewListName = newName.toLowerCase();
+      let canonicalOldListName = selectedDirectory.dirName.toLowerCase();
+      if (
+        canonicalNewListName != canonicalOldListName &&
+        MailServices.ab.mailListNameExists(newName)
+      ) {
         return;
       }
 

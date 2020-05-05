@@ -908,7 +908,7 @@ AddrBookDirectoryInner.prototype = {
   },
   hasMailListWithName(name) {
     for (let list of this._lists.values()) {
-      if (list.name == name) {
+      if (list.name.toLowerCase() == name.toLowerCase()) {
         return true;
       }
     }
