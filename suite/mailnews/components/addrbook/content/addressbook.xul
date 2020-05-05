@@ -70,8 +70,8 @@
     <command id="cmd_newNavigator"/>
     <command id="cmd_newPrivateWindow"/>
     <command id="cmd_newEditor"/>
-    <command id="cmd_newcard" oncommand="AbNewCard();"/>
     <command id="cmd_newlist" oncommand="AbNewList();"/>
+    <command id="cmd_newCard" oncommand="goDoCommand('cmd_newCard');"/>
     <command id="cmd_newMessage" oncommand="AbNewMessage();"/>
     <command id="cmd_newim" oncommand="AbIMSelected()"/>
     <command id="cmd_printSetup" oncommand="PrintUtils.showPageSetup()"/>
@@ -118,6 +118,8 @@
   <key id="key_newMessage" key="&newMessageCmd.key;"
        modifiers="accel" command="cmd_newMessage"/>
 #endif
+  <key id="key_newCard" key="&newContact.key;" modifiers="accel"
+       command="cmd_newCard"/>
   <key id="key_printCard" key="&printContactViewCmd.key;"
        command="cmd_printcard" modifiers="accel"/>
   <key id="key_close"/>
@@ -168,7 +170,7 @@
   <menuitem id="dirTreeContext-newcard"
             label="&newContactButton.label;"
             accesskey="&newContactButton.accesskey;"
-            command="cmd_newcard"/>
+            command="cmd_newCard"/>
   <menuitem id="dirTreeContext-newlist"
             label="&newlistButton.label;"
             accesskey="&newlistButton.accesskey;"
@@ -232,7 +234,8 @@
                 <menuitem id="menu_newContact"
                           label="&newContact.label;"
                           accesskey="&newContact.accesskey;"
-                          oncommand="AbNewCard();"/>
+                          key="key_newCard"
+                          command="cmd_newCard"/>
                 <menuitem id="menu_newList"
                           label="&newListCmd.label;"
                           accesskey="&newListCmd.accesskey;"
@@ -420,6 +423,13 @@
                                   id="cmd_SortByWorkPhone"
                                   accesskey="&WorkPhone.accesskey;"
                                   oncommand="SortResultPane('WorkPhone');" name="sortas" type="radio" checked="true"/>
+            <menuitem label="&Addrbook.label;"
+                      id="cmd_SortByaddrbook"
+                      accesskey="&Addrbook.accesskey;"
+                      oncommand="SortResultPane('addrbook');"
+                      name="sortas"
+                      type="radio"
+                      checked="true"/>
             <menuseparator/>
             <menuitem id="sortAscending" type="radio" name="sortdirection" label="&sortAscending.label;" accesskey="&sortAscending.accesskey;" oncommand="AbSortAscending()"/>
             <menuitem id="sortDescending" type="radio" name="sortdirection" label="&sortDescending.label;" accesskey="&sortDescending.accesskey;" oncommand="AbSortDescending()"/>
@@ -461,7 +471,7 @@
                    label="&newContactButton.label;"
                    tooltiptext="&newContactButton.tooltip;"
                    removable="true"
-                   oncommand="AbNewCard();"/>
+                   command="cmd_newCard"/>
     <toolbarbutton id="button-newlist"
                    class="toolbarbutton-1"
                    label="&newlistButton.label;"
@@ -546,7 +556,15 @@
     </splitter>
 
     <vbox flex="1" style="min-width:100px">
-
+      <description id="localResultsOnlyMessage"
+                   value="&localResultsOnlyMessage.label;"/>
+      <vbox id="blankResultsPaneMessageBox"
+            flex="1"
+            pack="center"
+            align="center">
+        <description id="blankResultsPaneMessage"
+                     value="&blankResultsPaneMessage.label;"/>
+      </vbox>
       <!-- results pane -->
       <tree id="abResultsTree" context="abResultsTreeContext" flex="1" />
 

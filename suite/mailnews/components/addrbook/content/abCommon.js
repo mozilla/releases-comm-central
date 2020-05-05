@@ -11,6 +11,9 @@ var abList = null;
 var gAbResultsTree = null;
 var gAbView = null;
 var gAddressBookBundle;
+// A boolean variable determining whether AB column should be shown in AB
+// sidebar in compose window.
+var gShowAbColumnInComposeSidebar = false;
 
 const kDefaultSortColumn = "GeneratedName";
 const kDefaultAscending = "ascending";
@@ -40,6 +43,7 @@ var DirPaneController =
       case "cmd_printcard":
       case "cmd_printcardpreview":
       case "cmd_newlist":
+      case "cmd_newCard":
         return true;
       default:
         return false;
@@ -69,7 +73,8 @@ var DirPaneController =
 
         // If it's one of these special ABs, return false to disable deletion.
         if (selectedDirURI == kPersonalAddressbookURI ||
-            selectedDirURI == kCollectedAddressbookURI)
+            selectedDirURI == kCollectedAddressbookURI ||
+            selectedDirURI == (kAllDirectoryRoot + "?"))
           return false;
 
         // If the directory is a mailing list, and it is read-only,
@@ -102,6 +107,7 @@ var DirPaneController =
       case "cmd_properties":
         return (getSelectedDirectoryURI() != null);
       case "cmd_newlist":
+      case "cmd_newCard":
         return true;
       default:
         return false;
@@ -126,6 +132,9 @@ var DirPaneController =
         break;
       case "cmd_newlist":
         AbNewList();
+        break;
+      case "cmd_newCard":
+        AbNewCard();
         break;
     }
   },
@@ -236,6 +245,12 @@ function InitCommonJS()
   gDirTree = document.getElementById("dirTree");
   abList = document.getElementById("addressbookList");
   gAddressBookBundle = document.getElementById("bundle_addressBook");
+
+  // Make an entry for "All Address Books".
+  if (abList) {
+    abList.insertItemAt(0, gAddressBookBundle.getString("allAddressBooks"),
+                        kAllDirectoryRoot + "?");
+  }
 }
 
 function UpgradeAddressBookResultsPaneUI(prefName)
@@ -271,9 +286,31 @@ function AbDelete()
       confirmDeleteMessage = gAddressBookBundle.getString("confirmDeleteMailingList");
   }
 
-  if (confirmDeleteMessage &&
-      Services.prompt.confirm(window, null, confirmDeleteMessage))
+  if (!confirmDeleteMessage ||
+      !Services.prompt.confirm(window, null, confirmDeleteMessage)) {
+    return;
+  }
+
+  if (getSelectedDirectoryURI() == (kAllDirectoryRoot + "?")) {
+    // Delete cards from "All Address Books" view.
+    let cards = GetSelectedAbCards();
+    for (let i = 0; i < cards.length; i++) {
+      let dirId = cards[i].directoryId
+                          .substring(0, cards[i].directoryId.indexOf("&"));
+      let directory = MailServices.ab.getDirectoryFromId(dirId);
+
+      let cardArray =
+        Cc["@mozilla.org/array;1"]
+          .createInstance(Ci.nsIMutableArray);
+      cardArray.appendElement(cards[i], false);
+      if (directory)
+        directory.deleteCards(cardArray);
+    }
+    SetAbView(kAllDirectoryRoot + "?");
+  } else {
+    // Delete cards from address books or mailing lists.
     gAbView.deleteSelectedCards();
+  }
 }
 
 function AbNewCard()
@@ -457,11 +494,16 @@ function DirPaneDoubleClick(event)
 
 function DirPaneSelectionChange()
 {
+  let uri = getSelectedDirectoryURI();
   // clear out the search box when changing folders...
   onAbClearSearch(false);
   if (gDirectoryTreeView.selection &&
       gDirectoryTreeView.selection.count == 1) {
-    ChangeDirectoryByURI(getSelectedDirectoryURI());
+    ChangeDirectoryByURI(uri);
+    document.getElementById("localResultsOnlyMessage")
+            .setAttribute("hidden",
+                          !gDirectoryTreeView.hasRemoteAB ||
+                          uri != kAllDirectoryRoot + "?");
   }
 }
 
@@ -544,10 +586,10 @@ function InitViewSortByMenu()
     }
 
     // this approach is necessary to support generic columns that get overlayed.
-    var elements = document.getElementsByAttribute("name","sortas");
-    for (var i=0; i<elements.length; i++) {
-      let cmd = elements[i].getAttribute("id");
-      let columnForCmd = cmd.split("cmd_SortBy")[1];
+    let elements = document.querySelectorAll('[name="sortas"]');
+    for (let i = 0; i < elements.length; i++) {
+      let cmd = elements[i].id;
+      let columnForCmd = cmd.substr(10); // everything right of cmd_SortBy
       setSortByMenuItemCheckState(cmd, (sortColumn == columnForCmd));
     }
 

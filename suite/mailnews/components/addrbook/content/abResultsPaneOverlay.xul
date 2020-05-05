@@ -73,7 +73,11 @@
     <treecol id="WorkPhone"
              persist="hidden ordinal width sortDirection" flex="1"
              label="&WorkPhone.label;"/>
-
+    <splitter class="tree-splitter"/>
+    <treecol id="addrbook"
+             persist="hidden ordinal width sortDirection" flex="1"
+             hidden="true"
+             label="&Addrbook.label;"/>
     <!-- LOCALIZATION NOTE: _PhoneticName may be enabled for Japanese builds. -->
     <!--
     <splitter class="tree-splitter"/>

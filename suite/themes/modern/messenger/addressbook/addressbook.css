@@ -121,6 +121,15 @@
   -moz-image-region: rect(408px 199px 441px 150px) !important;
 } 
 
+#blankResultsPaneMessage {
+  font-style: italic;
+}
+
+#localResultsOnlyMessage {
+  font-style: italic;
+  text-align: center;
+}
+
 /* ::::: Card View pane ::::: */
 
 #CardViewBox {

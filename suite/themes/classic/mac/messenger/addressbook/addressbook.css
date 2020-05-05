@@ -303,6 +303,15 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
   color: #738193;
 }
 
+#blankResultsPaneMessage {
+  font-style: italic;
+}
+
+#localResultsOnlyMessage {
+  font-style: italic;
+  text-align: center;
+}
+
 /* CardView styles - used in the Card View Pane */
  
 #CardViewBox {

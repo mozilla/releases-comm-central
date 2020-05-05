@@ -225,6 +225,15 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
   -moz-image-region: rect(0 79px 19px 60px) !important;
 }
 
+#blankResultsPaneMessage {
+  font-style: italic;
+}
+
+#localResultsOnlyMessage {
+  font-style: italic;
+  text-align: center;
+}
+
 /* CardView styles - used in the Card View Pane */
 
 #CardViewOuterBox {

@@ -10,6 +10,8 @@ function GetAbViewListener()
   return null;
 }
 
+var mutationObs = null;
+
 function AbPanelLoad()
 {
   InitCommonJS();
@@ -28,6 +30,22 @@ function AbPanelLoad()
 
   ChangeDirectoryByURI(abPopup.value);
 
+  mutationObs = new MutationObserver(function(aMutations) {
+    aMutations.forEach(function(mutation) {
+      if (getSelectedDirectoryURI() == (kAllDirectoryRoot + "?") &&
+          mutation.type == "attributes" &&
+          mutation.attributeName == "hidden") {
+        let curState = document.getElementById("addrbook").hidden;
+        gShowAbColumnInComposeSidebar = !curState;
+      }
+    });
+  });
+
+  document.getElementById("addrbook").hidden = !gShowAbColumnInComposeSidebar;
+
+  mutationObs.observe(document.getElementById("addrbook"),
+                      { attributes: true, childList: true });
+
   gSearchInput = document.getElementById("searchInput");
 
   // for the compose window we want to show To, Cc, Bcc and a separator
@@ -43,6 +61,8 @@ function AbPanelLoad()
 
 function AbPanelUnload()
 {
+  mutationObs.disconnect();
+
   CloseAbView();
 }
 

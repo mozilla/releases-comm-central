@@ -385,4 +385,15 @@ function DirPaneSelectionChangeMenulist()
     else
       ChangeDirectoryByURI(abList.value);
   }
+
+  // Hide the addressbook column if the selected addressbook isn't
+  // "All address books". Since the column is redundant in all other cases.
+  let addrbookColumn = document.getElementById("addrbook");
+  if (abList.value.startsWith(kAllDirectoryRoot + "?")) {
+    addrbookColumn.hidden = !gShowAbColumnInComposeSidebar;
+    addrbookColumn.removeAttribute("ignoreincolumnpicker");
+  } else {
+    addrbookColumn.hidden = true;
+    addrbookColumn.setAttribute("ignoreincolumnpicker", "true");
+  }
 }

@@ -126,7 +126,6 @@ function GetCurrentPrefs()
             .setAttribute("hidden", "false");
 }
 
-
 function SetNameColumn(cmd)
 {
   var prefValue;
@@ -353,7 +352,10 @@ function SetStatusText(total)
       }
     }
     else
-      statusText = gAddressBookBundle.getFormattedString("totalContactStatus", [gAbView.directory.dirName, total]);
+      statusText =
+        gAddressBookBundle.getFormattedString(
+          "totalContactStatus",
+          [getSelectedDirectory().dirName, total]);
 
     gStatusText.setAttribute("label", statusText);
   }
@@ -385,7 +387,6 @@ function onAdvancedAbSearch()
 function onEnterInSearchBar()
 {
   ClearCardViewPane();
-
   if (!gQueryURIFormat) {
     // Get model query from pref. We don't want the query starting with "?"
     // as we have to prefix "?and" to this format.
@@ -404,6 +405,14 @@ function onEnterInSearchBar()
   // query against multiple fields.
   let searchWords = getSearchTokens(gSearchInput.value);
   searchURI += generateQueryURI(gQueryURIFormat, searchWords);
+
+  if (searchURI == kAllDirectoryRoot)
+    searchURI += "?";
+
+  document.getElementById("localResultsOnlyMessage")
+          .setAttribute("hidden",
+                        !gDirectoryTreeView.hasRemoteAB ||
+                        searchURI != kAllDirectoryRoot + "?");
 
   SetAbView(searchURI);
 

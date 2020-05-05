@@ -157,10 +157,26 @@ function OnLoadNewCard()
   // focus on first or last name based on the pref
   var focus = document.getElementById(gEditCard.displayLastNameFirst
                                       ? "LastName" : "FirstName");
-  if ( focus ) {
+  if (focus) {
     // XXX Using the setTimeout hack until bug 103197 is fixed
     setTimeout( function(firstTextBox) { firstTextBox.focus(); }, 0, focus );
   }
+}
+
+/**
+ * Get the source directory containing the card we are editing.
+ */
+function getContainingDirectory() {
+  let directory = GetDirectoryFromURI(gEditCard.abURI);
+  // If the source directory is "All Address Books", find the parent
+  // address book of the card being edited and reflect the changes in it.
+  if (directory.URI == kAllDirectoryRoot + "?") {
+    let dirId =
+      gEditCard.card.directoryId
+                    .substring(0, gEditCard.card.directoryId.indexOf("&"));
+    directory = MailServices.ab.getDirectoryFromId(dirId);
+  }
+  return directory;
 }
 
 function EditCardOKButton()
@@ -170,7 +186,7 @@ function EditCardOKButton()
 
   // See if this card is in any mailing list
   // if so then we need to update the addresslists of those mailing lists
-  var directory = GetDirectoryFromURI(gEditCard.abURI);
+  let directory = getContainingDirectory();
 
   // if the directory is a mailing list we need to search all the mailing lists
   // in the parent directory if the card exists.

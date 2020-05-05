@@ -4,27 +4,24 @@
 
 <!-- Title -->
 <!ENTITY addressbookWindow.title                        "Address Book">
-
-<!-- Menus:  the . means that the menu item isn't implemented yet -->
-
+<!ENTITY blankResultsPaneMessage.label                  "This address book shows contacts only after a search">
+<!ENTITY localResultsOnlyMessage.label                  "Contacts from remote address books are not shown until you search">
 <!-- File Menu -->
 <!ENTITY newContact.label                               "Contact…">
-<!-- LOCALIZATION NOTE (newContact.accesskey) : DONT_TRANSLATE -->
 <!ENTITY newContact.accesskey                           "C">
+<!ENTITY newContact.key                                 "N">
 <!ENTITY newListCmd.label                               "Mailing List…">
-<!-- LOCALIZATION NOTE (newListCmd.accesskey) : DONT_TRANSLATE -->
 <!ENTITY newListCmd.accesskey                           "L">
 <!ENTITY newAddressBookCmd.label                        "Address Book…">
 <!ENTITY newAddressBookCmd.accesskey                    "o">
 <!ENTITY newLDAPDirectoryCmd.label                      "LDAP Directory…">
-<!-- LOCALIZATION NOTE (newLDAPDirectoryCmd.accesskey) : DONT_TRANSLATE -->
 <!ENTITY newLDAPDirectoryCmd.accesskey                  "D">
 <!ENTITY newIM.label                                    "IM">
 <!ENTITY printContactViewCmd.label                      "Print Contact…">
-<!ENTITY printContactViewCmd.accesskey                  "p">
+<!ENTITY printContactViewCmd.accesskey                  "P">
+<!ENTITY printContactViewCmd.key                        "P">
 <!ENTITY printPreviewContactViewCmd.label               "Print Preview Contact">
 <!ENTITY printPreviewContactViewCmd.accesskey           "v">
-<!ENTITY printContactViewCmd.key                        "P">
 <!ENTITY printAddressBook.label                         "Print Address Book…">
 <!ENTITY printAddressBook.accesskey                     "A">
 <!ENTITY printPreviewAddressBook.label                  "Print Preview Address Book">
@@ -40,7 +37,6 @@
 <!ENTITY swapFirstNameLastNameCmd.label                 "Swap First/Last Name">
 <!ENTITY swapFirstNameLastNameCmd.accesskey             "w">
 <!ENTITY propertiesCmd.label                            "Properties…">
-<!-- LOCALIZATION NOTE (propertiesCmd.accesskey) : DONT_TRANSLATE -->
 <!ENTITY propertiesCmd.accesskey                        "i">
 <!ENTITY propertiesCmd.key                              "i">
 
@@ -56,11 +52,11 @@
 <!ENTITY menu_ShowNameAs.label                          "Show Name As">
 <!ENTITY menu_ShowNameAs.accesskey                      "n">
 <!ENTITY firstLastCmd.label                             "First Last">
-<!ENTITY firstLastCmd.accesskey                         "f">
+<!ENTITY firstLastCmd.accesskey                         "F">
 <!ENTITY lastFirstCmd.label                             "Last, First">
-<!ENTITY lastFirstCmd.accesskey                         "l">
+<!ENTITY lastFirstCmd.accesskey                         "L">
 <!ENTITY displayNameCmd.label                           "Display Name">
-<!ENTITY displayNameCmd.accesskey                       "d">
+<!ENTITY displayNameCmd.accesskey                       "D">
 <!-- LOCALIZATION NOTE (toggleDirectoryPaneCmd.key): This is only used on the
      mac platform, other platforms use VK_F9. -->
 <!ENTITY toggleDirectoryPaneCmd.key                     "S">
