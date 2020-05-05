@@ -84,20 +84,20 @@ merge-automation:
         comm-central-to-beta:
             fetch-version-from: "mail/config/version.txt"
             version-files:
-                -   filename: "mail/config/version.txt"
-                    new-suffix: ''
-                -   filename: "mail/config/version_display.txt"
-                    new-suffix: 'b1'
+                - filename: "mail/config/version.txt"
+                  new-suffix: ''
+                - filename: "mail/config/version_display.txt"
+                  new-suffix: 'b1'
                 # Even though Seamonkey does not use Taskcluster, Thunderbird
                 # developers do merge day activities, so we bump suite as well.
-                -   filename: "suite/config/version.txt"
-                    new-suffix: ''
-                -   filename: "suite/config/version_display.txt"
-                    new-suffix: 'b1'
+                - filename: "suite/config/version.txt"
+                  new-suffix: ''
+                - filename: "suite/config/version_display.txt"
+                  new-suffix: 'b1'
             replacements:
-                -   - mail/config/mozconfigs/l10n-common
-                    - ac_add_options --with-branding=browser/branding/nightly
-                    - ac_add_options --enable-official-branding
+                - - mail/config/mozconfigs/l10n-common
+                  - ac_add_options --with-branding=browser/branding/nightly
+                  - ac_add_options --enable-official-branding
             merge-old-head: true
             base-tag: 'THUNDERBIRD_BETA_{major_version}_BASE'
             end-tag: 'THUNDERBIRD_BETA_{major_version}_END'
