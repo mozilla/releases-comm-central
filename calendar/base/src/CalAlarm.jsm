@@ -44,7 +44,7 @@ CalAlarm.prototype = {
 
   ensureMutable() {
     if (this.mImmutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+      throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
   },
 
@@ -179,10 +179,10 @@ CalAlarm.prototype = {
   },
   set offset(aValue) {
     if (aValue && !(aValue instanceof Ci.calIDuration)) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     if (this.related != ALARM_RELATED_START && this.related != ALARM_RELATED_END) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this.ensureMutable();
     return (this.mOffset = aValue);
@@ -193,10 +193,10 @@ CalAlarm.prototype = {
   },
   set alarmDate(aValue) {
     if (aValue && !(aValue instanceof Ci.calIDateTime)) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     if (this.related != ALARM_RELATED_ABSOLUTE) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this.ensureMutable();
     return (this.mAbsoluteDate = aValue);
@@ -215,7 +215,7 @@ CalAlarm.prototype = {
     } else {
       this.mRepeat = parseInt(aValue, 10);
       if (isNaN(this.mRepeat)) {
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
     }
     return aValue;
@@ -230,7 +230,7 @@ CalAlarm.prototype = {
   set repeatOffset(aValue) {
     this.ensureMutable();
     if (aValue !== null && !(aValue instanceof Ci.calIDuration)) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     return (this.mDuration = aValue);
   },
@@ -377,7 +377,7 @@ CalAlarm.prototype = {
       }
     } else {
       // No offset or absolute date is not valid.
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     comp.addProperty(triggerProp);
 
@@ -468,7 +468,7 @@ CalAlarm.prototype = {
     this.ensureMutable();
     if (!aComp || aComp.componentType != "VALARM") {
       // Invalid Component
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let actionProp = aComp.getFirstProperty("ACTION");
@@ -482,7 +482,7 @@ CalAlarm.prototype = {
     if (actionProp) {
       this.action = actionProp.value;
     } else {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     if (triggerProp) {
@@ -496,14 +496,14 @@ CalAlarm.prototype = {
         this.related = related == "END" ? ALARM_RELATED_END : ALARM_RELATED_START;
       }
     } else {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     if (durationProp && repeatProp) {
       this.repeatOffset = cal.createDuration(durationProp.valueAsIcalString);
       this.repeat = repeatProp.value;
     } else if (durationProp || repeatProp) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     } else {
       this.repeatOffset = null;
       this.repeat = 0;

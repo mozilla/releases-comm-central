@@ -2714,7 +2714,7 @@ class InternalHandlerInfoWrapper extends HandlerInfoWrapper {
   }
 
   get enabled() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   get description() {

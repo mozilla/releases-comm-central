@@ -2147,7 +2147,7 @@ Enigmail.msg = {
     );
 
     if (!newSecurityInfo) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     Enigmail.msg.setSecurityParams(newSecurityInfo);

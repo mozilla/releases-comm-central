@@ -28,7 +28,7 @@ function makeProtocolHandler(aCID, aProtocol, aDefaultPort) {
         return channel;
       }
 
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     },
 
     allowPort(port, scheme) {

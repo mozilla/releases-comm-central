@@ -109,7 +109,7 @@ UserStatus.prototype = {
           }
         }
       } else {
-        throw Cr.NS_ERROR_UNEXPECTED;
+        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
     } else if (aTopic == NS_IOSERVICE_GOING_OFFLINE_TOPIC) {
       this.offline = true;
@@ -324,7 +324,7 @@ CoreService.prototype = {
   },
   quit() {
     if (!this._initialized) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
     Services.obs.removeObserver(this, kQuitApplicationGranted);
@@ -343,7 +343,7 @@ CoreService.prototype = {
 
   getProtocols() {
     if (!this._initialized) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
     let protocols = [];
@@ -373,7 +373,7 @@ CoreService.prototype = {
 
   getProtocolById(aPrplId) {
     if (!this._initialized) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
     if (this._protos.hasOwnProperty(aPrplId)) {

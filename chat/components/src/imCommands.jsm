@@ -28,7 +28,7 @@ CommandsService.prototype = {
       usageContext: Ci.imICommand.CMD_CONTEXT_ALL,
       priority: Ci.imICommand.CMD_PRIORITY_HIGH,
       run(aMsg, aConv) {
-        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+        throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
       },
     });
 
@@ -142,7 +142,7 @@ CommandsService.prototype = {
   registerCommand(aCommand, aPrplId) {
     let name = aCommand.name;
     if (!name) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     if (!this._commands.hasOwnProperty(name)) {
@@ -258,7 +258,7 @@ CommandsService.prototype = {
   },
   executeCommand(aMessage, aConversation, aReturnedConv) {
     if (!aMessage) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let matchResult;

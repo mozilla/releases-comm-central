@@ -44,7 +44,7 @@ var mailnewsURL = {
       return gMsgWindow;
     }
 
-    throw Cr.NS_ERROR_INVALID_POINTER;
+    throw Components.Exception("", Cr.NS_ERROR_INVALID_POINTER);
   },
 };
 

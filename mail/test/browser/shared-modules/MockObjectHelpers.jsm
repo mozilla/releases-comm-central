@@ -30,7 +30,7 @@ MockObjectRegisterer.prototype = {
     this._mockFactory = {
       createInstance: function MF_createInstance(aOuter, aIid) {
         if (aOuter != null) {
-          throw Cr.NS_ERROR_NO_AGGREGATION;
+          throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
         }
         return new providedConstructor().QueryInterface(aIid);
       },
@@ -94,7 +94,7 @@ MockObjectReplacer.prototype = {
     this._mockFactory = {
       createInstance(aOuter, aIid) {
         if (aOuter != null) {
-          throw Cr.NS_ERROR_NO_AGGREGATION;
+          throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
         }
         return new providedConstructor().QueryInterface(aIid);
       },

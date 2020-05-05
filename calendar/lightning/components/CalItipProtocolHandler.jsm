@@ -11,7 +11,7 @@ var ITIP_HANDLER_PROTOCOL = "moz-cal-handle-itip";
 var NS_ERROR_WONT_HANDLE_CONTENT = 0x805d0001;
 
 function NYI() {
-  throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
 }
 
 function ItipChannel(URI, aLoadInfo) {

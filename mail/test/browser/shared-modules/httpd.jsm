@@ -71,7 +71,7 @@ function NS_ASSERT(cond, msg) {
         .join("\n")
     );
 
-    throw Cr.NS_ERROR_ABORT;
+    throw Components.Exception("", Cr.NS_ERROR_ABORT);
   }
 }
 
@@ -472,7 +472,7 @@ nsHttpServer.prototype = {
 
   _start(port, host) {
     if (this._socket) {
-      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
     }
 
     this._port = port;
@@ -512,7 +512,7 @@ nsHttpServer.prototype = {
       this._socket = socket;
     } catch (e) {
       dumpn("!!! could not start server on port " + port + ": " + e);
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
   },
 
@@ -521,10 +521,10 @@ nsHttpServer.prototype = {
   //
   stop(callback) {
     if (!callback) {
-      throw Cr.NS_ERROR_NULL_POINTER;
+      throw Components.Exception("", Cr.NS_ERROR_NULL_POINTER);
     }
     if (!this._socket) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
     this._stopCallback =
@@ -552,7 +552,7 @@ nsHttpServer.prototype = {
   //
   registerFile(path, file) {
     if (file && (!file.exists() || file.isDirectory())) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     this._handler.registerFile(path, file);
@@ -568,7 +568,7 @@ nsHttpServer.prototype = {
       path.charAt(path.length - 1) != "/" ||
       (directory && (!directory.exists() || !directory.isDirectory()))
     ) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     // XXX determine behavior of nonexistent /foo/bar when a /foo/bar/ mapping
@@ -840,7 +840,7 @@ ServerIdentity.prototype = {
   //
   get primaryScheme() {
     if (this._primaryPort === -1) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     return this._primaryScheme;
   },
@@ -850,7 +850,7 @@ ServerIdentity.prototype = {
   //
   get primaryHost() {
     if (this._primaryPort === -1) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     return this._primaryHost;
   },
@@ -860,7 +860,7 @@ ServerIdentity.prototype = {
   //
   get primaryPort() {
     if (this._primaryPort === -1) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     return this._primaryPort;
   },
@@ -1017,15 +1017,15 @@ ServerIdentity.prototype = {
     if (scheme !== "http" && scheme !== "https") {
       dumpn("*** server only supports http/https schemes: '" + scheme + "'");
       dumpStack();
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     if (!HOST_REGEX.test(host)) {
       dumpn("*** unexpected host: '" + host + "'");
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     if (port < 0 || port > 65535) {
       dumpn("*** unexpected port: '" + port + "'");
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
   },
 };
@@ -2301,7 +2301,7 @@ ServerHandler.prototype = {
   registerPathHandler(path, handler) {
     // XXX true path validation!
     if (path.charAt(0) != "/") {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     this._handlerToField(handler, this._overridePaths, path);
@@ -2313,7 +2313,7 @@ ServerHandler.prototype = {
   registerPrefixHandler(path, handler) {
     // XXX true path validation!
     if (path.charAt(0) != "/" || path.charAt(path.length - 1) != "/") {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     this._handlerToField(handler, this._overridePrefixes, path);
@@ -2332,7 +2332,7 @@ ServerHandler.prototype = {
     // the path-to-directory mapping code requires that the first character not
     // be "/", or it will go into an infinite loop
     if (key.charAt(0) == "/") {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     key = toInternalPath(key, false);
@@ -2990,7 +2990,7 @@ ServerHandler.prototype = {
    */
   _handleError(errorCode, metadata, response) {
     if (!metadata) {
-      throw Cr.NS_ERROR_NULL_POINTER;
+      throw Components.Exception("", Cr.NS_ERROR_NULL_POINTER);
     }
 
     var errorX00 = errorCode - (errorCode % 100);
@@ -3531,7 +3531,7 @@ Response.prototype = {
   //
   get bodyOutputStream() {
     if (this._finished) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
 
     if (!this._bodyOutputStream) {
@@ -3557,7 +3557,7 @@ Response.prototype = {
   //
   write(data) {
     if (this._finished) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
 
     var dataAsString = String(data);
@@ -3569,12 +3569,12 @@ Response.prototype = {
   //
   setStatusLine(httpVersion, code, description) {
     if (!this._headers || this._finished || this._powerSeized) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
     this._ensureAlive();
 
     if (!(code >= 0 && code < 1000)) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     try {
@@ -3588,7 +3588,7 @@ Response.prototype = {
         httpVer = new nsHttpVersion(httpVersion);
       }
     } catch (e) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     // Reason-Phrase = *<TEXT, excluding CR, LF>
@@ -3601,7 +3601,7 @@ Response.prototype = {
     }
     for (var i = 0; i < description.length; i++) {
       if (isCTL(description.charCodeAt(i)) && description.charAt(i) != "\t") {
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
     }
 
@@ -3616,7 +3616,7 @@ Response.prototype = {
   //
   setHeader(name, value, merge) {
     if (!this._headers || this._finished || this._powerSeized) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
     this._ensureAlive();
 
@@ -3628,10 +3628,10 @@ Response.prototype = {
   //
   processAsync() {
     if (this._finished) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     if (this._powerSeized) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
     if (this._processAsync) {
       return;
@@ -3664,10 +3664,10 @@ Response.prototype = {
   //
   seizePower() {
     if (this._processAsync) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
     if (this._finished) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     if (this._powerSeized) {
       return;
@@ -3707,7 +3707,7 @@ Response.prototype = {
   //
   finish() {
     if (!this._processAsync && !this._powerSeized) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     if (this._finished) {
       return;
@@ -4085,7 +4085,7 @@ Response.SEGMENT_SIZE = 8192;
 
 /** Serves double duty in WriteThroughCopier implementation. */
 function notImplemented() {
-  throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+  throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
 }
 
 /** Returns true iff the given exception represents stream closure. */
@@ -4119,7 +4119,7 @@ function wouldBlock(e) {
  */
 function WriteThroughCopier(source, sink, observer) {
   if (!source || !sink || !observer) {
-    throw Cr.NS_ERROR_NULL_POINTER;
+    throw Components.Exception("", Cr.NS_ERROR_NULL_POINTER);
   }
 
   /** Stream from which data is being read. */
@@ -4237,7 +4237,7 @@ WriteThroughCopier.prototype = {
       // Handle the zero-data edge case in the same place as all other edge
       // cases are handled.
       if (bytesWanted === 0) {
-        throw Cr.NS_BASE_STREAM_CLOSED;
+        throw Components.Exception("", Cr.NS_BASE_STREAM_CLOSED);
       }
     } catch (e) {
       let ex = e;
@@ -4641,13 +4641,13 @@ var headerUtils = {
   normalizeFieldName(fieldName) {
     if (fieldName == "") {
       dumpn("*** Empty fieldName");
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     for (var i = 0, sz = fieldName.length; i < sz; i++) {
       if (!IS_TOKEN_ARRAY[fieldName.charCodeAt(i)]) {
         dumpn(fieldName + " is not a valid header field name!");
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
     }
 
@@ -4694,7 +4694,7 @@ var headerUtils = {
     for (var i = 0, len = val.length; i < len; i++) {
       if (isCTL(val.charCodeAt(i))) {
         dump("*** Char " + i + " has charcode " + val.charCodeAt(i));
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
     }
 
@@ -4887,7 +4887,7 @@ nsHttpHeaders.prototype = {
     if (name in this._headers) {
       return this._headers[name];
     }
-    throw Cr.NS_ERROR_NOT_AVAILABLE;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
   },
 
   /**
@@ -4940,7 +4940,7 @@ nsSimpleEnumerator.prototype = {
   },
   getNext() {
     if (!this.hasMoreElements()) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
 
     return this._items[this._nextIndex++];

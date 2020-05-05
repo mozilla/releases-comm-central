@@ -613,7 +613,7 @@ var calitem = {
     // Throw for an invalid parameter
     aIcalComponent = cal.wrapInstance(aIcalComponent, Ci.calIIcalComponent);
     if (!aIcalComponent) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     // Set the prodid and version
     aIcalComponent.prodid = calitem.productId;

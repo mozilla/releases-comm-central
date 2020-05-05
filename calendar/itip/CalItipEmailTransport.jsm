@@ -48,7 +48,7 @@ CalItipEmailTransport.prototype = {
       return this._sendXpcomMail(aRecipients, items.subject, items.body, aItipItem);
     }
     // sending xpcom mail is not available if no identity has been set
-    throw Cr.NS_ERROR_NOT_AVAILABLE;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
   },
 
   _prepareItems(aItipItem) {

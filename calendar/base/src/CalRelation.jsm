@@ -93,7 +93,7 @@ CalRelation.prototype = {
   set icalString(val) {
     let prop = cal.getIcsService().createIcalPropertyFromString(val);
     if (prop.propertyName != "RELATED-TO") {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     this.icalProperty = prop;
     return val;

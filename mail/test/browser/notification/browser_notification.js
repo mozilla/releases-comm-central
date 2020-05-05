@@ -57,7 +57,7 @@ var gMockAlertsService = {
     // notification
     if (this._doFail) {
       SimpleTest.expectUncaughtException(true);
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this._didNotify = true;
     this._imageUrl = imageUrl;
@@ -100,11 +100,11 @@ var gMockAlertsService = {
 var gMockAlertsServiceFactory = {
   createInstance(aOuter, aIID) {
     if (aOuter != null) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
 
     if (!aIID.equals(Ci.nsIAlertsService)) {
-      throw Cr.NS_ERROR_NO_INTERFACE;
+      throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
     }
 
     return gMockAlertsService;

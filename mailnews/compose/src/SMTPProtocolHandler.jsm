@@ -20,7 +20,7 @@ function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
       nsIProtocolHandler.URI_FORBIDS_AUTOMATIC_DOCUMENT_REPLACEMENT,
 
     newChannel(aURI, aLoadInfo) {
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     },
 
     allowPort(port, scheme) {

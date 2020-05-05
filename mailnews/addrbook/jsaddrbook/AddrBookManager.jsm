@@ -74,7 +74,7 @@ if (AppConstants.platform == "macosx") {
 function createDirectoryObject(uri, shouldStore = false) {
   let uriParts = URI_REGEXP.exec(uri);
   if (!uriParts) {
-    throw Cr.NS_ERROR_MALFORMED_URI;
+    throw Components.Exception("", Cr.NS_ERROR_MALFORMED_URI);
   }
 
   let [, scheme] = uriParts;
@@ -191,7 +191,7 @@ AddrBookManager.prototype = {
 
     let uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
-      throw Cr.NS_ERROR_MALFORMED_URI;
+      throw Components.Exception("", Cr.NS_ERROR_MALFORMED_URI);
     }
     let [, scheme, , tail] = uriParts;
     if (tail && types.includes(scheme)) {
@@ -199,7 +199,7 @@ AddrBookManager.prototype = {
       // Both of these will be handled differently in future.
       return createDirectoryObject(uri);
     }
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   },
   getDirectoryFromId(dirPrefId) {
     ensureInitialized();
@@ -264,7 +264,7 @@ AddrBookManager.prototype = {
         if (AppConstants.platform == "macosx") {
           uri = "moz-abosxdirectory:///";
           if (store.has(uri)) {
-            throw Cr.NS_ERROR_UNEXPECTED;
+            throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
           }
           prefName = "ldap_2.servers.osx";
         } else if (AppConstants.platform == "win") {
@@ -274,14 +274,14 @@ AddrBookManager.prototype = {
               "moz-aboutlookdirectory://op/",
             ].includes(uri)
           ) {
-            throw Cr.NS_ERROR_UNEXPECTED;
+            throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
           }
           if (store.has(uri)) {
-            throw Cr.NS_ERROR_UNEXPECTED;
+            throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
           }
           prefName = "ldap_2.servers.oe";
         } else {
-          throw Cr.NS_ERROR_UNEXPECTED;
+          throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
         }
 
         Services.prefs.setIntPref(`${prefName}.dirType`, MAPI_DIRECTORY_TYPE);
@@ -324,7 +324,7 @@ AddrBookManager.prototype = {
         break;
       }
       default:
-        throw Cr.NS_ERROR_UNEXPECTED;
+        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
     return prefName;
@@ -332,7 +332,7 @@ AddrBookManager.prototype = {
   deleteAddressBook(uri) {
     let uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
-      throw Cr.NS_ERROR_MALFORMED_URI;
+      throw Components.Exception("", Cr.NS_ERROR_MALFORMED_URI);
     }
 
     let [, scheme, fileName, tail] = uriParts;

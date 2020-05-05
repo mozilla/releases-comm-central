@@ -56,7 +56,7 @@ var EnigmailFuncs = {
             mailAddresses +
             "'\n"
         );
-        throw Cr.NS_ERROR_FAILURE;
+        throw Components.Exception("", Cr.NS_ERROR_FAILURE);
       }
 
       mailAddrs =
@@ -80,7 +80,7 @@ var EnigmailFuncs = {
           mailAddresses +
           "'\n"
       );
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     // We know that the "," and the < > are at the right places, thus we can split by ","

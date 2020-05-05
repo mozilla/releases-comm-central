@@ -776,7 +776,7 @@ var MailMigrator = {
       oldFile.append(`${fileName}.mab`);
       if (!oldFile.exists()) {
         if (notFoundThrows) {
-          throw Cr.NS_ERROR_NOT_AVAILABLE;
+          throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
         }
         return;
       }

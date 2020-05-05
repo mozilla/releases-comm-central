@@ -45,11 +45,11 @@ var gMockAuthPrompt = {
   QueryInterface: ChromeUtils.generateQI([Ci.nsIAuthPrompt]),
 
   prompt(aTitle, aText, aRealm, aSave, aDefaultText) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   promptUsernameAndPassword(aTitle, aText, aRealm, aSave, aUser, aPwd) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   promptPassword(aTitle, aText, aRealm, aSave, aPwd) {
@@ -244,11 +244,11 @@ var gMockPromptService = {
 var gMockPromptServiceFactory = {
   createInstance(aOuter, aIID) {
     if (aOuter != null) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
 
     if (!aIID.equals(Ci.nsIPromptService)) {
-      throw Cr.NS_ERROR_NO_INTERFACE;
+      throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
     }
 
     return gMockPromptService;

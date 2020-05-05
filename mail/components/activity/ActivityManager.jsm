@@ -84,7 +84,7 @@ ActivityManager.prototype = {
       activity instanceof Ci.nsIActivityProcess &&
       activity.state == Ci.nsIActivityProcess.STATE_INPROGRESS
     ) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     // remove the activity
@@ -124,7 +124,7 @@ ActivityManager.prototype = {
 
   getActivity(aID) {
     if (!this._activities.has(aID)) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
     return this._activities.get(aID);
   },

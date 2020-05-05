@@ -443,7 +443,7 @@ TimelineConversation.prototype = {
     let parsed = twttr.txt.parseTweet(aMsg);
     if (!parsed.valid) {
       this.systemMessage(_("error.tooLong"), true);
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     this._account.tweet(
       aMsg,

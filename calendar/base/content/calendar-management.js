@@ -680,7 +680,7 @@ var calendarOfflineManager = {
 
   init() {
     if (this.initialized) {
-      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
     }
     Services.obs.addObserver(this, "network:offline-status-changed");
 
@@ -690,7 +690,7 @@ var calendarOfflineManager = {
 
   uninit() {
     if (!this.initialized) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     Services.obs.removeObserver(this, "network:offline-status-changed");
     this.initialized = false;

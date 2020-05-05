@@ -25,7 +25,7 @@ CalAttendee.prototype = {
 
   modify() {
     if (this.mImmutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+      throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
   },
 
@@ -103,7 +103,7 @@ CalAttendee.prototype = {
     }
 
     if (!this.id) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     icalatt.valueAsIcalString = this.id;
     for (let i = 0; i < this.icalAttendeePropMap.length; i++) {
@@ -145,7 +145,7 @@ CalAttendee.prototype = {
   set icalString(val) {
     let prop = cal.getIcsService().createIcalPropertyFromString(val);
     if (prop.propertyName != "ORGANIZER" && prop.propertyName != "ATTENDEE") {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     this.icalProperty = prop;
     return val;

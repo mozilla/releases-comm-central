@@ -91,7 +91,7 @@ MockCloudfileAccount.prototype = {
   },
 
   cancelFileUpload(aUploadId) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   deleteFile(aUploadId) {

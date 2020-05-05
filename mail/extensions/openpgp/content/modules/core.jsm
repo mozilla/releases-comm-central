@@ -301,7 +301,7 @@ function failureOn(ex, status) {
   getEnigmailLog().DEBUG(
     "core.jsm: Enigmail.initialize: exception=" + ex.toString() + "\n"
   );
-  throw Cr.NS_ERROR_FAILURE;
+  throw Components.Exception("", Cr.NS_ERROR_FAILURE);
 }
 
 function getEnvironment(status) {
@@ -497,7 +497,7 @@ class Factory {
 
   createInstance(outer, iid) {
     if (outer) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
     return new this.component();
   }

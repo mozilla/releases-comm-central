@@ -27,7 +27,7 @@ function getDBConnection() {
 
   let conn = Services.storage.openDatabase(dbFile);
   if (!conn.connectionReady) {
-    throw Cr.NS_ERROR_UNEXPECTED;
+    throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
   }
 
   // Grow blist db in 512KB increments.
@@ -381,7 +381,7 @@ var otherContactsTag = {
     return "__others__";
   },
   set name(aNewName) {
-    throw Cr.NS_ERROR_NOT_AVAILABLE;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
   },
   getContacts() {
     return Object.keys(this._contacts).map(id => this._contacts[id]);
@@ -668,7 +668,7 @@ Contact.prototype = {
     // Avoid merging the contact with itself or merging into an
     // already removed contact.
     if (aContact.id == this.id || !(this.id in ContactsById)) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     this._ensureNotDummy();
@@ -717,7 +717,7 @@ Contact.prototype = {
   },
   adoptBuddy(aBuddy) {
     if (aBuddy.contact.id == this.id) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let buddy = BuddiesById[aBuddy.id]; // remove XPConnect wrapper
@@ -796,10 +796,10 @@ Contact.prototype = {
     // Should return a new contact with the same list of tags.
     let buddy = BuddiesById[aBuddy.id];
     if (buddy.contact.id != this.id) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
     if (buddy.contact._buddies.length == 1) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
     // Save the list of tags, it may be destoyed if the buddy was the last one.
@@ -1105,7 +1105,7 @@ Buddy.prototype = {
   },
   set contact(aContact) /* not in imIBuddy */ {
     if (aContact.id == this._contact.id) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     this._notifyObservers("moved-out-of-contact");
@@ -1743,7 +1743,7 @@ ContactsService.prototype = {
           // The account is already stored correctly.
           return;
         }
-        throw Cr.NS_ERROR_UNEXPECTED; // Corrupted database?!?
+        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED); // Corrupted database?!?
       }
     } finally {
       statement.finalize();

@@ -20,7 +20,7 @@ var gCreated = false;
  */
 function FolderLookupService() {
   if (gCreated) {
-    throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+    throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
   }
   this._map = new Map();
   gCreated = true;

@@ -28,7 +28,7 @@ calStringEnumerator.prototype = {
   },
   getNext() {
     if (!this.hasMore()) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     return this.mStringArray[this.mIndex++];
   },

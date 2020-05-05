@@ -43,22 +43,22 @@ var GenericAccountPrototype = {
   },
   observe(aSubject, aTopic, aData) {},
   remove() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   unInit() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   connect() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   disconnect() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   createConversation(aName) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   joinChat(aComponents) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   setBool(aName, aVal) {},
   setInt(aName, aVal) {},
@@ -277,10 +277,10 @@ var GenericAccountPrototype = {
     return new ChatRoomFieldValues(defaultFieldValues);
   },
   requestRoomInfo(aCallback) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   getRoomInfo(aName) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   get isRoomInfoStale() {
     return false;
@@ -387,7 +387,7 @@ var GenericAccountBuddyPrototype = {
   },
   set buddy(aBuddy) {
     if (this._buddy) {
-      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
     }
     this._buddy = aBuddy;
   },
@@ -525,7 +525,7 @@ var GenericAccountBuddyPrototype = {
 
   getTooltipInfo: () => EmptyEnumerator,
   createConversation() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 };
 
@@ -639,7 +639,7 @@ var GenericConversationPrototype = {
   },
   set id(aId) {
     if (this._id) {
-      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
     }
     this._id = aId;
   },
@@ -674,7 +674,7 @@ var GenericConversationPrototype = {
     }
   },
   sendMsg(aMsg) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   sendTyping: aString => Ci.prplIConversation.NO_TYPING_LIMIT,
 
@@ -1139,7 +1139,7 @@ var GenericProtocolPrototype = {
   },
 
   getAccount(aImAccount) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   _getOptionDefault(aName) {

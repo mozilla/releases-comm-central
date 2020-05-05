@@ -55,7 +55,7 @@ CalMemoryCalendar.prototype = {
   },
 
   createCalendar() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   deleteCalendar(calendar, listener) {
@@ -174,7 +174,7 @@ CalMemoryCalendar.prototype = {
       throw Ci.calIErrors.CAL_IS_READONLY;
     }
     if (!aNewItem) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let self = this;

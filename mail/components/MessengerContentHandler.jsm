@@ -58,7 +58,7 @@ function handleIndexerResult(aFile) {
   if (msgHdr) {
     MailUtils.displayMessage(msgHdr);
   } else {
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   }
 }
 
@@ -72,7 +72,7 @@ function mayOpenURI(uri) {
 
 function openURI(uri) {
   if (!mayOpenURI(uri)) {
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   }
 
   var channel = Services.io.newChannelFromURI(
@@ -137,7 +137,7 @@ function openURI(uri) {
         return loadgroup;
       }
 
-      throw Cr.NS_ERROR_NO_INTERFACE;
+      throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
     },
   };
   loader.openURI(channel, true, listener);
@@ -161,7 +161,7 @@ MailDefaultHandler.prototype = {
     try {
       var remoteCommand = cmdLine.handleFlagWithParam("remote", true);
     } catch (e) {
-      throw Cr.NS_ERROR_ABORT;
+      throw Components.Exception("", Cr.NS_ERROR_ABORT);
     }
 
     if (remoteCommand != null) {
@@ -220,14 +220,14 @@ MailDefaultHandler.prototype = {
                 break;
               }
               default:
-                throw Cr.NS_ERROR_ABORT;
+                throw Components.Exception("", Cr.NS_ERROR_ABORT);
             }
             break;
 
           default:
             // Somebody sent us a remote command we don't know how to process:
             // just abort.
-            throw Cr.NS_ERROR_ABORT;
+            throw Components.Exception("", Cr.NS_ERROR_ABORT);
         }
 
         cmdLine.preventDefault = true;
@@ -236,7 +236,7 @@ MailDefaultHandler.prototype = {
         // NS_ERROR_ABORT so that the xremote code knows to return a failure
         // back to the handling code.
         dump(e);
-        throw Cr.NS_ERROR_ABORT;
+        throw Components.Exception("", Cr.NS_ERROR_ABORT);
       }
     }
 
@@ -518,7 +518,7 @@ MailDefaultHandler.prototype = {
         cmdLine.length != actionFlagIdx + 2 ||
         /thunderbird.url.(mailto|news):/.test(param)
       ) {
-        throw Cr.NS_ERROR_ABORT;
+        throw Components.Exception("", Cr.NS_ERROR_ABORT);
       }
       cmdLine.handleFlag("osint", false);
     }
@@ -537,10 +537,10 @@ MailDefaultHandler.prototype = {
           .getService(Ci.nsIWebNavigationInfo)
           .isTypeSupported(aContentType, null)
       ) {
-        throw Cr.NS_ERROR_WONT_HANDLE_CONTENT;
+        throw Components.Exception("", Cr.NS_ERROR_WONT_HANDLE_CONTENT);
       }
     } catch (e) {
-      throw Cr.NS_ERROR_WONT_HANDLE_CONTENT;
+      throw Components.Exception("", Cr.NS_ERROR_WONT_HANDLE_CONTENT);
     }
 
     aRequest.QueryInterface(Ci.nsIChannel);
@@ -550,7 +550,7 @@ MailDefaultHandler.prototype = {
     // actually deal with external windows very well, so we redirect them to
     // the external browser.
     if (!aRequest.URI.schemeIs("http") && !aRequest.URI.schemeIs("https")) {
-      throw Cr.NS_ERROR_WONT_HANDLE_CONTENT;
+      throw Components.Exception("", Cr.NS_ERROR_WONT_HANDLE_CONTENT);
     }
 
     this.openInExternal(aRequest.URI);
@@ -566,7 +566,7 @@ MailDefaultHandler.prototype = {
 
   createInstance(outer, iid) {
     if (outer != null) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
 
     return this.QueryInterface(iid);

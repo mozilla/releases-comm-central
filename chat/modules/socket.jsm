@@ -156,7 +156,7 @@ var Socket = {
     aPort = aOriginPort
   ) {
     if (Services.io.offline) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     // This won't work for Linux due to bug 758848.

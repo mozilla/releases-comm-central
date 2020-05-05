@@ -53,7 +53,7 @@ var ZoomManager = {
 
   setZoomForBrowser(aBrowser, aVal) {
     if (aVal < this.MIN || aVal > this.MAX) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     if (this.useFullZoom || aBrowser.isSyntheticDocument) {

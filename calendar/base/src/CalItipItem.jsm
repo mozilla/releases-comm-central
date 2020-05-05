@@ -43,7 +43,7 @@ CalItipItem.prototype = {
   mResponseMethod: "REPLY",
   get responseMethod() {
     if (!this.mIsInitialized) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     return this.mResponseMethod;
   },
@@ -182,7 +182,7 @@ CalItipItem.prototype = {
    */
   getItemList() {
     if (!this.mIsInitialized) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     return this.mItemList;
   },

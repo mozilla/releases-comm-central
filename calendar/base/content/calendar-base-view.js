@@ -813,7 +813,7 @@
      * @param {calICalendar|calICompositeCalendar} calendar    A calendar object.
      */
     deleteItemsFromCalendar(calendar) {
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
 
     /**

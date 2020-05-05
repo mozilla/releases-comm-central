@@ -136,7 +136,7 @@ EnigmailProtocolHandler.prototype = {
       // Handle enigmail:message/...
 
       if (!EC.getEnigmailService()) {
-        throw Cr.NS_ERROR_FAILURE;
+        throw Components.Exception("", Cr.NS_ERROR_FAILURE);
       }
 
       if (EnigmailURIs.getMessageURI(messageId)) {
@@ -222,7 +222,7 @@ EnigmailProtocolHandler.prototype = {
       domWin.open(spec, "_blank", "chrome,menubar,toolbar,resizable");
     }
 
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   },
 
   handleMimeMessage(messageId) {

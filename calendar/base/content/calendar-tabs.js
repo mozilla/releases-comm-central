@@ -207,7 +207,7 @@ var calendarItemTabType = {
     } else if (aTab.mode.type == "calendarTask") {
       strName = aArgs.calendarEvent.title ? "editTaskDialog" : "newTaskDialog";
     } else {
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
     // name is "New Event", "Edit Task", etc.
     let name = cal.l10n.getCalString(strName);

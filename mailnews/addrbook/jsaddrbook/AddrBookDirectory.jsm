@@ -79,7 +79,7 @@ AddrBookDirectory.prototype = {
           return;
         }
       }
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
     let fileName = uri.substring("jsaddrbook://".length);
@@ -190,7 +190,7 @@ function AddrBookDirectoryInner(fileName) {
     }
   }
   if (!this.dirPrefId) {
-    throw Cr.NS_ERROR_UNEXPECTED;
+    throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
   }
 
   // Make sure we always have a file. If a file is not created, the
@@ -213,7 +213,7 @@ AddrBookDirectoryInner.prototype = {
   _nextListId: null,
   get _prefBranch() {
     if (!this.dirPrefId) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
     return Services.prefs.getBranch(`${this.dirPrefId}.`);
   },
@@ -947,7 +947,7 @@ AddrBookDirectoryInner.prototype = {
   },
   deleteCards(cards) {
     if (cards === null) {
-      throw Cr.NS_ERROR_INVALID_POINTER;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_POINTER);
     }
 
     let deleteCardStatement = this._dbConnection.createStatement(
@@ -1035,7 +1035,7 @@ AddrBookDirectoryInner.prototype = {
   },
   addMailList(list) {
     if (!list.isMailList) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
     let newList = new AddrBookMailingList(
@@ -1060,10 +1060,10 @@ AddrBookDirectoryInner.prototype = {
   },
   editMailListToDatabase(listCard) {
     // Deliberately not implemented, this isn't a mailing list.
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   copyMailList(srcList) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   getIntValue(name, defaultValue) {
     return this._prefBranch.getIntPref(name, defaultValue);

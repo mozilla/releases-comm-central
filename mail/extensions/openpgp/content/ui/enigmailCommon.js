@@ -218,7 +218,7 @@ function EnigReadURLContents(url, maxBytes) {
 
   var ioServ = enigGetService(ENIG_IOSERVICE_CONTRACTID, "nsIIOService");
   if (!ioServ) {
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   }
 
   var fileChannel = EnigmailStreams.createChannel(url);
@@ -253,12 +253,12 @@ function EnigReadFileContents(localFile, maxBytes) {
   );
 
   if (!localFile.exists() || !localFile.isReadable()) {
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   }
 
   var ioServ = enigGetService(ENIG_IOSERVICE_CONTRACTID, "nsIIOService");
   if (!ioServ) {
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   }
 
   var fileURI = ioServ.newFileURI(localFile);

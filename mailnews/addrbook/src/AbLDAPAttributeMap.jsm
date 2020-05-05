@@ -24,7 +24,7 @@ AbLDAPAttributeMap.prototype = {
   getAttributes(aProperty) {
     // fail if no entry for this
     if (!(aProperty in this.mPropertyMap)) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     return this.mPropertyMap[aProperty];
   },
@@ -46,7 +46,7 @@ AbLDAPAttributeMap.prototype = {
     if (!aAllowInconsistencies) {
       for (var attr of attrs) {
         if (attr in this.mAttrMap && this.mAttrMap[attr] != aProperty) {
-          throw Cr.NS_ERROR_FAILURE;
+          throw Components.Exception("", Cr.NS_ERROR_FAILURE);
         }
       }
     }
@@ -83,7 +83,7 @@ AbLDAPAttributeMap.prototype = {
     }
 
     if (!attrs.length) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     return attrs.join(",");
@@ -153,7 +153,7 @@ AbLDAPAttributeMap.prototype = {
     }
 
     if (!cardValueWasSet) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
   },
 
@@ -170,7 +170,7 @@ AbLDAPAttributeMap.prototype = {
 
         // if we've seen this before, there's a problem
         if (attrsSeen.includes(attr)) {
-          throw Cr.NS_ERROR_FAILURE;
+          throw Components.Exception("", Cr.NS_ERROR_FAILURE);
         }
 
         // remember that we've seen it now

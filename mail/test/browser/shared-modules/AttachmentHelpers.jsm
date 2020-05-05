@@ -38,7 +38,7 @@ var gMockFilePicker = {
   addToRecentDocs: false,
 
   get defaultString() {
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   },
 
   get fileURL() {

@@ -254,7 +254,7 @@ class CalDavResponseBase {
 
   /** The listener passed to the channel's asyncOpen */
   get listener() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /** @return {nsIURI} The request URI **/
@@ -329,7 +329,7 @@ class CalDavResponseBase {
 
   /** The text response of the request */
   get text() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   /** @return {DOMDocument} A DOM document with the response xml */

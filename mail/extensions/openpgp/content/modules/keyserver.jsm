@@ -101,7 +101,7 @@ function createError(errId) {
 function parseKeyserverUrl(keyserver) {
   if (keyserver.length > 1024) {
     // insane length of keyserver is forbidden
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   }
 
   keyserver = keyserver.toLowerCase().trim();
@@ -196,7 +196,7 @@ const accessHkpInternal = {
         protocol = "http";
         break;
       case "ldap":
-        throw Cr.NS_ERROR_FAILURE;
+        throw Components.Exception("", Cr.NS_ERROR_FAILURE);
       default:
         // equals to hkps
         protocol = "https";
@@ -657,7 +657,7 @@ const accessKeyBase = {
 
     if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
       // not supported
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     } else if (
       actionFlag === EnigmailConstants.DOWNLOAD_KEY ||
       actionFlag === EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT
@@ -920,7 +920,7 @@ const accessKeyBase = {
   },
 
   upload() {
-    throw Cr.NS_ERROR_FAILURE;
+    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
   },
 
   refresh(keyServer, listener = null) {

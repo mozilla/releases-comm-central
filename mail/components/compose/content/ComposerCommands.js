@@ -1596,18 +1596,18 @@ function IsSupportedTextMimeType(aMimeType) {
 async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
   var editor = GetCurrentEditor();
   if (!aMimeType || !editor) {
-    throw Cr.NS_ERROR_NOT_INITIALIZED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
   }
 
   var editorDoc = editor.document;
   if (!editorDoc) {
-    throw Cr.NS_ERROR_NOT_INITIALIZED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
   }
 
   // if we don't have the right editor type bail (we handle text and html)
   var editorType = GetCurrentEditorType();
   if (!["text", "html", "htmlmail", "textmail"].includes(editorType)) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   var saveAsTextFile = IsSupportedTextMimeType(aMimeType);
@@ -1618,7 +1618,7 @@ async function SaveDocument(aSaveAs, aSaveCopy, aMimeType) {
     aMimeType != kXHTMLMimeType &&
     !saveAsTextFile
   ) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
 
   if (saveAsTextFile) {

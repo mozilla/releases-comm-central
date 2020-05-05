@@ -97,7 +97,7 @@ ActivityProcess.prototype = {
         val == Ci.nsIActivityProcess.STATE_PAUSED
       )
     ) {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
     // we cannot change the state after the activity is completed,
@@ -106,7 +106,7 @@ ActivityProcess.prototype = {
       this._state == Ci.nsIActivityProcess.STATE_COMPLETED ||
       this._state == Ci.nsIActivityProcess.STATE_CANCELED
     ) {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
     if (
@@ -119,7 +119,7 @@ ActivityProcess.prototype = {
         val == Ci.nsIActivityProcess.STATE_CANCELED
       )
     ) {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
     if (
@@ -129,7 +129,7 @@ ActivityProcess.prototype = {
         val == Ci.nsIActivityProcess.STATE_CANCELED
       )
     ) {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
     if (
@@ -139,7 +139,7 @@ ActivityProcess.prototype = {
         val == Ci.nsIActivityProcess.STATE_CANCELED
       )
     ) {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
     let oldState = this._state;

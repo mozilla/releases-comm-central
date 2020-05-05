@@ -274,7 +274,7 @@ class Factory {
 
   createInstance(outer, iid) {
     if (outer) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
     return new this.component();
   }

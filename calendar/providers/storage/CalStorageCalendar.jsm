@@ -63,7 +63,7 @@ CalStorageCalendar.prototype = {
   },
 
   createCalendar() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   async deleteCalendar(aCalendar, listener) {
@@ -149,7 +149,7 @@ CalStorageCalendar.prototype = {
   set uri(aUri) {
     // We can only load once
     if (this.uri) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     let uri = this.__proto__.__proto__.__lookupSetter__("uri").call(this, aUri);
@@ -398,7 +398,7 @@ CalStorageCalendar.prototype = {
       return null;
     }
     if (!aNewItem) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let self = this;
@@ -1960,7 +1960,7 @@ CalStorageCalendar.prototype = {
 
     if (flags & CAL_ITEM_FLAG.HAS_RECURRENCE) {
       if (item.recurrenceId) {
-        throw Cr.NS_ERROR_UNEXPECTED;
+        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
 
       let recInfo = cal.createRecurrenceInfo(item);
@@ -1986,7 +1986,7 @@ CalStorageCalendar.prototype = {
       // (getAdditionalDataForItem->get[Event|Todo]FromRow->getAdditionalDataForItem):
       // every excepton has a recurrenceId and isn't flagged as CAL_ITEM_FLAG.HAS_EXCEPTIONS
       if (item.recurrenceId) {
-        throw Cr.NS_ERROR_UNEXPECTED;
+        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
 
       let rec = item.recurrenceInfo;
@@ -2020,7 +2020,7 @@ CalStorageCalendar.prototype = {
           );
         }
       } else {
-        throw Cr.NS_ERROR_UNEXPECTED;
+        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
     }
 
@@ -2206,7 +2206,7 @@ CalStorageCalendar.prototype = {
     } else if (cal.item.isToDo(item)) {
       this.prepareTodo(stmts, item, olditem, flags);
     } else {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
   },
 
@@ -2364,7 +2364,7 @@ CalStorageCalendar.prototype = {
         for (let exid of exceptions) {
           let ex = rec.getExceptionFor(exid);
           if (!ex) {
-            throw Cr.NS_ERROR_UNEXPECTED;
+            throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
           }
           this.prepareItem(stmts, ex, null);
         }

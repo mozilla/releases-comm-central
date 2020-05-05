@@ -1205,7 +1205,7 @@ ircAccount.prototype = {
       !Services.prefs.getBoolPref("chat.irc.automaticList")
     ) {
       // Pretend we can't return roomInfo.
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
     if (this._roomInfoCallbacks.has(aCallback)) {
       // Callback is not new.

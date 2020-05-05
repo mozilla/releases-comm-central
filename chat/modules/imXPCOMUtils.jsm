@@ -215,7 +215,7 @@ ClassInfo.prototype = {
       return this;
     }
 
-    throw Cr.NS_ERROR_NO_INTERFACE;
+    throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
   },
   get interfaces() {
     return [Ci.nsIClassInfo, Ci.nsISupports].concat(this._interfaces);
@@ -262,7 +262,7 @@ nsSimpleEnumerator.prototype = {
   },
   getNext() {
     if (!this.hasMoreElements()) {
-      throw Cr.NS_ERROR_NOT_AVAILABLE;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
 
     return this._items[this._nextIndex++];
@@ -276,7 +276,7 @@ nsSimpleEnumerator.prototype = {
 var EmptyEnumerator = {
   hasMoreElements: () => false,
   getNext() {
-    throw Cr.NS_ERROR_NOT_AVAILABLE;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
   *[Symbol.iterator]() {},

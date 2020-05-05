@@ -179,7 +179,7 @@ nsMailServer.prototype = {
 
   start(port = -1) {
     if (this._socket) {
-      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
     }
 
     if (port > 0) {

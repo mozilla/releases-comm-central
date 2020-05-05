@@ -34,7 +34,7 @@ calRecurrenceRule.prototype = {
   },
   ensureMutable() {
     if (!this.isMutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+      throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
   },
   clone() {
@@ -58,7 +58,7 @@ calRecurrenceRule.prototype = {
     aRangeEnd = unwrapSingle(ICAL.Time, aRangeEnd);
 
     if (!aMaxCount && !aRangeEnd && this.count == 0 && this.until == null) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let occurrences = [];
@@ -150,7 +150,7 @@ calRecurrenceRule.prototype = {
 
   get count() {
     if (!this.isByCount) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     return this.innerObject.count || -1;
   },

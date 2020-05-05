@@ -1747,7 +1747,7 @@ function updateTitle() {
   } else if (cal.item.isToDo(window.calendarItem)) {
     strName = window.mode == "new" ? "newTaskDialog" : "editTaskDialog";
   } else {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
   let newTitle = cal.l10n.getCalString(strName) + ": " + getElementValue("item-title");
   sendMessage({ command: "updateTitle", argument: newTitle });

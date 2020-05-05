@@ -119,10 +119,10 @@ UnknownProtocol.prototype = {
   },
 
   getAccount(aKey, aName) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   accountExists() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   // false seems an acceptable default for all options
@@ -175,7 +175,7 @@ UnknownAccountBuddy.prototype = GenericAccountBuddyPrototype;
 // 2 values should be stored.
 function imAccount(aKey, aName, aPrplId) {
   if (!aKey.startsWith(kAccountKeyPrefix)) {
-    throw Cr.NS_ERROR_INVALID_ARG;
+    throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
   }
 
   this.id = aKey;
@@ -365,7 +365,7 @@ imAccount.prototype = {
         return;
       }
     } else {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     this._sendNotification(aTopic, aData);
   },
@@ -797,11 +797,11 @@ imAccount.prototype = {
     if (this.prplAccount) {
       return this.prplAccount;
     }
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   connect() {
     if (!this.prplAccount) {
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     }
 
     if (this._passwordRequired) {
@@ -908,7 +908,7 @@ imAccount.prototype = {
   },
   cancelReconnection() {
     if (!this.disconnected) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
     // Ensure we don't keep a status observer that could re-enable the
@@ -1018,7 +1018,7 @@ AccountsService.prototype = {
       try {
         account.trim();
         if (!account) {
-          throw Cr.NS_ERROR_INVALID_ARG;
+          throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
         }
         new imAccount(account);
       } catch (e) {
@@ -1210,7 +1210,7 @@ AccountsService.prototype = {
 
   getAccountById(aAccountId) {
     if (!aAccountId.startsWith(kAccountKeyPrefix)) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let id = parseInt(aAccountId.substr(kAccountKeyPrefix.length));
@@ -1232,11 +1232,11 @@ AccountsService.prototype = {
     // Ensure an account with the same name and protocol doesn't already exist.
     let prpl = Services.core.getProtocolById(aPrpl);
     if (!prpl) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     if (prpl.accountExists(aName)) {
       Cu.reportError("Attempted to create a duplicate account!");
-      throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
     }
 
     /* First get a unique id for the new account. */
@@ -1274,12 +1274,12 @@ AccountsService.prototype = {
   deleteAccount(aAccountId) {
     let account = this.getAccountById(aAccountId);
     if (!account) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let index = this._accounts.indexOf(account);
     if (index == -1) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
     let id = account.numericId;

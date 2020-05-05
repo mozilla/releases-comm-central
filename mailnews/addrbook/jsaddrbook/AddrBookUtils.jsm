@@ -41,7 +41,7 @@ SimpleEnumerator.prototype = {
     if (this.hasMoreElements()) {
       return this._elements[this._position++];
     }
-    throw Cr.NS_ERROR_NOT_AVAILABLE;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
   },
   QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
   *[Symbol.iterator]() {

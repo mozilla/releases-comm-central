@@ -114,7 +114,7 @@
           dateLabel.value = formatter.formatDateTime(this.mAlarm.alarmDate);
         }
       } else {
-        throw Cr.NS_ERROR_ILLEGAL_VALUE;
+        throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
       }
 
       // Relative Date

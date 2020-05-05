@@ -177,7 +177,7 @@ CalTodo.prototype = {
     if (todo.componentType != "VTODO") {
       todo = todo.getFirstSubcomponent("VTODO");
       if (!todo) {
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
     }
 

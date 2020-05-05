@@ -407,7 +407,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       }
 
       if (!this.mStartDate || !this.mEndDate) {
-        throw Cr.NS_ERROR_FAILURE;
+        throw Components.Exception("", Cr.NS_ERROR_FAILURE);
       }
 
       // Days that are not in the main month on display are displayed with

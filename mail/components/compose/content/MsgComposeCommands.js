@@ -4117,13 +4117,13 @@ function SetComposeDetails(newValues) {
     typeof newValues.body == "string" &&
     typeof newValues.plainTextBody == "string"
   ) {
-    throw Cr.NS_ERROR_UNEXPECTED;
+    throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
   }
 
   let editor = GetCurrentEditor();
   if (typeof newValues.body == "string") {
     if (!IsHTMLEditor()) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     editor.rebuildDocumentFromSource(newValues.body);
     gMsgCompose.bodyModified = true;
@@ -4420,7 +4420,7 @@ function CompleteGenericSendMessage(msgType) {
     msgcomposeWindow.setAttribute("msgtype", msgType);
     msgcomposeWindow.dispatchEvent(event);
     if (event.defaultPrevented) {
-      throw Cr.NS_ERROR_ABORT;
+      throw Components.Exception("", Cr.NS_ERROR_ABORT);
     }
 
     gAutoSaving = msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft;

@@ -128,7 +128,7 @@ calItemBase.prototype = {
   },
   set parentItem(value) {
     if (this.mImmutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+      throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
     return (this.mParentItem = cal.unwrapInstance(value));
   },
@@ -170,7 +170,7 @@ calItemBase.prototype = {
    */
   modify() {
     if (this.mImmutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+      throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
     this.mDirty = true;
   },
@@ -664,7 +664,7 @@ calItemBase.prototype = {
   },
   set calendar(calendar) {
     if (this.mImmutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+      throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
     this.mHashId = null; // recompute hashId
     this.mCalendar = calendar;
@@ -701,10 +701,10 @@ calItemBase.prototype = {
 
   // attribute AUTF8String icalString;
   get icalString() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   set icalString(str) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   /**
@@ -919,10 +919,10 @@ calItemBase.prototype = {
 
   // attribute calIIcalComponent icalComponent;
   get icalComponent() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
   set icalComponent(val) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   // attribute PRUint32 generation;
@@ -1014,7 +1014,7 @@ calItemBase.prototype = {
         // Trigger the icalComponent getter to make sure the alarm is valid.
         aAlarm.icalComponent; // eslint-disable-line no-unused-expressions
       } catch (e) {
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
     }
 

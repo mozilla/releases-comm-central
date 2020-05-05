@@ -84,7 +84,7 @@
         dayStartHour > dayEndHour ||
         dayEndHour * 60 > this.mEndMin
       ) {
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
 
       if (this.mDayStartHour != dayStartHour || this.mDayEndHour != dayEndHour) {
@@ -1644,7 +1644,7 @@
         return;
       }
       if (dayStartMin < this.mStartMin || dayStartMin > dayEndMin || dayEndMin > this.mEndMin) {
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
       if (this.mDayStartMin != dayStartMin || this.mDayEndMin != dayEndMin) {
         this.mDayStartMin = dayStartMin;
@@ -1663,7 +1663,7 @@
      */
     setVisibleMinutes(minutes) {
       if (minutes <= 0 || minutes > this.mEndMin - this.mStartMin) {
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
       if (this.mVisibleMinutes != minutes) {
         this.mVisibleMinutes = minutes;

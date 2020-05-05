@@ -142,11 +142,11 @@ CalDavCalendar.prototype = {
   },
 
   createCalendar() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   deleteCalendar(_cal, listener) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   // calIChangeLog interface

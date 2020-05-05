@@ -87,7 +87,7 @@ JSAccountUtils.jaFactory = function(aProperties, aJsDelegateConstructor) {
 
   factory.createInstance = function(outer, iid) {
     if (outer != null) {
-      throw Cr.NS_ERROR_NO_AGGREGATION;
+      throw Components.Exception("", Cr.NS_ERROR_NO_AGGREGATION);
     }
 
     // C++ delegator class.
@@ -186,7 +186,7 @@ JSAccountUtils.jaFactory = function(aProperties, aJsDelegateConstructor) {
         return delegator;
       }
     }
-    throw Cr.NS_ERROR_NO_INTERFACE;
+    throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
   };
 
   return factory;

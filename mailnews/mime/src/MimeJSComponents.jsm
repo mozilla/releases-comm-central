@@ -44,7 +44,7 @@ StringEnumerator.prototype = {
     let result = this._next;
     this._next = undefined;
     if (result.done) {
-      throw Cr.NS_ERROR_UNEXPECTED;
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
     return result.value;
   },
@@ -92,7 +92,7 @@ MimeStructuredHeaders.prototype = {
     if (result === undefined || typeof result == "string") {
       return result;
     }
-    throw Cr.NS_ERROR_ILLEGAL_VALUE;
+    throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
   },
 
   getAddressingHeader(aHeaderName, aPreserveGroups) {
@@ -100,7 +100,7 @@ MimeStructuredHeaders.prototype = {
     if (addrs === undefined) {
       addrs = [];
     } else if (!Array.isArray(addrs)) {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     return fixArray(addrs, aPreserveGroups);
   },
@@ -159,7 +159,7 @@ MimeHeaders.prototype = {
 
   extractHeader(header, getAll) {
     if (!this._headers) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
     // Canonicalized to lower-case form
     header = header.toLowerCase();

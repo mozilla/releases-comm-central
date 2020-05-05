@@ -181,14 +181,14 @@ class CloudFileAccount {
       }
       this._uploads.delete(uploadId);
     } catch (ex) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     if (!results || results.length == 0) {
       console.error(
         `Missing cloudFile.onFileDeleted listener for ${this.extension.id}`
       );
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
   }
 }

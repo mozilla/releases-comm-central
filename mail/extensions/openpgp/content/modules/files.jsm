@@ -147,7 +147,7 @@ var EnigmailFiles = {
 
       if (localFile.exists()) {
         if (localFile.isDirectory() || !localFile.isWritable()) {
-          throw Cr.NS_ERROR_FAILURE;
+          throw Components.Exception("", Cr.NS_ERROR_FAILURE);
         }
 
         if (!permissions) {
@@ -413,7 +413,7 @@ var EnigmailFiles = {
 
       if (data.length) {
         if (fileOutStream.write(data, data.length) != data.length) {
-          throw Cr.NS_ERROR_FAILURE;
+          throw Components.Exception("", Cr.NS_ERROR_FAILURE);
         }
 
         fileOutStream.flush();

@@ -181,7 +181,7 @@ PgpMimeEncrypt.prototype = {
       LOCAL_DEBUG(
         "mimeEncrypt.js: beginCryptoEncapsulation: ERROR MsgComposeSecure not instantiated\n"
       );
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     if (this.useSmime) {
@@ -196,7 +196,7 @@ PgpMimeEncrypt.prototype = {
     }
 
     if (!outStream) {
-      throw Cr.NS_ERROR_NULL_POINTER;
+      throw Components.Exception("", Cr.NS_ERROR_NULL_POINTER);
     }
 
     try {
@@ -228,7 +228,7 @@ PgpMimeEncrypt.prototype = {
           this.hashAlgorithm = "SHA256"; // TODO: coordinate with RNP.jsm
         }
       } else {
-        throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+        throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
       }
 
       this.cryptoBoundary = EnigmailMime.createBoundary();
@@ -472,7 +472,7 @@ PgpMimeEncrypt.prototype = {
     EnigmailLog.DEBUG("mimeEncrypt.js: finishCryptoEncapsulation\n");
 
     if (this.checkSMime && !this.smimeCompose) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
     if (this.useSmime) {
@@ -560,7 +560,7 @@ PgpMimeEncrypt.prototype = {
     }
 
     if (this.checkSMime && !this.smimeCompose) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
 
     if (this.useSmime) {

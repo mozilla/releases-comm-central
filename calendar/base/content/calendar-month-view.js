@@ -132,7 +132,7 @@
 
     setDate(aDate) {
       if (!aDate) {
-        throw Cr.NS_ERROR_NULL_POINTER;
+        throw Components.Exception("", Cr.NS_ERROR_NULL_POINTER);
       }
 
       // Remove all the old events.

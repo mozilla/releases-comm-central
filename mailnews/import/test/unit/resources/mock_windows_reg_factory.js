@@ -13,7 +13,7 @@ MockWindowsRegKey.prototype = {
 
   open(aRootKey, aRelPath, aMode) {
     if (!this._registryData[aRelPath]) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this._keyPath = aRelPath;
   },
@@ -25,7 +25,7 @@ MockWindowsRegKey.prototype = {
       !this._registryData[this._keyPath] ||
       !this._registryData[this._keyPath][aRelPath]
     ) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     let child = new MockWindowsRegKey({});
@@ -45,7 +45,7 @@ MockWindowsRegKey.prototype = {
     let keys = Object.keys(this._registryData[this._keyPath]);
     let keyAtIndex = keys[aIndex];
     if (!keyAtIndex) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     return keyAtIndex;
@@ -56,7 +56,7 @@ MockWindowsRegKey.prototype = {
       !this._registryData[this._keyPath] ||
       !this._registryData[this._keyPath][aName]
     ) {
-      throw Cr.NS_ERROR_FAILURE;
+      throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
     return this._registryData[this._keyPath][aName];

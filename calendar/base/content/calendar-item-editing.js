@@ -624,7 +624,7 @@ function promptOccurrenceModification(aItem, aNeedsFuture, aAction) {
       break;
     case MODIFY_FOLLOWING:
       // TODO tbd in a different bug
-      throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
     case MODIFY_OCCURRENCE:
       pastItems = items;
       break;

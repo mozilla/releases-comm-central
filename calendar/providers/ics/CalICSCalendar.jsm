@@ -81,11 +81,11 @@ CalICSCalendar.prototype = {
   },
 
   createCalendar() {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   deleteCalendar(_cal, listener) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   //
@@ -292,7 +292,7 @@ CalICSCalendar.prototype = {
     this.lock();
     try {
       if (!this.mUri) {
-        throw Cr.NS_ERROR_FAILURE;
+        throw Components.Exception("", Cr.NS_ERROR_FAILURE);
       }
       // makeBackup will call doWriteICS
       this.makeBackup(this.doWriteICS);
@@ -1062,7 +1062,7 @@ httpHooks.prototype = {
     if (aIid.equals(Ci.nsIProgressEventSink)) {
       return this;
     }
-    throw Cr.NS_ERROR_NO_INTERFACE;
+    throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
   },
 };
 

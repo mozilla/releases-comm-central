@@ -141,7 +141,7 @@ CalEvent.prototype = {
     if (event.componentType != "VEVENT") {
       event = event.getFirstSubcomponent("VEVENT");
       if (!event) {
-        throw Cr.NS_ERROR_INVALID_ARG;
+        throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
     }
 

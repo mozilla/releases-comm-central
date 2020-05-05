@@ -408,7 +408,7 @@ var calprovider = {
     }
     set id(aValue) {
       if (this.mID) {
-        throw Cr.NS_ERROR_ALREADY_INITIALIZED;
+        throw Components.Exception("", Cr.NS_ERROR_ALREADY_INITIALIZED);
       }
       this.mID = aValue;
 

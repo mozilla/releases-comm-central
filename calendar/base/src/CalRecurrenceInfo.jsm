@@ -40,12 +40,12 @@ CalRecurrenceInfo.prototype = {
    */
   ensureBaseItem() {
     if (!this.mBaseItem) {
-      throw Cr.NS_ERROR_NOT_INITIALIZED;
+      throw Components.Exception("", Cr.NS_ERROR_NOT_INITIALIZED);
     }
   },
   ensureMutable() {
     if (this.mImmutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+      throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
   },
   ensureSortedRecurrenceRules() {
@@ -191,7 +191,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureBaseItem();
 
     if (aIndex < 0 || aIndex >= this.mRecurrenceItems.length) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     return this.mRecurrenceItems[aIndex];
@@ -215,7 +215,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureMutable();
 
     if (aIndex < 0 || aIndex >= this.mRecurrenceItems.length) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     if (this.mRecurrenceItems[aIndex].isNegative) {
@@ -241,7 +241,7 @@ CalRecurrenceInfo.prototype = {
     if ((pos = this.mRecurrenceItems.indexOf(sip1.data)) > -1) {
       this.deleteRecurrenceItemAt(pos);
     } else {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
   },
 
@@ -251,7 +251,7 @@ CalRecurrenceInfo.prototype = {
     this.ensureSortedRecurrenceRules();
 
     if (aIndex < 0 || aIndex > this.mRecurrenceItems.length) {
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     if (aItem.isNegative) {
@@ -648,7 +648,7 @@ CalRecurrenceInfo.prototype = {
       }
     }
 
-    throw Cr.NS_ERROR_INVALID_ARG;
+    throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
   },
 
   //
@@ -693,12 +693,12 @@ CalRecurrenceInfo.prototype = {
       anItem.parentItem.id != this.mBaseItem.id
     ) {
       cal.ERROR("recurrenceInfo::addException: item parentItem != this.mBaseItem (calendar/id)!");
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     if (anItem.recurrenceId == null) {
       cal.ERROR("recurrenceInfo::addException: item with null recurrenceId!");
-      throw Cr.NS_ERROR_INVALID_ARG;
+      throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
 
     let itemtoadd;

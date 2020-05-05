@@ -450,7 +450,7 @@ MatrixAccount.prototype = {
     return conv;
   },
   createConversation(aName) {
-    throw Cr.NS_ERROR_NOT_IMPLEMENTED;
+    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   },
 
   requestBuddyInfo(aUserId) {

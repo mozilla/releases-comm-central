@@ -33,7 +33,7 @@ CalRecurrenceDate.prototype = {
 
   ensureMutable() {
     if (!this.isMutable) {
-      throw Cr.NS_ERROR_OBJECT_IS_IMMUTABLE;
+      throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
   },
 
@@ -90,7 +90,7 @@ CalRecurrenceDate.prototype = {
     let prop = cal.getIcsService().createIcalPropertyFromString(val);
     let propName = prop.propertyName;
     if (propName != "RDATE" && propName != "EXDATE") {
-      throw Cr.NS_ERROR_ILLEGAL_VALUE;
+      throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
 
     this.icalProperty = prop;
