@@ -6,7 +6,7 @@
  * This file contains helper methods for dealing with addressbook search URIs.
  */
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "getSearchTokens",
   "getModelQuery",
   "modelQueryHasUserValue",

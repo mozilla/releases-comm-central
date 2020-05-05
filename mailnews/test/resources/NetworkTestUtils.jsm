@@ -7,7 +7,7 @@
  * scenarios, such as proxies and SSL connections.
  */
 
-this.EXPORTED_SYMBOLS = ["NetworkTestUtils"];
+const EXPORTED_SYMBOLS = ["NetworkTestUtils"];
 
 var CC = Components.Constructor;
 

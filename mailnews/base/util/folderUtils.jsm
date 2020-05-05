@@ -6,7 +6,7 @@
  * This file contains helper methods for dealing with nsIMsgFolders.
  */
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "getFolderProperties",
   "getSpecialFolderString",
   "allAccountsSorted",

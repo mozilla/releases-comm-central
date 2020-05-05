@@ -7,7 +7,7 @@
  * Generic shared utility code for checking of IP and hostname validity.
  */
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "isLegalHostNameOrIP",
   "isLegalHostName",
   "isLegalIPv4Address",

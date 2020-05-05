@@ -10,7 +10,7 @@
  * or was never used in the old version.
  */
 
-this.EXPORTED_SYMBOLS = ["migrateMailnews"];
+const EXPORTED_SYMBOLS = ["migrateMailnews"];
 
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");

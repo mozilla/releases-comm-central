@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["Feed", "FeedItem", "FeedParser", "FeedUtils"];
+const EXPORTED_SYMBOLS = ["Feed", "FeedItem", "FeedParser", "FeedUtils"];
 
 /* eslint-disable-next-line no-unused-vars */
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");

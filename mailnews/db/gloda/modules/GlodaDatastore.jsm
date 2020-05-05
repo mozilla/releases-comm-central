@@ -7,7 +7,7 @@
  * for inspiration and idioms (and also a name :).
  */
 
-this.EXPORTED_SYMBOLS = ["GlodaDatastore"];
+const EXPORTED_SYMBOLS = ["GlodaDatastore"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");

@@ -12,7 +12,7 @@
  *  benefit readability/size as well.
  */
 
-this.EXPORTED_SYMBOLS = ["GlodaMsgIndexer"];
+const EXPORTED_SYMBOLS = ["GlodaMsgIndexer"];
 
 const { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"

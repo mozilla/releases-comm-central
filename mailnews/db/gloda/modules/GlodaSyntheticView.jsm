@@ -7,7 +7,7 @@
  *  nsIMsgDBView.
  */
 
-this.EXPORTED_SYMBOLS = ["GlodaSyntheticView"];
+const EXPORTED_SYMBOLS = ["GlodaSyntheticView"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = [
+const EXPORTED_SYMBOLS = [
   "GlodaContent",
   "whittlerRegistry",
   "mimeMsgToContentAndMeta",
@@ -80,7 +80,7 @@ WhittlerRegistry.prototype = {
   },
 };
 
-this.whittlerRegistry = new WhittlerRegistry();
+const whittlerRegistry = new WhittlerRegistry();
 
 function GlodaContent() {
   this._contentPriority = null;

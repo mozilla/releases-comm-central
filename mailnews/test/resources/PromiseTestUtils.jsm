@@ -7,7 +7,7 @@
  * with mailnews tests.
  */
 
-this.EXPORTED_SYMBOLS = ["PromiseTestUtils"];
+const EXPORTED_SYMBOLS = ["PromiseTestUtils"];
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

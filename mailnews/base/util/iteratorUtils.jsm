@@ -7,7 +7,7 @@
  * and enumerators) in JS-friendly ways.
  */
 
-this.EXPORTED_SYMBOLS = ["fixIterator", "toXPCOMArray", "toArray"];
+const EXPORTED_SYMBOLS = ["fixIterator", "toXPCOMArray", "toArray"];
 
 var JS_HAS_SYMBOLS = typeof Symbol === "function";
 var ITERATOR_SYMBOL = JS_HAS_SYMBOLS ? Symbol.iterator : "@@iterator";

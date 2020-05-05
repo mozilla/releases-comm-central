@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["Gloda"];
+const EXPORTED_SYMBOLS = ["Gloda"];
 
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 

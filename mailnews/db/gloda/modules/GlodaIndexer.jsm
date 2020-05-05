@@ -10,7 +10,7 @@
  *  benefit readability/size as well.
  */
 
-this.EXPORTED_SYMBOLS = ["GlodaIndexer", "IndexingJob"];
+const EXPORTED_SYMBOLS = ["GlodaIndexer", "IndexingJob"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");

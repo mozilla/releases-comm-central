@@ -6,7 +6,7 @@
  * Wrap everything about virtual folders.
  */
 
-this.EXPORTED_SYMBOLS = ["VirtualFolderHelper"];
+const EXPORTED_SYMBOLS = ["VirtualFolderHelper"];
 
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"

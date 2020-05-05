@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-this.EXPORTED_SYMBOLS = ["GlodaQueryClassFactory"];
+const EXPORTED_SYMBOLS = ["GlodaQueryClassFactory"];
 
 // GlodaDatastore has some constants we need, and oddly enough, there was no
 //  load dependency preventing us from doing this.

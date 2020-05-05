@@ -9,7 +9,7 @@
  *  read/unread, etc.
  */
 
-this.EXPORTED_SYMBOLS = ["GlodaExplicitAttr"];
+const EXPORTED_SYMBOLS = ["GlodaExplicitAttr"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
