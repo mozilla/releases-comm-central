@@ -258,6 +258,10 @@ toolbar[iconsize="small"] > #button-abdelete[disabled] {
   min-width: 120px;
   margin: 0px;
 }
+
+.cardViewColumn {
+  margin-inline-end: 10px;
+}
  
 .cardViewGroup {
   margin-top: 8px;
