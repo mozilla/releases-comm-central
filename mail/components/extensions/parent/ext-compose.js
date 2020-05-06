@@ -510,7 +510,10 @@ this.compose = class extends ExtensionAPI {
           let attachments = [];
           for (let item of bucket.itemChildren) {
             attachments.push(
-              await composeAttachmentTracker.convert(item.attachment, tab.nativeTab)
+              await composeAttachmentTracker.convert(
+                item.attachment,
+                tab.nativeTab
+              )
             );
           }
           return attachments;
