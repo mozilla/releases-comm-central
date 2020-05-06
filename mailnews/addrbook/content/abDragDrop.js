@@ -316,11 +316,7 @@ var abDirTreeObserver = {
 
         // This is true only if srcURI is "All ABs" and action is moving.
         if (srcDirectory) {
-          let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-            Ci.nsIMutableArray
-          );
-          cardArray.appendElement(card);
-          srcDirectory.deleteCards(cardArray);
+          srcDirectory.deleteCards([card]);
         }
       }
     }

@@ -5,9 +5,6 @@
 const { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
-const { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 
 add_task(async () => {
   function doSearch(searchString, ...expectedCards) {
@@ -78,12 +75,8 @@ add_task(async () => {
 
   registerCleanupFunction(() => {
     abWindow.close();
-    personalBook.deleteCards(
-      toXPCOMArray(cardsToRemove.personal, Ci.nsIMutableArray)
-    );
-    historyBook.deleteCards(
-      toXPCOMArray(cardsToRemove.history, Ci.nsIMutableArray)
-    );
+    personalBook.deleteCards(cardsToRemove.personal);
+    historyBook.deleteCards(cardsToRemove.history);
   });
 
   let abDocument = abWindow.document;

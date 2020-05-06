@@ -13,6 +13,6 @@ function run_test() {
     );
   } catch (e) {
     // make sure the correct error message was thrown
-    Assert.equal(e.result, Cr.NS_ERROR_INVALID_POINTER);
+    Assert.equal(e.result, Cr.NS_ERROR_XPC_CANT_CONVERT_PRIMITIVE_TO_ARRAY);
   }
 }

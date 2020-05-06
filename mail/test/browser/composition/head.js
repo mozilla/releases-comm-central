@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// These already exist in `window`, but hey, let's import them again to keep
-// the linter happy.
-var { fixIterator, toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -27,7 +22,7 @@ registerCleanupFunction(() => {
         }
         cards = cards.filter(c => !c.isMailList);
         if (cards.length > 0) {
-          book.deleteCards(toXPCOMArray(cards, Ci.nsIMutableArray));
+          book.deleteCards(cards);
         }
       }
       is([...book.childCards].length, 0);

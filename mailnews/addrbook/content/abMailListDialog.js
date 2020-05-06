@@ -12,7 +12,7 @@ var { MailServices } = ChromeUtils.import(
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-var { fixIterator, toXPCOMArray } = ChromeUtils.import(
+var { fixIterator } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
 
@@ -156,7 +156,7 @@ function updateMailListMembers(mailList, parentDirectory) {
   }
 
   if (cardsToRemove.length > 0) {
-    mailList.deleteCards(toXPCOMArray(cardsToRemove, Ci.nsIMutableArray));
+    mailList.deleteCards(cardsToRemove);
   }
 }
 

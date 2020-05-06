@@ -609,11 +609,7 @@ this.addressBook = class extends ExtensionAPI {
           let node = addressBookCache.findContactById(id);
           let parentNode = addressBookCache.findAddressBookById(node.parentId);
 
-          let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-            Ci.nsIMutableArray
-          );
-          cardArray.appendElement(node.item);
-          parentNode.item.deleteCards(cardArray);
+          parentNode.item.deleteCards([node.item]);
         },
 
         onCreated: new EventManager({
@@ -715,11 +711,7 @@ this.addressBook = class extends ExtensionAPI {
           let node = addressBookCache.findMailingListById(id);
           let contactNode = addressBookCache.findContactById(contactId);
 
-          let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-            Ci.nsIMutableArray
-          );
-          cardArray.appendElement(contactNode.item);
-          node.item.deleteCards(cardArray);
+          node.item.deleteCards([contactNode.item]);
         },
 
         onCreated: new EventManager({

@@ -6,11 +6,6 @@ const EXPORTED_SYMBOLS = ["AddrBookMailingList"];
 
 ChromeUtils.defineModuleGetter(
   this,
-  "fixIterator",
-  "resource:///modules/iteratorUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "MailServices",
   "resource:///modules/MailServices.jsm"
 );
@@ -149,7 +144,7 @@ AddrBookMailingList.prototype = {
         let deleteCardStatement = self._parent._dbConnection.createStatement(
           "DELETE FROM list_cards WHERE list = :list AND card = :card"
         );
-        for (let card of fixIterator(cards, Ci.nsIAbCard)) {
+        for (let card of cards) {
           deleteCardStatement.params.list = self._uid;
           deleteCardStatement.params.card = card.UID;
           deleteCardStatement.execute();

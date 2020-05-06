@@ -373,19 +373,7 @@ function run_test() {
   // Test - Do all emails at the same time.
 
   // First delete all existing cards
-  var childCards = collectChecker.AB.childCards;
-  var cardsToDelete = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
-  for (let childCard of childCards) {
-    cardsToDelete.appendElement(childCard);
-  }
-
-  collectChecker.AB.deleteCards(cardsToDelete);
-
-  // Null these directly, so gc() will purge them
-  childCards = null;
-  cardsToDelete = null;
+  collectChecker.AB.deleteCards([...collectChecker.AB.childCards]);
 
   // Address book should have no cards present.
   Assert.ok(!collectChecker.AB.childCards.hasMoreElements());
@@ -444,10 +432,9 @@ function run_test() {
     true
   );
 
-  childCards = collectChecker.AB.childCards;
   var foundCards = [];
 
-  for (card of childCards) {
+  for (card of collectChecker.AB.childCards) {
     if (card.primaryEmail == kSingleAddress) {
       foundCards.push(card);
     }

@@ -44,7 +44,7 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
                                 bool *aResult) override;
   NS_IMETHOD AddCard(nsIAbCard *aChildCard, nsIAbCard **aAddedCard) override;
   NS_IMETHOD ModifyCard(nsIAbCard *aModifiedCard) override;
-  NS_IMETHOD DeleteCards(nsIArray *aCards) override;
+  NS_IMETHOD DeleteCards(const nsTArray<RefPtr<nsIAbCard>> &aCards) override;
 
   NS_DECL_NSIABLDAPDIRECTORY
   NS_DECL_NSIABDIRSEARCHLISTENER

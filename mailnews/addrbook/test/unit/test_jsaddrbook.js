@@ -338,9 +338,7 @@ add_task(async function addMailingListMember() {
 });
 
 add_task(async function removeMailingListMember() {
-  let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  cardArray.appendElement(contact);
-  list.deleteCards(cardArray);
+  list.deleteCards([contact]);
   observer.checkEvents(
     ["onItemRemoved", list, contact],
     ["addrbook-list-member-removed", contact, list.UID]
@@ -362,9 +360,7 @@ add_task(async function deleteMailingList() {
 });
 
 add_task(async function deleteContact() {
-  let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  cardArray.appendElement(contact);
-  book.deleteCards(cardArray);
+  book.deleteCards([contact]);
   observer.checkEvents(
     ["onItemRemoved", book, contact],
     ["addrbook-contact-deleted", contact, book.UID]
@@ -392,9 +388,7 @@ add_task(async function createContactWithUID() {
   // Setting the UID to it's existing value should not fail.
   contactWithUID.UID = contactWithUID.UID; // eslint-disable-line no-self-assign
 
-  let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  cardArray.appendElement(contactWithUID);
-  book.deleteCards(cardArray);
+  book.deleteCards([contactWithUID]);
   observer.events.length = 0;
 });
 

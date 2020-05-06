@@ -342,7 +342,8 @@ NS_IMETHODIMP nsAbDirProperty::ModifyCard(nsIAbCard *aModifiedCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbDirProperty::DeleteCards(nsIArray *cards) {
+NS_IMETHODIMP nsAbDirProperty::DeleteCards(
+    const nsTArray<RefPtr<nsIAbCard>> &aCards) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

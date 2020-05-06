@@ -728,11 +728,7 @@ add_task(async function test_addressBooks() {
       case "deleteContact": {
         let contact = findContact(args[0]);
         if (contact) {
-          let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-            Ci.nsIMutableArray
-          );
-          cardArray.appendElement(contact);
-          parent.deleteCards(cardArray);
+          parent.deleteCards([contact]);
           extension.sendMessage();
           return;
         }
@@ -786,11 +782,7 @@ add_task(async function test_addressBooks() {
         let contact = findContact(args[1]);
 
         if (list && contact) {
-          let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-            Ci.nsIMutableArray
-          );
-          cardArray.appendElement(contact);
-          list.deleteCards(cardArray);
+          list.deleteCards([contact]);
           equal(0, [...list.childCards].length);
           ok(findContact(args[1]), "Contact was not removed");
           extension.sendMessage();

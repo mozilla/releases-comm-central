@@ -658,11 +658,7 @@ add_task(
     // warning should be gone and the address book switching
     // menu re-enabled.
 
-    let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    cardArray.appendElement(card);
-    ml.deleteCards(cardArray);
+    ml.deleteCards([card]);
 
     // Re-open the inline contact editing panel
     mc.click(getElement(lastAddr, ".emailStar"));

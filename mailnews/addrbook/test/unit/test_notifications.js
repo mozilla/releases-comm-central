@@ -90,13 +90,7 @@ add_test(function() {
 
   // Test - delete a card
 
-  var cardsToDelete = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
-
-  cardsToDelete.appendElement(newCard);
-
-  AB.deleteCards(cardsToDelete);
+  AB.deleteCards([newCard]);
 
   Assert.equal(abListener.result[0][0], "onItemRemoved");
   Assert.equal(abListener.result[0][1], AB);
@@ -219,20 +213,14 @@ add_test(function() {
   abObserver.maxResults = 0;
   abObserver.result = [];
 
-  let cardsToDelete = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
-  cardsToDelete.appendElement(card1);
-  AB.deleteCards(cardsToDelete);
+  AB.deleteCards([card1]);
 
   // Test: remove one card that IS in the mailing list
 
   abObserver.maxResults = 1;
   abObserver.result = [];
 
-  cardsToDelete.clear();
-  cardsToDelete.appendElement(card2);
-  AB.deleteCards(cardsToDelete);
+  AB.deleteCards([card2]);
 
   Assert.equal(abObserver.result.length, 1);
   Assert.equal(abObserver.result[0][0], card2);

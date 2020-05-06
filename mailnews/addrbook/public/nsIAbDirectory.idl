@@ -7,8 +7,6 @@
 
 interface nsIAbCard;
 interface nsIAbDirSearchListener;
-interface nsIArray;
-interface nsIMutableArray;
 interface nsISimpleEnumerator;
 
 /* moz-abdirectory:// is the URI to access nsAbBSDirectory,
@@ -263,7 +261,7 @@ interface nsIAbDirectory : nsISupports {
    *
    * @param  aCards  The cards to delete from the database.
    */
-  void deleteCards(in nsIArray aCards);
+  void deleteCards(in Array<nsIAbCard> aCards);
 
   void dropCard(in nsIAbCard card, in boolean needToCopyCard);
 

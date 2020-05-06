@@ -80,11 +80,7 @@ function ensure_no_card_exists(emailAddress) {
     try {
       var card = ab.cardForEmailAddress(emailAddress);
       if (card) {
-        let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-          Ci.nsIMutableArray
-        );
-        cardArray.appendElement(card);
-        ab.deleteCards(cardArray);
+        ab.deleteCards([card]);
       }
     } catch (ex) {}
   }

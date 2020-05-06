@@ -719,16 +719,15 @@ NS_IMETHODIMP nsAbLDAPDirectory::AddCard(nsIAbCard *aUpdatedCard,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards) {
-  uint32_t cardCount;
+NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(
+    const nsTArray<RefPtr<nsIAbCard>> &aCards) {
+  uint32_t cardCount = aCards.Length();
   uint32_t i;
   nsAutoCString cardDN;
 
-  nsresult rv = aCards->GetLength(&cardCount);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   for (i = 0; i < cardCount; ++i) {
-    nsCOMPtr<nsIAbLDAPCard> card(do_QueryElementAt(aCards, i, &rv));
+    nsresult rv;
+    nsCOMPtr<nsIAbLDAPCard> card(do_QueryInterface(aCards[i], &rv));
     if (NS_FAILED(rv)) {
       NS_WARNING("Wrong type of card passed to nsAbLDAPDirectory::DeleteCards");
       break;
@@ -741,8 +740,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::DeleteCards(nsIArray *aCards) {
     rv = card->GetDn(cardDN);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsIAbCard> realCard(do_QueryInterface(card));
-    realCard->SetDirectoryId(EmptyCString());
+    aCards[i]->SetDirectoryId(EmptyCString());
 
     // Launch query
     rv = DoModify(this, nsILDAPModification::MOD_DELETE, cardDN, nullptr,

@@ -36,10 +36,7 @@ function get_card_for_email(aEmailAddress) {
 function delete_card(aEmailAddress) {
   let [book, card] = get_card_for_email(aEmailAddress);
 
-  let cardArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  cardArray.appendElement(card);
-
-  MailServices.ab.getDirectory(book.URI).deleteCards(cardArray);
+  MailServices.ab.getDirectory(book.URI).deleteCards([card]);
 }
 
 function get_cached_gloda_identity_for_email(aEmailAddress) {

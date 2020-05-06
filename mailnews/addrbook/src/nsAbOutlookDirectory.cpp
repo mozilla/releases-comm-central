@@ -24,6 +24,7 @@
 #include "nsArrayUtils.h"
 #include "nsArrayEnumerator.h"
 #include "nsMsgUtils.h"
+#include "nsQueryObject.h"
 
 static mozilla::LazyLogModule gAbOutlookDirectoryLog("AbOutlookDirectory");
 
@@ -256,14 +257,11 @@ static nsresult ExtractDirectoryEntry(nsIAbDirectory *aDirectory,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(nsIArray *aCardList) {
+NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
+    const nsTArray<RefPtr<nsIAbCard>> &aCards) {
   if (mIsQueryURI) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }
-  if (!aCardList) {
-    return NS_ERROR_NULL_POINTER;
-  }
-  uint32_t nbCards = 0;
   nsresult retCode = NS_OK;
   nsAbWinHelperGuard mapiAddBook(mAbWinType);
 
@@ -271,15 +269,13 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(nsIArray *aCardList) {
     return NS_ERROR_FAILURE;
   }
 
-  retCode = aCardList->GetLength(&nbCards);
-  NS_ENSURE_SUCCESS(retCode, retCode);
+  uint32_t nbCards = aCards.Length();
   uint32_t i = 0;
   nsAutoCString entryString;
   nsMapiEntry cardEntry;
 
   for (i = 0; i < nbCards; ++i) {
-    nsCOMPtr<nsIAbCard> card(do_QueryElementAt(aCardList, i, &retCode));
-    NS_ENSURE_SUCCESS(retCode, retCode);
+    RefPtr<nsIAbCard> card = aCards[i];
 
     retCode = ExtractCardEntry(card, entryString);
     if (NS_SUCCEEDED(retCode) && !entryString.IsEmpty()) {
@@ -1098,6 +1094,7 @@ nsresult nsAbOutlookDirectory::CommitAddressList(void) {
   nsCOMPtr<nsIAbCard> newCard;
   uint32_t pos;
 
+  nsTArray<RefPtr<nsIAbCard>> cardsToDelete;
   for (i = 0; i < nbCards; ++i) {
     element = do_QueryElementAt(m_AddressList, i, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1113,9 +1110,14 @@ nsresult nsAbOutlookDirectory::CommitAddressList(void) {
       rv = CreateCard(card, getter_AddRefs(newCard));
       NS_ENSURE_SUCCESS(rv, rv);
       m_AddressList->ReplaceElementAt(newCard, i);
+    } else {
+      RefPtr<nsIAbCard> cardToDelete = do_QueryObject(element);
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      cardsToDelete.AppendElement(cardToDelete);
     }
   }
-  return DeleteCards(oldList);
+  return DeleteCards(cardsToDelete);
 }
 
 nsresult nsAbOutlookDirectory::UpdateAddressList(void) {

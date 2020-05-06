@@ -211,14 +211,9 @@ var editContactInlineUI = {
       return;
     }
 
-    let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    cardArray.appendElement(this._cardDetails.card);
-
     MailServices.ab
       .getDirectory(this._cardDetails.book.URI)
-      .deleteCards(cardArray);
+      .deleteCards([this._cardDetails.card]);
   },
 
   saveChanges() {
@@ -253,11 +248,7 @@ var editContactInlineUI = {
       this._cardDetails.book.addCard(this._cardDetails.card);
 
       // ...and delete it from the old place.
-      let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-        Ci.nsIMutableArray
-      );
-      cardArray.appendElement(this._cardDetails.card);
-      originalBook.deleteCards(cardArray);
+      originalBook.deleteCards([this._cardDetails.card]);
     }
 
     this.panel.hidePopup();

@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
@@ -187,9 +184,9 @@ add_task(async () => {
   checkRows(contactA2);
   listD.addCard(contactB2);
   checkRows(contactA2);
-  listD.deleteCards(toXPCOMArray([contactB1], Ci.nsIMutableArray));
+  listD.deleteCards([contactB1]);
   checkRows(contactA2);
-  bookB.deleteCards(toXPCOMArray([contactB1], Ci.nsIMutableArray));
+  bookB.deleteCards([contactB1]);
   checkRows(contactA2);
 
   openRootDirectory();
@@ -216,7 +213,7 @@ add_task(async () => {
   checkRows(contactA2, contactB2, listE);
   listE.addCard(contactB2);
   checkRows(contactA2, contactB2, listE);
-  listE.deleteCards(toXPCOMArray([contactB2], Ci.nsIMutableArray));
+  listE.deleteCards([contactB2]);
   checkRows(contactA2, contactB2, listE);
   bookB.deleteDirectory(listE); // Delete E.
   // Removing a mailing list changes the view. Go back to where we were.
@@ -224,7 +221,7 @@ add_task(async () => {
   checkRows(contactA2, contactB2);
   await deleteRowWithPrompt(1);
   checkRows(contactA2);
-  bookA.deleteCards(toXPCOMArray([contactA2], Ci.nsIMutableArray));
+  bookA.deleteCards([contactA2]);
   checkRows();
 
   abWindow.close();

@@ -4,10 +4,6 @@
 
 /* globals MailServices, PROTO_TREE_VIEW, Services */
 
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
-
 function ABView(directory, searchQuery, listener, sortColumn, sortDirection) {
   this.__proto__.__proto__ = new PROTO_TREE_VIEW();
   this.directory = directory;
@@ -95,12 +91,7 @@ ABView.prototype = {
       }
 
       cardSet = [...cardSet];
-      directory.deleteCards(
-        toXPCOMArray(
-          cardSet.filter(card => !card.isMailList),
-          Ci.nsIMutableArray
-        )
-      );
+      directory.deleteCards(cardSet.filter(card => !card.isMailList));
       for (let card of cardSet.filter(card => card.isMailList)) {
         MailServices.ab.deleteAddressBook(card.mailListURI);
       }

@@ -953,7 +953,7 @@ AddrBookDirectoryInner.prototype = {
     let deleteCardStatement = this._dbConnection.createStatement(
       "DELETE FROM cards WHERE uid = :uid"
     );
-    for (let card of cards.enumerate(Ci.nsIAbCard)) {
+    for (let card of cards) {
       deleteCardStatement.params.uid = card.UID;
       deleteCardStatement.execute();
       deleteCardStatement.reset();
@@ -965,7 +965,7 @@ AddrBookDirectoryInner.prototype = {
     this._dbConnection.executeSimpleSQL(
       "DELETE FROM properties WHERE card NOT IN (SELECT DISTINCT uid FROM cards)"
     );
-    for (let card of cards.enumerate(Ci.nsIAbCard)) {
+    for (let card of cards) {
       MailServices.ab.notifyDirectoryItemDeleted(this, card);
       Services.obs.notifyObservers(card, "addrbook-contact-deleted", this.UID);
     }

@@ -515,14 +515,10 @@ function AbDelete() {
         0,
         cards[i].directoryId.indexOf("&")
       );
-      let directory = MailServices.ab.getDirectoryFromId(dirId);
 
-      let cardArray = Cc["@mozilla.org/array;1"].createInstance(
-        Ci.nsIMutableArray
-      );
-      cardArray.appendElement(cards[i]);
+      let directory = MailServices.ab.getDirectoryFromId(dirId);
       if (directory) {
-        directory.deleteCards(cardArray);
+        directory.deleteCards([cards[i]]);
       }
     }
     SetAbView();
