@@ -192,6 +192,13 @@ add_task(async function test_addressBooks() {
         }
       }
 
+      // Test the prevention of creating new address book with an empty name
+      await browser.test.assertRejects(
+        browser.addressBooks.create({ name: "" }),
+        "An unexpected error occurred",
+        "browser.addressBooks.create threw exception"
+      );
+
       browser.test.assertEq(0, events.length, "No events left unconsumed");
       browser.test.log("Completed addressBookTest");
     }
@@ -332,6 +339,31 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("", newAddressList.nickName);
       browser.test.assertEq("", newAddressList.description);
 
+      // Test that a valid name is ensured for an existing mail list
+      await browser.test.assertRejects(
+        browser.mailingLists.update(newMailingListId, {
+          name: "",
+        }),
+        "An unexpected error occurred",
+        "browser.mailingLists.update threw exception"
+      );
+
+      await browser.test.assertRejects(
+        browser.mailingLists.update(newMailingListId, {
+          name: "Two  spaces invalid name",
+        }),
+        "An unexpected error occurred",
+        "browser.mailingLists.update threw exception"
+      );
+
+      await browser.test.assertRejects(
+        browser.mailingLists.update(newMailingListId, {
+          name: "><<<",
+        }),
+        "An unexpected error occurred",
+        "browser.mailingLists.update threw exception"
+      );
+
       await browser.mailingLists.update(newMailingListId, {
         name: "name!",
         nickName: "nickname!",
@@ -441,6 +473,31 @@ add_task(async function test_addressBooks() {
           );
         }
       }
+
+      // Test that a valid name is ensured for a new mail list
+      await browser.test.assertRejects(
+        browser.mailingLists.create(firstBookId, {
+          name: "",
+        }),
+        "An unexpected error occurred",
+        "browser.mailingLists.update threw exception"
+      );
+
+      await browser.test.assertRejects(
+        browser.mailingLists.create(firstBookId, {
+          name: "Two  spaces invalid name",
+        }),
+        "An unexpected error occurred",
+        "browser.mailingLists.update threw exception"
+      );
+
+      await browser.test.assertRejects(
+        browser.mailingLists.create(firstBookId, {
+          name: "><<<",
+        }),
+        "An unexpected error occurred",
+        "browser.mailingLists.update threw exception"
+      );
 
       browser.test.assertEq(0, events.length, "No events left unconsumed");
       browser.test.log("Completed mailingListsTest");

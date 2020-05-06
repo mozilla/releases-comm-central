@@ -1038,6 +1038,32 @@ AddrBookDirectoryInner.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
+    // Check if the new name is empty.
+    if (!list.dirName) {
+      throw new Components.Exception(
+        "Invalid mailing list name",
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
+
+    // Check if the new name contains 2 spaces.
+    if (list.dirName.match("  ")) {
+      throw new Components.Exception(
+        "Invalid mailing list name",
+        Cr.NS_ERROR_ILLEGAL_VALUE
+      );
+    }
+
+    // Check if the new name contains the following special characters.
+    for (let char of ',;"<>') {
+      if (list.dirName.includes(char)) {
+        throw new Components.Exception(
+          "Invalid mailing list name",
+          Cr.NS_ERROR_ILLEGAL_VALUE
+        );
+      }
+    }
+
     let newList = new AddrBookMailingList(
       newUID(),
       this,

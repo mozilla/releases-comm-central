@@ -177,6 +177,32 @@ AddrBookMailingList.prototype = {
         );
       },
       editMailListToDatabase(listCard) {
+        // Check if the new name is empty.
+        if (!self._name) {
+          throw new Components.Exception(
+            "Invalid mailing list name",
+            Cr.NS_ERROR_ILLEGAL_VALUE
+          );
+        }
+
+        // Check if the new name contains 2 spaces.
+        if (self._name.match("  ")) {
+          throw new Components.Exception(
+            "Invalid mailing list name",
+            Cr.NS_ERROR_ILLEGAL_VALUE
+          );
+        }
+
+        // Check if the new name contains the following special characters.
+        for (let char of ',;"<>') {
+          if (self._name.includes(char)) {
+            throw new Components.Exception(
+              "Invalid mailing list name",
+              Cr.NS_ERROR_ILLEGAL_VALUE
+            );
+          }
+        }
+
         self._parent._saveList(self);
         Services.obs.notifyObservers(this, "addrbook-list-updated");
       },
