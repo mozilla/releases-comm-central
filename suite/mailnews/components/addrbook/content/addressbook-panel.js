@@ -46,14 +46,6 @@ function AbPanelUnload()
   CloseAbView();
 }
 
-// onAbClearSearch is unused. It is maintained here for possible
-// ports of patches from Thunderbird which still has this function.
-function onAbClearSearch()
-{
-  gSearchInput.value = "";
-  onEnterInSearchBar();
-}
-
 function AbPanelAdd(addrtype)
 {
   var cards = GetSelectedAbCards();

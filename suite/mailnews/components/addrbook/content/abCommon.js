@@ -414,9 +414,10 @@ function GetAddressesForCards(cards)
 
 function SelectFirstAddressBook()
 {
-  gDirectoryTreeView.selection.select(0);
-
-  ChangeDirectoryByURI(getSelectedDirectoryURI());
+  if (gDirectoryTreeView.selection.currentIndex != 0) {
+    gDirectoryTreeView.selection.select(0);
+    ChangeDirectoryByURI(getSelectedDirectoryURI());
+  }
   gAbResultsTree.focus();
 }
 
@@ -430,15 +431,6 @@ function DirPaneClick(event)
   if (event.originalTarget.localName == "treecol") {
     event.stopPropagation();
     return;
-  }
-
-  let searchInput = document.getElementById("searchInput");
-  // if there is a searchInput element, and it's not blank
-  // then we need to act like the user cleared the
-  // search text
-  if (searchInput && searchInput.value) {
-    searchInput.value = "";
-    onEnterInSearchBar();
   }
 }
 
@@ -465,22 +457,22 @@ function DirPaneDoubleClick(event)
 
 function DirPaneSelectionChange()
 {
+  // clear out the search box when changing folders...
+  onAbClearSearch(false);
   if (gDirectoryTreeView.selection &&
       gDirectoryTreeView.selection.count == 1) {
     ChangeDirectoryByURI(getSelectedDirectoryURI());
   }
 }
 
-function ChangeDirectoryByURI(uri)
+function ChangeDirectoryByURI(uri = kPersonalAddressbookURI)
 {
-  if (!uri)
-    uri = kPersonalAddressbookURI;
-
   SetAbView(uri);
 
-  // only select the first card if there is a first card
+  // Actively de-selecting if there are any pre-existing selections
+  // in the results list.
   if (gAbView && gAbView.getCardFromRow(0))
-    SelectFirstCard();
+    gAbView.selection.clearSelection();
   else
     // the selection changes if we were switching directories.
     ResultsPaneSelectionChanged()
@@ -653,6 +645,24 @@ function getSelectedDirectoryURI()
 function GetSelectedDirectory()
 {
   return getSelectedDirectoryURI();
+}
+
+/**
+ * Clears the contents of the search input field,
+ * possibly causing refresh of results.
+ *
+ * @param aRefresh  Set to false if the refresh isn't needed,
+ *                  e.g. window/AB is going away so user will not see anything.
+ */
+function onAbClearSearch(aRefresh = true)
+{
+  let searchInput = document.getElementById("searchInput");
+  if (!searchInput || !searchInput.value)
+    return;
+
+  searchInput.value = "";
+  if (aRefresh)
+    onEnterInSearchBar();
 }
 
 /**
