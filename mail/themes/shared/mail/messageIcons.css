@@ -1,0 +1,292 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#sizeCol,
+#unreadCol,
+#totalCol {
+  text-align: end;
+}
+
+/* ..... select column ..... */
+
+.selectColumnHeader {
+  min-width: 28px;
+}
+
+.selectColumnHeader,
+treechildren::-moz-tree-image(selectCol) {
+  cursor: pointer;
+  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+  width: 12px;
+  height: 12px;
+}
+
+.selectColumnHeader > .treecol-icon,
+treechildren::-moz-tree-image(selectCol) {
+  width: 14px;
+  height: 14px;
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  stroke: currentColor;
+  fill-opacity: 0;
+  stroke-opacity: 0;
+}
+
+.selectColumnHeader.someselected > .treecol-icon {
+  stroke-opacity: 1;
+}
+
+.selectColumnHeader.allselected > .treecol-icon,
+treechildren::-moz-tree-image(selectCol, selected) {
+  fill-opacity: 1;
+}
+
+treechildren::-moz-tree-image(selectCol, selected, focus) {
+  fill: var(--select-focus-text-color);
+  stroke: var(--select-focus-text-color);
+}
+
+/* ..... delete column ..... */
+
+.deleteColumnHeader {
+  list-style-image: url("chrome://messenger/skin/icons/delete-col.svg");
+}
+
+treechildren::-moz-tree-image(deleteCol) {
+  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
+  fill: currentColor;
+  opacity: 0.3;
+  width: 14px;
+}
+
+treechildren::-moz-tree-image(deleteCol, hover),
+treechildren::-moz-tree-image(deleteCol, selected),
+treechildren::-moz-tree-image(deleteCol, imapdeleted) {
+  opacity: 0.6;
+}
+
+treechildren::-moz-tree-image(deleteCol, imapdeleted) {
+  list-style-image: url("chrome://messenger/skin/icons/restore.svg");
+}
+
+treechildren::-moz-tree-image(deleteCol, selected, focus) {
+  fill: var(--select-focus-text-color);
+}
+
+/* ..... thread column ..... */
+
+.threadColumnHeader {
+  list-style-image: url(chrome://messenger/skin/icons/thread-col.svg);
+  padding-inline-end: 1px;
+  width: 20px;
+}
+
+treechildren::-moz-tree-image(threadCol, container) {
+  list-style-image: url(chrome://messenger/skin/icons/thread.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+treechildren::-moz-tree-image(threadCol, watch) {
+  list-style-image: url(chrome://messenger/skin/icons/visible.svg);
+}
+
+treechildren::-moz-tree-image(threadCol, ignore) {
+  list-style-image: url(chrome://messenger/skin/icons/thread-ignored.svg);
+}
+
+treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
+  list-style-image: url(chrome://messenger/skin/icons/subthread-ignored.svg);
+}
+
+treechildren::-moz-tree-image(threadCol, selected, focus) {
+  fill: var(--select-focus-text-color);
+}
+
+/* ..... read column ..... */
+
+.readColumnHeader {
+  list-style-image: url(chrome://messenger/skin/icons/readcol.svg);
+}
+
+treechildren::-moz-tree-image(unreadButtonColHeader) {
+  list-style-image: url(chrome://messenger/skin/icons/read.svg);
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  stroke: #5a9300;
+  fill-opacity: 0.3;
+  stroke-opacity: 0;
+}
+
+treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
+  fill: #86d129 !important; /* override the selected, focus rule */
+  fill-opacity: 1;
+  stroke-opacity: 0.7;
+}
+
+treechildren::-moz-tree-image(unreadButtonColHeader, selected, focus) {
+  fill: var(--select-focus-text-color);
+}
+
+/* ..... attachment column ..... */
+
+.attachmentColumnHeader {
+  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
+}
+
+treechildren::-moz-tree-image(attachmentCol, attach) {
+  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+treechildren::-moz-tree-image(attachmentCol, attach, selected, focus) {
+  fill: var(--select-focus-text-color);
+}
+
+/* ..... flag column ..... */
+
+.flagColumnHeader {
+  list-style-image: url(chrome://messenger/skin/icons/flag-col.svg);
+}
+
+treechildren::-moz-tree-image(flaggedCol) {
+  margin-inline-start: -2px;
+  list-style-image: url(chrome://messenger/skin/icons/flagged.svg);
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  stroke: currentColor;
+  fill-opacity: 0.2;
+  stroke-opacity: 0;
+}
+
+treechildren::-moz-tree-image(flaggedCol, flagged) {
+  fill: #f4bc44 !important; /* override the selected, focus rule */
+  fill-opacity: 1;
+  stroke: #f4bc44;
+  stroke-opacity: 1;
+}
+
+treechildren::-moz-tree-image(flaggedCol, selected, focus) {
+  fill: var(--select-focus-text-color);
+}
+
+/* ..... junkStatus column ..... */
+
+.junkStatusHeader {
+  list-style-image: url(chrome://messenger/skin/icons/junk-col.svg);
+}
+
+/* "unknown" now looks like "not junk".  see bug #182386 */
+treechildren::-moz-tree-image(junkStatusCol) {
+  margin-inline-start: -3px;
+  padding-inline-start: 0;
+  list-style-image: url(chrome://messenger/skin/icons/junk.svg);
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  stroke: currentColor;
+  fill-opacity: 0.2;
+  stroke-opacity: 0;
+}
+
+treechildren::-moz-tree-image(junkStatusCol, junk) {
+  fill: #f68a16 !important; /* override the selected, focus rule */
+  fill-opacity: 1;
+  stroke: #eed003;
+  stroke-opacity: 0.8;
+}
+
+treechildren::-moz-tree-image(junkStatusCol, notjunk) {
+  fill: currentColor;
+  stroke: currentColor;
+  fill-opacity: 0.2;
+  stroke-opacity: 0;
+}
+
+treechildren::-moz-tree-image(junkStatusCol, selected, focus) {
+  fill: var(--select-focus-text-color);
+}
+
+/* ..... correspondent column ..... */
+
+treechildren::-moz-tree-cell-text(subjectCol) {
+  padding-inline-start: 0;
+}
+
+treechildren::-moz-tree-image(correspondentCol) {
+  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg");
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  fill-opacity: 0;
+  stroke: currentColor;
+  stroke-opacity: 0;
+}
+
+treechildren::-moz-tree-image(correspondentCol, outgoing) {
+  fill-opacity: 0.5;
+  stroke-opacity: 0.7;
+}
+
+#threadTree:-moz-locale-dir(rtl) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
+  list-style-image: url("chrome://messenger/skin/icons/correspondents-rtl.svg");
+}
+
+treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
+  fill: var(--select-focus-text-color);
+  fill-opacity: 0.7;
+  stroke: var(--select-focus-text-color);
+}
+
+/* ..... subject column ..... */
+
+treechildren::-moz-tree-image(subjectCol) {
+  margin-inline-end: 2px;
+  -moz-context-properties: fill, stroke;
+  width: 16px;
+  height: 16px;
+}
+
+treechildren::-moz-tree-image(subjectCol, forwarded) {
+  list-style-image: url("chrome://messenger/skin/icons/forward.svg");
+  fill: #268be0;
+}
+
+treechildren::-moz-tree-image(subjectCol, replied) {
+  list-style-image: url("chrome://messenger/skin/icons/reply.svg");
+  fill: #9c5ccc;
+}
+
+treechildren::-moz-tree-image(subjectCol, replied, forwarded) {
+  list-style-image: url("chrome://messenger/skin/icons/reply-forward.svg");
+  fill: #268be0;
+  stroke: #9c5ccc;
+}
+
+treechildren::-moz-tree-image(subjectCol, new) {
+  list-style-image: url("chrome://messenger/skin/icons/newmail.svg");
+  fill: #f0d93f !important; /* override the selected, focus rule */
+  stroke: transparent !important; /* override the selected, focus rule */
+}
+
+treechildren::-moz-tree-image(subjectCol, imapdeleted) {
+  list-style-image: url("chrome://messenger/skin/icons/cancel.svg");
+  fill: #ff0039;
+  width: 12px;
+  margin-inline: 2px 4px;
+}
+
+treechildren::-moz-tree-image(subjectCol, selected, focus) {
+  fill: var(--select-focus-text-color);
+  stroke: var(--select-focus-text-color);
+}
+
+/* ..... do not show icons ..... */
+
+treechildren::-moz-tree-image(subjectCol, dummy),
+treechildren::-moz-tree-image(flaggedCol, dummy),
+treechildren::-moz-tree-image(junkStatusCol, dummy) ,
+treechildren::-moz-tree-image(correspondentCol, dummy),
+treechildren::-moz-tree-image(unreadButtonColHeader, dummy) {
+  list-style-image: none !important;
+}

@@ -46,10 +46,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   color: inherit;
 }
 
-#correspondentCol {
-  padding-inline-start: 20px;
-}
-
 /* ..... tabs ..... */
 
 .tabmail-tab[type="message"][IsFeedMessage] {

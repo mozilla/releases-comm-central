@@ -2,225 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* ..... select column ..... */
-
-.selectColumnHeader {
-  min-width: 28px;
-}
-
-.selectColumnHeader,
-treechildren::-moz-tree-image(selectCol) {
-  cursor: pointer;
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
-}
-
-.selectColumnHeader > .treecol-icon,
-treechildren::-moz-tree-image(selectCol) {
-  width: 14px;
-  height: 14px;
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0;
-  stroke-opacity: 0;
-}
-
-.selectColumnHeader.someselected > .treecol-icon {
-  stroke-opacity: 1;
-}
-
-.selectColumnHeader.allselected > .treecol-icon,
-treechildren::-moz-tree-image(selectCol, selected) {
-  fill-opacity: 1;
-}
-
-treechildren::-moz-tree-image(selectCol) {
-  width: 12px;
-  height: 12px;
-}
-
-/* ..... delete column ..... */
-
-.deleteColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/delete-col.svg");
-}
-
-treechildren::-moz-tree-image(deleteCol) {
-  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
-}
-
-treechildren::-moz-tree-image(deleteCol) {
-  fill: currentColor;
-  opacity: 0.3;
-  width: 14px;
-}
-
-treechildren::-moz-tree-image(deleteCol, hover),
-treechildren::-moz-tree-image(deleteCol, selected),
-treechildren::-moz-tree-image(deleteCol, imapdeleted) {
-  opacity: 0.6;
-}
-
-treechildren::-moz-tree-image(deleteCol, imapdeleted) {
-  list-style-image: url("chrome://messenger/skin/icons/restore.svg");
-  opacity: 0.6;
-}
-
-/* ..... thread column ..... */
-
-.threadColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/thread-col.svg);
-}
-
-treechildren::-moz-tree-image(threadCol, container) {
-  list-style-image: url(chrome://messenger/skin/icons/thread.png);
-}
-
-treechildren::-moz-tree-image(threadCol, watch) {
-  list-style-image: url(chrome://messenger/skin/icons/thread-watched.png);
-}
-
-treechildren::-moz-tree-image(threadCol, ignore) {
-  list-style-image: url(chrome://messenger/skin/icons/thread-ignored.png);
-}
-
-treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
-  list-style-image: url(chrome://messenger/skin/icons/message-ignored.png);
-}
-
-/* ..... read column ..... */
-
-.readColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/readcol.svg);
-}
-
-treechildren::-moz-tree-image(unreadButtonColHeader) {
-  list-style-image: url(chrome://messenger/skin/icons/readmail.png);
-}
-
-treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
-  list-style-image: url(chrome://messenger/skin/icons/unreadmail.png);
-}
-
-/* ..... attachment column ..... */
-
-.attachmentColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
-}
-
-treechildren::-moz-tree-image(attachmentCol, attach) {
-  margin-inline-start: 3px;
-  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
-}
-
-/* ..... flag column ..... */
-
-.flagColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/flag-col.svg);
-}
-
-treechildren::-moz-tree-image(flaggedCol) {
-  list-style-image: url(chrome://messenger/skin/icons/flag-empty.png);
-  margin-inline-start: -2px;
-}
-
-treechildren::-moz-tree-image(flaggedCol, flagged) {
-  list-style-image: url(chrome://messenger/skin/icons/flag-col.png);
-}
+@import url("chrome://messenger/skin/shared/messageIcons.css");
 
 /* ..... junkStatus column ..... */
 
 .junkStatusHeader {
-  list-style-image: url(chrome://messenger/skin/icons/junk-col.svg);
+  padding-inline-end: 3px;
 }
 
-/* "unknown" now looks like "not junk".  see bug #182386 */
-treechildren::-moz-tree-image(junkStatusCol) {
-  margin-inline-start: -3px;
-  padding-inline-start: 0;
-  list-style-image: url(chrome://messenger/skin/icons/junk.svg);
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0.2;
-  stroke-opacity: 0;
-}
+/* ..... correspondent column ..... */
 
-treechildren::-moz-tree-image(junkStatusCol, junk) {
-  fill: #f68a16;
-  fill-opacity: 1;
-  stroke: #eed003;
-  stroke-opacity: 0.8;
-}
-
-treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0.2;
-  stroke-opacity: 0;
+#correspondentCol {
+  padding-inline-start: 20px;
 }
 
 /* ..... subject column ..... */
-
-treechildren::-moz-tree-image(subjectCol) {
-  list-style-image: url(chrome://messenger/skin/icons/message.png);
-}
-
-treechildren::-moz-tree-image(subjectCol) {
-  margin-inline-end: 2px;
-  -moz-image-region: rect(0 16px 16px 0);
-}
-
-treechildren::-moz-tree-image(subjectCol, forwarded) {
-  -moz-image-region: rect(0 48px 16px 32px);
-}
-
-treechildren::-moz-tree-image(subjectCol, replied) {
-  -moz-image-region: rect(0 32px 16px 16px);
-}
-
-treechildren::-moz-tree-image(subjectCol, replied, forwarded) {
-  -moz-image-region: rect(0 64px 16px 48px);
-}
-
-treechildren::-moz-tree-image(subjectCol, new) {
-  -moz-image-region: rect(0 96px 16px 80px);
-}
 
 #subjectCol {
   padding-inline-start: 20px;
 }
 
 #subjectCol[primary="true"] {
-  padding-inline-start: 30px;
+  padding-inline-start: 40px;
+}
+
+/* ..... read column ..... */
+
+treechildren::-moz-tree-image(unreadButtonColHeader) {
+  margin-inline-start: -2px;
 }
 
 @media (-moz-windows-default-theme: 0) {
   #subjectCol {
-    padding-inline-start: 17px;
+    padding-inline-start: 23px;
   }
 
   #subjectCol[primary="true"] {
-    padding-inline-start: 27px;
+    padding-inline-start: 43px;
   }
-}
-
-treechildren::-moz-tree-image(news, threadCol, watch) {
-  margin-inline-start: -2px;
-}
-
-treechildren::-moz-tree-image(unreadButtonColHeader) {
-  padding-inline-start: 0;
-  margin-inline-start: -3px;
-}
-
-treechildren::-moz-tree-image(attachmentCol, attach) {
-  margin-inline-start: 0;
-}
-
-treechildren::-moz-tree-image(subjectCol, imapdeleted) {
-  list-style-image: url("chrome://messenger/skin/icons/cancel.svg");
-  fill: #ff0039;
-  width: 12px;
-  margin-inline: 2px 4px;
 }

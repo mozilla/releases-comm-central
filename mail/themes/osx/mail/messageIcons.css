@@ -2,192 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* ..... select column ..... */
-
-.selectColumnHeader {
-  min-width: 28px;
-}
-
-.selectColumnHeader,
-treechildren::-moz-tree-image(selectCol) {
-  cursor: pointer;
-  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
-}
-
-.selectColumnHeader > .treecol-icon,
-treechildren::-moz-tree-image(selectCol) {
-  width: 14px;
-  height: 14px;
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0;
-  stroke-opacity: 0;
-}
-
-.selectColumnHeader.someselected > .treecol-icon {
-  stroke-opacity: 1;
-}
-
-.selectColumnHeader.allselected > .treecol-icon,
-treechildren::-moz-tree-image(selectCol, selected) {
-  fill-opacity: 1;
-}
-
-treechildren::-moz-tree-image(selectCol) {
-  width: 12px;
-  height: 12px;
-}
-
-/* ..... delete column ..... */
-
-.deleteColumnHeader {
-  list-style-image: url("chrome://messenger/skin/icons/delete-col.svg");
-}
-
-treechildren::-moz-tree-image(deleteCol) {
-  list-style-image: url("chrome://messenger/skin/icons/delete.svg");
-}
-
-treechildren::-moz-tree-image(deleteCol) {
-  fill: currentColor;
-  opacity: 0.3;
-  width: 14px;
-}
-
-treechildren::-moz-tree-image(deleteCol, hover),
-treechildren::-moz-tree-image(deleteCol, selected),
-treechildren::-moz-tree-image(deleteCol, imapdeleted) {
-  opacity: 0.6;
-}
-
-treechildren::-moz-tree-image(deleteCol, imapdeleted) {
-  list-style-image: url("chrome://messenger/skin/icons/restore.svg");
-  opacity: 0.6;
-}
-
-/* ..... thread column ..... */
-
-.threadColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/thread-col.svg);
-}
-
-treechildren::-moz-tree-image(threadCol, container) {
-  list-style-image: url(chrome://messenger/skin/icons/thread-col.svg);
-}
+@import url("chrome://messenger/skin/shared/messageIcons.css");
 
 /* ..... read column ..... */
 
 .readColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/readcol.svg);
-  padding-inline-start: 2px;
-  padding-inline-end: 3px;
+  padding-inline: 2px 3px;
 }
 
 treechildren::-moz-tree-image(unreadButtonColHeader) {
-  list-style-image: url(chrome://messenger/skin/icons/dot.svg);
-  -moz-image-region: auto;
-  width: 13px;
-  height: 13px;
-}
-
-treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
-  list-style-image: url(chrome://messenger/skin/icons/unreadmail.png) !important;
-}
-
-treechildren::-moz-tree-image(unreadButtonColHeader, unread, selected, focus) {
-  list-style-image: url(chrome://messenger/skin/icons/unreadmail-selected.png) !important;
-}
-
-treechildren::-moz-tree-image(subjectCol, replied) {
-  list-style-image: url(chrome://messenger/skin/icons/symbol-replied.png) !important;
-}
-
-treechildren::-moz-tree-image(subjectCol, replied, focus, selected) {
-  list-style-image: url(chrome://messenger/skin/icons/symbol-replied-selected.png) !important;
-}
-
-treechildren::-moz-tree-image(subjectCol, forwarded) {
-  list-style-image: url(chrome://messenger/skin/icons/symbol-forwarded.png) !important;
-}
-
-treechildren::-moz-tree-image(subjectCol, forwarded, focus, selected) {
-  list-style-image: url(chrome://messenger/skin/icons/symbol-forwarded-selected.png) !important;
-}
-
-treechildren::-moz-tree-image(subjectCol, replied, forwarded) {
-  list-style-image: url(chrome://messenger/skin/icons/symbol-replied-forwarded.png) !important;
-}
-
-treechildren::-moz-tree-image(subjectCol, replied, forwarded, focus, selected) {
-  list-style-image: url(chrome://messenger/skin/icons/symbol-replied-forwarded-selected.png) !important;
+  margin-inline-start: -2px;
 }
 
 /* ..... attachment column ..... */
 
 .attachmentColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
-  padding-inline-start: 2px;
-  padding-inline-end: 3px;
-}
-
-treechildren::-moz-tree-image(attachmentCol, attach) {
-  list-style-image: url(chrome://messenger/skin/icons/attachment-col.svg);
+  padding-inline: 2px 3px;
 }
 
 /* ..... flag column ..... */
 
 .flagColumnHeader {
-  list-style-image: url(chrome://messenger/skin/icons/flag-col.svg);
-  padding-right: 3px;
-  padding-left: 3px;
-}
-
-treechildren::-moz-tree-image(flaggedCol) {
-  list-style-image: url(chrome://messenger/skin/icons/dot.svg);
-  -moz-image-region: auto;
-}
-
-treechildren::-moz-tree-image(flaggedCol, flagged) {
-  list-style-image: url(chrome://messenger/skin/icons/threadpane-col.png);
-  -moz-image-region: rect(0 80px 16px 64px);
-}
-
-treechildren::-moz-tree-image(flaggedCol, flagged, focus, selected) {
-  -moz-image-region: rect(16px 80px 32px 64px);
+  padding-inline: 2px 3px;
 }
 
 /* ..... junkStatus column ..... */
 
 .junkStatusHeader {
-  list-style-image: url(chrome://messenger/skin/icons/junk-col.svg);
-  padding-inline-start: 3px;
-  padding-inline-end: 5px !important;
-}
-
-/* "unknown" now looks like "not junk".  see bug #182386 */
-treechildren::-moz-tree-image(junkStatusCol) {
-  margin-inline-start: 1px;
-  list-style-image: url(chrome://messenger/skin/icons/junk.svg);
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0.2;
-  stroke-opacity: 0;
-}
-
-treechildren::-moz-tree-image(junkStatusCol, junk) {
-  fill: #f68a16;
-  fill-opacity: 1;
-  stroke: #eed003;
-  stroke-opacity: 0.8;
-}
-
-treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-  fill: currentColor;
-  stroke: currentColor;
-  fill-opacity: 0.2;
-  stroke-opacity: 0;
+  padding-inline: 3px 5px;
 }
 
 /* ..... correspondent column ..... */
@@ -196,112 +38,12 @@ treechildren::-moz-tree-image(junkStatusCol, notjunk) {
   padding-inline-start: 20px;
 }
 
-#threadTree:-moz-locale-dir(ltr)
-  > treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
-  list-style-image: url(chrome://messenger/skin/icons/correspondents.svg#right-selected);
-}
-
-#threadTree:-moz-locale-dir(rtl)
-  > treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
-  list-style-image: url(chrome://messenger/skin/icons/correspondents.svg#left-selected);
-}
-
 /* ..... subject column ..... */
 
 #subjectCol {
-  padding-inline-start: 13px;
+  padding-inline-start: 20px;
 }
 
 #subjectCol[primary="true"] {
-  padding-inline-start: 30px;
-}
-
-treechildren::-moz-tree-image(subjectCol) {
-  list-style-image: url(chrome://messenger/skin/icons/symbol-null.png);
-  margin: 0;
-  padding: 0;
-}
-
-treechildren::-moz-tree-image(subjectCol, new) {
-  list-style-image: url(chrome://messenger/skin/icons/symbol-new.png);
-}
-
-treechildren::-moz-tree-image(subjectCol, news) {
-  list-style-image: none;
-}
-
-treechildren::-moz-tree-image(subjectCol, news, attach) {
-  list-style-image: none;
-}
-
-treechildren::-moz-tree-image(subjectCol, news, attach, offline) {
-  list-style-image: none;
-}
-
-treechildren::-moz-tree-image(subjectCol, news, new) {
-  list-style-image: none;
-}
-
-treechildren::-moz-tree-image(subjectCol, news, new, attach) {
-  list-style-image: none;
-}
-
-/* ..... new thread icons for watch and ignore ..... */
-
-treechildren::-moz-tree-image(threadCol, watch) {
-  list-style-image: url(chrome://messenger/skin/icons/thread-closed-eye.png) !important;
-  -moz-image-region: auto !important;
-}
-
-treechildren::-moz-tree-image(threadCol, ignore) {
-  list-style-image: url(chrome://messenger/skin/icons/thread-closed-kill.png) !important;
-  -moz-image-region: auto !important;
-}
-
-treechildren::-moz-tree-image(threadCol, ignoreSubthread) {
-  list-style-image: url(chrome://messenger/skin/icons/message-closed-kill.png) !important;
-  -moz-image-region: auto !important;
-}
-
-@media (min-resolution: 2dppx) {
-  treechildren::-moz-tree-image(flaggedCol, flagged) {
-    list-style-image: url(chrome://messenger/skin/icons/threadpane-col@2x.png);
-    -moz-image-region: rect(0 160px 32px 128px);
-  }
-
-  treechildren::-moz-tree-image(flaggedCol, flagged, focus, selected) {
-    -moz-image-region: rect(32px 160px 64px 128px);
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol) {
-    list-style-image: url(chrome://messenger/skin/icons/threadpane-col@2x.png);
-    -moz-image-region: rect(0 192px 32px 160px);
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol, notjunk) {
-    -moz-image-region: rect(0 192px 32px 160px);
-  }
-
-  treechildren::-moz-tree-image(junkStatusCol, junk) {
-    -moz-image-region: rect(32px 192px 64px 160px);
-  }
-
-  treechildren::-moz-tree-image(flaggedCol, flagged),
-  treechildren::-moz-tree-image(junkStatusCol),
-  treechildren::-moz-tree-image(correspondentCol) {
-    width: 16px;
-    height: 16px;
-  }
-
-  treechildren::-moz-tree-image(unreadButtonColHeader, unread) {
-    width: 13px;
-    height: 13px;
-  }
-}
-
-treechildren::-moz-tree-image(subjectCol, imapdeleted) {
-  list-style-image: url("chrome://messenger/skin/icons/cancel.svg");
-  fill: #ff0039;
-  width: 12px;
-  margin-inline: 2px 4px;
+  padding-inline-start: 40px;
 }

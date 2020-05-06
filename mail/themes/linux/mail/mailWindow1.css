@@ -36,12 +36,6 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   background-color: -moz-Dialog;
 }
 
-/* ::::: thread decoration ::::: */
-
-#correspondentCol {
-  padding-inline-start: 17px;
-}
-
 /* ..... folder pane adjustments ..... */
 
 #folderPane-toolbar {

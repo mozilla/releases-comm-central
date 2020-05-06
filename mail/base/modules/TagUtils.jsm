@@ -65,11 +65,18 @@ function addTagToSheet(aKey, aColor, aSheet) {
     selector +
     ", selected, focus) { color: " +
     textColor +
+    " }";
+  let ruleString4 =
+    "treechildren::-moz-tree-image(" +
+    selector +
+    ", selected, focus) { --select-focus-text-color: " +
+    textColor +
     "; }";
   try {
     aSheet.insertRule(ruleString1, aSheet.cssRules.length);
     aSheet.insertRule(ruleString2, aSheet.cssRules.length);
     aSheet.insertRule(ruleString3, aSheet.cssRules.length);
+    aSheet.insertRule(ruleString4, aSheet.cssRules.length);
   } catch (ex) {
     aSheet.ownerNode.addEventListener(
       "load",

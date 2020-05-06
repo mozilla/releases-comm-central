@@ -71,53 +71,6 @@ treechildren::-moz-tree-cell-text(dummy) {
   color: var(--sidebar-highlight-text-color);
 }
 
-/* ..... do not show icons ..... */
-treechildren::-moz-tree-image(subjectCol, dummy),
-treechildren::-moz-tree-image(flaggedCol, dummy),
-treechildren::-moz-tree-image(junkStatusCol, dummy) ,
-treechildren::-moz-tree-image(correspondentCol, dummy),
-treechildren::-moz-tree-image(unreadButtonColHeader, dummy) {
-  list-style-image: none !important;
-}
-
-/* ..... junkStatus column ..... */
-
-.junkStatusHeader {
-  padding-inline-end: 3px;
-}
-
-/* ..... subject column ..... */
-
-treechildren::-moz-tree-cell-text(subjectCol) {
-  padding-inline-start: 0;
-}
-
-/* ..... correspondent column ..... */
-
-treechildren::-moz-tree-image(correspondentCol) {
-  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg#right");
-}
-
-#threadTree:-moz-locale-dir(ltr) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg#right-show");
-}
-
-#threadTree:-moz-locale-dir(rtl) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  list-style-image: url("chrome://messenger/skin/icons/correspondents.svg#left-show");
-}
-
-#sizeCol,
-#unreadCol,
-#totalCol {
-  text-align: right;
-}
-
-#sizeCol:-moz-locale-dir(rtl),
-#unreadCol:-moz-locale-dir(rtl),
-#totalCol:-moz-locale-dir(rtl) {
-  text-align: left;
-}
-
 /* ..... message pane adjustments ..... */
 
 /* We need to hide overflow in messagepanebox, so that resizing doesn't spill
