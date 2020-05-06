@@ -387,9 +387,11 @@ function onEnterInSearchBar()
   ClearCardViewPane();
 
   if (!gQueryURIFormat) {
-    // Get model query from pref, without preceding "?", so we need to add it again
-    gQueryURIFormat = "?" + getModelQuery("mail.addr_book.quicksearchquery.format");
+    // Get model query from pref. We don't want the query starting with "?"
+    // as we have to prefix "?and" to this format.
+    gQueryURIFormat = getModelQuery("mail.addr_book.quicksearchquery.format");
   }
+
   let searchURI = getSelectedDirectoryURI();
   if (!searchURI) return;
 
@@ -398,11 +400,10 @@ function onEnterInSearchBar()
    already has a query, like
    moz-abldapdirectory://nsdirectory.netscape.com:389/ou=People,dc=netscape,dc=com?(or(Department,=,Applications))
   */
-  if (gSearchInput.value != "") {
-    // replace all instances of @V with the escaped version
-    // of what the user typed in the quick search text input
-    searchURI += gQueryURIFormat.replace(/@V/g, encodeABTermValue(gSearchInput.value));
-  }
+  // Use helper method to split up search query to multi-word search
+  // query against multiple fields.
+  let searchWords = getSearchTokens(gSearchInput.value);
+  searchURI += generateQueryURI(gQueryURIFormat, searchWords);
 
   SetAbView(searchURI);
 
