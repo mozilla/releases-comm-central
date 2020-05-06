@@ -64,7 +64,7 @@ Example task configuration
       symbol: libfoo
       platform: linux64/opt
     worker:
-      docker-image: {in-tree: "toolchain-build"}
+      docker-image: {in-tree: "deb8-toolchain-build"}
     when:
       files-changed:
         - comm/thirdparty/libfoo

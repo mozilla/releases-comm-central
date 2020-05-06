@@ -10,7 +10,7 @@ job-defaults:
     treeherder:
         symbol: libotr
     worker:
-        docker-image: {in-tree: "toolchain-build"}
+        docker-image: {in-tree: "deb8-toolchain-build"}
     when:
         files-changed:
             - comm/third_party/README.libgcrypt
