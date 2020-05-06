@@ -9,13 +9,13 @@ kind-dependencies:
     - packages
 
 reference-jobs:
-    - debian7-amd64-build
-    - debian7-base
-    - debian7-i386-build
-    - debian7-i386-packages
-    - debian7-i386-raw
-    - debian7-packages
-    - debian7-raw
+    - debian8-amd64-build
+    - debian8-base
+    - debian8-i386-build
+    - debian8-i386-packages
+    - debian8-i386-raw
+    - debian8-packages
+    - debian8-raw
     - debian9-amd64-build
     - debian9-base
     - debian9-packages
