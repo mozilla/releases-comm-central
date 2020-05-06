@@ -6,19 +6,45 @@ loader: comm_taskgraph.loader.reference:loader
 base-path: taskcluster/ci
 
 jobs:
-    - deb8-32-xz-utils
-    - deb8-cmake
-    - deb8-dh-python
-    - deb8-gdb
-    - deb8-git
-    - deb8-mercurial
-    - deb8-ninja
-    - deb8-python-zstandard
-    - deb8-python3-defaults
-    - deb8-python3-setuptools
-    - deb8-python3.5
-    - deb8-valgrind
-    - deb8-xz-utils
+    - deb7-32-atk
+    - deb7-32-gdk-pixbuf
+    - deb7-32-glib
+    - deb7-32-gtk3
+    - deb7-32-harfbuzz
+    - deb7-32-libxkbcommon
+    - deb7-32-pango
+    - deb7-32-pcre3
+    - deb7-32-wayland
+    - deb7-32-xkeyboard-config
+    - deb7-apt
+    - deb7-atk
+    - deb7-automake-1.14
+    - deb7-cmake
+    - deb7-devscripts-2.14
+    - deb7-dh-python
+    - deb7-dpkg-1.17
+    - deb7-gdb
+    - deb7-gdk-pixbuf
+    - deb7-git
+    - deb7-glib
+    - deb7-gtk3
+    - deb7-harfbuzz
+    - deb7-libxkbcommon
+    - deb7-make
+    - deb7-mercurial
+    - deb7-nasm
+    - deb7-ninja
+    - deb7-pango
+    - deb7-pcre3
+    - deb7-python
+    - deb7-python-defaults
+    - deb7-python-zstandard
+    - deb7-python3-defaults
+    - deb7-python3.5
+    - deb7-sqlite3
+    - deb7-valgrind
+    - deb7-wayland
+    - deb7-xz-utils
     - deb9-mercurial
     - deb9-python-zstandard
     - deb10-cmake
