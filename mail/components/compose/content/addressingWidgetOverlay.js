@@ -1043,8 +1043,9 @@ function closeLabelKeyPress(event, element, labelID) {
 }
 
 /**
- * Calculate the height of the composer header area every time a pill is created.
- * If the height is bigger than 2/3 of the compose window heigh, enable overflow.
+ * Calculate the height of the composer header area every time a pill is
+ * created. If the height is bigger than 2/3 of the compose window height,
+ * enable overflow.
  */
 function calculateHeaderHeight() {
   let container = document.getElementById("recipientsContainer");
@@ -1072,6 +1073,15 @@ function calculateHeaderHeight() {
       header.setAttribute("height", 300);
     }
   }
+}
+
+/**
+ * Set the min-height of the message header area to prevent overlappings in case
+ * the user resizes the area upwards.
+ */
+function setDefaultHeaderMinHeight() {
+  let header = document.getElementById("headers-box");
+  header.style.minHeight = `${header.clientHeight}px`;
 }
 
 /**

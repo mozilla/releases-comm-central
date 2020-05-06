@@ -3762,6 +3762,8 @@ function ComposeLoad() {
     "extension-browser-inserted",
     GetCurrentEditorElement()
   );
+
+  setDefaultHeaderMinHeight();
 }
 
 function ComposeUnload() {
