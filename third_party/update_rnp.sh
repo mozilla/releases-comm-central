@@ -3,7 +3,17 @@
 # Script to update the in-tree copy of rnp from github
 # Run this within the comm/third_party directory of the source tree.
 
-set -e
+set -eE
+trap 'catch_err $? $LINENO' ERR
+
+function catch_err() {
+  echo "Error! $1 at $2"
+  echo "Reverting changes."
+  hg revert -C rnp/. README.rnp
+  # Remove any added files
+  hg purge rnp/.
+}
+
 
 if [[ ! -f rnp/moz.build ]]; then
   echo "Missing rnp directory in current path."
@@ -34,9 +44,6 @@ REVISION=$(git -C "${RNPgit}" rev-parse --verify HEAD)
 TIMESTAMP=$(git -C "${RNPgit}" show -s --format=%ct)
 
 BUGREPORT="https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"
-
-# Update the README.rnp file
-# Make a copy in /tmp since macOS sed does not have -i
 
 # Cleanup rnp checkout
 rm -rf ${RNPgit}/{.git,.github,.cirrus.yml,.clang-format,.gitignore}
