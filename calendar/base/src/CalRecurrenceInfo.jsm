@@ -137,6 +137,28 @@ CalRecurrenceInfo.prototype = {
     return true;
   },
 
+  /**
+   * Get the item ending date (end date for an event, due date or entry date if available for a task).
+   *
+   * @param {calIEvent | calITodo} item - The item.
+   * @return {calIDateTime | null} The ending date or null.
+   */
+  getItemEndingDate(item) {
+    if (cal.item.isEvent(item)) {
+      if (item.endDate) {
+        return item.endDate;
+      }
+    } else if (cal.item.isToDo(item)) {
+      // Due date must be considered since it is used when displaying the task in agenda view.
+      if (item.dueDate) {
+        return item.dueDate;
+      } else if (item.entryDate) {
+        return item.entryDate;
+      }
+    }
+    return null;
+  },
+
   get recurrenceEndDate() {
     // The lowest and highest possible values of a PRTime (64-bit integer) when in javascript,
     // which stores them as floating-point values.
@@ -153,9 +175,22 @@ CalRecurrenceInfo.prototype = {
     if (this.mEndDate === null) {
       if (this.isFinite) {
         this.mEndDate = MIN_PRTIME;
-        let lastRecurrence = this.getPreviousOccurrence(cal.createDateTime("99991231T235959Z"));
-        if (lastRecurrence) {
-          this.mEndDate = lastRecurrence.endDate.nativeTime;
+        let lastOccurrence = this.getPreviousOccurrence(cal.createDateTime("99991231T235959Z"));
+        if (lastOccurrence) {
+          let endingDate = this.getItemEndingDate(lastOccurrence);
+          if (endingDate) {
+            this.mEndDate = endingDate.nativeTime;
+          }
+        }
+
+        // A modified occurrence may have a new ending date positioned after last occurrence one.
+        for (let rid in this.mExceptionMap) {
+          let item = this.mExceptionMap[rid];
+
+          let endingDate = this.getItemEndingDate(item);
+          if (endingDate && this.mEndDate < endingDate.nativeTime) {
+            this.mEndDate = endingDate.nativeTime;
+          }
         }
       } else {
         this.mEndDate = MAX_PRTIME;
