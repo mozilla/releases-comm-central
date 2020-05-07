@@ -28,7 +28,7 @@ find_package(JSON-C 0.11 REQUIRED)
 # Note that we do this call early because Google Test will also do
 # this but with less strict version requirements, which will cause
 # problems for us.
-find_package(PythonInterp 2.7 EXACT)
+find_package(Python3 COMPONENTS Interpreter)
 find_package(GnuPG 2.2 COMPONENTS gpg gpgconf)
 
 include(GoogleTest)
@@ -91,6 +91,7 @@ add_executable(rnp_tests
   utils-list.cpp
   utils-rnpcfg.cpp
   issues/1030.cpp
+  issues/1115.cpp
 )
 
 target_include_directories(rnp_tests
@@ -135,7 +136,7 @@ function(add_cli_test suite)
   set(_test_name cli_tests-${suite})
   add_test(
     NAME ${_test_name}
-    COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/cli_tests.py" -v -d "${suite}"
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/cli_tests.py" -v -d "${suite}"
   )
   set(_env)
   list(APPEND _env
@@ -152,7 +153,7 @@ function(add_cli_test suite)
 endfunction()
 # get a list of test suites
 execute_process(
-  COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/cli_tests.py" -ls
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/cli_tests.py" -ls
   RESULT_VARIABLE _ec
   OUTPUT_VARIABLE suitelist
   OUTPUT_STRIP_TRAILING_WHITESPACE

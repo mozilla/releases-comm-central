@@ -1085,15 +1085,8 @@ do_load_keys(rnp_ffi_t              ffi,
                 goto done;
             }
 
-            if ((tmpret = pgp_key_copy(&keycp, key, false))) {
-                FFI_LOG(ffi, "Failed to copy secret key");
-                ret = tmpret;
-                goto done;
-            }
-
-            if (!rnp_key_store_add_key(ffi->secring, &keycp)) {
+            if (!rnp_key_store_add_key(ffi->secring, key)) {
                 FFI_LOG(ffi, "Failed to add secret key");
-                pgp_key_free_data(&keycp);
                 ret = RNP_ERROR_GENERIC;
                 goto done;
             }
@@ -1118,14 +1111,12 @@ do_load_keys(rnp_ffi_t              ffi,
 
         if (key_needs_conversion(key, ffi->pubring)) {
             FFI_LOG(ffi, "This key format conversion is not yet supported");
-            pgp_key_free_data(&keycp);
             ret = RNP_ERROR_NOT_IMPLEMENTED;
             goto done;
         }
 
         if (!rnp_key_store_add_key(ffi->pubring, &keycp)) {
             FFI_LOG(ffi, "Failed to add public key");
-            pgp_key_free_data(&keycp);
             ret = RNP_ERROR_GENERIC;
             goto done;
         }
@@ -1467,14 +1458,8 @@ done:
 static bool
 copy_store_keys(rnp_ffi_t ffi, rnp_key_store_t *dest, rnp_key_store_t *src)
 {
-    pgp_key_t keycp = {};
     for (list_item *key = list_front(rnp_key_store_get_keys(src)); key; key = list_next(key)) {
-        if (pgp_key_copy(&keycp, (pgp_key_t *) key, false)) {
-            FFI_LOG(ffi, "failed to create key copy");
-            return false;
-        }
-        if (!rnp_key_store_add_key(dest, &keycp)) {
-            pgp_key_free_data(&keycp);
+        if (!rnp_key_store_add_key(dest, (pgp_key_t *) key)) {
             FFI_LOG(ffi, "failed to add key to the store");
             return false;
         }
@@ -3283,6 +3268,51 @@ rnp_key_export_revocation(rnp_key_handle_t key,
 }
 
 rnp_result_t
+rnp_key_revoke(
+  rnp_key_handle_t key, uint32_t flags, const char *hash, const char *code, const char *reason)
+{
+    if (!key || !key->ffi) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (flags) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    pgp_key_t *exkey = get_key_prefer_public(key);
+    if (!exkey) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    pgp_key_t *revoker = rnp_key_get_revoker(key);
+    if (!revoker) {
+        FFI_LOG(key->ffi, "Revoker secret key not found");
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    pgp_signature_t *sig = NULL;
+    rnp_result_t     ret =
+      rnp_key_get_revocation(key->ffi, exkey, revoker, hash, code, reason, &sig);
+    if (ret) {
+        return ret;
+    }
+    pgp_sig_import_status_t pub_status = PGP_SIG_IMPORT_STATUS_UNKNOWN_KEY;
+    pgp_sig_import_status_t sec_status = PGP_SIG_IMPORT_STATUS_UNKNOWN_KEY;
+    if (key->pub) {
+        pub_status = rnp_key_store_import_key_signature(key->ffi->pubring, key->pub, sig);
+    }
+    if (key->sec) {
+        sec_status = rnp_key_store_import_key_signature(key->ffi->secring, key->sec, sig);
+    }
+    free_signature(sig);
+    free(sig);
+
+    if ((pub_status == PGP_SIG_IMPORT_STATUS_UNKNOWN) ||
+        (sec_status == PGP_SIG_IMPORT_STATUS_UNKNOWN)) {
+        return RNP_ERROR_GENERIC;
+    }
+    return RNP_SUCCESS;
+}
+
+rnp_result_t
 rnp_key_remove(rnp_key_handle_t key, uint32_t flags)
 {
     if (!key || !key->ffi) {
@@ -3295,7 +3325,6 @@ rnp_key_remove(rnp_key_handle_t key, uint32_t flags)
         if (!key->ffi->pubring || !key->pub) {
             return RNP_ERROR_BAD_PARAMETERS;
         }
-        pgp_key_free_data(key->pub);
         if (!rnp_key_store_remove_key(key->ffi->pubring, key->pub)) {
             return RNP_ERROR_KEY_NOT_FOUND;
         }
@@ -3305,7 +3334,6 @@ rnp_key_remove(rnp_key_handle_t key, uint32_t flags)
         if (!key->ffi->secring || !key->sec) {
             return RNP_ERROR_BAD_PARAMETERS;
         }
-        pgp_key_free_data(key->sec);
         if (!rnp_key_store_remove_key(key->ffi->secring, key->sec)) {
             return RNP_ERROR_KEY_NOT_FOUND;
         }
@@ -3738,10 +3766,10 @@ rnp_generate_key_json(rnp_ffi_t ffi, const char *json, char **results)
     rnp_action_keygen_t keygen_desc = {};
     char *              identifier_type = NULL;
     char *              identifier = NULL;
-    pgp_key_t           primary_pub = {0};
-    pgp_key_t           primary_sec = {0};
-    pgp_key_t           sub_pub = {0};
-    pgp_key_t           sub_sec = {0};
+    pgp_key_t           primary_pub = {};
+    pgp_key_t           primary_sec = {};
+    pgp_key_t           sub_pub = {};
+    pgp_key_t           sub_sec = {};
     json_object *       jsoprimary = NULL;
     json_object *       jsosub = NULL;
     json_tokener_error  error;
@@ -3812,12 +3840,10 @@ rnp_generate_key_json(rnp_ffi_t ffi, const char *json, char **results)
                 ret = RNP_ERROR_OUT_OF_MEMORY;
                 goto done;
             }
-            primary_pub = (pgp_key_t){0};
             if (!rnp_key_store_add_key(ffi->pubring, &sub_pub)) {
                 ret = RNP_ERROR_OUT_OF_MEMORY;
                 goto done;
             }
-            sub_pub = (pgp_key_t){0};
         }
         /* add key/subkey protection */
         if (keygen_desc.primary.protection.symm_alg &&
@@ -3842,12 +3868,10 @@ rnp_generate_key_json(rnp_ffi_t ffi, const char *json, char **results)
             ret = RNP_ERROR_OUT_OF_MEMORY;
             goto done;
         }
-        primary_sec = (pgp_key_t){0};
         if (!rnp_key_store_add_key(ffi->secring, &sub_sec)) {
             ret = RNP_ERROR_OUT_OF_MEMORY;
             goto done;
         }
-        sub_sec = (pgp_key_t){0};
     } else if (jsoprimary && !jsosub) { // generating primary only
         keygen_desc.primary.keygen.crypto.rng = &ffi->rng;
         if (!parse_keygen_primary(jsoprimary, &keygen_desc)) {
@@ -3870,7 +3894,6 @@ rnp_generate_key_json(rnp_ffi_t ffi, const char *json, char **results)
                 ret = RNP_ERROR_OUT_OF_MEMORY;
                 goto done;
             }
-            primary_pub = (pgp_key_t){0};
         }
         /* encrypt secret key if specified */
         if (keygen_desc.primary.protection.symm_alg &&
@@ -3886,7 +3909,6 @@ rnp_generate_key_json(rnp_ffi_t ffi, const char *json, char **results)
             ret = RNP_ERROR_OUT_OF_MEMORY;
             goto done;
         }
-        primary_sec = (pgp_key_t){0};
     } else if (jsosub) { // generating subkey only
         if (!ffi->pubring) {
             ret = RNP_ERROR_NULL_POINTER;
@@ -3951,7 +3973,6 @@ rnp_generate_key_json(rnp_ffi_t ffi, const char *json, char **results)
                 ret = RNP_ERROR_OUT_OF_MEMORY;
                 goto done;
             }
-            sub_pub = (pgp_key_t){0};
         }
         /* encrypt subkey if specified */
         if (keygen_desc.subkey.protection.symm_alg &&
@@ -3967,7 +3988,6 @@ rnp_generate_key_json(rnp_ffi_t ffi, const char *json, char **results)
             ret = RNP_ERROR_OUT_OF_MEMORY;
             goto done;
         }
-        sub_sec = (pgp_key_t){0};
     } else {
         // nothing to generate...
         ret = RNP_ERROR_BAD_PARAMETERS;
@@ -3976,10 +3996,6 @@ rnp_generate_key_json(rnp_ffi_t ffi, const char *json, char **results)
 
     ret = RNP_SUCCESS;
 done:
-    pgp_key_free_data(&primary_pub);
-    pgp_key_free_data(&primary_sec);
-    pgp_key_free_data(&sub_pub);
-    pgp_key_free_data(&sub_sec);
     json_object_put(jso);
     free(identifier_type);
     free(identifier);
@@ -4628,7 +4644,6 @@ rnp_op_generate_execute(rnp_op_generate_t op)
         ret = RNP_ERROR_OUT_OF_MEMORY;
         goto done;
     }
-    pub = {};
 
     /* encrypt secret key if requested */
     if (op->password) {
@@ -4648,7 +4663,6 @@ rnp_op_generate_execute(rnp_op_generate_t op)
         ret = RNP_ERROR_OUT_OF_MEMORY;
         goto done;
     }
-    sec = {};
     ret = RNP_SUCCESS;
 done:
     if (op->password) {
@@ -4657,17 +4671,13 @@ done:
         op->password = NULL;
     }
     if (ret && op->gen_pub) {
-        pgp_key_free_data(op->gen_pub);
         rnp_key_store_remove_key(op->ffi->pubring, op->gen_pub);
         op->gen_pub = NULL;
     }
     if (ret && op->gen_sec) {
-        pgp_key_free_data(op->gen_sec);
         rnp_key_store_remove_key(op->ffi->secring, op->gen_sec);
         op->gen_sec = NULL;
     }
-    pgp_key_free_data(&sec);
-    pgp_key_free_data(&pub);
     return ret;
 }
 
@@ -5172,7 +5182,7 @@ rnp_uid_is_revoked(rnp_uid_handle_t uid, bool *result)
         return RNP_ERROR_BAD_PARAMETERS;
     }
 
-    pgp_revoke_t *revoke = pgp_key_get_userid_revoke(uid->key, uid->idx);
+    const pgp_revoke_t *revoke = pgp_key_get_userid_revoke(uid->key, uid->idx);
     *result = revoke != NULL;
     return RNP_SUCCESS;
 }
@@ -5439,6 +5449,49 @@ rnp_key_get_expiration(rnp_key_handle_t handle, uint32_t *result)
     }
     *result = pgp_key_get_expiration(key);
     return RNP_SUCCESS;
+}
+
+rnp_result_t
+rnp_key_set_expiration(rnp_key_handle_t key, uint32_t expiry)
+{
+    if (!key) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+
+    pgp_key_t *pkey = get_key_prefer_public(key);
+    if (!pkey) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    pgp_key_t *skey = get_key_require_secret(key);
+    if (!skey) {
+        FFI_LOG(key->ffi, "Secret key required.");
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    if (pgp_key_is_primary_key(pkey)) {
+        bool res = pgp_key_set_expiration(pkey, skey, expiry);
+        return res ? RNP_SUCCESS : RNP_ERROR_GENERIC;
+    }
+
+    /* for subkey we need primary key */
+    const uint8_t *grip = pgp_key_get_primary_grip(pkey);
+    if (!grip) {
+        FFI_LOG(key->ffi, "Primary key grip not available.");
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    pgp_key_request_ctx_t request = {};
+    request.secret = true;
+    request.search.type = PGP_KEY_SEARCH_GRIP;
+    memcpy(request.search.by.grip, grip, PGP_KEY_GRIP_SIZE);
+    pgp_key_t *prim_sec = pgp_request_key(&key->ffi->key_provider, &request);
+    if (!prim_sec) {
+        FFI_LOG(key->ffi, "Primary secret key not found.");
+        return RNP_ERROR_KEY_NOT_FOUND;
+    }
+
+    bool res = pgp_subkey_set_expiration(pkey, prim_sec, skey, expiry);
+    return res ? RNP_SUCCESS : RNP_ERROR_GENERIC;
 }
 
 rnp_result_t
@@ -6233,7 +6286,7 @@ key_to_json(json_object *jso, rnp_key_handle_t handle, uint32_t flags)
         return RNP_ERROR_OUT_OF_MEMORY;
     }
     // revoked
-    json_object *jsorevoked = json_object_new_boolean(key->revoked ? TRUE : FALSE);
+    json_object *jsorevoked = json_object_new_boolean(key->revoked ? true : false);
     if (!jsorevoked) {
         return RNP_ERROR_OUT_OF_MEMORY;
     }
@@ -6298,7 +6351,7 @@ key_to_json(json_object *jso, rnp_key_handle_t handle, uint32_t flags)
     }
     json_object_object_add(jso, "public key", jsopublic);
     json_object_object_add(
-      jsopublic, "present", json_object_new_boolean(have_pub ? TRUE : FALSE));
+      jsopublic, "present", json_object_new_boolean(have_pub ? true : false));
     if (flags & RNP_JSON_PUBLIC_MPIS) {
         json_object *jsompis = json_object_new_object();
         if (!jsompis) {
@@ -6317,7 +6370,7 @@ key_to_json(json_object *jso, rnp_key_handle_t handle, uint32_t flags)
     }
     json_object_object_add(jso, "secret key", jsosecret);
     json_object_object_add(
-      jsosecret, "present", json_object_new_boolean(have_sec ? TRUE : FALSE));
+      jsosecret, "present", json_object_new_boolean(have_sec ? true : false));
     if (have_sec) {
         bool locked = pgp_key_is_locked(handle->sec);
         if (flags & RNP_JSON_SECRET_MPIS) {
@@ -6335,13 +6388,13 @@ key_to_json(json_object *jso, rnp_key_handle_t handle, uint32_t flags)
                 }
             }
         }
-        json_object *jsolocked = json_object_new_boolean(locked ? TRUE : FALSE);
+        json_object *jsolocked = json_object_new_boolean(locked ? true : false);
         if (!jsolocked) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
         json_object_object_add(jsosecret, "locked", jsolocked);
         json_object *jsoprotected =
-          json_object_new_boolean(pgp_key_is_protected(handle->sec) ? TRUE : FALSE);
+          json_object_new_boolean(pgp_key_is_protected(handle->sec) ? true : false);
         if (!jsoprotected) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
@@ -6658,7 +6711,7 @@ key_iter_get_item(const rnp_identifier_iterator_t it, char *buf, size_t buf_len)
         }
         break;
     case PGP_KEY_SEARCH_USERID: {
-        pgp_userid_t *uid = pgp_key_get_userid(key, it->uididx);
+        const pgp_userid_t *uid = pgp_key_get_userid(key, it->uididx);
         if (!uid) {
             return false;
         }

@@ -58,6 +58,9 @@ TEST_F(rnp_tests, test_load_v3_keyring_pgp)
     assert_int_equal(pgp_key_get_flags(key),
                      PGP_KF_ENCRYPT | PGP_KF_SIGN | PGP_KF_CERTIFY | PGP_KF_AUTH);
 
+    // confirm that key expiration is correct
+    assert_int_equal(pgp_key_get_expiration(key), 0);
+
     // cleanup
     rnp_key_store_free(key_store);
 
@@ -84,8 +87,8 @@ TEST_F(rnp_tests, test_load_v3_keyring_pgp)
     assert_true(pgp_key_is_locked(key));
 
     // decrypt the key
-    pgp_rawpacket_t *pkt = pgp_key_get_rawpacket(key, 0);
-    pgp_key_pkt_t *  seckey =
+    const pgp_rawpacket_t *pkt = pgp_key_get_rawpacket(key, 0);
+    pgp_key_pkt_t *        seckey =
       pgp_decrypt_seckey_pgp(pkt->raw, pkt->length, pgp_key_get_pkt(key), "password");
     assert_non_null(seckey);
 
@@ -713,7 +716,7 @@ TEST_F(rnp_tests, test_load_merge)
 
 TEST_F(rnp_tests, test_load_public_from_secret)
 {
-    pgp_key_t *      key, *skey1, *skey2, keycp;
+    pgp_key_t *      key, *skey1, *skey2, keycp = {};
     uint8_t          keyid[PGP_KEY_ID_SIZE];
     uint8_t          sub1id[PGP_KEY_ID_SIZE];
     uint8_t          sub2id[PGP_KEY_ID_SIZE];
@@ -741,7 +744,6 @@ TEST_F(rnp_tests, test_load_public_from_secret)
       memcmp(pgp_key_get_subkey_grip(&keycp, 1), pgp_key_get_grip(skey2), PGP_KEY_GRIP_SIZE));
     assert_false(memcmp(pgp_key_get_grip(&keycp), pgp_key_get_grip(key), PGP_KEY_GRIP_SIZE));
     assert_int_equal(pgp_key_get_rawpacket(&keycp, 0)->tag, PGP_PKT_SECRET_KEY);
-    pgp_key_free_data(&keycp);
 
     /* copy the public part */
     assert_rnp_success(pgp_key_copy(&keycp, key, true));

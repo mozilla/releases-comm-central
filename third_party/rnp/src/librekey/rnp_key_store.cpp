@@ -244,7 +244,7 @@ void
 rnp_key_store_clear(rnp_key_store_t *keyring)
 {
     for (list_item *key = list_front(keyring->keys); key; key = list_next(key)) {
-        pgp_key_free_data((pgp_key_t *) key);
+        ((pgp_key_t *) key)->~pgp_key_t();
     }
     list_destroy(&keyring->keys);
 
@@ -338,9 +338,14 @@ rnp_key_store_merge_subkey(pgp_key_t *dst, const pgp_key_t *src, pgp_key_t *prim
     } else if (pgp_key_is_secret(src) && !pgp_key_is_locked(src)) {
         tmpkey.pkt.material = src->pkt.material;
     }
+    /* copy validity status */
+    tmpkey.valid = dst->valid && src->valid;
+    /* we may safely leave validated status only if both merged subkeys are valid && validated.
+     * Otherwise we'll need to revalidate. For instance, one validated but invalid subkey may
+     * add revocation signature, or valid subkey may add binding to the invalid one. */
+    tmpkey.validated = dst->validated && src->validated && tmpkey.valid;
 
-    pgp_key_free_data(dst);
-    *dst = tmpkey;
+    *dst = std::move(tmpkey);
     res = true;
 done:
     transferable_subkey_destroy(&dstkey);
@@ -406,9 +411,14 @@ rnp_key_store_merge_key(pgp_key_t *dst, const pgp_key_t *src)
     } else if (pgp_key_is_secret(src) && !pgp_key_is_locked(src)) {
         tmpkey.pkt.material = src->pkt.material;
     }
+    /* copy validity status */
+    tmpkey.valid = dst->valid && src->valid;
+    /* We may safely leave validated status only if both merged keys are valid && validated.
+     * Otherwise we'll need to revalidate. For instance, one validated but invalid key may add
+     * revocation signature, or valid key may add certification to the invalid one. */
+    tmpkey.validated = dst->validated && src->validated && tmpkey.valid;
 
-    pgp_key_free_data(dst);
-    *dst = tmpkey;
+    *dst = std::move(tmpkey);
     res = true;
 done:
     transferable_key_destroy(&dstkey);
@@ -437,7 +447,7 @@ rnp_key_store_refresh_subkey_grips(rnp_key_store_t *keyring, pgp_key_t *key)
         }
 
         for (unsigned i = 0; i < pgp_key_get_subsig_count(skey); i++) {
-            pgp_subsig_t *subsig = pgp_key_get_subsig(skey, i);
+            const pgp_subsig_t *subsig = pgp_key_get_subsig(skey, i);
 
             if (subsig->sig.type != PGP_SIG_SUBKEY) {
                 continue;
@@ -464,76 +474,91 @@ rnp_key_store_refresh_subkey_grips(rnp_key_store_t *keyring, pgp_key_t *key)
     return true;
 }
 
-/* add a key to keyring */
-pgp_key_t *
-rnp_key_store_add_key(rnp_key_store_t *keyring, pgp_key_t *srckey)
+static pgp_key_t *
+rnp_key_store_add_subkey(rnp_key_store_t *keyring, pgp_key_t *srckey, pgp_key_t *oldkey)
 {
-    pgp_key_t *added_key = NULL;
+    pgp_key_t *primary = rnp_key_store_get_primary_key(keyring, srckey);
+    if (!primary && oldkey) {
+        primary = rnp_key_store_get_primary_key(keyring, oldkey);
+    }
 
-    RNP_DLOG("rnp_key_store_add_key");
-    assert(pgp_key_get_type(srckey) && pgp_key_get_version(srckey));
-    added_key = rnp_key_store_get_key_by_grip(keyring, pgp_key_get_grip(srckey));
-
-    if (added_key) {
-        /* we cannot merge G10 keys - so just return it */
-        if (srckey->format == PGP_KEY_STORE_G10) {
-            pgp_key_free_data(srckey);
-            return added_key;
-        }
-
-        bool mergeres = false;
+    if (oldkey) {
         /* in case we already have key let's merge it in */
-        if (pgp_key_is_subkey(added_key)) {
-            pgp_key_t *primary = rnp_key_store_get_primary_key(keyring, added_key);
-            if (!primary) {
-                primary = rnp_key_store_get_primary_key(keyring, srckey);
-            }
-            if (!primary) {
-                RNP_LOG("no primary key for subkey");
-            }
-            mergeres = rnp_key_store_merge_subkey(added_key, srckey, primary);
-        } else {
-            mergeres = rnp_key_store_merge_key(added_key, srckey);
-        }
-
-        if (!mergeres) {
-            RNP_LOG("failed to merge key or subkey");
+        if (!rnp_key_store_merge_subkey(oldkey, srckey, primary)) {
+            RNP_LOG("failed to merge subkey");
             return NULL;
         }
-        added_key->valid = added_key->valid && srckey->valid;
-        added_key->validated = added_key->validated && srckey->validated && added_key->valid;
-
-        pgp_key_free_data(srckey);
     } else {
-        added_key = (pgp_key_t *) list_append(&keyring->keys, srckey, sizeof(*srckey));
-        if (!added_key) {
+        oldkey = (pgp_key_t *) list_append(&keyring->keys, NULL, sizeof(*srckey));
+        if (!oldkey) {
             RNP_LOG("allocation failed");
             return NULL;
         }
-        /* primary key may be added after subkeys, so let's handle this case correctly */
-        if (pgp_key_is_primary_key(added_key) &&
-            !rnp_key_store_refresh_subkey_grips(keyring, added_key)) {
-            RNP_LOG("failed to refresh subkey grips");
+        if (pgp_key_copy(oldkey, srckey, false)) {
+            RNP_LOG("key copying failed");
+            list_remove((list_item *) oldkey);
+            return NULL;
+        }
+        if (primary && !pgp_key_link_subkey_grip(primary, oldkey)) {
+            RNP_LOG("failed to link subkey grip");
         }
     }
 
     RNP_DLOG("keyc %lu", (long unsigned) rnp_key_store_get_key_count(keyring));
     /* validate all added keys if not disabled */
-    if (!keyring->disable_validation && !added_key->validated) {
-        pgp_key_validate(added_key, keyring);
+    if (!keyring->disable_validation && !oldkey->validated) {
+        pgp_key_validate_subkey(oldkey, primary);
+    }
+    if (!pgp_subkey_refresh_data(oldkey, primary)) {
+        RNP_LOG("Failed to refresh subkey data");
+    }
+    return oldkey;
+}
 
-        /* validate/re-validate all subkeys as well */
-        if (pgp_key_is_primary_key(added_key)) {
-            for (list_item *grip = list_front(added_key->subkey_grips); grip;
-                 grip = list_next(grip)) {
-                pgp_key_t *subkey = rnp_key_store_get_key_by_grip(keyring, (uint8_t *) grip);
-                if (subkey) {
-                    pgp_key_validate(subkey, keyring);
-                }
-            }
+/* add a key to keyring */
+pgp_key_t *
+rnp_key_store_add_key(rnp_key_store_t *keyring, pgp_key_t *srckey)
+{
+    assert(pgp_key_get_type(srckey) && pgp_key_get_version(srckey));
+    pgp_key_t *added_key = rnp_key_store_get_key_by_grip(keyring, pgp_key_get_grip(srckey));
+    /* we cannot merge G10 keys - so just return it */
+    if (added_key && (srckey->format == PGP_KEY_STORE_G10)) {
+        return added_key;
+    }
+    /* different processing for subkeys */
+    if (pgp_key_is_subkey(srckey)) {
+        return rnp_key_store_add_subkey(keyring, srckey, added_key);
+    }
+
+    if (added_key) {
+        if (!rnp_key_store_merge_key(added_key, srckey)) {
+            RNP_LOG("failed to merge key");
+            return NULL;
+        }
+    } else {
+        added_key = (pgp_key_t *) list_append(&keyring->keys, NULL, sizeof(*srckey));
+        if (!added_key) {
+            RNP_LOG("allocation failed");
+            return NULL;
+        }
+        if (pgp_key_copy(added_key, srckey, false)) {
+            RNP_LOG("key copying failed");
+            list_remove((list_item *) added_key);
+            return NULL;
+        }
+        /* primary key may be added after subkeys, so let's handle this case correctly */
+        if (!rnp_key_store_refresh_subkey_grips(keyring, added_key)) {
+            RNP_LOG("failed to refresh subkey grips");
         }
     }
 
+    RNP_DLOG("keyc %lu", (long unsigned) rnp_key_store_get_key_count(keyring));
+    /* validate all added keys if not disabled or already validated */
+    if (!keyring->disable_validation && !added_key->validated) {
+        pgp_key_revalidate_updated(added_key, keyring);
+    } else if (!pgp_key_refresh_data(added_key)) {
+        RNP_LOG("Failed to refresh key data");
+    }
     return added_key;
 }
 
@@ -555,13 +580,18 @@ rnp_key_store_import_key(rnp_key_store_t *        keyring,
     }
     exkey = rnp_key_store_get_key_by_grip(keyring, pgp_key_get_grip(srckey));
     expackets = exkey ? pgp_key_get_rawpacket_count(exkey) : 0;
-    if (!(exkey = rnp_key_store_add_key(keyring, &keycp))) {
+    keyring->disable_validation = true;
+    exkey = rnp_key_store_add_key(keyring, &keycp);
+    keyring->disable_validation = false;
+    if (!exkey) {
         RNP_LOG("failed to add key to the keyring");
-        pgp_key_free_data(&keycp);
         return NULL;
     }
-
     changed = pgp_key_get_rawpacket_count(exkey) > expackets;
+    if (changed) {
+        /* this will revalidated primary key with all subkeys */
+        pgp_key_revalidate_updated(exkey, keyring);
+    }
     if (status) {
         *status = changed ?
                     (expackets ? PGP_KEY_IMPORT_STATUS_UPDATED : PGP_KEY_IMPORT_STATUS_NEW) :
@@ -588,43 +618,97 @@ rnp_key_store_get_signer_key(rnp_key_store_t *store, const pgp_signature_t *sig)
     return NULL;
 }
 
+static pgp_sig_import_status_t
+rnp_key_store_import_subkey_signature(rnp_key_store_t *      keyring,
+                                      pgp_key_t *            key,
+                                      const pgp_signature_t *sig)
+{
+    pgp_sig_type_t sigtype = signature_get_type(sig);
+    if ((sigtype != PGP_SIG_SUBKEY) && (sigtype != PGP_SIG_REV_SUBKEY)) {
+        return PGP_SIG_IMPORT_STATUS_UNKNOWN;
+    }
+    const uint8_t *prim_grip = pgp_key_get_primary_grip(key);
+    pgp_key_t *    primary = rnp_key_store_get_signer_key(keyring, sig);
+    if (!prim_grip || !primary) {
+        RNP_LOG("No primary grip or primary key");
+        return PGP_SIG_IMPORT_STATUS_UNKNOWN_KEY;
+    }
+    if (memcmp(pgp_key_get_grip(primary), prim_grip, PGP_KEY_GRIP_SIZE)) {
+        RNP_LOG("Wrong subkey signature's signer.");
+        return PGP_SIG_IMPORT_STATUS_UNKNOWN;
+    }
+
+    pgp_key_t tmpkey = {};
+    if (!pgp_key_from_pkt(&tmpkey, &key->pkt) || !rnp_key_add_signature(&tmpkey, sig) ||
+        !pgp_subkey_refresh_data(&tmpkey, primary)) {
+        RNP_LOG("Failed to add signature to the key.");
+        return PGP_SIG_IMPORT_STATUS_UNKNOWN;
+    }
+
+    size_t expackets = pgp_key_get_rawpacket_count(key);
+    key = rnp_key_store_add_key(keyring, &tmpkey);
+    if (!key) {
+        RNP_LOG("Failed to add key with imported sig to the keyring");
+        return PGP_SIG_IMPORT_STATUS_UNKNOWN;
+    }
+    return (pgp_key_get_rawpacket_count(key) > expackets) ? PGP_SIG_IMPORT_STATUS_NEW :
+                                                            PGP_SIG_IMPORT_STATUS_UNCHANGED;
+}
+
+pgp_sig_import_status_t
+rnp_key_store_import_key_signature(rnp_key_store_t *      keyring,
+                                   pgp_key_t *            key,
+                                   const pgp_signature_t *sig)
+{
+    if (pgp_key_is_subkey(key)) {
+        return rnp_key_store_import_subkey_signature(keyring, key, sig);
+    }
+    pgp_sig_type_t sigtype = signature_get_type(sig);
+    if ((sigtype != PGP_SIG_DIRECT) && (sigtype != PGP_SIG_REV_KEY)) {
+        RNP_LOG("Wrong signature type: %d", (int) sigtype);
+        return PGP_SIG_IMPORT_STATUS_UNKNOWN;
+    }
+
+    pgp_key_t tmpkey = {};
+    if (!pgp_key_from_pkt(&tmpkey, &key->pkt) || !rnp_key_add_signature(&tmpkey, sig) ||
+        !pgp_key_refresh_data(&tmpkey)) {
+        RNP_LOG("Failed to add signature to the key.");
+        return PGP_SIG_IMPORT_STATUS_UNKNOWN;
+    }
+
+    size_t expackets = pgp_key_get_rawpacket_count(key);
+    key = rnp_key_store_add_key(keyring, &tmpkey);
+    if (!key) {
+        RNP_LOG("Failed to add key with imported sig to the keyring");
+        return PGP_SIG_IMPORT_STATUS_UNKNOWN;
+    }
+    return (pgp_key_get_rawpacket_count(key) > expackets) ? PGP_SIG_IMPORT_STATUS_NEW :
+                                                            PGP_SIG_IMPORT_STATUS_UNCHANGED;
+}
+
 pgp_key_t *
 rnp_key_store_import_signature(rnp_key_store_t *        keyring,
                                const pgp_signature_t *  sig,
                                pgp_sig_import_status_t *status)
 {
-    pgp_key_t *             res_key = NULL;
-    pgp_key_t               tmpkey = {};
-    pgp_sig_import_status_t res_status = PGP_SIG_IMPORT_STATUS_UNKNOWN;
-    pgp_sig_type_t          sigtype = signature_get_type(sig);
-    size_t                  expackets = 0;
+    pgp_sig_import_status_t tmp_status = PGP_SIG_IMPORT_STATUS_UNKNOWN;
+    if (!status) {
+        status = &tmp_status;
+    }
+    *status = PGP_SIG_IMPORT_STATUS_UNKNOWN;
 
+    pgp_sig_type_t sigtype = signature_get_type(sig);
     /* we support only direct-key and key revocation signatures here */
     if ((sigtype != PGP_SIG_DIRECT) && (sigtype != PGP_SIG_REV_KEY)) {
-        goto done;
-    }
-    res_key = rnp_key_store_get_signer_key(keyring, sig);
-    if (!res_key) {
-        res_status = PGP_SIG_IMPORT_STATUS_UNKNOWN_KEY;
-        goto done;
-    }
-    if (!pgp_key_from_pkt(&tmpkey, &res_key->pkt) || !rnp_key_add_signature(&tmpkey, sig)) {
-        goto done;
+        return NULL;
     }
 
-    expackets = pgp_key_get_rawpacket_count(res_key);
-    if (!(res_key = rnp_key_store_add_key(keyring, &tmpkey))) {
-        RNP_LOG("failed to add key with imported sig to the keyring");
-        goto done;
+    pgp_key_t *res_key = rnp_key_store_get_signer_key(keyring, sig);
+    if (!res_key || !pgp_key_is_primary_key(res_key)) {
+        *status = PGP_SIG_IMPORT_STATUS_UNKNOWN_KEY;
+        return NULL;
     }
-    res_status = (pgp_key_get_rawpacket_count(res_key) > expackets) ?
-                   PGP_SIG_IMPORT_STATUS_NEW :
-                   PGP_SIG_IMPORT_STATUS_UNCHANGED;
-done:
-    pgp_key_free_data(&tmpkey);
-    if (status) {
-        *status = res_status;
-    }
+    *status = rnp_key_store_import_key_signature(keyring, res_key, sig);
     return res_key;
 }
 
@@ -635,6 +719,7 @@ rnp_key_store_remove_key(rnp_key_store_t *keyring, const pgp_key_t *key)
     if (!list_is_member(keyring->keys, (list_item *) key)) {
         return false;
     }
+    key->~pgp_key_t();
     list_remove((list_item *) key);
     return true;
 }
@@ -731,7 +816,7 @@ rnp_key_store_get_primary_key(const rnp_key_store_t *keyring, const pgp_key_t *s
     }
 
     for (unsigned i = 0; i < pgp_key_get_subsig_count(subkey); i++) {
-        pgp_subsig_t *subsig = pgp_key_get_subsig(subkey, i);
+        const pgp_subsig_t *subsig = pgp_key_get_subsig(subkey, i);
         if (subsig->sig.type != PGP_SIG_SUBKEY) {
             continue;
         }

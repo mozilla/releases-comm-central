@@ -155,7 +155,14 @@ size_t     rnp_key_store_get_key_count(const rnp_key_store_t *);
 pgp_key_t *rnp_key_store_get_key(const rnp_key_store_t *, size_t);
 list       rnp_key_store_get_keys(const rnp_key_store_t *);
 
-pgp_key_t *rnp_key_store_add_key(rnp_key_store_t *, pgp_key_t *);
+/**
+ * @brief Add key to the keystore, copying it.
+ *
+ * @param keyring allocated keyring, cannot be NULL.
+ * @param key key to be added, cannot be NULL.
+ * @return pointer to the added key or NULL if failed.
+ */
+pgp_key_t *rnp_key_store_add_key(rnp_key_store_t *keyring, pgp_key_t *key);
 
 pgp_key_t *rnp_key_store_import_key(rnp_key_store_t *,
                                     pgp_key_t *,
@@ -170,6 +177,10 @@ pgp_key_t *rnp_key_store_import_key(rnp_key_store_t *,
  * @return pointer to pgp_key_t structure if key was found or NULL otherwise.
  */
 pgp_key_t *rnp_key_store_get_signer_key(rnp_key_store_t *store, const pgp_signature_t *sig);
+
+pgp_sig_import_status_t rnp_key_store_import_key_signature(rnp_key_store_t *      keyring,
+                                                           pgp_key_t *            key,
+                                                           const pgp_signature_t *sig);
 
 /**
  * @brief Import revocation or direct-key signature to the keyring.

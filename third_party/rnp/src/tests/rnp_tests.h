@@ -245,6 +245,8 @@ void test_ffi_key_signatures(void **state);
 
 void test_ffi_keys_import(void **state);
 
+void test_ffi_stripped_keys_import(void **state);
+
 void test_ffi_import_keys_check_pktlen(void **state);
 
 void test_ffi_calculate_iterations(void **state);
@@ -278,6 +280,12 @@ void test_ffi_export_revocation(void **state);
 void test_ffi_secret_sig_import(void **state);
 
 void test_ffi_rnp_request_password(void **state);
+
+void test_ffi_key_revoke(void **state);
+
+void test_ffi_set_key_expiry(void **state);
+
+void test_ffi_mdc_8k_boundary(void **state);
 
 void test_dsa_roundtrip(void **state);
 
@@ -350,6 +358,8 @@ void test_partial_length_largest(void **state);
 void test_partial_length_first_packet_length(void **state);
 
 void test_kbx_nsigs(void **state);
+
+void test_issue_1115(void **state);
 
 #define assert_true(a) EXPECT_TRUE((a))
 #define assert_false(a) EXPECT_FALSE((a))

@@ -67,100 +67,23 @@ __RCSID("$NetBSD: keyring.c,v 1.50 2011/06/25 00:37:44 agc Exp $");
 #include "key_store_pgp.h"
 #include "pgp-key.h"
 
-static pgp_map_t ss_rr_code_map[] = {
-  {PGP_REVOCATION_NO_REASON, "No reason specified"},
-  {PGP_REVOCATION_SUPERSEDED, "Key is superseded"},
-  {PGP_REVOCATION_COMPROMISED, "Key material has been compromised"},
-  {PGP_REVOCATION_RETIRED, "Key is retired and no longer used"},
-  {PGP_REVOCATION_NO_LONGER_VALID, "User ID information is no longer valid"},
-  {0x00, NULL}, /* this is the end-of-array marker */
-};
-
 bool
 rnp_key_add_signature(pgp_key_t *key, const pgp_signature_t *sig)
 {
-    pgp_subsig_t *subsig = NULL;
-    uint8_t *     algs = NULL;
-    size_t        count = 0;
-
-    if (!(subsig = pgp_key_add_subsig(key))) {
+    pgp_subsig_t *subsig = pgp_key_add_subsig(key);
+    if (!subsig) {
         RNP_LOG("Failed to add subsig");
         return false;
     }
-
     /* add signature rawpacket */
     if (!pgp_key_add_sig_rawpacket(key, sig)) {
         return false;
     }
-
+    /* setup subsig and key from signature */
+    if (!pgp_subsig_from_signature(subsig, sig)) {
+        return false;
+    }
     subsig->uid = pgp_key_get_userid_count(key) - 1;
-    if (!copy_signature_packet(&subsig->sig, sig)) {
-        return false;
-    }
-
-    if (signature_has_key_expiration(&subsig->sig)) {
-        key->expiration = signature_get_key_expiration(&subsig->sig);
-    }
-    if (signature_has_trust(&subsig->sig)) {
-        signature_get_trust(&subsig->sig, &subsig->trustlevel, &subsig->trustamount);
-    }
-    if (signature_get_primary_uid(&subsig->sig)) {
-        key->uid0 = pgp_key_get_userid_count(key) - 1;
-        key->uid0_set = 1;
-    }
-
-    if (signature_get_preferred_symm_algs(&subsig->sig, &algs, &count) &&
-        !pgp_user_prefs_set_symm_algs(&subsig->prefs, algs, count)) {
-        RNP_LOG("failed to alloc symm algs");
-        return false;
-    }
-    if (signature_get_preferred_hash_algs(&subsig->sig, &algs, &count) &&
-        !pgp_user_prefs_set_hash_algs(&subsig->prefs, algs, count)) {
-        RNP_LOG("failed to alloc hash algs");
-        return false;
-    }
-    if (signature_get_preferred_z_algs(&subsig->sig, &algs, &count) &&
-        !pgp_user_prefs_set_z_algs(&subsig->prefs, algs, count)) {
-        RNP_LOG("failed to alloc z algs");
-        return false;
-    }
-    if (signature_has_key_flags(&subsig->sig)) {
-        subsig->key_flags = signature_get_key_flags(&subsig->sig);
-        key->key_flags = subsig->key_flags;
-    }
-    if (signature_has_key_server_prefs(&subsig->sig)) {
-        uint8_t ks_pref = signature_get_key_server_prefs(&subsig->sig);
-        if (!pgp_user_prefs_set_ks_prefs(&subsig->prefs, &ks_pref, 1)) {
-            RNP_LOG("failed to alloc ks prefs");
-            return false;
-        }
-    }
-    if (signature_has_key_server(&subsig->sig)) {
-        subsig->prefs.key_server = (uint8_t *) signature_get_key_server(&subsig->sig);
-    }
-    if (signature_has_revocation_reason(&subsig->sig)) {
-        /* not sure whether this logic is correct - we should check signature type? */
-        pgp_revoke_t *revocation = NULL;
-        if (!pgp_key_get_userid_count(key)) {
-            /* revoke whole key */
-            key->revoked = 1;
-            revocation = &key->revocation;
-            revoke_free(revocation);
-        } else {
-            /* revoke the user id */
-            if (!(revocation = pgp_key_add_revoke(key))) {
-                RNP_LOG("failed to add revoke");
-                return false;
-            }
-            revocation->uid = pgp_key_get_userid_count(key) - 1;
-        }
-        signature_get_revocation_reason(&subsig->sig, &revocation->code, &revocation->reason);
-        if (!strlen(revocation->reason)) {
-            free(revocation->reason);
-            revocation->reason = strdup(pgp_str_from_map(revocation->code, ss_rr_code_map));
-        }
-    }
-
     return true;
 }
 
@@ -189,15 +112,11 @@ rnp_key_store_add_transferable_subkey(rnp_key_store_t *          keyring,
     }
 
     /* add it to the storage */
-    if (!rnp_key_store_add_key(keyring, &skey)) {
+    bool res = rnp_key_store_add_key(keyring, &skey);
+    if (!res) {
         RNP_LOG("Failed to add subkey to key store.");
-        goto error;
     }
-
-    return true;
-error:
-    pgp_key_free_data(&skey);
-    return false;
+    return res;
 }
 
 bool
@@ -252,36 +171,39 @@ rnp_key_store_add_transferable_key(rnp_key_store_t *keyring, pgp_transferable_ke
         return false;
     }
 
+    /* temporary disable key validation */
+    keyring->disable_validation = true;
+
     /* add key to the storage before subkeys */
-    if (!(addkey = rnp_key_store_add_key(keyring, &key))) {
+    addkey = rnp_key_store_add_key(keyring, &key);
+    if (!addkey) {
         RNP_LOG("Failed to add key to key store.");
-        goto error;
+        return false;
     }
 
     /* add subkeys */
     for (list_item *skey = list_front(tkey->subkeys); skey; skey = list_next(skey)) {
         pgp_transferable_subkey_t *subkey = (pgp_transferable_subkey_t *) skey;
         if (!rnp_key_store_add_transferable_subkey(keyring, subkey, addkey)) {
+            RNP_LOG("Failed to add subkey to key store.");
             goto error;
         }
     }
 
+    /* now validate/refresh the whole key with subkeys */
+    keyring->disable_validation = false;
+    pgp_key_revalidate_updated(addkey, keyring);
     return true;
 error:
-    if (addkey) {
-        /* during key addition all fields are copied so will be cleaned below */
-        rnp_key_store_remove_key(keyring, addkey);
-        pgp_key_free_data(addkey);
-    } else {
-        pgp_key_free_data(&key);
-    }
+    /* during key addition all fields are copied so will be cleaned below */
+    rnp_key_store_remove_key(keyring, addkey);
     return false;
 }
 
 bool
 rnp_key_from_transferable_key(pgp_key_t *key, pgp_transferable_key_t *tkey)
 {
-    memset(key, 0, sizeof(*key));
+    *key = {};
     /* create key */
     if (!pgp_key_from_pkt(key, &tkey->key)) {
         return false;
@@ -289,21 +211,18 @@ rnp_key_from_transferable_key(pgp_key_t *key, pgp_transferable_key_t *tkey)
 
     /* add direct-key signatures */
     if (!rnp_key_add_signatures(key, tkey->signatures)) {
-        goto error;
+        return false;
     }
 
     /* add userids and their signatures */
     for (list_item *uid = list_front(tkey->userids); uid; uid = list_next(uid)) {
         pgp_transferable_userid_t *tuid = (pgp_transferable_userid_t *) uid;
         if (!rnp_key_add_transferable_userid(key, tuid)) {
-            goto error;
+            return false;
         }
     }
 
     return true;
-error:
-    pgp_key_free_data(key);
-    return false;
 }
 
 bool
@@ -311,7 +230,7 @@ rnp_key_from_transferable_subkey(pgp_key_t *                subkey,
                                  pgp_transferable_subkey_t *tskey,
                                  pgp_key_t *                primary)
 {
-    memset(subkey, 0, sizeof(*subkey));
+    *subkey = {};
 
     /* create key */
     if (!pgp_key_from_pkt(subkey, &tskey->subkey)) {
@@ -321,17 +240,15 @@ rnp_key_from_transferable_subkey(pgp_key_t *                subkey,
     /* add subkey binding signatures */
     if (!rnp_key_add_signatures(subkey, tskey->signatures)) {
         RNP_LOG("failed to add subkey signatures");
-        goto error;
+        return false;
     }
 
     /* setup key grips if primary is available */
     if (primary && !pgp_key_link_subkey_grip(primary, subkey)) {
-        goto error;
+        return false;
     }
+
     return true;
-error:
-    pgp_key_free_data(subkey);
-    return false;
 }
 
 rnp_result_t
@@ -378,7 +295,7 @@ rnp_key_write_packets_stream(const pgp_key_t *key, pgp_dest_t *dst)
         return false;
     }
     for (size_t i = 0; i < pgp_key_get_rawpacket_count(key); i++) {
-        pgp_rawpacket_t *pkt = pgp_key_get_rawpacket(key, i);
+        const pgp_rawpacket_t *pkt = pgp_key_get_rawpacket(key, i);
         if (!pkt->raw || !pkt->length) {
             return false;
         }

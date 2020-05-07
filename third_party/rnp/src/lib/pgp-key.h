@@ -54,6 +54,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <vector>
 #include "pass-provider.h"
 #include <rekey/rnp_key_store.h>
 #include "crypto/symmetric.h"
@@ -61,15 +62,16 @@
 
 /* describes a user's key */
 struct pgp_key_t {
-    list          uids;         /* list of user ids as (char*) */
-    list          packets;      /* list of raw packets as pgp_rawpacket_t */
-    list          subsigs;      /* list of signatures as pgp_subsig_t */
-    list          revokes;      /* list of signature revocations pgp_revoke_t */
+    std::vector<pgp_userid_t>    uids;    /* array of user ids */
+    std::vector<pgp_rawpacket_t> packets; /* array of key packets */
+    std::vector<pgp_subsig_t>    subsigs; /* array of key signatures */
+    std::vector<pgp_revoke_t>    revokes; /* array of revocations */
     list          subkey_grips; /* list of subkey grips (for primary keys) as uint8_t[20] */
-    uint8_t *     primary_grip; /* grip of primary key (for subkeys) */
-    time_t        expiration;   /* key expiration time, if available */
-    pgp_key_pkt_t pkt;          /* pubkey/seckey data packet */
-    uint8_t       key_flags;    /* key flags */
+    uint8_t       primary_grip[PGP_KEY_GRIP_SIZE]; /* grip of primary key (for subkeys) */
+    bool          primary_grip_set;
+    time_t        expiration; /* key expiration time, if available */
+    pgp_key_pkt_t pkt;        /* pubkey/seckey data packet */
+    uint8_t       key_flags;  /* key flags */
     uint8_t       keyid[PGP_KEY_ID_SIZE];
     pgp_fingerprint_t      fingerprint;
     uint8_t                grip[PGP_KEY_GRIP_SIZE];
@@ -80,9 +82,15 @@ struct pgp_key_t {
     pgp_key_store_format_t format;       /* the format of the key in packets[0] */
     bool                   valid;        /* this key is valid and usable */
     bool                   validated;    /* this key was validated */
-};
 
-struct pgp_key_t *pgp_key_new(void);
+    ~pgp_key_t();
+    pgp_key_t() = default;
+    pgp_key_t &operator=(pgp_key_t &&);
+    /* make sure we use only empty constructor/move operator */
+    pgp_key_t(const pgp_key_t &src) = delete;
+    pgp_key_t(pgp_key_t &&src) = delete;
+    pgp_key_t &operator=(const pgp_key_t &) = delete;
+};
 
 /**
  * @brief Create pgp_key_t object from the OpenPGP key packet.
@@ -92,20 +100,6 @@ struct pgp_key_t *pgp_key_new(void);
  * @return true if operation succeeded or false otherwise.
  */
 bool pgp_key_from_pkt(pgp_key_t *key, const pgp_key_pkt_t *pkt);
-
-/** free the internal data of a key *and* the key structure itself
- *
- *  @param key the key
- **/
-void pgp_key_free(pgp_key_t *);
-
-/** free the internal data of a key
- *
- *  This does *not* free the key structure itself.
- *
- *  @param key the key
- **/
-void pgp_key_free_data(pgp_key_t *);
 
 /**
  * @brief Copy key, optionally copying only the public key part.
@@ -236,9 +230,9 @@ const uint8_t *pgp_key_get_primary_grip(const pgp_key_t *key);
  *
  * @param key subkey
  * @param grip buffer with grip, should not be NULL
- * @return true on success or false otherwise (key is not subkey, or allocation failed)
+ * @return void
  */
-bool pgp_key_set_primary_grip(pgp_key_t *key, const uint8_t *grip);
+void pgp_key_set_primary_grip(pgp_key_t *key, const uint8_t *grip);
 
 /**
  * @brief Link key with subkey via primary_grip and subkey_grips list
@@ -251,9 +245,11 @@ bool pgp_key_link_subkey_grip(pgp_key_t *key, pgp_key_t *subkey);
 
 size_t pgp_key_get_userid_count(const pgp_key_t *);
 
-pgp_userid_t *pgp_key_get_userid(const pgp_key_t *, size_t);
+const pgp_userid_t *pgp_key_get_userid(const pgp_key_t *, size_t);
 
-pgp_revoke_t *pgp_key_get_userid_revoke(const pgp_key_t *, size_t userid);
+pgp_userid_t *pgp_key_get_userid(pgp_key_t *, size_t);
+
+const pgp_revoke_t *pgp_key_get_userid_revoke(const pgp_key_t *, size_t userid);
 
 bool pgp_key_has_userid(const pgp_key_t *, const char *);
 
@@ -263,7 +259,9 @@ pgp_revoke_t *pgp_key_add_revoke(pgp_key_t *);
 
 size_t pgp_key_get_revoke_count(const pgp_key_t *);
 
-pgp_revoke_t *pgp_key_get_revoke(const pgp_key_t *, size_t);
+const pgp_revoke_t *pgp_key_get_revoke(const pgp_key_t *, size_t);
+
+pgp_revoke_t *pgp_key_get_revoke(pgp_key_t *key, size_t idx);
 
 void revoke_free(pgp_revoke_t *revoke);
 
@@ -271,7 +269,40 @@ pgp_subsig_t *pgp_key_add_subsig(pgp_key_t *);
 
 size_t pgp_key_get_subsig_count(const pgp_key_t *);
 
-pgp_subsig_t *pgp_key_get_subsig(const pgp_key_t *, size_t);
+const pgp_subsig_t *pgp_key_get_subsig(const pgp_key_t *, size_t);
+pgp_subsig_t *      pgp_key_get_subsig(pgp_key_t *, size_t);
+
+bool pgp_subsig_from_signature(pgp_subsig_t *subsig, const pgp_signature_t *sig);
+
+bool pgp_key_has_signature(const pgp_key_t *key, const pgp_signature_t *sig);
+
+pgp_subsig_t *pgp_key_replace_signature(pgp_key_t *      key,
+                                        pgp_signature_t *oldsig,
+                                        pgp_signature_t *newsig);
+
+/**
+ * @brief Get the latest valid self-signature with information about the primary key,
+ * containing the specified subpacket. It could be userid certification or direct-key
+ * signature.
+ *
+ * @param key key which should be searched for signature.
+ * @param subpkt subpacket type. Pass 0 to return just latest signature.
+ * @return pointer to signature object or NULL if failed/not found.
+ */
+pgp_subsig_t *pgp_key_latest_selfsig(pgp_key_t *key, pgp_sig_subpacket_type_t subpkt);
+
+/**
+ * @brief Get the latest valid subkey binding.
+ *
+ * @param subkey subkey which should be searched for signature.
+ * @param validated set to true whether binding signature must be validated
+ * @return pointer to signature object or NULL if failed/not found.
+ */
+pgp_subsig_t *pgp_key_latest_binding(pgp_key_t *subkey, bool validated);
+
+bool pgp_key_refresh_data(pgp_key_t *key);
+
+bool pgp_subkey_refresh_data(pgp_key_t *sub, pgp_key_t *key);
 
 void pgp_subsig_free(pgp_subsig_t *subsig);
 
@@ -285,7 +316,8 @@ pgp_rawpacket_t *pgp_key_add_uid_rawpacket(pgp_key_t *key, const pgp_userid_pkt_
 
 size_t pgp_key_get_rawpacket_count(const pgp_key_t *);
 
-pgp_rawpacket_t *pgp_key_get_rawpacket(const pgp_key_t *, size_t);
+pgp_rawpacket_t *      pgp_key_get_rawpacket(pgp_key_t *, size_t);
+const pgp_rawpacket_t *pgp_key_get_rawpacket(const pgp_key_t *, size_t);
 
 /**
  * @brief Get the number of pgp key's subkeys.
@@ -412,6 +444,13 @@ bool pgp_key_add_userid_certified(pgp_key_t *              key,
                                   pgp_hash_alg_t           hash_alg,
                                   rnp_selfsig_cert_info_t *cert);
 
+bool pgp_key_set_expiration(pgp_key_t *key, pgp_key_t *signer, uint32_t expiry);
+
+bool pgp_subkey_set_expiration(pgp_key_t *sub,
+                               pgp_key_t *primsec,
+                               pgp_key_t *secsub,
+                               uint32_t   expiry);
+
 bool pgp_key_write_packets(const pgp_key_t *key, pgp_dest_t *dst);
 
 /**
@@ -458,6 +497,10 @@ pgp_key_t *find_suitable_key(pgp_op_t            op,
  */
 pgp_hash_alg_t pgp_hash_adjust_alg_to_key(pgp_hash_alg_t hash, const pgp_key_pkt_t *pubkey);
 
-rnp_result_t pgp_key_validate(pgp_key_t *key, rnp_key_store_t *keyring);
+void pgp_key_validate_subkey(pgp_key_t *subkey, pgp_key_t *key);
+
+void pgp_key_validate(pgp_key_t *key, rnp_key_store_t *keyring);
+
+void pgp_key_revalidate_updated(pgp_key_t *key, rnp_key_store_t *keyring);
 
 #endif // RNP_PACKET_KEY_H

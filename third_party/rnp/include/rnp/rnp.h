@@ -856,6 +856,27 @@ rnp_result_t rnp_key_export_revocation(rnp_key_handle_t key,
                                        const char *     code,
                                        const char *     reason);
 
+/**
+ * @brief revoke a key or subkey by generating and adding revocation signature.
+ * @param key key or subkey to be revoked. For primary key must have secret key, otherwise
+ *            keyrings will be searched for the authorized to issue revocation signatures
+ *            secret key. For subkey keyrings must have primary secret key.
+ *            If secret key is locked then password will be asked via password provider.
+ * @param flags currently must be 0.
+ * @param hash hash algorithm used to calculate signature. Pass NULL for default algorithm
+ *             selection.
+ * @param code reason for revocation code. Possible values: 'no', 'superseded', 'compromised',
+ *             'retired'. May be NULL - then 'no' value will be used.
+ * @param reason textual representation of the reason for revocation. May be NULL or empty
+ *               string.
+ * @return RNP_SUCCESS on success, or any other value on error
+ */
+rnp_result_t rnp_key_revoke(rnp_key_handle_t key,
+                            uint32_t         flags,
+                            const char *     hash,
+                            const char *     code,
+                            const char *     reason);
+
 /** remove a key from keyring(s)
  *  Note: you need to call rnp_save_keys() to write updated keyring(s) out.
  *        Other handles of the same key should not be used after this call.
@@ -1207,6 +1228,18 @@ rnp_result_t rnp_key_get_creation(rnp_key_handle_t key, uint32_t *result);
 rnp_result_t rnp_key_get_expiration(rnp_key_handle_t key, uint32_t *result);
 
 /**
+ * @brief Set the key's expiration time in seconds.
+ *        Note: this will require re-signing, which requires availability of the secret key (or
+ *        secret primary key for the subkey). If the secret key is locked then may ask for
+ *        key's password via FFI callback.
+ *
+ * @param key key's handle.
+ * @param expiry expiration time in seconds (or 0 if key doesn't expire).
+ * @return RNP_SUCCESS or error code on failure.
+ */
+rnp_result_t rnp_key_set_expiration(rnp_key_handle_t key, uint32_t expiry);
+
+/**
  * @brief Check whether key is revoked.
  *
  * @param key key handle, should not be NULL
@@ -1346,8 +1379,6 @@ rnp_result_t rnp_key_is_primary(rnp_key_handle_t key, bool *result);
 rnp_result_t rnp_key_is_sub(rnp_key_handle_t key, bool *result);
 rnp_result_t rnp_key_have_secret(rnp_key_handle_t key, bool *result);
 rnp_result_t rnp_key_have_public(rnp_key_handle_t key, bool *result);
-
-/* TODO: function to add a userid to a key */
 
 /** Get the information about key packets in JSON string.
  *  Note: this will not work for G10 keys.
@@ -1661,8 +1692,6 @@ rnp_result_t rnp_op_verify_signature_get_key(rnp_op_verify_signature_t sig,
 rnp_result_t rnp_op_verify_signature_get_times(rnp_op_verify_signature_t sig,
                                                uint32_t *                create,
                                                uint32_t *                expires);
-
-/* TODO define functions for encrypt+sign */
 
 /**
  * @brief Free buffer allocated by a function in this header.

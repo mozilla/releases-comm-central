@@ -132,10 +132,7 @@ load_generated_g10_key(pgp_key_t *    dst,
     if (rnp_key_store_get_key_count(key_store) != 1) {
         goto end;
     }
-    memcpy(dst, rnp_key_store_get_key(key_store, 0), sizeof(*dst));
-    // we don't want the key store to free the internal key data
-    rnp_key_store_remove_key(key_store, (pgp_key_t *) rnp_key_store_get_key(key_store, 0));
-    ok = true;
+    ok = !pgp_key_copy(dst, rnp_key_store_get_key(key_store, 0), false);
 end:
     rnp_key_store_free(key_store);
     src_close(&memsrc);
@@ -331,6 +328,18 @@ keygen_primary_merge_defaults(rnp_keygen_primary_desc_t *desc)
     }
 }
 
+static void
+pgp_key_mark_valid(pgp_key_t *key)
+{
+    key->valid = true;
+    key->validated = true;
+    for (size_t i = 0; i < pgp_key_get_subsig_count(key); i++) {
+        pgp_subsig_t *sub = pgp_key_get_subsig(key, i);
+        sub->validated = true;
+        sub->valid = true;
+    }
+}
+
 bool
 pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
                          bool                       merge_defaults,
@@ -408,22 +417,16 @@ pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
     }
 
     /* mark it as valid */
-    primary_pub->valid = true;
-    primary_pub->validated = true;
-    primary_sec->valid = true;
-    primary_sec->validated = true;
-
-    ok = true;
+    pgp_key_mark_valid(primary_pub);
+    pgp_key_mark_valid(primary_sec);
+    /* refresh key's data */
+    ok = pgp_key_refresh_data(primary_pub) && pgp_key_refresh_data(primary_sec);
 end:
     // free any user preferences
     pgp_free_user_prefs(&desc->cert.prefs);
     // we don't need this as we have loaded the encrypted key into primary_sec
     transferable_key_destroy(&tkeysec);
     transferable_key_destroy(&tkeypub);
-    if (!ok) {
-        pgp_key_free_data(primary_pub);
-        pgp_key_free_data(primary_sec);
-    }
     return ok;
 }
 
@@ -545,18 +548,13 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
         break;
     }
 
-    subkey_pub->valid = true;
-    subkey_pub->validated = true;
-    subkey_sec->valid = true;
-    subkey_sec->validated = true;
-    ok = true;
+    pgp_key_mark_valid(subkey_pub);
+    pgp_key_mark_valid(subkey_sec);
+    ok = pgp_subkey_refresh_data(subkey_pub, primary_pub) &&
+         pgp_subkey_refresh_data(subkey_sec, primary_sec);
 end:
     transferable_subkey_destroy(&tskeysec);
     transferable_subkey_destroy(&tskeypub);
-    if (!ok) {
-        pgp_key_free_data(subkey_pub);
-        pgp_key_free_data(subkey_sec);
-    }
     if (decrypted_primary_seckey) {
         free_key_pkt(decrypted_primary_seckey);
         free(decrypted_primary_seckey);
