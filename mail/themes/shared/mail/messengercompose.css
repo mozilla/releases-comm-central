@@ -725,7 +725,7 @@ label.extra-recipients-label {
 
 .address-extra-recipients label:hover {
   cursor: pointer;
-  background-color: var(--toolbarbutton-hover-background);
+  background: var(--toolbarbutton-hover-background);
 }
 
 .extra-recipients-label image {
@@ -743,7 +743,7 @@ label.extra-recipients-label {
   margin: 0;
   width: 100%;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background 0.2s;
 }
 
 #extraRecipientsPanel label:hover,

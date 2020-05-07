@@ -79,19 +79,33 @@ menulist {
   margin: 1px 4px;
   padding: 1px 6px;
   border: 1px solid;
-  background: var(--toolbarbutton-hover-background);
+  border-radius: var(--toolbarbutton-border-radius);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   transition: background-color 150ms;
 }
 
-menulist:not([disabled="true"]):not([open="true"]):hover {
+#composeToolbar2 menulist {
+  background: var(--toolbarbutton-hover-background);
+}
+
+#FormatToolbar menulist {
+  background: transparent;
+}
+
+#composeToolbar2 menulist:not([disabled="true"]):not([open="true"]):hover {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   color: inherit;
 }
 
-menulist[open="true"] {
+#FormatToolbar menulist:not([disabled="true"]):not([open="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+  color: inherit;
+}
+
+#FormatToolbar menulist[open="true"],
+#composeToolbar2 menulist[open="true"] {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);
@@ -256,16 +270,13 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
   padding-block: 4px;
 }
 
-.formatting-button {
-  margin: 1px;
-}
-
 toolbarbutton.formatting-button {
   -moz-appearance: none;
   border: 1px solid transparent;
-  border-radius: 2px;
-  -moz-context-properties: fill;
+  border-radius: var(--toolbarbutton-border-radius);
+  margin: 1px;
   color: inherit;
+  -moz-context-properties: fill;
   fill: currentColor;
   transition-property: background-color, border-color, box-shadow;
   transition-duration: 150ms;

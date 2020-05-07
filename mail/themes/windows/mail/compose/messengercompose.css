@@ -191,13 +191,10 @@
   max-width: 35ch;
 }
 
-.formatting-button {
-  margin: 1px;
-}
-
 toolbarbutton.formatting-button {
   -moz-appearance: none;
   border: 1px solid transparent;
+  margin: 1px;
   -moz-context-properties: fill;
   fill: currentColor;
   transition-property: background-color, border-color, box-shadow;
@@ -257,30 +254,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 .color-button[disabled="true"]:hover {
   border: 1px inset ThreeDFace;
   opacity: 0.5;
-}
-
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme: 0) {
-  toolbarbutton.formatting-button {
-    -moz-appearance: none;
-    border-radius: 2px;
-    border: 1px solid transparent;
-    padding: 2px 3px;
-  }
-
-  toolbarbutton.formatting-button:not([checked="true"]):hover {
-    border-top-color: ButtonHighlight;
-    border-inline-start-color: ButtonHighlight;
-    border-bottom-color: ButtonShadow;
-    border-inline-end-color: ButtonShadow;
-  }
-
-  toolbarbutton.formatting-button:hover:active,
-  toolbarbutton.formatting-button[checked="true"] {
-    border-top-color: ButtonShadow;
-    border-inline-start-color: ButtonShadow;
-    border-bottom-color: ButtonHighlight;
-    border-inline-end-color: ButtonHighlight;
-  }
 }
 
 /* ::::: address book sidebar ::::: */
@@ -368,45 +341,56 @@ toolbar:not(:-moz-lwtheme) {
   margin: 1px 5px;
 }
 
-@media (-moz-windows-default-theme) {
-  menulist,
-  menulist[disabled="true"] {
-    color: inherit;
-    border: 1px solid;
-    background: var(--toolbarbutton-hover-background);
-    border-color: var(--toolbarbutton-hover-bordercolor);
-    box-shadow: var(--toolbarbutton-hover-boxshadow);
-    transition-property: background-color, border-color, box-shadow;
-    transition-duration: 150ms;
-  }
+menulist,
+menulist[disabled="true"] {
+  color: inherit;
+  border: 1px solid;
+  border-color: var(--toolbarbutton-hover-bordercolor);
+  box-shadow: var(--toolbarbutton-hover-boxshadow);
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+}
 
-  menulist[disabled="true"] {
-    opacity: 0.5;
-  }
+#composeToolbar2 menulist {
+  background: var(--toolbarbutton-hover-background);
+}
 
-  menulist:not([disabled="true"]):not([open="true"]):hover {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-  }
+#FormatToolbar menulist {
+  -moz-appearance: none;
+  background: transparent
+}
 
-  menulist[open="true"] {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-    box-shadow: var(--toolbarbutton-active-boxshadow);
-  }
+menulist[disabled="true"] {
+  opacity: 0.5;
+}
 
-  menulist::part(dropmarker) {
-    -moz-appearance: none;
-    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-    -moz-context-properties: fill;
-    fill: currentColor;
-    margin-top: 0;
-  }
+#composeToolbar2 menulist:not([disabled="true"]):not([open="true"]):hover {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+}
 
-  menulist::part(dropmarker-icon) {
-    width: 9px;
-    height: 7px;
-  }
+#FormatToolbar menulist:not([disabled="true"]):not([open="true"]):hover {
+  background: var(--toolbarbutton-hover-background);
+}
+
+#FormatToolbar menulist[open="true"],
+#composeToolbar2 menulist[open="true"] {
+  background: var(--toolbarbutton-active-background);
+  border-color: var(--toolbarbutton-active-bordercolor);
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
+menulist::part(dropmarker) {
+  -moz-appearance: none;
+  list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin-top: 0;
+}
+
+menulist::part(dropmarker-icon) {
+  width: 9px;
+  height: 7px;
 }
 
 /* ::::: address book sidebar ::::: */

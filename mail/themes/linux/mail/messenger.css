@@ -24,12 +24,12 @@
 
   --toolbarbutton-border-radius: 2px;
   --toolbarbutton-icon-fill-opacity: .85;
-  --toolbarbutton-hover-background: rgba(255, 255, 255, .5) linear-gradient(rgba(255, 255, 255, .5), transparent) no-repeat;
+  --toolbarbutton-hover-background: rgba(0, 0, 0, .05);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
   --toolbarbutton-header-bordercolor: rgba(0, 0, 0, .25);
   --toolbarbutton-hover-boxshadow: none;
 
-  --toolbarbutton-active-background: rgba(154, 154, 154, .5) linear-gradient(rgba(255, 255, 255, .7), rgba(255, 255, 255, .4));
+  --toolbarbutton-active-background: rgba(0, 0, 0, .1);
   --toolbarbutton-active-bordercolor: rgba(0, 0, 0, .3);
   --toolbarbutton-active-boxshadow: 0 1px 1px rgba(0, 0, 0, .1) inset, 0 0 1px rgba(0, 0, 0, .3) inset;
 

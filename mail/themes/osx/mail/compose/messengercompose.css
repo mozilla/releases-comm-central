@@ -252,15 +252,14 @@ toolbar[nowindowdrag="true"] {
   margin: 0 4px !important;
   padding: 1px 6px;
   border: 1px solid;
-  border-radius: 3px;
-  background: var(--toolbarbutton-hover-background);
+  border-radius: var(--toolbarbutton-border-radius);
+  background: transparent;
   border-color: var(--toolbarbutton-hover-bordercolor);
   transition: background-color 150ms;
 }
 
 #FormatToolbar menulist:not([disabled="true"]):not([open="true"]):hover {
-  background: var(--toolbarbutton-active-background);
-  border-color: var(--toolbarbutton-active-bordercolor);
+  background: var(--toolbarbutton-hover-background);
   color: inherit;
 }
 
@@ -289,10 +288,14 @@ toolbar[nowindowdrag="true"] {
   background-position: left;
 }
 
+#FormatToolbar menulist > menupopup {
+  margin-inline-start: 0;
+}
+
 toolbarbutton.formatting-button {
   -moz-appearance: none;
   border: 1px solid transparent;
-  border-radius: 3px;
+  border-radius: var(--toolbarbutton-border-radius);
   margin-inline: 1px;
   padding-inline: 4px;
   -moz-context-properties: fill;

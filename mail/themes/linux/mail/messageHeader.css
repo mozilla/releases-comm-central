@@ -109,7 +109,6 @@
 .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
 .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
 .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-  background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-header-bordercolor);
 }
 
