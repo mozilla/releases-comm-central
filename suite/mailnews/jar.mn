@@ -71,7 +71,3 @@ messenger.jar:
     content/messenger/FilterListDialog.js                                      (content/FilterListDialog.js)
 
     content/messenger/searchTermOverlay.xul                                    (content/searchTermOverlay.xul)
-
-    content/messenger/addressbook/abEditCardDialog.xul                         (addrbook/content/abEditCardDialog.xul)
-    content/messenger/addressbook/abNewCardDialog.xul                          (addrbook/content/abNewCardDialog.xul)
-    content/messenger/addressbook/abResultsPaneOverlay.xul                     (addrbook/content/abResultsPaneOverlay.xul)
