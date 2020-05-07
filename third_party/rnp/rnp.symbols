@@ -75,6 +75,8 @@ rnp_key_lock
 rnp_key_packets_to_json
 rnp_key_protect
 rnp_key_remove
+rnp_key_revoke
+rnp_key_set_expiration
 rnp_key_to_json
 rnp_key_unlock
 rnp_key_unprotect
