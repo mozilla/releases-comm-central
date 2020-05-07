@@ -37,11 +37,6 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
         '-Xclang',
         '-fcxx-exceptions',
     ]
-else:
-    CXXFLAGS += [
-        '-fcxx-exceptions',
-    ]
-
 
 IQuote('{}/src/lib'.format(OBJDIR),
        '{}/src/lib'.format(SRCDIR),
