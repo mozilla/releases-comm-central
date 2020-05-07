@@ -21,8 +21,8 @@ var gTargetFolder;
 var gUuid;
 
 // Allow certain xpcom errors.
-logHelperAllowedErrors.push(Cr.NS_ERROR_FILE_IS_LOCKED);
-logHelperAllowedErrors.push(Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST);
+logHelperAllowedErrors.push("NS_ERROR_FILE_IS_LOCKED");
+logHelperAllowedErrors.push("NS_ERROR_FILE_TARGET_DOES_NOT_EXIST");
 
 function LockedFileOutputStream() {}
 

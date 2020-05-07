@@ -28,7 +28,7 @@ var _logHelperInterestedListeners = false;
 /**
  * Let test code extend the list of allowed XPCOM errors.
  */
-var logHelperAllowedErrors = [Cr.NS_ERROR_FAILURE];
+var logHelperAllowedErrors = ["NS_ERROR_FAILURE"];
 
 /**
  * Let other test helping code decide whether to register for potentially
@@ -79,7 +79,7 @@ var _errorConsoleTunnel = {
         // An XPCOM error aMessage looks like this:
         //   [JavaScript Error: "uncaught exception: 2147500037"]
         // Capture the number, and allow known XPCOM results.
-        let matches = /exception: (\d+)/.exec(aMessage);
+        let matches = /JavaScript Error: "(\w+)/.exec(aMessage);
         let XPCOMresult = null;
         if (matches) {
           for (let result in Cr) {
