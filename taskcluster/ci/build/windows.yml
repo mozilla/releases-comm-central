@@ -13,7 +13,6 @@ job-defaults:
         toolchain:
             - win64-dump-syms
             - win64-pdbstr
-            - win64-winchecksec
 
 win32/opt:
     description: "Win32 Opt (Cross)"
@@ -62,6 +61,7 @@ win32/opt:
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
+            - linux64-winchecksec
             - linux64-wine
         fetch:
             - nsis-3.01-win
@@ -121,6 +121,7 @@ win32-shippable/opt:
             - linux64-node
             - linux64-rust-cross
             - linux64-rust-size
+            - linux64-winchecksec
             - linux64-wine
         fetch:
             - nsis-3.01-win
@@ -176,6 +177,7 @@ win32/debug:
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
+            - linux64-winchecksec
             - linux64-wine
         fetch:
             - nsis-3.01-win
@@ -230,6 +232,7 @@ win64/opt:
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
+            - linux64-winchecksec
             - linux64-wine
         fetch:
             - nsis-3.01-win
@@ -289,6 +292,7 @@ win64-shippable/opt:
             - linux64-node
             - linux64-rust-cross
             - linux64-rust-size
+            - linux64-winchecksec
             - linux64-wine
         fetch:
             - nsis-3.01-win
@@ -344,6 +348,7 @@ win64/debug:
             - linux64-rust-cross
             - linux64-rust-size
             - linux64-sccache
+            - linux64-winchecksec
             - linux64-wine
         fetch:
             - nsis-3.01-win
@@ -384,11 +389,12 @@ win64-plain/debug:
     run-on-projects: ['comm-central']
     fetches:
         toolchain:
+            - win64-cbindgen
             - win64-clang-cl
-            - win64-rust
             - win64-node
             - win64-nasm
-            - win64-cbindgen
+            - win64-rust
+            - win64-winchecksec
         thirdparty-libotr-win64:
             - libotr.tar.xz
 
@@ -424,10 +430,11 @@ win64-plain/opt:
     run-on-projects: ['comm-central']
     fetches:
         toolchain:
+            - win64-cbindgen
             - win64-clang-cl
-            - win64-rust
             - win64-node
             - win64-nasm
-            - win64-cbindgen
+            - win64-rust
+            - win64-winchecksec
         thirdparty-libotr-win64:
             - libotr.tar.xz
