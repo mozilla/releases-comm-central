@@ -5,7 +5,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIMutableArray;
 interface nsIFile;
 interface nsIAddrDatabase;
 interface nsIAbLDAPAttributeMap;
@@ -23,13 +22,6 @@ interface nsILDAPURL;
 [scriptable, uuid(90dde295-e354-4d58-Add8-f9b29a95942d)]
 interface nsIAbLDAPDirectory : nsISupports
 {
-  /**
-   * If set, these arrays of nsILDAPControls are passed through to the
-   * nsILDAPOperation that searchExt is called on.
-   */
-  attribute nsIMutableArray searchServerControls;
-  attribute nsIMutableArray searchClientControls;
-
   /**
    * The Replication File Name to use.
    */

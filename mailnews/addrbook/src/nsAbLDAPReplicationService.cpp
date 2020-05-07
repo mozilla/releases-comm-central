@@ -10,8 +10,6 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 
-// XXX Change log replication doesn't work. Bug 311632 should fix it.
-//#include "nsAbLDAPChangeLogQuery.h"
 #include "nsIAbLDAPReplicationData.h"
 
 /*** implementation of the service ******/
@@ -29,10 +27,6 @@ NS_IMETHODIMP nsAbLDAPReplicationService::StartReplication(
     nsIAbLDAPDirectory *aDirectory, nsIWebProgressListener *progressListener) {
   NS_ENSURE_ARG_POINTER(aDirectory);
 
-#ifdef DEBUG_rdayal
-  printf("Start Replication called");
-#endif
-
   // Makes sure to allow only one replication at a time.
   if (mReplicating) return NS_ERROR_FAILURE;
 
@@ -40,17 +34,7 @@ NS_IMETHODIMP nsAbLDAPReplicationService::StartReplication(
 
   nsresult rv = NS_ERROR_NOT_IMPLEMENTED;
 
-  switch (DecideProtocol()) {
-    case nsIAbLDAPProcessReplicationData::kDefaultDownloadAll:
-      mQuery = do_CreateInstance(NS_ABLDAP_REPLICATIONQUERY_CONTRACTID, &rv);
-      break;
-      // XXX Change log replication doesn't work. Bug 311632 should fix it.
-      // case nsIAbLDAPProcessReplicationData::kChangeLogProtocol:
-      //  mQuery = do_CreateInstance (NS_ABLDAP_CHANGELOGQUERY_CONTRACTID, &rv);
-      //  break;
-    default:
-      break;
-  }
+  mQuery = do_CreateInstance(NS_ABLDAP_REPLICATIONQUERY_CONTRACTID, &rv);
 
   if (NS_SUCCEEDED(rv) && mQuery) {
     rv = mQuery->Init(mDirectory, progressListener);
@@ -100,16 +84,4 @@ NS_IMETHODIMP nsAbLDAPReplicationService::Done(bool aSuccess) {
   }
 
   return NS_OK;
-}
-
-// XXX: This method should query the RootDSE for the changeLog attribute,
-// if it exists ChangeLog protocol is supported.
-int32_t nsAbLDAPReplicationService::DecideProtocol() {
-  // Do the changeLog, it will decide if there is a need to replicate all
-  // entries or only update existing DB and will do the appropriate thing.
-  //
-  // XXX: Bug 231965 changed this from kChangeLogProtocol to
-  // kDefaultDownloadAll because of a problem with ldap replication not
-  // working correctly. We need to change this back at some stage (bug 311632).
-  return nsIAbLDAPProcessReplicationData::kDefaultDownloadAll;
 }

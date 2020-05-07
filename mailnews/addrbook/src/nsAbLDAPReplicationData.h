@@ -48,7 +48,6 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
 
   // state of processing, protocol used and count of results
   int32_t mState;
-  int32_t mProtocol;
   int32_t mCount;
   bool mInitialized;
 

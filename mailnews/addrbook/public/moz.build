@@ -23,7 +23,6 @@ XPIDL_SOURCES += [
 
 if CONFIG['MOZ_LDAP_XPCOM']:
     XPIDL_SOURCES += [
-        'nsIAbLDAPCard.idl',
         'nsIAbLDAPDirectory.idl',
         'nsIAbLDAPReplicationData.idl',
         'nsIAbLDAPReplicationQuery.idl',

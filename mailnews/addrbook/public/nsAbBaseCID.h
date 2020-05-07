@@ -234,18 +234,6 @@
   }
 
 //
-// nsAbLDAPCard
-//
-#define NS_ABLDAPCARD_CONTRACTID "@mozilla.org/addressbook/moz-abldapcard"
-
-#define NS_ABLDAPCARD_CID                            \
-  {                                                  \
-    0x10307B01, 0xEBD6, 0x465F, {                    \
-      0xB9, 0x72, 0x16, 0x30, 0x41, 0x0F, 0x70, 0xE6 \
-    }                                                \
-  }
-
-//
 // LDAP directory factory
 //
 #define NS_ABLDAPDIRFACTORY_CONTRACTID \

@@ -39,19 +39,6 @@ interface nsIAbLDAPProcessReplicationData : nsISupports
     const long kReplicationDone       = 11;
 
    /**
-     * readonly attribute giving the current protocol used
-     */
-    readonly attribute int32_t protocolUsed ;
-
-   /**
-     * replication protocols
-     */
-    const long kDefaultDownloadAll         = 0;
-    const long kChangeLogProtocol          = 1;
-    const long kLCUPProtocol               = 2;
-    const long kLastUpdatedTimeStampMethod = 3;
-
-   /**
      * this method initializes the implementation
      */
     void init(in nsIAbLDAPDirectory directory,

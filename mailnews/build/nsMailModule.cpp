@@ -112,6 +112,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "nsAbBaseCID.h"
 #include "nsAddrDatabase.h"
+#include "nsAbCardProperty.h"
 #include "nsAbContentHandler.h"
 #include "nsAbDirProperty.h"
 #include "nsAbAddressCollector.h"
@@ -127,14 +128,9 @@
 #if defined(MOZ_LDAP_XPCOM)
 #  include "nsAbLDAPDirectory.h"
 #  include "nsAbLDAPDirectoryQuery.h"
-#  include "nsAbLDAPCard.h"
 #  include "nsAbLDAPReplicationService.h"
 #  include "nsAbLDAPReplicationQuery.h"
 #  include "nsAbLDAPReplicationData.h"
-// XXX These files are not being built as they don't work. Bug 311632 should
-// fix them.
-//#include "nsAbLDAPChangeLogQuery.h"
-//#include "nsAbLDAPChangeLogData.h"
 #endif
 
 #if defined(MOZ_MAPI_SUPPORT)
@@ -448,14 +444,9 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbBooleanExpression)
 #if defined(MOZ_LDAP_XPCOM)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPDirectory)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPDirectoryQuery)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPCard)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPReplicationService)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPReplicationQuery)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPProcessReplicationData)
-// XXX These files are not being built as they don't work. Bug 311632 should
-// fix them.
-// NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPChangeLogQuery)
-// NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPProcessChangeLogData)
 #endif
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirectoryQueryProxy)
@@ -485,7 +476,6 @@ NS_DEFINE_NAMED_CID(NS_ABOUTLOOKINTERFACE_CID);
 #if defined(MOZ_LDAP_XPCOM)
 NS_DEFINE_NAMED_CID(NS_ABLDAPDIRECTORY_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDAPDIRECTORYQUERY_CID);
-NS_DEFINE_NAMED_CID(NS_ABLDAPCARD_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDAP_REPLICATIONSERVICE_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDAP_REPLICATIONQUERY_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDAP_PROCESSREPLICATIONDATA_CID);
@@ -901,7 +891,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_ABLDAPDIRECTORY_CID, false, NULL, nsAbLDAPDirectoryConstructor},
     {&kNS_ABLDAPDIRECTORYQUERY_CID, false, NULL,
      nsAbLDAPDirectoryQueryConstructor},
-    {&kNS_ABLDAPCARD_CID, false, NULL, nsAbLDAPCardConstructor},
     {&kNS_ABLDAP_REPLICATIONSERVICE_CID, false, NULL,
      nsAbLDAPReplicationServiceConstructor},
     {&kNS_ABLDAP_REPLICATIONQUERY_CID, false, NULL,
@@ -1134,7 +1123,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
 #if defined(MOZ_LDAP_XPCOM)
     {NS_ABLDAPDIRECTORY_CONTRACTID, &kNS_ABLDAPDIRECTORY_CID},
     {NS_ABLDAPDIRECTORYQUERY_CONTRACTID, &kNS_ABLDAPDIRECTORYQUERY_CID},
-    {NS_ABLDAPCARD_CONTRACTID, &kNS_ABLDAPCARD_CID},
     {NS_ABLDAP_REPLICATIONSERVICE_CONTRACTID,
      &kNS_ABLDAP_REPLICATIONSERVICE_CID},
     {NS_ABLDAP_REPLICATIONQUERY_CONTRACTID, &kNS_ABLDAP_REPLICATIONQUERY_CID},

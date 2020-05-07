@@ -46,19 +46,13 @@ if CONFIG['OS_ARCH'] == 'Darwin':
 if CONFIG['MOZ_LDAP_XPCOM']:
     SOURCES += [
         'nsAbBoolExprToLDAPFilter.cpp',
-        'nsAbLDAPCard.cpp',
         'nsAbLDAPDirectory.cpp',
-        'nsAbLDAPDirectoryModify.cpp',
         'nsAbLDAPDirectoryQuery.cpp',
         'nsAbLDAPListenerBase.cpp',
         'nsAbLDAPReplicationData.cpp',
         'nsAbLDAPReplicationQuery.cpp',
         'nsAbLDAPReplicationService.cpp',
     ]
-    # XXX These files are not being built as they don't work. Bug 311632 should
-    # fix them.
-    # nsAbLDAPChangeLogQuery.cpp
-    # nsAbLDAPChangeLogData.cpp
 
     EXTRA_JS_MODULES += [
         'AbLDAPAutoCompleteSearch.jsm',
