@@ -103,8 +103,8 @@ function test_getStartEndProps() {
   equal(cal.dtz.startDateProp(cal.createTodo()), "entryDate");
   equal(cal.dtz.endDateProp(cal.createTodo()), "dueDate");
 
-  throws(() => cal.dtz.startDateProp(null), /2147500033/);
-  throws(() => cal.dtz.endDateProp(null), /2147500033/);
+  throws(() => cal.dtz.startDateProp(null), /NS_ERROR_NOT_IMPLEMENTED/);
+  throws(() => cal.dtz.endDateProp(null), /NS_ERROR_NOT_IMPLEMENTED/);
 }
 
 function test_OperationGroup() {
