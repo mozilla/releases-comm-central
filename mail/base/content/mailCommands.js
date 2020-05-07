@@ -172,26 +172,15 @@ function ComposeMessage(type, format, folder, messageArray) {
     case msgComposeType.New: // new message
       // dump("OpenComposeWindow with " + identity + "\n");
 
-      // If the addressbook sidebar panel is open and has focus, get
-      // the selected addresses from it.
-      if (
-        document.commandDispatcher.focusedWindow &&
-        document.commandDispatcher.focusedWindow.document.documentElement.hasAttribute(
-          "selectedaddresses"
-        )
-      ) {
-        NewMessageToSelectedAddresses(type, format, identity);
-      } else {
-        MailServices.compose.OpenComposeWindow(
-          null,
-          null,
-          null,
-          type,
-          format,
-          identity,
-          msgWindow
-        );
-      }
+      MailServices.compose.OpenComposeWindow(
+        null,
+        null,
+        null,
+        type,
+        format,
+        identity,
+        msgWindow
+      );
       return;
     case msgComposeType.NewsPost:
       // dump("OpenComposeWindow with " + identity + " and " + newsgroup + "\n");
@@ -276,35 +265,6 @@ function ComposeMessage(type, format, folder, messageArray) {
   }
 }
 /* eslint-enable complexity */
-
-function NewMessageToSelectedAddresses(type, format, identity) {
-  var abSidebarPanel = document.commandDispatcher.focusedWindow;
-  var abResultsTree = abSidebarPanel.document.getElementById("abResultsTree");
-  var abView = abResultsTree.view;
-  abView = abView.QueryInterface(Ci.nsIAbView);
-  var addresses = abView.selectedAddresses;
-  var params = Cc[
-    "@mozilla.org/messengercompose/composeparams;1"
-  ].createInstance(Ci.nsIMsgComposeParams);
-  if (params) {
-    params.type = type;
-    params.format = format;
-    params.identity = identity;
-    var composeFields = Cc[
-      "@mozilla.org/messengercompose/composefields;1"
-    ].createInstance(Ci.nsIMsgCompFields);
-    if (composeFields) {
-      let addressList = [];
-      const nsISupportsString = Ci.nsISupportsString;
-      for (let i = 0; i < addresses.length; i++) {
-        addressList.push(addresses.queryElementAt(i, nsISupportsString).data);
-      }
-      composeFields.to = addressList.join(",");
-      params.composeFields = composeFields;
-      MailServices.compose.OpenComposeWindowWithParams(null, params);
-    }
-  }
-}
 
 function Subscribe(preselectedMsgFolder) {
   window.openDialog(

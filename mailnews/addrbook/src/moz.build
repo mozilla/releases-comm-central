@@ -19,7 +19,6 @@ SOURCES += [
     'nsAbDirProperty.cpp',
     'nsAbLDIFService.cpp',
     'nsAbQueryStringToExpression.cpp',
-    'nsAbView.cpp',
     'nsAddbookProtocolHandler.cpp',
     'nsAddbookUrl.cpp',
     'nsAddrDatabase.cpp',

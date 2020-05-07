@@ -30,12 +30,13 @@ function ABView(directory, searchQuery, listener, sortColumn, sortDirection) {
 ABView.prototype = {
   QueryInterface: ChromeUtils.generateQI([
     Ci.nsITreeView,
-    Ci.nsIAbView,
     Ci.nsIAbDirSearchListener,
     Ci.nsIObserver,
     Ci.nsISupportsWeakReference,
   ]),
 
+  directory: null,
+  listener: null,
   _notifications: [
     "addrbook-contact-created",
     "addrbook-contact-deleted",
@@ -43,31 +44,14 @@ ABView.prototype = {
     "addrbook-list-member-removed",
   ],
 
-  // nsITreeView
-
-  selectionChanged() {
-    if (this.listener) {
-      this.listener.onSelectionChanged();
-    }
-  },
-  setTree(tree) {
-    this.tree = tree;
-    for (let topic of this._notifications) {
-      if (tree) {
-        Services.obs.addObserver(this, topic, true);
-      } else {
-        Services.obs.removeObserver(this, topic);
-      }
-    }
-  },
-
-  // nsIAbView
+  sortColumn: "",
+  sortDirection: "",
 
   deleteSelectedCards() {
     let directoryMap = new Map();
     for (let i = 0; i < this.selection.getRangeCount(); i++) {
-      let start = {},
-        finish = {};
+      let start = {};
+      let finish = {};
       this.selection.getRangeAt(i, start, finish);
       for (let j = start.value; j <= finish.value; j++) {
         let card = this.getCardFromRow(j);
@@ -97,13 +81,9 @@ ABView.prototype = {
       }
     }
   },
-
   getCardFromRow(row) {
     return this._rowMap[row] ? this._rowMap[row].card : null;
   },
-
-  sortColumn: "",
-  sortDirection: "",
   sortBy(sortColumn, sortDirection, resort) {
     if (sortColumn == this.sortColumn && !resort) {
       if (sortDirection == this.sortDirection) {
@@ -126,6 +106,24 @@ ABView.prototype = {
     }
     this.sortColumn = sortColumn;
     this.sortDirection = sortDirection;
+  },
+
+  // nsITreeView
+
+  selectionChanged() {
+    if (this.listener) {
+      this.listener.onSelectionChanged();
+    }
+  },
+  setTree(tree) {
+    this.tree = tree;
+    for (let topic of this._notifications) {
+      if (tree) {
+        Services.obs.addObserver(this, topic, true);
+      } else {
+        Services.obs.removeObserver(this, topic);
+      }
+    }
   },
 
   // nsIAbDirSearchListener

@@ -121,7 +121,6 @@
 #include "nsAbDirectoryQuery.h"
 #include "nsAbBooleanExpression.h"
 #include "nsAbDirectoryQueryProxy.h"
-#include "nsAbView.h"
 #include "nsMsgVCardService.h"
 #include "nsAbLDIFService.h"
 
@@ -460,7 +459,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPProcessReplicationData)
 #endif
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirectoryQueryProxy)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbView)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgVCardService)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDIFService)
 
@@ -497,7 +495,6 @@ NS_DEFINE_NAMED_CID(NS_ABDIRECTORYQUERYPROXY_CID);
 NS_DEFINE_NAMED_CID(NS_ABOSXDIRECTORY_CID);
 NS_DEFINE_NAMED_CID(NS_ABOSXCARD_CID);
 #endif
-NS_DEFINE_NAMED_CID(NS_ABVIEW_CID);
 NS_DEFINE_NAMED_CID(NS_MSGVCARDSERVICE_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDIFSERVICE_CID);
 
@@ -918,7 +915,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_ABOSXDIRECTORY_CID, false, NULL, nsAbOSXDirectoryConstructor},
     {&kNS_ABOSXCARD_CID, false, NULL, nsAbOSXCardConstructor},
 #endif
-    {&kNS_ABVIEW_CID, false, NULL, nsAbViewConstructor},
     {&kNS_MSGVCARDSERVICE_CID, false, NULL, nsMsgVCardServiceConstructor},
     {&kNS_ABLDIFSERVICE_CID, false, NULL, nsAbLDIFServiceConstructor},
     // Bayesian Filter Entries
@@ -1151,7 +1147,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_ABOSXDIRECTORY_CONTRACTID, &kNS_ABOSXDIRECTORY_CID},
     {NS_ABOSXCARD_CONTRACTID, &kNS_ABOSXCARD_CID},
 #endif
-    {NS_ABVIEW_CONTRACTID, &kNS_ABVIEW_CID},
     {NS_MSGVCARDSERVICE_CONTRACTID, &kNS_MSGVCARDSERVICE_CID},
     {NS_ABLDIFSERVICE_CONTRACTID, &kNS_ABLDIFSERVICE_CID},
     // Bayesian Filter Entries

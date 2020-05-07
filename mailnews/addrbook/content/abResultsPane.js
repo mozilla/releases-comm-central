@@ -36,18 +36,19 @@ var kCardsOnly = 4;
 
 // Global Variables
 
-// gAbView holds an object with an nsIAbView interface
-var gAbView = null;
 // Holds a reference to the "abResultsTree" document element. Initially
 // set up by SetAbView.
 var gAbResultsTree = null;
+// gAbView is the current value of gAbResultsTree.view, without passing
+// through XPCOM, so we can access extra functions if necessary.
+var gAbView = null;
 
 function SetAbView(aURI, aSearchQuery) {
   // If we don't have a URI, just clear the view and leave everything else
   // alone.
   if (!aURI) {
     if (gAbView) {
-      gAbView.clearView();
+      CloseAbView();
     }
     return;
   }
@@ -269,12 +270,6 @@ function GetSelectedRows() {
   }
 
   return selectedRows;
-}
-
-function AbSwapFirstNameLastName() {
-  if (gAbView) {
-    gAbView.swapFirstNameLastName();
-  }
 }
 
 function AbEditSelectedCard() {

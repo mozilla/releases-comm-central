@@ -98,21 +98,20 @@ add_task(async () => {
   }
 
   function checkRows(...expectedCards) {
-    abContactTree.view.QueryInterface(Ci.nsIAbView);
     Assert.equal(
-      abContactTree.view.rowCount,
+      abWindow.gAbView.rowCount,
       expectedCards.length,
       "rowCount correct"
     );
     for (let i = 0; i < expectedCards.length; i++) {
       if (expectedCards[i].isMailList) {
         Assert.equal(
-          abContactTree.view.getCardFromRow(i).displayName,
+          abWindow.gAbView.getCardFromRow(i).displayName,
           expectedCards[i].dirName
         );
       } else {
         Assert.equal(
-          abContactTree.view.getCardFromRow(i).displayName,
+          abWindow.gAbView.getCardFromRow(i).displayName,
           expectedCards[i].displayName
         );
       }

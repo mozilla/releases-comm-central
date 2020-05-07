@@ -17,8 +17,6 @@
 #include "nsIAbDirectory.h"
 #include "nsIAbManager.h"
 #include "prmem.h"
-#include "nsIAbView.h"
-#include "nsITreeView.h"
 #include "nsIStringBundle.h"
 #include "mozilla/Services.h"
 #include "nsIAsyncInputStream.h"
@@ -26,6 +24,8 @@
 #include "nsIPipe.h"
 #include "nsIPrincipal.h"
 #include "nsIInputStream.h"
+#include "nsCollationCID.h"
+#include "nsICollation.h"
 
 nsAddbookProtocolHandler::nsAddbookProtocolHandler() {
   mAddbookOperation = nsIAddbookUrlOperation::InvalidUrl;
@@ -227,6 +227,62 @@ nsresult nsAddbookProtocolHandler::GeneratePrintOutput(
   return NS_OK;
 }
 
+typedef struct CardEnclosure {
+  nsCOMPtr<nsIAbCard> card;
+  nsString generatedName;
+} CardEnclosure;
+
+class CardComparator {
+ private:
+  nsCOMPtr<nsICollation> mCollation;
+
+  int cmp(CardEnclosure a, CardEnclosure b) const {
+    int32_t result;
+    mCollation->CompareString(nsICollation::kCollationCaseInSensitive,
+                              a.generatedName, b.generatedName, &result);
+    return result;
+  }
+
+ public:
+  CardComparator() {
+    nsCOMPtr<nsICollationFactory> factory =
+        do_CreateInstance(NS_COLLATIONFACTORY_CONTRACTID);
+    factory->CreateCollation(getter_AddRefs(mCollation));
+  }
+
+  bool Equals(CardEnclosure a, CardEnclosure b) const { return cmp(a, b) == 0; }
+  bool LessThan(CardEnclosure a, CardEnclosure b) const {
+    return cmp(a, b) < 0;
+  }
+};
+
+nsresult EnumerateCards(nsIAbDirectory *aDirectory,
+                        nsTArray<CardEnclosure> &aCards,
+                        nsIStringBundle *aBundle) {
+  if (!aDirectory) return NS_ERROR_UNEXPECTED;
+
+  nsCOMPtr<nsISimpleEnumerator> cardsEnumerator;
+  nsCOMPtr<nsIAbCard> card;
+
+  nsresult rv = aDirectory->GetChildCards(getter_AddRefs(cardsEnumerator));
+  if (NS_SUCCEEDED(rv) && cardsEnumerator) {
+    nsCOMPtr<nsISupports> item;
+    bool more;
+    while (NS_SUCCEEDED(cardsEnumerator->HasMoreElements(&more)) && more) {
+      rv = cardsEnumerator->GetNext(getter_AddRefs(item));
+      if (NS_SUCCEEDED(rv)) {
+        nsCOMPtr<nsIAbCard> card = do_QueryInterface(item);
+        CardEnclosure enclosure = CardEnclosure();
+        enclosure.card = card;
+        card->GenerateName(0, aBundle, enclosure.generatedName);
+        aCards.AppendElement(enclosure);
+      }
+    }
+  }
+
+  return NS_OK;
+}
+
 nsresult nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
                                                      nsString &aOutput) {
   nsresult rv;
@@ -256,32 +312,45 @@ nsresult nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
     }
   }
 
-  // create a view and init it with the generated name sort order. Then, iterate
-  // over the view, getting the card for each row, and printing them.
-  nsString sortColumn;
-  nsCOMPtr<nsIAbView> view =
-      do_CreateInstance("@mozilla.org/addressbook/abview;1", &rv);
+  nsTArray<CardEnclosure> cards;
+  if (aDirectory) {
+    EnumerateCards(aDirectory, cards, bundle);
+  } else {
+    nsCOMPtr<nsIAbManager> abManager(
+        do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    nsCOMPtr<nsISimpleEnumerator> enumerator;
+    rv = abManager->GetDirectories(getter_AddRefs(enumerator));
+    NS_ENSURE_SUCCESS(rv, rv);
 
-  view->SetView(aDirectory, nullptr, NS_LITERAL_STRING("GeneratedName"),
-                NS_LITERAL_STRING("ascending"), sortColumn);
+    bool hasMore = false;
+    nsCOMPtr<nsISupports> support;
+    nsCOMPtr<nsIAbDirectory> directory;
+    while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
+      rv = enumerator->GetNext(getter_AddRefs(support));
+      NS_ENSURE_SUCCESS(rv, rv);
+      directory = do_QueryInterface(support, &rv);
 
-  int32_t numRows;
-  nsCOMPtr<nsITreeView> treeView = do_QueryInterface(view, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  treeView->GetRowCount(&numRows);
+      // If, for some reason, we are unable to get a directory, we continue.
+      if (NS_FAILED(rv)) continue;
 
-  for (int32_t row = 0; row < numRows; row++) {
-    nsCOMPtr<nsIAbCard> card;
-    view->GetCardFromRow(row, getter_AddRefs(card));
+      rv = EnumerateCards(directory, cards, bundle);
+      NS_ENSURE_SUCCESS(rv, rv);
+    }
+  }
 
+  CardComparator cardComparator = CardComparator();
+  cards.Sort(cardComparator);
+
+  for (CardEnclosure enclosure : cards) {
     bool isMailList;
-    if (NS_FAILED(card->GetIsMailList(&isMailList)) || isMailList) {
+    if (NS_FAILED(enclosure.card->GetIsMailList(&isMailList)) || isMailList) {
       continue;
     }
 
     nsCString xmlSubstr;
 
-    rv = card->TranslateTo(NS_LITERAL_CSTRING("xml"), xmlSubstr);
+    rv = enclosure.card->TranslateTo(NS_LITERAL_CSTRING("xml"), xmlSubstr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     aOutput.AppendLiteral("<separator/>");

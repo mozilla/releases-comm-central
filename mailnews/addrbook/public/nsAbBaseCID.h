@@ -332,16 +332,6 @@
 #define NS_ABLDAP_PROCESSCHANGELOGDATA_CONTRACTID \
   "@mozilla.org/addressbook/ldap-process-changelog-data;1"
 
-// nsABView
-#define NS_ABVIEW_CID                                \
-  {                                                  \
-    0xc5eb5d6a, 0x1dd1, 0x11b2, {                    \
-      0xa0, 0x25, 0x94, 0xd1, 0x18, 0x1f, 0xc5, 0x9c \
-    }                                                \
-  }
-
-#define NS_ABVIEW_CONTRACTID "@mozilla.org/addressbook/abview;1"
-
 #ifdef XP_MACOSX
 //
 // nsAbOSXDirectory
