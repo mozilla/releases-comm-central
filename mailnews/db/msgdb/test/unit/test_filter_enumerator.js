@@ -38,9 +38,7 @@ function run_test() {
   let searchSession = Cc[
     "@mozilla.org/messenger/searchSession;1"
   ].createInstance(Ci.nsIMsgSearchSession);
-  let searchTerms = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
+  let searchTerms = [];
 
   searchSession.addScopeTerm(
     Ci.nsMsgSearchScope.offlineMail,
@@ -60,7 +58,7 @@ function run_test() {
   value.status = Ci.nsMsgFolderFlags.Mail;
   value.attrib = Ci.nsMsgSearchAttrib.FolderFlag;
   searchTerm.value = value;
-  searchTerms.appendElement(searchTerm);
+  searchTerms.push(searchTerm);
 
   searchTerm = searchSession.createTerm();
   searchTerm.booleanAnd = true;
@@ -71,7 +69,7 @@ function run_test() {
   value.attrib = Ci.nsMsgSearchAttrib.FolderFlag;
   searchTerm.value = value;
   searchTerm.endsGrouping = true;
-  searchTerms.appendElement(searchTerm);
+  searchTerms.push(searchTerm);
 
   searchTerm = searchSession.createTerm();
   searchTerm.booleanAnd = true;
@@ -82,7 +80,7 @@ function run_test() {
   value.str = "gloda-id";
   value.attrib = Ci.nsMsgSearchAttrib.HdrProperty;
   searchTerm.value = value;
-  searchTerms.appendElement(searchTerm);
+  searchTerms.push(searchTerm);
 
   let filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
   let numMatches = {};

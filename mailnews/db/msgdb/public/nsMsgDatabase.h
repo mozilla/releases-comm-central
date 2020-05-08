@@ -104,10 +104,12 @@ class nsMsgDBEnumerator : public nsSimpleEnumerator {
 
 class nsMsgFilteredDBEnumerator : public nsMsgDBEnumerator {
  public:
-  nsMsgFilteredDBEnumerator(nsMsgDatabase *db, nsIMdbTable *table, bool reverse,
-                            nsIArray *searchTerms);
+  nsMsgFilteredDBEnumerator(nsMsgDatabase *db, nsIMdbTable *table,
+                            bool reverse);
   virtual ~nsMsgFilteredDBEnumerator();
-  nsresult InitSearchSession(nsIArray *searchTerms, nsIMsgFolder *folder);
+  nsresult InitSearchSession(
+      const nsTArray<RefPtr<nsIMsgSearchTerm>> &searchTerms,
+      nsIMsgFolder *folder);
 
  protected:
   virtual nsresult PrefetchNext() override;

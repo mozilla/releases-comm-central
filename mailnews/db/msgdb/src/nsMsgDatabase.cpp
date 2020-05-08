@@ -2630,8 +2630,7 @@ NS_IMETHODIMP nsMsgDBEnumerator::HasMoreElements(bool *aResult) {
 
 nsMsgFilteredDBEnumerator::nsMsgFilteredDBEnumerator(nsMsgDatabase *db,
                                                      nsIMdbTable *table,
-                                                     bool reverse,
-                                                     nsIArray *searchTerms)
+                                                     bool reverse)
     : nsMsgDBEnumerator(db, table, nullptr, nullptr, !reverse) {}
 
 nsMsgFilteredDBEnumerator::~nsMsgFilteredDBEnumerator() {}
@@ -2641,19 +2640,15 @@ nsMsgFilteredDBEnumerator::~nsMsgFilteredDBEnumerator() {}
  * add the scope term for "folder" to the search session, and add the search
  * terms in the array to the search session.
  */
-nsresult nsMsgFilteredDBEnumerator::InitSearchSession(nsIArray *searchTerms,
-                                                      nsIMsgFolder *folder) {
+nsresult nsMsgFilteredDBEnumerator::InitSearchSession(
+    const nsTArray<RefPtr<nsIMsgSearchTerm>> &searchTerms,
+    nsIMsgFolder *folder) {
   nsresult rv;
   m_searchSession = do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   m_searchSession->AddScopeTerm(nsMsgSearchScope::offlineMail, folder);
-  // add each item in termsArray to the search session
-  uint32_t numTerms;
-  rv = searchTerms->GetLength(&numTerms);
-  NS_ENSURE_SUCCESS(rv, rv);
-  for (uint32_t i = 0; i < numTerms; i++) {
-    nsCOMPtr<nsIMsgSearchTerm> searchTerm = do_QueryElementAt(searchTerms, i);
+  for (auto searchTerm : searchTerms) {
     m_searchSession->AppendTerm(searchTerm);
   }
   return NS_OK;
@@ -2697,11 +2692,12 @@ nsMsgDatabase::ReverseEnumerateMessages(nsISimpleEnumerator **result) {
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::GetFilterEnumerator(nsIArray *searchTerms, bool aReverse,
-                                   nsISimpleEnumerator **aResult) {
+nsMsgDatabase::GetFilterEnumerator(
+    const nsTArray<RefPtr<nsIMsgSearchTerm>> &searchTerms, bool aReverse,
+    nsISimpleEnumerator **aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
-  RefPtr<nsMsgFilteredDBEnumerator> e = new nsMsgFilteredDBEnumerator(
-      this, m_mdbAllMsgHeadersTable, aReverse, searchTerms);
+  RefPtr<nsMsgFilteredDBEnumerator> e =
+      new nsMsgFilteredDBEnumerator(this, m_mdbAllMsgHeadersTable, aReverse);
 
   NS_ENSURE_TRUE(e, NS_ERROR_OUT_OF_MEMORY);
   nsresult rv = e->InitSearchSession(searchTerms, m_folder);

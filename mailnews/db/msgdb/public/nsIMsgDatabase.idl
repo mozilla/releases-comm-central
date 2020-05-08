@@ -39,6 +39,7 @@ interface nsIMsgFolder;
 interface nsIMsgKeyArray;
 interface nsIFile;
 interface nsIArray;
+interface nsIMsgSearchTerm;
 
 typedef unsigned long nsMsgRetainByPreference;
 
@@ -314,7 +315,7 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
    *
    * @returns   an enumerator for passing into nextMatchingHdrs
    */
-  nsISimpleEnumerator getFilterEnumerator(in nsIArray searchTerms,
+  nsISimpleEnumerator getFilterEnumerator(in Array<nsIMsgSearchTerm> searchTerms,
                                           [optional] in boolean reverse);
 
   /**

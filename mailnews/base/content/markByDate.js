@@ -67,8 +67,8 @@ function onAccept() {
     PRTime for the upper bound - this boundary is exclusive
 */
 function markInDatabase(lower, upper) {
-  var messageFolder;
-  var messageDatabase;
+  let messageFolder;
+  let messageDatabase;
   // extract the database
   if (window.arguments && window.arguments[0]) {
     messageFolder = window.arguments[0];
@@ -81,26 +81,24 @@ function markInDatabase(lower, upper) {
   }
 
   // the headers which are going to be marked
-  var headers = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  var searchSession = Cc[
+  let headers = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+  let searchSession = Cc[
     "@mozilla.org/messenger/searchSession;1"
   ].createInstance(Ci.nsIMsgSearchSession);
-  var searchTerms = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
+  let searchTerms = [];
   searchSession.addScopeTerm(Ci.nsMsgSearchScope.offlineMail, messageFolder);
 
   const nsMsgSearchAttrib = Ci.nsMsgSearchAttrib;
   const nsMsgSearchOp = Ci.nsMsgSearchOp;
 
-  var searchTerm = searchSession.createTerm();
+  let searchTerm = searchSession.createTerm();
   searchTerm.attrib = nsMsgSearchAttrib.Date;
   searchTerm.op = nsMsgSearchOp.IsBefore;
-  var value = searchTerm.value;
+  let value = searchTerm.value;
   value.attrib = nsMsgSearchAttrib.Date;
   value.date = upper;
   searchTerm.value = value;
-  searchTerms.appendElement(searchTerm);
+  searchTerms.push(searchTerm);
 
   if (lower) {
     searchTerm = searchSession.createTerm();
@@ -111,14 +109,14 @@ function markInDatabase(lower, upper) {
     value.attrib = nsMsgSearchAttrib.Date;
     value.date = lower;
     searchTerm.value = value;
-    searchTerms.appendElement(searchTerm);
+    searchTerms.push(searchTerm);
   }
 
-  var filterEnumerator = messageDatabase.getFilterEnumerator(searchTerms);
+  let filterEnumerator = messageDatabase.getFilterEnumerator(searchTerms);
 
   if (filterEnumerator) {
-    var keepGoing;
-    var numMatches = {};
+    let keepGoing;
+    let numMatches = {};
     do {
       keepGoing = messageDatabase.nextMatchingHdrs(
         filterEnumerator,

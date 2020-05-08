@@ -386,9 +386,7 @@ var SearchSupport = {
         let searchSession = Cc[
           "@mozilla.org/messenger/searchSession;1"
         ].createInstance(Ci.nsIMsgSearchSession);
-        let searchTerms = Cc["@mozilla.org/array;1"].createInstance(
-          Ci.nsIMutableArray
-        );
+        let searchTerms = [];
 
         searchSession.addScopeTerm(
           Ci.nsMsgSearchScope.offlineMail,
@@ -406,7 +404,7 @@ var SearchSupport = {
         searchTerm.hdrProperty = this._hdrIndexedProperty;
         value.status = reindexTime;
         searchTerm.value = value;
-        searchTerms.appendElement(searchTerm);
+        searchTerms.push(searchTerm);
         this._headerEnumerator = this._currentFolderToIndex.msgDatabase.getFilterEnumerator(
           searchTerms
         );
