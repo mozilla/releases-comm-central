@@ -431,16 +431,13 @@ NS_IMETHODIMP nsMsgDBService::ForceFolderDBClosed(nsIMsgFolder *aFolder) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDBService::GetOpenDBs(nsIArray **aOpenDBs) {
-  NS_ENSURE_ARG_POINTER(aOpenDBs);
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> openDBs(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  for (uint32_t i = 0; i < m_dbCache.Length(); i++)
-    openDBs->AppendElement(m_dbCache[i]);
-
-  openDBs.forget(aOpenDBs);
+NS_IMETHODIMP nsMsgDBService::GetOpenDBs(
+    nsTArray<RefPtr<nsIMsgDatabase>> &aOpenDBs) {
+  aOpenDBs.Clear();
+  aOpenDBs.SetCapacity(m_dbCache.Length());
+  for (auto db : m_dbCache) {
+    aOpenDBs.AppendElement(db);
+  }
   return NS_OK;
 }
 

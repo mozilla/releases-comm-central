@@ -125,8 +125,7 @@ var msgDBCacheManager = {
     // Count databases whose folder is open in a window.
     let numOpenInWindow = 0;
     let dbs = [];
-    for (let i = 0; i < cachedDBs.length; i++) {
-      let db = cachedDBs.queryElementAt(i, Ci.nsIMsgDatabase);
+    for (let db of cachedDBs) {
       if (!db.folder.databaseOpen) {
         // The DB isn't really open anymore.
         log.debug("Skipping, DB not open for folder: " + db.folder.name);

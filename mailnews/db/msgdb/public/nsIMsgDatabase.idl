@@ -38,7 +38,6 @@ interface nsIMsgOfflineImapOperation;
 interface nsIMsgFolder;
 interface nsIMsgKeyArray;
 interface nsIFile;
-interface nsIArray;
 interface nsIMsgSearchTerm;
 
 typedef unsigned long nsMsgRetainByPreference;
@@ -235,7 +234,7 @@ interface nsIMsgDBService : nsISupports
   void forceFolderDBClosed(in nsIMsgFolder aFolder);
 
   /// an enumerator to iterate over the open dbs.
-  readonly attribute nsIArray openDBs;
+  readonly attribute Array<nsIMsgDatabase> openDBs;
 };
 
 [scriptable, uuid(b64e66f8-4717-423a-be42-482658fb2199)]

@@ -71,7 +71,7 @@ var MsgDBServiceFailure = {
     return this._genuine.cachedDBFolder(folder);
   },
   get openDBs() {
-    return this._genuine.oenDBs;
+    return this._genuine.openDBs;
   },
 };
 
