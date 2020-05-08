@@ -350,7 +350,7 @@ class nsMsgDatabase : public nsIMsgDatabase {
   nsCOMPtr<nsIFile> m_dbFile;
   nsTArray<nsMsgKey> m_newSet;  // new messages since last open.
   bool m_mdbTokensInitialized;
-  nsTObserverArray<nsCOMPtr<nsIDBChangeListener> > m_ChangeListeners;
+  nsTObserverArray<nsCOMPtr<nsIDBChangeListener>> m_ChangeListeners;
   mdb_token m_hdrRowScopeToken;
   mdb_token m_threadRowScopeToken;
   mdb_token m_hdrTableKindToken;

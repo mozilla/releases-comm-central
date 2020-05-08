@@ -757,15 +757,15 @@ NS_IMETHODIMP nsMsgDatabase::RemoveListener(nsIDBChangeListener *aListener) {
 }
 
 // XXX should we return rv for listener->propertyfunc_?
-#define NOTIFY_LISTENERS(propertyfunc_, params_)                          \
-  PR_BEGIN_MACRO                                                          \
-  nsTObserverArray<nsCOMPtr<nsIDBChangeListener> >::ForwardIterator iter( \
-      m_ChangeListeners);                                                 \
-  nsCOMPtr<nsIDBChangeListener> listener;                                 \
-  while (iter.HasMore()) {                                                \
-    listener = iter.GetNext();                                            \
-    listener->propertyfunc_ params_;                                      \
-  }                                                                       \
+#define NOTIFY_LISTENERS(propertyfunc_, params_)                         \
+  PR_BEGIN_MACRO                                                         \
+  nsTObserverArray<nsCOMPtr<nsIDBChangeListener>>::ForwardIterator iter( \
+      m_ChangeListeners);                                                \
+  nsCOMPtr<nsIDBChangeListener> listener;                                \
+  while (iter.HasMore()) {                                               \
+    listener = iter.GetNext();                                           \
+    listener->propertyfunc_ params_;                                     \
+  }                                                                      \
   PR_END_MACRO
 
 // change announcer methods - just broadcast to all listeners.
@@ -2181,7 +2181,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr *msgHdr,
   uint32_t status;
   nsCOMPtr<nsIDBChangeListener> listener;
   if (notify) {
-    nsTObserverArray<nsCOMPtr<nsIDBChangeListener> >::ForwardIterator listeners(
+    nsTObserverArray<nsCOMPtr<nsIDBChangeListener>>::ForwardIterator listeners(
         m_ChangeListeners);
     while (listeners.HasMore()) {
       listener = listeners.GetNext();
@@ -2202,7 +2202,7 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr *msgHdr,
         !(oldValue.IsEmpty() && !strcmp(aValue, "0")))
       NotifyJunkScoreChanged(nullptr);
 
-    nsTObserverArray<nsCOMPtr<nsIDBChangeListener> >::ForwardIterator listeners(
+    nsTObserverArray<nsCOMPtr<nsIDBChangeListener>>::ForwardIterator listeners(
         m_ChangeListeners);
     for (uint32_t i = 0; listeners.HasMore(); i++) {
       listener = listeners.GetNext();
@@ -2235,7 +2235,7 @@ nsMsgDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr *aMsgHdr,
   uint32_t status;
   nsCOMPtr<nsIDBChangeListener> listener;
   if (notify) {
-    nsTObserverArray<nsCOMPtr<nsIDBChangeListener> >::ForwardIterator listeners(
+    nsTObserverArray<nsCOMPtr<nsIDBChangeListener>>::ForwardIterator listeners(
         m_ChangeListeners);
     while (listeners.HasMore()) {
       listener = listeners.GetNext();
@@ -2250,7 +2250,7 @@ nsMsgDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr *aMsgHdr,
 
   // Postcall OnHdrPropertyChanged to process the change.
   if (notify) {
-    nsTObserverArray<nsCOMPtr<nsIDBChangeListener> >::ForwardIterator listeners(
+    nsTObserverArray<nsCOMPtr<nsIDBChangeListener>>::ForwardIterator listeners(
         m_ChangeListeners);
     for (uint32_t i = 0; listeners.HasMore(); i++) {
       listener = listeners.GetNext();
