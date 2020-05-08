@@ -1,6 +1,10 @@
 /* import-globals-from ../../../../test/resources/MessageGenerator.jsm */
 load("../../../../resources/MessageGenerator.jsm");
 
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+
 var gMessages = [];
 
 const kSetCount = 13;
@@ -83,54 +87,18 @@ function run_test() {
   searchTerms.push(searchTerm);
 
   let filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
-  let numMatches = {};
-  let keepGoing = inboxDB.nextMatchingHdrs(
-    filterEnumerator,
-    100,
-    100,
-    null,
-    numMatches
-  );
-  Assert.equal(kNumExpectedMatches, numMatches.value);
-  Assert.ok(!keepGoing);
-  filterEnumerator = inboxDB.getFilterEnumerator(searchTerms);
-  let matchingHdrs = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
-  do {
-    keepGoing = inboxDB.nextMatchingHdrs(
-      filterEnumerator,
-      5,
-      5,
-      matchingHdrs,
-      numMatches
-    );
-  } while (keepGoing);
+  let matchingHdrs = Array.from(fixIterator(filterEnumerator, Ci.nsIMsgDBHdr));
   Assert.equal(kNumExpectedMatches, matchingHdrs.length);
-  let firstMatch = matchingHdrs.queryElementAt(0, Ci.nsIMsgDBHdr);
-  Assert.equal(firstMatch.messageId, gMessages[1].messageId);
-  let secondMatch = matchingHdrs.queryElementAt(1, Ci.nsIMsgDBHdr);
-  Assert.equal(secondMatch.messageId, gMessages[3].messageId);
+  Assert.equal(matchingHdrs[0].messageId, gMessages[1].messageId);
+  Assert.equal(matchingHdrs[1].messageId, gMessages[3].messageId);
 
   // try it backwards, with roller skates:
   filterEnumerator = inboxDB.getFilterEnumerator(searchTerms, true);
-  matchingHdrs.clear();
-  do {
-    keepGoing = inboxDB.nextMatchingHdrs(
-      filterEnumerator,
-      5,
-      5,
-      matchingHdrs,
-      numMatches
-    );
-  } while (keepGoing);
+  matchingHdrs = Array.from(fixIterator(filterEnumerator, Ci.nsIMsgDBHdr));
   Assert.equal(kNumExpectedMatches, matchingHdrs.length);
-  firstMatch = matchingHdrs.queryElementAt(0, Ci.nsIMsgDBHdr);
-  Assert.equal(firstMatch.messageId, gMessages[12].messageId);
-  secondMatch = matchingHdrs.queryElementAt(1, Ci.nsIMsgDBHdr);
-  Assert.equal(secondMatch.messageId, gMessages[11].messageId);
-  let tenthMatch = matchingHdrs.queryElementAt(9, Ci.nsIMsgDBHdr);
-  Assert.equal(tenthMatch.messageId, gMessages[1].messageId);
+  Assert.equal(matchingHdrs[0].messageId, gMessages[12].messageId);
+  Assert.equal(matchingHdrs[1].messageId, gMessages[11].messageId);
+  Assert.equal(matchingHdrs[9].messageId, gMessages[1].messageId);
 
   do_test_finished();
 }

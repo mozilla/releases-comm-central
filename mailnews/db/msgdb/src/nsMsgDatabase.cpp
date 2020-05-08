@@ -2705,45 +2705,6 @@ nsMsgDatabase::GetFilterEnumerator(
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::NextMatchingHdrs(nsISimpleEnumerator *aEnumerator,
-                                int32_t aNumHdrsToLookAt, int32_t aMaxResults,
-                                nsIMutableArray *aMatchingHdrs,
-                                int32_t *aNumMatches, bool *aResult) {
-  NS_ENSURE_ARG_POINTER(aEnumerator);
-  NS_ENSURE_ARG_POINTER(aResult);
-  nsMsgFilteredDBEnumerator *enumerator =
-      static_cast<nsMsgFilteredDBEnumerator *>(aEnumerator);
-
-  // Force mRowPos to be initialized.
-  if (!enumerator->mRowCursor) enumerator->GetRowCursor();
-
-  if (aNumHdrsToLookAt) {
-    enumerator->mStopPos = enumerator->mIterateForwards
-                               ? enumerator->mRowPos + aNumHdrsToLookAt
-                               : enumerator->mRowPos - aNumHdrsToLookAt;
-    if (enumerator->mStopPos < 0) enumerator->mStopPos = 0;
-  }
-  int32_t numMatches = 0;
-  nsresult rv;
-  do {
-    nsCOMPtr<nsISupports> supports;
-    rv = enumerator->GetNext(getter_AddRefs(supports));
-    nsCOMPtr<nsIMsgDBHdr> nextMessage = do_QueryInterface(supports);
-    if (NS_SUCCEEDED(rv) && nextMessage) {
-      if (aMatchingHdrs) aMatchingHdrs->AppendElement(nextMessage);
-      ++numMatches;
-      if (aMaxResults && numMatches == aMaxResults) break;
-    } else
-      break;
-  } while (true);
-
-  if (aNumMatches) *aNumMatches = numMatches;
-
-  *aResult = !enumerator->mDone;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
 nsMsgDatabase::SyncCounts() {
   nsCOMPtr<nsISimpleEnumerator> hdrs;
   nsresult rv = EnumerateMessages(getter_AddRefs(hdrs));

@@ -5,6 +5,10 @@
 
 /* import-globals-from dateFormat.js */
 
+const { fixIterator } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
+
 var MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
 var MICROSECONDS_PER_DAY = 1000 * MILLISECONDS_PER_HOUR * 24;
 
@@ -80,8 +84,6 @@ function markInDatabase(lower, upper) {
     return;
   }
 
-  // the headers which are going to be marked
-  let headers = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
   let searchSession = Cc[
     "@mozilla.org/messenger/searchSession;1"
   ].createInstance(Ci.nsIMsgSearchSession);
@@ -113,20 +115,7 @@ function markInDatabase(lower, upper) {
   }
 
   let filterEnumerator = messageDatabase.getFilterEnumerator(searchTerms);
-
-  if (filterEnumerator) {
-    let keepGoing;
-    let numMatches = {};
-    do {
-      keepGoing = messageDatabase.nextMatchingHdrs(
-        filterEnumerator,
-        0,
-        0,
-        headers,
-        numMatches
-      );
-    } while (keepGoing);
-  }
+  let headers = Array.from(fixIterator(filterEnumerator, Ci.nsIMsgDBHdr));
 
   if (headers.length) {
     messageFolder.markMessagesRead(headers, true);

@@ -1461,21 +1461,14 @@ var GlodaMsgIndexer = {
     this._indexerGetEnumerator(enumeratorType);
 
     let numMessagesToIndex = 0;
-    let numMessagesOut = {};
-    // Keep going until we run out of headers.
-    while (
-      this._indexingFolder.msgDatabase.nextMatchingHdrs(
-        this._indexingEnumerator,
-        HEADER_CHECK_SYNC_BLOCK_SIZE * 8, // this way is faster, do more
-        0, // moot, we don't return headers
-        null, // don't return headers, we just want the count
-        numMessagesOut
-      )
-    ) {
-      numMessagesToIndex += numMessagesOut.value;
-      yield this.kWorkSync;
+    // eslint-disable-next-line no-unused-vars
+    for (let ignore of fixIterator(this._indexingEnumerator, Ci.nsIMsgDBHdr)) {
+      // We're only counting, so do bigger chunks on this pass.
+      ++numMessagesToIndex;
+      if (numMessagesToIndex % (HEADER_CHECK_SYNC_BLOCK_SIZE * 8) == 0) {
+        yield this.kWorkSync;
+      }
     }
-    numMessagesToIndex += numMessagesOut.value;
 
     aJob.goal = numMessagesToIndex;
 

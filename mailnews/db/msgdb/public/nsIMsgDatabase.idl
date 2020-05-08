@@ -27,7 +27,6 @@
 #include "nsTArray.h"
 %}
 
-interface nsIMutableArray;
 interface nsIMsgDatabase;
 interface nsIDBChangeListener;
 interface nsIMsgDBHdr;
@@ -306,36 +305,15 @@ interface nsIMsgDatabase : nsIDBChangeAnnouncer {
   nsISimpleEnumerator EnumerateThreads();
 
   /**
-   * Get an enumerator for use with nextMatchingHdrs. The enumerator
-   * will only return messages that match the passed-in search terms.
+   * Get an enumerator got messages matching the passed-in search terms.
    *
    * @param     searchTerms       array of search terms to evaluate.
    * @param     reverse           start at the end, defaults to false.
    *
-   * @returns   an enumerator for passing into nextMatchingHdrs
+   * @returns   an enumerator to iterate over matching messages.
    */
   nsISimpleEnumerator getFilterEnumerator(in Array<nsIMsgSearchTerm> searchTerms,
                                           [optional] in boolean reverse);
-
-  /**
-   * Get the next N matching headers using a filter enumerator
-   * obtained by calling getFilterEnumerator.
-   *
-   * @param     enumerator -      This *must* be a filter enumerator
-   * @param     numHdrsToLookAt   if non 0, the number of hdrs to advance the
-   *                              enumerator before returning.
-   * @param     maxResults        if non 0, the max results to return.
-   * @param     matchingHdrs      if non null, array of matching hdrs.
-   * @param     numMatches        if non null, the number of matching hdrs.
-   *
-   * @returns   false, if done, true if more hdrs to look at.
-   */
-  boolean nextMatchingHdrs(in nsISimpleEnumerator enumerator,
-                           in long numHdrsToLookAt,
-                           in long maxResults,
-                           in nsIMutableArray matchingHdrs,
-                           out long numMatches);
-
 
   // count the total and unread msgs, and adjust global count if needed
   void syncCounts();
