@@ -7337,11 +7337,11 @@ nsresult nsMsgDBView::CopyDBView(nsMsgDBView *aNewMsgDBView,
   aNewMsgDBView->mIsXFVirtual = mIsXFVirtual;
   aNewMsgDBView->mShowSizeInLines = mShowSizeInLines;
   aNewMsgDBView->mDeleteModel = mDeleteModel;
-  aNewMsgDBView->m_flags = m_flags;
-  aNewMsgDBView->m_levels = m_levels;
-  aNewMsgDBView->m_keys = m_keys;
+  aNewMsgDBView->m_flags = m_flags.Clone();
+  aNewMsgDBView->m_levels = m_levels.Clone();
+  aNewMsgDBView->m_keys = m_keys.Clone();
 
-  aNewMsgDBView->m_customColumnHandlerIDs = m_customColumnHandlerIDs;
+  aNewMsgDBView->m_customColumnHandlerIDs = m_customColumnHandlerIDs.Clone();
   aNewMsgDBView->m_customColumnHandlers.AppendObjects(m_customColumnHandlers);
 
   return NS_OK;

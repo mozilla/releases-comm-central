@@ -67,7 +67,7 @@ nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView *aNewMsgDBView,
       (nsMsgQuickSearchDBView *)aNewMsgDBView;
 
   // now copy all of our private member data
-  newMsgDBView->m_origKeys = m_origKeys;
+  newMsgDBView->m_origKeys = m_origKeys.Clone();
   return NS_OK;
 }
 

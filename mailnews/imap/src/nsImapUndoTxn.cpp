@@ -30,8 +30,8 @@ nsresult nsImapMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
   m_isMove = isMove;
   m_srcFolder = do_GetWeakReference(srcFolder);
   m_dstFolder = do_GetWeakReference(dstFolder);
-  m_srcKeyArray = *srcKeyArray;
-  m_dupKeyArray = *srcKeyArray;
+  m_srcKeyArray = srcKeyArray->Clone();
+  m_dupKeyArray = srcKeyArray->Clone();
   nsCString uri;
   nsresult rv = srcFolder->GetURI(uri);
   nsCString protocolType(uri);
@@ -235,7 +235,7 @@ nsresult nsImapMoveCopyMsgTxn::SetCopyResponseUid(const char* aMsgIdString) {
 }
 
 nsresult nsImapMoveCopyMsgTxn::GetSrcKeyArray(nsTArray<nsMsgKey>& srcKeyArray) {
-  srcKeyArray = m_srcKeyArray;
+  srcKeyArray = m_srcKeyArray.Clone();
   return NS_OK;
 }
 

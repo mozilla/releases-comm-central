@@ -1958,7 +1958,7 @@ nsImapMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo,
   uint32_t curSequenceEnd = startSequence;
   uint32_t total = keys.Length();
   // sort keys and then generate ranges instead of singletons!
-  nsTArray<nsMsgKey> sorted(keys);
+  nsTArray<nsMsgKey> sorted(keys.Clone());
   sorted.Sort();
   for (uint32_t keyIndex = 0; keyIndex < total; keyIndex++) {
     uint32_t curKey = sorted[keyIndex];
@@ -2560,7 +2560,7 @@ NS_IMETHODIMP nsImapMailFolder::UpdateImapMailboxInfo(
 
   } else if (!flagState /*&& !NET_IsOffline() */)  // if there are no messages
                                                    // on the server
-    keysToDelete = existingKeys;
+    keysToDelete = existingKeys.Clone();
   else /* if ( !NET_IsOffline()) */
   {
     uint32_t boxFlags;
@@ -8035,7 +8035,7 @@ NS_IMETHODIMP nsImapMailFolder::SetFolderQuotaData(
 NS_IMETHODIMP nsImapMailFolder::GetQuota(
     nsTArray<RefPtr<nsIMsgQuota>> &aArray) {
   if (m_folderQuotaDataIsValid) {
-    aArray = m_folderQuota;
+    aArray = m_folderQuota.Clone();
   }
   return NS_OK;
 }

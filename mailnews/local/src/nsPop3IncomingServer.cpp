@@ -595,7 +595,7 @@ nsresult nsPop3GetMailChainer::GetNewMailForServers(
     nsIUrlListener *listener) {
   NS_ENSURE_ARG_POINTER(folderToDownloadTo);
 
-  m_serversToGetNewMailFor = servers;
+  m_serversToGetNewMailFor = servers.Clone();
   m_serversToGetNewMailFor.Reverse();
   m_folderToDownloadTo = folderToDownloadTo;
   m_downloadingMsgWindow = msgWindow;

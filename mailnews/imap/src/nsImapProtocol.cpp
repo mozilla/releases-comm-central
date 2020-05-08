@@ -4315,7 +4315,7 @@ void nsImapProtocol::WaitForPotentialListOfBodysToFetch(
     fetchListMon.Wait(sleepTime);
   m_fetchBodyListIsNew = false;
 
-  msgIdList = m_fetchBodyIdList;
+  msgIdList = m_fetchBodyIdList.Clone();
 }
 
 // libmsg uses this to notify a running imap url about message bodies it should
@@ -4323,7 +4323,7 @@ void nsImapProtocol::WaitForPotentialListOfBodysToFetch(
 NS_IMETHODIMP nsImapProtocol::NotifyBodysToDownload(
     const nsTArray<nsMsgKey> &keys) {
   ReentrantMonitorAutoEnter fetchListMon(m_fetchBodyListMonitor);
-  m_fetchBodyIdList = keys;
+  m_fetchBodyIdList = keys.Clone();
   m_fetchBodyListIsNew = true;
   fetchListMon.Notify();
   return NS_OK;

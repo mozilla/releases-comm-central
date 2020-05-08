@@ -5084,7 +5084,7 @@ NS_IMETHODIMP nsMsgDatabase::ResetHdrCacheSize(uint32_t aSize) {
 
 NS_IMETHODIMP
 nsMsgDatabase::GetNewList(nsTArray<nsMsgKey> &aNewKeys) {
-  aNewKeys = m_newSet;
+  aNewKeys = m_newSet.Clone();
   return NS_OK;
 }
 

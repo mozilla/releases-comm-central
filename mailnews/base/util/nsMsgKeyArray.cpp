@@ -57,6 +57,6 @@ NS_IMETHODIMP nsMsgKeyArray::InsertElementSorted(nsMsgKey aKey) {
 }
 
 NS_IMETHODIMP nsMsgKeyArray::GetArray(nsTArray<nsMsgKey> &aKeys) {
-  aKeys = m_keys;
+  aKeys = m_keys.Clone();
   return NS_OK;
 }

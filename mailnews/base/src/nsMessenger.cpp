@@ -1827,10 +1827,10 @@ nsSaveAllAttachmentsState::nsSaveAllAttachmentsState(
     const nsTArray<nsCString> &displayNameArray,
     const nsTArray<nsCString> &messageUriArray, const PathChar *dirName,
     bool detachingAttachments)
-    : m_contentTypeArray(contentTypeArray),
-      m_urlArray(urlArray),
-      m_displayNameArray(displayNameArray),
-      m_messageUriArray(messageUriArray),
+    : m_contentTypeArray(contentTypeArray.Clone()),
+      m_urlArray(urlArray.Clone()),
+      m_displayNameArray(displayNameArray.Clone()),
+      m_messageUriArray(messageUriArray.Clone()),
       m_detachingAttachments(detachingAttachments),
       m_withoutWarning(false) {
   MOZ_ASSERT(contentTypeArray.Length() == urlArray.Length() ==
@@ -1934,7 +1934,7 @@ NS_IMETHODIMP nsMessenger::GetFolderUriAtNavigatePos(int32_t aPos,
 
 NS_IMETHODIMP nsMessenger::GetNavigateHistory(
     nsTArray<nsCString> &aHistoryUris) {
-  aHistoryUris = mLoadedMsgHistory;
+  aHistoryUris = mLoadedMsgHistory.Clone();
   return NS_OK;
 }
 
@@ -2636,7 +2636,9 @@ nsresult nsMessenger::DetachAttachments(
   listener->QueryInterface(NS_GET_IID(nsISupports),
                            getter_AddRefs(listenerSupports));
 
-  if (saveFileUris) listener->mDetachedFileUris = *saveFileUris;
+  if (saveFileUris) {
+    listener->mDetachedFileUris = saveFileUris->Clone();
+  }
   // create the attachments for use by the listener
   nsAttachmentState *attach = new nsAttachmentState;
   rv = attach->Init(aContentTypeArray, aUrlArray, aDisplayNameArray,

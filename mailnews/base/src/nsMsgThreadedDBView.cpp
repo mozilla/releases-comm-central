@@ -298,9 +298,9 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
       m_viewFlags &= ~nsMsgViewFlagsType::kGroupBySort;
       if (m_havePrevView) {
         // Restore saved id array and flags array.
-        m_keys = m_prevKeys;
-        m_flags = m_prevFlags;
-        m_levels = m_prevLevels;
+        m_keys = m_prevKeys.Clone();
+        m_flags = m_prevFlags.Clone();
+        m_levels = m_prevLevels.Clone();
         m_sortValid = true;
 
         // The sort may have changed the number of rows
@@ -341,9 +341,9 @@ nsMsgThreadedDBView::Sort(nsMsgViewSortTypeValue sortType,
       } else {
         // Going from SortByThread to non-thread sort - must build new key,
         // level, and flags arrays.
-        m_prevKeys = m_keys;
-        m_prevFlags = m_flags;
-        m_prevLevels = m_levels;
+        m_prevKeys = m_keys.Clone();
+        m_prevFlags = m_flags.Clone();
+        m_prevLevels = m_levels.Clone();
         // Do this before we sort, so that we'll use the cheap method
         // of expanding.
         m_viewFlags &= ~(nsMsgViewFlagsType::kThreadedDisplay |

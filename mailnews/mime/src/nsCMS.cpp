@@ -363,7 +363,7 @@ class SMimeVerificationTask final : public CryptoTask {
                         int16_t aDigestType)
       : mMessage(aMessage),
         mListener(aListener),
-        mDigestData(aDigestData),
+        mDigestData(aDigestData.Clone()),
         mDigestType(aDigestType) {
     MOZ_ASSERT(NS_IsMainThread());
   }

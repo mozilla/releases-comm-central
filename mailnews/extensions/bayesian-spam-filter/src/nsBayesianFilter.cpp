@@ -1200,10 +1200,10 @@ class MessageClassifier : public TokenAnalyzer {
         mJunkListener(aJunkListener),
         mTraitListener(aTraitListener),
         mDetailListener(aDetailListener),
-        mProTraits(aProTraits),
-        mAntiTraits(aAntiTraits),
+        mProTraits(aProTraits.Clone()),
+        mAntiTraits(aAntiTraits.Clone()),
         mMsgWindow(aMsgWindow),
-        mMessageURIs(aMessageURIs),
+        mMessageURIs(aMessageURIs.Clone()),
         mCurMessageToClassify(0) {
     MOZ_ASSERT(aProTraits.Length() == aAntiTraits.Length());
   }
@@ -1219,7 +1219,7 @@ class MessageClassifier : public TokenAnalyzer {
         mTraitListener(nullptr),
         mDetailListener(nullptr),
         mMsgWindow(aMsgWindow),
-        mMessageURIs(aMessageURIs),
+        mMessageURIs(aMessageURIs.Clone()),
         mCurMessageToClassify(0) {
     mProTraits.AppendElement(kJunkTrait);
     mAntiTraits.AppendElement(kGoodTrait);
@@ -1403,7 +1403,7 @@ void nsBayesianFilter::classifyMessage(
                 ("trait service failed to get aliases"));
       }
     }
-    proAliasArrays.AppendElement(proAliases);
+    proAliasArrays.AppendElement(proAliases.Clone());
     uint32_t proMessageCount = mCorpus.getMessageCount(proTrait);
     for (uint32_t aliasIndex = 0; aliasIndex < proAliases.Length();
          aliasIndex++)
@@ -1421,7 +1421,7 @@ void nsBayesianFilter::classifyMessage(
                 ("trait service failed to get aliases"));
       }
     }
-    antiAliasArrays.AppendElement(antiAliases);
+    antiAliasArrays.AppendElement(antiAliases.Clone());
     uint32_t antiMessageCount = mCorpus.getMessageCount(antiTrait);
     for (uint32_t aliasIndex = 0; aliasIndex < antiAliases.Length();
          aliasIndex++)
@@ -1796,8 +1796,8 @@ class MessageObserver : public TokenAnalyzer {
         mJunkMailPlugin(filter),
         mJunkListener(aJunkListener),
         mTraitListener(aTraitListener),
-        mOldClassifications(aOldClassifications),
-        mNewClassifications(aNewClassifications) {}
+        mOldClassifications(aOldClassifications.Clone()),
+        mNewClassifications(aNewClassifications.Clone()) {}
 
   virtual void analyzeTokens(Tokenizer& tokenizer) {
     mFilter->observeMessage(tokenizer, mTokenSource.get(), mOldClassifications,
