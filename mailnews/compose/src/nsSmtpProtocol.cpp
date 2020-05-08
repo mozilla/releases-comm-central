@@ -101,7 +101,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
   switch (aCode) {
     case NS_ERROR_ILLEGAL_LOCALPART:
       bundle->GetStringFromName("errorIllegalLocalPart", eMsg);
-      nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
+      nsTextFormatter::ssprintf(msg, eMsg.get(), NS_ConvertUTF8toUTF16(arg1).get(), NS_ConvertUTF8toUTF16(arg2).get());
       break;
     case NS_ERROR_SMTP_SERVER_ERROR:
     case NS_ERROR_SMTP_SEND_NOT_ALLOWED:
@@ -122,9 +122,9 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
         // message string smtpPermSizeExceeded1 contains a %d.
         // (The special case can be removed if that string ever changes, then
         // %d should be changed to %S.)
-        nsTextFormatter::ssprintf(msg, eMsg.get(), atoi(arg1), arg2);
+        nsTextFormatter::ssprintf(msg, eMsg.get(), atoi(arg1), NS_ConvertUTF8toUTF16(arg2).get());
       } else {
-        nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
+        nsTextFormatter::ssprintf(msg, eMsg.get(), NS_ConvertUTF8toUTF16(arg1).get(), NS_ConvertUTF8toUTF16(arg2).get());
       }
       break;
     default:
