@@ -193,8 +193,18 @@ AddrBookManager.prototype = {
     if (!uriParts) {
       throw Components.Exception("", Cr.NS_ERROR_MALFORMED_URI);
     }
-    let [, scheme, , tail] = uriParts;
+    let [, scheme, fileName, tail] = uriParts;
     if (tail && types.includes(scheme)) {
+      if (scheme == "jsaddrbook" && tail.startsWith("/MailList")) {
+        let parent = this.getDirectory(`${scheme}://${fileName}`);
+        for (let list of parent.childNodes) {
+          list.QueryInterface(Ci.nsIAbDirectory);
+          if (list.URI == uri) {
+            return list;
+          }
+        }
+        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+      }
       // `tail` could either point to a mailing list or a query.
       // Both of these will be handled differently in future.
       return createDirectoryObject(uri);

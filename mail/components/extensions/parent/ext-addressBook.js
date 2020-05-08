@@ -528,7 +528,7 @@ this.addressBook = class extends ExtensionAPI {
             false
           );
         },
-        quickSearch(parentId, searchString) {
+        async quickSearch(parentId, searchString) {
           const {
             getSearchTokens,
             getModelQuery,
@@ -542,22 +542,34 @@ this.addressBook = class extends ExtensionAPI {
           let searchFormat = getModelQuery(
             "mail.addr_book.quicksearchquery.format"
           );
+          let searchQuery = generateQueryURI(searchFormat, searchWords);
 
-          let results = [];
           let booksToSearch;
           if (parentId == null) {
             booksToSearch = [...addressBookCache.addressBooks.values()];
           } else {
             booksToSearch = [addressBookCache.findAddressBookById(parentId)];
           }
+
+          let results = [];
+          let promises = [];
           for (let book of booksToSearch) {
-            let searchURI =
-              book.item.URI + generateQueryURI(searchFormat, searchWords);
-            for (let contact of MailServices.ab.getDirectory(searchURI)
-              .childCards) {
-              results.push(addressBookCache.findContactById(contact.UID, book));
-            }
+            promises.push(
+              new Promise(resolve => {
+                book.item.search(searchQuery, {
+                  onSearchFinished(result, errorMsg) {
+                    resolve();
+                  },
+                  onSearchFoundCard(contact) {
+                    results.push(
+                      addressBookCache.findContactById(contact.UID, book)
+                    );
+                  },
+                });
+              })
+            );
           }
+          await Promise.all(promises);
 
           return addressBookCache.convert(results, false);
         },

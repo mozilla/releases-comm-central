@@ -45,52 +45,6 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/AddrBookUtils.jsm"
 );
 
-/* This is where the address book manager creates an nsIAbDirectory. We want
- * to do things differently depending on whether or not the directory is a
- * mailing list, so we do this by abusing javascript prototypes.
- * A non-list directory has bookPrototype, a list directory has a
- * AddrBookMailingList prototype, ultimately created by getting the owner
- * directory and calling childNodes on it. This will make more sense and be
- * a lot neater once we stop using one XPCOM interface for two jobs. */
-
-function AddrBookDirectory() {}
-AddrBookDirectory.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirectory]),
-  classID: Components.ID("{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"),
-
-  _query: null,
-
-  init(uri) {
-    this._uri = uri;
-
-    let index = uri.indexOf("?");
-    if (index >= 0) {
-      this._query = uri.substring(index + 1);
-      uri = uri.substring(0, index);
-    }
-    if (/\/MailList\d+$/.test(uri)) {
-      let parent = MailServices.ab.getDirectory(
-        uri.substring(0, uri.lastIndexOf("/"))
-      );
-      for (let list of parent.childNodes) {
-        list.QueryInterface(Ci.nsIAbDirectory);
-        if (list.URI == uri) {
-          this.__proto__ = list;
-          return;
-        }
-      }
-      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
-    }
-
-    let fileName = uri.substring("jsaddrbook://".length);
-    if (fileName.includes("/")) {
-      fileName = fileName.substring(0, fileName.indexOf("/"));
-    }
-    this.__proto__ =
-      directories.get(fileName) || new AddrBookDirectoryInner(fileName);
-  },
-};
-
 // Keep track of all database connections, and close them at shutdown, since
 // nothing else ever tells us to close them.
 
@@ -100,7 +54,6 @@ Services.obs.addObserver(() => {
     connection.asyncClose();
   }
   connections.clear();
-  directories.clear();
 }, "quit-application");
 
 // Close a connection on demand. This serves as an escape hatch from C++ code.
@@ -154,7 +107,6 @@ function openConnectionTo(file) {
  * Closes the SQLite connection to `file` and removes it from the cache.
  */
 function closeConnectionTo(file) {
-  directories.delete(file.leafName);
   let connection = connections.get(file.path);
   if (connection) {
     return new Promise(resolve => {
@@ -169,65 +121,69 @@ function closeConnectionTo(file) {
   return Promise.resolve();
 }
 
-// One AddrBookDirectoryInner exists for each address book, multiple
-// AddrBookDirectory objects (e.g. queries) can use it as their prototype.
+class AddrBookDirectory {
+  constructor() {
+    this._uid = null;
+    this._nextCardId = null;
+    this._nextListId = null;
+  }
 
-var directories = new Map();
+  init(uri) {
+    this._uri = uri;
 
-/**
- * Prototype for nsIAbDirectory objects that aren't mailing lists.
- *
- * @implements {nsIAbDirectory}
- */
-function AddrBookDirectoryInner(fileName) {
-  for (let child of Services.prefs.getChildList("ldap_2.servers.")) {
-    if (
-      child.endsWith(".filename") &&
-      Services.prefs.getStringPref(child) == fileName
-    ) {
-      this.dirPrefId = child.substring(0, child.length - ".filename".length);
-      break;
+    let index = uri.indexOf("?");
+    if (index >= 0) {
+      throw new Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
-  }
-  if (!this.dirPrefId) {
-    throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+    if (/\/MailList\d+$/.test(uri)) {
+      throw new Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+    }
+
+    let fileName = uri.substring("jsaddrbook://".length);
+    if (fileName.includes("/")) {
+      fileName = fileName.substring(0, fileName.indexOf("/"));
+    }
+
+    for (let child of Services.prefs.getChildList("ldap_2.servers.")) {
+      if (
+        child.endsWith(".filename") &&
+        Services.prefs.getStringPref(child) == fileName
+      ) {
+        this.dirPrefId = child.substring(0, child.length - ".filename".length);
+        break;
+      }
+    }
+    if (!this.dirPrefId) {
+      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+    }
+
+    // Make sure we always have a file. If a file is not created, the
+    // filename may be accidentally reused.
+    let file = FileUtils.getFile("ProfD", [fileName]);
+    if (!file.exists()) {
+      file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
+    }
+
+    this._fileName = fileName;
   }
 
-  // Make sure we always have a file. If a file is not created, the
-  // filename may be accidentally reused.
-  let file = FileUtils.getFile("ProfD", [fileName]);
-  if (!file.exists()) {
-    file.create(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
-  }
-
-  directories.set(fileName, this);
-  this._inner = this;
-  this._fileName = fileName;
-}
-AddrBookDirectoryInner.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirectory]),
-  classID: Components.ID("{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"),
-
-  _uid: null,
-  _nextCardId: null,
-  _nextListId: null,
   get _prefBranch() {
     if (!this.dirPrefId) {
       throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
     }
     return Services.prefs.getBranch(`${this.dirPrefId}.`);
-  },
+  }
   get _dbConnection() {
     let file = FileUtils.getFile("ProfD", [this.fileName]);
     let connection = openConnectionTo(file);
 
-    Object.defineProperty(this._inner, "_dbConnection", {
+    Object.defineProperty(this, "_dbConnection", {
       enumerable: true,
       value: connection,
       writable: false,
     });
     return connection;
-  },
+  }
   get _lists() {
     let listCache = new Map();
     let selectStatement = this._dbConnection.createStatement(
@@ -244,13 +200,13 @@ AddrBookDirectoryInner.prototype = {
     }
     selectStatement.finalize();
 
-    Object.defineProperty(this._inner, "_lists", {
+    Object.defineProperty(this, "_lists", {
       enumerable: true,
       value: listCache,
       writable: false,
     });
     return listCache;
-  },
+  }
   get _cards() {
     let cardCache = new Map();
     let cardStatement = this._dbConnection.createStatement(
@@ -278,16 +234,16 @@ AddrBookDirectoryInner.prototype = {
     }
     propertiesStatement.finalize();
 
-    Object.defineProperty(this._inner, "_cards", {
+    Object.defineProperty(this, "_cards", {
       enumerable: true,
       value: cardCache,
       writable: false,
     });
     return cardCache;
-  },
+  }
 
   _getNextCardId() {
-    if (this._inner._nextCardId === null) {
+    if (this._nextCardId === null) {
       let value = 0;
       let selectStatement = this._dbConnection.createStatement(
         "SELECT MAX(localId) AS localId FROM cards"
@@ -295,14 +251,14 @@ AddrBookDirectoryInner.prototype = {
       if (selectStatement.executeStep()) {
         value = selectStatement.row.localId;
       }
-      this._inner._nextCardId = value;
+      this._nextCardId = value;
       selectStatement.finalize();
     }
-    this._inner._nextCardId++;
-    return this._inner._nextCardId.toString();
-  },
+    this._nextCardId++;
+    return this._nextCardId.toString();
+  }
   _getNextListId() {
-    if (this._inner._nextListId === null) {
+    if (this._nextListId === null) {
       let value = 0;
       let selectStatement = this._dbConnection.createStatement(
         "SELECT MAX(localId) AS localId FROM lists"
@@ -310,12 +266,12 @@ AddrBookDirectoryInner.prototype = {
       if (selectStatement.executeStep()) {
         value = selectStatement.row.localId;
       }
-      this._inner._nextListId = value;
+      this._nextListId = value;
       selectStatement.finalize();
     }
-    this._inner._nextListId++;
-    return this._inner._nextListId.toString();
-  },
+    this._nextListId++;
+    return this._nextListId.toString();
+  }
   _getCard({ uid, localId = null }) {
     let card = new AddrBookCard();
     card.directoryId = this.uuid;
@@ -323,10 +279,10 @@ AddrBookDirectoryInner.prototype = {
     card.localId = localId;
     card._properties = this._loadCardProperties(uid);
     return card.QueryInterface(Ci.nsIAbCard);
-  },
+  }
   _loadCardProperties(uid) {
-    if (this._inner.hasOwnProperty("_cards")) {
-      let cachedCard = this._inner._cards.get(uid);
+    if (this.hasOwnProperty("_cards")) {
+      let cachedCard = this._cards.get(uid);
       if (cachedCard) {
         return new Map(cachedCard.properties);
       }
@@ -341,11 +297,11 @@ AddrBookDirectoryInner.prototype = {
     }
     propertyStatement.finalize();
     return properties;
-  },
+  }
   _saveCardProperties(card) {
     let cachedCard;
-    if (this._inner.hasOwnProperty("_cards")) {
-      cachedCard = this._inner._cards.get(card.UID);
+    if (this.hasOwnProperty("_cards")) {
+      cachedCard = this._cards.get(card.UID);
       cachedCard.properties.clear();
     }
 
@@ -374,7 +330,7 @@ AddrBookDirectoryInner.prototype = {
     this._dbConnection.commitTransaction();
     deleteStatement.finalize();
     insertStatement.finalize();
-  },
+  }
   _saveList(list) {
     // Ensure list cache exists.
     this._lists;
@@ -398,7 +354,7 @@ AddrBookDirectoryInner.prototype = {
       nickName: list._nickName,
       description: list._description,
     });
-  },
+  }
   async _bulkAddCards(cards) {
     let usedUIDs = new Set();
     let cardStatement = this._dbConnection.createStatement(
@@ -424,13 +380,13 @@ AddrBookDirectoryInner.prototype = {
       cardArray.addParams(cardParams);
 
       let cachedCard;
-      if (this._inner.hasOwnProperty("_cards")) {
+      if (this.hasOwnProperty("_cards")) {
         cachedCard = {
           uid,
           localId,
           properties: new Map(),
         };
-        this._inner._cards.set(uid, cachedCard);
+        this._cards.set(uid, cachedCard);
       }
 
       for (let { name, value } of fixIterator(
@@ -506,57 +462,57 @@ AddrBookDirectoryInner.prototype = {
       this._dbConnection.rollbackTransaction();
       throw ex;
     }
-  },
+  }
 
   /* nsIAbDirectory */
 
   get readOnly() {
     return false;
-  },
+  }
   get isRemote() {
     return false;
-  },
+  }
   get isSecure() {
     return false;
-  },
+  }
   get propertiesChromeURI() {
     return "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml";
-  },
+  }
   get dirName() {
     return this.getLocalizedStringValue("description", "");
-  },
+  }
   set dirName(value) {
     let oldValue = this.dirName;
     this.setLocalizedStringValue("description", value);
     MailServices.ab.notifyItemPropertyChanged(this, "DirName", oldValue, value);
     Services.obs.notifyObservers(this, "addrbook-directory-updated", "DirName");
-  },
+  }
   get dirType() {
     return 101;
-  },
+  }
   get fileName() {
     return this._fileName;
-  },
+  }
   get UID() {
     if (!this._uid) {
       if (this._prefBranch.getPrefType("uid") == Services.prefs.PREF_STRING) {
-        this._inner._uid = this._prefBranch.getStringPref("uid");
+        this._uid = this._prefBranch.getStringPref("uid");
       } else {
-        this._inner._uid = newUID();
-        this._prefBranch.setStringPref("uid", this._inner._uid);
+        this._uid = newUID();
+        this._prefBranch.setStringPref("uid", this._uid);
       }
     }
-    return this._inner._uid;
-  },
+    return this._uid;
+  }
   get URI() {
     return this._uri;
-  },
+  }
   get position() {
     return this._prefBranch.getIntPref("position", 1);
-  },
+  }
   get uuid() {
     return `${this.dirPrefId}&${this.dirName}`;
-  },
+  }
   get childNodes() {
     let lists = Array.from(
       this._lists.values(),
@@ -571,7 +527,7 @@ AddrBookDirectoryInner.prototype = {
         ).asDirectory
     );
     return new SimpleEnumerator(lists);
-  },
+  }
   get childCards() {
     let results = Array.from(
       this._lists.values(),
@@ -688,13 +644,13 @@ AddrBookDirectoryInner.prototype = {
       }, this);
     }
     return new SimpleEnumerator(results);
-  },
+  }
   get isQuery() {
     return !!this._query;
-  },
+  }
   get supportsMailingLists() {
     return true;
-  },
+  }
 
   search(query, listener) {
     if (!listener) {
@@ -828,16 +784,16 @@ AddrBookDirectoryInner.prototype = {
       Ci.nsIAbDirectoryQueryResultListener.queryResultComplete,
       ""
     );
-  },
+  }
   generateName(generateFormat, bundle) {
     return this.dirName;
-  },
+  }
   cardForEmailAddress(emailAddress) {
     return (
       this.getCardFromProperty("PrimaryEmail", emailAddress, false) ||
       this.getCardFromProperty("SecondEmail", emailAddress, false)
     );
-  },
+  }
   getCardFromProperty(property, value, caseSensitive) {
     let sql = caseSensitive
       ? "SELECT card FROM properties WHERE name = :name AND value = :value LIMIT 1"
@@ -851,7 +807,7 @@ AddrBookDirectoryInner.prototype = {
     }
     selectStatement.finalize();
     return result;
-  },
+  }
   getCardsFromProperty(property, value, caseSensitive) {
     let sql = caseSensitive
       ? "SELECT card FROM properties WHERE name = :name AND value = :value"
@@ -865,7 +821,7 @@ AddrBookDirectoryInner.prototype = {
     }
     selectStatement.finalize();
     return new SimpleEnumerator(results);
-  },
+  }
   deleteDirectory(directory) {
     let list = this._lists.get(directory.UID);
     list = new AddrBookMailingList(
@@ -884,8 +840,8 @@ AddrBookDirectoryInner.prototype = {
     deleteListStatement.execute();
     deleteListStatement.finalize();
 
-    if (this._inner.hasOwnProperty("_lists")) {
-      this._inner._lists.delete(directory.UID);
+    if (this.hasOwnProperty("_lists")) {
+      this._lists.delete(directory.UID);
     }
 
     this._dbConnection.executeSimpleSQL(
@@ -899,13 +855,13 @@ AddrBookDirectoryInner.prototype = {
       "addrbook-list-deleted",
       this.UID
     );
-  },
+  }
   hasCard(card) {
     return this._lists.has(card.UID) || this._cards.has(card.UID);
-  },
+  }
   hasDirectory(dir) {
     return this._lists.has(dir.UID);
-  },
+  }
   hasMailListWithName(name) {
     for (let list of this._lists.values()) {
       if (list.name.toLowerCase() == name.toLowerCase()) {
@@ -913,10 +869,10 @@ AddrBookDirectoryInner.prototype = {
       }
     }
     return false;
-  },
+  }
   addCard(card) {
     return this.dropCard(card, false);
-  },
+  }
   modifyCard(card) {
     let oldProperties = this._loadCardProperties(card.UID);
     let newProperties = new Map();
@@ -944,7 +900,7 @@ AddrBookDirectoryInner.prototype = {
       }
     }
     Services.obs.notifyObservers(card, "addrbook-contact-updated", this.UID);
-  },
+  }
   deleteCards(cards) {
     if (cards === null) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_POINTER);
@@ -958,8 +914,8 @@ AddrBookDirectoryInner.prototype = {
       deleteCardStatement.execute();
       deleteCardStatement.reset();
 
-      if (this._inner.hasOwnProperty("_cards")) {
-        this._inner._cards.delete(card.UID);
+      if (this.hasOwnProperty("_cards")) {
+        this._cards.delete(card.UID);
       }
     }
     this._dbConnection.executeSimpleSQL(
@@ -977,7 +933,7 @@ AddrBookDirectoryInner.prototype = {
     }
 
     deleteCardStatement.finalize();
-  },
+  }
   dropCard(card, needToCopyCard) {
     if (!card.UID) {
       throw new Error("Card must have a UID to be added to this directory.");
@@ -996,8 +952,8 @@ AddrBookDirectoryInner.prototype = {
     insertStatement.execute();
     insertStatement.finalize();
 
-    if (this._inner.hasOwnProperty("_cards")) {
-      this._inner._cards.set(newCard._uid, {
+    if (this.hasOwnProperty("_cards")) {
+      this._cards.set(newCard._uid, {
         uid: newCard._uid,
         localId: newCard.localId,
         properties: new Map(),
@@ -1026,13 +982,13 @@ AddrBookDirectoryInner.prototype = {
     Services.obs.notifyObservers(newCard, "addrbook-contact-created", this.UID);
 
     return newCard;
-  },
+  }
   useForAutocomplete(identityKey) {
     return (
       Services.prefs.getBoolPref("mail.enable_autocomplete") &&
       this.getBoolValue("enable_autocomplete", true)
     );
-  },
+  }
   addMailList(list) {
     if (!list.isMailList) {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
@@ -1083,39 +1039,39 @@ AddrBookDirectoryInner.prototype = {
       this.UID
     );
     return newListDirectory;
-  },
+  }
   editMailListToDatabase(listCard) {
     // Deliberately not implemented, this isn't a mailing list.
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
+  }
   copyMailList(srcList) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
-  },
+  }
   getIntValue(name, defaultValue) {
     return this._prefBranch.getIntPref(name, defaultValue);
-  },
+  }
   getBoolValue(name, defaultValue) {
     return this._prefBranch.getBoolPref(name, defaultValue);
-  },
+  }
   getStringValue(name, defaultValue) {
     return this._prefBranch.getStringPref(name, defaultValue);
-  },
+  }
   getLocalizedStringValue(name, defaultValue) {
     if (this._prefBranch.getPrefType(name) == Ci.nsIPrefBranch.PREF_INVALID) {
       return defaultValue;
     }
     return this._prefBranch.getComplexValue(name, Ci.nsIPrefLocalizedString)
       .data;
-  },
+  }
   setIntValue(name, value) {
     this._prefBranch.setIntPref(name, value);
-  },
+  }
   setBoolValue(name, value) {
     this._prefBranch.setBoolPref(name, value);
-  },
+  }
   setStringValue(name, value) {
     this._prefBranch.setStringPref(name, value);
-  },
+  }
   setLocalizedStringValue(name, value) {
     let valueLocal = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
       Ci.nsIPrefLocalizedString
@@ -1126,5 +1082,11 @@ AddrBookDirectoryInner.prototype = {
       Ci.nsIPrefLocalizedString,
       valueLocal
     );
-  },
-};
+  }
+}
+AddrBookDirectory.prototype.QueryInterface = ChromeUtils.generateQI([
+  Ci.nsIAbDirectory,
+]);
+AddrBookDirectory.prototype.classID = Components.ID(
+  "{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"
+);
