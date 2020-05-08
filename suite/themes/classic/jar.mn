@@ -303,7 +303,6 @@ classic.jar:
   skin/classic/messenger/threadPaneLabels.css                           (messenger/threadPaneLabels.css)
   skin/classic/messenger/messageBody.css                                (messenger/messageBody.css)
   skin/classic/messenger/start.css                                      (messenger/start.css)
-  skin/classic/messenger/virtualFolderListDialog.css                    (messenger/virtualFolderListDialog.css)
   skin/classic/messenger/icons/acct-compose.png                         (messenger/icons/acct-compose.png)
   skin/classic/messenger/icons/acct-filters.png                         (messenger/icons/acct-filters.png)
   skin/classic/messenger/icons/acct-newaccount.png                      (messenger/icons/acct-newaccount.png)

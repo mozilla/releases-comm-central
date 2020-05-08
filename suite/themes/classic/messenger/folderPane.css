@@ -219,3 +219,14 @@ treechildren::-moz-tree-image(syncCol, isServer-true) {
 .folderSummary-previewText {
   color: GrayText;
 }
+
+/* Virtual Folder List Dialog */
+
+treechildren::-moz-tree-image(selectedColumn) {
+  margin-inline-end: 2px;
+  list-style-image: url("chrome://messenger/skin/icons/dot.png");
+}
+
+treechildren::-moz-tree-image(selectedColumn, selected-true) {
+  list-style-image: url("chrome://messenger/skin/icons/check.png");
+}
