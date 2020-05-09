@@ -43,9 +43,10 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/DownloadUtils.jsm"
 );
 
-function MatrixParticipant(aRoomMember) {
-  this._id = aRoomMember.userId;
-  this._roomMember = aRoomMember;
+function MatrixParticipant(roomMember, account) {
+  this._id = roomMember.userId;
+  this._roomMember = roomMember;
+  this._account = account;
 }
 MatrixParticipant.prototype = {
   __proto__: GenericConvChatBuddyPrototype,
@@ -53,7 +54,14 @@ MatrixParticipant.prototype = {
     return this._roomMember.name;
   },
   get name() {
-    return this._roomMember.name;
+    return this._id;
+  },
+
+  get buddyIconFilename() {
+    if (this._roomMember.user && this._roomMember.user.avatarUrl) {
+      return this._roomMember.getAvatarUrl(this._account._baseURL) || "";
+    }
+    return "";
   },
 
   // See https://matrix.org/docs/spec/client_server/r0.5.0#m-room-power-levels
@@ -79,14 +87,23 @@ MatrixParticipant.prototype = {
  *  setPowerLevel
  *  setRoomTopic
  */
-function MatrixConversation(aAccount, aName, aNick) {
-  this._init(aAccount, aName, aNick);
+function MatrixConversation(account, name, nick) {
+  this._init(account, name, nick);
 }
 MatrixConversation.prototype = {
   __proto__: GenericConvChatPrototype,
-  sendMsg(aMsg) {
+
+  /*
+   * Leave the room if we close the conversation.
+   */
+  close() {
+    this._account._client.leave(this._roomId);
+    this._account._roomList.delete(this._roomId);
+    GenericConvChatPrototype.close.call(this);
+  },
+  sendMsg(msg) {
     let content = {
-      body: aMsg,
+      body: msg,
       msgtype: "m.text",
     };
     this._account._client.sendEvent(
@@ -106,33 +123,50 @@ MatrixConversation.prototype = {
   get room() {
     return this._account._client.getRoom(this._roomId);
   },
-  addParticipant(aRoomMember) {
-    if (this._participants.has(aRoomMember.userId)) {
+  addParticipant(roomMember) {
+    if (this._participants.has(roomMember.userId)) {
       return;
     }
 
-    let participant = new MatrixParticipant(aRoomMember);
-    this._participants.set(aRoomMember.userId, participant);
+    let participant = new MatrixParticipant(roomMember, this._account);
+    this._participants.set(roomMember.userId, participant);
     this.notifyObservers(
       new nsSimpleEnumerator([participant]),
       "chat-buddy-add"
     );
   },
 
+  removeParticipant(roomMember) {
+    if (!this._participants.has(roomMember.userId)) {
+      return;
+    }
+    let participant = this._participants.get(roomMember.userId);
+    this._participants.delete(roomMember.userId);
+    this.notifyObservers(
+      new nsSimpleEnumerator([participant]),
+      "chat-buddy-remove"
+    );
+  },
+
   /*
    * Initialize the room after the response from the Matrix client.
+   *
+   * @param {Object} room - associated room with the conversation.
    */
-  initRoom(aRoom) {
+  initRoom(room) {
+    if (!room) {
+      return;
+    }
     // Store the ID of the room to look up information in the future.
-    this._roomId = aRoom.roomId;
+    this._roomId = room.roomId;
 
     // If there are any participants, create them.
     let participants = [];
-    aRoom.getJoinedMembers().forEach(aRoomMember => {
-      if (!this._participants.has(aRoomMember.userId)) {
-        let participant = new MatrixParticipant(aRoomMember);
+    room.getJoinedMembers().forEach(roomMember => {
+      if (!this._participants.has(roomMember.userId)) {
+        let participant = new MatrixParticipant(roomMember, this._account);
         participants.push(participant);
-        this._participants.set(aRoomMember.userId, participant);
+        this._participants.set(roomMember.userId, participant);
       }
     });
     if (participants.length) {
@@ -142,18 +176,18 @@ MatrixConversation.prototype = {
       );
     }
 
-    if (aRoom.currentState.getStateEvents("m.room.topic").length) {
-      let event = aRoom.currentState.getStateEvents("m.room.topic")[0];
+    if (room.currentState.getStateEvents("m.room.topic").length) {
+      let event = room.currentState.getStateEvents("m.room.topic")[0];
       this.setTopic(event.getContent().topic, event.getSender().name, true);
     }
 
     if (
-      aRoom.summary &&
-      aRoom.summary.info &&
-      aRoom.summary.info.title &&
-      this._name != aRoom.summary.info.title
+      room.summary &&
+      room.summary.info &&
+      room.summary.info.title &&
+      this._name != room.summary.info.title
     ) {
-      this._name = aRoom.summary.info.title;
+      this._name = room.summary.info.title;
       this.notifyObservers(null, "update-conv-title");
     }
   },
@@ -209,11 +243,11 @@ MatrixAccount.prototype = {
   connect() {
     this.reportConnecting();
     let dbName = "chat:matrix:" + this.imAccount.id;
-    let baseURL = this.getString("server") + ":" + this.getInt("port");
+    this._baseURL = this.getString("server") + ":" + this.getInt("port");
 
     const opts = {
       useAuthorizationHeader: true,
-      baseUrl: baseURL,
+      baseUrl: this._baseURL,
       store: new MatrixSDK.IndexedDBStore({
         indexedDB,
         dbName,
