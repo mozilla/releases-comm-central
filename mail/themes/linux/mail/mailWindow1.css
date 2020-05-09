@@ -27,10 +27,6 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   background-color: -moz-OddTreeRow;
 }
 
-#threadTree {
-  border-bottom: 1px solid ThreeDShadow;
-}
-
 #mailContent {
   -moz-appearance: toolbox;
   background-color: -moz-Dialog;
@@ -97,7 +93,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   transition: border-width .3s ease-in;
 }
 
-#threadpane-splitter {
+#threadpane-splitter[orient="vertical"] {
   border-bottom: 1px solid var(--splitter-color);
 }
 
