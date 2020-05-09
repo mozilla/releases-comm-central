@@ -34,6 +34,7 @@
 
 /* Styles for the default system dark theme */
 :root[lwt-default-theme-in-dark-mode] {
+  --lwt-accent-color: rgb(24, 24, 26) !important; /* override the default variable */
   --sidebar-border-color: #606064 !important;
   /* Toolbar buttons */
   --lwt-toolbarbutton-hover-background: rgba(179, 179, 179, 0.4);
