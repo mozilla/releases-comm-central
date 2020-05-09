@@ -900,7 +900,7 @@
 
 .download-progress .end-cap {
   margin-inline-end: -1px;
-  border-inline-start-color: 0px !important;
+  border-inline-start: 0px !important;
 }
 
 .download-progress .progress .progress-bar  {
