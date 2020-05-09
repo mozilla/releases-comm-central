@@ -355,7 +355,9 @@ var composeAttachmentTracker = {
     return File.createFromNsIFile(uri.file);
   },
 };
-windowTracker.addCloseListener(composeAttachmentTracker.forgetAttachments);
+windowTracker.addCloseListener(
+  composeAttachmentTracker.forgetAttachments.bind(composeAttachmentTracker)
+);
 
 this.compose = class extends ExtensionAPI {
   getAPI(context) {
