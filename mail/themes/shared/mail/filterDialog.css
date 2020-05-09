@@ -1,0 +1,56 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* ===== filterDialog.css ===============================================
+  == Styles for the Mail Filters dialog.
+  ======================================================================= */
+
+@import url("chrome://messenger/skin/messenger.css");
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+/* ::::: columns :::::: */
+
+treecolpicker {
+  display: none;
+}
+
+richlistitem {
+  padding-block: 1px;
+}
+
+richlistitem > checkbox {
+  width: 100px;
+  margin: 0;
+  -moz-user-focus: none;
+}
+
+checkbox:not([label]) .checkbox-label-box {
+  display: none;
+}
+
+.search-menulist,
+.search-value-menulist {
+  width: 12em;
+}
+
+.search-menulist[unavailable="true"] {
+  opacity: 0.6;
+}
+
+.ruleactionitem {
+  min-width: 20em;
+}
+
+.ruleaction-type {
+  min-width: 15em;
+}
+
+#countBox[filterActive="matches"] {
+  color: #4e9a06;
+}
+
+#countBox[filterActive="nomatches"] {
+  color: #c00;
+}

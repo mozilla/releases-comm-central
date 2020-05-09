@@ -6,34 +6,14 @@
   == Styles for the Mail Filters dialog.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/messenger.css");
+@import url("chrome://messenger/skin/shared/filterDialog.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 /* ::::: columns :::::: */
 
-treecolpicker {
-  display: none;
-}
-
-richlistitem {
-  padding-top: 1px;
-  padding-bottom: 1px;
-}
-
-richlistitem > checkbox {
-  width: 100px;
-  margin: 0;
-  -moz-user-focus: none;
-}
-
-checkbox:not([label]) .checkbox-label-box {
-  display: none;
-}
-
 #gray_horizontal_splitter {
-  margin-right: -6px;
-  margin-left: -6px;
+  margin-inline: -6px;
 }
 
 #filterHeader,
@@ -42,8 +22,7 @@ checkbox:not([label]) .checkbox-label-box {
 }
 
 #FilterEditor {
-  padding-right: 4px;
-  padding-left: 4px;
+  padding-inline: 4px;
 }
 
 .small-button {
@@ -53,40 +32,9 @@ checkbox:not([label]) .checkbox-label-box {
 }
 
 .small-button + .small-button {
-  margin-inline-start: 0;
-  margin-inline-end: 4px;
-}
-
-.search-menulist,
-.search-value-menulist {
-  width: 12em;
-}
-
-.search-menulist[unavailable="true"] {
-  color: GrayText;
+  margin-inline: 0 4px;
 }
 
 .search-value-textbox {
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-.ruleactionitem {
-  min-width: 20em;
-}
-
-.ruleaction-type {
-  min-width: 15em;
-}
-
-#countBox[filterActive="matches"] {
-  color: #4e9a06;
-}
-
-#countBox[filterActive="nomatches"] {
-  color: #cc0000;
-}
-
-treecolpicker {
-  display: none;
+  padding-block: 0;
 }

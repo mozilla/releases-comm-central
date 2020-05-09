@@ -129,3 +129,25 @@ treechildren::-moz-tree-cell-text(dummy) {
   color: var(--lwt-toolbar-field-focus-color, var(--lwt-toolbar-field-color, black));
   border-color: var(--toolbar-field-focus-border-color);
 }
+
+/* virtual folder list dialog */
+
+treechildren::-moz-tree-image(selectedColumn) {
+  width: 14px;
+  height: 14px;
+  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  stroke: currentColor;
+  fill-opacity: 0;
+  stroke-opacity: 0;
+}
+
+treechildren::-moz-tree-image(selectedColumn, selected-true) {
+  fill-opacity: 1;
+}
+
+treechildren::-moz-tree-image(selectedColumn, selected, focus) {
+  fill: var(--select-focus-text-color);
+  stroke: var(--select-focus-text-color);
+}

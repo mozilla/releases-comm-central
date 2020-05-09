@@ -12,18 +12,30 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 treechildren::-moz-tree-cell-text(folderNameCol, noSelect-true) {
-  color: gray;
+  opacity: 0.6;
   font-style: italic;
 }
 
 /* ::::: Download Icons ::::: */
 
 treechildren::-moz-tree-image(syncCol) {
-  list-style-image: url("chrome://messenger/skin/icons/dot.png");
+  width: 14px;
+  height: 14px;
+  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  stroke: currentColor;
+  fill-opacity: 0;
+  stroke-opacity: 0;
 }
 
 treechildren::-moz-tree-image(syncCol, synchronize-true) {
-  list-style-image: url("chrome://messenger/skin/icons/check.png");
+  fill-opacity: 1;
+}
+
+treechildren::-moz-tree-image(selectedColumn, selected, focus) {
+  fill: var(--select-focus-text-color);
+  stroke: var(--select-focus-text-color);
 }
 
 treechildren::-moz-tree-image(syncCol, isServer-true) {

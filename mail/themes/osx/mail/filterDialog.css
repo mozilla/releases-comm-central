@@ -6,12 +6,12 @@
   == Styles for the Mail Filters dialog.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/messenger.css");
+@import url("chrome://messenger/skin/shared/filterDialog.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #filterListDialog {
-  padding: 0px;
+  padding: 0;
 }
 
 #filterHeader {
@@ -25,29 +25,11 @@
 
 /* ::::: columns :::::: */
 
-treecolpicker {
-  display: none;
-}
-
-richlistitem {
-  padding-top: 1px;
-  padding-bottom: 1px;
-}
-
-richlistitem > checkbox {
-  width: 100px;
-  margin: 0;
-  -moz-user-focus: none;
-}
-
-checkbox:not([label]) .checkbox-label-box {
-  display: none;
-}
-
 .small-button {
   min-width: 22px;
   height: 20px;
-  padding: 0 1px 1px 0;
+  padding-block: 0 1px;
+  padding-inline: 0 1px;
   margin: 4px 0;
 }
 
@@ -64,34 +46,6 @@ hbox > .small-button + .small-button {
   margin-inline-end: 2px;
 }
 
-.search-menulist, .search-value-menulist {
-  width: 12em;
-}
-
-.search-menulist[unavailable="true"] {
-  color: GrayText;
-}
-
 #searchTermList > listitem[selected="true"] {
   background-color: inherit;
-}
-
-.ruleactionitem {
-  min-width: 20em;
-}
-
-.ruleaction-type {
-  min-width: 15em;
-}
-
-#countBox[filterActive="matches"] {
-  color: #4e9a06;
-}
-
-#countBox[filterActive="nomatches"] {
-  color: #cc0000;
-}
-
-treecolpicker {
-  display: none;
 }
