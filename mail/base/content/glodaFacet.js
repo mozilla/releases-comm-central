@@ -2,15 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global HTMLElement, DateFacetVis, FacetContext, glodaFacetStrings, FacetUtils, PluralForm */
-/* global logException, Gloda */
+/* global DateFacetVis, FacetContext */
 
 // Wrap in a block to prevent leaking to window scope.
 {
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
   const { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
+  const { FacetUtils } = ChromeUtils.import(
+    "resource:///modules/gloda/Facet.jsm"
+  );
+  const { PluralForm } = ChromeUtils.import(
+    "resource://gre/modules/PluralForm.jsm"
+  );
+  const { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
+  const { logException } = ChromeUtils.import(
+    "resource:///modules/ErrUtils.jsm"
+  );
+
+  var glodaFacetStrings = Services.strings.createBundle(
+    "chrome://messenger/locale/glodaFacetView.properties"
+  );
 
   class MozFacetDate extends HTMLElement {
     get build() {
@@ -112,7 +128,7 @@
       this.sortSelect = document.createElement("select");
 
       let revelanceItem = document.createElement("option");
-      revelanceItem.textContent = glodaFacetStrings.get(
+      revelanceItem.textContent = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.message.sort.relevance2"
       );
       revelanceItem.setAttribute("value", "-dascore");
@@ -120,7 +136,7 @@
       this.sortSelect.appendChild(revelanceItem);
 
       let dateItem = document.createElement("option");
-      dateItem.textContent = glodaFacetStrings.get(
+      dateItem.textContent = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.message.sort.date2"
       );
       dateItem.setAttribute("value", "-date");
@@ -140,13 +156,13 @@
     }
 
     setMessages(messages) {
-      let topMessagesPluralFormat = glodaFacetStrings.get(
+      let topMessagesPluralFormat = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.header.countLabel.NMessages"
       );
-      let outOfPluralFormat = glodaFacetStrings.get(
+      let outOfPluralFormat = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.header.countLabel.ofN"
       );
-      let groupingFormat = glodaFacetStrings.get(
+      let groupingFormat = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.header.countLabel.grouping"
       );
 
@@ -169,7 +185,7 @@
         .replace("#1", topMessagesStr)
         .replace("#2", outOfStr);
 
-      this.toggleText.textContent = glodaFacetStrings.get(
+      this.toggleText.textContent = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.message.timeline.label"
       );
 
@@ -451,7 +467,7 @@
       }
 
       let allNode = document.createElement("option");
-      allNode.textContent = glodaFacetStrings.get(
+      allNode.textContent = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.facets.filter." +
           this.attrDef.attributeName +
           ".allLabel"
@@ -643,7 +659,7 @@
       if ("includeLabel" in this.facetDef.strings) {
         this.includeLabel.textContent = this.facetDef.strings.includeLabel;
       } else {
-        this.includeLabel.textContent = glodaFacetStrings.get(
+        this.includeLabel.textContent = glodaFacetStrings.GetStringFromName(
           "glodaFacetView.facets.included.fallbackLabel"
         );
       }
@@ -654,7 +670,7 @@
       if ("excludeLabel" in this.facetDef.strings) {
         this.excludeLabel.textContent = this.facetDef.strings.excludeLabel;
       } else {
-        this.excludeLabel.textContent = glodaFacetStrings.get(
+        this.excludeLabel.textContent = glodaFacetStrings.GetStringFromName(
           "glodaFacetView.facets.excluded.fallbackLabel"
         );
       }
@@ -665,7 +681,7 @@
       if ("remainderLabel" in this.facetDef.strings) {
         this.remainderLabel.textContent = this.facetDef.strings.remainderLabel;
       } else {
-        this.remainderLabel.textContent = glodaFacetStrings.get(
+        this.remainderLabel.textContent = glodaFacetStrings.GetStringFromName(
           "glodaFacetView.facets.remainder.fallbackLabel"
         );
       }
@@ -688,7 +704,9 @@
         let groupCount = this.orderedGroups.length;
         this.moreButton.textContent = PluralForm.get(
           groupCount,
-          glodaFacetStrings.get("glodaFacetView.facets.mode.top.listAllLabel")
+          glodaFacetStrings.GetStringFromName(
+            "glodaFacetView.facets.mode.top.listAllLabel"
+          )
         ).replace("#1", groupCount);
       }
 
@@ -792,7 +810,7 @@
 
         // The null value is a special indicator for 'none'
         if (groupValue == null) {
-          label.textContent = glodaFacetStrings.get(
+          label.textContent = glodaFacetStrings.GetStringFromName(
             "glodaFacetView.facets.noneLabel"
           );
         } else {
@@ -1238,7 +1256,7 @@
       if (stringName in facetDef.strings) {
         labelFormat = facetDef.strings[stringName];
       } else {
-        labelFormat = glodaFacetStrings.get(
+        labelFormat = glodaFacetStrings.GetStringFromName(
           `glodaFacetView.facets.${stringName}.fallbackLabel`
         );
       }
@@ -1530,7 +1548,7 @@
 
       // -- Content Poking
       if (message.subject.trim() == "") {
-        subject.textContent = glodaFacetStrings.get(
+        subject.textContent = glodaFacetStrings.GetStringFromName(
           "glodaFacetView.result.message.noSubject"
         );
       } else {
@@ -1540,7 +1558,7 @@
       authorNode.setAttribute("title", message.from.value);
       authorNode.textContent = message.from.contact.name;
       let toNode = this.to;
-      toNode.textContent = glodaFacetStrings.get(
+      toNode.textContent = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.result.message.toLabel"
       );
 
@@ -1557,7 +1575,7 @@
           let recipientCount = 0;
           const MAX_RECIPIENTS = 3;
           let totalRecipientCount = message.recipients.length;
-          let recipientSeparator = glodaFacetStrings.get(
+          let recipientSeparator = glodaFacetStrings.GetStringFromName(
             "glodaFacetView.results.message.recipientSeparator"
           );
           for (let index in message.recipients) {
@@ -1584,7 +1602,9 @@
 
             let andOthersLabel = PluralForm.get(
               nOthers,
-              glodaFacetStrings.get("glodaFacetView.results.message.andOthers")
+              glodaFacetStrings.GetStringFromName(
+                "glodaFacetView.results.message.andOthers"
+              )
             ).replace("#1", nOthers);
 
             andNOthers.textContent = andOthersLabel;
