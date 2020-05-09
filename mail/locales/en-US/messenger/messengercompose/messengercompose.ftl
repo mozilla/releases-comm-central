@@ -28,12 +28,12 @@ pill-action-edit =
 
 pill-action-move-to =
     .label = Move to To
-    .accesskey = t
+    .accesskey = T
 
 pill-action-move-cc =
     .label = Move to Cc
-    .accesskey = c
+    .accesskey = C
 
 pill-action-move-bcc =
     .label = Move to Bcc
-    .accesskey = b
+    .accesskey = B
