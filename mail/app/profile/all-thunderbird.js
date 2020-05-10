@@ -280,10 +280,6 @@ pref("mail.threadpane.use_correspondents", true);
 pref("network.auth.subresource-img-cross-origin-http-auth-allow", true);
 pref("network.auth.non-web-content-triggered-resources-http-auth-allow", true);
 
-// clear the SeaMonkey pref, so we don't hear about how we don't have a chrome
-// package registered for editor-region while opening about:config
-pref("editor.throbber.url", "");
-
 // 0=as attachment 2=default forward as inline with attachments
 pref("mail.forward_message_mode", 2);
 
