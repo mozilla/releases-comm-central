@@ -174,9 +174,6 @@ pref("temp.openpgp.gpgLocaleEn", true);
 // use PGP/MIME (0=never, 1=allow, 2=always)
 // pref("temp.openpgp.usePGPMimeOption",1); -- OBSOLETE, see mail.identity.default.pgpMimeMode
 
-// Use gpg for keyserver operations (vs. Thunderbird)
-pref("temp.openpgp.useGpgKeysTool", false);
-
 // show "conflicting rules" message (and remember selected state)
 pref("temp.openpgp.warnOnRulesConflict", 0);
 

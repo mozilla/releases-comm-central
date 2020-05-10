@@ -8,9 +8,6 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailKeyServer"];
 
-const { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
@@ -42,11 +39,6 @@ const { EnigmailCryptoAPI } = ChromeUtils.import(
 const ENIG_DEFAULT_HKP_PORT = "11371";
 const ENIG_DEFAULT_HKPS_PORT = "443";
 const ENIG_DEFAULT_LDAP_PORT = "389";
-
-const SKS_CACERT_URL = "https://sks-keyservers.net/sks-keyservers.netCA.pem";
-const HKPS_POOL_HOST = "hkps.pool.sks-keyservers.net";
-const SKS_CACERT_SUBJECTNAME =
-  "CN=sks-keyservers.net CA,O=sks-keyservers.net CA,ST=Oslo,C=NO";
 
 /**
  KeySrvListener API
@@ -171,7 +163,6 @@ const accessHkpInternal = {
       case EnigmailConstants.DOWNLOAD_KEY:
       case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
       case EnigmailConstants.SEARCH_KEY:
-      case EnigmailConstants.GET_SKS_CACERT:
         return "";
     }
 
@@ -217,8 +208,6 @@ const accessHkpInternal = {
         "/pks/lookup?search=" +
         escape(searchTerm) +
         "&fingerprint=on&op=index&options=mr";
-    } else if (actionFlag === EnigmailConstants.GET_SKS_CACERT) {
-      url = SKS_CACERT_URL;
     }
 
     return {
@@ -292,7 +281,6 @@ const accessHkpInternal = {
             return;
 
           case EnigmailConstants.SEARCH_KEY:
-          case EnigmailConstants.GET_SKS_CACERT:
             if (xmlReq.status === 404) {
               // key not found
               resolve("");
@@ -375,80 +363,14 @@ const accessHkpInternal = {
         );
       };
 
-      let { url, host, method } = this.createRequestUrl(
-        keyserver,
-        actionFlag,
-        keyId
-      );
+      let { url, method } = this.createRequestUrl(keyserver, actionFlag, keyId);
 
-      if (
-        host === HKPS_POOL_HOST &&
-        actionFlag !== EnigmailConstants.GET_SKS_CACERT
-      ) {
-        this.getSksCACert().then(r => {
-          EnigmailLog.DEBUG(
-            `keyserver.jsm: accessHkpInternal.accessKeyServer: getting ${url}\n`
-          );
-          xmlReq.open(method, url);
-          xmlReq.send(payLoad);
-        });
-      } else {
-        EnigmailLog.DEBUG(
-          `keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`
-        );
-        xmlReq.open(method, url);
-        xmlReq.send(payLoad);
-      }
+      EnigmailLog.DEBUG(
+        `keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`
+      );
+      xmlReq.open(method, url);
+      xmlReq.send(payLoad);
     });
-  },
-
-  async installSksCACert() {
-    EnigmailLog.DEBUG(`keyserver.jsm: installSksCACert()\n`);
-    let certDb = Cc["@mozilla.org/security/x509certdb;1"].getService(
-      Ci.nsIX509CertDB
-    );
-    try {
-      let certTxt = await this.accessKeyServer(
-        EnigmailConstants.GET_SKS_CACERT,
-        "",
-        "",
-        null
-      );
-      const BEGIN_CERT = "-----BEGIN CERTIFICATE-----";
-      const END_CERT = "-----END CERTIFICATE-----";
-
-      certTxt = certTxt.replace(/[\r\n]/g, "");
-      let begin = certTxt.indexOf(BEGIN_CERT);
-      let end = certTxt.indexOf(END_CERT);
-      let certData = certTxt.substring(begin + BEGIN_CERT.length, end);
-      let x509cert = certDb.addCertFromBase64(certData, "C,C,C", "");
-      return x509cert;
-    } catch (x) {
-      return null;
-    }
-  },
-
-  /**
-   * Get the CA certificate for the HKPS sks-keyserver pool
-   */
-  async getSksCACert() {
-    EnigmailLog.DEBUG(`keyserver.jsm: getSksCACert()\n`);
-    let certDb = Cc["@mozilla.org/security/x509certdb;1"].getService(
-      Ci.nsIX509CertDB
-    );
-    let cert = null;
-
-    for (cert of certDb.getCerts().getEnumerator()) {
-      if (
-        cert.subjectName === SKS_CACERT_SUBJECTNAME &&
-        cert.certType === Ci.nsIX509Cert.CA_CERT
-      ) {
-        return cert;
-      }
-    }
-
-    cert = await this.installSksCACert();
-    return cert;
   },
 
   /**
@@ -932,287 +854,6 @@ const accessKeyBase = {
   },
 };
 
-/**
- Object to handle HKP/HKPS and LDAP/LDAPS requests via GnuPG
- */
-const accessGnuPG = {
-  /**
-   * Upload, search or download keys from a keyserver
-   * @param actionFlag:  Number  - Keyserver Action Flags: from EnigmailConstants
-   * @param keyId:       String  - space-separated list of search terms or key IDs
-   * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
-   * @param listener:    optional Object implementing the KeySrvListener API (above)
-   *
-   * @return Promise<Object> Object from execAsync
-   */
-  accessKeyServer(actionFlag, keyserver, keyId, listener) {
-    EnigmailLog.DEBUG(
-      `keyserver.jsm: accessGnuPG: accessKeyServer(${keyserver})\n`
-    );
-    throw new Error("Not implemented");
-
-    /*
-    let proxyHost = EnigmailHttpProxy.getHttpProxy();
-
-    switch (actionFlag) {
-      case EnigmailConstants.SEARCH_KEY:
-        break;
-      case EnigmailConstants.DOWNLOAD_KEY:
-      case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
-        break;
-      case EnigmailConstants.UPLOAD_KEY:
-        break;
-    }
-    */
-  },
-
-  parseStatusMsg(execResult) {
-    let errorCode = 0,
-      errorType = null;
-
-    // Find the 1st FAILURE message in the gpg status output
-    let m = execResult.stderrData.match(
-      /^\[GNUPG:\] (FAILURE|ERROR) ([^ ]+ )(\d+)/m
-    );
-
-    if (m && m.length >= 4 && m[3].search(/^[0-9]+$/) === 0) {
-      let errorNumber = Number(m[3]);
-      //let sourceSystem = errorNumber >> 24;
-      errorCode = errorNumber & 0xffffff;
-
-      switch (errorCode) {
-        case 58: // no data
-          break;
-        case 32793: // connection refused
-        case 32810: // host unreachable
-        case 220: // Server not found (no name)
-          errorType = EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE;
-          break;
-        case 228:
-          errorType = EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR;
-          break;
-        case 100: // various  certificate errors
-        case 101:
-        case 102:
-        case 103:
-        case 185:
-          errorType = EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR;
-          break;
-        default:
-          errorType = EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR;
-      }
-    }
-
-    if (execResult.isKilled !== 0) {
-      errorType = EnigmailConstants.KEYSERVER_ERR_ABORTED;
-    }
-
-    if (errorType !== null) {
-      EnigmailLog.DEBUG(
-        `keyserver.jsm: accessGnuPG.parseStatusMsg: got errorCode=${errorCode}\n`
-      );
-      return createError(errorType);
-    }
-
-    return null;
-  },
-  /**
-   * Download keys from a keyserver
-   * @param keyIDs:      String  - space-separated list of search terms or key IDs
-   * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
-   * @param listener:    optional Object implementing the KeySrvListener API (above)
-   *
-   * @return:   Promise<...>
-   */
-  async download(autoImport, keyIDs, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG.download(${keyIDs})\n`);
-    let retObj = {
-      result: 0,
-      errorDetails: "",
-      keyList: [],
-    };
-    let keyIdArr = keyIDs.split(/ +/);
-
-    for (let i = 0; i < keyIdArr.length; i++) {
-      let r = await this.accessKeyServer(
-        autoImport
-          ? EnigmailConstants.DOWNLOAD_KEY
-          : EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT,
-        keyserver,
-        keyIdArr[i],
-        listener
-      );
-
-      let exitValue = this.parseStatusMsg(r);
-      if (exitValue) {
-        exitValue.keyList = [];
-        throw exitValue;
-      }
-
-      var statusLines = r.statusMsg.split(/\r?\n/);
-
-      for (let j = 0; j < statusLines.length; j++) {
-        let matches = statusLines[j].match(/IMPORT_OK ([0-9]+) (\w+)/);
-        if (matches && matches.length > 2) {
-          retObj.keyList.push(matches[2]);
-          EnigmailKeyRing.updateKeys([matches[2]]);
-        }
-      }
-
-      if (listener && "onProgress" in listener) {
-        listener.onProgress(((i + 1) / keyIdArr.length) * 100);
-      }
-    }
-
-    return retObj;
-  },
-
-  refresh(keyServer, listener = null) {
-    let keyList = EnigmailKeyRing.getAllKeys()
-      .keyList.map(keyObj => {
-        return "0x" + keyObj.fpr;
-      })
-      .join(" ");
-
-    return this.download(true, keyList, keyServer, listener);
-  },
-
-  /**
-   * Upload keys to a keyserver
-   * @param keyIDs: String  - space-separated list of search terms or key IDs
-   * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
-   * @param listener:    optional Object implementing the KeySrvListener API (above)
-   *
-   * @return:   Promise<...>
-   */
-  async upload(keyIDs, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG.upload(${keyIDs})\n`);
-    let keyIdArr = keyIDs.split(/ +/);
-    let retObj = {
-      result: 0,
-      errorDetails: "",
-      keyList: [],
-    };
-
-    for (let i = 0; i < keyIdArr.length; i++) {
-      let r = await this.accessKeyServer(
-        EnigmailConstants.UPLOAD_KEY,
-        keyserver,
-        keyIdArr[i],
-        listener
-      );
-
-      let exitValue = this.parseStatusMsg(r);
-      if (exitValue) {
-        exitValue.keyList = [];
-        throw exitValue;
-      }
-
-      if (r.exitCode === 0) {
-        retObj.keyList.push(keyIdArr[i]);
-      }
-
-      if (listener && "onProgress" in listener) {
-        listener.onProgress(((i + 1) / keyIdArr.length) * 100);
-      }
-    }
-
-    return retObj;
-  },
-
-  /**
-   * Search for keys on a keyserver
-   * @param searchTerm:  String  - search term
-   * @param keyserver:   String  - keyserver URL (optionally incl. protocol)
-   * @param listener:    optional Object implementing the KeySrvListener API (above)
-   *
-   * @return:   Promise<Object>
-   *    - result: Number
-   *    - pubKeys: Array of Object:
-   *         PubKeys: Object with:
-   *           - keyId: String
-   *           - keyLen: String
-   *           - keyType: String
-   *           - created: String (YYYY-MM-DD)
-   *           - status: String: one of ''=valid, r=revoked, e=expired
-   *           - uid: Array of Strings with UIDs
-   */
-  async search(searchTerm, keyserver, listener = null) {
-    EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG.search(${searchTerm})\n`);
-    let retObj = {
-      result: 0,
-      errorDetails: "",
-      pubKeys: [],
-    };
-    let key = null;
-
-    let r = await this.accessKeyServer(
-      EnigmailConstants.SEARCH_KEY,
-      keyserver,
-      searchTerm,
-      listener
-    );
-
-    let exitValue = this.parseStatusMsg(r);
-    if (exitValue) {
-      retObj.result = exitValue.result;
-      retObj.errorDetails = exitValue.errorDetails;
-      retObj.pubKeys = [];
-      return retObj;
-    }
-
-    let lines = r.stdoutData.split(/\r?\n/);
-
-    for (var i = 0; i < lines.length; i++) {
-      let line = lines[i].split(/:/).map(unescape);
-      if (line.length <= 1) {
-        continue;
-      }
-
-      switch (line[0]) {
-        case "info":
-          if (line[1] !== "1") {
-            // protocol version not supported
-            retObj.result = 7;
-            retObj.errorDetails = EnigmailLocale.getString(
-              "keyserver.error.unsupported"
-            );
-            retObj.pubKeys = [];
-            return retObj;
-          }
-          break;
-        case "pub":
-          if (line.length >= 6) {
-            if (key) {
-              retObj.pubKeys.push(key);
-              key = null;
-            }
-            let dat = new Date(line[4] * 1000);
-            let month = String(dat.getMonth() + 101).substr(1);
-            let day = String(dat.getDate() + 100).substr(1);
-            key = {
-              keyId: line[1],
-              keyLen: line[3],
-              keyType: line[2],
-              created: dat.getFullYear() + "-" + month + "-" + day,
-              uid: [],
-              status: line[6],
-            };
-          }
-          break;
-        case "uid":
-          key.uid.push(EnigmailData.convertToUnicode(line[1].trim(), "utf-8"));
-      }
-    }
-
-    if (key) {
-      retObj.pubKeys.push(key);
-    }
-
-    return retObj;
-  },
-};
-
 function getAccessType(keyserver) {
   if (!keyserver) {
     throw new Error("getAccessType requires explicit keyserver parameter");
@@ -1222,19 +863,12 @@ function getAccessType(keyserver) {
   switch (srv.protocol) {
     case "keybase":
       return accessKeyBase;
-    case "ldap":
-    case "ldaps":
-      return accessGnuPG;
     case "vks":
       return accessVksServer;
   }
 
   if (srv.host.search(/keys.openpgp.org$/i) >= 0) {
     return accessVksServer;
-  }
-
-  if (EnigmailPrefs.getPref("useGpgKeysTool")) {
-    return accessGnuPG;
   }
 
   return accessHkpInternal;
@@ -1275,7 +909,6 @@ const accessVksServer = {
       case EnigmailConstants.DOWNLOAD_KEY:
       case EnigmailConstants.DOWNLOAD_KEY_NO_IMPORT:
       case EnigmailConstants.SEARCH_KEY:
-      case EnigmailConstants.GET_SKS_CACERT:
         return "";
     }
 
