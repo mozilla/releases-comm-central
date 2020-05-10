@@ -8,7 +8,7 @@
             >
         <toolbarbutton id="qfb-sticky" type="checkbox"
                        class="toolbarbutton-1" orient="horizontal"
-                       crop="none" minwidth="16"
+                       crop="none" style="min-width:16px;"
                        tooltiptext="&quickFilterBar.sticky.tooltip;"
                        />
         <!-- Extensions, put your labeled buttons in the following box. -->
@@ -16,31 +16,31 @@
           <toolbarseparator id="qfb-separator"/>
           <toolbarbutton id="qfb-unread" type="checkbox"
                          class="toolbarbutton-1" orient="horizontal"
-                         crop="none" minwidth="16"
+                         crop="none" style="min-width:16px;"
                          label="&quickFilterBar.unread.label;"
                          tooltiptext="&quickFilterBar.unread.tooltip;"
                          />
           <toolbarbutton id="qfb-starred" type="checkbox"
                          class="toolbarbutton-1" orient="horizontal"
-                         crop="none" minwidth="16"
+                         crop="none" style="min-width:16px;"
                          label="&quickFilterBar.starred.label;"
                          tooltiptext="&quickFilterBar.starred.tooltip;"
                          />
           <toolbarbutton id="qfb-inaddrbook" type="checkbox"
                          class="toolbarbutton-1" orient="horizontal"
-                         crop="none" minwidth="16"
+                         crop="none" style="min-width:16px;"
                          label="&quickFilterBar.inaddrbook.label;"
                          tooltiptext="&quickFilterBar.inaddrbook.tooltip;"
                          />
           <toolbarbutton id="qfb-tags" type="checkbox"
                          class="toolbarbutton-1" orient="horizontal"
-                         crop="none" minwidth="16"
+                         crop="none" style="min-width:16px;"
                          label="&quickFilterBar.tags.label;"
                          tooltiptext="&quickFilterBar.tags.tooltip;"
                          />
           <toolbarbutton id="qfb-attachment" type="checkbox"
                          class="toolbarbutton-1" orient="horizontal"
-                         crop="none" minwidth="16"
+                         crop="none" style="min-width:16px;"
                          label="&quickFilterBar.attachment.label;"
                          tooltiptext="&quickFilterBar.attachment.tooltip;"/>
         </hbox>
@@ -48,7 +48,7 @@
         <!-- I added a minwidth and end text-align because otherwise the change
              in dimensions causes ugly flex rearrangement of the textbox. -->
         <label id="qfb-results-label"
-               minwidth="&quickFilterBar.resultsLabel.minWidth;"
+               style="min-width:&quickFilterBar.resultsLabel.minWidth;"
                value=""
                somefmtstring="&quickFilterBar.resultsLabel.some.formatString;"
                noresultsstring="&quickFilterBar.resultsLabel.none;"
@@ -63,7 +63,7 @@
                         timeout="500"
                         maxlength="192"
                         width="320"
-                        minwidth="280"/>
+                        style="min-width:280px;"/>
       </hbox>
       <hbox id="quick-filter-bar-expando">
         <arrowscrollbox id="quick-filter-bar-tab-bar"
