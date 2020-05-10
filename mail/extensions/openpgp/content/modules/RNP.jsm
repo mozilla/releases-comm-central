@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["RNP"];
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var { RNPLibLoader } = ChromeUtils.import(
   "chrome://openpgp/content/modules/RNPLib.jsm"
@@ -680,6 +681,7 @@ var RNP = {
     if (
       result.exitCode &&
       !("alreadyUsedGPGME" in options) &&
+      Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&
       GPGME.allDependenciesLoaded()
     ) {
       // failure processing with RNP, attempt decryption with GPGME

@@ -64,8 +64,9 @@ var BondOpenPGP = {
     if (!getRNP().init({})) {
       return;
     }
-    if (!getGPGME().init({})) {
-      return;
+
+    if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
+      getGPGME().init({});
     }
 
     // trigger service init

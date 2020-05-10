@@ -51,14 +51,14 @@ function loadExternalGPGMELib() {
     tryLoadGPGME("gpgme", "");
   }
 
-  if (!libgpgme) {
-    throw new Error("Cannot load required GPGME library");
-  }
+  return !!libgpgme;
 }
 
 var GPGMELibLoader = {
   init() {
-    loadExternalGPGMELib();
+    if (!loadExternalGPGMELib()) {
+      return null;
+    }
     if (libgpgme) {
       enableGPGMELibJS();
     }
