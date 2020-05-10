@@ -64,6 +64,7 @@
   skin/classic/messenger/icons/exclude.svg                    (../shared/mail/icons/exclude.svg)
   skin/classic/messenger/icons/encryption-key.svg             (../shared/mail/icons/encryption-key.svg)
   skin/classic/messenger/icons/feeds.svg                      (../shared/mail/icons/feeds.svg)
+  skin/classic/messenger/icons/feeds-folder.svg               (../shared/mail/icons/feeds-folder.svg)
   skin/classic/messenger/icons/file.svg                       (../shared/mail/icons/file.svg)
   skin/classic/messenger/icons/file-item.svg                  (../shared/mail/icons/file-item.svg)
   skin/classic/messenger/icons/filter.svg                     (../shared/mail/icons/filter.svg)
