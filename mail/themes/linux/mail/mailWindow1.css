@@ -139,13 +139,6 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   background-color: Highlight;
 }
 
-.tabmail-tab[type="message"][IsFeedMessage] {
-  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
-  -moz-image-region: rect(32px 16px 48px 0);
-  width: 16px;
-  height: 16px;
-}
-
 /* ..... tabs ..... */
 
 #tabpanelcontainer {

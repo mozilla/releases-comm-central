@@ -48,13 +48,6 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 /* ..... tabs ..... */
 
-.tabmail-tab[type="message"][IsFeedMessage] {
-  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
-  -moz-image-region: rect(32px 16px 48px 0);
-  width: 16px;
-  height: 16px;
-}
-
 #tabpanelcontainer {
   -moz-appearance: none;
 }

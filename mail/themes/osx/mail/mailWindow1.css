@@ -169,18 +169,6 @@ treechildren::-moz-tree-row(dummy) {
   border-bottom: 4px solid highlight;
 }
 
-.tabmail-tab[type="message"][IsFeedMessage] {
-  list-style-image: url("chrome://messenger-newsblog/skin/rss-feed.png");
-  -moz-image-region: rect(16px 16px 32px 0);
-}
-
-@media (min-resolution: 2dppx) {
-  .tabmail-tab[type="message"][IsFeedMessage] {
-    list-style-image: url("chrome://messenger-newsblog/skin/rss-feed@2x.png");
-    -moz-image-region: rect(32px 32px 64px 0);
-  }
-}
-
 .telemetry-text-link {
   color: #fff;
 }
