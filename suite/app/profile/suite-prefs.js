@@ -103,9 +103,6 @@ pref("browser.search.order.3", "chrome://communicator-region/locale/region.prope
 // Search (side)bar results always open in a new tab.
 pref("browser.search.openintab", false);
 
-// Invoking a search reveals the sidebar panel.
-pref("browser.search.opensidebarsearchpanel", false);
-
 // Open context search results in either a new window or tab.
 pref("browser.search.opentabforcontextsearch", true);
 

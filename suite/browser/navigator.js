@@ -1620,10 +1620,6 @@ var BrowserSearch = {
       loadURI(submission.uri.spec, null, submission.postData, false);
       window.content.focus();
     }
-
-    // should we try and open up the sidebar to show the "Search Results" panel?
-    if (Services.prefs.getBoolPref("browser.search.opensidebarsearchpanel", false))
-      this.revealSidebar();
   },
 
   /**
