@@ -29,7 +29,7 @@ menulist.folderMenuItem::part(icon) {
 
 /* Feed folder */
 .folderMenuItem[IsFeedFolder="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/subscribe.svg");
+  list-style-image: url("chrome://messenger/skin/icons/feeds.svg");
 }
 
 /* Special folders */
@@ -99,5 +99,5 @@ menulist.folderMenuItem::part(icon) {
 
 /* Feed server */
 .folderMenuItem[IsServer="true"][ServerType="rss"] {
-  list-style-image: url("chrome://messenger/skin/icons/subscribe.svg");
+  list-style-image: url("chrome://messenger/skin/icons/feeds.svg");
 }

@@ -113,14 +113,21 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true) {
   fill: var(--primary);
 }
 
-/* ..... Feed folder, feed item ..... */
-treechildren::-moz-tree-image(folderNameCol, isFeed-true),
+/* ..... Feed server/account ..... */
 .tabmail-tab[type="folder"][IsServer="true"][ServerType="rss"],
-treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss),
+treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-rss) {
+  list-style-image: url("chrome://messenger/skin/icons/feeds.svg");
+  fill: var(--primary);
+}
+/* ..... Feed folder ..... */
 .tabmail-tab[type="folder"][IsFeedFolder="true"],
 treechildren::-moz-tree-image(folderNameCol, isFeedFolder-true) {
-  list-style-image: url("chrome://messenger/skin/icons/subscribe.svg");
-  fill: var(--primary);
+  list-style-image: url("chrome://messenger/skin/icons/feeds.svg");
+}
+/* ..... Feed subscription item ..... */
+treechildren::-moz-tree-image(folderNameCol, isFeed-true) {
+  list-style-image: url("chrome://messenger/skin/icons/feeds.svg");
+  fill: orange;
 }
 
 treechildren::-moz-tree-image(folderNameCol, serverIsPaused),

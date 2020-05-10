@@ -107,7 +107,7 @@ body {
 #setupFeeds::before,
 #rssSubscriptionButton:before,
 #nntpSubscriptionButton:before {
-  background-image: url("chrome://messenger/skin/icons/subscribe.svg");
+  background-image: url("chrome://messenger/skin/icons/feeds.svg");
 }
 
 #accountLogo[type="nntp"] {
