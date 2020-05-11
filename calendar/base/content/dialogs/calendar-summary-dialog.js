@@ -133,9 +133,25 @@ function onLoad() {
   updateLink();
 
   let location = item.getProperty("LOCATION");
-  if (location && location.length) {
+
+  if (location) {
     document.getElementById("location-row").removeAttribute("hidden");
-    document.getElementById("item-location").value = location;
+    let urlMatch = location.match(/(https?:\/\/[^ ]*)/);
+    let url = urlMatch && urlMatch[1];
+    let itemLocation = document.getElementById("item-location");
+    if (url) {
+      let locationLabel = document.createXULElement("label");
+      locationLabel.setAttribute("id", "item-location-link");
+      locationLabel.setAttribute("context", "location-link-context-menu");
+      locationLabel.setAttribute("class", "text-link");
+      locationLabel.setAttribute("value", url);
+      locationLabel.setAttribute("tooltiptext", url);
+      locationLabel.setAttribute("onclick", "launchBrowser(this.getAttribute('value'), event)");
+      locationLabel.setAttribute("oncommand", "launchBrowser(this.getAttribute('value'), event)");
+      itemLocation.replaceWith(locationLabel);
+    } else {
+      itemLocation.value = location;
+    }
   }
 
   let categories = item.getCategories();
@@ -517,5 +533,18 @@ function openAttachment(aAttachmentId) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(attachments[0].uri);
+  }
+}
+
+/**
+ * Copy the value of the given link node to the clipboard.
+ *
+ * @param {string} linkNode The node containing the value to copy to the clipboard.
+ */
+function locationCopyLink(linkNode) {
+  if (linkNode) {
+    let linkAddress = linkNode.value;
+    let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
+    clipboard.copyString(linkAddress);
   }
 }

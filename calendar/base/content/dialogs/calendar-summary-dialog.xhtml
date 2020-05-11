@@ -191,7 +191,7 @@
           </html:td>
         </html:tr>
         <html:tr id="location-row" hidden="hidden">
-          <html:th for="item-location">
+          <html:th>
             &read.only.location.label;
           </html:th>
           <html:td>
@@ -239,7 +239,7 @@
         </html:tr>
         <separator id="item-main-separator" class="groove" flex="1" hidden="true"/>
         <html:tr id="reminder-row" hidden="hidden">
-          <html:th for="item-alarm">
+          <html:th>
             &read.only.reminder.label;
           </html:th>
           <html:td>
@@ -347,7 +347,7 @@
           </html:td>
         </html:tr>
         <html:tr id="attachments-row" class="item-attachments-row" hidden="hidden" >
-          <html:th for="item-attachment-cell">
+          <html:th>
             &read.only.attachments.label;
           </html:th>
           <html:td>
@@ -419,5 +419,13 @@
            oncommand="launchBrowser(this.getAttribute('href'), event)"
            crop="end"/>
   </box>
+
+  <!-- LOCATION LINK CONTEXT MENU -->
+  <menupopup id="location-link-context-menu">
+    <menuitem id="location-link-context-menu-copy"
+              label="&calendar.copylink.label;"
+              accesskey="&calendar.copylink.accesskey;"
+              oncommand="locationCopyLink(document.popupNode)"/>
+  </menupopup>
 </dialog>
 </window>

@@ -199,6 +199,7 @@ label.label {
   margin-inline-start: 0;
 }
 
+#item-location-link,
 #item-location,
 #item-title {
   margin: 0;
