@@ -3298,7 +3298,7 @@ int32_t nsPop3Protocol::TopResponse(nsIInputStream *inputStream,
       m_url->GetHost(hostName);
 
       nsTextFormatter::ssprintf(statusString, statusTemplate.get(),
-                                hostName.get());
+                                NS_ConvertUTF8toUTF16(hostName).get());
       UpdateStatusWithString(statusString.get());
     }
 

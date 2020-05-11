@@ -4008,7 +4008,7 @@ nsresult nsMsgComposeAndSend::MimeDoFCC(nsIFile *input_file,
       nsTextFormatter::ssprintf(printfString, msg.get(),
                                 mSavedToFolderName.get());
     else
-      nsTextFormatter::ssprintf(printfString, msg.get(), "?");
+      nsTextFormatter::ssprintf(printfString, msg.get(), u"?");
     SetStatusMessage(printfString);
   }
 
