@@ -150,7 +150,6 @@ const PGP_MIME_NEVER = 0;
 const PGP_MIME_POSSIBLE = 1;
 const PGP_MIME_ALWAYS = 2;
 
-const ENIG_POSSIBLE_PGPMIME = EnigmailConstants.POSSIBLE_PGPMIME;
 const ENIG_PGP_DESKTOP_ATT = -2082;
 
 var gUsePGPMimeOptionList = [

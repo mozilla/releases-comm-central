@@ -12,3 +12,6 @@
 <!ENTITY recipient.name "Encrypted for:">
 <!ENTITY email.address "Email address:">
 <!ENTITY issuer.name "Certificate issued by:">
+
+<!-- LOCALIZATION NOTE(SMIME.label): This a name for a technical standard. You should not translate it, but if applicable, you may write it using localized characters. -->
+<!ENTITY SMIME.label "S/MIME">

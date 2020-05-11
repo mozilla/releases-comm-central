@@ -43,6 +43,9 @@ function onLoad() {
   gSignatureStatus = paramBlock.GetInt(1);
   gEncryptionStatus = paramBlock.GetInt(2);
 
+  var hasAnySig = true;
+  var hasAnyEnc = true;
+
   var bundle = document.getElementById("bundle_smime_read_info");
 
   if (bundle) {
@@ -56,6 +59,7 @@ function onLoad() {
       case nsICMSMessageErrors.VERIFY_NOT_SIGNED:
         sigInfoLabel = "SINoneLabel";
         sigInfo = "SINone";
+        hasAnySig = false;
         break;
 
       case nsICMSMessageErrors.SUCCESS:
@@ -142,6 +146,7 @@ function onLoad() {
       case -1:
         encInfoLabel = "EINoneLabel2";
         encInfo = "EINone";
+        hasAnyEnc = false;
         break;
 
       case nsICMSMessageErrors.SUCCESS:
@@ -161,6 +166,10 @@ function onLoad() {
         break;
       default:
         Cu.reportError("Unexpected gEncryptionStatus: " + gEncryptionStatus);
+    }
+
+    if (hasAnyEnc || hasAnySig) {
+      document.getElementById("techLabel").collapsed = false;
     }
 
     document.getElementById("encryptionLabel").value = bundle.getString(

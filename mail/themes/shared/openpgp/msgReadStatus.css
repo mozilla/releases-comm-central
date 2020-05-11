@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* ===== msgReadSecurityInfo.css ========================================
-  == Styles for the security info window when displaying received mail.
-  ======================================================================= */
-
 @import url("chrome://messenger/skin/messenger.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
@@ -19,7 +15,7 @@
   font-weight: bold;
 }
 
-#signatureCert {
+#signatureKey {
   margin: 5px;
 }
 
@@ -27,6 +23,6 @@
   font-weight: bold;
 }
 
-#encryptionCert {
+#encryptionKey {
   margin: 5px;
 }

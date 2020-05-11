@@ -566,6 +566,7 @@ MimeDecryptHandler.prototype = {
       const cApi = EnigmailCryptoAPI();
       EnigmailLog.DEBUG("mimeDecrypt.jsm: got API: " + cApi.api_name + "\n");
       this.returnStatus = cApi.sync(cApi.decryptMime(this.outQueue, options));
+
       if (!this.returnStatus) {
         this.returnStatus = {
           decryptedData: "",

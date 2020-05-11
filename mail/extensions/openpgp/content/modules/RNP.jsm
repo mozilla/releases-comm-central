@@ -258,7 +258,6 @@ var RNP = {
       RNPLib.rnp_identifier_iterator_destroy(iter);
     }
 
-    console.debug(keys);
     return keys;
   },
 
@@ -610,6 +609,7 @@ var RNP = {
 
     result.userId = "";
     result.keyId = "";
+    result.encToDetails = "";
 
     let verify_op = new RNPLib.rnp_op_verify_t();
     result.exitCode = RNPLib.rnp_op_verify_create(
@@ -619,7 +619,12 @@ var RNP = {
       output_to_memory
     );
 
+    RNPLib.password_cb_collected_info = {};
     result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
+    let rnplib_context = RNPLib.password_cb_collected_info;
+    if (rnplib_context.context == "decrypt") {
+      result.encToDetails = rnplib_context.keyId;
+    }
 
     let useDecryptedData;
     let processSignature;
@@ -638,9 +643,23 @@ var RNP = {
         processSignature = false;
         result.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
         break;
+      case RNPLib.RNP_ERROR_DECRYPT_FAILED:
+        useDecryptedData = false;
+        processSignature = false;
+        result.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
+        break;
+      case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
+        useDecryptedData = false;
+        processSignature = false;
+        result.statusFlags |=
+          EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NO_SECKEY;
+        break;
       default:
         useDecryptedData = false;
         processSignature = false;
+        console.debug(
+          "rnp_op_verify_execute returned unexpected: " + result.exitCode
+        );
         break;
     }
 
@@ -822,50 +841,58 @@ var RNP = {
         if (fromMatchesAnyUid) {
           result.extStatusFlags |= EnigmailConstants.EXT_SELF_IDENTITY;
           useUndecided = false;
+        } else {
+          result.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+          useUndecided = true;
         }
       } else if (result.statusFlags & EnigmailConstants.GOOD_SIGNATURE) {
-        let acceptanceResult = {};
-        try {
-          await PgpSqliteDb2.getAcceptance(
-            keyInfo.fpr,
-            fromLower,
-            acceptanceResult
-          );
-        } catch (ex) {
-          console.debug("getAcceptance failed: " + ex);
-        }
+        if (!fromMatchesAnyUid) {
+          /* At the time the user had accepted the key,
+           * a different set of email addresses might have been
+           * contained inside the key. In the meantime, we might
+           * have refreshed the key, a email addresses
+           * might have been removed or revoked.
+           * If the current from was removed/revoked, we'd still
+           * get an acceptance match, but the from is no longer found
+           * in the key's UID list. That should get "undecided".
+           */
+          result.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
+          useUndecided = true;
+        } else {
+          let acceptanceResult = {};
+          try {
+            await PgpSqliteDb2.getAcceptance(
+              keyInfo.fpr,
+              fromLower,
+              acceptanceResult
+            );
+          } catch (ex) {
+            console.debug("getAcceptance failed: " + ex);
+          }
 
-        // unverified key acceptance means, we consider the signature OK,
-        //   but it's not a trusted identity.
-        // unverified signature means, we cannot decide if the signature
-        //   is ok.
+          // unverified key acceptance means, we consider the signature OK,
+          //   but it's not a trusted identity.
+          // unverified signature means, we cannot decide if the signature
+          //   is ok.
 
-        if (
-          "emailDecided" in acceptanceResult &&
-          acceptanceResult.emailDecided &&
-          "fingerprintAcceptance" in acceptanceResult &&
-          acceptanceResult.fingerprintAcceptance != "undecided"
-        ) {
-          if (acceptanceResult.fingerprintAcceptance == "rejected") {
-            result.statusFlags &= ~EnigmailConstants.GOOD_SIGNATURE;
-            result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
-            useUndecided = false;
-          } else if (!fromMatchesAnyUid) {
-            /* At the time the user had accepted the key,
-             * a different set of email addresses might have been
-             * contained inside the key. In the meantime, we might
-             * have refreshed the key, a email addresses
-             * might have been removed or revoked.
-             * If the current from was removed/revoked, we'd still
-             * get an acceptance match, but the from is no longer found
-             * in the key's UID list. That should get "undecided".
-             */
-            useUndecided = true;
-          } else if (acceptanceResult.fingerprintAcceptance == "verified") {
-            result.statusFlags |= EnigmailConstants.TRUSTED_IDENTITY;
-            useUndecided = false;
-          } else if (acceptanceResult.fingerprintAcceptance == "unverified") {
-            useUndecided = false;
+          if (
+            "emailDecided" in acceptanceResult &&
+            acceptanceResult.emailDecided &&
+            "fingerprintAcceptance" in acceptanceResult &&
+            acceptanceResult.fingerprintAcceptance != "undecided"
+          ) {
+            if (acceptanceResult.fingerprintAcceptance == "rejected") {
+              result.statusFlags &= ~EnigmailConstants.GOOD_SIGNATURE;
+              result.statusFlags |=
+                EnigmailConstants.BAD_SIGNATURE |
+                EnigmailConstants.INVALID_RECIPIENT;
+              useUndecided = false;
+            } else if (acceptanceResult.fingerprintAcceptance == "verified") {
+              result.statusFlags |= EnigmailConstants.TRUSTED_IDENTITY;
+              useUndecided = false;
+            } else if (acceptanceResult.fingerprintAcceptance == "unverified") {
+              useUndecided = false;
+            }
           }
         }
       }
@@ -1138,6 +1165,7 @@ var RNP = {
     // as seen in keyRing.importKeyAsync.
     // (should prevent the incorrect popup "no keys imported".)
 
+    /*
     if (!rv) {
       console.debug(
         "result key listing, rv= %s, result= %s",
@@ -1145,6 +1173,7 @@ var RNP = {
         jsonInfo.readString()
       );
     }
+    */
 
     RNPLib.rnp_buffer_destroy(jsonInfo);
     RNPLib.rnp_input_destroy(input_from_memory);
@@ -2050,8 +2079,6 @@ var RNP = {
       result_len.address(),
       false
     );
-
-    console.debug(exitCode);
 
     if (!exitCode) {
       let char_array = ctypes.cast(

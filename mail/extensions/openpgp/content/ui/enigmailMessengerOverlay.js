@@ -208,6 +208,7 @@ Enigmail.msg = {
 
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: Startup\n");
 
+    /*
     // Override SMIME ui
     overrideAttribute(
       ["cmd_viewSecurityStatus"],
@@ -215,6 +216,7 @@ Enigmail.msg = {
       "",
       ""
     );
+    */
 
     // Override print command
     var printElementIds = [
@@ -310,6 +312,7 @@ Enigmail.msg = {
 
   messageListener: {
     onStartHeaders() {
+      Enigmail.hdrView.reset();
       Enigmail.msg.mimeParts = null;
       let b = document.getElementById("openpgpKeyBox");
       b.setAttribute("hidden", true);
@@ -332,6 +335,7 @@ Enigmail.msg = {
     onEndAttachments() {},
   },
 
+  /*
   viewSecurityInfo(event, displaySmimeMsg) {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: viewSecurityInfo\n");
 
@@ -347,17 +351,7 @@ Enigmail.msg = {
       showMessageReadSecurityInfo();
     }
   },
-
-  viewOpenpgpInfo() {
-    if (Enigmail.msg.securityInfo) {
-      // Thunderbird
-      EnigmailDialog.info(
-        window,
-        EnigmailLocale.getString("securityInfo") +
-          Enigmail.msg.securityInfo.statusInfo
-      );
-    }
-  },
+  */
 
   clearLastMessage() {
     const { EnigmailSingletons } = ChromeUtils.import(

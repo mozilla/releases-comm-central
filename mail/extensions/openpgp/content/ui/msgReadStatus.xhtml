@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/msgReadStatus.css" type="text/css"?>
+
+<!DOCTYPE window [
+<!ENTITY % smimeDTD SYSTEM "chrome://messenger-smime/locale/msgReadSecurityInfo.dtd" >
+%smimeDTD;
+<!ENTITY % openpgpDTD SYSTEM "chrome://openpgp/content/strings/msgReadStatus.dtd" >
+%openpgpDTD;
+]>
+
+<window title="&status.label;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        style="width: 40em; height: 15em"
+        onload="onLoad();">
+<dialog id="msgReadStatus"
+        buttons="accept">
+  <script src="chrome://openpgp/content/ui/msgReadStatus.js"/>
+
+  <stringbundle id="bundle_smime_read_info" src="chrome://messenger-smime/locale/msgSecurityInfo.properties"/>
+  <stringbundle id="bundle_openpgp_read_info" src="chrome://openpgp/content/strings/msgReadStatus.properties"/>
+
+  <vbox flex="1">
+    <label id="techLabel" value="&OpenPGP;" collapsed="true"/>
+
+    <label id="signatureLabel"/>
+    <description id="signatureExplanation"/>
+    <vbox id="signatureKey">
+      <label id="signatureKeyId" collapsed="true"/>
+      <hbox>
+        <button id="viewSignatureKey" label="&ViewSignerKey;"
+                oncommand="viewSignatureKey()" collapsed="true"/>
+      </hbox>
+    </vbox>
+
+    <separator/>
+
+    <label id="encryptionLabel"/>
+    <description id="encryptionExplanation"/>
+    <vbox id="encryptionKey">
+      <label id="encryptionKeyId" collapsed="true"/>
+      <hbox>
+        <button id="viewEncryptionKey" label="&ViewYourEncryptionKey;"
+                oncommand="viewEncryptionKey()" collapsed="true"/>
+      </hbox>
+    </vbox>
+  </vbox>
+</dialog>
+</window>

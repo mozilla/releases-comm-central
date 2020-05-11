@@ -242,11 +242,66 @@ function enableRNPLibJS() {
 
     keep_password_cb_alive: null,
 
+    password_cb_collected_info: {},
+
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
-      console.log(
-        "in RNPLib.password_cb, context: " + pgp_context.readString()
-      );
-      console.log("max_len: " + buf_len);
+      // Before we fullfil the request, we collect context information.
+
+      RNPLib.password_cb_collected_info.context = pgp_context.readString();
+
+      if (RNPLib.password_cb_collected_info.context == "decrypt") {
+        // Get the key ID of the key used to decrypt. If it's a subkey,
+        // we use the ID of the primary key.
+
+        let usePrimaryHandle = false;
+        let primaryHandle = null;
+
+        let is_subkey = new ctypes.bool();
+        if (RNPLib.rnp_key_is_sub(key, is_subkey.address())) {
+          throw new Error("rnp_key_is_sub failed");
+        }
+        if (is_subkey.value) {
+          let primary_grip = new ctypes.char.ptr();
+          if (RNPLib.rnp_key_get_primary_grip(key, primary_grip.address())) {
+            throw new Error("rnp_key_get_primary_grip failed");
+          }
+          if (!primary_grip.isNull()) {
+            primaryHandle = new RNPLib.rnp_key_handle_t();
+            if (
+              RNPLib.rnp_locate_key(
+                ffi,
+                "grip",
+                primary_grip,
+                primaryHandle.address()
+              )
+            ) {
+              throw new Error("rnp_locate_key failed");
+            }
+            if (!primaryHandle.isNull()) {
+              usePrimaryHandle = true;
+            }
+            RNPLib.rnp_buffer_destroy(primary_grip);
+          }
+        }
+
+        let key_id = new ctypes.char.ptr();
+        if (
+          RNPLib.rnp_key_get_keyid(
+            usePrimaryHandle ? primaryHandle : key,
+            key_id.address()
+          )
+        ) {
+          throw new Error("rnp_key_get_keyid failed");
+        }
+        RNPLib.password_cb_collected_info.keyId = key_id.readString();
+        RNPLib.rnp_buffer_destroy(key_id);
+
+        if (primaryHandle) {
+          RNPLib.rnp_key_handle_destroy(primaryHandle);
+        }
+      }
+
+      // Now do what we've been asked to do.
 
       let pass = OpenPGPMasterpass.retrieveOpenPGPPassword();
       var passCTypes = ctypes.char.array()(pass); // UTF-8

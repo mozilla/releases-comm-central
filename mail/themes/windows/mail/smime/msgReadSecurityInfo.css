@@ -10,6 +10,11 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+#techLabel {
+  font-weight: bold;
+  text-align: right;
+}
+
 #signatureLabel {
   font-weight: bold;
 }

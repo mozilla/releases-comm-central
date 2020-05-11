@@ -10,7 +10,7 @@
 
 var gSignedUINode = null;
 var gEncryptedUINode = null;
-var gSMIMEContainer = null;
+var gCryptoContainer = null;
 var gStatusBar = null;
 
 var gEncryptedURIService = null;
@@ -79,7 +79,8 @@ var smimeHeaderSink = {
     gSignatureStatus = aSignatureStatus;
     gSignerCert = aSignerCert;
 
-    gSMIMEContainer.collapsed = false;
+    gCryptoContainer.collapsed = false;
+    gCryptoContainer.setAttribute("tech", "S/MIME");
     gSignedUINode.collapsed = false;
 
     switch (aSignatureStatus) {
@@ -169,7 +170,8 @@ var smimeHeaderSink = {
     gEncryptionStatus = aEncryptionStatus;
     gEncryptionCert = aRecipientCert;
 
-    gSMIMEContainer.collapsed = false;
+    gCryptoContainer.collapsed = false;
+    gCryptoContainer.setAttribute("tech", "S/MIME");
     gEncryptedUINode.collapsed = false;
 
     if (Ci.nsICMSMessageErrors.SUCCESS == aEncryptionStatus) {
@@ -247,7 +249,8 @@ function onSMIMEStartHeaders() {
   gSignerCert = null;
   gEncryptionCert = null;
 
-  gSMIMEContainer.collapsed = true;
+  gCryptoContainer.collapsed = true;
+  gCryptoContainer.removeAttribute("tech");
 
   gSignedUINode.collapsed = true;
   gSignedUINode.removeAttribute("signed");
@@ -296,7 +299,7 @@ function msgHdrViewSMIMEOnLoad(event) {
 
   gSignedUINode = document.getElementById("signedHdrIcon");
   gEncryptedUINode = document.getElementById("encryptedHdrIcon");
-  gSMIMEContainer = document.getElementById("smimeBox");
+  gCryptoContainer = document.getElementById("cryptoBox");
   gStatusBar = document.getElementById("status-bar");
 
   // Add ourself to the list of message display listeners so we get notified
@@ -332,14 +335,14 @@ function msgHdrViewSMIMEOnUnload(event) {
 }
 
 function msgHdrViewSMIMEOnMessagePaneHide() {
-  gSMIMEContainer.collapsed = true;
+  gCryptoContainer.collapsed = true;
   gSignedUINode.collapsed = true;
   gEncryptedUINode.collapsed = true;
 }
 
 function msgHdrViewSMIMEOnMessagePaneUnhide() {
   if (gEncryptionStatus != -1 || gSignatureStatus != -1) {
-    gSMIMEContainer.collapsed = false;
+    gCryptoContainer.collapsed = false;
 
     if (gSignatureStatus != -1) {
       gSignedUINode.collapsed = false;

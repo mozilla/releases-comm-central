@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* globals gDBView, GetNumSelectedMessages */
+/* globals MailConstants, Enigmail, BondOpenPGP */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -43,6 +44,16 @@ function showImapSignatureUnknown() {
 }
 
 function showMessageReadSecurityInfo() {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+    let box = document.getElementById("cryptoBox");
+    let tech = box.getAttribute("tech");
+    if (tech && tech === "OpenPGP") {
+      Enigmail.hdrView.viewOpenpgpInfo();
+      return;
+    }
+  }
+
+  // S/MIME
   let gSignedUINode = document.getElementById("signedHdrIcon");
   if (gSignedUINode && gSignedUINode.getAttribute("signed") == "unknown") {
     showImapSignatureUnknown();
