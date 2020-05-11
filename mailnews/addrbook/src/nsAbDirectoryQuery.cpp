@@ -15,6 +15,7 @@
 #include "nsIAbDirSearchListener.h"
 #include "nsISimpleEnumerator.h"
 #include "nsMsgUtils.h"
+#include "nsQueryObject.h"
 
 NS_IMPL_ISUPPORTS(nsAbDirectoryQuerySimpleBooleanExpression,
                   nsIAbBooleanExpression)
@@ -48,38 +49,23 @@ NS_IMETHODIMP nsAbDirectoryQuerySimpleBooleanExpression::SetOperation(
 
 /* attribute nsIArray expressions; */
 NS_IMETHODIMP nsAbDirectoryQuerySimpleBooleanExpression::GetExpressions(
-    nsIArray** aExpressions) {
-  if (!aExpressions) return NS_ERROR_NULL_POINTER;
-
-  if (!mExpressions) {
-    mExpressions = do_CreateInstance(NS_ARRAY_CONTRACTID);
-    if (!mExpressions) return NS_ERROR_OUT_OF_MEMORY;
-  }
-
-  NS_ADDREF(*aExpressions = mExpressions);
+    nsTArray<RefPtr<nsISupports>>& aExpressions) {
+  aExpressions = mExpressions.Clone();
   return NS_OK;
 }
 
 NS_IMETHODIMP nsAbDirectoryQuerySimpleBooleanExpression::SetExpressions(
-    nsIArray* aExpressions) {
-  if (!aExpressions) return NS_ERROR_NULL_POINTER;
-
+    const nsTArray<RefPtr<nsISupports>>& aExpressions) {
   // Ensure all the items are of the right type.
   nsresult rv;
-  uint32_t count;
-  rv = aExpressions->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIAbBooleanConditionString> queryExpression;
-
-  for (uint32_t i = 0; i < count; ++i) {
-    queryExpression = do_QueryElementAt(aExpressions, i, &rv);
+  for (auto expression : aExpressions) {
+    queryExpression = do_QueryInterface(expression, &rv);
     if (NS_FAILED(rv)) return NS_ERROR_ILLEGAL_VALUE;
   }
 
   // Values ok, so we can just save and return.
-  mExpressions = aExpressions;
-
+  mExpressions = aExpressions.Clone();
   return NS_OK;
 }
 
@@ -329,12 +315,11 @@ nsresult nsAbDirectoryQuery::matchCardExpression(
   nsresult rv = expression->GetOperation(&operation);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIArray> childExpressions;
-  rv = expression->GetExpressions(getter_AddRefs(childExpressions));
+  nsTArray<RefPtr<nsISupports>> childExpressions;
+  rv = expression->GetExpressions(childExpressions);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count;
-  rv = childExpressions->GetLength(&count);
+  uint32_t count = childExpressions.Length();
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (operation == nsIAbBooleanOperationTypes::NOT && count > 1)
@@ -345,12 +330,12 @@ nsresult nsAbDirectoryQuery::matchCardExpression(
   nsCOMPtr<nsIAbBooleanExpression> childExpression;
 
   for (uint32_t i = 0; i < count; i++) {
-    childCondition = do_QueryElementAt(childExpressions, i, &rv);
+    childCondition = do_QueryObject(childExpressions[i], &rv);
     if (NS_SUCCEEDED(rv)) {
       rv = matchCardCondition(card, childCondition, &value);
       NS_ENSURE_SUCCESS(rv, rv);
     } else {
-      childExpression = do_QueryElementAt(childExpressions, i, &rv);
+      childExpression = do_QueryObject(childExpressions[i], &rv);
       if (NS_SUCCEEDED(rv)) {
         rv = matchCardExpression(card, childExpression, &value);
         NS_ENSURE_SUCCESS(rv, rv);

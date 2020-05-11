@@ -658,15 +658,13 @@ static nsresult BuildRestriction(nsIAbBooleanExpression *aLevel,
   aRestriction.rt = RES_COMMENT;
   nsresult retCode = NS_OK;
   nsAbBooleanOperationType operationType = 0;
-  uint32_t nbExpressions = 0;
-  nsCOMPtr<nsIArray> expressions;
+  nsTArray<RefPtr<nsISupports>> expressions;
 
   retCode = aLevel->GetOperation(&operationType);
   NS_ENSURE_SUCCESS(retCode, retCode);
-  retCode = aLevel->GetExpressions(getter_AddRefs(expressions));
+  retCode = aLevel->GetExpressions(expressions);
   NS_ENSURE_SUCCESS(retCode, retCode);
-  retCode = expressions->GetLength(&nbExpressions);
-  NS_ENSURE_SUCCESS(retCode, retCode);
+  uint32_t nbExpressions = expressions.Length();
   if (nbExpressions == 0) {
     PRINTF(("Error, no expressions.\n"));
     return NS_OK;
@@ -680,11 +678,11 @@ static nsresult BuildRestriction(nsIAbBooleanExpression *aLevel,
   bool skipItem = false;
   uint32_t i = 0;
 
-  nsCOMPtr<nsIAbBooleanConditionString> condition;
-  nsCOMPtr<nsIAbBooleanExpression> subExpression;
+  RefPtr<nsIAbBooleanConditionString> condition;
+  RefPtr<nsIAbBooleanExpression> subExpression;
 
   for (i = 0; i < nbExpressions; ++i) {
-    condition = do_QueryElementAt(expressions, i, &retCode);
+    condition = do_QueryObject(expressions[i], &retCode);
 
     if (NS_SUCCEEDED(retCode)) {
       retCode = BuildRestriction(condition, *restrictionArray, skipItem);
@@ -696,7 +694,7 @@ static nsresult BuildRestriction(nsIAbBooleanExpression *aLevel,
       } else
         PRINTF(("Cannot build restriction for item %d %08x.\n", i, retCode));
     } else {
-      subExpression = do_QueryElementAt(expressions, i, &retCode);
+      subExpression = do_QueryObject(expressions[i], &retCode);
 
       if (NS_SUCCEEDED(retCode)) {
         retCode = BuildRestriction(subExpression, *restrictionArray);

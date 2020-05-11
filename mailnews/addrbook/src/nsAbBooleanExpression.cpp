@@ -84,24 +84,15 @@ NS_IMETHODIMP nsAbBooleanExpression::SetOperation(
   return NS_OK;
 }
 
-/* attribute nsIArray expressions; */
-NS_IMETHODIMP nsAbBooleanExpression::GetExpressions(nsIArray **aExpressions) {
-  if (!aExpressions) return NS_ERROR_NULL_POINTER;
-
-  if (!mExpressions) {
-    mExpressions = do_CreateInstance(NS_ARRAY_CONTRACTID);
-
-    if (!mExpressions) return NS_ERROR_OUT_OF_MEMORY;
-  }
-
-  NS_ADDREF(*aExpressions = mExpressions);
+/* attribute Array<nsISupports> expressions; */
+NS_IMETHODIMP nsAbBooleanExpression::GetExpressions(
+    nsTArray<RefPtr<nsISupports>> &aExpressions) {
+  aExpressions = mExpressions.Clone();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbBooleanExpression::SetExpressions(nsIArray *aExpressions) {
-  if (!aExpressions) return NS_ERROR_NULL_POINTER;
-
-  mExpressions = aExpressions;
-
+NS_IMETHODIMP nsAbBooleanExpression::SetExpressions(
+    const nsTArray<RefPtr<nsISupports>> &aExpressions) {
+  mExpressions = aExpressions.Clone();
   return NS_OK;
 }

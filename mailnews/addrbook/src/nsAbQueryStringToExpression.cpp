@@ -13,7 +13,6 @@
 #include "nsAbBooleanExpression.h"
 #include "nsAbBaseCID.h"
 #include "plstr.h"
-#include "nsIMutableArray.h"
 
 /**
  * This code parses the query expression passed in as an addressbook URI.
@@ -108,9 +107,7 @@ nsresult nsAbQueryStringToExpression::ParseExpression(
 nsresult nsAbQueryStringToExpression::ParseExpressions(
     const char** index, nsIAbBooleanExpression* expression) {
   nsresult rv;
-  nsCOMPtr<nsIMutableArray> expressions(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) return NS_ERROR_OUT_OF_MEMORY;
+  nsTArray<RefPtr<nsISupports>> expressions;
 
   // Case: ")(*)(*)....(*))"
   // printf ("Case: )(*)(*)....(*)): %s\n", *index);
@@ -119,7 +116,7 @@ nsresult nsAbQueryStringToExpression::ParseExpressions(
     rv = ParseExpression(index, getter_AddRefs(childExpression));
     NS_ENSURE_SUCCESS(rv, rv);
 
-    expressions->AppendElement(childExpression);
+    expressions.AppendElement(childExpression);
   }
 
   if (**index == 0) return NS_ERROR_FAILURE;

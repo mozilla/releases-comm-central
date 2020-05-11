@@ -35,7 +35,7 @@ class nsAbBooleanExpression : public nsIAbBooleanExpression {
  protected:
   virtual ~nsAbBooleanExpression();
   nsAbBooleanOperationType mOperation;
-  nsCOMPtr<nsIArray> mExpressions;
+  nsTArray<RefPtr<nsISupports>> mExpressions;
 };
 
 #endif

@@ -25,7 +25,7 @@ class nsAbDirectoryQuerySimpleBooleanExpression
   virtual ~nsAbDirectoryQuerySimpleBooleanExpression();
 
  public:
-  nsCOMPtr<nsIArray> mExpressions;
+  nsTArray<RefPtr<nsISupports>> mExpressions;
   nsAbBooleanOperationType mOperation;
 };
 

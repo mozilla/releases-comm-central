@@ -5,7 +5,6 @@
 
 #include "nsISupports.idl"
 
-interface nsIArray;
 typedef long nsAbBooleanConditionType;
 
 /**
@@ -117,6 +116,6 @@ interface nsIAbBooleanExpression: nsISupports
      * e1 [op] e2 [op] .... en
      *
      */
-    attribute nsIArray expressions;
+    attribute Array<nsISupports> expressions;
 };
 

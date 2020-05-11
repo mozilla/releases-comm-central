@@ -26,8 +26,8 @@ class nsAbBoolExprToLDAPFilter {
                                    nsIAbBooleanExpression* expression,
                                    nsCString& filter, int flags);
   static nsresult FilterExpressions(nsIAbLDAPAttributeMap* map,
-                                    nsIArray* expressions, nsCString& filter,
-                                    int flags);
+                                    nsTArray<RefPtr<nsISupports>>& expressions,
+                                    nsCString& filter, int flags);
   static nsresult FilterCondition(nsIAbLDAPAttributeMap* map,
                                   nsIAbBooleanConditionString* condition,
                                   nsCString& filter, int flags);

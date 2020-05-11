@@ -6,8 +6,7 @@
 #include "nsIAbLDAPAttributeMap.h"
 #include "nsAbBoolExprToLDAPFilter.h"
 #include "nsString.h"
-#include "nsIArray.h"
-#include "nsArrayUtils.h"
+#include "nsQueryObject.h"
 
 const int nsAbBoolExprToLDAPFilter::TRANSLATE_CARD_PROPERTY = 1 << 0;
 const int nsAbBoolExprToLDAPFilter::ALLOW_NON_CONVERTABLE_CARD_PROPERTY = 1
@@ -27,12 +26,11 @@ nsresult nsAbBoolExprToLDAPFilter::Convert(nsIAbLDAPAttributeMap* map,
 nsresult nsAbBoolExprToLDAPFilter::FilterExpression(
     nsIAbLDAPAttributeMap* map, nsIAbBooleanExpression* expression,
     nsCString& filter, int flags) {
-  nsCOMPtr<nsIArray> childExpressions;
-  nsresult rv = expression->GetExpressions(getter_AddRefs(childExpressions));
+  nsTArray<RefPtr<nsISupports>> childExpressions;
+  nsresult rv = expression->GetExpressions(childExpressions);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  uint32_t count;
-  rv = childExpressions->GetLength(&count);
+  uint32_t count = childExpressions.Length();
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (count == 0) return NS_OK;
@@ -53,8 +51,8 @@ nsresult nsAbBoolExprToLDAPFilter::FilterExpression(
    */
 
   if (count == 1) {
-    nsCOMPtr<nsIAbBooleanConditionString> childCondition(
-        do_QueryElementAt(childExpressions, 1, &rv));
+    nsCOMPtr<nsIAbBooleanConditionString> childCondition =
+        do_QueryInterface(childExpressions[0], &rv);
     if (NS_SUCCEEDED(rv)) {
       nsCString name;
       rv = childCondition->GetName(getter_Copies(name));
@@ -87,25 +85,22 @@ nsresult nsAbBoolExprToLDAPFilter::FilterExpression(
   return rv;
 }
 
-nsresult nsAbBoolExprToLDAPFilter::FilterExpressions(nsIAbLDAPAttributeMap* map,
-                                                     nsIArray* expressions,
-                                                     nsCString& filter,
-                                                     int flags) {
-  uint32_t count;
-  nsresult rv = expressions->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
+nsresult nsAbBoolExprToLDAPFilter::FilterExpressions(
+    nsIAbLDAPAttributeMap* map, nsTArray<RefPtr<nsISupports>>& expressions,
+    nsCString& filter, int flags) {
+  nsresult rv;
 
   nsCOMPtr<nsIAbBooleanConditionString> childCondition;
   nsCOMPtr<nsIAbBooleanExpression> childExpression;
-  for (uint32_t i = 0; i < count; i++) {
-    childCondition = do_QueryElementAt(expressions, i, &rv);
+  for (auto expression : expressions) {
+    childCondition = do_QueryObject(expression, &rv);
     if (NS_SUCCEEDED(rv)) {
       rv = FilterCondition(map, childCondition, filter, flags);
       NS_ENSURE_SUCCESS(rv, rv);
       continue;
     }
 
-    childExpression = do_QueryElementAt(expressions, i, &rv);
+    childExpression = do_QueryObject(expression, &rv);
     if (NS_SUCCEEDED(rv)) {
       rv = FilterExpression(map, childExpression, filter, flags);
       NS_ENSURE_SUCCESS(rv, rv);
