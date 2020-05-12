@@ -105,12 +105,12 @@ var calprint = {
 
     taskNode.querySelector(".task-title").textContent = item.title;
 
-    let collator = cal.l10n.createLocaleCollator();
+    const collator = new Intl.Collator();
     cal.data.binaryInsertNode(
       taskContainer,
       taskNode,
       item,
-      (a, b) => collator.compareString(0, a, b),
+      collator.compare,
       node => node.item.title
     );
   },

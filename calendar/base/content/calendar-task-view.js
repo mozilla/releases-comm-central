@@ -313,8 +313,8 @@ var taskDetailsView = {
         modified = true;
       }
     } else {
-      let localeCollator = cal.l10n.createLocaleCollator();
-      let compare = localeCollator.compareString.bind(localeCollator, 0);
+      const localeCollator = new Intl.Collator();
+      let compare = localeCollator.compare;
       newIndex = cal.data.binaryInsert(categories, category, compare, true);
 
       let item = document.getElementById("calendar-task-tree").currentTask;

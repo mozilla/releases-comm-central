@@ -16,7 +16,6 @@ function run_test() {
  * getLtnString
  * getDateFmtString
  * formatMonth
- * createLocaleCollator
  */
 
 add_task(async function calendarInfo_test() {

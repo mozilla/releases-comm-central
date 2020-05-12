@@ -142,25 +142,14 @@ var call10n = {
   },
 
   /**
-   * Create a new locale collator
-   *
-   * @return {nsICollation}       A new locale collator
-   */
-  createLocaleCollator() {
-    return Cc["@mozilla.org/intl/collation-factory;1"]
-      .getService(Ci.nsICollationFactory)
-      .CreateCollation();
-  },
-
-  /**
    * Sort an array of strings in place, according to the current locale.
    *
    * @param {String[]} aStringArray   The strings to sort
    * @return {String[]}               The sorted strings, more specifically aStringArray
    */
   sortArrayByLocaleCollator(aStringArray) {
-    let collator = call10n.createLocaleCollator();
-    aStringArray.sort((a, b) => collator.compareString(0, a, b));
+    const collator = new Intl.Collator();
+    aStringArray.sort(collator.compare);
     return aStringArray;
   },
 
