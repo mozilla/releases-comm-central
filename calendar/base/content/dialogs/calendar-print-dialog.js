@@ -292,14 +292,6 @@ document.addEventListener("dialogaccept", event => {
       }
     };
     printWindow.addEventListener("unload", closer);
-
-    if (gSavePrintSettings) {
-      let PSSVC = Cc["@mozilla.org/gfx/printsettings-service;1"].getService(
-        Ci.nsIPrintSettingsService
-      );
-      PSSVC.savePrintSettingsToPrefs(printSettings, true, printSettings.kInitSaveAll);
-      PSSVC.savePrintSettingsToPrefs(printSettings, false, printSettings.kInitSavePrinterName);
-    }
   });
   event.preventDefault(); // leave open
 });
