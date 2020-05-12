@@ -294,7 +294,7 @@ pref("mail.default_html_action", 3);
 // Overrides for generic app behavior from the core all.js
 /////////////////////////////////////////////////////////////////
 
-pref("browser.hiddenWindowChromeURL", "chrome://messenger/content/hiddenWindow.xhtml");
+pref("browser.hiddenWindowChromeURL", "chrome://messenger/content/hiddenWindowMac.xhtml");
 
 pref("offline.startup_state",            2);
 // 0 Ask before sending unsent messages when going online

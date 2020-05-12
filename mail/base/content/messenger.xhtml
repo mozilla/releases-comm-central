@@ -44,59 +44,10 @@
 
 <?xml-stylesheet href="chrome://calendar/skin/lightning-toolbar.css" type="text/css"?>
 
+# All DTD information is stored in a separate file so that it can be shared by
+# hiddenWindowMac.xhtml.
 <!DOCTYPE window [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
-%brandDTD;
-<!ENTITY % msgHdrViewOverlayDTD SYSTEM "chrome://messenger/locale/msgHdrViewOverlay.dtd">
-%msgHdrViewOverlayDTD;
-<!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
-%messengerDTD;
-<!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
-%chatDTD;
-<!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
-%customizeToolbarDTD;
-<!ENTITY % textcontextDTD SYSTEM "chrome://global/locale/textcontext.dtd">
-%textcontextDTD;
-<!ENTITY % tabMailDTD SYSTEM "chrome://messenger/locale/tabmail.dtd" >
-%tabMailDTD;
-<!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
-%quickFilterBarDTD;
-<!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
-%utilityDTD;
-<!ENTITY % editContactOverlayDTD SYSTEM "chrome://messenger/locale/editContactOverlay.dtd">
-%editContactOverlayDTD;
-<!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
-%msgViewPickerDTD;
-<!ENTITY % baseMenuOverlayDTD SYSTEM "chrome://messenger/locale/baseMenuOverlay.dtd">
-%baseMenuOverlayDTD;
-<!ENTITY % charsetDTD SYSTEM "chrome://global/locale/charsetMenu.dtd">
-%charsetDTD;
-<!ENTITY % viewZoomOverlayDTD SYSTEM "chrome://messenger/locale/viewZoomOverlay.dtd">
-%viewZoomOverlayDTD;
-<!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
-%msgReadSMIMEDTD;
-#ifdef MOZ_OPENPGP
-<!ENTITY % bondOpenPGPDTD SYSTEM "chrome://openpgp/content/strings/bond.dtd">
-%bondOpenPGPDTD;
-#endif
-<!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
-%msgViewPickerDTD;
-<!ENTITY % calendarGlobalDTD SYSTEM "chrome://calendar/locale/global.dtd">
-%calendarGlobalDTD;
-<!ENTITY % calendarDTD SYSTEM "chrome://calendar/locale/calendar.dtd">
-%calendarDTD;
-<!ENTITY % calendarMenuOverlayDTD SYSTEM "chrome://calendar/locale/menuOverlay.dtd" >
-%calendarMenuOverlayDTD;
-<!ENTITY % eventDialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
-%eventDialogDTD;
-<!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
-%lightningDTD;
-<!ENTITY % lightningToolbarDTD SYSTEM "chrome://lightning/locale/lightning-toolbar.dtd" >
-%lightningToolbarDTD;
-<!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd" >
-%globalDTD;
-<!ENTITY % mailOverlayDTD SYSTEM "chrome://messenger/locale/mailOverlay.dtd">
-%mailOverlayDTD;
+#include messenger-doctype.inc.dtd
 ]>
 
 <!--
