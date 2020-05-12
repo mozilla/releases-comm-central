@@ -330,14 +330,13 @@ var gPrivacyPane = {
    * Displays a dialog in which the master password may be changed.
    */
   async changeMasterPassword() {
-    // Require OS authentication before the user can set a Master Password
-    if (!LoginHelper.isMasterPasswordSet()) {
-      let messageId = "master-password-os-auth-dialog-message";
-      if (AppConstants.platform == "macosx") {
-        // MacOS requires a special format of this dialog string.
-        // See preferences.ftl for more information.
-        messageId += "-macosx";
-      }
+    // OS reauthenticate functionality is not available on Linux yet (bug 1527745)
+    if (
+      !LoginHelper.isMasterPasswordSet() &&
+      AppConstants.platform != "linux"
+    ) {
+      let messageId =
+        "master-password-os-auth-dialog-message-" + AppConstants.platform;
       let [messageText, captionText] = await L10n.formatMessages([
         {
           id: messageId,
