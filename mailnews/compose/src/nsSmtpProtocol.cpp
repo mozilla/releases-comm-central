@@ -81,8 +81,8 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
   aSmtpUrl->GetPrompt(getter_AddRefs(dialog));
   NS_ENSURE_TRUE(dialog, NS_ERROR_FAILURE);
 
-  nsString msg;
-  nsString eMsg;
+  nsAutoString msg;
+  nsAutoString eMsg;
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(bundleService, NS_ERROR_UNEXPECTED);
@@ -100,9 +100,6 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
 #endif
   switch (aCode) {
     case NS_ERROR_ILLEGAL_LOCALPART:
-      bundle->GetStringFromName("errorIllegalLocalPart", eMsg);
-      nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
-      break;
     case NS_ERROR_SMTP_SERVER_ERROR:
     case NS_ERROR_SMTP_SEND_NOT_ALLOWED:
     case NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED:
@@ -122,9 +119,15 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
         // message string smtpPermSizeExceeded1 contains a %d.
         // (The special case can be removed if that string ever changes, then
         // %d should be changed to %S.)
-        nsTextFormatter::ssprintf(msg, eMsg.get(), atoi(arg1), arg2);
+        nsTextFormatter::ssprintf(msg, eMsg.get(), atoi(arg1), (void *)nullptr);
       } else {
-        nsTextFormatter::ssprintf(msg, eMsg.get(), arg1, arg2);
+        // Some error strings contain %s. We're supplying 16-bit strings,
+        // so replace those with %S. It's a bit hacky. but it saves
+        // us tweaking some pretty old message strings.
+        eMsg.ReplaceSubstring(NS_LITERAL_STRING("%s"), NS_LITERAL_STRING("%S"));
+        nsTextFormatter::ssprintf(
+            msg, eMsg.get(), NS_ConvertUTF8toUTF16(arg1).get(),
+            arg2 ? NS_ConvertUTF8toUTF16(arg2).get() : nullptr);
       }
       break;
     default:
