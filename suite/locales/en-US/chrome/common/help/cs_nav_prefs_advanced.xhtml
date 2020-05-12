@@ -407,15 +407,17 @@
     this if you want &brandShortName; to automatically detect and configure the
     proxy settings, using the <a href="glossary.xhtml#wpad">WPAD protocol</a>.</li>
   <li><strong>Automatic proxy configuration URL</strong>: Choose this if you
-    have a proxy configuration file or URL, then enter the configuration
-    URL.
+    have a proxy auto-configuration (PAC) file or URL, then enter the
+    configuration URL.
     <ul>
       <li><strong>Reload</strong>: Click this to reload the configuration file.
 
-        <p>For more information about Automatic Proxy Configuration, see the
-          online
-          <a href="http://www.mozilla.org/catalog/end-user/customizing/enduserPAC.html">End
-          User Guide to Proxy AutoConfiguration</a>.</p>
+        <p>A PAC file has JavaScript code which chooses a proxy to use depending
+          on the address you open. The same file can use more than one proxy or
+          use proxies only for specific addresses. For more information about
+          the content of PAC files, see the online
+          <a href="https://developer.mozilla.org/docs/Web/HTTP/Proxy_servers_and_tunneling/Proxy_Auto-Configuration_%28PAC%29_file">MDN
+          documentation on Proxy Auto-Configuration files</a>.</p>
       </li>
     </ul>
   </li>
