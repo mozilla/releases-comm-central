@@ -237,6 +237,9 @@
       <hbox id="msgHeaderView" collapsed="true" class="main-header-area">
 #include msgHdrView.inc.xhtml
       </hbox>
+#ifdef MOZ_OPENPGP
+#include msgOpenPGPKey.inc.xhtml
+#endif
       <vbox id="singlemessage">
 #include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
       </vbox>
@@ -267,11 +270,6 @@
       <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
       </vbox>
-#ifdef MOZ_OPENPGP
-      <vbox>
-#include msgOpenPGPKey.inc.xhtml
-      </vbox>
-#endif
       <findbar id="FindToolbar" browserid="messagepane"/>
     </vbox>
   </hbox>

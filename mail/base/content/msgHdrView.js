@@ -2915,18 +2915,16 @@ function toggleAttachmentList(expanded, updateFocus) {
 
     attachmentList.setOptimumWidth();
 
-    let attachmentBarHeight =
-      attachmentView.getBoundingClientRect().height -
-      attachmentList.getBoundingClientRect().height;
-
     // By design, attachmentView should not take up more than 1/4 of the message
     // pane space
-    let maxAttachmentHeight =
-      document.getElementById("messagepanebox").getBoundingClientRect().height /
-      4;
-
-    attachmentList.style.maxHeight =
-      maxAttachmentHeight - attachmentBarHeight + "px";
+    attachmentView.setAttribute(
+      "height",
+      Math.min(
+        attachmentList.preferredHeight,
+        document.getElementById("messagepanebox").getBoundingClientRect()
+          .height / 4
+      )
+    );
 
     if (updateFocus) {
       attachmentList.focus();
@@ -2938,7 +2936,7 @@ function toggleAttachmentList(expanded, updateFocus) {
       "tooltiptext",
       bundle.getString("expandAttachmentPaneTooltip")
     );
-    attachmentList.style.maxHeight = "";
+    attachmentView.removeAttribute("height");
 
     if (updateFocus && document.activeElement == attachmentList) {
       SetFocusMessagePane();

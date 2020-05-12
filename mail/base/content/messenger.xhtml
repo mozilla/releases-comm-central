@@ -737,6 +737,9 @@
 #include msgHdrView.inc.xhtml
                       </hbox>
 #include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
+#ifdef MOZ_OPENPGP
+#include msgOpenPGPKey.inc.xhtml
+#endif
                       <!-- The msgNotificationBar appears on top of the message
                            and displays information like: junk, contains remote
                            images, or is a suspected phishing URL. -->
@@ -772,11 +775,6 @@
                       <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
                       </vbox>
-#ifdef MOZ_OPENPGP
-                      <vbox>
-#include msgOpenPGPKey.inc.xhtml
-                      </vbox>
-#endif
                       <findbar id="FindToolbar" browserid="messagepane"/>
                     </vbox>
                   </vbox>

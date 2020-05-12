@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .attachments-container {
-  display: block;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
 .attachmentList {
@@ -14,8 +16,12 @@
 }
 
 .attachmentList[orient="horizontal"] {
-  display: block;
+  display: flex;
   overflow-x: hidden;
+  flex-wrap: wrap;
+  align-items: start;
+  align-content: start;
+  flex: 1;
 }
 
 .attachmentList[collapsed] {

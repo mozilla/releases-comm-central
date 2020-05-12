@@ -348,6 +348,12 @@ mail-headerfield:focus {
   outline-offset: -1px;
 }
 
+#attachmentView {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+}
+
 #attachmentView,
 #attachmentList {
   border-top: 1px solid var(--splitter-color); /* The same color as the splitters */

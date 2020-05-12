@@ -12,6 +12,10 @@
   color: -moz-DialogText;
 }
 
+#messagesBox {
+  border-bottom: 1px solid var(--splitter-color);
+}
+
 #folderUnreadCol,
 #folderTotalCol,
 #folderSizeCol {
