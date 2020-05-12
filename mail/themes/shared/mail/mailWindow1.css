@@ -12,7 +12,7 @@
   color: -moz-DialogText;
 }
 
-#messagesBox {
+#messagepaneboxwrapper {
   border-bottom: 1px solid var(--splitter-color);
 }
 
