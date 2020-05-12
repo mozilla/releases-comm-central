@@ -2481,6 +2481,17 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
       bool isReplyToSelf = false;
       nsCOMPtr<nsIMsgIdentity> selfIdentity;
       if (!identities.IsEmpty()) {
+        nsTArray<nsCString> toEmailAddressesLower(toEmailAddresses.Length());
+        for (auto email : toEmailAddresses) {
+          ToLowerCase(email);
+          toEmailAddressesLower.AppendElement(email);
+        }
+        nsTArray<nsCString> ccEmailAddressesLower(ccEmailAddresses.Length());
+        for (auto email : ccEmailAddresses) {
+          ToLowerCase(email);
+          ccEmailAddressesLower.AppendElement(email);
+        }
+
         // Go through the identities to see if any of them is the author of
         // the email.
         for (auto lookupIdentity : identities) {
@@ -2491,7 +2502,8 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
 
           // See if it's a reply to own message, but not a reply between
           // identities.
-          if (curIdentityEmail.Equals(fromEmailAddress)) {
+          if (curIdentityEmail.Equals(fromEmailAddress,
+                                      nsCaseInsensitiveCStringComparator())) {
             isReplyToSelf = true;
             // For a true reply-to-self, none of your identities are normally in
             // To or Cc. We need to avoid doing a reply-to-self for people that
@@ -2501,7 +2513,8 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
             for (auto lookupIdentity2 : identities) {
               nsCString curIdentityEmail2;
               lookupIdentity2->GetEmail(curIdentityEmail2);
-              if (toEmailAddresses.Contains(curIdentityEmail2)) {
+              ToLowerCase(curIdentityEmail2);
+              if (toEmailAddressesLower.Contains(curIdentityEmail2)) {
                 // However, "From:me To:me" should be treated as
                 // reply-to-self if we have a Bcc. If we don't have a Bcc we
                 // might have the case of a generated mail of the style
@@ -2509,7 +2522,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
                 // normal reply to the customer.
                 isReplyToSelf = !bcc.IsEmpty();  // true if bcc is set
                 break;
-              } else if (ccEmailAddresses.Contains(curIdentityEmail2)) {
+              } else if (ccEmailAddressesLower.Contains(curIdentityEmail2)) {
                 // If you auto-Cc yourself your email would be in Cc - but we
                 // can't detect why it is in Cc so lets just treat it like a
                 // normal reply.

@@ -754,7 +754,8 @@ add_task(function testMailFollowupTo() {
  */
 add_task(function testReplyToSelfReply() {
   let msg0 = create_message({
-    from: myEmail,
+    // Upper case just to make sure we don't care about case sensitivity.
+    from: myEmail.toUpperCase(),
     to: "Bart <bart@example.com>, Maggie <maggie@example.com>",
     cc: "Lisa <lisa@example.com>",
     subject: "testReplyToSelfReply - reply to self",
