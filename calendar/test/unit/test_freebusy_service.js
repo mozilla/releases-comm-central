@@ -10,6 +10,7 @@ function run_test() {
 
 function really_run_test() {
   test_found();
+  test_noproviders();
   test_failure();
   test_cancel();
 }
@@ -62,6 +63,28 @@ function test_found() {
 
       equal(result.length, 1);
       ok(provider2.called);
+      do_test_finished();
+    },
+  };
+
+  do_test_pending();
+  freebusy.getFreeBusyIntervals(
+    "email",
+    cal.createDateTime("20120101T010101"),
+    cal.createDateTime("20120102T010101"),
+    Ci.calIFreeBusyInterval.BUSY_ALL,
+    listener
+  );
+}
+
+function test_noproviders() {
+  _clearProviders();
+
+  let listener = {
+    onResult(request, result) {
+      ok(!this.called);
+      equal(result.length, 0);
+      equal(request.status, 0);
       do_test_finished();
     },
   };

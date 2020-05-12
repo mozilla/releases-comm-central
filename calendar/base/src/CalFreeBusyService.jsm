@@ -36,7 +36,7 @@ CalFreeBusyListener.prototype = {
     if (this.mFinalListener) {
       if (!aOperation || !aOperation.isPending) {
         --this.mNumOperations;
-        if (this.mNumOperations == 0) {
+        if (this.mNumOperations <= 0) {
           this.opGroup.notifyCompleted();
         }
       }
@@ -63,6 +63,9 @@ CalFreeBusyService.prototype = {
   // calIFreeBusyProvider:
   getFreeBusyIntervals(aCalId, aRangeStart, aRangeEnd, aBusyTypes, aListener) {
     let groupListener = new CalFreeBusyListener(this.mProviders.size, aListener);
+    if (this.mProviders.size == 0) {
+      groupListener.onResult(null, []);
+    }
     for (let provider of this.mProviders.values()) {
       let operation = provider.getFreeBusyIntervals(
         aCalId,
