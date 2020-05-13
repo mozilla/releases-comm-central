@@ -258,13 +258,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 
 /* ::::: address book sidebar ::::: */
 
-#sidebar-box .sidebar-header {
-  -moz-appearance: toolbox;
-  color: -moz-DialogText;
-  text-shadow: none;
-  background-color: -moz-Dialog;
-}
-
 .ab-closebutton > .toolbarbutton-icon {
   margin-inline-end: 0; /* override toolkit's default value */
 }
@@ -394,20 +387,6 @@ menulist::part(dropmarker-icon) {
 }
 
 /* ::::: address book sidebar ::::: */
-
-#sidebar-box .sidebar-header {
-  border-bottom: 1px solid ThreeDShadow;
-  border-top: 1px solid ThreeDHighlight;
-}
-
-@media (-moz-windows-default-theme) {
-  #sidebar-box .sidebar-header {
-    -moz-appearance: none;
-    background-color: #f8f8f8;
-    border-top: 0;
-    border-bottom: 1px solid #a9b1b8;
-  }
-}
 
 #sidebar {
   background-color: -moz-Dialog;

@@ -14,6 +14,26 @@
   --toolbar-color: var(--toolbar-non-lwt-textcolor);
 }
 
+#sidebar-box .sidebar-header {
+  -moz-appearance: none;
+  height: 30px;
+  text-shadow: none;
+  background-color: -moz-Dialog;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05));
+  color: -moz-dialogText;
+  border-bottom: 1px solid var(--tabs-border-color);
+}
+
+:root[lwt-tree] #sidebar-box .sidebar-header {
+  background-color: var(--toolbar-bgcolor);
+  color: var(--lwt-text-color);
+  border-bottom: 1px solid var(--tabs-border-color);
+}
+
+:root[lwt-tree-brighttext] #sidebar-box .sidebar-header {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
+}
+
 /* Styles for the default system dark theme */
 
 :root[lwt-tree] #headers-box {

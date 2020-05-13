@@ -6,94 +6,24 @@
   == Styles for the Address Book sidebar panel.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/messenger.css");
-@import url("chrome://messenger/skin/addressbook/addressbook.css");
+@import url("chrome://messenger/skin/shared/abContactsPanel.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
-#abContactsPanel {
-  -moz-appearance: toolbox;
-  background-color: -moz-Dialog;
-}
 
 #peopleSearchInput {
   min-height: 24px;
 }
 
-#results_box {
-  background-color: transparent;
-}
-
 #abContextMenuButton {
-  margin-top: -4px !important;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
+  margin-top: 0;
+  padding-inline: 0;
 }
 
 #abContextMenuButton > .toolbarbutton-icon {
   margin-inline-end: 0;
-  width: 11px;
-  height: 11px;
 }
 
-#abContextMenuButton > .toolbarbutton-text {
-  display: none;
-}
-
-#abResultsTree {
+:root:not([lwt-tree]) #abResultsTree {
   border-top: 1px solid #a9b1b8;
   border-bottom: 1px solid #a9b1b8;
-}
-
-@media (-moz-windows-default-theme) {
-  button,
-  #abContextMenuButton,
-  #addressbookList {
-    -moz-appearance: none;
-    margin: 1px 4px;
-    padding: 1px 5px !important;
-    border: 1px solid transparent;
-  }
-
-  button,
-  #addressbookList {
-    background: var(--toolbarbutton-hover-background);
-    border-color: var(--toolbarbutton-hover-bordercolor);
-    box-shadow: var(--toolbarbutton-hover-boxshadow);
-    transition-property: background-color, border-color, box-shadow;
-    transition-duration: 150ms;
-  }
-
-  button:hover,
-  #abContextMenuButton:hover,
-  #addressbookList:not([open="true"]):hover {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-  }
-
-  button:hover:active,
-  #abContextMenuButton:hover:active,
-  #addressbookList[open="true"] {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-    box-shadow: var(--toolbarbutton-active-boxshadow);
-    transition: none;
-  }
-}
-
-@media (-moz-windows-compositor) {
-  #abContactsPanel {
-    background-image: linear-gradient(rgba(255, 255, 255, 0.5) 10px,
-                      rgba(255, 255, 255, 0));
-  }
-}
-
-@media (-moz-os-version: windows-win7) and (-moz-windows-default-theme) {
-  #abContactsPanel {
-    -moz-appearance: none;
-  }
-
-  button,
-  #addressbookList {
-    border-radius: 2px;
-  }
 }

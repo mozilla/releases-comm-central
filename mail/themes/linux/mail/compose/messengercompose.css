@@ -316,12 +316,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   background-color: Window;
 }
 
-#sidebar-box .sidebar-header {
-  color: -moz-DialogText;
-  text-shadow: none;
-  background-color: -moz-Dialog;
-}
-
 #sidebar-splitter {
   -moz-appearance: none;
   border-inline-start: 1px solid ThreeDShadow;

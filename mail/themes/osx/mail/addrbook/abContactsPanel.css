@@ -6,32 +6,11 @@
   == Styles for the Address Book sidebar panel.
   ======================================================================= */
 
-@import url("chrome://messenger/skin/messenger.css");
-@import url("chrome://messenger/skin/addressbook/addressbook.css");
+@import url("chrome://messenger/skin/shared/abContactsPanel.css");
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#abContactsPanel {
-  -moz-appearance: none !important;
-  background-color: transparent;
-}
-
 #abContextMenuButton {
-  -moz-appearance: button;
   margin-top: -4px;
-  margin-inline-end: 1px;
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/menu.svg");
-}
-
-#abContextMenuButton > .toolbarbutton-icon {
-  width: 11px;
-  height: 11px;
-}
-
-#abContextMenuButton > .toolbarbutton-text {
-  display: none;
-}
-
-#results_box {
-  background-color: transparent;
+  padding-inline: 4px 0;
 }

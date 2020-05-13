@@ -1,3 +1,6 @@
-<svg id="Icons" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 11 11">
-<path stroke="-moz-dialogtext" d="M 2 2.5 L 9 2.5 L 2 2.5 z M 2 5.5 L 9 5.5 L 2 5.5 z M 2 8.5 L 9 8.5 L 2 8.5 z "/>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 11 11">
+  <path stroke="context-fill" d="M2 2.5h7-7zm0 3h7-7zm0 3h7-7z"/>
 </svg>

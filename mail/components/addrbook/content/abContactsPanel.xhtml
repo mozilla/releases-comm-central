@@ -6,6 +6,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressbook/abContactsPanel.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % abResultsPaneDTD SYSTEM "chrome://messenger/locale/addressbook/abResultsPane.dtd" >
@@ -16,6 +17,7 @@
 
 <window id="abContactsPanel"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        lightweightthemes="true"
         onload="AbPanelLoad();"
         onunload="AbPanelUnload();">
 
@@ -102,9 +104,9 @@
     <hbox id="AbPickerHeader" class="toolbar">
       <label value="&addressbookPicker.label;" accesskey="&addressbookPicker.accesskey;" control="addressbookList"/>
       <spacer flex="1"/>
-      <toolbarbutton id="abContextMenuButton"
-                     tooltiptext="&abContextMenuButton.tooltip;"
-                     onclick="showContextMenu('sidebarAbContextMenu', event, [this, 'after_end', 0, 0, true]);"/>
+      <button id="abContextMenuButton"
+              tooltiptext="&abContextMenuButton.tooltip;"
+              onclick="showContextMenu('sidebarAbContextMenu', event, [this, 'after_end', 0, 0, true]);"/>
     </hbox>
     <hbox id="panel-bar" class="toolbar" align="center">
       <menulist is="menulist-addrbooks" id="addressbookList"
