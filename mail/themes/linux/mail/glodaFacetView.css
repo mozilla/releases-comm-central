@@ -21,6 +21,7 @@
 .facets-sidebar {
   background-color: -moz-Dialog;
   color: -moz-DialogText;
+  font-size: 0.95em;
 }
 
 .facet-more,
