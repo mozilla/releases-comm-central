@@ -30,10 +30,6 @@
   -moz-user-focus: normal;
 }
 
-.emailPopup {
-  -moz-user-focus: normal;
-}
-
 mail-tagfield[collapsed="true"] {
   display: none;
 }

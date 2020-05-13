@@ -36,40 +36,6 @@
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
 
-/** Stock icons for the menu items. */
-
-#fontFaceMenu {
-  list-style-image: url("moz-icon://stock/gtk-select-font?size=menu");
-}
-
-#increaseIndent {
-  list-style-image: url("moz-icon://stock/gtk-indent?size=menu");
-}
-
-#decreaseIndent {
-  list-style-image: url("moz-icon://stock/gtk-unindent?size=menu");
-}
-
-#menu_styleBold {
-  list-style-image: url("moz-icon://stock/gtk-bold?size=menu");
-}
-
-#menu_styleItalic {
-  list-style-image: url("moz-icon://stock/gtk-italic?size=menu");
-}
-
-#menu_styleUnderline {
-  list-style-image: url("moz-icon://stock/gtk-underline?size=menu");
-}
-
-#menu_styleUnderline {
-  list-style-image: url("moz-icon://stock/gtk-underline?size=menu");
-}
-
-#menu_styleStrikeThru {
-  list-style-image: url("moz-icon://stock/gtk-strikethrough?size=menu");
-}
-
 /* ::::: menulists on toolbar ::::: */
 
 menulist {
@@ -354,31 +320,6 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
   color: -moz-DialogText;
   text-shadow: none;
   background-color: -moz-Dialog;
-}
-
-/** Stock icons for the menu items. */
-#menu_NewMessage {
-  list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
-}
-
-#menu_NewContact {
-  list-style-image: url("chrome://messenger/skin/icons/addcontact.svg");
-}
-
-#menu_SaveCmd {
-  list-style-image: url("moz-icon://stock/gtk-save?size=menu");
-}
-
-#menu_SaveAsCmd {
-  list-style-image: url("moz-icon://stock/gtk-save-as?size=menu");
-}
-
-#menu_checkspelling {
-  list-style-image: url("moz-icon://stock/gtk-spell-check?size=menu");
-}
-
-#tasksMenuAddressBook {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/addrbook.png");
 }
 
 #sidebar-splitter {

@@ -193,6 +193,7 @@ h1, h2, h3 {
   height: 24px !important;
   background-position: center center;
   background-repeat: no-repeat;
+  border: 1px solid transparent;
   border-radius: var(--borderRadius);
 }
 
@@ -202,14 +203,16 @@ html[dir="rtl"] .facet-date-zoom-out {
 }
 
 .facetious[type="date"][zoomedout="false"] .facet-date-zoom-out {
-  background-image: url("chrome://messenger/skin/icons/zoomout.png");
-  background-color: #babdb6;
+  background-image: url("chrome://messenger/skin/icons/zoomout.svg");
   cursor: pointer;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .facetious[type="date"][zoomedout="false"] .facet-date-zoom-out:hover {
-  background-image: url("chrome://messenger/skin/icons/zoomout-hover.png");
-  background-color: #729fcf;
+  fill: HighlightText;
+  background-color: Highlight;
+  border-color: -moz-Field;
 }
 
 .date-vis-frame {
@@ -530,7 +533,6 @@ html[dir="rtl"] .bar-link {
   content: "";
 }
 
-
 .message-attachment-icon {
   display: inline-block;
   width: 16px;
@@ -556,7 +558,13 @@ html[dir="rtl"] .message-attachment-icon {
   display: inline-block;
   width: 12px !important;
   height: 12px;
-  background-image: url("chrome://messenger/skin/icons/flag-col.png");
+  background-image: url("chrome://messenger/skin/icons/flagged.svg");
+  background-size: contain;
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: #f4bc44;
+  fill-opacity: 1;
+  stroke: #f4bc44;
+  stroke-opacity: 1;
 }
 
 .message-addresses-group {

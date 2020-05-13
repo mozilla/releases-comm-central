@@ -43,14 +43,6 @@
   color: -moz-FieldText;
 }
 
-#attachmentIcon {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
-  margin-inline-start: 5px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-}
-
 #attachmentName:hover,
 #attachmentName[selected="true"] {
   cursor: pointer;
@@ -66,7 +58,7 @@
 #attachmentSaveAllSingle > .toolbarbutton-menubutton-button,
 #attachmentSaveAllMultiple > .toolbarbutton-menubutton-button {
   /* Make sure that the icon is vertically centered */
-  padding-bottom: 0px !important;
+  padding-bottom: 0 !important;
 }
 
 #attachmentBar {
@@ -179,8 +171,7 @@
   display: -moz-box;
   width: 1px;
   height: 18px;
-  margin-inline-start: -4px !important;
-  margin-inline-end: 3px !important;
+  margin-inline: -4px 3px !important;
   margin-bottom: 0 !important;
   background: hsla(0, 0%, 0%, .3) padding-box;
   box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
@@ -231,11 +222,11 @@
 }
 
 .headerName {
-  color: #A1A1A1; /* lower contrast */
+  color: #a1a1a1; /* lower contrast */
   font-weight: bold;
   text-align: right;
   background-color: transparent;
-  padding: 0px;
+  padding: 0;
   margin-top: 0;
   margin-inline-end: 3px;
 }
@@ -245,8 +236,8 @@
   white-space: normal;
   line-height: 1.4em;
   -moz-appearance: none !important;
-  padding: .1em 0px !important;
-  margin: 0px !important;
+  padding: .1em 0 !important;
+  margin: 0 !important;
   margin-bottom: 3px !important;
 
 
@@ -273,10 +264,8 @@
 
 .messageIdDisplayButton {
   margin: 0;
-  padding-top: 0px !important;
-  padding-bottom: 0px !important;
-  padding-inline-start: 0px !important;
-  padding-inline-end: 0px !important;
+  padding-block: 0 !important;
+  padding-inline: 0 !important;
   background-color: transparent !important;
 }
 
@@ -331,16 +320,8 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
   }
 }
 
-.emailPopup {
-  font-size: inherit;
-  max-height: 7px; /* the height of the image */
-  margin: 0.2em 2px 0; /* 0.2em just to move it off the top of the text */
-  list-style-image: url("chrome://messenger/skin/icons/arrow-dn-7.png");
-}
-
 .emailToggleHeaderfield {
-  margin-inline-end: 3px;
-  margin-inline-start: 1px;
+  margin-inline: 1px 3px;
 }
 
 /* ::::: collapsed view styles ::::: */

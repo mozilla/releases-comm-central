@@ -375,12 +375,14 @@ toolbarpaletteitem toolbarbutton {
 
 #offline-status {
   padding: 0 2px;
-  list-style-image: url("chrome://messenger/skin/icons/online.png");
+  list-style-image: url("chrome://messenger/skin/icons/online.svg");
   -moz-appearance: none;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #offline-status[offline="true"] {
-  list-style-image: url("chrome://messenger/skin/icons/offline.png");
+  list-style-image: url("chrome://messenger/skin/icons/offline.svg");
 }
 
 /* ..... status bar adjustments ..... */

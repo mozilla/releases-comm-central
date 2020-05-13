@@ -74,6 +74,16 @@
   right: -4px;
 }
 
+.starred .star {
+  background-image: url("chrome://messenger/skin/icons/flagged.svg");
+  background-size: contain;
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: #f4bc44;
+  fill-opacity: 1;
+  stroke: #f4bc44;
+  stroke-opacity: 1;
+}
+
 .item_summary {
   margin-inline-start: 19px;
   padding: 0.3ex 0;

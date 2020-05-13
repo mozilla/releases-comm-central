@@ -12,10 +12,6 @@
   margin-bottom: 3px;
 }
 
-.starred .star {
-  background-image: url("chrome://messenger/skin/icons/flaggedmail.png");
-}
-
 #header-view-toolbox {
   font: message-box;
 }

@@ -16,10 +16,6 @@
   margin-right: 0.5em;
 }
 
-.starred .star {
-  background-image: url("chrome://messenger/skin/icons/flag-col.png");
-}
-
 @media not all and (prefers-color-scheme: dark) {
   .toolbarbutton-1.msgHeaderView-button {
     color: -moz-DialogText !important;

@@ -6,17 +6,6 @@
 
 /* styles for the attachment list */
 
-.attachmentcell-icon {
-  margin: 1px;
-  width: 16px;
-  height: 16px;
-}
-
-.attachmentcell-name,
-.attachmentcell-size {
-  padding-top: 1px;
-}
-
 @media (-moz-windows-default-theme) {
   .attachmentItem {
     border: 1px solid transparent;

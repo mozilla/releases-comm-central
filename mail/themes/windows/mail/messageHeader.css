@@ -54,8 +54,7 @@
 }
 
 .findbar-container {
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding-block: 2px;
 }
 
 /* ::::: msg header captions ::::: */
@@ -85,7 +84,7 @@
 .headerName {
   text-align: right;
   background-color: transparent;
-  padding: 0px;
+  padding: 0;
   margin-top: 0;
   margin-inline-end: 3px;
 }
@@ -163,13 +162,6 @@ mail-headerfield.headerValue:focus {
   -moz-image-region: rect(6px 16px 16px 6px);
 }
 
-.emailPopup {
-  font-size: inherit;
-  max-height: 7px; /* the height of the image */
-  margin: 0.2em 2px 0; /* 0.2em just to move it off the top of the text */
-  list-style-image: url("chrome://messenger/skin/icons/arrow-dn-grey.png");
-}
-
 @media (-moz-windows-default-theme: 0) {
   #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
   .main-header-area {
@@ -182,14 +174,6 @@ mail-headerfield.headerValue:focus {
   height: 6px;
 }
 
-#attachmentIcon {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
-  margin-inline-start: 5px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-}
-
 #attachmentSize {
   color: #888a85; /* the same color as .headerName */
 }
@@ -200,14 +184,11 @@ mail-headerfield.headerValue:focus {
 
 .toolbarbutton-1.msgHeaderView-button {
   min-width: 1em;
-  margin-inline-start: 2px !important;
-  margin-inline-end: 2px !important;
-  margin-top: 1px;
-  margin-bottom: 2px;
+  margin-inline: 2px !important;
+  margin-block: 1px 2px;
   vertical-align: middle;
   /* important required to override primaryToolbar.css rules */
-  padding-inline-start: 3px !important;
-  padding-inline-end: 3px !important;
+  padding-inline: 3px !important;
 }
 
 @media (-moz-windows-default-theme: 0) {
@@ -215,14 +196,12 @@ mail-headerfield.headerValue:focus {
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
     -moz-appearance: button;
-    padding-top: 1px !important;
-    padding-bottom: 1px !important;
+    padding-block: 1px !important;
     box-shadow: none !important;
   }
 
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-    padding-inline-start: 3px !important;
-    padding-inline-end: 3px !important;
+    padding-inline: 3px !important;
   }
 }
 
@@ -260,10 +239,9 @@ mail-headerfield.headerValue:focus {
 
 .msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button {
   min-width: 1em;
-  margin: 0px;
+  margin: 0;
   /* important required to override primaryToolbar.css rules */
-  padding-inline-start: 3px !important;
-  padding-inline-end: 3px !important;
+  padding-inline: 3px !important;
 }
 
 /* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,

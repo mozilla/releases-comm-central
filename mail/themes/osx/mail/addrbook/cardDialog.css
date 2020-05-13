@@ -84,7 +84,8 @@ menulist::part(icon) {
 }
 
 #photo {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.svg");
+  box-shadow: 0 0 5px rgba(127, 127, 127, 0.7);
 }
 
 #GenericPhotoList {
@@ -92,7 +93,7 @@ menulist::part(icon) {
 }
 
 #GenericPhotoList[value="default"] {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic-tiny.png");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic-tiny.svg");
 }
 
 #PhotoContainer {
@@ -123,19 +124,4 @@ menulist::part(icon) {
 #ProgressContainer.expanded {
   margin-top: 10px;
   max-height: 40px; /* something higher than the actual height, but not too large */
-}
-
-@media (min-resolution: 2dppx) {
-  #photo {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic@2x.png");
-  }
-
-  #GenericPhotoList[value="default"] {
-    list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic-tiny@2x.png");
-  }
-
-  #GenericPhotoList::part(icon) {
-    width: 16px;
-    height: 16px;
-  }
 }

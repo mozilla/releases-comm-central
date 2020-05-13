@@ -313,3 +313,9 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 #appmenu_addressBook {
   list-style-image: url("chrome://messenger/skin/icons/address.svg");
 }
+
+#button-getAllNewMsg,
+#menu_getnewmsgs_all_accounts,
+#appmenu_getnewmsgs_all_accounts {
+  list-style-image: url("chrome://messenger/skin/icons/get-all.svg");
+}

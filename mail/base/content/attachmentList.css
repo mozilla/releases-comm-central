@@ -82,6 +82,17 @@
   pointer-events: none;
 }
 
+.attachmentcell-icon {
+  margin: 1px;
+  width: 16px;
+  height: 16px;
+}
+
+.attachmentcell-name,
+.attachmentcell-size {
+  padding-top: 1px;
+}
+
 .attachmentcell-size {
   opacity: 0.6;
 }

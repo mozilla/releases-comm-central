@@ -2950,7 +2950,7 @@ function toggleAttachmentList(expanded, updateFocus) {
  */
 function getIconForAttachment(attachment) {
   if (attachment.isDeleted) {
-    return "chrome://messenger/skin/icons/attachment-deleted.png";
+    return "chrome://messenger/skin/icons/attachment-deleted.svg";
   }
   return `moz-icon://${attachment.name}?size=16&amp;contentType=${attachment.contentType}`;
 }

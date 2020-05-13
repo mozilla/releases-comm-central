@@ -81,7 +81,8 @@
 }
 
 #photo {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.svg");
+  box-shadow: 0 0 5px rgba(127, 127, 127, 0.7);
 }
 
 #GenericPhotoList {
@@ -89,7 +90,7 @@
 }
 
 #GenericPhotoList[value="default"] {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic-tiny.png");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic-tiny.svg");
 }
 
 #PhotoContainer {

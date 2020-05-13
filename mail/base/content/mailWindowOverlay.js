@@ -3282,7 +3282,7 @@ var gMessageNotificationBar = {
       let notification = this.msgNotificationBar.appendNotification(
         phishingMsgNote,
         "maybeScam",
-        "chrome://messenger/skin/icons/phishing.png",
+        "chrome://messenger/skin/icons/phishing.svg",
         this.msgNotificationBar.PRIORITY_CRITICAL_MEDIUM,
         buttons
       );

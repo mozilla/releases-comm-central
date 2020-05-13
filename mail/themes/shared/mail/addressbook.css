@@ -121,7 +121,8 @@ treechildren::-moz-tree-image(GeneratedName, MailList) {
 }
 
 #cvPhoto {
-  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.png");
+  list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.svg");
+  box-shadow: 0 0 5px rgba(127, 127, 127, 0.7);
 }
 
 #cvBuddyIcon {

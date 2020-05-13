@@ -50,14 +50,6 @@
   color: -moz-FieldText;
 }
 
-#attachmentIcon {
-  list-style-image: url("chrome://messenger/skin/icons/attach.svg");
-  margin-inline-start: 5px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: currentColor;
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-}
-
 #attachmentName:hover,
 #attachmentName[selected="true"] {
   cursor: pointer;
@@ -96,13 +88,11 @@
 }
 
 .msgHeaderView-button {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-block: 0;
   margin-inline-start: 2px;
   vertical-align: middle;
   min-width: 28px;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-block: 0;
   list-style-image: none; /* overrides the rule from primaryToolbar.css */
 }
 
@@ -178,7 +168,7 @@
   color: #888a85; /* lower contrast */
   text-align: right;
   background-color: transparent;
-  padding: 0px;
+  padding: 0;
   margin-inline-end: 3px;
 }
 
@@ -188,8 +178,8 @@
   color: WindowText;
   line-height: 1.4em;
   -moz-appearance: none !important;
-  padding: .1em 0px !important;
-  margin: 0px !important;
+  padding: .1em 0 !important;
+  margin: 0 !important;
   margin-bottom: 3px !important;
   margin-inline-start: 3px !important;
   border: none !important;
@@ -248,13 +238,6 @@ mail-headerfield.headerValue:focus {
 .emailPresence {
   margin-inline-start: 2px;
   -moz-image-region: rect(6px 16px 16px 6px);
-}
-
-.emailPopup {
-  font-size: inherit;
-  max-height: 7px; /* the height of the image */
-  margin: 0.2em 2px 0px; /* 0.2em just to move it off the top of the text */
-  list-style-image: url("chrome://messenger/skin/icons/arrow-dn-grey.png");
 }
 
 /* This is a workaround for #562608 in the rare case where the buttons_have_icons gconf key is set to true */

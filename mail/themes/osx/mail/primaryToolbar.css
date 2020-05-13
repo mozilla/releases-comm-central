@@ -336,6 +336,12 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
   list-style-image: url("chrome://messenger/skin/icons/address.svg");
 }
 
+#button-getAllNewMsg,
+#menu_getnewmsgs_all_accounts,
+#appmenu_getnewmsgs_all_accounts {
+  list-style-image: url("chrome://messenger/skin/icons/get-all.svg");
+}
+
 .appmenu-edit-button {
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;

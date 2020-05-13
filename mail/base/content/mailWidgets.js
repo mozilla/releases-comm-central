@@ -1611,8 +1611,8 @@
       // Pick out some nice icons (small and large) for the attachment
       if (attachment.contentType == "text/x-moz-deleted") {
         let base = "chrome://messenger/skin/icons/";
-        item.setAttribute("image16", base + "attachment-deleted.png");
-        item.setAttribute("image32", base + "attachment-deleted-large.png");
+        item.setAttribute("image16", base + "attachment-deleted.svg");
+        item.setAttribute("image32", base + "attachment-deleted-large.svg");
       } else {
         let iconName = attachment.name;
         if (iconName.toLowerCase().endsWith(".eml")) {
