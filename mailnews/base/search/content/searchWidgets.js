@@ -477,10 +477,13 @@
         // rebuild the menulist
         UpdateAfterCustomHeaderChange();
         // Find the created or chosen custom header and select it.
+        let menuitem = null;
         if (args.selectedVal) {
-          let menuitem = this.menulist.querySelector(
+          menuitem = this.menulist.querySelector(
             `[label="${args.selectedVal}"]`
           );
+        }
+        if (menuitem) {
           this.value = menuitem.value;
         } else {
           // Nothing was picked in the custom headers editor so just pick something

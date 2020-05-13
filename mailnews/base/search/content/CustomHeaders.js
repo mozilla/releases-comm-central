@@ -153,21 +153,13 @@ function onRemoveHeader() {
     return;
   }
   listitem.remove();
-  var selectedHdr = GetListItemAttributeStr(listitem);
+  var selectedHdr = listitem.firstElementChild.getAttribute("value").trim();
   for (let i = 0; i < gArrayHdrs.length; i++) {
     if (gArrayHdrs[i] == selectedHdr) {
       gArrayHdrs.splice(i, 1);
       break;
     }
   }
-}
-
-function GetListItemAttributeStr(listitem) {
-  if (listitem) {
-    return TrimString(listitem.getAttribute("label"));
-  }
-
-  return "";
 }
 
 function addRow(newHdr) {
