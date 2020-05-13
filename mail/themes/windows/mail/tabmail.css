@@ -39,6 +39,12 @@ tabpanels {
   border-color: -moz-DialogText;
 }
 
+#tabmail-arrowscrollbox[overflow="true"] > .tabmail-tab:first-child::before {
+  content: '';
+  display: -moz-box;
+  margin-inline-start: 0;
+}
+
 /**
  * close buttons
  */

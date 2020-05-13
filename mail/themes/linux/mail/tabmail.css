@@ -54,6 +54,22 @@ tabpanels {
   border-color: -moz-DialogText;
 }
 
+@media (-moz-gtk-csd-reversed-placement: 0) {
+  #tabmail-arrowscrollbox[overflow="true"] > .tabmail-tab:first-child::before {
+    content: '';
+    display: -moz-box;
+    margin-inline-start: 0;
+  }
+}
+
+@media (-moz-gtk-csd-reversed-placement) {
+  .tabmail-tab:first-child::before {
+    content: '';
+    display: -moz-box;
+    margin-inline-start: 0;
+  }
+}
+
 /* Tabstrip close button */
 .tabs-closebutton {
   margin-top: 1px;
