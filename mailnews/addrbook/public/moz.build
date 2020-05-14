@@ -13,6 +13,10 @@ XPIDL_SOURCES += [
     'nsIAbDirectoryQueryProxy.idl',
     'nsIAbDirSearchListener.idl',
     'nsIAbLDAPAttributeMap.idl',
+    'nsIAbLDAPDirectory.idl',
+    'nsIAbLDAPReplicationData.idl',
+    'nsIAbLDAPReplicationQuery.idl',
+    'nsIAbLDAPReplicationService.idl',
     'nsIAbLDIFService.idl',
     'nsIAbListener.idl',
     'nsIAbManager.idl',
@@ -20,14 +24,6 @@ XPIDL_SOURCES += [
     'nsIAddrDatabase.idl',
     'nsIMsgVCardService.idl',
 ]
-
-if CONFIG['MOZ_LDAP_XPCOM']:
-    XPIDL_SOURCES += [
-        'nsIAbLDAPDirectory.idl',
-        'nsIAbLDAPReplicationData.idl',
-        'nsIAbLDAPReplicationQuery.idl',
-        'nsIAbLDAPReplicationService.idl',
-    ]
 
 if CONFIG['OS_ARCH'] == 'WINNT' and CONFIG['MOZ_MAPI_SUPPORT']:
     XPIDL_SOURCES += [

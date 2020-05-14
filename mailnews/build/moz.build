@@ -49,6 +49,3 @@ LOCAL_INCLUDES += [
     '../mime/src',
     '../news/src',
 ]
-
-if CONFIG['MOZ_LDAP_XPCOM']:
-    DEFINES['MOZ_LDAP_XPCOM'] = True

@@ -125,13 +125,11 @@
 #include "nsMsgVCardService.h"
 #include "nsAbLDIFService.h"
 
-#if defined(MOZ_LDAP_XPCOM)
-#  include "nsAbLDAPDirectory.h"
-#  include "nsAbLDAPDirectoryQuery.h"
-#  include "nsAbLDAPReplicationService.h"
-#  include "nsAbLDAPReplicationQuery.h"
-#  include "nsAbLDAPReplicationData.h"
-#endif
+#include "nsAbLDAPDirectory.h"
+#include "nsAbLDAPDirectoryQuery.h"
+#include "nsAbLDAPReplicationService.h"
+#include "nsAbLDAPReplicationQuery.h"
+#include "nsAbLDAPReplicationData.h"
 
 #if defined(MOZ_MAPI_SUPPORT)
 #  include "nsAbOutlookInterface.h"
@@ -441,13 +439,11 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirectoryQueryArguments)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbBooleanConditionString)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbBooleanExpression)
 
-#if defined(MOZ_LDAP_XPCOM)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPDirectory)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPDirectoryQuery)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPReplicationService)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPReplicationQuery)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPProcessReplicationData)
-#endif
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirectoryQueryProxy)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgVCardService)
@@ -473,13 +469,11 @@ NS_DEFINE_NAMED_CID(NS_ABOUTLOOKDIRECTORY_CID);
 NS_DEFINE_NAMED_CID(NS_ABOUTLOOKINTERFACE_CID);
 #endif
 
-#if defined(MOZ_LDAP_XPCOM)
 NS_DEFINE_NAMED_CID(NS_ABLDAPDIRECTORY_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDAPDIRECTORYQUERY_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDAP_REPLICATIONSERVICE_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDAP_REPLICATIONQUERY_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDAP_PROCESSREPLICATIONDATA_CID);
-#endif
 NS_DEFINE_NAMED_CID(NS_ABDIRECTORYQUERYPROXY_CID);
 #ifdef XP_MACOSX
 NS_DEFINE_NAMED_CID(NS_ABOSXDIRECTORY_CID);
@@ -887,7 +881,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
      nsAbBooleanConditionStringConstructor},
     {&kNS_BOOLEANEXPRESSION_CID, false, NULL, nsAbBooleanExpressionConstructor},
 
-#if defined(MOZ_LDAP_XPCOM)
     {&kNS_ABLDAPDIRECTORY_CID, false, NULL, nsAbLDAPDirectoryConstructor},
     {&kNS_ABLDAPDIRECTORYQUERY_CID, false, NULL,
      nsAbLDAPDirectoryQueryConstructor},
@@ -897,7 +890,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
      nsAbLDAPReplicationQueryConstructor},
     {&kNS_ABLDAP_PROCESSREPLICATIONDATA_CID, false, NULL,
      nsAbLDAPProcessReplicationDataConstructor},
-#endif
     {&kNS_ABDIRECTORYQUERYPROXY_CID, false, NULL,
      nsAbDirectoryQueryProxyConstructor},
 #ifdef XP_MACOSX
@@ -1120,7 +1112,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_BOOLEANCONDITIONSTRING_CONTRACTID, &kNS_BOOLEANCONDITIONSTRING_CID},
     {NS_BOOLEANEXPRESSION_CONTRACTID, &kNS_BOOLEANEXPRESSION_CID},
 
-#if defined(MOZ_LDAP_XPCOM)
     {NS_ABLDAPDIRECTORY_CONTRACTID, &kNS_ABLDAPDIRECTORY_CID},
     {NS_ABLDAPDIRECTORYQUERY_CONTRACTID, &kNS_ABLDAPDIRECTORYQUERY_CID},
     {NS_ABLDAP_REPLICATIONSERVICE_CONTRACTID,
@@ -1128,8 +1119,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_ABLDAP_REPLICATIONQUERY_CONTRACTID, &kNS_ABLDAP_REPLICATIONQUERY_CID},
     {NS_ABLDAP_PROCESSREPLICATIONDATA_CONTRACTID,
      &kNS_ABLDAP_PROCESSREPLICATIONDATA_CID},
-#endif
-
     {NS_ABDIRECTORYQUERYPROXY_CONTRACTID, &kNS_ABDIRECTORYQUERYPROXY_CID},
 #ifdef XP_MACOSX
     {NS_ABOSXDIRECTORY_CONTRACTID, &kNS_ABOSXDIRECTORY_CID},

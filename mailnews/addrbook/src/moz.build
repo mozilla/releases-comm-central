@@ -12,11 +12,18 @@ EXPORTS += [
 SOURCES += [
     'nsAbAddressCollector.cpp',
     'nsAbBooleanExpression.cpp',
+    'nsAbBoolExprToLDAPFilter.cpp',
     'nsAbCardProperty.cpp',
     'nsAbContentHandler.cpp',
     'nsAbDirectoryQuery.cpp',
     'nsAbDirectoryQueryProxy.cpp',
     'nsAbDirProperty.cpp',
+    'nsAbLDAPDirectory.cpp',
+    'nsAbLDAPDirectoryQuery.cpp',
+    'nsAbLDAPListenerBase.cpp',
+    'nsAbLDAPReplicationData.cpp',
+    'nsAbLDAPReplicationQuery.cpp',
+    'nsAbLDAPReplicationService.cpp',
     'nsAbLDIFService.cpp',
     'nsAbQueryStringToExpression.cpp',
     'nsAddbookProtocolHandler.cpp',
@@ -43,27 +50,11 @@ if CONFIG['OS_ARCH'] == 'Darwin':
         'nsAbOSXUtils.mm',
     ]
 
-if CONFIG['MOZ_LDAP_XPCOM']:
-    SOURCES += [
-        'nsAbBoolExprToLDAPFilter.cpp',
-        'nsAbLDAPDirectory.cpp',
-        'nsAbLDAPDirectoryQuery.cpp',
-        'nsAbLDAPListenerBase.cpp',
-        'nsAbLDAPReplicationData.cpp',
-        'nsAbLDAPReplicationQuery.cpp',
-        'nsAbLDAPReplicationService.cpp',
-    ]
-
-    EXTRA_JS_MODULES += [
-        'AbLDAPAutoCompleteSearch.jsm',
-    ]
-
-    DEFINES['MOZ_LDAP_XPCOM'] = True
-
 EXTRA_JS_MODULES += [
     'AbAutoCompleteMyDomain.jsm',
     'AbAutoCompleteSearch.jsm',
     'AbLDAPAttributeMap.jsm',
+    'AbLDAPAutoCompleteSearch.jsm',
 ]
 
 FINAL_LIBRARY = 'mail'

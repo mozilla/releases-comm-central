@@ -5,21 +5,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # =========================================================
-# = LDAP
-# =========================================================
-option('--disable-ldap',
-       help='Disable LDAP support')
-
-
-@depends_if('--enable-ldap')
-def ldap(arg):
-    return True
-
-
-set_config('MOZ_LDAP_XPCOM', ldap)
-set_define('MOZ_LDAP_XPCOM', ldap)
-
-# =========================================================
 # = MAPI support (Windows only)
 # =========================================================
 

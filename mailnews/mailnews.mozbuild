@@ -3,14 +3,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG['MOZ_LDAP_XPCOM']:
-    DIRS += [
-        '/%s/ldap' % CONFIG['commreltopsrcdir'],
-        '/%s/ldap/xpcom' % CONFIG['commreltopsrcdir'],
-    ]
-
 DIRS += [
-    '/%s/mailnews' % CONFIG['commreltopsrcdir'],
     '/%s/db' % CONFIG['commreltopsrcdir'],
+    '/%s/ldap' % CONFIG['commreltopsrcdir'],
+    '/%s/ldap/xpcom' % CONFIG['commreltopsrcdir'],
+    '/%s/mailnews' % CONFIG['commreltopsrcdir'],
 ]
 

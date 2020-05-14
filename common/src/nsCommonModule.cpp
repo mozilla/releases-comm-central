@@ -77,9 +77,7 @@ static const mozilla::Module kCommonModule = {mozilla::Module::kVersion,
 
 extern const mozilla::Module kCalBaseModule;
 extern const mozilla::Module kMorkModule;
-#ifdef MOZ_LDAP_XPCOM
 extern const mozilla::Module kLDAPProtocolModule;
-#endif
 #ifdef MOZ_THUNDERBIRD
 extern const mozilla::Module kMailCompsModule;
 #endif
@@ -98,9 +96,7 @@ class ModulesInit {
     XRE_AddStaticComponent(&kCommonModule);
     XRE_AddStaticComponent(&kCalBaseModule);
     XRE_AddStaticComponent(&kMorkModule);
-#ifdef MOZ_LDAP_XPCOM
     XRE_AddStaticComponent(&kLDAPProtocolModule);
-#endif
 #ifdef MOZ_THUNDERBIRD
     XRE_AddStaticComponent(&kMailCompsModule);
 #endif

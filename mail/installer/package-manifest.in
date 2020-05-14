@@ -293,11 +293,9 @@
 #endif
 
 ; LDAP components
-#ifdef MOZ_LDAP_XPCOM
 @BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@ldif60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
-#endif
 
 ; misson control, autoconfig
 #ifdef MOZ_PREF_EXTENSIONS
