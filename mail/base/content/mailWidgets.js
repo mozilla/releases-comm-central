@@ -43,17 +43,21 @@
     connectedCallback() {
       this.setAttribute("context", "copyPopup");
       this.classList.add("headerValue");
+
+      this._ariaBaseLabel = null;
+      if (this.getAttribute("aria-labelledby")) {
+        this._ariaBaseLabel = document.getElementById(
+          this.getAttribute("aria-labelledby")
+        );
+        this.removeAttribute("aria-labelledby");
+      }
     }
 
     set headerValue(val) {
       // Solve the accessibility problem by manually fetching the translated
       // string from the label and updating the attribute. Bug 1493608
-      if (this.getAttribute("aria-labelledby")) {
-        let ariaLabel = document.getElementById(
-          this.getAttribute("aria-labelledby")
-        );
-        this.setAttribute("aria-label", `${ariaLabel.value}: ${val}`);
-        this.removeAttribute("aria-labelledby");
+      if (this._ariaBaseLabel) {
+        this.setAttribute("aria-label", `${this._ariaBaseLabel.value}: ${val}`);
       }
 
       return (this.textContent = val);
