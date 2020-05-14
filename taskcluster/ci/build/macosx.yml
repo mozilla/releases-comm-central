@@ -38,6 +38,7 @@ macosx64/debug:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-cctools-port
+            - linux64-cctools-clang-9-port
             - linux64-clang-macosx-cross
             - linux64-hfsplus
             - linux64-libdmg
@@ -84,6 +85,7 @@ macosx64/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-cctools-port
+            - linux64-cctools-clang-9-port
             - linux64-clang-macosx-cross
             - linux64-hfsplus
             - linux64-libdmg
@@ -138,6 +140,7 @@ macosx64-shippable/opt:
             - linux64-binutils
             - linux64-cbindgen
             - linux64-cctools-port
+            - linux64-cctools-clang-9-port
             - linux64-clang-macosx-cross
             - linux64-hfsplus
             - linux64-libdmg

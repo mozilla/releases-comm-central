@@ -55,7 +55,7 @@ libotr-macosx64:
         args: ['macosx64']
     toolchain:
         - linux64-binutils
-        - linux64-cctools-port
+        - linux64-cctools-clang-9-port
         - linux64-clang-macosx-cross
         - linux64-llvm-dsymutil
 
