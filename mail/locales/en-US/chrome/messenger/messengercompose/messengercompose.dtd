@@ -84,7 +84,6 @@
 <!ENTITY reorderAttachmentsCmd.key "x">
 <!ENTITY toggleAttachmentPaneCmd.label "Attachment Pane">
 <!ENTITY toggleAttachmentPaneCmd.accesskey "m">
-<!ENTITY toggleAttachmentPaneCmd.key "M">
 <!ENTITY selectAllCmd.accesskey "a">
 <!ENTITY findBarCmd.label "Find…">
 <!ENTITY findBarCmd.accesskey "F">
@@ -254,7 +253,6 @@
 <!ENTITY followupAddr2.label "Followup-To">
 <!ENTITY subject2.label "Subject">
 <!ENTITY subject.accesskey "S">
-<!ENTITY attachmentBucketHeader.tooltip "Attachment Pane">
 <!ENTITY attachmentBucketCloseButton.tooltip "Hide the attachment pane">
 
 <!-- Format Toolbar, imported from editorAppShell.xhtml -->

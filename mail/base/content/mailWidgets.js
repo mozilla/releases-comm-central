@@ -1277,29 +1277,35 @@
       );
 
       this.addEventListener("keypress", event => {
-        // The spacebar should work just like the arrow keys, except that the
-        // focused element doesn't change, so use moveByOffset here.
-        if (event.keyCode == KeyEvent.DOM_VK_SPACE) {
-          this.moveByOffset(0, !event.ctrlKey, event.shiftKey);
-          event.preventDefault();
-        } else if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
-          if (this.currentItem && !event.ctrlKey && !event.shiftKey) {
-            this.addItemToSelection(this.currentItem);
-            let evt = document.createEvent("XULCommandEvent");
-            evt.initCommandEvent(
-              "command",
-              true,
-              true,
-              window,
-              0,
-              event.ctrlKey,
-              event.altKey,
-              event.shiftKey,
-              event.metaKey,
-              null
-            );
-            this.currentItem.dispatchEvent(evt);
-          }
+        switch (event.key) {
+          case " ":
+            // Allow plain spacebar to select the focused item.
+            if (!event.shiftKey && !event.ctrlKey) {
+              this.addItemToSelection(this.currentItem);
+            }
+            // Prevent inbuilt scrolling.
+            event.preventDefault();
+            break;
+
+          case "Enter":
+            if (this.currentItem && !event.ctrlKey && !event.shiftKey) {
+              this.addItemToSelection(this.currentItem);
+              let evt = document.createEvent("XULCommandEvent");
+              evt.initCommandEvent(
+                "command",
+                true,
+                true,
+                window,
+                0,
+                event.ctrlKey,
+                event.altKey,
+                event.shiftKey,
+                event.metaKey,
+                null
+              );
+              this.currentItem.dispatchEvent(evt);
+            }
+            break;
         }
       });
 

@@ -419,17 +419,14 @@
 #ifdef XP_MACOSX
   <key id="key_delete" keycode="VK_BACK" command="cmd_delete"/>
   <key id="key_delete2" keycode="VK_DELETE" command="cmd_delete"/>
-  <key id="key_toggleAttachmentPane"
-       key="&toggleAttachmentPaneCmd.key;" modifiers="control"
-       command="cmd_toggleAttachmentPane"/>
 #else
   <key id="key_delete" keycode="VK_DELETE" command="cmd_delete"/>
   <key id="key_renameAttachment" keycode="VK_F2"
        command="cmd_renameAttachment"/>
-  <key id="key_toggleAttachmentPane"
-       key="&toggleAttachmentPaneCmd.key;" modifiers="alt"
-       command="cmd_toggleAttachmentPane"/>
 #endif
+  <key id="key_toggleAttachmentPane"
+       data-l10n-id="key-toggle-attachment-pane" modifiers="alt"
+       command="cmd_toggleAttachmentPane"/>
   <key id="key_reorderAttachments"
        key="&reorderAttachmentsCmd.key;" modifiers="accel,shift"
        command="cmd_reorderAttachments"/>
@@ -2458,11 +2455,6 @@
                        onselect="attachmentBucketOnSelect();"
                        ondragstart="attachmentBucketDNDObserver.onDragStart(event);"
                        onblur="attachmentBucketOnBlur();"/>
-          <hbox pack="end">
-            <button label="&attachFile.label;"
-                    accesskey="&attachFile.accesskey;"
-                    command="cmd_attachFile"/>
-          </hbox>
         </vbox>
         <vbox id="attachments-placeholder-box"
               hidden="true"

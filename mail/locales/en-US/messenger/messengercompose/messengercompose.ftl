@@ -37,3 +37,22 @@ pill-action-move-cc =
 pill-action-move-bcc =
     .label = Move to Bcc
     .accesskey = B
+
+#   $count (Number) - the number of attachments in the attachment bucket
+attachment-bucket-count =
+    .value = { $count ->
+        [1]      { $count } Attachment
+        *[other] { $count } Attachments
+    }
+    .accesskey = m
+
+#   $count (Number) - the number of attachments in the attachment bucket
+attachments-placeholder-tooltip =
+    .tooltiptext = { $count ->
+        [1]      { $count } Attachment
+        *[other] { $count } Attachments
+    }
+
+#   { attachment-bucket-count.accesskey } - Do not localize this message.
+key-toggle-attachment-pane =
+    .key = { attachment-bucket-count.accesskey }
