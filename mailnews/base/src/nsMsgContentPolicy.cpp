@@ -294,7 +294,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
     return NS_OK;
   }
 
-  // never load unexposed protocols except for http, https and file.
+  // Never load unexposed protocols except for web protocols and file.
   // Protocols like ftp are always blocked.
   if (ShouldBlockUnexposedProtocol(aContentLocation)) return NS_OK;
 
@@ -447,16 +447,19 @@ bool nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation) {
   // check if customized exposed scheme
   if (mCustomExposedProtocols.Contains(contentScheme)) return true;
 
-  bool isData;
   bool isChrome;
-  bool isRes;
-  bool isMozExtension;
   rv = aContentLocation->SchemeIs("chrome", &isChrome);
   NS_ENSURE_SUCCESS(rv, false);
+
+  bool isRes;
   rv = aContentLocation->SchemeIs("resource", &isRes);
   NS_ENSURE_SUCCESS(rv, false);
+
+  bool isData;
   rv = aContentLocation->SchemeIs("data", &isData);
   NS_ENSURE_SUCCESS(rv, false);
+
+  bool isMozExtension;
   rv = aContentLocation->SchemeIs("moz-extension", &isMozExtension);
   NS_ENSURE_SUCCESS(rv, false);
 
@@ -464,22 +467,33 @@ bool nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation) {
 }
 
 /**
- * We block most unexposed protocols - apart from http(s) and file.
+ * We block most unexposed protocols that access remote data
+ * - apart from web protocols, and file.
  */
 bool nsMsgContentPolicy::ShouldBlockUnexposedProtocol(
     nsIURI *aContentLocation) {
-  bool isHttp;
-  bool isHttps;
-  bool isFile;
   // Error condition - we must return true so that we block.
+  bool isHttp;
   nsresult rv = aContentLocation->SchemeIs("http", &isHttp);
   NS_ENSURE_SUCCESS(rv, true);
+
+  bool isHttps;
   rv = aContentLocation->SchemeIs("https", &isHttps);
   NS_ENSURE_SUCCESS(rv, true);
+
+  bool isWs; // websocket
+  rv = aContentLocation->SchemeIs("ws", &isWs);
+  NS_ENSURE_SUCCESS(rv, true);
+
+  bool isWss; // secure websocket
+  rv = aContentLocation->SchemeIs("wss", &isWss);
+  NS_ENSURE_SUCCESS(rv, true);
+
+  bool isFile;
   rv = aContentLocation->SchemeIs("file", &isFile);
   NS_ENSURE_SUCCESS(rv, true);
 
-  return !isHttp && !isHttps && !isFile;
+  return !isHttp && !isHttps && !isWs && !isWss && !isFile;
 }
 
 /**
