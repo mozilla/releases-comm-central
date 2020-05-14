@@ -527,7 +527,7 @@ MailDefaultHandler.prototype = {
   openInExternal(uri) {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
-      .loadURI(uri);
+      .loadURI(uri, null);
   },
 
   handleContent(aContentType, aWindowContext, aRequest) {

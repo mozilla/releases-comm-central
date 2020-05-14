@@ -152,7 +152,7 @@
         // loadURI can throw if the default browser is misconfigured.
         Cc["@mozilla.org/uriloader/external-protocol-service;1"]
           .getService(Ci.nsIExternalProtocolService)
-          .loadURI(uri);
+          .loadURI(uri, null);
       });
 
       this.addEventListener("keypress", event => {

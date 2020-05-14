@@ -721,7 +721,7 @@ function openFormattedURL(aPrefName) {
   var protocolSvc = Cc[
     "@mozilla.org/uriloader/external-protocol-service;1"
   ].getService(Ci.nsIExternalProtocolService);
-  protocolSvc.loadURI(uri);
+  protocolSvc.loadURI(uri, null);
 }
 
 /**

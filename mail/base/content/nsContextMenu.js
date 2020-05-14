@@ -1151,7 +1151,7 @@ nsContextMenu.prototype = {
       .catch(Cu.reportError);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
-      .loadURI(Services.io.newURI(url));
+      .loadURI(Services.io.newURI(url), null);
   },
 
   openLinkInBrowser() {
@@ -1167,7 +1167,7 @@ nsContextMenu.prototype = {
       .catch(Cu.reportError);
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
-      .loadURI(this.linkURI);
+      .loadURI(this.linkURI, null);
   },
 
   mediaCommand(command) {
