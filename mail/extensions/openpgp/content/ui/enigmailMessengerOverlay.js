@@ -314,13 +314,6 @@ Enigmail.msg = {
     onStartHeaders() {
       Enigmail.hdrView.reset();
       Enigmail.msg.mimeParts = null;
-      let b = document.getElementById("openpgpKeyBox");
-      b.setAttribute("hidden", true);
-      b.removeAttribute("keydata");
-
-      let b2 = document.getElementById("signatureKeyBox");
-      b2.setAttribute("hidden", true);
-      b2.removeAttribute("keyid");
 
       /*
       if ("autocrypt" in gExpandedHeaderView) {
@@ -407,6 +400,14 @@ Enigmail.msg = {
     if (exchBox) {
       exchBox.setAttribute("collapsed", "true");
     }
+
+    let b = document.getElementById("openpgpKeyBox");
+    b.setAttribute("hidden", true);
+    b.removeAttribute("keydata");
+
+    let b2 = document.getElementById("signatureKeyBox");
+    b2.setAttribute("hidden", true);
+    b2.removeAttribute("keyid");
 
     this.setAttachmentReveal(null);
 
