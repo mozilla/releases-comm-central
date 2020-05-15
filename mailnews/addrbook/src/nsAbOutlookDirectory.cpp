@@ -269,14 +269,10 @@ NS_IMETHODIMP nsAbOutlookDirectory::DeleteCards(
     return NS_ERROR_FAILURE;
   }
 
-  uint32_t nbCards = aCards.Length();
-  uint32_t i = 0;
   nsAutoCString entryString;
   nsMapiEntry cardEntry;
 
-  for (i = 0; i < nbCards; ++i) {
-    RefPtr<nsIAbCard> card = aCards[i];
-
+  for (auto card : aCards) {
     retCode = ExtractCardEntry(card, entryString);
     if (NS_SUCCEEDED(retCode) && !entryString.IsEmpty()) {
       card->SetDirectoryId(EmptyCString());
