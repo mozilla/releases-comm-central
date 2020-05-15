@@ -134,7 +134,8 @@ class PromptParent extends JSWindowActorParent {
       case "Prompt:Open": {
         let topPrincipal =
           browsingContext.top.currentWindowGlobal.documentPrincipal;
-        args.showAlertOrigin = topPrincipal.equals(args.promptPrincipal);
+        args.showAlertOrigin =
+          args.promptPrincipal && topPrincipal.equals(args.promptPrincipal);
         if (args.modalType === Ci.nsIPrompt.MODAL_TYPE_WINDOW) {
           return this.openWindowPrompt(args, browsingContext);
         }

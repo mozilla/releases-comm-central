@@ -36,6 +36,7 @@ static const char kBlockRemoteImages[] =
     "mailnews.message_display.disable_remote_image";
 static const char kTrustedDomains[] = "mail.trusteddomains";
 
+using namespace mozilla;
 using namespace mozilla::mailnews;
 
 // Per message headder flags to keep track of whether the user is allowing
@@ -152,7 +153,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
   nsCOMPtr<nsIPrincipal> loadingPrincipal = aLoadInfo->GetLoadingPrincipal();
   nsCOMPtr<nsIURI> aRequestingLocation;
   if (loadingPrincipal) {
-    loadingPrincipal->GetURI(getter_AddRefs(aRequestingLocation));
+    BasePrincipal::Cast(loadingPrincipal)->GetURI(getter_AddRefs(aRequestingLocation));
   }
 
   // The default decision at the start of the function is to accept the load.
@@ -303,7 +304,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
   nsCOMPtr<nsIURI> originatorLocation;
   if (!aRequestingContext && aRequestPrincipal) {
     // Can get the URI directly from the principal.
-    rv = aRequestPrincipal->GetURI(getter_AddRefs(originatorLocation));
+    BasePrincipal::Cast(loadingPrincipal)->GetURI(getter_AddRefs(originatorLocation));
   } else {
     rv = GetOriginatingURIForContext(aRequestingContext,
                                      getter_AddRefs(originatorLocation));
