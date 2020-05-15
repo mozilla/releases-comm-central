@@ -304,7 +304,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
   nsCOMPtr<nsIURI> originatorLocation;
   if (!aRequestingContext && aRequestPrincipal) {
     // Can get the URI directly from the principal.
-    BasePrincipal::Cast(loadingPrincipal)->GetURI(getter_AddRefs(originatorLocation));
+    BasePrincipal::Cast(aRequestPrincipal)->GetURI(getter_AddRefs(originatorLocation));
   } else {
     rv = GetOriginatingURIForContext(aRequestingContext,
                                      getter_AddRefs(originatorLocation));
