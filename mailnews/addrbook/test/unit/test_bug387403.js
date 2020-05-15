@@ -6,9 +6,11 @@
 function run_test() {
   // Before bug 387403 this would hang, eating up all the memory until it
   // crashed.
-  Cc["@mozilla.org/addressbook/msgvcardservice;1"]
-    .getService(Ci.nsIMsgVCardService)
-    .escapedVCardToAbCard(
-      "begin:vcard\nfn;quoted-printable:Xxxx=C5=82xx  Xxx\nn;quoted-printable:Xxx;Xxxx=C5=82xx \nadr;quoted-printable;quoted-printable;dom:;;xx. Xxxxxxxxxxxx X;Xxxxxx=C3=3"
-    );
+  try {
+    Cc["@mozilla.org/addressbook/msgvcardservice;1"]
+      .getService(Ci.nsIMsgVCardService)
+      .escapedVCardToAbCard(
+        "begin:vcard\nfn;quoted-printable:Xxxx=C5=82xx  Xxx\nn;quoted-printable:Xxx;Xxxx=C5=82xx \nadr;quoted-printable;quoted-printable;dom:;;xx. Xxxxxxxxxxxx X;Xxxxxx=C3=3"
+      );
+  } catch (ex) {}
 }

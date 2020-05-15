@@ -25,6 +25,7 @@ add_task(async () => {
   let contact1 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
+  contact1.UID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
   contact1.displayName = "contact number one";
   contact1.firstName = "contact";
   contact1.lastName = "one";
@@ -34,6 +35,7 @@ add_task(async () => {
   let contact2 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
     Ci.nsIAbCard
   );
+  contact2.UID = "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy";
   contact2.displayName = "contact number two";
   contact2.firstName = "contact";
   contact2.lastName = "two";

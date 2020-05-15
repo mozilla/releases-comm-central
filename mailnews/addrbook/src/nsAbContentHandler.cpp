@@ -19,9 +19,7 @@
 #include "nsMsgUtils.h"
 #include "nsIMsgVCardService.h"
 #include "nsIAbCard.h"
-#include "nsVCard.h"
 #include "nsIChannel.h"
-#include "nsIMsgVCardService.h"
 //
 // nsAbContentHandler
 //
@@ -147,39 +145,24 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
 
   // take our vCard string and open up an address book window based on it
   nsCOMPtr<nsIMsgVCardService> vCardService =
-      do_GetService(NS_MSGVCARDSERVICE_CONTRACTID);
-  if (vCardService) {
-    mozilla::UniquePtr<VObject> vObj(
-        vCardService->Parse_MIME((const char *)data, datalen));
-    if (vObj) {
-      int32_t len = 0;
-      nsCString vCard;
-      vCard.Adopt(
-          vCardService->WriteMemoryVObjects(0, &len, vObj.get(), false));
+      do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIMsgVCardService> vCardService =
-          do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIAbCard> cardFromVCard;
+  rv = vCardService->EscapedVCardToAbCard((const char *)data,
+                                          getter_AddRefs(cardFromVCard));
+  NS_ENSURE_SUCCESS(rv, rv);
 
-      nsCOMPtr<nsIAbCard> cardFromVCard;
-      rv = vCardService->EscapedVCardToAbCard(vCard.get(),
-                                              getter_AddRefs(cardFromVCard));
-      NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<mozIDOMWindowProxy> domWindow = do_GetInterface(aContext);
+  NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
+  nsCOMPtr<nsPIDOMWindowOuter> parentWindow =
+      nsPIDOMWindowOuter::From(domWindow);
 
-      nsCOMPtr<mozIDOMWindowProxy> domWindow = do_GetInterface(aContext);
-      NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
-      nsCOMPtr<nsPIDOMWindowOuter> parentWindow =
-          nsPIDOMWindowOuter::From(domWindow);
-
-      RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
-      rv = parentWindow->OpenDialog(
-          NS_LITERAL_STRING(
-              "chrome://messenger/content/addressbook/abNewCardDialog.xhtml"),
-          EmptyString(),
-          NS_LITERAL_STRING("chrome,resizable=no,titlebar,modal,centerscreen"),
-          cardFromVCard, getter_AddRefs(dialogWindow));
-    }
-  }
-
-  return rv;
+  RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
+  return parentWindow->OpenDialog(
+      NS_LITERAL_STRING(
+          "chrome://messenger/content/addressbook/abNewCardDialog.xhtml"),
+      EmptyString(),
+      NS_LITERAL_STRING("chrome,resizable=no,titlebar,modal,centerscreen"),
+      cardFromVCard, getter_AddRefs(dialogWindow));
 }

@@ -122,7 +122,6 @@
 #include "nsAbDirectoryQuery.h"
 #include "nsAbBooleanExpression.h"
 #include "nsAbDirectoryQueryProxy.h"
-#include "nsMsgVCardService.h"
 #include "nsAbLDIFService.h"
 
 #include "nsAbLDAPDirectory.h"
@@ -281,11 +280,6 @@
 #include "nsEncryptedSMIMEURIsService.h"
 
 ///////////////////////////////////////////////////////////////////////////////
-// vcard includes
-///////////////////////////////////////////////////////////////////////////////
-#include "nsMimeContentTypeHandler.h"
-
-///////////////////////////////////////////////////////////////////////////////
 // FTS3 Tokenizer
 ///////////////////////////////////////////////////////////////////////////////
 #include "nsFts3TokenizerCID.h"
@@ -294,6 +288,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // PGP/MIME includes
 ////////////////////////////////////////////////////////////////////////////////
+#include "nsMimeContentTypeHandler.h"
 #include "nsPgpMimeProxy.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -446,7 +441,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPReplicationQuery)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDAPProcessReplicationData)
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbDirectoryQueryProxy)
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMsgVCardService)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsAbLDIFService)
 
 #ifdef XP_MACOSX
@@ -479,7 +473,6 @@ NS_DEFINE_NAMED_CID(NS_ABDIRECTORYQUERYPROXY_CID);
 NS_DEFINE_NAMED_CID(NS_ABOSXDIRECTORY_CID);
 NS_DEFINE_NAMED_CID(NS_ABOSXCARD_CID);
 #endif
-NS_DEFINE_NAMED_CID(NS_MSGVCARDSERVICE_CID);
 NS_DEFINE_NAMED_CID(NS_ABLDIFSERVICE_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -721,40 +714,6 @@ NS_DEFINE_NAMED_CID(NS_CMSSECUREMESSAGE_CID);
 NS_DEFINE_NAMED_CID(NS_CERT_PICKER_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
-// vcard factories
-////////////////////////////////////////////////////////////////////////////////
-
-NS_DEFINE_NAMED_CID(NS_VCARD_CONTENT_TYPE_HANDLER_CID);
-
-// XXX this vcard stuff needs cleaned up to use a generic factory constructor
-extern "C" MimeObjectClass *MIME_VCardCreateContentTypeHandlerClass(
-    const char *content_type, contentTypeHandlerInitStruct *initStruct);
-
-static nsresult nsVCardMimeContentTypeHandlerConstructor(nsISupports *aOuter,
-                                                         REFNSIID aIID,
-                                                         void **aResult) {
-  nsresult rv;
-  nsMimeContentTypeHandler *inst = nullptr;
-
-  if (NULL == aResult) {
-    rv = NS_ERROR_NULL_POINTER;
-    return rv;
-  }
-  *aResult = NULL;
-  if (NULL != aOuter) {
-    rv = NS_ERROR_NO_AGGREGATION;
-    return rv;
-  }
-
-  NS_ADDREF(inst = new nsMimeContentTypeHandler(
-                "text/x-vcard", &MIME_VCardCreateContentTypeHandlerClass));
-  rv = inst->QueryInterface(aIID, aResult);
-  NS_RELEASE(inst);
-
-  return rv;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 // PGP/MIME factories
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -896,7 +855,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_ABOSXDIRECTORY_CID, false, NULL, nsAbOSXDirectoryConstructor},
     {&kNS_ABOSXCARD_CID, false, NULL, nsAbOSXCardConstructor},
 #endif
-    {&kNS_MSGVCARDSERVICE_CID, false, NULL, nsMsgVCardServiceConstructor},
     {&kNS_ABLDIFSERVICE_CID, false, NULL, nsAbLDIFServiceConstructor},
     // Bayesian Filter Entries
     {&kNS_BAYESIANFILTER_CID, false, NULL, nsBayesianFilterConstructor},
@@ -1018,9 +976,6 @@ const mozilla::Module::CIDEntry kMailNewsCIDs[] = {
     {&kNS_CMSMESSAGE_CID, false, NULL, nsCMSMessageConstructor},
     {&kNS_CMSSECUREMESSAGE_CID, false, NULL, nsCMSSecureMessageConstructor},
     {&kNS_CERT_PICKER_CID, false, nullptr, nsCertPickerConstructor},
-    // Vcard Entries
-    {&kNS_VCARD_CONTENT_TYPE_HANDLER_CID, false, NULL,
-     nsVCardMimeContentTypeHandlerConstructor},
     // PGP/MIME Entries
     {&kNS_PGPMIME_CONTENT_TYPE_HANDLER_CID, false, NULL,
      nsPgpMimeMimeContentTypeHandlerConstructor},
@@ -1124,7 +1079,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_ABOSXDIRECTORY_CONTRACTID, &kNS_ABOSXDIRECTORY_CID},
     {NS_ABOSXCARD_CONTRACTID, &kNS_ABOSXCARD_CID},
 #endif
-    {NS_MSGVCARDSERVICE_CONTRACTID, &kNS_MSGVCARDSERVICE_CID},
     {NS_ABLDIFSERVICE_CONTRACTID, &kNS_ABLDIFSERVICE_CID},
     // Bayesian Filter Entries
     {NS_BAYESIANFILTER_CONTRACTID, &kNS_BAYESIANFILTER_CID},
@@ -1261,9 +1215,6 @@ const mozilla::Module::ContractIDEntry kMailNewsContracts[] = {
     {NS_CMSMESSAGE_CONTRACTID, &kNS_CMSMESSAGE_CID},
     {NS_CERTPICKDIALOGS_CONTRACTID, &kNS_CERT_PICKER_CID},
     {NS_CERT_PICKER_CONTRACTID, &kNS_CERT_PICKER_CID},
-    // Vcard Entries
-    {"@mozilla.org/mimecth;1?type=text/x-vcard",
-     &kNS_VCARD_CONTENT_TYPE_HANDLER_CID},
     // PGP/MIME Entries
     {"@mozilla.org/mimecth;1?type=multipart/encrypted",
      &kNS_PGPMIME_CONTENT_TYPE_HANDLER_CID},

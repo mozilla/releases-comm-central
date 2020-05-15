@@ -6,7 +6,6 @@
 # pgpmime depends on glue.
 DIRS += [
     'glue',
-    'vcard',
     'pgpmime',
 ]
 

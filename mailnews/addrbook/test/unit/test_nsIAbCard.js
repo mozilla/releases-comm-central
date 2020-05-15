@@ -28,10 +28,55 @@ function run_test() {
 
   // Test - VCard.
 
-  Assert.equal(
-    fullCard.translateTo("vcard"),
-    "begin%3Avcard%0D%0Afn%3ADisplayName1%0D%0An%3ALastName1%3BFirstName1%0D%0Aorg%3AOrganization1%3BDepartment1%0D%0Aadr%3AWorkAddress21%3B%3BWorkAddress1%3BWorkCity1%3BWorkState1%3BWorkZipCode1%3BWorkCountry1%0D%0Aemail%3Binternet%3APrimaryEmail1%40test.invalid%0D%0Atitle%3AJobTitle1%0D%0Atel%3Bwork%3AWorkPhone1%0D%0Atel%3Bfax%3AFaxNumber1%0D%0Atel%3Bpager%3APagerNumber1%0D%0Atel%3Bhome%3AHomePhone1%0D%0Atel%3Bcell%3ACellularNumber1%0D%0Anote%3ANotes1%0D%0Aurl%3Ahttp%3A//WebPage21%0D%0Aversion%3A2.1%0D%0Aend%3Avcard%0D%0A%0D%0A"
+  let actual = fullCard.translateTo("vcard");
+  Assert.ok(actual.startsWith("BEGIN%3AVCARD%0D%0A"));
+  Assert.ok(actual.endsWith("%0D%0AEND%3AVCARD%0D%0A"));
+
+  let lines = decodeURIComponent(actual).split("\r\n");
+  // The theory, the lines of the vCard are valid in any order, so just check
+  // that they exist. In practice they are in this order.
+  Assert.ok(lines.includes("EMAIL:PrimaryEmail1@test.invalid"), "EMAIL");
+  Assert.ok(lines.includes("FN:DisplayName1"), "FN");
+  Assert.ok(lines.includes("NICKNAME:NickName1"), "NICKNAME");
+  Assert.ok(lines.includes("NOTE:Notes1"), "NOTE");
+  Assert.ok(lines.includes("ORG:Organization1;Department1"), "ORG");
+  Assert.ok(lines.includes("TITLE:JobTitle1"), "TITLE");
+  Assert.ok(lines.includes("N:LastName1;FirstName1;;;"), "N");
+  // These two lines wrap. If the wrapping width changes, this test will break.
+  Assert.ok(
+    lines.includes(
+      "ADR;TYPE=home:;HomeAddress21;HomeAddress11;HomeCity1;HomeState1;HomeZipCode"
+    ),
+    "ADR;TYPE=home"
   );
+  Assert.ok(
+    lines.includes(
+      "ADR;TYPE=work:;WorkAddress21;WorkAddress1;WorkCity1;WorkState1;WorkZipCode1"
+    ),
+    "ADR;TYPE=work"
+  );
+  Assert.ok(
+    lines.includes("TEL;TYPE=home;VALUE=TEXT:HomePhone1"),
+    "TEL;TYPE=home"
+  );
+  Assert.ok(
+    lines.includes("TEL;TYPE=work;VALUE=TEXT:WorkPhone1"),
+    "TEL;TYPE=work"
+  );
+  Assert.ok(
+    lines.includes("TEL;TYPE=fax;VALUE=TEXT:FaxNumber1"),
+    "TEL;TYPE=fax"
+  );
+  Assert.ok(
+    lines.includes("TEL;TYPE=pager;VALUE=TEXT:PagerNumber1"),
+    "TEL;TYPE=pager"
+  );
+  Assert.ok(
+    lines.includes("TEL;TYPE=cell;VALUE=TEXT:CellularNumber1"),
+    "TEL;TYPE=cell"
+  );
+  Assert.ok(lines.includes("URL;VALUE=URL:http://WebPage21"), "URL");
+  Assert.ok(lines.includes("UID:fdcb9131-38ec-4daf-a4a7-2ef115f562a7"), "UID");
 
   // Test - XML
 

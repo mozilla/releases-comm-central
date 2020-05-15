@@ -15,13 +15,12 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsMemory.h"
-#include "nsVCardObj.h"
 #include "nsIMutableArray.h"
 #include "nsArrayUtils.h"
 #include "mozITXTToHTMLConv.h"
 #include "nsIAbManager.h"
 #include "nsIUUIDGenerator.h"
-
+#include "nsIMsgVCardService.h"
 #include "nsVariant.h"
 #include "nsIProperty.h"
 #include "nsCOMArray.h"
@@ -507,205 +506,29 @@ NS_IMETHODIMP nsAbCardProperty::Equals(nsIAbCard *card, bool *result) {
 // XXX: Use the category manager instead of this file to implement these
 NS_IMETHODIMP nsAbCardProperty::TranslateTo(const nsACString &type,
                                             nsACString &result) {
-  if (type.EqualsLiteral("base64xml"))
+  if (type.EqualsLiteral("base64xml")) {
     return ConvertToBase64EncodedXML(result);
-  else if (type.EqualsLiteral("xml")) {
+  } else if (type.EqualsLiteral("xml")) {
     nsString utf16String;
     nsresult rv = ConvertToXMLPrintData(utf16String);
     NS_ENSURE_SUCCESS(rv, rv);
     result = NS_ConvertUTF16toUTF8(utf16String);
     return NS_OK;
-  } else if (type.EqualsLiteral("vcard"))
+  } else if (type.EqualsLiteral("vcard")) {
     return ConvertToEscapedVCard(result);
+  }
 
   return NS_ERROR_ILLEGAL_VALUE;
 }
-//
-static VObject *myAddPropValue(VObject *o, const char *propName,
-                               const char16_t *propValue, bool *aCardHasData) {
-  if (aCardHasData) *aCardHasData = true;
-  return addPropValue(o, propName, NS_ConvertUTF16toUTF8(propValue).get());
-}
 
 nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString &aResult) {
-  nsString str;
   nsresult rv;
-  bool vCardHasData = false;
-  VObject *vObj = newVObject(VCCardProp);
-  VObject *t;
+  nsCOMPtr<nsIMsgVCardService> vCardService =
+      do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
-  // [comment from 4.x]
-  // Big flame coming....so Vobject is not designed at all to work with  an
-  // array of attribute values. It wants you to have all of the attributes
-  // easily available. You cannot add one attribute at a time as you find them
-  // to the vobject. Why? Because it creates a property for a particular type
-  // like phone number and then that property has multiple values. This
-  // implementation is not pretty. I can hear my algos prof yelling from
-  // here.....I have to do a linear search through my attributes array for EACH
-  // vcard property we want to set. *sigh* One day I will have time to come back
-  // to this function and remedy this O(m*n) function where n = # attribute
-  // values and m = # of vcard properties....
-
-  (void)GetDisplayName(str);
-  if (!str.IsEmpty()) {
-    // Full name is a field with the same name.
-    t = isAPropertyOf(vObj, VCFullNameProp);
-    if (!t) t = addProp(vObj, VCFullNameProp);
-    myAddPropValue(t, VCFullNameProp, str.get(), &vCardHasData);
-  }
-
-  (void)GetLastName(str);
-  if (!str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCNameProp);
-    if (!t) t = addProp(vObj, VCNameProp);
-    myAddPropValue(t, VCFamilyNameProp, str.get(), &vCardHasData);
-  }
-
-  (void)GetFirstName(str);
-  if (!str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCNameProp);
-    if (!t) t = addProp(vObj, VCNameProp);
-    myAddPropValue(t, VCGivenNameProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kCompanyProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCOrgProp);
-    if (!t) t = addProp(vObj, VCOrgProp);
-    myAddPropValue(t, VCOrgNameProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kDepartmentProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCOrgProp);
-    if (!t) t = addProp(vObj, VCOrgProp);
-    myAddPropValue(t, VCOrgUnitProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kWorkAddress2Property, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCAdrProp);
-    if (!t) t = addProp(vObj, VCAdrProp);
-    myAddPropValue(t, VCPostalBoxProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kWorkAddressProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCAdrProp);
-    if (!t) t = addProp(vObj, VCAdrProp);
-    myAddPropValue(t, VCStreetAddressProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kWorkCityProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCAdrProp);
-    if (!t) t = addProp(vObj, VCAdrProp);
-    myAddPropValue(t, VCCityProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kWorkStateProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCAdrProp);
-    if (!t) t = addProp(vObj, VCAdrProp);
-    myAddPropValue(t, VCRegionProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kWorkZipCodeProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCAdrProp);
-    if (!t) t = addProp(vObj, VCAdrProp);
-    myAddPropValue(t, VCPostalCodeProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kWorkCountryProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = isAPropertyOf(vObj, VCAdrProp);
-    if (!t) t = addProp(vObj, VCAdrProp);
-    myAddPropValue(t, VCCountryNameProp, str.get(), &vCardHasData);
-  } else {
-    // only add this if VCAdrProp already exists
-    t = isAPropertyOf(vObj, VCAdrProp);
-    if (t) {
-      addProp(t, VCDomesticProp);
-    }
-  }
-
-  (void)GetPrimaryEmail(str);
-  if (!str.IsEmpty()) {
-    t = myAddPropValue(vObj, VCEmailAddressProp, str.get(), &vCardHasData);
-    addProp(t, VCInternetProp);
-  }
-
-  rv = GetPropertyAsAString(kJobTitleProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    myAddPropValue(vObj, VCTitleProp, str.get(), &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kWorkPhoneProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = myAddPropValue(vObj, VCTelephoneProp, str.get(), &vCardHasData);
-    addProp(t, VCWorkProp);
-  }
-
-  rv = GetPropertyAsAString(kFaxProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = myAddPropValue(vObj, VCTelephoneProp, str.get(), &vCardHasData);
-    addProp(t, VCFaxProp);
-  }
-
-  rv = GetPropertyAsAString(kPagerProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = myAddPropValue(vObj, VCTelephoneProp, str.get(), &vCardHasData);
-    addProp(t, VCPagerProp);
-  }
-
-  rv = GetPropertyAsAString(kHomePhoneProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = myAddPropValue(vObj, VCTelephoneProp, str.get(), &vCardHasData);
-    addProp(t, VCHomeProp);
-  }
-
-  rv = GetPropertyAsAString(kCellularProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    t = myAddPropValue(vObj, VCTelephoneProp, str.get(), &vCardHasData);
-    addProp(t, VCCellularProp);
-  }
-
-  rv = GetPropertyAsAString(kNotesProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    myAddPropValue(vObj, VCNoteProp, str.get(), &vCardHasData);
-  }
-
-  uint32_t format;
-  rv = GetPropertyAsUint32(kPreferMailFormatProperty, &format);
-  if (NS_SUCCEEDED(rv) && format == nsIAbPreferMailFormat::html) {
-    myAddPropValue(vObj, VCUseHTML, u"TRUE", &vCardHasData);
-  } else if (NS_SUCCEEDED(rv) && format == nsIAbPreferMailFormat::plaintext) {
-    myAddPropValue(vObj, VCUseHTML, u"FALSE", &vCardHasData);
-  }
-
-  rv = GetPropertyAsAString(kWorkWebPageProperty, str);
-  if (NS_SUCCEEDED(rv) && !str.IsEmpty()) {
-    myAddPropValue(vObj, VCURLProp, str.get(), &vCardHasData);
-  }
-
-  myAddPropValue(vObj, VCVersionProp, u"2.1", nullptr);
-
-  if (!vCardHasData) {
-    aResult.Truncate();
-    cleanVObject(vObj);
-    return NS_OK;
-  }
-
-  int len = 0;
-  char *vCard = writeMemVObject(0, &len, vObj);
-  if (vObj) cleanVObject(vObj);
-
-  nsCString escResult;
-  MsgEscapeString(nsDependentCString(vCard), nsINetUtil::ESCAPE_URL_PATH,
-                  escResult);
-  aResult = escResult;
-  return NS_OK;
+  nsCOMPtr<nsIAbCard> cardFromVCard;
+  return vCardService->AbCardToEscapedVCard(this, aResult);
 }
 
 nsresult nsAbCardProperty::ConvertToBase64EncodedXML(nsACString &result) {

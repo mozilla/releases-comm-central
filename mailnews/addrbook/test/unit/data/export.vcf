@@ -1,16 +1,16 @@
-begin:vcard
-fn:contact number one
-n:one;contact
-email;internet:contact1@invalid
-version:2.1
-end:vcard
-
-begin:vcard
-fn:contact number two
-n:two;contact
-email;internet:contact2@invalid
-title:"worker"
-note;quoted-printable:here's some unicode text=E2=80=A6
-version:2.1
-end:vcard
-
+BEGIN:VCARD
+VERSION:4.0
+EMAIL:contact1@invalid
+FN:contact number one
+N:one;contact;;;
+UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+END:VCARD
+BEGIN:VCARD
+VERSION:4.0
+EMAIL:contact2@invalid
+FN:contact number two
+NOTE:here's some unicode text…
+TITLE:"worker"
+N:two;contact;;;
+UID:yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy
+END:VCARD

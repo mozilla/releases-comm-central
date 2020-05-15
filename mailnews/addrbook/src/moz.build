@@ -6,7 +6,6 @@
 EXPORTS += [
     'nsAbDirProperty.h',
     'nsDirPrefs.h',
-    'nsVCardObj.h',
 ]
 
 SOURCES += [
@@ -29,9 +28,6 @@ SOURCES += [
     'nsAddbookProtocolHandler.cpp',
     'nsAddbookUrl.cpp',
     'nsAddrDatabase.cpp',
-    'nsMsgVCardService.cpp',
-    'nsVCard.cpp',
-    'nsVCardObj.cpp',
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT' and CONFIG['MOZ_MAPI_SUPPORT']:

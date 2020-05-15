@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["VCardUtils"];
+const EXPORTED_SYMBOLS = ["VCardService", "VCardMimeConverter", "VCardUtils"];
 
 const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
 
@@ -136,6 +136,73 @@ var VCardUtils = {
   },
 };
 
+function VCardService() {}
+VCardService.prototype = {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgVCardService]),
+  classID: Components.ID("{e2e0f615-bc5a-4441-a16b-a26e75949376}"),
+
+  escapedVCardToAbCard(vCard) {
+    return VCardUtils.vCardToAbCard(decodeURIComponent(vCard));
+  },
+  abCardToEscapedVCard(abCard) {
+    return encodeURIComponent(VCardUtils.abCardToVCard(abCard));
+  },
+};
+
+function VCardMimeConverter() {}
+VCardMimeConverter.prototype = {
+  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleMimeConverter]),
+  classID: Components.ID("{dafab386-bd4c-4238-bb48-228fbc98ba29}"),
+
+  uri: null,
+  convertToHTML(contentType, data) {
+    function escapeHTML(template, ...parts) {
+      let arr = [];
+      for (let i = 0; i < parts.length; i++) {
+        arr.push(template[i]);
+        arr.push(
+          parts[i]
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+        );
+      }
+      arr.push(template[template.length - 1]);
+      return arr.join("");
+    }
+
+    let abCard = VCardUtils.vCardToAbCard(data);
+    let escapedVCard = encodeURIComponent(data);
+
+    let propertiesTable = `<table class="moz-vcard-properties-table">`;
+    propertiesTable += escapeHTML`<tr><td class="moz-vcard-title-property">${abCard.displayName}`;
+    if (abCard.primaryEmail) {
+      propertiesTable += escapeHTML`&nbsp;&lt;<a href="mailto:${abCard.primaryEmail}" private>${abCard.primaryEmail}</a>&gt;`;
+    }
+    propertiesTable += `</td></tr>`;
+    for (let propName of ["JobTitle", "Department", "Company"]) {
+      let propValue = abCard.getProperty(propName, "");
+      if (propValue) {
+        propertiesTable += escapeHTML`<tr><td class="moz-vcard-property">${propValue}</td></tr>`;
+      }
+    }
+    propertiesTable += `</table>`;
+
+    return `<html>
+      <body>
+        <table class="moz-vcard-table">
+          <tr>
+            <td valign="top"><a class="moz-vcard-badge" href="addbook:add?action=add?vcard=${escapedVCard}"></a></td>
+            <td>
+              ${propertiesTable}
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>`;
+  },
+};
 
 /** Helper functions for propertyMap. */
 

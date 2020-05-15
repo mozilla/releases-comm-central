@@ -227,6 +227,7 @@ AddrBookCard.prototype = {
     let cardCopy = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
       Ci.nsIAbCard
     );
+    cardCopy.UID = this.UID;
     cardCopy.copy(this);
     return cardCopy.translateTo(type);
   },
