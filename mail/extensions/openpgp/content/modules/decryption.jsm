@@ -295,12 +295,9 @@ var EnigmailDecryption = {
     }
 
     if (!EnigmailCore.getService(parent)) {
-      EnigmailLog.ERROR(
-        "decryption.jsm: decryptMessage: not yet initialized\n"
-      );
-      errorMsgObj.value = EnigmailLocale.getString("notInit");
       statusFlagsObj.value |= EnigmailConstants.DISPLAY_MESSAGE;
-      return "";
+      throw new Error("decryption.jsm: decryptMessage: not yet initialized");
+      //return "";
     }
 
     /*

@@ -519,26 +519,6 @@ Enigmail.hdrView = {
   },
   */
 
-  /**
-   * Display the Enigmail status bar and ask for handling the Setup Message
-   */
-  /*
-  displayAutoCryptSetupMsgHeader() {
-    Enigmail.hdrView.displayFlexAction(
-      EnigmailLocale.getString("autocryptSetupReq"),
-      EnigmailLocale.getString("autocryptSetupReq.button.label"),
-      "autocrypt-setup"
-    );
-    this.displayAutocryptMessage(true);
-  },
-
-  displayAutocryptMessage(allowImport) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgHdrViewOverlay.js: displayAutocryptMessage()\n"
-    );
-  },
-  */
-
   displayStatusBar() {
     let secInfo = Enigmail.msg.securityInfo;
     let statusFlags = secInfo.statusFlags;

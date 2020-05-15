@@ -319,7 +319,7 @@ function EnigConfirm(mesg, okLabel, cancelLabel) {
 }
 
 function EnigError(mesg) {
-  return gEnigPromptSvc.alert(window, EnigGetString("enigError"), mesg);
+  return gEnigPromptSvc.alert(window, EnigGetString("enigError2"), mesg);
 }
 
 function EnigHelpWindow(source) {

@@ -49,7 +49,7 @@ var EnigmailDialog = {
           ? cancelLabel
           : EnigmailLocale.getString("dlg.button.cancel"),
         iconType: EnigmailConstants.ICONTYPE_QUESTION,
-        dialogTitle: EnigmailLocale.getString("enigConfirm"),
+        dialogTitle: EnigmailLocale.getString("enigConfirm2"),
       },
       null
     );
@@ -72,7 +72,7 @@ var EnigmailDialog = {
         msgtext: mesg,
         button1: EnigmailLocale.getString("dlg.button.close"),
         iconType: EnigmailConstants.ICONTYPE_ALERT,
-        dialogTitle: EnigmailLocale.getString("enigAlert"),
+        dialogTitle: EnigmailLocale.getString("enigAlert2"),
       },
       null
     );
@@ -93,7 +93,7 @@ var EnigmailDialog = {
         msgtext: mesg,
         button1: EnigmailLocale.getString("dlg.button.close"),
         iconType: EnigmailConstants.ICONTYPE_INFO,
-        dialogTitle: EnigmailLocale.getString("enigInfo"),
+        dialogTitle: EnigmailLocale.getString("enigInfo2"),
       },
       null
     );
@@ -214,7 +214,7 @@ var EnigmailDialog = {
   promptValue(win, mesg, valueObj) {
     return Services.prompt.prompt(
       win,
-      EnigmailLocale.getString("enigPrompt"),
+      EnigmailLocale.getString("enigPrompt2"),
       mesg,
       valueObj,
       "",
@@ -246,7 +246,7 @@ var EnigmailDialog = {
         win,
         {
           msgtext: mesg,
-          dialogTitle: EnigmailLocale.getString("enigInfo"),
+          dialogTitle: EnigmailLocale.getString("enigInfo2"),
           iconType: EnigmailConstants.ICONTYPE_INFO,
           checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
         },
@@ -287,7 +287,7 @@ var EnigmailDialog = {
           ? EnigmailLocale.getString("repeatSuffixSingular")
           : EnigmailLocale.getString("repeatSuffixPlural");
     } else {
-      mesg += EnigmailLocale.getString("noRepeat");
+      mesg += EnigmailLocale.getString("noRepeat2");
     }
 
     EnigmailDialog.alert(win, mesg);
@@ -340,7 +340,7 @@ var EnigmailDialog = {
                 : EnigmailLocale.getString("dlg.button.cancel"),
               checkboxLabel: EnigmailLocale.getString("dlgKeepSetting"),
               iconType: EnigmailConstants.ICONTYPE_QUESTION,
-              dialogTitle: EnigmailLocale.getString("enigConfirm"),
+              dialogTitle: EnigmailLocale.getString("enigConfirm2"),
             },
             checkBoxObj
           );
@@ -376,7 +376,7 @@ var EnigmailDialog = {
                 : EnigmailLocale.getString("dlg.button.cancel"),
               checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
               iconType: EnigmailConstants.ICONTYPE_QUESTION,
-              dialogTitle: EnigmailLocale.getString("enigConfirm"),
+              dialogTitle: EnigmailLocale.getString("enigConfirm2"),
             },
             checkBoxObj
           );

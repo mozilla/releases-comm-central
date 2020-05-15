@@ -259,7 +259,7 @@ var EnigmailWindows = {
     EnigmailWindows.openWin(
       "enigmail:logFile",
       "chrome://openpgp/content/ui/enigmailViewFile.xhtml?viewLog=1&title=" +
-        escape(EnigmailLocale.getString("debugLog.title")),
+        escape(EnigmailLocale.getString("debugLog2.title")),
       "centerscreen"
     );
   },

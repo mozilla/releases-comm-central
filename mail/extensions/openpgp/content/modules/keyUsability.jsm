@@ -312,7 +312,7 @@ var EnigmailKeyUsability = {
         actionButtonText = EnigmailLocale.getString("expiry.OpenKeyProperties");
       } else {
         // Multiple keys concerned
-        actionButtonText = EnigmailLocale.getString("expiry.OpenKeyManager");
+        actionButtonText = EnigmailLocale.getString("expiry.OpenKeyManager2");
       }
 
       let checkedObj = {};
@@ -320,7 +320,7 @@ var EnigmailKeyUsability = {
         null,
         {
           msgtext: msg,
-          dialogTitle: EnigmailLocale.getString("enigInfo"),
+          dialogTitle: EnigmailLocale.getString("enigInfo2"),
           checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
           button1: EnigmailLocale.getString("dlg.button.close"),
           button2: actionButtonText,

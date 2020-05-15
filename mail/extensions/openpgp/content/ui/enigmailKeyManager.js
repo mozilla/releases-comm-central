@@ -591,7 +591,7 @@ function enigmailExportKeys() {
     // double check that also the pivate keys shall be exportet
     var r = EnigmailDialog.msgBox(window, {
       msgtext: EnigGetString("exportSecretKey"),
-      dialogTitle: EnigGetString("enigConfirm"),
+      dialogTitle: EnigGetString("enigConfirm2"),
       button1: EnigGetString("keyMan.button.exportPubKey"),
       button2: EnigGetString("keyMan.button.exportSecKey"),
       cancelButton: ":cancel",
@@ -903,7 +903,7 @@ function userAcceptsWarning(warningMessage) {
         button1: EnigGetString("dlg.button.continue"),
         cancelButton: ":cancel",
         iconType: EnigmailConstants.ICONTYPE_QUESTION,
-        dialogTitle: EnigmailLocale.getString("enigConfirm"),
+        dialogTitle: EnigmailLocale.getString("enigConfirm2"),
       },
       checkedObj
     ) === 0;

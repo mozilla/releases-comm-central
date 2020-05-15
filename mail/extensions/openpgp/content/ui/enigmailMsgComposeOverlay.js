@@ -228,7 +228,6 @@ Enigmail.msg = {
 
     Enigmail.msg.composeOpen();
     //Enigmail.msg.processFinalState();
-    Enigmail.msg.updateStatusBar();
     await Enigmail.msg.initialSendFlags();
 
     //Enigmail.msg.setFinalSendMode('final-pgpmimeYes');
@@ -237,7 +236,6 @@ Enigmail.msg = {
   // TODO: call this from global compose when options change
   enigmailComposeProcessFinalState() {
     //Enigmail.msg.processFinalState();
-    Enigmail.msg.updateStatusBar();
   },
 
   /*
@@ -415,7 +413,6 @@ Enigmail.msg = {
       //this.processAccountSpecificDefaultOptions();
       this.determineSendFlags(); // important to use identity specific settings
       //this.processFinalState();
-      this.updateStatusBar();
     }
     */
   },
@@ -823,7 +820,6 @@ Enigmail.msg = {
     } catch (ex) {}
 
     //this.processFinalState();
-    this.updateStatusBar();
     if (selectedElement) {
       selectedElement.focus();
     }
@@ -862,7 +858,6 @@ Enigmail.msg = {
         try {
           await this.determineSendFlags();
           //this.processFinalState();
-          this.updateStatusBar();
         } catch (ex) {
           EnigmailLog.DEBUG(
             "enigmailMsgComposeOverlay: re-determine send flags - ERROR: " +
@@ -1341,17 +1336,7 @@ Enigmail.msg = {
     // ignore settings for this account?
     try {
       if (!this.isAnyEncryptionEnabled() && !this.getSigningEnabled()) {
-        if (EnigmailDialog.confirmDlg(window, EnigmailLocale.getString("configureNow"),
-            EnigmailLocale.getString("msgCompose.button.configure"))) {
-          // configure account settings for the first time
-          this.goAccountManager();
-          if (!Enigmail.msg.wasEnigmailEnabledForIdentity()) {
-            return;
-          }
-        }
-        else {
-          return;
-        }
+        return;
       }
     }
     catch (ex) {}
@@ -1405,7 +1390,6 @@ Enigmail.msg = {
       this.sendModeDirty = true;
     }
     this.processFinalState();
-    this.updateStatusBar();
   },
   */
 
@@ -1476,164 +1460,6 @@ Enigmail.msg = {
     */
   },
 
-  // process icon/strings of status bar buttons and menu entries according to final encrypt/sign/pgpmime status
-  // - uses as INPUT:
-  //   - this.statusEncrypt, this.statusSign
-  // - uses as OUTPUT:
-  //   - resulting icon symbols
-  //   - this.statusEncryptStr, this.statusSignStr, this.statusPGPMimeStr, this.statusInlinePGPStr, this.statusAttachOwnKey
-  //   - this.statusSMimeStr
-  updateStatusBar() {
-    /*
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.updateStatusBar()\n");
-
-    if (!this.identity) {
-      this.identity = getCurrentIdentity();
-    }
-
-    var toolbarTxt = document.getElementById("enigmail-toolbar-text");
-    var encBroadcaster = document.getElementById("enigmail-bc-encrypt");
-    var signBroadcaster = document.getElementById("enigmail-bc-sign");
-    var attachBroadcaster = document.getElementById("enigmail-bc-attach");
-
-    let enc = this.isAnyEncryptionEnabled();
-    let sign = this.getSigningEnabled();
-    // enigmail disabled for this identity?:
-    if (!enc) {
-      // hide icons if enigmail not enabled
-      encBroadcaster.removeAttribute("encrypted");
-      encBroadcaster.setAttribute("disabled", "true");
-    }
-    else {
-      encBroadcaster.removeAttribute("disabled");
-    }
-
-    if (!sign) {
-      signBroadcaster.removeAttribute("signed");
-      signBroadcaster.setAttribute("disabled", "true");
-      attachBroadcaster.setAttribute("disabled", "true");
-    }
-    else {
-      signBroadcaster.removeAttribute("disabled");
-      attachBroadcaster.removeAttribute("disabled");
-    }
-
-    if (!(enc || sign)) {
-      if (toolbarTxt) {
-        toolbarTxt.value = EnigmailLocale.getString("msgCompose.toolbarTxt.disabled");
-        toolbarTxt.removeAttribute("class");
-      }
-      return;
-    }
-
-    // process resulting icon symbol and status strings for encrypt mode
-    var encSymbol = null;
-    var doEncrypt = false;
-    var encReasonStr = null;
-
-    // update encrypt icon and tooltip/menu-text
-    encBroadcaster.setAttribute("encrypted", encSymbol);
-    var encIcon = document.getElementById("button-enigmail-encrypt");
-    if (encIcon) {
-      encIcon.setAttribute("tooltiptext", encReasonStr);
-    }
-    this.statusEncryptedStr = encStr;
-    this.setChecked("enigmail-bc-encrypt", doEncrypt);
-
-    // process resulting icon symbol for sign mode
-    var signSymbol = null;
-    var doSign = false;
-
-    // update sign icon and tooltip/menu-text
-    signBroadcaster.setAttribute("signed", signSymbol);
-    var signIcon = document.getElementById("button-enigmail-sign");
-    if (signIcon) {
-      signIcon.setAttribute("tooltiptext", signReasonStr);
-    }
-    this.statusSignedStr = signStr;
-    this.setChecked("enigmail-bc-sign", doSign);
-
-    // process resulting toolbar message
-    var toolbarMsg = "";
-    if (doSign && doEncrypt) {
-      toolbarMsg = EnigmailLocale.getString("msgCompose.toolbarTxt.signAndEncrypt");
-    }
-    else if (doSign) {
-      toolbarMsg = EnigmailLocale.getString("msgCompose.toolbarTxt.signOnly");
-    }
-    else if (doEncrypt) {
-      toolbarMsg = EnigmailLocale.getString("msgCompose.toolbarTxt.encryptOnly");
-    }
-    else {
-      toolbarMsg = EnigmailLocale.getString("msgCompose.toolbarTxt.noEncryption");
-    }
-
-    if (toolbarTxt) {
-      toolbarTxt.value = toolbarMsg;
-
-      if (Enigmail.msg.getSecurityParams()) {
-        let si = Enigmail.msg.getSecurityParams(null, true);
-        let isSmime = !EnigmailMimeEncrypt.isEnigmailCompField(si);
-
-        if (!doSign && !doEncrypt &&
-          !(isSmime &&
-            (si.signMessage || si.requireEncryptMessage))) {
-          toolbarTxt.setAttribute("class", "enigmailStrong");
-        }
-        else {
-          toolbarTxt.removeAttribute("class");
-        }
-      }
-      else {
-        toolbarTxt.removeAttribute("class");
-      }
-    }
-
-    // update pgp mime/inline PGP menu-text
-    if () {
-      this.statusPGPMimeStr = EnigmailLocale.getString("pgpmimeAuto");
-    }
-    else {
-      this.statusPGPMimeStr = EnigmailLocale.getString("pgpmimeNormal");
-    }
-
-    if () {
-      this.statusInlinePGPStr = EnigmailLocale.getString("inlinePGPAuto");
-    }
-    else {
-      this.statusInlinePGPStr = EnigmailLocale.getString("inlinePGPNormal");
-    }
-
-    if () {
-      this.statusSMimeStr = EnigmailLocale.getString("smimeAuto");
-    }
-    else {
-      this.statusSMimeStr = EnigmailLocale.getString("smimeNormal");
-    }
-
-    this.displaySMimeToolbar();
-
-    if (this.allowAttachOwnKey() === 1) {
-      attachBroadcaster.removeAttribute("disabled");
-    }
-    else {
-      attachBroadcaster.setAttribute("disabled", "true");
-    }
-    */
-  },
-
-  /*
-  displaySMimeToolbar: function() {
-    let s = document.getElementById("signing-status");
-    let e = document.getElementById("encryption-status");
-
-        if (s) s.removeAttribute("collapsed");
-        if (e) e.removeAttribute("collapsed");
-        if (s) s.setAttribute("collapsed", "true");
-        if (e) e.setAttribute("collapsed", "true");
-  },
-  */
-
   /* check if encryption is possible (have keys for everyone or not)
    */
   async determineSendFlags() {
@@ -1688,7 +1514,6 @@ Enigmail.msg = {
 
     // process and signal new resulting state
     //this.processFinalState();
-    this.updateStatusBar();
 
     return detailsObj;
   },
@@ -1724,7 +1549,6 @@ Enigmail.msg = {
     }
 
     //this.processFinalState();
-    this.updateStatusBar();
   },
   */
 
@@ -2305,7 +2129,7 @@ Enigmail.msg = {
 
         var hideBccUsers = promptSvc.confirmEx(
           window,
-          EnigmailLocale.getString("enigConfirm"),
+          EnigmailLocale.getString("enigConfirm2"),
           EnigmailLocale.getString("sendingHiddenRcpt"),
           promptSvc.BUTTON_TITLE_IS_STRING * promptSvc.BUTTON_POS_0 +
             promptSvc.BUTTON_TITLE_CANCEL * promptSvc.BUTTON_POS_1 +
@@ -3595,7 +3419,6 @@ Enigmail.msg = {
     }
 
     //this.processFinalState();
-    this.updateStatusBar();
   },
 
   checkInlinePgpReply(head, tail) {

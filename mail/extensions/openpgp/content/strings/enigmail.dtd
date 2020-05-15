@@ -1,4 +1,3 @@
-<!ENTITY enigmail.label                   "Gine-Liam">
 <!ENTITY enigmail.autocrypt.label         "Autocrypt">
 
 <!ENTITY enigmail.keyUserId.label         "Account / User ID">
@@ -20,8 +19,6 @@
 <!ENTITY enigmail.keyGen.keyType.label    "Key type">
 <!ENTITY enigmail.keyGen.keyType.rsa      "RSA">
 <!ENTITY enigmail.keyGen.keyType.ecc      "ECC (Elliptic Curve)">
-
-<!ENTITY enigmail.preferences.label       "Gine-Liam Preferences">
 
 <!ENTITY enigmail.passwordSettings.label   "Passphrase Timeout">
 <!ENTITY enigmail.expertUserMenus.label    "Display Expert Settings and Menus">
@@ -53,17 +50,12 @@
 <!ENTITY enigmail.maxIdleMinutes.tooltip   "Remember passphrase for a limited time.">
 
 <!ENTITY enigmail.resetPrefsButton.label "Reset">
-<!ENTITY enigmail.resetPrefs.tooltip     "Set all Gine-Liam preferences back to their default value.">
 
 <!ENTITY enigmail.backupPrefsButton.label "Export Settings and Keys">
-<!ENTITY enigmail.backupPrefs.tooltip     "Save all Gine-Liam preferences including your OpenPGP keys to a file.">
 
 <!ENTITY enigmail.restorePrefsButton.label "Restore Settings and Keys">
-<!ENTITY enigmail.restorePrefs.tooltip     "Restore all Gine-Liam preferences including your OpenPGP keys from a file.">
 
 <!ENTITY enigmail.pref.acSetupMessage.button "Initiate Autocrypt Setup">
-
-<!ENTITY enigmail.backupRestore.desc       "Export (backup) and Restore your Gine-Liam settings including your OpenPGP keys.">
 
 <!ENTITY enigmail.acceptance.label            "Your Acceptance">
 <!ENTITY enigmail.acceptance.rejected.label   "No, never use this key. (rejected)">
@@ -81,8 +73,6 @@
 
 <!ENTITY enigmail.moreOptions.label       "More Options">
 <!ENTITY enigmail.general.okLabel         "OK">
-
-<!ENTITY enigmail.useNonDefaultComment.label "Add Gine-Liam comment in OpenPGP signature">
 
 <!ENTITY enigmail.keyserver.label         "Keyserver">
 <!ENTITY enigmail.keyserverDlg.label      "Select Keyserver">
@@ -107,7 +97,6 @@
 <!ENTITY enigmail.autoKeyServerSelection.tooltip   "Take the first keyserver from the list as default">
 
 <!ENTITY enigmail.decryptbutton.label     "Decrypt">
-<!ENTITY enigmail.decryptbutton.tip       "Decrypt or verify the message with Gine-Liam">
 
 <!ENTITY enigmail.doneButton.label        "Done">
 <!ENTITY enigmail.doneButton.accesskey    "D">
@@ -137,12 +126,10 @@
 
 <!ENTITY enigmail.generateKey.label        "Generate key">
 <!ENTITY enigmail.help.label               "Help">
-<!ENTITY enigmail.about.label              "About Gine-Liam">
 <!ENTITY enigmail.reload.label             "Reload Message">
 <!ENTITY enigmail.browse.label             "Browse...">
 <!ENTITY enigmail.sendersKeyMenu.label     "Sender's Key">
 <!ENTITY enigmail.adminSmartCard.label     "Manage SmartCard ...">
-<!ENTITY enigmail.setupWiz.label           "Setup Wizard">
 
 <!ENTITY enigmail.decryptverify.accesskey   "D">
 <!ENTITY enigmail.importpublickey.accesskey "I">
@@ -154,7 +141,6 @@
 
 <!ENTITY enigmail.clearPassphrase.accesskey "l">
 <!ENTITY enigmail.editRules.accesskey       "R">
-<!ENTITY enigmail.setupWiz.accesskey        "S">
 
 
 <!ENTITY enigmail.prefs.accesskey           "P">
@@ -164,8 +150,6 @@
 <!ENTITY enigmail.help.accesskey            "H">
 <!ENTITY enigmail.about.accesskey           "b">
 <!ENTITY enigmail.sendersKeyMenu.accesskey  "K">
-
-<!ENTITY enigmail.composetoolbar.desc         "Gine-Liam Encryption Info">
 
 <!ENTITY enigmail.signedsend.label            "Sign Message">
 <!ENTITY enigmail.encryptedsend.label         "Encrypt Message">
@@ -217,13 +201,11 @@
 <!ENTITY enigmail.autoEncryptDrafts.label         "Encrypt draft messages on saving">
 
 <!ENTITY enigmail.advancedPrefsButton.label       "Advanced...">
-<!ENTITY enigmail.openpgpPrefsButton.label        "Gine-Liam Preferences...">
 
 
 <!-- Sending Preferences -->
 
 <!ENTITY enigmail.SendingPrefs.label              "General Preferences for Sending">
-<!ENTITY enigmail.seeAccountSettings.label        "See also account specific Gine-Liam settings (see Account Settings -> OpenPGP Security)">
 
 <!ENTITY enigmail.encryptionModelConvenient.label "Use default encryption settings">
 <!ENTITY enigmail.encryptionModelManually.label   "Manually configure encryption settings">
@@ -279,7 +261,6 @@
 
 <!ENTITY enigmail.keygen.desc "<a class='enigmailStrong'>NOTE: Key generation may take up to several minutes to complete.</a> Do not exit the application while key generation is in progress. Actively browsing or performing disk-intensive operations during key generation will replenish the 'randomness pool' and speed-up the process. You will be alerted when key generation is completed.">
 
-<!ENTITY enigmail.userSelectionList.label           "Gine-Liam Key Selection">
 <!ENTITY enigmail.usersNotFound.label               "Recipients not valid, not trusted or not found">
 <!ENTITY enigmail.keyExpiry.label                   "Expiry">
 <!ENTITY enigmail.uidValidity.label                 "Validity">
@@ -325,7 +306,6 @@
 <!ENTITY enigmail.exchangeGarbage.fixButton.label   "Repair message">
 <!ENTITY enigmail.exchangeGarbage.waitMessage       "Please wait ...">
 
-<!ENTITY enigmail.encryptionDlg.label               "Gine-Liam Encryption &amp; Signing Settings">
 <!ENTITY enigmail.encDlgProtocol.label              "Encryption/Signing Standard">
 <!ENTITY enigmail.encDlgEncrypt.label               "Encrypt Message">
 <!ENTITY enigmail.encDlgEncrypt.accesskey           "E">
@@ -344,8 +324,6 @@
 
 <!ENTITY enigmail.openPgpSecurity.label            "OpenPGP Security">
 
-<!ENTITY enigmail.pgpSecurityInfo.label            "Gine-Liam Security Info ...">
-<!ENTITY enigmail.copySecurityInfo.label           "Copy Gine-Liam Security Info">
 <!ENTITY enigmail.showPhoto.label                  "View OpenPGP Photo ID">
 <!ENTITY enigmail.photoViewer.title                "OpenPGP Photo Viewer">
 <!ENTITY enigmail.displayKeyProperties.label       "View Key Properties">
@@ -353,11 +331,8 @@
 <!ENTITY enigmail.trustSenderKey.label             "Set Owner Trust ...">
 <!ENTITY enigmail.signSenderKeyPopup.label         "Sign Sender's Key ...">
 <!ENTITY enigmail.trustSenderKeyPopup.label        "Set Owner Trust of Sender's Key...">
-<!ENTITY enigmail.createRuleFromAddr.label         "Create Gine-Liam Rule from Address...">
 <!ENTITY enigmail.keyManWindow.label               "Key Management">
 <!ENTITY enigmail.keyManWindow.accesskey           "y">
-
-<!ENTITY enigmail.singleRcptSettings.label          "Gine-Liam - Recipient Settings">
 
 <!ENTITY enigmail.compose.excesslength.label        "You have very long lines in your email. They should be handled differently to avoid bad signatures.">
 <!ENTITY enigmail.compose.excesslength_action.label "How do you want to proceed?">
@@ -380,7 +355,6 @@
 <!ENTITY enigmail.always.label                      "Always">
 <!ENTITY enigmail.maybe.label                       "Yes, if selected in Message Composition">
 <!ENTITY enigmail.singleRcptSettings.desc           "(Note: in case of conflicts, 'Never' overrules 'Always')">
-<!ENTITY enigmail.ruleEmail.label                   "Set Gine-Liam Rules for">
 <!ENTITY enigmail.ruleEmail.tooltip                 "Only fill in email addresses, do NOT set the names of the recipients\nE.g. 'Some Name &lt;some.name@address.net&gt;' is invalid">
 <!ENTITY enigmail.sepratationDesc.label             "(Separate several email addresses with spaces)">
 <!ENTITY enigmail.matchDescStart.label              "Apply rule if recipient">
@@ -391,7 +365,6 @@
 <!ENTITY enigmail.matchEnd.label                    "ends with">
 <!ENTITY enigmail.not.label                         "Not">
 
-<!ENTITY enigmail.rulesEditor.label                 "Gine-Liam - Per-Recipient Rules Editor">
 <!ENTITY enigmail.email.label                       "Email">
 <!ENTITY enigmail.pgpKeys.label                     "OpenPGP Key(s)">
 <!ENTITY enigmail.sign.label                        "Sign">
@@ -418,7 +391,6 @@
 
 <!ENTITY enigmail.progress.label                   "Progress">
 
-<!ENTITY enigmail.sKeyDlg.title                    "Gine-Liam - Sign Key">
 <!ENTITY enigmail.sKeyDlg.signKey.label            "Key to be signed:">
 <!ENTITY enigmail.sKeyDlg.fingerprint.label        "Fingerprint:">
 <!ENTITY enigmail.sKeyDlg.signWithKey.label        "Key for signing:">
@@ -430,11 +402,9 @@
 <!ENTITY enigmail.sKeyDlg.carefulCheck.label       "I have checked very carefully">
 <!ENTITY enigmail.sKeyDlg.createLocal.label        "Local signature (cannot be exported)">
 
-<!ENTITY enigmail.addUidDlg.title                  "Gine-Liam - Add User ID">
 <!ENTITY enigmail.addUidDlg.name.label             "Name">
 <!ENTITY enigmail.addUidDlg.email.label            "Email">
 
-<!ENTITY enigmail.keyTrust.title                   "Gine-Liam - Set Owner Trust">
 <!ENTITY enigmail.keyTrust.trustKey.label          "Key To Trust:">
 <!ENTITY enigmail.keyTrust.trustLevel.label        "How much do you trust the owner of the key to sign other keys properly?">
 <!ENTITY enigmail.keyTrust.trustLevel.tooltip      "For further information about keytrust levels visit: https://gpgtools.tenderapp.com/kb/faq/what-is-ownertrust-trust-levels-explained">
@@ -444,10 +414,9 @@
 <!ENTITY enigmail.keyTrust.fullTrust.label         "Complete (Fully trusted to sign keys properly)">
 <!ENTITY enigmail.keyTrust.ultimateTrust.label     "Ultimate (Only use for keys you own yourself)">
 
-<!ENTITY enigmail.keyExpiry.title                   "Gine-Liam - Change Expiration Date">
 <!ENTITY enigmail.keyExpiry.expiryKey.label         "Keys to change expiration date:">
 
-<!ENTITY enigmail.keyMan.title                     "Gine-Liam Key Management">
+<!ENTITY openpgp.keyMan.title                     "OpenPGP Key Management">
 <!ENTITY enigmail.keyMan.close.label               "Close Window">
 <!ENTITY enigmail.keyMan.generate.label            "New Key Pair">
 <!ENTITY enigmail.keyMan.genRevoke.label           "Revocation Certificate">
@@ -600,36 +569,6 @@
 <!ENTITY enigmail.cardPin.newPin.label               "New PIN">
 <!ENTITY enigmail.cardPin.pinRepeat.label            "Repeat new PIN">
 
-<!-- wizard: welcome step -->
-<!ENTITY enigmail.setupWiz.title                     "Gine-Liam Setup">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "It looks like you started Gine-Liam for the first time on this computer.
-                                                      In order to use Gine-Liam, you need to first set it up properly.
-                                                      This assistant will guide you through the setup process.">
-<!-- wizard: install GnuPG step -->
-<!ENTITY enigmail.setupWiz.pgInstall.desc            "Gine-Liam requires GnuPG for doing the cryptographic work.
-                                                      The wizard tried to locate the GnuPG executable, but it could not be found.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "Gine-Liam can download GnuPG and launch the installer for you.
-                                                      If you wish to do so, click on the 'Install GnuPG' button to download and install GnuPG.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc2    "Alternatively, if you already installed GnuPG, use the 'Browse' button to specify the path to GnuPG manually.">
-
-<!ENTITY enigmail.setupWiz.pgInstall.locateDesc      "Please locate GnuPG using the Browse button.">
-<!ENTITY enigmail.setupWiz.pgInstall.installButton   "Install GnuPG ...">
-<!ENTITY enigmail.setupWiz.pgInstall.locateButton    "Browse ...">
-<!ENTITY enigmail.setupWiz.pgInstall.downloadLabel   "Downloading GnuPG ...">
-<!ENTITY enigmail.setupWiz.pgInstall.installLabel    "Starting the installer. Please follow the steps of the GnuPG installer wizard.">
-
-<!ENTITY enigmail.setupWiz.searchingGnuPG            "Looking for GnuPG ...">
-<!ENTITY enigmail.setupWiz.checkingSetup             "Checking your existing setup ...">
-<!ENTITY enigmail.setupWiz.startSetupButton          "Start Setup">
-<!ENTITY enigmail.setupWiz.useImportKeys             "Alternatively, you can import your keys using the 'Import Keys' button below.">
-<!ENTITY enigmail.setupWiz.existingEncryptedMsg      "We found that you have encrypted messages in your mail folders. We recommend that you export your keys on your existing device, and import them here. (Hint: you may use the 'Import Keys' multiple times, for example to import public and secret keys).">
-<!ENTITY enigmail.setupWiz.existingKeysFound         "We found that you already have OpenPGP keys. We recommend that we set up Gine-Liam for you so that you can continue to work with these keys.">
-<!ENTITY enigmail.setupWiz.applyExistingKeysBtn      "Apply my Keys">
-<!ENTITY enigmail.setupWiz.rescanInboxBtn            "Rescan Inbox">
-<!ENTITY enigmail.setupWiz.importKeysBtn             "Import Keys">
-
-<!ENTITY enigmail.advancedIdentityDlg.title          "Advanced Gine-Liam Identity Settings">
-
 <!ENTITY enigmail.addPhoto.question.label            "Do you want to add the following picture to the key?">
 <!ENTITY enigmail.addPhoto.title                     "Add Photo to Key">
 <!ENTITY enigmail.msgViewColumn.tooltip              "Sort by the OpenPGP status">
@@ -642,22 +581,6 @@
 <!ENTITY enigmail.savelogfile.label                   "Save Log to File ...">
 
 <!ENTITY enigmail.filterEditor.moveError.label       "Actions that follow the 'Decrypt Permanently' action are not supported.">
-
-<!-- Export wizard -->
-<!ENTITY enigmail.exportWiz.title                    "Export your Gine-Liam Settings">
-<!ENTITY enigmail.exportWiz.pgIntro.title            "Welcome to the Export Settings Wizard">
-<!ENTITY enigmail.exportWiz.pgIntro.desc             "Gine-Liam allows to transfer all its settings including your OpenPGP
-                                                      keys to a new computer. This is done in two steps:">
-<!ENTITY enigmail.exportWiz.pgIntro.step1            "export your data from your old computer using this wizard">
-<!ENTITY enigmail.exportWiz.pgIntro.step2            "import the data to your new computer using the Setup Wizard.">
-<!ENTITY enigmail.exportWiz.pgIntro.specifyFile      "Please specify the export file:">
-<!ENTITY enigmail.exportWiz.pgExport.title           "Exporting Gine-Liam Settings">
-<!ENTITY enigmail.exportWiz.pgExport.exporting       "Saving in progress. You might be asked for the passphrase(s) of your key(s).">
-<!ENTITY enigmail.exportWiz.pgExport.done            "Your OpenPGP keys and your Gine-Liam settings are now saved.
-                                                      Please transfer the generated file to your new computer, launch
-                                                      Thunderbird and start the Setup Wizard from the Gine-Liam menu.">
-<!ENTITY enigmail.exportWiz.pgExport.failed          "An error occurred during the export. The settings could not be exported.">
-
 
 <!ENTITY enigmail.acPreferEncrypt.label              "Prefer encrypted emails from the people you exchange email with">
 <!ENTITY enigmail.enableAutocrypt.label              "Enable Autocrypt">
@@ -677,13 +600,5 @@
 <!ENTITY enigmail.acKeyTransfer.msgCreated.desc1     "The setup message has been sent to yourself.">
 <!ENTITY enigmail.acKeyTransfer.msgCreated.desc2     "Please switch to the other device now and open the message. You should be prompted for a setup code. Please type the following digits into the prompt:">
 <!ENTITY enigmail.acKeyTransfer.switchDevice.desc    "Once you're done, your other device will be ready to use Autocrypt.">
-
-<!ENTITY enigmail.importSetup.dlgTitle               "Restore Settings and Keys">
-<!ENTITY enigmail.importSetup.topDesc                "Using this dialog, you can restore your settings and keys from an existing Gine-Liam installation. To create a backup of your settings and keys, use the 'Transfer Settings' tab in the Gine-Liam preferences.">
-<!ENTITY enigmail.importSetup.specifyImportFile      "Please specify the backup file to use for restoring your settings and keys:">
-<!ENTITY enigmail.importSetup.startRestoreLabel      "Start Restoring">
-<!ENTITY enigmail.importSetup.importingKeys          "Importing keys in GnuPG. This may take a while ...">
-<!ENTITY enigmail.importSetup.restoringGnupgSettings "Restoring GnuPG settings ...">
-<!ENTITY enigmail.importSetup.restoringEnigmail      "Restoring Gine-Liam settings ...">
 
 <!ENTITY copyCmd.label            "Copy">

@@ -239,14 +239,6 @@ Enigmail.msg = {
     //Enigmail.msg.prepareAppMenu();
     //Enigmail.msg.setMainMenuLabel();
 
-    let statusCol = document.getElementById("enigmailStatusCol");
-    if (statusCol) {
-      statusCol.setAttribute(
-        "label",
-        EnigmailLocale.getString("enigmail.msgViewColumn.label")
-      );
-    }
-
     Enigmail.msg.savedHeaders = null;
 
     Enigmail.msg.decryptButton = document.getElementById(
@@ -1598,13 +1590,13 @@ Enigmail.msg = {
       var blockInfo = blocks[0].split(/:/);
       plainText =
         EnigmailData.convertFromUnicode(
-          EnigmailLocale.getString("notePartEncrypted"),
+          EnigmailLocale.getString("notePartEncrypted2"),
           charset
         ) +
         "\n\n" +
         plainText.substr(0, blockInfo[1]) +
         "\n\n" +
-        EnigmailLocale.getString("noteCutMessage");
+        EnigmailLocale.getString("noteCutMessage2");
     }
     */
 
@@ -2182,7 +2174,7 @@ Enigmail.msg = {
         !Enigmail.msg.decryptedMessage.attachmentsEncrypted
       ) {
         contentData += EnigmailData.convertFromUnicode(
-          EnigmailLocale.getString("enigContentNote"),
+          EnigmailLocale.getString("enigContentNote2"),
           Enigmail.msg.decryptedMessage.charset
         );
       }
@@ -2202,17 +2194,10 @@ Enigmail.msg = {
       if (statusLine) {
         if (contentType == "text/html") {
           contentData +=
-            "<b>" +
-            EnigmailLocale.getString("enigHeader") +
-            "</b> " +
             EnigmailMsgRead.escapeTextForHTML(statusLine, false) +
             "<br>\r\n<hr>\r\n";
         } else {
-          contentData +=
-            EnigmailLocale.getString("enigHeader") +
-            " " +
-            statusLine +
-            "\r\n\r\n";
+          contentData += statusLine + "\r\n\r\n";
         }
       }
 
@@ -2790,7 +2775,7 @@ Enigmail.msg = {
     if (callbackArg.actionType == "saveAttachment") {
       outFile = EnigmailDialog.filePicker(
         window,
-        EnigmailLocale.getString("saveAttachmentHeader"),
+        EnigmailLocale.getString("saveAttachmentHeader2"),
         Enigmail.msg.lastSaveDir,
         true,
         "",
@@ -3288,57 +3273,6 @@ Enigmail.msg = {
       window,
       "EnigmailAutocrypt.handleBackupMessage not implemented"
     );
-
-    /*
-    if (("message-id" in currentHeaderData) && EnigmailAutocrypt.isSelfCreatedSetupMessage(currentHeaderData["message-id"].headerValue)) {
-      EnigmailDialog.info(window, EnigmailLocale.getString("autocrypt.importSetupKey.selfCreated"));
-      return;
-    }
-
-    if (EnigmailAutocrypt.isAccountSetupForPgp(currentHeaderData.from.headerValue)) {
-      // Ask user what to do if the account is already correctly configured
-
-      if (!EnigmailDialog.confirmDlg(window,
-          EnigmailLocale.getString("autocrypt.importSetupKey.accountPreconfigured"),
-          EnigmailLocale.getString("dlg.button.overwrite"),
-          EnigmailLocale.getString("dlg.button.cancel")
-        )) {
-        return;
-      }
-    }
-
-    if (currentAttachments[0].contentType.search(/^application\/autocrypt-setup$/i) === 0) {
-
-      EnigmailAutocrypt.getSetupMessageData(currentAttachments[0].url).then(res => {
-        passwd = EnigmailWindows.autocryptSetupPasswd(window, "input", res.passphraseFormat, passwd || res.passphraseHint);
-
-        if ((!passwd) || passwd == "") {
-          throw new Error("noPasswd");
-        }
-
-        // TODO: return EnigmailAutocrypt.handleBackupMessage(passwd, res.attachmentData, currentHeaderData.from.headerValue);
-      }).then(res => {
-        EnigmailDialog.info(window, EnigmailLocale.getString("autocrypt.importSetupKey.success", currentHeaderData.from.headerValue));
-      }).catch(err => {
-        EnigmailLog.DEBUG("enigmailMessengerOverlay.js: performAutocryptSetup got cancel status=" + err + "\n");
-
-        switch (err) {
-          case "getSetupMessageData":
-            EnigmailDialog.alert(window, EnigmailLocale.getString("autocrypt.importSetupKey.invalidMessage"));
-            break;
-          case "wrongPasswd":
-            if (EnigmailDialog.confirmDlg(window, EnigmailLocale.getString("autocrypt.importSetupKey.wrongPasswd"), EnigmailLocale.getString("dlg.button.retry"),
-                EnigmailLocale.getString("dlg.button.cancel"))) {
-              Enigmail.msg.performAutocryptSetup(passwd);
-            }
-            break;
-          case "keyImportFailed":
-            EnigmailDialog.alert(window, EnigmailLocale.getString("autocrypt.importSetupKey.invalidKey"));
-            break;
-        }
-      });
-    }
-    */
   },
 
   onUnloadEnigmail() {

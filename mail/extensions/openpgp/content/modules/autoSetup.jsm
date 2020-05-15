@@ -268,46 +268,7 @@ var EnigmailAutoSetup = {
       "EnigmailAutocrypt.handleBackupMessage not implemented"
     );
 
-    let imported = 0;
-    /*
-    if (headerValue.attachment.contentType.search(/^application\/autocrypt-setup$/i) === 0) {
-      try {
-        let res = await EnigmailAutocrypt.getSetupMessageData(headerValue.attachment.url);
-        let passwd = EnigmailWindows.autocryptSetupPasswd(passwordWindow, "input", res.passphraseFormat, res.passphraseHint);
-
-        if ((!passwd) || passwd == "") {
-          throw new Error("noPasswd");
-        }
-
-        // TODO: await EnigmailAutocrypt.handleBackupMessage(passwd, res.attachmentData, headerValue.acSetupMessage.author);
-        EnigmailDialog.info(confirmWindow, EnigmailLocale.getString("autocrypt.importSetupKey.success", headerValue.acSetupMessage.author));
-        imported = 1;
-      }
-      catch (err) {
-        EnigmailLog.DEBUG("autoSetup.jsm: performAutocryptSetup got cancel status=" + err + "\n");
-        imported = -1;
-
-        switch (err) {
-          case "getSetupMessageData":
-            EnigmailDialog.alert(confirmWindow, EnigmailLocale.getString("autocrypt.importSetupKey.invalidMessage"));
-            break;
-          case "wrongPasswd":
-            if (EnigmailDialog.confirmDlg(confirmWindow, EnigmailLocale.getString("autocrypt.importSetupKey.wrongPasswd"), EnigmailLocale.getString("dlg.button.retry"),
-                EnigmailLocale.getString("dlg.button.cancel"))) {
-              EnigmailAutoSetup.performAutocryptSetup(headerValue);
-            }
-            break;
-          case "keyImportFailed":
-            EnigmailDialog.alert(confirmWindow, EnigmailLocale.getString("autocrypt.importSetupKey.invalidKey"));
-            break;
-          default:
-            EnigmailDialog.alert(confirmWindow, EnigmailLocale.getString("keyserver.error.unknown"));
-        }
-      }
-    }
-    */
-
-    return imported;
+    return 0;
   },
 
   /**

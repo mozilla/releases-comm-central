@@ -24,7 +24,7 @@ let { EnigmailLocale } = ChromeUtils.import(
 
 const filterActionMoveDecrypt = {
   id: EnigmailConstants.FILTER_MOVE_DECRYPT,
-  name: EnigmailLocale.getString("filter.decryptMove.label"),
+  name: EnigmailLocale.getString("filter.decryptMove2.label"),
   value: "movemessage",
   apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
@@ -69,7 +69,7 @@ const filterActionMoveDecrypt = {
  */
 const filterActionCopyDecrypt = {
   id: EnigmailConstants.FILTER_COPY_DECRYPT,
-  name: EnigmailLocale.getString("filter.decryptCopy.label"),
+  name: EnigmailLocale.getString("filter.decryptCopy2.label"),
   value: "copymessage",
   apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
@@ -113,7 +113,7 @@ const filterActionCopyDecrypt = {
  */
 const filterActionEncrypt = {
   id: EnigmailConstants.FILTER_ENCRYPT,
-  name: EnigmailLocale.getString("filter.encrypt.label"),
+  name: EnigmailLocale.getString("filter.encrypt2.label"),
   value: "encryptto",
   apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {

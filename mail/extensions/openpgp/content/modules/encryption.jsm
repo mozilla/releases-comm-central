@@ -474,11 +474,9 @@ var EnigmailEncryption = {
     }
 
     if (!EnigmailCore.getService(win)) {
-      EnigmailLog.ERROR(
-        "encryption.jsm: encryptMessageStart: not yet initialized\n"
+      throw new Error(
+        "encryption.jsm: encryptMessageStart: not yet initialized"
       );
-      errorMsgObj.value = EnigmailLocale.getString("notInit");
-      return null;
     }
 
     let logFileObj = {};
@@ -564,11 +562,7 @@ var EnigmailEncryption = {
     retStatusObj.blockSeparation = "";
 
     if (!EnigmailCore.getService().initialized) {
-      EnigmailLog.ERROR(
-        "encryption.jsm: encryptMessageEnd: not yet initialized\n"
-      );
-      retStatusObj.errorMsg = EnigmailLocale.getString("notInit");
-      return -1;
+      throw new Error("encryption.jsm: encryptMessageEnd: not yet initialized");
     }
 
     //EnigmailErrorHandling.parseErrorOutput(stderrStr, retStatusObj);

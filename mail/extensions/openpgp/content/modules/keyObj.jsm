@@ -259,7 +259,7 @@ class EnigmailKeyObj {
       ]);
     } else if (this.keyTrust.search(/i/i) >= 0) {
       // public key invalid
-      retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid", [
+      retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid2", [
         this.userId,
         "0x" + this.keyId,
       ]);
@@ -373,7 +373,7 @@ class EnigmailKeyObj {
 
       if (this.keyTrust.search(/u/i) < 0) {
         // public key invalid
-        retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid", [
+        retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid2", [
           this.userId,
           "0x" + this.keyId,
         ]);

@@ -68,9 +68,7 @@ function setLabel(elementId, label) {
 async function reloadData() {
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
-    EnigAlert(EnigmailLocale.getString("accessError"));
-    window.close();
-    return;
+    throw new Error("GetEnigmailSvc failed");
   }
 
   gUserId = null;

@@ -523,7 +523,7 @@ const accessHkpInternal = {
               // protocol version not supported
               retObj.result = 7;
               retObj.errorDetails = EnigmailLocale.getString(
-                "keyserver.error.unsupported"
+                "keyserver.error.unsupported2"
               );
               retObj.pubKeys = [];
               return retObj;

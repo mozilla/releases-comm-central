@@ -130,7 +130,7 @@ PgpWkdHandler.prototype = {
     let msg = "";
 
     if (this.data.search(/^\s*type:\s+confirmation-request/im) >= 0) {
-      msg = EnigmailLocale.getString("wkdMessage.body.req");
+      msg = EnigmailLocale.getString("wkdMessage.body.req2");
     } else {
       msg = EnigmailLocale.getString("wkdMessage.body.process");
     }

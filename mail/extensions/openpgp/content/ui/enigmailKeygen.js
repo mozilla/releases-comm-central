@@ -88,7 +88,7 @@ function enigmailKeygenLoad() {
 
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
-    EnigAlert(EnigGetString("accessError"));
+    throw new Error("GetEnigmailSvc failed");
   }
 }
 
@@ -181,8 +181,7 @@ function enigmailKeygenStart() {
 
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
-    EnigAlert(EnigGetString("accessError"));
-    return;
+    throw new Error("GetEnigmailSvc failed");
   }
 
   var noExpiry = document.getElementById("noExpiry");
@@ -252,7 +251,7 @@ function enigmailKeygenStart() {
   progMeter.setAttribute("value", 100);
 
   if (!gGeneratedKey || gGeneratedKey == KEYGEN_CANCELLED) {
-    EnigAlert(EnigGetString("keyGenFailed"));
+    throw new Error("key generation failed");
   } else {
     console.debug("saving new key id " + gGeneratedKey);
     curId.setCharAttribute("openpgp_key_id", gGeneratedKey);

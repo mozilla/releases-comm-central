@@ -156,11 +156,6 @@ var EnigmailCore = {
     //getEnigmailWksMimeHandler().registerContentTypeHandler();
     //getEnigmailFiltersWrapper().onStartup();
     continueStartup(1);
-
-    let myName = getEnigmailLocale().getString("Enigmail");
-    if (!myName) {
-      console.log("core.jsm: couldn't load string from properties " + myName);
-    }
   },
 
   shutdown(reason) {
@@ -290,14 +285,7 @@ function initializeLogging(env) {
 }
 
 function failureOn(ex, status) {
-  status.initializationError = getEnigmailLocale().getString(
-    "enigmailNotAvailable"
-  );
-  getEnigmailLog().ERROR(
-    "core.jsm: Enigmail.initialize: Error - " +
-      status.initializationError +
-      "\n"
-  );
+  getEnigmailLog().ERROR("core.jsm: Enigmail.initialize: Error\n");
   getEnigmailLog().DEBUG(
     "core.jsm: Enigmail.initialize: exception=" + ex.toString() + "\n"
   );
@@ -411,7 +399,6 @@ function Enigmail() {
 Enigmail.prototype = {
   initialized: false,
   initializationAttempted: false,
-  initializationError: "",
 
   initialize(domWindow, version) {
     this.initializationAttempted = true;
