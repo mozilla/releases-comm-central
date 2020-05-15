@@ -746,34 +746,36 @@
                       <hbox id="mail-notification-top">
                         <!-- notificationbox will be added here lazily. -->
                       </hbox>
-                      <!-- The messagepanewrapper hbox exists to allow
-                           extensions to add sidebars to the message. -->
-                      <hbox id="messagepanewrapper" flex="1">
-                        <stack flex="1">
-                          <browser id="messagepane"
-                                   context="mailContext"
-                                   datetimepicker="DateTimePickerPanel"
-                                   autofind="false"
-                                   style="min-height:1px;"
-                                   flex="1"
-                                   name="messagepane"
-                                   tooltip="aHTMLTooltip"
-                                   disablehistory="true"
-                                   type="content"
-                                   primary="true"
-                                   src="about:blank"
-                                   disablesecurity="true"
-                                   messagemanagergroup="browsers"
-                                   onclick="return contentAreaClick(event);"
-                                   oncontextmenu="return mailContextOnContextMenu(event);"
-                                   onresize="return messagePaneOnResize(event);"/>
-                        </stack>
-                      </hbox>
-                      <splitter id="attachment-splitter" collapse="after"
-                                resizebefore="closest" resizeafter="closest"
-                                collapsed="true"/>
-                      <vbox id="attachmentView" collapsed="true">
+                      <vbox flex="1">
+                        <!-- The messagepanewrapper hbox exists to allow
+                             extensions to add sidebars to the message. -->
+                        <hbox id="messagepanewrapper" flex="1">
+                          <stack flex="1">
+                            <browser id="messagepane"
+                                     context="mailContext"
+                                     datetimepicker="DateTimePickerPanel"
+                                     autofind="false"
+                                     style="min-height:1px;"
+                                     flex="1"
+                                     name="messagepane"
+                                     tooltip="aHTMLTooltip"
+                                     disablehistory="true"
+                                     type="content"
+                                     primary="true"
+                                     src="about:blank"
+                                     disablesecurity="true"
+                                     messagemanagergroup="browsers"
+                                     onclick="return contentAreaClick(event);"
+                                     oncontextmenu="return mailContextOnContextMenu(event);"
+                                     onresize="return messagePaneOnResize(event);"/>
+                          </stack>
+                        </hbox>
+                        <splitter id="attachment-splitter" collapse="after"
+                                  resizebefore="closest" resizeafter="closest"
+                                  collapsed="true"/>
+                        <vbox id="attachmentView" collapsed="true">
 #include msgAttachmentView.inc.xhtml
+                        </vbox>
                       </vbox>
                       <findbar id="FindToolbar" browserid="messagepane"/>
                     </vbox>
