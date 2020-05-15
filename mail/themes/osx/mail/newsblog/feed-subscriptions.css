@@ -5,28 +5,8 @@
 
 /* ::::: Feed Subscription styling :::::: */
 
+@import url("chrome://messenger/skin/shared/feedSubscribe.css");
+
 #subscriptionsDialog {
-  width: 40em;
-  height: 30em;
-  padding: 14px;
-}
-
-#rssFeedInfoBox {
-  border: 1px solid ThreeDShadow;
-  margin: 4px;
-  padding-top: 4px;
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-#statusContainerBox {
-  height: 2.3em;
-}
-
-#autotagPrefix {
-  width: 35ch;
-}
-
-#rssSubscriptionsList > treechildren::-moz-tree-image {
-  width: 16px;
-  height: 16px;
+  padding: 4px;
 }

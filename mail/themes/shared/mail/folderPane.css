@@ -32,7 +32,7 @@
 #accounttree > treechildren::-moz-tree-image {
   opacity: 0.85;
   width: 16px;
-  height: auto;
+  height: 16px;
 }
 
 /* reduce the padding set from messenger.css */

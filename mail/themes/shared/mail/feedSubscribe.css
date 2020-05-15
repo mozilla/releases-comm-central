@@ -1,0 +1,32 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#subscriptionsDialog {
+  width: 40em;
+  height: 30em;
+}
+
+#contentPane {
+  margin: 10px;
+}
+
+#rssSubscriptionsList > treechildren::-moz-tree-image {
+  width: 16px;
+  height: 16px;
+}
+
+#rssFeedInfoBox {
+  border: 1px solid ThreeDShadow;
+  margin: 4px;
+  padding-top: 4px;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+#autotagPrefix {
+  flex: 0;
+}
+
+#statusContainerBox {
+  height: 2.4em;
+}

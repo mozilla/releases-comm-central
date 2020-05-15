@@ -5,40 +5,4 @@
 
 /* ::::: Feed Subscription styling :::::: */
 
-#subscriptionsDialog {
-  width: 40em;
-  height: 30em;
-  padding: 0px;
-}
-
-#contentPane {
-  margin: 9px 8px 5px;
-}
-
-#rssFeedInfoBox {
-  border: 1px solid ThreeDShadow;
-  margin: 4px;
-  padding-top: 4px;
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-#rssFeedInfoBox row,
-#statusContainerBox {
-  height: 2.4em;
-}
-
-#autotagPrefix {
-  width: 35ch;
-}
-
-#nameValue,
-#locationValue,
-#selectFolderValue {
-  padding-top: 0;
-  padding-bottom: 1px;
-}
-
-#rssSubscriptionsList > treechildren::-moz-tree-image {
-  width: 16px;
-  height: 16px;
-}
+@import url("chrome://messenger/skin/shared/feedSubscribe.css");
