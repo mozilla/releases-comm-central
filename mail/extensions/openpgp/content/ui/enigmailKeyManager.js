@@ -14,6 +14,7 @@
 /* global EnigEditKeyTrust: false, EnigEditKeyExpiry: false, EnigSignKey: false, EnigRevokeKey: false, EnigCreateRevokeCert: false */
 /* global EnigLongAlert: false, EnigChangeKeyPwd: false, EnigDownloadKeys: false, EnigSetPref: false, EnigGetTrustCode: false */
 /* global ENIG_KEY_DISABLED: false, ENIG_KEY_NOT_VALID: false, ENIG_LOCAL_FILE_CONTRACTID: false */
+/* global PgpSqliteDb2: false */
 
 // imported packages
 /* global EnigmailLog: false, EnigmailEvents: false, EnigmailKeyRing: false, EnigmailKeyEditor: false */
@@ -349,7 +350,9 @@ function enigmailDeleteKey() {
 
   const cApi = EnigmailCryptoAPI();
   for (let j in keyList) {
-    cApi.sync(cApi.deleteKey(gKeyList[keyList[j]].fpr, deleteSecret));
+    let fpr = gKeyList[keyList[j]].fpr;
+    cApi.sync(cApi.deleteKey(fpr, deleteSecret));
+    cApi.sync(PgpSqliteDb2.deleteAcceptance(fpr));
   }
   clearKeyCache();
 }

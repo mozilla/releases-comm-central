@@ -117,6 +117,33 @@ var PgpSqliteDb2 = {
     }
   },
 
+  // fingerprint must be lowercase already
+  async internalDeleteAcceptanceNoTransaction(conn, fingerprint) {
+    let delObj = { fpr: fingerprint };
+    await conn.execute(
+      "delete from acceptance_decision where fpr = :fpr",
+      delObj
+    );
+    await conn.execute("delete from acceptance_email where fpr = :fpr", delObj);
+  },
+
+  async deleteAcceptance(fingerprint) {
+    let conn;
+    try {
+      conn = await this.openDatabase();
+      await conn.execute("begin transaction");
+      fingerprint = fingerprint.toLowerCase();
+      await this.internalDeleteAcceptanceNoTransaction(conn, fingerprint);
+      await conn.execute("commit transaction");
+      await conn.close();
+    } catch (ex) {
+      console.debug(ex);
+      if (conn) {
+        await conn.close();
+      }
+    }
+  },
+
   async updateAcceptance(fingerprint, emailArray, decision) {
     let conn;
     try {
@@ -125,16 +152,7 @@ var PgpSqliteDb2 = {
       await conn.execute("begin transaction");
 
       fingerprint = fingerprint.toLowerCase();
-
-      let delObj = { fpr: fingerprint };
-      await conn.execute(
-        "delete from acceptance_decision where fpr = :fpr",
-        delObj
-      );
-      await conn.execute(
-        "delete from acceptance_email where fpr = :fpr",
-        delObj
-      );
+      await this.internalDeleteAcceptanceNoTransaction(conn, fingerprint);
 
       if (decision !== "undecided") {
         let decisionObj = {

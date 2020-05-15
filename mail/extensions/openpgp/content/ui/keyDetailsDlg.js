@@ -11,6 +11,7 @@
 /* global EnigCleanGuiList: false, EnigGetTrustLabel: false, EnigShowPhoto: false, EnigSignKey: false */
 /* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false, EnigRevokeKey: false */
 /* global EnigCreateRevokeCert: false, EnigmailTimer: false, EnigmailCryptoAPI: false */
+/* global PgpSqliteDb2: false */
 
 // from enigmailKeyManager.js:
 /* global keyMgrAddPhoto: false, EnigmailCompat: false */
@@ -21,9 +22,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { uidHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/uidHelper.jsm"
-);
-const { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
 
 var gKeyId = null;

@@ -86,6 +86,9 @@ var EnigmailStreams = ChromeUtils.import(
 var EnigmailCryptoAPI = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 ).EnigmailCryptoAPI;
+var { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
 
 var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 
