@@ -11,9 +11,11 @@ kind-dependencies:
 jobs:
     - linux64-binutils
     - linux64-cbindgen
+    - linux64-cctools-clang-9-port
     - linux64-cctools-port
     - linux64-clang
     - linux64-clang-7
+    - linux64-clang-9
     - linux64-clang-macosx-cross
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
