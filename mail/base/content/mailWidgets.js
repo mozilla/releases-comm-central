@@ -2375,18 +2375,11 @@
 
         case "ArrowLeft":
           if (pill.previousElementSibling) {
-            pill.previousElementSibling.focus();
             this.checkKeyboardSelected(event, pill.previousElementSibling);
           }
           break;
 
         case "ArrowRight":
-          if (pill.nextElementSibling.hasAttribute("hidden")) {
-            pill.nextElementSibling.removeAttribute("hidden");
-            pill.nextElementSibling.focus();
-            break;
-          }
-          pill.nextElementSibling.focus();
           this.checkKeyboardSelected(event, pill.nextElementSibling);
           break;
 
@@ -2395,12 +2388,30 @@
           break;
 
         case "Home":
-          pill.removeAttribute("selected");
-          this.setFocusOnFirstPill(pill);
+          let firstPill = pill
+            .closest(".address-container")
+            .querySelector("mail-address-pill");
+          if (!event.ctrlKey) {
+            // Unmodified navigation: select only first pill and focus it below.
+            // ### Todo: We can't handle Shift+Home yet, so it ends up here.
+            this.clearSelected();
+            firstPill.setAttribute("selected", "selected");
+          }
+          firstPill.focus();
           break;
 
         case "End":
-          pill.rowInput.focus();
+          if (!event.ctrlKey) {
+            // Unmodified navigation: focus row input.
+            // ### Todo: We can't handle Shift+End yet, so it ends up here.
+            pill.rowInput.focus();
+            break;
+          }
+          // Navigation with Ctrl modifier key: focus last pill.
+          pill
+            .closest(".address-container")
+            .querySelector("mail-address-pill:last-of-type")
+            .focus();
           break;
 
         case "Tab":
@@ -2483,23 +2494,38 @@
      * Handle the selection and focus of the pill elements on keyboard
      * navigation.
      *
-     * @param {Event} event - The DOM Event.
-     * @param {XULElement} element - The mail-address-pill element.
+     * @param {Event} event - A DOM keyboard event.
+     * @param {HTMLElement} targetElement - A mail-address-pill or address input
+     *   element navigated to.
      */
-    checkKeyboardSelected(event, element) {
-      if (event.shiftKey) {
-        if (this.hasAttribute("selected") && element.hasAttribute("selected")) {
-          this.removeAttribute("selected");
-          return;
-        }
+    checkKeyboardSelected(event, targetElement) {
+      let sourcePill =
+        event.target.tagName == "mail-address-pill" ? event.target : null;
+      let targetPill =
+        targetElement.tagName == "mail-address-pill" ? targetElement : null;
 
-        this.setAttribute("selected", "selected");
-        element.setAttribute("selected", "selected");
+      if (event.shiftKey) {
+        if (sourcePill) {
+          sourcePill.setAttribute("selected", "selected");
+        }
+        if (targetPill) {
+          targetPill.setAttribute("selected", "selected");
+        }
       } else if (!event.ctrlKey) {
         // Non-modified navigation keys must select the target pill and deselect
         // all others. Also some other keys like Backspace from rowInput.
         this.clearSelected();
-        element.setAttribute("selected", "selected");
+        if (targetPill) {
+          targetPill.setAttribute("selected", "selected");
+        } else {
+          // Focus the input navigated to.
+          targetElement.focus();
+        }
+      }
+
+      // If targetElement is a pill, focus it.
+      if (targetPill) {
+        targetPill.focus();
       }
     }
 
@@ -2612,15 +2638,6 @@
       onRecipientsChanged();
       calculateHeaderHeight();
       udpateAddressingInputAriaLabel(rowInput.closest(".address-row"));
-    }
-
-    /**
-     * Move the focus on the first pill from the same .address-container.
-     *
-     * @param {XULElement} pill - The mail-address-pill element.
-     */
-    setFocusOnFirstPill(pill) {
-      pill.closest(".address-container").firstElementChild.focus();
     }
 
     /**

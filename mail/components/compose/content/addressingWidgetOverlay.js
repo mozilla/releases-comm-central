@@ -556,7 +556,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
     case ",":
       // Don't trigger autocomplete if the typed value is not a valid address.
       if (!isValidAddress(input.value)) {
-        return;
+        break;
       }
       event.preventDefault();
       input.handleEnter(event);
@@ -565,26 +565,27 @@ function addressInputOnBeforeHandleKeyDown(event) {
     case "ArrowLeft":
     case "Backspace":
       if (
-        !event.repeat &&
-        !input.value.trim() &&
-        !(input.selectionStart + input.selectionEnd)
+        event.repeat ||
+        input.value.trim() ||
+        input.selectionStart + input.selectionEnd
       ) {
-        // If unrepeated keydown, empty input or whitespace-only, and cursor at
-        // position 0, move focus into pills. We'll sanitize whitespace on blur.
+        break;
+      }
+      // If unrepeated keydown, empty input or whitespace-only, and cursor at
+      // position 0, navigate into pills. We'll sanitize whitespace on blur.
 
-        // Prevent a pill keypress event when the focus moves on it.
-        event.preventDefault();
+      // Prevent a pill keypress event when the focus moves on it.
+      event.preventDefault();
 
-        let pills = input
-          .closest(".address-container")
-          .querySelectorAll("mail-address-pill");
-        if (pills.length) {
-          let key = event.key == "Home" ? 0 : pills.length - 1;
-          pills[key].focus();
-          document
-            .getElementById("recipientsContainer")
-            .checkKeyboardSelected(event, pills[key]);
-        }
+      let targetPill = input
+        .closest(".address-container")
+        .querySelector(
+          "mail-address-pill" + (event.key == "Home" ? "" : ":last-of-type")
+        );
+      if (targetPill) {
+        input
+          .closest("mail-recipients-area")
+          .checkKeyboardSelected(event, targetPill);
       }
       break;
     case "Enter":
