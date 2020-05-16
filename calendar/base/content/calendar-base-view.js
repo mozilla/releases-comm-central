@@ -915,7 +915,7 @@
     }
 
     getRangeDescription() {
-      return cal.getDateFormatter().formatInterval(this.rangeStartDate, this.rangeEndDate);
+      return cal.dtz.formatter.formatInterval(this.rangeStartDate, this.rangeEndDate);
     }
 
     removeDropShadows() {

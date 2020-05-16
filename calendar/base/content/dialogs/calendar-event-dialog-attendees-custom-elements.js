@@ -1524,9 +1524,7 @@
         this.state[i] = Ci.calIFreeBusyInterval.UNKNOWN;
       }
       let step_in_minutes = Math.floor((60 * this.zoomFactor) / 100);
-      let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-        Ci.calIDateTimeFormatter
-      );
+      let formatter = cal.dtz.formatter;
       let date = cal.dtz.jsDateToDateTime(new Date());
       date.hour = this.startHour;
       date.minute = 0;
@@ -1903,22 +1901,15 @@
         return null;
       }
 
+      let formatter = cal.dtz.formatter;
       let date = val.clone();
       date.hour = 0;
       date.minute = 0;
       date.isDate = false;
 
-      if (!this.dateFormatter) {
-        this.dateFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-          Ci.calIDateTimeFormatter
-        );
-      }
-
       // First set the formatted date string as title
       let dateValue =
-        this.zoomFactor > 100
-          ? this.dateFormatter.formatDateShort(date)
-          : this.dateFormatter.formatDateLong(date);
+        this.zoomFactor > 100 ? formatter.formatDateShort(date) : formatter.formatDateLong(date);
       this.text.setAttribute("value", dateValue);
 
       // Now create as many 'hour' elements as needed
@@ -1933,7 +1924,7 @@
         let first = true;
         while (remain--) {
           let newNode = template.cloneNode(false);
-          let value = this.dateFormatter.formatTime(date);
+          let value = formatter.formatTime(date);
           if (first) {
             newNode.classList.add("first-in-day");
             first = false;

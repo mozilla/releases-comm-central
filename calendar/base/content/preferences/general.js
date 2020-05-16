@@ -33,10 +33,7 @@ var gCalendarGeneralPane = {
    * values set in prefs.
    */
   init() {
-    let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-      Ci.calIDateTimeFormatter
-    );
-
+    let formatter = cal.dtz.formatter;
     let dateFormattedLong = formatter.formatDateLong(cal.dtz.now());
     let dateFormattedShort = formatter.formatDateShort(cal.dtz.now());
 

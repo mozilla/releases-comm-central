@@ -118,7 +118,6 @@ CalWeekPrinter.prototype = {
 
     // Set up the week number title
     let weekInfo = cal.getWeekInfoService();
-    let dateFormatter = cal.getDateFormatter();
     let weekno = weekInfo.getWeekTitle(startOfWeek);
     let weekTitle = cal.l10n.getCalString("WeekTitle", [weekno]);
     currentPage.querySelector(".week-number").textContent = weekTitle;
@@ -138,7 +137,7 @@ CalWeekPrinter.prototype = {
       );
 
       let titleNode = currentPage.querySelector("." + weekdayName + "-title");
-      titleNode.textContent = dateFormatter.formatDateLong(
+      titleNode.textContent = cal.dtz.formatter.formatDateLong(
         currentDate.getInTimezone(defaultTimezone)
       );
 

@@ -123,7 +123,7 @@
         return val;
       }
       if (val) {
-        this.setAttribute("value", cal.getDateFormatter().formatDateWithoutYear(this.mDate));
+        this.setAttribute("value", cal.dtz.formatter.formatDateWithoutYear(this.mDate));
       } else {
         this.setAttribute("value", this.mDate.day);
       }
@@ -358,9 +358,7 @@
       if (cal.item.isEvent(val) && !val.startDate.isDate) {
         let icon = this.querySelector(".calendar-item-image");
         let label = this.querySelector(".calendar-month-day-box-item-label");
-        let formatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-          Ci.calIDateTimeFormatter
-        );
+        let formatter = cal.dtz.formatter;
         let timezone = this.calendarView ? this.calendarView.mTimezone : cal.dtz.defaultTimezone;
         let parentDate = this.parentBox.date;
         let parentTime = cal.createDateTime();

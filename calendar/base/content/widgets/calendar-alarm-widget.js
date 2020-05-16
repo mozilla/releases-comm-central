@@ -93,7 +93,7 @@
         // Setup not complete, do nothing for now.
         return;
       }
-      const formatter = cal.getDateFormatter();
+      const formatter = cal.dtz.formatter;
       let titleLabel = this.querySelector(".alarm-title-label");
       let locationDescription = this.querySelector(".alarm-location-description");
       let dateLabel = this.querySelector(".alarm-date-label");
@@ -146,7 +146,7 @@
      * Refresh UI text for relative date when the data has changed.
      */
     updateRelativeDateLabel() {
-      const formatter = cal.getDateFormatter();
+      const formatter = cal.dtz.formatter;
       const item = this.mItem;
       let relativeDateLabel = this.querySelector(".alarm-relative-date-label");
       let relativeDateString;

@@ -68,8 +68,8 @@
 
     set weekDay(val) {
       this.mWeekday = val % 7;
-      this.longWeekdayName.value = cal.getDateFormatter().dayName(val);
-      this.shortWeekdayName.value = cal.getDateFormatter().shortDayName(val);
+      this.longWeekdayName.value = cal.dtz.formatter.dayName(val);
+      this.shortWeekdayName.value = cal.dtz.formatter.shortDayName(val);
       return this.mWeekday;
     }
 
@@ -79,7 +79,7 @@
 
     set date(val) {
       this.mDate = val;
-      let dateFormatter = cal.getDateFormatter();
+      let dateFormatter = cal.dtz.formatter;
       let label = cal.l10n.getCalString("dayHeaderLabel", [
         dateFormatter.shortDayName(val.weekday),
         dateFormatter.formatDateWithoutYear(val),

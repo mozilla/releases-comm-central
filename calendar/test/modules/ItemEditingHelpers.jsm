@@ -220,7 +220,7 @@ async function setData(dialog, iframe, data) {
   let percentCompleteInput = iframeLookup(PERCENT_COMPLETE_INPUT);
   let untilDateInput = getDateTimePicker("UNTILDATE");
 
-  let dateFormatter = cal.getDateFormatter();
+  let dateFormatter = cal.dtz.formatter;
   // Wait for input elements' values to be populated.
   await sleep(iframe.window);
 

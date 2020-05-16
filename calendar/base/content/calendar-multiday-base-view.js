@@ -139,7 +139,7 @@
       }
 
       const orient = topbox.getAttribute("orient");
-      const timeFormatter = cal.getDateFormatter();
+      const formatter = cal.dtz.formatter;
       const jsTime = new Date();
 
       this.getSections().forEach(([startMinute, duration]) => {
@@ -162,7 +162,7 @@
 
           const dateTime = cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating);
 
-          timeString = timeFormatter.formatTime(dateTime);
+          timeString = formatter.formatTime(dateTime);
         }
 
         const label = document.createXULElement("label");

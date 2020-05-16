@@ -1241,7 +1241,7 @@ add_task(async function parseCounter_test() {
   };
 
   let formatDt = function(aDateTime) {
-    let datetime = cal.getDateFormatter().formatDateTime(aDateTime);
+    let datetime = cal.dtz.formatter.formatDateTime(aDateTime);
     return datetime + " " + aDateTime.timezone.displayName;
   };
 

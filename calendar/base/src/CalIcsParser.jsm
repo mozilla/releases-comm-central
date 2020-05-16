@@ -234,7 +234,7 @@ parserState.prototype = {
         // so this UI code can be removed from the parser, and caller can
         // choose whether to alert, or show user the problem items and ask
         // for fixes, or something else.
-        let msgArgs = [tzid, item.title, cal.getDateFormatter().formatDateTime(date)];
+        let msgArgs = [tzid, item.title, cal.dtz.formatter.formatDateTime(date)];
         let msg = cal.l10n.getCalString("unknownTimezoneInItem", msgArgs);
 
         cal.ERROR(msg + "\n" + item.icalString);

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { formatter } = cal.dtz;
 
 function run_test() {
   do_calendar_startup(run_next_test);
@@ -53,10 +54,7 @@ add_task(async function formatDate_test() {
       test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-      Ci.calIDateTimeFormatter
-    );
-    let formatted = dtFormatter.formatDate(date);
+    let formatted = formatter.formatDate(date);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
@@ -148,11 +146,7 @@ add_task(async function formatDateShort_test() {
       test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-      Ci.calIDateTimeFormatter
-    );
-
-    let formatted = dtFormatter.formatDateShort(date);
+    let formatted = formatter.formatDateShort(date);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
@@ -244,11 +238,7 @@ add_task(async function formatDateLong_test() {
       test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-      Ci.calIDateTimeFormatter
-    );
-
-    let formatted = dtFormatter.formatDateLong(date);
+    let formatted = formatter.formatDateLong(date);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"
@@ -340,11 +330,7 @@ add_task(async function formatDateWithoutYear_test() {
       test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-      Ci.calIDateTimeFormatter
-    );
-
-    equal(dtFormatter.formatDateWithoutYear(date), test.expected, "(test #" + i + ")");
+    equal(formatter.formatDateWithoutYear(date), test.expected, "(test #" + i + ")");
   }
   // let's reset the preferences
   Services.prefs.setStringPref("calendar.timezone.local", tzlocal);
@@ -408,11 +394,7 @@ add_task(async function formatTime_test() {
       test.input.timezone == "floating" ? cal.dtz.floating : tzs.getTimezone(test.input.timezone);
     let date = cal.createDateTime(test.input.datetime).getInTimezone(zone);
 
-    let dtFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-      Ci.calIDateTimeFormatter
-    );
-
-    let formatted = dtFormatter.formatTime(date);
+    let formatted = formatter.formatTime(date);
     ok(
       test.expected.includes(formatted),
       "(test #" + i + ": result '" + formatted + "', expected '" + test.expected + "')"

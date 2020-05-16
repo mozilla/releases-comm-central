@@ -4302,8 +4302,7 @@ function formatCounterValue(aProperty) {
   let val;
   if (dateProps.includes(aProperty.property)) {
     let localTime = aProperty.proposed.getInTimezone(cal.dtz.defaultTimezone);
-    let formatter = cal.getDateFormatter();
-    val = formatter.formatDateTime(localTime);
+    val = cal.dtz.formatter.formatDateTime(localTime);
     if (gTimezonesEnabled) {
       let tzone = localTime.timezone.displayName || localTime.timezone.tzid;
       val += " " + tzone;

@@ -1826,13 +1826,13 @@
       let endhr = Math.floor(realendmin / 60);
       let endmin = realendmin % 60;
 
-      let timeFormatter = cal.getDateFormatter();
+      let formatter = cal.dtz.formatter;
 
       let jsTime = new Date();
       jsTime.setHours(starthr, startmin);
-      let startstr = timeFormatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
+      let startstr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
       jsTime.setHours(endhr, endmin);
-      let endstr = timeFormatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
+      let endstr = formatter.formatTime(cal.dtz.jsDateToDateTime(jsTime, cal.dtz.floating));
 
       // Tasks without Entry or Due date have a string as first label
       // instead of the time.

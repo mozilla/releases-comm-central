@@ -106,7 +106,7 @@ add_task(async function testTodayPane() {
   Assert.equal(listChildren[5].id, "nextweek-header");
 
   // Verify events shown in today pane.
-  let dateFormatter = cal.getDateFormatter();
+  let dateFormatter = cal.dtz.formatter;
 
   let startString = dateFormatter.formatTime(todaysEvent.startDate, cal.dtz.defaultTimezone);
   Assert.equal(

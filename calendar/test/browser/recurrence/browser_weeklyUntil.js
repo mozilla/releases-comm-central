@@ -149,9 +149,7 @@ function setRecurrence(recurrence) {
   recurrence.keypress(untilInput, "a", { accelKey: true });
   recurrence.keypress(untilInput, "VK_DELETE", {});
 
-  let dateFormatter = cal.getDateFormatter();
-
-  let endDateString = dateFormatter.formatDateShort(
+  let endDateString = cal.dtz.formatter.formatDateShort(
     cal.dtz.jsDateToDateTime(ENDDATE, cal.dtz.floating)
   );
   recsleep(SHORT_SLEEP);

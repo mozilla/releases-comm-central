@@ -411,7 +411,7 @@ var TodayPane = {
 
     let monthnamelabel = document.getElementById("monthNameContainer");
     monthnamelabel.value =
-      cal.getDateFormatter().shortMonthName(this.start.month) + " " + this.start.year;
+      cal.dtz.formatter.shortMonthName(this.start.month) + " " + this.start.year;
 
     let currentweeklabel = document.getElementById("currentWeek-label");
     currentweeklabel.value =

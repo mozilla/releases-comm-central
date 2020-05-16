@@ -59,7 +59,7 @@ add_task(function testBasicFunctionality() {
   // Default view is day view which should have 09:00 label and box.
   let someTime = cal.createDateTime();
   someTime.resetTo(someTime.year, someTime.month, someTime.day, 9, 0, 0, someTime.timezone);
-  let label = cal.getDateFormatter().formatTime(someTime);
+  let label = cal.dtz.formatter.formatTime(someTime);
   controller.assertNode(
     lookup(`
         ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/

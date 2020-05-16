@@ -41,7 +41,6 @@ const EVENTURL = "http://mozilla.org/";
 var firstDay;
 
 add_task(async function testEventDialog() {
-  let dateFormatter = cal.getDateFormatter();
   let now = new Date();
 
   createCalendar(controller, CALENDARNAME);
@@ -62,7 +61,7 @@ add_task(async function testEventDialog() {
 
   let nextHour = cal.dtz.now();
   nextHour.resetTo(firstDay.year, firstDay.month, firstDay.day, startHour, 0, 0, cal.dtz.floating);
-  let startTime = dateFormatter.formatTime(nextHour);
+  let startTime = cal.dtz.formatter.formatTime(nextHour);
   nextHour.resetTo(
     firstDay.year,
     firstDay.month,
@@ -72,7 +71,7 @@ add_task(async function testEventDialog() {
     0,
     cal.dtz.floating
   );
-  let endTime = dateFormatter.formatTime(nextHour);
+  let endTime = cal.dtz.formatter.formatTime(nextHour);
 
   // Create new event on first day in view.
   controller.click(lookupEventBox("month", CANVAS_BOX, 1, 1, null));
@@ -227,7 +226,7 @@ function checkTooltip(row, col, startTime, endTime) {
 
   let currDate = firstDay.clone();
   currDate.addDuration(cal.createDuration(`P${7 * (row - 1) + (col - 1)}D`));
-  let startDate = cal.getDateFormatter().formatDate(currDate);
+  let startDate = cal.dtz.formatter.formatDate(currDate);
 
   controller.assert(() => {
     let text = dateTime.getNode().textContent;

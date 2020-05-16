@@ -34,8 +34,6 @@ const TITLE2 = "Day View Event Changed";
 const DESC = "Day View Event Description";
 
 add_task(async function testDayView() {
-  let dateFormatter = cal.getDateFormatter();
-
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
   goToDate(controller, 2009, 1, 1);
@@ -57,8 +55,8 @@ add_task(async function testDayView() {
     let someDate = cal.createDateTime();
     someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.floating);
     event.waitForElement(startTimeInput);
-    event.assertValue(startTimeInput, dateFormatter.formatTime(someDate));
-    event.assertValue(startDateInput, dateFormatter.formatDateShort(someDate));
+    event.assertValue(startTimeInput, cal.dtz.formatter.formatTime(someDate));
+    event.assertValue(startDateInput, cal.dtz.formatter.formatDateShort(someDate));
 
     // Fill in title, description and calendar.
     await setData(event, iframe, {

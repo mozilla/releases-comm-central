@@ -383,3 +383,9 @@ var caldtz = {
     return recentTimezones;
   },
 };
+
+ChromeUtils.defineModuleGetter(
+  caldtz,
+  "formatter",
+  "resource:///modules/calendar/utils/calDateTimeFormatter.jsm"
+);

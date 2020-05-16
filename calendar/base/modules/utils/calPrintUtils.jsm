@@ -123,6 +123,7 @@ var calprint = {
    */
   getItemIntervalString(aItem, aBoxDate) {
     // omit time label for all-day items
+    let formatter = cal.dtz.formatter;
     let startDate = aItem[cal.dtz.startDateProp(aItem)];
     let endDate = aItem[cal.dtz.endDateProp(aItem)];
     if ((startDate && startDate.isDate) || (endDate && endDate.isDate)) {
@@ -131,10 +132,9 @@ var calprint = {
 
     // check for tasks without start and/or due date
     if (!startDate || !endDate) {
-      return cal.getDateFormatter().formatItemTimeInterval(aItem);
+      return formatter.formatItemTimeInterval(aItem);
     }
 
-    let dateFormatter = cal.getDateFormatter();
     let defaultTimezone = cal.dtz.defaultTimezone;
     startDate = startDate.getInTimezone(defaultTimezone);
     endDate = endDate.getInTimezone(defaultTimezone);
@@ -144,17 +144,17 @@ var calprint = {
     end.isDate = true;
     if (start.compare(end) == 0) {
       // Events that start and end in the same day.
-      return dateFormatter.formatTimeInterval(startDate, endDate);
+      return formatter.formatTimeInterval(startDate, endDate);
     }
     // Events that span two or more days.
     let compareStart = aBoxDate.compare(start);
     let compareEnd = aBoxDate.compare(end);
     if (compareStart == 0) {
-      return "\u21e4 " + dateFormatter.formatTime(startDate); // unicode '⇤'
+      return "\u21e4 " + formatter.formatTime(startDate); // unicode '⇤'
     } else if (compareStart > 0 && compareEnd < 0) {
       return "\u21ff"; // unicode '↔'
     } else if (compareEnd == 0) {
-      return "\u21e5 " + dateFormatter.formatTime(endDate); // unicode '⇥'
+      return "\u21e5 " + formatter.formatTime(endDate); // unicode '⇥'
     }
     return "";
   },

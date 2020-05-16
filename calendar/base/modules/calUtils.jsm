@@ -64,7 +64,6 @@ var cal = {
   ),
   getFreeBusyService: _service("@mozilla.org/calendar/freebusy-service;1", "calIFreeBusyService"),
   getWeekInfoService: _service("@mozilla.org/calendar/weekinfo-service;1", "calIWeekInfoService"),
-  getDateFormatter: _service("@mozilla.org/calendar/datetime-formatter;1", "calIDateTimeFormatter"),
   getDragService: _service("@mozilla.org/widget/dragservice;1", "nsIDragService"),
 
   /**

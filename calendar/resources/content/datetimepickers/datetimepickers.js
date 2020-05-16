@@ -1499,7 +1499,7 @@
     // Usually, floating is ok here, so no need to pass aTimezone - we just need to pass
     // it in if we need to make sure formatting happens without a timezone conversion.
     let timezone = aTimezone || cal.dtz.floating;
-    return cal.getDateFormatter().formatDateShort(cal.dtz.jsDateToDateTime(aDate, timezone));
+    return cal.dtz.formatter.formatDateShort(cal.dtz.jsDateToDateTime(aDate, timezone));
   }
 
   function formatTime(aValue) {

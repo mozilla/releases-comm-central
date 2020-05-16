@@ -46,15 +46,14 @@ var gViewsPane = {
   initializeViewStartEndMenus() {
     const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+    let formatter = cal.dtz.formatter;
     let calTime = cal.createDateTime();
     calTime.minute = 0;
-
-    let timeFormatter = cal.getDateFormatter();
 
     // 1 to 23 instead of 0 to 24 to keep midnight & noon as the localized strings
     for (let theHour = 1; theHour <= 23; theHour++) {
       calTime.hour = theHour;
-      let time = timeFormatter.formatTime(calTime);
+      let time = formatter.formatTime(calTime);
 
       let labelIdStart = "timeStart" + theHour;
       let labelIdEnd = "timeEnd" + theHour;

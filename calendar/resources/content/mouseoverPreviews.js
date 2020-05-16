@@ -326,7 +326,7 @@ function boxAppendBody(box, textString, aIsTooltip) {
  */
 function boxAppendLabeledDateTime(box, labelProperty, date) {
   date = date.getInTimezone(cal.dtz.defaultTimezone);
-  let formattedDateTime = cal.getDateFormatter().formatDateTime(date);
+  let formattedDateTime = cal.dtz.formatter.formatDateTime(date);
   boxAppendLabeledText(box, labelProperty, formattedDateTime);
 }
 
@@ -339,7 +339,7 @@ function boxAppendLabeledDateTime(box, labelProperty, date) {
  * @param item              the event or task
  */
 function boxAppendLabeledDateTimeInterval(box, labelProperty, item) {
-  let dateString = cal.getDateFormatter().formatItemInterval(item);
+  let dateString = cal.dtz.formatter.formatItemInterval(item);
   boxAppendLabeledText(box, labelProperty, dateString);
 }
 

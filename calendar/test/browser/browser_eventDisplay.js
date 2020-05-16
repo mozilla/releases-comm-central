@@ -12,7 +12,7 @@ var controller = mozmill.getMail3PaneController();
 var calendarId = createCalendar(controller, CALENDARNAME);
 var calendar = cal.async.promisifyCalendar(cal.getCalendarManager().getCalendarById(calendarId));
 
-let formatter = cal.getDateFormatter();
+let formatter = cal.dtz.formatter;
 let startTime = formatter.formatTime(cal.createDateTime("20190403T123400"));
 let endTime = formatter.formatTime(cal.createDateTime("20190403T234500"));
 

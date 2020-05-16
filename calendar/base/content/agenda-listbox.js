@@ -48,7 +48,7 @@
           }
         }
       } else if (synthetic.duration == 1) {
-        this.kCheckbox.label = cal.getDateFormatter().formatDate(synthetic.start);
+        this.kCheckbox.label = cal.dtz.formatter.formatDate(synthetic.start);
       } else {
         this.kCheckbox.label = cal
           .getDateFormatter()
@@ -140,7 +140,7 @@
       this.mOccurrence = aOccurrence;
       this.mAllDayItem = this.querySelector("calendar-month-day-box-item");
       this.mAllDayItem.occurrence = aOccurrence;
-      let dateFormatter = cal.getDateFormatter();
+      let dateFormatter = cal.dtz.formatter;
       let periodStartDate = aPeriod.start.clone();
       periodStartDate.isDate = true;
       let periodEndDate = aPeriod.end;
@@ -271,9 +271,7 @@
     setOccurrence(aItem, aPeriod) {
       this.mOccurrence = aItem;
       this.setAttribute("status", aItem.status);
-      let dateFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-        Ci.calIDateTimeFormatter
-      );
+      let dateFormatter = cal.dtz.formatter;
       let periodStartDate = aPeriod.start.clone();
       periodStartDate.isDate = true;
       let periodEndDate = aPeriod.end.clone();

@@ -77,7 +77,7 @@ CalHtmlExporter.prototype = {
         itemNode.querySelector(".intervalkey").textContent = prefixWhen;
 
         let startNode = itemNode.querySelector(".dtstart");
-        let dateString = cal.getDateFormatter().formatItemInterval(item);
+        let dateString = cal.dtz.formatter.formatItemInterval(item);
         startNode.setAttribute("title", startDate ? startDate.icalString : "none");
         startNode.textContent = dateString;
       } else {

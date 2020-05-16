@@ -488,9 +488,7 @@ class CalendarTaskTreeView {
    */
   _formatDateTime(dateTime) {
     return dateTime && dateTime.isValid
-      ? Cc["@mozilla.org/calendar/datetime-formatter;1"]
-          .getService(Ci.calIDateTimeFormatter)
-          .formatDateTime(dateTime.getInTimezone(cal.dtz.defaultTimezone))
+      ? cal.dtz.formatter.formatDateTime(dateTime.getInTimezone(cal.dtz.defaultTimezone))
       : "";
   }
 }

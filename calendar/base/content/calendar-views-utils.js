@@ -613,7 +613,7 @@ var calendarNavigationBar = {
       let secondWeekNo = firstWeekNo;
       let weekLabel = document.getElementById("calendarWeek");
       if (startDate.nativeTime == endDate.nativeTime) {
-        intervalLabel.value = cal.getDateFormatter().formatDate(startDate);
+        intervalLabel.value = cal.dtz.formatter.formatDate(startDate);
       } else {
         intervalLabel.value = currentView().getRangeDescription();
         secondWeekNo = cal.getWeekInfoService().getWeekTitle(endDate);

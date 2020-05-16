@@ -72,7 +72,7 @@ function recurrenceRule2String(recurrenceInfo, startDate, endDate, allDay) {
     ];
 
     if (rule && !checkRecurrenceRule(rule, byparts)) {
-      let dateFormatter = cal.getDateFormatter();
+      let dateFormatter = cal.dtz.formatter;
       let ruleString;
       if (rule.type == "DAILY") {
         if (checkRecurrenceRule(rule, ["BYDAY"])) {

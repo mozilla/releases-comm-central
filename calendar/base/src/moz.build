@@ -17,7 +17,6 @@ EXTRA_JS_MODULES += [
     'CalAttendee.jsm',
     'CalCalendarManager.jsm',
     'CalCalendarSearchService.jsm',
-    'CalDateTimeFormatter.jsm',
     'CalDefaultACLManager.jsm',
     'CalDeletedItems.jsm',
     'CalEvent.jsm',

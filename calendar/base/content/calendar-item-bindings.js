@@ -51,12 +51,11 @@
       } else {
         const kDefaultTimezone = cal.dtz.defaultTimezone;
         let localTime = date.getInTimezone(kDefaultTimezone);
-        let formatter = cal.getDateFormatter();
-        this.value = formatter.formatDateTime(localTime);
+        this.value = cal.dtz.formatter.formatDateTime(localTime);
         if (!date.timezone.isFloating && date.timezone.tzid != kDefaultTimezone.tzid) {
           // we additionally display the original datetime with timezone
           let orgTime = cal.l10n.getCalString("datetimeWithTimezone", [
-            formatter.formatDateTime(date),
+            cal.dtz.formatter.formatDateTime(date),
             date.timezone.tzid,
           ]);
           this.value += " (" + orgTime + ")";

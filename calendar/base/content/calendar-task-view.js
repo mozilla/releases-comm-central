@@ -28,9 +28,7 @@ var taskDetailsView = {
       return flag;
     }
 
-    let dateFormatter = Cc["@mozilla.org/calendar/datetime-formatter;1"].getService(
-      Ci.calIDateTimeFormatter
-    );
+    let dateFormatter = cal.dtz.formatter;
 
     let item = document.getElementById("calendar-task-tree").currentTask;
     if (

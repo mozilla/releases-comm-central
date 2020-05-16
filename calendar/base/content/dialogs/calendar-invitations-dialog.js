@@ -16,11 +16,9 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
     constructor() {
       super();
 
-      this.mDateFormatter = null;
       this.mCalendarItem = null;
       this.mInitialParticipationStatus = null;
       this.mParticipationStatus = null;
-      this.mDateFormatter = cal.getDateFormatter();
       this.calInvitationsProps = Services.strings.createBundle(
         "chrome://calendar/locale/calendar-invitations-dialog.properties"
       );
@@ -111,7 +109,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       titleLabel.setAttribute("value", item.title);
 
       let dateLabel = this.querySelector(".calendar-invitations-richlistitem-date");
-      let dateString = this.mDateFormatter.formatItemInterval(item);
+      let dateString = cal.dtz.formatter.formatItemInterval(item);
       if (item.startDate.isDate) {
         dateString += ", " + this.getString("alldayEvent");
       }

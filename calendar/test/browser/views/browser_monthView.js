@@ -32,8 +32,6 @@ const TITLE2 = "Month View Event Changed";
 const DESC = "Month View Event Description";
 
 add_task(async function testMonthView() {
-  let dateFormatter = cal.getDateFormatter();
-
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "month");
   goToDate(controller, 2009, 1, 1);
@@ -61,8 +59,8 @@ add_task(async function testMonthView() {
     let someDate = cal.dtz.now();
     someDate.resetTo(2009, 0, 1, nextHour, 0, 0, cal.dtz.floating);
     event.waitForElement(startTimeInput);
-    event.assertValue(startTimeInput, dateFormatter.formatTime(someDate));
-    event.assertValue(startDateInput, dateFormatter.formatDateShort(someDate));
+    event.assertValue(startTimeInput, cal.dtz.formatter.formatTime(someDate));
+    event.assertValue(startDateInput, cal.dtz.formatter.formatDateShort(someDate));
 
     // Fill in title, description and calendar.
     await setData(event, iframe, {

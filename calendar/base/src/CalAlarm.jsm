@@ -613,9 +613,8 @@ CalAlarm.prototype = {
     if (this.related == ALARM_RELATED_ABSOLUTE && this.mAbsoluteDate) {
       // this is an absolute alarm. Use the calendar default timezone and
       // format it.
-      let formatter = cal.getDateFormatter();
       let formatDate = this.mAbsoluteDate.getInTimezone(cal.dtz.defaultTimezone);
-      return formatter.formatDateTime(formatDate);
+      return cal.dtz.formatter.formatDateTime(formatDate);
     } else if (this.related != ALARM_RELATED_ABSOLUTE && this.mOffset) {
       // Relative alarm length
       let alarmlen = Math.abs(this.mOffset.inSeconds / 60);

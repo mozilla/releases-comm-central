@@ -10,6 +10,7 @@ EXTRA_JS_MODULES.calendar.utils += [
     'utils/calAuthUtils.jsm',
     'utils/calCategoryUtils.jsm',
     'utils/calDataUtils.jsm',
+    'utils/calDateTimeFormatter.jsm',
     'utils/calDateTimeUtils.jsm',
     'utils/calEmailUtils.jsm',
     'utils/calItemUtils.jsm',

@@ -40,7 +40,7 @@ function test_rules() {
     dump("Expected " + expected.length + " occurrences\n");
     dump("Got: " + recdates.map(x => x.toString()) + "\n");
     equal(recdates.length, expected.length);
-    let fmt = cal.getDateFormatter();
+    let fmt = cal.dtz.formatter;
 
     for (let i = 0; i < expected.length; i++) {
       // Check each date

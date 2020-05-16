@@ -290,7 +290,7 @@ function unifinderItemSelect(aEvent) {
  * @return              The passed date's formatted in the default timezone.
  */
 function formatUnifinderEventDateTime(aDatetime) {
-  return cal.getDateFormatter().formatDateTime(aDatetime.getInTimezone(cal.dtz.defaultTimezone));
+  return cal.dtz.formatter.formatDateTime(aDatetime.getInTimezone(cal.dtz.defaultTimezone));
 }
 
 /**
