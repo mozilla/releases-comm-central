@@ -173,6 +173,87 @@ function resizeDialog() {
   }
 }
 
+/**
+ * Inline confirmation dialog
+ * Shows, below status area:
+ *
+ * Your question here
+ *  [ Cancel ] [ OK ]
+ *
+ * @param {string} questionLabel - Text with the question.
+ * @param {string} okLabel - Text for OK/Yes button.
+ * @param {string} cancelLabel - Text for Cancel/No button.
+ * @param {function} okCallback - Called when the user clicks OK.
+ * @param {function(ex)} cancelCallback - Called when the user clicks Cancel
+ *   or if you call `Abortable.cancel()`.
+ * @returns {Abortable} - If `Abortable.cancel()` is called,
+ *   the dialog is closed and the `cancelCallback()` is called.
+ */
+function confirmDialog(
+  questionLabel,
+  okLabel,
+  cancelLabel,
+  okCallback,
+  cancelCallback
+) {
+  e("confirmationQuestion").textContent = questionLabel;
+  let okButton = e("confirmationOKButton");
+  let cancelButton = e("confirmationCancelButton");
+  okButton.label = okLabel;
+  cancelButton.label = cancelLabel;
+
+  // Disable UI we don't want in this state.
+  let statusAreaWasHidden = e("status-area").hidden;
+  let statusLineWasHidden = e("status-lines").hidden;
+  let cancelWasDisabled = e("cancel_button").disabled;
+  let stopWasDisabled = e("stop_button").disabled;
+  let manualConfigWasDisabled = e("manual-edit_button").disabled;
+  let nextWasDisabled = e("next_button").disabled;
+
+  _hide("status-area");
+  _hide("status-lines");
+  _disable("cancel_button");
+  _disable("stop_button");
+  _disable("manual-edit_button");
+  _disable("next_button");
+
+  _show("confirmationDialog");
+  resizeDialog();
+
+  function close() {
+    _hide("confirmationDialog");
+    e("status-area").hidden = statusAreaWasHidden;
+    e("status-lines").hidden = statusLineWasHidden;
+    e("cancel_button").disabled = cancelWasDisabled;
+    e("stop_button").disabled = stopWasDisabled;
+    e("manual-edit_button").disabled = manualConfigWasDisabled;
+    e("next_button").disabled = nextWasDisabled;
+    resizeDialog();
+  }
+  okButton.addEventListener(
+    "command",
+    event => {
+      close();
+      okCallback();
+    },
+    { once: true }
+  );
+  cancelButton.addEventListener(
+    "command",
+    event => {
+      close();
+      cancelCallback(new UserCancelledException());
+    },
+    { once: true }
+  );
+  let abortable = new Abortable();
+  abortable.cancel = ex => {
+    close();
+    cancelCallback(ex);
+  };
+  return abortable;
+}
+
 function EmailConfigWizard() {
   this._init();
 }
@@ -631,7 +712,8 @@ EmailConfigWizard.prototype = {
         // all failed
         self._abortable = null;
         self.removeStatusLines();
-        if (allErrors.some(e => e instanceof CancelledException)) {
+        if (e instanceof CancelledException) {
+          self.onStartOver();
           return;
         }
 
@@ -698,7 +780,9 @@ EmailConfigWizard.prototype = {
         (e, allErrors) => {
           // Must call error callback in any case to stop the discover mode.
           let errorCallback = call.errorCallback();
-          if (allErrors && allErrors.some(e => e.code == 401)) {
+          if (e instanceof CancelledException) {
+            errorCallback(e);
+          } else if (allErrors && allErrors.some(e => e.code == 401)) {
             // Auth failed.
             // Ask user for username.
             this.onStartOver();
@@ -1009,6 +1093,7 @@ EmailConfigWizard.prototype = {
           setText("result_addon_intro", msg);
 
           let containerE = e("result_addon_install_rows");
+          removeChildNodes(containerE);
           for (let addon of config.addons) {
             // Creates
             // <hbox flex="1">

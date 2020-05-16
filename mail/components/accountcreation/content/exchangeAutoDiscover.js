@@ -87,8 +87,6 @@ function fetchConfigFromExchange(
     },
     username: username || emailAddress,
     password,
-    // url3 is HTTP (not HTTPS), so suppress password. Even MS spec demands so.
-    requireSecureAuth: true,
     allowAuthPrompt: false,
   };
   let call;
@@ -129,21 +127,94 @@ function fetchConfigFromExchange(
   call.setAbortable(fetch);
 
   call = priority.addCall();
-  fetch3 = new FetchHTTP(
-    url3,
-    callArgs,
-    call.successCallback(),
-    call.errorCallback()
-  );
+  let call3ErrorCallback = call.errorCallback();
+  // url3 is HTTP (not HTTPS), so suppress password. Even MS spec demands so.
+  let call3Args = deepCopy(callArgs);
+  delete call3Args.username;
+  delete call3Args.password;
+  fetch3 = new FetchHTTP(url3, call3Args, call.successCallback(), ex => {
+    // url3 is an HTTP URL that will redirect to the real one, usually a
+    // HTTPS URL of the hoster. XMLHttpRequest unfortunately loses the call
+    // parameters, drops the auth, drops the body, and turns POST into GET,
+    // which cause the call to fail. For AutoDiscover mechanism to work,
+    // we need to repeat the call with the correct parameters again.
+    let redirectURL = fetch3._request.responseURL;
+    if (!redirectURL.startsWith("https:")) {
+      call3ErrorCallback(ex);
+      return;
+    }
+    let redirectURI = Services.io.newURI(redirectURL);
+    let redirectDomain = Services.eTLD.getBaseDomain(redirectURI);
+    let originalDomain = Services.eTLD.getBaseDomainFromHost(domain);
+
+    function fetchRedirect() {
+      let fetchCall = priority.addCall();
+      let fetch = new FetchHTTP(
+        redirectURL,
+        callArgs, // now with auth
+        fetchCall.successCallback(),
+        fetchCall.errorCallback()
+      );
+      fetchCall.setAbortable(fetch);
+      fetch.start();
+    }
+
+    const kSafeDomains = ["office365.com", "outlook.com"];
+    if (
+      redirectDomain != originalDomain &&
+      !kSafeDomains.includes(redirectDomain)
+    ) {
+      // Given that we received the redirect URL from an insecure HTTP call,
+      // we ask the user whether he trusts the redirect domain.
+      gEmailWizardLogger.info("AutoDiscover HTTP redirected to other domain");
+      let dialogSuccessive = new SuccessiveAbortable();
+      // Because the dialog implements Abortable, the dialog will cancel and
+      // close automatically, if a slow higher priority call returns late.
+      let dialogCall = priority.addCall();
+      dialogCall.setAbortable(dialogSuccessive);
+      call3ErrorCallback(new Exception("Redirected"));
+      dialogSuccessive.current = new TimeoutAbortable(
+        setTimeout(() => {
+          let questionLabel = gStringsBundle.getFormattedString(
+            "otherDomain.label",
+            [
+              document
+                .getElementById("bundle_brand")
+                .getString("brandShortName"),
+              redirectDomain,
+            ]
+          );
+          let okLabel = gStringsBundle.getString("otherDomain_ok.label");
+          let cancelLabel = gStringsBundle.getString(
+            "otherDomain_cancel.label"
+          );
+          dialogSuccessive.current = confirmDialog(
+            questionLabel,
+            okLabel,
+            cancelLabel,
+            () => {
+              // User agreed.
+              fetchRedirect();
+              // Remove the dialog from the call stack.
+              dialogCall.errorCallback()(new Exception("Proceed to fetch"));
+            },
+            ex => {
+              // User rejected, or action cancelled otherwise.
+              dialogCall.errorCallback()(ex);
+            }
+          );
+          // Account for a slow server response.
+          // This will prevent showing the warning message when not necessary.
+          // The timeout is just for optics. The Abortable ensures that it works.
+        }, 2000)
+      );
+    } else {
+      fetchRedirect();
+      call3ErrorCallback(new Exception("Redirected"));
+    }
+  });
   fetch3.start();
   call.setAbortable(fetch3);
-
-  // url3 is an HTTP URL that will redirect to the real one, usually a HTTPS
-  // URL of the hoster. XMLHttpRequest unfortunately loses the call
-  // parameters, drops the auth, drops the body, and turns POST into GET,
-  // which cause the call to fail, but FetchHTTP fixes this and automatically
-  // repeats the call. We need that, otherwise the whole AutoDiscover
-  // mechanism doesn't work.
 
   successive.current = priority;
   return successive;

@@ -441,7 +441,8 @@ ParallelCall.prototype = {
  *     {ParallelCall} call - Winner call info
  *   )} successCallback -  A call returned successfully
  * @param {Function(e, allErrors)} errorCallback - All calls failed.
- *     {Exception} e - The exception returned by the first call.
+ *     {Exception} e - The first CancelledException, and otherwise
+ *       the exception returned by the first call.
  *     This is just to adhere to the standard API of errorCallback(e).
  *     {Array of Exception} allErrors - The exceptions from all calls.
  */
@@ -487,10 +488,10 @@ function PriorityOrderAbortable(successCallback, errorCallback) {
     }
     if (!this._successfulCall) {
       // all failed
-      errorCallback(
-        this._calls[0].e,
-        this._calls.map(call => call.e)
-      ); // see docs above
+      let allErrors = this._calls.map(call => call.e);
+      let e =
+        allErrors.find(e => e instanceof CancelledException) || allErrors[0];
+      errorCallback(e, allErrors); // see docs above
     }
   });
 }

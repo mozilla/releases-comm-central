@@ -71,6 +71,31 @@
   margin-right: 2px;
 }
 
+#confirmationDialog {
+  margin-block: 10px;
+  padding: 10px;
+  background-color: #FFE900;
+  color: #333333;
+  border: 1px solid #F3CE00;
+  border-radius: 2px;
+}
+
+#confirmationButtons {
+  margin-top: 6px;
+}
+
+#confirmationDialog button {
+  background-color: -moz-Dialog;
+  border: 1px solid ThreeDShadow;
+  margin-inline: 5px;
+  margin-bottom: 0;
+}
+
+#confirmationDialog button:hover,
+#confirmationDialog button:focus {
+  background-color: #FFFFFF;
+}
+
 checkbox.acknowledge_checkbox {
   padding-top: .5em;
 }
