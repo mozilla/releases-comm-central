@@ -1685,6 +1685,7 @@ nsImapMailFolder::GetImapIncomingServer(
   nsCOMPtr<nsIMsgIncomingServer> server;
   if (NS_SUCCEEDED(GetServer(getter_AddRefs(server))) && server) {
     nsCOMPtr<nsIImapIncomingServer> incomingServer = do_QueryInterface(server);
+    NS_ENSURE_TRUE(incomingServer, NS_ERROR_NO_INTERFACE);
     incomingServer.forget(aImapIncomingServer);
     return NS_OK;
   }
