@@ -590,6 +590,20 @@ function getService(contractID, iface)
 
 }
 
+function getNSSErrorClass(errorCode)
+{
+    var nssErrSvc = getService("@mozilla.org/nss_errors_service;1", "nsINSSErrorsService");
+
+    try
+    {
+        return nssErrSvc.getErrorClass(errorCode);
+    }
+    catch
+    {
+        return 0;
+    }
+}
+
 function getContentWindow(frame)
 {
     try

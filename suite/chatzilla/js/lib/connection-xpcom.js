@@ -12,6 +12,7 @@ const NS_ERROR_NET_TIMEOUT = NS_ERROR_MODULE_NETWORK + 14;
 const NS_ERROR_OFFLINE = NS_ERROR_MODULE_NETWORK + 16;
 const NS_ERROR_NET_RESET = NS_ERROR_MODULE_NETWORK + 20;
 const NS_ERROR_UNKNOWN_PROXY_HOST = NS_ERROR_MODULE_NETWORK + 42;
+const NS_ERROR_NET_INTERRUPT = NS_ERROR_MODULE_NETWORK + 71;
 const NS_ERROR_PROXY_CONNECTION_REFUSED = NS_ERROR_MODULE_NETWORK + 72;
 
 // Offline error constants:
@@ -24,23 +25,9 @@ const NS_NET_STATUS_SENDING_TO = NS_ERROR_MODULE_NETWORK + 5;
 const NS_NET_STATUS_RECEIVING_FROM = NS_ERROR_MODULE_NETWORK + 6;
 const NS_NET_STATUS_CONNECTING_TO = NS_ERROR_MODULE_NETWORK + 7;
 
-// Security error constants:
-// http://mxr.mozilla.org/mozilla/source/security/nss/lib/util/secerr.h
-const SEC_ERROR_BASE = 0x805A2000;
-// http://mxr.mozilla.org/mozilla/source/security/nss/lib/ssl/sslerr.h
-const SSL_ERROR_BASE = 0x805A3000;
-
-// The subset of certificate errors which is allowed to be overridden
-// http://bonsai.mozilla.org/cvsblame.cgi?file=mozilla/security/manager/ssl/src/nsNSSIOLayer.cpp&rev=1.165#2921
-
-const SEC_ERROR_EXPIRED_CERTIFICATE = SEC_ERROR_BASE - 11;
-const SEC_ERROR_UNKNOWN_ISSUER = SEC_ERROR_BASE - 13;
-const SEC_ERROR_UNTRUSTED_ISSUER = SEC_ERROR_BASE - 20;
-const SEC_ERROR_UNTRUSTED_CERT = SEC_ERROR_BASE - 21;
-const SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE = SEC_ERROR_BASE - 30;
-const SEC_ERROR_CA_CERT_INVALID = SEC_ERROR_BASE - 36;
-const SEC_ERROR_INADEQUATE_KEY_USAGE = SEC_ERROR_BASE - 90;
-const SSL_ERROR_BAD_CERT_DOMAIN = SSL_ERROR_BASE - 12;
+// Security error class constants:
+const ERROR_CLASS_SSL_PROTOCOL = 1;
+const ERROR_CLASS_BAD_CERT = 2;
 
 // Security Constants.
 const STATE_IS_BROKEN = 1;

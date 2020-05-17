@@ -1279,12 +1279,7 @@ function serv_disconnect(e)
         return;
 
     // Don't reconnect from a certificate error.
-    var certErrors = [SEC_ERROR_EXPIRED_CERTIFICATE, SEC_ERROR_UNKNOWN_ISSUER,
-                      SEC_ERROR_UNTRUSTED_ISSUER, SEC_ERROR_UNTRUSTED_CERT,
-                      SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE,
-                      SEC_ERROR_CA_CERT_INVALID, SEC_ERROR_INADEQUATE_KEY_USAGE,
-                      SSL_ERROR_BAD_CERT_DOMAIN];
-    var certError = arrayContains(certErrors, e.disconnectStatus);
+    var certError = (getNSSErrorClass(e.disconnectStatus) == ERROR_CLASS_BAD_CERT);
 
     // Don't reconnect if our connection was aborted.
     var wasAborted = (e.disconnectStatus == NS_ERROR_ABORT);

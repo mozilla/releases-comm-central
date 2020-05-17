@@ -2226,6 +2226,11 @@ function my_netdisconnect (e)
                              [this.getURL(), e.server.getURL()]);
                 break;
 
+            case NS_ERROR_NET_INTERRUPT:
+                msg = getMsg(MSG_CONNECTION_INTERRUPT,
+                             [this.getURL(), e.server.getURL()]);
+                break;
+
             case NS_ERROR_UNKNOWN_HOST:
                 msg = getMsg(MSG_UNKNOWN_HOST,
                              [e.server.hostname, this.getURL(),
@@ -2261,27 +2266,34 @@ function my_netdisconnect (e)
                 retrying = false;
                 break;
 
-            // Group all certificate errors together.
-            // The exception adding dialog will explain the reasons.
-            case SEC_ERROR_EXPIRED_CERTIFICATE:
-            case SEC_ERROR_UNKNOWN_ISSUER:
-            case SEC_ERROR_UNTRUSTED_ISSUER:
-            case SEC_ERROR_UNTRUSTED_CERT:
-            case SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE:
-            case SEC_ERROR_CA_CERT_INVALID:
-            case SEC_ERROR_INADEQUATE_KEY_USAGE:
-            case SSL_ERROR_BAD_CERT_DOMAIN:
-                var cmd = "ssl-exception";
-                cmd += " " + e.server.hostname + " " + e.server.port;
-                cmd += " true";
-                msg = getMsg(MSG_INVALID_CERT, [this.getURL(), cmd]);
-                retrying = false;
-                break;
-
             default:
+                var errClass = getNSSErrorClass(e.disconnectStatus);
+                // Check here if it's a cert error.
+                // The exception adding dialog will explain the reasons.
+                if (errClass == ERROR_CLASS_BAD_CERT)
+                {
+                    var cmd = "ssl-exception";
+                    cmd += " " + e.server.hostname + " " + e.server.port;
+                    cmd += " true";
+                    msg = getMsg(MSG_INVALID_CERT, [this.getURL(), cmd]);
+                    retrying = false;
+                    break;
+                }
+
+                // If it's a protocol error, we can still display a useful message.
+                var statusMsg = e.disconnectStatus;
+                if (errClass == ERROR_CLASS_SSL_PROTOCOL)
+                {
+                    var nssErrSvc = getService("@mozilla.org/nss_errors_service;1",
+                                               "nsINSSErrorsService");
+                    var errMsg = nssErrSvc.getErrorMessage(e.disconnectStatus);
+                    errMsg = errMsg.replace(/\.$/, "");
+                    statusMsg += " (" + errMsg + ")";
+                }
+
                 msg = getMsg(MSG_CLOSE_STATUS,
                              [this.getURL(), e.server.getURL(),
-                              e.disconnectStatus]);
+                              statusMsg]);
                 break;
         }
     }
