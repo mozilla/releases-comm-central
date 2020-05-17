@@ -330,7 +330,7 @@
                     hidden="true"
                     command="cmd_search_focus"
                     key="key_search_focus"/>
-          <menuseparator/>
+          <menuseparator hidden="true"/>
         </menupopup>
       </menu>
       <menu id="windowMenu"/>
