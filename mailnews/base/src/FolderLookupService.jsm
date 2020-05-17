@@ -66,7 +66,11 @@ FolderLookupService.prototype = {
 
     // Check that uri has an active scheme, in case this folder is from
     // an extension that is currently disabled or hasn't started up yet.
-    let scheme = uri.match(/^([-+.\w]+):/)[1];
+    let schemeMatch = uri.match(/^([-+.\w]+):/);
+    if (!schemeMatch) {
+      return null;
+    }
+    let scheme = schemeMatch[1];
     let contractID = "@mozilla.org/mail/folder-factory;1?name=" + scheme;
     if (!(contractID in Cc)) {
       Cu.reportError(
