@@ -98,7 +98,7 @@ MatrixConversation.prototype = {
    */
   close() {
     this._account._client.leave(this._roomId);
-    this._account._roomList.delete(this._roomId);
+    this._account.roomList.delete(this._roomId);
     GenericConvChatPrototype.close.call(this);
   },
   sendMsg(msg) {
@@ -226,15 +226,16 @@ MatrixConversation.prototype = {
  */
 function MatrixAccount(aProtocol, aImAccount) {
   this._init(aProtocol, aImAccount);
+  this.roomList = new Map();
 }
 MatrixAccount.prototype = {
   __proto__: GenericAccountPrototype,
   observe(aSubject, aTopic, aData) {},
   remove() {
-    for (let room of Object.values(this._roomList)) {
-      room.close();
+    for (let conv of this.roomList.values()) {
+      conv.close();
     }
-    delete this._roomList;
+    delete this.roomList;
     // We want to clear data stored for syncing in indexedDB so when
     // user logins again, one gets the fresh start.
     this._client.clearStores();
@@ -298,12 +299,12 @@ MatrixAccount.prototype = {
       }
     });
     this._client.on("RoomMember.membership", (event, member, oldMembership) => {
-      if (member.roomId in this._roomList) {
-        var room = this._roomList[member.roomId];
+      let conv = this.roomList.get(member.roomId);
+      if (conv) {
         if (member.membership === "join") {
-          room.addParticipant(member);
+          conv.addParticipant(member);
         } else if (member.membership === "leave") {
-          room.removeParticipant(member.userId);
+          conv.removeParticipant(member.userId);
         }
         // Other options include "invite".
       }
@@ -315,10 +316,10 @@ MatrixAccount.prototype = {
         if (toStartOfTimeline) {
           return;
         }
-        if (room.roomId in this._roomList) {
-          let conv = this._roomList[room.roomId];
+        let conv = this.roomList.get(room.roomId);
+        if (conv) {
           // If this room was never initialized, do it now.
-          if (conv && !conv._roomId) {
+          if (!conv._roomId) {
             conv.initRoom(room);
           }
           if (event.getType() === "m.room.message") {
@@ -327,7 +328,7 @@ MatrixAccount.prototype = {
             });
           } else if (event.getType() == "m.room.topic") {
             conv.setTopic(event.getContent().topic, event.sender.name);
-          } else if (conv && event.getType() == "m.room.power_levels") {
+          } else if (event.getType() == "m.room.power_levels") {
             conv.notifyObservers(null, "chat-update-topic");
             conv.writeMessage(
               event.sender.name,
@@ -352,8 +353,8 @@ MatrixAccount.prototype = {
       }
     );
     // Update the chat participant information.
-    this._client.on("RoomMember.name", this.updateRoomMember);
-    this._client.on("RoomMember.powerLevel", this.updateRoomMember);
+    this._client.on("RoomMember.name", this.updateRoomMember.bind(this));
+    this._client.on("RoomMember.powerLevel", this.updateRoomMember.bind(this));
 
     // TODO Other events to handle:
     //  Room.accountData
@@ -372,7 +373,7 @@ MatrixAccount.prototype = {
 
     this._client.on("Room.name", room => {
       // Update the title to the human readable version.
-      let conv = this._roomList[room.roomId];
+      let conv = this.roomList.get(room.roomId);
       if (
         conv &&
         room.summary &&
@@ -388,14 +389,14 @@ MatrixAccount.prototype = {
     // Get the list of joined rooms on the server and create those conversations.
     this._client.getJoinedRooms().then(response => {
       for (let roomId of response.joined_rooms) {
-        // If we re-connect and _roomList has a conversation with given room ID
+        // If we re-connect and roomList has a conversation with given room ID
         // that means we have created the associated conversation previously
         // and we don't need to create it again.
-        if (this._roomList[roomId]) {
+        if (this.roomList.has(roomId)) {
           return;
         }
         let conv = new MatrixConversation(this, roomId, this.userId);
-        this._roomList[roomId] = conv;
+        this.roomList.set(roomId, conv);
         let room = this._client.getRoom(roomId);
         if (room && !conv._roomId) {
           conv.initRoom(room);
@@ -405,8 +406,8 @@ MatrixAccount.prototype = {
   },
 
   updateRoomMember(event, member) {
-    if (member.roomId in this._roomList) {
-      let conv = this._roomList[member.roomId];
+    let conv = this.roomList.get(member.roomId);
+    if (conv) {
       let participant = conv._participants.get(member.userId);
       // A participant might not exist (for example, this happens if the user
       // has only been invited, but has not yet joined).
@@ -463,7 +464,7 @@ MatrixAccount.prototype = {
     this._client
       .joinRoom(roomIdOrAlias)
       .then(room => {
-        this._roomList[room.roomId] = conv;
+        this.roomList.set(room.roomId, conv);
         conv.initRoom(room);
         conv.joining = false;
         conv.setTopic(
@@ -578,7 +579,6 @@ MatrixAccount.prototype = {
     return this._client.credentials.userId;
   },
   _client: null,
-  _roomList: new Map(),
 };
 
 function MatrixProtocol() {}
