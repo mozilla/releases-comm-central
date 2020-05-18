@@ -66,7 +66,6 @@ const ABOUT_SUPPORT_STRINGS = [
   "Extensions",
   "Important Modified Preferences",
   "Graphics",
-  "JavaScript",
   "Accessibility",
   "Library Versions",
 ];
