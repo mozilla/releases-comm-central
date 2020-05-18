@@ -2503,7 +2503,7 @@ function openAttachment() {
       Ci.nsIExternalProtocolService
     );
     // TODO There should be a nicer dialog
-    externalLoader.loadURI(attURI, null);
+    externalLoader.loadURI(attURI);
   }
 }
 

@@ -234,7 +234,7 @@ var FeedMessageHandler = {
         if (aWhere.browser) {
           Cc["@mozilla.org/uriloader/external-protocol-service;1"]
             .getService(Ci.nsIExternalProtocolService)
-            .loadURI(uri, null);
+            .loadURI(uri);
         } else if (aWhere.messagepane) {
           let loadURIOptions = {
             triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),

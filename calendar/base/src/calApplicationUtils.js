@@ -32,7 +32,7 @@ function launchBrowser(url, event) {
 
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)
-    .loadURI(Services.io.newURI(url), null);
+    .loadURI(Services.io.newURI(url));
 
   // Make sure that any default click handlers don't do anything, we have taken
   // care of all processing

@@ -227,7 +227,7 @@ function openLinkExternally(url) {
 
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)
-    .loadURI(uri, null);
+    .loadURI(uri);
 }
 
 /**

@@ -532,7 +532,7 @@ function openAttachment(aAttachmentId) {
   if (attachments.length && attachments[0].uri && attachments[0].uri.spec != "about:blank") {
     Cc["@mozilla.org/uriloader/external-protocol-service;1"]
       .getService(Ci.nsIExternalProtocolService)
-      .loadURI(attachments[0].uri, null);
+      .loadURI(attachments[0].uri);
   }
 }
 

@@ -230,7 +230,7 @@ const AppUpdateUI_Internal = {
         let url = Services.urlFormatter.formatURLPref("app.update.url.manual");
         Cc["@mozilla.org/uriloader/external-protocol-service;1"]
           .getService(Ci.nsIExternalProtocolService)
-          .loadURI(Services.io.newURI(url), null);
+          .loadURI(Services.io.newURI(url));
       },
     };
     let secondaryActions = [
@@ -310,7 +310,7 @@ const AppUpdateUI_Internal = {
       callback: () => {
         Cc["@mozilla.org/uriloader/external-protocol-service;1"]
           .getService(Ci.nsIExternalProtocolService)
-          .loadURI(Services.io.newURI(url), null);
+          .loadURI(Services.io.newURI(url));
       },
     };
     let secondaryActions = [

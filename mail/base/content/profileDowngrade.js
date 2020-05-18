@@ -49,5 +49,5 @@ function moreInfo(event) {
   );
   Cc["@mozilla.org/uriloader/external-protocol-service;1"]
     .getService(Ci.nsIExternalProtocolService)
-    .loadURI(uri, null);
+    .loadURI(uri);
 }
