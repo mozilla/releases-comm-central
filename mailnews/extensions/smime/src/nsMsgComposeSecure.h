@@ -13,7 +13,6 @@
 #include "nsIStringBundle.h"
 #include "nsICryptoHash.h"
 #include "nsICMSMessage.h"
-#include "nsIMutableArray.h"
 #include "nsString.h"
 #include "nsIOutputStream.h"
 #include "mozilla/UniquePtr.h"
@@ -77,7 +76,7 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
   nsString mEncryptionCertName;
   nsAutoCString mEncryptionCertDBKey;
   nsCOMPtr<nsIX509Cert> mSelfEncryptionCert;
-  nsCOMPtr<nsIMutableArray> mCerts;
+  nsTArray<RefPtr<nsIX509Cert>> mCerts;
   nsCOMPtr<nsICMSMessage> mEncryptionCinfo;
   nsCOMPtr<nsICMSEncoder> mEncryptionContext;
   nsCOMPtr<nsIStringBundle> mSMIMEBundle;

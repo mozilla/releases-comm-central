@@ -18,7 +18,6 @@ interface nsISMimeVerificationListener;
 [ptr] native UnsignedCharPtr(unsigned char);
 
 interface nsIX509Cert;
-interface nsIArray;
 
 /**
  * nsICMSMessage
@@ -36,7 +35,7 @@ interface nsICMSMessage : nsISupports
   void verifySignature();
   void verifyDetachedSignature(in Array<octet> aDigestData,
                                in int16_t aDigestType);
-  void CreateEncrypted(in nsIArray aRecipientCerts);
+  void CreateEncrypted(in Array<nsIX509Cert> aRecipientCerts);
 
   /* The parameter aDigestType must be one of the values in nsICryptoHash */
   void CreateSigned(in nsIX509Cert scert, in nsIX509Cert ecert,

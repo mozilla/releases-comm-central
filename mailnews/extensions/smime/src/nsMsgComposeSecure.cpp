@@ -520,10 +520,8 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
    */
 
   if (!mIsDraft) {
-    uint32_t numCerts;
-    mCerts->GetLength(&numCerts);
-    PR_ASSERT(numCerts > 0);
-    if (numCerts == 0) return NS_ERROR_FAILURE;
+    PR_ASSERT(!mCerts.IsEmpty());
+    if (mCerts.IsEmpty()) return NS_ERROR_FAILURE;
   }
 
   // Initialize the base64 encoder
@@ -778,11 +776,6 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
   nsresult res;
 
-  mCerts = do_CreateInstance(NS_ARRAY_CONTRACTID, &res);
-  if (NS_FAILED(res)) {
-    return res;
-  }
-
   PR_ASSERT(aEncrypt || aSign);
 
   /*
@@ -900,11 +893,11 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
         already_added_self_cert = true;
       }
 
-      mCerts->AppendElement(cert);
+      mCerts.AppendElement(cert);
     }
 
     if (!already_added_self_cert) {
-      mCerts->AppendElement(mSelfEncryptionCert);
+      mCerts.AppendElement(mSelfEncryptionCert);
     }
   }
   return res;

@@ -13,7 +13,6 @@
 #include "mozilla/RefPtr.h"
 #include "nsArrayUtils.h"
 #include "nsDependentSubstring.h"
-#include "nsIArray.h"
 #include "nsICryptoHash.h"
 #include "nsISupports.h"
 #include "nsIX509CertDB.h"
@@ -471,7 +470,8 @@ class nsZeroTerminatedCertArray {
   uint32_t mSize;
 };
 
-NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
+NS_IMETHODIMP nsCMSMessage::CreateEncrypted(
+    const nsTArray<RefPtr<nsIX509Cert>> &aRecipientCerts) {
   MOZ_LOG(gCMSLog, LogLevel::Debug, ("nsCMSMessage::CreateEncrypted"));
   NSSCMSContentInfo *cinfo;
   NSSCMSEnvelopedData *envd;
@@ -483,8 +483,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
   nsresult rv = NS_ERROR_FAILURE;
 
   // Check the recipient certificates //
-  uint32_t recipientCertCount;
-  aRecipientCerts->GetLength(&recipientCertCount);
+  uint32_t recipientCertCount = aRecipientCerts.Length();
   PR_ASSERT(recipientCertCount > 0);
 
   if (!recipientCerts.allocate(recipientCertCount)) {
@@ -492,7 +491,7 @@ NS_IMETHODIMP nsCMSMessage::CreateEncrypted(nsIArray *aRecipientCerts) {
   }
 
   for (i = 0; i < recipientCertCount; i++) {
-    nsCOMPtr<nsIX509Cert> x509cert = do_QueryElementAt(aRecipientCerts, i);
+    nsIX509Cert *x509cert = aRecipientCerts[i];
 
     if (!x509cert) return NS_ERROR_FAILURE;
 
