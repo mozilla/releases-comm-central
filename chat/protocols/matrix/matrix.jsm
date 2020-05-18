@@ -16,6 +16,8 @@ var {
   GenericConvChatPrototype,
   GenericConvChatBuddyPrototype,
   GenericProtocolPrototype,
+  GenericConversationPrototype,
+  GenericConvIMPrototype,
   TooltipInfo,
 } = ChromeUtils.import("resource:///modules/jsProtoHelper.jsm");
 
@@ -79,28 +81,16 @@ MatrixParticipant.prototype = {
   },
 };
 
-/*
- * TODO Other functionality from MatrixClient to implement:
- *  sendNotice
- *  sendReadReceipt
- *  sendTyping
- *  setPowerLevel
- *  setRoomTopic
- */
-function MatrixConversation(account, name, nick) {
-  this._init(account, name, nick);
-}
-MatrixConversation.prototype = {
-  __proto__: GenericConvChatPrototype,
-
+let GenericMatrixConversation = {
   /*
    * Leave the room if we close the conversation.
    */
   close() {
     this._account._client.leave(this._roomId);
     this._account.roomList.delete(this._roomId);
-    GenericConvChatPrototype.close.call(this);
+    GenericConversationPrototype.close.call(this);
   },
+
   sendMsg(msg) {
     let content = {
       body: msg,
@@ -120,6 +110,46 @@ MatrixConversation.prototype = {
       }
     );
   },
+
+  /*
+   * Shared init function between MatrixDirectConversation and MatrixConversation.
+   *
+   * @param {Object} room - associated room with the conversation.
+   */
+  sharedInitRoom(room) {
+    if (!room) {
+      return;
+    }
+    // Store the ID of the room to look up information in the future.
+    this._roomId = room.roomId;
+
+    // Update the title to the human readable version.
+    if (
+      room.summary &&
+      room.summary.info &&
+      room.summary.info.title &&
+      this._name != room.summary.info.title
+    ) {
+      this._name = room.summary.info.title;
+      this.notifyObservers(null, "update-conv-title");
+    }
+  },
+};
+
+/*
+ * TODO Other functionality from MatrixClient to implement:
+ *  sendNotice
+ *  sendReadReceipt
+ *  sendTyping
+ *  setPowerLevel
+ *  setRoomTopic
+ */
+function MatrixConversation(account, name, nick) {
+  this._init(account, name, nick);
+}
+MatrixConversation.prototype = {
+  __proto__: GenericConvChatPrototype,
+
   get room() {
     return this._account._client.getRoom(this._roomId);
   },
@@ -154,11 +184,7 @@ MatrixConversation.prototype = {
    * @param {Object} room - associated room with the conversation.
    */
   initRoom(room) {
-    if (!room) {
-      return;
-    }
-    // Store the ID of the room to look up information in the future.
-    this._roomId = room.roomId;
+    this.sharedInitRoom(room);
 
     // If there are any participants, create them.
     let participants = [];
@@ -180,16 +206,6 @@ MatrixConversation.prototype = {
       let event = room.currentState.getStateEvents("m.room.topic")[0];
       this.setTopic(event.getContent().topic, event.getSender().name, true);
     }
-
-    if (
-      room.summary &&
-      room.summary.info &&
-      room.summary.info.title &&
-      this._name != room.summary.info.title
-    ) {
-      this._name = room.summary.info.title;
-      this.notifyObservers(null, "update-conv-title");
-    }
   },
 
   get topic() {
@@ -210,6 +226,28 @@ MatrixConversation.prototype = {
     );
   },
 };
+Object.assign(MatrixConversation.prototype, GenericMatrixConversation);
+
+function MatrixDirectConversation(account, name) {
+  this._init(account, name);
+}
+MatrixDirectConversation.prototype = {
+  __proto__: GenericConvIMPrototype,
+
+  /*
+   * Initialize the room after the response from the Matrix client.
+   *
+   * @param {Object} room - associated room with the conversation.
+   */
+  initRoom(room) {
+    this.sharedInitRoom(room);
+  },
+
+  get room() {
+    return this._account._client.getRoom(this._roomId);
+  },
+};
+Object.assign(MatrixDirectConversation.prototype, GenericMatrixConversation);
 
 /*
  * TODO Other random functionality from MatrixClient that will be useful:
