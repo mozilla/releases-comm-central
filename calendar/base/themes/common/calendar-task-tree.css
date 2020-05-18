@@ -45,6 +45,8 @@
     background-color: #ff7a7a !important;
 }
 
+.calendar-task-tree > treechildren::-moz-tree-image(inprogress, selected, focus),
+.calendar-task-tree > treechildren::-moz-tree-image(overdue, selected, focus),
 .calendar-task-tree > treechildren::-moz-tree-cell-text(inprogress, selected, focus),
 :root[lwt-tree-brighttext] .calendar-task-tree >
   treechildren::-moz-tree-cell-text(inprogress, selected, focus),
@@ -69,16 +71,15 @@
     fill: currentColor;
 }
 
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, normalpriority) {
-    list-style-image: url(chrome://calendar/skin/shared/task-images.png);
-    -moz-image-region: rect(0 13px 13px 0);
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority) {
+    margin-inline-start: -2px;
+    -moz-context-properties: fill;
+    fill: transparent;
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, highpriority) {
     list-style-image: url(chrome://calendar/skin/shared/icons/priority.svg);
-    -moz-context-properties: fill;
     fill: red;
-    margin-inline-start: -2px;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree >
@@ -87,19 +88,40 @@
 }
 
 .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
-    list-style-image: url(chrome://calendar/skin/shared/task-images.png);
-    -moz-image-region: rect(0 26px 13px 13px);
-}
-
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected, lowpriority) {
-    -moz-image-region: rect(0 39px 13px 26px);
+    list-style-image: url(chrome://calendar/skin/shared/icons/low-priority.svg);
+    fill: blue;
 }
 
 :root[lwt-tree-brighttext] .calendar-task-tree >
   treechildren::-moz-tree-image(calendar-task-tree-col-priority, lowpriority) {
-    -moz-image-region: rect(0 39px 13px 26px);
+    fill: #fff;
+}
+
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-priority, selected) {
+    fill: currentColor !important;
 }
 
 treecol.calendar-task-tree-col-percentcomplete {
     text-align: end;
+}
+
+.calendar-task-tree-col-completed >.treecol-icon,
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed) {
+  width: 14px;
+  height: 14px;
+  list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
+  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  fill: currentColor;
+  stroke: currentColor;
+  fill-opacity: 0;
+  stroke-opacity: 0;
+}
+
+.calendar-task-tree-col-completed >.treecol-icon,
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, completed) {
+  fill-opacity: 1;
+}
+
+.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, repeating) {
+  fill-opacity: 0.6;
 }

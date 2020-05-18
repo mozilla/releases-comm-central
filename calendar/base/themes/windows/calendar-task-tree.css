@@ -4,27 +4,6 @@
 
 @import url(chrome://calendar/skin/shared/calendar-task-tree.css);
 
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
-.calendar-task-tree-col-completed {
-    list-style-image: url(chrome://calendar/skin/shared/checkbox-images.png);
-}
-
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, completed),
-.calendar-task-tree-col-completed {
-    -moz-image-region: rect(0 26px 13px 13px);
-}
-
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, duetoday),
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, overdue),
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, future),
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, inprogress) {
-    -moz-image-region: rect(0 13px 13px 0);
-}
-
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, repeating) {
-    -moz-image-region: rect(0 39px 13px 26px);
-}
-
 /* Use on Win7 and up default theme a dark text color when selected focus */
 @media (-moz-windows-default-theme) {
     .calendar-task-tree > treechildren::-moz-tree-row(inprogress, selected, focus) {
@@ -48,6 +27,7 @@
         border-color: #ff7a7a !important;
     }
 
+    .calendar-task-tree > treechildren::-moz-tree-image(overdue, selected, focus),
     .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus),
     :root[lwt-tree-brighttext] .calendar-task-tree > treechildren::-moz-tree-cell-text(overdue, selected, focus) {
         color: white !important;

@@ -3,33 +3,3 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url(chrome://calendar/skin/shared/calendar-task-tree.css);
-
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
-.calendar-task-tree-col-completed > .treecol-icon {
-    list-style-image: url(chrome://calendar/skin/checkbox-images.png);
-    width: 16px;
-    height: 16px;
-}
-
-@media (-moz-mac-graphite-theme) {
-    .calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed),
-    .calendar-task-tree-col-completed > .treecol-icon {
-        list-style-image: url(chrome://calendar/skin/checkbox-images-graphite.png);
-    }
-}
-
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, completed),
-.calendar-task-tree-col-completed > .treecol-icon {
-    -moz-image-region: rect(0 64px 32px 32px);
-}
-
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, duetoday),
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, overdue),
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, future),
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, inprogress) {
-    -moz-image-region: rect(0 32px 32px 0);
-}
-
-.calendar-task-tree > treechildren::-moz-tree-image(calendar-task-tree-col-completed, repeating) {
-    -moz-image-region: rect(0 96px 32px 64px);
-}

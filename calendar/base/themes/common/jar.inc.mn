@@ -7,7 +7,6 @@
 # be specified once. As a result, the source file paths are relative
 # to the location of the actual manifest.
 
-    skin/classic/calendar/shared/accountCentral.css                              (../common/accountCentral.css)
     skin/classic/calendar/shared/calendar-alarms.css                             (../common/calendar-alarms.css)
     skin/classic/calendar/shared/calendar-attendees.css                          (../common/calendar-attendees.css)
     skin/classic/calendar/shared/calendar-creation-wizard.css                    (../common/calendar-creation-wizard.css)
@@ -45,7 +44,6 @@
     ../icons/default/calendar-event-summary-dialog.png                           (../common/icons/calendar-event-summary-dialog.png)
     ../icons/default/calendar-task-dialog.png                                    (../common/icons/calendar-task-dialog.png)
     ../icons/default/calendar-task-summary-dialog.png                            (../common/icons/calendar-task-summary-dialog.png)
-    skin/classic/calendar/shared/icons/cal-icon24.png                            (../common/images/cal-icon24.png)
     skin/classic/calendar/shared/icons/complete.svg                              (../common/icons/complete.svg)
     skin/classic/calendar/shared/icons/confidential.svg                          (../common/icons/confidential.svg)
     skin/classic/calendar/shared/icons/decline.svg                               (../common/icons/decline.svg)
@@ -57,6 +55,7 @@
     skin/classic/calendar/shared/icons/icon32.svg                                (../common/icons/icon32.svg)
     skin/classic/calendar/shared/icons/imip-bar.svg                              (../common/icons/imip-bar.svg)
     skin/classic/calendar/shared/icons/locked.svg                                (../common/icons/locked.svg)
+    skin/classic/calendar/shared/icons/low-priority.svg                          (../common/icons/low-priority.svg)
     skin/classic/calendar/shared/icons/newevent.svg                              (../common/icons/newevent.svg)
     skin/classic/calendar/shared/icons/newtask.svg                               (../common/icons/newtask.svg)
     skin/classic/calendar/shared/icons/pane.svg                                  (../common/icons/pane.svg)
@@ -73,7 +72,6 @@
     skin/classic/calendar/shared/icons/warn.svg                                  (../common/icons/warn.svg)
     skin/classic/calendar/shared/imip.css                                        (../common/imip.css)
     skin/classic/calendar/shared/attendee-icons.png                              (../common/images/attendee-icons.png)
-    skin/classic/calendar/shared/checkbox-images.png                             (../common/images/checkbox-images.png)
     skin/classic/calendar/shared/event-continue.svg                              (../common/images/event-continue.svg)
     skin/classic/calendar/shared/event-end.svg                                   (../common/images/event-end.svg)
     skin/classic/calendar/shared/event-grippy-bottom.png                         (../common/images/event-grippy-bottom.png)
@@ -83,8 +81,6 @@
     skin/classic/calendar/shared/event-start.svg                                 (../common/images/event-start.svg)
     skin/classic/calendar/shared/lightning.css                                   (../common/lightning.css)
     skin/classic/calendar/shared/lightning-toolbar.css                           (../common/lightning-toolbar.css)
-    skin/classic/calendar/shared/suite-accountCentral.css                        (../common/suite-accountCentral.css)
-    skin/classic/calendar/shared/task-images.png                                 (../common/images/task-images.png)
     skin/classic/calendar/shared/timezone_map.png                                (../common/images/timezone_map.png)
     skin/classic/calendar/shared/timezones.png                                   (../common/images/timezones.png)
     skin/classic/calendar/shared/todayButton-arrow.svg                           (../common/images/todayButton-arrow.svg)

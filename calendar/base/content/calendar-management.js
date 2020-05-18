@@ -142,14 +142,6 @@ function loadCalendarManager() {
       item.setAttribute("calendar-readonly", "true");
     }
 
-    let checkbox = document.createXULElement("checkbox");
-    checkbox.classList.add("calendar-displayed");
-    checkbox.checked = calendar.getProperty("calendar-main-in-composite");
-    if (calendar.getProperty("disabled")) {
-      checkbox.setAttribute("disabled", "true");
-    }
-    item.appendChild(checkbox);
-
     let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
     let image = document.createXULElement("image");
     image.classList.add("calendar-color");
@@ -165,6 +157,14 @@ function loadCalendarManager() {
     image.classList.add("calendar-readstatus");
     image.setAttribute("tooltip", "calendar-list-tooltip");
     item.appendChild(image);
+
+    let checkbox = document.createXULElement("checkbox");
+    checkbox.classList.add("calendar-displayed");
+    checkbox.checked = calendar.getProperty("calendar-main-in-composite");
+    if (calendar.getProperty("disabled")) {
+      checkbox.setAttribute("disabled", "true");
+    }
+    item.appendChild(checkbox);
 
     calendarList.appendChild(item);
     if (calendar.getProperty("calendar-main-default")) {
