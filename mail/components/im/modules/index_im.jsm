@@ -653,19 +653,20 @@ var GlodaIMIndexer = {
       .join("/");
   },
 
-  /* aGlodaConv is an optional inout param that lets the caller save and reuse
-   * the GlodaIMConversation instance created when the conversation is indexed
-   * the first time. After a conversation is indexed for the first time,
-   * the GlodaIMConversation instance has its id property set to the row id of
-   * the conversation in the database. This id is required to later update the
-   * conversation in the database, so the caller dealing with ongoing
-   * conversation has to provide the aGlodaConv parameter, while the caller
-   * dealing with old conversations doesn't care.
-   * The aCache parameter is an object mapping file names to their last
-   * modified times at the time they were last indexed. The value for the file
-   * currently being indexed is updated to the aLastModifiedTime parameter's
-   * value once indexing is complete.
-   * */
+  /**
+   * @param {Object} aCache - An object mapping file names to their last
+   *   modified times at the time they were last indexed. The value for the file
+   *   currently being indexed is updated to the aLastModifiedTime parameter's
+   *   value once indexing is complete.
+   * @param {GlodaIMConversation} [aGlodaConv] - An optional inout param that
+   *   lets the caller save and reuse the GlodaIMConversation instance created
+   *   when the conversation is indexed the first time. After a conversation is
+   *   indexed for the first time, the GlodaIMConversation instance has its id
+   *   property set to the row id of the conversation in the database. This id
+   *   is required to later update the conversation in the database, so the
+   *   caller dealing with ongoing conversation has to provide the aGlodaConv
+   *   parameter, while the caller dealing with old conversations doesn't care.
+   */
   async indexIMConversation(
     aCallbackHandle,
     aLogPath,
@@ -682,19 +683,29 @@ var GlodaIMIndexer = {
     }
 
     let fileName = OS.Path.basename(aLogPath);
-    let content = logConv
+    let messages = logConv
       .getMessages()
       // Some messages returned, e.g. sessionstart messages,
       // may have the noLog flag set. Ignore these.
-      .filter(m => !m.noLog)
-      .map(m => {
-        let who = m.alias || m.who;
-        // Some messages like topic change notifications may
-        // not have a source.
-        let prefix = who ? who + ": " : "";
-        return prefix + MailFolder.convertMsgSnippetToPlainText(m.message);
-      })
-      .join("\n\n");
+      .filter(m => !m.noLog);
+    let content = [];
+    while (messages.length > 0) {
+      await new Promise(resolve => {
+        ChromeUtils.idleDispatch(timing => {
+          while (timing.timeRemaining() > 5 && messages.length > 0) {
+            let m = messages.shift();
+            let who = m.alias || m.who;
+            // Messages like topic change notifications may not have a source.
+            let prefix = who ? who + ": " : "";
+            content.push(
+              prefix + MailFolder.convertMsgSnippetToPlainText(m.message)
+            );
+          }
+          resolve();
+        });
+      });
+    }
+    content = content.join("\n\n");
     let glodaConv;
     if (aGlodaConv && aGlodaConv.value) {
       glodaConv = aGlodaConv.value;
