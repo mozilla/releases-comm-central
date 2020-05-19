@@ -317,7 +317,7 @@ interface nsIMsgPluggableStore : nsISupports {
    * @param aKeywords keywords to set/clear
    * @param aAdd true to add the keyword(s), false to remove.
    */
-  void changeKeywords(in nsIArray aHdrArray, in ACString aKeywords,
+  void changeKeywords(in Array<nsIMsgDBHdr> aHdrArray, in ACString aKeywords,
                       in boolean aAdd);
 
   /**

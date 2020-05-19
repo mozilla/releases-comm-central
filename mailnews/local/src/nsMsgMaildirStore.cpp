@@ -1320,31 +1320,24 @@ nsresult nsMsgMaildirStore::GetOutputStream(
   return MsgGetFileStream(maildirFile, getter_AddRefs(aOutputStream));
 }
 
-NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(nsIArray *aHdrArray,
+NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray,
                                                 const nsACString &aKeywords,
                                                 bool aAdd) {
-  NS_ENSURE_ARG_POINTER(aHdrArray);
-  NS_ENSURE_ARG_POINTER(aHdrArray);
+  if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
+
   nsCOMPtr<nsIOutputStream> outputStream;
   nsCOMPtr<nsISeekableStream> seekableStream;
-
-  uint32_t messageCount;
-  nsresult rv = aHdrArray->GetLength(&messageCount);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!messageCount) return NS_ERROR_INVALID_ARG;
 
   mozilla::UniquePtr<nsLineBuffer<char>> lineBuffer(new nsLineBuffer<char>);
 
   nsTArray<nsCString> keywordArray;
   ParseString(aKeywords, ' ', keywordArray);
 
-  for (uint32_t i = 0; i < messageCount; ++i)  // for each message
+  for (auto message : aHdrArray)  // for each message
   {
-    nsCOMPtr<nsIMsgDBHdr> message = do_QueryElementAt(aHdrArray, i, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
     // get output stream for header
     nsCOMPtr<nsIOutputStream> outputStream;
-    rv = GetOutputStream(message, outputStream);
+    nsresult rv = GetOutputStream(message, outputStream);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(outputStream, &rv);
     NS_ENSURE_SUCCESS(rv, rv);

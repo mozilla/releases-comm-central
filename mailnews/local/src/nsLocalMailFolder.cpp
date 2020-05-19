@@ -3514,7 +3514,9 @@ nsresult nsMsgLocalMailFolder::ChangeKeywordForMessages(
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->ChangeKeywords(aMessages, aKeywords, add);
+  nsTArray<RefPtr<nsIMsgDBHdr>> tmpHdrs;
+  MsgHdrsToTArray(aMessages, tmpHdrs);
+  return msgStore->ChangeKeywords(tmpHdrs, aKeywords, add);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::RemoveKeywordsFromMessages(

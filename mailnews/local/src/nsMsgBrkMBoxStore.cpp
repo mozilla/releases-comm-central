@@ -811,12 +811,11 @@ void nsMsgBrkMBoxStore::SetDBValid(nsIMsgDBHdr *aHdr) {
 NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
     const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray, uint32_t aFlags,
     bool aSet) {
+  if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
+
   nsCOMPtr<nsIOutputStream> outputStream;
   nsCOMPtr<nsISeekableStream> seekableStream;
   int64_t restoreStreamPos;
-
-  if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
-
   nsresult rv = GetOutputStream(aHdrArray[0], outputStream, seekableStream,
                                 restoreStreamPos);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -838,21 +837,17 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(nsIArray *aHdrArray,
-                                                const nsACString &aKeywords,
-                                                bool aAdd) {
-  NS_ENSURE_ARG_POINTER(aHdrArray);
+NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray, const nsACString &aKeywords,
+    bool aAdd) {
+  if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
+
   nsCOMPtr<nsIOutputStream> outputStream;
   nsCOMPtr<nsISeekableStream> seekableStream;
   int64_t restoreStreamPos;
 
-  uint32_t messageCount;
-  nsresult rv = aHdrArray->GetLength(&messageCount);
-  NS_ENSURE_SUCCESS(rv, rv);
-  if (!messageCount) return NS_ERROR_INVALID_ARG;
-  nsCOMPtr<nsIMsgDBHdr> firstHdr = do_QueryElementAt(aHdrArray, 0);
-  rv =
-      GetOutputStream(firstHdr, outputStream, seekableStream, restoreStreamPos);
+  nsresult rv = GetOutputStream(aHdrArray[0], outputStream, seekableStream,
+                                restoreStreamPos);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIInputStream> inputStream = do_QueryInterface(outputStream, &rv);
@@ -877,10 +872,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(nsIArray *aHdrArray,
   ParseString(aKeywords, ' ', keywordArray);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
-  for (uint32_t i = 0; i < messageCount; ++i)  // for each message
+  for (auto msgHdr : aHdrArray)  // for each message
   {
-    msgHdr = do_QueryElementAt(aHdrArray, i, &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
     uint64_t messageOffset;
     msgHdr->GetMessageOffset(&messageOffset);
     uint32_t statusOffset = 0;
@@ -895,9 +888,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(nsIArray *aHdrArray,
     seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, restoreStreamPos);
   else if (outputStream)
     outputStream->Close();
-  if (messageCount > 0) {
-    msgHdr = do_QueryElementAt(aHdrArray, 0);
-    SetDBValid(msgHdr);
+  if (!aHdrArray.IsEmpty()) {
+    SetDBValid(aHdrArray[0]);
   }
   return NS_OK;
 }
