@@ -393,11 +393,9 @@ bin/libfreebl_32int64_3.so
 #endif
 
 ; LDAP components need to be in the browser for AutoConfig
-#ifdef MOZ_LDAP_XPCOM
 @BINPATH@/@DLL_PREFIX@ldap60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@ldif60@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@prldap60@DLL_SUFFIX@
-#endif
 
 ; [MAN pages]
 #ifdef UNIX_BUT_NOT_MAC
