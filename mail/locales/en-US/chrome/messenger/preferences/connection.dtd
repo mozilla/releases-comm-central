@@ -51,4 +51,3 @@
 <!ENTITY  socksRemoteDNS.accesskey      "d">
 <!ENTITY  dnsOverHttps.label            "Enable DNS over HTTPS">
 <!ENTITY  dnsOverHttps.accesskey        "b">
-<!ENTITY  dnsOverHttpsUrlDefault.tooltip   "Use the default URL for resolving DNS over HTTPS">
