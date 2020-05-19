@@ -574,6 +574,16 @@
         ],
         "revision": "default"
     },
+    "th": {
+        "platforms": [
+            "linux",
+            "linux64",
+            "macosx64",
+            "win32",
+            "win64"
+        ],
+        "revision": "default"
+    },
     "tr": {
         "platforms": [
             "linux",
