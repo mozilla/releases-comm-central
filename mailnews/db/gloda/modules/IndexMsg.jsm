@@ -2425,7 +2425,7 @@ var GlodaMsgIndexer = {
           // If the destination folder is not indexed, it's like these messages
           //  are being deleted.
           if (!GlodaMsgIndexer.shouldIndexFolder(aDestFolder)) {
-            this.msgsDeleted([...fixIterator(aSrcMsgHdrs, Ci.nsIMsgDBHdr)]);
+            this.msgsDeleted(aSrcMsgHdrs);
             return;
           }
 
@@ -2435,19 +2435,15 @@ var GlodaMsgIndexer = {
           //  strip the gloda-id's off of all the destination headers because
           //  none of the gloda-id's are valid (and so we certainly don't want
           //  to try and use them as a basis for updating message keys.)
-          let srcMsgFolder = aSrcMsgHdrs.queryElementAt(0, Ci.nsIMsgDBHdr)
-            .folder;
+          let srcMsgFolder = aSrcMsgHdrs[0].folder;
           if (
             !this.indexer.shouldIndexFolder(srcMsgFolder) ||
             GlodaDatastore._mapFolder(srcMsgFolder).dirtyStatus ==
               GlodaFolder.prototype.kFolderFilthy
           ) {
             // Local case, just modify the destination headers directly.
-            if (aDestMsgHdrs) {
-              for (let destMsgHdr of fixIterator(
-                aDestMsgHdrs,
-                Ci.nsIMsgDBHdr
-              )) {
+            if (aDestMsgHdrs.length > 0) {
+              for (let destMsgHdr of aDestMsgHdrs) {
                 // zero it out if it exists
                 // (no need to deal with pending commit issues here; a filthy
                 //  folder by definition has nothing indexed in it.)
@@ -2462,9 +2458,7 @@ var GlodaMsgIndexer = {
               // Since we are moving messages from a folder where they were
               //  effectively not indexed, it is up to us to make sure the
               //  messages now get indexed.
-              this.indexer._reindexChangedMessages(
-                fixIterator(aDestMsgHdrs, Ci.nsIMsgDBHdr)
-              );
+              this.indexer._reindexChangedMessages(aDestMsgHdrs);
               return;
             }
 
@@ -2484,7 +2478,7 @@ var GlodaMsgIndexer = {
               );
               return;
             }
-            for (let srcMsgHdr of fixIterator(aSrcMsgHdrs, Ci.nsIMsgDBHdr)) {
+            for (let srcMsgHdr of aSrcMsgHdrs) {
               // zero it out if it exists
               // (no need to deal with pending commit issues here; a filthy
               //  folder by definition has nothing indexed in it.)
@@ -2506,22 +2500,17 @@ var GlodaMsgIndexer = {
           }
 
           // --- Have destination headers (local case):
-          if (aDestMsgHdrs) {
+          if (aDestMsgHdrs.length > 0) {
             // -- Update message keys for valid gloda-id's.
             // (Which means ignore filthy gloda-id's.)
             let glodaIds = [];
             let newMessageKeys = [];
-            aSrcMsgHdrs.QueryInterface(Ci.nsIArray);
-            aDestMsgHdrs.QueryInterface(Ci.nsIArray);
             // Track whether we see any messages that are not gloda indexed so
             //  we know if we have to mark the destination folder dirty.
             let sawNonGlodaMessage = false;
             for (let iMsg = 0; iMsg < aSrcMsgHdrs.length; iMsg++) {
-              let srcMsgHdr = aSrcMsgHdrs.queryElementAt(iMsg, Ci.nsIMsgDBHdr);
-              let destMsgHdr = aDestMsgHdrs.queryElementAt(
-                iMsg,
-                Ci.nsIMsgDBHdr
-              );
+              let srcMsgHdr = aSrcMsgHdrs[iMsg];
+              let destMsgHdr = aDestMsgHdrs[iMsg];
 
               let [glodaId, dirtyStatus] = PendingCommitTracker.getGlodaState(
                 srcMsgHdr
@@ -2566,9 +2555,7 @@ var GlodaMsgIndexer = {
 
             let srcFolderIsLocal =
               srcMsgFolder instanceof Ci.nsIMsgLocalMailFolder;
-            for (let iMsgHdr = 0; iMsgHdr < aSrcMsgHdrs.length; iMsgHdr++) {
-              let msgHdr = aSrcMsgHdrs.queryElementAt(iMsgHdr, Ci.nsIMsgDBHdr);
-
+            for (let msgHdr of aSrcMsgHdrs) {
               let [glodaId, dirtyStatus] = PendingCommitTracker.getGlodaState(
                 msgHdr
               );
@@ -2615,14 +2602,12 @@ var GlodaMsgIndexer = {
           // ---- Copy case
           // -- Do not propagate gloda-id's for copies
           // (Only applies if we have the destination header, which means local)
-          if (aDestMsgHdrs) {
-            for (let destMsgHdr of fixIterator(aDestMsgHdrs, Ci.nsIMsgDBHdr)) {
-              let glodaId = destMsgHdr.getUint32Property(
-                GLODA_MESSAGE_ID_PROPERTY
-              );
-              if (glodaId) {
-                destMsgHdr.setUint32Property(GLODA_MESSAGE_ID_PROPERTY, 0);
-              }
+          for (let destMsgHdr of aDestMsgHdrs) {
+            let glodaId = destMsgHdr.getUint32Property(
+              GLODA_MESSAGE_ID_PROPERTY
+            );
+            if (glodaId) {
+              destMsgHdr.setUint32Property(GLODA_MESSAGE_ID_PROPERTY, 0);
             }
           }
 

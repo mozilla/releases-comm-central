@@ -4938,13 +4938,15 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
           do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
       if (notifier && m_copyState) {
-        if (imapAction == nsIImapUrl::nsImapOnlineMove)
-          notifier->NotifyMsgsMoveCopyCompleted(true, m_copyState->m_messages,
-                                                this, nullptr);
-        else if (imapAction == nsIImapUrl::nsImapOnlineCopy)
-          notifier->NotifyMsgsMoveCopyCompleted(false, m_copyState->m_messages,
-                                                this, nullptr);
-        else if (imapAction == nsIImapUrl::nsImapDeleteMsg) {
+        if (imapAction == nsIImapUrl::nsImapOnlineMove) {
+          nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+          MsgHdrsToTArray(m_copyState->m_messages, hdrs);
+          notifier->NotifyMsgsMoveCopyCompleted(true, hdrs, this, {});
+        } else if (imapAction == nsIImapUrl::nsImapOnlineCopy) {
+          nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+          MsgHdrsToTArray(m_copyState->m_messages, hdrs);
+          notifier->NotifyMsgsMoveCopyCompleted(false, hdrs, this, {});
+        } else if (imapAction == nsIImapUrl::nsImapDeleteMsg) {
           // Stopgap. Build a parallel array of message headers while we
           // complete removal of nsIArray usage (Bug 1583030).
           uint32_t messageCount;
@@ -6275,9 +6277,12 @@ nsImapMailFolder::CopyNextStreamMessage(bool copySucceeded,
     if (notifier) {
       uint32_t numHdrs;
       mailCopyState->m_messages->GetLength(&numHdrs);
-      if (numHdrs)
-        notifier->NotifyMsgsMoveCopyCompleted(
-            mailCopyState->m_isMove, mailCopyState->m_messages, this, nullptr);
+      if (numHdrs) {
+        nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
+        MsgHdrsToTArray(mailCopyState->m_messages, hdrs);
+        notifier->NotifyMsgsMoveCopyCompleted(mailCopyState->m_isMove, hdrs,
+                                              this, {});
+      }
     }
     if (mailCopyState->m_isMove) {
       nsCOMPtr<nsIMsgFolder> srcFolder(
@@ -6546,11 +6551,9 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
   messages->GetLength(&srcCount);
   nsCOMPtr<nsIImapIncomingServer> imapServer;
   rv = GetImapIncomingServer(getter_AddRefs(imapServer));
-  nsCOMPtr<nsIMutableArray> msgHdrsCopied(
-      do_CreateInstance(NS_ARRAY_CONTRACTID));
-  nsCOMPtr<nsIMutableArray> destMsgHdrs(do_CreateInstance(NS_ARRAY_CONTRACTID));
 
-  if (!msgHdrsCopied || !destMsgHdrs) return NS_ERROR_OUT_OF_MEMORY;
+  nsTArray<RefPtr<nsIMsgDBHdr>> msgHdrsCopied;
+  nsTArray<RefPtr<nsIMsgDBHdr>> destMsgHdrs;
 
   if (NS_SUCCEEDED(rv) && imapServer) {
     nsMsgImapDeleteModel deleteModel;
@@ -6707,7 +6710,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           if (NS_SUCCEEDED(stopit)) {
             bool hasMsgOffline = false;
 
-            destMsgHdrs->AppendElement(newMailHdr);
+            destMsgHdrs.AppendElement(newMailHdr);
             srcFolder->HasMsgOffline(originalKey, &hasMsgOffline);
             newMailHdr->SetUint32Property("pseudoHdr", 1);
             if (!reusable)
@@ -6758,7 +6761,7 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
           }
           if (successfulCopy)
             // This is for both moves and copies
-            msgHdrsCopied->AppendElement(mailHdr);
+            msgHdrsCopied.AppendElement(mailHdr);
         }
       }
       EnableNotifications(nsIMsgFolder::allMessageCountNotifications, true);
@@ -6811,14 +6814,13 @@ nsresult nsImapMailFolder::CopyMessagesOffline(
   }
 
   // Do this before delete, as it destroys the messages
-  uint32_t numHdrs;
-  msgHdrsCopied->GetLength(&numHdrs);
-  if (numHdrs) {
+  if (!msgHdrsCopied.IsEmpty()) {
     nsCOMPtr<nsIMsgFolderNotificationService> notifier(
         do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-    if (notifier)
+    if (notifier) {
       notifier->NotifyMsgsMoveCopyCompleted(isMove, msgHdrsCopied, this,
                                             destMsgHdrs);
+    }
   }
 
   if (isMove && NS_SUCCEEDED(rv) && (deleteToTrash || deleteImmediately)) {

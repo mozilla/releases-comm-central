@@ -170,8 +170,8 @@ NS_IMETHODIMP nsRssIncomingServer::MsgsDeleted(
 }
 
 NS_IMETHODIMP nsRssIncomingServer::MsgsMoveCopyCompleted(
-    bool aMove, nsIArray *aSrcMsgs, nsIMsgFolder *aDestFolder,
-    nsIArray *aDestMsgs) {
+    bool aMove, const nsTArray<RefPtr<nsIMsgDBHdr>> &aSrcMsgs,
+    nsIMsgFolder *aDestFolder, const nsTArray<RefPtr<nsIMsgDBHdr>> &aDestMsgs) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

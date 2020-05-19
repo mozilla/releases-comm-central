@@ -1097,9 +1097,13 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
   }
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
       do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-  if (notifier)
-    notifier->NotifyMsgsMoveCopyCompleted(aIsMove, aHdrArray, aDstFolder,
-                                          dstHdrs);
+  if (notifier) {
+    nsTArray<RefPtr<nsIMsgDBHdr>> srcTmp;
+    nsTArray<RefPtr<nsIMsgDBHdr>> destTmp;
+    MsgHdrsToTArray(aHdrArray, srcTmp);
+    MsgHdrsToTArray(dstHdrs, destTmp);
+    notifier->NotifyMsgsMoveCopyCompleted(aIsMove, srcTmp, aDstFolder, destTmp);
+  }
 
   // For now, we only support local dest folders, and for those we are done and
   // can delete the messages. Perhaps this should be moved into the folder
@@ -1320,9 +1324,9 @@ nsresult nsMsgMaildirStore::GetOutputStream(
   return MsgGetFileStream(maildirFile, getter_AddRefs(aOutputStream));
 }
 
-NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray,
-                                                const nsACString &aKeywords,
-                                                bool aAdd) {
+NS_IMETHODIMP nsMsgMaildirStore::ChangeKeywords(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray, const nsACString &aKeywords,
+    bool aAdd) {
   if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
   nsCOMPtr<nsIOutputStream> outputStream;

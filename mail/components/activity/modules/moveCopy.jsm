@@ -119,7 +119,7 @@ var moveCopyModule = {
       }
 
       // get the folder of the moved/copied messages
-      let folder = aSrcMsgList.queryElementAt(0, Ci.nsIMsgDBHdr).folder;
+      let folder = aSrcMsgList[0].folder;
       this.log.info("got folder");
 
       let displayCount = count;
@@ -177,8 +177,7 @@ var moveCopyModule = {
       event.iconClass = aMove ? "moveMail" : "copyMail";
       this.lastMessage.type = event.iconClass;
 
-      for (let i = 0; i < count; i++) {
-        let msgHdr = aSrcMsgList.queryElementAt(i, Ci.nsIMsgDBHdr);
+      for (let msgHdr of aSrcMsgList) {
         event.addSubject(msgHdr.messageId);
       }
       this.lastMessage.id = this.activityMgr.addActivity(event);

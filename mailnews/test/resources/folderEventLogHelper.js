@@ -82,16 +82,12 @@ var _folderEventLogHelper_msgFolderListener = {
    */
   msgsMoveCopyCompleted(aMove, aSrcMsgs, aDestFolder, aDestMsgs) {
     let args = [aMove ? "moved" : "copied"];
-    for (let msgHdr of fixIterator(aSrcMsgs, Ci.nsIMsgDBHdr)) {
-      args.push(msgHdr);
-    }
+    args.push(...aSrcMsgs);
     args.push("to");
     args.push(aDestFolder);
     if (aDestMsgs) {
       args.push("dest headers:");
-      for (let msgHdr of fixIterator(aDestMsgs, Ci.nsIMsgDBHdr)) {
-        args.push(msgHdr);
-      }
+      args.push(...aDestMsgs);
     }
     mark_action("msgEvent", "msgsMoveCopyCompleted", args);
   },

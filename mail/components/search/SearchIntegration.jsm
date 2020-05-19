@@ -622,9 +622,7 @@ var SearchSupport = {
 
       let count = aSrcMsgs.length;
       for (let i = 0; i < count; i++) {
-        let srcFile = SearchIntegration._getSupportFile(
-          aSrcMsgs.queryElementAt(i, Ci.nsIMsgDBHdr)
-        );
+        let srcFile = SearchIntegration._getSupportFile(aSrcMsgs[i]);
         if (srcFile && srcFile.exists()) {
           let destFile = SearchIntegration._getSearchPathForFolder(aDestFolder);
           destFile.leafName = destFile.leafName + ".mozmsgs";

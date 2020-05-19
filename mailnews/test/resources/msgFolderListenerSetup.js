@@ -343,8 +343,8 @@ function verify(event) {
       //  so the best we can do is make sure they match up.  To this end,
       //  we check that the message-id header values match up.
       for (let iMsg = 0; iMsg < event[2].length; iMsg++) {
-        let srcHdr = event[2].queryElementAt(iMsg, Ci.nsIMsgDBHdr);
-        let destHdr = event[4].queryElementAt(iMsg, Ci.nsIMsgDBHdr);
+        let srcHdr = event[2][iMsg];
+        let destHdr = event[4][iMsg];
         Assert.equal(srcHdr.messageId, destHdr.messageId);
       }
       break;

@@ -2294,10 +2294,14 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       // because deleting the source messages clears out the src msg db hdr.
       nsCOMPtr<nsIMsgFolderNotificationService> notifier(
           do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
-      if (notifier)
-        notifier->NotifyMsgsMoveCopyCompleted(mCopyState->m_isMove,
-                                              mCopyState->m_messages, this,
-                                              mCopyState->m_destMessages);
+      if (notifier) {
+        nsTArray<RefPtr<nsIMsgDBHdr>> srcHdrs;
+        nsTArray<RefPtr<nsIMsgDBHdr>> destHdrs;
+        MsgHdrsToTArray(mCopyState->m_messages, srcHdrs);
+        MsgHdrsToTArray(mCopyState->m_destMessages, destHdrs);
+        notifier->NotifyMsgsMoveCopyCompleted(mCopyState->m_isMove, srcHdrs,
+                                              this, destHdrs);
+      }
     }
 
     if (!mCopyState->m_isMove) {

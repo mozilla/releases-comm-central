@@ -105,9 +105,9 @@ interface nsIMsgFolderListener : nsISupports {
    * the source database, but instead simply marked deleted.
    */
   void msgsMoveCopyCompleted(in boolean aMove,
-                             in nsIArray aSrcMsgs,
+                             in Array<nsIMsgDBHdr> aSrcMsgs,
                              in nsIMsgFolder aDestFolder,
-                             in nsIArray aDestMsgs);
+                             in Array<nsIMsgDBHdr> aDestMsgs);
 
   /**
    * Notification sent when the msg key for a header may have changed.

@@ -8,7 +8,6 @@
 interface nsIMsgDBHdr;
 interface nsIMsgFolder;
 interface nsIMsgFolderListener;
-interface nsIArray;
 
 typedef unsigned long msgFolderListenerFlag;
 
@@ -64,9 +63,9 @@ interface nsIMsgFolderNotificationService : nsISupports {
                             in boolean aTraitProcessed);
   void notifyMsgsDeleted(in Array<nsIMsgDBHdr> aMsgs);
   void notifyMsgsMoveCopyCompleted(in boolean aMove,
-                                   in nsIArray aSrcMsgs,
+                                   in Array<nsIMsgDBHdr> aSrcMsgs,
                                    in nsIMsgFolder aDestFolder,
-                                   in nsIArray aDestMsgs);
+                                   in Array<nsIMsgDBHdr> aDestMsgs);
 
   /**
    * Notify listeners that the msg key for a header has changed. Currently,
