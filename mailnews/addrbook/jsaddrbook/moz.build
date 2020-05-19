@@ -8,6 +8,7 @@ EXTRA_JS_MODULES += [
     'AddrBookMailingList.jsm',
     'AddrBookManager.jsm',
     'AddrBookUtils.jsm',
+    'VCardUtils.jsm',
 ]
 
 XPCOM_MANIFESTS += [
