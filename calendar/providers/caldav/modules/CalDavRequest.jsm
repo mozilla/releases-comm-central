@@ -142,7 +142,6 @@ class CalDavRequestBase {
   }
 
   /** Implement nsIInterfaceRequestor */
-  /* eslint-disable-next-line valid-jsdoc */
   getInterface(aIID) {
     /**
      * Attempt to call nsIInterfaceRequestor::getInterface on the given object, and return null
@@ -172,7 +171,6 @@ class CalDavRequestBase {
   }
 
   /** Implement nsIChannelEventSink */
-  /* eslint-disable-next-line valid-jsdoc */
   asyncOnChannelRedirect(aOldChannel, aNewChannel, aFlags, aCallback) {
     /**
      * Copy the given header from the old channel to the new one, ignoring missing headers
@@ -424,7 +422,6 @@ class CalDavSimpleResponse extends CalDavResponseBase {
   }
 
   /** Implement nsIStreamLoaderObserver */
-  /* eslint-disable-next-line valid-jsdoc */
   onStreamComplete(aLoader, aContext, aStatus, aResultLength, aResult) {
     this.resultLength = aResultLength;
     this.result = aResult;

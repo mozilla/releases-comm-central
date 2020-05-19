@@ -251,11 +251,9 @@ class CalDavSession {
     this.name = aName;
 
     // There is only one right now, but for better separation this is ready for more oauth hosts
-    /* eslint-disable object-curly-newline */
     this.authAdapters = {
       "apidata.googleusercontent.com": new CalDavGoogleOAuth(aSessionId, aName),
     };
-    /* eslint-enable object-curly-newline */
   }
 
   /**

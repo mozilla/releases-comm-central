@@ -1668,7 +1668,7 @@ CalDavCalendar.prototype = {
   },
 
   /**
-   * Locates the principal namespace. This function should soely be called
+   * Locates the principal namespace. This function should solely be called
    * from checkServerCaps to find the principal namespace.
    *
    * checkDavResourceType
@@ -1715,7 +1715,7 @@ CalDavCalendar.prototype = {
 
   /**
    * Checks the principals namespace for scheduling info. This function should
-   * soely be called from findPrincipalNS
+   * solely be called from findPrincipalNS
    *
    * checkDavResourceType
    * checkServerCaps

@@ -162,7 +162,6 @@ function checkRequired() {
       document.getElementById("calendar-uri").value &&
       curPage.pageid == "locationPage"
     ) {
-      // eslint-disable-next-line array-bracket-spacing
       let [reason] = parseUri(document.getElementById("calendar-uri").value);
       canAdvance = reason == errorConstants.SUCCESS;
       setNotification(reason);
