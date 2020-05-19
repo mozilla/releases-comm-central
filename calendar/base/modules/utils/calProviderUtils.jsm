@@ -20,17 +20,17 @@ var calprovider = {
   /**
    * Prepare HTTP channel with standard request headers and upload data/content-type if needed.
    *
-   * @param {nsIURI} aUri                                     Channel Uri, will only be used for a
-   *                                                            new channel.
-   * @param {nsIInputStream|String} aUploadData               Data to be uploaded, if any. This
-   *                                                            may be a nsIInputStream or string
-   *                                                            data. In the latter case the
-   *                                                            string will be converted to an
-   *                                                            input stream.
-   * @param {String} aContentType                             Value for Content-Type header, if any
-   * @param {nsIInterfaceRequestor} aNotificationCallbacks    Calendar using channel
-   * @param {?nsIChannel} aExisting                           An existing channel to modify (optional)
-   * @return {nsIChannel}                                     The prepared channel
+   * @param {nsIURI} aUri                             The channel URI, only used for a new channel.
+   * @param {nsIInputStream|String} aUploadData       Data to be uploaded, if any. If a string,
+   *                                                    it will be converted to an nsIInputStream.
+   * @param {String} aContentType                     Value for Content-Type header, if any.
+   * @param {nsIInterfaceRequestor} aNotificationCallbacks    Typically a CalDavRequestBase which
+   *                                                            implements nsIInterfaceRequestor
+   *                                                            and nsIChannelEventSink, and
+   *                                                            provides access to the calICalendar
+   *                                                            associated with the channel.
+   * @param {nsIChannel} [aExisting]                  An existing channel to modify (optional).
+   * @return {nsIChannel}                             The prepared channel.
    */
   prepHttpChannel(aUri, aUploadData, aContentType, aNotificationCallbacks, aExisting = null) {
     let originAttributes = {};
@@ -46,7 +46,7 @@ var calprovider = {
     // different containers. It is therefore sufficient to add individual
     // userContextIds per username.
 
-    let calendar = cal.wrapInstance(aNotificationCallbacks, Ci.calICalendar);
+    let calendar = aNotificationCallbacks.getInterface(Ci.calICalendar);
     if (calendar && calendar.getProperty("capabilities.username.supported") === true) {
       originAttributes.userContextId = cal.auth.containerMap.getUserContextIdForUsername(
         calendar.getProperty("username")

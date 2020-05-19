@@ -32,6 +32,9 @@ const MIME_TEXT_XML = "text/xml; charset=utf-8";
 
 /**
  * Base class for a caldav request.
+ *
+ * @implements {nsIChannelEventSink}
+ * @implements {nsIInterfaceRequestor}
  */
 class CalDavRequestBase {
   QueryInterface(aIID) {
