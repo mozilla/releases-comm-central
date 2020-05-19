@@ -4,6 +4,7 @@ MOZ_AUTOMATION_L10N_CHECK=0
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
 . "$topsrcdir/comm/mail/config/mozconfigs/win32/common-win32"
 
 ac_add_options --enable-debug
@@ -19,5 +20,3 @@ MOZ_REQUIRE_ADDON_SIGNING=0
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
-
-. "$topsrcdir/comm/mail/config/mozconfigs/common"
