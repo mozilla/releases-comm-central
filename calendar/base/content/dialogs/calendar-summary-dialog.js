@@ -141,7 +141,7 @@ function onLoad() {
     updateReminder();
   }
 
-  updateRepeatDetails();
+  updateRecurrenceDetails(getRecurrenceString(item));
   updateAttendees();
   updateLink();
 
@@ -427,60 +427,70 @@ function updateToolbar() {
 
 /**
  * Updates the dialog w.r.t recurrence, i.e shows a text describing the item's
- * recurrence)
+ * recurrence.
+ *
+ * @param {string} details - Recurrence details as a string.
  */
-function updateRepeatDetails() {
-  let args = window.arguments[0];
-  let item = args.calendarEvent;
+function updateRecurrenceDetails(details) {
+  let repeatRow = document.getElementById("repeat-row");
+  let repeatDetails = document.getElementById("repeat-details");
 
-  // step to the parent (in order to show the
-  // recurrence info which is stored at the parent).
-  item = item.parentItem;
+  if (!details) {
+    repeatRow.setAttribute("hidden", "true");
+    repeatDetails.setAttribute("collapsed", "true");
 
-  // retrieve a valid recurrence rule from the currently
-  // set recurrence info. bail out if there's more
-  // than a single rule or something other than a rule.
-  let recurrenceInfo = item.recurrenceInfo;
-  if (!recurrenceInfo) {
+    while (repeatDetails.children.length) {
+      repeatDetails.lastChild.remove();
+    }
     return;
   }
 
-  document.getElementById("repeat-row").removeAttribute("hidden");
-
-  // First of all collapse the details text. If we fail to
-  // create a details string, we simply don't show anything.
-  // this could happen if the repeat rule is something exotic
-  // we don't have any strings prepared for.
-  let repeatDetails = document.getElementById("repeat-details");
-  repeatDetails.setAttribute("collapsed", "true");
-
-  // Try to create a descriptive string from the rule(s).
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
-  let startDate = item.startDate || item.entryDate;
-  let endDate = item.endDate || item.dueDate;
-  startDate = startDate ? startDate.getInTimezone(kDefaultTimezone) : null;
-  endDate = endDate ? endDate.getInTimezone(kDefaultTimezone) : null;
-  let detailsString = recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate);
-
-  if (!detailsString) {
-    detailsString = cal.l10n.getString("calendar-event-dialog", "ruleTooComplexSummary");
-  }
-
-  // Now display the string...
-  let lines = detailsString.split("\n");
+  repeatRow.removeAttribute("hidden");
   repeatDetails.removeAttribute("collapsed");
+
+  let lines = details.split("\n");
+
   while (repeatDetails.children.length > lines.length) {
     repeatDetails.lastChild.remove();
   }
-  let numChilds = repeatDetails.children.length;
-  for (let i = 0; i < lines.length; i++) {
-    if (i >= numChilds) {
-      let newNode = repeatDetails.firstElementChild.cloneNode(true);
-      repeatDetails.appendChild(newNode);
-    }
-    repeatDetails.children[i].value = lines[i];
-    repeatDetails.children[i].setAttribute("tooltiptext", detailsString);
+  while (repeatDetails.children.length < lines.length) {
+    repeatDetails.appendChild(repeatDetails.firstElementChild.cloneNode(true));
   }
+  for (let i = 0; i < lines.length; i++) {
+    repeatDetails.children[i].value = lines[i];
+    repeatDetails.children[i].setAttribute("tooltiptext", details);
+  }
+}
+
+/**
+ * Given a calendar event or task, return a string that describes the item's
+ * recurrence pattern, or null if there is no recurrence info.
+ *
+ * @param {calIItem} item - A calendar item.
+ * @return {string | null} A string describing the item's recurrence pattern or null.
+ */
+function getRecurrenceString(item) {
+  // Recurrence info is stored on the parent item.
+  let parent = item.parentItem;
+
+  let recurrenceInfo = parent.recurrenceInfo;
+  if (!recurrenceInfo) {
+    return null;
+  }
+
+  let kDefaultTimezone = cal.dtz.defaultTimezone;
+
+  let rawStartDate = parent.startDate || parent.entryDate;
+  let rawEndDate = parent.endDate || parent.dueDate;
+
+  let startDate = rawStartDate ? rawStartDate.getInTimezone(kDefaultTimezone) : null;
+  let endDate = rawEndDate ? rawEndDate.getInTimezone(kDefaultTimezone) : null;
+
+  let details =
+    recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate) ||
+    cal.l10n.getString("calendar-event-dialog", "ruleTooComplexSummary");
+
+  return details;
 }
 
 /**
