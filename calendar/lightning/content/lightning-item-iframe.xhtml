@@ -474,6 +474,7 @@
         <hbox id="event-grid-alarm-picker-box"
               align="center">
           <menulist id="item-alarm"
+                    class="item-alarm"
                     disable-on-readonly="true"
                     oncommand="updateReminder()">
             <menupopup id="item-alarm-menupopup">
@@ -545,26 +546,23 @@
                         relation="START"
                         unit="days"/>
               <menuseparator id="reminder-custom-separator"/>
-              <menuitem id="reminder-custom-menuitem"
+              <menuitem class="reminder-custom-menuitem"
                         label="&event.reminder.custom.label;"
                         value="custom"/>
             </menupopup>
           </menulist>
-          <hbox id="reminder-details">
-            <hbox id="reminder-icon-box"
-                  class="alarm-icons-box"
+          <hbox class="reminder-details">
+            <hbox class="reminder-icon-box alarm-icons-box"
                   align="center"/>
             <!-- TODO oncommand? onkeypress? -->
-            <label id="reminder-multiple-alarms-label"
-                   class="text-link"
+            <label class="reminder-multiple-alarms-label text-link"
                    hidden="true"
                    value="&event.reminder.multiple.label;"
                    disable-on-readonly="true"
                    flex="1"
                    hyperlink="true"
                    onclick="updateReminder()"/>
-            <label id="reminder-single-alarms-label"
-                   class="text-link"
+            <label class="reminder-single-alarms-label text-link"
                    hidden="true"
                    disable-on-readonly="true"
                    flex="1"
@@ -642,7 +640,7 @@
                 </hbox>
               </hbox>
               <hbox flex="1">
-                <vbox id="item-attendees-box"
+                <vbox class="item-attendees-box"
                       dialog-type="event"
                       flex="1"
                       context="attendee-popup"
@@ -745,7 +743,7 @@
   </popupset>
 
   <!-- attendee box template -->
-  <vbox id="item-attendees-box-template"
+  <vbox class="item-attendees-box-template"
         hidden="true">
     <hbox flex="1" class="item-attendees-row" equalsize="always" hidden="true">
       <box class="item-attendees-cell"

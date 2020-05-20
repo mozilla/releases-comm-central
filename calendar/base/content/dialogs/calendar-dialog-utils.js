@@ -5,7 +5,8 @@
 /* exported gInTab, gMainWindow, gTabmail, intializeTabOrWindowVariables,
  *          dispose, setDialogId, loadReminders, saveReminder,
  *          commonUpdateReminder, updateLink, rearrangeAttendees,
- *          adaptScheduleAgent
+ *          adaptScheduleAgent, sendMailToOrganizer,
+ *          openAttachmentFromItemSummary, getRecurrenceString,
  */
 
 /* import-globals-from ../../../lightning/content/lightning-item-iframe.js */
@@ -100,10 +101,11 @@ function applyPersistedProperties(aDialog) {
  * Create a calIAlarm from the given menuitem. The menuitem must have the
  * following attributes: unit, length, origin, relation.
  *
- * @param menuitem      The menuitem to create the alarm from.
- * @return              The calIAlarm with information from the menuitem.
+ * @param {Element} aMenuitem          The menuitem to create the alarm from.
+ * @param {calICalendar} aCalendar     The calendar for getting the default alarm type.
+ * @return                             The calIAlarm with information from the menuitem.
  */
-function createReminderFromMenuitem(aMenuitem) {
+function createReminderFromMenuitem(aMenuitem, aCalendar) {
   let reminder = aMenuitem.reminder || cal.createAlarm();
   // clone immutable reminders if necessary to set default values
   let isImmutable = !reminder.isMutable;
@@ -119,7 +121,7 @@ function createReminderFromMenuitem(aMenuitem) {
       ? reminder.ALARM_RELATED_START
       : reminder.ALARM_RELATED_END;
   reminder.offset = offset;
-  reminder.action = getDefaultAlarmType();
+  reminder.action = getDefaultAlarmType(aCalendar);
   // make reminder immutable in case it was before
   if (isImmutable) {
     reminder.makeImmutable();
@@ -132,23 +134,35 @@ function createReminderFromMenuitem(aMenuitem) {
  * that calling this function from an extension is not recommended. To allow an
  * extension to open the reminder dialog, set the menulist "item-alarm" to the
  * custom menuitem and call updateReminder().
+ *
+ * @param {Element} reminderList - The reminder menu element.
+ * @param {calIEvent | calIToDo} calendarItem - The calendar item.
+ * @param {number} lastAlarmSelection - Index of previously selected item in the menu.
+ * @param {calICalendar} calendar - The calendar to use.
+ * @param {calITimezone} [timezone] - Timezone to use.
  */
-function editReminder() {
-  let customItem = document.getElementById("reminder-custom-menuitem");
-  let args = {};
-  args.reminders = customItem.reminders;
-  args.item = window.calendarItem;
-  args.timezone = window.gStartTimezone || window.gEndTimezone || cal.dtz.defaultTimezone;
+function editReminder(
+  reminderList,
+  calendarItem,
+  lastAlarmSelection,
+  calendar,
+  timezone = cal.dtz.defaultTimezone
+) {
+  let customItem = reminderList.querySelector(".reminder-custom-menuitem");
 
-  args.calendar = getCurrentCalendar();
-
-  // While these are "just" callbacks, the dialog is opened modally, so aside
-  // from what's needed to set up the reminders, nothing else needs to be done.
-  args.onOk = function(reminders) {
-    customItem.reminders = reminders;
-  };
-  args.onCancel = function() {
-    document.getElementById("item-alarm").selectedIndex = gLastAlarmSelection;
+  let args = {
+    reminders: customItem.reminders,
+    item: calendarItem,
+    timezone,
+    calendar,
+    // While these are "just" callbacks, the dialog is opened modally, so aside
+    // from what's needed to set up the reminders, nothing else needs to be done.
+    onOk(reminders) {
+      customItem.reminders = reminders;
+    },
+    onCancel() {
+      reminderList.selectedIndex = lastAlarmSelection;
+    },
   };
 
   window.setCursor("wait");
@@ -166,15 +180,19 @@ function editReminder() {
  * Update the reminder details from the selected alarm. This shows a string
  * describing the reminder set, or nothing in case a preselected reminder was
  * chosen.
+ *
+ * @param {Element} reminderDetails - The reminder details element.
+ * @param {Element} reminderList - The reminder menu element.
+ * @param {calICalendar} calendar - The calendar.
  */
-function updateReminderDetails() {
+function updateReminderDetails(reminderDetails, reminderList, calendar) {
   // find relevant elements in the document
-  let reminderList = document.getElementById("item-alarm");
-  let reminderMultipleLabel = document.getElementById("reminder-multiple-alarms-label");
-  let iconBox = document.getElementById("reminder-icon-box");
-  let reminderSingleLabel = document.getElementById("reminder-single-alarms-label");
-  let reminders = document.getElementById("reminder-custom-menuitem").reminders || [];
-  let calendar = getCurrentCalendar();
+  let reminderMultipleLabel = reminderDetails.querySelector(".reminder-multiple-alarms-label");
+  let iconBox = reminderDetails.querySelector(".reminder-icon-box");
+  let reminderSingleLabel = reminderDetails.querySelector(".reminder-single-alarms-label");
+
+  let reminders = reminderList.querySelector(".reminder-custom-menuitem").reminders || [];
+
   let actionValues = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
   let actionMap = {};
   for (let action of actionValues) {
@@ -207,17 +225,22 @@ function updateReminderDetails() {
       // single icon in the icons box to tell the user what kind of alarm
       // this will be.
       let mockAlarm = cal.createAlarm();
-      mockAlarm.action = getDefaultAlarmType();
+      mockAlarm.action = getDefaultAlarmType(calendar);
       cal.alarms.addReminderImages(iconBox, [mockAlarm]);
     }
   }
 }
 
-var gLastAlarmSelection = 0;
-
-function matchCustomReminderToMenuitem(reminder) {
-  let defaultAlarmType = getDefaultAlarmType();
-  let reminderList = document.getElementById("item-alarm");
+/**
+ * Check whether a reminder matches one of the default menu items or not.
+ *
+ * @param {calIAlarm} reminder - The reminder to match to a menu item.
+ * @param {Element} reminderList - The reminder menu element.
+ * @param {calICalendar} calendar - The current calendar, to get the default alarm type.
+ * @return {boolean} True if the reminder matches a menu item, false if not.
+ */
+function matchCustomReminderToMenuitem(reminder, reminderList, calendar) {
+  let defaultAlarmType = getDefaultAlarmType(calendar);
   let reminderPopup = reminderList.menupopup;
   if (
     reminder.related != Ci.calIAlarm.ALARM_RELATED_ABSOLUTE &&
@@ -227,14 +250,9 @@ function matchCustomReminderToMenuitem(reminder) {
     // Exactly one reminder that's not absolute, we may be able to match up
     // popup items.
     let relation = reminder.related == reminder.ALARM_RELATED_START ? "START" : "END";
-    let origin;
 
     // If the time duration for offset is 0, means the reminder is '0 minutes before'
-    if (reminder.offset.inSeconds == 0 || reminder.offset.isNegative) {
-      origin = "before";
-    } else {
-      origin = "after";
-    }
+    let origin = reminder.offset.inSeconds == 0 || reminder.offset.isNegative ? "before" : "after";
 
     let unitMap = {
       days: 86400,
@@ -264,41 +282,47 @@ function matchCustomReminderToMenuitem(reminder) {
 
   return false;
 }
+
 /**
- * Load an item's reminders into the dialog
+ * Load an item's reminders into the dialog.
  *
- * @param reminders     An array of calIAlarms to load.
+ * @param {calIAlarm[]} reminders     An array of alarms to load.
+ * @param {Element} reminderList      The reminders menulist element.
+ * @param {calICalendar} calendar     The calendar the item belongs to.
+ * @return {number}                   Index of the selected item in reminders menu.
  */
-function loadReminders(reminders) {
-  // select 'no reminder' by default
-  let reminderList = document.getElementById("item-alarm");
-  let customItem = document.getElementById("reminder-custom-menuitem");
+function loadReminders(reminders, reminderList, calendar) {
+  // Select 'no reminder' by default.
   reminderList.selectedIndex = 0;
-  gLastAlarmSelection = 0;
 
   if (!reminders || !reminders.length) {
     // No reminders selected, we are done
-    return;
+    return reminderList.selectedIndex;
   }
 
-  if (reminders.length > 1 || !matchCustomReminderToMenuitem(reminders[0])) {
+  if (
+    reminders.length > 1 ||
+    !matchCustomReminderToMenuitem(reminders[0], reminderList, calendar)
+  ) {
     // If more than one alarm is selected, or we didn't find a matching item
     // above, then select the "custom" item and attach the item's reminders to
     // it.
     reminderList.value = "custom";
-    customItem.reminders = reminders;
+    reminderList.querySelector(".reminder-custom-menuitem").reminders = reminders;
   }
 
-  // remember the selected index
-  gLastAlarmSelection = reminderList.selectedIndex;
+  // Return the selected index so it can be remembered.
+  return reminderList.selectedIndex;
 }
 
 /**
  * Save the selected reminder into the passed item.
  *
- * @param item      The item save the reminder into.
+ * @param {calIEvent | calITodo} item   The calendar item to save the reminder into.
+ * @param {calICalendar} calendar       The current calendar.
+ * @param {Element} reminderList        The reminder menu element.
  */
-function saveReminder(item) {
+function saveReminder(item, calendar, reminderList) {
   // We want to compare the old alarms with the new ones. If these are not
   // the same, then clear the snooze/dismiss times
   let oldAlarmMap = {};
@@ -309,7 +333,6 @@ function saveReminder(item) {
   // Clear the alarms so we can add our new ones.
   item.clearAlarms();
 
-  let reminderList = document.getElementById("item-alarm");
   if (reminderList.value != "none") {
     let menuitem = reminderList.selectedItem;
     let reminders;
@@ -324,7 +347,7 @@ function saveReminder(item) {
     } else {
       // Pre-defined entries specify the necessary information
       // as attributes attached to the menuitem elements.
-      reminders = [createReminderFromMenuitem(menuitem)];
+      reminders = [createReminderFromMenuitem(menuitem, calendar)];
     }
 
     let alarmCaps = item.calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
@@ -374,51 +397,50 @@ function saveReminder(item) {
  * calendar supports DISPLAY alarms, this is the default. Otherwise it is the
  * first alarm action the calendar supports.
  *
- * @return      The default alarm type.
+ * @param {calICalendar} calendar - The calendar to use.
+ * @return {string} The default alarm type.
  */
-function getDefaultAlarmType() {
-  let calendar = getCurrentCalendar();
+function getDefaultAlarmType(calendar) {
   let alarmCaps = calendar.getProperty("capabilities.alarms.actionValues") || ["DISPLAY"];
   return alarmCaps.includes("DISPLAY") ? "DISPLAY" : alarmCaps[0];
-}
-
-/**
- * Get the currently selected calendar. For dialogs with a menulist of
- * calendars, this is the currently chosen calendar, otherwise its the fixed
- * calendar from the window's item.
- *
- * @return      The currently selected calendar.
- */
-function getCurrentCalendar() {
-  let calendarNode = document.getElementById("item-calendar");
-  return calendarNode && calendarNode.selectedItem
-    ? calendarNode.selectedItem.calendar
-    : window.calendarItem.calendar;
 }
 
 /**
  * Common update functions for both event dialogs. Called when a reminder has
  * been selected from the menulist.
  *
- * @param aSuppressDialogs     If true, controls are updated without prompting
- *                               for changes with the dialog
+ * @param {Element} reminderList - The reminders menu element.
+ * @param {calIEvent | calITodo} calendarItem - The calendar item.
+ * @param {number} lastAlarmSelection - Index of the previous selection in the reminders menu.
+ * @param {Element} reminderDetails - The reminder details element.
+ * @param {calITimezone} timezone - The relevant timezone.
+ * @param {boolean} suppressDialogs - If true, controls are updated without prompting
+ *                                    for changes with the dialog
+ * @return {number} Index of the item selected in the reminders menu.
  */
-function commonUpdateReminder(aSuppressDialogs) {
+function commonUpdateReminder(
+  reminderList,
+  calendarItem,
+  lastAlarmSelection,
+  calendar,
+  reminderDetails,
+  timezone,
+  suppressDialogs
+) {
   // if a custom reminder has been selected, we show the appropriate
   // dialog in order to allow the user to specify the details.
   // the result will be placed in the 'reminder-custom-menuitem' tag.
-  let reminderList = document.getElementById("item-alarm");
   if (reminderList.value == "custom") {
     // Clear the reminder icons first, this will make sure that while the
     // dialog is open the default reminder image is not shown which may
     // confuse users.
-    removeChildren("reminder-icon-box");
+    removeChildren(reminderDetails.querySelector(".reminder-icon-box"));
 
     // show the dialog. This call blocks until the dialog is closed. Don't
     // pop up the dialog if aSuppressDialogs was specified or if this
     // happens during initialization of the dialog
-    if (!aSuppressDialogs && reminderList.hasAttribute("last-value")) {
-      editReminder();
+    if (!suppressDialogs && reminderList.hasAttribute("last-value")) {
+      editReminder(reminderList, calendarItem, lastAlarmSelection, calendar, timezone);
     }
 
     if (reminderList.value == "custom") {
@@ -435,13 +457,11 @@ function commonUpdateReminder(aSuppressDialogs) {
       } else if (customItem.reminders.length == 1) {
         // We might be able to match the custom reminder with one of the
         // default menu items.
-        matchCustomReminderToMenuitem(customItem.reminders[0]);
+        matchCustomReminderToMenuitem(customItem.reminders[0], reminderList, calendar);
       }
     }
   }
 
-  // remember the current reminder drop down selection index.
-  gLastAlarmSelection = reminderList.selectedIndex;
   reminderList.setAttribute("last-value", reminderList.value);
 
   // possibly the selected reminder conflicts with the item.
@@ -450,7 +470,7 @@ function commonUpdateReminder(aSuppressDialogs) {
   // approach as with recurring tasks. in case the reminder is related
   // to the entry date we check the entry date automatically and disable
   // the checkbox. the same goes for end related reminder and the due date.
-  if (cal.item.isToDo(window.calendarItem)) {
+  if (cal.item.isToDo(calendarItem)) {
     // In general, (re-)enable the due/entry checkboxes. This will be
     // changed in case the alarms are related to START/END below.
     enableElementWithLock("todo-has-duedate", "reminder-lock");
@@ -460,7 +480,7 @@ function commonUpdateReminder(aSuppressDialogs) {
     if (menuitem.value != "none") {
       // In case a reminder is selected, retrieve the array of alarms from
       // it, or create one from the currently selected menuitem.
-      let reminders = menuitem.reminders || [createReminderFromMenuitem(menuitem)];
+      let reminders = menuitem.reminders || [createReminderFromMenuitem(menuitem, calendar)];
 
       // If a reminder is related to the entry date...
       if (reminders.some(x => x.related == x.ALARM_RELATED_START)) {
@@ -491,35 +511,32 @@ function commonUpdateReminder(aSuppressDialogs) {
       }
     }
   }
-  updateReminderDetails();
+  updateReminderDetails(reminderDetails, reminderList, calendar);
+
+  // Return the current reminder drop down selection index so it can be remembered.
+  return reminderList.selectedIndex;
 }
 
 /**
  * Updates the related link on the dialog. Currently only used by the
  * read-only summary dialog.
+ *
+ * @param {string} itemUrlString - The calendar item URL as a string.
+ * @param {Element} linkRow - The row containing the link.
+ * @param {Element} urlLink - The link element itself.
  */
-function updateLink() {
-  function hideOrShow(aBool) {
-    setElementValue("event-grid-link-row", !aBool && "true", "hidden");
-    let separator = document.getElementById("event-grid-link-separator");
-    if (separator) {
-      // The separator is not there in the summary dialog
-      setElementValue("event-grid-link-separator", !aBool && "true", "hidden");
-    }
-  }
-
-  let itemUrlString = window.calendarItem.getProperty("URL") || "";
+function updateLink(itemUrlString, linkRow, urlLink) {
   let linkCommand = document.getElementById("cmd_toggle_link");
 
   if (linkCommand) {
-    // Disable if there is no url
-    setElementValue(linkCommand, !itemUrlString.length && "true", "disabled");
+    // Disable if there is no url.
+    setBooleanAttribute(linkCommand, "disabled", !itemUrlString);
   }
 
   if ((linkCommand && linkCommand.getAttribute("checked") != "true") || !itemUrlString.length) {
     // Hide if there is no url, or the menuitem was chosen so that the url
     // should be hidden
-    hideOrShow(false);
+    setBooleanAttribute(linkRow, "hidden", true);
   } else {
     let handler, uri;
     try {
@@ -527,44 +544,52 @@ function updateLink() {
       handler = Services.io.getProtocolHandler(uri.scheme);
     } catch (e) {
       // No protocol handler for the given protocol, or invalid uri
-      hideOrShow(false);
+      setBooleanAttribute(linkRow, "hidden", true);
       return;
     }
 
     // Only show if its either an internal protocol handler, or its external
     // and there is an external app for the scheme
     handler = cal.wrapInstance(handler, Ci.nsIExternalProtocolHandler);
-    hideOrShow(!handler || handler.externalAppExistsForScheme(uri.scheme));
+    let show = !handler || handler.externalAppExistsForScheme(uri.scheme);
+    setBooleanAttribute(linkRow, "hidden", !show);
 
     setTimeout(() => {
-      // HACK the url-link doesn't crop when setting the value in onLoad
-      setElementValue("url-link", itemUrlString);
-      setElementValue("url-link", itemUrlString, "href");
+      // HACK the url link doesn't crop when setting the value in onLoad
+      setElementValue(urlLink, itemUrlString);
+      setElementValue(urlLink, itemUrlString, "href");
     }, 0);
   }
 }
 
-/*
- * setup attendees in event and summary dialog
+/**
+ * Set up attendees in event and summary dialog.
+ *
+ * @param {calIAttendee[]} attendees - The attendees.
+ * @param {Element} container - Element containing attendees rows, template, etc.
+ * @param {number} attendeesInRow - The number of attendees that can fit in each row.
+ * @param {number} maxLabelWidth - Maximum width of the label.
+ * @return {{attendeesInRow: number, maxLabelWidth: number}} The new values.
  */
-function setupAttendees() {
-  let attBox = document.getElementById("item-attendees-box");
+function setupAttendees(attendees, container, attendeesInRow, maxLabelWidth) {
+  let attBox = container.querySelector(".item-attendees-box");
   let attBoxRows = attBox.getElementsByClassName("item-attendees-row");
+  let newAttendeesInRow = attendeesInRow;
+  let newMaxLabelWidth = maxLabelWidth;
 
-  if (window.attendees && window.attendees.length > 0) {
+  if (attendees && attendees.length > 0) {
     // cloning of the template nodes
-    let selector = "#item-attendees-box-template .item-attendees-row";
-    let clonedRow = document.querySelector(selector).cloneNode(false);
-    selector = "#item-attendees-box-template .item-attendees-row box:nth-of-type(1)";
-    let clonedCell = document.querySelector(selector).cloneNode(true);
-    selector = "#item-attendees-box-template .item-attendees-row box:nth-of-type(2)";
-    let clonedSpacer = document.querySelector(selector).cloneNode(false);
+    let row = container.querySelector(".item-attendees-box-template .item-attendees-row");
+
+    let clonedRow = row.cloneNode(false);
+    let clonedCell = row.querySelector("box:nth-of-type(1)").cloneNode(true);
+    let clonedSpacer = row.querySelector("box:nth-of-type(2)").cloneNode(false);
 
     // determining of attendee box setup
-    let inRow = window.attendeesInRow || -1;
+    let inRow = attendeesInRow || -1;
     if (inRow == -1) {
-      inRow = determineAttendeesInRow();
-      window.attendeesInRow = inRow;
+      inRow = determineAttendeesInRow(maxLabelWidth);
+      newAttendeesInRow = inRow;
     } else {
       while (attBoxRows.length > 0) {
         attBox.removeChild(attBoxRows[0]);
@@ -572,8 +597,8 @@ function setupAttendees() {
     }
 
     // set up of the required nodes
-    let maxRows = Math.ceil(window.attendees.length / inRow);
-    let inLastRow = window.attendees.length - (maxRows - 1) * inRow;
+    let maxRows = Math.ceil(attendees.length / inRow);
+    let inLastRow = attendees.length - (maxRows - 1) * inRow;
     let attCount = 0;
     while (attBox.getElementsByClassName("item-attendees-row").length < maxRows) {
       let newRow = clonedRow.cloneNode(false);
@@ -587,7 +612,7 @@ function setupAttendees() {
         let cell = row.appendChild(newCell);
         let icon = cell.getElementsByTagName("img")[0];
         let text = cell.getElementsByTagName("label")[0];
-        let attendee = window.attendees[attCount];
+        let attendee = attendees[attCount];
 
         let label =
           attendee.commonName && attendee.commonName.length
@@ -617,7 +642,7 @@ function setupAttendees() {
           partstatString,
         ]);
 
-        let del = cal.itip.resolveDelegation(attendee, window.attendees);
+        let del = cal.itip.resolveDelegation(attendee, attendees);
         if (del.delegators != "") {
           del.delegators = cal.l10n.getCalString("dialog.attendee.append.delegatedFrom", [
             del.delegators,
@@ -648,7 +673,7 @@ function setupAttendees() {
 
     // determining of the max width of an attendee label - this needs to
     // be done only once and is obsolete in case of resizing
-    if (!window.maxLabelWidth) {
+    if (!maxLabelWidth) {
       let maxWidth = 0;
       for (let cell of attBox.getElementsByClassName("item-attendees-cell")) {
         cell = cell.cloneNode(true);
@@ -656,35 +681,45 @@ function setupAttendees() {
         cell.getElementsByTagName("label")[0].removeAttribute("flex");
         maxWidth = cell.clientWidth > maxWidth ? cell.clientWidth : maxWidth;
       }
-      window.maxLabelWidth = maxWidth;
+      newMaxLabelWidth = maxWidth;
     }
   } else {
     while (attBoxRows.length > 0) {
       attBox.removeChild(attBoxRows[0]);
     }
   }
+  return { attendeesInRow: newAttendeesInRow, maxLabelWidth: newMaxLabelWidth };
 }
 
 /**
  * Re-arranges the attendees on dialog resizing in event and summary dialog
+ *
+ * @param {calIAttendee[]} attendees - The attendees.
+ * @param {Element} parent - Element containing attendees rows, template, etc.
+ * @param {number} attendeesInRow - The number of attendees that can fit in each row.
+ * @param {number} maxLabelWidth - Maximum width of the label.
+ * @return {{attendeesInRow: number, maxLabelWidth: number}} The new values.
  */
-function rearrangeAttendees() {
-  if (window.attendees && window.attendees.length > 0 && window.attendeesInRow) {
-    let inRow = determineAttendeesInRow();
-    if (inRow != window.attendeesInRow) {
-      window.attendeesInRow = inRow;
-      setupAttendees();
+function rearrangeAttendees(attendees, parent, attendeesInRow, maxLabelWidth) {
+  if (attendees && attendees.length > 0 && attendeesInRow) {
+    let inRow = determineAttendeesInRow(maxLabelWidth);
+    if (inRow != attendeesInRow) {
+      return setupAttendees(attendees, parent, inRow, maxLabelWidth);
     }
   }
+  return { attendeesInRow, maxLabelWidth };
 }
 
 /**
  * Calculates the number of columns to distribute attendees for event and summary dialog
+ *
+ * @param {number} maxLabelWidth - The maximum width for the label.
+ * @return {number} The number of attendees that can fit in a row.
  */
-function determineAttendeesInRow() {
+function determineAttendeesInRow(maxLabelWidth) {
   // as default value a reasonable high value is appropriate
   // it will be recalculated anyway.
-  let minWidth = window.maxLabelWidth || 200;
+  let minWidth = maxLabelWidth || 200;
   let inRow = Math.floor(document.documentElement.clientWidth / minWidth);
   return inRow > 1 ? inRow : 1;
 }
@@ -744,4 +779,70 @@ function adaptScheduleAgent(aItem) {
       aItem.organizer.deleteProperty("SCHEDULE-AGENT");
     }
   }
+}
+
+/**
+ * Extracts the item's organizer and opens a compose window to send the
+ * organizer an email.
+ *
+ * @param {calIEvent | calITodo} item - The calendar item.
+ */
+function sendMailToOrganizer(item) {
+  let organizer = item.organizer;
+  let email = cal.email.getAttendeeEmail(organizer, true);
+  let emailSubject = cal.l10n.getString("calendar-event-dialog", "emailSubjectReply", [item.title]);
+  let identity = item.calendar.getProperty("imip.identity");
+  cal.email.sendTo(email, emailSubject, null, identity);
+}
+
+/**
+ * Opens an attachment.
+ *
+ * @param {AUTF8String}  aAttachmentId   The hashId of the attachment to open.
+ * @param {calIEvent | calITodo} item    The calendar item.
+ */
+function openAttachmentFromItemSummary(aAttachmentId, item) {
+  if (!aAttachmentId) {
+    return;
+  }
+  let attachments = item
+    .getAttachments()
+    .filter(aAttachment => aAttachment.hashId == aAttachmentId);
+
+  if (attachments.length && attachments[0].uri && attachments[0].uri.spec != "about:blank") {
+    Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+      .getService(Ci.nsIExternalProtocolService)
+      .loadURI(attachments[0].uri);
+  }
+}
+
+/**
+ * Given a calendar event or task, return a string that describes the item's
+ * recurrence pattern, or null if there is no recurrence info.
+ *
+ * @param {calIEvent | calITodo} item - A calendar item.
+ * @return {string | null} A string describing the item's recurrence pattern or null.
+ */
+function getRecurrenceString(item) {
+  // Recurrence info is stored on the parent item.
+  let parent = item.parentItem;
+
+  let recurrenceInfo = parent.recurrenceInfo;
+  if (!recurrenceInfo) {
+    return null;
+  }
+
+  let kDefaultTimezone = cal.dtz.defaultTimezone;
+
+  let rawStartDate = parent.startDate || parent.entryDate;
+  let rawEndDate = parent.endDate || parent.dueDate;
+
+  let startDate = rawStartDate ? rawStartDate.getInTimezone(kDefaultTimezone) : null;
+  let endDate = rawEndDate ? rawEndDate.getInTimezone(kDefaultTimezone) : null;
+
+  let details =
+    recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate) ||
+    cal.l10n.getString("calendar-event-dialog", "ruleTooComplexSummary");
+
+  return details;
 }

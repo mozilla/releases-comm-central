@@ -50,7 +50,7 @@ var DESCRIPTION_TEXTBOX = `
 `;
 var ATTENDEES_ROW = `
     ${EVENT_TABPANELS}/id("event-grid-tabpanel-attendees")/{"flex":"1"}/
-    {"flex":"1"}/id("item-attendees-box")/{"class":"item-attendees-row"}
+    {"flex":"1"}/{"class":"item-attendees-box"}/{"class":"item-attendees-row"}
 `;
 // Only for Tasks.
 var PERCENT_COMPLETE_INPUT = `
@@ -435,7 +435,7 @@ async function setData(dialog, iframe, data) {
  */
 async function setReminderMenulist(iframeWindow, id) {
   let iframeDocument = iframeWindow.document;
-  let menulist = iframeDocument.getElementById("item-alarm");
+  let menulist = iframeDocument.querySelector(".item-alarm");
   let menuitem = iframeDocument.getElementById(`reminder-${id}-menuitem`);
 
   synthesizeMouseAtCenter(menulist, {}, iframeWindow);

@@ -16,16 +16,16 @@ html|input.textbox-addressingWidget:disabled {
     opacity: 0.5;
 }
 
-#item-attendees-box {
+.item-attendees-box {
     -moz-appearance: listbox;
     margin: 2px 4px 0;
     overflow-y: auto;
     min-height: 54px; /*at least two rows - otherwise a scrollbar (if required) wouldn't appear*/
 }
 
-#calendar-summary-dialog #item-attendees,
-#calendar-event-summary-dialog #item-attendees,
-#calendar-task-summary-dialog #item-attendees {
+#calendar-summary-dialog .item-attendees,
+#calendar-event-summary-dialog .item-attendees,
+#calendar-task-summary-dialog .item-attendees {
     max-height: 135px; /* displays up to four rows of attendees*/
 }
 

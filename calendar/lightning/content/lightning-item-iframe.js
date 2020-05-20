@@ -60,6 +60,7 @@ var gIgnoreUpdate = false;
 var gWarning = false;
 var gPreviousCalendarId = null;
 var gTabInfoObject;
+var gLastAlarmSelection = 0;
 var gConfig = {
   priority: 0,
   privacy: null,
@@ -265,7 +266,7 @@ function receiveMessage(aEvent) {
       postponeTask(aEvent.data.value);
       break;
     case "toggleTimezoneLinks":
-            gTimezonesEnabled = aEvent.data.checked; // eslint-disable-line
+      gTimezonesEnabled = aEvent.data.checked; // eslint-disable-line
       updateDateTime();
       /*
             // Not implemented in react-code.js yet
@@ -600,6 +601,15 @@ function cancelItem() {
 }
 
 /**
+ * Get the currently selected calendar from the menulist of calendars.
+ *
+ * @return      The currently selected calendar.
+ */
+function getCurrentCalendar() {
+  return document.getElementById("item-calendar").selectedItem.calendar;
+}
+
+/**
  * Sets up all dialog controls from the information of the passed item.
  *
  * @param aItem      The item to parse information out of.
@@ -786,7 +796,8 @@ function loadDialog(aItem) {
 
   if (!gNewItemUI) {
     // load reminders details
-    loadReminders(aItem.getAlarms());
+    let alarmsMenu = document.querySelector(".item-alarm");
+    window.gLastAlarmSelection = loadReminders(aItem.getAlarms(), alarmsMenu, getCurrentCalendar());
 
     // Synchronize link-top-image with keep-duration-button status
     let keepAttribute =
@@ -1581,7 +1592,15 @@ function loadRepeat(aRepeatType, aUntilDate, aItem) {
  *                               for changes with the custom dialog
  */
 function updateReminder(aSuppressDialogs) {
-  commonUpdateReminder(aSuppressDialogs);
+  window.gLastAlarmSelection = commonUpdateReminder(
+    document.querySelector(".item-alarm"),
+    window.calendarItem,
+    window.gLastAlarmSelection,
+    getCurrentCalendar(),
+    document.querySelector(".reminder-details"),
+    window.gStartTimezone || window.gEndTimezone,
+    aSuppressDialogs
+  );
   updateAccept();
 }
 
@@ -1671,7 +1690,7 @@ function saveDialog(item) {
     item.completedDate = cal.dtz.jsDateToDateTime(elementValue);
   }
 
-  saveReminder(item);
+  saveReminder(item, getCurrentCalendar(), document.querySelector(".item-alarm"));
 }
 
 /**
@@ -3839,7 +3858,16 @@ function updateAttendees() {
     } else {
       setBooleanAttribute("item-organizer-row", "collapsed", true);
     }
-    setupAttendees();
+
+    let { attendeesInRow, maxLabelWidth } = setupAttendees(
+      window.attendees,
+      document,
+      window.attendeesInRow,
+      window.maxLabelWidth
+    );
+
+    window.attendeesInRow = attendeesInRow;
+    window.maxLabelWidth = maxLabelWidth;
 
     // update the attendee tab label to make the number of attendees
     // visible even if another tab is displayed
@@ -4067,7 +4095,11 @@ function updateCapabilities() {
     priority: gConfig.priority,
     privacy: gConfig.privacy,
   });
-  updateReminderDetails();
+  updateReminderDetails(
+    document.querySelector(".reminder-details"),
+    document.querySelector(".item-alarm"),
+    getCurrentCalendar()
+  );
   updateCategoryMenulist();
 }
 

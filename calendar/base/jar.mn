@@ -94,6 +94,7 @@ calendar.jar:
     content/today-pane.js                                       (content/today-pane.js)
     content/widgets/calendar-alarm-widget.js                    (content/widgets/calendar-alarm-widget.js)
     content/widgets/calendar-dnd-widgets.js                     (content/widgets/calendar-dnd-widgets.js)
+    content/widgets/calendar-item-summary.js                    (content/widgets/calendar-item-summary.js)
     content/widgets/calendar-minimonth.js                       (content/widgets/calendar-minimonth.js)
     content/widgets/calendar-modebox.js                         (content/widgets/calendar-modebox.js)
     content/calendar-subscriptions-list.js                      (content/widgets/calendar-subscriptions-list.js)

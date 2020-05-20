@@ -54,8 +54,8 @@ add_task(async function testDefaultAlarms() {
   let iframeDocument = iframeWindow.document;
   await new Promise(r => iframeWindow.setTimeout(r));
 
-  Assert.equal(iframeDocument.getElementById("item-alarm").value, "custom");
-  let reminderDetails = iframeDocument.getElementById("reminder-single-alarms-label");
+  Assert.equal(iframeDocument.querySelector(".item-alarm").value, "custom");
+  let reminderDetails = iframeDocument.querySelector(".reminder-single-alarms-label");
   Assert.equal(reminderDetails.value, expectedEventReminder);
 
   let reminderDialogPromise = BrowserTestUtils.promiseAlertDialog(
@@ -85,8 +85,8 @@ add_task(async function testDefaultAlarms() {
   iframeDocument = iframeWindow.document;
   await new Promise(r => iframeWindow.setTimeout(r));
 
-  Assert.equal(iframeDocument.getElementById("item-alarm").value, "custom");
-  reminderDetails = iframeDocument.getElementById("reminder-single-alarms-label");
+  Assert.equal(iframeDocument.querySelector(".item-alarm").value, "custom");
+  reminderDetails = iframeDocument.querySelector(".reminder-single-alarms-label");
   Assert.equal(reminderDetails.value, expectedTaskReminder);
 
   reminderDialogPromise = BrowserTestUtils.promiseAlertDialog(

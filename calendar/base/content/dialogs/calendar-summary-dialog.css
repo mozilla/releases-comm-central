@@ -25,12 +25,12 @@ td {
   width: 100%;
 }
 
-#repeat-row > th {
+.repeat-row > th {
   vertical-align: top;
   padding-top: 2px;
 }
 
-#repeat-details {
+.repeat-details {
   width: 100%;
 }
 
