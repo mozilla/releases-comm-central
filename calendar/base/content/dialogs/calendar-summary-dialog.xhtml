@@ -45,7 +45,6 @@
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/calendar-item-editing.js"/>
   <script src="chrome://calendar/content/calApplicationUtils.js"/>
-  <script src="chrome://calendar/content/calendar-item-bindings.js"/>
 
   <toolbox id="summary-toolbox"
            class="mail-toolbox"
@@ -156,28 +155,24 @@
           <html:th>
             <label id="item-start-row-label"
                    taskStartLabel="&read.only.task.start.label;"
-                   eventStartLabel="&read.only.event.start.label;"
-                   control="item-date-row-start-date"/>
+                   eventStartLabel="&read.only.event.start.label;"/>
           </html:th>
           <html:td>
-            <html:input is="calendar-item-date-input" id="item-date-row-start-date"
+            <html:input id="item-date-row-start-date"
                         class="selectable-label plain input-inline"
-                        readonly="readonly"
-                        mode="start"/>
+                        readonly="readonly"/>
           </html:td>
         </html:tr>
         <html:tr class="item-date-row">
           <html:th>
             <label id="item-due-row-label"
                    taskDueLabel="&read.only.task.due.label;"
-                   eventEndLabel="&read.only.event.end.label;"
-                   control="item-date-row-end-date"/>
+                   eventEndLabel="&read.only.event.end.label;"/>
           </html:th>
           <html:td>
-            <html:input is="calendar-item-date-input" id="item-date-row-end-date"
+            <html:input id="item-date-row-end-date"
                         class="selectable-label plain input-inline"
-                        readonly="readonly"
-                        mode="end"/>
+                        readonly="readonly"/>
           </html:td>
         </html:tr>
         <html:tr id="repeat-row" hidden="hidden">

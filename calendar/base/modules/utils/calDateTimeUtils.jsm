@@ -382,6 +382,30 @@ var caldtz = {
     }
     return recentTimezones;
   },
+
+  /**
+   * Returns a string representation of a given datetime. For example, to show
+   * in the calendar item summary dialog.
+   *
+   * @param {calIDateTime} dateTime - Datetime to convert.
+   * @return {string} A string representation of the datetime.
+   */
+  getStringForDateTime(dateTime) {
+    const kDefaultTimezone = cal.dtz.defaultTimezone;
+    let localTime = dateTime.getInTimezone(kDefaultTimezone);
+    let formatter = cal.dtz.formatter;
+    let formattedLocalTime = formatter.formatDateTime(localTime);
+
+    if (!dateTime.timezone.isFloating && dateTime.timezone.tzid != kDefaultTimezone.tzid) {
+      // Additionally display the original datetime with timezone.
+      let originalTime = cal.l10n.getCalString("datetimeWithTimezone", [
+        formatter.formatDateTime(dateTime),
+        dateTime.timezone.tzid,
+      ]);
+      return `${formattedLocalTime} (${originalTime})`;
+    }
+    return formattedLocalTime;
+  },
 };
 
 ChromeUtils.defineModuleGetter(

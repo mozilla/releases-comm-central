@@ -93,15 +93,6 @@
     opacity: 0.5; /* lower contrast */
 }
 
-.item-date-row > td > input[is="calendar-item-date-input"] {
-    width: 100%;
-    background-color: transparent;
-    color: inherit;
-    border-style: none;
-    margin: 0;
-    padding: 0;
-}
-
 #calendar-task-details-grid > .item-date-row > .headline {
     font-weight: normal;
     color: windowtext;
@@ -123,7 +114,6 @@
 
 :root[lwt-tree] .task-details-name,
 :root[lwt-tree] .task-details-value,
-:root[lwt-tree] .item-date-row > td > input[is="calendar-item-date-input"] > .selectable-label,
 :root[lwt-tree] #calendar-task-details-grid > .item-date-row > .headline {
     color: inherit;
 }

@@ -94,28 +94,41 @@ function onLoad() {
   document.getElementById("item-title").value = item.title;
 
   document.getElementById("item-calendar").value = calendar.name;
-  document.getElementById("item-date-row-start-date").item = item;
-  document.getElementById("item-date-row-end-date").item = item;
 
   let isToDoItem = cal.item.isToDo(item);
-  let itemStartRowLabel = document.getElementById("item-start-row-label");
+
+  // Show start date.
   let itemStartDate = item[cal.dtz.startDateProp(item)];
+
+  let itemStartRowLabel = document.getElementById("item-start-row-label");
+  let itemDateRowStartDate = document.getElementById("item-date-row-start-date");
+
   itemStartRowLabel.style.visibility = itemStartDate ? "visible" : "collapse";
-  let itemStartLabelValue = itemStartRowLabel.getAttribute(
-    isToDoItem ? "taskStartLabel" : "eventStartLabel"
-  );
+  itemDateRowStartDate.style.visibility = itemStartDate ? "visible" : "collapse";
+
   if (itemStartDate) {
+    let itemStartLabelValue = itemStartRowLabel.getAttribute(
+      isToDoItem ? "taskStartLabel" : "eventStartLabel"
+    );
     itemStartRowLabel.setAttribute("value", itemStartLabelValue);
+    itemDateRowStartDate.value = cal.dtz.getStringForDateTime(itemStartDate);
   }
 
-  let itemDueRowLabel = document.getElementById("item-due-row-label");
+  // Show due date / end date.
   let itemDueDate = item[cal.dtz.endDateProp(item)];
+
+  let itemDueRowLabel = document.getElementById("item-due-row-label");
+  let itemDateRowEndDate = document.getElementById("item-date-row-end-date");
+
   itemDueRowLabel.style.visibility = itemDueDate ? "visible" : "collapse";
-  let itemDueLabelValue = itemDueRowLabel.getAttribute(
-    isToDoItem ? "taskDueLabel" : "eventEndLabel"
-  );
+  itemDateRowEndDate.style.visibility = itemDueDate ? "visible" : "collapse";
+
   if (itemDueDate) {
+    let itemDueLabelValue = itemDueRowLabel.getAttribute(
+      isToDoItem ? "taskDueLabel" : "eventEndLabel"
+    );
     itemDueRowLabel.setAttribute("value", itemDueLabelValue);
+    itemDateRowEndDate.value = cal.dtz.getStringForDateTime(itemDueDate);
   }
   // show reminder if this item is *not* readonly.
   // this case happens for example if this is an invitation.

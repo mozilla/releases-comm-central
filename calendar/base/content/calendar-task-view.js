@@ -131,13 +131,21 @@ var taskDetailsView = {
           ", "
         );
       }
-      document.getElementById("task-start-date").item = item;
-      document.getElementById("task-due-date").item = item;
 
       let taskStartDate = item[cal.dtz.startDateProp(item)];
+      if (taskStartDate) {
+        document.getElementById("task-start-date").textContent = cal.dtz.getStringForDateTime(
+          taskStartDate
+        );
+      }
       document.getElementById("task-start-row").toggleAttribute("hidden", !taskStartDate);
 
       let taskDueDate = item[cal.dtz.endDateProp(item)];
+      if (taskDueDate) {
+        document.getElementById("task-due-date").textContent = cal.dtz.getStringForDateTime(
+          taskDueDate
+        );
+      }
       document.getElementById("task-due-row").toggleAttribute("hidden", !taskDueDate);
 
       let parentItem = item;
