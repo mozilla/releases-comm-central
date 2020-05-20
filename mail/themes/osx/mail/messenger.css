@@ -575,16 +575,6 @@ button[type="menu-button"] > .button-box > button {
   margin-inline-end: 2px;
 }
 
-button.notification-button > .button-box > button {
-  -moz-appearance: none;
-  margin-top: 0;
-  margin-bottom: -1px;
-  margin-inline-start: 1px;
-  margin-inline-end: 5px;
-  padding-inline-end: 5px;
-  border-inline-end: 1px solid rgba(0,0,0,.35);
-}
-
 .button-menubutton-dropmarker {
   -moz-appearance: none;
 }
@@ -597,10 +587,6 @@ button dropmarker::part(icon) {
 
 button[is="button-menu-button"] > .button-box > dropmarker {
   margin-inline-end: -5px;
-}
-
-.notification-button > .button-box > dropmarker {
-  margin-top: 1px;
 }
 
 /* Status bar */

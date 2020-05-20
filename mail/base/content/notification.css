@@ -6,6 +6,27 @@
   == Content specific styles for Notification.
   ======================================================================= */
 
+notification {
+  --notification-button-background: #e2e2e3;
+  --notification-button-color: #0c0c0d;
+  --notification-button-border: #c2c2c3;
+  --notification-button-hover-background: #d2d2d3;
+  --notification-button-active-background: #c2c2c3;
+  --notification-button-active-border: #a2a2a3;
+}
+
+:root[lwt-tree-brighttext] notification[type="info"] {
+  background: #49494b;
+  color: #fff;
+  border-color: var(--splitter-color);
+  --notification-button-background: #636364;
+  --notification-button-color: #f9f9fa;
+  --notification-button-border: #828283;
+  --notification-button-hover-background: #777778;
+  --notification-button-active-background: #878788;
+  --notification-button-active-border: #929293;
+}
+
 notification[type="warning"] {
   background: #fff160;
 }
@@ -41,4 +62,66 @@ button.button-menu-list {
 
 .messageText > .text-link {
   margin-inline-start: 6px;
+}
+
+button.notification-button {
+  -moz-appearance: none;
+  height: 24px;
+  min-width: 5.5em;
+  color: var(--notification-button-color) !important;
+  border: 1px solid var(--notification-button-border);
+  border-radius: 2px;
+  background: var(--notification-button-background);
+  margin: 1px 5px;
+  padding: 0 4px;
+  box-shadow: none;
+}
+
+button.notification-button:hover {
+  background-color: var(--notification-button-hover-background);
+}
+
+button.notification-button:hover:active {
+  background-color: var(--notification-button-active-background);
+  border-color: var(--notification-button-active-border);
+}
+
+button.notification-button > .button-box {
+  padding: 0;
+}
+
+button.notification-button[type="menu-button"] {
+  -moz-appearance: none;
+}
+
+.notification-button.button-menu-list > .button-box {
+  -moz-appearance: none;
+  padding-inline-end: 14px;
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: 12px;
+  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+button.button-menu-list:-moz-locale-dir(rtl) > .button-box {
+  background-position: left;
+}
+
+button.notification-button[type="menu-button"] > .button-box > button {
+  -moz-appearance: none;
+  height: 22px;
+  min-width: 5.5em;
+  border-inline-end: 1px solid var(--notification-button-active-border);
+  margin-block: -6px;
+  margin-inline: -4px 5px;
+  padding: 0 4px;
+}
+
+button.notification-button > .button-box > dropmarker {
+  -moz-appearance: none;
+  list-style-image: url(chrome://global/skin/icons/arrow-dropdown-12.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
