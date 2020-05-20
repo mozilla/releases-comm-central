@@ -130,15 +130,19 @@ function onLoad() {
     itemDueRowLabel.setAttribute("value", itemDueLabelValue);
     itemDateRowEndDate.value = cal.dtz.getStringForDateTime(itemDueDate);
   }
-  // show reminder if this item is *not* readonly.
-  // this case happens for example if this is an invitation.
-  let argCalendar = window.arguments[0].calendarEvent.calendar;
-  let supportsReminders =
-    argCalendar.getProperty("capabilities.alarms.oninvitations.supported") !== false;
-  if (!window.readOnly && supportsReminders) {
-    document.getElementById("reminder-row").removeAttribute("hidden");
-    loadReminders(window.calendarItem.getAlarms());
-    updateReminder();
+
+  // Show reminder if this item is *not* readonly.
+  // This case happens for example if this is an invitation.
+  if (!window.readOnly) {
+    let argCalendar = window.arguments[0].calendarEvent.calendar;
+    let supportsReminders =
+      argCalendar.getProperty("capabilities.alarms.oninvitations.supported") !== false;
+
+    if (supportsReminders) {
+      document.getElementById("reminder-row").removeAttribute("hidden");
+      loadReminders(window.calendarItem.getAlarms());
+      updateReminder();
+    }
   }
 
   updateRecurrenceDetails(getRecurrenceString(item));
