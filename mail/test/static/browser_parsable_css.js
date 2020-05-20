@@ -141,12 +141,7 @@ let propNameWhitelist = [
   { propName: "--bezier-grid-color", isFromDevTools: true },
 ];
 
-let thunderbirdWhitelist = [
-  {
-    sourceName: /^chrome:\/\/calendar\/skin\/shared\/suite/,
-    isFromDevTools: false,
-  },
-];
+let thunderbirdWhitelist = [];
 
 // Add suffix to stylesheets' URI so that we always load them here and
 // have them parsed. Add a random number so that even if we run this
