@@ -11,9 +11,6 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { AddonManager } = ChromeUtils.import(
-  "resource://gre/modules/AddonManager.jsm"
-);
 var { LightweightThemeConsumer } = ChromeUtils.import(
   "resource://gre/modules/LightweightThemeConsumer.jsm"
 );
@@ -22,9 +19,6 @@ var { TBDistCustomizer } = ChromeUtils.import(
 );
 var { MailMigrator } = ChromeUtils.import(
   "resource:///modules/MailMigrator.jsm"
-);
-var { ExtensionSupport } = ChromeUtils.import(
-  "resource:///modules/ExtensionSupport.jsm"
 );
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
@@ -56,6 +50,11 @@ let ACTORS = {
     allFrames: true,
   },
 };
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AddonManager: "resource://gre/modules/AddonManager.jsm",
+  ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
+});
 
 /**
  * Glue code that should be executed before any windows are opened. Any
