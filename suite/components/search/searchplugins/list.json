@@ -91,7 +91,7 @@
         ]
       }
     },
-    "ja-JP-mac": {
+    "ja-JP-macos": {
       "default": {
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo! JAPAN", "DuckDuckGo"],
