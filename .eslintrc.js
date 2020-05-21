@@ -22,6 +22,17 @@ const xpcshellTestPaths = [
 const browserTestPaths = ["**/test*/**/browser/"];
 
 module.exports = {
+  parser: "babel-eslint",
+  parserOptions: {
+    sourceType: "script",
+    babelOptions: {
+      plugins: [
+        "@babel/plugin-syntax-optional-chaining",
+        "@babel/plugin-syntax-nullish-coalescing-operator",
+      ],
+    },
+  },
+
   root: true,
 
   // We would like the same base rules as provided by
@@ -29,7 +40,7 @@ module.exports = {
   extends: ["plugin:mozilla/recommended"],
 
   // When adding items to this file please check for effects on sub-directories.
-  plugins: ["html", "mozilla"],
+  plugins: ["mozilla"],
 
   rules: {
     complexity: ["error", 80],
