@@ -41,7 +41,7 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/ActorManagerParent.jsm"
 );
 
-let ACTORS = {
+let JSWINDOWACTORS = {
   Prompt: {
     parent: {
       moduleURI: "resource:///actors/PromptParent.jsm",
@@ -121,7 +121,7 @@ MailGlue.prototype = {
       onLoadWindow: _setupToolbox,
     });
 
-    ActorManagerParent.addActors(ACTORS);
+    ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
     ActorManagerParent.flush();
   },
 
