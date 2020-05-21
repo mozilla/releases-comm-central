@@ -32,7 +32,6 @@
 
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
-  <script src="chrome://calendar/content/calendar-daypicker.js"/>
 
   <!-- recurrence pattern -->
   <html:fieldset id="recurrence-pattern-groupbox">
@@ -123,16 +122,49 @@
               <hbox id="daypicker-weekday"
                     flex="1"
                     disable-on-readonly="true"
-                    disable-on-occurrence="true"
-                    onselect="updateRecurrenceControls();">
-                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"/>
-                <button is="calendar-daypicker" bottom="true" mode="daypicker-weekday"
-                        right="true"/>
+                    disable-on-occurrence="true">
+                <button class="calendar-daypicker"
+                        type="checkbox"
+                        autoCheck="true"
+                        disable-on-readonly="true"
+                        disable-on-occurrence="true"
+                        mode="daypicker-weekday"/>
+                <button class="calendar-daypicker"
+                        type="checkbox"
+                        autoCheck="true"
+                        disable-on-readonly="true"
+                        disable-on-occurrence="true"
+                        mode="daypicker-weekday"/>
+                <button class="calendar-daypicker"
+                        type="checkbox"
+                        autoCheck="true"
+                        disable-on-readonly="true"
+                        disable-on-occurrence="true"
+                        mode="daypicker-weekday"/>
+                <button class="calendar-daypicker"
+                        type="checkbox"
+                        autoCheck="true"
+                        disable-on-readonly="true"
+                        disable-on-occurrence="true"
+                        mode="daypicker-weekday"/>
+                <button class="calendar-daypicker"
+                        type="checkbox"
+                        autoCheck="true"
+                        disable-on-readonly="true"
+                        disable-on-occurrence="true"
+                        mode="daypicker-weekday"/>
+                <button class="calendar-daypicker"
+                        type="checkbox"
+                        autoCheck="true"
+                        disable-on-readonly="true"
+                        disable-on-occurrence="true"
+                        mode="daypicker-weekday"/>
+                <button class="calendar-daypicker"
+                        type="checkbox"
+                        autoCheck="true"
+                        disable-on-readonly="true"
+                        disable-on-occurrence="true"
+                        mode="daypicker-weekday"/>
               </hbox>
             </hbox>
           </vbox>
@@ -229,54 +261,241 @@
                        disable-on-readonly="true"
                        disable-on-occurrence="true"/>
                 <hbox id="monthly-days"
-                      class="daypicker-monthday"
-                      onselect="updateRecurrenceControls();">
+                      class="daypicker-monthday">
                   <vbox class="daypicker-monthday-mainbox" flex="1">
                     <hbox class="daypicker-row" flex="1">
-                      <button is="calendar-daypicker" label="1" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="2" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="3" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="4" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="5" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="6" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="7" mode="monthly-days"
-                              right="true"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="1"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="2"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="3"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="4"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="5"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="6"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="7"
+                              mode="monthly-days"/>
                     </hbox>
                     <hbox class="daypicker-row" flex="1">
-                      <button is="calendar-daypicker" label="8" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="9" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="10" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="11" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="12" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="13" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="14" mode="monthly-days"
-                              right="true"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="8"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="9"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="10"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="11"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="12"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="13"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="14"
+                              mode="monthly-days"/>
                     </hbox>
                     <hbox class="daypicker-row" flex="1">
-                      <button is="calendar-daypicker" label="15" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="16" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="17" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="18" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="19" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="20" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="21" mode="monthly-days"
-                              right="true"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="15"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="16"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="17"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="18"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="19"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="20"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="21"
+                              mode="monthly-days"/>
                     </hbox>
                     <hbox class="daypicker-row" flex="1">
-                      <button is="calendar-daypicker" label="22" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="23" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="24" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="25" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="26" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="27" mode="monthly-days"/>
-                      <button is="calendar-daypicker" label="28" mode="monthly-days"
-                              right="true"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="22"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="23"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="24"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="25"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="26"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="27"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="28"
+                              mode="monthly-days"/>
                     </hbox>
                     <hbox class="daypicker-row" flex="1">
-                      <button is="calendar-daypicker" label="29" mode="monthly-days" bottom="true"/>
-                      <button is="calendar-daypicker" label="30" mode="monthly-days" bottom="true"/>
-                      <button is="calendar-daypicker" label="31" mode="monthly-days" bottom="true"/>
-                      <button is="calendar-daypicker" label="" mode="monthly-days" bottom="true" right="true" />
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="29"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="30"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label="31"
+                              mode="monthly-days"/>
+                      <button class="calendar-daypicker"
+                              type="checkbox"
+                              autoCheck="true"
+                              disable-on-readonly="true"
+                              disable-on-occurrence="true"
+                              label=""
+                              mode="monthly-days"/>
                     </hbox>
                   </vbox>
                 </hbox>

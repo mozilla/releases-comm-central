@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-button[is="calendar-daypicker"] {
+button.calendar-daypicker {
   display: -moz-box;
   -moz-appearance: none;
   margin: 0;
@@ -11,44 +11,44 @@ button[is="calendar-daypicker"] {
   text-align: center;
 }
 
-button[is="calendar-daypicker"][mode="monthly-days"] {
+button.calendar-daypicker[mode="monthly-days"] {
   min-width: 32px;
   height: 15px;
 }
 
-button[is="calendar-daypicker"][mode="daypicker-weekday"] {
+button.calendar-daypicker[mode="daypicker-weekday"] {
   min-width: 36px;
   height: 32px;
 }
 
-button[is="calendar-daypicker"][mode="monthly-days"][bottom="true"][right="true"] {
+hbox:last-child > button.calendar-daypicker:last-child[mode="monthly-days"] {
   width: 128px;
   height: 15px;
 }
 
-button[is="calendar-daypicker"]:hover {
+button.calendar-daypicker:hover {
   background-image: linear-gradient(rgba(255, 255, 255, .0), rgba(0, 0, 0, .10) 90%);
   cursor: pointer;
 }
 
-button[is="calendar-daypicker"]:hover:active,
-button[is="calendar-daypicker"][open="true"] {
+button.calendar-daypicker:hover:active,
+button.calendar-daypicker[open="true"] {
   background-image: linear-gradient(rgba(0, 0, 0, .15), rgba(0, 0, 0, .01) 15%);
   cursor: pointer;
 }
 
-button[is="calendar-daypicker"][disabled="true"],
-button[is="calendar-daypicker"][disabled="true"][checked="true"],
-button[is="calendar-daypicker"][disabled="true"]:hover,
-button[is="calendar-daypicker"][disabled="true"]:hover:active,
-button[is="calendar-daypicker"][disabled="true"][open="true"] {
+button.calendar-daypicker[disabled="true"],
+button.calendar-daypicker[disabled="true"][checked="true"],
+button.calendar-daypicker[disabled="true"]:hover,
+button.calendar-daypicker[disabled="true"]:hover:active,
+button.calendar-daypicker[disabled="true"][open="true"] {
   background-image: linear-gradient(rgba(0, 0, 0, .0) 5%, rgba(0, 0, 0, .20));
   color: GrayText;
   cursor: default;
   background-color: -moz-Dialog;
 }
 
-button[is="calendar-daypicker"][checked="true"] {
+button.calendar-daypicker[checked="true"] {
   background-image: linear-gradient(rgba(0, 0, 0, .30), rgba(255, 255, 255, .0) 35%);
   background-color: Highlight;
   color: HighlightText;

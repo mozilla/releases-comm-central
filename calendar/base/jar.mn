@@ -13,7 +13,6 @@ calendar.jar:
     content/calendar-clipboard.js                               (content/calendar-clipboard.js)
     content/calendar-command-controller.js                      (content/calendar-command-controller.js)
     content/calendar-day-label.js                               (content/calendar-day-label.js)
-    content/calendar-daypicker.js                               (content/calendar-daypicker.js)
     content/calendar-dnd-listener.js                            (content/calendar-dnd-listener.js)
     content/calendar-event-column.js                            (content/calendar-event-column.js)
     content/calendar-event-gripbar.js                           (content/calendar-event-gripbar.js)

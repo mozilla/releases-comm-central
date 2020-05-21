@@ -4,15 +4,15 @@
 
 @import url(chrome://calendar/skin/shared/calendar-daypicker.css);
 
-button[is="calendar-daypicker"] {
+button.calendar-daypicker {
   border-top: 1px solid ThreeDShadow;
   border-left: 1px solid ThreeDShadow;
 }
 
-button[is="calendar-daypicker"][bottom="true"] {
+hbox:last-child > button.calendar-daypicker {
   border-bottom: 1px solid ThreeDShadow;
 }
 
-button[is="calendar-daypicker"][right="true"] {
+button.calendar-daypicker:last-child {
   border-right: 1px solid ThreeDShadow;
 }
