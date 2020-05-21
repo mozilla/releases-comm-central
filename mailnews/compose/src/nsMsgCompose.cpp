@@ -1003,6 +1003,7 @@ nsMsgCompose::Initialize(nsIMsgComposeParams *aParams,
   } else {
     Telemetry::ScalarAdd(Telemetry::ScalarID::TB_COMPOSE_FORMAT_PLAIN_TEXT, 1);
   }
+  Telemetry::Accumulate(Telemetry::TB_COMPOSE_TYPE, type);
 #endif
 
   if (composeFields) {

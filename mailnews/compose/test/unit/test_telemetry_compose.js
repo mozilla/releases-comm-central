@@ -57,3 +57,55 @@ add_task(async function test_compose_format() {
     PLAIN_TEXT_SCALAR + " must have the correct value."
   );
 });
+
+/**
+ * Check that we're counting compose type (new/reply/fwd etc) when composing.
+ */
+add_task(async function test_compose_type() {
+  // Bare-bones code to initiate composing a message in given type.
+  let createCompose = function(type) {
+    let msgCompose = Cc[
+      "@mozilla.org/messengercompose/compose;1"
+    ].createInstance(Ci.nsIMsgCompose);
+
+    let params = Cc[
+      "@mozilla.org/messengercompose/composeparams;1"
+    ].createInstance(Ci.nsIMsgComposeParams);
+
+    params.type = type;
+    msgCompose.initialize(params);
+  };
+  const histogram = TelemetryTestUtils.getAndClearHistogram("TB_COMPOSE_TYPE");
+
+  // Start composing arbitrary numbers of messages in each format.
+  const NUM_NEW = 4;
+  const NUM_DRAFT = 7;
+  const NUM_EDIT_TEMPLATE = 3;
+  for (let i = 0; i < NUM_NEW; i++) {
+    createCompose(Ci.nsIMsgCompType.New);
+  }
+  for (let i = 0; i < NUM_DRAFT; i++) {
+    createCompose(Ci.nsIMsgCompType.Draft);
+  }
+  for (let i = 0; i < NUM_EDIT_TEMPLATE; i++) {
+    createCompose(Ci.nsIMsgCompType.EditTemplate);
+  }
+
+  // Did we count them correctly?
+  const snapshot = histogram.snapshot();
+  Assert.equal(
+    snapshot.values[Ci.nsIMsgCompType.New],
+    NUM_NEW,
+    "nsIMsgCompType.New count must be correct"
+  );
+  Assert.equal(
+    snapshot.values[Ci.nsIMsgCompType.Draft],
+    NUM_DRAFT,
+    "nsIMsgCompType.Draft count must be correct"
+  );
+  Assert.equal(
+    snapshot.values[Ci.nsIMsgCompType.EditTemplate],
+    NUM_EDIT_TEMPLATE,
+    "nsIMsgCompType.EditTemplate count must be correct"
+  );
+});
