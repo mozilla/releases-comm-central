@@ -1748,9 +1748,6 @@ nsresult nsMsgCompose::CreateMessage(const char *originalMsgURI,
   if (mType == nsIMsgCompType::Draft) {
     nsCString curDraftIdURL;
     rv = m_compFields->GetDraftId(getter_Copies(curDraftIdURL));
-    NS_ASSERTION(NS_SUCCEEDED(rv) && !curDraftIdURL.IsEmpty(),
-                 "CreateMessage can't get draft id");
-
     // Skip if no draft id (probably a new draft msg).
     if (NS_SUCCEEDED(rv) && !curDraftIdURL.IsEmpty()) {
       nsCOMPtr<nsIMsgDBHdr> msgDBHdr;
@@ -1775,6 +1772,8 @@ nsresult nsMsgCompose::CreateMessage(const char *originalMsgURI,
             mDraftDisposition = nsIMsgFolder::nsMsgDispositionState_Forwarded;
         }
       }
+    } else {
+      NS_WARNING("CreateMessage can't get draft id");
     }
   }
 
@@ -3652,13 +3651,13 @@ nsresult nsMsgComposeSendListener::RemoveCurrentDraftMessage(
 
   nsCString curDraftIdURL;
   rv = compFields->GetDraftId(getter_Copies(curDraftIdURL));
-  NS_ASSERTION(NS_SUCCEEDED(rv),
-               "RemoveCurrentDraftMessage can't get draft id");
 
   // Skip if no draft id (probably a new draft msg).
   if (NS_SUCCEEDED(rv) && !curDraftIdURL.IsEmpty()) {
     rv = RemoveDraftOrTemplate(compObj, curDraftIdURL, isSaveTemplate);
     if (NS_FAILED(rv)) NS_WARNING("Removing current draft failed");
+  } else {
+    NS_WARNING("RemoveCurrentDraftMessage can't get draft id");
   }
 
   if (isSaveTemplate) {
