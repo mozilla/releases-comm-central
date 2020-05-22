@@ -11,6 +11,8 @@
 <!DOCTYPE window [
   <!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
   %folderDTD;
+  <!ENTITY % folderPropsDTD SYSTEM "chrome://messenger/locale/folderProps.dtd">
+  %folderPropsDTD;
   <!ENTITY % searchTermDTD SYSTEM "chrome://messenger/locale/searchTermOverlay.dtd">
   %searchTermDTD;
 ]>
@@ -55,16 +57,32 @@
       </hbox>
     </vbox>
     <vbox flex="1">
-      <html:input id="name"
-                  hidden="true"
-                  class="input-inline"
-                  aria-labelledby="nameLabel"
-                  oninput="doEnabling();"/>
-      <html:input id="existingName"
-                  readonly="readonly"
-                  hidden="hidden"
-                  class="input-inline"
-                  tabindex="0"/>
+      <hbox class="input-container">
+        <html:input id="name"
+                    hidden="hidden"
+                    class="input-inline"
+                    aria-labelledby="nameLabel"
+                    oninput="doEnabling();"/>
+        <html:input id="existingName"
+                    readonly="readonly"
+                    hidden="hidden"
+                    class="input-inline"
+                    tabindex="0"/>
+        <hbox id="iconColorContainer" align="center" collapsed="true">
+          <label id="colorLabel" value="&folderProps.color.label;" control="color"
+                 accesskey="&folderProps.color.accesskey;"/>
+          <html:input id="color"
+                      type="color"
+                      value=""
+                      class="input-inline-color"
+                      onclick="inputColorClicked();"
+                      aria-labelledby="colorLabel"/>
+          <button id="resetColor"
+                  tooltiptext="&folderProps.reset.tooltip;"
+                  class="toolbarbutton-1 btn-flat btn-reset"
+                  onclick="resetColor();"/>
+        </hbox>
+      </hbox>
       <menulist id="msgNewFolderPicker" class="folderMenuItem" align="center"
                 displayformat="verbose">
         <menupopup is="folder-menupopup" id="msgNewFolderPopup" class="menulist-menupopup"

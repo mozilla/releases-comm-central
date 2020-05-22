@@ -60,3 +60,19 @@ html|input[type="number"].input-number-inline {
 html|input[type="number"]::-moz-number-spin-box {
   margin-inline-start: 4px;
 }
+
+/* Buttons */
+.btn-reset {
+  -moz-appearance: none;
+  list-style-image: url("chrome://messenger/skin/icons/forget.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 2px !important;
+  margin-inline-end: 4px;
+}
+
+.btn-reset .button-icon {
+  margin-inline-end: 0;
+}

@@ -5,12 +5,15 @@
 
 /* import-globals-from ../search/content/searchTerm.js */
 
+var gFolderTreeView;
 var gPickedFolder;
 var gMailView = null;
 var msgWindow; // important, don't change the name of this variable. it's really a global used by commandglue.js
 var gSearchTermSession; // really an in memory temporary filter we use to read in and write out the search terms
 var gSearchFolderURIs = "";
 var gMessengerBundle = null;
+var kCurrentColor = "";
+var kDefaultColor = "#363959";
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
@@ -30,6 +33,7 @@ var { fixIterator } = ChromeUtils.import(
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 document.addEventListener("dialogaccept", onOK);
+document.addEventListener("dialogcancel", onCancel);
 
 function onLoad() {
   var windowArgs = window.arguments[0];
@@ -151,6 +155,24 @@ function InitDialogWithVirtualFolder(aVirtualFolder) {
   let folderNameField = document.getElementById("existingName");
   folderNameField.removeAttribute("hidden");
 
+  // Show the icon color options.
+  document.getElementById("iconColorContainer").collapsed = false;
+  // Store the current icon color to allow discarding edits.
+  gFolderTreeView = window.arguments[0].treeView;
+  kCurrentColor = gFolderTreeView.getFolderCacheProperty(
+    aVirtualFolder,
+    "folderIconColor"
+  );
+
+  let colorInput = document.getElementById("color");
+  colorInput.value = kCurrentColor ? kCurrentColor : kDefaultColor;
+  colorInput.addEventListener("input", event => {
+    window.arguments[0].previewSelectedColorCallback(
+      aVirtualFolder,
+      event.target.value
+    );
+  });
+
   gSearchFolderURIs = virtualFolderWrapper.searchFolderURIs;
   updateFoldersCount();
   document.getElementById("searchOnline").checked =
@@ -206,6 +228,17 @@ function onOK(event) {
 
     MailServices.accounts.saveVirtualFolders();
 
+    // Check if the icon color was updated.
+    if (
+      kCurrentColor !=
+      gFolderTreeView.getFolderCacheProperty(
+        window.arguments[0].folder,
+        "folderIconColor"
+      )
+    ) {
+      window.arguments[0].updateColorCallback(window.arguments[0].folder);
+    }
+
     if (window.arguments[0].onOKCallback) {
       window.arguments[0].onOKCallback(virtualFolderWrapper.virtualFolder.URI);
     }
@@ -244,6 +277,16 @@ function onOK(event) {
       gSearchFolderURIs,
       gSearchTermSession.searchTerms,
       searchOnline
+    );
+  }
+}
+
+function onCancel(event) {
+  if (window.arguments[0].folder) {
+    // Restore the icon to the previous color and discard edits.
+    window.arguments[0].previewSelectedColorCallback(
+      window.arguments[0].folder,
+      kCurrentColor
     );
   }
 }
@@ -302,4 +345,23 @@ function updateFoldersCount() {
 function onEnterInSearchTerm() {
   // stub function called by the core search widget code...
   // nothing for us to do here
+}
+
+/**
+ * Clear the tree selection if the user opens the color picker.
+ */
+function inputColorClicked() {
+  window.arguments[0].clearFolderSelectionCallback();
+}
+
+/**
+ * Reset the folder color to the default value.
+ */
+function resetColor() {
+  inputColorClicked();
+  document.getElementById("color").value = kDefaultColor;
+  window.arguments[0].previewSelectedColorCallback(
+    window.arguments[0].folder,
+    null
+  );
 }

@@ -44,6 +44,10 @@
 
 <?xml-stylesheet href="chrome://calendar/skin/lightning-toolbar.css" type="text/css"?>
 
+<!-- NEEDED FOR FOLDER COLOR CUSTOMIZATION -->
+<?xml-stylesheet href="#inlineStyle" type="text/css"?>
+<?xml-stylesheet href="#previewStyle" type="text/css"?>
+
 # All DTD information is stored in a separate file so that it can be shared by
 # hiddenWindowMac.xhtml.
 <!DOCTYPE window [
@@ -248,6 +252,10 @@
 
 <!-- NEEDED FOR MIGRATION CHECK AT INSTALL -->
 <script src="chrome://calendar/content/calendar-migration.js"/>
+
+<!-- NEEDED FOR FOLDER COLOR CUSTOMIZATION -->
+<html:style type="text/css" id="inlineStyle"></html:style>
+<html:style type="text/css" id="previewStyle"></html:style>
 
 <commandset id="mailCommands">
 #include mainCommandSet.inc.xhtml

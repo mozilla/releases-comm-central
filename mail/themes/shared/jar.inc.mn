@@ -76,6 +76,7 @@
   skin/classic/messenger/icons/flagged.svg                    (../shared/mail/icons/flagged.svg)
   skin/classic/messenger/icons/folder.svg                     (../shared/mail/icons/folder.svg)
   skin/classic/messenger/icons/folder-local.svg               (../shared/mail/icons/folder-local.svg)
+  skin/classic/messenger/icons/forget.svg                     (../shared/mail/icons/forget.svg)
   skin/classic/messenger/icons/forward.svg                    (../shared/mail/icons/forward.svg)
   skin/classic/messenger/icons/get-all.svg                    (../shared/mail/icons/get-all.svg)
   skin/classic/messenger/icons/getmsg.svg                     (../shared/mail/icons/getmsg.svg)

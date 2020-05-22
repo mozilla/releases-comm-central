@@ -150,6 +150,8 @@ var gFolderTreeView = {
   load(aTree, aJSONFile) {
     this._treeElement = aTree;
     this.messengerBundle = document.getElementById("bundle_messenger");
+    this.inlineStyle = document.getElementById("inlineStyle");
+    this.previewStyle = document.getElementById("previewStyle");
 
     // The folder pane can be used for other trees which may not have these
     // elements. Collapse them if no account is currently available.
@@ -1684,6 +1686,32 @@ var gFolderTreeView = {
         }
       }
     }
+
+    // Restore custom icon colors.
+    for (let i = 0; i < this._rowMap.length; i++) {
+      let folder = this._rowMap[i]._folder;
+      let msgDatabase;
+      try {
+        // This will throw an exception if the .msf file is missing,
+        // out of date (e.g., the local folder has changed), or corrupted.
+        msgDatabase = folder.msgDatabase;
+      } catch (e) {}
+
+      if (msgDatabase) {
+        // Get the previously stored color from the Folder Database.
+        let iconColor = folder.msgDatabase.dBFolderInfo.getCharProperty(
+          "folderIconColor"
+        );
+        // Store the color in the cache property so we can use this for
+        // properties changes and updates.
+        gFolderTreeView.setFolderCacheProperty(
+          this._rowMap[i]._folder,
+          "folderIconColor",
+          iconColor
+        );
+        this.appendColor(iconColor);
+      }
+    }
   },
 
   _sortedAccounts() {
@@ -2591,6 +2619,22 @@ var gFolderTreeView = {
       this._tree.invalidateRow(index);
     }
   },
+
+  /**
+   * Append inline CSS style for those icons where a custom color was defined.
+   *
+   * @param {string} iconColor - The hash color.
+   */
+  appendColor(iconColor) {
+    if (!this.inlineStyle || !iconColor) {
+      return;
+    }
+
+    let selector = `customColor-${iconColor.replace("#", "")}`;
+
+    // Append the inline CSS styling.
+    this.inlineStyle.textContent += `treechildren::-moz-tree-image(folderNameCol, ${selector}) {fill: ${iconColor};}`;
+  },
 };
 
 /**
@@ -2791,6 +2835,15 @@ ftvItem.prototype = {
       properties += " specialFolder-" + smartFolderName.replace(/\s+/g, "");
     }
 
+    let customColor = gFolderTreeView.getFolderCacheProperty(
+      this._folder,
+      "folderIconColor"
+    );
+    // Add the property if a custom color was defined for this folder.
+    if (customColor) {
+      properties += ` customColor-${customColor.replace("#", "")}`;
+    }
+
     if (FeedMessageHandler.isFeedFolder(this._folder)) {
       properties += FeedUtils.getFolderProperties(this._folder, null);
       gFolderTreeView.setFolderCacheProperty(
@@ -2928,7 +2981,7 @@ var gFolderTreeController = {
     // xxx useless param
     function rebuildSummary(aFolder) {
       // folder is already introduced in our containing function and is
-      //  lexically captured and available to us.
+      // lexically captured and available to us.
       if (folder.locked) {
         folder.throwAlertMsg("operationFailedFolderBusy", msgWindow);
         return;
@@ -2979,6 +3032,7 @@ var gFolderTreeController = {
       "chrome,modal,centerscreen",
       {
         folder,
+        treeView: gFolderTreeView,
         serverType: folder.server.type,
         msgWindow,
         title,
@@ -2986,6 +3040,11 @@ var gFolderTreeController = {
         tabID: aTabID,
         name: folder.prettyName,
         rebuildSummaryCallback: rebuildSummary,
+        previewSelectedColorCallback:
+          gFolderTreeController.previewSelectedColor,
+        clearFolderSelectionCallback:
+          gFolderTreeController.clearFolderSelection,
+        updateColorCallback: gFolderTreeController.updateColor,
       }
     );
   },
@@ -3240,8 +3299,14 @@ var gFolderTreeController = {
       "chrome,modal,centerscreen",
       {
         folder,
+        treeView: gFolderTreeView,
         editExistingFolder: true,
         onOKCallback: editVirtualCallback,
+        previewSelectedColorCallback:
+          gFolderTreeController.previewSelectedColor,
+        clearFolderSelectionCallback:
+          gFolderTreeController.clearFolderSelection,
+        updateColorCallback: gFolderTreeController.updateColor,
         msgWindow,
       }
     );
@@ -3314,6 +3379,79 @@ var gFolderTreeController = {
     let tree = document.getElementById("folderTree");
     delete this._tree;
     return (this._tree = tree);
+  },
+
+  /**
+   * Update the inline preview style in the messagener.xhtml file to show
+   * users a preview of the defined color.
+   *
+   * @param {ftvItem} folder - The folder where the color is defined.
+   * @param {string} newColor - The new hash color to preview.
+   */
+  previewSelectedColor(folder, newColor) {
+    // If the color is null, it measn we're resetting to the default value.
+    if (!newColor) {
+      gFolderTreeView.setFolderCacheProperty(folder, "folderIconColor", "");
+
+      // Clear the preview CSS.
+      gFolderTreeView.previewStyle.textContent = "";
+
+      // Force the folder update to see the new color.
+      gFolderTreeView._tree.invalidateRow(
+        gFolderTreeView.getIndexOfFolder(folder)
+      );
+      return;
+    }
+
+    // Add the new color property.
+    gFolderTreeView.setFolderCacheProperty(folder, "folderIconColor", newColor);
+
+    let selector = `customColor-${newColor.replace("#", "")}`;
+    // Add the inline CSS styling.
+    gFolderTreeView.previewStyle.textContent = `treechildren::-moz-tree-image(folderNameCol, ${selector}) {fill: ${newColor};}`;
+
+    // Force the folder update to set the new color.
+    gFolderTreeView._tree.invalidateRow(
+      gFolderTreeView.getIndexOfFolder(folder)
+    );
+  },
+
+  /**
+   * Clear the preview style and add the new selected color to the persistent
+   * inline style in the messenger.xhtml file.
+   *
+   * @param {ftvItem} folder - The folder where the new color was defined.
+   */
+  updateColor(folder) {
+    // Clear the preview CSS.
+    gFolderTreeView.previewStyle.textContent = "";
+
+    let newColor = gFolderTreeView.getFolderCacheProperty(
+      folder,
+      "folderIconColor"
+    );
+
+    // Append new incline color if defined.
+    gFolderTreeView.appendColor(newColor);
+
+    // Store the new color in the Folder database.
+    folder.msgDatabase.dBFolderInfo.setCharProperty(
+      "folderIconColor",
+      newColor
+    );
+
+    // Force the folder update to set the new color.
+    gFolderTreeView._tree.invalidateRow(
+      gFolderTreeView.getIndexOfFolder(folder)
+    );
+  },
+
+  /**
+   * Force the clear of the selection when the color picker is opened to allow
+   * users to see the color preview.
+   */
+  clearFolderSelection() {
+    gFolderTreeView.selection.clearSelection();
   },
 };
 

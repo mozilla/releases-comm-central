@@ -44,6 +44,18 @@
                     oninput="doEnabling();"
                     class="input-inline"
                     aria-labelledby="nameLabel"/>
+        <label id="colorLabel" value="&folderProps.color.label;" control="color"
+               accesskey="&folderProps.color.accesskey;"/>
+        <html:input id="color"
+                    type="color"
+                    value=""
+                    class="input-inline-color"
+                    onclick="inputColorClicked();"
+                    aria-labelledby="colorLabel"/>
+        <button id="resetColor"
+                tooltiptext="&folderProps.reset.tooltip;"
+                class="toolbarbutton-1 btn-flat btn-reset"
+                onclick="resetColor();"/>
       </hbox>
       <hbox align="center" class="input-container">
         <label id="locationLabel" value="&folderProps.location.label;"

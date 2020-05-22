@@ -7,10 +7,14 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
 
+var gFolderTreeView;
 var gMsgFolder;
 var gLockedPref = null;
+var kCurrentColor = "";
+var kDefaultColor = "#363959";
 
 document.addEventListener("dialogaccept", folderPropsOKButton);
+document.addEventListener("dialogcancel", folderCancelButton);
 
 // The folderPropsSink is the class that gets notified of an imap folder's properties
 
@@ -114,6 +118,22 @@ function doEnabling() {
     .getButton("accept").disabled = !nameTextbox.value;
 }
 
+/**
+ * Clear the tree selection if the user opens the color picker.
+ */
+function inputColorClicked() {
+  window.arguments[0].clearFolderSelectionCallback();
+}
+
+/**
+ * Reset the folder color to the default value.
+ */
+function resetColor() {
+  inputColorClicked();
+  document.getElementById("color").value = kDefaultColor;
+  window.arguments[0].previewSelectedColorCallback(gMsgFolder, null);
+}
+
 function folderPropsOKButton(event) {
   if (gMsgFolder) {
     // set charset attributes
@@ -171,6 +191,14 @@ function folderPropsOKButton(event) {
       "retention.useDefault"
     ).checked;
     gMsgFolder.retentionSettings = retentionSettings;
+
+    // Check if the icon color was updated.
+    if (
+      kCurrentColor !=
+      gFolderTreeView.getFolderCacheProperty(gMsgFolder, "folderIconColor")
+    ) {
+      window.arguments[0].updateColorCallback(gMsgFolder);
+    }
   }
 
   try {
@@ -185,6 +213,11 @@ function folderPropsOKButton(event) {
   }
 }
 
+function folderCancelButton(event) {
+  // Restore the icon to the previous color and discard edits.
+  window.arguments[0].previewSelectedColorCallback(gMsgFolder, kCurrentColor);
+}
+
 function folderPropsOnLoad() {
   // look in arguments[0] for parameters
   if (window.arguments && window.arguments[0]) {
@@ -196,9 +229,15 @@ function folderPropsOnLoad() {
     }
   }
 
-  // fill in folder name, based on what they selected in the folder pane
   if (window.arguments[0].folder) {
+    // Fill in folder name, based on what they selected in the folder pane.
     gMsgFolder = window.arguments[0].folder;
+    gFolderTreeView = window.arguments[0].treeView;
+    // Store the current icon color to allow discarding edits.
+    kCurrentColor = gFolderTreeView.getFolderCacheProperty(
+      gMsgFolder,
+      "folderIconColor"
+    );
   } else {
     dump("passed null for folder, do nothing\n");
   }
@@ -228,6 +267,15 @@ function folderPropsOnLoad() {
     } catch (e) {
       gMsgFolder.updateFolder(window.arguments[0].msgWindow);
     }
+
+    let colorInput = document.getElementById("color");
+    colorInput.value = kCurrentColor ? kCurrentColor : kDefaultColor;
+    colorInput.addEventListener("input", event => {
+      window.arguments[0].previewSelectedColorCallback(
+        gMsgFolder,
+        event.target.value
+      );
+    });
 
     var locationTextbox = document.getElementById("location");
 

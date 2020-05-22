@@ -5,6 +5,8 @@
    -->
 
 <?xml-stylesheet href="chrome://messenger/skin/mailWindow1.css" type="text/css"?>
+<!-- NEEDED FOR FOLDER COLOR CUSTOMIZATION -->
+<?xml-stylesheet href="#inlineStyle" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/virtualFolderListDialog.dtd">
 
@@ -17,6 +19,9 @@
 <dialog id="searchFolderWindow">
   <script src="chrome://messenger/content/virtualFolderListEdit.js"/>
   <script src="chrome://messenger/content/folderPane.js"/>
+
+  <!-- NEEDED FOR FOLDER COLOR CUSTOMIZATION -->
+  <html:style type="text/css" id="inlineStyle"></html:style>
 
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
 
