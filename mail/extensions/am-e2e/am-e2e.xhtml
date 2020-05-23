@@ -16,12 +16,14 @@
   <script src="chrome://messenger/content/AccountManager.js"/>
   <script src="chrome://messenger/content/am-e2e.js"/>
 
-  <vbox flex="1" style="overflow: auto;">
+  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&e2eTitle.label;"/>
     </hbox>
 
+    <separator class="thin"/>
+
 #include am-e2e.inc.xhtml
-  </vbox>
+  </vbox></vbox>
 
 </window>

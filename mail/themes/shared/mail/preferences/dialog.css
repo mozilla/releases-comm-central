@@ -116,3 +116,8 @@ textbox.tree-input {
   margin-top: 8px;
   margin-inline-end: -4px;
 }
+
+/* Edit SMTP Server dialog */
+#smtpUsername {
+  margin-inline: 8px 0;
+}

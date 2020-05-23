@@ -19,11 +19,12 @@
   <stringbundle id="bundle_messenger"
                 src="chrome://messenger/locale/messenger.properties"/>
 
-  <vbox flex="1" style="overflow: auto;">
+  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
     <hbox class="dialogheader">
       <label class="dialogheader-title" value="&smtpServer.label;"/>
     </hbox>
 
+    <separator class="thin"/>
     <label control="smtpList">&smtpDescription.label;</label>
     <separator class="thin"/>
 
@@ -122,5 +123,5 @@
       </stack>
     </hbox>
     <separator flex="1"/>
-  </vbox>
+  </vbox></vbox>
 </window>

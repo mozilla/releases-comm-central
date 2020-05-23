@@ -48,7 +48,7 @@ function initOfflineSettings() {
 function initServerSettings() {
   document.getElementById("offline.notDownload").checked =
     gIncomingServer.limitOfflineMessageSize;
-  document.getElementById("autosync.notDownload").checked =
+  document.getElementById("autosyncNotDownload").checked =
     gIncomingServer.limitOfflineMessageSize;
   if (gIncomingServer.maxMessageSize > 0) {
     document.getElementById("offline.notDownloadMin").value =
@@ -221,7 +221,7 @@ function onAutosyncNotDownload() {
   // driving the preference.
   document.getElementById(
     "offline.notDownload"
-  ).checked = document.getElementById("autosync.notDownload").checked;
+  ).checked = document.getElementById("autosyncNotDownload").checked;
   onCheckItem1("offline.notDownloadMin", "offline.notDownload");
 }
 
@@ -353,7 +353,7 @@ function onLockPreference() {
   // to code in AccountManager, and update these as well.
   var allPrefElements = [
     { prefstring: "limit_offline_message_size", id: "offline.notDownload" },
-    { prefstring: "limit_offline_message_size", id: "autosync.notDownload" },
+    { prefstring: "limit_offline_message_size", id: "autosyncNotDownload" },
     { prefstring: "max_size", id: "offline.notDownloadMin" },
     { prefstring: "downloadUnreadOnly", id: "nntp.notDownloadRead" },
     { prefstring: "downloadByDate", id: "nntp.downloadMsg" },

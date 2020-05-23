@@ -18,7 +18,7 @@
         title="&serverSettings.label;"
         onload="parent.onPanelLoaded('am-server.xhtml');">
 
-  <vbox flex="1" style="overflow: auto;">
+  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
     <script src="chrome://global/content/globalOverlay.js"/>
     <script src="chrome://global/content/editMenuOverlay.js"/>
     <script src="chrome://messenger/content/am-server.js"/>
@@ -40,12 +40,14 @@
       <label class="dialogheader-title" value="&serverSettings.label;"/>
     </hbox>
 
+    <separator class="thin"/>
+
     <div xmlns="http://www.w3.org/1999/xhtml" id="amServerSetting">
       <div>
         <xul:label value="&serverType.label;"/>
       </div>
       <div>
-        <xul:label id="servertype.verbose"/>
+        <xul:label id="servertypeVerbose"/>
       </div>
       <div style="grid-row: 2;">
         <xul:label value="&serverName.label;" accesskey="&serverName.accesskey;"
@@ -92,7 +94,7 @@
       </div>
     </div>
 
-    <separator class="thin"/>
+    <separator/>
 
     <html:fieldset hidefor="movemail">
       <html:legend>&securitySettings.label;</html:legend>
@@ -103,7 +105,7 @@
                    accesskey="&connectionSecurity.accesskey;"
                    control="server.socketType"/>
           </html:td>
-          <html:td style="width:100%;">
+          <html:td>
             <menulist wsm_persist="true" id="server.socketType"
                       oncommand="secureSelect();" style="width:100%;">
               <menupopup id="server.socketTypePopup">
@@ -125,7 +127,7 @@
                    control="server.authMethod"
                    hidefor="nntp,movemail"/>
           </html:td>
-          <html:td style="width:100%;">
+          <html:td>
             <menulist id="server.authMethod"
                       wsm_persist="true"
                       preftype="int"
@@ -247,6 +249,8 @@
                   prefattribute="value"
                   prefstring="mail.server.%serverkey%.trash_folder_name"/>
 
+    <separator class="thin"/>
+
     <hbox align="center" hidefor="pop3,nntp,movemail">
       <label value="&deleteMessagePrefix.label;" align="start"
              control="imap.deleteModel"/>
@@ -267,6 +271,16 @@
                        value="1"
                        label="&modelMoveToTrash.label;"
                        accesskey="&modelMoveToTrash.accesskey;"/>
+                <menulist id="msgTrashFolderPicker"
+                          class="folderMenuItem"
+                          style="max-width:300px;" flex="1" crop="center"
+                          aria-labelledby="modelMoveToTrash"
+                          displayformat="verbose">
+                  <menupopup is="folder-menupopup" id="msgTrashFolderPopup"
+                             mode="filing"
+                             showFileHereLabel="true"
+                             oncommand="folderPickerChange(event);"/>
+                </menulist>
               </hbox>
               <hbox flex="1" align="center">
                 <radio id="modelMarkDeleted"
@@ -279,20 +293,6 @@
                        value="2"
                        label="&modelDeleteImmediately.label;"
                        accesskey="&modelDeleteImmediately.accesskey;"/>
-              </hbox>
-            </vbox>
-            <vbox>
-              <hbox>
-                <menulist id="msgTrashFolderPicker"
-                          class="folderMenuItem"
-                          style="max-width:300px;" flex="1" crop="center"
-                          aria-labelledby="modelMoveToTrash"
-                          displayformat="verbose">
-                  <menupopup is="folder-menupopup" id="msgTrashFolderPopup"
-                             mode="filing"
-                             showFileHereLabel="true"
-                             oncommand="folderPickerChange(event);"/>
-                </menulist>
               </hbox>
             </vbox>
           </hbox>
@@ -398,10 +398,10 @@
         </menulist>
       </hbox>
 
-      <vbox hidefor="imap,pop3,movemail">
-        <label id="nntp.newsrcFilePath.label" value="&newsrcFilePath.label;"
+      <hbox align="center" hidefor="imap,pop3,movemail">
+        <label id="nntp.newsrcFilePath.label" value="&newsrcFilePath1.label;"
                control="nntp.newsrcFilePath"/>
-        <hbox align="center" class="input-container">
+        <hbox class="input-container" flex="1">
           <html:input id="nntp.newsrcFilePath"
                       type="text"
                       readonly="readonly"
@@ -410,20 +410,20 @@
                       prefstring="mail.server.%serverkey%.newsrc.file"
                       class="uri-element input-inline"
                       aria-labelledby="nntp.newsrcFilePath.label"/>
-          <button id="browseForNewsrc"
-                  label="&browseNewsrc.label;"
-                  filepickertitle="&newsrcPicker.label;"
-                  accesskey="&browseNewsrc.accesskey;"
-                  oncommand="BrowseForNewsrc();"/>
         </hbox>
-      </vbox>
+        <button id="browseForNewsrc"
+                label="&browseNewsrc.label;"
+                filepickertitle="&newsrcPicker1.label;"
+                accesskey="&browseNewsrc.accesskey;"
+                oncommand="BrowseForNewsrc();"/>
+      </hbox>
 
       <separator class="thin"/>
 
-      <vbox>
-      <label id="server.localPath.label" value="&localPath.label;"
-             control="server.localPath"/>
-        <hbox align="center" class="input-container">
+      <hbox align="center">
+        <label id="server.localPath.label" value="&localPath1.label;"
+               control="server.localPath"/>
+        <hbox class="input-container" flex="1">
           <html:input id="server.localPath"
                       type="text"
                       readonly="readonly"
@@ -432,13 +432,13 @@
                       prefstring="mail.server.%serverkey%.directory"
                       class="uri-element input-inline"
                       aria-labelledby="server.localPath.label"/>
-          <button id="browseForLocalFolder"
-                  label="&browseFolder.label;"
-                  filepickertitle="&localFolderPicker.label;"
-                  accesskey="&browseFolder.accesskey;"
-                  oncommand="BrowseForLocalFolders();"/>
         </hbox>
-      </vbox>
+        <button id="browseForLocalFolder"
+                label="&browseFolder.label;"
+                filepickertitle="&localFolderPicker.label;"
+                accesskey="&browseFolder.accesskey;"
+                oncommand="BrowseForLocalFolders();"/>
+      </hbox>
 
     </html:fieldset>
 
@@ -453,5 +453,5 @@
                 preftype="string"
                 prefstring="mail.server.%serverkey%.charset"/>
     </hbox>
-  </vbox>
+  </vbox></vbox>
 </window>

@@ -26,9 +26,9 @@
 
   <stack id="preferences-stack" flex="1">
   <hbox flex="1">
-    <vbox id="accountTreeBox" style="&accountTree.width;">
-      <tree flex="1" onselect="onAccountTreeSelect(null, null);" id="accounttree"
-            seltype="single" hidecolumnpicker="true">
+    <vbox id="accountTreeBox">
+      <tree id="accounttree" flex="1" onselect="onAccountTreeSelect(null, null);"
+            seltype="single" hidecolumnpicker="true" style="&accountTree.width;">
         <treecols>
           <treecol id="AccountCol" flex="1" primary="true" hideheader="true"/>
         </treecols>

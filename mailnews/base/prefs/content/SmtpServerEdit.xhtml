@@ -92,9 +92,9 @@
                    control="server.authMethod"/>
           </hbox>
           <hbox flex="1" align="center">
-            <label id="smtp.username.label" value="&userName.label;"
+            <label id="smtpUsernameLabel" value="&userName.label;"
                    accesskey="&userName.accesskey;"
-                   control="smtp.username"/>
+                   control="smtpUsername"/>
           </hbox>
         </vbox>
         <vbox>
@@ -125,12 +125,14 @@
               <menuitem id="authMethod-any" value="9"/>
             </menupopup>
           </menulist>
-          <html:input id="smtp.username"
-                      type="text"
-                      class="input-inline"
-                      preftype="string"
-                      prefstring="mail.smtpserver.%serverkey%.username"
-                      aria-labelledby="smtp.username.label"/>
+          <hbox class="input-container">
+            <html:input id="smtpUsername"
+                        type="text"
+                        class="input-inline"
+                        preftype="string"
+                        prefstring="mail.smtpserver.%serverkey%.username"
+                        aria-labelledby="smtpUsernameLabel"/>
+          </hbox>
         </vbox>
       </hbox>
     </html:fieldset>

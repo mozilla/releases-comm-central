@@ -12,7 +12,11 @@
 
 window > vbox {
   padding-block: 40px;
-  padding-inline: 25px 28px;
+  padding-inline: 24px 28px;
+}
+
+#containerBox {
+  max-width: 800px;
 }
 
 fieldset {
@@ -25,14 +29,32 @@ fieldset:last-of-type {
 }
 
 #accountTreeBox {
-  margin-block: 28px;
-  margin-inline: 28px 3px;
+  background-image: linear-gradient(to left, transparent, transparent 3px,
+                    var(--in-content-categories-background) 3px);
+  padding-block: 28px;
+  padding-inline: 28px 4px;
+}
+
+#accountTreeBox:-moz-locale-dir(rtl) {
+  background-image: linear-gradient(to right, transparent, transparent 3px,
+                    var(--in-content-categories-background) 3px);
+}
+
+#accounttree {
+  background-color: transparent;
+  border-style: none;
+}
+
+#accounttree > treecols {
+  border-bottom-style: none;
 }
 
 /* Styles for the Account Actions button */
 
 #accountActionsButton {
   margin-inline: 0;
+  border-end-end-radius: 0;
+  border-start-end-radius: 0;
 }
 
 #accountActionsDropdown {
@@ -74,6 +96,11 @@ fieldset:last-of-type {
   padding: 0;
   border-top: 1px solid var(--in-content-box-border-color);
   border-bottom: none;
+}
+
+#archiveHierarchyButton,
+#globalJunkPrefsLink {
+  margin-inline-end: 8px;
 }
 
 /* ::::: account manager :::::: */
@@ -197,19 +224,27 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   min-width: 200px;
 }
 
+#defaultPort,
+#servertypeVerbose,
+#identityHtmlSigFormat {
+  margin-inline-start: 4px;
+}
+
+#autosyncNotDownload {
+  margin-inline-end: 12px;
+}
+
 /* ::::: SMTP Server Panel :::::: */
 
 .smtpServerListItem {
   padding-inline-start: 3px;
 }
 
-#backgroundBox {
-  background-color: var(--in-content-box-background);
-}
-
 #smtpServerInfoBox {
-  background-color: var(--in-content-box-background);
-  margin: 0 6px 5px;
+  padding: 9px;
+  border: 1px solid var(--in-content-border-color);
+  border-radius: 4px;
+  background-color: rgba(215, 215, 219, 0.2);
 }
 
 #smtpServerInfoBox label {

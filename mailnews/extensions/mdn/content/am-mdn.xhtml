@@ -14,7 +14,7 @@
         title="&pane.title;"
         onload="parent.onPanelLoaded('am-mdn.xhtml');">
 
-  <vbox flex="1" style="overflow: auto;">
+  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
     <stringbundle id="bundle_smime" src="chrome://messenger/locale/am-mdn.properties"/>
     <script src="chrome://messenger/content/AccountManager.js"/>
     <script src="chrome://messenger/content/amUtils.js"/>
@@ -24,8 +24,9 @@
       <label class="dialogheader-title" value="&pane.title;"/>
     </hbox>
 
+    <separator class="thin"/>
+
     <html:fieldset>
-      <html:legend>&pane.title;</html:legend>
 
       <hbox id="prefChoices" align="center" flex="1">
         <radiogroup id="identity.use_custom_prefs" wsm_persist="true" genericattr="true"
@@ -128,6 +129,6 @@
         </vbox>
       </vbox>
     </html:fieldset>
-  </vbox>
+  </vbox></vbox>
 
 </window>

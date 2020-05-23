@@ -30,7 +30,7 @@
     <html:link rel="localization" href="messenger/otr/am-im-otr.ftl"/>
   </linkset>
 
-  <vbox flex="1" style="overflow: auto;">
+  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
     <hbox class="dialogheader">
       <label class="dialogheader-title" defaultTitle="&accountWindow.title;"/>
     </hbox>
@@ -85,14 +85,17 @@
 
             <vbox id="autojoinBox" hidden="true">
               <label class="header" data-l10n-id="account-channelTitle" />
-              <vbox>
-                <label value="&account.autojoin;" control="server.autojoin" flex="1"/>
+              <hbox class="input-container">
+                <label class="label-inline"
+                       value="&account.autojoin;"
+                       control="server.autojoin"
+                       flex="1"/>
                 <html:input id="server.autojoin"
                             type="text"
                             preftype="wstring"
                             genericattr="true"
                             class="input-inline"/>
-              </vbox>
+              </hbox>
               <separator class="thin"/>
             </vbox>
             <vbox id="advanced">
@@ -135,15 +138,17 @@
               <label class="header" data-l10n-id="otr-encryption-title" />
               <label data-l10n-id="otr-encryption-caption" />
               <separator class="thin"/>
-              <hbox align="baseline" class="input-container">
+              <hbox align="center">
                 <label data-l10n-id="otr-fingerprint-label" />
-                <html:input id="otrFingerprint"
-                            type="text"
-                            class="input-inline"
-                            readonly="readonly"/>
+                <hbox class="input-container" flex="1">
+                  <html:input id="otrFingerprint"
+                              type="text"
+                              class="input-inline"
+                              readonly="readonly"/>
+                </hbox>
               </hbox>
               <separator class="thin"/>
-              <hbox pack="start">
+              <hbox pack="end">
                 <button id="viewFingerprintButton"
                         data-l10n-id="view-fingerprint-button"
                         oncommand="account.viewFingerprintKeys();"/>
@@ -152,5 +157,5 @@
           </tabpanel>
         </tabpanels>
       </tabbox>
-  </vbox>
+  </vbox></vbox>
 </window>

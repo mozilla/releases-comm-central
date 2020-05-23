@@ -27,16 +27,18 @@
 
     <!-- IMAP Panel -->
     <vbox id="imapPanel">
-      <hbox align="center" class="input-container">
+      <hbox align="center">
         <label id="serverDirectoryLabel"
                value="&serverDirectory.label;"
                accesskey="&serverDirectory.accesskey;"
                control="serverDirectory"/>
-        <html:input id="serverDirectory"
-                    type="text"
-                    class="input-inline"
-                    aria-labelledby="serverDirectoryLabel"
-                    amsa_persist="true"/>
+        <hbox class="input-container">
+          <html:input id="serverDirectory"
+                      type="text"
+                      class="input-inline"
+                      aria-labelledby="serverDirectoryLabel"
+                      amsa_persist="true"/>
+        </hbox>
       </hbox>
 
       <checkbox id="usingSubscription" amsa_persist="true"

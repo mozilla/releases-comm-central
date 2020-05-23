@@ -90,6 +90,8 @@
                   prefstring="mail.identity.%identitykey%.fcc_reply_follows_parent"/>
       </hbox>
 
+      <separator class="thin"/>
+
       <hbox>
         <vbox>
           <hbox flex="1" align="center">
@@ -129,19 +131,13 @@
     <html:fieldset id="archivesGroup">
       <html:legend>&archivesTitle.label;</html:legend>
 
-      <hbox align="center">
+      <hbox pack="start">
         <checkbox id="identity.archiveEnabled" wsm_persist="true"
                   label="&keepArchives.label;"
                   accesskey="&keepArchives.accesskey;"
                   prefattribute="value"
                   prefstring="mail.identity.%identitykey%.archive_enabled"
                   oncommand="setupArchiveItems();"/>
-        <spacer flex="1"/>
-        <button id="archiveHierarchyButton"
-                class="depends-on-archive"
-                label="&archiveHierarchyButton.label;"
-                accesskey="&archiveHierarchyButton.accesskey;"
-                oncommand="ChangeArchiveHierarchy();"/>
       </hbox>
 
       <radiogroup id="messageArchives">
@@ -184,6 +180,13 @@
           </vbox>
         </hbox>
       </radiogroup>
+      <hbox pack="end">
+        <button id="archiveHierarchyButton"
+                class="depends-on-archive"
+                label="&archiveHierarchyButton.label;"
+                accesskey="&archiveHierarchyButton.accesskey;"
+                oncommand="ChangeArchiveHierarchy();"/>
+      </hbox>
     </html:fieldset>
 
     <html:fieldset id="foldersGroup">
@@ -231,6 +234,8 @@
           </vbox>
         </hbox>
       </radiogroup>
+
+      <separator class="thin"/>
 
       <hbox align="center">
         <label value="&keepTemplates.label;" control="messageTemplates"/>

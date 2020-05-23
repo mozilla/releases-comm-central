@@ -62,9 +62,9 @@ function onAccept(event) {
 }
 
 function initSmtpSettings(server) {
-  gSmtpUsername = document.getElementById("smtp.username");
+  gSmtpUsername = document.getElementById("smtpUsername");
   gSmtpDescription = document.getElementById("smtp.description");
-  gSmtpUsernameLabel = document.getElementById("smtp.username.label");
+  gSmtpUsernameLabel = document.getElementById("smtpUsernameLabel");
   gSmtpHostname = document.getElementById("smtp.hostname");
   gSmtpPort = document.getElementById("smtp.port");
   gSmtpAuthMethod = document.getElementById("smtp.authMethod");

@@ -30,7 +30,7 @@
   <script src="chrome://messenger/content/amUtils.js"/>
   <script src="chrome://messenger/content/am-prefs.js"/>
 
-  <vbox flex="1" style="overflow: auto;">
+  <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
 
     <hbox id="am-newsblog-title" class="dialogheader">
       <label class="dialogheader-title" defaultTitle="&accountTitle.label;"/>
@@ -111,11 +111,10 @@
 
     <separator class="thin"/>
 
-    <hbox align="center">
+    <hbox pack="end">
       <button label="&manageSubscriptions.label;"
               accesskey="&manageSubscriptions.accesskey;"
               oncommand="openSubscriptionsDialog(gAccount.incomingServer.rootFolder);"/>
-      <spacer flex="1"/>
     </hbox>
 
     <separator class="thin"/>
@@ -133,14 +132,16 @@
       <separator class="thin"/>
 
       <vbox>
-        <label id="server.localPathLabel" value="&localPath.label;" control="server.localPath"/>
-        <hbox align="center" class="input-container">
-          <html:input id="server.localPath" type="text" readonly="readonly"
-                      class="uri-element input-inline"
-                      aria-labelledby="server.localPathLabel"
-                      wsm_persist="true"
-                      datatype="nsIFile"
-                      prefstring="mail.server.%serverkey%.directory"/>
+        <hbox align="center">
+          <label id="server.localPathLabel" value="&localPath1.label;" control="server.localPath"/>
+          <hbox class="input-container" flex="1">
+            <html:input id="server.localPath" type="text" readonly="readonly"
+                        class="uri-element input-inline"
+                        aria-labelledby="server.localPathLabel"
+                        wsm_persist="true"
+                        datatype="nsIFile"
+                        prefstring="mail.server.%serverkey%.directory"/>
+          </hbox>
           <button id="browseForLocalFolder"
                   label="&browseFolder.label;"
                   filepickertitle="&localFolderPicker.label;"
@@ -150,5 +151,5 @@
       </vbox>
 
     </html:fieldset>
-  </vbox>
+  </vbox></vbox>
 </window>

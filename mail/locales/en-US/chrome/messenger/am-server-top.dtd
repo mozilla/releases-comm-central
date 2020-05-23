@@ -66,15 +66,15 @@
 <!ENTITY maxMessagesEnd.label "messages">
 <!ENTITY alwaysAuthenticate.label "Always request authentication when connecting to this server">
 <!ENTITY alwaysAuthenticate.accesskey "w">
-<!ENTITY newsrcFilePath.label "newsrc file:">
-<!ENTITY newsrcPicker.label "Select newsrc File">
+<!ENTITY newsrcFilePath1.label "News.rc File:">
+<!ENTITY newsrcPicker1.label "Select News.rc File">
 <!ENTITY abbreviate.label "Show newsgroup names in the Mail Folder pane as:">
 <!ENTITY abbreviateOn.label "Full names (For example, 'netscape.public.mozilla.mail-news')">
 <!ENTITY abbreviateOff.label "Abbreviate names (For example, 'n.p.m.mail-news')">
 <!ENTITY advancedButton.label "Advanced…">
 <!ENTITY advancedButton.accesskey "v">
 <!ENTITY serverDefaultCharset2.label "Default Text Encoding:">
-<!ENTITY localPath.label "Local directory:">
+<!ENTITY localPath1.label "Local Directory:">
 <!ENTITY localFolderPicker.label "Select Local Directory">
 <!ENTITY browseFolder.label "Browse…">
 <!ENTITY browseFolder.accesskey "B">

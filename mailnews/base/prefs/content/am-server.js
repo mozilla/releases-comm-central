@@ -166,7 +166,7 @@ function initServerType() {
     // then display the raw server type.
     verboseName = serverType;
   }
-  setDivText("servertype.verbose", verboseName);
+  setDivText("servertypeVerbose", verboseName);
 
   secureSelect(true);
 

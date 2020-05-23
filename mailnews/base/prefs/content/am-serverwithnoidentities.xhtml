@@ -19,10 +19,12 @@
   <script src="chrome://messenger/content/am-serverwithnoidentities.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
 
-  <vbox>
+ <vbox flex="1" style="overflow: auto;"><vbox id="containerBox" flex="1">
   <hbox class="dialogheader">
     <label class="dialogheader-title" value="&accountTitle.label;"/>
   </hbox>
+
+  <separator class="thin"/>
 
   <label hidden="true"
          wsm_persist="true"
@@ -76,22 +78,24 @@
 
     <separator class="thin"/>
 
-    <label id="server.localPath.label" value="&localPath.label;"
-           control="server.localPath"/>
-    <hbox align="center" class="input-container">
-      <html:input id="server.localPath"
-                  type="text"
-                  readonly="readonly"
-                  wsm_persist="true"
-                  datatype="nsIFile"
-                  prefstring="mail.server.%serverkey%.directory"
-                  class="uri-element input-inline"
-                  aria-labelledby="server.localPath.label"/>
-      <button id="browseForLocalFolder" label="&browseFolder.label;"
-              filepickertitle="&localFolderPicker.label;"
-              accesskey="&browseFolder.accesskey;"
-              oncommand="BrowseForLocalFolders()"/>
+    <hbox align="center">
+      <label id="server.localPath.label" value="&localPath1.label;"
+             control="server.localPath"/>
+      <hbox class="input-container" flex="1">
+        <html:input id="server.localPath"
+                    type="text"
+                    readonly="readonly"
+                    wsm_persist="true"
+                    datatype="nsIFile"
+                    prefstring="mail.server.%serverkey%.directory"
+                    class="uri-element input-inline"
+                    aria-labelledby="server.localPath.label"/>
+      </hbox>
+        <button id="browseForLocalFolder" label="&browseFolder.label;"
+                filepickertitle="&localFolderPicker.label;"
+                accesskey="&browseFolder.accesskey;"
+                oncommand="BrowseForLocalFolders()"/>
     </hbox>
   </html:fieldset>
-  </vbox>
+  </vbox></vbox>
 </window>
