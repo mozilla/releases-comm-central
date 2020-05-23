@@ -235,10 +235,6 @@ aside.settings-btn-container {
   margin-block: 0 20px;
 }
 
-.row-container.account-options {
-  max-width: 800px;
-}
-
 .row-container.account-options > .btn-link {
   margin-inline: 10px 20px;
 }
