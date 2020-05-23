@@ -35,18 +35,21 @@ var accountOptionsHelper = {
   },
 
   createMenulist(aList, aLabel, aName) {
-    let vbox = document.createXULElement("vbox");
     let hbox = document.createXULElement("hbox");
+    hbox.setAttribute("align", "baseline");
+    hbox.setAttribute("equalsize", "always");
+    hbox.classList.add("input-container");
 
     let label = document.createXULElement("label");
     label.setAttribute("value", aLabel);
     label.setAttribute("control", aName);
+    label.classList.add("label-inline");
     hbox.appendChild(label);
-    vbox.appendChild(hbox);
 
     let menulist = document.createXULElement("menulist");
     menulist.setAttribute("id", aName);
     menulist.setAttribute("flex", "1");
+    menulist.classList.add("input-inline");
     let popup = menulist.appendChild(document.createXULElement("menupopup"));
     for (let elt of aList) {
       let item = document.createXULElement("menuitem");
@@ -54,8 +57,8 @@ var accountOptionsHelper = {
       item.setAttribute("value", elt.value);
       popup.appendChild(item);
     }
-    vbox.appendChild(menulist);
-    return vbox;
+    hbox.appendChild(menulist);
+    return hbox;
   },
 
   // Adds options with specific prefix for ids to UI according to their types

@@ -121,6 +121,10 @@ fieldset:last-of-type {
   flex: 1;
 }
 
+menulist.input-inline {
+  margin: 2px 4px;
+}
+
 .identity-table {
   margin-inline-end: 14px;
 }
