@@ -196,21 +196,23 @@ Enigmail.msg = {
     }
     */
 
-    var msgId = document.getElementById("msgIdentityPopup");
-    if (msgId) {
-      msgId.addEventListener("command", Enigmail.msg.setIdentityCallback);
-    }
+    document
+      .getElementById("msgIdentityPopup")
+      .addEventListener("command", () => {
+        this.setIdentityDefaults();
+      });
 
-    var subj = document.getElementById("msgSubject");
-    subj.addEventListener("focus", Enigmail.msg.fireSendFlags);
+    document.getElementById("msgSubject").addEventListener("focus", () => {
+      this.fireSendFlags();
+    });
+
+    this.setIdentityDefaults();
 
     /*
     let numCerts = EnigmailFuncs.getNumOfX509Certs();
     this.addrOnChangeTimeout = Math.max((numCerts - 250) * 2, 250);
     EnigmailLog.DEBUG(`enigmailMsgComposeOverlay.js: composeStartup: numCerts=${numCerts}; setting timeout to ${this.addrOnChangeTimeout}\n`);
     */
-
-    Enigmail.msg.msgComposeReset(false); // false => not closing => call setIdentityDefaults()
 
     // TODO implement migration code for old prefs, possibly in configure.jsm
     // Use a new pref identityEnigmailPrefsMigrated, default false.
@@ -254,18 +256,6 @@ Enigmail.msg = {
     }
   },
   */
-
-  setIdentityCallback(elementId) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.setIdentityCallback: elementId=" +
-        elementId +
-        "\n"
-    );
-
-    EnigmailTimer.setTimeout(function() {
-      Enigmail.msg.setIdentityDefaults();
-    }, 100);
-  },
 
   /* return whether the account specific setting key is enabled or disabled
    */
@@ -868,43 +858,6 @@ Enigmail.msg = {
       }.bind(Enigmail.msg),
       1500
     );
-  },
-
-  msgComposeClose() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.msgComposeClose\n"
-    );
-
-    this.msgComposeReset(true); // true => closing => don't call setIdentityDefaults()
-  },
-
-  msgComposeReset(closing) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.msgComposeReset\n"
-    );
-
-    this.dirty = 0;
-    this.processed = null;
-    this.timeoutId = null;
-
-    this.modifiedAttach = null;
-    //this.sendMode = 0;
-    //this.sendModeDirty = false;
-
-    this.statusEncryptedStr = "???";
-    this.statusSignedStr = "???";
-    //this.statusPGPMimeStr = "???";
-    //this.statusInlinePGPStr = "???";
-    this.statusAttachOwnKey = "???";
-    this.identity = null;
-    this.sendProcess = false;
-    this.trustAllKeys = false;
-    //this.mimePreferOpenPGP = 0;
-    this.keyLookupDone = [];
-
-    if (!closing) {
-      this.setIdentityDefaults();
-    }
   },
 
   initRadioMenu(prefName, optionIds) {
@@ -3853,69 +3806,17 @@ Enigmail.composeStateListener = {
   },
 };
 
-/**
- * Unload Enigmail for update or uninstallation
- */
-Enigmail.composeUnload = function() {
-  window.removeEventListener("unload-enigmail", Enigmail.composeUnload);
-  window.removeEventListener("load-enigmail", Enigmail.msg.composeStartup);
-  window.removeEventListener(
-    "compose-window-unload",
-    Enigmail.msg.msgComposeClose,
-    true
-  );
-  window.removeEventListener(
-    "compose-send-message",
-    Enigmail.msg.sendMessageListener,
-    true
-  );
-  window.removeEventListener(
-    "compose-from-changed",
-    Enigmail.msg.fromChangedListener,
-    true
-  );
-
-  gMsgCompose.UnregisterStateListener(Enigmail.composeStateListener);
-
-  let msgId = document.getElementById("msgIdentityPopup");
-  if (msgId) {
-    msgId.removeEventListener("command", Enigmail.msg.setIdentityCallback);
+window.addEventListener(
+  "load",
+  Enigmail.msg.composeStartup.bind(Enigmail.msg),
+  {
+    capture: false,
+    once: true,
   }
+);
 
-  let subj = document.getElementById("msgSubject");
-  subj.removeEventListener("focus", Enigmail.msg.fireSendFlags);
-
-  // check rules for status bar icons on each change of the recipients
-  let rep = new RegExp("; Enigmail.msg.addressOnChange\\(this\\);");
-  var adrCol = document.getElementById("addressCol2#1"); // recipients field
-  if (adrCol) {
-    let attr = adrCol.getAttribute("oninput");
-    adrCol.setAttribute("oninput", attr.replace(rep, ""));
-    attr = adrCol.getAttribute("onchange");
-    adrCol.setAttribute("onchange", attr.replace(rep, ""));
+window.addEventListener("compose-window-unload", () => {
+  if (gMsgCompose) {
+    gMsgCompose.UnregisterStateListener(Enigmail.composeStateListener);
   }
-  adrCol = document.getElementById("addressCol1#1"); // to/cc/bcc/... field
-  if (adrCol) {
-    let attr = adrCol.getAttribute("oncommand");
-    adrCol.setAttribute("oncommand", attr.replace(rep, ""));
-  }
-
-  // finally unload Enigmail entirely
-  Enigmail = undefined;
-};
-
-addEventListener("load", Enigmail.msg.composeStartup.bind(Enigmail.msg), {
-  capture: false,
-  once: true,
 });
-
-window.addEventListener(
-  "unload-enigmail",
-  Enigmail.composeUnload.bind(Enigmail.msg)
-);
-
-window.addEventListener(
-  "compose-window-unload",
-  Enigmail.msg.msgComposeClose.bind(Enigmail.msg),
-  true
-);
