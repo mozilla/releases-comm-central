@@ -16,15 +16,14 @@ var MODE_CREATE = 0x08;
 var MODE_TRUNCATE = 0x20;
 
 /**
- * Loads events from a file into a given calendar. If called without arguments,
- * the user is asked to pick a file and pick a calendar to import the events into.
+ * Loads events from a file into a calendar. If called without a file argument,
+ * the user is asked to pick a file.
  *
  * @param {nsIFile} [fileArg] - Optional, a file to load events from.
- * @param {calICalendar} [calendar] - Optional, a calendar to import events into.
- * @return {Promise<boolean>} True if the import succeeded, false if not (e.g.
- *                            user canceled the file picker dialog).
+ * @return {Promise<boolean>} True if the import dialog was opened, false if
+ *                              not (e.g. on cancel of file picker dialog).
  */
-async function loadEventsFromFile(fileArg, calendar) {
+async function loadEventsFromFile(fileArg) {
   let file = fileArg;
   if (!file) {
     file = await pickFileToImport();
@@ -35,15 +34,14 @@ async function loadEventsFromFile(fileArg, calendar) {
     }
   }
 
-  let targetCalendar = calendar || (await getCalendarToImportInto());
-
-  if (targetCalendar) {
-    let items = getItemsFromFile(file);
-    await putItemsIntoCal(targetCalendar, items, file.path);
-    return true;
-  }
-  // Probably the user clicked "cancel" on the pick calendar dialog.
-  return false;
+  Services.ww.openWindow(
+    null,
+    "chrome://calendar/content/calendar-ics-file-dialog.xhtml",
+    "_blank",
+    "chrome,titlebar,modal,centerscreen",
+    file
+  );
+  return true;
 }
 
 /**
@@ -141,44 +139,10 @@ function getItemsFromFile(file) {
   if (!items.length && !exception) {
     // The ics did not contain any events, so we should
     // notify the user about it, if we haven't before.
-    cal.showError(cal.l10n.getCalString("noItemsInCalendarFile", [file.path]), window);
+    cal.showError(cal.l10n.getCalString("noItemsInCalendarFile2", [file.path]), window);
   }
 
   return items;
-}
-
-/**
- * Returns a calendar to import events into. If only one calendar exists, just
- * return that calendar, otherwise ask the user to select a calendar.
- *
- * @return {calICalendar | null} A calendar or null.
- */
-function getCalendarToImportInto() {
-  let targetCalendar;
-  let calendars = cal
-    .getCalendarManager()
-    .getCalendars()
-    .filter(cal.acl.isCalendarWritable);
-
-  if (calendars.length == 0) {
-    return null;
-  } else if (calendars.length == 1) {
-    return calendars[0];
-  } else if (calendars.length > 1) {
-    let args = {
-      onOk: aCal => (targetCalendar = aCal),
-      calendars,
-      promptText: cal.l10n.getCalString("importPrompt"),
-    };
-    openDialog(
-      "chrome://calendar/content/chooseCalendarDialog.xhtml",
-      "_blank",
-      "chrome,titlebar,modal,resizable",
-      args
-    );
-  }
-
-  return targetCalendar;
 }
 
 /**

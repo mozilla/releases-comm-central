@@ -46,7 +46,10 @@ async function onWindowLoad() {
     return;
   }
 
-  setUpCalendarMenu(gModel.calendars);
+  let composite = cal.view.getCompositeCalendar(window);
+  let defaultCalendarId = composite && composite.defaultCalendar.id;
+  setUpCalendarMenu(gModel.calendars, defaultCalendarId);
+
   setUpItemSummaries(gModel.itemsToImport, gModel.file.path);
 
   document.addEventListener("dialogaccept", importRemainingItems);
@@ -72,16 +75,22 @@ function getCalendarsThatCanImport(calendars) {
 }
 
 /**
- * Add calendars to the calendar drop down menu.
+ * Add calendars to the calendar drop down menu, and select one.
  *
  * @param {calICalendar[]} calendars - An array of calendars.
+ * @param {string | null} defaultCalendarId - ID of the default (currently selected) calendar.
  */
-function setUpCalendarMenu(calendars) {
+function setUpCalendarMenu(calendars, defaultCalendarId) {
   let menulist = document.getElementById("calendar-ics-file-dialog-calendar-menu");
   for (let calendar of calendars) {
     addMenuItem(menulist, calendar.name, calendar.name);
   }
-  menulist.selectedIndex = 0;
+
+  let index = defaultCalendarId
+    ? calendars.findIndex(calendar => calendar.id == defaultCalendarId)
+    : 0;
+
+  menulist.selectedIndex = index == -1 ? 0 : index;
 }
 
 /**
