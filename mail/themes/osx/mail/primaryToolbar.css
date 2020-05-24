@@ -204,8 +204,7 @@ toolbar:not([mode="text"]) .badgeButton-badge {
   margin-bottom: 12px;
 }
 
-.button-appmenu .toolbarbutton-text,
-.button-appmenu .toolbarbutton-menu-dropmarker {
+.button-appmenu .toolbarbutton-text {
   display: none;
 }
 

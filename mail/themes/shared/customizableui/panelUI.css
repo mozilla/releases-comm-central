@@ -120,7 +120,7 @@ panelview[id^=PanelUI-webext-] {
 }
 
 panelview:not([mainview]) .toolbarbutton-text,
-.cui-widget-panel toolbarbutton:not([wrap]) > .toolbarbutton-text,
+.cui-widget-panel .toolbarbutton-text,
 #overflowMenu-customize-button > .toolbarbutton-text {
   text-align: start;
   display: -moz-box;
@@ -213,7 +213,6 @@ toolbarbutton[constrain-size="true"][cui-areatype="menu-panel"] > .toolbarbutton
   display: none;
 }
 
-#customization-palette .toolbarbutton-multiline-text,
 #customization-palette .toolbarbutton-text {
   display: none;
 }
@@ -430,10 +429,6 @@ menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
   margin-inline: 6px 7px;
 }
 
-toolbarpaletteitem[place="palette"] > .toolbarbutton-1 > .toolbarbutton-menu-dropmarker {
-  display: none;
-}
-
 #search-container[cui-areatype="menu-panel"] {
   padding-block: 6px;
 }
@@ -603,7 +598,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .subviewbutton-back > .toolbarbutton-text {
-  /* !important to override .cui-widget-panel toolbarbutton:not([wrap]) > .toolbarbutton-text
+  /* !important to override .cui-widget-panel .toolbarbutton-text
    * selector further down. */
   display: none !important;
 }

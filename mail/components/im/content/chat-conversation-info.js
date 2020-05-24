@@ -92,6 +92,7 @@
                            mode="dialog"
                            class="otr-button"
                            type="menu"
+                           wantdropmarker="true"
                            label="Insecure"
                            data-l10n-id="start-tooltip">
               <menupopup class="otr-menu-popup">

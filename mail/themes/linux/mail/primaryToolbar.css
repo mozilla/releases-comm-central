@@ -169,8 +169,7 @@
   stroke-opacity: 0.5;
 }
 
-.button-appmenu .toolbarbutton-text,
-.button-appmenu .toolbarbutton-menu-dropmarker {
+.button-appmenu .toolbarbutton-text {
   display: none;
 }
 

@@ -177,9 +177,10 @@
         <toolbarseparator class="toolbarseparator-standard"/>
 
         <toolbarbutton id="AlignPopupButton"
+                       type="menu"
+                       wantdropmarker="true"
                        class="formatting-button"
                        tooltiptext="&AlignPopupButton.tooltip;"
-                       type="menu"
                        observes="cmd_align">
           <menupopup id="AlignPopup">
             <menuitem id="AlignLeftItem" class="menuitem-iconic" label="&alignLeft.label;"
@@ -199,9 +200,10 @@
 
         <!-- InsertPopupButton is used by messengercompose.xhtml -->
         <toolbarbutton id="InsertPopupButton"
+                       type="menu"
+                       wantdropmarker="true"
                        class="formatting-button"
                        tooltiptext="&InsertPopupButton.tooltip;"
-                       type="menu"
                        observes="cmd_renderedHTMLEnabler">
           <menupopup id="InsertPopup">
             <menuitem id="InsertLinkItem" class="menuitem-iconic" observes="cmd_link"
@@ -223,9 +225,10 @@
         </toolbarbutton>
 
         <toolbarbutton id="smileButtonMenu"
+                       type="menu"
+                       wantdropmarker="true"
                        class="formatting-button"
                        tooltiptext="&SmileButton.tooltip;"
-                       type="menu"
                        observes="cmd_smiley">
           <menupopup id="smilyPopup">
             <menuitem id="smileySmile" class="menuitem-iconic" label="&smiley1Cmd.label;"
