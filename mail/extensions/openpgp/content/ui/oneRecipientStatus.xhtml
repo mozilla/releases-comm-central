@@ -6,9 +6,7 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/oneRecipientStatus.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://openpgp/content/strings/oneRecipientStatus.dtd">
-
-<window title="&oneRecipientStatus.title;"
+<window data-l10n-id="openpgp-one-recipient-status-title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 50em; height: 22em"
         persist="width height"
@@ -16,6 +14,9 @@
 <dialog id="oneRecipientStatus"
         buttons="accept">
   <script src="chrome://openpgp/content/ui/oneRecipientStatus.js"/>
+  <linkset>
+    <html:link rel="localization" href="messenger/openpgp/oneRecipientStatus.ftl"/>
+  </linkset>
   <script><![CDATA[
       function resizeColumns() {
         let list = document.getElementById("infolist");
@@ -29,11 +30,9 @@
       addEventListener("resize", resizeColumns);
   ]]></script>
 
-  <stringbundle id="bundle_one_recip_info" src="chrome://openpgp/content/strings/oneRecipientStatus.properties"/>
-
-  <description>&oneRecipientStatus.instruction1;</description>
+  <description data-l10n-id="openpgp-one-recipient-status-instruction1"/>
   <separator class="thin"/>
-  <description>&oneRecipientStatus.instruction2;</description>
+  <description data-l10n-id="openpgp-one-recipient-status-instruction2"/>
   <separator class="thin"/>
   <label id="intro" control="infolist"/>
 
@@ -42,18 +41,18 @@
                flex="1"
                onselect="onSelectionChange(event);">
     <treecols>
-      <treecol flex="3" label="&oneRecipientStatus.keyId;"/>
-      <treecol flex="4" label="&oneRecipientStatus.status;"/>
-      <treecol flex="1" label="&oneRecipientStatus.createdDate;"/>
-      <treecol flex="1" label="&oneRecipientStatus.expiresDate;"/>
+      <treecol flex="3" data-l10n-id="openpgp-one-recipient-status-key-id"/>
+      <treecol flex="4" data-l10n-id="openpgp-one-recipient-status-status"/>
+      <treecol flex="1" data-l10n-id="openpgp-one-recipient-status-created-date"/>
+      <treecol flex="1" data-l10n-id="openpgp-one-recipient-status-expires-date"/>
     </treecols>
   </richlistbox>
   <hbox pack="start">
     <button id="detailsButton" disabled="true"
-            label="&oneRecipientStatus.openDetails;"
+            data-l10n-id="openpgp-one-recipient-status-open-details"
             oncommand="viewSelectedKey();"/>
     <button id="discoverButton"
-            label="&oneRecipientStatus.discover;"
+            data-l10n-id="openpgp-one-recipient-status-discover"
             oncommand="discoverKey();"/>
   </hbox>
 </dialog>

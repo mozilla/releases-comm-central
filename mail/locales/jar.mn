@@ -23,6 +23,7 @@
   messenger/openpgp/bond.ftl                                            (../extensions/openpgp/content/strings/bond.ftl)
   messenger/openpgp/composeKeyStatus.ftl                                (../extensions/openpgp/content/strings/composeKeyStatus.ftl)
   messenger/openpgp/msgReadStatus.ftl                                   (../extensions/openpgp/content/strings/msgReadStatus.ftl)
+  messenger/openpgp/oneRecipientStatus.ftl                              (../extensions/openpgp/content/strings/oneRecipientStatus.ftl)
   messenger                                                             (%messenger/**/*.ftl)
 
 

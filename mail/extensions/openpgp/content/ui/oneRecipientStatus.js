@@ -27,7 +27,6 @@ var { EnigmailKey } = ChromeUtils.import(
 
 var gListBox;
 var gViewButton;
-var gBundle;
 
 var gAddr;
 var gRowToKey = [];
@@ -50,35 +49,33 @@ async function setListEntries(keys = null) {
 
     let acceptanceText;
     if (keyObj.secretAvailable) {
-      acceptanceText = gBundle.getString("KeyOwn");
+      acceptanceText = "openpgp-key-own";
     } else {
       if (!("acceptance" in keyObj)) {
         throw new Error(
           "expected getMultValidKeysForMultRecipients to set acceptance"
         );
       }
-      let stringId;
       switch (keyObj.acceptance) {
         case "rejected":
-          stringId = "KeyRejected";
+          acceptanceText = "openpgp-key-rejected";
           break;
         case "unverified":
-          stringId = "KeyUnverified";
+          acceptanceText = "openpgp-key-unverified";
           break;
         case "verified":
-          stringId = "KeyVerified";
+          acceptanceText = "openpgp-key-verified";
           break;
         case "undecided":
-          stringId = "KeyUndecided";
+          acceptanceText = "openpgp-key-undecided";
           break;
         default:
           throw new Error("unexpected acceptance value: " + keyObj.acceptance);
       }
-      acceptanceText = gBundle.getString(stringId);
     }
 
     let status = document.createXULElement("label");
-    status.setAttribute("value", acceptanceText);
+    document.l10n.setAttributes(status, acceptanceText);
     status.setAttribute("crop", "end");
     status.setAttribute("style", "width: var(--statusWidth)");
     listitem.appendChild(status);
@@ -110,13 +107,14 @@ async function onLoad() {
 
   gListBox = document.getElementById("infolist");
   gViewButton = document.getElementById("detailsButton");
-  gBundle = document.getElementById("bundle_one_recip_info");
 
   gAddr = params.email;
 
-  document.getElementById("intro").value = gBundle.getFormattedString("Intro", [
-    gAddr,
-  ]);
+  document.l10n.setAttributes(
+    document.getElementById("intro"),
+    "openpgp-intro",
+    { key: gAddr }
+  );
 
   await setListEntries(params.keys);
 }
