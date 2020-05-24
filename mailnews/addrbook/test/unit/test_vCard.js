@@ -92,6 +92,19 @@ add_task(function testVCardToAbCard() {
     AnniversaryMonth: "12",
     AnniversaryYear: "2004",
   });
+
+  // Organization: any number of values is valid here.
+  check("ORG:Acme Widgets, Inc.", {
+    Company: "Acme Widgets, Inc.",
+  });
+  check("ORG:Acme Widgets, Inc.;Manufacturing", {
+    Company: "Acme Widgets, Inc.",
+    Department: "Manufacturing",
+  });
+  check("ORG:Acme Widgets, Inc.;Manufacturing;Thingamies", {
+    Company: "Acme Widgets, Inc.",
+    Department: "Manufacturing",
+  });
 });
 
 add_task(function testModifyVCard() {

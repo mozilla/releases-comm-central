@@ -286,15 +286,18 @@ function multiTextProperty(abPropNames, vPropName, vPropParams = {}) {
     },
     toAbCard(value) {
       let result = {};
-      if (!Array.isArray(value)) {
-        console.warn(`Unexpected value for ${vPropName}: ${value}`);
-        return result;
-      }
-      for (let abPropName of abPropNames) {
-        let valuePart = value.shift();
-        if (abPropName && valuePart) {
-          result[abPropName] = valuePart;
+      if (Array.isArray(value)) {
+        for (let abPropName of abPropNames) {
+          let valuePart = value.shift();
+          if (abPropName && valuePart) {
+            result[abPropName] = valuePart;
+          }
         }
+      } else if (typeof value == "string") {
+        // Only one value was given.
+        result[abPropNames[0]] = value;
+      } else {
+        console.warn(`Unexpected value for ${vPropName}: ${value}`);
       }
       return result;
     },
