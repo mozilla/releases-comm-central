@@ -20,6 +20,7 @@
   messenger/otr/chat.ftl                                                (../../chat/content/otr/chat.ftl)
   messenger/otr/otr.ftl                                                 (../../chat/content/otr/otr.ftl)
   messenger/otr/otrUI.ftl                                               (../../chat/content/otr/otrUI.ftl)
+  messenger/openpgp/bond.ftl                                            (../extensions/openpgp/content/strings/bond.ftl)
   messenger                                                             (%messenger/**/*.ftl)
 
 

@@ -17,7 +17,6 @@ openpgp.jar:
   content/openpgp/strings/composeKeyStatus.dtd          (content/strings/composeKeyStatus.dtd)
   content/openpgp/strings/msgReadStatus.properties     (content/strings/msgReadStatus.properties)
   content/openpgp/strings/msgReadStatus.dtd            (content/strings/msgReadStatus.dtd)
-  content/openpgp/strings/bond.dtd             (content/strings/bond.dtd)
   content/openpgp/ui                           (content/ui/*.js)
   content/openpgp/ui                           (content/ui/*.xhtml)
   content/openpgp/ui                           (content/ui/*.css)

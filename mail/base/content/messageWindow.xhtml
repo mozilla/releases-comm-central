@@ -42,10 +42,6 @@
 %viewZoomOverlayDTD;
 <!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
 %msgReadSMIMEDTD;
-#ifdef MOZ_OPENPGP
-<!ENTITY % bondOpenPGPDTD SYSTEM "chrome://openpgp/content/strings/bond.dtd">
-%bondOpenPGPDTD;
-#endif
 <!ENTITY % quickFilterBarDTD SYSTEM "chrome://messenger/locale/quickFilterBar.dtd">
 %quickFilterBarDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
@@ -93,6 +89,7 @@
     <html:link rel="localization" href="toolkit/main-window/findbar.ftl"/>
     <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
     <html:link rel="localization" href="messenger/menubar.ftl"/>
+    <html:link rel="localization" href="messenger/openpgp/bond.ftl"/>
   </linkset>
 
   <script src="chrome://global/content/globalOverlay.js"/>
