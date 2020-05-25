@@ -790,6 +790,24 @@ function LoadPostAccountWizard() {
   } else {
     window.setTimeout(loadStartFolder, 0, startFolderURI);
   }
+
+  setTimeout(reportAccountTypes, 0);
+}
+
+/**
+ * Report account types to telemetry. For im accounts, use `im_protocol` as
+ * histogram bucket label.
+ */
+function reportAccountTypes() {
+  let histogram = Services.telemetry.getHistogramById("TB_ACCOUNT_TYPE");
+  for (let account of MailServices.accounts.accounts) {
+    let bucket = account.incomingServer.type;
+    if (bucket === "im") {
+      let protocol = account.incomingServer.wrappedJSObject.imAccount.protocol.name.toLowerCase();
+      bucket = `im_${protocol}`;
+    }
+    histogram.add(bucket);
+  }
 }
 
 function HandleAppCommandEvent(evt) {

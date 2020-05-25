@@ -13,6 +13,32 @@
     ],
     "description": "A testing histogram; not meant to be touched"
   },
+  "TB_ACCOUNT_TYPE": {
+    "record_in_processes": ["main"],
+    "products": ["thunderbird"],
+    "alert_emails": ["telemetry-client-dev@thunderbird.net"],
+    "bug_numbers": [1615981],
+    "expires_in_version": "never",
+    "kind": "categorical",
+    "labels": [
+      "pop3",
+      "imap",
+      "nntp",
+      "exchange",
+      "rss",
+      "none",
+      "im_facebook",
+      "im_gtalk",
+      "im_irc",
+      "im_matrix",
+      "im_odnoklassniki",
+      "im_skype",
+      "im_twitter",
+      "im_xmpp",
+      "im_yahoo"
+    ],
+    "description": "Histogram of different account types"
+  },
   "TB_COMPOSE_TYPE": {
     "record_in_processes": ["main"],
     "products": ["thunderbird"],
