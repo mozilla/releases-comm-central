@@ -101,8 +101,10 @@ load_generated_g10_key(pgp_key_t *    dst,
     }
 
     // this would be better on the stack but the key store does not allow it
-    key_store = (rnp_key_store_t *) calloc(1, sizeof(*key_store));
-    if (!key_store) {
+    try {
+        key_store = new rnp_key_store_t();
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
         goto end;
     }
 
@@ -125,16 +127,15 @@ load_generated_g10_key(pgp_key_t *    dst,
     if (!rnp_key_store_g10_from_src(key_store, &memsrc, &prov)) {
         goto end;
     }
-    // if a primary key is provided, it should match the sub with regards to type
-    assert(!primary_key ||
-           (pgp_key_is_secret(primary_key) ==
-            pgp_key_is_secret((pgp_key_t *) list_back(rnp_key_store_get_keys(key_store)))));
     if (rnp_key_store_get_key_count(key_store) != 1) {
         goto end;
     }
-    ok = !pgp_key_copy(dst, rnp_key_store_get_key(key_store, 0), false);
+    // if a primary key is provided, it should match the sub with regards to type
+    assert(!primary_key ||
+           (pgp_key_is_secret(primary_key) == pgp_key_is_secret(&key_store->keys.front())));
+    ok = !pgp_key_copy(dst, &key_store->keys.front(), false);
 end:
-    rnp_key_store_free(key_store);
+    delete key_store;
     src_close(&memsrc);
     dst_close(&memdst, true);
     list_destroy(&key_ptrs);
@@ -276,6 +277,7 @@ get_numbits(const rnp_keygen_crypto_params_t *crypto)
     case PGP_PKA_DSA:
         return crypto->dsa.p_bitlen;
     case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         return crypto->elgamal.key_bitlen;
     default:
         return 0;

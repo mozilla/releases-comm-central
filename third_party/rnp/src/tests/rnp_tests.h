@@ -287,6 +287,10 @@ void test_ffi_set_key_expiry(void **state);
 
 void test_ffi_mdc_8k_boundary(void **state);
 
+void test_ffi_decrypt_wrong_mpi_bits(void **state);
+
+void test_ffi_key_import_edge_cases(void **state);
+
 void test_dsa_roundtrip(void **state);
 
 void test_dsa_verify_negative(void **state);
@@ -360,6 +364,8 @@ void test_partial_length_first_packet_length(void **state);
 void test_kbx_nsigs(void **state);
 
 void test_issue_1115(void **state);
+
+void test_log_switch(void **state);
 
 #define assert_true(a) EXPECT_TRUE((a))
 #define assert_false(a) EXPECT_FALSE((a))

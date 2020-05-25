@@ -1290,6 +1290,7 @@ encrypted_try_key(pgp_source_encrypted_param_t *param,
     /* Decrypting session key value */
     switch (sesskey->alg) {
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
         err =
           rsa_decrypt_pkcs1(rng, decbuf, &declen, &sesskey->material.rsa, &keymaterial->rsa);
         if (err) {
@@ -1305,7 +1306,8 @@ encrypted_try_key(pgp_source_encrypted_param_t *param,
             return false;
         }
         break;
-    case PGP_PKA_ELGAMAL: {
+    case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN: {
         const rnp_result_t ret =
           elgamal_decrypt_pkcs1(rng, decbuf, &declen, &sesskey->material.eg, &keymaterial->eg);
         if (ret) {
@@ -1394,7 +1396,6 @@ encrypted_try_password(pgp_source_encrypted_param_t *param, const char *password
     uint8_t        keybuf[PGP_MAX_KEY_SIZE + 1];
     uint8_t        nonce[PGP_AEAD_MAX_NONCE_LEN];
     size_t         keysize;
-    size_t         blsize;
     bool           keyavail = false; /* tried password at least once */
     bool           decres;
     int            res;
@@ -1430,7 +1431,7 @@ encrypted_try_password(pgp_source_encrypted_param_t *param, const char *password
                 alg = (pgp_symm_alg_t) skey->alg;
             }
 
-            if (!(blsize = pgp_block_size(alg))) {
+            if (!pgp_block_size(alg)) {
                 continue;
             }
 

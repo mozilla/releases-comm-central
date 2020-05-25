@@ -36,7 +36,7 @@ find_subsig(const pgp_key_t *key, const char *userid)
     // find the userid index
     int uididx = -1;
     for (unsigned i = 0; i < pgp_key_get_userid_count(key); i++) {
-        if (!strcmp(pgp_key_get_userid(key, i)->str, userid)) {
+        if (pgp_key_get_userid(key, i)->str == userid) {
             uididx = i;
             break;
         }
@@ -56,10 +56,8 @@ find_subsig(const pgp_key_t *key, const char *userid)
 
 TEST_F(rnp_tests, test_load_user_prefs)
 {
-    rnp_key_store_t *pubring = NULL;
-
-    pubring = rnp_key_store_new(PGP_KEY_STORE_GPG, "data/keyrings/1/pubring.gpg");
-    assert_non_null(pubring);
+    rnp_key_store_t *pubring =
+      new rnp_key_store_t(PGP_KEY_STORE_GPG, "data/keyrings/1/pubring.gpg");
     assert_true(rnp_key_store_load_from_path(pubring, NULL));
     assert_int_equal(rnp_key_store_get_key_count(pubring), 7);
 
@@ -159,5 +157,5 @@ TEST_F(rnp_tests, test_load_user_prefs)
     }
 
     /* Cleanup */
-    rnp_key_store_free(pubring);
+    delete pubring;
 }

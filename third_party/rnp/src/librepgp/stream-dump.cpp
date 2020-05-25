@@ -504,7 +504,7 @@ dst_hexdump(pgp_dest_t *dst, const uint8_t *src, size_t length)
 static rnp_result_t stream_dump_packets_raw(rnp_dump_ctx_t *ctx,
                                             pgp_source_t *  src,
                                             pgp_dest_t *    dst);
-static rnp_result_t stream_dump_signature_pkt(rnp_dump_ctx_t * ctx,
+static void         stream_dump_signature_pkt(rnp_dump_ctx_t * ctx,
                                               pgp_signature_t *sig,
                                               pgp_dest_t *     dst);
 
@@ -675,7 +675,7 @@ signature_dump_subpackets(rnp_dump_ctx_t * ctx,
     }
 }
 
-static rnp_result_t
+static void
 stream_dump_signature_pkt(rnp_dump_ctx_t *ctx, pgp_signature_t *sig, pgp_dest_t *dst)
 {
     indent_dest_increase(dst);
@@ -707,6 +707,8 @@ stream_dump_signature_pkt(rnp_dump_ctx_t *ctx, pgp_signature_t *sig, pgp_dest_t 
 
     switch (sig->palg) {
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
+    case PGP_PKA_RSA_SIGN_ONLY:
         dst_print_mpi(dst, "rsa s", &sig->material.rsa.s, ctx->dump_mpi);
         break;
     case PGP_PKA_DSA:
@@ -720,6 +722,7 @@ stream_dump_signature_pkt(rnp_dump_ctx_t *ctx, pgp_signature_t *sig, pgp_dest_t 
         dst_print_mpi(dst, "ecc r", &sig->material.ecc.r, ctx->dump_mpi);
         dst_print_mpi(dst, "ecc s", &sig->material.ecc.s, ctx->dump_mpi);
         break;
+    case PGP_PKA_ELGAMAL:
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         dst_print_mpi(dst, "eg r", &sig->material.eg.r, ctx->dump_mpi);
         dst_print_mpi(dst, "eg s", &sig->material.eg.s, ctx->dump_mpi);
@@ -729,23 +732,23 @@ stream_dump_signature_pkt(rnp_dump_ctx_t *ctx, pgp_signature_t *sig, pgp_dest_t 
     }
     indent_dest_decrease(dst);
     indent_dest_decrease(dst);
-    return RNP_SUCCESS;
 }
 
-static rnp_result_t
+static void
 stream_dump_signature(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
 {
     pgp_signature_t sig;
-    rnp_result_t    ret;
-
-    if ((ret = stream_parse_signature(src, &sig))) {
-        return ret;
-    }
 
     dst_printf(dst, "Signature packet\n");
-    ret = stream_dump_signature_pkt(ctx, &sig, dst);
+    if (stream_parse_signature(src, &sig)) {
+        indent_dest_increase(dst);
+        dst_printf(dst, "failed to parse\n");
+        indent_dest_decrease(dst);
+        return;
+    }
+
+    stream_dump_signature_pkt(ctx, &sig, dst);
     free_signature(&sig);
-    return ret;
 }
 
 static rnp_result_t
@@ -851,8 +854,9 @@ stream_dump_key(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
     }
 
     if (ctx->dump_grips) {
-        if (rnp_key_store_get_key_grip(&key.material, keyfp.fingerprint)) {
-            dst_print_hex(dst, "grip", keyfp.fingerprint, PGP_FINGERPRINT_SIZE, false);
+        pgp_key_grip_t grip;
+        if (rnp_key_store_get_key_grip(&key.material, grip)) {
+            dst_print_hex(dst, "grip", grip.data(), grip.size(), false);
         } else {
             dst_printf(dst, "grip: failed to calculate");
         }
@@ -926,9 +930,12 @@ stream_dump_pk_session_key(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *d
 
     switch (pkey.alg) {
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
+    case PGP_PKA_RSA_SIGN_ONLY:
         dst_print_mpi(dst, "rsa m", &pkey.material.rsa.m, ctx->dump_mpi);
         break;
     case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         dst_print_mpi(dst, "eg g", &pkey.material.eg.g, ctx->dump_mpi);
         dst_print_mpi(dst, "eg m", &pkey.material.eg.m, ctx->dump_mpi);
         break;
@@ -1191,7 +1198,8 @@ stream_dump_packets_raw(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
 
         switch (hdr.tag) {
         case PGP_PKT_SIGNATURE:
-            ret = stream_dump_signature(ctx, src, dst);
+            stream_dump_signature(ctx, src, dst);
+            ret = RNP_SUCCESS;
             break;
         case PGP_PKT_SECRET_KEY:
         case PGP_PKT_PUBLIC_KEY:
@@ -1675,6 +1683,8 @@ stream_dump_signature_pkt_json(rnp_dump_ctx_t *       ctx,
 
     switch (sig->palg) {
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
+    case PGP_PKA_RSA_SIGN_ONLY:
         if (!obj_add_mpi_json(material, "s", &sig->material.rsa.s, ctx->dump_mpi)) {
             goto done;
         }
@@ -1694,6 +1704,7 @@ stream_dump_signature_pkt_json(rnp_dump_ctx_t *       ctx,
             goto done;
         }
         break;
+    case PGP_PKA_ELGAMAL:
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         if (!obj_add_mpi_json(material, "r", &sig->material.eg.r, ctx->dump_mpi) ||
             !obj_add_mpi_json(material, "s", &sig->material.eg.s, ctx->dump_mpi)) {
@@ -1712,13 +1723,11 @@ static rnp_result_t
 stream_dump_signature_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *pkt)
 {
     pgp_signature_t sig;
-    rnp_result_t    ret;
-
-    if ((ret = stream_parse_signature(src, &sig))) {
-        return ret;
+    if (stream_parse_signature(src, &sig)) {
+        return RNP_SUCCESS;
     }
 
-    ret = stream_dump_signature_pkt_json(ctx, &sig, pkt);
+    rnp_result_t ret = stream_dump_signature_pkt_json(ctx, &sig, pkt);
     free_signature(&sig);
     return ret;
 }
@@ -1846,8 +1855,9 @@ stream_dump_key_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *pkt)
             goto done;
         }
 
-        if (!rnp_key_store_get_key_grip(&key.material, keyfp.fingerprint) ||
-            !obj_add_hex_json(pkt, "grip", keyfp.fingerprint, PGP_KEY_GRIP_SIZE)) {
+        pgp_key_grip_t grip;
+        if (!rnp_key_store_get_key_grip(&key.material, grip) ||
+            !obj_add_hex_json(pkt, "grip", grip.data(), grip.size())) {
             goto done;
         }
     }
@@ -1855,7 +1865,7 @@ stream_dump_key_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *pkt)
     ret = RNP_SUCCESS;
 done:
     free_key_pkt(&key);
-    return RNP_SUCCESS;
+    return ret;
 }
 
 static rnp_result_t
@@ -1914,11 +1924,14 @@ stream_dump_pk_session_key_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_obj
 
     switch (pkey.alg) {
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
+    case PGP_PKA_RSA_SIGN_ONLY:
         if (!obj_add_mpi_json(material, "m", &pkey.material.rsa.m, ctx->dump_mpi)) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
         break;
     case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         if (!obj_add_mpi_json(material, "g", &pkey.material.eg.g, ctx->dump_mpi) ||
             !obj_add_mpi_json(material, "m", &pkey.material.eg.m, ctx->dump_mpi)) {
             return RNP_ERROR_OUT_OF_MEMORY;

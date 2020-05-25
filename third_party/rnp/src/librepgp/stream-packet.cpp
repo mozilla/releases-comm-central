@@ -509,14 +509,16 @@ get_packet_body_mpi(pgp_packet_body_t *body, pgp_mpi_t *val)
         return false;
     }
     if (!get_packet_body_buf(body, val->mpi, len)) {
+        RNP_LOG("failed to read mpi body");
         return false;
     }
     /* check the mpi bit count */
     unsigned hbits = bits & 7 ? bits & 7 : 8;
     if ((((unsigned) val->mpi[0] >> hbits) != 0) ||
         !((unsigned) val->mpi[0] & (1U << (hbits - 1)))) {
-        RNP_LOG("wrong mpi bit count");
-        return false;
+        RNP_LOG("Warning! Wrong mpi bit count: got %d, but high byte is %d",
+                (int) bits,
+                (int) val->mpi[0]);
     }
 
     val->len = len;
@@ -661,9 +663,15 @@ stream_read_packet_body(pgp_source_t *src, pgp_packet_body_t *body)
     }
     body->tag = (pgp_pkt_type_t) ptag;
 
-    if (!stream_read_pkt_len(src, &len) || !len) {
+    if (!stream_read_pkt_len(src, &len)) {
         return RNP_ERROR_READ;
     }
+
+    /* early exit for the empty packet */
+    if (!len) {
+        return RNP_SUCCESS;
+    }
+
     if (len > PGP_MAX_PKT_SIZE) {
         RNP_LOG("too large packet");
         return RNP_ERROR_BAD_FORMAT;
@@ -1127,6 +1135,7 @@ stream_parse_pk_sesskey(pgp_source_t *src, pgp_pk_sesskey_t *pkey)
 
     switch (pkey->alg) {
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
         /* RSA m */
         if (!get_packet_body_mpi(&pkt, &pkey->material.rsa.m)) {
             RNP_LOG("failed to get rsa m");
@@ -1134,6 +1143,7 @@ stream_parse_pk_sesskey(pgp_source_t *src, pgp_pk_sesskey_t *pkey)
         }
         break;
     case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         /* ElGamal g, m */
         if (!get_packet_body_mpi(&pkt, &pkey->material.eg.g) ||
             !get_packet_body_mpi(&pkt, &pkey->material.eg.m)) {
@@ -1416,6 +1426,24 @@ signature_parse_subpacket(pgp_sig_subpkt_t *subpkt)
             subpkt->fields.issuer_fp.len = subpkt->len - 1;
         }
         break;
+    case PGP_SIG_SUBPKT_PRIVATE_FIRST ... PGP_SIG_SUBPKT_PRIVATE_LAST:
+        oklen = true;
+        checked = !subpkt->critical;
+        if (!checked) {
+            RNP_LOG("unknown critical private subpacket %d", (int) subpkt->type);
+        }
+        break;
+    case PGP_SIG_SUBPKT_RESERVED_1:
+    case PGP_SIG_SUBPKT_RESERVED_8:
+    case PGP_SIG_SUBPKT_PLACEHOLDER:
+    case PGP_SIG_SUBPKT_RESERVED_13:
+    case PGP_SIG_SUBPKT_RESERVED_14:
+    case PGP_SIG_SUBPKT_RESERVED_15:
+    case PGP_SIG_SUBPKT_RESERVED_17:
+    case PGP_SIG_SUBPKT_RESERVED_18:
+    case PGP_SIG_SUBPKT_RESERVED_19:
+        /* do not report reserved/placeholder subpacket */
+        return !subpkt->critical;
     default:
         RNP_LOG("unknown subpacket : %d", (int) subpkt->type);
         return !subpkt->critical;
@@ -1626,6 +1654,7 @@ stream_parse_signature_body(pgp_packet_body_t *pkt, pgp_signature_t *sig)
     /* signature MPIs */
     switch (sig->palg) {
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_SIGN_ONLY:
         if (!get_packet_body_mpi(pkt, &sig->material.rsa.s)) {
             goto finish;
         }
@@ -1649,6 +1678,7 @@ stream_parse_signature_body(pgp_packet_body_t *pkt, pgp_signature_t *sig)
             goto finish;
         }
         break;
+    case PGP_PKA_ELGAMAL: /* we support reading it but will not validate */
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         if (!get_packet_body_mpi(pkt, &sig->material.eg.r) ||
             !get_packet_body_mpi(pkt, &sig->material.eg.s)) {
@@ -1746,6 +1776,7 @@ signature_pkt_equal(const pgp_signature_t *sig1, const pgp_signature_t *sig2)
 
     switch (sig1->palg) {
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_SIGN_ONLY:
         return mpi_equal(&sig1->material.rsa.s, &sig2->material.rsa.s);
     case PGP_PKA_DSA:
         return mpi_equal(&sig1->material.dsa.r, &sig2->material.dsa.r) &&
@@ -1964,7 +1995,6 @@ stream_write_key(pgp_key_pkt_t *key, pgp_dest_t *dst)
         }
         switch (key->sec_protection.s2k.usage) {
         case PGP_S2KU_NONE:
-            res = true;
             break;
         case PGP_S2KU_ENCRYPTED_AND_HASHED:
         case PGP_S2KU_ENCRYPTED: {
@@ -2292,8 +2322,8 @@ stream_write_userid(const pgp_userid_pkt_t *userid, pgp_dest_t *dst)
         return false;
     }
 
-    if (!userid->uid || !userid->uid_len) {
-        RNP_LOG("empty or null userid");
+    if (userid->uid_len && !userid->uid) {
+        RNP_LOG("null but non-empty userid");
         return false;
     }
 
@@ -2302,7 +2332,7 @@ stream_write_userid(const pgp_userid_pkt_t *userid, pgp_dest_t *dst)
         return false;
     }
 
-    res = add_packet_body(&pktbody, userid->uid, userid->uid_len);
+    res = userid->uid ? add_packet_body(&pktbody, userid->uid, userid->uid_len) : true;
 
     if (res) {
         stream_flush_packet_body(&pktbody, dst);

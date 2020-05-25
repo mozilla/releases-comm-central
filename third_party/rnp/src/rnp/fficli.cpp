@@ -199,7 +199,6 @@ stdin_getpass(const char *prompt, char *buffer, size_t size, cli_rnp_t *rnp)
     in = fopen("/dev/tty", "w+ce");
 #endif
     if (!in) {
-        in = stdin;
         in = userio_in;
         out = stderr;
     } else {
@@ -1217,8 +1216,8 @@ add_key_to_array(rnp_ffi_t                      ffi,
 
     try {
         keys.push_back(key);
-    } catch (...) {
-        ERR_MSG("allocation failed");
+    } catch (const std::exception &e) {
+        ERR_MSG("%s", e.what());
         return false;
     }
     if (!subkeys || subkey) {
@@ -1240,8 +1239,8 @@ add_key_to_array(rnp_ffi_t                      ffi,
             subs.push_back(sub_handle);
         }
         std::move(subs.begin(), subs.end(), std::back_inserter(keys));
-    } catch (...) {
-        ERR_MSG("allocation or move failed");
+    } catch (const std::exception &e) {
+        ERR_MSG("%s", e.what());
         goto error;
     }
     return true;
@@ -1315,7 +1314,7 @@ cli_rnp_keys_matching_strings(cli_rnp_t *                     rnp,
             ERR_MSG("No userid or default key for operation");
             goto done;
         }
-        res = cli_rnp_keys_matching_string(
+        cli_rnp_keys_matching_string(
           rnp, keys, cli_rnp_defkey(rnp), flags & ~CLI_SEARCH_DEFAULT);
         if (keys.empty()) {
             ERR_MSG("Default key not found");
@@ -2402,6 +2401,7 @@ cli_rnp_process_file(cli_rnp_t *rnp)
     char *contents = NULL;
     if (rnp_guess_contents(input, &contents)) {
         ERR_MSG("failed to check source contents");
+        rnp_input_destroy(input);
         return false;
     }
 
@@ -2459,8 +2459,8 @@ cli_rnp_process_file(cli_rnp_t *rnp)
         }
         try {
             sigs.push_back(sig);
-        } catch (...) {
-            ERR_MSG("allocation failed");
+        } catch (const std::exception &e) {
+            ERR_MSG("%s", e.what());
             res = false;
             goto done;
         }

@@ -574,6 +574,8 @@ parse_pubkey(pgp_key_pkt_t *pubkey, s_exp_t *s_exp, pgp_pubkey_alg_t alg)
         break;
 
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
+    case PGP_PKA_RSA_SIGN_ONLY:
         if (!read_mpi(s_exp, "n", &pubkey->material.rsa.n) ||
             !read_mpi(s_exp, "e", &pubkey->material.rsa.e)) {
             return false;
@@ -581,6 +583,7 @@ parse_pubkey(pgp_key_pkt_t *pubkey, s_exp_t *s_exp, pgp_pubkey_alg_t alg)
         break;
 
     case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         if (!read_mpi(s_exp, "p", &pubkey->material.eg.p) ||
             !read_mpi(s_exp, "g", &pubkey->material.eg.g) ||
             !read_mpi(s_exp, "y", &pubkey->material.eg.y)) {
@@ -619,6 +622,8 @@ parse_seckey(pgp_key_pkt_t *seckey, s_exp_t *s_exp, pgp_pubkey_alg_t alg)
         break;
 
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
+    case PGP_PKA_RSA_SIGN_ONLY:
         if (!read_mpi(s_exp, "d", &seckey->material.rsa.d) ||
             !read_mpi(s_exp, "p", &seckey->material.rsa.p) ||
             !read_mpi(s_exp, "q", &seckey->material.rsa.q) ||
@@ -628,6 +633,7 @@ parse_seckey(pgp_key_pkt_t *seckey, s_exp_t *s_exp, pgp_pubkey_alg_t alg)
         break;
 
     case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         if (!read_mpi(s_exp, "x", &seckey->material.eg.x)) {
             return false;
         }
@@ -1018,11 +1024,11 @@ g10_parse_seckey(pgp_key_pkt_t *seckey,
     }
 
     if (rnp_get_debug(__FILE__)) {
-        uint8_t grip[PGP_KEY_GRIP_SIZE];
-        char    grips[PGP_KEY_GRIP_SIZE * 3];
+        pgp_key_grip_t grip;
+        char           grips[PGP_KEY_GRIP_SIZE * 3];
         if (rnp_key_store_get_key_grip(&seckey->material, grip)) {
             RNP_LOG("loaded G10 key with GRIP: %s\n",
-                    rnp_strhexdump_upper(grips, grip, PGP_KEY_GRIP_SIZE, ""));
+                    rnp_strhexdump_upper(grips, grip.data(), grip.size(), ""));
         }
     }
     ret = true;
@@ -1073,12 +1079,15 @@ copy_secret_fields(pgp_key_pkt_t *dst, const pgp_key_pkt_t *src)
         dst->material.dsa.x = src->material.dsa.x;
         break;
     case PGP_PKA_RSA:
+    case PGP_PKA_RSA_ENCRYPT_ONLY:
+    case PGP_PKA_RSA_SIGN_ONLY:
         dst->material.rsa.d = src->material.rsa.d;
         dst->material.rsa.p = src->material.rsa.p;
         dst->material.rsa.q = src->material.rsa.q;
         dst->material.rsa.u = src->material.rsa.u;
         break;
     case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         dst->material.eg.x = src->material.eg.x;
         break;
     case PGP_PKA_ECDSA:
@@ -1154,9 +1163,11 @@ rnp_key_store_g10_from_src(rnp_key_store_t *         key_store,
         memset(&seckey, 0, sizeof(seckey));
     }
 
-    if (!pgp_key_add_rawpacket(
-          &key, (uint8_t *) mem_src_get_memory(&memsrc), memsrc.size, PGP_PKT_RESERVED)) {
-        RNP_LOG("failed to add packet");
+    try {
+        key.rawpkt = pgp_rawpacket_t(
+          (uint8_t *) mem_src_get_memory(&memsrc), memsrc.size, PGP_PKT_RESERVED);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to add packet: %s", e.what());
         goto done;
     }
     key.format = PGP_KEY_STORE_G10;
@@ -1564,7 +1575,6 @@ error:
 bool
 rnp_key_store_g10_key_to_dst(pgp_key_t *key, pgp_dest_t *dest)
 {
-    pgp_rawpacket_t *packet = NULL;
     if (!pgp_key_get_rawpacket_count(key)) {
         return false;
     }
@@ -1572,7 +1582,7 @@ rnp_key_store_g10_key_to_dst(pgp_key_t *key, pgp_dest_t *dest)
         RNP_LOG("incorrect format: %d", key->format);
         return false;
     }
-    packet = pgp_key_get_rawpacket(key, 0);
-    dst_write(dest, packet->raw, packet->length);
+    pgp_rawpacket_t &packet = pgp_key_get_rawpacket(key);
+    dst_write(dest, packet.raw.data(), packet.raw.size());
     return dest->werr == RNP_SUCCESS;
 }

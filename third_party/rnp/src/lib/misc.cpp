@@ -234,14 +234,41 @@ rnp_clear_debug()
     debugc = 0;
 }
 
+/* -1 -- not initialized
+    0 -- logging is off
+    1 -- logging is on
+*/
+int8_t _rnp_log_switch =
+#ifdef NDEBUG
+  -1 // lazy-initialize later
+#else
+  1 // always on in debug build
+#endif
+  ;
+
+void
+set_rnp_log_switch(int8_t value)
+{
+    _rnp_log_switch = value;
+}
+
+bool
+rnp_log_switch()
+{
+    if (_rnp_log_switch < 0) {
+        const char *var = getenv(RNP_LOG_CONSOLE);
+        _rnp_log_switch = (var && strcmp(var, "0")) ? 1 : 0;
+    }
+    return !!_rnp_log_switch;
+}
+
 /* portable replacement for strcasecmp(3) */
 int
 rnp_strcasecmp(const char *s1, const char *s2)
 {
     int n;
 
-    for (n = 0; (n = tolower((uint8_t) *s1) - tolower((uint8_t) *s2)) == 0 && *s1;
-         s1++, s2++) {
+    for (; (n = tolower((uint8_t) *s1) - tolower((uint8_t) *s2)) == 0 && *s1; s1++, s2++) {
     }
     return n;
 }
@@ -423,7 +450,14 @@ rnp_hex_encode(
 size_t
 rnp_hex_decode(const char *hex, uint8_t *buf, size_t buf_len)
 {
-    if (botan_hex_decode(hex, strlen(hex), buf, &buf_len) != 0) {
+    size_t hexlen = strlen(hex);
+
+    /* check for 0x prefix */
+    if ((hexlen >= 2) && (hex[0] == '0') && ((hex[1] == 'x') || (hex[1] == 'X'))) {
+        hex += 2;
+        hexlen -= 2;
+    }
+    if (botan_hex_decode(hex, hexlen, buf, &buf_len) != 0) {
         RNP_LOG("Hex decode failed on string: %s", hex);
         return 0;
     }
@@ -457,50 +491,8 @@ rnp_strip_eol(char *s)
 bool
 hex2bin(const char *hex, size_t hexlen, uint8_t *bin, size_t len, size_t *out)
 {
-    bool    haslow = false;
-    uint8_t low = 0;
-    size_t  binlen = 0;
-
-    *out = 0;
-    if (hexlen < 1) {
-        return false;
-    }
-
-    /* check for 0x prefix */
-    if ((hexlen >= 2) && (hex[0] == '0') && ((hex[1] == 'x') || (hex[1] == 'X'))) {
-        hex += 2;
-        hexlen -= 2;
-    }
-
-    haslow = hexlen % 2;
-    for (size_t i = 0; i < hexlen; i++) {
-        if ((hex[i] == ' ') || (hex[i] == '\t')) {
-            continue;
-        }
-
-        if ((hex[i] >= '0') && (hex[i] <= '9')) {
-            low = (low << 4) | (hex[i] - '0');
-        } else if ((hex[i] >= 'a') && (hex[i] <= 'f')) {
-            low = (low << 4) | (hex[i] - ('a' - 10));
-        } else if ((hex[i] >= 'A') && (hex[i] <= 'F')) {
-            low = (low << 4) | (hex[i] - ('A' - 10));
-        } else {
-            return false;
-        }
-
-        /* we had low bits before - so have the whole byte now */
-        if (haslow) {
-            if (binlen < len) {
-                bin[binlen] = low;
-            }
-            binlen++;
-            low = 0;
-        }
-        haslow = !haslow;
-    }
-
-    *out = binlen;
-    return true;
+    *out = rnp_hex_decode(hex, bin, len);
+    return *out != 0;
 }
 
 /* Shortcut function to add field checking it for null to avoid allocation failure.

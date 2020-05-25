@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <errno.h>
+#include <algorithm>
 
 #include <rnp/rnp_sdk.h>
 #include <rekey/rnp_key_store.h>
@@ -59,25 +60,6 @@
 #include <regex>
 #endif
 
-rnp_key_store_t *
-rnp_key_store_new(pgp_key_store_format_t format, const char *path)
-{
-    if (format == PGP_KEY_STORE_UNKNOWN) {
-        RNP_LOG("Invalid key store format");
-        return NULL;
-    }
-
-    rnp_key_store_t *key_store = (rnp_key_store_t *) calloc(1, sizeof(*key_store));
-    if (!key_store) {
-        RNP_LOG("Can't allocate memory");
-        return NULL;
-    }
-
-    key_store->format = format;
-    key_store->path = strdup(path);
-    return key_store;
-}
-
 bool
 rnp_key_store_load_from_path(rnp_key_store_t *         key_store,
                              const pgp_key_provider_t *key_provider)
@@ -89,9 +71,10 @@ rnp_key_store_load_from_path(rnp_key_store_t *         key_store,
     char           path[MAXPATHLEN];
 
     if (key_store->format == PGP_KEY_STORE_G10) {
-        dir = opendir(key_store->path);
+        dir = opendir(key_store->path.c_str());
         if (dir == NULL) {
-            RNP_LOG("Can't open G10 directory %s: %s", key_store->path, strerror(errno));
+            RNP_LOG(
+              "Can't open G10 directory %s: %s", key_store->path.c_str(), strerror(errno));
             return false;
         }
 
@@ -100,7 +83,7 @@ rnp_key_store_load_from_path(rnp_key_store_t *         key_store,
                 continue;
             }
 
-            snprintf(path, sizeof(path), "%s/%s", key_store->path, ent->d_name);
+            snprintf(path, sizeof(path), "%s/%s", key_store->path.c_str(), ent->d_name);
             RNP_DLOG("Loading G10 key from file '%s'", path);
 
             if (init_file_src(&src, path)) {
@@ -119,8 +102,8 @@ rnp_key_store_load_from_path(rnp_key_store_t *         key_store,
     }
 
     /* init file source and load from it */
-    if (init_file_src(&src, key_store->path)) {
-        RNP_LOG("failed to read file %s", key_store->path);
+    if (init_file_src(&src, key_store->path.c_str())) {
+        RNP_LOG("failed to read file %s", key_store->path.c_str());
         return false;
     }
 
@@ -160,38 +143,36 @@ rnp_key_store_write_to_path(rnp_key_store_t *key_store)
         char grips[PGP_FINGERPRINT_HEX_SIZE];
 
         struct stat path_stat;
-        if (stat(key_store->path, &path_stat) != -1) {
+        if (stat(key_store->path.c_str(), &path_stat) != -1) {
             if (!S_ISDIR(path_stat.st_mode)) {
-                RNP_LOG("G10 keystore should be a directory: %s", key_store->path);
+                RNP_LOG("G10 keystore should be a directory: %s", key_store->path.c_str());
                 return false;
             }
         } else {
             if (errno != ENOENT) {
-                RNP_LOG("stat(%s): %s", key_store->path, strerror(errno));
+                RNP_LOG("stat(%s): %s", key_store->path.c_str(), strerror(errno));
                 return false;
             }
-            if (RNP_MKDIR(key_store->path, S_IRWXU) != 0) {
-                RNP_LOG("mkdir(%s, S_IRWXU): %s", key_store->path, strerror(errno));
+            if (RNP_MKDIR(key_store->path.c_str(), S_IRWXU) != 0) {
+                RNP_LOG("mkdir(%s, S_IRWXU): %s", key_store->path.c_str(), strerror(errno));
                 return false;
             }
         }
 
-        for (list_item *key_item = list_front(rnp_key_store_get_keys(key_store)); key_item;
-             key_item = list_next(key_item)) {
-            pgp_key_t *key = (pgp_key_t *) key_item;
-            snprintf(
-              path,
-              sizeof(path),
-              "%s/%s.key",
-              key_store->path,
-              rnp_strhexdump_upper(grips, pgp_key_get_grip(key), PGP_KEY_GRIP_SIZE, ""));
+        for (auto &key : key_store->keys) {
+            const pgp_key_grip_t &grip = pgp_key_get_grip(&key);
+            snprintf(path,
+                     sizeof(path),
+                     "%s/%s.key",
+                     key_store->path.c_str(),
+                     rnp_strhexdump_upper(grips, grip.data(), grip.size(), ""));
 
             if (init_tmpfile_dest(&keydst, path, true)) {
                 RNP_LOG("failed to create file");
                 return false;
             }
 
-            if (!rnp_key_store_g10_key_to_dst(key, &keydst)) {
+            if (!rnp_key_store_g10_key_to_dst(&key, &keydst)) {
                 RNP_LOG("failed to write key to file");
                 dst_close(&keydst, true);
                 return false;
@@ -209,7 +190,7 @@ rnp_key_store_write_to_path(rnp_key_store_t *key_store)
     }
 
     /* write kbx/gpg store to the single file */
-    if (init_tmpfile_dest(&keydst, key_store->path, true)) {
+    if (init_tmpfile_dest(&keydst, key_store->path.c_str(), true)) {
         RNP_LOG("failed to create keystore file");
         return false;
     }
@@ -243,11 +224,8 @@ rnp_key_store_write_to_dst(rnp_key_store_t *key_store, pgp_dest_t *dst)
 void
 rnp_key_store_clear(rnp_key_store_t *keyring)
 {
-    for (list_item *key = list_front(keyring->keys); key; key = list_next(key)) {
-        ((pgp_key_t *) key)->~pgp_key_t();
-    }
-    list_destroy(&keyring->keys);
-
+    keyring->keybygrip.clear();
+    keyring->keys.clear();
     for (list_item *item = list_front(keyring->blobs); item; item = list_next(item)) {
         kbx_blob_t *blob = *((kbx_blob_t **) item);
         if (blob->type == KBX_PGP_BLOB) {
@@ -259,34 +237,10 @@ rnp_key_store_clear(rnp_key_store_t *keyring)
     list_destroy(&keyring->blobs);
 }
 
-void
-rnp_key_store_free(rnp_key_store_t *keyring)
-{
-    if (keyring == NULL) {
-        return;
-    }
-
-    rnp_key_store_clear(keyring);
-    free((void *) keyring->path);
-    free(keyring);
-}
-
 size_t
 rnp_key_store_get_key_count(const rnp_key_store_t *keyring)
 {
-    return list_length(keyring->keys);
-}
-
-pgp_key_t *
-rnp_key_store_get_key(const rnp_key_store_t *keyring, size_t idx)
-{
-    return (pgp_key_t *) list_at(keyring->keys, idx);
-}
-
-list
-rnp_key_store_get_keys(const rnp_key_store_t *keyring)
-{
-    return keyring->keys;
+    return keyring->keys.size();
 }
 
 static bool
@@ -396,10 +350,9 @@ rnp_key_store_merge_key(pgp_key_t *dst, const pgp_key_t *src)
     }
 
     /* move existing subkey grips since they are not present in transferable key */
-    tmpkey.subkey_grips = dst->subkey_grips;
-    dst->subkey_grips = NULL;
-    for (list_item *li = list_front(src->subkey_grips); li; li = list_next(li)) {
-        if (!pgp_key_add_subkey_grip(&tmpkey, (uint8_t *) li)) {
+    tmpkey.subkey_grips = std::move(dst->subkey_grips);
+    for (auto &grip : src->subkey_grips) {
+        if (!pgp_key_add_subkey_grip(&tmpkey, grip)) {
             RNP_LOG("failed to add subkey grip");
         }
     }
@@ -437,17 +390,16 @@ rnp_key_store_refresh_subkey_grips(rnp_key_store_t *keyring, pgp_key_t *key)
         return false;
     }
 
-    for (list_item *ki = list_front(rnp_key_store_get_keys(keyring)); ki; ki = list_next(ki)) {
-        pgp_key_t *skey = (pgp_key_t *) ki;
-        bool       found = false;
+    for (auto &skey : keyring->keys) {
+        bool found = false;
 
         /* if we have primary_grip then we also added to subkey_grips */
-        if (!pgp_key_is_subkey(skey) || pgp_key_get_primary_grip(skey)) {
+        if (!pgp_key_is_subkey(&skey) || pgp_key_has_primary_grip(&skey)) {
             continue;
         }
 
-        for (unsigned i = 0; i < pgp_key_get_subsig_count(skey); i++) {
-            const pgp_subsig_t *subsig = pgp_key_get_subsig(skey, i);
+        for (unsigned i = 0; i < pgp_key_get_subsig_count(&skey); i++) {
+            const pgp_subsig_t *subsig = pgp_key_get_subsig(&skey, i);
 
             if (subsig->sig.type != PGP_SIG_SUBKEY) {
                 continue;
@@ -466,7 +418,7 @@ rnp_key_store_refresh_subkey_grips(rnp_key_store_t *keyring, pgp_key_t *key)
             }
         }
 
-        if (found && !pgp_key_link_subkey_grip(key, skey)) {
+        if (found && !pgp_key_link_subkey_grip(key, &skey)) {
             return false;
         }
     }
@@ -489,14 +441,18 @@ rnp_key_store_add_subkey(rnp_key_store_t *keyring, pgp_key_t *srckey, pgp_key_t 
             return NULL;
         }
     } else {
-        oldkey = (pgp_key_t *) list_append(&keyring->keys, NULL, sizeof(*srckey));
-        if (!oldkey) {
-            RNP_LOG("allocation failed");
+        try {
+            keyring->keys.emplace_back();
+            oldkey = &keyring->keys.back();
+            keyring->keybygrip[pgp_key_get_grip(srckey)] = std::prev(keyring->keys.end());
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
             return NULL;
         }
         if (pgp_key_copy(oldkey, srckey, false)) {
             RNP_LOG("key copying failed");
-            list_remove((list_item *) oldkey);
+            keyring->keys.pop_back();
+            keyring->keybygrip.erase(pgp_key_get_grip(srckey));
             return NULL;
         }
         if (primary && !pgp_key_link_subkey_grip(primary, oldkey)) {
@@ -536,14 +492,18 @@ rnp_key_store_add_key(rnp_key_store_t *keyring, pgp_key_t *srckey)
             return NULL;
         }
     } else {
-        added_key = (pgp_key_t *) list_append(&keyring->keys, NULL, sizeof(*srckey));
-        if (!added_key) {
-            RNP_LOG("allocation failed");
+        try {
+            keyring->keys.emplace_back();
+            added_key = &keyring->keys.back();
+            keyring->keybygrip[pgp_key_get_grip(srckey)] = std::prev(keyring->keys.end());
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
             return NULL;
         }
         if (pgp_key_copy(added_key, srckey, false)) {
             RNP_LOG("key copying failed");
-            list_remove((list_item *) added_key);
+            keyring->keys.pop_back();
+            keyring->keybygrip.erase(pgp_key_get_grip(srckey));
             return NULL;
         }
         /* primary key may be added after subkeys, so let's handle this case correctly */
@@ -627,13 +587,12 @@ rnp_key_store_import_subkey_signature(rnp_key_store_t *      keyring,
     if ((sigtype != PGP_SIG_SUBKEY) && (sigtype != PGP_SIG_REV_SUBKEY)) {
         return PGP_SIG_IMPORT_STATUS_UNKNOWN;
     }
-    const uint8_t *prim_grip = pgp_key_get_primary_grip(key);
-    pgp_key_t *    primary = rnp_key_store_get_signer_key(keyring, sig);
-    if (!prim_grip || !primary) {
+    pgp_key_t *primary = rnp_key_store_get_signer_key(keyring, sig);
+    if (!primary || !pgp_key_has_primary_grip(key)) {
         RNP_LOG("No primary grip or primary key");
         return PGP_SIG_IMPORT_STATUS_UNKNOWN_KEY;
     }
-    if (memcmp(pgp_key_get_grip(primary), prim_grip, PGP_KEY_GRIP_SIZE)) {
+    if (pgp_key_get_grip(primary) != pgp_key_get_primary_grip(key)) {
         RNP_LOG("Wrong subkey signature's signer.");
         return PGP_SIG_IMPORT_STATUS_UNKNOWN;
     }
@@ -715,13 +674,13 @@ rnp_key_store_import_signature(rnp_key_store_t *        keyring,
 bool
 rnp_key_store_remove_key(rnp_key_store_t *keyring, const pgp_key_t *key)
 {
-    // check if we were passed a key that isn't from this ring
-    if (!list_is_member(keyring->keys, (list_item *) key)) {
-        return false;
-    }
-    key->~pgp_key_t();
-    list_remove((list_item *) key);
-    return true;
+    keyring->keybygrip.erase(pgp_key_get_grip(key));
+    size_t oldsize = keyring->keys.size();
+    keyring->keys.erase(std::remove_if(keyring->keys.begin(),
+                                       keyring->keys.end(),
+                                       [key](pgp_key_t &_key) { return key == &_key; }));
+
+    return oldsize != keyring->keys.size();
 }
 
 /**
@@ -739,70 +698,65 @@ rnp_key_store_remove_key(rnp_key_store_t *keyring, const pgp_key_t *key)
 
 */
 pgp_key_t *
-rnp_key_store_get_key_by_id(const rnp_key_store_t *keyring,
-                            const uint8_t *        keyid,
-                            pgp_key_t *            after)
+rnp_key_store_get_key_by_id(rnp_key_store_t *keyring, const uint8_t *keyid, pgp_key_t *after)
 {
     RNP_DLOG("searching keyring %p", keyring);
-
     if (!keyring) {
         return NULL;
     }
 
-    // if after is provided, make sure it is a member of the appropriate list
-    assert(!after || list_is_member(keyring->keys, (list_item *) after));
-
-    for (list_item *key_item = after ? list_next((list_item *) after) :
-                                       list_front(keyring->keys);
-         key_item;
-         key_item = list_next(key_item)) {
-        pgp_key_t *key = (pgp_key_t *) key_item;
-        RNP_DHEX("keyring keyid", pgp_key_get_keyid(key), PGP_KEY_ID_SIZE);
-        RNP_DHEX("keyid", keyid, PGP_KEY_ID_SIZE);
-        if (memcmp(pgp_key_get_keyid(key), keyid, PGP_KEY_ID_SIZE) == 0 ||
-            memcmp(pgp_key_get_keyid(key) + PGP_KEY_ID_SIZE / 2, keyid, PGP_KEY_ID_SIZE / 2) ==
-              0) {
-            return key;
-        }
-    }
-    return NULL;
-}
-
-pgp_key_t *
-rnp_key_store_get_key_by_grip(const rnp_key_store_t *keyring, const uint8_t *grip)
-{
-    RNP_DLOG("looking keyring %p", keyring);
-
-    if (!grip) {
+    auto it =
+      std::find_if(keyring->keys.begin(), keyring->keys.end(), [after](const pgp_key_t &key) {
+          return !after || (after == &key);
+      });
+    if (after && (it == keyring->keys.end())) {
+        RNP_LOG("searching with non-keyrings after param");
         return NULL;
     }
-
-    for (list_item *key_item = list_front(keyring->keys); key_item;
-         key_item = list_next(key_item)) {
-        pgp_key_t *key = (pgp_key_t *) key_item;
-        RNP_DHEX("looking for grip", grip, PGP_KEY_GRIP_SIZE);
-        RNP_DHEX("key grip", pgp_key_get_grip(key), PGP_KEY_GRIP_SIZE);
-
-        if (memcmp(pgp_key_get_grip(key), grip, PGP_KEY_GRIP_SIZE) == 0) {
-            return key;
-        }
+    if (after) {
+        it = std::next(it);
     }
-    return NULL;
+    it = std::find_if(it, keyring->keys.end(), [keyid](const pgp_key_t &key) {
+        return !memcmp(pgp_key_get_keyid(&key), keyid, PGP_KEY_ID_SIZE) ||
+               !memcmp(
+                 pgp_key_get_keyid(&key) + PGP_KEY_ID_SIZE / 2, keyid, PGP_KEY_ID_SIZE / 2);
+    });
+    return (it == keyring->keys.end()) ? NULL : &(*it);
 }
 
-pgp_key_t *
-rnp_key_store_get_key_by_fpr(const rnp_key_store_t *keyring, const pgp_fingerprint_t *fpr)
+const pgp_key_t *
+rnp_key_store_get_key_by_grip(const rnp_key_store_t *keyring, const pgp_key_grip_t &grip)
 {
-    for (list_item *key = list_front(keyring->keys); key; key = list_next(key)) {
-        if (fingerprint_equal(pgp_key_get_fp((pgp_key_t *) key), fpr)) {
-            return (pgp_key_t *) key;
-        }
+    try {
+        return &*keyring->keybygrip.at(grip);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return NULL;
     }
-    return NULL;
 }
 
 pgp_key_t *
-rnp_key_store_get_primary_key(const rnp_key_store_t *keyring, const pgp_key_t *subkey)
+rnp_key_store_get_key_by_grip(rnp_key_store_t *keyring, const pgp_key_grip_t &grip)
+{
+    auto it = keyring->keybygrip.find(grip);
+    if (it == keyring->keybygrip.end()) {
+        return NULL;
+    }
+    return &*it->second;
+}
+
+pgp_key_t *
+rnp_key_store_get_key_by_fpr(rnp_key_store_t *keyring, const pgp_fingerprint_t *fpr)
+{
+    auto it =
+      std::find_if(keyring->keys.begin(), keyring->keys.end(), [fpr](const pgp_key_t &key) {
+          return fingerprint_equal(pgp_key_get_fp(&key), fpr);
+      });
+    return (it == keyring->keys.end()) ? NULL : &(*it);
+}
+
+pgp_key_t *
+rnp_key_store_get_primary_key(rnp_key_store_t *keyring, const pgp_key_t *subkey)
 {
     uint8_t           keyid[PGP_KEY_ID_SIZE] = {0};
     pgp_fingerprint_t keyfp = {};
@@ -811,7 +765,7 @@ rnp_key_store_get_primary_key(const rnp_key_store_t *keyring, const pgp_key_t *s
         return NULL;
     }
 
-    if (pgp_key_get_primary_grip(subkey)) {
+    if (pgp_key_has_primary_grip(subkey)) {
         return rnp_key_store_get_key_by_grip(keyring, pgp_key_get_primary_grip(subkey));
     }
 
@@ -932,7 +886,7 @@ grip_hash_ec(pgp_hash_t *hash, const pgp_ec_key_t *key)
 
 /* keygrip is subjectKeyHash from pkcs#15 for RSA. */
 bool
-rnp_key_store_get_key_grip(const pgp_key_material_t *key, uint8_t *grip)
+rnp_key_store_get_key_grip(const pgp_key_material_t *key, pgp_key_grip_t &grip)
 {
     pgp_hash_t hash = {0};
 
@@ -956,6 +910,7 @@ rnp_key_store_get_key_grip(const pgp_key_material_t *key, uint8_t *grip)
         break;
 
     case PGP_PKA_ELGAMAL:
+    case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
         grip_hash_mpi(&hash, &key->eg.p, 'p', true);
         grip_hash_mpi(&hash, &key->eg.g, 'g', true);
         grip_hash_mpi(&hash, &key->eg.y, 'y', true);
@@ -966,35 +921,56 @@ rnp_key_store_get_key_grip(const pgp_key_material_t *key, uint8_t *grip)
     case PGP_PKA_EDDSA:
     case PGP_PKA_SM2:
         if (!grip_hash_ec(&hash, &key->ec)) {
-            pgp_hash_finish(&hash, grip);
+            pgp_hash_finish(&hash, grip.data());
             return false;
         }
         break;
 
     default:
         RNP_LOG("unsupported public-key algorithm %d", (int) key->alg);
-        pgp_hash_finish(&hash, grip);
+        pgp_hash_finish(&hash, grip.data());
         return false;
     }
 
-    return pgp_hash_finish(&hash, grip) == PGP_KEY_GRIP_SIZE;
+    return pgp_hash_finish(&hash, grip.data()) == grip.size();
 }
 
 pgp_key_t *
-rnp_key_store_search(const rnp_key_store_t * keyring,
+rnp_key_store_search(rnp_key_store_t *       keyring,
                      const pgp_key_search_t *search,
                      pgp_key_t *             after)
 {
     // if after is provided, make sure it is a member of the appropriate list
-    assert(!after || list_is_member(keyring->keys, (list_item *) after));
-    for (list_item *key_item = after ? list_next((list_item *) after) :
-                                       list_front(keyring->keys);
-         key_item;
-         key_item = list_next(key_item)) {
-        pgp_key_t *key = (pgp_key_t *) key_item;
-        if (rnp_key_matches_search(key, search)) {
-            return key;
-        }
+    auto it =
+      std::find_if(keyring->keys.begin(), keyring->keys.end(), [after](const pgp_key_t &key) {
+          return !after || (after == &key);
+      });
+    if (after && (it == keyring->keys.end())) {
+        RNP_LOG("searching with non-keyrings after param");
+        return NULL;
     }
-    return NULL;
+    if (after) {
+        it = std::next(it);
+    }
+    it = std::find_if(it, keyring->keys.end(), [search](const pgp_key_t &key) {
+        return rnp_key_matches_search(&key, search);
+    });
+    return (it == keyring->keys.end()) ? NULL : &(*it);
+}
+
+rnp_key_store_t::rnp_key_store_t(pgp_key_store_format_t _format, const std::string &_path)
+{
+    if (_format == PGP_KEY_STORE_UNKNOWN) {
+        RNP_LOG("Invalid key store format");
+        throw std::invalid_argument("format");
+    }
+    format = _format;
+    path = _path;
+    disable_validation = false;
+    blobs = NULL;
+}
+
+rnp_key_store_t::~rnp_key_store_t()
+{
+    rnp_key_store_clear(this);
 }

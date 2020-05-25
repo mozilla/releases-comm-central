@@ -75,10 +75,6 @@ rnp_key_add_signature(pgp_key_t *key, const pgp_signature_t *sig)
         RNP_LOG("Failed to add subsig");
         return false;
     }
-    /* add signature rawpacket */
-    if (!pgp_key_add_sig_rawpacket(key, sig)) {
-        return false;
-    }
     /* setup subsig and key from signature */
     if (!pgp_subsig_from_signature(subsig, sig)) {
         return false;
@@ -122,29 +118,28 @@ rnp_key_store_add_transferable_subkey(rnp_key_store_t *          keyring,
 bool
 rnp_key_add_transferable_userid(pgp_key_t *key, pgp_transferable_userid_t *uid)
 {
-    if (!pgp_key_add_uid_rawpacket(key, &uid->uid)) {
-        return false;
-    }
-
     pgp_userid_t *userid = pgp_key_add_userid(key);
     if (!userid) {
         RNP_LOG("Failed to add userid");
         return false;
     }
-    if (uid->uid.tag == PGP_PKT_USER_ID) {
-        userid->str = (char *) calloc(1, uid->uid.uid_len + 1);
-        if (!userid->str) {
-            RNP_LOG("uid alloc failed");
-            return false;
+    try {
+        userid->rawpkt = pgp_rawpacket_t(uid->uid);
+    } catch (const std::exception &e) {
+        RNP_LOG("Raw packet allocation failed: %s", e.what());
+        return false;
+    }
+
+    try {
+        if (uid->uid.tag == PGP_PKT_USER_ID) {
+            userid->str = std::string(uid->uid.uid, uid->uid.uid + uid->uid.uid_len);
+        } else {
+            userid->str = "(photo)";
         }
-        memcpy(userid->str, uid->uid.uid, uid->uid.uid_len);
-        userid->str[uid->uid.uid_len] = 0;
-    } else {
-        userid->str = strdup("(photo)");
-        if (!userid->str) {
-            RNP_LOG("uattr alloc failed");
-            return false;
-        }
+    } catch (const std::exception &e) {
+        RNP_LOG(
+          "%s alloc failed: %s", uid->uid.tag == PGP_PKT_USER_ID ? "uid" : "uattr", e.what());
+        return false;
     }
 
     if (!copy_userid_pkt(&userid->pkt, &uid->uid)) {
@@ -289,22 +284,6 @@ done:
 }
 
 bool
-rnp_key_write_packets_stream(const pgp_key_t *key, pgp_dest_t *dst)
-{
-    if (!pgp_key_get_rawpacket_count(key)) {
-        return false;
-    }
-    for (size_t i = 0; i < pgp_key_get_rawpacket_count(key); i++) {
-        const pgp_rawpacket_t *pkt = pgp_key_get_rawpacket(key, i);
-        if (!pkt->raw || !pkt->length) {
-            return false;
-        }
-        dst_write(dst, pkt->raw, pkt->length);
-    }
-    return !dst->werr;
-}
-
-bool
 rnp_key_to_src(const pgp_key_t *key, pgp_source_t *src)
 {
     pgp_dest_t dst = {};
@@ -314,7 +293,7 @@ rnp_key_to_src(const pgp_key_t *key, pgp_source_t *src)
         return false;
     }
 
-    res = rnp_key_write_packets_stream(key, &dst) &&
+    res = pgp_key_write_packets(key, &dst) &&
           !init_mem_src(src, mem_dest_own_memory(&dst), dst.writeb, true);
     dst_close(&dst, true);
     return res;
@@ -323,47 +302,29 @@ rnp_key_to_src(const pgp_key_t *key, pgp_source_t *src)
 static bool
 do_write(rnp_key_store_t *key_store, pgp_dest_t *dst, bool secret)
 {
-    for (list_item *key_item = list_front(rnp_key_store_get_keys(key_store)); key_item;
-         key_item = list_next(key_item)) {
-        pgp_key_t *key = (pgp_key_t *) key_item;
-        if (pgp_key_is_secret(key) != secret) {
+    for (auto &key : key_store->keys) {
+        if (pgp_key_is_secret(&key) != secret) {
             continue;
         }
         // skip subkeys, they are written below (orphans are ignored)
-        if (!pgp_key_is_primary_key(key)) {
+        if (!pgp_key_is_primary_key(&key)) {
             continue;
         }
 
-        if (key->format != PGP_KEY_STORE_GPG) {
-            RNP_LOG("incorrect format (conversions not supported): %d", key->format);
+        if (key.format != PGP_KEY_STORE_GPG) {
+            RNP_LOG("incorrect format (conversions not supported): %d", key.format);
             return false;
         }
-        if (!rnp_key_write_packets_stream(key, dst)) {
+        if (!pgp_key_write_packets(&key, dst)) {
             return false;
         }
-        for (list_item *subkey_grip = list_front(key->subkey_grips); subkey_grip;
-             subkey_grip = list_next(subkey_grip)) {
-            pgp_key_search_t search = {};
-            search.type = PGP_KEY_SEARCH_GRIP;
-            memcpy(search.by.grip, (uint8_t *) subkey_grip, PGP_KEY_GRIP_SIZE);
-            pgp_key_t *subkey = NULL;
-            for (list_item *subkey_item = list_front(rnp_key_store_get_keys(key_store));
-                 subkey_item;
-                 subkey_item = list_next(subkey_item)) {
-                pgp_key_t *candidate = (pgp_key_t *) subkey_item;
-                if (pgp_key_is_secret(candidate) != secret) {
-                    continue;
-                }
-                if (rnp_key_matches_search(candidate, &search)) {
-                    subkey = candidate;
-                    break;
-                }
-            }
+        for (auto &sgrip : key.subkey_grips) {
+            pgp_key_t *subkey = rnp_key_store_get_key_by_grip(key_store, sgrip);
             if (!subkey) {
                 RNP_LOG("Missing subkey");
                 continue;
             }
-            if (!rnp_key_write_packets_stream(subkey, dst)) {
+            if (!pgp_key_write_packets(subkey, dst)) {
                 return false;
             }
         }

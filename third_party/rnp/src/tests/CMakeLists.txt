@@ -82,12 +82,14 @@ add_executable(rnp_tests
   large-mpi.cpp
   load-g10.cpp
   load-pgp.cpp
+  log-switch.cpp
   partial-length.cpp
   rnp_tests.cpp
   s2k-iterations.cpp
   streams.cpp
   support.cpp
   user-prefs.cpp
+  utils-hex2bin.cpp
   utils-list.cpp
   utils-rnpcfg.cpp
   issues/1030.cpp

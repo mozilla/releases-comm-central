@@ -52,6 +52,10 @@
 #define TYPES_H_
 
 #include <stdint.h>
+#include <string>
+#include <vector>
+#include <array>
+
 #include <rnp/rnp_def.h>
 #include "list.h"
 #include "crypto/common.h"
@@ -87,6 +91,8 @@ typedef struct pgp_fingerprint_t {
     uint8_t  fingerprint[PGP_FINGERPRINT_SIZE];
     unsigned length;
 } pgp_fingerprint_t;
+
+typedef std::array<uint8_t, PGP_KEY_GRIP_SIZE> pgp_key_grip_t;
 
 /**
  * Type to keep public/secret key mpis without any openpgp-dependent data.
@@ -279,9 +285,17 @@ typedef struct pgp_sig_subpkt_t {
 
 /** pgp_rawpacket_t */
 typedef struct pgp_rawpacket_t {
-    pgp_pkt_type_t tag;
-    size_t         length;
-    uint8_t *      raw;
+    pgp_pkt_type_t       tag;
+    std::vector<uint8_t> raw;
+
+    pgp_rawpacket_t() = default;
+    pgp_rawpacket_t(const uint8_t *data, size_t len, pgp_pkt_type_t tag)
+        : tag(tag),
+          raw(data ? std::vector<uint8_t>(data, data + len) : std::vector<uint8_t>()){};
+    pgp_rawpacket_t(const pgp_signature_t &sig);
+    pgp_rawpacket_t(pgp_key_pkt_t &key);
+    pgp_rawpacket_t(const pgp_userid_pkt_t &uid);
+    ~pgp_rawpacket_t();
 } pgp_rawpacket_t;
 
 typedef enum {
@@ -350,7 +364,7 @@ typedef struct {
 typedef struct pgp_revoke_t {
     uint32_t              uid;    /* index in uid array */
     pgp_revocation_type_t code;   /* revocation code */
-    char *                reason; /* c'mon, spill the beans */
+    std::string           reason; /* revocation reason */
 } pgp_revoke_t;
 
 typedef struct pgp_user_prefs_t {
@@ -374,17 +388,37 @@ typedef struct pgp_user_prefs_t {
 typedef struct pgp_subsig_t {
     uint32_t         uid;         /* index in userid array in key for certification sig */
     pgp_signature_t  sig;         /* signature packet */
+    pgp_rawpacket_t  rawpkt;      /* signature's rawpacket */
     uint8_t          trustlevel;  /* level of trust */
     uint8_t          trustamount; /* amount of trust */
     uint8_t          key_flags;   /* key flags for certification/direct key sig */
     pgp_user_prefs_t prefs;       /* user preferences for certification sig */
     bool             validated;   /* signature was validated */
     bool             valid;       /* signature was validated and is valid */
+
+    pgp_subsig_t() = default;
+    pgp_subsig_t(pgp_subsig_t &&src);
+    pgp_subsig_t &operator=(pgp_subsig_t &&src);
+    pgp_subsig_t &operator=(const pgp_subsig_t &src);
+    ~pgp_subsig_t();
+
+    /* make sure we use only explicitly defined constructors/operators */
+    pgp_subsig_t(const pgp_subsig_t &) = delete;
 } pgp_subsig_t;
 
 typedef struct pgp_userid_t {
-    pgp_userid_pkt_t pkt; /* User ID or User Attribute packet as it was loaded */
-    char *           str; /* Human-readable representation of the userid */
+    pgp_userid_pkt_t pkt;    /* User ID or User Attribute packet as it was loaded */
+    pgp_rawpacket_t  rawpkt; /* Raw packet contents */
+    std::string      str;    /* Human-readable representation of the userid */
+
+    pgp_userid_t() = default;
+    pgp_userid_t(pgp_userid_t &&src);
+    pgp_userid_t &operator=(const pgp_userid_t &src);
+    ~pgp_userid_t();
+
+    /* make sure we use only explicitly defined constructors/operators */
+    pgp_userid_t(const pgp_userid_t &) = delete;
+    pgp_userid_t &operator=(pgp_userid_t &&) = delete;
 } pgp_userid_t;
 
 struct rnp_keygen_ecc_params_t {

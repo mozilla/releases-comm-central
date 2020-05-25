@@ -6486,6 +6486,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_output_destroy(output);
 
     /* signed with unknown key */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.signed.unknown"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -6499,6 +6500,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_output_destroy(output);
 
     /* signed with malformed signature (bad version) */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.signed.malfsig"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -6511,6 +6513,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_output_destroy(output);
 
     /* signed with invalid signature (modified hash alg) */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.signed.invsig"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -6524,6 +6527,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_output_destroy(output);
 
     /* signed without the signature */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.signed.nosig"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -6537,6 +6541,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
 
     /* detached signature */
     rnp_input_t source = NULL;
+    sigcount = 255;
     assert_rnp_success(rnp_input_from_path(&source, "data/test_messages/message.txt"));
     assert_rnp_success(rnp_input_from_path(&input, "data/test_messages/message.txt.sig"));
     assert_rnp_success(rnp_op_verify_detached_create(&verify, ffi, source, input));
@@ -6549,6 +6554,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_input_destroy(input);
 
     /* malformed detached signature */
+    sigcount = 255;
     assert_rnp_success(rnp_input_from_path(&source, "data/test_messages/message.txt"));
     assert_rnp_success(rnp_input_from_path(&input, "data/test_messages/message.txt.sig.malf"));
     assert_rnp_success(rnp_op_verify_detached_create(&verify, ffi, source, input));
@@ -6560,18 +6566,20 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_input_destroy(input);
 
     /* malformed detached signature, wrong bitlen in MPI  */
+    sigcount = 255;
     assert_rnp_success(rnp_input_from_path(&source, "data/test_messages/message.txt"));
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.sig.wrong-mpi-bitlen"));
     assert_rnp_success(rnp_op_verify_detached_create(&verify, ffi, source, input));
-    assert_int_equal(rnp_op_verify_execute(verify), RNP_ERROR_BAD_PARAMETERS);
+    assert_rnp_success(rnp_op_verify_execute(verify));
     assert_rnp_success(rnp_op_verify_get_signature_count(verify, &sigcount));
-    assert_int_equal(sigcount, 0);
+    assert_int_equal(sigcount, 1);
     rnp_op_verify_destroy(verify);
     rnp_input_destroy(source);
     rnp_input_destroy(input);
 
     /* encrypted message */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.encrypted"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -6585,6 +6593,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_output_destroy(output);
 
     /* encrypted and signed message */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.signed-encrypted"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -6598,6 +6607,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_output_destroy(output);
 
     /* cleartext signed message */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.cleartext-signed"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -6611,6 +6621,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_output_destroy(output);
 
     /* cleartext signed with malformed signature (wrong mpi len) */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.cleartext-malf"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -6624,6 +6635,7 @@ TEST_F(rnp_tests, test_ffi_op_verify_sig_count)
     rnp_output_destroy(output);
 
     /* cleartext signed without the signature */
+    sigcount = 255;
     assert_rnp_success(
       rnp_input_from_path(&input, "data/test_messages/message.txt.cleartext-nosig"));
     assert_rnp_success(rnp_output_to_null(&output));
@@ -7495,4 +7507,172 @@ TEST_F(rnp_tests, test_ffi_mdc_8k_boundary)
 
     assert_rnp_success(rnp_output_destroy(output));
     assert_rnp_success(rnp_ffi_destroy(ffi));
+}
+
+TEST_F(rnp_tests, test_ffi_decrypt_wrong_mpi_bits)
+{
+    rnp_ffi_t    ffi = NULL;
+    rnp_input_t  input = NULL;
+    rnp_output_t output = NULL;
+
+    // init ffi
+    test_ffi_init(&ffi);
+
+    /* 1024 bitcount instead of 1023 */
+    rnp_op_verify_t op = NULL;
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.enc-malf-1"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "password"));
+    assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(op));
+    rnp_op_verify_destroy(op);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* 1025 bitcount instead of 1023 */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.enc-malf-2"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "password"));
+    assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(op));
+    rnp_op_verify_destroy(op);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* 1031 bitcount instead of 1023 */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.enc-malf-3"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "password"));
+    assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(op));
+    rnp_op_verify_destroy(op);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* 1040 bitcount instead of 1023 */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.enc-malf-4"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "password"));
+    assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(op));
+    rnp_op_verify_destroy(op);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* 1017 bitcount instead of 1023 */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_messages/message.txt.enc-malf-5"));
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "password"));
+    assert_rnp_success(rnp_op_verify_create(&op, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(op));
+    rnp_op_verify_destroy(op);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_ffi_key_import_edge_cases)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+
+    /* key with empty packets - must fail with bad format */
+    rnp_input_t input = NULL;
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_edge_cases/key-empty-packets.pgp"));
+    char *results = NULL;
+    assert_int_equal(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, &results),
+                     RNP_ERROR_BAD_FORMAT);
+    assert_null(results);
+    rnp_input_destroy(input);
+
+    /* key with empty uid - must succeed */
+    json_object *jso = NULL;
+    json_object *jsokeys = NULL;
+    assert_true(check_import_keys(
+      ffi, &jso, &jsokeys, "data/test_key_edge_cases/key-empty-uid.pgp", 1, 0));
+    assert_int_equal(json_object_array_length(jsokeys), 1);
+    json_object *jsokey = json_object_array_get_idx(jsokeys, 0);
+    assert_true(
+      check_key_status(jsokey, "new", "none", "753d5b947e9a2b2e01147c1fc972affd358bf887"));
+    json_object_put(jso);
+
+    /* key with experimental signature subpackets - must succeed and append uid and signature
+     */
+    assert_true(check_import_keys(
+      ffi, &jso, &jsokeys, "data/test_key_edge_cases/key-subpacket-101-110.pgp", 1, 0));
+    assert_int_equal(json_object_array_length(jsokeys), 1);
+    jsokey = json_object_array_get_idx(jsokeys, 0);
+    assert_true(
+      check_key_status(jsokey, "updated", "none", "753d5b947e9a2b2e01147c1fc972affd358bf887"));
+    json_object_put(jso);
+
+    rnp_key_handle_t key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "C972AFFD358BF887", &key));
+    size_t count = 0;
+    assert_rnp_success(rnp_key_get_uid_count(key, &count));
+    assert_int_equal(count, 2);
+    char *uid = NULL;
+    assert_rnp_success(rnp_key_get_uid_at(key, 0, &uid));
+    assert_int_equal(strcmp(uid, ""), 0);
+    rnp_buffer_destroy(uid);
+    assert_rnp_success(rnp_key_get_uid_at(key, 1, &uid));
+    assert_int_equal(strcmp(uid, "NoUID"), 0);
+    rnp_buffer_destroy(uid);
+    rnp_key_handle_destroy(key);
+
+    /* key with malformed signature - must fail */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_edge_cases/key-malf-sig.pgp"));
+    assert_int_equal(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, &results),
+                     RNP_ERROR_BAD_FORMAT);
+    assert_null(results);
+    rnp_input_destroy(input);
+
+    /* revoked key without revocation reason signature subpacket */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_edge_cases/alice-rev-no-reason.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, &results));
+    rnp_input_destroy(input);
+    assert_non_null(results);
+    rnp_buffer_destroy(results);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669FFDE3C", &key));
+    assert_rnp_success(rnp_key_get_revocation_reason(key, &results));
+    assert_int_equal(strcmp(results, "No reason specified"), 0);
+    rnp_buffer_destroy(results);
+    bool revoked = false;
+    assert_rnp_success(rnp_key_is_revoked(key, &revoked));
+    assert_true(revoked);
+    rnp_key_handle_destroy(key);
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC));
+
+    /* revoked subkey without revocation reason signature subpacket */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_edge_cases/alice-sub-rev-no-reason.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, &results));
+    rnp_input_destroy(input);
+    assert_non_null(results);
+    rnp_buffer_destroy(results);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669FFDE3C", &key));
+    assert_int_equal(rnp_key_get_revocation_reason(key, &results), RNP_ERROR_BAD_PARAMETERS);
+    revoked = true;
+    assert_rnp_success(rnp_key_is_revoked(key, &revoked));
+    assert_false(revoked);
+    rnp_key_handle_destroy(key);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "DD23CEB7FEBEFF17", &key));
+    assert_rnp_success(rnp_key_get_revocation_reason(key, &results));
+    assert_int_equal(strcmp(results, "No reason specified"), 0);
+    rnp_buffer_destroy(results);
+    revoked = false;
+    assert_rnp_success(rnp_key_is_revoked(key, &revoked));
+    assert_true(revoked);
+    rnp_key_handle_destroy(key);
+
+    rnp_ffi_destroy(ffi);
 }

@@ -68,6 +68,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <time.h>
+#include <algorithm>
 #include "defaults.h"
 
 static bool
@@ -169,40 +170,6 @@ pgp_free_user_prefs(pgp_user_prefs_t *prefs)
     memset(prefs, 0, sizeof(*prefs));
 }
 
-void
-pgp_subsig_free(pgp_subsig_t *subsig)
-{
-    if (!subsig) {
-        return;
-    }
-    pgp_free_user_prefs(&subsig->prefs);
-    free_signature(&subsig->sig);
-}
-
-void
-revoke_free(pgp_revoke_t *revoke)
-{
-    if (!revoke) {
-        return;
-    }
-    free(revoke->reason);
-    revoke->reason = NULL;
-}
-
-static void
-pgp_userid_free(pgp_userid_t *uid)
-{
-    free_userid_pkt(&uid->pkt);
-    free(uid->str);
-}
-
-static void
-pgp_rawpacket_free(pgp_rawpacket_t *packet)
-{
-    free(packet->raw);
-    packet->raw = NULL;
-}
-
 static bool
 pgp_key_init_with_pkt(pgp_key_t *key, const pgp_key_pkt_t *pkt)
 {
@@ -248,11 +215,13 @@ pgp_key_from_pkt(pgp_key_t *key, const pgp_key_pkt_t *pkt)
     }
 
     /* add key rawpacket */
-    if (!pgp_key_add_key_rawpacket(key, &key->pkt)) {
+    try {
+        key->rawpkt = pgp_rawpacket_t(key->pkt);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
         free_key_pkt(&keypkt);
         return false;
     }
-
     key->format = PGP_KEY_STORE_GPG;
     return true;
 }
@@ -261,37 +230,8 @@ static void
 pgp_key_clear_revokes(pgp_key_t *key)
 {
     key->revoked = false;
-    for (size_t i = 0; i < pgp_key_get_revoke_count(key); i++) {
-        revoke_free(pgp_key_get_revoke(key, i));
-    }
     key->revokes.clear();
-    revoke_free(&key->revocation);
-    memset(&key->revocation, 0, sizeof(key->revocation));
-}
-
-/**
- * @brief Copy key's raw packets. If pubonly is true then dst->pkt must be populated
- */
-static rnp_result_t
-pgp_key_copy_raw_packets(pgp_key_t *dst, const pgp_key_t *src, bool pubonly)
-{
-    size_t start = 0;
-
-    if (pubonly) {
-        if (!pgp_key_add_key_rawpacket(dst, &dst->pkt)) {
-            return RNP_ERROR_OUT_OF_MEMORY;
-        }
-        start = 1;
-    }
-
-    for (size_t i = start; i < pgp_key_get_rawpacket_count(src); i++) {
-        const pgp_rawpacket_t *pkt = pgp_key_get_rawpacket(src, i);
-        if (!pgp_key_add_rawpacket(dst, pkt->raw, pkt->length, pkt->tag)) {
-            return RNP_ERROR_OUT_OF_MEMORY;
-        }
-    }
-
-    return RNP_SUCCESS;
+    key->revocation = {};
 }
 
 static rnp_result_t
@@ -318,8 +258,10 @@ pgp_key_copy_g10(pgp_key_t *dst, const pgp_key_t *src, bool pubonly)
         return RNP_ERROR_GENERIC;
     }
 
-    if (pgp_key_copy_raw_packets(dst, src, false)) {
-        RNP_LOG("failed to copy raw packets");
+    try {
+        dst->rawpkt = src->rawpkt;
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to copy raw packet: %s", e.what());
         return RNP_ERROR_GENERIC;
     }
 
@@ -339,15 +281,14 @@ pgp_key_copy(pgp_key_t *dst, const pgp_key_t *src, bool pubonly)
         RNP_LOG("failed to copy key pkt");
         return RNP_ERROR_GENERIC;
     }
+    try {
+        dst->rawpkt = pubonly ? pgp_rawpacket_t(dst->pkt) : src->rawpkt;
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to copy key rawpkt: %s", e.what());
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
 
-    rnp_result_t ret;
-    if ((ret = pgp_key_copy_fields(dst, src))) {
-        return ret;
-    }
-    if ((ret = pgp_key_copy_raw_packets(dst, src, pubonly))) {
-        return ret;
-    }
-    return RNP_SUCCESS;
+    return pgp_key_copy_fields(dst, src);
 }
 
 static rnp_result_t
@@ -390,71 +331,20 @@ error:
     return ret;
 }
 
-static rnp_result_t
-pgp_subsig_copy(pgp_subsig_t *dst, const pgp_subsig_t *src)
-{
-    memcpy(dst, src, sizeof(*dst));
-    /* signature packet */
-    if (!copy_signature_packet(&dst->sig, &src->sig)) {
-        memset(dst, 0, sizeof(*dst));
-        return RNP_ERROR_GENERIC;
-    }
-    /* user prefs */
-    if (pgp_userprefs_copy(&dst->prefs, &src->prefs)) {
-        free_signature(&dst->sig);
-        memset(dst, 0, sizeof(*dst));
-        return RNP_ERROR_GENERIC;
-    }
-
-    return RNP_SUCCESS;
-}
-
-static rnp_result_t
-pgp_revoke_copy(pgp_revoke_t *dst, const pgp_revoke_t *src)
-{
-    memcpy(dst, src, sizeof(*dst));
-    if (src->reason) {
-        size_t len = strlen(src->reason) + 1;
-        dst->reason = (char *) malloc(len);
-        if (!dst->reason) {
-            return RNP_ERROR_OUT_OF_MEMORY;
-        }
-        memcpy(dst->reason, src->reason, len);
-    }
-    return RNP_SUCCESS;
-}
-
-static rnp_result_t
-pgp_userid_copy(pgp_userid_t *dst, const pgp_userid_t *src)
-{
-    memset(dst, 0, sizeof(*dst));
-    if (src->str) {
-        dst->str = strdup(src->str);
-        if (!dst->str) {
-            return RNP_ERROR_OUT_OF_MEMORY;
-        }
-    }
-    if (!copy_userid_pkt(&dst->pkt, &src->pkt)) {
-        free(dst->str);
-        dst->str = NULL;
-        return RNP_ERROR_GENERIC;
-    }
-    return RNP_SUCCESS;
-}
-
 rnp_result_t
 pgp_key_copy_fields(pgp_key_t *dst, const pgp_key_t *src)
 {
-    rnp_result_t ret = RNP_ERROR_OUT_OF_MEMORY;
-
     /* uids */
     for (size_t i = 0; i < pgp_key_get_userid_count(src); i++) {
         pgp_userid_t *uid = pgp_key_add_userid(dst);
         if (!uid) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
-        if ((ret = pgp_userid_copy(uid, pgp_key_get_userid(src, i)))) {
-            return ret;
+        try {
+            *uid = *pgp_key_get_userid(src, i);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
+            return RNP_ERROR_OUT_OF_MEMORY;
         }
     }
 
@@ -464,8 +354,11 @@ pgp_key_copy_fields(pgp_key_t *dst, const pgp_key_t *src)
         if (!subsig) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
-        if ((ret = pgp_subsig_copy(subsig, pgp_key_get_subsig(src, i)))) {
-            return ret;
+        try {
+            *subsig = *pgp_key_get_subsig(src, i);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
+            return RNP_ERROR_OUT_OF_MEMORY;
         }
     }
 
@@ -475,23 +368,25 @@ pgp_key_copy_fields(pgp_key_t *dst, const pgp_key_t *src)
         if (!revoke) {
             return RNP_ERROR_OUT_OF_MEMORY;
         }
-        if ((ret = pgp_revoke_copy(revoke, pgp_key_get_revoke(src, i)))) {
-            return ret;
-        }
-    }
-
-    /* subkey grips */
-    for (list_item *grip = list_front(src->subkey_grips); grip; grip = list_next(grip)) {
-        if (!list_append(&dst->subkey_grips, grip, PGP_KEY_GRIP_SIZE)) {
+        try {
+            *revoke = *pgp_key_get_revoke(src, i);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
             return RNP_ERROR_OUT_OF_MEMORY;
         }
     }
 
+    /* subkey grips */
+    try {
+        dst->subkey_grips = src->subkey_grips;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
+
     /* primary grip */
     dst->primary_grip_set = src->primary_grip_set;
-    if (src->primary_grip_set) {
-        pgp_key_set_primary_grip(dst, pgp_key_get_primary_grip(src));
-    }
+    dst->primary_grip = src->primary_grip;
 
     /* expiration */
     dst->expiration = src->expiration;
@@ -502,7 +397,7 @@ pgp_key_copy_fields(pgp_key_t *dst, const pgp_key_t *src)
     /* key id / fingerprint / grip */
     memcpy(dst->keyid, src->keyid, sizeof(dst->keyid));
     memcpy(&dst->fingerprint, &src->fingerprint, sizeof(dst->fingerprint));
-    memcpy(&dst->grip, &src->grip, sizeof(dst->grip));
+    dst->grip = src->grip;
 
     /* primary uid */
     dst->uid0 = src->uid0;
@@ -510,9 +405,11 @@ pgp_key_copy_fields(pgp_key_t *dst, const pgp_key_t *src)
 
     /* revocation */
     dst->revoked = src->revoked;
-    ret = pgp_revoke_copy(&dst->revocation, &src->revocation);
-    if (ret) {
-        return ret;
+    try {
+        dst->revocation = src->revocation;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return RNP_ERROR_OUT_OF_MEMORY;
     }
 
     /* key store format */
@@ -712,17 +609,14 @@ pgp_decrypt_seckey(const pgp_key_t *              key,
                    const pgp_password_provider_t *provider,
                    const pgp_password_ctx_t *     ctx)
 {
-    pgp_key_pkt_t *               decrypted_seckey = NULL;
     typedef struct pgp_key_pkt_t *pgp_seckey_decrypt_t(
       const uint8_t *data, size_t data_len, const pgp_key_pkt_t *pubkey, const char *password);
-    pgp_seckey_decrypt_t * decryptor = NULL;
-    const pgp_rawpacket_t *packet = NULL;
-    char                   password[MAX_PASSWORD_LENGTH] = {0};
+    pgp_seckey_decrypt_t *decryptor = NULL;
 
     // sanity checks
     if (!key || !pgp_key_is_secret(key) || !provider) {
         RNP_LOG("invalid args");
-        goto done;
+        return NULL;
     }
     switch (key->format) {
     case PGP_KEY_STORE_GPG:
@@ -734,25 +628,19 @@ pgp_decrypt_seckey(const pgp_key_t *              key,
         break;
     default:
         RNP_LOG("unexpected format: %d", key->format);
-        goto done;
-        break;
-    }
-    if (!decryptor) {
-        RNP_LOG("missing decrypt callback");
-        goto done;
+        return NULL;
     }
 
-    if (pgp_key_is_protected(key)) {
-        // ask the provider for a password
-        if (!pgp_request_password(provider, ctx, password, sizeof(password))) {
-            goto done;
-        }
+    // ask the provider for a password
+    char password[MAX_PASSWORD_LENGTH] = {0};
+    if (pgp_key_is_protected(key) &&
+        !pgp_request_password(provider, ctx, password, sizeof(password))) {
+        return NULL;
     }
     // attempt to decrypt with the provided password
-    packet = pgp_key_get_rawpacket(key, 0);
-    decrypted_seckey = decryptor(packet->raw, packet->length, pgp_key_get_pkt(key), password);
-
-done:
+    const pgp_rawpacket_t &pkt = pgp_key_get_rawpacket(key);
+    pgp_key_pkt_t *        decrypted_seckey =
+      decryptor(pkt.raw.data(), pkt.raw.size(), pgp_key_get_pkt(key), password);
     pgp_forget(password, sizeof(password));
     return decrypted_seckey;
 }
@@ -769,22 +657,28 @@ pgp_key_get_fp(const pgp_key_t *key)
     return &key->fingerprint;
 }
 
-const uint8_t *
+const pgp_key_grip_t &
 pgp_key_get_grip(const pgp_key_t *key)
 {
     return key->grip;
 }
 
-const uint8_t *
+const pgp_key_grip_t &
 pgp_key_get_primary_grip(const pgp_key_t *key)
 {
-    return key->primary_grip_set ? key->primary_grip : NULL;
+    return key->primary_grip;
+}
+
+bool
+pgp_key_has_primary_grip(const pgp_key_t *key)
+{
+    return key->primary_grip_set;
 }
 
 void
-pgp_key_set_primary_grip(pgp_key_t *key, const uint8_t *grip)
+pgp_key_set_primary_grip(pgp_key_t *key, const pgp_key_grip_t &grip)
 {
-    memcpy(key->primary_grip, grip, PGP_KEY_GRIP_SIZE);
+    key->primary_grip = grip;
     key->primary_grip_set = true;
 }
 
@@ -833,7 +727,7 @@ bool
 pgp_key_has_userid(const pgp_key_t *key, const char *uid)
 {
     for (auto &userid : key->uids) {
-        if (!strcmp(uid, userid.str)) {
+        if (userid.str == uid) {
             return true;
         }
     }
@@ -845,7 +739,8 @@ pgp_key_add_userid(pgp_key_t *key)
 {
     try {
         key->uids.push_back({});
-    } catch (...) {
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
         return NULL;
     }
     return &key->uids.back();
@@ -856,7 +751,8 @@ pgp_key_add_revoke(pgp_key_t *key)
 {
     try {
         key->revokes.push_back({});
-    } catch (...) {
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
         return NULL;
     }
     return &key->revokes.back();
@@ -885,7 +781,8 @@ pgp_key_add_subsig(pgp_key_t *key)
 {
     try {
         key->subsigs.push_back({});
-    } catch (...) {
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
         return NULL;
     }
     return &key->subsigs.back();
@@ -909,78 +806,60 @@ pgp_key_get_subsig(pgp_key_t *key, size_t idx)
     return (idx < key->subsigs.size()) ? &key->subsigs[idx] : NULL;
 }
 
-static bool
-pgp_signature_to_rawpacket(pgp_rawpacket_t *pkt, const pgp_signature_t *sig)
-{
-    pgp_dest_t dst = {};
-
-    if (init_mem_dest(&dst, NULL, 0)) {
-        return false;
-    }
-    if (!stream_write_signature(sig, &dst)) {
-        dst_close(&dst, true);
-        return false;
-    }
-
-    pkt->tag = PGP_PKT_SIGNATURE;
-    pkt->length = dst.writeb;
-    pkt->raw = (uint8_t *) mem_dest_own_memory(&dst);
-    dst_close(&dst, true);
-    return true;
-}
-
 bool
-pgp_subsig_from_signature(pgp_subsig_t *subsig, const pgp_signature_t *sig)
+pgp_subsig_from_signature(pgp_subsig_t *dst, const pgp_signature_t *sig)
 {
+    pgp_subsig_t subsig = {};
+    if (!copy_signature_packet(&subsig.sig, sig)) {
+        return false;
+    }
+    if (signature_has_trust(&subsig.sig)) {
+        signature_get_trust(&subsig.sig, &subsig.trustlevel, &subsig.trustamount);
+    }
     uint8_t *algs = NULL;
     size_t   count = 0;
-
-    memset(subsig, 0, sizeof(*subsig));
-
-    if (!copy_signature_packet(&subsig->sig, sig)) {
+    if (signature_get_preferred_symm_algs(&subsig.sig, &algs, &count) &&
+        !pgp_user_prefs_set_symm_algs(&subsig.prefs, algs, count)) {
+        RNP_LOG("failed to alloc symm algs");
         return false;
     }
-    if (signature_has_trust(&subsig->sig)) {
-        signature_get_trust(&subsig->sig, &subsig->trustlevel, &subsig->trustamount);
-    }
-    if (signature_get_preferred_symm_algs(&subsig->sig, &algs, &count) &&
-        !pgp_user_prefs_set_symm_algs(&subsig->prefs, algs, count)) {
-        RNP_LOG("failed to alloc symm algs");
-        goto error;
-    }
-    if (signature_get_preferred_hash_algs(&subsig->sig, &algs, &count) &&
-        !pgp_user_prefs_set_hash_algs(&subsig->prefs, algs, count)) {
+    if (signature_get_preferred_hash_algs(&subsig.sig, &algs, &count) &&
+        !pgp_user_prefs_set_hash_algs(&subsig.prefs, algs, count)) {
         RNP_LOG("failed to alloc hash algs");
-        goto error;
+        return false;
     }
-    if (signature_get_preferred_z_algs(&subsig->sig, &algs, &count) &&
-        !pgp_user_prefs_set_z_algs(&subsig->prefs, algs, count)) {
+    if (signature_get_preferred_z_algs(&subsig.sig, &algs, &count) &&
+        !pgp_user_prefs_set_z_algs(&subsig.prefs, algs, count)) {
         RNP_LOG("failed to alloc z algs");
-        goto error;
+        return false;
     }
-    if (signature_has_key_flags(&subsig->sig)) {
-        subsig->key_flags = signature_get_key_flags(&subsig->sig);
+    if (signature_has_key_flags(&subsig.sig)) {
+        subsig.key_flags = signature_get_key_flags(&subsig.sig);
     }
-    if (signature_has_key_server_prefs(&subsig->sig)) {
-        uint8_t ks_pref = signature_get_key_server_prefs(&subsig->sig);
-        if (!pgp_user_prefs_set_ks_prefs(&subsig->prefs, &ks_pref, 1)) {
+    if (signature_has_key_server_prefs(&subsig.sig)) {
+        uint8_t ks_pref = signature_get_key_server_prefs(&subsig.sig);
+        if (!pgp_user_prefs_set_ks_prefs(&subsig.prefs, &ks_pref, 1)) {
             RNP_LOG("failed to alloc ks prefs");
-            goto error;
+            return false;
         }
     }
-    if (signature_has_key_server(&subsig->sig)) {
-        subsig->prefs.key_server = (uint8_t *) signature_get_key_server(&subsig->sig);
-        if (!subsig->prefs.key_server) {
+    if (signature_has_key_server(&subsig.sig)) {
+        subsig.prefs.key_server = (uint8_t *) signature_get_key_server(&subsig.sig);
+        if (!subsig.prefs.key_server) {
             RNP_LOG("failed to alloc ks");
-            goto error;
+            return false;
         }
+    }
+    /* add signature rawpacket */
+    try {
+        subsig.rawpkt = pgp_rawpacket_t(*sig);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to build sig rawpacket: %s", e.what());
+        return false;
     }
 
+    *dst = std::move(subsig);
     return true;
-error:
-    pgp_subsig_free(subsig);
-    memset(subsig, 0, sizeof(*subsig));
-    return false;
 }
 
 bool
@@ -993,32 +872,6 @@ pgp_key_has_signature(const pgp_key_t *key, const pgp_signature_t *sig)
         }
     }
 
-    return false;
-}
-
-static bool
-pgp_key_replace_rawpacket(pgp_key_t *key, pgp_rawpacket_t *oldpkt, pgp_rawpacket_t *newpkt)
-{
-    for (size_t i = 0; i < pgp_key_get_rawpacket_count(key); i++) {
-        pgp_rawpacket_t *curpkt = pgp_key_get_rawpacket(key, i);
-        if ((curpkt->length != oldpkt->length) || (curpkt->tag != oldpkt->tag)) {
-            continue;
-        }
-        if (memcmp(curpkt->raw, oldpkt->raw, curpkt->length)) {
-            continue;
-        }
-        pgp_rawpacket_t pktcp = {};
-        pktcp = *newpkt;
-        pktcp.raw = (uint8_t *) malloc(newpkt->length);
-        if (!pktcp.raw) {
-            RNP_LOG("allocation failed");
-            return false;
-        }
-        memcpy(pktcp.raw, newpkt->raw, newpkt->length);
-        pgp_rawpacket_free(curpkt);
-        *curpkt = pktcp;
-        return true;
-    }
     return false;
 }
 
@@ -1038,37 +891,32 @@ pgp_key_replace_signature(pgp_key_t *key, pgp_signature_t *oldsig, pgp_signature
     }
 
     /* create rawpackets here since oldsig may be equal to subsig */
-    pgp_rawpacket_t oldraw = {};
-    if (!pgp_signature_to_rawpacket(&oldraw, oldsig)) {
-        RNP_LOG("failed to create old rawpacket");
-        return NULL;
-    }
-    pgp_rawpacket_t newraw = {};
-    if (!pgp_signature_to_rawpacket(&newraw, newsig)) {
-        RNP_LOG("failed to create new rawpacket");
-        pgp_rawpacket_free(&oldraw);
+    pgp_rawpacket_t oldraw;
+    pgp_rawpacket_t newraw;
+    try {
+        oldraw = *oldsig;
+        newraw = *newsig;
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to create rawpacket: %s", e.what());
         return NULL;
     }
 
-    /* replace subsig itself */
+    /* fill new subsig */
     pgp_subsig_t newsubsig = {};
     if (!pgp_subsig_from_signature(&newsubsig, newsig)) {
         RNP_LOG("failed to fill subsig");
-        subsig = NULL;
-        goto done;
+        return NULL;
     }
     newsubsig.uid = subsig->uid;
-    pgp_subsig_free(subsig);
-    *subsig = newsubsig;
-
     /* replace rawpacket */
-    if (!pgp_key_replace_rawpacket(key, &oldraw, &newraw)) {
-        RNP_LOG("failed to replace rawpacket");
-        subsig = NULL;
+    try {
+        newsubsig.rawpkt = pgp_rawpacket_t(*newsig);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to replace rawpacket: %s", e.what());
+        return NULL;
     }
-done:
-    pgp_rawpacket_free(&oldraw);
-    pgp_rawpacket_free(&newraw);
+
+    *subsig = std::move(newsubsig);
     return subsig;
 }
 
@@ -1314,12 +1162,24 @@ pgp_subkey_refresh_data(pgp_key_t *sub, pgp_key_t *key)
             continue;
         }
         sub->revoked = true;
-        signature_get_revocation_reason(
-          &sig->sig, &sub->revocation.code, &sub->revocation.reason);
-        if (!strlen(sub->revocation.reason)) {
-            free(sub->revocation.reason);
-            sub->revocation.reason =
-              strdup(pgp_str_from_map(sub->revocation.code, ss_rr_code_map));
+        char *reason = NULL;
+        if (!signature_has_revocation_reason(&sig->sig)) {
+            RNP_LOG("Warning: no revocation reason in subkey revocation");
+            sub->revocation.code = PGP_REVOCATION_NO_REASON;
+        } else if (!signature_get_revocation_reason(
+                     &sig->sig, &sub->revocation.code, &reason)) {
+            return false;
+        }
+
+        try {
+            sub->revocation.reason = (reason && strlen(reason)) ?
+                                       reason :
+                                       pgp_str_from_map(sub->revocation.code, ss_rr_code_map);
+            free(reason);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
+            free(reason);
+            return false;
         }
         break;
     }
@@ -1384,148 +1244,88 @@ pgp_key_refresh_data(pgp_key_t *key)
             continue;
         }
 
-        signature_get_revocation_reason(&sig->sig, &revocation->code, &revocation->reason);
-        if (!strlen(revocation->reason)) {
-            free(revocation->reason);
-            revocation->reason = strdup(pgp_str_from_map(revocation->code, ss_rr_code_map));
+        char *reason = NULL;
+        if (!signature_has_revocation_reason(&sig->sig)) {
+            RNP_LOG("Warning: no revocation reason in key/userid revocation");
+            revocation->code = PGP_REVOCATION_NO_REASON;
+        } else if (!signature_get_revocation_reason(&sig->sig, &revocation->code, &reason)) {
+            return false;
+        }
+
+        try {
+            revocation->reason = (reason && strlen(reason)) ?
+                                   reason :
+                                   pgp_str_from_map(revocation->code, ss_rr_code_map);
+            free(reason);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
+            free(reason);
+            return false;
         }
     }
 
     return true;
 }
 
-pgp_rawpacket_t *
-pgp_key_add_rawpacket(pgp_key_t *key, void *data, size_t len, pgp_pkt_type_t tag)
-{
-    pgp_rawpacket_t *packet;
-
-    try {
-        key->packets.push_back({});
-        packet = &key->packets.back();
-    } catch (...) {
-        return NULL;
-    }
-
-    if (data) {
-        if (!(packet->raw = (uint8_t *) malloc(len))) {
-            key->packets.pop_back();
-            return NULL;
-        }
-        memcpy(packet->raw, data, len);
-    }
-    packet->length = len;
-    packet->tag = tag;
-    return packet;
-}
-
-static pgp_rawpacket_t *
-pgp_key_add_stream_rawpacket(pgp_key_t *key, pgp_pkt_type_t tag, pgp_dest_t *memdst)
-{
-    pgp_rawpacket_t *res =
-      pgp_key_add_rawpacket(key, mem_dest_get_memory(memdst), memdst->writeb, tag);
-    if (!res) {
-        RNP_LOG("Failed to add packet");
-    }
-    dst_close(memdst, true);
-    return res;
-}
-
-pgp_rawpacket_t *
-pgp_key_add_key_rawpacket(pgp_key_t *key, pgp_key_pkt_t *pkt)
-{
-    pgp_dest_t dst = {};
-
-    if (init_mem_dest(&dst, NULL, 0)) {
-        return NULL;
-    }
-    if (!stream_write_key(pkt, &dst)) {
-        dst_close(&dst, true);
-        return NULL;
-    }
-    return pgp_key_add_stream_rawpacket(key, (pgp_pkt_type_t) pkt->tag, &dst);
-}
-
-pgp_rawpacket_t *
-pgp_key_add_sig_rawpacket(pgp_key_t *key, const pgp_signature_t *pkt)
-{
-    pgp_rawpacket_t rawpkt = {};
-    if (!pgp_signature_to_rawpacket(&rawpkt, pkt)) {
-        return NULL;
-    }
-    try {
-        key->packets.push_back(rawpkt);
-        return &key->packets.back();
-    } catch (...) {
-        pgp_rawpacket_free(&rawpkt);
-        return NULL;
-    }
-}
-
-pgp_rawpacket_t *
-pgp_key_add_uid_rawpacket(pgp_key_t *key, const pgp_userid_pkt_t *pkt)
-{
-    pgp_dest_t dst = {};
-
-    if (init_mem_dest(&dst, NULL, 0)) {
-        return NULL;
-    }
-    if (!stream_write_userid(pkt, &dst)) {
-        dst_close(&dst, true);
-        return NULL;
-    }
-    return pgp_key_add_stream_rawpacket(key, (pgp_pkt_type_t) pkt->tag, &dst);
-}
-
 size_t
 pgp_key_get_rawpacket_count(const pgp_key_t *key)
 {
-    return key->packets.size();
+    if (key->format == PGP_KEY_STORE_G10) {
+        return 1;
+    }
+    return 1 + key->uids.size() + key->subsigs.size();
 }
 
-const pgp_rawpacket_t *
-pgp_key_get_rawpacket(const pgp_key_t *key, size_t idx)
+pgp_rawpacket_t &
+pgp_key_get_rawpacket(pgp_key_t *key)
 {
-    return (idx < key->packets.size()) ? &key->packets[idx] : NULL;
+    return key->rawpkt;
 }
-
-pgp_rawpacket_t *
-pgp_key_get_rawpacket(pgp_key_t *key, size_t idx)
+const pgp_rawpacket_t &
+pgp_key_get_rawpacket(const pgp_key_t *key)
 {
-    return (idx < key->packets.size()) ? &key->packets[idx] : NULL;
+    return key->rawpkt;
 }
 
 size_t
 pgp_key_get_subkey_count(const pgp_key_t *key)
 {
-    return list_length(key->subkey_grips);
+    return key->subkey_grips.size();
 }
 
 bool
-pgp_key_add_subkey_grip(pgp_key_t *key, const uint8_t *grip)
+pgp_key_add_subkey_grip(pgp_key_t *key, const pgp_key_grip_t &grip)
 {
-    for (list_item *li = list_front(key->subkey_grips); li; li = list_next(li)) {
-        if (!memcmp(grip, (uint8_t *) li, PGP_KEY_GRIP_SIZE)) {
-            return true;
-        }
+    if (std::find(key->subkey_grips.begin(), key->subkey_grips.end(), grip) !=
+        key->subkey_grips.end()) {
+        return true;
     }
 
-    return list_append(&key->subkey_grips, grip, PGP_KEY_GRIP_SIZE);
+    try {
+        key->subkey_grips.push_back(grip);
+        return true;
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return false;
+    }
 }
 
-const uint8_t *
+const pgp_key_grip_t &
 pgp_key_get_subkey_grip(const pgp_key_t *key, size_t idx)
 {
-    return (uint8_t *) list_at(key->subkey_grips, idx);
+    return key->subkey_grips[idx];
 }
 
 pgp_key_t *
-pgp_key_get_subkey(const pgp_key_t *key, const rnp_key_store_t *store, size_t idx)
+pgp_key_get_subkey(const pgp_key_t *key, rnp_key_store_t *store, size_t idx)
 {
-    uint8_t *grip = (uint8_t *) list_at(key->subkey_grips, idx);
-    if (!grip) {
+    try {
+        const pgp_key_grip_t &grip = pgp_key_get_subkey_grip(key, idx);
+        return rnp_key_store_get_key_by_grip(store, grip);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
         return NULL;
     }
-    return rnp_key_store_get_key_by_grip(store, grip);
 }
 
 pgp_key_flags_t
@@ -1651,7 +1451,7 @@ done:
 
 static bool
 write_key_to_rawpacket(pgp_key_pkt_t *        seckey,
-                       pgp_rawpacket_t *      packet,
+                       pgp_rawpacket_t &      packet,
                        pgp_pkt_type_t         type,
                        pgp_key_store_format_t format,
                        const char *           password)
@@ -1681,13 +1481,15 @@ write_key_to_rawpacket(pgp_key_pkt_t *        seckey,
     default:
         RNP_LOG("invalid format");
         goto done;
-        break;
     }
-    // free the existing data if needed
-    pgp_rawpacket_free(packet);
-    // take ownership of this memory
-    packet->raw = (uint8_t *) mem_dest_own_memory(&memdst);
-    packet->length = memdst.writeb;
+
+    try {
+        uint8_t *mem = (uint8_t *) mem_dest_get_memory(&memdst);
+        packet = pgp_rawpacket_t(mem, memdst.writeb, type);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        goto done;
+    }
     ret = true;
 done:
     dst_close(&memdst, true);
@@ -1777,9 +1579,9 @@ pgp_key_protect(pgp_key_t *                  key,
     seckey->sec_protection.s2k.iterations = pgp_s2k_round_iterations(protection->iterations);
     seckey->sec_protection.s2k.hash_alg = protection->hash_alg;
 
-    // write the protected key to packets[0]
+    // write the protected key to raw packet
     if (!write_key_to_rawpacket(decrypted_seckey,
-                                pgp_key_get_rawpacket(key, 0),
+                                pgp_key_get_rawpacket(key),
                                 pgp_key_get_type(key),
                                 format,
                                 new_password)) {
@@ -1826,7 +1628,7 @@ pgp_key_unprotect(pgp_key_t *key, const pgp_password_provider_t *password_provid
     }
     seckey->sec_protection.s2k.usage = PGP_S2KU_NONE;
     if (!write_key_to_rawpacket(
-          seckey, pgp_key_get_rawpacket(key, 0), pgp_key_get_type(key), key->format, NULL)) {
+          seckey, pgp_key_get_rawpacket(key), pgp_key_get_type(key), key->format, NULL)) {
         goto done;
     }
     if (decrypted_seckey) {
@@ -2036,58 +1838,51 @@ done:
     return res;
 }
 
+static size_t
+pgp_key_write_signatures(pgp_dest_t *dst, const pgp_key_t *key, uint32_t uid, size_t start)
+{
+    for (size_t i = start; i < pgp_key_get_subsig_count(key); i++) {
+        const pgp_subsig_t *sig = pgp_key_get_subsig(key, i);
+        if (sig->uid != uid) {
+            return i;
+        }
+        dst_write(dst, sig->rawpkt.raw.data(), sig->rawpkt.raw.size());
+    }
+    return pgp_key_get_subsig_count(key);
+}
+
 bool
 pgp_key_write_packets(const pgp_key_t *key, pgp_dest_t *dst)
 {
     if (!pgp_key_get_rawpacket_count(key)) {
         return false;
     }
-    for (size_t i = 0; i < pgp_key_get_rawpacket_count(key); i++) {
-        const pgp_rawpacket_t *pkt = pgp_key_get_rawpacket(key, i);
-        if (!pkt->raw || !pkt->length) {
-            return false;
-        }
-        dst_write(dst, pkt->raw, pkt->length);
-        if (dst->werr) {
-            return false;
-        }
+    /* write key rawpacket */
+    const pgp_rawpacket_t &pkt = pgp_key_get_rawpacket(key);
+    dst_write(dst, pkt.raw.data(), pkt.raw.size());
+
+    if (key->format == PGP_KEY_STORE_G10) {
+        return !dst->werr;
     }
-    return true;
+
+    /* write signatures on key */
+    size_t idx = pgp_key_write_signatures(dst, key, (uint32_t) -1, 0);
+
+    /* write uids and their signatures */
+    for (size_t i = 0; i < pgp_key_get_userid_count(key); i++) {
+        const pgp_userid_t *uid = pgp_key_get_userid(key, i);
+        dst_write(dst, uid->rawpkt.raw.data(), uid->rawpkt.raw.size());
+        idx = pgp_key_write_signatures(dst, key, i, idx);
+    }
+    return !dst->werr;
 }
 
-static bool
-packet_matches(pgp_pkt_type_t tag, bool secret)
+bool
+pgp_key_write_xfer(pgp_dest_t *dst, const pgp_key_t *key, const rnp_key_store_t *keyring)
 {
-    switch (tag) {
-    case PGP_PKT_SIGNATURE:
-    case PGP_PKT_USER_ID:
-    case PGP_PKT_USER_ATTR:
-        return true;
-    case PGP_PKT_PUBLIC_KEY:
-    case PGP_PKT_PUBLIC_SUBKEY:
-        return !secret;
-    case PGP_PKT_SECRET_KEY:
-    case PGP_PKT_SECRET_SUBKEY:
-        return secret;
-    default:
+    if (!pgp_key_write_packets(key, dst)) {
+        RNP_LOG("Failed to export primary key");
         return false;
-    }
-}
-
-static bool
-write_xfer_packets(pgp_dest_t *           dst,
-                   const pgp_key_t *      key,
-                   const rnp_key_store_t *keyring,
-                   bool                   secret)
-{
-    for (size_t i = 0; i < pgp_key_get_rawpacket_count(key); i++) {
-        const pgp_rawpacket_t *pkt = pgp_key_get_rawpacket(key, i);
-
-        if (!packet_matches(pkt->tag, secret)) {
-            RNP_LOG("skipping packet with tag: %d", pkt->tag);
-            continue;
-        }
-        dst_write(dst, pkt->raw, (size_t) pkt->length);
     }
 
     if (!keyring) {
@@ -2095,24 +1890,21 @@ write_xfer_packets(pgp_dest_t *           dst,
     }
 
     // Export subkeys
-    for (list_item *grip = list_front(key->subkey_grips); grip; grip = list_next(grip)) {
-        const pgp_key_t *subkey = rnp_key_store_get_key_by_grip(keyring, (uint8_t *) grip);
-        if (!write_xfer_packets(dst, subkey, NULL, secret)) {
+    for (auto &grip : key->subkey_grips) {
+        const pgp_key_t *subkey = rnp_key_store_get_key_by_grip(keyring, grip);
+        if (!subkey) {
+            char griphex[PGP_KEY_GRIP_SIZE * 2 + 1] = {0};
+            rnp_hex_encode(
+              grip.data(), grip.size(), griphex, sizeof(griphex), RNP_HEX_LOWERCASE);
+            RNP_LOG("Warning! Subkey %s not found.", griphex);
+            continue;
+        }
+        if (!pgp_key_write_packets(subkey, dst)) {
             RNP_LOG("Error occured when exporting a subkey");
             return false;
         }
     }
-
     return !dst->werr;
-}
-
-bool
-pgp_key_write_xfer(pgp_dest_t *dst, const pgp_key_t *key, const rnp_key_store_t *keyring)
-{
-    if (!pgp_key_get_rawpacket_count(key)) {
-        return false;
-    }
-    return write_xfer_packets(dst, key, keyring, pgp_key_is_secret(key));
 }
 
 pgp_key_t *
@@ -2128,17 +1920,15 @@ find_suitable_key(pgp_op_t            op,
     if (pgp_key_get_flags(key) & desired_usage) {
         return key;
     }
-    list_item *           subkey_grip = list_front(key->subkey_grips);
     pgp_key_request_ctx_t ctx{.op = op, .secret = pgp_key_is_secret(key)};
     ctx.search.type = PGP_KEY_SEARCH_GRIP;
 
-    while (subkey_grip) {
-        memcpy(ctx.search.by.grip, subkey_grip, PGP_KEY_GRIP_SIZE);
+    for (auto &grip : key->subkey_grips) {
+        ctx.search.by.grip = grip;
         pgp_key_t *subkey = pgp_request_key(key_provider, &ctx);
         if (subkey && (pgp_key_get_flags(subkey) & desired_usage)) {
             return subkey;
         }
-        subkey_grip = list_next(subkey_grip);
     }
     return NULL;
 }
@@ -2293,8 +2083,8 @@ pgp_key_revalidate_updated(pgp_key_t *key, rnp_key_store_t *keyring)
 
     pgp_key_validate(key, keyring);
     /* validate/re-validate all subkeys as well */
-    for (list_item *grip = list_front(key->subkey_grips); grip; grip = list_next(grip)) {
-        pgp_key_t *subkey = rnp_key_store_get_key_by_grip(keyring, (uint8_t *) grip);
+    for (auto &grip : key->subkey_grips) {
+        pgp_key_t *subkey = rnp_key_store_get_key_by_grip(keyring, grip);
         if (subkey) {
             pgp_key_validate_subkey(subkey, key);
             pgp_subkey_refresh_data(subkey, key);
@@ -2306,25 +2096,176 @@ pgp_key_revalidate_updated(pgp_key_t *key, rnp_key_store_t *keyring)
     }
 }
 
+static void
+mem_dest_to_vector(pgp_dest_t *dst, std::vector<uint8_t> &vec)
+{
+    uint8_t *mem = (uint8_t *) mem_dest_get_memory(dst);
+    try {
+        vec = std::vector<uint8_t>(mem, mem + dst->writeb);
+        dst_close(dst, true);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        dst_close(dst, true);
+        throw;
+    }
+}
+
+pgp_rawpacket_t::pgp_rawpacket_t(const pgp_signature_t &sig)
+{
+    pgp_dest_t dst = {};
+
+    if (init_mem_dest(&dst, NULL, 0)) {
+        throw std::bad_alloc();
+    }
+
+    if (!stream_write_signature(&sig, &dst)) {
+        dst_close(&dst, true);
+        throw std::bad_alloc();
+    }
+
+    mem_dest_to_vector(&dst, raw);
+    tag = PGP_PKT_SIGNATURE;
+}
+
+pgp_rawpacket_t::pgp_rawpacket_t(pgp_key_pkt_t &key)
+{
+    pgp_dest_t dst = {};
+
+    if (init_mem_dest(&dst, NULL, 0)) {
+        throw std::bad_alloc();
+    }
+
+    if (!stream_write_key(&key, &dst)) {
+        dst_close(&dst, true);
+        throw std::bad_alloc();
+    }
+
+    mem_dest_to_vector(&dst, raw);
+    tag = key.tag;
+}
+
+pgp_rawpacket_t::pgp_rawpacket_t(const pgp_userid_pkt_t &uid)
+{
+    pgp_dest_t dst = {};
+
+    if (init_mem_dest(&dst, NULL, 0)) {
+        throw std::bad_alloc();
+    }
+
+    if (!stream_write_userid(&uid, &dst)) {
+        dst_close(&dst, true);
+        throw std::bad_alloc();
+    }
+
+    mem_dest_to_vector(&dst, raw);
+    tag = uid.tag;
+}
+
+pgp_rawpacket_t::~pgp_rawpacket_t()
+{
+}
+
+pgp_subsig_t::pgp_subsig_t(pgp_subsig_t &&src)
+{
+    uid = src.uid;
+    sig = src.sig;
+    src.sig = {};
+    rawpkt = std::move(src.rawpkt);
+    trustlevel = src.trustlevel;
+    trustamount = src.trustamount;
+    key_flags = src.key_flags;
+    prefs = src.prefs;
+    src.prefs = {};
+    validated = src.validated;
+    valid = src.valid;
+}
+
+pgp_subsig_t &
+pgp_subsig_t::operator=(pgp_subsig_t &&src)
+{
+    if (&src == this) {
+        return *this;
+    }
+
+    pgp_free_user_prefs(&prefs);
+    free_signature(&sig);
+    uid = src.uid;
+    sig = src.sig;
+    src.sig = {};
+    rawpkt = std::move(src.rawpkt);
+    trustlevel = src.trustlevel;
+    trustamount = src.trustamount;
+    key_flags = src.key_flags;
+    prefs = src.prefs;
+    src.prefs = {};
+    validated = src.validated;
+    valid = src.valid;
+    return *this;
+}
+
+pgp_subsig_t &
+pgp_subsig_t::operator=(const pgp_subsig_t &src)
+{
+    if (&src == this) {
+        return *this;
+    }
+
+    pgp_free_user_prefs(&prefs);
+    free_signature(&sig);
+    uid = src.uid;
+    if (!copy_signature_packet(&sig, &src.sig)) {
+        throw std::bad_alloc();
+    }
+    rawpkt = src.rawpkt;
+    trustlevel = src.trustlevel;
+    trustamount = src.trustamount;
+    key_flags = src.key_flags;
+    if (pgp_userprefs_copy(&prefs, &src.prefs)) {
+        throw std::bad_alloc();
+    }
+    validated = src.validated;
+    valid = src.valid;
+    return *this;
+}
+
+pgp_subsig_t::~pgp_subsig_t()
+{
+    pgp_free_user_prefs(&prefs);
+    free_signature(&sig);
+}
+
+pgp_userid_t::pgp_userid_t(pgp_userid_t &&src)
+{
+    str = std::move(src.str);
+    pkt = src.pkt;
+    src.pkt = {};
+    rawpkt = std::move(src.rawpkt);
+}
+
+pgp_userid_t &
+pgp_userid_t::operator=(const pgp_userid_t &src)
+{
+    if (&src == this) {
+        return *this;
+    }
+
+    free_userid_pkt(&pkt);
+    if (!copy_userid_pkt(&pkt, &src.pkt)) {
+        throw std::bad_alloc();
+    }
+    rawpkt = src.rawpkt;
+    str = src.str;
+    return *this;
+}
+
+pgp_userid_t::~pgp_userid_t()
+{
+    free_userid_pkt(&pkt);
+}
+
 pgp_key_t::~pgp_key_t()
 {
-    for (size_t n = 0; n < pgp_key_get_userid_count(this); ++n) {
-        pgp_userid_free(pgp_key_get_userid(this, n));
-    }
-    this->uids.clear();
-
-    for (size_t n = 0; n < pgp_key_get_rawpacket_count(this); ++n) {
-        pgp_rawpacket_free(pgp_key_get_rawpacket(this, n));
-    }
-    this->packets.clear();
-
-    for (size_t n = 0; n < pgp_key_get_subsig_count(this); n++) {
-        pgp_subsig_free(pgp_key_get_subsig(this, n));
-    }
-    this->subsigs.clear();
-
     pgp_key_clear_revokes(this);
-    list_destroy(&this->subkey_grips);
     free_key_pkt(&this->pkt);
 }
 
@@ -2334,38 +2275,23 @@ pgp_key_t::operator=(pgp_key_t &&src)
     if (&src == this) {
         return *this;
     }
-    /* need to manually free elements until destructor provided */
-    for (auto uid : uids) {
-        pgp_userid_free(&uid);
-    }
-    uids.clear();
     uids = std::move(src.uids);
-    for (auto packet : packets) {
-        pgp_rawpacket_free(&packet);
-    }
-    packets.clear();
-    packets = std::move(src.packets);
-    for (auto subsig : subsigs) {
-        pgp_subsig_free(&subsig);
-    }
-    subsigs.clear();
     subsigs = std::move(src.subsigs);
     pgp_key_clear_revokes(this);
     revokes = std::move(src.revokes);
 
-    list_destroy(&subkey_grips);
-    subkey_grips = src.subkey_grips;
-    src.subkey_grips = NULL;
-    memcpy(primary_grip, src.primary_grip, sizeof(primary_grip));
+    subkey_grips = std::move(src.subkey_grips);
+    primary_grip = std::move(src.primary_grip);
     primary_grip_set = src.primary_grip_set;
     expiration = src.expiration;
     free_key_pkt(&pkt);
     pkt = src.pkt;
     src.pkt = {};
+    rawpkt = std::move(src.rawpkt);
     key_flags = src.key_flags;
     memcpy(keyid, src.keyid, sizeof(keyid));
     fingerprint = src.fingerprint;
-    memcpy(grip, src.grip, sizeof(grip));
+    grip = std::move(src.grip);
     uid0 = src.uid0;
     uid0_set = src.uid0_set;
     revoked = src.revoked;

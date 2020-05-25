@@ -738,6 +738,8 @@ def setup(loglvl):
     RNPK = os.getenv('RNP_TESTS_RNPKEYS_PATH') or 'rnpkeys'
     os.mkdir(RNPDIR, 0o700)
 
+    os.environ["RNP_LOG_CONSOLE"] = "1"
+
     GPGDIR = path.join(WORKDIR, '.gpg')
     GPGHOME = path_for_gpg(GPGDIR) if is_windows() else GPGDIR
     GPG = os.getenv('RNP_TESTS_GPG_PATH') or find_utility('gpg')
@@ -1604,6 +1606,79 @@ class Misc(unittest.TestCase):
             raise_err('json all listing failed', err)
         compare_file_ex(data_path('test_list_packets/list_json_all.txt'), out,
                         'json all listing mismatch')
+        return
+
+    def test_rnp_list_packets(self):
+        # List empty key packets
+        params = ['--list-packets', data_path('test_key_edge_cases/key-empty-packets.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret == 0:
+            raise_err('packet listing not failed', err)
+        compare_file_ex(data_path('test_key_edge_cases/key-empty-packets.txt'), out,
+                        'key-empty-packets listing mismatch')
+        
+        # List empty key packets json
+        params = ['--list-packets', '--json', data_path('test_key_edge_cases/key-empty-packets.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret == 0:
+            raise_err('packet listing not failed', err)
+
+        # List empty uid
+        params = ['--list-packets', data_path('test_key_edge_cases/key-empty-uid.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret != 0:
+            raise_err('packet listing failed', err)
+        compare_file_ex(data_path('test_key_edge_cases/key-empty-uid.txt'), out,
+                        'key-empty-uid listing mismatch')
+
+        # List empty uid with raw packet contents
+        params = ['--list-packets', '--raw', data_path('test_key_edge_cases/key-empty-uid.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret != 0:
+            raise_err('packet listing failed', err)
+        compare_file_ex(data_path('test_key_edge_cases/key-empty-uid-raw.txt'), out,
+                        'key-empty-uid-raw listing mismatch')
+
+        # List empty uid packet contents to JSON
+        params = ['--list-packets', '--json', data_path('test_key_edge_cases/key-empty-uid.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret != 0:
+            raise_err('packet listing failed', err)
+        compare_file_ex(data_path('test_key_edge_cases/key-empty-uid.json'), out,
+                        'key-empty-uid json listing mismatch')
+
+        # List experimental subpackets
+        params = ['--list-packets', data_path('test_key_edge_cases/key-subpacket-101-110.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret != 0:
+            raise_err('packet listing failed', err)
+        compare_file_ex(data_path('test_key_edge_cases/key-subpacket-101-110.txt'), out,
+                        'key-subpacket-101-110 listing mismatch')
+
+        # List experimental subpackets JSON
+        params = ['--list-packets', '--json', data_path('test_key_edge_cases/key-subpacket-101-110.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret != 0:
+            raise_err('packet listing failed', err)
+        compare_file_ex(data_path('test_key_edge_cases/key-subpacket-101-110.json'), out,
+                        'key-subpacket-101-110 json listing mismatch')
+
+        # List malformed signature
+        params = ['--list-packets', data_path('test_key_edge_cases/key-malf-sig.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret != 0:
+            raise_err('packet listing failed', err)
+        compare_file_ex(data_path('test_key_edge_cases/key-malf-sig.txt'), out,
+                        'key-malf-sig listing mismatch')
+
+        # List malformed signature JSON
+        params = ['--list-packets', '--json', data_path('test_key_edge_cases/key-malf-sig.pgp')]
+        ret, out, err = run_proc(RNP, params)
+        if ret != 0:
+            raise_err('packet listing failed', err)
+        compare_file_ex(data_path('test_key_edge_cases/key-malf-sig.json'), out,
+                        'key-malf-sig json listing mismatch')
+
         return
 
     def test_debug_log(self):

@@ -35,6 +35,9 @@
 #include <stdbool.h>
 #include "rnp.h"
 #include "librepgp/stream-common.h"
+#include <string>
+#include <list>
+#include <map>
 
 typedef struct pgp_key_t pgp_key_t;
 
@@ -129,16 +132,27 @@ typedef enum pgp_sig_import_status_t {
     PGP_SIG_IMPORT_STATUS_NEW
 } pgp_sig_import_status_t;
 
+typedef std::map<pgp_key_grip_t, std::list<pgp_key_t>::iterator> pgp_key_grip_map_t;
+
 typedef struct rnp_key_store_t {
-    const char *           path;
+    std::string            path;
     pgp_key_store_format_t format;
     bool disable_validation; /* do not automatically validate keys, added to this key store */
 
-    list keys;  // list of pgp_key_t
-    list blobs; // list of kbx_blob_t
-} rnp_key_store_t;
+    std::list<pgp_key_t> keys;
+    pgp_key_grip_map_t   keybygrip;
 
-rnp_key_store_t *rnp_key_store_new(pgp_key_store_format_t format, const char *path);
+    list blobs; // list of kbx_blob_t
+
+    ~rnp_key_store_t();
+    rnp_key_store_t() = default;
+    rnp_key_store_t(pgp_key_store_format_t format, const std::string &path);
+    /* make sure we use only empty constructor */
+    rnp_key_store_t(rnp_key_store_t &&src) = delete;
+    rnp_key_store_t &operator=(rnp_key_store_t &&) = delete;
+    rnp_key_store_t(const rnp_key_store_t &src) = delete;
+    rnp_key_store_t &operator=(const rnp_key_store_t &) = delete;
+} rnp_key_store_t;
 
 bool rnp_key_store_load_from_path(rnp_key_store_t *, const pgp_key_provider_t *key_provider);
 bool rnp_key_store_load_from_src(rnp_key_store_t *,
@@ -149,11 +163,8 @@ bool rnp_key_store_write_to_path(rnp_key_store_t *);
 bool rnp_key_store_write_to_dst(rnp_key_store_t *, pgp_dest_t *);
 
 void rnp_key_store_clear(rnp_key_store_t *);
-void rnp_key_store_free(rnp_key_store_t *);
 
-size_t     rnp_key_store_get_key_count(const rnp_key_store_t *);
-pgp_key_t *rnp_key_store_get_key(const rnp_key_store_t *, size_t);
-list       rnp_key_store_get_keys(const rnp_key_store_t *);
+size_t rnp_key_store_get_key_count(const rnp_key_store_t *);
 
 /**
  * @brief Add key to the keystore, copying it.
@@ -196,17 +207,15 @@ pgp_key_t *rnp_key_store_import_signature(rnp_key_store_t *        keyring,
 
 bool rnp_key_store_remove_key(rnp_key_store_t *, const pgp_key_t *);
 
-pgp_key_t *rnp_key_store_get_key_by_id(const rnp_key_store_t *,
-                                       const unsigned char *,
-                                       pgp_key_t *);
+pgp_key_t *rnp_key_store_get_key_by_id(rnp_key_store_t *, const unsigned char *, pgp_key_t *);
 
-bool rnp_key_store_get_key_grip(const pgp_key_material_t *, uint8_t *);
+bool rnp_key_store_get_key_grip(const pgp_key_material_t *, pgp_key_grip_t &grip);
 
-pgp_key_t *rnp_key_store_get_key_by_grip(const rnp_key_store_t *, const uint8_t *);
-pgp_key_t *rnp_key_store_get_key_by_fpr(const rnp_key_store_t *, const pgp_fingerprint_t *fpr);
-pgp_key_t *rnp_key_store_get_primary_key(const rnp_key_store_t *, const pgp_key_t *);
-pgp_key_t *rnp_key_store_search(const rnp_key_store_t *,
-                                const pgp_key_search_t *,
-                                pgp_key_t *);
+const pgp_key_t *rnp_key_store_get_key_by_grip(const rnp_key_store_t *,
+                                               const pgp_key_grip_t &);
+pgp_key_t *      rnp_key_store_get_key_by_grip(rnp_key_store_t *, const pgp_key_grip_t &);
+pgp_key_t *      rnp_key_store_get_key_by_fpr(rnp_key_store_t *, const pgp_fingerprint_t *fpr);
+pgp_key_t *      rnp_key_store_get_primary_key(rnp_key_store_t *, const pgp_key_t *);
+pgp_key_t *rnp_key_store_search(rnp_key_store_t *, const pgp_key_search_t *, pgp_key_t *);
 
 #endif /* KEY_STORE_H_ */

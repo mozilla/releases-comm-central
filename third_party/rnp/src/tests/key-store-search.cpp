@@ -36,8 +36,7 @@
 TEST_F(rnp_tests, test_key_store_search)
 {
     // create our store
-    rnp_key_store_t *store = rnp_key_store_new(PGP_KEY_STORE_GPG, "");
-    assert_non_null(store);
+    rnp_key_store_t *store = new rnp_key_store_t(PGP_KEY_STORE_GPG, "");
     store->disable_validation = true;
 
     // some fake key data
@@ -60,14 +59,13 @@ TEST_F(rnp_tests, test_key_store_search)
             // set the keyid
             assert_true(rnp_hex_decode(testdata[i].keyid, key.keyid, sizeof(key.keyid)));
             // keys should have different grips otherwise rnp_key_store_add_key will fail here
-            assert_true(rnp_hex_decode(testdata[i].keyid, key.grip, sizeof(key.grip)));
+            assert_true(rnp_hex_decode(testdata[i].keyid, key.grip.data(), key.grip.size()));
             key.grip[0] = (uint8_t) n;
             // set the userids
             for (size_t uidn = 0; testdata[i].userids[uidn]; uidn++) {
                 pgp_userid_t *userid = pgp_key_add_userid(&key);
                 assert_non_null(userid);
-                userid->str = strdup(testdata[i].userids[uidn]);
-                assert_non_null(userid->str);
+                userid->str = testdata[i].userids[uidn];
             }
             // add to the store
             assert_true(rnp_key_store_add_key(store, &key));
@@ -128,7 +126,7 @@ TEST_F(rnp_tests, test_key_store_search)
                 // check that the userid actually matches
                 bool found = false;
                 for (unsigned j = 0; j < pgp_key_get_userid_count(key); j++) {
-                    if (!strcmp(pgp_key_get_userid(key, j)->str, userid)) {
+                    if (pgp_key_get_userid(key, j)->str == userid) {
                         found = true;
                     }
                 }
@@ -170,7 +168,7 @@ TEST_F(rnp_tests, test_key_store_search)
 #endif // RNP_KEY_STORE_SEARCH_REGEX
 
     // cleanup
-    rnp_key_store_free(store);
+    delete store;
 }
 
 TEST_F(rnp_tests, test_key_store_search_by_name)
@@ -183,13 +181,11 @@ TEST_F(rnp_tests, test_key_store_search_by_name)
 
     // load pubring
     rnp_key_store_t *pub_store =
-      rnp_key_store_new(PGP_KEY_STORE_KBX, "data/keyrings/3/pubring.kbx");
-    assert_non_null(pub_store);
+      new rnp_key_store_t(PGP_KEY_STORE_KBX, "data/keyrings/3/pubring.kbx");
     assert_true(rnp_key_store_load_from_path(pub_store, NULL));
     // load secring
     rnp_key_store_t *sec_store =
-      rnp_key_store_new(PGP_KEY_STORE_G10, "data/keyrings/3/private-keys-v1.d");
-    assert_non_null(sec_store);
+      new rnp_key_store_t(PGP_KEY_STORE_G10, "data/keyrings/3/private-keys-v1.d");
     pgp_key_provider_t key_provider = {.callback = rnp_key_provider_store,
                                        .userdata = pub_store};
     assert_true(rnp_key_store_load_from_path(sec_store, &key_provider));
@@ -222,27 +218,27 @@ TEST_F(rnp_tests, test_key_store_search_by_name)
 
     /* Try other searches */
     key = rnp_tests_get_key_by_fpr(sec_store, "4f2e62b74e6a4cd333bc19004be147bb22df1e60");
-    assert_true(key = primsec);
+    assert_true(key == primsec);
     key = rnp_tests_get_key_by_fpr(sec_store, "0x4f2e62b74e6a4cd333bc19004be147bb22df1e60");
-    assert_true(key = primsec);
+    assert_true(key == primsec);
     key = rnp_tests_get_key_by_id(pub_store, "4BE147BB22DF1E60", NULL);
-    assert_true(key = primsec);
+    assert_true(key == primpub);
     key = rnp_tests_get_key_by_id(pub_store, "4be147bb22df1e60", NULL);
-    assert_true(key = primsec);
+    assert_true(key == primpub);
     key = rnp_tests_get_key_by_id(pub_store, "0x4be147bb22df1e60", NULL);
-    assert_true(key = primsec);
+    assert_true(key == primpub);
     key = rnp_tests_get_key_by_id(pub_store, "22df1e60", NULL);
-    assert_true(key = primsec);
+    assert_true(key == primpub);
     key = rnp_tests_get_key_by_id(pub_store, "0x22df1e60", NULL);
-    assert_true(key = primsec);
+    assert_true(key == primpub);
     key = rnp_tests_get_key_by_id(pub_store, "4be1 47bb 22df 1e60", NULL);
-    assert_true(key = primsec);
+    assert_true(key == primpub);
     key = rnp_tests_get_key_by_id(pub_store, "4be147bb 22df1e60", NULL);
-    assert_true(key = primsec);
+    assert_true(key == primpub);
     key = rnp_tests_get_key_by_id(pub_store, "    4be147bb\t22df1e60   ", NULL);
-    assert_true(key = primsec);
+    assert_true(key == primpub);
     key = rnp_tests_get_key_by_id(pub_store, "test1", NULL);
-    assert_true(key = primsec);
+    assert_null(key);
     /* Try negative searches */
     assert_null(rnp_tests_get_key_by_fpr(sec_store, "4f2e62b74e6a4cd333bc19004be147bb22df1e"));
     assert_null(rnp_tests_get_key_by_fpr(sec_store, "2e62b74e6a4cd333bc19004be147bb22df1e60"));
@@ -252,6 +248,6 @@ TEST_F(rnp_tests, test_key_store_search_by_name)
     assert_null(rnp_tests_get_key_by_id(sec_store, "atest1", NULL));
 
     // cleanup
-    rnp_key_store_free(pub_store);
-    rnp_key_store_free(sec_store);
+    delete pub_store;
+    delete sec_store;
 }

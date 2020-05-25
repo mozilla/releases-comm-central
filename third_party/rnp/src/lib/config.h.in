@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define PACKAGE_STRING    "rnp 0.13.1+git20200506.eabaa5d0.MZLA"
+#define PACKAGE_STRING    "rnp 0.13.1+git20200530.6e74b752.MZLA"
 #define PACKAGE_BUGREPORT "https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"
 
 #undef HAVE_BZLIB_H
@@ -46,3 +46,5 @@
 #undef HAVE_REALPATH
 #undef HAVE_O_BINARY
 #undef HAVE__O_BINARY
+#undef HAVE__TEMPNAM
+
