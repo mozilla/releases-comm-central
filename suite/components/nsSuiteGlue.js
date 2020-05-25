@@ -199,9 +199,8 @@ SuiteGlue.prototype = {
         Services.search.init();
         listeners.init();
 
-        Cc["@mozilla.org/globalmessagemanager;1"]
-          .getService(Ci.nsIMessageListenerManager)
-          .loadFrameScript("chrome://navigator/content/content.js", true);
+        Services.mm.loadFrameScript("chrome://navigator/content/content.js",
+                                    true);
         ChromeUtils.import("resource://gre/modules/NotificationDB.jsm");
         break;
       case "browser-delayed-startup-finished":
