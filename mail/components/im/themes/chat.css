@@ -5,6 +5,17 @@
 @import url("chrome://chat/skin/status.css");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+#chatTabPanel {
+  --imbox-selected-text-color: -moz-FieldText;
+  --imbox-selected-background-color: -moz-Field;
+  --imgroup-selected-background-color: ThreeDLightShadow;
+}
+
+:root[lwt-tree-brighttext] #chatTabPanel {
+  --imbox-selected-text-color: #f9f9fa;
+  --imbox-selected-background-color: #18181a;
+}
+
 .im-placeholder-screen {
   color: -moz-FieldText;
   background-color: -moz-Field;
@@ -13,15 +24,28 @@
   font-weight: normal;
 }
 
+:root[lwt-tree-brighttext] .im-placeholder-screen {
+  color: var(--sidebar-text-color);
+  background-color: var(--sidebar-background-color);
+}
+
 .im-placeholder-box {
   max-width: calc(500px + 9em);
   min-height: 3em;
   background: url("chrome://global/skin/icons/info.svg") left 0 no-repeat;
+  -moz-context-properties: fill;
+  fill: currentColor;
   background-size: 3em;
   margin-right: .5em;
   margin-left: .5em;
   padding-right: 4.5em;
   padding-left: 4.5em;
+}
+
+:root[lwt-tree-brighttext] .im-placeholder-box {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  opacity: 0.7;
 }
 
 .im-placeholder-innerbox {
@@ -35,7 +59,7 @@
   margin: 0;
   margin-bottom: .5em;
   padding-bottom: .4em;
-  border-bottom: 1px solid -moz-FieldText;
+  border-bottom: 1px solid var(--splitter-color);
 }
 
 .im-placeholder-desc {
@@ -64,13 +88,26 @@
   background-color: -moz-ButtonHoverFace;
 }
 
+:root[lwt-tree-brighttext] .im-placeholder-button-box > button {
+  color: var(--sidebar-text-color);
+  border-color: var(--sidebar-text-color);
+  background-color: var(--sidebar-background-color);
+}
+
+:root[lwt-tree-brighttext] .im-placeholder-button-box> button:hover {
+  color: var(--sidebar-text-color);
+  background-color: var(--sidebar-background-color);
+  background-image: linear-gradient(rgba(249, 249, 250, 0.1),
+                                    rgba(249, 249, 250, 0.1));
+}
+
 .im-placeholder-button-box > button > .button-box {
   padding-right: 10px !important;
   padding-left: 10px !important;
 }
 
 #listPaneBox {
-  border-inline-end: 1px solid var(--imbox-selected-border-color);
+  border-inline-end: 1px solid var(--splitter-color);
 }
 
 :root[lwt-tree] #listPaneBox {
@@ -171,7 +208,7 @@ richlistitem:-moz-any([is="chat-imconv-richlistitem"], [is="chat-contact-richlis
 richlistitem[is="chat-imconv-richlistitem"][selected=true],
 richlistitem[is="chat-contact-richlistitem"][selected=true] {
   background-color: var(--imbox-selected-background-color) !important;
-  border-color: var(--imbox-selected-border-color) !important;
+  border-color: var(--splitter-color) !important;
   color: var(--imbox-selected-text-color) !important;
 }
 
@@ -184,16 +221,6 @@ richlistitem[is="chat-contact-richlistitem"][selected=true] {
 :root[lwt-tree-brighttext] richlistitem[is="chat-group-richlistitem"][selected],
 :root[lwt-tree-brighttext] richlistitem:-moz-any([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected=true]):hover {
   background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
-}
-
-:root[lwt-tree] richlistitem[is="chat-imconv-richlistitem"][selected=true],
-:root[lwt-tree] richlistitem[is="chat-contact-richlistitem"][selected=true] {
-  border-color: var(--sidebar-border-color, hsla(0,0%,60%,.4))
-}
-
-:root[lwt-tree-brighttext] richlistitem[is="chat-imconv-richlistitem"][selected=true],
-:root[lwt-tree-brighttext] richlistitem[is="chat-contact-richlistitem"][selected=true] {
-  border-color: var(--sidebar-border-color, rgba(249,249,250,.2))
 }
 
 richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButton {
@@ -528,9 +555,9 @@ richlistitem[state="disconnected"] .accountStateIcon {
   transition-delay: 0s, 0s, 150ms;
 }
 
-%ifdef XP_MACOSX
 .conv-textbox {
   -moz-appearance: none;
+%ifdef XP_MACOSX
   margin: 0;
   padding: 3px;
   border: none;
@@ -549,7 +576,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 %else
-.conv-textbox {
   padding: 2px;
   box-sizing: content-box;
   border: 1px solid transparent;
@@ -563,6 +589,11 @@ richlistitem[state="disconnected"] .accountStateIcon {
   background: inherit;
 }
 %endif
+
+:root[lwt-tree] .conv-textbox {
+  background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
+  color: var(--lwt-toolbar-field-color, black);
+}
 
 .conv-counter {
   justify-self: end;
@@ -578,6 +609,13 @@ richlistitem[state="disconnected"] .accountStateIcon {
   padding-inline-start: 5px;
   padding-inline-end: 6px;
   margin: 0;
+}
+
+:root[lwt-tree-brighttext] .conv-counter {
+  color: var(--sidebar-text-color);
+  background-color: rgba(22, 22, 22, 0.2);
+  border-inline-start: 1px solid var(--splitter-color);
+  border-top: 1px solid var(--splitter-color);
 }
 
 .conv-counter:-moz-locale-dir(ltr) {
@@ -923,4 +961,26 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 
 :root[lwt-tree] #logTree {
   -moz-appearance: none;
+}
+
+#goToConversation {
+  -moz-appearance: none !important;
+  margin: 4px;
+  padding: 1px !important;
+  color: inherit !important;
+  border: 1px solid hsla(0, 0%, 50%, 0.5);
+  border-radius: var(--toolbarbutton-border-radius);
+  background-color: hsla(0, 0%, 50%, 0.2) !important;
+  box-shadow: none;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+}
+
+#goToConversation:hover {
+  background-color: hsla(0, 0%, 50%, 0.3) !important;
+}
+
+#goToConversation:hover:active {
+  background-color: hsla(0, 0%, 50%, 0.4) !important;
+  box-shadow: 0 0 1x hsla(0, 0%, 50%, 0.15) inset;
 }

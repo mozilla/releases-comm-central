@@ -6,13 +6,6 @@
 
 %include ../../../components/im/themes/chat.css
 
-#chatTabPanel {
-  --imbox-selected-text-color: -moz-FieldText;
-  --imbox-selected-background-color: -moz-Field;
-  --imbox-selected-border-color: var(--splitter-color);
-  --imgroup-selected-background-color: ThreeDLightShadow;
-}
-
 .convUnreadCount,
 .contactDisplayName,
 .convDisplayName,
@@ -28,6 +21,10 @@
   -moz-appearance: none;
 }
 
+.im-placeholder-button-box > button {
+  padding-inline: 8px;
+}
+
 /* Adaptation from #folderTree */
 :root:not([lwt-tree]) #listPaneBox {
   background-color: -moz-OddTreeRow;
@@ -41,7 +38,6 @@
 
 .conv-textbox {
   margin: 0;
-  -moz-appearance: none;
 }
 
 :root:not([lwt-tree]) #conv-top-info {

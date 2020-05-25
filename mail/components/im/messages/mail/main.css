@@ -32,17 +32,10 @@
 #Chat .event p {
   margin: 0;
   margin-block-end: 5px;
-  color: GrayText;
 }
 
 #Chat #unread-ruler {
   margin: 4px;
-  border-top: 1px solid #30e60b;
-}
-
-.message:hover,
-.message:focus {
-  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .sidebar {
@@ -73,14 +66,6 @@
   margin-block: 0;
 }
 
-.outgoing .pseudo {
-  color: #0060DF;
-}
-
-.incoming .pseudo {
-  color: #B5007F;
-}
-
 .message:not(.action) > .next {
   visibility: hidden;
 }
@@ -90,7 +75,6 @@
   text-transform: uppercase;
   font-style: normal;
   font-weight: normal;
-  color: GrayText;
   white-space: nowrap;
 }
 
@@ -108,6 +92,7 @@
   background: url("chrome://messenger/skin/icons/connection-secure.svg") no-repeat center;
   background-size: contain;
   margin-inline-end: 4px;
+  -moz-context-properties: fill;
 }
 
 .usericon {
@@ -126,10 +111,6 @@
   font-style: italic;
 }
 
-.context {
-  color: rgb(91, 91, 91);
-}
-
 .context > .pseudo {
   opacity: 0.7;
 }
@@ -143,7 +124,6 @@ p *:any-link img {
   margin: 8px 0 12px;
   width: 100%;
   border: none;
-  border-top: 1px solid ThreeDDarkShadow;
 }
 
 /* used by javascript */
@@ -155,6 +135,7 @@ p *:any-link img {
   width: 20px;
   z-index: 1;
   opacity: 0.5;
+  -moz-context-properties: fill;
 }
 
 .eventToggle:hover {
@@ -168,8 +149,6 @@ p *:any-link img {
 /* We style Twitter differently from other types of chat */
 
 .message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) {
-  background-color: rgba(69, 161, 255, 0.1);
-  border: 1px solid #45a1ff;
   margin-bottom: 10px;
 }
 
@@ -183,4 +162,6 @@ p *:any-link img {
   max-height: 42px;
   border-radius: 9999px;
   margin-block-end: 8px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }

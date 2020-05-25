@@ -18,13 +18,6 @@
   -moz-font-smoothing-background-color: -moz-mac-source-list;
 }
 
-#chatTabPanel {
-  --imbox-selected-text-color: -moz-FieldText;
-  --imbox-selected-background-color: -moz-Field;
-  --imbox-selected-border-color: var(--splitter-color);
-  --imgroup-selected-background-color: ThreeDLightShadow;
-}
-
 #contactlistbox {
   background: transparent;
   -moz-appearance: none;

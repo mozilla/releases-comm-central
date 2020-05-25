@@ -52,3 +52,15 @@
 .protoIcon[status="unknown"][selected] {
   opacity: 0.7;
 }
+
+:root[lwt-tree-brighttext] .protoIcon[status="offline"],
+:root[lwt-tree-brighttext] .protoIcon[status="joining"],
+:root[lwt-tree-brighttext] .protoIcon[status="unknown"] {
+  opacity: 0.5;
+}
+
+:root[lwt-tree-brighttext] .protoIcon[status="offline"][selected],
+:root[lwt-tree-brighttext] .protoIcon[status="joining"][selected],
+:root[lwt-tree-brighttext] .protoIcon[status="unknown"][selected] {
+  opacity: 0.8;
+}

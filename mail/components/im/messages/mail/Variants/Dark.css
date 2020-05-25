@@ -1,0 +1,54 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+body {
+  background-color: #18181a;
+  color: #f9f9fa;
+}
+
+#Chat .event p {
+  color: #999;
+}
+
+#Chat #unread-ruler {
+  border-top: 1px solid #30e60b;
+}
+
+.message:hover,
+.message:focus {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.outgoing .pseudo {
+  color: #007cff;
+}
+
+.incoming .pseudo {
+  color: #e5509f;
+}
+
+.date {
+  color: #999;
+}
+
+.ib-sender.message-encrypted::before {
+  fill: #fff;
+}
+
+.context {
+  color: #aeaeaf;
+}
+
+.sessionstart-ruler {
+  border-top: 1px solid #e9e9ea;
+}
+
+.eventToggle {
+  fill: #fff;
+}
+
+.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) {
+  background-color: rgba(69, 161, 255, 0.2);
+  border: 1px solid #45a1ff;
+}

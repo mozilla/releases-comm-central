@@ -503,7 +503,7 @@ var messageReplacements = {
     }
 
     // Fallback to the theme's default icons.
-    return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.png";
+    return (aMsg.incoming ? "Incoming" : "Outgoing") + "/buddy_icon.svg";
   },
   senderScreenName: aMsg => formatSender(aMsg.who, aMsg.encrypted),
   sender: aMsg => formatSender(aMsg.alias || aMsg.who, aMsg.encrypted),

@@ -6,13 +6,6 @@
 
 %include ../../../components/im/themes/chat.css
 
-#chatTabPanel {
-  --imbox-selected-text-color: -moz-FieldText;
-  --imbox-selected-background-color: -moz-Field;
-  --imbox-selected-border-color: var(--splitter-color);
-  --imgroup-selected-background-color: ThreeDLightShadow;
-}
-
 /* Adaptation from #folderTree */
 :root:not([lwt-tree]) #listPaneBox {
   -moz-appearance:  none;
@@ -31,9 +24,8 @@
 }
 
 .conv-textbox {
-  -moz-appearance: none;
   /* Right/left margins so the borders show up on all sides. */
-  margin: 0 1px 0 1px;
+  margin: 0 1px;
 }
 
 .conv-counter[value^="-"] {
