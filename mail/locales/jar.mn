@@ -21,6 +21,8 @@
   messenger/otr/otr.ftl                                                 (../../chat/content/otr/otr.ftl)
   messenger/otr/otrUI.ftl                                               (../../chat/content/otr/otrUI.ftl)
   messenger/openpgp/bond.ftl                                            (../extensions/openpgp/content/strings/bond.ftl)
+  messenger/openpgp/composeKeyStatus.ftl                                (../extensions/openpgp/content/strings/composeKeyStatus.ftl)
+  messenger/openpgp/msgReadStatus.ftl                                   (../extensions/openpgp/content/strings/msgReadStatus.ftl)
   messenger                                                             (%messenger/**/*.ftl)
 
 

@@ -34,9 +34,8 @@ function onLoad() {
   let params = window.arguments[0];
 
   var sBundle = document.getElementById("bundle_smime_read_info");
-  var oBundle = document.getElementById("bundle_openpgp_read_info");
 
-  if (!sBundle || !oBundle) {
+  if (!sBundle) {
     return;
   }
 
@@ -48,49 +47,49 @@ function onLoad() {
 
   switch (params.msgSignatureState) {
     case EnigmailConstants.MSG_SIG_NONE:
-      sigInfoLabel = oBundle.getString("NoSig");
+      sigInfoLabel = "openpgp-no-sig";
       sigInfo = sBundle.getString("SINone");
       hasAnySig = false;
       break;
 
     case EnigmailConstants.MSG_SIG_UNCERTAIN_KEY_UNAVAILABLE:
-      sigInfoLabel = oBundle.getString("UncertainSig");
-      sigInfo = oBundle.getString("SigUncertainNoKey");
+      sigInfoLabel = "openpgp-uncertain-sig";
+      sigInfo = "openpgp-sig-uncertain-no-key";
       break;
 
     case EnigmailConstants.MSG_SIG_UNCERTAIN_UID_MISMATCH:
-      sigInfoLabel = oBundle.getString("UncertainSig");
-      sigInfo = oBundle.getString("SigUncertainUidMismatch");
+      sigInfoLabel = "openpgp-uncertain-sig";
+      sigInfo = "openpgp-sig-uncertain-uid-mismatch";
       break;
 
     case EnigmailConstants.MSG_SIG_UNCERTAIN_KEY_NOT_ACCEPTED:
-      sigInfoLabel = oBundle.getString("UncertainSig");
-      sigInfo = oBundle.getString("SigUncertainNotAccepted");
+      sigInfoLabel = "openpgp-uncertain-sig";
+      sigInfo = "openpgp-sig-uncertain-not-accepted";
       break;
 
     case EnigmailConstants.MSG_SIG_INVALID_KEY_REJECTED:
-      sigInfoLabel = oBundle.getString("InvalidSig");
-      sigInfo = oBundle.getString("SigInvalidRejected");
+      sigInfoLabel = "openpgp-invalid-sig";
+      sigInfo = "openpgp-sig-invalid-rejected";
       break;
 
     case EnigmailConstants.MSG_SIG_INVALID:
-      sigInfoLabel = oBundle.getString("InvalidSig");
-      sigInfo = oBundle.getString("SigInvalidTechnicalProblem");
+      sigInfoLabel = "openpgp-invalid-sig";
+      sigInfo = "openpgp-sig-invalid-technical-problem";
       break;
 
     case EnigmailConstants.MSG_SIG_VALID_KEY_UNVERIFIED:
-      sigInfoLabel = oBundle.getString("GoodSig");
-      sigInfo = oBundle.getString("SigValidUnverified");
+      sigInfoLabel = "openpgp-good-sig";
+      sigInfo = "openpgp-sig-valid-unverified";
       break;
 
     case EnigmailConstants.MSG_SIG_VALID_KEY_VERIFIED:
-      sigInfoLabel = oBundle.getString("GoodSig");
-      sigInfo = oBundle.getString("SigValidVerified");
+      sigInfoLabel = "openpgp-good-sig";
+      sigInfo = "openpgp-sig-valid-verified";
       break;
 
     case EnigmailConstants.MSG_SIG_VALID_SELF:
-      sigInfoLabel = oBundle.getString("GoodSig");
-      sigInfo = oBundle.getString("SigValidOwnKey");
+      sigInfoLabel = "openpgp-good-sig";
+      sigInfo = "openpgp-sig-valid-own-key";
       break;
 
     default:
@@ -99,8 +98,23 @@ function onLoad() {
       );
   }
 
-  document.getElementById("signatureLabel").value = sigInfoLabel;
-  setText("signatureExplanation", sigInfo);
+  document.l10n.setAttributes(
+    document.getElementById("signatureLabel"),
+    sigInfoLabel
+  );
+  let element = document.getElementById("signatureExplanation");
+  if (element.hasChildNodes()) {
+    element.firstElementChild.remove();
+  }
+  if (hasAnySig) {
+    document.l10n.setAttributes(
+      document.getElementById("signatureLabel"),
+      sigInfo
+    );
+  } else {
+    let textNode = document.createTextNode(sigInfo);
+    element.appendChild(textNode);
+  }
 
   var encInfoLabel = null;
   var encInfo = null;
@@ -143,9 +157,9 @@ function onLoad() {
   if (params.msgSignatureKeyId) {
     let idElement = document.getElementById("signatureKeyId");
     idElement.collapsed = false;
-    idElement.value = oBundle.getFormattedString("SigKeyId", [
-      "0x" + params.msgSignatureKeyId,
-    ]);
+    document.l10n.setAttributes(idElement, "openpgp-sig-key-id", {
+      key: "0x" + params.msgSignatureKeyId,
+    });
 
     if (EnigmailKeyRing.getKeyById(params.msgSignatureKeyId)) {
       document.getElementById("viewSignatureKey").collapsed = false;
@@ -156,9 +170,9 @@ function onLoad() {
   if (params.msgEncryptionKeyId) {
     let idElement = document.getElementById("encryptionKeyId");
     idElement.collapsed = false;
-    idElement.value = oBundle.getFormattedString("EncKeyId", [
-      "0x" + params.msgEncryptionKeyId,
-    ]);
+    document.l10n.setAttributes(idElement, "openpgp-enc-key-id", {
+      key: "0x" + params.msgEncryptionKeyId,
+    });
 
     if (EnigmailKeyRing.getKeyById(params.msgEncryptionKeyId)) {
       document.getElementById("viewEncryptionKey").collapsed = false;

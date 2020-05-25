@@ -18,7 +18,6 @@ var { EnigmailKey } = ChromeUtils.import(
 
 var gListBox;
 var gViewButton;
-var gBundle;
 
 var gEmailAddresses = [];
 var gRowToEmail = [];
@@ -48,7 +47,7 @@ async function setListEntries() {
 
     let foundKeys = gMapAddressToKeyObjs.get(addr);
     if (!foundKeys || !foundKeys.length) {
-      emailStatus = "RecipMissing";
+      emailStatus = "openpgp-recip-missing";
     } else {
       for (let keyObj of foundKeys) {
         if (
@@ -56,12 +55,12 @@ async function setListEntries() {
           keyObj.acceptance == "verified" ||
           keyObj.acceptance == "unverified"
         ) {
-          emailStatus = "RecipGood";
+          emailStatus = "openpgp-recip-good";
           break;
         }
       }
       if (!emailStatus) {
-        emailStatus = "RecipNoneAccepted";
+        emailStatus = "openpgp-recip-none-accepted";
       }
     }
 
@@ -74,7 +73,7 @@ async function setListEntries() {
     listitem.appendChild(emailItem);
 
     let status = document.createXULElement("label");
-    status.setAttribute("value", gBundle.getString(emailStatus));
+    document.l10n.setAttributes(status, emailStatus);
     status.setAttribute("crop", "end");
     status.setAttribute("style", "width: var(--statusWidth)");
     listitem.appendChild(status);
@@ -93,7 +92,6 @@ async function onLoad() {
 
   gListBox = document.getElementById("infolist");
   gViewButton = document.getElementById("detailsButton");
-  gBundle = document.getElementById("bundle_openpgp_comp_info");
 
   var arrLen = {};
   var recList;

@@ -6,9 +6,7 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/composeKeyStatus.css" type="text/css"?>
 
-<!DOCTYPE window SYSTEM "chrome://openpgp/content/strings/composeKeyStatus.dtd">
-
-<window title="&composeKeyStatus.title;"
+<window data-l10n-id="openpgp-compose-key-status-title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 40em; height: 25em"
         persist="width height"
@@ -27,25 +25,27 @@
       addEventListener("resize", resizeColumns);
   ]]></script>
 
-  <stringbundle id="bundle_openpgp_comp_info" src="chrome://openpgp/content/strings/composeKeyStatus.properties"/>
+  <linkset>
+    <html:link rel="localization" href="messenger/openpgp/composeKeyStatus.ftl"/>
+  </linkset>
 
-  <description>&composeKeyStatus.introNeedKeys;</description>
+  <description data-l10n-id="openpgp-compose-key-status-intro-need-keys"/>
 
   <separator class="thin"/>
-  <label value="&composeKeyStatus.keysHeading;" control="infolist"/>
+  <label data-l10n-id="openpgp-compose-key-status-keys-heading" control="infolist"/>
 
   <richlistbox id="infolist"
                class="theme-listbox"
                flex="1"
                onselect="onSelectionChange(event);">
     <treecols>
-      <treecol flex="3" label="&composeKeyStatus.recipient;"/>
-      <treecol flex="2" label="&composeKeyStatus.status;"/>
+      <treecol flex="3" data-l10n-id="openpgp-compose-key-status-recipient"/>
+      <treecol flex="2" data-l10n-id="openpgp-compose-key-status-status"/>
     </treecols>
   </richlistbox>
   <hbox pack="start">
     <button id="detailsButton" disabled="true"
-            label="&composeKeyStatus.openDetails;"
+            data-l10n-id="openpgp-compose-key-status-open-details"
             oncommand="viewSelectedEmail();"/>
   </hbox>
 </dialog>
