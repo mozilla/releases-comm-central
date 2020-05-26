@@ -181,8 +181,7 @@
     },
     "sv-SE": {
       "default": {
-        "searchDefault": "Google",
-        "searchOrder": ["Google", "Bing", "DuckDuckGo"],
+        "searchOrder": ["DuckDuckGo", "Google", "Bing"],
         "visibleDefaultEngines": [
           "duckduckgo-sv-SE", "bing", "google", "prisjakt-sv-SE", "tyda-sv-SE", "wikipedia-sv-SE", "yahoo-sv-SE"
         ]
