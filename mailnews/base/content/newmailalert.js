@@ -138,7 +138,7 @@ function showAlert() {
   // Don't fade in if the user opened the alert or the pref is true.
   if (
     gUserInitiated ||
-    !Services.prefs.getBoolPref("toolkit.cosmeticAnimations.enabled")
+    !Services.prefs.getBoolPref("toolkit.cosmeticAnimations.enabled", true)
   ) {
     alertContainer.setAttribute("noanimation", true);
     setTimeout(closeAlert, gOpenTime);
