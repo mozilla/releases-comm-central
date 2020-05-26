@@ -24,6 +24,7 @@
 #include "nsComposeStrings.h"
 #include "nsIAsyncInputStream.h"
 #include "nsIPrincipal.h"
+#include "mozilla/Telemetry.h"
 
 #define SERVER_DELIMITER ','
 #define APPEND_SERVERS_VERSION_PREF_NAME "append_preconfig_smtpservers.version"
@@ -32,6 +33,8 @@
 #define PREF_MAIL_SMTPSERVERS_APPEND_SERVERS \
   "mail.smtpservers.appendsmtpservers"
 #define PREF_MAIL_SMTP_DEFAULTSERVER "mail.smtp.defaultserver"
+
+using namespace mozilla;
 
 typedef struct _findServerByKeyEntry {
   const char *key;
@@ -93,6 +96,10 @@ NS_IMETHODIMP nsSmtpService::SendMailMessage(
       *aURL = urlToRun;  // transfer our ref count to the caller....
     else
       NS_IF_RELEASE(urlToRun);
+
+#ifndef MOZ_SUITE
+    Telemetry::ScalarAdd(Telemetry::ScalarID::TB_MAILS_SENT, 1);
+#endif
   }
 
   return rv;
