@@ -2738,7 +2738,7 @@ SessionStoreService.prototype = {
     if (tabData.storage) {
       for (let origin of Object.getOwnPropertyNames(tabData.storage)) {
         try {
-          let {frameLoader} = browser.QueryInterface(Ci.nsIFrameLoaderOwner);
+          let {frameLoader} = browser;
           if (frameLoader.tabParent) {
             let attrs = browser.contentPrincipal.originAttributes;
             let dataPrincipal = Services.scriptSecurityManager.createCodebasePrincipalFromOrigin(origin);
