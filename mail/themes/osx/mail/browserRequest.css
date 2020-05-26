@@ -28,6 +28,10 @@
   }
 }
 
+:root[chromehidden~="location"] #header {
+  display: none
+}
+
 /*
 #header {
   overflow: hidden;

@@ -202,6 +202,9 @@ this.windows = class extends ExtensionAPI {
             }
           }
 
+          let windowURL = wantNormalWindow
+            ? "chrome://messenger/content/messenger.xhtml"
+            : "chrome://messenger/content/extensionPopup.xhtml";
           if (createData.tabId) {
             if (createData.url) {
               return Promise.reject({
@@ -229,7 +232,7 @@ this.windows = class extends ExtensionAPI {
             let args = createWindowArgs(uris);
             window = Services.ww.openWindow(
               null,
-              "chrome://messenger/content/messenger.xhtml",
+              windowURL,
               "_blank",
               features.join(","),
               args
@@ -241,7 +244,7 @@ this.windows = class extends ExtensionAPI {
             }
             window = Services.ww.openWindow(
               null,
-              "chrome://messenger/content/messenger.xhtml",
+              windowURL,
               "_blank",
               features.join(","),
               args
