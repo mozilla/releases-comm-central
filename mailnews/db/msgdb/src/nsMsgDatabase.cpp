@@ -17,6 +17,7 @@
 #include "nsMorkCID.h"
 #include "nsIMdbFactoryFactory.h"
 #include "mozilla/Logging.h"
+#include "mozilla/Telemetry.h"
 #include "prprf.h"
 #include "nsMsgDBCID.h"
 #include "nsMsgMimeCID.h"
@@ -2401,6 +2402,13 @@ NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr *msgHdr, bool bRead,
       rv = GetThreadForMsgKey(msgKey, getter_AddRefs(threadHdr));
       if (threadHdr) threadHdr->MarkChildRead(bRead);
     }
+
+#ifndef MOZ_SUITE
+    if (bRead) {
+      Telemetry::ScalarAdd(Telemetry::ScalarID::TB_MAILS_READ, 1);
+    }
+#endif
+
     return MarkHdrReadInDB(msgHdr, bRead, instigator);
   }
   return NS_OK;

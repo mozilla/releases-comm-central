@@ -78,3 +78,16 @@ tb.compose:
     record_in_processes:
       - 'main'
 
+tb.mails:
+  read:
+    bug_numbers:
+      - 1615990
+    description: How many emails are read.
+    expires: never
+    products:
+      - 'thunderbird'
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
