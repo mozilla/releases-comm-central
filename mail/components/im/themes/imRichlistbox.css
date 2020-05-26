@@ -11,24 +11,5 @@ richlistitem {
   padding-inline-start: 4px;
   padding-inline-end: 4px;
   min-height: 25px;
-%ifndef XP_MACOSX
-%ifdef XP_WIN
-  border-bottom: 1px solid ThreeDLightShadow;
-%else
-  border-bottom: 1px dotted #C0C0C0;
-%endif
-%endif
+  border-bottom: 1px solid var(--splitter-color);
 }
-
-%ifdef XP_UNIX
-%ifdef XP_MACOSX
-richlistitem:not([selected="true"]):nth-child(odd) {
-  background-color: -moz-oddtreerow;
-}
-%else
-richlistitem[selected="true"]:-moz-window-inactive {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-}
-%endif
-%endif

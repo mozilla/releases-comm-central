@@ -3,12 +3,13 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://chat/content/accounts.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/chat/imAccounts.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/imRichlistbox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/imAccounts.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/chat.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
  <!ENTITY % accountsDTD SYSTEM "chrome://chat/locale/accounts.dtd">
@@ -25,6 +26,7 @@
         windowtype="Messenger:Accounts"
         title="&accountsWindow.title;"
         style="&accountsWindow2.style;"
+        lightweightthemes="true"
         persist="width height screenX screenY">
 
   <script src="chrome://global/content/globalOverlay.js"/>

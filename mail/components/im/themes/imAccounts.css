@@ -5,20 +5,12 @@
 /* large parts copied from the addon manager */
 
 #accountManager {
-  background-color: ThreeDFace;
-  padding: 0 0;
-  margin: 0 0;
+  padding: 0;
+  margin: 0;
 }
-
-%ifndef XP_MACOSX
-xbl-notification > hbox {
-  border: none !important;
-  border-bottom: 1px solid ThreeDShadow !important;
-}
-%endif
 
 #accountsNotificationBox {
-  margin: 0 0;
+  margin: 0;
   -moz-appearance: none;
 }
 
@@ -26,20 +18,26 @@ xbl-notification > hbox {
   color: -moz-FieldText;
   background-color: -moz-Field;
   overflow: auto;
+  border-block: 1px solid var(--splitter-color);
+}
+
+:root[lwt-tree] #noAccountScreen {
+  color: var(--sidebar-text-color);
+  background-color: var(--sidebar-background-color);
 }
 
 #noAccountBox {
   max-width: 30em;
   background: url("chrome://global/skin/icons/info.svg") left 5px no-repeat;
   background-size: 2.5em;
-  padding-right: 3.5em;
-  padding-left: 3.5em;
-  margin-left: 1.5em;
-  margin-right: 1.5em;
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin-inline: 1.5em;
+  padding-inline: 3.5em;
 }
 
 #noAccountInnerBox {
-  opacity: .9;
+  opacity: 0.9;
 }
 
 #noAccountTitle {
@@ -49,7 +47,7 @@ xbl-notification > hbox {
   margin: 0;
   margin-bottom: .3em;
   padding-bottom: .2em;
-  border-bottom: 1px solid -moz-FieldText;
+  border-bottom: 1px solid var(--splitter-color);
 }
 
 #noAccountDesc {
@@ -61,31 +59,14 @@ xbl-notification > hbox {
 #accountlist {
   margin: 0;
   -moz-appearance: none;
-%ifndef XP_MACOSX
-  border-bottom: 1px solid ThreeDLightShadow;
-%endif
+  border-block: 1px solid var(--splitter-color);
+  border-inline-style: none;
+  text-shadow: none;
 }
 
 #bottombuttons {
-%ifdef XP_MACOSX
-  -moz-box-pack: end;
-  padding-inline-start: 2px;
-  padding-inline-end: 11px;
-  -moz-appearance: statusbar;
-  min-height: 28px;
-%else
-  margin: 0;
-%endif
+  padding: 4px;
 }
-
-%ifndef XP_WIN
-%ifndef XP_MACOSX
-#newaccount,
-#close {
-  margin-top: 3px;
-}
-%endif
-%endif
 
 /* List Items */
 richlistitem[state="disconnected"] .accountIcon {
@@ -96,19 +77,18 @@ richlistitem[state="disconnected"][selected="true"] .accountIcon {
   opacity: 0.7;
 }
 richlistitem[state="disconnected"]:not([selected="true"]) {
-  color: GrayText;
+  color: #999;
 }
 
 richlistitem[error="true"] .accountName {
   color: rgb(150, 0, 0);
 }
 
-%ifndef XP_MACOSX
 /* When the error message was too long, the buttons were too small */
 richlistitem .account-buttons button {
-  min-height: 2em;
+  min-height: 1.8em;
+  color: var(--lwt-text-color) !important;
 }
-%endif
 
 richlistitem .account-buttons {
   margin-top: 2px;
@@ -122,12 +102,28 @@ richlistitem .account-buttons {
 richlistitem[dragover="down"] {
   border-bottom: 3px solid HighLight;
 }
+
 richlistitem[dragover="up"] {
   border-top: 3px solid HighLight;
 }
 
+:root:not([lwt-tree]) #bottombuttons button,
+:root:not([lwt-tree]) richlistbox > richlistitem button {
+  border: 1px solid var(--toolbarbutton-hover-bordercolor);
+}
+
+:root:not([lwt-tree]) #bottombuttons button:hover,
+:root:not([lwt-tree]) richlistbox > richlistitem button:hover {
+  border: 1px solid var(--toolbarbutton-active-bordercolor);
+}
+
+:root:not([lwt-tree]) #bottombuttons button:hover:active,
+:root:not([lwt-tree]) richlistbox > richlistitem button:hover:active {
+  box-shadow: var(--toolbarbutton-active-boxshadow);
+}
+
 .error {
-  color: rgb(200, 0, 0);
+  color: #c80000;
   margin-left: 6px;
 }
 .accountName {
@@ -160,18 +156,19 @@ richlistitem[error="true"] .accountStateIcon {
   padding: 0 0;
 }
 
-#displayName, #displayNameInput {
+#displayName,
+#displayNameInput {
   font-size: 16px;
-  border-bottom: 1px solid rgba(0,0,0,0.25);
+  border-bottom: 1px solid hsla(0, 0%, 50%, 0.5);
   margin: 0 0 16px;
 }
 
 #displayName[usingDefault]:not([editing]) {
-  color: GrayText;
+  color: #999;
 }
 
 #userIcon {
-  border: 2px solid rgba(0,0,0,0.15);
+  border: 2px solid hsla(0, 0%, 50%, 0.3);
   border-radius: 5px;
   max-width: 48px;
   max-height: 48px;
@@ -184,18 +181,20 @@ richlistitem[error="true"] .accountStateIcon {
   background-size: contain;
   background-repeat: no-repeat;
   -moz-context-properties: fill, fill-opacity;
-  fill: #000;
+  fill: currentColor;
   fill-opacity: 0.25;
 }
 
 #userIcon:hover {
-  border-color: rgba(0,0,0,0.35);
-  background-color: rgba(0,0,0,0.35);
+  border-color: hsla(0, 0%, 50%, 0.5);
+  background-color: hsla(0, 0%, 50%, 0.3);
   opacity: .4;
 }
 
-#statusImageStack #statusTypeIcon {
-  margin: 32px 0 0 32px;
+#statusImageStack > #statusTypeIcon {
+  margin-block: 32px 0;
+  margin-inline: 32px 0;
+  padding-inline: 0;
   width: 16px;
   height: 16px;
   min-height: 16px;
@@ -206,9 +205,13 @@ richlistitem[error="true"] .accountStateIcon {
   border: none;
 }
 
+#statusImageStack > #statusTypeIcon > .button-box {
+  padding-block: 0;
+}
+
 #statusImageStack,
 #displayNameAndstatusMessageStack {
-  margin: 3px 2px;
+  margin: 6px;
 }
 
 #statusTypeIcon dropmarker {
