@@ -146,6 +146,7 @@
 #else
     <key id="key_openHelp"
          key="&openHelpCmdMac.key;"
+         modifiers="&openHelpCmdMac.modifiers;"
          command="cmd_openHelp"/>
     <key id="key_preferencesMac"
          key="&preferencesCmdMac.key;"
