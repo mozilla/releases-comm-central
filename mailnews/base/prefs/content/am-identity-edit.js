@@ -59,7 +59,7 @@ function initIdentityValues(identity) {
     document.getElementById("identity.htmlSigText").value =
       identity.htmlSigText;
     document.getElementById("identityHtmlSigFormat").checked =
-      identityHtmlSigFormat;
+      identity.htmlSigFormat;
 
     if (identity.signature) {
       document.getElementById("identity.signature").value =
@@ -245,7 +245,7 @@ function saveIdentitySettings(identity) {
     identity.htmlSigText = document.getElementById(
       "identity.htmlSigText"
     ).value;
-    identityHtmlSigFormat = document.getElementById(
+    identity.htmlSigFormat = document.getElementById(
       "identityHtmlSigFormat"
     ).checked;
 

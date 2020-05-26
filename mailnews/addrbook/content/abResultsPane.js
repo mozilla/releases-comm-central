@@ -444,7 +444,7 @@ var ResultsPaneController = {
       case "cmd_printpreview":
       case "cmd_print":
         // cmd_printpreview and cmd_print are currently only used in SeaMonkey.
-        let enabled = (GetNumSelectedCards() > 0);
+        let enabled = GetNumSelectedCards() > 0;
         document.querySelectorAll("[command=cmd_print]").forEach(e => {
           e.disabled = !enabled;
         });
