@@ -326,9 +326,6 @@ nsresult nsFolderCompactState::Init(nsIMsgFolder *folder,
   m_file = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   m_file->InitWithFile(path);
-  // need to make sure the temp file goes in the same real directory
-  // as the original file, so resolve sym links.
-  m_file->SetFollowLinks(true);
 
   m_file->SetNativeLeafName(NS_LITERAL_CSTRING("nstmp"));
   // Make sure we are not crunching existing nstmp file.
@@ -443,9 +440,6 @@ nsresult nsFolderCompactState::FinishCompact() {
   NS_ENSURE_SUCCESS(rv, rv);
   rv = folderPath->InitWithFile(path);
   NS_ENSURE_SUCCESS(rv, rv);
-  // need to make sure we put the .msf file in the same directory
-  // as the original mailbox, so resolve symlinks.
-  folderPath->SetFollowLinks(true);
 
   nsCOMPtr<nsIFile> oldSummaryFile;
   rv = GetSummaryFileLocation(folderPath, getter_AddRefs(oldSummaryFile));
