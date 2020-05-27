@@ -28,3 +28,8 @@ openpgp-search-keys-openpgp =
 openpgp-missing-signature-key = Message was signed with a key that you don't have yet
 
 openpgp-search-signature-key = Discover…
+
+# Don't translate the terms "OpenPGP" and "MS-Exchange"
+openpgp-broken-exchange-info = This is an OpenPGP message that was apparently corrupted by MS-Exchange. If the message contents aren't shown as expected, you may click the button to attempt an automatic repair.
+openpgp-broken-exchange-repair = Repair message
+openpgp-broken-exchange-wait = Please wait ...

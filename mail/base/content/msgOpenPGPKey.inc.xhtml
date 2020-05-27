@@ -2,15 +2,28 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-                        <hbox id="openpgpKeyBox" hidden="true">
-                          <label id="hasKeyOpenPGP" data-l10n-id="openpgp-has-sender-key"/>
-                            <toolbarbutton id="openpgpImportButton"
-                                           data-l10n-id="openpgp-import-sender-key"
-                                           oncommand="Enigmail.msg.importAutocryptKeydata();"/>
-                        </hbox>
-                        <hbox id="signatureKeyBox" hidden="true">
-                          <label id="missingSignatureKey" data-l10n-id="openpgp-missing-signature-key"/>
-                          <toolbarbutton id="searchSignatureKeyButton"
-                                         data-l10n-id="openpgp-search-signature-key"
-                                         oncommand="Enigmail.msg.searchSignatureKey();"/>
-                        </hbox>
+  <hbox id="openpgpKeyBox" hidden="true">
+    <label id="hasKeyOpenPGP" data-l10n-id="openpgp-has-sender-key"/>
+      <toolbarbutton id="openpgpImportButton"
+                     data-l10n-id="openpgp-import-sender-key"
+                     oncommand="Enigmail.msg.importAutocryptKeydata();"/>
+  </hbox>
+  <hbox id="signatureKeyBox" hidden="true">
+    <label id="missingSignatureKey" data-l10n-id="openpgp-missing-signature-key"/>
+    <toolbarbutton id="searchSignatureKeyButton"
+                   data-l10n-id="openpgp-search-signature-key"
+                   oncommand="Enigmail.msg.searchSignatureKey();"/>
+  </hbox>
+  <vbox id="brokenExchangeBox" flex="0" hidden="true" pack="center">
+    <hbox pack="center">
+      <vbox flex="1" pack="start">
+        <description id="brokenExchangeInfo" data-l10n-id="openpgp-broken-exchange-info"/>
+      </vbox>
+      <vbox flex="0" pack="center">
+        <toolbarbutton id="brokenExchangeRepairButton"
+                       data-l10n-id="openpgp-broken-exchange-repair"
+                       oncommand="Enigmail.msg.fixBuggyExchangeMail();"/>
+        <label id="brokenExchangeWait" data-l10n-id="openpgp-broken-exchange-wait"/>
+      </vbox>
+    </hbox>
+  </vbox>

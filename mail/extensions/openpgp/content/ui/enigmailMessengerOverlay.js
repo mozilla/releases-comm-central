@@ -377,20 +377,9 @@ Enigmail.msg = {
   messageCleanup() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageCleanup\n");
 
-    var enigmailBox = document.getElementById("enigmailBox");
-
-    if (enigmailBox && !enigmailBox.collapsed) {
-      enigmailBox.setAttribute("collapsed", "true");
-
-      var statusText = document.getElementById("expandedEnigmailStatusText");
-      if (statusText) {
-        statusText.value = "";
-      }
-    }
-
-    let exchBox = document.getElementById("enigmailBrokenExchangeBox");
+    let exchBox = document.getElementById("brokenExchangeBox");
     if (exchBox) {
-      exchBox.setAttribute("collapsed", "true");
+      exchBox.setAttribute("hidden", "true");
     }
 
     let b = document.getElementById("openpgpKeyBox");
@@ -1902,24 +1891,12 @@ Enigmail.msg = {
   fixBuggyExchangeMail() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: fixBuggyExchangeMail:\n");
 
-    function hideAndResetExchangePane() {
-      document
-        .getElementById("enigmailBrokenExchangeBox")
-        .setAttribute("collapsed", "true");
-      document
-        .getElementById("enigmailFixBrokenMessageProgress")
-        .setAttribute("collapsed", "true");
-      document
-        .getElementById("enigmailFixBrokenMessageButton")
-        .removeAttribute("collapsed");
-    }
+    document.getElementById("brokenExchangeRepairButton").setAttribute("hidden", true);
+    document.getElementById("brokenExchangeWait").removeAttribute("hidden");
 
-    document
-      .getElementById("enigmailFixBrokenMessageButton")
-      .setAttribute("collapsed", "true");
-    document
-      .getElementById("enigmailFixBrokenMessageProgress")
-      .removeAttribute("collapsed");
+    function hideBrokenExchangePane() {
+      document.getElementById("brokenExchangeBox").setAttribute("hidden", true);
+    }
 
     let msg = gFolderDisplay.messageDisplay.displayedMessage;
 
@@ -1942,14 +1919,14 @@ Enigmail.msg = {
         }, 750);
       }
 
-      hideAndResetExchangePane();
+      hideBrokenExchangePane();
     });
     p.catch(function() {
       EnigmailDialog.alert(
         window,
         EnigmailLocale.getString("fixBrokenExchangeMsg.failed")
       );
-      hideAndResetExchangePane();
+      hideBrokenExchangePane();
     });
   },
 
