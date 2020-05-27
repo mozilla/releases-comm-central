@@ -78,6 +78,33 @@ tb.compose:
     record_in_processes:
       - 'main'
 
+tb.filelink:
+  uploaded_size:
+    bug_numbers:
+      - 1615984
+    description: Accumulated file size (bytes) uploaded to filelink services, keyed by filelink provider type.
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+  ignored:
+    bug_numbers:
+      - 1615984
+    description: How many times filelink suggestion are ignored.
+    expires: never
+    products:
+      - 'thunderbird'
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
 tb.mails:
   sent:
     bug_numbers:

@@ -89,6 +89,19 @@ var gMockPromptService = {
     return this._will_return;
   },
 
+  confirmCheck(aParent, aDialogTitle, aText) {
+    this._promptState = {
+      method: "confirmCheck",
+      parent: aParent,
+      dialogTitle: aDialogTitle,
+      text: aText,
+    };
+
+    this.fireCb();
+
+    return this._will_return;
+  },
+
   confirmEx(
     aParent,
     aDialogTitle,
@@ -139,7 +152,7 @@ var gMockPromptService = {
   },
 
   // Other dialogs should probably be mocked here, including alert,
-  // alertCheck, confirmCheck, etc.
+  // alertCheck, etc.
   // See:  http://mxr.mozilla.org/mozilla-central/source/embedding/components/
   //       windowwatcher/public/nsIPromptService.idl
 

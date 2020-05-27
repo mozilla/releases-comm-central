@@ -1961,6 +1961,7 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
   gNumUploadingAttachments++;
   updateSendCommands(true);
 
+  let displayName = cloudFileAccounts.getDisplayName(cloudFileAccount);
   let bucket = document.getElementById("attachmentBucket");
   let attachmentItem = bucket.findItemForAttachment(attachment);
   if (attachmentItem) {
@@ -1969,7 +1970,7 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
     attachmentItem.setAttribute(
       "tooltiptext",
       getComposeBundle().getFormattedString("cloudFileUploadingTooltip", [
-        cloudFileAccounts.getDisplayName(cloudFileAccount),
+        displayName,
       ])
     );
     attachmentItem.uploading = true;
@@ -1997,7 +1998,7 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
       attachmentItem.setAttribute(
         "tooltiptext",
         getComposeBundle().getFormattedString("cloudFileUploadedTooltip", [
-          cloudFileAccounts.getDisplayName(cloudFileAccount),
+          displayName,
         ])
       );
       attachmentItem.uploading = false;
@@ -2020,10 +2021,14 @@ async function uploadCloudAttachment(attachment, file, cloudFileAccount) {
         })
       );
     }
+    Services.telemetry.keyedScalarAdd(
+      "tb.filelink.uploaded_size",
+      cloudFileAccount.type,
+      attachment.size
+    );
   } else {
     let title;
     let msg;
-    let displayName = cloudFileAccounts.getDisplayName(cloudFileAccount);
     let bundle = getComposeBundle();
     let displayError = true;
     switch (statusCode) {
@@ -4491,6 +4496,27 @@ function CompleteGenericSendMessage(msgType) {
   }
   if (gMsgCompose && originalCharset != gMsgCompose.compFields.characterSet) {
     SetDocumentCharacterSet(gMsgCompose.compFields.characterSet);
+  }
+
+  if (
+    msgType == Ci.nsIMsgCompDeliverMode.Now ||
+    msgType == Ci.nsIMsgCompDeliverMode.Later ||
+    msgType == Ci.nsIMsgCompDeliverMode.Background
+  ) {
+    let maxSize =
+      Services.prefs.getIntPref("mail.compose.big_attachments.threshold_kb") *
+      1024;
+    let items = [...document.getElementById("attachmentBucket").itemChildren];
+
+    // When any big attachment is not sent via filelink, increment
+    // `tb.filelink.ignored`.
+    if (
+      items.some(
+        item => item.attachment.size >= maxSize && !item.attachment.sendViaCloud
+      )
+    ) {
+      Services.telemetry.scalarAdd("tb.filelink.ignored", 1);
+    }
   }
 }
 
