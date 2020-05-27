@@ -23,9 +23,6 @@ const { EnigmailData } = ChromeUtils.import(
 const { EnigmailSqliteDb } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
-var { EnigmailKey } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/key.jsm"
-);
 var EnigmailKeyRing = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 ).EnigmailKeyRing;
@@ -280,10 +277,23 @@ var EnigmailWkdLookup = {
                 }
 
                 if (gotKeys.length > 0) {
-                  if (gotKeys.length == 1) {
-                    importOneDownloadedKey(gotKeys[0]);
-                  } else {
-                    importDownloadedKeys(gotKeys);
+                  for (let k in gotKeys) {
+                    if (gotKeys[k]) {
+                      let isBinary =
+                        gotKeys[k].keyData.search(
+                          /^-----BEGIN PGP PUBLIC KEY BLOCK-----/
+                        ) < 0;
+                      EnigmailKeyRing.importKey(
+                        null,
+                        true,
+                        gotKeys[k].keyData,
+                        isBinary,
+                        "",
+                        {},
+                        {},
+                        false
+                      );
+                    }
                   }
                   resolve(true);
                 } else {
@@ -536,74 +546,6 @@ function timeForRecheck(connection, email) {
         Promise.reject(error);
       }
     );
-}
-
-/**
- * Import downloaded keys
- *
- * @param {Array of String}: ASCII armored or binary string
- *
- * no return value
- */
-function importDownloadedKeys(keysArr) {
-  EnigmailLog.DEBUG(
-    "wkdLookup.jsm: importDownloadedKeys(" + keysArr.length + ")\n"
-  );
-
-  let keyData = "";
-  let domainArr = [];
-  for (let k in keysArr) {
-    if (keysArr[k]) {
-      if (
-        keysArr[k].keyData.search(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/) < 0
-      ) {
-        try {
-          // TODO: need a MPL version of bytesToArmor
-          throw new Error("WKD importDownloadedKeys dont' have bytesToArmor");
-          /*
-          keyData += EnigmailOpenPGP.enigmailFuncs.bytesToArmor(
-            EnigmailOpenPGP.armor.public_key,
-            keysArr[k].keyData
-          );
-          */
-        } catch (ex) {
-          EnigmailLog.DEBUG(
-            "wkdLookup.jsm: importDownloadedKeys: exeption=" + ex + "\n"
-          );
-        }
-      } else {
-        keyData += keysArr[k].keyData;
-      }
-
-      domainArr.push(keysArr[k].email.replace(/^.*@/, "@"));
-    }
-  }
-
-  let keyList = EnigmailKey.getKeyListFromKeyBlock(keyData, {}, false);
-
-  for (let k in keyList) {
-    EnigmailLog.DEBUG(
-      "wkdLookup.jsm: importDownloadedKeys: fpr=" + keyList[k].fpr + "\n"
-    );
-  }
-
-  EnigmailKeyRing.importKey(
-    null,
-    false,
-    keyData,
-    false,
-    "",
-    {},
-    {},
-    false,
-    domainArr
-  );
-}
-
-function importOneDownloadedKey(key) {
-  EnigmailLog.DEBUG("wkdLookup.jsm: importOneDownloadedKey\n");
-  //let keyList = EnigmailKey.getKeyListFromKeyBlock(key.keyData, {}, false);
-  EnigmailKeyRing.importKey(null, true, key.keyData, true, "", {}, {}, false);
 }
 
 /**

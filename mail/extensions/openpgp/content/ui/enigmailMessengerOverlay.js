@@ -121,9 +121,6 @@ var EnigmailWks = ChromeUtils.import(
   "chrome://openpgp/content/modules/webKey.jsm"
 ).EnigmailWks;
 */
-var EnigmailWkdLookup = ChromeUtils.import(
-  "chrome://openpgp/content/modules/wkdLookup.jsm"
-).EnigmailWkdLookup;
 var EnigmailStdlib = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
 ).EnigmailStdlib;
@@ -131,6 +128,9 @@ var EnigmailConfigure = ChromeUtils.import(
   "chrome://openpgp/content/modules/configure.jsm"
 ).EnigmailConfigure;
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var KeyLookupHelper = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyLookupHelper.jsm"
+).KeyLookupHelper;
 
 var Enigmail;
 if (!Enigmail) {
@@ -1789,7 +1789,7 @@ Enigmail.msg = {
     let keyData = EnigmailData.decodeBase64(keyDataB64);
     let errorMsgObj = {};
     let preview = EnigmailKey.getKeyListFromKeyBlock(keyData, errorMsgObj);
-    if (errorMsgObj.value === "") {
+    if (preview && errorMsgObj.value === "") {
       EnigmailKeyRing.importKeyDataWithConfirmation(
         window,
         preview,
@@ -1811,30 +1811,7 @@ Enigmail.msg = {
     if (!keyId) {
       return;
     }
-
-    let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
-    if (!defKs) {
-      return;
-    }
-
-    let vks = await EnigmailKeyServer.downloadNoImport("0x" + keyId, defKs);
-    if ("keyData" in vks) {
-      let keyList = EnigmailKey.getKeyListFromKeyBlock(
-        vks.keyData,
-        {},
-        false,
-        true,
-        false
-      );
-      EnigmailKeyRing.importKeyDataWithConfirmation(
-        window,
-        keyList,
-        vks.keyData,
-        true
-      );
-    } else {
-      console.debug("searchKeysOnInternet no data in keys.openpgp.org");
-    }
+    KeyLookupHelper.lookupAndImportByKeyID(window, keyId, true, null);
   },
 
   importKeyFromMsgBody(msgData) {
@@ -1857,7 +1834,7 @@ Enigmail.msg = {
 
     let errorMsgObj = {};
     let preview = EnigmailKey.getKeyListFromKeyBlock(keyData, errorMsgObj);
-    if (errorMsgObj.value === "") {
+    if (preview && errorMsgObj.value === "") {
       EnigmailKeyRing.importKeyDataWithConfirmation(
         window,
         preview,
@@ -2823,7 +2800,7 @@ Enigmail.msg = {
         errorMsgObj
       );
 
-      if (errorMsgObj.value !== "" || preview.length === 0) {
+      if (errorMsgObj.value !== "" || !preview || preview.length === 0) {
         // try decrypting the attachment
         exitStatus = EnigmailDecryption.decryptAttachment(
           window,
@@ -2844,7 +2821,7 @@ Enigmail.msg = {
         }
       }
 
-      if (errorMsgObj.value === "") {
+      if (preview && errorMsgObj.value === "") {
         EnigmailKeyRing.importKeyDataWithConfirmation(
           window,
           preview,
@@ -3056,51 +3033,7 @@ Enigmail.msg = {
       .closest("mail-emailaddress")
       .getAttribute("emailAddress");
 
-    let foundKeys = null;
-    foundKeys = await EnigmailWkdLookup.downloadKey(address);
-    if (!foundKeys) {
-      console.debug("searchKeysOnInternet no wkd data");
-    } else {
-      let keyList = EnigmailKey.getKeyListFromKeyBlock(
-        foundKeys.keyData,
-        {},
-        false
-      );
-      EnigmailKeyRing.importKeyDataWithConfirmation(
-        window,
-        keyList,
-        foundKeys.keyData,
-        true
-      );
-    }
-
-    if (foundKeys) {
-      return;
-    }
-
-    let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
-    if (!defKs) {
-      return;
-    }
-
-    let vks = await EnigmailKeyServer.downloadNoImport(address, defKs);
-    if ("keyData" in vks) {
-      let keyList = EnigmailKey.getKeyListFromKeyBlock(
-        vks.keyData,
-        {},
-        false,
-        true,
-        false
-      );
-      EnigmailKeyRing.importKeyDataWithConfirmation(
-        window,
-        keyList,
-        vks.keyData,
-        true
-      );
-    } else {
-      console.debug("searchKeysOnInternet no data in keys.openpgp.org");
-    }
+    KeyLookupHelper.lookupAndImportByEmail(window, address, true, null);
   },
 
   importKeyFromKeyserver() {

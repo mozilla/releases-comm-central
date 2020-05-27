@@ -736,7 +736,7 @@ function enigmailImportFromClipbrd() {
   var preview = EnigmailKey.getKeyListFromKeyBlock(cBoardContent, errorMsgObj);
   var exitStatus = -1;
 
-  if (preview.length > 0) {
+  if (preview && preview.length > 0) {
     if (preview.length == 1) {
       exitStatus = EnigmailDialog.confirmDlg(
         window,
@@ -774,6 +774,8 @@ function enigmailImportFromClipbrd() {
       EnigmailDialog.keyImportDlg(window, keyList);
       refreshKeys();
     }
+  } else {
+    EnigmailDialog.alert(window, EnigmailLocale.getString("previewFailed"));
   }
 }
 
@@ -1056,11 +1058,10 @@ function enigmailImportKeysFromUrl() {
         EnigmailLog.DEBUG("enigmailImportKeysFromUrl: _cbFunc()\n");
         var errorMsgObj = {};
 
-        // preview
         var preview = EnigmailKey.getKeyListFromKeyBlock(data, errorMsgObj);
         var exitStatus = -1;
 
-        if (preview.length > 0) {
+        if (preview && preview.length > 0) {
           if (preview.length == 1) {
             exitStatus = EnigmailDialog.confirmDlg(
               window,
@@ -1094,6 +1095,11 @@ function enigmailImportKeysFromUrl() {
             errorMsgObj.preview = preview;
             resolve(errorMsgObj);
           }
+        } else {
+          EnigmailDialog.alert(
+            window,
+            EnigmailLocale.getString("previewFailed")
+          );
         }
       };
 

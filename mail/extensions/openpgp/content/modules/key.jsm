@@ -138,7 +138,7 @@ var EnigmailKey = {
     EnigmailLog.DEBUG("key.jsm: getKeyListFromKeyBlock\n");
 
     const cApi = EnigmailCryptoAPI();
-    let keyList = [];
+    let keyList;
     let key = {};
     let blocks;
     errorMsgObj.value = "";
@@ -149,23 +149,23 @@ var EnigmailKey = {
       );
     } catch (ex) {
       errorMsgObj.value = ex.toString();
-      return [];
+      return null;
     }
 
-    let retArr = [];
-    for (let k in keyList) {
-      retArr.push(keyList[k]);
+    if (!keyList) {
+      return null;
     }
 
-    if (interactive && retArr.length === 1) {
-      key = retArr[0];
+    if (interactive && keyList.length === 1) {
+      // TODO: not yet tested
+      key = keyList[0];
       if ("revoke" in key && !("name" in key)) {
         this.importRevocationCert(key.id, blocks.join("\n"));
         return [];
       }
     }
 
-    return retArr;
+    return keyList;
   },
 
   /**

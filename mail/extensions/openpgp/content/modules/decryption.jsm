@@ -563,7 +563,7 @@ var EnigmailDecryption = {
         exitCodeObj.keyList = preview;
         let exitStatus = 0;
 
-        if (errorMsgObj.value === "") {
+        if (preview && errorMsgObj.value === "") {
           if (preview.length > 0) {
             if (preview.length == 1) {
               exitStatus = EnigmailDialog.confirmDlg(
@@ -601,6 +601,11 @@ var EnigmailDecryption = {
               statusFlagsObj.value = EnigmailConstants.DISPLAY_MESSAGE;
             }
           }
+        } else {
+          console.debug(
+            "Failed to obtain key list from key block in decrypted attachment. " +
+              errorMsgObj.value
+          );
         }
       } else {
         exitCodeObj.value = 0;

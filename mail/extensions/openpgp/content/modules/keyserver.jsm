@@ -488,7 +488,7 @@ const accessHkpInternal = {
    *           - status: String: one of ''=valid, r=revoked, e=expired
    *           - uid: Array of Strings with UIDs
    */
-  async search(searchTerm, keyserver, listener = null) {
+  async searchKeyserver(searchTerm, keyserver, listener = null) {
     EnigmailLog.DEBUG(
       `keyserver.jsm: accessHkpInternal.search(${searchTerm})\n`
     );
@@ -785,7 +785,7 @@ const accessKeyBase = {
    *           - uid: Array of Strings with UIDs
 
    */
-  async search(searchTerm, keyserver, listener = null) {
+  async searchKeyserver(searchTerm, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessKeyBase: search()\n`);
     let retObj = {
       result: 0,
@@ -1304,7 +1304,7 @@ const accessVksServer = {
    *           - status: String: one of ''=valid, r=revoked, e=expired
    *           - uid: Array of Strings with UIDs
    */
-  async search(searchTerm, keyserver, listener = null) {
+  async searchKeyserver(searchTerm, keyserver, listener = null) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessVksServer.search(${searchTerm})\n`);
     let retObj = {
       result: 0,
@@ -1326,6 +1326,11 @@ const accessVksServer = {
 
         const cApi = EnigmailCryptoAPI();
         let keyList = await cApi.getKeyListFromKeyBlock(r);
+        if (!keyList) {
+          retObj.result = -1;
+          // TODO: should we set retObj.errorDetails to a string?
+          return retObj;
+        }
 
         for (let k in keyList) {
           key = {
@@ -1408,7 +1413,7 @@ var EnigmailKeyServer = {
    *           - status: String: one of ''=valid, r=revoked, e=expired
    *           - uid: Array of Strings with UIDs
    */
-  search(searchString, keyserver = null, listener) {
+  searchKeyserver(searchString, keyserver = null, listener) {
     let acc = getAccessType(keyserver);
     return acc.search(searchString, keyserver, listener);
   },

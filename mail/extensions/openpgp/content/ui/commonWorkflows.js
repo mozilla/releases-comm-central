@@ -73,8 +73,11 @@ function EnigmailCommon_importKeysFromFile(secret) {
     secret
   );
 
-  if (errorMsgObj.value && errorMsgObj.value.length > 0) {
-    EnigmailDialog.alert(window, errorMsgObj.value);
+  if (!preview || errorMsgObj.value) {
+    EnigmailDialog.alert(
+      window,
+      EnigmailLocale.getString("importKeysFailed") + "\n\n" + errorMsgObj.value
+    );
     return false;
   }
   let exitStatus = -1;

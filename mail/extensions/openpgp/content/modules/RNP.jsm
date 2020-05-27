@@ -1165,15 +1165,9 @@ var RNP = {
     // as seen in keyRing.importKeyAsync.
     // (should prevent the incorrect popup "no keys imported".)
 
-    /*
-    if (!rv) {
-      console.debug(
-        "result key listing, rv= %s, result= %s",
-        rv,
-        jsonInfo.readString()
-      );
+    if (rv) {
+      console.debug("rnp_import_keys failed with  rv: " + rv);
     }
-    */
 
     RNPLib.rnp_buffer_destroy(jsonInfo);
     RNPLib.rnp_input_destroy(input_from_memory);
@@ -1181,45 +1175,19 @@ var RNP = {
     return rv;
   },
 
-  isSimpleASCII(str) {
-    if (!str.length) {
-      return true;
-    }
-    for (let i = 0; i < str.length; i++) {
-      let c = str.charCodeAt(i);
-      switch (c) {
-        case 9: // tab
-        case 10: // LF
-        case 13: // CR
-          break;
-        default:
-          if (c < 32 || c > 126) {
-            return false;
-          }
-      }
-    }
-    return true;
-  },
-
   async getKeyListFromKeyBlock(keyBlockStr, pubkey = true, seckey = false) {
-    // Create a separate, temporary RNP storage area (FFI),
-    // import the key block into it, then get the listing.
-    //if (!this.isSimpleASCII(keyBlockStr)) {
-    //  return null;
-    //}
-
     let tempFFI = new RNPLib.rnp_ffi_t();
     if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    // check result
-    this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey);
-
-    let keys = await this.getKeysFromFFI(tempFFI, true);
+    let keyList = null;
+    if (!this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey)) {
+      keyList = await this.getKeysFromFFI(tempFFI, true);
+    }
 
     RNPLib.rnp_ffi_destroy(tempFFI);
-    return keys;
+    return keyList;
   },
 
   async importKeyBlock(

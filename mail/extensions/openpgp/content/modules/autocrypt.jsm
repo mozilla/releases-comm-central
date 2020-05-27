@@ -1145,13 +1145,10 @@ async function getFprForKey(paramsArr) {
   const cApi = EnigmailCryptoAPI();
 
   try {
-    let keyInfo = await cApi.getKeyListFromKeyBlock(keyData);
-
-    // keyInfo is an object, not an array => convert to array 1st
-    let keyArr = [];
-
-    for (let k in keyInfo) {
-      keyArr.push(keyInfo[k]);
+    let keyArr = await cApi.getKeyListFromKeyBlock(keyData);
+    if (!keyArr) {
+      // callers can handle empty string for paramsArr.fpr
+      return;
     }
 
     if (keyArr.length === 1) {

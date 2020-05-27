@@ -12,18 +12,12 @@ var EnigmailKeyRing = ChromeUtils.import(
 var { EnigmailWindows } = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
 );
-var EnigmailWkdLookup = ChromeUtils.import(
-  "chrome://openpgp/content/modules/wkdLookup.jsm"
-).EnigmailWkdLookup;
-var { EnigmailKeyserverURIs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserverUris.jsm"
-);
-var EnigmailKeyServer = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserver.jsm"
-).EnigmailKeyServer;
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
+var KeyLookupHelper = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyLookupHelper.jsm"
+).KeyLookupHelper;
 
 var gListBox;
 var gViewButton;
@@ -149,52 +143,5 @@ function viewSelectedKey() {
 }
 
 async function discoverKey() {
-  let foundKeys = null;
-  foundKeys = await EnigmailWkdLookup.downloadKey(gAddr);
-  if (!foundKeys) {
-    console.debug("searchKeysOnInternet no wkd data");
-  } else {
-    let keyList = EnigmailKey.getKeyListFromKeyBlock(
-      foundKeys.keyData,
-      {},
-      false
-    );
-    let somethingWasImported = EnigmailKeyRing.importKeyDataWithConfirmation(
-      window,
-      keyList,
-      foundKeys.keyData,
-      true
-    );
-    if (somethingWasImported) {
-      reload();
-    }
-    return;
-  }
-
-  let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
-  if (!defKs) {
-    return;
-  }
-
-  let vks = await EnigmailKeyServer.downloadNoImport(gAddr, defKs);
-  if ("keyData" in vks) {
-    let keyList = EnigmailKey.getKeyListFromKeyBlock(
-      vks.keyData,
-      {},
-      false,
-      true,
-      false
-    );
-    let somethingWasImported = EnigmailKeyRing.importKeyDataWithConfirmation(
-      window,
-      keyList,
-      vks.keyData,
-      true
-    );
-    if (somethingWasImported) {
-      reload();
-    }
-  } else {
-    console.debug("searchKeysOnInternet no data in keys.openpgp.org");
-  }
+  KeyLookupHelper.lookupAndImportByEmail(window, gAddr, true, reload);
 }
