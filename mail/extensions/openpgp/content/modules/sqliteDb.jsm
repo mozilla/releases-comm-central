@@ -164,11 +164,21 @@ var PgpSqliteDb2 = {
           decisionObj
         );
 
+        /* A key might contain multiple user IDs with the same email
+         * address. We add each email only once. */
+        let alreadyAdded = new Set();
         let insertObj = {
           fpr: fingerprint,
         };
         for (let email of emailArray) {
+          if (!email) {
+            continue;
+          }
           insertObj.email = email.toLowerCase();
+          if (alreadyAdded.has(insertObj.email)) {
+            continue;
+          }
+          alreadyAdded.add(insertObj.email);
           await conn.execute(
             "insert into acceptance_email values (:fpr, :email)",
             insertObj
