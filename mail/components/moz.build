@@ -21,6 +21,7 @@ DIRS += [
     'migration',
     'newmailaccount',
     'preferences',
+    'prompts',
     'search',
     'shell',
     'wintaskbar',
