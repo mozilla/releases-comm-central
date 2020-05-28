@@ -1190,8 +1190,12 @@ Enigmail.hdrView = {
       if (uriSpec && uriSpec.search(/^enigmail:message\//) === 0) {
         // display header for broken MS-Exchange message
         document.getElementById("brokenExchangeBox").removeAttribute("hidden");
-        document.getElementById("brokenExchangeRepairButton").removeAttribute("hidden");
-        document.getElementById("brokenExchangeWait").setAttribute("hidden", true);
+        document
+          .getElementById("brokenExchangeRepairButton")
+          .removeAttribute("hidden");
+        document
+          .getElementById("brokenExchangeWait")
+          .setAttribute("hidden", true);
       }
     },
 

@@ -111,7 +111,7 @@ var EnigmailFixExchangeMsg = {
           );
         }
 
-        let [ good, errorCode, msg ] = self.getRepairedMessage(data);
+        let [good, errorCode, msg] = self.getRepairedMessage(data);
 
         if (!good) {
           reject(errorCode);

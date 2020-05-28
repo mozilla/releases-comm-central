@@ -1891,7 +1891,9 @@ Enigmail.msg = {
   fixBuggyExchangeMail() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: fixBuggyExchangeMail:\n");
 
-    document.getElementById("brokenExchangeRepairButton").setAttribute("hidden", true);
+    document
+      .getElementById("brokenExchangeRepairButton")
+      .setAttribute("hidden", true);
     document.getElementById("brokenExchangeWait").removeAttribute("hidden");
 
     function hideBrokenExchangePane() {
