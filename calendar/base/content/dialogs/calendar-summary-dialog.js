@@ -258,14 +258,11 @@ function browseDocument() {
 }
 
 /**
- * Copy the value of the given link node to the clipboard.
+ * Copy the text content of the given link node to the clipboard.
  *
- * @param {string} linkNode - The node containing the value to copy to the clipboard.
+ * @param {string} labelNode - The label node inside an html:a element.
  */
-function locationCopyLink(linkNode) {
-  if (linkNode) {
-    let linkAddress = linkNode.value;
-    let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
-    clipboard.copyString(linkAddress);
-  }
+function locationCopyLink(labelNode) {
+  let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
+  clipboard.copyString(labelNode.parentNode.getAttribute("href"));
 }

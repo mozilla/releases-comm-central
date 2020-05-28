@@ -211,6 +211,14 @@ label.label {
   padding-inline-start: 4px;
 }
 
+.item-location-link {
+  padding-inline-start: 0;
+}
+
+.item-location-link > label{
+  cursor: pointer;
+}
+
 #todo-status,
 #item-repeat,
 .item-alarm {

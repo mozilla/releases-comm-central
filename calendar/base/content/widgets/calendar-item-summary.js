@@ -580,14 +580,18 @@
       let url = urlMatch && urlMatch[1];
       let itemLocation = this.querySelector(".item-location");
       if (url) {
-        let locationLabel = document.createXULElement("label");
-        locationLabel.setAttribute("class", "item-location-link text-link");
-        locationLabel.setAttribute("context", "location-link-context-menu");
-        locationLabel.setAttribute("value", url);
-        locationLabel.setAttribute("tooltiptext", url);
-        locationLabel.setAttribute("onclick", "launchBrowser(this.getAttribute('value'), event)");
-        locationLabel.setAttribute("oncommand", "launchBrowser(this.getAttribute('value'), event)");
-        itemLocation.replaceWith(locationLabel);
+        let link = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+        link.setAttribute("class", "item-location-link text-link");
+        link.setAttribute("href", url);
+        link.setAttribute("onclick", "launchBrowser(this.getAttribute('href'), event)");
+        link.setAttribute("oncommand", "launchBrowser(this.getAttribute('href'), event)");
+
+        let label = document.createXULElement("label");
+        label.setAttribute("context", "location-link-context-menu");
+        label.textContent = location;
+        link.appendChild(label);
+
+        itemLocation.replaceWith(link);
       } else {
         itemLocation.value = location;
       }
