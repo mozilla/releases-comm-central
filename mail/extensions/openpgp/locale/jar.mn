@@ -1,6 +1,0 @@
-#filter substitution
-
-#openpgp.jar:
-#% locale openpgp @AB_CD@ %
-#  locale/openpgp/enigmail.properties  (%enigmail.properties)
-#  locale/openpgp/enigmail.dtd         (%enigmail.dtd)

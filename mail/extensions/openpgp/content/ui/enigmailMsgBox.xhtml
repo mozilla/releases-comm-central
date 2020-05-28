@@ -12,8 +12,6 @@
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
-%enigMailDTD;
 ]>
 
 <window title=""
@@ -25,10 +23,13 @@
         buttonpack="center">
 
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailMsgBox.js"/>
+  <linkset>
+    <html:link rel="localization" href="messenger/openpgp/enigmail.ftl"/>
+  </linkset>
 
   <popupset>
     <menupopup id="ctxmenu">
-      <menuitem label="&copyCmd.label;" oncommand="copyToClipbrd()"/>
+      <menuitem data-l10n-id="openpgp-copy-cmd-label" oncommand="copyToClipbrd()"/>
     </menupopup>
   </popupset>
 

@@ -11,8 +11,6 @@
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
-%enigMailDTD;
 ]>
 
 <dialog id="enigmailKeyImportInfo"
@@ -25,6 +23,9 @@
         xmlns:html="http://www.w3.org/1999/xhtml">
 
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyImportInfo.js"/>
+  <linkset>
+    <html:link rel="localization" href="messenger/openpgp/enigmail.ftl"/>
+  </linkset>
 
   <vbox align="center" flex="1" style="overflow:auto" id="outerbox">
     <hbox align="center" flex="1">

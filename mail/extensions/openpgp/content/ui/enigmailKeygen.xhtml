@@ -11,11 +11,9 @@
 
 <?xul-overlay href="chrome://global/content/dialogOverlay.xhtml"?>
 
-<!DOCTYPE window SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
-
 <window
      id="enigmailKeygen"
-     title="&enigmail.keygenTitle.label;"
+     data-l10n-id="openpgp-keygen-title-label"
      windowtype="enigmail:keygen"
      width="600" height="480"
      orient="vertical"
@@ -29,11 +27,15 @@
 <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
 <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeygen.js"/>
 
+<linkset>
+  <html:link rel="localization" href="messenger/openpgp/enigmail.ftl"/>
+</linkset>
+
 <popupset id="aTooltipSet"/>
 
 <vbox class="enigmailGroupbox" id="userIdBox">
   <hbox orient="horizontal" align="center">
-    <label value="&enigmail.keyUserId.label;" control="userIdentity"/>
+    <label data-l10n-id="openpgp-key-user-id-label" control="userIdentity"/>
     <menulist id="userIdentity" label="..." flex="1">
       <menupopup id="userIdentityPopup"/>
     </menulist>
@@ -43,26 +45,26 @@
 
 <tabbox flex="1">
   <tabs id="settingsTabBox">
-    <tab id="basicTab"    label="&enigmail.keyGen.expiry.title;"/>
-    <tab id="advancedTab" label="&enigmail.advancedPrefsButton.label;"/>
+    <tab id="basicTab" data-l10n-id="openpgp-key-gen-expiry-title"/>
+    <tab id="advancedTab" data-l10n-id="openpgp-advanced-prefs-button-label"/>
   </tabs>
 
   <tabpanels flex="1">
 
     <hbox> <!-- Basic Tab -->
       <hbox align="center">
-        <label value="&enigmail.keyGen.expire.label;" control="expireInput"/>
+        <label data-l10n-id="openpgp-key-gen-expire-label" control="expireInput"/>
       </hbox>
       <hbox align="center">
         <html:input id="expireInput" size="5" maxlength="5" value="1"/>
-        <menulist id="timeScale" label="&enigmail.keyGen.months.label;" value="30">
+        <menulist id="timeScale" data-l10n-id="openpgp-key-gen-months-label" value="30">
           <menupopup id="timeScalePopup">
-            <menuitem id="years" value="365" label="&enigmail.keyGen.years.label;"/>
-            <menuitem id="months" value="30" label="&enigmail.keyGen.months.label;" selected="true"/>
-            <menuitem id="days" value="1" label="&enigmail.keyGen.days.label;"/>
+            <menuitem id="years" value="365" data-l10n-id="openpgp-key-gen-years-label"/>
+            <menuitem id="months" value="30" data-l10n-id="openpgp-key-gen-months-label" selected="true"/>
+            <menuitem id="days" value="1" data-l10n-id="openpgp-key-gen-days-label"/>
           </menupopup>
         </menulist>
-        <checkbox label="&enigmail.keyGen.noExpiry.label;"
+        <checkbox data-l10n-id="openpgp-key-gen-no-expiry-label"
                   id="noExpiry" oncommand="onNoExpiry()"/>
       </hbox>
     </hbox>
@@ -70,22 +72,18 @@
     <vbox> <!-- Advanced Tab -->
       <html:div class="grid-two-column-fr">
         <html:div class="flex-items-center">
-          <html:label for="keyType">
-            &enigmail.keyGen.keyType.label;
-          </html:label>
+          <html:label for="keyType" data-l10n-id="openpgp-key-gen-key-type-label"/>
         </html:div>
         <html:div>
-          <menulist id="keyType" label="&enigmail.keyGen.keyType.rsa;" value="RSA">
+          <menulist id="keyType" data-l10n-id="openpgp-key-gen-key-type-rsa" value="RSA">
             <menupopup id="keyTypePopup">
-              <menuitem id="keySize_rsa" value="RSA" label="&enigmail.keyGen.keyType.rsa;" selected="true" oncommand="updateKeySizeSel(this)"/>
-              <menuitem id="keyType_ecc" value="ECC" label="&enigmail.keyGen.keyType.ecc;" oncommand="updateKeySizeSel(this)" hidden="true"/>
+              <menuitem id="keySize_rsa" value="RSA" data-l10n-id="openpgp-key-gen-key-type-rsa" selected="true" oncommand="updateKeySizeSel(this)"/>
+              <menuitem id="keyType_ecc" value="ECC" data-l10n-id="openpgp-key-gen-key-type-ecc" oncommand="updateKeySizeSel(this)" hidden="true"/>
             </menupopup>
           </menulist>
         </html:div>
         <html:div class="flex-items-center">
-          <html:label for="keySize">
-            &enigmail.keyGen.keySize.label;
-          </html:label>
+          <html:label for="keySize" data-l10n-id="openpgp-key-gen-key-size-label"/>
         </html:div>
         <html:div>
           <menulist id="keySize" label="3072" value="3072">
@@ -103,25 +101,23 @@
 <separator/>
 
 <hbox autostretch="never">
-  <button label="&enigmail.generateKey.label;"
+  <button data-l10n-id="openpgp-generate-key"
           class="dialog"
           tooltip="aTooltip"
-          tooltiptext="&enigmail.generateKey.tooltip;"
           oncommand="enigmailKeygenStart();" />
 
-  <button label="&enigmail.cancelKey.label;"
+  <button data-l10n-id="openpgp-cancel-key"
           class="dialog"
           tooltip="aTooltip"
-          tooltiptext="&enigmail.cancelKey.tooltip;"
           oncommand="enigmailKeygenCancel();" />
 </hbox>
 
 <separator/>
 
 <vbox class="enigmailCaptionbox" id="keygenConsoleBox" orient="vertical" flex="1">
-  <html:h1><html:span>&enigmail.keyGen.console.label;</html:span></html:h1>
+  <html:h1 data-l10n-id="openpgp-key-gen-console-label"/>
 
-  <description>&enigmail.keygen.desc;</description>
+  <description data-l10n-id="openpgp-keygen-desc"><a data-l10n-name="openpgp-keygen-desc-link" class="enigmailStrong"></a></description>
 
   <vbox class="enigmailGroupbox">
     <html:progress id="keygenProgress" max="100" value="0"/>

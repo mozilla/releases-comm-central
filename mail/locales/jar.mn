@@ -24,6 +24,7 @@
   messenger/openpgp/composeKeyStatus.ftl                                (../extensions/openpgp/content/strings/composeKeyStatus.ftl)
   messenger/openpgp/msgReadStatus.ftl                                   (../extensions/openpgp/content/strings/msgReadStatus.ftl)
   messenger/openpgp/oneRecipientStatus.ftl                              (../extensions/openpgp/content/strings/oneRecipientStatus.ftl)
+  messenger/openpgp/enigmail.ftl                                        (../extensions/openpgp/content/strings/enigmail.ftl)
   messenger                                                             (%messenger/**/*.ftl)
 
 

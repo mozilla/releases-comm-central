@@ -11,11 +11,9 @@
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
 %brandDTD;
-<!ENTITY % enigMailDTD SYSTEM "chrome://openpgp/content/strings/enigmail.dtd" >
-%enigMailDTD;
 ]>
 
-<window title="&enigmail.keyDetails.title;"
+<window data-l10n-id="openpgp-key-details-title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         style="min-width:60em; min-height:30em"
@@ -23,13 +21,16 @@
         onload="onLoad();">
 <dialog id="enigmailKeyDetailsDlg"
         buttons="accept"
-        buttonlabelaccept="&enigmail.cardDetails.closeWindow.label;">
+        data-l10n-id="openpgp-card-details-close-window-label">
 
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/keyDetailsDlg.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyManager.js"/>
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
+  <linkset>
+    <html:link rel="localization" href="messenger/openpgp/enigmail.ftl"/>
+  </linkset>
 
   <broadcasterset>
     <broadcaster id="ownKeyCommands" hidden="true"/>
@@ -38,35 +39,35 @@
   <vbox>
     <html:table>
       <html:tr>
-        <html:th>&enigmail.keyDetails.userId2.label;</html:th>
+        <html:th data-l10n-id="openpgp-key-details-user-id2-label"/>
         <html:td>
           <html:input id="userId" class="plain" style="white-space: pre;"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
       <html:tr>
-        <html:th>&enigmail.keyDetails.keyType.label;</html:th>
+        <html:th data-l10n-id="openpgp-key-details-key-type-label"/>
         <html:td>
           <html:input id="keyType" class="plain" style="white-space: pre;"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
       <html:tr>
-        <html:th>&enigmail.keyDetails.fingerprint.label;</html:th>
+        <html:th data-l10n-id="openpgp-key-details-fingerprint-label"/>
         <html:td>
           <html:input id="fingerprint" class="plain" style="white-space: pre;"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
       <html:tr>
-        <html:th>&enigmail.keyDetails.created.label;</html:th>
+        <html:th data-l10n-id="openpgp-key-details-created-header"/>
         <html:td>
           <html:input id="keyCreated" class="plain" style="white-space: pre;"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
       <html:tr>
-        <html:th>&enigmail.keyDetails.expiry.label;</html:th>
+        <html:th data-l10n-id="openpgp-key-details-expiry-header"/>
         <html:td>
           <html:input id="keyExpiry" class="plain" style="white-space: pre;"
                       readonly="readonly" value="?" size="60"/>
@@ -74,16 +75,16 @@
       </html:tr>
     </html:table>
     <vbox class="enigmailCaptionbox" id="alsoknown" flex="1">
-      <html:h1><html:span>&enigmail.keyDetails.alsoKnown.label;:</html:span></html:h1>
+      <html:h1 data-l10n-id="openpgp-key-details-also-known-label"/>
       <richlistbox id="additionalUid" style="height: 4em;" flex="1"/>
     </vbox>
   </vbox>
 
   <tabbox flex="1" style="margin:5px" id="mainTabs">
     <tabs id="mainTabBox">
-      <tab id="acceptanceTab"  label="&enigmail.acceptance.label;"/>
-      <tab id="signaturesTab"  label="&enigmail.keyDetails.signaturesTab;"/>
-      <tab id="structureTab"   label="&enigmail.keyDetails.structureTab;"/>
+      <tab id="acceptanceTab" data-l10n-id="openpgp-acceptance-label"/>
+      <tab id="signaturesTab" data-l10n-id="openpgp-key-details-signatures-tab"/>
+      <tab id="structureTab" data-l10n-id="openpgp-key-details-structure-tab"/>
     </tabs>
 
     <tabpanels flex="1" id="mainTabPanel">
@@ -95,36 +96,33 @@
         <separator class="thin"/>
         <radiogroup id="acceptanceRadio" hidden="true">
           <radio id="acceptRejected" value="rejected"
-                 label="&enigmail.acceptance.rejected.label;"/>
-
+                 data-l10n-id="openpgp-acceptance-rejected-label"/>
           <radio id="acceptUndecided" value="undecided"
-                 label="&enigmail.acceptance.undecided.label;"/>
-
+                 data-l10n-id="openpgp-acceptance-undecided-label"/>
           <radio id="acceptUnverified" value="unverified"
-                 label="&enigmail.acceptance.unverified.label;"/>
-
+                 data-l10n-id="openpgp-acceptance-unverified-label"/>
           <radio id="acceptVerified" value="verified"
-                 label="&enigmail.acceptance.verified.label;"/>
+                 data-l10n-id="openpgp-acceptance-verified-label"/>
         </radiogroup>
       </vbox>
 
       <!-- certifications tab -->
       <vbox id="signaturesPanel">
         <tree id="signatures_tree" flex="1"
-          hidecolumnpicker="true"
-          ondblclick="sigHandleDblClick(event)">
+              hidecolumnpicker="true"
+              ondblclick="sigHandleDblClick(event)">
 
           <treecols>
             <treecol id="sig_uid_col" flex="1"
-                label="&enigmail.keyDetails.uidCertifiedCol;"
-                primary="true"/>
+                     data-l10n-id="openpgp-key-details-uid-certified-col"
+                     primary="true"/>
             <splitter class="tree-splitter"/>
             <splitter class="tree-splitter"/>
             <treecol id="sig_keyid_col"
-                     label="&enigmail.keyId.label;"
+                     data-l10n-id="openpgp-key-id-label"
                      persist="width"/>
             <treecol id="sig_created_col"
-                     label="&enigmail.keyDetails.created.label;"
+                     data-l10n-id="openpgp-key-details-created-label"
                      persist="width"/>
           </treecols>
 
@@ -136,38 +134,38 @@
       <vbox id ="structurePanel">
         <hbox flex="1">
           <tree id="subkeyList" flex="1"
-            enableColumnDrag="true"
-            style="height:100px"
-            hidecolumnpicker="false">
+                enableColumnDrag="true"
+                style="height:100px"
+                hidecolumnpicker="false">
 
             <treecols>
               <treecol id="keyTypeCol" primary="true"
-                  label="&enigmail.keyDetails.keyPart.label;"
-                  style="width:71px"
-                  persist="width"/>
+                       data-l10n-id="openpgp-key-details-key-part-label"
+                       style="width:71px"
+                       persist="width"/>
               <splitter class="tree-splitter"/>
               <treecol id="keyUsageCol"
-                       label="&enigmail.keyDetails.usage.label;"
+                       data-l10n-id="openpgp-key-details-usage-label"
                        flex="1"/>
               <splitter class="tree-splitter"/>
               <treecol id="keyIdCol" style="width:77px"
-                       label="&enigmail.keyDetails.ID.label;"
+                       data-l10n-id="openpgp-key-details-id-label"
                        persist="width"/>
               <splitter class="tree-splitter"/>
               <treecol id="algoCol" style="width:60px"
-                       label="&enigmail.keyDetails.algorithm.label;"
+                       data-l10n-id="openpgp-key-details-algorithm-label"
                        persist="width"/>
               <splitter class="tree-splitter"/>
               <treecol id="sizeCol" style="width:37px"
-                       label="&enigmail.keyDetails.size.label;"
+                       data-l10n-id="openpgp-key-details-size-label"
                        persist="width"/>
               <splitter class="tree-splitter"/>
               <treecol id="createdCol" style="width:70px"
-                       label="&enigmail.keyDetails.created.label;"
+                       data-l10n-id="openpgp-key-details-created-label"
                        persist="width"/>
               <splitter class="tree-splitter"/>
               <treecol id="expiryCol" style="width:70px"
-                       label="&enigmail.keyDetails.expiry.label;"
+                       data-l10n-id="openpgp-key-details-expiry-label"
                        persist="width"/>
             </treecols>
 
@@ -183,11 +181,10 @@
   <separator/>
 
   <hbox flex="0" observes="ownKeyCommands">
-    <button id="actions" label="&enigmail.keyDetails.selAction.label;"
-            accesskey="&enigmail.keyDetails.selAction.accesskey;" type="menu">
+    <button id="actions" data-l10n-id="openpgp-key-details-sel-action" type="menu">
       <menupopup id="actionPopup">
-        <menuitem label="&enigmail.keyMan.revokeKey.label;" oncommand="revokeKey()"/>
-        <menuitem label="&enigmail.keyMan.ctxGenRevoke.label;" oncommand="genRevocationCert()"/>
+        <menuitem data-l10n-id="openpgp-key-man-revoke-key-label" oncommand="revokeKey()"/>
+        <menuitem data-l10n-id="openpgp-key-man-ctx-gen-revoke-label" oncommand="genRevocationCert()"/>
       </menupopup>
     </button>
   </hbox>

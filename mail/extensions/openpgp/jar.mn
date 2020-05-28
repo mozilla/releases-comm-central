@@ -10,7 +10,6 @@ openpgp.jar:
   content/openpgp/modules/stdlib               (content/modules/stdlib/*.js*)
   content/openpgp/modules/cryptoAPI            (content/modules/cryptoAPI/*.js*)
   content/openpgp/strings/enigmail.properties  (content/strings/enigmail.properties)
-  content/openpgp/strings/enigmail.dtd         (content/strings/enigmail.dtd)
   content/openpgp/ui                           (content/ui/*.js)
   content/openpgp/ui                           (content/ui/*.xhtml)
   content/openpgp/ui                           (content/ui/*.css)
