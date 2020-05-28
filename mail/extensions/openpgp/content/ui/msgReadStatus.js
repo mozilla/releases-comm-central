@@ -107,10 +107,7 @@ function onLoad() {
     element.firstElementChild.remove();
   }
   if (hasAnySig) {
-    document.l10n.setAttributes(
-      document.getElementById("signatureLabel"),
-      sigInfo
-    );
+    document.l10n.setAttributes(element, sigInfo);
   } else {
     let textNode = document.createTextNode(sigInfo);
     element.appendChild(textNode);
