@@ -7,9 +7,14 @@ let account, rootFolder, subFolders;
 add_task(async function setup() {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
-  subFolders = [...rootFolder.subFolders];
-  createMessages(subFolders[0], 10);
-  createMessages(subFolders[1], 50);
+  rootFolder.createSubfolder("test1", null);
+  rootFolder.createSubfolder("test2", null);
+  subFolders = {};
+  for (let folder of rootFolder.subFolders) {
+    subFolders[folder.name] = folder;
+  }
+  createMessages(subFolders.test1, 10);
+  createMessages(subFolders.test2, 50);
 
   window.gFolderTreeView.selectFolder(rootFolder);
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
@@ -218,8 +223,8 @@ add_task(async function test_displayedFolderChanged() {
         browser.test.sendMessage("selectFolder", newFolderPath);
       });
     }
-    await selectFolder("/Trash");
-    await selectFolder("/Unsent Messages");
+    await selectFolder("/test1");
+    await selectFolder("/test2");
     await selectFolder("/");
 
     async function selectFolderByUpdate(newFolderPath) {
@@ -239,10 +244,10 @@ add_task(async function test_displayedFolderChanged() {
         });
       });
     }
-    await selectFolderByUpdate("/Trash");
-    await selectFolderByUpdate("/Unsent Messages");
+    await selectFolderByUpdate("/test1");
+    await selectFolderByUpdate("/test2");
     await selectFolderByUpdate("/");
-    await selectFolderByUpdate("/Trash");
+    await selectFolderByUpdate("/test1");
 
     await new Promise(setTimeout);
     browser.test.notifyPass("mailTabs");
@@ -250,8 +255,8 @@ add_task(async function test_displayedFolderChanged() {
 
   let folderMap = new Map([
     ["/", rootFolder],
-    ["/Trash", subFolders[0]],
-    ["/Unsent Messages", subFolders[1]],
+    ["/test1", subFolders.test1],
+    ["/test2", subFolders.test2],
   ]);
 
   let extension = ExtensionTestUtils.loadExtension({
@@ -341,11 +346,11 @@ add_task(async function test_selectedMessagesChanged() {
     manifest: { permissions: ["accountsRead", "messagesRead"] },
   });
 
-  window.gFolderTreeView.selectFolder(subFolders[1]);
+  window.gFolderTreeView.selectFolder(subFolders.test2);
   if (!window.IsMessagePaneCollapsed()) {
     window.MsgToggleMessagePane();
   }
-  let allMessages = [...window.gFolderDisplay.displayedFolder.messages];
+  let allMessages = [...subFolders.test2.messages];
 
   extension.onMessage("selectMessage", newMessages => {
     window.gFolderDisplay.selectMessages(newMessages.map(i => allMessages[i]));
@@ -388,40 +393,37 @@ add_task(async function test_background_tab() {
     browser.test.assertEq("/", allMailTabs[0].displayedFolder.path);
 
     browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
-    browser.test.assertEq("/Trash", allMailTabs[1].displayedFolder.path);
+    browser.test.assertEq("/test1", allMailTabs[1].displayedFolder.path);
     browser.test.assertTrue(allMailTabs[1].active);
 
     // Check the initial state.
     await awaitMessage("checkRealLayout", {
       messagePaneVisible: true,
       folderPaneVisible: true,
-      displayedFolder: "/Trash",
+      displayedFolder: "/test1",
     });
 
     await browser.mailTabs.update(allMailTabs[0].id, {
       folderPaneVisible: false,
       messagePaneVisible: false,
-      displayedFolder: folders[1],
+      displayedFolder: folders.find(f => f.name == "test2"),
     });
 
     // Should be in the same state, since we're updating a background tab.
     await awaitMessage("checkRealLayout", {
       messagePaneVisible: true,
       folderPaneVisible: true,
-      displayedFolder: "/Trash",
+      displayedFolder: "/test1",
     });
 
     allMailTabs = await browser.mailTabs.query({});
     browser.test.assertEq(2, allMailTabs.length);
 
     browser.test.assertEq(accountId, allMailTabs[0].displayedFolder.accountId);
-    browser.test.assertEq(
-      "/Unsent Messages",
-      allMailTabs[0].displayedFolder.path
-    );
+    browser.test.assertEq("/test2", allMailTabs[0].displayedFolder.path);
 
     browser.test.assertEq(accountId, allMailTabs[1].displayedFolder.accountId);
-    browser.test.assertEq("/Trash", allMailTabs[1].displayedFolder.path);
+    browser.test.assertEq("/test1", allMailTabs[1].displayedFolder.path);
     browser.test.assertTrue(allMailTabs[1].active);
 
     // Switch to the other mail tab.
@@ -431,7 +433,7 @@ add_task(async function test_background_tab() {
     await awaitMessage("checkRealLayout", {
       messagePaneVisible: false,
       folderPaneVisible: false,
-      displayedFolder: "/Unsent%20Messages",
+      displayedFolder: "/test2",
     });
 
     await browser.mailTabs.update(allMailTabs[0].id, {
@@ -441,7 +443,7 @@ add_task(async function test_background_tab() {
     await awaitMessage("checkRealLayout", {
       messagePaneVisible: true,
       folderPaneVisible: true,
-      displayedFolder: "/Unsent%20Messages",
+      displayedFolder: "/test2",
     });
 
     // Switch back to the first mail tab.
@@ -451,7 +453,7 @@ add_task(async function test_background_tab() {
     await awaitMessage("checkRealLayout", {
       messagePaneVisible: true,
       folderPaneVisible: true,
-      displayedFolder: "/Trash",
+      displayedFolder: "/test1",
     });
 
     browser.test.notifyPass("mailTabs");
@@ -481,7 +483,7 @@ add_task(async function test_background_tab() {
   let tabmail = document.getElementById("tabmail");
   window.openContentTab("about:config");
   window.openContentTab("about:mozilla");
-  tabmail.openTab("folder", { folder: subFolders[0] });
+  tabmail.openTab("folder", { folder: subFolders.test1 });
 
   await extension.startup();
   extension.sendMessage(account.key);
