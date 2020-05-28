@@ -353,6 +353,14 @@ function folderPropsOnLoad() {
     if (imapFolder) {
       imapFolder.fillInFolderProps(gFolderPropsSink);
     }
+
+    let users = [...imapFolder.getOtherUsersWithAccess()];
+    if (users.length) {
+      document.getElementById("folderOtherUsers").hidden = false;
+      document.getElementById("folderOtherUsersText").textContent = users.join(
+        ", "
+      );
+    }
   }
 
   var retentionSettings = gMsgFolder.retentionSettings;

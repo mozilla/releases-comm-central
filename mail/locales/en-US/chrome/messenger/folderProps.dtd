@@ -59,6 +59,7 @@
 <!ENTITY privileges.button.label                 "Privileges…">
 <!ENTITY privileges.button.accesskey             "P">
 <!ENTITY permissionsDesc.label                   "You have the following permissions:">
+<!ENTITY folderOtherUsers.label                  "Others with access to this folder:">
 <!ENTITY folderType.label                        "Folder Type:">
 
 <!ENTITY folderQuotaTab.label                    "Quota">

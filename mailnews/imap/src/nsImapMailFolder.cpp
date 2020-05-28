@@ -5928,9 +5928,17 @@ NS_IMETHODIMP nsImapMailFolder::GetOtherUsersWithAccess(
 }
 
 nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsIUTF8StringEnumerator **aResult) {
+  nsCString myUserName;
+  nsCOMPtr<nsIMsgIncomingServer> server;
+  nsresult rv = m_folder->GetServer(getter_AddRefs(server));
+  NS_ENSURE_SUCCESS(rv, rv);
+  server->GetRealUsername(myUserName);
+
+  // We need to filter out myUserName from m_rightsHash.
   nsTArray<nsCString> *resultArray = new nsTArray<nsCString>;
   for (auto iter = m_rightsHash.Iter(); !iter.Done(); iter.Next()) {
-    resultArray->AppendElement(iter.Key());
+    if (!iter.Key().Equals(myUserName))
+      resultArray->AppendElement(iter.Key());
   }
 
   // enumerator will free resultArray
