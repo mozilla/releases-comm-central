@@ -350,7 +350,7 @@ pref("security.warn_entering_secure", false);
 pref("security.warn_entering_weak", false);
 pref("security.warn_leaving_secure", false);
 pref("security.warn_viewing_mixed", false);
-pref("security.aboutcertificate.enabled", false);
+pref("security.aboutcertificate.enabled", true);
 
 // Prompt for the master password prior to opening application windows,
 // to avoid the race that triggers multiple prompts (see bug 177175).

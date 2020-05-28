@@ -220,16 +220,14 @@ function onLoad() {
     }
   }
 }
-/* eslint-enable complexity */
 
 function viewCertHelper(parent, cert) {
-  Services.ww.openWindow(
-    parent,
-    "chrome://pippki/content/certViewer.xhtml",
-    "_blank",
-    "centerscreen,chrome,titlebar",
-    cert
-  );
+  let url = `about:certificate?cert=${encodeURIComponent(
+    cert.getBase64DERString()
+  )}`;
+  let mail3PaneWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  mail3PaneWindow.switchToTabHavingURI(url, true, {});
+  parent.close();
 }
 
 function viewSignatureCert() {

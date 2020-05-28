@@ -260,6 +260,14 @@ function openTrustedLinkIn(url, where, aParams) {
     params = {};
   }
 
+  if (url.startsWith("about:certificate")) {
+    document.getElementById("tabmail").openTab("contentTab", {
+      contentPage: url,
+      clickHandler: "specialTabs.aboutClickHandler(event);",
+    });
+    return;
+  }
+
   if (!params.triggeringPrincipal) {
     params.triggeringPrincipal = Services.scriptSecurityManager.getSystemPrincipal();
   }
