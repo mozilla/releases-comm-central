@@ -230,7 +230,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 
 #defaultPort,
 #servertypeVerbose,
-#identityHtmlSigFormat {
+#identity\.htmlSigFormat {
   margin-inline-start: 4px;
 }
 

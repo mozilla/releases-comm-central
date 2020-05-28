@@ -58,7 +58,7 @@ function initIdentityValues(identity) {
       identity.attachSignature;
     document.getElementById("identity.htmlSigText").value =
       identity.htmlSigText;
-    document.getElementById("identityHtmlSigFormat").checked =
+    document.getElementById("identity.htmlSigFormat").checked =
       identity.htmlSigFormat;
 
     if (identity.signature) {
@@ -246,7 +246,7 @@ function saveIdentitySettings(identity) {
       "identity.htmlSigText"
     ).value;
     identity.htmlSigFormat = document.getElementById(
-      "identityHtmlSigFormat"
+      "identity.htmlSigFormat"
     ).checked;
 
     identity.attachVCard = document.getElementById(
@@ -398,7 +398,7 @@ function setupSignatureItems() {
   var signature = document.getElementById("identity.signature");
   var browse = document.getElementById("identity.sigbrowsebutton");
   var htmlSigText = document.getElementById("identity.htmlSigText");
-  var htmlSigFormat = document.getElementById("identityHtmlSigFormat");
+  var htmlSigFormat = document.getElementById("identity.htmlSigFormat");
   var attachSignature = document.getElementById("identity.attachSignature");
   var checked = attachSignature.checked;
 
