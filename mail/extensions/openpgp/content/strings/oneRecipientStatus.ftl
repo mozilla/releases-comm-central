@@ -4,7 +4,7 @@
 
 openpgp-one-recipient-status-title =
     .title = OpenPGP Message Security
-openpgp-one-recipient-status-status
+openpgp-one-recipient-status-status =
     .label = Status
 openpgp-one-recipient-status-key-id =
     .label = Key ID
