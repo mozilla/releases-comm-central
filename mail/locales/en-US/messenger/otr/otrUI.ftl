@@ -10,11 +10,11 @@ reauth-label = Reverify your contact's identity
 auth-cancel = Cancel
 auth-cancelAccessKey = C
 
-auth-error = An error occurred while verifying your contact's identity.
+auth-error = An error occurred while verifying the identity of your contact.
 auth-success = Verifying your contact's identity completed successfully.
 auth-successThem = Your contact has successfully verified your identity. You may want to verify their identity as well by asking your own question.
-auth-fail = Failed to verify your contact's identity.
-auth-waiting = Waiting for contact to complete verification …
+auth-fail = Failed to verify the identity of your contact.
+auth-waiting = Waiting for the contact to complete the verification…
 
 finger-verify = Verify
 finger-verify-accessKey = V
@@ -36,17 +36,17 @@ alert-gone_insecure = The encrypted conversation with { $name } ended.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-finger-unseen = The identity of { $name } has not been verified yet. Casual eavesdropping is not possible, but with some effort someone could be listening in. You should verify this contact's identity.
+finger-unseen = The identity of { $name } has not been verified yet. Casual eavesdropping is not possible, but with some effort someone could be listening in. Prevent surveillance by verifying this contact's identity.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-finger-seen={ $name } is contacting you from an unrecognized computer. Casual eavesdropping is not possible, but with some effort someone could be listening in. You should verify this contact's identity.
+finger-seen={ $name } is contacting you from an unrecognized computer. Casual eavesdropping is not possible, but with some effort someone could be listening in. Prevent surveillance by verifying this contact's identity.
 
 state-not_private = The current conversation is not private.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-state-unverified = The current conversation is encrypted but the identity of { $name } has not been verified.
+state-unverified = The current conversation is encrypted but not private, since the identity of { $name } has not yet been verified.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person

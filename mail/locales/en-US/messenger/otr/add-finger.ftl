@@ -14,4 +14,4 @@ otr-add-finger-fingerprint = Fingerprint:
 otr-add-finger-tooltip-error = Invalid character entered. Only letters ABCDEF and numbers are allowed
 
 otr-add-finger-input =
-    .placeholder = The 40 character long OTR key fingerprint
+    .placeholder = The 40 characters long OTR key fingerprint

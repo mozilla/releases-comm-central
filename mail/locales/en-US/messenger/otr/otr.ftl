@@ -6,7 +6,7 @@
 #   $name (String) - the screen name of a chat contact person
 msgevent-encryption_required_part1 = You attempted to send an unencrypted message to { $name }. As a policy, unencrypted messages are not allowed.
 
-msgevent-encryption_required_part2 = Attempting to start a private conversation. Your message will be retransmitted when the private conversation starts.
+msgevent-encryption_required_part2 = Attempting to start a private conversation. Your message will be resent when the private conversation starts.
 msgevent-encryption_error = An error occurred when encrypting your message. The message was not sent.
 
 # Variables:
@@ -30,11 +30,11 @@ msgevent-rcvdmsg_not_private = The encrypted message received from { $name } is 
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-msgevent-rcvdmsg_unreadable = We received an unreadable encrypted message from { $name }.
+msgevent-rcvdmsg_unreadable = You received an unreadable encrypted message from { $name }.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-msgevent-rcvdmsg_malformed = We received a malformed data message from { $name }.
+msgevent-rcvdmsg_malformed = You received a malformed data message from { $name }.
 
 # A Heartbeat is a technical message used to keep a connection alive.
 # Variables:
@@ -57,7 +57,7 @@ msgevent-rcvdmsg_unencrypted = The following message received from { $name } was
 # Do not translate 'OTR' (name of an encryption protocol)
 # Variables:
 #   $name (String) - the screen name of a chat contact person
-msgevent-rcvdmsg_unrecognized = We received an unrecognized OTR message from { $name }.
+msgevent-rcvdmsg_unrecognized = You received an unrecognized OTR message from { $name }.
 
 # Variables:
 #   $name (String) - the screen name of a chat contact person

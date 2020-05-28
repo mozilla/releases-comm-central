@@ -9,17 +9,6 @@
 #filter substitution
 
 [localization] @AB_CD@.jar:
-  # When ready for l10n, move chat/content/otr/*.ftl
-  #                        to mail/locales/en-US/messenger/otr/
-  # and remove the following otr/ lines.
-  messenger/otr/am-im-otr.ftl                                           (../../chat/content/otr/am-im-otr.ftl)
-  messenger/otr/finger.ftl                                              (../../chat/content/otr/finger.ftl)
-  messenger/otr/finger-sync.ftl                                         (../../chat/content/otr/finger-sync.ftl)
-  messenger/otr/add-finger.ftl                                          (../../chat/content/otr/add-finger.ftl)
-  messenger/otr/auth.ftl                                                (../../chat/content/otr/auth.ftl)
-  messenger/otr/chat.ftl                                                (../../chat/content/otr/chat.ftl)
-  messenger/otr/otr.ftl                                                 (../../chat/content/otr/otr.ftl)
-  messenger/otr/otrUI.ftl                                               (../../chat/content/otr/otrUI.ftl)
   messenger/openpgp/bond.ftl                                            (../extensions/openpgp/content/strings/bond.ftl)
   messenger/openpgp/composeKeyStatus.ftl                                (../extensions/openpgp/content/strings/composeKeyStatus.ftl)
   messenger/openpgp/msgReadStatus.ftl                                   (../extensions/openpgp/content/strings/msgReadStatus.ftl)

@@ -4,9 +4,9 @@
 
 otr-finger =
     .buttonlabelaccept = Close
-    .title = Previously seen OTR fingerprints
+    .title = Previously Seen OTR Fingerprints
 
-finger-intro = A list of OTR key fingerprints from encrypted chats with your conversation partners.
+finger-intro = OTR key fingerprints from previous end-to-end encrypted conversations.
 
 finger-screenName =
     .label = Contact
