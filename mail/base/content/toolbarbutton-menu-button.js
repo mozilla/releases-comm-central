@@ -22,7 +22,7 @@
       return {
         ...super.inheritedAttributes,
         ".toolbarbutton-menubutton-button":
-          "command,hidden,disabled,align,dir,pack,orient,tooltiptext=buttontooltiptext",
+          "command,hidden,disabled,align,dir,pack,orient,label,wrap,tooltiptext=buttontooltiptext",
         ".toolbarbutton-menubutton-dropmarker": "open,disabled",
       };
     }
