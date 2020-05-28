@@ -497,7 +497,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener *aListener,
                                                nsIMsgWindow *aMsgWindow,
                                                bool aCompactOfflineAlso) {
   nsresult rv = NS_OK;
-  nsCOMPtr<nsIMutableArray> folderArray;
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
@@ -506,11 +505,11 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener *aListener,
   msgStore->GetSupportsCompaction(&storeSupportsCompaction);
   if (!storeSupportsCompaction) return NotifyCompactCompleted();
 
+  nsTArray<RefPtr<nsIMsgFolder>> folderArray;
   if (NS_SUCCEEDED(rv) && rootFolder) {
     nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
     rv = rootFolder->GetDescendants(allDescendants);
     NS_ENSURE_SUCCESS(rv, rv);
-    folderArray = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     int64_t expungedBytes = 0;
     for (auto folder : allDescendants) {
       expungedBytes = 0;
@@ -518,17 +517,14 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener *aListener,
 
       NS_ENSURE_SUCCESS(rv, rv);
 
-      if (expungedBytes > 0) rv = folderArray->AppendElement(folder);
+      if (expungedBytes > 0) folderArray.AppendElement(folder);
     }
-    uint32_t cnt;
-    rv = folderArray->GetLength(&cnt);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (cnt == 0) return NotifyCompactCompleted();
+    if (folderArray.IsEmpty()) return NotifyCompactCompleted();
   }
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
       do_CreateInstance(NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderCompactor->CompactFolders(folderArray, nullptr, aListener,
+  return folderCompactor->CompactFolders(folderArray, {}, aListener,
                                          aMsgWindow);
 }
 

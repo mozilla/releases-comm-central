@@ -1296,32 +1296,24 @@ NS_IMETHODIMP nsImapMailFolder::CompactAll(nsIUrlListener *aListener,
                                            nsIMsgWindow *aMsgWindow,
                                            bool aCompactOfflineAlso) {
   nsresult rv;
-  nsCOMPtr<nsIMutableArray> folderArray, offlineFolderArray;
+  nsTArray<RefPtr<nsIMsgFolder>> folderArray;
+  nsTArray<RefPtr<nsIMsgFolder>> offlineFolderArray;
 
   nsCOMPtr<nsIMsgFolder> rootFolder;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
   if (NS_SUCCEEDED(rv) && rootFolder) {
     nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
     rootFolder->GetDescendants(allDescendants);
-    folderArray = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    NS_ENSURE_TRUE(folderArray, rv);
-    if (aCompactOfflineAlso) {
-      offlineFolderArray = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-      NS_ENSURE_TRUE(offlineFolderArray, rv);
-    }
     for (auto folder : allDescendants) {
       uint32_t folderFlags;
       folder->GetFlags(&folderFlags);
       if (!(folderFlags &
             (nsMsgFolderFlags::Virtual | nsMsgFolderFlags::ImapNoselect))) {
-        rv = folderArray->AppendElement(folder);
-        if (aCompactOfflineAlso) offlineFolderArray->AppendElement(folder);
+        folderArray.AppendElement(folder);
+        if (aCompactOfflineAlso) offlineFolderArray.AppendElement(folder);
       }
     }
-    uint32_t cnt = 0;
-    rv = folderArray->GetLength(&cnt);
-    NS_ENSURE_SUCCESS(rv, rv);
-    if (cnt == 0) return NotifyCompactCompleted();
+    if (folderArray.IsEmpty()) return NotifyCompactCompleted();
   }
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
       do_CreateInstance(NS_MSGLOCALFOLDERCOMPACTOR_CONTRACTID, &rv);
@@ -5933,8 +5925,7 @@ nsresult nsMsgIMAPFolderACL::GetOtherUsers(nsIUTF8StringEnumerator **aResult) {
   // We need to filter out myUserName from m_rightsHash.
   nsTArray<nsCString> *resultArray = new nsTArray<nsCString>;
   for (auto iter = m_rightsHash.Iter(); !iter.Done(); iter.Next()) {
-    if (!iter.Key().Equals(myUserName))
-      resultArray->AppendElement(iter.Key());
+    if (!iter.Key().Equals(myUserName)) resultArray->AppendElement(iter.Key());
   }
 
   // enumerator will free resultArray

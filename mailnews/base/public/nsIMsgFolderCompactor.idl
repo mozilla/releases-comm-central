@@ -8,7 +8,6 @@
 interface nsIMsgFolder;
 interface nsIMsgWindow;
 interface nsIUrlListener;
-interface nsIArray;
 
 [scriptable, uuid(38c7e876-3083-4aea-8dcd-0ea0ec1753a3)]
 
@@ -35,12 +34,12 @@ interface nsIMsgFolderCompactor :  nsISupports
    *
    * @param aArrayOfFoldersToCompact  The folders to compact.
    * @param aOfflineFolderArray  Folders whose offline stores we
-   *                             should compact, can be null.
+   *                             should compact, can be empty.
    * @param aListener            Notified of completion, can be null.
    * @param aMsgWindow           Used for progress/status, can be null
    */
-  void compactFolders(in nsIArray aArrayOfFoldersToCompact,
-                      in nsIArray aOfflineFolderArray,
+  void compactFolders(in Array<nsIMsgFolder> aArrayOfFoldersToCompact,
+                      in Array<nsIMsgFolder> aOfflineFolderArray,
                       in nsIUrlListener aListener,
                       in nsIMsgWindow aMsgWindow);
 };

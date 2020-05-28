@@ -1702,12 +1702,8 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
     NS_ENSURE_SUCCESS(rv, rv);
     uint32_t numServers = allServers.Length();
     if (numServers > 0) {
-      nsCOMPtr<nsIMutableArray> folderArray =
-          do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-      nsCOMPtr<nsIMutableArray> offlineFolderArray =
-          do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+      nsTArray<RefPtr<nsIMsgFolder>> folderArray;
+      nsTArray<RefPtr<nsIMsgFolder>> offlineFolderArray;
       int64_t totalExpungedBytes = 0;
       int64_t offlineExpungedBytes = 0;
       int64_t localExpungedBytes = 0;
@@ -1738,7 +1734,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
               if (flags & nsMsgFolderFlags::Offline)
                 folder->GetExpungedBytes(&expungedBytes);
               if (expungedBytes > 0) {
-                offlineFolderArray->AppendElement(folder);
+                offlineFolderArray.AppendElement(folder);
                 offlineExpungedBytes += expungedBytes;
               }
             }
@@ -1748,7 +1744,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
               expungedBytes = 0;
               folder->GetExpungedBytes(&expungedBytes);
               if (expungedBytes > 0) {
-                folderArray->AppendElement(folder);
+                folderArray.AppendElement(folder);
                 localExpungedBytes += expungedBytes;
               }
             }
@@ -1826,7 +1822,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
               folderCompactor->CompactFolders(folderArray, offlineFolderArray,
                                               nullptr, aWindow);
             else
-              folderCompactor->CompactFolders(folderArray, nullptr, nullptr,
+              folderCompactor->CompactFolders(folderArray, {}, nullptr,
                                               aWindow);
           } else if (offlineExpungedBytes > 0)
             CompactAllOfflineStores(nullptr, aWindow, offlineFolderArray);
@@ -1856,15 +1852,15 @@ nsresult nsMsgDBFolder::AutoCompact(nsIMsgWindow *aWindow) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::CompactAllOfflineStores(nsIUrlListener *aUrlListener,
-                                       nsIMsgWindow *aWindow,
-                                       nsIArray *aOfflineFolderArray) {
+nsMsgDBFolder::CompactAllOfflineStores(
+    nsIUrlListener *aUrlListener, nsIMsgWindow *aWindow,
+    const nsTArray<RefPtr<nsIMsgFolder>> &aOfflineFolderArray) {
   nsresult rv;
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
       do_CreateInstance(NS_MSGOFFLINESTORECOMPACTOR_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
-  return folderCompactor->CompactFolders(nullptr, aOfflineFolderArray,
-                                         aUrlListener, aWindow);
+  return folderCompactor->CompactFolders({}, aOfflineFolderArray, aUrlListener,
+                                         aWindow);
 }
 
 nsresult nsMsgDBFolder::GetPromptPurgeThreshold(bool *aPrompt) {

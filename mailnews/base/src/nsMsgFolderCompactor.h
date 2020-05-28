@@ -75,8 +75,8 @@ class nsFolderCompactState : public nsIMsgFolderCompactor,
   nsresult m_status;  // the status of the copying operation
   nsCOMPtr<nsIMsgMessageService> m_messageService;  // message service for
                                                     // copying
-  nsCOMPtr<nsIArray> m_folderArray;  // folders we are compacting,
-                                     // if compacting multiple.
+  nsTArray<RefPtr<nsIMsgFolder>> m_folderArray;  // folders we are compacting,
+                                                 // if compacting multiple.
   nsCOMPtr<nsIMsgWindow> m_window;
   nsCOMPtr<nsIMsgDBHdr> m_curSrcHdr;
   uint32_t m_folderIndex;           // tells which folder to compact in case of
@@ -90,7 +90,7 @@ class nsFolderCompactState : public nsIMsgFolderCompactor,
   bool m_startOfMsg;
   int32_t m_statusOffset;
   uint32_t m_addedHeaderSize;
-  nsCOMPtr<nsIArray> m_offlineFolderArray;
+  nsTArray<RefPtr<nsIMsgFolder>> m_offlineFolderArray;
   nsCOMPtr<nsIUrlListener> m_listener;
   bool m_alreadyWarnedDiskSpace;
 };

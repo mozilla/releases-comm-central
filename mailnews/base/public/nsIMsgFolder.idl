@@ -266,7 +266,7 @@ interface nsIMsgFolder : nsISupports {
 
   void compactAllOfflineStores(in nsIUrlListener aListener,
                                in nsIMsgWindow aMsgWindow,
-                               in nsIArray aOfflineFolderArray);
+                               in Array<nsIMsgFolder> aOfflineFolderArray);
 
   void emptyTrash(in nsIMsgWindow aMsgWindow, in nsIUrlListener aListener);
 
