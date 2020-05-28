@@ -49,6 +49,18 @@
   --composer-header-border-color: rgb(127, 127, 128);
 }
 
+treechildren::-moz-tree-row(hover) {
+  background-color: hsla(0, 0%, 50%, 0.15);
+}
+
+treechildren::-moz-tree-row(selected) {
+  background-color: -moz-cellhighlight;
+}
+
+treechildren::-moz-tree-row(selected, focus) {
+  background-color: Highlight;
+}
+
 /* Make the new mail indicator better visible on dark theme */
 :root[lwt-default-theme-in-dark-mode] #folderTree:-moz-lwtheme-brighttext
   treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),

@@ -56,14 +56,8 @@ treechildren::-moz-tree-image(selectCol, selected, focus) {
 treechildren::-moz-tree-image(deleteCol) {
   list-style-image: url("chrome://messenger/skin/icons/delete.svg");
   fill: currentColor;
-  opacity: 0.3;
+  opacity: 0.5;
   width: 14px;
-}
-
-treechildren::-moz-tree-image(deleteCol, hover),
-treechildren::-moz-tree-image(deleteCol, selected),
-treechildren::-moz-tree-image(deleteCol, imapdeleted) {
-  opacity: 0.6;
 }
 
 treechildren::-moz-tree-image(deleteCol, imapdeleted) {

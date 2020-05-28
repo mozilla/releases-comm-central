@@ -125,6 +125,11 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
   background-color: var(--row-grouped-header-bg-color);
 }
 
+#threadTree > treechildren::-moz-tree-row(odd, hover),
+#threadTree > treechildren::-moz-tree-row(dummy, odd, hover) {
+  background-color: hsla(0, 0%, 50%, 0.15);
+}
+
 #threadTree > treechildren::-moz-tree-row(selected) {
   color: -moz-cellhighlighttext;
   background-color: -moz-cellhighlight;

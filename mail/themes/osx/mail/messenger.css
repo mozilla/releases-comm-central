@@ -492,6 +492,10 @@ treecol.treecol-image:hover:active {
   background-color: transparent;
 }
 
+:root[lwt-tree] treechildren::-moz-tree-row(odd, hover) {
+  background-color: hsla(0, 0%, 50%, 0.15);
+}
+
 :root[lwt-tree] #threadTree treechildren::-moz-tree-row(untagged, selected),
 :root[lwt-tree] tree:not(#threadTree) treechildren::-moz-tree-row(selected),
 :root[lwt-tree]:-moz-window-inactive #threadTree treechildren::-moz-tree-row(selected) {
