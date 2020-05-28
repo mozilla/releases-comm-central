@@ -3298,7 +3298,7 @@ void nsNNTPProtocol::CheckIfAuthor(nsIMsgIdentity *aIdentity,
 
   MOZ_LOG(NNTP, LogLevel::Info, ("us = %s, them = %s", us.get(), them.get()));
 
-  if (us.Equals(them, nsCaseInsensitiveCStringComparator())) aFrom = from;
+  if (us.Equals(them, nsCaseInsensitiveCStringComparator)) aFrom = from;
 }
 
 nsresult nsNNTPProtocol::DoCancel() {

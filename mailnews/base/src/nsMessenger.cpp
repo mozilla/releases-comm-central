@@ -954,14 +954,14 @@ nsMessenger::SaveAs(const nsACString &aURI, bool aAsFile,
       rv = saveAsFile->InitWithPath(aMsgFilename);
       if (NS_FAILED(rv)) goto done;
       if (StringEndsWith(aMsgFilename, NS_LITERAL_STRING(TEXT_FILE_EXTENSION),
-                         nsCaseInsensitiveStringComparator()))
+                         nsCaseInsensitiveStringComparator))
         saveAsFileType = TEXT_FILE_TYPE;
       else if ((StringEndsWith(aMsgFilename,
                                NS_LITERAL_STRING(HTML_FILE_EXTENSION),
-                               nsCaseInsensitiveStringComparator())) ||
+                               nsCaseInsensitiveStringComparator)) ||
                (StringEndsWith(aMsgFilename,
                                NS_LITERAL_STRING(HTML_FILE_EXTENSION2),
-                               nsCaseInsensitiveStringComparator())))
+                               nsCaseInsensitiveStringComparator)))
         saveAsFileType = HTML_FILE_TYPE;
       else
         saveAsFileType = EML_FILE_TYPE;
@@ -1161,12 +1161,12 @@ nsresult nsMessenger::GetSaveAsFile(const nsAString &aMsgFilename,
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (StringEndsWith(fileName, NS_LITERAL_STRING(HTML_FILE_EXTENSION),
-                       nsCaseInsensitiveStringComparator()) ||
+                       nsCaseInsensitiveStringComparator) ||
         StringEndsWith(fileName, NS_LITERAL_STRING(HTML_FILE_EXTENSION2),
-                       nsCaseInsensitiveStringComparator()))
+                       nsCaseInsensitiveStringComparator))
       *aSaveAsFileType = HTML_FILE_TYPE;
     else if (StringEndsWith(fileName, NS_LITERAL_STRING(TEXT_FILE_EXTENSION),
-                            nsCaseInsensitiveStringComparator()))
+                            nsCaseInsensitiveStringComparator))
       *aSaveAsFileType = TEXT_FILE_TYPE;
     else
       // The default is .eml

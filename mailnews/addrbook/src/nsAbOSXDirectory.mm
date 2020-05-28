@@ -710,9 +710,8 @@ nsAbOSXDirectory::GetCardFromProperty(const char *aProperty, const nsACString &a
     if (NS_SUCCEEDED(rv)) {
       rv = card->GetPropertyAsAUTF8String(aProperty, cardValue);
       if (NS_SUCCEEDED(rv)) {
-        bool equal = aCaseSensitive
-                         ? cardValue.Equals(aValue)
-                         : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator());
+        bool equal = aCaseSensitive ? cardValue.Equals(aValue)
+                                    : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator);
         if (equal) NS_IF_ADDREF(*aResult = card);
       }
     }
@@ -746,9 +745,8 @@ nsAbOSXDirectory::GetCardsFromProperty(const char *aProperty, const nsACString &
     if (NS_SUCCEEDED(rv)) {
       rv = card->GetPropertyAsAUTF8String(aProperty, cardValue);
       if (NS_SUCCEEDED(rv)) {
-        bool equal = aCaseSensitive
-                         ? cardValue.Equals(aValue)
-                         : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator());
+        bool equal = aCaseSensitive ? cardValue.Equals(aValue)
+                                    : cardValue.Equals(aValue, nsCaseInsensitiveCStringComparator);
         if (equal) resultArray.AppendObject(card);
       }
     }

@@ -1523,7 +1523,7 @@ void CMapiFolderList::EnsureUniqueName(CMapiFolder *pFolder) {
       pCurrent = GetAt(i);
       if (pCurrent->GetDepth() == pFolder->GetDepth()) {
         pCurrent->GetDisplayName(cName);
-        if (cName.Equals(name, nsCaseInsensitiveStringComparator())) {
+        if (cName.Equals(name, nsCaseInsensitiveStringComparator)) {
           ChangeName(name);
           pFolder->SetDisplayName(name.get());
           done = FALSE;

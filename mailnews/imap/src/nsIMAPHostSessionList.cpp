@@ -96,8 +96,7 @@ nsIMAPHostInfo *nsIMAPHostSessionList::FindHost(const char *serverKey) {
 
   // ### should also check userName here, if NON NULL
   for (host = fHostInfoList; host; host = host->fNextHost) {
-    if (host->fServerKey.Equals(serverKey,
-                                nsCaseInsensitiveCStringComparator()))
+    if (host->fServerKey.Equals(serverKey, nsCaseInsensitiveCStringComparator))
       return host;
   }
   return host;

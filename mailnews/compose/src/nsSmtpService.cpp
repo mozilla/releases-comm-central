@@ -668,11 +668,10 @@ bool nsSmtpService::findServerByHostname(nsISmtpServer *aServer, void *aData) {
   bool checkHostname = !entry->hostname.IsEmpty();
   bool checkUsername = !entry->username.IsEmpty();
 
-  if ((!checkHostname ||
-       (entry->hostname.Equals(hostname,
-                               nsCaseInsensitiveCStringComparator()))) &&
-      (!checkUsername || entry->username.Equals(
-                             username, nsCaseInsensitiveCStringComparator()))) {
+  if ((!checkHostname || (entry->hostname.Equals(
+                             hostname, nsCaseInsensitiveCStringComparator))) &&
+      (!checkUsername ||
+       entry->username.Equals(username, nsCaseInsensitiveCStringComparator))) {
     entry->server = aServer;
     return false;  // stop when found
   }

@@ -133,7 +133,7 @@ nsresult nsPop3Sink::FindPartialMessages() {
       // account. Add it to the array if so...
       if (folderScanState.m_uidl &&
           m_accountKey.Equals(folderScanState.m_accountKey,
-                              nsCaseInsensitiveCStringComparator())) {
+                              nsCaseInsensitiveCStringComparator)) {
         partialRecord *partialMsg = new partialRecord();
         if (partialMsg) {
           partialMsg->m_uidl = folderScanState.m_uidl;

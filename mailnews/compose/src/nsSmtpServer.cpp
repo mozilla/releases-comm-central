@@ -136,7 +136,7 @@ nsSmtpServer::SetHostname(const nsACString &aHostname) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   // A few things to take care of if we're changing the hostname.
-  if (!oldName.Equals(aHostname, nsCaseInsensitiveCStringComparator())) {
+  if (!oldName.Equals(aHostname, nsCaseInsensitiveCStringComparator)) {
     rv = OnUserOrHostNameChanged(oldName, aHostname, true);
     NS_ENSURE_SUCCESS(rv, rv);
   }

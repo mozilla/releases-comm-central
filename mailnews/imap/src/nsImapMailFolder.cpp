@@ -271,7 +271,7 @@ nsresult nsImapMailFolder::AddDirectorySeparator(nsIFile *path) {
 
 static bool nsShouldIgnoreFile(nsString &name) {
   if (StringEndsWith(name, NS_LITERAL_STRING(SUMMARY_SUFFIX),
-                     nsCaseInsensitiveStringComparator())) {
+                     nsCaseInsensitiveStringComparator)) {
     name.SetLength(name.Length() -
                    SUMMARY_SUFFIX_LENGTH);  // truncate the string
     return false;

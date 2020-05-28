@@ -69,11 +69,11 @@
 class nsCStringLowerCaseComparator {
  public:
   bool Equals(const nsCString &a, const nsCString &b) const {
-    return a.Equals(b, nsCaseInsensitiveCStringComparator());
+    return a.Equals(b, nsCaseInsensitiveCStringComparator);
   }
 
   bool LessThan(const nsCString &a, const nsCString &b) const {
-    return Compare(a, b, nsCaseInsensitiveCStringComparator()) < 0;
+    return Compare(a, b, nsCaseInsensitiveCStringComparator) < 0;
   }
 };
 

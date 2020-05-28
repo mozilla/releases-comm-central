@@ -1062,9 +1062,8 @@ NS_IMETHODIMP nsMsgFilterList::MatchOrChangeFilterTarget(
         if (NS_SUCCEEDED(rv) && !folderUri.IsEmpty()) {
           bool matchFound = false;
           if (caseInsensitive) {
-            if (folderUri.Equals(
-                    oldFolderUri,
-                    nsCaseInsensitiveCStringComparator()))  // local
+            if (folderUri.Equals(oldFolderUri,
+                                 nsCaseInsensitiveCStringComparator))  // local
               matchFound = true;
           } else {
             if (folderUri.Equals(oldFolderUri))  // imap

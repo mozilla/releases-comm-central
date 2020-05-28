@@ -865,7 +865,7 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream *inputStream,
       // If we have "clientid" in the ehlo response, then TLS must be present.
       if (m_prefSocketType == nsMsgSocketType::SSL) m_tlsEnabled = true;
     } else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("AUTH"),
-                                nsCaseInsensitiveCStringComparator())) {
+                                nsCaseInsensitiveCStringComparator)) {
       SetFlag(SMTP_AUTH);
 
       if (responseLine.Find(NS_LITERAL_CSTRING("GSSAPI"),
@@ -900,12 +900,12 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream *inputStream,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_OAUTH2_ENABLED);
     } else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("SIZE"),
-                                nsCaseInsensitiveCStringComparator())) {
+                                nsCaseInsensitiveCStringComparator)) {
       SetFlag(SMTP_EHLO_SIZE_ENABLED);
 
       m_sizelimit = atol((responseLine.get()) + 4);
     } else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("8BITMIME"),
-                                nsCaseInsensitiveCStringComparator())) {
+                                nsCaseInsensitiveCStringComparator)) {
       SetFlag(SMTP_EHLO_8BIT_ENABLED);
     }
 

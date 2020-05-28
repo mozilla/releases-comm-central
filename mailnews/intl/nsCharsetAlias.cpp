@@ -62,7 +62,7 @@ nsresult nsCharsetAlias::Equals(const nsACString& aCharset1,
                                 const nsACString& aCharset2, bool* oResult) {
   nsresult res = NS_OK;
 
-  if (aCharset1.Equals(aCharset2, nsCaseInsensitiveCStringComparator())) {
+  if (aCharset1.Equals(aCharset2, nsCaseInsensitiveCStringComparator)) {
     *oResult = true;
     return res;
   }

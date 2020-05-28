@@ -1183,17 +1183,17 @@ void msg_pick_real_name(nsMsgAttachmentHandler *attachment,
     // If we know the URL doesn't have a sensible file name in it,
     // don't bother emitting a content-disposition.
     if (StringBeginsWith(url, NS_LITERAL_CSTRING("news:"),
-                         nsCaseInsensitiveCStringComparator()) ||
+                         nsCaseInsensitiveCStringComparator) ||
         StringBeginsWith(url, NS_LITERAL_CSTRING("snews:"),
-                         nsCaseInsensitiveCStringComparator()) ||
+                         nsCaseInsensitiveCStringComparator) ||
         StringBeginsWith(url, NS_LITERAL_CSTRING("IMAP:"),
-                         nsCaseInsensitiveCStringComparator()) ||
+                         nsCaseInsensitiveCStringComparator) ||
         StringBeginsWith(url, NS_LITERAL_CSTRING("mailbox:"),
-                         nsCaseInsensitiveCStringComparator()))
+                         nsCaseInsensitiveCStringComparator))
       return;
 
     if (StringBeginsWith(url, NS_LITERAL_CSTRING("data:"),
-                         nsCaseInsensitiveCStringComparator())) {
+                         nsCaseInsensitiveCStringComparator)) {
       int32_t endNonData = url.FindChar(',');
       if (endNonData == -1) return;
       nsCString nonDataPart(Substring(url, 5, endNonData - 5));

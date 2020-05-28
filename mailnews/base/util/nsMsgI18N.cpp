@@ -76,7 +76,7 @@ nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
     return NS_OK;
   }
 
-  if (aCharset.Equals("UTF-8", nsCaseInsensitiveCStringComparator())) {
+  if (aCharset.Equals("UTF-8", nsCaseInsensitiveCStringComparator)) {
     return UTF_8_ENCODING->DecodeWithBOMRemoval(inString, outString);
   }
 
@@ -90,7 +90,7 @@ nsresult nsMsgI18NConvertToUnicode(const nsACString& aCharset,
   rv = ccm->GetCharsetAlias(PromiseFlatCString(aCharset).get(), newCharset);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (newCharset.Equals("UTF-7", nsCaseInsensitiveCStringComparator())) {
+  if (newCharset.Equals("UTF-7", nsCaseInsensitiveCStringComparator)) {
     // Special treatment for decoding UTF-7 since it's not handled by
     // encoding_rs.
     return CopyUTF7toUTF16(inString, outString);

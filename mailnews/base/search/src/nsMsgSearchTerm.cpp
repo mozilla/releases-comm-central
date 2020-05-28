@@ -726,7 +726,7 @@ nsresult nsMsgSearchTerm::MatchArbitraryHeader(
     }
 
     if (curMsgHeader.Equals(m_arbitraryHeader,
-                            nsCaseInsensitiveCStringComparator())) {
+                            nsCaseInsensitiveCStringComparator)) {
       // Process the value:
       // Value occurs after the header name or whitespace continuation char.
       const char *headerValue =
@@ -1017,11 +1017,11 @@ nsresult nsMsgSearchTerm::MatchString(const nsAString &utf16StrToMatch,
         result = true;
       break;
     case nsMsgSearchOp::Is:
-      if (needle.Equals(utf16StrToMatch, nsCaseInsensitiveStringComparator()))
+      if (needle.Equals(utf16StrToMatch, nsCaseInsensitiveStringComparator))
         result = true;
       break;
     case nsMsgSearchOp::Isnt:
-      if (!needle.Equals(utf16StrToMatch, nsCaseInsensitiveStringComparator()))
+      if (!needle.Equals(utf16StrToMatch, nsCaseInsensitiveStringComparator))
         result = true;
       break;
     case nsMsgSearchOp::IsEmpty:
@@ -1032,12 +1032,12 @@ nsresult nsMsgSearchTerm::MatchString(const nsAString &utf16StrToMatch,
       break;
     case nsMsgSearchOp::BeginsWith:
       if (StringBeginsWith(utf16StrToMatch, needle,
-                           nsCaseInsensitiveStringComparator()))
+                           nsCaseInsensitiveStringComparator))
         result = true;
       break;
     case nsMsgSearchOp::EndsWith:
       if (StringEndsWith(utf16StrToMatch, needle,
-                         nsCaseInsensitiveStringComparator()))
+                         nsCaseInsensitiveStringComparator))
         result = true;
       break;
     default:

@@ -1763,7 +1763,7 @@ nsresult nsMsgAccountManager::findServerInternal(
     // attribute treat it as a match
     if ((type.IsEmpty() || thisType.Equals(type)) &&
         (hostname.IsEmpty() ||
-         thisHostname.Equals(hostname, nsCaseInsensitiveCStringComparator())) &&
+         thisHostname.Equals(hostname, nsCaseInsensitiveCStringComparator)) &&
         (!(port != 0) || (port == thisPort)) &&
         (username.IsEmpty() || thisUsername.Equals(username))) {
       // stop on first find; cache for next time

@@ -139,7 +139,7 @@ nsresult ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data) {
 
   if (tmp->m_realName.IsEmpty() &&
       StringBeginsWith(tmp->m_realType, NS_LITERAL_CSTRING("text"),
-                       nsCaseInsensitiveCStringComparator()))
+                       nsCaseInsensitiveCStringComparator))
     ValidateRealName(tmp, child->headers);
 
   tmp->m_displayableInline =
@@ -219,7 +219,7 @@ void ValidateRealName(nsMsgAttachmentData *aAttach, MimeHeaders *aHdrs) {
   // Internal MIME structures need not be named!
   if (aAttach->m_realType.IsEmpty() ||
       StringBeginsWith(aAttach->m_realType, NS_LITERAL_CSTRING("multipart"),
-                       nsCaseInsensitiveCStringComparator()))
+                       nsCaseInsensitiveCStringComparator))
     return;
 
   //
@@ -302,7 +302,7 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
   tmp->m_isExternalLinkAttachment =
       (isExternalAttachment &&
        StringBeginsWith(urlString, NS_LITERAL_CSTRING("http"),
-                        nsCaseInsensitiveCStringComparator()));
+                        nsCaseInsensitiveCStringComparator));
   tmp->m_size = attSize;
   tmp->m_sizeExternalStr = "-1";
   tmp->m_disposition.Adopt(MimeHeaders_get(
@@ -431,7 +431,7 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
       urlString.Append(tmp->m_realName);
     if (tmp->m_realType.EqualsLiteral("message/rfc822") &&
         !StringEndsWith(urlString, NS_LITERAL_CSTRING(".eml"),
-                        nsCaseInsensitiveCStringComparator()))
+                        nsCaseInsensitiveCStringComparator))
       urlString.AppendLiteral(".eml");
   } else if (tmp->m_isExternalAttachment) {
     // Allows the JS mime emitter to figure out the part information.
@@ -771,7 +771,7 @@ int ConvertToUTF8(const char *stringToUse, int32_t inLength,
   rv = ccm->GetCharsetAlias(input_charset, newCharset);
   NS_ENSURE_SUCCESS(rv, -1);
 
-  if (newCharset.Equals("UTF-7", nsCaseInsensitiveCStringComparator())) {
+  if (newCharset.Equals("UTF-7", nsCaseInsensitiveCStringComparator)) {
     nsAutoString utf16;
     rv = CopyUTF7toUTF16(nsDependentCSubstring(stringToUse, inLength), utf16);
     if (NS_FAILED(rv)) return -1;

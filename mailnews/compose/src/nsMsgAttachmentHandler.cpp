@@ -353,9 +353,9 @@ nsresult nsMsgAttachmentHandler::PickEncoding(const char *charset,
 
     // MIME requires a special case that these types never be encoded.
     if (StringBeginsWith(m_type, NS_LITERAL_CSTRING("message"),
-                         nsCaseInsensitiveCStringComparator()) ||
+                         nsCaseInsensitiveCStringComparator) ||
         StringBeginsWith(m_type, NS_LITERAL_CSTRING("multipart"),
-                         nsCaseInsensitiveCStringComparator())) {
+                         nsCaseInsensitiveCStringComparator)) {
       encode_p = false;
       if (m_desiredType.LowerCaseEqualsLiteral(TEXT_PLAIN))
         m_desiredType.Truncate();
@@ -454,7 +454,7 @@ DONE:
 nsresult nsMsgAttachmentHandler::PickCharset() {
   if (!m_charset.IsEmpty() ||
       !StringBeginsWith(m_type, NS_LITERAL_CSTRING("text/"),
-                        nsCaseInsensitiveCStringComparator()))
+                        nsCaseInsensitiveCStringComparator))
     return NS_OK;
 
   if (!mTmpFile) return NS_OK;

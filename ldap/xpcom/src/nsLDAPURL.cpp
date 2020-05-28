@@ -162,10 +162,9 @@ NS_IMETHODIMP nsLDAPURL::GetScheme(nsACString &_retval) {
 nsresult nsLDAPURL::SetScheme(const nsACString &aScheme) {
   if (!mBaseURL) return NS_ERROR_NOT_INITIALIZED;
 
-  if (aScheme.Equals(LDAP_SCHEME, nsCaseInsensitiveCStringComparator()))
+  if (aScheme.Equals(LDAP_SCHEME, nsCaseInsensitiveCStringComparator))
     mOptions &= !OPT_SECURE;
-  else if (aScheme.Equals(LDAP_SSL_SCHEME,
-                          nsCaseInsensitiveCStringComparator()))
+  else if (aScheme.Equals(LDAP_SSL_SCHEME, nsCaseInsensitiveCStringComparator))
     mOptions |= OPT_SECURE;
   else
     return NS_ERROR_MALFORMED_URI;
@@ -449,7 +448,7 @@ NS_IMETHODIMP nsLDAPURL::RemoveAttribute(const nsACString &aAttribute) {
   findAttribute.Append(aAttribute);
   findAttribute.Append(',');
 
-  if (mAttributes.Equals(findAttribute, nsCaseInsensitiveCStringComparator()))
+  if (mAttributes.Equals(findAttribute, nsCaseInsensitiveCStringComparator))
     mAttributes.Truncate();
   else {
     int32_t pos = mAttributes.Find(findAttribute, /* ignoreCase = */ true);

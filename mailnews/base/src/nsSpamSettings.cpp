@@ -766,7 +766,7 @@ NS_IMETHODIMP nsSpamSettings::CheckWhiteList(nsIMsgDBHdr *aMsgHdr,
   if (mInhibitWhiteListingIdentityUser) {
     for (uint32_t i = 0; i < mEmails.Length(); ++i) {
       if (mEmails[i].Equals(authorEmailAddress,
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         return NS_OK;
     }
   }
@@ -789,7 +789,7 @@ NS_IMETHODIMP nsSpamSettings::CheckWhiteList(nsIMsgDBHdr *aMsgHdr,
           if (atPos >= 0) {
             identityDomain = Substring(mEmails[i], atPos + 1);
             if (identityDomain.Equals(domain,
-                                      nsCaseInsensitiveCStringComparator()))
+                                      nsCaseInsensitiveCStringComparator))
               return NS_OK;  // don't whitelist
           }
         }

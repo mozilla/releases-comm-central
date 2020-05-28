@@ -2359,10 +2359,10 @@ NS_IMETHODIMP nsImapProtocol::CanHandleUrl(nsIImapUrl *aImapUrl,
 
     if ((GetImapHostName().IsEmpty() ||
          urlHostName.Equals(GetImapHostName(),
-                            nsCaseInsensitiveCStringComparator())) &&
+                            nsCaseInsensitiveCStringComparator)) &&
         (GetImapUserName().IsEmpty() ||
          urlUserName.Equals(GetImapUserName(),
-                            nsCaseInsensitiveCStringComparator()))) {
+                            nsCaseInsensitiveCStringComparator))) {
       if (isSelectedStateUrl) {
         if (inSelectedState) {
           // *** jt - in selected state can only run url with
@@ -4899,18 +4899,18 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec *adoptedBoxSpec) {
                 m_trashFolderPath, /* ignoreCase = */ true) != -1) {
           bool trashExists = false;
           if (StringBeginsWith(m_trashFolderPath, NS_LITERAL_CSTRING("INBOX/"),
-                               nsCaseInsensitiveCStringComparator())) {
+                               nsCaseInsensitiveCStringComparator)) {
             nsAutoCString pathName(adoptedBoxSpec->mAllocatedPathName.get() +
                                    6);
             trashExists =
                 StringBeginsWith(
                     adoptedBoxSpec->mAllocatedPathName, m_trashFolderPath,
-                    nsCaseInsensitiveCStringComparator()) && /* "INBOX/" */
+                    nsCaseInsensitiveCStringComparator) && /* "INBOX/" */
                 pathName.Equals(Substring(m_trashFolderPath, 6),
-                                nsCaseInsensitiveCStringComparator());
+                                nsCaseInsensitiveCStringComparator);
           } else
             trashExists = adoptedBoxSpec->mAllocatedPathName.Equals(
-                m_trashFolderPath, nsCaseInsensitiveCStringComparator());
+                m_trashFolderPath, nsCaseInsensitiveCStringComparator);
 
           if (m_hostSessionList)
             m_hostSessionList->SetOnlineTrashFolderExistsForHost(

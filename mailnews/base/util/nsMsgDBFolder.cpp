@@ -3199,7 +3199,7 @@ nsMsgDBFolder::GetChildNamed(const nsAString &aName, nsIMsgFolder **aChild) {
     nsresult rv = mSubFolders[i]->GetName(folderName);
     // case-insensitive compare is probably LCD across OS filesystems
     if (NS_SUCCEEDED(rv) &&
-        folderName.Equals(aName, nsCaseInsensitiveStringComparator())) {
+        folderName.Equals(aName, nsCaseInsensitiveStringComparator)) {
       NS_ADDREF(*aChild = mSubFolders[i]);
       return NS_OK;
     }
@@ -3232,7 +3232,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetChildWithURI(const nsACString &uri, bool deep,
       NS_ENSURE_SUCCESS(rv, rv);
       bool equal =
           (caseInsensitive
-               ? uri.Equals(folderURI, nsCaseInsensitiveCStringComparator())
+               ? uri.Equals(folderURI, nsCaseInsensitiveCStringComparator)
                : uri.Equals(folderURI));
       if (equal) {
         folder.forget(child);
@@ -3508,7 +3508,7 @@ nsresult nsMsgDBFolder::CheckIfFolderExists(const nsAString &newFolderName,
     nsString folderName;
 
     msgFolder->GetName(folderName);
-    if (folderName.Equals(newFolderName, nsCaseInsensitiveStringComparator())) {
+    if (folderName.Equals(newFolderName, nsCaseInsensitiveStringComparator)) {
       ThrowAlertMsg("folderExists", msgWindow);
       return NS_MSG_FOLDER_EXISTS;
     }
@@ -3685,7 +3685,7 @@ NS_IMETHODIMP nsMsgDBFolder::Rename(const nsAString &aNewName,
   nsAutoString newDiskName(aNewName);
   NS_MsgHashIfNecessary(newDiskName);
 
-  if (mName.Equals(aNewName, nsCaseInsensitiveStringComparator())) {
+  if (mName.Equals(aNewName, nsCaseInsensitiveStringComparator)) {
     rv = ThrowAlertMsg("folderExists", msgWindow);
     return NS_MSG_FOLDER_EXISTS;
   } else {
@@ -5006,7 +5006,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
 
     // If we are multipart, then we need to get the boundary
     if (StringBeginsWith(contentType, NS_LITERAL_STRING("multipart/"),
-                         nsCaseInsensitiveStringComparator())) {
+                         nsCaseInsensitiveStringComparator)) {
       nsAutoString boundaryParam;
       mimeHdrParam->GetParameter(contentTypeHdr, "boundary", EmptyCString(),
                                  false, nullptr, boundaryParam);
@@ -5023,7 +5023,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
 
     // If we are a text part, then we want it
     else if (StringBeginsWith(contentType, NS_LITERAL_STRING("text/"),
-                              nsCaseInsensitiveStringComparator())) {
+                              nsCaseInsensitiveStringComparator)) {
       inMsgBody = true;
 
       if (contentType.LowerCaseEqualsLiteral("text/html")) msgBodyIsHtml = true;

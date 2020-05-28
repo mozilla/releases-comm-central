@@ -256,13 +256,13 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char *originalScheme,
       nsAutoCString scheme;
       rv = uri->GetScheme(scheme);
       if (NS_SUCCEEDED(rv) &&
-          scheme.Equals(originalScheme, nsCaseInsensitiveCStringComparator())) {
+          scheme.Equals(originalScheme, nsCaseInsensitiveCStringComparator)) {
         nsAutoCString host;
         rv = uri->GetAsciiHost(host);
         // mailbox url don't have a host therefore don't be too strict.
         if (NS_SUCCEEDED(rv) &&
             (host.IsEmpty() || originalHost ||
-             host.Equals(originalHost, nsCaseInsensitiveCStringComparator()))) {
+             host.Equals(originalHost, nsCaseInsensitiveCStringComparator))) {
           nsAutoCString path;
           rv = uri->GetPathQueryRef(path);
           if (NS_SUCCEEDED(rv)) {
@@ -281,7 +281,7 @@ bool nsMsgCompose::IsEmbeddedObjectSafe(const char *originalScheme,
             // compare it here.
             // news: URLs use group and key in the query, but it's OK to compare
             // without them.
-            return path.Equals(orgPath, nsCaseInsensitiveCStringComparator());
+            return path.Equals(orgPath, nsCaseInsensitiveCStringComparator);
           }
         }
       }
@@ -2503,7 +2503,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest *request,
           // See if it's a reply to own message, but not a reply between
           // identities.
           if (curIdentityEmail.Equals(fromEmailAddress,
-                                      nsCaseInsensitiveCStringComparator())) {
+                                      nsCaseInsensitiveCStringComparator)) {
             isReplyToSelf = true;
             // For a true reply-to-self, none of your identities are normally in
             // To or Cc. We need to avoid doing a reply-to-self for people that
@@ -2931,13 +2931,12 @@ bool IsInDomainList(const nsAString &aDomain, const nsAString &aDomainList) {
     if (right == kNotFound) right = aDomainList.Length();
     nsDependentSubstring domain = Substring(aDomainList, left, right);
 
-    if (aDomain.Equals(domain, nsCaseInsensitiveStringComparator()))
-      return true;
+    if (aDomain.Equals(domain, nsCaseInsensitiveStringComparator)) return true;
 
     nsAutoString dotDomain;
     dotDomain.Assign(u'.');
     dotDomain.Append(domain);
-    if (StringEndsWith(aDomain, dotDomain, nsCaseInsensitiveStringComparator()))
+    if (StringEndsWith(aDomain, dotDomain, nsCaseInsensitiveStringComparator))
       return true;
 
     left = right + 1;
@@ -4077,10 +4076,10 @@ nsresult nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted,
               if (NS_SUCCEEDED(rv2)) {
                 if (StringBeginsWith(sigContentType,
                                      NS_LITERAL_CSTRING("image/"),
-                                     nsCaseInsensitiveCStringComparator()))
+                                     nsCaseInsensitiveCStringComparator))
                   imageSig = true;
                 else if (sigContentType.Equals(
-                             TEXT_HTML, nsCaseInsensitiveCStringComparator()))
+                             TEXT_HTML, nsCaseInsensitiveCStringComparator))
                   htmlSig = true;
               }
             }
@@ -4522,13 +4521,13 @@ struct nsMsgMailListComparator {
   bool Equals(const nsMsgMailList &mailList,
               const nsMsgRecipient &recipient) const {
     if (!mailList.mName.Equals(recipient.mName,
-                               nsCaseInsensitiveStringComparator()))
+                               nsCaseInsensitiveStringComparator))
       return false;
     return mailList.mDescription.IsEmpty()
                ? mailList.mName.Equals(recipient.mEmail,
-                                       nsCaseInsensitiveStringComparator())
+                                       nsCaseInsensitiveStringComparator)
                : mailList.mDescription.Equals(
-                     recipient.mEmail, nsCaseInsensitiveStringComparator());
+                     recipient.mEmail, nsCaseInsensitiveStringComparator);
   }
 };
 
@@ -4539,11 +4538,11 @@ struct nsMsgRecipientComparator {
   bool Equals(const nsMsgRecipient &recipient,
               const nsMsgRecipient &recipientToFind) const {
     if (!recipient.mEmail.Equals(recipientToFind.mEmail,
-                                 nsCaseInsensitiveStringComparator()))
+                                 nsCaseInsensitiveStringComparator))
       return false;
 
     if (!recipient.mName.Equals(recipientToFind.mName,
-                                nsCaseInsensitiveStringComparator()))
+                                nsCaseInsensitiveStringComparator))
       return false;
 
     return true;
@@ -5013,7 +5012,7 @@ void nsMsgCompose::TagConvertible(Element *node, int32_t *_retval) {
   node->GetAttribute(NS_LITERAL_STRING("class"), attribValue);
   if (!attribValue.IsEmpty()) {
     if (StringBeginsWith(attribValue, NS_LITERAL_STRING("moz-"),
-                         nsCaseInsensitiveStringComparator())) {
+                         nsCaseInsensitiveStringComparator)) {
       // We assume that anything with a moz-* class is convertible regardless of
       // the tag, because we add, for example, class="moz-signature" to HTML
       // messages and we still want to be able to downgrade them.

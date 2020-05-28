@@ -413,28 +413,27 @@ nsresult nsAbDirectoryQuery::matchCardCondition(
       *matchFound = !CaseInsensitiveFindInReadable(matchValue, value);
       break;
     case nsIAbBooleanConditionTypes::Is:
-      *matchFound =
-          value.Equals(matchValue, nsCaseInsensitiveStringComparator());
+      *matchFound = value.Equals(matchValue, nsCaseInsensitiveStringComparator);
       break;
     case nsIAbBooleanConditionTypes::IsNot:
       *matchFound =
-          !value.Equals(matchValue, nsCaseInsensitiveStringComparator());
+          !value.Equals(matchValue, nsCaseInsensitiveStringComparator);
       break;
     case nsIAbBooleanConditionTypes::BeginsWith:
       *matchFound = StringBeginsWith(value, matchValue,
-                                     nsCaseInsensitiveStringComparator());
+                                     nsCaseInsensitiveStringComparator);
       break;
     case nsIAbBooleanConditionTypes::LessThan:
       *matchFound =
-          Compare(value, matchValue, nsCaseInsensitiveStringComparator()) < 0;
+          Compare(value, matchValue, nsCaseInsensitiveStringComparator) < 0;
       break;
     case nsIAbBooleanConditionTypes::GreaterThan:
       *matchFound =
-          Compare(value, matchValue, nsCaseInsensitiveStringComparator()) > 0;
+          Compare(value, matchValue, nsCaseInsensitiveStringComparator) > 0;
       break;
     case nsIAbBooleanConditionTypes::EndsWith:
-      *matchFound = StringEndsWith(value, matchValue,
-                                   nsCaseInsensitiveStringComparator());
+      *matchFound =
+          StringEndsWith(value, matchValue, nsCaseInsensitiveStringComparator);
       break;
     case nsIAbBooleanConditionTypes::SoundsLike:
     case nsIAbBooleanConditionTypes::RegExp:

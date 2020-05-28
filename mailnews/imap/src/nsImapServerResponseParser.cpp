@@ -1928,91 +1928,86 @@ void nsImapServerResponseParser::capability_data() {
       endToken = token.FindChar(']');
       if (endToken >= 0) token.SetLength(endToken);
 
-      if (token.Equals("AUTH=LOGIN", nsCaseInsensitiveCStringComparator()))
+      if (token.Equals("AUTH=LOGIN", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasAuthLoginCapability;
-      else if (token.Equals("AUTH=PLAIN", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("AUTH=PLAIN", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasAuthPlainCapability;
       else if (token.Equals("AUTH=CRAM-MD5",
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasCRAMCapability;
-      else if (token.Equals("AUTH=NTLM", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("AUTH=NTLM", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasAuthNTLMCapability;
-      else if (token.Equals("AUTH=GSSAPI",
-                            nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("AUTH=GSSAPI", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasAuthGssApiCapability;
-      else if (token.Equals("AUTH=MSN", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("AUTH=MSN", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasAuthMSNCapability;
       else if (token.Equals("AUTH=EXTERNAL",
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasAuthExternalCapability;
-      else if (token.Equals("AUTH=XOAUTH2",
-                            nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("AUTH=XOAUTH2", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasXOAuth2Capability;
-      else if (token.Equals("STARTTLS", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("STARTTLS", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasStartTLSCapability;
       else if (token.Equals("LOGINDISABLED",
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         fCapabilityFlag &= ~kHasAuthOldLoginCapability;  // remove flag
-      else if (token.Equals("XSENDER", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("XSENDER", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasXSenderCapability;
-      else if (token.Equals("IMAP4", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("IMAP4", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kIMAP4Capability;
-      else if (token.Equals("IMAP4rev1", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("IMAP4rev1", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kIMAP4rev1Capability;
       else if (Substring(token, 0, 5)
-                   .Equals("IMAP4", nsCaseInsensitiveCStringComparator()))
+                   .Equals("IMAP4", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kIMAP4other;
       else if (token.Equals("X-NO-ATOMIC-RENAME",
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kNoHierarchyRename;
       else if (token.Equals("X-NON-HIERARCHICAL-RENAME",
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kNoHierarchyRename;
-      else if (token.Equals("NAMESPACE", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("NAMESPACE", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kNamespaceCapability;
-      else if (token.Equals("ID", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("ID", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasIDCapability;
-      else if (token.Equals("ACL", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("ACL", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kACLCapability;
-      else if (token.Equals("XSERVERINFO",
-                            nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("XSERVERINFO", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kXServerInfoCapability;
-      else if (token.Equals("UIDPLUS", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("UIDPLUS", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kUidplusCapability;
-      else if (token.Equals("LITERAL+", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("LITERAL+", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kLiteralPlusCapability;
-      else if (token.Equals("XAOL-OPTION",
-                            nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("XAOL-OPTION", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kAOLImapCapability;
-      else if (token.Equals("X-GM-EXT-1", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("X-GM-EXT-1", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kGmailImapCapability;
-      else if (token.Equals("QUOTA", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("QUOTA", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kQuotaCapability;
-      else if (token.Equals("LANGUAGE", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("LANGUAGE", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasLanguageCapability;
-      else if (token.Equals("IDLE", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("IDLE", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasIdleCapability;
-      else if (token.Equals("CONDSTORE", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("CONDSTORE", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasCondStoreCapability;
-      else if (token.Equals("ENABLE", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("ENABLE", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasEnableCapability;
       else if (token.Equals("LIST-EXTENDED",
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasListExtendedCapability;
-      else if (token.Equals("XLIST", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("XLIST", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasXListCapability;
-      else if (token.Equals("SPECIAL-USE",
-                            nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("SPECIAL-USE", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasSpecialUseCapability;
       else if (token.Equals("COMPRESS=DEFLATE",
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasCompressDeflateCapability;
-      else if (token.Equals("MOVE", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("MOVE", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasMoveCapability;
       else if (token.Equals("HIGHESTMODSEQ",
-                            nsCaseInsensitiveCStringComparator()))
+                            nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasHighestModSeqCapability;
-      else if (token.Equals("CLIENTID", nsCaseInsensitiveCStringComparator()))
+      else if (token.Equals("CLIENTID", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasClientIDCapability;
     }
   } while (fNextToken && endToken < 0 && !fAtEndOfLine && ContinueParse());

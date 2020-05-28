@@ -915,7 +915,7 @@ nsMsgIncomingServer::Equals(nsIMsgIncomingServer *server, bool *_retval) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   // compare the server keys
-  *_retval = key1.Equals(key2, nsCaseInsensitiveCStringComparator());
+  *_retval = key1.Equals(key2, nsCaseInsensitiveCStringComparator);
 
   return rv;
 }
@@ -1179,7 +1179,7 @@ nsMsgIncomingServer::SetRealHostName(const nsACString &aHostname) {
   rv = InternalSetHostName(aHostname, "realhostname");
 
   // A few things to take care of if we're changing the hostname.
-  if (!aHostname.Equals(oldName, nsCaseInsensitiveCStringComparator()))
+  if (!aHostname.Equals(oldName, nsCaseInsensitiveCStringComparator))
     rv = OnUserOrHostNameChanged(oldName, aHostname, true);
   return rv;
 }

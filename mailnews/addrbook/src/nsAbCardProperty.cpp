@@ -433,15 +433,14 @@ NS_IMETHODIMP nsAbCardProperty::HasEmailAddress(const nsACString &aEmailAddress,
   nsCString emailAddress;
   nsresult rv = GetPropertyAsAUTF8String(kPriEmailProperty, emailAddress);
   if (rv != NS_ERROR_NOT_AVAILABLE &&
-      emailAddress.Equals(aEmailAddress,
-                          nsCaseInsensitiveCStringComparator())) {
+      emailAddress.Equals(aEmailAddress, nsCaseInsensitiveCStringComparator)) {
     *aResult = true;
     return NS_OK;
   }
 
   rv = GetPropertyAsAUTF8String(k2ndEmailProperty, emailAddress);
   if (rv != NS_ERROR_NOT_AVAILABLE &&
-      emailAddress.Equals(aEmailAddress, nsCaseInsensitiveCStringComparator()))
+      emailAddress.Equals(aEmailAddress, nsCaseInsensitiveCStringComparator))
     *aResult = true;
 
   return NS_OK;

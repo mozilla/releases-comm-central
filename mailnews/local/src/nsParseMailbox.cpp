@@ -1910,7 +1910,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
           // if moving to a different file, do it.
           if (!actionTargetFolderUri.IsEmpty() &&
               !m_inboxUri.Equals(actionTargetFolderUri,
-                                 nsCaseInsensitiveCStringComparator())) {
+                                 nsCaseInsensitiveCStringComparator)) {
             nsCOMPtr<nsIMsgFolder> destIFolder;
             // XXX TODO: why do we create the folder here, while we do not in
             // the Copy action?
