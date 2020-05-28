@@ -579,7 +579,7 @@ ThreadSummarizer.prototype = {
     let subject = null;
     let maxCountExceeded = false;
     for (let [i, msgHdr] of summarizedMessages.entries()) {
-      if (i > this.kMaxSummarizedMessages) {
+      if (i == this.kMaxSummarizedMessages) {
         summarizedMessages.length = i;
         maxCountExceeded = true;
         break;
@@ -634,11 +634,6 @@ function MultipleSelectionSummarizer() {}
 
 MultipleSelectionSummarizer.prototype = {
   /**
-   * The maximum number of messages to summarize.
-   */
-  kMaxSummarizedMessages: 500,
-
-  /**
    * The maximum number of threads to summarize.
    */
   kMaxSummarizedThreads: 100,
@@ -674,6 +669,7 @@ MultipleSelectionSummarizer.prototype = {
     let messageList = document.getElementById("message_list");
 
     let threads = this._buildThreads(aMessages);
+    threadsCount = threads.length;
 
     // Set the heading based on the number of messages & threads.
     let format = aMessages.limited
@@ -685,13 +681,8 @@ MultipleSelectionSummarizer.prototype = {
 
     // Summarize the selected messages by thread.
     let maxCountExceeded = false;
-    let messageCount = 0;
     for (let [i, msgs] of threads.entries()) {
-      messageCount += msgs.length;
-      if (
-        messageCount > this.kMaxSummarizedMessages ||
-        i > this.kMaxSummarizedThreads
-      ) {
+      if (i == this.kMaxSummarizedThreads) {
         threads.length = i;
         maxCountExceeded = true;
         break;
@@ -710,9 +701,9 @@ MultipleSelectionSummarizer.prototype = {
 
     if (maxCountExceeded) {
       this.context.showNotice(
-        formatString("maxCountExceeded", [
-          aMessages.trueLength.toLocaleString(),
-          this.kMaxSummarizedMessages.toLocaleString(),
+        formatString("maxThreadCountExceeded", [
+          threadsCount.toLocaleString(),
+          this.kMaxSummarizedThreads.toLocaleString(),
         ])
       );
 
