@@ -669,7 +669,7 @@ MultipleSelectionSummarizer.prototype = {
     let messageList = document.getElementById("message_list");
 
     let threads = this._buildThreads(aMessages);
-    threadsCount = threads.length;
+    let threadsCount = threads.length;
 
     // Set the heading based on the number of messages & threads.
     let format = aMessages.limited
