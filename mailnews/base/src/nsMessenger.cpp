@@ -826,6 +826,10 @@ nsMessenger::SaveAllAttachments(const nsTArray<nsCString> &contentTypeArray,
                                 const nsTArray<nsCString> &urlArray,
                                 const nsTArray<nsCString> &displayNameArray,
                                 const nsTArray<nsCString> &messageUriArray) {
+  uint32_t len = contentTypeArray.Length();
+  NS_ENSURE_TRUE(urlArray.Length() == len, NS_ERROR_INVALID_ARG);
+  NS_ENSURE_TRUE(displayNameArray.Length() == len, NS_ERROR_INVALID_ARG);
+  NS_ENSURE_TRUE(messageUriArray.Length() == len, NS_ERROR_INVALID_ARG);
   return SaveAllAttachments(contentTypeArray, urlArray, displayNameArray,
                             messageUriArray, false);
 }
@@ -1833,9 +1837,6 @@ nsSaveAllAttachmentsState::nsSaveAllAttachmentsState(
       m_messageUriArray(messageUriArray.Clone()),
       m_detachingAttachments(detachingAttachments),
       m_withoutWarning(false) {
-  MOZ_ASSERT(contentTypeArray.Length() == urlArray.Length() ==
-             displayNameArray.Length() == messageUriArray.Length());
-
   m_count = contentTypeArray.Length();
   m_curIndex = 0;
   m_directoryName = NS_xstrdup(dirName);
