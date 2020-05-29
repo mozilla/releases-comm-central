@@ -64,6 +64,12 @@ var EXPORTED_SYMBOLS = ["Policies"];
  * The callbacks will be bound to their parent policy object.
  */
 var Policies = {
+  "3rdparty": {
+    onBeforeAddons(manager, param) {
+      manager.setExtensionPolicies(param.Extensions);
+    },
+  },
+
   AppAutoUpdate: {
     onBeforeUIStartup(manager, param) {
       // Logic feels a bit reversed here, but it's correct. If AppAutoUpdate is
@@ -79,6 +85,76 @@ var Policies = {
   AppUpdateURL: {
     onBeforeAddons(manager, param) {
       setDefaultPref("app.update.url", param.href);
+    },
+  },
+
+  Authentication: {
+    onBeforeAddons(manager, param) {
+      let locked = true;
+      if ("Locked" in param) {
+        locked = param.Locked;
+      }
+
+      if ("SPNEGO" in param) {
+        setDefaultPref(
+          "network.negotiate-auth.trusted-uris",
+          param.SPNEGO.join(", "),
+          locked
+        );
+      }
+      if ("Delegated" in param) {
+        setDefaultPref(
+          "network.negotiate-auth.delegation-uris",
+          param.Delegated.join(", "),
+          locked
+        );
+      }
+      if ("NTLM" in param) {
+        setDefaultPref(
+          "network.automatic-ntlm-auth.trusted-uris",
+          param.NTLM.join(", "),
+          locked
+        );
+      }
+      if ("AllowNonFQDN" in param) {
+        if ("NTLM" in param.AllowNonFQDN) {
+          setDefaultPref(
+            "network.automatic-ntlm-auth.allow-non-fqdn",
+            param.AllowNonFQDN.NTLM,
+            locked
+          );
+        }
+        if ("SPNEGO" in param.AllowNonFQDN) {
+          setDefaultPref(
+            "network.negotiate-auth.allow-non-fqdn",
+            param.AllowNonFQDN.SPNEGO,
+            locked
+          );
+        }
+      }
+      if ("AllowProxies" in param) {
+        if ("NTLM" in param.AllowProxies) {
+          setDefaultPref(
+            "network.automatic-ntlm-auth.allow-proxies",
+            param.AllowProxies.NTLM,
+            locked
+          );
+        }
+        if ("SPNEGO" in param.AllowProxies) {
+          setDefaultPref(
+            "network.negotiate-auth.allow-proxies",
+            param.AllowProxies.SPNEGO,
+            locked
+          );
+        }
+      }
+      if ("PrivateBrowsing" in param) {
+        setDefaultPref(
+          "network.auth.private-browsing-sso",
+          param.PrivateBrowsing,
+          locked
+        );
+      }
     },
   },
 
@@ -112,6 +188,12 @@ var Policies = {
       if (param) {
         blockAboutPage(manager, "about:support");
       }
+    },
+  },
+
+  CaptivePortal: {
+    onBeforeAddons(manager, param) {
+      setAndLockPref("network.captive-portal-service.enabled", param);
     },
   },
 
@@ -219,6 +301,78 @@ var Policies = {
     },
   },
 
+  Cookies: {
+    onBeforeUIStartup(manager, param) {
+      addAllowDenyPermissions("cookie", param.Allow, param.Block);
+
+      if (param.Block) {
+        const hosts = param.Block.map(url => url.hostname)
+          .sort()
+          .join("\n");
+        runOncePerModification("clearCookiesForBlockedHosts", hosts, () => {
+          for (let blocked of param.Block) {
+            Services.cookies.removeCookiesWithOriginAttributes(
+              "{}",
+              blocked.hostname
+            );
+          }
+        });
+      }
+
+      if (
+        param.Default !== undefined ||
+        param.AcceptThirdParty !== undefined ||
+        param.Locked
+      ) {
+        const ACCEPT_COOKIES = 0;
+        const REJECT_THIRD_PARTY_COOKIES = 1;
+        const REJECT_ALL_COOKIES = 2;
+        const REJECT_UNVISITED_THIRD_PARTY = 3;
+
+        let newCookieBehavior = ACCEPT_COOKIES;
+        if (param.Default !== undefined && !param.Default) {
+          newCookieBehavior = REJECT_ALL_COOKIES;
+        } else if (param.AcceptThirdParty) {
+          if (param.AcceptThirdParty == "never") {
+            newCookieBehavior = REJECT_THIRD_PARTY_COOKIES;
+          } else if (param.AcceptThirdParty == "from-visited") {
+            newCookieBehavior = REJECT_UNVISITED_THIRD_PARTY;
+          }
+        }
+
+        setDefaultPref(
+          "network.cookie.cookieBehavior",
+          newCookieBehavior,
+          param.Locked
+        );
+      }
+
+      const KEEP_COOKIES_UNTIL_EXPIRATION = 0;
+      const KEEP_COOKIES_UNTIL_END_OF_SESSION = 2;
+
+      if (param.ExpireAtSessionEnd !== undefined || param.Locked) {
+        let newLifetimePolicy = KEEP_COOKIES_UNTIL_EXPIRATION;
+        if (param.ExpireAtSessionEnd) {
+          newLifetimePolicy = KEEP_COOKIES_UNTIL_END_OF_SESSION;
+        }
+
+        setDefaultPref(
+          "network.cookie.lifetimePolicy",
+          newLifetimePolicy,
+          param.Locked
+        );
+      }
+    },
+  },
+
+  DefaultDownloadDirectory: {
+    onBeforeAddons(manager, param) {
+      setDefaultPref("browser.download.dir", replacePathVariables(param));
+      // If a custom download directory is being used, just lock folder list to 2.
+      setAndLockPref("browser.download.folderList", 2);
+    },
+  },
+
   DisableAppUpdate: {
     onBeforeAddons(manager, param) {
       if (param) {
@@ -281,6 +435,22 @@ var Policies = {
     },
   },
 
+  DisablePasswordReveal: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        manager.disallowFeature("passwordReveal");
+      }
+    },
+  },
+
+  DisableSafeMode: {
+    onBeforeUIStartup(manager, param) {
+      if (param) {
+        manager.disallowFeature("safeMode");
+      }
+    },
+  },
+
   DisableSecurityBypass: {
     onBeforeUIStartup(manager, param) {
       if ("InvalidCertificate" in param) {
@@ -304,6 +474,27 @@ var Policies = {
       if (param) {
         manager.disallowFeature("SysAddonUpdate");
       }
+    },
+  },
+
+  DisableTelemetry: {
+    onBeforeAddons(manager, param) {
+      if (param) {
+        setAndLockPref("datareporting.healthreport.uploadEnabled", false);
+        setAndLockPref("datareporting.policy.dataSubmissionEnabled", false);
+        blockAboutPage(manager, "about:telemetry");
+      }
+    },
+  },
+
+  DownloadDirectory: {
+    onBeforeAddons(manager, param) {
+      setAndLockPref("browser.download.dir", replacePathVariables(param));
+      // If a custom download directory is being used, just lock folder list to 2.
+      setAndLockPref("browser.download.folderList", 2);
+      // Per Chrome spec, user can't choose to download every time
+      // if this is set.
+      setAndLockPref("browser.download.useDownloadDir", true);
     },
   },
 
@@ -384,6 +575,14 @@ var Policies = {
     },
   },
 
+  HardwareAcceleration: {
+    onBeforeAddons(manager, param) {
+      if (!param) {
+        setAndLockPref("layers.acceleration.disabled", true);
+      }
+    },
+  },
+
   InstallAddonsPermission: {
     onBeforeUIStartup(manager, param) {
       if ("Allow" in param) {
@@ -399,11 +598,27 @@ var Policies = {
     },
   },
 
+  PasswordManagerEnabled: {
+    onBeforeUIStartup(manager, param) {
+      if (!param) {
+        blockAboutPage(manager, "about:logins", true);
+        setAndLockPref("pref.privacy.disable_button.view_passwords", true);
+      }
+      setAndLockPref("signon.rememberSignons", param);
+    },
+  },
+
   Preferences: {
     onBeforeAddons(manager, param) {
       for (let preference in param) {
         setAndLockPref(preference, param[preference]);
       }
+    },
+  },
+
+  PromptForDownloadLocation: {
+    onBeforeAddons(manager, param) {
+      setAndLockPref("browser.download.useDownloadDir", !param);
     },
   },
 
@@ -648,6 +863,13 @@ async function runOncePerModification(actionName, policyValue, callback) {
 function clearRunOnceModification(actionName) {
   let prefName = `browser.policies.runOncePerModification.${actionName}`;
   Services.prefs.clearUserPref(prefName);
+}
+
+function replacePathVariables(path) {
+  if (path.includes("${home}")) {
+    return path.replace("${home}", FileUtils.getFile("Home", []).path);
+  }
+  return path;
 }
 
 /**

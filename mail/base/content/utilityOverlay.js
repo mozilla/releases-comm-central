@@ -405,3 +405,12 @@ function goOnEvent(aNode, aEvent) {
     }
   }
 }
+
+function buildHelpMenu() {
+  document.getElementById(
+    "helpSafeMode"
+  ).disabled = !Services.policies.isAllowed("safeMode");
+  document.getElementById(
+    "appmenu_safeMode"
+  ).disabled = !Services.policies.isAllowed("safeMode");
+}

@@ -1,9 +1,10 @@
       <menu id="helpMenu"
 #ifdef XP_WIN
-            label="&helpMenuWin.label;" accesskey="&helpMenuWin.accesskey;">
+            label="&helpMenuWin.label;" accesskey="&helpMenuWin.accesskey;"
 #else
-            label="&helpMenu.label;" accesskey="&helpMenu.accesskey;">
+            label="&helpMenu.label;" accesskey="&helpMenu.accesskey;"
 #endif
+            onpopupshowing="buildHelpMenu();">
         <menupopup id="menu_HelpPopup">
           <menuitem id="menu_openHelp"
                     label="&productHelp.label;"

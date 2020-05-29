@@ -46,8 +46,9 @@ var gDownloadDirSection = {
     var downloadFolder = document.getElementById("downloadFolder");
     var chooseFolder = document.getElementById("chooseFolder");
     var preference = Preferences.get("browser.download.useDownloadDir");
-    downloadFolder.disabled = !preference.value;
-    chooseFolder.disabled = !preference.value;
+    var dirPreference = Preferences.get("browser.download.dir");
+    downloadFolder.disabled = !preference.value || dirPreference.locked;
+    chooseFolder.disabled = !preference.value || dirPreference.locked;
     return undefined;
   },
 
@@ -108,13 +109,15 @@ var gDownloadDirSection = {
     var currentDirPref = Preferences.get("browser.download.downloadDir");
     var downloadDir =
       currentDirPref.value || (await this._indexToFile(folderListPref.value));
-    let urlSpec = Services.io
-      .getProtocolHandler("file")
-      .QueryInterface(Ci.nsIFileProtocolHandler)
-      .getURLSpecFromFile(downloadDir);
+    if (downloadDir) {
+      let urlSpec = Services.io
+        .getProtocolHandler("file")
+        .QueryInterface(Ci.nsIFileProtocolHandler)
+        .getURLSpecFromFile(downloadDir);
 
-    downloadFolder.style.backgroundImage =
-      "url(moz-icon://" + urlSpec + "?size=16)";
+      downloadFolder.style.backgroundImage =
+        "url(moz-icon://" + urlSpec + "?size=16)";
+    }
 
     return undefined;
   },

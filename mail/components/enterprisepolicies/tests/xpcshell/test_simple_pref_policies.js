@@ -29,6 +29,81 @@ const POLICIES_TESTS = [
    * },
    */
 
+  // POLICY: DisableSecurityBypass
+  {
+    policies: {
+      DisableSecurityBypass: {
+        InvalidCertificate: true,
+        SafeBrowsing: true,
+      },
+    },
+    lockedPrefs: {
+      "security.certerror.hideAddException": true,
+      "browser.safebrowsing.allowOverride": false,
+    },
+  },
+
+  // POLICY: Authentication
+  {
+    policies: {
+      Authentication: {
+        SPNEGO: ["a.com", "b.com"],
+        Delegated: ["a.com", "b.com"],
+        NTLM: ["a.com", "b.com"],
+        AllowNonFQDN: {
+          SPNEGO: true,
+          NTLM: true,
+        },
+        AllowProxies: {
+          SPNEGO: false,
+          NTLM: false,
+        },
+        PrivateBrowsing: true,
+      },
+    },
+    lockedPrefs: {
+      "network.negotiate-auth.trusted-uris": "a.com, b.com",
+      "network.negotiate-auth.delegation-uris": "a.com, b.com",
+      "network.automatic-ntlm-auth.trusted-uris": "a.com, b.com",
+      "network.automatic-ntlm-auth.allow-non-fqdn": true,
+      "network.negotiate-auth.allow-non-fqdn": true,
+      "network.automatic-ntlm-auth.allow-proxies": false,
+      "network.negotiate-auth.allow-proxies": false,
+      "network.auth.private-browsing-sso": true,
+    },
+  },
+
+  // POLICY: Authentication (unlocked)
+  {
+    policies: {
+      Authentication: {
+        SPNEGO: ["a.com", "b.com"],
+        Delegated: ["a.com", "b.com"],
+        NTLM: ["a.com", "b.com"],
+        AllowNonFQDN: {
+          SPNEGO: true,
+          NTLM: true,
+        },
+        AllowProxies: {
+          SPNEGO: false,
+          NTLM: false,
+        },
+        PrivateBrowsing: true,
+        Locked: false,
+      },
+    },
+    unlockedPrefs: {
+      "network.negotiate-auth.trusted-uris": "a.com, b.com",
+      "network.negotiate-auth.delegation-uris": "a.com, b.com",
+      "network.automatic-ntlm-auth.trusted-uris": "a.com, b.com",
+      "network.automatic-ntlm-auth.allow-non-fqdn": true,
+      "network.negotiate-auth.allow-non-fqdn": true,
+      "network.automatic-ntlm-auth.allow-proxies": false,
+      "network.negotiate-auth.allow-proxies": false,
+      "network.auth.private-browsing-sso": true,
+    },
+  },
+
   // POLICY: Certificates (true)
   {
     policies: {
@@ -50,30 +125,6 @@ const POLICIES_TESTS = [
     },
     lockedPrefs: {
       "security.enterprise_roots.enabled": false,
-    },
-  },
-
-  // POLICY: DisableSecurityBypass
-  {
-    policies: {
-      DisableSecurityBypass: {
-        InvalidCertificate: true,
-        SafeBrowsing: true,
-      },
-    },
-    lockedPrefs: {
-      "security.certerror.hideAddException": true,
-      "browser.safebrowsing.allowOverride": false,
-    },
-  },
-
-  // POLICY: ExtensionUpdate
-  {
-    policies: {
-      ExtensionUpdate: false,
-    },
-    lockedPrefs: {
-      "extensions.update.enabled": false,
     },
   },
 
@@ -110,6 +161,26 @@ const POLICIES_TESTS = [
     lockedPrefs: {
       "security.tls.version.min": 3,
       "security.tls.version.max": 4,
+    },
+  },
+
+  // POLICY: CaptivePortal
+  {
+    policies: {
+      CaptivePortal: false,
+    },
+    lockedPrefs: {
+      "network.captive-portal-service.enabled": false,
+    },
+  },
+
+  // POLICY: ExtensionUpdate
+  {
+    policies: {
+      ExtensionUpdate: false,
+    },
+    lockedPrefs: {
+      "extensions.update.enabled": false,
     },
   },
 ];

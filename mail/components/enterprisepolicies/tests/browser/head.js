@@ -33,23 +33,15 @@ function checkUnlockedPref(prefName, prefValue) {
   EnterprisePolicyTesting.checkPolicyPref(prefName, prefValue, false);
 }
 
-// Checks that a page was blocked by seeing if it was replaced with about:neterror
-async function checkBlockedPage(url, expectedBlocked) {
+async function withNewTab(options, taskFn) {
+  let tab = window.openContentTab(options.url);
+  await BrowserTestUtils.browserLoaded(tab.browser);
+
+  let result = await taskFn(tab.browser);
+
   let tabmail = document.getElementById("tabmail");
-  let index = tabmail.tabInfo.length;
-  window.openContentTab("about:blank");
-  let tab = tabmail.tabInfo[index];
-  let browser = tab.browser;
-  browser.contentWindow.location.href = url;
-
-  await BrowserTestUtils.waitForCondition(async function() {
-    let blocked = await ContentTask.spawn(browser, null, async function() {
-      return content.document.documentURI.startsWith("about:neterror");
-    });
-    return blocked == expectedBlocked;
-  }, `Page ${url} block was correct (expected=${expectedBlocked}).`);
-
   tabmail.closeTab(tab);
+  return Promise.resolve(result);
 }
 
 add_task(async function policies_headjs_startWithCleanSlate() {

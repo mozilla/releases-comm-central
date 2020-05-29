@@ -78,6 +78,7 @@ var gPrivacyPane = {
     }
     this.initTelemetry();
 
+    this.readAcceptCookies();
     let element = document.getElementById("acceptCookies");
     Preferences.addSyncFromPrefListener(element, () =>
       this.readAcceptCookies()
@@ -118,18 +119,30 @@ var gPrivacyPane = {
    */
   readAcceptCookies() {
     let pref = Preferences.get("network.cookie.cookieBehavior");
+    let exceptionsButton = document.getElementById("cookieExceptions");
     let acceptThirdPartyLabel = document.getElementById(
       "acceptThirdPartyLabel"
     );
     let acceptThirdPartyMenu = document.getElementById("acceptThirdPartyMenu");
     let keepUntil = document.getElementById("keepUntil");
     let menu = document.getElementById("keepCookiesUntil");
+    let showCookiesButton = document.getElementById("showCookiesButton");
 
     // enable the rest of the UI for anything other than "disable all cookies"
     let acceptCookies = pref.value != 2;
+    let cookieBehaviorLocked = Services.prefs.prefIsLocked(
+      "network.cookie.cookieBehavior"
+    );
+    let cookieExpirationLocked = Services.prefs.prefIsLocked(
+      "network.cookie.lifetimePolicy"
+    );
 
-    acceptThirdPartyLabel.disabled = acceptThirdPartyMenu.disabled = !acceptCookies;
-    keepUntil.disabled = menu.disabled = !acceptCookies;
+    exceptionsButton.disabled = !acceptCookies || cookieBehaviorLocked;
+    acceptThirdPartyLabel.disabled = acceptThirdPartyMenu.disabled =
+      !acceptCookies || cookieBehaviorLocked;
+    keepUntil.disabled = menu.disabled =
+      !acceptCookies || cookieBehaviorLocked || cookieExpirationLocked;
+    showCookiesButton.disabled = cookieBehaviorLocked;
 
     return acceptCookies;
   },
