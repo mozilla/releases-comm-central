@@ -1237,7 +1237,7 @@ var gImageDownloader = (function() {
     };
 
     if (callbackProgress) {
-      callbackProgress(92);
+      callbackProgress(STATE_RESIZING, 92);
     }
 
     img.src = Services.io.newFileURI(tempFile).spec;
