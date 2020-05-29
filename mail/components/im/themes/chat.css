@@ -982,5 +982,5 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 
 #goToConversation:hover:active {
   background-color: hsla(0, 0%, 50%, 0.4) !important;
-  box-shadow: 0 0 1x hsla(0, 0%, 50%, 0.15) inset;
+  box-shadow: 0 0 1px hsla(0, 0%, 50%, 0.15) inset;
 }
