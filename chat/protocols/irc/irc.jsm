@@ -323,7 +323,13 @@ var GenericIRCConversation = {
     // enabled with the echo-message capability. If this is not enabled, just
     // assume the message was received and immediately show it.
     if (!this._account._activeCAPs.has("echo-message")) {
-      this.writeMessage(this._account._nickname, aMessage, { outgoing: true });
+      this.writeMessage(
+        this._account.imAccount.alias ||
+          this._account.imAccount.statusInfo.displayName ||
+          this._account._nickname,
+        aMessage,
+        { outgoing: true }
+      );
     }
 
     this._pendingMessage = true;
