@@ -998,7 +998,9 @@ function hideAddressRow(element, focusType = "next") {
   // Ask the user to confirm the removal of all the typed addresses if the field
   // holds addressing pills and has been previously edited.
   if (isEdited && pills.length) {
-    let fieldName = addressRow.querySelector(".address-label-container > label");
+    let fieldName = addressRow.querySelector(
+      ".address-label-container > label"
+    );
     let confirmTitle = getComposeBundle().getFormattedString(
       "confirmRemoveRecipientRowTitle2",
       [fieldName.value]
@@ -1051,9 +1053,7 @@ function hideAddressRow(element, focusType = "next") {
       : getPreviousSibling(addressRow, ".address-row:not(.hidden)");
 
   if (addressRowSibling) {
-    addressRowSibling
-      .querySelector(`.address-input[recipienttype]`)
-      .focus();
+    addressRowSibling.querySelector(`.address-input[recipienttype]`).focus();
     return;
   }
   // Otherwise move focus to the subject field or to the first available input.
@@ -1065,7 +1065,6 @@ function hideAddressRow(element, focusType = "next") {
         );
   fallbackFocusElement.focus();
 }
-
 
 /**
  * Handle the click event on the close label of an address row.
