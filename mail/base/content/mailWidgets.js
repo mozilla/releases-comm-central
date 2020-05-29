@@ -2143,34 +2143,33 @@
       let row = document.createXULElement("hbox");
       row.setAttribute("id", recipient.row);
       row.classList.add("addressingWidgetItem", "address-row");
+      row.setAttribute("data-labelid", recipient.labelId);
 
       let firstCol = document.createXULElement("hbox");
       firstCol.classList.add("aw-firstColBox");
 
       row.classList.add("hidden");
 
-      let firstLabel = document.createXULElement("label");
-      let labelId =
-        recipient.type == "addr_other" ? recipient.labelId : recipient.type;
+      let closeLabel = document.createXULElement("label");
       let tooltip = l10n.formatValueSync("remove-address-row-type", {
         type: recipient.labelId,
       });
-      firstLabel.setAttribute("tooltiptext", tooltip);
-      firstLabel.addEventListener("click", () => {
-        hideAddressRow(firstLabel, labelId);
+      closeLabel.setAttribute("tooltiptext", tooltip);
+      closeLabel.addEventListener("click", event => {
+        closeLabelOnClick(event);
       });
-      firstLabel.addEventListener("keypress", event => {
-        closeLabelKeyPress(event, firstLabel, labelId);
+      closeLabel.addEventListener("keypress", event => {
+        closeLabelOnKeyPress(event);
       });
-      firstLabel.setAttribute("role", "button");
+      closeLabel.setAttribute("role", "button");
       // Necessary to allow focus via TAB key.
-      firstLabel.setAttribute("tabindex", 0);
+      closeLabel.setAttribute("tabindex", 0);
 
       let closeImage = document.createXULElement("image");
       closeImage.classList.add("close-icon");
 
-      firstLabel.appendChild(closeImage);
-      firstCol.appendChild(firstLabel);
+      closeLabel.appendChild(closeImage);
+      firstCol.appendChild(closeLabel);
       row.appendChild(firstCol);
 
       let labelContainer = document.createXULElement("hbox");

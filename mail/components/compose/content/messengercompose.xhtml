@@ -2173,11 +2173,13 @@
 
           <mail-recipients-area id="recipientsContainer" orient="vertical"
                                 class="recipients-container" flex="1">
-            <hbox id="addressRowTo" class="addressingWidgetItem address-row">
+            <hbox id="addressRowTo"
+                  class="addressingWidgetItem address-row"
+                  data-labelid="addr_to">
               <hbox class="aw-firstColBox" align="top">
                 <label role="button"
-                       onclick="hideAddressRow(this, 'addr_to');"
-                       onkeypress="closeLabelKeyPress(event, this, 'addr_to');"
+                       onclick="closeLabelOnClick(event);"
+                       onkeypress="closeLabelOnKeyPress(event);"
                        collapsed="true">
                   <image class="close-icon"/>
                 </label>
@@ -2210,11 +2212,13 @@
               </hbox>
             </hbox>
 
-            <hbox id="addressRowCc" class="addressingWidgetItem address-row hidden">
+            <hbox id="addressRowCc"
+                  class="addressingWidgetItem address-row hidden"
+                  data-labelid="addr_cc">
               <hbox class="aw-firstColBox" align="top">
                 <label role="button"
-                       onclick="hideAddressRow(this, 'addr_cc');"
-                       onkeypress="closeLabelKeyPress(event, this, 'addr_cc');">
+                       onclick="closeLabelOnClick(event);"
+                       onkeypress="closeLabelOnKeyPress(event);">
                   <image class="close-icon"/>
                 </label>
               </hbox>
@@ -2246,11 +2250,13 @@
               </hbox>
             </hbox>
 
-            <hbox id="addressRowBcc" class="addressingWidgetItem address-row hidden">
+            <hbox id="addressRowBcc"
+                  class="addressingWidgetItem address-row hidden"
+                  data-labelid="addr_bcc">
               <hbox class="aw-firstColBox" align="top">
                 <label role="button"
-                       onclick="hideAddressRow(this, 'addr_bcc');"
-                       onkeypress="closeLabelKeyPress(event, this, 'addr_bcc');">
+                       onclick="closeLabelOnClick(event);"
+                       onkeypress="closeLabelOnKeyPress(event);">
                   <image class="close-icon"/>
                 </label>
               </hbox>
@@ -2282,11 +2288,13 @@
               </hbox>
             </hbox>
 
-            <hbox id="addressRowReply" class="addressingWidgetItem address-row hidden">
+            <hbox id="addressRowReply"
+                  class="addressingWidgetItem address-row hidden"
+                  data-labelid="addr_reply">
               <hbox class="aw-firstColBox" align="top">
                 <label role="button"
-                       onclick="hideAddressRow(this, 'addr_reply');"
-                       onkeypress="closeLabelKeyPress(event, this, 'addr_reply');">
+                       onclick="closeLabelOnClick(event);"
+                       onkeypress="closeLabelOnKeyPress(event);">
                   <image class="close-icon"/>
                 </label>
               </hbox>
@@ -2318,11 +2326,13 @@
               </hbox>
             </hbox>
 
-            <hbox id="addressRowNewsgroups" class="addressingWidgetItem address-row hidden">
+            <hbox id="addressRowNewsgroups"
+                  class="addressingWidgetItem address-row hidden"
+                  data-labelid="addr_newsgroups">
               <hbox class="aw-firstColBox" align="top">
                 <label role="button"
-                       onclick="hideAddressRow(this, 'addr_newsgroups');"
-                       onkeypress="closeLabelKeyPress(event, this, 'addr_newsgroups');">
+                       onclick="closeLabelOnClick(event);"
+                       onkeypress="closeLabelOnKeyPress(event);">
                   <image class="close-icon"/>
                 </label>
               </hbox>
@@ -2354,11 +2364,13 @@
               </hbox>
             </hbox>
 
-            <hbox id="addressRowFollowup" class="addressingWidgetItem address-row hidden">
+            <hbox id="addressRowFollowup"
+                  class="addressingWidgetItem address-row hidden"
+                  data-labelid="addr_followup">
               <hbox class="aw-firstColBox" align="top">
                 <label role="button"
-                       onclick="hideAddressRow(this, 'addr_followup');"
-                       onkeypress="closeLabelKeyPress(event, this, 'addr_followup');">
+                       onclick="closeLabelOnClick(event);"
+                       onkeypress="closeLabelOnKeyPress(event);">
                   <image class="close-icon"/>
                 </label>
               </hbox>

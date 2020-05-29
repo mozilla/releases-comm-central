@@ -547,12 +547,14 @@ function addressInputOnBeforeHandleKeyDown(event) {
         }
       }
       break;
+
     case " ":
       // Prevent the typing of a blank space as a first character.
       if (!input.value.trim()) {
         event.preventDefault();
       }
       break;
+
     case ",":
       // Don't trigger autocomplete if the typed value is not a valid address.
       if (!isValidAddress(input.value)) {
@@ -561,6 +563,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
       event.preventDefault();
       input.handleEnter(event);
       break;
+
     case "Home":
     case "ArrowLeft":
     case "Backspace":
@@ -586,8 +589,39 @@ function addressInputOnBeforeHandleKeyDown(event) {
         input
           .closest("mail-recipients-area")
           .checkKeyboardSelected(event, targetPill);
+        break;
+      }
+
+      if (
+        event.key == "Backspace" &&
+        input
+          .closest(".address-row")
+          .querySelector(".aw-firstColBox > label:not([collapsed])")
+      ) {
+        // If addressing row has no pills nor text, unrepeated Backspace
+        // keydown, and row has an [x] button, hide row and focus previous row.
+        hideAddressRow(input, "previous");
       }
       break;
+
+    case "Delete":
+      if (
+        !event.repeat &&
+        !input.value.trim() &&
+        !(input.selectionStart + input.selectionEnd) &&
+        !input
+          .closest(".address-container")
+          .querySelector("mail-address-pill") &&
+        !input
+          .closest(".address-row")
+          .querySelector(".aw-firstColBox > label[collapsed]")
+      ) {
+        // If addressing row has no pills nor text, unrepeated Delete keydown,
+        // and row has an [x] button, hide row and focus next available row.
+        hideAddressRow(input, "next");
+      }
+      break;
+
     case "Enter":
       // If no address entered, move focus to the next available element,
       // but not for Ctrl+[Shift]+Enter keyboard shortcuts for sending.
@@ -598,6 +632,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
         SetFocusOnNextAvailableElement(input);
       }
       break;
+
     case "Tab":
       // Trigger the autocomplete controller only if we have a value
       // to prevent interfering with the natural change of focus on Tab.
@@ -935,41 +970,47 @@ function showAddressRow(label, rowID) {
  * Hide the container row of a recipient (Cc, Bcc, etc.).
  * The container can't be hidden if previously typed addresses are listed.
  *
- * @param {XULelement} element - The clicked label.
- * @param {string} labelID - The ID of the label to show.
+ * @param {XULelement} element - A descendant element of the row to be hidden
+ *   (or the row itself), usually the [x] label when triggered, or an empty
+ *   address input upon Backspace or Del keydown.
+ * @param {("next"|"previous")} [focusType="next"] - How to move focus after
+ *   hiding the address row: try to focus the input of an available next sibling
+ *   row (for [x] or DEL) or previous sibling row (for BACKSPACE).
  */
-function hideAddressRow(element, labelID) {
-  let container = element.closest(".address-row");
+function hideAddressRow(element, focusType = "next") {
+  let addressRow = element.closest(".address-row");
+  let labelID = addressRow.dataset.labelid;
 
+  // Prevent address row removal when sending (disable-on-send).
   if (
-    container
+    addressRow
       .querySelector(".address-container")
       .classList.contains("disable-container")
   ) {
     return;
   }
 
-  let fieldName = container.querySelector(".address-label-container > label");
-  let confirmTitle = getComposeBundle().getFormattedString(
-    "confirmRemoveRecipientRowTitle2",
-    [fieldName.value]
-  );
-  let confirmBody = getComposeBundle().getFormattedString(
-    "confirmRemoveRecipientRowBody2",
-    [fieldName.value]
-  );
-  let confirmButton = getComposeBundle().getString(
-    "confirmRemoveRecipientRowButton"
-  );
-
-  let pills = container.querySelectorAll("mail-address-pill");
-  let isEdited = container
+  let pills = addressRow.querySelectorAll("mail-address-pill");
+  let isEdited = addressRow
     .querySelector(".address-container")
     .classList.contains("addressing-field-edited");
 
   // Ask the user to confirm the removal of all the typed addresses if the field
   // holds addressing pills and has been previously edited.
   if (isEdited && pills.length) {
+    let fieldName = addressRow.querySelector(".address-label-container > label");
+    let confirmTitle = getComposeBundle().getFormattedString(
+      "confirmRemoveRecipientRowTitle2",
+      [fieldName.value]
+    );
+    let confirmBody = getComposeBundle().getFormattedString(
+      "confirmRemoveRecipientRowBody2",
+      [fieldName.value]
+    );
+    let confirmButton = getComposeBundle().getString(
+      "confirmRemoveRecipientRowButton"
+    );
+
     let result = Services.prompt.confirmEx(
       window,
       confirmTitle,
@@ -992,42 +1033,60 @@ function hideAddressRow(element, labelID) {
   }
 
   // Reset the original input.
-  let input = container.querySelector(`input[is="autocomplete-input"]`);
+  let input = addressRow.querySelector(`.address-input[recipienttype]`);
   input.value = "";
 
-  container.classList.add("hidden");
+  addressRow.classList.add("hidden");
   document.getElementById(labelID).removeAttribute("collapsed");
 
   // Update the sender button only if the content was previously changed.
   onRecipientsChanged(!isEdited);
   updateRecipientsPanelVisibility();
-  udpateAddressingInputAriaLabel(container);
+  udpateAddressingInputAriaLabel(addressRow);
 
-  // Move focus to the next focusable autocomplete input field.
-  if (
-    container.nextElementSibling &&
-    !container.nextElementSibling.classList.contains("hidden")
-  ) {
-    container.nextElementSibling
-      .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+  // Move focus to the next focusable address input field.
+  let addressRowSibling =
+    focusType == "next"
+      ? getNextSibling(addressRow, ".address-row:not(.hidden)")
+      : getPreviousSibling(addressRow, ".address-row:not(.hidden)");
+
+  if (addressRowSibling) {
+    addressRowSibling
+      .querySelector(`.address-input[recipienttype]`)
       .focus();
     return;
   }
-  // Move focus to the subject field.
-  document.getElementById("msgSubject").focus();
+  // Otherwise move focus to the subject field or to the first available input.
+  let fallbackFocusElement =
+    focusType == "next"
+      ? document.getElementById("msgSubject")
+      : getNextSibling(addressRow, ".address-row:not(.hidden)").querySelector(
+          ".address-input[recipienttype]"
+        );
+  fallbackFocusElement.focus();
+}
+
+
+/**
+ * Handle the click event on the close label of an address row.
+ *
+ * @param {Event} event - The DOM click event.
+ */
+function closeLabelOnClick(event) {
+  hideAddressRow(event.target);
 }
 
 /**
- * Handle the keypress event on the close label of a recipient row.
+ * Handle the keypress event on the close label of an address row.
  *
- * @param {Event} event - The DOM Event.
- * @param {Element} element - The focused label.
- * @param {string} labelID - The ID of the label to show.
+ * @param {Event} event - The DOM keypress event.
  */
-function closeLabelKeyPress(event, element, labelID) {
+function closeLabelOnKeyPress(event) {
+  let closeLabel = event.target;
+
   switch (event.key) {
     case "Enter":
-      hideAddressRow(element, labelID);
+      hideAddressRow(closeLabel);
       break;
 
     case "Tab":
@@ -1035,9 +1094,9 @@ function closeLabelKeyPress(event, element, labelID) {
         return;
       }
       event.preventDefault();
-      element
+      closeLabel
         .closest(".address-row")
-        .querySelector(`input[is="autocomplete-input"][recipienttype]`)
+        .querySelector(`.address-input[recipienttype]`)
         .focus();
       break;
   }

@@ -261,6 +261,56 @@ XPCOMUtils.defineLazyGetter(gNotification, "notificationbox", () => {
 });
 
 /**
+ *  Get the first next sibling element matching the selector (if specified).
+ *
+ *  @param {HTMLElement} element - The source element whose sibling to look for.
+ *  @param {string} [selector] - The CSS query selector to match.
+ *
+ *  @return {(HTMLElement|null)} - The first matching sibling element, or null.
+ */
+function getNextSibling(element, selector) {
+  let sibling = element.nextElementSibling;
+  if (!selector) {
+    // If there's no selector, return the first next sibling.
+    return sibling;
+  }
+  while (sibling) {
+    if (sibling.matches(selector)) {
+      // Return the current sibling if it matches the selector.
+      return sibling;
+    }
+    // Otherwise, continue the loop with the following next sibling.
+    sibling = sibling.nextElementSibling;
+  }
+  return null;
+}
+
+/**
+ *  Get the first previous sibling element matching the selector (if specified).
+ *
+ *  @param {HTMLElement} element - The source element whose sibling to look for.
+ *  @param {string} [selector] - The CSS query selector to match.
+ *
+ *  @return {(HTMLElement|null)} - The first matching sibling element, or null.
+ */
+function getPreviousSibling(element, selector) {
+  let sibling = element.previousElementSibling;
+  if (!selector) {
+    // If there's no selector, return the first previous sibling.
+    return sibling;
+  }
+  while (sibling) {
+    if (sibling.matches(selector)) {
+      // Return the current sibling if it matches the selector.
+      return sibling;
+    }
+    // Otherwise, continue the loop with the preceding previous sibling.
+    sibling = sibling.previousElementSibling;
+  }
+  return null;
+}
+
+/**
  * Get a pretty, human-readable shortcut key string from a given <key> id.
  *
  * @param aKeyId   the ID of a <key> element
