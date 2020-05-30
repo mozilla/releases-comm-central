@@ -210,16 +210,13 @@ treechildren::-moz-tree-cell-text(subjectCol) {
 
 treechildren::-moz-tree-image(correspondentCol) {
   list-style-image: url("chrome://messenger/skin/icons/correspondents.svg");
-  -moz-context-properties: fill, fill-opacity, stroke, stroke-opacity;
+  -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 0;
-  stroke: currentColor;
-  stroke-opacity: 0;
 }
 
 treechildren::-moz-tree-image(correspondentCol, outgoing) {
-  fill-opacity: 0.5;
-  stroke-opacity: 0.7;
+  fill-opacity: 0.3;
 }
 
 #threadTree:-moz-locale-dir(rtl) > treechildren::-moz-tree-image(correspondentCol, outgoing) {
@@ -228,8 +225,7 @@ treechildren::-moz-tree-image(correspondentCol, outgoing) {
 
 treechildren::-moz-tree-image(correspondentCol, outgoing, focus, selected) {
   fill: var(--select-focus-text-color);
-  fill-opacity: 0.7;
-  stroke: var(--select-focus-text-color);
+  fill-opacity: 0.5;
 }
 
 /* ..... subject column ..... */
