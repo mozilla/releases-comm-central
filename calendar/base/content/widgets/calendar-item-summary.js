@@ -57,7 +57,7 @@
                                   readonly="readonly"/>
                     </html:td>
                   </html:tr>
-                  <html:tr>
+                  <html:tr class="calendar-row" hidden="hidden">
                     <html:th>
                       &read.only.calendar.label;
                     </html:th>
@@ -357,16 +357,20 @@
 
     set item(item) {
       this.mItem = item;
-      this.mCalendar = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
       this.mIsToDoItem = cal.item.isToDo(item);
 
-      this.mReadOnly = !(
-        cal.acl.isCalendarWritable(this.mCalendar) &&
-        (cal.acl.userCanModifyItem(item) ||
-          (this.mCalendar &&
-            this.mCalendar.isInvitation(item) &&
-            cal.acl.userCanRespondToInvitation(item)))
-      );
+      // When used in places like the import dialog, there is no calendar (yet).
+      if (item.calendar) {
+        this.mCalendar = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
+
+        this.mReadOnly = !(
+          cal.acl.isCalendarWritable(this.mCalendar) &&
+          (cal.acl.userCanModifyItem(item) ||
+            (this.mCalendar &&
+              this.mCalendar.isInvitation(item) &&
+              cal.acl.userCanRespondToInvitation(item)))
+        );
+      }
 
       return item;
     }
@@ -396,7 +400,11 @@
       let isToDoItem = this.mIsToDoItem;
 
       this.querySelector(".item-title").value = item.title;
-      this.querySelector(".item-calendar").value = this.calendar.name;
+
+      if (this.calendar) {
+        this.querySelector(".calendar-row").removeAttribute("hidden");
+        this.querySelector(".item-calendar").value = this.calendar.name;
+      }
 
       // Show start date.
       let itemStartDate = item[cal.dtz.startDateProp(item)];
@@ -519,8 +527,8 @@
      * @param {string} details - Recurrence details as a string.
      */
     updateRecurrenceDetails(details) {
-      let repeatRow = document.querySelector(".repeat-row");
-      let repeatDetails = document.querySelector(".repeat-details");
+      let repeatRow = this.querySelector(".repeat-row");
+      let repeatDetails = repeatRow.querySelector(".repeat-details");
 
       if (!details) {
         repeatRow.setAttribute("hidden", "true");

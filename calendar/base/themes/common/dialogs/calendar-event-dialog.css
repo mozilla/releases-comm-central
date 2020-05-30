@@ -814,31 +814,36 @@ calendar-event-freebusy-day > box {
 
 #calendar-summary-dialog,
 #calendar-event-summary-dialog,
-#calendar-task-summary-dialog {
+#calendar-task-summary-dialog,
+#calendar-ics-file-dialog {
   min-width: 35em;
 }
 
 #calendar-summary-dialog .item-attachment-cell,
 #calendar-event-summary-dialog .item-attachment-cell,
-#calendar-task-summary-dialog .item-attachment-cell {
+#calendar-task-summary-dialog .item-attachment-cell,
+#calendar-ics-file-dialog .item-attachment-cell {
   margin-left: 6px;
 }
 
 #calendar-summary-dialog .item-attachment-cell-label,
 #calendar-event-summary-dialog .item-attachment-cell-label,
-#calendar-task-summary-dialog .item-attachment-cell-label {
+#calendar-task-summary-dialog .item-attachment-cell-label,
+#calendar-ics-file-dialog .item-attachment-cell-label {
   margin-left: 3px;
 }
 
 #calendar-summary-dialog .item-description-wrapper,
 #calendar-event-summary-dialog .item-description-wrapper,
-#calendar-task-summary-dialog .item-description-wrapper {
+#calendar-task-summary-dialog .item-description-wrapper,
+#calendar-ics-file-dialog .item-description-wrapper {
   display: flex;
 }
 
 #calendar-summary-dialog .item-description,
 #calendar-event-summary-dialog .item-description,
-#calendar-task-summary-dialog .item-description {
+#calendar-task-summary-dialog .item-description,
+#calendar-ics-file-dialog .item-description {
   width: 100%;
   box-sizing: border-box;
   min-height: 54px;
@@ -847,7 +852,8 @@ calendar-event-freebusy-day > box {
 
 #calendar-summary-dialog .selectable-label,
 #calendar-event-summary-dialog .selectable-label,
-#calendar-task-summary-dialog .selectable-label {
+#calendar-task-summary-dialog .selectable-label,
+#calendar-ics-file-dialog .selectable-label {
   background-color: inherit;
   color: inherit;
 }
@@ -855,8 +861,10 @@ calendar-event-freebusy-day > box {
 #calendar-summary-dialog #item-start-row .headline,
 #calendar-event-summary-dialog #item-start-row .headline,
 #calendar-task-summary-dialog #item-start-row .headline,
+#calendar-ics-file-dialog #item-start-row .headline,
 #calendar-summary-dialog #item-end-row .headline,
 #calendar-event-summary-dialog #item-end-row .headline,
-#calendar-task-summary-dialog #item-end-row .headline {
+#calendar-task-summary-dialog #item-end-row .headline,
+#calendar-ics-file-dialog #item-end-row .headline {
   font-weight: normal;
 }

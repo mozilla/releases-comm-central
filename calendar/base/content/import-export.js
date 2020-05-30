@@ -185,9 +185,10 @@ function getCalendarToImportInto() {
  * Put items into a certain calendar, catching errors and showing them to the
  * user.
  *
- * @param destCal       The destination calendar.
- * @param aItems        An array of items to put into the calendar.
- * @param aFilePath     The original file path, for error messages.
+ * @param {calICalendar} destCal    The destination calendar.
+ * @param {calIItemBase[]} aItems   An array of items to put into the calendar.
+ * @param {string} aFilePath        The original file path, for error messages.
+ * @return {Promise<boolean>}       True for successful import, false for errors.
  */
 async function putItemsIntoCal(destCal, aItems, aFilePath) {
   // Set batch for the undo/redo transaction manager
@@ -209,6 +210,7 @@ async function putItemsIntoCal(destCal, aItems, aFilePath) {
   // (example of something very wrong: importing the same file twice.
   //  quite easy to trigger, so we really should do this)
   let lastError;
+  let didImportSucceed = true;
 
   let pcal = cal.async.promisifyCalendar(destCal);
   for (let item of aItems) {
@@ -224,11 +226,13 @@ async function putItemsIntoCal(destCal, aItems, aFilePath) {
             cal.l10n.getCalString("importItemsFailed", [failedCount, lastError.toString()]),
             window
           );
+          didImportSucceed = false;
         } else if (duplicateCount) {
           cal.showError(
             cal.l10n.getCalString("duplicateError", [duplicateCount, aFilePath]),
             window
           );
+          didImportSucceed = false;
         }
       }
     } catch (e) {
@@ -241,11 +245,13 @@ async function putItemsIntoCal(destCal, aItems, aFilePath) {
       }
 
       Cu.reportError("Import error: " + e);
+      didImportSucceed = false;
     }
   }
 
   // End transmgr batch
   endBatchTransaction();
+  return didImportSucceed;
 }
 
 /**

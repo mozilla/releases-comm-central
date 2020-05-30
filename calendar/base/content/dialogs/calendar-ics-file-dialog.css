@@ -2,6 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-:root {
-  min-width: 29em;
+/* We want the calendar items container to span the full width of the dialog
+   window, so there's no space between its scrollbar and the right side of the
+   window. Set the dialog element's padding to 0 and then set the equivalent
+   padding on its children. The dialog buttons area is in the shadow dom, so we
+   add padding to it via JS in the window load handler function. */
+#calendar-ics-file-dialog {
+  padding-inline: 0;
+}
+
+#calendar-ics-file-dialog-header,
+#calendar-ics-file-dialog-items-container {
+  /* This padding needs to change elsewhere if it changes here.
+     See the note above the styles for #calendar-ics-file-dialog */
+  padding-inline: 10px;
+}
+
+#calendar-ics-file-dialog-calendar-menu-label {
+  margin-top: 1em;
+}
+
+#calendar-ics-file-dialog-items-container {
+  border-block: 1px solid #ccc;
+  margin: 0.7em 0;
+  padding-block: 0 1.5em;
+  min-height: 200px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.calendar-ics-file-dialog-item-frame {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  margin-block: 1.5em 0;
+  margin-inline: 6px 5px;
+  padding: 0.7em;
+}
+
+.calendar-ics-file-dialog-item-import-button {
+  margin-block: 0.7em 0;
+}
+
+.calendar-caption {
+  display: none;
 }
