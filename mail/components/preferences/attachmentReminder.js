@@ -7,11 +7,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gAttachmentReminderOptionsDialog = {
   keywordListBox: null,
-  bundle: null,
 
   init() {
     this.keywordListBox = document.getElementById("keywordList");
-    this.bundle = document.getElementById("bundlePreferences");
     this.buildKeywordList();
   },
 
@@ -35,12 +33,12 @@ var gAttachmentReminderOptionsDialog = {
     }
   },
 
-  addKeyword() {
+  async addKeyword() {
     var input = { value: "" }; // Default to empty.
     var ok = Services.prompt.prompt(
       window,
-      this.bundle.getString("attachmentReminderNewDialogTitle"),
-      this.bundle.getString("attachmentReminderNewText"),
+      await document.l10n.formatValue("new-keyword-title"),
+      await document.l10n.formatValue("new-keyword-label"),
       input,
       null,
       { value: 0 }
@@ -52,7 +50,7 @@ var gAttachmentReminderOptionsDialog = {
     }
   },
 
-  editKeyword() {
+  async editKeyword() {
     if (this.keywordListBox.selectedIndex < 0) {
       return;
     }
@@ -60,8 +58,8 @@ var gAttachmentReminderOptionsDialog = {
     var input = { value: keywordToEdit.getAttribute("value") };
     var ok = Services.prompt.prompt(
       window,
-      this.bundle.getString("attachmentReminderEditDialogTitle"),
-      this.bundle.getString("attachmentReminderEditText"),
+      await document.l10n.formatValue("edit-keyword-title"),
+      await document.l10n.formatValue("edit-keyword-label"),
       input,
       null,
       { value: 0 }

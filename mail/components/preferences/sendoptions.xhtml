@@ -7,18 +7,13 @@
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE window [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
-%brandDTD;
-<!ENTITY % sendOptionsDTD SYSTEM "chrome://messenger/locale/preferences/sendoptions.dtd" >
-%sendOptionsDTD;
-]>
+<!DOCTYPE window>
 
 <window type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         style="min-height: 33em;"
-        title="&dialog.title;"
+        data-l10n-id="sendoptions-dialog-window"
         onload="gSendOptionsDialog.init();">
 <dialog id="SendOptionsDialog"
         dlgbuttons="accept,cancel">
@@ -29,30 +24,36 @@
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 
+    <linkset>
+      <html:link rel="localization" href="branding/brand.ftl"/>
+      <html:link rel="localization" href="messenger/preferences/sendoptions.ftl"/>
+    </linkset>
+
     <html:fieldset style="padding-bottom:2em;">
-      <html:legend>&sendMail.title;</html:legend>
+      <html:legend data-l10n-id="send-mail-title"></html:legend>
       <vbox>
-      <checkbox id="autoDowngrade"
-                label="&autoDowngrade.label;"
-                accesskey="&autoDowngrade.accesskey;"
-                preference="mailnews.sendformat.auto_downgrade"/>
+        <checkbox id="autoDowngrade"
+                  data-l10n-id="auto-downgrade-label"
+                  preference="mailnews.sendformat.auto_downgrade"/>
 
-      <label control="mailDefaultHTMLAction" width="1">&sendMaildesc.label;</label>
+        <label data-l10n-id="default-html-format-label"
+               control="mailDefaultHTMLAction"
+               width="1"/>
 
-      <hbox class="indent" id="thenBox">
-        <menulist id="mailDefaultHTMLAction" preftype="int" preference="mail.default_html_action">
-          <menupopup>
-            <menuitem value="0" label="&askMe.label;" accesskey="&askMe.accesskey;"/>
-            <menuitem value="1" label="&convertPlain.label;" accesskey="&convertPlain.accesskey;"/>
-            <menuitem value="2" label="&sendHTML.label;" accesskey="&sendHTML.accesskey;"/>
-            <menuitem value="3" label="&sendBoth.label;" accesskey="&sendBoth.accesskey;"/>
-          </menupopup>
-        </menulist>
-      </hbox>
+        <hbox class="indent" id="thenBox">
+          <menulist id="mailDefaultHTMLAction" preftype="int" preference="mail.default_html_action">
+            <menupopup>
+              <menuitem value="0" data-l10n-id="html-format-ask"/>
+              <menuitem value="1" data-l10n-id="html-format-convert"/>
+              <menuitem value="2" data-l10n-id="html-format-send-html"/>
+              <menuitem value="3" data-l10n-id="html-format-send-both"/>
+            </menupopup>
+          </menulist>
+        </hbox>
 
-      <separator class="thin"/>
+        <separator class="thin"/>
 
-      <description control="mailDefaultHTMLAction">&override.label;</description>
+        <description data-l10n-id="default-html-format-info"/>
       </vbox>
     </html:fieldset>
 
@@ -60,14 +61,16 @@
 
     <tabbox>
       <tabs id="sendOptionsTabs">
-        <tab label="&HTMLTab.label;" accesskey="&HTMLTab.accesskey;"/>
-        <tab label="&PlainTextTab.label;" accesskey="&PlainTextTab.accesskey;"/>
+        <tab data-l10n-id="html-tab-label"/>
+        <tab data-l10n-id="plain-tab-label"/>
       </tabs>
 
       <tabpanels id="sendOptionsTabsPanels" flex="1">
 
         <vbox index="HTML">
-          <label control="html_domains" width="1">&domaindesc.label;</label>
+          <label control="html_domains"
+                 width="1"
+                 data-l10n-id="send-message-domain-label"/>
 
           <hbox>
             <richlistbox id="html_domains" flex="1" seltype="multiple"
@@ -75,14 +78,18 @@
                          preference="mailnews.html_domains"
                          onkeypress="if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE || event.keyCode == KeyEvent.DOM_VK_DELETE) { gSendOptionsDialog.removeDomains(true); }"/>
             <vbox>
-              <button label="&AddHtmlDomain.label;" oncommand="gSendOptionsDialog.addDomain(true);" accesskey="&AddHtmlDomain.accesskey;"/>
-              <button label="&DeleteHtmlDomain.label;" oncommand="gSendOptionsDialog.removeDomains(true);" accesskey="&DeleteHtmlDomain.accesskey;"/>
+              <button data-l10n-id="add-domain-button"
+                      oncommand="gSendOptionsDialog.addDomain(true);"/>
+              <button data-l10n-id="delete-domain-button"
+                      oncommand="gSendOptionsDialog.removeDomains(true);"/>
             </vbox>
           </hbox>
         </vbox>
 
         <vbox index="plainText">
-          <label control="plaintext_domains" width="1">&domaindesc.label;</label>
+          <label control="plaintext_domains"
+                 width="1"
+                 data-l10n-id="send-message-domain-label"/>
 
           <hbox>
             <richlistbox id="plaintext_domains" flex="1" seltype="multiple" rows="5"
@@ -90,8 +97,10 @@
                          preference="mailnews.plaintext_domains"
                          onkeypress="if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE || event.keyCode == KeyEvent.DOM_VK_DELETE) { gSendOptionsDialog.removeDomains(false); }"/>
             <vbox>
-              <button label="&AddPlainText.label;" oncommand="gSendOptionsDialog.addDomain(false);" accesskey="&AddPlainText.accesskey;"/>
-              <button label="&DeletePlainText.label;" oncommand="gSendOptionsDialog.removeDomains(false);" accesskey="&DeletePlainText.accesskey;"/>
+              <button data-l10n-id="add-domain-button"
+                      oncommand="gSendOptionsDialog.addDomain(false);"/>
+              <button data-l10n-id="delete-domain-button"
+                      oncommand="gSendOptionsDialog.removeDomains(false);"/>
             </vbox>
           </hbox>
         </vbox>

@@ -7,15 +7,12 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE window [
-<!ENTITY % fontsDTD SYSTEM "chrome://messenger/locale/preferences/fonts.dtd" >
-%fontsDTD;
-]>
+<!DOCTYPE window>
 
 <window type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&fontsAndEncodingsDialog.title;"
+        data-l10n-id="fonts-encoding-dialog-title"
         persist="lastSelected screenX screenY">
 <dialog id="FontsDialog"
         buttons="accept,cancel">
@@ -26,7 +23,6 @@
 
   <vbox id="FontsDialogPane" class="prefpane largeDialogContainer">
 
-    <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
     <script src="chrome://global/content/preferencesBindings.js"/>
     <script src="chrome://mozapps/content/preferences/fontbuilder.js"/>
     <script src="chrome://messenger/content/preferences/fonts.js"/>
@@ -39,43 +35,42 @@
       <box style="display: grid; grid-template-columns: auto 1fr auto auto;">
         <!-- title row -->
         <hbox align="center" pack="end">
-          <label control="selectLangs">
-            <html:legend id="fontsTitle" accesskey="&language.accesskey;">&language.label;</html:legend>
-          </label>
+          <label id="fontsTitle" control="selectLangs"
+                 data-l10n-id="fonts-language-legend"/>
         </hbox>
         <hbox align="center">
           <menulist id="selectLangs"
                     preference="font.language.group">
             <menupopup>
-              <menuitem value="ar"              label="&font.langGroup.arabic;"/>
-              <menuitem value="x-armn"          label="&font.langGroup.armenian;"/>
-              <menuitem value="x-beng"          label="&font.langGroup.bengali;"/>
-              <menuitem value="zh-CN"           label="&font.langGroup.simpl-chinese;"/>
-              <menuitem value="zh-HK"           label="&font.langGroup.trad-chinese-hk;"/>
-              <menuitem value="zh-TW"           label="&font.langGroup.trad-chinese;"/>
-              <menuitem value="x-cyrillic"      label="&font.langGroup.cyrillic;"/>
-              <menuitem value="x-devanagari"    label="&font.langGroup.devanagari;"/>
-              <menuitem value="x-ethi"          label="&font.langGroup.ethiopic;"/>
-              <menuitem value="x-geor"          label="&font.langGroup.georgian;"/>
-              <menuitem value="el"              label="&font.langGroup.el;"/>
-              <menuitem value="x-gujr"          label="&font.langGroup.gujarati;"/>
-              <menuitem value="x-guru"          label="&font.langGroup.gurmukhi;"/>
-              <menuitem value="he"              label="&font.langGroup.hebrew;"/>
-              <menuitem value="ja"              label="&font.langGroup.japanese;"/>
-              <menuitem value="x-knda"          label="&font.langGroup.kannada;"/>
-              <menuitem value="x-khmr"          label="&font.langGroup.khmer;"/>
-              <menuitem value="ko"              label="&font.langGroup.korean;"/>
-              <menuitem value="x-western"       label="&font.langGroup.latin;"/>
-              <menuitem value="x-mlym"          label="&font.langGroup.malayalam;"/>
-              <menuitem value="x-math"          label="&font.langGroup.math;"/>
-              <menuitem value="x-orya"          label="&font.langGroup.odia;"/>
-              <menuitem value="x-sinh"          label="&font.langGroup.sinhala;"/>
-              <menuitem value="x-tamil"         label="&font.langGroup.tamil;"/>
-              <menuitem value="x-telu"          label="&font.langGroup.telugu;"/>
-              <menuitem value="th"              label="&font.langGroup.thai;"/>
-              <menuitem value="x-tibt"          label="&font.langGroup.tibetan;"/>
-              <menuitem value="x-cans"          label="&font.langGroup.canadian;"/>
-              <menuitem value="x-unicode"       label="&font.langGroup.other;"/>
+              <menuitem value="ar" data-l10n-id="font-language-group-arabic"/>
+              <menuitem value="x-armn" data-l10n-id="font-language-group-armenian"/>
+              <menuitem value="x-beng" data-l10n-id="font-language-group-bengali"/>
+              <menuitem value="zh-CN" data-l10n-id="font-language-group-simpl-chinese"/>
+              <menuitem value="zh-HK" data-l10n-id="font-language-group-trad-chinese-hk"/>
+              <menuitem value="zh-TW" data-l10n-id="font-language-group-trad-chinese"/>
+              <menuitem value="x-cyrillic" data-l10n-id="font-language-group-cyrillic"/>
+              <menuitem value="x-devanagari" data-l10n-id="font-language-group-devanagari"/>
+              <menuitem value="x-ethi" data-l10n-id="font-language-group-ethiopic"/>
+              <menuitem value="x-geor" data-l10n-id="font-language-group-georgian"/>
+              <menuitem value="el" data-l10n-id="font-language-group-el"/>
+              <menuitem value="x-gujr" data-l10n-id="font-language-group-gujarati"/>
+              <menuitem value="x-guru" data-l10n-id="font-language-group-gurmukhi"/>
+              <menuitem value="he" data-l10n-id="font-language-group-hebrew"/>
+              <menuitem value="ja" data-l10n-id="font-language-group-japanese"/>
+              <menuitem value="x-knda" data-l10n-id="font-language-group-kannada"/>
+              <menuitem value="x-khmr" data-l10n-id="font-language-group-khmer"/>
+              <menuitem value="ko" data-l10n-id="font-language-group-korean"/>
+              <menuitem value="x-western" data-l10n-id="font-language-group-latin"/>
+              <menuitem value="x-mlym" data-l10n-id="font-language-group-malayalam"/>
+              <menuitem value="x-math" data-l10n-id="font-language-group-math"/>
+              <menuitem value="x-orya" data-l10n-id="font-language-group-odia"/>
+              <menuitem value="x-sinh" data-l10n-id="font-language-group-sinhala"/>
+              <menuitem value="x-tamil" data-l10n-id="font-language-group-tamil"/>
+              <menuitem value="x-telu" data-l10n-id="font-language-group-telugu"/>
+              <menuitem value="th" data-l10n-id="font-language-group-thai"/>
+              <menuitem value="x-tibt" data-l10n-id="font-language-group-tibetan"/>
+              <menuitem value="x-cans" data-l10n-id="font-language-group-canadian"/>
+              <menuitem value="x-unicode" data-l10n-id="font-language-group-other"/>
             </menupopup>
           </menulist>
         </hbox>
@@ -88,20 +83,19 @@
         <spacer/>
         <!-- proportional row -->
         <hbox align="center" pack="end">
-          <label accesskey="&proportional.accesskey;"
-                  control="defaultFontType">&proportional.label;</label>
+          <label data-l10n-id="fonts-proportional-label"/>
         </hbox>
         <!-- This <hbox> is needed to position search tooltips correctly. -->
         <hbox>
           <menulist id="defaultFontType" flex="1" style="width: 0px;">
             <menupopup>
-              <menuitem value="serif" label="&useDefaultFontSerif.label;"/>
-              <menuitem value="sans-serif" label="&useDefaultFontSansSerif.label;"/>
+              <menuitem value="serif" data-l10n-id="default-font-serif"/>
+              <menuitem value="sans-serif" data-l10n-id="default-font-sans-serif"/>
             </menupopup>
           </menulist>
         </hbox>
         <hbox align="center" pack="end">
-          <label value="&size.label;" accesskey="&sizeProportional.accesskey;" control="sizeVar"/>
+          <label data-l10n-id="font-size-label" control="sizeVar"/>
         </hbox>
         <!-- This <hbox> is needed to position search tooltips correctly. -->
         <hbox>
@@ -138,7 +132,7 @@
 
         <!-- serif row -->
         <hbox align="center" pack="end">
-          <label accesskey="&serif.accesskey;" control="serif">&serif.label;</label>
+          <label control="serif" data-l10n-id="font-serif-label"/>
         </hbox>
         <hbox>
           <menulist id="serif" flex="1" style="width: 0px;" delayprefsave="true"/>
@@ -148,7 +142,7 @@
 
         <!-- sans-serif row -->
         <hbox align="center" pack="end">
-          <label accesskey="&sans-serif.accesskey;" control="sans-serif">&sans-serif.label;</label>
+          <label control="sans-serif" data-l10n-id="font-sans-serif-label"/>
         </hbox>
         <hbox>
           <menulist id="sans-serif" flex="1" style="width: 0px;" delayprefsave="true"/>
@@ -158,13 +152,13 @@
 
         <!-- monospace row -->
         <hbox align="center" pack="end">
-          <label accesskey="&monospace.accesskey;" control="monospace">&monospace.label;</label>
+          <label control="monospace" data-l10n-id="font-monospace-label"/>
         </hbox>
         <hbox>
           <menulist id="monospace" flex="1" style="width: 0px;" crop="right" delayprefsave="true"/>
         </hbox>
         <hbox align="center" pack="end">
-          <label accesskey="&sizeMonospace.accesskey;" control="sizeMono">&size.label;</label>
+          <label control="sizeMono" data-l10n-id="font-size-monospace-label"/>
         </hbox>
         <hbox>
           <menulist id="sizeMono" delayprefsave="true">
@@ -204,11 +198,11 @@
       <hbox flex="1">
         <spacer flex="1"/>
         <hbox align="center" pack="end">
-          <label accesskey="&minSize.accesskey;"
-                 control="minSize">&minSize.label;</label>
+          <label data-l10n-id="font-min-size-label"
+                 control="minSize"/>
           <menulist id="minSize">
             <menupopup>
-              <menuitem value="0" label="&minSize.none;"/>
+              <menuitem value="0" data-l10n-id="min-size-none"/>
               <menuitem value="9" label="9"/>
               <menuitem value="10" label="10"/>
               <menuitem value="11" label="11"/>
@@ -241,40 +235,36 @@
     </html:fieldset>
 
     <html:fieldset>
-      <html:legend>&fontControl.label;</html:legend>
+      <html:legend data-l10n-id="font-control-legend"></html:legend>
 
       <hbox>
         <checkbox id="useDocumentFonts"
-                  label="&useDocumentFonts.label;"
-                  accesskey="&useDocumentFonts.accesskey;"
+                  data-l10n-id="use-document-fonts-checkbox"
                   preference="browser.display.use_document_fonts"/>
       </hbox>
 
       <hbox>
         <checkbox id="mailFixedWidthMessages"
-                  label="&useFixedWidthForPlainText.label;"
-                  accesskey="&fixedWidth.accesskey;"
+                  data-l10n-id="use-fixed-width-plain-checkbox"
                   preference="mail.fixed_width_messages"/>
       </hbox>
     </html:fieldset>
 
     <html:fieldset>
-      <html:legend>&languagesTitle2.label;</html:legend>
+      <html:legend data-l10n-id="text-encoding-legend"></html:legend>
 
-      <label value="&composingDescription2.label;"/>
+      <label data-l10n-id="text-encoding-description"/>
 
       <separator class="thin"/>
       <hbox>
         <vbox pack="end">
           <hbox align="center" flex="1" class="indent">
             <label control="sendDefaultCharsetList"
-                   value="&sendDefaultCharset.label;"
-                   accesskey="&sendDefaultCharset.accesskey;"/>
+                   data-l10n-id="font-outgoing-email-label"/>
           </hbox>
           <hbox align="center" flex="1" class="indent">
             <label control="viewDefaultCharsetList"
-                   value="&viewDefaultCharsetList.label;"
-                   accesskey="&viewDefaultCharsetList.accesskey;"/>
+                   data-l10n-id="font-incoming-email-label"/>
           </hbox>
         </vbox>
         <vbox>
@@ -287,9 +277,9 @@
 
       <separator class="thin"/>
 
-      <checkbox id="replyInDefaultCharset" label="&replyInDefaultCharset3.label;"
-                preference="mailnews.reply_in_default_charset"
-                accesskey="&replyInDefaultCharset3.accesskey;"/>
+      <checkbox id="replyInDefaultCharset"
+                data-l10n-id="default-font-reply-checkbox"
+                preference="mailnews.reply_in_default_charset"/>
     </html:fieldset>
     <separator/>
   </vbox>

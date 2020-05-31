@@ -7,42 +7,43 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/preferences/dockoptions.dtd">
+<!DOCTYPE window>
 
 <window type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&dockOptionsDialog.title;"
-        style="width: &window.macWidth;">
+        data-l10n-id="dock-options-window-dialog"
+        data-l10n-attrs="style">
 <dialog id="DockOptionsDialog"
         dlgbuttons="accept,cancel">
+
+  <linkset>
+    <html:link rel="localization" href="messenger/preferences/dock-options.ftl"/>
+  </linkset>
 
   <prefpane id="DockOptionsDialogPane">
     <hbox orient="vertical">
       <checkbox id="newMailNotificationBounce"
-                label="&bounceSystemDockIcon.label;"
-                preference="mail.biff.animate_dock_icon"
-                accesskey="&bounceSystemDockIcon.accesskey;"/>
+                data-l10n-id="bounce-system-dock-icon"
+                preference="mail.biff.animate_dock_icon"/>
       <separator class="thin"/>
       <html:fieldset>
-        <html:legend>&dockIconBadge.label;</html:legend>
+        <html:legend data-l10n-id="dock-icon-legend"></html:legend>
         <vbox>
         <separator class="thin"/>
-        <label value="&dockIconShow.label;"/>
+        <label data-l10n-id="dock-icon-show-label"/>
         <radiogroup id="dockCount"
                     preference="mail.biff.use_new_count_in_mac_dock"
                     class="indent" orient="vertical">
           <radio id="dockCountAll" value="false"
-                 label="&showAllUnreadMessagesCount.label;"
-                 accesskey="showAllUnreadMessagesCount.accesskey"/>
+                 data-l10n-id="count-unread-messages-radio"/>
           <radio id="dockCountNew" value="true"
-                 label="&newMessagesCountDock.label;"
-                 accesskey="&newMessagesCountDock.label;"/>
+                 data-l10n-id="count-new-messages-radio"/>
         </radiogroup>
         </vbox>
       </html:fieldset>
       <separator/>
-      <description class="bold">&directNotificationSettings.label;</description>
+      <description class="bold" data-l10n-id="notification-settings-info"/>
     </hbox>
   </prefpane>
 

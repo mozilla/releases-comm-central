@@ -270,6 +270,8 @@ smart-cache-label =
 clear-cache-button =
     .label = { COPY(from_path, "clearCacheNow.label") }
     .accesskey = { COPY(from_path, "clearCacheNow.accesskey") }
+
+update-app-version = { COPY(from_path, "updateApp.version.pre") }{ $version }{ COPY(from_path, "updateApp.version.post") }
 """, from_path="mail/chrome/messenger/preferences/advanced.dtd"
         )
     )

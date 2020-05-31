@@ -9,12 +9,14 @@
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE dialog SYSTEM "chrome://messenger/locale/preferences/cookies.dtd" >
+<!DOCTYPE dialog>
 
 <window id="CookiesDialog" windowtype="mailnews:cookies"
-        class="windowDialog" title="&window.title;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width: &window.width;;"
+        class="windowDialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        data-l10n-id="cookies-window-dialog"
+        data-l10n-attrs="style"
         onload="gCookiesWindow.init();"
         onunload="gCookiesWindow.uninit();"
         persist="screenX screenY width height">
@@ -26,32 +28,41 @@
   <stringbundle id="bundlePreferences"
                 src="chrome://messenger/locale/preferences/preferences.properties"/>
 
+  <linkset>
+    <html:link rel="localization" href="messenger/preferences/cookies.ftl"/>
+  </linkset>
+
   <keyset>
-    <key key="&windowClose.key;" modifiers="accel" oncommand="window.close();"/>
-    <key key="&focusSearch1.key;" modifiers="accel" oncommand="gCookiesWindow.focusFilterBox();"/>
-    <key key="&focusSearch2.key;" modifiers="accel" oncommand="gCookiesWindow.focusFilterBox();"/>
+    <key data-l10n-id="window-close-key" data-l10n-attrs="key"
+         modifiers="accel" oncommand="window.close();"/>
+    <key data-l10n-id="window-focus-search-key" data-l10n-attrs="key"
+         modifiers="accel" oncommand="gCookiesWindow.focusFilterBox();"/>
+    <key data-l10n-id="window-focus-search-alt-key" data-l10n-attrs="key"
+         modifiers="accel" oncommand="gCookiesWindow.focusFilterBox();"/>
   </keyset>
 
   <vbox flex="1" class="contentPane largeDialogContainer">
     <hbox align="center">
-      <label accesskey="&filter.accesskey;" control="filter">&filter.label;</label>
+      <label data-l10n-id="filter-search-label" control="filter"/>
       <search-textbox id="filter"
                       flex="1"
                       aria-controls="cookiesList"
                       oncommand="gCookiesWindow.filter();"/>
     </hbox>
     <separator class="thin"/>
-    <label control="cookiesList" id="cookiesIntro" value="&cookiesonsystem.label;"/>
+    <label control="cookiesList" id="cookiesIntro" data-l10n-id="cookies-on-system-label"/>
     <separator class="thin"/>
     <tree id="cookiesList" flex="1" style="height: 10em;"
           onkeypress="gCookiesWindow.onCookieKeyPress(event)"
           onselect="gCookiesWindow.onCookieSelected();"
           hidecolumnpicker="true" seltype="single">
       <treecols>
-        <treecol id="domainCol" label="&cookiedomain.label;" flex="2" primary="true"
-                 persist="width" onclick="gCookiesWindow.sort('rawHost');" />
+        <treecol id="domainCol" data-l10n-id="treecol-site-header" flex="2"
+                 primary="true"
+                 persist="width"
+                 onclick="gCookiesWindow.sort('rawHost');"/>
         <splitter class="tree-splitter"/>
-        <treecol id="nameCol" label="&cookiename.label;" flex="1"
+        <treecol id="nameCol" data-l10n-id="treecol-name-header" flex="1"
                  persist="width"
                  onclick="gCookiesWindow.sort('name');"/>
       </treecols>
@@ -60,25 +71,25 @@
     <hbox id="cookieInfoSettings" flex="1">
       <vbox>
         <vbox flex="1" pack="center" align="end">
-          <label id="nameLabel" control="name" value="&props.name.label;"/>
+          <label id="nameLabel" control="name" data-l10n-id="props-name-label"/>
         </vbox>
         <vbox flex="1" pack="center" align="end">
-          <label id="valueLabel" control="value" value="&props.value.label;"/>
+          <label id="valueLabel" control="value" data-l10n-id="props-value-label"/>
         </vbox>
         <vbox flex="1" pack="center" align="end">
-          <label id="isDomain" control="host" value="&props.domain.label;"/>
+          <label id="isDomain" control="host" data-l10n-id="props-domain-label"/>
         </vbox>
         <vbox flex="1" pack="center" align="end">
-          <label id="pathLabel" control="path" value="&props.path.label;"/>
+          <label id="pathLabel" control="path" data-l10n-id="props-path-label"/>
         </vbox>
         <vbox flex="1" pack="center" align="end">
-          <label id="isSecureLabel" control="isSecure" value="&props.secure.label;"/>
+          <label id="isSecureLabel" control="isSecure" data-l10n-id="props-secure-label"/>
         </vbox>
         <vbox flex="1" pack="center" align="end">
-          <label id="expiresLabel" control="expires" value="&props.expires.label;"/>
+          <label id="expiresLabel" control="expires" data-l10n-id="props-expires-label"/>
         </vbox>
         <vbox id="userContextLabel" flex="1" pack="center" align="end">
-          <label control="userContext" value="&props.container.label;"/>
+          <label control="userContext" data-l10n-id="props-container-label"/>
         </vbox>
       </vbox>
       <vbox flex="1">
@@ -95,15 +106,15 @@
   <hbox align="end">
     <hbox class="actionButtons" flex="1">
       <button id="removeSelectedCookies" disabled="true"
-              label="&button.removecookie.label;" accesskey="&button.removecookie.accesskey;"
+              data-l10n-id="remove-cookie-button"
               oncommand="gCookiesWindow.deleteCookie();"/>
       <button id="removeAllCookies" disabled="true"
-              label="&button.removeallcookies.label;" accesskey="&button.removeallcookies.accesskey;"
+              data-l10n-id="remove-all-cookies-button"
               oncommand="gCookiesWindow.deleteAllCookies();"/>
       <spacer flex="1"/>
 #ifndef XP_MACOSX
       <button oncommand="window.close();"
-              label="&button.close.label;" accesskey="&button.close.accesskey;"/>
+              data-l10n-id="cookie-close-button"/>
 #endif
     </hbox>
   </hbox>

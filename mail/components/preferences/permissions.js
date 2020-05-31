@@ -33,7 +33,6 @@ var gPermissionManager = {
   _permissions: [],
   _permissionsToAdd: new Map(),
   _permissionsToDelete: new Map(),
-  _bundle: null,
   _tree: null,
   _observerRemoved: false,
 
@@ -83,26 +82,27 @@ var gPermissionManager = {
     },
   },
 
-  _getCapabilityString(aCapability) {
+  async _getCapabilityString(aCapability) {
     var stringKey = null;
     switch (aCapability) {
       case nsIPermissionManager.ALLOW_ACTION:
-        stringKey = "can";
+        stringKey = "permission-can-label";
         break;
       case nsIPermissionManager.DENY_ACTION:
-        stringKey = "cannot";
+        stringKey = "permission-cannot-label";
         break;
       case nsICookiePermission.ACCESS_ALLOW_FIRST_PARTY_ONLY:
-        stringKey = "canAccessFirstParty";
+        stringKey = "permission-can-access-first-party-label";
         break;
       case nsICookiePermission.ACCESS_SESSION:
-        stringKey = "canSession";
+        stringKey = "permission-can-session-label";
         break;
     }
-    return this._bundle.getString(stringKey);
+    let string = await document.l10n.formatValue(stringKey);
+    return string;
   },
 
-  addPermission(aCapability) {
+  async addPermission(aCapability) {
     var textbox = document.getElementById("url");
     var input_url = textbox.value.trim();
     let principal;
@@ -137,13 +137,13 @@ var gPermissionManager = {
         principal.origin;
       }
     } catch (ex) {
-      var message = this._bundle.getString("invalidURI");
-      var title = this._bundle.getString("invalidURITitle");
+      var message = await document.l10n.formatValue("invalid-uri-message");
+      var title = await document.l10n.formatValue("invalid-uri-title");
       Services.prompt.alert(window, title, message);
       return;
     }
 
-    var capabilityString = this._getCapabilityString(aCapability);
+    var capabilityString = await this._getCapabilityString(aCapability);
 
     // check whether the permission already exists, if not, add it
     let permissionExists = false;
@@ -248,7 +248,6 @@ var gPermissionManager = {
   },
 
   onLoad() {
-    this._bundle = document.getElementById("bundlePreferences");
     var params = window.arguments[0];
     this.init(params);
   },
@@ -464,14 +463,16 @@ var gPermissionManager = {
       this._permissions.length == 0;
   },
 
-  _addPermissionToList(aPermission) {
+  async _addPermissionToList(aPermission) {
     if (
       aPermission.type == this._type &&
       (!this._manageCapability ||
         aPermission.capability == this._manageCapability)
     ) {
       var principal = aPermission.principal;
-      var capabilityString = this._getCapabilityString(aPermission.capability);
+      var capabilityString = await this._getCapabilityString(
+        aPermission.capability
+      );
       var p = new Permission(principal, aPermission.type, capabilityString);
       this._permissions.push(p);
     }

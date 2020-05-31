@@ -54,7 +54,7 @@ messenger.jar:
     content/messenger/aboutDialog.js                (content/aboutDialog.js)
     content/messenger/aboutRights.xhtml             (content/aboutRights.xhtml)
     content/messenger/newInstallPage.html           (content/newInstallPage.html)
-*   content/messenger/systemIntegrationDialog.xhtml (content/systemIntegrationDialog.xhtml)
+    content/messenger/systemIntegrationDialog.xhtml (content/systemIntegrationDialog.xhtml)
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)
     content/messenger/folderPane.js                 (content/folderPane.js)
     content/messenger/messenger-customization.js    (content/messenger-customization.js)

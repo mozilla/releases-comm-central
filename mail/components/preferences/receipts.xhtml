@@ -7,15 +7,12 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE window [
-<!ENTITY % receiptsDTD SYSTEM "chrome://messenger/locale/preferences/receipts.dtd">
-%receiptsDTD;
-]>
+<!DOCTYPE window>
 
 <window type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&dialog.title;"
+        data-l10n-id="receipts-dialog-window"
         onload="enableDisableAllowedReceipts();">
 <dialog id="ReturnReceiptsDialog"
         dlgbuttons="accept,cancel">
@@ -24,75 +21,75 @@
     <script src="chrome://global/content/preferencesBindings.js"/>
     <script src="chrome://messenger/content/preferences/receipts.js"/>
 
+    <linkset>
+      <html:link rel="localization" href="messenger/preferences/receipts.ftl"/>
+    </linkset>
+
     <vbox id="returnReceiptSettings" align="start">
-      <checkbox id="alwaysRequest" label="&requestReceipt.label;"
-                preference="mail.receipt.request_return_receipt_on"
-                accesskey="&requestReceipt.accesskey;"/>
+      <checkbox id="alwaysRequest" data-l10n-id="return-receipt-checkbox"
+                preference="mail.receipt.request_return_receipt_on"/>
     </vbox>
 
     <separator class="thin"/>
     <separator class="groove"/>
     <separator class="thin"/>
 
-    <label control="receiptFolder">&receiptArrive.label;</label>
+    <label control="receiptFolder" data-l10n-id="receipt-arrive-label"/>
     <radiogroup id="receiptFolder" class="indent" preference="mail.incorporate.return_receipt">
-      <radio value="0" label="&leaveIt.label;" accesskey="&leaveIt.accesskey;"/>
-      <radio value="1" label="&moveToSent.label;" accesskey="&moveToSent.accesskey;"/>
+      <radio value="0" data-l10n-id="receipt-leave-radio"/>
+      <radio value="1" data-l10n-id="receipt-move-radio"/>
     </radiogroup>
 
     <separator class="thin"/>
     <separator class="groove"/>
     <separator class="thin"/>
 
-    <label control="receiptSend">&requestMDN.label;</label>
+    <label control="receiptSend" data-l10n-id="receipt-request-label"/>
     <radiogroup id="receiptSend" class="indent" preference="mail.mdn.report.enabled"
                 oncommand="enableDisableAllowedReceipts();">
-      <radio value="false" label="&never.label;" accesskey="&never.accesskey;"/>
-      <radio value="true" label="&returnSome.label;" accesskey="&returnSome.accesskey;"/>
+      <radio value="false" data-l10n-id="receipt-return-never-radio"/>
+      <radio value="true" data-l10n-id="receipt-return-some-radio"/>
 
       <vbox class="indent">
         <hbox align="center">
           <hbox flex="1">
             <label id="notInToCcLabel"
-                   accesskey="&notInToCc.accesskey;"
-                   control="notInToCcPref"
-                   value="&notInToCc.label;"/>
+                   data-l10n-id="receipt-not-to-cc"
+                   control="notInToCcPref"/>
           </hbox>
           <menulist id="notInToCcPref" preference="mail.mdn.report.not_in_to_cc">
             <menupopup>
-              <menuitem value="0" label="&neverSend.label;"/>
-              <menuitem value="1" label="&alwaysSend.label;"/>
-              <menuitem value="2" label="&askMe.label;"/>
+              <menuitem value="0" data-l10n-id="receipt-send-never-label"/>
+              <menuitem value="1" data-l10n-id="receipt-send-always-label"/>
+              <menuitem value="2" data-l10n-id="receipt-send-ask-label"/>
             </menupopup>
           </menulist>
         </hbox>
         <hbox align="center">
           <hbox flex="1">
             <label id="outsideDomainLabel"
-                   accesskey="&outsideDomain.accesskey;"
-                   control="outsideDomainPref"
-                   value="&outsideDomain.label;"/>
+                   data-l10n-id="sender-outside-domain"
+                   control="outsideDomainPref"/>
           </hbox>
           <menulist id="outsideDomainPref" preference="mail.mdn.report.outside_domain">
             <menupopup>
-              <menuitem value="0" label="&neverSend.label;"/>
-              <menuitem value="1" label="&alwaysSend.label;"/>
-              <menuitem value="2" label="&askMe.label;"/>
+              <menuitem value="0" data-l10n-id="receipt-send-never-label"/>
+              <menuitem value="1" data-l10n-id="receipt-send-always-label"/>
+              <menuitem value="2" data-l10n-id="receipt-send-ask-label"/>
             </menupopup>
           </menulist>
         </hbox>
         <hbox align="center">
           <hbox flex="1">
             <label id="otherCasesLabel"
-                   accesskey="&otherCases.accesskey;"
-                   control="otherCasesPref"
-                   value="&otherCases.label;"/>
+                   data-l10n-id="other-cases-label"
+                   control="otherCasesPref"/>
           </hbox>
           <menulist id="otherCasesPref" preference="mail.mdn.report.other">
             <menupopup>
-              <menuitem value="0" label="&neverSend.label;"/>
-              <menuitem value="1" label="&alwaysSend.label;"/>
-              <menuitem value="2" label="&askMe.label;"/>
+              <menuitem value="0" data-l10n-id="receipt-send-never-label"/>
+              <menuitem value="1" data-l10n-id="receipt-send-always-label"/>
+              <menuitem value="2" data-l10n-id="receipt-send-ask-label"/>
             </menupopup>
           </menulist>
         </hbox>

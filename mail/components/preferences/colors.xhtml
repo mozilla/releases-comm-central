@@ -9,57 +9,58 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/preferences/colors.dtd" >
+<!DOCTYPE window>
 
 <window type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&colorsDialog.title;"
-#ifdef XP_MACOSX
-        style="width: &window.macWidth; !important;">
-#else
-        style="width: &window.width; !important;">
-#endif
+        data-l10n-id="colors-dialog-window"
+        data-l10n-attrs="style">
 <dialog id="ColorsDialog"
         dlgbuttons="accept,cancel">
+
+  <linkset>
+    <html:link rel="localization" href="messenger/preferences/colors.ftl"/>
+  </linkset>
+
   <prefpane id="ColorsDialogPane">
     <hbox>
       <hbox flex="1">
       <html:fieldset>
-        <html:legend>&color;</html:legend>
+        <html:legend data-l10n-id="colors-dialog-legend"></html:legend>
         <hbox align="center">
-          <label value="&textColor.label;" accesskey="&textColor.accesskey;" control="foregroundtextmenu"/>
+          <label data-l10n-id="text-color-label" control="foregroundtextmenu"/>
           <spacer flex="1"/>
           <html:input type="color" id="foregroundtextmenu" preference="browser.display.foreground_color"/>
         </hbox>
         <hbox align="center" style="margin-top: 5px">
-          <label value="&backgroundColor.label;" accesskey="&backgroundColor.accesskey;" control="backgroundmenu"/>
+          <label data-l10n-id="background-color-label" control="backgroundmenu"/>
           <spacer flex="1"/>
           <html:input type="color" id="backgroundmenu" preference="browser.display.background_color"/>
         </hbox>
         <separator class="thin"/>
         <hbox align="center">
-          <checkbox id="browserUseSystemColors" label="&useSystemColors.label;" accesskey="&useSystemColors.accesskey;"
+          <checkbox id="browserUseSystemColors" data-l10n-id="use-system-colors"
                     preference="browser.display.use_system_colors"/>
         </hbox>
       </html:fieldset>
       </hbox>
       <hbox flex="1">
       <html:fieldset>
-        <html:legend>&links;</html:legend>
+        <html:legend data-l10n-id="colors-link-legend"></html:legend>
         <hbox align="center">
-          <label value="&linkColor.label;" accesskey="&linkColor.accesskey;" control="unvisitedlinkmenu"/>
+          <label data-l10n-id="link-color-label" control="unvisitedlinkmenu"/>
           <spacer flex="1"/>
           <html:input type="color" id="unvisitedlinkmenu" preference="browser.anchor_color"/>
         </hbox>
         <hbox align="center" style="margin-top: 5px">
-          <label value="&visitedLinkColor.label;" accesskey="&visitedLinkColor.accesskey;" control="visitedlinkmenu"/>
+          <label data-l10n-id="visited-link-color-label" control="visitedlinkmenu"/>
           <spacer flex="1"/>
           <html:input type="color" id="visitedlinkmenu" preference="browser.visited_color"/>
         </hbox>
         <separator class="thin"/>
         <hbox align="center">
-          <checkbox id="browserUnderlineAnchors" label="&underlineLinks.label;" accesskey="&underlineLinks.accesskey;"
+          <checkbox id="browserUnderlineAnchors" data-l10n-id="underline-link-checkbox"
                     preference="browser.underline_anchors"/>
         </hbox>
       </html:fieldset>
@@ -70,16 +71,16 @@
 #else
     <vbox>
 #endif
-      <label accesskey="&overridePageColors.accesskey;"
-             control="useDocumentColors">&overridePageColors.label;</label>
+      <label data-l10n-id="override-color-label"
+             control="useDocumentColors"/>
       <menulist id="useDocumentColors"
                 preference="browser.display.document_color_use">
         <menupopup>
-          <menuitem label="&overridePageColors.always.label;"
+          <menuitem data-l10n-id="override-color-always"
                     value="2" id="documentColorAlways"/>
-          <menuitem label="&overridePageColors.auto.label;"
+          <menuitem data-l10n-id="override-color-auto"
                     value="0" id="documentColorAutomatic"/>
-          <menuitem label="&overridePageColors.never.label;"
+          <menuitem data-l10n-id="override-color-never"
                     value="1" id="documentColorNever"/>
         </menupopup>
       </menulist>

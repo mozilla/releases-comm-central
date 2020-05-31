@@ -6,66 +6,44 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 
-<!DOCTYPE window [
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-  %brandDTD;
-  <!ENTITY % systemIntegrationDTD SYSTEM
-    "chrome://messenger/locale/systemIntegrationDialog.dtd">
-  %systemIntegrationDTD;
-#ifdef XP_WIN
-  <!ENTITY % searchIntegrationWinDTD SYSTEM
-    "chrome://messenger/locale/searchIntegrationWin.dtd">
-  %searchIntegrationWinDTD;
-#else
-#ifdef XP_MACOSX
-  <!ENTITY % searchIntegrationMacDTD SYSTEM
-    "chrome://messenger/locale/searchIntegrationMac.dtd">
-  %searchIntegrationMacDTD;
-#else
-  <!ENTITY % searchIntegrationDefaultDTD SYSTEM
-    "chrome://messenger/locale/searchIntegrationDefault.dtd">
-  %searchIntegrationDefaultDTD;
-#endif
-#endif
-]>
+<!DOCTYPE window>
 
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="gSystemIntegrationDialog.onLoad();"
-        title="&systemIntegration.title;">
+        data-l10n-id="system-integration-title">
 <dialog id="systemIntegrationDialog"
         buttons="accept,cancel"
-        buttonlabelaccept="&acceptIntegration.label;"
-        buttonlabelcancel="&cancelIntegration.label;"
-        buttonlabelcancel2="&cancelIntegration2.label;">
+        data-l10n-id="system-integration-dialog"
+        data-l10n-attrs="buttonlabelaccept, buttonlabelcancel, buttonlabelcancel2">
 
   <script src="chrome://messenger/content/systemIntegrationDialog.js"/>
 
-  <label control="defaultClientList">&defaultClient.intro;</label>
+  <linkset>
+    <html:link rel="localization" href="branding/brand.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/system-integration.ftl"/>
+  </linkset>
+
+  <label control="defaultClientList" data-l10n-id="default-client-intro"/>
   <vbox id="defaultClientList" role="group">
     <checkbox id="checkMail"
-              label="&email.label;"
-              tooltiptext="&unsetDefault.tooltip;"/>
+              data-l10n-id="checkbox-email-label"/>
     <checkbox id="checkNews"
-              label="&newsgroups.label;"
-              tooltiptext="&unsetDefault.tooltip;"/>
+              data-l10n-id="checkbox-newsgroups-label"/>
     <checkbox id="checkRSS"
-              label="&feeds.label;"
-              tooltiptext="&unsetDefault.tooltip;"/>
+              data-l10n-id="checkbox-feeds-label"/>
   </vbox>
 
   <separator class="groove"/>
 
   <checkbox id="searchIntegration"
             hidden="true"
-            label="&searchIntegration.label;"
-            accesskey="&searchIntegration.accesskey;"/>
+            data-l10n-id="system-search-integration-label"/>
 
   <separator class="thin"/>
 
   <checkbox id="checkOnStartup"
-            label="&checkOnStartup.label;"
-            accesskey="&checkOnStartup.accesskey;"/>
+            data-l10n-id="check-on-startup-label"/>
 
 </dialog>
 </window>

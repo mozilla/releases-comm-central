@@ -6,36 +6,38 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
-<!DOCTYPE window [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-%brandDTD;
-<!ENTITY % sendOptionsDTD SYSTEM "chrome://messenger/locale/preferences/attachmentReminder.dtd">
-%sendOptionsDTD;
-]>
+
+<!DOCTYPE window>
 
 <window type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&attachmentReminderDialog.title;"
+        data-l10n-id="attachment-reminder-window"
         onload="gAttachmentReminderOptionsDialog.init();"
         style="width:38em;">
 <dialog id="attachmentReminderOptionsDialog"
         dlgbuttons="accept,cancel">
 
   <prefpane id="attachmentReminderOptionsDialogPane">
+
     <script src="chrome://messenger/content/preferences/attachmentReminder.js"/>
-    <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+
+    <linkset>
+      <html:link rel="localization" href="branding/brand.ftl"/>
+      <html:link rel="localization" href="messenger/preferences/attachment-reminder.ftl"/>
+    </linkset>
+
     <vbox>
-      <label control="keywordList">&attachKeywordText.label;</label>
+      <label control="keywordList" data-l10n-id="attachment-reminder-label"/>
       <hbox>
         <richlistbox id="keywordList" flex="1" height="250px"
                      ondblclick="gAttachmentReminderOptionsDialog.editKeyword();"/>
         <vbox>
-          <button label="&newKeywordButton.label;" accesskey="&newKeywordButton.accesskey;"
+          <button data-l10n-id="keyword-new-button"
                   oncommand="gAttachmentReminderOptionsDialog.addKeyword();"/>
-          <button label="&editKeywordButton1.label;" accesskey="&editKeywordButton1.accesskey;"
+          <button data-l10n-id="keyword-edit-button"
                   oncommand="gAttachmentReminderOptionsDialog.editKeyword();"/>
-          <button label="&removeKeywordButton.label;" accesskey="&removeKeywordButton.accesskey;"
+          <button data-l10n-id="keyword-remove-button"
                   oncommand="gAttachmentReminderOptionsDialog.removeKeyword();"/>
         </vbox>
       </hbox>

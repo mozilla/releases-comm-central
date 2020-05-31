@@ -7,16 +7,13 @@
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE window [
-  <!ENTITY % offlineDTD SYSTEM "chrome://messenger/locale/preferences/offline.dtd">
-  %offlineDTD;
-]>
+<!DOCTYPE window>
 
 <window type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="gOfflineDialog.dialogSetup();"
-        title="&offlineDialog.title;">
+        data-l10n-id="offline-dialog-window">
 <dialog id="OfflineSettingsDialog"
         dlgbuttons="accept,cancel">
 
@@ -24,43 +21,42 @@
     <script src="chrome://global/content/preferencesBindings.js"/>
     <script src="chrome://messenger/content/preferences/offline.js"/>
 
-    <checkbox label="&checkAutoDetect.label;"
-              accesskey="&checkAutoDetect.accesskey;"
+    <linkset>
+      <html:link rel="localization" href="messenger/preferences/offline.ftl"/>
+    </linkset>
+
+    <checkbox data-l10n-id="autodetect-online-label"
               preference="offline.autoDetect"/>
 
     <separator class="thin"/>
 
-    <label value="&titleStartUp;" control="whenStartingUp"/>
+    <label data-l10n-id="startup-label" control="whenStartingUp"/>
     <radiogroup id="whenStartingUp" class="indent" preference="offline.startup_state">
-      <radio value="0" label="&radioRememberPrevState.label;"
-             accesskey="&radioRememberPrevState.accesskey;"/>
-      <radio value="1" label="&radioAskState.label;"
-             accesskey="&radioAskState.accesskey;"/>
-      <radio value="2" label="&radioAlwaysOnlineState.label;"
-             accesskey="&radioAlwaysOnlineState.accesskey;"/>
-      <radio value="3" label="&radioAlwaysOffline.label;"
-             accesskey="&radioAlwaysOffline.accesskey;"/>
+      <radio value="0" data-l10n-id="status-radio-remember"/>
+      <radio value="1" data-l10n-id="status-radio-ask"/>
+      <radio value="2" data-l10n-id="status-radio-always-online"/>
+      <radio value="3" data-l10n-id="status-radio-always-offline"/>
       <radio value="4" hidden="true"/>
     </radiogroup>
 
     <separator/>
 
-    <label value="&textGoingOnline;" control="whengoingOnlinestate"/>
+    <label data-l10n-id="going-online-label" control="whengoingOnlinestate"/>
     <radiogroup id="whengoingOnlinestate" orient="horizontal" class="indent"
                 preference="offline.send.unsent_messages">
-      <radio value="1" label="&radioAutoSend.label;"  accesskey="&radioAutoSend.accesskey;"/>
-      <radio value="2" label="&radioNotSend.label;"   accesskey="&radioNotSend.accesskey;"/>
-      <radio value="0" label="&radioAskUnsent.label;" accesskey="&radioAskUnsent.accesskey;"/>
+      <radio value="1" data-l10n-id="going-online-auto"/>
+      <radio value="2" data-l10n-id="going-online-not"/>
+      <radio value="0" data-l10n-id="going-online-ask"/>
     </radiogroup>
 
     <separator class="thin"/>
 
-    <label value="&textGoingOffline;" control="whengoingOfflinestate"/>
+    <label data-l10n-id="going-offline-label" control="whengoingOfflinestate"/>
     <radiogroup id="whengoingOfflinestate" orient="horizontal" class="indent"
                 preference="offline.download.download_messages">
-      <radio value="1" label="&radioAutoDownload.label;" accesskey="&radioAutoDownload.accesskey;"/>
-      <radio value="2" label="&radioNotDownload.label;"  accesskey="&radioNotDownload.accesskey;"/>
-      <radio value="0" label="&radioAskDownload.label;"  accesskey="&radioAskDownload.accesskey;"/>
+      <radio value="1" data-l10n-id="going-offline-auto"/>
+      <radio value="2" data-l10n-id="going-offline-not"/>
+      <radio value="0" data-l10n-id="going-offline-ask"/>
     </radiogroup>
     <separator/>
   </prefpane>

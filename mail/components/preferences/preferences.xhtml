@@ -20,20 +20,6 @@
 %brandDTD;
 <!ENTITY % editorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/editorOverlay.dtd">
 %editorOverlayDTD;
-<!ENTITY % advancedDTD SYSTEM "chrome://messenger/locale/preferences/advanced.dtd">
-%advancedDTD;
-#ifdef XP_WIN
-<!ENTITY % searchIntegrationWinDTD SYSTEM "chrome://messenger/locale/searchIntegrationWin.dtd" >
-%searchIntegrationWinDTD;
-#else
-#ifdef XP_MACOSX
-<!ENTITY % searchIntegrationMacDTD SYSTEM "chrome://messenger/locale/searchIntegrationMac.dtd" >
-%searchIntegrationMacDTD;
-#else
-<!ENTITY % searchIntegrationDefaultDTD SYSTEM "chrome://messenger/locale/searchIntegrationDefault.dtd" >
-%searchIntegrationDefaultDTD;
-#endif
-#endif
 #ifdef MOZ_UPDATER
 <!ENTITY % aboutDialogDTD SYSTEM "chrome://messenger/locale/aboutDialog.dtd" >
 %aboutDialogDTD;

@@ -7,11 +7,11 @@
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
 
-<!DOCTYPE window SYSTEM "chrome://messenger/locale/newTagDialog.dtd">
+<!DOCTYPE window>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&newTagDialog1.title;"
+        data-l10n-id="tag-dialog-window"
         onload="onLoad();">
 <dialog>
 
@@ -20,9 +20,13 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/newTagDialog.js"/>
+
+  <linkset>
+    <html:link rel="localization" href="messenger/preferences/new-tag.ftl"/>
+  </linkset>
+
   <label id="nameLabel"
-         value="&name.label;"
-         accesskey="&name.accesskey;"
+         data-l10n-id="tag-name-label"
          control="name"/>
   <hbox class="input-container">
     <html:input id="name"

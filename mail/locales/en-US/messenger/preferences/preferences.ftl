@@ -254,6 +254,10 @@ return-receipts-button =
 
 update-app-legend = { -brand-short-name } Updates
 
+# Variables:
+#   $version (String): version of Thunderbird, e.g. 68.0.1
+update-app-version = Version { $version }
+
 allow-description = Allow { -brand-short-name } to
 automatic-updates-label =
     .label = Automatically install updates (recommended: improved security)

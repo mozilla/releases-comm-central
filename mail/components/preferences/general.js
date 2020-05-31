@@ -154,7 +154,7 @@ var gGeneralPane = {
   mTagListBox: null,
   requestingLocales: null,
 
-  init() {
+  async init() {
     function setEventListener(aId, aEventType, aCallback) {
       document
         .getElementById(aId)
@@ -390,7 +390,11 @@ var gGeneralPane = {
       let arch = bundle.GetStringFromName(archResource);
       version += ` (${arch})`;
 
-      document.getElementById("version").textContent = version;
+      document.l10n.setAttributes(
+        document.getElementById("version"),
+        "update-app-version",
+        { version }
+      );
 
       if (!AppConstants.NIGHTLY_BUILD) {
         // Show a release notes link if we have a URL.

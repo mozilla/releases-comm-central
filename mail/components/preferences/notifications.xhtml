@@ -8,34 +8,45 @@
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/preferences/preferences.css"?>
 
-<!DOCTYPE window [
-  <!ENTITY % notificationsDTD SYSTEM "chrome://messenger/locale/preferences/notifications.dtd">
-  %notificationsDTD;
-]>
+<!DOCTYPE window>
 
 <window type="child"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        title="&notificationsDialog2.title;">
+        data-l10n-id="notifications-dialog-window">
 <dialog id="NotificationsDialog"
         dlgbuttons="accept,cancel">
 
+  <linkset>
+    <html:link rel="localization" href="messenger/preferences/notifications.ftl"/>
+  </linkset>
+
   <prefpane id="NotificationsDialogPane">
-    <description>&alertCustomization.intro;</description>
-    <checkbox id="previewText" class="indent" label="&previewText.label;" accesskey="&previewText.accesskey;" preference="mail.biff.alert.show_preview"/>
-    <checkbox id="subject" class="indent" label="&subject.label;" accesskey="&subject.accesskey;" preference="mail.biff.alert.show_subject"/>
-    <checkbox id="sender"  class="indent" label="&sender.label;" accesskey="&sender.accesskey;" preference="mail.biff.alert.show_sender"/>
+    <description data-l10n-id="customize-alert-description"/>
+
+    <checkbox id="previewText"
+              class="indent"
+              data-l10n-id="preview-text-checkbox"
+              preference="mail.biff.alert.show_preview"/>
+    <checkbox id="subject"
+              class="indent"
+              data-l10n-id="subject-checkbox"
+              preference="mail.biff.alert.show_subject"/>
+    <checkbox id="sender"
+              class="indent"
+              data-l10n-id="sender-checkbox"
+              preference="mail.biff.alert.show_sender"/>
 
     <separator/>
+
     <hbox align="center">
       <label id="totalOpenTimeBefore"
              control="totalOpenTime"
-             value="&totalOpenTimeBefore.label;"
-             accesskey="&totalOpenTimeBefore.accesskey;"/>
+             data-l10n-id="open-time-label-before"/>
       <html:input id="totalOpenTime" type="number"
                   class="size3" min="1" max="3600"
                   preference="alerts.totalOpenTime"/>
-      <label id="totalOpenTimeEnd" value="&totalOpenTimeEnd.label;"/>
+      <label id="totalOpenTimeEnd" data-l10n-id="open-time-label-after"/>
     </hbox>
     <separator/>
   </prefpane>
