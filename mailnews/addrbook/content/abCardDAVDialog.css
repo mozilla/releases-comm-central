@@ -1,0 +1,68 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#bigScaryWarning {
+  background-color: #FFE900;
+  border-color: #F2D00F;
+  color: -moz-DialogText;
+  padding: 4px;
+  white-space: normal;
+}
+
+#bigScaryWarning image {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin: 4px 8px;
+}
+
+#bigScaryWarning description {
+  width: 30em;
+}
+
+th {
+  font-weight: normal;
+  text-align: start;
+}
+
+#statusArea {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  padding: 3px 4px;
+  color: var(--text-color);
+}
+
+#statusArea #statusImageBefore {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  width: 16px;
+  height: 16px;
+  background-size: 16px 16px;
+}
+
+#statusArea[status=error] {
+  background-color: #FFE900;
+  border-color: #F2D00F;
+  color: -moz-DialogText;
+}
+
+#statusArea[status=error] #statusImageBefore {
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
+}
+
+#statusArea[status=loading] {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+#statusArea[status=loading] #statusImageBefore {
+  background: url("chrome://global/skin/icons/loading.png") no-repeat;
+}
+
+@media (min-resolution: 1.1dppx) {
+  #statusArea[status=loading] #statusImageBefore {
+    background-image: url("chrome://global/skin/icons/loading@2x.png");
+    background-size: 16px 16px;
+  }
+}

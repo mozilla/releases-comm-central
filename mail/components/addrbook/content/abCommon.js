@@ -244,6 +244,15 @@ function AbNewAddressBook() {
   );
 }
 
+function AbNewCardDAVBook() {
+  window.openDialog(
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
+    "",
+    "chrome,modal,resizable=no,centerscreen",
+    null
+  );
+}
+
 function AbEditSelectedDirectory() {
   let selectedDir = getSelectedDirectory();
   if (!selectedDir) {

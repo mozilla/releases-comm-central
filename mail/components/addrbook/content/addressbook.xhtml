@@ -302,11 +302,7 @@
    <toolbaritem id="menubar-items" align="center">
      <menubar id="mail-menubar">
         <menu id="menu_File" label="&fileMenu.label;" accesskey="&fileMenu.accesskey;">
-#ifdef XP_MACOSX
-            <menupopup id="menu_FilePopup" onpopupshowing="onOSXFileMenuInit();">
-#else
-            <menupopup id="menu_FilePopup">
-#endif
+            <menupopup id="menu_FilePopup" onpopupshowing="onFileMenuInit();">
                 <menu id="menu_New" class="menu-iconic"
                       label="&newMenu.label;" accesskey="&newMenu.accesskey;">
                     <menupopup id="menu_NewPopup">
@@ -324,6 +320,11 @@
                                 label="&newAddressBookCmd.label;"
                                 accesskey="&newAddressBookCmd.accesskey;"
                                 oncommand="AbNewAddressBook()"
+                                class="menuitem-iconic"/>
+                      <menuitem id="menu_newCardDAVBook"
+                                label="&newCardDAVBookCmd.label;"
+                                accesskey="&newCardDAVBookCmd.accesskey;"
+                                oncommand="AbNewCardDAVBook()"
                                 class="menuitem-iconic"/>
                       <menuitem id="addLDAP" label="&newLDAPDirectoryCmd.label;"
                                 accesskey="&newLDAPDirectoryCmd.accesskey;"

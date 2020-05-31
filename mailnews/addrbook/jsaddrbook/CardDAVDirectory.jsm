@@ -406,6 +406,14 @@ class CardDAVDirectory extends AddrBookDirectory {
     }
   }
 
+  static forFile(fileName) {
+    let directory = super.forFile(fileName);
+    if (directory instanceof CardDAVDirectory) {
+      return directory;
+    }
+    return undefined;
+  }
+
   /**
    * Make an HTTP request. If the request needs a username and password, the
    * given authPrompt is called.

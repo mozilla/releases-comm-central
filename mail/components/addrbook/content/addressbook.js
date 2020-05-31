@@ -303,10 +303,17 @@ function SetNameColumn(cmd) {
   Services.prefs.setIntPref(kPrefMailAddrBookLastNameFirst, prefValue);
 }
 
-function onOSXFileMenuInit() {
-  document
-    .getElementById("menu_osxAddressBook")
-    .setAttribute("checked", AbOSXAddressBookExists());
+function onFileMenuInit() {
+  let osxMenuItem = document.getElementById("menu_osxAddressBook");
+  if (osxMenuItem) {
+    osxMenuItem.setAttribute("checked", AbOSXAddressBookExists());
+  }
+  document.getElementById(
+    "menu_newCardDAVBook"
+  ).hidden = !Services.prefs.getBoolPref(
+    "mail.addr_book.carddav.enabled",
+    false
+  );
 }
 
 function CommandUpdate_AddressBook() {

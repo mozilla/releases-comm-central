@@ -48,12 +48,16 @@ ChromeUtils.defineModuleGetter(
 // Keep track of all database connections, and close them at shutdown, since
 // nothing else ever tells us to close them.
 
+// Also track all directories by filename, for AddrBookDirectory.forFile.
+
 var connections = new Map();
+var directories = new Map();
 Services.obs.addObserver(() => {
   for (let connection of connections.values()) {
     connection.asyncClose();
   }
   connections.clear();
+  directories.clear();
 }, "quit-application");
 
 // Close a connection on demand. This serves as an escape hatch from C++ code.
@@ -107,6 +111,7 @@ function openConnectionTo(file) {
  * Closes the SQLite connection to `file` and removes it from the cache.
  */
 function closeConnectionTo(file) {
+  directories.delete(file.leafName);
   let connection = connections.get(file.path);
   if (connection) {
     return new Promise(resolve => {
@@ -161,6 +166,7 @@ class AddrBookDirectory {
     }
 
     this._fileName = fileName;
+    directories.set(fileName, this);
   }
 
   get _prefBranch() {
@@ -1078,6 +1084,10 @@ class AddrBookDirectory {
       Ci.nsIPrefLocalizedString,
       valueLocal
     );
+  }
+
+  static forFile(fileName) {
+    return directories.get(fileName);
   }
 }
 AddrBookDirectory.prototype.QueryInterface = ChromeUtils.generateQI([
