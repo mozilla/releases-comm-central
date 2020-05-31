@@ -2095,7 +2095,16 @@ EmailConfigWizard.prototype = {
         // Could be a wrong password, but there are 1000 other
         // reasons why this failed. Only the backend knows.
         // If we got no message, then something other than VerifyLogon failed.
-        self.showErrorMsg(e.message || e.toString());
+
+        let msg = e.message || e.toString();
+        // For an Exchange server, some known configurations can
+        // be disabled (per user or domain or server).
+        if (
+          configFilledIn.incomingAlternatives.some(i => i.type == "exchange")
+        ) {
+          msg = gStringsBundle.getString("exchange_config_unverifiable");
+        }
+        self.showErrorMsg(msg);
 
         // TODO use switchToMode(), see above
         // give user something to proceed after fixing
