@@ -103,7 +103,7 @@ AddrBookCard.prototype = {
       },
       getNext() {
         if (!this.hasMoreElements()) {
-          throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
+          throw Components.Exception("No next!", Cr.NS_ERROR_NOT_AVAILABLE);
         }
         let [name, value] = entries.shift();
         return {
@@ -170,14 +170,17 @@ AddrBookCard.prototype = {
   },
   getPropertyAsAUTF8String(name) {
     if (!this._properties.has(name)) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
+      throw Components.Exception(`${name} N/A`, Cr.NS_ERROR_NOT_AVAILABLE);
     }
     return this.getProperty(name);
   },
   getPropertyAsUint32(name) {
     let value = this.getProperty(name);
     if (isNaN(parseInt(value, 10))) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
+      throw Components.Exception(
+        `${name}: ${value} - not an int`,
+        Cr.NS_ERROR_NOT_AVAILABLE
+      );
     }
     return value;
   },
@@ -193,7 +196,10 @@ AddrBookCard.prototype = {
       case "1":
         return true;
     }
-    throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
+    throw Components.Exception(
+      `${name}: ${value} - not a boolean`,
+      Cr.NS_ERROR_NOT_AVAILABLE
+    );
   },
   setProperty(name, value) {
     this._properties.set(name, value);
@@ -256,7 +262,10 @@ AddrBookCard.prototype = {
     return "";
   },
   copy(srcCard) {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw Components.Exception(
+      "nsIAbCard.copy() not implemented",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
   },
   equals(card) {
     return this.UID == card.UID;
