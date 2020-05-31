@@ -158,7 +158,7 @@ function ComposeMessage(type, format, folder, messageArray) {
 
       identity = folder.customIdentity;
       if (!identity) {
-        identity = MailUtils.getIdentityForServer(server);
+        [identity] = MailUtils.getIdentityForServer(server);
       }
       // dump("identity = " + identity + "\n");
     }
@@ -179,6 +179,7 @@ function ComposeMessage(type, format, folder, messageArray) {
         type,
         format,
         identity,
+        null,
         msgWindow
       );
       return;
@@ -191,6 +192,7 @@ function ComposeMessage(type, format, folder, messageArray) {
         type,
         format,
         identity,
+        null,
         msgWindow
       );
       return;
@@ -210,6 +212,7 @@ function ComposeMessage(type, format, folder, messageArray) {
           type,
           format,
           identity,
+          null,
           msgWindow
         );
       }
@@ -242,24 +245,115 @@ function ComposeMessage(type, format, folder, messageArray) {
           );
         } else {
           // Replies come here.
-          let hdrIdentity = MailUtils.getIdentityForHeader(
-            hdr,
-            type,
-            findDeliveredToIdentityEmail(hdr)
-          );
-          if (ignoreQuote) {
-            type += msgComposeType.ReplyIgnoreQuote;
+          let useCatchAll = false;
+          // Check if we are using catchAll on any identity. If current
+          // folder has some customIdentity set, ignore catchAll settings.
+          if (!(hdr.folder && hdr.folder.customIdentity)) {
+            useCatchAll = MailServices.accounts.allIdentities.some(
+              identity => identity.catchAll
+            );
           }
 
-          MailServices.compose.OpenComposeWindow(
-            null,
-            hdr,
-            messageUri,
-            type,
-            format,
-            hdrIdentity,
-            msgWindow
-          );
+          if (useCatchAll) {
+            // If we use catchAll, we need to get all headers
+            // MsgHdr retrieval is asynchronous, do everything in the callback.
+            MsgHdrToMimeMessage(
+              hdr,
+              null,
+              function(hdr, aMimeMsg) {
+                let catchAllHeaders = Services.prefs.getStringPref(
+                  "mail.compose.catchAllHeaders"
+                ).split(",").map(header => header.toLowerCase().trim());
+                // Collect probable senders addresses from given headers.
+                let collectedHeaderAddresses = "";
+                for (let header of catchAllHeaders) {
+                  if (aMimeMsg.has(header)) {
+                    for (let mimeMsgHeader of aMimeMsg.headers[header]) {
+                      collectedHeaderAddresses +=
+                        MailServices.headerParser
+                          .parseEncodedHeaderW(mimeMsgHeader)
+                          .toString() + ",";
+                    }
+                  }
+                }
+
+                let [identity, matchingHint] = MailUtils.getIdentityForHeader(
+                  hdr,
+                  type,
+                  collectedHeaderAddresses
+                );
+
+                // The found identity might have no catchAll enabled.
+                if (
+                  identity.catchAll &&
+                  matchingHint
+                ) {
+                  // If name is not set in matchingHint, search trough other hints.
+                  if (
+                    matchingHint.email &&
+                    !matchingHint.name
+                  ) {
+                    let hints = MailServices.headerParser.makeFromDisplayAddress(
+                      hdr.recipients +
+                        "," +
+                        hdr.ccList +
+                        "," +
+                        collectedHeaderAddresses
+                    );
+                    for (let hint of hints) {
+                      if (
+                        hint.name &&
+                        hint.email.toLowerCase() ==
+                          matchingHint.email.toLowerCase()
+                      ) {
+                        matchingHint = MailServices.headerParser.makeMailboxObject(
+                          hint.name,
+                          matchingHint.email
+                        );
+                        break;
+                      }
+                    }
+                  }
+                } else {
+                  matchingHint = MailServices.headerParser.makeMailboxObject(
+                    "",
+                    ""
+                  );
+                }
+
+                // Now open compose window and use matching hint as reply sender.
+                MailServices.compose.OpenComposeWindow(
+                  null,
+                  hdr,
+                  messageUri,
+                  type,
+                  format,
+                  identity,
+                  matchingHint.toString(),
+                  msgWindow
+                );
+              },
+              true,
+              { saneBodySize: true, partsOnDemand: true }
+            );
+          } else {
+            // Fall back to traditional behavior.
+            let [hdrIdentity] = MailUtils.getIdentityForHeader(
+              hdr,
+              type,
+              findDeliveredToIdentityEmail(hdr)
+            );
+            MailServices.compose.OpenComposeWindow(
+              null,
+              hdr,
+              messageUri,
+              type,
+              format,
+              hdrIdentity,
+              null,
+              msgWindow
+            );
+          }
         }
       }
   }
@@ -391,7 +485,7 @@ saveAsUrlListener.prototype = {
 function SaveAsTemplate(uri) {
   if (uri) {
     let hdr = messenger.msgHdrFromURI(uri);
-    let identity = MailUtils.getIdentityForHeader(
+    let [identity] = MailUtils.getIdentityForHeader(
       hdr,
       Ci.nsIMsgCompType.Template
     );

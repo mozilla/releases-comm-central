@@ -1458,6 +1458,7 @@ function goOpenNewMessage(aEvent) {
     Ci.nsIMsgCompType.New,
     msgCompFormat,
     identity,
+    null,
     null
   );
 }
@@ -3492,8 +3493,17 @@ function ComposeStartup(aParams) {
 
   // Here we set the From from the original message, be it a draft or another
   // message, for example a template, we want to "edit as new".
-  // Only do this if the message is our own draft or template.
-  if (params.composeFields.creatorIdentityKey && params.composeFields.from) {
+  // Only do this if the message is our own draft or template or any type of reply.
+  if (
+    params.composeFields.from &&
+    (params.composeFields.creatorIdentityKey ||
+      gComposeType == Ci.nsIMsgCompType.Reply ||
+      gComposeType == Ci.nsIMsgCompType.ReplyAll ||
+      gComposeType == Ci.nsIMsgCompType.ReplyToSender ||
+      gComposeType == Ci.nsIMsgCompType.ReplyToGroup ||
+      gComposeType == Ci.nsIMsgCompType.ReplyToSenderAndGroup ||
+      gComposeType == Ci.nsIMsgCompType.ReplyToList)
+  ) {
     let from = MailServices.headerParser
       .parseEncodedHeader(params.composeFields.from, null)
       .join(", ");

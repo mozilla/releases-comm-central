@@ -350,7 +350,7 @@ MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION NS_IMETHODIMP
 nsMsgComposeService::OpenComposeWindow(
     const char *msgComposeWindowURL, nsIMsgDBHdr *origMsgHdr,
     const char *originalMsgURI, MSG_ComposeType type, MSG_ComposeFormat format,
-    nsIMsgIdentity *aIdentity, nsIMsgWindow *aMsgWindow) {
+    nsIMsgIdentity *aIdentity, const nsACString &from, nsIMsgWindow *aMsgWindow) {
   nsresult rv;
 
   // Check for any reply type that wants to ignore the quote.
@@ -443,6 +443,7 @@ nsMsgComposeService::OpenComposeWindow(
         } else {
           pMsgComposeParams->SetOriginalMsgURI(originalMsgURI);
           pMsgComposeParams->SetOrigMsgHdr(origMsgHdr);
+          pMsgCompFields->SetFrom(NS_ConvertUTF8toUTF16(from));
         }
       }
 

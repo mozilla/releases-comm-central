@@ -319,7 +319,7 @@ function msgHdrsArchive(msgHdrs) {
     msgHdrs.filter(
       x =>
         !msgHdrIsArchive(x) &&
-        getMail3Pane().getIdentityForHeader(x).archiveEnabled
+        getMail3Pane().getIdentityForHeader(x)[0].archiveEnabled
     )
   );
 }

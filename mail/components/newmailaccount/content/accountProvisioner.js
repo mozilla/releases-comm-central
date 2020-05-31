@@ -195,6 +195,7 @@ var EmailAccountProvisioner = {
           Ci.nsIMsgCompType.New,
           Ci.nsIMsgCompFormat.Default,
           account.defaultIdentity,
+          null,
           null
         );
       });

@@ -45,7 +45,7 @@ MessageArchiver.prototype = {
       let archiveGranularity;
       let archiveKeepFolderStructure;
 
-      let identity = MailUtils.getIdentityForHeader(msgHdr);
+      let [identity] = MailUtils.getIdentityForHeader(msgHdr);
       if (!identity || msgHdr.folder.server.type == "rss") {
         // If no identity, or a server (RSS) which doesn't have an identity
         // and doesn't want the default unrelated identity value, figure

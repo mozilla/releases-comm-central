@@ -73,6 +73,7 @@
                         wsm_persist="true"
                         prefstring="mail.identity.%identitykey%.useremail"
                         class="uri-element input-inline"
+                        oninput="updateCatchAllDomain();"
                         aria-labelledby="identity.email.label"/>
           </html:td>
         </html:tr>
@@ -163,6 +164,17 @@
         <label hidden="true" wsm_persist="true" id="identity.escapedVCard"
                   pref="true" preftype="string" prefattribute="value"
                   prefstring="mail.identity.%identitykey%.escapedVCard"/>
+      </hbox>
+
+      <separator class="thin"/>
+
+      <hbox align="center" class="input-container">
+        <checkbox id="identity.catchAll"
+                  wsm_persist="true"
+                  prefattribute="value"
+                  accesskey="&catchAll.accesskey;"
+                  style="width:100%;"
+                  prefstring="mail.identity.%identitykey%.catchAll"/>
       </hbox>
 
       <separator class="thin"/>

@@ -1658,7 +1658,7 @@ function IsReplyAllEnabled() {
   }
 
   // Check to see if my email address is in the list of addresses.
-  let myIdentity = MailUtils.getIdentityForHeader(msgHdr);
+  let [myIdentity] = MailUtils.getIdentityForHeader(msgHdr);
   let myEmail = myIdentity ? myIdentity.email : null;
   // We aren't guaranteed to have an email address, so guard against that.
   let imInAddresses =

@@ -83,6 +83,7 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       type,
       0,
       hdrIdentity,
+      null,
       null
     );
     return newWindowPromise;

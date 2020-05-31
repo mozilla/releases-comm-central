@@ -87,6 +87,7 @@
                 <html:input id="identity.email"
                             type="email"
                             class="uri-element input-inline"
+                            oninput="updateCatchAllDomain();"
                             aria-labelledby="identity.email.label"/>
 
               </html:td>
@@ -167,6 +168,14 @@
 
         <html:fieldset>
           <html:legend>&privateData.label;</html:legend>
+
+          <hbox align="center" class="input-container">
+            <checkbox id="identity.catchAll"
+                      accesskey="&catchAll.accesskey;"
+                      style="width:100%;"/>
+          </hbox>
+
+          <separator class="thin"/>
 
           <label value="&smtpName.label;"
                  control="identity.smtpServerKey"

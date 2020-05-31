@@ -420,30 +420,51 @@ var MailUtils = {
    *   account as last choice. This is useful when all default account as last
    *   choice. This is useful when all identities are passed in. Otherwise, use
    *   the first entity in the list.
+   * @returns {Array} - An array of two elements, [identity, matchingHint].
+   *   identity is an nsIMsgIdentity and matchingHint is a string.
    */
   getBestIdentity(identities, optionalHint, useDefault = false) {
     let identityCount = identities.length;
     if (identityCount < 1) {
-      return null;
+      return [ null, null ];
     }
 
-    // If we have more than one identity and a hint to help us pick one.
-    if (identityCount > 1 && optionalHint) {
-      // Normalize case on the optional hint to improve our chances of
-      // finding a match.
-      optionalHint = optionalHint.toLowerCase();
-      let hints = optionalHint.toLowerCase().split(",");
+    // If we have a hint to help us pick one identity, search for a match.
+    // Even if we only have one identity, check which hint might match.
+    if (optionalHint) {
+      let hints = MailServices.headerParser.makeFromDisplayAddress(
+        optionalHint
+      );
 
-      for (let i = 0; i < hints.length; i++) {
+      for (let hint of hints) {
         for (let identity of identities) {
           if (!identity.email) {
             continue;
           }
-          if (
-            hints[i].trim() == identity.email.toLowerCase() ||
-            hints[i].includes("<" + identity.email.toLowerCase() + ">")
-          ) {
-            return identity;
+          if (hint.email.toLowerCase() == identity.email.toLowerCase()) {
+            return [ identity, hint ];
+          }
+        }
+      }
+
+      // Lets search again, this time for a matching domain if
+      // catchAll is enabled.
+      for (let hint of hints) {
+        let hintParts = hint.email.split("@");
+        if (hintParts.length != 2) {
+          continue;
+        }
+        let hintDomain = hintParts[1].trim().toLowerCase();
+        for (let identity of identities) {
+          if (!identity.email || !identity.catchAll) {
+            continue;
+          }
+          let emailParts = identity.email.split("@");
+          if (emailParts.length != 2) {
+            continue;
+          }
+          if (hintDomain == emailParts[1].trim().toLowerCase()) {
+            return [ identity, hint ];
           }
         }
       }
@@ -453,11 +474,11 @@ var MailUtils = {
     if (useDefault) {
       let defaultAccount = MailServices.accounts.defaultAccount;
       if (defaultAccount && defaultAccount.defaultIdentity) {
-        return defaultAccount.defaultIdentity;
+        return [ defaultAccount.defaultIdentity, null ];
       }
     }
 
-    return identities[0];
+    return [ identities[0], null ];
   },
 
   getIdentityForServer(server, optionalHint) {
@@ -469,16 +490,19 @@ var MailUtils = {
    * Get the identity for the given header.
    * @param hdr nsIMsgHdr message header
    * @param type nsIMsgCompType compose type the identity is used for.
+   * @returns {Array} - An array of two elements, [identity, matchingHint].
+   *   identity is an nsIMsgIdentity and matchingHint is a string.
    */
   getIdentityForHeader(hdr, type, hint = "") {
     let server = null;
     let identity = null;
+    let matchingHint = null;
     let folder = hdr.folder;
     if (folder) {
       server = folder.server;
       identity = folder.customIdentity;
       if (identity) {
-        return identity;
+        return [identity, null];
       }
     }
 
@@ -506,17 +530,17 @@ var MailUtils = {
     }
 
     if (server) {
-      identity = this.getIdentityForServer(server, hintForIdentity);
+      [identity, matchingHint] = this.getIdentityForServer(server, hintForIdentity);
     }
 
     if (!identity) {
-      identity = this.getBestIdentity(
+      [identity, matchingHint] = this.getBestIdentity(
         MailServices.accounts.allIdentities,
         hintForIdentity,
         true
       );
     }
-    return identity;
+    return [identity, matchingHint];
   },
 
   getInboxFolder(server) {

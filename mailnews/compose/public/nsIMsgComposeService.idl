@@ -26,6 +26,7 @@ interface nsIMsgComposeService : nsISupports {
                          in MSG_ComposeType type,
                          in MSG_ComposeFormat format,
                          in nsIMsgIdentity identity,
+                         in AUTF8String from,
                          in nsIMsgWindow aMsgWindow);
 
   /**

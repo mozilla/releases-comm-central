@@ -1328,7 +1328,7 @@ function IsSendUnsentMsgsEnabled(unsentMsgsFolder) {
   let identity;
   let folders = GetSelectedMsgFolders();
   if (folders.length > 0) {
-    identity = MailUtils.getIdentityForServer(folders[0].server);
+    [identity] = MailUtils.getIdentityForServer(folders[0].server);
   }
 
   if (!identity) {

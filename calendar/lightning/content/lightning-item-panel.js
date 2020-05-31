@@ -475,6 +475,7 @@ function openNewMessage() {
     Ci.nsIMsgCompType.New,
     Ci.nsIMsgCompFormat.Default,
     null,
+    null,
     null
   );
 }

@@ -193,12 +193,12 @@ function ComposeMessage(type, format, folder, messageArray)
         NewMessageToSelectedAddresses(type, format, identity);
       else
         msgComposeService.OpenComposeWindow(null, null, null, type,
-                                            format, identity, msgWindow);
+                                            format, identity, null, msgWindow);
       return;
     case msgComposeType.NewsPost:
       // dump("OpenComposeWindow with " + identity + " and " + newsgroup + "\n");
       msgComposeService.OpenComposeWindow(null, null, newsgroup, type,
-                                          format, identity, msgWindow);
+                                          format, identity, null, msgWindow);
       return;
     case msgComposeType.ForwardAsAttachment:
       if (messageArray && messageArray.length)
@@ -208,7 +208,7 @@ function ComposeMessage(type, format, folder, messageArray)
         // subjects from the URIs.
         hdr = messageArray.length > 1 ? null : messenger.msgHdrFromURI(messageArray[0]);
         msgComposeService.OpenComposeWindow(null, hdr, messageArray.join(','),
-                                            type, format, identity, msgWindow);
+                                            type, format, identity, null, msgWindow);
         return;
       }
     default:
@@ -230,7 +230,7 @@ function ComposeMessage(type, format, folder, messageArray)
                                          format, identity, msgWindow);
         else
           msgComposeService.OpenComposeWindow(null, hdr, messageUri, type,
-                                              format, identity, msgWindow);
+                                              format, identity, null, msgWindow);
       }
   }
 }

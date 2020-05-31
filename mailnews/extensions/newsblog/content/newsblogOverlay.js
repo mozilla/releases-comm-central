@@ -344,6 +344,7 @@ function openComposeWindowForRSSArticle(
       aType,
       aFormat,
       aIdentity,
+      null,
       aMsgWindow
     );
   } else {
@@ -411,6 +412,7 @@ function openComposeWindowForRSSArticle(
               aType,
               aFormat,
               aIdentity,
+              null,
               aMsgWindow
             );
           }
@@ -427,6 +429,7 @@ function openComposeWindowForRSSArticle(
         aType,
         aFormat,
         aIdentity,
+        null,
         aMsgWindow
       );
     }

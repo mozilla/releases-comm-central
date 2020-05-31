@@ -25,5 +25,5 @@ function goOpenNewMessage()
     .OpenComposeWindow(null, null, null,
                                Ci.nsIMsgCompType.New,
                                Ci.nsIMsgCompFormat.Default,
-                               null, null);
+                               null, null, null);
 }
