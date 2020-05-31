@@ -4,22 +4,21 @@
 
 # This file requires the following localization files:
 # chrome://lightning/locale/lightning.dtd
-# chrome://calendar/locale/preferences/preferences.dtd
-# chrome://calendar/locale/preferences/general.dtd
 # chrome://calendar/locale/global.dtd
 # chrome://calendar/locale/calendar-event-dialog.dtd
-# chrome://calendar/locale/preferences/alarms.dtd
-# chrome://calendar/locale/preferences/categories.dtd
-# chrome://calendar/locale/preferences/views.dtd
 
   <prefpane id="paneLightning"
             flex="1"
             insertbefore="paneAdvanced">
 
+    <linkset>
+      <html:link rel="localization" href="calendar/preferences.ftl"/>
+    </linkset>
+
     <hbox id="calendarPaneCategory"
           class="subcategory"
           data-category="paneCalendar">
-      <html:h1>&panelHeader.title;</html:h1>
+      <html:h1 data-l10n-id="calendar-title"></html:h1>
     </hbox>
 
 #include ../../base/content/preferences/views.inc.xhtml
@@ -28,7 +27,7 @@
     <hbox id="chatPaneCategory"
           class="subcategory"
           data-category="paneCalendar">
-      <html:h1>&panelReminder.title;</html:h1>
+      <html:h1 data-l10n-id="calendar-title-reminder"></html:h1>
     </hbox>
 
 #include ../../base/content/preferences/alarms.inc.xhtml
@@ -36,7 +35,7 @@
     <hbox id="chatPaneCategory"
           class="subcategory"
           data-category="paneCalendar">
-      <html:h1>&panelCategory.title;</html:h1>
+      <html:h1 data-l10n-id="calendar-title-category"></html:h1>
     </hbox>
 
 #include ../../base/content/preferences/categories.inc.xhtml

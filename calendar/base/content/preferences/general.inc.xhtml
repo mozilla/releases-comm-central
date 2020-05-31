@@ -2,10 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
     <html:fieldset data-category="paneCalendar">
-        <html:legend>&pref.calendar.todaypane.agenda.caption;</html:legend>
+        <html:legend data-l10n-id="todaypane-legend"></html:legend>
         <hbox align="center">
-            <label value="&pref.soondays2.label;"
-                   accesskey="&pref.soondays2.accesskey;"
+            <label data-l10n-id="soon-label"
                    control="soondays-menulist"/>
             <menulist id="soondays-menulist"
                       preference="calendar.agendaListbox.soondays">
@@ -26,13 +25,12 @@
     </html:fieldset>
 
     <html:fieldset id="defaults-itemtype-groupbox" data-category="paneCalendar">
-        <html:legend>&pref.eventsandtasks.label;</html:legend>
+        <html:legend data-l10n-id="event-task-legend"></html:legend>
         <vbox id="defaults-itemtype-box">
             <hbox id="defaults-event-grid-box" align="center">
                 <label id="default-event-length-label"
-                        value="&pref.default_event_task_length.label;"
-                        accesskey="&pref.default_event_task_length.accesskey;"
-                        control="defaultlength"/>
+                       data-l10n-id="default-length-label"
+                       control="defaultlength"/>
                 <html:input id="defaultlength" type="number"
                             class="size3"
                             min="0"
@@ -45,8 +43,8 @@
                 <html:tr id="defaults-task-start-row">
                     <html:td>
                         <label id="default-task-start-label"
-                                value="&read.only.task.start.label;"
-                                control="default_task_start"/>
+                               data-l10n-id="task-start-label"
+                               control="default_task_start"/>
                     </html:td>
                     <html:td>
                         <menulist id="default_task_start"
@@ -55,23 +53,23 @@
                                   preference="calendar.task.defaultstart">
                             <menupopup id="default_task_start_popup">
                                 <menuitem id="default_task_start_none"
-                                          label="&pref.default_task_none.label;"
+                                          data-l10n-id="task-start-1-label"
                                           value="none"
                                           selected="true"/>
                                 <menuitem id="default_task_start_start_of_day"
-                                          label="&pref.default_task_start_of_day.label;"
+                                          data-l10n-id="task-start-2-label"
                                           value="startofday"/>
                                 <menuitem id="default_task_start_tomorrow"
-                                          label="&pref.default_task_tomorrow.label;"
+                                          data-l10n-id="task-start-4-label"
                                           value="tomorrow"/>
                                 <menuitem id="default_task_start_next_week"
-                                          label="&pref.default_task_next_week.label;"
+                                          data-l10n-id="task-start-5-label"
                                           value="nextweek"/>
                                 <menuitem id="default_task_start_offset_current"
-                                          label="&pref.default_task_offset_current.label;"
+                                          data-l10n-id="task-start-6-label"
                                           value="offsetcurrent"/>
                                 <menuitem id="default_task_start_offset_next_hour"
-                                          label="&pref.default_task_offset_next_hour.label;"
+                                          data-l10n-id="task-start-8-label"
                                           value="offsetnexthour"/>
                             </menupopup>
                         </menulist>
@@ -103,8 +101,8 @@
                 <html:tr id="defaults-task-due-row">
                     <html:td>
                         <label id="default-task-due-label"
-                                value="&read.only.task.due.label;"
-                                control="default_task_due"/>
+                               data-l10n-id="task-due-label"
+                               control="default_task_due"/>
                     </html:td>
                     <html:td>
                         <menulist id="default_task_due"
@@ -113,23 +111,23 @@
                                   preference="calendar.task.defaultdue">
                             <menupopup id="default_task_due_popup">
                                 <menuitem id="default_task_due_none"
-                                          label="&pref.default_task_none.label;"
+                                          data-l10n-id="task-start-1-label"
                                           value="none"
                                           selected="true"/>
                                 <menuitem id="default_task_due_end_of_day"
-                                          label="&pref.default_task_end_of_day.label;"
+                                          data-l10n-id="task-start-3-label"
                                           value="endofday"/>
                                 <menuitem id="default_task_due_tomorrow"
-                                          label="&pref.default_task_tomorrow.label;"
+                                          data-l10n-id="task-start-4-label"
                                           value="tomorrow"/>
                                 <menuitem id="default_task_due_next_week"
-                                          label="&pref.default_task_next_week.label;"
+                                          data-l10n-id="task-start-5-label"
                                           value="nextweek"/>
                                 <menuitem id="default_task_due_offset_current"
-                                          label="&pref.default_task_offset_start.label;"
+                                          data-l10n-id="task-start-7-label"
                                           value="offsetcurrent"/>
                                 <menuitem id="default_task_due_offset_next_hour"
-                                          label="&pref.default_task_offset_next_hour.label;"
+                                          data-l10n-id="task-start-8-label"
                                           value="offsetnexthour"/>
                             </menupopup>
                         </menulist>
@@ -162,18 +160,16 @@
         </vbox>
         <hbox align="center">
             <checkbox id="tabedit" pack="end"
-                      label="&pref.editInTab.label;"
-                      accesskey="&pref.editInTab.accesskey;"
+                      data-l10n-id="edit-intab-label"
                       preference="calendar.item.editInTab"/>
         </hbox>
     </html:fieldset>
 
     <html:fieldset id="systemColorsGroupbox" data-category="paneCalendar">
-        <html:legend>&pref.accessibility.label;</html:legend>
+        <html:legend data-l10n-id="accessibility-legend"></html:legend>
         <hbox align="center">
             <checkbox id="systemColors" pack="end"
-                      label="&pref.systemcolors.label;"
-                      accesskey="&pref.systemcolors.accesskey;"
+                      data-l10n-id="accessibility-colors-label"
                       preference="calendar.view.useSystemColors"/>
         </hbox>
     </html:fieldset>

@@ -5,7 +5,6 @@
 /* exported gCalendarGeneralPane */
 
 /* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
-/* globals labelLong, labelShort */ // From general.xhtml.
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
@@ -38,12 +37,17 @@ var gCalendarGeneralPane = {
     let dateFormattedShort = formatter.formatDateShort(cal.dtz.now());
 
     // menu items include examples of current date formats.
-    document
-      .getElementById("dateformat-long-menuitem")
-      .setAttribute("label", labelLong + ": " + dateFormattedLong);
-    document
-      .getElementById("dateformat-short-menuitem")
-      .setAttribute("label", labelShort + ": " + dateFormattedShort);
+    document.l10n.setAttributes(
+      document.getElementById("dateformat-long-menuitem"),
+      "dateformat-long",
+      { date: dateFormattedLong }
+    );
+
+    document.l10n.setAttributes(
+      document.getElementById("dateformat-short-menuitem"),
+      "dateformat-short",
+      { date: dateFormattedShort }
+    );
 
     // deselect and reselect to update visible item title
     updateUnitLabelPlural("defaultlength", "defaultlengthunit", "minutes");

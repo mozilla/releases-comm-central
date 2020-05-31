@@ -2,17 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
     <html:fieldset data-category="paneCalendar">
-        <html:legend>&pref.alarmgoesoff.label;</html:legend>
+        <html:legend data-l10n-id="reminder-legend"></html:legend>
         <vbox id="alarm-sound-box">
             <hbox align="center">
                 <checkbox id="alarmSoundCheckbox"
                           preference="calendar.alarms.playsound"
-                          label="&pref.playasound;"
-                          accesskey="&pref.calendar.alarms.playsound.accessKey;"/>
+                          data-l10n-id="play-checkbox"/>
                 <spacer flex="1"/>
                 <button id="calendar.prefs.alarm.sound.play"
-                        label="&pref.calendar.alarms.sound.play.label;"
-                        accesskey="&pref.calendar.alarms.sound.play.accessKey;"
+                        data-l10n-id="play-alarm-button"
                         oncommand="gAlarmsPane.previewAlarm()"/>
             </hbox>
             <radiogroup id="alarmSoundType"
@@ -23,14 +21,12 @@
                 <hbox>
                     <radio id="alarmSoundSystem"
                            value="0"
-                           label="&pref.calendar.alarms.sound.useDefault.label;"
-                           accesskey="&pref.calendar.alarms.sound.useDefault.accessKey;"/>
+                           data-l10n-id="default-sound-label"/>
                 </hbox>
                 <hbox>
                     <radio id="alarmSoundCustom"
                            value="1"
-                           label="&pref.calendar.alarms.sound.useCustom.label;"
-                           accesskey="&pref.calendar.alarms.sound.useCustom.accessKey;"/>
+                           data-l10n-id="custom-sound-label"/>
                 </hbox>
             </radiogroup>
             <hbox align="center" class="input-container">
@@ -42,30 +38,26 @@
                             preference-editable="true"
                             aria-labelledby="alarmSoundCustom"/>
                 <button id="calendar.prefs.alarm.sound.browse"
-                        label="&pref.calendar.alarms.sound.browse.label;"
-                        accesskey="&pref.calendar.alarms.sound.browse.accessKey;"
+                        data-l10n-id="browse-sound-label"
                         oncommand="gAlarmsPane.browseAlarm()"/>
             </hbox>
         </vbox>
         <hbox align="center" flex="1">
             <checkbox id="alarmshow"
                       preference="calendar.alarms.show"
-                      label="&pref.showalarmbox;"
-                      accesskey="&pref.calendar.alarms.showAlarmBox.accessKey;"/>
+                      data-l10n-id="reminder-dialog-label"/>
         </hbox>
         <hbox align="center" flex="1">
             <checkbox id="missedalarms"
                       preference="calendar.alarms.showmissed"
-                      label="&pref.missedalarms2;"
-                      accesskey="&pref.calendar.alarms.missedAlarms.accessKey;"/>
+                      data-l10n-id="missed-reminder-label"/>
         </hbox>
     </html:fieldset>
 
     <html:fieldset data-category="paneCalendar">
-        <html:legend>&pref.calendar.alarms.defaults.label;</html:legend>
+        <html:legend data-l10n-id="reminder-default-legend"></html:legend>
         <hbox align="center">
-            <label value="&pref.defaultsnoozelength.label;"
-                   accesskey="&pref.defaultsnoozelength.accesskey;"
+            <label data-l10n-id="default-snooze-label"
                    control="defaultsnoozelength"/>
             <html:input id="defaultsnoozelength" type="number" class="size3"
                         min="0"
@@ -78,8 +70,7 @@
             <html:table id="alarm-defaults-table">
                 <html:tr>
                     <html:td>
-                        <label value="&pref.defalarm4events.label;"
-                               accesskey="&pref.defalarm4events.accesskey;"
+                        <label data-l10n-id="event-alarm-label"
                                control="eventdefalarm"/>
                     </html:td>
                     <html:td>
@@ -88,10 +79,10 @@
                                   preference="calendar.alarms.onforevents">
                             <menupopup id="eventdefalarmpopup">
                                 <menuitem id="eventdefalarmon"
-                                          label="&pref.alarm.on;"
+                                          data-l10n-id="alarm-on-label"
                                           value="1"/>
                                 <menuitem id="eventdefalarmoff"
-                                          label="&pref.alarm.off;"
+                                          data-l10n-id="alarm-off-label"
                                           value="0"
                                           selected="true"/>
                             </menupopup>
@@ -100,8 +91,7 @@
                 </html:tr>
                 <html:tr>
                     <html:td>
-                        <label value="&pref.defalarm4todos.label;"
-                               accesskey="&pref.defalarm4todos.accesskey;"
+                        <label data-l10n-id="task-alarm-label"
                                control="tododefalarm"/>
                     </html:td>
                     <html:td>
@@ -110,10 +100,10 @@
                                   preference="calendar.alarms.onfortodos">
                             <menupopup id="tododefalarmpopup">
                                 <menuitem id="tododefalarmon"
-                                          label="&pref.alarm.on;"
+                                          data-l10n-id="alarm-on-label"
                                           value="1"/>
                                 <menuitem id="tododefalarmoff"
-                                          label="&pref.alarm.off;"
+                                          data-l10n-id="alarm-off-label"
                                           value="0"
                                           selected="true"/>
                             </menupopup>
@@ -122,8 +112,7 @@
                 </html:tr>
                 <html:tr>
                     <html:td>
-                        <label value="&pref.defalarmlen4events.label;"
-                               accesskey="&pref.defalarmlen4events.accesskey;"
+                        <label data-l10n-id="event-alarm-time-label"
                                control="eventdefalarmlen"/>
                     </html:td>
                     <html:td>
@@ -153,8 +142,7 @@
                 </html:tr>
                 <html:tr>
                     <html:td>
-                        <label value="&pref.defalarmlen4todos.label;"
-                               accesskey="&pref.defalarmlen4todos.accesskey;"
+                        <label data-l10n-id="task-alarm-time-label"
                                control="tododefalarmlen"/>
                     </html:td>
                     <html:td>

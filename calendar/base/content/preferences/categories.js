@@ -5,8 +5,6 @@
 /* exported gCategoriesPane */
 
 /* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
-// From categories.xhtml.
-/* globals newTitle, editTitle, overwrite, overwriteTitle, noBlankCategories */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -107,12 +105,12 @@ var gCategoriesPane = {
    * Adds a category, opening the edit category dialog to prompt the user to
    * set up the category.
    */
-  addCategory() {
+  async addCategory() {
     let listbox = document.getElementById("categorieslist");
     listbox.clearSelection();
     this.updateButtons();
     let params = {
-      title: newTitle,
+      title: await document.l10n.formatValue("category-new-label"),
       category: "",
       color: null,
     };
@@ -122,13 +120,13 @@ var gCategoriesPane = {
   /**
    * Edits the currently selected category using the edit category dialog.
    */
-  editCategory() {
+  async editCategory() {
     let list = document.getElementById("categorieslist");
     let categoryNameFix = cal.view.formatStringForCSSRule(gCategoryList[list.selectedIndex]);
     let currentColor = categoryPrefBranch.getCharPref(categoryNameFix, "");
 
     let params = {
-      title: editTitle,
+      title: await document.l10n.formatValue("category-edit-label"),
       category: gCategoryList[list.selectedIndex],
       color: currentColor,
     };
@@ -179,7 +177,7 @@ var gCategoriesPane = {
    * @param categoryName      The name of the category.
    * @param categoryColor     The color of the category
    */
-  saveCategory(categoryName, categoryColor) {
+  async saveCategory(categoryName, categoryColor) {
     let list = document.getElementById("categorieslist");
     // Check to make sure another category doesn't have the same name
     let toBeDeleted = -1;
@@ -189,7 +187,9 @@ var gCategoriesPane = {
       }
 
       if (categoryName.toLowerCase() == gCategoryList[i].toLowerCase()) {
-        if (Services.prompt.confirm(null, overwriteTitle, overwrite)) {
+        let title = await document.l10n.formatValue("category-overwrite-title");
+        let description = await document.l10n.formatValue("category-overwrite");
+        if (Services.prompt.confirm(null, title, description)) {
           if (list.selectedIndex != -1) {
             // Don't delete the old category yet. It will mess up indices.
             toBeDeleted = list.selectedIndex;
@@ -202,7 +202,8 @@ var gCategoriesPane = {
     }
 
     if (categoryName.length == 0) {
-      Services.prompt.alert(null, null, noBlankCategories);
+      let warning = await document.l10n.formatValue("category-blank-warning");
+      Services.prompt.alert(null, null, warning);
       return;
     }
 

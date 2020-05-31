@@ -40,20 +40,10 @@
 #endif
 <!ENTITY % lightningDTD SYSTEM "chrome://lightning/locale/lightning.dtd">
 %lightningDTD;
-<!ENTITY % calendarPreferencesDTD SYSTEM "chrome://calendar/locale/preferences/preferences.dtd">
-%calendarPreferencesDTD;
-<!ENTITY % calendarGeneralDTD SYSTEM "chrome://calendar/locale/preferences/general.dtd">
-%calendarGeneralDTD;
 <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd">
 %globalDTD;
 <!ENTITY % eventDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
 %eventDTD;
-<!ENTITY % alarmsDTD SYSTEM "chrome://calendar/locale/preferences/alarms.dtd">
-%alarmsDTD;
-<!ENTITY % categoriesDTD SYSTEM "chrome://calendar/locale/preferences/categories.dtd">
-%categoriesDTD;
-<!ENTITY % viewsDTD SYSTEM "chrome://calendar/locale/preferences/views.dtd">
-%viewsDTD;
 ]>
 
 <preftab id="MailPreferences" flex="1"
@@ -186,17 +176,6 @@
 
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
-  <!-- Get the localized text for use in the JS. -->
-  <script>
-    var labelLong  = "&pref.dateformat.long;";
-    var labelShort = "&pref.dateformat.short;";
-    var noneLabel  = "&pref.categories.none.label;";
-    var newTitle   = "&pref.categories.new.title;";
-    var editTitle  = "&pref.categories.edit.title;";
-    var overwrite  = "&pref.categories.overwrite;";
-    var overwriteTitle = "&pref.categories.overwrite.title;";
-    var noBlankCategories = "&pref.categories.noBlankCategories;";
-  </script>
   <script src="chrome://calendar/content/preferences/general.js"/>
   <script src="chrome://calendar/content/preferences/alarms.js"/>
   <script src="chrome://calendar/content/preferences/categories.js"/>

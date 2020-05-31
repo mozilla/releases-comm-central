@@ -9,16 +9,13 @@
                      onselect="gCategoriesPane.updateButtons()"
                      ondblclick="gCategoriesPane.listOnDblClick(event)"/>
         <hbox pack="end">
-            <button label="&pref.categories.newButton.label;"
-                    accesskey="&pref.categories.newButton.accesskey;"
+            <button data-l10n-id="new-tag-button"
                     oncommand="gCategoriesPane.addCategory()"/>
             <button id="editCButton"
-                    label="&pref.categories.editButton.label;"
-                    accesskey="&pref.categories.editButton.accesskey;"
+                    data-l10n-id="edit-tag-button"
                     oncommand="gCategoriesPane.editCategory()"/>
             <button id="deleteCButton"
-                    label="&pref.categories.removeButton.label;"
-                    accesskey="&pref.categories.removeButton.accesskey;"
+                    data-l10n-id="delete-tag-button"
                     oncommand="gCategoriesPane.deleteCategory()"/>
         </hbox>
     </html:fieldset>
