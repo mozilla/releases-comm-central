@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <prefpane id="paneChat" label="&paneChat.title;">
+  <prefpane id="paneChat">
     <script src="chrome://messenger/content/preferences/chat.js"/>
     <script src="chrome://messenger/content/preferences/messagestyle.js"/>
 
@@ -18,12 +18,13 @@
       <html:legend data-l10n-id="chat-status-title"></html:legend>
         <!-- Startup -->
         <hbox align="center">
-          <label id="chatStartupAction" value="&startupAction.label;"
-                 accesskey="&startupAction.accesskey;" control="messengerStartupAction"/>
+          <label id="chatStartupAction"
+                 data-l10n-id="startup-label"
+                 control="messengerStartupAction"/>
           <menulist id="messengerStartupAction" preference="messenger.startup.action">
             <menupopup>
-              <menuitem label="&startupOffline.label;"     value="0"/>
-              <menuitem label="&startupConnectAuto.label;" value="1"/>
+              <menuitem data-l10n-id="offline-label" value="0"/>
+              <menuitem data-l10n-id="auto-connect-label" value="1"/>
             </menupopup>
           </menulist>
         </hbox>
@@ -31,21 +32,19 @@
 
         <!-- Status -->
         <hbox align="center">
-          <checkbox id="reportIdle" label="&reportIdleAfter.label;"
-                    accesskey="&reportIdleAfter.accesskey;"
+          <checkbox id="reportIdle" data-l10n-id="idle-label"
                     preference="messenger.status.reportIdle"/>
           <html:input id="timeBeforeAway" type="number"
                       class="size2 idle-reporting-enabled"
                       min="1" max="720"
                       preference="messenger.status.timeBeforeIdle"/>
-          <label value="&idleTime;" control="timeBeforeAway"/>
+          <label data-l10n-id="idle-time-label" control="timeBeforeAway"/>
         </hbox>
         <vbox class="indent">
           <hbox>
             <checkbox id="autoAway"
-                      label="&andSetStatusToAway.label;"
+                      data-l10n-id="away-message-label"
                       class="idle-reporting-enabled"
-                      accesskey="&andSetStatusToAway.accesskey;"
                       preference="messenger.status.awayWhenIdle"/>
             <spacer flex="1"/>
           </hbox>
@@ -60,8 +59,7 @@
       <html:legend data-l10n-id="chat-notifications-title"></html:legend>
       <hbox>
         <checkbox id="sendTyping"
-                  label="&sendTyping.label;"
-                  accesskey="&sendTyping.accesskey;"
+                  data-l10n-id="send-typing-label"
                   preference="purple.conversations.im.send_typing"/>
         <spacer flex="1"/>
       </hbox>
@@ -69,37 +67,29 @@
       <separator/>
 
       <hbox>
-        <label value="&chatNotifications.label;"/>
+        <label data-l10n-id="notification-label"/>
       </hbox>
       <hbox>
         <checkbox id="desktopChatNotifications"
-                  label="&desktopChatNotifications.label;"
-                  accesskey="&desktopChatNotifications.accesskey;"
+                  data-l10n-id="show-notification-label"
                   preference="mail.chat.show_desktop_notifications"/>
         <menulist id="chatNotificationInfo" preference="mail.chat.notification_info">
           <menupopup>
-            <menuitem label="&completeNotification.label;" value="0"/>
-            <menuitem label="&buddyInfoOnly.label;" value="1"/>
-            <menuitem label="&dummyNotification.label;" value="2"/>
+            <menuitem data-l10n-id="notification-all" value="0"/>
+            <menuitem data-l10n-id="notification-name" value="1"/>
+            <menuitem data-l10n-id="notification-empty" value="2"/>
           </menupopup>
         </menulist>
       </hbox>
       <checkbox id="getAttention"
-#ifndef XP_MACOSX
-                label="&getAttention.label;"
-                accesskey="&getAttention.accesskey;"
-#else
-                label="&getAttentionMac.label;"
-                accesskey="&getAttentionMac.accesskey;"
-#endif
-                preference="messenger.options.getAttentionOnNewMessages"/>
+                preference="messenger.options.getAttentionOnNewMessages"
+                data-l10n-id="notification-type-label"/>
       <hbox align="center">
         <checkbox id="chatNotification"
-                  label="&chatSound.label;"
-                  accesskey="&chatSound.accesskey;"
+                  data-l10n-id="sound-label"
                   preference="mail.chat.play_sound"/>
         <spacer flex="1"/>
-        <button id="playChatSound" label="&play.label;" accesskey="&play.accesskey;"
+        <button id="playChatSound" data-l10n-id="play-button"
                 oncommand="gChatPane.previewSound();"/>
       </hbox>
       <radiogroup id="chatSoundType"
@@ -109,16 +99,14 @@
                   aria-labelledby="chatNotification">
         <hbox>
           <radio id="chatSoundSystemSound"
-                 label="&systemSound.label;"
-                 value="0"
-                 accesskey="&systemSound.accesskey;"/>
+                 data-l10n-id="system-sound-label"
+                 value="0"/>
           <spacer flex="1"/>
         </hbox>
         <hbox>
           <radio id="chatSoundCustom"
-                 label="&customsound.label;"
-                 value="1"
-                 accesskey="&customsound.accesskey;"/>
+                 data-l10n-id="custom-sound-label"
+                 value="1"/>
           <spacer flex="1"/>
         </hbox>
         <hbox align="center" class="input-container">
@@ -130,8 +118,7 @@
                       preference-editable="true"
                       aria-labelledby="chatSoundCustom"/>
           <button id="browseForChatSound"
-                  label="&browse.label;"
-                  accesskey="&browse.accesskey;"
+                  data-l10n-id="browse-sound-button"
                   oncommand="gChatPane.browseForSoundFile();"/>
         </hbox>
       </radiogroup>
@@ -146,55 +133,53 @@
     <html:fieldset data-category="paneChat">
       <separator/>
       <hbox align="center">
-        <label value="&messageStyleTheme.label;" control="messagestyle-themename"
-               accesskey="&messageStyleTheme.accesskey;"/>
+        <label data-l10n-id="theme-label" control="messagestyle-themename"/>
         <menulist id="messagestyle-themename"
                   flex="1" crop="end"
                   preference="messenger.options.messagesStyle.theme"
                   onselect="previewObserver.currentThemeChanged();">
           <menupopup id="theme-menupopup">
             <menuitem id="mail-menuitem"
-                      label="&messageStyleThunderbirdTheme.label;"
+                      data-l10n-id="style-thunderbird"
                       value="mail"/>
             <menuitem id="bubbles-menuitem"
-                      label="&messageStyleBubblesTheme.label;"
+                      data-l10n-id="style-bubbles"
                       value="bubbles"/>
             <menuitem id="dark-menuitem"
-                      label="&messageStyleDarkTheme.label;"
+                      data-l10n-id="style-dark"
                       value="dark"/>
             <menuitem id="papersheets-menuitem"
-                      label="&messageStylePaperSheetsTheme.label;"
+                      data-l10n-id="style-paper"
                       value="papersheets"/>
             <menuitem id="simple-menuitem"
-                      label="&messageStyleSimpleTheme.label;"
+                      data-l10n-id="style-simple"
                       value="simple"/>
           </menupopup>
         </menulist>
       </hbox>
       <separator class="thin"/>
       <hbox align="start">
-      <label value="&messageStylePreview.label;"/>
+      <label data-l10n-id="preview-label"/>
       <tooltip id="aHTMLTooltip" page="true"/>
       <deck flex="1" id="previewDeck" selectedIndex="1">
         <vbox flex="1" id="noPreviewScreen" align="center" pack="center">
           <hbox id="noPreviewBox" align="start">
             <vbox id="noPreviewInnerBox" flex="1">
-              <label id="noPreviewTitle" value="&messageStyleNoPreview.title;"/>
-              <description id="noAccountDesc">&messageStyleNoPreview.description;</description>
+              <label id="noPreviewTitle" data-l10n-id="no-preview-label"/>
+              <description id="noAccountDesc"
+                           data-l10n-id="no-preview-description"/>
             </vbox>
           </hbox>
         </vbox>
       </deck>
       </hbox>
       <hbox align="center">
-        <label value="&messageStyleVariant.label;" control="themevariant"
-               accesskey="&messageStyleVariant.accesskey;"/>
+        <label data-l10n-id="chat-variant-label" control="themevariant"/>
         <menulist id="themevariant"
                   preference="messenger.options.messagesStyle.variant"
                   onselect="previewObserver.currentVariantChanged();"/>
       </hbox>
-      <checkbox id="showHeaderCheckbox" label="&messageStyleShowHeader.label;"
-                accesskey="&messageStyleShowHeader.accesskey;"
+      <checkbox id="showHeaderCheckbox" data-l10n-id="chat-header-label"
                 preference="messenger.options.messagesStyle.showHeader"/>
     </html:fieldset>
 

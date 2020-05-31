@@ -6,12 +6,9 @@
 @namespace html "http://www.w3.org/1999/xhtml";
 
 .dialogBox,
-#MailPreferences prefpane {
+#MailPreferences prefpane,
+#categories {
   font-size: 1.11em;
-}
-
-radio[pane] > .radio-label-box {
-  font-size: 1.2em;
 }
 
 .treecol-sortdirection {

@@ -3,8 +3,12 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
-
-Preferences.forceEnableInstantApply();
+/* import-globals-from general.js */
+/* import-globals-from compose.js */
+/* import-globals-from downloads.js */
+/* import-globals-from privacy.js */
+/* import-globals-from chat.js */
+/* import-globals-from subdialogs.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
@@ -16,10 +20,12 @@ var { MailServices } = ChromeUtils.import(
 var { ExtensionSupport } = ChromeUtils.import(
   "resource:///modules/ExtensionSupport.jsm"
 );
+var { calendarDeactivator } = ChromeUtils.import(
+  "resource:///modules/calendar/calCalendarDeactivator.jsm"
+);
 
 var paneDeck = document.getElementById("paneDeck");
-var prefPanes = [...document.getElementsByTagName("prefpane")];
-var selector = document.getElementById("selector");
+var defaultPane = "paneGeneral";
 
 ChromeUtils.defineModuleGetter(
   this,
@@ -27,61 +33,62 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/AddonManager.jsm"
 );
 
-(function() {
-  for (let pane of prefPanes) {
-    if (
-      pane.id == "paneChat" &&
-      !Services.prefs.getBoolPref("mail.chat.enabled")
-    ) {
-      continue;
-    }
+document.addEventListener("DOMContentLoaded", init, { once: true });
 
-    var radio = document.createXULElement("radio");
-    radio.setAttribute("pane", pane.id);
-    radio.setAttribute("value", pane.id);
-    radio.setAttribute("label", pane.getAttribute("label"));
-    radio.setAttribute("oncommand", `showPane("${pane.id}");`);
-    // Expose preference group choice to accessibility APIs as an unchecked list item
-    // The parent group is exposed to accessibility APIs as a list
-    if (pane.image) {
-      radio.setAttribute("src", pane.image);
-    }
-    radio.style.listStyleImage = pane.style.listStyleImage;
-    selector.appendChild(radio);
+function init() {
+  Preferences.forceEnableInstantApply();
 
-    setTimeout(function() {
-      pane.dispatchEvent(new CustomEvent("paneload"));
-    });
+  gSubDialog.init();
+  gGeneralPane.init();
+  gComposePane.init();
+  gPrivacyPane.init();
+  if (Services.prefs.getBoolPref("mail.chat.enabled")) {
+    gChatPane.init();
+  } else {
+    // Remove the pane from the DOM so it doesn't get incorrectly included in
+    // the search results.
+    document.getElementById("paneChat").remove();
   }
 
-  if (prefPanes.length == 1) {
-    selector.setAttribute("collapsed", "true");
+  // If no calendar is currently enabled remove it from the DOM so it doesn't
+  // get incorrectly included in the search results.
+  if (!calendarDeactivator.isCalendarActivated) {
+    document.getElementById("paneLightning").remove();
+    document.getElementById("category-calendar").remove();
   }
 
-  window.addEventListener("DOMContentLoaded", function() {
-    let lastSelected = document.documentElement.getAttribute("lastSelected");
-    if (lastSelected && document.getElementById(lastSelected)) {
-      showPane(lastSelected);
-    } else {
-      showPane(prefPanes[0].id);
-    }
+  Preferences.addSyncFromPrefListener(
+    document.getElementById("saveWhere"),
+    () => gDownloadDirSection.onReadUseDownloadDir()
+  );
+
+  let categories = document.getElementById("categories");
+  categories.addEventListener("select", event => {
+    showPane(event.target.value);
   });
 
-  document.documentElement.addEventListener("keydown", function(event) {
-    if (
-      event.keyCode == KeyEvent.DOM_VK_TAB ||
-      event.keyCode == KeyEvent.DOM_VK_UP ||
-      event.keyCode == KeyEvent.DOM_VK_DOWN ||
-      event.keyCode == KeyEvent.DOM_VK_LEFT ||
-      event.keyCode == KeyEvent.DOM_VK_RIGHT
-    ) {
-      selector.setAttribute("keyboard-navigation", "true");
+  document.documentElement.addEventListener("keydown", event => {
+    if (event.keyCode == KeyEvent.DOM_VK_TAB) {
+      categories.setAttribute("keyboard-navigation", "true");
     }
   });
-  selector.addEventListener("mousedown", function() {
+  categories.addEventListener("mousedown", function() {
     this.removeAttribute("keyboard-navigation");
   });
-})();
+
+  let lastSelected = document.documentElement.getAttribute("lastSelected");
+  if (
+    lastSelected &&
+    lastSelected != defaultPane &&
+    document.getElementById(lastSelected)
+  ) {
+    categories.selectedItem = categories.querySelector(
+      ".category[value=" + lastSelected + "]"
+    );
+  } else {
+    showPane(defaultPane);
+  }
+}
 
 /**
  * Actually switches to the specified pane, fires events, and remembers the pane.
@@ -89,10 +96,6 @@ ChromeUtils.defineModuleGetter(
  * @param paneID ID of the prefpane to select
  */
 function showPane(paneID) {
-  if (!paneID) {
-    return;
-  }
-
   let pane = document.getElementById(paneID);
   if (!pane) {
     return;
@@ -101,6 +104,7 @@ function showPane(paneID) {
   let currentlySelected = paneDeck.querySelector(
     "#paneDeck > prefpane[selected]"
   );
+
   if (currentlySelected) {
     if (currentlySelected == pane) {
       return;
@@ -108,7 +112,6 @@ function showPane(paneID) {
     currentlySelected.removeAttribute("selected");
   }
 
-  selector.value = paneID;
   pane.setAttribute("selected", "true");
   pane.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
   document.getElementById("preferencesContainer").scrollTo(0, 0);

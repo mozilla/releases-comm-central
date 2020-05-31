@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <prefpane id="paneGeneral" label="&paneGeneral.title;">
+  <prefpane id="paneGeneral">
     <script src="chrome://communicator/content/utilityOverlay.js"/>
     <script src="chrome://messenger/content/preferences/general.js"/>
     <script src="chrome://mozapps/content/preferences/fontbuilder.js"/>
@@ -17,11 +17,16 @@
     </keyset>
 
     <keyset>
-      <key key="&focusSearch1.key;" modifiers="accel"
+      <key data-l10n-id="focus-search-shortcut" modifiers="accel"
            oncommand="gGeneralPane.focusFilterBox();"/>
-      <key key="&focusSearch2.key;" modifiers="accel"
+      <key data-l10n-id="focus-search-shortcut-alt" modifiers="accel"
            oncommand="gGeneralPane.focusFilterBox();"/>
     </keyset>
+
+    <linkset>
+      <html:link rel="localization" href="branding/brand.ftl"/>
+      <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
+    </linkset>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 #ifdef HAVE_SHELL_SERVICE
@@ -35,21 +40,20 @@
     </hbox>
 
     <html:fieldset data-category="paneGeneral">
-      <html:legend>&messengerStartPage.label;</html:legend>
+      <html:legend data-l10n-id="general-legend"></html:legend>
       <vbox>
         <hbox align="start">
-          <checkbox id="mailnewsStartPageEnabled" label="&enableStartPage.label;"
+          <checkbox id="mailnewsStartPageEnabled"
                     preference="mailnews.start_page.enabled"
-                    accesskey="&enableStartPage.accesskey;"/>
+                    data-l10n-id="start-page-label"/>
         </hbox>
         <hbox align="center" class="input-container">
-          <label value="&location.label;" accesskey="&location1.accesskey;" control="mailnewsStartPageUrl"/>
+          <label data-l10n-id="location-label" control="mailnewsStartPageUrl"/>
           <html:input id="mailnewsStartPageUrl"
                       type="text"
                       preference="mailnews.start_page.url"/>
           <button id="browseForStartPageUrl"
-                  label="&useDefault.label;"
-                  accesskey="&useDefault.accesskey;"
+                  data-l10n-id="restore-default-label"
                   oncommand="gGeneralPane.restoreDefaultStartPage();">
           </button>
         </hbox>
@@ -57,49 +61,44 @@
     </html:fieldset>
 
     <html:fieldset data-category="paneGeneral">
-      <html:legend>&defaultSearchEngine.label;</html:legend>
+      <html:legend data-l10n-id="default-search-engine"></html:legend>
       <hbox align="center">
         <menulist id="defaultWebSearch">
           <menupopup id="defaultWebSearchPopup"/>
         </menulist>
         <button id="addSearchEngine"
-                label="&addSearchEngine.label;"
-                accesskey="&addSearchEngine.accesskey;"
+                data-l10n-id="add-search-engine"
                 oncommand="gGeneralPane.addSearchEngine();"/>
         <button id="removeSearchEngine"
-                label="&removeSearchEngine.label;"
-                accesskey="&removeSearchEngine.accesskey;"
+                data-l10n-id="remove-search-engine"
                 oncommand="gGeneralPane.removeSearchEngine();"/>
       </hbox>
     </html:fieldset>
 
 #ifdef HAVE_SHELL_SERVICE
     <html:fieldset id="systemDefaultsGroup" data-category="paneGeneral">
-      <html:legend>&systemIntegration.label;</html:legend>
+      <html:legend data-l10n-id="system-integration-legend"></html:legend>
       <vbox>
       <hbox id="checkDefaultBox" align="center">
         <checkbox id="alwaysCheckDefault"
                   preference="mail.shell.checkDefaultClient"
-                  label="&alwaysCheckDefault.label;"
-                  accesskey="&alwaysCheckDefault.accesskey;"/>
+                  data-l10n-id="always-check-default"/>
         <spacer flex="1"/>
-        <button id="checkDefaultButton" label="&checkDefaultsNow.label;"
-                accesskey="&checkDefaultsNow.accesskey;"
+        <button id="checkDefaultButton"
+                data-l10n-id="check-default-button"
                 oncommand="gGeneralPane.checkDefaultNow();"
                 preference="pref.general.disable_button.default_mail"/>
       </hbox>
 #ifdef XP_WIN
       <hbox align="start">
-        <checkbox label="&minimizeToTray.label;"
-                  accesskey="&minimizeToTray.accesskey;"
+        <checkbox data-l10n-id="minimize-to-tray-label"
                   preference="mail.minimizeToTray"/>
       </hbox>
 #endif
       <hbox id="searchIntegrationContainer">
         <checkbox id="searchIntegration"
                   preference="searchintegration.enable"
-                  label="&searchIntegration.label;"
-                  accesskey="&searchIntegration.accesskey;"/>
+                  data-l10n-id="search-integration-label"/>
       </hbox>
       </vbox>
     </html:fieldset>
@@ -113,16 +112,16 @@
 
     <!-- Fonts and Colors -->
     <html:fieldset id="fontsGroup" data-category="paneGeneral">
-      <html:legend>&fontsAndColors1.label;</html:legend>
+      <html:legend data-l10n-id="fonts-legend"></html:legend>
 
       <hbox id="fontSettings" flex="1">
         <vbox id="fontRow" flex="1">
           <hbox align="center">
-            <label accesskey="&defaultFont.accesskey;" control="defaultFont">&defaultFont.label;</label>
+            <label data-l10n-id="default-font-label" control="defaultFont"/>
             <menulist id="defaultFont" flex="1" sizetopopup="pref" crop="center">
               <menupopup crop="center"/>
             </menulist>
-            <label accesskey="&defaultSize.accesskey;" control="defaultFontSize">&defaultSize.label;</label>
+            <label data-l10n-id="default-size-label" control="defaultFontSize"/>
             <menulist id="defaultFontSize" flex="1">
               <menupopup crop="center">
                 <menuitem value="9" label="9"/>
@@ -155,52 +154,55 @@
           </hbox>
         </vbox>
         <vbox id="colorsRow">
-          <button id="advancedFonts" flex="1" label="&fontOptions.label;"
-                  accesskey="&fontOptions.accesskey;" oncommand="gGeneralPane.configureFonts();"/>
-          <button id="colors" flex="1" label="&colorButton.label;"
-                  accesskey="&colorButton.accesskey;" oncommand="gGeneralPane.configureColors();"/>
+          <button id="advancedFonts"
+                  data-l10n-id="font-options-button"
+                  oncommand="gGeneralPane.configureFonts();"
+                  flex="1"/>
+          <button id="colors"
+                  data-l10n-id="color-options-button"
+                  oncommand="gGeneralPane.configureColors();"
+                  flex="1"/>
         </vbox>
       </hbox>
       <hbox>
-        <html:legend>&displayWidth.label;</html:legend>
+        <html:legend data-l10n-id="display-width-legend"></html:legend>
       </hbox>
       <hbox>
         <checkbox id="displayGlyph"
-                  label="&convertEmoticons.label;"
                   preference="mail.display_glyph"
-                  accesskey="&convertEmoticons.accesskey;"/>
+                  data-l10n-id="convert-emoticons-label"/>
         <spacer flex="1"/>
       </hbox>
 
       <separator class="thin"/>
 
-      <label control="displayText">&displayText.label;</label>
+      <label control="displayText" data-l10n-id="display-text-label"/>
       <hbox id="displayText" class="indent" align="center" role="group">
-        <label value="&style.label;" accesskey="&style.accesskey;" control="mailQuotedStyle"/>
+        <label data-l10n-id="style-label" control="mailQuotedStyle"/>
         <menulist id="mailQuotedStyle" preference="mail.quoted_style">
           <menupopup>
-            <menuitem value="0" label="&regularStyle.label;"/>
-            <menuitem value="1" label="&bold.label;"/>
-            <menuitem value="2" label="&italic.label;"/>
-            <menuitem value="3" label="&boldItalic.label;"/>
+            <menuitem value="0" data-l10n-id="regular-style-item"/>
+            <menuitem value="1" data-l10n-id="bold-style-item"/>
+            <menuitem value="2" data-l10n-id="italic-style-item"/>
+            <menuitem value="3" data-l10n-id="bold-italic-style-item"/>
           </menupopup>
         </menulist>
-        <label value="&size.label;" accesskey="&size.accesskey;" control="mailQuotedSize"/>
+        <label data-l10n-id="size-label" control="mailQuotedSize"/>
         <menulist id="mailQuotedSize" preference="mail.quoted_size">
           <menupopup>
-            <menuitem value="0" label="&regularSize.label;"/>
-            <menuitem value="1" label="&bigger.label;"/>
-            <menuitem value="2" label="&smaller.label;"/>
+            <menuitem value="0" data-l10n-id="regular-size-item"/>
+            <menuitem value="1" data-l10n-id="bigger-size-item"/>
+            <menuitem value="2" data-l10n-id="smaller-size-item"/>
           </menupopup>
         </menulist>
-        <label value="&quotedTextColor.label;" accesskey="&quotedTextColor.accesskey;" control="citationmenu"/>
+        <label data-l10n-id="quoted-text-color" control="citationmenu"/>
         <html:input type="color" id="citationmenu" preference="mail.citation_color"/>
       </hbox>
     </html:fieldset>
 
     <!-- Date and time formatting -->
     <html:fieldset data-category="paneGeneral">
-      <html:legend>&dateTimeFormatting.label;</html:legend>
+      <html:legend data-l10n-id="datetime-formatting-legend"></html:legend>
       <radiogroup id="formatLocale" align="start"
                   preference="intl.regional_prefs.use_os_locales"
                   orient="vertical">
@@ -214,7 +216,7 @@
     </html:fieldset>
 
     <html:fieldset id="messengerLanguagesBox" data-category="paneGeneral" hidden="hidden">
-      <html:legend>&languageSelector.label;</html:legend>
+      <html:legend data-l10n-id="language-selector-legend"></html:legend>
         <vbox align="start">
         <description flex="1"
                      controls="chooseMessengerLanguage"
@@ -241,18 +243,16 @@
 
     <!-- Scrolling -->
     <html:fieldset id="scrollingGroup" data-category="paneGeneral">
-      <html:legend>&scrolling.label;</html:legend>
+      <html:legend data-l10n-id="scrolling-legend"></html:legend>
       <hbox>
         <checkbox id="useAutoScroll"
-                  label="&useAutoScroll.label;"
-                  accesskey="&useAutoScroll.accesskey;"
+                  data-l10n-id="autoscroll-label"
                   preference="general.autoScroll"/>
         <spacer flex="1"/>
       </hbox>
       <hbox>
         <checkbox id="useSmoothScrolling"
-                  label="&useSmoothScrolling.label;"
-                  accesskey="&useSmoothScrolling.accesskey;"
+                  data-l10n-id="smooth-scrolling-label"
                   preference="general.smoothScroll"/>
         <spacer flex="1"/>
       </hbox>
@@ -266,46 +266,45 @@
     </hbox>
 
     <html:fieldset data-category="paneGeneral">
-      <html:legend>&newMessagesArrive.label;</html:legend>
+      <html:legend data-l10n-id="new-message-arrival"></html:legend>
 #ifdef XP_MACOSX
       <hbox align="center">
-        <description flex="1">&changeDockIconOptions.label;</description>
-        <button id="dockOptions" label="&dockOptions.label;"
-                accesskey="&dockOptions.accesskey;"
-                oncommand="gGeneralPane.configureDockOptions();"/>
+        <description flex="1" data-l10n-id="change-dock-icon"/>
+        <button id="dockOptions"
+                oncommand="gGeneralPane.configureDockOptions();"
+                data-l10n-id="app-icon-options"/>
       </hbox>
-      <description class="bold">&notificationAlertSettings2.label;</description>
+      <description class="bold" data-l10n-id="notification-settings"/>
 #else
       <hbox align="center">
         <checkbox id="newMailNotificationAlert"
-                  label="&showAnimatedAlert.label;"
-                  accesskey="&showAnimatedAlert.accesskey;"
+                  data-l10n-id="animated-alert-label"
                   preference="mail.biff.show_alert"/>
         <spacer flex="1"/>
-        <button id="customizeMailAlert" label="&customizeMailAlert.label;" accesskey="&customizeMailAlert.accesskey;"
-                oncommand="gGeneralPane.customizeMailAlert();"/>
+        <button id="customizeMailAlert"
+                oncommand="gGeneralPane.customizeMailAlert();"
+                data-l10n-id="customize-alert-label"/>
       </hbox>
       <hbox>
-        <checkbox id="newMailNotificationTrayIcon" label="&showTrayIcon.label;"
+        <checkbox id="newMailNotificationTrayIcon"
 #ifndef XP_WIN
                   hidden="true"
 #endif
                   preference="mail.biff.show_tray_icon"
-                  accesskey="&showTrayIcon.accesskey;"/>
+                  data-l10n-id="tray-icon-label"/>
       </hbox>
 #endif
 
       <hbox align="center">
 #ifndef XP_MACOSX
-        <checkbox id="newMailNotification" accesskey="&playSound1.accesskey;"
-                  preference="mail.biff.play_sound" label="&playSound.label;"
-#else
-        <checkbox id="newMailNotification" accesskey="&playSoundMac.accesskey;"
-                  preference="mail.biff.play_sound" label="&playSoundMac.label;"
-#endif
+        <checkbox id="newMailNotification"
+                  preference="mail.biff.play_sound"
+                  data-l10n-id="play-sound-label"
                   oncommand="gGeneralPane.updatePlaySound();"/>
         <spacer flex="1"/>
-        <button id="playSound" label="&play.label;" accesskey="&play.accesskey;" oncommand="gGeneralPane.previewSound();"/>
+        <button id="playSound"
+                data-l10n-id="play-button"
+                oncommand="gGeneralPane.previewSound();"/>
       </hbox>
 
 #ifndef XP_MACOSX
@@ -318,15 +317,13 @@
         <hbox>
           <radio id="system"
                  value="0"
-                 label="&systemsound.label;"
-                 accesskey="&systemsound.accesskey;"/>
+                 data-l10n-id="system-sound-label"/>
           <spacer flex="1"/>
         </hbox>
         <hbox>
           <radio id="custom"
                  value="1"
-                 label="&customsound.label;"
-                 accesskey="&customsound.accesskey;"/>
+                 data-l10n-id="custom-sound-label"/>
           <spacer flex="1"/>
         </hbox>
       </radiogroup>
@@ -340,8 +337,7 @@
                     preference-editable="true"
                     aria-labelledby="custom"/>
         <button id="browseForSound"
-                label="&browse.label;"
-                accesskey="&browse.accesskey;"
+                data-l10n-id="browse-sound-label"
                 oncommand="gGeneralPane.browseForSoundFile();"/>
       </hbox>
     </html:fieldset>
@@ -356,7 +352,8 @@
       <hbox>
         <search-textbox id="filter"
                         flex="1"
-                        placeholder="&filter.placeholder;"
+                        data-l10n-id="search-input"
+                        data-l10n-attrs="placeholder"
                         aria-controls="handlersView"
                         oncommand="gGeneralPane._rebuildView();"/>
       </hbox>
@@ -365,12 +362,14 @@
 
       <vbox>
         <listheader equalsize="always">
-          <treecol id="typeColumn" label="&typeColumn.label;" value="type"
-                   accesskey="&typeColumn.accesskey;" persist="sortDirection"
+          <treecol id="typeColumn" value="type"
+                   persist="sortDirection"
+                   data-l10n-id="type-column-label"
                    flex="1" onclick="gGeneralPane.sort(event);"
                    sortDirection="ascending" sort="typeDescription"/>
-          <treecol id="actionColumn" label="&actionColumn2.label;" value="action"
-                   accesskey="&actionColumn2.accesskey;" persist="sortDirection"
+          <treecol id="actionColumn" value="action"
+                   persist="sortDirection"
+                   data-l10n-id="action-column-label"
                    flex="1" onclick="gGeneralPane.sort(event);"/>
         </listheader>
         <richlistbox id="handlersView" height="180px"
@@ -384,28 +383,21 @@
                     preference="browser.download.useDownloadDir">
           <hbox id="saveToRow" align="center" class="input-container">
             <radio id="saveTo" value="true"
-                   label="&saveTo.label;"
-                   accesskey="&saveTo.accesskey;"
+                   data-l10n-id="save-to-label"
                    aria-labelledby="saveTo downloadFolder"/>
             <html:input id="downloadFolder"
                         class="input-filefield"
                         type="text"
                         readonly="readonly"
                         aria-labelledby="saveTo"/>
-            <button id="chooseFolder" oncommand="gDownloadDirSection.chooseFolder();"
-#ifdef XP_MACOSX
-                    accesskey="&chooseFolderMac.accesskey;"
-                    label="&chooseFolderMac.label;"/>
-#else
-                    accesskey="&chooseFolderWin.accesskey;"
-                    label="&chooseFolderWin.label;"/>
-#endif
+            <button id="chooseFolder"
+                    oncommand="gDownloadDirSection.chooseFolder();"
+                    data-l10n-id="choose-folder-label"/>
           </hbox>
           <hbox>
             <radio id="alwaysAsk"
                    value="false"
-                   label="&alwaysAsk.label;"
-                   accesskey="&alwaysAsk.accesskey;"/>
+                   data-l10n-id="always-ask-label"/>
           </hbox>
         </radiogroup>
       </vbox>
@@ -418,7 +410,7 @@
     </hbox>
 
     <html:fieldset data-category="paneGeneral">
-      <label control="tagList">&displayTagsText.label;</label>
+      <label control="tagList" data-l10n-id="display-tags-text"/>
       <hbox>
         <richlistbox id="tagList"
                      flex="1"
@@ -426,15 +418,13 @@
                      ondblclick="gGeneralPane.editTag();"
                      onselect="gGeneralPane.onSelectTag();"/>
         <vbox id="tagButtons">
-          <button label="&newTagButton.label;" accesskey="&newTagButton.accesskey;"
+          <button data-l10n-id="new-tag-button"
                   oncommand="gGeneralPane.addTag();"/>
           <button id="editTagButton" disabled="true"
-                  label="&editTagButton1.label;"
-                  accesskey="&editTagButton1.accesskey;"
+                  data-l10n-id="edit-tag-button"
                   oncommand="gGeneralPane.editTag();"/>
           <button id="removeTagButton" disabled="true"
-                  label="&removeTagButton.label;"
-                  accesskey="&removeTagButton.accesskey;"
+                  data-l10n-id="delete-tag-button"
                   oncommand="gGeneralPane.removeTag();"/>
         </vbox>
       </hbox>
@@ -452,8 +442,7 @@
         <hbox>
           <checkbox id="automaticallyMarkAsRead"
                     preference="mailnews.mark_message_read.auto"
-                    label="&autoMarkAsRead.label;"
-                    accesskey="&autoMarkAsRead.accesskey;"/>
+                    data-l10n-id="auto-mark-as-read"/>
         </hbox>
 
         <radiogroup id="markAsReadAutoPreferences" orient="vertical"
@@ -461,18 +450,16 @@
                     align="start"
                     preference="mailnews.mark_message_read.delay">
           <radio id="mark_read_immediately"
-                 label="&markAsReadNoDelay.label;"
-                 value="false"
-                 accesskey="&markAsReadNoDelay.accesskey;"/>
+                 data-l10n-id="mark-read-no-delay"
+                 value="false"/>
           <hbox align="center">
             <radio id="markAsReadAfterDelay" value="true"
-                   label="&markAsReadDelay.label;"
-                   accesskey="&markAsReadDelay.accesskey;"/>
+                   data-l10n-id="mark-read-delay"/>
             <html:input id="markAsReadDelay" type="number" class="size3"
                         min="1" max="2147483"
                         preference="mailnews.mark_message_read.delay.interval"
                         aria-labelledby="markAsReadAfterDelay markAsReadDelay secondsLabel"/>
-            <label id="secondsLabel" value="&secondsLabel.label;"/>
+            <label id="secondsLabel" data-l10n-id="seconds-label"/>
           </hbox>
         </radiogroup>
       </vbox>
@@ -481,26 +468,22 @@
 
       <vbox>
         <hbox>
-          <label value="&openMsgIn.label;"
+          <label data-l10n-id="open-msg-label"
                  control="mailOpenMessageBehavior"/>
         </hbox>
         <hbox>
           <radiogroup id="mailOpenMessageBehavior" class="indent"
                       preference="mail.openMessageBehavior"
                       orient="horizontal">
-            <radio id="newTab" value="2" label="&openMsgInNewTab.label;"
-                   accesskey="&openMsgInNewTab.accesskey;"/>
-            <radio id="newWindow" value="0" label="&reuseExpRadio0.label;"
-                   accesskey="&reuseExpRadio0.accesskey;"/>
+            <radio id="newTab" value="2" data-l10n-id="open-msg-tab"/>
+            <radio id="newWindow" value="0" data-l10n-id="open-msg-window"/>
             <radio id="existingWindow" value="1"
-                   label="&reuseExpRadio1.label;"
-                   accesskey="&reuseExpRadio1.accesskey;"/>
+                   data-l10n-id="open-msg-ex-window"/>
           </radiogroup>
         </hbox>
         <hbox>
           <checkbox id="closeMsgOnMoveOrDelete"
-                    label="&closeMsgOnMoveOrDelete.label;"
-                    accesskey="&closeMsgOnMoveOrDelete.accesskey;"
+                    data-l10n-id="close-move-delete"
                     preference="mail.close_message_window.on_delete"/>
         </hbox>
       </vbox>
@@ -508,22 +491,20 @@
       <separator/>
 
       <hbox>
-        <label value="&displayName.label;"/>
+        <label data-l10n-id="display-name-label"/>
         </hbox>
         <hbox>
         <checkbox id="showCondensedAddresses"
-                  label="&showCondensedAddresses.label;"
-                  accesskey="&showCondensedAddresses.accesskey;"
+                  data-l10n-id="condensed-addresses-label"
                   preference="mail.showCondensedAddresses"/>
       </hbox>
 
       <separator class="thin"/>
 
       <hbox align="center">
-        <description flex="1">&returnReceiptsInfo.label;</description>
+        <description flex="1" data-l10n-id="return-receipts-description"/>
         <button id="showReturnReceipts"
-                label="&showReturnReceipts.label;"
-                accesskey="&showReturnReceipts.accesskey;"
+                data-l10n-id="return-receipts-button"
                 oncommand="gGeneralPane.showReturnReceipts();"/>
       </hbox>
     </html:fieldset>
@@ -537,7 +518,7 @@
 
     <!-- Update -->
     <html:fieldset id="updateApp" data-category="paneGeneral">
-      <html:legend>&updateApp2.label;</html:legend>
+      <html:legend data-l10n-id="update-app-legend"></html:legend>
       <hbox align="center">
         <vbox>
           <description>
@@ -550,8 +531,7 @@
         <spacer flex="1"/>
         <vbox>
           <button id="showUpdateHistory"
-                  label="&updateHistory.label;"
-                  accesskey="&updateHistory.accesskey;"
+                  data-l10n-id="update-history-button"
                   preference="app.update.disable_button.showUpdateHistory"
                   oncommand="gGeneralPane.showUpdates();"/>
         </vbox>
@@ -635,29 +615,26 @@
         </deck>
       </vbox>
       <separator/>
-      <description id="updateAllowDescription">&updateAppAllow.description;</description>
+      <description id="updateAllowDescription" data-l10n-id="allow-description"/>
       <vbox id="updateSettingsContainer">
         <radiogroup id="updateRadioGroup"
                     align="start">
           <radio id="autoDesktop"
                  value="true"
-                 label="&updateAuto.label;"
-                 accesskey="&updateAuto.accesskey;"/>
+                 data-l10n-id="automatic-updates-label"/>
           <radio id="manualDesktop"
                  value="false"
-                 label="&updateCheck.label;"
-                 accesskey="&updateCheck.accesskey;"/>
+                 data-l10n-id="check-updates-label"/>
         </radiogroup>
-        <description id="updateSettingCrossUserWarning" hidden="true">
-          &updateCrossUserSettingWarning.description;
-        </description>
+        <description id="updateSettingCrossUserWarning"
+                     data-l10n-id="cross-user-udpate-warning"
+                     hidden="true"/>
       </vbox>
 
 #ifdef MOZ_MAINTENANCE_SERVICE
       <separator class="thin"/>
       <checkbox id="useService"
-                label="&useService.label;"
-                accesskey="&useService.accesskey;"
+                data-l10n-id="use-service"
                 preference="app.update.service.enabled"/>
 #endif
     </html:fieldset>
@@ -671,51 +648,53 @@
 
     <!-- Networking & Disk Space -->
     <html:fieldset data-category="paneGeneral">
-      <html:legend>&connectionsInfo.caption;</html:legend>
+      <html:legend data-l10n-id="networking-legend"></html:legend>
       <hbox align="center">
-        <description flex="1" control="catProxiesButton">&proxiesConfigure.label;</description>
-        <button id="catProxiesButton" label="&showSettings.label;"
-                accesskey="&showSettings.accesskey;"
+        <description control="catProxiesButton"
+                     data-l10n-id="proxy-config-description"
+                     flex="1"/>
+        <button id="catProxiesButton"
+                data-l10n-id="network-settings-button"
                 oncommand="gGeneralPane.showConnections();"/>
       </hbox>
     </html:fieldset>
 
     <html:fieldset data-category="paneGeneral">
-      <html:legend>&offlineInfo.caption;</html:legend>
+      <html:legend data-l10n-id="offline-legend"></html:legend>
       <hbox align="center">
-        <description flex="1" control="offlineSettingsButton">&offlineInfo.label;</description>
-        <button id="offlineSettingsButton" label="&showOffline.label;"
-                accesskey="&showOffline.accesskey;"
+        <description data-l10n-id="offline-settings"
+                     control="offlineSettingsButton"
+                     flex="1"/>
+        <button id="offlineSettingsButton"
+                data-l10n-id="offline-settings-button"
                 oncommand="gGeneralPane.showOffline();"/>
       </hbox>
     </html:fieldset>
 
     <html:fieldset data-category="paneGeneral">
-      <html:legend>&Diskspace;</html:legend>
+      <html:legend data-l10n-id="diskspace-legend"></html:legend>
       <hbox align="center">
         <label id="actualDiskCacheSize" flex="1"/>
         <button id="clearCacheButton"
-                label="&clearCacheNow.label;" accesskey="&clearCacheNow.accesskey;"
+                data-l10n-id="clear-cache-button"
                 oncommand="gGeneralPane.clearCache();"/>
       </hbox>
       <hbox>
         <checkbox preference="browser.cache.disk.smart_size.enabled"
                   id="allowSmartSize"
-                  label="&overrideSmartCacheSize.label;"
-                  accesskey="&overrideSmartCacheSize.accesskey;"/>
+                  data-l10n-id="smart-cache-label"/>
       </hbox>
       <hbox align="center" class="indent">
         <label id="useCacheBefore" control="cacheSize"
-               accesskey="&useCacheBefore.accesskey;" value="&useCacheBefore.label;"/>
+               data-l10n-id="use-cache-before"/>
         <html:input id="cacheSize" type="number" class="size4" max="1024"
                     preference="browser.cache.disk.capacity"
                     aria-labelledby="useCacheBefore cacheSize useCacheAfter"/>
-        <label id="useCacheAfter" flex="1">&useCacheAfter.label;</label>
+        <label id="useCacheAfter" data-l10n-id="use-cache-after" flex="1"/>
       </hbox>
       <hbox align="center">
           <checkbox id="offlineCompactFolder"
-                    label="&offlineCompactFolders.label;"
-                    accesskey="&offlineCompactFolders.accesskey;"
+                    data-l10n-id="offline-compact-folder"
                     aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"
                     preference="mail.prompt_purge_threshhold"
                     oncommand="gGeneralPane.updateCompactOptions(this.checked);"/>
@@ -723,7 +702,7 @@
                       min="1" max="2048" value="200"
                       preference="mail.purge_threshhold_mb"
                       aria-labelledby="offlineCompactFolder offlineCompactFolderMin compactFolderMB"/>
-          <label id="compactFolderMB" value="&offlineCompactFoldersMB.label;"/>
+          <label id="compactFolderMB" data-l10n-id="compact-folder-size" value=""/>
       </hbox>
     </html:fieldset>
 
@@ -733,30 +712,26 @@
         <hbox>
           <checkbox id="enableGloda"
                     preference="mailnews.database.global.indexer.enabled"
-                    label="&enableGlodaSearch.label;"
-                    accesskey="&enableGlodaSearch.accesskey;"/>
+                    data-l10n-id="enable-gloda-search-label"/>
         </hbox>
         <hbox align="center">
-          <label value="&storeType.label;"
-                 accesskey="&storeType.accesskey;"
-                 control="storeTypeMenulist"/>
+          <label control="storeTypeMenulist" data-l10n-id="store-type-label"/>
           <menulist id="storeTypeMenulist"
                     oncommand="gGeneralPane.updateDefaultStore(this.selectedItem.value)">
             <menupopup id="storeTypeMenupopup">
               <menuitem id="mboxStore"
-                        label="&mboxStore2.label;"
+                        data-l10n-id="mbox-store-label"
                         value="@mozilla.org/msgstore/berkeleystore;1"/>
               <menuitem id="maildirStore"
-                        label="&maildirStore.label;"
+                        data-l10n-id="maildir-store-label"
                         value="@mozilla.org/msgstore/maildirstore;1"/>
             </menupopup>
           </menulist>
         </hbox>
         <hbox>
           <checkbox id="allowHWAccel"
-                    label="&allowHWAccel.label;"
-                    accesskey="&allowHWAccel.accesskey;"
-                    preference="layers.acceleration.disabled"/>
+                    preference="layers.acceleration.disabled"
+                    data-l10n-id="allow-hw-accel"/>
         </hbox>
       </vbox>
       <vbox>
@@ -767,8 +742,8 @@
 
     <html:fieldset data-category="paneGeneral">
       <hbox pack="end">
-        <button id="configEditor" label="&configEdit.label;"
-                accesskey="&configEdit.accesskey;"
+        <button id="configEditor"
+                data-l10n-id="config-editor-button"
                 oncommand="gGeneralPane.showConfigEdit();"/>
       </hbox>
     </html:fieldset>

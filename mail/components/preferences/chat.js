@@ -29,10 +29,6 @@ Preferences.addAll([
   { id: "messenger.options.messagesStyle.showHeader", type: "bool" },
 ]);
 
-document.getElementById("paneChat").addEventListener("paneload", function() {
-  gChatPane.init();
-});
-
 var gChatPane = {
   init() {
     this.updateDisabledState();

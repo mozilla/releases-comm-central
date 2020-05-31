@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <prefpane id="panePrivacy" label="&panePrivacySecurity.title;">
+  <prefpane id="panePrivacy">
     <script src="chrome://messenger/content/preferences/privacy.js"/>
 
     <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
@@ -14,53 +14,48 @@
 
     <!-- Mail Content -->
     <html:fieldset id="mailContentGroup" data-category="panePrivacy">
-      <html:legend>&captionMailContent.label;</html:legend>
+      <html:legend data-l10n-id="mail-content"></html:legend>
       <hbox id="remoteContentBox">
         <checkbox id="acceptRemoteContent"
                   preference="mailnews.message_display.disable_remote_image"
-                  label="&acceptRemoteContent.label;"
-                  accesskey="&acceptRemoteContent.accesskey;"/>
+                  data-l10n-id="remote-content-label"/>
         <spacer flex="1"/>
         <button id="remoteContentExceptions"
                 oncommand="gPrivacyPane.showRemoteContentExceptions();"
-                label="&remoteContentExceptions.label;"
-                accesskey="&remoteContentExceptions.accesskey;"/>
+                data-l10n-id="exceptions-button"/>
       </hbox>
       <hbox>
         <label is="text-link" id="acceptRemoteContentInfo"
                href="https://support.mozilla.org/kb/remote-content-in-messages"
-               value="&acceptRemoteContentInfo.label;"/>
+               data-l10n-id="remote-content-info"/>
       </hbox>
     </html:fieldset>
 
     <!-- Web Content -->
     <html:fieldset id="webContentGroup" data-category="panePrivacy">
-      <html:legend>&captionWebContent.label;</html:legend>
+      <html:legend data-l10n-id="web-content"></html:legend>
       <checkbox id="keepHistory"
                 preference="places.history.enabled"
-                label="&keepHistory.label;"
-                accesskey="&keepHistory.accesskey;"/>
+                data-l10n-id="history-label"/>
       <hbox id="cookiesBox">
         <checkbox id="acceptCookies"
                   preference="network.cookie.cookieBehavior"
-                  label="&acceptCookies.label;"
-                  accesskey="&acceptCookies.accesskey;"/>
+                  data-l10n-id="cookies-label"/>
         <spacer flex="1"/>
         <button id="cookieExceptions"
                 oncommand="gPrivacyPane.showCookieExceptions();"
-                label="&cookieExceptions.label;"
-                accesskey="&cookieExceptions.accesskey;"
+                data-l10n-id="exceptions-button"
                 preference="pref.privacy.disable_button.cookie_exceptions"/>
       </hbox>
       <hbox id="acceptThirdPartyRow" class="indent">
         <hbox id="acceptThirdPartyBox" align="center">
           <label id="acceptThirdPartyLabel" control="acceptThirdPartyMenu"
-                 accesskey="&acceptThirdParty.pre.accesskey;">&acceptThirdParty.pre.label;</label>
+                 data-l10n-id="third-party-label"/>
           <menulist id="acceptThirdPartyMenu" preference="network.cookie.cookieBehavior">
             <menupopup>
-              <menuitem label="&acceptThirdParty.always.label;" value="always"/>
-              <menuitem label="&acceptThirdParty.visited.label;" value="visited"/>
-              <menuitem label="&acceptThirdParty.never.label;" value="never"/>
+              <menuitem data-l10n-id="third-party-always" value="always"/>
+              <menuitem data-l10n-id="third-party-visited" value="visited"/>
+              <menuitem data-l10n-id="third-party-never" value="never"/>
             </menupopup>
           </menulist>
         </hbox>
@@ -69,19 +64,18 @@
         <hbox id="keepBox" align="center">
           <label id="keepUntil"
                  control="keepCookiesUntil"
-                 accesskey="&keepUntil.accesskey;">&keepUntil.label;</label>
+                 data-l10n-id="keep-label"/>
           <menulist id="keepCookiesUntil"
                     preference="network.cookie.lifetimePolicy">
             <menupopup>
-              <menuitem label="&expire.label;" value="0"/>
-              <menuitem label="&close.label;" value="2"/>
-              <menuitem label="&askEachTime.label;" value="1"/>
+              <menuitem data-l10n-id="keep-expire" value="0"/>
+              <menuitem data-l10n-id="keep-close" value="2"/>
+              <menuitem data-l10n-id="keep-ask" value="1"/>
             </menupopup>
           </menulist>
         </hbox>
         <hbox flex="1"/>
-        <button id="showCookiesButton" label="&showCookies.label;"
-                accesskey="&showCookies.accesskey;"
+        <button id="showCookiesButton" data-l10n-id="cookies-button"
                 oncommand="gPrivacyPane.showCookies();"
                 preference="pref.privacy.disable_button.view_cookies"/>
       </hbox>
@@ -91,12 +85,11 @@
       <hbox align="center">
         <checkbox id="privacyDoNotTrackCheckbox"
                   class="tail-with-learn-more"
-                  label="&doNotTrackCheck.label;"
-                  accesskey="&doNotTrackCheck.accesskey;"
+                  data-l10n-id="do-not-track-label"
                   preference="privacy.donottrackheader.enabled"/>
         <label is="text-link" id="doNotTrackInfo"
                href="https://www.mozilla.org/dnt"
-               value="&doNotTrackLearnMore.label;"/>
+               data-l10n-id="learn-button"/>
       </hbox>
     </html:fieldset>
 
@@ -110,11 +103,10 @@
 
     <html:fieldset data-category="panePrivacy">
       <hbox align="center">
-        <description>&savedPasswords.intro;</description>
+        <description data-l10n-id="passwords-description"/>
         <spacer flex="1"/>
         <button id="showPasswords"
-                label="&savedPasswords.label;"
-                accesskey="&savedPasswords.accesskey;"
+                data-l10n-id="passwords-button"
                 oncommand="gPrivacyPane.showPasswords();"
                 preference="pref.privacy.disable_button.view_passwords"/>
       </hbox>
@@ -122,16 +114,14 @@
 
       <separator class="thin"/>
 
-      <description>&masterPassword.intro;</description>
+      <description data-l10n-id="master-password-description"/>
       <hbox>
         <checkbox id="useMasterPassword"
-                  label="&useMasterPassword.label;"
-                  accesskey="&useMasterPassword.accesskey;"
+                  data-l10n-id="master-password-label"
                   oncommand="gPrivacyPane.updateMasterPasswordButton();"/>
         <spacer flex="1"/>
         <button id="changeMasterPassword"
-                label="&changeMasterPassword.label;"
-                accesskey="&changeMasterPassword.accesskey;"
+                data-l10n-id="master-password-button"
                 oncommand="gPrivacyPane.changeMasterPassword();"/>
       </hbox>
     </html:fieldset>
@@ -145,14 +135,13 @@
     <separator data-category="panePrivacy"/>
 
     <html:fieldset data-category="panePrivacy">
-      <description>&junkMail.intro;</description>
+      <description data-l10n-id="junk-description"/>
       <separator class="thin"/>
       <hbox>
         <checkbox id="manualMark"
-                  label="&manualMark.label;"
+                  data-l10n-id="junk-label"
                   preference="mail.spam.manualMark"
-                  oncommand="gPrivacyPane.updateManualMarkMode(this.checked);"
-                  accesskey="&manualMark.accesskey;"/>
+                  oncommand="gPrivacyPane.updateManualMarkMode(this.checked);"/>
         <spacer flex="1"/>
       </hbox>
       <radiogroup id="manualMarkMode"
@@ -162,37 +151,33 @@
         <hbox>
           <radio id="manualMarkMode0"
                  value="0"
-                 label="&manualMarkModeMove.label;"
-                 accesskey="&manualMarkModeMove.accesskey;"/>
+                 data-l10n-id="junk-move-label"/>
           <spacer flex="1"/>
         </hbox>
         <hbox>
           <radio id="manualMarkMode1"
                  value="1"
-                 label="&manualMarkModeDelete.label;"
-                 accesskey="&manualMarkModeDelete.accesskey;"/>
+                 data-l10n-id="junk-delete-label"/>
           <spacer flex="1"/>
         </hbox>
       </radiogroup>
       <hbox>
         <checkbox id="markAsReadOnSpam"
-                  label="&markAsReadOnSpam.label;"
-                  accesskey="&markAsReadOnSpam.accesskey;"
+                  data-l10n-id="junk-read-label"
                   preference="mail.spam.markAsReadOnSpam"/>
         <spacer flex="1"/>
       </hbox>
       <hbox align="start">
-        <checkbox id="enableJunkLogging" label="&enableAdaptiveJunkLogging.label;"
+        <checkbox id="enableJunkLogging" data-l10n-id="junk-log-label"
                   oncommand="gPrivacyPane.updateJunkLogButton(this.checked);"
-                  preference="mail.spam.logging.enabled"
-                  accesskey="&enableAdaptiveJunkLogging.accesskey;"/>
+                  preference="mail.spam.logging.enabled"/>
         <spacer flex="1"/>
-        <button id="openJunkLogButton" label="&openJunkLog.label;" accesskey="&openJunkLog.accesskey;"
+        <button id="openJunkLogButton" data-l10n-id="junk-log-button"
                 oncommand="gPrivacyPane.openJunkLog();"/>
       </hbox>
       <hbox align="start" style="padding-bottom:2em;">
         <spacer flex="1"/>
-        <button label="&resetTrainingData.label;" accesskey="&resetTrainingData.accesskey;"
+        <button data-l10n-id="reset-junk-button"
                 oncommand="gPrivacyPane.resetTrainingData()"/>
       </hbox>
     </html:fieldset>
@@ -206,30 +191,28 @@
 
 #ifdef MOZ_TELEMETRY_REPORTING
     <html:fieldset data-category="panePrivacy">
-      <html:legend>&telemetrySection.label;</html:legend>
-      <description>&telemetryDesc.label;</description>
+      <html:legend data-l10n-id="telemetry-legend"></html:legend>
+      <description data-l10n-id="telemetry-description"/>
       <hbox align="center">
         <checkbox id="submitTelemetryBox"
                   class="tail-with-learn-more"
                   preference="toolkit.telemetry.enabled"
-                  label="&enableTelemetry.label;"
-                  accesskey="&enableTelemetry.accesskey;"/>
+                  data-l10n-id="telemetry-label"/>
         <label is="text-link" id="telemetryLearnMore"
-               value="&telemetryLearnMore.label;"/>
+               data-l10n-id="learn-label"/>
       </hbox>
     </html:fieldset>
 #endif
 #ifdef MOZ_CRASHREPORTER
     <html:fieldset data-category="panePrivacy">
-      <html:legend>&crashReporterSection.label;</html:legend>
-      <description>&crashReporterDesc.label;</description>
+      <html:legend data-l10n-id="crash-legend"></html:legend>
+      <description data-l10n-id="crash-description"/>
       <hbox align="center">
         <checkbox id="submitCrashesBox" class="tail-with-learn-more"
                   oncommand="gPrivacyPane.updateSubmitCrashes();"
-                  label="&enableCrashReporter.label;"
-                  accesskey="&enableCrashReporter.accesskey;"/>
+                  data-l10n-id="crash-label"/>
         <label is="text-link" id="crashReporterLearnMore"
-               value="&crashReporterLearnMore.label;"/>
+               data-l10n-id="learn-label"/>
       </hbox>
     </html:fieldset>
 #endif
@@ -243,12 +226,11 @@
 
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-scam-detection-title"></html:legend>
-      <description>&phishingDetector1.intro;</description>
+      <description data-l10n-id="phishing-description"/>
       <separator class="thin"/>
       <hbox>
         <checkbox id="enablePhishingDetector"
-                  label="&enablePhishingDetector1.label;"
-                  accesskey="&enablePhishingDetector1.accesskey;"
+                  data-l10n-id="phishing-label"
                   preference="mail.phishing.detection.enabled"/>
         <spacer flex="1"/>
       </hbox>
@@ -257,12 +239,11 @@
     <!-- Anti Virus -->
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-anti-virus-title"></html:legend>
-      <description>&antiVirus.intro;</description>
+      <description data-l10n-id="antivirus-description"/>
       <separator class="thin"/>
       <hbox>
         <checkbox id="enableAntiVirusQuarantine"
-                  label="&antiVirus.label;"
-                  accesskey="&antiVirus.accesskey;"
+                  data-l10n-id="antivirus-label"
                   preference="mailnews.downloadToTempFile"/>
         <spacer flex="1"/>
       </hbox>
@@ -270,7 +251,8 @@
 
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-certificates-title"></html:legend>
-      <description id="CertSelectionDesc" control="certSelection">&certSelection.description;</description>
+      <description id="CertSelectionDesc" control="certSelection"
+                   data-l10n-id="certificate-description"/>
 
       <!--
         The values on these radio buttons may look like l12y issues, but
@@ -282,10 +264,10 @@
                   preference="security.default_personal_cert"
                   aria-labelledby="CertGroupCaption CertSelectionDesc">
         <radio id="certSelectionAuto"
-               label="&certs.auto;" accesskey="&certs.auto.accesskey;"
+               data-l10n-id="certificate-auto"
                value="Select Automatically"/>
         <radio id="certSelectionAsk"
-               label="&certs.ask;" accesskey="&certs.ask.accesskey;"
+               data-l10n-id="certificate-ask"
                value="Ask Every Time"/>
       </radiogroup>
 
@@ -293,20 +275,17 @@
 
       <hbox align="start">
         <checkbox id="enableOCSP"
-                  label="&enableOCSP.label;"
-                  accesskey="&enableOCSP.accesskey;"
+                  data-l10n-id="ocsp-label"
                   preference="security.OCSP.enabled"
                   flex="1"/>
         <spacer flex="1"/>
         <vbox>
           <button id="manageCertificatesButton"
-                  label="&manageCertificates2.label;"
-                  accesskey="&manageCertificates2.accesskey;"
+                  data-l10n-id="certificate-button"
                   oncommand="gPrivacyPane.showCertificates();"
                   preference="security.disable_button.openCertManager"/>
           <button id="viewSecurityDevicesButton"
-                  label="&viewSecurityDevices2.label;"
-                  accesskey="&viewSecurityDevices2.accesskey;"
+                  data-l10n-id="security-devices-button"
                   oncommand="gPrivacyPane.showSecurityDevices();"
                   preference="security.disable_button.openDeviceManager"/>
         </vbox>

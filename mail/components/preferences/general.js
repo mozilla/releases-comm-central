@@ -120,14 +120,6 @@ if (AppConstants.MOZ_UPDATER) {
   }
 }
 
-if (document.getElementById("paneGeneral")) {
-  document
-    .getElementById("paneGeneral")
-    .addEventListener("paneload", function() {
-      gGeneralPane.init();
-    });
-}
-
 var gGeneralPane = {
   // The set of types the app knows how to handle.  A hash of HandlerInfoWrapper
   // objects, indexed by type.

@@ -44,10 +44,6 @@ Preferences.addAll([
   { id: "mail.compose.big_attachments.threshold_kb", type: "int" },
 ]);
 
-document.getElementById("paneCompose").addEventListener("paneload", function() {
-  gComposePane.init();
-});
-
 var gComposePane = {
   mSpellChecker: null,
   mDictCount: 0,

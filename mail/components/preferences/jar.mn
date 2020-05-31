@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-*   content/messenger/preferences/aboutPreferences.xhtml
+*   content/messenger/preferences/preferences.xhtml
     content/messenger/preferences/preferences.js
     content/messenger/preferences/preferencesTab.js
     content/messenger/preferences/general.js

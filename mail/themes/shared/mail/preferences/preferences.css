@@ -119,6 +119,11 @@ tabpanel > hbox > description {
 
 /* Category List */
 
+#categories {
+  overflow: visible !important; /* Cancel scrollbar and do not clip overflow content when window size goes very small */
+  padding: 1px; /* Adding padding around richlistitem in order to make entire keyboard focusing outline visible */
+}
+
 .paneSelector {
   padding: 71px 0 0;
   margin: 0;
@@ -230,23 +235,23 @@ radio[pane][selected] > .radio-check {
   }
 }
 
-radio[pane=paneGeneral] > .radio-check {
+#category-general > .category-icon {
   list-style-image: url("chrome://messenger/skin/shared/preferences/general.svg");
 }
 
-radio[pane=panePrivacy] > .radio-check {
+#category-privacy > .category-icon {
   list-style-image: url("chrome://messenger/skin/shared/preferences/security.svg");
 }
 
-radio[pane=paneCompose] > .radio-check {
+#category-compose > .category-icon {
   list-style-image: url("chrome://messenger/skin/icons/newmsg.svg");
 }
 
-radio[pane=paneChat] > .radio-check {
+#category-chat > .category-icon {
   list-style-image: url("chrome://messenger/skin/shared/preferences/chat.svg");
 }
 
-radio[pane=paneLightning] > .radio-check {
+#category-calendar > .category-icon {
   list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
 }
 
@@ -418,13 +423,13 @@ html|input.indent {
  * toolkit element overrides
  */
 
-richlistbox {
+#preferencesContainer richlistbox {
   -moz-appearance: none;
   background-color: var(--in-content-box-background);
   color: var(--in-content-text-color);
 }
 
-richlistbox richlistitem {
+#preferencesContainer richlistbox richlistitem {
   padding: 0.3em;
   margin: 0;
   border: none;
@@ -432,16 +437,16 @@ richlistbox richlistitem {
   background-image: none;
 }
 
-richlistbox richlistitem:hover {
+#preferencesContainer richlistbox richlistitem:hover {
   background-color: var(--in-content-item-hover);
 }
 
-richlistitem[selected="true"] {
+#preferencesContainer richlistitem[selected="true"] {
   background-color: var(--in-content-item-selected-unfocused);
   color: inherit;
 }
 
-richlistbox:focus > richlistitem[selected="true"] {
+#preferencesContainer richlistbox:focus > richlistitem[selected="true"] {
   background-color: var(--in-content-item-selected);
   color: var(--in-content-selected-text) !important;
 }

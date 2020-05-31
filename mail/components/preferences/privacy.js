@@ -60,10 +60,6 @@ if (AppConstants.MOZ_TELEMETRY_REPORTING) {
   Preferences.add({ id: "toolkit.telemetry.enabled", type: "bool" });
 }
 
-document.getElementById("panePrivacy").addEventListener("paneload", function() {
-  gPrivacyPane.init();
-});
-
 var gPrivacyPane = {
   init() {
     this.updateManualMarkMode(Preferences.get("mail.spam.manualMark").value);

@@ -9,7 +9,7 @@
  * Also make sure the labels are the same distance away from the icons.
  */
 
-#handlersView > richlistitem {
+#preferencesContainer #handlersView > richlistitem {
   min-height: 36px;
   padding: 0;
 }

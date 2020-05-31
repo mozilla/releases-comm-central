@@ -6,16 +6,9 @@
 @namespace html "http://www.w3.org/1999/xhtml";
 
 .dialogBox,
-#MailPreferences prefpane {
+#MailPreferences prefpane,
+#categories {
   font-size: 1.36em;
-}
-
-radio[pane] > .radio-label-box {
-  font-size: 1.46em;
-}
-
-radio[pane][focused="true"] > .radio-check {
-  outline: none;
 }
 
 html|h2 {
@@ -39,14 +32,6 @@ html|input[type="number"]::-moz-number-spin-down {
 
 menulist:not([popuponly="true"]) {
   min-height: 30px;
-}
-
-radio[pane] {
-  text-shadow: none;
-}
-
-radio[pane][selected] {
-  border-image: none;
 }
 
 .actionsMenu::part(icon) {

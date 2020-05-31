@@ -282,7 +282,7 @@ MailDefaultHandler.prototype = {
 
       Services.ww.openWindow(
         null,
-        "chrome://messenger/content/preferences/aboutPreferences.xhtml",
+        "chrome://messenger/content/preferences/preferences.xhtml",
         "_blank",
         features,
         null

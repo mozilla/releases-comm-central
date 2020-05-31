@@ -18,24 +18,8 @@
 <!DOCTYPE preftab [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
-<!ENTITY % preferencesDTD SYSTEM "chrome://messenger/locale/preferences/preferences.dtd">
-%preferencesDTD;
-<!ENTITY % generalDTD SYSTEM "chrome://messenger/locale/preferences/general.dtd" >
-%generalDTD;
-<!ENTITY % displayDTD SYSTEM "chrome://messenger/locale/preferences/display.dtd" >
-%displayDTD;
-<!ENTITY % composeDTD SYSTEM "chrome://messenger/locale/preferences/compose.dtd">
-%composeDTD;
 <!ENTITY % editorOverlayDTD SYSTEM "chrome://messenger/locale/messengercompose/editorOverlay.dtd">
 %editorOverlayDTD;
-<!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/preferences/chat.dtd">
-%chatDTD;
-<!ENTITY % privacyDTD SYSTEM "chrome://messenger/locale/preferences/privacy.dtd">
-%privacyDTD;
-<!ENTITY % securityDTD SYSTEM "chrome://messenger/locale/preferences/security.dtd">
-%securityDTD;
-<!ENTITY % applicationsDTD SYSTEM "chrome://messenger/locale/preferences/applications.dtd">
-%applicationsDTD;
 <!ENTITY % advancedDTD SYSTEM "chrome://messenger/locale/preferences/advanced.dtd">
 %advancedDTD;
 #ifdef XP_WIN
@@ -77,17 +61,8 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
          xmlns:xhtml="http://www.w3.org/1999/xhtml"
          xmlns:html="http://www.w3.org/1999/xhtml"
-         onload="gSubDialog.init();"
-#ifdef XP_WIN
-         title="&prefWindow.titleWin;">
-#endif
-#ifdef XP_UNIX
-#ifndef XP_MACOSX
-         title="&prefWindow.titleGNOME;">
-#else
-         title="&prefWindow.titleMAC;">
-#endif
-#endif
+         data-l10n-id="preferences-title">
+
   <script src="chrome://global/content/preferencesBindings.js"/>
 #ifdef MOZ_UPDATER
   <script src="chrome://messenger/content/aboutDialog-appUpdater.js"/>
@@ -95,9 +70,6 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
 
-  <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
-  <stringbundle id="bundlePreferences"
-                src="chrome://messenger/locale/preferences/preferences.properties"/>
   <linkset>
     <html:link rel="localization" href="branding/brand.ftl"/>
     <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
@@ -107,21 +79,72 @@
 
   <stack id="preferences-stack" flex="1">
     <hbox id="prefBox" class="main-content" flex="1">
+
       <vbox id="pref-category-box">
-        <radiogroup id="selector" orient="vertical" class="paneSelector chromeclass-toolbar"
-                        role="listbox" flex="1"/> <!-- Expose to accessibility APIs as a listbox -->
+
+        <!-- category list -->
+        <richlistbox id="categories">
+          <richlistitem id="category-general"
+                        class="category"
+                        value="paneGeneral"
+                        data-l10n-id="category-general"
+                        align="center">
+            <image class="category-icon"/>
+            <label class="category-name" flex="1" data-l10n-id="pane-general-title"/>
+          </richlistitem>
+
+          <richlistitem id="category-compose"
+                        class="category"
+                        value="paneCompose"
+                        data-l10n-id="category-compose"
+                        align="center">
+            <image class="category-icon"/>
+            <label class="category-name" flex="1" data-l10n-id="pane-compose-title"/>
+          </richlistitem>
+
+          <richlistitem id="category-privacy"
+                        class="category"
+                        value="panePrivacy"
+                        data-l10n-id="category-privacy"
+                        align="center">
+            <image class="category-icon"/>
+            <label class="category-name" flex="1" data-l10n-id="pane-privacy-title"/>
+          </richlistitem>
+
+          <richlistitem id="category-chat"
+                        class="category"
+                        value="paneChat"
+                        data-l10n-id="category-chat"
+                        align="center">
+            <image class="category-icon"/>
+            <label class="category-name" flex="1" data-l10n-id="pane-chat-title"/>
+          </richlistitem>
+
+          <richlistitem id="category-calendar"
+                        class="category"
+                        value="paneLightning"
+                        data-l10n-id="category-calendar"
+                        align="center">
+            <image class="category-icon"/>
+            <label class="category-name" flex="1" data-l10n-id="pane-calendar-title"/>
+          </richlistitem>
+        </richlistbox>
+
         <spacer flex="1"/>
+
         <hbox class="sidebar-footer-button"
               pack="center"
               onclick="window.docShell.rootTreeItem.domWindow.openAddonsMgr();">
           <label is="text-link" id="addonsButton">
             <hbox align="center">
               <image class="sidebar-footer-icon addons-icon"/>
-              <label class="sidebar-footer-label" flex="1">&addonsButton.label;</label>
+              <label data-l10n-id="addons-button" class="sidebar-footer-label" flex="1"/>
             </hbox>
           </label>
         </hbox>
+
       </vbox>
+
       <hbox id="preferencesContainer" flex="1">
         <hbox class="paneDeckContainer" flex="1">
           <hbox id="paneDeck" flex="1">
@@ -147,8 +170,7 @@
             aria-labelledby="dialogTitle">
         <hbox class="dialogTitleBar" align="center">
           <label class="dialogTitle" flex="1"/>
-          <button class="dialogClose close-icon"
-                  aria-label="&preferencesCloseButton.label;"/>
+          <button class="dialogClose close-icon" data-l10n-id="close-button"/>
         </hbox>
         <browser class="dialogFrame"
                  autoscroll="false"
