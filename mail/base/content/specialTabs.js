@@ -1264,18 +1264,9 @@ var specialTabs = {
     );
   },
 
-  showAboutRightsNotification() {
-    var brandBundle = Services.strings.createBundle(
-      "chrome://branding/locale/brand.properties"
-    );
+  async showAboutRightsNotification() {
     var rightsBundle = Services.strings.createBundle(
       "chrome://messenger/locale/aboutRights.properties"
-    );
-
-    var productName = brandBundle.GetStringFromName("brandFullName");
-    var notifyRightsText = rightsBundle.formatStringFromName(
-      "notifyRightsText",
-      [productName]
     );
 
     var buttons = [
@@ -1293,6 +1284,9 @@ var specialTabs = {
       },
     ];
 
+    let notifyRightsText = await document.l10n.formatValue(
+      "about-rights-notification-text"
+    );
     var box = this.msgNotificationBar.appendNotification(
       notifyRightsText,
       "about-rights",
