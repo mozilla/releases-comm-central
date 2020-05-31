@@ -87,7 +87,6 @@
                 <html:input id="identity.email"
                             type="email"
                             class="uri-element input-inline"
-                            oninput="updateCatchAllDomain();"
                             aria-labelledby="identity.email.label"/>
 
               </html:td>
@@ -171,8 +170,14 @@
 
           <hbox align="center" class="input-container">
             <checkbox id="identity.catchAll"
+                      label="&catchAll.label;"
                       accesskey="&catchAll.accesskey;"
-                      style="width:100%;"/>
+                      style="margin-block:auto;"/>
+            <html:input id="identity.catchAllHint"
+                        type="text"
+                        placeholder="list@example.com, *@example.com"
+                        class="input-inline"
+                        aria-labelledby="identity.catchAll"/>
           </hbox>
 
           <separator class="thin"/>

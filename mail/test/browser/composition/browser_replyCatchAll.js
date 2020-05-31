@@ -9,10 +9,9 @@
 
 "use strict";
 
-var {
-  close_compose_window,
-  open_compose_with_reply,
-} = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
+var { close_compose_window, open_compose_with_reply } = ChromeUtils.import(
+  "resource://testing-common/mozmill/ComposeHelpers.jsm"
+);
 var {
   add_message_to_folder,
   assert_selected_and_displayed,
@@ -39,9 +38,11 @@ var { MailServices } = ChromeUtils.import(
 
 var i = 0;
 
+var id1Domain = "example.com";
+var id2Domain = "example.net";
 var myIdentityEmail1 = "me@example.com";
 var myIdentityEmail2 = "otherme@example.net";
-var myAdditionalEmail3 = "alsome@example.net";
+var envelopeToAddr = "envelope@example.net";
 var notMyEmail = "otherme@example.org";
 
 var identity1;
@@ -69,10 +70,12 @@ add_task(function setupModule(module) {
   identity1 = acctMgr.createIdentity();
   identity1.email = myIdentityEmail1;
   gAccount.addIdentity(identity1);
+  info(`Added identity1; key=${identity1.key}, email=${identity1.email}`);
 
   identity2 = acctMgr.createIdentity();
   identity2.email = myIdentityEmail2;
   gAccount.addIdentity(identity2);
+  info(`Added identity2; key=${identity2.key}, email=${identity2.email}`);
 });
 
 /**
@@ -84,7 +87,7 @@ function create_replyMsg(aTo, aEnvelopeTo) {
     to: aTo,
     subject: "test",
     clobberHeaders: {
-      "envelope-to": aEnvelopeTo
+      "envelope-to": aEnvelopeTo,
     },
   });
   add_message_to_folder(gFolder, msg0);
@@ -95,79 +98,128 @@ function create_replyMsg(aTo, aEnvelopeTo) {
 }
 
 /**
- * all the tests
+ * The tests.
  */
 add_task(function test_reply_identity_selection() {
-
   let tests = [
-    // No catchAll, 'From' will be set to recipient.
     {
-      to: myIdentityEmail2, envelopeTo: myIdentityEmail2,
-      catchAllId1: false, catchAllId2: false,
-      replyIdKey: identity2.key, replyIdFrom: myIdentityEmail2, warning: false
+      desc: "No catchAll, 'From' will be set to recipient",
+      to: myIdentityEmail2,
+      envelopeTo: myIdentityEmail2,
+      catchAllId1: false,
+      catchAllHintId1: "",
+      catchAllId2: false,
+      catchAllHintId2: "",
+      replyIdKey: identity2.key,
+      replyIdFrom: myIdentityEmail2,
+      warning: false,
     },
-    // No catchAll, 'From' will be set to second id's email (without name).
     {
-      to: "Mr.X <" + myIdentityEmail2 + ">", envelopeTo: "",
-      catchAllId1: false, catchAllId2: false,
-      replyIdKey: identity2.key, replyIdFrom: myIdentityEmail2, warning: false
+      desc:
+        "No catchAll, 'From' will be set to second id's email (without name).",
+      to: "Mr.X <" + myIdentityEmail2 + ">",
+      envelopeTo: "",
+      catchAllId1: false,
+      catchAllHintId1: "",
+      catchAllId2: false,
+      catchAllHintId2: "",
+      replyIdKey: identity2.key,
+      replyIdFrom: myIdentityEmail2,
+      warning: false,
     },
-    // With catchAll, 'From' will be set to senders address (with name).
     {
-      to: "Mr.X <" + myIdentityEmail2 + ">", envelopeTo: "",
-      catchAllId1: false, catchAllId2: true,
-      replyIdKey: identity2.key, replyIdFrom: "Mr.X <" + myIdentityEmail2 + ">",
-      warning: false
+      desc: "With catchAll, 'From' will be set to senders address (with name).",
+      to: "Mr.X <" + myIdentityEmail2 + ">",
+      envelopeTo: "",
+      catchAllId1: false,
+      catchAllHintId1: "",
+      catchAllId2: true,
+      catchAllHintId2: "*@" + id2Domain,
+      replyIdKey: identity2.key,
+      replyIdFrom: "Mr.X <" + myIdentityEmail2 + ">",
+      warning: false,
     },
-    // With catchAll, 'From' will be set to senders address (with name).
     {
-      to: myIdentityEmail2, envelopeTo: "Mr.X <" + myIdentityEmail2 + ">",
-      catchAllId1: false, catchAllId2: true,
-      replyIdKey: identity2.key, replyIdFrom: "Mr.X <" + myIdentityEmail2 + ">",
-      warning: false
+      desc:
+        "With catchAll #2, 'From' will be set to senders address (with name).",
+      to: myIdentityEmail2,
+      envelopeTo: "Mr.X <" + myIdentityEmail2 + ">",
+      catchAllId1: false,
+      catchAllHintId1: "",
+      catchAllId2: true,
+      catchAllHintId2: "*@" + id2Domain,
+      replyIdKey: identity2.key,
+      replyIdFrom: "Mr.X <" + myIdentityEmail2 + ">",
+      warning: false,
     },
-    // With catchAll, 'From' will be set to second id's email.
     {
-      to: myIdentityEmail2, envelopeTo: myAdditionalEmail3,
-      catchAllId1: false, catchAllId2: true,
-      replyIdKey: identity2.key, replyIdFrom: myIdentityEmail2, warning: false
+      desc: "With catchAll, 'From' will be set to second id's email.",
+      to: myIdentityEmail2,
+      envelopeTo: envelopeToAddr,
+      catchAllId1: false,
+      catchAllId2: true,
+      replyIdKey: identity2.key,
+      replyIdFrom: myIdentityEmail2,
+      warning: false,
     },
-    // With catchAll, 'From' will be set to myAdditionalEmail3.
     {
-      to: notMyEmail, envelopeTo: myAdditionalEmail3,
-      catchAllId1: false, catchAllId2: true,
-      replyIdKey: identity2.key, replyIdFrom: myAdditionalEmail3,
-      warning: true
+      desc: `With catchAll, 'From' will be set to ${envelopeToAddr}`,
+      to: notMyEmail,
+      envelopeTo: envelopeToAddr,
+      catchAllId1: false,
+      catchAllHintId1: "",
+      catchAllId2: true,
+      catchAllHintId2: "*@" + id2Domain,
+      replyIdKey: identity2.key,
+      replyIdFrom: envelopeToAddr,
+      warning: true,
     },
-    // Without catchAll, mail to another recipient.
     {
-      to: notMyEmail, envelopeTo: "",
-      catchAllId1: false, catchAllId2: false,
-      replyIdKey: identity1.key, replyIdFrom: myIdentityEmail1,
-      warning: false
+      desc: "Without catchAll, mail to another recipient.",
+      to: notMyEmail,
+      envelopeTo: "",
+      catchAllId1: false,
+      catchAllHintId1: "",
+      catchAllId2: false,
+      catchAllHintId2: "",
+      replyIdKey: identity1.key,
+      replyIdFrom: myIdentityEmail1,
+      warning: false,
     },
-    // With catchAll, mail to another recipient (domain not matching).
     {
-      to: notMyEmail, envelopeTo: "",
-      catchAllId1: true, catchAllId2: true,
-      replyIdKey: identity1.key, replyIdFrom: myIdentityEmail1,
-      warning: false
+      desc: " With catchAll, mail to another recipient (domain not matching).",
+      to: notMyEmail,
+      envelopeTo: "",
+      catchAllId1: true,
+      catchAllHintId1: "*@" + id1Domain,
+      catchAllId2: true,
+      catchAllHintId2: "*@" + id2Domain,
+      replyIdKey: identity1.key,
+      replyIdFrom: myIdentityEmail1,
+      warning: false,
     },
   ];
 
   for (let test of tests) {
+    info(`Running test: ${test.desc}`);
     test.replyIndex = create_replyMsg(test.to, test.envelopeTo);
 
     identity1.catchAll = test.catchAllId1;
+    identity1.catchAllHint = test.catchAllHintId1;
+    info(
+      `... identity1.catchAll=${identity1.catchAll}, identity1.catchAllHint=${identity1.catchAllHint}`
+    );
+
     identity2.catchAll = test.catchAllId2;
+    identity2.catchAllHint = test.catchAllHintId2;
+    info(
+      `... identity2.catchAll=${identity2.catchAll}, identity2.catchAllHint=${identity2.catchAllHint}`
+    );
 
     let cwc = open_compose_with_reply();
 
-    checkCompIdentity(
-      cwc,
-      test.replyIdKey,
-      test.replyIdFrom
-    );
+    info("Checking reply identity: " + JSON.stringify(test, null, 2));
+    checkCompIdentity(cwc, test.replyIdKey, test.replyIdFrom);
 
     if (test.warning) {
       wait_for_notification_to_show(
@@ -196,16 +248,16 @@ add_task(function test_reply_identity_selection() {
  * @param aIdentityKey    The key of the expected identity.
  * @param aFrom           The expected displayed From address.
  */
-function checkCompIdentity(cwc, aIdentityKey, aFrom) {
-  Assert.equal(
-    cwc.window.getCurrentIdentityKey(),
-    aIdentityKey,
-    "The From identity is not correctly selected"
-  );
+function checkCompIdentity(cwc, identityKey, from) {
   Assert.equal(
     cwc.window.document.getElementById("msgIdentity").value,
-    aFrom,
-    "The From value was initialized to an unexpected value"
+    from,
+    "msgIdentity value should be as expected."
+  );
+  Assert.equal(
+    cwc.window.getCurrentIdentityKey(),
+    identityKey,
+    "The From identity should be correctly selected."
   );
 }
 

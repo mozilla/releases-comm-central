@@ -51,8 +51,6 @@ function initIdentityValues(identity) {
   if (identity) {
     document.getElementById("identity.fullName").value = identity.fullName;
     document.getElementById("identity.email").value = identity.email;
-    document.getElementById("identity.catchAll").checked =
-      identity.catchAll;
     document.getElementById("identity.replyTo").value = identity.replyTo;
     document.getElementById("identity.organization").value =
       identity.organization;
@@ -72,6 +70,11 @@ function initIdentityValues(identity) {
       identity.attachVCard;
     document.getElementById("identity.escapedVCard").value =
       identity.escapedVCard;
+
+    document.getElementById("identity.catchAll").checked = identity.catchAll;
+    document.getElementById("identity.catchAllHint").value =
+      identity.catchAllHint;
+
     initSmtpServer(identity.smtpServerKey);
 
     // This field does not exist for the default identity shown in the am-main.xhtml pane.
@@ -85,7 +88,6 @@ function initIdentityValues(identity) {
   }
 
   setupSignatureItems();
-  updateCatchAllDomain();
 }
 
 function initCopiesAndFolder(identity) {
@@ -238,9 +240,6 @@ function saveIdentitySettings(identity) {
     }
     identity.fullName = document.getElementById("identity.fullName").value;
     identity.email = document.getElementById("identity.email").value;
-    identity.catchAll = document.getElementById(
-      "identity.catchAll"
-    ).checked;
     identity.replyTo = document.getElementById("identity.replyTo").value;
     identity.organization = document.getElementById(
       "identity.organization"
@@ -260,6 +259,10 @@ function saveIdentitySettings(identity) {
     ).checked;
     identity.escapedVCard = document.getElementById(
       "identity.escapedVCard"
+    ).value;
+    identity.catchAll = document.getElementById("identity.catchAll").checked;
+    identity.catchAllHint = document.getElementById(
+      "identity.catchAllHint"
     ).value;
     identity.smtpServerKey = document.getElementById(
       "identity.smtpServerKey"
@@ -510,29 +513,4 @@ function editCurrentSMTP() {
     args,
     loadSMTPServerList
   );
-}
-
-function updateCatchAllDomain() {
-  let emailAddress = document.getElementById("identity.email").value;
-  let atPos = emailAddress.lastIndexOf("@");
-  let catchAllElem = document.getElementById("identity.catchAll");
-  let prefBundle = document.getElementById("bundle_prefs");
-  // If email address contains some domain part, use this in the checkbox
-  // description. Else disable the whole field and reset catchAll option.
-  if (atPos > 0 && atPos + 1 < emailAddress.length) {
-    catchAllElem.setAttribute("disabled", "false");
-    catchAllElem.setAttribute(
-      "label",
-      prefBundle.getFormattedString("identityCatchAll", [
-        emailAddress.substr(atPos + 1),
-      ])
-    );
-  } else {
-    catchAllElem.setAttribute("disabled", "true");
-    catchAllElem.checked = false;
-    catchAllElem.setAttribute(
-      "label",
-      prefBundle.getFormattedString("identityCatchAll", [ "…"])
-    );
-  }
 }

@@ -41,9 +41,16 @@ interface nsIMsgIdentity : nsISupports {
   attribute ACString email;
 
   /**
-   * Do we use multiple EMail addresses (like Catch-All) with this identity?
+   * Do we use multiple e-mail addresses (like Catch-All) with this identity?
    */
   attribute boolean catchAll;
+
+  /**
+   * Hint for when to use this identity as catch all. It is a comma separated
+   * list of things to look for delivery in headers when replying to a message
+   * that was not directly addressed to a matching identity.
+   */
+  attribute AUTF8String catchAllHint;
 
   /**
    * Formats fullName and email into the proper string to use as sender:

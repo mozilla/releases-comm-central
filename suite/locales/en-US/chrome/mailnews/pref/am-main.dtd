@@ -13,6 +13,8 @@
 <!ENTITY name.accesskey "Y">
 <!ENTITY email.label "Email Address:">
 <!ENTITY email.accesskey "E">
+<!ENTITY catchAll.label "Reply from this identity when delivery headers match:">
+<!ENTITY catchAll.accesskey "d">
 <!ENTITY replyTo.label "Reply-to Address:">
 <!ENTITY replyTo.accesskey "s">
 <!ENTITY replyTo.placeholder "Recipients will reply to this other address">

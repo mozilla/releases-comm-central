@@ -23,7 +23,6 @@ function onInit(aPageId, aServerId) {
   document.title = titleValue;
 
   setupSignatureItems();
-  updateCatchAllDomain();
 }
 
 function onPreInit(account, accountValues) {

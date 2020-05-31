@@ -426,7 +426,7 @@ var MailUtils = {
   getBestIdentity(identities, optionalHint, useDefault = false) {
     let identityCount = identities.length;
     if (identityCount < 1) {
-      return [ null, null ];
+      return [null, null];
     }
 
     // If we have a hint to help us pick one identity, search for a match.
@@ -437,34 +437,28 @@ var MailUtils = {
       );
 
       for (let hint of hints) {
-        for (let identity of identities) {
-          if (!identity.email) {
-            continue;
-          }
+        for (let identity of identities.filter(i => i.email)) {
           if (hint.email.toLowerCase() == identity.email.toLowerCase()) {
-            return [ identity, hint ];
+            return [identity, hint];
           }
         }
       }
 
-      // Lets search again, this time for a matching domain if
-      // catchAll is enabled.
+      // Lets search again, this time for a match from catchAll.
       for (let hint of hints) {
-        let hintParts = hint.email.split("@");
-        if (hintParts.length != 2) {
-          continue;
-        }
-        let hintDomain = hintParts[1].trim().toLowerCase();
-        for (let identity of identities) {
-          if (!identity.email || !identity.catchAll) {
-            continue;
-          }
-          let emailParts = identity.email.split("@");
-          if (emailParts.length != 2) {
-            continue;
-          }
-          if (hintDomain == emailParts[1].trim().toLowerCase()) {
-            return [ identity, hint ];
+        for (let identity of identities.filter(
+          i => i.email && i.catchAll && i.catchAllHint
+        )) {
+          for (let caHint of identity.catchAllHint.toLowerCase().split(",")) {
+            // If the hint started with *@, it applies to the whole domain. In
+            // this case return the hint so it can be used for replying.
+            // If the hint was for a more specific hint, don't return a hint
+            // so that the normal from address for the identity is used.
+            let wholeDomain = caHint.trim().startsWith("*@");
+            caHint = caHint.trim().replace(/^\*/, ""); // Remove initial star.
+            if (hint.email.toLowerCase().includes(caHint)) {
+              return wholeDomain ? [identity, hint] : [identity, null];
+            }
           }
         }
       }
@@ -474,11 +468,11 @@ var MailUtils = {
     if (useDefault) {
       let defaultAccount = MailServices.accounts.defaultAccount;
       if (defaultAccount && defaultAccount.defaultIdentity) {
-        return [ defaultAccount.defaultIdentity, null ];
+        return [defaultAccount.defaultIdentity, null];
       }
     }
 
-    return [ identities[0], null ];
+    return [identities[0], null];
   },
 
   getIdentityForServer(server, optionalHint) {
@@ -530,7 +524,10 @@ var MailUtils = {
     }
 
     if (server) {
-      [identity, matchingHint] = this.getIdentityForServer(server, hintForIdentity);
+      [identity, matchingHint] = this.getIdentityForServer(
+        server,
+        hintForIdentity
+      );
     }
 
     if (!identity) {

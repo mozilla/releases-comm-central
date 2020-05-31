@@ -245,6 +245,11 @@ function ComposeMessage(type, format, folder, messageArray) {
           );
         } else {
           // Replies come here.
+
+          if (ignoreQuote) {
+            type += msgComposeType.ReplyIgnoreQuote;
+          }
+
           let useCatchAll = false;
           // Check if we are using catchAll on any identity. If current
           // folder has some customIdentity set, ignore catchAll settings.
@@ -255,20 +260,21 @@ function ComposeMessage(type, format, folder, messageArray) {
           }
 
           if (useCatchAll) {
-            // If we use catchAll, we need to get all headers
+            // If we use catchAll, we need to get all headers.
             // MsgHdr retrieval is asynchronous, do everything in the callback.
             MsgHdrToMimeMessage(
               hdr,
               null,
-              function(hdr, aMimeMsg) {
-                let catchAllHeaders = Services.prefs.getStringPref(
-                  "mail.compose.catchAllHeaders"
-                ).split(",").map(header => header.toLowerCase().trim());
-                // Collect probable senders addresses from given headers.
+              function(hdr, mimeMsg) {
+                let catchAllHeaders = Services.prefs
+                  .getStringPref("mail.compose.catchAllHeaders")
+                  .split(",")
+                  .map(header => header.toLowerCase().trim());
+                // Collect catchAll hints from given headers.
                 let collectedHeaderAddresses = "";
                 for (let header of catchAllHeaders) {
-                  if (aMimeMsg.has(header)) {
-                    for (let mimeMsgHeader of aMimeMsg.headers[header]) {
+                  if (mimeMsg.has(header)) {
+                    for (let mimeMsgHeader of mimeMsg.headers[header]) {
                       collectedHeaderAddresses +=
                         MailServices.headerParser
                           .parseEncodedHeaderW(mimeMsgHeader)
@@ -284,15 +290,9 @@ function ComposeMessage(type, format, folder, messageArray) {
                 );
 
                 // The found identity might have no catchAll enabled.
-                if (
-                  identity.catchAll &&
-                  matchingHint
-                ) {
+                if (identity.catchAll && matchingHint) {
                   // If name is not set in matchingHint, search trough other hints.
-                  if (
-                    matchingHint.email &&
-                    !matchingHint.name
-                  ) {
+                  if (matchingHint.email && !matchingHint.name) {
                     let hints = MailServices.headerParser.makeFromDisplayAddress(
                       hdr.recipients +
                         "," +

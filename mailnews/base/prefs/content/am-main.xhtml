@@ -73,7 +73,6 @@
                         wsm_persist="true"
                         prefstring="mail.identity.%identitykey%.useremail"
                         class="uri-element input-inline"
-                        oninput="updateCatchAllDomain();"
                         aria-labelledby="identity.email.label"/>
           </html:td>
         </html:tr>
@@ -172,9 +171,17 @@
         <checkbox id="identity.catchAll"
                   wsm_persist="true"
                   prefattribute="value"
+                  label="&catchAll.label;"
                   accesskey="&catchAll.accesskey;"
-                  style="width:100%;"
+                  style="margin-block:auto;"
                   prefstring="mail.identity.%identitykey%.catchAll"/>
+        <html:input id="identity.catchAllHint"
+                    type="text"
+                    wsm_persist="true"
+                    prefstring="mail.identity.%identitykey%.catchAllHint"
+                    class="input-inline"
+                    placeholder="list@example.com, *@example.com"
+                    aria-labelledby="identity.catchAll"/>
       </hbox>
 
       <separator class="thin"/>
