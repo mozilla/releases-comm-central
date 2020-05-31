@@ -129,17 +129,13 @@ class AddrBookDirectory {
   }
 
   init(uri) {
+    let uriParts = /^([\w-]+):\/\/([\w-]+\.sqlite)$/.exec(uri);
+    if (!uriParts) {
+      throw new Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+    }
+
     this._uri = uri;
-
-    let index = uri.indexOf("?");
-    if (index >= 0) {
-      throw new Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
-    }
-    if (/\/MailList\d+$/.test(uri)) {
-      throw new Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
-    }
-
-    let fileName = uri.substring("jsaddrbook://".length);
+    let fileName = uriParts[2];
     if (fileName.includes("/")) {
       fileName = fileName.substring(0, fileName.indexOf("/"));
     }

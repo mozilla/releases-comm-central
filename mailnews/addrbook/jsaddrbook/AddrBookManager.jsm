@@ -39,6 +39,7 @@ XPCOMUtils.defineLazyServiceGetter(
 const LDAP_DIRECTORY_TYPE = 0;
 const MAPI_DIRECTORY_TYPE = 3;
 const JS_DIRECTORY_TYPE = 101;
+const CARDDAV_DIRECTORY_TYPE = 102;
 
 /** Test for valid directory URIs. */
 const URI_REGEXP = /^([\w-]+):\/\/([\w\.-]*)([?/:].*|$)/;
@@ -56,7 +57,7 @@ let listeners = new Map();
 let store = null;
 
 /** Valid address book types. This differs by operating system. */
-let types = ["jsaddrbook", "moz-abldapdirectory"];
+let types = ["jsaddrbook", "jscarddav", "moz-abldapdirectory"];
 if (AppConstants.platform == "macosx") {
   types.push("moz-abosxdirectory");
 } else if (AppConstants.platform == "win") {
@@ -144,6 +145,12 @@ function ensureInitialized() {
               createDirectoryObject(uri, true);
             }
             break;
+          case CARDDAV_DIRECTORY_TYPE:
+            if (fileName) {
+              let uri = `jscarddav://${fileName}`;
+              createDirectoryObject(uri, true);
+            }
+            break;
         }
       }
     } catch (ex) {
@@ -203,6 +210,8 @@ AddrBookManager.prototype = {
             return list;
           }
         }
+        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+      } else if (scheme == "jscarddav") {
         throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
       // `tail` could either point to a mailing list or a query.
@@ -317,7 +326,8 @@ AddrBookManager.prototype = {
         }
         break;
       }
-      case JS_DIRECTORY_TYPE: {
+      case JS_DIRECTORY_TYPE:
+      case CARDDAV_DIRECTORY_TYPE: {
         let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
         file.append("abook.sqlite");
         file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
@@ -327,7 +337,8 @@ AddrBookManager.prototype = {
         Services.prefs.setIntPref(`${prefName}.dirType`, type);
         Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
 
-        uri = `jsaddrbook://${file.leafName}`;
+        let scheme = type == JS_DIRECTORY_TYPE ? "jsaddrbook" : "jscarddav";
+        uri = `${scheme}://${file.leafName}`;
         let dir = createDirectoryObject(uri, true);
         this.notifyDirectoryItemAdded(null, dir);
         Services.obs.notifyObservers(dir, "addrbook-directory-created");

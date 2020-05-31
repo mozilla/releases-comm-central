@@ -102,8 +102,8 @@ var VCardUtils = {
 
     return ICAL.stringify(card);
   },
-  abCardToVCard(abCard) {
-    let vProps = [["version", {}, "text", "4.0"]];
+  abCardToVCard(abCard, version = "4.0") {
+    let vProps = [["version", {}, "text", version]];
 
     // Collect all of the AB card properties into a Map.
     let abProps = new Map();

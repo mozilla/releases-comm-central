@@ -16,10 +16,17 @@ var { MailServices } = ChromeUtils.import(
 );
 var { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
 
-const DIRTYPE_JS = 101;
-
 // Tree Sort helper methods.
-var AB_ORDER = ["aab", "pab", "js", "ldap", "mapi+other", "anyab", "cab"];
+var AB_ORDER = [
+  "aab",
+  "pab",
+  "js",
+  "carddav",
+  "ldap",
+  "mapi+other",
+  "anyab",
+  "cab",
+];
 
 function getDirectoryValue(aDir, aKey) {
   if (aKey == "ab_type") {
@@ -34,6 +41,9 @@ function getDirectoryValue(aDir, aKey) {
     }
     if (aDir._directory.URI.startsWith("jsaddrbook://")) {
       return "js";
+    }
+    if (aDir._directory.URI.startsWith("jscarddav://")) {
+      return "carddav";
     }
     if (aDir._directory instanceof Ci.nsIAbLDAPDirectory) {
       return "ldap";
