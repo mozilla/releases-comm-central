@@ -863,7 +863,10 @@ var defaultController = {
         return !gWindowLocked;
       },
       doCommand() {
-        toggleAttachmentPane();
+        // Here we pick up the inbuilt command event, to check modifiers later.
+        // Note: We cannot pass event along the call chain: Bug 461578 / 959494.
+        // eslint-disable-next-line no-restricted-globals
+        toggleAttachmentPane("toggle", event);
       },
     },
 
@@ -6024,20 +6027,23 @@ function UpdateAttachmentBucket(aShowBucket) {
  */
 function updateAttachmentPane(aShowPane) {
   let bucket = GetMsgAttachmentElement();
-  let bucketCountLabel = document.getElementById("attachmentBucketCount");
-  let words = getComposeBundle().getString("attachmentCount");
   let count = bucket.itemCount;
-  let countStr = PluralForm.get(count, words).replace("#1", count);
 
-  bucketCountLabel.value = countStr;
+  document.l10n.setAttributes(
+    document.getElementById("attachmentBucketCount"),
+    "attachment-bucket-count",
+    { count }
+  );
+
   document.getElementById("attachmentBucketSize").value =
     count > 0 ? gMessenger.formatFileSize(gAttachmentsSize) : "";
   document.getElementById("attachmentBucketCloseButton").collapsed = count > 0;
 
-  let placeholderTooltip = count > 0 ? countStr : "";
-  document
-    .getElementById("attachments-placeholder-box")
-    .setAttribute("tooltiptext", placeholderTooltip);
+  document.l10n.setAttributes(
+    document.getElementById("attachments-placeholder-box"),
+    "attachments-placeholder-tooltip",
+    { count }
+  );
 
   attachmentBucketUpdateTooltips();
 
@@ -6161,13 +6167,6 @@ function RenameSelectedAttachment() {
     item.dispatchEvent(event);
   }
 
-  let reorderAttachmentsPanel = document.getElementById(
-    "reorderAttachmentsPanel"
-  );
-  if (reorderAttachmentsPanel.state == "open") {
-    // Hack to ensure that reorderAttachmentsPanel does not get closed as we exit.
-    bucket.setAttribute("data-ignorenextblur", "true");
-  }
   // Update cmd_sortAttachmentsToggle because renaming may change the current
   // sort order.
   goUpdateCommand("cmd_sortAttachmentsToggle");
@@ -6427,33 +6426,50 @@ function moveSelectedAttachments(aDirection) {
  * Toggle attachment pane view state: show or hide it.
  * If aAction parameter is omitted, toggle current view state.
  *
- * @param aAction {string} "show":   show attachment pane
- *                         "hide":   hide attachment pane
- *                         "toggle": toggle attachment pane visibility
+ * @param {string} [aAction = "toggle"] - "show":   show attachment pane
+ *                                        "hide":   hide attachment pane
+ *                                        "toggle": toggle attachment pane
+ * @param {Event} [event] - The command event (cmd_toggleAttachmentPane)
  */
-function toggleAttachmentPane(aAction = "toggle") {
+function toggleAttachmentPane(aAction = "toggle", event) {
   let bucket = GetMsgAttachmentElement();
   let attachmentsBox = document.getElementById("attachments-box");
   let attachmentBucketSizer = document.getElementById("attachmentbucket-sizer");
+  let bucketHasFocus = document.activeElement == bucket;
 
   if (aAction == "toggle") {
-    aAction = attachmentsBox.collapsed ? "show" : "hide";
+    let shown = !attachmentsBox.collapsed;
+
+    if (shown && !bucketHasFocus && event && event.altKey) {
+      // If attachment pane is shown but not focused, and we're here via
+      // key_toggleAttachmentPane, handle access key here: Focus bucket.
+      bucket.focus();
+      if (bucket.currentItem) {
+        bucket.ensureElementIsVisible(bucket.currentItem);
+      }
+      return;
+    }
+
+    // Toggle attachment pane.
+    aAction = shown ? "hide" : "show";
   }
 
   switch (aAction) {
     case "show": {
-      let shown = !attachmentsBox.collapsed;
       attachmentsBox.collapsed = false;
       attachmentBucketSizer.collapsed = false;
       attachmentBucketSizer.setAttribute("state", "");
-      if (shown) {
+      if (!bucketHasFocus) {
         bucket.focus();
+      }
+      if (bucket.currentItem) {
+        bucket.ensureElementIsVisible(bucket.currentItem);
       }
       break;
     }
 
     case "hide": {
-      if (document.activeElement == bucket) {
+      if (bucketHasFocus) {
         SetMsgBodyFrameFocus();
       }
       attachmentsBox.collapsed = true;
@@ -6461,10 +6477,17 @@ function toggleAttachmentPane(aAction = "toggle") {
       break;
     }
   }
+
+  // Update the checkmark on menuitems hooked up with cmd_toggleAttachmentPane.
+  // Menuitem does not have .checked property nor .toggleAttribute(), sigh.
   for (let menuitem of document.querySelectorAll(
     'menuitem[command="cmd_toggleAttachmentPane"]'
   )) {
-    menuitem.checked = aAction == "show";
+    if (aAction == "show") {
+      menuitem.setAttribute("checked", "true");
+    } else {
+      menuitem.removeAttribute("checked");
+    }
   }
 }
 
@@ -6609,21 +6632,21 @@ function toggleInitiallyShowAttachmentPane(aMenuItem) {
   );
 }
 
+/**
+ * Handle blur event on attachment pane and control visibility of
+ * reorderAttachmentsPanel.
+ */
 function attachmentBucketOnBlur() {
-  // Ensure that reorderAttachmentsPanel remains open while we're focused
-  // on attachmentBucket or the panel, otherwise hide it.
-  let attachmentBucket = document.getElementById("attachmentBucket");
-  if (attachmentBucket.getAttribute("data-ignorenextblur") == "true") {
-    // Hack to prevent the panel from hiding after RenameSelectedAttachment()
-    attachmentBucket.setAttribute("data-ignorenextblur", "false");
-    return;
-  }
   let reorderAttachmentsPanel = document.getElementById(
     "reorderAttachmentsPanel"
   );
+  // If attachment pane has really lost focus, and if reorderAttachmentsPanel is
+  // not currently in the process of showing up, hide reorderAttachmentsPanel.
+  // Otherwise, keep attachments selected and the reorderAttachmentsPanel open
+  // when reordering and after renaming via dialog.
   if (
-    document.activeElement.id != "attachmentBucket" ||
-    document.activeElement.id != "reorderAttachmentsPanel"
+    document.activeElement.id != "attachmentBucket" &&
+    reorderAttachmentsPanel.state != "showing"
   ) {
     reorderAttachmentsPanel.hidePopup();
   }

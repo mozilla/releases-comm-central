@@ -100,6 +100,8 @@ add_task(function test_f6_no_attachment() {
 add_task(function test_f6_attachment() {
   let cwc = open_compose_new_mail();
   add_attachments(cwc, "http://www.mozilla.org/");
+  // Move the initial focus back to the To input.
+  cwc.e("toAddrInput").focus();
   check_element_cycling(cwc, true, false);
   close_compose_window(cwc);
 });
@@ -113,6 +115,8 @@ add_task(function test_ctrl_tab_no_attachment() {
 add_task(function test_ctrl_tab_attachment() {
   let cwc = open_compose_new_mail();
   add_attachments(cwc, "http://www.mozilla.org/");
+  // Move the initial focus back to the To input.
+  cwc.e("toAddrInput").focus();
   check_element_cycling(cwc, true, true);
   close_compose_window(cwc);
 });
