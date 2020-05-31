@@ -11,7 +11,7 @@
     "en-US": {
       "default": {
         "visibleDefaultEngines": [
-          "duckduckgo", "google", "wikipedia", "yahoo", "amazon", "ebay"
+          "duckduckgo-en-US", "google", "wikipedia", "yahoo", "amazon", "ebay", "duckduckgo"
         ]
       }
     },
@@ -20,14 +20,14 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Seznam", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "google", "seznam-cz", "duckduckgo-cs-CZ", "heureka-cz", "mapy-cz", "wikipedia-cz"
+          "google", "seznam-cz", "duckduckgo-cs-CZ", "heureka-cz", "mapy-cz", "wikipedia-cz", "duckduckgo"
         ]
       }
     },
     "de": {
       "default": {
         "visibleDefaultEngines": [
-          "duckduckgo-de-DE", "google", "amazon-de", "wikipedia-de", "yahoo-de", "ebay-de"
+          "duckduckgo-de-DE", "google", "amazon-de", "wikipedia-de", "yahoo-de", "ebay-de", "duckduckgo"
         ]
       }
     },
@@ -35,7 +35,7 @@
       "default": {
         "searchOrder": ["DuckDuckGo", "Google", "Yahoo.co.uk"],
         "visibleDefaultEngines": [
-          "duckduckgo-en-GB", "google", "yahoo-en-GB", "amazon-en-GB", "chambers-en-GB", "wikipedia", "ebay-en-GB"
+          "duckduckgo-en-GB", "google", "yahoo-en-GB", "amazon-en-GB", "chambers-en-GB", "wikipedia", "ebay-en-GB", "duckduckgo"
         ]
       }
     },
@@ -44,14 +44,14 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo Argentina", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "duckduckgo-es-AR", "google", "yahoo-ar", "wikipedia-es"
+          "duckduckgo-es-AR", "google", "yahoo-ar", "wikipedia-es", "duckduckgo"
         ]
       }
     },
     "es-ES": {
       "default": {
         "visibleDefaultEngines": [
-          "drae", "duckduckgo-es-ES", "google", "amazon-es", "wikipedia-es", "yahoo-es", "ebay-es"
+          "drae", "duckduckgo-es-ES", "google", "amazon-es", "wikipedia-es", "yahoo-es", "ebay-es", "duckduckgo"
         ]
       }
     },
@@ -60,7 +60,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "duckduckgo-fi-FI", "huuto-fi", "google", "wikipedia-fi", "yahoo-fi"
+          "duckduckgo-fi-FI", "huuto-fi", "google", "wikipedia-fi", "yahoo-fi", "duckduckgo"
         ]
       }
     },
@@ -69,7 +69,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "cnrtl-tlfi-fr", "duckduckgo-fr-FR", "google", "amazon-fr", "wikipedia-fr", "yahoo-fr", "ebay-fr"
+          "cnrtl-tlfi-fr", "duckduckgo-fr-FR", "google", "amazon-fr", "wikipedia-fr", "yahoo-fr", "ebay-fr", "duckduckgo"
         ]
       }
     },
@@ -78,7 +78,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "duckduckgo-hu-HU", "google", "vatera", "wikipedia-hu"
+          "duckduckgo-hu-HU", "google", "vatera", "wikipedia-hu", "duckduckgo"
         ]
       }
     },
@@ -87,7 +87,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "bing", "google", "hoepli", "duckduckgo-it-IT", "amazon-it", "wikipedia-it", "yahoo-it", "ebay-it"
+          "bing", "google", "hoepli", "duckduckgo-it-IT", "amazon-it", "wikipedia-it", "yahoo-it", "ebay-it", "duckduckgo"
         ]
       }
     },
@@ -96,7 +96,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo! JAPAN", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "google-jp", "yahoo-jp", "amazon-jp", "wikipedia-ja", "duckduckgo-ja-JP"
+          "google-jp", "yahoo-jp", "amazon-jp", "wikipedia-ja", "duckduckgo-ja-JP", "duckduckgo"
         ]
       }
     },
@@ -105,14 +105,14 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo! JAPAN", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "google-jp", "yahoo-jp", "amazon-jp", "wikipedia-ja", "duckduckgo-ja-JP"
+          "google-jp", "yahoo-jp", "amazon-jp", "wikipedia-ja", "duckduckgo-ja-JP", "duckduckgo"
         ]
       }
     },
     "ka": {
       "default": {
         "searchDefault": "Google",
-        "searchOrder": ["Google", "DuckDuckGo"],
+        "searchOrder": ["Google", "DuckDuckGo (Global)"],
         "visibleDefaultEngines": [
           "google", "duckduckgo", "wikipedia-ka"
         ]
@@ -123,7 +123,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "duckduckgo-nb-NO", "google", "wikipedia-NO", "yahoo-NO"
+          "duckduckgo-nb-NO", "google", "wikipedia-NO", "yahoo-NO", "duckduckgo"
         ]
       }
     },
@@ -132,7 +132,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "google", "duckduckgo-nl-NL", "bolcom-nl", "wikipedia-nl", "marktplaats-nl", "yahoo-nl", "ebay-nl"
+          "google", "duckduckgo-nl-NL", "bolcom-nl", "wikipedia-nl", "marktplaats-nl", "yahoo-nl", "ebay-nl", "duckduckgo"
         ]
       }
     },
@@ -141,7 +141,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Startpage", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "allegro-pl", "duckduckgo-pl-PL", "google", "pwn-pl", "startpage-pl", "wikipedia-pl", "wolnelektury-pl"
+          "allegro-pl", "duckduckgo-pl-PL", "google", "pwn-pl", "startpage-pl", "wikipedia-pl", "wolnelektury-pl", "duckduckgo"
         ]
       }
     },
@@ -149,7 +149,7 @@
       "default": {
         "searchDefault": "Google",
         "visibleDefaultEngines": [
-          "google", "duckduckgo-pt-BR", "yahoo-br", "amazon-br", "bing", "wikipedia-pt"
+          "google", "duckduckgo-pt-BR", "yahoo-br", "amazon-br", "bing", "wikipedia-pt", "duckduckgo"
         ]
       }
     },
@@ -157,7 +157,7 @@
       "default": {
         "searchOrder": ["DuckDuckGo", "Google", "SAPO", "Priberam", "Wikipedia (pt)"],
         "visibleDefaultEngines": [
-          "duckduckgo-pt-PT", "google", "sapo", "priberam", "wikipedia-pt"
+          "duckduckgo-pt-PT", "google", "sapo", "priberam", "wikipedia-pt", "duckduckgo"
         ]
       }
     },
@@ -166,7 +166,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "duckduckgo-ru-RU", "google", "wikipedia-ru"
+          "duckduckgo-ru-RU", "google", "wikipedia-ru", "duckduckgo"
         ]
       }
     },
@@ -175,7 +175,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Azet", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "google", "azet-sk", "atlas-sk", "zoznam-sk", "wikipedia-sk", "duckduckgo-sk-SK"
+          "google", "azet-sk", "atlas-sk", "zoznam-sk", "wikipedia-sk", "duckduckgo-sk-SK", "duckduckgo"
         ]
       }
     },
@@ -183,7 +183,7 @@
       "default": {
         "searchOrder": ["DuckDuckGo", "Google", "Bing"],
         "visibleDefaultEngines": [
-          "duckduckgo-sv-SE", "bing", "google", "prisjakt-sv-SE", "tyda-sv-SE", "wikipedia-sv-SE", "yahoo-sv-SE"
+          "duckduckgo-sv-SE", "bing", "google", "prisjakt-sv-SE", "tyda-sv-SE", "wikipedia-sv-SE", "yahoo-sv-SE", "duckduckgo"
         ]
       }
     },
@@ -192,7 +192,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo!", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "google", "duckduckgo-zh-CN", "amazon-zh-CN", "wikipedia-zh-CN", "yahoo-zh-CN"
+          "google", "duckduckgo-zh-CN", "amazon-zh-CN", "wikipedia-zh-CN", "yahoo-zh-CN", "duckduckgo"
         ]
       }
     },
@@ -201,7 +201,7 @@
         "searchDefault": "Google",
         "searchOrder": ["Google", "Yahoo!", "DuckDuckGo"],
         "visibleDefaultEngines": [
-          "yahoo-zh-TW", "google", "duckduckgo-zh-TW", "yahoo-bid-zh-TW", "wikipedia-zh-TW"
+          "yahoo-zh-TW", "google", "duckduckgo-zh-TW", "yahoo-bid-zh-TW", "wikipedia-zh-TW", "duckduckgo"
         ]
       }
     }
