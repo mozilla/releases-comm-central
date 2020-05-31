@@ -52,7 +52,7 @@ messenger.jar:
     content/messenger/aboutDialog-appUpdater.js     (content/aboutDialog-appUpdater.js)
 *   content/messenger/aboutDialog.xhtml             (content/aboutDialog.xhtml)
     content/messenger/aboutDialog.js                (content/aboutDialog.js)
-*   content/messenger/aboutRights.xhtml             (content/aboutRights.xhtml)
+    content/messenger/aboutRights.xhtml             (content/aboutRights.xhtml)
     content/messenger/newInstallPage.html           (content/newInstallPage.html)
 *   content/messenger/systemIntegrationDialog.xhtml (content/systemIntegrationDialog.xhtml)
     content/messenger/systemIntegrationDialog.js    (content/systemIntegrationDialog.js)

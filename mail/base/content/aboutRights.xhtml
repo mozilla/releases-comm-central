@@ -2,68 +2,75 @@
 <!DOCTYPE html [
   <!ENTITY % htmlDTD PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
   %htmlDTD;
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-  %brandDTD;
-  <!ENTITY % aboutRightsDTD SYSTEM "chrome://messenger/locale/aboutRights.dtd">
-  %aboutRightsDTD;
 ]>
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-  <meta http-equiv="Content-Security-Policy" content="default-src chrome:"/>
-  <title>&rights.title;</title>
-  <link rel="stylesheet" href="chrome://global/skin/about.css" type="text/css"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src chrome:; object-src 'none'" />
+  <title data-l10n-id="rights-title"></title>
+  <link rel="stylesheet" href="chrome://global/skin/in-content/info-pages.css" type="text/css"/>
+  <link rel="stylesheet" href="chrome://global/skin/aboutRights.css" type="text/css"/>
+  <link rel="localization" href="branding/brand.ftl"/>
+  <link rel="localization" href="messenger/aboutRights.ftl"/>
 </head>
 
-<body id="your-rights" dir="&rights.locale-direction;" class="aboutPageWideContainer">
+<body id="your-rights">
+<div class="container">
+  <div class="rights-header">
+    <div>
+      <h1 data-l10n-id="rights-title"></h1>
 
-<h1>&rights.intro-header;</h1>
+      <p data-l10n-id="rights-intro"></p>
+    </div>
+  </div>
 
-<p>&rights.intro;</p>
+  <ul>
+    <li data-l10n-id="rights-intro-point-1"><a href="http://www.mozilla.org/MPL/" data-l10n-name="mozilla-public-license-link"></a></li>
+  <!-- Point 2 discusses Mozilla trademarks, and isn't needed when the build is unbranded.
+    - Point 4 discusses privacy policy, unbranded builds get a placeholder (for the vendor to replace)
+    - Point 5 discusses web service terms, unbranded builds gets a placeholder (for the vendor to replace) -->
+    <li data-l10n-id="rights-intro-point-2"><a href="http://www.mozilla.org/foundation/trademarks/policy.html" data-l10n-name="mozilla-trademarks-link"></a></li>
+    <li data-l10n-id="rights-intro-point-3"></li>
+    <li data-l10n-id="rights-intro-point-4"><a href="https://www.mozilla.org/legal/privacy/firefox.html" data-l10n-name="mozilla-privacy-policy-link"></a></li>
+    <li data-l10n-id="rights-intro-point-5"><a href="about:rights#webservices" id="showWebServices" data-l10n-name="mozilla-service-terms-link"></a></li>
+    <li data-l10n-id="rights-intro-point-6"></li>
+  </ul>
 
-<ul>
-  <li>&rights.intro-point1a;<a href="https://www.mozilla.org/MPL/">&rights.intro-point1b;</a>&rights.intro-point1c;</li>
-#ifdef MOZ_OFFICIAL_BRANDING
-# Point 2 discusses Mozilla trademarks, and isn't needed when the build is unbranded.
-# Point 3 discusses privacy policy, unbranded builds get a placeholder (for the vendor to replace)
-  <li>&rights.intro-point2a;<a href="https://www.mozilla.org/foundation/trademarks/policy.html">&rights.intro-point2b;</a>&rights.intro-point2c;</li>
-  <li>&rights.intro-point3a;<a href="https://www.mozilla.org/legal/privacy/">&rights.intro-point3b;</a>&rights.intro-point3c;</li>
-  <li>&rights.intro-point4a;<a href="about:rights#webservices" id="showWebServices">&rights.intro-point4b;</a>&rights.intro-point4c;</li>
-#else
-  <li>&rights.intro-point3-unbranded;</li>
-  <li>&rights.intro-point4a-unbranded;<a href="about:rights#webservices" id="showWebServices">&rights.intro-point4b-unbranded;</a>&rights.intro-point4c-unbranded;</li>
-#endif
-</ul>
+  <div id="webservices-container">
+    <a name="webservices"/>
+    <h3 data-l10n-id="rights-webservices-header"></h3>
 
-<div id="webservices-container">
-  <a name="webservices"/>
-  <h3>&rights.webservices-header;</h3>
+    <p data-l10n-id="rights-webservices"><a href="about:rights#disabling-webservices" id="showDisablingWebServices" data-l10n-name="mozilla-disable-service-link"></a></p>
 
-#ifdef MOZ_OFFICIAL_BRANDING
-  <p>&rights.webservices-a;<code>&rights.webservices-b;</code>&rights.webservices-c;<code>&rights.webservices-d;</code>&rights.webservices-e;</p>
-#else
-  <p>&rights.webservices-unbranded;</p>
-#endif
+    <div id="disabling-webservices-container" style="margin-left:40px;">
+      <a name="disabling-webservices"/>
+      <p data-l10n-id="rights-locationawarebrowsing"></p>
+      <ul>
+        <li data-l10n-id="rights-locationawarebrowsing-term-1"></li>
+        <li data-l10n-id="rights-locationawarebrowsing-term-2"></li>
+        <li data-l10n-id="rights-locationawarebrowsing-term-3"></li>
+        <li data-l10n-id="rights-locationawarebrowsing-term-4"></li>
+      </ul>
+    </div>
 
-  <ol>
-#ifdef MOZ_OFFICIAL_BRANDING
-# Terms only apply to official builds, unbranded builds get a placeholder.
-    <li>&rights.webservices-term1;</li>
-    <li>&rights.webservices-term2;</li>
-    <li><strong>&rights.webservices-term3;</strong></li>
-    <li><strong>&rights.webservices-term4;</strong></li>
-    <li>&rights.webservices-term5;</li>
-    <li>&rights.webservices-term6;</li>
-#else
-    <li>&rights.webservices-term1-unbranded;</li>
-#endif
-  </ol>
+    <ol>
+  <!-- Terms only apply to official builds, unbranded builds get a placeholder. -->
+      <li data-l10n-id="rights-webservices-term-1"></li>
+      <li data-l10n-id="rights-webservices-term-2"></li>
+      <li data-l10n-id="rights-webservices-term-3"></li>
+      <li data-l10n-id="rights-webservices-term-4"></li>
+      <li data-l10n-id="rights-webservices-term-5"></li>
+      <li data-l10n-id="rights-webservices-term-6"></li>
+      <li data-l10n-id="rights-webservices-term-7"></li>
+    </ol>
+  </div>
 </div>
 
-  <script src="chrome://global/content/aboutRights.js"/>
 </body>
+<script src="chrome://global/content/aboutRights.js"/>
 </html>
