@@ -346,6 +346,10 @@
   list-style-image: url("chrome://messenger/skin/icons/quote.svg");
 }
 
+#button-returnReceipt {
+  list-style-image: url("chrome://messenger/skin/icons/return-receipt.svg");
+}
+
 #cut-button {
   list-style-image: url("chrome://messenger/skin/icons/cut.svg");
 }

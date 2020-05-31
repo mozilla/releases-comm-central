@@ -1056,6 +1056,25 @@ var defaultController = {
       },
     },
 
+    cmd_toggleReturnReceipt: {
+      isEnabled() {
+        let cmdToggleReturnReceipt = document.getElementById(
+          "cmd_toggleReturnReceipt"
+        );
+        let msgCompFields = gMsgCompose.compFields;
+        // Update checkmarks on all UI elements associated with the command.
+        cmdToggleReturnReceipt.setAttribute(
+          "checked",
+          msgCompFields.returnReceipt
+        );
+
+        return !gWindowLocked;
+      },
+      doCommand() {
+        ToggleReturnReceipt();
+      },
+    },
+
     cmd_fullZoomReduce: {
       isEnabled() {
         return true;
@@ -1547,6 +1566,7 @@ function updateComposeItems() {
 
     // Workaround to update 'Quote' toolbar button. (See bug 609926.)
     goUpdateCommand("cmd_quoteMessage");
+    goUpdateCommand("cmd_toggleReturnReceipt");
   } catch (e) {}
 }
 
@@ -1865,6 +1885,11 @@ function updateEditItems() {
 
 function updateViewItems() {
   goUpdateCommand("cmd_toggleAttachmentPane");
+}
+
+function updateOptionItems() {
+  goUpdateCommand("cmd_quoteMessage");
+  goUpdateCommand("cmd_toggleReturnReceipt");
 }
 
 function updateAttachmentItems() {
@@ -2434,10 +2459,6 @@ function convertToRegularAttachment(aAttachments) {
   }
 
   convertListItemsToRegularAttachment(items);
-}
-
-function updateOptionItems() {
-  goUpdateCommand("cmd_quoteMessage");
 }
 
 /* messageComposeOfflineQuitObserver is notified whenever the network
@@ -4235,9 +4256,9 @@ function GenericSendMessage(msgType) {
   let msgCompFields = GetComposeDetails();
   let subject = msgCompFields.subject;
 
-  // Some other msgCompFields have already been updated instantly in their respective
-  // toggle functions, e.g. ToggleReturnReceipt(), ToggleDSN(),  ToggleAttachVCard(),
-  // and toggleAttachmentReminder().
+  // Some other msgCompFields have already been updated instantly in their
+  // respective toggle functions, e.g. ToggleReturnReceipt(), ToggleDSN(),
+  // ToggleAttachVCard(), and toggleAttachmentReminder().
 
   let sending =
     msgType == Ci.nsIMsgCompDeliverMode.Now ||
@@ -5243,17 +5264,20 @@ function updateEncodingInStatusBar() {
   encodingStatusPanel.collapsed = !(encodingStatusPanel.value = encodingUIString);
 }
 
-function ToggleReturnReceipt(target) {
-  var msgCompFields = gMsgCompose.compFields;
+/**
+ * Toggle Return Receipt (Disposition-Notification-To: header).
+ */
+function ToggleReturnReceipt() {
+  let msgCompFields = gMsgCompose.compFields;
   if (msgCompFields) {
     msgCompFields.returnReceipt = !msgCompFields.returnReceipt;
-    target.setAttribute("checked", msgCompFields.returnReceipt);
+    goUpdateCommand("cmd_toggleReturnReceipt");
     gReceiptOptionChanged = true;
   }
 }
 
 function ToggleDSN(target) {
-  var msgCompFields = gMsgCompose.compFields;
+  let msgCompFields = gMsgCompose.compFields;
   if (msgCompFields) {
     msgCompFields.DSN = !msgCompFields.DSN;
     target.setAttribute("checked", msgCompFields.DSN);
@@ -5479,7 +5503,13 @@ function ComposeCanClose() {
   }
 
   // Returns FALSE only if user cancels save action
-  if (gContentChanged || gMsgCompose.bodyModified || gAutoSaveKickedIn) {
+  if (
+    gContentChanged ||
+    gMsgCompose.bodyModified ||
+    gAutoSaveKickedIn ||
+    gReceiptOptionChanged ||
+    gDSNOptionChanged
+  ) {
     // call window.focus, since we need to pop up a dialog
     // and therefore need to be visible (to prevent user confusion)
     window.focus();
@@ -6931,9 +6961,7 @@ function LoadIdentity(startup) {
         prevReceipt != newReceipt
       ) {
         msgCompFields.returnReceipt = newReceipt;
-        document
-          .getElementById("returnReceiptMenu")
-          .setAttribute("checked", msgCompFields.returnReceipt);
+        goUpdateCommand("cmd_toggleReturnReceipt");
       }
 
       if (

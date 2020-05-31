@@ -37,3 +37,7 @@ pill-action-move-cc =
 pill-action-move-bcc =
     .label = Move to Bcc
     .accesskey = B
+
+button-return-receipt =
+    .label = Receipt
+    .tooltiptext = Request a return receipt for this message

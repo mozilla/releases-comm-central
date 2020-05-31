@@ -352,6 +352,8 @@
 
   <!-- Options Menu -->
   <command id="cmd_quoteMessage" oncommand="goDoCommand('cmd_quoteMessage')"/>
+  <command id="cmd_toggleReturnReceipt"
+           oncommand="goDoCommand('cmd_toggleReturnReceipt')"/>
   <command id="cmd_insert"/>
   <command id="cmd_viewSecurityStatus"
            oncommand="showMessageComposeSecurityStatus();"/>
@@ -1702,7 +1704,11 @@
                     accesskey="&quoteCmd.accesskey;"
                     command="cmd_quoteMessage"/>
           <menuseparator/>
-          <menuitem id="returnReceiptMenu" type="checkbox" label="&returnReceiptMenu.label;" accesskey="&returnReceiptMenu.accesskey;" checked="false" oncommand="ToggleReturnReceipt(event.target)"/>
+          <menuitem id="returnReceiptMenu" type="checkbox"
+                    label="&returnReceiptMenu.label;"
+                    accesskey="&returnReceiptMenu.accesskey;"
+                    checked="false"
+                    command="cmd_toggleReturnReceipt"/>
           <menuitem id="dsnMenu" type="checkbox" label="&dsnMenu.label;" accesskey="&dsnMenu.accesskey;" oncommand="ToggleDSN(event.target)"/>
           <menuseparator/>
           <menu id="charsetMenu"
@@ -2082,6 +2088,11 @@
       </menulist>
     </toolbaritem>
 
+    <toolbarbutton id="button-returnReceipt"
+                   class="toolbarbutton-1"
+                   data-l10n-id="button-return-receipt"
+                   type="checkbox" autoCheck="false"
+                   command="cmd_toggleReturnReceipt"/>
   </toolbarpalette>
   <toolbar is="customizable-toolbar" id="composeToolbar2" class="chromeclass-toolbar"
            toolbarname="&showCompositionToolbarCmd.label;"
