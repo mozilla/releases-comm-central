@@ -878,6 +878,14 @@
         firstTab.browser = this.getBrowserForTab(firstTab);
         firstTab.browser._activeTabId = firstTab.tabId;
 
+        // Register browser progress listeners. For firstTab, it is the shared
+        // #messagepane so only do it once.
+        firstTab.browser.webProgress.addProgressListener(
+          this.progressListener,
+          Ci.nsIWebProgress.NOTIFY_ALL
+        );
+        firstTab.browser._progressListenerAdded = true;
+
         for (let tabMonitor of this.tabMonitors) {
           if ("onTabOpened" in tabMonitor) {
             tabMonitor.onTabOpened(firstTab, true);
