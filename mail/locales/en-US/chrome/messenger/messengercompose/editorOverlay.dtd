@@ -4,25 +4,12 @@
 
 <!-- Attn: Localization - some of the menus in this dialog directly affect mail also. -->
 
-<!-- File menu items -->
-<!ENTITY saveCmd.key "S">
-
 <!-- Edit menu items -->
 <!ENTITY pasteNoFormatting.label "Paste Without Formatting">
 <!ENTITY pasteNoFormatting.accesskey "n">
 <!ENTITY pasteNoFormatting.key "V">
-<!ENTITY pasteAs.label "Paste As">
-<!ENTITY pasteAs.accesskey "a">
 <!ENTITY pasteAsQuotationCmd.label "Paste As Quotation">
 <!ENTITY pasteAsQuotationCmd.accesskey "Q">
-<!ENTITY pasteAsQuotationCmd.key "o">
-<!ENTITY findBarCmd.label "Find…">
-<!ENTITY findReplaceCmd.label "Find and Replace…">
-<!ENTITY enableInlineSpellChecker.label "Spellcheck As You Type">
-<!ENTITY enableInlineSpellChecker.accesskey "S">
-<!ENTITY checkSpellingCmd2.label "Check Spelling…">
-<!ENTITY checkSpellingCmd2.accesskey "h">
-<!ENTITY checkSpellingCmd2.key "p">
 
 <!-- Insert menu items -->
 <!ENTITY insertMenu.label "Insert">
@@ -184,9 +171,6 @@
 <!-- Shared in Paragraph, and Toolbar menulist -->
 <!ENTITY bodyTextCmd.label "Body Text">
 <!ENTITY bodyTextCmd.accesskey "T">
-<!-- isn't used in menu now, but may be added in future -->
-<!ENTITY advancedPropertiesCmd.label "Advanced Properties">
-<!ENTITY advancedPropertiesCmd.accesskey "v">
 
 <!-- Align menu items -->
 <!ENTITY alignMenu.label "Align">
@@ -203,11 +187,6 @@
 <!ENTITY alignJustify.label "Justify">
 <!ENTITY alignJustify.accesskey "J">
 <!ENTITY alignJustify.tooltip "Align Justified">
-
-<!-- Layer toolbar items -->
-<!ENTITY layer.tooltip "Layer">
-<!ENTITY layerSendToBack.tooltip "Send to Back">
-<!ENTITY layerBringToFront.tooltip "Bring to Front">
 
 <!ENTITY increaseIndent.label "Increase Indent">
 <!ENTITY increaseIndent.accesskey "I">
@@ -283,17 +262,6 @@
 <!ENTITY tableProperties.accesskey "o">
 
 <!-- Toolbar-only items -->
-<!ENTITY menuBar.tooltip "Menu Bar">
-<!ENTITY formatToolbar.tooltip "Formatting Toolbar">
-<!ENTITY cutToolbarCmd.tooltip "Cut">
-<!ENTITY copyToolbarCmd.tooltip "Copy">
-<!ENTITY pasteToolbarCmd.tooltip "Paste">
-<!ENTITY printToolbarCmd.label "Print">
-<!ENTITY printToolbarCmd.tooltip "Print this page">
-<!ENTITY findToolbarCmd.label "Find">
-<!ENTITY findToolbarCmd.tooltip "Find text in page">
-<!ENTITY spellToolbarCmd.label "Spell">
-<!ENTITY spellToolbarCmd.tooltip "Check spelling of selection or entire page">
 <!ENTITY imageToolbarCmd.label "Image">
 <!ENTITY imageToolbarCmd.tooltip "Insert new image or edit selected image's properties">
 <!ENTITY hruleToolbarCmd.label "H.Line">
@@ -306,8 +274,6 @@
 <!ENTITY anchorToolbarCmd.tooltip "Insert new named anchor or edit selected anchor's properties">
 <!ENTITY TextColorButton.tooltip "Choose color for text">
 <!ENTITY BackgroundColorButton.tooltip "Choose color for background">
-<!ENTITY throbber.tooltip2 "Go to the &brandShortName; home page">
-<!ENTITY HighlightColorButton.tooltip "Choose highlight color for text">
 
 <!-- Editor toolbar -->
 <!ENTITY absoluteFontSizeToolbarCmd.tooltip "Set font size">
@@ -326,14 +292,6 @@
 <!ENTITY alignCenterButton.tooltip "Align text centered">
 <!ENTITY alignRightButton.tooltip "Align text along right margin">
 <!ENTITY alignJustifyButton.tooltip "Align text along left and right margins">
-
-<!-- Structure Toolbar Context Menu items -->
-<!ENTITY structSelect.label         "Select">
-<!ENTITY structSelect.accesskey     "s">
-<!ENTITY structRemoveTag.label      "Remove tag">
-<!ENTITY structRemoveTag.accesskey  "r">
-<!ENTITY structChangeTag.label      "Change tag">
-<!ENTITY structChangeTag.accesskey  "c">
 
 <!-- TOC manipulation -->
 <!ENTITY insertTOC.label          "Insert">
