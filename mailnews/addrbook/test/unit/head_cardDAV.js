@@ -8,10 +8,14 @@ const { CardDAVDirectory } = ChromeUtils.import(
 const { CardDAVServer } = ChromeUtils.import(
   "resource://testing-common/CardDAVServer.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 Cu.importGlobalProperties(["fetch"]);
 
 do_get_profile();
+
+registerCleanupFunction(function() {
+  load("../../../resources/mailShutdown.js");
+});
 
 async function checkCardsOnServer(expectedCards) {
   // Send a request to the server. When the server responds, we know it has
