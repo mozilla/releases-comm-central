@@ -8,10 +8,6 @@ var { AddonManager } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-document.addEventListener("dialogaccept", onOK);
-document.addEventListener("dialogcancel", onCancel);
-document.addEventListener("dialogextra1", () => window.close());
-
 function restartApp() {
   Services.startup.quit(
     Services.startup.eForceQuit | Services.startup.eRestart
@@ -27,24 +23,21 @@ function deleteLocalstore() {
   }
 }
 
-function disableAddons() {
-  AddonManager.getAllAddons(function(aAddons) {
-    aAddons.forEach(function(aAddon) {
-      if (aAddon.type == "theme") {
-        // Setting userDisabled to false on the default theme activates it,
-        // disables all other themes and deactivates the applied persona, if
-        // any.
-        const DEFAULT_THEME_ID = "{972ce4c6-7e08-4474-a285-3208198ce6fd}";
-        if (aAddon.id == DEFAULT_THEME_ID) {
-          aAddon.userDisabled = false;
-        }
-      } else {
-        aAddon.userDisabled = true;
+async function disableAddons() {
+  for (let addon of await AddonManager.getAllAddons()) {
+    if (addon.type == "theme") {
+      // Setting userDisabled to false on the default theme activates it,
+      // disables all other themes and deactivates the applied persona, if
+      // any.
+      const DEFAULT_THEME_ID = "{972ce4c6-7e08-4474-a285-3208198ce6fd}";
+      if (addon.id == DEFAULT_THEME_ID) {
+        addon.userDisabled = false;
       }
-    });
-
-    restartApp();
-  });
+    } else {
+      addon.userDisabled = true;
+    }
+  }
+  restartApp();
 }
 
 function onOK(event) {
@@ -58,7 +51,9 @@ function onOK(event) {
       event.preventDefault();
       return;
     }
-  } catch (e) {}
+  } catch (e) {
+    Cu.reportError(e);
+  }
 
   restartApp();
   event.preventDefault();
@@ -72,6 +67,10 @@ function onLoad() {
   document
     .getElementById("tasks")
     .addEventListener("CheckboxStateChange", updateOKButtonState);
+
+  document.addEventListener("dialogaccept", onOK);
+  document.addEventListener("dialogcancel", onCancel);
+  document.addEventListener("dialogextra1", () => window.close());
 }
 
 function updateOKButtonState() {
