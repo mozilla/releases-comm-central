@@ -29,6 +29,8 @@ XPCOMUtils.defineLazyGetter(this, "L10n", () => {
   ]);
 });
 
+const PREF_UPLOAD_ENABLED = "datareporting.healthreport.uploadEnabled";
+
 Preferences.addAll([
   { id: "mail.spam.manualMark", type: "bool" },
   { id: "mail.spam.manualMarkMode", type: "int" },
@@ -56,8 +58,25 @@ Preferences.addAll([
   { id: "security.OCSP.enabled", type: "int" },
 ]);
 
-if (AppConstants.MOZ_TELEMETRY_REPORTING) {
-  Preferences.add({ id: "toolkit.telemetry.enabled", type: "bool" });
+if (AppConstants.MOZ_DATA_REPORTING) {
+  Preferences.addAll([
+    // Preference instances for prefs that we need to monitor while the page is open.
+    { id: PREF_UPLOAD_ENABLED, type: "bool" },
+  ]);
+}
+
+// Data Choices tab
+if (AppConstants.MOZ_CRASHREPORTER) {
+  Preferences.add({
+    id: "browser.crashReports.unsubmittedCheck.autoSubmit2",
+    type: "bool",
+  });
+}
+
+function setEventListener(aId, aEventType, aCallback) {
+  document
+    .getElementById(aId)
+    .addEventListener(aEventType, aCallback.bind(gPrivacyPane));
 }
 
 var gPrivacyPane = {
@@ -69,10 +88,23 @@ var gPrivacyPane = {
 
     this._initMasterPasswordUI();
 
-    if (AppConstants.MOZ_CRASHREPORTER) {
-      this.initSubmitCrashes();
+    if (AppConstants.MOZ_DATA_REPORTING) {
+      this.initDataCollection();
+      if (AppConstants.MOZ_CRASHREPORTER) {
+        this.initSubmitCrashes();
+      }
+      this.initSubmitHealthReport();
+      setEventListener(
+        "submitHealthReportBox",
+        "command",
+        gPrivacyPane.updateSubmitHealthReport
+      );
+      setEventListener(
+        "telemetryDataDeletionLearnMore",
+        "command",
+        gPrivacyPane.showDataDeletion
+      );
     }
-    this.initTelemetry();
 
     this.readAcceptCookies();
     let element = document.getElementById("acceptCookies");
@@ -391,67 +423,6 @@ var gPrivacyPane = {
   },
 
   /**
-   * Set up or hide the Learn More links for various data collection options
-   */
-  _setupLearnMoreLink(pref, element) {
-    // set up the Learn More link with the correct URL
-    let url = Services.prefs.getCharPref(pref);
-    let el = document.getElementById(element);
-
-    if (url) {
-      el.setAttribute("href", url);
-    } else {
-      el.setAttribute("hidden", "true");
-    }
-  },
-
-  initSubmitCrashes() {
-    var checkbox = document.getElementById("submitCrashesBox");
-    try {
-      var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"].getService(
-        Ci.nsICrashReporter
-      );
-      checkbox.checked = cr.submitReports;
-    } catch (e) {
-      checkbox.style.display = "none";
-    }
-    this._setupLearnMoreLink(
-      "toolkit.crashreporter.infoURL",
-      "crashReporterLearnMore"
-    );
-  },
-
-  updateSubmitCrashReports(aChecked) {
-    Cc["@mozilla.org/toolkit/crash-reporter;1"].getService(
-      Ci.nsICrashReporter
-    ).submitReports = aChecked;
-  },
-
-  updateSubmitCrashes() {
-    var checkbox = document.getElementById("submitCrashesBox");
-    try {
-      var cr = Cc["@mozilla.org/toolkit/crash-reporter;1"].getService(
-        Ci.nsICrashReporter
-      );
-      cr.submitReports = checkbox.checked;
-    } catch (e) {}
-  },
-
-  /**
-   * The preference/checkbox is configured in XUL.
-   *
-   * In all cases, set up the Learn More link sanely
-   */
-  initTelemetry() {
-    if (AppConstants.MOZ_TELEMETRY_REPORTING) {
-      this._setupLearnMoreLink(
-        "toolkit.telemetry.infoURL",
-        "telemetryLearnMore"
-      );
-    }
-  },
-
-  /**
    * Display the user's certificates and associated options.
    */
   showCertificates() {
@@ -484,6 +455,85 @@ var gPrivacyPane = {
    */
   showSecurityDevices() {
     gSubDialog.open("chrome://pippki/content/device_manager.xhtml");
+  },
+
+  /**
+   * Displays the learn more health report page when a user opts out of data collection.
+   */
+  showDataDeletion() {
+    let url =
+      Services.urlFormatter.formatURLPref("app.support.baseURL") +
+      "telemetry-clientid";
+    window.open(url, "_blank");
+  },
+
+  initDataCollection() {
+    this._setupLearnMoreLink(
+      "toolkit.datacollection.infoURL",
+      "dataCollectionPrivacyNotice"
+    );
+  },
+
+  initSubmitCrashes() {
+    this._setupLearnMoreLink(
+      "toolkit.crashreporter.infoURL",
+      "crashReporterLearnMore"
+    );
+  },
+
+  /**
+   * Set up or hide the Learn More links for various data collection options
+   */
+  _setupLearnMoreLink(pref, element) {
+    // set up the Learn More link with the correct URL
+    let url = Services.urlFormatter.formatURLPref(pref);
+    let el = document.getElementById(element);
+
+    if (url) {
+      el.setAttribute("href", url);
+    } else {
+      el.setAttribute("hidden", "true");
+    }
+  },
+
+  /**
+   * Initialize the health report service reference and checkbox.
+   */
+  initSubmitHealthReport() {
+    this._setupLearnMoreLink(
+      "datareporting.healthreport.infoURL",
+      "FHRLearnMore"
+    );
+
+    let checkbox = document.getElementById("submitHealthReportBox");
+
+    // Telemetry is only sending data if MOZ_TELEMETRY_REPORTING is defined.
+    // We still want to display the preferences panel if that's not the case, but
+    // we want it to be disabled and unchecked.
+    if (
+      Services.prefs.prefIsLocked(PREF_UPLOAD_ENABLED) ||
+      !AppConstants.MOZ_TELEMETRY_REPORTING
+    ) {
+      checkbox.setAttribute("disabled", "true");
+      return;
+    }
+
+    checkbox.checked =
+      Services.prefs.getBoolPref(PREF_UPLOAD_ENABLED) &&
+      AppConstants.MOZ_TELEMETRY_REPORTING;
+  },
+
+  /**
+   * Update the health report preference with state from checkbox.
+   */
+  updateSubmitHealthReport() {
+    let checkbox = document.getElementById("submitHealthReportBox");
+
+    Services.prefs.setBoolPref(PREF_UPLOAD_ENABLED, checkbox.checked);
+
+    // If allow telemetry is checked, hide the box saying you're no longer
+    // allowing it.
+    document.getElementById("telemetry-container").hidden = checkbox.checked;
   },
 };
 

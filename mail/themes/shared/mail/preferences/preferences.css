@@ -350,6 +350,12 @@ html|input.indent {
   margin-inline-end: 10px;
 }
 
+.learnMore {
+  margin-inline-start: 0;
+  font-weight: normal;
+  white-space: nowrap;
+}
+
 .update-throbber {
   width: 16px;
   min-height: 16px;
@@ -391,9 +397,21 @@ html|input.indent {
   margin-inline-start: 6px !important;
 }
 
-#telemetryLearnMore,
-#crashReporterLearnMore {
-  margin-inline-end: 4px !important;
+#telemetry-container {
+  border-radius: 4px;
+  background-color: rgba(12, 12, 13, 0.2);
+  font-size: 85%;
+  padding: 3px;
+  margin-block: 4px;
+  width: 100%;
+}
+
+#dataDescriptionBox {
+  line-height: 1.3em;
+}
+
+#submitHealthReportBox {
+  display: -moz-inline-box;
 }
 
 /* Remove the start margin to align these elements */

@@ -186,36 +186,63 @@
     <hbox id="privacyDataCollectionCategory"
           class="subcategory"
           data-category="panePrivacy">
-      <html:h1 data-l10n-id="privacy-data-collection-header"/>
+      <html:h1 data-l10n-id="collection-header"/>
     </hbox>
 
-#ifdef MOZ_TELEMETRY_REPORTING
     <html:fieldset data-category="panePrivacy">
-      <html:legend data-l10n-id="telemetry-legend"></html:legend>
-      <description data-l10n-id="telemetry-description"/>
-      <hbox align="center">
-        <checkbox id="submitTelemetryBox"
-                  class="tail-with-learn-more"
-                  preference="toolkit.telemetry.enabled"
-                  data-l10n-id="telemetry-label"/>
-        <label is="text-link" id="telemetryLearnMore"
-               data-l10n-id="learn-label"/>
-      </hbox>
-    </html:fieldset>
+      <description>
+        <label class="tail-with-learn-more" data-l10n-id="collection-description"/>
+        <label id="dataCollectionPrivacyNotice"
+               class="learnMore" is="text-link"
+               data-l10n-id="collection-privacy-notice"/>
+      </description>
+      <description>
+        <hbox id="telemetry-container" align="stretch" flex="1" hidden="true">
+          <hbox align="top">
+            <image class="info-icon-telemetry" flex="1"></image>
+          </hbox>
+          <hbox align="center" id="dataDescriptionBox" flex="1">
+            <html:span id="telemetryDisabledDescription" class="tail-with-learn-more" data-l10n-id="collection-health-report-telemetry-disabled"/>
+          </hbox>
+          <hbox>
+              <button id="telemetryDataDeletionLearnMore"
+                     class="learnMore" is="text-link"
+                     data-l10n-id="collection-health-report-telemetry-disabled-link"/>
+          </hbox>
+        </hbox>
+      </description>
+      <vbox data-subcategory="reports">
+        <description flex="1">
+          <checkbox id="submitHealthReportBox"
+                    data-l10n-id="collection-health-report"
+                    class="tail-with-learn-more"/>
+          <label id="FHRLearnMore"
+                 class="learnMore" is="text-link"
+                 data-l10n-id="collection-health-report-link"/>
+        </description>
+#ifndef MOZ_TELEMETRY_REPORTING
+        <description id="TelemetryDisabledDesc"
+          class="indent tip-caption" control="telemetryGroup"
+          data-l10n-id="collection-health-report-disabled"/>
 #endif
+
 #ifdef MOZ_CRASHREPORTER
-    <html:fieldset data-category="panePrivacy">
-      <html:legend data-l10n-id="crash-legend"></html:legend>
-      <description data-l10n-id="crash-description"/>
       <hbox align="center">
-        <checkbox id="submitCrashesBox" class="tail-with-learn-more"
-                  oncommand="gPrivacyPane.updateSubmitCrashes();"
-                  data-l10n-id="crash-label"/>
-        <label is="text-link" id="crashReporterLearnMore"
-               data-l10n-id="learn-label"/>
+        <checkbox id="automaticallySubmitCrashesBox"
+                  class="tail-with-learn-more"
+                  preference="browser.crashReports.unsubmittedCheck.autoSubmit2"
+                  data-l10n-id="collection-backlogged-crash-reports"
+                  flex="1"/>
+        <label id="crashReporterLearnMore"
+               class="learnMore" is="text-link" data-l10n-id="collection-backlogged-crash-reports-link"/>
+      </hbox>
+#endif
+      </vbox>
+
+      <hbox align="start" style="padding-bottom:2em;">
+        <spacer flex="1"/>
       </hbox>
     </html:fieldset>
-#endif
 #endif
 
     <hbox id="privacySecurityCategory"

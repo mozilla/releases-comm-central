@@ -84,9 +84,16 @@ pref("app.update.BITS.enabled", false);
 // Release notes URL
 pref("app.releaseNotesURL", "https://live.thunderbird.net/%APP%/releasenotes?locale=%LOCALE%&version=%VERSION%&channel=%CHANNEL%&os=%OS%&buildid=%APPBUILDID%");
 
+// URL for "Learn More" for DataCollection
+pref("toolkit.datacollection.infoURL",
+     "https://www.mozilla.org/thunderbird/legal/privacy/#telemetry");
+
 // URL for "Learn More" for Crash Reporter.
 pref("toolkit.crashreporter.infoURL",
      "https://www.mozilla.org/thunderbird/legal/privacy/#crash-reporter");
+
+pref("datareporting.healthreport.uploadEnabled", true); // Required to enable telemetry pings.
+pref("datareporting.healthreport.infoURL", "https://www.mozilla.org/thunderbird/legal/privacy/#health-report");
 
 // Base URL for web-based support pages.
 pref("app.support.baseURL", "https://support.thunderbird.net/%LOCALE%/%APP%/%APPBUILDID%/");
@@ -1235,13 +1242,6 @@ pref("toolkit.telemetry.bhrPing.enabled", true);
 #else
   pref("toolkit.telemetry.ecosystemtelemetry.enabled", false);
 #endif
-
-// Required to enable telemetry pings (defaults to true if
-// MOZ_SERVICES_HEALTHREPORT is defined, but we're not yet sure we want
-// that...)
-pref("datareporting.healthreport.uploadEnabled", true);
-
-pref("toolkit.telemetry.infoURL", "https://www.mozilla.org/thunderbird/legal/privacy/#telemetry");
 
 #ifdef XP_WIN
 pref("mail.minimizeToTray", false);

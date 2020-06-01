@@ -63,7 +63,27 @@ privacy-passwords-header = Passwords
 
 privacy-junk-header = Junk
 
-privacy-data-collection-header = Data Collection and Use
+collection-header = { -brand-short-name } Data Collection and Use
+
+collection-description = We strive to provide you with choices and collect only what we need to provide and improve { -brand-short-name } for everyone. We always ask permission before receiving personal information.
+collection-privacy-notice = Privacy Notice
+
+collection-health-report-telemetry-disabled = You’re no longer allowing { -vendor-short-name } to capture technical and interaction data. All past data will be deleted within 30 days.
+collection-health-report-telemetry-disabled-link = Learn more
+
+collection-health-report =
+    .label = Allow { -brand-short-name } to send technical and interaction data to { -vendor-short-name }
+    .accesskey = r
+collection-health-report-link = Learn more
+
+# This message is displayed above disabled data sharing options in developer builds
+# or builds with no Telemetry support available.
+collection-health-report-disabled = Data reporting is disabled for this build configuration
+
+collection-backlogged-crash-reports =
+    .label = Allow { -brand-short-name } to send backlogged crash reports on your behalf
+    .accesskey = c
+collection-backlogged-crash-reports-link = Learn more
 
 privacy-security-header = Security
 
@@ -698,23 +718,6 @@ junk-log-button =
 reset-junk-button =
     .label = Reset Training Data
     .accesskey = R
-
-telemetry-legend = Telemetry
-telemetry-description = Shares performance, usage, hardware and customization data about your e-mail client with { -vendor-short-name } to help us make { -brand-short-name } better
-
-telemetry-label =
-    .label = Enable Telemetry
-    .accesskey = T
-
-learn-label =
-    .value = Learn More
-
-crash-legend = Crash Reporter
-crash-description = { -brand-short-name } submits crash reports to help { -vendor-short-name } make your e-mail client more stable and secure
-
-crash-label =
-    .label = Enable Crash Reporter
-    .accesskey = C
 
 phishing-description = { -brand-short-name } can analyze messages for suspected email scams by looking for common techniques used to deceive you.
 
