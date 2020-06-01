@@ -2,7 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+
 add_task(async function testCategoryColors() {
+  let manager = cal.getCalendarManager();
+  let calendar = manager.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
+  calendar.name = "Mochitest";
+  manager.registerCalendar(calendar);
+
+  registerCleanupFunction(async () => {
+    manager.unregisterCalendar(calendar);
+  });
+
   let { prefsWindow, prefsDocument } = await openNewPrefsTab("paneLightning", "categorieslist");
 
   let listBox = prefsDocument.getElementById("categorieslist");
