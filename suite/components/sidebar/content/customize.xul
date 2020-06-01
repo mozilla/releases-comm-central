@@ -20,7 +20,7 @@
 <dialog
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   id="main-window"
-  title="&sidebar.customize.title.label;"
+  title="&sidebar.customize.title;"
   windowtype="sidebar:customize"
   height="400"
   persist="screenX screenY width height"
@@ -96,8 +96,8 @@
 
     <!-- The panels that the user currently has chosen -->
     <vbox flex="1">
-      <label value="&sidebar.customize.current.label;"
-             accesskey="&sidebar.customize.current.accesskey;"
+      <label value="&sidebar.customize.current2.label;"
+             accesskey="&sidebar.customize.current2.accesskey;"
              control="current-panels" crop="right"/>
       <tree id="current-panels" flex="1" hidecolumnpicker="true"
             onselect="SelectChangeForCurrentPanels();">

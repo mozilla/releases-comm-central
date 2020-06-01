@@ -114,18 +114,15 @@ function (aTitle, aContentURL, aCustomizeURL, aPersist)
     var panel_resource =
         this.rdf.GetResource("urn:sidebar:3rdparty-panel:" + aContentURL);
     var panel_index = container.IndexOf(panel_resource);
-    var stringBundle, brandStringBundle, titleMessage, dialogMessage;
+    var stringBundle, titleMessage, dialogMessage;
     if (panel_index != -1)
     {
         try {
             stringBundle = Services.strings.createBundle("chrome://communicator/locale/sidebar/sidebar.properties");
-            brandStringBundle = Services.strings.createBundle("chrome://branding/locale/brand.properties");
             if (stringBundle) {
-                sidebarName = brandStringBundle.GetStringFromName("sidebarName");
                 titleMessage = stringBundle.GetStringFromName("dupePanelAlertTitle");
-                dialogMessage = stringBundle.GetStringFromName("dupePanelAlertMessage");
+                dialogMessage = stringBundle.GetStringFromName("dupePanelAlertMessage2");
                 dialogMessage = dialogMessage.replace(/%url%/, aContentURL);
-                dialogMessage = dialogMessage.replace(/%name%/, sidebarName);
             }
         }
         catch (e) {
@@ -140,20 +137,17 @@ function (aTitle, aContentURL, aCustomizeURL, aPersist)
 
     try {
         stringBundle = Services.strings.createBundle("chrome://communicator/locale/sidebar/sidebar.properties");
-        brandStringBundle = Services.strings.createBundle("chrome://branding/locale/brand.properties");
         if (stringBundle) {
-            sidebarName = brandStringBundle.GetStringFromName("sidebarName");
             titleMessage = stringBundle.GetStringFromName("addPanelConfirmTitle");
-            dialogMessage = stringBundle.GetStringFromName("addPanelConfirmMessage");
+            dialogMessage = stringBundle.GetStringFromName("addPanelConfirmMessage2");
             if (aPersist)
             {
-                var warning = stringBundle.GetStringFromName("persistentPanelWarning");
+                var warning = stringBundle.GetStringFromName("persistentPanelWarning2");
                 dialogMessage += "\n" + warning;
             }
             dialogMessage = dialogMessage.replace(/%title%/, aTitle);
             dialogMessage = dialogMessage.replace(/%url%/, aContentURL);
             dialogMessage = dialogMessage.replace(/#/g, "\n");
-            dialogMessage = dialogMessage.replace(/%name%/g, sidebarName);
         }
     }
     catch (e) {
