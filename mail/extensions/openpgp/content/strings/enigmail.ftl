@@ -113,17 +113,17 @@ openpgp-key-man-show-invalid-keys =
     .label = Display invalid keys
     .accesskey = D
 openpgp-key-man-show-untrusted-keys =
-    .label = Display untrusted keys
+    .label = Display Untrusted Keys
     .accesskey = U
 openpgp-key-man-show-others-keys =
-    .label = Display keys from other people
+    .label = Display Keys From Other People
     .accesskey = O
 openpgp-key-man-user-id-label =
     .label = Name
 openpgp-key-man-fingerprint-label =
     .label = Fingerprint
 openpgp-key-man-select-all =
-    .label = Select all Keys
+    .label = Select All Keys
     .accesskey = A
 openpgp-key-man-empty-tree-tooltip =
     .label = Enter search terms in the box above
@@ -134,7 +134,6 @@ openpgp-key-man-please-wait-tooltip =
 
 openpgp-key-man-filter-label =
     .placeholder = Search for keys
-
 
 openpgp-key-man-select-all-key =
     .key = A
@@ -177,13 +176,13 @@ openpgp-card-details-close-window-label =
 openpgp-acceptance-label =
     .label = Your Acceptance
 openpgp-acceptance-rejected-label =
-    .label = No, never use this key. (rejected)
+    .label = No, reject this key.
 openpgp-acceptance-undecided-label =
-    .label = Not yet, maybe later. (undecided)
+    .label = Not yet, maybe later.
 openpgp-acceptance-unverified-label =
-    .label = Yes, but I don't know if it is the correct key. (unverified)
+    .label = Yes, but I have not verified that it is the correct key.
 openpgp-acceptance-verified-label =
-    .label = Yes, I've verified in person this key has the correct fingerprint. (verified)
+    .label = Yes, I've verified in person this key has the correct fingerprint.
 
 openpgp-copy-cmd-label =
     .label = Copy
