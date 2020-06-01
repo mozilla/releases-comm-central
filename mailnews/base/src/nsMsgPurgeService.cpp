@@ -154,63 +154,53 @@ nsresult nsMsgPurgeService::PerformPurge() {
           rv = server->GetRootFolder(getter_AddRefs(rootFolder));
           NS_ENSURE_SUCCESS(rv, rv);
 
-          nsCOMPtr<nsIArray> childFolders;
-          rv = rootFolder->GetDescendants(getter_AddRefs(childFolders));
+          nsTArray<RefPtr<nsIMsgFolder>> childFolders;
+          rv = rootFolder->GetDescendants(childFolders);
           NS_ENSURE_SUCCESS(rv, rv);
 
-          uint32_t cnt = 0;
-          childFolders->GetLength(&cnt);
+          for (auto childFolder : childFolders) {
+            uint32_t folderFlags;
+            (void)childFolder->GetFlags(&folderFlags);
+            if (folderFlags & nsMsgFolderFlags::Virtual) continue;
+            PRTime curFolderLastPurgeTime = 0;
+            nsCString curFolderLastPurgeTimeString, curFolderUri;
+            rv = childFolder->GetStringProperty("LastPurgeTime",
+                                                curFolderLastPurgeTimeString);
+            if (NS_FAILED(rv))
+              continue;  // it is ok to fail, go on to next folder
 
-          nsCOMPtr<nsISupports> supports;
-          nsCOMPtr<nsIUrlListener> urlListener;
-          nsCOMPtr<nsIMsgFolder> childFolder;
+            if (!curFolderLastPurgeTimeString.IsEmpty()) {
+              PRTime theTime;
+              PR_ParseTimeString(curFolderLastPurgeTimeString.get(), false,
+                                  &theTime);
+              curFolderLastPurgeTime = theTime;
+            }
 
-          for (uint32_t index = 0; index < cnt; index++) {
-            childFolder = do_QueryElementAt(childFolders, index);
-            if (childFolder) {
-              uint32_t folderFlags;
-              (void)childFolder->GetFlags(&folderFlags);
-              if (folderFlags & nsMsgFolderFlags::Virtual) continue;
-              PRTime curFolderLastPurgeTime = 0;
-              nsCString curFolderLastPurgeTimeString, curFolderUri;
-              rv = childFolder->GetStringProperty("LastPurgeTime",
-                                                  curFolderLastPurgeTimeString);
-              if (NS_FAILED(rv))
-                continue;  // it is ok to fail, go on to next folder
+            childFolder->GetURI(curFolderUri);
+            MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
+                    ("%s curFolderLastPurgeTime=%s (if blank, then never)",
+                      curFolderUri.get(), curFolderLastPurgeTimeString.get()));
 
-              if (!curFolderLastPurgeTimeString.IsEmpty()) {
-                PRTime theTime;
-                PR_ParseTimeString(curFolderLastPurgeTimeString.get(), false,
-                                   &theTime);
-                curFolderLastPurgeTime = theTime;
-              }
-
-              childFolder->GetURI(curFolderUri);
+            // check if this folder is due to purge
+            // has to have been purged at least mMinDelayBetweenPurges minutes
+            // ago we don't want to purge the folders all the time - once a
+            // day is good enough
+            int64_t minDelayBetweenPurges(mMinDelayBetweenPurges);
+            int64_t microSecondsPerMinute(60000000);
+            PRTime nextPurgeTime =
+                curFolderLastPurgeTime +
+                (minDelayBetweenPurges * microSecondsPerMinute);
+            if (nextPurgeTime < PR_Now()) {
               MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
-                      ("%s curFolderLastPurgeTime=%s (if blank, then never)",
-                       curFolderUri.get(), curFolderLastPurgeTimeString.get()));
-
-              // check if this folder is due to purge
-              // has to have been purged at least mMinDelayBetweenPurges minutes
-              // ago we don't want to purge the folders all the time - once a
-              // day is good enough
-              int64_t minDelayBetweenPurges(mMinDelayBetweenPurges);
-              int64_t microSecondsPerMinute(60000000);
-              PRTime nextPurgeTime =
-                  curFolderLastPurgeTime +
-                  (minDelayBetweenPurges * microSecondsPerMinute);
-              if (nextPurgeTime < PR_Now()) {
-                MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
-                        ("purging %s", curFolderUri.get()));
-                childFolder->ApplyRetentionSettings();
-              }
-              PRIntervalTime elapsedTime = PR_IntervalNow() - startTime;
-              // check if more than 500 milliseconds have elapsed in this purge
-              // process
-              if (PR_IntervalToMilliseconds(elapsedTime) > 500) {
-                keepApplyingRetentionSettings = false;
-                break;
-              }
+                      ("purging %s", curFolderUri.get()));
+              childFolder->ApplyRetentionSettings();
+            }
+            PRIntervalTime elapsedTime = PR_IntervalNow() - startTime;
+            // check if more than 500 milliseconds have elapsed in this purge
+            // process
+            if (PR_IntervalToMilliseconds(elapsedTime) > 500) {
+              keepApplyingRetentionSettings = false;
+              break;
             }
           }
         }

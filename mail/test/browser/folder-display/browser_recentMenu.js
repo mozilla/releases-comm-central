@@ -139,8 +139,7 @@ add_task(function test_archive_message() {
   archive_selected_messages();
   // We've archived a message - we should still just have folder2 in the menu.
   let archive = get_special_folder(Ci.nsMsgFolderFlags.Archive, false, false);
-  let archives = archive.descendants;
-  be_in_folder(archives.queryElementAt(0, Ci.nsIMsgFolder));
+  be_in_folder(archive.descendants[0]);
   right_click_on_row(0);
   let popups = mc.click_menus_in_sequence(
     mc.e("mailContext"),

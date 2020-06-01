@@ -19,9 +19,6 @@
 var EXPORTED_SYMBOLS = ["SearchIntegration"];
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -307,13 +304,12 @@ var SearchSupport = {
     let afterLastFolderIndexed = this._lastFolderIndexedUri.length == 0;
 
     for (let server of MailServices.accounts.allServers) {
-      let allFolders = server.rootFolder.descendants;
       this._log.debug(
         "in find next folder, lastFolderIndexedUri = " +
           this._lastFolderIndexedUri
       );
 
-      for (var folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+      for (var folder of server.rootFolder.descendants) {
         let searchPath = this._getSearchPathForFolder(folder);
         searchPath.leafName = searchPath.leafName + ".mozmsgs";
         // If after the last folder indexed, definitely index this

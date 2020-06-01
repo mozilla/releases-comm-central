@@ -529,21 +529,13 @@ nsresult nsMessengerUnixIntegration::GetFirstFolderWithNewMail(
     // enumerate over the folders under this root folder till we find one with
     // new mail....
     nsCOMPtr<nsIMsgFolder> msgFolder;
-    nsCOMPtr<nsIArray> allFolders;
-    rv = folder->GetDescendants(getter_AddRefs(allFolders));
+    nsTArray<RefPtr<nsIMsgFolder>> allFolders;
+    rv = folder->GetDescendants(allFolders);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    uint32_t subfolderCount = 0;
-    allFolders->GetLength(&subfolderCount);
-    uint32_t j;
-    for (j = 0; j < subfolderCount; j++) {
-      nsCOMPtr<nsIMsgFolder> msgFolder = do_QueryElementAt(allFolders, j);
-
-      if (!msgFolder) continue;
-
+    for (auto msgFolder : allFolders) {
       uint32_t flags;
       rv = msgFolder->GetFlags(&flags);
-
       if (NS_FAILED(rv)) continue;
 
       bool notify =

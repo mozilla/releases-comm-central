@@ -56,10 +56,9 @@ function prefillAlertInfo() {
 
   // This is really the root folder and we have to walk through the list to
   // find the real folder that has new mail in it...:(
-  let allFolders = rootFolder.descendants;
   var folderSummaryInfoEl = document.getElementById("folderSummaryInfo");
   folderSummaryInfoEl.maxMsgHdrsInPopup = gNumNewMsgsToShowInAlert;
-  for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+  for (let folder of rootFolder.descendants) {
     if (folder.hasNewMessages) {
       let notify =
         // Any folder which is an inbox or ...

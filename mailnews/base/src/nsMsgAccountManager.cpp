@@ -476,16 +476,11 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer *aServer,
   m_incomingServers.Remove(serverKey);
 
   nsCOMPtr<nsIMsgFolder> rootFolder;
-  nsCOMPtr<nsIArray> allDescendants;
-
   rv = aServer->GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = rootFolder->GetDescendants(getter_AddRefs(allDescendants));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t cnt = 0;
-  rv = allDescendants->GetLength(&cnt);
+  nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+  rv = rootFolder->GetDescendants(allDescendants);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgFolderNotificationService> notifier =
@@ -493,16 +488,13 @@ nsMsgAccountManager::RemoveIncomingServer(nsIMsgIncomingServer *aServer,
   nsCOMPtr<nsIFolderListener> mailSession =
       do_GetService(NS_MSGMAILSESSION_CONTRACTID);
 
-  for (uint32_t i = 0; i < cnt; i++) {
-    nsCOMPtr<nsIMsgFolder> folder = do_QueryElementAt(allDescendants, i);
-    if (folder) {
-      folder->ForceDBClosed();
-      if (notifier) notifier->NotifyFolderDeleted(folder);
-      if (mailSession) {
-        nsCOMPtr<nsIMsgFolder> parentFolder;
-        folder->GetParent(getter_AddRefs(parentFolder));
-        mailSession->OnItemRemoved(parentFolder, folder);
-      }
+  for (auto folder : allDescendants) {
+    folder->ForceDBClosed();
+    if (notifier) notifier->NotifyFolderDeleted(folder);
+    if (mailSession) {
+      nsCOMPtr<nsIMsgFolder> parentFolder;
+      folder->GetParent(getter_AddRefs(parentFolder));
+      mailSession->OnItemRemoved(parentFolder, folder);
     }
   }
   if (notifier) notifier->NotifyFolderDeleted(rootFolder);
@@ -2994,22 +2986,14 @@ NS_IMETHODIMP nsMsgAccountManager::OnItemAdded(nsIMsgFolder *parentItem,
           // folder.
           if (vfFolderFlag &
               (nsMsgFolderFlags::Archive | nsMsgFolderFlags::SentMail)) {
-            nsCOMPtr<nsIArray> allDescendants;
-            rv = folder->GetDescendants(getter_AddRefs(allDescendants));
-            NS_ENSURE_SUCCESS(rv, rv);
-
-            uint32_t cnt = 0;
-            rv = allDescendants->GetLength(&cnt);
+            nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+            rv = folder->GetDescendants(allDescendants);
             NS_ENSURE_SUCCESS(rv, rv);
 
             nsCOMPtr<nsIMsgFolder> parent;
-            for (uint32_t j = 0; j < cnt; j++) {
-              nsCOMPtr<nsIMsgFolder> subFolder =
-                  do_QueryElementAt(allDescendants, j);
-              if (subFolder) {
-                subFolder->GetParent(getter_AddRefs(parent));
-                OnItemAdded(parent, subFolder);
-              }
+            for (auto subFolder : allDescendants) {
+              subFolder->GetParent(getter_AddRefs(parent));
+              OnItemAdded(parent, subFolder);
             }
           }
         }
@@ -3140,20 +3124,11 @@ nsMsgAccountManager::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
       // sent|archive flag removed, remove sub-folders from smart folder.
       if (smartFlagsChanged &
           (nsMsgFolderFlags::Archive | nsMsgFolderFlags::SentMail)) {
-        nsCOMPtr<nsIArray> allDescendants;
-        nsresult rv = aFolder->GetDescendants(getter_AddRefs(allDescendants));
+        nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+        nsresult rv = aFolder->GetDescendants(allDescendants);
         NS_ENSURE_SUCCESS(rv, rv);
-
-        uint32_t cnt = 0;
-        rv = allDescendants->GetLength(&cnt);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        nsCOMPtr<nsIMsgFolder> parent;
-        for (uint32_t j = 0; j < cnt; j++) {
-          nsCOMPtr<nsIMsgFolder> subFolder =
-              do_QueryElementAt(allDescendants, j);
-          if (subFolder)
-            RemoveFolderFromSmartFolder(subFolder, smartFlagsChanged);
+        for (auto subFolder : allDescendants) {
+          RemoveFolderFromSmartFolder(subFolder, smartFlagsChanged);
         }
       }
     }

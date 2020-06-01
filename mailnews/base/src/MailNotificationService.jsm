@@ -15,9 +15,6 @@
 var EXPORTED_SYMBOLS = ["NewMailNotificationService"];
 
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-var { fixIterator } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -145,18 +142,8 @@ NewMailNotificationService.prototype = {
     this._log.trace("NMNS_countUnread: parent folder " + folder.URI);
     let unreadCount = 0;
 
-    if (this.confirmShouldCount(folder)) {
-      let count = folder.getNumUnread(false);
-      this._log.debug(
-        "NMNS_countUnread: folder " + folder.URI + ", " + count + " unread"
-      );
-      if (count > 0) {
-        unreadCount += count;
-      }
-    }
-
-    let allFolders = folder.descendants;
-    for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+    let allFolders = [folder, ...folder.descendants];
+    for (let folder of allFolders) {
       if (this.confirmShouldCount(folder)) {
         let count = folder.getNumUnread(false);
         this._log.debug(
@@ -266,32 +253,18 @@ NewMailNotificationService.prototype = {
       // Biff notifications come in for the top level of the server, we need to look for
       // the folder that actually contains the new mail
 
-      let allFolders = folder.descendants;
-      let numFolders = allFolders.length;
+      let allFolders = [folder, ...folder.descendants];
 
       this._log.trace(
         "NMNS_biffStateChanged: folder " +
           folder.URI +
           " New mail, " +
-          numFolders +
+          (allFolders.length - 1) +
           " subfolders"
       );
       let newCount = 0;
 
-      if (this.confirmShouldCount(folder)) {
-        let folderNew = folder.getNumNewMessages(false);
-        this._log.debug(
-          "NMNS_biffStateChanged: folder " +
-            folder.URI +
-            " new messages: " +
-            folderNew
-        );
-        if (folderNew > 0) {
-          newCount += folderNew;
-        }
-      }
-
-      for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+      for (let folder of allFolders) {
         if (this.confirmShouldCount(folder)) {
           let folderNew = folder.getNumNewMessages(false);
           this._log.debug(

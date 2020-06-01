@@ -739,7 +739,7 @@ interface nsIMsgFolder : nsISupports {
   void NotifyFolderEvent(in ACString event);
 
   // Gets all descendants, not just first level children.
-  readonly attribute nsIArray descendants;
+  readonly attribute Array<nsIMsgFolder> descendants;
   /*
    * Lists all the folders that are subfolders of the current folder,
    * all levels of children.

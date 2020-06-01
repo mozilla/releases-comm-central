@@ -557,34 +557,20 @@ nsresult nsMessengerOSXIntegration::GetFirstFolderWithNewMail(nsIMsgFolder *aFol
                                                               nsCString &aFolderURI) {
   // Find the subfolder in aFolder with new mail and return the folderURI
   if (aFolder) {
-    nsCOMPtr<nsIMsgFolder> msgFolder;
     // enumerate over the folders under this root folder till we find one with new mail....
-    nsCOMPtr<nsIArray> allFolders;
-    nsresult rv = aFolder->GetDescendants(getter_AddRefs(allFolders));
+    nsTArray<RefPtr<nsIMsgFolder>> allFolders;
+    nsresult rv = aFolder->GetDescendants(allFolders);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsISimpleEnumerator> enumerator;
-    rv = allFolders->Enumerate(getter_AddRefs(enumerator));
-    if (NS_SUCCEEDED(rv) && enumerator) {
-      nsCOMPtr<nsISupports> supports;
+    for (auto msgFolder : allFolders) {
       int32_t numNewMessages = 0;
-      bool hasMore = false;
-      while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-        rv = enumerator->GetNext(getter_AddRefs(supports));
-        if (NS_SUCCEEDED(rv) && supports) {
-          msgFolder = do_QueryInterface(supports, &rv);
-          if (msgFolder) {
-            numNewMessages = 0;
-            msgFolder->GetNumNewMessages(false, &numNewMessages);
-            if (numNewMessages) break;  // kick out of the while loop
-          }
-        }  // if we have a folder
-      }    // if we have more potential folders to enumerate
-    }      // if enumerator
-
-    if (msgFolder) msgFolder->GetURI(aFolderURI);
+      msgFolder->GetNumNewMessages(false, &numNewMessages);
+      if (numNewMessages > 0) {
+        msgFolder->GetURI(aFolderURI);
+        break;
+      }
+    }
   }
-
   return NS_OK;
 }
 

@@ -1282,8 +1282,7 @@ var Gloda = {
               }
               seenRootFolders[rootFolder.URI] = true;
 
-              let allFolders = rootFolder.descendants;
-              for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+              for (let folder of rootFolder.descendants) {
                 let folderFlags = folder.flags;
 
                 // Ignore virtual folders, non-mail folders.

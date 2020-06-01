@@ -1727,17 +1727,12 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
           int32_t offlineSupportLevel;
           rv = server->GetOfflineSupportLevel(&offlineSupportLevel);
           NS_ENSURE_SUCCESS(rv, rv);
-          nsCOMPtr<nsIArray> allDescendents;
-          rootFolder->GetDescendants(getter_AddRefs(allDescendents));
-          uint32_t cnt = 0;
-          rv = allDescendents->GetLength(&cnt);
-          NS_ENSURE_SUCCESS(rv, rv);
+          nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+          rootFolder->GetDescendants(allDescendants);
           int64_t expungedBytes = 0;
           if (offlineSupportLevel > 0) {
             uint32_t flags;
-            for (uint32_t i = 0; i < cnt; i++) {
-              nsCOMPtr<nsIMsgFolder> folder =
-                  do_QueryElementAt(allDescendents, i);
+            for (auto folder : allDescendants) {
               expungedBytes = 0;
               folder->GetFlags(&flags);
               if (flags & nsMsgFolderFlags::Offline)
@@ -1749,9 +1744,7 @@ nsresult nsMsgDBFolder::HandleAutoCompactEvent(nsIMsgWindow *aWindow) {
             }
           } else  // pop or local
           {
-            for (uint32_t i = 0; i < cnt; i++) {
-              nsCOMPtr<nsIMsgFolder> folder =
-                  do_QueryElementAt(allDescendents, i);
+            for (auto folder : allDescendants) {
               expungedBytes = 0;
               folder->GetExpungedBytes(&expungedBytes);
               if (expungedBytes > 0) {
@@ -4649,16 +4642,14 @@ NS_IMETHODIMP nsMsgDBFolder::GetMessageHeader(nsMsgKey msgKey,
                     : NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetDescendants(nsIArray **aDescendants) {
-  NS_ENSURE_ARG_POINTER(aDescendants);
-
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> allFolders(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  rv = ListDescendants(allFolders);
-  allFolders.forget(aDescendants);
+NS_IMETHODIMP nsMsgDBFolder::GetDescendants(nsTArray<RefPtr<nsIMsgFolder>> &aDescendants) {
+  aDescendants.Clear();
+  for (nsIMsgFolder *child : mSubFolders) {
+    aDescendants.AppendElement(child);
+    nsTArray<RefPtr<nsIMsgFolder>> grandchildren;
+    child->GetDescendants(grandchildren);
+    aDescendants.AppendElements(grandchildren);
+  }
   return NS_OK;
 }
 

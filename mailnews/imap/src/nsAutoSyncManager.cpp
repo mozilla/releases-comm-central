@@ -677,24 +677,15 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
     if (passwordRequired) continue;
 
     nsCOMPtr<nsIMsgFolder> rootFolder;
-    nsCOMPtr<nsIArray> allDescendants;
 
     rv = incomingServer->GetRootFolder(getter_AddRefs(rootFolder));
     if (rootFolder) {
       if (NS_FAILED(rv)) continue;
 
-      rv = rootFolder->GetDescendants(getter_AddRefs(allDescendants));
-      if (!allDescendants) continue;
+      nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+      rv = rootFolder->GetDescendants(allDescendants);
 
-      uint32_t cnt = 0;
-      rv = allDescendants->GetLength(&cnt);
-      if (NS_FAILED(rv)) continue;
-
-      for (uint32_t i = 0; i < cnt; i++) {
-        nsCOMPtr<nsIMsgFolder> folder(
-            do_QueryElementAt(allDescendants, i, &rv));
-        if (NS_FAILED(rv)) continue;
-
+      for (auto folder : allDescendants) {
         uint32_t folderFlags;
         rv = folder->GetFlags(&folderFlags);
         // Skip this folder if not offline or is a saved search or is no select.

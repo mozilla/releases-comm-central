@@ -1997,8 +1997,7 @@ var GlodaMsgIndexer = {
     if (rootFolder instanceof Ci.nsIMsgFolder) {
       this._log.info("Queueing account folders for indexing: " + aAccount.key);
 
-      let allFolders = rootFolder.descendants;
-      for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+      for (let folder of rootFolder.descendants) {
         if (this.shouldIndexFolder(folder)) {
           GlodaIndexer.indexJob(
             new IndexingJob("folder", GlodaDatastore._mapFolder(folder).id)
@@ -2725,7 +2724,7 @@ var GlodaMsgIndexer = {
         // delete the parent
         delFunc(aFolder, this.indexer);
         // delete all its descendents
-        for (let folder of fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
+        for (let folder of descendentFolders) {
           delFunc(folder, this.indexer);
         }
 
@@ -2783,7 +2782,7 @@ var GlodaMsgIndexer = {
         // First thing to do: make sure we don't index the resulting folder and
         //  its descendents.
         GlodaMsgIndexer.resetFolderIndexingPriority(newFolder);
-        for (let folder of fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
+        for (let folder of descendentFolders) {
           GlodaMsgIndexer.resetFolderIndexingPriority(folder);
         }
 
@@ -2796,7 +2795,7 @@ var GlodaMsgIndexer = {
         // this rename is straightforward.
         GlodaDatastore.renameFolder(aOrigFolder, aNewURI);
 
-        for (let folder of fixIterator(descendentFolders, Ci.nsIMsgFolder)) {
+        for (let folder of descendentFolders) {
           let oldSubURI = folder.URI;
           // mangle a new URI from the old URI.  we could also try and do a
           //  parallel traversal of the new folder hierarchy, but that seems like

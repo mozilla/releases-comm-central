@@ -320,7 +320,7 @@ IMIncomingServer.prototype = {
       },
       AddFolderListener() {},
       RemoveFolderListener() {},
-      descendants: Cc["@mozilla.org/array;1"].createInstance(Ci.nsIArray),
+      descendants: [],
       ListDescendants(descendants) {},
       getFlag: () => false,
       getFolderWithFlags: aFlags => null,

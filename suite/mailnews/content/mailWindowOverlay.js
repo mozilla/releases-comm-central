@@ -1763,8 +1763,7 @@ function MsgMarkAllFoldersRead() {
     const selectedServers = selectedFolders.filter(folder => folder.isServer);
 
     selectedServers.forEach(function(server) {
-      const folders = server.rootFolder.descendants;
-      for (let folder of fixIterator(folders, Ci.nsIMsgFolder)) {
+      for (let folder of server.rootFolder.descendants) {
         folder.markAllMessagesRead(msgWindow);
       }
     });

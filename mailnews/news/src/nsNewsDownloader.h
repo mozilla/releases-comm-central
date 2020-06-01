@@ -125,9 +125,9 @@ class nsMsgDownloadAllNewsgroups : public nsIUrlListener {
   nsCOMPtr<nsIMsgFolder> m_currentFolder;
   nsCOMPtr<nsIMsgWindow> m_window;
   nsTArray<RefPtr<nsIMsgIncomingServer>> m_allServers;
-  nsCOMPtr<nsIArray> m_allFolders;
   nsCOMPtr<nsIMsgIncomingServer> m_currentServer;
-  nsCOMPtr<nsISimpleEnumerator> m_serverEnumerator;
+  // Folders still to process for the current server.
+  nsTArray<RefPtr<nsIMsgFolder>> m_folderQueue;
   nsCOMPtr<nsIUrlListener> m_listener;
 
   bool m_downloadedHdrsForCurGroup;

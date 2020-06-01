@@ -499,7 +499,6 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener *aListener,
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMutableArray> folderArray;
   nsCOMPtr<nsIMsgFolder> rootFolder;
-  nsCOMPtr<nsIArray> allDescendents;
   rv = GetRootFolder(getter_AddRefs(rootFolder));
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   GetMsgStore(getter_AddRefs(msgStore));
@@ -508,17 +507,12 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener *aListener,
   if (!storeSupportsCompaction) return NotifyCompactCompleted();
 
   if (NS_SUCCEEDED(rv) && rootFolder) {
-    rv = rootFolder->GetDescendants(getter_AddRefs(allDescendents));
-    NS_ENSURE_SUCCESS(rv, rv);
-    uint32_t cnt = 0;
-    rv = allDescendents->GetLength(&cnt);
+    nsTArray<RefPtr<nsIMsgFolder>> allDescendants;
+    rv = rootFolder->GetDescendants(allDescendants);
     NS_ENSURE_SUCCESS(rv, rv);
     folderArray = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
     int64_t expungedBytes = 0;
-    for (uint32_t i = 0; i < cnt; i++) {
-      nsCOMPtr<nsIMsgFolder> folder = do_QueryElementAt(allDescendents, i, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
+    for (auto folder : allDescendants) {
       expungedBytes = 0;
       if (folder) rv = folder->GetExpungedBytes(&expungedBytes);
 
@@ -526,6 +520,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::CompactAll(nsIUrlListener *aListener,
 
       if (expungedBytes > 0) rv = folderArray->AppendElement(folder);
     }
+    uint32_t cnt;
     rv = folderArray->GetLength(&cnt);
     NS_ENSURE_SUCCESS(rv, rv);
     if (cnt == 0) return NotifyCompactCompleted();

@@ -230,9 +230,8 @@ add_task(function test_folder_flag_changes() {
   // figure out what we expect the archiveScope to now be.
   rootFolder = inboxFolder.server.rootFolder;
   let localArchiveFolder = rootFolder.getChildNamed("Archives");
-  let allDescendants = localArchiveFolder.descendants;
   let desiredScope = "|" + localArchiveFolder.URI + "|";
-  for (let folder of fixIterator(allDescendants, Ci.nsIMsgFolder)) {
+  for (let folder of localArchiveFolder.descendants) {
     desiredScope += folder.URI + "|";
   }
 
@@ -245,18 +244,16 @@ add_task(function test_folder_flag_changes() {
 function assert_folder_and_children_in_scope(folder, searchScope) {
   let folderURI = "|" + folder.URI + "|";
   assert_uri_found(folderURI, searchScope);
-  let allDescendants = folder.descendants;
-  for (let folder of fixIterator(allDescendants, Ci.nsIMsgFolder)) {
-    assert_uri_found(folder.URI, searchScope);
+  for (let f of folder.descendants) {
+    assert_uri_found(f.URI, searchScope);
   }
 }
 
 function assert_folder_and_children_not_in_scope(folder, searchScope) {
   let folderURI = "|" + folder.URI + "|";
   assert_uri_not_found(folderURI, searchScope);
-  let allDescendants = folder.descendants;
-  for (let folder of fixIterator(allDescendants, Ci.nsIMsgFolder)) {
-    assert_uri_not_found(folder.URI, searchScope);
+  for (let f of folder.descendants) {
+    assert_uri_not_found(f.URI, searchScope);
   }
 }
 

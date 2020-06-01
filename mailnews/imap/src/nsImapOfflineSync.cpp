@@ -104,9 +104,10 @@ nsImapOfflineSync::OnStopRunningUrl(nsIURI *url, nsresult exitCode) {
 
 /**
  * Leaves m_currentServer at the next imap or local mail "server" that
- * might have offline events to playback. If no more servers,
- * m_currentServer will be left at nullptr and the function returns false.
- * Also, sets up m_serverEnumerator to enumerate over the server.
+ * might have offline events to playback, and m_folderQueue holding
+ * a (reversed) list of all the folders to consider for that server.
+ * If no more servers, m_currentServer will be left at nullptr and the
+ * function returns false.
  */
 bool nsImapOfflineSync::AdvanceToNextServer() {
   nsresult rv = NS_OK;
@@ -148,13 +149,12 @@ bool nsImapOfflineSync::AdvanceToNextServer() {
       m_currentServer = server;
       server->GetRootFolder(getter_AddRefs(rootFolder));
       if (rootFolder) {
-        rv = rootFolder->GetDescendants(getter_AddRefs(m_allFolders));
+        rv = rootFolder->GetDescendants(m_folderQueue);
         if (NS_SUCCEEDED(rv)) {
-          rv = m_allFolders->Enumerate(getter_AddRefs(m_serverEnumerator));
-          if (NS_SUCCEEDED(rv) && m_serverEnumerator) {
-            bool hasMore = false;
-            rv = m_serverEnumerator->HasMoreElements(&hasMore);
-            if (NS_SUCCEEDED(rv) && hasMore) return true;
+          if (!m_folderQueue.IsEmpty()) {
+            // We'll be popping folders off the end as they are processed.
+            m_folderQueue.Reverse();
+            return true;
           }
         }
       }
@@ -178,13 +178,14 @@ bool nsImapOfflineSync::AdvanceToNextFolder() {
   }
 
   bool hasMore = false;
-  if (m_currentServer) m_serverEnumerator->HasMoreElements(&hasMore);
-  if (!hasMore) hasMore = AdvanceToNextServer();
-
+  if (m_currentServer) {
+    hasMore = !m_folderQueue.IsEmpty();
+  }
+  if (!hasMore) {
+    hasMore = AdvanceToNextServer();
+  }
   if (hasMore) {
-    nsCOMPtr<nsISupports> supports;
-    nsresult rv = m_serverEnumerator->GetNext(getter_AddRefs(supports));
-    if (NS_SUCCEEDED(rv)) m_currentFolder = do_QueryInterface(supports);
+    m_currentFolder = m_folderQueue.PopLastElement();
   }
   ClearDB();
   return m_currentFolder;

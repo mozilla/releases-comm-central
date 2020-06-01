@@ -321,8 +321,9 @@ nsMsgDownloadAllNewsgroups::OnStopRunningUrl(nsIURI *url, nsresult exitCode) {
  * Leaves m_currentServer at the next nntp "server" that
  * might have folders to download for offline use. If no more servers,
  * m_currentServer will be left at nullptr and the function returns false.
- * Also, sets up m_serverEnumerator to enumerate over the server.
- * If no servers found, m_serverEnumerator will be left at null.
+ * Also, sets up m_folderQueue to hold a (reversed) list of all the folders
+ * to consider for the current server.
+ * If no servers found, returns false.
  */
 bool nsMsgDownloadAllNewsgroups::AdvanceToNextServer() {
   nsresult rv;
@@ -362,13 +363,12 @@ bool nsMsgDownloadAllNewsgroups::AdvanceToNextServer() {
       m_currentServer = server;
       server->GetRootFolder(getter_AddRefs(rootFolder));
       if (rootFolder) {
-        rv = rootFolder->GetDescendants(getter_AddRefs(m_allFolders));
+        rv = rootFolder->GetDescendants(m_folderQueue);
         if (NS_SUCCEEDED(rv)) {
-          rv = m_allFolders->Enumerate(getter_AddRefs(m_serverEnumerator));
-          if (NS_SUCCEEDED(rv) && m_serverEnumerator) {
-            bool hasMore = false;
-            rv = m_serverEnumerator->HasMoreElements(&hasMore);
-            if (NS_SUCCEEDED(rv) && hasMore) return true;
+          if (!m_folderQueue.IsEmpty()) {
+            // We'll be popping folders from the end of the queue as we go.
+            m_folderQueue.Reverse();
+            return true;
           }
         }
       }
@@ -404,13 +404,15 @@ bool nsMsgDownloadAllNewsgroups::AdvanceToNextGroup() {
   }
 
   bool hasMore = false;
-  if (m_currentServer) m_serverEnumerator->HasMoreElements(&hasMore);
-  if (!hasMore) hasMore = AdvanceToNextServer();
+  if (m_currentServer) {
+    hasMore = !m_folderQueue.IsEmpty();
+  }
+  if (!hasMore) {
+    hasMore = AdvanceToNextServer();
+  }
 
   if (hasMore) {
-    nsCOMPtr<nsISupports> supports;
-    rv = m_serverEnumerator->GetNext(getter_AddRefs(supports));
-    if (NS_SUCCEEDED(rv)) m_currentFolder = do_QueryInterface(supports);
+    m_currentFolder = m_folderQueue.PopLastElement();
   }
   return m_currentFolder;
 }
