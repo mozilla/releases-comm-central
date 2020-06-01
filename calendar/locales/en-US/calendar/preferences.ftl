@@ -170,21 +170,25 @@ accessibility-colors-label =
 
 reminder-legend = When a Reminder is Due:
 
-play-checkbox =
+reminder-play-checkbox =
     .label = Play a sound
     .accesskey = s
 
-play-alarm-button =
+reminder-play-alarm-button =
     .label = Play
     .accesskey = P
 
-default-sound-label =
+reminder-default-sound-label =
     .label = Use default sound
     .accesskey = d
 
-custom-sound-label =
+reminder-custom-sound-label =
     .label = Use the following sound file
     .accesskey = U
+
+reminder-browse-sound-label =
+    .label = Browse…
+    .accesskey = B
 
 reminder-dialog-label =
     .label = Show the reminder dialog

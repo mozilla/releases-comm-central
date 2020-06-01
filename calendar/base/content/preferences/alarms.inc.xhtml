@@ -7,10 +7,10 @@
             <hbox align="center">
                 <checkbox id="alarmSoundCheckbox"
                           preference="calendar.alarms.playsound"
-                          data-l10n-id="play-checkbox"/>
+                          data-l10n-id="reminder-play-checkbox"/>
                 <spacer flex="1"/>
                 <button id="calendar.prefs.alarm.sound.play"
-                        data-l10n-id="play-alarm-button"
+                        data-l10n-id="reminder-play-alarm-button"
                         oncommand="gAlarmsPane.previewAlarm()"/>
             </hbox>
             <radiogroup id="alarmSoundType"
@@ -21,12 +21,12 @@
                 <hbox>
                     <radio id="alarmSoundSystem"
                            value="0"
-                           data-l10n-id="default-sound-label"/>
+                           data-l10n-id="reminder-default-sound-label"/>
                 </hbox>
                 <hbox>
                     <radio id="alarmSoundCustom"
                            value="1"
-                           data-l10n-id="custom-sound-label"/>
+                           data-l10n-id="reminder-custom-sound-label"/>
                 </hbox>
             </radiogroup>
             <hbox align="center" class="input-container">
@@ -38,7 +38,7 @@
                             preference-editable="true"
                             aria-labelledby="alarmSoundCustom"/>
                 <button id="calendar.prefs.alarm.sound.browse"
-                        data-l10n-id="browse-sound-label"
+                        data-l10n-id="reminder-browse-sound-label"
                         oncommand="gAlarmsPane.browseAlarm()"/>
             </hbox>
         </vbox>

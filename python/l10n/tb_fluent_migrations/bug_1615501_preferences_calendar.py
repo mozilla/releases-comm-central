@@ -220,21 +220,25 @@ task-due-label =
 """
 reminder-legend = { COPY(from_path, "pref.alarmgoesoff.label") }
 
-play-checkbox =
+reminder-play-checkbox =
     .label = { COPY(from_path, "pref.playasound") }
     .accesskey = { COPY(from_path, "pref.calendar.alarms.playsound.accessKey") }
 
-play-alarm-button =
+reminder-play-alarm-button =
     .label = { COPY(from_path, "pref.calendar.alarms.sound.play.label") }
     .accesskey = { COPY(from_path, "pref.calendar.alarms.sound.play.accessKey") }
 
-default-sound-label =
+reminder-default-sound-label =
     .label = { COPY(from_path, "pref.calendar.alarms.sound.useDefault.label") }
     .accesskey = { COPY(from_path, "pref.calendar.alarms.sound.useDefault.accessKey") }
 
-custom-sound-label =
+reminder-custom-sound-label =
     .label = { COPY(from_path, "pref.calendar.alarms.sound.useCustom.label") }
     .accesskey = { COPY(from_path, "pref.calendar.alarms.sound.useCustom.accessKey") }
+
+reminder-browse-sound-label =
+    .label = { COPY(from_path, "pref.calendar.alarms.sound.browse.label") }
+    .accesskey = { COPY(from_path, "pref.calendar.alarms.sound.browse.accessKey") }
 
 reminder-dialog-label =
     .label = { COPY(from_path, "pref.showalarmbox") }
