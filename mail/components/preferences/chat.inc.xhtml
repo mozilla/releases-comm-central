@@ -86,10 +86,10 @@
                 data-l10n-id="notification-type-label"/>
       <hbox align="center">
         <checkbox id="chatNotification"
-                  data-l10n-id="sound-label"
+                  data-l10n-id="chat-play-sound-label"
                   preference="mail.chat.play_sound"/>
         <spacer flex="1"/>
-        <button id="playChatSound" data-l10n-id="play-button"
+        <button id="playChatSound" data-l10n-id="chat-play-button"
                 oncommand="gChatPane.previewSound();"/>
       </hbox>
       <radiogroup id="chatSoundType"
@@ -99,13 +99,13 @@
                   aria-labelledby="chatNotification">
         <hbox>
           <radio id="chatSoundSystemSound"
-                 data-l10n-id="system-sound-label"
+                 data-l10n-id="chat-system-sound-label"
                  value="0"/>
           <spacer flex="1"/>
         </hbox>
         <hbox>
           <radio id="chatSoundCustom"
-                 data-l10n-id="custom-sound-label"
+                 data-l10n-id="chat-custom-sound-label"
                  value="1"/>
           <spacer flex="1"/>
         </hbox>
@@ -118,7 +118,7 @@
                       preference-editable="true"
                       aria-labelledby="chatSoundCustom"/>
           <button id="browseForChatSound"
-                  data-l10n-id="browse-sound-button"
+                  data-l10n-id="chat-browse-sound-button"
                   oncommand="gChatPane.browseForSoundFile();"/>
         </hbox>
       </radiogroup>

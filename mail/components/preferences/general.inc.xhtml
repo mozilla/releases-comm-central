@@ -299,11 +299,11 @@
 #ifndef XP_MACOSX
         <checkbox id="newMailNotification"
                   preference="mail.biff.play_sound"
-                  data-l10n-id="play-sound-label"
+                  data-l10n-id="mail-play-sound-label"
                   oncommand="gGeneralPane.updatePlaySound();"/>
         <spacer flex="1"/>
         <button id="playSound"
-                data-l10n-id="play-button"
+                data-l10n-id="mail-play-button"
                 oncommand="gGeneralPane.previewSound();"/>
       </hbox>
 
@@ -317,13 +317,13 @@
         <hbox>
           <radio id="system"
                  value="0"
-                 data-l10n-id="system-sound-label"/>
+                 data-l10n-id="mail-system-sound-label"/>
           <spacer flex="1"/>
         </hbox>
         <hbox>
           <radio id="custom"
                  value="1"
-                 data-l10n-id="custom-sound-label"/>
+                 data-l10n-id="mail-custom-sound-label"/>
           <spacer flex="1"/>
         </hbox>
       </radiogroup>
@@ -337,7 +337,7 @@
                     preference-editable="true"
                     aria-labelledby="custom"/>
         <button id="browseForSound"
-                data-l10n-id="browse-sound-label"
+                data-l10n-id="mail-browse-sound-button"
                 oncommand="gGeneralPane.browseForSoundFile();"/>
       </hbox>
     </html:fieldset>

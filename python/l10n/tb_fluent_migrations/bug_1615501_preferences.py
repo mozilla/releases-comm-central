@@ -69,15 +69,6 @@ remove-search-engine =
     .accesskey = { COPY(from_path, "removeSearchEngine.accesskey") }
 
 new-message-arrival = { COPY(from_path, "newMessagesArrive.label") }
-play-sound-label =
-    .label = { PLATFORM() ->
-        [macos] { COPY(from_path, "playSoundMac.label") }
-        *[other] { COPY(from_path, "playSound.label") }
-    }
-    .accesskey = { COPY(from_path, "playSound1.accesskey") }
-play-button =
-    .label = { COPY(from_path, "play.label") }
-    .accesskey = { COPY(from_path, "play.accesskey") }
 
 change-dock-icon = { COPY(from_path, "changeDockIconOptions.label") }
 app-icon-options =
@@ -97,12 +88,32 @@ tray-icon-label =
     .label = { COPY(from_path, "showTrayIcon.label") }
     .accesskey = { COPY(from_path, "showTrayIcon.accesskey") }
 
-custom-sound-label =
+mail-play-sound-label =
+    .label = { PLATFORM() ->
+        [macos] { COPY(from_path, "playSoundMac.label") }
+        *[other] { COPY(from_path, "playSound.label") }
+    }
+    .accesskey = { PLATFORM() ->
+        [macos] { COPY(from_path, "playSoundMac.accesskey") }
+        *[other] { COPY(from_path, "playSound1.accesskey") }
+    }
+
+mail-play-button =
+    .label = { COPY(from_path, "play.label") }
+    .accesskey = { COPY(from_path, "play.accesskey") }
+
+mail-system-sound-label =
+    .label = { COPY(from_path, "systemSound.label") }
+    .accesskey = { COPY(from_path, "systemSound.accesskey") }
+
+mail-custom-sound-label =
     .label = { COPY(from_path, "customsound.label") }
     .accesskey = { COPY(from_path, "customsound.accesskey") }
-browse-sound-label =
+
+mail-browse-sound-button =
     .label = { COPY(from_path, "browse.label") }
     .accesskey = { COPY(from_path, "browse.accesskey") }
+
 """, from_path="mail/chrome/messenger/preferences/general.dtd"
         )
     )
@@ -976,23 +987,23 @@ notification-type-label =
         *[other] { COPY(from_path, "getAttention.accesskey") }
     }
 
-sound-label =
+chat-play-sound-label =
     .label = { COPY(from_path, "chatSound.label") }
     .accesskey = { COPY(from_path, "chatSound.accesskey") }
 
-play-button =
+chat-play-button =
     .label = { COPY(from_path, "play.label") }
     .accesskey = { COPY(from_path, "play.accesskey") }
 
-system-sound-label =
+chat-system-sound-label =
     .label = { COPY(from_path, "systemSound.label") }
     .accesskey = { COPY(from_path, "systemSound.accesskey") }
 
-custom-sound-label =
+chat-custom-sound-label =
     .label = { COPY(from_path, "customsound.label") }
     .accesskey = { COPY(from_path, "customsound.accesskey") }
 
-browse-sound-button =
+chat-browse-sound-button =
     .label = { COPY(from_path, "browse.label") }
     .accesskey = { COPY(from_path, "browse.accesskey") }
 
