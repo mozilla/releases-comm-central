@@ -212,14 +212,14 @@
         </hbox>
       </description>
       <vbox data-subcategory="reports">
-        <description flex="1">
+        <hbox align="center">
           <checkbox id="submitHealthReportBox"
                     data-l10n-id="collection-health-report"
                     class="tail-with-learn-more"/>
           <label id="FHRLearnMore"
                  class="learnMore" is="text-link"
                  data-l10n-id="collection-health-report-link"/>
-        </description>
+        </hbox>
 #ifndef MOZ_TELEMETRY_REPORTING
         <description id="TelemetryDisabledDesc"
           class="indent tip-caption" control="telemetryGroup"
@@ -231,8 +231,7 @@
         <checkbox id="automaticallySubmitCrashesBox"
                   class="tail-with-learn-more"
                   preference="browser.crashReports.unsubmittedCheck.autoSubmit2"
-                  data-l10n-id="collection-backlogged-crash-reports"
-                  flex="1"/>
+                  data-l10n-id="collection-backlogged-crash-reports"/>
         <label id="crashReporterLearnMore"
                class="learnMore" is="text-link" data-l10n-id="collection-backlogged-crash-reports-link"/>
       </hbox>
