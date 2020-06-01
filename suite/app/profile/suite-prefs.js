@@ -679,8 +679,6 @@ pref("sidebar.customize.directory.url", "https://edmullen.net/mozilla/moz_sideba
 pref("sidebar.customize.more_panels.url", "https://edmullen.net/mozilla/moz_sidebar.php");
 pref("sidebar.num_tabs_in_view", 8);
 
-pref("browser.throbber.url","chrome://navigator-region/locale/region.properties");
-
 // pref to control the alert notification
 pref("alerts.slideIncrement", 1);
 pref("alerts.slideIncrementTime", 10);

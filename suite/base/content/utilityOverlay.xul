@@ -715,7 +715,7 @@
                align="center">
     <button id="navigator-throbber"
             onclick="checkForMiddleClick(this, event);"
-            oncommand="goClickThrobber('browser.throbber.url', event);"
+            oncommand="goClickThrobber('app.vendorURL', event);"
             tooltiptext="&throbber.tooltip2;"/>
   </toolbaritem>
 
