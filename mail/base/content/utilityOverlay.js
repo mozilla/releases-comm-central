@@ -233,10 +233,16 @@ function openWhatsNew() {
  * @param engine (optional) the search engine to use
  */
 function openWebSearch(query, engine) {
-  Services.search.init().then(async () => {
+  return Services.search.init().then(async () => {
     if (!engine) {
       engine = await Services.search.getDefault();
       openLinkExternally(engine.getSubmission(query).uri.spec);
+
+      Services.telemetry.keyedScalarAdd(
+        "tb.websearch.usage",
+        engine.name.toLowerCase(),
+        1
+      );
     }
   });
 }
