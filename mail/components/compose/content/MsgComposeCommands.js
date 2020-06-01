@@ -4152,10 +4152,8 @@ function udpateAddressingInputAriaLabel(row) {
  */
 function updateTooltipsOfAddressingFields(row) {
   let type = row.querySelector(".address-label-container > label").value;
-  let tooltip = l10n.formatValueSync("remove-address-row-type", { type });
-  row
-    .querySelector(".aw-firstColBox > label")
-    .setAttribute("tooltiptext", tooltip);
+  let el = row.querySelector(".aw-firstColBox > label");
+  document.l10n.setAttributes(el, "remove-address-row-type-label", { type });
 }
 
 /**
