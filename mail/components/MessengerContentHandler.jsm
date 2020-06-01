@@ -559,7 +559,7 @@ MailDefaultHandler.prototype = {
 
   helpInfo:
     "  -options           Open the options dialog.\n" +
-    "  -file              Open the specified email file.\n" +
+    "  -file              Open the specified email file or ICS calendar file.\n" +
     "  -setDefaultMail    Set this app as the default mail client.\n",
 
   /* nsIFactory */
