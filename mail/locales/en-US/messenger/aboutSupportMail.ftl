@@ -16,3 +16,5 @@ accounts-default = Default?
 identity-name = Identity
 
 send-via-email = Send via email
+
+app-basics-telemetry = Telemetry Data
