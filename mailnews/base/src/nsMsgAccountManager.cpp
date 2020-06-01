@@ -2888,23 +2888,16 @@ NS_IMETHODIMP nsMsgAccountManager::GetAllFolders(
   nsresult rv = GetAllServers(allServers);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsIMutableArray> allFolders(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
   for (auto server : allServers) {
     if (server) {
       nsCOMPtr<nsIMsgFolder> rootFolder;
       server->GetRootFolder(getter_AddRefs(rootFolder));
-      if (rootFolder) rootFolder->ListDescendants(allFolders);
+      if (rootFolder) {
+        nsTArray<RefPtr<nsIMsgFolder>> descendents;
+        rootFolder->GetDescendants(descendents);
+        aAllFolders.AppendElements(descendents);
+      }
     }
-  }
-
-  uint32_t length;
-  allFolders->GetLength(&length);
-  for (uint32_t i = 0; i < length; ++i) {
-    nsCOMPtr<nsIMsgFolder> folder = do_QueryElementAt(allFolders, i);
-    aAllFolders.AppendElement(folder);
   }
   return NS_OK;
 }

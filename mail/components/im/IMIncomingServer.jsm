@@ -321,7 +321,6 @@ IMIncomingServer.prototype = {
       AddFolderListener() {},
       RemoveFolderListener() {},
       descendants: [],
-      ListDescendants(descendants) {},
       getFlag: () => false,
       getFolderWithFlags: aFlags => null,
       getFoldersWithFlags: aFlags =>

@@ -286,28 +286,23 @@ var FeedUtils = {
       FeedUtils.setStatus(aFolder, aFolder.URI, "lastUpdateTime", Date.now());
     }
 
-    let allFolders = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
+    let allFolders = aFolder.descendants;
     if (!aFolder.isServer) {
-      // Add the base folder; it does not get returned by ListDescendants. Do not
+      // Add the base folder; it does not get returned by .descendants. Do not
       // add the account folder as it doesn't have the feedUrl property or even
       // a msgDatabase necessarily.
-      allFolders.appendElement(aFolder);
+      allFolders.unshift(aFolder);
     }
-
-    aFolder.ListDescendants(allFolders);
 
     let folder;
     function* feeder() {
-      let numFolders = allFolders.length;
-      for (let i = 0; i < numFolders; i++) {
-        folder = allFolders.queryElementAt(i, Ci.nsIMsgFolder);
+      for (let i = 0; i < allFolders.length; i++) {
+        folder = allFolders[i];
         FeedUtils.log.debug(
           "downloadFeed: START x/# folderName:folderPath - " +
             (i + 1) +
             "/" +
-            numFolders +
+            allFolders.length +
             " " +
             folder.name +
             " : " +
@@ -1078,12 +1073,7 @@ var FeedUtils = {
 
     // There may be subfolders, but we only get a single notification; iterate
     // over all descendent folders of the folder whose location has changed.
-    let newSubFolders = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    newFolder.ListDescendants(newSubFolders);
-    for (let i = 0; i < newSubFolders.length; i++) {
-      let newSubFolder = newSubFolders.queryElementAt(i, Ci.nsIMsgFolder);
+    for (let newSubFolder of newFolder.descendants) {
       FeedUtils.updateFolderChangeInFeedsDS(
         newSubFolder,
         aOrigFolder,

@@ -4,9 +4,6 @@
 
 var EXPORTED_SYMBOLS = ["MailUtils"];
 
-const { fixIterator, toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -365,14 +362,12 @@ var MailUtils = {
     aFolder,
     aCallback
   ) {
-    // We need to add the base folder as it does not get added by ListDescendants.
-    let allFolders = toXPCOMArray([aFolder], Ci.nsIMutableArray);
-    // - get all the descendants
-    aFolder.ListDescendants(allFolders);
+    // We need to add the base folder as it is not included by .descendants.
+    let allFolders = [aFolder, ...aFolder.descendants];
 
     // - worker function
     function* folder_string_setter_worker() {
-      for (let folder of fixIterator(allFolders, Ci.nsIMsgFolder)) {
+      for (let folder of allFolders) {
         // set the property; this may open the database...
         let value =
           typeof aPropertyValue == "function"

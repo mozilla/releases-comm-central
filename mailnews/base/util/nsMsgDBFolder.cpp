@@ -4642,28 +4642,14 @@ NS_IMETHODIMP nsMsgDBFolder::GetMessageHeader(nsMsgKey msgKey,
                     : NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetDescendants(nsTArray<RefPtr<nsIMsgFolder>> &aDescendants) {
+NS_IMETHODIMP nsMsgDBFolder::GetDescendants(
+    nsTArray<RefPtr<nsIMsgFolder>> &aDescendants) {
   aDescendants.Clear();
   for (nsIMsgFolder *child : mSubFolders) {
     aDescendants.AppendElement(child);
     nsTArray<RefPtr<nsIMsgFolder>> grandchildren;
     child->GetDescendants(grandchildren);
     aDescendants.AppendElements(grandchildren);
-  }
-  return NS_OK;
-}
-
-// this gets the deep sub-folders too, e.g., the children of the children
-NS_IMETHODIMP nsMsgDBFolder::ListDescendants(nsIMutableArray *aDescendants) {
-  NS_ENSURE_ARG_POINTER(aDescendants);
-
-  nsCOMPtr<nsISimpleEnumerator> dummy;
-  GetSubFolders(getter_AddRefs(dummy));  // initialize mSubFolders
-  uint32_t count = mSubFolders.Count();
-  for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgFolder> child(mSubFolders[i]);
-    aDescendants->AppendElement(child);
-    child->ListDescendants(aDescendants);  // recurse
   }
   return NS_OK;
 }
