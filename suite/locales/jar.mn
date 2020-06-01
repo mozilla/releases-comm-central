@@ -7,7 +7,6 @@
 @AB_CD@.jar:
 % locale branding @AB_CD@ %locale/@AB_CD@/branding/
 % locale communicator @AB_CD@ %locale/@AB_CD@/communicator/
-% locale communicator-region @AB_CD@ %locale/@AB_CD@/communicator-region/
 % locale help @AB_CD@ %locale/@AB_CD@/helpviewer/
 % locale messenger @AB_CD@ %locale/@AB_CD@/messenger/
 % locale messenger-mapi @AB_CD@ %locale/@AB_CD@/messenger-mapi/
@@ -212,7 +211,6 @@
   locale/@AB_CD@/communicator/sidebar/preview.dtd                           (%chrome/common/sidebar/preview.dtd)
   locale/@AB_CD@/communicator/sidebar/sidebar.properties                    (%chrome/common/sidebar/sidebar.properties)
   locale/@AB_CD@/communicator/sidebar/sidebarOverlay.dtd                    (%chrome/common/sidebar/sidebarOverlay.dtd)
-  locale/@AB_CD@/communicator-region/region.properties                      (%chrome/common/region.properties)
   locale/@AB_CD@/messenger/AccountManager.dtd                               (%chrome/mailnews/pref/AccountManager.dtd)
   locale/@AB_CD@/messenger/AccountWizard.dtd                                (%chrome/mailnews/pref/AccountWizard.dtd)
   locale/@AB_CD@/messenger/addressbook/abAddressBookNameDialog.dtd          (%chrome/mailnews/addressbook/abAddressBookNameDialog.dtd)

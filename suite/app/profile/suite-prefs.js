@@ -481,7 +481,7 @@ pref("app.troubleshootingURL", "chrome://branding/locale/brand.properties");
 pref("app.vendorURL", "chrome://branding/locale/brand.properties");
 
 // Base URL for web-based support pages.
-pref("app.support.baseURL", "http://www.seamonkey-project.org/doc/");
+pref("app.support.baseURL", "chrome://branding/locale/brand.properties");
 
 // App-specific update preferences
 
@@ -498,10 +498,10 @@ pref("app.update.silent", false);
 pref("app.update.url", "https://aus2-community.mozilla.org/update/3/%PRODUCT%/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%SYSTEM_CAPABILITIES%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
 // URL user can browse to manually if for some reason all update installation
 // attempts fail.
-pref("app.update.url.manual", "http://www.seamonkey-project.org/");
+pref("app.update.url.manual", "chrome://branding/locale/brand.properties");
 // A default value for the "More information about this update" link
 // supplied in the "An update is available" page of the update wizard.
-pref("app.update.url.details", "chrome://communicator-region/locale/region.properties");
+pref("app.update.url.details", "chrome://branding/locale/brand.properties");
 
 // User-settable override to app.update.url for testing purposes.
 //pref("app.update.url.override", "");
