@@ -48,7 +48,13 @@ function tryLoadGPGME(name, suffix) {
 function loadExternalGPGMELib() {
   if (!libgpgme) {
     // Try loading libgpgme.so, libgpgme.dylib, or gpgme.dll first
-    tryLoadGPGME("gpgme", "");
+
+    let gpgmeLibName = "gpgme";
+
+    if (Services.appinfo.OS === "WINNT") {
+      gpgmeLibName = "libgpgme-11";
+    }
+    tryLoadGPGME(gpgmeLibName, "");
   }
 
   return !!libgpgme;
