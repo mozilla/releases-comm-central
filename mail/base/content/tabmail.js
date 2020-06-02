@@ -468,6 +468,10 @@
        * open when we received the call to openTab.
        */
       this._mostRecentTabInfo = null;
+      /**
+       * Tab id, incremented on each openTab() and set on the browser.
+       */
+      this.tabId = 0;
       this.tabTypes = {};
       this.tabModes = {};
       this.defaultTabMode = null;
@@ -860,12 +864,20 @@
           },
         };
 
+        firstTab.tabNode = this.tabContainer.arrowScrollbox.firstElementChild;
+        firstTab.tabId = this.tabId++;
+
         firstTab.mode.tabs.push(firstTab);
         this.tabInfo[0] = this.currentTabInfo = firstTab;
         let tabOpenFirstFunc =
           firstTab.mode.openFirstTab || firstTab.mode.tabType.openFirstTab;
         tabOpenFirstFunc.call(firstTab.mode.tabType, firstTab);
         this.setTabTitle(null);
+
+        // Set the tabId after defining a <browser> and before notifications.
+        firstTab.browser = this.getBrowserForTab(firstTab);
+        firstTab.browser._activeTabId = firstTab.tabId;
+
         for (let tabMonitor of this.tabMonitors) {
           if ("onTabOpened" in tabMonitor) {
             tabMonitor.onTabOpened(firstTab, true);
@@ -934,6 +946,7 @@
           _ext: {},
         };
 
+        tab.tabId = this.tabId++;
         tabMode.tabs.push(tab);
         var t = document.createXULElement("tab", { is: "tabmail-tab" });
         tab.tabNode = t;
@@ -1019,6 +1032,18 @@
           t.linkedPanel = tab.panel.id;
         }
 
+        // Set the tabId after defining a <browser> and before notifications.
+        let browser = this.getBrowserForTab(tab);
+        if (browser && !tab.browser) {
+          tab.browser = browser;
+          if (!tab.linkedBrowser) {
+            tab.linkedBrowser = browser;
+          }
+        }
+        if (tab.browser && !background) {
+          tab.browser._activeTabId = tab.tabId;
+        }
+
         let restoreState = this._restoringTabState;
         for (let tabMonitor of this.tabMonitors) {
           if (
@@ -1063,9 +1088,8 @@
         });
         t.dispatchEvent(evt);
         delete tab.beforeTabOpen;
-        // Register browser progress listeners
-        let browser = this.getBrowserForTab(tab);
 
+        // Register browser progress listeners
         if (browser && !browser._progressListenerAdded) {
           // It would probably be better to have the tabs register this listener, since the
           // browser can change. This wasn't trivial to do while implementing basic WebExtension
@@ -1676,6 +1700,17 @@
         this.panelContainer.selectedPanel.setAttribute("selected", "true");
         let showTabFunc = tab.mode.showTab || tab.mode.tabType.showTab;
         showTabFunc.call(tab.mode.tabType, tab);
+
+        let browser = this.getBrowserForTab(tab);
+        if (browser && !tab.browser) {
+          tab.browser = browser;
+          if (!tab.linkedBrowser) {
+            tab.linkedBrowser = browser;
+          }
+        }
+        if (tab.browser) {
+          tab.browser._activeTabId = tab.tabId;
+        }
 
         for (let tabMonitor of this.tabMonitors) {
           tabMonitor.onTabSwitched(tab, oldTab);

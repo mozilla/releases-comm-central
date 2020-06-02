@@ -399,7 +399,7 @@ class TabTracker extends TabTrackerBase {
     super();
 
     this._tabs = new WeakMap();
-    this._browsers = new WeakMap();
+    this._browsers = new Map();
     this._tabIds = new Map();
     this._nextId = 1;
     this._movingTabs = new Map();
@@ -457,18 +457,19 @@ class TabTracker extends TabTrackerBase {
    * @return {Integer}                  The tab's numeric ID
    */
   getBrowserTabId(browser) {
-    let id = this._browsers.get(browser);
+    let id = this._browsers.get(`${browser.id}#${browser._activeTabId}`);
     if (id) {
       return id;
     }
 
     let tabmail = browser.ownerDocument.getElementById("tabmail");
     let tab =
-      tabmail && tabmail.tabInfo.find(info => getTabBrowser(info) == browser);
+      tabmail &&
+      tabmail.tabInfo.find(info => info.tabId == browser._activeTabId);
 
     if (tab) {
       id = this.getId(tab);
-      this._browsers.set(browser, id);
+      this._browsers.set(`${browser.id}#${tab.tabId}`, id);
       return id;
     }
     return -1;
@@ -484,7 +485,7 @@ class TabTracker extends TabTrackerBase {
     this._tabs.set(nativeTabInfo, id);
     let browser = getTabBrowser(nativeTabInfo);
     if (browser) {
-      this._browsers.set(browser, id);
+      this._browsers.set(`${browser.id}#${nativeTabInfo.tabId}`, id);
     }
     this._tabIds.set(id, nativeTabInfo);
   }
@@ -499,6 +500,7 @@ class TabTracker extends TabTrackerBase {
     let id = this._tabs.get(nativeTabInfo);
     if (id) {
       this._tabs.delete(nativeTabInfo);
+      this._browsers.delete(`${nativeTabInfo.browser.id}#${nativeTabInfo.tabId}`);
       if (this._tabIds.get(id) === nativeTabInfo) {
         this._tabIds.delete(id);
       }
@@ -539,7 +541,6 @@ class TabTracker extends TabTrackerBase {
         // dispatched.
         let tabmail = event.target.ownerDocument.getElementById("tabmail");
         let currentTab = tabmail.selectedTab;
-
         // We need to delay sending this event until the next tick, since the
         // tab does not have its final index when the TabOpen event is dispatched.
         Promise.resolve().then(() => {
@@ -969,7 +970,7 @@ class TabmailTab extends Tab {
 
   /** Returns the favIcon, without permission checks. */
   get _favIconUrl() {
-    return this.browser.mIconURL;
+    return this.browser?.mIconURL;
   }
 
   /** Returns the tabmail element for the tab. */
