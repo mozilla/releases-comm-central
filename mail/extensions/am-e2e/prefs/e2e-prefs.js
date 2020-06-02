@@ -25,6 +25,8 @@ pref("mail.identity.default.signing_cert_name", "");
 
 // If true, we allow the use of GnuPG for OpenPGP secret key operations
 pref("mail.openpgp.allow_external_gnupg", false);
+// If allow_external_gnupg is true: Optionally use a different gpg executable
+pref("mail.openpgp.alternative_gpg_path", "");
 // The hexadecimal OpenPGP key ID used for an identity.
 pref("mail.identity.default.openpgp_key_id", "");
 

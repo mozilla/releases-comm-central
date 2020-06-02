@@ -199,7 +199,28 @@ function enableGPGMELibJS() {
       let versionPtr = this.gpgme_check_version("1.9.0");
       let version = versionPtr.readString();
       console.debug("gpgme version: " + version);
-      return true;
+
+      let gpgExe = Services.prefs.getStringPref(
+        "mail.openpgp.alternative_gpg_path"
+      );
+      if (!gpgExe) {
+        return true;
+      }
+
+      let extResult = this.gpgme_set_engine_info(
+        this.GPGME_PROTOCOL_OpenPGP,
+        gpgExe,
+        null
+      );
+      let success = extResult === this.GPG_ERR_NO_ERROR;
+      let info = success ? "success" : "failure: " + extResult;
+      console.debug(
+        "configuring GPGME to use an external OpenPGP engine " +
+          gpgExe +
+          " - " +
+          info
+      );
+      return success;
     },
 
     exportKeys(pattern, secret = false) {
@@ -283,6 +304,15 @@ function enableGPGMELibJS() {
     gpgme_check_version: libgpgme.declare(
       "gpgme_check_version",
       abi,
+      ctypes.char.ptr,
+      ctypes.char.ptr
+    ),
+
+    gpgme_set_engine_info: libgpgme.declare(
+      "gpgme_set_engine_info",
+      abi,
+      gpgme_error_t,
+      gpgme_protocol_t,
       ctypes.char.ptr,
       ctypes.char.ptr
     ),
