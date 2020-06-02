@@ -41,30 +41,6 @@ linux64/debug:
         - mochitest-tests
         - xpcshell-tests
 
-linux32/opt:
-    build-platform: linux/opt
-    test-sets:
-        - gtest-tests
-        - marionette-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-linux32-shippable/opt:
-    build-platform: linux-shippable/opt
-    test-sets:
-        - gtest-tests
-        - marionette-tests
-        - mochitest-tests
-        - xpcshell-tests
-
-linux32/debug:
-    build-platform: linux/debug
-    test-sets:
-        - gtest-tests
-        - marionette-tests
-        - mochitest-tests
-        - xpcshell-tests
-
 # Windows platforms (matching /windows.*/)
 
 # win32
