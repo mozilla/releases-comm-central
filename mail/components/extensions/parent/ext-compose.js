@@ -323,9 +323,11 @@ var composeAttachmentTracker = {
   },
 
   forgetAttachment(attachment) {
-    let id = this._attachmentIds.get(attachment).id;
-    this._attachmentIds.delete(attachment);
+    // This is called on all attachments when the window closes, whether the
+    // attachments have been assigned IDs or not.
+    let id = this._attachmentIds.get(attachment)?.id;
     if (id) {
+      this._attachmentIds.delete(attachment);
       this._attachments.delete(id);
     }
   },
