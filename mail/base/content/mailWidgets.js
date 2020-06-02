@@ -887,6 +887,14 @@
         return super.selectedItem;
       }
 
+      focus() {
+        if (this.editable) {
+          this._inputField.focus();
+        } else {
+          super.focus();
+        }
+      }
+
       select() {
         if (this.editable) {
           this._inputField.select();

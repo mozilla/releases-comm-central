@@ -846,6 +846,10 @@
       return this._minimonth.value;
     }
 
+    focus() {
+      this._menulist.focus();
+    }
+
     set _inputBoxValue(val) {
       if (val == "forever") {
         this._inputField.value = this._foreverString;
@@ -1002,6 +1006,10 @@
       return [this._hours, this._minutes];
     }
 
+    focus() {
+      this._menulist.focus();
+    }
+
     set _inputBoxValue(val) {
       if (typeof val == "string") {
         val = parseTime(val);
@@ -1094,6 +1102,10 @@
       dateValue.setSeconds(0);
       dateValue.setMilliseconds(0);
       return dateValue;
+    }
+
+    focus() {
+      this._datepicker.focus();
     }
   }
 
