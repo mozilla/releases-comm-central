@@ -24,14 +24,26 @@ var VCardUtils = {
         abCard.UID = value;
         continue;
       }
-      if (["adr", "tel"].includes(name)) {
-        if (
-          params.type &&
-          ["home", "work", "cell"].includes(params.type.toLowerCase())
-        ) {
-          name = `${name}.${params.type.toLowerCase()}`;
+      if (params.type) {
+        if (Array.isArray(params.type)) {
+          params.type = params.type.map(t => t.toLowerCase());
         } else {
-          name = `${name}.work`;
+          params.type = [params.type.toLowerCase()];
+        }
+      } else {
+        params.type = [];
+      }
+
+      if (name == "adr") {
+        name = params.type.includes("home") ? "adr.home" : "adr.work";
+      }
+      if (name == "tel") {
+        name = "tel.work";
+        for (let t of params.type) {
+          if (["home", "work", "cell", "pager", "fax"].includes(t)) {
+            name = `tel.${t}`;
+            break;
+          }
         }
       }
       if (name in propertyMap) {

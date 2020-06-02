@@ -67,6 +67,17 @@ add_task(function testVCardToAbCard() {
   });
   // Phone
   check("TEL:11-2358-13-21", { WorkPhone: "11-2358-13-21" });
+  check("TEL;TYPE=work:11-2358-13-21", { WorkPhone: "11-2358-13-21" });
+  check("TEL;TYPE=home:11-2358-13-21", { HomePhone: "11-2358-13-21" });
+  check("TEL;TYPE=cell:11-2358-13-21", { CellularNumber: "11-2358-13-21" });
+  check("TEL;TYPE=pager:11-2358-13-21", { PagerNumber: "11-2358-13-21" });
+  check("TEL;TYPE=fax:11-2358-13-21", { FaxNumber: "11-2358-13-21" });
+
+  check("TEL;TYPE=work;PREF:11-2358-13-21", { WorkPhone: "11-2358-13-21" });
+  check("TEL;TYPE=work,cell:11-2358-13-21", { WorkPhone: "11-2358-13-21" });
+  check("TEL;TYPE=work;TYPE=cell:11-2358-13-21", {
+    WorkPhone: "11-2358-13-21",
+  });
   check("TEL;TYPE=work;VALUE=TEXT:11-2358-13-21", {
     WorkPhone: "11-2358-13-21",
   });
