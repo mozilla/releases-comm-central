@@ -500,7 +500,9 @@ class TabTracker extends TabTrackerBase {
     let id = this._tabs.get(nativeTabInfo);
     if (id) {
       this._tabs.delete(nativeTabInfo);
-      this._browsers.delete(`${nativeTabInfo.browser.id}#${nativeTabInfo.tabId}`);
+      this._browsers.delete(
+        `${nativeTabInfo.browser.id}#${nativeTabInfo.tabId}`
+      );
       if (this._tabIds.get(id) === nativeTabInfo) {
         this._tabIds.delete(id);
       }
