@@ -13,6 +13,7 @@
     </hbox>
 
     <!-- Mail Content -->
+    <html:div>
     <html:fieldset id="mailContentGroup" data-category="panePrivacy">
       <html:legend data-l10n-id="mail-content"></html:legend>
       <hbox id="remoteContentBox">
@@ -30,8 +31,10 @@
                data-l10n-id="remote-content-info"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <!-- Web Content -->
+    <html:div>
     <html:fieldset id="webContentGroup" data-category="panePrivacy">
       <html:legend data-l10n-id="web-content"></html:legend>
       <checkbox id="keepHistory"
@@ -92,6 +95,7 @@
                data-l10n-id="learn-button"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <hbox id="privacyPasswordsCategory"
           class="subcategory"
@@ -101,6 +105,7 @@
 
     <separator data-category="panePrivacy"/>
 
+    <html:div>
     <html:fieldset data-category="panePrivacy">
       <hbox align="center">
         <description data-l10n-id="passwords-description"/>
@@ -125,6 +130,7 @@
                 oncommand="gPrivacyPane.changeMasterPassword();"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <hbox id="privacyJunkCategory"
           class="subcategory"
@@ -134,6 +140,7 @@
 
     <separator data-category="panePrivacy"/>
 
+    <html:div>
     <html:fieldset data-category="panePrivacy">
       <description data-l10n-id="junk-description"/>
       <separator class="thin"/>
@@ -175,12 +182,13 @@
         <button id="openJunkLogButton" data-l10n-id="junk-log-button"
                 oncommand="gPrivacyPane.openJunkLog();"/>
       </hbox>
-      <hbox align="start" style="padding-bottom:2em;">
+      <hbox align="start">
         <spacer flex="1"/>
         <button data-l10n-id="reset-junk-button"
                 oncommand="gPrivacyPane.resetTrainingData()"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
 #ifdef MOZ_DATA_REPORTING
     <hbox id="privacyDataCollectionCategory"
@@ -189,6 +197,7 @@
       <html:h1 data-l10n-id="collection-header"/>
     </hbox>
 
+    <html:div>
     <html:fieldset data-category="panePrivacy">
       <description>
         <label class="tail-with-learn-more" data-l10n-id="collection-description"/>
@@ -237,11 +246,8 @@
       </hbox>
 #endif
       </vbox>
-
-      <hbox align="start" style="padding-bottom:2em;">
-        <spacer flex="1"/>
-      </hbox>
     </html:fieldset>
+    </html:div>
 #endif
 
     <hbox id="privacySecurityCategory"
@@ -250,6 +256,7 @@
       <html:h1 data-l10n-id="privacy-security-header"/>
     </hbox>
 
+    <html:div>
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-scam-detection-title"></html:legend>
       <description data-l10n-id="phishing-description"/>
@@ -261,8 +268,10 @@
         <spacer flex="1"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <!-- Anti Virus -->
+    <html:div>
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-anti-virus-title"></html:legend>
       <description data-l10n-id="antivirus-description"/>
@@ -274,7 +283,9 @@
         <spacer flex="1"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-certificates-title"></html:legend>
       <description id="CertSelectionDesc" control="certSelection"
@@ -317,5 +328,6 @@
         </vbox>
       </hbox>
     </html:fieldset>
+    </html:div>
 
   </prefpane>

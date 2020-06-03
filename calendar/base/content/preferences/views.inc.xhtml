@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
 
+    <html:div>
     <html:fieldset data-category="paneCalendar">
         <separator/>
         <box id="datePrefsBox">
@@ -108,7 +109,9 @@
             </vbox>
         </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset data-category="paneCalendar">
         <html:legend data-l10n-id="dayweek-legend"></html:legend>
         <html:table id="dayAndWeekViewsTable">
@@ -234,7 +237,9 @@
                   preference="calendar.view.showLocation"/>
         <spacer/>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset id="viewsMultiweekGroupbox" data-category="paneCalendar">
         <html:legend data-l10n-id="multiweek-legend"></html:legend>
         <hbox align="center">
@@ -265,3 +270,4 @@
             </menulist>
         </hbox>
     </html:fieldset>
+    </html:div>

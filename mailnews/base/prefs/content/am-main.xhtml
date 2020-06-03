@@ -43,7 +43,8 @@
 
     <separator/>
 
-    <html:fieldset style="width:20em !important;">
+    <html:div>
+    <html:fieldset>
       <html:legend>&identityTitle.label;</html:legend>
       <description>&identityDesc.label;</description>
       <separator class="thin"/>
@@ -203,16 +204,16 @@
                 accesskey="&smtpServerEdit.accesskey;"
                 oncommand="editCurrentSMTP();"/>
       </hbox>
-
-      <separator class="thin"/>
-
-      <hbox align="center">
-        <spacer flex="1"/>
-        <button label="&manageIdentities.label;" oncommand="manageIdentities(event);"
-                accesskey="&manageIdentities.accesskey;"
-                wsm_persist="true" id="identity.manageIdentitiesbutton"/>
-      </hbox>
-    <!-- When the fieldset overflow works, move this back above the last separator -->
     </html:fieldset>
+    </html:div>
+
+    <separator class="thin"/>
+
+    <hbox align="center">
+      <spacer flex="1"/>
+      <button label="&manageIdentities.label;" oncommand="manageIdentities(event);"
+              accesskey="&manageIdentities.accesskey;"
+              wsm_persist="true" id="identity.manageIdentitiesbutton"/>
+    </hbox>
   </vbox></vbox>
 </window>

@@ -26,6 +26,7 @@
   <script src="chrome://messenger/content/SmtpServerEdit.js"/>
 
   <vbox id="smtpServerEditor">
+    <html:div>
     <html:fieldset>
       <html:legend>&settings.caption;</html:legend>
       <hbox flex="1">
@@ -73,9 +74,11 @@
         </vbox>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <separator class="thin"/>
 
+    <html:div>
     <html:fieldset>
       <html:legend>&security.caption;</html:legend>
 
@@ -136,6 +139,7 @@
         </vbox>
       </hbox>
     </html:fieldset>
+    </html:div>
   </vbox>
 </dialog>
 </window>

@@ -39,6 +39,7 @@
       <html:h1 data-l10n-id="pane-general-title"/>
     </hbox>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="general-legend"></html:legend>
       <vbox>
@@ -59,7 +60,9 @@
         </hbox>
       </vbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="default-search-engine"></html:legend>
       <hbox align="center">
@@ -74,8 +77,10 @@
                 oncommand="gGeneralPane.removeSearchEngine();"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
 #ifdef HAVE_SHELL_SERVICE
+    <html:div>
     <html:fieldset id="systemDefaultsGroup" data-category="paneGeneral">
       <html:legend data-l10n-id="system-integration-legend"></html:legend>
       <vbox>
@@ -102,6 +107,7 @@
       </hbox>
       </vbox>
     </html:fieldset>
+    </html:div>
 #endif
 
     <hbox id="languageAndAppearanceCategory"
@@ -111,6 +117,7 @@
     </hbox>
 
     <!-- Fonts and Colors -->
+    <html:div>
     <html:fieldset id="fontsGroup" data-category="paneGeneral">
       <html:legend data-l10n-id="fonts-legend"></html:legend>
 
@@ -199,8 +206,10 @@
         <html:input type="color" id="citationmenu" preference="mail.citation_color"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <!-- Date and time formatting -->
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="datetime-formatting-legend"></html:legend>
       <radiogroup id="formatLocale" align="start"
@@ -214,7 +223,9 @@
                <!-- label and accesskey will be set dynamically -->
       </radiogroup>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset id="messengerLanguagesBox" data-category="paneGeneral" hidden="hidden">
       <html:legend data-l10n-id="language-selector-legend"></html:legend>
         <vbox align="start">
@@ -240,8 +251,10 @@
         <vbox class="message-bar-content-container" align="stretch" flex="1"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <!-- Scrolling -->
+    <html:div>
     <html:fieldset id="scrollingGroup" data-category="paneGeneral">
       <html:legend data-l10n-id="scrolling-legend"></html:legend>
       <hbox>
@@ -257,6 +270,7 @@
         <spacer flex="1"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
 
     <hbox id="incomingMailCategory"
@@ -265,6 +279,7 @@
       <html:h1 data-l10n-id="general-incoming-mail-header"/>
     </hbox>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="new-message-arrival"></html:legend>
 #ifdef XP_MACOSX
@@ -340,6 +355,7 @@
                 oncommand="gGeneralPane.browseForSoundFile();"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <hbox id="filesAttachmentCategory"
           class="subcategory"
@@ -347,6 +363,7 @@
       <html:h1 data-l10n-id="general-files-and-attachment-header"/>
     </hbox>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <hbox>
         <search-textbox id="filter"
@@ -401,6 +418,7 @@
         </radiogroup>
       </vbox>
     </html:fieldset>
+    </html:div>
 
     <hbox id="tagsCategory"
           class="subcategory"
@@ -408,6 +426,7 @@
       <html:h1 data-l10n-id="general-tags-header"/>
     </hbox>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <label control="tagList" data-l10n-id="display-tags-text"/>
       <hbox>
@@ -428,6 +447,7 @@
         </vbox>
       </hbox>
     </html:fieldset>
+    </html:div>
 
 
     <hbox id="readingAndDisplayCategory"
@@ -436,6 +456,7 @@
       <html:h1 data-l10n-id="general-reading-and-display-header"/>
     </hbox>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <vbox>
         <hbox>
@@ -507,6 +528,7 @@
                 oncommand="gGeneralPane.showReturnReceipts();"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
 #ifdef MOZ_UPDATER
     <hbox id="updatesCategory"
@@ -516,6 +538,7 @@
     </hbox>
 
     <!-- Update -->
+    <html:div>
     <html:fieldset id="updateApp" data-category="paneGeneral">
       <html:legend data-l10n-id="update-app-legend"></html:legend>
       <hbox align="center">
@@ -637,6 +660,7 @@
                 preference="app.update.service.enabled"/>
 #endif
     </html:fieldset>
+    </html:div>
 #endif
 
     <hbox id="networkAndDiskspaceCategory"
@@ -646,6 +670,7 @@
     </hbox>
 
     <!-- Networking & Disk Space -->
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="networking-legend"></html:legend>
       <hbox align="center">
@@ -657,7 +682,9 @@
                 oncommand="gGeneralPane.showConnections();"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="offline-legend"></html:legend>
       <hbox align="center">
@@ -669,7 +696,9 @@
                 oncommand="gGeneralPane.showOffline();"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="diskspace-legend"></html:legend>
       <hbox align="center">
@@ -704,7 +733,9 @@
           <label id="compactFolderMB" data-l10n-id="compact-folder-size" value=""/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="general-indexing-label"></html:legend>
       <vbox>
@@ -736,9 +767,11 @@
       <vbox>
       </vbox>
     </html:fieldset>
+    </html:div>
 
     <separator class="thin" data-category="paneGeneral"/>
 
+    <html:div>
     <html:fieldset data-category="paneGeneral">
       <hbox pack="end">
         <button id="configEditor"
@@ -746,5 +779,6 @@
                 oncommand="gGeneralPane.showConfigEdit();"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
   </prefpane>

@@ -58,6 +58,7 @@
     <tabpanels id="identityTabsPanels" flex="1">
       <!-- Identity Settings Tab -->
       <vbox flex="1" name="settings">
+        <html:div>
         <html:fieldset>
           <html:legend>&publicData.label;</html:legend>
           <html:table class="identity-table">
@@ -164,7 +165,9 @@
             <label id="identity.escapedVCard" hidden="true"/>
           </hbox>
         </html:fieldset>
+        </html:div>
 
+        <html:div>
         <html:fieldset>
           <html:legend>&privateData.label;</html:legend>
 
@@ -214,6 +217,7 @@
                         aria-labelledby="identity.input.label"/>
           </hbox>
         </html:fieldset>
+        </html:div>
 
       </vbox>
 

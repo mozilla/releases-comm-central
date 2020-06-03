@@ -24,6 +24,7 @@
       </vbox>
 
 #ifdef MOZ_OPENPGP
+      <html:div>
       <html:fieldset id="openpgpOptions">
         <html:legend>&openpgpKeys.label;</html:legend>
 
@@ -52,8 +53,10 @@
                   label="&manageKeys.label;"/>
         </hbox>
       </html:fieldset>
+      </html:div>
 #endif
 
+      <html:div>
       <html:fieldset id="smimeOptions">
         <html:legend>&certificates2.label;</html:legend>
 
@@ -111,9 +114,11 @@
         </hbox>
 
       </html:fieldset>
+      </html:div>
 
       <html:legend>&sendingDefaults.label;</html:legend>
 
+      <html:div>
       <html:fieldset id="encryption_titlebox">
         <description flex="1">&e2eEnc.description;</description>
 
@@ -157,4 +162,5 @@
         </radiogroup>
 #endif
       </html:fieldset>
+      </html:div>
     </vbox>

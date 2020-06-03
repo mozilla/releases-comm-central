@@ -30,6 +30,7 @@
       <html:link rel="localization" href="messenger/preferences/fonts.ftl"/>
     </linkset>
 
+    <html:div>
     <html:fieldset>
       <box style="display: grid; grid-template-columns: auto 1fr auto auto;">
         <!-- title row -->
@@ -232,7 +233,9 @@
         </hbox>
       </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset>
       <html:legend data-l10n-id="font-control-legend"></html:legend>
 
@@ -248,7 +251,9 @@
                   preference="mail.fixed_width_messages"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset>
       <html:legend data-l10n-id="text-encoding-legend"></html:legend>
 
@@ -280,6 +285,7 @@
                 data-l10n-id="default-font-reply-checkbox"
                 preference="mailnews.reply_in_default_charset"/>
     </html:fieldset>
+    </html:div>
     <separator/>
   </vbox>
 </dialog>

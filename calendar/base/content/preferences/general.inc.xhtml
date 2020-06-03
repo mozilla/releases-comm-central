@@ -1,6 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
+    <html:div>
     <html:fieldset data-category="paneCalendar">
         <html:legend data-l10n-id="todaypane-legend"></html:legend>
         <hbox align="center">
@@ -23,7 +24,9 @@
             </menulist>
         </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset id="defaults-itemtype-groupbox" data-category="paneCalendar">
         <html:legend data-l10n-id="event-task-legend"></html:legend>
         <vbox id="defaults-itemtype-box">
@@ -164,7 +167,9 @@
                       preference="calendar.item.editInTab"/>
         </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset id="systemColorsGroupbox" data-category="paneCalendar">
         <html:legend data-l10n-id="accessibility-legend"></html:legend>
         <hbox align="center">
@@ -173,3 +178,4 @@
                       preference="calendar.view.useSystemColors"/>
         </hbox>
     </html:fieldset>
+    </html:div>

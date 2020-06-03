@@ -5,6 +5,7 @@
     <vbox flex="1" id="compositionAndAddressing">
       <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
 
+      <html:div>
       <html:fieldset>
         <html:legend>&compositionGroupTitle.label;</html:legend>
         <hbox align="center">
@@ -67,9 +68,11 @@
                   oncommand="showGlobalComposingPrefs();"/>
         </hbox>
       </html:fieldset>
+      </html:div>
 
       <separator class="thin"/>
 
+      <html:div>
       <html:fieldset>
         <html:legend>&addressingGroupTitle.label;</html:legend>
 #ifndef MOZ_THUNDERBIRD
@@ -118,4 +121,5 @@
                   oncommand="showGlobalAddressingPrefs();"/>
         </hbox>
       </html:fieldset>
+      </html:div>
     </vbox>

@@ -96,6 +96,7 @@
 
     <separator/>
 
+    <html:div>
     <html:fieldset hidefor="movemail">
       <html:legend>&securitySettings.label;</html:legend>
       <html:table>
@@ -151,7 +152,9 @@
         </html:tr>
       </html:table>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset>
       <html:legend>&serverSettings.label;</html:legend>
       <vbox align="start">
@@ -352,7 +355,9 @@
               prefattribute="value"
               prefstring="mail.server.%serverkey%.always_authenticate"/>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset>
       <html:legend>&messageStorage.label;</html:legend>
 
@@ -441,6 +446,7 @@
       </hbox>
 
     </html:fieldset>
+    </html:div>
 
     <hbox hidefor="imap,pop3,movemail" align="center" valign="middle" iscontrolcontainer="true">
 

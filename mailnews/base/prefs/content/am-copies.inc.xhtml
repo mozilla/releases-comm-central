@@ -30,6 +30,7 @@
     <label id="identity.tmplFolderPickerMode" hidden="true" wsm_persist="true"
            pref="true" preftype="int" prefattribute="value"
            prefstring="mail.identity.%identitykey%.tmpl_folder_picker_mode"/>
+    <html:div>
     <html:fieldset id="copiesGroup">
       <html:legend>&sendingPrefix.label;</html:legend>
 
@@ -127,7 +128,9 @@
         </vbox>
       </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset id="archivesGroup">
       <html:legend>&archivesTitle.label;</html:legend>
 
@@ -188,7 +191,9 @@
                 oncommand="ChangeArchiveHierarchy();"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
+    <html:div>
     <html:fieldset id="foldersGroup">
       <html:legend>&specialFolders.label;</html:legend>
 
@@ -286,4 +291,5 @@
                   prefstring="mail.identity.%identitykey%.showSaveMsgDlg"/>
       </hbox>
     </html:fieldset>
+    </html:div>
   </vbox>

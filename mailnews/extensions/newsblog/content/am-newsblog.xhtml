@@ -52,6 +52,7 @@
 
     <separator class="thin"/>
 
+    <html:div>
     <html:fieldset>
       <html:legend>&serverSettings.label;</html:legend>
       <checkbox id="doBiff"
@@ -59,9 +60,11 @@
                 accesskey="&biffAll.accesskey;"
                 oncommand="setPrefs(this)"/>
     </html:fieldset>
+    </html:div>
 
     <separator class="thin"/>
 
+    <html:div>
     <html:fieldset>
       <html:legend>&newFeedSettings.label;</html:legend>
 
@@ -108,6 +111,7 @@
                       onchange="setPrefs(this)"/>
       </hbox>
     </html:fieldset>
+    </html:div>
 
     <separator class="thin"/>
 
@@ -119,6 +123,7 @@
 
     <separator class="thin"/>
 
+    <html:div>
     <html:fieldset>
       <html:legend>&messageStorage.label;</html:legend>
 
@@ -151,5 +156,6 @@
       </vbox>
 
     </html:fieldset>
+    </html:div>
   </vbox></vbox>
 </window>
