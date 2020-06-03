@@ -215,7 +215,7 @@ label.label {
   padding-inline-start: 0;
 }
 
-.item-location-link > label{
+.item-location-link > label {
   cursor: pointer;
 }
 
@@ -819,18 +819,29 @@ calendar-event-freebusy-day > box {
   min-width: 35em;
 }
 
+#calendar-summary-dialog .item-location,
+#calendar-summary-dialog .item-title,
+#calendar-event-summary-dialog .item-location,
+#calendar-event-summary-dialog .item-title,
+#calendar-task-summary-dialog .item-location,
+#calendar-task-summary-dialog .item-title,
+#calendar-ics-file-dialog .item-location,
+#calendar-ics-file-dialog .item-title {
+  padding-inline-start: 1px;
+}
+
 #calendar-summary-dialog .item-attachment-cell,
 #calendar-event-summary-dialog .item-attachment-cell,
 #calendar-task-summary-dialog .item-attachment-cell,
 #calendar-ics-file-dialog .item-attachment-cell {
-  margin-left: 6px;
+  margin-left: 0px;
 }
 
 #calendar-summary-dialog .item-attachment-cell-label,
 #calendar-event-summary-dialog .item-attachment-cell-label,
 #calendar-task-summary-dialog .item-attachment-cell-label,
 #calendar-ics-file-dialog .item-attachment-cell-label {
-  margin-left: 3px;
+  margin-left: 0px;
 }
 
 #calendar-summary-dialog .item-description-wrapper,
@@ -848,14 +859,6 @@ calendar-event-freebusy-day > box {
   box-sizing: border-box;
   min-height: 54px;
   margin: 2px 4px 0;
-}
-
-#calendar-summary-dialog .selectable-label,
-#calendar-event-summary-dialog .selectable-label,
-#calendar-task-summary-dialog .selectable-label,
-#calendar-ics-file-dialog .selectable-label {
-  background-color: inherit;
-  color: inherit;
 }
 
 #calendar-summary-dialog #item-start-row .headline,

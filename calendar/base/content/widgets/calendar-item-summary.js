@@ -41,51 +41,39 @@
           `
           <vbox class="item-summary-box" flex="1">
             <!-- General -->
-            <box orient="vertical">
             <hbox class="calendar-caption" align="center">
               <label value="&read.only.general.label;" class="header"/>
               <separator class="groove" flex="1"/>
             </hbox>
-            <hbox flex="1" class="calendar-summary-box">
             <html:table class="calendar-summary-table">
               <html:tr>
                 <html:th>
                   &read.only.title.label;
                 </html:th>
-                <html:td>
-                  <html:input class="item-title selectable-label plain input-inline"
-                              readonly="readonly"/>
+                <html:td class="item-title">
                 </html:td>
               </html:tr>
               <html:tr class="calendar-row" hidden="hidden">
                 <html:th>
                   &read.only.calendar.label;
                 </html:th>
-                <html:td>
-                  <html:input class="item-calendar selectable-label plain input-inline"
-                              readonly="readonly"/>
+                <html:td class="item-calendar">
                 </html:td>
               </html:tr>
               <html:tr class="item-date-row">
-                <html:th>
-                  <label class="item-start-row-label"
+                <html:th class="item-start-row-label"
                          taskStartLabel="&read.only.task.start.label;"
-                         eventStartLabel="&read.only.event.start.label;"/>
+                         eventStartLabel="&read.only.event.start.label;">
                 </html:th>
-                <html:td>
-                  <html:input class="item-date-row-start-date selectable-label plain input-inline"
-                              readonly="readonly"/>
+                <html:td class="item-date-row-start-date">
                 </html:td>
               </html:tr>
               <html:tr class="item-date-row">
-                <html:th>
-                  <label class="item-due-row-label"
+                <html:th class="item-due-row-label"
                          taskDueLabel="&read.only.task.due.label;"
-                         eventEndLabel="&read.only.event.end.label;"/>
+                         eventEndLabel="&read.only.event.end.label;">
                 </html:th>
-                <html:td>
-                  <html:input class="item-date-row-end-date selectable-label plain input-inline"
-                              readonly="readonly"/>
+                <html:td class="item-date-row-end-date">
                 </html:td>
               </html:tr>
               <html:tr class="repeat-row" hidden="hidden">
@@ -94,7 +82,7 @@
                 </html:th>
                 <html:td>
                   <box class="repeat-details" orient="vertical">
-                    <html:input readonly="readonly" class="selectable-label plain input-inline"/>
+                    <html:div/>
                   </box>
                 </html:td>
               </html:tr>
@@ -102,21 +90,18 @@
                 <html:th>
                   &read.only.location.label;
                 </html:th>
-                <html:td>
-                  <html:input class="item-location selectable-label plain input-inline"
-                              readonly="readonly"/>
+                <html:td class="item-location">
                 </html:td>
               </html:tr>
               <html:tr class="category-row" hidden="hidden">
                 <html:th>
                   &read.only.category.label;
                 </html:th>
-                <html:td>
-                  <label class="item-category"/>
+                <html:td class="item-category">
                 </html:td>
               </html:tr>
               <html:tr class="organizer-row item-attendees-row" hidden="hidden">
-                <html:th>
+                <html:th class="organizer-label">
                   &read.only.organizer.label;
                 </html:th>
                 <html:td>
@@ -133,13 +118,13 @@
                   &task.status.label;
                 </html:th>
                 <html:td class="status-row-td">
-                  <label value="&newevent.status.tentative.label;" hidden="true" status="TENTATIVE"/>
-                  <label value="&newevent.status.confirmed.label;" hidden="true" status="CONFIRMED"/>
-                  <label value="&newevent.eventStatus.cancelled.label;" hidden="true" status="CANCELLED"/>
-                  <label value="&newevent.todoStatus.cancelled.label;" hidden="true" status="CANCELLED"/>
-                  <label value="&newevent.status.needsaction.label;" hidden="true" status="NEEDS-ACTION"/>
-                  <label value="&newevent.status.inprogress.label;" hidden="true" status="IN-PROCESS"/>
-                  <label value="&newevent.status.completed.label;" hidden="true" status="COMPLETED"/>
+                  <html:div hidden="true" status="TENTATIVE">&newevent.status.tentative.label;</html:div>
+                  <html:div hidden="true" status="CONFIRMED">&newevent.status.confirmed.label;</html:div>
+                  <html:div hidden="true" status="CANCELLED">&newevent.eventStatus.cancelled.label;</html:div>
+                  <html:div hidden="true" status="CANCELLED">&newevent.todoStatus.cancelled.label;</html:div>
+                  <html:div hidden="true" status="NEEDS-ACTION">&newevent.status.needsaction.label;</html:div>
+                  <html:div hidden="true" status="IN-PROCESS">&newevent.status.inprogress.label;</html:div>
+                  <html:div hidden="true" status="COMPLETED">&newevent.status.completed.label;</html:div>
                 </html:td>
               </html:tr>
               <separator class="groove" flex="1" hidden="true"/>
@@ -234,7 +219,7 @@
                 </html:td>
               </html:tr>
               <html:tr class="attachments-row item-attachments-row" hidden="hidden" >
-                <html:th>
+                <html:th class="attachments-label">
                   &read.only.attachments.label;
                 </html:th>
                 <html:td>
@@ -253,8 +238,6 @@
                 </html:td>
               </html:tr>
             </html:table>
-            </hbox>
-            </box>
 
             <!-- attendee box template -->
             <vbox class="item-attendees-box-template">
@@ -399,11 +382,11 @@
       let item = this.item;
       let isToDoItem = this.mIsToDoItem;
 
-      this.querySelector(".item-title").value = item.title;
+      this.querySelector(".item-title").textContent = item.title;
 
       if (this.calendar) {
         this.querySelector(".calendar-row").removeAttribute("hidden");
-        this.querySelector(".item-calendar").value = this.calendar.name;
+        this.querySelector(".item-calendar").textContent = this.calendar.name;
       }
 
       // Show start date.
@@ -416,11 +399,10 @@
       itemDateRowStartDate.style.visibility = itemStartDate ? "visible" : "collapse";
 
       if (itemStartDate) {
-        let itemStartLabelValue = itemStartRowLabel.getAttribute(
+        itemStartRowLabel.textContent = itemStartRowLabel.getAttribute(
           isToDoItem ? "taskStartLabel" : "eventStartLabel"
         );
-        itemStartRowLabel.setAttribute("value", itemStartLabelValue);
-        itemDateRowStartDate.value = cal.dtz.getStringForDateTime(itemStartDate);
+        itemDateRowStartDate.textContent = cal.dtz.getStringForDateTime(itemStartDate);
       }
 
       // Show due date / end date.
@@ -433,11 +415,10 @@
       itemDateRowEndDate.style.visibility = itemDueDate ? "visible" : "collapse";
 
       if (itemDueDate) {
-        let itemDueLabelValue = itemDueRowLabel.getAttribute(
+        itemDueRowLabel.textContent = itemDueRowLabel.getAttribute(
           isToDoItem ? "taskDueLabel" : "eventEndLabel"
         );
-        itemDueRowLabel.setAttribute("value", itemDueLabelValue);
-        itemDateRowEndDate.value = cal.dtz.getStringForDateTime(itemDueDate);
+        itemDateRowEndDate.textContent = cal.dtz.getStringForDateTime(itemDueDate);
       }
 
       // Show reminder if this item is *not* readonly.
@@ -477,7 +458,7 @@
       if (categories.length > 0) {
         this.querySelector(".category-row").removeAttribute("hidden");
         // TODO: this join is unfriendly for l10n (categories.join(", ")).
-        this.querySelector(".item-category").value = categories.join(", ");
+        this.querySelector(".item-category").textContent = categories.join(", ");
       }
 
       if (item.organizer && item.organizer.id) {
@@ -552,7 +533,7 @@
         repeatDetails.appendChild(repeatDetails.firstElementChild.cloneNode(true));
       }
       for (let i = 0; i < lines.length; i++) {
-        repeatDetails.children[i].value = lines[i];
+        repeatDetails.children[i].textContent = lines[i];
         repeatDetails.children[i].setAttribute("tooltiptext", details);
       }
     }
@@ -601,7 +582,7 @@
 
         itemLocation.replaceWith(link);
       } else {
-        itemLocation.value = location;
+        itemLocation.textContent = location;
       }
     }
 
@@ -673,7 +654,7 @@
           statusRow.removeAttribute("hidden");
 
           if (status == "CANCELLED" && isToDoItem) {
-            // There are two labels for CANCELLED, the second one is for
+            // There are two status elements for CANCELLED, the second one is for
             // todo items. Increment the counter here.
             i++;
           }

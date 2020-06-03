@@ -62,49 +62,65 @@ add_task(async () => {
 
       let items = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
       is(items.length, 4, "four calendar items are displayed");
-      is(items[0].querySelector(".item-title").value, "Event One", "event 1 title is correct");
-      is(items[1].querySelector(".item-title").value, "Event Two", "event 2 title is correct");
-      is(items[2].querySelector(".item-title").value, "Event Three", "event 3 title is correct");
-      is(items[3].querySelector(".item-title").value, "Event Four", "event 4 title is correct");
       is(
-        items[0].querySelector(".item-date-row-start-date").value,
+        items[0].querySelector(".item-title").textContent,
+        "Event One",
+        "event 1 title should be correct"
+      );
+      is(
+        items[1].querySelector(".item-title").textContent,
+        "Event Two",
+        "event 2 title should be correct"
+      );
+      is(
+        items[2].querySelector(".item-title").textContent,
+        "Event Three",
+        "event 3 title should be correct"
+      );
+      is(
+        items[3].querySelector(".item-title").textContent,
+        "Event Four",
+        "event 4 title should be correct"
+      );
+      is(
+        items[0].querySelector(".item-date-row-start-date").textContent,
         cal.dtz.formatter.formatDateTime(cal.createDateTime("20190101T150000")),
-        "event 1 start date is correct"
+        "event 1 start date should be correct"
       );
       is(
-        items[0].querySelector(".item-date-row-end-date").value,
+        items[0].querySelector(".item-date-row-end-date").textContent,
         cal.dtz.formatter.formatDateTime(cal.createDateTime("20190101T160000")),
-        "event 1 end date is correct"
+        "event 1 end date should be correct"
       );
       is(
-        items[1].querySelector(".item-date-row-start-date").value,
+        items[1].querySelector(".item-date-row-start-date").textContent,
         cal.dtz.formatter.formatDateTime(cal.createDateTime("20190101T160000")),
-        "event 2 start date is correct"
+        "event 2 start date should be correct"
       );
       is(
-        items[1].querySelector(".item-date-row-end-date").value,
+        items[1].querySelector(".item-date-row-end-date").textContent,
         cal.dtz.formatter.formatDateTime(cal.createDateTime("20190101T170000")),
-        "event 2 end date is correct"
+        "event 2 end date should be correct"
       );
       is(
-        items[2].querySelector(".item-date-row-start-date").value,
+        items[2].querySelector(".item-date-row-start-date").textContent,
         cal.dtz.formatter.formatDateTime(cal.createDateTime("20190101T170000")),
-        "event 3 start date is correct"
+        "event 3 start date should be correct"
       );
       is(
-        items[2].querySelector(".item-date-row-end-date").value,
+        items[2].querySelector(".item-date-row-end-date").textContent,
         cal.dtz.formatter.formatDateTime(cal.createDateTime("20190101T180000")),
-        "event 3 end date is correct"
+        "event 3 end date should be correct"
       );
       is(
-        items[3].querySelector(".item-date-row-start-date").value,
+        items[3].querySelector(".item-date-row-start-date").textContent,
         cal.dtz.formatter.formatDateTime(cal.createDateTime("20190101T180000")),
-        "event 4 start date is correct"
+        "event 4 start date should be correct"
       );
       is(
-        items[3].querySelector(".item-date-row-end-date").value,
+        items[3].querySelector(".item-date-row-end-date").textContent,
         cal.dtz.formatter.formatDateTime(cal.createDateTime("20190101T190000")),
-        "event 4 end date is correct"
+        "event 4 end date should be correct"
       );
 
       // Import just the first item, and check that the correct number of items remains.
@@ -116,9 +132,9 @@ add_task(async () => {
       let remainingItems = doc.querySelectorAll(".calendar-ics-file-dialog-item-frame");
       is(remainingItems.length, 3, "three items remain after importing the first item");
       is(
-        remainingItems[0].querySelector(".item-title").value,
+        remainingItems[0].querySelector(".item-title").textContent,
         "Event Two",
-        "'Event Two' is now in the first item in the dialog"
+        "'Event Two' should now be the first item in the dialog"
       );
 
       let messageElement = doc.querySelector("#calendar-ics-file-dialog-message");

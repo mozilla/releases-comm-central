@@ -2,26 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-th {
-  text-align: right;
-  padding-inline-end: 5px;
-  font-weight: normal;
-}
-
-td {
-  width: 100%;
-  padding-top: 0;
-}
-
-.calendar-summary-box {
-  display: flex;
-}
-
 .calendar-summary-table {
   width: 100%;
 }
 
-.calendar-summary-table input {
+.calendar-summary-table th {
+  -moz-user-select: text;
+  font-weight: normal;
+  padding-inline-end: 5px;
+  text-align: right;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.calendar-summary-table td {
+  -moz-user-select: text;
+  padding-top: 0;
+  vertical-align: baseline;
   width: 100%;
 }
 
@@ -34,11 +31,15 @@ td {
   width: 100%;
 }
 
-.calendar-summary-table > tr > th > label {
-  margin-inline-end: 0;
+.calendar-summary-table .item-location-link > label {
+  margin-inline: 0;
 }
 
-.calendar-summary-table > tr > td > label {
-  margin-top: 2px;
-  margin-inline-start: 4px;
+.calendar-summary-table .item-organizer-cell {
+  margin-inline: 0px;
+}
+
+.calendar-summary-table .organizer-label,
+.calendar-summary-table .attachments-label {
+  vertical-align: top;
 }
