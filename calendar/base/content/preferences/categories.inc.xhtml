@@ -3,19 +3,22 @@
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
     <html:fieldset data-category="paneCalendar">
         <separator class="thin"/>
-        <richlistbox id="categorieslist"
-                     flex="1"
-                     seltype="multiple"
-                     onselect="gCategoriesPane.updateButtons()"
-                     ondblclick="gCategoriesPane.listOnDblClick(event)"/>
-        <hbox pack="end">
-            <button data-l10n-id="new-tag-button"
-                    oncommand="gCategoriesPane.addCategory()"/>
-            <button id="editCButton"
-                    data-l10n-id="edit-tag-button"
-                    oncommand="gCategoriesPane.editCategory()"/>
-            <button id="deleteCButton"
-                    data-l10n-id="delete-tag-button"
-                    oncommand="gCategoriesPane.deleteCategory()"/>
+        <hbox>
+          <richlistbox id="categorieslist"
+                       flex="1"
+                       seltype="multiple"
+                       onselect="gCategoriesPane.updateButtons()"
+                       ondblclick="gCategoriesPane.listOnDblClick(event)"/>
+          <vbox ic="categoriesButtons">
+              <button id="newCButton"
+                      data-l10n-id="new-tag-button"
+                      oncommand="gCategoriesPane.addCategory()"/>
+              <button id="editCButton"
+                      data-l10n-id="edit-tag-button"
+                      oncommand="gCategoriesPane.editCategory()"/>
+              <button id="deleteCButton"
+                      data-l10n-id="delete-tag-button"
+                      oncommand="gCategoriesPane.deleteCategory()"/>
+          </vbox>
         </hbox>
     </html:fieldset>

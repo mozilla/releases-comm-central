@@ -503,17 +503,24 @@ html|input.indent {
   margin-inline-start: 8px;
 }
 
-#tagList {
+#tagList,
+#categorieslist {
   margin-inline-end: 4px;
 }
 
-#tagButtons > button:first-child {
+#new-tag-button,
+#newCButton {
   margin-top: 0;
 }
 
 /* Menulist styles */
 .label-item {
   font-size: .8em;
+}
+
+#datePrefsBox {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
 }
 
 /**
