@@ -30,6 +30,8 @@ pref("mail.openpgp.alternative_gpg_path", "");
 // The hexadecimal OpenPGP key ID used for an identity.
 pref("mail.identity.default.openpgp_key_id", "");
 
+// When sending, encrypt to this additional key. Not available in release channel builds.
+pref("mail.openpgp.debug.extra_encryption_key", "");
 
 // Hide prefs and menu entries from non-advanced users
 pref("temp.openpgp.advancedUser", false);

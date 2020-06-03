@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["RNP"];
 
+var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var { RNPLibLoader } = ChromeUtils.import(
@@ -1693,6 +1694,26 @@ var RNP = {
         }
         this.addSuitableEncryptKey(bccKey, op);
         RNPLib.rnp_key_handle_destroy(bccKey);
+      }
+
+      if (AppConstants.MOZ_UPDATE_CHANNEL != "release") {
+        let debugKey = Services.prefs.getStringPref(
+          "mail.openpgp.debug.extra_encryption_key"
+        );
+        if (debugKey) {
+          console.debug("searching for " + debugKey);
+          let handle = this.getKeyHandleByKeyIdOrFingerprint(
+            RNPLib.ffi,
+            debugKey
+          );
+          if (handle.isNull()) {
+            console.debug("cannot get handle for debug key " + debugKey);
+          } else {
+            console.debug("FOUND get handle for debug key " + debugKey);
+            this.addSuitableEncryptKey(handle, op);
+            RNPLib.rnp_key_handle_destroy(handle);
+          }
+        }
       }
 
       // TODO decide if our compatibility requirements allow us to
