@@ -790,6 +790,45 @@ function LoadPostAccountWizard() {
   } else {
     window.setTimeout(loadStartFolder, 0, startFolderURI);
   }
+
+  setTimeout(reportAccountTypes, 0);
+}
+
+/**
+ * Report account types to telemetry. For im accounts, use `im_protocol` as
+ * scalar key name.
+ */
+function reportAccountTypes() {
+  // Init all count with 0, so that when an account was set up before but
+  // removed now, we reset it in telemetry report.
+  let report = {
+    pop3: 0,
+    imap: 0,
+    nntp: 0,
+    exchange: 0,
+    rss: 0,
+    none: 0,
+    im_gtalk: 0,
+    im_irc: 0,
+    im_matrix: 0,
+    im_odnoklassniki: 0,
+    im_xmpp: 0,
+  };
+  for (let account of MailServices.accounts.accounts) {
+    let type = account.incomingServer.type;
+    if (type === "im") {
+      let protocol = account.incomingServer.wrappedJSObject.imAccount.protocol.name.toLowerCase();
+      type = `im_${protocol}`;
+    }
+    // It's still possible to report other types not explicitly specified.
+    if (!report[type]) {
+      report[type] = 0;
+    }
+    report[type]++;
+  }
+  for (let [type, count] of Object.entries(report)) {
+    Services.telemetry.keyedScalarSet("tb.account.count", type, count);
+  }
 }
 
 function HandleAppCommandEvent(evt) {
