@@ -21,7 +21,7 @@ botan_modules = ','.join((
      'ec_group', 'ecdh', 'ecdsa', 'ed25519', 'elgamal', 'eme_pkcs1', 'emsa_pkcs1',
      'emsa_raw', 'ffi', 'hash', 'hmac', 'hmac_drbg', 'idea', 'kdf', 'md5', 'ocb',
      'pgp_s2k', 'pubkey', 'rfc3394', 'rmd160', 'rsa', 'sha1', 'sha2_32',
-     'sha2_64', 'sha3', 'sm2', 'sm3', 'sm4', 'sp800_56a', 'twofish'
+     'sha2_64', 'sha3', 'sm2', 'sm3', 'sm4', 'sp800_56a', 'system_rng', 'twofish'
 ))
 
 ##
