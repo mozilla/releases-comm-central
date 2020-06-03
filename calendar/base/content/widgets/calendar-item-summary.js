@@ -13,7 +13,7 @@
 // Wrap in a block to prevent leaking to window scope.
 {
   var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-  var { recurrenceRule2String } = ChromeUtils.import(
+  var { recurrenceStringFromItem } = ChromeUtils.import(
     "resource:///modules/calendar/calRecurrenceUtils.jsm"
   );
 
@@ -437,7 +437,12 @@
         }
       }
 
-      this.updateRecurrenceDetails(getRecurrenceString(item));
+      let recurrenceDetails = recurrenceStringFromItem(
+        item,
+        "calendar-event-dialog",
+        "ruleTooComplexSummary"
+      );
+      this.updateRecurrenceDetails(recurrenceDetails);
       this.updateAttendees(item);
 
       updateLink(
@@ -498,10 +503,13 @@
         false
       );
     }
+
     /**
-     * Updates the item's recurrence details, i.e. shows text describing them.
+     * Updates the item's recurrence details, i.e. shows text describing them,
+     * or hides the recurrence row if the item does not recur.
      *
-     * @param {string} details - Recurrence details as a string.
+     * @param {string | null} details - Recurrence details as a string or null.
+     *                                  Passing null hides the recurrence row.
      */
     updateRecurrenceDetails(details) {
       let repeatRow = this.querySelector(".repeat-row");

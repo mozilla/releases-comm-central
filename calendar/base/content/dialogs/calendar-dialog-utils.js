@@ -6,7 +6,7 @@
  *          dispose, setDialogId, loadReminders, saveReminder,
  *          commonUpdateReminder, updateLink, rearrangeAttendees,
  *          adaptScheduleAgent, sendMailToOrganizer,
- *          openAttachmentFromItemSummary, getRecurrenceString,
+ *          openAttachmentFromItemSummary,
  */
 
 /* import-globals-from ../../../lightning/content/lightning-item-iframe.js */
@@ -814,35 +814,4 @@ function openAttachmentFromItemSummary(aAttachmentId, item) {
       .getService(Ci.nsIExternalProtocolService)
       .loadURI(attachments[0].uri);
   }
-}
-
-/**
- * Given a calendar event or task, return a string that describes the item's
- * recurrence pattern, or null if there is no recurrence info.
- *
- * @param {calIEvent | calITodo} item - A calendar item.
- * @return {string | null} A string describing the item's recurrence pattern or null.
- */
-function getRecurrenceString(item) {
-  // Recurrence info is stored on the parent item.
-  let parent = item.parentItem;
-
-  let recurrenceInfo = parent.recurrenceInfo;
-  if (!recurrenceInfo) {
-    return null;
-  }
-
-  let kDefaultTimezone = cal.dtz.defaultTimezone;
-
-  let rawStartDate = parent.startDate || parent.entryDate;
-  let rawEndDate = parent.endDate || parent.dueDate;
-
-  let startDate = rawStartDate ? rawStartDate.getInTimezone(kDefaultTimezone) : null;
-  let endDate = rawEndDate ? rawEndDate.getInTimezone(kDefaultTimezone) : null;
-
-  let details =
-    recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate) ||
-    cal.l10n.getString("calendar-event-dialog", "ruleTooComplexSummary");
-
-  return details;
 }

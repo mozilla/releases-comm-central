@@ -10,9 +10,6 @@
 /* import-globals-from calendar-dialog-utils.js */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { recurrenceRule2String } = ChromeUtils.import(
-  "resource:///modules/calendar/calRecurrenceUtils.jsm"
-);
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const gNotification = {};

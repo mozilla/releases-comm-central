@@ -2,19 +2,56 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exported recurrenceRule2String, splitRecurrenceRules, checkRecurrenceRule
- *          countOccurrences
+/* exported recurrenceStringFromItem, recurrenceRule2String, splitRecurrenceRules,
+ *          checkRecurrenceRule, countOccurrences
  */
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 const EXPORTED_SYMBOLS = [
+  "recurrenceStringFromItem",
   "recurrenceRule2String",
   "splitRecurrenceRules",
   "checkRecurrenceRule",
   "countOccurrences",
 ];
+
+/**
+ * Given a calendar event or task, return a string that describes the item's
+ * recurrence pattern. When the recurrence pattern is too complex, return a
+ * "too complex" string by getting that string using the arguments provided.
+ *
+ * @param {calIEvent | calITodo} item   A calendar item.
+ * @param {string} bundleName           Name of the properties file, e.g. "calendar-event-dialog".
+ * @param {string} stringName           Name of the string within the properties file.
+ * @param {string[]} [params]           (optional) Parameters to format the string.
+ * @return {string | null}              A string describing the recurrence
+ *                                        pattern or null if the item has no
+ *                                        recurrence info.
+ */
+function recurrenceStringFromItem(item, bundleName, stringName, params) {
+  // See the `parentItem` property of `calIItemBase`.
+  let parent = item.parentItem;
+
+  let recurrenceInfo = parent.recurrenceInfo;
+  if (!recurrenceInfo) {
+    return null;
+  }
+
+  let kDefaultTimezone = cal.dtz.defaultTimezone;
+
+  let rawStartDate = parent.startDate || parent.entryDate;
+  let rawEndDate = parent.endDate || parent.dueDate;
+
+  let startDate = rawStartDate ? rawStartDate.getInTimezone(kDefaultTimezone) : null;
+  let endDate = rawEndDate ? rawEndDate.getInTimezone(kDefaultTimezone) : null;
+
+  return (
+    recurrenceRule2String(recurrenceInfo, startDate, endDate, startDate.isDate) ||
+    cal.l10n.getString(bundleName, stringName, params)
+  );
+}
 
 /**
  * This function takes the recurrence info passed as argument and creates a
