@@ -80,10 +80,7 @@
                 <html:th>
                   &read.only.repeat.label;
                 </html:th>
-                <html:td>
-                  <box class="repeat-details" orient="vertical">
-                    <html:div/>
-                  </box>
+                <html:td class="repeat-details">
                 </html:td>
               </html:tr>
               <html:tr class="location-row" hidden="hidden">
@@ -502,8 +499,7 @@
       );
     }
     /**
-     * Updates the dialog w.r.t recurrence, i.e shows a text describing the item's
-     * recurrence.
+     * Updates the item's recurrence details, i.e. shows text describing them.
      *
      * @param {string} details - Recurrence details as a string.
      */
@@ -511,31 +507,8 @@
       let repeatRow = this.querySelector(".repeat-row");
       let repeatDetails = repeatRow.querySelector(".repeat-details");
 
-      if (!details) {
-        repeatRow.setAttribute("hidden", "true");
-        repeatDetails.setAttribute("collapsed", "true");
-
-        while (repeatDetails.children.length) {
-          repeatDetails.lastChild.remove();
-        }
-        return;
-      }
-
-      repeatRow.removeAttribute("hidden");
-      repeatDetails.removeAttribute("collapsed");
-
-      let lines = details.split("\n");
-
-      while (repeatDetails.children.length > lines.length) {
-        repeatDetails.lastChild.remove();
-      }
-      while (repeatDetails.children.length < lines.length) {
-        repeatDetails.appendChild(repeatDetails.firstElementChild.cloneNode(true));
-      }
-      for (let i = 0; i < lines.length; i++) {
-        repeatDetails.children[i].textContent = lines[i];
-        repeatDetails.children[i].setAttribute("tooltiptext", details);
-      }
+      repeatRow.toggleAttribute("hidden", !details);
+      repeatDetails.textContent = details ? details.replace(/\n/g, " ") : "";
     }
 
     /**

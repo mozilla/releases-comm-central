@@ -22,15 +22,6 @@
   width: 100%;
 }
 
-.repeat-row > th {
-  vertical-align: top;
-  padding-top: 2px;
-}
-
-.repeat-details {
-  width: 100%;
-}
-
 .calendar-summary-table .item-location-link > label {
   margin-inline: 0;
 }
