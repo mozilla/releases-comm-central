@@ -42,218 +42,218 @@
           <vbox class="item-summary-box" flex="1">
             <!-- General -->
             <box orient="vertical">
-              <hbox class="calendar-caption" align="center">
-                <label value="&read.only.general.label;" class="header"/>
-                <separator class="groove" flex="1"/>
-              </hbox>
-              <hbox flex="1" class="calendar-summary-box">
-                <html:table class="calendar-summary-table">
-                  <html:tr>
-                    <html:th>
-                      &read.only.title.label;
-                    </html:th>
-                    <html:td>
-                      <html:input class="item-title selectable-label plain input-inline"
-                                  readonly="readonly"/>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="calendar-row" hidden="hidden">
-                    <html:th>
-                      &read.only.calendar.label;
-                    </html:th>
-                    <html:td>
-                      <html:input class="item-calendar selectable-label plain input-inline"
-                                  readonly="readonly"/>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="item-date-row">
-                    <html:th>
-                      <label class="item-start-row-label"
-                             taskStartLabel="&read.only.task.start.label;"
-                             eventStartLabel="&read.only.event.start.label;"/>
-                    </html:th>
-                    <html:td>
-                      <html:input class="item-date-row-start-date selectable-label plain input-inline"
-                                  readonly="readonly"/>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="item-date-row">
-                    <html:th>
-                      <label class="item-due-row-label"
-                             taskDueLabel="&read.only.task.due.label;"
-                             eventEndLabel="&read.only.event.end.label;"/>
-                    </html:th>
-                    <html:td>
-                      <html:input class="item-date-row-end-date selectable-label plain input-inline"
-                                  readonly="readonly"/>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="repeat-row" hidden="hidden">
-                    <html:th>
-                      &read.only.repeat.label;
-                    </html:th>
-                    <html:td>
-                      <box class="repeat-details" orient="vertical">
-                        <html:input readonly="readonly" class="selectable-label plain input-inline"/>
-                      </box>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="location-row" hidden="hidden">
-                    <html:th>
-                      &read.only.location.label;
-                    </html:th>
-                    <html:td>
-                      <html:input class="item-location selectable-label plain input-inline"
-                                  readonly="readonly"/>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="category-row" hidden="hidden">
-                    <html:th>
-                      &read.only.category.label;
-                    </html:th>
-                    <html:td>
-                      <label class="item-category"/>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="organizer-row item-attendees-row" hidden="hidden">
-                    <html:th>
-                      &read.only.organizer.label;
-                    </html:th>
-                    <html:td>
-                      <hbox class="item-organizer-cell">
-                        <img class="itip-icon"/>
-                        <label class="item-organizer-label text-link item-attendees-cell-label"
-                               crop="end"/>
-                        <spacer flex="1"/>
-                      </hbox>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="status-row" hidden="hidden">
-                    <html:th>
-                      &task.status.label;
-                    </html:th>
-                    <html:td class="status-row-td">
-                      <label value="&newevent.status.tentative.label;" hidden="true" status="TENTATIVE"/>
-                      <label value="&newevent.status.confirmed.label;" hidden="true" status="CONFIRMED"/>
-                      <label value="&newevent.eventStatus.cancelled.label;" hidden="true" status="CANCELLED"/>
-                      <label value="&newevent.todoStatus.cancelled.label;" hidden="true" status="CANCELLED"/>
-                      <label value="&newevent.status.needsaction.label;" hidden="true" status="NEEDS-ACTION"/>
-                      <label value="&newevent.status.inprogress.label;" hidden="true" status="IN-PROCESS"/>
-                      <label value="&newevent.status.completed.label;" hidden="true" status="COMPLETED"/>
-                    </html:td>
-                  </html:tr>
-                  <separator class="groove" flex="1" hidden="true"/>
-                  <html:tr class="reminder-row" hidden="hidden">
-                    <html:th>
-                      &read.only.reminder.label;
-                    </html:th>
-                    <html:td>
-                      <hbox align="center">
-                        <menulist class="item-alarm"
-                                  disable-on-readonly="true">
-                          <menupopup>
-                            <menuitem label="&event.reminder.none.label;"
-                                      selected="true"
-                                      value="none"/>
-                            <menuseparator/>
-                            <menuitem label="&event.reminder.0minutes.before.label;"
-                                      length="0"
-                                      origin="before"
-                                      relation="START"
-                                      unit="minutes"/>
-                            <menuitem label="&event.reminder.5minutes.before.label;"
-                                      length="5"
-                                      origin="before"
-                                      relation="START"
-                                      unit="minutes"/>
-                            <menuitem label="&event.reminder.15minutes.before.label;"
-                                      length="15"
-                                      origin="before"
-                                      relation="START"
-                                      unit="minutes"/>
-                            <menuitem label="&event.reminder.30minutes.before.label;"
-                                      length="30"
-                                      origin="before"
-                                      relation="START"
-                                      unit="minutes"/>
-                            <menuseparator/>
-                            <menuitem label="&event.reminder.1hour.before.label;"
-                                      length="1"
-                                      origin="before"
-                                      relation="START"
-                                      unit="hours"/>
-                            <menuitem label="&event.reminder.2hours.before.label;"
-                                      length="2"
-                                      origin="before"
-                                      relation="START"
-                                      unit="hours"/>
-                            <menuitem label="&event.reminder.12hours.before.label;"
-                                      length="12"
-                                      origin="before"
-                                      relation="START"
-                                      unit="hours"/>
-                            <menuseparator/>
-                            <menuitem label="&event.reminder.1day.before.label;"
-                                      length="1"
-                                      origin="before"
-                                      relation="START"
-                                      unit="days"/>
-                            <menuitem label="&event.reminder.2days.before.label;"
-                                      length="2"
-                                      origin="before"
-                                      relation="START"
-                                      unit="days"/>
-                            <menuitem label="&event.reminder.1week.before.label;"
-                                      length="7"
-                                      origin="before"
-                                      relation="START"
-                                      unit="days"/>
-                            <menuseparator/>
-                            <menuitem class="reminder-custom-menuitem"
-                                      label="&event.reminder.custom.label;"
-                                      value="custom"/>
-                          </menupopup>
-                        </menulist>
-                        <hbox class="reminder-details">
-                          <hbox class="reminder-icon-box alarm-icons-box"
-                                align="center"/>
-                          <!-- TODO oncommand? onkeypress? -->
-                          <label class="reminder-multiple-alarms-label text-link"
-                                 hidden="true"
-                                 value="&event.reminder.multiple.label;"
-                                 disable-on-readonly="true"
-                                 flex="1"
-                                 hyperlink="true"/>
-                          <label class="reminder-single-alarms-label text-link"
-                                 hidden="true"
-                                 disable-on-readonly="true"
-                                 flex="1"
-                                 hyperlink="true"/>
-                        </hbox>
-                      </hbox>
-                    </html:td>
-                  </html:tr>
-                  <html:tr class="attachments-row item-attachments-row" hidden="hidden" >
-                    <html:th>
-                      &read.only.attachments.label;
-                    </html:th>
-                    <html:td>
-                      <vbox class="item-attachment-cell">
-                        <!-- attachment box template -->
-                        <hbox class="attachment-template"
-                              hidden="true"
-                              align="center"
+            <hbox class="calendar-caption" align="center">
+              <label value="&read.only.general.label;" class="header"/>
+              <separator class="groove" flex="1"/>
+            </hbox>
+            <hbox flex="1" class="calendar-summary-box">
+            <html:table class="calendar-summary-table">
+              <html:tr>
+                <html:th>
+                  &read.only.title.label;
+                </html:th>
+                <html:td>
+                  <html:input class="item-title selectable-label plain input-inline"
+                              readonly="readonly"/>
+                </html:td>
+              </html:tr>
+              <html:tr class="calendar-row" hidden="hidden">
+                <html:th>
+                  &read.only.calendar.label;
+                </html:th>
+                <html:td>
+                  <html:input class="item-calendar selectable-label plain input-inline"
+                              readonly="readonly"/>
+                </html:td>
+              </html:tr>
+              <html:tr class="item-date-row">
+                <html:th>
+                  <label class="item-start-row-label"
+                         taskStartLabel="&read.only.task.start.label;"
+                         eventStartLabel="&read.only.event.start.label;"/>
+                </html:th>
+                <html:td>
+                  <html:input class="item-date-row-start-date selectable-label plain input-inline"
+                              readonly="readonly"/>
+                </html:td>
+              </html:tr>
+              <html:tr class="item-date-row">
+                <html:th>
+                  <label class="item-due-row-label"
+                         taskDueLabel="&read.only.task.due.label;"
+                         eventEndLabel="&read.only.event.end.label;"/>
+                </html:th>
+                <html:td>
+                  <html:input class="item-date-row-end-date selectable-label plain input-inline"
+                              readonly="readonly"/>
+                </html:td>
+              </html:tr>
+              <html:tr class="repeat-row" hidden="hidden">
+                <html:th>
+                  &read.only.repeat.label;
+                </html:th>
+                <html:td>
+                  <box class="repeat-details" orient="vertical">
+                    <html:input readonly="readonly" class="selectable-label plain input-inline"/>
+                  </box>
+                </html:td>
+              </html:tr>
+              <html:tr class="location-row" hidden="hidden">
+                <html:th>
+                  &read.only.location.label;
+                </html:th>
+                <html:td>
+                  <html:input class="item-location selectable-label plain input-inline"
+                              readonly="readonly"/>
+                </html:td>
+              </html:tr>
+              <html:tr class="category-row" hidden="hidden">
+                <html:th>
+                  &read.only.category.label;
+                </html:th>
+                <html:td>
+                  <label class="item-category"/>
+                </html:td>
+              </html:tr>
+              <html:tr class="organizer-row item-attendees-row" hidden="hidden">
+                <html:th>
+                  &read.only.organizer.label;
+                </html:th>
+                <html:td>
+                  <hbox class="item-organizer-cell">
+                    <img class="itip-icon"/>
+                    <label class="item-organizer-label text-link item-attendees-cell-label"
+                           crop="end"/>
+                    <spacer flex="1"/>
+                  </hbox>
+                </html:td>
+              </html:tr>
+              <html:tr class="status-row" hidden="hidden">
+                <html:th>
+                  &task.status.label;
+                </html:th>
+                <html:td class="status-row-td">
+                  <label value="&newevent.status.tentative.label;" hidden="true" status="TENTATIVE"/>
+                  <label value="&newevent.status.confirmed.label;" hidden="true" status="CONFIRMED"/>
+                  <label value="&newevent.eventStatus.cancelled.label;" hidden="true" status="CANCELLED"/>
+                  <label value="&newevent.todoStatus.cancelled.label;" hidden="true" status="CANCELLED"/>
+                  <label value="&newevent.status.needsaction.label;" hidden="true" status="NEEDS-ACTION"/>
+                  <label value="&newevent.status.inprogress.label;" hidden="true" status="IN-PROCESS"/>
+                  <label value="&newevent.status.completed.label;" hidden="true" status="COMPLETED"/>
+                </html:td>
+              </html:tr>
+              <separator class="groove" flex="1" hidden="true"/>
+              <html:tr class="reminder-row" hidden="hidden">
+                <html:th>
+                  &read.only.reminder.label;
+                </html:th>
+                <html:td>
+                  <hbox align="center">
+                    <menulist class="item-alarm"
                               disable-on-readonly="true">
-                          <image class="attachment-icon"/>
-                          <label class="text-link item-attachment-cell-label"
-                                 crop="end"
-                                 flex="1" />
-                        </hbox>
-                      </vbox>
-                    </html:td>
-                  </html:tr>
-                </html:table>
-              </hbox>
+                      <menupopup>
+                        <menuitem label="&event.reminder.none.label;"
+                                  selected="true"
+                                  value="none"/>
+                        <menuseparator/>
+                        <menuitem label="&event.reminder.0minutes.before.label;"
+                                  length="0"
+                                  origin="before"
+                                  relation="START"
+                                  unit="minutes"/>
+                        <menuitem label="&event.reminder.5minutes.before.label;"
+                                  length="5"
+                                  origin="before"
+                                  relation="START"
+                                  unit="minutes"/>
+                        <menuitem label="&event.reminder.15minutes.before.label;"
+                                  length="15"
+                                  origin="before"
+                                  relation="START"
+                                  unit="minutes"/>
+                        <menuitem label="&event.reminder.30minutes.before.label;"
+                                  length="30"
+                                  origin="before"
+                                  relation="START"
+                                  unit="minutes"/>
+                        <menuseparator/>
+                        <menuitem label="&event.reminder.1hour.before.label;"
+                                  length="1"
+                                  origin="before"
+                                  relation="START"
+                                  unit="hours"/>
+                        <menuitem label="&event.reminder.2hours.before.label;"
+                                  length="2"
+                                  origin="before"
+                                  relation="START"
+                                  unit="hours"/>
+                        <menuitem label="&event.reminder.12hours.before.label;"
+                                  length="12"
+                                  origin="before"
+                                  relation="START"
+                                  unit="hours"/>
+                        <menuseparator/>
+                        <menuitem label="&event.reminder.1day.before.label;"
+                                  length="1"
+                                  origin="before"
+                                  relation="START"
+                                  unit="days"/>
+                        <menuitem label="&event.reminder.2days.before.label;"
+                                  length="2"
+                                  origin="before"
+                                  relation="START"
+                                  unit="days"/>
+                        <menuitem label="&event.reminder.1week.before.label;"
+                                  length="7"
+                                  origin="before"
+                                  relation="START"
+                                  unit="days"/>
+                        <menuseparator/>
+                        <menuitem class="reminder-custom-menuitem"
+                                  label="&event.reminder.custom.label;"
+                                  value="custom"/>
+                      </menupopup>
+                    </menulist>
+                    <hbox class="reminder-details">
+                      <hbox class="reminder-icon-box alarm-icons-box"
+                            align="center"/>
+                      <!-- TODO oncommand? onkeypress? -->
+                      <label class="reminder-multiple-alarms-label text-link"
+                             hidden="true"
+                             value="&event.reminder.multiple.label;"
+                             disable-on-readonly="true"
+                             flex="1"
+                             hyperlink="true"/>
+                      <label class="reminder-single-alarms-label text-link"
+                             hidden="true"
+                             disable-on-readonly="true"
+                             flex="1"
+                             hyperlink="true"/>
+                    </hbox>
+                  </hbox>
+                </html:td>
+              </html:tr>
+              <html:tr class="attachments-row item-attachments-row" hidden="hidden" >
+                <html:th>
+                  &read.only.attachments.label;
+                </html:th>
+                <html:td>
+                  <vbox class="item-attachment-cell">
+                    <!-- attachment box template -->
+                    <hbox class="attachment-template"
+                          hidden="true"
+                          align="center"
+                          disable-on-readonly="true">
+                      <image class="attachment-icon"/>
+                      <label class="text-link item-attachment-cell-label"
+                             crop="end"
+                             flex="1" />
+                    </hbox>
+                  </vbox>
+                </html:td>
+              </html:tr>
+            </html:table>
+            </hbox>
             </box>
 
             <!-- attendee box template -->
