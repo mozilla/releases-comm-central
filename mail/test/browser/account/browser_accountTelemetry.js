@@ -51,6 +51,9 @@ const ACCOUNT_TYPE_LABELS = [
   "im_yahoo",
 ];
 
+// Collect all added accounts to be cleaned up at the end.
+let addedAccounts = [];
+
 /**
  * Check that we are counting account types.
  */
@@ -66,7 +69,7 @@ add_task(async function test_account_types() {
     .createIncomingServer("nobody", "foo.invalid", "imap")
     .QueryInterface(Ci.nsIImapIncomingServer);
   let rssServer = MailServices.accounts
-    .createIncomingServer("nobody", "foo.invalid", "rss")
+    .createIncomingServer("nobody", "rss.foo.invalid", "rss")
     .QueryInterface(Ci.nsIRssIncomingServer);
   let ircServer = MailServices.accounts.createIncomingServer(
     "nobody",
@@ -86,14 +89,17 @@ add_task(async function test_account_types() {
     let account = MailServices.accounts.createAccount();
     account.incomingServer = imapServer;
     account.addIdentity(identity);
+    addedAccounts.push(account);
   }
   for (let i = 0; i < NUM_RSS; i++) {
     let account = MailServices.accounts.createAccount();
     account.incomingServer = rssServer;
+    addedAccounts.push(account);
   }
   for (let i = 0; i < NUM_IRC; i++) {
     let account = MailServices.accounts.createAccount();
     account.incomingServer = ircServer;
+    addedAccounts.push(account);
   }
 
   let wc = open3PaneWindow();
@@ -119,4 +125,10 @@ add_task(async function test_account_types() {
   plan_for_window_close(wc);
   wc.window.close();
   wait_for_window_close();
+});
+
+registerCleanupFunction(() => {
+  for (let account of addedAccounts) {
+    MailServices.accounts.removeAccount(account, true);
+  }
 });
