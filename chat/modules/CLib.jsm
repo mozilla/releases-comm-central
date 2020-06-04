@@ -28,6 +28,10 @@ switch (OS) {
     fname_t = wchar_t.ptr;
     break;
   case "darwin":
+  case "dragonfly":
+  case "freebsd":
+  case "netbsd":
+  case "openbsd":
     libcAbi = ctypes.default_abi;
     libcPath = ctypes.libraryName("c");
     break;
