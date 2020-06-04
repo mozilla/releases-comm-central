@@ -128,7 +128,6 @@ messenger.jar:
 % override chrome://mozapps/locale/downloads/settingsChange.dtd chrome://messenger/locale/downloads/settingsChange.dtd
 % override chrome://mozapps/locale/profile/profileDowngrade.dtd chrome://messenger/locale/profileDowngrade.dtd
 % override chrome://global/locale/netError.dtd chrome://messenger/locale/netError.dtd
-% resource search-plugins chrome://messenger/locale/searchplugins/
 
 comm.jar:
 % content communicator %content/communicator/

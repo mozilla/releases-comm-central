@@ -11,4 +11,5 @@ messenger.jar:
     content/messenger/WinSearchIntegration.js (content/WinSearchIntegration.js)
 #endif
 
+% resource search-plugins %searchplugins/ contentaccessible=yes
 % resource search-extensions %search-extensions/ contentaccessible=yes
