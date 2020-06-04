@@ -908,9 +908,8 @@ var gFolderTreeView = {
             .mozGetDataAt("text/x-moz-folder", i)
             .QueryInterface(Ci.nsIMsgFolder)
         );
-        let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-        cs.CopyFolders(
-          array,
+        cs.copyFolders(
+          folders,
           targetFolder,
           folders[0].server == targetFolder.server,
           null,

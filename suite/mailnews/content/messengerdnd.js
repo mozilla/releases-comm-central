@@ -162,12 +162,9 @@ function DropOnFolderTree(aRow, aOrientation)
     for (let i = 0; i < count; i++)
     {
       let folder = dt.mozGetDataAt("text/x-moz-folder", i);
-      let array = Cc["@mozilla.org/array;1"]
-                    .createInstance(Ci.nsIMutableArray);
-      array.appendElement(folder);
       try
       {
-        gCopyService.CopyFolders(array,
+        gCopyService.copyFolders([folder],
                                  targetFolder,
                                  (folder.server == targetFolder.server),
                                  null,

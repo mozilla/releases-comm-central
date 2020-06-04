@@ -24,9 +24,8 @@ var tests = [
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
     let folders = [];
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(
-      array,
+    MailServices.copy.copyFolders(
+      folders,
       IMAPPump.inbox,
       false,
       CopyListener,
@@ -38,9 +37,8 @@ var tests = [
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
     let folders = [];
     folders.push(gEmptyLocal2);
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(
-      array,
+    MailServices.copy.copyFolders(
+      folders,
       IMAPPump.inbox,
       false,
       CopyListener,
@@ -52,9 +50,8 @@ var tests = [
     dump("gEmpty3 " + gEmptyLocal3.URI + "\n");
     let folders = [];
     folders.push(gEmptyLocal3);
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(
-      array,
+    MailServices.copy.copyFolders(
+      folders,
       IMAPPump.inbox,
       false,
       CopyListener,
@@ -78,8 +75,7 @@ var tests = [
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     let folder2 = IMAPPump.inbox.getChildNamed("empty 2");
     folders.push(folder2.QueryInterface(Ci.nsIMsgFolder));
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(array, folder1, true, CopyListener, null);
+    MailServices.copy.copyFolders(folders, folder1, true, CopyListener, null);
     yield false;
   },
   function* moveImapFolder2() {
@@ -87,8 +83,7 @@ var tests = [
     let folder1 = IMAPPump.inbox.getChildNamed("empty 1");
     let folder3 = IMAPPump.inbox.getChildNamed("empty 3");
     folders.push(folder3.QueryInterface(Ci.nsIMsgFolder));
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(array, folder1, true, CopyListener, null);
+    MailServices.copy.copyFolders(folders, folder1, true, CopyListener, null);
     yield false;
   },
   function verifyImapFolders() {
@@ -105,12 +100,11 @@ var tests = [
   function* testImapFolderCopyFailure() {
     let folders = [];
     folders.push(gNotEmptyLocal4.QueryInterface(Ci.nsIMsgFolder));
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
     IMAPPump.daemon.commandToFail = "APPEND";
     // we expect NS_MSG_ERROR_IMAP_COMMAND_FAILED;
     CopyListener._expectedStatus = 0x80550021;
-    MailServices.copy.CopyFolders(
-      array,
+    MailServices.copy.copyFolders(
+      folders,
       IMAPPump.inbox,
       false,
       CopyListener,

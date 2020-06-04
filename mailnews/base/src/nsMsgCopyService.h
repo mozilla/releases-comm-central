@@ -24,6 +24,10 @@ typedef enum _nsCopyRequestType {
 
 class nsCopyRequest;
 
+// nsCopySource represents either:
+// 1. a bundle of messages to be copied, all from the same folder.
+// or
+// 2. a folder to be copied (and no messages).
 class nsCopySource {
  public:
   nsCopySource();

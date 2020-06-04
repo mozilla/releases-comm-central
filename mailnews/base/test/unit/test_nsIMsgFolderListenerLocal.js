@@ -95,14 +95,10 @@ function copyMessages(items, isMove, srcFolder, destFolder) {
 }
 
 function copyFolders(items, isMove, destFolder) {
-  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  items.forEach(function(item) {
-    array.appendElement(item);
-  });
   gExpectedEvents = [
     [MailServices.mfn.folderMoveCopyCompleted, isMove, items, destFolder],
   ];
-  MailServices.copy.CopyFolders(array, destFolder, isMove, copyListener, null);
+  MailServices.copy.copyFolders(items, destFolder, isMove, copyListener, null);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();
@@ -232,7 +228,6 @@ var gTestArray = [
   // Trash
   // folder2
   // folder3
-
   // Copying messages from files
   function testCopyFileMessage1() {
     copyFileMessage(gMsgFile1, localAccountUtils.inboxFolder, false);
@@ -284,7 +279,6 @@ var gTestArray = [
     );
     copyMessages([gMsgHdrs[2].hdr], true, gLocalTrashFolder, gLocalFolder3);
   },
-
   // Moving/copying folders
   function testCopyFolder1() {
     copyFolders([gLocalFolder3], false, gLocalFolder2);

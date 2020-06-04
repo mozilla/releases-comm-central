@@ -29,16 +29,26 @@ var tests = [
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
     let folders = [];
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    gCopyService.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
+    gCopyService.copyFolders(
+      folders,
+      IMAPPump.inbox,
+      false,
+      CopyListener,
+      null
+    );
     yield false;
   },
   function* copyFolder2() {
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
     let folders = [];
     folders.push(gEmptyLocal2);
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    gCopyService.CopyFolders(array, IMAPPump.inbox, false, CopyListener, null);
+    gCopyService.copyFolders(
+      folders,
+      IMAPPump.inbox,
+      false,
+      CopyListener,
+      null
+    );
     yield false;
   },
   function* getLocalMessage1() {

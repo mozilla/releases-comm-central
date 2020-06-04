@@ -651,7 +651,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSubFolders(nsIArray *folders,
       nsCOMPtr<nsIMsgCopyService> copyService(
           do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv));
       NS_ENSURE_SUCCESS(rv, rv);
-      rv = copyService->CopyFolders(folders, trashFolder, true, nullptr,
+      rv = copyService->CopyFolders({&*folder}, trashFolder, true, nullptr,
                                     msgWindow);
     }
   }
@@ -1555,7 +1555,7 @@ nsresult nsMsgLocalMailFolder::CopyFolderAcrossServer(
       // normally these would get called from ::EndCopy when the last message
       // was finished copying. But since there are no messages, we have to call
       // them explicitly.
-      nsCOMPtr<nsISupports> srcSupports = do_QueryInterface(newMsgFolder);
+      nsCOMPtr<nsISupports> srcSupports = do_QueryInterface(srcFolder);
       localFolder->CopyAllSubFolders(srcFolder, msgWindow, listener);
       return localFolder->OnCopyCompleted(srcSupports, true);
     }

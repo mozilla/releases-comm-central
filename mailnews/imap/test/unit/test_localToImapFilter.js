@@ -31,9 +31,8 @@ var tests = [
     dump("gEmpty1 " + gEmptyLocal1.URI + "\n");
     let folders = [];
     folders.push(gEmptyLocal1.QueryInterface(Ci.nsIMsgFolder));
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(
-      array,
+    MailServices.copy.copyFolders(
+      folders,
       IMAPPump.inbox,
       false,
       CopyListener,
@@ -45,9 +44,8 @@ var tests = [
     dump("gEmpty2 " + gEmptyLocal2.URI + "\n");
     let folders = [];
     folders.push(gEmptyLocal2);
-    let array = toXPCOMArray(folders, Ci.nsIMutableArray);
-    MailServices.copy.CopyFolders(
-      array,
+    MailServices.copy.copyFolders(
+      folders,
       IMAPPump.inbox,
       false,
       CopyListener,

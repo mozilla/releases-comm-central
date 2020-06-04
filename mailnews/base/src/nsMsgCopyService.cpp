@@ -187,7 +187,9 @@ nsresult nsMsgCopyService::QueueRequest(nsCopyRequest* aRequest,
   *aCopyImmediately = true;
   nsCopyRequest* copyRequest;
 
+  // Check through previous requests to see if the copy can start immediately.
   uint32_t cnt = m_copyRequests.Length();
+
   for (uint32_t i = 0; i < cnt; i++) {
     copyRequest = m_copyRequests.ElementAt(i);
     if (aRequest->m_requestType == nsCopyFoldersType) {
@@ -205,6 +207,9 @@ nsresult nsMsgCopyService::QueueRequest(nsCopyRequest* aRequest,
       break;
     }
   }
+
+  // Queue it.
+  m_copyRequests.AppendElement(aRequest);
   return NS_OK;
 }
 
@@ -212,7 +217,6 @@ nsresult nsMsgCopyService::DoCopy(nsCopyRequest* aRequest) {
   NS_ENSURE_ARG(aRequest);
   bool copyImmediately;
   QueueRequest(aRequest, &copyImmediately);
-  m_copyRequests.AppendElement(aRequest);
   if (MOZ_LOG_TEST(gCopyServiceLog, mozilla::LogLevel::Info))
     LogCopyRequest(copyImmediately ? "DoCopy" : "QueueRequest", aRequest);
 
@@ -421,12 +425,15 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
 
   cnt = msgArray.Count();
 
+  // Build up multiple nsCopySource objects. Each holds a single source folder
+  // and all the messages in the folder that are to be copied.
   while (cnt-- > 0) {
     msg = msgArray[cnt];
     rv = msg->GetFolder(getter_AddRefs(curFolder));
 
     if (NS_FAILED(rv)) goto done;
     if (!copySource) {
+      // Begin a folder grouping.
       copySource = copyRequest->AddNewCopySource(curFolder);
       if (!copySource) {
         rv = NS_ERROR_OUT_OF_MEMORY;
@@ -434,12 +441,15 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCopyService::CopyMessages(
       }
     }
 
+    // Stash message if in the current folder grouping.
     if (curFolder == copySource->m_msgFolder) {
       copySource->AddMessage(msg);
       msgArray.RemoveObjectAt(cnt);
     }
 
     if (cnt == 0) {
+      // Finished a folder. Start a new pass to handle any remaining messages
+      // in other folders.
       cnt = msgArray.Count();
       if (cnt > 0) {
         // Force to create a new one and continue grouping the messages.
@@ -466,46 +476,31 @@ done:
 }
 
 NS_IMETHODIMP
-nsMsgCopyService::CopyFolders(nsIArray* folders, nsIMsgFolder* dstFolder,
-                              bool isMove, nsIMsgCopyServiceListener* listener,
+nsMsgCopyService::CopyFolders(const nsTArray<RefPtr<nsIMsgFolder>>& folders,
+                              nsIMsgFolder* dstFolder, bool isMove,
+                              nsIMsgCopyServiceListener* listener,
                               nsIMsgWindow* window) {
-  NS_ENSURE_ARG_POINTER(folders);
   NS_ENSURE_ARG_POINTER(dstFolder);
   nsCopyRequest* copyRequest;
-  nsCopySource* copySource = nullptr;
   nsresult rv;
-  uint32_t cnt;
   nsCOMPtr<nsIMsgFolder> curFolder;
   nsCOMPtr<nsISupports> support;
 
-  // If cnt is zero it cannot to get this point, will be detected earlier.
-  rv = folders->GetLength(&cnt);
-  if (cnt > 1)
-    NS_ASSERTION((NS_SUCCEEDED(rv)), "More than one folders to copy");
+  if (folders.Length() != 1) {
+    return NS_ERROR_INVALID_ARG;  // Can only do one folder (see Bug 1643208).
+  }
 
-  support = do_QueryElementAt(folders, 0);
+  support = do_QueryInterface(folders[0], &rv);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   copyRequest = new nsCopyRequest();
-  if (!copyRequest) return NS_ERROR_OUT_OF_MEMORY;
-
   rv = copyRequest->Init(nsCopyFoldersType, support, dstFolder, isMove,
                          0 /* new msg flags, not used */, EmptyCString(),
                          listener, window, false);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  curFolder = do_QueryInterface(support, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  copySource = copyRequest->AddNewCopySource(curFolder);
-  if (!copySource) rv = NS_ERROR_OUT_OF_MEMORY;
-
-  if (NS_FAILED(rv)) {
-    delete copyRequest;
-    NS_ENSURE_SUCCESS(rv, rv);
-  } else
-    rv = DoCopy(copyRequest);
-
-  return rv;
+  copyRequest->AddNewCopySource(folders[0]);
+  return DoCopy(copyRequest);
 }
 
 NS_IMETHODIMP

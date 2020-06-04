@@ -45,11 +45,11 @@ interface nsIMsgCopyService : nsISupports {
    * @param listener   Listener which receive operation notifications.
    * @param msgWindow  Window for notification callbacks, can be null.
    */
-  void CopyFolders(in nsIArray folders,
+  void copyFolders(in Array<nsIMsgFolder> folders,
                    in nsIMsgFolder dstFolder,
                    in boolean isMove,
-                    in nsIMsgCopyServiceListener listener,
-                    in nsIMsgWindow msgWindow);
+                   in nsIMsgCopyServiceListener listener,
+                   in nsIMsgWindow msgWindow);
 
   /**
    * Copies message in rfc format from file to folder.

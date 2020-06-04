@@ -383,10 +383,9 @@ function make_empty_folder(aFolderName, aSpecialFlags) {
 
 // Small helper for moving folder. You have to yield move_folder(f1, f2);
 function move_folder(aSource, aTarget) {
-  let array = toXPCOMArray([get_nsIMsgFolder(aSource)], Ci.nsIMutableArray);
   // we're doing a true move
-  MailServices.copy.CopyFolders(
-    array,
+  MailServices.copy.copyFolders(
+    [get_nsIMsgFolder(aSource)],
     get_nsIMsgFolder(aTarget),
     true,
     {
