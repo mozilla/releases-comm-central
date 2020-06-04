@@ -403,13 +403,10 @@ var contentTabBaseType = {
     function(aDocument, aTab) {
       // Need a timeout to let the script run to create the needed buttons.
       setTimeout(() => {
-        let l10n = new Localization(["messenger/aboutProfilesExtra.ftl"], true);
         for (let button of aDocument.querySelectorAll(
           `[data-l10n-id="profiles-launch-profile"]`
         )) {
-          button.textContent = l10n.formatValueSync(
-            "profiles-launch-profile-plain"
-          );
+          document.l10n.setAttributes(button, "profiles-launch-profile-plain");
         }
       }, 500);
     },
