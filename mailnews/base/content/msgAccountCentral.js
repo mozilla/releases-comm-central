@@ -10,7 +10,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var l10n = new Localization(["messenger/accountCentral.ftl"], true);
 
 var gSelectedServer = null;
 var gSelectedFolder = null;
@@ -20,12 +19,11 @@ var gSelectedFolder = null;
  * The folder is passed in via the document URL.
  */
 function OnInit() {
-  document.getElementById("setupTitle").textContent = l10n.formatValueSync(
-    "setup-title",
-    {
-      accounts: MailServices.accounts.accounts.length,
-    }
-  );
+  let el = document.getElementById("setupTitle");
+
+  document.l10n.setAttributes(el, "setup-title", {
+    accounts: MailServices.accounts.accounts.length,
+  });
 
   // Selected folder URI is passed as folderURI argument in the query string.
   let folderURI = document.location.search.replace("?folderURI=", "");
@@ -73,12 +71,13 @@ function addDonationLink() {
       openLink(event);
     }
   });
-  donationLink.textContent = l10n.formatValueSync("about-donation");
 
   let donationParagraph = document.getElementById("donationParagraph");
   donationParagraph.append(" ");
   donationParagraph.appendChild(donationLink);
   donationParagraph.append(".");
+
+  document.l10n.setAttributes(donationLink, "about-donation");
 }
 
 /**
