@@ -1,0 +1,72 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+---
+
+job-defaults:
+    description: 'libotr library build'
+    worker-type: b-linux
+    worker:
+        max-run-time: 1800
+    treeherder:
+        kind: build
+        platform: toolchains/opt
+        tier: 1
+    run-on-projects: []
+    run:
+        using: comm-toolchain-script
+        script: build-libotr.sh
+        toolchain-artifact: public/build/libotr.tar.xz
+
+linux32-libotr:
+    treeherder:
+        symbol: TL(lib32otr)
+    run:
+        arguments: ['linux32']
+    fetches:
+        toolchain:
+            - linux64-clang
+            - linux64-binutils
+
+linux64-libotr:
+    treeherder:
+        symbol: TL(libotr)
+    run:
+        arguments: ['linux64']
+    fetches:
+        toolchain:
+            - linux64-clang
+            - linux64-binutils
+
+macosx64-libotr:
+    worker:
+        env:
+            # We just use the browser manifest, since we don't need anything different
+            TOOLTOOL_MANIFEST: "browser/config/tooltool-manifests/macosx64/cross-releng.manifest"
+    treeherder:
+        symbol: TM(libotr)
+    run:
+        arguments: ['macosx64']
+        tooltool-downloads: internal
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cctools-port
+            - linux64-clang-macosx-cross
+            - linux64-llvm-dsymutil
+
+win32-libotr:
+    worker:
+        docker-image: {in-tree: tb-debian-mingw}
+    treeherder:
+        symbol: TW32(libotr)
+    run:
+        arguments: ['win32']
+
+win64-libotr:
+    worker:
+        docker-image: {in-tree: tb-debian-mingw}
+    treeherder:
+        symbol: TW64(libotr)
+    run:
+        arguments: ['win64']
