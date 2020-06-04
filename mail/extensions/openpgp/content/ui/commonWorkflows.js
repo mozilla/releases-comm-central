@@ -70,7 +70,6 @@ function EnigmailCommon_importKeysFromFile(secret) {
     EnigmailDialog.alert(window, EnigmailLocale.getString("fileToBigToImport"));
     return false;
   }
-
   let errorMsgObj = {};
   // preview
   let preview = EnigmailKey.getKeyListFromKeyFile(
@@ -80,7 +79,7 @@ function EnigmailCommon_importKeysFromFile(secret) {
     secret
   );
 
-  if (!preview || errorMsgObj.value) {
+  if (!preview || !preview.length || errorMsgObj.value) {
     EnigmailDialog.alert(
       window,
       EnigmailLocale.getString("importKeysFailed") + "\n\n" + errorMsgObj.value
