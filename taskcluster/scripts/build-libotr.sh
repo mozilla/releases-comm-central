@@ -14,7 +14,14 @@ UPLOAD_DIR=${UPLOAD_DIR:-"/builds/worker/artifacts"}
 WORKSPACE=${WORKSPACE:-"${HOME}/workspace"}
 
 cd "$WORKSPACE"
-rm -rf build && mkdir build
+if [[ ! -d build ]]; then
+  mkdir build
+fi
+for _d in build/libgpg-error build/libgcrypt build/libotr build/build_prefix; do
+  if [[ -e "${_d}" ]]; then
+    rm -rf "${_d}"
+  fi
+done
 BUILD="${WORKSPACE}/build"
 
 COMPRESS_EXT=xz
