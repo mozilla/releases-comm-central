@@ -221,10 +221,10 @@ interface nsIMsgPluggableStore : nsISupports {
    *         do the copy.
    */
   boolean copyMessages(in boolean isMove,
-                       in nsIArray aHdrArray,
+                       in Array<nsIMsgDBHdr> aHdrArray,
                        in nsIMsgFolder aDstFolder,
                        in nsIMsgCopyServiceListener aListener,
-                       out nsIArray aDstHdrs,
+                       out Array<nsIMsgDBHdr> aDstHdrs,
                        out nsITransaction aUndoAction);
 
   /**

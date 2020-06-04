@@ -1313,6 +1313,9 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
     return OnCopyCompleted(srcSupport, false);
   }
 
+  nsTArray<RefPtr<nsIMsgDBHdr>> srcHdrs;
+  MsgHdrsToTArray(messages, srcHdrs);
+
   UpdateTimestamps(allowUndo);
   nsCString protocolType;
   rv = srcFolder->GetURI(protocolType);
@@ -1324,36 +1327,31 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
       (WeAreOffline() && (protocolType.LowerCaseEqualsLiteral("imap") ||
                           protocolType.LowerCaseEqualsLiteral("news")));
   int64_t totalMsgSize = 0;
-  uint32_t numMessages = 0;
   bool allMsgsHaveOfflineStore = true;
-  messages->GetLength(&numMessages);
-  for (uint32_t i = 0; i < numMessages; i++) {
-    nsCOMPtr<nsIMsgDBHdr> message(do_QueryElementAt(messages, i, &rv));
-    if (NS_SUCCEEDED(rv) && message) {
-      nsMsgKey key;
-      uint32_t msgSize;
-      message->GetMessageSize(&msgSize);
+  for (auto message : srcHdrs) {
+    nsMsgKey key;
+    uint32_t msgSize;
+    message->GetMessageSize(&msgSize);
 
-      /* 200 is a per-message overhead to account for any extra data added
-         to the message.
-      */
-      totalMsgSize += msgSize + 200;
+    /* 200 is a per-message overhead to account for any extra data added
+       to the message.
+    */
+    totalMsgSize += msgSize + 200;
 
-      // Check if each source folder message has offline storage regardless
-      // of whether we're online or offline.
-      message->GetMessageKey(&key);
-      bool hasMsgOffline = false;
-      srcFolder->HasMsgOffline(key, &hasMsgOffline);
-      allMsgsHaveOfflineStore = allMsgsHaveOfflineStore && hasMsgOffline;
+    // Check if each source folder message has offline storage regardless
+    // of whether we're online or offline.
+    message->GetMessageKey(&key);
+    bool hasMsgOffline = false;
+    srcFolder->HasMsgOffline(key, &hasMsgOffline);
+    allMsgsHaveOfflineStore = allMsgsHaveOfflineStore && hasMsgOffline;
 
-      // If we're offline and not all messages are in offline storage, the copy
-      // or move can't occur and a notification for the user to download the
-      // messages is posted.
-      if (needOfflineBodies && !hasMsgOffline) {
-        if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
-        ThrowAlertMsg("cantMoveMsgWOBodyOffline", msgWindow);
-        return OnCopyCompleted(srcSupport, false);
-      }
+    // If we're offline and not all messages are in offline storage, the copy
+    // or move can't occur and a notification for the user to download the
+    // messages is posted.
+    if (needOfflineBodies && !hasMsgOffline) {
+      if (isMove) srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
+      ThrowAlertMsg("cantMoveMsgWOBodyOffline", msgWindow);
+      return OnCopyCompleted(srcSupport, false);
     }
   }
 
@@ -1367,10 +1365,9 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsITransaction> undoTxn;
-  nsCOMPtr<nsIArray> dstHdrs;
-  rv = msgStore->CopyMessages(isMove, messages, this, listener,
-                              getter_AddRefs(dstHdrs), getter_AddRefs(undoTxn),
-                              &storeDidCopy);
+  nsTArray<RefPtr<nsIMsgDBHdr>> dstHdrs;
+  rv = msgStore->CopyMessages(isMove, srcHdrs, this, listener, dstHdrs,
+                              getter_AddRefs(undoTxn), &storeDidCopy);
   if (storeDidCopy) {
     NS_ASSERTION(undoTxn, "if store does copy, it needs to add undo action");
     if (msgWindow && undoTxn) {
@@ -1396,9 +1393,7 @@ nsMsgLocalMailFolder::CopyMessages(nsIMsgFolder *srcFolder, nsIArray *messages,
           // deletion when we call DeleteMessages on the source folder. So don't
           // mark it for deletion here, in that case.
           if (!GetDeleteFromServerOnMove()) {
-            nsTArray<RefPtr<nsIMsgDBHdr>> hdrs;
-            MsgHdrsToTArray(dstHdrs, hdrs);
-            localDstFolder->MarkMsgsOnPop3Server(hdrs, POP3_DELETE);
+            localDstFolder->MarkMsgsOnPop3Server(dstHdrs, POP3_DELETE);
           }
         }
       }

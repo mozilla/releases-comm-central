@@ -700,17 +700,18 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteMessages(
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::CopyMessages(bool isMove, nsIArray *aHdrArray,
+nsMsgBrkMBoxStore::CopyMessages(bool isMove,
+                                const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray,
                                 nsIMsgFolder *aDstFolder,
                                 nsIMsgCopyServiceListener *aListener,
-                                nsIArray **aDstHdrs,
+                                nsTArray<RefPtr<nsIMsgDBHdr>> &aDstHdrs,
                                 nsITransaction **aUndoAction, bool *aCopyDone) {
-  NS_ENSURE_ARG_POINTER(aHdrArray);
   NS_ENSURE_ARG_POINTER(aDstFolder);
-  NS_ENSURE_ARG_POINTER(aDstHdrs);
   NS_ENSURE_ARG_POINTER(aCopyDone);
-  *aDstHdrs = nullptr;
+  aDstHdrs.Clear();
   *aUndoAction = nullptr;
+  // We return false to indicate there's no shortcut. The calling code will
+  // just have to perform the copy the hard way.
   *aCopyDone = false;
   return NS_OK;
 }

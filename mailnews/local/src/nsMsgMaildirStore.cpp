@@ -969,22 +969,23 @@ NS_IMETHODIMP nsMsgMaildirStore::DeleteMessages(
 }
 
 NS_IMETHODIMP
-nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
+nsMsgMaildirStore::CopyMessages(bool aIsMove,
+                                const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray,
                                 nsIMsgFolder *aDstFolder,
                                 nsIMsgCopyServiceListener *aListener,
-                                nsIArray **aDstHdrs,
+                                nsTArray<RefPtr<nsIMsgDBHdr>> &aDstHdrs,
                                 nsITransaction **aUndoAction, bool *aCopyDone) {
-  NS_ENSURE_ARG_POINTER(aHdrArray);
   NS_ENSURE_ARG_POINTER(aDstFolder);
   NS_ENSURE_ARG_POINTER(aCopyDone);
   NS_ENSURE_ARG_POINTER(aUndoAction);
 
   *aCopyDone = false;
-
+  if (aHdrArray.IsEmpty()) {
+    return NS_ERROR_INVALID_ARG;
+  }
   nsCOMPtr<nsIMsgFolder> srcFolder;
   nsresult rv;
-  nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(aHdrArray, 0, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
+  nsIMsgDBHdr *msgHdr = aHdrArray[0];
   rv = msgHdr->GetFolder(getter_AddRefs(srcFolder));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1037,19 +1038,10 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
 
   if (aListener) aListener->OnStartCopy();
 
-  nsCOMPtr<nsIMutableArray> dstHdrs(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-  uint32_t messageCount;
-  rv = aHdrArray->GetLength(&messageCount);
-  NS_ENSURE_SUCCESS(rv, rv);
+  aDstHdrs.Clear();
+  aDstHdrs.SetCapacity(aHdrArray.Length());
 
-  for (uint32_t i = 0; i < messageCount; i++) {
-    nsCOMPtr<nsIMsgDBHdr> srcHdr = do_QueryElementAt(aHdrArray, i, &rv);
-    if (NS_FAILED(rv)) {
-      MOZ_LOG(MailDirLog, mozilla::LogLevel::Info, ("srcHdr null"));
-      continue;
-    }
+  for (auto srcHdr : aHdrArray) {
     nsMsgKey srcKey;
     srcHdr->GetMessageKey(&srcKey);
     msgTxn->AddSrcKey(srcKey);
@@ -1088,7 +1080,7 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
                                           getter_AddRefs(destHdr));
       NS_ENSURE_SUCCESS(rv, rv);
       destHdr->SetStringProperty("storeToken", fileName.get());
-      dstHdrs->AppendElement(destHdr);
+      aDstHdrs.AppendElement(destHdr);
       nsMsgKey dstKey;
       destHdr->GetMessageKey(&dstKey);
       msgTxn->AddDstKey(dstKey);
@@ -1098,20 +1090,16 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
       do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
   if (notifier) {
-    nsTArray<RefPtr<nsIMsgDBHdr>> srcTmp;
-    nsTArray<RefPtr<nsIMsgDBHdr>> destTmp;
-    MsgHdrsToTArray(aHdrArray, srcTmp);
-    MsgHdrsToTArray(dstHdrs, destTmp);
-    notifier->NotifyMsgsMoveCopyCompleted(aIsMove, srcTmp, aDstFolder, destTmp);
+    notifier->NotifyMsgsMoveCopyCompleted(aIsMove, aHdrArray, aDstFolder,
+                                          aDstHdrs);
   }
 
   // For now, we only support local dest folders, and for those we are done and
   // can delete the messages. Perhaps this should be moved into the folder
   // when we try to support other folder types.
   if (aIsMove) {
-    for (uint32_t i = 0; i < messageCount; ++i) {
-      nsCOMPtr<nsIMsgDBHdr> msgDBHdr(do_QueryElementAt(aHdrArray, i, &rv));
-      rv = srcDB->DeleteHeader(msgDBHdr, nullptr, false, true);
+    for (auto msgDBHdr : aHdrArray) {
+      srcDB->DeleteHeader(msgDBHdr, nullptr, false, true);
     }
   }
 
@@ -1120,7 +1108,6 @@ nsMsgMaildirStore::CopyMessages(bool aIsMove, nsIArray *aHdrArray,
   if (destLocalFolder) destLocalFolder->OnCopyCompleted(srcSupports, true);
   if (aListener) aListener->OnStopCopy(NS_OK);
   msgTxn.forget(aUndoAction);
-  dstHdrs.forget(aDstHdrs);
   return NS_OK;
 }
 
