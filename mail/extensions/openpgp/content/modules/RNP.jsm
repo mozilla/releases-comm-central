@@ -4,7 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["RNP"];
 
-var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var { RNPLibLoader } = ChromeUtils.import(
