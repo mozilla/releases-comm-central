@@ -104,7 +104,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
     return file;
   }
 
-  async importKeyBlock(keyBlock) {
+  async importKeyBlockAPI(keyBlock) {
     return null;
   }
 
@@ -120,7 +120,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *   - {Number}          importSum:       total number of processed keys
    *   - {Number}          importUnchanged: number of unchanged keys
    */
-  async importKeyFromFile(inputFile) {
+  async importKeyFromFileAPI(inputFile) {
     let keys = await GnuPG_importKeyFromFile(inputFile);
     return keys;
   }
@@ -257,7 +257,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
     return this.decrypt(signed, options);
   }
 
-  async getKeyListFromKeyBlock(keyBlockStr) {
+  async getKeyListFromKeyBlockAPI(keyBlockStr) {
     let res;
     res = await getGpgKeyData(keyBlockStr);
     return res;

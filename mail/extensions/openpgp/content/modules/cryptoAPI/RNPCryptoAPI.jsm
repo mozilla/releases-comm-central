@@ -89,9 +89,16 @@ class RNPCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
-  async importKeyBlock(keyBlock, pubkey, seckey) {
+  async importKeyBlockAPI(keyBlock, pubkey, seckey, permissive) {
     // TODO: get status results
-    let res = await RNP.importKeyBlock(null, null, keyBlock, pubkey, seckey);
+    let res = await RNP.importKeyBlockImpl(
+      null,
+      null,
+      keyBlock,
+      pubkey,
+      seckey,
+      permissive
+    );
     RNP.saveKeyRings();
     return res;
   }
@@ -106,9 +113,23 @@ class RNPCryptoAPI extends CryptoAPI {
    *   - {Array of String) importedKeys:    imported fingerprints
    *   - {String}          errorMsg:        human readable error message
    */
-  async importKeyFromFile(win, passCB, inputFile, pubkey, seckey) {
+  async importKeyFromFileAPI(
+    win,
+    passCB,
+    inputFile,
+    pubkey,
+    seckey,
+    permissive
+  ) {
     var contents = EnigmailFiles.readFile(inputFile);
-    return RNP.importKeyBlock(win, passCB, contents, pubkey, seckey);
+    return RNP.importKeyBlockImpl(
+      win,
+      passCB,
+      contents,
+      pubkey,
+      seckey,
+      permissive
+    );
   }
 
   /**
@@ -238,8 +259,13 @@ class RNPCryptoAPI extends CryptoAPI {
     return RNP.verifyDetached(signed, options);
   }
 
-  async getKeyListFromKeyBlock(keyBlockStr, pubkey, seckey) {
-    return RNP.getKeyListFromKeyBlock(keyBlockStr, pubkey, seckey);
+  async getKeyListFromKeyBlockAPI(keyBlockStr, pubkey, seckey, permissive) {
+    return RNP.getKeyListFromKeyBlockImpl(
+      keyBlockStr,
+      pubkey,
+      seckey,
+      permissive
+    );
   }
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {

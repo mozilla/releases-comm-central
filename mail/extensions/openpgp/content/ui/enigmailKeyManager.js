@@ -733,7 +733,14 @@ function enigmailImportFromClipbrd() {
 
   var cBoardContent = enigGetClipboard();
   var errorMsgObj = {};
-  var preview = EnigmailKey.getKeyListFromKeyBlock(cBoardContent, errorMsgObj);
+  var preview = EnigmailKey.getKeyListFromKeyBlock(
+    cBoardContent,
+    errorMsgObj,
+    true,
+    true,
+    false
+  );
+  // should we allow importing secret keys?
   var exitStatus = -1;
 
   if (preview && preview.length > 0) {
@@ -1058,7 +1065,14 @@ function enigmailImportKeysFromUrl() {
         EnigmailLog.DEBUG("enigmailImportKeysFromUrl: _cbFunc()\n");
         var errorMsgObj = {};
 
-        var preview = EnigmailKey.getKeyListFromKeyBlock(data, errorMsgObj);
+        var preview = EnigmailKey.getKeyListFromKeyBlock(
+          data,
+          errorMsgObj,
+          true,
+          true,
+          false
+        );
+        // should we allow importing secret keys?
         var exitStatus = -1;
 
         if (preview && preview.length > 0) {
@@ -1450,6 +1464,9 @@ var gKeyListView = {
       return "";
     }
     let keyObj = gKeyList[r.keyNum];
+    if (!keyObj) {
+      return "???";
+    }
 
     switch (r.rowType) {
       case "key":

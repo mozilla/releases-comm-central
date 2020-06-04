@@ -1777,7 +1777,13 @@ Enigmail.msg = {
     }
     let keyData = EnigmailData.decodeBase64(keyDataB64);
     let errorMsgObj = {};
-    let preview = EnigmailKey.getKeyListFromKeyBlock(keyData, errorMsgObj);
+    let preview = EnigmailKey.getKeyListFromKeyBlock(
+      keyData,
+      errorMsgObj,
+      true,
+      true,
+      false
+    );
     if (preview && errorMsgObj.value === "") {
       EnigmailKeyRing.importKeyDataWithConfirmation(
         window,
@@ -1822,7 +1828,13 @@ Enigmail.msg = {
     let keyData = msgData.substring(beginIndexObj.value, endIndexObj.value);
 
     let errorMsgObj = {};
-    let preview = EnigmailKey.getKeyListFromKeyBlock(keyData, errorMsgObj);
+    let preview = EnigmailKey.getKeyListFromKeyBlock(
+      keyData,
+      errorMsgObj,
+      true,
+      true,
+      false
+    );
     if (preview && errorMsgObj.value === "") {
       EnigmailKeyRing.importKeyDataWithConfirmation(
         window,
@@ -2776,7 +2788,10 @@ Enigmail.msg = {
     if (callbackArg.actionType == "importKey") {
       var preview = EnigmailKey.getKeyListFromKeyBlock(
         callbackArg.data,
-        errorMsgObj
+        errorMsgObj,
+        true,
+        true,
+        false
       );
 
       if (errorMsgObj.value !== "" || !preview || preview.length === 0) {
@@ -2795,7 +2810,10 @@ Enigmail.msg = {
           callbackArg.data = EnigmailFiles.readBinaryFile(outFile);
           preview = EnigmailKey.getKeyListFromKeyBlock(
             callbackArg.data,
-            errorMsgObj
+            errorMsgObj,
+            true,
+            true,
+            false
           );
         }
       }

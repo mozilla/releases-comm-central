@@ -123,11 +123,11 @@ class CryptoAPI {
    *   - {Number}          importUnchanged: number of unchanged keys
    */
 
-  async importKeyFromFile(inputFile) {
+  async importKeyFromFileAPI(inputFile) {
     return null;
   }
 
-  async importKeyBlock(keyBlock) {
+  async importKeyBlockAPI(keyBlock) {
     return null;
   }
 
@@ -254,7 +254,7 @@ class CryptoAPI {
    *          - name (the UID of the key)
    */
 
-  async getKeyListFromKeyBlock(keyBlockStr) {
+  async getKeyListFromKeyBlockAPI(keyBlockStr) {
     return null;
   }
 

@@ -145,7 +145,7 @@ var EnigmailKey = {
 
     try {
       keyList = cApi.sync(
-        cApi.getKeyListFromKeyBlock(keyBlockStr, pubkey, seckey)
+        cApi.getKeyListFromKeyBlockAPI(keyBlockStr, pubkey, seckey, true)
       );
     } catch (ex) {
       errorMsgObj.value = ex.toString();

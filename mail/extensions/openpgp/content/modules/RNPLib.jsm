@@ -1154,8 +1154,8 @@ function enableRNPLibJS() {
     rnp_signature_handle_t,
 
     RNP_LOAD_SAVE_PUBLIC_KEYS: 1,
-
     RNP_LOAD_SAVE_SECRET_KEYS: 2,
+    RNP_LOAD_SAVE_PERMISSIVE: 256,
 
     RNP_KEY_REMOVE_PUBLIC: 1,
 

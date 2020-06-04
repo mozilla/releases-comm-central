@@ -26,9 +26,11 @@ const { EnigmailMime } = ChromeUtils.import(
 const { EnigmailSqliteDb } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
+/*
 const { PromiseUtils } = ChromeUtils.import(
   "resource://gre/modules/PromiseUtils.jsm"
 );
+*/
 const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 );
@@ -41,9 +43,11 @@ const { EnigmailArmor } = ChromeUtils.import(
 const { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
 );
+/*
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+*/
 
 var gCreatedSetupIds = [];
 
@@ -977,6 +981,7 @@ async function findUserRecord(connection, emails, type) {
  * @return Promise
  */
 async function appendUser(connection, paramsArr) {
+  /*
   EnigmailLog.DEBUG("autocrypt.jsm: appendUser(" + paramsArr.addr + ")\n");
 
   if (!("fpr" in paramsArr)) {
@@ -1014,6 +1019,7 @@ async function appendUser(connection, paramsArr) {
         });
     });
   });
+  */
 }
 
 /**
@@ -1028,6 +1034,7 @@ async function appendUser(connection, paramsArr) {
  * @return Promise
  */
 async function updateUser(connection, paramsArr, resultRows, autoCryptEnabled) {
+  /*
   EnigmailLog.DEBUG("autocrypt.jsm: updateUser\n");
 
   let currData = resultRows[0];
@@ -1114,6 +1121,7 @@ async function updateUser(connection, paramsArr, resultRows, autoCryptEnabled) {
       paramsArr["prefer-encrypt"]
     );
   }
+  */
 }
 
 /**
@@ -1126,6 +1134,7 @@ async function updateUser(connection, paramsArr, resultRows, autoCryptEnabled) {
  *
  * @return {Promise<Boolean>} - key updated
  */
+/*
 async function updateKeyIfNeeded(email, keydata, fpr, keyType, autocryptState) {
   await EnigmailAutocrypt.applyKeyFromKeydata(
     atob(keydata),
@@ -1136,17 +1145,19 @@ async function updateKeyIfNeeded(email, keydata, fpr, keyType, autocryptState) {
 
   return true;
 }
+*/
 
 /**
  * Set the fpr attribute for a given key parameter object
  */
+/*
 async function getFprForKey(paramsArr) {
   let keyData = atob(paramsArr.keydata);
 
   const cApi = EnigmailCryptoAPI();
 
   try {
-    let keyArr = await cApi.getKeyListFromKeyBlock(keyData);
+    let keyArr = await cApi.getKeyListFromKeyBlockAPI(keyData, ... ?);
     if (!keyArr) {
       // callers can handle empty string for paramsArr.fpr
       return;
@@ -1157,6 +1168,7 @@ async function getFprForKey(paramsArr) {
     }
   } catch (x) {}
 }
+*/
 
 /**
  * Create the 9x4 digits backup code as defined in the Autocrypt spec

@@ -350,13 +350,39 @@ var EnigmailKeyRing = {
         "\n"
     );
     const cApi = EnigmailCryptoAPI();
-    let res = cApi.sync(
-      cApi.importKeyFromFile(win, passCB, inputFile, pubkey, seckey)
-    );
+    let res;
+    let tryAgain;
+    let permissive = false;
+    do {
+      // strict on first attempt, permissive on optional second attempt
+      res = cApi.sync(
+        cApi.importKeyFromFileAPI(
+          win,
+          passCB,
+          inputFile,
+          pubkey,
+          seckey,
+          permissive
+        )
+      );
+
+      tryAgain = false;
+      let failed = res.exitCode || !res.importedKeys.length;
+      if (failed && !permissive) {
+        let agreed = getDialog().confirmDlg(
+          win,
+          EnigmailLocale.getString("confirmPermissiveImport")
+        );
+        if (agreed) {
+          permissive = true;
+          tryAgain = true;
+        }
+      }
+    } while (tryAgain);
+
     if (importedKeysObj) {
       importedKeysObj.keys = res.importedKeys;
     }
-
     if (!res) {
       return 1;
     }
@@ -629,22 +655,41 @@ var EnigmailKeyRing = {
     }
 
     const cApi = EnigmailCryptoAPI();
-    if (isBinary) {
-      cApi.sync(cApi.importKeyBlock(keyBlock, true, false)); // public only
-    } else {
-      cApi.sync(cApi.importKeyBlock(pgpBlock, true, false)); // public only
-    }
+    let result;
+    let tryAgain;
+    let permissive = false;
+    do {
+      // strict on first attempt, permissive on optional second attempt
+      if (isBinary) {
+        result = cApi.sync(
+          cApi.importKeyBlockAPI(keyBlock, true, false, permissive)
+        ); // public only
+      } else {
+        result = cApi.sync(
+          cApi.importKeyBlockAPI(pgpBlock, true, false, permissive)
+        ); // public only
+      }
 
-    if (!importedKeysObj) {
-      importedKeysObj = {};
-    }
-    importedKeysObj.value = [];
+      tryAgain = false;
+      let failed = result.exitCode || !result.importedKeys.length;
+      if (failed && isInteractive && !permissive) {
+        let agreed = getDialog().confirmDlg(
+          parent,
+          EnigmailLocale.getString("confirmPermissiveImport")
+        );
+        if (agreed) {
+          permissive = true;
+          tryAgain = true;
+        }
+      }
+    } while (tryAgain);
 
-    let exitCode = 0;
+    if (importedKeysObj) {
+      importedKeysObj.value = result.importedKeys;
+    }
 
     EnigmailKeyRing.clearCache();
-
-    return exitCode;
+    return result.exitCode;
   },
 
   importKeyDataWithConfirmation(window, preview, keyData, isBinary) {

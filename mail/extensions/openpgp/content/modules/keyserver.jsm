@@ -1325,7 +1325,12 @@ const accessVksServer = {
         );
 
         const cApi = EnigmailCryptoAPI();
-        let keyList = await cApi.getKeyListFromKeyBlock(r);
+        let keyList = await cApi.getKeyListFromKeyBlockAPI(
+          r,
+          true,
+          false,
+          true
+        );
         if (!keyList) {
           retObj.result = -1;
           // TODO: should we set retObj.errorDetails to a string?

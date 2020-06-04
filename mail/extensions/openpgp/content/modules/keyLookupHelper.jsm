@@ -87,6 +87,8 @@ var KeyLookupHelper = {
       let keyList = EnigmailKey.getKeyListFromKeyBlock(
         wkdKeys.keyData,
         {},
+        false,
+        true,
         false
       );
       if (!keyList) {

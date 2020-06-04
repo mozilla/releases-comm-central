@@ -559,7 +559,13 @@ var EnigmailDecryption = {
           EnigmailLocale.getString("dlg.button.view")
         )
       ) {
-        let preview = EnigmailKey.getKeyListFromKeyBlock(byteData, errorMsgObj);
+        let preview = EnigmailKey.getKeyListFromKeyBlock(
+          byteData,
+          errorMsgObj,
+          true,
+          true,
+          false
+        );
         exitCodeObj.keyList = preview;
         let exitStatus = 0;
 

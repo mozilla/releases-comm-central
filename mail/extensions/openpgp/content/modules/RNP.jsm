@@ -1116,7 +1116,7 @@ var RNP = {
     RNPLib.saveKeys();
   },
 
-  importToFFI(ffi, keyBlockStr, usePublic, useSecret) {
+  importToFFI(ffi, keyBlockStr, usePublic, useSecret, permissive) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
     if (!keyBlockStr) {
@@ -1131,6 +1131,7 @@ var RNP = {
     }
 
     let arr = [];
+    arr.length = keyBlockStr.length;
     for (let i = 0; i < keyBlockStr.length; i++) {
       arr[i] = keyBlockStr.charCodeAt(i);
     }
@@ -1157,6 +1158,10 @@ var RNP = {
       flags |= RNPLib.RNP_LOAD_SAVE_SECRET_KEYS;
     }
 
+    if (permissive) {
+      flags |= RNPLib.RNP_LOAD_SAVE_PERMISSIVE;
+    }
+
     let rv = RNPLib.rnp_import_keys(
       ffi,
       input_from_memory,
@@ -1180,7 +1185,12 @@ var RNP = {
 
   maxImportKeyBlockSize: 5000000,
 
-  async getKeyListFromKeyBlock(keyBlockStr, pubkey = true, seckey = false) {
+  async getKeyListFromKeyBlockImpl(
+    keyBlockStr,
+    pubkey = true,
+    seckey = false,
+    permissive = true
+  ) {
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
       throw new Error("rejecting big keyblock");
     }
@@ -1191,7 +1201,7 @@ var RNP = {
     }
 
     let keyList = null;
-    if (!this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey)) {
+    if (!this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey, permissive)) {
       keyList = await this.getKeysFromFFI(tempFFI, true);
     }
 
@@ -1199,13 +1209,13 @@ var RNP = {
     return keyList;
   },
 
-  async importKeyBlock(
+  async importKeyBlockImpl(
     win,
     passCB,
     keyBlockStr,
     pubkey,
     seckey,
-    password = null
+    permissive = false
   ) {
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
       throw new Error("rejecting big keyblock");
@@ -1234,8 +1244,9 @@ var RNP = {
     }
 
     // TODO: check result
-    if (this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey)) {
-      throw new Error("RNP.importToFFI failed");
+    if (this.importToFFI(tempFFI, keyBlockStr, pubkey, seckey, permissive)) {
+      result.errorMsg = "RNP.importToFFI failed";
+      return result;
     }
 
     let keys = await this.getKeysFromFFI(tempFFI, true);
@@ -1364,6 +1375,9 @@ var RNP = {
         }
         if (seckey) {
           importFlags |= RNPLib.RNP_LOAD_SAVE_SECRET_KEYS;
+        }
+        if (permissive) {
+          importFlags |= RNPLib.RNP_LOAD_SAVE_PERMISSIVE;
         }
 
         if (
