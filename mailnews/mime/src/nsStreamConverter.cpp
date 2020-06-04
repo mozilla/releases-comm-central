@@ -759,7 +759,6 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest *request,
                                             uint64_t sourceOffset,
                                             uint32_t aLength) {
   nsresult rc = NS_OK;  // should this be an error instead?
-  uint32_t readLen = aLength;
   uint32_t written;
 
   // If this is the first time through and we are supposed to be
@@ -786,12 +785,13 @@ nsresult nsStreamConverter::OnDataAvailable(nsIRequest *request,
     return NS_ERROR_FAILURE;
   }
 
-  NS_ENSURE_TRUE(aIStream, NS_ERROR_NULL_POINTER);
+  nsCOMPtr<nsIInputStream> stream = aIStream;
+  NS_ENSURE_TRUE(stream, NS_ERROR_NULL_POINTER);
   char *buf = (char *)PR_Malloc(aLength);
   if (!buf) return NS_ERROR_OUT_OF_MEMORY; /* we couldn't allocate the object */
 
-  readLen = aLength;
-  aIStream->Read(buf, aLength, &readLen);
+  uint32_t readLen;
+  stream->Read(buf, aLength, &readLen);
 
   // We need to filter out any null characters else we will have a lot of
   // trouble as we use c string everywhere in mime
