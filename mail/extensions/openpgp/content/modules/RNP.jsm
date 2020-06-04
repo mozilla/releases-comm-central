@@ -1178,7 +1178,13 @@ var RNP = {
     return rv;
   },
 
+  maxImportKeyBlockSize: 5000000,
+
   async getKeyListFromKeyBlock(keyBlockStr, pubkey = true, seckey = false) {
+    if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
+      throw new Error("rejecting big keyblock");
+    }
+
     let tempFFI = new RNPLib.rnp_ffi_t();
     if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
       throw new Error("Couldn't initialize librnp.");
@@ -1201,6 +1207,10 @@ var RNP = {
     seckey,
     password = null
   ) {
+    if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
+      throw new Error("rejecting big keyblock");
+    }
+
     /*
      * Import strategy:
      * - import file into a temporary space, in-memory only (ffi)

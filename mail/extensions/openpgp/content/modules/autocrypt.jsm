@@ -414,6 +414,7 @@ var EnigmailAutocrypt = {
       EnigmailOpenPGP.armor.public_key,
       keyData
     );
+    // TODO: respect pubkey size limitation
     await EnigmailKeyRing.importKeyAsync(null, false, pubkey, false, "", {}, keysObj);
 
     if (keysObj.value) {

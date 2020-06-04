@@ -64,6 +64,13 @@ function EnigmailCommon_importKeysFromFile(secret) {
     return false;
   }
 
+  // infile type: nsIFile
+  // RNP.maxImportKeyBlockSize
+  if (inFile.fileSize > 5000000) {
+    EnigmailDialog.alert(window, EnigmailLocale.getString("fileToBigToImport"));
+    return false;
+  }
+
   let errorMsgObj = {};
   // preview
   let preview = EnigmailKey.getKeyListFromKeyFile(
