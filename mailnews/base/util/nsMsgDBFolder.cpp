@@ -4027,32 +4027,24 @@ NS_IMETHODIMP nsMsgDBFolder::GetFolderWithFlags(uint32_t aFlags,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBFolder::GetFoldersWithFlags(uint32_t aFlags,
-                                                 nsIArray **aResult) {
-  NS_ENSURE_ARG_POINTER(aResult);
+NS_IMETHODIMP nsMsgDBFolder::GetFoldersWithFlags(
+    uint32_t aFlags, nsTArray<RefPtr<nsIMsgFolder>> &aResult) {
+  aResult.Clear();
 
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> array(do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  ListFoldersWithFlags(aFlags, array);
-  array.forget(aResult);
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgDBFolder::ListFoldersWithFlags(uint32_t aFlags,
-                                                  nsIMutableArray *aFolders) {
-  NS_ENSURE_ARG_POINTER(aFolders);
-  if ((mFlags & aFlags) == aFlags)
-    aFolders->AppendElement(static_cast<nsIMsgFolder *>(this));
-
+  // Ensure initialisation of mSubFolders.
   nsCOMPtr<nsISimpleEnumerator> dummy;
-  GetSubFolders(getter_AddRefs(dummy));  // initialize mSubFolders
+  GetSubFolders(getter_AddRefs(dummy));
 
-  int32_t count = mSubFolders.Count();
-  for (int32_t i = 0; i < count; ++i)
-    mSubFolders[i]->ListFoldersWithFlags(aFlags, aFolders);
+  if ((mFlags & aFlags) == aFlags) {
+    aResult.AppendElement(this);
+  }
 
+  // Recurse down through children.
+  for (auto child : mSubFolders) {
+    nsTArray<RefPtr<nsIMsgFolder>> subMatches;
+    child->GetFoldersWithFlags(aFlags, subMatches);
+    aResult.AppendElements(subMatches);
+  }
   return NS_OK;
 }
 

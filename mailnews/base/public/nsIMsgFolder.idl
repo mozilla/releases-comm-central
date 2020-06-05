@@ -432,16 +432,7 @@ interface nsIMsgFolder : nsISupports {
    * @return         An array of folders that have the specified flags set.
    *                 The array may have zero elements.
    */
-  nsIArray getFoldersWithFlags(in unsigned long flags);
-
-  /**
-   * Lists the folders that have the specified flag set.
-   *
-   * @param flags    The flag(s) to check for.
-   * @param folders  The array in which to append the found folder(s).
-   */
-  void listFoldersWithFlags(in unsigned long flags,
-                            in nsIMutableArray folders);
+  Array<nsIMsgFolder> getFoldersWithFlags(in unsigned long flags);
 
   /**
    * Check if this folder (or one of its ancestors) is special.

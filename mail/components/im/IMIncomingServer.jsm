@@ -323,8 +323,7 @@ IMIncomingServer.prototype = {
       descendants: [],
       getFlag: () => false,
       getFolderWithFlags: aFlags => null,
-      getFoldersWithFlags: aFlags =>
-        Cc["@mozilla.org/array;1"].createInstance(Ci.nsIArray),
+      getFoldersWithFlags: aFlags => [],
       get subFolders() {
         return EmptyEnumerator;
       },

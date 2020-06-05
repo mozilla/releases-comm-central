@@ -1371,62 +1371,56 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
     // Verify there is only one trash folder. Another might be present if
     // the trash name has been changed. Or we might be a gmail server and
     // want to switch to gmail's trash folder.
-    nsCOMPtr<nsIArray> trashFolders;
+    nsTArray<RefPtr<nsIMsgFolder>> trashFolders;
     rv = rootMsgFolder->GetFoldersWithFlags(nsMsgFolderFlags::Trash,
-                                            getter_AddRefs(trashFolders));
+                                            trashFolders);
 
-    if (NS_SUCCEEDED(rv) && trashFolders) {
-      uint32_t numFolders;
-      trashFolders->GetLength(&numFolders);
+    if (NS_SUCCEEDED(rv)) {
       nsAutoString trashName;
       if (NS_SUCCEEDED(GetTrashFolderName(trashName))) {
-        for (uint32_t i = 0; i < numFolders; i++) {
-          nsCOMPtr<nsIMsgFolder> trashFolder(
-              do_QueryElementAt(trashFolders, i));
-          if (trashFolder) {
-            // If we're a gmail server, we clear the trash flags from folder(s)
-            // without the kImapXListTrash flag. For normal servers, we clear
-            // the trash folder flag if the folder name doesn't match the
-            // pref trash folder name.
-            nsAutoString retval;
-            rv = GetUnicharValue(PREF_TRASH_FOLDER_PATH, retval);
-            if (isGMailServer && (NS_FAILED(rv) || retval.IsEmpty())) {
-              nsCOMPtr<nsIMsgImapMailFolder> imapFolder(
-                  do_QueryInterface(trashFolder));
-              int32_t boxFlags;
-              imapFolder->GetBoxFlags(&boxFlags);
-              if (boxFlags & kImapXListTrash) {
-                continue;
-              }
-            } else {
-              // Store the trash folder path. We maintain the full path in the
-              // trash_folder_name preference since the full path is stored
-              // there when selecting a trash folder in the Account Manager.
-              nsAutoCString trashURL;
-              trashFolder->GetFolderURL(trashURL);
-              nsCOMPtr<nsIURI> uri;
-              NS_NewURI(getter_AddRefs(uri), trashURL);
-              nsAutoCString trashPath;
-              uri->GetPathQueryRef(trashPath);
-              nsAutoCString unescapedName;
-              MsgUnescapeString(Substring(trashPath, 1),  // Skip leading slash.
-                                nsINetUtil::ESCAPE_URL_PATH, unescapedName);
-              nsAutoString nameUnicode;
-              if (NS_FAILED(CopyMUTF7toUTF16(unescapedName, nameUnicode)) ||
-                  trashName.Equals(nameUnicode)) {
-                continue;
-              }
-              if (numFolders == 1) {
-                // We got here because the preferred trash folder does not
-                // exist, but a folder got discovered to be the trash folder.
-                SetUnicharValue(PREF_TRASH_FOLDER_PATH, nameUnicode);
-                continue;
-              }
+        for (auto trashFolder : trashFolders) {
+          // If we're a gmail server, we clear the trash flags from folder(s)
+          // without the kImapXListTrash flag. For normal servers, we clear
+          // the trash folder flag if the folder name doesn't match the
+          // pref trash folder name.
+          nsAutoString retval;
+          rv = GetUnicharValue(PREF_TRASH_FOLDER_PATH, retval);
+          if (isGMailServer && (NS_FAILED(rv) || retval.IsEmpty())) {
+            nsCOMPtr<nsIMsgImapMailFolder> imapFolder(
+                do_QueryInterface(trashFolder));
+            int32_t boxFlags;
+            imapFolder->GetBoxFlags(&boxFlags);
+            if (boxFlags & kImapXListTrash) {
+              continue;
             }
-            // We clear the trash folder flag if the trash folder path doesn't
-            // match mail.server.serverX.trash_folder_name.
-            trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
+          } else {
+            // Store the trash folder path. We maintain the full path in the
+            // trash_folder_name preference since the full path is stored
+            // there when selecting a trash folder in the Account Manager.
+            nsAutoCString trashURL;
+            trashFolder->GetFolderURL(trashURL);
+            nsCOMPtr<nsIURI> uri;
+            NS_NewURI(getter_AddRefs(uri), trashURL);
+            nsAutoCString trashPath;
+            uri->GetPathQueryRef(trashPath);
+            nsAutoCString unescapedName;
+            MsgUnescapeString(Substring(trashPath, 1),  // Skip leading slash.
+                              nsINetUtil::ESCAPE_URL_PATH, unescapedName);
+            nsAutoString nameUnicode;
+            if (NS_FAILED(CopyMUTF7toUTF16(unescapedName, nameUnicode)) ||
+                trashName.Equals(nameUnicode)) {
+              continue;
+            }
+            if (trashFolders.Length() == 1) {
+              // We got here because the preferred trash folder does not
+              // exist, but a folder got discovered to be the trash folder.
+              SetUnicharValue(PREF_TRASH_FOLDER_PATH, nameUnicode);
+              continue;
+            }
           }
+          // We clear the trash folder flag if the trash folder path doesn't
+          // match mail.server.serverX.trash_folder_name.
+          trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
         }
       }
     }

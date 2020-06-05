@@ -2733,17 +2733,13 @@ NS_IMETHODIMP nsMsgAccountManager::SaveVirtualFolders() {
       nsCOMPtr<nsIMsgFolder> rootFolder;
       server->GetRootFolder(getter_AddRefs(rootFolder));
       if (rootFolder) {
-        nsCOMPtr<nsIArray> virtualFolders;
-        nsresult rv = rootFolder->GetFoldersWithFlags(
-            nsMsgFolderFlags::Virtual, getter_AddRefs(virtualFolders));
+        nsTArray<RefPtr<nsIMsgFolder>> virtualFolders;
+        nsresult rv = rootFolder->GetFoldersWithFlags(nsMsgFolderFlags::Virtual,
+                                                      virtualFolders);
         if (NS_FAILED(rv)) {
           continue;
         }
-        uint32_t vfCount;
-        virtualFolders->GetLength(&vfCount);
-        for (uint32_t folderIndex = 0; folderIndex < vfCount; folderIndex++) {
-          nsCOMPtr<nsIMsgFolder> msgFolder(
-              do_QueryElementAt(virtualFolders, folderIndex));
+        for (auto msgFolder : virtualFolders) {
           nsCOMPtr<nsIMsgDatabase> db;
           nsCOMPtr<nsIDBFolderInfo> dbFolderInfo;
           rv = msgFolder->GetDBFolderInfoAndDB(

@@ -1311,10 +1311,7 @@ var gFolderTreeView = {
         aFolderFlag
       );
       if (foldersWithFlag.length > 0) {
-        for (let folderWithFlag of fixIterator(
-          foldersWithFlag,
-          Ci.nsIMsgFolder
-        )) {
+        for (let folderWithFlag of foldersWithFlag) {
           folders.push(folderWithFlag);
           // Add sub-folders of Sent and Archive to the result.
           if (
