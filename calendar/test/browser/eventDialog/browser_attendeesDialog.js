@@ -283,26 +283,26 @@ add_task(async () => {
   );
   for (let i = -2; i < 0; i++) {
     await testDays(
-      fromToday(`P${i}DT12H`),
-      fromToday(`P${i}DT13H`),
-      fromToday(`P${i}D`).icalString.substring(0, 8),
-      fromToday(`P${i + 4}D`).icalString.substring(0, 8)
+      fromToday({ days: i, hours: 12 }),
+      fromToday({ days: i, hours: 13 }),
+      fromToday({ days: i }).icalString.substring(0, 8),
+      fromToday({ days: i + 4 }).icalString.substring(0, 8)
     );
   }
   for (let i = 0; i < 3; i++) {
     await testDays(
-      fromToday(`P${i}DT12H`),
-      fromToday(`P${i}DT13H`),
-      fromToday("P0D").icalString.substring(0, 8),
-      fromToday("P4D").icalString.substring(0, 8)
+      fromToday({ days: i, hours: 12 }),
+      fromToday({ days: i, hours: 13 }),
+      fromToday({ days: 0 }).icalString.substring(0, 8),
+      fromToday({ days: 4 }).icalString.substring(0, 8)
     );
   }
   for (let i = 3; i < 5; i++) {
     await testDays(
-      fromToday(`P${i}DT12H`),
-      fromToday(`P${i}DT13H`),
-      fromToday(`P${i - 2}D`).icalString.substring(0, 8),
-      fromToday(`P${i + 2}D`).icalString.substring(0, 8)
+      fromToday({ days: i, hours: 12 }),
+      fromToday({ days: i, hours: 13 }),
+      fromToday({ days: i - 2 }).icalString.substring(0, 8),
+      fromToday({ days: i + 2 }).icalString.substring(0, 8)
     );
   }
   await testDays(
@@ -369,14 +369,18 @@ function closeAttendeesWindow(attendeesWindow, buttonAction = "accept") {
   return closedPromise;
 }
 
-function fromToday(durationString) {
+function fromToday({ days = 0, hours = 0 }) {
   if (!fromToday.today) {
     fromToday.today = cal.dtz.now();
     fromToday.today.hour = fromToday.today.minute = fromToday.today.second = 0;
   }
 
+  let duration = cal.createDuration();
+  duration.days = days;
+  duration.hours = hours;
+
   let value = fromToday.today.clone();
-  value.addDuration(cal.createDuration(durationString));
+  value.addDuration(duration);
   return value;
 }
 
@@ -415,11 +419,11 @@ var freeBusyProvider = {
   },
   data: {
     "mailto:mochitest@invalid": [
-      ["P1DT4H", "PT3H"],
-      ["P1DT8H", "PT3H"],
-      ["P1DT12H", "PT3H"],
-      ["P1DT16H", "PT3H"],
-      ["P2DT4H", "PT3H"],
+      [{ days: 1, hours: 4 }, "PT3H"],
+      [{ days: 1, hours: 8 }, "PT3H"],
+      [{ days: 1, hours: 12 }, "PT3H"],
+      [{ days: 1, hours: 16 }, "PT3H"],
+      [{ days: 2, hours: 4 }, "PT3H"],
     ],
     "mailto:juliet@invalid": [["P1DT9H", "PT8H"]],
     "mailto:romeo@invalid": [["P1DT14H", "PT5H"]],
