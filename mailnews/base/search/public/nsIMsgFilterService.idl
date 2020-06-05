@@ -13,7 +13,6 @@ interface nsISimpleEnumerator;
 interface nsIFile;
 interface nsIMsgFolder;
 interface nsIMsgSearchCustomTerm;
-interface nsIArray;
 interface nsIMsgOperationListener;
 
 [scriptable, uuid(78a74023-1692-4567-8d72-9ca58fbbd427)]
@@ -28,7 +27,7 @@ interface nsIMsgFilterService : nsISupports {
     void CancelFilterList(in nsIMsgFilterList filterList);
     nsIMsgFilterList getTempFilterList(in nsIMsgFolder aFolder);
     void applyFiltersToFolders(in nsIMsgFilterList aFilterList,
-                               in nsIArray aFolders,
+                               in Array<nsIMsgFolder> aFolders,
                                in nsIMsgWindow aMsgWindow,
                                [optional] in nsIMsgOperationListener aCallback);
 
@@ -41,7 +40,7 @@ interface nsIMsgFilterService : nsISupports {
      * @param  aCallback    A listener that gets notified of any filtering error
      */
     void applyFilters(in nsMsgFilterTypeType aFilterType,
-                      in nsIArray aMsgHdrList,
+                      in Array<nsIMsgDBHdr> aMsgHdrList,
                       in nsIMsgFolder aFolder,
                       in nsIMsgWindow aMsgWindow,
                       [optional] in nsIMsgOperationListener aCallback);

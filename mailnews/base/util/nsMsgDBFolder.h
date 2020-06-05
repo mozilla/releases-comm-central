@@ -301,7 +301,7 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   } mProcessingFlag[nsMsgProcessingFlags::NumberOfFlags];
 
   // list of nsIMsgDBHdrs for messages to process post-bayes
-  nsCOMPtr<nsIMutableArray> mPostBayesMessagesToFilter;
+  nsTArray<RefPtr<nsIMsgDBHdr>> mPostBayesMessagesToFilter;
 
   /**
    * The list of message keys that have been classified for msgsClassified

@@ -1160,19 +1160,12 @@ BatchMessageMover.prototype =
   filterBatch: function()
   {
     let batch = this._currentBatch;
-    let msgs = batch.slice(6);
-
-    let filterArray = Cc["@mozilla.org/array;1"]
-                        .createInstance(Ci.nsIMutableArray);
-    for (let message of msgs) {
-      filterArray.appendElement(message);
-    }
-
     // Apply filters to this batch.
+    let msgs = batch.slice(6);
     let srcFolder = batch[0];
     MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.Archive,
-      filterArray, srcFolder, msgWindow, this);
+      msgs, srcFolder, msgWindow, this);
     return; // continues with onStopOperation
   },
 
@@ -1803,9 +1796,6 @@ function MsgApplyFilters()
                         .getService(Ci.nsIMsgFilterService);
 
   var preselectedFolder = GetFirstSelectedMsgFolder();
-  var selectedFolders = Cc["@mozilla.org/array;1"]
-                          .createInstance(Ci.nsIMutableArray);
-  selectedFolders.appendElement(preselectedFolder);
 
   var curFilterList = preselectedFolder.getFilterList(msgWindow);
   // create a new filter list and copy over the enabled filters to it.
@@ -1830,7 +1820,7 @@ function MsgApplyFilters()
       newFilterIndex++;
     }
   }
-  filterService.applyFiltersToFolders(tempFilterList, selectedFolders, msgWindow);
+  filterService.applyFiltersToFolders(tempFilterList, [preselectedFolder], msgWindow);
 }
 
 function MsgApplyFiltersToSelection()
@@ -1842,8 +1832,7 @@ function MsgApplyFiltersToSelection()
   var indices = GetSelectedIndices(gDBView);
   if (indices && indices.length)
   {
-    var selectedMsgs = Cc["@mozilla.org/array;1"]
-                         .createInstance(Ci.nsIMutableArray);
+    var selectedMsgs = [];
     for (var i = 0; i < indices.length; i++)
     {
       try
@@ -1854,7 +1843,7 @@ function MsgApplyFiltersToSelection()
         {
           var msgHdr = folder.GetMessageHeader(gDBView.getKeyAt(indices[i]));
           if (msgHdr)
-            selectedMsgs.appendElement(msgHdr);
+            selectedMsgs.push(msgHdr);
         }
       } catch (ex) {}
     }

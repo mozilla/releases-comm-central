@@ -3565,15 +3565,8 @@ nsresult nsMsgComposeAndSend::FilterSentMessage() {
   rv = folder->GetMessageHeader(m_messageKey, getter_AddRefs(msgHdr));
   if (NS_FAILED(rv)) return rv;
 
-  nsCOMPtr<nsIMutableArray> msgArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  if (NS_FAILED(rv)) return rv;
-
   nsCOMPtr<nsIMsgFilterService> filterSvc =
       do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);
-  if (NS_FAILED(rv)) return rv;
-
-  rv = msgArray->AppendElement(msgHdr);
   if (NS_FAILED(rv)) return rv;
 
   nsCOMPtr<nsIMsgWindow> msgWindow;
@@ -3581,7 +3574,7 @@ nsresult nsMsgComposeAndSend::FilterSentMessage() {
 
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
           ("(Send) Running filters on sent message"));
-  return filterSvc->ApplyFilters(nsMsgFilterType::PostOutgoing, msgArray,
+  return filterSvc->ApplyFilters(nsMsgFilterType::PostOutgoing, {&*msgHdr},
                                  folder, msgWindow, this);
 }
 

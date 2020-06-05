@@ -408,9 +408,6 @@ function runSelectedFilters()
 
   var msgFolder = gRunFiltersFolderPicker._folder || gRunFiltersFolderPicker.selectedItem._folder;
   var filterList = MailServices.filters.getTempFilterList(msgFolder);
-  var folders = Cc["@mozilla.org/array;1"]
-                  .createInstance(Ci.nsIMutableArray);
-  folders.appendElement(msgFolder);
 
   // make sure the tmp filter list uses the real filter list log stream
   filterList.logStream = currentFilterList().logStream;
@@ -426,7 +423,7 @@ function runSelectedFilters()
     }
   }
 
-  MailServices.filters.applyFiltersToFolders(filterList, folders, gFilterListMsgWindow);
+  MailServices.filters.applyFiltersToFolders(filterList, [msgFolder], gFilterListMsgWindow);
 }
 
 function moveCurrentFilter(motion)

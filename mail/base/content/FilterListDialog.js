@@ -711,8 +711,6 @@ function runSelectedFilters() {
   }
 
   let filterList = MailServices.filters.getTempFilterList(folder);
-  let folders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  folders.appendElement(folder);
 
   // make sure the tmp filter list uses the real filter list log stream
   filterList.logStream = gCurrentFilterList.logStream;
@@ -725,7 +723,7 @@ function runSelectedFilters() {
 
   MailServices.filters.applyFiltersToFolders(
     filterList,
-    folders,
+    [folder],
     gFilterListMsgWindow
   );
 }

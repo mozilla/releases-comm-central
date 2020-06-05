@@ -47,17 +47,13 @@ var gTestArray = [
   },
   // test applying filters to a message header
   async function applyFilters() {
-    let messages = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    messages.appendElement(localAccountUtils.inboxFolder.firstNewMessage);
     let promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
       localAccountUtils.inboxFolder,
       "DeleteOrMoveMsgCompleted"
     );
     MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.Manual,
-      messages,
+      [localAccountUtils.inboxFolder.firstNewMessage],
       localAccountUtils.inboxFolder,
       null
     );
@@ -78,8 +74,7 @@ var gTestArray = [
   },
   // use the alternate call into the filter service
   async function applyFiltersToFolders() {
-    let folders = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-    folders.appendElement(localAccountUtils.inboxFolder);
+    let folders = [localAccountUtils.inboxFolder];
     let promiseFolderEvent = PromiseTestUtils.promiseFolderEvent(
       localAccountUtils.inboxFolder,
       "DeleteOrMoveMsgCompleted"

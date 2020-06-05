@@ -128,18 +128,10 @@ MessageArchiver.prototype = {
 
   filterBatch() {
     let batch = this._currentBatch;
-
-    let filterArray = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    for (let message of batch.messages) {
-      filterArray.appendElement(message);
-    }
-
     // Apply filters to this batch.
     MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.Archive,
-      filterArray,
+      batch.messages,
       batch.srcFolder,
       this.msgWindow,
       this

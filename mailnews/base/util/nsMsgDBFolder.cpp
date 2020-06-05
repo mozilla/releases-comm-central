@@ -2099,10 +2099,7 @@ nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
   if (!aMsgURI)  // This signifies end of batch.
   {
     // Apply filters if needed.
-    uint32_t length;
-    if (mPostBayesMessagesToFilter &&
-        NS_SUCCEEDED(mPostBayesMessagesToFilter->GetLength(&length)) &&
-        length) {
+    if (!mPostBayesMessagesToFilter.IsEmpty()) {
       // Apply post-bayes filtering.
       nsCOMPtr<nsIMsgFilterService> filterService(
           do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv));
@@ -2113,7 +2110,7 @@ nsMsgDBFolder::OnMessageClassified(const char *aMsgURI,
         rv = filterService->ApplyFilters(nsMsgFilterType::PostPlugin,
                                          mPostBayesMessagesToFilter, this,
                                          nullptr, nullptr);
-      mPostBayesMessagesToFilter->Clear();
+      mPostBayesMessagesToFilter.Clear();
     }
 
     // If we classified any messages, send out a notification.
@@ -2497,10 +2494,7 @@ nsMsgDBFolder::CallFilterPlugins(nsIMsgWindow *aMsgWindow, bool *aFiltersRun) {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                 ("Filters done on this message"));
         OrProcessingFlags(msgKey, nsMsgProcessingFlags::FiltersDone);
-        // Lazily create the array.
-        if (!mPostBayesMessagesToFilter)
-          mPostBayesMessagesToFilter = do_CreateInstance(NS_ARRAY_CONTRACTID);
-        mPostBayesMessagesToFilter->AppendElement(msgHdr);
+        mPostBayesMessagesToFilter.AppendElement(msgHdr);
       }
     }
   }

@@ -2568,10 +2568,6 @@ function MsgFilters(emailAddress, folder, fieldName) {
 
 function MsgApplyFilters() {
   let preselectedFolder = GetFirstSelectedMsgFolder();
-  let selectedFolders = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
-  selectedFolders.appendElement(preselectedFolder);
 
   let curFilterList = preselectedFolder.getFilterList(msgWindow);
   // create a new filter list and copy over the enabled filters to it.
@@ -2601,7 +2597,7 @@ function MsgApplyFilters() {
   }
   MailServices.filters.applyFiltersToFolders(
     tempFilterList,
-    selectedFolders,
+    [preselectedFolder],
     msgWindow
   );
 }
@@ -2616,7 +2612,7 @@ function MsgApplyFiltersToSelection() {
   if (selectedMessages.length) {
     MailServices.filters.applyFilters(
       Ci.nsMsgFilterType.Manual,
-      toXPCOMArray(selectedMessages, Ci.nsIMutableArray),
+      selectedMessages,
       gFolderDisplay.displayedFolder,
       msgWindow
     );
