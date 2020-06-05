@@ -28,12 +28,12 @@ add_task(async function test_calendar_count() {
   await loadCalendarManager();
   let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
   Assert.equal(
-    scalars["tb.calendar.calendar_count"]["memory"],
+    scalars["tb.calendar.calendar_count"].memory,
     3,
     "Count of calendars must be correct."
   );
   Assert.equal(
-    scalars["tb.calendar.read_only_calendar_count"]["memory"],
+    scalars["tb.calendar.read_only_calendar_count"].memory,
     2,
     "Count of readonly calendars must be correct."
   );
