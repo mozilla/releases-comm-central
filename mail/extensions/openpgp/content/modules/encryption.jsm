@@ -360,6 +360,10 @@ var EnigmailEncryption = {
       errorMsg: null,
     };
 
+    if (!fromMailAddr) {
+      return ret;
+    }
+
     let sign = !!(sendFlags & EnigmailConstants.SEND_SIGNED);
     let encrypt = !!(sendFlags & EnigmailConstants.SEND_ENCRYPTED);
 

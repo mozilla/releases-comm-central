@@ -1764,7 +1764,13 @@ function setSecuritySettings(menu_id) {
     }
   }
 
-  enc0Item.disabled = disableEnc;
+  // The radio button to disable encryption is always active.
+  // This is necessary, even if the current identity doesn't have
+  // e2ee configured. If the user switches the sender identity of an
+  // email, we might keep encryption enabled, to not surprise the user.
+  // This means, we must always allow the user to disable encryption.
+  enc0Item.disabled = false;
+
   //enc1Item.disabled = disableEnc;
   enc2Item.disabled = disableEnc;
 
@@ -3725,6 +3731,145 @@ function WizCallback(state) {
   }
 }
 
+function adjustSignEncryptAfterIdentityChanged(prevId, newId) {
+  let configuredSMIME =
+    isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
+
+  let configuredOpenPGP = false;
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+    configuredOpenPGP = isPgpConfigured();
+  }
+
+  if (!prevId) {
+    gSelectedTechnologyIsPGP = false;
+
+    if (configuredOpenPGP) {
+      if (!configuredSMIME) {
+        gSelectedTechnologyIsPGP = true;
+      } else {
+        // both are configured
+        let techPref = gCurrentIdentity.getIntAttribute("e2etechpref");
+        gSelectedTechnologyIsPGP = techPref != 1;
+
+        // TODO: if !techPref, we might set another flag, and
+        // decide dynamically which one to use, based on the
+        // availability of recipient keys etc.
+      }
+    }
+  }
+  // If the new identity has only one technology configured,
+  // which is different than the currently selected technology,
+  // then switch over to that other technology.
+
+  // However, if the new account doesn't have any technology
+  // configured, then it doesn't really matter, so let's keep what's
+  // currently selected for consistency (in case the user switches
+  // the identity again).
+  else if (gSelectedTechnologyIsPGP && !configuredOpenPGP && configuredSMIME) {
+    gSelectedTechnologyIsPGP = false;
+  } else if (
+    !gSelectedTechnologyIsPGP &&
+    !configuredSMIME &&
+    configuredOpenPGP
+  ) {
+    gSelectedTechnologyIsPGP = true;
+  }
+
+  // Not yet implemented
+  gOptionalEncryption = false;
+  gOptionalEncryptionInitial = gOptionalEncryption;
+
+  if (!prevId) {
+    if (configuredOpenPGP || configuredSMIME) {
+      gSendEncrypted = gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0;
+      gSendSigned = gCurrentIdentity.getBoolAttribute("sign_mail");
+    }
+
+    gSendEncryptedInitial = gSendEncrypted;
+    gSendSignedInitial = gSendSigned;
+    gAttachMyPublicPGPKeyInitial = gAttachMyPublicPGPKey;
+
+    // automatic changes after this line
+    if (gSendSigned && gSelectedTechnologyIsPGP) {
+      gAttachMyPublicPGPKey = true;
+    }
+  } else {
+    // When switching the Sender identity, use the more secure setting
+    // for encryption and signing, respectively.
+
+    // For encryption, the more secure setting is "enabled".
+
+    // If the user has had encryption enabled for a message initially,
+    // then the user might have seen status in the user interface,
+    // and might "know and assume" that encryption is enabled.
+    // We should not surprise the user, and switching to a different
+    // identity should never automatically disable encryption, even
+    // if the new identity isn't configured for encryption. The user
+    // should be required to acknowledge that encryption will no longer
+    // be used, by deliberately disabling it.
+
+    // If encryption isn't enabled yet, but the new identity asks for
+    // encryption by default, then enable it.
+
+    if (!gSendEncrypted) {
+      let newDefaultEncrypted =
+        gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0;
+
+      if (newDefaultEncrypted) {
+        gSendEncrypted = true;
+        gSendEncryptedInitial = gSendEncrypted;
+      }
+    }
+
+    // For signing, the more secure setting is "disabled" (this is from
+    // the sender's perspective - don't add a proof of identity unless
+    // the user requests it).
+
+    // Automatically disabling signing is also important from the user
+    // interface perspective. If no encryption technology is configured,
+    // then the user interface checkbox is disabled in the user
+    // interface, so keeping it enabled would have the consequence that
+    // the user is unable to disable the setting and consequently unable
+    // to send the message.
+
+    if (gSendSigned) {
+      let newDefaultSigned = gCurrentIdentity.getBoolAttribute("sign_mail");
+
+      if (!newDefaultSigned) {
+        gSendSigned = false;
+        gSendSignedInitial = gSendSigned;
+
+        if (!gUserTouchedAttachMyPubKey) {
+          gAttachMyPublicPGPKey = false;
+        }
+      }
+    }
+  }
+
+  if (gAttachMyPublicPGPKey && !configuredOpenPGP) {
+    gAttachMyPublicPGPKey = false;
+  }
+
+  // automatic changes after this line
+  if (
+    gEncryptedURIService &&
+    gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
+  ) {
+    gIsRelatedToEncryptedOriginal = true;
+  }
+
+  if (gIsRelatedToEncryptedOriginal) {
+    gSendEncrypted = true;
+  }
+
+  if (gSMFields && !gSelectedTechnologyIsPGP) {
+    gSMFields.requireEncryptMessage = gSendEncrypted;
+    gSMFields.signMessage = gSendSigned;
+  }
+
+  setEncSigStatusUI();
+}
+
 function ComposeLoad() {
   let otherHeaders = Services.prefs.getCharPref(
     "mail.compose.other.header",
@@ -3804,64 +3949,7 @@ function ComposeLoad() {
     gMsgCompose.compFields.composeSecure = gSMFields;
   }
 
-  let configuredSMIME =
-    isSmimeSigningConfigured() || isSmimeEncryptionConfigured();
-  let configuredOpenPGP = false;
-
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
-    configuredOpenPGP = isPgpConfigured();
-  }
-
-  gSelectedTechnologyIsPGP = false;
-
-  if (configuredOpenPGP) {
-    if (!configuredSMIME) {
-      gSelectedTechnologyIsPGP = true;
-    } else {
-      // both are configured
-      let techPref = gCurrentIdentity.getIntAttribute("e2etechpref");
-      gSelectedTechnologyIsPGP = techPref != 1;
-
-      // TODO: if !techPref, we might set another flag, and
-      // decide dynamically which one to use, based on the
-      // availability of recipient keys etc.
-    }
-  }
-
-  if (configuredOpenPGP || configuredSMIME) {
-    gSendEncrypted = gCurrentIdentity.getIntAttribute("encryptionpolicy") > 0;
-    gOptionalEncryption = false;
-    gSendSigned = gCurrentIdentity.getBoolAttribute("sign_mail");
-  }
-
-  gSendSignedInitial = gSendSigned;
-  gAttachMyPublicPGPKeyInitial = gAttachMyPublicPGPKey;
-  gSendEncryptedInitial = gSendEncrypted;
-  gOptionalEncryptionInitial = gOptionalEncryption;
-
-  // automatic changes after this line
-
-  if (gSendSigned && gSelectedTechnologyIsPGP) {
-    gAttachMyPublicPGPKey = true;
-  }
-
-  if (
-    gEncryptedURIService &&
-    gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
-  ) {
-    gIsRelatedToEncryptedOriginal = true;
-  }
-
-  if (gIsRelatedToEncryptedOriginal) {
-    gSendEncrypted = true;
-  }
-
-  if (gSMFields && !gSelectedTechnologyIsPGP) {
-    gSMFields.requireEncryptMessage = gSendEncrypted;
-    gSMFields.signMessage = gSendSigned;
-  }
-
-  setEncSigStatusUI();
+  adjustSignEncryptAfterIdentityChanged(null, gCurrentIdentity);
 
   ExtensionParent.apiManager.emit(
     "extension-browser-inserted",
@@ -7061,6 +7149,8 @@ function LoadIdentity(startup) {
           awAddRecipients(msgCompFields, "addr_bcc", newBcc);
         }
       }
+
+      adjustSignEncryptAfterIdentityChanged(prevIdentity, gCurrentIdentity);
 
       try {
         gMsgCompose.identity = gCurrentIdentity;

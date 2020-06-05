@@ -176,11 +176,6 @@ Enigmail.msg = {
       Enigmail.msg.sendMessageListener.bind(Enigmail.msg),
       true
     );
-    addEventListener(
-      "compose-from-changed",
-      Enigmail.msg.fromChangedListener.bind(Enigmail.msg),
-      true
-    );
 
     // Relabel SMIME button and menu item
     //var smimeButton = document.getElementById("button-security");
@@ -382,16 +377,6 @@ Enigmail.msg = {
     );
 
     this.identity = getCurrentIdentity();
-
-    if (!Enigmail.msg.isEnigmailEnabledForIdentity()) {
-      // reset status strings in menu to useful defaults
-      this.statusEncryptedStr = EnigmailLocale.getString("encryptNo");
-      this.statusSignedStr = EnigmailLocale.getString("signNo", [""]);
-      //this.statusPGPMimeStr = EnigmailLocale.getString("pgpmimeNormal");
-      //this.statusInlinePGPStr = EnigmailLocale.getString("inlinePGPNormal");
-      //this.statusSMimeStr = EnigmailLocale.getString("smimeNormal");
-      this.statusAttachOwnKey = EnigmailLocale.getString("attachOwnKeyNo");
-    }
 
     // reset default send settings, unless we have changed them already
 
@@ -1221,29 +1206,6 @@ Enigmail.msg = {
     this.editorInsertText(text);
   },
 
-  goAccountManager() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.goAccountManager:\n"
-    );
-    EnigmailCore.getService(window);
-    let currentId = null;
-    let account = null;
-    try {
-      currentId = getCurrentIdentity();
-      account = EnigmailFuncs.getAccountForIdentity(currentId);
-    } catch (ex) {}
-    window.openDialog(
-      "chrome://openpgp/content/ui/editSingleAccount.xhtml",
-      "",
-      "dialog,modal,centerscreen",
-      {
-        identity: currentId,
-        account,
-      }
-    );
-    this.setIdentityDefaults();
-  },
-
   /**
    * Determine if Enigmail is enabled for the account
    */
@@ -1919,7 +1881,7 @@ Enigmail.msg = {
   },
   */
 
-  getEncryptionFlags(msgSendType) {
+  getEncryptionFlags() {
     let f = 0;
 
     console.debug(
@@ -2204,10 +2166,10 @@ Enigmail.msg = {
     return newSecurityInfo;
   },
 
-  async encryptMsg(msgSendType) {
+  async prepareSendMsg(msgSendType) {
     // msgSendType: value from nsIMsgCompDeliverMode
     EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.encryptMsg: msgSendType=" +
+      "enigmailMsgComposeOverlay.js: Enigmail.msg.prepareSendMsg: msgSendType=" +
         msgSendType +
         ", gSendSigned=" +
         gSendSigned +
@@ -2224,14 +2186,14 @@ Enigmail.msg = {
     // EnigSend: Handle both plain and encrypted messages below
     var isOffline = ioService && ioService.offline;
 
-    let sendFlags = this.getEncryptionFlags(msgSendType);
+    let sendFlags = this.getEncryptionFlags();
 
     switch (msgSendType) {
       case DeliverMode.SaveAsDraft:
       case DeliverMode.SaveAsTemplate:
       case DeliverMode.AutoSaveAsDraft:
         EnigmailLog.DEBUG(
-          "enigmailMsgComposeOverlay.js: Enigmail.msg.encryptMsg: detected save draft\n"
+          "enigmailMsgComposeOverlay.js: Enigmail.msg.prepareSendMsg: detected save draft\n"
         );
 
         // saving drafts is simpler and works differently than the rest of Enigmail.
@@ -2259,17 +2221,28 @@ Enigmail.msg = {
     this.identity = getCurrentIdentity();
     let senderKeyId = this.identity.getUnicharAttribute("openpgp_key_id");
 
-    let senderKeyUsable = EnigmailEncryption.determineOwnKeyUsability(
-      sendFlags,
-      senderKeyId
-    );
-    if (senderKeyUsable.errorMsg) {
-      let fullAlert = EnigmailLocale.getString("cannotUseOwnKeyBecause", [
-        senderKeyUsable.errorMsg,
-      ]);
-
+    if ((gSendEncrypted || gSendSigned) && !senderKeyId) {
+      let msgId = gSendEncrypted
+        ? "cannotSendEncBecauseNoOwnKey"
+        : "cannotSendSigBecauseNoOwnKey";
+      let fullAlert = EnigmailLocale.getString(msgId, [this.identity.email]);
       EnigmailDialog.alert(window, fullAlert);
       return false;
+    }
+
+    if (senderKeyId) {
+      let senderKeyUsable = EnigmailEncryption.determineOwnKeyUsability(
+        sendFlags,
+        senderKeyId
+      );
+      if (senderKeyUsable.errorMsg) {
+        let fullAlert = EnigmailLocale.getString("cannotUseOwnKeyBecause", [
+          senderKeyUsable.errorMsg,
+        ]);
+
+        EnigmailDialog.alert(window, fullAlert);
+        return false;
+      }
     }
 
     if (gSendEncrypted) {
@@ -2349,6 +2322,15 @@ Enigmail.msg = {
 
       // ----------------------- Rewrapping code, taken from function "encryptInline"
 
+      if (sendFlags & ENCRYPT && !usingPGPMime) {
+        throw new Error("Sending encrypted inline not supported!");
+      }
+      if (sendFlags & SIGN && !usingPGPMime && gMsgCompose.composeHTML) {
+        throw new Error(
+          "Sending signed inline only supported for plain text composition!"
+        );
+      }
+
       // Check wrapping, if sign only and inline and plaintext
       if (
         sendFlags & SIGN &&
@@ -2398,7 +2380,7 @@ Enigmail.msg = {
           bucketList: document.getElementById("attachmentBucket"),
         };
 
-        if (!this.encryptInline(sendInfo)) {
+        if (!this.signInline(sendInfo)) {
           return false;
         }
       }
@@ -2427,7 +2409,7 @@ Enigmail.msg = {
             if (typeof msgCompFields.forceMsgEncoding == "boolean") {
               msgCompFields.forceMsgEncoding = true;
               EnigmailLog.DEBUG(
-                "enigmailMsgComposeOverlay.js: Enigmail.msg.encryptMsg: enabled forceMsgEncoding\n"
+                "enigmailMsgComposeOverlay.js: Enigmail.msg.prepareSendMsg: enabled forceMsgEncoding\n"
               );
             }
           } catch (ex) {
@@ -2437,7 +2419,7 @@ Enigmail.msg = {
       }
     } catch (ex) {
       EnigmailLog.writeException(
-        "enigmailMsgComposeOverlay.js: Enigmail.msg.encryptMsg",
+        "enigmailMsgComposeOverlay.js: Enigmail.msg.prepareSendMsg",
         ex
       );
       return false;
@@ -2493,8 +2475,17 @@ Enigmail.msg = {
   },
   */
 
-  encryptInline(sendInfo) {
-    // sign/encrypt message using inline-PGP
+  signInline(sendInfo) {
+    // sign message using inline-PGP
+
+    if (sendInfo.sendFlags & ENCRYPT) {
+      throw new Error("Encryption not supported in inline messages!");
+    }
+    if (gMsgCompose.composeHTML) {
+      throw new Error(
+        "Signing inline only supported for plain text composition!"
+      );
+    }
 
     const dce = Ci.nsIDocumentEncoder;
     const SIGN = EnigmailConstants.SEND_SIGNED;
@@ -2503,31 +2494,6 @@ Enigmail.msg = {
     var enigmailSvc = EnigmailCore.getService(window);
     if (!enigmailSvc) {
       return false;
-    }
-
-    if (gMsgCompose.composeHTML) {
-      var errMsg = EnigmailLocale.getString("hasHTML");
-      EnigmailDialog.alertCount(window, "composeHtmlAlertCount", errMsg);
-    }
-
-    try {
-      var convert = DetermineConvertibility();
-      if (convert == Ci.nsIMsgCompConvertible.No) {
-        if (
-          !EnigmailDialog.confirmDlg(
-            window,
-            EnigmailLocale.getString("strippingHTML"),
-            EnigmailLocale.getString("msgCompose.button.sendAnyway")
-          )
-        ) {
-          return false;
-        }
-      }
-    } catch (ex) {
-      EnigmailLog.writeException(
-        "enigmailMsgComposeOverlay.js: Enigmail.msg.encryptInline",
-        ex
-      );
     }
 
     try {
@@ -2552,41 +2518,7 @@ Enigmail.msg = {
     }
     var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
 
-    var editor = gMsgCompose.editor.QueryInterface(Ci.nsIEditorMailSupport);
-    var wrapWidth = 72;
-
-    if (!(sendInfo.sendFlags & ENCRYPT)) {
-      // signed messages only
-      if (gMsgCompose.composeHTML) {
-        // enforce line wrapping here
-        // otherwise the message isn't signed correctly
-        try {
-          wrapWidth = this.getMailPref("editor.htmlWrapColumn");
-
-          if (wrapWidth > 0 && wrapWidth < 68 && gMsgCompose.wrapLength > 0) {
-            if (
-              EnigmailDialog.confirmDlg(
-                window,
-                EnigmailLocale.getString("minimalLineWrapping", [wrapWidth])
-              )
-            ) {
-              EnigmailPrefs.getPrefRoot().setIntPref(
-                "editor.htmlWrapColumn",
-                68
-              );
-            }
-          }
-          if (EnigmailPrefs.getPref("wrapHtmlBeforeSend")) {
-            if (wrapWidth) {
-              editor.wrapWidth = wrapWidth - 2; // prepare for the worst case: a 72 char's long line starting with '-'
-              editor.rewrap(false);
-            }
-          }
-        } catch (ex) {}
-      } else {
-        // plaintext: Wrapping code has been moved to superordinate function encryptMsg to enable interactive format switch
-      }
-    }
+    // plaintext: Wrapping code has been moved to superordinate function prepareSendMsg to enable interactive format switch
 
     var exitCodeObj = {};
     var statusFlagsObj = {};
@@ -2605,7 +2537,7 @@ Enigmail.msg = {
 
       var escText = origText; // Copy plain text for possible escaping
 
-      if (sendFlowed && !(sendInfo.sendFlags & ENCRYPT)) {
+      if (sendFlowed) {
         // Prevent space stuffing a la RFC 2646 (format=flowed).
 
         //EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: escText["+encoderFlags+"] = '"+escText+"'\n");
@@ -2629,20 +2561,17 @@ Enigmail.msg = {
 
       //EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: escText["+encoderFlags+"] = '"+escText+"'\n");
 
-      // Encrypt plaintext
       var charset = this.editorGetCharset();
       EnigmailLog.DEBUG(
-        "enigmailMsgComposeOverlay.js: Enigmail.msg.encryptMsg: charset=" +
+        "enigmailMsgComposeOverlay.js: Enigmail.msg.signInline: charset=" +
           charset +
           "\n"
       );
 
       // Encode plaintext to charset from unicode
-      var plainText =
-        sendInfo.sendFlags & ENCRYPT
-          ? EnigmailData.convertFromUnicode(origText, charset)
-          : EnigmailData.convertFromUnicode(escText, charset);
+      var plainText = EnigmailData.convertFromUnicode(escText, charset);
 
+      // this will sign, not encrypt
       var cipherText = EnigmailEncryption.encryptMessage(
         window,
         sendInfo.uiFlags,
@@ -2662,30 +2591,12 @@ Enigmail.msg = {
       if (cipherText && exitCode === 0) {
         // Encryption/signing succeeded; overwrite plaintext
 
-        if (gMsgCompose.composeHTML) {
-          // workaround for Thunderbird bug (TB adds an extra space in front of the text)
-          cipherText = "\n" + cipherText;
-        } else {
-          cipherText = cipherText.replace(/\r\n/g, "\n");
-        }
-
-        if (
-          sendInfo.sendFlags & ENCRYPT &&
-          charset &&
-          charset.search(/^us-ascii$/i) !== 0
-        ) {
-          // Add Charset armor header for encrypted blocks
-          cipherText = cipherText.replace(
-            /(-----BEGIN PGP MESSAGE----- *)(\r?\n)/,
-            "$1$2Charset: " + charset + "$2"
-          );
-        }
+        cipherText = cipherText.replace(/\r\n/g, "\n");
 
         // Decode ciphertext from charset to unicode and overwrite
         this.replaceEditorText(
           EnigmailData.convertToUnicode(cipherText, charset)
         );
-        //this.enableUndoEncryption(true);
 
         // Save original text (for undo)
         this.processed = {
@@ -2695,9 +2606,8 @@ Enigmail.msg = {
       } else {
         // Restore original text
         this.replaceEditorText(origText);
-        //this.enableUndoEncryption(false);
 
-        if (sendInfo.sendFlags & (ENCRYPT | SIGN)) {
+        if (sendInfo.sendFlags & SIGN) {
           // Encryption/signing failed
 
           /*if (statusFlagsObj.statusMsg) {
@@ -2898,77 +2808,6 @@ Enigmail.msg = {
     return account.incomingServer; /* returns nsIMsgIncomingServer */
   },
 
-  fromChangedListener(event) {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.fromChangedListener\n"
-    );
-
-    /* TODO:
-     * reset gSendSigned, gAttachMyPublicPGPKey, gSendEncrypted, gOptionalEncryption
-     * to account's default setting, but only if settings haven't been touched
-     * by the user in this composer windows, i.e. check
-     * gUserTouchedSendEncrypted, gUserTouchedSendSigned, gUserTouchedAttachMyPubKey
-     */
-
-    /*
-  if (!gSMFields) {
-    return;
-  }
-
-  var encryptionPolicy = gCurrentIdentity.getIntAttribute("encryptionpolicy");
-  var useEncryption = false;
-  if (!gEncryptOptionChanged) {
-    // Encryption wasn't manually checked.
-    // Set up the encryption policy from the setting of the new identity.
-
-    useEncryption = encryptionPolicy == kEncryptionPolicy_Always;
-  } else if (encryptionPolicy != kEncryptionPolicy_Always) {
-    // The encryption policy was manually checked. That means we can get into
-    // the situation that the new identity doesn't have a cert to encrypt with.
-    // If it doesn't, don't encrypt.
-
-    // Encrypted (policy unencrypted, manually changed).
-    // Make sure we have a cert for encryption.
-    useEncryption = !!gCurrentIdentity.getUnicharAttribute(
-      "encryption_cert_name"
-    );
-  }
-  gSMFields.requireEncryptMessage = useEncryption;
-  if (useEncryption) {
-    setEncryptionUI();
-  } else {
-    setNoEncryptionUI();
-  }
-
-  var signMessage = gCurrentIdentity.getBoolAttribute("sign_mail");
-  var useSigning = false;
-  if (!gSignOptionChanged) {
-    // Signing wasn't manually checked.
-    // Set up the signing policy from the setting of the new identity.
-
-    useSigning = signMessage;
-  } else if (!signMessage) {
-    // The signing policy was manually checked. That means we can get into
-    // the situation that the new identity doesn't have a cert to sign with.
-    // If it doesn't, don't sign.
-
-    // Signed (policy unsigned, manually changed).
-    // Make sure we have a cert for signing.
-    useSigning = !!gCurrentIdentity.getUnicharAttribute("signing_cert_name");
-  }
-  gSMFields.signMessage = useSigning;
-  if (useSigning) {
-    setSignatureUI();
-  } else {
-    setNoSignatureUI();
-  }
-    */
-  },
-
-  /**
-   * Perform handling of the compose-send-message' event from TB (or SendLater)
-   */
-
   /**
    * Handle the 'compose-send-message' event from TB
    */
@@ -2997,7 +2836,7 @@ Enigmail.msg = {
         //bc.setAttribute("disabled", "true");
 
         const cApi = EnigmailCryptoAPI();
-        let encryptResult = cApi.sync(this.encryptMsg(sendMsgType));
+        let encryptResult = cApi.sync(this.prepareSendMsg(sendMsgType));
         if (!encryptResult) {
           this.resetUpdatedFields();
           event.preventDefault();
@@ -3588,7 +3427,6 @@ Enigmail.msg = {
         this.determineSendFlagId = EnigmailTimer.setTimeout(async () => {
           try {
             await this.determineSendFlags();
-            this.fireSearchKeys();
           } catch (x) {}
           this.determineSendFlagId = null;
         }, 0);
@@ -3610,88 +3448,6 @@ Enigmail.msg = {
         }
       }
     }
-  },
-
-  fireSearchKeys() {
-    if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
-      if (this.searchKeysTimeout) {
-        return;
-      }
-
-      let self = this;
-
-      this.searchKeysTimeout = EnigmailTimer.setTimeout(function() {
-        self.searchKeysTimeout = null;
-        Enigmail.msg.findMissingKeys();
-      }, 5000); // 5 Seconds
-    }
-  },
-
-  /**
-   * Determine if all addressees have a valid key ID; if not, attempt to
-   * import them via WKD or Autocrypt.
-   */
-  async findMissingKeys() {
-    /*
-    try {
-      EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: findMissingKeys()\n");
-
-      let missingKeys = this.determineSendFlags();
-
-      if ("errArray" in missingKeys && missingKeys.errArray.length > 0) {
-        let missingEmails = missingKeys.errArray.map(function(i) {
-          return i.addr.toLowerCase().trim();
-        });
-
-        let lookupList = [];
-
-        // only search for keys not checked before
-        for (let k of missingEmails) {
-          if (!this.keyLookupDone.includes(k)) {
-            lookupList.push(k);
-            this.keyLookupDone.push(k);
-          }
-        }
-
-        if (lookupList.length > 0) {
-          try {
-            let foundKeys;
-
-            if (this.isAutocryptEnabled()) {
-              foundKeys = await EnigmailAutocrypt.importAutocryptKeys(lookupList, this.encryptForced === EnigmailConstants.ENIG_ALWAYS);
-              EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: findMissingKeys: got " + foundKeys.length + " autocrypt keys\n");
-              if (foundKeys.length > 0) {
-                this.determineSendFlags();
-              }
-            }
-
-            if (EnigmailPrefs.getPref("autoWkdLookup") === 0) {
-              return;
-            }
-
-            // old buggy: if autocrypt is disabled, foundKeys is still undefined
-            // if (foundKeys.length >= lookupList.length) return;
-
-            foundKeys = await EnigmailWkdLookup.findKeys(lookupList);
-            EnigmailLog.DEBUG(
-              "enigmailMsgComposeOverlay.js: findMissingKeys: wkd got " +
-                foundKeys +
-                "\n"
-            );
-            if (foundKeys) {
-              this.determineSendFlags();
-            }
-          } catch (err) {
-            EnigmailLog.DEBUG(
-              "enigmailMsgComposeOverlay.js: findMissingKeys: error " +
-                err +
-                "\n"
-            );
-          }
-        }
-      }
-    } catch (ex) {}
-    */
   },
 };
 
