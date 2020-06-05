@@ -124,8 +124,26 @@ function loadCalendarManager() {
 
   let calendarManager = cal.getCalendarManager();
 
-  for (let calendar of sortCalendarArray(cal.getCalendarManager().getCalendars())) {
+  let telemetryReport = {};
+
+  for (let calendar of sortCalendarArray(calendarManager.getCalendars())) {
     addCalendarItem(calendar);
+    if (!telemetryReport[calendar.type]) {
+      telemetryReport[calendar.type] = { count: 0, readOnlyCount: 0 };
+    }
+    telemetryReport[calendar.type].count++;
+    if (calendar.readOnly) {
+      telemetryReport[calendar.type].readOnlyCount++;
+    }
+  }
+
+  for (let [type, { count, readOnlyCount }] of Object.entries(telemetryReport)) {
+    Services.telemetry.keyedScalarSet("tb.calendar.calendar_count", type.toLowerCase(), count);
+    Services.telemetry.keyedScalarSet(
+      "tb.calendar.read_only_calendar_count",
+      type.toLowerCase(),
+      readOnlyCount
+    );
   }
 
   function addCalendarItem(calendar) {
