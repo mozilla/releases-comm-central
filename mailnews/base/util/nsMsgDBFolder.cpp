@@ -4285,52 +4285,34 @@ NS_IMETHODIMP nsMsgDBFolder::GetSummaryFile(nsIFile **aSummaryFile) {
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::MarkMessagesRead(nsIArray *messages, bool markRead) {
-  uint32_t count;
-  nsresult rv;
-
-  rv = messages->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgDBHdr> message = do_QueryElementAt(messages, i, &rv);
-    if (message) rv = message->MarkRead(markRead);
-    if (NS_FAILED(rv)) return rv;
+nsMsgDBFolder::MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>> &messages,
+                                bool markRead) {
+  for (auto message : messages) {
+    nsresult rv = message->MarkRead(markRead);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::MarkMessagesFlagged(nsIArray *messages, bool markFlagged) {
-  uint32_t count;
-  nsresult rv;
-
-  rv = messages->GetLength(&count);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgDBHdr> message = do_QueryElementAt(messages, i, &rv);
-    if (message) rv = message->MarkFlagged(markFlagged);
-    if (NS_FAILED(rv)) return rv;
+nsMsgDBFolder::MarkMessagesFlagged(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &messages, bool markFlagged) {
+  for (auto message : messages) {
+    nsresult rv = message->MarkFlagged(markFlagged);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::SetLabelForMessages(nsIArray *aMessages,
-                                   nsMsgLabelValue aLabel) {
-  NS_ENSURE_ARG(aMessages);
+nsMsgDBFolder::SetLabelForMessages(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages, nsMsgLabelValue aLabel) {
   GetDatabase();
   if (mDatabase) {
-    uint32_t count;
-    nsresult rv = aMessages->GetLength(&count);
-    NS_ENSURE_SUCCESS(rv, rv);
-    for (uint32_t i = 0; i < count; i++) {
+    for (auto message : aMessages) {
       nsMsgKey msgKey;
-      nsCOMPtr<nsIMsgDBHdr> message = do_QueryElementAt(aMessages, i, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
       (void)message->GetMessageKey(&msgKey);
-      rv = mDatabase->SetLabel(msgKey, aLabel);
+      nsresult rv = mDatabase->SetLabel(msgKey, aLabel);
       NS_ENSURE_SUCCESS(rv, rv);
     }
   }
@@ -4338,27 +4320,20 @@ nsMsgDBFolder::SetLabelForMessages(nsIArray *aMessages,
 }
 
 NS_IMETHODIMP
-nsMsgDBFolder::SetJunkScoreForMessages(nsIArray *aMessages,
-                                       const nsACString &junkScore) {
-  NS_ENSURE_ARG(aMessages);
-  nsresult rv = NS_OK;
+nsMsgDBFolder::SetJunkScoreForMessages(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages,
+    const nsACString &junkScore) {
   GetDatabase();
   if (mDatabase) {
-    uint32_t count;
-    nsresult rv = aMessages->GetLength(&count);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    for (uint32_t i = 0; i < count; i++) {
+    for (auto message : aMessages) {
       nsMsgKey msgKey;
-      nsCOMPtr<nsIMsgDBHdr> message = do_QueryElementAt(aMessages, i, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
       (void)message->GetMessageKey(&msgKey);
       mDatabase->SetStringProperty(msgKey, "junkscore",
                                    nsCString(junkScore).get());
       mDatabase->SetStringProperty(msgKey, "junkscoreorigin", "filter");
     }
   }
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP

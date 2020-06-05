@@ -2863,18 +2863,21 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
     // Turn the selection into an array of msg hdrs. This may include messages
     // in collapsed threads
     uint32_t length;
-    nsCOMPtr<nsIMutableArray> messages(
+    nsCOMPtr<nsIMutableArray> messageArray(
         do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = GetHeadersFromSelection(indices, numIndices, messages);
+    rv = GetHeadersFromSelection(indices, numIndices, messageArray);
     NS_ENSURE_SUCCESS(rv, rv);
-    messages->GetLength(&length);
+    messageArray->GetLength(&length);
 
     if (thisIsImapFolder) imapUids.SetLength(length);
 
+    nsTArray<RefPtr<nsIMsgDBHdr>> messages(length);
+    MsgHdrsToTArray(messageArray, messages);
+
     for (uint32_t i = 0; i < length; i++) {
       nsMsgKey msgKey;
-      nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, i);
+      nsCOMPtr<nsIMsgDBHdr> msgHdr(messages[i]);
       msgHdr->GetMessageKey(&msgKey);
       if (thisIsImapFolder) imapUids[i] = msgKey;
 
@@ -2907,11 +2910,10 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
 
     switch (command) {
       case nsMsgViewCommandType::toggleMessageRead: {
-        nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(messages, 0);
-        if (!msgHdr) break;
+        if (messages.IsEmpty()) break;
 
         uint32_t msgFlags;
-        msgHdr->GetFlags(&msgFlags);
+        messages[0]->GetFlags(&msgFlags);
         folder->MarkMessagesRead(messages,
                                  !(msgFlags & nsMsgMessageFlags::Read));
         break;
@@ -2938,7 +2940,7 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
 
       if (notifier)
         notifier->NotifyItemEvent(
-            messages, NS_LITERAL_CSTRING("JunkStatusChanged"), nullptr,
+            messageArray, NS_LITERAL_CSTRING("JunkStatusChanged"), nullptr,
             (command == nsMsgViewCommandType::junk)
                 ? NS_LITERAL_CSTRING("junk")
                 : NS_LITERAL_CSTRING("notjunk"));
@@ -3386,7 +3388,9 @@ nsresult nsMsgDBView::PerformActionsOnJunkMsgs(bool msgsAreJunk) {
     //    turned off, we might still need to mark as read.
 
     NoteStartChange(nsMsgViewNotificationCode::none, 0, 0);
-    rv = srcFolder->MarkMessagesRead(mJunkHdrs, msgsAreJunk);
+    nsTArray<RefPtr<nsIMsgDBHdr>> tmpHdrs;
+    MsgHdrsToTArray(mJunkHdrs, tmpHdrs);
+    rv = srcFolder->MarkMessagesRead(tmpHdrs, msgsAreJunk);
     NoteEndChange(nsMsgViewNotificationCode::none, 0, 0);
     NS_ASSERTION(NS_SUCCEEDED(rv),
                  "marking marked-as-junk messages as read failed");

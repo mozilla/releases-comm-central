@@ -2026,11 +2026,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter *filter,
           rv = msgHdr->OrFlags(nsMsgMessageFlags::Watched, &newFlags);
           break;
         case nsMsgFilterAction::MarkFlagged: {
-          nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          if (NS_FAILED(rv) || !messageArray) break;
-          messageArray->AppendElement(msgHdr);
-          rv = m_downloadFolder->MarkMessagesFlagged(messageArray, true);
+          rv = m_downloadFolder->MarkMessagesFlagged({&*msgHdr}, true);
         } break;
         case nsMsgFilterAction::ChangePriority: {
           nsMsgPriorityValue filterPriority;
@@ -2264,10 +2260,7 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
 }
 
 void nsParseNewMailState::MarkFilteredMessageRead(nsIMsgDBHdr *msgHdr) {
-  nsCOMPtr<nsIMutableArray> messageArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID));
-  messageArray->AppendElement(msgHdr);
-  m_downloadFolder->MarkMessagesRead(messageArray, true);
+  m_downloadFolder->MarkMessagesRead({msgHdr}, true);
 }
 
 void nsParseNewMailState::MarkFilteredMessageUnread(nsIMsgDBHdr *msgHdr) {
@@ -2279,10 +2272,7 @@ void nsParseNewMailState::MarkFilteredMessageUnread(nsIMsgDBHdr *msgHdr) {
   } else {
     msgHdr->OrFlags(nsMsgMessageFlags::New, &newFlags);
   }
-  nsCOMPtr<nsIMutableArray> messageArray(
-      do_CreateInstance(NS_ARRAY_CONTRACTID));
-  messageArray->AppendElement(msgHdr);
-  m_downloadFolder->MarkMessagesRead(messageArray, false);
+  m_downloadFolder->MarkMessagesRead({msgHdr}, false);
 }
 
 nsresult nsParseNewMailState::EndMsgDownload() {

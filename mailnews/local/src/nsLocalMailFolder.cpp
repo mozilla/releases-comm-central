@@ -1088,36 +1088,25 @@ nsMsgLocalMailFolder::AddMessageDispositionState(
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::MarkMessagesRead(nsIArray *aMessages, bool aMarkRead) {
+nsMsgLocalMailFolder::MarkMessagesRead(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages, bool aMarkRead) {
   nsresult rv = nsMsgDBFolder::MarkMessagesRead(aMessages, aMarkRead);
   NS_ENSURE_SUCCESS(rv, rv);
-
-  // Stopgap. Build a parallel array of message headers while we complete
-  // removal of nsIArray usage (Bug 1583030).
-  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  MsgHdrsToTArray(aMessages, msgHeaders);
-
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  return msgStore->ChangeFlags(msgHeaders, nsMsgMessageFlags::Read, aMarkRead);
+  return msgStore->ChangeFlags(aMessages, nsMsgMessageFlags::Read, aMarkRead);
 }
 
 NS_IMETHODIMP
-nsMsgLocalMailFolder::MarkMessagesFlagged(nsIArray *aMessages,
-                                          bool aMarkFlagged) {
+nsMsgLocalMailFolder::MarkMessagesFlagged(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages, bool aMarkFlagged) {
   nsresult rv = nsMsgDBFolder::MarkMessagesFlagged(aMessages, aMarkFlagged);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
   rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-
-  // Stopgap. Build a parallel array of message headers while we complete
-  // removal of nsIArray usage (Bug 1583030).
-  nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
-  MsgHdrsToTArray(aMessages, msgHeaders);
-
-  return msgStore->ChangeFlags(msgHeaders, nsMsgMessageFlags::Marked,
+  return msgStore->ChangeFlags(aMessages, nsMsgMessageFlags::Marked,
                                aMarkFlagged);
 }
 

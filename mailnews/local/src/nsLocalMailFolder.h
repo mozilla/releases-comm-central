@@ -164,8 +164,9 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD AddMessageDispositionState(
       nsIMsgDBHdr *aMessage, nsMsgDispositionState aDispositionFlag) override;
-  NS_IMETHOD MarkMessagesRead(nsIArray *aMessages, bool aMarkRead) override;
-  NS_IMETHOD MarkMessagesFlagged(nsIArray *aMessages,
+  NS_IMETHOD MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages,
+                              bool aMarkRead) override;
+  NS_IMETHOD MarkMessagesFlagged(const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages,
                                  bool aMarkFlagged) override;
   NS_IMETHOD MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) override;
   NS_IMETHOD MarkThreadRead(nsIMsgThread *thread) override;

@@ -60,8 +60,8 @@ var tests = [
     );
     headers1.appendElement(msgHdr1);
     headers2.appendElement(msgHdr2);
-    msgHdr1.folder.markMessagesFlagged(headers1, true);
-    msgHdr2.folder.markMessagesFlagged(headers2, true);
+    msgHdr1.folder.markMessagesFlagged([msgHdr1], true);
+    msgHdr2.folder.markMessagesFlagged([msgHdr2], true);
     let promiseCopyListener1 = new PromiseTestUtils.PromiseCopyListener();
     MailServices.copy.CopyMessages(
       IMAPPump.inbox,

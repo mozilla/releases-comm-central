@@ -31,20 +31,14 @@ nsMsgReadStateTxn::RedoTransaction() { return MarkMessages(true); }
 
 NS_IMETHODIMP
 nsMsgReadStateTxn::MarkMessages(bool aAsRead) {
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> messageArray =
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t length = mMarkedMessages.Length();
-  for (uint32_t i = 0; i < length; i++) {
+  nsTArray<RefPtr<nsIMsgDBHdr>> messages(mMarkedMessages.Length());
+  for (auto msgKey : mMarkedMessages) {
     nsCOMPtr<nsIMsgDBHdr> curMsgHdr;
-    rv = mParentFolder->GetMessageHeader(mMarkedMessages[i],
-                                         getter_AddRefs(curMsgHdr));
+    nsresult rv =
+        mParentFolder->GetMessageHeader(msgKey, getter_AddRefs(curMsgHdr));
     if (NS_SUCCEEDED(rv) && curMsgHdr) {
-      messageArray->AppendElement(curMsgHdr);
+      messages.AppendElement(curMsgHdr);
     }
   }
-
-  return mParentFolder->MarkMessagesRead(messageArray, aAsRead);
+  return mParentFolder->MarkMessagesRead(messages, aAsRead);
 }

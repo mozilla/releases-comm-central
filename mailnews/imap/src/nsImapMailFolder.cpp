@@ -1699,13 +1699,14 @@ nsImapMailFolder::AddMessageDispositionState(
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::MarkMessagesRead(nsIArray *messages, bool markRead) {
+nsImapMailFolder::MarkMessagesRead(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &messages, bool markRead) {
   // tell the folder to do it, which will mark them read in the db.
   nsresult rv = nsMsgDBFolder::MarkMessagesRead(messages, markRead);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString messageIds;
     nsTArray<nsMsgKey> keysToMarkRead;
-    rv = BuildIdsAndKeyArray(messages, messageIds, keysToMarkRead);
+    rv = BuildIdsAndKeyArray2(messages, messageIds, keysToMarkRead);
     NS_ENSURE_SUCCESS(rv, rv);
 
     StoreImapFlags(kImapMsgSeenFlag, markRead, keysToMarkRead, nullptr);
@@ -1716,15 +1717,13 @@ nsImapMailFolder::MarkMessagesRead(nsIArray *messages, bool markRead) {
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::SetLabelForMessages(nsIArray *aMessages,
-                                      nsMsgLabelValue aLabel) {
-  NS_ENSURE_ARG(aMessages);
-
+nsImapMailFolder::SetLabelForMessages(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages, nsMsgLabelValue aLabel) {
   nsresult rv = nsMsgDBFolder::SetLabelForMessages(aMessages, aLabel);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString messageIds;
     nsTArray<nsMsgKey> keysToLabel;
-    nsresult rv = BuildIdsAndKeyArray(aMessages, messageIds, keysToLabel);
+    nsresult rv = BuildIdsAndKeyArray2(aMessages, messageIds, keysToLabel);
     NS_ENSURE_SUCCESS(rv, rv);
     StoreImapFlags((aLabel << 9), true, keysToLabel, nullptr);
     rv = GetDatabase();
@@ -1826,14 +1825,15 @@ NS_IMETHODIMP nsImapMailFolder::WriteToFolderCacheElem(
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::MarkMessagesFlagged(nsIArray *messages, bool markFlagged) {
+nsImapMailFolder::MarkMessagesFlagged(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &messages, bool markFlagged) {
   nsresult rv;
   // tell the folder to do it, which will mark them read in the db.
   rv = nsMsgDBFolder::MarkMessagesFlagged(messages, markFlagged);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString messageIds;
     nsTArray<nsMsgKey> keysToMarkFlagged;
-    rv = BuildIdsAndKeyArray(messages, messageIds, keysToMarkFlagged);
+    rv = BuildIdsAndKeyArray2(messages, messageIds, keysToMarkFlagged);
     if (NS_FAILED(rv)) return rv;
     rv = StoreImapFlags(kImapMsgFlaggedFlag, markFlagged, keysToMarkFlagged,
                         nullptr);
@@ -1933,6 +1933,22 @@ nsImapMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo,
     nsMsgKey key;
     nsCOMPtr<nsIMsgDBHdr> msgDBHdr = do_QueryElementAt(messages, i, &rv);
     if (msgDBHdr) rv = msgDBHdr->GetMessageKey(&key);
+    if (NS_SUCCEEDED(rv)) keyArray.AppendElement(key);
+  }
+  return AllocateUidStringFromKeys(keyArray, msgIds);
+}
+
+// Stopgap during nsIArray removal. To be renamed to BuildIdsAndKeyArray().
+// (see Bug 1612239)
+/* static */ nsresult nsImapMailFolder::BuildIdsAndKeyArray2(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &messages, nsCString &msgIds,
+    nsTArray<nsMsgKey> &keyArray) {
+  keyArray.Clear();
+  keyArray.SetCapacity(messages.Length());
+  // build up message keys.
+  for (auto msgDBHdr : messages) {
+    nsMsgKey key;
+    nsresult rv = msgDBHdr->GetMessageKey(&key);
     if (NS_SUCCEEDED(rv)) keyArray.AppendElement(key);
   }
   return AllocateUidStringFromKeys(keyArray, msgIds);
@@ -8391,15 +8407,14 @@ nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
 }
 
 NS_IMETHODIMP
-nsImapMailFolder::SetJunkScoreForMessages(nsIArray *aMessages,
-                                          const nsACString &aJunkScore) {
-  NS_ENSURE_ARG(aMessages);
-
+nsImapMailFolder::SetJunkScoreForMessages(
+    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages,
+    const nsACString &aJunkScore) {
   nsresult rv = nsMsgDBFolder::SetJunkScoreForMessages(aMessages, aJunkScore);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString messageIds;
     nsTArray<nsMsgKey> keys;
-    nsresult rv = BuildIdsAndKeyArray(aMessages, messageIds, keys);
+    nsresult rv = BuildIdsAndKeyArray2(aMessages, messageIds, keys);
     NS_ENSURE_SUCCESS(rv, rv);
     StoreCustomKeywords(
         nullptr,
@@ -8455,12 +8470,7 @@ nsImapMailFolder::OnMessageClassified(const char *aMsgURI,
         bool markAsReadOnSpam;
         (void)spamSettings->GetMarkAsReadOnSpam(&markAsReadOnSpam);
         if (markAsReadOnSpam) {
-          if (!m_junkMessagesToMarkAsRead) {
-            m_junkMessagesToMarkAsRead =
-                do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-            NS_ENSURE_SUCCESS(rv, rv);
-          }
-          m_junkMessagesToMarkAsRead->AppendElement(msgHdr);
+          m_junkMessagesToMarkAsRead.AppendElement(msgHdr);
         }
 
         bool willMoveMessage = false;
@@ -8514,14 +8524,10 @@ nsImapMailFolder::OnMessageClassified(const char *aMsgURI,
     nsMsgDBFolder::OnMessageClassified(nullptr, nsIJunkMailPlugin::UNCLASSIFIED,
                                        0);
 
-    if (m_junkMessagesToMarkAsRead) {
-      uint32_t count;
-      m_junkMessagesToMarkAsRead->GetLength(&count);
-      if (count > 0) {
-        rv = MarkMessagesRead(m_junkMessagesToMarkAsRead, true);
-        NS_ENSURE_SUCCESS(rv, rv);
-        m_junkMessagesToMarkAsRead->Clear();
-      }
+    if (!m_junkMessagesToMarkAsRead.IsEmpty()) {
+      rv = MarkMessagesRead(m_junkMessagesToMarkAsRead, true);
+      NS_ENSURE_SUCCESS(rv, rv);
+      m_junkMessagesToMarkAsRead.Clear();
     }
     if (!mSpamKeysToMove.IsEmpty()) {
       GetMoveCoalescer();

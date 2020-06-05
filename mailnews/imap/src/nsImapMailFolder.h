@@ -269,14 +269,17 @@ class nsImapMailFolder : public nsMsgDBFolder,
 
   NS_IMETHOD AddMessageDispositionState(
       nsIMsgDBHdr *aMessage, nsMsgDispositionState aDispositionFlag) override;
-  NS_IMETHOD MarkMessagesRead(nsIArray *messages, bool markRead) override;
+  NS_IMETHOD MarkMessagesRead(const nsTArray<RefPtr<nsIMsgDBHdr>> &messages,
+                              bool markRead) override;
   NS_IMETHOD MarkAllMessagesRead(nsIMsgWindow *aMsgWindow) override;
-  NS_IMETHOD MarkMessagesFlagged(nsIArray *messages, bool markFlagged) override;
+  NS_IMETHOD MarkMessagesFlagged(const nsTArray<RefPtr<nsIMsgDBHdr>> &messages,
+                                 bool markFlagged) override;
   NS_IMETHOD MarkThreadRead(nsIMsgThread *thread) override;
-  NS_IMETHOD SetLabelForMessages(nsIArray *aMessages,
+  NS_IMETHOD SetLabelForMessages(const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages,
                                  nsMsgLabelValue aLabel) override;
-  NS_IMETHOD SetJunkScoreForMessages(nsIArray *aMessages,
-                                     const nsACString &aJunkScore) override;
+  NS_IMETHOD SetJunkScoreForMessages(
+      const nsTArray<RefPtr<nsIMsgDBHdr>> &aMessages,
+      const nsACString &aJunkScore) override;
   NS_IMETHOD DeleteSubFolders(nsIArray *folders,
                               nsIMsgWindow *msgWindow) override;
   NS_IMETHOD ReadFromFolderCacheElem(
@@ -379,6 +382,11 @@ class nsImapMailFolder : public nsMsgDBFolder,
                                             nsCString &msgIds);
   static nsresult BuildIdsAndKeyArray(nsIArray *messages, nsCString &msgIds,
                                       nsTArray<nsMsgKey> &keyArray);
+  // Stopgap during nsIArray removal. To be renamed to BuildIdsAndKeyArray().
+  // (see Bug 1612239)
+  static nsresult BuildIdsAndKeyArray2(
+      const nsTArray<RefPtr<nsIMsgDBHdr>> &messages, nsCString &msgIds,
+      nsTArray<nsMsgKey> &keyArray);
 
   // these might end up as an nsIImapMailFolder attribute.
   nsresult SetSupportedUserFlags(uint32_t userFlags);
@@ -509,7 +517,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   bool m_msgMovedByFilter;
   RefPtr<nsImapMoveCoalescer>
       m_moveCoalescer;  // strictly owned by the nsImapMailFolder
-  nsCOMPtr<nsIMutableArray> m_junkMessagesToMarkAsRead;
+  nsTArray<RefPtr<nsIMsgDBHdr>> m_junkMessagesToMarkAsRead;
   /// list of keys to be moved to the junk folder
   nsTArray<nsMsgKey> mSpamKeysToMove;
   /// the junk destination folder

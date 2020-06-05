@@ -22,7 +22,7 @@
  */
 
 /* globals ClearMessagePane, gDBView, gFolderDisplay, MarkSelectedMessagesRead, messenger,
-   MsgJunkMailInfo, msgWindow, nsMsgViewIndex_None */
+   MsgJunkMailInfo, msgWindow, nsMsgViewIndex_None, fixIterator */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -115,7 +115,10 @@ function performActionsOnJunkMsgs(aFolder, aJunkMsgHdrs, aGoodMsgHdrs) {
   if (aJunkMsgHdrs.length) {
     var actionParams = determineActionsForJunkMsgs(aFolder);
     if (actionParams.markRead) {
-      aFolder.markMessagesRead(aJunkMsgHdrs, true);
+      aFolder.markMessagesRead(
+        [...fixIterator(aJunkMsgHdrs, Ci.nsIMsgDBHdr)],
+        true
+      );
     }
 
     if (actionParams.junkTargetFolder) {

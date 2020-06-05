@@ -254,10 +254,10 @@ function msgHdrsMarkAsRead(msgHdrs, read) {
     if (!pending[msgHdr.folder.URI]) {
       pending[msgHdr.folder.URI] = {
         folder: msgHdr.folder,
-        msgs: Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray),
+        msgs: [],
       };
     }
-    pending[msgHdr.folder.URI].msgs.appendElement(msgHdr);
+    pending[msgHdr.folder.URI].msgs.push(msgHdr);
   }
   for (let [{ folder, msgs }] of entries(pending)) {
     folder.markMessagesRead(msgs, read);

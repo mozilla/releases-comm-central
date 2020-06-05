@@ -3544,9 +3544,7 @@ function setMsgHdrPropertyAndReload(aProperty, aValue) {
  */
 function MarkMessageAsRead(msgHdr) {
   ClearPendingReadTimer();
-  var headers = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  headers.appendElement(msgHdr);
-  msgHdr.folder.markMessagesRead(headers, true);
+  msgHdr.folder.markMessagesRead([msgHdr], true);
 }
 
 function ClearPendingReadTimer() {
