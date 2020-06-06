@@ -35,7 +35,7 @@ function run_test() {
   let lines = decodeURIComponent(actual).split("\r\n");
   // The theory, the lines of the vCard are valid in any order, so just check
   // that they exist. In practice they are in this order.
-  Assert.ok(lines.includes("EMAIL:PrimaryEmail1@test.invalid"), "EMAIL");
+  Assert.ok(lines.includes("EMAIL;PREF=1:PrimaryEmail1@test.invalid"), "EMAIL");
   Assert.ok(lines.includes("FN:DisplayName1"), "FN");
   Assert.ok(lines.includes("NICKNAME:NickName1"), "NICKNAME");
   Assert.ok(lines.includes("NOTE:Notes1"), "NOTE");

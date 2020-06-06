@@ -13,47 +13,89 @@ const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
  */
 
 var VCardUtils = {
-  vCardToAbCard(vCard) {
-    let [, properties] = ICAL.parse(vCard);
-    let abCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-      Ci.nsIAbCard
-    );
+  _parse(vProps) {
+    let vPropMap = new Map();
+    for (let index = 0; index < vProps.length; index++) {
+      let [name, params, , value] = vProps[index];
 
-    for (let [name, params, , value] of properties) {
-      if (name == "uid") {
-        abCard.UID = value;
-        continue;
-      }
-      if (params.type) {
-        if (Array.isArray(params.type)) {
-          params.type = params.type.map(t => t.toLowerCase());
+      // Work out which type in typeMap, if any, this property belongs to.
+
+      // To make the next piece easier, the type param must always be an array
+      // of lower-case strings.
+      let type = params.type || [];
+      if (type) {
+        if (Array.isArray(type)) {
+          type = type.map(t => t.toLowerCase());
         } else {
-          params.type = [params.type.toLowerCase()];
+          type = [type.toLowerCase()];
         }
-      } else {
-        params.type = [];
       }
 
+      // Special cases for address and telephone types.
       if (name == "adr") {
-        name = params.type.includes("home") ? "adr.home" : "adr.work";
+        name = type.includes("home") ? "adr.home" : "adr.work";
       }
       if (name == "tel") {
         name = "tel.work";
-        for (let t of params.type) {
+        for (let t of type) {
           if (["home", "work", "cell", "pager", "fax"].includes(t)) {
             name = `tel.${t}`;
             break;
           }
         }
       }
-      if (name in propertyMap) {
-        for (let [abPropName, abPropValue] of Object.entries(
-          propertyMap[name].toAbCard(value)
-        )) {
-          if (abPropValue) {
-            abCard.setProperty(abPropName, abPropValue);
-          }
+
+      if (!(name in typeMap)) {
+        continue;
+      }
+
+      // The preference param is 1-100, lower numbers indicate higher
+      // preference. If not specified, the value is least preferred.
+      let pref = parseInt(params.pref, 10) || 101;
+
+      if (!vPropMap.has(name)) {
+        vPropMap.set(name, []);
+      }
+      vPropMap.get(name).push({ index, pref, value });
+    }
+
+    for (let props of vPropMap.values()) {
+      // Sort the properties by preference, or by the order they appeared.
+      props.sort((a, b) => {
+        if (a.pref == b.pref) {
+          return a.index - b.index;
         }
+        return a.pref - b.pref;
+      });
+    }
+    return vPropMap;
+  },
+  vCardToAbCard(vCard) {
+    let [, vProps] = ICAL.parse(vCard);
+    let vPropMap = this._parse(vProps);
+
+    let abCard = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
+      Ci.nsIAbCard
+    );
+    for (let [name, , , value] of vProps) {
+      if (name == "uid") {
+        abCard.UID = value;
+        break;
+      }
+    }
+    for (let [name, props] of vPropMap) {
+      // Store the value(s) on the abCard.
+      for (let [abPropName, abPropValue] of typeMap[name].toAbCard(
+        props[0].value
+      )) {
+        if (abPropValue) {
+          abCard.setProperty(abPropName, abPropValue);
+        }
+      }
+
+      // Special case for email, which can also have a second preference.
+      if (name == "email" && props.length > 1) {
+        abCard.setProperty("SecondEmail", props[1].value);
       }
     }
     return abCard;
@@ -61,6 +103,7 @@ var VCardUtils = {
   modifyVCard(vCard, abCard) {
     let card = ICAL.parse(vCard);
     let [, vProps] = card;
+    let vPropMap = this._parse(vProps);
 
     // Collect all of the AB card properties into a Map.
     let abProps = new Map();
@@ -70,41 +113,44 @@ var VCardUtils = {
       }
     }
 
-    // Collect all of the existing vCard properties into a Map.
-    let indices = new Map();
-    for (let i = 0; i < vProps.length; i++) {
-      let [vPropName, vPropParams] = vProps[i];
-      if (vPropParams.type) {
-        vPropName += `.${vPropParams.type}`;
+    // Update the vCard.
+    let indicesToRemove = [];
+    for (let vPropName of Object.keys(typeMap)) {
+      let existingVProps = vPropMap.get(vPropName) || [];
+      let newVProps = [...typeMap[vPropName].fromAbCard(abProps)];
+
+      if (newVProps.length == 0) {
+        // Removed property, remove it.
+        for (let existingVProp of existingVProps) {
+          indicesToRemove.push(existingVProp.index);
+        }
+        continue;
       }
-      indices.set(vPropName, i);
+
+      for (let i = 0; i < newVProps.length; i++) {
+        let newValue = newVProps[i][3];
+        if (existingVProps[i]) {
+          if (newValue === undefined) {
+            // Empty property, remove it.
+            indicesToRemove.push(existingVProps[i].index);
+          } else {
+            // Existing property, update it.
+            vProps[existingVProps[i].index][3] = newVProps[i][3];
+          }
+        } else if (newValue !== undefined) {
+          // New property, add it.
+          vProps.push(newVProps[i]);
+        }
+      }
+
+      // There may be more existing properties than new properties, because we
+      // haven't stored them. Don't truncate!
     }
 
-    // Update the vCard.
-    for (let vPropName of Object.keys(propertyMap)) {
-      let vProp = propertyMap[vPropName].fromAbCard(abProps);
-
-      let index = indices.get(vPropName);
-      if (vProp) {
-        // The vCard might have the property, but with no type specified.
-        // If it does, use that.
-        if (index === undefined && vPropName.includes(".")) {
-          index = indices.get(vPropName.split(".")[0]);
-          // Default to not specifying a type, where this applies.
-          delete vProp[1].type;
-        }
-
-        if (index === undefined) {
-          // New property, add it.
-          vProps.push(vProp);
-        } else {
-          // Existing property, update it.
-          vProps[index][3] = vProp[3];
-        }
-      } else if (index !== undefined) {
-        // Removed property, remove it.
-        vProps.splice(index, 1);
-      }
+    // Remove the props we don't want, from end to start to avoid changing indices.
+    indicesToRemove.sort();
+    for (let i = indicesToRemove.length - 1; i >= 0; i--) {
+      vProps.splice(indicesToRemove[i], 1);
     }
 
     // Always add a UID if there isn't one.
@@ -126,10 +172,11 @@ var VCardUtils = {
     }
 
     // Add the properties to the vCard.
-    for (let vPropName of Object.keys(propertyMap)) {
-      let vProp = propertyMap[vPropName].fromAbCard(abProps, vPropName);
-      if (vProp) {
-        vProps.push(vProp);
+    for (let vPropName of Object.keys(typeMap)) {
+      for (let vProp of typeMap[vPropName].fromAbCard(abProps, vPropName)) {
+        if (vProp[3] !== undefined) {
+          vProps.push(vProp);
+        }
       }
     }
 
@@ -216,7 +263,7 @@ VCardMimeConverter.prototype = {
   },
 };
 
-/** Helper functions for propertyMap. */
+/** Helper functions for typeMap. */
 
 function singleTextProperty(
   abPropName,
@@ -229,38 +276,35 @@ function singleTextProperty(
      * Formats nsIAbCard properties into an array for use by ICAL.js.
      *
      * @param {Map} map - A map of address book properties to map.
-     * @return {?Array} - Values in a jCard array for use with ICAL.js.
+     * @yields {Array} - Values in a jCard array for use with ICAL.js.
      */
-    fromAbCard(map) {
-      if (map.has(abPropName)) {
-        return [vPropName, { ...vPropParams }, vPropType, map.get(abPropName)];
-      }
-      return null;
+    *fromAbCard(map) {
+      yield [vPropName, { ...vPropParams }, vPropType, map.get(abPropName)];
     },
     /**
      * Parses a vCard value into properties usable by nsIAbCard.
      *
-     * @param {string} value - vCard string to map to an address book card property.
-     * @return {Object} - A dictionary of address book properties.
+     * @param {String} value - vCard string to map to an address book card property.
+     * @yields {String[]} - Any number of key, value pairs to set on the nsIAbCard.
      */
-    toAbCard(value) {
+    *toAbCard(value) {
       if (typeof value != "string") {
         console.warn(`Unexpected value for ${vPropName}: ${value}`);
-        return {};
+        return;
       }
-      return { [abPropName]: value };
+      yield [abPropName, value];
     },
   };
 }
 function dateProperty(abCardPrefix, vPropName) {
   return {
-    fromAbCard(map) {
+    *fromAbCard(map) {
       if (
         !map.has(`${abCardPrefix}Year`) ||
         !map.has(`${abCardPrefix}Month`) ||
         !map.has(`${abCardPrefix}Day`)
       ) {
-        return null;
+        return;
       }
       let dateValue = new ICAL.VCardTime(
         {
@@ -271,47 +315,43 @@ function dateProperty(abCardPrefix, vPropName) {
         null,
         "date"
       );
-      return [vPropName, {}, "date", dateValue.toString()];
+      yield [vPropName, {}, "date", dateValue.toString()];
     },
-    toAbCard(value) {
+    *toAbCard(value) {
       let dateValue = new Date(value);
-      return {
-        [`${abCardPrefix}Year`]: String(dateValue.getFullYear()),
-        [`${abCardPrefix}Month`]: String(dateValue.getMonth() + 1),
-        [`${abCardPrefix}Day`]: String(dateValue.getDate()),
-      };
+      yield [`${abCardPrefix}Year`, String(dateValue.getFullYear())];
+      yield [`${abCardPrefix}Month`, String(dateValue.getMonth() + 1)];
+      yield [`${abCardPrefix}Day`, String(dateValue.getDate())];
     },
   };
 }
 function multiTextProperty(abPropNames, vPropName, vPropParams = {}) {
   return {
-    fromAbCard(map) {
+    *fromAbCard(map) {
       if (abPropNames.every(name => !map.has(name))) {
-        return null;
+        return;
       }
-      return [
+      yield [
         vPropName,
         { ...vPropParams },
         "text",
         abPropNames.map(name => map.get(name) || ""),
       ];
     },
-    toAbCard(value) {
-      let result = {};
+    *toAbCard(value) {
       if (Array.isArray(value)) {
         for (let abPropName of abPropNames) {
           let valuePart = value.shift();
           if (abPropName && valuePart) {
-            result[abPropName] = valuePart;
+            yield [abPropName, valuePart];
           }
         }
       } else if (typeof value == "string") {
         // Only one value was given.
-        result[abPropNames[0]] = value;
+        yield [abPropNames[0], value];
       } else {
         console.warn(`Unexpected value for ${vPropName}: ${value}`);
       }
-      return result;
     },
   };
 }
@@ -326,8 +366,15 @@ function multiTextProperty(abPropNames, vPropName, vPropParams = {}) {
  * property values in each direction. See the docs on the object returned by
  * singleTextProperty.
  */
-var propertyMap = {
-  email: singleTextProperty("PrimaryEmail", "email"),
+var typeMap = {
+  email: {
+    *fromAbCard(map) {
+      yield ["email", { pref: "1" }, "text", map.get("PrimaryEmail")];
+      yield ["email", {}, "text", map.get("SecondEmail")];
+    },
+    toAbCard: singleTextProperty("PrimaryEmail", "email", { pref: "1" })
+      .toAbCard,
+  },
   fn: singleTextProperty("DisplayName", "fn"),
   nickname: singleTextProperty("NickName", "nickname"),
   note: singleTextProperty("Notes", "note"),
@@ -369,21 +416,22 @@ var propertyMap = {
   "tel.cell": singleTextProperty("CellularNumber", "tel", { type: "cell" }),
   url: singleTextProperty("WebPage1", "url", {}, "url"),
   "x-mozilla-html": {
-    fromAbCard(map) {
+    *fromAbCard(map) {
       switch (map.get("PreferMailFormat")) {
         case Ci.nsIAbPreferMailFormat.html:
-          return ["x-mozilla-html", {}, "boolean", true];
+          yield ["x-mozilla-html", {}, "boolean", true];
+          break;
         case Ci.nsIAbPreferMailFormat.plaintext:
-          return ["x-mozilla-html", {}, "boolean", false];
+          yield ["x-mozilla-html", {}, "boolean", false];
+          break;
       }
-      return null;
     },
-    toAbCard(value) {
+    *toAbCard(value) {
       if (typeof value != "boolean") {
         console.warn(`Unexpected value for x-mozilla-html: ${value}`);
-        return {};
+        return;
       }
-      return { PreferMailFormat: value };
+      yield ["PreferMailFormat", value];
     },
   },
 };

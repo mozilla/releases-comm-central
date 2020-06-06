@@ -1,13 +1,13 @@
 BEGIN:VCARD
 VERSION:4.0
-EMAIL:contact1@invalid
+EMAIL;PREF=1:contact1@invalid
 FN:contact number one
 N:one;contact;;;
 UID:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 END:VCARD
 BEGIN:VCARD
 VERSION:4.0
-EMAIL:contact2@invalid
+EMAIL;PREF=1:contact2@invalid
 FN:contact number two
 NOTE:here's some unicode text…
 TITLE:"worker"

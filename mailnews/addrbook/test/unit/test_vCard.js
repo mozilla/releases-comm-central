@@ -37,6 +37,7 @@ add_task(function testVCardToAbCard() {
   check("UID:12345678-1234-1234-1234-123456789012", {
     UID: "12345678-1234-1234-1234-123456789012",
   });
+
   // Name
   check("N:Last;First;Middle;Prefix;Suffix", {
     FirstName: "First",
@@ -65,6 +66,7 @@ add_task(function testVCardToAbCard() {
     HomeZipCode: "91921-1234",
     HomeCountry: "U.S.A.",
   });
+
   // Phone
   check("TEL:11-2358-13-21", { WorkPhone: "11-2358-13-21" });
   check("TEL;TYPE=work:11-2358-13-21", { WorkPhone: "11-2358-13-21" });
@@ -91,12 +93,23 @@ add_task(function testVCardToAbCard() {
       HomePhone: "011-2358-13-21",
     }
   );
+  check("TEL;TYPE=cell:11-2358-13-21\r\nTEL;TYPE=cell:011-2358-13-21", {
+    CellularNumber: "11-2358-13-21",
+  });
+  check("TEL;TYPE=cell;PREF=1:11-2358-13-21\r\nTEL;TYPE=cell:011-2358-13-21", {
+    CellularNumber: "11-2358-13-21",
+  });
+  check("TEL;TYPE=cell:11-2358-13-21\r\nTEL;TYPE=cell;PREF=1:011-2358-13-21", {
+    CellularNumber: "011-2358-13-21",
+  });
+
   // Birthday
   check("BDAY;VALUE=DATE:19830403", {
     BirthDay: "3",
     BirthMonth: "4",
     BirthYear: "1983",
   });
+
   // Anniversary
   check("ANNIVERSARY;VALUE=DATE:20041207", {
     AnniversaryDay: "7",
@@ -116,6 +129,71 @@ add_task(function testVCardToAbCard() {
     Company: "Acme Widgets, Inc.",
     Department: "Manufacturing",
   });
+
+  // Email: just to be difficult, email is stored by priority, not type.
+  check("EMAIL:first@invalid", { PrimaryEmail: "first@invalid" });
+  check("EMAIL;PREF=1:first@invalid", { PrimaryEmail: "first@invalid" });
+
+  check("EMAIL;PREF=1:first@invalid\r\nEMAIL:second@invalid", {
+    PrimaryEmail: "first@invalid",
+    SecondEmail: "second@invalid",
+  });
+  check("EMAIL:second@invalid\r\nEMAIL;PREF=1:first@invalid", {
+    PrimaryEmail: "first@invalid",
+    SecondEmail: "second@invalid",
+  });
+
+  check("EMAIL;PREF=1:first@invalid\r\nEMAIL;PREF=2:second@invalid", {
+    PrimaryEmail: "first@invalid",
+    SecondEmail: "second@invalid",
+  });
+  check("EMAIL;PREF=2:second@invalid\r\nEMAIL;PREF=1:first@invalid", {
+    PrimaryEmail: "first@invalid",
+    SecondEmail: "second@invalid",
+  });
+
+  check(
+    "EMAIL;PREF=1:first@invalid\r\nEMAIL;PREF=2:second@invalid\r\nEMAIL;PREF=3:third@invalid",
+    {
+      PrimaryEmail: "first@invalid",
+      SecondEmail: "second@invalid",
+    }
+  );
+  check(
+    "EMAIL;PREF=2:second@invalid\r\nEMAIL;PREF=3:third@invalid\r\nEMAIL;PREF=1:first@invalid",
+    {
+      PrimaryEmail: "first@invalid",
+      SecondEmail: "second@invalid",
+    }
+  );
+  check(
+    "EMAIL;PREF=3:third@invalid\r\nEMAIL;PREF=1:first@invalid\r\nEMAIL;PREF=2:second@invalid",
+    {
+      PrimaryEmail: "first@invalid",
+      SecondEmail: "second@invalid",
+    }
+  );
+  check(
+    "EMAIL;PREF=3:third@invalid\r\nEMAIL;PREF=2:second@invalid\r\nEMAIL;PREF=1:first@invalid",
+    {
+      PrimaryEmail: "first@invalid",
+      SecondEmail: "second@invalid",
+    }
+  );
+  check(
+    "EMAIL;PREF=2:second@invalid\r\nEMAIL;PREF=1:first@invalid\r\nEMAIL;PREF=3:third@invalid",
+    {
+      PrimaryEmail: "first@invalid",
+      SecondEmail: "second@invalid",
+    }
+  );
+  check(
+    "EMAIL;PREF=1:first@invalid\r\nEMAIL;PREF=3:third@invalid\r\nEMAIL;PREF=2:second@invalid",
+    {
+      PrimaryEmail: "first@invalid",
+      SecondEmail: "second@invalid",
+    }
+  );
 });
 
 add_task(function testModifyVCard() {
@@ -125,6 +203,7 @@ add_task(function testModifyVCard() {
     expectedLines = [],
     unexpectedPrefixes = []
   ) {
+    inVCard = `BEGIN:VCARD\r\n${inVCard}\r\nEND:VCARD\r\n`;
     let abCard = VCardUtils.vCardToAbCard(inVCard);
     for (let [name, value] of Object.entries(newProps)) {
       if (value === null) {
@@ -174,30 +253,19 @@ add_task(function testModifyVCard() {
   }
 
   // Empty card, no modifications.
-  check(
-    formatVCard`
-      BEGIN:VCARD
-      END:VCARD`,
-    {},
-    [ANY_UID]
-  );
+  check("", {}, [ANY_UID]);
+
   // Card with UID, no modifications.
-  check(
-    formatVCard`
-      BEGIN:VCARD
-      UID:12345678-1234-1234-1234-123456789012
-      END:VCARD`,
-    {},
-    ["UID:12345678-1234-1234-1234-123456789012"]
-  );
+  check("UID:12345678-1234-1234-1234-123456789012", {}, [
+    "UID:12345678-1234-1234-1234-123456789012",
+  ]);
+
   // Display name changed, notes removed, UID unchanged.
   check(
     formatVCard`
-      BEGIN:VCARD
       FN:Original Full Name
       NOTE:This property will be removed.
-      UID:12345678-1234-1234-1234-123456789012
-      END:VCARD`,
+      UID:12345678-1234-1234-1234-123456789012`,
     {
       DisplayName: "New Full Name",
       Notes: null,
@@ -205,12 +273,30 @@ add_task(function testModifyVCard() {
     ["FN:New Full Name", "UID:12345678-1234-1234-1234-123456789012"],
     ["NOTE"]
   );
-  // Last name changed.
+
+  // Notes removed, URL removed. This ensures we don't remove the wrong properties.
   check(
     formatVCard`
-      BEGIN:VCARD
-      N:Last;First;;;
-      END:VCARD`,
+      FN:Original Full Name
+      NOTE:This property will be removed.
+      UID:12345678-1234-1234-1234-123456789012
+      URL:http://www.thunderbird.net/
+      ORG:Thunderbird;Address Book`,
+    {
+      Notes: null,
+      WebPage1: null,
+    },
+    [
+      "FN:Original Full Name",
+      "UID:12345678-1234-1234-1234-123456789012",
+      "ORG:Thunderbird;Address Book",
+    ],
+    ["NOTE", "URL"]
+  );
+
+  // Last name changed.
+  check(
+    "N:Last;First;;;",
     {
       LastName: "Changed",
     },
@@ -218,61 +304,118 @@ add_task(function testModifyVCard() {
   );
   // First and last name changed.
   check(
-    formatVCard`
-      BEGIN:VCARD
-      N:Last;First;;;
-      END:VCARD`,
+    "N:Last;First;;;",
     {
       LastName: "Changed",
       FirstName: "New",
     },
     ["N:Changed;New;;;", ANY_UID]
   );
+
   // Work address changed. Other address types should not appear.
   check(
-    formatVCard`
-      BEGIN:VCARD
-      ADR;TYPE=work:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.
-      END:VCARD`,
+    "ADR;TYPE=work:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
     {
       WorkAddress: "345 Main Street",
     },
     ["ADR;TYPE=work:;;345 Main Street;Any Town;CA;91921-1234;U.S.A.", ANY_UID],
     ["ADR", "ADR;TYPE=home"]
   );
+
   // Home address changed. Other address types should not appear.
   check(
-    formatVCard`
-      BEGIN:VCARD
-      ADR;TYPE=home:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.
-      END:VCARD`,
+    "ADR;TYPE=home:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
     {
       HomeAddress: "345 Main Street",
     },
     ["ADR;TYPE=home:;;345 Main Street;Any Town;CA;91921-1234;U.S.A.", ANY_UID],
     ["ADR", "ADR;TYPE=work"]
   );
+
   // Address changed. Other address types should not appear.
   check(
-    formatVCard`
-      BEGIN:VCARD
-      ADR:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.
-      END:VCARD`,
+    "ADR:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
     {
       WorkAddress: "345 Main Street",
     },
     ["ADR:;;345 Main Street;Any Town;CA;91921-1234;U.S.A.", ANY_UID],
     ["ADR;TYPE=work", "ADR;TYPE=home"]
   );
+
+  // Various email properties with no changes.
+  check("EMAIL:first@invalid", {}, ["EMAIL:first@invalid", ANY_UID]);
+  check("EMAIL:first@invalid\r\nEMAIL:second@invalid", {}, [
+    "EMAIL:first@invalid",
+    "EMAIL:second@invalid",
+    ANY_UID,
+  ]);
+  check(
+    "EMAIL:first@invalid\r\nEMAIL:second@invalid\r\nEMAIL:third@invalid",
+    {},
+    [
+      "EMAIL:first@invalid",
+      "EMAIL:second@invalid",
+      "EMAIL:third@invalid",
+      ANY_UID,
+    ]
+  );
+
+  // Changed primary email.
+  check("EMAIL:first@invalid", { PrimaryEmail: "changed.first@invalid" }, [
+    "EMAIL:changed.first@invalid",
+    ANY_UID,
+  ]);
+
+  // Removed primary email, added secondary email.
+  check(
+    "EMAIL:first@invalid",
+    { PrimaryEmail: null, SecondEmail: "second@invalid" },
+    ["EMAIL:second@invalid", ANY_UID]
+  );
+
+  // Changed primary email, added secondary email.
+  check(
+    "EMAIL:first@invalid",
+    {
+      PrimaryEmail: "changed.first@invalid",
+      SecondEmail: "second@invalid",
+    },
+    ["EMAIL:changed.first@invalid", "EMAIL:second@invalid", ANY_UID]
+  );
+
+  // Changed primary and secondary email.
+  check(
+    "EMAIL:first@invalid\r\nEMAIL:second@invalid",
+    {
+      PrimaryEmail: "changed.first@invalid",
+      SecondEmail: "changed.second@invalid",
+    },
+    ["EMAIL:changed.first@invalid", "EMAIL:changed.second@invalid", ANY_UID]
+  );
+
+  // Removed an email address when there's more than two.
+  check(
+    "EMAIL:first@invalid\r\nEMAIL:second@invalid\r\nEMAIL:third@invalid",
+    {
+      PrimaryEmail: null,
+    },
+    ["EMAIL:second@invalid", "EMAIL:third@invalid", ANY_UID]
+  );
+  check(
+    "EMAIL:first@invalid\r\nEMAIL:second@invalid\r\nEMAIL:third@invalid",
+    {
+      SecondEmail: null,
+    },
+    ["EMAIL:first@invalid", "EMAIL:third@invalid", ANY_UID]
+  );
+
   // Card with properties we don't support. They should remain unchanged.
   check(
     formatVCard`
-      BEGIN:VCARD
       X-FOO-BAR:foo bar
       X-BAZ;VALUE=URI:https://www.example.com/
       QUUX:This property is out of spec but we shouldn't touch it anyway.
-      FN:My full name
-      END:VCARD`,
+      FN:My full name`,
     {
       DisplayName: "My other full name",
     },
@@ -322,6 +465,7 @@ add_task(function testAbCardToVCard() {
     },
     "UID:12345678-1234-1234-1234-123456789012"
   );
+
   // Name
   check(
     {
@@ -355,6 +499,7 @@ add_task(function testAbCardToVCard() {
     "ADR:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
     ANY_UID
   );
+
   // Phone
   check(
     {
@@ -379,6 +524,7 @@ add_task(function testAbCardToVCard() {
     "TEL;TYPE=home;VALUE=TEXT:011-2358-13-21",
     ANY_UID
   );
+
   // Birthday
   check(
     {
@@ -389,6 +535,7 @@ add_task(function testAbCardToVCard() {
     "BDAY;VALUE=DATE:19830403",
     ANY_UID
   );
+
   // Anniversary
   check(
     {
@@ -398,6 +545,15 @@ add_task(function testAbCardToVCard() {
     },
     "ANNIVERSARY;VALUE=DATE:20041207",
     ANY_UID
+  );
+
+  // Email
+  check({ PrimaryEmail: "first@invalid" }, "EMAIL;PREF=1:first@invalid");
+  check({ SecondEmail: "second@invalid" }, "EMAIL:second@invalid");
+  check(
+    { PrimaryEmail: "first@invalid", SecondEmail: "second@invalid" },
+    "EMAIL;PREF=1:first@invalid",
+    "EMAIL:second@invalid"
   );
 });
 
