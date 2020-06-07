@@ -4,8 +4,6 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/msgSelectOffline.css" type="text/css"?>
-<!-- NEEDED FOR FOLDER COLOR CUSTOMIZATION -->
-<?xml-stylesheet href="#inlineStyle" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/msgSynchronize.dtd" >
 
@@ -22,8 +20,7 @@
   <script src="chrome://messenger/content/msgSelectOfflineFolders.js"/>
   <script src="chrome://messenger/content/folderPane.js"/>
 
-  <!-- NEEDED FOR FOLDER COLOR CUSTOMIZATION -->
-  <html:style type="text/css" id="inlineStyle"></html:style>
+  <html:style id="folderColorsStyle" type="text/css"></html:style>
 
   <label class="desc" control="synchronizeTree">&MsgSelectDesc.label;</label>
 
