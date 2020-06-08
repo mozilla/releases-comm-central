@@ -2112,6 +2112,8 @@ var gDragSpaceObserver = {
   },
 };
 
-function promptRemoveExtension(addon) {
-  return { remove: true, report: false };
-}
+var BrowserAddonUI = {
+  promptRemoveExtension(addon) {
+    return { remove: true, report: false };
+  },
+};
