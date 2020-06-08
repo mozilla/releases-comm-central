@@ -1062,7 +1062,7 @@ this.menus = class extends ExtensionAPI {
               let includeSensitiveData =
                 (nativeTab &&
                   extension.tabManager.hasActiveTabPermission(nativeTab)) ||
-                (contextUrl && extension.whiteListedHosts.matches(contextUrl));
+                (contextUrl && extension.allowedOrigins.matches(contextUrl));
 
               addMenuEventInfo(
                 info,
