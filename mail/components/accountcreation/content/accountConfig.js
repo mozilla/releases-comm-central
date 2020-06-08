@@ -53,7 +53,7 @@ AccountConfig.prototype = {
   id: null,
   // who created the config.
   // { one of kSource* }
-  source: 0,
+  source: null,
   displayName: null,
   // { Array of { varname (value without %), displayName, exampleValue } }
   inputFields: null,
@@ -339,10 +339,10 @@ AccountConfig.prototype = {
 // enum consts
 
 // .source
-AccountConfig.kSourceUser = 1; // user manually entered the config
-AccountConfig.kSourceXML = 2; // config from XML from ISP or Mozilla DB
-AccountConfig.kSourceGuess = 3; // guessConfig()
-AccountConfig.kSourceExchange = 4; // from Microsoft Exchange AutoDiscover
+AccountConfig.kSourceUser = "user"; // user manually entered the config
+AccountConfig.kSourceXML = "ispdb"; // config from XML from ISP or Mozilla DB
+AccountConfig.kSourceGuess = "guess"; // guessConfig()
+AccountConfig.kSourceExchange = "autodiscover"; // from Microsoft Exchange AutoDiscover
 
 /**
  * Some fields on the account config accept placeholders (when coming from XML).

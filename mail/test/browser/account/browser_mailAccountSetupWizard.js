@@ -28,6 +28,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+let { TelemetryTestUtils } = ChromeUtils.import(
+  "resource://testing-common/TelemetryTestUtils.jsm"
+);
 
 var user = {
   name: "Yamato Nadeshiko",
@@ -181,6 +184,7 @@ add_task(function test_bad_password_uses_old_settings() {
   Services.prefs.setCharPref(PREF_NAME, url);
 
   mc.sleep(0);
+  Services.telemetry.clearScalars();
   open_mail_account_setup_wizard(function(awc) {
     try {
       // Input user's account information
@@ -232,6 +236,18 @@ add_task(function test_bad_password_uses_old_settings() {
         awc.e("incoming_hostname").value,
         user.incomingHost,
         "incoming server changed!"
+      );
+
+      let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
+      Assert.equal(
+        scalars["tb.account.failed_email_account_setup"].ispdb,
+        1,
+        "Count of failed email account setup with ispdb config must be correct"
+      );
+      Assert.equal(
+        scalars["tb.account.failed_email_account_setup"].user,
+        1,
+        "Count of failed email account setup with manual config must be correct"
       );
     } finally {
       // Clean up

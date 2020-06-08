@@ -2089,6 +2089,12 @@ EmailConfigWizard.prototype = {
             successfulConfig.outgoing.oauthSettings;
         }
         self.finish(configFilledIn);
+
+        Services.telemetry.keyedScalarAdd(
+          "tb.account.successful_email_account_setup",
+          self._currentConfig.source,
+          1
+        );
       },
       function(e) {
         // failed
@@ -2112,6 +2118,12 @@ EmailConfigWizard.prototype = {
         // hidden in non-manual mode, so it's fine to enable
         _enable("half-manual-test_button");
         resizeDialog();
+
+        Services.telemetry.keyedScalarAdd(
+          "tb.account.failed_email_account_setup",
+          self._currentConfig.source,
+          1
+        );
       }
     );
   },
