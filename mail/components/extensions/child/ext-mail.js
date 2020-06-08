@@ -15,6 +15,11 @@ extensions.registerModules({
     scopes: ["addon_child"],
     paths: [["composeScripts"]],
   },
+  identity: {
+    url: "chrome://extensions/content/child/ext-identity.js",
+    scopes: ["addon_child"],
+    paths: [["identity"]],
+  },
   menus: {
     url: "chrome://messenger/content/child/ext-menus.js",
     scopes: ["addon_child"],

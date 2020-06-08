@@ -941,7 +941,6 @@ let ChromeURLBlockPolicy = {
       contentLocation.scheme == "chrome" &&
       contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT &&
       loadInfo.loadingContext &&
-      loadInfo.loadingContext.baseURI == AppConstants.BROWSER_CHROME_URL &&
       contentLocation.host != "mochitests" &&
       contentLocation.host != "devtools"
     ) {

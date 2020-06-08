@@ -50,7 +50,7 @@ const kPrefUIDensity = "browser.uidensity";
 const kPrefAutoTouchMode = "browser.touchmode.auto";
 const kPrefAutoHideDownloadsButton = "browser.download.autohideButton";
 
-const kExpectedWindowURL = AppConstants.BROWSER_CHROME_URL;
+const kExpectedWindowURL = "chrome://messenger/content/messenger.xhtml";
 
 var gDefaultTheme;
 var gSelectedTheme;

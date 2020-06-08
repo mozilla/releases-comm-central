@@ -13,7 +13,7 @@ if test "$OS_ARCH" = "WINNT"; then
   fi
 fi
 
-BROWSER_CHROME_URL=chrome://messenger/content/messengercompose/messengercompose.xhtml
+BROWSER_CHROME_URL=chrome://messenger/content/extensionPopup.xhtml
 
 MOZ_BRANDING_DIRECTORY=$commreltopsrcdir/mail/branding/nightly
 MOZ_OFFICIAL_BRANDING_DIRECTORY=$commreltopsrcdir/mail/branding/thunderbird
