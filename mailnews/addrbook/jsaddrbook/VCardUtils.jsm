@@ -18,6 +18,24 @@ var VCardUtils = {
     for (let index = 0; index < vProps.length; index++) {
       let [name, params, , value] = vProps[index];
 
+      // Quoted-printable isn't allowed after vCard 2.1, but we'll let the
+      // parser deal with things like line wrapping before we do the decoding.
+      if (
+        params.encoding &&
+        params.encoding.toUpperCase() == "QUOTED-PRINTABLE"
+      ) {
+        let bytes = [];
+        for (let b = 0; b < value.length; b++) {
+          if (value[b] == "=") {
+            bytes.push(parseInt(value.substr(b + 1, 2), 16));
+            b += 2;
+          } else {
+            bytes.push(value.charCodeAt(b));
+          }
+        }
+        value = new TextDecoder().decode(new Uint8Array(bytes));
+      }
+
       // Work out which type in typeMap, if any, this property belongs to.
 
       // To make the next piece easier, the type param must always be an array
@@ -71,6 +89,34 @@ var VCardUtils = {
     return vPropMap;
   },
   vCardToAbCard(vCard) {
+    // ICAL.js's parser only supports vCard 3.0 and 4.0. To maintain
+    // interoperability with other applications, here we convert vCard 2.1
+    // cards into a "good-enough" mimic of vCard 4.0 so that the parser will
+    // read it without throwing an error.
+    if (vCard.includes("VERSION:2.1")) {
+      vCard = vCard.replace(/\n((ADR|EMAIL|TEL)(;\w*)+):/gi, (match, key) => {
+        let parts = key.split(";");
+        let newParts = [parts[0]];
+        for (let i = 1; i < parts.length; i++) {
+          if (parts[i] == "") {
+            continue;
+          }
+          if (
+            ["HOME", "WORK", "FAX", "PAGER", "CELL", "VOICE"].includes(
+              parts[i].toUpperCase()
+            )
+          ) {
+            newParts.push(`TYPE=${parts[i]}`);
+          } else if (parts[i].toUpperCase() == "PREF") {
+            newParts.push("PREF=1");
+          } else {
+            newParts.push(parts[i]);
+          }
+        }
+        return "\n" + newParts.join(";") + ":";
+      });
+    }
+
     let [, vProps] = ICAL.parse(vCard);
     let vPropMap = this._parse(vProps);
 
