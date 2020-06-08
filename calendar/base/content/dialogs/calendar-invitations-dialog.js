@@ -111,13 +111,13 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       let dateLabel = this.querySelector(".calendar-invitations-richlistitem-date");
       let dateString = cal.dtz.formatter.formatItemInterval(item);
       if (item.startDate.isDate) {
-        dateString += ", " + this.getString("alldayEvent");
+        dateString += ", " + this.getString("allday-event");
       }
       dateLabel.setAttribute("value", dateString);
 
       let recurrenceLabel = this.querySelector(".calendar-invitations-richlistitem-recurrence");
       if (item.recurrenceInfo) {
-        recurrenceLabel.setAttribute("value", this.getString("recurrentEvent"));
+        recurrenceLabel.setAttribute("value", this.getString("recurrent-event"));
       } else {
         recurrenceLabel.setAttribute("hidden", "true");
         let spacer = this.querySelector(".calendar-invitations-richlistitem-spacer");
