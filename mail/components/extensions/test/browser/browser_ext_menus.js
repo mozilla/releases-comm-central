@@ -81,6 +81,14 @@ add_task(async function set_up() {
   gAccount = createAccount();
   gFolders = [...gAccount.incomingServer.rootFolder.subFolders];
   createMessages(gFolders[0], 10);
+
+  window.gFolderTreeView.selectFolder(gAccount.incomingServer.rootFolder);
+  if (
+    document.getElementById("folderpane_splitter").getAttribute("state") ==
+    "collapsed"
+  ) {
+    window.MsgToggleFolderPane();
+  }
 });
 
 add_task(async function test_folder_pane() {
