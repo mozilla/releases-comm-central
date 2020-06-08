@@ -124,9 +124,11 @@ function loadCalendarManager() {
 
   let calendarManager = cal.getCalendarManager();
 
-  for (let calendar of sortCalendarArray(cal.getCalendarManager().getCalendars())) {
+  for (let calendar of sortCalendarArray(calendarManager.getCalendars())) {
     addCalendarItem(calendar);
   }
+
+  reportCalendars();
 
   function addCalendarItem(calendar) {
     let item = document.createXULElement("richlistitem");
@@ -399,6 +401,32 @@ function loadCalendarManager() {
     onCalendarDeleting(calendar) {},
   };
   calendarManager.addObserver(calendarList._calendarManagerObserver);
+}
+
+/**
+ * A telemetry probe to report calendar count and read only calendar count.
+ */
+function reportCalendars() {
+  let telemetryReport = {};
+
+  for (let calendar of cal.getCalendarManager().getCalendars()) {
+    if (!telemetryReport[calendar.type]) {
+      telemetryReport[calendar.type] = { count: 0, readOnlyCount: 0 };
+    }
+    telemetryReport[calendar.type].count++;
+    if (calendar.readOnly) {
+      telemetryReport[calendar.type].readOnlyCount++;
+    }
+  }
+
+  for (let [type, { count, readOnlyCount }] of Object.entries(telemetryReport)) {
+    Services.telemetry.keyedScalarSet("tb.calendar.calendar_count", type.toLowerCase(), count);
+    Services.telemetry.keyedScalarSet(
+      "tb.calendar.read_only_calendar_count",
+      type.toLowerCase(),
+      readOnlyCount
+    );
+  }
 }
 
 /**

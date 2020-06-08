@@ -146,3 +146,32 @@ tb.websearch:
       - "telemetry-client-dev@thunderbird.net"
     record_in_processes:
       - 'main'
+
+tb.calendar:
+  calendar_count:
+    bug_numbers:
+      - 1615985
+    description: How many calendars were set up, keyed by caldendar type.
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+  read_only_calendar_count:
+    bug_numbers:
+      - 1615985
+    description: How many read only calendars were set up, keyed by caldendar type.
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
