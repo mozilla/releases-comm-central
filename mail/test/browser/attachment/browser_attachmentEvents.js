@@ -447,6 +447,7 @@ add_task(function test_attachments_pane_toggle() {
     AppConstants.platform == "macosx" ? { ctrlKey: true } : { altKey: true }
   );
   let attachmentsBox = cw.window.document.getElementById("attachments-box");
+  cw.waitFor(() => !attachmentsBox.collapsed);
   Assert.ok(!attachmentsBox.collapsed);
 
   // Press again, should toggle to closed.
@@ -455,6 +456,7 @@ add_task(function test_attachments_pane_toggle() {
     "m",
     AppConstants.platform == "macosx" ? { ctrlKey: true } : { altKey: true }
   );
+  cw.waitFor(() => attachmentsBox.collapsed);
   Assert.ok(attachmentsBox.collapsed);
 
   close_compose_window(cw);
