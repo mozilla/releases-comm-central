@@ -18,7 +18,23 @@ interface nsIMsgDBHdr;
 [scriptable, uuid(041782bf-e523-444b-a268-d90868fd2b50)]
 interface nsIMsgComposeService : nsISupports {
 
-  /* we need a msg window because when we forward inline we may need progress */
+  /**
+   * Open a compose window given a mailto url and other options.
+   *
+   * @param msgComposeWindowURL Can be null in most cases. If you have your
+   *                            own chrome url you want to use in bringing up a
+   *                            compose window, pass it in here.
+   * @param msgHdr              The header of the original message.
+   * @param originalMsgURI      The URI of the original message.
+   * @param type                The message compose type: new/reply/forward/..
+   * @param format              The message compose format: text/html/..
+   * @param identity            The identity to send the message from.
+   * @param from                The email address of the sender.
+   * @param aMsgWindow          The message window to use.
+   * @param suppressReplyQuote  An optional boolean flag to ignore or include
+                                selected content in aMsgWindow as quote in the
+                                new compose window.
+   */
   [can_run_script]
   void OpenComposeWindow(in string msgComposeWindowURL,
                          in nsIMsgDBHdr msgHdr,
@@ -27,7 +43,8 @@ interface nsIMsgComposeService : nsISupports {
                          in MSG_ComposeFormat format,
                          in nsIMsgIdentity identity,
                          in AUTF8String from,
-                         in nsIMsgWindow aMsgWindow);
+                         in nsIMsgWindow aMsgWindow,
+                         [optional] in boolean suppressReplyQuote);
 
   /**
    * Open a compose window given a mailto url and (optionally) an identity.

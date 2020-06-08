@@ -49,12 +49,6 @@ interface nsIMsgCompType : nsISupports {
      * Used to edit an existing template.
      */
     const long EditTemplate             = 16;
-
-    /**
-     * Add this value to a reply type to suppress quoting the current selection
-     * which may not belong to the message being replied to.
-     */
-    const long ReplyIgnoreQuote         = 100;
 };
 
 

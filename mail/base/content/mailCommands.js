@@ -86,7 +86,7 @@ function ComposeMessage(type, format, folder, messageArray) {
   }
 
   let msgComposeType = Ci.nsIMsgCompType;
-  let ignoreQuote = false;
+  let suppressReplyQuote = false;
   let msgKey;
   if (messageArray && messageArray.length == 1) {
     msgKey = GetMsgKeyFromURI(messageArray[0]);
@@ -109,7 +109,7 @@ function ComposeMessage(type, format, folder, messageArray) {
       if (msgKey != displayKey) {
         // Not replying to the displayed message, so remove the selection
         // in order not to quote from the wrong message.
-        ignoreQuote = true;
+        suppressReplyQuote = true;
       }
     }
   }
@@ -246,10 +246,6 @@ function ComposeMessage(type, format, folder, messageArray) {
         } else {
           // Replies come here.
 
-          if (ignoreQuote) {
-            type += msgComposeType.ReplyIgnoreQuote;
-          }
-
           let useCatchAll = false;
           // Check if we are using catchAll on any identity. If current
           // folder has some customIdentity set, ignore catchAll settings.
@@ -330,7 +326,8 @@ function ComposeMessage(type, format, folder, messageArray) {
                   format,
                   identity,
                   matchingHint.toString(),
-                  msgWindow
+                  msgWindow,
+                  suppressReplyQuote
                 );
               },
               true,
@@ -351,7 +348,8 @@ function ComposeMessage(type, format, folder, messageArray) {
               format,
               hdrIdentity,
               null,
-              msgWindow
+              msgWindow,
+              suppressReplyQuote
             );
           }
         }

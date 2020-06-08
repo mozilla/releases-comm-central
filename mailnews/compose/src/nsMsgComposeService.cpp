@@ -350,15 +350,9 @@ MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION NS_IMETHODIMP
 nsMsgComposeService::OpenComposeWindow(
     const char *msgComposeWindowURL, nsIMsgDBHdr *origMsgHdr,
     const char *originalMsgURI, MSG_ComposeType type, MSG_ComposeFormat format,
-    nsIMsgIdentity *aIdentity, const nsACString &from, nsIMsgWindow *aMsgWindow) {
+    nsIMsgIdentity *aIdentity, const nsACString &from, nsIMsgWindow *aMsgWindow,
+    bool suppressReplyQuote) {
   nsresult rv;
-
-  // Check for any reply type that wants to ignore the quote.
-  bool ignoreQuote = false;
-  if (type >= nsIMsgCompType::ReplyIgnoreQuote) {
-    type -= nsIMsgCompType::ReplyIgnoreQuote;
-    ignoreQuote = true;
-  }
 
   nsCOMPtr<nsIMsgIdentity> identity = aIdentity;
   if (!identity) GetDefaultIdentity(getter_AddRefs(identity));
@@ -407,7 +401,7 @@ nsMsgComposeService::OpenComposeWindow(
 
       // When doing a reply (except with a template) see if there's a selection
       // that we should quote
-      if (!ignoreQuote &&
+      if (!suppressReplyQuote &&
           (type == nsIMsgCompType::Reply || type == nsIMsgCompType::ReplyAll ||
            type == nsIMsgCompType::ReplyToSender ||
            type == nsIMsgCompType::ReplyToGroup ||
