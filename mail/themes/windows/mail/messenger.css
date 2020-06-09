@@ -23,7 +23,7 @@
   --toolbar-bgimage: var(--toolbar-non-lwt-bgimage);
   --chrome-content-separator-color: ThreeDShadow;
 
-  --toolbarbutton-border-radius: 2px;
+  --toolbarbutton-border-radius: 0;
   --toolbarbutton-icon-fill-opacity: .85;
   --toolbarbutton-hover-background: rgba(0, 0, 0, .1);
   --toolbarbutton-hover-bordercolor: rgba(0, 0, 0, .25);
@@ -44,6 +44,12 @@
   --arrowpanel-dimmed: hsla(0, 0%, 80%, .3);
   --arrowpanel-dimmed-further: hsla(0, 0%, 80%, .45);
   --splitter-color: ThreeDShadow;
+}
+
+@media (-moz-os-version: windows-win7) {
+  :root {
+  --toolbarbutton-border-radius: 2px;
+  }
 }
 
 @media (-moz-windows-default-theme) {
@@ -698,6 +704,7 @@ toolbar[mode="icons"] .toolbarbutton-1:not([type="menu-button"]) {
   -moz-appearance: none;
   background: hsla(210, 32%, 93%, 0) padding-box;
   border: 1px solid;
+  border-radius: var(--toolbarbutton-border-radius);
   border-color: hsla(210, 54%, 20%, 0) hsla(210, 54%, 20%, 0)
                 hsla(210, 54%, 20%, 0);
   box-shadow: 0 1px hsla(0, 0%, 100%, 0) inset,
@@ -744,13 +751,6 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 }
 
 @media (-moz-os-version: windows-win7) {
-  .findbar-button,
-  .toolbarbutton-1:not([type="menu-button"]),
-  .toolbarbutton-1 > .toolbarbutton-menubutton-button,
-  .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-    border-radius: var(--toolbarbutton-border-radius);
-  }
-
   .toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
   .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
     border-top-right-radius: 0;

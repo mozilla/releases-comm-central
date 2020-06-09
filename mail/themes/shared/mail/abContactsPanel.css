@@ -49,6 +49,11 @@
   background: transparent;
 }
 
+#abContextMenuButton:-moz-focusring {
+  outline-style: dashed;
+  outline-width: 2px;
+}
+
 #abContextMenuButton > .toolbarbutton-icon {
   width: 11px;
   height: 11px;
@@ -58,7 +63,7 @@
   display: none;
 }
 
-#addressbookList {
+#addressbookList:not(:-moz-focusring) {
   border: 1px solid var(--field-border-color);
 }
 

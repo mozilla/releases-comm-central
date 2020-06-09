@@ -75,10 +75,7 @@ html|input:not(:focus):hover {
 
 html|input:focus {
   border-color: var(--highlight-color);
-  outline: 1px solid var(--highlight-color);
-  /* Make outline-radius slightly bigger than the border-radius set above,
-   * to make the thicker outline corners look smooth */
-  -moz-outline-radius: 3px;
+  outline: none;
 }
 
 :root[lwt-tree-brighttext] html|input::selection,
@@ -93,7 +90,7 @@ menulist {
   /* !important overrides button.css for disabled and default XUL buttons: */
   color: inherit !important;
   border: 1px solid transparent; /* needed for high-contrast mode, where it'll show up */
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   background-color: var(--button-background);
   padding: 0 8px;
   text-decoration: none;
@@ -108,12 +105,12 @@ menulist {
 
 button:-moz-focusring,
 menulist:-moz-focusring {
-  outline: 2px solid var(--highlight-color);
+  outline: 1px solid var(--highlight-color);
   /* offset outline to align with 1px border-width set for buttons/menulists above. */
   outline-offset: -1px;
   /* Make outline-radius slightly bigger than the border-radius set above,
    * to make the thicker outline corners look smooth */
-  -moz-outline-radius: 3px;
+  -moz-outline-radius: calc(var(--toolbarbutton-border-radius) + 1px);
 }
 
 button:not([disabled="true"]):hover,
@@ -179,7 +176,7 @@ menulist menupopup,
 menupopup[is="folder-menupopup"] {
   -moz-appearance: none;
   border: 1px solid var(--box-border-color);
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   background-color: var(--box-background-color);
 }
 
@@ -250,7 +247,7 @@ checkbox {
   height: 16px;
   padding: 1px;
   border: 1px solid var(--field-border-color);
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   margin: 0;
   margin-inline-end: 6px;
   background-color: var(--field-background-color);
