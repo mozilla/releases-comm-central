@@ -7,8 +7,6 @@ const EXPORTED_SYMBOLS = ["calendarDeactivator"];
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var l10n = new Localization(["calendar/calendar-widgets.ftl"], true);
-
 /**
  * Handles deactivation of calendar UI and background processes/services (such
  * as the alarms service) when users do not want to use calendar functionality.
@@ -126,10 +124,14 @@ var calendarDeactivator = {
       if (calendarIsActivated) {
         notificationbox.removeNotification(existingNotification);
       } else if (!existingNotification) {
-        let message = l10n.formatValueSync(messageName);
         let priority = notificationbox.PRIORITY_WARNING_MEDIUM;
 
-        notificationbox.appendNotification(message, value, null, priority, null);
+        // Use Fluent's preferred async declarative, DOMLocalization API.
+        let messageFragment = window.document.createDocumentFragment();
+        let message = window.document.createElement("span");
+        window.document.l10n.setAttributes(message, messageName);
+        messageFragment.appendChild(message);
+        notificationbox.appendNotification(messageFragment, value, null, priority, null);
       }
     }
   },
