@@ -679,11 +679,8 @@ FolderDisplayWidget.prototype = {
             if ("visible" in colState) {
               shouldBeHidden = !colState.visible;
             }
-            if (
-              "ordinal" in colState &&
-              colChild.getAttribute("ordinal") != colState.ordinal
-            ) {
-              colChild.setAttribute("ordinal", colState.ordinal);
+            if ("ordinal" in colState && colChild.ordinal != colState.ordinal) {
+              colChild.ordinal = colState.ordinal;
             }
           }
           let isHidden = colChild.getAttribute("hidden") == "true";
@@ -737,7 +734,7 @@ FolderDisplayWidget.prototype = {
       }
       columnStates[colChild.id] = {
         visible: colChild.getAttribute("hidden") != "true",
-        ordinal: colChild.getAttribute("ordinal"),
+        ordinal: colChild.ordinal,
       };
     }
 
@@ -749,27 +746,27 @@ FolderDisplayWidget.prototype = {
    *  subsequent call to |setColumnStates|.
    */
   _saveColumnStates() {
-    // In the actual nsITreeColumn, the index property indicates the column
-    //  number.  This column number is a 0-based index with no gaps; it only
-    //  increments the number each time it sees a column.
+    // In the actual TreeColumn, the index property indicates the column
+    // number. This column number is a 0-based index with no gaps; it only
+    // increments the number each time it sees a column.
     // However, this is subservient to the 'ordinal' property which
-    //  defines the _apparent content sequence_ provided by GetNextSibling.
-    //  The underlying content ordering is still the same, which is how
-    //  restoreNaturalOrder can reset things to their XUL definition sequence.
-    //  The 'ordinal' stuff works because nsBoxFrame::RelayoutChildAtOrdinal
-    //  messes with the sibling relationship.
-    // Ordinals are 1-based.  restoreNaturalOrder apparently is dumb and does
-    //  not know this, although the ordering is relative so it doesn't actually
-    //  matter.  The annoying splitters do have ordinals, and live between
-    //  tree columns.  The splitters adjacent to a tree column do not need to
-    //  have any 'ordinal' relationship, although it would appear user activity
-    //  tends to move them around in a predictable fashion with oddness involved
-    //  at the edges.
+    // defines the _apparent content sequence_ provided by GetNextSibling.
+    // The underlying content ordering is still the same, which is how
+    // _ensureColumnOrder() can reset things to their XUL definition sequence.
+    // The 'ordinal' stuff works because nsBoxFrame::RelayoutChildAtOrdinal
+    // messes with the sibling relationship.
+    // Ordinals are 1-based. _ensureColumnOrder() apparently is dumb and does
+    // not know this, although the ordering is relative so it doesn't actually
+    // matter. The annoying splitters do have ordinals, and live between
+    // tree columns. The splitters adjacent to a tree column do not need to
+    // have any 'ordinal' relationship, although it would appear user activity
+    // tends to move them around in a predictable fashion with oddness involved
+    // at the edges.
     // Changes to the ordinal attribute should take immediate effect in terms of
-    //  sibling relationship, but will merely invalidate the columns rather than
-    //  cause a re-computation of column relationships every time.
-    // restoreNaturalOrder invalidates the tree when it is done re-ordering; I'm
-    //  not sure that's entirely necessary...
+    // sibling relationship, but will merely invalidate the columns rather than
+    // cause a re-computation of column relationships every time.
+    // _ensureColumnOrder() invalidates the tree when it is done re-ordering;
+    // I'm not sure that's entirely necessary...
     this._savedColumnStates = this.getColumnStates();
   },
 
