@@ -2299,6 +2299,38 @@ FolderDisplayWidget.prototype = {
   },
 
   /**
+   * The maximum number of messages canMarkThreadAsRead will look through.
+   * If the number exceeds this limit, as a performance measure, we return
+   * true rather than looking looking through the messages and possible
+   * submessages.
+   */
+  MAX_COUNT_FOR_MARK_THREAD: 1000,
+
+  /**
+   * Check if the thread for the currently-selected message can be marked as
+   * read. A thread can be marked as read if and only if it has at least one
+   * unread message.
+   */
+  get canMarkThreadAsRead() {
+    let hasUnread = this.displayedFolder.getNumUnread(false) > 0;
+    if (this.displayedFolder && hasUnread) {
+      // If the messages limit is exceeded we bail out early and return true.
+      if (this.selectedIndices.length > this.MAX_COUNT_FOR_MARK_THREAD) {
+        return true;
+      }
+
+      for (let i of this.selectedIndices) {
+        if (
+          this.view.dbView.getThreadContainingIndex(i).numUnreadChildren > 0
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  },
+
+  /**
    * @return true if all the selected messages can be deleted from their
    * folders, false otherwise.
    */

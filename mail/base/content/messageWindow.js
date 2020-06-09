@@ -443,6 +443,7 @@ function delayedOnLoadMessageWindow() {
   SetupCommandUpdateHandlers();
 
   gMessageDisplay = new StandaloneMessageDisplayWidget();
+  // eslint-disable-next-line no-global-assign
   gFolderDisplay = new StandaloneFolderDisplayWidget(gMessageDisplay);
   gFolderDisplay.msgWindow = msgWindow;
   gFolderDisplay.messenger = messenger;
@@ -1133,7 +1134,6 @@ var MessageWindowController = {
       case "cmd_tag8":
       case "cmd_tag9":
       case "button_mark":
-      case "cmd_markThreadAsRead":
       case "cmd_markReadByDate":
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
@@ -1142,6 +1142,8 @@ var MessageWindowController = {
         return true;
       case "cmd_markAllRead":
         return false;
+      case "cmd_markThreadAsRead":
+        return gFolderDisplay.canMarkThreadAsRead;
       case "cmd_markAsRead":
         return CanMarkMsgAsRead(true);
       case "cmd_markAsUnread":

@@ -308,6 +308,69 @@ add_task(function test_mark_all_read() {
   Assert.ok(allReadDisabled, "Mark All Read menu item should be disabled!");
 });
 
+add_task(function test_mark_thread_as_read() {
+  let unreadThreadFolder = create_folder("UnreadThreadFolder");
+  add_sets_to_folders([unreadThreadFolder], [create_thread(3)]);
+  be_in_folder(unreadThreadFolder);
+  make_display_threaded();
+
+  let serviceState = Services.prefs.getBoolPref(
+    "mailnews.mark_message_read.auto"
+  );
+  if (serviceState) {
+    // If mailnews.mark_message_read.auto is true, then we set it to false.
+    Services.prefs.setBoolPref("mailnews.mark_message_read.auto", false);
+  }
+
+  // Make sure Mark Thread as Read is enabled with >0 messages in thread unread.
+  right_click_on_row(0);
+  wait_for_popup_to_open(mc.e("mailContext"));
+  mc.click_menus_in_sequence(mc.e("mailContext"), [{ id: "mailContext-mark" }]);
+
+  let markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
+  Assert.ok(
+    !markThreadAsReadDisabled,
+    "Mark Thread as read menu item should not be disabled!"
+  );
+
+  // Make sure messages are read when Mark Thread as Read is clicked.
+  right_click_on_row(0);
+  wait_for_popup_to_open(mc.e("mailContext"));
+  mc.click_menus_in_sequence(mc.e("mailContext"), [
+    { id: "mailContext-mark" },
+    { id: "mailContext-markThreadAsRead" },
+  ]);
+  close_popup(mc, mc.eid("mailContext"));
+
+  let curMessage = select_click_row(0);
+  Assert.ok(curMessage.isRead, "Message should have been marked read!");
+
+  // Make sure Mark Thread as Read is now disabled with all messages read.
+  right_click_on_row(0);
+  wait_for_popup_to_open(mc.e("mailContext"));
+  mc.click_menus_in_sequence(mc.e("mailContext"), [{ id: "mailContext-mark" }]);
+
+  markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
+  Assert.ok(
+    markThreadAsReadDisabled,
+    "Mark Thread as read menu item should  be disabled!"
+  );
+
+  // Make sure that adding an unread message enables Mark Thread as Read once more.
+  curMessage.markRead(false);
+  right_click_on_row(0);
+  wait_for_popup_to_open(mc.e("mailContext"));
+  mc.click_menus_in_sequence(mc.e("mailContext"), [{ id: "mailContext-mark" }]);
+
+  markThreadAsReadDisabled = mc.e("mailContext-markThreadAsRead").disabled;
+  Assert.ok(
+    !markThreadAsReadDisabled,
+    "Mark Thread as read menu item should not be disabled!"
+  );
+
+  Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
+});
+
 add_task(function test_shift_delete_prompt() {
   be_in_folder(shiftDeleteFolder);
   let curMessage = select_click_row(0);

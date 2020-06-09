@@ -478,8 +478,9 @@ var DefaultController = {
       case "cmd_tag8":
       case "cmd_tag9":
       case "cmd_toggleRead":
-      case "cmd_markThreadAsRead":
         return gFolderDisplay.selectedCount > 0;
+      case "cmd_markThreadAsRead":
+        return gFolderDisplay.canMarkThreadAsRead;
       case "cmd_markAsRead":
         return CanMarkMsgAsRead(true);
       case "cmd_markAsUnread":
