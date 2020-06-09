@@ -9,6 +9,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var abi = ctypes.default_abi;
 
+// Default libary paths to look for on macOS
+const ADDITIONAL_LIB_PATHS = ["/usr/local/lib", "/opt/local/lib"];
+
 // Open libgpgme. Determine the path to the chrome directory and look for it
 // there first. If not, fallback to searching the standard locations.
 var libgpgme, libgpgmePath;
@@ -33,6 +36,22 @@ function tryLoadGPGME(name, suffix) {
       libgpgmePath = filename;
       libgpgme = ctypes.open(libgpgmePath);
     } catch (e) {}
+  }
+
+  if (!libgpgme && Services.appinfo.OS !== "WINNT") {
+    // try specific additional directories
+
+    for (let tryPath of ADDITIONAL_LIB_PATHS) {
+      try {
+        loadFromInfo = "additional standard locations";
+        libgpgmePath = tryPath + "/" + filename;
+        libgpgme = ctypes.open(libgpgmePath);
+
+        if (libgpgme) {
+          break;
+        }
+      } catch (e) {}
+    }
   }
 
   if (libgpgme) {
