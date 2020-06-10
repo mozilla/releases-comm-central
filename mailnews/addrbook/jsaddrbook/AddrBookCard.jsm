@@ -202,7 +202,14 @@ AddrBookCard.prototype = {
     );
   },
   setProperty(name, value) {
-    this._properties.set(name, value);
+    if (value === null || value === undefined) {
+      this._properties.delete(name);
+      return;
+    }
+    if (typeof value == "boolean") {
+      value = value ? "1" : "0";
+    }
+    this._properties.set(name, "" + value);
   },
   setPropertyAsAString(name, value) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
@@ -214,7 +221,7 @@ AddrBookCard.prototype = {
     this.setProperty(name, value);
   },
   setPropertyAsBool(name, value) {
-    this.setProperty(name, value ? 1 : 0);
+    this.setProperty(name, value ? "1" : "0");
   },
   deleteProperty(name) {
     this._properties.delete(name);
