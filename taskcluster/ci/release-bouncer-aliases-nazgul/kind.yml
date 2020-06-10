@@ -30,7 +30,7 @@ job-defaults:
     treeherder:
         symbol: Rel(BncAliasNazgul)
         kind: test
-        tier: 3
+        tier: 1
 
 jobs:
     thunderbird:
