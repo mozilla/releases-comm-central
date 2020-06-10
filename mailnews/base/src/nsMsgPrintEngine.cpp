@@ -549,7 +549,6 @@ void nsMsgPrintEngine::PrintMsgWindow() {
         }
       } else {
         mPrintSettings->SetPrintSilent(mCurrentlyPrintingURI != 0);
-        mPrintSettings->SetShowPrintProgress(false);
         rv = webBrowserPrint->Print(mPrintSettings,
                                     (nsIWebProgressListener *)this);
       }
