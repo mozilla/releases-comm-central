@@ -67,6 +67,10 @@ nsLDAPSSLClose(int s, struct lextiof_socket_private *socketarg) {
   //
   socketClosure =
       reinterpret_cast<nsLDAPSSLSocketClosure *>(socketInfo.soinfo_appdata);
+  if (!socketClosure) {
+    NS_ERROR("nsLDAPSSLClose(): no socketClosure to be had");
+    return -1;
+  }
   sessionClosure = socketClosure->sessionClosure;
 
   // free the socket closure data
