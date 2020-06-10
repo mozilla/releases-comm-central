@@ -2,27 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
 var { CardDAVDirectory } = ChromeUtils.import(
   "resource:///modules/CardDAVDirectory.jsm"
 );
+var { ConsoleAPI } = ChromeUtils.import("resource://gre/modules/Console.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var gUrl;
-var gUsername;
-var gPassword;
-
+var console = new ConsoleAPI();
+console.prefix = "CardDAV setup";
 var uiElements = {};
 
 window.addEventListener("DOMContentLoaded", async () => {
   for (let id of [
     "dialog",
     "url",
-    "username",
-    "password",
-    "rememberPassword",
     "statusArea",
     "statusMessage",
     "resultsArea",
@@ -32,7 +28,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   await document.l10n.ready;
-
+  /*
   let presets = {
     Fastmail: "https://carddav.fastmail.com",
     Google: "https://www.googleapis.com",
@@ -53,61 +49,95 @@ window.addEventListener("DOMContentLoaded", async () => {
     "option"
   );
   other.value = "";
-  other.setAttribute("data-l10n-id", "carddav-provider-option-other");
+  document.l10n.setAttributes(other, "carddav-provider-option-other");
   provider.appendChild(other);
 
   uiElements.url.value = provider.value;
+  */
 });
 
 function handleChangeProvider(event) {
   uiElements.url.value = event.target.value;
-  changeCardDAVURL(uiElements.url.value);
+  changeCardDAVURL();
 }
 
 function handleCardDAVURLInput(event) {
-  changeCardDAVURL(event.target.value);
+  changeCardDAVURL();
 }
 
-function changeCardDAVURL(value) {
+function changeCardDAVURL() {
   setStatus();
   uiElements.resultsArea.hidden = true;
-  gUrl = uiElements.url.value.trim();
-  if (gUrl && !gUrl.match(/^https?:\/\//)) {
-    gUrl = "https://" + gUrl;
+}
+
+function handleCardDAVURLBlur(event) {
+  if (
+    uiElements.url.validity.typeMismatch &&
+    !uiElements.url.value.match(/^https?:\/\//)
+  ) {
+    uiElements.url.value = `https://${uiElements.url.value}`;
   }
-  gUrl = gUrl ? new URL(gUrl) : "";
 }
 
 async function check() {
-  gUrl = uiElements.url.value;
-  gUsername = uiElements.username.value;
-  gPassword = uiElements.password.value;
+  // We might be accepting the dialog by pressing Enter in the URL input.
+  handleCardDAVURLBlur();
+
+  if (!uiElements.url.validity.valid) {
+    console.error(`Invalid URL: "${uiElements.url.value}"`);
+    return;
+  }
 
   setStatus("loading", "carddav-loading");
 
   try {
-    if (!gUrl.match(/^https?:\/\//)) {
-      gUrl = "https://" + gUrl;
+    let url = uiElements.url.value;
+    if (!url.match(/^https?:\/\//)) {
+      url = "https://" + url;
     }
-    gUrl = new URL(gUrl);
+    url = new URL(url);
 
-    let response = await CardDAVDirectory.makeRequest(
-      `${gUrl.origin}/.well-known/carddav`,
-      {
-        method: "PROPFIND",
-        headers: {
-          "Content-Type": "text/xml",
-          Depth: 0,
-        },
-        body: `<propfind xmlns="DAV:">
-        <prop>
-          <current-user-principal/>
-        </prop>
-      </propfind>`,
+    let response, href;
+    let requestParams = {
+      method: "PROPFIND",
+      headers: {
+        "Content-Type": "text/xml",
+        Depth: 0,
+      },
+      body: `<propfind xmlns="DAV:">
+          <prop>
+            <current-user-principal/>
+          </prop>
+        </propfind>`,
+    };
+
+    async function tryURL(url) {
+      console.log(`Attempting to connect to ${url}`);
+      response = await CardDAVDirectory.makeRequest(url, requestParams);
+      if (response.status == 207 && response.dom) {
+        console.log(`${url} ... success`);
+      } else {
+        console.log(
+          `${url} ... response was "${response.status} ${response.statusText}"`
+        );
+        response = null;
       }
-    );
-    let href =
-      gUrl.origin +
+    }
+
+    if (url.pathname != "/") {
+      await tryURL(url.href);
+    }
+    if (!response || !response.dom) {
+      await tryURL(`${url.origin}/.well-known/carddav`);
+    }
+    if (!response) {
+      await tryURL(`${url.origin}/`);
+    }
+    if (!response) {
+      throw new Components.Exception("Connection failure", Cr.NS_ERROR_FAILURE);
+    }
+    href =
+      url.origin +
       response.dom.querySelector("current-user-principal href").textContent;
 
     response = await CardDAVDirectory.makeRequest(href, {
@@ -123,7 +153,7 @@ async function check() {
       </propfind>`,
     });
     href =
-      gUrl.origin +
+      url.origin +
       response.dom.querySelector("addressbook-home-set href").textContent;
 
     response = await CardDAVDirectory.makeRequest(href, {
@@ -136,7 +166,6 @@ async function check() {
         <prop>
           <resourcetype/>
           <displayname/>
-          <cs:getctag/>
         </prop>
       </propfind>`,
     });
@@ -151,7 +180,7 @@ async function check() {
     let alreadyAdded = 0;
     for (let r of response.dom.querySelectorAll("response")) {
       if (r.querySelector("resourcetype addressbook")) {
-        let bookURL = new URL(r.querySelector("href").textContent, gUrl).href;
+        let bookURL = new URL(r.querySelector("href").textContent, url).href;
         if (existing.includes(bookURL)) {
           alreadyAdded++;
           continue;
@@ -178,20 +207,22 @@ async function check() {
       setStatus();
     }
   } catch (ex) {
+    Cu.reportError(ex);
     setStatus("error", "carddav-connection-error");
   }
 }
 
 function setStatus(status, message) {
-  uiElements.dialog.getButton("accept").disabled = status == "error";
   if (status) {
     uiElements.statusArea.setAttribute("status", status);
     document.l10n.setAttributes(uiElements.statusMessage, message);
     window.sizeToContent();
   } else {
     uiElements.statusArea.removeAttribute("status");
-    document.l10n.setAttributes(uiElements.statusMessage, null);
+    uiElements.statusMessage.removeAttribute("data-l10n-id");
+    uiElements.statusMessage.textContent = "";
   }
+  window.dispatchEvent(new CustomEvent("status-changed"));
 }
 
 window.addEventListener("dialogaccept", event => {
@@ -204,13 +235,6 @@ window.addEventListener("dialogaccept", event => {
   if (uiElements.availableBooks.childElementCount == 0) {
     return;
   }
-
-  let newLoginInfo = Cc[
-    "@mozilla.org/login-manager/loginInfo;1"
-  ].createInstance(Ci.nsILoginInfo);
-  newLoginInfo.init(gUrl.origin, null, "CardDAV", gUsername, gPassword, "", "");
-  // TODO: Login might exist.
-  Services.logins.addLogin(newLoginInfo);
 
   let book;
   for (let checkbox of uiElements.availableBooks.children) {

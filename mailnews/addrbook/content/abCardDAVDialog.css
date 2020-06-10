@@ -44,7 +44,7 @@ th {
   margin: 2px 4px;
 }
 
-#statusArea {
+#carddav-statusArea {
   background: transparent;
   border: 1px solid transparent;
   border-radius: 2px;
@@ -52,7 +52,7 @@ th {
   color: var(--text-color);
 }
 
-#statusArea #statusImageBefore {
+#carddav-statusArea #statusImageBefore {
   -moz-context-properties: fill;
   fill: currentColor;
   width: 16px;
@@ -60,27 +60,27 @@ th {
   background-size: 16px 16px;
 }
 
-#statusArea[status=error] {
+#carddav-statusArea[status=error] {
   background-color: #FFE900;
   border-color: #F2D00F;
   color: -moz-DialogText;
 }
 
-#statusArea[status=error] #statusImageBefore {
+#carddav-statusArea[status=error] #statusImageBefore {
   list-style-image: url("chrome://global/skin/icons/warning.svg");
 }
 
-#statusArea[status=loading] {
+#carddav-statusArea[status=loading] {
   background-color: rgba(0, 0, 0, 0.05);
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-#statusArea[status=loading] #statusImageBefore {
+#carddav-statusArea[status=loading] #statusImageBefore {
   background: url("chrome://global/skin/icons/loading.png") no-repeat;
 }
 
 @media (min-resolution: 1.1dppx) {
-  #statusArea[status=loading] #statusImageBefore {
+  #carddav-statusArea[status=loading] #statusImageBefore {
     background-image: url("chrome://global/skin/icons/loading@2x.png");
     background-size: 16px 16px;
   }

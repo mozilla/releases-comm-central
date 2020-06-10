@@ -39,15 +39,7 @@ add_task(async () => {
   let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
     Ci.nsILoginInfo
   );
-  loginInfo.init(
-    new URL(CardDAVServer.url).origin,
-    null,
-    "test",
-    "bob",
-    "bob",
-    "",
-    ""
-  );
+  loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
   Services.logins.addLogin(loginInfo);
   CardDAVServer.setUsernameAndPassword("bob", "bob");
 

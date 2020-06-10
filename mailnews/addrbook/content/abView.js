@@ -38,6 +38,7 @@ ABView.prototype = {
   directory: null,
   listener: null,
   _notifications: [
+    "addrbook-directory-invalidated",
     "addrbook-contact-created",
     "addrbook-contact-deleted",
     "addrbook-list-member-added",
@@ -141,12 +142,23 @@ ABView.prototype = {
   // nsIObserver
 
   observe(subject, topic, data) {
-    if (this.directory && this.directory.UID != data) {
-      // How did we get here?
+    if (this.directory && data && this.directory.UID != data) {
       return;
     }
 
     switch (topic) {
+      case "addrbook-directory-invalidated":
+        if (subject == this.directory) {
+          this._rowMap.length = 0;
+          for (let card of this.directory.childCards) {
+            this._rowMap.push(new abViewCard(card));
+          }
+          this.sortBy(this.sortColumn, this.sortDirection, true);
+          if (this.listener) {
+            this.listener.onCountChanged(this.rowCount);
+          }
+        }
+        break;
       case "addrbook-list-member-added":
         if (!this.directory) {
           break;

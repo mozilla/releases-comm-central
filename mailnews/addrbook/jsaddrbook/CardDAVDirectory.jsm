@@ -79,6 +79,27 @@ class CardDAVDirectory extends AddrBookDirectory {
     return new URL(href).pathname;
   }
 
+  _multigetRequest(hrefsToFetch) {
+    hrefsToFetch = hrefsToFetch.map(
+      href => `      <d:href>${xmlEncode(href)}</d:href>`
+    );
+    let data = `<addressbook-multiget xmlns="urn:ietf:params:xml:ns:carddav" xmlns:d="DAV:">
+      <d:prop>
+        <d:getetag/>
+        <address-data/>
+      </d:prop>
+      ${hrefsToFetch.join("\n")}
+    </addressbook-multiget>`;
+
+    return this._makeRequest("", {
+      method: "REPORT",
+      body: data,
+      headers: {
+        Depth: 1,
+      },
+    });
+  }
+
   /**
    * Converts the card to a vCard and performs a PUT request to store it on the
    * server. Then immediately performs a GET request ensuring the local copy
@@ -106,11 +127,24 @@ class CardDAVDirectory extends AddrBookDirectory {
       contentType: "text/vcard",
     });
 
-    response = await this._makeRequest(href);
+    // At this point we *should* be able to make a simple GET request and
+    // store the response. But Google moves the data (fair enough) without
+    // telling us where it went (c'mon, really?). Fortunately a multiget
+    // request at the original location works.
 
-    card.setProperty("_etag", response.etag);
-    card.setProperty("_href", href);
-    card.setProperty("_vCard", response.text);
+    response = await this._multigetRequest([href]);
+
+    for (let r of response.dom.querySelectorAll("response")) {
+      let etag = r.querySelector("getetag").textContent;
+      let href = r.querySelector("href").textContent;
+      let vCard = normalizeLineEndings(
+        r.querySelector("address-data").textContent
+      );
+
+      card.setProperty("_etag", etag);
+      card.setProperty("_href", href);
+      card.setProperty("_vCard", vCard);
+    }
 
     this._syncInProgress = true;
     this.modifyCard(card);
@@ -161,24 +195,11 @@ class CardDAVDirectory extends AddrBookDirectory {
       }
     }
 
-    hrefsToFetch = hrefsToFetch.map(
-      href => `<d:href>${xmlEncode(href)}</d:href>`
-    );
-    data = `<addressbook-multiget xmlns="urn:ietf:params:xml:ns:carddav" xmlns:d="DAV:">
-      <d:prop>
-        <d:getetag/>
-        <address-data/>
-      </d:prop>
-      ${hrefsToFetch.join("\n")}
-    </addressbook-multiget>`;
+    if (hrefsToFetch.length == 0) {
+      return;
+    }
 
-    response = await this._makeRequest("", {
-      method: "REPORT",
-      body: data,
-      headers: {
-        Depth: 1,
-      },
-    });
+    response = await this._multigetRequest(hrefsToFetch);
 
     let abCards = [];
 
@@ -202,6 +223,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     }
 
     await this._bulkAddCards(abCards);
+    Services.obs.notifyObservers(this, "addrbook-directory-synced");
   }
 
   /**
@@ -275,24 +297,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       return;
     }
 
-    hrefsToFetch = hrefsToFetch.map(
-      href => `<d:href>${xmlEncode(href)}</d:href>`
-    );
-    data = `<addressbook-multiget xmlns="urn:ietf:params:xml:ns:carddav" xmlns:d="DAV:">
-      <d:prop>
-        <d:getetag/>
-        <address-data/>
-      </d:prop>
-      ${hrefsToFetch.join("\n")}
-    </addressbook-multiget>`;
-
-    response = await this._makeRequest("", {
-      method: "REPORT",
-      body: data,
-      headers: {
-        Depth: 1,
-      },
-    });
+    response = await this._multigetRequest(hrefsToFetch);
 
     this._syncInProgress = true;
     for (let r of response.dom.querySelectorAll("response")) {
@@ -422,11 +427,11 @@ class CardDAVDirectory extends AddrBookDirectory {
    * @param {Object} details
    * @param {String} details.method
    * @param {String} details.header
-   * @param {nsIAuthPrompt2} details.authPrompt
    * @param {String} details.body
    * @param {String} details.contentType
-   * @return {Promise<Object>} - Resolves to an object with three getters:
-   *    - etag, the ETag header if any
+   * @return {Promise<Object>} - Resolves to an object with getters for:
+   *    - status, the HTTP response code
+   *    - statusText, the HTTP response message
    *    - text, the returned data as a String
    *    - dom, the returned data parsed into a Document
    */
@@ -436,6 +441,7 @@ class CardDAVDirectory extends AddrBookDirectory {
   ) {
     uri = Services.io.newURI(uri);
 
+    let firstAuthAttempt = true;
     return new Promise((resolve, reject) => {
       let principal = Services.scriptSecurityManager.createContentPrincipal(
         uri,
@@ -458,6 +464,10 @@ class CardDAVDirectory extends AddrBookDirectory {
           if (iid.equals(Ci.nsIAuthPrompt2)) {
             return {
               promptAuth(channel, level, authInfo) {
+                if (!firstAuthAttempt) {
+                  return false;
+                }
+                firstAuthAttempt = false;
                 let logins = Services.logins.findLogins(
                   channel.URI.prePath,
                   null,
@@ -535,6 +545,7 @@ class CardDAVDirectory extends AddrBookDirectory {
 
                 // If any other header is used, it should be added here. We might want
                 // to just copy all headers over to the new channel.
+                copyHeader("Authorization");
                 copyHeader("Depth");
                 copyHeader("Originator");
                 copyHeader("Recipient");
@@ -566,37 +577,42 @@ class CardDAVDirectory extends AddrBookDirectory {
       );
       listener.init({
         onStreamComplete(loader, context, status, resultLength, result) {
+          let finalChannel = loader.request.QueryInterface(Ci.nsIHttpChannel);
           if (!Components.isSuccessCode(status)) {
-            // TODO: Improve this exception.
             reject(new Components.Exception("Connection failure", status));
             return;
           }
-          if (
-            !channel.requestSucceeded &&
-            Math.floor(channel.responseStatus / 100) != 3
-          ) {
-            // TODO: Improve this exception.
+          if (finalChannel.responseStatus == 401) {
+            // We tried to authenticate, but failed.
             reject(
               new Components.Exception(
-                channel.responseStatusText,
+                "Authorization failure",
                 Cr.NS_ERROR_FAILURE
               )
             );
-            return;
           }
           resolve({
-            get etag() {
-              try {
-                return channel.getResponseHeader("etag");
-              } catch (ex) {
-                return null;
-              }
+            get status() {
+              return finalChannel.responseStatus;
+            },
+            get statusText() {
+              return finalChannel.responseStatusText;
             },
             get text() {
               return new TextDecoder().decode(Uint8Array.from(result));
             },
             get dom() {
-              return new DOMParser().parseFromString(this.text, "text/xml");
+              if (this._dom === undefined) {
+                try {
+                  this._dom = new DOMParser().parseFromString(
+                    this.text,
+                    "text/xml"
+                  );
+                } catch (ex) {
+                  this._dom = null;
+                }
+              }
+              return this._dom;
             },
           });
         },

@@ -18,17 +18,60 @@ var CardDAVServer = {
   deletedCards: new Map(),
   changeCount: 0,
   server: null,
+  isOpen: false,
 
   open() {
     this.server = new HttpServer();
     this.server.start(-1);
+    this.isOpen = true;
+
     this.server.registerPathHandler("/ping", this.ping);
-    this.server.registerPathHandler(this.path, this.pathHandler.bind(this));
-    this.server.registerPrefixHandler(this.path, this.prefixHandler.bind(this));
+    this.resetHandlers();
+  },
+
+  resetHandlers() {
+    // Address book discovery.
+
+    this.server.registerPathHandler("/", this.wellKnown.bind(this));
+    this.server.registerPathHandler(
+      "/.well-known/carddav",
+      this.wellKnown.bind(this)
+    );
+    this.server.registerPathHandler("/principals/", this.principals.bind(this));
+    this.server.registerPathHandler(
+      "/principals/me/",
+      this.myPrincipal.bind(this)
+    );
+    this.server.registerPathHandler(
+      "/addressbooks/me/",
+      this.myAddressBooks.bind(this)
+    );
+
+    // Address book interaction.
+
+    this.server.registerPathHandler(
+      this.path,
+      this.directoryHandler.bind(this)
+    );
+    this.server.registerPrefixHandler(this.path, this.cardHandler.bind(this));
   },
 
   close() {
-    return new Promise(resolve => this.server.stop({ onStopped: resolve }));
+    if (!this.isOpen) {
+      return Promise.resolve();
+    }
+    return new Promise(resolve =>
+      this.server.stop({
+        onStopped: () => {
+          this.isOpen = false;
+          resolve();
+        },
+      })
+    );
+  },
+
+  get origin() {
+    return `http://localhost:${this.server.identity.primaryPort}`;
   },
 
   get path() {
@@ -36,17 +79,12 @@ var CardDAVServer = {
   },
 
   get url() {
-    return `http://localhost:${this.server.identity.primaryPort}${this.path}`;
+    return `${this.origin}${this.path}`;
   },
 
   setUsernameAndPassword(username, password) {
     this.username = username;
     this.password = password;
-  },
-
-  ping(request, response) {
-    response.setStatusLine("1.1", 200, "OK");
-    response.write("pong");
   },
 
   checkAuth(request, response) {
@@ -70,13 +108,125 @@ var CardDAVServer = {
     let [username, password] = atob(value.substring(6)).split(":");
     if (username != this.username || password != this.password) {
       response.setStatusLine("1.1", 401, "Unauthorized");
+      response.setHeader("WWW-Authenticate", `Basic realm="test"`);
       return false;
     }
 
     return true;
   },
 
-  pathHandler(request, response) {
+  ping(request, response) {
+    response.setStatusLine("1.1", 200, "OK");
+    response.setHeader("Content-Type", "text/plain");
+    response.write("pong");
+  },
+
+  wellKnown(request, response) {
+    response.setStatusLine("1.1", 301, "Moved Permanently");
+    response.setHeader("Location", "/principals/");
+  },
+
+  principals(request, response) {
+    if (!this.checkAuth(request, response)) {
+      return;
+    }
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(`<multistatus xmlns="${DAV_NS}">
+        <response>
+          <href>/principals/</href>
+          <propstat>
+            <prop>
+              <current-user-principal>
+                <href>/principals/me/</href>
+              </current-user-principal>
+            </prop>
+            <status>HTTP/1.1 200 OK</status>
+          </propstat>
+        </response>
+      </multistatus>`);
+  },
+
+  myPrincipal(request, response) {
+    if (!this.checkAuth(request, response)) {
+      return;
+    }
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(`<multistatus xmlns="${DAV_NS}" xmlns:card="${CARD_NS}">
+        <response>
+          <href>/principals/me/</href>
+          <propstat>
+            <prop>
+              <card:addressbook-home-set>
+                <href>/addressbooks/me/</href>
+              </card:addressbook-home-set>
+            </prop>
+            <status>HTTP/1.1 200 OK</status>
+          </propstat>
+        </response>
+      </multistatus>`);
+  },
+
+  myAddressBooks(request, response) {
+    if (!this.checkAuth(request, response)) {
+      return;
+    }
+
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
+    response.write(`<multistatus xmlns="${DAV_NS}" xmlns:card="${CARD_NS}">
+        <response>
+          <href>/addressbooks/me/</href>
+          <propstat>
+            <prop>
+              <resourcetype>
+                <collection/>
+              </resourcetype>
+            </prop>
+            <status>HTTP/1.1 200 OK</status>
+          </propstat>
+          <propstat>
+            <prop>
+              <displayname/>
+            </prop>
+            <status>HTTP/1.1 404 Not Found</status>
+          </propstat>
+        </response>
+        <response>
+          <href>/addressbooks/me/default/</href>
+          <propstat>
+            <prop>
+              <resourcetype>
+                <collection/>
+                <card:addressbook/>
+              </resourcetype>
+              <displayname>Not This One</displayname>
+            </prop>
+            <status>HTTP/1.1 200 OK</status>
+          </propstat>
+        </response>
+        <response>
+          <href>${this.path}</href>
+          <propstat>
+            <prop>
+              <resourcetype>
+                <collection/>
+                <card:addressbook/>
+              </resourcetype>
+              <displayname>CardDAV Test</displayname>
+            </prop>
+            <status>HTTP/1.1 200 OK</status>
+          </propstat>
+        </response>
+      </multistatus>`);
+  },
+
+  /** Handle any requests to the address book itself. */
+
+  directoryHandler(request, response) {
     if (!this.checkAuth(request, response)) {
       return;
     }
@@ -111,6 +261,7 @@ var CardDAVServer = {
 
     Assert.report(true, undefined, undefined, "Should not have reached here");
     response.setStatusLine("1.1", 404, "Not Found");
+    response.setHeader("Content-Type", "text/plain");
     response.write(`No handler found for <${input.documentElement.localName}>`);
   },
 
@@ -122,7 +273,8 @@ var CardDAVServer = {
     }
     output += `</multistatus>`;
 
-    response.setStatusLine("1.1", 200, "OK");
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
     response.write(output.replace(/>\s+</g, "><"));
   },
 
@@ -137,7 +289,8 @@ var CardDAVServer = {
     }
     output += `</multistatus>`;
 
-    response.setStatusLine("1.1", 200, "OK");
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
     response.write(output.replace(/>\s+</g, "><"));
   },
 
@@ -160,7 +313,8 @@ var CardDAVServer = {
     }
     output += `</multistatus>`;
 
-    response.setStatusLine("1.1", 200, "OK");
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
     response.write(output.replace(/>\s+</g, "><"));
   },
 
@@ -191,7 +345,8 @@ var CardDAVServer = {
     output += `<sync-token>http://mochi.test/sync/${this.changeCount}</sync-token>
     </multistatus>`;
 
-    response.setStatusLine("1.1", 200, "OK");
+    response.setStatusLine("1.1", 207, "Multi-Status");
+    response.setHeader("Content-Type", "text/xml");
     response.write(output.replace(/>\s+</g, "><"));
   },
 
@@ -211,13 +366,16 @@ var CardDAVServer = {
     return outString;
   },
 
-  prefixHandler(request, response) {
+  /** Handle any requests to address book cards. */
+
+  cardHandler(request, response) {
     if (!this.checkAuth(request, response)) {
       return;
     }
 
     if (!/\/[\w-]+\.vcf$/.test(request.path)) {
       response.setStatusLine("1.1", 404, "Not Found");
+      response.setHeader("Content-Type", "text/plain");
       response.write(`Card not found at ${request.path}`);
       return;
     }
@@ -236,6 +394,7 @@ var CardDAVServer = {
 
     Assert.report(true, undefined, undefined, "Should not have reached here");
     response.setStatusLine("1.1", 405, "Method Not Allowed");
+    response.setHeader("Content-Type", "text/plain");
     response.write(`Method not allowed: ${request.method}`);
   },
 
@@ -243,11 +402,13 @@ var CardDAVServer = {
     let card = this.cards.get(request.path);
     if (!card) {
       response.setStatusLine("1.1", 404, "Not Found");
+      response.setHeader("Content-Type", "text/plain");
       response.write(`Card not found at ${request.path}`);
       return;
     }
 
     response.setStatusLine("1.1", 200, "OK");
+    response.setHeader("Content-Type", "text/vcard");
     response.setHeader("ETag", card.etag);
     response.write(card.vCard);
   },
@@ -255,7 +416,7 @@ var CardDAVServer = {
   putCard(request, response) {
     let vCard = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
     this.putCardInternal(request.path, vCard);
-    response.setStatusLine("1.1", 200, "OK");
+    response.setStatusLine("1.1", 204, "No Content");
   },
 
   putCardInternal(name, vCard) {
@@ -269,7 +430,7 @@ var CardDAVServer = {
 
   deleteCard(request, response) {
     this.deleteCardInternal(request.path);
-    response.setStatusLine("1.1", 200, "OK");
+    response.setStatusLine("1.1", 204, "No Content");
   },
 
   deleteCardInternal(name) {

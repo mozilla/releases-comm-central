@@ -358,6 +358,10 @@ class AddrBookDirectory {
     });
   }
   async _bulkAddCards(cards) {
+    if (cards.length == 0) {
+      return;
+    }
+
     let usedUIDs = new Set();
     let cardStatement = this._dbConnection.createStatement(
       "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)"
@@ -460,6 +464,8 @@ class AddrBookDirectory {
         propertiesStatement.finalize();
       }
       this._dbConnection.commitTransaction();
+
+      Services.obs.notifyObservers(this, "addrbook-directory-invalidated");
     } catch (ex) {
       this._dbConnection.rollbackTransaction();
       throw ex;

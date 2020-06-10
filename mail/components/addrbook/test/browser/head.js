@@ -30,6 +30,16 @@ async function openAddressBookWindow() {
   return abWindow;
 }
 
+function closeAddressBookWindow(window) {
+  let abWindow = Services.wm.getMostRecentWindow("mail:addressbook");
+  if (abWindow) {
+    let closePromise = BrowserTestUtils.domWindowClosed();
+    abWindow.close();
+    return closePromise;
+  }
+  return Promise.resolve();
+}
+
 async function createNewAddressBook(abWindow, abName) {
   let newAddressBookPromise = BrowserTestUtils.promiseAlertDialog(
     null,
