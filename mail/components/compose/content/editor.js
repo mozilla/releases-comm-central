@@ -423,12 +423,13 @@ async function CheckAndSaveDocument(command, allowDontSave) {
 
 // --------------------------- Text style ---------------------------
 
-function onParagraphFormatChange(paraMenuList, commandID) {
+function onParagraphFormatChange() {
+  let paraMenuList = document.getElementById("ParagraphSelect");
   if (!paraMenuList) {
     return;
   }
 
-  var commandNode = document.getElementById(commandID);
+  var commandNode = document.getElementById("cmd_paragraphState");
   var state = commandNode.getAttribute("state");
 
   // force match with "normal"
@@ -455,13 +456,10 @@ function onParagraphFormatChange(paraMenuList, commandID) {
 
 /**
  * Selects the current font face in the menulist.
- *
- * @param fontFaceMenuList  The menulist element containing the list of fonts.
- * @param commandID         The commandID which holds the current font name
- *                          in its "state" attribute.
  */
-function onFontFaceChange(fontFaceMenuList, commandID) {
-  var commandNode = document.getElementById(commandID);
+function onFontFaceChange() {
+  let fontFaceMenuList = document.getElementById("FontFaceSelect");
+  var commandNode = document.getElementById("cmd_fontFace");
   var editorFont = commandNode.getAttribute("state");
 
   // Strip quotes in font names. Experiments have shown that we only

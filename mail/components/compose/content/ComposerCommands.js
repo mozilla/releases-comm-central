@@ -3,7 +3,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Implementations of nsIControllerCommand for composer commands */
+/**
+ * Implementations of nsIControllerCommand for composer commands. These commands
+ * are related to editing. You can fire these commands with following functions:
+ * goDoCommand and goDoCommandParams(If command requires any parameters).
+ *
+ * Sometimes, we want to reflect the changes in the UI also. We have two functions
+ * for that: pokeStyleUI and pokeMultiStateUI. The pokeStyleUI function is for those
+ * commands which are boolean in nature for example "cmd_bold" command, text can
+ * be bold or not. The pokeMultiStateUI function is for the commands which can have
+ * multiple values for example "cmd_fontFace" can have different values like
+ * arial, variable width etc.
+ *
+ * Here, some of the commands are getting executed by document.execCommand.
+ * Those are listed in the gCommandMap Map object. In that also, some commands
+ * are of type boolean and some are of multiple state. We have two functions to
+ * execute them: doStatefulCommand and doStyleUICommand.
+ *
+ * All commands are not executable through document.execCommand.
+ * In all those cases, we will use goDoCommand or goDoCommandParams.
+ * The goDoCommandParams function is implemented in this file.
+ * The goDoCOmmand function is from globalOverlay.js. For the Commands
+ * which can be executed by document.execCommand, we will use doStatefulCommand
+ * and doStyleUICommand.
+ */
 
 // Linting is disabled in chunks of this file because it contains code that never
 // runs in Thunderbird, and references things that don't exist in Thunderbird.
@@ -16,6 +39,9 @@
 
 var gComposerJSCommandControllerID = 0;
 
+/**
+ * Used to register commands we have created manually.
+ */
 function SetupHTMLEditorCommands() {
   var commandTable = GetComposerCommandTable();
   if (!commandTable) {
@@ -54,7 +80,6 @@ function SetupHTMLEditorCommands() {
     "cmd_insertMathWithDialog",
     nsInsertMathWithDialogCommand
   );
-  commandTable.registerCommand("cmd_insertBreak", nsInsertBreakCommand);
   commandTable.registerCommand("cmd_insertBreakAll", nsInsertBreakAllCommand);
 
   commandTable.registerCommand("cmd_table", nsInsertOrEditTableCommand);
@@ -126,69 +151,12 @@ function SetupTextEditorCommands() {
   commandTable.registerCommand("cmd_insertChars", nsInsertCharsCommand);
 }
 
-function SetupComposerWindowCommands() {
-  // Don't need to do this if already done
-  if (gComposerWindowControllerID) {
-    return;
-  }
-
-  // Create a command controller and register commands
-  //   specific to Web Composer window (file-related commands, HTML Source...)
-  //   We can't use the composer controller created on the content window else
-  //     we can't process commands when in HTMLSource editor
-
-  var windowControllers = window.controllers;
-
-  if (!windowControllers) {
-    return;
-  }
-
-  var commandTable;
-  var composerController;
-  var editorController;
-  try {
-    composerController = Cc[
-      "@mozilla.org/embedcomp/base-command-controller;1"
-    ].createInstance();
-
-    editorController = composerController.QueryInterface(
-      Ci.nsIControllerContext
-    );
-
-    // Get the nsIControllerCommandTable interface we need to register commands
-    var interfaceRequestor = composerController.QueryInterface(
-      Ci.nsIInterfaceRequestor
-    );
-    commandTable = interfaceRequestor.getInterface(
-      Ci.nsIControllerCommandTable
-    );
-  } catch (e) {
-    dump("Failed to create composerController\n");
-    return;
-  }
-
-  if (!commandTable) {
-    dump("Failed to get interface for nsIControllerCommandManager\n");
-    return;
-  }
-
-  // File-related commands
-  commandTable.registerCommand("cmd_open", nsOpenCommand);
-  commandTable.registerCommand("cmd_save", nsSaveCommand);
-  commandTable.registerCommand("cmd_saveAs", nsSaveAsCommand);
-  commandTable.registerCommand("cmd_print", nsPrintCommand);
-  commandTable.registerCommand("cmd_printpreview", nsPrintPreviewCommand);
-  commandTable.registerCommand("cmd_printSetup", nsPrintSetupCommand);
-  commandTable.registerCommand("cmd_close", nsCloseCommand);
-
-  windowControllers.insertControllerAt(0, editorController);
-
-  // Store the controller ID so we can be sure to get the right one later
-  gComposerWindowControllerID = windowControllers.getControllerId(
-    editorController
-  );
-}
-
+/**
+ * Used to register the command controller in the editor document.
+ *
+ * @returns {nsIControllerCommandTable|null} - A controller used to
+ *   register the manually created commands.
+ */
 function GetComposerCommandTable() {
   var controller;
   if (gComposerJSCommandControllerID) {
@@ -224,6 +192,13 @@ function GetComposerCommandTable() {
 }
 
 /* eslint-disable complexity */
+
+/**
+ * Get the state of the given command and call the pokeStyleUI or pokeMultiStateUI
+ * according to the type of the command to reflect the UI changes in the editor.
+ *
+ * @param {string} command - The id of the command.
+ */
 function goUpdateCommandState(command) {
   try {
     var controller = top.document.commandDispatcher.getControllerForCommand(
@@ -290,6 +265,17 @@ function goUpdateCommandState(command) {
 }
 /* eslint-enable complexity */
 
+/**
+ * Used in the oncommandupdate attribute of the goUpdateComposerMenuItems.
+ * For any commandset events fired, this function will be called.
+ * Used to update the UI state of the editor buttons and menulist.
+ * Whenever you change your selection in the editor part, i.e. if you move
+ * your cursor, you will find this functions getting called and
+ * updating the editor UI of toolbarbuttons and menulists. This is mainly
+ * to update the UI according to your selection in the editor part.
+ *
+ * @param {XULElement} commandset - The <xul:commandset> element to update for.
+ */
 function goUpdateComposerMenuItems(commandset) {
   // dump("Updating commands for " + commandset.id + "\n");
   for (var i = 0; i < commandset.children.length; i++) {
@@ -304,19 +290,24 @@ function goUpdateComposerMenuItems(commandset) {
   }
 }
 
-function goDoCommandParams(command, params) {
+/**
+ * Execute the command with the provided parameters.
+ * This is directly calling commands with multiple state attributes, which
+ * are not supported by document.execCommand()
+ *
+ * @param {string} command - The command ID.
+ * @param {string} paramValue - The parameter value.
+ */
+function goDoCommandParams(command, paramValue) {
   try {
-    var controller = top.document.commandDispatcher.getControllerForCommand(
+    let params = newCommandParams();
+    params.setStringValue("state_attribute", paramValue);
+    let controller = top.document.commandDispatcher.getControllerForCommand(
       command
     );
     if (controller && controller.isCommandEnabled(command)) {
       if (controller instanceof Ci.nsICommandController) {
         controller.doCommandWithParams(command, params);
-
-        // the following two lines should be removed when we implement observers
-        if (params) {
-          controller.getCommandStateWithParams(command, params);
-        }
       } else {
         controller.doCommand(command);
       }
@@ -327,14 +318,15 @@ function goDoCommandParams(command, params) {
 }
 
 /**
- * Update the UI to reflect setting a given state for a command.
+ * Update the UI to reflect setting a given state for a command. This
+ * is used for boolean type of commands.
  *
  * @param {string} uiID - The id of the command.
  * @param {boolean} desiredState - State to set for the command.
  */
 function pokeStyleUI(uiID, desiredState) {
   let commandNode = top.document.getElementById(uiID);
-  let uiState = "true" == commandNode.getAttribute("state");
+  let uiState = commandNode.getAttribute("state") == "true";
   if (desiredState != uiState) {
     commandNode.setAttribute("state", desiredState ? "true" : "false");
     switch (uiID) {
@@ -365,14 +357,41 @@ function pokeStyleUI(uiID, desiredState) {
   }
 }
 
+/**
+ * Maps internal command names to their document.execCommand() command string.
+ */
+let gCommandMap = new Map([
+  ["cmd_bold", "bold"],
+  ["cmd_italic", "italic"],
+  ["cmd_underline", "underline"],
+  ["cmd_strikethrough", "strikethrough"],
+  ["cmd_superscript", "superscript"],
+  ["cmd_subscript", "subscript"],
+  ["cmd_ul", "InsertUnorderedList"],
+  ["cmd_ol", "InsertOrderedList"],
+  ["cmd_fontFace", "fontName"],
+  // ["cmd_paragraphState", "formatBlock"],
+
+  // This are currently implemented with the help of
+  // color selection dialog box in the editor.js.
+  // ["cmd_highlight", "backColor"],
+  // ["cmd_fontColor", "foreColor"],
+]);
+
+/**
+ * Used for the boolean type commands available through
+ * document.execCommand(). We will also call pokeStyleUI to update
+ * the UI.
+ *
+ * @param {string} cmdStr - The id of the command.
+ */
 function doStyleUICommand(cmdStr) {
-  try {
-    var cmdParams = newCommandParams();
-    goDoCommandParams(cmdStr, cmdParams);
-    if (cmdParams) {
-      pokeStyleUI(cmdStr, cmdParams.getBooleanValue("state_all"));
-    }
-  } catch (e) {}
+  top.document
+    .querySelector("editor")
+    .contentDocument.execCommand(gCommandMap.get(cmdStr), false, null);
+  let commandNode = top.document.getElementById(cmdStr);
+  let newState = commandNode.getAttribute("state") != "true";
+  pokeStyleUI(cmdStr, newState);
 }
 
 // Copied from jsmime.js.
@@ -386,7 +405,7 @@ function stringToTypedArray(buffer) {
 
 /**
  * Update the UI to reflect setting a given state for a command. This is used
- * when the command state has a string value.
+ * when the command state has a string value i.e. multiple state type commands.
  *
  * @param {string} uiID - The id of the command.
  * @param {nsICommandParams} cmdParams - Command parameters object.
@@ -415,13 +434,11 @@ function pokeMultiStateUI(uiID, cmdParams) {
     commandNode.setAttribute("state", desiredAttrib);
     switch (uiID) {
       case "cmd_paragraphState": {
-        let menulist = document.getElementById("ParagraphSelect");
-        onParagraphFormatChange(menulist, "cmd_paragraphState");
+        onParagraphFormatChange();
         break;
       }
       case "cmd_fontFace": {
-        let menulist = document.getElementById("FontFaceSelect");
-        onFontFaceChange(menulist, "cmd_fontFace");
+        onFontFaceChange();
         break;
       }
       case "cmd_fontColor": {
@@ -436,25 +453,55 @@ function pokeMultiStateUI(uiID, cmdParams) {
   }
 }
 
-function doStatefulCommand(commandID, newState) {
-  var commandNode = document.getElementById(commandID);
-  if (commandNode) {
-    commandNode.setAttribute("state", newState);
-  }
-  gContentWindow.focus(); // needed for command dispatch to work
-
-  try {
-    var cmdParams = newCommandParams();
-    if (!cmdParams) {
-      return;
+/**
+ * Perform the action of the multiple states type commands available through
+ * document.execCommand().
+ *
+ * @param {string} commandID - The id of the command.
+ * @param {string} newState - The parameter value.
+ * @param {boolean} updateUI - updates the UI if true. Used when
+ *   function is called in another JavaScript function.
+ */
+function doStatefulCommand(commandID, newState, updateUI) {
+  if (commandID == "cmd_align") {
+    let command;
+    switch (newState) {
+      case "left":
+        command = "justifyLeft";
+        break;
+      case "center":
+        command = "justifyCenter";
+        break;
+      case "right":
+        command = "justifyRight";
+        break;
+      case "justify":
+        command = "justifyFull";
+        break;
     }
+    top.document
+      .querySelector("editor")
+      .contentDocument.execCommand(command, false, null);
+  } else {
+    top.document
+      .querySelector("editor")
+      .contentDocument.execCommand(gCommandMap.get(commandID), false, newState);
+  }
 
-    cmdParams.setStringValue("state_attribute", newState);
-    goDoCommandParams(commandID, cmdParams);
-
-    pokeMultiStateUI(commandID, cmdParams);
-  } catch (e) {
-    dump("error thrown in doStatefulCommand: " + e + "\n");
+  if (updateUI) {
+    let commandNode = document.getElementById(commandID);
+    commandNode.setAttribute("state", newState);
+    switch (commandID) {
+      case "cmd_fontFace": {
+        onFontFaceChange();
+        break;
+      }
+    }
+  } else {
+    let commandNode = document.getElementById(commandID);
+    if (commandNode) {
+      commandNode.setAttribute("state", newState);
+    }
   }
 }
 
@@ -2384,21 +2431,6 @@ var nsInsertCharsCommand = {
   },
 };
 
-var nsInsertBreakCommand = {
-  isCommandEnabled(aCommand, dummy) {
-    return IsDocumentEditable() && IsEditingRenderedHTML();
-  },
-
-  getCommandStateParams(aCommand, aParams, aRefCon) {},
-  doCommandParams(aCommand, aParams, aRefCon) {},
-
-  doCommand(aCommand) {
-    try {
-      GetCurrentEditor().insertHTML("<br>");
-    } catch (e) {}
-  },
-};
-
 var nsInsertBreakAllCommand = {
   isCommandEnabled(aCommand, dummy) {
     return IsDocumentEditable() && IsEditingRenderedHTML();
@@ -2647,6 +2679,9 @@ var nsIncreaseFontCommand = {
     }
     var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large"];
     EditorSetFontSize(sizes[setIndex + 1]);
+    // Enable or Disable the toolbar buttons according to the font size.
+    goUpdateCommand("cmd_decreaseFontStep");
+    goUpdateCommand("cmd_increaseFontStep");
   },
 };
 
@@ -2669,6 +2704,9 @@ var nsDecreaseFontCommand = {
     }
     var sizes = ["x-small", "small", "medium", "large", "x-large", "xx-large"];
     EditorSetFontSize(sizes[setIndex - 1]);
+    // Enable or Disable the toolbar buttons according to the font size.
+    goUpdateCommand("cmd_decreaseFontStep");
+    goUpdateCommand("cmd_increaseFontStep");
   },
 };
 

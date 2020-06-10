@@ -626,6 +626,7 @@ var stateListener = {
     } else {
       document.getElementById("cmd_paragraphState").setAttribute("state", "");
     }
+    onParagraphFormatChange();
   },
 
   NotifyComposeBodyReadyReply() {
@@ -673,6 +674,7 @@ var stateListener = {
     } else {
       document.getElementById("cmd_paragraphState").setAttribute("state", "");
     }
+    onParagraphFormatChange();
   },
 
   NotifyComposeBodyReadyForwardInline() {
@@ -701,6 +703,7 @@ var stateListener = {
       document.getElementById("cmd_paragraphState").setAttribute("state", "");
     }
 
+    onParagraphFormatChange();
     editor.beginningOfDocument();
     editor.enableUndo(true);
     editor.resetModificationCount();
@@ -8134,7 +8137,7 @@ function toggleAddressPicker(aFocus = true) {
 function loadHTMLMsgPrefs() {
   let fontFace = Services.prefs.getStringPref("msgcompose.font_face", "");
   if (fontFace) {
-    doStatefulCommand("cmd_fontFace", fontFace);
+    doStatefulCommand("cmd_fontFace", fontFace, true);
   }
 
   let fontSize = Services.prefs.getCharPref("msgcompose.font_size", "");
