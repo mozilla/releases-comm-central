@@ -1253,6 +1253,11 @@ rnp_import_keys(rnp_ffi_t ffi, rnp_input_t input, uint32_t flags, char **results
         FFI_LOG(ffi, "bad flags: need to specify public and/or secret keys");
         return RNP_ERROR_BAD_PARAMETERS;
     }
+    bool skipbad = false;
+    if (flags & RNP_LOAD_SAVE_PERMISSIVE) {
+        skipbad = true;
+        flags &= ~RNP_LOAD_SAVE_PERMISSIVE;
+    }
     if (flags) {
         FFI_LOG(ffi, "unexpected flags remaining: 0x%X", flags);
         return RNP_ERROR_BAD_PARAMETERS;
@@ -1272,9 +1277,9 @@ rnp_import_keys(rnp_ffi_t ffi, rnp_input_t input, uint32_t flags, char **results
         return RNP_ERROR_OUT_OF_MEMORY;
     }
 
-    tmpret = load_keys_from_input(ffi, input, tmp_store);
-    if (tmpret) {
-        ret = tmpret;
+    tmp_store->skip_parsing_errors = skipbad;
+    if (!rnp_key_store_load_from_src(tmp_store, &input->src, NULL)) {
+        ret = RNP_ERROR_BAD_FORMAT;
         goto done;
     }
     jsores = json_object_new_object();
@@ -1296,9 +1301,11 @@ rnp_import_keys(rnp_ffi_t ffi, rnp_input_t input, uint32_t flags, char **results
             continue;
         }
         if (validate_pgp_key_material(pgp_key_get_material(&key), &ffi->rng)) {
-            FFI_LOG(ffi, "attempt to import key with invalid material");
-            ret = RNP_ERROR_BAD_PARAMETERS;
-            goto done;
+            char hex[PGP_KEY_ID_SIZE * 2 + 1] = {0};
+            rnp_hex_encode(
+              pgp_key_get_keyid(&key), PGP_KEY_ID_SIZE, hex, sizeof(hex), RNP_HEX_LOWERCASE);
+            FFI_LOG(ffi, "warning! attempt to import key %s with invalid material.", hex);
+            continue;
         }
         // if we got here then we add public key itself or public part of the secret key
         if (!rnp_key_store_import_key(ffi->pubring, &key, true, &pub_status)) {

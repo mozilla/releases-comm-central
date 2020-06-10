@@ -103,16 +103,13 @@ rnp_key_store_add_transferable_subkey(rnp_key_store_t *          keyring,
 
     /* create subkey */
     if (!rnp_key_from_transferable_subkey(&skey, tskey, pkey)) {
-        RNP_LOG("failed to create subkey");
+        RNP_LOG_KEY_PKT("failed to create subkey %s", &tskey->subkey);
+        RNP_LOG_KEY("primary key is %s", pkey);
         return false;
     }
 
     /* add it to the storage */
-    bool res = rnp_key_store_add_key(keyring, &skey);
-    if (!res) {
-        RNP_LOG("Failed to add subkey to key store.");
-    }
-    return res;
+    return rnp_key_store_add_key(keyring, &skey);
 }
 
 bool
@@ -162,7 +159,7 @@ rnp_key_store_add_transferable_key(rnp_key_store_t *keyring, pgp_transferable_ke
 
     /* create key from transferable key */
     if (!rnp_key_from_transferable_key(&key, tkey)) {
-        RNP_LOG("failed to create key");
+        RNP_LOG_KEY_PKT("failed to create key %s", &tkey->key);
         return false;
     }
 
@@ -255,7 +252,7 @@ rnp_key_store_pgp_read_from_src(rnp_key_store_t *keyring, pgp_source_t *src)
 
     /* check whether we have transferable subkey in source */
     if (is_subkey_pkt(stream_pkt_type(src))) {
-        if ((ret = process_pgp_subkey(src, &tskey))) {
+        if ((ret = process_pgp_subkey(src, &tskey, keyring->skip_parsing_errors))) {
             return ret;
         }
         ret = rnp_key_store_add_transferable_subkey(keyring, &tskey, NULL) ?
@@ -266,7 +263,7 @@ rnp_key_store_pgp_read_from_src(rnp_key_store_t *keyring, pgp_source_t *src)
     }
 
     /* process armored or raw transferable key packets sequence(s) */
-    if ((ret = process_pgp_keys(src, &keys))) {
+    if ((ret = process_pgp_keys(src, &keys, keyring->skip_parsing_errors))) {
         return ret;
     }
 
