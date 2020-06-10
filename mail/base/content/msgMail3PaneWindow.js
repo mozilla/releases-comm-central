@@ -792,7 +792,6 @@ function LoadPostAccountWizard() {
   }
 
   setTimeout(reportAccountTypes, 0);
-  setTimeout(reportAddressBookTypes, 0);
 }
 
 /**
@@ -829,46 +828,6 @@ function reportAccountTypes() {
   }
   for (let [type, count] of Object.entries(report)) {
     Services.telemetry.keyedScalarSet("tb.account.count", type, count);
-  }
-}
-
-/**
- * Report addressbook count and contact count to telemetry, keyed by addressbook
- * type. Type is one of ["jsaddrbook", "jscarddav", "moz-abldapdirectory"], see
- * AddrBookManager.jsm for more details.
- *
- * NOTE: We didn't use `dir.dirType` because it's just an integer, instead we
- * use the scheme of `dir.URI` as the type.
- */
-function reportAddressBookTypes() {
-  let report = {};
-  for (let dir of MailServices.ab.directories) {
-    let type = dir.URI.split(":")[0];
-
-    if (!report[type]) {
-      report[type] = { count: 0, contactCount: 0 };
-    }
-    report[type].count++;
-
-    // Ignore LDAP contacts for now.
-    if (type !== "moz-abldapdirectory") {
-      report[type].contactCount += [...dir.childCards].filter(
-        c => !c.isMailList
-      ).length;
-    }
-  }
-
-  for (let [type, { count, contactCount }] of Object.entries(report)) {
-    Services.telemetry.keyedScalarSet(
-      "tb.addressbook.addressbook_count",
-      type,
-      count
-    );
-    Services.telemetry.keyedScalarSet(
-      "tb.addressbook.contact_count",
-      type,
-      contactCount
-    );
   }
 }
 
