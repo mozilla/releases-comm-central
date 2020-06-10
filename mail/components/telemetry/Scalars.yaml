@@ -190,6 +190,35 @@ tb.websearch:
     record_in_processes:
       - 'main'
 
+tb.addressbook:
+  addressbook_count:
+    bug_numbers:
+      - 1615986
+    description: How many addressbooks were set up, keyed by addressbook directory URI scheme.
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
+  contact_count:
+    bug_numbers:
+      - 1615986
+    description: Count of contacts in all addressbooks, keyed by addressbook directory URI scheme.
+    expires: never
+    products:
+      - 'thunderbird'
+    keyed: true
+    kind: uint
+    notification_emails:
+      - "telemetry-client-dev@thunderbird.net"
+    record_in_processes:
+      - 'main'
+
 tb.calendar:
   calendar_count:
     bug_numbers:
