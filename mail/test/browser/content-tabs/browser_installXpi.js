@@ -53,11 +53,13 @@ function waitForNotification(id, buttonToClickSelector, callback) {
   if (callback) {
     callback();
   }
-  let button = gDocument.querySelector(
-    `#${id}-notification ${buttonToClickSelector}`
-  );
-  mc.click(new elib.Elem(button));
-  mc.waitForElementNotPresent(notification);
+  if (buttonToClickSelector) {
+    let button = gDocument.querySelector(
+      `#${id}-notification ${buttonToClickSelector}`
+    );
+    mc.click(new elib.Elem(button));
+  }
+  mc.waitForElementNotPresent(notification, 15000);
 }
 
 add_task(function test_install_corrupt_xpi() {
@@ -116,6 +118,7 @@ add_task(function test_xpinstall_webext_actually_install() {
     "addon-install-blocked",
     ".popup-notification-primary-button"
   );
+  waitForNotification("addon-progress");
   waitForNotification(
     "addon-webext-permissions",
     ".popup-notification-primary-button",

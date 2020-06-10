@@ -453,6 +453,15 @@
     </popupnotificationcontent>
   </popupnotification>
 
+  <popupnotification id="addon-install-blocked-notification" hidden="true">
+    <popupnotificationcontent id="addon-install-blocked-content" orient="vertical">
+      <description id="addon-install-blocked-message" class="popup-notification-description"></description>
+      <hbox>
+        <label id="addon-install-blocked-info" class="popup-notification-learnmore-link" is="text-link"/>
+      </hbox>
+    </popupnotificationcontent>
+  </popupnotification>
+
 #ifdef MOZ_UPDATER
   <popupnotification id="app-update-notification" hidden="true">
     <popupnotificationcontent class="app-update-notification-content" orient="vertical">
