@@ -24,6 +24,8 @@ var { uidHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/uidHelper.jsm"
 );
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 var gKeyId = null;
 var gUserId = null;
 var gKeyList = null;
@@ -54,12 +56,6 @@ async function onLoad() {
 /***
  * Set the label text of a HTML element
  */
-
-function setText(elementId, label) {
-  let node = document.getElementById(elementId);
-  node.textContent = label;
-}
-
 function setLabel(elementId, label) {
   let node = document.getElementById(elementId);
   node.setAttribute("value", label);
@@ -88,12 +84,14 @@ async function reloadData() {
     let acceptanceIntroText = "";
     let acceptanceWarningText = "";
     if (keyObj.secretAvailable) {
-      setLabel("keyType", EnigmailLocale.getString("keyTypePair2"));
       document.getElementById("ownKeyCommands").removeAttribute("hidden");
-      acceptanceIntroText = EnigmailLocale.getString("keyAutoAcceptPersonal");
+      acceptanceIntroText = "key-auto-accept-personal";
+      let value = await document.l10n.formatValue("key-type-pair-2");
+      setLabel("keyType", value);
     } else {
       document.getElementById("ownKeyCommands").setAttribute("hidden", "true");
-      setLabel("keyType", EnigmailLocale.getString("keyTypePublic"));
+      let value = await document.l10n.formatValue("key-type-public");
+      setLabel("keyType", value);
 
       let isStillValid = !(
         keyObj.keyTrust == "r" ||
@@ -104,8 +102,8 @@ async function reloadData() {
         document
           .getElementById("acceptanceRadio")
           .setAttribute("hidden", "false");
-        acceptanceIntroText = EnigmailLocale.getString("keyDoYouAccept");
-        acceptanceWarningText = EnigmailLocale.getString("KeyAcceptWarning");
+        acceptanceIntroText = "key-do-you-accept";
+        acceptanceWarningText = "key-accept-warning";
         gUpdateAllowed = true;
 
         let acceptanceResult = {};
@@ -156,21 +154,42 @@ async function reloadData() {
     setLabel("keyCreated", keyObj.created);
 
     let expiryInfo;
+    let expireArgument = null;
+    let l10nUse = true;
     if (keyObj.keyTrust == "r") {
-      expiryInfo = EnigmailLocale.getString("keyRevoked");
+      expiryInfo = "key-revoked";
       acceptanceIntroText = expiryInfo;
     } else if (keyObj.keyTrust == "e" || keyIsExpired) {
-      expiryInfo = EnigmailLocale.getString("keyExpired", keyObj.expiry);
+      expiryInfo = "key-expired";
+      expireArgument = keyObj.expiry;
       acceptanceIntroText = expiryInfo;
     } else if (keyObj.expiry.length === 0) {
-      expiryInfo = EnigmailLocale.getString("keyDoesNotExpire");
+      expiryInfo = "key-does-not-expire";
     } else {
       expiryInfo = keyObj.expiry;
+      l10nUse = false;
     }
 
-    setText("acceptanceIntro", acceptanceIntroText);
-    setText("acceptanceExplanation", acceptanceWarningText);
-    setLabel("keyExpiry", expiryInfo);
+    if (acceptanceIntroText) {
+      let acceptanceIntro = document.getElementById("acceptanceIntro");
+      document.l10n.setAttributes(acceptanceIntro, acceptanceIntroText);
+    }
+
+    if (acceptanceWarningText) {
+      let acceptanceExplanation = document.getElementById(
+        "acceptanceExplanation"
+      );
+      document.l10n.setAttributes(acceptanceExplanation, acceptanceWarningText);
+    }
+
+    if (l10nUse) {
+      let keyExpiryNode = document.getElementById("keyExpiry");
+      document.l10n.setAttributes(keyExpiryNode, expiryInfo, {
+        keyExpiry: expireArgument,
+      });
+    } else {
+      setLabel("keyExpiry", expiryInfo);
+    }
     if (keyObj.fpr) {
       gFingerprint = keyObj.fpr;
       setLabel("fingerprint", EnigmailKey.formatFpr(keyObj.fpr));
@@ -451,15 +470,15 @@ function createSubkeyItem(subkey) {
   if (subkey.keyTrust === "r") {
     expire = EnigmailLocale.getString("keyValid.revoked");
   } else if (subkey.expiryTime === 0) {
-    expire = EnigmailLocale.getString("keyExpiryNever");
+    expire = l10n.formatValueSync("key-expiry-never");
   } else {
     expire = subkey.expiry;
   }
 
   let subkeyType =
     subkey.type === "pub"
-      ? EnigmailLocale.getString("keyTypePrimary")
-      : EnigmailLocale.getString("keyTypeSubkey");
+      ? l10n.formatValueSync("key-type-primary")
+      : l10n.formatValueSync("key-type-subkey");
 
   let usagetext = "";
   let i;
@@ -477,26 +496,26 @@ function createSubkeyItem(subkey) {
         if (usagetext.length > 0) {
           usagetext = usagetext + ", ";
         }
-        usagetext = usagetext + EnigmailLocale.getString("keyUsageEncrypt");
+        usagetext = usagetext + l10n.formatValueSync("key-usage-encrypt");
         break;
       case "s":
         if (usagetext.length > 0) {
           usagetext = usagetext + ", ";
         }
-        usagetext = usagetext + EnigmailLocale.getString("keyUsageSign");
+        usagetext = usagetext + l10n.formatValueSync("key-usage-sign");
         break;
       case "c":
         if (usagetext.length > 0) {
           usagetext = usagetext + ", ";
         }
-        usagetext = usagetext + EnigmailLocale.getString("keyUsageCertify");
+        usagetext = usagetext + l10n.formatValueSync("key-usage-certify");
         break;
       case "a":
         if (usagetext.length > 0) {
           usagetext = usagetext + ", ";
         }
         usagetext =
-          usagetext + EnigmailLocale.getString("keyUsageAuthentication");
+          usagetext + l10n.formatValueSync("key-usage-authentication");
         break;
     } // * case *
   } // * for *
@@ -520,7 +539,7 @@ function SubkeyListView(keyObj) {
   this.subkeys.push(createSubkeyItem(keyObj));
 
   for (let i = 0; i < keyObj.subKeys.length; i++) {
-    this.subkeys.push(createSubkeyItem(keyObj.subKeys[i]));
+    this.subkeys.push(createSubkeyItem(keyObj));
   }
 }
 

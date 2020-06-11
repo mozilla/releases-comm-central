@@ -186,3 +186,20 @@ openpgp-acceptance-verified-label =
 
 openpgp-copy-cmd-label =
     .label = Copy
+
+# Strings in keyDetailsDlg.xhtml
+key-type-public = public key
+key-type-primary = primary key
+key-type-subkey = subkey
+key-type-pair-2 = personal key (secret key and public key)
+key-expiry-never = never
+key-usage-encrypt = Encrypt
+key-usage-sign = Sign
+key-usage-certify = Certify
+key-usage-authentication = Authentication
+key-does-not-expire = Key does not expire
+key-expired = Key expired on { $keyExpiry }
+key-revoked = Key was revoked
+key-auto-accept-personal = You accept this key for all uses, because it is one of your personal keys. You have the secret key.
+key-do-you-accept = Do you accept this key for verifying digital signatures and for encrypting messages?
+key-accept-warning = Avoid accepting a rogue key. Use a communication channel other than email to verify the fingerprint of your correspondent's key.
