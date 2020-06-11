@@ -33,6 +33,8 @@ const { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
 );
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 // field ID's of key list (as described in the doc/DETAILS file in the GnuPG distribution)
 const ENTRY_ID = 0;
 const KEY_TRUST_ID = 1;
@@ -298,7 +300,7 @@ function extractSignatures(gpgKeyList, ignoreUnknownUid) {
         listObj[currUid] = {
           userId:
             lineTokens[ENTRY_ID] == "uat"
-              ? EnigmailLocale.getString("keyring.photo")
+              ? l10n.formatValueSync("keyring-photo")
               : EnigmailData.convertGpgToUnicode(lineTokens[USERID_ID]),
           rawUserId: lineTokens[USERID_ID],
           keyId,

@@ -233,10 +233,74 @@ converter-decrypt-body-failed = Could not decrypt message with subject\n{ $subje
 unknown-signing-alg = Unknown signing algorithm (ID: { $id })
 unknown-hash-alg = Unknown cryptographic hash (ID: { $id })
 
-#strings in keyUsability.jsm
+# Strings in keyUsability.jsm
 expiry-key-expires-soon = Your key { $desc } will expire in less than { $days } days.\n\nWe recommend that you create a new key pair and configure the corresponding accounts to use it.
 expiry-keys-expire-soon = Your following keys will expire in less than { $days } days:\n{ $desc }. We recommend that you create new keys and configure the corresponding accounts to use them.
 expiry-key-missing-owner-trust = Your secret key { $desc } has missing trust.\n\nWe recommend that you set "You rely on certifications" to "ultimate" in key properties.
 expiry-keys-missing-owner-trust = The following of your secret keys have missing trust.\n{ $desc }.\nWe recommend that you set "You rely on certifications" to "ultimate" in key properties.
 expiry-open-key-manager = Open OpenPGP Key Management
 expiry-open-key-properties = Open Key Properties
+
+# Strings filters.jsm
+filter-folder-required = You must select a target folder.
+filter-decrypt-move-warn-experimental = Warning - the filter action "Decrypt permanently" may lead to destroyed messages.\n\nWe strongly recommend that you first try the "Create decrypted Copy" filter, test the result carefully, and only start using this filter once you are satisified with the result.
+filter-term-pgpencrypted-label = OpenPGP Encrypted
+filter-key-required = You must select a recipient key.
+filter-key-not-found = Could not find an encryption key for '{ $desc }'.
+filter-warn-key-not-secret = Warning - the filter action "Encrypt to key" replaces the recipients.\n\nIf you do not have the secret key for '{ $desc }' you will no longer be able to read the emails.
+
+#Strings filtersWrapper.jsm
+filter-decrypt-move-label = Decrypt permanently (OpenPGP)
+filter-decrypt-copy-label = Create decrypted Copy (OpenPGP)
+filter-encrypt-label = Encrypt to key (OpenPGP)
+
+# Strings in enigmailKeyImportInfo.js
+import-info-title =
+    .title = SUCCESS! Keys imported
+import-info-bits = Bits
+import-info-created = Created
+import-info-fpr = Fingerprint
+import-info-details = View Details and manage key acceptance
+import-info-no-keys = No keys imported.
+
+# Strings in enigmailKeyManager.js
+import-from-clip = Do you want to import some key(s) from clipboard?
+import-from-url = Download public key from this URL:
+copy-to-clipbrd-failed = Could not copy the selected key(s) to the clipboard.
+copy-to-clipbrd-ok = Key(s) copied to clipboard
+delete-secret-key = WARNING: You are about to delete a secret key!\nIf you delete your secret key, you will no longer be able to decrypt any messages encrypted for that key, nor will you be able to revoke it.\n\nDo you really want to delete BOTH, the secret key and the public key\n'{ $userId }'?
+delete-mix = WARNING: You are about to delete secret keys!\nIf you delete your secret key, you will no longer be able to decrypt any messages encrypted for that key.\n\nDo you really want to delete BOTH, the selected secret and public keys?
+delete-pub-key = Do you want to delete the public key\n'{ $userId }'?
+delete-selected-pub-key = Do you want to delete the public keys?
+refresh-all-question = You did not select any key. Would you like to refresh ALL keys?
+key-man-button-export-sec-key = Export &Secret Keys
+key-man-button-export-pub-key = Export &Public Keys Only
+key-man-button-refresh-all = &Refresh All Keys
+
+# Strings in keyObj.jsm
+key-ring-pub-key-revoked = The key { $userId } (key ID { $keyId }) is revoked.
+key-ring-pub-key-expired = The key { $userId } (key ID { $keyId }) has expired.
+key-ring-key-disabled = The key { $userId } (key ID { $keyId }) is disabled; it cannot be used.
+key-ring-key-invalid = The key { $userId } (key ID { $keyId }) is not valid. Please consider verifying it correctly.
+key-ring-key-not-trusted=The key { $userId } (key ID { $keyId }) is not trusted enough. Please set the trust level of your key to "ultimate" to use it for signing.
+key-ring-no-secret-key = You do not seem to have the secret key for { $userId } (key ID { $keyId }) on your keyring; you cannot use the key for signing.
+key-ring-pub-key-not-for-signing = The key { $userId } (key ID { $keyId }) cannot be used for signing.
+key-ring-pub-key-not-for-encryption = The key { $userId } (key ID { $keyId }) cannot be used for encryption.
+key-ring-sign-sub-keys-revoked = All signing-subkeys of key { $userId } (key ID { $keyId }) are revoked.
+key-ring-sign-sub-keys-expired = All signing-subkeys of key { $userId } (key ID { $keyId }) have expired.
+key-ring-sign-sub-keys-unusable = All signing-subkeys of key { $userId } (key ID { $keyId }) are revoked, expired or otherwise unusable.
+key-ring-enc-sub-keys-revoked = All encryption subkeys of key { $userId } (key ID { $keyId }) are revoked.
+key-ring-enc-sub-keys-expired = All encryption subkeys of key { $userId } (key ID { $keyId }) have expired.
+key-ring-enc-sub-keys-unusable = All encryption subkeys of key { $userId } (key ID { $keyId }) are revoked, expired or otherwise unusable.
+
+# Strings in gnupg-keylist.jsm
+keyring-photo = Photo
+
+# Strings in key.jsm
+revoke-key-question = You are about to revoke the key '{ $userId }'.\n\nYou will no longer be able to sign with this key, and once distributed, others will no longer be able to encrypt with that key. You can still use the key to decrypt old messages.\n\nDo you want to proceed?
+revoke-key-not-present = You have no key (0x{ $keyId }) which matches this revocation certificate!\n\nIf you have lost your key, you must import it (e.g. from a keyserver) before importing the revocation certificate!
+revoke-key-already-revoked = The key 0x{ $keyId } has already been revoked.
+key-man-button-revoke-key = &Revoke Key
+
+# Strings in keyRing.jsm & decryption.jsm
+key-man-button-import = &Import

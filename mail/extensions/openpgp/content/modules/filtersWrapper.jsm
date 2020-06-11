@@ -13,9 +13,8 @@ var gEnigmailFilters = null;
 let { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
-let { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
+
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 /**
  * filter action for creating a decrypted version of the mail and
@@ -24,7 +23,7 @@ let { EnigmailLocale } = ChromeUtils.import(
 
 const filterActionMoveDecrypt = {
   id: EnigmailConstants.FILTER_MOVE_DECRYPT,
-  name: EnigmailLocale.getString("filter.decryptMove2.label"),
+  name: l10n.formatValueSync("filter-decrypt-move-label"),
   value: "movemessage",
   apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
@@ -69,7 +68,7 @@ const filterActionMoveDecrypt = {
  */
 const filterActionCopyDecrypt = {
   id: EnigmailConstants.FILTER_COPY_DECRYPT,
-  name: EnigmailLocale.getString("filter.decryptCopy2.label"),
+  name: l10n.formatValueSync("filter-decrypt-copy-label"),
   value: "copymessage",
   apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {
@@ -113,7 +112,7 @@ const filterActionCopyDecrypt = {
  */
 const filterActionEncrypt = {
   id: EnigmailConstants.FILTER_ENCRYPT,
-  name: EnigmailLocale.getString("filter.encrypt2.label"),
+  name: l10n.formatValueSync("filter-encrypt-label"),
   value: "encryptto",
   apply(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow) {
     if (gEnigmailFilters) {

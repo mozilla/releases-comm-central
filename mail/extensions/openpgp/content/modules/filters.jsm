@@ -11,9 +11,6 @@ var EXPORTED_SYMBOLS = ["EnigmailFilters"];
 const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
 );
@@ -54,6 +51,8 @@ const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 var gNewMailListenerInitiated = false;
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 /**
  * filter action for creating a decrypted version of the mail and
  * deleting the original mail at the same time
@@ -84,13 +83,12 @@ const filterActionMoveDecrypt = {
   },
 
   validateActionValue(value, folder, type) {
-    getDialog().alert(
-      null,
-      EnigmailLocale.getString("filter.decryptMove.warnExperimental")
-    );
+    l10n.formatValue("filter-decrypt-move-warn-experimental").then(value => {
+      getDialog().alert(null, value);
+    });
 
     if (value === "") {
-      return EnigmailLocale.getString("filter.folderRequired");
+      return l10n.formatValueSync("filter-folder-required");
     }
 
     return null;
@@ -138,7 +136,7 @@ const filterActionCopyDecrypt = {
     );
 
     if (value === "") {
-      return EnigmailLocale.getString("filter.folderRequired");
+      return l10n.formatValueSync("filter-folder-required");
     }
 
     return null;
@@ -227,7 +225,7 @@ const filterActionEncrypt = {
       "filters.jsm: validateActionValue: Encrypt to: " + value + "\n"
     );
     if (value === "") {
-      return EnigmailLocale.getString("filter.keyRequired");
+      return l10n.formatValueSync("filter-key-required");
     }
 
     let keyObj = EnigmailKeyRing.getKeyById(value);
@@ -243,7 +241,9 @@ const filterActionEncrypt = {
     }
 
     if (keyObj === null) {
-      return EnigmailLocale.getString("filter.keyNotFound", [value]);
+      return l10n.formatValueSync("filter-key-not-found", {
+        desc: value,
+      });
     }
 
     if (!keyObj.secretAvailable) {
@@ -251,10 +251,13 @@ const filterActionEncrypt = {
       // thunderbird + enigmail is used as a gateway filter with
       // the secret not available on one machine and the decryption
       // is intended to happen on different systems.
-      getDialog().alert(
-        null,
-        EnigmailLocale.getString("filter.warn.keyNotSecret", [value])
-      );
+      l10n
+        .formatValue("filter-warn-key-not-secret", {
+          desc: value,
+        })
+        .then(value => {
+          getDialog().alert(null, value);
+        });
     }
 
     return null;
@@ -300,7 +303,7 @@ function isPGPEncrypted(data) {
  */
 const filterTermPGPEncrypted = {
   id: EnigmailConstants.FILTER_TERM_PGP_ENCRYPTED,
-  name: EnigmailLocale.getString("filter.term.pgpencrypted.label"),
+  name: l10n.formatValueSync("filter-term-pgpencrypted-label"),
   needsBody: true,
   match(aMsgHdr, searchValue, searchOp) {
     var folder = aMsgHdr.folder;

@@ -35,7 +35,7 @@ function onLoad() {
   dlg.getButton("cancel").setAttribute("hidden", "true");
   dlg.getButton("extra1").setAttribute("hidden", "true");
   dlg.getButton("extra2").setAttribute("hidden", "true");
-  dlg.setAttribute("title", EnigmailLocale.getString("importInfoTitle"));
+  document.l10n.setAttributes(dlg, "import-info-title");
 
   if (window.screen.width > 500) {
     dlg.setAttribute("maxwidth", window.screen.width - 150);
@@ -93,8 +93,10 @@ function onLoad() {
     keysGrid.appendChild(keysCols);
     keysInfoBox.appendChild(keysGrid);
   } else {
-    EnigmailDialog.alert(window, EnigmailLocale.getString("importInfoNoKeys"));
-    EnigmailEvents.dispatchEvent(window.close, 0);
+    document.l10n.formatValue("import-info-no-keys").then(value => {
+      EnigmailDialog.alert(window, value);
+      EnigmailEvents.dispatchEvent(window.close, 0);
+    });
     return;
   }
 
@@ -132,11 +134,9 @@ function buildKeyGroupBox(keyObj) {
   userid.setAttribute("class", "enigmailKeyImportUserId");
   vbox.setAttribute("align", "start");
   //caption.setAttribute("class", "enigmailKeyImportCaption");
-  infoLabelH1.setAttribute("value", EnigmailLocale.getString("importInfoBits"));
-  infoLabelH2.setAttribute(
-    "value",
-    EnigmailLocale.getString("importInfoCreated")
-  );
+  document.l10n.setAttributes(infoLabelH1, "import-info-bits");
+
+  document.l10n.setAttributes(infoLabelH2, "import-info-created");
   infoLabelH3.setAttribute("value", "");
   infoLabelB1.setAttribute("value", keyObj.keySize);
   infoLabelB2.setAttribute("value", keyObj.created);
@@ -154,7 +154,8 @@ function buildKeyGroupBox(keyObj) {
   infoGrid.appendChild(infoColumns);
   infoGrid.appendChild(infoRows);
 
-  fprLabel.setAttribute("value", EnigmailLocale.getString("importInfoFpr"));
+  document.l10n.setAttributes(fprLabel, "import-info-fpr");
+
   fprLabel.setAttribute("class", "enigmailKeyImportHeader");
   for (i = 0; i < keyObj.fpr.length; i += 4) {
     var label = document.createXULElement("label");
@@ -178,10 +179,7 @@ function buildKeyGroupBox(keyObj) {
   groupBox.appendChild(fprLabel);
   groupBox.appendChild(fprGrid);
 
-  infoLabelB3.setAttribute(
-    "value",
-    EnigmailLocale.getString("importInfoDetails2")
-  );
+  document.l10n.setAttributes(infoLabelB3, "import-info-details");
   infoLabelB3.setAttribute("keyid", keyObj.keyId);
   infoLabelB3.setAttribute("class", "enigmailKeyImportDetails");
   groupBox.appendChild(infoLabelB3);

@@ -65,9 +65,6 @@ var EXPORTED_SYMBOLS = ["newEnigmailKeyObj"];
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
@@ -80,6 +77,8 @@ const { EnigmailTime } = ChromeUtils.import(
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 function newEnigmailKeyObj(keyData) {
   return new EnigmailKeyObj(keyData);
@@ -238,31 +237,31 @@ class EnigmailKeyObj {
     };
     if (this.keyTrust.search(/r/i) >= 0) {
       // public key revoked
-      retVal.reason = EnigmailLocale.getString("keyRing.pubKeyRevoked", [
-        this.userId,
-        "0x" + this.keyId,
-      ]);
+      retVal.reason = l10n.formatValueSync("key-ring-pub-key-revoked", {
+        userId: this.userId,
+        keyId: "0x" + this.keyId,
+      });
     } else if (this.keyTrust.search(/e/i) >= 0) {
       // public key expired
-      retVal.reason = EnigmailLocale.getString("keyRing.pubKeyExpired", [
-        this.userId,
-        "0x" + this.keyId,
-      ]);
+      retVal.reason = l10n.formatValueSync("key-ring-pub-key-expired", {
+        userId: this.userId,
+        keyId: "0x" + this.keyId,
+      });
     } else if (
       this.keyTrust.search(/d/i) >= 0 ||
       this.keyUseFor.search(/D/i) >= 0
     ) {
       // public key disabled
-      retVal.reason = EnigmailLocale.getString("keyRing.keyDisabled", [
-        this.userId,
-        "0x" + this.keyId,
-      ]);
+      retVal.reason = l10n.formatValueSync("key-ring-key-disabled", {
+        userId: this.userId,
+        keyId: "0x" + this.keyId,
+      });
     } else if (this.keyTrust.search(/i/i) >= 0) {
       // public key invalid
-      retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid2", [
-        this.userId,
-        "0x" + this.keyId,
-      ]);
+      retVal.reason = l10n.formatValueSync("key-ring-key-invalid", {
+        userId: this.userId,
+        keyId: "0x" + this.keyId,
+      });
     } else {
       retVal.keyValid = true;
     }
@@ -285,20 +284,19 @@ class EnigmailKeyObj {
     }
 
     if (!this.secretAvailable) {
-      retVal.reason = EnigmailLocale.getString("keyRing.noSecretKey", [
-        this.userId,
-        "0x" + this.keyId,
-      ]);
       retVal.keyValid = false;
+      retVal.reason = l10n.formatValueSync("key-ring-no-secret-key", {
+        userId: this.userId,
+        keyId: "0x" + this.keyId,
+      });
     } else if (this.keyUseFor.search(/S/) < 0) {
       retVal.keyValid = false;
-
       if (this.keyTrust.search(/u/i) < 0) {
         // public key invalid
-        retVal.reason = EnigmailLocale.getString("keyRing.keyNotTrusted", [
-          this.userId,
-          "0x" + this.keyId,
-        ]);
+        retVal.reason = l10n.formatValueSync("key-ring-key-not-trusted", {
+          userId: this.userId,
+          keyId: "0x" + this.keyId,
+        });
       } else {
         let expired = 0,
           revoked = 0,
@@ -325,24 +323,36 @@ class EnigmailKeyObj {
 
         if (!found) {
           if (expired) {
-            retVal.reason = EnigmailLocale.getString(
-              "keyRing.signSubKeysExpired",
-              [this.userId, "0x" + this.keyId]
+            retVal.reason = l10n.formatValueSync(
+              "key-ring-sign-sub-keys-expired",
+              {
+                userId: this.userId,
+                keyId: "0x" + this.keyId,
+              }
             );
           } else if (revoked) {
-            retVal.reason = EnigmailLocale.getString(
-              "keyRing.signSubKeysRevoked",
-              [this.userId, "0x" + this.keyId]
+            retVal.reason = l10n.formatValueSync(
+              "key-ring-sign-sub-keys-revoked",
+              {
+                userId: this.userId,
+                keyId: "0x" + this.keyId,
+              }
             );
           } else if (unusable) {
-            retVal.reason = EnigmailLocale.getString(
-              "keyRing.signSubKeysUnusable",
-              [this.userId, "0x" + this.keyId]
+            retVal.reason = l10n.formatValueSync(
+              "key-ring-sign-sub-keys-unusable",
+              {
+                userId: this.userId,
+                keyId: "0x" + this.keyId,
+              }
             );
           } else {
-            retVal.reason = EnigmailLocale.getString(
-              "keyRing.pubKeyNotForSigning",
-              [this.userId, "0x" + this.keyId]
+            retVal.reason = l10n.formatValueSync(
+              "key-ring-pub-key-not-for-signing",
+              {
+                userId: this.userId,
+                keyId: "0x" + this.keyId,
+              }
             );
           }
         } else {
@@ -373,10 +383,10 @@ class EnigmailKeyObj {
 
       if (this.keyTrust.search(/u/i) < 0) {
         // public key invalid
-        retVal.reason = EnigmailLocale.getString("keyRing.keyInvalid2", [
-          this.userId,
-          "0x" + this.keyId,
-        ]);
+        retVal.reason = l10n.formatValueSync("key-ring-key-invalid", {
+          userId: this.userId,
+          keyId: "0x" + this.keyId,
+        });
       } else {
         let expired = 0,
           revoked = 0,
@@ -404,24 +414,36 @@ class EnigmailKeyObj {
 
         if (!found) {
           if (expired) {
-            retVal.reason = EnigmailLocale.getString(
-              "keyRing.encSubKeysExpired",
-              [this.userId, "0x" + this.keyId]
+            retVal.reason = l10n.formatValueSync(
+              "key-ring-enc-sub-keys-expired",
+              {
+                userId: this.userId,
+                keyId: "0x" + this.keyId,
+              }
             );
           } else if (revoked) {
-            retVal.reason = EnigmailLocale.getString(
-              "keyRing.encSubKeysRevoked",
-              [this.userId, "0x" + this.keyId]
+            retVal.reason = l10n.formatValueSync(
+              "key-ring-enc-sub-keys-revoked",
+              {
+                userId: this.userId,
+                keyId: "0x" + this.keyId,
+              }
             );
           } else if (unusable) {
-            retVal.reason = EnigmailLocale.getString(
-              "keyRing.encSubKeysUnusable",
-              [this.userId, "0x" + this.keyId]
+            retVal.reason = l10n.formatValueSync(
+              "key-ring-enc-sub-keys-unusable",
+              {
+                userId: this.userId,
+                keyId: "0x" + this.keyId,
+              }
             );
           } else {
-            retVal.reason = EnigmailLocale.getString(
-              "keyRing.pubKeyNotForEncryption",
-              [this.userId, "0x" + this.keyId]
+            retVal.reason = l10n.formatValueSync(
+              "key-ring-pub-key-not-for-encryption",
+              {
+                userId: this.userId,
+                keyId: "0x" + this.keyId,
+              }
             );
           }
         } else {

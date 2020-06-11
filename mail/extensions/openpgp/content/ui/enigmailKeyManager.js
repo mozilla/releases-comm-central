@@ -59,6 +59,8 @@ var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 const INPUT = 0;
 const RESULT = 1;
 
@@ -306,7 +308,9 @@ function enigmailDeleteKey() {
     if (gKeyList[keyList[0]].secretAvailable) {
       if (
         !EnigConfirm(
-          EnigGetString("deleteSecretKey", userId),
+          l10n.formatValueSync("delete-secret-key", {
+            userId,
+          }),
           EnigGetString("dlg.button.delete")
         )
       ) {
@@ -315,7 +319,9 @@ function enigmailDeleteKey() {
       deleteSecret = true;
     } else if (
       !EnigConfirm(
-        EnigGetString("deletePubKey", userId),
+        l10n.formatValueSync("delete-pub-key", {
+          userId,
+        }),
         EnigGetString("dlg.button.delete")
       )
     ) {
@@ -332,7 +338,7 @@ function enigmailDeleteKey() {
     if (deleteSecret) {
       if (
         !EnigConfirm(
-          EnigGetString("deleteMix"),
+          l10n.formatValueSync("delete-mix"),
           EnigGetString("dlg.button.delete")
         )
       ) {
@@ -340,7 +346,7 @@ function enigmailDeleteKey() {
       }
     } else if (
       !EnigConfirm(
-        EnigGetString("deleteSelectedPubKey"),
+        l10n.formatValueSync("deleteSelectedPubKey"),
         EnigGetString("dlg.button.delete")
       )
     ) {
@@ -592,8 +598,8 @@ function enigmailExportKeys() {
     var r = EnigmailDialog.msgBox(window, {
       msgtext: EnigGetString("exportSecretKey"),
       dialogTitle: EnigGetString("enigConfirm2"),
-      button1: EnigGetString("keyMan.button.exportPubKey"),
-      button2: EnigGetString("keyMan.button.exportSecKey"),
+      button1: l10n.formatValueSync("key-man-button-export-pub-key"),
+      button2: l10n.formatValueSync("key-man-button-export-sec-key"),
       cancelButton: ":cancel",
       iconType: EnigmailConstants.ICONTYPE_QUESTION,
     });
@@ -724,8 +730,8 @@ function enigmailImportFromClipbrd() {
 
   if (
     !EnigConfirm(
-      EnigGetString("importFromClip"),
-      EnigGetString("keyMan.button.import")
+      l10n.formatValueSync("import-from-clip"),
+      l10n.formatValueSync("key-man-button-import")
     )
   ) {
     return;
@@ -822,9 +828,13 @@ function enigmailCopyToClipbrd() {
     EnigmailLog.DEBUG(
       "enigmailKeyManager.js: enigmailImportFromClipbrd: set clipboard data\n"
     );
-    EnigmailDialog.info(window, EnigGetString("copyToClipbrdOK"));
+    l10n.formatValue("copy-to-clipbrd-ok").then(value => {
+      EnigmailDialog.info(window, value);
+    });
   } else {
-    EnigAlert(EnigGetString("copyToClipbrdFailed"));
+    l10n.formatValue("copy-to-clipbrd-failed").then(value => {
+      EnigAlert(value);
+    });
   }
 }
 
@@ -1058,7 +1068,11 @@ function enigmailImportKeysFromUrl() {
     value: "",
   };
   if (
-    EnigmailDialog.promptValue(window, EnigGetString("importFromUrl"), value)
+    EnigmailDialog.promptValue(
+      window,
+      l10n.formatValueSync("import-from-url"),
+      value
+    )
   ) {
     var p = new Promise(function(resolve, reject) {
       var cbFunc = function(data) {
@@ -1218,8 +1232,8 @@ function accessKeyServer(accessType, callbackFunc) {
     if (
       EnigmailDialog.confirmDlg(
         window,
-        EnigmailLocale.getString("refreshAllQuestion"),
-        EnigmailLocale.getString("keyMan.button.refreshAll")
+        l10n.formatValueSync("refresh-all-question"),
+        l10n.formatValueSync("key-man-button-refresh-all")
       )
     ) {
       accessType = EnigmailConstants.DOWNLOAD_KEY;

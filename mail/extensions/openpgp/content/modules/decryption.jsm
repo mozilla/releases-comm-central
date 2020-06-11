@@ -52,6 +52,7 @@ const { EnigmailFuncs } = ChromeUtils.import(
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 function statusObjectFrom(
   signatureObj,
@@ -555,7 +556,7 @@ var EnigmailDecryption = {
         EnigmailDialog.confirmDlg(
           parent,
           EnigmailLocale.getString("attachmentPgpKey", [displayName]),
-          EnigmailLocale.getString("keyMan.button.import"),
+          l10n.formatValueSync("key-man-button-import"),
           EnigmailLocale.getString("dlg.button.view")
         )
       ) {

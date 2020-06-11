@@ -11,9 +11,6 @@ var EXPORTED_SYMBOLS = ["EnigmailKey"];
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 );
@@ -28,6 +25,7 @@ const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 var EnigmailKey = {
   /**
@@ -76,17 +74,20 @@ var EnigmailKey = {
     if (key) {
       if (key.keyTrust === "r") {
         // Key has already been revoked
-        getDialog().info(
-          null,
-          EnigmailLocale.getString("revokeKeyAlreadyRevoked", keyId)
-        );
+        l10n
+          .formatValue("revoke-key-already-revoked", {
+            keyId,
+          })
+          .then(value => {
+            getDialog().info(null, value);
+          });
       } else {
         let userId = key.userId + " - 0x" + key.keyId;
         if (
           !getDialog().confirmDlg(
             null,
-            EnigmailLocale.getString("revokeKeyQuestion", userId),
-            EnigmailLocale.getString("keyMan.button.revokeKey")
+            l10n.formatValueSync("revoke-key-question", { userId }),
+            l10n.formatValueSync("key-man-button-revoke-key")
           )
         ) {
           return;
@@ -108,10 +109,13 @@ var EnigmailKey = {
       }
     } else {
       // Suitable key for revocation certificate is not present in keyring
-      getDialog().alert(
-        null,
-        EnigmailLocale.getString("revokeKeyNotPresent", keyId)
-      );
+      l10n
+        .formatValue("revoke-key-not-present", {
+          keyId,
+        })
+        .then(value => {
+          getDialog().alert(null, value);
+        });
     }
   },
 

@@ -46,6 +46,8 @@ const getWindows = EnigmailLazy.loader(
   "EnigmailWindows"
 );
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 const DEFAULT_FILE_PERMS = 0o600;
 
 let gKeyListObj = null;
@@ -636,7 +638,7 @@ var EnigmailKeyRing = {
         !getDialog().confirmDlg(
           parent,
           EnigmailLocale.getString("importKeyConfirm"),
-          EnigmailLocale.getString("keyMan.button.import")
+          l10n.formatValueSync("key-man-button-import")
         )
       ) {
         errorMsgObj.value = EnigmailLocale.getString("failCancel");
