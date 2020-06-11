@@ -203,3 +203,40 @@ key-revoked = Key was revoked
 key-auto-accept-personal = You accept this key for all uses, because it is one of your personal keys. You have the secret key.
 key-do-you-accept = Do you accept this key for verifying digital signatures and for encrypting messages?
 key-accept-warning = Avoid accepting a rogue key. Use a communication channel other than email to verify the fingerprint of your correspondent's key.
+
+# Strings enigmailMsgComposeOverlay.js
+cannot-use-own-key-because = Unable to send the message, because there is a problem with your personal key. { $problem }
+cannot-encrypt-because-missing = Unable to send this message with end-to-end encryption, because there are problems with the keys of the following recipients: { $problem }
+
+# Strings in mimeDecrypt.jsm
+mime-decrypt-encrypted-part-attachment-label = Encrypted message part
+mime-decrypt-encrypted-part-concealed-data = This is an encrypted message part. You need to open it in a separate window by clicking on the attachment.
+
+# Strings in keyserver.jsm
+keyserver-error-aborted = Aborted
+keyserver-error-unknown = An unknown error occurred
+keyserver-error-server-error = The keyserver reported an error.
+keyserver-error-import-error = Failed to import the downloaded key.
+keyserver-error-unavailable = The keyserver is not available.
+keyserver-error-security-error = The keyserver does not support encrypted access.
+keyserver-error-certificate-error = The keyserver’s certificate is not valid.
+keyserver-error-unsupported = The keyserver is not supported.
+
+# Strings in mimeWkdHandler.jsm
+wkd-message-body-req = Your email provider processed your request to upload your public key to the OpenPGP Web Key Directory.\n\nPlease confirm to complete the publishing of your public key.
+wkd-message-body-process = This is an email related to the automatic processing to upload your public key to the OpenPGP Web Key Directory.\n\nYou do not need to take any manual action at this point.
+
+# Strings in persistentCrypto.jsm
+converter-decrypt-body-failed = Could not decrypt message with subject\n{ $subject }.\nDo you want to retry with a different passphrase or do you want to skip the message?
+
+# Strings in gpg.jsm
+unknown-signing-alg = Unknown signing algorithm (ID: { $id })
+unknown-hash-alg = Unknown cryptographic hash (ID: { $id })
+
+#strings in keyUsability.jsm
+expiry-key-expires-soon = Your key { $desc } will expire in less than { $days } days.\n\nWe recommend that you create a new key pair and configure the corresponding accounts to use it.
+expiry-keys-expire-soon = Your following keys will expire in less than { $days } days:\n{ $desc }. We recommend that you create new keys and configure the corresponding accounts to use them.
+expiry-key-missing-owner-trust = Your secret key { $desc } has missing trust.\n\nWe recommend that you set "You rely on certifications" to "ultimate" in key properties.
+expiry-keys-missing-owner-trust = The following of your secret keys have missing trust.\n{ $desc }.\nWe recommend that you set "You rely on certifications" to "ultimate" in key properties.
+expiry-open-key-manager = Open OpenPGP Key Management
+expiry-open-key-properties = Open Key Properties

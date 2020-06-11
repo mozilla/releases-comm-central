@@ -51,6 +51,8 @@ const { EnigmailEncryption } = ChromeUtils.import(
   "chrome://openpgp/content/modules/encryption.jsm"
 );
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 const getFixExchangeMsg = EnigmailLazy.loader(
   "enigmail/fixExchangeMsg.jsm",
   "EnigmailFixExchangeMsg"
@@ -553,7 +555,7 @@ CryptMessageIntoFolder.prototype = {
     */
   },
 
-  decryptINLINE(mimePart) {
+  async decryptINLINE(mimePart) {
     EnigmailLog.DEBUG("persistentCrypto.jsm: decryptINLINE()\n");
 
     if ("decryptedPgpMime" in mimePart && mimePart.decryptedPgpMime) {
@@ -655,9 +657,11 @@ CryptMessageIntoFolder.prototype = {
             if (statusFlagsObj.value & EnigmailConstants.DECRYPTION_FAILED) {
               // since we cannot find out if the user wants to cancel
               // we should ask
-              let msg = EnigmailLocale.getString(
-                "converter.decryptBody.failed",
-                this.subject
+              let msg = await l10n.formatValue(
+                "converter-decrypt-body-failed",
+                {
+                  subject: this.subject,
+                }
               );
 
               if (

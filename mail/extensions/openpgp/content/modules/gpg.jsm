@@ -8,12 +8,11 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailGpg"];
 
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailVersioning } = ChromeUtils.import(
   "chrome://openpgp/content/modules/versioning.jsm"
 );
+
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 const MINIMUM_GPG_VERSION = "2.0.14";
 
@@ -143,9 +142,9 @@ var EnigmailGpg = {
       case 22:
         return "EDDSA";
       default:
-        return EnigmailLocale.getString("unknownSigningAlg", [
-          parseInt(id, 10),
-        ]);
+        return l10n.formatValueSync("unknown-signing-alg", {
+          id: parseInt(id, 10),
+        });
     }
   },
 
@@ -167,7 +166,9 @@ var EnigmailGpg = {
       case 11:
         return "SHA224";
       default:
-        return EnigmailLocale.getString("unknownHashAlg", [parseInt(id, 10)]);
+        return l10n.formatValueSync("unknown-hash-alg", {
+          id: parseInt(id, 10),
+        });
     }
   },
 };

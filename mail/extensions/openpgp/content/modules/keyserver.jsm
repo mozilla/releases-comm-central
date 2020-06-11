@@ -36,6 +36,8 @@ const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 const ENIG_DEFAULT_HKP_PORT = "11371";
 const ENIG_DEFAULT_HKPS_PORT = "443";
 const ENIG_DEFAULT_LDAP_PORT = "389";
@@ -49,27 +51,28 @@ const ENIG_DEFAULT_LDAP_PORT = "389";
 
 function createError(errId) {
   let msg = "";
+
   switch (errId) {
     case EnigmailConstants.KEYSERVER_ERR_ABORTED:
-      msg = EnigmailLocale.getString("keyserver.error.aborted");
+      msg = l10n.formatValueSync("keyserver-error-aborted");
       break;
     case EnigmailConstants.KEYSERVER_ERR_SERVER_ERROR:
-      msg = EnigmailLocale.getString("keyserver.error.serverError");
+      msg = l10n.formatValueSync("keyserver-error-server-error");
       break;
     case EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE:
-      msg = EnigmailLocale.getString("keyserver.error.unavailable");
+      msg = l10n.formatValueSync("keyserver-error-unavailable");
       break;
     case EnigmailConstants.KEYSERVER_ERR_SECURITY_ERROR:
-      msg = EnigmailLocale.getString("keyserver.error.securityError");
+      msg = l10n.formatValueSync("keyserver-error-security-error");
       break;
     case EnigmailConstants.KEYSERVER_ERR_CERTIFICATE_ERROR:
-      msg = EnigmailLocale.getString("keyserver.error.certificateError");
+      msg = l10n.formatValueSync("keyserver-error-certificate-error");
       break;
     case EnigmailConstants.KEYSERVER_ERR_IMPORT_ERROR:
-      msg = EnigmailLocale.getString("keyserver.error.importError");
+      msg = l10n.formatValueSync("keyserver-error-import-error");
       break;
     case EnigmailConstants.KEYSERVER_ERR_UNKNOWN:
-      msg = EnigmailLocale.getString("keyserver.error.unknown");
+      msg = l10n.formatValueSync("keyserver-error-unknown");
       break;
   }
 
@@ -522,8 +525,8 @@ const accessHkpInternal = {
             if (line[1] !== "1") {
               // protocol version not supported
               retObj.result = 7;
-              retObj.errorDetails = EnigmailLocale.getString(
-                "keyserver.error.unsupported2"
+              retObj.errorDetails = await l10n.formatValue(
+                "keyserver-error-unsupported"
               );
               retObj.pubKeys = [];
               return retObj;

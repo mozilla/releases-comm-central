@@ -59,6 +59,8 @@ const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
 );
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 const ENCODING_DEFAULT = 0;
 const ENCODING_BASE64 = 1;
 const ENCODING_QP = 2;
@@ -83,15 +85,13 @@ var EnigmailMimeDecrypt = {
    *
    * @return {String}: MIME string (HTML text)
    */
-  emptyAttachment() {
+  async emptyAttachment() {
     EnigmailLog.DEBUG("mimeDecrypt.jsm: emptyAttachment()\n");
 
-    let encPart = EnigmailLocale.getString(
-      "mimeDecrypt.encryptedPart.attachmentLabel"
-    );
-    let concealed = EnigmailLocale.getString(
-      "mimeDecrypt.encryptedPart.concealedData"
-    );
+    let [encPart, concealed] = await l10n.formatValues([
+      { id: "mime-decrypt-encrypted-part-attachment-label" },
+      { id: "mime-decrypt-encrypted-part-concealed-data" },
+    ]);
     let retData = `Content-Type: message/rfc822; name="${encPart}.eml"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="${encPart}.eml"
@@ -524,7 +524,9 @@ MimeDecryptHandler.prototype = {
       !EnigmailMime.isRegularMimeStructure(this.mimePartNumber, spec, false)
     ) {
       if (!this.isUrlEnigmailConvert()) {
-        this.returnData(EnigmailMimeDecrypt.emptyAttachment());
+        EnigmailMimeDecrypt.emptyAttachment().then(value => {
+          this.returnData(value);
+        });
       } else {
         throw new Error(
           "Cannot decrypt messages with mixed (encrypted/non-encrypted) content"

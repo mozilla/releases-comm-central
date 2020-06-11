@@ -2236,10 +2236,12 @@ Enigmail.msg = {
         senderKeyId
       );
       if (senderKeyUsable.errorMsg) {
-        let fullAlert = EnigmailLocale.getString("cannotUseOwnKeyBecause", [
-          senderKeyUsable.errorMsg,
-        ]);
-
+        let fullAlert = await document.l10n.formatValue(
+          "cannot-use-own-key-because",
+          {
+            problem: senderKeyUsable.errorMsg,
+          }
+        );
         EnigmailDialog.alert(window, fullAlert);
         return false;
       }
@@ -2259,9 +2261,11 @@ Enigmail.msg = {
           allProblems += obj.addr;
         }
 
-        let fullAlert = EnigmailLocale.getString(
-          "cannotEncryptBecauseMissing",
-          [allProblems]
+        let fullAlert = await document.l10n.formatValue(
+          "cannot-encrypt-because-missing",
+          {
+            problem: allProblems,
+          }
         );
 
         EnigmailDialog.alert(window, fullAlert);

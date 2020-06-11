@@ -21,9 +21,6 @@ const { EnigmailVerify } = ChromeUtils.import(
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailDecryption } = ChromeUtils.import(
   "chrome://openpgp/content/modules/decryption.jsm"
 );
@@ -33,6 +30,8 @@ const { EnigmailSingletons } = ChromeUtils.import(
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
+
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 var gDebugLog = false;
 
@@ -127,15 +126,17 @@ PgpWkdHandler.prototype = {
     }
 
     let jsonStr = this.requestToJsonString(this.data);
-    let msg = "";
 
     if (this.data.search(/^\s*type:\s+confirmation-request/im) >= 0) {
-      msg = EnigmailLocale.getString("wkdMessage.body.req2");
+      l10n.formatValue("wkd-message-body-req").then(value => {
+        this.returnData(value);
+      });
     } else {
-      msg = EnigmailLocale.getString("wkdMessage.body.process");
+      l10n.formatValue("wkd-message-body-process").then(value => {
+        this.returnData(value);
+      });
     }
 
-    this.returnData(msg);
     this.displayStatus(jsonStr);
   },
 

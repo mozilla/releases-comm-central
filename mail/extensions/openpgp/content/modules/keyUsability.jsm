@@ -42,6 +42,8 @@ const getKeyRing = EnigmailLazy.loader(
 
 const DAY = 86400; // number of seconds of 1 day
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 var EnigmailKeyUsability = {
   /**
    * Check whether some key pairs expire in less than N days from now.
@@ -192,20 +194,20 @@ var EnigmailKeyUsability = {
     let numDays = EnigmailPrefs.getPref("warnKeyExpiryNumDays");
 
     if (expiredKeys.length === 1) {
-      return EnigmailLocale.getString("expiry.keyExpiresSoon", [
-        getKeyDesc(expiredKeys[0]),
-        numDays,
-      ]);
+      return l10n.formatValueSync("expiry-key-expires-soon", {
+        desc: getKeyDesc(expiredKeys[0]),
+        days: numDays,
+      });
     }
 
     let keyDesc = "";
     for (let i = 0; i < expiredKeys.length; i++) {
       keyDesc += "- " + getKeyDesc(expiredKeys[i]) + "\n";
     }
-    return EnigmailLocale.getString("expiry.keysExpireSoon", [
-      numDays,
-      keyDesc,
-    ]);
+    return l10n.formatValueSync("expiry-keys-expire-soon", {
+      desc: keyDesc,
+      days: numDays,
+    });
   },
 
   /**
@@ -280,21 +282,25 @@ var EnigmailKeyUsability = {
     if (keysMissingOwnertrust.length === 1) {
       let keyDesc = getKeyDesc(keysMissingOwnertrust[0]);
       resultObj.keyId = keysMissingOwnertrust[0].keyId;
-      return EnigmailLocale.getString("expiry.keyMissingOwnerTrust", keyDesc);
+      return l10n.formatValueSync("expiry-key-missing-owner-trust", {
+        desc: keyDesc,
+      });
     }
 
     let keyDesc = "";
     for (let i = 0; i < keysMissingOwnertrust.length; i++) {
       keyDesc += "- " + getKeyDesc(keysMissingOwnertrust[i]) + "\n";
     }
-    return EnigmailLocale.getString("expiry.keysMissingOwnerTrust", keyDesc);
+    return l10n.formatValueSync("expiry-keys-missing-owner-trust", {
+      desc: keyDesc,
+    });
   },
 
   /**
    * Run the check for Ownertrust ("You rely on certifications") and
    * Display a message if something needs to be done
    */
-  checkOwnertrust() {
+  async checkOwnertrust() {
     EnigmailLog.DEBUG("keyUsability.jsm: checkOwnertrust\n");
 
     var resultObj = {};
@@ -309,10 +315,10 @@ var EnigmailKeyUsability = {
 
       if (resultObj && resultObj.Count === 1) {
         // single key is concerned
-        actionButtonText = EnigmailLocale.getString("expiry.OpenKeyProperties");
+        actionButtonText = await l10n.formatValue("expiry-open-key-properties");
       } else {
         // Multiple keys concerned
-        actionButtonText = EnigmailLocale.getString("expiry.OpenKeyManager2");
+        actionButtonText = await l10n.formatValue("expiry-open-key-manager");
       }
 
       let checkedObj = {};
