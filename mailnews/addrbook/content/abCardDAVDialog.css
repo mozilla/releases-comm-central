@@ -23,6 +23,25 @@
 th {
   font-weight: normal;
   text-align: start;
+  width: 10%;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.input-container > * {
+  flex: 1;
+}
+
+#carddav-provider {
+  height: 1.8em;
+}
+
+#carddav-provider {
+  margin: 2px 4px;
 }
 
 #statusArea {

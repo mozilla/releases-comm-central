@@ -38,7 +38,7 @@
                data-l10n-id="carddav-provider-label"
                data-l10n-attrs="value,accesskey"/>
       </html:th>
-      <html:td>
+      <html:td class="input-container">
         <html:select id="carddav-provider" onchange="handleChangeProvider(event);">
         </html:select>
       </html:td>
@@ -49,7 +49,7 @@
                data-l10n-id="carddav-url-label"
                data-l10n-attrs="value,accesskey"/>
       </html:th>
-      <html:td>
+      <html:td class="input-container">
         <html:input id="carddav-url" type="url"
                     placeholder="https://carddav.example.com/dav/addressbooks/user/"
                     oninput="handleCardDAVURLInput(event);"/>
@@ -62,7 +62,7 @@
                data-l10n-attrs="value,accesskey"
                flex="1"/>
       </html:th>
-      <html:td>
+      <html:td class="input-container">
         <html:input id="carddav-username"
                     type="text"
                     data-l10n-id="carddav-username-input"/>
@@ -74,7 +74,7 @@
                data-l10n-id="carddav-password-label"
                flex="1"/>
       </html:th>
-      <html:td>
+      <html:td class="input-container">
         <html:input id="carddav-password" type="password"/>
       </html:td>
     </html:tr>
