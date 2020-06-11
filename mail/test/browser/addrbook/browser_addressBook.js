@@ -11,6 +11,7 @@
 var {
   close_address_book_window,
   create_address_book,
+  delete_address_book,
   create_contact,
   create_ldap_address_book,
   create_mailing_list,
@@ -395,4 +396,12 @@ add_task(function test_writing_to_mailing_list() {
   }
 
   close_compose_window(composeWin);
+
+  registerCleanupFunction(() => {
+    delete_address_book(addrBook1);
+    delete_address_book(addrBook2);
+    delete_address_book(addrBook3);
+    delete_address_book(addrBook4);
+    delete_address_book(ldapBook);
+  });
 });
