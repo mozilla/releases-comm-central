@@ -126,7 +126,7 @@
               </html:tr>
               <separator class="groove" flex="1" hidden="true"/>
               <html:tr class="reminder-row" hidden="hidden">
-                <html:th>
+                <html:th class="reminder-label">
                   &read.only.reminder.label;
                 </html:th>
                 <html:td>

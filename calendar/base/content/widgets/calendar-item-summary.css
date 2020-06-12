@@ -31,6 +31,7 @@
 }
 
 .calendar-summary-table .organizer-label,
-.calendar-summary-table .attachments-label {
+.calendar-summary-table .attachments-label,
+.calendar-summary-table .reminder-label {
   vertical-align: top;
 }
