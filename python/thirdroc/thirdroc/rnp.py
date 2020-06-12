@@ -5,10 +5,7 @@
 from __future__ import absolute_import
 
 import os
-try:
-    import cStringIO as StringIO
-except ImportError:
-    import StringIO
+from io import StringIO
 from datetime import date
 import re
 from distutils.version import StrictVersion
@@ -91,7 +88,7 @@ def mangle_config_h_in(template, defines):
     :param dict defines: result of get_defines()
     """
     with open(template) as tmpl:
-        tmp_string = StringIO.StringIO()
+        tmp_string = StringIO()
         rnp_preprocess(tmpl, tmp_string, defines)
 
     tmp_string.seek(0)
@@ -112,7 +109,7 @@ def update_readme(path, revision):
     """
     commit_re = re.compile(r'^\[commit [\da-f]{40}\]$')
     with open(path) as orig:
-        tmp_string = StringIO.StringIO()
+        tmp_string = StringIO()
         tmp_string.write(orig.read())
 
     tmp_string.seek(0)
