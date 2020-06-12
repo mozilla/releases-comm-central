@@ -110,6 +110,12 @@ customElements.whenDefined("autocomplete-input").then(() => {
       // @implements {nsIObserver}
       this.textObserver = {
         observe: (subject, topic, data) => {
+          try {
+            // Some autocomplete controllers throw NS_ERROR_NOT_IMPLEMENTED.
+            subject.popupElement;
+          } catch (ex) {
+            return;
+          }
           if (
             topic == "autocomplete-did-enter-text" &&
             subject.popupElement == this.popupElement
