@@ -201,10 +201,15 @@ class BasePopup {
     browser.setAttribute("class", "webextension-popup-browser");
     browser.setAttribute("webextension-view-type", "popup");
     browser.setAttribute("tooltip", "aHTMLTooltip");
-    browser.setAttribute("contextmenu", "contentAreaContextMenu");
+    browser.setAttribute("contextmenu", "mailContext");
     browser.setAttribute("autocompletepopup", "PopupAutoComplete");
     browser.setAttribute("selectmenulist", "ContentSelectDropdown");
     browser.setAttribute("selectmenuconstrained", "false");
+    browser.setAttribute("datetimepicker", "DateTimePickerPanel");
+    browser.setAttribute(
+      "oncontextmenu",
+      "return mailContextOnContextMenu(event);"
+    );
     browser.sameProcessAsFrameLoader = this.extension.groupFrameLoader;
 
     // We only need flex sizing for the sake of the slide-in sub-views of the
