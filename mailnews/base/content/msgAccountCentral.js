@@ -260,6 +260,7 @@ function subscribe() {
  * @param {Event} event - The keypress or click event.
  */
 function openLink(event) {
+  event.preventDefault();
   let messenger = Cc["@mozilla.org/messenger;1"].createInstance();
   messenger = messenger.QueryInterface(Ci.nsIMessenger);
   messenger.launchExternalURL(event.target.href);
