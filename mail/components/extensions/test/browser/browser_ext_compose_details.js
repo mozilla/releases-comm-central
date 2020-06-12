@@ -84,6 +84,11 @@ add_task(async function testHeaders() {
       await browser.mailingLists.addMember(list, contacts.sherlock);
       await browser.mailingLists.addMember(list, contacts.john);
 
+      let identityChanged = null;
+      browser.compose.onIdentityChanged.addListener((tab, identityId) => {
+        identityChanged = identityId;
+      });
+
       // Start a new message.
 
       let createdWindowPromise = waitForEvent("onCreated");
@@ -100,6 +105,7 @@ add_task(async function testHeaders() {
           // Change the identity.
           input: { identityId: nonDefaultIdentity.id },
           expected: { identityId: nonDefaultIdentity.id },
+          expectIdentityChanged: nonDefaultIdentity.id,
         },
         {
           // Don't change the identity.
@@ -110,6 +116,7 @@ add_task(async function testHeaders() {
           // Change the identity back again.
           input: { identityId: defaultIdentity.id },
           expected: { identityId: defaultIdentity.id },
+          expectIdentityChanged: defaultIdentity.id,
         },
         {
           // Single input, string.
@@ -248,7 +255,38 @@ add_task(async function testHeaders() {
         browser.test.log(`Checking input: ${JSON.stringify(test.input)}`);
         await browser.compose.setComposeDetails(createdTab.id, test.input);
         await checkWindow(test.expected);
+
+        if (test.expectIdentityChanged) {
+          browser.test.assertEq(
+            test.expectIdentityChanged,
+            identityChanged,
+            "onIdentityChanged fired"
+          );
+        } else {
+          browser.test.assertEq(
+            null,
+            identityChanged,
+            "onIdentityChanged not fired"
+          );
+        }
+        identityChanged = null;
       }
+
+      // Change the identity through the UI to check onIdentityChanged works.
+
+      browser.test.log("Checking external identity change");
+      await new Promise(resolve => {
+        browser.test.onMessage.addListener(function listener() {
+          browser.test.onMessage.removeListener(listener);
+          resolve();
+        });
+        browser.test.sendMessage("changeIdentity", nonDefaultIdentity.id);
+      });
+      browser.test.assertEq(
+        nonDefaultIdentity.id,
+        identityChanged,
+        "onIdentityChanged fired"
+      );
 
       // Clean up.
 
@@ -266,6 +304,21 @@ add_task(async function testHeaders() {
 
   extension.onMessage("checkWindow", async expected => {
     await checkComposeHeaders(expected);
+    extension.sendMessage();
+  });
+
+  extension.onMessage("changeIdentity", newIdentity => {
+    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    is(composeWindows.length, 1);
+    let composeDocument = composeWindows[0].document;
+
+    let identityList = composeDocument.getElementById("msgIdentity");
+    let identityItem = identityList.querySelector(
+      `[identitykey="${newIdentity}"]`
+    );
+    ok(identityItem);
+    identityList.selectedItem = identityItem;
+    composeWindows[0].LoadIdentity(false);
     extension.sendMessage();
   });
 

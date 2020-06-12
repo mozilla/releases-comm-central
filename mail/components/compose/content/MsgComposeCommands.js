@@ -7161,9 +7161,7 @@ function LoadIdentity(startup) {
         dump("### Cannot change the identity: " + ex + "\n");
       }
 
-      let event = document.createEvent("Events");
-      event.initEvent("compose-from-changed", false, true);
-      document.getElementById("msgcomposeWindow").dispatchEvent(event);
+      window.dispatchEvent(new CustomEvent("compose-from-changed"));
 
       gComposeNotificationBar.clearIdentityWarning();
     }

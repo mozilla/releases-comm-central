@@ -432,7 +432,7 @@ this.compose = class extends ExtensionAPI {
           context,
           name: "compose.onAttachmentRemoved",
           register(fire) {
-            function callback(event, tab, attachmentId) {
+            function callback(event) {
               for (let attachment of event.detail.enumerate(
                 Ci.nsIMsgAttachment
               )) {
@@ -451,6 +451,23 @@ this.compose = class extends ExtensionAPI {
             windowTracker.addListener("attachments-removed", callback);
             return function() {
               windowTracker.removeListener("attachments-removed", callback);
+            };
+          },
+        }).api(),
+        onIdentityChanged: new ExtensionCommon.EventManager({
+          context,
+          name: "compose.onIdentityChanged",
+          register(fire) {
+            function callback(event) {
+              fire.async(
+                tabManager.convert(event.target.ownerGlobal),
+                event.target.getCurrentIdentityKey()
+              );
+            }
+
+            windowTracker.addListener("compose-from-changed", callback);
+            return function() {
+              windowTracker.removeListener("compose-from-changed", callback);
             };
           },
         }).api(),
