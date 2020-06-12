@@ -501,7 +501,7 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(
     NS_ENSURE_TRUE(scriptableOrigin, NS_ERROR_FAILURE);
     scriptableOrigin->SetData(0);
     int32_t origin = 0;
-    origin = LookAndFeel::GetInt(LookAndFeel::eIntID_AlertNotificationOrigin);
+    origin = LookAndFeel::GetInt(LookAndFeel::IntID::AlertNotificationOrigin);
     scriptableOrigin->SetData(origin);
 
     rv = argsArray->AppendElement(scriptableOrigin);
