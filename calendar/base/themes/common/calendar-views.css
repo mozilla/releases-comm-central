@@ -903,6 +903,10 @@ calendar-event-box[gripBars="both"]:not([readonly="true"]):hover .calendar-event
     border-spacing: 0;
 }
 
+.tooltipHeaderLabel {
+    text-align: end;
+}
+
 .tooltipBodySeparator {
     height: 1ex; /* 1ex space above body text, below last header. */
 }
