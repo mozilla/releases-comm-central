@@ -340,6 +340,7 @@ class WindowTracker extends WindowTrackerBase {
       "mail:addressbook",
       "msgcompose",
       "mail:messageWindow",
+      "mail:extensionPopup",
     ].includes(documentElement.getAttribute("windowtype"));
   }
 
@@ -587,9 +588,12 @@ class TabTracker extends TabTrackerBase {
    */
   _handleWindowOpen(window) {
     if (
-      ["mail:addressbook", "msgcompose", "mail:messageWindow"].includes(
-        window.document.documentElement.getAttribute("windowtype")
-      )
+      [
+        "mail:addressbook",
+        "msgcompose",
+        "mail:messageWindow",
+        "mail:extensionPopup",
+      ].includes(window.document.documentElement.getAttribute("windowtype"))
     ) {
       this.emit("tab-created", {
         nativeTabInfo: window,
@@ -619,9 +623,12 @@ class TabTracker extends TabTrackerBase {
    */
   _handleWindowClose(window) {
     if (
-      ["mail:addressbook", "msgcompose", "mail:messageWindow"].includes(
-        window.document.documentElement.getAttribute("windowtype")
-      )
+      [
+        "mail:addressbook",
+        "msgcompose",
+        "mail:messageWindow",
+        "mail:extensionPopup",
+      ].includes(window.document.documentElement.getAttribute("windowtype"))
     ) {
       this.emit("tab-removed", {
         window,

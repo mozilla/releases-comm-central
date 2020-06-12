@@ -152,8 +152,30 @@ add_task(async () => {
         mailTab: false,
       });
 
-      browser.test.log("Pause to lets windows load properly.");
+      browser.test.log("Open a page in a popup window.");
+      await browser.windows.create({
+        url: "test.html",
+        type: "popup",
+        width: 800,
+        height: 500,
+      });
 
+      let [{ id: popupWindow }] = await listener.checkEvent(
+        "windows.onCreated",
+        {
+          type: "popup",
+          width: 800,
+          height: 500,
+        }
+      );
+      let [{ id: popupTab }] = await listener.checkEvent("tabs.onCreated", {
+        index: 0,
+        windowId: popupWindow,
+        active: true,
+        mailTab: false,
+      });
+
+      browser.test.log("Pause to lets windows load properly.");
       // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
       await new Promise(resolve => setTimeout(resolve, 2500));
 
@@ -190,6 +212,14 @@ add_task(async () => {
       await listener.checkEvent("windows.onRemoved", displayWindow);
       await listener.checkEvent("tabs.onRemoved", displayTab, {
         windowId: displayWindow,
+        isWindowClosing: true,
+      });
+
+      browser.test.log("Close the popup window.");
+      await browser.windows.remove(popupWindow);
+      await listener.checkEvent("windows.onRemoved", popupWindow);
+      await listener.checkEvent("tabs.onRemoved", popupTab, {
+        windowId: popupWindow,
         isWindowClosing: true,
       });
 
