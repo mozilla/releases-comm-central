@@ -38,13 +38,7 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = [
-  "MozMillController",
-  "MozMillAsyncTest",
-  "globalEventRegistry",
-  "sleep",
-  "windowMap",
-];
+var EXPORTED_SYMBOLS = ["MozMillController", "sleep", "windowMap"];
 
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
@@ -1071,7 +1065,9 @@ MozMillController.prototype.assertValue = function(el, value) {
  * Check if the callback function evaluates to true
  */
 MozMillController.prototype.assert = function(callback, message, thisObject) {
-  utils.assert(callback, message, thisObject);
+  if (!callback.call(thisObject)) {
+    throw new Error(message || "assert: Failed for '" + callback + "'");
+  }
 
   frame.events.pass({ function: ": controller.assert('" + callback + "')" });
   return true;
