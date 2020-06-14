@@ -368,6 +368,7 @@
 }
 
 .contentTabSecurity {
+  position: relative;
   height: 16px;
   width: 16px;
   margin: 2px;
@@ -398,12 +399,18 @@
   }
 }
 
-.contentTabAddress * {
-  -moz-user-select: text;
+.contentTabAddress {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .contentTabUrlbar {
-  margin: 0;
+  max-width: 100%;
+  margin-inline-start: -30px;
+}
+
+.contentTabUrlbar > .input-inline {
+  padding-inline-start: 25px;
 }
 
 .nav-button {

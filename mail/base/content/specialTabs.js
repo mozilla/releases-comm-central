@@ -131,7 +131,7 @@ tabProgressListener.prototype = {
       if (aLocationURI && !aLocationURI.schemeIs("about")) {
         this.mTab.backButton.disabled = !this.mBrowser.canGoBack;
         this.mTab.forwardButton.disabled = !this.mBrowser.canGoForward;
-        this.mTab.urlbar.textContent = location;
+        this.mTab.urlbar.value = location;
         this.mTab.root.removeAttribute("collapsed");
       } else {
         this.mTab.root.setAttribute("collapsed", "false");
@@ -918,8 +918,8 @@ var specialTabs = {
         aTab.browser.goForward()
       );
       aTab.security = aTab.toolbar.querySelector(".contentTabSecurity");
-      aTab.urlbar = aTab.toolbar.querySelector(".contentTabUrlbar");
-      aTab.urlbar.textContent = aArgs.contentPage;
+      aTab.urlbar = aTab.toolbar.querySelector(".contentTabUrlbar > input");
+      aTab.urlbar.value = aArgs.contentPage;
 
       ExtensionParent.apiManager.emit(
         "extension-browser-inserted",
