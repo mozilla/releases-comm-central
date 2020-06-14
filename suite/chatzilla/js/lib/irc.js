@@ -485,7 +485,6 @@ function CIRCServer (parent, hostname, port, isSecure, password)
     s.lastSend = new Date("1/1/1980");
     s.lastPingSent = null;
     s.lastPing = null;
-    s.sendsThisRound = 0;
     s.savedLine = "";
     s.lag = -1;
     s.usersStable = true;
@@ -503,10 +502,8 @@ function CIRCServer (parent, hostname, port, isSecure, password)
     return s;
 }
 
-CIRCServer.prototype.MAX_LINES_PER_SEND = 0; /* unlimited */
 CIRCServer.prototype.MS_BETWEEN_SENDS = 1500;
 CIRCServer.prototype.READ_TIMEOUT = 100;
-CIRCServer.prototype.TOO_MANY_LINES_MSG = "\01ACTION has said too much\01";
 CIRCServer.prototype.VERSION_RPLY = "JS-IRC Library v0.01, " +
     "Copyright (C) 1999 Robert Ginda; rginda@ndcico.com";
 CIRCServer.prototype.OS_RPLY = "Unknown";
@@ -860,20 +857,12 @@ function serv_senddata (msg)
     arrayInsertAt (this.sendQueue, 0, new String(msg));
 }
 
-/*
- * Takes care not to let more than MAX_LINES_PER_SEND lines out per
- * cycle.  Cycle's are defined as the time between onPoll calls.
- */
 CIRCServer.prototype.messageTo =
 function serv_messto (code, target, msg, ctcpCode)
 {
     var lines = String(msg).split ("\n");
-    var sendable = 0, i;
+    var i = 0;
     var pfx = "", sfx = "";
-
-    if (this.MAX_LINES_PER_SEND &&
-        this.sendsThisRound > this.MAX_LINES_PER_SEND)
-        return false;
 
     if (ctcpCode)
     {
@@ -907,31 +896,12 @@ function serv_messto (code, target, msg, ctcpCode)
             }
         }
     }
-    // Check this again, since we may have actually sent stuff in the loop above.
-    if (this.MAX_LINES_PER_SEND &&
-        this.sendsThisRound > this.MAX_LINES_PER_SEND)
-        return false;
-
-    for (i in lines)
-        if ((lines[i] != "") || ctcpCode) sendable++;
 
     for (i in lines)
     {
-        if (this.MAX_LINES_PER_SEND && (
-            ((this.sendsThisRound == this.MAX_LINES_PER_SEND - 1) &&
-             (sendable > this.MAX_LINES_PER_SEND)) ||
-            this.sendsThisRound == this.MAX_LINES_PER_SEND))
-        {
-            this.sendData ("PRIVMSG " + target + " :" +
-                           this.TOO_MANY_LINES_MSG + "\n");
-            this.sendsThisRound++;
-            return true;
-        }
-
         if ((lines[i] != "") || ctcpCode)
         {
             var line = code + " " + target + " :" + pfx;
-            this.sendsThisRound++;
             if (lines[i] != "")
             {
                 if (ctcpCode)
@@ -1104,8 +1074,6 @@ function serv_onsenddata (e)
     }
 
     var d = new Date();
-
-    this.sendsThisRound = 0;
 
     // Wheee, some sanity checking! (there's been at least one case of lastSend
     // ending up in the *future* at this point, which kinda busts things)
