@@ -857,20 +857,13 @@ function serv_senddata (msg)
     arrayInsertAt (this.sendQueue, 0, new String(msg));
 }
 
-CIRCServer.prototype.messageTo =
-function serv_messto (code, target, msg, ctcpCode)
+// Utility method for splitting large lines prior to sending.
+CIRCServer.prototype.splitLinesForSending =
+function serv_splitlines(line, prettyWrap)
 {
-    var lines = String(msg).split ("\n");
-    var i = 0;
-    var pfx = "", sfx = "";
-
-    if (ctcpCode)
-    {
-        pfx = "\01" + ctcpCode;
-        sfx = "\01";
-    }
-
-    for (i in lines)
+    let lines = String(line).split("\n");
+    let realLines = [];
+    for (let i = 0; i < lines.length; i++)
     {
         if (lines[i])
         {
@@ -882,20 +875,46 @@ function serv_messto (code, target, msg, ctcpCode)
                 if ((pos >= 0) && (pos >= this.maxLineLength - 15))
                 {
                     // Smart-split.
-                    extraLine = lines[i].substr(0, pos) + "...";
-                    lines[i] = "..." + lines[i].substr(extraLine.length - 2);
+                    extraLine = lines[i].substr(0, pos);
+                    lines[i] = lines[i].substr(extraLine.length + 1);
+                    if (prettyWrap)
+                    {
+                        extraLine += "...";
+                        lines[i] = "..." + lines[i];
+                    }
                 }
                 else
                 {
-                    // Dump-split.
+                    // Dumb-split.
                     extraLine = lines[i].substr(0, this.maxLineLength);
                     lines[i] = lines[i].substr(extraLine.length);
                 }
-                if (!this.messageTo(code, target, extraLine, ctcpCode))
-                    return false;
+                realLines.push(extraLine);
             }
+            realLines.push(lines[i]);
         }
     }
+    return realLines;
+}
+
+CIRCServer.prototype.messageTo =
+function serv_messto(code, target, msg, ctcpCode)
+{
+    let lines = this.splitLinesForSending(msg, true);
+
+    let i = 0;
+    let pfx = "";
+    let sfx = "";
+
+    if (ctcpCode)
+    {
+        pfx = "\01" + ctcpCode;
+        sfx = "\01";
+    }
+
+    // We may have no message at all with CTCP commands.
+    if (!lines.length && ctcpCode)
+        lines.push("");
 
     for (i in lines)
     {
@@ -913,10 +932,7 @@ function serv_messto (code, target, msg, ctcpCode)
             //dd ("-*- irc sending '" +  line + "'");
             this.sendData(line + "\n");
         }
-
     }
-
-    return true;
 }
 
 CIRCServer.prototype.sayTo =

@@ -2033,7 +2033,7 @@ function _sendMsgTo(message, msgType, target, displayObj)
     var msg = filterOutput(message, msgType, target);
 
     var o = getObjectDetails(target);
-    var lines = o.server ? o.server.splitLinesForSending(msg) : [msg];
+    var lines = o.server ? o.server.splitLinesForSending(msg, true) : [msg];
 
     for (var i = 0; i < lines.length; i++)
     {
