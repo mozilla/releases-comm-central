@@ -13,7 +13,7 @@
 
 progress.quota-percentage {
   border-color: ThreeDDarkShadow;
-  border-radius: 99px;
+  border-radius: 2px;
   overflow: hidden;
   margin-inline: 1em;
 }
