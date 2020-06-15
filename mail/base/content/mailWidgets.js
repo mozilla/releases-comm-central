@@ -73,11 +73,17 @@
           openUILink(encodeURI(event.target.textContent), event);
         }
       });
+      this.addEventListener("keypress", event => {
+        if (event.key == "Enter") {
+          openUILink(encodeURI(event.target.textContent), event);
+        }
+      });
     }
 
     connectedCallback() {
       super.connectedCallback();
       this.setAttribute("context", "copyUrlPopup");
+      this.setAttribute("tabindex", "0");
       this.classList.add("text-link", "headerValueUrl");
     }
   }
