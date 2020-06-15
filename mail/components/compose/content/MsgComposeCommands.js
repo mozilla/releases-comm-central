@@ -1064,16 +1064,9 @@ var defaultController = {
 
     cmd_toggleReturnReceipt: {
       isEnabled() {
-        let cmdToggleReturnReceipt = document.getElementById(
-          "cmd_toggleReturnReceipt"
-        );
-        let msgCompFields = gMsgCompose.compFields;
-        // Update checkmarks on all UI elements associated with the command.
-        cmdToggleReturnReceipt.setAttribute(
-          "checked",
-          msgCompFields.returnReceipt
-        );
-
+        if (!gMsgCompose) {
+          return false;
+        }
         return !gWindowLocked;
       },
       doCommand() {
@@ -3565,9 +3558,6 @@ function ComposeStartup(aParams) {
   gMsgCompose.addMsgSendListener(gSendListener);
 
   document
-    .getElementById("returnReceiptMenu")
-    .setAttribute("checked", gMsgCompose.compFields.returnReceipt);
-  document
     .getElementById("dsnMenu")
     .setAttribute("checked", gMsgCompose.compFields.DSN);
   document
@@ -3607,6 +3597,7 @@ function ComposeStartup(aParams) {
 
   // Do setup common to Message Composer and Web Composer.
   EditorSharedStartup();
+  ToggleReturnReceipt(gMsgCompose.compFields.returnReceipt);
 
   if (params.bodyIsLink) {
     let body = gMsgCompose.compFields.body;
@@ -5360,13 +5351,27 @@ function updateEncodingInStatusBar() {
 
 /**
  * Toggle Return Receipt (Disposition-Notification-To: header).
+ *
+ * @param {boolean} [forcedState] - Forced state to use for returnReceipt.
+ *  If not set, the current state will be toggled.
  */
-function ToggleReturnReceipt() {
+function ToggleReturnReceipt(forcedState) {
   let msgCompFields = gMsgCompose.compFields;
-  if (msgCompFields) {
+  if (!msgCompFields) {
+    return;
+  }
+  if (forcedState === undefined) {
     msgCompFields.returnReceipt = !msgCompFields.returnReceipt;
-    goUpdateCommand("cmd_toggleReturnReceipt");
     gReceiptOptionChanged = true;
+  } else {
+    if (msgCompFields.returnReceipt != forcedState) {
+      gReceiptOptionChanged = true;
+    }
+    msgCompFields.returnReceipt = forcedState;
+  }
+  for (let item of document.querySelectorAll(`menuitem[command="cmd_toggleReturnReceipt"],
+                                              toolbarbutton[command="cmd_toggleReturnReceipt"]`)) {
+    item.setAttribute("checked", msgCompFields.returnReceipt);
   }
 }
 
@@ -7075,7 +7080,7 @@ function LoadIdentity(startup) {
         prevReceipt != newReceipt
       ) {
         msgCompFields.returnReceipt = newReceipt;
-        goUpdateCommand("cmd_toggleReturnReceipt");
+        ToggleReturnReceipt(msgCompFields.returnReceipt);
       }
 
       if (
