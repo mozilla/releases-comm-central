@@ -2535,91 +2535,14 @@ var nsSetSmiley = {
 
   getCommandStateParams(aCommand, aParams, aRefCon) {},
   doCommandParams(aCommand, aParams, aRefCon) {
-    var smileyCode = aParams.getStringValue("state_attribute");
-
-    var strSml;
-    switch (smileyCode) {
-      case ":-)":
-        strSml = "s1";
-        break;
-      case ":-(":
-        strSml = "s2";
-        break;
-      case ";-)":
-        strSml = "s3";
-        break;
-      case ":-P":
-      case ":-p":
-      case ":-b":
-        strSml = "s4";
-        break;
-      case ":-D":
-        strSml = "s5";
-        break;
-      case ":-[":
-        strSml = "s6";
-        break;
-      case ":-/":
-      case ":/":
-      case ":-\\":
-      case ":\\":
-        strSml = "s7";
-        break;
-      case "=-O":
-      case "=-o":
-        strSml = "s8";
-        break;
-      case ":-*":
-        strSml = "s9";
-        break;
-      case ">:o":
-      case ">:-o":
-        strSml = "s10";
-        break;
-      case "8-)":
-        strSml = "s11";
-        break;
-      case ":-$":
-        strSml = "s12";
-        break;
-      case ":-!":
-        strSml = "s13";
-        break;
-      case "O:-)":
-      case "o:-)":
-        strSml = "s14";
-        break;
-      case ":'(":
-        strSml = "s15";
-        break;
-      case ":-X":
-      case ":-x":
-        strSml = "s16";
-        break;
-      default:
-        strSml = "";
-        break;
-    }
-
     try {
-      var editor = GetCurrentEditor();
-      var extElement = editor.createElementWithDefaults("span");
-      extElement.setAttribute("class", "moz-smiley-" + strSml);
+      let editor = GetCurrentEditor();
+      let smileyCode = aParams.getStringValue("state_attribute");
+      let smileyElement = editor.createElementWithDefaults("span");
+      // eslint-disable-next-line no-unsanitized/property
+      smileyElement.innerHTML = smileyCode;
 
-      var intElement = editor.createElementWithDefaults("span");
-      if (!intElement) {
-        return;
-      }
-
-      var txtElement = editor.document.createTextNode(smileyCode);
-      if (!txtElement) {
-        return;
-      }
-
-      intElement.appendChild(txtElement);
-      extElement.appendChild(intElement);
-
-      editor.insertElementAtSelection(extElement, true);
+      editor.insertElementAtSelection(smileyElement, true);
       window.content.focus();
     } catch (e) {
       dump("Exception occurred in smiley InsertElementAtSelection\n");

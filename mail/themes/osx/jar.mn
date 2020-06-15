@@ -67,7 +67,6 @@ classic.jar:
   skin/classic/messenger/addressbook/abContactsPanel.css         (mail/addrbook/abContactsPanel.css)
   skin/classic/messenger/addressbook/cardDialog.css              (mail/addrbook/cardDialog.css)
   skin/classic/messenger/messengercompose/messengercompose.css   (mail/compose/messengercompose.css)
-  skin/classic/messenger/messengercompose/emotes@2x.png          (mail/compose/emotes@2x.png)
   skin/classic/messenger/downloads/aboutDownloads.css            (mail/downloads/aboutDownloads.css)
   skin/classic/messenger/customizableui/panelUI.css              (customizableui/panelUI.css)
   skin/classic/messenger/openpgp/enigmail.css                    (openpgp/enigmail.css)
