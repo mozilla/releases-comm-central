@@ -3934,6 +3934,12 @@ function ComposeLoad() {
       addressInputOnBeforeHandleKeyDown(event);
   }
 
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
+    for (let item of document.querySelectorAll(".openpgp-item")) {
+      item.hidden = true;
+    }
+  }
+
   top.controllers.appendController(SecurityController);
   gMsgCompose.compFields.composeSecure = null;
   gSMFields = Cc[

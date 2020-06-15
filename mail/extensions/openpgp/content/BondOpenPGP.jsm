@@ -51,6 +51,7 @@ var BondOpenPGP = {
     } catch (x) {}
   },
 
+  isEnabled: false,
   initDone: false,
 
   init() {
@@ -61,6 +62,10 @@ var BondOpenPGP = {
       return;
     }
     this.initDone = true;
+    this.isEnabled = Services.prefs.getBoolPref("mail.openpgp.enable");
+    if (!this.isEnabled) {
+      return;
+    }
     if (!getRNP().init({})) {
       return;
     }
@@ -76,6 +81,9 @@ var BondOpenPGP = {
 
   allDependenciesLoaded() {
     this.init();
+    if (!this.isEnabled) {
+      return false;
+    }
     return getRNP().allDependenciesLoaded();
   },
 

@@ -23,6 +23,9 @@ pref("mail.identity.default.signing_cert_name", "");
  * OpenPGP prefs
  */
 
+// If false, hide and disable the OpenPGP functionality
+pref("mail.openpgp.enable", true);
+
 // If true, we allow the use of GnuPG for OpenPGP secret key operations
 pref("mail.openpgp.allow_external_gnupg", false);
 // If allow_external_gnupg is true: Optionally use a different gpg executable

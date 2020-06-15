@@ -321,6 +321,12 @@ function OnLoadMsgHeaderPane() {
   );
 
   top.controllers.appendController(AttachmentMenuController);
+
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
+    for (let item of document.querySelectorAll(".openpgp-item")) {
+      item.hidden = true;
+    }
+  }
 }
 
 function OnUnloadMsgHeaderPane() {

@@ -396,11 +396,15 @@ function OnLoadMessageWindow() {
   ToolbarIconColor.init();
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     Enigmail.msg.messengerStartup.bind(Enigmail.msg);
     Enigmail.msg.messengerStartup();
     Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
     Enigmail.hdrView.hdrViewLoad();
+  } else {
+    for (let item of document.querySelectorAll(".openpgp-item")) {
+      item.hidden = true;
+    }
   }
 }
 

@@ -1742,9 +1742,10 @@
                     accesskey="&customizeFromAddress.accesskey;"/>
 
 #ifdef MOZ_OPENPGP
-          <menuseparator id="encryptTechOptionsSeparator_Menubar"/>
+          <menuseparator id="encryptTechOptionsSeparator_Menubar"
+                         class="openpgp-item"/>
 
-          <menu id="menu_encTech_Menubar"
+          <menu id="menu_encTech_Menubar" class="openpgp-item"
                 label="&menu_securityTech.label;" accesskey="&menu_securityTech.accesskey;">
             <menupopup id="button-encTech_Menubar" oncommand="onSecurityChoice(event.target.value);">
               <menuitem id="encTech_OpenPGP_Menubar"
@@ -1790,8 +1791,8 @@
                     oncommand="onSecurityChoice(event.target.value);"/>
 
 #ifdef MOZ_OPENPGP
-        <menuseparator id="myPublicKeySeparator_Menubar"/>
-        <menuitem id="menu_securityMyPublicKey_Menubar"
+        <menuseparator id="myPublicKeySeparator_Menubar" class="openpgp-item"/>
+        <menuitem id="menu_securityMyPublicKey_Menubar" class="openpgp-item"
                   type="checkbox"
                   label="&menu_securityAttachMyKey.label;"
                   accesskey="&menu_securityAttachMyKey.accesskey;"
@@ -1915,7 +1916,7 @@
                    oncommand="onSecurityChoice(event.target.value);">
       <menupopup onpopupshowing="setSecuritySettings('_Toolbar');">
 #ifdef MOZ_OPENPGP
-        <menu id="menu_encTech_Toolbar"
+        <menu id="menu_encTech_Toolbar" class="openpgp-item"
               label="&menu_securityTech.label;" accesskey="&menu_securityTech.accesskey;">
           <menupopup id="button-encTech_Toolbar">
             <menuitem id="encTech_OpenPGP_Toolbar"
@@ -1957,8 +1958,10 @@
                   value="sig"/>
 
 #ifdef MOZ_OPENPGP
-        <menuseparator id="myPublicKeySeparator_Toolbar"/>
+        <menuseparator id="myPublicKeySeparator_Toolbar"
+                       class="openpgp-item"/>
         <menuitem id="menu_securityMyPublicKey_Toolbar"
+                  class="openpgp-item"
                   type="checkbox"
                   label="&menu_securityAttachMyKey.label;"
                   accesskey="&menu_securityAttachMyKey.accesskey;"

@@ -47,6 +47,11 @@ var gTechPrefOpenPGP = null;
 var gTechPrefSMIME = null;
 
 function onInit() {
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
+    for (let item of document.querySelectorAll(".openpgp-item")) {
+      item.hidden = true;
+    }
+  }
   e2eInitializeFields();
 }
 

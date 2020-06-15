@@ -25,7 +25,7 @@
 
 #ifdef MOZ_OPENPGP
       <html:div>
-      <html:fieldset id="openpgpOptions">
+      <html:fieldset id="openpgpOptions" class="openpgp-item">
         <html:legend>&openpgpKeys.label;</html:legend>
 
         <label id="identity_openpgp_key_nameLabel"
@@ -149,6 +149,7 @@
 #ifdef MOZ_OPENPGP
         <separator/>
 
+        <html:div class="openpgp-item">
         <description>&e2eTechPref.description;</description>
         <radiogroup id="technologyChoices" class="indent">
           <radio id="technology_automatic" wsm_persist="true" value="0"
@@ -160,6 +161,7 @@
           <radio id="technology_prefer_smime" wsm_persist="true" value="1"
                  label="&technologySMIME.label;"/>
         </radiogroup>
+        </html:div>
 #endif
       </html:fieldset>
       </html:div>

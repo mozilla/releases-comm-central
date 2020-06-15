@@ -618,6 +618,10 @@ function OnLoadMessenger() {
     Enigmail.msg.messengerStartup();
     Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
     Enigmail.hdrView.hdrViewLoad();
+  } else {
+    for (let item of document.querySelectorAll(".openpgp-item")) {
+      item.hidden = true;
+    }
   }
 }
 
