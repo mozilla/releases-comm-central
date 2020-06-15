@@ -539,9 +539,12 @@ function toImport() {
 }
 
 function toSanitize() {
-  Cc["@mozilla.org/mail/mailglue;1"]
-    .getService(Ci.nsIMailGlue)
-    .sanitize(window);
+  let sanitizerScope = {};
+  Services.scriptloader.loadSubScript(
+    "chrome://messenger/content/sanitize.js",
+    sanitizerScope
+  );
+  sanitizerScope.Sanitizer.sanitize(window);
 }
 
 /**

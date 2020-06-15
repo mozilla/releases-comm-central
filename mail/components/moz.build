@@ -31,12 +31,6 @@ TEST_DIRS += ['test']
 
 DIRS += ['build']
 
-XPIDL_SOURCES += [
-    'nsIMailGlue.idl',
-]
-
-XPIDL_MODULE = 'mailcompsbase'
-
 EXTRA_JS_MODULES += [
     'AboutRedirector.jsm',
     'AppIdleManager.jsm',

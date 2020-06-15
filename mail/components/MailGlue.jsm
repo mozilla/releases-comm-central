@@ -63,15 +63,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  */
 
 function MailGlue() {
-  XPCOMUtils.defineLazyGetter(this, "_sanitizer", function() {
-    let sanitizerScope = {};
-    Services.scriptloader.loadSubScript(
-      "chrome://messenger/content/sanitize.js",
-      sanitizerScope
-    );
-    return sanitizerScope.Sanitizer;
-  });
-
   this._init();
 }
 
@@ -213,11 +204,6 @@ MailGlue.prototype = {
     }
   },
 
-  // nsIMailGlue implementation
-  sanitize(aParentWindow) {
-    this._sanitizer.sanitize(aParentWindow);
-  },
-
   _onProfileStartup() {
     TBDistCustomizer.applyPrefDefaults();
 
@@ -345,5 +331,5 @@ MailGlue.prototype = {
   },
 
   // for XPCOM
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.nsIMailGlue]),
+  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
 };
