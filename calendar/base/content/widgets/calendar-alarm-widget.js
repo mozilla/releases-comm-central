@@ -30,12 +30,9 @@
             <label class="alarm-title-label" crop="end"/>
             <vbox class="additional-information-box">
               <label class="alarm-date-label"/>
-              <hbox>
-                <label class="alarm-location-label"/>
-                <description class="alarm-location-description"
-                             crop="end"
-                             flex="1"/>
-              </hbox>
+              <description class="alarm-location-description"
+                           crop="end"
+                           flex="1"/>
               <hbox pack="start">
                 <label class="text-link alarm-details-label"
                        value="&calendar.alarm.details.label;"
@@ -123,10 +120,24 @@
       // Title, Location
       titleLabel.value = this.mItem.title || "";
       locationDescription.value = this.mItem.getProperty("LOCATION") || "";
-      locationDescription.hidden = locationDescription.value.length < 1;
-
-      this.querySelector(".alarm-location-label").hidden = locationDescription.value.length < 1;
-
+      if (locationDescription.value.length) {
+        let urlMatch = locationDescription.value.match(/(https?:\/\/[^ ]*)/);
+        let url = urlMatch && urlMatch[1];
+        if (url) {
+          locationDescription.setAttribute("link", url);
+          locationDescription.setAttribute(
+            "onclick",
+            "launchBrowser(this.getAttribute('link'), event)"
+          );
+          locationDescription.setAttribute(
+            "oncommand",
+            "launchBrowser(this.getAttribute('link'), event)"
+          );
+          locationDescription.classList.add("text-link", "alarm-details-label");
+        }
+      } else {
+        locationDescription.hidden = true;
+      }
       // Hide snooze button if read-only.
       let snoozeButton = this.querySelector(".alarm-snooze-button");
       if (
