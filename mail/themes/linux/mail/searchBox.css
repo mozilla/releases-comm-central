@@ -35,6 +35,7 @@
   background-color: -moz-field;
   border: 1px solid ThreeDShadow;
   border-radius: 2px;
+  outline: none;
   box-shadow: 0 1px 4px rgba(0,0,0,.05);
   padding: 3px;
   margin: 0 3px;
