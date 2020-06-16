@@ -2481,10 +2481,11 @@
     }
 
     /**
-     * Handle the selection and focus of the pill elements on mouse events.
+     * Handle the selection and focus of recipient pill elements on mouse click
+     * and spacebar keypress events.
      *
-     * @param {XULElement} pill - The mail-address-pill element.
-     * @param {Event} event - The DOM Event.
+     * @param {HTMLElement} pill - The <mail-address-pill> element, event target.
+     * @param {Event} event - A DOM click or keypress Event.
      */
     checkSelected(pill, event) {
       if (pill.isEditing) {
@@ -2501,6 +2502,11 @@
       }
 
       pill.toggleAttribute("selected");
+
+      // We need to force the focus on a pill that receives a click event
+      // (or a spacebar keypress), as macOS doesn't automatically move the focus
+      // on this custom element (bug 1645643, bug 1645916).
+      pill.focus();
 
       // Update the options in the context menu only after the pills were
       // selected and if the event was a right click.
