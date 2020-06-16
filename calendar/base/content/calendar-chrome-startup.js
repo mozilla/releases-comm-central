@@ -111,11 +111,6 @@ async function loadCalendarComponent() {
   filter.value = filter.value || "all";
   changeMode();
 
-  let mailContextPopup = document.getElementById("mailContext");
-  if (mailContextPopup) {
-    mailContextPopup.addEventListener("popupshowing", gCalSetupMailContext.popup);
-  }
-
   // Set up customizeDone handlers for our toolbars.
   let toolbox = document.getElementById("calendar-toolbox");
   toolbox.customizeDone = function(aEvent) {
@@ -136,12 +131,6 @@ async function loadCalendarComponent() {
  */
 function unloadCalendarComponent() {
   tearDownInvitationsManager();
-
-  // Remove listener for mailContext.
-  let mailContextPopup = document.getElementById("mailContext");
-  if (mailContextPopup) {
-    mailContextPopup.removeEventListener("popupshowing", gCalSetupMailContext.popup);
-  }
 
   // Unload the calendar manager
   unloadCalendarManager();
@@ -501,14 +490,6 @@ function updateTodayPaneButtonDate() {
   let dayNumber = cal.l10n.getDateFmtString(`day.${cal.dtz.now().day}.number`);
   todaypane.querySelector(".toolbarbutton-day-text").textContent = dayNumber;
 }
-
-var gCalSetupMailContext = {
-  popup() {
-    let hasSelection = gFolderDisplay.selectedMessage != null;
-    // Disable the convert menu altogether.
-    setElementValue("mailContext-calendar-convert-menu", !hasSelection && "true", "hidden");
-  },
-};
 
 // Overwrite the InitMessageMenu function, since we never know in which order
 // the popupshowing event will be processed. This function takes care of

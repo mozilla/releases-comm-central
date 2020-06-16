@@ -4,13 +4,17 @@
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/popup.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/browserRequest.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/extensionPopup.css" type="text/css"?>
 
 <!DOCTYPE window [
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
+  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
   %brandDTD;
-  <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
+  <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
   %messengerDTD;
+  <!ENTITY % textcontextDTD SYSTEM "chrome://global/locale/textcontext.dtd">
+  %textcontextDTD;
 ]>
 <window id="browserRequest"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
@@ -24,14 +28,52 @@
         height="500"
         orient="vertical">
 
+  <script src="chrome://communicator/content/utilityOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/browserRequest.js"/>
   <script src="chrome://messenger/content/extensionPopup.js"/>
+  <script src="chrome://messenger/content/nsContextMenu.js"/>
+
+  <popupset>
+#define BROWSER_POPUPS_ONLY
+#include ../../base/content/mainPopupSet.inc.xhtml
+    <panel is="autocomplete-richlistbox-popup" id="PopupAutoComplete"
+           type="autocomplete"
+           role="group"
+           noautofocus="true"/>
+  </popupset>
+
+  <commandset>
+    <command id="cmd_reload" oncommand="document.getElementById('requestFrame').reload()"/>
+    <command id="cmd_stop" oncommand="document.getElementById('requestFrame').stop()"/>
+    <command id="cmd_copyLink" oncommand="goDoCommand('cmd_copyLink')" disabled="false"/>
+    <command id="cmd_copyImage" oncommand="goCopyImage()" disabled="false"/>
+  </commandset>
+
+  <stringbundleset>
+    <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
+  </stringbundleset>
+
+  <linkset>
+    <html:link rel="localization" href="toolkit/global/textActions.ftl"/>
+  </linkset>
 
   <hbox id="header">
-  <hbox id="addressbox" flex="1" disabled="true">
-    <image id="security-button"/>
-    <description id="headerMessage"/>
+    <hbox id="addressbox" flex="1" disabled="true">
+      <image id="security-button"/>
+      <description id="headerMessage"/>
+    </hbox>
   </hbox>
-  </hbox>
-  <browser type="content" src="about:blank" id="requestFrame" flex="1"/>
+  <stack flex="1">
+    <browser id="requestFrame"
+             type="content"
+             src="about:blank"
+             flex="1"
+             autocompletepopup="PopupAutoComplete"
+             context="mailContext"
+             datetimepicker="DateTimePickerPanel"
+             messagemanagergroup="browsers"
+             oncontextMenu="return mailContextOnContextMenu(event);"/>
+  </stack>
 </window>

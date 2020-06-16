@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#ifndef BROWSER_POPUPS_ONLY
   <menupopup id="emailAddressPopup" position="after_start" class="emailAddressPopup"
              onpopupshowing="setupEmailAddressPopup(document.popupNode); goUpdateCommand('cmd_createFilterFromPopup')"
              onpopuphiding="hideEmailNewsPopup(document.popupNode);">
@@ -53,14 +54,15 @@
               oncommand="CreateFilter(document.popupNode, gMessageDisplay.displayedMessage)"
               observes="cmd_createFilterFromPopup"/>
   </menupopup>
+#endif
   <!-- "Please keep all items and separators up to date in nsContextMenu.js when making changes here" -->
   <menupopup id="mailContext"
              pagemenu="start"
              onpopupshowing="return fillMailContextMenu(event);"
              onpopuphiding="mailContextOnPopupHiding(event);">
-
+#ifndef BROWSER_POPUPS_ONLY
     <menuseparator id="page-menu-separator"/>
-
+#endif
     <!-- Spellchecking suggestions -->
     <menuitem id="mailContext-spell-no-suggestions"
               disabled="true"
@@ -134,7 +136,7 @@
                       oncommand="gContextMenu.addDictionaries();"/>
         </menupopup>
     </menu>
-
+#ifndef BROWSER_POPUPS_ONLY
     <menuitem id="mailContext-editDraftMsg"
               label="&contextEditDraftMsg.label;"
               default="true"
@@ -383,7 +385,7 @@
               accesskey="&contextPrint.accesskey;"
               observes="cmd_print"
               command="cmd_print"/>
-
+#endif
     <menuitem id="downloadSelected"
               label="&downloadSelectedCmd.label;"
               accesskey="&downloadSelectedCmd.accesskey;"
@@ -424,7 +426,7 @@
               accesskey="&reportPhishingURL.accesskey;"
               oncommand="gPhishingDetector.reportPhishingURL(gContextMenu.linkURL);"/>
   </menupopup>
-
+#ifndef BROWSER_POPUPS_ONLY
   <menupopup id="folderPaneContext"
              onpopupshowing="return fillFolderPaneContextMenu(event);"
              onpopuphiding="if (event.target == this) { folderPaneOnPopupHiding(); }">
@@ -592,7 +594,7 @@
              value=""/>
     </vbox>
   </tooltip>
-
+#endif
   <panel id="DateTimePickerPanel"
          type="arrow"
          hidden="true"

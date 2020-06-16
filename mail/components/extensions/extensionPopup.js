@@ -5,11 +5,16 @@
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
+var { BrowserUtils } = ChromeUtils.import(
+  "resource://gre/modules/BrowserUtils.jsm"
+);
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 
-/* globals reporterListener */
+var gContextMenu;
+
+/* globals nsContextMenu, reporterListener */
 
 function loadRequestedUrl() {
   let browser = document.getElementById("requestFrame");
@@ -56,8 +61,23 @@ function loadRequestedUrl() {
 
 // Fake it 'til you make it.
 var gBrowser = {
+  get selectedBrowser() {
+    return document.getElementById("requestFrame");
+  },
+  _getAndMaybeCreateDateTimePickerPanel() {
+    return this.selectedBrowser.dateTimePicker;
+  },
   get webNavigation() {
-    let browser = document.getElementById("requestFrame");
-    return browser.webNavigation;
+    return this.selectedBrowser.webNavigation;
   },
 };
+
+function mailContextOnContextMenu(event) {
+  document.getElementById("mailContext").target =
+    event.composedTarget || event.originalTarget;
+}
+function fillMailContextMenu(event) {
+  gContextMenu = new nsContextMenu(event.target, event.shiftKey);
+  return gContextMenu.shouldDisplay;
+}
+function mailContextOnPopupHiding() {}

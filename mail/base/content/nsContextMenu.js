@@ -58,13 +58,16 @@ function nsContextMenu(aXulMenu, aIsShift) {
   this.shouldDisplay = true;
 
   // Message Related Items
-  this.inMessageArea = false;
+  this.inAMessage = false;
   this.inThreadPane = false;
   this.inStandaloneWindow = false;
-  this.messagepaneIsBlank = false;
   this.numSelectedMessages = 0;
   this.isNewsgroup = false;
   this.hideMailItems = false;
+
+  // Browser related items
+  this.inABrowser = false;
+  this.inABlankBrowser = false;
 
   this.initMenu(aXulMenu, aIsShift);
 }
@@ -85,7 +88,7 @@ nsContextMenu.prototype = {
     this.setTarget(target);
     this.setMessageTargets(target);
 
-    if (!this.inThreadPane && this.messagepaneIsBlank) {
+    if (this.inABlankBrowser) {
       this.shouldDisplay = false;
       return;
     }
@@ -128,7 +131,10 @@ nsContextMenu.prototype = {
         subject.pageUrl = this.target.ownerGlobal.top.location.href;
         subject.principal = this.target.ownerDocument.nodePrincipal;
       }
-      if (target.closest("tree") == gFolderDisplay.tree) {
+      if (
+        window.gFolderDisplay &&
+        target.closest("tree") == gFolderDisplay.tree
+      ) {
         subject.displayedFolder = gFolderDisplay.view.displayedFolder;
         subject.selectedMessages = gFolderDisplay.selectedMessages;
       }
@@ -228,16 +234,16 @@ nsContextMenu.prototype = {
 
     goUpdateGlobalEditMenuItems();
 
-    this.showItem("mailContext-cut", !this.inMessageArea && this.onTextInput);
+    this.showItem("mailContext-cut", !this.inAMessage && this.onTextInput);
     this.showItem(
       "mailContext-copy",
       !this.inThreadPane &&
         !this.onPlayableMedia &&
         (this.isContentSelected || this.onTextInput)
     );
-    this.showItem("mailContext-paste", !this.inMessageArea && this.onTextInput);
+    this.showItem("mailContext-paste", !this.inAMessage && this.onTextInput);
 
-    this.showItem("mailContext-undo", !this.inMessageArea && this.onTextInput);
+    this.showItem("mailContext-undo", !this.inAMessage && this.onTextInput);
     // Select all not available in the thread pane or on playable media.
     this.showItem(
       "mailContext-selectall",
@@ -305,7 +311,7 @@ nsContextMenu.prototype = {
     // Work out if we are a context menu on a special item e.g. an image, link
     // etc.
     let notOnSpecialItem = !(
-      this.inMessageArea ||
+      this.inAMessage ||
       this.isContentSelected ||
       this.onCanvas ||
       this.onLink ||
@@ -334,27 +340,21 @@ nsContextMenu.prototype = {
     // offer the option.
     this.showItem(
       "mailContext-openInBrowser",
-      notOnSpecialItem &&
-        loadedProtocol &&
-        loadedProtocol != "about:" &&
-        loadedProtocol != "chrome:"
+      notOnSpecialItem && ["http:", "https:"].includes(loadedProtocol)
     );
 
     // Only show mailContext-openLinkInBrowser if we're on a link and it isn't
     // a mailto link.
     this.showItem(
       "mailContext-openLinkInBrowser",
-      this.onLink &&
-        !this.onMailtoLink &&
-        this.linkProtocol != "about" &&
-        this.linkProtocol != "chrome"
+      this.onLink && ["http", "https"].includes(this.linkProtocol)
     );
   },
   /* eslint-disable complexity */
   initMessageItems() {
     // If we're not in a message related tab, we're just going to bulk hide most
     // items as this simplifies the logic below.
-    if (!this.inMessageArea) {
+    if (!this.inAMessage) {
       const messageTabSpecificItems = [
         "mailContext-openNewWindow",
         "threadPaneContext-openNewTab",
@@ -387,6 +387,7 @@ nsContextMenu.prototype = {
         "mailContext-delete",
         "downloadSelected",
         "mailContext-reportPhishingURL",
+        "mailContext-calendar-convert-menu",
       ];
       for (let i = 0; i < messageTabSpecificItems.length; ++i) {
         this.showItem(messageTabSpecificItems[i], false);
@@ -549,6 +550,8 @@ nsContextMenu.prototype = {
       "mailContext-reportPhishingURL",
       !this.inThreadPane && this.onLink && !this.onMailtoLink
     );
+
+    this.setSingleSelection("mailContext-calendar-convert-menu");
   },
   /* eslint-enable complexity */
   initSeparators() {
@@ -753,33 +756,29 @@ nsContextMenu.prototype = {
   /* eslint-enable complexity */
 
   setMessageTargets(aNode) {
-    let tabmail = document.getElementById("tabmail");
-    if (tabmail) {
-      // Not all tabs are message tabs - if we're in a tab mode that is in
-      // mailTabType's list of modes, then we'll assume it is a message related
-      // tab.
-      this.inMessageArea = tabmail.selectedTab.mode.name in mailTabType.modes;
-      this.inStandaloneWindow = false;
-    } else {
-      // Assume that if we haven't got a tabmail item, then we're in standalone
-      // window
-      this.inMessageArea = true;
-      this.inStandaloneWindow = true;
-    }
+    this.inABrowser = aNode.ownerDocument != document;
+    this.inABlankBrowser =
+      this.inABrowser && aNode.ownerGlobal.location.href == "about:blank";
 
-    if (!this.inMessageArea) {
+    if (this.inABrowser) {
+      this.inAMessage = ["imap:", "mailbox:", "news:", "snews:"].includes(
+        aNode.ownerGlobal.location.protocol
+      );
       this.inThreadPane = false;
-      this.numSelectedMessages = 1;
-      this.isNewsgroup = false;
-      this.hideMailItems = true;
-      return;
+      if (!this.inAMessage) {
+        this.inStandaloneWindow = true;
+        this.numSelectedMessages = 0;
+        this.isNewsgroup = false;
+        this.hideMailItems = true;
+        return;
+      }
+    } else {
+      let threadTree = document.getElementById("threadTree");
+      this.inThreadPane = threadTree && threadTree.contains(aNode);
     }
 
-    this.inThreadPane = this.popupNodeIsInThreadPane(aNode);
-    this.messagepaneIsBlank =
-      document.getElementById("messagepane").contentWindow.location.href ==
-      "about:blank";
-
+    this.inAMessage = true;
+    this.inStandaloneWindow = false;
     this.numSelectedMessages = gFolderDisplay.selectedCount;
     this.isNewsgroup = gFolderDisplay.selectedMessageIsNews;
     // Don't show mail items for links/images, just show related items.
@@ -894,7 +893,9 @@ nsContextMenu.prototype = {
       aItemOrId.constructor == String
         ? document.getElementById(aItemOrId)
         : aItemOrId;
-    item.hidden = !aShow;
+    if (item) {
+      item.hidden = !aShow;
+    }
   },
 
   /**
@@ -1037,23 +1038,6 @@ nsContextMenu.prototype = {
    */
   isContentSelection() {
     return !document.commandDispatcher.focusedWindow.getSelection().isCollapsed;
-  },
-
-  /**
-   * Determines whether the context menu was triggered by a node that's a child
-   * of the threadpane by looking for a parent node with id="threadTree".
-   * @return true if the popupNode is a child of the threadpane, otherwise false
-   */
-  popupNodeIsInThreadPane(aNode) {
-    var node = aNode;
-    while (node) {
-      if (node.id == "threadTree") {
-        return true;
-      }
-
-      node = node.parentNode;
-    }
-    return false;
   },
 
   /**
