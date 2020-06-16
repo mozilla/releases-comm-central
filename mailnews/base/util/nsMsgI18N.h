@@ -52,31 +52,12 @@ NS_MSG_BASE bool nsMsgI18Nmultibyte_charset(const char* charset);
  *
  * @param charset  [IN] Charset to be converted.
  * @param inString [IN] Input unicode string to be examined.
- * @param fallbackCharset [OUT] null if fallback charset is not needed.
- *                      Otherwise, a fallback charset name may be set if that
- *                      was used for the conversion.
- *                      Caller is responsible for freeing the memory.
  * @return         True if the string can be converted within the charset range.
  *                 False if one or more characters cannot be converted to the
  *                 target charset.
  */
 NS_MSG_BASE bool nsMsgI18Ncheck_data_in_charset_range(const char* charset,
                                                       const char16_t* inString);
-
-/**
- * Return charset name of file system (OS dependent).
- *
- * @return            File system charset name.
- */
-NS_MSG_BASE const nsACString& nsMsgI18NFileSystemCharset(void);
-
-/**
- * Return charset name of text file (OS dependent).
- *
- * @param aCharset    [OUT] Text file charset name.
- */
-NS_MSG_BASE void nsMsgI18NTextFileCharset(nsACString& aCharset);
-
 /**
  * Convert from unicode to target charset.
  *

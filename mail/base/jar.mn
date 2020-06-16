@@ -132,7 +132,6 @@ messenger.jar:
 comm.jar:
 % content communicator %content/communicator/
    content/communicator/contentAreaClick.js         (content/contentAreaClick.js)
-   content/communicator/labelsencodings.properties  (/@mozreltopsrcdir@/dom/encoding/labelsencodings.properties)
    content/communicator/utilityOverlay.js           (content/utilityOverlay.js)
 
 browser.jar:

@@ -108,16 +108,6 @@ static int MimeInlineText_initializeCharset(MimeObject *obj) {
 
         nsCOMPtr<nsIPrefBranch> prefBranch(
             do_GetService(NS_PREFSERVICE_CONTRACTID, &res));
-        if (NS_SUCCEEDED(res)) {
-          nsCOMPtr<nsIPrefLocalizedString> str;
-          if (NS_SUCCEEDED(prefBranch->GetComplexValue(
-                  "intl.charset.detector", NS_GET_IID(nsIPrefLocalizedString),
-                  getter_AddRefs(str)))) {
-            // Only if we can get autodetector name correctly, do we set this to
-            // true.
-            text->inputAutodetect = true;
-          }
-        }
 
         if (obj->options && obj->options->default_charset)
           text->charset = strdup(obj->options->default_charset);

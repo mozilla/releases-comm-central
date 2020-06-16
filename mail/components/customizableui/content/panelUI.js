@@ -494,9 +494,6 @@ const PanelUI = {
       case "appMenu-viewTextEncodingView":
         this._onTextEncodingViewShow(event);
         break;
-      case "appMenu-viewTextEncodingDetectorsView":
-        this._onTextEncodingDetectorsViewShow(event);
-        break;
       // Go
       case "appMenu-goRecentlyClosedTabsView":
         PanelUI._refreshDynamicView(event, InitRecentlyClosedTabsPopup);
@@ -977,36 +974,10 @@ const PanelUI = {
     const panelView = event.target;
     const doc = panelView.ownerDocument;
     const parent = panelView.querySelector(".panel-subview-body");
-    const showDetectors = panelView.getAttribute("detectors") != "false";
 
     // Clear the view before recreating it.
     while (parent.firstElementChild) {
       parent.firstElementChild.remove();
-    }
-
-    if (showDetectors) {
-      // Add toolbarbutton for detectors subview.
-      const node = doc.createXULElement("toolbarbutton");
-      node.setAttribute("class", "subviewbutton subviewbutton-nav");
-      node.setAttribute("closemenu", "none");
-
-      node.setAttribute(
-        "label",
-        gBundle.GetStringFromName("charsetMenuAutodet")
-      );
-
-      node.setAttribute(
-        "accesskey",
-        gBundle.GetStringFromName("charsetMenuAutodet.key")
-      );
-
-      node.setAttribute(
-        "oncommand",
-        "PanelUI.showSubView('appMenu-viewTextEncodingDetectorsView', this)"
-      );
-
-      parent.appendChild(node);
-      parent.appendChild(doc.createXULElement("toolbarseparator"));
     }
 
     // Add a toolbarbutton for each character encoding.
@@ -1028,62 +999,6 @@ const PanelUI = {
     );
 
     UpdateCharsetMenu(msgWindow.mailCharacterSet, parent);
-  },
-
-  /**
-   * Event listener for showing the View/Text_Encoding/Auto-Detect view.
-   * Similar to the CharsetMenu.build function.
-   *
-   * @param {ViewShowingEvent} event  ViewShowing event.
-   */
-  _onTextEncodingDetectorsViewShow(event) {
-    const panelView = event.target;
-    const parent = panelView.querySelector(".panel-subview-body");
-    const doc = parent.ownerDocument;
-
-    // Clear the view before recreating it.
-    while (parent.firstElementChild) {
-      parent.firstElementChild.remove();
-    }
-
-    // Populate the view with toolbarbuttons.
-    panelView.setAttribute(
-      "title",
-      gBundle.GetStringFromName("charsetMenuAutodet")
-    );
-
-    const detectorInfoCache = CharsetMenu.getDetectorInfo();
-
-    detectorInfoCache.forEach(detectorInfo =>
-      parent.appendChild(PanelUI._createTextEncodingNode(doc, detectorInfo))
-    );
-
-    parent.appendChild(doc.createXULElement("toolbarseparator"));
-
-    // Make the current selection checked. (Like UpdateDetectorMenu function.)
-    const detector = Services.prefs.getComplexValue(
-      "intl.charset.detector",
-      Ci.nsIPrefLocalizedString
-    );
-
-    const item = parent.getElementsByAttribute("detector", detector).item(0);
-
-    if (item) {
-      item.setAttribute("checked", "true");
-    }
-  },
-
-  /**
-   * Set the text encoding detector preference. Used for the
-   * View / Text Encoding / Auto-Detect view.
-   *
-   * @param {Event} event  The 'oncommand' event.
-   */
-  setTextEncodingDetector(event) {
-    Services.prefs.setStringPref(
-      "intl.charset.detector",
-      event.target.getAttribute("detector")
-    );
   },
 
   _updateQuitTooltip() {

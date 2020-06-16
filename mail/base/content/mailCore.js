@@ -954,6 +954,5 @@ nsFlavorDataProvider.prototype = {
 };
 
 function UpdateCharsetMenu(aCharset, aNode) {
-  var bundle = document.getElementById("charsetBundle");
-  CharsetMenu.update(aNode, bundle.getString(aCharset.toLowerCase()));
+  CharsetMenu.update(aNode, aCharset);
 }

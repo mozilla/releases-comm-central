@@ -3868,9 +3868,10 @@ nsresult nsMsgCompose::LoadDataFromFile(nsIFile *file, nsString &sigData,
                 (readBuf[0] == char(0xFF) && readBuf[1] == char(0xFE)))) {
       sigEncoding.AssignLiteral("UTF-16");
     } else {
-      // default to platform encoding for plain text files w/o meta charset
+      // Autodetect encoding for plain text files w/o meta charset
       nsAutoCString textFileCharset;
-      nsMsgI18NTextFileCharset(textFileCharset);
+      rv = MsgDetectCharsetFromFile(file, textFileCharset);
+      NS_ENSURE_SUCCESS(rv, rv);
       sigEncoding.Assign(textFileCharset);
     }
   }

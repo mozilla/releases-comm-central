@@ -36,9 +36,7 @@ nsresult nsTextAddress::GetUnicharLineStreamForFile(
     nsIUnicharLineInputStream **aStream) {
   nsAutoCString charset;
   nsresult rv = MsgDetectCharsetFromFile(aFile, charset);
-  if (NS_FAILED(rv)) {
-    charset = nsMsgI18NFileSystemCharset();
-  }
+  NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIConverterInputStream> converterStream =
       do_CreateInstance("@mozilla.org/intl/converter-input-stream;1", &rv);

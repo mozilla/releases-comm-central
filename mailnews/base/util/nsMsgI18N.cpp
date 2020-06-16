@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsICharsetConverterManager.h"
-#include "mozilla/dom/FallbackEncoding.h"
 #include "mozilla/Utf8.h"
 #include "nsIServiceManager.h"
 
@@ -150,22 +149,6 @@ nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
              "UTF-7 should not produce a longer output");
   aDest.SetLength(outLen);
   return NS_OK;
-}
-
-// Charset used by the file system.
-const nsACString& nsMsgI18NFileSystemCharset() {
-  /* Get a charset used for the file. */
-  static nsAutoCString fileSystemCharset;
-
-  if (fileSystemCharset.IsEmpty())
-    mozilla::dom::FallbackEncoding::FromLocale()->Name(fileSystemCharset);
-
-  return fileSystemCharset;
-}
-
-// Charset used by the text file.
-void nsMsgI18NTextFileCharset(nsACString& aCharset) {
-  mozilla::dom::FallbackEncoding::FromLocale()->Name(aCharset);
 }
 
 // MIME encoder, output string should be freed by PR_FREE

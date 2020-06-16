@@ -199,29 +199,6 @@ var MailMigrator = {
         }
       }
 
-      // Limit the charset detector pref to values (now) available from the UI.
-      if (currentUIVersion < 9) {
-        let detector = null;
-        try {
-          detector = Services.prefs.getComplexValue(
-            "intl.charset.detector",
-            Ci.nsIPrefLocalizedString
-          ).data;
-        } catch (ex) {}
-        if (
-          !(
-            detector == "" ||
-            detector == "ja_parallel_state_machine" ||
-            detector == "ruprob" ||
-            detector == "ukprob"
-          )
-        ) {
-          // If the encoding detector pref value is not reachable from the UI,
-          // reset to default (varies by localization).
-          Services.prefs.clearUserPref("intl.charset.detector");
-        }
-      }
-
       // This one is needed also in all new profiles.
       // Add an expanded entry for All Address Books.
       if (currentUIVersion < 10 || newProfile) {

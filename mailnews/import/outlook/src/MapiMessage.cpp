@@ -713,13 +713,6 @@ bool CMapiMessage::FetchBody(void) {
       if (bFoundCharset) m_mimeCharset.Assign(charset);
     }
   }
-  if (!bFoundCharset) {  // Use system default
-    const nsCString charset(nsMsgI18NFileSystemCharset());
-    if (!charset.IsEmpty()) {
-      bFoundCharset = CheckBodyInCharsetRange(charset.get());
-      if (bFoundCharset) m_mimeCharset = charset;
-    }
-  }
   if (!bFoundCharset)  // Everything else failed, let's use the lossless
                        // utf-8...
     m_mimeCharset.AssignLiteral("utf-8");

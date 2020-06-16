@@ -254,6 +254,10 @@ nsresult nsBeckyUtils::ConvertToUTF8File(nsIFile *aSourceFile,
   rv = NS_NewLocalFileInputStream(getter_AddRefs(source), aSourceFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
+  nsAutoCString sourceCharset;
+  rv = MsgDetectCharsetFromFile(aSourceFile, sourceCharset);
+  NS_ENSURE_SUCCESS(rv, rv);
+
   nsCOMPtr<nsIOutputStream> destination;
   rv = NS_NewLocalFileOutputStream(getter_AddRefs(destination), convertedFile);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -263,7 +267,7 @@ nsresult nsBeckyUtils::ConvertToUTF8File(nsIFile *aSourceFile,
   nsCOMPtr<nsIConverterInputStream> convertedInput =
       do_CreateInstance("@mozilla.org/intl/converter-input-stream;1");
   convertedInput->Init(source,
-                       PromiseFlatCString(nsMsgI18NFileSystemCharset()).get(),
+                       sourceCharset.get(),
                        kBlock, 0x0000);
 
   nsCOMPtr<nsIConverterOutputStream> convertedOutput =
