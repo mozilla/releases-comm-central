@@ -941,6 +941,8 @@ let ChromeURLBlockPolicy = {
       contentLocation.scheme == "chrome" &&
       contentType == Ci.nsIContentPolicy.TYPE_DOCUMENT &&
       loadInfo.loadingContext &&
+      loadInfo.loadingContext.baseURI ==
+        "chrome://messenger/content/messenger.xhtml" &&
       contentLocation.host != "mochitests" &&
       contentLocation.host != "devtools"
     ) {
