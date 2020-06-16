@@ -75,7 +75,6 @@ comm.jar:
    content/communicator/helpEditorOverlay.xul                       (content/helpEditorOverlay.xul)
    content/communicator/helpMessengerOverlay.xul                    (content/helpMessengerOverlay.xul)
    content/communicator/helpSecurityOverlay.xul                     (content/helpSecurityOverlay.xul)
-   content/communicator/labelsencodings.properties                  (/dom/encoding/labelsencodings.properties)
 # the following file is a suite-specific override of the generic license.html, using suite/common/app-license.html as input:
 *  content/communicator/license.html                                (/toolkit/content/license.html)
    content/communicator/nsContextMenu.js                            (content/nsContextMenu.js)

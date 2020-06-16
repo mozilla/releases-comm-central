@@ -15,11 +15,6 @@
     }
   </script>
 
-  <stringbundleset>
-    <stringbundle id="charsetBundle"
-                  src="chrome://communicator/content/labelsencodings.properties"/>
-  </stringbundleset>
-
   <menu id="charsetMenu"
         label="&charsetMenu2.label;"
         accesskey="&charsetMenu2.accesskey;">

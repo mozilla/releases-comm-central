@@ -32,8 +32,6 @@
                   type="bool"/>
     </preferences>
 
-    <stringbundle id="charsetBundle"
-                  src="chrome://communicator/content/labelsencodings.properties"/>
     <groupbox align="start">
       <caption label="&messageDisplay.caption;"/>
       <hbox align="center">
