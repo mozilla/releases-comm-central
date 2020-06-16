@@ -25,12 +25,12 @@ job-defaults:
         bump-files:
             by-project:
                 default: ["mail/config/version_display.txt"]
-                comm-(beta|esr68):
+                comm-(beta|esr.*):
                     - "mail/config/version.txt"
                     - "mail/config/version_display.txt"
         push:
             by-project:
-                comm-(beta|esr68): true
+                comm-(beta|esr.*): true
                 default: false
 
 jobs:
