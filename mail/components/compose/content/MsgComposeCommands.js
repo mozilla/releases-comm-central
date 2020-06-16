@@ -179,6 +179,10 @@ const inputObserver = {
       let input = subject.QueryInterface(Ci.nsIAutoCompleteInput)
         .wrappedJSObject;
 
+      if (!input) {
+        return;
+      }
+
       let element = document.getElementById(input.id);
       // The observer is triggered also from within an already existing pill.
       // Since the autocomplete-input inside a pill doesn't have an ID, we can
@@ -8955,3 +8959,13 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
 
   return null;
 }
+
+function mailContextOnContextMenu(event) {
+  document.getElementById("mailContext").target =
+    event.composedTarget || event.originalTarget;
+}
+function fillMailContextMenu(event) {
+  gContextMenu = new nsContextMenu(event.target, event.shiftKey);
+  return gContextMenu.shouldDisplay;
+}
+function mailContextOnPopupHiding() {}

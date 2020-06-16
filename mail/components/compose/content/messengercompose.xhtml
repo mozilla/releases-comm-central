@@ -32,6 +32,8 @@
   <!ENTITY % utilityOverlayDTD SYSTEM
     "chrome://communicator/locale/utilityOverlay.dtd">
   %utilityOverlayDTD;
+  <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
+  %messengerDTD;
 ]>
 
 <window id="msgcomposeWindow"
@@ -80,6 +82,7 @@
 <script src="chrome://messenger/content/messengercompose/cloudAttachmentLinkManager.js"/>
 <script src="chrome://messenger/content/messenger-customization.js"/>
 <script src="chrome://messenger/content/customizable-toolbar.js"/>
+<script src="chrome://messenger/content/nsContextMenu.js"/>
 
 <!-- drag and drop -->
 <script src="chrome://messenger/content/addressbook/abDragDrop.js"/>
@@ -375,6 +378,13 @@
            checked="false" label="&customizeFromAddress.label;"/>
 </commandset>
 
+  <commandset>
+    <command id="cmd_reload" oncommand="document.getElementById('requestFrame').reload()"/>
+    <command id="cmd_stop" oncommand="document.getElementById('requestFrame').stop()"/>
+    <command id="cmd_copyLink" oncommand="goDoCommand('cmd_copyLink')" disabled="false"/>
+    <command id="cmd_copyImage" oncommand="goCopyImage()" disabled="false"/>
+  </commandset>
+
   <command id="cmd_doNotRemindForAttachments" oncommand="disableAttachmentReminder();"/>
 
 <keyset id="tasksKeys">
@@ -544,7 +554,14 @@
   <key id="insertlinkkb" key="&insertLinkCmd2.key;" observes="cmd_link" modifiers="accel"/>
 </keyset>
 
-<popupset id="mainPopupSet"/>
+<popupset id="mainPopupSet">
+#define BROWSER_POPUPS_ONLY
+#include ../../../base/content/mainPopupSet.inc.xhtml
+  <panel is="autocomplete-richlistbox-popup" id="PopupAutoComplete"
+         type="autocomplete"
+         role="group"
+         noautofocus="true"/>
+</popupset>
 
 <!-- Reorder Attachments Panel -->
 <panel id="reorderAttachmentsPanel"

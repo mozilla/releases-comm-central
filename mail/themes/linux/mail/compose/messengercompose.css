@@ -122,7 +122,7 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 
 /* ::::: autocomplete icons ::::: */
 
-.ac-site-icon {
+.autocomplete-richlistitem[type$="-abook"] > .ac-site-icon {
   display: -moz-box;
   margin: 1px 5px;
 }
