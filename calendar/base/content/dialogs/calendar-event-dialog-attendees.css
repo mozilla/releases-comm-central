@@ -89,7 +89,14 @@ calendar-day {
 
 #freebusy-grid-inner {
   overflow: hidden;
-  background-image: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2250%22%20height%3D%2221%22%3E%3Cpath%20d%3D%22M49.5%200V20.5H0%22%20fill%3D%22none%22%20stroke%3D%22threedshadow%22%20stroke-width%3D%221%22%2F%3E%3C%2Fsvg%3E%0A);
+}
+
+#freebusy-grid-inner.twoMinorColumns {
+  background-image: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2260%22%20height%3D%2221%22%20fill%3D%22none%22%20stroke%3D%22threedshadow%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M59.5%200V20.5H0%22%2F%3E%3Cpath%20d%3D%22M29.5%200V20.5%22%20stroke-opacity%3D%220.44%22%2F%3E%3C%2Fsvg%3E);
+}
+
+#freebusy-grid-inner.threeMinorColumns {
+  background-image: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2290%22%20height%3D%2221%22%20fill%3D%22none%22%20stroke%3D%22threedshadow%22%20stroke-width%3D%221%22%3E%3Cpath%20d%3D%22M89.5%200V20.5H0%22%2F%3E%3Cpath%20d%3D%22M29.5%200V20.5%22%20stroke-opacity%3D%220.44%22%2F%3E%3Cpath%20d%3D%22M59.5%200V20.5%22%20stroke-opacity%3D%220.44%22%2F%3E%3C%2Fsvg%3E);
 }
 
 .freebusy-row {

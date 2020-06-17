@@ -33,27 +33,37 @@ var zoom = {
   zoomOutButton: null,
   levels: [
     {
-      columnCount: 6,
-      columnDuration: cal.createDuration("PT4H"),
-      multiplier: 300 / 24 / 3600,
+      // Total width in pixels of one day.
+      dayWidth: 360,
+      // Number of major columns a day is divided into. Each dividing line is labelled.
+      columnCount: 4,
+      // Duration of each major column.
+      columnDuration: cal.createDuration("PT6H"),
+      // The width in pixels of one column.
+      columnWidth: 90,
+      // The width in pixels of one second.
+      secondWidth: 360 / 24 / 3600,
+      // Which background grid to show.
+      gridClass: "threeMinorColumns",
     },
     {
+      dayWidth: 720,
+      columnCount: 8,
+      columnDuration: cal.createDuration("PT3H"),
+      columnWidth: 90,
+      secondWidth: 720 / 24 / 3600,
+      gridClass: "threeMinorColumns",
+    },
+    {
+      dayWidth: 1440,
       columnCount: 12,
       columnDuration: cal.createDuration("PT2H"),
-      multiplier: 600 / 24 / 3600,
-    },
-    {
-      columnCount: 24,
-      columnDuration: cal.createDuration("PT1H"),
-      multiplier: 1200 / 24 / 3600,
-    },
-    {
-      columnCount: 48,
-      columnDuration: cal.createDuration("PT30M"),
-      multiplier: 2400 / 24 / 3600,
+      columnWidth: 120,
+      secondWidth: 1440 / 24 / 3600,
+      gridClass: "twoMinorColumns",
     },
   ],
-  currentLevel: 0,
+  currentLevel: null,
 
   init() {
     this.zoomInButton = document.getElementById("zoom-in-button");
@@ -84,8 +94,18 @@ var zoom = {
       attendee.clearFreeBusy();
     }
 
+    for (let gridClass of ["twoMinorColumns", "threeMinorColumns"]) {
+      if (this.levels[newZoomLevel].gridClass == gridClass) {
+        freebusyGridInner.classList.add(gridClass);
+      } else {
+        freebusyGridInner.classList.remove(gridClass);
+      }
+    }
     fillGrid();
     eventBar.update(true);
+  },
+  get dayWidth() {
+    return this.levels[this.currentLevel].dayWidth;
   },
   get columnCount() {
     return this.levels[this.currentLevel].columnCount;
@@ -93,8 +113,11 @@ var zoom = {
   get columnDuration() {
     return this.levels[this.currentLevel].columnDuration;
   },
-  get multiplier() {
-    return this.levels[this.currentLevel].multiplier;
+  get columnWidth() {
+    return this.levels[this.currentLevel].columnWidth;
+  },
+  get secondWidth() {
+    return this.levels[this.currentLevel].secondWidth;
   },
 };
 
@@ -124,7 +147,8 @@ var eventBar = {
         break;
       }
       case "dragover": {
-        this.dragDistance = Math.round((event.clientX - this.dragStartX) / 12.5) * 12.5;
+        // Snap dragging movements to half of a minor column width.
+        this.dragDistance = Math.round((event.clientX - this.dragStartX) / 15) * 15;
         this.eventBarTop.style.transform = this.eventBarBottom.style.transform = `translateX(${this.dragDistance}px)`;
         break;
       }
@@ -133,7 +157,7 @@ var eventBar = {
         this.eventBarTop.style.transform = this.eventBarBottom.style.transform = null;
 
         let duration = cal.createDuration();
-        duration.inSeconds = this.dragDistance / zoom.multiplier;
+        duration.inSeconds = this.dragDistance / zoom.secondWidth;
 
         let { startValue, endValue } = dateTimePickerUI;
         startValue.addDuration(duration);
@@ -463,7 +487,7 @@ function fillGrid() {
     displayEndTime.addDuration(cal.createDuration("P1D"));
   }
 
-  freebusyGridInner.style.width = dayHeaderInner.childElementCount * zoom.columnCount * 50 + "px";
+  freebusyGridInner.style.width = dayHeaderInner.childElementCount * zoom.dayWidth + "px";
   if (displayEndTime.compare(oldEndTime) > 0) {
     for (let attendee of attendeeList.getElementsByTagName("event-attendee")) {
       attendee.updateFreeBusy(oldEndTime, displayEndTime);
@@ -479,8 +503,8 @@ function fillGrid() {
  * @param {calIDateTime} endTime - The end time to be represented.
  */
 function setLeftAndWidth(element, startTime, endTime) {
-  element.style.left = startTime.subtractDate(displayStartTime).inSeconds * zoom.multiplier + "px";
-  element.style.width = endTime.subtractDate(startTime).inSeconds * zoom.multiplier + "px";
+  element.style.left = startTime.subtractDate(displayStartTime).inSeconds * zoom.secondWidth + "px";
+  element.style.width = endTime.subtractDate(startTime).inSeconds * zoom.secondWidth + "px";
 }
 
 // Wrap in a block to prevent leaking to window scope.
@@ -773,7 +797,10 @@ function setLeftAndWidth(element, startTime, endTime) {
 
       let columnContainer = this.appendChild(document.createXULElement("box"));
 
-      columnContainer.appendChild(document.createXULElement("box")).setAttribute("width", "25");
+      // A half-column-wide spacer to align labels with the dividing grid lines.
+      columnContainer
+        .appendChild(document.createXULElement("box"))
+        .setAttribute("width", zoom.columnWidth / 2);
 
       let column = displayEndTime.clone();
       column.isDate = false;
@@ -781,7 +808,7 @@ function setLeftAndWidth(element, startTime, endTime) {
         column.addDuration(zoom.columnDuration);
 
         let columnBox = columnContainer.appendChild(document.createXULElement("box"));
-        columnBox.setAttribute("width", "50");
+        columnBox.setAttribute("width", zoom.columnWidth);
         columnBox.setAttribute("align", "center");
 
         let columnLabel = columnBox.appendChild(document.createXULElement("label"));
@@ -790,7 +817,10 @@ function setLeftAndWidth(element, startTime, endTime) {
         columnLabel.setAttribute("value", cal.dtz.formatter.formatTime(column));
       }
 
-      columnContainer.appendChild(document.createXULElement("box")).setAttribute("width", "24");
+      // A half-column-wide (minus 1px) spacer to align labels with the dividing grid lines.
+      columnContainer
+        .appendChild(document.createXULElement("box"))
+        .setAttribute("width", zoom.columnWidth / 2 - 1);
     }
 
     disconnectedCallback() {
