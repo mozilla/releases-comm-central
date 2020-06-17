@@ -517,21 +517,12 @@ this.tabs = class extends ExtensionAPI {
 
         async query(queryInfo) {
           if (!extension.hasPermission("tabs")) {
-            if (queryInfo.url || queryInfo.title !== null) {
+            if (queryInfo.url !== null || queryInfo.title !== null) {
               return Promise.reject({
                 message:
                   'The "tabs" permission is required to use the query API with the "url" or "title" parameters',
               });
             }
-          }
-
-          queryInfo = Object.assign({}, queryInfo);
-
-          if (queryInfo.url) {
-            queryInfo.url = new MatchPatternSet([].concat(queryInfo.url));
-          }
-          if (queryInfo.title !== null) {
-            queryInfo.title = new MatchGlob(queryInfo.title);
           }
 
           // Make ext-tabs-base happy since it does a strict check.

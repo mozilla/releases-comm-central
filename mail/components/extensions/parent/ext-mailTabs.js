@@ -165,6 +165,7 @@ this.mailTabs = class extends ExtensionAPI {
                 // All of these are needed for tabManager to return every tab we want.
                 index: null,
                 screen: null,
+                url: null,
                 windowType: null,
               },
               context
