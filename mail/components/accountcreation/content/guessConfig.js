@@ -1018,7 +1018,7 @@ SSLErrorHandler.prototype = {
   processCertError(socketInfo, secInfo, targetSite) {
     this._log.error("Got Cert error for " + targetSite);
 
-    if (!status) {
+    if (!secInfo) {
       return true;
     }
 
@@ -1055,14 +1055,14 @@ SSLErrorHandler.prototype = {
      * and he will likely approve it.
      */
 
-    if (status.isDomainMismatch) {
+    if (secInfo.isDomainMismatch) {
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_MISMATCH;
       flags |= Ci.nsICertOverrideService.ERROR_MISMATCH;
-    } else if (status.isUntrusted) {
+    } else if (secInfo.isUntrusted) {
       // e.g. self-signed
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_UNTRUSTED;
       flags |= Ci.nsICertOverrideService.ERROR_UNTRUSTED;
-    } else if (status.isNotValidAtThisTime) {
+    } else if (secInfo.isNotValidAtThisTime) {
       this._try._gotCertError = Ci.nsICertOverrideService.ERROR_TIME;
       flags |= Ci.nsICertOverrideService.ERROR_TIME;
     } else {
