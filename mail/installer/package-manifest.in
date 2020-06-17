@@ -363,6 +363,7 @@
 @RESPATH@/components/servicesComponents.manifest
 @RESPATH@/components/servicesSettings.manifest
 @RESPATH@/components/cryptoComponents.manifest
+@RESPATH@/components/TelemetryStartup.manifest
 @RESPATH@/components/Push.manifest
 
 @RESPATH@/components/l10n-registry.manifest
