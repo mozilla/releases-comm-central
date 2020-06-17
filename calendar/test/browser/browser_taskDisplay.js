@@ -30,8 +30,14 @@ add_task(async () => {
 
   async function setFilterGroup(name) {
     info(`Setting filter to ${name}`);
-    EventUtils.synthesizeMouseAtCenter(document.getElementById(`opt_${name}_filter`), {});
+    let radio = document.getElementById(`opt_${name}_filter`);
+    EventUtils.synthesizeMouseAtCenter(radio, {});
     await treeRefresh();
+    Assert.equal(
+      document.getElementById("calendar-task-tree").getAttribute("filterValue"),
+      radio.value,
+      "Filter group changed"
+    );
   }
 
   async function setFilterText(text) {
@@ -47,7 +53,7 @@ add_task(async () => {
     await treeRefresh();
   }
 
-  function checkVisibleTasks(...expectedTasks) {
+  async function checkVisibleTasks(...expectedTasks) {
     let actualTasks = [];
     for (let i = 0; i < tree.view.rowCount; i++) {
       actualTasks.push(tree.getTaskAtRow(i));
@@ -56,6 +62,7 @@ add_task(async () => {
     info("Actual: " + actualTasks.map(task => task.title).join(", "));
 
     is(tree.view.rowCount, expectedTasks.length, "Correct number of tasks");
+    await new Promise(r => setTimeout(r));
 
     // Although the order of expectedTasks matches the observed behaviour when
     // this test was written, order is NOT checked here. The order of the list
@@ -88,7 +95,7 @@ add_task(async () => {
   await openTasksTab();
 
   await setFilterGroup("all");
-  checkVisibleTasks(
+  await checkVisibleTasks(
     tasks.incomplete,
     tasks.started30,
     tasks.started60,
@@ -100,7 +107,7 @@ add_task(async () => {
   );
 
   await setFilterGroup("open");
-  checkVisibleTasks(
+  await checkVisibleTasks(
     tasks.incomplete,
     tasks.started30,
     tasks.started60,
@@ -111,16 +118,16 @@ add_task(async () => {
   );
 
   await setFilterGroup("completed");
-  checkVisibleTasks(tasks.complete);
+  await checkVisibleTasks(tasks.complete);
 
   await setFilterGroup("overdue");
-  checkVisibleTasks(tasks.overdue);
+  await checkVisibleTasks(tasks.overdue);
 
   await setFilterGroup("notstarted");
-  checkVisibleTasks(tasks.overdue, tasks.incomplete, tasks.startsToday);
+  await checkVisibleTasks(tasks.overdue, tasks.incomplete, tasks.startsToday);
 
   await setFilterGroup("next7days");
-  checkVisibleTasks(
+  await checkVisibleTasks(
     tasks.overdue,
     tasks.incomplete,
     tasks.startsToday,
@@ -131,7 +138,7 @@ add_task(async () => {
   );
 
   await setFilterGroup("today");
-  checkVisibleTasks(
+  await checkVisibleTasks(
     tasks.overdue,
     tasks.incomplete,
     tasks.startsToday,
@@ -141,7 +148,7 @@ add_task(async () => {
   );
 
   await setFilterGroup("throughcurrent");
-  checkVisibleTasks(
+  await checkVisibleTasks(
     tasks.overdue,
     tasks.incomplete,
     tasks.startsToday,
@@ -151,10 +158,10 @@ add_task(async () => {
   );
 
   await setFilterText("No matches");
-  checkVisibleTasks();
+  await checkVisibleTasks();
 
   await clearFilterText();
-  checkVisibleTasks(
+  await checkVisibleTasks(
     tasks.incomplete,
     tasks.started30,
     tasks.started60,
@@ -164,38 +171,38 @@ add_task(async () => {
   );
 
   await setFilterText("StArTeD");
-  checkVisibleTasks(tasks.started30, tasks.started60);
+  await checkVisibleTasks(tasks.started30, tasks.started60);
 
   await setFilterGroup("today");
   is(document.getElementById("task-text-filter-field").value, "StArTeD");
-  checkVisibleTasks(tasks.started30, tasks.started60);
+  await checkVisibleTasks(tasks.started30, tasks.started60);
 
   await setFilterGroup("next7days");
   is(document.getElementById("task-text-filter-field").value, "StArTeD");
-  checkVisibleTasks(tasks.started30, tasks.started60);
+  await checkVisibleTasks(tasks.started30, tasks.started60);
 
   await setFilterGroup("notstarted");
   is(document.getElementById("task-text-filter-field").value, "StArTeD");
-  checkVisibleTasks();
+  await checkVisibleTasks();
 
   await setFilterGroup("overdue");
   is(document.getElementById("task-text-filter-field").value, "StArTeD");
-  checkVisibleTasks();
+  await checkVisibleTasks();
 
   await setFilterGroup("completed");
   is(document.getElementById("task-text-filter-field").value, "StArTeD");
-  checkVisibleTasks();
+  await checkVisibleTasks();
 
   await setFilterGroup("open");
   is(document.getElementById("task-text-filter-field").value, "StArTeD");
-  checkVisibleTasks(tasks.started30, tasks.started60);
+  await checkVisibleTasks(tasks.started30, tasks.started60);
 
   await setFilterGroup("all");
   is(document.getElementById("task-text-filter-field").value, "StArTeD");
-  checkVisibleTasks(tasks.started30, tasks.started60);
+  await checkVisibleTasks(tasks.started30, tasks.started60);
 
   await clearFilterText();
-  checkVisibleTasks(
+  await checkVisibleTasks(
     tasks.started30,
     tasks.started60,
     tasks.incomplete,
@@ -209,6 +216,7 @@ add_task(async () => {
   for (let task of Object.values(tasks)) {
     await calendar.deleteItem(task);
   }
+  await setFilterGroup("throughcurrent");
 });
 
 registerCleanupFunction(() => {
