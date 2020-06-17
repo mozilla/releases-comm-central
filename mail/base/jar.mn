@@ -137,6 +137,14 @@ comm.jar:
 browser.jar:
 # Needed for built_in_addons.json
 % content browser %content/
+    content/extension.css                              (../../../browser/components/extensions/extension.css)
+#ifdef XP_MACOSX
+    content/extension-mac.css                          (../../../browser/components/extensions/extension-mac.css)
+    content/extension-mac-panel.css                    (../../../browser/components/extensions/extension-mac-panel.css)
+#endif
+#ifdef XP_WIN
+    content/extension-win-panel.css                    (../../../browser/components/extensions/extension-win-panel.css)
+#endif
 # These files are referenced from various toolkit files.
 % skin browser classic/1.0 %skin/
     skin/illustrations/error-malformed-url.svg         (../../../browser/themes/shared/illustrations/error-malformed-url.svg)

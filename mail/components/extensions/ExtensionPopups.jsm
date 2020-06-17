@@ -6,21 +6,40 @@
 
 var EXPORTED_SYMBOLS = ["BasePopup", "ViewPopup"];
 
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
 ChromeUtils.defineModuleGetter(
   this,
   "ExtensionParent",
   "resource://gre/modules/ExtensionParent.jsm"
 );
-var { ExtensionUtils } = ChromeUtils.import(
-  "resource://gre/modules/ExtensionUtils.jsm"
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
 );
-var { ExtensionCommon } = ChromeUtils.import(
+const { ExtensionCommon } = ChromeUtils.import(
   "resource://gre/modules/ExtensionCommon.jsm"
+);
+const { ExtensionUtils } = ChromeUtils.import(
+  "resource://gre/modules/ExtensionUtils.jsm"
 );
 
 var { DefaultWeakMap, promiseEvent } = ExtensionUtils;
 
 var { makeWidgetId } = ExtensionCommon;
+
+XPCOMUtils.defineLazyGetter(this, "standaloneStylesheets", () => {
+  let stylesheets = [];
+
+  if (AppConstants.platform === "macosx") {
+    stylesheets.push("chrome://browser/content/extension-mac-panel.css");
+  }
+  if (AppConstants.platform === "win") {
+    stylesheets.push("chrome://browser/content/extension-win-panel.css");
+  }
+  return stylesheets;
+});
 
 class BasePopup {
   constructor(
@@ -58,7 +77,6 @@ class BasePopup {
       this.browserLoadedDeferred = { resolve, reject };
     });
     this.browserReady = this.createBrowser(viewNode, popupURL);
-    this.previousFocusedNode = this.window.document.activeElement;
 
     BasePopup.instances.get(this.window).set(extension, this);
   }
@@ -71,11 +89,6 @@ class BasePopup {
     this.extension.forgetOnClose(this);
 
     this.window.removeEventListener("unload", this);
-
-    if (this.previousFocusedNode) {
-      this.previousFocusedNode.focus();
-      this.previousFocusedNode = null;
-    }
 
     this.destroyed = true;
     this.browserLoadedDeferred.reject(new Error("Popup destroyed"));
@@ -117,14 +130,27 @@ class BasePopup {
     // popup was closed externally, there will be no message manager here, so
     // just replace our receiveMessage method with a stub.
     if (mm) {
-      mm.removeMessageListener("DOMTitleChanged", this);
       mm.removeMessageListener("Extension:BrowserBackgroundChanged", this);
       mm.removeMessageListener("Extension:BrowserContentLoaded", this);
       mm.removeMessageListener("Extension:BrowserResized", this);
     } else if (finalize) {
       this.receiveMessage = () => {};
     }
+    browser.removeEventListener("pagetitlechanged", this);
     browser.removeEventListener("DOMWindowClose", this);
+  }
+
+  get STYLESHEETS() {
+    let sheets = [];
+
+    if (this.browserStyle) {
+      sheets.push(...ExtensionParent.extensionStylesheets);
+    }
+    if (!this.fixedWidth) {
+      sheets.push(...standaloneStylesheets);
+    }
+
+    return sheets;
   }
 
   get panel() {
@@ -133,10 +159,6 @@ class BasePopup {
 
   receiveMessage({ name, data }) {
     switch (name) {
-      case "DOMTitleChanged":
-        this.viewNode.setAttribute("aria-label", this.browser.contentTitle);
-        break;
-
       case "Extension:BrowserBackgroundChanged":
         this.setBackground(data.background);
         break;
@@ -180,6 +202,10 @@ class BasePopup {
               // If the panel closes too fast an exception is raised here and tests will fail.
             });
         }
+        break;
+
+      case "pagetitlechanged":
+        this.viewNode.setAttribute("aria-label", this.browser.contentTitle);
         break;
 
       case "DOMWindowClose":
@@ -235,10 +261,10 @@ class BasePopup {
 
     let setupBrowser = browser => {
       let mm = browser.messageManager;
-      mm.addMessageListener("DOMTitleChanged", this);
       mm.addMessageListener("Extension:BrowserBackgroundChanged", this);
       mm.addMessageListener("Extension:BrowserContentLoaded", this);
       mm.addMessageListener("Extension:BrowserResized", this);
+      browser.addEventListener("pagetitlechanged", this);
       browser.addEventListener("DOMWindowClose", this);
       return browser;
     };
@@ -250,9 +276,6 @@ class BasePopup {
     return readyPromise.then(() => {
       setupBrowser(browser);
       let mm = browser.messageManager;
-
-      // Sets the context information for context menus.
-      mm.loadFrameScript("chrome://browser/content/content.js", true, true);
 
       mm.loadFrameScript(
         "chrome://extensions/content/ext-browser-content.js",
@@ -266,7 +289,7 @@ class BasePopup {
         fixedWidth: this.fixedWidth,
         maxWidth: 800,
         maxHeight: 600,
-        stylesheets: [],
+        stylesheets: this.STYLESHEETS,
       });
 
       browser.loadURI(popupURL, {
