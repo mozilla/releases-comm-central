@@ -318,8 +318,12 @@ function EnigConfirm(mesg, okLabel, cancelLabel) {
   return EnigmailDialog.confirmDlg(window, mesg, okLabel, cancelLabel);
 }
 
-function EnigError(mesg) {
-  return gEnigPromptSvc.alert(window, EnigGetString("enigError2"), mesg);
+async function EnigError(mesg) {
+  return gEnigPromptSvc.alert(
+    window,
+    await document.l10n.formatValue("enig-error"),
+    mesg
+  );
 }
 
 function EnigHelpWindow(source) {

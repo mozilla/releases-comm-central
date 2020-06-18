@@ -86,7 +86,7 @@ async function reloadData() {
     if (keyObj.secretAvailable) {
       document.getElementById("ownKeyCommands").removeAttribute("hidden");
       acceptanceIntroText = "key-auto-accept-personal";
-      let value = await document.l10n.formatValue("key-type-pair-2");
+      let value = await document.l10n.formatValue("key-type-pair");
       setLabel("keyType", value);
     } else {
       document.getElementById("ownKeyCommands").setAttribute("hidden", "true");
@@ -155,19 +155,18 @@ async function reloadData() {
 
     let expiryInfo;
     let expireArgument = null;
-    let l10nUse = true;
+    let expiryInfoKey = "";
     if (keyObj.keyTrust == "r") {
-      expiryInfo = "key-revoked";
-      acceptanceIntroText = expiryInfo;
+      expiryInfoKey = "key-revoked";
+      acceptanceIntroText = expiryInfoKey;
     } else if (keyObj.keyTrust == "e" || keyIsExpired) {
-      expiryInfo = "key-expired";
+      expiryInfoKey = "key-expired-date";
       expireArgument = keyObj.expiry;
-      acceptanceIntroText = expiryInfo;
+      acceptanceIntroText = expiryInfoKey;
     } else if (keyObj.expiry.length === 0) {
-      expiryInfo = "key-does-not-expire";
+      expiryInfoKey = "key-does-not-expire";
     } else {
       expiryInfo = keyObj.expiry;
-      l10nUse = false;
     }
 
     if (acceptanceIntroText) {
@@ -182,14 +181,12 @@ async function reloadData() {
       document.l10n.setAttributes(acceptanceExplanation, acceptanceWarningText);
     }
 
-    if (l10nUse) {
-      let keyExpiryNode = document.getElementById("keyExpiry");
-      document.l10n.setAttributes(keyExpiryNode, expiryInfo, {
+    if (expiryInfoKey) {
+      expiryInfo = await document.l10n.formatValue(expiryInfoKey, {
         keyExpiry: expireArgument,
       });
-    } else {
-      setLabel("keyExpiry", expiryInfo);
     }
+    setLabel("keyExpiry", expiryInfo);
     if (keyObj.fpr) {
       gFingerprint = keyObj.fpr;
       setLabel("fingerprint", EnigmailKey.formatFpr(keyObj.fpr));
@@ -468,7 +465,7 @@ function createSubkeyItem(subkey) {
   // Get expiry state of this subkey
   let expire;
   if (subkey.keyTrust === "r") {
-    expire = EnigmailLocale.getString("keyValid.revoked");
+    expire = l10n.formatValueSync("key-valid-revoked");
   } else if (subkey.expiryTime === 0) {
     expire = l10n.formatValueSync("key-expiry-never");
   } else {

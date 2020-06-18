@@ -8,9 +8,6 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailKeyUsability"];
 
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
 );
@@ -326,9 +323,9 @@ var EnigmailKeyUsability = {
         null,
         {
           msgtext: msg,
-          dialogTitle: EnigmailLocale.getString("enigInfo2"),
-          checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
-          button1: EnigmailLocale.getString("dlg.button.close"),
+          dialogTitle: await l10n.formatValue("enig-info"),
+          checkboxLabel: await l10n.formatValue("dlg-no-prompt"),
+          button1: await l10n.formatValue("dlg-button-close"),
           button2: actionButtonText,
           iconType: EnigmailConstants.ICONTYPE_INFO,
         },

@@ -11,9 +11,6 @@ var EXPORTED_SYMBOLS = ["EnigmailKeyRing"];
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 );
@@ -373,7 +370,7 @@ var EnigmailKeyRing = {
       if (failed && !permissive) {
         let agreed = getDialog().confirmDlg(
           win,
-          EnigmailLocale.getString("confirmPermissiveImport")
+          l10n.formatValueSync("confirm-permissive-import")
         );
         if (agreed) {
           permissive = true;
@@ -677,7 +674,7 @@ var EnigmailKeyRing = {
       if (failed && isInteractive && !permissive) {
         let agreed = getDialog().confirmDlg(
           parent,
-          EnigmailLocale.getString("confirmPermissiveImport")
+          l10n.formatValueSync("confirm-permissive-import")
         );
         if (agreed) {
           permissive = true;

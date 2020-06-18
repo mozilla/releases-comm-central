@@ -1006,7 +1006,9 @@ Enigmail.msg = {
       tmpFile = Cc[LOCAL_FILE_CONTRACTID].createInstance(Ci.nsIFile);
       tmpFile.initWithPath(tmpDir);
       if (!(tmpFile.isDirectory() && tmpFile.isWritable())) {
-        EnigmailDialog.alert(window, EnigmailLocale.getString("noTempDir"));
+        document.l10n.formatValue("no-temp-dir").then(value => {
+          EnigmailDialog.alert(window, value);
+        });
         return null;
       }
     } catch (ex) {
@@ -2049,7 +2051,7 @@ Enigmail.msg = {
 
         var hideBccUsers = promptSvc.confirmEx(
           window,
-          EnigmailLocale.getString("enigConfirm2"),
+          l10n.formatValueSync("enig-confirm"),
           l10n.formatValueSync("sending-hidden-rcpt"),
           promptSvc.BUTTON_TITLE_IS_STRING * promptSvc.BUTTON_POS_0 +
             promptSvc.BUTTON_TITLE_CANCEL * promptSvc.BUTTON_POS_1 +
@@ -2230,9 +2232,11 @@ Enigmail.msg = {
 
     if ((gSendEncrypted || gSendSigned) && !senderKeyId) {
       let msgId = gSendEncrypted
-        ? "cannotSendEncBecauseNoOwnKey"
-        : "cannotSendSigBecauseNoOwnKey";
-      let fullAlert = EnigmailLocale.getString(msgId, [this.identity.email]);
+        ? "cannot-send-enc-because-no-own-key"
+        : "cannot-send-sig-because-no-own-key";
+      let fullAlert = await document.l10n.formatValue(msgId, {
+        key: this.identity.email,
+      });
       EnigmailDialog.alert(window, fullAlert);
       return false;
     }
@@ -2282,7 +2286,10 @@ Enigmail.msg = {
     }
 
     if (gWindowLocked) {
-      EnigmailDialog.alert(window, EnigmailLocale.getString("windowLocked"));
+      EnigmailDialog.alert(
+        window,
+        await document.l10n.formatValue("window-locked")
+      );
       return false;
     }
 
@@ -2675,7 +2682,7 @@ Enigmail.msg = {
       }
       EnigmailDialog.info(
         window,
-        (await document.l10n.formatValue("send-aborted")) + txt
+        (await document.l10n.formatValue("send-aborted")) + "\n" + txt
       );
     } else {
       EnigmailDialog.info(
