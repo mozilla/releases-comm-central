@@ -326,10 +326,11 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::Observe(nsISupports *aSubject,
 
 RefPtr<GenericPromise> nsAbLDAPProcessReplicationData::PromiseDatabaseClosed(
     nsIFile *file) {
-  nsCOMPtr<nsIObserverService> observerService =
-      mozilla::services::GetObserverService();
-  observerService->NotifyObservers(file, "addrbook-close-ab", nullptr);
-
+  if (file) {
+    nsCOMPtr<nsIObserverService> observerService =
+        mozilla::services::GetObserverService();
+    observerService->NotifyObservers(file, "addrbook-close-ab", nullptr);
+  }
   mDatabaseClosedPromise = new GenericPromise::Private(__func__);
   return mDatabaseClosedPromise;
 }
@@ -363,8 +364,13 @@ void nsAbLDAPProcessReplicationData::Done(bool aSuccess) {
       promise = GenericPromise::CreateAndResolve(true, __func__);
     }
   } else {
-    // Close mReplicationFile.
-    mReplicationFile->Remove(false);
+    // Failed. Discard any partial results and clean up.
+    // Note: if the failure occurs before the LDAP bind, then mReplicationDB,
+    // mReplicationFile etc will be unset, so the cleanup needs to tolerate
+    // that (Bug 1645512).
+    if (mReplicationFile) {
+      mReplicationFile->Remove(false);
+    }
     promise = this->PromiseDatabaseClosed(mReplicationFile);
   }
 
@@ -373,7 +379,9 @@ void nsAbLDAPProcessReplicationData::Done(bool aSuccess) {
         mozilla::services::GetObserverService();
     observerService->RemoveObserver(this, "addrbook-close-ab-complete");
 
-    mDirectory->SetReplicationFileName(mReplicationFileName);
+    if (mReplicationDB) {
+      mDirectory->SetReplicationFileName(mReplicationFileName);
+    }
     mState = kReplicationDone;
 
     if (mQuery) mQuery->Done(aSuccess);

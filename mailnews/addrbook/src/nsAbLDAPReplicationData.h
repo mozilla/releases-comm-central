@@ -41,6 +41,7 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
   // pointer to the query to call back to once we've finished
   nsCOMPtr<nsIAbLDAPReplicationQuery> mQuery;
 
+  // These four are set up upon LDAP bind.
   nsCOMPtr<nsIAbDirectory> mReplicationDB;
   nsCOMPtr<nsIFile> mReplicationFile;
   nsCOMPtr<nsIFile> mOldReplicationFile;
