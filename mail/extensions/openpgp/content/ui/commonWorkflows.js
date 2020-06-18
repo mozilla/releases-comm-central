@@ -20,6 +20,8 @@ var EnigmailKeyRing = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 ).EnigmailKeyRing;
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 /**
  * opens a prompt, asking the user to enter passphrase for given key id
  * returns: the passphrase if entered (empty string is allowed)
@@ -53,12 +55,12 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
 function EnigmailCommon_importKeysFromFile(secret) {
   let inFile = EnigmailDialog.filePicker(
     window,
-    EnigmailLocale.getString("importKeyFile"),
+    l10n.formatValueSync("import-key-file"),
     "",
     false,
     "*.asc",
     "",
-    [EnigmailLocale.getString("gnupgFile"), "*.asc;*.gpg;*.pgp"]
+    [l10n.formatValueSync("gnupg-file"), "*.asc;*.gpg;*.pgp"]
   );
   if (!inFile) {
     return false;
@@ -80,10 +82,9 @@ function EnigmailCommon_importKeysFromFile(secret) {
   );
 
   if (!preview || !preview.length || errorMsgObj.value) {
-    EnigmailDialog.alert(
-      window,
-      EnigmailLocale.getString("importKeysFailed") + "\n\n" + errorMsgObj.value
-    );
+    document.l10n.formatValue("import-keys-failed").then(value => {
+      EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
+    });
     return false;
   }
   let exitStatus = -1;
@@ -123,12 +124,9 @@ function EnigmailCommon_importKeysFromFile(secret) {
         secret
       );
       if (exitCode !== 0) {
-        EnigmailDialog.alert(
-          window,
-          EnigmailLocale.getString("importKeysFailed") +
-            "\n\n" +
-            errorMsgObj.value
-        );
+        document.l10n.formatValue("import-keys-failed").then(value => {
+          EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
+        });
       } else {
         console.debug("import final resultKeys: %o", resultKeys.keys);
         EnigmailDialog.keyImportDlg(window, resultKeys.keys);

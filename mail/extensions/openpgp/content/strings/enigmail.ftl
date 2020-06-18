@@ -276,6 +276,17 @@ refresh-all-question = You did not select any key. Would you like to refresh ALL
 key-man-button-export-sec-key = Export &Secret Keys
 key-man-button-export-pub-key = Export &Public Keys Only
 key-man-button-refresh-all = &Refresh All Keys
+key-man-loading-keys = Loading keys, please wait…
+ascii-armor-file = ASCII Armored Files (*.asc)
+no-key-selected = You should select at least one key in order to perform the selected operation
+export-to-file = Export Public Key To File
+export-keypair-to-file = Export Secret and Public Key To File
+export-secret-key = Do you want to include the secret key in the saved OpenPGP key file?
+save-keys-ok = The keys were successfully saved
+save-keys-failed = Saving the keys failed
+default-pub-key-filename = Exported-public-keys
+default-pub-sec-key-filename = Exported-public-and-secret-keys
+refresh-key-warn = Warning: depending on the number of keys and the connection speed, refreshing all keys could be quite a lengthy process!
 
 # Strings in keyObj.jsm
 key-ring-pub-key-revoked = The key { $userId } (key ID { $keyId }) is revoked.
@@ -295,6 +306,7 @@ key-ring-enc-sub-keys-unusable = All encryption subkeys of key { $userId } (key 
 
 # Strings in gnupg-keylist.jsm
 keyring-photo = Photo
+user-att-photo = User attribute (JPEG image)
 
 # Strings in key.jsm
 revoke-key-question = You are about to revoke the key '{ $userId }'.\n\nYou will no longer be able to sign with this key, and once distributed, others will no longer be able to encrypt with that key. You can still use the key to decrypt old messages.\n\nDo you want to proceed?
@@ -304,3 +316,45 @@ key-man-button-revoke-key = &Revoke Key
 
 # Strings in keyRing.jsm & decryption.jsm
 key-man-button-import = &Import
+
+# Strings used in errorHandling.jsm
+key-error-key-spec-not-found = The email address '{ $keySpec }' cannot be matched to a key on your keyring.
+key-error-key-id-not-found = The configured key ID '{ $keySpec }' cannot be found on your keyring.
+
+# Strings used in enigmailKeyManager.js & windows.jsm
+need-online = The function you have selected is not available in offline mode. Please go online and try again.
+
+# Strings used in keyRing.jsm & keyLookupHelper.jsm
+no-key-found = We could not find any key matching the specified search criteria.
+
+# Strings used in keyRing.jsm & GnuPGCryptoAPI.jsm
+fail-key-extract = Error - key extraction command failed
+
+# Strings used in keyRing.jsm
+fail-cancel = Error - Key receive cancelled by user
+not-first-block = Error - First OpenPGP block not public key block
+import-key-confirm = Import public key(s) embedded in message?
+fail-key-import = Error - key importing failed
+file-write-failed = Failed to write to file { $output }
+
+# Strings used in trust.jsm
+key-valid-unknown = unknown
+key-valid-invalid = invalid
+key-valid-disabled = disabled
+key-valid-revoked = revoked
+key-valid-expired = expired
+key-trust-untrusted = untrusted
+key-trust-marginal = marginal
+key-trust-full = trusted
+key-trust-ultimate = ultimate
+key-trust-group = (group)
+
+# Strings used in commonWorkflows.js
+import-key-file = Import OpenPGP Key File
+gnupg-file = GnuPG Files
+import-keys-failed=Importing the keys failed
+
+# Strings used in enigmailKeygen.js
+save-revoke-cert-as = Create & Save Revocation Certificate
+revoke-cert-ok = The revocation certificate has been successfully created. You can use it to invalidate your public key, e.g. in case you would lose your secret key.
+revoke-cert-failed = The revocation certificate could not be created.

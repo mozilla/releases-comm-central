@@ -26,6 +26,8 @@ const { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
 );
 
+const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 var EnigmailWindows = {
   /**
    * Open a window, or focus it if it is already open
@@ -466,7 +468,9 @@ var EnigmailWindows = {
 
     const ioService = Services.io;
     if (ioService && ioService.offline) {
-      EnigmailWindows.alert(win, EnigmailLocale.getString("needOnline"));
+      l10n.formatValue("need-online").then(value => {
+        EnigmailWindows.alert(win, value);
+      });
       return;
     }
 

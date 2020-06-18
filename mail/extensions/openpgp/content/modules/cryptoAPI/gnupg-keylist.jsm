@@ -29,9 +29,6 @@ const { EnigmailTrust } = ChromeUtils.import(
 const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 
 var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
@@ -86,7 +83,7 @@ async function obtainKeyList(onlyKeys = null) {
  *
  * no return value
  */
-function appendKeyItems(keyListString, keyList) {
+async function appendKeyItems(keyListString, keyList) {
   EnigmailLog.DEBUG("gnupg-keylist.jsm: appendKeyItems()\n");
   let keyObj = {};
   let uatNum = 0; // counter for photos (counts per key)
@@ -163,7 +160,7 @@ function appendKeyItems(keyListString, keyList) {
         break;
       case "uat":
         if (listRow[USERID_ID].indexOf("1 ") === 0) {
-          const userId = EnigmailLocale.getString("userAtt.photo");
+          const userId = await l10n.formatValue("user-att-photo");
           keyObj.userIds.push({
             userId,
             keyTrust: listRow[KEY_TRUST_ID],

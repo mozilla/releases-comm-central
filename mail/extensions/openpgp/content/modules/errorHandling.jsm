@@ -11,9 +11,6 @@ var EXPORTED_SYMBOLS = ["EnigmailErrorHandling"];
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
 );
@@ -27,6 +24,8 @@ const getEnigmailFiles = EnigmailLazy.loader(
   "EnigmailFiles"
 );
 const getEnigmailRNG = EnigmailLazy.loader("enigmail/rng.jsm", "EnigmailRNG");
+
+const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 var EnigmailErrorHandling = {
   /**
@@ -47,26 +46,25 @@ var EnigmailErrorHandling = {
     if (keySpec.search(/^(0x)?[0-9A-F]+$/) === 0) {
       let key = getEnigmailKeyRing().getKeyById(keySpec);
       if (!key) {
-        reasonMsg = EnigmailLocale.getString("keyError.keyIdNotFound", keySpec);
-      } else {
-        let r = key.getSigningValidity();
-        if (!r.keyValid) {
-          reasonMsg = r.reason;
-        }
+        return l10n.formatValueSync("key-error-key-id-not-found", {
+          keySpec,
+        });
+      }
+      let r = key.getSigningValidity();
+      if (!r.keyValid) {
+        reasonMsg = r.reason;
       }
     } else {
       let keys = getEnigmailKeyRing().getKeysByUserId(keySpec);
       if (!keys || keys.length === 0) {
-        reasonMsg = EnigmailLocale.getString(
-          "keyError.keySpecNotFound",
-          keySpec
-        );
-      } else {
-        for (let i in keys) {
-          let r = keys[i].getSigningValidity();
-          if (!r.keyValid) {
-            reasonMsg += r.reason + "\n";
-          }
+        return l10n.formatValueSync("key-error-key-spec-not-found", {
+          keySpec,
+        });
+      }
+      for (let i in keys) {
+        let r = keys[i].getSigningValidity();
+        if (!r.keyValid) {
+          reasonMsg += r.reason + "\n";
         }
       }
     }
@@ -92,26 +90,25 @@ var EnigmailErrorHandling = {
     if (keySpec.search(/^(0x)?[0-9A-F]+$/) === 0) {
       let key = getEnigmailKeyRing().getKeyById(keySpec);
       if (!key) {
-        reasonMsg = EnigmailLocale.getString("keyError.keyIdNotFound", keySpec);
-      } else {
-        let r = key.getEncryptionValidity();
-        if (!r.keyValid) {
-          reasonMsg = r.reason;
-        }
+        return l10n.formatValueSync("key-error-key-id-not-found", {
+          keySpec,
+        });
+      }
+      let r = key.getEncryptionValidity();
+      if (!r.keyValid) {
+        reasonMsg = r.reason;
       }
     } else {
       let keys = getEnigmailKeyRing().getKeysByUserId(keySpec);
       if (!keys || keys.length === 0) {
-        reasonMsg = EnigmailLocale.getString(
-          "keyError.keySpecNotFound",
-          keySpec
-        );
-      } else {
-        for (let i in keys) {
-          let r = keys[i].getEncryptionValidity();
-          if (!r.keyValid) {
-            reasonMsg += r.reason + "\n";
-          }
+        return l10n.formatValueSync("key-error-key-spec-not-found", {
+          keySpec,
+        });
+      }
+      for (let i in keys) {
+        let r = keys[i].getEncryptionValidity();
+        if (!r.keyValid) {
+          reasonMsg += r.reason + "\n";
         }
       }
     }

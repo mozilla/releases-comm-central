@@ -36,6 +36,8 @@ const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 var gUserIdentityList;
 var gUserIdentityListPopup;
 
@@ -124,25 +126,28 @@ function enigmailKeygenUnload() {
 /**
  *  create a copy of the revokation cert at a user defined location
  */
-function saveRevCert(inputKeyFile, keyId, uid, resolve, reject) {
+async function saveRevCert(inputKeyFile, keyId, uid, resolve, reject) {
   let defaultFileName = uid.replace(/[\\/<>]/g, "");
   defaultFileName += " (0x" + keyId + ") rev.asc";
 
   let outFile = EnigFilePicker(
-    EnigGetString("saveRevokeCertAs"),
+    await document.l10n.formatValue("save-revoke-cert-as"),
     "",
     true,
     "*.asc",
     defaultFileName,
-    [EnigGetString("asciiArmorFile"), "*.asc"]
+    [await document.l10n.formatValue("ascii-armor-file"), "*.asc"]
   );
 
   if (outFile) {
     try {
       inputKeyFile.copyToFollowingLinks(outFile.parent, outFile.leafName);
-      EnigmailDialog.info(window, EnigGetString("revokeCertOK"));
+      EnigmailDialog.info(
+        window,
+        await document.l10n.formatValue("revoke-cert-ok")
+      );
     } catch (ex) {
-      EnigAlert(EnigGetString("revokeCertFailed"));
+      EnigAlert(await document.l10n.formatValue("revoke-cert-failed"));
       reject(2);
     }
   }

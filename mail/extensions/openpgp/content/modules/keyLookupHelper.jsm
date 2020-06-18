@@ -30,6 +30,8 @@ var EnigmailWkdLookup = ChromeUtils.import(
   "chrome://openpgp/content/modules/wkdLookup.jsm"
 ).EnigmailWkdLookup;
 
+const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 var KeyLookupHelper = {
   async lookupAndImportOnKeyserver(
     window,
@@ -117,7 +119,9 @@ var KeyLookupHelper = {
     }
 
     if (!somethingWasImported) {
-      EnigmailDialog.alert(window, EnigmailLocale.getString("noKeyFound"));
+      l10n.formatValue("no-key-found").then(value => {
+        EnigmailDialog.alert(window, value);
+      });
     }
   },
 };

@@ -22,9 +22,8 @@ const { EnigmailLog } = ChromeUtils.import(
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
+
+const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 const {
   obtainKeyList,
@@ -142,7 +141,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
     if (ret.exitCode !== 0) {
       ret.errorMsg =
-        EnigmailLocale.getString("failKeyExtract") + "\n" + ret.errorMsg;
+        (await l10n.formatValue("fail-key-extract")) + "\n" + ret.errorMsg;
     }
     return ret;
   }

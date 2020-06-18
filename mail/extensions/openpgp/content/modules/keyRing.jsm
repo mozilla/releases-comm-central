@@ -506,7 +506,7 @@ var EnigmailKeyRing = {
     const cApi = EnigmailCryptoAPI();
     let keyBlock = cApi.sync(cApi.getPublicKey(idArray[0]));
     if (!keyBlock) {
-      errorMsgObj.value = EnigmailLocale.getString("failKeyExtract");
+      errorMsgObj.value = l10n.formatValueSync("fail-key-extract");
       return "";
     }
 
@@ -520,9 +520,9 @@ var EnigmailKeyRing = {
         )
       ) {
         exitCodeObj.value = -1;
-        errorMsgObj.value = EnigmailLocale.getString("fileWriteFailed", [
-          outputFile,
-        ]);
+        errorMsgObj.value = l10n.formatValueSync("file-write-failed", {
+          output: outputFile,
+        });
       }
       return "";
     }
@@ -623,7 +623,7 @@ var EnigmailKeyRing = {
       }
 
       if (blockType.search(/^(PUBLIC|PRIVATE) KEY BLOCK$/) !== 0) {
-        errorMsgObj.value = EnigmailLocale.getString("notFirstBlock");
+        errorMsgObj.value = l10n.formatValueSync("not-first-block");
         return 1;
       }
 
@@ -637,11 +637,11 @@ var EnigmailKeyRing = {
       if (
         !getDialog().confirmDlg(
           parent,
-          EnigmailLocale.getString("importKeyConfirm"),
+          l10n.formatValueSync("import-key-confirm"),
           l10n.formatValueSync("key-man-button-import")
         )
       ) {
-        errorMsgObj.value = EnigmailLocale.getString("failCancel");
+        errorMsgObj.value = l10n.formatValueSync("fail-cancel");
         return -1;
       }
     }
@@ -739,14 +739,15 @@ var EnigmailKeyRing = {
           getDialog().keyImportDlg(window, keyList);
           somethingWasImported = true;
         } else {
-          getDialog().alert(
-            window,
-            EnigmailLocale.getString("failKeyImport") + "\n" + errorMsgObj.value
-          );
+          l10n.formatValue("fail-key-import").then(value => {
+            getDialog().alert(window, value + "\n" + errorMsgObj.value);
+          });
         }
       }
     } else {
-      getDialog().alert(window, EnigmailLocale.getString("noKeyFound"));
+      l10n.formatValue("no-key-found").then(value => {
+        getDialog().alert(window, value);
+      });
     }
     return somethingWasImported;
   },

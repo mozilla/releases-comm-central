@@ -218,7 +218,7 @@ function createUidData(listNode, keyDetails) {
 function getTrustLabel(trustCode) {
   var trustTxt = EnigGetTrustLabel(trustCode);
   if (trustTxt == "-" || trustTxt.length === 0) {
-    trustTxt = EnigmailLocale.getString("keyValid.unknown");
+    return l10n.formatValueSync("key-valid-unknown");
   }
   return trustTxt;
 }

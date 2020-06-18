@@ -8,9 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailTrust"];
 
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
+const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 // trust flags according to GPG documentation:
 // - https://www.gnupg.org/documentation/manuals/gnupg.pdf
@@ -74,36 +72,26 @@ var EnigmailTrust = {
     let keyTrust;
     switch (trustCode) {
       case "q":
-        keyTrust = EnigmailLocale.getString("keyValid.unknown");
-        break;
+        return l10n.formatValueSync("key-valid-unknown");
       case "i":
-        keyTrust = EnigmailLocale.getString("keyValid.invalid");
-        break;
+        return l10n.formatValueSync("key-valid-invalid");
       case "d":
       case "D":
-        keyTrust = EnigmailLocale.getString("keyValid.disabled");
-        break;
+        return l10n.formatValueSync("key-valid-disabled");
       case "r":
-        keyTrust = EnigmailLocale.getString("keyValid.revoked");
-        break;
+        return l10n.formatValueSync("key-valid-revoked");
       case "e":
-        keyTrust = EnigmailLocale.getString("keyValid.expired");
-        break;
+        return l10n.formatValueSync("key-valid-expired");
       case "n":
-        keyTrust = EnigmailLocale.getString("keyTrust.untrusted");
-        break;
+        return l10n.formatValueSync("key-trust-untrusted");
       case "m":
-        keyTrust = EnigmailLocale.getString("keyTrust.marginal");
-        break;
+        return l10n.formatValueSync("key-trust-marginal");
       case "f":
-        keyTrust = EnigmailLocale.getString("keyTrust.full");
-        break;
+        return l10n.formatValueSync("key-trust-full");
       case "u":
-        keyTrust = EnigmailLocale.getString("keyTrust.ultimate");
-        break;
+        return l10n.formatValueSync("key-trust-ultimate");
       case "g":
-        keyTrust = EnigmailLocale.getString("keyTrust.group");
-        break;
+        return l10n.formatValueSync("key-trust-group");
       case "-":
         keyTrust = "-";
         break;

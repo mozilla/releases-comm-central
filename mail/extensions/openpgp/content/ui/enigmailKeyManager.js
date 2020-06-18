@@ -104,8 +104,9 @@ function enigmailKeyManagerLoad() {
 
   gUserList.addEventListener("click", onListClick, true);
   //document.getElementById("pleaseWait").showPopup(gSearchInput, -1, -1, "tooltip", "after_end", "");
-  document.getElementById("statusText").value = EnigGetString(
-    "keyMan.loadingKeys"
+  document.l10n.setAttributes(
+    document.getElementById("statusText"),
+    "key-man-loading-keys"
   );
   document.getElementById("progressBar").style.visibility = "visible";
   EnigmailEvents.dispatchEvent(loadkeyList, 100, null);
@@ -371,7 +372,9 @@ function enigCreateKeyMsg() {
 
   var keyList = getSelectedKeyIds();
   if (keyList.length === 0) {
-    EnigAlert(EnigGetString("noKeySelected"));
+    document.l10n.formatValue("no-key-selected").then(value => {
+      EnigAlert(value);
+    });
     return;
   }
 
@@ -450,7 +453,9 @@ function enigCreateKeyMsg() {
 function createNewMail() {
   var keyList = getSelectedKeys();
   if (keyList.length === 0) {
-    EnigmailDialog.info(window, EnigGetString("noKeySelected"));
+    document.l10n.formatValue("no-key-selected").then(value => {
+      EnigmailDialog.info(window, value);
+    });
     return;
   }
 
@@ -577,10 +582,13 @@ function enigCreateRevokeCert() {
 }
 */
 
-function enigmailExportKeys() {
+async function enigmailExportKeys() {
   var keyList = getSelectedKeys();
   if (keyList.length === 0) {
-    EnigmailDialog.info(window, EnigGetString("noKeySelected"));
+    EnigmailDialog.info(
+      window,
+      await document.l10n.formatValue("no-key-selected")
+    );
     return;
   }
 
@@ -596,10 +604,10 @@ function enigmailExportKeys() {
   if (secretFound) {
     // double check that also the pivate keys shall be exportet
     var r = EnigmailDialog.msgBox(window, {
-      msgtext: EnigGetString("exportSecretKey"),
+      msgtext: await document.l10n.formatValue("export-secret-key"),
       dialogTitle: EnigGetString("enigConfirm2"),
-      button1: l10n.formatValueSync("key-man-button-export-pub-key"),
-      button2: l10n.formatValueSync("key-man-button-export-sec-key"),
+      button1: await document.l10n.formatValue("key-man-button-export-pub-key"),
+      button2: await document.l10n.formatValue("key-man-button-export-sec-key"),
       cancelButton: ":cancel",
       iconType: EnigmailConstants.ICONTYPE_QUESTION,
     });
@@ -624,31 +632,34 @@ function enigmailExportKeys() {
     defaultFileName = gKeyList[keyList[0]].userId.replace(/[<>]/g, "");
     if (exportSecretKey) {
       defaultFileName =
-        EnigGetString(
-          "specificPubSecKeyFilename",
-          defaultFileName,
-          gKeyList[keyList[0]].keyId
-        ) + ".asc";
+        defaultFileName +
+        " " +
+        `(0x${gKeyList[keyList[0]].keyId}` +
+        " " +
+        "pub-sec.asc";
     } else {
       defaultFileName =
-        EnigGetString(
-          "specificPubKeyFilename",
-          defaultFileName,
-          gKeyList[keyList[0]].keyId
-        ) + ".asc";
+        defaultFileName +
+        " " +
+        `(0x${gKeyList[keyList[0]].keyId})` +
+        " " +
+        "pub.asc";
     }
   } else if (exportSecretKey) {
-    defaultFileName = EnigGetString("defaultPubSecKeyFilename") + ".asc";
+    defaultFileName =
+      (await document.l10n.formatValue("default-pub-sec-key-filename")) +
+      ".asc";
   } else {
-    defaultFileName = EnigGetString("defaultPubKeyFilename") + ".asc";
+    defaultFileName =
+      (await document.l10n.formatValue("default-pub-key-filename")) + ".asc";
   }
 
   var FilePickerLabel = "";
 
   if (exportSecretKey) {
-    FilePickerLabel = EnigGetString("exportKeypairToFile");
+    FilePickerLabel = await document.l10n.formatValue("export-keypair-to-file");
   } else {
-    FilePickerLabel = EnigGetString("exportToFile");
+    FilePickerLabel = await document.l10n.formatValue("export-to-file");
   }
   var outFile = EnigFilePicker(
     FilePickerLabel,
@@ -656,7 +667,7 @@ function enigmailExportKeys() {
     true,
     "*.asc",
     defaultFileName,
-    [EnigGetString("asciiArmorFile"), "*.asc"]
+    [await document.l10n.formatValue("ascii-armor-file"), "*.asc"]
   );
   if (!outFile) {
     return;
@@ -679,9 +690,16 @@ function enigmailExportKeys() {
     errorMsgObj
   );
   if (exitCodeObj.value !== 0) {
-    EnigAlert(EnigGetString("saveKeysFailed") + "\n\n" + errorMsgObj.value);
+    EnigAlert(
+      (await document.l10n.formatValue("save-keys-failed")) +
+        "\n\n" +
+        errorMsgObj.value
+    );
   } else {
-    EnigmailDialog.info(window, EnigGetString("saveKeysOK"));
+    EnigmailDialog.info(
+      window,
+      await document.l10n.formatValue("save-keys-ok")
+    );
   }
 }
 
@@ -800,7 +818,9 @@ function enigmailCopyToClipbrd() {
 
   var keyList = getSelectedKeyIds();
   if (keyList.length === 0) {
-    EnigmailDialog.info(window, EnigGetString("noKeySelected"));
+    document.l10n.formatValue("no-key-selected").then(value => {
+      EnigmailDialog.info(window, value);
+    });
     return;
   }
   var exitCodeObj = {};
@@ -819,9 +839,9 @@ function enigmailCopyToClipbrd() {
     errorMsgObj
   );
   if (exitCodeObj.value !== 0) {
-    EnigAlert(
-      EnigGetString("copyToClipbrdFailed") + "\n\n" + errorMsgObj.value
-    );
+    l10n.formatValue("copy-to-clipbrd-failed").then(value => {
+      EnigAlert(value);
+    });
     return;
   }
   if (EnigmailClipboard.setClipboardContent(keyData)) {
@@ -1216,7 +1236,9 @@ function accessKeyServer(accessType, callbackFunc) {
 
   const ioService = Services.io;
   if (ioService && ioService.offline) {
-    EnigmailDialog.alert(window, EnigmailLocale.getString("needOnline"));
+    document.l10n.formatValue("need-online").then(value => {
+      EnigmailDialog.alert(window, value);
+    });
     return;
   }
 
@@ -1239,7 +1261,7 @@ function accessKeyServer(accessType, callbackFunc) {
       accessType = EnigmailConstants.DOWNLOAD_KEY;
       EnigmailDialog.alertPref(
         window,
-        EnigmailLocale.getString("refreshKey.warn"),
+        l10n.formatValueSync("refresh-key-warn"),
         "warnRefreshAll"
       );
     } else {
