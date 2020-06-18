@@ -58,6 +58,9 @@
           ) {
             return;
           }
+          if (this.currentURI.spec != "chrome://chat/content/conv.html") {
+            return;
+          }
           if (!this._loadState) {
             initHTMLDocument(this._conv, this.theme, this.contentDocument);
             this._loadState = 1;
@@ -309,8 +312,12 @@
       const loadURIOptions = {
         triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
       };
+      this.webProgress.addProgressListener(
+        this.progressListener,
+        Ci.nsIWebProgress.NOTIFY_STATE_DOCUMENT |
+          Ci.nsIWebProgress.NOTIFY_STATE_WINDOW
+      );
       this.webNavigation.loadURI(URI, loadURIOptions);
-      this.addProgressListener(this.progressListener);
     }
 
     get theme() {
