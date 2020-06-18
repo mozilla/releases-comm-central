@@ -369,7 +369,7 @@ add_task(function test_mark_thread_as_read() {
   );
 
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
-});
+}).__skipMe = true; // See bug 654362.
 
 add_task(function test_shift_delete_prompt() {
   be_in_folder(shiftDeleteFolder);
