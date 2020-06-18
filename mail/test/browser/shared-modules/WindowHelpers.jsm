@@ -797,7 +797,10 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
       return false;
     }
 
-    return predicate(aDetails.currentURI);
+    return predicate(
+      aDetails.currentURI ||
+        NetUtil.newURI(aDetails.contentWindow.location.href)
+    );
   }
 
   try {
