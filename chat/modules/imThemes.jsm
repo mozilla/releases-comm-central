@@ -946,14 +946,19 @@ SelectedMessage.prototype = {
       return;
     }
     let startPoint = this._range.comparePoint(spanNode, 0);
-    let endPoint = this._range.comparePoint(spanNode, spanNode.children.length);
+    // Note that we are working on the HTML DOM, including text nodes,
+    // so we need to use childNodes here and below.
+    let endPoint = this._range.comparePoint(
+      spanNode,
+      spanNode.childNodes.length
+    );
     if (startPoint <= 0 && endPoint >= 0) {
       let range = this._range.cloneRange();
       if (startPoint >= 0) {
         range.setStart(spanNode, 0);
       }
       if (endPoint <= 0) {
-        range.setEnd(spanNode, spanNode.children.length);
+        range.setEnd(spanNode, spanNode.childNodes.length);
       }
       this._selectedText = serializeRange(range);
 
@@ -980,7 +985,7 @@ SelectedMessage.prototype = {
       if (endPoint == 1) {
         let range = spanNode.ownerDocument.createRange();
         range.setStart(this._range.endContainer, this._range.endOffset);
-        range.setEnd(spanNode, spanNode.children.length);
+        range.setEnd(spanNode, spanNode.childNodes.length);
         this._cutEnd = !/^(\r?\n)?$/.test(serializeRange(range));
       } else {
         this._cutEnd = false;
