@@ -16,6 +16,9 @@ const { EnigmailLog } = ChromeUtils.import(
 const { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
 );
+const { EnigmailLocale } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+);
 const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 );
@@ -258,7 +261,7 @@ var EnigmailWindows = {
     EnigmailWindows.openWin(
       "enigmail:logFile",
       "chrome://openpgp/content/ui/enigmailViewFile.xhtml?viewLog=1&title=" +
-        escape(l10n.formatValueSync("debug-log-title")),
+        escape(EnigmailLocale.getString("debugLog2.title")),
       "centerscreen"
     );
   },
@@ -361,7 +364,10 @@ var EnigmailWindows = {
       }
       let keyObj = EnigmailKeyRing.getKeyById(keyId);
       if (!keyObj) {
-        EnigmailWindows.alert(win, l10n.formatValueSync("no-photo-available"));
+        EnigmailWindows.alert(
+          win,
+          EnigmailLocale.getString("noPhotoAvailable")
+        );
       }
 
       let photoFile = keyObj.getPhotoFile(photoNumber);
@@ -370,9 +376,10 @@ var EnigmailWindows = {
         if (!(photoFile.isFile() && photoFile.isReadable())) {
           EnigmailWindows.alert(
             win,
-            l10n.formatValueSync("error-photo-path-not-readable", {
-              photo: photoFile.path,
-            })
+            EnigmailLocale.getString(
+              "error.photoPathNotReadable",
+              photoFile.path
+            )
           );
         } else {
           const photoUri = Services.io.newFileURI(photoFile).spec;
@@ -394,7 +401,10 @@ var EnigmailWindows = {
           } catch (ex) {}
         }
       } else {
-        EnigmailWindows.alert(win, l10n.formatValueSync("no-photo-available"));
+        EnigmailWindows.alert(
+          win,
+          EnigmailLocale.getString("noPhotoAvailable")
+        );
       }
     }
   },

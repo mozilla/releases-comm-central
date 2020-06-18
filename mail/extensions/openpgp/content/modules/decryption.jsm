@@ -22,6 +22,9 @@ const { EnigmailPrefs } = ChromeUtils.import(
 const { EnigmailArmor } = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 );
+const { EnigmailLocale } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+);
 const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 );
@@ -454,7 +457,7 @@ var EnigmailDecryption = {
           l10n.formatValue("cant-import").then(value => {
             EnigmailDialog.alert(
               parent,
-              value + "\n" + importErrorMsgObj.value
+              value + importErrorMsgObj.value
             );
           });
         }
@@ -552,9 +555,9 @@ var EnigmailDecryption = {
       if (
         EnigmailDialog.confirmDlg(
           parent,
-          l10n.formatValueSync("attachment-pgp-key", { name: displayName }),
+          EnigmailLocale.getString("attachmentPgpKey", [displayName]),
           l10n.formatValueSync("key-man-button-import"),
-          l10n.formatValueSync("dlg-button-view")
+          EnigmailLocale.getString("dlg.button.view")
         )
       ) {
         let preview = EnigmailKey.getKeyListFromKeyBlock(

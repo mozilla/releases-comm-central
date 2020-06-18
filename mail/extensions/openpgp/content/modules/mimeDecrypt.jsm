@@ -22,6 +22,9 @@ const { EnigmailVerify } = ChromeUtils.import(
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
+const { EnigmailLocale } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+);
 const { EnigmailData } = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 );
@@ -850,7 +853,7 @@ MimeDecryptHandler.prototype = {
           "",
           "",
           "",
-          l10n.formatValueSync("possibly-pgp-mime"),
+          EnigmailLocale.getString("possiblyPgpMime"),
           "",
           this.uri,
           null,

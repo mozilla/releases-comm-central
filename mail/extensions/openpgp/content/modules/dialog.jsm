@@ -10,6 +10,9 @@ var EXPORTED_SYMBOLS = ["EnigmailDialog"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+const { EnigmailLocale } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+);
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
@@ -22,8 +25,6 @@ const { EnigmailPrefs } = ChromeUtils.import(
 const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
-
-const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 const LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";
 
@@ -43,12 +44,12 @@ var EnigmailDialog = {
       win,
       {
         msgtext: mesg,
-        button1: okLabel ? okLabel : l10n.formatValueSync("dlg-button-ok"),
+        button1: okLabel ? okLabel : EnigmailLocale.getString("dlg.button.ok"),
         cancelButton: cancelLabel
           ? cancelLabel
-          : l10n.formatValueSync("dlg-button-cancel"),
+          : EnigmailLocale.getString("dlg.button.cancel"),
         iconType: EnigmailConstants.ICONTYPE_QUESTION,
-        dialogTitle: l10n.formatValueSync("enig-confirm"),
+        dialogTitle: EnigmailLocale.getString("enigConfirm2"),
       },
       null
     );
@@ -69,9 +70,9 @@ var EnigmailDialog = {
       win,
       {
         msgtext: mesg,
-        button1: l10n.formatValueSync("dlg-button-close"),
+        button1: EnigmailLocale.getString("dlg.button.close"),
         iconType: EnigmailConstants.ICONTYPE_ALERT,
-        dialogTitle: l10n.formatValueSync("enig-alert"),
+        dialogTitle: EnigmailLocale.getString("enigAlert2"),
       },
       null
     );
@@ -90,9 +91,9 @@ var EnigmailDialog = {
       win,
       {
         msgtext: mesg,
-        button1: l10n.formatValueSync("dlg-button-close"),
+        button1: EnigmailLocale.getString("dlg.button.close"),
         iconType: EnigmailConstants.ICONTYPE_INFO,
-        dialogTitle: l10n.formatValueSync("enig-info"),
+        dialogTitle: EnigmailLocale.getString("enigInfo2"),
       },
       null
     );
@@ -213,7 +214,7 @@ var EnigmailDialog = {
   promptValue(win, mesg, valueObj) {
     return Services.prompt.prompt(
       win,
-      l10n.formatValueSync("enig-prompt"),
+      EnigmailLocale.getString("enigPrompt2"),
       mesg,
       valueObj,
       "",
@@ -245,9 +246,9 @@ var EnigmailDialog = {
         win,
         {
           msgtext: mesg,
-          dialogTitle: l10n.formatValueSync("enig-info"),
+          dialogTitle: EnigmailLocale.getString("enigInfo2"),
           iconType: EnigmailConstants.ICONTYPE_INFO,
-          checkboxLabel: l10n.formatValueSync("dlg-no-prompt"),
+          checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
         },
         checkBoxObj
       );
@@ -280,16 +281,13 @@ var EnigmailDialog = {
     EnigmailPrefs.setPref(countPrefName, alertCount);
 
     if (alertCount > 0) {
-      mesg +=
-        "\n" +
-        l10n.formatValueSync("repeat-prefix", { count: alertCount }) +
-        " ";
+      mesg += EnigmailLocale.getString("repeatPrefix", [alertCount]) + " ";
       mesg +=
         alertCount == 1
-          ? l10n.formatValueSync("repeat-suffix-singular")
-          : l10n.formatValueSync("repeat-suffix-plural");
+          ? EnigmailLocale.getString("repeatSuffixSingular")
+          : EnigmailLocale.getString("repeatSuffixPlural");
     } else {
-      mesg += "\n" + l10n.formatValueSync("no-repeat");
+      mesg += EnigmailLocale.getString("noRepeat2");
     }
 
     EnigmailDialog.alert(win, mesg);
@@ -336,13 +334,13 @@ var EnigmailDialog = {
               msgtext: mesg,
               button1: okLabel
                 ? okLabel
-                : l10n.formatValueSync("dlg-button-ok"),
+                : EnigmailLocale.getString("dlg.button.ok"),
               cancelButton: cancelLabel
                 ? cancelLabel
-                : l10n.formatValueSync("dlg-button-cancel"),
-              checkboxLabel: l10n.formatValueSync("dlg-keep-setting"),
+                : EnigmailLocale.getString("dlg.button.cancel"),
+              checkboxLabel: EnigmailLocale.getString("dlgKeepSetting"),
               iconType: EnigmailConstants.ICONTYPE_QUESTION,
-              dialogTitle: l10n.formatValueSync("enig-confirm"),
+              dialogTitle: EnigmailLocale.getString("enigConfirm2"),
             },
             checkBoxObj
           );
@@ -372,13 +370,13 @@ var EnigmailDialog = {
               msgtext: mesg,
               button1: okLabel
                 ? okLabel
-                : l10n.formatValueSync("dlg-button-ok"),
+                : EnigmailLocale.getString("dlg.button.ok"),
               cancelButton: cancelLabel
                 ? cancelLabel
-                : l10n.formatValueSync("dlg-button-cancel"),
-              checkboxLabel: l10n.formatValueSync("dlg-no-prompt"),
+                : EnigmailLocale.getString("dlg.button.cancel"),
+              checkboxLabel: EnigmailLocale.getString("dlgNoPrompt"),
               iconType: EnigmailConstants.ICONTYPE_QUESTION,
-              dialogTitle: l10n.formatValueSync("enig-confirm"),
+              dialogTitle: EnigmailLocale.getString("enigConfirm2"),
             },
             checkBoxObj
           );

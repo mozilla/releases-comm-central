@@ -67,7 +67,7 @@ function onLoad() {
 
     dlg.setAttribute("title", args.dialogTitle);
   } else {
-    document.l10n.setAttributes(dlg, "enig-alert-title");
+    dlg.setAttribute("title", EnigmailLocale.getString("enigAlert2"));
   }
 
   if (button1) {

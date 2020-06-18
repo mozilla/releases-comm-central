@@ -132,8 +132,6 @@ var KeyLookupHelper = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyLookupHelper.jsm"
 ).KeyLookupHelper;
 
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
-
 var Enigmail;
 if (!Enigmail) {
   Enigmail = {};
@@ -731,7 +729,7 @@ Enigmail.msg = {
     }
   },
 
-  async messageDecryptCb(event, isAuto, mimeMsg) {
+  messageDecryptCb(event, isAuto, mimeMsg) {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageDecryptCb:\n");
 
     this.buggyExchangeEmailContent = null; // reinit HACK for MS-EXCHANGE-Server Problem
@@ -1000,7 +998,7 @@ Enigmail.msg = {
               "",
               "", // keyId, userId
               "", // sigDetails
-              await document.l10n.formatValue("possibly-pgp-mime"), // infoMsg
+              EnigmailLocale.getString("possiblyPgpMime"), // infoMsg
               null, // blockSeparation
               "", // encToDetails
               null
@@ -1339,7 +1337,7 @@ Enigmail.msg = {
     return bodyElement;
   },
 
-  async messageParseCallback(
+  messageParseCallback(
     msgText,
     contentEncoding,
     charset,
@@ -1652,7 +1650,7 @@ Enigmail.msg = {
     if (tail) {
       msgRfc822Text +=
         EnigmailData.convertFromUnicode(
-          await document.l10n.formatValue("begin-pgp-part"),
+          EnigmailLocale.getString("beginPgpPart"),
           charset
         ) + "\n\n";
     }
@@ -1661,7 +1659,7 @@ Enigmail.msg = {
       msgRfc822Text +=
         "\n\n" +
         EnigmailData.convertFromUnicode(
-          await document.l10n.formatValue("end-pgp-part"),
+          EnigmailLocale.getString("endPgpPart"),
           charset
         ) +
         "\n\n" +
@@ -1935,10 +1933,10 @@ Enigmail.msg = {
 
       hideBrokenExchangePane();
     });
-    p.catch(async function() {
+    p.catch(function() {
       EnigmailDialog.alert(
         window,
-        await document.l10n.formatValue("fix-broken-exchange-msg-failed")
+        EnigmailLocale.getString("fixBrokenExchangeMsg.failed")
       );
       hideBrokenExchangePane();
     });
@@ -2146,7 +2144,7 @@ Enigmail.msg = {
         !Enigmail.msg.decryptedMessage.attachmentsEncrypted
       ) {
         contentData += EnigmailData.convertFromUnicode(
-          l10n.formatValueSync("enig-content-note") + "\r\n\r\n",
+          EnigmailLocale.getString("enigContentNote2"),
           Enigmail.msg.decryptedMessage.charset
         );
       }
@@ -2505,7 +2503,7 @@ Enigmail.msg = {
   /**
    * save the original file plus the signature file to disk and then verify the signature
    */
-  async verifyDetachedSignature(anAttachment) {
+  verifyDetachedSignature(anAttachment) {
     EnigmailLog.DEBUG(
       "enigmailMessengerOverlay.js: verifyDetachedSignature: url=" +
         anAttachment.url +
@@ -2589,18 +2587,18 @@ Enigmail.msg = {
     if (!signatureAtt) {
       EnigmailDialog.alert(
         window,
-        await document.l10n.formatValue("attachment-no-match-to-signature", {
-          attachment: EnigmailMsgRead.getAttachmentName(origAtt),
-        })
+        EnigmailLocale.getString("attachment.noMatchToSignature", [
+          EnigmailMsgRead.getAttachmentName(origAtt),
+        ])
       );
       return;
     }
     if (!origAtt) {
       EnigmailDialog.alert(
         window,
-        await document.l10n.formatValue("attachment-no-match-from-signature", {
-          attachment: EnigmailMsgRead.getAttachmentName(signatureAtt),
-        })
+        EnigmailLocale.getString("attachment.noMatchFromSignature", [
+          EnigmailMsgRead.getAttachmentName(signatureAtt),
+        ])
       );
       return;
     }
@@ -2611,10 +2609,7 @@ Enigmail.msg = {
     outFile1 = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     outFile1.initWithPath(tmpDir);
     if (!(outFile1.isDirectory() && outFile1.isWritable())) {
-      EnigmailDialog.alert(
-        window,
-        await document.l10n.formatValue("no-temp-dir")
-      );
+      EnigmailDialog.alert(window, EnigmailLocale.getString("noTempDir"));
       return;
     }
     outFile1.append(EnigmailMsgRead.getAttachmentName(origAtt));
@@ -2641,22 +2636,22 @@ Enigmail.msg = {
     EnigmailFiles.writeUrlToFile(signatureAtt.url, outFile2);
 
     var promise = EnigmailVerifyAttachment.attachment(outFile1, outFile2);
-    promise.then(async function(message) {
+    promise.then(function(message) {
       EnigmailDialog.info(
         window,
-        (await document.l10n.formatValue("signature-verified-ok", {
-          attachment: EnigmailMsgRead.getAttachmentName(origAtt),
-        })) +
+        EnigmailLocale.getString("signature.verifiedOK", [
+          EnigmailMsgRead.getAttachmentName(origAtt),
+        ]) +
           "\n\n" +
           message
       );
     });
-    promise.catch(async function(err) {
+    promise.catch(function(err) {
       EnigmailDialog.alert(
         window,
-        (await document.l10n.formatValue("signature-verify-failed", {
-          attachment: EnigmailMsgRead.getAttachmentName(origAtt),
-        })) +
+        EnigmailLocale.getString("signature.verifyFailed", [
+          EnigmailMsgRead.getAttachmentName(origAtt),
+        ]) +
           "\n\n" +
           err
       );
@@ -2750,7 +2745,7 @@ Enigmail.msg = {
     if (callbackArg.actionType == "saveAttachment") {
       outFile = EnigmailDialog.filePicker(
         window,
-        await document.l10n.formatValue("save-attachment-header"),
+        EnigmailLocale.getString("saveAttachmentHeader2"),
         Enigmail.msg.lastSaveDir,
         true,
         "",
@@ -2777,13 +2772,13 @@ Enigmail.msg = {
         outFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
         outFile.initWithPath(tmpDir);
         if (!(outFile.isDirectory() && outFile.isWritable())) {
-          errorMsgObj.value = await document.l10n.formatValue("no-temp-dir");
+          errorMsgObj.value = EnigmailLocale.getString("noTempDir");
           return;
         }
         outFile.append(rawFileName);
         outFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
       } catch (ex) {
-        errorMsgObj.value = await document.l10n.formatValue("no-temp-dir");
+        errorMsgObj.value = EnigmailLocale.getString("noTempDir");
         return;
       }
     }
@@ -2856,13 +2851,13 @@ Enigmail.msg = {
         if (callbackArg.actionType == "openAttachment") {
           exitStatus = EnigmailDialog.confirmDlg(
             window,
-            await document.l10n.formatValue("decrypt-ok-no-sig"),
-            await document.l10n.formatValue("msg-ovl-button-cont-anyway")
+            EnigmailLocale.getString("decryptOkNoSig"),
+            EnigmailLocale.getString("msgOvl.button.contAnyway")
           );
         } else {
           EnigmailDialog.info(
             window,
-            await document.l10n.formatValue("decrypt-ok-no-sig")
+            EnigmailLocale.getString("decryptOkNoSig")
           );
         }
       } else {
