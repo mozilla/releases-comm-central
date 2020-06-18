@@ -618,7 +618,7 @@ var EnigmailKeyRing = {
         {}
       );
       if (!blockType) {
-        errorMsgObj.value = l10n.formatValueSync("no-pgp-block");
+        errorMsgObj.value = EnigmailLocale.getString("noPGPblock");
         return 1;
       }
 
@@ -701,21 +701,21 @@ var EnigmailKeyRing = {
       if (preview.length == 1) {
         exitStatus = getDialog().confirmDlg(
           window,
-          l10n.formatValueSync("do-import-one", {
-            name: preview[0].name,
-            id: preview[0].id,
-          })
+          EnigmailLocale.getString("doImportOne", [
+            preview[0].name,
+            preview[0].id,
+          ])
         );
       } else {
         exitStatus = getDialog().confirmDlg(
           window,
-          l10n.formatValueSync("do-import-multiple", {
-            key: preview
+          EnigmailLocale.getString("doImportMultiple", [
+            preview
               .map(function(a) {
                 return "\t" + a.name + " (" + a.id + ")";
               })
               .join("\n"),
-          })
+          ])
         );
       }
 

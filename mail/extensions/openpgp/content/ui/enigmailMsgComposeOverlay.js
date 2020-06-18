@@ -100,8 +100,6 @@ const { EnigmailCryptoAPI } = ChromeUtils.import(
 );
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
-
 // Account encryption policy values:
 // const kEncryptionPolicy_Never = 0;
 // 'IfPossible' was used by ns4.
@@ -962,14 +960,14 @@ Enigmail.msg = {
     }
   },
 
-  async attachKey() {
+  attachKey() {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.attachKey: \n"
     );
 
     var resultObj = {};
     var inputObj = {};
-    inputObj.dialogHeader = await document.l10n.formatValue("keys-to-export");
+    inputObj.dialogHeader = EnigmailLocale.getString("keysToExport");
     inputObj.options = "multisel,allowexpired,nosending";
     if (this.trustAllKeys) {
       inputObj.options += ",trustallkeys";
@@ -1585,9 +1583,7 @@ Enigmail.msg = {
         if (
           EnigmailDialog.confirmDlg(
             window,
-            l10n.formatValueSync("minimal-line-wrapping", {
-              width: wrapWidth,
-            })
+            EnigmailLocale.getString("minimalLineWrapping", [wrapWidth])
           )
         ) {
           wrapWidth = 68;
@@ -1766,16 +1762,12 @@ Enigmail.msg = {
       if (testErrorMsgObj.value && testErrorMsgObj.value.length > 0) {
         ++this.saveDraftError;
         if (this.saveDraftError === 1) {
-          document.l10n
-            .formatValue("msg-compose-cannot-save-draft")
-            .then(value => {
-              this.notifyUser(
-                3,
-                value,
-                "saveDraftFailed",
-                testErrorMsgObj.value
-              );
-            });
+          this.notifyUser(
+            3,
+            EnigmailLocale.getString("msgCompose.cannotSaveDraft"),
+            "saveDraftFailed",
+            testErrorMsgObj.value
+          );
         }
         return false;
       }
@@ -2050,13 +2042,13 @@ Enigmail.msg = {
         var hideBccUsers = promptSvc.confirmEx(
           window,
           EnigmailLocale.getString("enigConfirm2"),
-          l10n.formatValueSync("sending-hidden-rcpt"),
+          EnigmailLocale.getString("sendingHiddenRcpt"),
           promptSvc.BUTTON_TITLE_IS_STRING * promptSvc.BUTTON_POS_0 +
             promptSvc.BUTTON_TITLE_CANCEL * promptSvc.BUTTON_POS_1 +
             promptSvc.BUTTON_TITLE_IS_STRING * promptSvc.BUTTON_POS_2,
-          l10n.formatValueSync("send-with-shown-bcc"),
+          EnigmailLocale.getString("sendWithShownBcc"),
           null,
-          l10n.formatValueSync("send-with-hidden-bcc"),
+          EnigmailLocale.getString("sendWithHiddenBcc"),
           null,
           dummy
         );
@@ -2079,16 +2071,14 @@ Enigmail.msg = {
 
       if (sendFlags & EnigmailConstants.SEND_ENCRYPTED) {
         if (!EnigmailPrefs.getPref("encryptToNews")) {
-          document.l10n.formatValue("sending-news").then(value => {
-            EnigmailDialog.alert(window, value);
-          });
+          EnigmailDialog.alert(window, EnigmailLocale.getString("sendingNews"));
           return false;
         } else if (
           !EnigmailDialog.confirmPref(
             window,
-            l10n.formatValueSync("send-to-news-warning"),
+            EnigmailLocale.getString("sendToNewsWarning"),
             "warnOnSendingNewsgroups",
-            l10n.formatValueSync("msg-compose-button-send")
+            EnigmailLocale.getString("msgCompose.button.send")
           )
         ) {
           return false;
@@ -2512,7 +2502,7 @@ Enigmail.msg = {
         if (
           EnigmailDialog.confirmPref(
             window,
-            l10n.formatValueSync("quoted-printable-warn"),
+            EnigmailLocale.getString("quotedPrintableWarn"),
             "quotedPrintableWarn"
           )
         ) {
@@ -2638,7 +2628,7 @@ Enigmail.msg = {
     return true;
   },
 
-  async sendAborted(window, errorMsgObj) {
+  sendAborted(window, errorMsgObj) {
     if (errorMsgObj && errorMsgObj.value) {
       var txt = errorMsgObj.value;
       var txtLines = txt.split(/\r?\n/);
@@ -2654,19 +2644,13 @@ Enigmail.msg = {
           var reason = tokens[1];
           var key = tokens[2];
           if (reason == "10") {
-            errorMsg +=
-              (await document.l10n.formatValue("key-not-trusted", { key })) +
-              "\n";
+            errorMsg += EnigmailLocale.getString("keyNotTrusted", [key]) + "\n";
           } else if (reason == "1") {
-            errorMsg +=
-              (await document.l10n.formatValue("key-not-found", { key })) +
-              "\n";
+            errorMsg += EnigmailLocale.getString("keyNotFound", [key]) + "\n";
           } else if (reason == "4") {
-            errorMsg +=
-              (await document.l10n.formatValue("key-revoked", { key })) + "\n";
+            errorMsg += EnigmailLocale.getString("keyRevoked", [key]) + "\n";
           } else if (reason == "5") {
-            errorMsg +=
-              (await document.l10n.formatValue("key-expired", { key })) + "\n";
+            errorMsg += EnigmailLocale.getString("keyExpired", [key]) + "\n";
           }
         }
       }
@@ -2675,14 +2659,14 @@ Enigmail.msg = {
       }
       EnigmailDialog.info(
         window,
-        (await document.l10n.formatValue("send-aborted")) + txt
+        EnigmailLocale.getString("sendAborted") + txt
       );
     } else {
       EnigmailDialog.info(
         window,
-        (await document.l10n.formatValue("send-aborted")) +
+        EnigmailLocale.getString("sendAborted") +
           "\n" +
-          (await document.l10n.formatValue("msg-compose-internal-error"))
+          EnigmailLocale.getString("msgCompose.internalError")
       );
     }
   },
@@ -3329,7 +3313,7 @@ Enigmail.msg = {
    * @param detailsText: String - optional text to be displayed by clicking on "Details" button.
    *                              if null or "", then the Detail button will no be displayed.
    */
-  async notifyUser(priority, msgText, messageId, detailsText) {
+  notifyUser(priority, msgText, messageId, detailsText) {
     let notif = document.getElementById("attachmentNotificationBox");
     if (!notif) {
       notif = gNotification.notificationbox;
@@ -3351,12 +3335,10 @@ Enigmail.msg = {
 
     if (detailsText && detailsText.length > 0) {
       buttonArr.push({
-        accessKey: await document.l10n.formatValue(
-          "msg-compose-details-button-access-key"
+        accessKey: EnigmailLocale.getString(
+          "msgCompose.detailsButton.accessKey"
         ),
-        label: await document.l10n.formatValue(
-          "msg-compose-details-button-label"
-        ),
+        label: EnigmailLocale.getString("msgCompose.detailsButton.label"),
         callback(aNotificationBar, aButton) {
           EnigmailDialog.info(window, detailsText);
         },
@@ -3369,14 +3351,14 @@ Enigmail.msg = {
    * Display a warning message if we are replying to or forwarding
    * a partially decrypted inline-PGP email
    */
-  async displayPartialEncryptedWarning() {
-    let msgLong = await document.l10n.formatValue(
-      "msg-compose-partially-encrypted-inlinePGP"
+  displayPartialEncryptedWarning() {
+    let msgLong = EnigmailLocale.getString(
+      "msgCompose.partiallyEncrypted.inlinePGP"
     );
 
     this.notifyUser(
       1,
-      await document.l10n.formatValue("msg-compose-partially-encrypted-short"),
+      EnigmailLocale.getString("msgCompose.partiallyEncrypted.short"),
       "notifyPartialDecrypt",
       msgLong
     );

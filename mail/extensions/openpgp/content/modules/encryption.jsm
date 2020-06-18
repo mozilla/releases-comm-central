@@ -23,6 +23,9 @@ const { EnigmailPrefs } = ChromeUtils.import(
 const { EnigmailApp } = ChromeUtils.import(
   "chrome://openpgp/content/modules/app.jsm"
 );
+const { EnigmailLocale } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/locale.jsm"
+);
 const { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 );
@@ -47,7 +50,6 @@ const { EnigmailConstants } = ChromeUtils.import(
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
-const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 const gMimeHashAlgorithms = [
   null,
@@ -87,7 +89,7 @@ var EnigmailEncryption = {
       toMailAddr = EnigmailFuncs.stripEmail(toMailAddr);
       bccMailAddr = EnigmailFuncs.stripEmail(bccMailAddr);
     } catch (ex) {
-      errorMsgObj.value = l10n.formatValueSync("invalid-email");
+      errorMsgObj.value = EnigmailLocale.getString("invalidEmail");
       return null;
     }
 
@@ -251,7 +253,7 @@ var EnigmailEncryption = {
       toMailAddr = EnigmailFuncs.stripEmail(toMailAddr);
       bccMailAddr = EnigmailFuncs.stripEmail(bccMailAddr);
     } catch (ex) {
-      errorMsgObj.value = l10n.formatValueSync("invalid-email");
+      errorMsgObj.value = EnigmailLocale.getString("invalidEmail");
       return null;
     }
 
@@ -375,9 +377,10 @@ var EnigmailEncryption = {
     }
 
     if (keyList.length === 0) {
-      ret.errorMsg = l10n.formatValueSync("error-own-key-unusable", {
-        addr: fromMailAddr,
-      });
+      ret.errorMsg = EnigmailLocale.getString(
+        "errorOwnKeyUnusable",
+        fromMailAddr
+      );
       return ret;
     }
 
@@ -470,7 +473,7 @@ var EnigmailEncryption = {
       EnigmailLog.DEBUG(
         "encryption.jsm: encryptMessageStart: NO ENCRYPTION!\n"
       );
-      errorMsgObj.value = l10n.formatValueSync("not-required");
+      errorMsgObj.value = EnigmailLocale.getString("notRequired");
       return null;
     }
 

@@ -1792,9 +1792,10 @@ Enigmail.msg = {
         true
       );
     } else {
-      document.l10n.formatValue("preview-failed").then(value => {
-        EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
-      });
+      EnigmailDialog.alert(
+        window,
+        EnigmailLocale.getString("previewFailed") + "\n" + errorMsgObj.value
+      );
     }
   },
 
@@ -1842,9 +1843,10 @@ Enigmail.msg = {
         false
       );
     } else {
-      document.l10n.formatValue("preview-failed").then(value => {
-        EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
-      });
+      EnigmailDialog.alert(
+        window,
+        EnigmailLocale.getString("previewFailed") + "\n" + errorMsgObj.value
+      );
     }
   },
 
@@ -2717,7 +2719,7 @@ Enigmail.msg = {
     }
   },
 
-  async decryptAttachmentCallback(cbArray) {
+  decryptAttachmentCallback(cbArray) {
     EnigmailLog.DEBUG(
       "enigmailMessengerOverlay.js: decryptAttachmentCallback:\n"
     );
@@ -2824,9 +2826,10 @@ Enigmail.msg = {
           false
         );
       } else {
-        document.l10n.formatValue("preview-failed").then(value => {
-          EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
-        });
+        EnigmailDialog.alert(
+          window,
+          EnigmailLocale.getString("previewFailed") + "\n" + errorMsgObj.value
+        );
       }
       outFile.remove(true);
       return;
@@ -2863,9 +2866,7 @@ Enigmail.msg = {
       } else {
         EnigmailDialog.info(
           window,
-          (await document.l10n.formatValue("failed-decrypt")) +
-            "\n\n" +
-            errorMsgObj.value
+          EnigmailLocale.getString("failedDecrypt") + "\n\n" + errorMsgObj.value
         );
         exitStatus = false;
       }

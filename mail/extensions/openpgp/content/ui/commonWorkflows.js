@@ -35,9 +35,7 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
     !Services.prompt.promptPassword(
       win,
       "",
-      l10n.formatValueSync("passphrase-prompt", {
-        key: keyId,
-      }),
+      EnigmailLocale.getString("passphrasePrompt", [keyId]),
       p,
       null,
       dummy
@@ -95,21 +93,21 @@ function EnigmailCommon_importKeysFromFile(secret) {
     if (preview.length == 1) {
       exitStatus = EnigmailDialog.confirmDlg(
         window,
-        l10n.formatValueSync("do-import-one", {
-          name: preview[0].name,
-          id: preview[0].id,
-        })
+        EnigmailLocale.getString("doImportOne", [
+          preview[0].name,
+          preview[0].id,
+        ])
       );
     } else {
       exitStatus = EnigmailDialog.confirmDlg(
         window,
-        l10n.formatValueSync("do-import-multiple", {
-          key: preview
+        EnigmailLocale.getString("doImportMultiple", [
+          preview
             .map(function(a) {
               return "\t" + a.name + " (" + a.id + ")";
             })
             .join("\n"),
-        })
+        ])
       );
     }
 
