@@ -370,7 +370,8 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory *aDirectory,
     newList->SetDescription(temp);
 
     nsIAbDirectory *outList;
-    aDirectory->AddMailList(newList, &outList);
+    nsresult rv = aDirectory->AddMailList(newList, &outList);
+    NS_ENSURE_SUCCESS_VOID(rv);
 
     int32_t count = members.Length();
     for (int32_t i = 0; i < count; ++i) {
