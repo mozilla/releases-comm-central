@@ -19,6 +19,7 @@ COMPILE_FLAGS['OS_CFLAGS'] = []
 COMPILE_FLAGS['OS_CXXFLAGS'] = []
 COMPILE_FLAGS['OS_INCLUDES'] = []
 COMPILE_FLAGS['CLANG_PLUGIN'] = []
+
 if CONFIG['COMPILE_ENVIRONMENT']:
     COMPILE_FLAGS['MOZ_HARDENING_CFLAGS'] = []
 
@@ -29,5 +30,18 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
     ]
     USE_STATIC_LIBS = True
 
+# MOZ_LIBSTDCXX_TARGET_VERSION should only be set for Taskcluster builds
+# targeting Linux. The below changes those builds to statically link to
+# LLVM's libc++ statically to circumvent the issues with undesired libstdc++
+# symbols that keep popping up
 if CONFIG['MOZ_LIBSTDCXX_TARGET_VERSION']:
     DEFINES['_GLIBCXX_USE_CXX11_ABI'] = 0
+    CXXFLAGS += ['-stdlib=libc++']
+    LDFLAGS += ['-nostdlib++']
+    if CONFIG['TARGET_CPU'] == 'i686':
+        OS_LIBS += [
+            '-L{}/../lib32'.format(CONFIG['MOZ_LIBCLANG_PATH']),
+        ]
+    OS_LIBS += [
+        '-l:libc++.a', '-l:libc++abi.a'
+    ]
