@@ -586,95 +586,6 @@
 
       window.controllers.insertControllerAt(0, this.tabController);
       this._restoringTabState = null;
-
-      // @implements {nsIWebProgressListener}
-      this.progressListener = {
-        onProgressChange: (aWebProgress, ...args) => {
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-            .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onProgressChange", [
-            browser,
-            aWebProgress,
-            ...args,
-          ]);
-        },
-
-        onProgressChange64: (aWebProgress, ...args) => {
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-            .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onProgressChange64", [
-            browser,
-            aWebProgress,
-            ...args,
-          ]);
-        },
-
-        onLocationChange: (aWebProgress, ...args) => {
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-            .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onLocationChange", [
-            browser,
-            aWebProgress,
-            ...args,
-          ]);
-        },
-
-        onStateChange: (aWebProgress, ...args) => {
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-            .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onStateChange", [
-            browser,
-            aWebProgress,
-            ...args,
-          ]);
-        },
-
-        onStatusChange: (aWebProgress, ...args) => {
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-            .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onStatusChange", [
-            browser,
-            aWebProgress,
-            ...args,
-          ]);
-        },
-
-        onSecurityChange: (aWebProgress, ...args) => {
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-            .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onSecurityChange", [
-            browser,
-            aWebProgress,
-            ...args,
-          ]);
-        },
-
-        onContentBlockingEvent: (aWebProgress, ...args) => {
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-            .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onContentBlockingEvent", [
-            browser,
-            aWebProgress,
-            ...args,
-          ]);
-        },
-
-        onRefreshAttempted: (aWebProgress, ...args) => {
-          let browser = aWebProgress.QueryInterface(Ci.nsIDocShellTreeItem)
-            .sameTypeRootTreeItem.chromeEventHandler;
-          this._callTabListeners("onRefreshAttempted", [
-            browser,
-            aWebProgress,
-            ...args,
-          ]);
-        },
-
-        QueryInterface: ChromeUtils.generateQI([
-          Ci.nsIWebProgressListener,
-          Ci.nsIWebProgressListener2,
-          Ci.nsISupportsWeakReference,
-        ]),
-      };
     }
 
     set selectedTab(val) {
@@ -881,7 +792,7 @@
         // Register browser progress listeners. For firstTab, it is the shared
         // #messagepane so only do it once.
         firstTab.browser.webProgress.addProgressListener(
-          this.progressListener,
+          new TabProgressListener(firstTab.browser, this),
           Ci.nsIWebProgress.NOTIFY_ALL
         );
         firstTab.browser._progressListenerAdded = true;
@@ -1098,12 +1009,12 @@
         delete tab.beforeTabOpen;
 
         // Register browser progress listeners
-        if (browser && !browser._progressListenerAdded) {
+        if (browser && browser.webProgress && !browser._progressListenerAdded) {
           // It would probably be better to have the tabs register this listener, since the
           // browser can change. This wasn't trivial to do while implementing basic WebExtension
           // support, so let's assume one browser only for now.
           browser.webProgress.addProgressListener(
-            this.progressListener,
+            new TabProgressListener(browser, this),
             Ci.nsIWebProgress.NOTIFY_ALL
           );
           browser._progressListenerAdded = true;
@@ -2008,4 +1919,54 @@
   }
 
   customElements.define("tabmail", MozTabmail);
+
+  // @implements {nsIWebProgressListener}
+  class TabProgressListener {
+    constructor(browser, tabmail) {
+      this.browser = browser;
+      this.tabmail = tabmail;
+    }
+
+    _callTabListeners(method, args) {
+      args.unshift(this.browser);
+      this.tabmail._callTabListeners(method, args);
+    }
+
+    onProgressChange(...args) {
+      this._callTabListeners("onProgressChange", args);
+    }
+
+    onProgressChange64(...args) {
+      this._callTabListeners("onProgressChange64", args);
+    }
+
+    onLocationChange(...args) {
+      this._callTabListeners("onLocationChange", args);
+    }
+
+    onStateChange(...args) {
+      this._callTabListeners("onStateChange", args);
+    }
+
+    onStatusChange(...args) {
+      this._callTabListeners("onStatusChange", args);
+    }
+
+    onSecurityChange(...args) {
+      this._callTabListeners("onSecurityChange", args);
+    }
+
+    onContentBlockingEvent(...args) {
+      this._callTabListeners("onContentBlockingEvent", args);
+    }
+
+    onRefreshAttempted(...args) {
+      this._callTabListeners("onRefreshAttempted", args);
+    }
+  }
+  TabProgressListener.prototype.QueryInterface = ChromeUtils.generateQI([
+    "nsIWebProgressListener",
+    "nsIWebProgressListener2",
+    "nsISupportsWeakReference",
+  ]);
 }

@@ -773,22 +773,7 @@ function wait_for_browser_load(aBrowser, aURLOrPredicate) {
  * @returns The frame wrapped in a MozMillController.
  */
 function wait_for_frame_load(aFrame, aURLOrPredicate) {
-  let details = {
-    // Not sure whether all of these really need to be getters, but this is the
-    // safest thing to do.
-    get webProgress() {
-      return aFrame.contentWindow
-        .getInterface(Ci.nsIWebNavigation)
-        .QueryInterface(Ci.nsIWebProgress);
-    },
-    get currentURI() {
-      return NetUtil.newURI(aFrame.contentDocument.location);
-    },
-    get contentWindow() {
-      return aFrame.contentWindow;
-    },
-  };
-  return _wait_for_generic_load(details, aURLOrPredicate);
+  return _wait_for_generic_load(aFrame, aURLOrPredicate);
 }
 
 /**
@@ -808,7 +793,7 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   }
 
   function isLoadedChecker() {
-    if (aDetails.webProgress.isLoadingDocument !== false) {
+    if (aDetails.contentDocument.readyState != "complete") {
       return false;
     }
 
