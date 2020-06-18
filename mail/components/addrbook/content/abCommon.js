@@ -227,7 +227,7 @@ function SendCommandToResultsPane(command) {
 }
 
 function AbNewLDAPDirectory() {
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",

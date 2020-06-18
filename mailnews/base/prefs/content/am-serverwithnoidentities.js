@@ -25,7 +25,7 @@ function clickStoreTypeMenu(aStoreTypeElement) {
   // otherwise 'response.newRootFolder' will be null.
   let response = { newRootFolder: null };
   // Send 'response' as an argument to converterDialog.xhtml.
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "converterDialog.xhtml",
     "mailnews:mailstoreconverter",
     "modal,centerscreen,resizable=no,width=700,height=130",

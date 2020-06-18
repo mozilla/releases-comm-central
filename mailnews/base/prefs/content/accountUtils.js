@@ -64,7 +64,7 @@ function showMailIntegrationDialog() {
       shellService.shouldCheckDefaultClient &&
       !shellService.isDefaultClient(true, appTypesCheck)
     ) {
-      window.docShell.rootTreeItem.domWindow.openDialog(
+      window.browsingContext.topChromeWindow.openDialog(
         "chrome://communicator/content/defaultClientDialog.xhtml",
         "DefaultClient",
         "modal,centerscreen,chrome,resizable=no"
@@ -192,7 +192,7 @@ function MsgAccountWizard(wizardCallback) {
 function msgOpenAccountWizard(wizardCallback, type) {
   gNewAccountToLoad = null;
 
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/AccountWizard.xhtml",
     "AccountWizard",
     "chrome,modal,titlebar,centerscreen",
@@ -241,7 +241,7 @@ function AddMailAccount() {
 }
 
 function AddIMAccount() {
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/chat/imAccountWizard.xhtml",
     "",
     "chrome,modal,titlebar,centerscreen"
@@ -249,7 +249,7 @@ function AddIMAccount() {
 }
 
 function AddFeedAccount() {
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger-newsblog/content/feedAccountWizard.xhtml",
     "",
     "chrome,modal,titlebar,centerscreen"
@@ -257,7 +257,7 @@ function AddFeedAccount() {
 }
 
 function AddAddressBook() {
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen"
@@ -496,7 +496,7 @@ function NewMailAccountProvisioner(aMsgWindow, args) {
   // accountProvisioner.xhtml isn't throwing errors or warnings, that's due
   // to bug 688273.  Just make the window non-modal to get those errors and
   // warnings back, and then clear this comment when bug 688273 is closed.
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger/content/newmailaccount/accountProvisioner.xhtml",
     "AccountCreation",
     windowParams,
@@ -524,7 +524,7 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
     existingWindow.focus();
   } else if (AppConstants.MOZ_APP_NAME == "thunderbird") {
     // disabling modal for the time being, see 688273 REMOVEME
-    window.docShell.rootTreeItem.domWindow.openDialog(
+    window.browsingContext.topChromeWindow.openDialog(
       "chrome://messenger/content/accountcreation/emailWizard.xhtml",
       "AccountSetup",
       "chrome,titlebar,centerscreen,resizable",

@@ -321,7 +321,7 @@ function pgpSelectKey(pgp_key) {
     index: -1,
   };
 
-  window.docShell.rootTreeItem.domWindow.openDialog(
+  window.browsingContext.topChromeWindow.openDialog(
     "chrome://openpgp/content/ui/keyPicker.xhtml",
     "",
     "dialog,close,titlebar,modal,resizable",
