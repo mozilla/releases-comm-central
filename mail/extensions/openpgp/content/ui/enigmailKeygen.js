@@ -52,7 +52,7 @@ const DEFAULT_FILE_PERMS = 0o600;
 let revocationFilePrefix1 =
   "This is a revocation certificate for the OpenPGP key:";
 let revocationFilePrefix2 = `
-A revocation certificate is a kind of "kill switch" to publicly
+A revocation certificate is kind of a "kill switch" to publicly
 declare that a key shall no longer be used.  It is not possible
 to retract such a revocation certificate once it has been published.
 
@@ -259,7 +259,7 @@ function enigmailKeygenStart() {
     throw new Error("key generation failed");
   } else {
     console.debug("saving new key id " + gGeneratedKey);
-    curId.setCharAttribute("openpgp_key_id", gGeneratedKey);
+    curId.setUnicharAttribute("openpgp_key_id", gGeneratedKey);
     EnigSavePrefs();
   }
 

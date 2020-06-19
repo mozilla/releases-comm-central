@@ -300,3 +300,240 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 .identity-table td input {
   width: 100%;
 }
+
+/* ::::: e2e encryption ::::: */
+
+#openPgpKey {
+  list-style-image: url("chrome://messenger/skin/icons/login.svg");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.5;
+  width: 48px;
+  height: 48px;
+  margin-inline-end: 10px;
+}
+
+/* Add a bit of space to the end of descriptions to
+ * leave margin with e.g. additional buttons on the side. */
+.description-with-side-element {
+  margin-inline-end: 10px !important;
+}
+
+.openpgp-description p {
+  margin-block: 0 6px;
+}
+
+.status-success:not([hidden="true"]) {
+  vertical-align: text-top;
+  display: inline-block;
+  list-style-image: url("chrome://global/skin/icons/check.svg");
+  -moz-context-properties: fill;
+  fill: #12bc00;
+  margin-inline-end: 2px;
+  width: 16px;
+}
+
+/* ::::: OpenPGP key selection ::::: */
+
+.openpgp-container {
+  margin-top: 10px;
+}
+
+.opengpg-intro-section {
+  margin-bottom: 10px;
+}
+
+#openPgpKeyList {
+  margin-top: 16px;
+}
+
+.content-blocking-category .checkbox-label-box,
+.extra-information-label image,
+.arrowhead,
+.content-blocking-info-image {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.content-blocking-category {
+  border-radius: 4px;
+  margin: 3px 0;
+  padding: 9px;
+  border: 1px solid var(--in-content-border-color);
+  background-color: rgba(215, 215, 219, 0.2);
+}
+
+.content-blocking-category.disabled {
+  opacity: 0.5;
+}
+
+.content-blocking-category.disabled .radio-check {
+  opacity: 1;
+}
+
+.content-blocking-warning > .indent,
+.content-blocking-category > .indent {
+  margin-inline-end: 28px;
+  margin-inline-start: 30px;
+}
+
+.arrowhead {
+  -moz-appearance: none;
+  border: none;
+  border-radius: 2px;
+  min-height: 20px;
+  min-width: 20px;
+  max-height: 20px;
+  max-width: 20px;
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  background-color: transparent;
+  padding: 3px;
+}
+
+.arrowhead:not([disabled]):hover {
+  cursor: pointer;
+  background-color: var(--grey-90-a10);
+}
+
+.arrowhead:not([disabled]):hover:active {
+  background-color: var(--grey-90-a20);
+}
+
+.arrowhead.up {
+  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+}
+
+.arrowhead > .button-box {
+  padding: 0 !important;
+}
+
+.content-blocking-category.expanded:not(.selected) .content-blocking-warning {
+  background-color: var(--grey-90-a10);
+}
+
+.content-blocking-category.selected {
+  border: 1px solid #45A1FF;
+  background-color: rgba(69, 161, 255, 0.2);
+}
+
+.content-blocking-warning-title,
+.content-blocking-category .radio-label-box {
+  font-weight: bold;
+}
+
+.content-blocking-extra-information {
+  visibility: collapse;
+}
+
+.extra-information-label {
+  display: inline-grid;
+  grid-template-columns: auto max-content 2fr;
+  row-gap: 10px;
+  align-items: center;
+  margin-block: 18px;
+}
+
+/* Apply display: block to the containers of all the category information, as
+ * without this the flex-wrapped blocks inside don't stretch vertically to
+ * enclose their content. */
+.content-blocking-category > .indent {
+  display: block;
+}
+
+.content-blocking-category.expanded .content-blocking-extra-information {
+  visibility: visible;
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  margin-bottom: 10px;
+}
+
+.content-blocking-extra-information > .custom-option {
+  margin: 10px 0;
+}
+
+.content-blocking-warning {
+  background-color: rgba(69, 161, 255, 0.2);
+  border-radius: 4px;
+  padding: 10px 0;
+  margin: 10px 0;
+}
+
+.content-blocking-warning:not([hidden]) + .content-blocking-warning {
+  margin-top: 0;
+}
+
+.content-blocking-category-description {
+  font-size: 90%;
+  opacity: 0.6;
+}
+
+.expiration-date-icon {
+  display: none;
+  vertical-align: text-top;
+  -moz-context-properties: fill;
+  margin-inline-end: 4px;
+  fill: currentColor;
+  width: 16px;
+}
+
+.expiration-date-container.key-is-expiring .expiration-date-icon {
+  display: inline-block;
+  list-style-image: url("chrome://messenger/skin/icons/info.svg");
+  opacity: 0.9;
+}
+
+.expiration-date-container.key-expired description {
+  color: #D70022;
+  font-weight: 600;
+}
+
+.expiration-date-container.key-expired .expiration-date-icon {
+  display: inline-block;
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
+  fill: #FF9400;
+}
+
+.expiration-date-button {
+  margin-inline-start: 8px;
+  font-size: 0.9em;
+  min-height: 28px;
+}
+
+.extra-information-label-type {
+  font-weight: 600;
+  margin-inline-end: 4px;
+}
+
+/* Key info icons */
+.extra-information-label image {
+  margin-inline-end: 5px;
+}
+
+.content-blocking-openpgp-type {
+  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
+}
+
+.content-blocking-openpgp-fingerprint {
+  list-style-image: url("chrome://messenger/skin/icons/fingerprint.svg");
+}
+
+.content-blocking-openpgp-created {
+  list-style-image: url("chrome://messenger/skin/shared/preferences/calendar.svg");
+}
+
+.openpgp-key-details {
+  margin-bottom: 18px;
+  border: 1px solid var(--in-content-box-border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--in-content-page-background);
+}
+
+.openpgp-key-details tabs {
+  border-top: none;
+}
+
+.openpgp-key-details tabpanels {
+  padding: 0 10px 18px;
+}

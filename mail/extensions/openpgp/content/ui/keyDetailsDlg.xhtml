@@ -7,6 +7,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/enigmail.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -16,7 +17,7 @@
 <window data-l10n-id="openpgp-key-details-title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        style="min-width:60em; min-height:30em"
+        style="width:60em;"
         persist="width height"
         onload="onLoad();">
 <dialog id="enigmailKeyDetailsDlg"
@@ -40,36 +41,36 @@
     <html:table>
       <html:tr>
         <html:th data-l10n-id="openpgp-key-details-user-id2-label"/>
-        <html:td>
-          <html:input id="userId" class="plain" style="white-space: pre;"
+        <html:td class="input-container">
+          <html:input id="userId" type="text" class="plain"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
       <html:tr>
         <html:th data-l10n-id="openpgp-key-details-key-type-label"/>
-        <html:td>
-          <html:input id="keyType" class="plain" style="white-space: pre;"
+        <html:td class="input-container">
+          <html:input id="keyType" type="text" class="plain"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
       <html:tr>
         <html:th data-l10n-id="openpgp-key-details-fingerprint-label"/>
-        <html:td>
-          <html:input id="fingerprint" class="plain" style="white-space: pre;"
+        <html:td class="input-container">
+          <html:input id="fingerprint" type="text" class="plain"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
       <html:tr>
         <html:th data-l10n-id="openpgp-key-details-created-header"/>
-        <html:td>
-          <html:input id="keyCreated" class="plain" style="white-space: pre;"
+        <html:td class="input-container">
+          <html:input id="keyCreated" type="text" class="plain"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
       <html:tr>
         <html:th data-l10n-id="openpgp-key-details-expiry-header"/>
-        <html:td>
-          <html:input id="keyExpiry" class="plain" style="white-space: pre;"
+        <html:td class="input-container">
+          <html:input id="keyExpiry" type="text" class="plain"
                       readonly="readonly" value="?" size="60"/>
         </html:td>
       </html:tr>
@@ -79,6 +80,8 @@
       <richlistbox id="additionalUid" style="height: 4em;" flex="1"/>
     </vbox>
   </vbox>
+
+  <separator/>
 
   <tabbox flex="1" style="margin:5px" id="mainTabs">
     <tabs id="mainTabBox">
@@ -117,7 +120,6 @@
                      data-l10n-id="openpgp-key-details-uid-certified-col"
                      primary="true"/>
             <splitter class="tree-splitter"/>
-            <splitter class="tree-splitter"/>
             <treecol id="sig_keyid_col"
                      data-l10n-id="openpgp-key-id-label"
                      persist="width"/>
@@ -139,7 +141,7 @@
                 hidecolumnpicker="false">
 
             <treecols>
-              <treecol id="keyTypeCol" primary="true"
+              <treecol id="keyTypeCol"
                        data-l10n-id="openpgp-key-details-key-part-label"
                        style="width:71px"
                        persist="width"/>

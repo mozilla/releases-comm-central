@@ -1,0 +1,66 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.inline-notification-container:not([collapsed="true"]) {
+  display: block;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+  color: inherit;
+}
+
+.inline-notification-wrapper {
+  display: flex;
+  align-items: flex-start;
+}
+
+.inline-notification-wrapper.align-center {
+  align-items: center;
+}
+
+.inline-notification-wrapper description {
+  flex: 1;
+}
+
+.notification-image {
+  -moz-context-properties: fill;
+  fill: currentColor;
+  margin-inline: 4px 8px;
+  margin-top: 4px;
+  width: 16px;
+}
+
+.inline-notification-wrapper.align-center {
+  margin-top: 0;
+}
+
+/* Info variation */
+
+.inline-notification-container.info-container {
+  background-color: rgba(69, 161, 255, 0.2);
+}
+
+.notification-image-info {
+  list-style-image: url("chrome://messenger/skin/icons/information.svg");
+}
+
+/* error variation */
+
+.inline-notification-container.error-container {
+  background-color: rgba(255, 69, 69, 0.2);
+}
+
+.notification-image-error {
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
+}
+
+/* success variation */
+
+.inline-notification-container.success-container {
+  background-color: rgba(69, 255, 100, 0.2);
+}
+
+.notification-image-success {
+  list-style-image: url("chrome://global/skin/icons/check.svg");
+}

@@ -39,7 +39,9 @@ var gOriginalAcceptance;
 var gUpdateAllowed = false;
 
 async function onLoad() {
-  window.arguments[1].refresh = false;
+  if (window.arguments[1]) {
+    window.arguments[1].refresh = false;
+  }
 
   gAcceptanceRadio = document.getElementById("acceptanceRadio");
 

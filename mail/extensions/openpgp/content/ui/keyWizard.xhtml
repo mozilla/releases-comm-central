@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/keyWizard.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css"?>
+
+<!DOCTYPE window>
+
+<window type="child"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        onload="init();"
+        style="width: 45em;">
+<dialog id="openPgpKeyWizardDialog"
+        data-l10n-id="key-wizard-button"
+        data-l10n-attrs="buttonlabelaccept, buttonlabelhelp"
+        buttons="accept,cancel">
+
+  <prefpane id="openPgpKeyWizardDialogPane">
+    <script src="chrome://openpgp/content/ui/enigmailCommon.js"/>
+    <script src="chrome://openpgp/content/ui/keyWizard.js"/>
+
+    <linkset>
+      <html:link rel="localization" href="branding/brand.ftl"/>
+      <html:link rel="localization" href="messenger/openpgp/key-wizard.ftl"/>
+    </linkset>
+
+    <html:div id="wizardOverlay" class="wizard-section overlay hide" hidden="hidden">
+      <hbox class="inline-notification-container info-container self-center">
+        <hbox class="inline-notification-wrapper">
+          <image class="notification-image notification-image-info"/>
+          <description data-l10n-id="openpgp-generate-key-info"/>
+        </hbox>
+      </hbox>
+
+      <vbox id="openPgpKeygenConfirm" class="self-center" align="center">
+        <description id="wizardOverlayQuestion"/>
+        <separator class="thin"/>
+        <hbox>
+          <button data-l10n-id="openpgp-keygen-dismiss"
+                  oncommand="closeOverlay();"/>
+          <button data-l10n-id="openpgp-keygen-confirm"
+                  oncommand="openPgpKeygenConfirm();"/>
+        </hbox>
+      </vbox>
+
+      <vbox id="openPgpKeygenProcess" class="self-center" align="center"
+            collapsed="true">
+        <html:legend id="wizardOverlayTitle"></html:legend>
+        <image class="loading-status"/>
+        <button data-l10n-id="openpgp-keygen-cancel"
+                class="self-center"
+                oncommand="openPgpKeygenCancel();"/>
+      </vbox>
+
+    </html:div>
+
+    <vbox id="wizardStart" class="wizard-section">
+      <hbox class="inline-notification-container info-container">
+        <hbox class="inline-notification-wrapper">
+          <image class="notification-image notification-image-info"/>
+          <description>
+            <html:span class="tail-with-learn-more"
+                       data-l10n-id="key-wizard-warning">
+            </html:span>
+            <label is="text-link"
+                   href="https://support.mozilla.org/kb/introduction-to-e2e-encryption"
+                   data-l10n-id="key-wizard-learn-more"
+                   class="learnMore text-link"/>
+          </description>
+        </hbox>
+      </hbox>
+
+      <html:fieldset>
+        <radiogroup id="openPgpKeyChoices" class="indent">
+          <radio id="createOpenPgp" value="0"
+                 data-l10n-id="radio-create-key"/>
+          <radio id="importOpenPgp" value="1"
+                 data-l10n-id="radio-import-key"/>
+          <radio id="externalOpenPgp" value="2"
+                 data-l10n-id="radio-gnupg-key"
+                 hidden="true"/>
+        </radiogroup>
+      </html:fieldset>
+    </vbox>
+
+    <vbox id="wizardCreateKey" class="wizard-section hide-reverse" hidden="true">
+      <label data-l10n-id="openpgp-generate-key-title"
+             class="dialogheader-title"/>
+
+      <html:fieldset>
+        <html:legend data-l10n-id="openpgp-keygen-expiry-title"></html:legend>
+        <description data-l10n-id="openpgp-keygen-expiry-description"/>
+
+        <radiogroup id="openPgpKeygeExpiry" class="indent">
+          <hbox flex="1" align="center">
+            <radio id="keygenExpiration" value="0"
+                   data-l10n-id="radio-keygen-expiry"
+                   oncommand="onExpirationChange(event);"/>
+            <html:input id="expireInput" type="number"
+                        class="size4 input-inline autosync"
+                        maxlength="5" value="1"
+                        aria-labelledby="keygenExpiration"
+                        oninput="validateExpiration();"/>
+            <menulist id="timeScale">
+              <menupopup>
+                <menuitem id="years" value="365"
+                          data-l10n-id="openpgp-keygen-years-label"
+                          oncommand="validateExpiration();"/>
+                <menuitem id="months" value="30"
+                          data-l10n-id="openpgp-keygen-months-label"
+                          selected="true"
+                          oncommand="validateExpiration();"/>
+                <menuitem id="days" value="1"
+                          data-l10n-id="openpgp-keygen-days-label"
+                          oncommand="validateExpiration();"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <radio value="1"
+                 data-l10n-id="radio-keygen-no-expiry"
+                 oncommand="onExpirationChange(event);"/>
+        </radiogroup>
+      </html:fieldset>
+
+      <separator/>
+
+      <html:fieldset>
+        <html:legend data-l10n-id="openpgp-keygen-advanced-title"></html:legend>
+        <description data-l10n-id="openpgp-keygen-advanced-description"/>
+
+        <vbox class="indent grid-size">
+          <hbox align="center">
+            <label for="keyType" data-l10n-id="openpgp-keygen-keytype"/>
+          </hbox>
+          <hbox align="center">
+            <menulist id="keyType">
+              <menupopup>
+                <menuitem id="keySize_rsa" value="RSA"
+                          data-l10n-id="openpgp-keygen-type-rsa"
+                          selected="true"
+                          oncommand="onKeyTypeChange(event);"/>
+                <menuitem id="keyType_ecc" value="ECC"
+                          data-l10n-id="openpgp-keygen-type-ecc"
+                          oncommand="onKeyTypeChange(event);"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <spacer/>
+
+          <hbox align="center">
+            <label for="keySize" data-l10n-id="openpgp-keygen-keysize"/>
+          </hbox>
+          <hbox align="center">
+            <menulist id="keySize">
+              <menupopup>
+                <menuitem id="keySize_3072" value="3072" label="3072"
+                          selected="true"/>
+                <menuitem id="keySize_4096" value="4096" label="4096"/>
+              </menupopup>
+            </menulist>
+          </hbox>
+          <spacer/>
+
+        </vbox>
+      </html:fieldset>
+
+      <separator/>
+
+      <hbox id="openPgpWarning"
+            class="inline-notification-container error-container self-center"
+            collapsed="true">
+        <hbox class="inline-notification-wrapper">
+          <image class="notification-image notification-image-error"/>
+          <description id="openPgpWarningDescription"/>
+        </hbox>
+      </hbox>
+
+    </vbox>
+
+    <vbox id="wizardImportKey" class="wizard-section hide-reverse" hidden="true">
+      <label data-l10n-id="openpgp-import-key-title"
+             class="dialogheader-title"/>
+
+      <description>
+        Work in Progress: this feature is not yet implemented
+      </description>
+
+      <separator/>
+    </vbox>
+
+    <vbox id="wizardExternalKey" class="wizard-section hide-reverse" hidden="true">
+      <label data-l10n-id="openpgp-external-key-title"
+             class="dialogheader-title"/>
+
+      <description>
+        Work in Progress: this feature is not yet implemented
+      </description>
+
+      <separator/>
+    </vbox>
+  </prefpane>
+</dialog>
+</window>

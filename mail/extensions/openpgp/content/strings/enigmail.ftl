@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 openpgp-key-user-id-label = Account / User ID
 openpgp-keygen-title-label =
     .title = Generate OpenPGP Key
@@ -187,6 +191,59 @@ openpgp-acceptance-verified-label =
 openpgp-copy-cmd-label =
     .label = Copy
 
+## e2e encryption settings
+
+#   $count (Number) - the number of configured keys associated with the current identity
+#   $identity (String) - the email address of the currently selected identity
+openpgp-description = { $count ->
+    [0]     Thunderbird doesn't have a personal OpenPGP key for <b>{ $identity }</b>
+    [one]   Thunderbird found { $count } personal OpenPGP key associated with <b>{ $identity }</b>
+   *[other] Thunderbird found { $count } personal OpenPGP keys associated with <b>{ $identity }</b>
+}
+
+#   $count (Number) - the number of configured keys associated with the current identity
+#   $key (String) - the currently selected OpenPGP key
+openpgp-selection-status = { $count ->
+    [0]     Select a valid key to enable the OpenPGP protocol.
+   *[other] Your current configuration uses key ID <b>{ $key }</b>
+}
+
+openpgp-add-key-button =
+    .label = Add Key…
+    .accesskey = A
+
+e2e-learn-more = Learn more
+
+openpgp-keygen-success = OpenPGP Key created successfully!
+
+## OpenPGP Key selection area
+
+openpgp-radio-none =
+    .label = None
+
+openpgp-radio-none-desc = Do not use OpenPGP for this identity.
+
+#   $key (String) - the expiration date of the OpenPGP key
+openpgp-radio-key-expires = Expires on: { $date }
+
+openpgp-key-expires-image =
+    .tooltiptext = Key is expiring in less than 6 months
+
+#   $key (String) - the expiration date of the OpenPGP key
+openpgp-radio-key-expired = Expired on: { $date }
+
+openpgp-key-expired-image =
+    .tooltiptext = Key expired
+
+openpgp-key-expand-section =
+  .tooltiptext = More information
+
+openpgp-key-revoke-title = Revoke Key
+
+openpgp-key-edit-title = Change OpenPGP Key
+
+openpgp-key-edit-date-title = Extend Expiration Date
+
 # Strings in keyDetailsDlg.xhtml
 key-type-public = public key
 key-type-primary = primary key
@@ -316,6 +373,12 @@ key-man-button-revoke-key = &Revoke Key
 
 # Strings in keyRing.jsm & decryption.jsm
 key-man-button-import = &Import
+
+delete-key-title = Delete OpenPGP Key
+
+delete-key-in-use-title = OpenPGP Key currently in use
+
+delete-key-in-use-description = Unable to proceed! The Key you selected for deletion is currently being used by this identity.
 
 # Strings used in errorHandling.jsm
 key-error-key-spec-not-found = The email address '{ $keySpec }' cannot be matched to a key on your keyring.

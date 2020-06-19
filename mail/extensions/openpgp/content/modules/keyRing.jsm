@@ -234,11 +234,11 @@ var EnigmailKeyRing = {
    */
   getSecretKeyByEmail(emailAddr) {
     let result = {};
-    this.getAllSecretKeysByEmail(emailAddr, result);
+    this.getSecretKeysByEmail(emailAddr, result);
     return result.best;
   },
 
-  getAllSecretKeysByEmail(emailAddr, result) {
+  getSecretKeysByEmail(emailAddr, result) {
     // sanitize email address
     emailAddr = emailAddr.replace(/([\.\[\]\-\\])/g, "\\$1");
 
@@ -246,6 +246,25 @@ var EnigmailKeyRing = {
       "(<" + emailAddr + ">| " + emailAddr + "$|^" + emailAddr + "$)";
 
     this.getAllSecretKeysByUserId(searchTerm, result);
+  },
+
+  /**
+   * Return the full unfiltered list of keys that are specifics of email
+   * addresses in UIDs.
+   *
+   * @param {String} emailAddr - email address to search for without any
+   *   angulars or names.
+   *
+   * @return {Object | null} - Object with the found keys, or null.
+   */
+  getAllSecretKeysByEmail(emailAddr, result) {
+    // Sanitize email address.
+    emailAddr = emailAddr.replace(/([\.\[\]\-\\])/g, "\\$1");
+
+    let searchTerm =
+      "(<" + emailAddr + ">| " + emailAddr + "$|^" + emailAddr + "$)";
+
+    result.all = this.getKeysByUserId(searchTerm, false);
   },
 
   /**
