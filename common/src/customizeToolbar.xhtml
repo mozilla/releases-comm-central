@@ -98,12 +98,12 @@
       </menupopup>
     </menulist>
     <checkbox id="smallicons" oncommand="updateIconSize(this.checked ? 'small' : 'large');" label="&useSmallIcons.label;"/>
-    <spacer flex="1"/>
-    <button id="restoreDefault" label="&restoreDefaultSet.label;" oncommand="restoreDefaultSet();"/>
     </hbox>
-    <hbox align="center" pack="end">
-    <button id="donebutton" label="&saveChanges.label;" oncommand="onClose();"
-            default="true"/>
+    <hbox align="center">
+      <button id="restoreDefault" label="&restoreDefaultSet.label;" oncommand="restoreDefaultSet();"/>
+      <spacer flex="1"/>
+      <button id="donebutton" label="&saveChanges.label;" oncommand="onClose();"
+              default="true"/>
   </hbox>
 </vbox>
 
