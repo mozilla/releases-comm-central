@@ -28,14 +28,14 @@ class NS_MSG_BASE nsImapMoveCoalescer : public nsIUrlListener {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
 
-  nsImapMoveCoalescer(nsIMsgFolder *sourceFolder, nsIMsgWindow *msgWindow);
+  nsImapMoveCoalescer(nsIMsgFolder* sourceFolder, nsIMsgWindow* msgWindow);
 
-  nsresult AddMove(nsIMsgFolder *folder, nsMsgKey key);
+  nsresult AddMove(nsIMsgFolder* folder, nsMsgKey key);
   nsresult PlaybackMoves(bool doNewMailNotification = false);
   // this lets the caller store keys in an arbitrary number of buckets. If the
   // bucket for the passed in index doesn't exist, it will get created.
-  nsTArray<nsMsgKey> *GetKeyBucket(uint32_t keyArrayIndex);
-  nsIMsgWindow *GetMsgWindow() { return m_msgWindow; }
+  nsTArray<nsMsgKey>* GetKeyBucket(uint32_t keyArrayIndex);
+  nsIMsgWindow* GetMsgWindow() { return m_msgWindow; }
   bool HasPendingMoves() { return m_hasPendingMoves; }
 
  protected:
@@ -53,14 +53,14 @@ class NS_MSG_BASE nsImapMoveCoalescer : public nsIUrlListener {
 
 class nsMoveCoalescerCopyListener final : public nsIMsgCopyServiceListener {
  public:
-  nsMoveCoalescerCopyListener(nsImapMoveCoalescer *coalescer,
-                              nsIMsgFolder *destFolder);
+  nsMoveCoalescerCopyListener(nsImapMoveCoalescer* coalescer,
+                              nsIMsgFolder* destFolder);
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGCOPYSERVICELISTENER
 
   nsCOMPtr<nsIMsgFolder> m_destFolder;
 
-  nsImapMoveCoalescer *m_coalescer;
+  nsImapMoveCoalescer* m_coalescer;
   // when we get OnStopCopy, update the folder. When we've finished all the
   // copies, send the biff notification.
 

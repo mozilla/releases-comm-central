@@ -31,7 +31,7 @@ class nsStatusBarBiffManager : public nsIStatusBarBiffManager,
   int32_t mCurrentBiffState;
   nsCString mServerType;
   nsCOMPtr<nsISound> mSound;
-  nsresult PlayBiffSound(const char *aPrefBranch);
+  nsresult PlayBiffSound(const char* aPrefBranch);
 };
 
 #endif  // nsStatusBarBiffManager_h__

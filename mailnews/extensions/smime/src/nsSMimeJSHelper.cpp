@@ -25,9 +25,9 @@ nsSMimeJSHelper::nsSMimeJSHelper() {}
 nsSMimeJSHelper::~nsSMimeJSHelper() {}
 
 NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
-    nsIMsgCompFields *compFields, nsTArray<nsString> &emailAddresses,
-    nsTArray<nsString> &certIssuedInfos, nsTArray<nsString> &certExpiresInfos,
-    nsTArray<RefPtr<nsIX509Cert>> &certs, bool *canEncrypt) {
+    nsIMsgCompFields* compFields, nsTArray<nsString>& emailAddresses,
+    nsTArray<nsString>& certIssuedInfos, nsTArray<nsString>& certExpiresInfos,
+    nsTArray<RefPtr<nsIX509Cert>>& certs, bool* canEncrypt) {
   NS_ENSURE_ARG_POINTER(canEncrypt);
 
   nsTArray<nsCString> mailboxes;
@@ -55,7 +55,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
   NS_ENSURE_SUCCESS(rv, rv);
 
   for (uint32_t i = 0; i < mailbox_count; ++i) {
-    const nsCString &email = mailboxes[i];
+    const nsCString& email = mailboxes[i];
     nsCOMPtr<nsIX509Cert> cert;
     nsString certIssuedInfo;
     nsString certExpiresInfo;
@@ -83,7 +83,7 @@ NS_IMETHODIMP nsSMimeJSHelper::GetRecipientCertsInfo(
 }
 
 NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
-    nsIMsgCompFields *compFields, nsTArray<nsString> &emailAddresses) {
+    nsIMsgCompFields* compFields, nsTArray<nsString>& emailAddresses) {
   NS_ENSURE_ARG_POINTER(compFields);
   emailAddresses.ClearAndRetainStorage();
 
@@ -118,8 +118,8 @@ NS_IMETHODIMP nsSMimeJSHelper::GetNoCertAddresses(
   return NS_OK;
 }
 
-nsresult nsSMimeJSHelper::getMailboxList(nsIMsgCompFields *compFields,
-                                         nsTArray<nsCString> &mailboxes) {
+nsresult nsSMimeJSHelper::getMailboxList(nsIMsgCompFields* compFields,
+                                         nsTArray<nsCString>& mailboxes) {
   if (!compFields) return NS_ERROR_INVALID_ARG;
 
   nsresult res;

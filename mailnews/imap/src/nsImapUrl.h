@@ -22,9 +22,9 @@ class nsImapUrl : public nsIImapUrl,
   NS_DECL_ISUPPORTS_INHERITED
 
   // nsMsgMailNewsUrl overrides
-  nsresult SetSpecInternal(const nsACString &aSpec) override;
-  nsresult SetQuery(const nsACString &aQuery) override;
-  nsresult Clone(nsIURI **_retval) override;
+  nsresult SetSpecInternal(const nsACString& aSpec) override;
+  nsresult SetQuery(const nsACString& aQuery) override;
+  nsresult Clone(nsIURI** _retval) override;
 
   //////////////////////////////////////////////////////////////////////////////
   // we support the nsIImapUrl interface
@@ -32,9 +32,9 @@ class nsImapUrl : public nsIImapUrl,
   NS_DECL_NSIIMAPURL
 
   // nsIMsgMailNewsUrl overrides
-  NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
-  NS_IMETHOD GetFolder(nsIMsgFolder **aFolder) override;
-  NS_IMETHOD SetFolder(nsIMsgFolder *aFolder) override;
+  NS_IMETHOD IsUrlType(uint32_t type, bool* isType) override;
+  NS_IMETHOD GetFolder(nsIMsgFolder** aFolder) override;
+  NS_IMETHOD SetFolder(nsIMsgFolder* aFolder) override;
   // nsIMsgMessageUrl
   NS_DECL_NSIMSGMESSAGEURL
   NS_DECL_NSIMSGI18NURL
@@ -42,24 +42,24 @@ class nsImapUrl : public nsIImapUrl,
   // nsImapUrl
   nsImapUrl();
 
-  static nsresult ConvertToCanonicalFormat(const char *folderName,
+  static nsresult ConvertToCanonicalFormat(const char* folderName,
                                            char onlineDelimiter,
-                                           char **resultingCanonicalPath);
-  static nsresult EscapeSlashes(const char *sourcePath, char **resultPath);
-  static nsresult UnescapeSlashes(char *path);
-  static char *ReplaceCharsInCopiedString(const char *stringToCopy,
+                                           char** resultingCanonicalPath);
+  static nsresult EscapeSlashes(const char* sourcePath, char** resultPath);
+  static nsresult UnescapeSlashes(char* path);
+  static char* ReplaceCharsInCopiedString(const char* stringToCopy,
                                           char oldChar, char newChar);
 
  protected:
   virtual ~nsImapUrl();
   virtual nsresult ParseUrl();
 
-  char *m_listOfMessageIds;
+  char* m_listOfMessageIds;
 
   // handle the imap specific parsing
-  void ParseImapPart(char *imapPartOfUrl);
+  void ParseImapPart(char* imapPartOfUrl);
 
-  void ParseFolderPath(char **resultingCanonicalPath);
+  void ParseFolderPath(char** resultingCanonicalPath);
   void ParseSearchCriteriaString();
   void ParseUidChoice();
   void ParseMsgFlags();
@@ -67,14 +67,14 @@ class nsImapUrl : public nsIImapUrl,
   void ParseCustomMsgFetchAttribute();
   void ParseNumBytes();
 
-  nsresult GetMsgFolder(nsIMsgFolder **msgFolder);
+  nsresult GetMsgFolder(nsIMsgFolder** msgFolder);
 
-  char *m_sourceCanonicalFolderPathSubString;
-  char *m_destinationCanonicalFolderPathSubString;
-  char *m_tokenPlaceHolder;
-  char *m_urlidSubString;
+  char* m_sourceCanonicalFolderPathSubString;
+  char* m_destinationCanonicalFolderPathSubString;
+  char* m_tokenPlaceHolder;
+  char* m_urlidSubString;
   char m_onlineSubDirSeparator;
-  char *m_searchCriteriaString;   // should we use m_search, or is this special?
+  char* m_searchCriteriaString;   // should we use m_search, or is this special?
   nsCString m_command;            // for custom commands
   nsCString m_msgFetchAttribute;  // for fetching custom msg attributes
   nsCString m_customAttributeResult;  // for fetching custom msg attributes

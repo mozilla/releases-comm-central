@@ -13,7 +13,7 @@ MimeRebuffer::~MimeRebuffer(void) {}
 
 uint32_t MimeRebuffer::GetSize() { return mBuf.Length(); }
 
-uint32_t MimeRebuffer::IncreaseBuffer(const nsACString &addBuf) {
+uint32_t MimeRebuffer::IncreaseBuffer(const nsACString& addBuf) {
   mBuf.Append(addBuf);
   return mBuf.Length();
 }
@@ -30,4 +30,4 @@ uint32_t MimeRebuffer::ReduceBuffer(uint32_t numBytes) {
   return mBuf.Length();
 }
 
-nsACString &MimeRebuffer::GetBuffer() { return mBuf; }
+nsACString& MimeRebuffer::GetBuffer() { return mBuf; }

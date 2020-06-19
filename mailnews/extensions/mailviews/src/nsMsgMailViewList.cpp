@@ -38,19 +38,19 @@ nsMsgMailView::~nsMsgMailView() {
   if (mViewSearchTerms) mViewSearchTerms->Clear();
 }
 
-NS_IMETHODIMP nsMsgMailView::GetMailViewName(char16_t **aMailViewName) {
+NS_IMETHODIMP nsMsgMailView::GetMailViewName(char16_t** aMailViewName) {
   NS_ENSURE_ARG_POINTER(aMailViewName);
 
   *aMailViewName = ToNewUnicode(mName);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::SetMailViewName(const char16_t *aMailViewName) {
+NS_IMETHODIMP nsMsgMailView::SetMailViewName(const char16_t* aMailViewName) {
   mName = aMailViewName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t **aMailViewName) {
+NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t** aMailViewName) {
   NS_ENSURE_ARG_POINTER(aMailViewName);
 
   nsresult rv = NS_OK;
@@ -90,24 +90,24 @@ NS_IMETHODIMP nsMsgMailView::GetPrettyName(char16_t **aMailViewName) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMailView::GetSearchTerms(nsIMutableArray **aSearchTerms) {
+NS_IMETHODIMP nsMsgMailView::GetSearchTerms(nsIMutableArray** aSearchTerms) {
   NS_ENSURE_ARG_POINTER(aSearchTerms);
   NS_IF_ADDREF(*aSearchTerms = mViewSearchTerms);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::SetSearchTerms(nsIMutableArray *aSearchTerms) {
+NS_IMETHODIMP nsMsgMailView::SetSearchTerms(nsIMutableArray* aSearchTerms) {
   mViewSearchTerms = aSearchTerms;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailView::AppendTerm(nsIMsgSearchTerm *aTerm) {
+NS_IMETHODIMP nsMsgMailView::AppendTerm(nsIMsgSearchTerm* aTerm) {
   NS_ENSURE_TRUE(aTerm, NS_ERROR_NULL_POINTER);
 
   return mViewSearchTerms->AppendElement(aTerm);
 }
 
-NS_IMETHODIMP nsMsgMailView::CreateTerm(nsIMsgSearchTerm **aResult) {
+NS_IMETHODIMP nsMsgMailView::CreateTerm(nsIMsgSearchTerm** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   nsCOMPtr<nsIMsgSearchTerm> searchTerm =
       do_CreateInstance("@mozilla.org/messenger/searchTerm;1");
@@ -126,7 +126,7 @@ NS_IMPL_QUERY_INTERFACE(nsMsgMailViewList, nsIMsgMailViewList)
 
 nsMsgMailViewList::~nsMsgMailViewList() {}
 
-NS_IMETHODIMP nsMsgMailViewList::GetMailViewCount(uint32_t *aCount) {
+NS_IMETHODIMP nsMsgMailViewList::GetMailViewCount(uint32_t* aCount) {
   NS_ENSURE_ARG_POINTER(aCount);
 
   *aCount = m_mailViews.Length();
@@ -134,7 +134,7 @@ NS_IMETHODIMP nsMsgMailViewList::GetMailViewCount(uint32_t *aCount) {
 }
 
 NS_IMETHODIMP nsMsgMailViewList::GetMailViewAt(uint32_t aMailViewIndex,
-                                               nsIMsgMailView **aMailView) {
+                                               nsIMsgMailView** aMailView) {
   NS_ENSURE_ARG_POINTER(aMailView);
 
   uint32_t mailViewCount = m_mailViews.Length();
@@ -145,21 +145,21 @@ NS_IMETHODIMP nsMsgMailViewList::GetMailViewAt(uint32_t aMailViewIndex,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailViewList::AddMailView(nsIMsgMailView *aMailView) {
+NS_IMETHODIMP nsMsgMailViewList::AddMailView(nsIMsgMailView* aMailView) {
   NS_ENSURE_ARG_POINTER(aMailView);
 
   m_mailViews.AppendElement(aMailView);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailViewList::RemoveMailView(nsIMsgMailView *aMailView) {
+NS_IMETHODIMP nsMsgMailViewList::RemoveMailView(nsIMsgMailView* aMailView) {
   NS_ENSURE_ARG_POINTER(aMailView);
 
   m_mailViews.RemoveElement(aMailView);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailViewList::CreateMailView(nsIMsgMailView **aMailView) {
+NS_IMETHODIMP nsMsgMailViewList::CreateMailView(nsIMsgMailView** aMailView) {
   NS_ENSURE_ARG_POINTER(aMailView);
   NS_ADDREF(*aMailView = new nsMsgMailView);
   return NS_OK;

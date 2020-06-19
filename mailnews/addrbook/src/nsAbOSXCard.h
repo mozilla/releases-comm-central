@@ -22,9 +22,9 @@ class nsIAbOSXCard : public nsISupports {
  public:
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IABOSXCARD_IID)
 
-  virtual nsresult Init(const char *aUri) = 0;
+  virtual nsresult Init(const char* aUri) = 0;
   virtual nsresult Update(bool aNotify) = 0;
-  virtual nsresult GetURI(nsACString &aURI) = 0;
+  virtual nsresult GetURI(nsACString& aURI) = 0;
 };
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIAbOSXCard, NS_IABOSXCARD_IID)
@@ -34,8 +34,8 @@ class nsAbOSXCard : public nsAbCardProperty, public nsIAbOSXCard {
   NS_DECL_ISUPPORTS_INHERITED
 
   nsresult Update(bool aNotify) override;
-  nsresult GetURI(nsACString &aURI) override;
-  nsresult Init(const char *aUri) override;
+  nsresult GetURI(nsACString& aURI) override;
+  nsresult Init(const char* aUri) override;
   // this is needed so nsAbOSXUtils.mm can get at nsAbCardProperty
   friend class nsAbOSXUtils;
 

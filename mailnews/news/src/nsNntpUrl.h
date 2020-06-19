@@ -21,14 +21,14 @@ class nsNntpUrl : public nsINntpUrl,
   NS_DECL_NSIMSGI18NURL
 
   // nsMsgMailNewsUrl overrides
-  nsresult SetSpecInternal(const nsACString &aSpec) override;
-  nsresult Clone(nsIURI **_retval) override;
+  nsresult SetSpecInternal(const nsACString& aSpec) override;
+  nsresult Clone(nsIURI** _retval) override;
 
-  NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
+  NS_IMETHOD IsUrlType(uint32_t type, bool* isType) override;
 
   // nsIMsgMailNewsUrl overrides
-  NS_IMETHOD GetServer(nsIMsgIncomingServer **server) override;
-  NS_IMETHOD GetFolder(nsIMsgFolder **msgFolder) override;
+  NS_IMETHOD GetServer(nsIMsgIncomingServer** server) override;
+  NS_IMETHOD GetFolder(nsIMsgFolder** msgFolder) override;
 
   // nsNntpUrl
   nsNntpUrl();

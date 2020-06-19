@@ -18,7 +18,7 @@ class NS_MSG_BASE nsMsgCompressIStream final : public nsIAsyncInputStream {
   NS_DECL_NSIINPUTSTREAM
   NS_DECL_NSIASYNCINPUTSTREAM
 
-  nsresult InitInputStream(nsIInputStream *rawStream);
+  nsresult InitInputStream(nsIInputStream* rawStream);
 
  protected:
   ~nsMsgCompressIStream();
@@ -26,7 +26,7 @@ class NS_MSG_BASE nsMsgCompressIStream final : public nsIAsyncInputStream {
   nsCOMPtr<nsIInputStream> m_iStream;
   mozilla::UniquePtr<char[]> m_zbuf;
   mozilla::UniquePtr<char[]> m_databuf;
-  char *m_dataptr;
+  char* m_dataptr;
   uint32_t m_dataleft;
   bool m_inflateAgain;
   z_stream m_zstream;

@@ -8,15 +8,15 @@
 
 #include "ImportCharSet.h"
 
-bool nsImportTranslator::ConvertToFile(const uint8_t *pIn, uint32_t inLen,
-                                       ImportOutFile *pOutFile,
-                                       uint32_t *pProcessed) {
+bool nsImportTranslator::ConvertToFile(const uint8_t* pIn, uint32_t inLen,
+                                       ImportOutFile* pOutFile,
+                                       uint32_t* pProcessed) {
   if (pProcessed) *pProcessed = inLen;
   return (pOutFile->WriteData(pIn, inLen));
 }
 
-void CMHTranslator::ConvertBuffer(const uint8_t *pIn, uint32_t inLen,
-                                  uint8_t *pOut) {
+void CMHTranslator::ConvertBuffer(const uint8_t* pIn, uint32_t inLen,
+                                  uint8_t* pOut) {
   while (inLen) {
     if (!ImportCharSet::IsUSAscii(*pIn) ||
         ImportCharSet::Is822SpecialChar(*pIn) ||
@@ -38,9 +38,9 @@ void CMHTranslator::ConvertBuffer(const uint8_t *pIn, uint32_t inLen,
   *pOut = 0;
 }
 
-bool CMHTranslator::ConvertToFile(const uint8_t *pIn, uint32_t inLen,
-                                  ImportOutFile *pOutFile,
-                                  uint32_t *pProcessed) {
+bool CMHTranslator::ConvertToFile(const uint8_t* pIn, uint32_t inLen,
+                                  ImportOutFile* pOutFile,
+                                  uint32_t* pProcessed) {
   uint8_t hex[2];
   while (inLen) {
     if (!ImportCharSet::IsUSAscii(*pIn) ||
@@ -64,9 +64,9 @@ bool CMHTranslator::ConvertToFile(const uint8_t *pIn, uint32_t inLen,
   return true;
 }
 
-bool C2047Translator::ConvertToFileQ(const uint8_t *pIn, uint32_t inLen,
-                                     ImportOutFile *pOutFile,
-                                     uint32_t *pProcessed) {
+bool C2047Translator::ConvertToFileQ(const uint8_t* pIn, uint32_t inLen,
+                                     ImportOutFile* pOutFile,
+                                     uint32_t* pProcessed) {
   if (!inLen) return true;
 
   int maxLineLen = 64;
@@ -119,9 +119,9 @@ bool C2047Translator::ConvertToFileQ(const uint8_t *pIn, uint32_t inLen,
   return true;
 }
 
-bool C2047Translator::ConvertToFile(const uint8_t *pIn, uint32_t inLen,
-                                    ImportOutFile *pOutFile,
-                                    uint32_t *pProcessed) {
+bool C2047Translator::ConvertToFile(const uint8_t* pIn, uint32_t inLen,
+                                    ImportOutFile* pOutFile,
+                                    uint32_t* pProcessed) {
   if (m_useQuotedPrintable)
     return ConvertToFileQ(pIn, inLen, pOutFile, pProcessed);
 
@@ -131,7 +131,7 @@ bool C2047Translator::ConvertToFile(const uint8_t *pIn, uint32_t inLen,
   int curLineLen = m_startLen;
   bool startLine = true;
   int encodeMax;
-  uint8_t *pEncoded = new uint8_t[maxLineLen * 2];
+  uint8_t* pEncoded = new uint8_t[maxLineLen * 2];
 
   while (inLen) {
     if (startLine) {
@@ -160,7 +160,7 @@ bool C2047Translator::ConvertToFile(const uint8_t *pIn, uint32_t inLen,
     UMimeEncode::ConvertBuffer(pIn, encodeMax, pEncoded, maxLineLen, maxLineLen,
                                "\x0D\x0A");
 
-    if (!pOutFile->WriteStr((const char *)pEncoded)) {
+    if (!pOutFile->WriteStr((const char*)pEncoded)) {
       delete[] pEncoded;
       return false;
     }
@@ -205,10 +205,10 @@ uint32_t UMimeEncode::GetBufferSize(uint32_t inBytes) {
 static uint8_t gBase64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-uint32_t UMimeEncode::ConvertBuffer(const uint8_t *pIn, uint32_t inLen,
-                                    uint8_t *pOut, uint32_t maxLen,
+uint32_t UMimeEncode::ConvertBuffer(const uint8_t* pIn, uint32_t inLen,
+                                    uint8_t* pOut, uint32_t maxLen,
                                     uint32_t firstLineLen,
-                                    const char *pEolStr) {
+                                    const char* pEolStr) {
   uint32_t pos = 0;
   uint32_t len = 0;
   uint32_t lineLen = 0;

@@ -145,38 +145,38 @@ class nsAutoSyncManager final : public nsIObserver,
   IdleState GetIdleState() const;
   nsresult StartIdleProcessing();
   nsresult AutoUpdateFolders();
-  void ScheduleFolderForOfflineDownload(nsIAutoSyncState *aAutoSyncStateObj);
-  nsresult DownloadMessagesForOffline(nsIAutoSyncState *aAutoSyncStateObj,
+  void ScheduleFolderForOfflineDownload(nsIAutoSyncState* aAutoSyncStateObj);
+  nsresult DownloadMessagesForOffline(nsIAutoSyncState* aAutoSyncStateObj,
                                       uint32_t aSizeLimit = 0);
-  nsresult HandleDownloadErrorFor(nsIAutoSyncState *aAutoSyncStateObj,
+  nsresult HandleDownloadErrorFor(nsIAutoSyncState* aAutoSyncStateObj,
                                   const nsresult error);
 
   // Helper methods for priority Q operations
-  static void ChainFoldersInQ(const nsCOMArray<nsIAutoSyncState> &aQueue,
-                              nsCOMArray<nsIAutoSyncState> &aChainedQ);
-  static nsIAutoSyncState *SearchQForSibling(
-      const nsCOMArray<nsIAutoSyncState> &aQueue,
-      nsIAutoSyncState *aAutoSyncStateObj, int32_t aStartIdx,
-      int32_t *aIndex = nullptr);
+  static void ChainFoldersInQ(const nsCOMArray<nsIAutoSyncState>& aQueue,
+                              nsCOMArray<nsIAutoSyncState>& aChainedQ);
+  static nsIAutoSyncState* SearchQForSibling(
+      const nsCOMArray<nsIAutoSyncState>& aQueue,
+      nsIAutoSyncState* aAutoSyncStateObj, int32_t aStartIdx,
+      int32_t* aIndex = nullptr);
   static bool DoesQContainAnySiblingOf(
-      const nsCOMArray<nsIAutoSyncState> &aQueue,
-      nsIAutoSyncState *aAutoSyncStateObj, const int32_t aState,
-      int32_t *aIndex = nullptr);
-  static nsIAutoSyncState *GetNextSibling(
-      const nsCOMArray<nsIAutoSyncState> &aQueue,
-      nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex = nullptr);
-  static nsIAutoSyncState *GetHighestPrioSibling(
-      const nsCOMArray<nsIAutoSyncState> &aQueue,
-      nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex = nullptr);
+      const nsCOMArray<nsIAutoSyncState>& aQueue,
+      nsIAutoSyncState* aAutoSyncStateObj, const int32_t aState,
+      int32_t* aIndex = nullptr);
+  static nsIAutoSyncState* GetNextSibling(
+      const nsCOMArray<nsIAutoSyncState>& aQueue,
+      nsIAutoSyncState* aAutoSyncStateObj, int32_t* aIndex = nullptr);
+  static nsIAutoSyncState* GetHighestPrioSibling(
+      const nsCOMArray<nsIAutoSyncState>& aQueue,
+      nsIAutoSyncState* aAutoSyncStateObj, int32_t* aIndex = nullptr);
 
   /// timer to process existing keys and updates
   void InitTimer();
-  static void TimerCallback(nsITimer *aTimer, void *aClosure);
+  static void TimerCallback(nsITimer* aTimer, void* aClosure);
   void StopTimer();
   void StartTimerIfNeeded();
 
   /// pref helpers
-  uint32_t GetUpdateIntervalFor(nsIAutoSyncState *aAutoSyncStateObj);
+  uint32_t GetUpdateIntervalFor(nsIAutoSyncState* aAutoSyncStateObj);
 
  protected:
   nsCOMPtr<nsIAutoSyncMsgStrategy> mMsgStrategyImpl;

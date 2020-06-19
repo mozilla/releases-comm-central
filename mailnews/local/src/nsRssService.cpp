@@ -15,7 +15,7 @@ nsRssService::~nsRssService() {}
 
 NS_IMPL_ISUPPORTS(nsRssService, nsIRssService, nsIMsgProtocolInfo)
 
-NS_IMETHODIMP nsRssService::GetDefaultLocalPath(nsIFile **aDefaultLocalPath) {
+NS_IMETHODIMP nsRssService::GetDefaultLocalPath(nsIFile** aDefaultLocalPath) {
   NS_ENSURE_ARG_POINTER(aDefaultLocalPath);
   *aDefaultLocalPath = nullptr;
 
@@ -37,76 +37,76 @@ NS_IMETHODIMP nsRssService::GetDefaultLocalPath(nsIFile **aDefaultLocalPath) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssService::SetDefaultLocalPath(nsIFile *aDefaultLocalPath) {
+NS_IMETHODIMP nsRssService::SetDefaultLocalPath(nsIFile* aDefaultLocalPath) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsRssService::GetServerIID(nsIID **aServerIID) {
+NS_IMETHODIMP nsRssService::GetServerIID(nsIID** aServerIID) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsRssService::GetRequiresUsername(bool *aRequiresUsername) {
+NS_IMETHODIMP nsRssService::GetRequiresUsername(bool* aRequiresUsername) {
   NS_ENSURE_ARG_POINTER(aRequiresUsername);
   *aRequiresUsername = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsRssService::GetPreflightPrettyNameWithEmailAddress(
-    bool *aPreflightPrettyNameWithEmailAddress) {
+    bool* aPreflightPrettyNameWithEmailAddress) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsRssService::GetCanDelete(bool *aCanDelete) {
+NS_IMETHODIMP nsRssService::GetCanDelete(bool* aCanDelete) {
   NS_ENSURE_ARG_POINTER(aCanDelete);
   *aCanDelete = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssService::GetCanLoginAtStartUp(bool *aCanLoginAtStartUp) {
+NS_IMETHODIMP nsRssService::GetCanLoginAtStartUp(bool* aCanLoginAtStartUp) {
   NS_ENSURE_ARG_POINTER(aCanLoginAtStartUp);
   *aCanLoginAtStartUp = false;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssService::GetCanDuplicate(bool *aCanDuplicate) {
+NS_IMETHODIMP nsRssService::GetCanDuplicate(bool* aCanDuplicate) {
   NS_ENSURE_ARG_POINTER(aCanDuplicate);
   *aCanDuplicate = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsRssService::GetDefaultServerPort(bool isSecure,
-                                                 int32_t *_retval) {
+                                                 int32_t* _retval) {
   *_retval = -1;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssService::GetCanGetMessages(bool *aCanGetMessages) {
+NS_IMETHODIMP nsRssService::GetCanGetMessages(bool* aCanGetMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetMessages);
   *aCanGetMessages = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsRssService::GetCanGetIncomingMessages(
-    bool *aCanGetIncomingMessages) {
+    bool* aCanGetIncomingMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetIncomingMessages);
   *aCanGetIncomingMessages = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssService::GetDefaultDoBiff(bool *aDefaultDoBiff) {
+NS_IMETHODIMP nsRssService::GetDefaultDoBiff(bool* aDefaultDoBiff) {
   NS_ENSURE_ARG_POINTER(aDefaultDoBiff);
   // by default, do biff for RSS feeds
   *aDefaultDoBiff = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssService::GetShowComposeMsgLink(bool *aShowComposeMsgLink) {
+NS_IMETHODIMP nsRssService::GetShowComposeMsgLink(bool* aShowComposeMsgLink) {
   NS_ENSURE_ARG_POINTER(aShowComposeMsgLink);
   *aShowComposeMsgLink = false;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssService::GetFoldersCreatedAsync(bool *aAsyncCreation) {
+NS_IMETHODIMP nsRssService::GetFoldersCreatedAsync(bool* aAsyncCreation) {
   NS_ENSURE_ARG_POINTER(aAsyncCreation);
   *aAsyncCreation = false;
   return NS_OK;

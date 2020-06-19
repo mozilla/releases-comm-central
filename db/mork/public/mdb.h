@@ -2346,11 +2346,10 @@ class nsIMdbRowCellCursor : public nsISupports {  // cell collection iterator
   // } ----- end attribute methods -----
 
   // { ----- begin cell seeking methods -----
-  NS_IMETHOD SeekCell(
-      nsIMdbEnv* ev,              // context
-      mdb_pos inPos,              // position of cell in row sequence
-      mdb_column* outColumn,      // column for this particular cell
-      nsIMdbCell** acqCell) = 0;  // the cell at inPos
+  NS_IMETHOD SeekCell(nsIMdbEnv* ev,  // context
+                      mdb_pos inPos,  // position of cell in row sequence
+                      mdb_column* outColumn,  // column for this particular cell
+                      nsIMdbCell** acqCell) = 0;  // the cell at inPos
   // } ----- end cell seeking methods -----
 
   // { ----- begin cell iteration methods -----

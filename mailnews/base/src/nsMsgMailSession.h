@@ -39,7 +39,7 @@ class nsMsgMailSession : public nsIMsgMailSession, public nsIFolderListener {
   NS_DECL_NSIFOLDERLISTENER
 
   nsresult Init();
-  nsresult GetSelectedLocaleDataDir(nsIFile *defaultsDir);
+  nsresult GetSelectedLocaleDataDir(nsIFile* defaultsDir);
 
  protected:
   virtual ~nsMsgMailSession();
@@ -48,17 +48,17 @@ class nsMsgMailSession : public nsIMsgMailSession, public nsIFolderListener {
     nsCOMPtr<nsIFolderListener> mListener;
     uint32_t mNotifyFlags;
 
-    folderListener(nsIFolderListener *aListener, uint32_t aNotifyFlags)
+    folderListener(nsIFolderListener* aListener, uint32_t aNotifyFlags)
         : mListener(aListener), mNotifyFlags(aNotifyFlags) {}
-    folderListener(const folderListener &aListener)
+    folderListener(const folderListener& aListener)
         : mListener(aListener.mListener),
           mNotifyFlags(aListener.mNotifyFlags) {}
     ~folderListener() {}
 
-    int operator==(nsIFolderListener *aListener) const {
+    int operator==(nsIFolderListener* aListener) const {
       return mListener == aListener;
     }
-    int operator==(const folderListener &aListener) const {
+    int operator==(const folderListener& aListener) const {
       return mListener == aListener.mListener &&
              mNotifyFlags == aListener.mNotifyFlags;
     }

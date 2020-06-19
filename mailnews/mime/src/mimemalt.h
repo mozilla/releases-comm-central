@@ -36,8 +36,8 @@ enum priority_t {
 struct MimeMultipartAlternative {
   MimeMultipart multipart; /* superclass variables */
 
-  MimeHeaders **buffered_hdrs;       /* The headers of pending parts */
-  MimePartBufferData **part_buffers; /* The data of pending parts
+  MimeHeaders** buffered_hdrs;       /* The headers of pending parts */
+  MimePartBufferData** part_buffers; /* The data of pending parts
                                         (see mimepbuf.h) */
   int32_t pending_parts;
   int32_t max_parts;

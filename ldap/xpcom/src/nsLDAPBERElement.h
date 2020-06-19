@@ -25,7 +25,7 @@ class nsLDAPBERElement final : public nsILDAPBERElement {
  private:
   ~nsLDAPBERElement();
 
-  BerElement *mElement;
+  BerElement* mElement;
 
  protected:
 };

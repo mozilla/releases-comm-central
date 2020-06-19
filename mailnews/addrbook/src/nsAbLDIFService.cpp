@@ -54,17 +54,17 @@ static unsigned char b642nib[0x80] = {
     0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30,
     0x31, 0x32, 0x33, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAbDirectory *aDirectory,
-                                              nsIFile *aSrc,
+NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAbDirectory* aDirectory,
+                                              nsIFile* aSrc,
                                               bool aStoreLocAsHome,
-                                              uint32_t *aProgress) {
+                                              uint32_t* aProgress) {
   NS_ENSURE_ARG_POINTER(aSrc);
   NS_ENSURE_ARG_POINTER(aDirectory);
 
   mStoreLocAsHome = aStoreLocAsHome;
 
   char buf[1024];
-  char *pBuf = &buf[0];
+  char* pBuf = &buf[0];
   int32_t startPos = 0;
   uint32_t len = 0;
   nsTArray<int32_t> listPosArray;   // where each list/group starts in ldif file
@@ -107,7 +107,7 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAbDirectory *aDirectory,
   int32_t i, pos;
   uint32_t size;
   int32_t listTotal = listPosArray.Length();
-  char *listBuf;
+  char* listBuf;
   ClearLdifRecordBuffer();  // make sure the buffer is clean
 
   nsCOMPtr<nsISeekableStream> seekableStream =
@@ -120,7 +120,7 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAbDirectory *aDirectory,
     if (NS_SUCCEEDED(
             seekableStream->Seek(nsISeekableStream::NS_SEEK_SET, pos))) {
       // Allocate enough space for the lists/groups as the size varies.
-      listBuf = (char *)PR_Malloc(size);
+      listBuf = (char*)PR_Malloc(size);
       if (!listBuf) continue;
       if (NS_SUCCEEDED(inputStream->Read(listBuf, size, &len)) && len > 0) {
         startPos = 0;
@@ -152,8 +152,8 @@ NS_IMETHODIMP nsAbLDIFService::ImportLDIFFile(nsIAbDirectory *aDirectory,
  * in LDIF, non-ASCII data is treated as base64 encoded UTF-8
  */
 
-nsresult nsAbLDIFService::str_parse_line(char *line, char **type, char **value,
-                                         int *vlen) const {
+nsresult nsAbLDIFService::str_parse_line(char* line, char** type, char** value,
+                                         int* vlen) const {
   char *p, *s, *d, *byte, *stop;
   char nib;
   int i, b64;
@@ -258,8 +258,8 @@ nsresult nsAbLDIFService::str_parse_line(char *line, char **type, char **value,
  * which it updates and must be supplied on subsequent calls.
  */
 
-char *nsAbLDIFService::str_getline(char **next) const {
-  char *lineStr;
+char* nsAbLDIFService::str_getline(char** next) const {
+  char* lineStr;
   char c;
 
   if (*next == nullptr || **next == '\n' || **next == '\0') {
@@ -281,8 +281,8 @@ char *nsAbLDIFService::str_getline(char **next) const {
   return (lineStr);
 }
 
-nsresult nsAbLDIFService::GetLdifStringRecord(char *buf, int32_t len,
-                                              int32_t &stopPos) {
+nsresult nsAbLDIFService::GetLdifStringRecord(char* buf, int32_t len,
+                                              int32_t& stopPos) {
   for (; stopPos < len; stopPos++) {
     char c = buf[stopPos];
 
@@ -312,7 +312,7 @@ nsresult nsAbLDIFService::GetLdifStringRecord(char *buf, int32_t len,
   return NS_ERROR_FAILURE;
 }
 
-void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory *aDirectory,
+void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory* aDirectory,
                                            bool bIsList) {
   if (!aDirectory) {
     return;
@@ -328,11 +328,11 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory *aDirectory,
   nsCOMPtr<nsIAbCard> newCard = do_CreateInstance(NS_ABCARDPROPERTY_CONTRACTID);
   nsTArray<nsCString> members;
 
-  char *cursor = ToNewCString(mLdifLine);
-  char *saveCursor = cursor; /* keep for deleting */
-  char *line = 0;
-  char *typeSlot = 0;
-  char *valueSlot = 0;
+  char* cursor = ToNewCString(mLdifLine);
+  char* saveCursor = cursor; /* keep for deleting */
+  char* line = 0;
+  char* typeSlot = 0;
+  char* valueSlot = 0;
   int length = 0;  // the length  of an ldif attribute
   while ((line = str_getline(&cursor)) != nullptr) {
     if (NS_SUCCEEDED(str_parse_line(line, &typeSlot, &valueSlot, &length))) {
@@ -369,7 +369,7 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory *aDirectory,
     newCard->GetPropertyAsAString(kNotesProperty, temp);
     newList->SetDescription(temp);
 
-    nsIAbDirectory *outList;
+    nsIAbDirectory* outList;
     nsresult rv = aDirectory->AddMailList(newList, &outList);
     NS_ENSURE_SUCCESS_VOID(rv);
 
@@ -383,12 +383,12 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory *aDirectory,
       nsCOMPtr<nsIAbCard> emailCard;
       aDirectory->CardForEmailAddress(email, getter_AddRefs(emailCard));
       if (emailCard) {
-        nsIAbCard *outCard;
+        nsIAbCard* outCard;
         outList->AddCard(emailCard, &outCard);
       }
     }
   } else {
-    nsIAbCard *outCard;
+    nsIAbCard* outCard;
     aDirectory->AddCard(newCard, &outCard);
   }
 
@@ -396,8 +396,8 @@ void nsAbLDIFService::AddLdifRowToDatabase(nsIAbDirectory *aDirectory,
   ClearLdifRecordBuffer();
 }
 
-void nsAbLDIFService::AddLdifColToDatabase(nsIAbDirectory *aDirectory,
-                                           nsIAbCard *newCard,
+void nsAbLDIFService::AddLdifColToDatabase(nsIAbDirectory* aDirectory,
+                                           nsIAbCard* newCard,
                                            nsCString colType, nsCString column,
                                            bool bIsList) {
   nsString value = NS_ConvertUTF8toUTF16(column);
@@ -710,14 +710,14 @@ void nsAbLDIFService::ClearLdifRecordBuffer() {
 
 // Some common ldif fields, it an ldif file has NONE of these entries
 // then it is most likely NOT an ldif file!
-static const char *const sLDIFFields[] = {"objectclass", "sn",   "dn",   "cn",
+static const char* const sLDIFFields[] = {"objectclass", "sn",   "dn",   "cn",
                                           "givenName",   "mail", nullptr};
 #define kMaxLDIFLen 14
 
 // Count total number of legal ldif fields and records in the first 100 lines of
 // the file and if the average legal ldif field is 3 or higher than it's a valid
 // ldif file.
-NS_IMETHODIMP nsAbLDIFService::IsLDIFFile(nsIFile *pSrc, bool *_retval) {
+NS_IMETHODIMP nsAbLDIFService::IsLDIFFile(nsIFile* pSrc, bool* _retval) {
   NS_ENSURE_ARG_POINTER(pSrc);
   NS_ENSURE_ARG_POINTER(_retval);
 
@@ -738,7 +738,7 @@ NS_IMETHODIMP nsAbLDIFService::IsLDIFFile(nsIFile *pSrc, bool *_retval) {
   int32_t ldifFields = 0;  // total number of legal ldif fields.
   char field[kMaxLDIFLen];
   int32_t fLen = 0;
-  const char *pChar;
+  const char* pChar;
   int32_t recCount = 0;  // total number of records.
   int32_t i;
   bool gotLDIF = false;
@@ -800,9 +800,9 @@ NS_IMETHODIMP nsAbLDIFService::IsLDIFFile(nsIFile *pSrc, bool *_retval) {
   return rv;
 }
 
-void nsAbLDIFService::SplitCRLFAddressField(nsCString &inputAddress,
-                                            nsCString &outputLine1,
-                                            nsCString &outputLine2) const {
+void nsAbLDIFService::SplitCRLFAddressField(nsCString& inputAddress,
+                                            nsCString& outputLine1,
+                                            nsCString& outputLine2) const {
   int32_t crlfPos = inputAddress.Find("\r\n");
   if (crlfPos != -1) {
     outputLine1 = Substring(inputAddress, 0, crlfPos);

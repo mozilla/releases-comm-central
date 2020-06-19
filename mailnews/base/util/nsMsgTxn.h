@@ -45,12 +45,12 @@ class NS_MSG_BASE nsMsgTxn : public nsITransaction,
 
   NS_IMETHOD RedoTransaction(void) override = 0;
 
-  NS_IMETHOD GetIsTransient(bool *aIsTransient) override;
+  NS_IMETHOD GetIsTransient(bool* aIsTransient) override;
 
-  NS_IMETHOD Merge(nsITransaction *aTransaction, bool *aDidMerge) override;
+  NS_IMETHOD Merge(nsITransaction* aTransaction, bool* aDidMerge) override;
 
-  nsresult GetMsgWindow(nsIMsgWindow **msgWindow);
-  nsresult SetMsgWindow(nsIMsgWindow *msgWindow);
+  nsresult GetMsgWindow(nsIMsgWindow** msgWindow);
+  nsresult SetMsgWindow(nsIMsgWindow* msgWindow);
   nsresult SetTransactionType(uint32_t txnType);
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -70,8 +70,8 @@ class NS_MSG_BASE nsMsgTxn : public nsITransaction,
   nsInterfaceHashtable<nsStringHashKey, nsIVariant> mPropertyHash;
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
   uint32_t m_txnType;
-  nsresult CheckForToggleDelete(nsIMsgFolder *aFolder, const nsMsgKey &aMsgKey,
-                                bool *aResult);
+  nsresult CheckForToggleDelete(nsIMsgFolder* aFolder, const nsMsgKey& aMsgKey,
+                                bool* aResult);
 };
 
 #endif

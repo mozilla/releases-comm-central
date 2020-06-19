@@ -24,20 +24,20 @@ extern MimeObjectClass mimeMultipartAppleDoubleClass;
 MimeDefClass(MimeMultipart, MimeMultipartClass, mimeMultipartClass,
              &MIME_SUPERCLASS);
 
-static int MimeMultipart_initialize(MimeObject *);
-static void MimeMultipart_finalize(MimeObject *);
-static int MimeMultipart_parse_line(const char *line, int32_t length,
-                                    MimeObject *);
-static int MimeMultipart_parse_eof(MimeObject *object, bool abort_p);
+static int MimeMultipart_initialize(MimeObject*);
+static void MimeMultipart_finalize(MimeObject*);
+static int MimeMultipart_parse_line(const char* line, int32_t length,
+                                    MimeObject*);
+static int MimeMultipart_parse_eof(MimeObject* object, bool abort_p);
 
-static MimeMultipartBoundaryType MimeMultipart_check_boundary(MimeObject *,
-                                                              const char *,
+static MimeMultipartBoundaryType MimeMultipart_check_boundary(MimeObject*,
+                                                              const char*,
                                                               int32_t);
-static int MimeMultipart_create_child(MimeObject *);
-static bool MimeMultipart_output_child_p(MimeObject *, MimeObject *);
-static int MimeMultipart_parse_child_line(MimeObject *, const char *, int32_t,
+static int MimeMultipart_create_child(MimeObject*);
+static bool MimeMultipart_output_child_p(MimeObject*, MimeObject*);
+static int MimeMultipart_parse_child_line(MimeObject*, const char*, int32_t,
                                           bool);
-static int MimeMultipart_close_child(MimeObject *);
+static int MimeMultipart_close_child(MimeObject*);
 
 extern "C" MimeObjectClass mimeMultipartAlternativeClass;
 extern "C" MimeObjectClass mimeMultipartRelatedClass;
@@ -47,12 +47,12 @@ extern "C" MimeExternalObjectClass mimeExternalObjectClass;
 extern "C" MimeSuppressedCryptoClass mimeSuppressedCryptoClass;
 
 #if defined(DEBUG) && defined(XP_UNIX)
-static int MimeMultipart_debug_print(MimeObject *, PRFileDesc *, int32_t);
+static int MimeMultipart_debug_print(MimeObject*, PRFileDesc*, int32_t);
 #endif
 
-static int MimeMultipartClassInitialize(MimeMultipartClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
-  MimeMultipartClass *mclass = (MimeMultipartClass *)clazz;
+static int MimeMultipartClassInitialize(MimeMultipartClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
 
   PR_ASSERT(!oclass->class_initialized);
   oclass->initialize = MimeMultipart_initialize;
@@ -73,12 +73,12 @@ static int MimeMultipartClassInitialize(MimeMultipartClass *clazz) {
   return 0;
 }
 
-static int MimeMultipart_initialize(MimeObject *object) {
-  MimeMultipart *mult = (MimeMultipart *)object;
-  char *ct;
+static int MimeMultipart_initialize(MimeObject* object) {
+  MimeMultipart* mult = (MimeMultipart*)object;
+  char* ct;
 
   /* This is an abstract class; it shouldn't be directly instantiated. */
-  PR_ASSERT(object->clazz != (MimeObjectClass *)&mimeMultipartClass);
+  PR_ASSERT(object->clazz != (MimeObjectClass*)&mimeMultipartClass);
 
   ct = MimeHeaders_get(object->headers, HEADER_CONTENT_TYPE, false, false);
   mult->boundary =
@@ -86,29 +86,29 @@ static int MimeMultipart_initialize(MimeObject *object) {
           : 0);
   PR_FREEIF(ct);
   mult->state = MimeMultipartPreamble;
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->initialize(object);
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(object);
 }
 
-static void MimeMultipart_finalize(MimeObject *object) {
-  MimeMultipart *mult = (MimeMultipart *)object;
+static void MimeMultipart_finalize(MimeObject* object) {
+  MimeMultipart* mult = (MimeMultipart*)object;
 
   object->clazz->parse_eof(object, false);
 
   PR_FREEIF(mult->boundary);
   if (mult->hdrs) MimeHeaders_free(mult->hdrs);
   mult->hdrs = 0;
-  ((MimeObjectClass *)&MIME_SUPERCLASS)->finalize(object);
+  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(object);
 }
 
-int MimeWriteAString(MimeObject *obj, const nsACString &string) {
-  const nsCString &flatString = PromiseFlatCString(string);
+int MimeWriteAString(MimeObject* obj, const nsACString& string) {
+  const nsCString& flatString = PromiseFlatCString(string);
   return MimeObject_write(obj, flatString.get(), flatString.Length(), true);
 }
 
-static int MimeMultipart_parse_line(const char *line, int32_t length,
-                                    MimeObject *obj) {
-  MimeMultipart *mult = (MimeMultipart *)obj;
-  MimeContainer *container = (MimeContainer *)obj;
+static int MimeMultipart_parse_line(const char* line, int32_t length,
+                                    MimeObject* obj) {
+  MimeMultipart* mult = (MimeMultipart*)obj;
+  MimeContainer* container = (MimeContainer*)obj;
   int status = 0;
   MimeMultipartBoundaryType boundary;
 
@@ -129,7 +129,7 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
     boundary = MimeMultipartBoundaryTypeNone;
   else
     boundary =
-        ((MimeMultipartClass *)obj->clazz)->check_boundary(obj, line, length);
+        ((MimeMultipartClass*)obj->clazz)->check_boundary(obj, line, length);
 
   if (boundary == MimeMultipartBoundaryTypeTerminator ||
       boundary == MimeMultipartBoundaryTypeSeparator) {
@@ -137,8 +137,7 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
        state, and discard this line.
      */
     bool endOfPart = (mult->state != MimeMultipartPreamble);
-    if (endOfPart)
-      status = ((MimeMultipartClass *)obj->clazz)->close_child(obj);
+    if (endOfPart) status = ((MimeMultipartClass*)obj->clazz)->close_child(obj);
     if (status < 0) return status;
 
     if (boundary == MimeMultipartBoundaryTypeTerminator)
@@ -161,7 +160,7 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
         for (uint32_t partIndex = 0;
              partIndex < obj->options->state->partsToStrip.Length();
              partIndex++) {
-          nsCString &curPartToStrip =
+          nsCString& curPartToStrip =
               obj->options->state->partsToStrip[partIndex];
           if (newPart.Find(curPartToStrip) == 0 &&
               (newPart.Length() == curPartToStrip.Length() ||
@@ -265,7 +264,7 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
             // clang-format on
           }
           int32_t old_nchildren = container->nchildren;
-          status = ((MimeMultipartClass *)obj->clazz)->create_child(obj);
+          status = ((MimeMultipartClass*)obj->clazz)->create_child(obj);
           if (status < 0) return status;
           NS_ASSERTION(mult->state != MimeMultipartHeaders,
                        "mult->state shouldn't be MimeMultipartHeaders");
@@ -273,9 +272,9 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
           if (!stripping && container->nchildren > old_nchildren &&
               obj->options &&
               !mime_typep(obj,
-                          (MimeObjectClass *)&mimeMultipartAlternativeClass)) {
+                          (MimeObjectClass*)&mimeMultipartAlternativeClass)) {
             // Notify emitter about content type and part path.
-            MimeObject *kid = container->children[container->nchildren - 1];
+            MimeObject* kid = container->children[container->nchildren - 1];
             MimeMultipart_notify_emitter(kid);
           }
         }
@@ -284,7 +283,7 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
 
     case MimeMultipartPartFirstLine:
       /* Hand this line off to the sub-part. */
-      status = (((MimeMultipartClass *)obj->clazz)
+      status = (((MimeMultipartClass*)obj->clazz)
                     ->parse_child_line(obj, line, length, true));
       if (status < 0) return status;
       mult->state = MimeMultipartPartLine;
@@ -292,7 +291,7 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
 
     case MimeMultipartPartLine:
       /* Hand this line off to the sub-part. */
-      status = (((MimeMultipartClass *)obj->clazz)
+      status = (((MimeMultipartClass*)obj->clazz)
                     ->parse_child_line(obj, line, length, false));
       if (status < 0) return status;
       break;
@@ -310,8 +309,8 @@ static int MimeMultipart_parse_line(const char *line, int32_t length,
   return 0;
 }
 
-void MimeMultipart_notify_emitter(MimeObject *obj) {
-  char *ct = nullptr;
+void MimeMultipart_notify_emitter(MimeObject* obj) {
+  char* ct = nullptr;
 
   NS_ASSERTION(obj->options,
                "MimeMultipart_notify_emitter called with null options");
@@ -321,7 +320,7 @@ void MimeMultipart_notify_emitter(MimeObject *obj) {
   if (obj->options->notify_nested_bodies) {
     mimeEmitterAddHeaderField(obj->options, HEADER_CONTENT_TYPE,
                               ct ? ct : TEXT_PLAIN);
-    char *part_path = mime_part_address(obj);
+    char* part_path = mime_part_address(obj);
     if (part_path) {
       mimeEmitterAddHeaderField(obj->options, "x-jsemitter-part-path",
                                 part_path);
@@ -335,7 +334,7 @@ void MimeMultipart_notify_emitter(MimeObject *obj) {
   // possible reply or forward operation.
   if (ct &&
       (obj->options->notify_nested_bodies || MimeObjectIsMessageBody(obj))) {
-    char *cset = MimeHeaders_get_parameter(ct, "charset", NULL, NULL);
+    char* cset = MimeHeaders_get_parameter(ct, "charset", NULL, NULL);
     if (cset) {
       mimeEmitterUpdateCharacterSet(obj->options, cset);
       if (!obj->options->override_charset)
@@ -348,10 +347,10 @@ void MimeMultipart_notify_emitter(MimeObject *obj) {
   PR_FREEIF(ct);
 }
 
-static MimeMultipartBoundaryType MimeMultipart_check_boundary(MimeObject *obj,
-                                                              const char *line,
+static MimeMultipartBoundaryType MimeMultipart_check_boundary(MimeObject* obj,
+                                                              const char* line,
                                                               int32_t length) {
-  MimeMultipart *mult = (MimeMultipart *)obj;
+  MimeMultipart* mult = (MimeMultipart*)obj;
   int32_t blen;
   bool term_p;
 
@@ -373,14 +372,14 @@ static MimeMultipartBoundaryType MimeMultipart_check_boundary(MimeObject *obj,
 
   // looks like we have a separator but first, we need to check it's not for one
   // of the part's children.
-  MimeContainer *cont = (MimeContainer *)obj;
+  MimeContainer* cont = (MimeContainer*)obj;
   if (cont->nchildren > 0) {
-    MimeObject *kid = cont->children[cont->nchildren - 1];
+    MimeObject* kid = cont->children[cont->nchildren - 1];
     if (kid)
-      if (mime_typep(kid, (MimeObjectClass *)&mimeMultipartClass)) {
+      if (mime_typep(kid, (MimeObjectClass*)&mimeMultipartClass)) {
         // Don't ask the kid to check the boundary if it has already detected a
         // Teminator
-        MimeMultipart *mult = (MimeMultipart *)kid;
+        MimeMultipart* mult = (MimeMultipart*)kid;
         if (mult->state != MimeMultipartEpilogue)
           if (MimeMultipart_check_boundary(kid, line, length) !=
               MimeMultipartBoundaryTypeNone)
@@ -397,14 +396,14 @@ static MimeMultipartBoundaryType MimeMultipart_check_boundary(MimeObject *obj,
     return MimeMultipartBoundaryTypeNone;
 }
 
-static int MimeMultipart_create_child(MimeObject *obj) {
-  MimeMultipart *mult = (MimeMultipart *)obj;
+static int MimeMultipart_create_child(MimeObject* obj) {
+  MimeMultipart* mult = (MimeMultipart*)obj;
   int status;
-  char *ct = (mult->hdrs ? MimeHeaders_get(mult->hdrs, HEADER_CONTENT_TYPE,
+  char* ct = (mult->hdrs ? MimeHeaders_get(mult->hdrs, HEADER_CONTENT_TYPE,
                                            true, false)
                          : 0);
-  const char *dct = (((MimeMultipartClass *)obj->clazz)->default_part_type);
-  MimeObject *body = NULL;
+  const char* dct = (((MimeMultipartClass*)obj->clazz)->default_part_type);
+  MimeObject* body = NULL;
 
   mult->state = MimeMultipartPartFirstLine;
   if (obj->options) obj->options->is_child = true;
@@ -417,7 +416,7 @@ static int MimeMultipart_create_child(MimeObject *obj) {
                      obj->options);
   PR_FREEIF(ct);
   if (!body) return MIME_OUT_OF_MEMORY;
-  status = ((MimeContainerClass *)obj->clazz)->add_child(obj, body);
+  status = ((MimeContainerClass*)obj->clazz)->add_child(obj, body);
   if (status < 0) {
     mime_free(body);
     return status;
@@ -426,9 +425,9 @@ static int MimeMultipart_create_child(MimeObject *obj) {
 #ifdef MIME_DRAFTS
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->is_multipart_msg && obj->options->decompose_file_init_fn) {
-    if (!mime_typep(obj, (MimeObjectClass *)&mimeMultipartRelatedClass) &&
-        !mime_typep(obj, (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
-        !mime_typep(obj, (MimeObjectClass *)&mimeMultipartSignedClass) &&
+    if (!mime_typep(obj, (MimeObjectClass*)&mimeMultipartRelatedClass) &&
+        !mime_typep(obj, (MimeObjectClass*)&mimeMultipartAlternativeClass) &&
+        !mime_typep(obj, (MimeObjectClass*)&mimeMultipartSignedClass) &&
         /* bug 21869 -- due to the fact that we are not generating the
            correct mime class object for content-typ multipart/signed part
            the above check failed. to solve the problem in general and not
@@ -436,9 +435,9 @@ static int MimeMultipart_create_child(MimeObject *obj) {
            draft we can simply make sure that the child is not a multipart
            mime object. this way we could have a proper decomposing message
            part functions set correctly */
-        !mime_typep(body, (MimeObjectClass *)&mimeMultipartClass) &&
-        !((mime_typep(body, (MimeObjectClass *)&mimeExternalObjectClass) ||
-           mime_typep(body, (MimeObjectClass *)&mimeSuppressedCryptoClass)) &&
+        !mime_typep(body, (MimeObjectClass*)&mimeMultipartClass) &&
+        !((mime_typep(body, (MimeObjectClass*)&mimeExternalObjectClass) ||
+           mime_typep(body, (MimeObjectClass*)&mimeSuppressedCryptoClass)) &&
           !strcmp(body->content_type, "text/x-vcard"))) {
       status = obj->options->decompose_file_init_fn(
           obj->options->stream_closure, mult->hdrs);
@@ -451,15 +450,15 @@ static int MimeMultipart_create_child(MimeObject *obj) {
    start its parser going (if we want to display it.)
    */
   body->output_p =
-      (((MimeMultipartClass *)obj->clazz)->output_child_p(obj, body));
+      (((MimeMultipartClass*)obj->clazz)->output_child_p(obj, body));
   if (body->output_p) {
     status = body->clazz->parse_begin(body);
 
 #ifdef XP_MACOSX
     /* if we are saving an apple double attachment, we need to set correctly the
      * content type of the channel */
-    if (mime_typep(obj, (MimeObjectClass *)&mimeMultipartAppleDoubleClass)) {
-      mime_stream_data *msd = (mime_stream_data *)body->options->stream_closure;
+    if (mime_typep(obj, (MimeObjectClass*)&mimeMultipartAppleDoubleClass)) {
+      mime_stream_data* msd = (mime_stream_data*)body->options->stream_closure;
       if (!body->options->write_html_p && body->content_type &&
           !PL_strcasecmp(body->content_type, APPLICATION_APPLEFILE)) {
         if (msd && msd->channel)
@@ -475,7 +474,7 @@ static int MimeMultipart_create_child(MimeObject *obj) {
   return 0;
 }
 
-static bool MimeMultipart_output_child_p(MimeObject *obj, MimeObject *child) {
+static bool MimeMultipart_output_child_p(MimeObject* obj, MimeObject* child) {
   /* We don't output a child if we're stripping it. */
   if (obj->options && obj->options->state && obj->options->state->strippingPart)
     return false;
@@ -485,9 +484,9 @@ static bool MimeMultipart_output_child_p(MimeObject *obj, MimeObject *child) {
          PL_strcasecmp(child->content_type, MULTIPART_APPLEDOUBLE);
 }
 
-static int MimeMultipart_close_child(MimeObject *object) {
-  MimeMultipart *mult = (MimeMultipart *)object;
-  MimeContainer *cont = (MimeContainer *)object;
+static int MimeMultipart_close_child(MimeObject* object) {
+  MimeMultipart* mult = (MimeMultipart*)object;
+  MimeContainer* cont = (MimeContainer*)object;
 
   if (!mult->hdrs) return 0;
 
@@ -496,7 +495,7 @@ static int MimeMultipart_close_child(MimeObject *object) {
 
   NS_ASSERTION(cont->nchildren > 0, "badly formed mime message");
   if (cont->nchildren > 0) {
-    MimeObject *kid = cont->children[cont->nchildren - 1];
+    MimeObject* kid = cont->children[cont->nchildren - 1];
     // If we have a child and it has not already been closed, process it.
     // The kid would be already be closed if we encounter a multipart section
     // that did not have a fully delineated header block.  No header block means
@@ -541,11 +540,11 @@ static int MimeMultipart_close_child(MimeObject *object) {
   return 0;
 }
 
-static int MimeMultipart_parse_child_line(MimeObject *obj, const char *line,
+static int MimeMultipart_parse_child_line(MimeObject* obj, const char* line,
                                           int32_t length, bool first_line_p) {
-  MimeContainer *cont = (MimeContainer *)obj;
+  MimeContainer* cont = (MimeContainer*)obj;
   int status;
-  MimeObject *kid;
+  MimeObject* kid;
 
   PR_ASSERT(cont->nchildren > 0);
   if (cont->nchildren <= 0) return -1;
@@ -558,9 +557,9 @@ static int MimeMultipart_parse_child_line(MimeObject *obj, const char *line,
   if (obj->options && obj->options->decompose_file_p &&
       obj->options->is_multipart_msg &&
       obj->options->decompose_file_output_fn) {
-    if (!mime_typep(obj, (MimeObjectClass *)&mimeMultipartAlternativeClass) &&
-        !mime_typep(obj, (MimeObjectClass *)&mimeMultipartRelatedClass) &&
-        !mime_typep(obj, (MimeObjectClass *)&mimeMultipartSignedClass) &&
+    if (!mime_typep(obj, (MimeObjectClass*)&mimeMultipartAlternativeClass) &&
+        !mime_typep(obj, (MimeObjectClass*)&mimeMultipartRelatedClass) &&
+        !mime_typep(obj, (MimeObjectClass*)&mimeMultipartSignedClass) &&
         /* bug 21869 -- due to the fact that we are not generating the
            correct mime class object for content-typ multipart/signed part
            the above check failed. to solve the problem in general and not
@@ -568,9 +567,9 @@ static int MimeMultipart_parse_child_line(MimeObject *obj, const char *line,
            draft we can simply make sure that the child is not a multipart
            mime object. this way we could have a proper decomposing message
            part functions set correctly */
-        !mime_typep(kid, (MimeObjectClass *)&mimeMultipartClass) &&
-        !((mime_typep(kid, (MimeObjectClass *)&mimeExternalObjectClass) ||
-           mime_typep(kid, (MimeObjectClass *)&mimeSuppressedCryptoClass)) &&
+        !mime_typep(kid, (MimeObjectClass*)&mimeMultipartClass) &&
+        !((mime_typep(kid, (MimeObjectClass*)&mimeExternalObjectClass) ||
+           mime_typep(kid, (MimeObjectClass*)&mimeSuppressedCryptoClass)) &&
           !strcmp(kid->content_type, "text/x-vcard")))
       return obj->options->decompose_file_output_fn(
           line, length, obj->options->stream_closure);
@@ -602,9 +601,9 @@ static int MimeMultipart_parse_child_line(MimeObject *obj, const char *line,
   return kid->clazz->parse_buffer(line, length, kid);
 }
 
-static int MimeMultipart_parse_eof(MimeObject *obj, bool abort_p) {
-  MimeMultipart *mult = (MimeMultipart *)obj;
-  MimeContainer *cont = (MimeContainer *)obj;
+static int MimeMultipart_parse_eof(MimeObject* obj, bool abort_p) {
+  MimeMultipart* mult = (MimeMultipart*)obj;
+  MimeContainer* cont = (MimeContainer*)obj;
 
   if (obj->closed_p) return 0;
 
@@ -627,7 +626,7 @@ static int MimeMultipart_parse_eof(MimeObject *obj, bool abort_p) {
    */
   if (cont->nchildren > 0 && (mult->state == MimeMultipartPartLine ||
                               mult->state == MimeMultipartPartFirstLine)) {
-    MimeObject *kid = cont->children[cont->nchildren - 1];
+    MimeObject* kid = cont->children[cont->nchildren - 1];
     NS_ASSERTION(kid, "not expecting null kid");
     if (kid) {
       int status = kid->clazz->parse_eof(kid, abort_p);
@@ -635,15 +634,15 @@ static int MimeMultipart_parse_eof(MimeObject *obj, bool abort_p) {
     }
   }
 
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
 }
 
 #if defined(DEBUG) && defined(XP_UNIX)
-static int MimeMultipart_debug_print(MimeObject *obj, PRFileDesc *stream,
+static int MimeMultipart_debug_print(MimeObject* obj, PRFileDesc* stream,
                                      int32_t depth) {
   /*  MimeMultipart *mult = (MimeMultipart *) obj; */
-  MimeContainer *cont = (MimeContainer *)obj;
-  char *addr = mime_part_address(obj);
+  MimeContainer* cont = (MimeContainer*)obj;
+  char* addr = mime_part_address(obj);
   int i;
   for (i = 0; i < depth; i++) PR_Write(stream, "  ", 2);
   /**
@@ -662,7 +661,7 @@ static int MimeMultipart_debug_print(MimeObject *obj, PRFileDesc *stream,
    */
 
   for (i = 0; i < cont->nchildren; i++) {
-    MimeObject *kid = cont->children[i];
+    MimeObject* kid = cont->children[i];
     int status = kid->clazz->debug_print(kid, stream, depth + 1);
     if (status < 0) return status;
   }

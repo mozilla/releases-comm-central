@@ -72,7 +72,7 @@ nsresult FocusAppNative() {
   return NS_OK;
 }
 
-static void openMailWindow(const nsCString &aUri) {
+static void openMailWindow(const nsCString& aUri) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession(do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
   if (NS_FAILED(rv)) return;
@@ -167,23 +167,23 @@ nsresult nsMessengerOSXIntegration::Init() {
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemPropertyChanged(nsIMsgFolder *, const nsACString &,
-                                                 const nsACString &, const nsACString &) {
+nsMessengerOSXIntegration::OnItemPropertyChanged(nsIMsgFolder*, const nsACString&,
+                                                 const nsACString&, const nsACString&) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *, const nsACString &,
-                                                        const nsAString &, const nsAString &) {
+nsMessengerOSXIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder*, const nsACString&,
+                                                        const nsAString&, const nsAString&) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemRemoved(nsIMsgFolder *, nsISupports *) { return NS_OK; }
+nsMessengerOSXIntegration::OnItemRemoved(nsIMsgFolder*, nsISupports*) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::Observe(nsISupports *aSubject, const char *aTopic,
-                                   const char16_t *aData) {
+nsMessengerOSXIntegration::Observe(nsISupports* aSubject, const char* aTopic,
+                                   const char16_t* aData) {
   if (!strcmp(aTopic, "alertfinished")) return OnAlertFinished();
 
   if (!strcmp(aTopic, "alertclickcallback")) return OnAlertClicked(aData);
@@ -252,7 +252,7 @@ nsMessengerOSXIntegration::Observe(nsISupports *aSubject, const char *aTopic,
   return NS_OK;
 }
 
-nsresult nsMessengerOSXIntegration::GetStringBundle(nsIStringBundle **aBundle) {
+nsresult nsMessengerOSXIntegration::GetStringBundle(nsIStringBundle** aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService = do_GetService(NS_STRINGBUNDLE_CONTRACTID, &rv);
@@ -264,7 +264,7 @@ nsresult nsMessengerOSXIntegration::GetStringBundle(nsIStringBundle **aBundle) {
   return rv;
 }
 
-void nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t aNewCount) {
+void nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder* aFolder, int32_t aNewCount) {
   if (aFolder) {
     nsString authors;
     int32_t numNotDisplayed;
@@ -322,9 +322,9 @@ void nsMessengerOSXIntegration::FillToolTipInfo(nsIMsgFolder *aFolder, int32_t a
   }    // if we got a folder
 }
 
-nsresult nsMessengerOSXIntegration::ShowAlertMessage(const nsAString &aAlertTitle,
-                                                     const nsAString &aAlertText,
-                                                     const nsACString &aFolderURI) {
+nsresult nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitle,
+                                                     const nsAString& aAlertText,
+                                                     const nsACString& aFolderURI) {
   nsCOMPtr<nsIAlertsService> alertsService = mozilla::components::Alerts::Service();
   nsresult rv = alertsService ? NS_OK : NS_ERROR_UNEXPECTED;
   // If we have an nsIAlertsService implementation, use it:
@@ -343,8 +343,8 @@ nsresult nsMessengerOSXIntegration::ShowAlertMessage(const nsAString &aAlertTitl
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
-                                                    const nsACString &aProperty, int64_t aOldValue,
+nsMessengerOSXIntegration::OnItemIntPropertyChanged(nsIMsgFolder* aFolder,
+                                                    const nsACString& aProperty, int64_t aOldValue,
                                                     int64_t aNewValue) {
   // if we got new mail show an alert
   if (aNewValue == nsIMsgFolder::nsMsgBiffState_NewMail) {
@@ -370,7 +370,7 @@ nsMessengerOSXIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aFolder,
   return NS_OK;
 }
 
-nsresult nsMessengerOSXIntegration::OnAlertClicked(const char16_t *aAlertCookie) {
+nsresult nsMessengerOSXIntegration::OnAlertClicked(const char16_t* aAlertCookie) {
   openMailWindow(NS_ConvertUTF16toUTF8(aAlertCookie));
   return NS_OK;
 }
@@ -402,8 +402,8 @@ nsresult nsMessengerOSXIntegration::BounceDockIcon() {
     nsCOMPtr<mozIDOMWindowProxy> domWindow;
     mediator->GetMostRecentWindow(u"mail:3pane", getter_AddRefs(domWindow));
     if (domWindow) {
-      nsPIDOMWindowOuter *outer = nsPIDOMWindowOuter::From(domWindow);
-      nsPIDOMWindowInner *inner = outer->GetCurrentInnerWindow();
+      nsPIDOMWindowOuter* outer = nsPIDOMWindowOuter::From(domWindow);
+      nsPIDOMWindowInner* inner = outer->GetCurrentInnerWindow();
       if (inner) {
         mozilla::IgnoredErrorResult rv;
         nsGlobalWindowInner::Cast(inner)->GetAttention(rv);
@@ -463,33 +463,33 @@ nsresult nsMessengerOSXIntegration::BadgeDockIcon() {
   }
 
   id tile = [[NSApplication sharedApplication] dockTile];
-  [tile setBadgeLabel:[NSString stringWithFormat:@"%S", (const unichar *)badgeString.get()]];
+  [tile setBadgeLabel:[NSString stringWithFormat:@"%S", (const unichar*)badgeString.get()]];
   return NS_OK;
 
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item, const nsACString &property,
+nsMessengerOSXIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr* item, const nsACString& property,
                                                      uint32_t oldFlag, uint32_t newFlag) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemAdded(nsIMsgFolder *, nsISupports *) { return NS_OK; }
+nsMessengerOSXIntegration::OnItemAdded(nsIMsgFolder*, nsISupports*) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
-                                                     const nsACString &aProperty, bool aOldValue,
+nsMessengerOSXIntegration::OnItemBoolPropertyChanged(nsIMsgFolder* aItem,
+                                                     const nsACString& aProperty, bool aOldValue,
                                                      bool aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerOSXIntegration::OnItemEvent(nsIMsgFolder *, const nsACString &) { return NS_OK; }
+nsMessengerOSXIntegration::OnItemEvent(nsIMsgFolder*, const nsACString&) { return NS_OK; }
 
-nsresult nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder *aFolder, nsString &aAuthors,
-                                                      int32_t aNewCount, int32_t *aNotDisplayed) {
+nsresult nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder* aFolder, nsString& aAuthors,
+                                                      int32_t aNewCount, int32_t* aNotDisplayed) {
   // Get a list of names or email addresses for the folder's authors
   // with new mail. Note that we only process the most recent "new"
   // mail (aNewCount), working from most recently added. Duplicates
@@ -553,8 +553,8 @@ nsresult nsMessengerOSXIntegration::GetNewMailAuthors(nsIMsgFolder *aFolder, nsS
   return rv;
 }
 
-nsresult nsMessengerOSXIntegration::GetFirstFolderWithNewMail(nsIMsgFolder *aFolder,
-                                                              nsCString &aFolderURI) {
+nsresult nsMessengerOSXIntegration::GetFirstFolderWithNewMail(nsIMsgFolder* aFolder,
+                                                              nsCString& aFolderURI) {
   // Find the subfolder in aFolder with new mail and return the folderURI
   if (aFolder) {
     // enumerate over the folders under this root folder till we find one with new mail....

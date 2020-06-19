@@ -13,20 +13,20 @@
 MimeDefClass(MimeContainer, MimeContainerClass, mimeContainerClass,
              &MIME_SUPERCLASS);
 
-static int MimeContainer_initialize(MimeObject *);
-static void MimeContainer_finalize(MimeObject *);
-static int MimeContainer_add_child(MimeObject *, MimeObject *);
-static int MimeContainer_parse_eof(MimeObject *, bool);
-static int MimeContainer_parse_end(MimeObject *, bool);
-static bool MimeContainer_displayable_inline_p(MimeObjectClass *clazz,
-                                               MimeHeaders *hdrs);
+static int MimeContainer_initialize(MimeObject*);
+static void MimeContainer_finalize(MimeObject*);
+static int MimeContainer_add_child(MimeObject*, MimeObject*);
+static int MimeContainer_parse_eof(MimeObject*, bool);
+static int MimeContainer_parse_end(MimeObject*, bool);
+static bool MimeContainer_displayable_inline_p(MimeObjectClass* clazz,
+                                               MimeHeaders* hdrs);
 
 #if defined(DEBUG) && defined(XP_UNIX)
-static int MimeContainer_debug_print(MimeObject *, PRFileDesc *, int32_t depth);
+static int MimeContainer_debug_print(MimeObject*, PRFileDesc*, int32_t depth);
 #endif
 
-static int MimeContainerClassInitialize(MimeContainerClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)&clazz->object;
+static int MimeContainerClassInitialize(MimeContainerClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)&clazz->object;
 
   NS_ASSERTION(!oclass->class_initialized,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
@@ -43,16 +43,16 @@ static int MimeContainerClassInitialize(MimeContainerClass *clazz) {
   return 0;
 }
 
-static int MimeContainer_initialize(MimeObject *object) {
+static int MimeContainer_initialize(MimeObject* object) {
   /* This is an abstract class; it shouldn't be directly instantiated. */
-  NS_ASSERTION(object->clazz != (MimeObjectClass *)&mimeContainerClass,
+  NS_ASSERTION(object->clazz != (MimeObjectClass*)&mimeContainerClass,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
 
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->initialize(object);
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(object);
 }
 
-static void MimeContainer_finalize(MimeObject *object) {
-  MimeContainer *cont = (MimeContainer *)object;
+static void MimeContainer_finalize(MimeObject* object) {
+  MimeContainer* cont = (MimeContainer*)object;
 
   /* Do this first so that children have their parse_eof methods called
    in forward order (0-N) but are destroyed in backward order (N-0)
@@ -63,18 +63,18 @@ static void MimeContainer_finalize(MimeObject *object) {
   if (cont->children) {
     int i;
     for (i = cont->nchildren - 1; i >= 0; i--) {
-      MimeObject *kid = cont->children[i];
+      MimeObject* kid = cont->children[i];
       if (kid) mime_free(kid);
       cont->children[i] = 0;
     }
     PR_FREEIF(cont->children);
     cont->nchildren = 0;
   }
-  ((MimeObjectClass *)&MIME_SUPERCLASS)->finalize(object);
+  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(object);
 }
 
-static int MimeContainer_parse_eof(MimeObject *object, bool abort_p) {
-  MimeContainer *cont = (MimeContainer *)object;
+static int MimeContainer_parse_eof(MimeObject* object, bool abort_p) {
+  MimeContainer* cont = (MimeContainer*)object;
   int status;
 
   /* We must run all of this object's parent methods first, to get all the
@@ -82,13 +82,13 @@ static int MimeContainer_parse_eof(MimeObject *object, bool abort_p) {
    can access it.  We do not access *this* object again after doing this,
    only its children.
    */
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(object, abort_p);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(object, abort_p);
   if (status < 0) return status;
 
   if (cont->children) {
     int i;
     for (i = 0; i < cont->nchildren; i++) {
-      MimeObject *kid = cont->children[i];
+      MimeObject* kid = cont->children[i];
       if (kid && !kid->closed_p) {
         int lstatus = kid->clazz->parse_eof(kid, abort_p);
         if (lstatus < 0) return lstatus;
@@ -98,8 +98,8 @@ static int MimeContainer_parse_eof(MimeObject *object, bool abort_p) {
   return 0;
 }
 
-static int MimeContainer_parse_end(MimeObject *object, bool abort_p) {
-  MimeContainer *cont = (MimeContainer *)object;
+static int MimeContainer_parse_end(MimeObject* object, bool abort_p) {
+  MimeContainer* cont = (MimeContainer*)object;
   int status;
 
   /* We must run all of this object's parent methods first, to get all the
@@ -107,13 +107,13 @@ static int MimeContainer_parse_end(MimeObject *object, bool abort_p) {
    can access it.  We do not access *this* object again after doing this,
    only its children.
    */
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_end(object, abort_p);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_end(object, abort_p);
   if (status < 0) return status;
 
   if (cont->children) {
     int i;
     for (i = 0; i < cont->nchildren; i++) {
-      MimeObject *kid = cont->children[i];
+      MimeObject* kid = cont->children[i];
       if (kid && !kid->parsed_p) {
         int lstatus = kid->clazz->parse_end(kid, abort_p);
         if (lstatus < 0) return lstatus;
@@ -123,8 +123,8 @@ static int MimeContainer_parse_end(MimeObject *object, bool abort_p) {
   return 0;
 }
 
-static int MimeContainer_add_child(MimeObject *parent, MimeObject *child) {
-  MimeContainer *cont = (MimeContainer *)parent;
+static int MimeContainer_add_child(MimeObject* parent, MimeObject* child) {
+  MimeContainer* cont = (MimeContainer*)parent;
   MimeObject **old_kids, **new_kids;
 
   NS_ASSERTION(parent && child, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
@@ -132,11 +132,11 @@ static int MimeContainer_add_child(MimeObject *parent, MimeObject *child) {
 
   old_kids = cont->children;
   new_kids =
-      (MimeObject **)PR_MALLOC(sizeof(MimeObject *) * (cont->nchildren + 1));
+      (MimeObject**)PR_MALLOC(sizeof(MimeObject*) * (cont->nchildren + 1));
   if (!new_kids) return MIME_OUT_OF_MEMORY;
 
   if (cont->nchildren > 0)
-    memcpy(new_kids, old_kids, sizeof(MimeObject *) * cont->nchildren);
+    memcpy(new_kids, old_kids, sizeof(MimeObject*) * cont->nchildren);
   new_kids[cont->nchildren] = child;
   PR_Free(old_kids);
   cont->children = new_kids;
@@ -150,17 +150,17 @@ static int MimeContainer_add_child(MimeObject *parent, MimeObject *child) {
   return 0;
 }
 
-static bool MimeContainer_displayable_inline_p(MimeObjectClass *clazz,
-                                               MimeHeaders *hdrs) {
+static bool MimeContainer_displayable_inline_p(MimeObjectClass* clazz,
+                                               MimeHeaders* hdrs) {
   return true;
 }
 
 #if defined(DEBUG) && defined(XP_UNIX)
-static int MimeContainer_debug_print(MimeObject *obj, PRFileDesc *stream,
+static int MimeContainer_debug_print(MimeObject* obj, PRFileDesc* stream,
                                      int32_t depth) {
-  MimeContainer *cont = (MimeContainer *)obj;
+  MimeContainer* cont = (MimeContainer*)obj;
   int i;
-  char *addr = mime_part_address(obj);
+  char* addr = mime_part_address(obj);
   for (i = 0; i < depth; i++) PR_Write(stream, "  ", 2);
   /*
   PR_Write(stream, "<%s %s (%d kid%s) 0x%08X>\n",
@@ -177,7 +177,7 @@ static int MimeContainer_debug_print(MimeObject *obj, PRFileDesc *stream,
    */
 
   for (i = 0; i < cont->nchildren; i++) {
-    MimeObject *kid = cont->children[i];
+    MimeObject* kid = cont->children[i];
     int status = kid->clazz->debug_print(kid, stream, depth + 1);
     if (status < 0) return status;
   }

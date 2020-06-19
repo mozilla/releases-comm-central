@@ -41,38 +41,38 @@ class nsLDAPURL : public nsILDAPURL {
   nsLDAPURL();
 
  protected:
-  virtual nsresult Clone(nsIURI **_retval);
-  virtual nsresult SetSpecInternal(const nsACString &aSpec);
-  virtual nsresult SetScheme(const nsACString &aScheme);
-  virtual nsresult SetUserPass(const nsACString &aUserPass);
-  virtual nsresult SetUsername(const nsACString &aUsername);
-  virtual nsresult SetPassword(const nsACString &aPassword);
-  virtual nsresult SetHostPort(const nsACString &aHostPort);
-  virtual nsresult SetHost(const nsACString &aHost);
+  virtual nsresult Clone(nsIURI** _retval);
+  virtual nsresult SetSpecInternal(const nsACString& aSpec);
+  virtual nsresult SetScheme(const nsACString& aScheme);
+  virtual nsresult SetUserPass(const nsACString& aUserPass);
+  virtual nsresult SetUsername(const nsACString& aUsername);
+  virtual nsresult SetPassword(const nsACString& aPassword);
+  virtual nsresult SetHostPort(const nsACString& aHostPort);
+  virtual nsresult SetHost(const nsACString& aHost);
   virtual nsresult SetPort(int32_t aPort);
-  virtual nsresult SetPathQueryRef(const nsACString &aPath);
-  virtual nsresult SetRef(const nsACString &aRef);
-  virtual nsresult SetFilePath(const nsACString &aFilePath);
-  virtual nsresult SetQuery(const nsACString &aQuery);
-  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery,
-                                        const mozilla::Encoding *aEncoding);
+  virtual nsresult SetPathQueryRef(const nsACString& aPath);
+  virtual nsresult SetRef(const nsACString& aRef);
+  virtual nsresult SetFilePath(const nsACString& aFilePath);
+  virtual nsresult SetQuery(const nsACString& aQuery);
+  virtual nsresult SetQueryWithEncoding(const nsACString& aQuery,
+                                        const mozilla::Encoding* aEncoding);
 
  public:
   class Mutator : public nsIURIMutator, public BaseURIMutator<nsLDAPURL> {
     NS_DECL_ISUPPORTS
     NS_FORWARD_SAFE_NSIURISETTERS_RET(mURI)
 
-    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams &aParams) override {
+    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override {
       return NS_ERROR_NOT_IMPLEMENTED;
     }
 
-    NS_IMETHOD Finalize(nsIURI **aURI) override {
+    NS_IMETHOD Finalize(nsIURI** aURI) override {
       mURI.forget(aURI);
       return NS_OK;
     }
 
-    NS_IMETHOD SetSpec(const nsACString &aSpec,
-                       nsIURIMutator **aMutator) override {
+    NS_IMETHOD SetSpec(const nsACString& aSpec,
+                       nsIURIMutator** aMutator) override {
       if (aMutator) NS_ADDREF(*aMutator = this);
       return InitFromSpec(aSpec);
     }
@@ -89,9 +89,9 @@ class nsLDAPURL : public nsILDAPURL {
  protected:
   virtual ~nsLDAPURL();
 
-  void GetPathInternal(nsCString &aPath);
-  nsresult SetPathInternal(const nsCString &aPath);
-  nsresult SetAttributeArray(char **aAttributes);
+  void GetPathInternal(nsCString& aPath);
+  nsresult SetPathInternal(const nsCString& aPath);
+  nsresult SetAttributeArray(char** aAttributes);
 
   nsCString mDN;      // Base Distinguished Name (Base DN)
   int32_t mScope;     // Search scope (base, one or sub)

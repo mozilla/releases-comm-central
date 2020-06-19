@@ -28,8 +28,8 @@ nsLocalMoveCopyMsgTxn::nsLocalMoveCopyMsgTxn()
 
 nsLocalMoveCopyMsgTxn::~nsLocalMoveCopyMsgTxn() {}
 
-nsresult nsLocalMoveCopyMsgTxn::Init(nsIMsgFolder *srcFolder,
-                                     nsIMsgFolder *dstFolder, bool isMove) {
+nsresult nsLocalMoveCopyMsgTxn::Init(nsIMsgFolder* srcFolder,
+                                     nsIMsgFolder* dstFolder, bool isMove) {
   nsresult rv;
   rv = SetSrcFolder(srcFolder);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -45,17 +45,17 @@ nsresult nsLocalMoveCopyMsgTxn::Init(nsIMsgFolder *srcFolder,
   if (protocolType.LowerCaseEqualsLiteral("imap")) m_srcIsImap4 = true;
   return nsMsgTxn::Init();
 }
-nsresult nsLocalMoveCopyMsgTxn::GetSrcIsImap(bool *isImap) {
+nsresult nsLocalMoveCopyMsgTxn::GetSrcIsImap(bool* isImap) {
   *isImap = m_srcIsImap4;
   return NS_OK;
 }
-nsresult nsLocalMoveCopyMsgTxn::SetSrcFolder(nsIMsgFolder *srcFolder) {
+nsresult nsLocalMoveCopyMsgTxn::SetSrcFolder(nsIMsgFolder* srcFolder) {
   nsresult rv = NS_ERROR_NULL_POINTER;
   if (srcFolder) m_srcFolder = do_GetWeakReference(srcFolder, &rv);
   return rv;
 }
 
-nsresult nsLocalMoveCopyMsgTxn::SetDstFolder(nsIMsgFolder *dstFolder) {
+nsresult nsLocalMoveCopyMsgTxn::SetDstFolder(nsIMsgFolder* dstFolder) {
   nsresult rv = NS_ERROR_NULL_POINTER;
   if (dstFolder) m_dstFolder = do_GetWeakReference(dstFolder, &rv);
   return rv;
@@ -81,8 +81,8 @@ nsresult nsLocalMoveCopyMsgTxn::AddDstMsgSize(uint32_t msgSize) {
   return NS_OK;
 }
 
-nsresult nsLocalMoveCopyMsgTxn::UndoImapDeleteFlag(nsIMsgFolder *folder,
-                                                   nsTArray<nsMsgKey> &keyArray,
+nsresult nsLocalMoveCopyMsgTxn::UndoImapDeleteFlag(nsIMsgFolder* folder,
+                                                   nsTArray<nsMsgKey>& keyArray,
                                                    bool deleteFlag) {
   nsresult rv = NS_ERROR_FAILURE;
   if (m_srcIsImap4) {
@@ -365,8 +365,8 @@ nsLocalMoveCopyMsgTxn::RedoTransaction() {
   return rv;
 }
 
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemAdded(nsIMsgFolder *parentItem,
-                                                 nsISupports *item) {
+NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemAdded(nsIMsgFolder* parentItem,
+                                                 nsISupports* item) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr(do_QueryInterface(item));
   if (msgHdr) {
     nsresult rv;
@@ -391,98 +391,98 @@ NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemAdded(nsIMsgFolder *parentItem,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemRemoved(nsIMsgFolder *parentItem,
-                                                   nsISupports *item) {
+NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemRemoved(nsIMsgFolder* parentItem,
+                                                   nsISupports* item) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, const nsACString &oldValue,
-    const nsACString &newValue) {
+    nsIMsgFolder* item, const nsACString& property, const nsACString& oldValue,
+    const nsACString& newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemIntPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, int64_t oldValue,
+    nsIMsgFolder* item, const nsACString& property, int64_t oldValue,
     int64_t newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemBoolPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, bool oldValue,
+    nsIMsgFolder* item, const nsACString& property, bool oldValue,
     bool newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemUnicharPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, const nsAString &oldValue,
-    const nsAString &newValue) {
+    nsIMsgFolder* item, const nsACString& property, const nsAString& oldValue,
+    const nsAString& newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemPropertyFlagChanged(
-    nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag,
+    nsIMsgDBHdr* item, const nsACString& property, uint32_t oldFlag,
     uint32_t newFlag) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemEvent(nsIMsgFolder *aItem,
-                                                 const nsACString &aEvent) {
+NS_IMETHODIMP nsLocalMoveCopyMsgTxn::OnItemEvent(nsIMsgFolder* aItem,
+                                                 const nsACString& aEvent) {
   return NS_OK;
 }
 
 NS_IMPL_ISUPPORTS(nsLocalUndoFolderListener, nsIFolderListener)
 
 nsLocalUndoFolderListener::nsLocalUndoFolderListener(
-    nsLocalMoveCopyMsgTxn *aTxn, nsIMsgFolder *aFolder) {
+    nsLocalMoveCopyMsgTxn* aTxn, nsIMsgFolder* aFolder) {
   mTxn = aTxn;
   mFolder = aFolder;
 }
 
 nsLocalUndoFolderListener::~nsLocalUndoFolderListener() {}
 
-NS_IMETHODIMP nsLocalUndoFolderListener::OnItemAdded(nsIMsgFolder *parentItem,
-                                                     nsISupports *item) {
+NS_IMETHODIMP nsLocalUndoFolderListener::OnItemAdded(nsIMsgFolder* parentItem,
+                                                     nsISupports* item) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalUndoFolderListener::OnItemRemoved(nsIMsgFolder *parentItem,
-                                                       nsISupports *item) {
+NS_IMETHODIMP nsLocalUndoFolderListener::OnItemRemoved(nsIMsgFolder* parentItem,
+                                                       nsISupports* item) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalUndoFolderListener::OnItemPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, const nsACString &oldValue,
-    const nsACString &newValue) {
+    nsIMsgFolder* item, const nsACString& property, const nsACString& oldValue,
+    const nsACString& newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalUndoFolderListener::OnItemIntPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, int64_t oldValue,
+    nsIMsgFolder* item, const nsACString& property, int64_t oldValue,
     int64_t newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalUndoFolderListener::OnItemBoolPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, bool oldValue,
+    nsIMsgFolder* item, const nsACString& property, bool oldValue,
     bool newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalUndoFolderListener::OnItemUnicharPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, const nsAString &oldValue,
-    const nsAString &newValue) {
+    nsIMsgFolder* item, const nsACString& property, const nsAString& oldValue,
+    const nsAString& newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsLocalUndoFolderListener::OnItemPropertyFlagChanged(
-    nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag,
+    nsIMsgDBHdr* item, const nsACString& property, uint32_t oldFlag,
     uint32_t newFlag) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLocalUndoFolderListener::OnItemEvent(nsIMsgFolder *aItem,
-                                                     const nsACString &aEvent) {
+NS_IMETHODIMP nsLocalUndoFolderListener::OnItemEvent(nsIMsgFolder* aItem,
+                                                     const nsACString& aEvent) {
   if (mTxn && mFolder && aItem == mFolder) {
     if (aEvent.Equals(kFolderLoaded)) return mTxn->UndoTransactionInternal();
   }

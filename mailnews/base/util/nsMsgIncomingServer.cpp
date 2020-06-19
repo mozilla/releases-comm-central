@@ -83,8 +83,8 @@ NS_IMPL_ISUPPORTS(nsMsgIncomingServer, nsIMsgIncomingServer,
                   nsISupportsWeakReference, nsIObserver)
 
 NS_IMETHODIMP
-nsMsgIncomingServer::Observe(nsISupports *aSubject, const char *aTopic,
-                             const char16_t *aData) {
+nsMsgIncomingServer::Observe(nsISupports* aSubject, const char* aTopic,
+                             const char16_t* aData) {
   nsresult rv;
 
   // When the state of the password manager changes we need to clear the
@@ -112,20 +112,20 @@ nsMsgIncomingServer::SetServerBusy(bool aServerBusy) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetServerBusy(bool *aServerBusy) {
+nsMsgIncomingServer::GetServerBusy(bool* aServerBusy) {
   NS_ENSURE_ARG_POINTER(aServerBusy);
   *aServerBusy = m_serverBusy;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetKey(nsACString &serverKey) {
+nsMsgIncomingServer::GetKey(nsACString& serverKey) {
   serverKey = m_serverKey;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetKey(const nsACString &serverKey) {
+nsMsgIncomingServer::SetKey(const nsACString& serverKey) {
   m_serverKey.Assign(serverKey);
 
   // in order to actually make use of the key, we need the prefs
@@ -145,7 +145,7 @@ nsMsgIncomingServer::SetKey(const nsACString &serverKey) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetRootFolder(nsIMsgFolder *aRootFolder) {
+nsMsgIncomingServer::SetRootFolder(nsIMsgFolder* aRootFolder) {
   m_rootFolder = aRootFolder;
   return NS_OK;
 }
@@ -153,7 +153,7 @@ nsMsgIncomingServer::SetRootFolder(nsIMsgFolder *aRootFolder) {
 // this will return the root folder of this account,
 // even if this server is deferred.
 NS_IMETHODIMP
-nsMsgIncomingServer::GetRootFolder(nsIMsgFolder **aRootFolder) {
+nsMsgIncomingServer::GetRootFolder(nsIMsgFolder** aRootFolder) {
   NS_ENSURE_ARG_POINTER(aRootFolder);
   if (!m_rootFolder) {
     nsresult rv = CreateRootFolder();
@@ -167,35 +167,35 @@ nsMsgIncomingServer::GetRootFolder(nsIMsgFolder **aRootFolder) {
 // this will return the root folder of the deferred to account,
 // if this server is deferred.
 NS_IMETHODIMP
-nsMsgIncomingServer::GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder) {
+nsMsgIncomingServer::GetRootMsgFolder(nsIMsgFolder** aRootMsgFolder) {
   return GetRootFolder(aRootMsgFolder);
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::PerformExpand(nsIMsgWindow *aMsgWindow) { return NS_OK; }
+nsMsgIncomingServer::PerformExpand(nsIMsgWindow* aMsgWindow) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::VerifyLogon(nsIUrlListener *aUrlListener,
-                                 nsIMsgWindow *aMsgWindow, nsIURI **aURL) {
+nsMsgIncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
+                                 nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow) {
+nsMsgIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   // This has to be implemented in the derived class, but in case someone
   // doesn't implement it just return not implemented.
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetNewMessages(nsIMsgFolder *aFolder,
-                                    nsIMsgWindow *aMsgWindow,
-                                    nsIUrlListener *aUrlListener) {
+nsMsgIncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
+                                    nsIMsgWindow* aMsgWindow,
+                                    nsIUrlListener* aUrlListener) {
   NS_ENSURE_ARG_POINTER(aFolder);
   return aFolder->GetNewMessages(aMsgWindow, aUrlListener);
 }
 
-NS_IMETHODIMP nsMsgIncomingServer::GetPerformingBiff(bool *aPerformingBiff) {
+NS_IMETHODIMP nsMsgIncomingServer::GetPerformingBiff(bool* aPerformingBiff) {
   NS_ENSURE_ARG_POINTER(aPerformingBiff);
   *aPerformingBiff = mPerformingBiff;
   return NS_OK;
@@ -209,7 +209,7 @@ NS_IMETHODIMP nsMsgIncomingServer::SetPerformingBiff(bool aPerformingBiff) {
 NS_IMPL_GETSET(nsMsgIncomingServer, BiffState, uint32_t, m_biffState)
 
 NS_IMETHODIMP nsMsgIncomingServer::WriteToFolderCache(
-    nsIMsgFolderCache *folderCache) {
+    nsIMsgFolderCache* folderCache) {
   nsresult rv = NS_OK;
   if (m_rootFolder) {
     rv = m_rootFolder->WriteToFolderCache(folderCache, true /* deep */);
@@ -246,14 +246,14 @@ nsMsgIncomingServer::CloseCachedConnections() {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetDownloadMessagesAtStartup(bool *getMessagesAtStartup) {
+nsMsgIncomingServer::GetDownloadMessagesAtStartup(bool* getMessagesAtStartup) {
   // derived class should override if they need to do this.
   *getMessagesAtStartup = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetCanHaveFilters(bool *canHaveFilters) {
+nsMsgIncomingServer::GetCanHaveFilters(bool* canHaveFilters) {
   NS_ENSURE_ARG_POINTER(canHaveFilters);
   *canHaveFilters = m_canHaveFilters;
   return NS_OK;
@@ -266,14 +266,14 @@ nsMsgIncomingServer::SetCanHaveFilters(bool aCanHaveFilters) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetCanBeDefaultServer(bool *canBeDefaultServer) {
+nsMsgIncomingServer::GetCanBeDefaultServer(bool* canBeDefaultServer) {
   // derived class should override if they need to do this.
   *canBeDefaultServer = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetCanSearchMessages(bool *canSearchMessages) {
+nsMsgIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   // derived class should override if they need to do this.
   NS_ENSURE_ARG_POINTER(canSearchMessages);
   *canSearchMessages = false;
@@ -282,7 +282,7 @@ nsMsgIncomingServer::GetCanSearchMessages(bool *canSearchMessages) {
 
 NS_IMETHODIMP
 nsMsgIncomingServer::GetCanCompactFoldersOnServer(
-    bool *canCompactFoldersOnServer) {
+    bool* canCompactFoldersOnServer) {
   // derived class should override if they need to do this.
   NS_ENSURE_ARG_POINTER(canCompactFoldersOnServer);
   *canCompactFoldersOnServer = true;
@@ -290,7 +290,7 @@ nsMsgIncomingServer::GetCanCompactFoldersOnServer(
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetCanUndoDeleteOnServer(bool *canUndoDeleteOnServer) {
+nsMsgIncomingServer::GetCanUndoDeleteOnServer(bool* canUndoDeleteOnServer) {
   // derived class should override if they need to do this.
   NS_ENSURE_ARG_POINTER(canUndoDeleteOnServer);
   *canUndoDeleteOnServer = true;
@@ -298,7 +298,7 @@ nsMsgIncomingServer::GetCanUndoDeleteOnServer(bool *canUndoDeleteOnServer) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetCanEmptyTrashOnExit(bool *canEmptyTrashOnExit) {
+nsMsgIncomingServer::GetCanEmptyTrashOnExit(bool* canEmptyTrashOnExit) {
   // derived class should override if they need to do this.
   NS_ENSURE_ARG_POINTER(canEmptyTrashOnExit);
   *canEmptyTrashOnExit = true;
@@ -307,7 +307,7 @@ nsMsgIncomingServer::GetCanEmptyTrashOnExit(bool *canEmptyTrashOnExit) {
 
 // construct <localStoreType>://[<username>@]<hostname
 NS_IMETHODIMP
-nsMsgIncomingServer::GetServerURI(nsACString &aResult) {
+nsMsgIncomingServer::GetServerURI(nsACString& aResult) {
   nsresult rv;
   rv = GetLocalStoreType(aResult);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -335,7 +335,7 @@ nsMsgIncomingServer::GetServerURI(nsACString &aResult) {
 }
 
 // helper routine to create local folder on disk, if it doesn't exist.
-nsresult nsMsgIncomingServer::CreateLocalFolder(const nsAString &folderName) {
+nsresult nsMsgIncomingServer::CreateLocalFolder(const nsAString& folderName) {
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -360,7 +360,7 @@ nsresult nsMsgIncomingServer::CreateRootFolder() {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetBoolValue(const char *prefname, bool *val) {
+nsMsgIncomingServer::GetBoolValue(const char* prefname, bool* val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   NS_ENSURE_ARG_POINTER(val);
@@ -373,7 +373,7 @@ nsMsgIncomingServer::GetBoolValue(const char *prefname, bool *val) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetBoolValue(const char *prefname, bool val) {
+nsMsgIncomingServer::SetBoolValue(const char* prefname, bool val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   bool defaultValue;
@@ -388,7 +388,7 @@ nsMsgIncomingServer::SetBoolValue(const char *prefname, bool val) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetIntValue(const char *prefname, int32_t *val) {
+nsMsgIncomingServer::GetIntValue(const char* prefname, int32_t* val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   NS_ENSURE_ARG_POINTER(val);
@@ -401,9 +401,9 @@ nsMsgIncomingServer::GetIntValue(const char *prefname, int32_t *val) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetFileValue(const char *aRelPrefName,
-                                  const char *aAbsPrefName,
-                                  nsIFile **aLocalFile) {
+nsMsgIncomingServer::GetFileValue(const char* aRelPrefName,
+                                  const char* aAbsPrefName,
+                                  nsIFile** aLocalFile) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   // Get the relative first
@@ -417,7 +417,7 @@ nsMsgIncomingServer::GetFileValue(const char *aRelPrefName,
     if (NS_SUCCEEDED(rv)) (*aLocalFile)->Normalize();
   } else {
     rv = mPrefBranch->GetComplexValue(aAbsPrefName, NS_GET_IID(nsIFile),
-                                      reinterpret_cast<void **>(aLocalFile));
+                                      reinterpret_cast<void**>(aLocalFile));
     if (NS_FAILED(rv)) return rv;
 
     nsCOMPtr<nsIRelativeFilePref> relFilePref =
@@ -434,9 +434,9 @@ nsMsgIncomingServer::GetFileValue(const char *aRelPrefName,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetFileValue(const char *aRelPrefName,
-                                  const char *aAbsPrefName,
-                                  nsIFile *aLocalFile) {
+nsMsgIncomingServer::SetFileValue(const char* aRelPrefName,
+                                  const char* aAbsPrefName,
+                                  nsIFile* aLocalFile) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   // Write the relative path.
@@ -454,7 +454,7 @@ nsMsgIncomingServer::SetFileValue(const char *aRelPrefName,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetIntValue(const char *prefname, int32_t val) {
+nsMsgIncomingServer::SetIntValue(const char* prefname, int32_t val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   int32_t defaultVal;
@@ -469,7 +469,7 @@ nsMsgIncomingServer::SetIntValue(const char *prefname, int32_t val) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetCharValue(const char *prefname, nsACString &val) {
+nsMsgIncomingServer::GetCharValue(const char* prefname, nsACString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString tmpVal;
@@ -480,7 +480,7 @@ nsMsgIncomingServer::GetCharValue(const char *prefname, nsACString &val) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetUnicharValue(const char *prefname, nsAString &val) {
+nsMsgIncomingServer::GetUnicharValue(const char* prefname, nsAString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString valueUtf8;
@@ -492,7 +492,7 @@ nsMsgIncomingServer::GetUnicharValue(const char *prefname, nsAString &val) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetCharValue(const char *prefname, const nsACString &val) {
+nsMsgIncomingServer::SetCharValue(const char* prefname, const nsACString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   if (val.IsEmpty()) {
@@ -512,8 +512,8 @@ nsMsgIncomingServer::SetCharValue(const char *prefname, const nsACString &val) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetUnicharValue(const char *prefname,
-                                     const nsAString &val) {
+nsMsgIncomingServer::SetUnicharValue(const char* prefname,
+                                     const nsAString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   if (val.IsEmpty()) {
@@ -535,7 +535,7 @@ nsMsgIncomingServer::SetUnicharValue(const char *prefname,
 
 // pretty name is the display name to show to the user
 NS_IMETHODIMP
-nsMsgIncomingServer::GetPrettyName(nsAString &retval) {
+nsMsgIncomingServer::GetPrettyName(nsAString& retval) {
   nsresult rv = GetUnicharValue("name", retval);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -544,7 +544,7 @@ nsMsgIncomingServer::GetPrettyName(nsAString &retval) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetPrettyName(const nsAString &value) {
+nsMsgIncomingServer::SetPrettyName(const nsAString& value) {
   SetUnicharValue("name", value);
   nsCOMPtr<nsIMsgFolder> rootFolder;
   GetRootFolder(getter_AddRefs(rootFolder));
@@ -555,7 +555,7 @@ nsMsgIncomingServer::SetPrettyName(const nsAString &value) {
 // construct the pretty name to show to the user if they haven't
 // specified one. This should be overridden for news and mail.
 NS_IMETHODIMP
-nsMsgIncomingServer::GetConstructedPrettyName(nsAString &retval) {
+nsMsgIncomingServer::GetConstructedPrettyName(nsAString& retval) {
   nsCString username;
   nsresult rv = GetUsername(username);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -573,25 +573,25 @@ nsMsgIncomingServer::GetConstructedPrettyName(nsAString &retval) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::ToString(nsAString &aResult) {
+nsMsgIncomingServer::ToString(nsAString& aResult) {
   aResult.AssignLiteral("[nsIMsgIncomingServer: ");
   aResult.Append(NS_ConvertASCIItoUTF16(m_serverKey));
   aResult.Append(']');
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIncomingServer::SetPassword(const nsAString &aPassword) {
+NS_IMETHODIMP nsMsgIncomingServer::SetPassword(const nsAString& aPassword) {
   m_password = aPassword;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIncomingServer::GetPassword(nsAString &aPassword) {
+NS_IMETHODIMP nsMsgIncomingServer::GetPassword(nsAString& aPassword) {
   aPassword = m_password;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::GetServerRequiresPasswordForBiff(
-    bool *aServerRequiresPasswordForBiff) {
+    bool* aServerRequiresPasswordForBiff) {
   NS_ENSURE_ARG_POINTER(aServerRequiresPasswordForBiff);
   *aServerRequiresPasswordForBiff = true;
   return NS_OK;
@@ -656,10 +656,10 @@ nsresult nsMsgIncomingServer::GetPasswordWithoutUI() {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetPasswordWithUI(const nsAString &aPromptMessage,
-                                       const nsAString &aPromptTitle,
-                                       nsIMsgWindow *aMsgWindow,
-                                       nsAString &aPassword) {
+nsMsgIncomingServer::GetPasswordWithUI(const nsAString& aPromptMessage,
+                                       const nsAString& aPromptTitle,
+                                       nsIMsgWindow* aMsgWindow,
+                                       nsAString& aPassword) {
   nsresult rv = NS_OK;
 
   if (m_password.IsEmpty()) {
@@ -705,7 +705,7 @@ nsMsgIncomingServer::GetPasswordWithUI(const nsAString &aPromptMessage,
       // we pass in the previously used password, if any, into PromptPassword
       // so that it will appear as ******. This means we can't use an nsString
       // and getter_Copies.
-      char16_t *uniPassword = nullptr;
+      char16_t* uniPassword = nullptr;
       if (!aPassword.IsEmpty()) uniPassword = ToNewUnicode(aPassword);
 
       bool okayValue = true;
@@ -789,7 +789,7 @@ nsMsgIncomingServer::ForgetSessionPassword() {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetDefaultLocalPath(nsIFile *aDefaultLocalPath) {
+nsMsgIncomingServer::SetDefaultLocalPath(nsIFile* aDefaultLocalPath) {
   nsresult rv;
   nsCOMPtr<nsIMsgProtocolInfo> protocolInfo;
   rv = GetProtocolInfo(getter_AddRefs(protocolInfo));
@@ -798,7 +798,7 @@ nsMsgIncomingServer::SetDefaultLocalPath(nsIFile *aDefaultLocalPath) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetLocalPath(nsIFile **aLocalPath) {
+nsMsgIncomingServer::GetLocalPath(nsIFile** aLocalPath) {
   nsresult rv;
 
   // if the local path has already been set, use it
@@ -839,7 +839,7 @@ nsMsgIncomingServer::GetLocalPath(nsIFile **aLocalPath) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetMsgStore(nsIMsgPluggableStore **aMsgStore) {
+nsMsgIncomingServer::GetMsgStore(nsIMsgPluggableStore** aMsgStore) {
   NS_ENSURE_ARG_POINTER(aMsgStore);
   if (!m_msgStore) {
     nsCString storeContractID;
@@ -870,7 +870,7 @@ nsMsgIncomingServer::GetMsgStore(nsIMsgPluggableStore **aMsgStore) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetLocalPath(nsIFile *aLocalPath) {
+nsMsgIncomingServer::SetLocalPath(nsIFile* aLocalPath) {
   NS_ENSURE_ARG_POINTER(aLocalPath);
   nsresult rv = aLocalPath->Create(nsIFile::DIRECTORY_TYPE, 0755);
   if (rv == NS_ERROR_FILE_ALREADY_EXISTS) rv = NS_OK;
@@ -879,27 +879,27 @@ nsMsgIncomingServer::SetLocalPath(nsIFile *aLocalPath) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetLocalStoreType(nsACString &aResult) {
+nsMsgIncomingServer::GetLocalStoreType(nsACString& aResult) {
   MOZ_ASSERT_UNREACHABLE(
       "nsMsgIncomingServer superclass not implementing GetLocalStoreType!");
   return NS_ERROR_UNEXPECTED;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetLocalDatabaseType(nsACString &aResult) {
+nsMsgIncomingServer::GetLocalDatabaseType(nsACString& aResult) {
   MOZ_ASSERT_UNREACHABLE(
       "nsMsgIncomingServer superclass not implementing GetLocalDatabaseType!");
   return NS_ERROR_UNEXPECTED;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetAccountManagerChrome(nsAString &aResult) {
+nsMsgIncomingServer::GetAccountManagerChrome(nsAString& aResult) {
   aResult.AssignLiteral("am-main.xhtml");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::Equals(nsIMsgIncomingServer *server, bool *_retval) {
+nsMsgIncomingServer::Equals(nsIMsgIncomingServer* server, bool* _retval) {
   nsresult rv;
 
   NS_ENSURE_ARG_POINTER(server);
@@ -946,14 +946,14 @@ nsMsgIncomingServer::RemoveFiles() {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetFilterList(nsIMsgFilterList *aFilterList) {
+nsMsgIncomingServer::SetFilterList(nsIMsgFilterList* aFilterList) {
   mFilterList = aFilterList;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetFilterList(nsIMsgWindow *aMsgWindow,
-                                   nsIMsgFilterList **aResult) {
+nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
+                                   nsIMsgFilterList** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   if (!mFilterList) {
     nsCOMPtr<nsIMsgFolder> msgFolder;
@@ -1028,14 +1028,14 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow *aMsgWindow,
 
 NS_IMETHODIMP
 nsMsgIncomingServer::SetEditableFilterList(
-    nsIMsgFilterList *aEditableFilterList) {
+    nsIMsgFilterList* aEditableFilterList) {
   mEditableFilterList = aEditableFilterList;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetEditableFilterList(nsIMsgWindow *aMsgWindow,
-                                           nsIMsgFilterList **aResult) {
+nsMsgIncomingServer::GetEditableFilterList(nsIMsgWindow* aMsgWindow,
+                                           nsIMsgFilterList** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   if (!mEditableFilterList) {
     bool editSeparate;
@@ -1073,8 +1073,8 @@ nsMsgIncomingServer::GetEditableFilterList(nsIMsgWindow *aMsgWindow,
 
 // If the hostname contains ':' (like hostname:1431)
 // then parse and set the port number.
-nsresult nsMsgIncomingServer::InternalSetHostName(const nsACString &aHostname,
-                                                  const char *prefName) {
+nsresult nsMsgIncomingServer::InternalSetHostName(const nsACString& aHostname,
+                                                  const char* prefName) {
   nsCString hostname;
   hostname = aHostname;
   if (hostname.CountChar(':') == 1) {
@@ -1089,8 +1089,8 @@ nsresult nsMsgIncomingServer::InternalSetHostName(const nsACString &aHostname,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString &oldName,
-                                             const nsACString &newName,
+nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
+                                             const nsACString& newName,
                                              bool hostnameChanged) {
   nsresult rv;
 
@@ -1165,14 +1165,14 @@ nsMsgIncomingServer::OnUserOrHostNameChanged(const nsACString &oldName,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetHostName(const nsACString &aHostname) {
+nsMsgIncomingServer::SetHostName(const nsACString& aHostname) {
   return (InternalSetHostName(aHostname, "hostname"));
 }
 
 // SetRealHostName() is called only when the server name is changed from the
 // UI (Account Settings page).  No one should call it in any circumstances.
 NS_IMETHODIMP
-nsMsgIncomingServer::SetRealHostName(const nsACString &aHostname) {
+nsMsgIncomingServer::SetRealHostName(const nsACString& aHostname) {
   nsCString oldName;
   nsresult rv = GetRealHostName(oldName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1185,7 +1185,7 @@ nsMsgIncomingServer::SetRealHostName(const nsACString &aHostname) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetHostName(nsACString &aResult) {
+nsMsgIncomingServer::GetHostName(nsACString& aResult) {
   nsresult rv;
   rv = GetCharValue("hostname", aResult);
   if (aResult.CountChar(':') == 1) {
@@ -1197,7 +1197,7 @@ nsMsgIncomingServer::GetHostName(nsACString &aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetRealHostName(nsACString &aResult) {
+nsMsgIncomingServer::GetRealHostName(nsACString& aResult) {
   // If 'realhostname' is set (was changed) then use it, otherwise use
   // 'hostname'
   nsresult rv;
@@ -1215,7 +1215,7 @@ nsMsgIncomingServer::GetRealHostName(nsACString &aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetRealUsername(nsACString &aResult) {
+nsMsgIncomingServer::GetRealUsername(nsACString& aResult) {
   // If 'realuserName' is set (was changed) then use it, otherwise use
   // 'userName'
   nsresult rv;
@@ -1225,7 +1225,7 @@ nsMsgIncomingServer::GetRealUsername(nsACString &aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetRealUsername(const nsACString &aUsername) {
+nsMsgIncomingServer::SetRealUsername(const nsACString& aUsername) {
   // Need to take care of few things if we're changing the username.
   nsCString oldName;
   nsresult rv = GetRealUsername(oldName);
@@ -1239,7 +1239,7 @@ nsMsgIncomingServer::SetRealUsername(const nsACString &aUsername) {
 #define BIFF_PREF_NAME "check_new_mail"
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetDoBiff(bool *aDoBiff) {
+nsMsgIncomingServer::GetDoBiff(bool* aDoBiff) {
   NS_ENSURE_ARG_POINTER(aDoBiff);
 
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
@@ -1285,7 +1285,7 @@ nsMsgIncomingServer::SetDoBiff(bool aDoBiff) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetPort(int32_t *aPort) {
+nsMsgIncomingServer::GetPort(int32_t* aPort) {
   NS_ENSURE_ARG_POINTER(aPort);
 
   nsresult rv;
@@ -1325,7 +1325,7 @@ nsMsgIncomingServer::SetPort(int32_t aPort) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetProtocolInfo(nsIMsgProtocolInfo **aResult) {
+nsMsgIncomingServer::GetProtocolInfo(nsIMsgProtocolInfo** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsCString type;
@@ -1344,7 +1344,7 @@ nsMsgIncomingServer::GetProtocolInfo(nsIMsgProtocolInfo **aResult) {
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::GetRetentionSettings(
-    nsIMsgRetentionSettings **settings) {
+    nsIMsgRetentionSettings** settings) {
   NS_ENSURE_ARG_POINTER(settings);
   nsMsgRetainByPreference retainByPreference;
   int32_t daysToKeepHdrs = 0;
@@ -1358,7 +1358,7 @@ NS_IMETHODIMP nsMsgIncomingServer::GetRetentionSettings(
   nsCOMPtr<nsIMsgRetentionSettings> retentionSettings =
       do_CreateInstance(NS_MSG_RETENTIONSETTINGS_CONTRACTID);
   if (retentionSettings) {
-    rv = GetIntValue("retainBy", (int32_t *)&retainByPreference);
+    rv = GetIntValue("retainBy", (int32_t*)&retainByPreference);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = GetIntValue("numHdrsToKeep", &numHeadersToKeep);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -1383,7 +1383,7 @@ NS_IMETHODIMP nsMsgIncomingServer::GetRetentionSettings(
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::SetRetentionSettings(
-    nsIMsgRetentionSettings *settings) {
+    nsIMsgRetentionSettings* settings) {
   nsMsgRetainByPreference retainByPreference;
   uint32_t daysToKeepHdrs = 0;
   uint32_t numHeadersToKeep = 0;
@@ -1412,7 +1412,7 @@ NS_IMETHODIMP nsMsgIncomingServer::SetRetentionSettings(
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetDisplayStartupPage(bool *displayStartupPage) {
+nsMsgIncomingServer::GetDisplayStartupPage(bool* displayStartupPage) {
   NS_ENSURE_ARG_POINTER(displayStartupPage);
   *displayStartupPage = m_displayStartupPage;
   return NS_OK;
@@ -1425,7 +1425,7 @@ nsMsgIncomingServer::SetDisplayStartupPage(bool displayStartupPage) {
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::GetDownloadSettings(
-    nsIMsgDownloadSettings **settings) {
+    nsIMsgDownloadSettings** settings) {
   NS_ENSURE_ARG_POINTER(settings);
   bool downloadUnreadOnly = false;
   bool downloadByDate = false;
@@ -1436,7 +1436,7 @@ NS_IMETHODIMP nsMsgIncomingServer::GetDownloadSettings(
     if (m_downloadSettings) {
       rv = GetBoolValue("downloadUnreadOnly", &downloadUnreadOnly);
       rv = GetBoolValue("downloadByDate", &downloadByDate);
-      rv = GetIntValue("ageLimit", (int32_t *)&ageLimitOfMsgsToDownload);
+      rv = GetIntValue("ageLimit", (int32_t*)&ageLimitOfMsgsToDownload);
       m_downloadSettings->SetDownloadUnreadOnly(downloadUnreadOnly);
       m_downloadSettings->SetDownloadByDate(downloadByDate);
       m_downloadSettings->SetAgeLimitOfMsgsToDownload(ageLimitOfMsgsToDownload);
@@ -1451,7 +1451,7 @@ NS_IMETHODIMP nsMsgIncomingServer::GetDownloadSettings(
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::SetDownloadSettings(
-    nsIMsgDownloadSettings *settings) {
+    nsIMsgDownloadSettings* settings) {
   m_downloadSettings = settings;
   bool downloadUnreadOnly = false;
   bool downloadByDate = false;
@@ -1466,14 +1466,14 @@ NS_IMETHODIMP nsMsgIncomingServer::SetDownloadSettings(
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetSupportsDiskSpace(bool *aSupportsDiskSpace) {
+nsMsgIncomingServer::GetSupportsDiskSpace(bool* aSupportsDiskSpace) {
   NS_ENSURE_ARG_POINTER(aSupportsDiskSpace);
   *aSupportsDiskSpace = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetOfflineSupportLevel(int32_t *aSupportLevel) {
+nsMsgIncomingServer::GetOfflineSupportLevel(int32_t* aSupportLevel) {
   NS_ENSURE_ARG_POINTER(aSupportLevel);
 
   nsresult rv = GetIntValue("offline_support_level", aSupportLevel);
@@ -1491,7 +1491,7 @@ nsMsgIncomingServer::SetOfflineSupportLevel(int32_t aSupportLevel) {
 }
 #define BASE_MSGS_URL "chrome://messenger/locale/messenger.properties"
 
-NS_IMETHODIMP nsMsgIncomingServer::DisplayOfflineMsg(nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsMsgIncomingServer::DisplayOfflineMsg(nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aMsgWindow);
 
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -1516,7 +1516,7 @@ NS_IMETHODIMP nsMsgIncomingServer::DisplayOfflineMsg(nsIMsgWindow *aMsgWindow) {
 // Called only during the migration process. A unique name is generated for the
 // migrated account.
 NS_IMETHODIMP
-nsMsgIncomingServer::GeneratePrettyNameForMigration(nsAString &aPrettyName) {
+nsMsgIncomingServer::GeneratePrettyNameForMigration(nsAString& aPrettyName) {
   /**
    * 4.x had provisions for multiple imap servers to be maintained under
    * single identity. So, when migrated each of those server accounts need
@@ -1527,21 +1527,21 @@ nsMsgIncomingServer::GeneratePrettyNameForMigration(nsAString &aPrettyName) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetFilterScope(nsMsgSearchScopeValue *filterScope) {
+nsMsgIncomingServer::GetFilterScope(nsMsgSearchScopeValue* filterScope) {
   NS_ENSURE_ARG_POINTER(filterScope);
   *filterScope = nsMsgSearchScope::offlineMailFilter;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetSearchScope(nsMsgSearchScopeValue *searchScope) {
+nsMsgIncomingServer::GetSearchScope(nsMsgSearchScopeValue* searchScope) {
   NS_ENSURE_ARG_POINTER(searchScope);
   *searchScope = nsMsgSearchScope::offlineMail;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetIsSecure(bool *aIsSecure) {
+nsMsgIncomingServer::GetIsSecure(bool* aIsSecure) {
   NS_ENSURE_ARG_POINTER(aIsSecure);
   int32_t socketType;
   nsresult rv = GetSocketType(&socketType);
@@ -1584,7 +1584,7 @@ NS_IMPL_SERVERPREF_INT(nsMsgIncomingServer, IncomingDuplicateAction,
 
 NS_IMPL_SERVERPREF_BOOL(nsMsgIncomingServer, Hidden, "hidden")
 
-NS_IMETHODIMP nsMsgIncomingServer::GetSocketType(int32_t *aSocketType) {
+NS_IMETHODIMP nsMsgIncomingServer::GetSocketType(int32_t* aSocketType) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsresult rv = mPrefBranch->GetIntPref("socketType", aSocketType);
@@ -1629,7 +1629,7 @@ NS_IMETHODIMP nsMsgIncomingServer::SetSocketType(int32_t aSocketType) {
 // Check if the password is available and return a boolean indicating whether
 // it is being authenticated or not.
 NS_IMETHODIMP
-nsMsgIncomingServer::GetPasswordPromptRequired(bool *aPasswordIsRequired) {
+nsMsgIncomingServer::GetPasswordPromptRequired(bool* aPasswordIsRequired) {
   NS_ENSURE_ARG_POINTER(aPasswordIsRequired);
   *aPasswordIsRequired = true;
 
@@ -1655,7 +1655,7 @@ nsMsgIncomingServer::GetPasswordPromptRequired(bool *aPasswordIsRequired) {
 }
 
 NS_IMETHODIMP nsMsgIncomingServer::ConfigureTemporaryFilters(
-    nsIMsgFilterList *aFilterList) {
+    nsIMsgFilterList* aFilterList) {
   nsresult rv = ConfigureTemporaryReturnReceiptsFilter(aFilterList);
   if (NS_FAILED(rv))  // shut up warnings...
     return rv;
@@ -1663,7 +1663,7 @@ NS_IMETHODIMP nsMsgIncomingServer::ConfigureTemporaryFilters(
 }
 
 nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
-    nsIMsgFilterList *filterList) {
+    nsIMsgFilterList* filterList) {
   nsCOMPtr<nsISpamSettings> spamSettings;
   nsresult rv = GetSpamSettings(getter_AddRefs(spamSettings));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -1806,7 +1806,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
 }
 
 nsresult nsMsgIncomingServer::ConfigureTemporaryReturnReceiptsFilter(
-    nsIMsgFilterList *filterList) {
+    nsIMsgFilterList* filterList) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgAccountManager> accountMgr =
@@ -1918,9 +1918,9 @@ nsMsgIncomingServer::ClearTemporaryReturnReceiptsFilter() {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetMsgFolderFromURI(nsIMsgFolder *aFolderResource,
-                                         const nsACString &aURI,
-                                         nsIMsgFolder **aFolder) {
+nsMsgIncomingServer::GetMsgFolderFromURI(nsIMsgFolder* aFolderResource,
+                                         const nsACString& aURI,
+                                         nsIMsgFolder** aFolder) {
   nsCOMPtr<nsIMsgFolder> rootMsgFolder;
   nsresult rv = GetRootMsgFolder(getter_AddRefs(rootMsgFolder));
   NS_ENSURE_TRUE(rootMsgFolder, NS_ERROR_UNEXPECTED);
@@ -1934,7 +1934,7 @@ nsMsgIncomingServer::GetMsgFolderFromURI(nsIMsgFolder *aFolderResource,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetSpamSettings(nsISpamSettings **aSpamSettings) {
+nsMsgIncomingServer::GetSpamSettings(nsISpamSettings** aSpamSettings) {
   NS_ENSURE_ARG_POINTER(aSpamSettings);
 
   nsAutoCString spamActionTargetAccount;
@@ -1957,7 +1957,7 @@ nsMsgIncomingServer::GetSpamSettings(nsISpamSettings **aSpamSettings) {
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetSpamFilterPlugin(nsIMsgFilterPlugin **aFilterPlugin) {
+nsMsgIncomingServer::GetSpamFilterPlugin(nsIMsgFilterPlugin** aFilterPlugin) {
   NS_ENSURE_ARG_POINTER(aFilterPlugin);
   if (!mFilterPlugin) {
     nsresult rv;
@@ -1973,8 +1973,8 @@ nsMsgIncomingServer::GetSpamFilterPlugin(nsIMsgFilterPlugin **aFilterPlugin) {
 // get all the servers that defer to the account for the passed in server. Note
 // that destServer may not be "this"
 nsresult nsMsgIncomingServer::GetDeferredServers(
-    nsIMsgIncomingServer *destServer,
-    nsTArray<RefPtr<nsIPop3IncomingServer>> &aServers) {
+    nsIMsgIncomingServer* destServer,
+    nsTArray<RefPtr<nsIPop3IncomingServer>>& aServers) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -2000,7 +2000,7 @@ nsresult nsMsgIncomingServer::GetDeferredServers(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgIncomingServer::GetIsDeferredTo(bool *aIsDeferredTo) {
+NS_IMETHODIMP nsMsgIncomingServer::GetIsDeferredTo(bool* aIsDeferredTo) {
   NS_ENSURE_ARG_POINTER(aIsDeferredTo);
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID);
@@ -2034,8 +2034,8 @@ const long kMaxDownloadTableSize = 500;
 // and store the arrival index as the value. To limit the size of the hash
 // table, we just throw out ones with a lower ordinal value than the cut-off
 // point.
-NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr *aNewHdr,
-                                                     bool *aResult) {
+NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr* aNewHdr,
+                                                     bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_ARG_POINTER(aNewHdr);
   *aResult = false;
@@ -2080,8 +2080,8 @@ NS_IMETHODIMP nsMsgIncomingServer::IsNewHdrDuplicate(nsIMsgDBHdr *aNewHdr,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetForcePropertyEmpty(const char *aPropertyName,
-                                           bool *_retval) {
+nsMsgIncomingServer::GetForcePropertyEmpty(const char* aPropertyName,
+                                           bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   nsAutoCString nameEmpty(aPropertyName);
   nameEmpty.AppendLiteral(".empty");
@@ -2092,7 +2092,7 @@ nsMsgIncomingServer::GetForcePropertyEmpty(const char *aPropertyName,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::SetForcePropertyEmpty(const char *aPropertyName,
+nsMsgIncomingServer::SetForcePropertyEmpty(const char* aPropertyName,
                                            bool aValue) {
   nsAutoCString nameEmpty(aPropertyName);
   nameEmpty.AppendLiteral(".empty");
@@ -2101,7 +2101,7 @@ nsMsgIncomingServer::SetForcePropertyEmpty(const char *aPropertyName,
 }
 
 NS_IMETHODIMP
-nsMsgIncomingServer::GetSortOrder(int32_t *aSortOrder) {
+nsMsgIncomingServer::GetSortOrder(int32_t* aSortOrder) {
   NS_ENSURE_ARG_POINTER(aSortOrder);
   *aSortOrder = 100000000;
   return NS_OK;

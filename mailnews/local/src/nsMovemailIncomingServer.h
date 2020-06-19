@@ -25,13 +25,13 @@ class nsMovemailIncomingServer : public nsMailboxServer,
 
   nsMovemailIncomingServer();
 
-  NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
-  NS_IMETHOD GetDownloadMessagesAtStartup(bool *getMessages) override;
-  NS_IMETHOD GetCanBeDefaultServer(bool *canBeDefaultServer) override;
-  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
+  NS_IMETHOD PerformBiff(nsIMsgWindow* aMsgWindow) override;
+  NS_IMETHOD GetDownloadMessagesAtStartup(bool* getMessages) override;
+  NS_IMETHOD GetCanBeDefaultServer(bool* canBeDefaultServer) override;
+  NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
   NS_IMETHOD GetServerRequiresPasswordForBiff(
-      bool *aServerRequiresPasswordForBiff) override;
-  NS_IMETHOD GetAccountManagerChrome(nsAString &aResult) override;
+      bool* aServerRequiresPasswordForBiff) override;
+  NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
 
  private:
   virtual ~nsMovemailIncomingServer();

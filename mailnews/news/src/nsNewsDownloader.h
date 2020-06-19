@@ -20,22 +20,22 @@
 // are passed in to DownloadArticles method.
 class nsNewsDownloader : public nsIUrlListener, public nsIMsgSearchNotify {
  public:
-  nsNewsDownloader(nsIMsgWindow *window, nsIMsgDatabase *db,
-                   nsIUrlListener *listener);
+  nsNewsDownloader(nsIMsgWindow* window, nsIMsgDatabase* db,
+                   nsIUrlListener* listener);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER
   NS_DECL_NSIMSGSEARCHNOTIFY
 
-  virtual nsresult DownloadArticles(nsIMsgWindow *window, nsIMsgFolder *folder,
-                                    nsTArray<nsMsgKey> *pKeyArray);
+  virtual nsresult DownloadArticles(nsIMsgWindow* window, nsIMsgFolder* folder,
+                                    nsTArray<nsMsgKey>* pKeyArray);
 
   bool ShouldAbort() const { return m_abort; }
 
  protected:
   virtual ~nsNewsDownloader();
 
-  virtual int32_t Write(const char * /*block*/, int32_t length) {
+  virtual int32_t Write(const char* /*block*/, int32_t length) {
     return length;
   }
   virtual void Abort();
@@ -44,7 +44,7 @@ class nsNewsDownloader : public nsIUrlListener, public nsIMsgSearchNotify {
   virtual nsresult DownloadNext(bool firstTimeP);
   virtual int32_t FinishDownload() { return 0; }
   virtual int32_t StartDownload() { return 0; }
-  virtual nsresult ShowProgress(const char16_t *progressString,
+  virtual nsresult ShowProgress(const char16_t* progressString,
                                 int32_t percent);
 
   nsTArray<nsMsgKey> m_keysToDownload;
@@ -69,12 +69,12 @@ class nsNewsDownloader : public nsIUrlListener, public nsIMsgSearchNotify {
 // class for downloading articles in a single newsgroup to the offline store.
 class DownloadNewsArticlesToOfflineStore : public nsNewsDownloader {
  public:
-  DownloadNewsArticlesToOfflineStore(nsIMsgWindow *window, nsIMsgDatabase *db,
-                                     nsIUrlListener *listener);
+  DownloadNewsArticlesToOfflineStore(nsIMsgWindow* window, nsIMsgDatabase* db,
+                                     nsIUrlListener* listener);
   virtual ~DownloadNewsArticlesToOfflineStore();
 
-  NS_IMETHOD OnStartRunningUrl(nsIURI *url);
-  NS_IMETHOD OnStopRunningUrl(nsIURI *url, nsresult exitCode);
+  NS_IMETHOD OnStartRunningUrl(nsIURI* url);
+  NS_IMETHOD OnStopRunningUrl(nsIURI* url, nsresult exitCode);
 
  protected:
   virtual int32_t StartDownload();
@@ -90,13 +90,13 @@ class DownloadNewsArticlesToOfflineStore : public nsNewsDownloader {
 class DownloadMatchingNewsArticlesToNewsDB
     : public DownloadNewsArticlesToOfflineStore {
  public:
-  DownloadMatchingNewsArticlesToNewsDB(nsIMsgWindow *window,
-                                       nsIMsgFolder *folder,
-                                       nsIMsgDatabase *newsDB,
-                                       nsIUrlListener *listener);
+  DownloadMatchingNewsArticlesToNewsDB(nsIMsgWindow* window,
+                                       nsIMsgFolder* folder,
+                                       nsIMsgDatabase* newsDB,
+                                       nsIUrlListener* listener);
   virtual ~DownloadMatchingNewsArticlesToNewsDB();
-  nsresult RunSearch(nsIMsgFolder *folder, nsIMsgDatabase *newsDB,
-                     nsIMsgSearchSession *searchSession);
+  nsresult RunSearch(nsIMsgFolder* folder, nsIMsgDatabase* newsDB,
+                     nsIMsgSearchSession* searchSession);
 
  protected:
 };
@@ -106,7 +106,7 @@ class DownloadMatchingNewsArticlesToNewsDB
 // criteria for that newsgroup/server
 class nsMsgDownloadAllNewsgroups : public nsIUrlListener {
  public:
-  nsMsgDownloadAllNewsgroups(nsIMsgWindow *window, nsIUrlListener *listener);
+  nsMsgDownloadAllNewsgroups(nsIMsgWindow* window, nsIUrlListener* listener);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIURLLISTENER

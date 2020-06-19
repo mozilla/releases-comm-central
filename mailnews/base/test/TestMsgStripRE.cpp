@@ -19,7 +19,7 @@ struct testInfo {
   bool expectedDidModify;
 };
 
-int testStripRe(const char *encodedInput, char *expectedOutput,
+int testStripRe(const char* encodedInput, char* expectedOutput,
                 bool expectedDidModify) {
   // call NS_StripRE with the appropriate args
   nsCString modifiedSubject;

@@ -49,8 +49,8 @@ nsresult nsSmtpServer::Init() {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::Observe(nsISupports *aSubject, const char *aTopic,
-                      const char16_t *aData) {
+nsSmtpServer::Observe(nsISupports* aSubject, const char* aTopic,
+                      const char16_t* aData) {
   // When the state of the password manager changes we need to clear the
   // password from the cache in case the user just removed it.
   if (strcmp(aTopic, "passwordmgr-storage-changed") == 0) {
@@ -69,7 +69,7 @@ nsSmtpServer::Observe(nsISupports *aSubject, const char *aTopic,
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetKey(char **aKey) {
+nsSmtpServer::GetKey(char** aKey) {
   if (!aKey) return NS_ERROR_NULL_POINTER;
   if (mKey.IsEmpty())
     *aKey = nullptr;
@@ -79,7 +79,7 @@ nsSmtpServer::GetKey(char **aKey) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::SetKey(const char *aKey) {
+nsSmtpServer::SetKey(const char* aKey) {
   NS_ASSERTION(aKey, "Bad key pointer");
   mKey = aKey;
   return getPrefs();
@@ -107,8 +107,8 @@ nsresult nsSmtpServer::getPrefs() {
 }
 
 // This function is intentionally called the same as in nsIMsgIncomingServer.
-nsresult nsSmtpServer::OnUserOrHostNameChanged(const nsACString &oldName,
-                                               const nsACString &newName,
+nsresult nsSmtpServer::OnUserOrHostNameChanged(const nsACString& oldName,
+                                               const nsACString& newName,
                                                bool hostnameChanged) {
   // Reset password so that users are prompted for new password for the new
   // user/host.
@@ -118,7 +118,7 @@ nsresult nsSmtpServer::OnUserOrHostNameChanged(const nsACString &oldName,
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetHostname(nsACString &aHostname) {
+nsSmtpServer::GetHostname(nsACString& aHostname) {
   nsCString result;
   nsresult rv = mPrefBranch->GetCharPref("hostname", result);
   if (NS_FAILED(rv))
@@ -130,7 +130,7 @@ nsSmtpServer::GetHostname(nsACString &aHostname) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::SetHostname(const nsACString &aHostname) {
+nsSmtpServer::SetHostname(const nsACString& aHostname) {
   nsCString oldName;
   nsresult rv = GetHostname(oldName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -151,7 +151,7 @@ nsSmtpServer::SetHostname(const nsACString &aHostname) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetDescription(nsACString &aDescription) {
+nsSmtpServer::GetDescription(nsACString& aDescription) {
   nsCString temp;
   mPrefBranch->GetCharPref("description", temp);
   aDescription.Assign(temp);
@@ -159,7 +159,7 @@ nsSmtpServer::GetDescription(nsACString &aDescription) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::SetDescription(const nsACString &aDescription) {
+nsSmtpServer::SetDescription(const nsACString& aDescription) {
   if (!aDescription.IsEmpty())
     return mPrefBranch->SetCharPref("description", aDescription);
   else
@@ -169,7 +169,7 @@ nsSmtpServer::SetDescription(const nsACString &aDescription) {
 
 // if GetPort returns 0, it means default port
 NS_IMETHODIMP
-nsSmtpServer::GetPort(int32_t *aPort) {
+nsSmtpServer::GetPort(int32_t* aPort) {
   NS_ENSURE_ARG_POINTER(aPort);
   if (NS_FAILED(mPrefBranch->GetIntPref("port", aPort))) *aPort = 0;
   return NS_OK;
@@ -184,7 +184,7 @@ nsSmtpServer::SetPort(int32_t aPort) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetDisplayname(char **aDisplayname) {
+nsSmtpServer::GetDisplayname(char** aDisplayname) {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(aDisplayname);
 
@@ -208,7 +208,7 @@ nsSmtpServer::GetDisplayname(char **aDisplayname) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetSocketType(int32_t *socketType) {
+nsSmtpServer::GetSocketType(int32_t* socketType) {
   NS_ENSURE_ARG_POINTER(socketType);
   getIntPrefWithDefault("try_ssl", socketType, 0);
   return NS_OK;
@@ -220,7 +220,7 @@ nsSmtpServer::SetSocketType(int32_t socketType) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetHelloArgument(nsACString &aHelloArgument) {
+nsSmtpServer::GetHelloArgument(nsACString& aHelloArgument) {
   nsresult rv;
   rv = mPrefBranch->GetCharPref("hello_argument", aHelloArgument);
   if (NS_FAILED(rv)) {
@@ -231,13 +231,13 @@ nsSmtpServer::GetHelloArgument(nsACString &aHelloArgument) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetAuthMethod(int32_t *authMethod) {
+nsSmtpServer::GetAuthMethod(int32_t* authMethod) {
   NS_ENSURE_ARG_POINTER(authMethod);
   getIntPrefWithDefault("authMethod", authMethod, 3);
   return NS_OK;
 }
 
-void nsSmtpServer::getIntPrefWithDefault(const char *prefName, int32_t *val,
+void nsSmtpServer::getIntPrefWithDefault(const char* prefName, int32_t* val,
                                          int32_t defVal) {
   nsresult rv = mPrefBranch->GetIntPref(prefName, val);
   if (NS_SUCCEEDED(rv)) return;
@@ -254,7 +254,7 @@ nsSmtpServer::SetAuthMethod(int32_t authMethod) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetUsername(nsACString &aUsername) {
+nsSmtpServer::GetUsername(nsACString& aUsername) {
   nsCString result;
   nsresult rv = mPrefBranch->GetCharPref("username", result);
   if (NS_FAILED(rv))
@@ -265,7 +265,7 @@ nsSmtpServer::GetUsername(nsACString &aUsername) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::SetUsername(const nsACString &aUsername) {
+nsSmtpServer::SetUsername(const nsACString& aUsername) {
   // Need to take care of few things if we're changing the username.
   nsCString oldName;
   nsresult rv = GetUsername(oldName);
@@ -286,7 +286,7 @@ nsSmtpServer::SetUsername(const nsACString &aUsername) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetClientid(nsACString &aClientid) {
+nsSmtpServer::GetClientid(nsACString& aClientid) {
   nsresult rv;
   rv = mPrefBranch->GetCharPref("clientid", aClientid);
   if (NS_FAILED(rv)) {
@@ -297,7 +297,7 @@ nsSmtpServer::GetClientid(nsACString &aClientid) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::SetClientid(const nsACString &aClientid) {
+nsSmtpServer::SetClientid(const nsACString& aClientid) {
   if (!aClientid.IsEmpty())
     return mPrefBranch->SetCharPref("clientid", aClientid);
 
@@ -307,7 +307,7 @@ nsSmtpServer::SetClientid(const nsACString &aClientid) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSmtpServer::GetClientidEnabled(bool *aClientidEnabled) {
+NS_IMETHODIMP nsSmtpServer::GetClientidEnabled(bool* aClientidEnabled) {
   NS_ENSURE_ARG_POINTER(aClientidEnabled);
   nsresult rv;
   rv = mPrefBranch->GetBoolPref("clientidEnabled", aClientidEnabled);
@@ -323,7 +323,7 @@ NS_IMETHODIMP nsSmtpServer::SetClientidEnabled(bool aClientidEnabled) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetPassword(nsAString &aPassword) {
+nsSmtpServer::GetPassword(nsAString& aPassword) {
   if (m_password.IsEmpty() && !m_logonFailed) {
     // try to avoid prompting the user for another password. If the user has set
     // the appropriate pref, we'll use the password from an incoming server, if
@@ -406,8 +406,8 @@ nsSmtpServer::GetPassword(nsAString &aPassword) {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::VerifyLogon(nsIUrlListener *aUrlListener,
-                          nsIMsgWindow *aMsgWindow, nsIURI **aURL) {
+nsSmtpServer::VerifyLogon(nsIUrlListener* aUrlListener,
+                          nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
   nsresult rv;
   nsCOMPtr<nsISmtpService> smtpService(
       do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
@@ -416,7 +416,7 @@ nsSmtpServer::VerifyLogon(nsIUrlListener *aUrlListener,
 }
 
 NS_IMETHODIMP
-nsSmtpServer::SetPassword(const nsAString &aPassword) {
+nsSmtpServer::SetPassword(const nsAString& aPassword) {
   m_password = aPassword;
   return NS_OK;
 }
@@ -463,9 +463,9 @@ nsresult nsSmtpServer::GetPasswordWithoutUI() {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetPasswordWithUI(const char16_t *aPromptMessage,
-                                const char16_t *aPromptTitle,
-                                nsIAuthPrompt *aDialog, nsAString &aPassword) {
+nsSmtpServer::GetPasswordWithUI(const char16_t* aPromptMessage,
+                                const char16_t* aPromptTitle,
+                                nsIAuthPrompt* aDialog, nsAString& aPassword) {
   if (!m_password.IsEmpty()) return GetPassword(aPassword);
 
   // We need to get a password, but see if we can get it from the password
@@ -505,11 +505,11 @@ nsSmtpServer::GetPasswordWithUI(const char16_t *aPromptMessage,
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetUsernamePasswordWithUI(const char16_t *aPromptMessage,
-                                        const char16_t *aPromptTitle,
-                                        nsIAuthPrompt *aDialog,
-                                        nsACString &aUsername,
-                                        nsAString &aPassword) {
+nsSmtpServer::GetUsernamePasswordWithUI(const char16_t* aPromptMessage,
+                                        const char16_t* aPromptTitle,
+                                        nsIAuthPrompt* aDialog,
+                                        nsACString& aUsername,
+                                        nsAString& aPassword) {
   nsresult rv;
   if (!m_password.IsEmpty()) {
     rv = GetUsername(aUsername);
@@ -591,7 +591,7 @@ nsSmtpServer::ForgetPassword() {
 }
 
 NS_IMETHODIMP
-nsSmtpServer::GetServerURI(nsACString &aResult) {
+nsSmtpServer::GetServerURI(nsACString& aResult) {
   aResult = GetServerURIInternal(true);
   return NS_OK;
 }

@@ -40,57 +40,57 @@
 
 class ImportAddressImpl final : public nsIImportAddressBooks {
  public:
-  explicit ImportAddressImpl(nsIStringBundle *aStringBundle);
+  explicit ImportAddressImpl(nsIStringBundle* aStringBundle);
 
-  static nsresult Create(nsIImportAddressBooks **aImport,
-                         nsIStringBundle *aStringBundle);
+  static nsresult Create(nsIImportAddressBooks** aImport,
+                         nsIStringBundle* aStringBundle);
 
   // nsISupports interface
   NS_DECL_THREADSAFE_ISUPPORTS
 
   // nsIImportAddressBooks interface
 
-  NS_IMETHOD GetSupportsMultiple(bool *_retval) override {
+  NS_IMETHOD GetSupportsMultiple(bool* _retval) override {
     *_retval = false;
     return NS_OK;
   }
 
-  NS_IMETHOD GetAutoFind(char16_t **description, bool *_retval) override;
+  NS_IMETHOD GetAutoFind(char16_t** description, bool* _retval) override;
 
-  NS_IMETHOD GetNeedsFieldMap(nsIFile *location, bool *_retval) override;
+  NS_IMETHOD GetNeedsFieldMap(nsIFile* location, bool* _retval) override;
 
-  NS_IMETHOD GetDefaultLocation(nsIFile **location, bool *found,
-                                bool *userVerify) override;
+  NS_IMETHOD GetDefaultLocation(nsIFile** location, bool* found,
+                                bool* userVerify) override;
 
-  NS_IMETHOD FindAddressBooks(nsIFile *location, nsIArray **_retval) override;
+  NS_IMETHOD FindAddressBooks(nsIFile* location, nsIArray** _retval) override;
 
-  NS_IMETHOD InitFieldMap(nsIImportFieldMap *fieldMap) override;
+  NS_IMETHOD InitFieldMap(nsIImportFieldMap* fieldMap) override;
 
-  NS_IMETHOD ImportAddressBook(nsIImportABDescriptor *source,
-                               nsIAbDirectory *destination,
-                               nsIImportFieldMap *fieldMap,
-                               nsISupports *aSupportService,
-                               char16_t **errorLog, char16_t **successLog,
-                               bool *fatalError) override;
+  NS_IMETHOD ImportAddressBook(nsIImportABDescriptor* source,
+                               nsIAbDirectory* destination,
+                               nsIImportFieldMap* fieldMap,
+                               nsISupports* aSupportService,
+                               char16_t** errorLog, char16_t** successLog,
+                               bool* fatalError) override;
 
-  NS_IMETHOD GetImportProgress(uint32_t *_retval) override;
+  NS_IMETHOD GetImportProgress(uint32_t* _retval) override;
 
-  NS_IMETHOD GetSampleData(int32_t index, bool *pFound,
-                           char16_t **pStr) override;
+  NS_IMETHOD GetSampleData(int32_t index, bool* pFound,
+                           char16_t** pStr) override;
 
-  NS_IMETHOD SetSampleLocation(nsIFile *) override;
+  NS_IMETHOD SetSampleLocation(nsIFile*) override;
 
  private:
   void ClearSampleFile(void);
-  void SaveFieldMap(nsIImportFieldMap *pMap);
+  void SaveFieldMap(nsIImportFieldMap* pMap);
 
-  static void ReportSuccess(nsString &name, nsString *pStream,
-                            nsIStringBundle *pBundle);
-  static void SetLogs(nsString &success, nsString &error, char16_t **pError,
-                      char16_t **pSuccess);
-  static void ReportError(int32_t errorNum, nsString &name, nsString *pStream,
-                          nsIStringBundle *pBundle);
-  static void SanitizeSampleData(nsString &val);
+  static void ReportSuccess(nsString& name, nsString* pStream,
+                            nsIStringBundle* pBundle);
+  static void SetLogs(nsString& success, nsString& error, char16_t** pError,
+                      char16_t** pSuccess);
+  static void ReportError(int32_t errorNum, nsString& name, nsString* pStream,
+                          nsIStringBundle* pBundle);
+  static void SanitizeSampleData(nsString& val);
 
  private:
   ~ImportAddressImpl() {}
@@ -116,13 +116,13 @@ nsTextImport::~nsTextImport() { IMPORT_LOG0("nsTextImport Module Deleted\n"); }
 
 NS_IMPL_ISUPPORTS(nsTextImport, nsIImportModule)
 
-NS_IMETHODIMP nsTextImport::GetName(char16_t **name) {
+NS_IMETHODIMP nsTextImport::GetName(char16_t** name) {
   NS_ENSURE_ARG_POINTER(name);
   *name = nsImportStringBundle::GetStringByID(TEXTIMPORT_NAME, m_stringBundle);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsTextImport::GetDescription(char16_t **name) {
+NS_IMETHODIMP nsTextImport::GetDescription(char16_t** name) {
   NS_ENSURE_ARG_POINTER(name);
   *name = nsImportStringBundle::GetStringByID(TEXTIMPORT_DESCRIPTION,
                                               m_stringBundle);
@@ -130,13 +130,13 @@ NS_IMETHODIMP nsTextImport::GetDescription(char16_t **name) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsTextImport::GetSupports(char **supports) {
+NS_IMETHODIMP nsTextImport::GetSupports(char** supports) {
   NS_ENSURE_ARG_POINTER(supports);
   *supports = strdup(kTextSupportsString);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsTextImport::GetSupportsUpgrade(bool *pUpgrade) {
+NS_IMETHODIMP nsTextImport::GetSupportsUpgrade(bool* pUpgrade) {
   NS_ASSERTION(pUpgrade != nullptr, "null ptr");
   if (!pUpgrade) return NS_ERROR_NULL_POINTER;
 
@@ -144,8 +144,8 @@ NS_IMETHODIMP nsTextImport::GetSupportsUpgrade(bool *pUpgrade) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsTextImport::GetImportInterface(const char *pImportType,
-                                               nsISupports **ppInterface) {
+NS_IMETHODIMP nsTextImport::GetImportInterface(const char* pImportType,
+                                               nsISupports** ppInterface) {
   NS_ENSURE_ARG_POINTER(pImportType);
   NS_ENSURE_ARG_POINTER(ppInterface);
 
@@ -176,22 +176,22 @@ NS_IMETHODIMP nsTextImport::GetImportInterface(const char *pImportType,
 
 /////////////////////////////////////////////////////////////////////////////////
 
-nsresult ImportAddressImpl::Create(nsIImportAddressBooks **aImport,
-                                   nsIStringBundle *aStringBundle) {
+nsresult ImportAddressImpl::Create(nsIImportAddressBooks** aImport,
+                                   nsIStringBundle* aStringBundle) {
   NS_ENSURE_ARG_POINTER(aImport);
   NS_ADDREF(*aImport = new ImportAddressImpl(aStringBundle));
   return NS_OK;
 }
 
-ImportAddressImpl::ImportAddressImpl(nsIStringBundle *aStringBundle)
+ImportAddressImpl::ImportAddressImpl(nsIStringBundle* aStringBundle)
     : m_notProxyBundle(aStringBundle) {
   m_haveDelim = false;
 }
 
 NS_IMPL_ISUPPORTS(ImportAddressImpl, nsIImportAddressBooks)
 
-NS_IMETHODIMP ImportAddressImpl::GetAutoFind(char16_t **addrDescription,
-                                             bool *_retval) {
+NS_IMETHODIMP ImportAddressImpl::GetAutoFind(char16_t** addrDescription,
+                                             bool* _retval) {
   NS_ASSERTION(addrDescription != nullptr, "null ptr");
   NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!addrDescription || !_retval) return NS_ERROR_NULL_POINTER;
@@ -207,9 +207,9 @@ NS_IMETHODIMP ImportAddressImpl::GetAutoFind(char16_t **addrDescription,
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportAddressImpl::GetDefaultLocation(nsIFile **ppLoc,
-                                                    bool *found,
-                                                    bool *userVerify) {
+NS_IMETHODIMP ImportAddressImpl::GetDefaultLocation(nsIFile** ppLoc,
+                                                    bool* found,
+                                                    bool* userVerify) {
   NS_ASSERTION(found != nullptr, "null ptr");
   NS_ASSERTION(ppLoc != nullptr, "null ptr");
   NS_ASSERTION(userVerify != nullptr, "null ptr");
@@ -221,8 +221,8 @@ NS_IMETHODIMP ImportAddressImpl::GetDefaultLocation(nsIFile **ppLoc,
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc,
-                                                  nsIArray **ppArray) {
+NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile* pLoc,
+                                                  nsIArray** ppArray) {
   NS_ASSERTION(pLoc != nullptr, "null ptr");
   NS_ASSERTION(ppArray != nullptr, "null ptr");
   if (!pLoc || !ppArray) return NS_ERROR_NULL_POINTER;
@@ -295,12 +295,12 @@ NS_IMETHODIMP ImportAddressImpl::FindAddressBooks(nsIFile *pLoc,
   return NS_OK;
 }
 
-void ImportAddressImpl::ReportSuccess(nsString &name, nsString *pStream,
-                                      nsIStringBundle *pBundle) {
+void ImportAddressImpl::ReportSuccess(nsString& name, nsString* pStream,
+                                      nsIStringBundle* pBundle) {
   if (!pStream) return;
 
   // load the success string
-  char16_t *pFmt =
+  char16_t* pFmt =
       nsImportStringBundle::GetStringByID(TEXTIMPORT_ADDRESS_SUCCESS, pBundle);
 
   nsString pText;
@@ -310,13 +310,13 @@ void ImportAddressImpl::ReportSuccess(nsString &name, nsString *pStream,
   pStream->Append(char16_t('\n'));
 }
 
-void ImportAddressImpl::ReportError(int32_t errorNum, nsString &name,
-                                    nsString *pStream,
-                                    nsIStringBundle *pBundle) {
+void ImportAddressImpl::ReportError(int32_t errorNum, nsString& name,
+                                    nsString* pStream,
+                                    nsIStringBundle* pBundle) {
   if (!pStream) return;
 
   // load the error string
-  char16_t *pFmt = nsImportStringBundle::GetStringByID(errorNum, pBundle);
+  char16_t* pFmt = nsImportStringBundle::GetStringByID(errorNum, pBundle);
   nsString pText;
   nsTextFormatter::ssprintf(pText, pFmt, name.get());
   pStream->Append(pText);
@@ -324,19 +324,19 @@ void ImportAddressImpl::ReportError(int32_t errorNum, nsString &name,
   pStream->Append(char16_t('\n'));
 }
 
-void ImportAddressImpl::SetLogs(nsString &success, nsString &error,
-                                char16_t **pError, char16_t **pSuccess) {
+void ImportAddressImpl::SetLogs(nsString& success, nsString& error,
+                                char16_t** pError, char16_t** pSuccess) {
   if (pError) *pError = ToNewUnicode(error);
   if (pSuccess) *pSuccess = ToNewUnicode(success);
 }
 
 NS_IMETHODIMP
-ImportAddressImpl::ImportAddressBook(nsIImportABDescriptor *pSource,
-                                     nsIAbDirectory *pDestination,
-                                     nsIImportFieldMap *fieldMap,
-                                     nsISupports *aSupportService,
-                                     char16_t **pErrorLog,
-                                     char16_t **pSuccessLog, bool *fatalError) {
+ImportAddressImpl::ImportAddressBook(nsIImportABDescriptor* pSource,
+                                     nsIAbDirectory* pDestination,
+                                     nsIImportFieldMap* fieldMap,
+                                     nsISupports* aSupportService,
+                                     char16_t** pErrorLog,
+                                     char16_t** pSuccessLog, bool* fatalError) {
   NS_ASSERTION(pSource != nullptr, "null ptr");
   NS_ASSERTION(pDestination != nullptr, "null ptr");
   NS_ASSERTION(fatalError != nullptr, "null ptr");
@@ -428,14 +428,14 @@ ImportAddressImpl::ImportAddressBook(nsIImportABDescriptor *pSource,
   return rv;
 }
 
-NS_IMETHODIMP ImportAddressImpl::GetImportProgress(uint32_t *_retval) {
+NS_IMETHODIMP ImportAddressImpl::GetImportProgress(uint32_t* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = m_bytesImported;
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportAddressImpl::GetNeedsFieldMap(nsIFile *aLocation,
-                                                  bool *_retval) {
+NS_IMETHODIMP ImportAddressImpl::GetNeedsFieldMap(nsIFile* aLocation,
+                                                  bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   NS_ENSURE_ARG_POINTER(aLocation);
 
@@ -464,7 +464,7 @@ NS_IMETHODIMP ImportAddressImpl::GetNeedsFieldMap(nsIFile *aLocation,
   return NS_OK;
 }
 
-void ImportAddressImpl::SanitizeSampleData(nsString &val) {
+void ImportAddressImpl::SanitizeSampleData(nsString& val) {
   // remove any line-feeds...
   int32_t offset = val.Find(NS_LITERAL_STRING("\x0D\x0A"));
   while (offset != -1) {
@@ -483,8 +483,8 @@ void ImportAddressImpl::SanitizeSampleData(nsString &val) {
   }
 }
 
-NS_IMETHODIMP ImportAddressImpl::GetSampleData(int32_t index, bool *pFound,
-                                               char16_t **pStr) {
+NS_IMETHODIMP ImportAddressImpl::GetSampleData(int32_t index, bool* pFound,
+                                               char16_t** pStr) {
   NS_ASSERTION(pFound != nullptr, "null ptr");
   NS_ASSERTION(pStr != nullptr, "null ptr");
   if (!pFound || !pStr) return NS_ERROR_NULL_POINTER;
@@ -541,7 +541,7 @@ NS_IMETHODIMP ImportAddressImpl::GetSampleData(int32_t index, bool *pFound,
   return NS_OK;
 }
 
-NS_IMETHODIMP ImportAddressImpl::SetSampleLocation(nsIFile *pLocation) {
+NS_IMETHODIMP ImportAddressImpl::SetSampleLocation(nsIFile* pLocation) {
   NS_ENSURE_ARG_POINTER(pLocation);
 
   m_fileLoc = pLocation;
@@ -554,7 +554,7 @@ void ImportAddressImpl::ClearSampleFile(void) {
   m_haveDelim = false;
 }
 
-NS_IMETHODIMP ImportAddressImpl::InitFieldMap(nsIImportFieldMap *fieldMap) {
+NS_IMETHODIMP ImportAddressImpl::InitFieldMap(nsIImportFieldMap* fieldMap) {
   // Let's remember the last one the user used!
   // This should be normal for someone importing multiple times, it's usually
   // from the same file format.
@@ -565,7 +565,7 @@ NS_IMETHODIMP ImportAddressImpl::InitFieldMap(nsIImportFieldMap *fieldMap) {
     nsCString prefStr;
     rv = prefs->GetCharPref("mailnews.import.text.fieldmap", prefStr);
     if (NS_SUCCEEDED(rv)) {
-      const char *pStr = prefStr.get();
+      const char* pStr = prefStr.get();
       if (pStr) {
         fieldMap->SetFieldMapSize(0);
         long fNum;
@@ -611,7 +611,7 @@ NS_IMETHODIMP ImportAddressImpl::InitFieldMap(nsIImportFieldMap *fieldMap) {
   return NS_OK;
 }
 
-void ImportAddressImpl::SaveFieldMap(nsIImportFieldMap *pMap) {
+void ImportAddressImpl::SaveFieldMap(nsIImportFieldMap* pMap) {
   if (!pMap) return;
 
   int size;

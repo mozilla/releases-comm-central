@@ -39,7 +39,7 @@ bool nsIMAPGenericParser::LastCommandSuccessful() {
   return fParserState == stateOK;
 }
 
-void nsIMAPGenericParser::SetSyntaxError(bool error, const char *msg) {
+void nsIMAPGenericParser::SetSyntaxError(bool error, const char* msg) {
   if (error)
     fParserState |= stateSyntaxErrorFlag;
   else
@@ -68,7 +68,7 @@ void nsIMAPGenericParser::skip_to_close_paren() {
   int numberOfCloseParensNeeded = 1;
   while (ContinueParse()) {
     // go through fNextToken, account for nested parens
-    const char *loc;
+    const char* loc;
     for (loc = fNextToken; loc && *loc; loc++) {
       if (*loc == '(')
         numberOfCloseParensNeeded++;
@@ -82,7 +82,7 @@ void nsIMAPGenericParser::skip_to_close_paren() {
       } else if (*loc == '{' || *loc == '"') {
         // quoted or literal
         fNextToken = loc;
-        char *a = CreateString();
+        char* a = CreateString();
         PR_FREEIF(a);
         break;  // move to next token
       }
@@ -131,7 +131,7 @@ void nsIMAPGenericParser::AdvanceToNextLine() {
     // determine if there are any tokens (without calling AdvanceToNextToken);
     // otherwise we are already at end of line
     NS_ASSERTION(strlen(WHITESPACE) == 3, "assume 3 chars of whitespace");
-    char *firstToken = fCurrentLine;
+    char* firstToken = fCurrentLine;
     while (*firstToken &&
            (*firstToken == WHITESPACE[0] || *firstToken == WHITESPACE[1] ||
             *firstToken == WHITESPACE[2]))
@@ -169,7 +169,7 @@ void nsIMAPGenericParser::AdvanceTokenizerStartingPoint(
 //           string  = quoted / literal
 // This function leaves us off with fCurrentTokenPlaceHolder immediately after
 // the end of the Astring.  Call AdvanceToNextToken() to get the token after it.
-char *nsIMAPGenericParser::CreateAstring() {
+char* nsIMAPGenericParser::CreateAstring() {
   if (*fNextToken == '{') return CreateLiteral();  // literal
   if (*fNextToken == '"') return CreateQuoted();   // quoted
   return CreateAtom(true);                         // atom
@@ -187,8 +187,8 @@ char *nsIMAPGenericParser::CreateAstring() {
 //           quoted-specials = DQUOTE / "\"
 //           resp-specials   = "]"
 // "Characters are 7-bit US-ASCII unless otherwise specified." [RFC3501, 1.2.]
-char *nsIMAPGenericParser::CreateAtom(bool isAstring) {
-  char *rv = PL_strdup(fNextToken);
+char* nsIMAPGenericParser::CreateAtom(bool isAstring) {
+  char* rv = PL_strdup(fNextToken);
   if (!rv) {
     HandleMemoryFailure();
     return nullptr;
@@ -196,7 +196,7 @@ char *nsIMAPGenericParser::CreateAtom(bool isAstring) {
   // We wish to stop at the following characters (in decimal ascii)
   // 1-31 (CTL), 32 (SP), 34 '"', 37 '%', 40-42 "()*", 92 '\\', 123 '{'
   // also, ']' is only allowed in astrings
-  char *last = rv;
+  char* last = rv;
   char c = *last;
   while ((c > 42 || c == 33 || c == 35 || c == 36 || c == 38 || c == 39) &&
          c != '\\' && c != '{' && (isAstring || c != ']'))
@@ -221,7 +221,7 @@ char *nsIMAPGenericParser::CreateAtom(bool isAstring) {
 // Regardless of type, call AdvanceToNextToken() to get the token after it.
 // RFC3501:   nstring  = string / nil
 //            nil      = "NIL"
-char *nsIMAPGenericParser::CreateNilString() {
+char* nsIMAPGenericParser::CreateNilString() {
   if (!PL_strncasecmp(fNextToken, "NIL", 3)) {
     // check if there is text after "NIL" in fNextToken,
     // equivalent handling as in CreateQuoted
@@ -236,13 +236,13 @@ char *nsIMAPGenericParser::CreateNilString() {
 // but not an atom.
 // This function leaves us off with fCurrentTokenPlaceHolder immediately after
 // the end of the String.  Call AdvanceToNextToken() to get the token after it.
-char *nsIMAPGenericParser::CreateString() {
+char* nsIMAPGenericParser::CreateString() {
   if (*fNextToken == '{') {
-    char *rv = CreateLiteral();  // literal
+    char* rv = CreateLiteral();  // literal
     return (rv);
   }
   if (*fNextToken == '"') {
-    char *rv = CreateQuoted();  // quoted
+    char* rv = CreateQuoted();  // quoted
     return (rv);
   }
   SetSyntaxError(true, "string does not start with '{' or '\"'");
@@ -257,9 +257,9 @@ char *nsIMAPGenericParser::CreateString() {
 // quoted_specials ::= <"> / "\"
 // Note that according to RFC 1064 and RFC 2060, CRs and LFs are not allowed
 // inside a quoted string.  It is sufficient to read from the current line only.
-char *nsIMAPGenericParser::CreateQuoted(bool /*skipToEnd*/) {
+char* nsIMAPGenericParser::CreateQuoted(bool /*skipToEnd*/) {
   // one char past opening '"'
-  char *currentChar = fCurrentLine + (fNextToken - fStartOfLineOfTokens) + 1;
+  char* currentChar = fCurrentLine + (fNextToken - fStartOfLineOfTokens) + 1;
 
   int escapeCharsCut = 0;
   nsCString returnString(currentChar);
@@ -290,12 +290,12 @@ char *nsIMAPGenericParser::CreateQuoted(bool /*skipToEnd*/) {
 //                       ; Number represents the number of CHAR8s
 //           CHAR8   = %x01-ff
 //                       ; any OCTET except NUL, %x00
-char *nsIMAPGenericParser::CreateLiteral() {
+char* nsIMAPGenericParser::CreateLiteral() {
   int32_t numberOfCharsInMessage = atoi(fNextToken + 1);
   uint32_t numBytes = numberOfCharsInMessage + 1;
   NS_ASSERTION(numBytes, "overflow!");
   if (!numBytes) return nullptr;
-  char *returnString = (char *)PR_Malloc(numBytes);
+  char* returnString = (char*)PR_Malloc(numBytes);
   if (!returnString) {
     HandleMemoryFailure();
     return nullptr;
@@ -342,7 +342,7 @@ char *nsIMAPGenericParser::CreateLiteral() {
 // It will allocate and return all characters up to and including the
 // corresponding closing paren, and leave the parser in the right place
 // afterwards.
-char *nsIMAPGenericParser::CreateParenGroup() {
+char* nsIMAPGenericParser::CreateParenGroup() {
   NS_ASSERTION(fNextToken[0] == '(', "we don't have a paren group!");
 
   int numOpenParens = 0;
@@ -350,7 +350,7 @@ char *nsIMAPGenericParser::CreateParenGroup() {
 
   // Build up a buffer containing the paren group.
   nsCString returnString;
-  char *parenGroupStart = fCurrentTokenPlaceHolder;
+  char* parenGroupStart = fCurrentTokenPlaceHolder;
   NS_ASSERTION(parenGroupStart[0] == '(', "we don't have a paren group (2)!");
   while (*fCurrentTokenPlaceHolder) {
     if (*fCurrentTokenPlaceHolder == '{')  // literal
@@ -366,7 +366,7 @@ char *nsIMAPGenericParser::CreateParenGroup() {
       // Append literal itself.
       AdvanceToNextToken();
       if (!ContinueParse()) break;
-      char *lit = CreateLiteral();
+      char* lit = CreateLiteral();
       NS_ASSERTION(lit, "syntax error or out of memory");
       if (!lit) break;
       returnString.Append(lit);
@@ -379,7 +379,7 @@ char *nsIMAPGenericParser::CreateParenGroup() {
       // just skip it (because the quoted string must be on the same line).
       AdvanceToNextToken();
       if (!ContinueParse()) break;
-      char *q = CreateQuoted();
+      char* q = CreateQuoted();
       if (!q) break;
       PR_Free(q);
       if (!ContinueParse()) break;

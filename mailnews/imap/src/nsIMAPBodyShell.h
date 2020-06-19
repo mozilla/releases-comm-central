@@ -38,49 +38,49 @@ class nsIMAPBodypart {
   // Generation
   // Generates an HTML representation of this part.  Returns content length
   // generated, -1 if failed.
-  virtual int32_t Generate(nsIMAPBodyShell *aShell, bool /*stream*/,
+  virtual int32_t Generate(nsIMAPBodyShell* aShell, bool /*stream*/,
                            bool /* prefetch */) {
     return -1;
   }
   virtual void AdoptPartDataBuffer(
-      char *buf);  // Adopts storage for part data buffer.  If NULL, sets
+      char* buf);  // Adopts storage for part data buffer.  If NULL, sets
                    // isValid to false.
   virtual void AdoptHeaderDataBuffer(
-      char *buf);  // Adopts storage for header data buffer.  If NULL, sets
+      char* buf);  // Adopts storage for header data buffer.  If NULL, sets
                    // isValid to false.
-  virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) {
+  virtual bool ShouldFetchInline(nsIMAPBodyShell* aShell) {
     return true;
   }  // returns true if this part should be fetched inline for generation.
-  virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) { return true; }
+  virtual bool PreflightCheckAllInline(nsIMAPBodyShell* aShell) { return true; }
 
   virtual bool ShouldExplicitlyFetchInline();
   virtual bool ShouldExplicitlyNotFetchInline();
-  virtual bool IsLastTextPart(const char *partNumberString) { return true; }
+  virtual bool IsLastTextPart(const char* partNumberString) { return true; }
 
  protected:
   // If stream is false, simply returns the content length that will be
   // generated the body of the part itself
-  virtual int32_t GeneratePart(nsIMAPBodyShell *aShell, bool stream,
+  virtual int32_t GeneratePart(nsIMAPBodyShell* aShell, bool stream,
                                bool prefetch);
   // the MIME headers of the part
-  virtual int32_t GenerateMIMEHeader(nsIMAPBodyShell *aShell, bool stream,
+  virtual int32_t GenerateMIMEHeader(nsIMAPBodyShell* aShell, bool stream,
                                      bool prefetch);
   // Generates the MIME boundary wrapper for this part.
-  virtual int32_t GenerateBoundary(nsIMAPBodyShell *aShell, bool stream,
+  virtual int32_t GenerateBoundary(nsIMAPBodyShell* aShell, bool stream,
                                    bool prefetch, bool lastBoundary);
   // lastBoundary indicates whether or not this should be the boundary for the
   // final MIME part of the multipart message.
   // Generates (possibly empty) filling for a part that won't be filled in
   // inline.
-  virtual int32_t GenerateEmptyFilling(nsIMAPBodyShell *aShell, bool stream,
+  virtual int32_t GenerateEmptyFilling(nsIMAPBodyShell* aShell, bool stream,
                                        bool prefetch);
 
   // Part Numbers / Hierarchy
  public:
-  virtual char *GetPartNumberString() { return m_partNumberString; }
-  virtual nsIMAPBodypart *FindPartWithNumber(
-      const char *partNum);  // Returns the part object with the given number
-  virtual nsIMAPBodypart *GetParentPart() {
+  virtual char* GetPartNumberString() { return m_partNumberString; }
+  virtual nsIMAPBodypart* FindPartWithNumber(
+      const char* partNum);  // Returns the part object with the given number
+  virtual nsIMAPBodypart* GetParentPart() {
     return m_parentPart;
   }  // Returns the parent of this part.
      // We will define a part of type message/rfc822 to be the
@@ -91,39 +91,39 @@ class nsIMAPBodypart {
   // Other / Helpers
  public:
   virtual ~nsIMAPBodypart();
-  virtual nsIMAPBodypartMessage *GetnsIMAPBodypartMessage() { return NULL; }
+  virtual nsIMAPBodypartMessage* GetnsIMAPBodypartMessage() { return NULL; }
 
-  const char *GetBodyType() { return m_bodyType; }
-  const char *GetBodySubType() { return m_bodySubType; }
-  void SetBoundaryData(char *boundaryData) { m_boundaryData = boundaryData; }
+  const char* GetBodyType() { return m_bodyType; }
+  const char* GetBodySubType() { return m_bodySubType; }
+  void SetBoundaryData(char* boundaryData) { m_boundaryData = boundaryData; }
 
  protected:
-  virtual void QueuePrefetchMIMEHeader(nsIMAPBodyShell *aShell);
+  virtual void QueuePrefetchMIMEHeader(nsIMAPBodyShell* aShell);
   // virtual void  PrefetchMIMEHeader();  // Initiates a prefetch for the MIME
   // header of this part.
-  nsIMAPBodypart(char *partNumber, nsIMAPBodypart *parentPart);
+  nsIMAPBodypart(char* partNumber, nsIMAPBodypart* parentPart);
 
  protected:
   bool m_isValid;            // If this part is valid.
-  char *m_partNumberString;  // string representation of this part's
+  char* m_partNumberString;  // string representation of this part's
                              // full-hierarchy number.  Define 0 to be the
                              // top-level message
-  char *m_partData;          // data for this part.  NULL if not filled in yet.
-  char *m_headerData;  // data for this part's MIME header.  NULL if not filled
+  char* m_partData;          // data for this part.  NULL if not filled in yet.
+  char* m_headerData;  // data for this part's MIME header.  NULL if not filled
                        // in yet.
-  char *m_boundaryData;  // MIME boundary for this part
+  char* m_boundaryData;  // MIME boundary for this part
   int32_t m_partLength;
   int32_t m_contentLength;  // Total content length which will be Generate()'d.
                             // -1 if not filled in yet.
-  nsIMAPBodypart *m_parentPart;  // Parent of this part
+  nsIMAPBodypart* m_parentPart;  // Parent of this part
 
   // Fields - Filled in from parsed BODYSTRUCTURE response (as well as others)
-  char *m_contentType;  // constructed from m_bodyType and m_bodySubType
-  char *m_bodyType;
-  char *m_bodySubType;
-  char *m_bodyID;
-  char *m_bodyDescription;
-  char *m_bodyEncoding;
+  char* m_contentType;  // constructed from m_bodyType and m_bodySubType
+  char* m_bodyType;
+  char* m_bodySubType;
+  char* m_bodyID;
+  char* m_bodyDescription;
+  char* m_bodyEncoding;
   // we ignore extension data for now
 };
 
@@ -133,54 +133,54 @@ class nsIMAPBodypart {
 // or any body part of type message/rfc822.
 class nsIMAPMessageHeaders : public nsIMAPBodypart {
  public:
-  nsIMAPMessageHeaders(char *partNum, nsIMAPBodypart *parentPart);
+  nsIMAPMessageHeaders(char* partNum, nsIMAPBodypart* parentPart);
   virtual nsIMAPBodypartType GetType() override;
   // Generates an HTML representation of this part.  Returns content length
   // generated, -1 if failed.
-  virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream,
+  virtual int32_t Generate(nsIMAPBodyShell* aShell, bool stream,
                            bool prefetch) override;
-  virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) override;
-  virtual void QueuePrefetchMessageHeaders(nsIMAPBodyShell *aShell);
+  virtual bool ShouldFetchInline(nsIMAPBodyShell* aShell) override;
+  virtual void QueuePrefetchMessageHeaders(nsIMAPBodyShell* aShell);
 };
 
 class nsIMAPBodypartMultipart : public nsIMAPBodypart {
  public:
-  nsIMAPBodypartMultipart(char *partNum, nsIMAPBodypart *parentPart);
+  nsIMAPBodypartMultipart(char* partNum, nsIMAPBodypart* parentPart);
   virtual nsIMAPBodypartType GetType() override;
   virtual ~nsIMAPBodypartMultipart();
-  virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) override;
-  virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) override;
+  virtual bool ShouldFetchInline(nsIMAPBodyShell* aShell) override;
+  virtual bool PreflightCheckAllInline(nsIMAPBodyShell* aShell) override;
   // Generates an HTML representation of this part.  Returns content length
   // generated, -1 if failed.
-  virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream,
+  virtual int32_t Generate(nsIMAPBodyShell* aShell, bool stream,
                            bool prefetch) override;
   // Returns the part object with the given number
-  virtual nsIMAPBodypart *FindPartWithNumber(const char *partNum) override;
-  virtual bool IsLastTextPart(const char *partNumberString) override;
-  void AppendPart(nsIMAPBodypart *part) { m_partList->AppendElement(part); }
-  void SetBodySubType(char *bodySubType);
+  virtual nsIMAPBodypart* FindPartWithNumber(const char* partNum) override;
+  virtual bool IsLastTextPart(const char* partNumberString) override;
+  void AppendPart(nsIMAPBodypart* part) { m_partList->AppendElement(part); }
+  void SetBodySubType(char* bodySubType);
 
  protected:
-  nsTArray<nsIMAPBodypart *>
-      *m_partList;  // An ordered list of top-level body parts for this shell
+  nsTArray<nsIMAPBodypart*>*
+      m_partList;  // An ordered list of top-level body parts for this shell
 };
 
 // The name "leaf" is somewhat misleading, since a part of type message/rfc822
 // is technically a leaf, even though it can contain other parts within it.
 class nsIMAPBodypartLeaf : public nsIMAPBodypart {
  public:
-  nsIMAPBodypartLeaf(char *partNum, nsIMAPBodypart *parentPart, char *bodyType,
-                     char *bodySubType, char *bodyID, char *bodyDescription,
-                     char *bodyEncoding, int32_t partLength,
+  nsIMAPBodypartLeaf(char* partNum, nsIMAPBodypart* parentPart, char* bodyType,
+                     char* bodySubType, char* bodyID, char* bodyDescription,
+                     char* bodyEncoding, int32_t partLength,
                      bool preferPlainText);
   virtual nsIMAPBodypartType GetType() override;
   // Generates an HTML representation of this part.  Returns content length
   // generated, -1 if failed.
-  virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream,
+  virtual int32_t Generate(nsIMAPBodyShell* aShell, bool stream,
                            bool prefetch) override;
   // returns true if this part should be fetched inline for generation.
-  virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) override;
-  virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) override;
+  virtual bool ShouldFetchInline(nsIMAPBodyShell* aShell) override;
+  virtual bool PreflightCheckAllInline(nsIMAPBodyShell* aShell) override;
 
  private:
   bool mPreferPlainText;
@@ -188,32 +188,32 @@ class nsIMAPBodypartLeaf : public nsIMAPBodypart {
 
 class nsIMAPBodypartMessage : public nsIMAPBodypartLeaf {
  public:
-  nsIMAPBodypartMessage(char *partNum, nsIMAPBodypart *parentPart,
-                        bool topLevelMessage, char *bodyType, char *bodySubType,
-                        char *bodyID, char *bodyDescription, char *bodyEncoding,
+  nsIMAPBodypartMessage(char* partNum, nsIMAPBodypart* parentPart,
+                        bool topLevelMessage, char* bodyType, char* bodySubType,
+                        char* bodyID, char* bodyDescription, char* bodyEncoding,
                         int32_t partLength, bool preferPlainText);
-  void SetBody(nsIMAPBodypart *body);
+  void SetBody(nsIMAPBodypart* body);
   virtual nsIMAPBodypartType GetType() override;
   virtual ~nsIMAPBodypartMessage();
-  virtual int32_t Generate(nsIMAPBodyShell *aShell, bool stream,
+  virtual int32_t Generate(nsIMAPBodyShell* aShell, bool stream,
                            bool prefetch) override;
-  virtual bool ShouldFetchInline(nsIMAPBodyShell *aShell) override;
-  virtual bool PreflightCheckAllInline(nsIMAPBodyShell *aShell) override;
+  virtual bool ShouldFetchInline(nsIMAPBodyShell* aShell) override;
+  virtual bool PreflightCheckAllInline(nsIMAPBodyShell* aShell) override;
   // Returns the part object with the given number
-  virtual nsIMAPBodypart *FindPartWithNumber(const char *partNum) override;
+  virtual nsIMAPBodypart* FindPartWithNumber(const char* partNum) override;
   void AdoptMessageHeaders(
-      char *headers);  // Fills in buffer (and adopts storage) for header object
+      char* headers);  // Fills in buffer (and adopts storage) for header object
                        // partNum specifies the message part number to which the
                        // headers correspond.  NULL indicates the top-level
                        // message
-  virtual nsIMAPBodypartMessage *GetnsIMAPBodypartMessage() override {
+  virtual nsIMAPBodypartMessage* GetnsIMAPBodypartMessage() override {
     return this;
   }
   virtual bool GetIsTopLevelMessage() { return m_topLevelMessage; }
 
  protected:
-  nsIMAPMessageHeaders *m_headers;  // Every body shell should have headers
-  nsIMAPBodypart *m_body;
+  nsIMAPMessageHeaders* m_headers;  // Every body shell should have headers
+  nsIMAPBodypart* m_body;
   bool m_topLevelMessage;  // Whether or not this is the top-level message
 };
 
@@ -221,12 +221,12 @@ class nsIMAPBodypartMessage : public nsIMAPBodypartLeaf {
 
 class nsIMAPMessagePartID {
  public:
-  nsIMAPMessagePartID(nsIMAPeFetchFields fields, const char *partNumberString);
+  nsIMAPMessagePartID(nsIMAPeFetchFields fields, const char* partNumberString);
   nsIMAPeFetchFields GetFields() { return m_fields; }
-  const char *GetPartNumberString() { return m_partNumberString; }
+  const char* GetPartNumberString() { return m_partNumberString; }
 
  protected:
-  const char *m_partNumberString;
+  const char* m_partNumberString;
   nsIMAPeFetchFields m_fields;
 };
 
@@ -242,28 +242,28 @@ class nsIMAPMessagePartID {
 class nsIMAPBodyShell : public nsISupports {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
-  nsIMAPBodyShell(nsImapProtocol *protocolConnection,
-                  nsIMAPBodypartMessage *message, uint32_t UID,
-                  uint32_t UIDValidity, const char *folderName);
+  nsIMAPBodyShell(nsImapProtocol* protocolConnection,
+                  nsIMAPBodypartMessage* message, uint32_t UID,
+                  uint32_t UIDValidity, const char* folderName);
   // To be used after a shell is uncached
-  void SetConnection(nsImapProtocol *con) { m_protocolConnection = con; }
+  void SetConnection(nsImapProtocol* con) { m_protocolConnection = con; }
   virtual bool GetIsValid() { return m_isValid; }
   virtual void SetIsValid(bool valid);
 
   // Prefetch
   // Adds a message body part to the queue to be prefetched
   // in a single, pipelined command
-  void AddPrefetchToQueue(nsIMAPeFetchFields, const char *partNum);
+  void AddPrefetchToQueue(nsIMAPeFetchFields, const char* partNum);
   // Runs a single pipelined command which fetches all of the
   // elements in the prefetch queue
   void FlushPrefetchQueue();
   // Fills in buffer (and adopts storage) for header object
   // partNum specifies the message part number to which the
   // headers correspond.  NULL indicates the top-level message
-  void AdoptMessageHeaders(char *headers, const char *partNum);
+  void AdoptMessageHeaders(char* headers, const char* partNum);
   // Fills in buffer (and adopts storage) for MIME headers in appropriate
   // object. If object can't be found, sets isValid to false.
-  void AdoptMimeHeader(const char *partNum, char *mimeHeader);
+  void AdoptMimeHeader(const char* partNum, char* mimeHeader);
 
   // Generation
   // Streams out an HTML representation of this IMAP message, going along and
@@ -273,7 +273,7 @@ class nsIMAPBodyShell : public nsISupports {
   // If partNum is not NULL, then this works to generates a MIME part that
   // hasn't been downloaded yet and leaves out all other parts.  By default, to
   // generate a normal message, partNum should be NULL.
-  virtual int32_t Generate(char *partNum);
+  virtual int32_t Generate(char* partNum);
 
   // Returns TRUE if the user has the pref "Show Attachments Inline" set.
   // Returns FALSE if the setting is "Show Attachments as Links"
@@ -283,13 +283,13 @@ class nsIMAPBodyShell : public nsISupports {
   bool PreflightCheckAllInline();
 
   // Helpers
-  nsImapProtocol *GetConnection() { return m_protocolConnection; }
+  nsImapProtocol* GetConnection() { return m_protocolConnection; }
   bool GetPseudoInterrupted();
   bool DeathSignalReceived();
-  nsCString &GetUID() { return m_UID; }
-  nsCString &GetUID_validity() { return m_UID_validity; }
-  const char *GetFolderName() { return m_folderName; }
-  char *GetGeneratingPart() { return m_generatingPart; }
+  nsCString& GetUID() { return m_UID; }
+  nsCString& GetUID_validity() { return m_UID_validity; }
+  const char* GetFolderName() { return m_folderName; }
+  char* GetGeneratingPart() { return m_generatingPart; }
   // Returns true if this is in the process of being generated,
   // so we don't re-enter
   bool IsBeingGenerated() { return m_isBeingGenerated; }
@@ -304,17 +304,17 @@ class nsIMAPBodyShell : public nsISupports {
  protected:
   virtual ~nsIMAPBodyShell();
 
-  nsIMAPBodypartMessage *m_message;
+  nsIMAPBodypartMessage* m_message;
 
   nsTArray<nsIMAPMessagePartID>
       m_prefetchQueue;  // Array of pipelined part prefetches.
 
   bool m_isValid;
-  nsImapProtocol *m_protocolConnection;  // Connection, for filling in parts
+  nsImapProtocol* m_protocolConnection;  // Connection, for filling in parts
   nsCString m_UID;                       // UID of this message
   nsCString m_UID_validity;  // appended UID and UID-validity of this message
-  char *m_folderName;        // folder that contains this message
-  char *m_generatingPart;  // If a specific part is being generated, this is it.
+  char* m_folderName;        // folder that contains this message
+  char* m_generatingPart;  // If a specific part is being generated, this is it.
                            // Otherwise, NULL.
   bool m_isBeingGenerated;   // true if this body shell is in the process of
                              // being generated
@@ -344,14 +344,14 @@ class nsIMAPBodyShell : public nsISupports {
 
 class nsIMAPBodyShellCache {
  public:
-  static nsIMAPBodyShellCache *Create();
+  static nsIMAPBodyShellCache* Create();
   virtual ~nsIMAPBodyShellCache();
 
   // Adds shell to cache, possibly ejecting
   // another entry based on scheme in EjectEntry().
-  bool AddShellToCache(nsIMAPBodyShell *shell);
+  bool AddShellToCache(nsIMAPBodyShell* shell);
   // Looks up a shell in the cache given the message's UID.
-  nsIMAPBodyShell *FindShellForUID(nsCString &UID, const char *mailboxName,
+  nsIMAPBodyShell* FindShellForUID(nsCString& UID, const char* mailboxName,
                                    IMAP_ContentModifiedType modType);
   void Clear();
 
@@ -363,7 +363,7 @@ class nsIMAPBodyShellCache {
   bool EjectEntry();
   uint32_t GetSize() { return m_shellList->Length(); }
   uint32_t GetMaxSize() { return 20; }
-  nsTArray<nsIMAPBodyShell *> *m_shellList;  // For maintenance
+  nsTArray<nsIMAPBodyShell*>* m_shellList;  // For maintenance
   // For quick lookup based on UID
   nsRefPtrHashtable<nsCStringHashKey, nsIMAPBodyShell> m_shellHash;
 };

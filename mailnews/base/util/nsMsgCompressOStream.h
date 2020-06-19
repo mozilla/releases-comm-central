@@ -16,7 +16,7 @@ class NS_MSG_BASE nsMsgCompressOStream final : public nsIOutputStream {
 
   NS_DECL_NSIOUTPUTSTREAM
 
-  nsresult InitOutputStream(nsIOutputStream *rawStream);
+  nsresult InitOutputStream(nsIOutputStream* rawStream);
 
  protected:
   ~nsMsgCompressOStream();

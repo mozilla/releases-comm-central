@@ -11,7 +11,7 @@
 #include "prprf.h"
 
 extern "C" bool EmitThisHeaderForPrefSetting(int32_t dispType,
-                                             const char *header) {
+                                             const char* header) {
   if (nsMimeHeaderDisplayTypes::AllHeaders == dispType) return true;
 
   if ((!header) || (!*header)) return false;

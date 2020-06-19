@@ -26,7 +26,7 @@ struct MimeInlineImage {
 
   /* Opaque data object for the backend-specific inline-image-display code
    (internal-external-reconnect nastiness.) */
-  void *image_data;
+  void* image_data;
 };
 
 #define MimeInlineImageClassInitializer(ITYPE, CSUPER) \

@@ -27,7 +27,7 @@
    articles we've already seen in the current newsgroup. */
 
 typedef struct MSG_NewsKnown {
-  nsMsgKeySet *set; /* Set of articles we've already gotten
+  nsMsgKeySet* set; /* Set of articles we've already gotten
                        from the newsserver (if it's marked
                        "read", then we've already gotten it).
                        If an article is marked "read", it
@@ -67,16 +67,16 @@ class nsNNTPNewsgroupList : public nsINNTPNewsgroupList,
   bool m_finishingXover;
 
 #ifdef HAVE_CHANGELISTENER
-  virtual void OnAnnouncerGoingAway(ChangeAnnouncer *instigator);
+  virtual void OnAnnouncerGoingAway(ChangeAnnouncer* instigator);
 #endif
-  nsresult ParseLine(char *line, uint32_t *message_number);
-  nsresult GetDatabase(const char *uri, nsIMsgDatabase **db);
+  nsresult ParseLine(char* line, uint32_t* message_number);
+  nsresult GetDatabase(const char* uri, nsIMsgDatabase** db);
   void SetProgressBarPercent(int32_t percent);
-  void SetProgressStatus(const nsString &aMessage);
+  void SetProgressStatus(const nsString& aMessage);
 
   void UpdateStatus(bool filtering, int32_t numDled, int32_t totToDL);
 
-  nsresult AddHeader(const char *header, const char *value);
+  nsresult AddHeader(const char* header, const char* value);
 
  protected:
   bool m_getOldMessages;
@@ -104,7 +104,7 @@ class nsNNTPNewsgroupList : public nsINNTPNewsgroupList,
   int32_t m_firstMsgToDownload, m_lastMsgToDownload;
 
   struct MSG_NewsKnown m_knownArts;
-  nsMsgKeySet *m_set;
+  nsMsgKeySet* m_set;
 
   nsTArray<nsCString> m_filterHeaders;
   uint32_t m_currentXHDRIndex;

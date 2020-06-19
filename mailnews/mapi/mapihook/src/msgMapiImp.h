@@ -25,14 +25,14 @@ class CMapiImp : public nsIMapi {
  public:
   // IUnknown
 
-  STDMETHODIMP QueryInterface(const IID &aIid, void **aPpv);
+  STDMETHODIMP QueryInterface(const IID& aIid, void** aPpv);
   STDMETHODIMP_(ULONG) AddRef();
   STDMETHODIMP_(ULONG) Release();
 
   // Interface INsMapi
 
   STDMETHODIMP Login(unsigned long aUIArg, LPSTR aLogin, LPSTR aPassWord,
-                     unsigned long aFlags, unsigned long *aSessionId);
+                     unsigned long aFlags, unsigned long* aSessionId);
 
   STDMETHODIMP SendMail(unsigned long aSession, lpnsMapiMessage aMessage,
                         unsigned long aFlags, unsigned long aReserved);
@@ -47,7 +47,7 @@ class CMapiImp : public nsIMapi {
 
   STDMETHODIMP ReadMail(unsigned long lhSession, unsigned long ulUIParam,
                         LPSTR lpszMessageID, unsigned long flFlags,
-                        unsigned long ulReserved, lpnsMapiMessage *lppMessage);
+                        unsigned long ulReserved, lpnsMapiMessage* lppMessage);
   STDMETHODIMP DeleteMail(unsigned long lhSession, unsigned long ulUIParam,
                           LPSTR lpszMessageID, unsigned long flFlags,
                           unsigned long ulReserved);
@@ -68,11 +68,11 @@ class CMapiImp : public nsIMapi {
   CMapiImp();
   virtual ~CMapiImp();
 
-  LONG InitContext(unsigned long session, MsgMapiListContext **listContext);
-  nsresult GetDefaultInbox(nsIMsgFolder **inboxFolder);
+  LONG InitContext(unsigned long session, MsgMapiListContext** listContext);
+  nsresult GetDefaultInbox(nsIMsgFolder** inboxFolder);
 
  private:
-  PRLock *m_Lock;
+  PRLock* m_Lock;
   mozilla::ThreadSafeAutoRefCnt m_cRef;
 };
 

@@ -43,7 +43,7 @@ static LazyLogModule MAILBOX("Mailbox");
  */
 #define OUTPUT_BUFFER_SIZE (4096 * 2)
 
-nsMailboxProtocol::nsMailboxProtocol(nsIURI *aURI) : nsMsgProtocol(aURI) {}
+nsMailboxProtocol::nsMailboxProtocol(nsIURI* aURI) : nsMsgProtocol(aURI) {}
 
 nsMailboxProtocol::~nsMailboxProtocol() {}
 
@@ -79,7 +79,7 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset,
   return rv;
 }
 
-nsresult nsMailboxProtocol::Initialize(nsIURI *aURL) {
+nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
   NS_ASSERTION(aURL, "invalid URL passed into MAILBOX Protocol");
   nsresult rv = NS_OK;
   if (aURL) {
@@ -201,7 +201,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI *aURL) {
 // we support the nsIStreamListener interface
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest *request) {
+NS_IMETHODIMP nsMailboxProtocol::OnStartRequest(nsIRequest* request) {
   // extract the appropriate event sinks from the url and initialize them in our
   // protocol data the URL should be queried for a nsINewsURL. If it doesn't
   // support a news URL interface then we have an error.
@@ -227,7 +227,7 @@ bool nsMailboxProtocol::RunningMultipleMsgUrl() {
 
 // stop binding is a "notification" informing us that the stream associated with
 // aURL is going away.
-NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request,
+NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
                                                nsresult aStatus) {
   nsresult rv;
   if (m_nextState == MAILBOX_READ_FOLDER && m_mailboxParser) {
@@ -344,7 +344,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest *request,
 
                 NS_ASSERTION(NS_SUCCEEDED(rv), "AsyncRead failed");
                 if (m_loadGroup)
-                  m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this),
+                  m_loadGroup->RemoveRequest(static_cast<nsIRequest*>(this),
                                              nullptr, aStatus);
                 m_socketIsOpen = true;  // mark the channel as open
                 return aStatus;
@@ -429,7 +429,7 @@ nsresult nsMailboxProtocol::SetupMessageExtraction() {
 // Begin protocol state machine functions...
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-nsresult nsMailboxProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
+nsresult nsMailboxProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
   nsresult rv = NS_OK;
   // if we were already initialized with a consumer, use it...
   nsCOMPtr<nsIStreamListener> consumer = do_QueryInterface(aConsumer);
@@ -535,7 +535,7 @@ nsresult nsMailboxProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
   return rv;
 }
 
-int32_t nsMailboxProtocol::ReadFolderResponse(nsIInputStream *inputStream,
+int32_t nsMailboxProtocol::ReadFolderResponse(nsIInputStream* inputStream,
                                               uint64_t sourceOffset,
                                               uint32_t length) {
   // okay we are doing a folder read in 8K chunks of a mail folder....
@@ -567,10 +567,10 @@ int32_t nsMailboxProtocol::ReadFolderResponse(nsIInputStream *inputStream,
   return 0;
 }
 
-int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream *inputStream,
+int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream* inputStream,
                                                uint64_t sourceOffset,
                                                uint32_t length) {
-  char *line = nullptr;
+  char* line = nullptr;
   uint32_t status = 0;
   nsresult rv = NS_OK;
   mCurrentProgress += length;
@@ -640,8 +640,8 @@ int32_t nsMailboxProtocol::ReadMessageResponse(nsIInputStream *inputStream,
  *
  * returns zero or more if the transfer needs to be continued.
  */
-nsresult nsMailboxProtocol::ProcessProtocolState(nsIURI *url,
-                                                 nsIInputStream *inputStream,
+nsresult nsMailboxProtocol::ProcessProtocolState(nsIURI* url,
+                                                 nsIInputStream* inputStream,
                                                  uint64_t offset,
                                                  uint32_t length) {
   nsresult rv = NS_OK;

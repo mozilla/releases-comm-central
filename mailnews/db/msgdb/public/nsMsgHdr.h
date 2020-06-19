@@ -27,7 +27,7 @@ class nsMsgHdr : public nsIMsgDBHdr {
   ////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////
   // nsMsgHdr methods:
-  nsMsgHdr(nsMsgDatabase *db, nsIMdbRow *dbRow);
+  nsMsgHdr(nsMsgDatabase* db, nsIMdbRow* dbRow);
 
   NS_DECL_ISUPPORTS
 
@@ -39,15 +39,15 @@ class nsMsgHdr : public nsIMsgDBHdr {
   }
 
  protected:
-  nsIMdbRow *GetMDBRow() { return m_mdbRow; }
+  nsIMdbRow* GetMDBRow() { return m_mdbRow; }
   void ReleaseMDBRow() { NS_IF_RELEASE(m_mdbRow); }
-  nsMsgDatabase *GetMdb() { return m_mdb; }
+  nsMsgDatabase* GetMdb() { return m_mdb; }
   void ClearCachedValues() { m_initedValues = 0; }
 
-  virtual nsresult GetRawFlags(uint32_t *result);
+  virtual nsresult GetRawFlags(uint32_t* result);
 
-  bool IsParentOf(nsIMsgDBHdr *possibleChild);
-  bool IsAncestorOf(nsIMsgDBHdr *possibleChild);
+  bool IsParentOf(nsIMsgDBHdr* possibleChild);
+  bool IsAncestorOf(nsIMsgDBHdr* possibleChild);
 
  private:
   virtual ~nsMsgHdr();
@@ -57,19 +57,19 @@ class nsMsgHdr : public nsIMsgDBHdr {
   virtual nsresult InitCachedValues();
 
   bool IsAncestorKilled(uint32_t ancestorsToCheck);
-  void ReparentInThread(nsIMsgThread *thread);
+  void ReparentInThread(nsIMsgThread* thread);
 
-  nsresult SetStringColumn(const char *str, mdb_token token);
+  nsresult SetStringColumn(const char* str, mdb_token token);
   nsresult SetUInt32Column(uint32_t value, mdb_token token);
-  nsresult GetUInt32Column(mdb_token token, uint32_t *pvalue,
+  nsresult GetUInt32Column(mdb_token token, uint32_t* pvalue,
                            uint32_t defaultValue = 0);
   nsresult SetUInt64Column(uint64_t value, mdb_token token);
-  nsresult GetUInt64Column(mdb_token token, uint64_t *pvalue,
+  nsresult GetUInt64Column(mdb_token token, uint64_t* pvalue,
                            uint64_t defaultValue = 0);
 
   // reference and threading stuff.
-  nsresult ParseReferences(const char *references);
-  const char *GetNextReference(const char *startNextRef, nsCString &reference,
+  nsresult ParseReferences(const char* references);
+  const char* GetNextReference(const char* startNextRef, nsCString& reference,
                                bool acceptNonDelimitedReferences);
 
   nsMsgKey m_threadId;
@@ -87,8 +87,8 @@ class nsMsgHdr : public nsIMsgDBHdr {
   // nsMsgHdrs will have to know what db and row they belong to, since they are
   // really just a wrapper around the msg row in the mdb. This could cause
   // problems, though I hope not.
-  nsMsgDatabase *m_mdb;
-  nsIMdbRow *m_mdbRow;
+  nsMsgDatabase* m_mdb;
+  nsIMdbRow* m_mdbRow;
   uint32_t m_initedValues;
 };
 

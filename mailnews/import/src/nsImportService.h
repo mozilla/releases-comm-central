@@ -23,11 +23,11 @@ class nsImportService : public nsIImportService {
 
  private:
   virtual ~nsImportService();
-  nsresult LoadModuleInfo(const char *pClsId, const char *pSupports);
+  nsresult LoadModuleInfo(const char* pClsId, const char* pSupports);
   nsresult DoDiscover(void);
 
  private:
-  nsImportModuleList *m_pModules;
+  nsImportModuleList* m_pModules;
   bool m_didDiscovery;
   nsCString m_sysCharset;
   nsCOMPtr<nsIStringBundle> m_stringBundle;
@@ -38,20 +38,20 @@ class ImportModuleDesc {
   ImportModuleDesc() { m_pModule = nullptr; }
   ~ImportModuleDesc() { ReleaseModule(); }
 
-  void SetCID(const nsCID &cid) { m_cid = cid; }
-  void SetName(const char16_t *pName) { m_name = pName; }
-  void SetDescription(const char16_t *pDesc) { m_description = pDesc; }
-  void SetSupports(const char *pSupports) { m_supports = pSupports; }
+  void SetCID(const nsCID& cid) { m_cid = cid; }
+  void SetName(const char16_t* pName) { m_name = pName; }
+  void SetDescription(const char16_t* pDesc) { m_description = pDesc; }
+  void SetSupports(const char* pSupports) { m_supports = pSupports; }
 
   nsCID GetCID(void) { return m_cid; }
-  const char16_t *GetName(void) { return m_name.get(); }
-  const char16_t *GetDescription(void) { return m_description.get(); }
-  const char *GetSupports(void) { return m_supports.get(); }
+  const char16_t* GetName(void) { return m_name.get(); }
+  const char16_t* GetDescription(void) { return m_description.get(); }
+  const char* GetSupports(void) { return m_supports.get(); }
 
-  void GetModule(nsIImportModule **);
+  void GetModule(nsIImportModule**);
   void ReleaseModule(void);
 
-  bool SupportsThings(const char *pThings);
+  bool SupportsThings(const char* pThings);
 
  private:
   nsCID m_cid;
@@ -70,14 +70,14 @@ class nsImportModuleList {
   }
   ~nsImportModuleList() { ClearList(); }
 
-  void AddModule(const nsCID &cid, const char *pSupports, const char16_t *pName,
-                 const char16_t *pDesc);
+  void AddModule(const nsCID& cid, const char* pSupports, const char16_t* pName,
+                 const char16_t* pDesc);
 
   void ClearList(void);
 
   int32_t GetCount(void) { return m_count; }
 
-  ImportModuleDesc *GetModuleDesc(int32_t idx) {
+  ImportModuleDesc* GetModuleDesc(int32_t idx) {
     if ((idx < 0) || (idx >= m_count))
       return nullptr;
     else
@@ -86,7 +86,7 @@ class nsImportModuleList {
 
  private:
  private:
-  ImportModuleDesc **m_pList;
+  ImportModuleDesc** m_pList;
   int32_t m_alloc;
   int32_t m_count;
 };

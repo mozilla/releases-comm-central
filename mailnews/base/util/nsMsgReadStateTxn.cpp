@@ -13,8 +13,8 @@ nsMsgReadStateTxn::nsMsgReadStateTxn() {}
 
 nsMsgReadStateTxn::~nsMsgReadStateTxn() {}
 
-nsresult nsMsgReadStateTxn::Init(nsIMsgFolder *aParentFolder, uint32_t aNumKeys,
-                                 nsMsgKey *aMsgKeyArray) {
+nsresult nsMsgReadStateTxn::Init(nsIMsgFolder* aParentFolder, uint32_t aNumKeys,
+                                 nsMsgKey* aMsgKeyArray) {
   NS_ENSURE_ARG_POINTER(aParentFolder);
 
   mParentFolder = aParentFolder;

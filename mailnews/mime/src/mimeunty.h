@@ -59,9 +59,9 @@ typedef enum {
 
 struct MimeUntypedText {
   MimeContainer container;         /* superclass variables */
-  MimeObject *open_subpart;        /* The part still-being-parsed */
+  MimeObject* open_subpart;        /* The part still-being-parsed */
   MimeUntypedTextSubpartType type; /* What kind of type it is */
-  MimeHeaders *open_hdrs;          /* The faked-up headers describing it */
+  MimeHeaders* open_hdrs;          /* The faked-up headers describing it */
 };
 
 #define MimeUntypedTextClassInitializer(ITYPE, CSUPER) \

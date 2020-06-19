@@ -82,12 +82,12 @@ NS_IMPL_ADDREF_INHERITED(nsMsgNewsFolder, nsMsgDBFolder)
 NS_IMPL_RELEASE_INHERITED(nsMsgNewsFolder, nsMsgDBFolder)
 
 NS_IMETHODIMP nsMsgNewsFolder::QueryInterface(REFNSIID aIID,
-                                              void **aInstancePtr) {
+                                              void** aInstancePtr) {
   if (!aInstancePtr) return NS_ERROR_NULL_POINTER;
   *aInstancePtr = nullptr;
 
   if (aIID.Equals(NS_GET_IID(nsIMsgNewsFolder)))
-    *aInstancePtr = static_cast<nsIMsgNewsFolder *>(this);
+    *aInstancePtr = static_cast<nsIMsgNewsFolder*>(this);
   if (*aInstancePtr) {
     AddRef();
     return NS_OK;
@@ -98,7 +98,7 @@ NS_IMETHODIMP nsMsgNewsFolder::QueryInterface(REFNSIID aIID,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-nsresult nsMsgNewsFolder::CreateSubFolders(nsIFile *path) {
+nsresult nsMsgNewsFolder::CreateSubFolders(nsIFile* path) {
   nsresult rv;
   bool isNewsServer = false;
   rv = GetIsServer(&isNewsServer);
@@ -119,8 +119,8 @@ nsresult nsMsgNewsFolder::CreateSubFolders(nsIFile *path) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::AddNewsgroup(const nsACString &name, const nsACString &setStr,
-                              nsIMsgFolder **child) {
+nsMsgNewsFolder::AddNewsgroup(const nsACString& name, const nsACString& setStr,
+                              nsIMsgFolder** child) {
   NS_ENSURE_ARG_POINTER(child);
   nsresult rv;
 
@@ -179,11 +179,11 @@ nsMsgNewsFolder::AddNewsgroup(const nsACString &name, const nsACString &setStr,
   return rv;
 }
 
-nsresult nsMsgNewsFolder::ParseFolder(nsIFile *path) {
+nsresult nsMsgNewsFolder::ParseFolder(nsIFile* path) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-nsresult nsMsgNewsFolder::AddDirectorySeparator(nsIFile *path) {
+nsresult nsMsgNewsFolder::AddDirectorySeparator(nsIFile* path) {
   // don't concat the full separator with .sbd
   return (mURI.Equals(kNewsRootURI))
              ? NS_OK
@@ -191,7 +191,7 @@ nsresult nsMsgNewsFolder::AddDirectorySeparator(nsIFile *path) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetSubFolders(nsISimpleEnumerator **aResult) {
+nsMsgNewsFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
   if (!mInitialized) {
     // do this first, so we make sure to do it, even on failure.
     // see bug #70494
@@ -245,7 +245,7 @@ nsresult nsMsgNewsFolder::GetDatabase() {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetDatabaseWithoutCache(nsIMsgDatabase **db) {
+nsMsgNewsFolder::GetDatabaseWithoutCache(nsIMsgDatabase** db) {
   NS_ENSURE_ARG_POINTER(db);
 
   // The simplest way to perform this operation is to get the database normally
@@ -264,7 +264,7 @@ nsMsgNewsFolder::GetDatabaseWithoutCache(nsIMsgDatabase **db) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::UpdateFolder(nsIMsgWindow *aWindow) {
+nsMsgNewsFolder::UpdateFolder(nsIMsgWindow* aWindow) {
   // Get news.get_messages_on_select pref
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch =
@@ -301,7 +301,7 @@ nsMsgNewsFolder::UpdateFolder(nsIMsgWindow *aWindow) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetCanSubscribe(bool *aResult) {
+nsMsgNewsFolder::GetCanSubscribe(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = false;
 
@@ -315,7 +315,7 @@ nsMsgNewsFolder::GetCanSubscribe(bool *aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetCanFileMessages(bool *aResult) {
+nsMsgNewsFolder::GetCanFileMessages(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   // you can't file messages into a news server or news group
   *aResult = false;
@@ -323,7 +323,7 @@ nsMsgNewsFolder::GetCanFileMessages(bool *aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetCanCreateSubfolders(bool *aResult) {
+nsMsgNewsFolder::GetCanCreateSubfolders(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = false;
   // you can't create subfolders on a news server or a news group
@@ -331,7 +331,7 @@ nsMsgNewsFolder::GetCanCreateSubfolders(bool *aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetCanRename(bool *aResult) {
+nsMsgNewsFolder::GetCanRename(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = false;
   // you can't rename a news server or a news group
@@ -339,7 +339,7 @@ nsMsgNewsFolder::GetCanRename(bool *aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetCanCompact(bool *aResult) {
+nsMsgNewsFolder::GetCanCompact(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = false;
   // you can't compact a news server or a news group
@@ -347,7 +347,7 @@ nsMsgNewsFolder::GetCanCompact(bool *aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetMessages(nsISimpleEnumerator **result) {
+nsMsgNewsFolder::GetMessages(nsISimpleEnumerator** result) {
   nsresult rv = GetDatabase();
   *result = nullptr;
 
@@ -356,7 +356,7 @@ nsMsgNewsFolder::GetMessages(nsISimpleEnumerator **result) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetFolderURL(nsACString &aUrl) {
+NS_IMETHODIMP nsMsgNewsFolder::GetFolderURL(nsACString& aUrl) {
   nsCString hostName;
   nsresult rv = GetHostname(hostName);
   nsString groupName;
@@ -374,7 +374,7 @@ NS_IMETHODIMP nsMsgNewsFolder::GetFolderURL(nsACString &aUrl) {
   int32_t port;
   rv = server->GetPort(&port);
   NS_ENSURE_SUCCESS(rv, rv);
-  const char *newsScheme =
+  const char* newsScheme =
       (socketType == nsMsgSocketType::SSL) ? SNEWS_SCHEME : NEWS_SCHEME;
   nsCString escapedName;
   rv = NS_MsgEscapeEncodeURLPath(groupName, escapedName);
@@ -395,16 +395,16 @@ NS_IMETHODIMP nsMsgNewsFolder::SetNewsrcHasChanged(bool newsrcHasChanged) {
   return nntpServer->SetNewsrcHasChanged(newsrcHasChanged);
 }
 
-nsresult nsMsgNewsFolder::CreateChildFromURI(const nsCString &uri,
-                                             nsIMsgFolder **folder) {
-  nsMsgNewsFolder *newFolder = new nsMsgNewsFolder;
+nsresult nsMsgNewsFolder::CreateChildFromURI(const nsCString& uri,
+                                             nsIMsgFolder** folder) {
+  nsMsgNewsFolder* newFolder = new nsMsgNewsFolder;
   NS_ADDREF(*folder = newFolder);
   newFolder->Init(uri.get());
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString &newsgroupName,
-                                               nsIMsgWindow *msgWindow) {
+NS_IMETHODIMP nsMsgNewsFolder::CreateSubfolder(const nsAString& newsgroupName,
+                                               nsIMsgWindow* msgWindow) {
   nsresult rv = NS_OK;
   if (newsgroupName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
 
@@ -459,12 +459,12 @@ NS_IMETHODIMP nsMsgNewsFolder::DeleteStorage() {
   return SetNewsrcHasChanged(true);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::Rename(const nsAString &newName,
-                                      nsIMsgWindow *msgWindow) {
+NS_IMETHODIMP nsMsgNewsFolder::Rename(const nsAString& newName,
+                                      nsIMsgWindow* msgWindow) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetAbbreviatedName(nsAString &aAbbreviatedName) {
+NS_IMETHODIMP nsMsgNewsFolder::GetAbbreviatedName(nsAString& aAbbreviatedName) {
   nsresult rv;
 
   rv = nsMsgDBFolder::GetPrettyName(aAbbreviatedName);
@@ -502,7 +502,7 @@ NS_IMETHODIMP nsMsgNewsFolder::GetAbbreviatedName(nsAString &aAbbreviatedName) {
 // 'a' is the first letter of the part of the word before the
 // dash and 'b' is the first letter of the part of the word after
 // the dash
-nsresult nsMsgNewsFolder::AbbreviatePrettyName(nsAString &prettyName,
+nsresult nsMsgNewsFolder::AbbreviatePrettyName(nsAString& prettyName,
                                                int32_t fullwords) {
   nsAutoString name(prettyName);
   int32_t totalwords = 0;  // total no. of words
@@ -564,8 +564,8 @@ nsresult nsMsgNewsFolder::AbbreviatePrettyName(nsAString &prettyName,
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo **folderInfo,
-                                      nsIMsgDatabase **db) {
+nsMsgNewsFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
+                                      nsIMsgDatabase** db) {
   NS_ENSURE_ARG_POINTER(folderInfo);
   NS_ENSURE_ARG_POINTER(db);
   nsresult openErr;
@@ -633,13 +633,13 @@ nsMsgNewsFolder::UpdateSummaryFromNNTPInfo(int32_t oldest, int32_t youngest,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetExpungedBytesCount(int64_t *count) {
+NS_IMETHODIMP nsMsgNewsFolder::GetExpungedBytesCount(int64_t* count) {
   NS_ENSURE_ARG_POINTER(count);
   *count = mExpungedBytes;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetDeletable(bool *deletable) {
+NS_IMETHODIMP nsMsgNewsFolder::GetDeletable(bool* deletable) {
   NS_ENSURE_ARG_POINTER(deletable);
 
   *deletable = false;
@@ -658,7 +658,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RefreshSizeOnDisk() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(int64_t *size) {
+NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(int64_t* size) {
   NS_ENSURE_ARG_POINTER(size);
 
   bool isServer = false;
@@ -693,9 +693,9 @@ NS_IMETHODIMP nsMsgNewsFolder::GetSizeOnDisk(int64_t *size) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
+nsMsgNewsFolder::DeleteMessages(nsIArray* messages, nsIMsgWindow* aMsgWindow,
                                 bool deleteStorage, bool isMove,
-                                nsIMsgCopyServiceListener *listener,
+                                nsIMsgCopyServiceListener* listener,
                                 bool allowUndo) {
   nsresult rv = NS_OK;
 
@@ -746,8 +746,8 @@ nsMsgNewsFolder::DeleteMessages(nsIArray *messages, nsIMsgWindow *aMsgWindow,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr *msgHdr,
-                                             nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr* msgHdr,
+                                             nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(msgHdr);
   NS_ENSURE_ARG_POINTER(aMsgWindow);
 
@@ -793,18 +793,18 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelMessage(nsIMsgDBHdr *msgHdr,
                                     nullptr);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(nsIMsgWindow *aMsgWindow,
-                                              nsIUrlListener *aListener) {
+NS_IMETHODIMP nsMsgNewsFolder::GetNewMessages(nsIMsgWindow* aMsgWindow,
+                                              nsIUrlListener* aListener) {
   return GetNewsMessages(aMsgWindow, false, aListener);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetNextNMessages(nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsMsgNewsFolder::GetNextNMessages(nsIMsgWindow* aMsgWindow) {
   return GetNewsMessages(aMsgWindow, true, nullptr);
 }
 
-nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow *aMsgWindow,
+nsresult nsMsgNewsFolder::GetNewsMessages(nsIMsgWindow* aMsgWindow,
                                           bool aGetOld,
-                                          nsIUrlListener *aUrlListener) {
+                                          nsIUrlListener* aUrlListener) {
   nsresult rv = NS_OK;
 
   bool isNewsServer = false;
@@ -866,7 +866,7 @@ nsresult nsMsgNewsFolder::LoadNewsrcFileAndCreateNewsgroups() {
   return rv;
 }
 
-int32_t nsMsgNewsFolder::HandleNewsrcLine(const char *line,
+int32_t nsMsgNewsFolder::HandleNewsrcLine(const char* line,
                                           uint32_t line_size) {
   nsresult rv;
 
@@ -876,9 +876,9 @@ int32_t nsMsgNewsFolder::HandleNewsrcLine(const char *line,
   if ((line[0] == 'o' || line[0] == 'O') && !PL_strncasecmp(line, "options", 7))
     return RememberLine(nsDependentCString(line));
 
-  const char *s = nullptr;
-  const char *setStr = nullptr;
-  const char *end = line + line_size;
+  const char* s = nullptr;
+  const char* setStr = nullptr;
+  const char* end = line + line_size;
 
   for (s = line; s < end; s++)
     if ((*s == ':') || (*s == '!')) break;
@@ -930,8 +930,8 @@ int32_t nsMsgNewsFolder::HandleNewsrcLine(const char *line,
   return 0;
 }
 
-nsresult nsMsgNewsFolder::RememberUnsubscribedGroup(const nsACString &newsgroup,
-                                                    const nsACString &setStr) {
+nsresult nsMsgNewsFolder::RememberUnsubscribedGroup(const nsACString& newsgroup,
+                                                    const nsACString& setStr) {
   mUnsubscribedNewsgroupLines.Append(newsgroup);
   mUnsubscribedNewsgroupLines.AppendLiteral("! ");
   if (!setStr.IsEmpty())
@@ -941,7 +941,7 @@ nsresult nsMsgNewsFolder::RememberUnsubscribedGroup(const nsACString &newsgroup,
   return NS_OK;
 }
 
-int32_t nsMsgNewsFolder::RememberLine(const nsACString &line) {
+int32_t nsMsgNewsFolder::RememberLine(const nsACString& line) {
   mOptionLines = line;
   mOptionLines.Append(MSG_LINEBREAK);
   return 0;
@@ -952,30 +952,30 @@ nsresult nsMsgNewsFolder::ForgetLine() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetGroupUsername(nsACString &aGroupUsername) {
+NS_IMETHODIMP nsMsgNewsFolder::GetGroupUsername(nsACString& aGroupUsername) {
   aGroupUsername = mGroupUsername;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::SetGroupUsername(
-    const nsACString &aGroupUsername) {
+    const nsACString& aGroupUsername) {
   mGroupUsername = aGroupUsername;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetGroupPassword(nsACString &aGroupPassword) {
+NS_IMETHODIMP nsMsgNewsFolder::GetGroupPassword(nsACString& aGroupPassword) {
   aGroupPassword = mGroupPassword;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::SetGroupPassword(
-    const nsACString &aGroupPassword) {
+    const nsACString& aGroupPassword) {
   mGroupPassword = aGroupPassword;
   return NS_OK;
 }
 
-nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char *ref,
-                                                      nsAString &result) {
+nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char* ref,
+                                                      nsAString& result) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgIncomingServer> server;
@@ -1054,9 +1054,9 @@ nsresult nsMsgNewsFolder::CreateNewsgroupUrlForSignon(const char *ref,
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
+nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow* aMsgWindow,
                                               bool mayPrompt, bool mustPrompt,
-                                              bool *validCredentials) {
+                                              bool* validCredentials) {
   // Not strictly necessary, but it would help consumers to realize that this is
   // a rather nonsensical combination.
   NS_ENSURE_FALSE(mustPrompt && !mayPrompt, NS_ERROR_INVALID_ARG);
@@ -1145,9 +1145,9 @@ nsMsgNewsFolder::GetAuthenticationCredentials(nsIMsgWindow *aMsgWindow,
       NS_ENSURE_SUCCESS(rv, rv);
 
       // Prefill saved username/password
-      char16_t *uniGroupUsername =
+      char16_t* uniGroupUsername =
           ToNewUnicode(NS_ConvertASCIItoUTF16(mGroupUsername));
-      char16_t *uniGroupPassword =
+      char16_t* uniGroupPassword =
           ToNewUnicode(NS_ConvertASCIItoUTF16(mGroupPassword));
 
       // Prompt for the dialog
@@ -1204,8 +1204,8 @@ NS_IMETHODIMP nsMsgNewsFolder::ForgetAuthenticationCredentials() {
 // change order of subfolders (newsgroups)
 // aOrientation = -1 ... aNewsgroupToMove aRefNewsgroup ...
 // aOrientation =  1 ... aRefNewsgroup aNewsgroupToMove ...
-NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder *aNewsgroupToMove,
-                                          nsIMsgFolder *aRefNewsgroup,
+NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder* aNewsgroupToMove,
+                                          nsIMsgFolder* aRefNewsgroup,
                                           int32_t aOrientation) {
   // if folders are identical do nothing
   if (aNewsgroupToMove == aRefNewsgroup) return NS_OK;
@@ -1267,12 +1267,12 @@ NS_IMETHODIMP nsMsgNewsFolder::MoveFolder(nsIMsgFolder *aNewsgroupToMove,
   return rv;
 }
 
-nsresult nsMsgNewsFolder::CreateBaseMessageURI(const nsACString &aURI) {
+nsresult nsMsgNewsFolder::CreateBaseMessageURI(const nsACString& aURI) {
   return nsCreateNewsBaseMessageURI(nsCString(aURI).get(), mBaseMessageURI);
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetNewsrcLine(nsACString &newsrcLine) {
+nsMsgNewsFolder::GetNewsrcLine(nsACString& newsrcLine) {
   nsresult rv;
   nsString newsgroupNameUtf16;
   rv = GetName(newsgroupNameUtf16);
@@ -1294,7 +1294,7 @@ nsMsgNewsFolder::GetNewsrcLine(nsACString &newsrcLine) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::SetReadSetFromStr(const nsACString &newsrcLine) {
+NS_IMETHODIMP nsMsgNewsFolder::SetReadSetFromStr(const nsACString& newsrcLine) {
   delete mReadSet;
   mReadSet = nsMsgKeySet::Create(nsCString(newsrcLine).get());
   NS_ENSURE_TRUE(mReadSet, NS_ERROR_OUT_OF_MEMORY);
@@ -1308,27 +1308,27 @@ NS_IMETHODIMP nsMsgNewsFolder::SetReadSetFromStr(const nsACString &newsrcLine) {
 
 NS_IMETHODIMP
 nsMsgNewsFolder::GetUnsubscribedNewsgroupLines(
-    nsACString &aUnsubscribedNewsgroupLines) {
+    nsACString& aUnsubscribedNewsgroupLines) {
   aUnsubscribedNewsgroupLines = mUnsubscribedNewsgroupLines;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetOptionLines(nsACString &optionLines) {
+nsMsgNewsFolder::GetOptionLines(nsACString& optionLines) {
   optionLines = mOptionLines;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::OnReadChanged(nsIDBChangeListener *aInstigator) {
+nsMsgNewsFolder::OnReadChanged(nsIDBChangeListener* aInstigator) {
   return SetNewsrcHasChanged(true);
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetUnicodeName(nsAString &aName) { return GetName(aName); }
+nsMsgNewsFolder::GetUnicodeName(nsAString& aName) { return GetName(aName); }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetRawName(nsACString &aRawName) {
+nsMsgNewsFolder::GetRawName(nsACString& aRawName) {
   nsresult rv;
   if (mRawName.IsEmpty()) {
     nsString name;
@@ -1352,7 +1352,7 @@ nsMsgNewsFolder::GetRawName(nsACString &aRawName) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetNntpServer(nsINntpIncomingServer **result) {
+nsMsgNewsFolder::GetNntpServer(nsINntpIncomingServer** result) {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(result);
 
@@ -1385,7 +1385,7 @@ NS_IMETHODIMP nsMsgNewsFolder::RemoveMessage(nsMsgKey key) {
   return mDatabase->DeleteMessage(key, nullptr, false);
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(nsTArray<nsMsgKey> &aMsgKeys) {
+NS_IMETHODIMP nsMsgNewsFolder::RemoveMessages(nsTArray<nsMsgKey>& aMsgKeys) {
   nsresult rv = GetDatabase();
   NS_ENSURE_SUCCESS(rv,
                     rv);  // if GetDatabase succeeds, mDatabase will be non-null
@@ -1414,7 +1414,7 @@ NS_IMETHODIMP nsMsgNewsFolder::CancelFailed() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetSaveArticleOffline(bool *aBool) {
+NS_IMETHODIMP nsMsgNewsFolder::GetSaveArticleOffline(bool* aBool) {
   NS_ENSURE_ARG(aBool);
   *aBool = m_downloadMessageForOfflineUse;
   return NS_OK;
@@ -1425,8 +1425,8 @@ NS_IMETHODIMP nsMsgNewsFolder::SetSaveArticleOffline(bool aBool) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener *listener,
-                                                     nsIMsgWindow *msgWindow) {
+NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener* listener,
+                                                     nsIMsgWindow* msgWindow) {
   nsTArray<nsMsgKey> srcKeyArray;
   SetSaveArticleOffline(true);
   nsresult rv = NS_OK;
@@ -1462,7 +1462,7 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadAllForOffline(nsIUrlListener *listener,
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
-    nsIArray *messages, nsIMsgWindow *window) {
+    nsIArray* messages, nsIMsgWindow* window) {
   nsTArray<nsMsgKey> srcKeyArray;
   SetSaveArticleOffline(
       true);  // ### TODO need to clear this when we've finished
@@ -1488,7 +1488,7 @@ NS_IMETHODIMP nsMsgNewsFolder::DownloadMessagesForOffline(
 }
 
 // line does not have a line terminator (e.g., CR or CRLF)
-NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadedLine(const char *line,
+NS_IMETHODIMP nsMsgNewsFolder::NotifyDownloadedLine(const char* line,
                                                     nsMsgKey keyOfArticle) {
   nsresult rv = NS_OK;
   if (m_downloadMessageForOfflineUse) {
@@ -1540,8 +1540,8 @@ NS_IMETHODIMP nsMsgNewsFolder::NotifyFinishedDownloadinghdrs() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::Compact(nsIUrlListener *aListener,
-                                       nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsMsgNewsFolder::Compact(nsIUrlListener* aListener,
+                                       nsIMsgWindow* aMsgWindow) {
   nsresult rv;
   rv = GetDatabase();
   if (mDatabase) ApplyRetentionSettings();
@@ -1555,7 +1555,7 @@ nsMsgNewsFolder::ApplyRetentionSettings() {
 }
 
 NS_IMETHODIMP nsMsgNewsFolder::GetMessageIdForKey(nsMsgKey key,
-                                                  nsACString &result) {
+                                                  nsACString& result) {
   nsresult rv = GetDatabase();
   if (!mDatabase) return rv;
   nsCOMPtr<nsIMsgDBHdr> hdr;
@@ -1576,7 +1576,7 @@ NS_IMETHODIMP nsMsgNewsFolder::SetSortOrder(int32_t order) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgNewsFolder::GetSortOrder(int32_t *order) {
+NS_IMETHODIMP nsMsgNewsFolder::GetSortOrder(int32_t* order) {
   NS_ENSURE_ARG_POINTER(order);
   *order = mSortOrder;
   return NS_OK;
@@ -1603,7 +1603,7 @@ NS_IMETHODIMP nsMsgNewsFolder::Shutdown(bool shutdownChildren) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::SetFilterList(nsIMsgFilterList *aFilterList) {
+nsMsgNewsFolder::SetFilterList(nsIMsgFilterList* aFilterList) {
   if (mIsServer) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     nsresult rv = GetServer(getter_AddRefs(server));
@@ -1616,8 +1616,8 @@ nsMsgNewsFolder::SetFilterList(nsIMsgFilterList *aFilterList) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetFilterList(nsIMsgWindow *aMsgWindow,
-                               nsIMsgFilterList **aResult) {
+nsMsgNewsFolder::GetFilterList(nsIMsgWindow* aMsgWindow,
+                               nsIMsgFilterList** aResult) {
   if (mIsServer) {
     nsCOMPtr<nsIMsgIncomingServer> server;
     nsresult rv = GetServer(getter_AddRefs(server));
@@ -1670,19 +1670,19 @@ nsMsgNewsFolder::GetFilterList(nsIMsgWindow *aMsgWindow,
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetEditableFilterList(nsIMsgWindow *aMsgWindow,
-                                       nsIMsgFilterList **aResult) {
+nsMsgNewsFolder::GetEditableFilterList(nsIMsgWindow* aMsgWindow,
+                                       nsIMsgFilterList** aResult) {
   // We don't support pluggable filter list types for news.
   return GetFilterList(aMsgWindow, aResult);
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::SetEditableFilterList(nsIMsgFilterList *aFilterList) {
+nsMsgNewsFolder::SetEditableFilterList(nsIMsgFilterList* aFilterList) {
   return SetFilterList(aFilterList);
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
+nsMsgNewsFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   if (m_tempMessageStream) {
     m_tempMessageStream->Close();
     m_tempMessageStream = nullptr;
@@ -1692,7 +1692,7 @@ nsMsgNewsFolder::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
 }
 
 NS_IMETHODIMP
-nsMsgNewsFolder::GetIncomingServerType(nsACString &serverType) {
+nsMsgNewsFolder::GetIncomingServerType(nsACString& serverType) {
   serverType.AssignLiteral("nntp");
   return NS_OK;
 }

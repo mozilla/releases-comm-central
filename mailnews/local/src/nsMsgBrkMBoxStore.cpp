@@ -47,7 +47,7 @@ nsMsgBrkMBoxStore::~nsMsgBrkMBoxStore() {}
 
 NS_IMPL_ISUPPORTS(nsMsgBrkMBoxStore, nsIMsgPluggableStore)
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder *aParentFolder,
+NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder* aParentFolder,
                                                     bool aDeep) {
   NS_ENSURE_ARG_POINTER(aParentFolder);
 
@@ -65,9 +65,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DiscoverSubFolders(nsIMsgFolder *aParentFolder,
   return AddSubFolders(aParentFolder, path, aDeep);
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder *aParent,
-                                              const nsAString &aFolderName,
-                                              nsIMsgFolder **aResult) {
+NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder* aParent,
+                                              const nsAString& aFolderName,
+                                              nsIMsgFolder** aResult) {
   NS_ENSURE_ARG_POINTER(aParent);
   NS_ENSURE_ARG_POINTER(aResult);
   if (aFolderName.IsEmpty()) return NS_MSG_ERROR_INVALID_FOLDER_NAME;
@@ -131,9 +131,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CreateFolder(nsIMsgFolder *aParent,
 }
 
 // Get the current attributes of the mbox file, corrected for caching
-void nsMsgBrkMBoxStore::GetMailboxModProperties(nsIMsgFolder *aFolder,
-                                                int64_t *aSize,
-                                                uint32_t *aDate) {
+void nsMsgBrkMBoxStore::GetMailboxModProperties(nsIMsgFolder* aFolder,
+                                                int64_t* aSize,
+                                                uint32_t* aDate) {
   // We'll simply return 0 on errors.
   *aDate = 0;
   *aSize = 0;
@@ -151,9 +151,9 @@ void nsMsgBrkMBoxStore::GetMailboxModProperties(nsIMsgFolder *aFolder,
   *aDate = (uint32_t)(lastModTime / PR_MSEC_PER_SEC);
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::HasSpaceAvailable(nsIMsgFolder *aFolder,
+NS_IMETHODIMP nsMsgBrkMBoxStore::HasSpaceAvailable(nsIMsgFolder* aFolder,
                                                    int64_t aSpaceRequested,
-                                                   bool *aResult) {
+                                                   bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_ARG_POINTER(aFolder);
 
@@ -183,9 +183,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::HasSpaceAvailable(nsIMsgFolder *aFolder,
 static bool gGotGlobalPrefs = false;
 static int32_t gTimeStampLeeway = 60;
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::IsSummaryFileValid(nsIMsgFolder *aFolder,
-                                                    nsIMsgDatabase *aDB,
-                                                    bool *aResult) {
+NS_IMETHODIMP nsMsgBrkMBoxStore::IsSummaryFileValid(nsIMsgFolder* aFolder,
+                                                    nsIMsgDatabase* aDB,
+                                                    bool* aResult) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aDB);
   NS_ENSURE_ARG_POINTER(aResult);
@@ -240,8 +240,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::IsSummaryFileValid(nsIMsgFolder *aFolder,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::SetSummaryFileValid(nsIMsgFolder *aFolder,
-                                                     nsIMsgDatabase *aDB,
+NS_IMETHODIMP nsMsgBrkMBoxStore::SetSummaryFileValid(nsIMsgFolder* aFolder,
+                                                     nsIMsgDatabase* aDB,
                                                      bool aValid) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aDB);
@@ -272,7 +272,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::SetSummaryFileValid(nsIMsgFolder *aFolder,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteFolder(nsIMsgFolder *aFolder) {
+NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteFolder(nsIMsgFolder* aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
   bool exists;
 
@@ -300,9 +300,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteFolder(nsIMsgFolder *aFolder) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder *aFolder,
-                                              const nsAString &aNewName,
-                                              nsIMsgFolder **aNewFolder) {
+NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder* aFolder,
+                                              const nsAString& aNewName,
+                                              nsIMsgFolder** aNewFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aNewFolder);
 
@@ -371,9 +371,9 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RenameFolder(nsIMsgFolder *aFolder,
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
-    nsIMsgFolder *aSrcFolder, nsIMsgFolder *aDstFolder, bool aIsMoveFolder,
-    nsIMsgWindow *aMsgWindow, nsIMsgCopyServiceListener *aListener,
-    const nsAString &aNewName) {
+    nsIMsgFolder* aSrcFolder, nsIMsgFolder* aDstFolder, bool aIsMoveFolder,
+    nsIMsgWindow* aMsgWindow, nsIMsgCopyServiceListener* aListener,
+    const nsAString& aNewName) {
   NS_ENSURE_ARG_POINTER(aSrcFolder);
   NS_ENSURE_ARG_POINTER(aDstFolder);
 
@@ -555,10 +555,10 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CopyFolder(
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder *aFolder,
-                                         nsIMsgDBHdr **aNewMsgHdr,
-                                         bool *aReusable,
-                                         nsIOutputStream **aResult) {
+nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder* aFolder,
+                                         nsIMsgDBHdr** aNewMsgHdr,
+                                         bool* aReusable,
+                                         nsIOutputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aNewMsgHdr);
   NS_ENSURE_ARG_POINTER(aReusable);
@@ -625,8 +625,8 @@ nsMsgBrkMBoxStore::GetNewMsgOutputStream(nsIMsgFolder *aFolder,
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream *aOutputStream,
-                                     nsIMsgDBHdr *aNewHdr) {
+nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream* aOutputStream,
+                                     nsIMsgDBHdr* aNewHdr) {
   NS_ENSURE_ARG_POINTER(aOutputStream);
   NS_ENSURE_ARG_POINTER(aNewHdr);
 #ifdef _DEBUG
@@ -645,8 +645,8 @@ nsMsgBrkMBoxStore::DiscardNewMessage(nsIOutputStream *aOutputStream,
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream *aOutputStream,
-                                    nsIMsgDBHdr *aNewHdr) {
+nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream* aOutputStream,
+                                    nsIMsgDBHdr* aNewHdr) {
 #ifdef _DEBUG
   m_streamOutstandingFolder = nullptr;
 #endif
@@ -656,9 +656,9 @@ nsMsgBrkMBoxStore::FinishNewMessage(nsIOutputStream *aOutputStream,
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aNewHdr,
-                                              nsIMsgFolder *aDestFolder,
-                                              bool *aResult) {
+nsMsgBrkMBoxStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr* aNewHdr,
+                                              nsIMsgFolder* aDestFolder,
+                                              bool* aResult) {
   NS_ENSURE_ARG_POINTER(aNewHdr);
   NS_ENSURE_ARG_POINTER(aDestFolder);
   NS_ENSURE_ARG_POINTER(aResult);
@@ -667,11 +667,11 @@ nsMsgBrkMBoxStore::MoveNewlyDownloadedMessage(nsIMsgDBHdr *aNewHdr,
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
-                                     const nsACString &aMsgToken,
-                                     int64_t *aOffset, nsIMsgDBHdr *aMsgHdr,
-                                     bool *aReusable,
-                                     nsIInputStream **aResult) {
+nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder* aMsgFolder,
+                                     const nsACString& aMsgToken,
+                                     int64_t* aOffset, nsIMsgDBHdr* aMsgHdr,
+                                     bool* aReusable,
+                                     nsIInputStream** aResult) {
   NS_ENSURE_ARG_POINTER(aMsgFolder);
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_ARG_POINTER(aOffset);
@@ -695,17 +695,17 @@ nsMsgBrkMBoxStore::GetMsgInputStream(nsIMsgFolder *aMsgFolder,
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::DeleteMessages(
-    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray) {
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray) {
   return ChangeFlags(aHdrArray, nsMsgMessageFlags::Expunged, true);
 }
 
 NS_IMETHODIMP
 nsMsgBrkMBoxStore::CopyMessages(bool isMove,
-                                const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray,
-                                nsIMsgFolder *aDstFolder,
-                                nsIMsgCopyServiceListener *aListener,
-                                nsTArray<RefPtr<nsIMsgDBHdr>> &aDstHdrs,
-                                nsITransaction **aUndoAction, bool *aCopyDone) {
+                                const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray,
+                                nsIMsgFolder* aDstFolder,
+                                nsIMsgCopyServiceListener* aListener,
+                                nsTArray<RefPtr<nsIMsgDBHdr>>& aDstHdrs,
+                                nsITransaction** aUndoAction, bool* aCopyDone) {
   NS_ENSURE_ARG_POINTER(aDstFolder);
   NS_ENSURE_ARG_POINTER(aCopyDone);
   aDstHdrs.Clear();
@@ -717,15 +717,15 @@ nsMsgBrkMBoxStore::CopyMessages(bool isMove,
 }
 
 NS_IMETHODIMP
-nsMsgBrkMBoxStore::GetSupportsCompaction(bool *aSupportsCompaction) {
+nsMsgBrkMBoxStore::GetSupportsCompaction(bool* aSupportsCompaction) {
   NS_ENSURE_ARG_POINTER(aSupportsCompaction);
   *aSupportsCompaction = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::CompactFolder(nsIMsgFolder *aFolder,
-                                               nsIUrlListener *aListener,
-                                               nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsMsgBrkMBoxStore::CompactFolder(nsIMsgFolder* aFolder,
+                                               nsIUrlListener* aListener,
+                                               nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aFolder);
   nsresult rv;
   nsCOMPtr<nsIMsgFolderCompactor> folderCompactor =
@@ -740,10 +740,10 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::CompactFolder(nsIMsgFolder *aFolder,
              : aFolder->NotifyCompactCompleted();
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder *aFolder,
-                                              nsIMsgDatabase *aMsgDB,
-                                              nsIMsgWindow *aMsgWindow,
-                                              nsIUrlListener *aListener) {
+NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder* aFolder,
+                                              nsIMsgDatabase* aMsgDB,
+                                              nsIMsgWindow* aMsgWindow,
+                                              nsIUrlListener* aListener) {
   NS_ENSURE_ARG_POINTER(aFolder);
   nsCOMPtr<nsIFile> pathFile;
   nsresult rv = aFolder->GetFilePath(getter_AddRefs(pathFile));
@@ -772,8 +772,8 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::RebuildIndex(nsIMsgFolder *aFolder,
 }
 
 nsresult nsMsgBrkMBoxStore::GetOutputStream(
-    nsIMsgDBHdr *aHdr, nsCOMPtr<nsIOutputStream> &outputStream,
-    nsCOMPtr<nsISeekableStream> &seekableStream, int64_t &restorePos) {
+    nsIMsgDBHdr* aHdr, nsCOMPtr<nsIOutputStream>& outputStream,
+    nsCOMPtr<nsISeekableStream>& seekableStream, int64_t& restorePos) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = aHdr->GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -799,7 +799,7 @@ nsresult nsMsgBrkMBoxStore::GetOutputStream(
   return rv;
 }
 
-void nsMsgBrkMBoxStore::SetDBValid(nsIMsgDBHdr *aHdr) {
+void nsMsgBrkMBoxStore::SetDBValid(nsIMsgDBHdr* aHdr) {
   nsCOMPtr<nsIMsgFolder> folder;
   aHdr->GetFolder(getter_AddRefs(folder));
   if (folder) {
@@ -810,7 +810,7 @@ void nsMsgBrkMBoxStore::SetDBValid(nsIMsgDBHdr *aHdr) {
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
-    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray, uint32_t aFlags,
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray, uint32_t aFlags,
     bool aSet) {
   if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
@@ -839,7 +839,7 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeFlags(
 }
 
 NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
-    const nsTArray<RefPtr<nsIMsgDBHdr>> &aHdrArray, const nsACString &aKeywords,
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aHdrArray, const nsACString& aKeywords,
     bool aAdd) {
   if (aHdrArray.IsEmpty()) return NS_ERROR_INVALID_ARG;
 
@@ -895,15 +895,15 @@ NS_IMETHODIMP nsMsgBrkMBoxStore::ChangeKeywords(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBrkMBoxStore::GetStoreType(nsACString &aType) {
+NS_IMETHODIMP nsMsgBrkMBoxStore::GetStoreType(nsACString& aType) {
   aType.AssignLiteral("mbox");
   return NS_OK;
 }
 
 // Iterates over the files in the "path" directory, and adds subfolders to
 // parent for each mailbox file found.
-nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent,
-                                          nsCOMPtr<nsIFile> &path, bool deep) {
+nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder* parent,
+                                          nsCOMPtr<nsIFile>& path, bool deep) {
   nsresult rv;
   nsCOMPtr<nsIFile> tmp;  // at top level so we can safely assign to path
   bool isDirectory;
@@ -973,7 +973,7 @@ nsresult nsMsgBrkMBoxStore::AddSubFolders(nsIMsgFolder *parent,
    c:\Inbox, it will return c:\Inbox.sbd if it succeeds.  If that path doesn't
    currently exist then it will create it. Path is strictly an out parameter.
   */
-nsresult nsMsgBrkMBoxStore::CreateDirectoryForFolder(nsIFile *path) {
+nsresult nsMsgBrkMBoxStore::CreateDirectoryForFolder(nsIFile* path) {
   nsresult rv = NS_OK;
 
   bool pathIsDirectory = false;

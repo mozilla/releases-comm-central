@@ -29,11 +29,11 @@ nsMsgXFVirtualFolderDBView::nsMsgXFVirtualFolderDBView() {
 nsMsgXFVirtualFolderDBView::~nsMsgXFVirtualFolderDBView() {}
 
 NS_IMETHODIMP
-nsMsgXFVirtualFolderDBView::Open(nsIMsgFolder *folder,
+nsMsgXFVirtualFolderDBView::Open(nsIMsgFolder* folder,
                                  nsMsgViewSortTypeValue sortType,
                                  nsMsgViewSortOrderValue sortOrder,
                                  nsMsgViewFlagsTypeValue viewFlags,
-                                 int32_t *pCount) {
+                                 int32_t* pCount) {
   m_viewFolder = folder;
   return nsMsgSearchDBView::Open(folder, sortType, sortOrder, viewFlags,
                                  pCount);
@@ -56,11 +56,11 @@ nsMsgXFVirtualFolderDBView::Close() {
 }
 
 NS_IMETHODIMP
-nsMsgXFVirtualFolderDBView::CloneDBView(nsIMessenger *aMessengerInstance,
-                                        nsIMsgWindow *aMsgWindow,
-                                        nsIMsgDBViewCommandUpdater *aCmdUpdater,
-                                        nsIMsgDBView **_retval) {
-  nsMsgXFVirtualFolderDBView *newMsgDBView = new nsMsgXFVirtualFolderDBView();
+nsMsgXFVirtualFolderDBView::CloneDBView(nsIMessenger* aMessengerInstance,
+                                        nsIMsgWindow* aMsgWindow,
+                                        nsIMsgDBViewCommandUpdater* aCmdUpdater,
+                                        nsIMsgDBView** _retval) {
+  nsMsgXFVirtualFolderDBView* newMsgDBView = new nsMsgXFVirtualFolderDBView();
   nsresult rv =
       CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -71,13 +71,13 @@ nsMsgXFVirtualFolderDBView::CloneDBView(nsIMessenger *aMessengerInstance,
 
 NS_IMETHODIMP
 nsMsgXFVirtualFolderDBView::CopyDBView(
-    nsMsgDBView *aNewMsgDBView, nsIMessenger *aMessengerInstance,
-    nsIMsgWindow *aMsgWindow, nsIMsgDBViewCommandUpdater *aCmdUpdater) {
+    nsMsgDBView* aNewMsgDBView, nsIMessenger* aMessengerInstance,
+    nsIMsgWindow* aMsgWindow, nsIMsgDBViewCommandUpdater* aCmdUpdater) {
   nsMsgSearchDBView::CopyDBView(aNewMsgDBView, aMessengerInstance, aMsgWindow,
                                 aCmdUpdater);
 
-  nsMsgXFVirtualFolderDBView *newMsgDBView =
-      (nsMsgXFVirtualFolderDBView *)aNewMsgDBView;
+  nsMsgXFVirtualFolderDBView* newMsgDBView =
+      (nsMsgXFVirtualFolderDBView*)aNewMsgDBView;
 
   newMsgDBView->m_viewFolder = m_viewFolder;
   newMsgDBView->m_searchSession = m_searchSession;
@@ -104,13 +104,13 @@ nsMsgXFVirtualFolderDBView::CopyDBView(
 }
 
 NS_IMETHODIMP
-nsMsgXFVirtualFolderDBView::GetViewType(nsMsgViewTypeValue *aViewType) {
+nsMsgXFVirtualFolderDBView::GetViewType(nsMsgViewTypeValue* aViewType) {
   NS_ENSURE_ARG_POINTER(aViewType);
   *aViewType = nsMsgViewType::eShowVirtualFolderResults;
   return NS_OK;
 }
 
-nsresult nsMsgXFVirtualFolderDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
+nsresult nsMsgXFVirtualFolderDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
                                                  nsMsgKey aParentKey,
                                                  bool /*ensureListed*/) {
   if (newHdr) {
@@ -136,8 +136,8 @@ nsresult nsMsgXFVirtualFolderDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
 
 NS_IMETHODIMP
 nsMsgXFVirtualFolderDBView::OnHdrPropertyChanged(
-    nsIMsgDBHdr *aHdrChanged, bool aPreChange, uint32_t *aStatus,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrChanged, bool aPreChange, uint32_t* aStatus,
+    nsIDBChangeListener* aInstigator) {
   // If the junk mail plugin just activated on a message, then
   // we'll allow filters to remove from view.
   // Otherwise, just update the view line.
@@ -182,7 +182,7 @@ nsMsgXFVirtualFolderDBView::OnHdrPropertyChanged(
 }
 
 void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForFolder(
-    nsIMsgFolder *folder, nsTArray<nsMsgKey> const &newHits) {
+    nsIMsgFolder* folder, nsTArray<nsMsgKey> const& newHits) {
   nsCOMPtr<nsIMsgDatabase> db;
   nsresult rv = folder->GetMsgDatabase(getter_AddRefs(db));
   if (NS_SUCCEEDED(rv) && db) {
@@ -205,7 +205,7 @@ void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForFolder(
 }
 
 void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForPrevSearchedFolders(
-    nsIMsgFolder *curSearchFolder) {
+    nsIMsgFolder* curSearchFolder) {
   // Handle the most recent folder with hits, if any.
   if (m_curFolderGettingHits) {
     uint32_t count = m_hdrHits.Count();
@@ -235,8 +235,8 @@ void nsMsgXFVirtualFolderDBView::UpdateCacheAndViewForPrevSearchedFolders(
   }
 }
 NS_IMETHODIMP
-nsMsgXFVirtualFolderDBView::OnSearchHit(nsIMsgDBHdr *aMsgHdr,
-                                        nsIMsgFolder *aFolder) {
+nsMsgXFVirtualFolderDBView::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
+                                        nsIMsgFolder* aFolder) {
   NS_ENSURE_ARG(aMsgHdr);
   NS_ENSURE_ARG(aFolder);
 
@@ -296,7 +296,7 @@ nsMsgXFVirtualFolderDBView::OnSearchDone(nsresult status) {
 
   // Set to default in case it is non-imap folder.
   mDeleteModel = nsMsgImapDeleteModels::MoveToTrash;
-  nsIMsgFolder *curFolder = m_folders.SafeObjectAt(0);
+  nsIMsgFolder* curFolder = m_folders.SafeObjectAt(0);
   if (curFolder) GetImapDeleteModel(curFolder);
 
   nsCOMPtr<nsIMsgDatabase> virtDatabase;
@@ -478,7 +478,7 @@ nsMsgXFVirtualFolderDBView::DoCommand(nsMsgViewCommandTypeValue command) {
 }
 
 NS_IMETHODIMP
-nsMsgXFVirtualFolderDBView::GetMsgFolder(nsIMsgFolder **aMsgFolder) {
+nsMsgXFVirtualFolderDBView::GetMsgFolder(nsIMsgFolder** aMsgFolder) {
   NS_ENSURE_ARG_POINTER(aMsgFolder);
   NS_IF_ADDREF(*aMsgFolder = m_viewFolder);
   return NS_OK;
@@ -500,6 +500,6 @@ nsMsgXFVirtualFolderDBView::SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) {
 }
 
 nsresult nsMsgXFVirtualFolderDBView::GetMessageEnumerator(
-    nsISimpleEnumerator **enumerator) {
+    nsISimpleEnumerator** enumerator) {
   return GetViewEnumerator(enumerator);
 }

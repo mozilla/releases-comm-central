@@ -26,19 +26,19 @@ nsNoIncomingServer::nsNoIncomingServer() {}
 nsNoIncomingServer::~nsNoIncomingServer() {}
 
 NS_IMETHODIMP
-nsNoIncomingServer::GetLocalStoreType(nsACString &type) {
+nsNoIncomingServer::GetLocalStoreType(nsACString& type) {
   type.AssignLiteral("mailbox");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoIncomingServer::GetLocalDatabaseType(nsACString &type) {
+nsNoIncomingServer::GetLocalDatabaseType(nsACString& type) {
   type.AssignLiteral("mailbox");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoIncomingServer::GetAccountManagerChrome(nsAString &aResult) {
+nsNoIncomingServer::GetAccountManagerChrome(nsAString& aResult) {
   aResult.AssignLiteral("am-serverwithnoidentities.xhtml");
   return NS_OK;
 }
@@ -62,7 +62,7 @@ nsNoIncomingServer::SetFlagsOnDefaultMailboxes() {
 
 // TODO: make this work with maildir message store, bug 890742.
 NS_IMETHODIMP nsNoIncomingServer::CopyDefaultMessages(
-    const char *folderNameOnDisk) {
+    const char* folderNameOnDisk) {
   NS_ENSURE_ARG(folderNameOnDisk);
 
   nsresult rv;
@@ -148,9 +148,9 @@ NS_IMETHODIMP nsNoIncomingServer::CreateDefaultMailboxes() {
 }
 
 NS_IMETHODIMP
-nsNoIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
-                               nsIUrlListener *aUrlListener,
-                               nsIMsgFolder *aInbox, nsIURI **aResult) {
+nsNoIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
+                               nsIUrlListener* aUrlListener,
+                               nsIMsgFolder* aInbox, nsIURI** aResult) {
   nsTArray<RefPtr<nsIPop3IncomingServer>> deferredServers;
   nsresult rv = GetDeferredServers(this, deferredServers);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -165,7 +165,7 @@ nsNoIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
 }
 
 NS_IMETHODIMP
-nsNoIncomingServer::GetCanSearchMessages(bool *canSearchMessages) {
+nsNoIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   NS_ENSURE_ARG_POINTER(canSearchMessages);
   *canSearchMessages = true;
   return NS_OK;
@@ -173,7 +173,7 @@ nsNoIncomingServer::GetCanSearchMessages(bool *canSearchMessages) {
 
 NS_IMETHODIMP
 nsNoIncomingServer::GetServerRequiresPasswordForBiff(
-    bool *aServerRequiresPasswordForBiff) {
+    bool* aServerRequiresPasswordForBiff) {
   NS_ENSURE_ARG_POINTER(aServerRequiresPasswordForBiff);
   *aServerRequiresPasswordForBiff =
       false;  // for local folders, we don't require a password
@@ -181,7 +181,7 @@ nsNoIncomingServer::GetServerRequiresPasswordForBiff(
 }
 
 NS_IMETHODIMP
-nsNoIncomingServer::GetSortOrder(int32_t *aSortOrder) {
+nsNoIncomingServer::GetSortOrder(int32_t* aSortOrder) {
   NS_ENSURE_ARG_POINTER(aSortOrder);
   *aSortOrder = 200000000;
   return NS_OK;

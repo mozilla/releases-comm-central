@@ -27,23 +27,23 @@ class nsMsgFolderCache : public nsIMsgFolderCache {
  protected:
   virtual ~nsMsgFolderCache();
 
-  nsresult GetMDBFactory(nsIMdbFactory **aMdbFactory);
-  nsresult AddCacheElement(const nsACString &key, nsIMdbRow *row,
-                           nsIMsgFolderCacheElement **result);
-  nsresult RowCellColumnToCharPtr(nsIMdbRow *hdrRow, mdb_token columnToken,
-                                  nsACString &resultPtr);
+  nsresult GetMDBFactory(nsIMdbFactory** aMdbFactory);
+  nsresult AddCacheElement(const nsACString& key, nsIMdbRow* row,
+                           nsIMsgFolderCacheElement** result);
+  nsresult RowCellColumnToCharPtr(nsIMdbRow* hdrRow, mdb_token columnToken,
+                                  nsACString& resultPtr);
   nsresult InitMDBInfo();
   nsresult InitNewDB();
   nsresult InitExistingDB();
-  nsresult OpenMDB(const PathString &dbName, bool create);
-  nsIMdbEnv *GetEnv() { return m_mdbEnv; }
-  nsIMdbStore *GetStore() { return m_mdbStore; }
+  nsresult OpenMDB(const PathString& dbName, bool create);
+  nsIMdbEnv* GetEnv() { return m_mdbEnv; }
+  nsIMdbStore* GetStore() { return m_mdbStore; }
   nsInterfaceHashtable<nsCStringHashKey, nsIMsgFolderCacheElement>
       m_cacheElements;
   // mdb stuff
-  nsIMdbEnv *m_mdbEnv;  // to be used in all the db calls.
-  nsIMdbStore *m_mdbStore;
-  nsIMdbTable *m_mdbAllFoldersTable;
+  nsIMdbEnv* m_mdbEnv;  // to be used in all the db calls.
+  nsIMdbStore* m_mdbStore;
+  nsIMdbTable* m_mdbAllFoldersTable;
   mdb_token m_folderRowScopeToken;
   mdb_token m_folderTableKindToken;
   nsCOMPtr<nsIMdbFactory> mMdbFactory;

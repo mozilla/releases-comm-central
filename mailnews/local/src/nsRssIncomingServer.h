@@ -24,23 +24,23 @@ class nsRssIncomingServer : public nsMailboxServer,
   NS_DECL_NSILOCALMAILINCOMINGSERVER
   NS_DECL_NSIMSGFOLDERLISTENER
 
-  NS_IMETHOD GetOfflineSupportLevel(int32_t *aSupportLevel) override;
-  NS_IMETHOD GetSupportsDiskSpace(bool *aSupportsDiskSpace) override;
-  NS_IMETHOD GetAccountManagerChrome(nsAString &aResult) override;
-  NS_IMETHOD PerformBiff(nsIMsgWindow *aMsgWindow) override;
+  NS_IMETHOD GetOfflineSupportLevel(int32_t* aSupportLevel) override;
+  NS_IMETHOD GetSupportsDiskSpace(bool* aSupportsDiskSpace) override;
+  NS_IMETHOD GetAccountManagerChrome(nsAString& aResult) override;
+  NS_IMETHOD PerformBiff(nsIMsgWindow* aMsgWindow) override;
   NS_IMETHOD GetServerRequiresPasswordForBiff(
-      bool *aServerRequiresPasswordForBiff) override;
-  NS_IMETHOD GetCanSearchMessages(bool *canSearchMessages) override;
-  NS_IMETHOD GetSortOrder(int32_t *aSortOrder) override;
+      bool* aServerRequiresPasswordForBiff) override;
+  NS_IMETHOD GetCanSearchMessages(bool* canSearchMessages) override;
+  NS_IMETHOD GetSortOrder(int32_t* aSortOrder) override;
 
   nsRssIncomingServer();
 
  protected:
   virtual ~nsRssIncomingServer();
-  nsresult FolderChanged(nsIMsgFolder *aFolder, nsIMsgFolder *aOrigFolder,
-                         const char *aAction);
-  nsresult FillInDataSourcePath(const nsAString &aDataSourceName,
-                                nsIFile **aLocation);
+  nsresult FolderChanged(nsIMsgFolder* aFolder, nsIMsgFolder* aOrigFolder,
+                         const char* aAction);
+  nsresult FillInDataSourcePath(const nsAString& aDataSourceName,
+                                nsIFile** aLocation);
   static nsrefcnt gInstanceCount;
 };
 

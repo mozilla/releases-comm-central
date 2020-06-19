@@ -27,21 +27,21 @@ class nsMimeObjectClassAccess : public nsIMimeObjectClassAccess {
   // content type handler plugins for processing stream data.
 
   // This is the write call for outputting processed stream data.
-  NS_IMETHOD MimeObjectWrite(void *mimeObject, char *data, int32_t length,
+  NS_IMETHOD MimeObjectWrite(void* mimeObject, char* data, int32_t length,
                              bool user_visible_p) override;
 
   // The following group of calls expose the pointers for the object
   // system within libmime.
-  NS_IMETHOD GetmimeInlineTextClass(void **ptr) override;
-  NS_IMETHOD GetmimeLeafClass(void **ptr) override;
-  NS_IMETHOD GetmimeObjectClass(void **ptr) override;
-  NS_IMETHOD GetmimeContainerClass(void **ptr) override;
-  NS_IMETHOD GetmimeMultipartClass(void **ptr) override;
-  NS_IMETHOD GetmimeMultipartSignedClass(void **ptr) override;
-  NS_IMETHOD GetmimeEncryptedClass(void **ptr) override;
+  NS_IMETHOD GetmimeInlineTextClass(void** ptr) override;
+  NS_IMETHOD GetmimeLeafClass(void** ptr) override;
+  NS_IMETHOD GetmimeObjectClass(void** ptr) override;
+  NS_IMETHOD GetmimeContainerClass(void** ptr) override;
+  NS_IMETHOD GetmimeMultipartClass(void** ptr) override;
+  NS_IMETHOD GetmimeMultipartSignedClass(void** ptr) override;
+  NS_IMETHOD GetmimeEncryptedClass(void** ptr) override;
 
-  NS_IMETHOD MimeCreate(char *content_type, void *hdrs, void *opts,
-                        void **ptr) override;
+  NS_IMETHOD MimeCreate(char* content_type, void* hdrs, void* opts,
+                        void** ptr) override;
 
  private:
   virtual ~nsMimeObjectClassAccess();

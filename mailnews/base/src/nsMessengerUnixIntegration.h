@@ -40,23 +40,23 @@ class nsMessengerUnixIntegration : public nsIFolderListener,
 
  private:
   virtual ~nsMessengerUnixIntegration() {}
-  nsresult ShowAlertMessage(const nsAString &aAlertTitle,
-                            const nsAString &aAlertText,
-                            const nsACString &aFolderURI);
-  nsresult GetFirstFolderWithNewMail(nsACString &aFolderURI);
-  nsresult GetStringBundle(nsIStringBundle **aBundle);
+  nsresult ShowAlertMessage(const nsAString& aAlertTitle,
+                            const nsAString& aAlertText,
+                            const nsACString& aFolderURI);
+  nsresult GetFirstFolderWithNewMail(nsACString& aFolderURI);
+  nsresult GetStringBundle(nsIStringBundle** aBundle);
   nsresult AlertFinished();
   nsresult AlertClicked();
   void FillToolTipInfo();
-  nsresult GetMRUTimestampForFolder(nsIMsgFolder *aFolder,
-                                    uint32_t *aLastMRUTime);
+  nsresult GetMRUTimestampForFolder(nsIMsgFolder* aFolder,
+                                    uint32_t* aLastMRUTime);
 
-  bool BuildNotificationBody(nsIMsgDBHdr *aHdr, nsIStringBundle *Bundle,
-                             nsString &aBody);
-  bool BuildNotificationTitle(nsIMsgFolder *aFolder, nsIStringBundle *aBundle,
-                              nsString &aTitle);
+  bool BuildNotificationBody(nsIMsgDBHdr* aHdr, nsIStringBundle* Bundle,
+                             nsString& aBody);
+  bool BuildNotificationTitle(nsIMsgFolder* aFolder, nsIStringBundle* aBundle,
+                              nsString& aTitle);
   nsresult ShowNewAlertNotification(bool aUserInitiated);
-  nsresult PutMRUTimestampForFolder(nsIMsgFolder *aFolder,
+  nsresult PutMRUTimestampForFolder(nsIMsgFolder* aFolder,
                                     uint32_t aLastMRUTime);
 
   nsCOMPtr<nsIMutableArray>

@@ -16,12 +16,12 @@
 MimeDefClass(MimeInlineTextHTML, MimeInlineTextHTMLClass,
              mimeInlineTextHTMLClass, &MIME_SUPERCLASS);
 
-static int MimeInlineTextHTML_parse_line(const char *, int32_t, MimeObject *);
-static int MimeInlineTextHTML_parse_eof(MimeObject *, bool);
-static int MimeInlineTextHTML_parse_begin(MimeObject *obj);
+static int MimeInlineTextHTML_parse_line(const char*, int32_t, MimeObject*);
+static int MimeInlineTextHTML_parse_eof(MimeObject*, bool);
+static int MimeInlineTextHTML_parse_begin(MimeObject* obj);
 
-static int MimeInlineTextHTMLClassInitialize(MimeInlineTextHTMLClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
+static int MimeInlineTextHTMLClassInitialize(MimeInlineTextHTMLClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   PR_ASSERT(!oclass->class_initialized);
   oclass->parse_begin = MimeInlineTextHTML_parse_begin;
   oclass->parse_line = MimeInlineTextHTML_parse_line;
@@ -30,8 +30,8 @@ static int MimeInlineTextHTMLClassInitialize(MimeInlineTextHTMLClass *clazz) {
   return 0;
 }
 
-static int MimeInlineTextHTML_parse_begin(MimeObject *obj) {
-  int status = ((MimeObjectClass *)&mimeLeafClass)->parse_begin(obj);
+static int MimeInlineTextHTML_parse_begin(MimeObject* obj) {
+  int status = ((MimeObjectClass*)&mimeLeafClass)->parse_begin(obj);
   if (status < 0) return status;
 
   if (!obj->output_p) return 0;
@@ -39,7 +39,7 @@ static int MimeInlineTextHTML_parse_begin(MimeObject *obj) {
   status = MimeObject_write_separator(obj);
   if (status < 0) return status;
 
-  MimeInlineTextHTML *textHTML = (MimeInlineTextHTML *)obj;
+  MimeInlineTextHTML* textHTML = (MimeInlineTextHTML*)obj;
 
   textHTML->charset = nullptr;
 
@@ -48,7 +48,7 @@ static int MimeInlineTextHTML_parse_begin(MimeObject *obj) {
    that Content-Base header into a <BASE> tag in the HTML.
   */
   if (obj->options && obj->options->write_html_p && obj->options->output_fn) {
-    char *base_hdr =
+    char* base_hdr =
         MimeHeaders_get(obj->headers, HEADER_CONTENT_BASE, false, false);
 
     /* rhp - for MHTML Spec changes!!! */
@@ -60,9 +60,9 @@ static int MimeInlineTextHTML_parse_begin(MimeObject *obj) {
 
     if (base_hdr) {
       uint32_t buflen = strlen(base_hdr) + 20;
-      char *buf = (char *)PR_MALLOC(buflen);
-      const char *in;
-      char *out;
+      char* buf = (char*)PR_MALLOC(buflen);
+      const char* in;
+      char* out;
       if (!buf) return MIME_OUT_OF_MEMORY;
 
       /* The value of the Content-Base header is a number of "words".
@@ -94,25 +94,25 @@ static int MimeInlineTextHTML_parse_begin(MimeObject *obj) {
   return 0;
 }
 
-static int MimeInlineTextHTML_parse_line(const char *line, int32_t length,
-                                         MimeObject *obj) {
-  MimeInlineTextHTML *textHTML = (MimeInlineTextHTML *)obj;
+static int MimeInlineTextHTML_parse_line(const char* line, int32_t length,
+                                         MimeObject* obj) {
+  MimeInlineTextHTML* textHTML = (MimeInlineTextHTML*)obj;
 
   if (!obj->output_p) return 0;
 
   if (!obj->options || !obj->options->output_fn) return 0;
 
   if (!textHTML->charset) {
-    char *cp;
+    char* cp;
     // First, try to detect a charset via a META tag!
     if ((cp = PL_strncasestr(line, "META", length)) &&
         (cp = PL_strncasestr(cp, "HTTP-EQUIV=", length - (int)(cp - line))) &&
         (cp = PL_strncasestr(cp, "CONTENT=", length - (int)(cp - line))) &&
         (cp = PL_strncasestr(cp, "CHARSET=", length - (int)(cp - line)))) {
-      char *cp1 = cp + 8;  // 8 for the length of "CHARSET="
-      char *cp2 = PL_strnpbrk(cp1, " \"\'", length - (int)(cp1 - line));
+      char* cp1 = cp + 8;  // 8 for the length of "CHARSET="
+      char* cp2 = PL_strnpbrk(cp1, " \"\'", length - (int)(cp1 - line));
       if (cp2) {
-        char *charset = PL_strndup(cp1, (int)(cp2 - cp1));
+        char* charset = PL_strndup(cp1, (int)(cp2 - cp1));
 
         // Fix bug 101434, in this case since this parsing is a char*
         // operation, a real UTF-16 or UTF-32 document won't be parse
@@ -143,15 +143,15 @@ static int MimeInlineTextHTML_parse_line(const char *line, int32_t length,
   return MimeObject_write(obj, line, length, true);
 }
 
-static int MimeInlineTextHTML_parse_eof(MimeObject *obj, bool abort_p) {
+static int MimeInlineTextHTML_parse_eof(MimeObject* obj, bool abort_p) {
   int status;
-  MimeInlineTextHTML *textHTML = (MimeInlineTextHTML *)obj;
+  MimeInlineTextHTML* textHTML = (MimeInlineTextHTML*)obj;
   if (obj->closed_p) return 0;
 
   PR_FREEIF(textHTML->charset);
 
   /* Run parent method first, to flush out any buffered data. */
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0) return status;
 
   return 0;
@@ -162,7 +162,7 @@ static int MimeInlineTextHTML_parse_eof(MimeObject *obj, bool abort_p) {
  * <div class="moz-text-html"> as the first tag following the <body> tag in the
  * serialised HTML of a message. This becomes a no-op if no <body> tag is found.
  */
-void MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message) {
+void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message) {
   if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay &&
       obj->options->format_out != nsMimeOutput::nsMimeMessagePrintOutput)
     return;
@@ -198,8 +198,8 @@ void MimeInlineTextHTML_insert_lang_div(MimeObject *obj, nsCString &message) {
  * <plaintext> is a funny beast: It leads to everything following it
  * being displayed verbatim, even a </plaintext> tag is ignored.
  */
-void MimeInlineTextHTML_remove_plaintext_tag(MimeObject *obj,
-                                             nsCString &message) {
+void MimeInlineTextHTML_remove_plaintext_tag(MimeObject* obj,
+                                             nsCString& message) {
   if (obj->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay &&
       obj->options->format_out != nsMimeOutput::nsMimeMessagePrintOutput)
     return;

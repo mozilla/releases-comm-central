@@ -37,12 +37,12 @@ struct MimeInlineTextPlainFlowed {
  * Made to contain information to be kept during the whole message parsing.
  */
 struct MimeInlineTextPlainFlowedExData {
-  struct MimeObject *ownerobj; /* The owner of this struct */
+  struct MimeObject* ownerobj; /* The owner of this struct */
   bool inflow;                 /* If we currently are in flow */
   bool fixedwidthfont;         /* If we output text for fixed width font */
   uint32_t quotelevel; /* How deep is your love, uhr, quotelevel I meen. */
   bool isSig;          // we're currently in a signature
-  struct MimeInlineTextPlainFlowedExData *next;
+  struct MimeInlineTextPlainFlowedExData* next;
 };
 
 #define MimeInlineTextPlainFlowedClassInitializer(ITYPE, CSUPER) \

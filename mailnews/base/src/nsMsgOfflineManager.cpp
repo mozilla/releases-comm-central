@@ -46,12 +46,12 @@ nsMsgOfflineManager::nsMsgOfflineManager()
 nsMsgOfflineManager::~nsMsgOfflineManager() {}
 
 /* attribute nsIMsgWindow window; */
-NS_IMETHODIMP nsMsgOfflineManager::GetWindow(nsIMsgWindow **aWindow) {
+NS_IMETHODIMP nsMsgOfflineManager::GetWindow(nsIMsgWindow** aWindow) {
   NS_ENSURE_ARG(aWindow);
   NS_IF_ADDREF(*aWindow = m_window);
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgOfflineManager::SetWindow(nsIMsgWindow *aWindow) {
+NS_IMETHODIMP nsMsgOfflineManager::SetWindow(nsIMsgWindow* aWindow) {
   m_window = aWindow;
   if (m_window)
     m_window->GetStatusFeedback(getter_AddRefs(m_statusFeedback));
@@ -61,7 +61,7 @@ NS_IMETHODIMP nsMsgOfflineManager::SetWindow(nsIMsgWindow *aWindow) {
 }
 
 /* attribute boolean inProgress; */
-NS_IMETHODIMP nsMsgOfflineManager::GetInProgress(bool *aInProgress) {
+NS_IMETHODIMP nsMsgOfflineManager::GetInProgress(bool* aInProgress) {
   NS_ENSURE_ARG(aInProgress);
   *aInProgress = m_inProgress;
   return NS_OK;
@@ -204,7 +204,7 @@ nsresult nsMsgOfflineManager::SendUnsentMessages() {
 
 #define MESSENGER_STRING_URL "chrome://messenger/locale/messenger.properties"
 
-nsresult nsMsgOfflineManager::ShowStatus(const char *statusMsgName) {
+nsresult nsMsgOfflineManager::ShowStatus(const char* statusMsgName) {
   if (!mStringBundle) {
     nsCOMPtr<nsIStringBundleService> sBundleService =
         mozilla::services::GetStringBundleService();
@@ -248,7 +248,7 @@ nsresult nsMsgOfflineManager::DownloadMail() {
 
 NS_IMETHODIMP nsMsgOfflineManager::GoOnline(bool sendUnsentMessages,
                                             bool playbackOfflineImapOperations,
-                                            nsIMsgWindow *aMsgWindow) {
+                                            nsIMsgWindow* aMsgWindow) {
   m_sendUnsentMessages = sendUnsentMessages;
   m_playbackOfflineImapOps = playbackOfflineImapOperations;
   m_curOperation = eGoingOnline;
@@ -264,7 +264,7 @@ NS_IMETHODIMP nsMsgOfflineManager::GoOnline(bool sendUnsentMessages,
 
 NS_IMETHODIMP nsMsgOfflineManager::SynchronizeForOffline(
     bool downloadNews, bool downloadMail, bool sendUnsentMessages,
-    bool goOfflineWhenDone, nsIMsgWindow *aMsgWindow) {
+    bool goOfflineWhenDone, nsIMsgWindow* aMsgWindow) {
   m_curOperation = eDownloadingForOffline;
   m_downloadNews = downloadNews;
   m_downloadMail = downloadMail;
@@ -288,19 +288,19 @@ nsresult nsMsgOfflineManager::SetOnlineState(bool online) {
 // nsIUrlListener methods
 
 NS_IMETHODIMP
-nsMsgOfflineManager::OnStartRunningUrl(nsIURI *aUrl) { return NS_OK; }
+nsMsgOfflineManager::OnStartRunningUrl(nsIURI* aUrl) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMsgOfflineManager::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
+nsMsgOfflineManager::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   mOfflineImapSync = nullptr;
 
   AdvanceToNextState(aExitCode);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgOfflineManager::Observe(nsISupports *aSubject,
-                                           const char *aTopic,
-                                           const char16_t *someData) {
+NS_IMETHODIMP nsMsgOfflineManager::Observe(nsISupports* aSubject,
+                                           const char* aTopic,
+                                           const char16_t* someData) {
   return NS_OK;
 }
 
@@ -313,8 +313,8 @@ nsMsgOfflineManager::OnStartSending(uint32_t aTotalMessageCount) {
 NS_IMETHODIMP
 nsMsgOfflineManager::OnMessageStartSending(uint32_t aCurrentMessage,
                                            uint32_t aTotalMessageCount,
-                                           nsIMsgDBHdr *aMessageHeader,
-                                           nsIMsgIdentity *aIdentity) {
+                                           nsIMsgDBHdr* aMessageHeader,
+                                           nsIMsgIdentity* aIdentity) {
   return NS_OK;
 }
 
@@ -332,14 +332,14 @@ nsMsgOfflineManager::OnMessageSendProgress(uint32_t aCurrentMessage,
 
 NS_IMETHODIMP
 nsMsgOfflineManager::OnMessageSendError(uint32_t aCurrentMessage,
-                                        nsIMsgDBHdr *aMessageHeader,
+                                        nsIMsgDBHdr* aMessageHeader,
                                         nsresult aStatus,
-                                        const char16_t *aMsg) {
+                                        const char16_t* aMsg) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgOfflineManager::OnStopSending(nsresult aStatus, const char16_t *aMsg,
+nsMsgOfflineManager::OnStopSending(nsresult aStatus, const char16_t* aMsg,
                                    uint32_t aTotalTried, uint32_t aSuccessful) {
 #ifdef NS_DEBUG
   if (NS_SUCCEEDED(aStatus))

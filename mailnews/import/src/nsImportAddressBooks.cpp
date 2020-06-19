@@ -18,13 +18,13 @@
 #include "nsArrayUtils.h"
 #include "nsDirPrefs.h"
 
-nsresult NS_NewGenericAddressBooks(nsIImportGeneric **aImportGeneric) {
+nsresult NS_NewGenericAddressBooks(nsIImportGeneric** aImportGeneric) {
   NS_ASSERTION(aImportGeneric != nullptr, "null ptr");
   if (!aImportGeneric) return NS_ERROR_NULL_POINTER;
 
   RefPtr<nsImportGenericAddressBooks> pGen = new nsImportGenericAddressBooks();
   return pGen->QueryInterface(NS_GET_IID(nsIImportGeneric),
-                              (void **)aImportGeneric);
+                              (void**)aImportGeneric);
 }
 
 nsImportGenericAddressBooks::nsImportGenericAddressBooks() {
@@ -48,8 +48,8 @@ nsImportGenericAddressBooks::~nsImportGenericAddressBooks() {
 
 NS_IMPL_ISUPPORTS(nsImportGenericAddressBooks, nsIImportGeneric)
 
-NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId,
-                                                   nsISupports **_retval) {
+NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char* dataId,
+                                                   nsISupports** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   nsresult rv;
   *_retval = nullptr;
@@ -97,7 +97,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId,
 
   if (!PL_strncasecmp(dataId, "sampleData-", 11)) {
     // extra the record number
-    const char *pNum = dataId + 11;
+    const char* pNum = dataId + 11;
     int32_t rNum = 0;
     while (*pNum) {
       rNum *= 10;
@@ -109,7 +109,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId,
       nsCOMPtr<nsISupportsString> data =
           do_CreateInstance(NS_SUPPORTS_STRING_CONTRACTID, &rv);
       if (NS_FAILED(rv)) return rv;
-      char16_t *pData = nullptr;
+      char16_t* pData = nullptr;
       bool found = false;
       rv = m_pInterface->GetSampleData(rNum, &found, &pData);
       if (NS_FAILED(rv)) return rv;
@@ -124,8 +124,8 @@ NS_IMETHODIMP nsImportGenericAddressBooks::GetData(const char *dataId,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char *dataId,
-                                                   nsISupports *item) {
+NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char* dataId,
+                                                   nsISupports* item) {
   NS_ASSERTION(dataId != nullptr, "null ptr");
   if (!dataId) return NS_ERROR_NULL_POINTER;
 
@@ -166,8 +166,8 @@ NS_IMETHODIMP nsImportGenericAddressBooks::SetData(const char *dataId,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportGenericAddressBooks::GetStatus(const char *statusKind,
-                                                     int32_t *_retval) {
+NS_IMETHODIMP nsImportGenericAddressBooks::GetStatus(const char* statusKind,
+                                                     int32_t* _retval) {
   NS_ASSERTION(statusKind != nullptr, "null ptr");
   NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!statusKind || !_retval) return NS_ERROR_NULL_POINTER;
@@ -262,7 +262,7 @@ void nsImportGenericAddressBooks::GetDefaultFieldMap(void) {
   }
 }
 
-NS_IMETHODIMP nsImportGenericAddressBooks::WantsProgress(bool *_retval) {
+NS_IMETHODIMP nsImportGenericAddressBooks::WantsProgress(bool* _retval) {
   NS_ASSERTION(_retval != nullptr, "null ptr");
   NS_ENSURE_ARG_POINTER(_retval);
 
@@ -304,9 +304,9 @@ NS_IMETHODIMP nsImportGenericAddressBooks::WantsProgress(bool *_retval) {
   return NS_OK;
 }
 
-void nsImportGenericAddressBooks::SetLogs(nsString &success, nsString &error,
-                                          nsISupportsString *pSuccess,
-                                          nsISupportsString *pError) {
+void nsImportGenericAddressBooks::SetLogs(nsString& success, nsString& error,
+                                          nsISupportsString* pSuccess,
+                                          nsISupportsString* pError) {
   nsAutoString str;
   if (pSuccess) {
     pSuccess->GetData(str);
@@ -320,7 +320,7 @@ void nsImportGenericAddressBooks::SetLogs(nsString &success, nsString &error,
   }
 }
 
-already_AddRefed<nsIAbDirectory> GetAddressBookFromUri(const char *pUri) {
+already_AddRefed<nsIAbDirectory> GetAddressBookFromUri(const char* pUri) {
   if (!pUri) return nullptr;
 
   nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID);
@@ -359,7 +359,7 @@ already_AddRefed<nsIAbDirectory> GetAddressBook(nsString name, bool makeNew) {
 }
 
 NS_IMETHODIMP nsImportGenericAddressBooks::BeginImport(
-    nsISupportsString *successLog, nsISupportsString *errorLog, bool *_retval) {
+    nsISupportsString* successLog, nsISupportsString* errorLog, bool* _retval) {
   NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!_retval) return NS_ERROR_NULL_POINTER;
 
@@ -442,7 +442,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::BeginImport(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportGenericAddressBooks::ContinueImport(bool *_retval) {
+NS_IMETHODIMP nsImportGenericAddressBooks::ContinueImport(bool* _retval) {
   NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!_retval) return NS_ERROR_NULL_POINTER;
 
@@ -454,7 +454,7 @@ NS_IMETHODIMP nsImportGenericAddressBooks::ContinueImport(bool *_retval) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportGenericAddressBooks::GetProgress(int32_t *_retval) {
+NS_IMETHODIMP nsImportGenericAddressBooks::GetProgress(int32_t* _retval) {
   // This returns the progress from the the currently
   // running import mail or import address book thread.
   NS_ASSERTION(_retval != nullptr, "null ptr");
@@ -505,12 +505,12 @@ AddressThreadData::AddressThreadData() {
 
 AddressThreadData::~AddressThreadData() {}
 
-void nsImportGenericAddressBooks::ReportError(const char16_t *pName,
-                                              nsString *pStream,
-                                              nsIStringBundle *aBundle) {
+void nsImportGenericAddressBooks::ReportError(const char16_t* pName,
+                                              nsString* pStream,
+                                              nsIStringBundle* aBundle) {
   if (!pStream) return;
   // load the error string
-  char16_t *pFmt =
+  char16_t* pFmt =
       nsImportStringBundle::GetStringByID(IMPORT_ERROR_GETABOOK, aBundle);
   nsString pText;
   nsTextFormatter::ssprintf(pText, pFmt, pName);
@@ -519,10 +519,10 @@ void nsImportGenericAddressBooks::ReportError(const char16_t *pName,
   pStream->AppendLiteral(MSG_LINEBREAK);
 }
 
-static void ImportAddressThread(void *stuff) {
+static void ImportAddressThread(void* stuff) {
   IMPORT_LOG0("In Begin ImportAddressThread\n");
 
-  AddressThreadData *pData = (AddressThreadData *)stuff;
+  AddressThreadData* pData = (AddressThreadData*)stuff;
   uint32_t count = 0;
   uint32_t i;
   bool import;
@@ -551,8 +551,8 @@ static void ImportAddressThread(void *stuff) {
         bool fatalError = false;
         pData->currentSize = size;
         if (db) {
-          char16_t *pSuccess = nullptr;
-          char16_t *pError = nullptr;
+          char16_t* pSuccess = nullptr;
+          char16_t* pError = nullptr;
 
           /*
           if (pData->fieldMap) {

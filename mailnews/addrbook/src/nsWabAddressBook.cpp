@@ -120,7 +120,7 @@ BOOL nsWabAddressBook::Initialize(void) {
   return TRUE;
 }
 
-void nsWabAddressBook::AllocateBuffer(ULONG aByteCount, LPVOID *aBuffer) {
+void nsWabAddressBook::AllocateBuffer(ULONG aByteCount, LPVOID* aBuffer) {
   mRootSession->AllocateBuffer(aByteCount, aBuffer);
 }
 

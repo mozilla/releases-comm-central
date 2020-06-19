@@ -17,9 +17,9 @@
 #include "prmem.h"
 #include "nsMimeTypes.h"
 
-nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm *scope,
-                                   uint32_t numLines, nsIMsgDBHdr *msg,
-                                   nsIMsgDatabase *db) {
+nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
+                                   uint32_t numLines, nsIMsgDBHdr* msg,
+                                   nsIMsgDatabase* db) {
   m_scope = scope;
   m_numLocalLines = numLines;
   uint32_t flags;
@@ -42,9 +42,9 @@ nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm *scope,
   OpenLocalFolder();
 }
 
-nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm *scope,
-                                   uint32_t numLines, nsIMsgDBHdr *msg,
-                                   nsIMsgDatabase *db, const char *headers,
+nsMsgBodyHandler::nsMsgBodyHandler(nsIMsgSearchScopeTerm* scope,
+                                   uint32_t numLines, nsIMsgDBHdr* msg,
+                                   nsIMsgDatabase* db, const char* headers,
                                    uint32_t headersSize, bool Filtering) {
   m_scope = scope;
   m_numLocalLines = numLines;
@@ -86,7 +86,7 @@ void nsMsgBodyHandler::Initialize()
 
 nsMsgBodyHandler::~nsMsgBodyHandler() {}
 
-int32_t nsMsgBodyHandler::GetNextLine(nsCString &buf, nsCString &charset) {
+int32_t nsMsgBodyHandler::GetNextLine(nsCString& buf, nsCString& charset) {
   int32_t length = -1;     // length of incoming line or -1 eof
   int32_t outLength = -1;  // length of outgoing line or -1 eof
   bool eatThisLine = true;
@@ -139,7 +139,7 @@ void nsMsgBodyHandler::OpenLocalFolder() {
   m_fileLineStream = do_QueryInterface(inputStream);
 }
 
-int32_t nsMsgBodyHandler::GetNextFilterLine(nsCString &buf) {
+int32_t nsMsgBodyHandler::GetNextFilterLine(nsCString& buf) {
   // m_nextHdr always points to the next header in the list....the list is NULL
   // terminated...
   uint32_t numBytesCopied = 0;
@@ -177,7 +177,7 @@ int32_t nsMsgBodyHandler::GetNextFilterLine(nsCString &buf) {
 
 // return -1 if no more local lines, length of next line otherwise.
 
-int32_t nsMsgBodyHandler::GetNextLocalLine(nsCString &buf)
+int32_t nsMsgBodyHandler::GetNextLocalLine(nsCString& buf)
 // returns number of bytes copied
 {
   if (m_numLocalLines) {
@@ -218,10 +218,10 @@ int32_t nsMsgBodyHandler::GetNextLocalLine(nsCString &buf)
  *                            redundant version of line).
  * @return            the length of the line after applying transformations
  */
-int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString &line,
+int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString& line,
                                                int32_t length,
-                                               bool &eatThisLine,
-                                               nsCString &buf) {
+                                               bool& eatThisLine,
+                                               nsCString& buf) {
   eatThisLine = false;
 
   if (!m_pastPartHeaders)  // line is a line from the part headers
@@ -333,12 +333,12 @@ int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString &line,
   return buf.Length();
 }
 
-void nsMsgBodyHandler::StripHtml(nsCString &pBufInOut) {
-  char *pBuf = (char *)PR_Malloc(pBufInOut.Length() + 1);
+void nsMsgBodyHandler::StripHtml(nsCString& pBufInOut) {
+  char* pBuf = (char*)PR_Malloc(pBufInOut.Length() + 1);
   if (pBuf) {
-    char *pWalk = pBuf;
+    char* pWalk = pBuf;
 
-    char *pWalkInOut = (char *)pBufInOut.get();
+    char* pWalkInOut = (char*)pBufInOut.get();
     bool inTag = false;
     while (*pWalkInOut)  // throw away everything inside < >
     {
@@ -366,7 +366,7 @@ void nsMsgBodyHandler::StripHtml(nsCString &pBufInOut) {
  *
  * @param line        (in)    a header line that may contain a MIME header
  */
-void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line) {
+void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString& line) {
   // Some parts of MIME are case-sensitive and other parts are case-insensitive;
   // specifically, the headers are all case-insensitive and the values we care
   // about are also case-insensitive, with the sole exception of the boundary
@@ -454,12 +454,12 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString &line) {
  *
  * @param pBufInOut   (inout) a buffer of the string
  */
-void nsMsgBodyHandler::Base64Decode(nsCString &pBufInOut) {
-  char *decodedBody =
+void nsMsgBodyHandler::Base64Decode(nsCString& pBufInOut) {
+  char* decodedBody =
       PL_Base64Decode(pBufInOut.get(), pBufInOut.Length(), nullptr);
   if (decodedBody) {
     // Replace CR LF with spaces.
-    char *q = decodedBody;
+    char* q = decodedBody;
     while (*q) {
       if (*q == '\n' || *q == '\r') *q = ' ';
       q++;

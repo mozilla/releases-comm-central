@@ -69,7 +69,7 @@ already_AddRefed<nsILDAPServer> nsLDAPServiceEntry::GetServer() {
   nsCOMPtr<nsILDAPServer> server = mServer;
   return server.forget();
 }
-bool nsLDAPServiceEntry::SetServer(nsILDAPServer *aServer) {
+bool nsLDAPServiceEntry::SetServer(nsILDAPServer* aServer) {
   if (!aServer) {
     return false;
   }
@@ -84,7 +84,7 @@ already_AddRefed<nsILDAPConnection> nsLDAPServiceEntry::GetConnection() {
   nsCOMPtr<nsILDAPConnection> conn = mConnection;
   return conn.forget();
 }
-void nsLDAPServiceEntry::SetConnection(nsILDAPConnection *aConnection) {
+void nsLDAPServiceEntry::SetConnection(nsILDAPConnection* aConnection) {
   mConnection = aConnection;
 }
 
@@ -94,7 +94,7 @@ already_AddRefed<nsILDAPMessage> nsLDAPServiceEntry::GetMessage() {
   nsCOMPtr<nsILDAPMessage> message = mMessage;
   return message.forget();
 }
-void nsLDAPServiceEntry::SetMessage(nsILDAPMessage *aMessage) {
+void nsLDAPServiceEntry::SetMessage(nsILDAPMessage* aMessage) {
   mMessage = aMessage;
 }
 
@@ -112,7 +112,7 @@ already_AddRefed<nsILDAPMessageListener> nsLDAPServiceEntry::PopListener() {
   mListeners.RemoveObjectAt(0);
   return listener.forget();
 }
-bool nsLDAPServiceEntry::PushListener(nsILDAPMessageListener *listener) {
+bool nsLDAPServiceEntry::PushListener(nsILDAPMessageListener* listener) {
   return mListeners.AppendObject(listener);
 }
 
@@ -150,8 +150,8 @@ nsLDAPService::~nsLDAPService() {}
 nsresult nsLDAPService::Init() { return NS_OK; }
 
 // void addServer (in nsILDAPServer aServer);
-NS_IMETHODIMP nsLDAPService::AddServer(nsILDAPServer *aServer) {
-  nsLDAPServiceEntry *entry;
+NS_IMETHODIMP nsLDAPService::AddServer(nsILDAPServer* aServer) {
+  nsLDAPServiceEntry* entry;
   nsString key;
   nsresult rv;
 
@@ -211,8 +211,8 @@ NS_IMETHODIMP nsLDAPService::AddServer(nsILDAPServer *aServer) {
 }
 
 // void deleteServer (in wstring aKey);
-NS_IMETHODIMP nsLDAPService::DeleteServer(const char16_t *aKey) {
-  nsLDAPServiceEntry *entry;
+NS_IMETHODIMP nsLDAPService::DeleteServer(const char16_t* aKey) {
+  nsLDAPServiceEntry* entry;
   MutexAutoLock lock(mLock);
 
   // We should probably rename the key for this entry now that it's
@@ -234,9 +234,9 @@ NS_IMETHODIMP nsLDAPService::DeleteServer(const char16_t *aKey) {
 }
 
 // nsILDAPServer getServer (in wstring aKey);
-NS_IMETHODIMP nsLDAPService::GetServer(const char16_t *aKey,
-                                       nsILDAPServer **_retval) {
-  nsLDAPServiceEntry *entry;
+NS_IMETHODIMP nsLDAPService::GetServer(const char16_t* aKey,
+                                       nsILDAPServer** _retval) {
+  nsLDAPServiceEntry* entry;
   MutexAutoLock lock(mLock);
 
   if (!_retval) {
@@ -258,8 +258,8 @@ NS_IMETHODIMP nsLDAPService::GetServer(const char16_t *aKey,
 // void requestConnection (in wstring aKey,
 //                        in nsILDAPMessageListener aMessageListener);
 NS_IMETHODIMP nsLDAPService::RequestConnection(
-    const char16_t *aKey, nsILDAPMessageListener *aListener) {
-  nsLDAPServiceEntry *entry;
+    const char16_t* aKey, nsILDAPMessageListener* aListener) {
+  nsLDAPServiceEntry* entry;
   nsCOMPtr<nsILDAPConnection> conn;
   nsCOMPtr<nsILDAPMessage> message;
   nsresult rv;
@@ -306,8 +306,7 @@ NS_IMETHODIMP nsLDAPService::RequestConnection(
     MutexAutoLock lock(mLock);
 
     if (!mServers.Get(nsDependentString(aKey), &entry) ||
-        !entry->PushListener(
-            static_cast<nsILDAPMessageListener *>(aListener))) {
+        !entry->PushListener(static_cast<nsILDAPMessageListener*>(aListener))) {
       return NS_ERROR_FAILURE;
     }
   }
@@ -316,9 +315,9 @@ NS_IMETHODIMP nsLDAPService::RequestConnection(
 }
 
 // nsILDAPConnection getConnection (in wstring aKey);
-NS_IMETHODIMP nsLDAPService::GetConnection(const char16_t *aKey,
-                                           nsILDAPConnection **_retval) {
-  nsLDAPServiceEntry *entry;
+NS_IMETHODIMP nsLDAPService::GetConnection(const char16_t* aKey,
+                                           nsILDAPConnection** _retval) {
+  nsLDAPServiceEntry* entry;
   MutexAutoLock lock(mLock);
 
   if (!_retval) {
@@ -340,8 +339,8 @@ NS_IMETHODIMP nsLDAPService::GetConnection(const char16_t *aKey,
 }
 
 // void releaseConnection (in wstring aKey);
-NS_IMETHODIMP nsLDAPService::ReleaseConnection(const char16_t *aKey) {
-  nsLDAPServiceEntry *entry;
+NS_IMETHODIMP nsLDAPService::ReleaseConnection(const char16_t* aKey) {
+  nsLDAPServiceEntry* entry;
   MutexAutoLock lock(mLock);
 
   if (!mServers.Get(nsDependentString(aKey), &entry)) {
@@ -362,8 +361,8 @@ NS_IMETHODIMP nsLDAPService::ReleaseConnection(const char16_t *aKey) {
 // void reconnectConnection (in wstring aKey,
 //                           in nsILDAPMessageListener aMessageListener);
 NS_IMETHODIMP nsLDAPService::ReconnectConnection(
-    const char16_t *aKey, nsILDAPMessageListener *aListener) {
-  nsLDAPServiceEntry *entry;
+    const char16_t* aKey, nsILDAPMessageListener* aListener) {
+  nsLDAPServiceEntry* entry;
   nsresult rv;
 
   if (!aListener) {
@@ -408,8 +407,7 @@ NS_IMETHODIMP nsLDAPService::ReconnectConnection(
   {
     MutexAutoLock lock(mLock);
 
-    if (!entry->PushListener(
-            static_cast<nsILDAPMessageListener *>(aListener))) {
+    if (!entry->PushListener(static_cast<nsILDAPMessageListener*>(aListener))) {
       entry->SetRebinding(false);
       return NS_ERROR_FAILURE;
     }
@@ -426,7 +424,7 @@ NS_IMETHODIMP nsLDAPService::ReconnectConnection(
  * void OnLDAPMessage (in nsILDAPMessage aMessage)
  */
 NS_IMETHODIMP
-nsLDAPService::OnLDAPMessage(nsILDAPMessage *aMessage) {
+nsLDAPService::OnLDAPMessage(nsILDAPMessage* aMessage) {
   nsCOMPtr<nsILDAPOperation> operation;
   nsCOMPtr<nsILDAPConnection> connection;
   int32_t messageType;
@@ -471,7 +469,7 @@ nsLDAPService::OnLDAPMessage(nsILDAPMessage *aMessage) {
       {
         nsCOMPtr<nsILDAPMessageListener> listener;
         nsCOMPtr<nsILDAPMessage> message;
-        nsLDAPServiceEntry *entry;
+        nsLDAPServiceEntry* entry;
         MutexAutoLock lock(mLock);
 
         if (!mConnections.Get(connection, &entry)) {
@@ -532,14 +530,14 @@ nsLDAPService::OnLDAPMessage(nsILDAPMessage *aMessage) {
 // void onLDAPInit (in nsILDAPConnection aConn, in nsresult aStatus); */
 //
 NS_IMETHODIMP
-nsLDAPService::OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus) {
+nsLDAPService::OnLDAPInit(nsILDAPConnection* aConn, nsresult aStatus) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 // Helper function to establish an LDAP connection properly.
 //
-nsresult nsLDAPService::EstablishConnection(nsLDAPServiceEntry *aEntry,
-                                            nsILDAPMessageListener *aListener) {
+nsresult nsLDAPService::EstablishConnection(nsLDAPServiceEntry* aEntry,
+                                            nsILDAPMessageListener* aListener) {
   nsCOMPtr<nsILDAPOperation> operation;
   nsCOMPtr<nsILDAPServer> server;
   nsCOMPtr<nsILDAPURL> url;
@@ -628,7 +626,7 @@ nsresult nsLDAPService::EstablishConnection(nsLDAPServiceEntry *aEntry,
       MutexAutoLock lock(mLock);
 
       if (!aEntry->PushListener(
-              static_cast<nsILDAPMessageListener *>(aListener))) {
+              static_cast<nsILDAPMessageListener*>(aListener))) {
         return NS_ERROR_FAILURE;
       }
     }
@@ -679,9 +677,9 @@ nsresult nsLDAPService::EstablishConnection(nsLDAPServiceEntry *aEntry,
 /* AString createFilter (in unsigned long aMaxSize, in AString aPattern, in
  * AString aPrefix, in AString aSuffix, in AString aAttr, in AString aValue); */
 NS_IMETHODIMP nsLDAPService::CreateFilter(
-    uint32_t aMaxSize, const nsACString &aPattern, const nsACString &aPrefix,
-    const nsACString &aSuffix, const nsACString &aAttr,
-    const nsACString &aValue, nsACString &_retval) {
+    uint32_t aMaxSize, const nsACString& aPattern, const nsACString& aPrefix,
+    const nsACString& aSuffix, const nsACString& aAttr,
+    const nsACString& aValue, nsACString& _retval) {
   if (!aMaxSize) {
     return NS_ERROR_INVALID_ARG;
   }
@@ -689,12 +687,12 @@ NS_IMETHODIMP nsLDAPService::CreateFilter(
   // figure out how big of an array we're going to need for the tokens,
   // including a trailing NULL, and allocate space for it.
   //
-  const char *iter = aValue.BeginReading();
-  const char *iterEnd = aValue.EndReading();
+  const char* iter = aValue.BeginReading();
+  const char* iterEnd = aValue.EndReading();
   uint32_t numTokens = CountTokens(iter, iterEnd);
-  char **valueWords;
+  char** valueWords;
   valueWords =
-      static_cast<char **>(moz_xmalloc((numTokens + 1) * sizeof(char *)));
+      static_cast<char**>(moz_xmalloc((numTokens + 1) * sizeof(char*)));
   if (!valueWords) {
     return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -714,7 +712,7 @@ NS_IMETHODIMP nsLDAPService::CreateFilter(
 
   // make buffer to be used for construction
   //
-  char *buffer = static_cast<char *>(moz_xmalloc(aMaxSize * sizeof(char)));
+  char* buffer = static_cast<char*>(moz_xmalloc(aMaxSize * sizeof(char)));
   if (!buffer) {
     NS_FREE_XPCOM_ALLOCATED_POINTER_ARRAY(numTokens, valueWords);
     return NS_ERROR_OUT_OF_MEMORY;
@@ -724,11 +722,11 @@ NS_IMETHODIMP nsLDAPService::CreateFilter(
   //
   nsresult rv;
   int result = ldap_create_filter(
-      buffer, aMaxSize, const_cast<char *>(PromiseFlatCString(aPattern).get()),
-      const_cast<char *>(PromiseFlatCString(aPrefix).get()),
-      const_cast<char *>(PromiseFlatCString(aSuffix).get()),
-      const_cast<char *>(PromiseFlatCString(aAttr).get()),
-      const_cast<char *>(PromiseFlatCString(aValue).get()), valueWords);
+      buffer, aMaxSize, const_cast<char*>(PromiseFlatCString(aPattern).get()),
+      const_cast<char*>(PromiseFlatCString(aPrefix).get()),
+      const_cast<char*>(PromiseFlatCString(aSuffix).get()),
+      const_cast<char*>(PromiseFlatCString(aAttr).get()),
+      const_cast<char*>(PromiseFlatCString(aValue).get()), valueWords);
   switch (result) {
     case LDAP_SUCCESS:
       rv = NS_OK;
@@ -766,13 +764,13 @@ NS_IMETHODIMP nsLDAPService::CreateFilter(
 
 // Parse a distinguished name (DN) and returns the relative DN,
 // base DN and the list of attributes that make up the relative DN.
-NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn, nsACString &aRdn,
-                                     nsACString &aBaseDn,
-                                     nsTArray<nsCString> &aRdnAttrs) {
+NS_IMETHODIMP nsLDAPService::ParseDn(const char* aDn, nsACString& aRdn,
+                                     nsACString& aBaseDn,
+                                     nsTArray<nsCString>& aRdnAttrs) {
   aRdnAttrs.Clear();
 
   // explode the DN
-  char **dnComponents = ldap_explode_dn(aDn, 0);
+  char** dnComponents = ldap_explode_dn(aDn, 0);
   if (!dnComponents) {
     NS_ERROR("nsLDAPService::ParseDn: parsing DN failed");
     return NS_ERROR_UNEXPECTED;
@@ -787,13 +785,13 @@ NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn, nsACString &aRdn,
 
   // get the base DN
   nsAutoCString baseDn(nsDependentCString(*(dnComponents + 1)));
-  for (char **component = dnComponents + 2; *component; ++component) {
+  for (char** component = dnComponents + 2; *component; ++component) {
     baseDn.AppendLiteral(",");
     baseDn.Append(nsDependentCString(*component));
   }
 
   // explode the RDN
-  char **rdnComponents = ldap_explode_rdn(*dnComponents, 0);
+  char** rdnComponents = ldap_explode_rdn(*dnComponents, 0);
   if (!rdnComponents) {
     NS_ERROR("nsLDAPService::ParseDn: parsing RDN failed");
     ldap_value_free(dnComponents);
@@ -802,7 +800,7 @@ NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn, nsACString &aRdn,
 
   // count RDN attributes
   uint32_t rdnCount = 0;
-  for (char **component = rdnComponents; *component; ++component) ++rdnCount;
+  for (char** component = rdnComponents; *component; ++component) ++rdnCount;
   if (rdnCount < 1) {
     NS_ERROR("nsLDAPService::ParseDn: RDN has too few components");
     ldap_value_free(dnComponents);
@@ -812,9 +810,9 @@ NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn, nsACString &aRdn,
 
   // get the RDN attribute names
   aRdnAttrs.SetCapacity(rdnCount);
-  for (char **component = rdnComponents; *component; ++component) {
+  for (char** component = rdnComponents; *component; ++component) {
     uint32_t len = 0;
-    char *p;
+    char* p;
     for (p = *component; *p != '\0' && *p != '='; ++p) ++len;
     if (*p != '=') {
       NS_ERROR(
@@ -838,7 +836,7 @@ NS_IMETHODIMP nsLDAPService::ParseDn(const char *aDn, nsACString &aRdn,
 
 // Count the number of space-separated tokens between aIter and aIterEnd
 //
-uint32_t nsLDAPService::CountTokens(const char *aIter, const char *aIterEnd) {
+uint32_t nsLDAPService::CountTokens(const char* aIter, const char* aIterEnd) {
   uint32_t count(0);
 
   // keep iterating through the string until we hit the end
@@ -846,14 +844,14 @@ uint32_t nsLDAPService::CountTokens(const char *aIter, const char *aIterEnd) {
   while (aIter != aIterEnd) {
     // move past any leading spaces
     //
-    while (aIter != aIterEnd && ldap_utf8isspace(const_cast<char *>(aIter))) {
+    while (aIter != aIterEnd && ldap_utf8isspace(const_cast<char*>(aIter))) {
       ++aIter;
     }
 
     // move past all chars in this token
     //
     while (aIter != aIterEnd) {
-      if (ldap_utf8isspace(const_cast<char *>(aIter))) {
+      if (ldap_utf8isspace(const_cast<char*>(aIter))) {
         ++count;  // token finished; increment the count
         ++aIter;  // move past the space
         break;
@@ -876,18 +874,18 @@ uint32_t nsLDAPService::CountTokens(const char *aIter, const char *aIterEnd) {
 
 // return the next token in this iterator
 //
-char *nsLDAPService::NextToken(const char **aIter, const char **aIterEnd) {
+char* nsLDAPService::NextToken(const char** aIter, const char** aIterEnd) {
   // move past any leading whitespace
   //
-  while (*aIter != *aIterEnd && ldap_utf8isspace(const_cast<char *>(*aIter))) {
+  while (*aIter != *aIterEnd && ldap_utf8isspace(const_cast<char*>(*aIter))) {
     ++(*aIter);
   }
 
-  const char *start = *aIter;
+  const char* start = *aIter;
 
   // copy the token into our local variable
   //
-  while (*aIter != *aIterEnd && !ldap_utf8isspace(const_cast<char *>(*aIter))) {
+  while (*aIter != *aIterEnd && !ldap_utf8isspace(const_cast<char*>(*aIter))) {
     ++(*aIter);
   }
 

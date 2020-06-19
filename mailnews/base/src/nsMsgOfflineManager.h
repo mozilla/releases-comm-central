@@ -60,7 +60,7 @@ class nsMsgOfflineManager : public nsIMsgOfflineManager,
   nsresult DownloadMail();
 
   nsresult SetOnlineState(bool online);
-  nsresult ShowStatus(const char *statusMsgName);
+  nsresult ShowStatus(const char* statusMsgName);
 
   bool m_inProgress;
   bool m_sendUnsentMessages;

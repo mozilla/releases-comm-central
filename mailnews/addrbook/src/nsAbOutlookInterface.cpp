@@ -13,11 +13,11 @@ nsAbOutlookInterface::nsAbOutlookInterface(void) {}
 
 nsAbOutlookInterface::~nsAbOutlookInterface(void) {}
 
-extern const char *kOutlookDirectoryScheme;
+extern const char* kOutlookDirectoryScheme;
 
 NS_IMETHODIMP
-nsAbOutlookInterface::GetFolderURIs(const nsACString &aURI,
-                                    nsTArray<nsCString> &uris) {
+nsAbOutlookInterface::GetFolderURIs(const nsACString& aURI,
+                                    nsTArray<nsCString>& uris) {
   uris.Clear();
 
   nsresult rv = NS_OK;

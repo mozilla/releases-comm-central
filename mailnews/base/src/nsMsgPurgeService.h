@@ -29,10 +29,10 @@ class nsMsgPurgeService : public nsIMsgPurgeService, public nsIMsgSearchNotify {
 
  protected:
   virtual ~nsMsgPurgeService();
-  int32_t FindServer(nsIMsgIncomingServer *server);
+  int32_t FindServer(nsIMsgIncomingServer* server);
   nsresult SetupNextPurge();
-  nsresult PurgeSurver(nsIMsgIncomingServer *server);
-  nsresult SearchFolderToPurge(nsIMsgFolder *folder, int32_t purgeInterval);
+  nsresult PurgeSurver(nsIMsgIncomingServer* server);
+  nsresult SearchFolderToPurge(nsIMsgFolder* folder, int32_t purgeInterval);
 
  protected:
   nsCOMPtr<nsITimer> mPurgeTimer;

@@ -106,30 +106,30 @@ struct MimeEncryptedClass {
 
   /* Duplicated from MimeLeaf, see comments above.
      This is the callback that is handed to the decoder. */
-  int (*parse_decoded_buffer)(const char *buf, int32_t size, MimeObject *obj);
+  int (*parse_decoded_buffer)(const char* buf, int32_t size, MimeObject* obj);
 
   /* Callbacks used by decryption module. */
-  void *(*crypto_init)(MimeObject *obj,
-                       int (*output_fn)(const char *data, int32_t data_size,
-                                        void *output_closure),
-                       void *output_closure);
-  int (*crypto_write)(const char *data, int32_t data_size,
-                      void *crypto_closure);
-  int (*crypto_eof)(void *crypto_closure, bool abort_p);
-  char *(*crypto_generate_html)(void *crypto_closure);
-  void (*crypto_free)(void *crypto_closure);
+  void* (*crypto_init)(MimeObject* obj,
+                       int (*output_fn)(const char* data, int32_t data_size,
+                                        void* output_closure),
+                       void* output_closure);
+  int (*crypto_write)(const char* data, int32_t data_size,
+                      void* crypto_closure);
+  int (*crypto_eof)(void* crypto_closure, bool abort_p);
+  char* (*crypto_generate_html)(void* crypto_closure);
+  void (*crypto_free)(void* crypto_closure);
 };
 
 extern MimeEncryptedClass mimeEncryptedClass;
 
 struct MimeEncrypted {
   MimeContainer container;         /* superclass variables */
-  void *crypto_closure;            /* Opaque data used by decryption module. */
-  MimeDecoderData *decoder_data;   /* Opaque data for the Transfer-Encoding
+  void* crypto_closure;            /* Opaque data used by decryption module. */
+  MimeDecoderData* decoder_data;   /* Opaque data for the Transfer-Encoding
                                       decoder. */
-  MimeHeaders *hdrs;               /* Headers of the enclosed object (including
+  MimeHeaders* hdrs;               /* Headers of the enclosed object (including
                                       the type of the *decrypted* data.) */
-  MimePartBufferData *part_buffer; /* The data of the decrypted enclosed
+  MimePartBufferData* part_buffer; /* The data of the decrypted enclosed
                                       object (see mimepbuf.h) */
 };
 

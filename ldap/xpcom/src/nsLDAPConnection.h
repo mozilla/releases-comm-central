@@ -28,8 +28,8 @@
  * Casting nsILDAPConnection to nsISupports is ambiguous.
  * This method handles that.
  */
-inline nsISupports *ToSupports(nsILDAPConnection *p) {
-  return NS_ISUPPORTS_CAST(nsILDAPConnection *, p);
+inline nsISupports* ToSupports(nsILDAPConnection* p) {
+  return NS_ISUPPORTS_CAST(nsILDAPConnection*, p);
 }
 
 // 0d871e30-1dd2-11b2-8ea9-831778c78e93
@@ -75,7 +75,7 @@ class nsLDAPConnection : public nsILDAPConnection,
    * @exception NS_ERROR_OUT_OF_MEMORY    out of memory
    */
   nsresult AddPendingOperation(uint32_t aOperationID,
-                               nsILDAPOperation *aOperation);
+                               nsILDAPOperation* aOperation);
 
   /**
    * Remove an nsILDAPOperation from the list of operations pending on this
@@ -94,17 +94,17 @@ class nsLDAPConnection : public nsILDAPConnection,
   /** invoke the callback associated with a given message, and possibly
    * delete it from the connection queue.
    */
-  nsresult InvokeMessageCallback(LDAPMessage *aMsgHandle, nsILDAPMessage *aMsg,
+  nsresult InvokeMessageCallback(LDAPMessage* aMsgHandle, nsILDAPMessage* aMsg,
                                  int32_t aOperation, bool aRemoveOpFromConnQ);
 
   /**
    * Dispatch an operation to the socket thread. This is intended for use by
    * the nsLDAPOperation code.
    */
-  nsresult StartOp(nsIRunnable *aOp);
+  nsresult StartOp(nsIRunnable* aOp);
 
   void Close();             // close the connection
-  LDAP *mConnectionHandle;  // the LDAP C SDK's connection object
+  LDAP* mConnectionHandle;  // the LDAP C SDK's connection object
   nsCString mBindName;      // who to bind as
 
   // We'll be dispatching operations on the SocketTransportService. This is
@@ -134,8 +134,8 @@ class nsLDAPConnectionRunnable : public nsIRunnable {
   friend class nsLDAPMessage;
 
  public:
-  nsLDAPConnectionRunnable(int32_t aOperationID, nsILDAPOperation *aOperation,
-                           nsLDAPConnection *aConnection);
+  nsLDAPConnectionRunnable(int32_t aOperationID, nsILDAPOperation* aOperation,
+                           nsLDAPConnection* aConnection);
 
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIRUNNABLE

@@ -25,7 +25,7 @@ class nsIMdbFactory;
 class nsIMdbFactoryService : public nsISupports {
  public:
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IMDBFACTORYFACTORY_IID)
-  NS_IMETHOD GetMdbFactory(nsIMdbFactory **aFactory) = 0;
+  NS_IMETHOD GetMdbFactory(nsIMdbFactory** aFactory) = 0;
 };
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIMdbFactoryService, NS_IMDBFACTORYFACTORY_IID)

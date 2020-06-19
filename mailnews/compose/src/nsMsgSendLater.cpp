@@ -122,8 +122,8 @@ nsresult nsMsgSendLater::Init() {
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::Observe(nsISupports *aSubject, const char *aTopic,
-                        const char16_t *aData) {
+nsMsgSendLater::Observe(nsISupports* aSubject, const char* aTopic,
+                        const char16_t* aData) {
   if (aSubject == mTimer && !strcmp(aTopic, "timer-callback")) {
     if (mTimer)
       mTimer->Cancel();
@@ -172,13 +172,13 @@ nsMsgSendLater::Observe(nsISupports *aSubject, const char *aTopic,
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::SetStatusFeedback(nsIMsgStatusFeedback *aFeedback) {
+nsMsgSendLater::SetStatusFeedback(nsIMsgStatusFeedback* aFeedback) {
   mFeedback = aFeedback;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::GetStatusFeedback(nsIMsgStatusFeedback **aFeedback) {
+nsMsgSendLater::GetStatusFeedback(nsIMsgStatusFeedback** aFeedback) {
   NS_ENSURE_ARG_POINTER(aFeedback);
   NS_IF_ADDREF(*aFeedback = mFeedback);
   return NS_OK;
@@ -186,7 +186,7 @@ nsMsgSendLater::GetStatusFeedback(nsIMsgStatusFeedback **aFeedback) {
 
 // Stream is done...drive on!
 NS_IMETHODIMP
-nsMsgSendLater::OnStopRequest(nsIRequest *request, nsresult status) {
+nsMsgSendLater::OnStopRequest(nsIRequest* request, nsresult status) {
   nsresult rv;
 
   // First, this shouldn't happen, but if
@@ -237,9 +237,9 @@ nsMsgSendLater::OnStopRequest(nsIRequest *request, nsresult status) {
   return rv;
 }
 
-char *FindEOL(char *inBuf, char *buf_end) {
-  char *buf = inBuf;
-  char *findLoc = nullptr;
+char* FindEOL(char* inBuf, char* buf_end) {
+  char* buf = inBuf;
+  char* findLoc = nullptr;
 
   while (buf <= buf_end)
     if (*buf == 0)
@@ -261,9 +261,9 @@ char *FindEOL(char *inBuf, char *buf_end) {
   return findLoc;
 }
 
-nsresult nsMsgSendLater::RebufferLeftovers(char *startBuf, uint32_t aLen) {
+nsresult nsMsgSendLater::RebufferLeftovers(char* startBuf, uint32_t aLen) {
   PR_FREEIF(mLeftoverBuffer);
-  mLeftoverBuffer = (char *)PR_Malloc(aLen + 1);
+  mLeftoverBuffer = (char*)PR_Malloc(aLen + 1);
   if (!mLeftoverBuffer) return NS_ERROR_OUT_OF_MEMORY;
 
   memcpy(mLeftoverBuffer, startBuf, aLen);
@@ -271,13 +271,13 @@ nsresult nsMsgSendLater::RebufferLeftovers(char *startBuf, uint32_t aLen) {
   return NS_OK;
 }
 
-nsresult nsMsgSendLater::BuildNewBuffer(const char *aBuf, uint32_t aCount,
-                                        uint32_t *totalBufSize) {
+nsresult nsMsgSendLater::BuildNewBuffer(const char* aBuf, uint32_t aCount,
+                                        uint32_t* totalBufSize) {
   // Only build a buffer when there are leftovers...
   NS_ENSURE_TRUE(mLeftoverBuffer, NS_ERROR_FAILURE);
 
   int32_t leftoverSize = PL_strlen(mLeftoverBuffer);
-  char *newBuffer = (char *)PR_Realloc(mLeftoverBuffer, aCount + leftoverSize);
+  char* newBuffer = (char*)PR_Realloc(mLeftoverBuffer, aCount + leftoverSize);
   NS_ENSURE_TRUE(newBuffer, NS_ERROR_OUT_OF_MEMORY);
   mLeftoverBuffer = newBuffer;
 
@@ -288,7 +288,7 @@ nsresult nsMsgSendLater::BuildNewBuffer(const char *aBuf, uint32_t aCount,
 
 // Got data?
 NS_IMETHODIMP
-nsMsgSendLater::OnDataAvailable(nsIRequest *request, nsIInputStream *inStr,
+nsMsgSendLater::OnDataAvailable(nsIRequest* request, nsIInputStream* inStr,
                                 uint64_t sourceOffset, uint32_t count) {
   NS_ENSURE_ARG_POINTER(inStr);
 
@@ -297,22 +297,22 @@ nsMsgSendLater::OnDataAvailable(nsIRequest *request, nsIInputStream *inStr,
   // leftovers for next time...some fun, eh?
   //
   nsresult rv = NS_OK;
-  char *startBuf;
-  char *endBuf;
-  char *lineEnd;
-  char *newbuf = nullptr;
+  char* startBuf;
+  char* endBuf;
+  char* lineEnd;
+  char* newbuf = nullptr;
   uint32_t size;
 
   uint32_t aCount = count;
-  char *aBuf = (char *)PR_Malloc(aCount + 1);
+  char* aBuf = (char*)PR_Malloc(aCount + 1);
 
   inStr->Read(aBuf, count, &aCount);
 
   // First, create a new work buffer that will
   if (NS_FAILED(BuildNewBuffer(aBuf, aCount, &size)))  // no leftovers...
   {
-    startBuf = (char *)aBuf;
-    endBuf = (char *)(aBuf + aCount - 1);
+    startBuf = (char*)aBuf;
+    endBuf = (char*)(aBuf + aCount - 1);
   } else  // yum, leftovers...new buffer created...sitting in mLeftoverBuffer
   {
     newbuf = mLeftoverBuffer;
@@ -340,16 +340,16 @@ nsMsgSendLater::OnDataAvailable(nsIRequest *request, nsIInputStream *inStr,
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnStartRunningUrl(nsIURI *url) { return NS_OK; }
+nsMsgSendLater::OnStartRunningUrl(nsIURI* url) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnStopRunningUrl(nsIURI *url, nsresult aExitCode) {
+nsMsgSendLater::OnStopRunningUrl(nsIURI* url, nsresult aExitCode) {
   if (NS_SUCCEEDED(aExitCode)) InternalSendMessages(mUserInitiated, mIdentity);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnStartRequest(nsIRequest *request) { return NS_OK; }
+nsMsgSendLater::OnStartRequest(nsIRequest* request) { return NS_OK; }
 
 ////////////////////////////////////////////////////////////////////////////////////
 // This is the listener class for the send operation. We have to create this
@@ -358,18 +358,18 @@ nsMsgSendLater::OnStartRequest(nsIRequest *request) { return NS_OK; }
 NS_IMPL_ISUPPORTS(SendOperationListener, nsIMsgSendListener,
                   nsIMsgCopyServiceListener)
 
-SendOperationListener::SendOperationListener(nsMsgSendLater *aSendLater)
+SendOperationListener::SendOperationListener(nsMsgSendLater* aSendLater)
     : mSendLater(aSendLater) {}
 
 SendOperationListener::~SendOperationListener(void) {}
 
 NS_IMETHODIMP
-SendOperationListener::OnGetDraftFolderURI(const char *aFolderURI) {
+SendOperationListener::OnGetDraftFolderURI(const char* aFolderURI) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-SendOperationListener::OnStartSending(const char *aMsgID, uint32_t aMsgSize) {
+SendOperationListener::OnStartSending(const char* aMsgID, uint32_t aMsgSize) {
 #ifdef NS_DEBUG
   printf("SendOperationListener::OnStartSending()\n");
 #endif
@@ -377,7 +377,7 @@ SendOperationListener::OnStartSending(const char *aMsgID, uint32_t aMsgSize) {
 }
 
 NS_IMETHODIMP
-SendOperationListener::OnProgress(const char *aMsgID, uint32_t aProgress,
+SendOperationListener::OnProgress(const char* aMsgID, uint32_t aProgress,
                                   uint32_t aProgressMax) {
 #ifdef NS_DEBUG
   printf("SendOperationListener::OnProgress()\n");
@@ -386,7 +386,7 @@ SendOperationListener::OnProgress(const char *aMsgID, uint32_t aProgress,
 }
 
 NS_IMETHODIMP
-SendOperationListener::OnStatus(const char *aMsgID, const char16_t *aMsg) {
+SendOperationListener::OnStatus(const char* aMsgID, const char16_t* aMsg) {
 #ifdef NS_DEBUG
   printf("SendOperationListener::OnStatus()\n");
 #endif
@@ -395,15 +395,15 @@ SendOperationListener::OnStatus(const char *aMsgID, const char16_t *aMsg) {
 }
 
 NS_IMETHODIMP
-SendOperationListener::OnSendNotPerformed(const char *aMsgID,
+SendOperationListener::OnSendNotPerformed(const char* aMsgID,
                                           nsresult aStatus) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-SendOperationListener::OnStopSending(const char *aMsgID, nsresult aStatus,
-                                     const char16_t *aMsg,
-                                     nsIFile *returnFile) {
+SendOperationListener::OnStopSending(const char* aMsgID, nsresult aStatus,
+                                     const char16_t* aMsg,
+                                     nsIFile* returnFile) {
   if (mSendLater && !mSendLater->OnSendStepFinished(aStatus))
     mSendLater = nullptr;
 
@@ -427,7 +427,7 @@ SendOperationListener::SetMessageKey(nsMsgKey aKey) {
 }
 
 NS_IMETHODIMP
-SendOperationListener::GetMessageId(nsACString &messageId) {
+SendOperationListener::GetMessageId(nsACString& messageId) {
   MOZ_ASSERT_UNREACHABLE("SendOperationListener::GetMessageId()");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
@@ -468,7 +468,7 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
   nsCString author;
   mMessage->GetAuthor(getter_Copies(author));
 
-  nsMsgCompFields *fields = (nsMsgCompFields *)compFields.get();
+  nsMsgCompFields* fields = (nsMsgCompFields*)compFields.get();
 
   fields->SetFrom(author.get());
 
@@ -582,15 +582,15 @@ nsresult nsMsgSendLater::StartNextMailFileSend(nsresult prevStatus) {
   // operation
   nsCOMPtr<nsIURI> dummyNull;
   rv = messageService->DisplayMessage(
-      messageURI.get(), static_cast<nsIStreamListener *>(this), nullptr,
-      nullptr, nullptr, getter_AddRefs(dummyNull));
+      messageURI.get(), static_cast<nsIStreamListener*>(this), nullptr, nullptr,
+      nullptr, getter_AddRefs(dummyNull));
 
   return rv;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::GetUnsentMessagesFolder(nsIMsgIdentity *aIdentity,
-                                        nsIMsgFolder **aFolder) {
+nsMsgSendLater::GetUnsentMessagesFolder(nsIMsgIdentity* aIdentity,
+                                        nsIMsgFolder** aFolder) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mMessageFolder);
   if (!folder) {
@@ -606,7 +606,7 @@ nsMsgSendLater::GetUnsentMessagesFolder(nsIMsgIdentity *aIdentity,
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::HasUnsentMessages(nsIMsgIdentity *aIdentity, bool *aResult) {
+nsMsgSendLater::HasUnsentMessages(nsIMsgIdentity* aIdentity, bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = false;
   nsresult rv;
@@ -667,12 +667,12 @@ nsMsgSendLater::HasUnsentMessages(nsIMsgIdentity *aIdentity, bool *aResult) {
 //
 //
 NS_IMETHODIMP
-nsMsgSendLater::SendUnsentMessages(nsIMsgIdentity *aIdentity) {
+nsMsgSendLater::SendUnsentMessages(nsIMsgIdentity* aIdentity) {
   return InternalSendMessages(true, aIdentity);
 }
 
 // Returns NS_OK if the db is OK, an error otherwise, e.g., we had to reparse.
-nsresult nsMsgSendLater::ReparseDBIfNeeded(nsIUrlListener *aListener) {
+nsresult nsMsgSendLater::ReparseDBIfNeeded(nsIUrlListener* aListener) {
   // This will kick off a reparse, if needed. So the next time we check if
   // there are unsent messages, the db will be up to date.
   nsCOMPtr<nsIMsgDatabase> unsentDB;
@@ -685,7 +685,7 @@ nsresult nsMsgSendLater::ReparseDBIfNeeded(nsIUrlListener *aListener) {
 }
 
 nsresult nsMsgSendLater::InternalSendMessages(bool aUserInitiated,
-                                              nsIMsgIdentity *aIdentity) {
+                                              nsIMsgIdentity* aIdentity) {
   if (WeAreOffline()) return NS_MSG_ERROR_OFFLINE;
 
   // Protect against being called whilst we're already sending.
@@ -835,8 +835,8 @@ nsresult nsMsgSendLater::DeleteCurrentMessage() {
 // required by NNTP.)
 //
 nsresult nsMsgSendLater::BuildHeaders() {
-  char *buf = m_headers;
-  char *buf_end = buf + m_headersFP;
+  char* buf = m_headers;
+  char* buf_end = buf + m_headersFP;
 
   PR_FREEIF(m_to);
   PR_FREEIF(m_bcc);
@@ -850,11 +850,11 @@ nsresult nsMsgSendLater::BuildHeaders() {
   while (buf < buf_end) {
     bool prune_p = false;
     bool do_flags_p = false;
-    char *colon = PL_strchr(buf, ':');
-    char *end;
-    char *value = 0;
-    char **header = 0;
-    char *header_start = buf;
+    char* colon = PL_strchr(buf, ':');
+    char* end;
+    char* value = 0;
+    char** header = 0;
+    char* header_start = buf;
 
     if (!colon) break;
 
@@ -955,7 +955,7 @@ nsresult nsMsgSendLater::BuildHeaders() {
     if (header) {
       int L = buf - value;
       if (*header) {
-        char *newh = (char *)PR_Realloc((*header), PL_strlen(*header) + L + 10);
+        char* newh = (char*)PR_Realloc((*header), PL_strlen(*header) + L + 10);
         if (!newh) return NS_ERROR_OUT_OF_MEMORY;
         *header = newh;
         newh = (*header) + PL_strlen(*header);
@@ -964,13 +964,13 @@ nsresult nsMsgSendLater::BuildHeaders() {
         memcpy(newh, value, L);
         newh[L] = 0;
       } else {
-        *header = (char *)PR_Malloc(L + 1);
+        *header = (char*)PR_Malloc(L + 1);
         if (!*header) return NS_ERROR_OUT_OF_MEMORY;
         memcpy((*header), value, L);
         (*header)[L] = 0;
       }
     } else if (do_flags_p) {
-      char *s = value;
+      char* s = value;
       PR_ASSERT(*s != ' ' && *s != '\t');
       NS_ASSERTION(MsgIsHex(s, 4), "Expected 4 hex digits for flags.");
       m_flags = MsgUnhex(s, 4);
@@ -982,8 +982,8 @@ nsresult nsMsgSendLater::BuildHeaders() {
     }
 
     if (prune_p) {
-      char *to = header_start;
-      char *from = buf;
+      char* to = header_start;
+      char* from = buf;
       while (from < buf_end) *to++ = *from++;
       buf = header_start;
       buf_end = to;
@@ -1000,19 +1000,18 @@ nsresult nsMsgSendLater::BuildHeaders() {
 }
 
 nsresult DoGrowBuffer(int32_t desired_size, int32_t element_size,
-                      int32_t quantum, char **buffer, int32_t *size) {
+                      int32_t quantum, char** buffer, int32_t* size) {
   if (*size <= desired_size) {
-    char *new_buf;
+    char* new_buf;
     int32_t increment = desired_size - *size;
     if (increment < quantum)  // always grow by a minimum of N bytes
       increment = quantum;
 
     new_buf =
-        (*buffer
-             ? (char *)PR_Realloc(
-                   *buffer, (*size + increment) * (element_size / sizeof(char)))
-             : (char *)PR_Malloc((*size + increment) *
-                                 (element_size / sizeof(char))));
+        (*buffer ? (char*)PR_Realloc(*buffer, (*size + increment) *
+                                                  (element_size / sizeof(char)))
+                 : (char*)PR_Malloc((*size + increment) *
+                                    (element_size / sizeof(char))));
     if (!new_buf) return NS_ERROR_OUT_OF_MEMORY;
     *buffer = new_buf;
     *size += increment;
@@ -1026,7 +1025,7 @@ nsresult DoGrowBuffer(int32_t desired_size, int32_t element_size,
                       &m_headersSize)                                 \
        : NS_OK)
 
-nsresult nsMsgSendLater::DeliverQueuedLine(char *line, int32_t length) {
+nsresult nsMsgSendLater::DeliverQueuedLine(char* line, int32_t length) {
   int32_t flength = length;
 
   m_bytesRead += length;
@@ -1120,20 +1119,20 @@ nsresult nsMsgSendLater::DeliverQueuedLine(char *line, int32_t length) {
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::AddListener(nsIMsgSendLaterListener *aListener) {
+nsMsgSendLater::AddListener(nsIMsgSendLaterListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
   mListenerArray.AppendElement(aListener);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::RemoveListener(nsIMsgSendLaterListener *aListener) {
+nsMsgSendLater::RemoveListener(nsIMsgSendLaterListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
   return mListenerArray.RemoveElement(aListener) ? NS_OK : NS_ERROR_INVALID_ARG;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::GetSendingMessages(bool *aResult) {
+nsMsgSendLater::GetSendingMessages(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = mSendingMessages;
   return NS_OK;
@@ -1157,7 +1156,7 @@ void nsMsgSendLater::NotifyListenersOnStartSending(
 
 void nsMsgSendLater::NotifyListenersOnMessageStartSending(
     uint32_t aCurrentMessage, uint32_t aTotalMessage,
-    nsIMsgIdentity *aIdentity) {
+    nsIMsgIdentity* aIdentity) {
   NOTIFY_LISTENERS(OnMessageStartSending,
                    (aCurrentMessage, aTotalMessage, mMessage, aIdentity));
 }
@@ -1172,7 +1171,7 @@ void nsMsgSendLater::NotifyListenersOnProgress(uint32_t aCurrentMessage,
 
 void nsMsgSendLater::NotifyListenersOnMessageSendError(uint32_t aCurrentMessage,
                                                        nsresult aStatus,
-                                                       const char16_t *aMsg) {
+                                                       const char16_t* aMsg) {
   NOTIFY_LISTENERS(OnMessageSendError,
                    (aCurrentMessage, mMessage, aStatus, aMsg));
 }
@@ -1181,7 +1180,7 @@ void nsMsgSendLater::NotifyListenersOnMessageSendError(uint32_t aCurrentMessage,
  * This function is called to end sending of messages, it resets the send later
  * system and notifies the relevant parties that we have finished.
  */
-void nsMsgSendLater::EndSendMessages(nsresult aStatus, const char16_t *aMsg,
+void nsMsgSendLater::EndSendMessages(nsresult aStatus, const char16_t* aMsg,
                                      uint32_t aTotalTried,
                                      uint32_t aSuccessful) {
   // Catch-all, we may have had an issue sending, so we may not be calling
@@ -1258,8 +1257,8 @@ void nsMsgSendLater::OnCopyStepFinished(nsresult aStatus) {
 
 // XXX todo
 // maybe this should just live in the account manager?
-nsresult nsMsgSendLater::GetIdentityFromKey(const char *aKey,
-                                            nsIMsgIdentity **aIdentity) {
+nsresult nsMsgSendLater::GetIdentityFromKey(const char* aKey,
+                                            nsIMsgIdentity** aIdentity) {
   NS_ENSURE_ARG_POINTER(aIdentity);
 
   nsresult rv;
@@ -1296,7 +1295,7 @@ nsresult nsMsgSendLater::GetIdentityFromKey(const char *aKey,
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemAdded(nsIMsgFolder *aParentItem, nsISupports *aItem) {
+nsMsgSendLater::OnItemAdded(nsIMsgFolder* aParentItem, nsISupports* aItem) {
   // No need to trigger if timer is already set
   if (mTimerSet) return NS_OK;
 
@@ -1310,7 +1309,7 @@ nsMsgSendLater::OnItemAdded(nsIMsgFolder *aParentItem, nsISupports *aItem) {
     NS_ENSURE_SUCCESS(rv, NS_OK);
   }
 
-  rv = mTimer->Init(static_cast<nsIObserver *>(this), kInitialMessageSendTime,
+  rv = mTimer->Init(static_cast<nsIObserver*>(this), kInitialMessageSendTime,
                     nsITimer::TYPE_ONE_SHOT);
   NS_ENSURE_SUCCESS(rv, NS_OK);
 
@@ -1320,63 +1319,63 @@ nsMsgSendLater::OnItemAdded(nsIMsgFolder *aParentItem, nsISupports *aItem) {
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemRemoved(nsIMsgFolder *aParentItem, nsISupports *aItem) {
+nsMsgSendLater::OnItemRemoved(nsIMsgFolder* aParentItem, nsISupports* aItem) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemPropertyChanged(nsIMsgFolder *aItem,
-                                      const nsACString &aProperty,
-                                      const nsACString &aOldValue,
-                                      const nsACString &aNewValue) {
+nsMsgSendLater::OnItemPropertyChanged(nsIMsgFolder* aItem,
+                                      const nsACString& aProperty,
+                                      const nsACString& aOldValue,
+                                      const nsACString& aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemIntPropertyChanged(nsIMsgFolder *aItem,
-                                         const nsACString &aProperty,
+nsMsgSendLater::OnItemIntPropertyChanged(nsIMsgFolder* aItem,
+                                         const nsACString& aProperty,
                                          int64_t aOldValue, int64_t aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
-                                          const nsACString &aProperty,
+nsMsgSendLater::OnItemBoolPropertyChanged(nsIMsgFolder* aItem,
+                                          const nsACString& aProperty,
                                           bool aOldValue, bool aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemUnicharPropertyChanged(nsIMsgFolder *aItem,
-                                             const nsACString &aProperty,
-                                             const nsAString &aOldValue,
-                                             const nsAString &aNewValue) {
+nsMsgSendLater::OnItemUnicharPropertyChanged(nsIMsgFolder* aItem,
+                                             const nsACString& aProperty,
+                                             const nsAString& aOldValue,
+                                             const nsAString& aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemPropertyFlagChanged(nsIMsgDBHdr *aItem,
-                                          const nsACString &aProperty,
+nsMsgSendLater::OnItemPropertyFlagChanged(nsIMsgDBHdr* aItem,
+                                          const nsACString& aProperty,
                                           uint32_t aOldValue,
                                           uint32_t aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::OnItemEvent(nsIMsgFolder *aItem, const nsACString &aEvent) {
+nsMsgSendLater::OnItemEvent(nsIMsgFolder* aItem, const nsACString& aEvent) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::GetNeedsToRunTask(bool *aResult) {
+nsMsgSendLater::GetNeedsToRunTask(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = mSendingMessages;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::DoShutdownTask(nsIUrlListener *aListener, nsIMsgWindow *aWindow,
-                               bool *aResult) {
+nsMsgSendLater::DoShutdownTask(nsIUrlListener* aListener, nsIMsgWindow* aWindow,
+                               bool* aResult) {
   if (mTimer) mTimer->Cancel();
   // If we're already sending messages, nothing to do, but save the shutdown
   // listener until we've finished.
@@ -1391,7 +1390,7 @@ nsMsgSendLater::DoShutdownTask(nsIUrlListener *aListener, nsIMsgWindow *aWindow,
 }
 
 NS_IMETHODIMP
-nsMsgSendLater::GetCurrentTaskName(nsAString &aResult) {
+nsMsgSendLater::GetCurrentTaskName(nsAString& aResult) {
   // XXX Bug 440794 will localize this, left as non-localized whilst we decide
   // on the actual strings and try out the UI.
   aResult = NS_LITERAL_STRING("Sending Messages");

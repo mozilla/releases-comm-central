@@ -20,12 +20,12 @@
 MimeDefClass(MimeInlineTextPlain, MimeInlineTextPlainClass,
              mimeInlineTextPlainClass, &MIME_SUPERCLASS);
 
-static int MimeInlineTextPlain_parse_begin(MimeObject *);
-static int MimeInlineTextPlain_parse_line(const char *, int32_t, MimeObject *);
-static int MimeInlineTextPlain_parse_eof(MimeObject *, bool);
+static int MimeInlineTextPlain_parse_begin(MimeObject*);
+static int MimeInlineTextPlain_parse_line(const char*, int32_t, MimeObject*);
+static int MimeInlineTextPlain_parse_eof(MimeObject*, bool);
 
-static int MimeInlineTextPlainClassInitialize(MimeInlineTextPlainClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
+static int MimeInlineTextPlainClassInitialize(MimeInlineTextPlainClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   NS_ASSERTION(!oclass->class_initialized, "class not initialized");
   oclass->parse_begin = MimeInlineTextPlain_parse_begin;
   oclass->parse_line = MimeInlineTextPlain_parse_line;
@@ -36,8 +36,8 @@ static int MimeInlineTextPlainClassInitialize(MimeInlineTextPlainClass *clazz) {
 extern "C" void MimeTextBuildPrefixCSS(
     int32_t quotedSizeSetting,   // mail.quoted_size
     int32_t quotedStyleSetting,  // mail.quoted_style
-    nsACString &citationColor,   // mail.citation_color
-    nsACString &style) {
+    nsACString& citationColor,   // mail.citation_color
+    nsACString& style) {
   switch (quotedStyleSetting) {
     case 0:  // regular
       break;
@@ -70,7 +70,7 @@ extern "C" void MimeTextBuildPrefixCSS(
   }
 }
 
-static int MimeInlineTextPlain_parse_begin(MimeObject *obj) {
+static int MimeInlineTextPlain_parse_begin(MimeObject* obj) {
   int status = 0;
   bool quoting =
       (obj->options &&
@@ -88,13 +88,13 @@ static int MimeInlineTextPlain_parse_begin(MimeObject *obj) {
       (obj->options->format_out == nsMimeOutput::nsMimeMessageFilterSniffer ||
        obj->options->format_out == nsMimeOutput::nsMimeMessageAttach);
 
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_begin(obj);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
   if (status < 0) return status;
 
   if (!obj->output_p) return 0;
 
   if (obj->options && obj->options->write_html_p && obj->options->output_fn) {
-    MimeInlineTextPlain *text = (MimeInlineTextPlain *)obj;
+    MimeInlineTextPlain* text = (MimeInlineTextPlain*)obj;
     text->mCiteLevel = 0;
 
     // Get the prefs
@@ -109,7 +109,7 @@ static int MimeInlineTextPlain_parse_begin(MimeObject *obj) {
     text->mStripSig = true;           // mail.strip_sig_on_reply
     bool graphicalQuote = true;       // mail.quoted_graphical
 
-    nsIPrefBranch *prefBranch = GetPrefBranch(obj->options);
+    nsIPrefBranch* prefBranch = GetPrefBranch(obj->options);
     if (prefBranch) {
       prefBranch->GetIntPref("mail.quoted_size", &(text->mQuotedSizeSetting));
       prefBranch->GetIntPref("mail.quoted_style", &(text->mQuotedStyleSetting));
@@ -195,7 +195,7 @@ static int MimeInlineTextPlain_parse_begin(MimeObject *obj) {
   return 0;
 }
 
-static int MimeInlineTextPlain_parse_eof(MimeObject *obj, bool abort_p) {
+static int MimeInlineTextPlain_parse_eof(MimeObject* obj, bool abort_p) {
   int status;
 
   // Has this method already been called for this object?
@@ -203,7 +203,7 @@ static int MimeInlineTextPlain_parse_eof(MimeObject *obj, bool abort_p) {
   if (obj->closed_p) return 0;
 
   nsCString citationColor;
-  MimeInlineTextPlain *text = (MimeInlineTextPlain *)obj;
+  MimeInlineTextPlain* text = (MimeInlineTextPlain*)obj;
   if (text && !text->mCitationColor.IsEmpty())
     citationColor = text->mCitationColor;
 
@@ -219,14 +219,14 @@ static int MimeInlineTextPlain_parse_eof(MimeObject *obj, bool abort_p) {
        obj->options->format_out == nsMimeOutput::nsMimeMessageAttach);
 
   /* Run parent method first, to flush out any buffered data. */
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0) return status;
 
   if (!obj->output_p) return 0;
 
   if (obj->options && obj->options->write_html_p && obj->options->output_fn &&
       !abort_p && !rawPlainText) {
-    MimeInlineTextPlain *text = (MimeInlineTextPlain *)obj;
+    MimeInlineTextPlain* text = (MimeInlineTextPlain*)obj;
     if (text->mIsSig && !quoting) {
       status = MimeObject_write(obj, "</div>", 6, false);  // .moz-txt-sig
       if (status < 0) return status;
@@ -249,8 +249,8 @@ static int MimeInlineTextPlain_parse_eof(MimeObject *obj, bool abort_p) {
   return 0;
 }
 
-static int MimeInlineTextPlain_parse_line(const char *line, int32_t length,
-                                          MimeObject *obj) {
+static int MimeInlineTextPlain_parse_line(const char* line, int32_t length,
+                                          MimeObject* obj) {
   int status;
   bool quoting =
       (obj->options &&
@@ -275,13 +275,13 @@ static int MimeInlineTextPlain_parse_line(const char *line, int32_t length,
   NS_ASSERTION(length > 0, "zero length");
   if (length <= 0) return 0;
 
-  mozITXTToHTMLConv *conv = GetTextConverter(obj->options);
-  MimeInlineTextPlain *text = (MimeInlineTextPlain *)obj;
+  mozITXTToHTMLConv* conv = GetTextConverter(obj->options);
+  MimeInlineTextPlain* text = (MimeInlineTextPlain*)obj;
 
   bool skipConversion = !conv || rawPlainText ||
                         (obj->options && obj->options->force_user_charset);
 
-  char *mailCharset = NULL;
+  char* mailCharset = NULL;
   nsresult rv;
 
   if (!skipConversion) {
@@ -293,9 +293,9 @@ static int MimeInlineTextPlain_parse_line(const char *line, int32_t length,
     if (obj->options->format_out ==
         nsMimeOutput::nsMimeMessageSaveAs) {  // Get the mail charset of this
                                               // message.
-      MimeInlineText *inlinetext = (MimeInlineText *)obj;
+      MimeInlineText* inlinetext = (MimeInlineText*)obj;
       if (!inlinetext->initializeCharset)
-        ((MimeInlineTextClass *)&mimeInlineTextClass)->initialize_charset(obj);
+        ((MimeInlineTextClass*)&mimeInlineTextClass)->initialize_charset(obj);
       mailCharset = inlinetext->charset;
       if (mailCharset && *mailCharset) {
         rv = nsMsgI18NConvertToUnicode(nsDependentCString(mailCharset),

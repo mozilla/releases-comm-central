@@ -45,7 +45,7 @@ nsresult nsMsgAccount::getPrefService() {
 }
 
 NS_IMETHODIMP
-nsMsgAccount::GetIncomingServer(nsIMsgIncomingServer **aIncomingServer) {
+nsMsgAccount::GetIncomingServer(nsIMsgIncomingServer** aIncomingServer) {
   NS_ENSURE_ARG_POINTER(aIncomingServer);
 
   // create the incoming server lazily
@@ -99,7 +99,7 @@ nsresult nsMsgAccount::createIncomingServer() {
 }
 
 NS_IMETHODIMP
-nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer *aIncomingServer) {
+nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer* aIncomingServer) {
   NS_ENSURE_ARG_POINTER(aIncomingServer);
 
   nsCString key;
@@ -157,7 +157,7 @@ nsMsgAccount::SetIncomingServer(nsIMsgIncomingServer *aIncomingServer) {
 }
 
 NS_IMETHODIMP
-nsMsgAccount::GetIdentities(nsTArray<RefPtr<nsIMsgIdentity>> &identities) {
+nsMsgAccount::GetIdentities(nsTArray<RefPtr<nsIMsgIdentity>>& identities) {
   NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_FAILURE);
   identities.Clear();
   identities.AppendElements(m_identities);
@@ -189,8 +189,8 @@ nsresult nsMsgAccount::createIdentities() {
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  char *newStr = identityKey.BeginWriting();
-  char *token = NS_strtok(",", &newStr);
+  char* newStr = identityKey.BeginWriting();
+  char* token = NS_strtok(",", &newStr);
 
   // temporaries used inside the loop
   nsCOMPtr<nsIMsgIdentity> identity;
@@ -217,7 +217,7 @@ nsresult nsMsgAccount::createIdentities() {
 
 /* attribute nsIMsgIdentity defaultIdentity; */
 NS_IMETHODIMP
-nsMsgAccount::GetDefaultIdentity(nsIMsgIdentity **aDefaultIdentity) {
+nsMsgAccount::GetDefaultIdentity(nsIMsgIdentity** aDefaultIdentity) {
   NS_ENSURE_ARG_POINTER(aDefaultIdentity);
   NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_NOT_INITIALIZED);
 
@@ -231,7 +231,7 @@ nsMsgAccount::GetDefaultIdentity(nsIMsgIdentity **aDefaultIdentity) {
 }
 
 NS_IMETHODIMP
-nsMsgAccount::SetDefaultIdentity(nsIMsgIdentity *aDefaultIdentity) {
+nsMsgAccount::SetDefaultIdentity(nsIMsgIdentity* aDefaultIdentity) {
   NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_FAILURE);
 
   auto position = m_identities.IndexOf(aDefaultIdentity);
@@ -248,7 +248,7 @@ nsMsgAccount::SetDefaultIdentity(nsIMsgIdentity *aDefaultIdentity) {
 
 /* void addIdentity (in nsIMsgIdentity identity); */
 NS_IMETHODIMP
-nsMsgAccount::AddIdentity(nsIMsgIdentity *identity) {
+nsMsgAccount::AddIdentity(nsIMsgIdentity* identity) {
   NS_ENSURE_ARG_POINTER(identity);
   NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_FAILURE);
 
@@ -268,8 +268,8 @@ nsMsgAccount::AddIdentity(nsIMsgIdentity *identity) {
     bool foundIdentity = false;  // if the input identity is found
 
     if (!identityList.IsEmpty()) {
-      char *newStr = identityList.BeginWriting();
-      char *token = NS_strtok(",", &newStr);
+      char* newStr = identityList.BeginWriting();
+      char* token = NS_strtok(",", &newStr);
 
       // look for the identity key that we're adding
       while (token) {
@@ -302,7 +302,7 @@ nsMsgAccount::AddIdentity(nsIMsgIdentity *identity) {
 
 /* void removeIdentity (in nsIMsgIdentity identity); */
 NS_IMETHODIMP
-nsMsgAccount::RemoveIdentity(nsIMsgIdentity *aIdentity) {
+nsMsgAccount::RemoveIdentity(nsIMsgIdentity* aIdentity) {
   NS_ENSURE_ARG_POINTER(aIdentity);
   NS_ENSURE_TRUE(m_identitiesValid, NS_ERROR_FAILURE);
 
@@ -342,13 +342,13 @@ nsresult nsMsgAccount::saveIdentitiesPref() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAccount::GetKey(nsACString &accountKey) {
+NS_IMETHODIMP nsMsgAccount::GetKey(nsACString& accountKey) {
   accountKey = m_accountKey;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgAccount::SetKey(const nsACString &accountKey) {
+nsMsgAccount::SetKey(const nsACString& accountKey) {
   m_accountKey = accountKey;
   m_prefs = nullptr;
   m_identitiesValid = false;
@@ -357,7 +357,7 @@ nsMsgAccount::SetKey(const nsACString &accountKey) {
 }
 
 NS_IMETHODIMP
-nsMsgAccount::ToString(nsAString &aResult) {
+nsMsgAccount::ToString(nsAString& aResult) {
   nsAutoString val;
   aResult.AssignLiteral("[nsIMsgAccount: ");
   aResult.Append(NS_ConvertASCIItoUTF16(m_accountKey));

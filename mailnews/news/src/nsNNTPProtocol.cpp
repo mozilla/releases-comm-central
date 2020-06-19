@@ -107,7 +107,7 @@ using namespace mozilla;
 //#define HAVE_NNTP_EXTENSIONS
 
 // quiet compiler warnings by defining these function prototypes
-char *MSG_UnEscapeSearchUrl(const char *commandSpecificData);
+char* MSG_UnEscapeSearchUrl(const char* commandSpecificData);
 
 /* Logging stuff */
 
@@ -232,7 +232,7 @@ const char *const stateLabels[] = {
 #define NET_IS_SPACE(x) ((x) == ' ' || (x) == '\t')
 
 // turn "\xx" (with xx being hex numbers) in string into chars
-char *MSG_UnEscapeSearchUrl(const char *commandSpecificData) {
+char* MSG_UnEscapeSearchUrl(const char* commandSpecificData) {
   nsAutoCString result(commandSpecificData);
   int32_t slashpos = 0;
   while ((slashpos = result.FindChar('\\', slashpos)) != kNotFound) {
@@ -255,8 +255,8 @@ NS_IMPL_ISUPPORTS_INHERITED(nsNNTPProtocol, nsMsgProtocol, nsINNTPProtocol,
                             nsITimerCallback, nsICacheEntryOpenCallback,
                             nsIMsgAsyncPromptListener, nsIProtocolProxyCallback)
 
-nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
-                               nsIMsgWindow *aMsgWindow)
+nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer* aServer, nsIURI* aURL,
+                               nsIMsgWindow* aMsgWindow)
     : nsMsgProtocol(aURL), m_connectionBusy(false), m_nntpServer(aServer) {
   m_ProxyServer = nullptr;
   m_responseText = nullptr;
@@ -300,8 +300,8 @@ void nsNNTPProtocol::Cleanup()  // free char* member variables
   PR_FREEIF(m_dataBuf);
 }
 
-NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL,
-                                         nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI* aURL,
+                                         nsIMsgWindow* aMsgWindow) {
   if (aMsgWindow) {
     m_msgWindow = aMsgWindow;
   }
@@ -390,7 +390,7 @@ NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL,
   } else {
     m_nextState = SEND_FIRST_NNTP_COMMAND;
   }
-  m_dataBuf = (char *)PR_Malloc(sizeof(char) * OUTPUT_BUFFER_SIZE);
+  m_dataBuf = (char*)PR_Malloc(sizeof(char) * OUTPUT_BUFFER_SIZE);
   m_dataBufSize = OUTPUT_BUFFER_SIZE;
 
   if (!m_lineStreamBuffer)
@@ -420,7 +420,7 @@ NS_IMETHODIMP nsNNTPProtocol::Initialize(nsIURI *aURL,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNNTPProtocol::GetIsBusy(bool *aIsBusy) {
+NS_IMETHODIMP nsNNTPProtocol::GetIsBusy(bool* aIsBusy) {
   NS_ENSURE_ARG_POINTER(aIsBusy);
   *aIsBusy = m_connectionBusy;
   return NS_OK;
@@ -436,7 +436,7 @@ NS_IMETHODIMP nsNNTPProtocol::SetIsBusy(bool aIsBusy) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNNTPProtocol::GetIsCachedConnection(bool *aIsCachedConnection) {
+NS_IMETHODIMP nsNNTPProtocol::GetIsCachedConnection(bool* aIsCachedConnection) {
   NS_ENSURE_ARG_POINTER(aIsCachedConnection);
   *aIsCachedConnection = m_fromCache;
   return NS_OK;
@@ -448,14 +448,14 @@ NS_IMETHODIMP nsNNTPProtocol::SetIsCachedConnection(bool aIsCachedConnection) {
 }
 
 /* void GetLastActiveTimeStamp (out PRTime aTimeStamp); */
-NS_IMETHODIMP nsNNTPProtocol::GetLastActiveTimeStamp(PRTime *aTimeStamp) {
+NS_IMETHODIMP nsNNTPProtocol::GetLastActiveTimeStamp(PRTime* aTimeStamp) {
   NS_ENSURE_ARG_POINTER(aTimeStamp);
   *aTimeStamp = m_lastActiveTimeStamp;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNNTPProtocol::LoadNewsUrl(nsIURI *aURL,
-                                          nsISupports *aConsumer) {
+NS_IMETHODIMP nsNNTPProtocol::LoadNewsUrl(nsIURI* aURL,
+                                          nsISupports* aConsumer) {
   // clear the previous channel listener and use the new one....
   // don't reuse an existing channel listener
   m_channelListener = nullptr;
@@ -478,8 +478,8 @@ class nsNntpCacheStreamListener : public nsIStreamListener {
 
   nsNntpCacheStreamListener();
 
-  nsresult Init(nsIStreamListener *aStreamListener, nsIChannel *channel,
-                nsIMsgMailNewsUrl *aRunningUrl);
+  nsresult Init(nsIStreamListener* aStreamListener, nsIChannel* channel,
+                nsIMsgMailNewsUrl* aRunningUrl);
 
  protected:
   virtual ~nsNntpCacheStreamListener();
@@ -501,9 +501,9 @@ nsNntpCacheStreamListener::nsNntpCacheStreamListener() {}
 
 nsNntpCacheStreamListener::~nsNntpCacheStreamListener() {}
 
-nsresult nsNntpCacheStreamListener::Init(nsIStreamListener *aStreamListener,
-                                         nsIChannel *channel,
-                                         nsIMsgMailNewsUrl *aRunningUrl) {
+nsresult nsNntpCacheStreamListener::Init(nsIStreamListener* aStreamListener,
+                                         nsIChannel* channel,
+                                         nsIMsgMailNewsUrl* aRunningUrl) {
   NS_ENSURE_ARG(aStreamListener);
   NS_ENSURE_ARG(channel);
 
@@ -515,7 +515,7 @@ nsresult nsNntpCacheStreamListener::Init(nsIStreamListener *aStreamListener,
 }
 
 NS_IMETHODIMP
-nsNntpCacheStreamListener::OnStartRequest(nsIRequest *request) {
+nsNntpCacheStreamListener::OnStartRequest(nsIRequest* request) {
   nsCOMPtr<nsILoadGroup> loadGroup;
 
   NS_ASSERTION(mChannelToUse, "null channel in OnStartRequest");
@@ -526,7 +526,7 @@ nsNntpCacheStreamListener::OnStartRequest(nsIRequest *request) {
 }
 
 NS_IMETHODIMP
-nsNntpCacheStreamListener::OnStopRequest(nsIRequest *request,
+nsNntpCacheStreamListener::OnStopRequest(nsIRequest* request,
                                          nsresult aStatus) {
   nsresult rv = NS_OK;
   NS_ASSERTION(mListener, "this assertion is for Bug 531794 comment 7");
@@ -550,8 +550,8 @@ nsNntpCacheStreamListener::OnStopRequest(nsIRequest *request,
 }
 
 NS_IMETHODIMP
-nsNntpCacheStreamListener::OnDataAvailable(nsIRequest *request,
-                                           nsIInputStream *aInStream,
+nsNntpCacheStreamListener::OnDataAvailable(nsIRequest* request,
+                                           nsIInputStream* aInStream,
                                            uint64_t aSourceOffset,
                                            uint32_t aCount) {
   NS_ENSURE_STATE(mListener);
@@ -559,19 +559,19 @@ nsNntpCacheStreamListener::OnDataAvailable(nsIRequest *request,
                                     aCount);
 }
 
-NS_IMETHODIMP nsNNTPProtocol::GetOriginalURI(nsIURI **aURI) {
+NS_IMETHODIMP nsNNTPProtocol::GetOriginalURI(nsIURI** aURI) {
   // News does not seem to have the notion of an original URI (See Bug #193317)
   NS_IF_ADDREF(*aURI = m_url);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNNTPProtocol::SetOriginalURI(nsIURI *aURI) {
+NS_IMETHODIMP nsNNTPProtocol::SetOriginalURI(nsIURI* aURI) {
   // News does not seem to have the notion of an original URI (See Bug #193317)
   return NS_OK;  // ignore
 }
 
 nsresult nsNNTPProtocol::SetupPartExtractorListener(
-    nsIStreamListener *aConsumer) {
+    nsIStreamListener* aConsumer) {
   bool convertData = false;
   nsresult rv = NS_OK;
 
@@ -606,7 +606,7 @@ nsresult nsNNTPProtocol::SetupPartExtractorListener(
   return rv;
 }
 
-nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry *entry) {
+nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry* entry) {
   NS_ENSURE_ARG(entry);
 
   nsCOMPtr<nsIInputStream> cacheStream;
@@ -628,7 +628,7 @@ nsresult nsNNTPProtocol::ReadFromMemCache(nsICacheEntry *entry) {
     m_typeWanted = ARTICLE_WANTED;
 
     nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningURL);
-    cacheListener->Init(m_channelListener, static_cast<nsIChannel *>(this),
+    cacheListener->Init(m_channelListener, static_cast<nsIChannel*>(this),
                         mailnewsUrl);
 
     mContentType = "";  // reset the content type for the upcoming read....
@@ -691,7 +691,7 @@ bool nsNNTPProtocol::ReadFromLocalCache() {
         RefPtr<nsNntpCacheStreamListener> cacheListener =
             new nsNntpCacheStreamListener();
 
-        cacheListener->Init(m_channelListener, static_cast<nsIChannel *>(this),
+        cacheListener->Init(m_channelListener, static_cast<nsIChannel*>(this),
                             mailnewsUrl);
 
         // create a stream pump that will async read the specified amount of
@@ -720,8 +720,8 @@ bool nsNNTPProtocol::ReadFromLocalCache() {
 }
 
 NS_IMETHODIMP
-nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew,
-                                      nsIApplicationCache *aAppCache,
+nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntry* entry, bool aNew,
+                                      nsIApplicationCache* aAppCache,
                                       nsresult status) {
   nsresult rv = NS_OK;
 
@@ -761,9 +761,9 @@ nsNNTPProtocol::OnCacheEntryAvailable(nsICacheEntry *entry, bool aNew,
 }
 
 NS_IMETHODIMP
-nsNNTPProtocol::OnCacheEntryCheck(nsICacheEntry *entry,
-                                  nsIApplicationCache *appCache,
-                                  uint32_t *aResult) {
+nsNNTPProtocol::OnCacheEntryCheck(nsICacheEntry* entry,
+                                  nsIApplicationCache* appCache,
+                                  uint32_t* aResult) {
   *aResult = nsICacheEntryOpenCallback::ENTRY_WANTED;
   return NS_OK;
 }
@@ -801,7 +801,7 @@ nsresult nsNNTPProtocol::OpenCacheEntry() {
                                     nsICacheStorage::OPEN_NORMALLY, this);
 }
 
-NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener *aListener) {
+NS_IMETHODIMP nsNNTPProtocol::AsyncOpen(nsIStreamListener* aListener) {
   nsCOMPtr<nsIStreamListener> listener = aListener;
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);
@@ -871,7 +871,7 @@ void nsNNTPProtocol::PostLoadAssertions() {
     NS_ASSERTION(m_newsFolder, "IDS_WANTED needs m_newsFolder");
 }
 
-nsresult nsNNTPProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
+nsresult nsNNTPProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
   NS_ENSURE_ARG_POINTER(aURL);
 
   nsCString group;
@@ -1038,8 +1038,8 @@ FAIL:
 
 // nsIProtocolProxyCallback
 NS_IMETHODIMP
-nsNNTPProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
-                                 nsIProxyInfo *aProxyInfo, nsresult aStatus) {
+nsNNTPProtocol::OnProxyAvailable(nsICancelable* aRequest, nsIChannel* aChannel,
+                                 nsIProxyInfo* aProxyInfo, nsresult aStatus) {
   MOZ_ASSERT(aChannel == this,
              "Should never request a proxy for anyone but ourselves");
 
@@ -1058,7 +1058,7 @@ nsNNTPProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
   return rv;
 }
 
-nsresult nsNNTPProtocol::LoadUrlInternal(nsIProxyInfo *aProxyInfo) {
+nsresult nsNNTPProtocol::LoadUrlInternal(nsIProxyInfo* aProxyInfo) {
   m_proxyRequest = nullptr;
 
   nsresult rv;
@@ -1113,7 +1113,7 @@ void nsNNTPProtocol::FinishMemCacheEntry(bool valid) {
 
 // stop binding is a "notification" informing us that the stream associated with
 // aURL is going away.
-NS_IMETHODIMP nsNNTPProtocol::OnStopRequest(nsIRequest *request,
+NS_IMETHODIMP nsNNTPProtocol::OnStopRequest(nsIRequest* request,
                                             nsresult aStatus) {
   // either remove mem cache entry, or mark it valid if url successful and
   // command succeeded
@@ -1149,8 +1149,8 @@ NS_IMETHODIMP nsNNTPProtocol::Cancel(nsresult status)  // handle stop button
   return nsMsgProtocol::Cancel(NS_BINDING_ABORTED);
 }
 
-nsresult nsNNTPProtocol::ParseURL(nsIURI *aURL, nsCString &aGroup,
-                                  nsCString &aMessageID) {
+nsresult nsNNTPProtocol::ParseURL(nsIURI* aURL, nsCString& aGroup,
+                                  nsCString& aMessageID) {
   NS_ENSURE_ARG_POINTER(aURL);
 
   MOZ_LOG(NNTP, LogLevel::Info, ("(%p) ParseURL", this));
@@ -1242,7 +1242,7 @@ nsresult nsNNTPProtocol::ParseURL(nsIURI *aURL, nsCString &aGroup,
  * through this file to install an error system (mscott)
  */
 
-nsresult nsNNTPProtocol::SendData(const char *dataBuffer,
+nsresult nsNNTPProtocol::SendData(const char* dataBuffer,
                                   bool aSuppressLogging) {
   if (!aSuppressLogging) {
     NNTP_LOG_WRITE(dataBuffer);
@@ -1262,14 +1262,14 @@ nsresult nsNNTPProtocol::SendData(const char *dataBuffer,
  *
  * returns the TCP return code from the read
  */
-nsresult nsNNTPProtocol::NewsResponse(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::NewsResponse(nsIInputStream* inputStream,
                                       uint32_t length) {
   uint32_t status = 0;
 
   NS_ASSERTION(nullptr != inputStream, "invalid input stream");
 
   bool pauseForMoreData = false;
-  char *line =
+  char* line =
       m_lineStreamBuffer->ReadNextLine(inputStream, status, pauseForMoreData);
 
   NNTP_LOG_READ(line);
@@ -1380,14 +1380,14 @@ nsresult nsNNTPProtocol::SendListExtensions() {
   return rv;
 }
 
-nsresult nsNNTPProtocol::SendListExtensionsResponse(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::SendListExtensionsResponse(nsIInputStream* inputStream,
                                                     uint32_t length) {
   nsresult rv = NS_OK;
 
   if (MK_NNTP_RESPONSE_TYPE(m_responseCode) == MK_NNTP_RESPONSE_TYPE_OK) {
     uint32_t status = 0;
     bool pauseForMoreData = false;
-    char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
+    char* line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
                                                   pauseForMoreData, &rv);
 
     if (pauseForMoreData) {
@@ -1437,7 +1437,7 @@ nsresult nsNNTPProtocol::SendListSearches() {
   return rv;
 }
 
-nsresult nsNNTPProtocol::SendListSearchesResponse(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::SendListSearchesResponse(nsIInputStream* inputStream,
                                                   uint32_t length) {
   uint32_t status = 0;
   nsresult rv = NS_OK;
@@ -1445,7 +1445,7 @@ nsresult nsNNTPProtocol::SendListSearchesResponse(nsIInputStream *inputStream,
   NS_ASSERTION(inputStream, "invalid input stream");
 
   bool pauseForMoreData = false;
-  char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
+  char* line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
                                                 pauseForMoreData, &rv);
 
   NNTP_LOG_READ(line);
@@ -1489,12 +1489,12 @@ nsresult nsNNTPProtocol::SendListSearchHeaders() {
 }
 
 nsresult nsNNTPProtocol::SendListSearchHeadersResponse(
-    nsIInputStream *inputStream, uint32_t length) {
+    nsIInputStream* inputStream, uint32_t length) {
   uint32_t status = 0;
   nsresult rv;
 
   bool pauseForMoreData = false;
-  char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
+  char* line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
                                                 pauseForMoreData, &rv);
 
   if (pauseForMoreData) {
@@ -1532,13 +1532,13 @@ nsresult nsNNTPProtocol::GetProperties() {
   return rv;
 }
 
-nsresult nsNNTPProtocol::GetPropertiesResponse(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::GetPropertiesResponse(nsIInputStream* inputStream,
                                                uint32_t length) {
   uint32_t status = 0;
   nsresult rv;
 
   bool pauseForMoreData = false;
-  char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
+  char* line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
                                                 pauseForMoreData, &rv);
 
   if (pauseForMoreData) {
@@ -1548,11 +1548,11 @@ nsresult nsNNTPProtocol::GetPropertiesResponse(nsIInputStream *inputStream,
   if (!line) return rv; /* no line yet */
 
   if ('.' != line[0]) {
-    char *propertyName = NS_xstrdup(line);
+    char* propertyName = NS_xstrdup(line);
     if (propertyName) {
-      char *space = PL_strchr(propertyName, ' ');
+      char* space = PL_strchr(propertyName, ' ');
       if (space) {
-        char *propertyValue = space + 1;
+        char* propertyValue = space + 1;
         *space = '\0';
         m_nntpServer->AddPropertyForGet(propertyName, propertyValue);
       }
@@ -1596,12 +1596,12 @@ nsresult nsNNTPProtocol::SendListSubscriptions() {
 }
 
 nsresult nsNNTPProtocol::SendListSubscriptionsResponse(
-    nsIInputStream *inputStream, uint32_t length) {
+    nsIInputStream* inputStream, uint32_t length) {
   uint32_t status = 0;
   nsresult rv;
 
   bool pauseForMoreData = false;
-  char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
+  char* line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
                                                 pauseForMoreData, &rv);
 
   if (pauseForMoreData) {
@@ -1631,8 +1631,8 @@ nsresult nsNNTPProtocol::SendListSubscriptionsResponse(
  *
  * returns the status from the NETWrite */
 
-nsresult nsNNTPProtocol::SendFirstNNTPCommand(nsIURI *url) {
-  char *command = 0;
+nsresult nsNNTPProtocol::SendFirstNNTPCommand(nsIURI* url) {
+  char* command = 0;
 
   if (m_typeWanted == ARTICLE_WANTED) {
     if (m_key != nsMsgKey_None) {
@@ -1975,14 +1975,14 @@ nsresult nsNNTPProtocol::BeginArticle() {
   return NS_OK;
 }
 
-nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream* inputStream,
                                         uint32_t length) {
   uint32_t line_length = 0;
 
   bool pauseForMoreData = false;
   if (m_channelListener) {
     nsresult rv = NS_OK;
-    char *line = m_lineStreamBuffer->ReadNextLine(inputStream, line_length,
+    char* line = m_lineStreamBuffer->ReadNextLine(inputStream, line_length,
                                                   pauseForMoreData, &rv, true);
 
     if (pauseForMoreData) {
@@ -2032,11 +2032,11 @@ nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream *inputStream,
   return NS_OK;
 }
 
-nsresult nsNNTPProtocol::ReadArticle(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::ReadArticle(nsIInputStream* inputStream,
                                      uint32_t length) {
   uint32_t status = 0;
   nsresult rv;
-  char *outputBuffer;
+  char* outputBuffer;
 
   bool pauseForMoreData = false;
 
@@ -2045,10 +2045,10 @@ nsresult nsNNTPProtocol::ReadArticle(nsIInputStream *inputStream,
   // in which case we are doing the work.
   if (m_channelListener) return DisplayArticle(inputStream, length);
 
-  char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
+  char* line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
                                                 pauseForMoreData, &rv, true);
   if (m_newsFolder && line) {
-    const char *unescapedLine = line;
+    const char* unescapedLine = line;
     // lines beginning with '.' are escaped by nntp server
     // or is it just '.' on a line by itself?
     if (line[0] == '.' && line[1] == '.') unescapedLine++;
@@ -2104,7 +2104,7 @@ nsresult nsNNTPProtocol::ReadArticle(nsIInputStream *inputStream,
   return NS_OK;
 }
 
-void nsNNTPProtocol::ParseHeaderForCancel(char *buf) {
+void nsNNTPProtocol::ParseHeaderForCancel(char* buf) {
   static int lastHeader = 0;
   nsAutoCString header(buf);
   if (header.First() == ' ' || header.First() == '\t') {
@@ -2170,7 +2170,7 @@ void nsNNTPProtocol::ParseHeaderForCancel(char *buf) {
 }
 
 nsresult nsNNTPProtocol::BeginAuthorization() {
-  char *command = 0;
+  char* command = 0;
   nsresult rv = NS_OK;
 
   if (!m_newsFolder && m_nntpServer) {
@@ -2278,7 +2278,7 @@ nsresult nsNNTPProtocol::AuthorizationResponse() {
 
     return NS_OK;
   } else if (MK_NNTP_RESPONSE_AUTHINFO_CONT == m_responseCode) {
-    char *command = 0;
+    char* command = 0;
 
     // Since we had to have called BeginAuthorization to get here, we've already
     // prompted for the authorization credentials. Just grab them without a
@@ -2347,13 +2347,13 @@ nsresult nsNNTPProtocol::PasswordResponse() {
 }
 
 NS_IMETHODIMP nsNNTPProtocol::OnPromptStartAsync(
-    nsIMsgAsyncPromptCallback *aCallback) {
+    nsIMsgAsyncPromptCallback* aCallback) {
   bool result = false;
   OnPromptStart(&result);
   return aCallback->OnAuthResult(result);
 }
 
-NS_IMETHODIMP nsNNTPProtocol::OnPromptStart(bool *authAvailable) {
+NS_IMETHODIMP nsNNTPProtocol::OnPromptStart(bool* authAvailable) {
   NS_ENSURE_ARG_POINTER(authAvailable);
   NS_ENSURE_STATE(m_nextState == NNTP_SUSPENDED);
 
@@ -2415,7 +2415,7 @@ nsresult nsNNTPProtocol::BeginNewsgroups() {
   return NS_OK;
 }
 
-nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::ProcessNewsgroups(nsIInputStream* inputStream,
                                            uint32_t length) {
   char *line, *lineToFree, *s, *s1 = NULL, *s2 = NULL;
   uint32_t status = 0;
@@ -2532,7 +2532,7 @@ nsresult nsNNTPProtocol::BeginReadNewsList() {
 
 #define RATE_CONSTANT 976.5625 /* PR_USEC_PER_SEC / 1024 bytes */
 
-static void ComputeRate(int32_t bytes, PRTime startTime, float *rate) {
+static void ComputeRate(int32_t bytes, PRTime startTime, float* rate) {
   // rate = (bytes / USECS since start) * RATE_CONSTANT
 
   // compute usecs since we started.
@@ -2549,7 +2549,7 @@ static void ComputeRate(int32_t bytes, PRTime startTime, float *rate) {
 /* display a list of all or part of the newsgroups list
  * from the news server
  */
-nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream* inputStream,
                                       uint32_t length) {
   nsresult rv = NS_OK;
   int32_t i = 0;
@@ -2683,7 +2683,7 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream *inputStream,
     mInputStream = inputStream;
 
     const uint32_t kUpdateTimerDelay = READ_NEWS_LIST_TIMEOUT;
-    rv = mUpdateTimer->InitWithCallback(static_cast<nsITimerCallback *>(this),
+    rv = mUpdateTimer->InitWithCallback(static_cast<nsITimerCallback*>(this),
                                         kUpdateTimerDelay,
                                         nsITimer::TYPE_ONE_SHOT);
     NS_ASSERTION(NS_SUCCEEDED(rv), "failed to init timer");
@@ -2705,7 +2705,7 @@ nsresult nsNNTPProtocol::ReadNewsList(nsIInputStream *inputStream,
 }
 
 NS_IMETHODIMP
-nsNNTPProtocol::Notify(nsITimer *timer) {
+nsNNTPProtocol::Notify(nsITimer* timer) {
   NS_ASSERTION(timer == mUpdateTimer.get(), "Hey, this ain't my timer!");
   mUpdateTimer = nullptr;  // release my hold
   TimerCallback();
@@ -2937,7 +2937,7 @@ nsresult nsNNTPProtocol::ReadXoverResponse() {
  * and load it into the sort list.
  */
 
-nsresult nsNNTPProtocol::ReadXover(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::ReadXover(nsIInputStream* inputStream,
                                    uint32_t length) {
   char *line, *lineToFree;
   nsresult rv;
@@ -3022,7 +3022,7 @@ nsresult nsNNTPProtocol::XhdrSend() {
   return SendData(outputBuffer);
 }
 
-nsresult nsNNTPProtocol::XhdrResponse(nsIInputStream *inputStream) {
+nsresult nsNNTPProtocol::XhdrResponse(nsIInputStream* inputStream) {
   if (m_responseCode != MK_NNTP_RESPONSE_XHDR_OK) {
     m_nextState = NNTP_READ_GROUP;
     // The reasoning behind setting this flag and not an XHDR flag is that we
@@ -3106,7 +3106,7 @@ nsresult nsNNTPProtocol::ReadNewsgroupResponse() {
 
 /* read the body of the "HEAD" command
  */
-nsresult nsNNTPProtocol::ReadNewsgroupBody(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::ReadNewsgroupBody(nsIInputStream* inputStream,
                                            uint32_t length) {
   char *line, *lineToFree;
   nsresult rv;
@@ -3144,7 +3144,7 @@ nsresult nsNNTPProtocol::ReadNewsgroupBody(nsIInputStream *inputStream,
 }
 
 nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID,
-                                           char16_t **aString) {
+                                           char16_t** aString) {
   nsresult rv;
   nsAutoString resultString(NS_LITERAL_STRING("???"));
 
@@ -3177,8 +3177,8 @@ nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID,
   return rv;
 }
 
-nsresult nsNNTPProtocol::GetNewsStringByName(const char *aName,
-                                             char16_t **aString) {
+nsresult nsNNTPProtocol::GetNewsStringByName(const char* aName,
+                                             char16_t** aString) {
   nsresult rv;
   nsAutoString resultString(NS_LITERAL_STRING("???"));
   if (!m_stringBundle) {
@@ -3212,7 +3212,7 @@ nsresult nsNNTPProtocol::GetNewsStringByName(const char *aName,
 
 // sspitzer:  PostMessageInFile is derived from
 // nsSmtpProtocol::SendMessageInFile()
-nsresult nsNNTPProtocol::PostMessageInFile(nsIFile *postMessageFile) {
+nsresult nsNNTPProtocol::PostMessageInFile(nsIFile* postMessageFile) {
   nsCOMPtr<nsIURI> url = do_QueryInterface(m_runningURL);
   if (url && postMessageFile) nsMsgProtocol::PostMessage(url, postMessageFile);
 
@@ -3283,9 +3283,9 @@ nsresult nsNNTPProtocol::StartCancel() {
   return rv;
 }
 
-void nsNNTPProtocol::CheckIfAuthor(nsIMsgIdentity *aIdentity,
-                                   const nsCString &aOldFrom,
-                                   nsCString &aFrom) {
+void nsNNTPProtocol::CheckIfAuthor(nsIMsgIdentity* aIdentity,
+                                   const nsCString& aOldFrom,
+                                   nsCString& aFrom) {
   nsAutoCString from;
   nsresult rv = aIdentity->GetEmail(from);
   if (NS_FAILED(rv)) return;
@@ -3451,7 +3451,7 @@ nsresult nsNNTPProtocol::DoCancel() {
   {
     /* NET_BlockingWrite() should go away soon? I think. */
     /* The following are what we really need to cancel a posted message */
-    char *data;
+    char* data;
     data = PR_smprintf(
         "From: %s" CRLF "Newsgroups: %s" CRLF "Subject: cancel %s" CRLF
         "References: %s" CRLF "%s" /* otherHeaders, already with CRLF */
@@ -3510,9 +3510,9 @@ nsresult nsNNTPProtocol::XPATSend() {
   if (slash >= 0) {
     /* extract the XPAT encoding for one query term */
     /* char *next_search = NULL; */
-    char *command = NULL;
-    char *unescapedCommand = NULL;
-    char *endOfTerm = NULL;
+    char* command = NULL;
+    char* unescapedCommand = NULL;
+    char* endOfTerm = NULL;
     NS_MsgSACopy(&command, m_searchData.get() + slash + 1);
     endOfTerm = PL_strchr(command, '/');
     if (endOfTerm) *endOfTerm = '\0';
@@ -3535,7 +3535,7 @@ nsresult nsNNTPProtocol::XPATSend() {
   return rv;
 }
 
-nsresult nsNNTPProtocol::XPATResponse(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::XPATResponse(nsIInputStream* inputStream,
                                       uint32_t length) {
   uint32_t status = 1;
   nsresult rv;
@@ -3548,7 +3548,7 @@ nsresult nsNNTPProtocol::XPATResponse(nsIInputStream *inputStream,
   }
 
   bool pauseForMoreData = false;
-  char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
+  char* line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
                                                 pauseForMoreData, &rv);
 
   NNTP_LOG_READ(line);
@@ -3607,7 +3607,7 @@ nsresult nsNNTPProtocol::ListPrettyNames() {
   return rv;
 }
 
-nsresult nsNNTPProtocol::ListPrettyNamesResponse(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::ListPrettyNamesResponse(nsIInputStream* inputStream,
                                                  uint32_t length) {
   uint32_t status = 0;
 
@@ -3619,7 +3619,7 @@ nsresult nsNNTPProtocol::ListPrettyNamesResponse(nsIInputStream *inputStream,
   }
 
   bool pauseForMoreData = false;
-  char *line =
+  char* line =
       m_lineStreamBuffer->ReadNextLine(inputStream, status, pauseForMoreData);
 
   NNTP_LOG_READ(line);
@@ -3690,7 +3690,7 @@ nsresult nsNNTPProtocol::ListXActive() {
   return rv;
 }
 
-nsresult nsNNTPProtocol::ListXActiveResponse(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::ListXActiveResponse(nsIInputStream* inputStream,
                                              uint32_t length) {
   uint32_t status = 0;
   nsresult rv;
@@ -3704,7 +3704,7 @@ nsresult nsNNTPProtocol::ListXActiveResponse(nsIInputStream *inputStream,
   }
 
   bool pauseForMoreData = false;
-  char *line =
+  char* line =
       m_lineStreamBuffer->ReadNextLine(inputStream, status, pauseForMoreData);
 
   NNTP_LOG_READ(line);
@@ -3722,7 +3722,7 @@ nsresult nsNNTPProtocol::ListXActiveResponse(nsIInputStream *inputStream,
 
   if (line) {
     if (line[0] != '.') {
-      char *s = line;
+      char* s = line;
       /* format is "rec.arts.movies.past-films 7302 7119 csp"
        */
       while (*s && !NET_IS_SPACE(*s)) s++;
@@ -3823,7 +3823,7 @@ nsresult nsNNTPProtocol::SendListGroup() {
   return rv;
 }
 
-nsresult nsNNTPProtocol::SendListGroupResponse(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::SendListGroupResponse(nsIInputStream* inputStream,
                                                uint32_t length) {
   uint32_t status = 0;
 
@@ -3836,7 +3836,7 @@ nsresult nsNNTPProtocol::SendListGroupResponse(nsIInputStream *inputStream,
   }
 
   bool pauseForMoreData = false;
-  char *line =
+  char* line =
       m_lineStreamBuffer->ReadNextLine(inputStream, status, pauseForMoreData);
 
   if (pauseForMoreData) {
@@ -3879,13 +3879,13 @@ nsresult nsNNTPProtocol::SearchResponse() {
   return NS_OK;
 }
 
-nsresult nsNNTPProtocol::SearchResults(nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::SearchResults(nsIInputStream* inputStream,
                                        uint32_t length) {
   uint32_t status = 1;
   nsresult rv;
 
   bool pauseForMoreData = false;
-  char *line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
+  char* line = m_lineStreamBuffer->ReadNextLine(inputStream, status,
                                                 pauseForMoreData, &rv);
 
   if (pauseForMoreData) {
@@ -3935,8 +3935,8 @@ nsresult nsNNTPProtocol::SetupForTransfer() {
 // type which we'll coordinate with the netlib folks?) when we are done
 // processing.
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
-nsresult nsNNTPProtocol::ProcessProtocolState(nsIURI *url,
-                                              nsIInputStream *inputStream,
+nsresult nsNNTPProtocol::ProcessProtocolState(nsIURI* url,
+                                              nsIInputStream* inputStream,
                                               uint64_t sourceOffset,
                                               uint32_t length) {
   nsresult status = NS_OK;
@@ -4349,7 +4349,7 @@ nsresult nsNNTPProtocol::CleanupAfterRunningUrl() {
   if (m_channelListener) (void)m_channelListener->OnStopRequest(this, NS_OK);
 
   if (m_loadGroup)
-    (void)m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this), nullptr,
+    (void)m_loadGroup->RemoveRequest(static_cast<nsIRequest*>(this), nullptr,
                                      NS_OK);
   CleanupNewsgroupList();
 
@@ -4406,14 +4406,14 @@ void nsNNTPProtocol::SetProgressBarPercent(uint32_t aProgress,
                                    uint64_t(aProgressMax));
 }
 
-nsresult nsNNTPProtocol::SetProgressStatus(const char16_t *aMessage) {
+nsresult nsNNTPProtocol::SetProgressStatus(const char16_t* aMessage) {
   nsresult rv = NS_OK;
   if (mProgressEventSink)
     rv = mProgressEventSink->OnStatus(this, NS_OK, aMessage);
   return rv;
 }
 
-NS_IMETHODIMP nsNNTPProtocol::GetContentType(nsACString &aContentType) {
+NS_IMETHODIMP nsNNTPProtocol::GetContentType(nsACString& aContentType) {
   // if we've been set with a content type, then return it....
   // this happens when we go through libmime now as it sets our new content type
   if (!mContentType.IsEmpty()) {
@@ -4432,7 +4432,7 @@ NS_IMETHODIMP nsNNTPProtocol::GetContentType(nsACString &aContentType) {
   return NS_OK;
 }
 
-nsresult nsNNTPProtocol::AlertError(int32_t errorCode, const char *text) {
+nsresult nsNNTPProtocol::AlertError(int32_t errorCode, const char* text) {
   nsresult rv = NS_OK;
 
   // get the prompt from the running url....
@@ -4455,11 +4455,11 @@ nsresult nsNNTPProtocol::AlertError(int32_t errorCode, const char *text) {
   return rv;
 }
 
-NS_IMETHODIMP nsNNTPProtocol::GetCurrentFolder(nsIMsgFolder **aFolder) {
+NS_IMETHODIMP nsNNTPProtocol::GetCurrentFolder(nsIMsgFolder** aFolder) {
   nsresult rv = NS_ERROR_NULL_POINTER;
   NS_ENSURE_ARG_POINTER(aFolder);
   if (m_newsFolder)
-    rv = m_newsFolder->QueryInterface(NS_GET_IID(nsIMsgFolder),
-                                      (void **)aFolder);
+    rv =
+        m_newsFolder->QueryInterface(NS_GET_IID(nsIMsgFolder), (void**)aFolder);
   return rv;
 }

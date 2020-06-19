@@ -20,39 +20,39 @@ nsMsgAttachment::~nsMsgAttachment() {
 }
 
 /* attribute wstring name; */
-NS_IMETHODIMP nsMsgAttachment::GetName(nsAString &aName) {
+NS_IMETHODIMP nsMsgAttachment::GetName(nsAString& aName) {
   aName = mName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::SetName(const nsAString &aName) {
+NS_IMETHODIMP nsMsgAttachment::SetName(const nsAString& aName) {
   mName = aName;
   return NS_OK;
 }
 
 /* attribute string url; */
-NS_IMETHODIMP nsMsgAttachment::GetUrl(nsACString &aUrl) {
+NS_IMETHODIMP nsMsgAttachment::GetUrl(nsACString& aUrl) {
   aUrl = mUrl;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::SetUrl(const nsACString &aUrl) {
+NS_IMETHODIMP nsMsgAttachment::SetUrl(const nsACString& aUrl) {
   mUrl = aUrl;
   return NS_OK;
 }
 
 /* attribute string urlCharset; */
-NS_IMETHODIMP nsMsgAttachment::GetUrlCharset(nsACString &aUrlCharset) {
+NS_IMETHODIMP nsMsgAttachment::GetUrlCharset(nsACString& aUrlCharset) {
   aUrlCharset = mUrlCharset;
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgAttachment::SetUrlCharset(const nsACString &aUrlCharset) {
+NS_IMETHODIMP nsMsgAttachment::SetUrlCharset(const nsACString& aUrlCharset) {
   mUrlCharset = aUrlCharset;
   return NS_OK;
 }
 
 /* attribute boolean temporary; */
-NS_IMETHODIMP nsMsgAttachment::GetTemporary(bool *aTemporary) {
+NS_IMETHODIMP nsMsgAttachment::GetTemporary(bool* aTemporary) {
   NS_ENSURE_ARG_POINTER(aTemporary);
 
   *aTemporary = mTemporary;
@@ -63,7 +63,7 @@ NS_IMETHODIMP nsMsgAttachment::SetTemporary(bool aTemporary) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::GetSendViaCloud(bool *aSendViaCloud) {
+NS_IMETHODIMP nsMsgAttachment::GetSendViaCloud(bool* aSendViaCloud) {
   NS_ENSURE_ARG_POINTER(aSendViaCloud);
 
   *aSendViaCloud = mSendViaCloud;
@@ -74,49 +74,49 @@ NS_IMETHODIMP nsMsgAttachment::SetSendViaCloud(bool aSendViaCloud) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::SetHtmlAnnotation(const nsAString &aAnnotation) {
+NS_IMETHODIMP nsMsgAttachment::SetHtmlAnnotation(const nsAString& aAnnotation) {
   mHtmlAnnotation = aAnnotation;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::GetHtmlAnnotation(nsAString &aAnnotation) {
+NS_IMETHODIMP nsMsgAttachment::GetHtmlAnnotation(nsAString& aAnnotation) {
   aAnnotation = mHtmlAnnotation;
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgAttachment::SetCloudFileAccountKey(
-    const nsACString &aCloudFileAccountKey) {
+    const nsACString& aCloudFileAccountKey) {
   mCloudFileAccountKey = aCloudFileAccountKey;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgAttachment::GetCloudFileAccountKey(nsACString &aCloudFileAccountKey) {
+nsMsgAttachment::GetCloudFileAccountKey(nsACString& aCloudFileAccountKey) {
   aCloudFileAccountKey = mCloudFileAccountKey;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgAttachment::GetContentLocation(
-    nsACString &aContentLocation) {
+    nsACString& aContentLocation) {
   aContentLocation = mContentLocation;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgAttachment::SetContentLocation(
-    const nsACString &aContentLocation) {
+    const nsACString& aContentLocation) {
   mContentLocation = aContentLocation;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::GetContentType(char **aContentType) {
+NS_IMETHODIMP nsMsgAttachment::GetContentType(char** aContentType) {
   NS_ENSURE_ARG_POINTER(aContentType);
 
   *aContentType = ToNewCString(mContentType);
   return (*aContentType ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
 }
 
-NS_IMETHODIMP nsMsgAttachment::SetContentType(const char *aContentType) {
+NS_IMETHODIMP nsMsgAttachment::SetContentType(const char* aContentType) {
   mContentType = aContentType;
   // a full content type could also contains parameters but we need to
   // keep only the content type alone. Therefore we need to cleanup it.
@@ -126,7 +126,7 @@ NS_IMETHODIMP nsMsgAttachment::SetContentType(const char *aContentType) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachment::GetContentTypeParam(char **aContentTypeParam) {
+NS_IMETHODIMP nsMsgAttachment::GetContentTypeParam(char** aContentTypeParam) {
   NS_ENSURE_ARG_POINTER(aContentTypeParam);
 
   *aContentTypeParam = ToNewCString(mContentTypeParam);
@@ -134,7 +134,7 @@ NS_IMETHODIMP nsMsgAttachment::GetContentTypeParam(char **aContentTypeParam) {
 }
 
 NS_IMETHODIMP nsMsgAttachment::SetContentTypeParam(
-    const char *aContentTypeParam) {
+    const char* aContentTypeParam) {
   if (aContentTypeParam)
     while (*aContentTypeParam == ';' || *aContentTypeParam == ' ')
       aContentTypeParam++;
@@ -144,43 +144,43 @@ NS_IMETHODIMP nsMsgAttachment::SetContentTypeParam(
 }
 
 /* attribute string charset; */
-NS_IMETHODIMP nsMsgAttachment::GetCharset(char **aCharset) {
+NS_IMETHODIMP nsMsgAttachment::GetCharset(char** aCharset) {
   NS_ENSURE_ARG_POINTER(aCharset);
 
   *aCharset = ToNewCString(mCharset);
   return (*aCharset ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
 }
-NS_IMETHODIMP nsMsgAttachment::SetCharset(const char *aCharset) {
+NS_IMETHODIMP nsMsgAttachment::SetCharset(const char* aCharset) {
   mCharset = aCharset;
   return NS_OK;
 }
 
 /* attribute string macType; */
-NS_IMETHODIMP nsMsgAttachment::GetMacType(char **aMacType) {
+NS_IMETHODIMP nsMsgAttachment::GetMacType(char** aMacType) {
   NS_ENSURE_ARG_POINTER(aMacType);
 
   *aMacType = ToNewCString(mMacType);
   return (*aMacType ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
 }
-NS_IMETHODIMP nsMsgAttachment::SetMacType(const char *aMacType) {
+NS_IMETHODIMP nsMsgAttachment::SetMacType(const char* aMacType) {
   mMacType = aMacType;
   return NS_OK;
 }
 
 /* attribute string macCreator; */
-NS_IMETHODIMP nsMsgAttachment::GetMacCreator(char **aMacCreator) {
+NS_IMETHODIMP nsMsgAttachment::GetMacCreator(char** aMacCreator) {
   NS_ENSURE_ARG_POINTER(aMacCreator);
 
   *aMacCreator = ToNewCString(mMacCreator);
   return (*aMacCreator ? NS_OK : NS_ERROR_OUT_OF_MEMORY);
 }
-NS_IMETHODIMP nsMsgAttachment::SetMacCreator(const char *aMacCreator) {
+NS_IMETHODIMP nsMsgAttachment::SetMacCreator(const char* aMacCreator) {
   mMacCreator = aMacCreator;
   return NS_OK;
 }
 
 /* attribute int64_t size; */
-NS_IMETHODIMP nsMsgAttachment::GetSize(int64_t *aSize) {
+NS_IMETHODIMP nsMsgAttachment::GetSize(int64_t* aSize) {
   NS_ENSURE_ARG_POINTER(aSize);
 
   *aSize = mSize;
@@ -192,8 +192,8 @@ NS_IMETHODIMP nsMsgAttachment::SetSize(int64_t aSize) {
 }
 
 /* boolean equalsUrl (in nsIMsgAttachment attachment); */
-NS_IMETHODIMP nsMsgAttachment::EqualsUrl(nsIMsgAttachment *attachment,
-                                         bool *_retval) {
+NS_IMETHODIMP nsMsgAttachment::EqualsUrl(nsIMsgAttachment* attachment,
+                                         bool* _retval) {
   NS_ENSURE_ARG_POINTER(attachment);
   NS_ENSURE_ARG_POINTER(_retval);
 

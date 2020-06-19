@@ -16,9 +16,9 @@
 class nsAddbookProtocolHandler : public nsIProtocolHandler {
  public:
   nsAddbookProtocolHandler();
-  static nsresult NewURI(const nsACString &aSpec,
-                         const char *aOriginCharset,  // ignored
-                         nsIURI *aBaseURI, nsIURI **_retval);
+  static nsresult NewURI(const nsACString& aSpec,
+                         const char* aOriginCharset,  // ignored
+                         nsIURI* aBaseURI, nsIURI** _retval);
 
   NS_DECL_ISUPPORTS
 
@@ -29,14 +29,14 @@ class nsAddbookProtocolHandler : public nsIProtocolHandler {
 
  private:
   virtual ~nsAddbookProtocolHandler();
-  nsresult GenerateXMLOutputChannel(nsString &aOutput,
-                                    nsIAddbookUrl *addbookUrl, nsIURI *aURI,
-                                    nsILoadInfo *aLoadInfo,
-                                    nsIChannel **_retval);
+  nsresult GenerateXMLOutputChannel(nsString& aOutput,
+                                    nsIAddbookUrl* addbookUrl, nsIURI* aURI,
+                                    nsILoadInfo* aLoadInfo,
+                                    nsIChannel** _retval);
 
-  nsresult GeneratePrintOutput(nsIAddbookUrl *addbookUrl, nsString &aOutput);
+  nsresult GeneratePrintOutput(nsIAddbookUrl* addbookUrl, nsString& aOutput);
 
-  nsresult BuildDirectoryXML(nsIAbDirectory *aDirectory, nsString &aOutput);
+  nsresult BuildDirectoryXML(nsIAbDirectory* aDirectory, nsString& aOutput);
 
   int32_t mAddbookOperation;
 };

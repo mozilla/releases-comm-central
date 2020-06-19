@@ -170,11 +170,11 @@ typedef struct porter_tokenizer {
 */
 typedef struct porter_tokenizer_cursor {
   sqlite3_tokenizer_cursor base;
-  const char *zInput;    /* input we are tokenizing */
+  const char* zInput;    /* input we are tokenizing */
   int nInput;            /* size of the input */
   int iOffset;           /* current position in zInput */
   int iToken;            /* index of next token to be returned */
-  unsigned char *zToken; /* storage for current token */
+  unsigned char* zToken; /* storage for current token */
   int nAllocated;        /* space allocated to zToken buffer */
   /**
    * Store the offset of the second character in the bi-gram pair that we just
@@ -207,10 +207,10 @@ extern unsigned int normalize_character(const unsigned int c);
 /*
 ** Create a new tokenizer instance.
 */
-static int porterCreate(int argc, const char *const *argv,
-                        sqlite3_tokenizer **ppTokenizer) {
-  porter_tokenizer *t;
-  t = (porter_tokenizer *)sqlite3_malloc(sizeof(*t));
+static int porterCreate(int argc, const char* const* argv,
+                        sqlite3_tokenizer** ppTokenizer) {
+  porter_tokenizer* t;
+  t = (porter_tokenizer*)sqlite3_malloc(sizeof(*t));
   if (t == NULL) return SQLITE_NOMEM;
   memset(t, 0, sizeof(*t));
   *ppTokenizer = &t->base;
@@ -220,7 +220,7 @@ static int porterCreate(int argc, const char *const *argv,
 /*
 ** Destroy a tokenizer
 */
-static int porterDestroy(sqlite3_tokenizer *pTokenizer) {
+static int porterDestroy(sqlite3_tokenizer* pTokenizer) {
   sqlite3_free(pTokenizer);
   return SQLITE_OK;
 }
@@ -232,13 +232,13 @@ static int porterDestroy(sqlite3_tokenizer *pTokenizer) {
 ** *ppCursor.
 */
 static int porterOpen(
-    sqlite3_tokenizer *pTokenizer,      /* The tokenizer */
-    const char *zInput, int nInput,     /* String to be tokenized */
-    sqlite3_tokenizer_cursor **ppCursor /* OUT: Tokenization cursor */
+    sqlite3_tokenizer* pTokenizer,      /* The tokenizer */
+    const char* zInput, int nInput,     /* String to be tokenized */
+    sqlite3_tokenizer_cursor** ppCursor /* OUT: Tokenization cursor */
 ) {
-  porter_tokenizer_cursor *c;
+  porter_tokenizer_cursor* c;
 
-  c = (porter_tokenizer_cursor *)sqlite3_malloc(sizeof(*c));
+  c = (porter_tokenizer_cursor*)sqlite3_malloc(sizeof(*c));
   if (c == NULL) return SQLITE_NOMEM;
 
   c->zInput = zInput;
@@ -263,8 +263,8 @@ static int porterOpen(
 ** Close a tokenization cursor previously opened by a call to
 ** porterOpen() above.
 */
-static int porterClose(sqlite3_tokenizer_cursor *pCursor) {
-  porter_tokenizer_cursor *c = (porter_tokenizer_cursor *)pCursor;
+static int porterClose(sqlite3_tokenizer_cursor* pCursor) {
+  porter_tokenizer_cursor* c = (porter_tokenizer_cursor*)pCursor;
   sqlite3_free(c->zToken);
   sqlite3_free(c);
   return SQLITE_OK;
@@ -288,8 +288,8 @@ static const char cType[] = {0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
 ** is that 'y' is a consonant unless it is followed by another
 ** consonant.
 */
-static int isVowel(const char *);
-static int isConsonant(const char *z) {
+static int isVowel(const char*);
+static int isConsonant(const char* z) {
   int j;
   char x = *z;
   if (x == 0) return 0;
@@ -298,7 +298,7 @@ static int isConsonant(const char *z) {
   if (j < 2) return j;
   return z[1] == 0 || isVowel(z + 1);
 }
-static int isVowel(const char *z) {
+static int isVowel(const char* z) {
   int j;
   char x = *z;
   if (x == 0) return 0;
@@ -327,7 +327,7 @@ static int isVowel(const char *z) {
 ** In this routine z[] is in reverse order.  So we are really looking
 ** for an instance of of a consonant followed by a vowel.
 */
-static int m_gt_0(const char *z) {
+static int m_gt_0(const char* z) {
   while (isVowel(z)) {
     z++;
   }
@@ -341,7 +341,7 @@ static int m_gt_0(const char *z) {
 /* Like mgt0 above except we are looking for a value of m which is
 ** exactly 1
 */
-static int m_eq_1(const char *z) {
+static int m_eq_1(const char* z) {
   while (isVowel(z)) {
     z++;
   }
@@ -363,7 +363,7 @@ static int m_eq_1(const char *z) {
 /* Like mgt0 above except we are looking for a value of m>1 instead
 ** or m>0
 */
-static int m_gt_1(const char *z) {
+static int m_gt_1(const char* z) {
   while (isVowel(z)) {
     z++;
   }
@@ -385,7 +385,7 @@ static int m_gt_1(const char *z) {
 /*
 ** Return TRUE if there is a vowel anywhere within z[0..n-1]
 */
-static int hasVowel(const char *z) {
+static int hasVowel(const char* z) {
   while (isConsonant(z)) {
     z++;
   }
@@ -398,7 +398,7 @@ static int hasVowel(const char *z) {
 ** The text is reversed here. So we are really looking at
 ** the first two characters of z[].
 */
-static int doubleConsonant(const char *z) {
+static int doubleConsonant(const char* z) {
   return isConsonant(z) && z[0] == z[1] && isConsonant(z + 1);
 }
 
@@ -410,7 +410,7 @@ static int doubleConsonant(const char *z) {
 ** The word is reversed here.  So we are really checking the
 ** first three letters and the first one cannot be in [wxy].
 */
-static int star_oh(const char *z) {
+static int star_oh(const char* z) {
   return z[0] != 0 && isConsonant(z) && z[0] != 'w' && z[0] != 'x' &&
          z[0] != 'y' && z[1] != 0 && isVowel(z + 1) && z[2] != 0 &&
          isConsonant(z + 2);
@@ -429,12 +429,12 @@ static int star_oh(const char *z) {
 ** no substitution occurs.
 */
 static int stem(
-    char **pz,         /* The word being stemmed (Reversed) */
-    const char *zFrom, /* If the ending matches this... (Reversed) */
-    const char *zTo,   /* ... change the ending to this (not reversed) */
-    int (*xCond)(const char *) /* Condition that must be true */
+    char** pz,                /* The word being stemmed (Reversed) */
+    const char* zFrom,        /* If the ending matches this... (Reversed) */
+    const char* zTo,          /* ... change the ending to this (not reversed) */
+    int (*xCond)(const char*) /* Condition that must be true */
 ) {
-  char *z = *pz;
+  char* z = *pz;
   while (*zFrom && *zFrom == *z) {
     z++;
     zFrom++;
@@ -506,10 +506,10 @@ static int isVoicedSoundMark(const unsigned int c) {
  *     normalization that results in a larger utf-8 encoding.
  * @param pnBytesOut Integer to write the number of bytes in zOut into.
  */
-static void copy_stemmer(const unsigned char *zIn, const int nBytesIn,
-                         unsigned char *zOut, int *pnBytesOut) {
-  const unsigned char *zInTerm = zIn + nBytesIn;
-  unsigned char *zOutStart = zOut;
+static void copy_stemmer(const unsigned char* zIn, const int nBytesIn,
+                         unsigned char* zOut, int* pnBytesOut) {
+  const unsigned char* zInTerm = zIn + nBytesIn;
+  unsigned char* zOutStart = zOut;
   unsigned int c;
   unsigned int charCount = 0;
   unsigned char *zFrontEnd = NULL, *zBackStart = NULL;
@@ -567,13 +567,13 @@ static void copy_stemmer(const unsigned char *zIn, const int nBytesIn,
 ** Stemming never increases the length of the word.  So there is
 ** no chance of overflowing the zOut buffer.
 */
-static void porter_stemmer(const unsigned char *zIn, unsigned int nIn,
-                           unsigned char *zOut, int *pnOut) {
+static void porter_stemmer(const unsigned char* zIn, unsigned int nIn,
+                           unsigned char* zOut, int* pnOut) {
   unsigned int i, j, c;
   char zReverse[28];
   char *z, *z2;
-  const unsigned char *zTerm = zIn + nIn;
-  const unsigned char *zTmp = zIn;
+  const unsigned char* zTerm = zIn + nIn;
+  const unsigned char* zTmp = zIn;
 
   if (nIn < 3 || nIn >= sizeof(zReverse) - 7) {
     /* The word is too big or too small for the porter stemmer.
@@ -841,12 +841,12 @@ static const char porterIdChar[] = {
 #  define BIGRAM_ALPHA 3
 
 static int isDelim(
-    const unsigned char *zCur,  /* IN: current pointer of token */
-    const unsigned char *zTerm, /* IN: one character beyond end of token */
-    int *len,                   /* OUT: analyzed bytes in this token */
-    int *state                  /* IN/OUT: analyze state */
+    const unsigned char* zCur,  /* IN: current pointer of token */
+    const unsigned char* zTerm, /* IN: one character beyond end of token */
+    int* len,                   /* OUT: analyzed bytes in this token */
+    int* state                  /* IN/OUT: analyze state */
 ) {
-  const unsigned char *zIn = zCur;
+  const unsigned char* zIn = zCur;
   unsigned int c;
   int delim;
 
@@ -979,15 +979,15 @@ static int isDelim(
  *        BIGRAM_USE, gets set to BIGRAM_USE.
  */
 static int porterNext(
-    sqlite3_tokenizer_cursor *pCursor, /* Cursor returned by porterOpen */
-    const char **pzToken,              /* OUT: *pzToken is the token text */
-    int *pnBytes,                      /* OUT: Number of bytes in token */
-    int *piStartOffset,                /* OUT: Starting offset of token */
-    int *piEndOffset,                  /* OUT: Ending offset of token */
-    int *piPosition                    /* OUT: Position integer of token */
+    sqlite3_tokenizer_cursor* pCursor, /* Cursor returned by porterOpen */
+    const char** pzToken,              /* OUT: *pzToken is the token text */
+    int* pnBytes,                      /* OUT: Number of bytes in token */
+    int* piStartOffset,                /* OUT: Starting offset of token */
+    int* piEndOffset,                  /* OUT: Ending offset of token */
+    int* piPosition                    /* OUT: Position integer of token */
 ) {
-  porter_tokenizer_cursor *c = (porter_tokenizer_cursor *)pCursor;
-  const unsigned char *z = (unsigned char *)c->zInput;
+  porter_tokenizer_cursor* c = (porter_tokenizer_cursor*)pCursor;
+  const unsigned char* z = (unsigned char*)c->zInput;
   int len = 0;
   int state;
 
@@ -1111,7 +1111,7 @@ static int porterNext(
       } else {
         porter_stemmer(&z[iStartOffset], n, c->zToken, pnBytes);
       }
-      *pzToken = (const char *)c->zToken;
+      *pzToken = (const char*)c->zToken;
       *piStartOffset = iStartOffset;
       *piEndOffset = c->iOffset;
       *piPosition = c->iToken++;
@@ -1133,7 +1133,7 @@ static const sqlite3_tokenizer_module porterTokenizerModule = {
 ** tokenizer in *ppModule
 */
 void sqlite3Fts3PorterTokenizerModule(
-    sqlite3_tokenizer_module const **ppModule) {
+    sqlite3_tokenizer_module const** ppModule) {
   *ppModule = &porterTokenizerModule;
 }
 

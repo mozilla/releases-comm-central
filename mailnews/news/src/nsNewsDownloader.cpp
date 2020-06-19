@@ -28,9 +28,9 @@
 // if pIds is not null, download the articles whose id's are passed in.
 // Otherwise, which articles to download is determined by nsNewsDownloader
 // object, or subclasses thereof. News can download marked objects, for example.
-nsresult nsNewsDownloader::DownloadArticles(nsIMsgWindow *window,
-                                            nsIMsgFolder *folder,
-                                            nsTArray<nsMsgKey> *pIds) {
+nsresult nsNewsDownloader::DownloadArticles(nsIMsgWindow* window,
+                                            nsIMsgFolder* folder,
+                                            nsTArray<nsMsgKey>* pIds) {
   if (pIds != nullptr)
     m_keysToDownload.InsertElementsAt(0, pIds->Elements(), pIds->Length());
 
@@ -50,8 +50,8 @@ nsresult nsNewsDownloader::DownloadArticles(nsIMsgWindow *window,
 
 NS_IMPL_ISUPPORTS(nsNewsDownloader, nsIUrlListener, nsIMsgSearchNotify)
 
-nsNewsDownloader::nsNewsDownloader(nsIMsgWindow *window, nsIMsgDatabase *msgDB,
-                                   nsIUrlListener *listener) {
+nsNewsDownloader::nsNewsDownloader(nsIMsgWindow* window, nsIMsgDatabase* msgDB,
+                                   nsIUrlListener* listener) {
   m_numwrote = 0;
   m_downloadFromKeys = false;
   m_newsDB = msgDB;
@@ -73,9 +73,9 @@ nsNewsDownloader::~nsNewsDownloader() {
   }
 }
 
-NS_IMETHODIMP nsNewsDownloader::OnStartRunningUrl(nsIURI *url) { return NS_OK; }
+NS_IMETHODIMP nsNewsDownloader::OnStartRunningUrl(nsIURI* url) { return NS_OK; }
 
-NS_IMETHODIMP nsNewsDownloader::OnStopRunningUrl(nsIURI *url,
+NS_IMETHODIMP nsNewsDownloader::OnStopRunningUrl(nsIURI* url,
                                                  nsresult exitCode) {
   bool stopped = false;
   if (m_window) m_window->GetStopped(&stopped);
@@ -182,7 +182,7 @@ bool nsNewsDownloader::GetNextHdrToRetrieve() {
   return false;  // shouldn't get here if we're not downloading from keys.
 }
 
-nsresult nsNewsDownloader::ShowProgress(const char16_t *progressString,
+nsresult nsNewsDownloader::ShowProgress(const char16_t* progressString,
                                         int32_t percent) {
   if (!m_statusFeedback) {
     if (m_window) m_window->GetStatusFeedback(getter_AddRefs(m_statusFeedback));
@@ -198,12 +198,12 @@ nsresult nsNewsDownloader::ShowProgress(const char16_t *progressString,
 }
 
 NS_IMETHODIMP DownloadNewsArticlesToOfflineStore::OnStartRunningUrl(
-    nsIURI *url) {
+    nsIURI* url) {
   return NS_OK;
 }
 
 NS_IMETHODIMP DownloadNewsArticlesToOfflineStore::OnStopRunningUrl(
-    nsIURI *url, nsresult exitCode) {
+    nsIURI* url, nsresult exitCode) {
   m_status = exitCode;
   if (m_newsHeader != nullptr) {
 #ifdef DEBUG_bienvenu
@@ -221,8 +221,8 @@ NS_IMETHODIMP DownloadNewsArticlesToOfflineStore::OnStopRunningUrl(
 
 int DownloadNewsArticlesToOfflineStore::FinishDownload() { return 0; }
 
-NS_IMETHODIMP nsNewsDownloader::OnSearchHit(nsIMsgDBHdr *header,
-                                            nsIMsgFolder *folder) {
+NS_IMETHODIMP nsNewsDownloader::OnSearchHit(nsIMsgDBHdr* header,
+                                            nsIMsgFolder* folder) {
   NS_ENSURE_ARG(header);
 
   uint32_t msgFlags;
@@ -256,7 +256,7 @@ int DownloadNewsArticlesToOfflineStore::StartDownload() {
 }
 
 DownloadNewsArticlesToOfflineStore::DownloadNewsArticlesToOfflineStore(
-    nsIMsgWindow *window, nsIMsgDatabase *db, nsIUrlListener *listener)
+    nsIMsgWindow* window, nsIMsgDatabase* db, nsIUrlListener* listener)
     : nsNewsDownloader(window, db, listener) {
   m_newsDB = db;
 }
@@ -264,8 +264,8 @@ DownloadNewsArticlesToOfflineStore::DownloadNewsArticlesToOfflineStore(
 DownloadNewsArticlesToOfflineStore::~DownloadNewsArticlesToOfflineStore() {}
 
 DownloadMatchingNewsArticlesToNewsDB::DownloadMatchingNewsArticlesToNewsDB(
-    nsIMsgWindow *window, nsIMsgFolder *folder, nsIMsgDatabase *newsDB,
-    nsIUrlListener *listener)
+    nsIMsgWindow* window, nsIMsgFolder* folder, nsIMsgDatabase* newsDB,
+    nsIUrlListener* listener)
     : DownloadNewsArticlesToOfflineStore(window, newsDB, listener) {
   m_window = window;
   m_folder = folder;
@@ -278,7 +278,7 @@ DownloadMatchingNewsArticlesToNewsDB::~DownloadMatchingNewsArticlesToNewsDB() {}
 NS_IMPL_ISUPPORTS(nsMsgDownloadAllNewsgroups, nsIUrlListener)
 
 nsMsgDownloadAllNewsgroups::nsMsgDownloadAllNewsgroups(
-    nsIMsgWindow *window, nsIUrlListener *listener) {
+    nsIMsgWindow* window, nsIUrlListener* listener) {
   m_window = window;
   m_listener = listener;
   m_downloaderForGroup =
@@ -288,12 +288,12 @@ nsMsgDownloadAllNewsgroups::nsMsgDownloadAllNewsgroups(
 
 nsMsgDownloadAllNewsgroups::~nsMsgDownloadAllNewsgroups() {}
 
-NS_IMETHODIMP nsMsgDownloadAllNewsgroups::OnStartRunningUrl(nsIURI *url) {
+NS_IMETHODIMP nsMsgDownloadAllNewsgroups::OnStartRunningUrl(nsIURI* url) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgDownloadAllNewsgroups::OnStopRunningUrl(nsIURI *url, nsresult exitCode) {
+nsMsgDownloadAllNewsgroups::OnStopRunningUrl(nsIURI* url, nsresult exitCode) {
   nsresult rv = exitCode;
   if (NS_SUCCEEDED(exitCode) || exitCode == NS_MSG_NEWS_ARTICLE_NOT_FOUND) {
     if (m_downloadedHdrsForCurGroup) {
@@ -418,8 +418,8 @@ bool nsMsgDownloadAllNewsgroups::AdvanceToNextGroup() {
 }
 
 nsresult DownloadMatchingNewsArticlesToNewsDB::RunSearch(
-    nsIMsgFolder *folder, nsIMsgDatabase *newsDB,
-    nsIMsgSearchSession *searchSession) {
+    nsIMsgFolder* folder, nsIMsgDatabase* newsDB,
+    nsIMsgSearchSession* searchSession) {
   m_folder = folder;
   m_newsDB = newsDB;
   m_searchSession = searchSession;

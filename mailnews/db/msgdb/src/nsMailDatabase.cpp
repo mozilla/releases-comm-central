@@ -21,8 +21,8 @@ using namespace mozilla;
 extern LazyLogModule IMAPOffline;  // defined in nsMsgOfflineImapOperation.cpp
 
 // scope for all offine ops table
-const char *kOfflineOpsScope = "ns:msg:db:row:scope:ops:all";
-const char *kOfflineOpsTableKind = "ns:msg:db:table:kind:ops";
+const char* kOfflineOpsScope = "ns:msg:db:row:scope:ops:all";
+const char* kOfflineOpsTableKind = "ns:msg:db:table:kind:ops";
 struct mdbOid gAllOfflineOpsTableOID;
 
 nsMailDatabase::nsMailDatabase() : m_reparse(false) {
@@ -36,7 +36,7 @@ nsMailDatabase::~nsMailDatabase() {}
 // caller passes in upgrading==true if they want back a db even if the db is out
 // of date. If so, they'll extract out the interesting info from the db, close
 // it, delete it, and then try to open the db again, prior to reparsing.
-nsresult nsMailDatabase::Open(nsMsgDBService *aDBService, nsIFile *aSummaryFile,
+nsresult nsMailDatabase::Open(nsMsgDBService* aDBService, nsIFile* aSummaryFile,
                               bool aCreate, bool aUpgrading) {
 #ifdef DEBUG
   nsString leafName;
@@ -66,7 +66,7 @@ nsresult nsMailDatabase::GetAllOfflineOpsTable() {
 }
 
 NS_IMETHODIMP nsMailDatabase::DeleteMessages(
-    nsTArray<nsMsgKey> const &nsMsgKeys, nsIDBChangeListener *instigator) {
+    nsTArray<nsMsgKey> const& nsMsgKeys, nsIDBChangeListener* instigator) {
   nsresult rv;
   if (m_folder) {
     bool isLocked;
@@ -82,7 +82,7 @@ NS_IMETHODIMP nsMailDatabase::DeleteMessages(
   return rv;
 }
 
-NS_IMETHODIMP nsMailDatabase::GetSummaryValid(bool *aResult) {
+NS_IMETHODIMP nsMailDatabase::GetSummaryValid(bool* aResult) {
   uint32_t version;
   m_dbFolderInfo->GetVersion(&version);
   if (GetCurVersion() != version) {
@@ -122,22 +122,22 @@ NS_IMETHODIMP nsMailDatabase::SetSummaryValid(bool aValid) {
   return msgStore->SetSummaryFileValid(m_folder, this, aValid);
 }
 
-NS_IMETHODIMP nsMailDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation *op) {
+NS_IMETHODIMP nsMailDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation* op) {
   nsresult rv = GetAllOfflineOpsTable();
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!op || !m_mdbAllOfflineOpsTable) return NS_ERROR_NULL_POINTER;
-  nsMsgOfflineImapOperation *offlineOp =
-      static_cast<nsMsgOfflineImapOperation *>(
+  nsMsgOfflineImapOperation* offlineOp =
+      static_cast<nsMsgOfflineImapOperation*>(
           op);  // closed system, so this is ok
-  nsIMdbRow *row = offlineOp->GetMDBRow();
+  nsIMdbRow* row = offlineOp->GetMDBRow();
   rv = m_mdbAllOfflineOpsTable->CutRow(GetEnv(), row);
   row->CutAllColumns(GetEnv());
   return rv;
 }
 
 NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(
-    nsMsgKey msgKey, bool create, nsIMsgOfflineImapOperation **offlineOp) {
+    nsMsgKey msgKey, bool create, nsIMsgOfflineImapOperation** offlineOp) {
   mdb_bool hasOid;
   mdbOid rowObjectId;
   nsresult err;
@@ -190,17 +190,17 @@ NS_IMETHODIMP nsMailDatabase::GetOfflineOpForKey(
 }
 
 NS_IMETHODIMP nsMailDatabase::EnumerateOfflineOps(
-    nsISimpleEnumerator **enumerator) {
+    nsISimpleEnumerator** enumerator) {
   NS_ASSERTION(false, "not impl yet");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
-    nsTArray<nsMsgKey> *offlineOpIds) {
+    nsTArray<nsMsgKey>* offlineOpIds) {
   NS_ENSURE_ARG(offlineOpIds);
   nsresult rv = GetAllOfflineOpsTable();
   NS_ENSURE_SUCCESS(rv, rv);
-  nsIMdbTableRowCursor *rowCursor;
+  nsIMdbTableRowCursor* rowCursor;
 
   if (m_mdbAllOfflineOpsTable) {
     nsresult err =
@@ -218,9 +218,9 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
           nsCOMPtr<nsIMsgOfflineImapOperation> offlineOp;
           GetOfflineOpForKey(outOid.mOid_Id, false, getter_AddRefs(offlineOp));
           if (offlineOp) {
-            nsMsgOfflineImapOperation *logOp =
-                static_cast<nsMsgOfflineImapOperation *>(
-                    static_cast<nsIMsgOfflineImapOperation *>(offlineOp.get()));
+            nsMsgOfflineImapOperation* logOp =
+                static_cast<nsMsgOfflineImapOperation*>(
+                    static_cast<nsIMsgOfflineImapOperation*>(offlineOp.get()));
             if (logOp) logOp->Log();
           }
         }
@@ -236,19 +236,19 @@ NS_IMETHODIMP nsMailDatabase::ListAllOfflineOpIds(
 }
 
 NS_IMETHODIMP nsMailDatabase::ListAllOfflineDeletes(
-    nsTArray<nsMsgKey> *offlineDeletes) {
+    nsTArray<nsMsgKey>* offlineDeletes) {
   NS_ENSURE_ARG_POINTER(offlineDeletes);
 
   nsresult rv = GetAllOfflineOpsTable();
   NS_ENSURE_SUCCESS(rv, rv);
-  nsIMdbTableRowCursor *rowCursor;
+  nsIMdbTableRowCursor* rowCursor;
   if (m_mdbAllOfflineOpsTable) {
     nsresult err =
         m_mdbAllOfflineOpsTable->GetTableRowCursor(GetEnv(), -1, &rowCursor);
     while (NS_SUCCEEDED(err) && rowCursor) {
       mdbOid outOid;
       mdb_pos outPos;
-      nsIMdbRow *offlineOpRow;
+      nsIMdbRow* offlineOpRow;
 
       err = rowCursor->NextRow(GetEnv(), &offlineOpRow, &outPos);
       // is this right? Mork is returning a 0 id, but that should valid.
@@ -283,27 +283,27 @@ void nsMailDatabase::SetReparse(bool reparse) { m_reparse = reparse; }
 
 class nsMsgOfflineOpEnumerator : public nsSimpleEnumerator {
  public:
-  const nsID &DefaultInterface() override {
+  const nsID& DefaultInterface() override {
     return NS_GET_IID(nsIMsgOfflineImapOperation);
   }
 
   // nsISimpleEnumerator methods:
   NS_DECL_NSISIMPLEENUMERATOR
 
-  explicit nsMsgOfflineOpEnumerator(nsMailDatabase *db);
+  explicit nsMsgOfflineOpEnumerator(nsMailDatabase* db);
 
  protected:
   ~nsMsgOfflineOpEnumerator() override;
   nsresult GetRowCursor();
   nsresult PrefetchNext();
-  nsMailDatabase *mDB;
-  nsIMdbTableRowCursor *mRowCursor;
+  nsMailDatabase* mDB;
+  nsIMdbTableRowCursor* mRowCursor;
   nsCOMPtr<nsIMsgOfflineImapOperation> mResultOp;
   bool mDone;
   bool mNextPrefetched;
 };
 
-nsMsgOfflineOpEnumerator::nsMsgOfflineOpEnumerator(nsMailDatabase *db)
+nsMsgOfflineOpEnumerator::nsMsgOfflineOpEnumerator(nsMailDatabase* db)
     : mDB(db), mRowCursor(nullptr), mDone(false) {
   NS_ADDREF(mDB);
   mNextPrefetched = false;
@@ -325,7 +325,7 @@ nsresult nsMsgOfflineOpEnumerator::GetRowCursor() {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgOfflineOpEnumerator::GetNext(nsISupports **aItem) {
+NS_IMETHODIMP nsMsgOfflineOpEnumerator::GetNext(nsISupports** aItem) {
   NS_ENSURE_ARG_POINTER(aItem);
 
   nsresult rv = NS_OK;
@@ -341,7 +341,7 @@ NS_IMETHODIMP nsMsgOfflineOpEnumerator::GetNext(nsISupports **aItem) {
 
 nsresult nsMsgOfflineOpEnumerator::PrefetchNext() {
   nsresult rv = NS_OK;
-  nsIMdbRow *offlineOpRow;
+  nsIMdbRow* offlineOpRow;
   mdb_pos rowPos;
 
   if (!mRowCursor) {
@@ -359,7 +359,7 @@ nsresult nsMsgOfflineOpEnumerator::PrefetchNext() {
     return rv;
   }
 
-  nsIMsgOfflineImapOperation *op =
+  nsIMsgOfflineImapOperation* op =
       new nsMsgOfflineImapOperation(mDB, offlineOpRow);
   mResultOp = op;
   if (!op) return NS_ERROR_OUT_OF_MEMORY;
@@ -371,7 +371,7 @@ nsresult nsMsgOfflineOpEnumerator::PrefetchNext() {
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgOfflineOpEnumerator::HasMoreElements(bool *aResult) {
+NS_IMETHODIMP nsMsgOfflineOpEnumerator::HasMoreElements(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   if (!mNextPrefetched) PrefetchNext();

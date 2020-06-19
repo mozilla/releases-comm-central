@@ -13,12 +13,12 @@ nsNNTPNewsgroupPost::nsNNTPNewsgroupPost() { m_isControl = false; }
 nsNNTPNewsgroupPost::~nsNNTPNewsgroupPost() {}
 
 #define IMPL_GETSET(attribute, member)                                    \
-  NS_IMETHODIMP nsNNTPNewsgroupPost::Get##attribute(char **result) {      \
+  NS_IMETHODIMP nsNNTPNewsgroupPost::Get##attribute(char** result) {      \
     NS_ENSURE_ARG_POINTER(result);                                        \
     *result = ToNewCString(member);                                       \
     return NS_OK;                                                         \
   }                                                                       \
-  NS_IMETHODIMP nsNNTPNewsgroupPost::Set##attribute(const char *aValue) { \
+  NS_IMETHODIMP nsNNTPNewsgroupPost::Set##attribute(const char* aValue) { \
     member.Assign(aValue);                                                \
     return NS_OK;                                                         \
   }
@@ -39,25 +39,25 @@ IMPL_GETSET(Distribution, m_header[IDX_HEADER_DISTRIBUTION])
 IMPL_GETSET(Organization, m_header[IDX_HEADER_ORGANIZATION])
 IMPL_GETSET(Body, m_body)
 
-NS_IMETHODIMP nsNNTPNewsgroupPost::GetNewsgroups(char **result) {
+NS_IMETHODIMP nsNNTPNewsgroupPost::GetNewsgroups(char** result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = ToNewCString(m_header[IDX_HEADER_NEWSGROUPS]);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNNTPNewsgroupPost::GetReferences(char **result) {
+NS_IMETHODIMP nsNNTPNewsgroupPost::GetReferences(char** result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = ToNewCString(m_header[IDX_HEADER_REFERENCES]);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNNTPNewsgroupPost::GetIsControl(bool *result) {
+NS_IMETHODIMP nsNNTPNewsgroupPost::GetIsControl(bool* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = m_isControl;
   return NS_OK;
 }
 
-nsresult nsNNTPNewsgroupPost::AddNewsgroup(const char *newsgroup) {
+nsresult nsNNTPNewsgroupPost::AddNewsgroup(const char* newsgroup) {
   m_header[IDX_HEADER_NEWSGROUPS].AppendLiteral(", ");
   m_header[IDX_HEADER_NEWSGROUPS].Append(newsgroup);
   return NS_OK;
@@ -65,12 +65,12 @@ nsresult nsNNTPNewsgroupPost::AddNewsgroup(const char *newsgroup) {
 
 // the message can be stored in a file....allow accessors for getting and
 // setting the file name to post...
-nsresult nsNNTPNewsgroupPost::SetPostMessageFile(nsIFile *aPostMessageFile) {
+nsresult nsNNTPNewsgroupPost::SetPostMessageFile(nsIFile* aPostMessageFile) {
   m_postMessageFile = aPostMessageFile;
   return NS_OK;
 }
 
-nsresult nsNNTPNewsgroupPost::GetPostMessageFile(nsIFile **aPostMessageFile) {
+nsresult nsNNTPNewsgroupPost::GetPostMessageFile(nsIFile** aPostMessageFile) {
   if (aPostMessageFile) NS_IF_ADDREF(*aPostMessageFile = m_postMessageFile);
   return NS_OK;
 }

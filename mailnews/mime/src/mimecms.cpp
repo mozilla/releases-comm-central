@@ -35,24 +35,23 @@ using namespace mozilla::mailnews;
 MimeDefClass(MimeEncryptedCMS, MimeEncryptedCMSClass, mimeEncryptedCMSClass,
              &MIME_SUPERCLASS);
 
-static void *MimeCMS_init(MimeObject *,
-                          int (*output_fn)(const char *, int32_t, void *),
-                          void *);
-static int MimeCMS_write(const char *, int32_t, void *);
-static int MimeCMS_eof(void *, bool);
-static char *MimeCMS_generate(void *);
-static void MimeCMS_free(void *);
+static void* MimeCMS_init(MimeObject*,
+                          int (*output_fn)(const char*, int32_t, void*), void*);
+static int MimeCMS_write(const char*, int32_t, void*);
+static int MimeCMS_eof(void*, bool);
+static char* MimeCMS_generate(void*);
+static void MimeCMS_free(void*);
 
 extern int SEC_ERROR_CERT_ADDR_MISMATCH;
 
-static int MimeEncryptedCMSClassInitialize(MimeEncryptedCMSClass *clazz) {
+static int MimeEncryptedCMSClassInitialize(MimeEncryptedCMSClass* clazz) {
 #ifdef DEBUG
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   NS_ASSERTION(!oclass->class_initialized,
                "1.2 <mscott@netscape.com> 01 Nov 2001 17:59");
 #endif
 
-  MimeEncryptedClass *eclass = (MimeEncryptedClass *)clazz;
+  MimeEncryptedClass* eclass = (MimeEncryptedClass*)clazz;
   eclass->crypto_init = MimeCMS_init;
   eclass->crypto_write = MimeCMS_write;
   eclass->crypto_eof = MimeCMS_eof;
@@ -63,16 +62,16 @@ static int MimeEncryptedCMSClassInitialize(MimeEncryptedCMSClass *clazz) {
 }
 
 typedef struct MimeCMSdata {
-  int (*output_fn)(const char *buf, int32_t buf_size, void *output_closure);
-  void *output_closure;
+  int (*output_fn)(const char* buf, int32_t buf_size, void* output_closure);
+  void* output_closure;
   nsCOMPtr<nsICMSDecoder> decoder_context;
   nsCOMPtr<nsICMSMessage> content_info;
   bool ci_is_encrypted;
-  char *sender_addr;
+  char* sender_addr;
   bool decoding_failed;
   bool skip_content;
   uint32_t decoded_bytes;
-  MimeObject *self;
+  MimeObject* self;
   bool any_parent_is_encrypted_p;
   bool any_parent_is_signed_p;
   nsCOMPtr<nsIMsgSMIMEHeaderSink> smimeHeaderSink;
@@ -102,10 +101,10 @@ typedef struct MimeCMSdata {
 } MimeCMSdata;
 
 /*   SEC_PKCS7DecoderContentCallback for SEC_PKCS7DecoderStart() */
-static void MimeCMS_content_callback(void *arg, const char *buf,
+static void MimeCMS_content_callback(void* arg, const char* buf,
                                      unsigned long length) {
   int status;
-  MimeCMSdata *data = (MimeCMSdata *)arg;
+  MimeCMSdata* data = (MimeCMSdata*)arg;
   if (!data) return;
 
   if (!data->output_fn) return;
@@ -121,13 +120,13 @@ static void MimeCMS_content_callback(void *arg, const char *buf,
   data->decoded_bytes += length;
 }
 
-bool MimeEncryptedCMS_encrypted_p(MimeObject *obj) {
+bool MimeEncryptedCMS_encrypted_p(MimeObject* obj) {
   bool encrypted;
 
   if (!obj) return false;
-  if (mime_typep(obj, (MimeObjectClass *)&mimeEncryptedCMSClass)) {
-    MimeEncrypted *enc = (MimeEncrypted *)obj;
-    MimeCMSdata *data = (MimeCMSdata *)enc->crypto_closure;
+  if (mime_typep(obj, (MimeObjectClass*)&mimeEncryptedCMSClass)) {
+    MimeEncrypted* enc = (MimeEncrypted*)obj;
+    MimeCMSdata* data = (MimeCMSdata*)enc->crypto_closure;
     if (!data || !data->content_info) return false;
     data->content_info->ContentIsEncrypted(&encrypted);
     return encrypted;
@@ -135,16 +134,16 @@ bool MimeEncryptedCMS_encrypted_p(MimeObject *obj) {
   return false;
 }
 
-bool MimeEncOrMP_CMS_signed_p(MimeObject *obj) {
+bool MimeEncOrMP_CMS_signed_p(MimeObject* obj) {
   bool is_signed;
 
   if (!obj) return false;
-  if (mime_typep(obj, (MimeObjectClass *)&mimeMultipartSignedCMSClass)) {
+  if (mime_typep(obj, (MimeObjectClass*)&mimeMultipartSignedCMSClass)) {
     return true;
   }
-  if (mime_typep(obj, (MimeObjectClass *)&mimeEncryptedCMSClass)) {
-    MimeEncrypted *enc = (MimeEncrypted *)obj;
-    MimeCMSdata *data = (MimeCMSdata *)enc->crypto_closure;
+  if (mime_typep(obj, (MimeObjectClass*)&mimeEncryptedCMSClass)) {
+    MimeEncrypted* enc = (MimeEncrypted*)obj;
+    MimeCMSdata* data = (MimeCMSdata*)enc->crypto_closure;
     if (!data || !data->content_info) return false;
     data->content_info->ContentIsSigned(&is_signed);
     return is_signed;
@@ -152,8 +151,8 @@ bool MimeEncOrMP_CMS_signed_p(MimeObject *obj) {
   return false;
 }
 
-bool MimeAnyParentCMSEncrypted(MimeObject *obj) {
-  MimeObject *o2 = obj;
+bool MimeAnyParentCMSEncrypted(MimeObject* obj) {
+  MimeObject* o2 = obj;
   while (o2 && o2->parent) {
     if (MimeEncryptedCMS_encrypted_p(o2->parent)) {
       return true;
@@ -163,8 +162,8 @@ bool MimeAnyParentCMSEncrypted(MimeObject *obj) {
   return false;
 }
 
-bool MimeAnyParentCMSSigned(MimeObject *obj) {
-  MimeObject *o2 = obj;
+bool MimeAnyParentCMSSigned(MimeObject* obj) {
+  MimeObject* o2 = obj;
   while (o2 && o2->parent) {
     if (MimeEncOrMP_CMS_signed_p(o2->parent)) {
       return true;
@@ -174,11 +173,11 @@ bool MimeAnyParentCMSSigned(MimeObject *obj) {
   return false;
 }
 
-bool MimeCMSHeadersAndCertsMatch(nsICMSMessage *content_info,
-                                 nsIX509Cert *signerCert, const char *from_addr,
-                                 const char *from_name, const char *sender_addr,
-                                 const char *sender_name,
-                                 bool *signing_cert_without_email_address) {
+bool MimeCMSHeadersAndCertsMatch(nsICMSMessage* content_info,
+                                 nsIX509Cert* signerCert, const char* from_addr,
+                                 const char* from_name, const char* sender_addr,
+                                 const char* sender_name,
+                                 bool* signing_cert_without_email_address) {
   nsCString cert_addr;
   bool match = true;
   bool foundFrom = false;
@@ -233,11 +232,11 @@ class nsSMimeVerificationListener : public nsISMimeVerificationListener {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSISMIMEVERIFICATIONLISTENER
 
-  nsSMimeVerificationListener(const char *aFromAddr, const char *aFromName,
-                              const char *aSenderAddr, const char *aSenderName,
-                              nsIMsgSMIMEHeaderSink *aHeaderSink,
+  nsSMimeVerificationListener(const char* aFromAddr, const char* aFromName,
+                              const char* aSenderAddr, const char* aSenderName,
+                              nsIMsgSMIMEHeaderSink* aHeaderSink,
                               int32_t aMimeNestingLevel,
-                              const nsCString &aMsgNeckoURL);
+                              const nsCString& aMsgNeckoURL);
 
  protected:
   virtual ~nsSMimeVerificationListener() {}
@@ -268,9 +267,9 @@ class nsSMimeVerificationListener : public nsISMimeVerificationListener {
 class SignedStatusRunnable : public mozilla::Runnable {
  public:
   SignedStatusRunnable(
-      const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &aSink,
-      int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert *aSignerCert,
-      const nsCString &aMsgNeckoURL);
+      const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink>& aSink,
+      int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert* aSignerCert,
+      const nsCString& aMsgNeckoURL);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
@@ -283,9 +282,9 @@ class SignedStatusRunnable : public mozilla::Runnable {
 };
 
 SignedStatusRunnable::SignedStatusRunnable(
-    const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &aSink,
-    int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert *aSignerCert,
-    const nsCString &aMsgNeckoURL)
+    const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink>& aSink,
+    int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert* aSignerCert,
+    const nsCString& aMsgNeckoURL)
     : mozilla::Runnable("SignedStatusRunnable"),
       m_sink(aSink),
       m_nestingLevel(aNestingLevel),
@@ -300,9 +299,9 @@ NS_IMETHODIMP SignedStatusRunnable::Run() {
 }
 
 nsresult ProxySignedStatus(
-    const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink> &aSink,
-    int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert *aSignerCert,
-    const nsCString &aMsgNeckoURL) {
+    const nsMainThreadPtrHandle<nsIMsgSMIMEHeaderSink>& aSink,
+    int32_t aNestingLevel, int32_t aSignatureStatus, nsIX509Cert* aSignerCert,
+    const nsCString& aMsgNeckoURL) {
   RefPtr<SignedStatusRunnable> signedStatus = new SignedStatusRunnable(
       aSink, aNestingLevel, aSignatureStatus, aSignerCert, aMsgNeckoURL);
   nsresult rv = NS_DispatchToMainThread(signedStatus, NS_DISPATCH_SYNC);
@@ -313,9 +312,9 @@ nsresult ProxySignedStatus(
 NS_IMPL_ISUPPORTS(nsSMimeVerificationListener, nsISMimeVerificationListener)
 
 nsSMimeVerificationListener::nsSMimeVerificationListener(
-    const char *aFromAddr, const char *aFromName, const char *aSenderAddr,
-    const char *aSenderName, nsIMsgSMIMEHeaderSink *aHeaderSink,
-    int32_t aMimeNestingLevel, const nsCString &aMsgNeckoURL)
+    const char* aFromAddr, const char* aFromName, const char* aSenderAddr,
+    const char* aSenderName, nsIMsgSMIMEHeaderSink* aHeaderSink,
+    int32_t aMimeNestingLevel, const nsCString& aMsgNeckoURL)
     : mMsgNeckoURL(aMsgNeckoURL) {
   mHeaderSink = new nsMainThreadPtrHolder<nsIMsgSMIMEHeaderSink>(
       "nsSMimeVerificationListener::mHeaderSink", aHeaderSink);
@@ -329,7 +328,7 @@ nsSMimeVerificationListener::nsSMimeVerificationListener(
 }
 
 NS_IMETHODIMP nsSMimeVerificationListener::Notify(
-    nsICMSMessage *aVerifiedMessage, nsresult aVerificationResultCode) {
+    nsICMSMessage* aVerifiedMessage, nsresult aVerificationResultCode) {
   // Only continue if we have a valid pointer to the UI
   NS_ENSURE_FALSE(mSinkIsNull, NS_OK);
 
@@ -368,7 +367,7 @@ NS_IMETHODIMP nsSMimeVerificationListener::Notify(
   return NS_OK;
 }
 
-int MIMEGetRelativeCryptoNestLevel(MimeObject *obj) {
+int MIMEGetRelativeCryptoNestLevel(MimeObject* obj) {
   /*
     the part id of any mimeobj is mime_part_address(obj)
     our currently displayed crypto part is obj
@@ -383,13 +382,13 @@ int MIMEGetRelativeCryptoNestLevel(MimeObject *obj) {
 
   // if we are showing the toplevel message, aTopMessageNestLevel == 0
   int aTopMessageNestLevel = 0;
-  MimeObject *aTopShownObject = nullptr;
+  MimeObject* aTopShownObject = nullptr;
   if (obj && obj->options->part_to_load) {
     bool aAlreadyFoundTop = false;
-    for (MimeObject *walker = obj; walker; walker = walker->parent) {
+    for (MimeObject* walker = obj; walker; walker = walker->parent) {
       if (aAlreadyFoundTop) {
-        if (!mime_typep(walker, (MimeObjectClass *)&mimeEncryptedClass) &&
-            !mime_typep(walker, (MimeObjectClass *)&mimeMultipartSignedClass)) {
+        if (!mime_typep(walker, (MimeObjectClass*)&mimeEncryptedClass) &&
+            !mime_typep(walker, (MimeObjectClass*)&mimeMultipartSignedClass)) {
           ++aTopMessageNestLevel;
         }
       }
@@ -418,10 +417,10 @@ int MIMEGetRelativeCryptoNestLevel(MimeObject *obj) {
   // if we are the child of the topmost message, aCryptoPartNestLevel == 1
   int aCryptoPartNestLevel = 0;
   if (obj) {
-    for (MimeObject *walker = obj; walker; walker = walker->parent) {
+    for (MimeObject* walker = obj; walker; walker = walker->parent) {
       // Crypto mime objects are transparent wrt nesting.
-      if (!mime_typep(walker, (MimeObjectClass *)&mimeEncryptedClass) &&
-          !mime_typep(walker, (MimeObjectClass *)&mimeMultipartSignedClass)) {
+      if (!mime_typep(walker, (MimeObjectClass*)&mimeEncryptedClass) &&
+          !mime_typep(walker, (MimeObjectClass*)&mimeMultipartSignedClass)) {
         ++aCryptoPartNestLevel;
       }
       if (aTopShownObject && walker->parent == aTopShownObject) {
@@ -437,11 +436,11 @@ int MIMEGetRelativeCryptoNestLevel(MimeObject *obj) {
   return aCryptoPartNestLevel - aTopMessageNestLevel;
 }
 
-static void *MimeCMS_init(MimeObject *obj,
-                          int (*output_fn)(const char *buf, int32_t buf_size,
-                                           void *output_closure),
-                          void *output_closure) {
-  MimeCMSdata *data;
+static void* MimeCMS_init(MimeObject* obj,
+                          int (*output_fn)(const char* buf, int32_t buf_size,
+                                           void* output_closure),
+                          void* output_closure) {
+  MimeCMSdata* data;
   nsresult rv;
 
   if (!(obj && obj->options && output_fn)) return 0;
@@ -485,10 +484,10 @@ static void *MimeCMS_init(MimeObject *obj,
 
   data->any_parent_is_encrypted_p = MimeAnyParentCMSEncrypted(obj);
 
-  mime_stream_data *msd =
-      (mime_stream_data *)(data->self->options->stream_closure);
+  mime_stream_data* msd =
+      (mime_stream_data*)(data->self->options->stream_closure);
   if (msd) {
-    nsIChannel *channel = msd->channel;  // note the lack of ref counting...
+    nsIChannel* channel = msd->channel;  // note the lack of ref counting...
     if (channel) {
       nsCOMPtr<nsIURI> uri;
       nsCOMPtr<nsIMsgWindow> msgWindow;
@@ -531,8 +530,8 @@ static void *MimeCMS_init(MimeObject *obj,
   return data;
 }
 
-static int MimeCMS_write(const char *buf, int32_t buf_size, void *closure) {
-  MimeCMSdata *data = (MimeCMSdata *)closure;
+static int MimeCMS_write(const char* buf, int32_t buf_size, void* closure) {
+  MimeCMSdata* data = (MimeCMSdata*)closure;
   nsresult rv;
 
   if (!data || !data->output_fn || !data->decoder_context) return -1;
@@ -546,17 +545,17 @@ static int MimeCMS_write(const char *buf, int32_t buf_size, void *closure) {
   return 0;
 }
 
-void MimeCMSGetFromSender(MimeObject *obj, nsCString &from_addr,
-                          nsCString &from_name, nsCString &sender_addr,
-                          nsCString &sender_name) {
-  MimeHeaders *msg_headers = 0;
+void MimeCMSGetFromSender(MimeObject* obj, nsCString& from_addr,
+                          nsCString& from_name, nsCString& sender_addr,
+                          nsCString& sender_name) {
+  MimeHeaders* msg_headers = 0;
 
   /* Find the headers of the MimeMessage which is the parent (or grandparent)
    of this object (remember, crypto objects nest.) */
-  MimeObject *o2 = obj;
+  MimeObject* o2 = obj;
   msg_headers = o2->headers;
   while (o2 && o2->parent &&
-         !mime_typep(o2->parent, (MimeObjectClass *)&mimeMessageClass)) {
+         !mime_typep(o2->parent, (MimeObjectClass*)&mimeMessageClass)) {
     o2 = o2->parent;
     msg_headers = o2->headers;
   }
@@ -578,10 +577,10 @@ void MimeCMSGetFromSender(MimeObject *obj, nsCString &from_addr,
 }
 
 void MimeCMSRequestAsyncSignatureVerification(
-    nsICMSMessage *aCMSMsg, const char *aFromAddr, const char *aFromName,
-    const char *aSenderAddr, const char *aSenderName,
-    nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel,
-    const nsCString &aMsgNeckoURL, const nsTArray<uint8_t> &aDigestData,
+    nsICMSMessage* aCMSMsg, const char* aFromAddr, const char* aFromName,
+    const char* aSenderAddr, const char* aSenderName,
+    nsIMsgSMIMEHeaderSink* aHeaderSink, int32_t aMimeNestingLevel,
+    const nsCString& aMsgNeckoURL, const nsTArray<uint8_t>& aDigestData,
     int16_t aDigestType) {
   RefPtr<nsSMimeVerificationListener> listener =
       new nsSMimeVerificationListener(aFromAddr, aFromName, aSenderAddr,
@@ -593,8 +592,8 @@ void MimeCMSRequestAsyncSignatureVerification(
     aCMSMsg->AsyncVerifyDetachedSignature(listener, aDigestData, aDigestType);
 }
 
-static int MimeCMS_eof(void *crypto_closure, bool abort_p) {
-  MimeCMSdata *data = (MimeCMSdata *)crypto_closure;
+static int MimeCMS_eof(void* crypto_closure, bool abort_p) {
+  MimeCMSdata* data = (MimeCMSdata*)crypto_closure;
   nsresult rv;
   int32_t status = nsICMSMessageErrors::SUCCESS;
 
@@ -712,11 +711,11 @@ static int MimeCMS_eof(void *crypto_closure, bool abort_p) {
   return 0;
 }
 
-static void MimeCMS_free(void *crypto_closure) {
-  MimeCMSdata *data = (MimeCMSdata *)crypto_closure;
+static void MimeCMS_free(void* crypto_closure) {
+  MimeCMSdata* data = (MimeCMSdata*)crypto_closure;
   if (!data) return;
 
   delete data;
 }
 
-static char *MimeCMS_generate(void *crypto_closure) { return nullptr; }
+static char* MimeCMS_generate(void* crypto_closure) { return nullptr; }

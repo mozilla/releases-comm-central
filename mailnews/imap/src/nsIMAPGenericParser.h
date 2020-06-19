@@ -34,19 +34,19 @@ class nsIMAPGenericParser {
   // from a buffer somewhere. This fills in nextLine with the buffer, and
   // returns true if everything is OK. Returns false if there was some error
   // encountered.  In that case, we reset the parser.
-  virtual bool GetNextLineForParser(char **nextLine) = 0;
+  virtual bool GetNextLineForParser(char** nextLine) = 0;
 
   virtual void HandleMemoryFailure();
   void skip_to_CRLF();
   void skip_to_close_paren();
-  char *CreateString();
-  char *CreateAstring();
-  char *CreateNilString();
-  char *CreateLiteral();
-  char *CreateAtom(bool isAstring = false);
-  char *CreateQuoted(bool skipToEnd = true);
-  char *CreateParenGroup();
-  virtual void SetSyntaxError(bool error, const char *msg);
+  char* CreateString();
+  char* CreateAstring();
+  char* CreateNilString();
+  char* CreateLiteral();
+  char* CreateAtom(bool isAstring = false);
+  char* CreateQuoted(bool skipToEnd = true);
+  char* CreateParenGroup();
+  virtual void SetSyntaxError(bool error, const char* msg);
 
   void AdvanceToNextToken();
   void AdvanceToNextLine();
@@ -55,11 +55,11 @@ class nsIMAPGenericParser {
 
  protected:
   // use with care
-  const char *fNextToken;
-  char *fCurrentLine;
-  char *fLineOfTokens;
-  char *fStartOfLineOfTokens;
-  char *fCurrentTokenPlaceHolder;
+  const char* fNextToken;
+  char* fCurrentLine;
+  char* fLineOfTokens;
+  char* fStartOfLineOfTokens;
+  char* fCurrentTokenPlaceHolder;
   bool fAtEndOfLine;
 
  private:

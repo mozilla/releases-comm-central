@@ -21,25 +21,25 @@
 #include "mozilla/Attributes.h"
 #include "nsIMimeContentTypeHandler.h"
 
-typedef MimeObjectClass *(*MCTHCreateCTHClass)(
-    const char *content_type, contentTypeHandlerInitStruct *initStruct);
+typedef MimeObjectClass* (*MCTHCreateCTHClass)(
+    const char* content_type, contentTypeHandlerInitStruct* initStruct);
 
 class nsMimeContentTypeHandler : public nsIMimeContentTypeHandler {
  public:
-  nsMimeContentTypeHandler(const char *aMimeType, MCTHCreateCTHClass callback);
+  nsMimeContentTypeHandler(const char* aMimeType, MCTHCreateCTHClass callback);
 
   /* this macro defines QueryInterface, AddRef and Release for this class */
   NS_DECL_ISUPPORTS
 
-  NS_IMETHOD GetContentType(char **contentType) override;
+  NS_IMETHOD GetContentType(char** contentType) override;
 
   NS_IMETHOD CreateContentTypeHandlerClass(
-      const char *content_type, contentTypeHandlerInitStruct *initStruct,
-      MimeObjectClass **objClass) override;
+      const char* content_type, contentTypeHandlerInitStruct* initStruct,
+      MimeObjectClass** objClass) override;
 
  private:
   virtual ~nsMimeContentTypeHandler();
-  char *mimeType;
+  char* mimeType;
   MCTHCreateCTHClass realCreateContentTypeHandlerClass;
 };
 

@@ -24,12 +24,12 @@ NS_IMPL_ADDREF_INHERITED(nsNewsDatabase, nsMsgDatabase)
 NS_IMPL_RELEASE_INHERITED(nsNewsDatabase, nsMsgDatabase)
 
 NS_IMETHODIMP nsNewsDatabase::QueryInterface(REFNSIID aIID,
-                                             void **aInstancePtr) {
+                                             void** aInstancePtr) {
   if (!aInstancePtr) return NS_ERROR_NULL_POINTER;
   *aInstancePtr = nullptr;
 
   if (aIID.Equals(NS_GET_IID(nsINewsDatabase))) {
-    *aInstancePtr = static_cast<nsINewsDatabase *>(this);
+    *aInstancePtr = static_cast<nsINewsDatabase*>(this);
   }
 
   if (*aInstancePtr) {
@@ -59,7 +59,7 @@ nsresult nsNewsDatabase::Commit(nsMsgDBCommit commitType) {
 
 uint32_t nsNewsDatabase::GetCurVersion() { return kMsgDBVersion; }
 
-NS_IMETHODIMP nsNewsDatabase::IsRead(nsMsgKey key, bool *pRead) {
+NS_IMETHODIMP nsNewsDatabase::IsRead(nsMsgKey key, bool* pRead) {
   NS_ASSERTION(pRead, "null out param in IsRead");
   if (!pRead) return NS_ERROR_NULL_POINTER;
 
@@ -69,7 +69,7 @@ NS_IMETHODIMP nsNewsDatabase::IsRead(nsMsgKey key, bool *pRead) {
   return NS_OK;
 }
 
-nsresult nsNewsDatabase::IsHeaderRead(nsIMsgDBHdr *msgHdr, bool *pRead) {
+nsresult nsNewsDatabase::IsHeaderRead(nsIMsgDBHdr* msgHdr, bool* pRead) {
   nsresult rv;
   nsMsgKey messageKey;
 
@@ -83,7 +83,7 @@ nsresult nsNewsDatabase::IsHeaderRead(nsIMsgDBHdr *msgHdr, bool *pRead) {
 }
 
 // return highest article number we've seen.
-NS_IMETHODIMP nsNewsDatabase::GetHighWaterArticleNum(nsMsgKey *key) {
+NS_IMETHODIMP nsNewsDatabase::GetHighWaterArticleNum(nsMsgKey* key) {
   NS_ASSERTION(m_dbFolderInfo, "null db folder info");
   if (!m_dbFolderInfo) return NS_ERROR_FAILURE;
   return m_dbFolderInfo->GetHighWater(key);
@@ -97,15 +97,15 @@ NS_IMETHODIMP nsNewsDatabase::GetHighWaterArticleNum(nsMsgKey *key) {
 // the headers we know about. Need to figure out how and when
 // to solve that. This could happen if a transfer is interrupted.
 // Do we need to keep track of known arts permanently?
-NS_IMETHODIMP nsNewsDatabase::GetLowWaterArticleNum(nsMsgKey *key) {
+NS_IMETHODIMP nsNewsDatabase::GetLowWaterArticleNum(nsMsgKey* key) {
   nsresult rv;
-  nsMsgHdr *pHeader;
+  nsMsgHdr* pHeader;
 
   nsCOMPtr<nsISimpleEnumerator> hdrs;
   rv = EnumerateMessages(getter_AddRefs(hdrs));
   if (NS_FAILED(rv)) return rv;
 
-  rv = hdrs->GetNext((nsISupports **)&pHeader);
+  rv = hdrs->GetNext((nsISupports**)&pHeader);
   NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
   if (NS_FAILED(rv)) return rv;
 
@@ -119,13 +119,13 @@ nsresult nsNewsDatabase::ExpireRange(nsMsgKey startRange, nsMsgKey endRange) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsNewsDatabase::GetReadSet(nsMsgKeySet **pSet) {
+NS_IMETHODIMP nsNewsDatabase::GetReadSet(nsMsgKeySet** pSet) {
   if (!pSet) return NS_ERROR_NULL_POINTER;
   *pSet = m_readSet;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNewsDatabase::SetReadSet(nsMsgKeySet *pSet) {
+NS_IMETHODIMP nsNewsDatabase::SetReadSet(nsMsgKeySet* pSet) {
   m_readSet = pSet;
 
   if (m_readSet) {
@@ -140,7 +140,7 @@ NS_IMETHODIMP nsNewsDatabase::SetReadSet(nsMsgKeySet *pSet) {
   return NS_OK;
 }
 
-bool nsNewsDatabase::SetHdrReadFlag(nsIMsgDBHdr *msgHdr, bool bRead) {
+bool nsNewsDatabase::SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) {
   nsresult rv;
   bool isRead;
   rv = IsHeaderRead(msgHdr, &isRead);
@@ -183,12 +183,12 @@ bool nsNewsDatabase::SetHdrReadFlag(nsIMsgDBHdr *msgHdr, bool bRead) {
   return true;
 }
 
-NS_IMETHODIMP nsNewsDatabase::MarkAllRead(nsTArray<nsMsgKey> &aThoseMarked) {
+NS_IMETHODIMP nsNewsDatabase::MarkAllRead(nsTArray<nsMsgKey>& aThoseMarked) {
   nsMsgKey lowWater = nsMsgKey_None, highWater;
   nsCString knownArts;
   if (m_dbFolderInfo) {
     m_dbFolderInfo->GetKnownArtsSet(getter_Copies(knownArts));
-    nsMsgKeySet *knownKeys = nsMsgKeySet::Create(knownArts.get());
+    nsMsgKeySet* knownKeys = nsMsgKeySet::Create(knownArts.get());
     if (knownKeys) lowWater = knownKeys->GetFirstMember();
 
     delete knownKeys;
@@ -266,7 +266,7 @@ nsresult nsNewsDatabase::SyncWithReadSet() {
   return rv;
 }
 
-nsresult nsNewsDatabase::AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) {
+nsresult nsNewsDatabase::AdjustExpungedBytesOnDelete(nsIMsgDBHdr* msgHdr) {
   uint32_t msgFlags;
   msgHdr->GetFlags(&msgFlags);
   if (msgFlags & nsMsgMessageFlags::Offline && m_dbFolderInfo) {
@@ -279,7 +279,7 @@ nsresult nsNewsDatabase::AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) {
 
 NS_IMETHODIMP
 nsNewsDatabase::GetDefaultViewFlags(
-    nsMsgViewFlagsTypeValue *aDefaultViewFlags) {
+    nsMsgViewFlagsTypeValue* aDefaultViewFlags) {
   NS_ENSURE_ARG_POINTER(aDefaultViewFlags);
   GetIntPref("mailnews.default_news_view_flags", aDefaultViewFlags);
   if (*aDefaultViewFlags < nsMsgViewFlagsType::kNone ||
@@ -292,7 +292,7 @@ nsNewsDatabase::GetDefaultViewFlags(
 }
 
 NS_IMETHODIMP
-nsNewsDatabase::GetDefaultSortType(nsMsgViewSortTypeValue *aDefaultSortType) {
+nsNewsDatabase::GetDefaultSortType(nsMsgViewSortTypeValue* aDefaultSortType) {
   NS_ENSURE_ARG_POINTER(aDefaultSortType);
   GetIntPref("mailnews.default_news_sort_type", aDefaultSortType);
   if (*aDefaultSortType < nsMsgViewSortType::byDate ||
@@ -303,7 +303,7 @@ nsNewsDatabase::GetDefaultSortType(nsMsgViewSortTypeValue *aDefaultSortType) {
 
 NS_IMETHODIMP
 nsNewsDatabase::GetDefaultSortOrder(
-    nsMsgViewSortOrderValue *aDefaultSortOrder) {
+    nsMsgViewSortOrderValue* aDefaultSortOrder) {
   NS_ENSURE_ARG_POINTER(aDefaultSortOrder);
   GetIntPref("mailnews.default_news_sort_order", aDefaultSortOrder);
   if (*aDefaultSortOrder != nsMsgViewSortOrder::descending)

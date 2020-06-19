@@ -56,7 +56,7 @@ nsresult nsMsgWindow::Init() {
   return mTransactionManager->SetMaxTransactionCount(-1);
 }
 
-NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell **aDocShell) {
+NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell** aDocShell) {
   *aDocShell = nullptr;
   nsCOMPtr<nsIDocShell> docShell(do_QueryReferent(mMessageWindowDocShellWeak));
   if (!docShell) {
@@ -116,14 +116,14 @@ NS_IMETHODIMP nsMsgWindow::CloseWindow() {
 }
 
 NS_IMETHODIMP nsMsgWindow::GetStatusFeedback(
-    nsIMsgStatusFeedback **aStatusFeedback) {
+    nsIMsgStatusFeedback** aStatusFeedback) {
   NS_ENSURE_ARG_POINTER(aStatusFeedback);
   NS_IF_ADDREF(*aStatusFeedback = mStatusFeedback);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::SetStatusFeedback(
-    nsIMsgStatusFeedback *aStatusFeedback) {
+    nsIMsgStatusFeedback* aStatusFeedback) {
   mStatusFeedback = aStatusFeedback;
   nsCOMPtr<nsIDocShell> messageWindowDocShell;
   GetMessageWindowDocShell(getter_AddRefs(messageWindowDocShell));
@@ -140,54 +140,54 @@ NS_IMETHODIMP nsMsgWindow::SetStatusFeedback(
 }
 
 NS_IMETHODIMP nsMsgWindow::SetWindowCommands(
-    nsIMsgWindowCommands *aMsgWindowCommands) {
+    nsIMsgWindowCommands* aMsgWindowCommands) {
   mMsgWindowCommands = aMsgWindowCommands;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::GetWindowCommands(
-    nsIMsgWindowCommands **aMsgWindowCommands) {
+    nsIMsgWindowCommands** aMsgWindowCommands) {
   NS_ENSURE_ARG_POINTER(aMsgWindowCommands);
   NS_IF_ADDREF(*aMsgWindowCommands = mMsgWindowCommands);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetMsgHeaderSink(nsIMsgHeaderSink **aMsgHdrSink) {
+NS_IMETHODIMP nsMsgWindow::GetMsgHeaderSink(nsIMsgHeaderSink** aMsgHdrSink) {
   NS_ENSURE_ARG_POINTER(aMsgHdrSink);
   NS_IF_ADDREF(*aMsgHdrSink = mMsgHeaderSink);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetMsgHeaderSink(nsIMsgHeaderSink *aMsgHdrSink) {
+NS_IMETHODIMP nsMsgWindow::SetMsgHeaderSink(nsIMsgHeaderSink* aMsgHdrSink) {
   mMsgHeaderSink = aMsgHdrSink;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::GetTransactionManager(
-    nsITransactionManager **aTransactionManager) {
+    nsITransactionManager** aTransactionManager) {
   NS_ENSURE_ARG_POINTER(aTransactionManager);
   NS_IF_ADDREF(*aTransactionManager = mTransactionManager);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::SetTransactionManager(
-    nsITransactionManager *aTransactionManager) {
+    nsITransactionManager* aTransactionManager) {
   mTransactionManager = aTransactionManager;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetOpenFolder(nsIMsgFolder **aOpenFolder) {
+NS_IMETHODIMP nsMsgWindow::GetOpenFolder(nsIMsgFolder** aOpenFolder) {
   NS_ENSURE_ARG_POINTER(aOpenFolder);
   NS_IF_ADDREF(*aOpenFolder = mOpenFolder);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetOpenFolder(nsIMsgFolder *aOpenFolder) {
+NS_IMETHODIMP nsMsgWindow::SetOpenFolder(nsIMsgFolder* aOpenFolder) {
   mOpenFolder = aOpenFolder;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell **aDocShell) {
+NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell** aDocShell) {
   if (mRootDocShellWeak)
     CallQueryReferent(mRootDocShellWeak.get(), aDocShell);
   else
@@ -195,7 +195,7 @@ NS_IMETHODIMP nsMsgWindow::GetRootDocShell(nsIDocShell **aDocShell) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt **aAuthPrompt) {
+NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt** aAuthPrompt) {
   NS_ENSURE_ARG_POINTER(aAuthPrompt);
 
   // testing only
@@ -219,12 +219,12 @@ NS_IMETHODIMP nsMsgWindow::GetAuthPrompt(nsIAuthPrompt **aAuthPrompt) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetAuthPrompt(nsIAuthPrompt *aAuthPrompt) {
+NS_IMETHODIMP nsMsgWindow::SetAuthPrompt(nsIAuthPrompt* aAuthPrompt) {
   mAuthPrompt = aAuthPrompt;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell *aDocShell) {
+NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell* aDocShell) {
   nsresult rv;
   nsCOMPtr<nsIWebProgressListener> contentPolicyListener =
       do_GetService(NS_MSGCONTENTPOLICY_CONTRACTID, &rv);
@@ -266,13 +266,13 @@ NS_IMETHODIMP nsMsgWindow::SetRootDocShell(nsIDocShell *aDocShell) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetMailCharacterSet(nsACString &aMailCharacterSet) {
+NS_IMETHODIMP nsMsgWindow::GetMailCharacterSet(nsACString& aMailCharacterSet) {
   aMailCharacterSet = mMailCharacterSet;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::SetMailCharacterSet(
-    const nsACString &aMailCharacterSet) {
+    const nsACString& aMailCharacterSet) {
   mMailCharacterSet.Assign(aMailCharacterSet);
 
   // Convert to a canonical charset name instead of using the charset name from
@@ -287,7 +287,7 @@ NS_IMETHODIMP nsMsgWindow::SetMailCharacterSet(
                               mMailCharacterSet);
 }
 
-NS_IMETHODIMP nsMsgWindow::GetCharsetOverride(bool *aCharsetOverride) {
+NS_IMETHODIMP nsMsgWindow::GetCharsetOverride(bool* aCharsetOverride) {
   NS_ENSURE_ARG_POINTER(aCharsetOverride);
   *aCharsetOverride = mCharsetOverride;
   return NS_OK;
@@ -298,7 +298,7 @@ NS_IMETHODIMP nsMsgWindow::SetCharsetOverride(bool aCharsetOverride) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy **aWindow) {
+NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy** aWindow) {
   NS_ENSURE_ARG_POINTER(aWindow);
   if (mDomWindow)
     CallQueryReferent(mDomWindow.get(), aWindow);
@@ -307,12 +307,12 @@ NS_IMETHODIMP nsMsgWindow::GetDomWindow(mozIDOMWindowProxy **aWindow) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy *aWindow) {
+NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy* aWindow) {
   NS_ENSURE_ARG_POINTER(aWindow);
   mDomWindow = do_GetWeakReference(aWindow);
 
   nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWindow);
-  nsIDocShell *docShell = nullptr;
+  nsIDocShell* docShell = nullptr;
   if (win) docShell = win->GetDocShell();
 
   nsCOMPtr<nsIDocShellTreeItem> docShellAsItem(docShell);
@@ -334,13 +334,13 @@ NS_IMETHODIMP nsMsgWindow::SetDomWindow(mozIDOMWindowProxy *aWindow) {
 }
 
 NS_IMETHODIMP nsMsgWindow::SetNotificationCallbacks(
-    nsIInterfaceRequestor *aNotificationCallbacks) {
+    nsIInterfaceRequestor* aNotificationCallbacks) {
   mNotificationCallbacks = aNotificationCallbacks;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::GetNotificationCallbacks(
-    nsIInterfaceRequestor **aNotificationCallbacks) {
+    nsIInterfaceRequestor** aNotificationCallbacks) {
   NS_ENSURE_ARG_POINTER(aNotificationCallbacks);
   NS_IF_ADDREF(*aNotificationCallbacks = mNotificationCallbacks);
   return NS_OK;
@@ -355,11 +355,11 @@ NS_IMETHODIMP nsMsgWindow::StopUrls() {
 
 // nsIURIContentListener support
 
-NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString &aContentType,
+NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString& aContentType,
                                      bool aIsContentPreferred,
-                                     nsIRequest *request,
-                                     nsIStreamListener **aContentHandler,
-                                     bool *aAbortProcess) {
+                                     nsIRequest* request,
+                                     nsIStreamListener** aContentHandler,
+                                     bool* aAbortProcess) {
   if (!aContentType.IsEmpty()) {
     // forward the DoContent call to our docshell
     nsCOMPtr<nsIDocShell> messageWindowDocShell;
@@ -388,18 +388,18 @@ NS_IMETHODIMP nsMsgWindow::DoContent(const nsACString &aContentType,
 }
 
 NS_IMETHODIMP
-nsMsgWindow::IsPreferred(const char *aContentType, char **aDesiredContentType,
-                         bool *aCanHandleContent) {
+nsMsgWindow::IsPreferred(const char* aContentType, char** aDesiredContentType,
+                         bool* aCanHandleContent) {
   // We don't want to handle opening any attachments inside the
   // message pane, but want to let nsIExternalHelperAppService take care.
   *aCanHandleContent = false;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::CanHandleContent(const char *aContentType,
+NS_IMETHODIMP nsMsgWindow::CanHandleContent(const char* aContentType,
                                             bool aIsContentPreferred,
-                                            char **aDesiredContentType,
-                                            bool *aCanHandleContent)
+                                            char** aDesiredContentType,
+                                            bool* aCanHandleContent)
 
 {
   // the mail window knows nothing about the default content types
@@ -420,28 +420,28 @@ NS_IMETHODIMP nsMsgWindow::CanHandleContent(const char *aContentType,
 }
 
 NS_IMETHODIMP nsMsgWindow::GetParentContentListener(
-    nsIURIContentListener **aParent) {
+    nsIURIContentListener** aParent) {
   NS_ENSURE_ARG_POINTER(aParent);
   *aParent = nullptr;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgWindow::SetParentContentListener(
-    nsIURIContentListener *aParent) {
+    nsIURIContentListener* aParent) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetLoadCookie(nsISupports **aLoadCookie) {
+NS_IMETHODIMP nsMsgWindow::GetLoadCookie(nsISupports** aLoadCookie) {
   NS_ENSURE_ARG_POINTER(aLoadCookie);
   *aLoadCookie = nullptr;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports *aLoadCookie) {
+NS_IMETHODIMP nsMsgWindow::SetLoadCookie(nsISupports* aLoadCookie) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt **aPrompt) {
+NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt** aPrompt) {
   NS_ENSURE_ARG_POINTER(aPrompt);
 
   // testing only
@@ -460,14 +460,14 @@ NS_IMETHODIMP nsMsgWindow::GetPromptDialog(nsIPrompt **aPrompt) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgWindow::SetPromptDialog(nsIPrompt *aPromptDialog) {
+NS_IMETHODIMP nsMsgWindow::SetPromptDialog(nsIPrompt* aPromptDialog) {
   mPromptDialog = aPromptDialog;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgWindow::DisplayURIInMessagePane(const nsAString &uri, bool clearMsgHdr,
-                                     nsIPrincipal *principal) {
+nsMsgWindow::DisplayURIInMessagePane(const nsAString& uri, bool clearMsgHdr,
+                                     nsIPrincipal* principal) {
   if (clearMsgHdr && mMsgWindowCommands) mMsgWindowCommands->ClearMsgPane();
 
   nsCOMPtr<nsIDocShell> docShell;
@@ -483,8 +483,8 @@ nsMsgWindow::DisplayURIInMessagePane(const nsAString &uri, bool clearMsgHdr,
 }
 
 NS_IMETHODIMP
-nsMsgWindow::DisplayHTMLInMessagePane(const nsAString &title,
-                                      const nsAString &body, bool clearMsgHdr) {
+nsMsgWindow::DisplayHTMLInMessagePane(const nsAString& title,
+                                      const nsAString& body, bool clearMsgHdr) {
   nsString htmlStr;
   htmlStr.AppendLiteral(
       u"<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; "
@@ -492,7 +492,7 @@ nsMsgWindow::DisplayHTMLInMessagePane(const nsAString &title,
   htmlStr.Append(body);
   htmlStr.AppendLiteral(u"</body></html>");
 
-  char *encodedHtml =
+  char* encodedHtml =
       PL_Base64Encode(NS_ConvertUTF16toUTF8(htmlStr).get(), 0, nullptr);
   if (!encodedHtml) return NS_ERROR_OUT_OF_MEMORY;
 

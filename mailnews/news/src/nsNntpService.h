@@ -42,37 +42,37 @@ class nsNntpService : public nsINntpService,
 
   // nsNntpService
   nsNntpService();
-  static nsresult NewURI(const nsACString &aSpec,
-                         const char *aCharset,  // ignored
-                         nsIURI *aBaseURI, nsIURI **_retval);
+  static nsresult NewURI(const nsACString& aSpec,
+                         const char* aCharset,  // ignored
+                         nsIURI* aBaseURI, nsIURI** _retval);
 
  protected:
   virtual ~nsNntpService();
 
-  nsresult GetNntpServerByAccount(const char *aAccountKey,
-                                  nsIMsgIncomingServer **aNntpServer);
-  nsresult SetUpNntpUrlForPosting(const char *aAccountKey, char **newsUrlSpec);
-  nsresult FindHostFromGroup(nsCString &host, nsCString &groupName);
-  nsresult FindServerWithNewsgroup(nsCString &host, nsCString &groupName);
+  nsresult GetNntpServerByAccount(const char* aAccountKey,
+                                  nsIMsgIncomingServer** aNntpServer);
+  nsresult SetUpNntpUrlForPosting(const char* aAccountKey, char** newsUrlSpec);
+  nsresult FindHostFromGroup(nsCString& host, nsCString& groupName);
+  nsresult FindServerWithNewsgroup(nsCString& host, nsCString& groupName);
 
-  nsresult CreateMessageIDURL(nsIMsgFolder *folder, nsMsgKey key, char **url);
-  nsresult GetMessageFromUrl(nsIURI *aUrl, nsIMsgWindow *aMsgWindow,
-                             nsISupports *aDisplayConsumer);
+  nsresult CreateMessageIDURL(nsIMsgFolder* folder, nsMsgKey key, char** url);
+  nsresult GetMessageFromUrl(nsIURI* aUrl, nsIMsgWindow* aMsgWindow,
+                             nsISupports* aDisplayConsumer);
   // a convenience routine used to put together news urls
-  nsresult ConstructNntpUrl(const char *urlString, nsIUrlListener *aUrlListener,
-                            nsIMsgWindow *aMsgWindow,
-                            const char *originalMessageUri, int32_t action,
-                            nsIURI **aUrl);
-  nsresult CreateNewsAccount(const char *aHostname, bool aIsSecure,
-                             int32_t aPort, nsIMsgIncomingServer **aServer);
-  nsresult GetServerForUri(nsIURI *aUri, nsINntpIncomingServer **aProtocol);
+  nsresult ConstructNntpUrl(const char* urlString, nsIUrlListener* aUrlListener,
+                            nsIMsgWindow* aMsgWindow,
+                            const char* originalMessageUri, int32_t action,
+                            nsIURI** aUrl);
+  nsresult CreateNewsAccount(const char* aHostname, bool aIsSecure,
+                             int32_t aPort, nsIMsgIncomingServer** aServer);
+  nsresult GetServerForUri(nsIURI* aUri, nsINntpIncomingServer** aProtocol);
   // a convenience routine to run news urls
-  nsresult RunNewsUrl(nsIURI *aUrl, nsIMsgWindow *aMsgWindow,
-                      nsISupports *aConsumer);
+  nsresult RunNewsUrl(nsIURI* aUrl, nsIMsgWindow* aMsgWindow,
+                      nsISupports* aConsumer);
   // a convenience routine to go from folder uri to msg folder
-  nsresult GetFolderFromUri(const char *uri, nsIMsgFolder **folder);
-  nsresult DecomposeNewsMessageURI(const char *aMessageURI,
-                                   nsIMsgFolder **aFolder, nsMsgKey *aMsgKey);
+  nsresult GetFolderFromUri(const char* uri, nsIMsgFolder** folder);
+  nsresult DecomposeNewsMessageURI(const char* aMessageURI,
+                                   nsIMsgFolder** aFolder, nsMsgKey* aMsgKey);
 
   bool mPrintingOperation;        // Flag for printing operations
   bool mOpenAttachmentOperation;  // Flag for opening attachments

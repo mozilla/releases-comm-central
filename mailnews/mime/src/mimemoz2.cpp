@@ -52,7 +52,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/Unused.h"
 
-void ValidateRealName(nsMsgAttachmentData *aAttach, MimeHeaders *aHdrs);
+void ValidateRealName(nsMsgAttachmentData* aAttach, MimeHeaders* aHdrs);
 
 static MimeHeadersState MIME_HeaderType;
 static bool MIME_WrapLongLines;
@@ -73,23 +73,22 @@ mime_stream_data::mime_stream_data()
 // Attachment handling routines
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-MimeObject *mime_get_main_object(MimeObject *obj);
+MimeObject* mime_get_main_object(MimeObject* obj);
 
-nsresult MimeGetSize(MimeObject *child, int32_t *size) {
-  bool isLeaf =
-      mime_subclass_p(child->clazz, (MimeObjectClass *)&mimeLeafClass);
+nsresult MimeGetSize(MimeObject* child, int32_t* size) {
+  bool isLeaf = mime_subclass_p(child->clazz, (MimeObjectClass*)&mimeLeafClass);
   bool isContainer =
-      mime_subclass_p(child->clazz, (MimeObjectClass *)&mimeContainerClass);
+      mime_subclass_p(child->clazz, (MimeObjectClass*)&mimeContainerClass);
   bool isMsg =
-      mime_subclass_p(child->clazz, (MimeObjectClass *)&mimeMessageClass);
+      mime_subclass_p(child->clazz, (MimeObjectClass*)&mimeMessageClass);
 
   if (isLeaf) {
-    *size += ((MimeLeaf *)child)->sizeSoFar;
+    *size += ((MimeLeaf*)child)->sizeSoFar;
   } else if (isMsg) {
-    *size += ((MimeMessage *)child)->sizeSoFar;
+    *size += ((MimeMessage*)child)->sizeSoFar;
   } else if (isContainer) {
     int i;
-    MimeContainer *cont = (MimeContainer *)child;
+    MimeContainer* cont = (MimeContainer*)child;
     for (i = 0; i < cont->nchildren; ++i) {
       MimeGetSize(cont->children[i], size);
     }
@@ -97,17 +96,17 @@ nsresult MimeGetSize(MimeObject *child, int32_t *size) {
   return NS_OK;
 }
 
-nsresult ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data) {
-  nsMsgAttachmentData *tmp;
-  char *disp = nullptr;
-  char *charset = nullptr;
+nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
+  nsMsgAttachmentData* tmp;
+  char* disp = nullptr;
+  char* charset = nullptr;
 
   // Ok, this is the special case when somebody sends an "attachment" as the
   // body of an RFC822 message...I really don't think this is the way this
   // should be done.  I believe this should really be a multipart/mixed message
   // with an empty body part, but what can ya do...our friends to the North seem
   // to do this.
-  MimeObject *child = obj;
+  MimeObject* child = obj;
 
   *data = new nsMsgAttachmentData[2];
   if (!*data) return NS_ERROR_OUT_OF_MEMORY;
@@ -120,7 +119,7 @@ nsresult ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data) {
   tmp->m_realName.Adopt(
       MimeHeaders_get_parameter(disp, "name", &charset, NULL));
   if (!tmp->m_realName.IsEmpty()) {
-    char *fname = NULL;
+    char* fname = NULL;
     fname = mime_decode_filename(tmp->m_realName.get(), charset, obj->options);
     free(charset);
     if (fname) tmp->m_realName.Adopt(fname);
@@ -145,9 +144,9 @@ nsresult ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data) {
   tmp->m_displayableInline =
       obj->clazz->displayable_inline_p(obj->clazz, obj->headers);
 
-  char *tmpURL = nullptr;
-  char *id = nullptr;
-  char *id_imap = nullptr;
+  char* tmpURL = nullptr;
+  char* id = nullptr;
+  char* id_imap = nullptr;
 
   id = mime_part_address(obj);
   if (obj->options->missing_parts) id_imap = mime_imap_part_address(obj);
@@ -162,7 +161,7 @@ nsresult ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data) {
   }
 
   if (obj->options && obj->options->url) {
-    const char *url = obj->options->url;
+    const char* url = obj->options->url;
     nsresult rv;
     if (id_imap && id) {
       // if this is an IMAP part.
@@ -194,22 +193,22 @@ nsresult ProcessBodyAsAttachment(MimeObject *obj, nsMsgAttachmentData **data) {
   return NS_OK;
 }
 
-int32_t CountTotalMimeAttachments(MimeContainer *aObj) {
+int32_t CountTotalMimeAttachments(MimeContainer* aObj) {
   int32_t i;
   int32_t rc = 0;
 
   if ((!aObj) || (!aObj->children) || (aObj->nchildren <= 0)) return 0;
 
-  if (!mime_typep(((MimeObject *)aObj), (MimeObjectClass *)&mimeContainerClass))
+  if (!mime_typep(((MimeObject*)aObj), (MimeObjectClass*)&mimeContainerClass))
     return 0;
 
   for (i = 0; i < aObj->nchildren; i++)
-    rc += CountTotalMimeAttachments((MimeContainer *)aObj->children[i]) + 1;
+    rc += CountTotalMimeAttachments((MimeContainer*)aObj->children[i]) + 1;
 
   return rc;
 }
 
-void ValidateRealName(nsMsgAttachmentData *aAttach, MimeHeaders *aHdrs) {
+void ValidateRealName(nsMsgAttachmentData* aAttach, MimeHeaders* aHdrs) {
   // Sanity.
   if (!aAttach) return;
 
@@ -249,10 +248,10 @@ void ValidateRealName(nsMsgAttachmentData *aAttach, MimeHeaders *aHdrs) {
 
 static int32_t attIndex = 0;
 
-nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
-                                MimeDisplayOptions *options,
+nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
+                                MimeDisplayOptions* options,
                                 bool isAnAppleDoublePart, int32_t attSize,
-                                nsMsgAttachmentData *aAttachData) {
+                                nsMsgAttachmentData* aAttachData) {
   nsCString imappart;
   nsCString part;
   bool isExternalAttachment = false;
@@ -265,11 +264,11 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
 
   if (options->missing_parts) imappart.Adopt(mime_imap_part_address(object));
 
-  char *urlSpec = nullptr;
+  char* urlSpec = nullptr;
   if (!imappart.IsEmpty()) {
     urlSpec = mime_set_url_imap_part(aMessageURL, imappart.get(), part.get());
   } else {
-    char *no_part_url = nullptr;
+    char* no_part_url = nullptr;
     if (options->part_to_load &&
         options->format_out == nsMimeOutput::nsMimeMessageBodyDisplay)
       no_part_url = mime_get_base_url(aMessageURL);
@@ -294,7 +293,7 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
 
   nsCString urlString(urlSpec);
 
-  nsMsgAttachmentData *tmp = &(aAttachData[attIndex++]);
+  nsMsgAttachmentData* tmp = &(aAttachData[attIndex++]);
 
   tmp->m_realType = object->content_type;
   tmp->m_realEncoding = object->encoding;
@@ -310,13 +309,13 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
   tmp->m_displayableInline =
       object->clazz->displayable_inline_p(object->clazz, object->headers);
 
-  char *part_addr = mime_imap_part_address(object);
+  char* part_addr = mime_imap_part_address(object);
   tmp->m_isDownloaded = !part_addr;
   PR_FREEIF(part_addr);
 
   int32_t i;
-  char *charset = nullptr;
-  char *disp = MimeHeaders_get(object->headers, HEADER_CONTENT_DISPOSITION,
+  char* charset = nullptr;
+  char* disp = MimeHeaders_get(object->headers, HEADER_CONTENT_DISPOSITION,
                                false, false);
   if (disp) {
     tmp->m_realName.Adopt(
@@ -325,7 +324,7 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
       for (i = 0; i < 2 && tmp->m_realName.IsEmpty(); i++) {
         PR_FREEIF(disp);
         free(charset);
-        disp = MimeHeaders_get(((MimeContainer *)object)->children[i]->headers,
+        disp = MimeHeaders_get(((MimeContainer*)object)->children[i]->headers,
                                HEADER_CONTENT_DISPOSITION, false, false);
         tmp->m_realName.Adopt(
             MimeHeaders_get_parameter(disp, "filename", &charset, nullptr));
@@ -338,7 +337,7 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
       // But old Netscape 4.x and Outlook Express etc. use RFC2047.
       // So we should parse both types.
 
-      char *fname = nullptr;
+      char* fname = nullptr;
       fname = mime_decode_filename(tmp->m_realName.get(), charset, options);
       free(charset);
 
@@ -364,13 +363,12 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
         for (i = 1; i >= 0 && tmp->m_realName.IsEmpty(); i--) {
           PR_FREEIF(disp);
           free(charset);
-          disp =
-              MimeHeaders_get(((MimeContainer *)object)->children[i]->headers,
-                              HEADER_CONTENT_TYPE, false, false);
+          disp = MimeHeaders_get(((MimeContainer*)object)->children[i]->headers,
+                                 HEADER_CONTENT_TYPE, false, false);
           tmp->m_realName.Adopt(
               MimeHeaders_get_parameter(disp, "name", &charset, nullptr));
           tmp->m_realType.Adopt(
-              MimeHeaders_get(((MimeContainer *)object)->children[i]->headers,
+              MimeHeaders_get(((MimeContainer*)object)->children[i]->headers,
                               HEADER_CONTENT_TYPE, true, false));
         }
 
@@ -381,7 +379,7 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
         // But old Netscape 4.x and Outlook Express etc. use RFC2047.
         // So we should parse both types.
 
-        char *fname = nullptr;
+        char* fname = nullptr;
         fname = mime_decode_filename(tmp->m_realName.get(), charset, options);
         free(charset);
 
@@ -394,7 +392,7 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
       // |size| parm, store it in m_sizeExternalStr. Let the msgHeaderSink
       // addAttachmentField() figure out if it's sane, and don't bother
       // strtol'ing it to an int only to emit it as a string.
-      char *sizeStr = MimeHeaders_get_parameter(disp, "size", nullptr, nullptr);
+      char* sizeStr = MimeHeaders_get_parameter(disp, "size", nullptr, nullptr);
       if (sizeStr) tmp->m_sizeExternalStr = sizeStr;
     }
 
@@ -413,7 +411,7 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
     /* If this attachment doesn't have a name, just give it one... */
     tmp->m_realName.Adopt(MimeGetStringByID(MIME_MSG_DEFAULT_ATTACHMENT_NAME));
     if (!tmp->m_realName.IsEmpty()) {
-      char *newName = PR_smprintf(tmp->m_realName.get(), part.get());
+      char* newName = PR_smprintf(tmp->m_realName.get(), part.get());
       if (newName) tmp->m_realName.Adopt(newName);
     } else
       tmp->m_realName.Adopt(mime_part_address(object));
@@ -462,21 +460,21 @@ nsresult GenerateAttachmentData(MimeObject *object, const char *aMessageURL,
   return NS_OK;
 }
 
-nsresult BuildAttachmentList(MimeObject *anObject,
-                             nsMsgAttachmentData *aAttachData,
-                             const char *aMessageURL) {
+nsresult BuildAttachmentList(MimeObject* anObject,
+                             nsMsgAttachmentData* aAttachData,
+                             const char* aMessageURL) {
   nsresult rv;
   int32_t i;
-  MimeContainer *cobj = (MimeContainer *)anObject;
+  MimeContainer* cobj = (MimeContainer*)anObject;
   bool found_output = false;
 
   if ((!anObject) || (!cobj->children) || (!cobj->nchildren) ||
-      (mime_typep(anObject, (MimeObjectClass *)&mimeExternalBodyClass)))
+      (mime_typep(anObject, (MimeObjectClass*)&mimeExternalBodyClass)))
     return NS_OK;
 
   for (i = 0; i < cobj->nchildren; i++) {
-    MimeObject *child = cobj->children[i];
-    char *ct = child->content_type;
+    MimeObject* child = cobj->children[i];
+    char* ct = child->content_type;
 
     // We're going to ignore the output_p attribute because we want to output
     // any part with a name to work around bug 674473
@@ -501,7 +499,7 @@ nsresult BuildAttachmentList(MimeObject *anObject,
       // content disposition which can be "inline" or "attachment".
       // Inline parts are not shown when attachments aren't displayed
       // inline, so the only chance to see the part is as attachment.
-      char *name = MimeHeaders_get_name(child->headers, nullptr);
+      char* name = MimeHeaders_get_name(child->headers, nullptr);
       if (name) skip = false;
       PR_FREEIF(name);
     }
@@ -511,19 +509,19 @@ nsresult BuildAttachmentList(MimeObject *anObject,
 
     // We should generate an attachment for leaf object only but...
     bool isALeafObject =
-        mime_subclass_p(child->clazz, (MimeObjectClass *)&mimeLeafClass);
+        mime_subclass_p(child->clazz, (MimeObjectClass*)&mimeLeafClass);
 
     // ...we will generate an attachment for inline message too.
     bool isAnInlineMessage =
-        mime_typep(child, (MimeObjectClass *)&mimeMessageClass);
+        mime_typep(child, (MimeObjectClass*)&mimeMessageClass);
 
     // AppleDouble part need special care: we need to fetch the part as well its
     // two children for the needed info as they could be anywhere, eventually,
     // they won't contain a name or file name. In any case we need to build only
     // one attachment data
     bool isAnAppleDoublePart =
-        mime_typep(child, (MimeObjectClass *)&mimeMultipartAppleDoubleClass) &&
-        ((MimeContainer *)child)->nchildren == 2;
+        mime_typep(child, (MimeObjectClass*)&mimeMultipartAppleDoubleClass) &&
+        ((MimeContainer*)child)->nchildren == 2;
 
     // The function below does not necessarily set the size to something (I
     // don't think it will work for external objects, for instance, since they
@@ -539,7 +537,7 @@ nsresult BuildAttachmentList(MimeObject *anObject,
 
     // Now build the attachment list for the children of our object...
     if (!isALeafObject && !isAnAppleDoublePart) {
-      rv = BuildAttachmentList((MimeObject *)child, aAttachData, aMessageURL);
+      rv = BuildAttachmentList((MimeObject*)child, aAttachData, aMessageURL);
       NS_ENSURE_SUCCESS(rv, rv);
     }
   }
@@ -547,11 +545,11 @@ nsresult BuildAttachmentList(MimeObject *anObject,
   return NS_OK;
 }
 
-extern "C" nsresult MimeGetAttachmentList(MimeObject *tobj,
-                                          const char *aMessageURL,
-                                          nsMsgAttachmentData **data) {
-  MimeObject *obj;
-  MimeContainer *cobj;
+extern "C" nsresult MimeGetAttachmentList(MimeObject* tobj,
+                                          const char* aMessageURL,
+                                          nsMsgAttachmentData** data) {
+  MimeObject* obj;
+  MimeContainer* cobj;
   int32_t n;
   bool isAnInlineMessage;
 
@@ -561,12 +559,12 @@ extern "C" nsresult MimeGetAttachmentList(MimeObject *tobj,
   obj = mime_get_main_object(tobj);
   if (!obj) return NS_OK;
 
-  if (!mime_subclass_p(obj->clazz, (MimeObjectClass *)&mimeContainerClass))
+  if (!mime_subclass_p(obj->clazz, (MimeObjectClass*)&mimeContainerClass))
     return ProcessBodyAsAttachment(obj, data);
 
-  isAnInlineMessage = mime_typep(obj, (MimeObjectClass *)&mimeMessageClass);
+  isAnInlineMessage = mime_typep(obj, (MimeObjectClass*)&mimeMessageClass);
 
-  cobj = (MimeContainer *)obj;
+  cobj = (MimeContainer*)obj;
   n = CountTotalMimeAttachments(cobj);
   if (n <= 0)
     // XXX n is a regular number here, not meaningful as an nsresult
@@ -595,21 +593,21 @@ extern "C" nsresult MimeGetAttachmentList(MimeObject *tobj,
       return rv;
     }
   }
-  rv = BuildAttachmentList((MimeObject *)cobj, *data, aMessageURL);
+  rv = BuildAttachmentList((MimeObject*)cobj, *data, aMessageURL);
   if (NS_FAILED(rv)) {
     delete[] * data;  // release data in case of error return.
   }
   return rv;
 }
 
-extern "C" void MimeFreeAttachmentList(nsMsgAttachmentData *data) {
+extern "C" void MimeFreeAttachmentList(nsMsgAttachmentData* data) {
   delete[] data;
 }
 
-extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions *opt,
-                                               nsMsgAttachmentData *data) {
+extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions* opt,
+                                               nsMsgAttachmentData* data) {
   int32_t i = 0;
-  nsMsgAttachmentData *tmp = data;
+  nsMsgAttachmentData* tmp = data;
 
   if (!tmp) return;
 
@@ -680,8 +678,8 @@ extern "C" void NotifyEmittersOfAttachmentList(MimeDisplayOptions *opt,
 }
 
 // Utility to create a nsIURI object...
-extern "C" nsresult nsMimeNewURI(nsIURI **aInstancePtrResult, const char *aSpec,
-                                 nsIURI *aBase) {
+extern "C" nsresult nsMimeNewURI(nsIURI** aInstancePtrResult, const char* aSpec,
+                                 nsIURI* aBase) {
   if (nullptr == aInstancePtrResult) return NS_ERROR_NULL_POINTER;
 
   nsCOMPtr<nsIIOService> pService = mozilla::services::GetIOService();
@@ -691,14 +689,14 @@ extern "C" nsresult nsMimeNewURI(nsIURI **aInstancePtrResult, const char *aSpec,
                           aInstancePtrResult);
 }
 
-extern "C" nsresult SetMailCharacterSetToMsgWindow(MimeObject *obj,
-                                                   const char *aCharacterSet) {
+extern "C" nsresult SetMailCharacterSetToMsgWindow(MimeObject* obj,
+                                                   const char* aCharacterSet) {
   nsresult rv = NS_OK;
 
   if (obj && obj->options) {
-    mime_stream_data *msd = (mime_stream_data *)(obj->options->stream_closure);
+    mime_stream_data* msd = (mime_stream_data*)(obj->options->stream_closure);
     if (msd) {
-      nsIChannel *channel = msd->channel;
+      nsIChannel* channel = msd->channel;
       if (channel) {
         nsCOMPtr<nsIURI> uri;
         channel->GetURI(getter_AddRefs(uri));
@@ -710,9 +708,9 @@ extern "C" nsresult SetMailCharacterSetToMsgWindow(MimeObject *obj,
             if (msgWindow)
               rv = msgWindow->SetMailCharacterSet(
                   !PL_strcasecmp(aCharacterSet, "us-ascii")
-                      ? static_cast<const nsCString &>(
+                      ? static_cast<const nsCString&>(
                             NS_LITERAL_CSTRING("ISO-8859-1"))
-                      : static_cast<const nsCString &>(
+                      : static_cast<const nsCString&>(
                             nsDependentCString(aCharacterSet)));
           }
         }
@@ -723,7 +721,7 @@ extern "C" nsresult SetMailCharacterSetToMsgWindow(MimeObject *obj,
   return rv;
 }
 
-static void ResetMsgHeaderSinkProps(nsIURI *uri) {
+static void ResetMsgHeaderSinkProps(nsIURI* uri) {
   nsCOMPtr<nsIMsgMailNewsUrl> msgurl(do_QueryInterface(uri));
   if (!msgurl) return;
 
@@ -738,9 +736,9 @@ static void ResetMsgHeaderSinkProps(nsIURI *uri) {
   msgHeaderSink->ResetProperties();
 }
 
-static char *mime_file_type(const char *filename, void *stream_closure) {
-  char *retType = nullptr;
-  char *ext = nullptr;
+static char* mime_file_type(const char* filename, void* stream_closure) {
+  char* retType = nullptr;
+  char* ext = nullptr;
   nsresult rv;
 
   ext = PL_strrchr(filename, '.');
@@ -758,8 +756,8 @@ static char *mime_file_type(const char *filename, void *stream_closure) {
   return retType;
 }
 
-int ConvertToUTF8(const char *stringToUse, int32_t inLength,
-                  const char *input_charset, nsACString &outString) {
+int ConvertToUTF8(const char* stringToUse, int32_t inLength,
+                  const char* input_charset, nsACString& outString) {
   nsresult rv = NS_OK;
 
   // Look up Thunderbird's special aliases from charsetalias.properties.
@@ -788,21 +786,21 @@ int ConvertToUTF8(const char *stringToUse, int32_t inLength,
   return NS_SUCCEEDED(rv) ? 0 : -1;
 }
 
-static int mime_convert_charset(const char *input_line, int32_t input_length,
-                                const char *input_charset,
-                                nsACString &convertedString,
-                                void *stream_closure) {
+static int mime_convert_charset(const char* input_line, int32_t input_length,
+                                const char* input_charset,
+                                nsACString& convertedString,
+                                void* stream_closure) {
   return ConvertToUTF8(input_line, input_length, input_charset,
                        convertedString);
 }
 
-static int mime_output_fn(const char *buf, int32_t size, void *stream_closure) {
+static int mime_output_fn(const char* buf, int32_t size, void* stream_closure) {
   uint32_t written = 0;
-  mime_stream_data *msd = (mime_stream_data *)stream_closure;
+  mime_stream_data* msd = (mime_stream_data*)stream_closure;
   if ((!msd->pluginObj2) && (!msd->output_emitter)) return -1;
 
   // Fire pending start request
-  ((nsStreamConverter *)msd->pluginObj2)->FirePendingStartRequest();
+  ((nsStreamConverter*)msd->pluginObj2)->FirePendingStartRequest();
 
   // Now, write to the WriteBody method if this is a message body and not
   // a part retrevial
@@ -819,12 +817,12 @@ static int mime_output_fn(const char *buf, int32_t size, void *stream_closure) {
   return written;
 }
 
-extern "C" int mime_display_stream_write(nsMIMESession *stream, const char *buf,
+extern "C" int mime_display_stream_write(nsMIMESession* stream, const char* buf,
                                          int32_t size) {
-  mime_stream_data *msd =
-      (mime_stream_data *)((nsMIMESession *)stream)->data_object;
+  mime_stream_data* msd =
+      (mime_stream_data*)((nsMIMESession*)stream)->data_object;
 
-  MimeObject *obj = (msd ? msd->obj : 0);
+  MimeObject* obj = (msd ? msd->obj : 0);
   if (!obj) return -1;
 
   //
@@ -850,13 +848,13 @@ extern "C" int mime_display_stream_write(nsMIMESession *stream, const char *buf,
     msd->firstCheck = false;
   }
 
-  return obj->clazz->parse_buffer((char *)buf, size, obj);
+  return obj->clazz->parse_buffer((char*)buf, size, obj);
 }
 
-extern "C" void mime_display_stream_complete(nsMIMESession *stream) {
-  mime_stream_data *msd =
-      (mime_stream_data *)((nsMIMESession *)stream)->data_object;
-  MimeObject *obj = (msd ? msd->obj : 0);
+extern "C" void mime_display_stream_complete(nsMIMESession* stream) {
+  mime_stream_data* msd =
+      (mime_stream_data*)((nsMIMESession*)stream)->data_object;
+  MimeObject* obj = (msd ? msd->obj : 0);
   if (obj) {
     int status;
     bool abortNow = false;
@@ -873,7 +871,7 @@ extern "C" void mime_display_stream_complete(nsMIMESession *stream) {
     //
     if (!msd->options->part_to_load ||
         msd->options->format_out == nsMimeOutput::nsMimeMessageBodyDisplay) {
-      nsMsgAttachmentData *attachments;
+      nsMsgAttachmentData* attachments;
       nsresult rv = MimeGetAttachmentList(obj, msd->url_name, &attachments);
       if (NS_SUCCEEDED(rv)) {
         NotifyEmittersOfAttachmentList(msd->options, attachments);
@@ -906,11 +904,11 @@ extern "C" void mime_display_stream_complete(nsMIMESession *stream) {
   delete msd;
 }
 
-extern "C" void mime_display_stream_abort(nsMIMESession *stream, int status) {
-  mime_stream_data *msd =
-      (mime_stream_data *)((nsMIMESession *)stream)->data_object;
+extern "C" void mime_display_stream_abort(nsMIMESession* stream, int status) {
+  mime_stream_data* msd =
+      (mime_stream_data*)((nsMIMESession*)stream)->data_object;
 
-  MimeObject *obj = (msd ? msd->obj : 0);
+  MimeObject* obj = (msd ? msd->obj : 0);
   if (obj) {
     if (!obj->closed_p) obj->clazz->parse_eof(obj, true);
     if (!obj->parsed_p) obj->clazz->parse_end(obj, true);
@@ -933,11 +931,11 @@ extern "C" void mime_display_stream_abort(nsMIMESession *stream, int status) {
   delete msd;
 }
 
-static int mime_output_init_fn(const char *type, const char *charset,
-                               const char *name, const char *x_mac_type,
-                               const char *x_mac_creator,
-                               void *stream_closure) {
-  mime_stream_data *msd = (mime_stream_data *)stream_closure;
+static int mime_output_init_fn(const char* type, const char* charset,
+                               const char* name, const char* x_mac_type,
+                               const char* x_mac_creator,
+                               void* stream_closure) {
+  mime_stream_data* msd = (mime_stream_data*)stream_closure;
 
   // Now, all of this stream creation is done outside of libmime, so this
   // is just a check of the pluginObj member and returning accordingly.
@@ -947,12 +945,12 @@ static int mime_output_init_fn(const char *type, const char *charset,
     return 0;
 }
 
-static void *mime_image_begin(const char *image_url, const char *content_type,
-                              void *stream_closure);
-static void mime_image_end(void *image_closure, int status);
-static char *mime_image_make_image_html(void *image_data);
-static int mime_image_write_buffer(const char *buf, int32_t size,
-                                   void *image_closure);
+static void* mime_image_begin(const char* image_url, const char* content_type,
+                              void* stream_closure);
+static void mime_image_end(void* image_closure, int status);
+static char* mime_image_make_image_html(void* image_data);
+static int mime_image_write_buffer(const char* buf, int32_t size,
+                                   void* image_closure);
 
 /* Interface between libmime and inline display of images: the abomination
    that is known as "internal-external-reconnect".
@@ -961,9 +959,9 @@ class mime_image_stream_data {
  public:
   mime_image_stream_data();
 
-  mime_stream_data *msd;
-  char *url;
-  nsMIMESession *istream;
+  mime_stream_data* msd;
+  char* url;
+  nsMIMESession* istream;
 };
 
 mime_image_stream_data::mime_image_stream_data() {
@@ -972,28 +970,28 @@ mime_image_stream_data::mime_image_stream_data() {
   msd = nullptr;
 }
 
-static void *mime_image_begin(const char *image_url, const char *content_type,
-                              void *stream_closure) {
-  mime_stream_data *msd = (mime_stream_data *)stream_closure;
-  class mime_image_stream_data *mid;
+static void* mime_image_begin(const char* image_url, const char* content_type,
+                              void* stream_closure) {
+  mime_stream_data* msd = (mime_stream_data*)stream_closure;
+  class mime_image_stream_data* mid;
 
   mid = new mime_image_stream_data;
   if (!mid) return nullptr;
 
   mid->msd = msd;
 
-  mid->url = (char *)strdup(image_url);
+  mid->url = (char*)strdup(image_url);
   if (!mid->url) {
     PR_Free(mid);
     return nullptr;
   }
 
-  mid->istream = (nsMIMESession *)msd->pluginObj2;
+  mid->istream = (nsMIMESession*)msd->pluginObj2;
   return mid;
 }
 
-static void mime_image_end(void *image_closure, int status) {
-  mime_image_stream_data *mid = (mime_image_stream_data *)image_closure;
+static void mime_image_end(void* image_closure, int status) {
+  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure;
 
   PR_ASSERT(mid);
   if (!mid) return;
@@ -1002,8 +1000,8 @@ static void mime_image_end(void *image_closure, int status) {
   delete mid;
 }
 
-static char *mime_image_make_image_html(void *image_closure) {
-  mime_image_stream_data *mid = (mime_image_stream_data *)image_closure;
+static char* mime_image_make_image_html(void* image_closure) {
+  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure;
 
   PR_ASSERT(mid);
   if (!mid) return 0;
@@ -1015,17 +1013,17 @@ static char *mime_image_make_image_html(void *image_closure) {
         "SRC=\"resource://gre-resources/loading-image.png\" "
         "ALT=\"[Image]\"></DIV>");
 
-  const char *prefix;
-  const char *url;
-  char *buf;
+  const char* prefix;
+  const char* url;
+  char* buf;
   /* Wouldn't it be nice if attributes were case-sensitive? */
-  const char *scaledPrefix =
+  const char* scaledPrefix =
       "<DIV CLASS=\"moz-attached-image-container\"><IMG "
       "CLASS=\"moz-attached-image\" shrinktofit=\"yes\" SRC=\"";
-  const char *suffix = "\"></DIV>";
+  const char* suffix = "\"></DIV>";
   // Thunderbird doesn't have this pref.
 #ifdef MOZ_SUITE
-  const char *unscaledPrefix =
+  const char* unscaledPrefix =
       "<DIV CLASS=\"moz-attached-image-container\"><IMG "
       "CLASS=\"moz-attached-image\" SRC=\"";
   nsCOMPtr<nsIPrefBranch> prefBranch;
@@ -1047,7 +1045,7 @@ static char *mime_image_make_image_html(void *image_closure) {
     url = mid->url;
 
   uint32_t buflen = strlen(prefix) + strlen(suffix) + strlen(url) + 20;
-  buf = (char *)PR_MALLOC(buflen);
+  buf = (char*)PR_MALLOC(buflen);
   if (!buf) return 0;
   *buf = 0;
 
@@ -1057,35 +1055,35 @@ static char *mime_image_make_image_html(void *image_closure) {
   return buf;
 }
 
-static int mime_image_write_buffer(const char *buf, int32_t size,
-                                   void *image_closure) {
-  mime_image_stream_data *mid = (mime_image_stream_data *)image_closure;
-  mime_stream_data *msd = mid->msd;
+static int mime_image_write_buffer(const char* buf, int32_t size,
+                                   void* image_closure) {
+  mime_image_stream_data* mid = (mime_image_stream_data*)image_closure;
+  mime_stream_data* msd = mid->msd;
 
   if (((!msd->output_emitter)) && ((!msd->pluginObj2))) return -1;
 
   return size;
 }
 
-MimeObject *mime_get_main_object(MimeObject *obj) {
-  MimeContainer *cobj;
-  if (!(mime_subclass_p(obj->clazz, (MimeObjectClass *)&mimeMessageClass))) {
+MimeObject* mime_get_main_object(MimeObject* obj) {
+  MimeContainer* cobj;
+  if (!(mime_subclass_p(obj->clazz, (MimeObjectClass*)&mimeMessageClass))) {
     return obj;
   }
-  cobj = (MimeContainer *)obj;
+  cobj = (MimeContainer*)obj;
   if (cobj->nchildren != 1) return obj;
   obj = cobj->children[0];
   while (obj) {
     if ((!mime_subclass_p(obj->clazz,
-                          (MimeObjectClass *)&mimeMultipartSignedClass)) &&
+                          (MimeObjectClass*)&mimeMultipartSignedClass)) &&
         (PL_strcasecmp(obj->content_type, MULTIPART_SIGNED) != 0)) {
       return obj;
     } else {
-      if (mime_subclass_p(obj->clazz, (MimeObjectClass *)&mimeContainerClass)) {
+      if (mime_subclass_p(obj->clazz, (MimeObjectClass*)&mimeContainerClass)) {
         // We don't care about a signed/smime object; Go inside to the
         // thing that we signed or smime'ed
         //
-        cobj = (MimeContainer *)obj;
+        cobj = (MimeContainer*)obj;
         if (cobj->nchildren > 0)
           obj = cobj->children[0];
         else
@@ -1101,17 +1099,17 @@ MimeObject *mime_get_main_object(MimeObject *obj) {
   return nullptr;
 }
 
-static bool MimeObjectIsMessageBodyNoClimb(MimeObject *parent,
-                                           MimeObject *looking_for,
-                                           bool *stop) {
-  MimeContainer *container = (MimeContainer *)parent;
+static bool MimeObjectIsMessageBodyNoClimb(MimeObject* parent,
+                                           MimeObject* looking_for,
+                                           bool* stop) {
+  MimeContainer* container = (MimeContainer*)parent;
   int32_t i;
-  char *disp;
+  char* disp;
 
   NS_ASSERTION(stop, "NULL stop to MimeObjectIsMessageBodyNoClimb");
 
   for (i = 0; i < container->nchildren; i++) {
-    MimeObject *child = container->children[i];
+    MimeObject* child = container->children[i];
     bool is_body = true;
 
     // The body can't be something we're not displaying.
@@ -1134,7 +1132,7 @@ static bool MimeObjectIsMessageBodyNoClimb(MimeObject *parent,
     }
 
     // The body could be down inside a multipart child, so search recursively.
-    if (mime_subclass_p(child->clazz, (MimeObjectClass *)&mimeContainerClass)) {
+    if (mime_subclass_p(child->clazz, (MimeObjectClass*)&mimeContainerClass)) {
       is_body = MimeObjectIsMessageBodyNoClimb(child, looking_for, stop);
       if (is_body || *stop) return is_body;
     }
@@ -1143,9 +1141,9 @@ static bool MimeObjectIsMessageBodyNoClimb(MimeObject *parent,
 }
 
 /* Should this be static in mimemult.cpp? */
-bool MimeObjectIsMessageBody(MimeObject *looking_for) {
+bool MimeObjectIsMessageBody(MimeObject* looking_for) {
   bool stop = false;
-  MimeObject *root = looking_for;
+  MimeObject* root = looking_for;
   while (root->parent) root = root->parent;
   return MimeObjectIsMessageBodyNoClimb(root, looking_for, &stop);
 }
@@ -1155,14 +1153,14 @@ bool MimeObjectIsMessageBody(MimeObject *looking_for) {
 //
 
 // Get the connection to prefs service manager
-nsIPrefBranch *GetPrefBranch(MimeDisplayOptions *opt) {
+nsIPrefBranch* GetPrefBranch(MimeDisplayOptions* opt) {
   if (!opt) return nullptr;
 
   return opt->m_prefBranch;
 }
 
 // Get the text converter...
-mozITXTToHTMLConv *GetTextConverter(MimeDisplayOptions *opt) {
+mozITXTToHTMLConv* GetTextConverter(MimeDisplayOptions* opt) {
   if (!opt) return nullptr;
 
   return opt->conv;
@@ -1255,13 +1253,13 @@ MimeDisplayOptions::~MimeDisplayOptions() {
 ////////////////////////////////////////////////////////////////
 // Bridge routines for new stream converter XP-COM interface
 ////////////////////////////////////////////////////////////////
-extern "C" void *mime_bridge_create_display_stream(
-    nsIMimeEmitter *newEmitter, nsStreamConverter *newPluginObj2, nsIURI *uri,
-    nsMimeOutputType format_out, uint32_t whattodo, nsIChannel *aChannel) {
+extern "C" void* mime_bridge_create_display_stream(
+    nsIMimeEmitter* newEmitter, nsStreamConverter* newPluginObj2, nsIURI* uri,
+    nsMimeOutputType format_out, uint32_t whattodo, nsIChannel* aChannel) {
   int status = 0;
-  MimeObject *obj;
-  mime_stream_data *msd;
-  nsMIMESession *stream = 0;
+  MimeObject* obj;
+  mime_stream_data* msd;
+  nsMIMESession* stream = 0;
 
   if (!uri) return nullptr;
 
@@ -1445,7 +1443,7 @@ extern "C" void *mime_bridge_create_display_stream(
       msd->options->format_out != nsMimeOutput::nsMimeMessageBodyDisplay)
     msd->options->write_html_p = false;
 
-  obj = mime_new((MimeObjectClass *)&mimeMessageClass, (MimeHeaders *)NULL,
+  obj = mime_new((MimeObjectClass*)&mimeMessageClass, (MimeHeaders*)NULL,
                  MESSAGE_RFC822);
   if (!obj) {
     delete msd->options;
@@ -1492,17 +1490,17 @@ extern "C" void *mime_bridge_create_display_stream(
 //
 // Emitter Wrapper Routines!
 //
-nsIMimeEmitter *GetMimeEmitter(MimeDisplayOptions *opt) {
-  mime_stream_data *msd = (mime_stream_data *)opt->stream_closure;
+nsIMimeEmitter* GetMimeEmitter(MimeDisplayOptions* opt) {
+  mime_stream_data* msd = (mime_stream_data*)opt->stream_closure;
   if (!msd) return NULL;
 
-  nsIMimeEmitter *ptr = (nsIMimeEmitter *)(msd->output_emitter);
+  nsIMimeEmitter* ptr = (nsIMimeEmitter*)(msd->output_emitter);
   return ptr;
 }
 
-mime_stream_data *GetMSD(MimeDisplayOptions *opt) {
+mime_stream_data* GetMSD(MimeDisplayOptions* opt) {
   if (!opt) return nullptr;
-  mime_stream_data *msd = (mime_stream_data *)opt->stream_closure;
+  mime_stream_data* msd = (mime_stream_data*)opt->stream_closure;
   return msd;
 }
 
@@ -1514,51 +1512,51 @@ bool NoEmitterProcessing(nsMimeOutputType format_out) {
     return false;
 }
 
-extern "C" nsresult mimeEmitterAddAttachmentField(MimeDisplayOptions *opt,
-                                                  const char *field,
-                                                  const char *value) {
+extern "C" nsresult mimeEmitterAddAttachmentField(MimeDisplayOptions* opt,
+                                                  const char* field,
+                                                  const char* value) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->AddAttachmentField(field, value);
   }
 
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterAddHeaderField(MimeDisplayOptions *opt,
-                                              const char *field,
-                                              const char *value) {
+extern "C" nsresult mimeEmitterAddHeaderField(MimeDisplayOptions* opt,
+                                              const char* field,
+                                              const char* value) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->AddHeaderField(field, value);
   }
 
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterAddAllHeaders(MimeDisplayOptions *opt,
-                                             const char *allheaders,
+extern "C" nsresult mimeEmitterAddAllHeaders(MimeDisplayOptions* opt,
+                                             const char* allheaders,
                                              const int32_t allheadersize) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->AddAllHeaders(
         Substring(allheaders, allheaders + allheadersize));
   }
@@ -1566,19 +1564,19 @@ extern "C" nsresult mimeEmitterAddAllHeaders(MimeDisplayOptions *opt,
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterStartAttachment(MimeDisplayOptions *opt,
-                                               const char *name,
-                                               const char *contentType,
-                                               const char *url,
+extern "C" nsresult mimeEmitterStartAttachment(MimeDisplayOptions* opt,
+                                               const char* name,
+                                               const char* contentType,
+                                               const char* url,
                                                bool aIsExternalAttachment) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->StartAttachment(nsDependentCString(name), contentType, url,
                                     aIsExternalAttachment);
   }
@@ -1586,15 +1584,15 @@ extern "C" nsresult mimeEmitterStartAttachment(MimeDisplayOptions *opt,
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterEndAttachment(MimeDisplayOptions *opt) {
+extern "C" nsresult mimeEmitterEndAttachment(MimeDisplayOptions* opt) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     if (emitter)
       return emitter->EndAttachment();
     else
@@ -1604,15 +1602,15 @@ extern "C" nsresult mimeEmitterEndAttachment(MimeDisplayOptions *opt) {
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterEndAllAttachments(MimeDisplayOptions *opt) {
+extern "C" nsresult mimeEmitterEndAllAttachments(MimeDisplayOptions* opt) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     if (emitter)
       return emitter->EndAllAttachments();
     else
@@ -1622,48 +1620,48 @@ extern "C" nsresult mimeEmitterEndAllAttachments(MimeDisplayOptions *opt) {
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterStartBody(MimeDisplayOptions *opt, bool bodyOnly,
-                                         const char *msgID,
-                                         const char *outCharset) {
+extern "C" nsresult mimeEmitterStartBody(MimeDisplayOptions* opt, bool bodyOnly,
+                                         const char* msgID,
+                                         const char* outCharset) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->StartBody(bodyOnly, msgID, outCharset);
   }
 
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterEndBody(MimeDisplayOptions *opt) {
+extern "C" nsresult mimeEmitterEndBody(MimeDisplayOptions* opt) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->EndBody();
   }
 
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterEndHeader(MimeDisplayOptions *opt,
-                                         MimeObject *obj) {
+extern "C" nsresult mimeEmitterEndHeader(MimeDisplayOptions* opt,
+                                         MimeObject* obj) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
 
     nsCString name;
     if (msd->format_out == nsMimeOutput::nsMimeMessageSplitDisplay ||
@@ -1688,47 +1686,47 @@ extern "C" nsresult mimeEmitterEndHeader(MimeDisplayOptions *opt,
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterUpdateCharacterSet(MimeDisplayOptions *opt,
-                                                  const char *aCharset) {
+extern "C" nsresult mimeEmitterUpdateCharacterSet(MimeDisplayOptions* opt,
+                                                  const char* aCharset) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->UpdateCharacterSet(aCharset);
   }
 
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeEmitterStartHeader(MimeDisplayOptions *opt,
+extern "C" nsresult mimeEmitterStartHeader(MimeDisplayOptions* opt,
                                            bool rootMailHeader, bool headerOnly,
-                                           const char *msgID,
-                                           const char *outCharset) {
+                                           const char* msgID,
+                                           const char* outCharset) {
   // Check for draft processing...
   if (NoEmitterProcessing(opt->format_out)) return NS_OK;
 
-  mime_stream_data *msd = GetMSD(opt);
+  mime_stream_data* msd = GetMSD(opt);
   if (!msd) return NS_ERROR_FAILURE;
 
   if (msd->output_emitter) {
-    nsIMimeEmitter *emitter = (nsIMimeEmitter *)msd->output_emitter;
+    nsIMimeEmitter* emitter = (nsIMimeEmitter*)msd->output_emitter;
     return emitter->StartHeader(rootMailHeader, headerOnly, msgID, outCharset);
   }
 
   return NS_ERROR_FAILURE;
 }
 
-extern "C" nsresult mimeSetNewURL(nsMIMESession *stream, char *url) {
+extern "C" nsresult mimeSetNewURL(nsMIMESession* stream, char* url) {
   if ((!stream) || (!url) || (!*url)) return NS_ERROR_FAILURE;
 
-  mime_stream_data *msd = (mime_stream_data *)stream->data_object;
+  mime_stream_data* msd = (mime_stream_data*)stream->data_object;
   if (!msd) return NS_ERROR_FAILURE;
 
-  char *tmpPtr = strdup(url);
+  char* tmpPtr = strdup(url);
   if (!tmpPtr) return NS_ERROR_OUT_OF_MEMORY;
 
   PR_FREEIF(msd->url_name);
@@ -1738,7 +1736,7 @@ extern "C" nsresult mimeSetNewURL(nsMIMESession *stream, char *url) {
 
 #define MIME_URL "chrome://messenger/locale/mime.properties"
 
-extern "C" char *MimeGetStringByID(int32_t stringID) {
+extern "C" char* MimeGetStringByID(int32_t stringID) {
   nsCOMPtr<nsIStringBundleService> stringBundleService =
       mozilla::services::GetStringBundleService();
 
@@ -1753,7 +1751,7 @@ extern "C" char *MimeGetStringByID(int32_t stringID) {
   return strdup("???");
 }
 
-extern "C" char *MimeGetStringByName(const char16_t *stringName) {
+extern "C" char* MimeGetStringByName(const char16_t* stringName) {
   nsCOMPtr<nsIStringBundleService> stringBundleService =
       do_GetService(NS_STRINGBUNDLE_CONTRACTID);
 
@@ -1769,13 +1767,13 @@ extern "C" char *MimeGetStringByName(const char16_t *stringName) {
   return strdup("???");
 }
 
-void ResetChannelCharset(MimeObject *obj) {
+void ResetChannelCharset(MimeObject* obj) {
   if (obj->options && obj->options->stream_closure &&
       obj->options->default_charset && obj->headers) {
-    mime_stream_data *msd = (mime_stream_data *)(obj->options->stream_closure);
-    char *ct = MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
+    mime_stream_data* msd = (mime_stream_data*)(obj->options->stream_closure);
+    char* ct = MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
     if (ct && msd && msd->channel) {
-      char *cSet = MimeHeaders_get_parameter(ct, "charset", nullptr, nullptr);
+      char* cSet = MimeHeaders_get_parameter(ct, "charset", nullptr, nullptr);
       if (cSet) {
         // The content-type does specify a charset. First, setup the channel.
         msd->channel->SetContentType(nsDependentCString(ct));
@@ -1804,19 +1802,19 @@ void ResetChannelCharset(MimeObject *obj) {
 // Function to get up mail/news fontlang
 ////////////////////////////////////////////////////////////
 
-nsresult GetMailNewsFont(MimeObject *obj, bool styleFixed,
-                         int32_t *fontPixelSize, int32_t *fontSizePercentage,
-                         nsCString &fontLang) {
+nsresult GetMailNewsFont(MimeObject* obj, bool styleFixed,
+                         int32_t* fontPixelSize, int32_t* fontSizePercentage,
+                         nsCString& fontLang) {
   nsresult rv = NS_OK;
 
-  nsIPrefBranch *prefBranch = GetPrefBranch(obj->options);
+  nsIPrefBranch* prefBranch = GetPrefBranch(obj->options);
   if (prefBranch) {
-    MimeInlineText *text = (MimeInlineText *)obj;
+    MimeInlineText* text = (MimeInlineText*)obj;
     nsAutoCString charset;
 
     // get a charset
     if (!text->initializeCharset)
-      ((MimeInlineTextClass *)&mimeInlineTextClass)->initialize_charset(obj);
+      ((MimeInlineTextClass*)&mimeInlineTextClass)->initialize_charset(obj);
 
     if (!text->charset || !(*text->charset))
       charset.AssignLiteral("us-ascii");
@@ -1872,7 +1870,7 @@ nsresult GetMailNewsFont(MimeObject *obj, bool styleFixed,
  *
  * @param flags see nsIDocumentEncoder.h
  */
-nsresult HTML2Plaintext(const nsString &inString, nsString &outString,
+nsresult HTML2Plaintext(const nsString& inString, nsString& outString,
                         uint32_t flags, uint32_t wrapCol) {
   nsCOMPtr<nsIParserUtils> utils = do_GetService(NS_PARSERUTILS_CONTRACTID);
   return utils->ConvertToPlainText(inString, flags, wrapCol, outString);
@@ -1882,7 +1880,7 @@ nsresult HTML2Plaintext(const nsString &inString, nsString &outString,
  * This function synchronously sanitizes an HTML document (string->string)
  * using the Gecko nsTreeSanitizer.
  */
-nsresult HTMLSanitize(const nsString &inString, nsString &outString) {
+nsresult HTMLSanitize(const nsString& inString, nsString& outString) {
   // If you want to add alternative sanitization, you can insert a conditional
   // call to another sanitizer and an early return here.
 

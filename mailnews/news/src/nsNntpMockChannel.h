@@ -20,11 +20,11 @@ class nsNntpMockChannel : public nsIChannel {
   NS_DECL_NSICHANNEL
   NS_DECL_NSIREQUEST
 
-  nsNntpMockChannel(nsIURI *aUri, nsIMsgWindow *aMsgWindow);
-  nsNntpMockChannel(nsIURI *aUri, nsIMsgWindow *aMsgWindow,
-                    nsISupports *aConsumer);
+  nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow);
+  nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow,
+                    nsISupports* aConsumer);
 
-  nsresult AttachNNTPConnection(nsNNTPProtocol &protocol);
+  nsresult AttachNNTPConnection(nsNNTPProtocol& protocol);
 
  protected:
   virtual ~nsNntpMockChannel();
@@ -46,7 +46,7 @@ class nsNntpMockChannel : public nsIChannel {
   } m_channelState;
 
   // The protocol instance
-  nsNNTPProtocol *m_protocol;
+  nsNNTPProtocol* m_protocol;
 
   // Temporary variables for accessors before we get to the actual instance.
   nsresult m_cancelStatus;

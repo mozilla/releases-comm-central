@@ -25,7 +25,7 @@ typedef struct MimeContainer MimeContainer;
 
 struct MimeContainerClass {
   MimeObjectClass object;
-  int (*add_child)(MimeObject *parent, MimeObject *child);
+  int (*add_child)(MimeObject* parent, MimeObject* child);
 };
 
 extern MimeContainerClass mimeContainerClass;
@@ -33,7 +33,7 @@ extern MimeContainerClass mimeContainerClass;
 struct MimeContainer {
   MimeObject object; /* superclass variables */
 
-  MimeObject **children; /* list of contained objects */
+  MimeObject** children; /* list of contained objects */
   int32_t nchildren;     /* how many */
 };
 

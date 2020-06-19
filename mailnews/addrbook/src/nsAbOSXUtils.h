@@ -9,16 +9,16 @@
 #include <Foundation/NSString.h>
 #include "nsString.h"
 
-NSString *WrapString(const nsString &aString);
-void AppendToString(const NSString *aString, nsString &aResult);
-void AssignToString(const NSString *aString, nsString &aResult);
-void AppendToCString(const NSString *aString, nsCString &aResult);
+NSString* WrapString(const nsString& aString);
+void AppendToString(const NSString* aString, nsString& aResult);
+void AssignToString(const NSString* aString, nsString& aResult);
+void AppendToCString(const NSString* aString, nsCString& aResult);
 
 struct nsAbOSXPropertyMap {
-  NSString *const mOSXProperty;
-  NSString *const mOSXLabel;
-  NSString *const mOSXKey;
-  const char *mPropertyName;
+  NSString* const mOSXProperty;
+  NSString* const mOSXLabel;
+  NSString* const mOSXKey;
+  const char* mPropertyName;
 };
 
 class nsAbOSXUtils {

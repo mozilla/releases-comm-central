@@ -8,8 +8,8 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-nsresult nsImportABDescriptor::Create(nsISupports *aOuter, REFNSIID aIID,
-                                      void **aResult) {
+nsresult nsImportABDescriptor::Create(nsISupports* aOuter, REFNSIID aIID,
+                                      void** aResult) {
   if (aOuter) return NS_ERROR_NO_AGGREGATION;
 
   RefPtr<nsImportABDescriptor> it = new nsImportABDescriptor();

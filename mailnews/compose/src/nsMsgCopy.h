@@ -39,11 +39,11 @@ class CopyListener : public nsIMsgCopyServiceListener {
 
   NS_IMETHOD SetMessageKey(nsMsgKey aMessageKey) override;
 
-  NS_IMETHOD GetMessageId(nsACString &aMessageId) override;
+  NS_IMETHOD GetMessageId(nsACString& aMessageId) override;
 
   NS_IMETHOD OnStopCopy(nsresult aStatus) override;
 
-  NS_IMETHOD SetMsgComposeAndSendObject(nsIMsgSend *obj);
+  NS_IMETHOD SetMsgComposeAndSendObject(nsIMsgSend* obj);
 
   bool mCopyInProgress;
 
@@ -68,47 +68,47 @@ class nsMsgCopy : public nsIUrlListener {
   // Object methods...
   //////////////////////////////////////////////////////////////////////
   //
-  nsresult StartCopyOperation(nsIMsgIdentity *aUserIdentity, nsIFile *aFile,
-                              nsMsgDeliverMode aMode, nsIMsgSend *aMsgSendObj,
-                              const char *aSavePref,
-                              nsIMsgDBHdr *aMsgToReplace);
+  nsresult StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
+                              nsMsgDeliverMode aMode, nsIMsgSend* aMsgSendObj,
+                              const char* aSavePref,
+                              nsIMsgDBHdr* aMsgToReplace);
 
-  nsresult DoCopy(nsIFile *aDiskFile, nsIMsgFolder *dstFolder,
-                  nsIMsgDBHdr *aMsgToReplace, bool aIsDraft,
-                  nsIMsgWindow *msgWindow, nsIMsgSend *aMsgSendObj);
+  nsresult DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
+                  nsIMsgDBHdr* aMsgToReplace, bool aIsDraft,
+                  nsIMsgWindow* msgWindow, nsIMsgSend* aMsgSendObj);
 
-  nsresult GetUnsentMessagesFolder(nsIMsgIdentity *userIdentity,
-                                   nsIMsgFolder **msgFolder, bool *waitForUrl);
-  nsresult GetDraftsFolder(nsIMsgIdentity *userIdentity,
-                           nsIMsgFolder **msgFolder, bool *waitForUrl);
-  nsresult GetTemplatesFolder(nsIMsgIdentity *userIdentity,
-                              nsIMsgFolder **msgFolder, bool *waitForUrl);
-  nsresult GetSentFolder(nsIMsgIdentity *userIdentity, nsIMsgFolder **msgFolder,
-                         bool *waitForUrl);
-  nsresult CreateIfMissing(nsIMsgFolder **folder, bool *waitForUrl);
+  nsresult GetUnsentMessagesFolder(nsIMsgIdentity* userIdentity,
+                                   nsIMsgFolder** msgFolder, bool* waitForUrl);
+  nsresult GetDraftsFolder(nsIMsgIdentity* userIdentity,
+                           nsIMsgFolder** msgFolder, bool* waitForUrl);
+  nsresult GetTemplatesFolder(nsIMsgIdentity* userIdentity,
+                              nsIMsgFolder** msgFolder, bool* waitForUrl);
+  nsresult GetSentFolder(nsIMsgIdentity* userIdentity, nsIMsgFolder** msgFolder,
+                         bool* waitForUrl);
+  nsresult CreateIfMissing(nsIMsgFolder** folder, bool* waitForUrl);
 
   //
   // Vars for implementation...
   //
-  nsIFile *mFile;  // the file we are sending...
+  nsIFile* mFile;  // the file we are sending...
   nsMsgDeliverMode mMode;
   nsCOMPtr<nsIMsgFolder> mDstFolder;
   nsCOMPtr<nsIMsgDBHdr> mMsgToReplace;
   bool mIsDraft;
   nsCOMPtr<nsIMsgSend> mMsgSendObj;
-  char *mSavePref;
+  char* mSavePref;
 
  private:
   virtual ~nsMsgCopy();
 };
 
 // Useful function for the back end...
-nsresult LocateMessageFolder(nsIMsgIdentity *userIdentity,
-                             nsMsgDeliverMode aFolderType, const char *aSaveURI,
-                             nsIMsgFolder **msgFolder);
+nsresult LocateMessageFolder(nsIMsgIdentity* userIdentity,
+                             nsMsgDeliverMode aFolderType, const char* aSaveURI,
+                             nsIMsgFolder** msgFolder);
 
-nsresult MessageFolderIsLocal(nsIMsgIdentity *userIdentity,
+nsresult MessageFolderIsLocal(nsIMsgIdentity* userIdentity,
                               nsMsgDeliverMode aFolderType,
-                              const char *aSaveURI, bool *aResult);
+                              const char* aSaveURI, bool* aResult);
 
 #endif /* _nsMsgCopy_H_ */

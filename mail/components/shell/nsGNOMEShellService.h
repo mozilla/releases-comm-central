@@ -31,15 +31,15 @@ class nsGNOMEShellService : public nsIShellService,
  protected:
   virtual ~nsGNOMEShellService(){};
 
-  bool KeyMatchesAppName(const char *aKeyValue) const;
-  bool checkDefault(const char *const *aProtocols, unsigned int aLength);
-  nsresult MakeDefault(const char *const *aProtocols,
-                       unsigned int aProtocolsLength, const char *mimeType,
-                       const char *extensions);
+  bool KeyMatchesAppName(const char* aKeyValue) const;
+  bool checkDefault(const char* const* aProtocols, unsigned int aLength);
+  nsresult MakeDefault(const char* const* aProtocols,
+                       unsigned int aProtocolsLength, const char* mimeType,
+                       const char* extensions);
 
  private:
   bool GetAppPathFromLauncher();
-  bool CheckHandlerMatchesAppName(const nsACString &handler) const;
+  bool CheckHandlerMatchesAppName(const nsACString& handler) const;
   bool mUseLocaleFilenames;
   bool mCheckedThisSession;
   nsCString mAppPath;

@@ -31,8 +31,8 @@ NS_DEFINE_NAMED_CID(NS_SAXXMLREADER_CID);
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsUserInfo)
 NS_DEFINE_NAMED_CID(NS_USERINFO_CID);
 
-static nsresult CreateNewSyncStreamListener(nsISupports *aOuter, REFNSIID aIID,
-                                            void **aResult) {
+static nsresult CreateNewSyncStreamListener(nsISupports* aOuter, REFNSIID aIID,
+                                            void** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = nullptr;
 

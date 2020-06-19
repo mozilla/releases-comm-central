@@ -13,8 +13,8 @@
 
 #define IMAP_MSGS_URL "chrome://messenger/locale/imapMsgs.properties"
 
-extern "C" nsresult IMAPGetStringByName(const char *stringName,
-                                        char16_t **aString) {
+extern "C" nsresult IMAPGetStringByName(const char* stringName,
+                                        char16_t** aString) {
   nsCOMPtr<nsIStringBundle> sBundle;
   nsresult rv = IMAPGetStringBundle(getter_AddRefs(sBundle));
   if (NS_SUCCEEDED(rv) && sBundle) {
@@ -25,7 +25,7 @@ extern "C" nsresult IMAPGetStringByName(const char *stringName,
   return rv;
 }
 
-nsresult IMAPGetStringBundle(nsIStringBundle **aBundle) {
+nsresult IMAPGetStringBundle(nsIStringBundle** aBundle) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIStringBundleService> stringService =
       mozilla::services::GetStringBundleService();

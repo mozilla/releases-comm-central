@@ -16,32 +16,32 @@ class nsImapMailDatabase : public nsMailDatabase {
   nsImapMailDatabase();
   virtual ~nsImapMailDatabase();
 
-  NS_IMETHOD GetSummaryValid(bool *aResult) override;
+  NS_IMETHOD GetSummaryValid(bool* aResult) override;
   NS_IMETHOD SetSummaryValid(bool valid = true) override;
-  virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) override;
+  virtual nsresult AdjustExpungedBytesOnDelete(nsIMsgDBHdr* msgHdr) override;
 
   NS_IMETHOD ForceClosed() override;
-  NS_IMETHOD AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify) override;
-  NS_IMETHOD SetAttributeOnPendingHdr(nsIMsgDBHdr *pendingHdr,
-                                      const char *property,
-                                      const char *propertyVal) override;
-  NS_IMETHOD SetUint32AttributeOnPendingHdr(nsIMsgDBHdr *pendingHdr,
-                                            const char *property,
+  NS_IMETHOD AddNewHdrToDB(nsIMsgDBHdr* newHdr, bool notify) override;
+  NS_IMETHOD SetAttributeOnPendingHdr(nsIMsgDBHdr* pendingHdr,
+                                      const char* property,
+                                      const char* propertyVal) override;
+  NS_IMETHOD SetUint32AttributeOnPendingHdr(nsIMsgDBHdr* pendingHdr,
+                                            const char* property,
                                             uint32_t propertyVal) override;
-  NS_IMETHOD SetUint64AttributeOnPendingHdr(nsIMsgDBHdr *aPendingHdr,
-                                            const char *aProperty,
+  NS_IMETHOD SetUint64AttributeOnPendingHdr(nsIMsgDBHdr* aPendingHdr,
+                                            const char* aProperty,
                                             uint64_t aPropertyVal) override;
-  NS_IMETHOD DeleteMessages(nsTArray<nsMsgKey> const &nsMsgKeys,
-                            nsIDBChangeListener *instigator) override;
-  NS_IMETHOD UpdatePendingAttributes(nsIMsgDBHdr *aNewHdr) override;
+  NS_IMETHOD DeleteMessages(nsTArray<nsMsgKey> const& nsMsgKeys,
+                            nsIDBChangeListener* instigator) override;
+  NS_IMETHOD UpdatePendingAttributes(nsIMsgDBHdr* aNewHdr) override;
 
  protected:
   // IMAP does not set local file flags, override does nothing
-  virtual void UpdateFolderFlag(nsIMsgDBHdr *msgHdr, bool bSet,
+  virtual void UpdateFolderFlag(nsIMsgDBHdr* msgHdr, bool bSet,
                                 nsMsgMessageFlagType flag,
-                                nsIOutputStream **ppFileStream);
+                                nsIOutputStream** ppFileStream);
 
-  nsresult GetRowForPendingHdr(nsIMsgDBHdr *pendingHdr, nsIMdbRow **row);
+  nsresult GetRowForPendingHdr(nsIMsgDBHdr* pendingHdr, nsIMdbRow** row);
   nsresult GetAllPendingHdrsTable();
   mdb_token m_pendingHdrsRowScopeToken;
   mdb_token m_pendingHdrsTableKindToken;

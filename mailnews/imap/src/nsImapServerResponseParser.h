@@ -23,7 +23,7 @@ class nsIImapFlagAndUidState;
 
 class nsImapServerResponseParser : public nsIMAPGenericParser {
  public:
-  explicit nsImapServerResponseParser(nsImapProtocol &imapConnection);
+  explicit nsImapServerResponseParser(nsImapProtocol& imapConnection);
   virtual ~nsImapServerResponseParser();
 
   // Overridden from the base parser class
@@ -34,9 +34,9 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   // results in a NO or Bad response from the server..in other words the command
   // is "exploratory" and we don't really care if it succeeds or fails. This
   // value is typically FALSE for almost all cases.
-  virtual void ParseIMAPServerResponse(const char *aCurrentCommand,
+  virtual void ParseIMAPServerResponse(const char* aCurrentCommand,
                                        bool aIgnoreBadAndNOResponses,
-                                       char *aGreetingWithCapability = NULL);
+                                       char* aGreetingWithCapability = NULL);
   virtual void InitializeState();
   bool CommandFailed();
   void SetCommandFailed(bool failed);
@@ -47,7 +47,7 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   virtual bool WaitingForMoreClientInput() {
     return fWaitingForMoreClientInput;
   }
-  const char *GetSelectedMailboxName();  // can be NULL
+  const char* GetSelectedMailboxName();  // can be NULL
   bool IsStdJunkNotJunkUseOk() { return fStdJunkNotJunkUseOk; }
 
   // if we get a PREAUTH greeting from the server, initialize the parser to
@@ -65,17 +65,17 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   uint32_t HighestRecordedUID();
   void ResetHighestRecordedUID();
   void SetCurrentResponseUID(uint32_t uid);
-  bool IsNumericString(const char *string);
+  bool IsNumericString(const char* string);
   uint32_t SizeOfMostRecentMessage();
   void SetTotalDownloadSize(int32_t newSize) { fTotalDownloadSize = newSize; }
 
-  nsImapSearchResultIterator *CreateSearchResultIterator();
+  nsImapSearchResultIterator* CreateSearchResultIterator();
   void ResetSearchResultSequence() { fSearchResults->ResetSequence(); }
 
   // create a struct mailbox_spec from our info, used in
   // libmsg c interface
   already_AddRefed<nsImapMailboxSpec> CreateCurrentMailboxSpec(
-      const char *mailboxName = nullptr);
+      const char* mailboxName = nullptr);
 
   // Resets the flags state.
   void ResetFlagInfo();
@@ -108,28 +108,28 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   void SetFetchingFlags(bool aFetchFlags) { fFetchingAllFlags = aFetchFlags; }
   void ResetCapabilityFlag();
 
-  nsCString &GetMailAccountUrl() { return fMailAccountUrl; }
-  const char *GetXSenderInfo() { return fXSenderInfo; }
+  nsCString& GetMailAccountUrl() { return fMailAccountUrl; }
+  const char* GetXSenderInfo() { return fXSenderInfo; }
   void FreeXSenderInfo() { PR_FREEIF(fXSenderInfo); }
-  nsCString &GetManageListsUrl() { return fManageListsUrl; }
-  nsCString &GetManageFiltersUrl() { return fManageFiltersUrl; }
-  const char *GetManageFolderUrl() { return fFolderAdminUrl; }
-  nsCString &GetServerID() { return fServerIdResponse; }
+  nsCString& GetManageListsUrl() { return fManageListsUrl; }
+  nsCString& GetManageFiltersUrl() { return fManageFiltersUrl; }
+  const char* GetManageFolderUrl() { return fFolderAdminUrl; }
+  nsCString& GetServerID() { return fServerIdResponse; }
 
   // Call this when adding a pipelined command to the session
-  void IncrementNumberOfTaggedResponsesExpected(const char *newExpectedTag);
+  void IncrementNumberOfTaggedResponsesExpected(const char* newExpectedTag);
 
   // Interrupt a Fetch, without really Interrupting (through netlib)
   bool GetLastFetchChunkReceived();
   void ClearLastFetchChunkReceived();
   virtual uint16_t SupportsUserFlags() { return fSupportsUserDefinedFlags; }
   virtual uint16_t SettablePermanentFlags() { return fSettablePermanentFlags; }
-  void SetFlagState(nsIImapFlagAndUidState *state);
+  void SetFlagState(nsIImapFlagAndUidState* state);
   bool GetDownloadingHeaders();
   bool GetFillingInShell();
-  void UseCachedShell(nsIMAPBodyShell *cachedShell);
-  void SetHostSessionList(nsIImapHostSessionList *aHostSession);
-  char *fAuthChallenge;  // the challenge returned by the server in
+  void UseCachedShell(nsIMAPBodyShell* cachedShell);
+  void SetHostSessionList(nsIImapHostSessionList* aHostSession);
+  char* fAuthChallenge;  // the challenge returned by the server in
                          // response to authenticate using CRAM-MD5 or NTLM
   bool fCondStoreEnabled;
   bool fUseModSeq;  // can use mod seq for currently selected folder
@@ -139,9 +139,9 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   virtual void flags();
   virtual void envelope_data();
   virtual void xaolenvelope_data();
-  virtual void parse_address(nsAutoCString &addressLine);
+  virtual void parse_address(nsAutoCString& addressLine);
   virtual void internal_date();
-  virtual nsresult BeginMessageDownload(const char *content_type);
+  virtual nsresult BeginMessageDownload(const char* content_type);
 
   virtual void response_data();
   virtual void resp_text();
@@ -167,35 +167,35 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   virtual void myrights_data(bool unsolicited);
   virtual void acl_data();
   virtual void bodystructure_data();
-  nsIMAPBodypart *bodystructure_part(char *partNum, nsIMAPBodypart *parentPart);
-  nsIMAPBodypart *bodystructure_leaf(char *partNum, nsIMAPBodypart *parentPart);
-  nsIMAPBodypart *bodystructure_multipart(char *partNum,
-                                          nsIMAPBodypart *parentPart);
+  nsIMAPBodypart* bodystructure_part(char* partNum, nsIMAPBodypart* parentPart);
+  nsIMAPBodypart* bodystructure_leaf(char* partNum, nsIMAPBodypart* parentPart);
+  nsIMAPBodypart* bodystructure_multipart(char* partNum,
+                                          nsIMAPBodypart* parentPart);
   virtual void mime_data();
   virtual void mime_part_data();
   virtual void mime_header_data();
   virtual void quota_data();
   virtual void msg_fetch();
   virtual void msg_obsolete();
-  virtual void msg_fetch_headers(const char *partNum);
+  virtual void msg_fetch_headers(const char* partNum);
   virtual void msg_fetch_content(bool chunk, int32_t origin,
-                                 const char *content_type);
+                                 const char* content_type);
   virtual bool msg_fetch_quoted();
   virtual bool msg_fetch_literal(bool chunk, int32_t origin);
   virtual void mailbox_list(bool discoveredFromLsub);
-  virtual void mailbox(nsImapMailboxSpec *boxSpec);
+  virtual void mailbox(nsImapMailboxSpec* boxSpec);
 
-  virtual void ProcessOkCommand(const char *commandToken);
-  virtual void ProcessBadCommand(const char *commandToken);
-  virtual void PreProcessCommandToken(const char *commandToken,
-                                      const char *currentCommand);
+  virtual void ProcessOkCommand(const char* commandToken);
+  virtual void ProcessBadCommand(const char* commandToken);
+  virtual void PreProcessCommandToken(const char* commandToken,
+                                      const char* currentCommand);
   virtual void PostProcessEndOfLine();
 
   // Overridden from the nsIMAPGenericParser, to retrieve the next line
   // from the open socket.
-  virtual bool GetNextLineForParser(char **nextLine) override;
+  virtual bool GetNextLineForParser(char** nextLine) override;
   // overridden to do logging
-  virtual void SetSyntaxError(bool error, const char *msg = nullptr) override;
+  virtual void SetSyntaxError(bool error, const char* msg = nullptr) override;
 
  private:
   bool fCurrentCommandFailed;
@@ -235,13 +235,13 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
 
   int fNumberOfTaggedResponsesExpected;
 
-  char *fCurrentCommandTag;
+  char* fCurrentCommandTag;
 
   nsCString fZeroLengthMessageUidString;
 
-  char *fSelectedMailboxName;
+  char* fSelectedMailboxName;
 
-  nsImapSearchResultSequence *fSearchResults;
+  nsImapSearchResultSequence* fSearchResults;
 
   nsCOMPtr<nsIImapFlagAndUidState>
       fFlagState;  // NOT owned by us, it's a copy, do not destroy
@@ -250,16 +250,16 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
 
   eIMAPCapabilityFlags fCapabilityFlag;
   nsCString fMailAccountUrl;
-  char *fNetscapeServerVersionString;
-  char *fXSenderInfo; /* changed per message download */
-  char *fLastAlert; /* used to avoid displaying the same alert over and over */
-  char *fMsgID;     /* MessageID for Gmail only (X-GM-MSGID) */
-  char *fThreadID;  /* ThreadID for Gmail only (X-GM-THRID) */
-  char *fLabels;    /* Labels for Gmail only (X-GM-LABELS) [will include parens,
+  char* fNetscapeServerVersionString;
+  char* fXSenderInfo; /* changed per message download */
+  char* fLastAlert; /* used to avoid displaying the same alert over and over */
+  char* fMsgID;     /* MessageID for Gmail only (X-GM-MSGID) */
+  char* fThreadID;  /* ThreadID for Gmail only (X-GM-THRID) */
+  char* fLabels;    /* Labels for Gmail only (X-GM-LABELS) [will include parens,
                        removed while passing to hashTable ]*/
   nsCString fManageListsUrl;
   nsCString fManageFiltersUrl;
-  char *fFolderAdminUrl;
+  char* fFolderAdminUrl;
   nsCString fServerIdResponse;  // RFC
 
   int32_t fFetchResponseIndex;
@@ -276,7 +276,7 @@ class nsImapServerResponseParser : public nsIMAPGenericParser {
   RefPtr<nsIMAPBodyShell> m_shell;
 
   // The connection object
-  nsImapProtocol &fServerConnection;
+  nsImapProtocol& fServerConnection;
 
   RefPtr<nsIImapHostSessionList> fHostSessionList;
   nsTArray<nsMsgKey> fCopyResponseKeyArray;

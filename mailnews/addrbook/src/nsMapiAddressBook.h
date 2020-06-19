@@ -39,7 +39,7 @@ class nsMapiAddressBook : public nsAbWinHelper {
   // Load the MAPI environment
   BOOL Initialize(void);
   // Allocation of a buffer for transmission to interfaces
-  virtual void AllocateBuffer(ULONG aByteCount, LPVOID *aBuffer) override;
+  virtual void AllocateBuffer(ULONG aByteCount, LPVOID* aBuffer) override;
   // Destruction of a buffer provided by the interfaces
   virtual void FreeBuffer(LPVOID aBuffer) override;
   // Library management

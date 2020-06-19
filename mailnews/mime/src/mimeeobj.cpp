@@ -17,19 +17,19 @@
 MimeDefClass(MimeExternalObject, MimeExternalObjectClass,
              mimeExternalObjectClass, &MIME_SUPERCLASS);
 
-static int MimeExternalObject_initialize(MimeObject *);
-static void MimeExternalObject_finalize(MimeObject *);
-static int MimeExternalObject_parse_begin(MimeObject *);
-static int MimeExternalObject_parse_buffer(const char *, int32_t, MimeObject *);
-static int MimeExternalObject_parse_line(const char *, int32_t, MimeObject *);
-static int MimeExternalObject_parse_decoded_buffer(const char *, int32_t,
-                                                   MimeObject *);
-static bool MimeExternalObject_displayable_inline_p(MimeObjectClass *clazz,
-                                                    MimeHeaders *hdrs);
+static int MimeExternalObject_initialize(MimeObject*);
+static void MimeExternalObject_finalize(MimeObject*);
+static int MimeExternalObject_parse_begin(MimeObject*);
+static int MimeExternalObject_parse_buffer(const char*, int32_t, MimeObject*);
+static int MimeExternalObject_parse_line(const char*, int32_t, MimeObject*);
+static int MimeExternalObject_parse_decoded_buffer(const char*, int32_t,
+                                                   MimeObject*);
+static bool MimeExternalObject_displayable_inline_p(MimeObjectClass* clazz,
+                                                    MimeHeaders* hdrs);
 
-static int MimeExternalObjectClassInitialize(MimeExternalObjectClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
-  MimeLeafClass *lclass = (MimeLeafClass *)clazz;
+static int MimeExternalObjectClassInitialize(MimeExternalObjectClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+  MimeLeafClass* lclass = (MimeLeafClass*)clazz;
 
   NS_ASSERTION(!oclass->class_initialized,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
@@ -43,18 +43,18 @@ static int MimeExternalObjectClassInitialize(MimeExternalObjectClass *clazz) {
   return 0;
 }
 
-static int MimeExternalObject_initialize(MimeObject *object) {
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->initialize(object);
+static int MimeExternalObject_initialize(MimeObject* object) {
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(object);
 }
 
-static void MimeExternalObject_finalize(MimeObject *object) {
-  ((MimeObjectClass *)&MIME_SUPERCLASS)->finalize(object);
+static void MimeExternalObject_finalize(MimeObject* object) {
+  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(object);
 }
 
-static int MimeExternalObject_parse_begin(MimeObject *obj) {
+static int MimeExternalObject_parse_begin(MimeObject* obj) {
   int status;
 
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_begin(obj);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
   if (status < 0) return status;
 
   // If we're writing this object, and we're doing it in raw form, then
@@ -76,9 +76,9 @@ static int MimeExternalObject_parse_begin(MimeObject *obj) {
   if (obj->options && obj->output_p && obj->options->write_html_p &&
       obj->options->output_fn) {
     MimeDisplayOptions newopt = *obj->options;  // copy it
-    char *id = 0;
-    char *id_url = 0;
-    char *id_name = 0;
+    char* id = 0;
+    char* id_url = 0;
+    char* id_name = 0;
     nsCString id_imap;
     bool all_headers_p = obj->options->headers == MimeHeadersAll;
 
@@ -87,7 +87,7 @@ static int MimeExternalObject_parse_begin(MimeObject *obj) {
     if (!id) return MIME_OUT_OF_MEMORY;
 
     if (obj->options && obj->options->url) {
-      const char *url = obj->options->url;
+      const char* url = obj->options->url;
       if (!id_imap.IsEmpty() && id) {
         // if this is an IMAP part.
         id_url = mime_set_url_imap_part(url, id_imap.get(), id);
@@ -104,9 +104,9 @@ static int MimeExternalObject_parse_begin(MimeObject *obj) {
       PR_Free(id);
       id = MimeGetStringByID(MIME_MSG_ATTACHMENT);
     } else {
-      const char *p = "Part ";
+      const char* p = "Part ";
       uint32_t slen = strlen(p) + strlen(id) + 1;
-      char *s = (char *)PR_MALLOC(slen);
+      char* s = (char*)PR_MALLOC(slen);
       if (!s) {
         PR_Free(id);
         PR_Free(id_url);
@@ -151,8 +151,8 @@ static int MimeExternalObject_parse_begin(MimeObject *obj) {
   return 0;
 }
 
-static int MimeExternalObject_parse_buffer(const char *buffer, int32_t size,
-                                           MimeObject *obj) {
+static int MimeExternalObject_parse_buffer(const char* buffer, int32_t size,
+                                           MimeObject* obj) {
   NS_ASSERTION(!obj->closed_p, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   if (obj->closed_p) return -1;
 
@@ -161,12 +161,12 @@ static int MimeExternalObject_parse_buffer(const char *buffer, int32_t size,
 
   /* The data will be base64-decoded and passed to
      MimeExternalObject_parse_decoded_buffer. */
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_buffer(buffer, size, obj);
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_buffer(buffer, size, obj);
 }
 
-static int MimeExternalObject_parse_decoded_buffer(const char *buf,
+static int MimeExternalObject_parse_decoded_buffer(const char* buf,
                                                    int32_t size,
-                                                   MimeObject *obj) {
+                                                   MimeObject* obj) {
   /* This is called (by MimeLeafClass->parse_buffer) with blocks of data
    that have already been base64-decoded.  This will only be called in
    the case where we're not emitting HTML, and want access to the raw
@@ -191,15 +191,15 @@ static int MimeExternalObject_parse_decoded_buffer(const char *buf,
     return MimeObject_write(obj, buf, size, true);
 }
 
-static int MimeExternalObject_parse_line(const char *line, int32_t length,
-                                         MimeObject *obj) {
+static int MimeExternalObject_parse_line(const char* line, int32_t length,
+                                         MimeObject* obj) {
   NS_ERROR(
       "This method should never be called (externals do no line buffering).");
   return -1;
 }
 
-static bool MimeExternalObject_displayable_inline_p(MimeObjectClass *clazz,
-                                                    MimeHeaders *hdrs) {
+static bool MimeExternalObject_displayable_inline_p(MimeObjectClass* clazz,
+                                                    MimeHeaders* hdrs) {
   return false;
 }
 
@@ -209,7 +209,7 @@ MimeDefClass(MimeSuppressedCrypto, MimeSuppressedCryptoClass,
              mimeSuppressedCryptoClass, &MIME_SUPERCLASS);
 
 static int MimeSuppressedCryptoClassInitialize(
-    MimeSuppressedCryptoClass *clazz) {
-  MimeExternalObjectClass *lclass = (MimeExternalObjectClass *)clazz;
+    MimeSuppressedCryptoClass* clazz) {
+  MimeExternalObjectClass* lclass = (MimeExternalObjectClass*)clazz;
   return MimeExternalObjectClassInitialize(lclass);
 }

@@ -17,8 +17,8 @@ class nsMsgTag final : public nsIMsgTag {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGTAG
 
-  nsMsgTag(const nsACString &aKey, const nsAString &aTag,
-           const nsACString &aColor, const nsACString &aOrdinal);
+  nsMsgTag(const nsACString& aKey, const nsAString& aTag,
+           const nsACString& aColor, const nsACString& aOrdinal);
 
  protected:
   ~nsMsgTag();
@@ -38,8 +38,8 @@ class nsMsgTagService final : public nsIMsgTagService {
   ~nsMsgTagService();
 
  protected:
-  nsresult SetUnicharPref(const char *prefName, const nsAString &prefValue);
-  nsresult GetUnicharPref(const char *prefName, nsAString &prefValue);
+  nsresult SetUnicharPref(const char* prefName, const nsAString& prefValue);
+  nsresult GetUnicharPref(const char* prefName, nsAString& prefValue);
   nsresult MigrateLabelsToTags();
   nsresult RefreshKeyCache();
 

@@ -102,14 +102,14 @@ NS_INTERFACE_MAP_END
 // follow-up in bug 1512698.
 
 NS_IMETHODIMP_(void)
-nsMsgMailNewsUrl::Serialize(mozilla::ipc::URIParams &aParams) {
+nsMsgMailNewsUrl::Serialize(mozilla::ipc::URIParams& aParams) {
   m_baseURL->Serialize(aParams);
 }
 
 //----------------------------
 // Support for nsISerializable
 //----------------------------
-NS_IMETHODIMP nsMsgMailNewsUrl::Read(nsIObjectInputStream *stream) {
+NS_IMETHODIMP nsMsgMailNewsUrl::Read(nsIObjectInputStream* stream) {
   nsAutoCString urlstr;
   nsresult rv = NS_ReadOptionalCString(stream, urlstr);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -122,7 +122,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Read(nsIObjectInputStream *stream) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::Write(nsIObjectOutputStream *stream) {
+NS_IMETHODIMP nsMsgMailNewsUrl::Write(nsIObjectOutputStream* stream) {
   nsAutoCString urlstr;
   nsresult rv = m_baseURL->GetSpec(urlstr);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -132,40 +132,40 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Write(nsIObjectOutputStream *stream) {
 //-------------------------
 // Support for nsIClassInfo
 //-------------------------
-NS_IMETHODIMP nsMsgMailNewsUrl::GetInterfaces(nsTArray<nsIID> &array) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetInterfaces(nsTArray<nsIID>& array) {
   array.Clear();
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetScriptableHelper(
-    nsIXPCScriptable **_retval) {
+    nsIXPCScriptable** _retval) {
   *_retval = nullptr;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetContractID(nsACString &aContractID) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetContractID(nsACString& aContractID) {
   aContractID.SetIsVoid(true);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetClassDescription(
-    nsACString &aClassDescription) {
+    nsACString& aClassDescription) {
   aClassDescription.SetIsVoid(true);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetClassID(nsCID **aClassID) {
-  *aClassID = (nsCID *)moz_xmalloc(sizeof(nsCID));
+NS_IMETHODIMP nsMsgMailNewsUrl::GetClassID(nsCID** aClassID) {
+  *aClassID = (nsCID*)moz_xmalloc(sizeof(nsCID));
   return GetClassIDNoAlloc(*aClassID);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetFlags(uint32_t *aFlags) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetFlags(uint32_t* aFlags) {
   *aFlags = nsIClassInfo::MAIN_THREAD_ONLY;
   return NS_OK;
 }
 
 static NS_DEFINE_CID(kNS_MSGMAILNEWSURL_CID, NS_MSGMAILNEWSURL_CID);
-NS_IMETHODIMP nsMsgMailNewsUrl::GetClassIDNoAlloc(nsCID *aClassIDNoAlloc) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetClassIDNoAlloc(nsCID* aClassIDNoAlloc) {
   *aClassIDNoAlloc = kNS_MSGMAILNEWSURL_CID;
   return NS_OK;
 }
@@ -173,7 +173,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetClassIDNoAlloc(nsCID *aClassIDNoAlloc) {
 //------------------------------------
 // Support for nsIURIWithSpecialOrigin
 //------------------------------------
-NS_IMETHODIMP nsMsgMailNewsUrl::GetOrigin(nsIURI **aOrigin) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetOrigin(nsIURI** aOrigin) {
   MOZ_ASSERT(m_hasNormalizedOrigin,
              "nsMsgMailNewsUrl::GetOrigin() can only be called for URLs with "
              "normalized spec");
@@ -201,7 +201,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetOrigin(nsIURI **aOrigin) {
 // Begin nsIMsgMailNewsUrl specific support
 ////////////////////////////////////////////////////////////////////////////////////
 
-nsresult nsMsgMailNewsUrl::GetUrlState(bool *aRunningUrl) {
+nsresult nsMsgMailNewsUrl::GetUrlState(bool* aRunningUrl) {
   if (aRunningUrl) *aRunningUrl = m_runningUrl;
 
   return NS_OK;
@@ -235,13 +235,13 @@ nsresult nsMsgMailNewsUrl::SetUrlState(bool aRunningUrl, nsresult aExitCode) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::RegisterListener(nsIUrlListener *aUrlListener) {
+NS_IMETHODIMP nsMsgMailNewsUrl::RegisterListener(nsIUrlListener* aUrlListener) {
   NS_ENSURE_ARG_POINTER(aUrlListener);
   mUrlListeners.AppendElement(aUrlListener);
   return NS_OK;
 }
 
-nsresult nsMsgMailNewsUrl::UnRegisterListener(nsIUrlListener *aUrlListener) {
+nsresult nsMsgMailNewsUrl::UnRegisterListener(nsIUrlListener* aUrlListener) {
   NS_ENSURE_ARG_POINTER(aUrlListener);
 
   // Due to the way mailnews is structured, some listeners attempt to remove
@@ -254,7 +254,7 @@ nsresult nsMsgMailNewsUrl::UnRegisterListener(nsIUrlListener *aUrlListener) {
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
-    nsIMsgIncomingServer **aIncomingServer) {
+    nsIMsgIncomingServer** aIncomingServer) {
   // mscott --> we could cache a copy of the server here....but if we did, we
   // run the risk of leaking the server if any single url gets leaked....of
   // course that shouldn't happen...but it could. so i'm going to look it up
@@ -300,7 +300,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetServer(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow **aMsgWindow) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow** aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aMsgWindow);
   *aMsgWindow = nullptr;
 
@@ -309,7 +309,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgWindow(nsIMsgWindow **aMsgWindow) {
   return *aMsgWindow ? NS_OK : NS_ERROR_NULL_POINTER;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgWindow(nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgWindow(nsIMsgWindow* aMsgWindow) {
 #ifdef DEBUG_David_Bienvenu
   NS_ASSERTION(aMsgWindow || !m_msgWindowWeak,
                "someone crunching non-null msg window");
@@ -319,7 +319,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgWindow(nsIMsgWindow *aMsgWindow) {
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetStatusFeedback(
-    nsIMsgStatusFeedback **aMsgFeedback) {
+    nsIMsgStatusFeedback** aMsgFeedback) {
   // note: it is okay to return a null status feedback and not return an error
   // it's possible the url really doesn't have status feedback
   *aMsgFeedback = nullptr;
@@ -335,12 +335,12 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetStatusFeedback(
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::SetStatusFeedback(
-    nsIMsgStatusFeedback *aMsgFeedback) {
+    nsIMsgStatusFeedback* aMsgFeedback) {
   if (aMsgFeedback) m_statusFeedbackWeak = do_GetWeakReference(aMsgFeedback);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetMaxProgress(int64_t *aMaxProgress) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetMaxProgress(int64_t* aMaxProgress) {
   *aMaxProgress = mMaxProgress;
   return NS_OK;
 }
@@ -350,7 +350,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetMaxProgress(int64_t aMaxProgress) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetLoadGroup(nsILoadGroup **aLoadGroup) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetLoadGroup(nsILoadGroup** aLoadGroup) {
   *aLoadGroup = nullptr;
   // note: it is okay to return a null load group and not return an error
   // it's possible the url really doesn't have load group
@@ -370,7 +370,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetLoadGroup(nsILoadGroup **aLoadGroup) {
   return *aLoadGroup ? NS_OK : NS_ERROR_NULL_POINTER;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetUpdatingFolder(bool *aResult) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetUpdatingFolder(bool* aResult) {
   NS_ENSURE_ARG(aResult);
   *aResult = m_updatingFolder;
   return NS_OK;
@@ -381,7 +381,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetUpdatingFolder(bool updatingFolder) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgIsInLocalCache(bool *aMsgIsInLocalCache) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgIsInLocalCache(bool* aMsgIsInLocalCache) {
   NS_ENSURE_ARG(aMsgIsInLocalCache);
   *aMsgIsInLocalCache = m_msgIsInLocalCache;
   return NS_OK;
@@ -392,7 +392,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgIsInLocalCache(bool aMsgIsInLocalCache) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetSuppressErrorMsgs(bool *aSuppressErrorMsgs) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetSuppressErrorMsgs(bool* aSuppressErrorMsgs) {
   NS_ENSURE_ARG(aSuppressErrorMsgs);
   *aSuppressErrorMsgs = m_suppressErrorMsgs;
   return NS_OK;
@@ -403,28 +403,28 @@ NS_IMETHODIMP nsMsgMailNewsUrl::SetSuppressErrorMsgs(bool aSuppressErrorMsgs) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetErrorCode(nsACString &aErrorCode) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetErrorCode(nsACString& aErrorCode) {
   aErrorCode = m_errorCode;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetErrorCode(const nsACString &aErrorCode) {
+NS_IMETHODIMP nsMsgMailNewsUrl::SetErrorCode(const nsACString& aErrorCode) {
   m_errorCode.Assign(aErrorCode);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetErrorMessage(nsAString &aErrorMessage) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetErrorMessage(nsAString& aErrorMessage) {
   aErrorMessage = m_errorMessage;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::SetErrorMessage(
-    const nsAString &aErrorMessage) {
+    const nsAString& aErrorMessage) {
   m_errorMessage.Assign(aErrorMessage);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::IsUrlType(uint32_t type, bool *isType) {
+NS_IMETHODIMP nsMsgMailNewsUrl::IsUrlType(uint32_t type, bool* isType) {
   // base class doesn't know about any specific types
   NS_ENSURE_ARG(isType);
   *isType = false;
@@ -432,13 +432,13 @@ NS_IMETHODIMP nsMsgMailNewsUrl::IsUrlType(uint32_t type, bool *isType) {
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::SetSearchSession(
-    nsIMsgSearchSession *aSearchSession) {
+    nsIMsgSearchSession* aSearchSession) {
   if (aSearchSession) m_searchSession = aSearchSession;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetSearchSession(
-    nsIMsgSearchSession **aSearchSession) {
+    nsIMsgSearchSession** aSearchSession) {
   NS_ENSURE_ARG(aSearchSession);
   NS_IF_ADDREF(*aSearchSession = m_searchSession);
   return NS_OK;
@@ -452,11 +452,11 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSearchSession(
 // Begin nsIURI support
 ////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetSpec(nsACString &aSpec) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetSpec(nsACString& aSpec) {
   return m_baseURL->GetSpec(aSpec);
 }
 
-nsresult nsMsgMailNewsUrl::CreateURL(const nsACString &aSpec, nsIURL **aURL) {
+nsresult nsMsgMailNewsUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
   nsCOMPtr<nsIURL> url;
   nsresult rv = NS_MutateURI(NS_STANDARDURLMUTATOR_CONTRACTID)
                     .SetSpec(aSpec)
@@ -468,14 +468,14 @@ nsresult nsMsgMailNewsUrl::CreateURL(const nsACString &aSpec, nsIURL **aURL) {
 
 #define FILENAME_PART_LEN 10
 
-nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString &aSpec) {
+nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString& aSpec) {
   nsAutoCString spec(aSpec);
   // Parse out "filename" attribute if present.
   char *start, *end;
   start = PL_strcasestr(spec.BeginWriting(), "?filename=");
   if (!start) start = PL_strcasestr(spec.BeginWriting(), "&filename=");
   if (start) {  // Make sure we only get our own value.
-    end = PL_strcasestr((char *)(start + FILENAME_PART_LEN), "&");
+    end = PL_strcasestr((char*)(start + FILENAME_PART_LEN), "&");
     if (end) {
       *end = 0;
       mAttachmentFileName = start + FILENAME_PART_LEN;
@@ -503,64 +503,64 @@ nsresult nsMsgMailNewsUrl::SetSpecInternal(const nsACString &aSpec) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetPrePath(nsACString &aPrePath) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetPrePath(nsACString& aPrePath) {
   return m_baseURL->GetPrePath(aPrePath);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetScheme(nsACString &aScheme) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetScheme(nsACString& aScheme) {
   return m_baseURL->GetScheme(aScheme);
 }
 
-nsresult nsMsgMailNewsUrl::SetScheme(const nsACString &aScheme) {
+nsresult nsMsgMailNewsUrl::SetScheme(const nsACString& aScheme) {
   return NS_MutateURI(m_baseURL).SetScheme(aScheme).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetUserPass(nsACString &aUserPass) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetUserPass(nsACString& aUserPass) {
   return m_baseURL->GetUserPass(aUserPass);
 }
 
-nsresult nsMsgMailNewsUrl::SetUserPass(const nsACString &aUserPass) {
+nsresult nsMsgMailNewsUrl::SetUserPass(const nsACString& aUserPass) {
   return NS_MutateURI(m_baseURL).SetUserPass(aUserPass).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetUsername(nsACString &aUsername) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetUsername(nsACString& aUsername) {
   /* note:  this will return an escaped string */
   return m_baseURL->GetUsername(aUsername);
 }
 
-nsresult nsMsgMailNewsUrl::SetUsername(const nsACString &aUsername) {
+nsresult nsMsgMailNewsUrl::SetUsername(const nsACString& aUsername) {
   return NS_MutateURI(m_baseURL).SetUsername(aUsername).Finalize(m_baseURL);
 }
 
-nsresult nsMsgMailNewsUrl::SetUsernameInternal(const nsACString &aUsername) {
+nsresult nsMsgMailNewsUrl::SetUsernameInternal(const nsACString& aUsername) {
   return NS_MutateURI(m_baseURL).SetUsername(aUsername).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetPassword(nsACString &aPassword) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetPassword(nsACString& aPassword) {
   return m_baseURL->GetPassword(aPassword);
 }
 
-nsresult nsMsgMailNewsUrl::SetPassword(const nsACString &aPassword) {
+nsresult nsMsgMailNewsUrl::SetPassword(const nsACString& aPassword) {
   return NS_MutateURI(m_baseURL).SetPassword(aPassword).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetHostPort(nsACString &aHostPort) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetHostPort(nsACString& aHostPort) {
   return m_baseURL->GetHostPort(aHostPort);
 }
 
-nsresult nsMsgMailNewsUrl::SetHostPort(const nsACString &aHostPort) {
+nsresult nsMsgMailNewsUrl::SetHostPort(const nsACString& aHostPort) {
   return NS_MutateURI(m_baseURL).SetHostPort(aHostPort).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetHost(nsACString &aHost) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetHost(nsACString& aHost) {
   return m_baseURL->GetHost(aHost);
 }
 
-nsresult nsMsgMailNewsUrl::SetHost(const nsACString &aHost) {
+nsresult nsMsgMailNewsUrl::SetHost(const nsACString& aHost) {
   return NS_MutateURI(m_baseURL).SetHost(aHost).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetPort(int32_t *aPort) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetPort(int32_t* aPort) {
   return m_baseURL->GetPort(aPort);
 }
 
@@ -572,32 +572,32 @@ nsresult nsMsgMailNewsUrl::SetPortInternal(int32_t aPort) {
   return NS_MutateURI(m_baseURL).SetPort(aPort).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetPathQueryRef(nsACString &aPath) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetPathQueryRef(nsACString& aPath) {
   return m_baseURL->GetPathQueryRef(aPath);
 }
 
-nsresult nsMsgMailNewsUrl::SetPathQueryRef(const nsACString &aPath) {
+nsresult nsMsgMailNewsUrl::SetPathQueryRef(const nsACString& aPath) {
   return NS_MutateURI(m_baseURL).SetPathQueryRef(aPath).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiHost(nsACString &aHostA) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiHost(nsACString& aHostA) {
   return m_baseURL->GetAsciiHost(aHostA);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiHostPort(nsACString &aHostPortA) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiHostPort(nsACString& aHostPortA) {
   return m_baseURL->GetAsciiHostPort(aHostPortA);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiSpec(nsACString &aSpecA) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetAsciiSpec(nsACString& aSpecA) {
   return m_baseURL->GetAsciiSpec(aSpecA);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetBaseURI(nsIURI **aBaseURI) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetBaseURI(nsIURI** aBaseURI) {
   NS_ENSURE_ARG_POINTER(aBaseURI);
-  return m_baseURL->QueryInterface(NS_GET_IID(nsIURI), (void **)aBaseURI);
+  return m_baseURL->QueryInterface(NS_GET_IID(nsIURI), (void**)aBaseURI);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::Equals(nsIURI *other, bool *_retval) {
+NS_IMETHODIMP nsMsgMailNewsUrl::Equals(nsIURI* other, bool* _retval) {
   // The passed-in URI might be a mail news url. Pass our inner URL to its
   // Equals method. The other mail news url will then pass its inner URL to
   // to the Equals method of our inner URL. Other URIs will return false.
@@ -606,7 +606,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Equals(nsIURI *other, bool *_retval) {
   return m_baseURL->Equals(other, _retval);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::EqualsExceptRef(nsIURI *other, bool *result) {
+NS_IMETHODIMP nsMsgMailNewsUrl::EqualsExceptRef(nsIURI* other, bool* result) {
   // The passed-in URI might be a mail news url. Pass our inner URL to its
   // Equals method. The other mail news url will then pass its inner URL to
   // to the Equals method of our inner URL. Other URIs will return false.
@@ -616,40 +616,40 @@ NS_IMETHODIMP nsMsgMailNewsUrl::EqualsExceptRef(nsIURI *other, bool *result) {
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::GetSpecIgnoringRef(nsACString &result) {
+nsMsgMailNewsUrl::GetSpecIgnoringRef(nsACString& result) {
   return m_baseURL->GetSpecIgnoringRef(result);
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::GetDisplaySpec(nsACString &aUnicodeSpec) {
+nsMsgMailNewsUrl::GetDisplaySpec(nsACString& aUnicodeSpec) {
   return GetSpec(aUnicodeSpec);
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::GetDisplayHostPort(nsACString &aUnicodeHostPort) {
+nsMsgMailNewsUrl::GetDisplayHostPort(nsACString& aUnicodeHostPort) {
   return GetHostPort(aUnicodeHostPort);
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::GetDisplayHost(nsACString &aUnicodeHost) {
+nsMsgMailNewsUrl::GetDisplayHost(nsACString& aUnicodeHost) {
   return GetHost(aUnicodeHost);
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::GetDisplayPrePath(nsACString &aPrePath) {
+nsMsgMailNewsUrl::GetDisplayPrePath(nsACString& aPrePath) {
   return GetPrePath(aPrePath);
 }
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::GetHasRef(bool *result) {
+nsMsgMailNewsUrl::GetHasRef(bool* result) {
   return m_baseURL->GetHasRef(result);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SchemeIs(const char *aScheme, bool *_retval) {
+NS_IMETHODIMP nsMsgMailNewsUrl::SchemeIs(const char* aScheme, bool* _retval) {
   return m_baseURL->SchemeIs(aScheme, _retval);
 }
 
-nsresult nsMsgMailNewsUrl::Clone(nsIURI **_retval) {
+nsresult nsMsgMailNewsUrl::Clone(nsIURI** _retval) {
   nsresult rv;
   nsAutoCString urlSpec;
   nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
@@ -672,8 +672,8 @@ nsresult nsMsgMailNewsUrl::Clone(nsIURI **_retval) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString &relativePath,
-                                        nsACString &result) {
+NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString& relativePath,
+                                        nsACString& result) {
   // only resolve anchor urls....i.e. urls which start with '#' against the
   // mailnews url... everything else shouldn't be resolved against mailnews
   // urls.
@@ -707,11 +707,11 @@ NS_IMETHODIMP nsMsgMailNewsUrl::Resolve(const nsACString &relativePath,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetDirectory(nsACString &aDirectory) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetDirectory(nsACString& aDirectory) {
   return m_baseURL->GetDirectory(aDirectory);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetFileName(nsACString &aFileName) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetFileName(nsACString& aFileName) {
   if (!mAttachmentFileName.IsEmpty()) {
     aFileName = mAttachmentFileName;
     return NS_OK;
@@ -719,11 +719,11 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetFileName(nsACString &aFileName) {
   return m_baseURL->GetFileName(aFileName);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetFileBaseName(nsACString &aFileBaseName) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetFileBaseName(nsACString& aFileBaseName) {
   return m_baseURL->GetFileBaseName(aFileBaseName);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetFileExtension(nsACString &aFileExtension) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetFileExtension(nsACString& aFileExtension) {
   if (!mAttachmentFileName.IsEmpty()) {
     int32_t pos = mAttachmentFileName.RFindChar(char16_t('.'));
     if (pos > 0)
@@ -734,63 +734,63 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetFileExtension(nsACString &aFileExtension) {
   return m_baseURL->GetFileExtension(aFileExtension);
 }
 
-nsresult nsMsgMailNewsUrl::SetFileNameInternal(const nsACString &aFileName) {
+nsresult nsMsgMailNewsUrl::SetFileNameInternal(const nsACString& aFileName) {
   mAttachmentFileName = aFileName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetQuery(nsACString &aQuery) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetQuery(nsACString& aQuery) {
   return m_baseURL->GetQuery(aQuery);
 }
 
-nsresult nsMsgMailNewsUrl::SetQuery(const nsACString &aQuery) {
+nsresult nsMsgMailNewsUrl::SetQuery(const nsACString& aQuery) {
   return NS_MutateURI(m_baseURL).SetQuery(aQuery).Finalize(m_baseURL);
 }
 
-nsresult nsMsgMailNewsUrl::SetQueryInternal(const nsACString &aQuery) {
+nsresult nsMsgMailNewsUrl::SetQueryInternal(const nsACString& aQuery) {
   return NS_MutateURI(m_baseURL).SetQuery(aQuery).Finalize(m_baseURL);
 }
 
 nsresult nsMsgMailNewsUrl::SetQueryWithEncoding(
-    const nsACString &aQuery, const mozilla::Encoding *aEncoding) {
+    const nsACString& aQuery, const mozilla::Encoding* aEncoding) {
   return NS_MutateURI(m_baseURL)
       .SetQueryWithEncoding(aQuery, aEncoding)
       .Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetRef(nsACString &aRef) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetRef(nsACString& aRef) {
   return m_baseURL->GetRef(aRef);
 }
 
-nsresult nsMsgMailNewsUrl::SetRef(const nsACString &aRef) {
+nsresult nsMsgMailNewsUrl::SetRef(const nsACString& aRef) {
   return NS_MutateURI(m_baseURL).SetRef(aRef).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetFilePath(nsACString &o_DirFile) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetFilePath(nsACString& o_DirFile) {
   return m_baseURL->GetFilePath(o_DirFile);
 }
 
-nsresult nsMsgMailNewsUrl::SetFilePath(const nsACString &i_DirFile) {
+nsresult nsMsgMailNewsUrl::SetFilePath(const nsACString& i_DirFile) {
   return NS_MutateURI(m_baseURL).SetFilePath(i_DirFile).Finalize(m_baseURL);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetCommonBaseSpec(nsIURI *uri2,
-                                                  nsACString &result) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetCommonBaseSpec(nsIURI* uri2,
+                                                  nsACString& result) {
   return m_baseURL->GetCommonBaseSpec(uri2, result);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetRelativeSpec(nsIURI *uri2,
-                                                nsACString &result) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetRelativeSpec(nsIURI* uri2,
+                                                nsACString& result) {
   return m_baseURL->GetRelativeSpec(uri2, result);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetMemCacheEntry(nsICacheEntry *memCacheEntry) {
+NS_IMETHODIMP nsMsgMailNewsUrl::SetMemCacheEntry(nsICacheEntry* memCacheEntry) {
   m_memCacheEntry = memCacheEntry;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetMemCacheEntry(
-    nsICacheEntry **memCacheEntry) {
+    nsICacheEntry** memCacheEntry) {
   NS_ENSURE_ARG(memCacheEntry);
   nsresult rv = NS_OK;
 
@@ -804,18 +804,18 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetMemCacheEntry(
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetMimeHeaders(nsIMimeHeaders **mimeHeaders) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetMimeHeaders(nsIMimeHeaders** mimeHeaders) {
   NS_ENSURE_ARG_POINTER(mimeHeaders);
   NS_IF_ADDREF(*mimeHeaders = mMimeHeaders);
   return (mMimeHeaders) ? NS_OK : NS_ERROR_NULL_POINTER;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetMimeHeaders(nsIMimeHeaders *mimeHeaders) {
+NS_IMETHODIMP nsMsgMailNewsUrl::SetMimeHeaders(nsIMimeHeaders* mimeHeaders) {
   mMimeHeaders = mimeHeaders;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell *docShell,
+NS_IMETHODIMP nsMsgMailNewsUrl::LoadURI(nsIDocShell* docShell,
                                         uint32_t aLoadFlags) {
   NS_ENSURE_ARG_POINTER(docShell);
   RefPtr<nsDocShellLoadState> loadState = new nsDocShellLoadState(this);
@@ -833,8 +833,8 @@ class nsMsgSaveAsListener : public nsIStreamListener {
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
 
-  nsMsgSaveAsListener(nsIFile *aFile, bool addDummyEnvelope);
-  nsresult SetupMsgWriteStream(nsIFile *aFile, bool addDummyEnvelope);
+  nsMsgSaveAsListener(nsIFile* aFile, bool addDummyEnvelope);
+  nsresult SetupMsgWriteStream(nsIFile* aFile, bool addDummyEnvelope);
 
  protected:
   virtual ~nsMsgSaveAsListener();
@@ -849,7 +849,7 @@ class nsMsgSaveAsListener : public nsIStreamListener {
 
 NS_IMPL_ISUPPORTS(nsMsgSaveAsListener, nsIStreamListener, nsIRequestObserver)
 
-nsMsgSaveAsListener::nsMsgSaveAsListener(nsIFile *aFile,
+nsMsgSaveAsListener::nsMsgSaveAsListener(nsIFile* aFile,
                                          bool addDummyEnvelope) {
   m_outputFile = aFile;
   m_writtenData = false;
@@ -859,12 +859,12 @@ nsMsgSaveAsListener::nsMsgSaveAsListener(nsIFile *aFile,
 
 nsMsgSaveAsListener::~nsMsgSaveAsListener() {}
 
-NS_IMETHODIMP nsMsgSaveAsListener::OnStartRequest(nsIRequest *request) {
+NS_IMETHODIMP nsMsgSaveAsListener::OnStartRequest(nsIRequest* request) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSaveAsListener::OnStopRequest(nsIRequest *request, nsresult aStatus) {
+nsMsgSaveAsListener::OnStopRequest(nsIRequest* request, nsresult aStatus) {
   if (m_outputStream) {
     m_outputStream->Flush();
     m_outputStream->Close();
@@ -872,8 +872,8 @@ nsMsgSaveAsListener::OnStopRequest(nsIRequest *request, nsresult aStatus) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest *request,
-                                                   nsIInputStream *inStream,
+NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest* request,
+                                                   nsIInputStream* inStream,
                                                    uint64_t srcOffset,
                                                    uint32_t count) {
   nsresult rv;
@@ -898,7 +898,7 @@ NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest *request,
   nsCOMPtr<nsIMsgMessageUrl> msgUrl = do_QueryInterface(uri);
   if (msgUrl) msgUrl->GetCanonicalLineEnding(&useCanonicalEnding);
 
-  const char *lineEnding = (useCanonicalEnding) ? CRLF : MSG_LINEBREAK;
+  const char* lineEnding = (useCanonicalEnding) ? CRLF : MSG_LINEBREAK;
   uint32_t lineEndingLength = (useCanonicalEnding) ? 2 : MSG_LINEBREAK_LEN;
 
   uint32_t readCount, maxReadCount = SAVE_BUF_SIZE - m_leftOver;
@@ -964,7 +964,7 @@ NS_IMETHODIMP nsMsgSaveAsListener::OnDataAvailable(nsIRequest *request,
   //  &bytesWritten);
 }
 
-nsresult nsMsgSaveAsListener::SetupMsgWriteStream(nsIFile *aFile,
+nsresult nsMsgSaveAsListener::SetupMsgWriteStream(nsIFile* aFile,
                                                   bool addDummyEnvelope) {
   // If the file already exists, delete it, but do this before
   // getting the outputstream.
@@ -985,8 +985,8 @@ nsresult nsMsgSaveAsListener::SetupMsgWriteStream(nsIFile *aFile,
     nsAutoCString result;
     uint32_t writeCount;
 
-    time_t now = time((time_t *)0);
-    char *ct = ctime(&now);
+    time_t now = time((time_t*)0);
+    char* ct = ctime(&now);
     // Remove the ending new-line character.
     ct[24] = '\0';
     result = "From - ";
@@ -1005,36 +1005,36 @@ nsresult nsMsgSaveAsListener::SetupMsgWriteStream(nsIFile *aFile,
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetSaveAsListener(
-    bool addDummyEnvelope, nsIFile *aFile, nsIStreamListener **aSaveListener) {
+    bool addDummyEnvelope, nsIFile* aFile, nsIStreamListener** aSaveListener) {
   NS_ENSURE_ARG_POINTER(aSaveListener);
-  nsMsgSaveAsListener *saveAsListener =
+  nsMsgSaveAsListener* saveAsListener =
       new nsMsgSaveAsListener(aFile, addDummyEnvelope);
   return saveAsListener->QueryInterface(NS_GET_IID(nsIStreamListener),
-                                        (void **)aSaveListener);
+                                        (void**)aSaveListener);
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::SetFolder(nsIMsgFolder * /* aFolder */) {
+NS_IMETHODIMP nsMsgMailNewsUrl::SetFolder(nsIMsgFolder* /* aFolder */) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetFolder(nsIMsgFolder ** /* aFolder */) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetFolder(nsIMsgFolder** /* aFolder */) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::GetMsgHeaderSink(
-    nsIMsgHeaderSink **aMsgHdrSink) {
+    nsIMsgHeaderSink** aMsgHdrSink) {
   NS_ENSURE_ARG_POINTER(aMsgHdrSink);
   NS_IF_ADDREF(*aMsgHdrSink = mMsgHeaderSink);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgMailNewsUrl::SetMsgHeaderSink(
-    nsIMsgHeaderSink *aMsgHdrSink) {
+    nsIMsgHeaderSink* aMsgHdrSink) {
   mMsgHeaderSink = aMsgHdrSink;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailNewsUrl::GetIsMessageUri(bool *aIsMessageUri) {
+NS_IMETHODIMP nsMsgMailNewsUrl::GetIsMessageUri(bool* aIsMessageUri) {
   NS_ENSURE_ARG(aIsMessageUri);
   nsAutoCString scheme;
   m_baseURL->GetScheme(scheme);
@@ -1045,7 +1045,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetIsMessageUri(bool *aIsMessageUri) {
 NS_IMPL_ISUPPORTS(nsMsgMailNewsUrl::Mutator, nsIURISetters, nsIURIMutator)
 
 NS_IMETHODIMP
-nsMsgMailNewsUrl::Mutate(nsIURIMutator **aMutator) {
+nsMsgMailNewsUrl::Mutate(nsIURIMutator** aMutator) {
   RefPtr<nsMsgMailNewsUrl::Mutator> mutator = new nsMsgMailNewsUrl::Mutator();
   nsresult rv = mutator->InitFromURI(this);
   if (NS_FAILED(rv)) {

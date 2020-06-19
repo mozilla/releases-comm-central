@@ -103,62 +103,62 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   NS_DECL_NSIJUNKMAILCLASSIFICATIONLISTENER
   NS_DECL_NSIMSGTRAITCLASSIFICATIONLISTENER
 
-  NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement *element);
-  NS_IMETHOD ReadFromFolderCacheElem(nsIMsgFolderCacheElement *element);
+  NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement* element);
+  NS_IMETHOD ReadFromFolderCacheElem(nsIMsgFolderCacheElement* element);
 
-  nsresult CreateDirectoryForFolder(nsIFile **result);
-  nsresult CreateBackupDirectory(nsIFile **result);
-  nsresult GetBackupSummaryFile(nsIFile **result, const nsACString &newName);
-  nsresult GetMsgPreviewTextFromStream(nsIMsgDBHdr *msgHdr,
-                                       nsIInputStream *stream);
-  nsresult HandleAutoCompactEvent(nsIMsgWindow *aMsgWindow);
+  nsresult CreateDirectoryForFolder(nsIFile** result);
+  nsresult CreateBackupDirectory(nsIFile** result);
+  nsresult GetBackupSummaryFile(nsIFile** result, const nsACString& newName);
+  nsresult GetMsgPreviewTextFromStream(nsIMsgDBHdr* msgHdr,
+                                       nsIInputStream* stream);
+  nsresult HandleAutoCompactEvent(nsIMsgWindow* aMsgWindow);
 
  protected:
   virtual ~nsMsgDBFolder();
 
-  virtual nsresult CreateBaseMessageURI(const nsACString &aURI);
+  virtual nsresult CreateBaseMessageURI(const nsACString& aURI);
 
-  void compressQuotesInMsgSnippet(const nsString &aMessageText,
-                                  nsAString &aCompressedQuotesStr);
-  void decodeMsgSnippet(const nsACString &aEncodingType, bool aIsComplete,
-                        nsCString &aMsgSnippet);
+  void compressQuotesInMsgSnippet(const nsString& aMessageText,
+                                  nsAString& aCompressedQuotesStr);
+  void decodeMsgSnippet(const nsACString& aEncodingType, bool aIsComplete,
+                        nsCString& aMsgSnippet);
 
   // helper routine to parse the URI and update member variables
   nsresult parseURI(bool needServer = false);
-  nsresult GetBaseStringBundle(nsIStringBundle **aBundle);
-  nsresult GetStringFromBundle(const char *msgName, nsString &aResult);
-  nsresult ThrowConfirmationPrompt(nsIMsgWindow *msgWindow,
-                                   const nsAString &confirmString,
-                                   bool *confirmed);
-  nsresult GetWarnFilterChanged(bool *aVal);
+  nsresult GetBaseStringBundle(nsIStringBundle** aBundle);
+  nsresult GetStringFromBundle(const char* msgName, nsString& aResult);
+  nsresult ThrowConfirmationPrompt(nsIMsgWindow* msgWindow,
+                                   const nsAString& confirmString,
+                                   bool* confirmed);
+  nsresult GetWarnFilterChanged(bool* aVal);
   nsresult SetWarnFilterChanged(bool aVal);
-  nsresult CreateCollationKey(const nsString &aSource, uint8_t **aKey,
-                              uint32_t *aLength);
+  nsresult CreateCollationKey(const nsString& aSource, uint8_t** aKey,
+                              uint32_t* aLength);
 
   // all children will override this to create the right class of object.
-  virtual nsresult CreateChildFromURI(const nsCString &uri,
-                                      nsIMsgFolder **folder) = 0;
+  virtual nsresult CreateChildFromURI(const nsCString& uri,
+                                      nsIMsgFolder** folder) = 0;
   virtual nsresult ReadDBFolderInfo(bool force);
   virtual nsresult FlushToFolderCache();
   virtual nsresult GetDatabase() = 0;
-  virtual nsresult SendFlagNotifications(nsIMsgDBHdr *item, uint32_t oldFlags,
+  virtual nsresult SendFlagNotifications(nsIMsgDBHdr* item, uint32_t oldFlags,
                                          uint32_t newFlags);
   nsresult CheckWithNewMessagesStatus(bool messageAdded);
   void UpdateNewMessages();
-  nsresult OnHdrAddedOrDeleted(nsIMsgDBHdr *hdrChanged, bool added);
-  nsresult CreateFileForDB(const nsAString &userLeafName, nsIFile *baseDir,
-                           nsIFile **dbFile);
+  nsresult OnHdrAddedOrDeleted(nsIMsgDBHdr* hdrChanged, bool added);
+  nsresult CreateFileForDB(const nsAString& userLeafName, nsIFile* baseDir,
+                           nsIFile** dbFile);
 
-  nsresult GetFolderCacheKey(nsIFile **aFile, bool createDBIfMissing = false);
-  nsresult GetFolderCacheElemFromFile(nsIFile *file,
-                                      nsIMsgFolderCacheElement **cacheElement);
-  nsresult AddDirectorySeparator(nsIFile *path);
-  nsresult CheckIfFolderExists(const nsAString &newFolderName,
-                               nsIMsgFolder *parentFolder,
-                               nsIMsgWindow *msgWindow);
-  bool ConfirmAutoFolderRename(nsIMsgWindow *aMsgWindow,
-                               const nsString &aOldName,
-                               const nsString &aNewName);
+  nsresult GetFolderCacheKey(nsIFile** aFile, bool createDBIfMissing = false);
+  nsresult GetFolderCacheElemFromFile(nsIFile* file,
+                                      nsIMsgFolderCacheElement** cacheElement);
+  nsresult AddDirectorySeparator(nsIFile* path);
+  nsresult CheckIfFolderExists(const nsAString& newFolderName,
+                               nsIMsgFolder* parentFolder,
+                               nsIMsgWindow* msgWindow);
+  bool ConfirmAutoFolderRename(nsIMsgWindow* aMsgWindow,
+                               const nsString& aOldName,
+                               const nsString& aNewName);
 
   // Returns true if: a) there is no need to prompt or b) the user is already
   // logged in or c) the user logged in successfully.
@@ -168,18 +168,18 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   nsresult StartNewOfflineMessage();
   nsresult WriteStartOfNewLocalMessage();
   nsresult EndNewOfflineMessage();
-  nsresult CompactOfflineStore(nsIMsgWindow *inWindow,
-                               nsIUrlListener *aUrlListener);
-  nsresult AutoCompact(nsIMsgWindow *aWindow);
+  nsresult CompactOfflineStore(nsIMsgWindow* inWindow,
+                               nsIUrlListener* aUrlListener);
+  nsresult AutoCompact(nsIMsgWindow* aWindow);
   // this is a helper routine that ignores whether nsMsgMessageFlags::Offline is
   // set for the folder
-  nsresult MsgFitsDownloadCriteria(nsMsgKey msgKey, bool *result);
-  nsresult GetPromptPurgeThreshold(bool *aPrompt);
-  nsresult GetPurgeThreshold(int32_t *aThreshold);
+  nsresult MsgFitsDownloadCriteria(nsMsgKey msgKey, bool* result);
+  nsresult GetPromptPurgeThreshold(bool* aPrompt);
+  nsresult GetPurgeThreshold(int32_t* aThreshold);
   nsresult ApplyRetentionSettings(bool deleteViaFolder);
-  bool VerifyOfflineMessage(nsIMsgDBHdr *msgHdr, nsIInputStream *fileStream);
+  bool VerifyOfflineMessage(nsIMsgDBHdr* msgHdr, nsIInputStream* fileStream);
   MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult AddMarkAllReadUndoAction(
-      nsIMsgWindow *msgWindow, nsMsgKey *thoseMarked, uint32_t numMarked);
+      nsIMsgWindow* msgWindow, nsMsgKey* thoseMarked, uint32_t numMarked);
 
   nsresult PerformBiffNotifications(
       void);  // if there are new, non spam messages, do biff
@@ -196,14 +196,14 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   void ClearProcessingFlags();
 
   nsresult NotifyHdrsNotBeingClassified();
-  static nsresult BuildFolderSortKey(nsIMsgFolder *aFolder,
-                                     nsTArray<uint8_t> &aKey);
+  static nsresult BuildFolderSortKey(nsIMsgFolder* aFolder,
+                                     nsTArray<uint8_t>& aKey);
   /**
    * Produce an array of messages ordered like the input keys.
    */
-  nsresult MessagesInKeyOrder(const nsTArray<nsMsgKey> &aKeyArray,
-                              nsIMsgFolder *srcFolder,
-                              nsIMutableArray *messages);
+  nsresult MessagesInKeyOrder(const nsTArray<nsMsgKey>& aKeyArray,
+                              nsIMsgFolder* srcFolder,
+                              nsIMutableArray* messages);
   nsCString mURI;
 
   nsCOMPtr<nsIMsgDatabase> mDatabase;
@@ -237,7 +237,7 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
   nsTObserverArray<nsCOMPtr<nsIFolderListener>> mListeners;
 
   bool mInitializedFromCache;
-  nsISupports *mSemaphoreHolder;  // set when the folder is being written to
+  nsISupports* mSemaphoreHolder;  // set when the folder is being written to
                                   // Due to ownership issues, this won't be
                                   // AddRef'd.
 
@@ -291,13 +291,13 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
 
   static NS_MSG_BASE_STATIC_MEMBER_(nsString) kLocalizedBrandShortName;
 
-  static NS_MSG_BASE_STATIC_MEMBER_(nsICollation *) gCollationKeyGenerator;
+  static NS_MSG_BASE_STATIC_MEMBER_(nsICollation*) gCollationKeyGenerator;
   static NS_MSG_BASE_STATIC_MEMBER_(bool) gInitializeStringsDone;
 
   // store of keys that have a processing flag set
   struct {
     uint32_t bit;
-    nsMsgKeySetU *keys;
+    nsMsgKeySetU* keys;
   } mProcessingFlag[nsMsgProcessingFlags::NumberOfFlags];
 
   // list of nsIMsgDBHdrs for messages to process post-bayes
@@ -321,7 +321,7 @@ class NS_MSG_BASE nsMsgDBFolder : public nsSupportsWeakReference,
 class nsMsgKeySetU {
  public:
   // Creates an empty set.
-  static nsMsgKeySetU *Create();
+  static nsMsgKeySetU* Create();
   ~nsMsgKeySetU();
   // IsMember() returns whether the given key is a member of this set.
   bool IsMember(nsMsgKey key);
@@ -331,12 +331,12 @@ class nsMsgKeySetU {
   // Remove() removes the given article from the set.
   int Remove(nsMsgKey key);
   // Add the keys in the set to aArray.
-  nsresult ToMsgKeyArray(nsTArray<nsMsgKey> &aArray);
+  nsresult ToMsgKeyArray(nsTArray<nsMsgKey>& aArray);
 
  protected:
   nsMsgKeySetU();
-  nsMsgKeySet *loKeySet;
-  nsMsgKeySet *hiKeySet;
+  nsMsgKeySet* loKeySet;
+  nsMsgKeySet* hiKeySet;
 };
 
 #endif

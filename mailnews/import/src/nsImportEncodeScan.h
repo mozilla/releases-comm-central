@@ -16,11 +16,11 @@ class nsImportEncodeScan : public nsImportScanFile {
   nsImportEncodeScan();
   ~nsImportEncodeScan();
 
-  bool InitEncodeScan(bool appleSingleEncode, nsIFile *pFile, const char *pName,
-                      uint8_t *pBuf, uint32_t sz);
+  bool InitEncodeScan(bool appleSingleEncode, nsIFile* pFile, const char* pName,
+                      uint8_t* pBuf, uint32_t sz);
   void CleanUpEncodeScan(void);
 
-  virtual bool Scan(bool *pDone) override;
+  virtual bool Scan(bool* pDone) override;
 
  protected:
   void FillInEntries(int numEntries);

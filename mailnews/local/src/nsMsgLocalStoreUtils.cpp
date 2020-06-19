@@ -14,14 +14,14 @@
 
 nsMsgLocalStoreUtils::nsMsgLocalStoreUtils() {}
 
-nsresult nsMsgLocalStoreUtils::AddDirectorySeparator(nsIFile *path) {
+nsresult nsMsgLocalStoreUtils::AddDirectorySeparator(nsIFile* path) {
   nsAutoString leafName;
   path->GetLeafName(leafName);
   leafName.AppendLiteral(FOLDER_SUFFIX);
   return path->SetLeafName(leafName);
 }
 
-bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString &name, nsIFile *path) {
+bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name, nsIFile* path) {
   if (name.IsEmpty()) return true;
 
   char16_t firstChar = name.First();
@@ -83,10 +83,10 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString &name, nsIFile *path) {
  */
 
 void nsMsgLocalStoreUtils::ChangeKeywordsHelper(
-    nsIMsgDBHdr *message, uint64_t desiredOffset,
-    nsLineBuffer<char> &lineBuffer, nsTArray<nsCString> &keywordArray,
-    bool aAdd, nsIOutputStream *outputStream, nsISeekableStream *seekableStream,
-    nsIInputStream *inputStream) {
+    nsIMsgDBHdr* message, uint64_t desiredOffset,
+    nsLineBuffer<char>& lineBuffer, nsTArray<nsCString>& keywordArray,
+    bool aAdd, nsIOutputStream* outputStream, nsISeekableStream* seekableStream,
+    nsIInputStream* inputStream) {
   uint32_t bytesWritten;
 
   for (uint32_t i = 0; i < keywordArray.Length(); i++) {
@@ -176,9 +176,9 @@ void nsMsgLocalStoreUtils::ChangeKeywordsHelper(
   }
 }
 
-nsresult nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
+nsresult nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr* mailHdr, bool bSet,
                                                 nsMsgMessageFlagType flag,
-                                                nsIOutputStream *fileStream) {
+                                                nsIOutputStream* fileStream) {
   uint32_t statusOffset;
   uint64_t msgOffset;
   nsresult rv = mailHdr->GetStatusOffset(&statusOffset);
@@ -208,7 +208,7 @@ nsresult nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
       uint32_t bytesWritten;
       (void)mailHdr->GetFlags(&flags);
       if (!(flags & nsMsgMessageFlags::Expunged)) {
-        char *p = buf + X_MOZILLA_STATUS_LEN + 2;
+        char* p = buf + X_MOZILLA_STATUS_LEN + 2;
 
         nsresult errorCode = NS_OK;
         flags = nsDependentCString(p).ToInteger(&errorCode, 16);
@@ -278,7 +278,7 @@ nsresult nsMsgLocalStoreUtils::UpdateFolderFlag(nsIMsgDBHdr *mailHdr, bool bSet,
  * @param aSpaceRequested  The size of free space there must be on the disk
  *                         to return true.
  */
-bool nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile,
+bool nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile* aFile,
                                                      uint64_t aSpaceRequested) {
   int64_t diskFree;
   nsresult rv = aFile->GetDiskSpaceAvailable(&diskFree);
@@ -316,7 +316,7 @@ bool nsMsgLocalStoreUtils::DiskSpaceAvailableInStore(nsIFile *aFile,
  *
  * @param aMsgDb The database to reset.
  */
-void nsMsgLocalStoreUtils::ResetForceReparse(nsIMsgDatabase *aMsgDB) {
+void nsMsgLocalStoreUtils::ResetForceReparse(nsIMsgDatabase* aMsgDB) {
   if (aMsgDB) {
     nsCOMPtr<nsIDBFolderInfo> folderInfo;
     aMsgDB->GetDBFolderInfo(getter_AddRefs(folderInfo));

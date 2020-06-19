@@ -13,7 +13,7 @@
 class nsBeckyAddressBooks final : public nsIImportAddressBooks {
  public:
   nsBeckyAddressBooks();
-  static nsresult Create(nsIImportAddressBooks **aImport);
+  static nsresult Create(nsIImportAddressBooks** aImport);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTADDRESSBOOKS
@@ -23,14 +23,14 @@ class nsBeckyAddressBooks final : public nsIImportAddressBooks {
 
   uint32_t mReadBytes;
 
-  nsresult CollectAddressBooks(nsIFile *aTarget, nsIMutableArray *aCollected);
-  nsresult FindAddressBookDirectory(nsIFile **aAddressBookDirectory);
-  nsresult AppendAddressBookDescriptor(nsIFile *aEntry,
-                                       nsIMutableArray *aCollected);
-  uint32_t CountAddressBookSize(nsIFile *aDirectory);
-  bool HasAddressBookFile(nsIFile *aDirectory);
-  bool IsAddressBookFile(nsIFile *aFile);
-  nsresult CreateAddressBookDescriptor(nsIImportABDescriptor **aDescriptor);
+  nsresult CollectAddressBooks(nsIFile* aTarget, nsIMutableArray* aCollected);
+  nsresult FindAddressBookDirectory(nsIFile** aAddressBookDirectory);
+  nsresult AppendAddressBookDescriptor(nsIFile* aEntry,
+                                       nsIMutableArray* aCollected);
+  uint32_t CountAddressBookSize(nsIFile* aDirectory);
+  bool HasAddressBookFile(nsIFile* aDirectory);
+  bool IsAddressBookFile(nsIFile* aFile);
+  nsresult CreateAddressBookDescriptor(nsIImportABDescriptor** aDescriptor);
 };
 
 #endif /* nsBeckyAddressBooks_h___ */

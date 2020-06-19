@@ -61,8 +61,8 @@ nsImportEncodeScan::nsImportEncodeScan() {
 nsImportEncodeScan::~nsImportEncodeScan() {}
 
 bool nsImportEncodeScan::InitEncodeScan(bool appleSingleEncode,
-                                        nsIFile *fileLoc, const char *pName,
-                                        uint8_t *pBuf, uint32_t sz) {
+                                        nsIFile* fileLoc, const char* pName,
+                                        uint8_t* pBuf, uint32_t sz) {
   CleanUpEncodeScan();
   m_isAppleSingle = appleSingleEncode;
   m_encodeScanState = kBeginAppleSingle;
@@ -221,7 +221,7 @@ bool nsImportEncodeScan::AddEntries(void) {
   return true;
 }
 
-bool nsImportEncodeScan::Scan(bool *pDone) {
+bool nsImportEncodeScan::Scan(bool* pDone) {
   nsresult rv;
 
   *pDone = false;

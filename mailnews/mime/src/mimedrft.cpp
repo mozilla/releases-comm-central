@@ -66,12 +66,12 @@ using namespace mozilla::mailnews;
 //
 // Forward declarations...
 //
-extern "C" char *MIME_StripContinuations(char *original);
-int mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers);
-int mime_decompose_file_output_fn(const char *buf, int32_t size,
-                                  void *stream_closure);
-int mime_decompose_file_close_fn(void *stream_closure);
-extern int MimeHeaders_build_heads_list(MimeHeaders *hdrs);
+extern "C" char* MIME_StripContinuations(char* original);
+int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers);
+int mime_decompose_file_output_fn(const char* buf, int32_t size,
+                                  void* stream_closure);
+int mime_decompose_file_close_fn(void* stream_closure);
+extern int MimeHeaders_build_heads_list(MimeHeaders* hdrs);
 
 // CID's
 static NS_DEFINE_CID(kCMsgComposeServiceCID, NS_MSGCOMPOSESERVICE_CID);
@@ -104,7 +104,7 @@ mime_draft_data::mime_draft_data()
 // Create a file for the a unique temp file
 // on the local machine. Caller must free memory
 //
-nsresult nsMsgCreateTempFile(const char *tFileName, nsIFile **tFile) {
+nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile) {
   if (!tFileName || !*tFileName) tFileName = SAFE_TMP_FILENAME;
 
   nsresult rv =
@@ -135,9 +135,9 @@ typedef enum {
 } nsMsgBoolHeaderSet;
 
 #ifdef NS_DEBUG
-extern "C" void mime_dump_attachments(nsMsgAttachmentData *attachData) {
+extern "C" void mime_dump_attachments(nsMsgAttachmentData* attachData) {
   int32_t i = 0;
-  class nsMsgAttachmentData *tmp = attachData;
+  class nsMsgAttachmentData* tmp = attachData;
 
   while (tmp && tmp->m_url) {
     printf("Real Name         : %s\n", tmp->m_realName.get());
@@ -160,20 +160,20 @@ extern "C" void mime_dump_attachments(nsMsgAttachmentData *attachData) {
 }
 #endif
 
-nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams> &pMsgComposeParams,
-                             nsIMsgCompFields *compFields,
-                             nsMsgAttachmentData *attachmentList,
+nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
+                             nsIMsgCompFields* compFields,
+                             nsMsgAttachmentData* attachmentList,
                              MSG_ComposeType composeType,
                              MSG_ComposeFormat composeFormat,
-                             nsIMsgIdentity *identity,
-                             const char *originalMsgURI,
-                             nsIMsgDBHdr *origMsgHdr) {
+                             nsIMsgIdentity* identity,
+                             const char* originalMsgURI,
+                             nsIMsgDBHdr* origMsgHdr) {
 #ifdef NS_DEBUG
   mime_dump_attachments(attachmentList);
 #endif
 
   nsresult rv;
-  nsMsgAttachmentData *curAttachment = attachmentList;
+  nsMsgAttachmentData* curAttachment = attachmentList;
   if (curAttachment) {
     nsAutoCString spec;
 
@@ -240,13 +240,13 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams> &pMsgComposeParams,
   return NS_OK;
 }
 
-nsresult CreateTheComposeWindow(nsIMsgCompFields *compFields,
-                                nsMsgAttachmentData *attachmentList,
+nsresult CreateTheComposeWindow(nsIMsgCompFields* compFields,
+                                nsMsgAttachmentData* attachmentList,
                                 MSG_ComposeType composeType,
                                 MSG_ComposeFormat composeFormat,
-                                nsIMsgIdentity *identity,
-                                const char *originalMsgURI,
-                                nsIMsgDBHdr *origMsgHdr) {
+                                nsIMsgIdentity* identity,
+                                const char* originalMsgURI,
+                                nsIMsgDBHdr* origMsgHdr) {
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams;
   nsresult rv = CreateComposeParams(pMsgComposeParams, compFields,
                                     attachmentList, composeType, composeFormat,
@@ -261,11 +261,11 @@ nsresult CreateTheComposeWindow(nsIMsgCompFields *compFields,
       nullptr /* default chrome */, pMsgComposeParams);
 }
 
-nsresult ForwardMsgInline(nsIMsgCompFields *compFields,
-                          nsMsgAttachmentData *attachmentList,
+nsresult ForwardMsgInline(nsIMsgCompFields* compFields,
+                          nsMsgAttachmentData* attachmentList,
                           MSG_ComposeFormat composeFormat,
-                          nsIMsgIdentity *identity, const char *originalMsgURI,
-                          nsIMsgDBHdr *origMsgHdr) {
+                          nsIMsgIdentity* identity, const char* originalMsgURI,
+                          nsIMsgDBHdr* origMsgHdr) {
   nsCOMPtr<nsIMsgComposeParams> pMsgComposeParams;
   nsresult rv =
       CreateComposeParams(pMsgComposeParams, compFields, attachmentList,
@@ -299,11 +299,11 @@ nsresult ForwardMsgInline(nsIMsgCompFields *compFields,
 }
 
 nsresult CreateCompositionFields(
-    const char *from, const char *reply_to, const char *to, const char *cc,
-    const char *bcc, const char *fcc, const char *newsgroups,
-    const char *followup_to, const char *organization, const char *subject,
-    const char *references, const char *priority, const char *newspost_url,
-    char *charset, nsIMsgCompFields **_retval) {
+    const char* from, const char* reply_to, const char* to, const char* cc,
+    const char* bcc, const char* fcc, const char* newsgroups,
+    const char* followup_to, const char* organization, const char* subject,
+    const char* references, const char* priority, const char* newspost_url,
+    char* charset, nsIMsgCompFields** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsresult rv;
@@ -412,26 +412,26 @@ nsresult CreateCompositionFields(
   return rv;
 }
 
-static int dummy_file_write(char *buf, int32_t size, void *fileHandle) {
+static int dummy_file_write(char* buf, int32_t size, void* fileHandle) {
   if (!fileHandle) return -1;
 
-  nsIOutputStream *tStream = (nsIOutputStream *)fileHandle;
+  nsIOutputStream* tStream = (nsIOutputStream*)fileHandle;
   uint32_t bytesWritten;
   tStream->Write(buf, size, &bytesWritten);
   return (int)bytesWritten;
 }
 
-static int mime_parse_stream_write(nsMIMESession *stream, const char *buf,
+static int mime_parse_stream_write(nsMIMESession* stream, const char* buf,
                                    int32_t size) {
-  mime_draft_data *mdd = (mime_draft_data *)stream->data_object;
+  mime_draft_data* mdd = (mime_draft_data*)stream->data_object;
   NS_ASSERTION(mdd, "null mime draft data!");
 
   if (!mdd || !mdd->obj) return -1;
 
-  return mdd->obj->clazz->parse_buffer((char *)buf, size, mdd->obj);
+  return mdd->obj->clazz->parse_buffer((char*)buf, size, mdd->obj);
 }
 
-static void mime_free_attachments(nsTArray<nsMsgAttachedFile *> &attachments) {
+static void mime_free_attachments(nsTArray<nsMsgAttachedFile*>& attachments) {
   if (attachments.Length() <= 0) return;
 
   for (uint32_t i = 0; i < attachments.Length(); i++) {
@@ -443,12 +443,12 @@ static void mime_free_attachments(nsTArray<nsMsgAttachedFile *> &attachments) {
   }
 }
 
-static nsMsgAttachmentData *mime_draft_process_attachments(
-    mime_draft_data *mdd) {
+static nsMsgAttachmentData* mime_draft_process_attachments(
+    mime_draft_data* mdd) {
   if (!mdd) return nullptr;
 
   nsMsgAttachmentData *attachData = NULL, *tmp = NULL;
-  nsMsgAttachedFile *tmpFile = NULL;
+  nsMsgAttachedFile* tmpFile = NULL;
 
   // It's possible we must treat the message body as attachment!
   bool bodyAsAttachment = false;
@@ -519,8 +519,8 @@ FAIL:
 }
 
 static void mime_intl_insert_message_header_1(
-    char **body, const char *hdr_value, const char *hdr_str,
-    const char *html_hdr_str, const char *mailcharset, bool htmlEdit) {
+    char** body, const char* hdr_value, const char* hdr_str,
+    const char* html_hdr_str, const char* mailcharset, bool htmlEdit) {
   if (!body || !hdr_value || !hdr_str) return;
 
   if (htmlEdit) {
@@ -553,11 +553,11 @@ static void mime_intl_insert_message_header_1(
   if (htmlEdit) NS_MsgSACat(body, HEADER_END_JUNK);
 }
 
-char *MimeGetNamedString(int32_t id) {
+char* MimeGetNamedString(int32_t id) {
   static char retString[256];
 
   retString[0] = '\0';
-  char *tString = MimeGetStringByID(id);
+  char* tString = MimeGetStringByID(id);
   if (tString) {
     PL_strncpy(retString, tString, sizeof(retString));
     PR_Free(tString);
@@ -565,7 +565,7 @@ char *MimeGetNamedString(int32_t id) {
   return retString;
 }
 
-void MimeGetForwardHeaderDelimiter(nsACString &retString) {
+void MimeGetForwardHeaderDelimiter(nsACString& retString) {
   nsCString defaultValue;
   defaultValue.Adopt(MimeGetStringByID(MIME_FORWARDED_MESSAGE_HTML_USER_WROTE));
 
@@ -581,7 +581,7 @@ void MimeGetForwardHeaderDelimiter(nsACString &retString) {
    converted and returned through the same parameter. The original string will
    be destroyed
 */
-static void UnquoteMimeAddress(nsACString &mimeHeader, const char *charset) {
+static void UnquoteMimeAddress(nsACString& mimeHeader, const char* charset) {
   if (!mimeHeader.IsEmpty()) {
     nsTArray<nsCString> addresses;
     ExtractDisplayAddresses(EncodedHeader(mimeHeader, charset),
@@ -596,12 +596,12 @@ static void UnquoteMimeAddress(nsACString &mimeHeader, const char *charset) {
   }
 }
 
-static void mime_insert_all_headers(char **body, MimeHeaders *headers,
+static void mime_insert_all_headers(char** body, MimeHeaders* headers,
                                     MSG_ComposeFormat composeFormat,
-                                    char *mailcharset) {
+                                    char* mailcharset) {
   bool htmlEdit = (composeFormat == nsIMsgCompFormat::HTML);
-  char *newBody = NULL;
-  char *html_tag = nullptr;
+  char* newBody = NULL;
+  char* html_tag = nullptr;
   if (*body && PL_strncasecmp(*body, "<HTML", 5) == 0)
     html_tag = PL_strchr(*body, '>') + 1;
   int i;
@@ -623,13 +623,13 @@ static void mime_insert_all_headers(char **body, MimeHeaders *headers,
   }
 
   for (i = 0; i < headers->heads_size; i++) {
-    char *head = headers->heads[i];
-    char *end = (i == headers->heads_size - 1
+    char* head = headers->heads[i];
+    char* end = (i == headers->heads_size - 1
                      ? headers->all_headers + headers->all_headers_fp
                      : headers->heads[i + 1]);
     char *colon, *ocolon;
-    char *contents;
-    char *name = 0;
+    char* contents;
+    char* name = 0;
 
     // Hack for BSD Mailbox delimiter.
     if (i == 0 && head[0] == 'F' && !strncmp(head, "From ", 5)) {
@@ -656,7 +656,7 @@ static void mime_insert_all_headers(char **body, MimeHeaders *headers,
     /* Take off trailing whitespace... */
     while (end > contents && IS_SPACE(end[-1])) end--;
 
-    name = (char *)PR_MALLOC(colon - head + 1);
+    name = (char*)PR_MALLOC(colon - head + 1);
     if (!name) return /* MIME_OUT_OF_MEMORY */;
     memcpy(name, head, colon - head);
     name[colon - head] = 0;
@@ -698,29 +698,29 @@ static void mime_insert_all_headers(char **body, MimeHeaders *headers,
   }
 }
 
-static void mime_insert_normal_headers(char **body, MimeHeaders *headers,
+static void mime_insert_normal_headers(char** body, MimeHeaders* headers,
                                        MSG_ComposeFormat composeFormat,
-                                       char *mailcharset) {
-  char *newBody = nullptr;
-  char *subject = MimeHeaders_get(headers, HEADER_SUBJECT, false, false);
-  char *resent_comments =
+                                       char* mailcharset) {
+  char* newBody = nullptr;
+  char* subject = MimeHeaders_get(headers, HEADER_SUBJECT, false, false);
+  char* resent_comments =
       MimeHeaders_get(headers, HEADER_RESENT_COMMENTS, false, false);
-  char *resent_date = MimeHeaders_get(headers, HEADER_RESENT_DATE, false, true);
+  char* resent_date = MimeHeaders_get(headers, HEADER_RESENT_DATE, false, true);
   nsCString resent_from(
       MimeHeaders_get(headers, HEADER_RESENT_FROM, false, true));
   nsCString resent_to(MimeHeaders_get(headers, HEADER_RESENT_TO, false, true));
   nsCString resent_cc(MimeHeaders_get(headers, HEADER_RESENT_CC, false, true));
-  char *date = MimeHeaders_get(headers, HEADER_DATE, false, true);
+  char* date = MimeHeaders_get(headers, HEADER_DATE, false, true);
   nsCString from(MimeHeaders_get(headers, HEADER_FROM, false, true));
   nsCString reply_to(MimeHeaders_get(headers, HEADER_REPLY_TO, false, true));
-  char *organization =
+  char* organization =
       MimeHeaders_get(headers, HEADER_ORGANIZATION, false, false);
   nsCString to(MimeHeaders_get(headers, HEADER_TO, false, true));
   nsCString cc(MimeHeaders_get(headers, HEADER_CC, false, true));
-  char *newsgroups = MimeHeaders_get(headers, HEADER_NEWSGROUPS, false, true);
-  char *followup_to = MimeHeaders_get(headers, HEADER_FOLLOWUP_TO, false, true);
-  char *references = MimeHeaders_get(headers, HEADER_REFERENCES, false, true);
-  const char *html_tag = nullptr;
+  char* newsgroups = MimeHeaders_get(headers, HEADER_NEWSGROUPS, false, true);
+  char* followup_to = MimeHeaders_get(headers, HEADER_FOLLOWUP_TO, false, true);
+  char* references = MimeHeaders_get(headers, HEADER_REFERENCES, false, true);
+  const char* html_tag = nullptr;
   if (*body && PL_strncasecmp(*body, "<HTML", 5) == 0)
     html_tag = PL_strchr(*body, '>') + 1;
   bool htmlEdit = composeFormat == nsIMsgCompFormat::HTML;
@@ -848,19 +848,19 @@ static void mime_insert_normal_headers(char **body, MimeHeaders *headers,
   PR_FREEIF(references);
 }
 
-static void mime_insert_micro_headers(char **body, MimeHeaders *headers,
+static void mime_insert_micro_headers(char** body, MimeHeaders* headers,
                                       MSG_ComposeFormat composeFormat,
-                                      char *mailcharset) {
-  char *newBody = NULL;
-  char *subject = MimeHeaders_get(headers, HEADER_SUBJECT, false, false);
+                                      char* mailcharset) {
+  char* newBody = NULL;
+  char* subject = MimeHeaders_get(headers, HEADER_SUBJECT, false, false);
   nsCString from(MimeHeaders_get(headers, HEADER_FROM, false, true));
   nsCString resent_from(
       MimeHeaders_get(headers, HEADER_RESENT_FROM, false, true));
-  char *date = MimeHeaders_get(headers, HEADER_DATE, false, true);
+  char* date = MimeHeaders_get(headers, HEADER_DATE, false, true);
   nsCString to(MimeHeaders_get(headers, HEADER_TO, false, true));
   nsCString cc(MimeHeaders_get(headers, HEADER_CC, false, true));
-  char *newsgroups = MimeHeaders_get(headers, HEADER_NEWSGROUPS, false, true);
-  const char *html_tag = nullptr;
+  char* newsgroups = MimeHeaders_get(headers, HEADER_NEWSGROUPS, false, true);
+  const char* html_tag = nullptr;
   if (*body && PL_strncasecmp(*body, "<HTML", 5) == 0)
     html_tag = PL_strchr(*body, '>') + 1;
   bool htmlEdit = composeFormat == nsIMsgCompFormat::HTML;
@@ -948,8 +948,8 @@ static void mime_insert_micro_headers(char **body, MimeHeaders *headers,
 
 // body has to be encoded in UTF-8
 static void mime_insert_forwarded_message_headers(
-    char **body, MimeHeaders *headers, MSG_ComposeFormat composeFormat,
-    char *mailcharset) {
+    char** body, MimeHeaders* headers, MSG_ComposeFormat composeFormat,
+    char* mailcharset) {
   if (!body || !headers) return;
 
   int32_t show_headers = 0;
@@ -974,15 +974,15 @@ static void mime_insert_forwarded_message_headers(
   }
 }
 
-static void convert_plaintext_body_to_html(char **body) {
+static void convert_plaintext_body_to_html(char** body) {
   // We need to convert the plain/text to HTML in order to escape any HTML
   // markup.
   nsCString escapedBody;
   nsAppendEscapedHTML(nsDependentCString(*body), escapedBody);
 
   nsCString newBody;
-  char *q = escapedBody.BeginWriting();
-  char *p;
+  char* q = escapedBody.BeginWriting();
+  char* p;
   int prevQuoteLevel = 0;
   bool isFlowed = false;
   bool haveSig = false;
@@ -1115,33 +1115,33 @@ static void convert_plaintext_body_to_html(char **body) {
   *body = ToNewCString(newBody);
 }
 
-static void mime_parse_stream_complete(nsMIMESession *stream) {
-  mime_draft_data *mdd = (mime_draft_data *)stream->data_object;
+static void mime_parse_stream_complete(nsMIMESession* stream) {
+  mime_draft_data* mdd = (mime_draft_data*)stream->data_object;
   nsCOMPtr<nsIMsgCompFields> fields;
   int htmlAction = 0;
   int lineWidth = 0;
 
-  char *host = 0;
-  char *news_host = 0;
-  char *to_and_cc = 0;
-  char *re_subject = 0;
-  char *new_refs = 0;
-  char *from = 0;
-  char *repl = 0;
-  char *subj = 0;
-  char *id = 0;
-  char *refs = 0;
-  char *to = 0;
-  char *cc = 0;
-  char *bcc = 0;
-  char *fcc = 0;
-  char *org = 0;
-  char *grps = 0;
-  char *foll = 0;
-  char *priority = 0;
-  char *draftInfo = 0;
-  char *contentLanguage = 0;
-  char *identityKey = 0;
+  char* host = 0;
+  char* news_host = 0;
+  char* to_and_cc = 0;
+  char* re_subject = 0;
+  char* new_refs = 0;
+  char* from = 0;
+  char* repl = 0;
+  char* subj = 0;
+  char* id = 0;
+  char* refs = 0;
+  char* to = 0;
+  char* cc = 0;
+  char* bcc = 0;
+  char* fcc = 0;
+  char* org = 0;
+  char* grps = 0;
+  char* foll = 0;
+  char* priority = 0;
+  char* draftInfo = 0;
+  char* contentLanguage = 0;
+  char* identityKey = 0;
 
   bool forward_inline = false;
   bool bodyAsAttachment = false;
@@ -1183,7 +1183,7 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
       mdd->options = 0;
     }
     if (mdd->stream) {
-      mdd->stream->complete((nsMIMESession *)mdd->stream->data_object);
+      mdd->stream->complete((nsMIMESession*)mdd->stream->data_object);
       PR_Free(mdd->stream);
       mdd->stream = 0;
     }
@@ -1193,7 +1193,7 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
   // Now, process the attachments that we have gathered from the message
   // on disk
   //
-  nsMsgAttachmentData *newAttachData = mime_draft_process_attachments(mdd);
+  nsMsgAttachmentData* newAttachData = mime_draft_process_attachments(mdd);
 
   //
   // time to bring up the compose windows with all the info gathered
@@ -1208,7 +1208,7 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
         if (NS_SUCCEEDED(rv)) {
           nsAutoCString fwdPrefix;
           prefBranch->GetCharPref("mail.forward_subject_prefix", fwdPrefix);
-          char *newSubj = PR_smprintf(
+          char* newSubj = PR_smprintf(
               "%s: %s", !fwdPrefix.IsEmpty() ? fwdPrefix.get() : "Fwd", subj);
           if (newSubj) {
             PR_Free(subj);
@@ -1238,7 +1238,7 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
       priority = MimeHeaders_get(mdd->headers, HEADER_X_PRIORITY, false, false);
 
       if (host) {
-        char *secure = NULL;
+        char* secure = NULL;
 
         secure = PL_strcasestr(host, "secure");
         if (secure) {
@@ -1280,7 +1280,7 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
     if (keepID) fields->SetMessageId(id);
 
     if (draftInfo && fields && !forward_inline) {
-      char *parm = 0;
+      char* parm = 0;
       parm = MimeHeaders_get_parameter(draftInfo, "vcard", NULL, NULL);
       fields->SetAttachVCard(parm && !strcmp(parm, "1"));
       PR_FREEIF(parm);
@@ -1360,7 +1360,7 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
       } else
         composeFormat = nsIMsgCompFormat::PlainText;
 
-      char *body = nullptr;
+      char* body = nullptr;
 
       if (!bodyAsAttachment && mdd->messageBody->m_tmpFile) {
         int64_t fileSize;
@@ -1376,7 +1376,7 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
         // so we just skip it instead of reading it in chunks.
         if (fileSize < UINT32_MAX) {
           bodyLen = fileSize;
-          body = (char *)PR_MALLOC(bodyLen + 1);
+          body = (char*)PR_MALLOC(bodyLen + 1);
         }
         if (body) {
           memset(body, 0, bodyLen + 1);
@@ -1393,13 +1393,13 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
           inputStream->Close();
 
           // Convert the body to UTF-8
-          char *mimeCharset = nullptr;
+          char* mimeCharset = nullptr;
           // Get a charset from the header if no override is set.
           if (!charsetOverride)
             mimeCharset = MimeHeaders_get_parameter(
                 mdd->messageBody->m_type.get(), "charset", nullptr, nullptr);
           // If no charset is specified in the header then use the default.
-          char *bodyCharset = mimeCharset ? mimeCharset : mdd->mailcharset;
+          char* bodyCharset = mimeCharset ? mimeCharset : mdd->mailcharset;
           if (bodyCharset) {
             nsAutoString tmpUnicodeBody;
             rv = nsMsgI18NConvertToUnicode(nsDependentCString(bodyCharset),
@@ -1408,7 +1408,7 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
             if (NS_FAILED(rv))  // Tough luck, ASCII/ISO-8859-1 then...
               CopyASCIItoUTF16(nsDependentCString(body), tmpUnicodeBody);
 
-            char *newBody = ToNewUTF8String(tmpUnicodeBody);
+            char* newBody = ToNewUTF8String(tmpUnicodeBody);
             if (newBody) {
               PR_Free(body);
               body = newBody;
@@ -1645,8 +1645,8 @@ static void mime_parse_stream_complete(nsMIMESession *stream) {
   delete[] newAttachData;
 }
 
-static void mime_parse_stream_abort(nsMIMESession *stream, int status) {
-  mime_draft_data *mdd = (mime_draft_data *)stream->data_object;
+static void mime_parse_stream_abort(nsMIMESession* stream, int status) {
+  mime_draft_data* mdd = (mime_draft_data*)stream->data_object;
   NS_ASSERTION(mdd, "null mime draft data");
 
   if (!mdd) return;
@@ -1668,7 +1668,7 @@ static void mime_parse_stream_abort(nsMIMESession *stream, int status) {
     }
 
     if (mdd->stream) {
-      mdd->stream->abort((nsMIMESession *)mdd->stream->data_object, status);
+      mdd->stream->abort((nsMIMESession*)mdd->stream->data_object, status);
       PR_Free(mdd->stream);
       mdd->stream = 0;
     }
@@ -1683,8 +1683,8 @@ static void mime_parse_stream_abort(nsMIMESession *stream, int status) {
   PR_Free(mdd);
 }
 
-static int make_mime_headers_copy(void *closure, MimeHeaders *headers) {
-  mime_draft_data *mdd = (mime_draft_data *)closure;
+static int make_mime_headers_copy(void* closure, MimeHeaders* headers) {
+  mime_draft_data* mdd = (mime_draft_data*)closure;
 
   NS_ASSERTION(mdd && headers, "null mime draft data and/or headers");
 
@@ -1698,12 +1698,12 @@ static int make_mime_headers_copy(void *closure, MimeHeaders *headers) {
   return 0;
 }
 
-int mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers) {
-  mime_draft_data *mdd = (mime_draft_data *)stream_closure;
-  nsMsgAttachedFile *newAttachment = 0;
+int mime_decompose_file_init_fn(void* stream_closure, MimeHeaders* headers) {
+  mime_draft_data* mdd = (mime_draft_data*)stream_closure;
+  nsMsgAttachedFile* newAttachment = 0;
   int nAttachments = 0;
   // char *hdr_value = NULL;
-  char *parm_value = NULL;
+  char* parm_value = NULL;
   bool creatingMsgBody = true;
 
   NS_ASSERTION(mdd && headers, "null mime draft data and/or headers");
@@ -1728,7 +1728,7 @@ int mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers) {
     if (mdd->options && mdd->options->override_charset)
       mdd->mailcharset = strdup(mdd->options->default_charset);
     else {
-      char *contentType;
+      char* contentType;
       contentType = MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, false);
       if (contentType) {
         mdd->mailcharset =
@@ -1748,8 +1748,8 @@ int mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers) {
     mdd->attachments.AppendElement(newAttachment);
   }
 
-  char *workURLSpec = nullptr;
-  char *contLoc = nullptr;
+  char* workURLSpec = nullptr;
+  char* contLoc = nullptr;
 
   newAttachment->m_realName.Adopt(MimeHeaders_get_name(headers, mdd->options));
   contLoc = MimeHeaders_get(headers, HEADER_CONTENT_LOCATION, false, false);
@@ -1771,8 +1771,8 @@ int mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers) {
   //
   parm_value = MimeHeaders_get(headers, HEADER_CONTENT_TYPE, false, false);
   if (parm_value) {
-    char *boundary = NULL;
-    char *tmp_value = NULL;
+    char* boundary = NULL;
+    char* tmp_value = NULL;
     boundary = MimeHeaders_get_parameter(parm_value, "boundary", NULL, NULL);
     if (boundary) tmp_value = PR_smprintf("; boundary=\"%s\"", boundary);
     if (tmp_value) newAttachment->m_type = tmp_value;
@@ -1874,7 +1874,7 @@ int mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers) {
   // For now, we are always going to decode all of the attachments
   // for the message. This way, we have native data
   if (creatingMsgBody) {
-    MimeDecoderData *(*fn)(MimeConverterOutputCallback, void *) = 0;
+    MimeDecoderData* (*fn)(MimeConverterOutputCallback, void*) = 0;
 
     //
     // Initialize a decoder if necessary.
@@ -1913,9 +1913,9 @@ int mime_decompose_file_init_fn(void *stream_closure, MimeHeaders *headers) {
   return 0;
 }
 
-int mime_decompose_file_output_fn(const char *buf, int32_t size,
-                                  void *stream_closure) {
-  mime_draft_data *mdd = (mime_draft_data *)stream_closure;
+int mime_decompose_file_output_fn(const char* buf, int32_t size,
+                                  void* stream_closure) {
+  mime_draft_data* mdd = (mime_draft_data*)stream_closure;
   int ret = 0;
 
   NS_ASSERTION(mdd && buf, "missing mime draft data and/or buf");
@@ -1939,8 +1939,8 @@ int mime_decompose_file_output_fn(const char *buf, int32_t size,
   return 0;
 }
 
-int mime_decompose_file_close_fn(void *stream_closure) {
-  mime_draft_data *mdd = (mime_draft_data *)stream_closure;
+int mime_decompose_file_close_fn(void* stream_closure) {
+  mime_draft_data* mdd = (mime_draft_data*)stream_closure;
 
   if (!mdd) return -1;
 
@@ -1966,13 +1966,13 @@ int mime_decompose_file_close_fn(void *stream_closure) {
   return 0;
 }
 
-extern "C" void *mime_bridge_create_draft_stream(
-    nsIMimeEmitter *newEmitter, nsStreamConverter *newPluginObj2, nsIURI *uri,
+extern "C" void* mime_bridge_create_draft_stream(
+    nsIMimeEmitter* newEmitter, nsStreamConverter* newPluginObj2, nsIURI* uri,
     nsMimeOutputType format_out) {
   int status = 0;
-  nsMIMESession *stream = nullptr;
-  mime_draft_data *mdd = nullptr;
-  MimeObject *obj = nullptr;
+  nsMIMESession* stream = nullptr;
+  mime_draft_data* mdd = nullptr;
+  MimeObject* obj = nullptr;
 
   if (!uri) return nullptr;
 
@@ -2037,7 +2037,7 @@ extern "C" void *mime_bridge_create_draft_stream(
   mdd->options->decrypt_p = true;
 #endif /* ENABLE_SMIME */
 
-  obj = mime_new((MimeObjectClass *)&mimeMessageClass, (MimeHeaders *)NULL,
+  obj = mime_new((MimeObjectClass*)&mimeMessageClass, (MimeHeaders*)NULL,
                  MESSAGE_RFC822);
   if (!obj) goto FAIL;
 

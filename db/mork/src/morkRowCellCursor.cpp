@@ -160,9 +160,9 @@ morkRowCellCursor::GetRow(nsIMdbEnv* mev, nsIMdbRow** acqRow) {
 // { ----- begin cell seeking methods -----
 NS_IMETHODIMP
 morkRowCellCursor::SeekCell(
-    nsIMdbEnv* mev,           // context
-    mdb_pos inPos,            // position of cell in row sequence
-    mdb_column* outColumn,    // column for this particular cell
+    nsIMdbEnv* mev,         // context
+    mdb_pos inPos,          // position of cell in row sequence
+    mdb_column* outColumn,  // column for this particular cell
     nsIMdbCell** acqCell) {
   NS_ASSERTION(false, "not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;

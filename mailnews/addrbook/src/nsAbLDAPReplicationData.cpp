@@ -32,9 +32,9 @@ nsAbLDAPProcessReplicationData::nsAbLDAPProcessReplicationData()
 nsAbLDAPProcessReplicationData::~nsAbLDAPProcessReplicationData() {}
 
 NS_IMETHODIMP nsAbLDAPProcessReplicationData::Init(
-    nsIAbLDAPDirectory *aDirectory, nsILDAPConnection *aConnection,
-    nsILDAPURL *aURL, nsIAbLDAPReplicationQuery *aQuery,
-    nsIWebProgressListener *aProgressListener) {
+    nsIAbLDAPDirectory* aDirectory, nsILDAPConnection* aConnection,
+    nsILDAPURL* aURL, nsIAbLDAPReplicationQuery* aQuery,
+    nsIWebProgressListener* aProgressListener) {
   NS_ENSURE_ARG_POINTER(aDirectory);
   NS_ENSURE_ARG_POINTER(aConnection);
   NS_ENSURE_ARG_POINTER(aURL);
@@ -71,14 +71,14 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::Init(
 }
 
 NS_IMETHODIMP nsAbLDAPProcessReplicationData::GetReplicationState(
-    int32_t *aReplicationState) {
+    int32_t* aReplicationState) {
   NS_ENSURE_ARG_POINTER(aReplicationState);
   *aReplicationState = mState;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsAbLDAPProcessReplicationData::OnLDAPMessage(
-    nsILDAPMessage *aMessage) {
+    nsILDAPMessage* aMessage) {
   NS_ENSURE_ARG_POINTER(aMessage);
 
   if (!mInitialized) return NS_ERROR_NOT_INITIALIZED;
@@ -174,7 +174,7 @@ void nsAbLDAPProcessReplicationData::InitFailed(bool aCancelled) {
 }
 
 nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchEntry(
-    nsILDAPMessage *aMessage) {
+    nsILDAPMessage* aMessage) {
   NS_ENSURE_ARG_POINTER(aMessage);
   if (!mInitialized) return NS_ERROR_NOT_INITIALIZED;
   // since this runs on the main thread and is single threaded, this will
@@ -236,7 +236,7 @@ nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchEntry(
 }
 
 nsresult nsAbLDAPProcessReplicationData::OnLDAPSearchResult(
-    nsILDAPMessage *aMessage) {
+    nsILDAPMessage* aMessage) {
   NS_ENSURE_ARG_POINTER(aMessage);
   if (!mInitialized) return NS_ERROR_NOT_INITIALIZED;
 
@@ -315,9 +315,9 @@ nsresult nsAbLDAPProcessReplicationData::OpenABForReplicatedDir(bool aCreate) {
   return rv;
 }
 
-NS_IMETHODIMP nsAbLDAPProcessReplicationData::Observe(nsISupports *aSubject,
-                                                      const char *aTopic,
-                                                      const char16_t *aData) {
+NS_IMETHODIMP nsAbLDAPProcessReplicationData::Observe(nsISupports* aSubject,
+                                                      const char* aTopic,
+                                                      const char16_t* aData) {
   if (mDatabaseClosedPromise) {
     mDatabaseClosedPromise->Resolve(true, __func__);
   }
@@ -325,7 +325,7 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::Observe(nsISupports *aSubject,
 }
 
 RefPtr<GenericPromise> nsAbLDAPProcessReplicationData::PromiseDatabaseClosed(
-    nsIFile *file) {
+    nsIFile* file) {
   if (file) {
     nsCOMPtr<nsIObserverService> observerService =
         mozilla::services::GetObserverService();

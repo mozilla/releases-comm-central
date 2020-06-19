@@ -94,11 +94,11 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   NS_DECL_NSIPROTOCOLPROXYCALLBACK
 
   // Creating a protocol instance requires the URL which needs to be run.
-  explicit nsSmtpProtocol(nsIURI *aURL);
+  explicit nsSmtpProtocol(nsIURI* aURL);
 
-  virtual nsresult LoadUrl(nsIURI *aURL,
-                           nsISupports *aConsumer = nullptr) override;
-  virtual nsresult SendData(const char *dataBuffer,
+  virtual nsresult LoadUrl(nsIURI* aURL,
+                           nsISupports* aConsumer = nullptr) override;
+  virtual nsresult SendData(const char* dataBuffer,
                             bool aSuppressLogging = false) override;
 
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
 
   // stop binding is a "notification" informing us that the stream associated
   // with aURL is going away.
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult status) override;
+  NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult status) override;
 
  private:
   virtual ~nsSmtpProtocol();
@@ -159,18 +159,18 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   int32_t m_totalAmountRead;
   int64_t m_totalMessageSize;
 
-  char *m_dataBuf;
+  char* m_dataBuf;
   uint32_t m_dataBufSize;
 
   int32_t m_originalContentLength; /* the content length at the time of calling
                                       graph progress */
 
   // initialization function given a new url and transport layer
-  nsresult Initialize(nsIURI *aURL);
-  nsresult InitializeInternal(nsIProxyInfo *proxyInfo);
-  nsresult LoadUrlInternal(nsIURI *aURL, nsISupports *aConsumer);
-  virtual nsresult ProcessProtocolState(nsIURI *url,
-                                        nsIInputStream *inputStream,
+  nsresult Initialize(nsIURI* aURL);
+  nsresult InitializeInternal(nsIProxyInfo* proxyInfo);
+  nsresult LoadUrlInternal(nsIURI* aURL, nsISupports* aConsumer);
+  virtual nsresult ProcessProtocolState(nsIURI* url,
+                                        nsIInputStream* inputStream,
                                         uint64_t sourceOffset,
                                         uint32_t length) override;
 
@@ -178,8 +178,8 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   // Communication methods --> Reading and writing protocol
   ////////////////////////////////////////////////////////////////////////////////////////
 
-  void UpdateStatus(const char *aStatusName);
-  void UpdateStatusWithString(const char16_t *aStatusString);
+  void UpdateStatus(const char* aStatusName);
+  void UpdateStatusWithString(const char16_t* aStatusString);
 
   ////////////////////////////////////////////////////////////////////////////////////////
   // Protocol Methods --> This protocol is state driven so each protocol method
@@ -187,10 +187,10 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   //            group them together based on functionality.
   ////////////////////////////////////////////////////////////////////////////////////////
 
-  nsresult SmtpResponse(nsIInputStream *inputStream, uint32_t length);
-  nsresult ExtensionLoginResponse(nsIInputStream *inputStream, uint32_t length);
-  nsresult SendHeloResponse(nsIInputStream *inputStream, uint32_t length);
-  nsresult SendEhloResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult SmtpResponse(nsIInputStream* inputStream, uint32_t length);
+  nsresult ExtensionLoginResponse(nsIInputStream* inputStream, uint32_t length);
+  nsresult SendHeloResponse(nsIInputStream* inputStream, uint32_t length);
+  nsresult SendEhloResponse(nsIInputStream* inputStream, uint32_t length);
   nsresult SendQuit(SmtpState aNextStateAfterResponse = SMTP_DONE);
 
   nsresult AuthGSSAPIFirst();
@@ -199,7 +199,7 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
   void AuthLoginStep0Response();
   nsresult AuthLoginStep1();
   nsresult AuthLoginStep2();
-  nsresult AuthLoginResponse(nsIInputStream *stream, uint32_t length);
+  nsresult AuthLoginResponse(nsIInputStream* stream, uint32_t length);
   nsresult AuthOAuth2Step1();
 
   nsresult SendTLSResponse();
@@ -217,19 +217,19 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
 
   void SendMessageInFile();
 
-  void AppendHelloArgument(nsACString &aResult);
-  nsresult GetPassword(nsString &aPassword);
-  nsresult GetUsernamePassword(nsACString &aUsername, nsAString &aPassword);
-  nsresult PromptForPassword(nsISmtpServer *aSmtpServer, nsISmtpUrl *aSmtpUrl,
-                             nsTArray<nsString> &formatStrings,
-                             nsAString &aPassword);
+  void AppendHelloArgument(nsACString& aResult);
+  nsresult GetPassword(nsString& aPassword);
+  nsresult GetUsernamePassword(nsACString& aUsername, nsAString& aPassword);
+  nsresult PromptForPassword(nsISmtpServer* aSmtpServer, nsISmtpUrl* aSmtpUrl,
+                             nsTArray<nsString>& formatStrings,
+                             nsAString& aPassword);
 
   void InitPrefAuthMethods(int32_t authMethodPrefValue);
   nsresult ChooseAuthMethod();
   void MarkAuthMethodAsFailed(int32_t failedAuthMethod);
   void ResetAuthMethods();
 
-  virtual const char *GetType() override { return "smtp"; }
+  virtual const char* GetType() override { return "smtp"; }
 
   int32_t m_prefAuthMethods;    // set of capability flags for auth methods
   int32_t m_failedAuthMethods;  // ditto

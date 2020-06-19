@@ -30,8 +30,8 @@
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/Services.h"
 
-static const char *kImapPrefix = "//imap:";
-static const char *kWhitespace = "\b\t\r\n ";
+static const char* kImapPrefix = "//imap:";
+static const char* kWhitespace = "\b\t\r\n ";
 
 nsMsgRuleAction::nsMsgRuleAction() {}
 
@@ -49,7 +49,7 @@ NS_IMETHODIMP nsMsgRuleAction::SetPriority(nsMsgPriorityValue aPriority) {
 }
 
 NS_IMETHODIMP
-nsMsgRuleAction::GetPriority(nsMsgPriorityValue *aResult) {
+nsMsgRuleAction::GetPriority(nsMsgPriorityValue* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_TRUE(m_type == nsMsgFilterAction::ChangePriority,
                  NS_ERROR_ILLEGAL_VALUE);
@@ -65,7 +65,7 @@ nsMsgRuleAction::SetLabel(nsMsgLabelValue aLabel) {
 }
 
 NS_IMETHODIMP
-nsMsgRuleAction::GetLabel(nsMsgLabelValue *aResult) {
+nsMsgRuleAction::GetLabel(nsMsgLabelValue* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_TRUE(m_type == nsMsgFilterAction::Label, NS_ERROR_ILLEGAL_VALUE);
   *aResult = m_label;
@@ -73,7 +73,7 @@ nsMsgRuleAction::GetLabel(nsMsgLabelValue *aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgRuleAction::SetTargetFolderUri(const nsACString &aUri) {
+nsMsgRuleAction::SetTargetFolderUri(const nsACString& aUri) {
   NS_ENSURE_TRUE(m_type == nsMsgFilterAction::MoveToFolder ||
                      m_type == nsMsgFilterAction::CopyToFolder,
                  NS_ERROR_ILLEGAL_VALUE);
@@ -82,7 +82,7 @@ nsMsgRuleAction::SetTargetFolderUri(const nsACString &aUri) {
 }
 
 NS_IMETHODIMP
-nsMsgRuleAction::GetTargetFolderUri(nsACString &aResult) {
+nsMsgRuleAction::GetTargetFolderUri(nsACString& aResult) {
   NS_ENSURE_TRUE(m_type == nsMsgFilterAction::MoveToFolder ||
                      m_type == nsMsgFilterAction::CopyToFolder,
                  NS_ERROR_ILLEGAL_VALUE);
@@ -100,7 +100,7 @@ nsMsgRuleAction::SetJunkScore(int32_t aJunkScore) {
 }
 
 NS_IMETHODIMP
-nsMsgRuleAction::GetJunkScore(int32_t *aResult) {
+nsMsgRuleAction::GetJunkScore(int32_t* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_TRUE(m_type == nsMsgFilterAction::JunkScore,
                  NS_ERROR_ILLEGAL_VALUE);
@@ -109,31 +109,31 @@ nsMsgRuleAction::GetJunkScore(int32_t *aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgRuleAction::SetStrValue(const nsACString &aStrValue) {
+nsMsgRuleAction::SetStrValue(const nsACString& aStrValue) {
   m_strValue = aStrValue;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgRuleAction::GetStrValue(nsACString &aStrValue) {
+nsMsgRuleAction::GetStrValue(nsACString& aStrValue) {
   aStrValue = m_strValue;
   return NS_OK;
 }
 
 /* attribute ACString customId; */
-NS_IMETHODIMP nsMsgRuleAction::GetCustomId(nsACString &aCustomId) {
+NS_IMETHODIMP nsMsgRuleAction::GetCustomId(nsACString& aCustomId) {
   aCustomId = m_customId;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgRuleAction::SetCustomId(const nsACString &aCustomId) {
+NS_IMETHODIMP nsMsgRuleAction::SetCustomId(const nsACString& aCustomId) {
   m_customId = aCustomId;
   return NS_OK;
 }
 
 // this can only be called after the customId is set
 NS_IMETHODIMP nsMsgRuleAction::GetCustomAction(
-    nsIMsgFilterCustomAction **aCustomAction) {
+    nsIMsgFilterCustomAction** aCustomAction) {
   NS_ENSURE_ARG_POINTER(aCustomAction);
   if (!m_customAction) {
     if (m_customId.IsEmpty()) return NS_ERROR_NOT_INITIALIZED;
@@ -173,32 +173,32 @@ NS_IMPL_GETSET(nsMsgFilter, Enabled, bool, m_enabled)
 NS_IMPL_GETSET(nsMsgFilter, Temporary, bool, m_temporary)
 NS_IMPL_GETSET(nsMsgFilter, Unparseable, bool, m_unparseable)
 
-NS_IMETHODIMP nsMsgFilter::GetFilterName(nsAString &name) {
+NS_IMETHODIMP nsMsgFilter::GetFilterName(nsAString& name) {
   name = m_filterName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::SetFilterName(const nsAString &name) {
+NS_IMETHODIMP nsMsgFilter::SetFilterName(const nsAString& name) {
   m_filterName.Assign(name);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::GetFilterDesc(nsACString &description) {
+NS_IMETHODIMP nsMsgFilter::GetFilterDesc(nsACString& description) {
   description = m_description;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::SetFilterDesc(const nsACString &description) {
+NS_IMETHODIMP nsMsgFilter::SetFilterDesc(const nsACString& description) {
   m_description.Assign(description);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::GetUnparsedBuffer(nsACString &unparsedBuffer) {
+NS_IMETHODIMP nsMsgFilter::GetUnparsedBuffer(nsACString& unparsedBuffer) {
   unparsedBuffer = m_unparsedBuffer;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::SetUnparsedBuffer(const nsACString &unparsedBuffer) {
+NS_IMETHODIMP nsMsgFilter::SetUnparsedBuffer(const nsACString& unparsedBuffer) {
   m_unparsedBuffer.Assign(unparsedBuffer);
   return NS_OK;
 }
@@ -206,16 +206,16 @@ NS_IMETHODIMP nsMsgFilter::SetUnparsedBuffer(const nsACString &unparsedBuffer) {
 NS_IMETHODIMP nsMsgFilter::AddTerm(
     nsMsgSearchAttribValue attrib,     /* attribute for this term          */
     nsMsgSearchOpValue op,             /* operator e.g. opContains           */
-    nsIMsgSearchValue *value,          /* value e.g. "Dogbert"               */
+    nsIMsgSearchValue* value,          /* value e.g. "Dogbert"               */
     bool BooleanAND,                   /* true if AND is the boolean operator.
                                           false if OR is the boolean operators */
-    const nsACString &arbitraryHeader) /* arbitrary header specified by user.
+    const nsACString& arbitraryHeader) /* arbitrary header specified by user.
   ignored unless attrib = attribOtherHeader */
 {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::AppendTerm(nsIMsgSearchTerm *aTerm) {
+NS_IMETHODIMP nsMsgFilter::AppendTerm(nsIMsgSearchTerm* aTerm) {
   NS_ENSURE_TRUE(aTerm, NS_ERROR_NULL_POINTER);
   // invalidate expression tree if we're changing the terms
   delete m_expressionTree;
@@ -224,14 +224,14 @@ NS_IMETHODIMP nsMsgFilter::AppendTerm(nsIMsgSearchTerm *aTerm) {
 }
 
 NS_IMETHODIMP
-nsMsgFilter::CreateTerm(nsIMsgSearchTerm **aResult) {
+nsMsgFilter::CreateTerm(nsIMsgSearchTerm** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ADDREF(*aResult = new nsMsgSearchTerm);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgFilter::CreateAction(nsIMsgRuleAction **aAction) {
+nsMsgFilter::CreateAction(nsIMsgRuleAction** aAction) {
   NS_ENSURE_ARG_POINTER(aAction);
   NS_ADDREF(*aAction = new nsMsgRuleAction);
   return NS_OK;
@@ -256,7 +256,7 @@ nsMsgFilter::CreateAction(nsIMsgRuleAction **aAction) {
 //    m+2     StopExecution
 NS_IMETHODIMP
 nsMsgFilter::GetSortedActionList(
-    nsTArray<RefPtr<nsIMsgRuleAction>> &aActionList) {
+    nsTArray<RefPtr<nsIMsgRuleAction>>& aActionList) {
   aActionList.Clear();
   aActionList.SetCapacity(m_actionList.Length());
 
@@ -314,7 +314,7 @@ nsMsgFilter::GetSortedActionList(
 }
 
 NS_IMETHODIMP
-nsMsgFilter::AppendAction(nsIMsgRuleAction *aAction) {
+nsMsgFilter::AppendAction(nsIMsgRuleAction* aAction) {
   NS_ENSURE_ARG_POINTER(aAction);
 
   m_actionList.AppendElement(aAction);
@@ -322,7 +322,7 @@ nsMsgFilter::AppendAction(nsIMsgRuleAction *aAction) {
 }
 
 NS_IMETHODIMP
-nsMsgFilter::GetActionAt(uint32_t aIndex, nsIMsgRuleAction **aAction) {
+nsMsgFilter::GetActionAt(uint32_t aIndex, nsIMsgRuleAction** aAction) {
   NS_ENSURE_ARG_POINTER(aAction);
   NS_ENSURE_ARG(aIndex < m_actionList.Length());
 
@@ -332,7 +332,7 @@ nsMsgFilter::GetActionAt(uint32_t aIndex, nsIMsgRuleAction **aAction) {
 }
 
 NS_IMETHODIMP
-nsMsgFilter::GetActionIndex(nsIMsgRuleAction *aAction, int32_t *aIndex) {
+nsMsgFilter::GetActionIndex(nsIMsgRuleAction* aAction, int32_t* aIndex) {
   NS_ENSURE_ARG_POINTER(aIndex);
 
   *aIndex = m_actionList.IndexOf(aAction);
@@ -340,7 +340,7 @@ nsMsgFilter::GetActionIndex(nsIMsgRuleAction *aAction, int32_t *aIndex) {
 }
 
 NS_IMETHODIMP
-nsMsgFilter::GetActionCount(uint32_t *aCount) {
+nsMsgFilter::GetActionCount(uint32_t* aCount) {
   NS_ENSURE_ARG_POINTER(aCount);
 
   *aCount = m_actionList.Length();
@@ -355,12 +355,12 @@ nsMsgFilter::ClearActionList() {
 
 NS_IMETHODIMP nsMsgFilter::GetTerm(
     int32_t termIndex,
-    nsMsgSearchAttribValue *attrib, /* attribute for this term          */
-    nsMsgSearchOpValue *op,         /* operator e.g. opContains           */
-    nsIMsgSearchValue **value,      /* value e.g. "Dogbert"               */
-    bool *booleanAnd, /* true if AND is the boolean operator. false if OR is the
+    nsMsgSearchAttribValue* attrib, /* attribute for this term          */
+    nsMsgSearchOpValue* op,         /* operator e.g. opContains           */
+    nsIMsgSearchValue** value,      /* value e.g. "Dogbert"               */
+    bool* booleanAnd, /* true if AND is the boolean operator. false if OR is the
                          boolean operator */
-    nsACString &arbitraryHeader) /* arbitrary header specified by user.ignore
+    nsACString& arbitraryHeader) /* arbitrary header specified by user.ignore
                                     unless attrib = attribOtherHeader */
 {
   nsresult rv;
@@ -378,7 +378,7 @@ NS_IMETHODIMP nsMsgFilter::GetTerm(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::GetSearchTerms(nsIMutableArray **aResult) {
+NS_IMETHODIMP nsMsgFilter::GetSearchTerms(nsIMutableArray** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   // caller can change m_termList, which can invalidate m_expressionTree.
   delete m_expressionTree;
@@ -387,19 +387,19 @@ NS_IMETHODIMP nsMsgFilter::GetSearchTerms(nsIMutableArray **aResult) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::SetSearchTerms(nsIMutableArray *aSearchList) {
+NS_IMETHODIMP nsMsgFilter::SetSearchTerms(nsIMutableArray* aSearchList) {
   delete m_expressionTree;
   m_expressionTree = nullptr;
   m_termList = aSearchList;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::SetScope(nsIMsgSearchScopeTerm *aResult) {
+NS_IMETHODIMP nsMsgFilter::SetScope(nsIMsgSearchScopeTerm* aResult) {
   m_scope = aResult;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilter::GetScope(nsIMsgSearchScopeTerm **aResult) {
+NS_IMETHODIMP nsMsgFilter::GetScope(nsIMsgSearchScopeTerm** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_IF_ADDREF(*aResult = m_scope);
   return NS_OK;
@@ -429,9 +429,9 @@ NS_IMETHODIMP nsMsgFilter::GetScope(nsIMsgSearchScopeTerm **aResult) {
 // error in a similar form as a conventional successful filter event
 // with additional error information at the beginning.
 //
-nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
-                                        nsIMsgDBHdr *aMsgHdr, nsresult aRcode,
-                                        const nsACString &aErrmsg) {
+nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
+                                        nsIMsgDBHdr* aMsgHdr, nsresult aRcode,
+                                        const nsACString& aErrmsg) {
   NS_ENSURE_ARG_POINTER(aFilterAction);
   NS_ENSURE_ARG_POINTER(aMsgHdr);
 
@@ -562,23 +562,23 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
   return m_filterList->LogFilterMessage(buffer, nullptr);
 }
 
-NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction *aFilterAction,
-                                      nsIMsgDBHdr *aMsgHdr) {
+NS_IMETHODIMP nsMsgFilter::LogRuleHit(nsIMsgRuleAction* aFilterAction,
+                                      nsIMsgDBHdr* aMsgHdr) {
   return nsMsgFilter::LogRuleHitGeneric(aFilterAction, aMsgHdr, NS_OK,
                                         EmptyCString());
 }
 
-NS_IMETHODIMP nsMsgFilter::LogRuleHitFail(nsIMsgRuleAction *aFilterAction,
-                                          nsIMsgDBHdr *aMsgHdr, nsresult aRcode,
-                                          const nsACString &aErrMsg) {
+NS_IMETHODIMP nsMsgFilter::LogRuleHitFail(nsIMsgRuleAction* aFilterAction,
+                                          nsIMsgDBHdr* aMsgHdr, nsresult aRcode,
+                                          const nsACString& aErrMsg) {
   return nsMsgFilter::LogRuleHitGeneric(aFilterAction, aMsgHdr, aRcode,
                                         aErrMsg);
 }
 
 NS_IMETHODIMP
-nsMsgFilter::MatchHdr(nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder,
-                      nsIMsgDatabase *db, const nsACString &headers,
-                      bool *pResult) {
+nsMsgFilter::MatchHdr(nsIMsgDBHdr* msgHdr, nsIMsgFolder* folder,
+                      nsIMsgDatabase* db, const nsACString& headers,
+                      bool* pResult) {
   NS_ENSURE_ARG_POINTER(folder);
   NS_ENSURE_ARG_POINTER(msgHdr);
   // use offlineMail because
@@ -591,25 +591,25 @@ nsMsgFilter::MatchHdr(nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder,
 }
 
 NS_IMETHODIMP
-nsMsgFilter::SetFilterList(nsIMsgFilterList *filterList) {
+nsMsgFilter::SetFilterList(nsIMsgFilterList* filterList) {
   // doesn't hold a ref.
   m_filterList = filterList;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgFilter::GetFilterList(nsIMsgFilterList **aResult) {
+nsMsgFilter::GetFilterList(nsIMsgFilterList** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_IF_ADDREF(*aResult = m_filterList);
   return NS_OK;
 }
 
-void nsMsgFilter::SetFilterScript(nsCString *fileName) {
+void nsMsgFilter::SetFilterScript(nsCString* fileName) {
   m_scriptFileName = *fileName;
 }
 
 nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(
-    nsIMsgRuleAction *filterAction, nsCString &moveValue) {
+    nsIMsgRuleAction* filterAction, nsCString& moveValue) {
   NS_ENSURE_ARG_POINTER(filterAction);
   int16_t filterVersion = kFileVersion;
   if (m_filterList) m_filterList->GetVersion(&filterVersion);
@@ -701,7 +701,7 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(
 }
 
 NS_IMETHODIMP
-nsMsgFilter::SaveToTextFile(nsIOutputStream *aStream) {
+nsMsgFilter::SaveToTextFile(nsIOutputStream* aStream) {
   NS_ENSURE_ARG_POINTER(aStream);
   if (m_unparseable) {
     uint32_t bytesWritten;
@@ -727,7 +727,7 @@ nsMsgFilter::SaveToTextFile(nsIOutputStream *aStream) {
   return err;
 }
 
-nsresult nsMsgFilter::SaveRule(nsIOutputStream *aStream) {
+nsresult nsMsgFilter::SaveRule(nsIOutputStream* aStream) {
   nsresult err = NS_OK;
   nsCOMPtr<nsIMsgFilterList> filterList;
   GetFilterList(getter_AddRefs(filterList));
@@ -816,8 +816,8 @@ nsresult nsMsgFilter::SaveRule(nsIOutputStream *aStream) {
 // for each action, this table encodes the filterTypes that support the action.
 struct RuleActionsTableEntry {
   nsMsgRuleActionType action;
-  const char
-      *actionFilingStr; /* used for filing out filters, don't translate! */
+  const char*
+      actionFilingStr; /* used for filing out filters, don't translate! */
 };
 
 static struct RuleActionsTableEntry ruleActionsTable[] = {
@@ -845,7 +845,7 @@ static struct RuleActionsTableEntry ruleActionsTable[] = {
 
 static const unsigned int sNumActions = MOZ_ARRAY_LENGTH(ruleActionsTable);
 
-const char *nsMsgFilter::GetActionStr(nsMsgRuleActionType action) {
+const char* nsMsgFilter::GetActionStr(nsMsgRuleActionType action) {
   for (unsigned int i = 0; i < sNumActions; i++) {
     if (action == ruleActionsTable[i].action)
       return ruleActionsTable[i].actionFilingStr;
@@ -853,7 +853,7 @@ const char *nsMsgFilter::GetActionStr(nsMsgRuleActionType action) {
   return "";
 }
 /*static */ nsresult nsMsgFilter::GetActionFilingStr(nsMsgRuleActionType action,
-                                                     nsCString &actionStr) {
+                                                     nsCString& actionStr) {
   for (unsigned int i = 0; i < sNumActions; i++) {
     if (action == ruleActionsTable[i].action) {
       actionStr = ruleActionsTable[i].actionFilingStr;
@@ -863,7 +863,7 @@ const char *nsMsgFilter::GetActionStr(nsMsgRuleActionType action) {
   return NS_ERROR_INVALID_ARG;
 }
 
-nsMsgRuleActionType nsMsgFilter::GetActionForFilingStr(nsCString &actionStr) {
+nsMsgRuleActionType nsMsgFilter::GetActionForFilingStr(nsCString& actionStr) {
   for (unsigned int i = 0; i < sNumActions; i++) {
     if (actionStr.Equals(ruleActionsTable[i].actionFilingStr))
       return ruleActionsTable[i].action;

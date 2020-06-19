@@ -89,7 +89,7 @@ nsresult nsMsgContentPolicy::Init() {
  *          load remote images according to the PermissionManager
  */
 bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
-    nsIMsgDBHdr *aMsgHdr) {
+    nsIMsgDBHdr* aMsgHdr) {
   if (!aMsgHdr) return false;
 
   // extract the e-mail address from the msg hdr
@@ -126,7 +126,7 @@ bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
  * Extract the host name from aContentLocation, and look it up in our list
  * of trusted domains.
  */
-bool nsMsgContentPolicy::IsTrustedDomain(nsIURI *aContentLocation) {
+bool nsMsgContentPolicy::IsTrustedDomain(nsIURI* aContentLocation) {
   bool trustedDomain = false;
   // get the host name of the server hosting the remote image
   nsAutoCString host;
@@ -139,9 +139,9 @@ bool nsMsgContentPolicy::IsTrustedDomain(nsIURI *aContentLocation) {
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
-                               const nsACString &aMimeGuess,
-                               int16_t *aDecision) {
+nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
+                               const nsACString& aMimeGuess,
+                               int16_t* aDecision) {
   nsresult rv = NS_OK;
   uint32_t aContentType = aLoadInfo->GetExternalContentPolicyType();
   nsCOMPtr<nsISupports> aRequestingContext;
@@ -153,7 +153,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
   nsCOMPtr<nsIPrincipal> loadingPrincipal = aLoadInfo->GetLoadingPrincipal();
   nsCOMPtr<nsIURI> aRequestingLocation;
   if (loadingPrincipal) {
-    BasePrincipal::Cast(loadingPrincipal)->GetURI(getter_AddRefs(aRequestingLocation));
+    BasePrincipal::Cast(loadingPrincipal)
+        ->GetURI(getter_AddRefs(aRequestingLocation));
   }
 
   // The default decision at the start of the function is to accept the load.
@@ -304,7 +305,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
   nsCOMPtr<nsIURI> originatorLocation;
   if (!aRequestingContext && aRequestPrincipal) {
     // Can get the URI directly from the principal.
-    BasePrincipal::Cast(aRequestPrincipal)->GetURI(getter_AddRefs(originatorLocation));
+    BasePrincipal::Cast(aRequestPrincipal)
+        ->GetURI(getter_AddRefs(originatorLocation));
   } else {
     rv = GetOriginatingURIForContext(aRequestingContext,
                                      getter_AddRefs(originatorLocation));
@@ -390,7 +392,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI *aContentLocation, nsILoadInfo *aLoadInfo,
  * Determines if the requesting location is a safe one, i.e. its under the
  * app/user's control - so file, about, chrome etc.
  */
-bool nsMsgContentPolicy::IsSafeRequestingLocation(nsIURI *aRequestingLocation) {
+bool nsMsgContentPolicy::IsSafeRequestingLocation(nsIURI* aRequestingLocation) {
   if (!aRequestingLocation) return false;
 
   // If aRequestingLocation is one of chrome, resource, file or view-source,
@@ -430,7 +432,7 @@ bool nsMsgContentPolicy::IsSafeRequestingLocation(nsIURI *aRequestingLocation) {
  * Determines if the content location is a scheme that we're willing to expose
  * for unlimited loading of content.
  */
-bool nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation) {
+bool nsMsgContentPolicy::IsExposedProtocol(nsIURI* aContentLocation) {
   nsAutoCString contentScheme;
   nsresult rv = aContentLocation->GetScheme(contentScheme);
   NS_ENSURE_SUCCESS(rv, false);
@@ -472,7 +474,7 @@ bool nsMsgContentPolicy::IsExposedProtocol(nsIURI *aContentLocation) {
  * - apart from web protocols, and file.
  */
 bool nsMsgContentPolicy::ShouldBlockUnexposedProtocol(
-    nsIURI *aContentLocation) {
+    nsIURI* aContentLocation) {
   // Error condition - we must return true so that we block.
   bool isHttp;
   nsresult rv = aContentLocation->SchemeIs("http", &isHttp);
@@ -482,11 +484,11 @@ bool nsMsgContentPolicy::ShouldBlockUnexposedProtocol(
   rv = aContentLocation->SchemeIs("https", &isHttps);
   NS_ENSURE_SUCCESS(rv, true);
 
-  bool isWs; // websocket
+  bool isWs;  // websocket
   rv = aContentLocation->SchemeIs("ws", &isWs);
   NS_ENSURE_SUCCESS(rv, true);
 
-  bool isWss; // secure websocket
+  bool isWss;  // secure websocket
   rv = aContentLocation->SchemeIs("wss", &isWss);
   NS_ENSURE_SUCCESS(rv, true);
 
@@ -508,8 +510,8 @@ bool nsMsgContentPolicy::ShouldBlockUnexposedProtocol(
  * #4 Allow if the author has been specifically white listed.
  */
 int16_t nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(
-    nsIMsgDBHdr *aMsgHdr, nsIURI *aRequestingLocation,
-    nsIURI *aContentLocation) {
+    nsIMsgDBHdr* aMsgHdr, nsIURI* aRequestingLocation,
+    nsIURI* aContentLocation) {
   if (!aMsgHdr) return static_cast<int16_t>(nsIContentPolicy::REJECT_REQUEST);
 
   // Case #1, check the db hdr for the remote content policy on this particular
@@ -545,8 +547,8 @@ int16_t nsMsgContentPolicy::ShouldAcceptRemoteContentForMsgHdr(
 
 class RemoteContentNotifierEvent : public mozilla::Runnable {
  public:
-  RemoteContentNotifierEvent(nsIMsgWindow *aMsgWindow, nsIMsgDBHdr *aMsgHdr,
-                             nsIURI *aContentURI, bool aCanOverride = true)
+  RemoteContentNotifierEvent(nsIMsgWindow* aMsgWindow, nsIMsgDBHdr* aMsgHdr,
+                             nsIURI* aContentURI, bool aCanOverride = true)
       : mozilla::Runnable("RemoteContentNotifierEvent"),
         mMsgWindow(aMsgWindow),
         mMsgHdr(aMsgHdr),
@@ -573,8 +575,8 @@ class RemoteContentNotifierEvent : public mozilla::Runnable {
 /**
  * This function is used to show a blocked remote content notification.
  */
-void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI *aOriginatorLocation,
-                                                 nsIURI *aContentLocation,
+void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
+                                                 nsIURI* aContentLocation,
                                                  bool aCanOverride) {
   // Is it a mailnews url?
   nsresult rv;
@@ -626,7 +628,7 @@ void nsMsgContentPolicy::NotifyContentWasBlocked(nsIURI *aOriginatorLocation,
  * determine if we are going to allow remote content.
  */
 void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
-    nsIURI *aOriginatorLocation, nsIURI *aContentLocation, int16_t *aDecision) {
+    nsIURI* aOriginatorLocation, nsIURI* aContentLocation, int16_t* aDecision) {
   NS_ASSERTION(
       *aDecision == nsIContentPolicy::REJECT_REQUEST,
       "AllowContentForPotentialMessage expects default decision to be reject!");
@@ -689,10 +691,10 @@ void nsMsgContentPolicy::ShouldAcceptContentForPotentialMsg(
  * Content policy logic for compose windows
  *
  */
-void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
-                                           nsISupports *aRequestingContext,
-                                           nsIURI *aContentLocation,
-                                           int16_t *aDecision) {
+void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
+                                           nsISupports* aRequestingContext,
+                                           nsIURI* aContentLocation,
+                                           int16_t* aDecision) {
   NS_ASSERTION(*aDecision == nsIContentPolicy::REJECT_REQUEST,
                "ComposeShouldLoad expects default decision to be reject!");
 
@@ -753,10 +755,10 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
 }
 
 already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(
-    nsISupports *aRequestingContext) {
+    nsISupports* aRequestingContext) {
   nsresult rv;
 
-  nsIDocShell *shell = NS_CP_GetDocShellFromContext(aRequestingContext);
+  nsIDocShell* shell = NS_CP_GetDocShellFromContext(aRequestingContext);
   if (!shell) return nullptr;
   nsCOMPtr<nsIDocShellTreeItem> docShellTreeItem(shell);
 
@@ -781,7 +783,7 @@ already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(
 }
 
 nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
-    nsIURI *aContentLocation, nsISupports *aRequestingContext) {
+    nsIURI* aContentLocation, nsISupports* aRequestingContext) {
   // XXX if this class changes so that this method can be called from
   // ShouldProcess, and if it's possible for this to be null when called from
   // ShouldLoad, but not in the corresponding ShouldProcess call,
@@ -856,11 +858,11 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
  * Gets the root docshell from a requesting context.
  */
 nsresult nsMsgContentPolicy::GetRootDocShellForContext(
-    nsISupports *aRequestingContext, nsIDocShell **aDocShell) {
+    nsISupports* aRequestingContext, nsIDocShell** aDocShell) {
   NS_ENSURE_ARG_POINTER(aRequestingContext);
   nsresult rv;
 
-  nsIDocShell *shell = NS_CP_GetDocShellFromContext(aRequestingContext);
+  nsIDocShell* shell = NS_CP_GetDocShellFromContext(aRequestingContext);
   NS_ENSURE_TRUE(shell, NS_ERROR_NULL_POINTER);
   nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(shell);
 
@@ -880,11 +882,11 @@ nsresult nsMsgContentPolicy::GetRootDocShellForContext(
  * returns the URI associated with that docshell.
  */
 nsresult nsMsgContentPolicy::GetOriginatingURIForContext(
-    nsISupports *aRequestingContext, nsIURI **aURI) {
+    nsISupports* aRequestingContext, nsIURI** aURI) {
   NS_ENSURE_ARG_POINTER(aRequestingContext);
   nsresult rv;
 
-  nsIDocShell *shell = NS_CP_GetDocShellFromContext(aRequestingContext);
+  nsIDocShell* shell = NS_CP_GetDocShellFromContext(aRequestingContext);
   if (!shell) {
     *aURI = nullptr;
     return NS_OK;
@@ -903,10 +905,10 @@ nsresult nsMsgContentPolicy::GetOriginatingURIForContext(
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::ShouldProcess(nsIURI *aContentLocation,
-                                  nsILoadInfo *aLoadInfo,
-                                  const nsACString &aMimeGuess,
-                                  int16_t *aDecision) {
+nsMsgContentPolicy::ShouldProcess(nsIURI* aContentLocation,
+                                  nsILoadInfo* aLoadInfo,
+                                  const nsACString& aMimeGuess,
+                                  int16_t* aDecision) {
   // XXX Returning ACCEPT is presumably only a reasonable thing to do if we
   // think that ShouldLoad is going to catch all possible cases (i.e. that
   // everything we use to make decisions is going to be available at
@@ -916,9 +918,9 @@ nsMsgContentPolicy::ShouldProcess(nsIURI *aContentLocation,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports *aSubject,
-                                          const char *aTopic,
-                                          const char16_t *aData) {
+NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports* aSubject,
+                                          const char* aTopic,
+                                          const char16_t* aData) {
   if (!strcmp(NS_PREFBRANCH_PREFCHANGE_TOPIC_ID, aTopic)) {
     NS_LossyConvertUTF16toASCII pref(aData);
 
@@ -939,15 +941,15 @@ NS_IMETHODIMP nsMsgContentPolicy::Observe(nsISupports *aSubject,
  * settings at onLocationChange time.
  */
 NS_IMETHODIMP
-nsMsgContentPolicy::OnStateChange(nsIWebProgress *aWebProgress,
-                                  nsIRequest *aRequest, uint32_t aStateFlags,
+nsMsgContentPolicy::OnStateChange(nsIWebProgress* aWebProgress,
+                                  nsIRequest* aRequest, uint32_t aStateFlags,
                                   nsresult aStatus) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::OnProgressChange(nsIWebProgress *aWebProgress,
-                                     nsIRequest *aRequest,
+nsMsgContentPolicy::OnProgressChange(nsIWebProgress* aWebProgress,
+                                     nsIRequest* aRequest,
                                      int32_t aCurSelfProgress,
                                      int32_t aMaxSelfProgress,
                                      int32_t aCurTotalProgress,
@@ -956,8 +958,8 @@ nsMsgContentPolicy::OnProgressChange(nsIWebProgress *aWebProgress,
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
-                                     nsIRequest *aRequest, nsIURI *aLocation,
+nsMsgContentPolicy::OnLocationChange(nsIWebProgress* aWebProgress,
+                                     nsIRequest* aRequest, nsIURI* aLocation,
                                      uint32_t aFlags) {
   nsresult rv;
 
@@ -1004,21 +1006,21 @@ nsMsgContentPolicy::OnLocationChange(nsIWebProgress *aWebProgress,
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::OnStatusChange(nsIWebProgress *aWebProgress,
-                                   nsIRequest *aRequest, nsresult aStatus,
-                                   const char16_t *aMessage) {
+nsMsgContentPolicy::OnStatusChange(nsIWebProgress* aWebProgress,
+                                   nsIRequest* aRequest, nsresult aStatus,
+                                   const char16_t* aMessage) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::OnSecurityChange(nsIWebProgress *aWebProgress,
-                                     nsIRequest *aRequest, uint32_t aState) {
+nsMsgContentPolicy::OnSecurityChange(nsIWebProgress* aWebProgress,
+                                     nsIRequest* aRequest, uint32_t aState) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
-                                           nsIRequest *aRequest,
+nsMsgContentPolicy::OnContentBlockingEvent(nsIWebProgress* aWebProgress,
+                                           nsIRequest* aRequest,
                                            uint32_t aEvent) {
   return NS_OK;
 }
@@ -1028,7 +1030,7 @@ nsMsgContentPolicy::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
  *
  */
 NS_IMETHODIMP
-nsMsgContentPolicy::AddExposedProtocol(const nsACString &aScheme) {
+nsMsgContentPolicy::AddExposedProtocol(const nsACString& aScheme) {
   if (mCustomExposedProtocols.Contains(nsCString(aScheme))) return NS_OK;
 
   mCustomExposedProtocols.AppendElement(aScheme);
@@ -1037,7 +1039,7 @@ nsMsgContentPolicy::AddExposedProtocol(const nsACString &aScheme) {
 }
 
 NS_IMETHODIMP
-nsMsgContentPolicy::RemoveExposedProtocol(const nsACString &aScheme) {
+nsMsgContentPolicy::RemoveExposedProtocol(const nsACString& aScheme) {
   mCustomExposedProtocols.RemoveElement(nsCString(aScheme));
 
   return NS_OK;

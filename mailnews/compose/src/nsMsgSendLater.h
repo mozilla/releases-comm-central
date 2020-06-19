@@ -28,7 +28,7 @@ class nsMsgSendLater;
 class SendOperationListener : public nsIMsgSendListener,
                               public nsIMsgCopyServiceListener {
  public:
-  explicit SendOperationListener(nsMsgSendLater *aSendLater);
+  explicit SendOperationListener(nsMsgSendLater* aSendLater);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSENDLISTENER
@@ -67,23 +67,23 @@ class nsMsgSendLater : public nsIMsgSendLater,
   nsresult SetOrigMsgDisposition();
   // Necessary for creating a valid list of recipients
   nsresult BuildHeaders();
-  nsresult DeliverQueuedLine(char *line, int32_t length);
-  nsresult RebufferLeftovers(char *startBuf, uint32_t aLen);
-  nsresult BuildNewBuffer(const char *aBuf, uint32_t aCount,
-                          uint32_t *totalBufSize);
+  nsresult DeliverQueuedLine(char* line, int32_t length);
+  nsresult RebufferLeftovers(char* startBuf, uint32_t aLen);
+  nsresult BuildNewBuffer(const char* aBuf, uint32_t aCount,
+                          uint32_t* totalBufSize);
 
   // methods for listener array processing...
   void NotifyListenersOnStartSending(uint32_t aTotalMessageCount);
   void NotifyListenersOnMessageStartSending(uint32_t aCurrentMessage,
                                             uint32_t aTotalMessage,
-                                            nsIMsgIdentity *aIdentity);
+                                            nsIMsgIdentity* aIdentity);
   void NotifyListenersOnProgress(uint32_t aCurrentMessage,
                                  uint32_t aTotalMessage, uint32_t aSendPercent,
                                  uint32_t aCopyPercent);
   void NotifyListenersOnMessageSendError(uint32_t aCurrentMessage,
                                          nsresult aStatus,
-                                         const char16_t *aMsg);
-  void EndSendMessages(nsresult aStatus, const char16_t *aMsg,
+                                         const char16_t* aMsg);
+  void EndSendMessages(nsresult aStatus, const char16_t* aMsg,
                        uint32_t aTotalTried, uint32_t aSuccessful);
 
   bool OnSendStepFinished(nsresult aStatus);
@@ -100,9 +100,9 @@ class nsMsgSendLater : public nsIMsgSendLater,
   // Private Information
  private:
   virtual ~nsMsgSendLater();
-  nsresult GetIdentityFromKey(const char *aKey, nsIMsgIdentity **aIdentity);
-  nsresult ReparseDBIfNeeded(nsIUrlListener *aListener);
-  nsresult InternalSendMessages(bool aUserInitiated, nsIMsgIdentity *aIdentity);
+  nsresult GetIdentityFromKey(const char* aKey, nsIMsgIdentity** aIdentity);
+  nsresult ReparseDBIfNeeded(nsIUrlListener* aListener);
+  nsresult InternalSendMessages(bool aUserInitiated, nsIMsgIdentity* aIdentity);
 
   nsTObserverArray<nsCOMPtr<nsIMsgSendLaterListener> > mListenerArray;
   nsCOMPtr<nsIMsgDBHdr> mMessage;
@@ -117,12 +117,12 @@ class nsMsgSendLater : public nsIMsgSendLater,
   nsCOMPtr<nsIOutputStream> mOutFile;
 
   // For building headers and stream parsing...
-  char *m_to;
-  char *m_bcc;
-  char *m_fcc;
-  char *m_newsgroups;
-  char *m_newshost;
-  char *m_headers;
+  char* m_to;
+  char* m_bcc;
+  char* m_fcc;
+  char* m_newsgroups;
+  char* m_newshost;
+  char* m_headers;
   int32_t m_flags;
   int32_t m_headersFP;
   bool m_inhead;
@@ -131,9 +131,9 @@ class nsMsgSendLater : public nsIMsgSendLater,
   int32_t m_position;
   int32_t m_flagsPosition;
   int32_t m_headersSize;
-  char *mLeftoverBuffer;
-  char *mIdentityKey;
-  char *mAccountKey;
+  char* mLeftoverBuffer;
+  char* mIdentityKey;
+  char* mAccountKey;
 
   bool mSendingMessages;
   bool mUserInitiated;

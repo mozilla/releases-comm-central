@@ -22,7 +22,7 @@ nsMessengerBootstrap::nsMessengerBootstrap() {}
 nsMessengerBootstrap::~nsMessengerBootstrap() {}
 
 NS_IMETHODIMP nsMessengerBootstrap::OpenMessengerWindowWithUri(
-    const char *windowType, const char *aFolderURI, nsMsgKey aMessageKey) {
+    const char* windowType, const char* aFolderURI, nsMsgKey aMessageKey) {
   bool standAloneMsgWindow = false;
   nsAutoCString chromeUrl("chrome://messenger/content/");
   if (windowType && !strcmp(windowType, "mail:messageWindow")) {

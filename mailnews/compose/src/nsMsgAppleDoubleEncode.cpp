@@ -26,8 +26,8 @@
 #include "prmem.h"
 #include "nsNetUtil.h"
 
-void MacGetFileType(nsIFile *fs, bool *useDefault, char **fileType,
-                    char **encoding) {
+void MacGetFileType(nsIFile* fs, bool* useDefault, char** fileType,
+                    char** encoding) {
   if ((fs == NULL) || (fileType == NULL) || (encoding == NULL)) return;
 
   bool exists = false;
@@ -47,7 +47,7 @@ void MacGetFileType(nsIFile *fs, bool *useDefault, char **fileType,
                              nullptr, nullptr, nullptr);
 
   if ((err != noErr) ||
-      (((FileInfo *)(&catalogInfo.finderInfo))->fileType == 'TEXT'))
+      (((FileInfo*)(&catalogInfo.finderInfo))->fileType == 'TEXT'))
     *fileType = strdup(APPLICATION_OCTET_STREAM);
   else {
     // At this point, we should call the mime service and
@@ -81,8 +81,8 @@ void MacGetFileType(nsIFile *fs, bool *useDefault, char **fileType,
  *  Setup the encode envirment
  */
 
-int ap_encode_init(appledouble_encode_object *p_ap_encode_obj,
-                   const char *fname, char *separator) {
+int ap_encode_init(appledouble_encode_object* p_ap_encode_obj,
+                   const char* fname, char* separator) {
   nsCOMPtr<nsIFile> myFile;
   NS_NewNativeLocalFile(nsDependentCString(fname), true,
                         getter_AddRefs(myFile));
@@ -114,8 +114,8 @@ int ap_encode_init(appledouble_encode_object *p_ap_encode_obj,
 **  errDone:  when encoding is done.
 **  errors :  otherwise.
 */
-int ap_encode_next(appledouble_encode_object *p_ap_encode_obj, char *to_buff,
-                   int32_t buff_size, int32_t *real_size) {
+int ap_encode_next(appledouble_encode_object* p_ap_encode_obj, char* to_buff,
+                   int32_t buff_size, int32_t* real_size) {
   int status;
 
   /*
@@ -130,7 +130,7 @@ int ap_encode_next(appledouble_encode_object *p_ap_encode_obj, char *to_buff,
   */
   if (p_ap_encode_obj->s_overflow) {
     status = write_stream(p_ap_encode_obj,
-                          (const char *)(p_ap_encode_obj->b_overflow),
+                          (const char*)(p_ap_encode_obj->b_overflow),
                           p_ap_encode_obj->s_overflow);
     if (status != noErr) return status;
 
@@ -220,7 +220,7 @@ int ap_encode_next(appledouble_encode_object *p_ap_encode_obj, char *to_buff,
 **  clear the apple encoding.
 */
 
-int ap_encode_end(appledouble_encode_object *p_ap_encode_obj,
+int ap_encode_end(appledouble_encode_object* p_ap_encode_obj,
                   bool is_aborting) {
   /*
   ** clear up the apple doubler.

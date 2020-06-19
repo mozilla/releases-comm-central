@@ -29,36 +29,36 @@ class nsAddrDatabase : public nsIAddrDatabase {
   //////////////////////////////////////////////////////////////////////////////
   // nsIAddrDatabase methods:
 
-  NS_IMETHOD GetDbPath(nsIFile **aDbPath) override;
-  NS_IMETHOD SetDbPath(nsIFile *aDbPath) override;
-  NS_IMETHOD Open(nsIFile *aMabFile, bool aCreate, bool upgrading,
-                  nsIAddrDatabase **pCardDB) override;
+  NS_IMETHOD GetDbPath(nsIFile** aDbPath) override;
+  NS_IMETHOD SetDbPath(nsIFile* aDbPath) override;
+  NS_IMETHOD Open(nsIFile* aMabFile, bool aCreate, bool upgrading,
+                  nsIAddrDatabase** pCardDB) override;
   NS_IMETHOD Close(bool forceCommit) override;
-  NS_IMETHOD OpenMDB(nsIFile *dbName, bool create) override;
+  NS_IMETHOD OpenMDB(nsIFile* dbName, bool create) override;
   NS_IMETHOD CloseMDB(bool commit) override;
   NS_IMETHOD ForceClosed() override;
 
-  NS_IMETHOD EnumerateCards(nsIAbDirectory *directory,
-                            nsISimpleEnumerator **result) override;
-  NS_IMETHOD EnumerateListAddresses(nsIAbDirectory *directory,
+  NS_IMETHOD EnumerateCards(nsIAbDirectory* directory,
+                            nsISimpleEnumerator** result) override;
+  NS_IMETHOD EnumerateListAddresses(nsIAbDirectory* directory,
                                     uint32_t listRowID,
-                                    nsISimpleEnumerator **result) override;
+                                    nsISimpleEnumerator** result) override;
 
   nsAddrDatabase();
 
-  nsresult GetMDBFactory(nsIMdbFactory **aMdbFactory);
-  nsIMdbEnv *GetEnv() { return m_mdbEnv; }
+  nsresult GetMDBFactory(nsIMdbFactory** aMdbFactory);
+  nsIMdbEnv* GetEnv() { return m_mdbEnv; }
   uint32_t GetCurVersion();
-  nsIMdbTableRowCursor *GetTableRowCursor();
-  nsIMdbTable *GetPabTable() { return m_mdbPabTable; }
+  nsIMdbTableRowCursor* GetTableRowCursor();
+  nsIMdbTable* GetPabTable() { return m_mdbPabTable; }
 
-  static already_AddRefed<nsAddrDatabase> FindInCache(nsIFile *dbName);
+  static already_AddRefed<nsAddrDatabase> FindInCache(nsIFile* dbName);
 
   static void CleanupCache();
 
-  nsresult CreateABCard(nsIMdbRow *cardRow, mdb_id listRowID,
-                        nsIAbCard **result);
-  nsresult CreateABListCard(nsIMdbRow *listRow, nsIAbCard **result);
+  nsresult CreateABCard(nsIMdbRow* cardRow, mdb_id listRowID,
+                        nsIAbCard** result);
+  nsresult CreateABListCard(nsIMdbRow* listRow, nsIAbCard** result);
 
   bool IsListRowScopeToken(mdb_scope scope) {
     return (scope == m_ListRowScopeToken) ? true : false;
@@ -69,40 +69,40 @@ class nsAddrDatabase : public nsIAddrDatabase {
   bool IsDataRowScopeToken(mdb_scope scope) {
     return (scope == m_DataRowScopeToken) ? true : false;
   }
-  nsresult GetCardRowByRowID(mdb_id rowID, nsIMdbRow **dbRow);
-  nsresult GetListRowByRowID(mdb_id rowID, nsIMdbRow **dbRow);
+  nsresult GetCardRowByRowID(mdb_id rowID, nsIMdbRow** dbRow);
+  nsresult GetListRowByRowID(mdb_id rowID, nsIMdbRow** dbRow);
 
-  uint32_t GetListAddressTotal(nsIMdbRow *listRow);
-  nsresult GetAddressRowByPos(nsIMdbRow *listRow, uint16_t pos,
-                              nsIMdbRow **cardRow);
+  uint32_t GetListAddressTotal(nsIMdbRow* listRow);
+  nsresult GetAddressRowByPos(nsIMdbRow* listRow, uint16_t pos,
+                              nsIMdbRow** cardRow);
 
-  nsresult InitCardFromRow(nsIAbCard *aNewCard, nsIMdbRow *aCardRow);
+  nsresult InitCardFromRow(nsIAbCard* aNewCard, nsIMdbRow* aCardRow);
 
  protected:
   virtual ~nsAddrDatabase();
 
-  static void RemoveFromCache(nsAddrDatabase *pAddrDB);
-  bool MatchDbName(nsIFile *dbName);  // returns TRUE if they match
+  static void RemoveFromCache(nsAddrDatabase* pAddrDB);
+  bool MatchDbName(nsIFile* dbName);  // returns TRUE if they match
 
-  void YarnToUInt32(struct mdbYarn *yarn, uint32_t *pResult);
-  nsresult GetStringColumn(nsIMdbRow *cardRow, mdb_token outToken,
-                           nsString &str);
-  nsresult GetIntColumn(nsIMdbRow *cardRow, mdb_token outToken,
-                        uint32_t *pValue, uint32_t defaultValue);
-  nsresult GetListCardFromDB(nsIAbCard *listCard, nsIMdbRow *listRow);
-  nsresult CreateCard(nsIMdbRow *cardRow, mdb_id listRowID, nsIAbCard **result);
+  void YarnToUInt32(struct mdbYarn* yarn, uint32_t* pResult);
+  nsresult GetStringColumn(nsIMdbRow* cardRow, mdb_token outToken,
+                           nsString& str);
+  nsresult GetIntColumn(nsIMdbRow* cardRow, mdb_token outToken,
+                        uint32_t* pValue, uint32_t defaultValue);
+  nsresult GetListCardFromDB(nsIAbCard* listCard, nsIMdbRow* listRow);
+  nsresult CreateCard(nsIMdbRow* cardRow, mdb_id listRowID, nsIAbCard** result);
 
-  static nsTArray<nsAddrDatabase *> *m_dbCache;
-  static nsTArray<nsAddrDatabase *> *GetDBCache();
+  static nsTArray<nsAddrDatabase*>* m_dbCache;
+  static nsTArray<nsAddrDatabase*>* GetDBCache();
 
   // mdb bookkeeping stuff
   nsresult InitExistingDB();
   nsresult InitMDBInfo();
   nsresult InitPabTable();
 
-  nsIMdbEnv *m_mdbEnv;  // to be used in all the db calls.
-  nsIMdbStore *m_mdbStore;
-  nsIMdbTable *m_mdbPabTable;
+  nsIMdbEnv* m_mdbEnv;  // to be used in all the db calls.
+  nsIMdbStore* m_mdbStore;
+  nsIMdbTable* m_mdbPabTable;
   nsCOMPtr<nsIFile> m_dbName;
   bool m_mdbTokensInitialized;
 
@@ -188,14 +188,14 @@ class nsAddrDatabase : public nsIAddrDatabase {
   nsCOMPtr<nsIMdbFactory> mMdbFactory;
 
  private:
-  nsresult OpenInternal(nsIFile *aMabFile, bool aCreate,
-                        nsIAddrDatabase **pCardDB);
-  nsresult AlertAboutCorruptMabFile(const nsString &aOldFileName,
-                                    const nsString &aNewFileName);
-  nsresult AlertAboutLockedMabFile(const nsString &aFileName);
-  nsresult DisplayAlert(const char16_t *titleName,
-                        const char16_t *alertStringName,
-                        nsTArray<nsString> &formatStrings);
+  nsresult OpenInternal(nsIFile* aMabFile, bool aCreate,
+                        nsIAddrDatabase** pCardDB);
+  nsresult AlertAboutCorruptMabFile(const nsString& aOldFileName,
+                                    const nsString& aNewFileName);
+  nsresult AlertAboutLockedMabFile(const nsString& aFileName);
+  nsresult DisplayAlert(const char16_t* titleName,
+                        const char16_t* alertStringName,
+                        nsTArray<nsString>& formatStrings);
 };
 
 #endif

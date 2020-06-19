@@ -10,13 +10,13 @@
 
 #include "TestHarness.h"
 
-nsresult mime_encoder_output_fn(const char *buf, int32_t size, void *closure) {
+nsresult mime_encoder_output_fn(const char* buf, int32_t size, void* closure) {
   return NS_OK;
 }
 
-nsresult do_test(const char *aBuffer, const uint32_t aSize) {
+nsresult do_test(const char* aBuffer, const uint32_t aSize) {
   nsresult rv;
-  MimeEncoderData *encodeData = nullptr;
+  MimeEncoderData* encodeData = nullptr;
   int32_t written = 0;
 
   nsCOMPtr<nsIMimeConverter> converter =
@@ -33,7 +33,7 @@ nsresult do_test(const char *aBuffer, const uint32_t aSize) {
   return rv;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   ScopedXPCOM xpcom("TestMimeCrash");
   if (xpcom.failed()) return 1;
 
@@ -42,9 +42,9 @@ int main(int argc, char **argv) {
   // sets LF.
 
   uint32_t bufsize = PR_GetPageSize();
-  PRFileMap *fm = PR_OpenAnonFileMap(".", bufsize, PR_PROT_READWRITE);
+  PRFileMap* fm = PR_OpenAnonFileMap(".", bufsize, PR_PROT_READWRITE);
   if (!fm) return 1;
-  char *addr = (char *)PR_MemMap(fm, 0, bufsize);
+  char* addr = (char*)PR_MemMap(fm, 0, bufsize);
   if (!addr) return 1;
   memset(addr, '\r', bufsize);
 

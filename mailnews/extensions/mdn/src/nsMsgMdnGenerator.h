@@ -38,10 +38,10 @@ class nsMsgMdnGenerator : public nsIMsgMdnGenerator, public nsIUrlListener {
   bool ProcessSendMode();  // must called prior ValidateReturnPath
   bool ValidateReturnPath();
   bool NotInToOrCc();
-  bool MailAddrMatch(const char *addr1, const char *addr2);
+  bool MailAddrMatch(const char* addr1, const char* addr2);
 
-  nsresult StoreMDNSentFlag(nsIMsgFolder *folder, nsMsgKey key);
-  nsresult ClearMDNNeededFlag(nsIMsgFolder *folder, nsMsgKey key);
+  nsresult StoreMDNSentFlag(nsIMsgFolder* folder, nsMsgKey key);
+  nsresult ClearMDNNeededFlag(nsIMsgFolder* folder, nsMsgKey key);
   nsresult NoteMDNRequestHandled();
 
   nsresult CreateMdnMsg();
@@ -51,14 +51,14 @@ class nsMsgMdnGenerator : public nsIMsgMdnGenerator, public nsIUrlListener {
   nsresult SendMdnMsg();
 
   // string bundle helper methods
-  nsresult GetStringFromName(const char *aName, nsAString &aResultString);
-  nsresult FormatStringFromName(const char *aName, const nsString &aString,
-                                nsAString &aResultString);
+  nsresult GetStringFromName(const char* aName, nsAString& aResultString);
+  nsresult FormatStringFromName(const char* aName, const nsString& aString,
+                                nsAString& aResultString);
 
   // other helper methods
-  nsresult InitAndProcess(bool *needToAskUser);
+  nsresult InitAndProcess(bool* needToAskUser);
   nsresult OutputAllHeaders();
-  nsresult WriteString(const char *str);
+  nsresult WriteString(const char* str);
 
  private:
   EDisposeType m_disposeType;

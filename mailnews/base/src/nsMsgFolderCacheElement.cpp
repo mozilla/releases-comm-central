@@ -17,22 +17,22 @@ nsMsgFolderCacheElement::~nsMsgFolderCacheElement() {}
 
 NS_IMPL_ISUPPORTS(nsMsgFolderCacheElement, nsIMsgFolderCacheElement)
 
-NS_IMETHODIMP nsMsgFolderCacheElement::GetKey(nsACString &aFolderKey) {
+NS_IMETHODIMP nsMsgFolderCacheElement::GetKey(nsACString& aFolderKey) {
   aFolderKey = m_folderKey;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFolderCacheElement::SetKey(const nsACString &aFolderKey) {
+NS_IMETHODIMP nsMsgFolderCacheElement::SetKey(const nsACString& aFolderKey) {
   m_folderKey = aFolderKey;
   return NS_OK;
 }
 
-void nsMsgFolderCacheElement::SetOwningCache(nsMsgFolderCache *owningCache) {
+void nsMsgFolderCacheElement::SetOwningCache(nsMsgFolderCache* owningCache) {
   m_owningCache = owningCache;
 }
 
 NS_IMETHODIMP nsMsgFolderCacheElement::GetStringProperty(
-    const char *propertyName, nsACString &result) {
+    const char* propertyName, nsACString& result) {
   NS_ENSURE_ARG_POINTER(propertyName);
   NS_ENSURE_TRUE(m_mdbRow && m_owningCache, NS_ERROR_FAILURE);
 
@@ -46,7 +46,7 @@ NS_IMETHODIMP nsMsgFolderCacheElement::GetStringProperty(
 }
 
 NS_IMETHODIMP nsMsgFolderCacheElement::GetInt32Property(
-    const char *propertyName, int32_t *aResult) {
+    const char* propertyName, int32_t* aResult) {
   NS_ENSURE_ARG_POINTER(propertyName);
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_TRUE(m_mdbRow, NS_ERROR_FAILURE);
@@ -67,7 +67,7 @@ NS_IMETHODIMP nsMsgFolderCacheElement::GetInt32Property(
 }
 
 NS_IMETHODIMP nsMsgFolderCacheElement::GetInt64Property(
-    const char *propertyName, int64_t *aResult) {
+    const char* propertyName, int64_t* aResult) {
   NS_ENSURE_ARG_POINTER(propertyName);
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_TRUE(m_mdbRow, NS_ERROR_FAILURE);
@@ -88,7 +88,7 @@ NS_IMETHODIMP nsMsgFolderCacheElement::GetInt64Property(
 }
 
 NS_IMETHODIMP nsMsgFolderCacheElement::SetStringProperty(
-    const char *propertyName, const nsACString &propertyValue) {
+    const char* propertyName, const nsACString& propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);
   NS_ENSURE_TRUE(m_mdbRow, NS_ERROR_FAILURE);
   nsresult rv = NS_OK;
@@ -103,8 +103,8 @@ NS_IMETHODIMP nsMsgFolderCacheElement::SetStringProperty(
       yarn.mYarn_Grow = NULL;
       if (m_mdbRow) {
         nsCString propertyVal(propertyValue);
-        yarn.mYarn_Buf = (void *)propertyVal.get();
-        yarn.mYarn_Size = strlen((const char *)yarn.mYarn_Buf) + 1;
+        yarn.mYarn_Buf = (void*)propertyVal.get();
+        yarn.mYarn_Size = strlen((const char*)yarn.mYarn_Buf) + 1;
         yarn.mYarn_Fill = yarn.mYarn_Size - 1;
         yarn.mYarn_Form =
             0;  // what to do with this? we're storing csid in the msg hdr...
@@ -118,7 +118,7 @@ NS_IMETHODIMP nsMsgFolderCacheElement::SetStringProperty(
 }
 
 NS_IMETHODIMP nsMsgFolderCacheElement::SetInt32Property(
-    const char *propertyName, int32_t propertyValue) {
+    const char* propertyName, int32_t propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);
   NS_ENSURE_TRUE(m_mdbRow, NS_ERROR_FAILURE);
 
@@ -130,7 +130,7 @@ NS_IMETHODIMP nsMsgFolderCacheElement::SetInt32Property(
 }
 
 NS_IMETHODIMP nsMsgFolderCacheElement::SetInt64Property(
-    const char *propertyName, int64_t propertyValue) {
+    const char* propertyName, int64_t propertyValue) {
   NS_ENSURE_ARG_POINTER(propertyName);
   NS_ENSURE_TRUE(m_mdbRow, NS_ERROR_FAILURE);
 
@@ -141,4 +141,4 @@ NS_IMETHODIMP nsMsgFolderCacheElement::SetInt64Property(
   return SetStringProperty(propertyName, propertyStr);
 }
 
-void nsMsgFolderCacheElement::SetMDBRow(nsIMdbRow *row) { m_mdbRow = row; }
+void nsMsgFolderCacheElement::SetMDBRow(nsIMdbRow* row) { m_mdbRow = row; }

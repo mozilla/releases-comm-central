@@ -32,7 +32,7 @@ void nsBeckyStringBundle::EnsureStringBundle(void) {
   if (!mBundle) GetStringBundle();
 }
 
-char16_t *nsBeckyStringBundle::GetStringByName(const char *aName) {
+char16_t* nsBeckyStringBundle::GetStringByName(const char* aName) {
   EnsureStringBundle();
 
   if (mBundle) {
@@ -44,9 +44,9 @@ char16_t *nsBeckyStringBundle::GetStringByName(const char *aName) {
   return nullptr;
 }
 
-nsresult nsBeckyStringBundle::FormatStringFromName(const char *name,
-                                                   nsTArray<nsString> &params,
-                                                   nsAString &_retval) {
+nsresult nsBeckyStringBundle::FormatStringFromName(const char* name,
+                                                   nsTArray<nsString>& params,
+                                                   nsAString& _retval) {
   EnsureStringBundle();
 
   return mBundle->FormatStringFromName(name, params, _retval);

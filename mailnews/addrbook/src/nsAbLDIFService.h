@@ -17,16 +17,16 @@ class nsAbLDIFService : public nsIAbLDIFService {
 
  private:
   virtual ~nsAbLDIFService();
-  nsresult str_parse_line(char *line, char **type, char **value,
-                          int *vlen) const;
-  char *str_getline(char **next) const;
-  nsresult GetLdifStringRecord(char *buf, int32_t len, int32_t &stopPos);
-  void AddLdifRowToDatabase(nsIAbDirectory *aDirectory, bool aIsList);
-  void AddLdifColToDatabase(nsIAbDirectory *aDirectory, nsIAbCard *newCard,
+  nsresult str_parse_line(char* line, char** type, char** value,
+                          int* vlen) const;
+  char* str_getline(char** next) const;
+  nsresult GetLdifStringRecord(char* buf, int32_t len, int32_t& stopPos);
+  void AddLdifRowToDatabase(nsIAbDirectory* aDirectory, bool aIsList);
+  void AddLdifColToDatabase(nsIAbDirectory* aDirectory, nsIAbCard* newCard,
                             nsCString colType, nsCString column, bool bIsList);
   void ClearLdifRecordBuffer();
-  void SplitCRLFAddressField(nsCString &inputAddress, nsCString &outputLine1,
-                             nsCString &outputLine2) const;
+  void SplitCRLFAddressField(nsCString& inputAddress, nsCString& outputLine1,
+                             nsCString& outputLine2) const;
 
   bool mStoreLocAsHome;
   nsCString mLdifLine;

@@ -48,7 +48,7 @@ nsresult nsMsgMailSession::Init() {
 
 nsresult nsMsgMailSession::Shutdown() { return NS_OK; }
 
-NS_IMETHODIMP nsMsgMailSession::AddFolderListener(nsIFolderListener *aListener,
+NS_IMETHODIMP nsMsgMailSession::AddFolderListener(nsIFolderListener* aListener,
                                                   uint32_t aNotifyFlags) {
   NS_ENSURE_ARG_POINTER(aListener);
 
@@ -64,7 +64,7 @@ NS_IMETHODIMP nsMsgMailSession::AddFolderListener(nsIFolderListener *aListener,
 }
 
 NS_IMETHODIMP nsMsgMailSession::RemoveFolderListener(
-    nsIFolderListener *aListener) {
+    nsIFolderListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
 
   mListeners.RemoveElement(aListener);
@@ -75,35 +75,35 @@ NS_IMETHODIMP nsMsgMailSession::RemoveFolderListener(
   PR_BEGIN_MACRO                                                       \
   nsTObserverArray<folderListener>::ForwardIterator iter(mListeners);  \
   while (iter.HasMore()) {                                             \
-    const folderListener &fL = iter.GetNext();                         \
+    const folderListener& fL = iter.GetNext();                         \
     if (fL.mNotifyFlags & nsIFolderListener::propertyflag_)            \
       fL.mListener->propertyfunc_ params_;                             \
   }                                                                    \
   PR_END_MACRO
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemPropertyChanged(nsIMsgFolder *aItem,
-                                        const nsACString &aProperty,
-                                        const nsACString &aOldValue,
-                                        const nsACString &aNewValue) {
+nsMsgMailSession::OnItemPropertyChanged(nsIMsgFolder* aItem,
+                                        const nsACString& aProperty,
+                                        const nsACString& aOldValue,
+                                        const nsACString& aNewValue) {
   NOTIFY_FOLDER_LISTENERS(propertyChanged, OnItemPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemUnicharPropertyChanged(nsIMsgFolder *aItem,
-                                               const nsACString &aProperty,
-                                               const nsAString &aOldValue,
-                                               const nsAString &aNewValue) {
+nsMsgMailSession::OnItemUnicharPropertyChanged(nsIMsgFolder* aItem,
+                                               const nsACString& aProperty,
+                                               const nsAString& aOldValue,
+                                               const nsAString& aNewValue) {
   NOTIFY_FOLDER_LISTENERS(unicharPropertyChanged, OnItemUnicharPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemIntPropertyChanged(nsIMsgFolder *aItem,
-                                           const nsACString &aProperty,
+nsMsgMailSession::OnItemIntPropertyChanged(nsIMsgFolder* aItem,
+                                           const nsACString& aProperty,
                                            int64_t aOldValue,
                                            int64_t aNewValue) {
   NOTIFY_FOLDER_LISTENERS(intPropertyChanged, OnItemIntPropertyChanged,
@@ -112,8 +112,8 @@ nsMsgMailSession::OnItemIntPropertyChanged(nsIMsgFolder *aItem,
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
-                                            const nsACString &aProperty,
+nsMsgMailSession::OnItemBoolPropertyChanged(nsIMsgFolder* aItem,
+                                            const nsACString& aProperty,
                                             bool aOldValue, bool aNewValue) {
   NOTIFY_FOLDER_LISTENERS(boolPropertyChanged, OnItemBoolPropertyChanged,
                           (aItem, aProperty, aOldValue, aNewValue));
@@ -121,8 +121,8 @@ nsMsgMailSession::OnItemBoolPropertyChanged(nsIMsgFolder *aItem,
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::OnItemPropertyFlagChanged(nsIMsgDBHdr *aItem,
-                                            const nsACString &aProperty,
+nsMsgMailSession::OnItemPropertyFlagChanged(nsIMsgDBHdr* aItem,
+                                            const nsACString& aProperty,
                                             uint32_t aOldValue,
                                             uint32_t aNewValue) {
   NOTIFY_FOLDER_LISTENERS(propertyFlagChanged, OnItemPropertyFlagChanged,
@@ -130,27 +130,27 @@ nsMsgMailSession::OnItemPropertyFlagChanged(nsIMsgDBHdr *aItem,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::OnItemAdded(nsIMsgFolder *aParentItem,
-                                            nsISupports *aItem) {
+NS_IMETHODIMP nsMsgMailSession::OnItemAdded(nsIMsgFolder* aParentItem,
+                                            nsISupports* aItem) {
   NOTIFY_FOLDER_LISTENERS(added, OnItemAdded, (aParentItem, aItem));
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::OnItemRemoved(nsIMsgFolder *aParentItem,
-                                              nsISupports *aItem) {
+NS_IMETHODIMP nsMsgMailSession::OnItemRemoved(nsIMsgFolder* aParentItem,
+                                              nsISupports* aItem) {
   NOTIFY_FOLDER_LISTENERS(removed, OnItemRemoved, (aParentItem, aItem));
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::OnItemEvent(nsIMsgFolder *aFolder,
-                                            const nsACString &aEvent) {
+NS_IMETHODIMP nsMsgMailSession::OnItemEvent(nsIMsgFolder* aFolder,
+                                            const nsACString& aEvent) {
   NOTIFY_FOLDER_LISTENERS(event, OnItemEvent, (aFolder, aEvent));
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgMailSession::AddUserFeedbackListener(
-    nsIMsgUserFeedbackListener *aListener) {
+    nsIMsgUserFeedbackListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
 
   size_t index = mFeedbackListeners.IndexOf(aListener);
@@ -162,7 +162,7 @@ nsMsgMailSession::AddUserFeedbackListener(
 
 NS_IMETHODIMP
 nsMsgMailSession::RemoveUserFeedbackListener(
-    nsIMsgUserFeedbackListener *aListener) {
+    nsIMsgUserFeedbackListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
 
   mFeedbackListeners.RemoveElement(aListener);
@@ -170,8 +170,8 @@ nsMsgMailSession::RemoveUserFeedbackListener(
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::AlertUser(const nsAString &aMessage,
-                            nsIMsgMailNewsUrl *aUrl) {
+nsMsgMailSession::AlertUser(const nsAString& aMessage,
+                            nsIMsgMailNewsUrl* aUrl) {
   bool listenersNotified = false;
   nsTObserverArray<nsCOMPtr<nsIMsgUserFeedbackListener> >::ForwardIterator iter(
       mFeedbackListeners);
@@ -214,7 +214,7 @@ nsMsgMailSession::AlertUser(const nsAString &aMessage,
   return NS_OK;
 }
 
-nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow) {
+nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow** aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aMsgWindow);
 
   *aMsgWindow = nullptr;
@@ -256,10 +256,10 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow) {
       NS_ENSURE_SUCCESS(rv, rv);
       NS_ENSURE_TRUE(topMostWindow, NS_ERROR_FAILURE);
 
-      mozilla::dom::Document *domDocument = topMostWindow->GetDoc();
+      mozilla::dom::Document* domDocument = topMostWindow->GetDoc();
       NS_ENSURE_TRUE(domDocument, NS_ERROR_FAILURE);
 
-      mozilla::dom::Element *domElement = domDocument->GetDocumentElement();
+      mozilla::dom::Element* domElement = domDocument->GetDocumentElement();
       NS_ENSURE_TRUE(domElement, NS_ERROR_FAILURE);
 
       domElement->GetAttribute(NS_LITERAL_STRING("windowtype"), windowType);
@@ -273,13 +273,13 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow) {
     // identified the top most window
     if (more) {
       // use this for the match
-      nsIDocShell *topDocShell = topMostWindow->GetDocShell();
+      nsIDocShell* topDocShell = topMostWindow->GetDocShell();
 
       // loop for the msgWindow array to find the match
       nsCOMPtr<nsIDocShell> docShell;
 
       while (count) {
-        nsIMsgWindow *msgWindow = mWindows[--count];
+        nsIMsgWindow* msgWindow = mWindows[--count];
 
         rv = msgWindow->GetRootDocShell(getter_AddRefs(docShell));
         NS_ENSURE_SUCCESS(rv, rv);
@@ -295,14 +295,14 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow **aMsgWindow) {
   return (*aMsgWindow) ? NS_OK : NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgMailSession::AddMsgWindow(nsIMsgWindow *msgWindow) {
+NS_IMETHODIMP nsMsgMailSession::AddMsgWindow(nsIMsgWindow* msgWindow) {
   NS_ENSURE_ARG_POINTER(msgWindow);
 
   mWindows.AppendObject(msgWindow);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::RemoveMsgWindow(nsIMsgWindow *msgWindow) {
+NS_IMETHODIMP nsMsgMailSession::RemoveMsgWindow(nsIMsgWindow* msgWindow) {
   mWindows.RemoveObject(msgWindow);
   // Mac keeps a hidden window open so the app doesn't shut down when
   // the last window is closed. So don't shutdown the account manager in that
@@ -320,8 +320,8 @@ NS_IMETHODIMP nsMsgMailSession::RemoveMsgWindow(nsIMsgWindow *msgWindow) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMailSession::IsFolderOpenInWindow(nsIMsgFolder *folder,
-                                                     bool *aResult) {
+NS_IMETHODIMP nsMsgMailSession::IsFolderOpenInWindow(nsIMsgFolder* folder,
+                                                     bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = false;
@@ -341,8 +341,8 @@ NS_IMETHODIMP nsMsgMailSession::IsFolderOpenInWindow(nsIMsgFolder *folder,
 }
 
 NS_IMETHODIMP
-nsMsgMailSession::ConvertMsgURIToMsgURL(const char *aURI,
-                                        nsIMsgWindow *aMsgWindow, char **aURL) {
+nsMsgMailSession::ConvertMsgURIToMsgURL(const char* aURI,
+                                        nsIMsgWindow* aMsgWindow, char** aURL) {
   NS_ENSURE_ARG_POINTER(aURI);
   NS_ENSURE_ARG_POINTER(aURL);
 
@@ -369,7 +369,7 @@ nsMsgMailSession::ConvertMsgURIToMsgURL(const char *aURI,
 //                            locale to the defaults data dir and returns
 //                            that new defaults data dir
 //-------------------------------------------------------------------------
-nsresult nsMsgMailSession::GetSelectedLocaleDataDir(nsIFile *defaultsDir) {
+nsresult nsMsgMailSession::GetSelectedLocaleDataDir(nsIFile* defaultsDir) {
   NS_ENSURE_ARG_POINTER(defaultsDir);
 
   return NS_OK;
@@ -382,7 +382,7 @@ nsresult nsMsgMailSession::GetSelectedLocaleDataDir(nsIFile *defaultsDir) {
 //                   returning the value
 //-----------------------------------------------------------------------------
 NS_IMETHODIMP
-nsMsgMailSession::GetDataFilesDir(const char *dirName, nsIFile **dataFilesDir) {
+nsMsgMailSession::GetDataFilesDir(const char* dirName, nsIFile** dataFilesDir) {
   NS_ENSURE_ARG_POINTER(dirName);
   NS_ENSURE_ARG_POINTER(dataFilesDir);
 
@@ -489,15 +489,15 @@ void nsMsgShutdownService::AttemptShutdown() {
 }
 
 NS_IMETHODIMP nsMsgShutdownService::SetShutdownListener(
-    nsIWebProgressListener *inListener) {
+    nsIWebProgressListener* inListener) {
   NS_ENSURE_TRUE(mMsgProgress, NS_ERROR_FAILURE);
   mMsgProgress->RegisterListener(inListener);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
-                                            const char *aTopic,
-                                            const char16_t *aData) {
+NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports* aSubject,
+                                            const char* aTopic,
+                                            const char16_t* aData) {
   // Due to bug 459376 we don't always get quit-application-requested and
   // quit-application-granted. quit-application-requested is preferred, but if
   // we don't then we have to hook onto quit-application, but we don't want
@@ -610,11 +610,11 @@ NS_IMETHODIMP nsMsgShutdownService::Observe(nsISupports *aSubject,
 }
 
 // nsIUrlListener
-NS_IMETHODIMP nsMsgShutdownService::OnStartRunningUrl(nsIURI *url) {
+NS_IMETHODIMP nsMsgShutdownService::OnStartRunningUrl(nsIURI* url) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgShutdownService::OnStopRunningUrl(nsIURI *url,
+NS_IMETHODIMP nsMsgShutdownService::OnStopRunningUrl(nsIURI* url,
                                                      nsresult aExitCode) {
   mTaskIndex++;
 
@@ -628,7 +628,7 @@ NS_IMETHODIMP nsMsgShutdownService::OnStopRunningUrl(nsIURI *url,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgShutdownService::GetNumTasks(int32_t *inNumTasks) {
+NS_IMETHODIMP nsMsgShutdownService::GetNumTasks(int32_t* inNumTasks) {
   *inNumTasks = mShutdownTasks.Count();
   return NS_OK;
 }
@@ -644,7 +644,7 @@ NS_IMETHODIMP nsMsgShutdownService::CancelShutdownTasks() {
 }
 
 NS_IMETHODIMP nsMsgShutdownService::SetStatusText(
-    const nsAString &inStatusString) {
+    const nsAString& inStatusString) {
   nsString statusString(inStatusString);
   if (mMsgProgress)
     mMsgProgress->OnStatusChange(nullptr, nullptr, NS_OK,

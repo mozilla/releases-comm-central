@@ -9,7 +9,7 @@
 #include "nsMsgUtils.h"
 #include "nsString.h"
 
-nsMsgSearchValueImpl::nsMsgSearchValueImpl(nsMsgSearchValue *aInitialValue) {
+nsMsgSearchValueImpl::nsMsgSearchValueImpl(nsMsgSearchValue* aInitialValue) {
   mValue = *aInitialValue;
 }
 
@@ -32,7 +32,7 @@ NS_IMPL_GETSET(nsMsgSearchValueImpl, JunkPercent, uint32_t,
                mValue.u.junkPercent)
 
 NS_IMETHODIMP
-nsMsgSearchValueImpl::GetFolder(nsIMsgFolder **aResult) {
+nsMsgSearchValueImpl::GetFolder(nsIMsgFolder** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_TRUE(mValue.attribute == nsMsgSearchAttrib::FolderInfo,
                  NS_ERROR_ILLEGAL_VALUE);
@@ -41,7 +41,7 @@ nsMsgSearchValueImpl::GetFolder(nsIMsgFolder **aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgSearchValueImpl::SetFolder(nsIMsgFolder *aValue) {
+nsMsgSearchValueImpl::SetFolder(nsIMsgFolder* aValue) {
   NS_ENSURE_TRUE(mValue.attribute == nsMsgSearchAttrib::FolderInfo,
                  NS_ERROR_ILLEGAL_VALUE);
   mValue.u.folder = aValue;
@@ -49,14 +49,14 @@ nsMsgSearchValueImpl::SetFolder(nsIMsgFolder *aValue) {
 }
 
 NS_IMETHODIMP
-nsMsgSearchValueImpl::GetStr(nsAString &aResult) {
+nsMsgSearchValueImpl::GetStr(nsAString& aResult) {
   NS_ENSURE_TRUE(IS_STRING_ATTRIBUTE(mValue.attribute), NS_ERROR_ILLEGAL_VALUE);
   aResult = mValue.utf16String;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgSearchValueImpl::SetStr(const nsAString &aValue) {
+nsMsgSearchValueImpl::SetStr(const nsAString& aValue) {
   NS_ENSURE_TRUE(IS_STRING_ATTRIBUTE(mValue.attribute), NS_ERROR_ILLEGAL_VALUE);
   CopyUTF16toUTF8(aValue, mValue.utf8String);
   mValue.utf16String = aValue;
@@ -64,7 +64,7 @@ nsMsgSearchValueImpl::SetStr(const nsAString &aValue) {
 }
 
 NS_IMETHODIMP
-nsMsgSearchValueImpl::ToString(nsAString &aResult) {
+nsMsgSearchValueImpl::ToString(nsAString& aResult) {
   aResult.AssignLiteral("[nsIMsgSearchValue: ");
   if (IS_STRING_ATTRIBUTE(mValue.attribute)) {
     aResult.Append(mValue.utf16String);

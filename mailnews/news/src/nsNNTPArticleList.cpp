@@ -25,7 +25,7 @@ nsNNTPArticleList::~nsNNTPArticleList() {
 }
 
 NS_IMETHODIMP
-nsNNTPArticleList::Initialize(nsIMsgNewsFolder *newsFolder) {
+nsNNTPArticleList::Initialize(nsIMsgNewsFolder* newsFolder) {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(newsFolder);
 

@@ -23,25 +23,25 @@ class nsMsgSearchTerm : public nsIMsgSearchTerm {
  public:
   nsMsgSearchTerm();
   nsMsgSearchTerm(nsMsgSearchAttribValue, nsMsgSearchOpValue,
-                  nsIMsgSearchValue *, nsMsgSearchBooleanOperator,
-                  const char *arbitraryHeader);
+                  nsIMsgSearchValue*, nsMsgSearchBooleanOperator,
+                  const char* arbitraryHeader);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHTERM
 
-  nsresult DeStream(char *, int16_t length);
-  nsresult DeStreamNew(char *, int16_t length);
+  nsresult DeStream(char*, int16_t length);
+  nsresult DeStreamNew(char*, int16_t length);
 
-  nsresult GetLocalTimes(PRTime, PRTime, PRExplodedTime &, PRExplodedTime &);
+  nsresult GetLocalTimes(PRTime, PRTime, PRExplodedTime&, PRExplodedTime&);
 
   bool IsBooleanOpAND() {
     return m_booleanOp == nsMsgSearchBooleanOp::BooleanAND ? true : false;
   }
   nsMsgSearchBooleanOperator GetBooleanOp() { return m_booleanOp; }
   // maybe should return nsString &   ??
-  const char *GetArbitraryHeader() { return m_arbitraryHeader.get(); }
+  const char* GetArbitraryHeader() { return m_arbitraryHeader.get(); }
 
-  static char *EscapeQuotesInStr(const char *str);
+  static char* EscapeQuotesInStr(const char* str);
 
   nsMsgSearchAttribValue m_attribute;
   nsMsgSearchOpValue m_operator;
@@ -63,22 +63,22 @@ class nsMsgSearchTerm : public nsIMsgSearchTerm {
  protected:
   virtual ~nsMsgSearchTerm();
 
-  nsresult MatchString(const nsACString &stringToMatch, const char *charset,
-                       bool *pResult);
-  nsresult MatchString(const nsAString &stringToMatch, bool *pResult);
-  nsresult OutputValue(nsCString &outputStr);
-  nsresult ParseAttribute(char *inStream, nsMsgSearchAttribValue *attrib);
-  nsresult ParseOperator(char *inStream, nsMsgSearchOpValue *value);
-  nsresult ParseValue(char *inStream);
+  nsresult MatchString(const nsACString& stringToMatch, const char* charset,
+                       bool* pResult);
+  nsresult MatchString(const nsAString& stringToMatch, bool* pResult);
+  nsresult OutputValue(nsCString& outputStr);
+  nsresult ParseAttribute(char* inStream, nsMsgSearchAttribValue* attrib);
+  nsresult ParseOperator(char* inStream, nsMsgSearchOpValue* value);
+  nsresult ParseValue(char* inStream);
   /**
    * Switch a string to lower case, except for special database rows
    * that are not headers, but could be headers
    *
    * @param aValue  the string to switch
    */
-  void ToLowerCaseExceptSpecials(nsACString &aValue);
+  void ToLowerCaseExceptSpecials(nsACString& aValue);
   nsresult InitializeAddressBook();
-  nsresult MatchInAddressBook(const nsAString &aAddress, bool *pResult);
+  nsresult MatchInAddressBook(const nsAString& aAddress, bool* pResult);
   // fields used by search in address book
   nsCOMPtr<nsIAbDirectory> mDirectory;
 

@@ -27,8 +27,8 @@ static mozilla::LazyLogModule MsgPurgeLogModule("MsgPurge");
 
 NS_IMPL_ISUPPORTS(nsMsgPurgeService, nsIMsgPurgeService, nsIMsgSearchNotify)
 
-void OnPurgeTimer(nsITimer *timer, void *aPurgeService) {
-  nsMsgPurgeService *purgeService = (nsMsgPurgeService *)aPurgeService;
+void OnPurgeTimer(nsITimer* timer, void* aPurgeService) {
+  nsMsgPurgeService* purgeService = (nsMsgPurgeService*)aPurgeService;
   purgeService->PerformPurge();
 }
 
@@ -102,7 +102,7 @@ nsresult nsMsgPurgeService::SetupNextPurge() {
 
   mPurgeTimer = do_CreateInstance("@mozilla.org/timer;1");
   mPurgeTimer->InitWithNamedFuncCallback(
-      OnPurgeTimer, (void *)this, timeInMSUint32, nsITimer::TYPE_ONE_SHOT,
+      OnPurgeTimer, (void*)this, timeInMSUint32, nsITimer::TYPE_ONE_SHOT,
       "nsMsgPurgeService::OnPurgeTimer");
 
   return NS_OK;
@@ -172,14 +172,14 @@ nsresult nsMsgPurgeService::PerformPurge() {
             if (!curFolderLastPurgeTimeString.IsEmpty()) {
               PRTime theTime;
               PR_ParseTimeString(curFolderLastPurgeTimeString.get(), false,
-                                  &theTime);
+                                 &theTime);
               curFolderLastPurgeTime = theTime;
             }
 
             childFolder->GetURI(curFolderUri);
             MOZ_LOG(MsgPurgeLogModule, mozilla::LogLevel::Info,
                     ("%s curFolderLastPurgeTime=%s (if blank, then never)",
-                      curFolderUri.get(), curFolderLastPurgeTimeString.get()));
+                     curFolderUri.get(), curFolderLastPurgeTimeString.get()));
 
             // check if this folder is due to purge
             // has to have been purged at least mMinDelayBetweenPurges minutes
@@ -359,7 +359,7 @@ nsresult nsMsgPurgeService::PerformPurge() {
   return rv;
 }
 
-nsresult nsMsgPurgeService::SearchFolderToPurge(nsIMsgFolder *folder,
+nsresult nsMsgPurgeService::SearchFolderToPurge(nsIMsgFolder* folder,
                                                 int32_t purgeInterval) {
   nsresult rv;
   mSearchSession = do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
@@ -429,8 +429,8 @@ NS_IMETHODIMP nsMsgPurgeService::OnNewSearch() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgPurgeService::OnSearchHit(nsIMsgDBHdr *aMsgHdr,
-                                             nsIMsgFolder *aFolder) {
+NS_IMETHODIMP nsMsgPurgeService::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
+                                             nsIMsgFolder* aFolder) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
 
   nsCString messageId;

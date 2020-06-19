@@ -56,7 +56,7 @@ nsMsgFileStream::~nsMsgFileStream() {
 NS_IMPL_ISUPPORTS(nsMsgFileStream, nsIInputStream, nsIOutputStream,
                   nsITellableStream, nsISeekableStream)
 
-nsresult nsMsgFileStream::InitWithFile(nsIFile *file) {
+nsresult nsMsgFileStream::InitWithFile(nsIFile* file) {
   return file->OpenNSPRFileDesc(PR_RDWR | PR_CREATE_FILE, 0664, &mFileDesc);
 }
 
@@ -77,7 +77,7 @@ nsMsgFileStream::Seek(int32_t whence, int64_t offset) {
 }
 
 NS_IMETHODIMP
-nsMsgFileStream::Tell(int64_t *result) {
+nsMsgFileStream::Tell(int64_t* result) {
   if (mFileDesc == nullptr) return NS_BASE_STREAM_CLOSED;
 
   int64_t cnt = PR_Seek64(mFileDesc, 0, PR_SEEK_CUR);
@@ -104,7 +104,7 @@ NS_IMETHODIMP nsMsgFileStream::Close() {
 }
 
 /* unsigned long long available (); */
-NS_IMETHODIMP nsMsgFileStream::Available(uint64_t *aResult) {
+NS_IMETHODIMP nsMsgFileStream::Available(uint64_t* aResult) {
   if (!mFileDesc) return NS_BASE_STREAM_CLOSED;
 
   int64_t avail = PR_Available64(mFileDesc);
@@ -115,8 +115,8 @@ NS_IMETHODIMP nsMsgFileStream::Available(uint64_t *aResult) {
 }
 
 /* [noscript] unsigned long read (in charPtr aBuf, in unsigned long aCount); */
-NS_IMETHODIMP nsMsgFileStream::Read(char *aBuf, uint32_t aCount,
-                                    uint32_t *aResult) {
+NS_IMETHODIMP nsMsgFileStream::Read(char* aBuf, uint32_t aCount,
+                                    uint32_t* aResult) {
   if (!mFileDesc) {
     *aResult = 0;
     return NS_OK;
@@ -132,19 +132,19 @@ NS_IMETHODIMP nsMsgFileStream::Read(char *aBuf, uint32_t aCount,
 /* [noscript] unsigned long readSegments (in nsWriteSegmentFun aWriter, in
  * voidPtr aClosure, in unsigned long aCount); */
 NS_IMETHODIMP nsMsgFileStream::ReadSegments(nsWriteSegmentFun aWriter,
-                                            void *aClosure, uint32_t aCount,
-                                            uint32_t *_retval) {
+                                            void* aClosure, uint32_t aCount,
+                                            uint32_t* _retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* boolean isNonBlocking (); */
-NS_IMETHODIMP nsMsgFileStream::IsNonBlocking(bool *aNonBlocking) {
+NS_IMETHODIMP nsMsgFileStream::IsNonBlocking(bool* aNonBlocking) {
   *aNonBlocking = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgFileStream::Write(const char *buf, uint32_t count, uint32_t *result) {
+nsMsgFileStream::Write(const char* buf, uint32_t count, uint32_t* result) {
   if (mFileDesc == nullptr) return NS_BASE_STREAM_CLOSED;
 
   int32_t cnt = PR_Write(mFileDesc, buf, count);
@@ -166,8 +166,8 @@ nsMsgFileStream::Flush(void) {
 }
 
 NS_IMETHODIMP
-nsMsgFileStream::WriteFrom(nsIInputStream *inStr, uint32_t count,
-                           uint32_t *_retval) {
+nsMsgFileStream::WriteFrom(nsIInputStream* inStr, uint32_t count,
+                           uint32_t* _retval) {
   MOZ_ASSERT_UNREACHABLE("WriteFrom (see source comment)");
   return NS_ERROR_NOT_IMPLEMENTED;
   // File streams intentionally do not support this method.
@@ -176,8 +176,8 @@ nsMsgFileStream::WriteFrom(nsIInputStream *inStr, uint32_t count,
 }
 
 NS_IMETHODIMP
-nsMsgFileStream::WriteSegments(nsReadSegmentFun reader, void *closure,
-                               uint32_t count, uint32_t *_retval) {
+nsMsgFileStream::WriteSegments(nsReadSegmentFun reader, void* closure,
+                               uint32_t count, uint32_t* _retval) {
   MOZ_ASSERT_UNREACHABLE("WriteSegments (see source comment)");
   return NS_ERROR_NOT_IMPLEMENTED;
   // File streams intentionally do not support this method.

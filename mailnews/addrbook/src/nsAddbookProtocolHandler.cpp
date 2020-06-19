@@ -35,24 +35,24 @@ nsAddbookProtocolHandler::~nsAddbookProtocolHandler() {}
 
 NS_IMPL_ISUPPORTS(nsAddbookProtocolHandler, nsIProtocolHandler)
 
-NS_IMETHODIMP nsAddbookProtocolHandler::GetScheme(nsACString &aScheme) {
+NS_IMETHODIMP nsAddbookProtocolHandler::GetScheme(nsACString& aScheme) {
   aScheme = "addbook";
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAddbookProtocolHandler::GetDefaultPort(int32_t *aDefaultPort) {
+NS_IMETHODIMP nsAddbookProtocolHandler::GetDefaultPort(int32_t* aDefaultPort) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAddbookProtocolHandler::GetProtocolFlags(uint32_t *aUritype) {
+NS_IMETHODIMP nsAddbookProtocolHandler::GetProtocolFlags(uint32_t* aUritype) {
   *aUritype = URI_STD | URI_LOADABLE_BY_ANYONE | URI_FORBIDS_COOKIE_ACCESS;
   return NS_OK;
 }
 
 nsresult nsAddbookProtocolHandler::NewURI(
-    const nsACString &aSpec,
-    const char *aOriginCharset,  // ignored
-    nsIURI *aBaseURI, nsIURI **_retval) {
+    const nsACString& aSpec,
+    const char* aOriginCharset,  // ignored
+    nsIURI* aBaseURI, nsIURI** _retval) {
   nsresult rv;
   nsCOMPtr<nsIURI> uri;
   rv = NS_MutateURI(new nsAddbookUrl::Mutator()).SetSpec(aSpec).Finalize(uri);
@@ -63,16 +63,16 @@ nsresult nsAddbookProtocolHandler::NewURI(
 }
 
 NS_IMETHODIMP
-nsAddbookProtocolHandler::AllowPort(int32_t port, const char *scheme,
-                                    bool *_retval) {
+nsAddbookProtocolHandler::AllowPort(int32_t port, const char* scheme,
+                                    bool* _retval) {
   // don't override anything.
   *_retval = false;
   return NS_OK;
 }
 
 nsresult nsAddbookProtocolHandler::GenerateXMLOutputChannel(
-    nsString &aOutput, nsIAddbookUrl *addbookUrl, nsIURI *aURI,
-    nsILoadInfo *aLoadInfo, nsIChannel **_retval) {
+    nsString& aOutput, nsIAddbookUrl* addbookUrl, nsIURI* aURI,
+    nsILoadInfo* aLoadInfo, nsIChannel** _retval) {
   nsresult rv;
   nsCOMPtr<nsIStringInputStream> inStr(
       do_CreateInstance("@mozilla.org/io/string-input-stream;1", &rv));
@@ -101,8 +101,8 @@ nsresult nsAddbookProtocolHandler::GenerateXMLOutputChannel(
 }
 
 NS_IMETHODIMP
-nsAddbookProtocolHandler::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
-                                     nsIChannel **_retval) {
+nsAddbookProtocolHandler::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
+                                     nsIChannel** _retval) {
   nsresult rv;
   nsCOMPtr<nsIAddbookUrl> addbookUrl = do_QueryInterface(aURI, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -173,7 +173,7 @@ nsAddbookProtocolHandler::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
 }
 
 nsresult nsAddbookProtocolHandler::GeneratePrintOutput(
-    nsIAddbookUrl *addbookUrl, nsString &aOutput) {
+    nsIAddbookUrl* addbookUrl, nsString& aOutput) {
   NS_ENSURE_ARG_POINTER(addbookUrl);
 
   nsAutoCString uri;
@@ -256,9 +256,9 @@ class CardComparator {
   }
 };
 
-nsresult EnumerateCards(nsIAbDirectory *aDirectory,
-                        nsTArray<CardEnclosure> &aCards,
-                        nsIStringBundle *aBundle) {
+nsresult EnumerateCards(nsIAbDirectory* aDirectory,
+                        nsTArray<CardEnclosure>& aCards,
+                        nsIStringBundle* aBundle) {
   if (!aDirectory) return NS_ERROR_UNEXPECTED;
 
   nsCOMPtr<nsISimpleEnumerator> cardsEnumerator;
@@ -283,8 +283,8 @@ nsresult EnumerateCards(nsIAbDirectory *aDirectory,
   return NS_OK;
 }
 
-nsresult nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory *aDirectory,
-                                                     nsString &aOutput) {
+nsresult nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory* aDirectory,
+                                                     nsString& aOutput) {
   nsresult rv;
 
   aOutput.AppendLiteral(

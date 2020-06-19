@@ -10,14 +10,14 @@
 
 class nsWMUtils {
  public:
-  static nsresult FindWMKey(nsIWindowsRegKey **aKey);
-  static nsresult GetRootFolder(nsIFile **aRootFolder);
-  static nsresult GetOEAccountFiles(nsCOMArray<nsIFile> &aFileArray);
-  static nsresult GetOEAccountFilesInFolder(nsIFile *aFolder,
-                                            nsCOMArray<nsIFile> &aFileArray);
-  static nsresult MakeXMLdoc(mozilla::dom::Document **aXmlDoc, nsIFile *aFile);
-  static nsresult GetValueForTag(mozilla::dom::Document *aXmlDoc,
-                                 const char *aTagName, nsAString &aValue);
+  static nsresult FindWMKey(nsIWindowsRegKey** aKey);
+  static nsresult GetRootFolder(nsIFile** aRootFolder);
+  static nsresult GetOEAccountFiles(nsCOMArray<nsIFile>& aFileArray);
+  static nsresult GetOEAccountFilesInFolder(nsIFile* aFolder,
+                                            nsCOMArray<nsIFile>& aFileArray);
+  static nsresult MakeXMLdoc(mozilla::dom::Document** aXmlDoc, nsIFile* aFile);
+  static nsresult GetValueForTag(mozilla::dom::Document* aXmlDoc,
+                                 const char* aTagName, nsAString& aValue);
 };
 
 #endif /* nsWMUtils_h___ */

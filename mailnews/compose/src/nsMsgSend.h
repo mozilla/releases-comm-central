@@ -194,47 +194,47 @@ class nsMsgComposeAndSend : public nsIMsgSend,
   NS_IMETHOD DeliverMessage();
   NS_IMETHOD DeliverFileAsMail();
   NS_IMETHOD DeliverFileAsNews();
-  void DoDeliveryExitProcessing(nsIURI *aUrl, nsresult aExitCode,
+  void DoDeliveryExitProcessing(nsIURI* aUrl, nsresult aExitCode,
                                 bool aCheckForMail);
-  nsresult FormatStringWithSMTPHostNameByName(const char *aMsgName,
-                                              nsAString &aString);
+  nsresult FormatStringWithSMTPHostNameByName(const char* aMsgName,
+                                              nsAString& aString);
 
   nsresult DoFcc();
-  nsresult StartMessageCopyOperation(nsIFile *aFileSpec, nsMsgDeliverMode mode,
-                                     const nsCString &dest_uri);
+  nsresult StartMessageCopyOperation(nsIFile* aFileSpec, nsMsgDeliverMode mode,
+                                     const nsCString& dest_uri);
 
   nsresult SendToMagicFolder(nsMsgDeliverMode flag);
 
   // For the folderURL return the corresponding pointer to the incoming server.
-  nsresult GetIncomingServer(const char *folderURL,
-                             nsIMsgIncomingServer **aServer);
+  nsresult GetIncomingServer(const char* folderURL,
+                             nsIMsgIncomingServer** aServer);
 
   // Check to see if it's ok to save msgs to the configured folder.
-  bool CanSaveMessagesToFolder(const char *folderURL);
+  bool CanSaveMessagesToFolder(const char* folderURL);
 
   //
   // FCC operations...
   //
-  nsresult MimeDoFCC(nsIFile *input_file, nsMsgDeliverMode mode,
-                     const char *bcc_header, const char *fcc_header,
-                     const char *news_url);
+  nsresult MimeDoFCC(nsIFile* input_file, nsMsgDeliverMode mode,
+                     const char* bcc_header, const char* fcc_header,
+                     const char* news_url);
 
   // Init() will allow for either message creation without delivery or full
   // message creation and send operations
   //
-  nsresult Init(nsIMsgIdentity *aUserIdentity, const char *aAccountKey,
-                nsMsgCompFields *fields, nsIFile *sendFile, bool digest_p,
+  nsresult Init(nsIMsgIdentity* aUserIdentity, const char* aAccountKey,
+                nsMsgCompFields* fields, nsIFile* sendFile, bool digest_p,
                 bool dont_deliver_p, nsMsgDeliverMode mode,
-                nsIMsgDBHdr *msgToReplace, const char *attachment1_type,
-                const nsACString &attachment1_body, nsIArray *attachments,
-                nsIArray *preloaded_attachments, const nsAString &password,
-                const nsACString &aOriginalMsgURI, MSG_ComposeType aType);
+                nsIMsgDBHdr* msgToReplace, const char* attachment1_type,
+                const nsACString& attachment1_body, nsIArray* attachments,
+                nsIArray* preloaded_attachments, const nsAString& password,
+                const nsACString& aOriginalMsgURI, MSG_ComposeType aType);
 
   //
   // Setup the composition fields
   //
-  nsresult InitCompositionFields(nsMsgCompFields *fields,
-                                 const nsACString &aOriginalMsgURI,
+  nsresult InitCompositionFields(nsMsgCompFields* fields,
+                                 const nsACString& aOriginalMsgURI,
                                  MSG_ComposeType aType);
 
   NS_IMETHOD GetBodyFromEditor();
@@ -242,34 +242,34 @@ class nsMsgComposeAndSend : public nsIMsgSend,
   //
   // Attachment processing...
   //
-  nsresult HackAttachments(nsIArray *attachments,
-                           nsIArray *preloaded_attachments);
+  nsresult HackAttachments(nsIArray* attachments,
+                           nsIArray* preloaded_attachments);
   nsresult CountCompFieldAttachments();
   nsresult AddCompFieldLocalAttachments();
   nsresult AddCompFieldRemoteAttachments(uint32_t aStartLocation,
-                                         int32_t *aMailboxCount,
-                                         int32_t *aNewsCount);
+                                         int32_t* aMailboxCount,
+                                         int32_t* aNewsCount);
 
   // Deal with multipart related data
-  nsresult ProcessMultipartRelated(int32_t *aMailboxCount, int32_t *aNewsCount);
-  nsresult GetEmbeddedObjectInfo(mozilla::dom::Element *domElement,
-                                 nsMsgAttachmentData *attachment,
-                                 bool *acceptObject);
+  nsresult ProcessMultipartRelated(int32_t* aMailboxCount, int32_t* aNewsCount);
+  nsresult GetEmbeddedObjectInfo(mozilla::dom::Element* domElement,
+                                 nsMsgAttachmentData* attachment,
+                                 bool* acceptObject);
   uint32_t GetMultipartRelatedCount(bool forceToBeCalculated = false);
   nsCOMPtr<nsIArray> mEmbeddedObjectList;  // it's initialized when calling
                                            // GetMultipartRelatedCount
 
   // Body processing
-  nsresult SnarfAndCopyBody(const nsACString &attachment1_body,
-                            const char *attachment1_type);
+  nsresult SnarfAndCopyBody(const nsACString& attachment1_body,
+                            const char* attachment1_type);
 
   int32_t PreProcessPart(
-      nsMsgAttachmentHandler *ma,
-      nsMsgSendPart *toppart);  // The very top most container of the message
+      nsMsgAttachmentHandler* ma,
+      nsMsgSendPart* toppart);  // The very top most container of the message
                                 // For part processing
 
   nsresult SetStatusMessage(
-      const nsString &aMsgString);  // Status message method
+      const nsString& aMsgString);  // Status message method
 
   //
   // All vars necessary for this implementation
@@ -326,18 +326,18 @@ class nsMsgComposeAndSend : public nsIMsgSend,
   //
   // The first attachment, if any (typed in by the user.)
   //
-  char *m_attachment1_type;
-  char *m_attachment1_encoding;
-  char *m_attachment1_body;
+  char* m_attachment1_type;
+  char* m_attachment1_encoding;
+  char* m_attachment1_body;
   uint32_t m_attachment1_body_length;
-  char *mOriginalHTMLBody;
+  char* mOriginalHTMLBody;
 
   // The plaintext form of the first attachment, if needed.
   RefPtr<nsMsgAttachmentHandler> m_plaintext;
 
   // The multipart/related save object for HTML text.
-  nsMsgSendPart *m_related_part;
-  nsMsgSendPart *m_related_body_part;
+  nsMsgSendPart* m_related_part;
+  nsMsgSendPart* m_related_body_part;
 
   //
   // Subsequent attachments, if any.
@@ -387,7 +387,7 @@ class nsMsgComposeAndSend : public nsIMsgSend,
 
  protected:
   nsCOMPtr<nsIStringBundle> mComposeBundle;
-  nsresult GetNotificationCallbacks(nsIInterfaceRequestor **aCallbacks);
+  nsresult GetNotificationCallbacks(nsIInterfaceRequestor** aCallbacks);
 
   virtual ~nsMsgComposeAndSend();
   nsresult FilterSentMessage();
@@ -411,11 +411,11 @@ class nsMsgComposeAndSend : public nsIMsgSend,
 //
 // These C routines should only be used by the nsMsgSendPart class.
 //
-extern nsresult mime_write_message_body(nsIMsgSend *state, const char *buf,
+extern nsresult mime_write_message_body(nsIMsgSend* state, const char* buf,
                                         uint32_t size);
-extern char *mime_get_stream_write_buffer(void);
-extern nsresult mime_encoder_output_fn(const char *buf, int32_t size,
-                                       void *closure);
+extern char* mime_get_stream_write_buffer(void);
+extern nsresult mime_encoder_output_fn(const char* buf, int32_t size,
+                                       void* closure);
 extern bool UseQuotedPrintable(void);
 
 #endif /*  __MSGSEND_H__ */

@@ -45,9 +45,9 @@ typedef struct MimeInlineText MimeInlineText;
 
 struct MimeInlineTextClass {
   MimeLeafClass leaf;
-  int (*rot13_line)(MimeObject *obj, char *line, int32_t length);
-  int (*convert_line_charset)(MimeObject *obj, char *line, int32_t length);
-  int (*initialize_charset)(MimeObject *obj);
+  int (*rot13_line)(MimeObject* obj, char* line, int32_t length);
+  int (*convert_line_charset)(MimeObject* obj, char* line, int32_t length);
+  int (*initialize_charset)(MimeObject* obj);
 };
 
 extern MimeInlineTextClass mimeInlineTextClass;
@@ -57,20 +57,20 @@ extern MimeInlineTextClass mimeInlineTextClass;
 
 struct MimeInlineText {
   MimeLeaf leaf; /* superclass variables */
-  char *charset; /* The charset from the content-type of this
+  char* charset; /* The charset from the content-type of this
                     object, or the caller-specified overrides
                     or defaults. */
   bool charsetOverridable;
   bool needUpdateMsgWinCharset;
-  char *cbuffer; /* Buffer used for charset conversion. */
+  char* cbuffer; /* Buffer used for charset conversion. */
   int32_t cbuffer_size;
 
   bool inputAutodetect;
   bool initializeCharset;
   int32_t lastLineInDam;
   int32_t curDamOffset;
-  char *lineDamBuffer;
-  char **lineDamPtrs;
+  char* lineDamBuffer;
+  char** lineDamPtrs;
 };
 
 #define MimeInlineTextClassInitializer(ITYPE, CSUPER) \

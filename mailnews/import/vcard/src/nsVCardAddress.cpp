@@ -22,11 +22,11 @@ nsVCardAddress::nsVCardAddress() {}
 
 nsVCardAddress::~nsVCardAddress() {}
 
-nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
-                                         nsIFile *pSrc,
-                                         nsIAbDirectory *pDirectory,
-                                         nsString &errors,
-                                         uint32_t *pProgress) {
+nsresult nsVCardAddress::ImportAddresses(bool* pAbort, const char16_t* pName,
+                                         nsIFile* pSrc,
+                                         nsIAbDirectory* pDirectory,
+                                         nsString& errors,
+                                         uint32_t* pProgress) {
   // Open the source file for reading, read each line and process it!
   nsCOMPtr<nsIInputStream> inputStream;
   nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputStream), pSrc);
@@ -66,7 +66,7 @@ nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
                                               getter_AddRefs(cardFromVCard));
       NS_ENSURE_SUCCESS(rv, rv);
 
-      nsIAbCard *outCard;
+      nsIAbCard* outCard;
       rv = pDirectory->AddCard(cardFromVCard, &outCard);
       NS_ENSURE_SUCCESS(rv, rv);
 
@@ -93,8 +93,8 @@ nsresult nsVCardAddress::ImportAddresses(bool *pAbort, const char16_t *pName,
   return NS_OK;
 }
 
-nsresult nsVCardAddress::ReadRecord(nsILineInputStream *aLineStream,
-                                    nsCString &aRecord, bool *aMore) {
+nsresult nsVCardAddress::ReadRecord(nsILineInputStream* aLineStream,
+                                    nsCString& aRecord, bool* aMore) {
   bool more = true;
   nsresult rv;
   nsCString line;

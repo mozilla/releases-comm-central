@@ -44,10 +44,10 @@ class JaBaseCppUrl : public nsMsgMailNewsUrl,
   JaBaseCppUrl() {}
 
   // nsIMsgMailNewsUrl overrides
-  NS_IMETHOD GetFolder(nsIMsgFolder **aFolder) override;
-  NS_IMETHOD SetFolder(nsIMsgFolder *aFolder) override;
-  NS_IMETHOD IsUrlType(uint32_t type, bool *isType) override;
-  NS_IMETHOD GetServer(nsIMsgIncomingServer **aIncomingServer) override;
+  NS_IMETHOD GetFolder(nsIMsgFolder** aFolder) override;
+  NS_IMETHOD SetFolder(nsIMsgFolder* aFolder) override;
+  NS_IMETHOD IsUrlType(uint32_t type, bool* isType) override;
+  NS_IMETHOD GetServer(nsIMsgIncomingServer** aIncomingServer) override;
 
  protected:
   virtual ~JaBaseCppUrl() {}
@@ -92,7 +92,7 @@ class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
                 public nsIInterfaceRequestor,
                 public nsISupportsWeakReference {
    public:
-    explicit Super(JaCppUrlDelegator *aFakeThis) { mFakeThis = aFakeThis; }
+    explicit Super(JaCppUrlDelegator* aFakeThis) { mFakeThis = aFakeThis; }
     NS_DECL_ISUPPORTS
     NS_FORWARD_NSIMSGMAILNEWSURL(mFakeThis->JaBaseCppUrl::)
     NS_FORWARD_NSIURI(mFakeThis->JaBaseCppUrl::)
@@ -104,7 +104,7 @@ class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
     NS_FORWARD_NSISUPPORTSWEAKREFERENCE(mFakeThis->JaBaseCppUrl::)
    private:
     virtual ~Super() {}
-    JaCppUrlDelegator *mFakeThis;
+    JaCppUrlDelegator* mFakeThis;
   };
 
  private:
@@ -121,7 +121,7 @@ class JaCppUrlDelegator : public JaBaseCppUrl, public msgIOverride {
   nsCOMPtr<nsIMsgMailNewsUrl> mCppBase;
 
   RefPtr<DelegateList> mDelegateList;
-  nsDataHashtable<nsCStringHashKey, bool> *mMethods;
+  nsDataHashtable<nsCStringHashKey, bool>* mMethods;
 };
 
 }  // namespace mailnews

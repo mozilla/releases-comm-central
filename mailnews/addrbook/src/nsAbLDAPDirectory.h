@@ -23,26 +23,26 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
 
   nsAbLDAPDirectory();
 
-  NS_IMETHOD Init(const char *aUri) override;
+  NS_IMETHOD Init(const char* aUri) override;
 
   // nsIAbDirectory methods
-  NS_IMETHOD GetPropertiesChromeURI(nsACString &aResult) override;
-  NS_IMETHOD GetURI(nsACString &aURI) override;
-  NS_IMETHOD GetChildNodes(nsISimpleEnumerator **result) override;
-  NS_IMETHOD GetChildCards(nsISimpleEnumerator **result) override;
-  NS_IMETHOD GetIsQuery(bool *aResult) override;
-  NS_IMETHOD Search(const nsAString &query,
-                    nsIAbDirSearchListener *listener) override;
-  NS_IMETHOD HasCard(nsIAbCard *cards, bool *hasCard) override;
-  NS_IMETHOD GetSupportsMailingLists(bool *aSupportsMailingsLists) override;
-  NS_IMETHOD GetReadOnly(bool *aReadOnly) override;
-  NS_IMETHOD GetIsRemote(bool *aIsRemote) override;
-  NS_IMETHOD GetIsSecure(bool *aIsRemote) override;
-  NS_IMETHOD UseForAutocomplete(const nsACString &aIdentityKey,
-                                bool *aResult) override;
-  NS_IMETHOD AddCard(nsIAbCard *aChildCard, nsIAbCard **aAddedCard) override;
-  NS_IMETHOD ModifyCard(nsIAbCard *aModifiedCard) override;
-  NS_IMETHOD DeleteCards(const nsTArray<RefPtr<nsIAbCard>> &aCards) override;
+  NS_IMETHOD GetPropertiesChromeURI(nsACString& aResult) override;
+  NS_IMETHOD GetURI(nsACString& aURI) override;
+  NS_IMETHOD GetChildNodes(nsISimpleEnumerator** result) override;
+  NS_IMETHOD GetChildCards(nsISimpleEnumerator** result) override;
+  NS_IMETHOD GetIsQuery(bool* aResult) override;
+  NS_IMETHOD Search(const nsAString& query,
+                    nsIAbDirSearchListener* listener) override;
+  NS_IMETHOD HasCard(nsIAbCard* cards, bool* hasCard) override;
+  NS_IMETHOD GetSupportsMailingLists(bool* aSupportsMailingsLists) override;
+  NS_IMETHOD GetReadOnly(bool* aReadOnly) override;
+  NS_IMETHOD GetIsRemote(bool* aIsRemote) override;
+  NS_IMETHOD GetIsSecure(bool* aIsRemote) override;
+  NS_IMETHOD UseForAutocomplete(const nsACString& aIdentityKey,
+                                bool* aResult) override;
+  NS_IMETHOD AddCard(nsIAbCard* aChildCard, nsIAbCard** aAddedCard) override;
+  NS_IMETHOD ModifyCard(nsIAbCard* aModifiedCard) override;
+  NS_IMETHOD DeleteCards(const nsTArray<RefPtr<nsIAbCard>>& aCards) override;
 
   NS_DECL_NSIABLDAPDIRECTORY
   NS_DECL_NSIABDIRSEARCHLISTENER

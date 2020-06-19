@@ -66,7 +66,7 @@ NS_INTERFACE_MAP_END_INHERITING(nsMsgMailNewsUrl)
  * canonicalization.
  */
 
-nsresult nsNntpUrl::SetSpecInternal(const nsACString &aSpec) {
+nsresult nsNntpUrl::SetSpecInternal(const nsACString& aSpec) {
   // For [s]news: URIs, we need to munge the spec if it is no authority, because
   // the URI parser guesses the wrong thing otherwise
   nsCString parseSpec(aSpec);
@@ -230,13 +230,13 @@ NS_IMETHODIMP nsNntpUrl::SetGetOldMessages(bool aGetOldMessages) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetGetOldMessages(bool *aGetOldMessages) {
+NS_IMETHODIMP nsNntpUrl::GetGetOldMessages(bool* aGetOldMessages) {
   NS_ENSURE_ARG(aGetOldMessages);
   *aGetOldMessages = m_getOldMessages;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetNewsAction(nsNewsAction *aNewsAction) {
+NS_IMETHODIMP nsNntpUrl::GetNewsAction(nsNewsAction* aNewsAction) {
   if (aNewsAction) *aNewsAction = m_newsAction;
   return NS_OK;
 }
@@ -246,33 +246,33 @@ NS_IMETHODIMP nsNntpUrl::SetNewsAction(nsNewsAction aNewsAction) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetGroup(nsACString &group) {
+NS_IMETHODIMP nsNntpUrl::GetGroup(nsACString& group) {
   group = m_group;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetMessageID(nsACString &messageID) {
+NS_IMETHODIMP nsNntpUrl::GetMessageID(nsACString& messageID) {
   messageID = m_messageID;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetKey(nsMsgKey *key) {
+NS_IMETHODIMP nsNntpUrl::GetKey(nsMsgKey* key) {
   NS_ENSURE_ARG_POINTER(key);
   *key = m_key;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetNormalizedSpec(nsACString &aPrincipalSpec) {
+NS_IMETHODIMP nsNntpUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsNntpUrl::SetUri(const char *aURI) {
+NS_IMETHODIMP nsNntpUrl::SetUri(const char* aURI) {
   mURI = aURI;
   return NS_OK;
 }
 
 // from nsIMsgMessageUrl
-NS_IMETHODIMP nsNntpUrl::GetUri(char **aURI) {
+NS_IMETHODIMP nsNntpUrl::GetUri(char** aURI) {
   nsresult rv = NS_OK;
 
   // if we have been given a uri to associate with this url, then use it
@@ -292,12 +292,12 @@ NS_IMETHODIMP nsNntpUrl::GetUri(char **aURI) {
 NS_IMPL_GETSET(nsNntpUrl, AddDummyEnvelope, bool, m_addDummyEnvelope)
 NS_IMPL_GETSET(nsNntpUrl, CanonicalLineEnding, bool, m_canonicalLineEnding)
 
-NS_IMETHODIMP nsNntpUrl::SetMessageFile(nsIFile *aFile) {
+NS_IMETHODIMP nsNntpUrl::SetMessageFile(nsIFile* aFile) {
   m_messageFile = aFile;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetMessageFile(nsIFile **aFile) {
+NS_IMETHODIMP nsNntpUrl::GetMessageFile(nsIFile** aFile) {
   if (aFile) NS_IF_ADDREF(*aFile = m_messageFile);
   return NS_OK;
 }
@@ -306,23 +306,23 @@ NS_IMETHODIMP nsNntpUrl::GetMessageFile(nsIFile **aFile) {
 // End nsINntpUrl specific support
 ////////////////////////////////////////////////////////////////////////////////
 
-nsresult nsNntpUrl::SetMessageToPost(nsINNTPNewsgroupPost *post) {
+nsresult nsNntpUrl::SetMessageToPost(nsINNTPNewsgroupPost* post) {
   m_newsgroupPost = post;
   if (post) SetNewsAction(nsINntpUrl::ActionPostArticle);
   return NS_OK;
 }
 
-nsresult nsNntpUrl::GetMessageToPost(nsINNTPNewsgroupPost **aPost) {
+nsresult nsNntpUrl::GetMessageToPost(nsINNTPNewsgroupPost** aPost) {
   NS_ENSURE_ARG_POINTER(aPost);
   NS_IF_ADDREF(*aPost = m_newsgroupPost);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::SetMessageHeader(nsIMsgDBHdr *aMsgHdr) {
+NS_IMETHODIMP nsNntpUrl::SetMessageHeader(nsIMsgDBHdr* aMsgHdr) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetMessageHeader(nsIMsgDBHdr **aMsgHdr) {
+NS_IMETHODIMP nsNntpUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
   nsresult rv;
 
   nsCOMPtr<nsINntpService> nntpService =
@@ -345,7 +345,7 @@ NS_IMETHODIMP nsNntpUrl::GetMessageHeader(nsIMsgDBHdr **aMsgHdr) {
   return msgService->MessageURIToMsgHdr(spec.get(), aMsgHdr);
 }
 
-NS_IMETHODIMP nsNntpUrl::IsUrlType(uint32_t type, bool *isType) {
+NS_IMETHODIMP nsNntpUrl::IsUrlType(uint32_t type, bool* isType) {
   NS_ENSURE_ARG(isType);
 
   switch (type) {
@@ -360,7 +360,7 @@ NS_IMETHODIMP nsNntpUrl::IsUrlType(uint32_t type, bool *isType) {
 }
 
 NS_IMETHODIMP
-nsNntpUrl::GetOriginalSpec(char **aSpec) {
+nsNntpUrl::GetOriginalSpec(char** aSpec) {
   NS_ENSURE_ARG_POINTER(aSpec);
   *aSpec = ToNewCString(mOriginalSpec);
   if (!*aSpec) return NS_ERROR_OUT_OF_MEMORY;
@@ -368,13 +368,13 @@ nsNntpUrl::GetOriginalSpec(char **aSpec) {
 }
 
 NS_IMETHODIMP
-nsNntpUrl::SetOriginalSpec(const char *aSpec) {
+nsNntpUrl::SetOriginalSpec(const char* aSpec) {
   mOriginalSpec = aSpec;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpUrl::GetServer(nsIMsgIncomingServer **aServer) {
+nsNntpUrl::GetServer(nsIMsgIncomingServer** aServer) {
   NS_ENSURE_ARG_POINTER(aServer);
 
   nsresult rv;
@@ -425,7 +425,7 @@ nsNntpUrl::GetServer(nsIMsgIncomingServer **aServer) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetFolder(nsIMsgFolder **msgFolder) {
+NS_IMETHODIMP nsNntpUrl::GetFolder(nsIMsgFolder** msgFolder) {
   NS_ENSURE_ARG_POINTER(msgFolder);
 
   nsresult rv;
@@ -458,11 +458,11 @@ NS_IMETHODIMP nsNntpUrl::GetFolder(nsIMsgFolder **msgFolder) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   return newsFolder->QueryInterface(NS_GET_IID(nsIMsgFolder),
-                                    (void **)msgFolder);
+                                    (void**)msgFolder);
 }
 
 NS_IMETHODIMP
-nsNntpUrl::GetFolderCharset(char **aCharacterSet) {
+nsNntpUrl::GetFolderCharset(char** aCharacterSet) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = GetFolder(getter_AddRefs(folder));
   // don't assert here.  this can happen if there is no message folder
@@ -474,7 +474,7 @@ nsNntpUrl::GetFolderCharset(char **aCharacterSet) {
   return rv;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetFolderCharsetOverride(bool *aCharacterSetOverride) {
+NS_IMETHODIMP nsNntpUrl::GetFolderCharsetOverride(bool* aCharacterSetOverride) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -484,7 +484,7 @@ NS_IMETHODIMP nsNntpUrl::GetFolderCharsetOverride(bool *aCharacterSetOverride) {
   return rv;
 }
 
-NS_IMETHODIMP nsNntpUrl::GetCharsetOverRide(char **aCharacterSet) {
+NS_IMETHODIMP nsNntpUrl::GetCharsetOverRide(char** aCharacterSet) {
   if (!mCharsetOverride.IsEmpty())
     *aCharacterSet = ToNewCString(mCharsetOverride);
   else
@@ -492,12 +492,12 @@ NS_IMETHODIMP nsNntpUrl::GetCharsetOverRide(char **aCharacterSet) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpUrl::SetCharsetOverRide(const char *aCharacterSet) {
+NS_IMETHODIMP nsNntpUrl::SetCharsetOverRide(const char* aCharacterSet) {
   mCharsetOverride = aCharacterSet;
   return NS_OK;
 }
 
-nsresult nsNntpUrl::Clone(nsIURI **_retval) {
+nsresult nsNntpUrl::Clone(nsIURI** _retval) {
   nsresult rv;
   rv = nsMsgMailNewsUrl::Clone(_retval);
   NS_ENSURE_SUCCESS(rv, rv);

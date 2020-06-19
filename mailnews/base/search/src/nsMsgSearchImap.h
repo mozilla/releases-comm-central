@@ -13,16 +13,16 @@
 
 class nsMsgSearchOnlineMail : public nsMsgSearchAdapter {
  public:
-  nsMsgSearchOnlineMail(nsMsgSearchScopeTerm *scope, nsIArray *termList);
+  nsMsgSearchOnlineMail(nsMsgSearchScopeTerm* scope, nsIArray* termList);
   virtual ~nsMsgSearchOnlineMail();
 
   NS_IMETHOD ValidateTerms() override;
-  NS_IMETHOD Search(bool *aDone) override;
-  NS_IMETHOD GetEncoding(char **result) override;
-  NS_IMETHOD AddResultElement(nsIMsgDBHdr *) override;
+  NS_IMETHOD Search(bool* aDone) override;
+  NS_IMETHOD GetEncoding(char** result) override;
+  NS_IMETHOD AddResultElement(nsIMsgDBHdr*) override;
 
-  static nsresult Encode(nsCString &ppEncoding, nsIArray *searchTerms,
-                         const char16_t *destCharset);
+  static nsresult Encode(nsCString& ppEncoding, nsIArray* searchTerms,
+                         const char16_t* destCharset);
 
  protected:
   nsCString m_encoding;

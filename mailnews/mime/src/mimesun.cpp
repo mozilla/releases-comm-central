@@ -16,18 +16,18 @@
 MimeDefClass(MimeSunAttachment, MimeSunAttachmentClass, mimeSunAttachmentClass,
              &MIME_SUPERCLASS);
 
-static MimeMultipartBoundaryType MimeSunAttachment_check_boundary(MimeObject *,
-                                                                  const char *,
+static MimeMultipartBoundaryType MimeSunAttachment_check_boundary(MimeObject*,
+                                                                  const char*,
                                                                   int32_t);
-static int MimeSunAttachment_create_child(MimeObject *);
-static int MimeSunAttachment_parse_child_line(MimeObject *, const char *,
-                                              int32_t, bool);
-static int MimeSunAttachment_parse_begin(MimeObject *);
-static int MimeSunAttachment_parse_eof(MimeObject *, bool);
+static int MimeSunAttachment_create_child(MimeObject*);
+static int MimeSunAttachment_parse_child_line(MimeObject*, const char*, int32_t,
+                                              bool);
+static int MimeSunAttachment_parse_begin(MimeObject*);
+static int MimeSunAttachment_parse_eof(MimeObject*, bool);
 
-static int MimeSunAttachmentClassInitialize(MimeSunAttachmentClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
-  MimeMultipartClass *mclass = (MimeMultipartClass *)clazz;
+static int MimeSunAttachmentClassInitialize(MimeSunAttachmentClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
 
   PR_ASSERT(!oclass->class_initialized);
   oclass->parse_begin = MimeSunAttachment_parse_begin;
@@ -38,18 +38,18 @@ static int MimeSunAttachmentClassInitialize(MimeSunAttachmentClass *clazz) {
   return 0;
 }
 
-static int MimeSunAttachment_parse_begin(MimeObject *obj) {
-  int status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_begin(obj);
+static int MimeSunAttachment_parse_begin(MimeObject* obj) {
+  int status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
   if (status < 0) return status;
 
   /* Sun messages always have separators at the beginning. */
   return MimeObject_write_separator(obj);
 }
 
-static int MimeSunAttachment_parse_eof(MimeObject *obj, bool abort_p) {
+static int MimeSunAttachment_parse_eof(MimeObject* obj, bool abort_p) {
   int status = 0;
 
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0) return status;
 
   /* Sun messages always have separators at the end. */
@@ -62,7 +62,7 @@ static int MimeSunAttachment_parse_eof(MimeObject *obj, bool abort_p) {
 }
 
 static MimeMultipartBoundaryType MimeSunAttachment_check_boundary(
-    MimeObject *obj, const char *line, int32_t length) {
+    MimeObject* obj, const char* line, int32_t length) {
   /* ten dashes */
 
   if (line && line[0] == '-' && line[1] == '-' && line[2] == '-' &&
@@ -74,16 +74,16 @@ static MimeMultipartBoundaryType MimeSunAttachment_check_boundary(
     return MimeMultipartBoundaryTypeNone;
 }
 
-static int MimeSunAttachment_create_child(MimeObject *obj) {
+static int MimeSunAttachment_create_child(MimeObject* obj) {
   if (obj->options) obj->options->is_child = true;
 
-  MimeMultipart *mult = (MimeMultipart *)obj;
+  MimeMultipart* mult = (MimeMultipart*)obj;
   int status = 0;
 
-  char *sun_data_type = 0;
+  char* sun_data_type = 0;
   const char *mime_ct = 0, *sun_enc_info = 0, *mime_cte = 0;
-  char *mime_ct2 = 0; /* sometimes we need to copy; this is for freeing. */
-  MimeObject *child = 0;
+  char* mime_ct2 = 0; /* sometimes we need to copy; this is for freeing. */
+  MimeObject* child = 0;
 
   mult->state = MimeMultipartPartLine;
 
@@ -158,7 +158,7 @@ static int MimeSunAttachment_create_child(MimeObject *obj) {
   /* If we didn't find a type, look at the extension on the file name.
    */
   if (!mime_ct && obj->options && obj->options->file_type_fn) {
-    char *name = MimeHeaders_get_name(mult->hdrs, obj->options);
+    char* name = MimeHeaders_get_name(mult->hdrs, obj->options);
     if (name) {
       mime_ct2 = obj->options->file_type_fn(name, obj->options->stream_closure);
       mime_ct = mime_ct2;
@@ -212,10 +212,10 @@ static int MimeSunAttachment_create_child(MimeObject *obj) {
    type if necessary (as described above.)
    */
   if (sun_enc_info && *sun_enc_info) {
-    const char *prev;
-    const char *end = PL_strrchr(sun_enc_info, ',');
+    const char* prev;
+    const char* end = PL_strrchr(sun_enc_info, ',');
     if (end) {
-      const char *start = sun_enc_info;
+      const char* start = sun_enc_info;
       sun_enc_info = end + 1;
       while (IS_SPACE(*sun_enc_info)) sun_enc_info++;
       for (prev = end - 1; prev > start && *prev != ','; prev--)
@@ -270,7 +270,7 @@ static int MimeSunAttachment_create_child(MimeObject *obj) {
   child->content_type = (mime_ct ? strdup(mime_ct) : 0);
   child->encoding = (mime_cte ? strdup(mime_cte) : 0);
 
-  status = ((MimeContainerClass *)obj->clazz)->add_child(obj, child);
+  status = ((MimeContainerClass*)obj->clazz)->add_child(obj, child);
   if (status < 0) {
     mime_free(child);
     child = 0;
@@ -292,11 +292,11 @@ FAIL:
   return status;
 }
 
-static int MimeSunAttachment_parse_child_line(MimeObject *obj, const char *line,
+static int MimeSunAttachment_parse_child_line(MimeObject* obj, const char* line,
                                               int32_t length,
                                               bool first_line_p) {
-  MimeContainer *cont = (MimeContainer *)obj;
-  MimeObject *kid;
+  MimeContainer* cont = (MimeContainer*)obj;
+  MimeObject* kid;
 
   /* This is simpler than MimeMultipart->parse_child_line in that it doesn't
    play games about body parts without trailing newlines.

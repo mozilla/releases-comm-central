@@ -15,23 +15,23 @@
 //---------------------------------------------------------------------------
 class nsMsgBodyHandler {
  public:
-  nsMsgBodyHandler(nsIMsgSearchScopeTerm *, uint32_t length, nsIMsgDBHdr *msg,
-                   nsIMsgDatabase *db);
+  nsMsgBodyHandler(nsIMsgSearchScopeTerm*, uint32_t length, nsIMsgDBHdr* msg,
+                   nsIMsgDatabase* db);
 
   // we can also create a body handler when doing arbitrary header
   // filtering...we need the list of headers and the header size as well
   // if we are doing filtering...if ForFilters is false, headers and
   // headersSize is ignored!!!
-  nsMsgBodyHandler(nsIMsgSearchScopeTerm *, uint32_t length, nsIMsgDBHdr *msg,
-                   nsIMsgDatabase *db,
-                   const char *headers /* NULL terminated list of headers */,
+  nsMsgBodyHandler(nsIMsgSearchScopeTerm*, uint32_t length, nsIMsgDBHdr* msg,
+                   nsIMsgDatabase* db,
+                   const char* headers /* NULL terminated list of headers */,
                    uint32_t headersSize, bool ForFilters);
 
   virtual ~nsMsgBodyHandler();
 
   // Returns next message line in buf and the applicable charset, if found.
   // The return value is the length of 'buf' or -1 for EOF.
-  int32_t GetNextLine(nsCString &buf, nsCString &charset);
+  int32_t GetNextLine(nsCString& buf, nsCString& charset);
   bool IsQP() { return m_partIsQP; }
 
   // Transformations
@@ -43,9 +43,9 @@ class nsMsgBodyHandler {
   // filter related methods. For filtering we always use the headers
   // list instead of the database...
   bool m_Filtering;
-  int32_t GetNextFilterLine(nsCString &buf);
+  int32_t GetNextFilterLine(nsCString& buf);
   // pointer into the headers list in the original message hdr db...
-  const char *m_headers;
+  const char* m_headers;
   uint32_t m_headersSize;
   uint32_t m_headerBytesRead;
 
@@ -53,9 +53,9 @@ class nsMsgBodyHandler {
   void OpenLocalFolder();
 
   // goes through the mail folder
-  int32_t GetNextLocalLine(nsCString &buf);
+  int32_t GetNextLocalLine(nsCString& buf);
 
-  nsIMsgSearchScopeTerm *m_scope;
+  nsIMsgSearchScopeTerm* m_scope;
   nsCOMPtr<nsILineInputStream> m_fileLineStream;
   nsCOMPtr<nsIFile> m_localFile;
 
@@ -101,10 +101,10 @@ class nsMsgBodyHandler {
   nsCString m_partCharset;           // The charset found in the part
 
   // See implementation for comments
-  int32_t ApplyTransformations(const nsCString &line, int32_t length,
-                               bool &returnThisLine, nsCString &buf);
-  void SniffPossibleMIMEHeader(const nsCString &line);
-  static void StripHtml(nsCString &buf);
-  static void Base64Decode(nsCString &buf);
+  int32_t ApplyTransformations(const nsCString& line, int32_t length,
+                               bool& returnThisLine, nsCString& buf);
+  void SniffPossibleMIMEHeader(const nsCString& line);
+  static void StripHtml(nsCString& buf);
+  static void Base64Decode(nsCString& buf);
 };
 #endif

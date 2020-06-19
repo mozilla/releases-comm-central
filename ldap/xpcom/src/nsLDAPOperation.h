@@ -52,7 +52,7 @@ class nsLDAPOperation : public nsILDAPOperation {
       mClosure;  // private parameter (anything caller desires)
   RefPtr<nsLDAPConnection> mConnection;  // connection this op is on
 
-  LDAP *mConnectionHandle;  // cache connection handle
+  LDAP* mConnectionHandle;  // cache connection handle
   nsCString mSavePassword;
   nsCString mMechanism;
   nsCOMPtr<nsIAuthModule> mAuthModule;

@@ -27,15 +27,15 @@
 MimeDefClass(MimeInlineTextHTMLAsPlaintext, MimeInlineTextHTMLAsPlaintextClass,
              mimeInlineTextHTMLAsPlaintextClass, &MIME_SUPERCLASS);
 
-static int MimeInlineTextHTMLAsPlaintext_parse_line(const char *, int32_t,
-                                                    MimeObject *);
-static int MimeInlineTextHTMLAsPlaintext_parse_begin(MimeObject *obj);
-static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject *, bool);
-static void MimeInlineTextHTMLAsPlaintext_finalize(MimeObject *obj);
+static int MimeInlineTextHTMLAsPlaintext_parse_line(const char*, int32_t,
+                                                    MimeObject*);
+static int MimeInlineTextHTMLAsPlaintext_parse_begin(MimeObject* obj);
+static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject*, bool);
+static void MimeInlineTextHTMLAsPlaintext_finalize(MimeObject* obj);
 
 static int MimeInlineTextHTMLAsPlaintextClassInitialize(
-    MimeInlineTextHTMLAsPlaintextClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
+    MimeInlineTextHTMLAsPlaintextClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   NS_ASSERTION(!oclass->class_initialized, "problem with superclass");
   oclass->parse_line = MimeInlineTextHTMLAsPlaintext_parse_line;
   oclass->parse_begin = MimeInlineTextHTMLAsPlaintext_parse_begin;
@@ -45,15 +45,15 @@ static int MimeInlineTextHTMLAsPlaintextClassInitialize(
   return 0;
 }
 
-static int MimeInlineTextHTMLAsPlaintext_parse_begin(MimeObject *obj) {
-  MimeInlineTextHTMLAsPlaintext *textHTMLPlain =
-      (MimeInlineTextHTMLAsPlaintext *)obj;
+static int MimeInlineTextHTMLAsPlaintext_parse_begin(MimeObject* obj) {
+  MimeInlineTextHTMLAsPlaintext* textHTMLPlain =
+      (MimeInlineTextHTMLAsPlaintext*)obj;
   textHTMLPlain->complete_buffer = new nsString();
   // Let's just hope that libmime won't have the idea to call begin twice...
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_begin(obj);
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
 }
 
-static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject *obj,
+static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject* obj,
                                                    bool abort_p) {
   if (obj->closed_p) return 0;
 
@@ -61,16 +61,16 @@ static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject *obj,
   // any buffered data. We can't call it yet for our direct super class, because
   // it would "close" the output (write tags such as </pre> and </div>). We'll
   // do that after parsing the buffer.
-  int status = ((MimeObjectClass *)&MIME_SUPERCLASS)
-                   ->superclass->parse_eof(obj, abort_p);
+  int status =
+      ((MimeObjectClass*)&MIME_SUPERCLASS)->superclass->parse_eof(obj, abort_p);
   if (status < 0) return status;
 
-  MimeInlineTextHTMLAsPlaintext *textHTMLPlain =
-      (MimeInlineTextHTMLAsPlaintext *)obj;
+  MimeInlineTextHTMLAsPlaintext* textHTMLPlain =
+      (MimeInlineTextHTMLAsPlaintext*)obj;
 
   if (!textHTMLPlain || !textHTMLPlain->complete_buffer) return 0;
 
-  nsString &cb = *(textHTMLPlain->complete_buffer);
+  nsString& cb = *(textHTMLPlain->complete_buffer);
 
   // could be empty, e.g., if part isn't actually being displayed
   if (cb.Length()) {
@@ -87,7 +87,7 @@ static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject *obj,
     NS_ConvertUTF16toUTF8 resultCStr(asPlaintext);
     // TODO parse each line independently
     status =
-        ((MimeObjectClass *)&MIME_SUPERCLASS)
+        ((MimeObjectClass*)&MIME_SUPERCLASS)
             ->parse_line(resultCStr.BeginWriting(), resultCStr.Length(), obj);
     cb.Truncate();
   }
@@ -98,15 +98,15 @@ static int MimeInlineTextHTMLAsPlaintext_parse_eof(MimeObject *obj,
   // super class gets a chance to write the closing.
   bool save_closed_p = obj->closed_p;
   obj->closed_p = false;
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   // Restore closed_p.
   obj->closed_p = save_closed_p;
   return status;
 }
 
-void MimeInlineTextHTMLAsPlaintext_finalize(MimeObject *obj) {
-  MimeInlineTextHTMLAsPlaintext *textHTMLPlain =
-      (MimeInlineTextHTMLAsPlaintext *)obj;
+void MimeInlineTextHTMLAsPlaintext_finalize(MimeObject* obj) {
+  MimeInlineTextHTMLAsPlaintext* textHTMLPlain =
+      (MimeInlineTextHTMLAsPlaintext*)obj;
   if (textHTMLPlain && textHTMLPlain->complete_buffer) {
     // If there's content in the buffer, make sure that we output it.
     // don't care about return codes
@@ -117,14 +117,14 @@ void MimeInlineTextHTMLAsPlaintext_finalize(MimeObject *obj) {
     /* It is important to zero the pointer, so we can reliably check for
        the validity of it in the other functions. See above. */
   }
-  ((MimeObjectClass *)&MIME_SUPERCLASS)->finalize(obj);
+  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(obj);
 }
 
-static int MimeInlineTextHTMLAsPlaintext_parse_line(const char *line,
+static int MimeInlineTextHTMLAsPlaintext_parse_line(const char* line,
                                                     int32_t length,
-                                                    MimeObject *obj) {
-  MimeInlineTextHTMLAsPlaintext *textHTMLPlain =
-      (MimeInlineTextHTMLAsPlaintext *)obj;
+                                                    MimeObject* obj) {
+  MimeInlineTextHTMLAsPlaintext* textHTMLPlain =
+      (MimeInlineTextHTMLAsPlaintext*)obj;
 
   if (!textHTMLPlain || !(textHTMLPlain->complete_buffer)) {
 #if DEBUG

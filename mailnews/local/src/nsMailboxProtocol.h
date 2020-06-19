@@ -49,21 +49,21 @@ class nsMailboxProtocol : public nsMsgProtocol {
  public:
   // Creating a protocol instance requires the URL which needs to be run AND it
   // requires a transport layer.
-  explicit nsMailboxProtocol(nsIURI *aURL);
+  explicit nsMailboxProtocol(nsIURI* aURL);
   virtual ~nsMailboxProtocol();
 
   // initialization function given a new url and transport layer
-  nsresult Initialize(nsIURI *aURL);
+  nsresult Initialize(nsIURI* aURL);
 
   // the consumer of the url might be something like an nsIDocShell....
-  virtual nsresult LoadUrl(nsIURI *aURL, nsISupports *aConsumer) override;
+  virtual nsresult LoadUrl(nsIURI* aURL, nsISupports* aConsumer) override;
 
   ////////////////////////////////////////////////////////////////////////////////////////
   // we support the nsIStreamListener interface
   ////////////////////////////////////////////////////////////////////////////////////////
 
-  NS_IMETHOD OnStartRequest(nsIRequest *request) override;
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult aStatus) override;
+  NS_IMETHOD OnStartRequest(nsIRequest* request) override;
+  NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult aStatus) override;
 
  private:
   nsCOMPtr<nsIMailboxUrl>
@@ -94,8 +94,8 @@ class nsMailboxProtocol : public nsMsgProtocol {
   // multiple messages.
   nsCOMPtr<nsIInputStream> m_multipleMsgMoveCopyStream;
 
-  virtual nsresult ProcessProtocolState(nsIURI *url,
-                                        nsIInputStream *inputStream,
+  virtual nsresult ProcessProtocolState(nsIURI* url,
+                                        nsIInputStream* inputStream,
                                         uint64_t sourceOffset,
                                         uint32_t length) override;
   virtual nsresult CloseSocket() override;
@@ -112,9 +112,9 @@ class nsMailboxProtocol : public nsMsgProtocol {
 
   // When parsing a mailbox folder in chunks, this protocol state reads in the
   // current chunk and forwards it to the mailbox parser.
-  int32_t ReadFolderResponse(nsIInputStream *inputStream, uint64_t sourceOffset,
+  int32_t ReadFolderResponse(nsIInputStream* inputStream, uint64_t sourceOffset,
                              uint32_t length);
-  int32_t ReadMessageResponse(nsIInputStream *inputStream,
+  int32_t ReadMessageResponse(nsIInputStream* inputStream,
                               uint64_t sourceOffset, uint32_t length);
   nsresult DoneReadingMessage();
 

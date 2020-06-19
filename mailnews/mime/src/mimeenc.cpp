@@ -32,22 +32,22 @@ struct MimeDecoderData {
 
   /* State and read-buffer used for uudecode and yencode. */
   mime_decoder_state ds_state;
-  char *line_buffer;
+  char* line_buffer;
   int line_buffer_size;
 
-  MimeObject *objectToDecode;  // might be null, only used for QP currently
+  MimeObject* objectToDecode;  // might be null, only used for QP currently
   /* Where to write the decoded data */
   MimeConverterOutputCallback write_buffer;
-  void *closure;
+  void* closure;
 };
 
-static int mime_decode_qp_buffer(MimeDecoderData *data, const char *buffer,
-                                 int32_t length, int32_t *outSize) {
+static int mime_decode_qp_buffer(MimeDecoderData* data, const char* buffer,
+                                 int32_t length, int32_t* outSize) {
   /* Warning, we are overwriting the buffer which was passed in.
    This is ok, because decoding these formats will never result
    in larger data than the input, only smaller. */
-  const char *in = buffer;
-  char *out = (char *)buffer;
+  const char* in = buffer;
+  char* out = (char*)buffer;
   char token[3];
   int i;
 
@@ -164,7 +164,7 @@ static int mime_decode_qp_buffer(MimeDecoderData *data, const char *buffer,
     return 1;
 }
 
-static int mime_decode_base64_token(const char *in, char *out) {
+static int mime_decode_base64_token(const char* in, char* out) {
   /* reads 4, writes 0-3.  Returns bytes written.
    (Writes less than 3 only at EOF.) */
   int j;
@@ -209,8 +209,8 @@ static int mime_decode_base64_token(const char *in, char *out) {
   }
 }
 
-static int mime_decode_base64_buffer(MimeDecoderData *data, const char *buffer,
-                                     int32_t length, int32_t *outSize) {
+static int mime_decode_base64_buffer(MimeDecoderData* data, const char* buffer,
+                                     int32_t length, int32_t* outSize) {
   if (outSize) *outSize = 0;
 
   // Without input there is nothing to do.
@@ -219,8 +219,8 @@ static int mime_decode_base64_buffer(MimeDecoderData *data, const char *buffer,
   /* Warning, we are overwriting the buffer which was passed in.
    This is ok, because decoding these formats will never result
    in larger data than the input, only smaller. */
-  const char *in = buffer;
-  char *out = (char *)buffer;
+  const char* in = buffer;
+  char* out = (char*)buffer;
   char token[4];
   int i;
   bool leftover = (data->token_size > 0);
@@ -271,7 +271,7 @@ static int mime_decode_base64_buffer(MimeDecoderData *data, const char *buffer,
       /* increment buffer so that we don't write the 1 or 2 unused
        characters now at the front. */
       buffer = in;
-      out = (char *)buffer;
+      out = (char*)buffer;
 
       leftover = false;
     } else {
@@ -289,9 +289,9 @@ static int mime_decode_base64_buffer(MimeDecoderData *data, const char *buffer,
     return 1;
 }
 
-static int mime_decode_uue_buffer(MimeDecoderData *data,
-                                  const char *input_buffer,
-                                  int32_t input_length, int32_t *outSize) {
+static int mime_decode_uue_buffer(MimeDecoderData* data,
+                                  const char* input_buffer,
+                                  int32_t input_length, int32_t* outSize) {
   /* First, copy input_buffer into state->line_buffer until we have
    a complete line.
 
@@ -302,14 +302,14 @@ static int mime_decode_uue_buffer(MimeDecoderData *data,
    */
   if (!data->line_buffer) {
     data->line_buffer_size = 128;
-    data->line_buffer = (char *)PR_MALLOC(data->line_buffer_size);
+    data->line_buffer = (char*)PR_MALLOC(data->line_buffer_size);
     if (!data->line_buffer) return -1;
     data->line_buffer[0] = 0;
   }
 
   int status = 0;
-  char *line = data->line_buffer;
-  char *line_end = data->line_buffer + data->line_buffer_size - 1;
+  char* line = data->line_buffer;
+  char* line_end = data->line_buffer + data->line_buffer_size - 1;
 
   NS_ASSERTION(data->encoding == mime_uuencode,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
@@ -328,7 +328,7 @@ static int mime_decode_uue_buffer(MimeDecoderData *data,
      we weren't called with a buffer that ended on a line boundary.)
      */
     {
-      char *out = line + strlen(line);
+      char* out = line + strlen(line);
       while (input_length > 0 && out < line_end) {
         *out++ = *input_buffer++;
         input_length--;
@@ -506,9 +506,9 @@ DONE:
   return status;
 }
 
-static int mime_decode_yenc_buffer(MimeDecoderData *data,
-                                   const char *input_buffer,
-                                   int32_t input_length, int32_t *outSize) {
+static int mime_decode_yenc_buffer(MimeDecoderData* data,
+                                   const char* input_buffer,
+                                   int32_t input_length, int32_t* outSize) {
   /* First, copy input_buffer into state->line_buffer until we have
    a complete line.
 
@@ -520,14 +520,14 @@ static int mime_decode_yenc_buffer(MimeDecoderData *data,
   if (!data->line_buffer) {
     data->line_buffer_size =
         1000;  // let make sure we have plenty of space for the header line
-    data->line_buffer = (char *)PR_MALLOC(data->line_buffer_size);
+    data->line_buffer = (char*)PR_MALLOC(data->line_buffer_size);
     if (!data->line_buffer) return -1;
     data->line_buffer[0] = 0;
   }
 
   int status = 0;
-  char *line = data->line_buffer;
-  char *line_end = data->line_buffer + data->line_buffer_size - 1;
+  char* line = data->line_buffer;
+  char* line_end = data->line_buffer + data->line_buffer_size - 1;
 
   NS_ASSERTION(data->encoding == mime_yencode, "wrong decoder!");
   if (data->encoding != mime_yencode) return -1;
@@ -542,7 +542,7 @@ static int mime_decode_yenc_buffer(MimeDecoderData *data,
        we weren't called with a buffer that ended on a line boundary.)
     */
     {
-      char *out = line + strlen(line);
+      char* out = line + strlen(line);
       while (input_length > 0 && out < line_end) {
         *out++ = *input_buffer++;
         input_length--;
@@ -587,7 +587,7 @@ static int mime_decode_yenc_buffer(MimeDecoderData *data,
 
     /* Now we have a complete line.  Deal with it.
      */
-    const char *endOfLine = line + strlen(line);
+    const char* endOfLine = line + strlen(line);
 
     if (data->ds_state == DS_BEGIN) {
       int new_line_size = 0;
@@ -620,7 +620,7 @@ static int mime_decode_yenc_buffer(MimeDecoderData *data,
               data->line_buffer_size =
                   new_line_size +
                   4;  // extra chars for line ending and potential escape char
-              data->line_buffer = (char *)PR_MALLOC(data->line_buffer_size);
+              data->line_buffer = (char*)PR_MALLOC(data->line_buffer_size);
               if (!data->line_buffer) return -1;
             }
           }
@@ -642,8 +642,8 @@ static int mime_decode_yenc_buffer(MimeDecoderData *data,
 
     /* We're in DS_BODY.  Decode the line in place. */
     {
-      char *src = line;
-      char *dest = src;
+      char* src = line;
+      char* dest = src;
       char c;
       for (; src < line_end; src++) {
         c = *src;
@@ -679,7 +679,7 @@ static int mime_decode_yenc_buffer(MimeDecoderData *data,
   return 1;
 }
 
-int MimeDecoderDestroy(MimeDecoderData *data, bool abort_p) {
+int MimeDecoderDestroy(MimeDecoderData* data, bool abort_p) {
   int status = 0;
   /* Flush out the last few buffered characters. */
   if (!abort_p && data->token_size > 0 && data->token[0] != '=') {
@@ -695,10 +695,10 @@ int MimeDecoderDestroy(MimeDecoderData *data, bool abort_p) {
   return status;
 }
 
-static MimeDecoderData *mime_decoder_init(mime_encoding which,
+static MimeDecoderData* mime_decoder_init(mime_encoding which,
                                           MimeConverterOutputCallback output_fn,
-                                          void *closure) {
-  MimeDecoderData *data = PR_NEW(MimeDecoderData);
+                                          void* closure) {
+  MimeDecoderData* data = PR_NEW(MimeDecoderData);
   if (!data) return 0;
   memset(data, 0, sizeof(*data));
   data->encoding = which;
@@ -710,31 +710,31 @@ static MimeDecoderData *mime_decoder_init(mime_encoding which,
   return data;
 }
 
-MimeDecoderData *MimeB64DecoderInit(MimeConverterOutputCallback output_fn,
-                                    void *closure) {
+MimeDecoderData* MimeB64DecoderInit(MimeConverterOutputCallback output_fn,
+                                    void* closure) {
   return mime_decoder_init(mime_Base64, output_fn, closure);
 }
 
-MimeDecoderData *MimeQPDecoderInit(MimeConverterOutputCallback output_fn,
-                                   void *closure, MimeObject *object) {
-  MimeDecoderData *retData =
+MimeDecoderData* MimeQPDecoderInit(MimeConverterOutputCallback output_fn,
+                                   void* closure, MimeObject* object) {
+  MimeDecoderData* retData =
       mime_decoder_init(mime_QuotedPrintable, output_fn, closure);
   if (retData) retData->objectToDecode = object;
   return retData;
 }
 
-MimeDecoderData *MimeUUDecoderInit(MimeConverterOutputCallback output_fn,
-                                   void *closure) {
+MimeDecoderData* MimeUUDecoderInit(MimeConverterOutputCallback output_fn,
+                                   void* closure) {
   return mime_decoder_init(mime_uuencode, output_fn, closure);
 }
 
-MimeDecoderData *MimeYDecoderInit(MimeConverterOutputCallback output_fn,
-                                  void *closure) {
+MimeDecoderData* MimeYDecoderInit(MimeConverterOutputCallback output_fn,
+                                  void* closure) {
   return mime_decoder_init(mime_yencode, output_fn, closure);
 }
 
-int MimeDecoderWrite(MimeDecoderData *data, const char *buffer, int32_t size,
-                     int32_t *outSize) {
+int MimeDecoderWrite(MimeDecoderData* data, const char* buffer, int32_t size,
+                     int32_t* outSize) {
   NS_ASSERTION(data, "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   if (!data) return -1;
   switch (data->encoding) {
@@ -755,7 +755,7 @@ int MimeDecoderWrite(MimeDecoderData *data, const char *buffer, int32_t size,
 namespace mozilla {
 namespace mailnews {
 
-MimeEncoder::MimeEncoder(OutputCallback callback, void *closure)
+MimeEncoder::MimeEncoder(OutputCallback callback, void* closure)
     : mCallback(callback), mClosure(closure), mCurrentColumn(0) {}
 
 class Base64Encoder : public MimeEncoder {
@@ -763,18 +763,18 @@ class Base64Encoder : public MimeEncoder {
   int32_t in_buffer_count;
 
  public:
-  Base64Encoder(OutputCallback callback, void *closure)
+  Base64Encoder(OutputCallback callback, void* closure)
       : MimeEncoder(callback, closure), in_buffer_count(0) {}
   virtual ~Base64Encoder() {}
 
-  virtual nsresult Write(const char *buffer, int32_t size) override;
+  virtual nsresult Write(const char* buffer, int32_t size) override;
   virtual nsresult Flush() override;
 
  private:
-  static void Base64EncodeBits(RangedPtr<char> &out, uint32_t bits);
+  static void Base64EncodeBits(RangedPtr<char>& out, uint32_t bits);
 };
 
-nsresult Base64Encoder::Write(const char *buffer, int32_t size) {
+nsresult Base64Encoder::Write(const char* buffer, int32_t size) {
   if (size == 0)
     return NS_OK;
   else if (size < 0) {
@@ -807,8 +807,8 @@ nsresult Base64Encoder::Write(const char *buffer, int32_t size) {
     NS_ASSERTION(!((size + i) % 3), "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   }
 
-  const uint8_t *in = (const uint8_t *)buffer;
-  const uint8_t *end = (const uint8_t *)(buffer + size);
+  const uint8_t* in = (const uint8_t*)buffer;
+  const uint8_t* end = (const uint8_t*)(buffer + size);
   MOZ_ASSERT((end - in + i) % 3 == 0, "Need a multiple of 3 bytes to decode");
 
   // Populate the out_buffer with base64 data, one line at a time.
@@ -865,7 +865,7 @@ nsresult Base64Encoder::Flush() {
   return mCallback(buf, 4, mClosure);
 }
 
-void Base64Encoder::Base64EncodeBits(RangedPtr<char> &out, uint32_t bits) {
+void Base64Encoder::Base64EncodeBits(RangedPtr<char>& out, uint32_t bits) {
   // Convert 3 bytes to 4 base64 bytes
   for (int32_t j = 18; j >= 0; j -= 6) {
     unsigned int k = (bits >> j) & 0x3F;
@@ -886,23 +886,23 @@ void Base64Encoder::Base64EncodeBits(RangedPtr<char> &out, uint32_t bits) {
 
 class QPEncoder : public MimeEncoder {
  public:
-  QPEncoder(OutputCallback callback, void *closure)
+  QPEncoder(OutputCallback callback, void* closure)
       : MimeEncoder(callback, closure) {}
   virtual ~QPEncoder() {}
 
-  virtual nsresult Write(const char *buffer, int32_t size) override;
+  virtual nsresult Write(const char* buffer, int32_t size) override;
 };
 
-nsresult QPEncoder::Write(const char *buffer, int32_t size) {
+nsresult QPEncoder::Write(const char* buffer, int32_t size) {
   nsresult rv = NS_OK;
-  static const char *hexdigits = "0123456789ABCDEF";
+  static const char* hexdigits = "0123456789ABCDEF";
   char out_buffer[80];
   RangedPtr<char> out(out_buffer);
   bool white = false;
 
   // Populate the out_buffer with quoted-printable data, one line at a time.
-  const uint8_t *in = (uint8_t *)buffer;
-  const uint8_t *end = in + size;
+  const uint8_t* in = (uint8_t*)buffer;
+  const uint8_t* end = in + size;
   for (; in < end; in++) {
     if (*in == '\r' || *in == '\n') {
       // If it's CRLF, swallow two chars instead of one.
@@ -986,12 +986,12 @@ nsresult QPEncoder::Write(const char *buffer, int32_t size) {
   return NS_OK;
 }
 
-MimeEncoder *MimeEncoder::GetBase64Encoder(OutputCallback callback,
-                                           void *closure) {
+MimeEncoder* MimeEncoder::GetBase64Encoder(OutputCallback callback,
+                                           void* closure) {
   return new Base64Encoder(callback, closure);
 }
 
-MimeEncoder *MimeEncoder::GetQPEncoder(OutputCallback callback, void *closure) {
+MimeEncoder* MimeEncoder::GetQPEncoder(OutputCallback callback, void* closure) {
   return new QPEncoder(callback, closure);
 }
 

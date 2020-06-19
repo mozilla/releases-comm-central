@@ -15,7 +15,7 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-static void ImportMailThread(void *stuff);
+static void ImportMailThread(void* stuff);
 
 class ImportThreadData;
 
@@ -28,17 +28,17 @@ class nsImportGenericMail : public nsIImportGeneric {
 
  private:
   virtual ~nsImportGenericMail();
-  bool CreateFolder(nsIMsgFolder **ppFolder);
+  bool CreateFolder(nsIMsgFolder** ppFolder);
   void GetDefaultMailboxes(void);
   void GetDefaultLocation(void);
   void GetDefaultDestination(void);
-  void GetMailboxName(uint32_t index, nsISupportsString *pStr);
+  void GetMailboxName(uint32_t index, nsISupportsString* pStr);
 
  public:
-  static void SetLogs(nsString &success, nsString &error,
-                      nsISupportsString *pSuccess, nsISupportsString *pError);
-  static void ReportError(int32_t id, const char16_t *pName, nsString *pStream,
-                          nsIStringBundle *aBundle);
+  static void SetLogs(nsString& success, nsString& error,
+                      nsISupportsString* pSuccess, nsISupportsString* pError);
+  static void ReportError(int32_t id, const char16_t* pName, nsString* pStream,
+                          nsIStringBundle* aBundle);
 
  private:
   nsString m_pName;  // module name that created this interface
@@ -55,7 +55,7 @@ class nsImportGenericMail : public nsIImportGeneric {
   nsCOMPtr<nsISupportsString> m_pErrorLog;
   uint32_t m_totalSize;
   bool m_doImport;
-  ImportThreadData *m_pThreadData;
+  ImportThreadData* m_pThreadData;
   bool m_performingMigration;
   nsCOMPtr<nsIStringBundle> m_stringBundle;
 };

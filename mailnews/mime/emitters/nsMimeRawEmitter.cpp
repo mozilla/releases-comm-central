@@ -18,7 +18,7 @@ nsMimeRawEmitter::nsMimeRawEmitter() {}
 nsMimeRawEmitter::~nsMimeRawEmitter(void) {}
 
 NS_IMETHODIMP
-nsMimeRawEmitter::WriteBody(const nsACString &buf, uint32_t *amountWritten) {
+nsMimeRawEmitter::WriteBody(const nsACString& buf, uint32_t* amountWritten) {
   Write(buf, amountWritten);
   return NS_OK;
 }

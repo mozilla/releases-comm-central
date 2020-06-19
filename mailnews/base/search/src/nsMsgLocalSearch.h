@@ -23,50 +23,50 @@ class nsMsgSearchBoolExpression;
 class nsMsgSearchOfflineMail : public nsMsgSearchAdapter,
                                public nsIUrlListener {
  public:
-  nsMsgSearchOfflineMail(nsIMsgSearchScopeTerm *, nsIArray *);
+  nsMsgSearchOfflineMail(nsIMsgSearchScopeTerm*, nsIArray*);
 
   NS_DECL_ISUPPORTS_INHERITED
 
   NS_DECL_NSIURLLISTENER
 
   NS_IMETHOD ValidateTerms() override;
-  NS_IMETHOD Search(bool *aDone) override;
+  NS_IMETHOD Search(bool* aDone) override;
   NS_IMETHOD Abort() override;
-  NS_IMETHOD AddResultElement(nsIMsgDBHdr *) override;
+  NS_IMETHOD AddResultElement(nsIMsgDBHdr*) override;
 
   static nsresult MatchTermsForFilter(
-      nsIMsgDBHdr *msgToMatch, nsIArray *termList, const char *defaultCharset,
-      nsIMsgSearchScopeTerm *scope, nsIMsgDatabase *db,
-      const nsACString &headers, nsMsgSearchBoolExpression **aExpressionTree,
-      bool *pResult);
+      nsIMsgDBHdr* msgToMatch, nsIArray* termList, const char* defaultCharset,
+      nsIMsgSearchScopeTerm* scope, nsIMsgDatabase* db,
+      const nsACString& headers, nsMsgSearchBoolExpression** aExpressionTree,
+      bool* pResult);
 
   static nsresult MatchTermsForSearch(
-      nsIMsgDBHdr *msgTomatch, nsIArray *termList, const char *defaultCharset,
-      nsIMsgSearchScopeTerm *scope, nsIMsgDatabase *db,
-      nsMsgSearchBoolExpression **aExpressionTree, bool *pResult);
+      nsIMsgDBHdr* msgTomatch, nsIArray* termList, const char* defaultCharset,
+      nsIMsgSearchScopeTerm* scope, nsIMsgDatabase* db,
+      nsMsgSearchBoolExpression** aExpressionTree, bool* pResult);
 
   virtual nsresult OpenSummaryFile();
 
-  static nsresult ProcessSearchTerm(nsIMsgDBHdr *msgToMatch,
-                                    nsIMsgSearchTerm *aTerm,
-                                    const char *defaultCharset,
-                                    nsIMsgSearchScopeTerm *scope,
-                                    nsIMsgDatabase *db,
-                                    const nsACString &headers, bool Filtering,
-                                    bool *pResult);
+  static nsresult ProcessSearchTerm(nsIMsgDBHdr* msgToMatch,
+                                    nsIMsgSearchTerm* aTerm,
+                                    const char* defaultCharset,
+                                    nsIMsgSearchScopeTerm* scope,
+                                    nsIMsgDatabase* db,
+                                    const nsACString& headers, bool Filtering,
+                                    bool* pResult);
 
  protected:
   virtual ~nsMsgSearchOfflineMail();
-  static nsresult MatchTerms(nsIMsgDBHdr *msgToMatch, nsIArray *termList,
-                             const char *defaultCharset,
-                             nsIMsgSearchScopeTerm *scope, nsIMsgDatabase *db,
-                             const nsACString &headers, bool ForFilters,
-                             nsMsgSearchBoolExpression **aExpressionTree,
-                             bool *pResult);
+  static nsresult MatchTerms(nsIMsgDBHdr* msgToMatch, nsIArray* termList,
+                             const char* defaultCharset,
+                             nsIMsgSearchScopeTerm* scope, nsIMsgDatabase* db,
+                             const nsACString& headers, bool ForFilters,
+                             nsMsgSearchBoolExpression** aExpressionTree,
+                             bool* pResult);
 
   static nsresult ConstructExpressionTree(
-      nsIArray *termList, uint32_t termCount, uint32_t &aStartPosInList,
-      nsMsgSearchBoolExpression **aExpressionTree);
+      nsIArray* termList, uint32_t termCount, uint32_t& aStartPosInList,
+      nsMsgSearchBoolExpression** aExpressionTree);
 
   nsCOMPtr<nsIMsgDatabase> m_db;
   nsCOMPtr<nsISimpleEnumerator> m_listContext;
@@ -75,7 +75,7 @@ class nsMsgSearchOfflineMail : public nsMsgSearchAdapter,
 
 class nsMsgSearchOfflineNews : public nsMsgSearchOfflineMail {
  public:
-  nsMsgSearchOfflineNews(nsIMsgSearchScopeTerm *, nsIArray *);
+  nsMsgSearchOfflineNews(nsIMsgSearchScopeTerm*, nsIArray*);
   virtual ~nsMsgSearchOfflineNews();
   NS_IMETHOD ValidateTerms() override;
 

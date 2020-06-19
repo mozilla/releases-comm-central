@@ -27,12 +27,12 @@ class nsMsgMaildirStore final : public nsMsgLocalStoreUtils,
   ~nsMsgMaildirStore();
 
  protected:
-  nsresult GetDirectoryForFolder(nsIFile *path);
-  nsresult CreateDirectoryForFolder(nsIFile *path, bool aIsServer);
+  nsresult GetDirectoryForFolder(nsIFile* path);
+  nsresult CreateDirectoryForFolder(nsIFile* path, bool aIsServer);
 
-  nsresult CreateMaildir(nsIFile *path);
-  nsresult AddSubFolders(nsIMsgFolder *parent, nsIFile *path, bool deep);
-  nsresult GetOutputStream(nsIMsgDBHdr *aHdr,
-                           nsCOMPtr<nsIOutputStream> &aOutputStream);
+  nsresult CreateMaildir(nsIFile* path);
+  nsresult AddSubFolders(nsIMsgFolder* parent, nsIFile* path, bool deep);
+  nsresult GetOutputStream(nsIMsgDBHdr* aHdr,
+                           nsCOMPtr<nsIOutputStream>& aOutputStream);
 };
 #endif

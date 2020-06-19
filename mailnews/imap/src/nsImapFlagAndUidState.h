@@ -26,8 +26,8 @@ class nsImapFlagAndUidState : public nsIImapFlagAndUidState {
 
   int32_t NumberOfDeletedMessages();
 
-  imapMessageFlagsType GetMessageFlagsFromUID(uint32_t uid, bool *foundIt,
-                                              int32_t *ndx);
+  imapMessageFlagsType GetMessageFlagsFromUID(uint32_t uid, bool* foundIt,
+                                              int32_t* ndx);
 
   bool IsLastMessageUnseen(void);
   bool GetPartialUIDFetch() { return fPartialUIDFetch; }

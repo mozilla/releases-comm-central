@@ -22,39 +22,39 @@ namespace {
 // already references.
 template <typename T>
 struct RefType {
-  typedef T &type;
+  typedef T& type;
 };
 
 template <>
-struct RefType<nsAString &> {
-  typedef nsAString &type;
+struct RefType<nsAString&> {
+  typedef nsAString& type;
 };
 
 template <>
-struct RefType<const nsAString &> {
-  typedef const nsAString &type;
+struct RefType<const nsAString&> {
+  typedef const nsAString& type;
 };
 
 template <>
-struct RefType<nsACString &> {
-  typedef nsACString &type;
+struct RefType<nsACString&> {
+  typedef nsACString& type;
 };
 
 template <>
-struct RefType<const nsACString &> {
-  typedef const nsACString &type;
+struct RefType<const nsACString&> {
+  typedef const nsACString& type;
 };
 
 template <>
-struct RefType<const nsIID &> {
-  typedef const nsIID &type;
+struct RefType<const nsIID&> {
+  typedef const nsIID& type;
 };
 
 class SyncRunnableBase : public mozilla::Runnable {
  public:
   nsresult Result() { return mResult; }
 
-  mozilla::Monitor &Monitor() { return mMonitor; }
+  mozilla::Monitor& Monitor() { return mMonitor; }
 
  protected:
   SyncRunnableBase()
@@ -71,7 +71,7 @@ class SyncRunnable0 : public SyncRunnableBase {
  public:
   typedef nsresult (NS_STDCALL Receiver::*ReceiverMethod)();
 
-  SyncRunnable0(Receiver *receiver, ReceiverMethod method)
+  SyncRunnable0(Receiver* receiver, ReceiverMethod method)
       : mReceiver(receiver), mMethod(method) {}
 
   NS_IMETHOD Run() {
@@ -81,7 +81,7 @@ class SyncRunnable0 : public SyncRunnableBase {
   }
 
  private:
-  Receiver *mReceiver;
+  Receiver* mReceiver;
   ReceiverMethod mMethod;
 };
 
@@ -91,7 +91,7 @@ class SyncRunnable1 : public SyncRunnableBase {
   typedef nsresult (NS_STDCALL Receiver::*ReceiverMethod)(Arg1);
   typedef typename RefType<Arg1>::type Arg1Ref;
 
-  SyncRunnable1(Receiver *receiver, ReceiverMethod method, Arg1Ref arg1)
+  SyncRunnable1(Receiver* receiver, ReceiverMethod method, Arg1Ref arg1)
       : mReceiver(receiver), mMethod(method), mArg1(arg1) {}
 
   NS_IMETHOD Run() {
@@ -101,7 +101,7 @@ class SyncRunnable1 : public SyncRunnableBase {
   }
 
  private:
-  Receiver *mReceiver;
+  Receiver* mReceiver;
   ReceiverMethod mMethod;
   Arg1Ref mArg1;
 };
@@ -113,7 +113,7 @@ class SyncRunnable2 : public SyncRunnableBase {
   typedef typename RefType<Arg1>::type Arg1Ref;
   typedef typename RefType<Arg2>::type Arg2Ref;
 
-  SyncRunnable2(Receiver *receiver, ReceiverMethod method, Arg1Ref arg1,
+  SyncRunnable2(Receiver* receiver, ReceiverMethod method, Arg1Ref arg1,
                 Arg2Ref arg2)
       : mReceiver(receiver), mMethod(method), mArg1(arg1), mArg2(arg2) {}
 
@@ -124,7 +124,7 @@ class SyncRunnable2 : public SyncRunnableBase {
   }
 
  private:
-  Receiver *mReceiver;
+  Receiver* mReceiver;
   ReceiverMethod mMethod;
   Arg1Ref mArg1;
   Arg2Ref mArg2;
@@ -138,7 +138,7 @@ class SyncRunnable3 : public SyncRunnableBase {
   typedef typename RefType<Arg2>::type Arg2Ref;
   typedef typename RefType<Arg3>::type Arg3Ref;
 
-  SyncRunnable3(Receiver *receiver, ReceiverMethod method, Arg1Ref arg1,
+  SyncRunnable3(Receiver* receiver, ReceiverMethod method, Arg1Ref arg1,
                 Arg2Ref arg2, Arg3Ref arg3)
       : mReceiver(receiver),
         mMethod(method),
@@ -153,7 +153,7 @@ class SyncRunnable3 : public SyncRunnableBase {
   }
 
  private:
-  Receiver *mReceiver;
+  Receiver* mReceiver;
   ReceiverMethod mMethod;
   Arg1Ref mArg1;
   Arg2Ref mArg2;
@@ -171,7 +171,7 @@ class SyncRunnable4 : public SyncRunnableBase {
   typedef typename RefType<Arg3>::type Arg3Ref;
   typedef typename RefType<Arg4>::type Arg4Ref;
 
-  SyncRunnable4(Receiver *receiver, ReceiverMethod method, Arg1Ref arg1,
+  SyncRunnable4(Receiver* receiver, ReceiverMethod method, Arg1Ref arg1,
                 Arg2Ref arg2, Arg3Ref arg3, Arg4Ref arg4)
       : mReceiver(receiver),
         mMethod(method),
@@ -187,7 +187,7 @@ class SyncRunnable4 : public SyncRunnableBase {
   }
 
  private:
-  Receiver *mReceiver;
+  Receiver* mReceiver;
   ReceiverMethod mMethod;
   Arg1Ref mArg1;
   Arg2Ref mArg2;
@@ -207,7 +207,7 @@ class SyncRunnable5 : public SyncRunnableBase {
   typedef typename RefType<Arg4>::type Arg4Ref;
   typedef typename RefType<Arg5>::type Arg5Ref;
 
-  SyncRunnable5(Receiver *receiver, ReceiverMethod method, Arg1Ref arg1,
+  SyncRunnable5(Receiver* receiver, ReceiverMethod method, Arg1Ref arg1,
                 Arg2Ref arg2, Arg3Ref arg3, Arg4Ref arg4, Arg5Ref arg5)
       : mReceiver(receiver),
         mMethod(method),
@@ -224,7 +224,7 @@ class SyncRunnable5 : public SyncRunnableBase {
   }
 
  private:
-  Receiver *mReceiver;
+  Receiver* mReceiver;
   ReceiverMethod mMethod;
   Arg1Ref mArg1;
   Arg2Ref mArg2;
@@ -233,7 +233,7 @@ class SyncRunnable5 : public SyncRunnableBase {
   Arg5Ref mArg5;
 };
 
-nsresult DispatchSyncRunnable(SyncRunnableBase *r) {
+nsresult DispatchSyncRunnable(SyncRunnableBase* r) {
   if (NS_IsMainThread()) {
     r->Run();
   } else {
@@ -293,16 +293,16 @@ nsresult DispatchSyncRunnable(SyncRunnableBase *r) {
     return DispatchSyncRunnable(r);                                         \
   }
 
-#define NS_SYNCRUNNABLEATTRIBUTE(iface, attribute, type)                \
-  NS_IMETHODIMP iface##Proxy::Get##attribute(type *a1) {                \
-    RefPtr<SyncRunnableBase> r = new SyncRunnable1<nsI##iface, type *>( \
-        mReceiver, &nsI##iface::Get##attribute, a1);                    \
-    return DispatchSyncRunnable(r);                                     \
-  }                                                                     \
-  NS_IMETHODIMP iface##Proxy::Set##attribute(type a1) {                 \
-    RefPtr<SyncRunnableBase> r = new SyncRunnable1<nsI##iface, type>(   \
-        mReceiver, &nsI##iface::Set##attribute, a1);                    \
-    return DispatchSyncRunnable(r);                                     \
+#define NS_SYNCRUNNABLEATTRIBUTE(iface, attribute, type)               \
+  NS_IMETHODIMP iface##Proxy::Get##attribute(type* a1) {               \
+    RefPtr<SyncRunnableBase> r = new SyncRunnable1<nsI##iface, type*>( \
+        mReceiver, &nsI##iface::Get##attribute, a1);                   \
+    return DispatchSyncRunnable(r);                                    \
+  }                                                                    \
+  NS_IMETHODIMP iface##Proxy::Set##attribute(type a1) {                \
+    RefPtr<SyncRunnableBase> r = new SyncRunnable1<nsI##iface, type>(  \
+        mReceiver, &nsI##iface::Set##attribute, a1);                   \
+    return DispatchSyncRunnable(r);                                    \
   }
 
 #define NS_NOTIMPLEMENTED               \
@@ -311,15 +311,15 @@ nsresult DispatchSyncRunnable(SyncRunnableBase *r) {
     return NS_ERROR_UNEXPECTED;         \
   }
 
-NS_SYNCRUNNABLEMETHOD4(StreamListener, OnDataAvailable, nsIRequest *,
-                       nsIInputStream *, uint64_t, uint32_t)
+NS_SYNCRUNNABLEMETHOD4(StreamListener, OnDataAvailable, nsIRequest*,
+                       nsIInputStream*, uint64_t, uint32_t)
 
-NS_SYNCRUNNABLEMETHOD1(StreamListener, OnStartRequest, nsIRequest *)
+NS_SYNCRUNNABLEMETHOD1(StreamListener, OnStartRequest, nsIRequest*)
 
-NS_SYNCRUNNABLEMETHOD2(StreamListener, OnStopRequest, nsIRequest *, nsresult)
+NS_SYNCRUNNABLEMETHOD2(StreamListener, OnStopRequest, nsIRequest*, nsresult)
 
-NS_SYNCRUNNABLEMETHOD2(ImapProtocolSink, GetUrlWindow, nsIMsgMailNewsUrl *,
-                       nsIMsgWindow **)
+NS_SYNCRUNNABLEMETHOD2(ImapProtocolSink, GetUrlWindow, nsIMsgMailNewsUrl*,
+                       nsIMsgWindow**)
 
 NS_SYNCRUNNABLEMETHOD0(ImapProtocolSink, CloseStreams)
 NS_SYNCRUNNABLEMETHOD0(ImapProtocolSink, SetupMainThreadProxies)
@@ -331,137 +331,135 @@ NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, AclFlags, uint32_t)
 NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, UidValidity, int32_t)
 NS_SYNCRUNNABLEATTRIBUTE(ImapMailFolderSink, FolderQuotaCommandIssued, bool)
 NS_SYNCRUNNABLEMETHOD4(ImapMailFolderSink, SetFolderQuotaData, uint32_t,
-                       const nsACString &, uint32_t, uint32_t)
-NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, GetShouldDownloadAllHeaders, bool *)
-NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, GetOnlineDelimiter, char *)
+                       const nsACString&, uint32_t, uint32_t)
+NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, GetShouldDownloadAllHeaders, bool*)
+NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, GetOnlineDelimiter, char*)
 NS_SYNCRUNNABLEMETHOD0(ImapMailFolderSink, OnNewIdleMessages)
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, UpdateImapMailboxStatus,
-                       nsIImapProtocol *, nsIMailboxSpec *)
+                       nsIImapProtocol*, nsIMailboxSpec*)
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, UpdateImapMailboxInfo,
-                       nsIImapProtocol *, nsIMailboxSpec *)
-NS_SYNCRUNNABLEMETHOD3(ImapMailFolderSink, GetMsgHdrsToDownload, bool *,
-                       int32_t *, nsTArray<nsMsgKey> &)
-NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, ParseMsgHdrs, nsIImapProtocol *,
-                       nsIImapHeaderXferInfo *)
+                       nsIImapProtocol*, nsIMailboxSpec*)
+NS_SYNCRUNNABLEMETHOD3(ImapMailFolderSink, GetMsgHdrsToDownload, bool*,
+                       int32_t*, nsTArray<nsMsgKey>&)
+NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, ParseMsgHdrs, nsIImapProtocol*,
+                       nsIImapHeaderXferInfo*)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, AbortHeaderParseStream,
-                       nsIImapProtocol *)
+                       nsIImapProtocol*)
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, OnlineCopyCompleted,
-                       nsIImapProtocol *, ImapOnlineCopyState)
-NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, StartMessage, nsIMsgMailNewsUrl *)
-NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, EndMessage, nsIMsgMailNewsUrl *,
+                       nsIImapProtocol*, ImapOnlineCopyState)
+NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, StartMessage, nsIMsgMailNewsUrl*)
+NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, EndMessage, nsIMsgMailNewsUrl*,
                        nsMsgKey)
-NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, NotifySearchHit, nsIMsgMailNewsUrl *,
-                       const char *)
+NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, NotifySearchHit, nsIMsgMailNewsUrl*,
+                       const char*)
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, CopyNextStreamMessage, bool,
-                       nsISupports *)
+                       nsISupports*)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, CloseMockChannel,
-                       nsIImapMockChannel *)
-NS_SYNCRUNNABLEMETHOD5(ImapMailFolderSink, SetUrlState, nsIImapProtocol *,
-                       nsIMsgMailNewsUrl *, bool, bool, nsresult)
+                       nsIImapMockChannel*)
+NS_SYNCRUNNABLEMETHOD5(ImapMailFolderSink, SetUrlState, nsIImapProtocol*,
+                       nsIMsgMailNewsUrl*, bool, bool, nsresult)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, ReleaseUrlCacheEntry,
-                       nsIMsgMailNewsUrl *)
+                       nsIMsgMailNewsUrl*)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, HeaderFetchCompleted,
-                       nsIImapProtocol *)
+                       nsIImapProtocol*)
 NS_SYNCRUNNABLEMETHOD1(ImapMailFolderSink, SetBiffStateAndUpdate, int32_t)
 NS_SYNCRUNNABLEMETHOD3(ImapMailFolderSink, ProgressStatusString,
-                       nsIImapProtocol *, const char *, const char16_t *)
-NS_SYNCRUNNABLEMETHOD4(ImapMailFolderSink, PercentProgress, nsIImapProtocol *,
-                       const char16_t *, int64_t, int64_t)
+                       nsIImapProtocol*, const char*, const char16_t*)
+NS_SYNCRUNNABLEMETHOD4(ImapMailFolderSink, PercentProgress, nsIImapProtocol*,
+                       const char16_t*, int64_t, int64_t)
 NS_SYNCRUNNABLEMETHOD0(ImapMailFolderSink, ClearFolderRights)
-NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, SetCopyResponseUid, const char *,
-                       nsIImapUrl *)
+NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, SetCopyResponseUid, const char*,
+                       nsIImapUrl*)
 NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, SetAppendMsgUid, nsMsgKey,
-                       nsIImapUrl *)
-NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, GetMessageId, nsIImapUrl *,
-                       nsACString &)
+                       nsIImapUrl*)
+NS_SYNCRUNNABLEMETHOD2(ImapMailFolderSink, GetMessageId, nsIImapUrl*,
+                       nsACString&)
 
-NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, SetupMsgWriteStream, nsIFile *, bool)
-NS_SYNCRUNNABLEMETHOD3(ImapMessageSink, ParseAdoptedMsgLine, const char *,
-                       nsMsgKey, nsIImapUrl *)
+NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, SetupMsgWriteStream, nsIFile*, bool)
+NS_SYNCRUNNABLEMETHOD3(ImapMessageSink, ParseAdoptedMsgLine, const char*,
+                       nsMsgKey, nsIImapUrl*)
 NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, NormalEndMsgWriteStream, nsMsgKey, bool,
-                       nsIImapUrl *, int32_t)
+                       nsIImapUrl*, int32_t)
 NS_SYNCRUNNABLEMETHOD0(ImapMessageSink, AbortMsgWriteStream)
 NS_SYNCRUNNABLEMETHOD0(ImapMessageSink, BeginMessageUpload)
 NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, NotifyMessageFlags, uint32_t,
-                       const nsACString &, nsMsgKey, uint64_t)
-NS_SYNCRUNNABLEMETHOD3(ImapMessageSink, NotifyMessageDeleted, const char *,
-                       bool, const char *)
-NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, GetMessageSizeFromDB, const char *,
-                       uint32_t *)
-NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, SetContentModified, nsIImapUrl *,
+                       const nsACString&, nsMsgKey, uint64_t)
+NS_SYNCRUNNABLEMETHOD3(ImapMessageSink, NotifyMessageDeleted, const char*, bool,
+                       const char*)
+NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, GetMessageSizeFromDB, const char*,
+                       uint32_t*)
+NS_SYNCRUNNABLEMETHOD2(ImapMessageSink, SetContentModified, nsIImapUrl*,
                        nsImapContentModifiedType)
-NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, GetCurMoveCopyMessageInfo, nsIImapUrl *,
-                       PRTime *, nsACString &, uint32_t *)
+NS_SYNCRUNNABLEMETHOD4(ImapMessageSink, GetCurMoveCopyMessageInfo, nsIImapUrl*,
+                       PRTime*, nsACString&, uint32_t*)
 
-NS_SYNCRUNNABLEMETHOD4(ImapServerSink, PossibleImapMailbox, const nsACString &,
-                       char, int32_t, bool *)
+NS_SYNCRUNNABLEMETHOD4(ImapServerSink, PossibleImapMailbox, const nsACString&,
+                       char, int32_t, bool*)
 NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderNeedsACLInitialized,
-                       const nsACString &, bool *)
-NS_SYNCRUNNABLEMETHOD3(ImapServerSink, AddFolderRights, const nsACString &,
-                       const nsACString &, const nsACString &)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, RefreshFolderRights, const nsACString &)
+                       const nsACString&, bool*)
+NS_SYNCRUNNABLEMETHOD3(ImapServerSink, AddFolderRights, const nsACString&,
+                       const nsACString&, const nsACString&)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, RefreshFolderRights, const nsACString&)
 NS_SYNCRUNNABLEMETHOD0(ImapServerSink, DiscoveryDone)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, OnlineFolderDelete, const nsACString &)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, OnlineFolderDelete, const nsACString&)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, OnlineFolderCreateFailed,
-                       const nsACString &)
-NS_SYNCRUNNABLEMETHOD3(ImapServerSink, OnlineFolderRename, nsIMsgWindow *,
-                       const nsACString &, const nsACString &)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderIsNoSelect, const nsACString &,
-                       bool *)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, SetFolderAdminURL, const nsACString &,
-                       const nsACString &)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderVerifiedOnline, const nsACString &,
-                       bool *)
+                       const nsACString&)
+NS_SYNCRUNNABLEMETHOD3(ImapServerSink, OnlineFolderRename, nsIMsgWindow*,
+                       const nsACString&, const nsACString&)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderIsNoSelect, const nsACString&,
+                       bool*)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, SetFolderAdminURL, const nsACString&,
+                       const nsACString&)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FolderVerifiedOnline, const nsACString&,
+                       bool*)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetCapability, eIMAPCapabilityFlags)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerID, const nsACString &)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, LoadNextQueuedUrl, nsIImapProtocol *,
-                       bool *)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, PrepareToRetryUrl, nsIImapUrl *,
-                       nsIImapMockChannel **)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SuspendUrl, nsIImapUrl *)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, RetryUrl, nsIImapUrl *,
-                       nsIImapMockChannel *)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerID, const nsACString&)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, LoadNextQueuedUrl, nsIImapProtocol*,
+                       bool*)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, PrepareToRetryUrl, nsIImapUrl*,
+                       nsIImapMockChannel**)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SuspendUrl, nsIImapUrl*)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, RetryUrl, nsIImapUrl*,
+                       nsIImapMockChannel*)
 NS_SYNCRUNNABLEMETHOD0(ImapServerSink, AbortQueuedUrls)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, GetImapStringByName, const char *,
-                       nsAString &)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, PromptLoginFailed, nsIMsgWindow *,
-                       int32_t *)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlert, const nsAString &,
-                       nsIMsgMailNewsUrl *)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertWithName, const char *,
-                       nsIMsgMailNewsUrl *)
-NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertFromServer, const nsACString &,
-                       nsIMsgMailNewsUrl *)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, GetImapStringByName, const char*,
+                       nsAString&)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, PromptLoginFailed, nsIMsgWindow*,
+                       int32_t*)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlert, const nsAString&,
+                       nsIMsgMailNewsUrl*)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertWithName, const char*,
+                       nsIMsgMailNewsUrl*)
+NS_SYNCRUNNABLEMETHOD2(ImapServerSink, FEAlertFromServer, const nsACString&,
+                       nsIMsgMailNewsUrl*)
 NS_SYNCRUNNABLEMETHOD0(ImapServerSink, CommitNamespaces)
-NS_SYNCRUNNABLEMETHOD3(ImapServerSink, AsyncGetPassword, nsIImapProtocol *,
-                       bool, nsAString &)
+NS_SYNCRUNNABLEMETHOD3(ImapServerSink, AsyncGetPassword, nsIImapProtocol*, bool,
+                       nsAString&)
 NS_SYNCRUNNABLEATTRIBUTE(ImapServerSink, UserAuthenticated, bool)
-NS_SYNCRUNNABLEMETHOD3(ImapServerSink, SetMailServerUrls, const nsACString &,
-                       const nsACString &, const nsACString &)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetArbitraryHeaders, nsACString &)
+NS_SYNCRUNNABLEMETHOD3(ImapServerSink, SetMailServerUrls, const nsACString&,
+                       const nsACString&, const nsACString&)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetArbitraryHeaders, nsACString&)
 NS_SYNCRUNNABLEMETHOD0(ImapServerSink, ForgetPassword)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetShowAttachmentsInline, bool *)
-NS_SYNCRUNNABLEMETHOD3(ImapServerSink, CramMD5Hash, const char *, const char *,
-                       char **)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetLoginUsername, nsACString &)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetShowAttachmentsInline, bool*)
+NS_SYNCRUNNABLEMETHOD3(ImapServerSink, CramMD5Hash, const char*, const char*,
+                       char**)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetLoginUsername, nsACString&)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, UpdateTrySTARTTLSPref, bool)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetOriginalUsername, nsACString &)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerKey, nsACString &)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerPassword, nsAString &)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, RemoveServerConnection,
-                       nsIImapProtocol *)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerShuttingDown, bool *)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, ResetServerConnection,
-                       const nsACString &)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetOriginalUsername, nsACString&)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerKey, nsACString&)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerPassword, nsAString&)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, RemoveServerConnection, nsIImapProtocol*)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerShuttingDown, bool*)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, ResetServerConnection, const nsACString&)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerDoingLsub, bool)
-NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerForceSelect, const nsACString &)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerForceSelect, const nsACString&)
 
 namespace mozilla {
 namespace mailnews {
 
 NS_IMPL_ISUPPORTS(OAuth2ThreadHelper, msgIOAuth2ModuleListener)
 
-OAuth2ThreadHelper::OAuth2ThreadHelper(nsIMsgIncomingServer *aServer)
+OAuth2ThreadHelper::OAuth2ThreadHelper(nsIMsgIncomingServer* aServer)
     : mMonitor("OAuth thread lock"), mServer(aServer) {}
 
 OAuth2ThreadHelper::~OAuth2ThreadHelper() {
@@ -500,7 +498,7 @@ bool OAuth2ThreadHelper::SupportsOAuth2() {
   return mOAuth2Support != nullptr;
 }
 
-void OAuth2ThreadHelper::GetXOAuth2String(nsACString &base64Str) {
+void OAuth2ThreadHelper::GetXOAuth2String(nsACString& base64Str) {
   MOZ_ASSERT(!NS_IsMainThread(), "This method cannot run on the main thread");
 
   // Acquire a lock early, before reading anything. Guarantees memory visibility
@@ -557,7 +555,7 @@ void OAuth2ThreadHelper::Connect() {
   }
 }
 
-nsresult OAuth2ThreadHelper::OnSuccess(const nsACString &aOAuth2String) {
+nsresult OAuth2ThreadHelper::OnSuccess(const nsACString& aOAuth2String) {
   MOZ_ASSERT(NS_IsMainThread(), "Can't touch JS off-main-thread");
   MonitorAutoLock lockGuard(mMonitor);
 

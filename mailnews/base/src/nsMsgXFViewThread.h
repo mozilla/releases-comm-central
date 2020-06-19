@@ -18,26 +18,26 @@ class nsMsgSearchDBView;
 
 class nsMsgXFViewThread : public nsIMsgThread {
  public:
-  nsMsgXFViewThread(nsMsgSearchDBView *view, nsMsgKey threadId);
+  nsMsgXFViewThread(nsMsgSearchDBView* view, nsMsgKey threadId);
 
   NS_DECL_NSIMSGTHREAD
   NS_DECL_ISUPPORTS
 
-  bool IsHdrParentOf(nsIMsgDBHdr *possibleParent, nsIMsgDBHdr *possibleChild);
+  bool IsHdrParentOf(nsIMsgDBHdr* possibleParent, nsIMsgDBHdr* possibleChild);
 
   void ChangeUnreadChildCount(int32_t delta);
   void ChangeChildCount(int32_t delta);
 
-  nsresult AddHdr(nsIMsgDBHdr *newHdr, bool reparentChildren,
-                  uint32_t &whereInserted, nsIMsgDBHdr **outParent);
-  int32_t HdrIndex(nsIMsgDBHdr *hdr);
+  nsresult AddHdr(nsIMsgDBHdr* newHdr, bool reparentChildren,
+                  uint32_t& whereInserted, nsIMsgDBHdr** outParent);
+  int32_t HdrIndex(nsIMsgDBHdr* hdr);
   uint32_t ChildLevelAt(uint32_t msgIndex) { return m_levels[msgIndex]; }
   uint32_t MsgCount() { return m_numChildren; };
 
  protected:
   virtual ~nsMsgXFViewThread();
 
-  nsMsgSearchDBView *m_view;
+  nsMsgSearchDBView* m_view;
   uint32_t m_numUnreadChildren;
   uint32_t m_numChildren;
   uint32_t m_flags;

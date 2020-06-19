@@ -47,7 +47,7 @@ static mozilla::LazyLogModule gMovemailLog("Movemail");
 #define LOCK_SUFFIX ".lock"
 #define MOZLOCK_SUFFIX ".mozlock"
 
-const char *gDefaultSpoolPaths[] = {"/var/spool/mail/", "/usr/spool/mail/",
+const char* gDefaultSpoolPaths[] = {"/var/spool/mail/", "/usr/spool/mail/",
                                     "/var/mail/", "/usr/mail/"};
 #define NUM_DEFAULT_SPOOL_PATHS \
   (sizeof(gDefaultSpoolPaths) / sizeof(gDefaultSpoolPaths[0]))
@@ -63,8 +63,8 @@ class MOZ_STACK_CLASS SpoolLock {
    * @param aMovemail   The movemail service requesting the lock.
    * @param aServer     The nsIMsgIncomingServer requesting the lock.
    */
-  SpoolLock(nsACString *aSpoolPath, int aSeconds, nsMovemailService &aMovemail,
-            nsIMsgIncomingServer *aServer);
+  SpoolLock(nsACString* aSpoolPath, int aSeconds, nsMovemailService& aMovemail,
+            nsIMsgIncomingServer* aServer);
 
   ~SpoolLock();
 
@@ -92,16 +92,16 @@ nsMovemailService::~nsMovemailService() {}
 NS_IMPL_ISUPPORTS(nsMovemailService, nsIMovemailService, nsIMsgProtocolInfo)
 
 NS_IMETHODIMP
-nsMovemailService::CheckForNewMail(nsIUrlListener *aUrlListener,
-                                   nsIMsgFolder *inbox,
-                                   nsIMovemailIncomingServer *movemailServer,
-                                   nsIURI **aURL) {
+nsMovemailService::CheckForNewMail(nsIUrlListener* aUrlListener,
+                                   nsIMsgFolder* inbox,
+                                   nsIMovemailIncomingServer* movemailServer,
+                                   nsIURI** aURL) {
   nsresult rv = NS_OK;
   LOG(("nsMovemailService::CheckForNewMail\n"));
   return rv;
 }
 
-void nsMovemailService::Error(const char *errorCode, const char16_t *param) {
+void nsMovemailService::Error(const char* errorCode, const char16_t* param) {
   if (!mMsgWindow) return;
 
   nsCOMPtr<nsIPrompt> dialog;
@@ -130,9 +130,9 @@ void nsMovemailService::Error(const char *errorCode, const char16_t *param) {
   }
 }
 
-SpoolLock::SpoolLock(nsACString *aSpoolName, int aSeconds,
-                     nsMovemailService &aMovemail,
-                     nsIMsgIncomingServer *aServer)
+SpoolLock::SpoolLock(nsACString* aSpoolName, int aSeconds,
+                     nsMovemailService& aMovemail,
+                     nsIMsgIncomingServer* aServer)
     : mLocked(false),
       mSpoolName(*aSpoolName),
       mOwningService(&aMovemail),
@@ -183,7 +183,7 @@ bool SpoolLock::ObtainSpoolLock(
 
   if (!mUsingLockFile) {
     LOG(("Attempting to use kernel file lock"));
-    PRFileDesc *fd;
+    PRFileDesc* fd;
     rv = spoolFile->OpenNSPRFileDesc(PR_RDWR, 0, &fd);
     NS_ENSURE_SUCCESS(rv, false);
     PRStatus lock_result;
@@ -284,7 +284,7 @@ bool SpoolLock::YieldSpoolLock() {
         NS_NewNativeLocalFile(mSpoolName, true, getter_AddRefs(spoolFile));
     NS_ENSURE_SUCCESS(rv, false);
 
-    PRFileDesc *fd;
+    PRFileDesc* fd;
     rv = spoolFile->OpenNSPRFileDesc(PR_RDWR, 0, &fd);
     NS_ENSURE_SUCCESS(rv, false);
 
@@ -321,7 +321,7 @@ bool SpoolLock::YieldSpoolLock() {
   return true;
 }
 
-static nsresult LocateSpoolFile(nsACString &spoolPath) {
+static nsresult LocateSpoolFile(nsACString& spoolPath) {
   bool isFile;
   nsresult rv;
 
@@ -329,8 +329,8 @@ static nsresult LocateSpoolFile(nsACString &spoolPath) {
   rv = NS_NewNativeLocalFile(EmptyCString(), true, getter_AddRefs(spoolFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  char *mailEnv = PR_GetEnv("MAIL");
-  char *userEnv = PR_GetEnv("USER");
+  char* mailEnv = PR_GetEnv("MAIL");
+  char* userEnv = PR_GetEnv("USER");
   if (!userEnv) userEnv = PR_GetEnv("USERNAME");
 
   if (mailEnv) {
@@ -360,9 +360,9 @@ static nsresult LocateSpoolFile(nsACString &spoolPath) {
 }
 
 nsresult nsMovemailService::GetNewMail(
-    nsIMsgWindow *aMsgWindow, nsIUrlListener * /* aUrlListener */,
-    nsIMsgFolder * /* aMsgFolder */, nsIMovemailIncomingServer *aMovemailServer,
-    nsIURI ** /* aURL */) {
+    nsIMsgWindow* aMsgWindow, nsIUrlListener* /* aUrlListener */,
+    nsIMsgFolder* /* aMsgFolder */, nsIMovemailIncomingServer* aMovemailServer,
+    nsIURI** /* aURL */) {
   LOG(("nsMovemailService::GetNewMail"));
 
   NS_ENSURE_ARG_POINTER(aMovemailServer);
@@ -505,14 +505,14 @@ nsresult nsMovemailService::GetNewMail(
 }
 
 NS_IMETHODIMP
-nsMovemailService::SetDefaultLocalPath(nsIFile *aPath) {
+nsMovemailService::SetDefaultLocalPath(nsIFile* aPath) {
   NS_ENSURE_ARG(aPath);
   return NS_SetPersistentFile(PREF_MAIL_ROOT_MOVEMAIL_REL,
                               PREF_MAIL_ROOT_MOVEMAIL, aPath);
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetDefaultLocalPath(nsIFile **aResult) {
+nsMovemailService::GetDefaultLocalPath(nsIFile** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = nullptr;
 
@@ -541,13 +541,13 @@ nsMovemailService::GetDefaultLocalPath(nsIFile **aResult) {
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetServerIID(nsIID **aServerIID) {
+nsMovemailService::GetServerIID(nsIID** aServerIID) {
   *aServerIID = new nsIID(NS_GET_IID(nsIMovemailIncomingServer));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetRequiresUsername(bool *aRequiresUsername) {
+nsMovemailService::GetRequiresUsername(bool* aRequiresUsername) {
   NS_ENSURE_ARG_POINTER(aRequiresUsername);
   *aRequiresUsername = false;
   return NS_OK;
@@ -555,49 +555,49 @@ nsMovemailService::GetRequiresUsername(bool *aRequiresUsername) {
 
 NS_IMETHODIMP
 nsMovemailService::GetPreflightPrettyNameWithEmailAddress(
-    bool *aPreflightPrettyNameWithEmailAddress) {
+    bool* aPreflightPrettyNameWithEmailAddress) {
   NS_ENSURE_ARG_POINTER(aPreflightPrettyNameWithEmailAddress);
   *aPreflightPrettyNameWithEmailAddress = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanLoginAtStartUp(bool *aCanLoginAtStartUp) {
+nsMovemailService::GetCanLoginAtStartUp(bool* aCanLoginAtStartUp) {
   NS_ENSURE_ARG_POINTER(aCanLoginAtStartUp);
   *aCanLoginAtStartUp = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanDelete(bool *aCanDelete) {
+nsMovemailService::GetCanDelete(bool* aCanDelete) {
   NS_ENSURE_ARG_POINTER(aCanDelete);
   *aCanDelete = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanGetMessages(bool *aCanGetMessages) {
+nsMovemailService::GetCanGetMessages(bool* aCanGetMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetMessages);
   *aCanGetMessages = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanGetIncomingMessages(bool *aCanGetIncomingMessages) {
+nsMovemailService::GetCanGetIncomingMessages(bool* aCanGetIncomingMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetIncomingMessages);
   *aCanGetIncomingMessages = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetCanDuplicate(bool *aCanDuplicate) {
+nsMovemailService::GetCanDuplicate(bool* aCanDuplicate) {
   NS_ENSURE_ARG_POINTER(aCanDuplicate);
   *aCanDuplicate = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetDefaultDoBiff(bool *aDoBiff) {
+nsMovemailService::GetDefaultDoBiff(bool* aDoBiff) {
   NS_ENSURE_ARG_POINTER(aDoBiff);
   // by default, do biff for movemail
   *aDoBiff = true;
@@ -605,21 +605,21 @@ nsMovemailService::GetDefaultDoBiff(bool *aDoBiff) {
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetDefaultServerPort(bool isSecure, int32_t *aDefaultPort) {
+nsMovemailService::GetDefaultServerPort(bool isSecure, int32_t* aDefaultPort) {
   NS_ENSURE_ARG_POINTER(aDefaultPort);
   *aDefaultPort = -1;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetShowComposeMsgLink(bool *showComposeMsgLink) {
+nsMovemailService::GetShowComposeMsgLink(bool* showComposeMsgLink) {
   NS_ENSURE_ARG_POINTER(showComposeMsgLink);
   *showComposeMsgLink = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailService::GetFoldersCreatedAsync(bool *aAsyncCreation) {
+nsMovemailService::GetFoldersCreatedAsync(bool* aAsyncCreation) {
   NS_ENSURE_ARG_POINTER(aAsyncCreation);
   *aAsyncCreation = false;
   return NS_OK;

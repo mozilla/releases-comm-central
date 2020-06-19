@@ -42,12 +42,12 @@ class nsLDAPSyncQuery : public nsILDAPSyncQuery,
 
   nsresult InitConnection();
   // check that we bound ok and start then call StartLDAPSearch
-  nsresult OnLDAPBind(nsILDAPMessage *aMessage);
+  nsresult OnLDAPBind(nsILDAPMessage* aMessage);
 
   // add to the results set
-  nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage);
+  nsresult OnLDAPSearchEntry(nsILDAPMessage* aMessage);
 
-  nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage);
+  nsresult OnLDAPSearchResult(nsILDAPMessage* aMessage);
 
   // kick off a search
   nsresult StartLDAPSearch();

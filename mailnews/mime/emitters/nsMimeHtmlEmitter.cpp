@@ -42,7 +42,7 @@ class nsMimeStringEnumerator final : public nsStringEnumeratorBase {
   nsMimeStringEnumerator() : mCurrentIndex(0) {}
 
   template <class T>
-  nsCString *Append(T value) {
+  nsCString* Append(T value) {
     return mValues.AppendElement(value);
   }
 
@@ -58,14 +58,14 @@ NS_IMPL_ISUPPORTS(nsMimeStringEnumerator, nsIUTF8StringEnumerator,
                   nsIStringEnumerator)
 
 NS_IMETHODIMP
-nsMimeStringEnumerator::HasMore(bool *result) {
+nsMimeStringEnumerator::HasMore(bool* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = mCurrentIndex < mValues.Length();
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeStringEnumerator::GetNext(nsACString &result) {
+nsMimeStringEnumerator::GetNext(nsACString& result) {
   if (mCurrentIndex >= mValues.Length()) return NS_ERROR_UNEXPECTED;
 
   result = mValues[mCurrentIndex++];
@@ -95,7 +95,7 @@ bool nsMimeHtmlDisplayEmitter::BroadCastHeadersAndAttachments() {
 }
 
 nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPrefix(
-    const nsACString &name) {
+    const nsACString& name) {
   if (!BroadCastHeadersAndAttachments() ||
       (mFormat == nsMimeOutput::nsMimeMessagePrintOutput))
     return nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(name);
@@ -103,8 +103,8 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPrefix(
     return NS_OK;
 }
 
-nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTML(const char *field,
-                                                        const char *value) {
+nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTML(const char* field,
+                                                        const char* value) {
   if (!BroadCastHeadersAndAttachments() ||
       (mFormat == nsMimeOutput::nsMimeMessagePrintOutput))
     return nsMimeBaseEmitter::WriteHeaderFieldHTML(field, value);
@@ -121,7 +121,7 @@ nsresult nsMimeHtmlDisplayEmitter::WriteHeaderFieldHTMLPostfix() {
 }
 
 nsresult nsMimeHtmlDisplayEmitter::GetHeaderSink(
-    nsIMsgHeaderSink **aHeaderSink) {
+    nsIMsgHeaderSink** aHeaderSink) {
   nsresult rv = NS_OK;
   if ((mChannel) && (!mHeaderSink)) {
     nsCOMPtr<nsIURI> uri;
@@ -147,7 +147,7 @@ nsresult nsMimeHtmlDisplayEmitter::GetHeaderSink(
 }
 
 nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
-    nsIMsgHeaderSink *aHeaderSink, int32_t aHeaderMode, bool aFromNewsgroup) {
+    nsIMsgHeaderSink* aHeaderSink, int32_t aHeaderMode, bool aFromNewsgroup) {
   // two string enumerators to pass out to the header sink
   RefPtr<nsMimeStringEnumerator> headerNameEnumerator =
       new nsMimeStringEnumerator();
@@ -192,7 +192,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
   }
 
   for (size_t i = 0; i < mHeaderArray->Length(); i++) {
-    headerInfoType *headerInfo = mHeaderArray->ElementAt(i);
+    headerInfoType* headerInfo = mHeaderArray->ElementAt(i);
     if ((!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) ||
         (!headerInfo->value) || (!(*headerInfo->value)))
       continue;
@@ -203,7 +203,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
     if (aHeaderMode != VIEW_ALL_HEADERS &&
         (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer)) {
       bool skip = true;
-      const char *headerName = headerInfo->name;
+      const char* headerName = headerInfo->name;
       if (pushAllHeaders) {
         skip = false;
 
@@ -247,7 +247,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
       if (skip) continue;
     }
 
-    const char *headerValue = headerInfo->value;
+    const char* headerValue = headerInfo->value;
     headerNameEnumerator->Append(headerInfo->name);
     headerValueEnumerator->Append(headerValue);
 
@@ -265,7 +265,7 @@ nsresult nsMimeHtmlDisplayEmitter::BroadcastHeaders(
 }
 
 NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
-    const nsACString &name) {
+    const nsACString& name) {
   // if we aren't broadcasting headers OR printing...just do whatever
   // our base class does...
   if (mFormat == nsMimeOutput::nsMimeMessagePrintOutput) {
@@ -282,7 +282,7 @@ NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
 
   bool bFromNewsgroups = false;
   for (size_t j = 0; j < mHeaderArray->Length(); j++) {
-    headerInfoType *headerInfo = mHeaderArray->ElementAt(j);
+    headerInfoType* headerInfo = mHeaderArray->ElementAt(j);
     if (!(headerInfo && headerInfo->name && *headerInfo->name)) continue;
 
     if (!PL_strcasecmp("Newsgroups", headerInfo->name)) {
@@ -308,12 +308,12 @@ NS_IMETHODIMP nsMimeHtmlDisplayEmitter::WriteHTMLHeaders(
   return NS_OK;
 }
 
-nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString &name) {
+nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString& name) {
   if (mDocHeader && (mFormat != nsMimeOutput::nsMimeMessageFilterSniffer)) {
     UtilityWriteCRLF("<html>");
     UtilityWriteCRLF("<head>");
 
-    const char *val = GetHeaderValue(HEADER_SUBJECT);  // do not free this value
+    const char* val = GetHeaderValue(HEADER_SUBJECT);  // do not free this value
     if (val) {
       nsCString subject("<title>");
       nsAppendEscapedHTML(nsDependentCString(val), subject);
@@ -335,9 +335,9 @@ nsresult nsMimeHtmlDisplayEmitter::EndHeader(const nsACString &name) {
   return NS_OK;
 }
 
-nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString &name,
-                                                   const char *contentType,
-                                                   const char *url,
+nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString& name,
+                                                   const char* contentType,
+                                                   const char* url,
                                                    bool aIsExternalAttachment) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgHeaderSink> headerSink;
@@ -388,7 +388,7 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachment(const nsACString &name,
 // informational and only show up during printing
 // XXX should they also show up during quoting?
 nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
-    const nsACString &name, const char *contentType, const char *url) {
+    const nsACString& name, const char* contentType, const char* url) {
   mSkipAttachment = false;
   bool p7mExternal = false;
 
@@ -445,8 +445,8 @@ nsresult nsMimeHtmlDisplayEmitter::StartAttachmentInBody(
   return NS_OK;
 }
 
-nsresult nsMimeHtmlDisplayEmitter::AddAttachmentField(const char *field,
-                                                      const char *value) {
+nsresult nsMimeHtmlDisplayEmitter::AddAttachmentField(const char* field,
+                                                      const char* value) {
   if (mSkipAttachment) return NS_OK;
 
   // Don't let bad things happen
@@ -500,8 +500,8 @@ nsresult nsMimeHtmlDisplayEmitter::EndAllAttachments() {
   return rv;
 }
 
-nsresult nsMimeHtmlDisplayEmitter::WriteBody(const nsACString &buf,
-                                             uint32_t *amountWritten) {
+nsresult nsMimeHtmlDisplayEmitter::WriteBody(const nsACString& buf,
+                                             uint32_t* amountWritten) {
   Write(buf, amountWritten);
   return NS_OK;
 }

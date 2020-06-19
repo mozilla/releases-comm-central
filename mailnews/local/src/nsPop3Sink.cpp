@@ -70,21 +70,21 @@ nsresult nsPop3Sink::SetUserAuthenticated(bool authed) {
   return NS_OK;
 }
 
-nsresult nsPop3Sink::GetUserAuthenticated(bool *authed) {
+nsresult nsPop3Sink::GetUserAuthenticated(bool* authed) {
   return m_popServer->GetAuthenticated(authed);
 }
 
-nsresult nsPop3Sink::SetSenderAuthedFlag(void *closure, bool authed) {
+nsresult nsPop3Sink::SetSenderAuthedFlag(void* closure, bool authed) {
   m_authed = authed;
   return NS_OK;
 }
 
-nsresult nsPop3Sink::SetMailAccountURL(const nsACString &urlString) {
+nsresult nsPop3Sink::SetMailAccountURL(const nsACString& urlString) {
   m_accountUrl.Assign(urlString);
   return NS_OK;
 }
 
-nsresult nsPop3Sink::GetMailAccountURL(nsACString &urlString) {
+nsresult nsPop3Sink::GetMailAccountURL(nsACString& urlString) {
   urlString.Assign(m_accountUrl);
   return NS_OK;
 }
@@ -134,7 +134,7 @@ nsresult nsPop3Sink::FindPartialMessages() {
       if (folderScanState.m_uidl &&
           m_accountKey.Equals(folderScanState.m_accountKey,
                               nsCaseInsensitiveCStringComparator)) {
-        partialRecord *partialMsg = new partialRecord();
+        partialRecord* partialMsg = new partialRecord();
         if (partialMsg) {
           partialMsg->m_uidl = folderScanState.m_uidl;
           partialMsg->m_msgDBHdr = msgDBHdr;
@@ -153,12 +153,12 @@ nsresult nsPop3Sink::FindPartialMessages() {
 // ask the protocol handler if they still exist on the server.
 // Any messages that don't exist any more are deleted from the
 // msgDB.
-void nsPop3Sink::CheckPartialMessages(nsIPop3Protocol *protocol) {
+void nsPop3Sink::CheckPartialMessages(nsIPop3Protocol* protocol) {
   uint32_t count = m_partialMsgsArray.Length();
   bool deleted = false;
 
   for (uint32_t i = 0; i < count; i++) {
-    partialRecord *partialMsg;
+    partialRecord* partialMsg;
     bool found = true;
     partialMsg = m_partialMsgsArray.ElementAt(i);
     protocol->CheckMessage(partialMsg->m_uidl.get(), &found);
@@ -178,7 +178,7 @@ void nsPop3Sink::CheckPartialMessages(nsIPop3Protocol *protocol) {
 }
 
 nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
-                                       nsIMsgWindow *aMsgWindow, bool *aBool) {
+                                       nsIMsgWindow* aMsgWindow, bool* aBool) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgIncomingServer> server = do_QueryInterface(m_popServer);
@@ -195,7 +195,7 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
 
   bool isLocked;
   nsCOMPtr<nsISupports> supports =
-      do_QueryInterface(static_cast<nsIPop3Sink *>(this));
+      do_QueryInterface(static_cast<nsIPop3Sink*>(this));
   m_folder->GetLocked(&isLocked);
   if (!isLocked) {
     MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug,
@@ -222,7 +222,7 @@ nsresult nsPop3Sink::BeginMailDelivery(bool uidlDownload,
   return NS_OK;
 }
 
-nsresult nsPop3Sink::EndMailDelivery(nsIPop3Protocol *protocol) {
+nsresult nsPop3Sink::EndMailDelivery(nsIPop3Protocol* protocol) {
   CheckPartialMessages(protocol);
 
   if (m_newMailParser) {
@@ -329,7 +329,7 @@ nsresult nsPop3Sink::ReleaseFolderLock() {
   if (!m_folder) return result;
   bool haveSemaphore;
   nsCOMPtr<nsISupports> supports =
-      do_QueryInterface(static_cast<nsIPop3Sink *>(this));
+      do_QueryInterface(static_cast<nsIPop3Sink*>(this));
   result = m_folder->TestSemaphore(supports, &haveSemaphore);
   MOZ_LOG(POP3LOGMODULE, mozilla::LogLevel::Debug,
           (POP3LOG("ReleaseFolderLock haveSemaphore = %s"),
@@ -340,7 +340,7 @@ nsresult nsPop3Sink::ReleaseFolderLock() {
   return result;
 }
 
-nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol *protocol) {
+nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol* protocol) {
   CheckPartialMessages(protocol);
 
   // ### PS TODO - discard any new message?
@@ -373,8 +373,8 @@ nsresult nsPop3Sink::AbortMailDelivery(nsIPop3Protocol *protocol) {
 }
 
 NS_IMETHODIMP
-nsPop3Sink::IncorporateBegin(const char *uidlString, nsIURI *aURL,
-                             uint32_t flags, void **closure) {
+nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
+                             uint32_t flags, void** closure) {
 #ifdef DEBUG
   printf("Incorporate message begin:\n");
   if (uidlString) printf("uidl string: %s\n", uidlString);
@@ -459,7 +459,7 @@ nsPop3Sink::IncorporateBegin(const char *uidlString, nsIURI *aURL,
     rv = NS_OK;
   }
 
-  if (closure) *closure = (void *)this;
+  if (closure) *closure = (void*)this;
 
 #ifdef DEBUG
   // Debugging, see bug 1116055.
@@ -518,7 +518,7 @@ nsPop3Sink::IncorporateBegin(const char *uidlString, nsIURI *aURL,
   }
 
   // WriteLineToMailbox("X-Mozilla-Status: 8000" MSG_LINEBREAK);
-  char *statusLine = PR_smprintf(X_MOZILLA_STATUS_FORMAT MSG_LINEBREAK, flags);
+  char* statusLine = PR_smprintf(X_MOZILLA_STATUS_FORMAT MSG_LINEBREAK, flags);
   outputString.Assign(statusLine);
   rv = WriteLineToMailbox(outputString);
   PR_smprintf_free(statusLine);
@@ -534,30 +534,30 @@ nsPop3Sink::IncorporateBegin(const char *uidlString, nsIURI *aURL,
 }
 
 NS_IMETHODIMP
-nsPop3Sink::SetPopServer(nsIPop3IncomingServer *server) {
+nsPop3Sink::SetPopServer(nsIPop3IncomingServer* server) {
   m_popServer = server;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Sink::GetPopServer(nsIPop3IncomingServer **aServer) {
+nsPop3Sink::GetPopServer(nsIPop3IncomingServer** aServer) {
   NS_ENSURE_ARG_POINTER(aServer);
   NS_IF_ADDREF(*aServer = m_popServer);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Sink::GetFolder(nsIMsgFolder **aFolder) {
+NS_IMETHODIMP nsPop3Sink::GetFolder(nsIMsgFolder** aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_IF_ADDREF(*aFolder = m_folder);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Sink::SetFolder(nsIMsgFolder *aFolder) {
+NS_IMETHODIMP nsPop3Sink::SetFolder(nsIMsgFolder* aFolder) {
   m_folder = aFolder;
   return NS_OK;
 }
 
-nsresult nsPop3Sink::GetServerFolder(nsIMsgFolder **aFolder) {
+nsresult nsPop3Sink::GetServerFolder(nsIMsgFolder** aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
 
   if (m_popServer) {
@@ -576,10 +576,10 @@ NS_IMETHODIMP nsPop3Sink::SetMsgsToDownload(uint32_t aNumMessages) {
   return NS_OK;
 }
 
-char *nsPop3Sink::GetDummyEnvelope(void) {
+char* nsPop3Sink::GetDummyEnvelope(void) {
   static char result[75];
-  char *ct;
-  time_t now = time((time_t *)0);
+  char* ct;
+  time_t now = time((time_t*)0);
 #if defined(XP_WIN)
   if (now < 0 || now > 0x7FFFFFFF) now = 0x7FFFFFFF;
 #endif
@@ -594,7 +594,7 @@ char *nsPop3Sink::GetDummyEnvelope(void) {
   return result;
 }
 
-nsresult nsPop3Sink::IncorporateWrite(const char *block, int32_t length) {
+nsresult nsPop3Sink::IncorporateWrite(const char* block, int32_t length) {
   m_outputBuffer.Truncate();
   if (!strncmp(block, "From ", 5)) m_outputBuffer.Assign('>');
 
@@ -603,7 +603,7 @@ nsresult nsPop3Sink::IncorporateWrite(const char *block, int32_t length) {
   return WriteLineToMailbox(m_outputBuffer);
 }
 
-nsresult nsPop3Sink::WriteLineToMailbox(const nsACString &buffer) {
+nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
   if (!buffer.IsEmpty()) {
     uint32_t bufferLen = buffer.Length();
     if (m_newMailParser)
@@ -681,7 +681,7 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString &buffer) {
   return NS_OK;
 }
 
-nsresult nsPop3Sink::HandleTempDownloadFailed(nsIMsgWindow *msgWindow) {
+nsresult nsPop3Sink::HandleTempDownloadFailed(nsIMsgWindow* msgWindow) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
@@ -719,7 +719,7 @@ nsresult nsPop3Sink::HandleTempDownloadFailed(nsIMsgWindow *msgWindow) {
 }
 
 NS_IMETHODIMP
-nsPop3Sink::IncorporateComplete(nsIMsgWindow *aMsgWindow, int32_t aSize) {
+nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
   if (m_buildMessageUri && !m_baseMessageUri.IsEmpty() && m_newMailParser &&
       m_newMailParser->m_newMsgHdr) {
     nsMsgKey msgKey;
@@ -867,7 +867,7 @@ nsresult nsPop3Sink::SetBiffStateAndUpdateFE(uint32_t aBiffState,
 }
 
 NS_IMETHODIMP
-nsPop3Sink::GetBuildMessageUri(bool *bVal) {
+nsPop3Sink::GetBuildMessageUri(bool* bVal) {
   NS_ENSURE_ARG_POINTER(bVal);
   *bVal = m_buildMessageUri;
   return NS_OK;
@@ -880,7 +880,7 @@ nsPop3Sink::SetBuildMessageUri(bool bVal) {
 }
 
 NS_IMETHODIMP
-nsPop3Sink::GetMessageUri(char **messageUri) {
+nsPop3Sink::GetMessageUri(char** messageUri) {
   NS_ENSURE_ARG_POINTER(messageUri);
   NS_ENSURE_TRUE(!m_messageUri.IsEmpty(), NS_ERROR_FAILURE);
   *messageUri = ToNewCString(m_messageUri);
@@ -888,14 +888,14 @@ nsPop3Sink::GetMessageUri(char **messageUri) {
 }
 
 NS_IMETHODIMP
-nsPop3Sink::SetMessageUri(const char *messageUri) {
+nsPop3Sink::SetMessageUri(const char* messageUri) {
   NS_ENSURE_ARG_POINTER(messageUri);
   m_messageUri = messageUri;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Sink::GetBaseMessageUri(char **baseMessageUri) {
+nsPop3Sink::GetBaseMessageUri(char** baseMessageUri) {
   NS_ENSURE_ARG_POINTER(baseMessageUri);
   NS_ENSURE_TRUE(!m_baseMessageUri.IsEmpty(), NS_ERROR_FAILURE);
   *baseMessageUri = ToNewCString(m_baseMessageUri);
@@ -903,20 +903,20 @@ nsPop3Sink::GetBaseMessageUri(char **baseMessageUri) {
 }
 
 NS_IMETHODIMP
-nsPop3Sink::SetBaseMessageUri(const char *baseMessageUri) {
+nsPop3Sink::SetBaseMessageUri(const char* baseMessageUri) {
   NS_ENSURE_ARG_POINTER(baseMessageUri);
   m_baseMessageUri = baseMessageUri;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Sink::GetOrigMessageUri(nsACString &aOrigMessageUri) {
+nsPop3Sink::GetOrigMessageUri(nsACString& aOrigMessageUri) {
   aOrigMessageUri.Assign(m_origMessageUri);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Sink::SetOrigMessageUri(const nsACString &aOrigMessageUri) {
+nsPop3Sink::SetOrigMessageUri(const nsACString& aOrigMessageUri) {
   m_origMessageUri.Assign(aOrigMessageUri);
   return NS_OK;
 }

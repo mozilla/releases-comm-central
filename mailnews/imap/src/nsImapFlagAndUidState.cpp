@@ -15,14 +15,14 @@ NS_IMPL_ISUPPORTS(nsImapFlagAndUidState, nsIImapFlagAndUidState)
 
 using namespace mozilla;
 
-NS_IMETHODIMP nsImapFlagAndUidState::GetNumberOfMessages(int32_t *result) {
+NS_IMETHODIMP nsImapFlagAndUidState::GetNumberOfMessages(int32_t* result) {
   if (!result) return NS_ERROR_NULL_POINTER;
   *result = fUids.Length();
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::GetUidOfMessage(int32_t zeroBasedIndex,
-                                                     uint32_t *aResult) {
+                                                     uint32_t* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   PR_CEnterMonitor(this);
@@ -32,7 +32,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetUidOfMessage(int32_t zeroBasedIndex,
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::GetMessageFlags(int32_t zeroBasedIndex,
-                                                     uint16_t *aResult) {
+                                                     uint16_t* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = fFlags.SafeElementAt(zeroBasedIndex, kNoImapMsgFlag);
   return NS_OK;
@@ -45,7 +45,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::SetMessageFlags(int32_t zeroBasedIndex,
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::GetNumberOfRecentMessages(
-    int32_t *result) {
+    int32_t* result) {
   if (!result) return NS_ERROR_NULL_POINTER;
 
   PR_CEnterMonitor(this);
@@ -63,7 +63,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::GetNumberOfRecentMessages(
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::GetPartialUIDFetch(
-    bool *aPartialUIDFetch) {
+    bool* aPartialUIDFetch) {
   NS_ENSURE_ARG_POINTER(aPartialUIDFetch);
   *aPartialUIDFetch = fPartialUIDFetch;
   return NS_OK;
@@ -93,7 +93,7 @@ nsImapFlagAndUidState::OrSupportedUserFlags(uint16_t flags) {
 }
 
 NS_IMETHODIMP
-nsImapFlagAndUidState::GetSupportedUserFlags(uint16_t *aFlags) {
+nsImapFlagAndUidState::GetSupportedUserFlags(uint16_t* aFlags) {
   NS_ENSURE_ARG_POINTER(aFlags);
   *aFlags = fSupportedUserFlags;
   return NS_OK;
@@ -165,7 +165,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidFlagPair(uint32_t uid,
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::GetNumberOfDeletedMessages(
-    int32_t *numDeletedMessages) {
+    int32_t* numDeletedMessages) {
   NS_ENSURE_ARG_POINTER(numDeletedMessages);
   *numDeletedMessages = NumberOfDeletedMessages();
   return NS_OK;
@@ -208,7 +208,7 @@ bool nsImapFlagAndUidState::IsLastMessageUnseen() {
 // the index of where the key should be inserted
 
 imapMessageFlagsType nsImapFlagAndUidState::GetMessageFlagsFromUID(
-    uint32_t uid, bool *foundIt, int32_t *ndx) {
+    uint32_t uid, bool* foundIt, int32_t* ndx) {
   PR_CEnterMonitor(this);
   *ndx = (int32_t)fUids.IndexOfFirstElementGt(uid) - 1;
   *foundIt = *ndx >= 0 && fUids[*ndx] == uid;
@@ -218,7 +218,7 @@ imapMessageFlagsType nsImapFlagAndUidState::GetMessageFlagsFromUID(
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(
-    uint32_t uid, const char *customFlag) {
+    uint32_t uid, const char* customFlag) {
   if (!customFlag) return NS_OK;
 
   MutexAutoLock mon(mLock);
@@ -256,7 +256,7 @@ NS_IMETHODIMP nsImapFlagAndUidState::AddUidCustomFlagPair(
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::GetCustomFlags(uint32_t uid,
-                                                    char **customFlags) {
+                                                    char** customFlags) {
   MutexAutoLock mon(mLock);
   nsCString value;
   if (m_customFlagsHash.Get(uid, &value)) {
@@ -274,8 +274,8 @@ NS_IMETHODIMP nsImapFlagAndUidState::ClearCustomFlags(uint32_t uid) {
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::SetCustomAttribute(
-    uint32_t aUid, const nsACString &aCustomAttributeName,
-    const nsACString &aCustomAttributeValue) {
+    uint32_t aUid, const nsACString& aCustomAttributeName,
+    const nsACString& aCustomAttributeValue) {
   nsCString key;
   key.AppendInt((int64_t)aUid);
   key.Append(aCustomAttributeName);
@@ -286,8 +286,8 @@ NS_IMETHODIMP nsImapFlagAndUidState::SetCustomAttribute(
 }
 
 NS_IMETHODIMP nsImapFlagAndUidState::GetCustomAttribute(
-    uint32_t aUid, const nsACString &aCustomAttributeName,
-    nsACString &aCustomAttributeValue) {
+    uint32_t aUid, const nsACString& aCustomAttributeName,
+    nsACString& aCustomAttributeValue) {
   nsCString key;
   key.AppendInt((int64_t)aUid);
   key.Append(aCustomAttributeName);

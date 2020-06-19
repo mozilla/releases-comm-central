@@ -89,25 +89,25 @@ struct MimeMultipartSignedClass {
   MimeMultipartClass multipart;
 
   /* Callbacks used by dexlateion (really, signature verification) module. */
-  void *(*crypto_init)(MimeObject *multipart_object);
+  void* (*crypto_init)(MimeObject* multipart_object);
 
-  int (*crypto_data_hash)(const char *data, int32_t data_size,
-                          void *crypto_closure);
-  int (*crypto_signature_hash)(const char *data, int32_t data_size,
-                               void *crypto_closure);
+  int (*crypto_data_hash)(const char* data, int32_t data_size,
+                          void* crypto_closure);
+  int (*crypto_signature_hash)(const char* data, int32_t data_size,
+                               void* crypto_closure);
 
-  int (*crypto_data_eof)(void *crypto_closure, bool abort_p);
-  int (*crypto_signature_eof)(void *crypto_closure, bool abort_p);
+  int (*crypto_data_eof)(void* crypto_closure, bool abort_p);
+  int (*crypto_signature_eof)(void* crypto_closure, bool abort_p);
 
-  int (*crypto_signature_init)(void *crypto_closure,
-                               MimeObject *multipart_object,
-                               MimeHeaders *signature_hdrs);
+  int (*crypto_signature_init)(void* crypto_closure,
+                               MimeObject* multipart_object,
+                               MimeHeaders* signature_hdrs);
 
-  char *(*crypto_generate_html)(void *crypto_closure);
+  char* (*crypto_generate_html)(void* crypto_closure);
 
-  void (*crypto_notify_suppressed_child)(void *crypto_closure);
+  void (*crypto_notify_suppressed_child)(void* crypto_closure);
 
-  void (*crypto_free)(void *crypto_closure);
+  void (*crypto_free)(void* crypto_closure);
 };
 
 extern "C" MimeMultipartSignedClass mimeMultipartSignedClass;
@@ -116,16 +116,16 @@ struct MimeMultipartSigned {
   MimeMultipart multipart;
   MimeMultipartSignedParseState state; /* State of parser */
 
-  void *crypto_closure; /* Opaque data used by signature
+  void* crypto_closure; /* Opaque data used by signature
             verification module. */
 
-  MimeHeaders *body_hdrs; /* The headers of the signed object. */
-  MimeHeaders *sig_hdrs;  /* The headers of the signature. */
+  MimeHeaders* body_hdrs; /* The headers of the signed object. */
+  MimeHeaders* sig_hdrs;  /* The headers of the signature. */
 
-  MimePartBufferData *part_buffer; /* The buffered body of the signed
+  MimePartBufferData* part_buffer; /* The buffered body of the signed
                   object (see mimepbuf.h) */
 
-  MimeDecoderData *sig_decoder_data; /* The signature is probably base64
+  MimeDecoderData* sig_decoder_data; /* The signature is probably base64
                       encoded; this is the decoder used
                       to get raw bits out of it. */
 };

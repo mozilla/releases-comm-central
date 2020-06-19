@@ -31,9 +31,9 @@ NS_IMPL_ISUPPORTS(nsAbContentHandler, nsIContentHandler,
                   nsIStreamLoaderObserver)
 
 NS_IMETHODIMP
-nsAbContentHandler::HandleContent(const char *aContentType,
-                                  nsIInterfaceRequestor *aWindowContext,
-                                  nsIRequest *request) {
+nsAbContentHandler::HandleContent(const char* aContentType,
+                                  nsIInterfaceRequestor* aWindowContext,
+                                  nsIRequest* request) {
   NS_ENSURE_ARG_POINTER(request);
 
   nsresult rv = NS_OK;
@@ -51,7 +51,7 @@ nsAbContentHandler::HandleContent(const char *aContentType,
       rv = uri->GetPathQueryRef(path);
       NS_ENSURE_SUCCESS(rv, rv);
 
-      const char *startOfVCard = strstr(path.get(), "add?vcard=");
+      const char* startOfVCard = strstr(path.get(), "add?vcard=");
       if (startOfVCard) {
         nsCString unescapedData;
 
@@ -135,9 +135,9 @@ nsAbContentHandler::HandleContent(const char *aContentType,
 }
 
 NS_IMETHODIMP
-nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
-                                     nsISupports *aContext, nsresult aStatus,
-                                     uint32_t datalen, const uint8_t *data) {
+nsAbContentHandler::OnStreamComplete(nsIStreamLoader* aLoader,
+                                     nsISupports* aContext, nsresult aStatus,
+                                     uint32_t datalen, const uint8_t* data) {
   NS_ENSURE_ARG_POINTER(aContext);
   NS_ENSURE_SUCCESS(
       aStatus, aStatus);  // don't process the vcard if we got a status error
@@ -149,7 +149,7 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader *aLoader,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbCard> cardFromVCard;
-  rv = vCardService->EscapedVCardToAbCard((const char *)data,
+  rv = vCardService->EscapedVCardToAbCard((const char*)data,
                                           getter_AddRefs(cardFromVCard));
   NS_ENSURE_SUCCESS(rv, rv);
 

@@ -11,16 +11,16 @@ class nsIStringBundle;
 
 class nsImportStringBundle {
  public:
-  static char16_t *GetStringByID(int32_t aStringID,
-                                 nsIStringBundle *aBundle = nullptr);
-  static void GetStringByID(int32_t aStringID, nsIStringBundle *aBundle,
-                            nsString &aResult);
-  static char16_t *GetStringByName(const char *aName,
-                                   nsIStringBundle *aBundle = nullptr);
-  static void GetStringByName(const char *aName, nsIStringBundle *aBundle,
-                              nsString &aResult);
-  static nsresult GetStringBundle(const char *aPropertyURL,
-                                  nsIStringBundle **aBundle);
+  static char16_t* GetStringByID(int32_t aStringID,
+                                 nsIStringBundle* aBundle = nullptr);
+  static void GetStringByID(int32_t aStringID, nsIStringBundle* aBundle,
+                            nsString& aResult);
+  static char16_t* GetStringByName(const char* aName,
+                                   nsIStringBundle* aBundle = nullptr);
+  static void GetStringByName(const char* aName, nsIStringBundle* aBundle,
+                              nsString& aResult);
+  static nsresult GetStringBundle(const char* aPropertyURL,
+                                  nsIStringBundle** aBundle);
 };
 
 #define IMPORT_MSGS_URL "chrome://messenger/locale/importMsgs.properties"

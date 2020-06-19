@@ -22,7 +22,7 @@
 
 NS_IMPL_ISUPPORTS(nsBeckyAddressBooks, nsIImportAddressBooks)
 
-nsresult nsBeckyAddressBooks::Create(nsIImportAddressBooks **aImport) {
+nsresult nsBeckyAddressBooks::Create(nsIImportAddressBooks** aImport) {
   NS_ENSURE_ARG_POINTER(aImport);
   NS_ADDREF(*aImport = new nsBeckyAddressBooks());
   return NS_OK;
@@ -33,14 +33,14 @@ nsBeckyAddressBooks::nsBeckyAddressBooks() : mReadBytes(0) {}
 nsBeckyAddressBooks::~nsBeckyAddressBooks() {}
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::GetSupportsMultiple(bool *_retval) {
+nsBeckyAddressBooks::GetSupportsMultiple(bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::GetAutoFind(char16_t **aDescription, bool *_retval) {
+nsBeckyAddressBooks::GetAutoFind(char16_t** aDescription, bool* _retval) {
   NS_ENSURE_ARG_POINTER(aDescription);
   NS_ENSURE_ARG_POINTER(_retval);
 
@@ -52,7 +52,7 @@ nsBeckyAddressBooks::GetAutoFind(char16_t **aDescription, bool *_retval) {
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::GetNeedsFieldMap(nsIFile *aLocation, bool *_retval) {
+nsBeckyAddressBooks::GetNeedsFieldMap(nsIFile* aLocation, bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   *_retval = false;
@@ -60,7 +60,7 @@ nsBeckyAddressBooks::GetNeedsFieldMap(nsIFile *aLocation, bool *_retval) {
 }
 
 nsresult nsBeckyAddressBooks::FindAddressBookDirectory(
-    nsIFile **aAddressBookDirectory) {
+    nsIFile** aAddressBookDirectory) {
   nsCOMPtr<nsIFile> userDirectory;
   nsresult rv = nsBeckyUtils::FindUserDirectory(getter_AddRefs(userDirectory));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -83,8 +83,8 @@ nsresult nsBeckyAddressBooks::FindAddressBookDirectory(
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::GetDefaultLocation(nsIFile **aLocation, bool *aFound,
-                                        bool *aUserVerify) {
+nsBeckyAddressBooks::GetDefaultLocation(nsIFile** aLocation, bool* aFound,
+                                        bool* aUserVerify) {
   NS_ENSURE_ARG_POINTER(aFound);
   NS_ENSURE_ARG_POINTER(aLocation);
   NS_ENSURE_ARG_POINTER(aUserVerify);
@@ -102,7 +102,7 @@ nsBeckyAddressBooks::GetDefaultLocation(nsIFile **aLocation, bool *aFound,
 }
 
 nsresult nsBeckyAddressBooks::CreateAddressBookDescriptor(
-    nsIImportABDescriptor **aDescriptor) {
+    nsIImportABDescriptor** aDescriptor) {
   nsresult rv;
   nsCOMPtr<nsIImportService> importService =
       do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv);
@@ -111,7 +111,7 @@ nsresult nsBeckyAddressBooks::CreateAddressBookDescriptor(
   return importService->CreateNewABDescriptor(aDescriptor);
 }
 
-bool nsBeckyAddressBooks::IsAddressBookFile(nsIFile *aFile) {
+bool nsBeckyAddressBooks::IsAddressBookFile(nsIFile* aFile) {
   if (!aFile) return false;
 
   nsresult rv;
@@ -124,7 +124,7 @@ bool nsBeckyAddressBooks::IsAddressBookFile(nsIFile *aFile) {
   return StringEndsWith(name, NS_LITERAL_STRING(".bab"));
 }
 
-bool nsBeckyAddressBooks::HasAddressBookFile(nsIFile *aDirectory) {
+bool nsBeckyAddressBooks::HasAddressBookFile(nsIFile* aDirectory) {
   if (!aDirectory) return false;
 
   nsresult rv;
@@ -147,7 +147,7 @@ bool nsBeckyAddressBooks::HasAddressBookFile(nsIFile *aDirectory) {
   return false;
 }
 
-uint32_t nsBeckyAddressBooks::CountAddressBookSize(nsIFile *aDirectory) {
+uint32_t nsBeckyAddressBooks::CountAddressBookSize(nsIFile* aDirectory) {
   if (!aDirectory) return 0;
 
   nsresult rv;
@@ -178,7 +178,7 @@ uint32_t nsBeckyAddressBooks::CountAddressBookSize(nsIFile *aDirectory) {
 }
 
 nsresult nsBeckyAddressBooks::AppendAddressBookDescriptor(
-    nsIFile *aEntry, nsIMutableArray *aCollected) {
+    nsIFile* aEntry, nsIMutableArray* aCollected) {
   NS_ENSURE_ARG_POINTER(aCollected);
 
   if (!HasAddressBookFile(aEntry)) return NS_OK;
@@ -199,8 +199,8 @@ nsresult nsBeckyAddressBooks::AppendAddressBookDescriptor(
   return aCollected->AppendElement(descriptor);
 }
 
-nsresult nsBeckyAddressBooks::CollectAddressBooks(nsIFile *aTarget,
-                                                  nsIMutableArray *aCollected) {
+nsresult nsBeckyAddressBooks::CollectAddressBooks(nsIFile* aTarget,
+                                                  nsIMutableArray* aCollected) {
   nsresult rv = AppendAddressBookDescriptor(aTarget, aCollected);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -225,7 +225,7 @@ nsresult nsBeckyAddressBooks::CollectAddressBooks(nsIFile *aTarget,
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::FindAddressBooks(nsIFile *aLocation, nsIArray **_retval) {
+nsBeckyAddressBooks::FindAddressBooks(nsIFile* aLocation, nsIArray** _retval) {
   NS_ENSURE_ARG_POINTER(aLocation);
   NS_ENSURE_ARG_POINTER(_retval);
 
@@ -246,15 +246,15 @@ nsBeckyAddressBooks::FindAddressBooks(nsIFile *aLocation, nsIArray **_retval) {
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::InitFieldMap(nsIImportFieldMap *aFieldMap) {
+nsBeckyAddressBooks::InitFieldMap(nsIImportFieldMap* aFieldMap) {
   return NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP
 nsBeckyAddressBooks::ImportAddressBook(
-    nsIImportABDescriptor *aSource, nsIAbDirectory *aDestination,
-    nsIImportFieldMap *aFieldMap, nsISupports *aSupportService,
-    char16_t **aErrorLog, char16_t **aSuccessLog, bool *aFatalError) {
+    nsIImportABDescriptor* aSource, nsIAbDirectory* aDestination,
+    nsIImportFieldMap* aFieldMap, nsISupports* aSupportService,
+    char16_t** aErrorLog, char16_t** aSuccessLog, bool* aFatalError) {
   NS_ENSURE_ARG_POINTER(aSource);
   NS_ENSURE_ARG_POINTER(aDestination);
   NS_ENSURE_ARG_POINTER(aErrorLog);
@@ -301,17 +301,17 @@ nsBeckyAddressBooks::ImportAddressBook(
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::GetImportProgress(uint32_t *_retval) {
+nsBeckyAddressBooks::GetImportProgress(uint32_t* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = mReadBytes;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::SetSampleLocation(nsIFile *aLocation) { return NS_OK; }
+nsBeckyAddressBooks::SetSampleLocation(nsIFile* aLocation) { return NS_OK; }
 
 NS_IMETHODIMP
-nsBeckyAddressBooks::GetSampleData(int32_t aRecordNumber, bool *aRecordExists,
-                                   char16_t **_retval) {
+nsBeckyAddressBooks::GetSampleData(int32_t aRecordNumber, bool* aRecordExists,
+                                   char16_t** _retval) {
   return NS_ERROR_FAILURE;
 }

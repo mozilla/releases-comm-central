@@ -51,7 +51,7 @@ nsRssIncomingServer::~nsRssIncomingServer() {
 }
 
 nsresult nsRssIncomingServer::FillInDataSourcePath(
-    const nsAString &aDataSourceName, nsIFile **aLocation) {
+    const nsAString& aDataSourceName, nsIFile** aLocation) {
   nsresult rv;
   // Get the local path for this server.
   nsCOMPtr<nsIFile> localFile;
@@ -65,11 +65,11 @@ nsresult nsRssIncomingServer::FillInDataSourcePath(
 }
 
 // nsIRSSIncomingServer methods
-NS_IMETHODIMP nsRssIncomingServer::GetSubscriptionsPath(nsIFile **aLocation) {
+NS_IMETHODIMP nsRssIncomingServer::GetSubscriptionsPath(nsIFile** aLocation) {
   return FillInDataSourcePath(NS_LITERAL_STRING("feeds.json"), aLocation);
 }
 
-NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsPath(nsIFile **aLocation) {
+NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsPath(nsIFile** aLocation) {
   return FillInDataSourcePath(NS_LITERAL_STRING("feeditems.json"), aLocation);
 }
 
@@ -91,7 +91,7 @@ NS_IMETHODIMP nsRssIncomingServer::SetFlagsOnDefaultMailboxes() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsRssIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   // Get the account root (server) folder and pass it on.
   nsCOMPtr<nsIMsgFolder> rootRSSFolder;
   GetRootMsgFolder(getter_AddRefs(rootRSSFolder));
@@ -105,10 +105,10 @@ NS_IMETHODIMP nsRssIncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
-                                              nsIUrlListener *aUrlListener,
-                                              nsIMsgFolder *aFolder,
-                                              nsIURI **_retval) {
+NS_IMETHODIMP nsRssIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
+                                              nsIUrlListener* aUrlListener,
+                                              nsIMsgFolder* aFolder,
+                                              nsIURI** _retval) {
   // Pass the selected folder on to the downloader.
   NS_ENSURE_ARG_POINTER(aFolder);
   nsresult rv;
@@ -120,27 +120,27 @@ NS_IMETHODIMP nsRssIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::GetAccountManagerChrome(nsAString &aResult) {
+NS_IMETHODIMP nsRssIncomingServer::GetAccountManagerChrome(nsAString& aResult) {
   aResult.AssignLiteral("am-newsblog.xhtml");
   return NS_OK;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::GetOfflineSupportLevel(
-    int32_t *aSupportLevel) {
+    int32_t* aSupportLevel) {
   NS_ENSURE_ARG_POINTER(aSupportLevel);
   *aSupportLevel = OFFLINE_SUPPORT_LEVEL_NONE;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::GetSupportsDiskSpace(
-    bool *aSupportsDiskSpace) {
+    bool* aSupportsDiskSpace) {
   NS_ENSURE_ARG_POINTER(aSupportsDiskSpace);
   *aSupportsDiskSpace = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::GetServerRequiresPasswordForBiff(
-    bool *aServerRequiresPasswordForBiff) {
+    bool* aServerRequiresPasswordForBiff) {
   NS_ENSURE_ARG_POINTER(aServerRequiresPasswordForBiff);
   // For Feed folders, we don't require a password.
   *aServerRequiresPasswordForBiff = false;
@@ -148,45 +148,45 @@ NS_IMETHODIMP nsRssIncomingServer::GetServerRequiresPasswordForBiff(
 }
 
 NS_IMETHODIMP nsRssIncomingServer::GetCanSearchMessages(
-    bool *canSearchMessages) {
+    bool* canSearchMessages) {
   NS_ENSURE_ARG_POINTER(canSearchMessages);
   *canSearchMessages = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::MsgAdded(nsIMsgDBHdr *aMsg) {
+NS_IMETHODIMP nsRssIncomingServer::MsgAdded(nsIMsgDBHdr* aMsg) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::MsgsClassified(
-    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMsgs, bool aJunkProcessed,
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgs, bool aJunkProcessed,
     bool aTraitProcessed) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::MsgsDeleted(
-    const nsTArray<RefPtr<nsIMsgDBHdr>> &aMsgs) {
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMsgs) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::MsgsMoveCopyCompleted(
-    bool aMove, const nsTArray<RefPtr<nsIMsgDBHdr>> &aSrcMsgs,
-    nsIMsgFolder *aDestFolder, const nsTArray<RefPtr<nsIMsgDBHdr>> &aDestMsgs) {
+    bool aMove, const nsTArray<RefPtr<nsIMsgDBHdr>>& aSrcMsgs,
+    nsIMsgFolder* aDestFolder, const nsTArray<RefPtr<nsIMsgDBHdr>>& aDestMsgs) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsRssIncomingServer::MsgKeyChanged(nsMsgKey aOldKey,
-                                                 nsIMsgDBHdr *aNewHdr) {
+                                                 nsIMsgDBHdr* aNewHdr) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::FolderAdded(nsIMsgFolder *aFolder) {
+NS_IMETHODIMP nsRssIncomingServer::FolderAdded(nsIMsgFolder* aFolder) {
   // Nothing to do. Not necessary for new folder adds, as a new folder never
   // has a subscription.
   return NS_OK;
 }
 
-NS_IMETHODIMP nsRssIncomingServer::FolderDeleted(nsIMsgFolder *aFolder) {
+NS_IMETHODIMP nsRssIncomingServer::FolderDeleted(nsIMsgFolder* aFolder) {
   // Not necessary for folder deletes, which are move to Trash and handled by
   // movecopy. Virtual folder or trash folder deletes send a folderdeleted,
   // but these should have no subscriptions already.
@@ -194,25 +194,25 @@ NS_IMETHODIMP nsRssIncomingServer::FolderDeleted(nsIMsgFolder *aFolder) {
 }
 
 NS_IMETHODIMP nsRssIncomingServer::FolderMoveCopyCompleted(
-    bool aMove, nsIMsgFolder *aSrcFolder, nsIMsgFolder *aDestFolder) {
+    bool aMove, nsIMsgFolder* aSrcFolder, nsIMsgFolder* aDestFolder) {
   return FolderChanged(aDestFolder, aSrcFolder, (aMove ? "move" : "copy"));
 }
 
-NS_IMETHODIMP nsRssIncomingServer::FolderRenamed(nsIMsgFolder *aOrigFolder,
-                                                 nsIMsgFolder *aNewFolder) {
+NS_IMETHODIMP nsRssIncomingServer::FolderRenamed(nsIMsgFolder* aOrigFolder,
+                                                 nsIMsgFolder* aNewFolder) {
   return FolderChanged(aNewFolder, aOrigFolder, "rename");
 }
 
-NS_IMETHODIMP nsRssIncomingServer::ItemEvent(nsISupports *aItem,
-                                             const nsACString &aEvent,
-                                             nsISupports *aData,
-                                             const nsACString &aString) {
+NS_IMETHODIMP nsRssIncomingServer::ItemEvent(nsISupports* aItem,
+                                             const nsACString& aEvent,
+                                             nsISupports* aData,
+                                             const nsACString& aString) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-nsresult nsRssIncomingServer::FolderChanged(nsIMsgFolder *aFolder,
-                                            nsIMsgFolder *aOrigFolder,
-                                            const char *aAction) {
+nsresult nsRssIncomingServer::FolderChanged(nsIMsgFolder* aFolder,
+                                            nsIMsgFolder* aOrigFolder,
+                                            const char* aAction) {
   if (!aFolder) return NS_OK;
 
   nsresult rv;
@@ -224,7 +224,7 @@ nsresult nsRssIncomingServer::FolderChanged(nsIMsgFolder *aFolder,
 }
 
 NS_IMETHODIMP
-nsRssIncomingServer::GetSortOrder(int32_t *aSortOrder) {
+nsRssIncomingServer::GetSortOrder(int32_t* aSortOrder) {
   NS_ENSURE_ARG_POINTER(aSortOrder);
   *aSortOrder = 400000000;
   return NS_OK;

@@ -45,19 +45,19 @@ class nsAbCardProperty : public nsIAbCard {
   nsCString m_directoryId, m_localId;
 
  private:
-  nsresult AppendSection(const AppendItem *aArray, int16_t aCount,
-                         const nsString &aHeading, nsIStringBundle *aBundle,
-                         mozITXTToHTMLConv *aConv, nsString &aResult);
-  nsresult AppendLine(const AppendItem &aItem, mozITXTToHTMLConv *aConv,
-                      nsString &aResult);
-  nsresult AppendLabel(const AppendItem &aItem, nsIStringBundle *aBundle,
-                       mozITXTToHTMLConv *aConv, nsString &aResult);
-  nsresult AppendCityStateZip(const AppendItem &aItem, nsIStringBundle *aBundle,
-                              mozITXTToHTMLConv *aConv, nsString &aResult);
+  nsresult AppendSection(const AppendItem* aArray, int16_t aCount,
+                         const nsString& aHeading, nsIStringBundle* aBundle,
+                         mozITXTToHTMLConv* aConv, nsString& aResult);
+  nsresult AppendLine(const AppendItem& aItem, mozITXTToHTMLConv* aConv,
+                      nsString& aResult);
+  nsresult AppendLabel(const AppendItem& aItem, nsIStringBundle* aBundle,
+                       mozITXTToHTMLConv* aConv, nsString& aResult);
+  nsresult AppendCityStateZip(const AppendItem& aItem, nsIStringBundle* aBundle,
+                              mozITXTToHTMLConv* aConv, nsString& aResult);
 
-  nsresult ConvertToBase64EncodedXML(nsACString &result);
-  nsresult ConvertToXMLPrintData(nsAString &result);
-  nsresult ConvertToEscapedVCard(nsACString &result);
+  nsresult ConvertToBase64EncodedXML(nsACString& result);
+  nsresult ConvertToXMLPrintData(nsAString& result);
+  nsresult ConvertToEscapedVCard(nsACString& result);
 };
 
 #endif

@@ -9,6 +9,6 @@
 #include "plstr.h"
 
 extern "C" bool EmitThisHeaderForPrefSetting(int32_t dispType,
-                                             const char *header);
+                                             const char* header);
 
 #endif  // _nsEmitterUtils_h_

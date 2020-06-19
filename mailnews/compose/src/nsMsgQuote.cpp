@@ -33,12 +33,12 @@ nsMsgQuoteListener::nsMsgQuoteListener() {}
 
 nsMsgQuoteListener::~nsMsgQuoteListener() {}
 
-NS_IMETHODIMP nsMsgQuoteListener::SetMsgQuote(nsIMsgQuote *msgQuote) {
+NS_IMETHODIMP nsMsgQuoteListener::SetMsgQuote(nsIMsgQuote* msgQuote) {
   mMsgQuote = do_GetWeakReference(msgQuote);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgQuoteListener::GetMsgQuote(nsIMsgQuote **aMsgQuote) {
+NS_IMETHODIMP nsMsgQuoteListener::GetMsgQuote(nsIMsgQuote** aMsgQuote) {
   nsresult rv = NS_OK;
   if (aMsgQuote) {
     nsCOMPtr<nsIMsgQuote> msgQuote = do_QueryReferent(mMsgQuote);
@@ -49,7 +49,7 @@ NS_IMETHODIMP nsMsgQuoteListener::GetMsgQuote(nsIMsgQuote **aMsgQuote) {
   return rv;
 }
 
-nsresult nsMsgQuoteListener::OnHeadersReady(nsIMimeHeaders *headers) {
+nsresult nsMsgQuoteListener::OnHeadersReady(nsIMimeHeaders* headers) {
   nsCOMPtr<nsIMsgQuotingOutputStreamListener> quotingOutputStreamListener;
   nsCOMPtr<nsIMsgQuote> msgQuote = do_QueryReferent(mMsgQuote);
 
@@ -74,7 +74,7 @@ nsMsgQuote::~nsMsgQuote() {}
 NS_IMPL_ISUPPORTS(nsMsgQuote, nsIMsgQuote, nsISupportsWeakReference)
 
 NS_IMETHODIMP nsMsgQuote::GetStreamListener(
-    nsIMsgQuotingOutputStreamListener **aStreamListener) {
+    nsIMsgQuotingOutputStreamListener** aStreamListener) {
   nsresult rv = NS_OK;
   if (aStreamListener) {
     NS_IF_ADDREF(*aStreamListener = mStreamListener);
@@ -85,9 +85,9 @@ NS_IMETHODIMP nsMsgQuote::GetStreamListener(
 }
 
 nsresult nsMsgQuote::QuoteMessage(
-    const char *msgURI, bool quoteHeaders,
-    nsIMsgQuotingOutputStreamListener *aQuoteMsgStreamListener,
-    const char *aMsgCharSet, bool headersOnly, nsIMsgDBHdr *aMsgHdr) {
+    const char* msgURI, bool quoteHeaders,
+    nsIMsgQuotingOutputStreamListener* aQuoteMsgStreamListener,
+    const char* aMsgCharSet, bool headersOnly, nsIMsgDBHdr* aMsgHdr) {
   nsresult rv;
   if (!msgURI) return NS_ERROR_INVALID_ARG;
 
@@ -142,8 +142,8 @@ nsresult nsMsgQuote::QuoteMessage(
 
   // funky magic go get the isupports for this class which inherits from
   // multiple interfaces.
-  nsISupports *supports;
-  QueryInterface(NS_GET_IID(nsISupports), (void **)&supports);
+  nsISupports* supports;
+  QueryInterface(NS_GET_IID(nsISupports), (void**)&supports);
   nsCOMPtr<nsISupports> quoteSupport = supports;
   NS_IF_RELEASE(supports);
 
@@ -175,14 +175,14 @@ nsresult nsMsgQuote::QuoteMessage(
 }
 
 NS_IMETHODIMP
-nsMsgQuote::GetQuoteListener(nsIMimeStreamConverterListener **aQuoteListener) {
+nsMsgQuote::GetQuoteListener(nsIMimeStreamConverterListener** aQuoteListener) {
   if (!aQuoteListener || !mQuoteListener) return NS_ERROR_NULL_POINTER;
   NS_ADDREF(*aQuoteListener = mQuoteListener);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgQuote::GetQuoteChannel(nsIChannel **aQuoteChannel) {
+nsMsgQuote::GetQuoteChannel(nsIChannel** aQuoteChannel) {
   if (!aQuoteChannel || !mQuoteChannel) return NS_ERROR_NULL_POINTER;
   NS_ADDREF(*aQuoteChannel = mQuoteChannel);
   return NS_OK;

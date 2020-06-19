@@ -15,7 +15,7 @@
 #include "nsIArray.h"
 #include "nsCOMArray.h"
 
-static void ImportAddressThread(void *stuff);
+static void ImportAddressThread(void* stuff);
 
 class AddressThreadData;
 
@@ -33,10 +33,10 @@ class nsImportGenericAddressBooks : public nsIImportGeneric {
   void GetDefaultFieldMap(void);
 
  public:
-  static void SetLogs(nsString &success, nsString &error,
-                      nsISupportsString *pSuccess, nsISupportsString *pError);
-  static void ReportError(const char16_t *pName, nsString *pStream,
-                          nsIStringBundle *aBundle);
+  static void SetLogs(nsString& success, nsString& error,
+                      nsISupportsString* pSuccess, nsISupportsString* pError);
+  static void ReportError(const char16_t* pName, nsString* pStream,
+                          nsIStringBundle* aBundle);
 
  private:
   nsCOMPtr<nsIImportAddressBooks> m_pInterface;
@@ -45,7 +45,7 @@ class nsImportGenericAddressBooks : public nsIImportGeneric {
   nsCOMPtr<nsIFile> m_pLocation;
   nsCOMPtr<nsIImportFieldMap> m_pFieldMap;
   bool m_autoFind;
-  char16_t *m_description;
+  char16_t* m_description;
   bool m_gotLocation;
   bool m_found;
   bool m_userVerify;
@@ -53,7 +53,7 @@ class nsImportGenericAddressBooks : public nsIImportGeneric {
   nsCOMPtr<nsISupportsString> m_pErrorLog;
   uint32_t m_totalSize;
   bool m_doImport;
-  AddressThreadData *m_pThreadData;
+  AddressThreadData* m_pThreadData;
   nsCString m_pDestinationUri;
   nsCOMPtr<nsIStringBundle> m_stringBundle;
 };
@@ -67,7 +67,7 @@ class AddressThreadData {
   uint32_t currentTotal;
   uint32_t currentSize;
   nsCOMPtr<nsIArray> books;
-  nsCOMArray<nsIAbDirectory> *dBs;
+  nsCOMArray<nsIAbDirectory>* dBs;
   nsCOMPtr<nsIAbLDIFService> ldifService;
   nsCOMPtr<nsIImportAddressBooks> addressImport;
   nsCOMPtr<nsIImportFieldMap> fieldMap;

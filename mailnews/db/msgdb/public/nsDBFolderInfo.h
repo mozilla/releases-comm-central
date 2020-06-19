@@ -31,7 +31,7 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
  public:
   friend class nsMsgDatabase;
 
-  explicit nsDBFolderInfo(nsMsgDatabase *mdb);
+  explicit nsDBFolderInfo(nsMsgDatabase* mdb);
 
   NS_DECL_ISUPPORTS
   // interface methods.
@@ -49,22 +49,22 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
   nsresult InitFromExistingDB();
   // get and set arbitrary property, aka row cell value.
   nsresult SetPropertyWithToken(mdb_token aProperty,
-                                const nsAString &propertyStr);
+                                const nsAString& propertyStr);
   nsresult SetUint32PropertyWithToken(mdb_token aProperty,
                                       uint32_t propertyValue);
   nsresult SetInt64PropertyWithToken(mdb_token aProperty,
                                      int64_t propertyValue);
   nsresult SetInt32PropertyWithToken(mdb_token aProperty,
                                      int32_t propertyValue);
-  nsresult GetPropertyWithToken(mdb_token aProperty, nsAString &propertyValue);
+  nsresult GetPropertyWithToken(mdb_token aProperty, nsAString& propertyValue);
   nsresult GetUint32PropertyWithToken(mdb_token aProperty,
-                                      uint32_t &propertyValue,
+                                      uint32_t& propertyValue,
                                       uint32_t defaultValue = 0);
   nsresult GetInt32PropertyWithToken(mdb_token aProperty,
-                                     int32_t &propertyValue,
+                                     int32_t& propertyValue,
                                      int32_t defaultValue = 0);
   nsresult GetInt64PropertyWithToken(mdb_token aProperty,
-                                     int64_t &propertyValue,
+                                     int64_t& propertyValue,
                                      int64_t defaultValue = 0);
 
   nsTArray<nsMsgKey> m_lateredKeys;  // list of latered messages
@@ -122,9 +122,9 @@ class nsDBFolderInfo : public nsIDBFolderInfo {
   // the db folder info will have to know what db and row it belongs to, since
   // it is really just a wrapper around the singleton folder info row in the
   // mdb.
-  nsMsgDatabase *m_mdb;
-  nsIMdbTable *m_mdbTable;  // singleton table in db
-  nsIMdbRow *m_mdbRow;      // singleton row in table;
+  nsMsgDatabase* m_mdb;
+  nsIMdbTable* m_mdbTable;  // singleton table in db
+  nsIMdbRow* m_mdbRow;      // singleton row in table;
 
   nsCString m_charSet;
   bool m_charSetOverride;

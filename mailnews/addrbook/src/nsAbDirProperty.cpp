@@ -45,7 +45,7 @@ nsAbDirProperty::~nsAbDirProperty(void) {
 
 NS_IMPL_ISUPPORTS(nsAbDirProperty, nsIAbDirectory, nsISupportsWeakReference)
 
-NS_IMETHODIMP nsAbDirProperty::GetUuid(nsACString &uuid) {
+NS_IMETHODIMP nsAbDirProperty::GetUuid(nsACString& uuid) {
   // XXX: not all directories have a dirPrefId...
   nsresult rv = GetDirPrefId(uuid);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -56,13 +56,13 @@ NS_IMETHODIMP nsAbDirProperty::GetUuid(nsACString &uuid) {
   return rv;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetPropertiesChromeURI(nsACString &aResult) {
+NS_IMETHODIMP nsAbDirProperty::GetPropertiesChromeURI(nsACString& aResult) {
   aResult.AssignLiteral(
       "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml");
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetDirName(nsAString &aDirName) {
+NS_IMETHODIMP nsAbDirProperty::GetDirName(nsAString& aDirName) {
   if (m_DirPrefId.IsEmpty()) {
     aDirName = m_ListDirName;
     return NS_OK;
@@ -97,7 +97,7 @@ NS_IMETHODIMP nsAbDirProperty::GetDirName(nsAString &aDirName) {
 // mechanism here, it requires some rework on how we write/save data
 // relating to mailing lists, so we're just using the old method of a
 // local variable to store the mailing list name.
-NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString &aDirName) {
+NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString& aDirName) {
   if (m_DirPrefId.IsEmpty()) {
     m_ListDirName = aDirName;
     return NS_OK;
@@ -117,21 +117,21 @@ NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString &aDirName) {
 
   if (NS_SUCCEEDED(rv))
     // We inherit from nsIAbDirectory, so this static cast should be safe.
-    abManager->NotifyItemPropertyChanged(static_cast<nsIAbDirectory *>(this),
+    abManager->NotifyItemPropertyChanged(static_cast<nsIAbDirectory*>(this),
                                          "DirName", oldDirName, aDirName);
 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetDirType(int32_t *aDirType) {
+NS_IMETHODIMP nsAbDirProperty::GetDirType(int32_t* aDirType) {
   return GetIntValue("dirType", LDAPDirectory, aDirType);
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetFileName(nsACString &aFileName) {
+NS_IMETHODIMP nsAbDirProperty::GetFileName(nsACString& aFileName) {
   return GetStringValue("filename", EmptyCString(), aFileName);
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetUID(nsACString &aUID) {
+NS_IMETHODIMP nsAbDirProperty::GetUID(nsACString& aUID) {
   nsresult rv = NS_OK;
   if (!mUID.IsEmpty()) {
     aUID = mUID;
@@ -158,7 +158,7 @@ NS_IMETHODIMP nsAbDirProperty::GetUID(nsACString &aUID) {
   return SetUID(aUID);
 }
 
-NS_IMETHODIMP nsAbDirProperty::SetUID(const nsACString &aUID) {
+NS_IMETHODIMP nsAbDirProperty::SetUID(const nsACString& aUID) {
   mUID = aUID;
   if (m_IsMailList) {
     return NS_OK;
@@ -166,17 +166,17 @@ NS_IMETHODIMP nsAbDirProperty::SetUID(const nsACString &aUID) {
   return SetStringValue("uid", aUID);
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetURI(nsACString &aURI) {
+NS_IMETHODIMP nsAbDirProperty::GetURI(nsACString& aURI) {
   // XXX Should we complete this for Mailing Lists?
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetPosition(int32_t *aPosition) {
+NS_IMETHODIMP nsAbDirProperty::GetPosition(int32_t* aPosition) {
   return GetIntValue("position", kDefaultPosition, aPosition);
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetLastModifiedDate(
-    uint32_t *aLastModifiedDate) {
+    uint32_t* aLastModifiedDate) {
   NS_ENSURE_ARG_POINTER(aLastModifiedDate);
   *aLastModifiedDate = m_LastModifiedDate;
   return NS_OK;
@@ -189,27 +189,27 @@ NS_IMETHODIMP nsAbDirProperty::SetLastModifiedDate(uint32_t aLastModifiedDate) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetListNickName(nsAString &aListNickName) {
+NS_IMETHODIMP nsAbDirProperty::GetListNickName(nsAString& aListNickName) {
   aListNickName = m_ListNickName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::SetListNickName(const nsAString &aListNickName) {
+NS_IMETHODIMP nsAbDirProperty::SetListNickName(const nsAString& aListNickName) {
   m_ListNickName = aListNickName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetDescription(nsAString &aDescription) {
+NS_IMETHODIMP nsAbDirProperty::GetDescription(nsAString& aDescription) {
   aDescription = m_Description;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::SetDescription(const nsAString &aDescription) {
+NS_IMETHODIMP nsAbDirProperty::SetDescription(const nsAString& aDescription) {
   m_Description = aDescription;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetIsMailList(bool *aIsMailList) {
+NS_IMETHODIMP nsAbDirProperty::GetIsMailList(bool* aIsMailList) {
   *aIsMailList = m_IsMailList;
   return NS_OK;
 }
@@ -219,7 +219,7 @@ NS_IMETHODIMP nsAbDirProperty::SetIsMailList(bool aIsMailList) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::CopyMailList(nsIAbDirectory *srcList) {
+NS_IMETHODIMP nsAbDirProperty::CopyMailList(nsIAbDirectory* srcList) {
   SetIsMailList(true);
 
   nsString str;
@@ -237,7 +237,7 @@ NS_IMETHODIMP nsAbDirProperty::CopyMailList(nsIAbDirectory *srcList) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetIsQuery(bool *aResult) {
+NS_IMETHODIMP nsAbDirProperty::GetIsQuery(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   // Mailing lists are not queries by default, individual directory types
   // will override this.
@@ -246,7 +246,7 @@ NS_IMETHODIMP nsAbDirProperty::GetIsQuery(bool *aResult) {
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::Init(const char *aURI) {
+nsAbDirProperty::Init(const char* aURI) {
   mURINoQuery = aURI;
   mURI = aURI;
   mIsValidURI = true;
@@ -263,32 +263,32 @@ nsAbDirProperty::Init(const char *aURI) {
 
 // nsIAbDirectory NOT IMPLEMENTED methods
 NS_IMETHODIMP
-nsAbDirProperty::GetChildNodes(nsISimpleEnumerator **childList) {
+nsAbDirProperty::GetChildNodes(nsISimpleEnumerator** childList) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::GetChildCards(nsISimpleEnumerator **childCards) {
+nsAbDirProperty::GetChildCards(nsISimpleEnumerator** childCards) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::DeleteDirectory(nsIAbDirectory *directory) {
+nsAbDirProperty::DeleteDirectory(nsIAbDirectory* directory) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::HasCard(nsIAbCard *cards, bool *hasCard) {
+nsAbDirProperty::HasCard(nsIAbCard* cards, bool* hasCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::HasDirectory(nsIAbDirectory *dir, bool *hasDir) {
+nsAbDirProperty::HasDirectory(nsIAbDirectory* dir, bool* hasDir) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsAbDirProperty::HasMailListWithName(const char16_t *aName, bool *aHasList) {
+nsAbDirProperty::HasMailListWithName(const char16_t* aName, bool* aHasList) {
   NS_ENSURE_ARG_POINTER(aName);
   NS_ENSURE_ARG_POINTER(aHasList);
 
@@ -324,54 +324,54 @@ nsAbDirProperty::HasMailListWithName(const char16_t *aName, bool *aHasList) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::AddMailList(nsIAbDirectory *list,
-                                           nsIAbDirectory **addedList) {
+NS_IMETHODIMP nsAbDirProperty::AddMailList(nsIAbDirectory* list,
+                                           nsIAbDirectory** addedList) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbDirProperty::EditMailListToDatabase(nsIAbCard *listCard) {
+NS_IMETHODIMP nsAbDirProperty::EditMailListToDatabase(nsIAbCard* listCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbDirProperty::AddCard(nsIAbCard *childCard,
-                                       nsIAbCard **addedCard) {
+NS_IMETHODIMP nsAbDirProperty::AddCard(nsIAbCard* childCard,
+                                       nsIAbCard** addedCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbDirProperty::ModifyCard(nsIAbCard *aModifiedCard) {
+NS_IMETHODIMP nsAbDirProperty::ModifyCard(nsIAbCard* aModifiedCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsAbDirProperty::DeleteCards(
-    const nsTArray<RefPtr<nsIAbCard>> &aCards) {
+    const nsTArray<RefPtr<nsIAbCard>>& aCards) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbDirProperty::DropCard(nsIAbCard *childCard,
+NS_IMETHODIMP nsAbDirProperty::DropCard(nsIAbCard* childCard,
                                         bool needToCopyCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsAbDirProperty::CardForEmailAddress(
-    const nsACString &aEmailAddress, nsIAbCard **aAbCard) {
+    const nsACString& aEmailAddress, nsIAbCard** aAbCard) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetCardFromProperty(const char *aProperty,
-                                                   const nsACString &aValue,
+NS_IMETHODIMP nsAbDirProperty::GetCardFromProperty(const char* aProperty,
+                                                   const nsACString& aValue,
                                                    bool caseSensitive,
-                                                   nsIAbCard **result) {
+                                                   nsIAbCard** result) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetCardsFromProperty(
-    const char *aProperty, const nsACString &aValue, bool caseSensitive,
-    nsISimpleEnumerator **result) {
+    const char* aProperty, const nsACString& aValue, bool caseSensitive,
+    nsISimpleEnumerator** result) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetSupportsMailingLists(
-    bool *aSupportsMailingsLists) {
+    bool* aSupportsMailingsLists) {
   NS_ENSURE_ARG_POINTER(aSupportsMailingsLists);
   // We don't currently support nested mailing lists, so only return true if
   // we're not a mailing list.
@@ -379,7 +379,7 @@ NS_IMETHODIMP nsAbDirProperty::GetSupportsMailingLists(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetReadOnly(bool *aReadOnly) {
+NS_IMETHODIMP nsAbDirProperty::GetReadOnly(bool* aReadOnly) {
   NS_ENSURE_ARG_POINTER(aReadOnly);
   // Default is that we are writable. Any implementation that is read-only must
   // override this method.
@@ -387,20 +387,20 @@ NS_IMETHODIMP nsAbDirProperty::GetReadOnly(bool *aReadOnly) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetIsRemote(bool *aIsRemote) {
+NS_IMETHODIMP nsAbDirProperty::GetIsRemote(bool* aIsRemote) {
   NS_ENSURE_ARG_POINTER(aIsRemote);
   *aIsRemote = false;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetIsSecure(bool *aIsSecure) {
+NS_IMETHODIMP nsAbDirProperty::GetIsSecure(bool* aIsSecure) {
   NS_ENSURE_ARG_POINTER(aIsSecure);
   *aIsSecure = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsAbDirProperty::UseForAutocomplete(
-    const nsACString &aIdentityKey, bool *aResult) {
+    const nsACString& aIdentityKey, bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   // Is local autocomplete enabled?
@@ -421,12 +421,12 @@ NS_IMETHODIMP nsAbDirProperty::UseForAutocomplete(
   return rv;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetDirPrefId(nsACString &aDirPrefId) {
+NS_IMETHODIMP nsAbDirProperty::GetDirPrefId(nsACString& aDirPrefId) {
   aDirPrefId = m_DirPrefId;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::SetDirPrefId(const nsACString &aDirPrefId) {
+NS_IMETHODIMP nsAbDirProperty::SetDirPrefId(const nsACString& aDirPrefId) {
   if (!m_DirPrefId.Equals(aDirPrefId)) {
     m_DirPrefId.Assign(aDirPrefId);
     // Clear the directory pref branch so that it is re-initialized next
@@ -451,9 +451,9 @@ nsresult nsAbDirProperty::InitDirectoryPrefs() {
                                 getter_AddRefs(m_DirectoryPrefs));
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetIntValue(const char *aName,
+NS_IMETHODIMP nsAbDirProperty::GetIntValue(const char* aName,
                                            int32_t aDefaultValue,
-                                           int32_t *aResult) {
+                                           int32_t* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
@@ -465,8 +465,8 @@ NS_IMETHODIMP nsAbDirProperty::GetIntValue(const char *aName,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetBoolValue(const char *aName,
-                                            bool aDefaultValue, bool *aResult) {
+NS_IMETHODIMP nsAbDirProperty::GetBoolValue(const char* aName,
+                                            bool aDefaultValue, bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
@@ -478,9 +478,9 @@ NS_IMETHODIMP nsAbDirProperty::GetBoolValue(const char *aName,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::GetStringValue(const char *aName,
-                                              const nsACString &aDefaultValue,
-                                              nsACString &aResult) {
+NS_IMETHODIMP nsAbDirProperty::GetStringValue(const char* aName,
+                                              const nsACString& aDefaultValue,
+                                              nsACString& aResult) {
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
     return NS_ERROR_NOT_INITIALIZED;
 
@@ -503,7 +503,7 @@ NS_IMETHODIMP nsAbDirProperty::GetStringValue(const char *aName,
  * "ldap_2.servers.history.description"
  */
 NS_IMETHODIMP nsAbDirProperty::GetLocalizedStringValue(
-    const char *aName, const nsACString &aDefaultValue, nsACString &aResult) {
+    const char* aName, const nsACString& aDefaultValue, nsACString& aResult) {
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
     return NS_ERROR_NOT_INITIALIZED;
 
@@ -525,22 +525,22 @@ NS_IMETHODIMP nsAbDirProperty::GetLocalizedStringValue(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbDirProperty::SetIntValue(const char *aName, int32_t aValue) {
+NS_IMETHODIMP nsAbDirProperty::SetIntValue(const char* aName, int32_t aValue) {
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
     return NS_ERROR_NOT_INITIALIZED;
 
   return m_DirectoryPrefs->SetIntPref(aName, aValue);
 }
 
-NS_IMETHODIMP nsAbDirProperty::SetBoolValue(const char *aName, bool aValue) {
+NS_IMETHODIMP nsAbDirProperty::SetBoolValue(const char* aName, bool aValue) {
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
     return NS_ERROR_NOT_INITIALIZED;
 
   return m_DirectoryPrefs->SetBoolPref(aName, aValue);
 }
 
-NS_IMETHODIMP nsAbDirProperty::SetStringValue(const char *aName,
-                                              const nsACString &aValue) {
+NS_IMETHODIMP nsAbDirProperty::SetStringValue(const char* aName,
+                                              const nsACString& aValue) {
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
     return NS_ERROR_NOT_INITIALIZED;
 
@@ -548,7 +548,7 @@ NS_IMETHODIMP nsAbDirProperty::SetStringValue(const char *aName,
 }
 
 NS_IMETHODIMP nsAbDirProperty::SetLocalizedStringValue(
-    const char *aName, const nsACString &aValue) {
+    const char* aName, const nsACString& aValue) {
   if (!m_DirectoryPrefs && NS_FAILED(InitDirectoryPrefs()))
     return NS_ERROR_NOT_INITIALIZED;
 
@@ -564,7 +564,7 @@ NS_IMETHODIMP nsAbDirProperty::SetLocalizedStringValue(
       aName, NS_GET_IID(nsIPrefLocalizedString), locStr);
 }
 
-NS_IMETHODIMP nsAbDirProperty::Search(const nsAString &query,
-                                      nsIAbDirSearchListener *listener) {
+NS_IMETHODIMP nsAbDirProperty::Search(const nsAString& query,
+                                      nsIAbDirSearchListener* listener) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

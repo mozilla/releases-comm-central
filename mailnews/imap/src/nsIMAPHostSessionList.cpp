@@ -15,8 +15,8 @@
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
 
-nsIMAPHostInfo::nsIMAPHostInfo(const char *serverKey,
-                               nsIImapIncomingServer *server) {
+nsIMAPHostInfo::nsIMAPHostInfo(const char* serverKey,
+                               nsIImapIncomingServer* server) {
   fServerKey = serverKey;
   NS_ASSERTION(server, "*** Fatal null imap incoming server...");
   server->GetServerDirectory(fOnlineDir);
@@ -76,9 +76,9 @@ nsresult nsIMAPHostSessionList::Init() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsIMAPHostSessionList::Observe(nsISupports *aSubject,
-                                             const char *aTopic,
-                                             const char16_t *someData) {
+NS_IMETHODIMP nsIMAPHostSessionList::Observe(nsISupports* aSubject,
+                                             const char* aTopic,
+                                             const char16_t* someData) {
   if (!strcmp(aTopic, "profile-before-change"))
     ResetAll();
   else if (!strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID)) {
@@ -91,8 +91,8 @@ NS_IMETHODIMP nsIMAPHostSessionList::Observe(nsISupports *aSubject,
   return NS_OK;
 }
 
-nsIMAPHostInfo *nsIMAPHostSessionList::FindHost(const char *serverKey) {
-  nsIMAPHostInfo *host;
+nsIMAPHostInfo* nsIMAPHostSessionList::FindHost(const char* serverKey) {
+  nsIMAPHostInfo* host;
 
   // ### should also check userName here, if NON NULL
   for (host = fHostInfoList; host; host = host->fNextHost) {
@@ -105,8 +105,8 @@ nsIMAPHostInfo *nsIMAPHostSessionList::FindHost(const char *serverKey) {
 // reset any cached connection info - delete the lot of 'em
 NS_IMETHODIMP nsIMAPHostSessionList::ResetAll() {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *nextHost = NULL;
-  for (nsIMAPHostInfo *host = fHostInfoList; host; host = nextHost) {
+  nsIMAPHostInfo* nextHost = NULL;
+  for (nsIMAPHostInfo* host = fHostInfoList; host; host = nextHost) {
     nextHost = host->fNextHost;
     delete host;
   }
@@ -116,9 +116,9 @@ NS_IMETHODIMP nsIMAPHostSessionList::ResetAll() {
 }
 
 NS_IMETHODIMP
-nsIMAPHostSessionList::AddHostToList(const char *serverKey,
-                                     nsIImapIncomingServer *server) {
-  nsIMAPHostInfo *newHost = NULL;
+nsIMAPHostSessionList::AddHostToList(const char* serverKey,
+                                     nsIImapIncomingServer* server) {
+  nsIMAPHostInfo* newHost = NULL;
   PR_EnterMonitor(gCachedHostInfoMonitor);
   if (!FindHost(serverKey)) {
     // stick it on the front
@@ -132,55 +132,55 @@ nsIMAPHostSessionList::AddHostToList(const char *serverKey,
   return (newHost == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
-NS_IMETHODIMP nsIMAPHostSessionList::GetPasswordForHost(const char *serverKey,
-                                                        nsString &result) {
+NS_IMETHODIMP nsIMAPHostSessionList::GetPasswordForHost(const char* serverKey,
+                                                        nsString& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fCachedPassword;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetPasswordForHost(
-    const char *serverKey, const nsAString &password) {
+    const char* serverKey, const nsAString& password) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fCachedPassword = password;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetPasswordVerifiedOnline(
-    const char *serverKey) {
+    const char* serverKey) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fPasswordVerifiedOnline = true;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetPasswordVerifiedOnline(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fPasswordVerifiedOnline;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
-NS_IMETHODIMP nsIMAPHostSessionList::GetOnlineDirForHost(const char *serverKey,
-                                                         nsString &result) {
+NS_IMETHODIMP nsIMAPHostSessionList::GetOnlineDirForHost(const char* serverKey,
+                                                         nsString& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) CopyASCIItoUTF16(host->fOnlineDir, result);
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetOnlineDirForHost(
-    const char *serverKey, const char *onlineDir) {
+    const char* serverKey, const char* onlineDir) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) {
     if (onlineDir) host->fOnlineDir = onlineDir;
   }
@@ -189,158 +189,158 @@ NS_IMETHODIMP nsIMAPHostSessionList::SetOnlineDirForHost(
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetDeleteIsMoveToTrashForHost(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fDeleteIsMoveToTrash;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetShowDeletedMessagesForHost(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fShowDeletedMessages;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetDeleteIsMoveToTrashForHost(
-    const char *serverKey, bool isMoveToTrash) {
+    const char* serverKey, bool isMoveToTrash) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fDeleteIsMoveToTrash = isMoveToTrash;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetShowDeletedMessagesForHost(
-    const char *serverKey, bool showDeletedMessages) {
+    const char* serverKey, bool showDeletedMessages) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fShowDeletedMessages = showDeletedMessages;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetGotNamespacesForHost(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fGotNamespaces;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetGotNamespacesForHost(
-    const char *serverKey, bool gotNamespaces) {
+    const char* serverKey, bool gotNamespaces) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fGotNamespaces = gotNamespaces;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetHostIsUsingSubscription(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fUsingSubscription;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetHostIsUsingSubscription(
-    const char *serverKey, bool usingSubscription) {
+    const char* serverKey, bool usingSubscription) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fUsingSubscription = usingSubscription;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
-NS_IMETHODIMP nsIMAPHostSessionList::GetHostHasAdminURL(const char *serverKey,
-                                                        bool &result) {
+NS_IMETHODIMP nsIMAPHostSessionList::GetHostHasAdminURL(const char* serverKey,
+                                                        bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fHaveAdminURL;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
-NS_IMETHODIMP nsIMAPHostSessionList::SetHostHasAdminURL(const char *serverKey,
+NS_IMETHODIMP nsIMAPHostSessionList::SetHostHasAdminURL(const char* serverKey,
                                                         bool haveAdminURL) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fHaveAdminURL = haveAdminURL;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetHaveWeEverDiscoveredFoldersForHost(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fHaveWeEverDiscoveredFolders;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetHaveWeEverDiscoveredFoldersForHost(
-    const char *serverKey, bool discovered) {
+    const char* serverKey, bool discovered) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fHaveWeEverDiscoveredFolders = discovered;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetOnlineTrashFolderExistsForHost(
-    const char *serverKey, bool exists) {
+    const char* serverKey, bool exists) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fOnlineTrashFolderExists = exists;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetOnlineTrashFolderExistsForHost(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fOnlineTrashFolderExists;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::AddNewNamespaceForHost(
-    const char *serverKey, nsIMAPNamespace *ns) {
+    const char* serverKey, nsIMAPNamespace* ns) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fNamespaceList->AddNewNamespace(ns);
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetNamespaceFromPrefForHost(
-    const char *serverKey, const char *namespacePref,
+    const char* serverKey, const char* namespacePref,
     EIMAPNamespaceType nstype) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) {
     if (namespacePref) {
       int numNamespaces = host->fNamespaceList->UnserializeNamespaces(
           namespacePref, nullptr, 0);
-      char **prefixes = (char **)PR_CALLOC(numNamespaces * sizeof(char *));
+      char** prefixes = (char**)PR_CALLOC(numNamespaces * sizeof(char*));
       if (prefixes) {
         int len = host->fNamespaceList->UnserializeNamespaces(
             namespacePref, prefixes, numNamespaces);
         for (int i = 0; i < len; i++) {
-          char *thisns = prefixes[i];
+          char* thisns = prefixes[i];
           char delimiter = '/';  // a guess
           if (PL_strlen(thisns) >= 1) delimiter = thisns[PL_strlen(thisns) - 1];
-          nsIMAPNamespace *ns =
+          nsIMAPNamespace* ns =
               new nsIMAPNamespace(nstype, thisns, delimiter, true);
           if (ns) host->fNamespaceList->AddNewNamespace(ns);
           PR_FREEIF(thisns);
@@ -354,65 +354,65 @@ NS_IMETHODIMP nsIMAPHostSessionList::SetNamespaceFromPrefForHost(
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetNamespaceForMailboxForHost(
-    const char *serverKey, const char *mailbox_name, nsIMAPNamespace *&result) {
+    const char* serverKey, const char* mailbox_name, nsIMAPNamespace*& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fNamespaceList->GetNamespaceForMailbox(mailbox_name);
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::ClearPrefsNamespacesForHost(
-    const char *serverKey) {
+    const char* serverKey) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fNamespaceList->ClearNamespaces(true, false, true);
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::ClearServerAdvertisedNamespacesForHost(
-    const char *serverKey) {
+    const char* serverKey) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fNamespaceList->ClearNamespaces(false, true, true);
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetDefaultNamespaceOfTypeForHost(
-    const char *serverKey, EIMAPNamespaceType type, nsIMAPNamespace *&result) {
+    const char* serverKey, EIMAPNamespaceType type, nsIMAPNamespace*& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fNamespaceList->GetDefaultNamespaceOfType(type);
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetNamespacesOverridableForHost(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fNamespacesOverridable;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetNamespacesOverridableForHost(
-    const char *serverKey, bool overridable) {
+    const char* serverKey, bool overridable) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fNamespacesOverridable = overridable;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetNumberOfNamespacesForHost(
-    const char *serverKey, uint32_t &result) {
+    const char* serverKey, uint32_t& result) {
   int32_t intResult = 0;
 
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) intResult = host->fNamespaceList->GetNumberOfNamespaces();
   PR_ExitMonitor(gCachedHostInfoMonitor);
   NS_ASSERTION(intResult >= 0, "negative number of namespaces");
@@ -421,16 +421,16 @@ NS_IMETHODIMP nsIMAPHostSessionList::GetNumberOfNamespacesForHost(
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetNamespaceNumberForHost(
-    const char *serverKey, int32_t n, nsIMAPNamespace *&result) {
+    const char* serverKey, int32_t n, nsIMAPNamespace*& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) result = host->fNamespaceList->GetNamespaceNumber(n);
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
 }
 
 nsresult nsIMAPHostSessionList::SetNamespacesPrefForHost(
-    nsIImapIncomingServer *aHost, EIMAPNamespaceType type, const char *pref) {
+    nsIImapIncomingServer* aHost, EIMAPNamespaceType type, const char* pref) {
   if (type == kPersonalNamespace)
     aHost->SetPersonalNamespace(nsDependentCString(pref));
   else if (type == kPublicNamespace)
@@ -444,7 +444,7 @@ nsresult nsIMAPHostSessionList::SetNamespacesPrefForHost(
 // do we need this? What should we do about the master thing?
 // Make sure this is running in the Mozilla thread when called
 NS_IMETHODIMP nsIMAPHostSessionList::CommitNamespacesForHost(
-    nsIImapIncomingServer *aHost) {
+    nsIImapIncomingServer* aHost) {
   NS_ENSURE_ARG_POINTER(aHost);
   nsCString serverKey;
   nsCOMPtr<nsIMsgIncomingServer> incomingServer = do_QueryInterface(aHost);
@@ -454,7 +454,7 @@ NS_IMETHODIMP nsIMAPHostSessionList::CommitNamespacesForHost(
   NS_ENSURE_SUCCESS(rv, rv);
 
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey.get());
+  nsIMAPHostInfo* host = FindHost(serverKey.get());
   if (host) {
     host->fGotNamespaces =
         true;  // so we only issue NAMESPACE once per host per session.
@@ -479,18 +479,18 @@ NS_IMETHODIMP nsIMAPHostSessionList::CommitNamespacesForHost(
       if (numInNS == 0)
         SetNamespacesPrefForHost(aHost, type, "");
       else if (numInNS >= 1) {
-        char *pref = PR_smprintf("");
+        char* pref = PR_smprintf("");
         for (int count = 1; count <= numInNS; count++) {
-          nsIMAPNamespace *ns =
+          nsIMAPNamespace* ns =
               host->fNamespaceList->GetNamespaceNumber(count, type);
           if (ns) {
             if (count > 1) {
               // append the comma
-              char *tempPref = PR_smprintf("%s,", pref);
+              char* tempPref = PR_smprintf("%s,", pref);
               PR_FREEIF(pref);
               pref = tempPref;
             }
-            char *tempPref = PR_smprintf("%s\"%s\"", pref, ns->GetPrefix());
+            char* tempPref = PR_smprintf("%s\"%s\"", pref, ns->GetPrefix());
             PR_FREEIF(pref);
             pref = tempPref;
           }
@@ -513,9 +513,9 @@ NS_IMETHODIMP nsIMAPHostSessionList::CommitNamespacesForHost(
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::FlushUncommittedNamespacesForHost(
-    const char *serverKey, bool &result) {
+    const char* serverKey, bool& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fTempNamespaceList->ClearNamespaces(true, true, true);
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
@@ -523,11 +523,11 @@ NS_IMETHODIMP nsIMAPHostSessionList::FlushUncommittedNamespacesForHost(
 
 // Returns NULL if there is no personal namespace on the given host
 NS_IMETHODIMP nsIMAPHostSessionList::GetOnlineInboxPathForHost(
-    const char *serverKey, nsString &result) {
+    const char* serverKey, nsString& result) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) {
-    nsIMAPNamespace *ns = NULL;
+    nsIMAPNamespace* ns = NULL;
     ns = host->fNamespaceList->GetDefaultNamespaceOfType(kPersonalNamespace);
     if (ns) {
       CopyASCIItoUTF16(nsDependentCString(ns->GetPrefix()), result);
@@ -540,7 +540,7 @@ NS_IMETHODIMP nsIMAPHostSessionList::GetOnlineInboxPathForHost(
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::GetShouldAlwaysListInboxForHost(
-    const char * /*serverKey*/, bool &result) {
+    const char* /*serverKey*/, bool& result) {
   result = true;
 
   /*
@@ -554,9 +554,9 @@ NS_IMETHODIMP nsIMAPHostSessionList::GetShouldAlwaysListInboxForHost(
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::SetShouldAlwaysListInboxForHost(
-    const char *serverKey, bool shouldList) {
+    const char* serverKey, bool shouldList) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) host->fShouldAlwaysListInbox = shouldList;
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;
@@ -564,11 +564,11 @@ NS_IMETHODIMP nsIMAPHostSessionList::SetShouldAlwaysListInboxForHost(
 
 NS_IMETHODIMP
 nsIMAPHostSessionList::SetNamespaceHierarchyDelimiterFromMailboxForHost(
-    const char *serverKey, const char *boxName, char delimiter) {
+    const char* serverKey, const char* boxName, char delimiter) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) {
-    nsIMAPNamespace *ns = host->fNamespaceList->GetNamespaceForMailbox(boxName);
+    nsIMAPNamespace* ns = host->fNamespaceList->GetNamespaceForMailbox(boxName);
     if (ns && !ns->GetIsDelimiterFilledIn()) ns->SetDelimiter(delimiter, true);
   }
   PR_ExitMonitor(gCachedHostInfoMonitor);
@@ -576,10 +576,10 @@ nsIMAPHostSessionList::SetNamespaceHierarchyDelimiterFromMailboxForHost(
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::AddShellToCacheForHost(
-    const char *serverKey, nsIMAPBodyShell *shell) {
+    const char* serverKey, nsIMAPBodyShell* shell) {
   nsresult rv = NS_OK;
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host) {
     if (host->fShellCache) {
       if (!host->fShellCache->AddShellToCache(shell)) rv = NS_ERROR_UNEXPECTED;
@@ -592,12 +592,12 @@ NS_IMETHODIMP nsIMAPHostSessionList::AddShellToCacheForHost(
 }
 
 NS_IMETHODIMP nsIMAPHostSessionList::FindShellInCacheForHost(
-    const char *serverKey, const char *mailboxName, const char *UID,
-    IMAP_ContentModifiedType modType, nsIMAPBodyShell **shell) {
+    const char* serverKey, const char* mailboxName, const char* UID,
+    IMAP_ContentModifiedType modType, nsIMAPBodyShell** shell) {
   nsCString uidString(UID);
 
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host && host->fShellCache)
     NS_IF_ADDREF(*shell = host->fShellCache->FindShellForUID(
                      uidString, mailboxName, modType));
@@ -606,9 +606,9 @@ NS_IMETHODIMP nsIMAPHostSessionList::FindShellInCacheForHost(
 }
 
 NS_IMETHODIMP
-nsIMAPHostSessionList::ClearShellCacheForHost(const char *serverKey) {
+nsIMAPHostSessionList::ClearShellCacheForHost(const char* serverKey) {
   PR_EnterMonitor(gCachedHostInfoMonitor);
-  nsIMAPHostInfo *host = FindHost(serverKey);
+  nsIMAPHostInfo* host = FindHost(serverKey);
   if (host && host->fShellCache) host->fShellCache->Clear();
   PR_ExitMonitor(gCachedHostInfoMonitor);
   return (host == NULL) ? NS_ERROR_ILLEGAL_VALUE : NS_OK;

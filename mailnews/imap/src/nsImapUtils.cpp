@@ -16,8 +16,8 @@
 #include "nsIMAPNamespace.h"
 #include "nsIImapFlagAndUidState.h"
 
-nsresult nsImapURI2FullName(const char *rootURI, const char *hostName,
-                            const char *uriStr, char **name) {
+nsresult nsImapURI2FullName(const char* rootURI, const char* hostName,
+                            const char* uriStr, char** name) {
   nsAutoCString uri(uriStr);
   nsAutoCString fullName;
   if (uri.Find(rootURI) != 0) return NS_ERROR_FAILURE;
@@ -36,8 +36,8 @@ nsresult nsImapURI2FullName(const char *rootURI, const char *hostName,
 }
 
 /* parses ImapMessageURI */
-nsresult nsParseImapMessageURI(const char *uri, nsCString &folderURI,
-                               uint32_t *key, char **part) {
+nsresult nsParseImapMessageURI(const char* uri, nsCString& folderURI,
+                               uint32_t* key, char** part) {
   if (!key) return NS_ERROR_NULL_POINTER;
 
   nsAutoCString uriStr(uri);
@@ -89,16 +89,16 @@ nsresult nsParseImapMessageURI(const char *uri, nsCString &folderURI,
   return NS_OK;
 }
 
-nsresult nsBuildImapMessageURI(const char *baseURI, uint32_t key,
-                               nsCString &uri) {
+nsresult nsBuildImapMessageURI(const char* baseURI, uint32_t key,
+                               nsCString& uri) {
   uri.Append(baseURI);
   uri.Append('#');
   uri.AppendInt(key);
   return NS_OK;
 }
 
-nsresult nsCreateImapBaseMessageURI(const nsACString &baseURI,
-                                    nsCString &baseMessageURI) {
+nsresult nsCreateImapBaseMessageURI(const nsACString& baseURI,
+                                    nsCString& baseMessageURI) {
   nsAutoCString tailURI(baseURI);
   // chop off imap:/
   if (tailURI.Find(kImapRootURI) == 0) tailURI.Cut(0, PL_strlen(kImapRootURI));
@@ -148,59 +148,59 @@ NS_IMPL_GETSET(nsImapMailboxSpec, OnlineVerified, bool, mOnlineVerified)
 NS_IMPL_GETSET(nsImapMailboxSpec, SupportedUserFlags, uint32_t,
                mSupportedUserFlags)
 NS_IMPL_GETSET(nsImapMailboxSpec, Box_flags, uint32_t, mBoxFlags)
-NS_IMPL_GETSET(nsImapMailboxSpec, NamespaceForFolder, nsIMAPNamespace *,
+NS_IMPL_GETSET(nsImapMailboxSpec, NamespaceForFolder, nsIMAPNamespace*,
                mNamespaceForFolder)
 
 NS_IMETHODIMP nsImapMailboxSpec::GetAllocatedPathName(
-    nsACString &aAllocatedPathName) {
+    nsACString& aAllocatedPathName) {
   aAllocatedPathName = mAllocatedPathName;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailboxSpec::SetAllocatedPathName(
-    const nsACString &aAllocatedPathName) {
+    const nsACString& aAllocatedPathName) {
   mAllocatedPathName = aAllocatedPathName;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailboxSpec::GetUnicharPathName(
-    nsAString &aUnicharPathName) {
+    nsAString& aUnicharPathName) {
   aUnicharPathName = mUnicharPathName;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailboxSpec::SetUnicharPathName(
-    const nsAString &aUnicharPathName) {
+    const nsAString& aUnicharPathName) {
   mUnicharPathName = aUnicharPathName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailboxSpec::GetHostName(nsACString &aHostName) {
+NS_IMETHODIMP nsImapMailboxSpec::GetHostName(nsACString& aHostName) {
   aHostName = mHostName;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImapMailboxSpec::SetHostName(const nsACString &aHostName) {
+NS_IMETHODIMP nsImapMailboxSpec::SetHostName(const nsACString& aHostName) {
   mHostName = aHostName;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailboxSpec::GetFlagState(
-    nsIImapFlagAndUidState **aFlagState) {
+    nsIImapFlagAndUidState** aFlagState) {
   NS_ENSURE_ARG_POINTER(aFlagState);
   NS_IF_ADDREF(*aFlagState = mFlagState);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsImapMailboxSpec::SetFlagState(
-    nsIImapFlagAndUidState *aFlagState) {
+    nsIImapFlagAndUidState* aFlagState) {
   NS_ENSURE_ARG_POINTER(aFlagState);
   mFlagState = aFlagState;
   return NS_OK;
 }
 
-nsImapMailboxSpec &nsImapMailboxSpec::operator=(
-    const nsImapMailboxSpec &aCopy) {
+nsImapMailboxSpec& nsImapMailboxSpec::operator=(
+    const nsImapMailboxSpec& aCopy) {
   mFolder_UIDVALIDITY = aCopy.mFolder_UIDVALIDITY;
   mHighestModSeq = aCopy.mHighestModSeq;
   mNumOfMessages = aCopy.mNumOfMessages;
@@ -228,9 +228,9 @@ nsImapMailboxSpec &nsImapMailboxSpec::operator=(
 // use the flagState to determine if the gaps in the msgUids correspond to gaps
 // in the mailbox, in which case we can still use ranges. If flagState is null,
 // we won't do this.
-void AllocateImapUidString(const uint32_t *msgUids, uint32_t &msgCount,
-                           nsImapFlagAndUidState *flagState,
-                           nsCString &returnString) {
+void AllocateImapUidString(const uint32_t* msgUids, uint32_t& msgCount,
+                           nsImapFlagAndUidState* flagState,
+                           nsCString& returnString) {
   uint32_t startSequence = (msgCount > 0) ? msgUids[0] : 0xFFFFFFFF;
   uint32_t curSequenceEnd = startSequence;
   uint32_t total = msgCount;
@@ -303,7 +303,7 @@ void AllocateImapUidString(const uint32_t *msgUids, uint32_t &msgCount,
   }
 }
 
-void ParseUidString(const char *uidString, nsTArray<nsMsgKey> &keys) {
+void ParseUidString(const char* uidString, nsTArray<nsMsgKey>& keys) {
   // This is in the form <id>,<id>, or <id1>:<id2>
   if (!uidString) return;
 
@@ -312,8 +312,8 @@ void ParseUidString(const char *uidString, nsTArray<nsMsgKey> &keys) {
   uint32_t curToken;
   uint32_t saveStartToken = 0;
 
-  for (const char *curCharPtr = uidString; curChar && *curCharPtr;) {
-    const char *currentKeyToken = curCharPtr;
+  for (const char* curCharPtr = uidString; curChar && *curCharPtr;) {
+    const char* currentKeyToken = curCharPtr;
     curChar = *curCharPtr;
     while (curChar != ':' && curChar != ',' && curChar != '\0')
       curChar = *curCharPtr++;
@@ -330,7 +330,7 @@ void ParseUidString(const char *uidString, nsTArray<nsMsgKey> &keys) {
   }
 }
 
-void AppendUid(nsCString &msgIds, uint32_t uid) {
+void AppendUid(nsCString& msgIds, uint32_t uid) {
   char buf[20];
   PR_snprintf(buf, sizeof(buf), "%u", uid);
   msgIds.Append(buf);

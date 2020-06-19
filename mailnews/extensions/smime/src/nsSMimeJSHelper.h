@@ -17,8 +17,8 @@ class nsSMimeJSHelper : public nsISMimeJSHelper {
 
  private:
   virtual ~nsSMimeJSHelper();
-  nsresult getMailboxList(nsIMsgCompFields *compFields,
-                          nsTArray<nsCString> &mailboxes);
+  nsresult getMailboxList(nsIMsgCompFields* compFields,
+                          nsTArray<nsCString>& mailboxes);
 };
 
 #endif

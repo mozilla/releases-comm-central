@@ -31,8 +31,8 @@ using namespace mozilla;
 MOZ_TYPE_SPECIFIC_UNIQUE_PTR_TEMPLATE(UniqueCERTCertNicknames,
                                       CERTCertNicknames, CERT_FreeNicknames)
 
-CERTCertNicknames *getNSSCertNicknamesFromCertList(
-    const UniqueCERTCertList &certList) {
+CERTCertNicknames* getNSSCertNicknamesFromCertList(
+    const UniqueCERTCertList& certList) {
   nsAutoString expiredString, notYetValidString;
   nsAutoString expiredStringLeadingSpace, notYetValidStringLeadingSpace;
 
@@ -49,12 +49,12 @@ CERTCertNicknames *getNSSCertNicknamesFromCertList(
   NS_ConvertUTF16toUTF8 aUtf8NotYetValidString(notYetValidStringLeadingSpace);
 
   return CERT_NicknameStringsFromCertList(
-      certList.get(), const_cast<char *>(aUtf8ExpiredString.get()),
-      const_cast<char *>(aUtf8NotYetValidString.get()));
+      certList.get(), const_cast<char*>(aUtf8ExpiredString.get()),
+      const_cast<char*>(aUtf8NotYetValidString.get()));
 }
 
-nsresult FormatUIStrings(nsIX509Cert *cert, const nsAutoString &nickname,
-                         nsAutoString &nickWithSerial, nsAutoString &details) {
+nsresult FormatUIStrings(nsIX509Cert* cert, const nsAutoString& nickname,
+                         nsAutoString& nickWithSerial, nsAutoString& details) {
   if (!NS_IsMainThread()) {
     NS_ERROR("nsNSSCertificate::FormatUIStrings called off the main thread");
     return NS_ERROR_NOT_SAME_THREAD;
@@ -141,7 +141,7 @@ nsresult FormatUIStrings(nsIX509Cert *cert, const nsAutoString &nickname,
   }
 
   nsAutoString firstEmail;
-  const char *aWalkAddr;
+  const char* aWalkAddr;
   for (aWalkAddr = CERT_GetFirstEmailAddress(nssCert.get()); aWalkAddr;
        aWalkAddr = CERT_GetNextEmailAddress(nssCert.get(), aWalkAddr)) {
     NS_ConvertUTF8toUTF16 email(aWalkAddr);
@@ -220,10 +220,10 @@ nsresult nsCertPicker::Init() {
 }
 
 NS_IMETHODIMP
-nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
-                              const nsTArray<nsString> &certNickList,
-                              const nsTArray<nsString> &certDetailsList,
-                              int32_t *selectedIndex, bool *canceled) {
+nsCertPicker::PickCertificate(nsIInterfaceRequestor* ctx,
+                              const nsTArray<nsString>& certNickList,
+                              const nsTArray<nsString>& certDetailsList,
+                              int32_t* selectedIndex, bool* canceled) {
   nsresult rv;
   uint32_t i;
   MOZ_ASSERT(certNickList.Length() == certDetailsList.Length());
@@ -269,15 +269,15 @@ nsCertPicker::PickCertificate(nsIInterfaceRequestor *ctx,
   return rv;
 }
 
-NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
-                                        const char16_t *selectedNickname,
+NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor* ctx,
+                                        const char16_t* selectedNickname,
                                         int32_t certUsage, bool allowInvalid,
                                         bool allowDuplicateNicknames,
-                                        const nsAString &emailAddress,
-                                        bool *canceled, nsIX509Cert **_retval) {
+                                        const nsAString& emailAddress,
+                                        bool* canceled, nsIX509Cert** _retval) {
   int32_t selectedIndex = -1;
   bool selectionFound = false;
-  CERTCertListNode *node = nullptr;
+  CERTCertListNode* node = nullptr;
   nsresult rv = NS_OK;
 
   {
@@ -312,7 +312,7 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor *ctx,
         }
         if (!match) {
           /* doesn't contain the specified address, so remove from the list */
-          CERTCertListNode *freenode = node;
+          CERTCertListNode* freenode = node;
           node = CERT_LIST_NEXT(node);
           CERT_RemoveCertListNode(freenode);
           continue;

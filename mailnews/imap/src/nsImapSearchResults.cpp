@@ -11,7 +11,7 @@
 
 nsImapSearchResultSequence::nsImapSearchResultSequence() {}
 
-nsImapSearchResultSequence *
+nsImapSearchResultSequence*
 nsImapSearchResultSequence::CreateSearchResultSequence() {
   return new nsImapSearchResultSequence;
 }
@@ -19,26 +19,26 @@ nsImapSearchResultSequence::CreateSearchResultSequence() {
 void nsImapSearchResultSequence::Clear(void) {
   int32_t i = Length();
   while (0 <= --i) {
-    char *string = ElementAt(i);
+    char* string = ElementAt(i);
     PR_Free(string);
   }
-  nsTArray<char *>::Clear();
+  nsTArray<char*>::Clear();
 }
 
 nsImapSearchResultSequence::~nsImapSearchResultSequence() { Clear(); }
 
 void nsImapSearchResultSequence::ResetSequence() { Clear(); }
 
-void nsImapSearchResultSequence::AddSearchResultLine(const char *searchLine) {
+void nsImapSearchResultSequence::AddSearchResultLine(const char* searchLine) {
   // The first add becomes node 2.  Fix this.
-  char *copiedSequence = PL_strdup(searchLine + 9);  // 9 == "* SEARCH "
+  char* copiedSequence = PL_strdup(searchLine + 9);  // 9 == "* SEARCH "
 
   if (copiedSequence)  // if we can't allocate this then the search won't hit
     AppendElement(copiedSequence);
 }
 
 nsImapSearchResultIterator::nsImapSearchResultIterator(
-    nsImapSearchResultSequence &sequence)
+    nsImapSearchResultSequence& sequence)
     : fSequence(sequence) {
   ResetIterator();
 }
@@ -47,7 +47,7 @@ nsImapSearchResultIterator::~nsImapSearchResultIterator() {}
 
 void nsImapSearchResultIterator::ResetIterator() {
   fSequenceIndex = 0;
-  fCurrentLine = (char *)fSequence.SafeElementAt(fSequenceIndex);
+  fCurrentLine = (char*)fSequence.SafeElementAt(fSequenceIndex);
   fPositionInCurrentLine = fCurrentLine;
 }
 
@@ -62,7 +62,7 @@ int32_t nsImapSearchResultIterator::GetNextMessageNumber() {
 
     if (*fPositionInCurrentLine == 0xD)  // found CR, no more digits on line
     {
-      fCurrentLine = (char *)fSequence.SafeElementAt(++fSequenceIndex);
+      fCurrentLine = (char*)fSequence.SafeElementAt(++fSequenceIndex);
       fPositionInCurrentLine = fCurrentLine;
     } else  // eat the space
       fPositionInCurrentLine++;

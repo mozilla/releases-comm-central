@@ -15,8 +15,8 @@ static NS_DEFINE_CID(kMimeObjectClassAccessCID,
  * These calls are necessary to expose the object class hierarchy
  * to externally developed content type handlers.
  */
-extern "C" void *COM_GetmimeInlineTextClass(void) {
-  void *ptr = NULL;
+extern "C" void* COM_GetmimeInlineTextClass(void) {
+  void* ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
@@ -26,8 +26,8 @@ extern "C" void *COM_GetmimeInlineTextClass(void) {
   return ptr;
 }
 
-extern "C" void *COM_GetmimeLeafClass(void) {
-  void *ptr = NULL;
+extern "C" void* COM_GetmimeLeafClass(void) {
+  void* ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
@@ -37,8 +37,8 @@ extern "C" void *COM_GetmimeLeafClass(void) {
   return ptr;
 }
 
-extern "C" void *COM_GetmimeObjectClass(void) {
-  void *ptr = NULL;
+extern "C" void* COM_GetmimeObjectClass(void) {
+  void* ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
@@ -48,8 +48,8 @@ extern "C" void *COM_GetmimeObjectClass(void) {
   return ptr;
 }
 
-extern "C" void *COM_GetmimeContainerClass(void) {
-  void *ptr = NULL;
+extern "C" void* COM_GetmimeContainerClass(void) {
+  void* ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
@@ -59,8 +59,8 @@ extern "C" void *COM_GetmimeContainerClass(void) {
   return ptr;
 }
 
-extern "C" void *COM_GetmimeMultipartClass(void) {
-  void *ptr = NULL;
+extern "C" void* COM_GetmimeMultipartClass(void) {
+  void* ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
@@ -70,8 +70,8 @@ extern "C" void *COM_GetmimeMultipartClass(void) {
   return ptr;
 }
 
-extern "C" void *COM_GetmimeMultipartSignedClass(void) {
-  void *ptr = NULL;
+extern "C" void* COM_GetmimeMultipartSignedClass(void) {
+  void* ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =
@@ -82,7 +82,7 @@ extern "C" void *COM_GetmimeMultipartSignedClass(void) {
   return ptr;
 }
 
-extern "C" int COM_MimeObject_write(void *mimeObject, char *data,
+extern "C" int COM_MimeObject_write(void* mimeObject, char* data,
                                     int32_t length, bool user_visible_p) {
   int32_t rc = -1;
 
@@ -100,8 +100,8 @@ extern "C" int COM_MimeObject_write(void *mimeObject, char *data,
   return rc;
 }
 
-extern "C" void *COM_MimeCreate(char *content_type, void *hdrs, void *opts) {
-  void *ptr = NULL;
+extern "C" void* COM_MimeCreate(char* content_type, void* hdrs, void* opts) {
+  void* ptr = NULL;
 
   nsresult res;
   nsCOMPtr<nsIMimeObjectClassAccess> objAccess =

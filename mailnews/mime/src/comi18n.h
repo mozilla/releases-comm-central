@@ -25,12 +25,12 @@ extern "C" {
  * @param eatContinuations  [IN]  If true, unfold headers
  * @param result            [OUT] Decoded buffer
  */
-void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
+void MIME_DecodeMimeHeader(const char* header, const char* default_charset,
                            bool override_charset, bool eatContinuations,
-                           nsACString &result);
+                           nsACString& result);
 
-nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
-                             nsACString &aCharset);
+nsresult MIME_detect_charset(const char* aBuf, int32_t aLength,
+                             nsACString& aCharset);
 
 #ifdef __cplusplus
 } /* extern "C" */

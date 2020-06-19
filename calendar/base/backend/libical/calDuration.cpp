@@ -23,7 +23,7 @@ NS_IMPL_ISUPPORTS_CI(calDuration, calIDuration, calIDurationLibical)
 
 calDuration::calDuration() : mImmutable(false) { Reset(); }
 
-calDuration::calDuration(const calDuration &cdt) {
+calDuration::calDuration(const calDuration& cdt) {
   mDuration.is_neg = cdt.mDuration.is_neg;
   mDuration.weeks = cdt.mDuration.weeks;
   mDuration.days = cdt.mDuration.days;
@@ -35,7 +35,7 @@ calDuration::calDuration(const calDuration &cdt) {
   mImmutable = false;
 }
 
-calDuration::calDuration(const struct icaldurationtype *const aDurationPtr)
+calDuration::calDuration(const struct icaldurationtype* const aDurationPtr)
     : mImmutable(false) {
   FromIcalDuration(aDurationPtr);
 }
@@ -51,7 +51,7 @@ calDuration::SetIcalDuration(JS::HandleValue) {
 }
 
 NS_IMETHODIMP
-calDuration::GetIsMutable(bool *aResult) {
+calDuration::GetIsMutable(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = !mImmutable;
@@ -65,8 +65,8 @@ calDuration::MakeImmutable() {
 }
 
 NS_IMETHODIMP
-calDuration::Clone(calIDuration **aResult) {
-  calDuration *cdt = new calDuration(*this);
+calDuration::Clone(calIDuration** aResult) {
+  calDuration* cdt = new calDuration(*this);
   if (!cdt) return NS_ERROR_OUT_OF_MEMORY;
 
   NS_ADDREF(*aResult = cdt);
@@ -87,7 +87,7 @@ calDuration::Reset() {
   return NS_OK;
 }
 
-NS_IMETHODIMP calDuration::GetIsNegative(bool *_retval) {
+NS_IMETHODIMP calDuration::GetIsNegative(bool* _retval) {
   *_retval = mDuration.is_neg;
   return NS_OK;
 }
@@ -97,7 +97,7 @@ NS_IMETHODIMP calDuration::SetIsNegative(bool aValue) {
   return NS_OK;
 }
 
-NS_IMETHODIMP calDuration::GetWeeks(int16_t *_retval) {
+NS_IMETHODIMP calDuration::GetWeeks(int16_t* _retval) {
   *_retval = (int16_t)mDuration.weeks;
   return NS_OK;
 }
@@ -107,7 +107,7 @@ NS_IMETHODIMP calDuration::SetWeeks(int16_t aValue) {
   return NS_OK;
 }
 
-NS_IMETHODIMP calDuration::GetDays(int16_t *_retval) {
+NS_IMETHODIMP calDuration::GetDays(int16_t* _retval) {
   *_retval = (int16_t)mDuration.days;
   return NS_OK;
 }
@@ -117,7 +117,7 @@ NS_IMETHODIMP calDuration::SetDays(int16_t aValue) {
   return NS_OK;
 }
 
-NS_IMETHODIMP calDuration::GetHours(int16_t *_retval) {
+NS_IMETHODIMP calDuration::GetHours(int16_t* _retval) {
   *_retval = (int16_t)mDuration.hours;
   return NS_OK;
 }
@@ -127,7 +127,7 @@ NS_IMETHODIMP calDuration::SetHours(int16_t aValue) {
   return NS_OK;
 }
 
-NS_IMETHODIMP calDuration::GetMinutes(int16_t *_retval) {
+NS_IMETHODIMP calDuration::GetMinutes(int16_t* _retval) {
   *_retval = (int16_t)mDuration.minutes;
   return NS_OK;
 }
@@ -137,7 +137,7 @@ NS_IMETHODIMP calDuration::SetMinutes(int16_t aValue) {
   return NS_OK;
 }
 
-NS_IMETHODIMP calDuration::GetSeconds(int16_t *_retval) {
+NS_IMETHODIMP calDuration::GetSeconds(int16_t* _retval) {
   *_retval = (int16_t)mDuration.seconds;
   return NS_OK;
 }
@@ -147,7 +147,7 @@ NS_IMETHODIMP calDuration::SetSeconds(int16_t aValue) {
   return NS_OK;
 }
 
-NS_IMETHODIMP calDuration::GetInSeconds(int32_t *_retval) {
+NS_IMETHODIMP calDuration::GetInSeconds(int32_t* _retval) {
   int32_t retval =
       (((int32_t)((int16_t)mDuration.weeks * SECONDS_PER_WEEK)) +
        ((int32_t)((int16_t)mDuration.days * SECONDS_PER_DAY)) +
@@ -184,7 +184,7 @@ NS_IMETHODIMP calDuration::SetInSeconds(int32_t aValue) {
   return NS_OK;
 }
 
-NS_IMETHODIMP calDuration::AddDuration(calIDuration *aDuration) {
+NS_IMETHODIMP calDuration::AddDuration(calIDuration* aDuration) {
   if (mImmutable) return NS_ERROR_CALENDAR_IMMUTABLE;
 
   nsresult rv;
@@ -229,10 +229,10 @@ calDuration::Normalize() {
 }
 
 NS_IMETHODIMP
-calDuration::ToString(nsACString &aResult) { return GetIcalString(aResult); }
+calDuration::ToString(nsACString& aResult) { return GetIcalString(aResult); }
 
 NS_IMETHODIMP_(void)
-calDuration::ToIcalDuration(struct icaldurationtype *icald) {
+calDuration::ToIcalDuration(struct icaldurationtype* icald) {
   icald->is_neg = mDuration.is_neg;
   icald->weeks = mDuration.weeks;
   icald->days = mDuration.days;
@@ -242,7 +242,7 @@ calDuration::ToIcalDuration(struct icaldurationtype *icald) {
   return;
 }
 
-void calDuration::FromIcalDuration(const struct icaldurationtype *const icald) {
+void calDuration::FromIcalDuration(const struct icaldurationtype* const icald) {
   mDuration.is_neg = icald->is_neg;
   mDuration.weeks = icald->weeks;
   mDuration.days = icald->days;
@@ -253,9 +253,9 @@ void calDuration::FromIcalDuration(const struct icaldurationtype *const icald) {
 }
 
 NS_IMETHODIMP
-calDuration::GetIcalString(nsACString &aResult) {
+calDuration::GetIcalString(nsACString& aResult) {
   // note that ics is owned by libical, so we don't need to free
-  const char *ics = icaldurationtype_as_ical_string(mDuration);
+  const char* ics = icaldurationtype_as_ical_string(mDuration);
 
   if (ics) {
     aResult.Assign(ics);
@@ -266,14 +266,14 @@ calDuration::GetIcalString(nsACString &aResult) {
 }
 
 NS_IMETHODIMP
-calDuration::SetIcalString(const nsACString &aIcalString) {
+calDuration::SetIcalString(const nsACString& aIcalString) {
   mDuration =
       icaldurationtype_from_string(PromiseFlatCString(aIcalString).get());
   return NS_OK;
 }
 
 NS_IMETHODIMP
-calDuration::Compare(calIDuration *aOther, int32_t *aResult) {
+calDuration::Compare(calIDuration* aOther, int32_t* aResult) {
   int32_t thisInSeconds, otherInSeconds;
 
   // cast to void because these calls can't fail

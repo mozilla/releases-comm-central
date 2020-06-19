@@ -29,7 +29,7 @@ class nsMapiSupport : public nsIMapiSupport, public nsIObserver {
   virtual ~nsMapiSupport();
 
   DWORD m_dwRegister;
-  CMapiFactory *m_nsMapiFactory;
+  CMapiFactory* m_nsMapiFactory;
 };
 
 #endif  // MSG_MAPI_SUPPORT_H_

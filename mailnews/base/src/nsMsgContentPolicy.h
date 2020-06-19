@@ -62,33 +62,33 @@ class nsMsgContentPolicy : public nsIContentPolicy,
   nsCString mTrustedMailDomains;
   nsCOMPtr<nsIPermissionManager> mPermissionManager;
 
-  bool IsTrustedDomain(nsIURI *aContentLocation);
-  bool IsSafeRequestingLocation(nsIURI *aRequestingLocation);
-  bool IsExposedProtocol(nsIURI *aContentLocation);
-  bool IsExposedChromeProtocol(nsIURI *aContentLocation);
-  bool ShouldBlockUnexposedProtocol(nsIURI *aContentLocation);
+  bool IsTrustedDomain(nsIURI* aContentLocation);
+  bool IsSafeRequestingLocation(nsIURI* aRequestingLocation);
+  bool IsExposedProtocol(nsIURI* aContentLocation);
+  bool IsExposedChromeProtocol(nsIURI* aContentLocation);
+  bool ShouldBlockUnexposedProtocol(nsIURI* aContentLocation);
 
-  bool ShouldAcceptRemoteContentForSender(nsIMsgDBHdr *aMsgHdr);
-  int16_t ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr *aMsgHdr,
-                                             nsIURI *aRequestingLocation,
-                                             nsIURI *aContentLocation);
-  void NotifyContentWasBlocked(nsIURI *aOriginatorLocation,
-                               nsIURI *aContentLocation, bool aCanOverride);
-  void ShouldAcceptContentForPotentialMsg(nsIURI *aOriginatorLocation,
-                                          nsIURI *aContentLocation,
-                                          int16_t *aDecision);
-  void ComposeShouldLoad(nsIMsgCompose *aMsgCompose,
-                         nsISupports *aRequestingContext,
-                         nsIURI *aContentLocation, int16_t *aDecision);
+  bool ShouldAcceptRemoteContentForSender(nsIMsgDBHdr* aMsgHdr);
+  int16_t ShouldAcceptRemoteContentForMsgHdr(nsIMsgDBHdr* aMsgHdr,
+                                             nsIURI* aRequestingLocation,
+                                             nsIURI* aContentLocation);
+  void NotifyContentWasBlocked(nsIURI* aOriginatorLocation,
+                               nsIURI* aContentLocation, bool aCanOverride);
+  void ShouldAcceptContentForPotentialMsg(nsIURI* aOriginatorLocation,
+                                          nsIURI* aContentLocation,
+                                          int16_t* aDecision);
+  void ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
+                         nsISupports* aRequestingContext,
+                         nsIURI* aContentLocation, int16_t* aDecision);
   already_AddRefed<nsIMsgCompose> GetMsgComposeForContext(
-      nsISupports *aRequestingContext);
+      nsISupports* aRequestingContext);
 
-  nsresult GetRootDocShellForContext(nsISupports *aRequestingContext,
-                                     nsIDocShell **aDocShell);
-  nsresult GetOriginatingURIForContext(nsISupports *aRequestingContext,
-                                       nsIURI **aURI);
+  nsresult GetRootDocShellForContext(nsISupports* aRequestingContext,
+                                     nsIDocShell** aDocShell);
+  nsresult GetOriginatingURIForContext(nsISupports* aRequestingContext,
+                                       nsIURI** aURI);
   nsresult SetDisableItemsOnMailNewsUrlDocshells(
-      nsIURI *aContentLocation, nsISupports *aRequestingContext);
+      nsIURI* aContentLocation, nsISupports* aRequestingContext);
 
   nsTArray<nsCString> mCustomExposedProtocols;
 };

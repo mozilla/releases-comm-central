@@ -20,7 +20,7 @@ namespace mailnews {
  * This is used to signal that the input header value has already been decoded
  * according to RFC 2047 and is in UTF-16 form.
  */
-nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader);
+nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString& aHeader);
 
 /**
  * This is used to signal that the input header value needs to be decoded
@@ -28,15 +28,15 @@ nsCOMArray<msgIAddressObject> DecodedHeader(const nsAString &aHeader);
  * that non-ASCII data is in; if the value is null (the default), then the
  * charset is assumed to be UTF-8.
  */
-nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString &aHeader,
-                                            const char *aCharset = nullptr);
+nsCOMArray<msgIAddressObject> EncodedHeader(const nsACString& aHeader,
+                                            const char* aCharset = nullptr);
 /**
  * Same deal, but we're starting with an nsAString.
  */
-nsCOMArray<msgIAddressObject> EncodedHeaderW(const nsAString &aHeader);
+nsCOMArray<msgIAddressObject> EncodedHeaderW(const nsAString& aHeader);
 
 namespace detail {
-void DoConversion(const nsTArray<nsString> &aUTF16, nsTArray<nsCString> &aUTF8);
+void DoConversion(const nsTArray<nsString>& aUTF16, nsTArray<nsCString>& aUTF8);
 };
 /**
  * This is a class designed for use as temporaries so that methods can pass
@@ -50,13 +50,13 @@ void DoConversion(const nsTArray<nsString> &aUTF16, nsTArray<nsCString> &aUTF8);
 template <uint32_t N = 5>
 class UTF16ArrayAdapter {
  public:
-  explicit UTF16ArrayAdapter(nsTArray<nsCString> &aUTF8Array)
+  explicit UTF16ArrayAdapter(nsTArray<nsCString>& aUTF8Array)
       : mUTF8Array(aUTF8Array) {}
   ~UTF16ArrayAdapter() { detail::DoConversion(mUTF16Array, mUTF8Array); }
-  operator nsTArray<nsString> &() { return mUTF16Array; }
+  operator nsTArray<nsString>&() { return mUTF16Array; }
 
  private:
-  nsTArray<nsCString> &mUTF8Array;
+  nsTArray<nsCString>& mUTF8Array;
   AutoTArray<nsString, N> mUTF16Array;
 };
 
@@ -68,8 +68,8 @@ class UTF16ArrayAdapter {
  * the output string is just the email. Note that this DOES NOT do any RFC 2047
  * encoding.
  */
-void MakeMimeAddress(const nsACString &aName, const nsACString &aEmail,
-                     nsACString &full);
+void MakeMimeAddress(const nsACString& aName, const nsACString& aEmail,
+                     nsACString& full);
 
 /**
  * Given a name and an email, produce a string suitable for writing in an email
@@ -79,8 +79,8 @@ void MakeMimeAddress(const nsACString &aName, const nsACString &aEmail,
  * the output string is just the email. Note that this DOES NOT do any RFC 2047
  * encoding.
  */
-void MakeMimeAddress(const nsAString &aName, const nsAString &aEmail,
-                     nsAString &full);
+void MakeMimeAddress(const nsAString& aName, const nsAString& aEmail,
+                     nsAString& full);
 
 /**
  * Given a name and an email, both encoded in UTF-8, produce a string suitable
@@ -89,8 +89,8 @@ void MakeMimeAddress(const nsAString &aName, const nsAString &aEmail,
  * If name is not empty, the output string will be name <email>. If it is empty,
  * the output string is just the email.
  */
-void MakeDisplayAddress(const nsAString &aName, const nsAString &aEmail,
-                        nsAString &full);
+void MakeDisplayAddress(const nsAString& aName, const nsAString& aEmail,
+                        nsAString& full);
 
 /**
  * Returns a copy of the input which may have had some addresses removed.
@@ -106,23 +106,23 @@ void MakeDisplayAddress(const nsAString &aName, const nsAString &aEmail,
  *                     will not be added to the result.
  * @return             The original header with duplicate addresses removed.
  */
-void RemoveDuplicateAddresses(const nsACString &aHeader,
-                              const nsACString &aOtherEmails,
-                              nsACString &result);
+void RemoveDuplicateAddresses(const nsACString& aHeader,
+                              const nsACString& aOtherEmails,
+                              nsACString& result);
 
 /**
  * Given a message header, extract all names and email addresses found in that
  * header into the two arrays.
  */
-void ExtractAllAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
-                         nsTArray<nsString> &names, nsTArray<nsString> &emails);
+void ExtractAllAddresses(const nsCOMArray<msgIAddressObject>& aHeader,
+                         nsTArray<nsString>& names, nsTArray<nsString>& emails);
 
 /**
  * Given a raw message header value, extract display names for every address
  * found in the header.
  */
-void ExtractDisplayAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
-                             nsTArray<nsString> &addresses);
+void ExtractDisplayAddresses(const nsCOMArray<msgIAddressObject>& aHeader,
+                             nsTArray<nsString>& addresses);
 
 /**
  * Given a raw message header value, extract all the email addresses into an
@@ -130,47 +130,47 @@ void ExtractDisplayAddresses(const nsCOMArray<msgIAddressObject> &aHeader,
  *
  * Duplicate email addresses are not removed from the output list.
  */
-void ExtractEmails(const nsCOMArray<msgIAddressObject> &aHeader,
-                   nsTArray<nsString> &emails);
+void ExtractEmails(const nsCOMArray<msgIAddressObject>& aHeader,
+                   nsTArray<nsString>& emails);
 
 /**
  * Given a raw message header value, extract the first name/email address found
  * in the header. This is essentially equivalent to grabbing the first entry of
  * ExtractAllAddresses.
  */
-void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
-                         nsACString &name, nsACString &email);
+void ExtractFirstAddress(const nsCOMArray<msgIAddressObject>& aHeader,
+                         nsACString& name, nsACString& email);
 
 /**
  * Given an RFC 2047-decoded message header value, extract the first name/email
  * address found in the header. This is essentially equivalent to grabbing the
  * first entry of ExtractAllAddresses.
  */
-void ExtractFirstAddress(const nsCOMArray<msgIAddressObject> &aHeader,
-                         nsAString &name, nsACString &email);
+void ExtractFirstAddress(const nsCOMArray<msgIAddressObject>& aHeader,
+                         nsAString& name, nsACString& email);
 
 /**
  * Given a raw message header value, extract the first email address found in
  * the header.
  */
-void ExtractEmail(const nsCOMArray<msgIAddressObject> &aHeader,
-                  nsACString &email);
+void ExtractEmail(const nsCOMArray<msgIAddressObject>& aHeader,
+                  nsACString& email);
 
 /**
  * Given a raw message header value, extract and clean up the first display
  * name found in the header. If there is no display name, the email address is
  * used instead.
  */
-void ExtractName(const nsCOMArray<msgIAddressObject> &aHeader,
-                 nsACString &name);
+void ExtractName(const nsCOMArray<msgIAddressObject>& aHeader,
+                 nsACString& name);
 
 /**
  * Given an RFC 2047-decoded message header value, extract the first display
  * name found in the header. If there is no display name, the email address is
  * returned instead.
  */
-void ExtractName(const nsCOMArray<msgIAddressObject> &aDecodedHeader,
-                 nsAString &name);
+void ExtractName(const nsCOMArray<msgIAddressObject>& aDecodedHeader,
+                 nsAString& name);
 
 }  // namespace mailnews
 }  // namespace mozilla

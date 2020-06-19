@@ -7,14 +7,14 @@
 
 int ImportTranslate::m_useTranslator = -1;
 
-bool ImportTranslate::ConvertString(const nsCString &inStr, nsCString &outStr,
+bool ImportTranslate::ConvertString(const nsCString& inStr, nsCString& outStr,
                                     bool mimeHeader) {
   if (inStr.IsEmpty()) {
     outStr = inStr;
     return true;
   }
 
-  nsImportTranslator *pTrans = GetTranslator();
+  nsImportTranslator* pTrans = GetTranslator();
   // int      maxLen = (int) pTrans->GetMaxBufferSize(inStr.Length());
   // int      hLen = 0;
   nsCString set;
@@ -35,7 +35,7 @@ bool ImportTranslate::ConvertString(const nsCString &inStr, nsCString &outStr,
   set.Truncate();
   lang.Truncate();
 
-  uint8_t *pBuf;
+  uint8_t* pBuf;
   /*
   pBuf = (P_U8) outStr.GetBuffer(maxLen);
   if (!pBuf) {
@@ -53,7 +53,7 @@ bool ImportTranslate::ConvertString(const nsCString &inStr, nsCString &outStr,
 
   pTrans = new CMHTranslator;
   pBuf = new uint8_t[pTrans->GetMaxBufferSize(outStr.Length())];
-  pTrans->ConvertBuffer((const uint8_t *)(outStr.get()), outStr.Length(), pBuf);
+  pTrans->ConvertBuffer((const uint8_t*)(outStr.get()), outStr.Length(), pBuf);
   delete pTrans;
   outStr.Truncate();
   if (mimeHeader) {
@@ -62,13 +62,13 @@ bool ImportTranslate::ConvertString(const nsCString &inStr, nsCString &outStr,
     outStr += lang;
     outStr += "'";
   }
-  outStr += (const char *)pBuf;
+  outStr += (const char*)pBuf;
   delete[] pBuf;
 
   return true;
 }
 
-nsImportTranslator *ImportTranslate::GetTranslator(void) {
+nsImportTranslator* ImportTranslate::GetTranslator(void) {
   if (m_useTranslator == -1) {
     // get the translator to use...
     // CString    trans;
@@ -88,8 +88,8 @@ nsImportTranslator *ImportTranslate::GetTranslator(void) {
   }
 }
 
-nsImportTranslator *ImportTranslate::GetMatchingTranslator(
-    const char *pCharSet) {
+nsImportTranslator* ImportTranslate::GetMatchingTranslator(
+    const char* pCharSet) {
   /*
     CString    jp = "iso-2022-jp";
     if (!jp.CompareNoCase(pCharSet))

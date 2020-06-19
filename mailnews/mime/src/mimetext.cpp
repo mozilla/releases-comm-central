@@ -31,21 +31,21 @@
 MimeDefClass(MimeInlineText, MimeInlineTextClass, mimeInlineTextClass,
              &MIME_SUPERCLASS);
 
-static int MimeInlineText_initialize(MimeObject *);
-static void MimeInlineText_finalize(MimeObject *);
-static int MimeInlineText_rot13_line(MimeObject *, char *line, int32_t length);
-static int MimeInlineText_parse_eof(MimeObject *obj, bool abort_p);
-static int MimeInlineText_parse_end(MimeObject *, bool);
-static int MimeInlineText_parse_decoded_buffer(const char *, int32_t,
-                                               MimeObject *);
-static int MimeInlineText_rotate_convert_and_parse_line(char *, int32_t,
-                                                        MimeObject *);
-static int MimeInlineText_open_dam(char *line, int32_t length, MimeObject *obj);
-static int MimeInlineText_initializeCharset(MimeObject *obj);
+static int MimeInlineText_initialize(MimeObject*);
+static void MimeInlineText_finalize(MimeObject*);
+static int MimeInlineText_rot13_line(MimeObject*, char* line, int32_t length);
+static int MimeInlineText_parse_eof(MimeObject* obj, bool abort_p);
+static int MimeInlineText_parse_end(MimeObject*, bool);
+static int MimeInlineText_parse_decoded_buffer(const char*, int32_t,
+                                               MimeObject*);
+static int MimeInlineText_rotate_convert_and_parse_line(char*, int32_t,
+                                                        MimeObject*);
+static int MimeInlineText_open_dam(char* line, int32_t length, MimeObject* obj);
+static int MimeInlineText_initializeCharset(MimeObject* obj);
 
-static int MimeInlineTextClassInitialize(MimeInlineTextClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
-  MimeLeafClass *lclass = (MimeLeafClass *)clazz;
+static int MimeInlineTextClassInitialize(MimeInlineTextClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+  MimeLeafClass* lclass = (MimeLeafClass*)clazz;
   PR_ASSERT(!oclass->class_initialized);
   oclass->initialize = MimeInlineText_initialize;
   oclass->finalize = MimeInlineText_finalize;
@@ -57,17 +57,17 @@ static int MimeInlineTextClassInitialize(MimeInlineTextClass *clazz) {
   return 0;
 }
 
-static int MimeInlineText_initialize(MimeObject *obj) {
+static int MimeInlineText_initialize(MimeObject* obj) {
   // This is an abstract class; it shouldn't be directly instantiated.
-  PR_ASSERT(obj->clazz != (MimeObjectClass *)&mimeInlineTextClass);
+  PR_ASSERT(obj->clazz != (MimeObjectClass*)&mimeInlineTextClass);
 
-  ((MimeInlineText *)obj)->initializeCharset = false;
-  ((MimeInlineText *)obj)->needUpdateMsgWinCharset = false;
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->initialize(obj);
+  ((MimeInlineText*)obj)->initializeCharset = false;
+  ((MimeInlineText*)obj)->needUpdateMsgWinCharset = false;
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(obj);
 }
 
-static int MimeInlineText_initializeCharset(MimeObject *obj) {
-  MimeInlineText *text = (MimeInlineText *)obj;
+static int MimeInlineText_initializeCharset(MimeObject* obj) {
+  MimeInlineText* text = (MimeInlineText*)obj;
 
   text->inputAutodetect = false;
   text->charsetOverridable = false;
@@ -77,7 +77,7 @@ static int MimeInlineText_initializeCharset(MimeObject *obj) {
     if (obj->options && obj->options->override_charset) {
       text->charset = strdup(obj->options->default_charset);
     } else {
-      char *ct =
+      char* ct =
           MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
       if (ct) {
         text->charset = MimeHeaders_get_parameter(ct, "charset", NULL, NULL);
@@ -127,8 +127,8 @@ static int MimeInlineText_initializeCharset(MimeObject *obj) {
 
   if (text->inputAutodetect) {
     // We need to prepare lineDam for charset detection.
-    text->lineDamBuffer = (char *)PR_Malloc(DAM_MAX_BUFFER_SIZE);
-    text->lineDamPtrs = (char **)PR_Malloc(DAM_MAX_LINES * sizeof(char *));
+    text->lineDamBuffer = (char*)PR_Malloc(DAM_MAX_BUFFER_SIZE);
+    text->lineDamPtrs = (char**)PR_Malloc(DAM_MAX_LINES * sizeof(char*));
     text->curDamOffset = 0;
     text->lastLineInDam = 0;
     if (!text->lineDamBuffer || !text->lineDamPtrs) {
@@ -143,8 +143,8 @@ static int MimeInlineText_initializeCharset(MimeObject *obj) {
   return 0;
 }
 
-static void MimeInlineText_finalize(MimeObject *obj) {
-  MimeInlineText *text = (MimeInlineText *)obj;
+static void MimeInlineText_finalize(MimeObject* obj) {
+  MimeInlineText* text = (MimeInlineText*)obj;
 
   obj->clazz->parse_eof(obj, false);
   obj->clazz->parse_end(obj, false);
@@ -161,19 +161,19 @@ static void MimeInlineText_finalize(MimeObject *obj) {
     text->inputAutodetect = false;
   }
 
-  ((MimeObjectClass *)&MIME_SUPERCLASS)->finalize(obj);
+  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(obj);
 }
 
-static int MimeInlineText_parse_eof(MimeObject *obj, bool abort_p) {
+static int MimeInlineText_parse_eof(MimeObject* obj, bool abort_p) {
   int status;
 
   if (obj->closed_p) return 0;
   NS_ASSERTION(!obj->parsed_p, "obj already parsed");
 
-  MimeInlineText *text = (MimeInlineText *)obj;
+  MimeInlineText* text = (MimeInlineText*)obj;
 
   // Flush any buffered data from the MimeLeaf's decoder.
-  status = ((MimeLeafClass *)&MIME_SUPERCLASS)->close_decoder(obj);
+  status = ((MimeLeafClass*)&MIME_SUPERCLASS)->close_decoder(obj);
   if (status < 0) return status;
 
   // If there is still data in the ibuffer, that means that the last
@@ -200,11 +200,11 @@ static int MimeInlineText_parse_eof(MimeObject *obj, bool abort_p) {
   // We haven't found charset yet? Now is the time.
   if (text->inputAutodetect) status = MimeInlineText_open_dam(nullptr, 0, obj);
 
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
 }
 
-static int MimeInlineText_parse_end(MimeObject *obj, bool abort_p) {
-  MimeInlineText *text = (MimeInlineText *)obj;
+static int MimeInlineText_parse_end(MimeObject* obj, bool abort_p) {
+  MimeInlineText* text = (MimeInlineText*)obj;
 
   if (obj->parsed_p) {
     PR_ASSERT(obj->closed_p);
@@ -215,7 +215,7 @@ static int MimeInlineText_parse_end(MimeObject *obj, bool abort_p) {
   PR_FREEIF(text->cbuffer);
   text->cbuffer_size = 0;
 
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_end(obj, abort_p);
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_end(obj, abort_p);
 }
 
 // This maps A-M to N-Z and N-Z to A-M. All other characters are left alone.
@@ -240,12 +240,12 @@ static const unsigned char MimeInlineText_rot13_table[256] = {
     240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254,
     255};
 
-static int MimeInlineText_rot13_line(MimeObject *obj, char *line,
+static int MimeInlineText_rot13_line(MimeObject* obj, char* line,
                                      int32_t length) {
   unsigned char *s, *end;
   PR_ASSERT(line);
   if (!line) return -1;
-  s = (unsigned char *)line;
+  s = (unsigned char*)line;
   end = s + length;
   while (s < end) {
     *s = MimeInlineText_rot13_table[*s];
@@ -254,8 +254,8 @@ static int MimeInlineText_rot13_line(MimeObject *obj, char *line,
   return 0;
 }
 
-static int MimeInlineText_parse_decoded_buffer(const char *buf, int32_t size,
-                                               MimeObject *obj) {
+static int MimeInlineText_parse_decoded_buffer(const char* buf, int32_t size,
+                                               MimeObject* obj) {
   PR_ASSERT(!obj->closed_p);
   if (obj->closed_p) return -1;
 
@@ -274,7 +274,7 @@ static int MimeInlineText_parse_decoded_buffer(const char *buf, int32_t size,
   // `parse_line` method instead of calling the `parse_line` method directly.
   return mime_LineBuffer(buf, size, &obj->ibuffer, &obj->ibuffer_size,
                          &obj->ibuffer_fp, true,
-                         ((int (*)(char *, int32_t, void *))
+                         ((int (*)(char*, int32_t, void*))
                           /* This cast is to turn void into MimeObject */
                           MimeInlineText_rotate_convert_and_parse_line),
                          obj);
@@ -286,18 +286,18 @@ static int MimeInlineText_parse_decoded_buffer(const char *buf, int32_t size,
                          &(text)->cbuffer_size)                               \
        : 0)
 
-static int MimeInlineText_convert_and_parse_line(char *line, int32_t length,
-                                                 MimeObject *obj) {
+static int MimeInlineText_convert_and_parse_line(char* line, int32_t length,
+                                                 MimeObject* obj) {
   int status;
   nsAutoCString converted;
 
-  MimeInlineText *text = (MimeInlineText *)obj;
+  MimeInlineText* text = (MimeInlineText*)obj;
 
   // In case of charset autodetection, charset can be overridden by meta
   // charset.
   if (text->charsetOverridable) {
-    if (mime_typep(obj, (MimeObjectClass *)&mimeInlineTextHTMLClass)) {
-      MimeInlineTextHTML *textHTML = (MimeInlineTextHTML *)obj;
+    if (mime_typep(obj, (MimeObjectClass*)&mimeInlineTextHTMLClass)) {
+      MimeInlineTextHTML* textHTML = (MimeInlineTextHTML*)obj;
       if (textHTML->charset && *textHTML->charset &&
           strcmp(textHTML->charset, text->charset)) {
         // If meta tag specified charset is different from our detected result,
@@ -316,7 +316,7 @@ static int MimeInlineText_convert_and_parse_line(char *line, int32_t length,
       line, length, text->charset, converted, obj->options->stream_closure);
 
   if (status == 0) {
-    line = (char *)converted.get();
+    line = (char*)converted.get();
     length = converted.Length();
   }
 
@@ -330,9 +330,9 @@ static int MimeInlineText_convert_and_parse_line(char *line, int32_t length,
 // In this function call, all buffered lines in lineDam will be sent to charset
 // detector and a charset will be used to parse all those line and following
 // lines in this mime obj.
-static int MimeInlineText_open_dam(char *line, int32_t length,
-                                   MimeObject *obj) {
-  MimeInlineText *text = (MimeInlineText *)obj;
+static int MimeInlineText_open_dam(char* line, int32_t length,
+                                   MimeObject* obj) {
+  MimeInlineText* text = (MimeInlineText*)obj;
   nsAutoCString detectedCharset;
   nsresult res = NS_OK;
   int status = 0;
@@ -382,11 +382,11 @@ static int MimeInlineText_open_dam(char *line, int32_t length,
   return status;
 }
 
-static int MimeInlineText_rotate_convert_and_parse_line(char *line,
+static int MimeInlineText_rotate_convert_and_parse_line(char* line,
                                                         int32_t length,
-                                                        MimeObject *obj) {
+                                                        MimeObject* obj) {
   int status = 0;
-  MimeInlineTextClass *textc = (MimeInlineTextClass *)obj->clazz;
+  MimeInlineTextClass* textc = (MimeInlineTextClass*)obj->clazz;
 
   PR_ASSERT(!obj->closed_p);
   if (obj->closed_p) return -1;
@@ -410,7 +410,7 @@ static int MimeInlineText_rotate_convert_and_parse_line(char *line,
   // Only convert if the user prefs is false.
   if ((obj->options && obj->options->charset_conversion_fn) &&
       (!obj->options->force_user_charset) && (doConvert)) {
-    MimeInlineText *text = (MimeInlineText *)obj;
+    MimeInlineText* text = (MimeInlineText*)obj;
 
     if (!text->initializeCharset) {
       MimeInlineText_initializeCharset(obj);

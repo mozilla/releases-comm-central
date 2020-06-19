@@ -16,19 +16,19 @@ nsNewsDownloadDialogArgs::~nsNewsDownloadDialogArgs() {}
 
 NS_IMPL_ISUPPORTS(nsNewsDownloadDialogArgs, nsINewsDownloadDialogArgs)
 
-NS_IMETHODIMP nsNewsDownloadDialogArgs::GetGroupName(nsAString &aGroupName) {
+NS_IMETHODIMP nsNewsDownloadDialogArgs::GetGroupName(nsAString& aGroupName) {
   aGroupName = mGroupName;
 
   return NS_OK;
 }
 NS_IMETHODIMP nsNewsDownloadDialogArgs::SetGroupName(
-    const nsAString &aGroupName) {
+    const nsAString& aGroupName) {
   mGroupName = aGroupName;
 
   return NS_OK;
 }
 NS_IMETHODIMP nsNewsDownloadDialogArgs::GetArticleCount(
-    int32_t *aArticleCount) {
+    int32_t* aArticleCount) {
   NS_ENSURE_ARG_POINTER(aArticleCount);
 
   *aArticleCount = mArticleCount;
@@ -40,20 +40,20 @@ NS_IMETHODIMP nsNewsDownloadDialogArgs::SetArticleCount(int32_t aArticleCount) {
 
   return NS_OK;
 }
-NS_IMETHODIMP nsNewsDownloadDialogArgs::GetServerKey(char **aServerKey) {
+NS_IMETHODIMP nsNewsDownloadDialogArgs::GetServerKey(char** aServerKey) {
   NS_ENSURE_ARG_POINTER(aServerKey);
 
   *aServerKey = ToNewCString(mServerKey);
   return NS_OK;
 }
-NS_IMETHODIMP nsNewsDownloadDialogArgs::SetServerKey(const char *aServerKey) {
+NS_IMETHODIMP nsNewsDownloadDialogArgs::SetServerKey(const char* aServerKey) {
   NS_ENSURE_ARG_POINTER(aServerKey);
 
   mServerKey = aServerKey;
 
   return NS_OK;
 }
-NS_IMETHODIMP nsNewsDownloadDialogArgs::GetHitOK(bool *aHitOK) {
+NS_IMETHODIMP nsNewsDownloadDialogArgs::GetHitOK(bool* aHitOK) {
   NS_ENSURE_ARG_POINTER(aHitOK);
 
   *aHitOK = mHitOK;
@@ -65,7 +65,7 @@ NS_IMETHODIMP nsNewsDownloadDialogArgs::SetHitOK(bool aHitOK) {
 
   return NS_OK;
 }
-NS_IMETHODIMP nsNewsDownloadDialogArgs::GetDownloadAll(bool *aDownloadAll) {
+NS_IMETHODIMP nsNewsDownloadDialogArgs::GetDownloadAll(bool* aDownloadAll) {
   NS_ENSURE_ARG_POINTER(aDownloadAll);
 
   *aDownloadAll = mDownloadAll;

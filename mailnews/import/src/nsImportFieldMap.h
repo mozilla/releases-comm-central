@@ -22,10 +22,10 @@ class nsImportFieldMap : public nsIImportFieldMap {
 
   NS_DECL_NSIIMPORTFIELDMAP
 
-  explicit nsImportFieldMap(nsIStringBundle *aBundle);
+  explicit nsImportFieldMap(nsIStringBundle* aBundle);
 
-  static nsresult Create(nsIStringBundle *aBundle, nsISupports *aOuter,
-                         REFNSIID aIID, void **aResult);
+  static nsresult Create(nsIStringBundle* aBundle, nsISupports* aOuter,
+                         REFNSIID aIID, void** aResult);
 
  private:
   virtual ~nsImportFieldMap();
@@ -33,10 +33,10 @@ class nsImportFieldMap : public nsIImportFieldMap {
 
  private:
   int32_t m_numFields;
-  int32_t *m_pFields;
-  bool *m_pActive;
+  int32_t* m_pFields;
+  bool* m_pActive;
   int32_t m_allocated;
-  nsTArray<nsString *> m_descriptions;
+  nsTArray<nsString*> m_descriptions;
   int32_t m_mozFieldCount;
   bool m_skipFirstRecord;
 };

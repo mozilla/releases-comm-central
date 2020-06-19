@@ -56,7 +56,7 @@ nsSpamSettings::~nsSpamSettings() {}
 NS_IMPL_ISUPPORTS(nsSpamSettings, nsISpamSettings, nsIUrlListener)
 
 NS_IMETHODIMP
-nsSpamSettings::GetLevel(int32_t *aLevel) {
+nsSpamSettings::GetLevel(int32_t* aLevel) {
   NS_ENSURE_ARG_POINTER(aLevel);
   *aLevel = mLevel;
   return NS_OK;
@@ -69,7 +69,7 @@ NS_IMETHODIMP nsSpamSettings::SetLevel(int32_t aLevel) {
 }
 
 NS_IMETHODIMP
-nsSpamSettings::GetMoveTargetMode(int32_t *aMoveTargetMode) {
+nsSpamSettings::GetMoveTargetMode(int32_t* aMoveTargetMode) {
   NS_ENSURE_ARG_POINTER(aMoveTargetMode);
   *aMoveTargetMode = mMoveTargetMode;
   return NS_OK;
@@ -83,7 +83,7 @@ NS_IMETHODIMP nsSpamSettings::SetMoveTargetMode(int32_t aMoveTargetMode) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSpamSettings::GetManualMark(bool *aManualMark) {
+NS_IMETHODIMP nsSpamSettings::GetManualMark(bool* aManualMark) {
   NS_ENSURE_ARG_POINTER(aManualMark);
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch(
@@ -92,7 +92,7 @@ NS_IMETHODIMP nsSpamSettings::GetManualMark(bool *aManualMark) {
   return prefBranch->GetBoolPref("mail.spam.manualMark", aManualMark);
 }
 
-NS_IMETHODIMP nsSpamSettings::GetManualMarkMode(int32_t *aManualMarkMode) {
+NS_IMETHODIMP nsSpamSettings::GetManualMarkMode(int32_t* aManualMarkMode) {
   NS_ENSURE_ARG_POINTER(aManualMarkMode);
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch(
@@ -101,7 +101,7 @@ NS_IMETHODIMP nsSpamSettings::GetManualMarkMode(int32_t *aManualMarkMode) {
   return prefBranch->GetIntPref("mail.spam.manualMarkMode", aManualMarkMode);
 }
 
-NS_IMETHODIMP nsSpamSettings::GetLoggingEnabled(bool *aLoggingEnabled) {
+NS_IMETHODIMP nsSpamSettings::GetLoggingEnabled(bool* aLoggingEnabled) {
   NS_ENSURE_ARG_POINTER(aLoggingEnabled);
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch(
@@ -110,7 +110,7 @@ NS_IMETHODIMP nsSpamSettings::GetLoggingEnabled(bool *aLoggingEnabled) {
   return prefBranch->GetBoolPref("mail.spam.logging.enabled", aLoggingEnabled);
 }
 
-NS_IMETHODIMP nsSpamSettings::GetMarkAsReadOnSpam(bool *aMarkAsReadOnSpam) {
+NS_IMETHODIMP nsSpamSettings::GetMarkAsReadOnSpam(bool* aMarkAsReadOnSpam) {
   NS_ENSURE_ARG_POINTER(aMarkAsReadOnSpam);
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch(
@@ -125,43 +125,43 @@ NS_IMPL_GETSET(nsSpamSettings, Purge, bool, mPurge)
 NS_IMPL_GETSET(nsSpamSettings, UseWhiteList, bool, mUseWhiteList)
 NS_IMPL_GETSET(nsSpamSettings, UseServerFilter, bool, mUseServerFilter)
 
-NS_IMETHODIMP nsSpamSettings::GetWhiteListAbURI(char **aWhiteListAbURI) {
+NS_IMETHODIMP nsSpamSettings::GetWhiteListAbURI(char** aWhiteListAbURI) {
   NS_ENSURE_ARG_POINTER(aWhiteListAbURI);
   *aWhiteListAbURI = ToNewCString(mWhiteListAbURI);
   return NS_OK;
 }
-NS_IMETHODIMP nsSpamSettings::SetWhiteListAbURI(const char *aWhiteListAbURI) {
+NS_IMETHODIMP nsSpamSettings::SetWhiteListAbURI(const char* aWhiteListAbURI) {
   mWhiteListAbURI = aWhiteListAbURI;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::GetActionTargetAccount(
-    char **aActionTargetAccount) {
+    char** aActionTargetAccount) {
   NS_ENSURE_ARG_POINTER(aActionTargetAccount);
   *aActionTargetAccount = ToNewCString(mActionTargetAccount);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::SetActionTargetAccount(
-    const char *aActionTargetAccount) {
+    const char* aActionTargetAccount) {
   mActionTargetAccount = aActionTargetAccount;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::GetActionTargetFolder(
-    char **aActionTargetFolder) {
+    char** aActionTargetFolder) {
   NS_ENSURE_ARG_POINTER(aActionTargetFolder);
   *aActionTargetFolder = ToNewCString(mActionTargetFolder);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::SetActionTargetFolder(
-    const char *aActionTargetFolder) {
+    const char* aActionTargetFolder) {
   mActionTargetFolder = aActionTargetFolder;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSpamSettings::GetPurgeInterval(int32_t *aPurgeInterval) {
+NS_IMETHODIMP nsSpamSettings::GetPurgeInterval(int32_t* aPurgeInterval) {
   NS_ENSURE_ARG_POINTER(aPurgeInterval);
   *aPurgeInterval = mPurgeInterval;
   return NS_OK;
@@ -174,7 +174,7 @@ NS_IMETHODIMP nsSpamSettings::SetPurgeInterval(int32_t aPurgeInterval) {
 }
 
 NS_IMETHODIMP
-nsSpamSettings::SetLogStream(nsIOutputStream *aLogStream) {
+nsSpamSettings::SetLogStream(nsIOutputStream* aLogStream) {
   // if there is a log stream already, close it
   if (mLogStream) {
     // will flush
@@ -194,7 +194,7 @@ nsSpamSettings::SetLogStream(nsIOutputStream *aLogStream) {
 #define LOG_HEADER_LEN (strlen(LOG_HEADER))
 
 NS_IMETHODIMP
-nsSpamSettings::GetLogStream(nsIOutputStream **aLogStream) {
+nsSpamSettings::GetLogStream(nsIOutputStream** aLogStream) {
   NS_ENSURE_ARG_POINTER(aLogStream);
 
   nsresult rv;
@@ -225,7 +225,7 @@ nsSpamSettings::GetLogStream(nsIOutputStream **aLogStream) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer *aServer) {
+NS_IMETHODIMP nsSpamSettings::Initialize(nsIMsgIncomingServer* aServer) {
   NS_ENSURE_ARG_POINTER(aServer);
   nsresult rv;
   int32_t spamLevel;
@@ -429,7 +429,7 @@ nsresult nsSpamSettings::UpdateJunkFolderState() {
   return rv;
 }
 
-NS_IMETHODIMP nsSpamSettings::Clone(nsISpamSettings *aSpamSettings) {
+NS_IMETHODIMP nsSpamSettings::Clone(nsISpamSettings* aSpamSettings) {
   NS_ENSURE_ARG_POINTER(aSpamSettings);
 
   nsresult rv = aSpamSettings->GetUseWhiteList(&mUseWhiteList);
@@ -470,7 +470,7 @@ NS_IMETHODIMP nsSpamSettings::Clone(nsISpamSettings *aSpamSettings) {
   return rv;
 }
 
-NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char **aSpamFolderURI) {
+NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char** aSpamFolderURI) {
   NS_ENSURE_ARG_POINTER(aSpamFolderURI);
 
   if (mMoveTargetMode == nsISpamSettings::MOVE_TARGET_MODE_FOLDER)
@@ -527,19 +527,19 @@ NS_IMETHODIMP nsSpamSettings::GetSpamFolderURI(char **aSpamFolderURI) {
     return rv;
 }
 
-NS_IMETHODIMP nsSpamSettings::GetServerFilterName(nsACString &aFilterName) {
+NS_IMETHODIMP nsSpamSettings::GetServerFilterName(nsACString& aFilterName) {
   aFilterName = mServerFilterName;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsSpamSettings::SetServerFilterName(
-    const nsACString &aFilterName) {
+    const nsACString& aFilterName) {
   mServerFilterName = aFilterName;
   mServerFilterFile = nullptr;  // clear out our stored location value
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSpamSettings::GetServerFilterFile(nsIFile **aFile) {
+NS_IMETHODIMP nsSpamSettings::GetServerFilterFile(nsIFile** aFile) {
   NS_ENSURE_ARG_POINTER(aFile);
   if (!mServerFilterFile) {
     nsresult rv;
@@ -591,7 +591,7 @@ NS_IMPL_GETSET(nsSpamSettings, ServerFilterTrustFlags, int32_t,
 // Does this need to be localizable?
 #define LOG_ENTRY_TIMESTAMP "[$S] "
 
-NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr,
+NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr* aMsgHdr,
                                          bool aMoveMessage) {
   bool loggingEnabled;
   nsresult rv = GetLoggingEnabled(&loggingEnabled);
@@ -663,7 +663,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr *aMsgHdr,
   return LogJunkString(buffer.get());
 }
 
-NS_IMETHODIMP nsSpamSettings::LogJunkString(const char *string) {
+NS_IMETHODIMP nsSpamSettings::LogJunkString(const char* string) {
   bool loggingEnabled;
   nsresult rv = GetLoggingEnabled(&loggingEnabled);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -718,13 +718,13 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char *string) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSpamSettings::OnStartRunningUrl(nsIURI *aURL) {
+NS_IMETHODIMP nsSpamSettings::OnStartRunningUrl(nsIURI* aURL) {
   // do nothing
   // all the action happens in OnStopRunningUrl()
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSpamSettings::OnStopRunningUrl(nsIURI *aURL,
+NS_IMETHODIMP nsSpamSettings::OnStopRunningUrl(nsIURI* aURL,
                                                nsresult exitCode) {
   nsCString junkFolderURI;
   nsresult rv = GetSpamFolderURI(getter_Copies(junkFolderURI));
@@ -742,8 +742,8 @@ NS_IMETHODIMP nsSpamSettings::OnStopRunningUrl(nsIURI *aURL,
   return rv;
 }
 
-NS_IMETHODIMP nsSpamSettings::CheckWhiteList(nsIMsgDBHdr *aMsgHdr,
-                                             bool *aResult) {
+NS_IMETHODIMP nsSpamSettings::CheckWhiteList(nsIMsgDBHdr* aMsgHdr,
+                                             bool* aResult) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = false;  // default in case of error or no whitelisting

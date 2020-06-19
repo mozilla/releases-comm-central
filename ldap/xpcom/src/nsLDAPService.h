@@ -43,16 +43,16 @@ class nsLDAPServiceEntry {
   inline void SetTimestamp();
 
   inline already_AddRefed<nsILDAPServer> GetServer();
-  inline bool SetServer(nsILDAPServer *aServer);
+  inline bool SetServer(nsILDAPServer* aServer);
 
   inline already_AddRefed<nsILDAPConnection> GetConnection();
-  inline void SetConnection(nsILDAPConnection *aConnection);
+  inline void SetConnection(nsILDAPConnection* aConnection);
 
   inline already_AddRefed<nsILDAPMessage> GetMessage();
-  inline void SetMessage(nsILDAPMessage *aMessage);
+  inline void SetMessage(nsILDAPMessage* aMessage);
 
   inline already_AddRefed<nsILDAPMessageListener> PopListener();
-  inline bool PushListener(nsILDAPMessageListener *);
+  inline bool PushListener(nsILDAPMessageListener*);
 
   inline bool IsRebinding();
   inline void SetRebinding(bool);
@@ -91,23 +91,23 @@ class nsLDAPService : public nsILDAPService, public nsILDAPMessageListener {
 
  protected:
   virtual ~nsLDAPService();
-  nsresult EstablishConnection(nsLDAPServiceEntry *, nsILDAPMessageListener *);
+  nsresult EstablishConnection(nsLDAPServiceEntry*, nsILDAPMessageListener*);
 
   // kinda like strtok_r, but with iterators.  for use by
   // createFilter
   //
-  char *NextToken(const char **aIter, const char **aIterEnd);
+  char* NextToken(const char** aIter, const char** aIterEnd);
 
   // count how many tokens are in this string; for use by
   // createFilter; note that unlike with NextToken, these params
   // are copies, not references.
   //
-  uint32_t CountTokens(const char *aIter, const char *aIterEnd);
+  uint32_t CountTokens(const char* aIter, const char* aIterEnd);
 
   mozilla::Mutex mLock;  // Lock mechanism
 
   // Hash table holding server entries
-  nsDataHashtable<nsStringHashKey, nsLDAPServiceEntry *> mServers;
+  nsDataHashtable<nsStringHashKey, nsLDAPServiceEntry*> mServers;
   // Hash table holding "reverse" lookups from connection to server
-  nsDataHashtable<nsVoidPtrHashKey, nsLDAPServiceEntry *> mConnections;
+  nsDataHashtable<nsVoidPtrHashKey, nsLDAPServiceEntry*> mConnections;
 };

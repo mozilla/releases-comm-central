@@ -82,7 +82,7 @@ nsMsgDBService::~nsMsgDBService() {
   // Only print this on local builds since it causes crashes,
   // see bug 1468691, bug 1377692 and bug 1342858.
   for (uint32_t i = 0; i < m_dbCache.Length(); i++) {
-    nsMsgDatabase *pMessageDB = m_dbCache.ElementAt(i);
+    nsMsgDatabase* pMessageDB = m_dbCache.ElementAt(i);
     if (pMessageDB)
       printf("db left open %s\n",
              pMessageDB->m_dbFile->HumanReadablePath().get());
@@ -91,9 +91,9 @@ nsMsgDBService::~nsMsgDBService() {
 #endif
 }
 
-NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder *aFolder,
+NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder* aFolder,
                                            bool aLeaveInvalidDB,
-                                           nsIMsgDatabase **_retval) {
+                                           nsIMsgDatabase** _retval) {
   NS_ENSURE_ARG(aFolder);
   nsCOMPtr<nsIMsgIncomingServer> incomingServer;
   nsresult rv = aFolder->GetServer(getter_AddRefs(incomingServer));
@@ -103,7 +103,7 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder *aFolder,
   rv = aFolder->GetSummaryFile(getter_AddRefs(summaryFilePath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsMsgDatabase *cacheDB = FindInCache(summaryFilePath);
+  nsMsgDatabase* cacheDB = FindInCache(summaryFilePath);
   if (cacheDB) {
     // this db could have ended up in the folder cache w/o an m_folder pointer
     // via OpenMailDBFromFile. If so, take this chance to fix the folder.
@@ -125,7 +125,7 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder *aFolder,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Don't try to create the database yet--let the createNewDB call do that.
-  nsMsgDatabase *msgDatabase = static_cast<nsMsgDatabase *>(msgDB.get());
+  nsMsgDatabase* msgDatabase = static_cast<nsMsgDatabase*>(msgDB.get());
   msgDatabase->m_folder = aFolder;
   rv = msgDatabase->Open(this, summaryFilePath, false, aLeaveInvalidDB);
   if (NS_FAILED(rv) && rv != NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE) return rv;
@@ -152,16 +152,16 @@ NS_IMETHODIMP nsMsgDBService::OpenFolderDB(nsIMsgFolder *aFolder,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDBService::AsyncOpenFolderDB(nsIMsgFolder *aFolder,
+NS_IMETHODIMP nsMsgDBService::AsyncOpenFolderDB(nsIMsgFolder* aFolder,
                                                 bool aLeaveInvalidDB,
-                                                nsIMsgDatabase **_retval) {
+                                                nsIMsgDatabase** _retval) {
   NS_ENSURE_ARG(aFolder);
 
   nsCOMPtr<nsIFile> summaryFilePath;
   nsresult rv = aFolder->GetSummaryFile(getter_AddRefs(summaryFilePath));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsMsgDatabase *cacheDB = FindInCache(summaryFilePath);
+  nsMsgDatabase* cacheDB = FindInCache(summaryFilePath);
   if (cacheDB) {
     // this db could have ended up in the folder cache w/o an m_folder pointer
     // via OpenMailDBFromFile. If so, take this chance to fix the folder.
@@ -182,7 +182,7 @@ NS_IMETHODIMP nsMsgDBService::AsyncOpenFolderDB(nsIMsgFolder *aFolder,
   nsCOMPtr<nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsMsgDatabase *msgDatabase = static_cast<nsMsgDatabase *>(msgDB.get());
+  nsMsgDatabase* msgDatabase = static_cast<nsMsgDatabase*>(msgDB.get());
   rv = msgDatabase->OpenInternal(this, summaryFilePath, false, aLeaveInvalidDB,
                                  false /* open asynchronously */);
 
@@ -209,10 +209,10 @@ NS_IMETHODIMP nsMsgDBService::AsyncOpenFolderDB(nsIMsgFolder *aFolder,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDBService::OpenMore(nsIMsgDatabase *aDB, uint32_t aTimeHint,
-                                       bool *_retval) {
+NS_IMETHODIMP nsMsgDBService::OpenMore(nsIMsgDatabase* aDB, uint32_t aTimeHint,
+                                       bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
-  nsMsgDatabase *msgDatabase = static_cast<nsMsgDatabase *>(aDB);
+  nsMsgDatabase* msgDatabase = static_cast<nsMsgDatabase*>(aDB);
   NS_ENSURE_TRUE(msgDatabase, NS_ERROR_INVALID_ARG);
   // Check if this db has been opened.
   if (!msgDatabase->m_thumb) {
@@ -262,8 +262,8 @@ NS_IMETHODIMP nsMsgDBService::OpenMore(nsIMsgDatabase *aDB, uint32_t aTimeHint,
  * When a db is opened, we need to hook up any pending listeners for
  * that db, and notify them.
  */
-void nsMsgDBService::HookupPendingListeners(nsIMsgDatabase *db,
-                                            nsIMsgFolder *folder) {
+void nsMsgDBService::HookupPendingListeners(nsIMsgDatabase* db,
+                                            nsIMsgFolder* folder) {
   for (int32_t listenerIndex = 0;
        listenerIndex < m_foldersPendingListeners.Count(); listenerIndex++) {
     //  check if we have a pending listener on this db, and if so, add it.
@@ -274,8 +274,8 @@ void nsMsgDBService::HookupPendingListeners(nsIMsgDatabase *db,
   }
 }
 
-void nsMsgDBService::FinishDBOpen(nsIMsgFolder *aFolder,
-                                  nsMsgDatabase *aMsgDB) {
+void nsMsgDBService::FinishDBOpen(nsIMsgFolder* aFolder,
+                                  nsMsgDatabase* aMsgDB) {
   uint32_t folderFlags;
   aFolder->GetFlags(&folderFlags);
 
@@ -295,9 +295,9 @@ void nsMsgDBService::FinishDBOpen(nsIMsgFolder *aFolder,
 //----------------------------------------------------------------------
 // FindInCache - this addrefs the db it finds.
 //----------------------------------------------------------------------
-nsMsgDatabase *nsMsgDBService::FindInCache(nsIFile *dbName) {
+nsMsgDatabase* nsMsgDBService::FindInCache(nsIFile* dbName) {
   for (uint32_t i = 0; i < m_dbCache.Length(); i++) {
-    nsMsgDatabase *pMessageDB = m_dbCache[i];
+    nsMsgDatabase* pMessageDB = m_dbCache[i];
     if (pMessageDB->MatchDbName(dbName)) {
       if (pMessageDB->m_mdbStore)  // don't return db without store
       {
@@ -313,11 +313,11 @@ nsMsgDatabase *nsMsgDBService::FindInCache(nsIFile *dbName) {
 // having a corresponding nsIMsgFolder object.  This happens in a few
 // situations, including imap folder discovery, compacting local folders,
 // and copying local folders.
-NS_IMETHODIMP nsMsgDBService::OpenMailDBFromFile(nsIFile *aFolderName,
-                                                 nsIMsgFolder *aFolder,
+NS_IMETHODIMP nsMsgDBService::OpenMailDBFromFile(nsIFile* aFolderName,
+                                                 nsIMsgFolder* aFolder,
                                                  bool aCreate,
                                                  bool aLeaveInvalidDB,
-                                                 nsIMsgDatabase **pMessageDB) {
+                                                 nsIMsgDatabase** pMessageDB) {
   if (!aFolderName) return NS_ERROR_NULL_POINTER;
 
   nsCOMPtr<nsIFile> dbPath;
@@ -337,8 +337,8 @@ NS_IMETHODIMP nsMsgDBService::OpenMailDBFromFile(nsIFile *aFolderName,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder *aFolder,
-                                          nsIMsgDatabase **_retval) {
+NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder* aFolder,
+                                          nsIMsgDatabase** _retval) {
   NS_ENSURE_ARG(aFolder);
 
   nsCOMPtr<nsIMsgIncomingServer> incomingServer;
@@ -357,7 +357,7 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder *aFolder,
   nsCOMPtr<nsIMsgDatabase> msgDB = do_CreateInstance(dbContractID.get(), &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsMsgDatabase *msgDatabase = static_cast<nsMsgDatabase *>(msgDB.get());
+  nsMsgDatabase* msgDatabase = static_cast<nsMsgDatabase*>(msgDB.get());
 
   msgDatabase->m_folder = aFolder;
   rv = msgDatabase->Open(this, summaryFilePath, true, true);
@@ -383,7 +383,7 @@ NS_IMETHODIMP nsMsgDBService::CreateNewDB(nsIMsgFolder *aFolder,
 /* void registerPendingListener (in nsIMsgFolder aFolder, in nsIDBChangeListener
  * aListener); */
 NS_IMETHODIMP nsMsgDBService::RegisterPendingListener(
-    nsIMsgFolder *aFolder, nsIDBChangeListener *aListener) {
+    nsIMsgFolder* aFolder, nsIDBChangeListener* aListener) {
   // need to make sure we don't hold onto these forever. Maybe a shutdown
   // listener? if there is a db open on this folder already, we should register
   // the listener.
@@ -397,7 +397,7 @@ NS_IMETHODIMP nsMsgDBService::RegisterPendingListener(
 
 /* void unregisterPendingListener (in nsIDBChangeListener aListener); */
 NS_IMETHODIMP nsMsgDBService::UnregisterPendingListener(
-    nsIDBChangeListener *aListener) {
+    nsIDBChangeListener* aListener) {
   int32_t listenerIndex = m_pendingListeners.IndexOfObject(aListener);
   if (listenerIndex != -1) {
     nsCOMPtr<nsIMsgDatabase> msgDB;
@@ -411,8 +411,8 @@ NS_IMETHODIMP nsMsgDBService::UnregisterPendingListener(
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgDBService::CachedDBForFolder(nsIMsgFolder *aFolder,
-                                                nsIMsgDatabase **aRetDB) {
+NS_IMETHODIMP nsMsgDBService::CachedDBForFolder(nsIMsgFolder* aFolder,
+                                                nsIMsgDatabase** aRetDB) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_ENSURE_ARG_POINTER(aRetDB);
 
@@ -424,7 +424,7 @@ NS_IMETHODIMP nsMsgDBService::CachedDBForFolder(nsIMsgFolder *aFolder,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBService::ForceFolderDBClosed(nsIMsgFolder *aFolder) {
+NS_IMETHODIMP nsMsgDBService::ForceFolderDBClosed(nsIMsgFolder* aFolder) {
   nsCOMPtr<nsIMsgDatabase> mailDB;
   nsresult rv = CachedDBForFolder(aFolder, getter_AddRefs(mailDB));
   if (mailDB) {
@@ -434,7 +434,7 @@ NS_IMETHODIMP nsMsgDBService::ForceFolderDBClosed(nsIMsgFolder *aFolder) {
 }
 
 NS_IMETHODIMP nsMsgDBService::GetOpenDBs(
-    nsTArray<RefPtr<nsIMsgDatabase>> &aOpenDBs) {
+    nsTArray<RefPtr<nsIMsgDatabase>>& aOpenDBs) {
   aOpenDBs.Clear();
   aOpenDBs.SetCapacity(m_dbCache.Length());
   for (auto db : m_dbCache) {
@@ -458,7 +458,7 @@ void nsMsgDatabase::GetGlobalPrefs() {
 }
 
 nsresult nsMsgDatabase::AddHdrToCache(
-    nsIMsgDBHdr *hdr, nsMsgKey key)  // do we want key? We could get it from hdr
+    nsIMsgDBHdr* hdr, nsMsgKey key)  // do we want key? We could get it from hdr
 {
   if (m_bCacheHeaders) {
     if (!m_cachedHeaders)
@@ -467,11 +467,11 @@ nsresult nsMsgDatabase::AddHdrToCache(
     if (m_cachedHeaders) {
       if (key == nsMsgKey_None) hdr->GetMessageKey(&key);
       if (m_cachedHeaders->EntryCount() > m_cacheSize) ClearHdrCache(true);
-      PLDHashEntryHdr *entry =
-          m_cachedHeaders->Add((void *)(uintptr_t)key, mozilla::fallible);
+      PLDHashEntryHdr* entry =
+          m_cachedHeaders->Add((void*)(uintptr_t)key, mozilla::fallible);
       if (!entry) return NS_ERROR_OUT_OF_MEMORY;  // XXX out of memory
 
-      MsgHdrHashElement *element = static_cast<MsgHdrHashElement *>(entry);
+      MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
       element->mHdr = hdr;
       element->mKey = key;
       NS_ADDREF(hdr);  // make the cache hold onto the header
@@ -486,13 +486,13 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgHdrCacheSize(uint32_t aSize) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetMsgHdrCacheSize(uint32_t *aSize) {
+NS_IMETHODIMP nsMsgDatabase::GetMsgHdrCacheSize(uint32_t* aSize) {
   NS_ENSURE_ARG_POINTER(aSize);
   *aSize = m_cacheSize;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetLastUseTime(PRTime *aTime) {
+NS_IMETHODIMP nsMsgDatabase::GetLastUseTime(PRTime* aTime) {
   NS_ENSURE_ARG_POINTER(aTime);
   *aTime = m_lastUseTime;
   return NS_OK;
@@ -503,7 +503,7 @@ NS_IMETHODIMP nsMsgDatabase::SetLastUseTime(PRTime aTime) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetDatabaseSize(int64_t *_retval) {
+NS_IMETHODIMP nsMsgDatabase::GetDatabaseSize(int64_t* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsresult rv;
@@ -533,14 +533,14 @@ NS_IMETHODIMP nsMsgDatabase::ClearCachedHdrs() {
 
 void nsMsgDatabase::ClearEnumerators() {
   // clear out existing enumerators
-  nsTArray<nsMsgDBEnumerator *> copyEnumerators;
+  nsTArray<nsMsgDBEnumerator*> copyEnumerators;
   copyEnumerators.SwapElements(m_enumerators);
 
   uint32_t numEnums = copyEnumerators.Length();
   for (uint32_t i = 0; i < numEnums; i++) copyEnumerators[i]->Clear();
 }
 
-nsMsgThread *nsMsgDatabase::FindExistingThread(nsMsgKey threadId) {
+nsMsgThread* nsMsgDatabase::FindExistingThread(nsMsgKey threadId) {
   uint32_t numThreads = m_threads.Length();
   for (uint32_t i = 0; i < numThreads; i++)
     if (m_threads[i]->m_threadKey == threadId) return m_threads[i];
@@ -550,7 +550,7 @@ nsMsgThread *nsMsgDatabase::FindExistingThread(nsMsgKey threadId) {
 
 void nsMsgDatabase::ClearThreads() {
   // clear out existing threads
-  nsTArray<nsMsgThread *> copyThreads;
+  nsTArray<nsMsgThread*> copyThreads;
   copyThreads.SwapElements(m_threads);
 
   uint32_t numThreads = copyThreads.Length();
@@ -581,10 +581,10 @@ void nsMsgDatabase::ClearCachedObjects(bool dbGoingAway) {
 nsresult nsMsgDatabase::ClearHdrCache(bool reInit) {
   if (m_cachedHeaders) {
     // save this away in case we renter this code.
-    PLDHashTable *saveCachedHeaders = m_cachedHeaders;
+    PLDHashTable* saveCachedHeaders = m_cachedHeaders;
     m_cachedHeaders = nullptr;
     for (auto iter = saveCachedHeaders->Iter(); !iter.Done(); iter.Next()) {
-      auto element = static_cast<MsgHdrHashElement *>(iter.Get());
+      auto element = static_cast<MsgHdrHashElement*>(iter.Get());
       if (element) NS_IF_RELEASE(element->mHdr);
     }
 
@@ -598,21 +598,21 @@ nsresult nsMsgDatabase::ClearHdrCache(bool reInit) {
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr *hdr, nsMsgKey key) {
+nsresult nsMsgDatabase::RemoveHdrFromCache(nsIMsgDBHdr* hdr, nsMsgKey key) {
   if (m_cachedHeaders) {
     if (key == nsMsgKey_None) hdr->GetMessageKey(&key);
 
-    PLDHashEntryHdr *entry =
-        m_cachedHeaders->Search((const void *)(uintptr_t)key);
+    PLDHashEntryHdr* entry =
+        m_cachedHeaders->Search((const void*)(uintptr_t)key);
     if (entry) {
-      m_cachedHeaders->Remove((void *)(uintptr_t)key);
+      m_cachedHeaders->Remove((void*)(uintptr_t)key);
       NS_RELEASE(hdr);  // get rid of extra ref the cache was holding.
     }
   }
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr **result) {
+nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr** result) {
   if (!result) return NS_ERROR_NULL_POINTER;
 
   nsresult rv = NS_ERROR_FAILURE;
@@ -620,10 +620,10 @@ nsresult nsMsgDatabase::GetHdrFromUseCache(nsMsgKey key, nsIMsgDBHdr **result) {
   *result = nullptr;
 
   if (m_headersInUse) {
-    PLDHashEntryHdr *entry =
-        m_headersInUse->Search((const void *)(uintptr_t)key);
+    PLDHashEntryHdr* entry =
+        m_headersInUse->Search((const void*)(uintptr_t)key);
     if (entry) {
-      MsgHdrHashElement *element = static_cast<MsgHdrHashElement *>(entry);
+      MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
       *result = element->mHdr;
     }
     if (*result) {
@@ -639,31 +639,31 @@ PLDHashTableOps nsMsgDatabase::gMsgDBHashTableOps = {
 
 // HashKey is supposed to maximize entropy in the low order bits, and the key
 // as is, should do that.
-PLDHashNumber nsMsgDatabase::HashKey(const void *aKey) {
+PLDHashNumber nsMsgDatabase::HashKey(const void* aKey) {
   return PLDHashNumber(NS_PTR_TO_INT32(aKey));
 }
 
-bool nsMsgDatabase::MatchEntry(const PLDHashEntryHdr *aEntry,
-                               const void *aKey) {
-  const MsgHdrHashElement *hdr = static_cast<const MsgHdrHashElement *>(aEntry);
-  return aKey == (const void *)(uintptr_t)
+bool nsMsgDatabase::MatchEntry(const PLDHashEntryHdr* aEntry,
+                               const void* aKey) {
+  const MsgHdrHashElement* hdr = static_cast<const MsgHdrHashElement*>(aEntry);
+  return aKey == (const void*)(uintptr_t)
                      hdr->mKey;  // ### or get the key from the hdr...
 }
 
-void nsMsgDatabase::MoveEntry(PLDHashTable *aTable,
-                              const PLDHashEntryHdr *aFrom,
-                              PLDHashEntryHdr *aTo) {
+void nsMsgDatabase::MoveEntry(PLDHashTable* aTable,
+                              const PLDHashEntryHdr* aFrom,
+                              PLDHashEntryHdr* aTo) {
   new (KnownNotNull, aTo)
-      MsgHdrHashElement(std::move(*((MsgHdrHashElement *)aFrom)));
+      MsgHdrHashElement(std::move(*((MsgHdrHashElement*)aFrom)));
 }
 
-void nsMsgDatabase::ClearEntry(PLDHashTable *aTable, PLDHashEntryHdr *aEntry) {
-  MsgHdrHashElement *element = static_cast<MsgHdrHashElement *>(aEntry);
+void nsMsgDatabase::ClearEntry(PLDHashTable* aTable, PLDHashEntryHdr* aEntry) {
+  MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(aEntry);
   element->mHdr = nullptr;        // eh? Need to release this or not?
   element->mKey = nsMsgKey_None;  // eh?
 }
 
-nsresult nsMsgDatabase::AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key) {
+nsresult nsMsgDatabase::AddHdrToUseCache(nsIMsgDBHdr* hdr, nsMsgKey key) {
   if (!m_headersInUse) {
     mdb_count numHdrs = MSG_HASH_SIZE;
     if (m_mdbAllMsgHeadersTable)
@@ -674,11 +674,11 @@ nsresult nsMsgDatabase::AddHdrToUseCache(nsIMsgDBHdr *hdr, nsMsgKey key) {
   }
   if (m_headersInUse) {
     if (key == nsMsgKey_None) hdr->GetMessageKey(&key);
-    PLDHashEntryHdr *entry =
-        m_headersInUse->Add((void *)(uintptr_t)key, mozilla::fallible);
+    PLDHashEntryHdr* entry =
+        m_headersInUse->Add((void*)(uintptr_t)key, mozilla::fallible);
     if (!entry) return NS_ERROR_OUT_OF_MEMORY;  // XXX out of memory
 
-    MsgHdrHashElement *element = static_cast<MsgHdrHashElement *>(entry);
+    MsgHdrHashElement* element = static_cast<MsgHdrHashElement*>(entry);
     element->mHdr = hdr;
     element->mKey = key;
     // the hash table won't add ref, we'll do it ourselves
@@ -695,9 +695,9 @@ nsresult nsMsgDatabase::ClearUseHdrCache() {
     // clear mdb row pointers of any headers still in use, because the
     // underlying db is going away.
     for (auto iter = m_headersInUse->Iter(); !iter.Done(); iter.Next()) {
-      auto element = static_cast<const MsgHdrHashElement *>(iter.Get());
+      auto element = static_cast<const MsgHdrHashElement*>(iter.Get());
       if (element && element->mHdr) {
-        nsMsgHdr *msgHdr = static_cast<nsMsgHdr *>(
+        nsMsgHdr* msgHdr = static_cast<nsMsgHdr*>(
             element->mHdr);  // closed system, so this is ok
         // clear out m_mdbRow member variable - the db is going away, which
         // means that this member variable might very well point to a mork db
@@ -712,17 +712,17 @@ nsresult nsMsgDatabase::ClearUseHdrCache() {
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::RemoveHdrFromUseCache(nsIMsgDBHdr *hdr, nsMsgKey key) {
+nsresult nsMsgDatabase::RemoveHdrFromUseCache(nsIMsgDBHdr* hdr, nsMsgKey key) {
   if (m_headersInUse) {
     if (key == nsMsgKey_None) hdr->GetMessageKey(&key);
 
-    m_headersInUse->Remove((void *)(uintptr_t)key);
+    m_headersInUse->Remove((void*)(uintptr_t)key);
   }
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::CreateMsgHdr(nsIMdbRow *hdrRow, nsMsgKey key,
-                                     nsIMsgDBHdr **result) {
+nsresult nsMsgDatabase::CreateMsgHdr(nsIMdbRow* hdrRow, nsMsgKey key,
+                                     nsIMsgDBHdr** result) {
   NS_ENSURE_ARG_POINTER(hdrRow);
   NS_ENSURE_ARG_POINTER(result);
 
@@ -732,7 +732,7 @@ nsresult nsMsgDatabase::CreateMsgHdr(nsIMdbRow *hdrRow, nsMsgKey key,
     return rv;
   }
 
-  nsMsgHdr *msgHdr = new nsMsgHdr(this, hdrRow);
+  nsMsgHdr* msgHdr = new nsMsgHdr(this, hdrRow);
   if (!msgHdr) return NS_ERROR_OUT_OF_MEMORY;
   msgHdr->SetMessageKey(key);
   // don't need to addref here; GetHdrFromUseCache addrefs.
@@ -743,13 +743,13 @@ nsresult nsMsgDatabase::CreateMsgHdr(nsIMdbRow *hdrRow, nsMsgKey key,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::AddListener(nsIDBChangeListener *aListener) {
+NS_IMETHODIMP nsMsgDatabase::AddListener(nsIDBChangeListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
   m_ChangeListeners.AppendElementUnlessExists(aListener);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::RemoveListener(nsIDBChangeListener *aListener) {
+NS_IMETHODIMP nsMsgDatabase::RemoveListener(nsIDBChangeListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
   m_ChangeListeners.RemoveElement(aListener);
   return NS_OK;
@@ -769,8 +769,8 @@ NS_IMETHODIMP nsMsgDatabase::RemoveListener(nsIDBChangeListener *aListener) {
 
 // change announcer methods - just broadcast to all listeners.
 NS_IMETHODIMP nsMsgDatabase::NotifyHdrChangeAll(
-    nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
+    nsIDBChangeListener* aInstigator) {
   // We will only notify the change if the header exists in the database.
   // This allows database functions to be usable in both the case where the
   // header is in the db, or the header is not so no notifications should be
@@ -788,28 +788,28 @@ NS_IMETHODIMP nsMsgDatabase::NotifyHdrChangeAll(
 }
 
 NS_IMETHODIMP nsMsgDatabase::NotifyReadChanged(
-    nsIDBChangeListener *aInstigator) {
+    nsIDBChangeListener* aInstigator) {
   NOTIFY_LISTENERS(OnReadChanged, (aInstigator));
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDatabase::NotifyJunkScoreChanged(
-    nsIDBChangeListener *aInstigator) {
+    nsIDBChangeListener* aInstigator) {
   NOTIFY_LISTENERS(OnJunkScoreChanged, (aInstigator));
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDatabase::NotifyHdrDeletedAll(
-    nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey, int32_t aFlags,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey, int32_t aFlags,
+    nsIDBChangeListener* aInstigator) {
   NOTIFY_LISTENERS(OnHdrDeleted,
                    (aHdrDeleted, aParentKey, aFlags, aInstigator));
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgDatabase::NotifyHdrAddedAll(
-    nsIMsgDBHdr *aHdrAdded, nsMsgKey aParentKey, int32_t aFlags,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrAdded, nsMsgKey aParentKey, int32_t aFlags,
+    nsIDBChangeListener* aInstigator) {
 #ifdef DEBUG_bienvenu1
   printf("notifying add of %ld parent %ld\n", keyAdded, parentKey);
 #endif
@@ -819,7 +819,7 @@ NS_IMETHODIMP nsMsgDatabase::NotifyHdrAddedAll(
 
 NS_IMETHODIMP nsMsgDatabase::NotifyParentChangedAll(
     nsMsgKey aKeyReparented, nsMsgKey aOldParent, nsMsgKey aNewParent,
-    nsIDBChangeListener *aInstigator) {
+    nsIDBChangeListener* aInstigator) {
   NOTIFY_LISTENERS(OnParentChanged,
                    (aKeyReparented, aOldParent, aNewParent, aInstigator));
   return NS_OK;
@@ -830,13 +830,13 @@ NS_IMETHODIMP nsMsgDatabase::NotifyAnnouncerGoingAway(void) {
   return NS_OK;
 }
 
-bool nsMsgDatabase::MatchDbName(nsIFile *dbFile)  // returns true if they match
+bool nsMsgDatabase::MatchDbName(nsIFile* dbFile)  // returns true if they match
 {
   NS_ENSURE_TRUE(m_dbFile, false);
   return dbFile->NativePath().Equals(m_dbFile->NativePath());
 }
 
-void nsMsgDBService::AddToCache(nsMsgDatabase *pMessageDB) {
+void nsMsgDBService::AddToCache(nsMsgDatabase* pMessageDB) {
 #ifdef DEBUG_David_Bienvenu
   NS_ASSERTION(m_dbCache.Length() < 50, "50 or more open db's");
 #endif
@@ -854,7 +854,7 @@ void nsMsgDBService::AddToCache(nsMsgDatabase *pMessageDB) {
  * Log the open db's, and how many headers are in memory.
  */
 void nsMsgDBService::DumpCache() {
-  nsMsgDatabase *db = nullptr;
+  nsMsgDatabase* db = nullptr;
   MOZ_LOG(DBLog, LogLevel::Info, ("%zu open DBs", m_dbCache.Length()));
   for (uint32_t i = 0; i < m_dbCache.Length(); i++) {
     db = m_dbCache.ElementAt(i);
@@ -873,7 +873,7 @@ size_t nsMsgDatabase::SizeOfExcludingThis(
   if (m_dbFolderInfo)
     totalSize += m_dbFolderInfo->SizeOfExcludingThis(aMallocSizeOf);
   if (m_mdbEnv) {
-    nsIMdbHeap *morkHeap = nullptr;
+    nsIMdbHeap* morkHeap = nullptr;
     m_mdbEnv->GetHeap(&morkHeap);
     if (morkHeap) totalSize += morkHeap->GetUsedSize();
   }
@@ -887,10 +887,10 @@ size_t nsMsgDatabase::SizeOfExcludingThis(
   if (m_headersInUse) {
     headerSize = m_headersInUse->ShallowSizeOfIncludingThis(aMallocSizeOf);
     for (auto iter = m_headersInUse->Iter(); !iter.Done(); iter.Next()) {
-      auto entry = static_cast<MsgHdrHashElement *>(iter.Get());
+      auto entry = static_cast<MsgHdrHashElement*>(iter.Get());
       // Sigh, this is dangerous, but so long as this is a closed system, this
       // is safe.
-      headerSize += static_cast<nsMsgHdr *>(entry->mHdr)
+      headerSize += static_cast<nsMsgHdr*>(entry->mHdr)
                         ->SizeOfIncludingThis(aMallocSizeOf);
     }
   }
@@ -909,22 +909,22 @@ class MsgDBReporter final : public nsIMemoryReporter {
   nsWeakPtr mDatabase;
 
  public:
-  explicit MsgDBReporter(nsMsgDatabase *db)
+  explicit MsgDBReporter(nsMsgDatabase* db)
       : mDatabase(do_GetWeakReference(db)) {}
 
   NS_DECL_ISUPPORTS
-  NS_IMETHOD GetName(nsACString &aName) {
+  NS_IMETHOD GetName(nsACString& aName) {
     aName.AssignLiteral("msg-database-objects");
     return NS_OK;
   }
 
-  NS_IMETHOD CollectReports(nsIHandleReportCallback *aCb, nsISupports *aClosure,
+  NS_IMETHOD CollectReports(nsIHandleReportCallback* aCb, nsISupports* aClosure,
                             bool aAnonymize) override {
     nsCString path;
     GetPath(path, aAnonymize);
     nsCOMPtr<nsIMsgDatabase> database = do_QueryReferent(mDatabase);
-    nsMsgDatabase *db =
-        database ? static_cast<nsMsgDatabase *>(database.get()) : nullptr;
+    nsMsgDatabase* db =
+        database ? static_cast<nsMsgDatabase*>(database.get()) : nullptr;
     return aCb->Callback(
         EmptyCString(), path, nsIMemoryReporter::KIND_HEAP,
         nsIMemoryReporter::UNITS_BYTES,
@@ -932,7 +932,7 @@ class MsgDBReporter final : public nsIMemoryReporter {
         NS_LITERAL_CSTRING("Memory used for the folder database."), aClosure);
   }
 
-  void GetPath(nsACString &memoryPath, bool aAnonymize) {
+  void GetPath(nsACString& memoryPath, bool aAnonymize) {
     memoryPath.AssignLiteral("explicit/maildb/database(");
     nsCOMPtr<nsIMsgDatabase> database = do_QueryReferent(mDatabase);
     nsCOMPtr<nsIMsgFolder> folder;
@@ -1027,7 +1027,7 @@ nsMsgDatabase::~nsMsgDatabase() {
           ("closing database    %s", m_dbFile->HumanReadablePath().get()));
 
   nsCOMPtr<nsIMsgDBService> serv(do_GetService(NS_MSGDB_SERVICE_CONTRACTID));
-  if (serv) static_cast<nsMsgDBService *>(serv.get())->RemoveFromCache(this);
+  if (serv) static_cast<nsMsgDBService*>(serv.get())->RemoveFromCache(this);
 
   // if the db folder info refers to the mdb db, we must clear it because
   // the reference will be a dangling one soon.
@@ -1049,7 +1049,7 @@ nsMsgDatabase::~nsMsgDatabase() {
 
 NS_IMPL_ISUPPORTS(nsMsgDatabase, nsIMsgDatabase, nsIDBChangeAnnouncer)
 
-nsresult nsMsgDatabase::GetMDBFactory(nsIMdbFactory **aMdbFactory) {
+nsresult nsMsgDatabase::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
   if (!mMdbFactory) {
     nsresult rv;
     nsCOMPtr<nsIMdbFactoryService> mdbFactoryService =
@@ -1067,15 +1067,15 @@ nsresult nsMsgDatabase::GetMDBFactory(nsIMdbFactory **aMdbFactory) {
 // aLeaveInvalidDB: true if caller wants back a db even out of date.
 // If so, they'll extract out the interesting info from the db, close it,
 // delete it, and then try to open the db again, prior to reparsing.
-nsresult nsMsgDatabase::Open(nsMsgDBService *aDBService, nsIFile *aFolderName,
+nsresult nsMsgDatabase::Open(nsMsgDBService* aDBService, nsIFile* aFolderName,
                              bool aCreate, bool aLeaveInvalidDB) {
   return nsMsgDatabase::OpenInternal(aDBService, aFolderName, aCreate,
                                      aLeaveInvalidDB,
                                      true /* open synchronously */);
 }
 
-nsresult nsMsgDatabase::OpenInternal(nsMsgDBService *aDBService,
-                                     nsIFile *summaryFile, bool aCreate,
+nsresult nsMsgDatabase::OpenInternal(nsMsgDBService* aDBService,
+                                     nsIFile* summaryFile, bool aCreate,
                                      bool aLeaveInvalidDB, bool sync) {
   MOZ_LOG(DBLog, LogLevel::Info,
           ("nsMsgDatabase::Open(%s, %s, %p, %s)",
@@ -1102,8 +1102,8 @@ nsresult nsMsgDatabase::OpenInternal(nsMsgDBService *aDBService,
 }
 
 nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
-                                       nsMsgDBService *aDBService,
-                                       nsIFile *summaryFile) {
+                                       nsMsgDBService* aDBService,
+                                       nsIFile* summaryFile) {
   nsCOMPtr<nsIDBFolderInfo> folderInfo;
   bool summaryFileExists;
   bool newFile = false;
@@ -1179,14 +1179,14 @@ nsresult nsMsgDatabase::CheckForErrors(nsresult err, bool sync,
  * If successful, this routine will set up the m_mdbStore and m_mdbEnv of
  * the database object so other database calls can work.
  */
-nsresult nsMsgDatabase::OpenMDB(nsIFile *dbFile, bool create, bool sync) {
+nsresult nsMsgDatabase::OpenMDB(nsIFile* dbFile, bool create, bool sync) {
   nsCOMPtr<nsIMdbFactory> mdbFactory;
   nsresult ret = GetMDBFactory(getter_AddRefs(mdbFactory));
   NS_ENSURE_SUCCESS(ret, ret);
 
   ret = mdbFactory->MakeEnv(NULL, &m_mdbEnv);
   if (NS_SUCCEEDED(ret)) {
-    nsIMdbHeap *dbHeap = nullptr;
+    nsIMdbHeap* dbHeap = nullptr;
 
     if (m_mdbEnv) m_mdbEnv->SetAutoClear(true);
     PathString dbName = dbFile->NativePath();
@@ -1203,7 +1203,7 @@ nsresult nsMsgDatabase::OpenMDB(nsIFile *dbFile, bool create, bool sync) {
       mdb_bool canOpen;
       mdbYarn outFormatVersion;
 
-      nsIMdbFile *oldFile = nullptr;
+      nsIMdbFile* oldFile = nullptr;
       ret = mdbFactory->OpenOldFile(
           m_mdbEnv, dbHeap, dbName.get(),
           mdbBool_kFalse,  // not readonly, we want modifiable
@@ -1253,7 +1253,7 @@ nsresult nsMsgDatabase::OpenMDB(nsIFile *dbFile, bool create, bool sync) {
       m_thumb = nullptr;
     } else if (create)  // ### need error code saying why open file store failed
     {
-      nsIMdbFile *newFile = 0;
+      nsIMdbFile* newFile = 0;
       ret = mdbFactory->CreateNewFile(m_mdbEnv, dbHeap, dbName.get(), &newFile);
       if (NS_FAILED(ret)) ret = NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
       if (newFile) {
@@ -1322,7 +1322,7 @@ NS_IMETHODIMP nsMsgDatabase::ForceClosed() {
   return err;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetDBFolderInfo(nsIDBFolderInfo **result) {
+NS_IMETHODIMP nsMsgDatabase::GetDBFolderInfo(nsIDBFolderInfo** result) {
   if (!m_dbFolderInfo) {
     NS_ERROR("db must be corrupt");
     return NS_ERROR_NULL_POINTER;
@@ -1331,7 +1331,7 @@ NS_IMETHODIMP nsMsgDatabase::GetDBFolderInfo(nsIDBFolderInfo **result) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetFolder(nsIMsgFolder **aFolder) {
+NS_IMETHODIMP nsMsgDatabase::GetFolder(nsIMsgFolder** aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
   NS_IF_ADDREF(*aFolder = m_folder);
   return NS_OK;
@@ -1423,43 +1423,43 @@ NS_IMETHODIMP nsMsgDatabase::Close(bool forceCommit /* = TRUE */) {
   return CloseMDB(forceCommit);
 }
 
-const char *kMsgHdrsScope =
+const char* kMsgHdrsScope =
     "ns:msg:db:row:scope:msgs:all";  // scope for all headers table
-const char *kMsgHdrsTableKind = "ns:msg:db:table:kind:msgs";
-const char *kThreadTableKind = "ns:msg:db:table:kind:thread";
-const char *kThreadHdrsScope =
+const char* kMsgHdrsTableKind = "ns:msg:db:table:kind:msgs";
+const char* kThreadTableKind = "ns:msg:db:table:kind:thread";
+const char* kThreadHdrsScope =
     "ns:msg:db:row:scope:threads:all";  // scope for all threads table
-const char *kAllThreadsTableKind =
+const char* kAllThreadsTableKind =
     "ns:msg:db:table:kind:allthreads";  // kind for table of all threads
-const char *kSubjectColumnName = "subject";
-const char *kSenderColumnName = "sender";
-const char *kMessageIdColumnName = "message-id";
-const char *kReferencesColumnName = "references";
-const char *kRecipientsColumnName = "recipients";
-const char *kDateColumnName = "date";
-const char *kMessageSizeColumnName = "size";
-const char *kFlagsColumnName = "flags";
-const char *kPriorityColumnName = "priority";
-const char *kLabelColumnName = "label";
-const char *kStatusOffsetColumnName = "statusOfset";
-const char *kNumLinesColumnName = "numLines";
-const char *kCCListColumnName = "ccList";
-const char *kBCCListColumnName = "bccList";
-const char *kMessageThreadIdColumnName = "msgThreadId";
-const char *kThreadFlagsColumnName = "threadFlags";
-const char *kThreadIdColumnName = "threadId";
-const char *kThreadChildrenColumnName = "children";
-const char *kThreadUnreadChildrenColumnName = "unreadChildren";
-const char *kThreadSubjectColumnName = "threadSubject";
-const char *kMessageCharSetColumnName = "msgCharSet";
-const char *kThreadParentColumnName = "threadParent";
-const char *kThreadRootColumnName = "threadRoot";
-const char *kThreadNewestMsgDateColumnName = "threadNewestMsgDate";
-const char *kOfflineMsgOffsetColumnName = "msgOffset";
-const char *kOfflineMsgSizeColumnName = "offlineMsgSize";
+const char* kSubjectColumnName = "subject";
+const char* kSenderColumnName = "sender";
+const char* kMessageIdColumnName = "message-id";
+const char* kReferencesColumnName = "references";
+const char* kRecipientsColumnName = "recipients";
+const char* kDateColumnName = "date";
+const char* kMessageSizeColumnName = "size";
+const char* kFlagsColumnName = "flags";
+const char* kPriorityColumnName = "priority";
+const char* kLabelColumnName = "label";
+const char* kStatusOffsetColumnName = "statusOfset";
+const char* kNumLinesColumnName = "numLines";
+const char* kCCListColumnName = "ccList";
+const char* kBCCListColumnName = "bccList";
+const char* kMessageThreadIdColumnName = "msgThreadId";
+const char* kThreadFlagsColumnName = "threadFlags";
+const char* kThreadIdColumnName = "threadId";
+const char* kThreadChildrenColumnName = "children";
+const char* kThreadUnreadChildrenColumnName = "unreadChildren";
+const char* kThreadSubjectColumnName = "threadSubject";
+const char* kMessageCharSetColumnName = "msgCharSet";
+const char* kThreadParentColumnName = "threadParent";
+const char* kThreadRootColumnName = "threadRoot";
+const char* kThreadNewestMsgDateColumnName = "threadNewestMsgDate";
+const char* kOfflineMsgOffsetColumnName = "msgOffset";
+const char* kOfflineMsgSizeColumnName = "offlineMsgSize";
 struct mdbOid gAllMsgHdrsTableOID;
 struct mdbOid gAllThreadsTableOID;
-const char *kFixedBadRefThreadingProp = "fixedBadRefThreading";
+const char* kFixedBadRefThreadingProp = "fixedBadRefThreading";
 
 // set up empty tables, dbFolderInfo, etc.
 nsresult nsMsgDatabase::InitNewDB() {
@@ -1467,13 +1467,13 @@ nsresult nsMsgDatabase::InitNewDB() {
 
   err = InitMDBInfo();
   if (NS_SUCCEEDED(err)) {
-    nsDBFolderInfo *dbFolderInfo = new nsDBFolderInfo(this);
+    nsDBFolderInfo* dbFolderInfo = new nsDBFolderInfo(this);
     if (dbFolderInfo) {
       err = dbFolderInfo->AddToNewMDB();
       dbFolderInfo->SetVersion(GetCurVersion());
       dbFolderInfo->SetBooleanProperty("forceReparse", false);
       dbFolderInfo->SetBooleanProperty(kFixedBadRefThreadingProp, true);
-      nsIMdbStore *store = GetStore();
+      nsIMdbStore* store = GetStore();
       // create the unique table for the dbFolderInfo.
       struct mdbOid allMsgHdrsTableOID;
       struct mdbOid allThreadsTableOID;
@@ -1502,11 +1502,11 @@ nsresult nsMsgDatabase::InitNewDB() {
   return err;
 }
 
-nsresult nsMsgDatabase::GetTableCreateIfMissing(const char *scope,
-                                                const char *kind,
-                                                nsIMdbTable **table,
-                                                mdb_token &scopeToken,
-                                                mdb_token &kindToken) {
+nsresult nsMsgDatabase::GetTableCreateIfMissing(const char* scope,
+                                                const char* kind,
+                                                nsIMdbTable** table,
+                                                mdb_token& scopeToken,
+                                                mdb_token& kindToken) {
   struct mdbOid tableOID;
 
   if (!m_mdbStore) return NS_ERROR_FAILURE;
@@ -1690,7 +1690,7 @@ nsresult nsMsgDatabase::InitMDBInfo() {
 }
 
 // Returns if the db contains this key
-NS_IMETHODIMP nsMsgDatabase::ContainsKey(nsMsgKey key, bool *containsKey) {
+NS_IMETHODIMP nsMsgDatabase::ContainsKey(nsMsgKey key, bool* containsKey) {
   nsresult err = NS_OK;
   mdb_bool hasOid;
   mdbOid rowObjectId;
@@ -1708,7 +1708,7 @@ NS_IMETHODIMP nsMsgDatabase::ContainsKey(nsMsgKey key, bool *containsKey) {
 
 // get a message header for the given key. Caller must release()!
 NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key,
-                                             nsIMsgDBHdr **pmsgHdr) {
+                                             nsIMsgDBHdr** pmsgHdr) {
   nsresult err = NS_OK;
   mdb_bool hasOid;
   mdbOid rowObjectId;
@@ -1733,7 +1733,7 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key,
   rowObjectId.mOid_Scope = m_hdrRowScopeToken;
   err = m_mdbAllMsgHeadersTable->HasOid(GetEnv(), &rowObjectId, &hasOid);
   if (NS_SUCCEEDED(err) /* && hasOid */) {
-    nsIMdbRow *hdrRow;
+    nsIMdbRow* hdrRow;
     err = m_mdbStore->GetRow(GetEnv(), &rowObjectId, &hdrRow);
 
     if (NS_SUCCEEDED(err)) {
@@ -1750,7 +1750,7 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForKey(nsMsgKey key,
 }
 
 NS_IMETHODIMP nsMsgDatabase::DeleteMessage(nsMsgKey key,
-                                           nsIDBChangeListener *instigator,
+                                           nsIDBChangeListener* instigator,
                                            bool commit) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
@@ -1761,8 +1761,8 @@ NS_IMETHODIMP nsMsgDatabase::DeleteMessage(nsMsgKey key,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDatabase::DeleteMessages(nsTArray<nsMsgKey> const &nsMsgKeys,
-                                            nsIDBChangeListener *instigator) {
+NS_IMETHODIMP nsMsgDatabase::DeleteMessages(nsTArray<nsMsgKey> const& nsMsgKeys,
+                                            nsIDBChangeListener* instigator) {
   nsresult err = NS_OK;
 
   uint32_t kindex;
@@ -1786,19 +1786,19 @@ NS_IMETHODIMP nsMsgDatabase::DeleteMessages(nsTArray<nsMsgKey> const &nsMsgKeys,
   return err;
 }
 
-nsresult nsMsgDatabase::AdjustExpungedBytesOnDelete(nsIMsgDBHdr *msgHdr) {
+nsresult nsMsgDatabase::AdjustExpungedBytesOnDelete(nsIMsgDBHdr* msgHdr) {
   uint32_t size = 0;
   (void)msgHdr->GetMessageSize(&size);
   return m_dbFolderInfo->ChangeExpungedBytes(size);
 }
 
-NS_IMETHODIMP nsMsgDatabase::DeleteHeader(nsIMsgDBHdr *msg,
-                                          nsIDBChangeListener *instigator,
+NS_IMETHODIMP nsMsgDatabase::DeleteHeader(nsIMsgDBHdr* msg,
+                                          nsIDBChangeListener* instigator,
                                           bool commit, bool notify) {
   if (!msg) return NS_ERROR_NULL_POINTER;
 
-  nsMsgHdr *msgHdr =
-      static_cast<nsMsgHdr *>(msg);  // closed system, so this is ok
+  nsMsgHdr* msgHdr =
+      static_cast<nsMsgHdr*>(msg);  // closed system, so this is ok
   nsMsgKey key;
   (void)msg->GetMessageKey(&key);
   // only need to do this for mail - will this speed up news expiration?
@@ -1844,7 +1844,7 @@ NS_IMETHODIMP nsMsgDatabase::DeleteHeader(nsIMsgDBHdr *msg,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::UndoDelete(nsIMsgDBHdr *aMsgHdr) {
+nsMsgDatabase::UndoDelete(nsIMsgDBHdr* aMsgHdr) {
   if (aMsgHdr) {
     // Force deleted flag, so SetHdrFlag won't bail out because deleted flag
     // isn't set.
@@ -1856,7 +1856,7 @@ nsMsgDatabase::UndoDelete(nsIMsgDBHdr *aMsgHdr) {
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::RemoveHeaderFromThread(nsMsgHdr *msgHdr) {
+nsresult nsMsgDatabase::RemoveHeaderFromThread(nsMsgHdr* msgHdr) {
   if (!msgHdr) return NS_ERROR_NULL_POINTER;
   nsresult ret = NS_OK;
   nsCOMPtr<nsIMsgThread> thread;
@@ -1867,10 +1867,10 @@ nsresult nsMsgDatabase::RemoveHeaderFromThread(nsMsgHdr *msgHdr) {
   return ret;
 }
 
-NS_IMETHODIMP nsMsgDatabase::RemoveHeaderMdbRow(nsIMsgDBHdr *msg) {
+NS_IMETHODIMP nsMsgDatabase::RemoveHeaderMdbRow(nsIMsgDBHdr* msg) {
   NS_ENSURE_ARG_POINTER(msg);
-  nsMsgHdr *msgHdr =
-      static_cast<nsMsgHdr *>(msg);  // closed system, so this is ok
+  nsMsgHdr* msgHdr =
+      static_cast<nsMsgHdr*>(msg);  // closed system, so this is ok
   return RemoveHeaderFromDB(msgHdr);
 }
 
@@ -1878,13 +1878,13 @@ NS_IMETHODIMP nsMsgDatabase::RemoveHeaderMdbRow(nsIMsgDBHdr *msg) {
 // update folder info. One use is when a rule fires moving a header
 // from one db to another, to remove it from the first db.
 
-nsresult nsMsgDatabase::RemoveHeaderFromDB(nsMsgHdr *msgHdr) {
+nsresult nsMsgDatabase::RemoveHeaderFromDB(nsMsgHdr* msgHdr) {
   if (!msgHdr) return NS_ERROR_NULL_POINTER;
   nsresult ret = NS_OK;
 
   RemoveHdrFromCache(msgHdr, nsMsgKey_None);
   if (UseCorrectThreading()) RemoveMsgRefsFromHash(msgHdr);
-  nsIMdbRow *row = msgHdr->GetMDBRow();
+  nsIMdbRow* row = msgHdr->GetMDBRow();
   if (row) {
     ret = m_mdbAllMsgHeadersTable->CutRow(GetEnv(), row);
     row->CutAllColumns(GetEnv());
@@ -1893,7 +1893,7 @@ nsresult nsMsgDatabase::RemoveHeaderFromDB(nsMsgHdr *msgHdr) {
   return ret;
 }
 
-nsresult nsMsgDatabase::IsRead(nsMsgKey key, bool *pRead) {
+nsresult nsMsgDatabase::IsRead(nsMsgKey key, bool* pRead) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
   nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
@@ -1903,7 +1903,7 @@ nsresult nsMsgDatabase::IsRead(nsMsgKey key, bool *pRead) {
   return rv;
 }
 
-uint32_t nsMsgDatabase::GetStatusFlags(nsIMsgDBHdr *msgHdr,
+uint32_t nsMsgDatabase::GetStatusFlags(nsIMsgDBHdr* msgHdr,
                                        nsMsgMessageFlagType origFlags) {
   uint32_t statusFlags = origFlags;
   bool isRead = true;
@@ -1918,10 +1918,10 @@ uint32_t nsMsgDatabase::GetStatusFlags(nsIMsgDBHdr *msgHdr,
   return statusFlags;
 }
 
-nsresult nsMsgDatabase::IsHeaderRead(nsIMsgDBHdr *msgHdr, bool *pRead) {
+nsresult nsMsgDatabase::IsHeaderRead(nsIMsgDBHdr* msgHdr, bool* pRead) {
   if (!msgHdr) return NS_MSG_MESSAGE_NOT_FOUND;
 
-  nsMsgHdr *hdr = static_cast<nsMsgHdr *>(msgHdr);  // closed system, cast ok
+  nsMsgHdr* hdr = static_cast<nsMsgHdr*>(msgHdr);  // closed system, cast ok
   // can't call GetFlags, because it will be recursive.
   uint32_t flags;
   hdr->GetRawFlags(&flags);
@@ -1929,7 +1929,7 @@ nsresult nsMsgDatabase::IsHeaderRead(nsIMsgDBHdr *msgHdr, bool *pRead) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::IsMarked(nsMsgKey key, bool *pMarked) {
+NS_IMETHODIMP nsMsgDatabase::IsMarked(nsMsgKey key, bool* pMarked) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
   nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
@@ -1941,7 +1941,7 @@ NS_IMETHODIMP nsMsgDatabase::IsMarked(nsMsgKey key, bool *pMarked) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDatabase::IsIgnored(nsMsgKey key, bool *pIgnored) {
+NS_IMETHODIMP nsMsgDatabase::IsIgnored(nsMsgKey key, bool* pIgnored) {
   NS_ENSURE_ARG_POINTER(pIgnored);
 
   nsCOMPtr<nsIMsgThread> threadHdr;
@@ -1957,7 +1957,7 @@ NS_IMETHODIMP nsMsgDatabase::IsIgnored(nsMsgKey key, bool *pIgnored) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDatabase::IsWatched(nsMsgKey key, bool *pWatched) {
+NS_IMETHODIMP nsMsgDatabase::IsWatched(nsMsgKey key, bool* pWatched) {
   NS_ENSURE_ARG_POINTER(pWatched);
 
   nsCOMPtr<nsIMsgThread> threadHdr;
@@ -1973,7 +1973,7 @@ NS_IMETHODIMP nsMsgDatabase::IsWatched(nsMsgKey key, bool *pWatched) {
   return rv;
 }
 
-nsresult nsMsgDatabase::HasAttachments(nsMsgKey key, bool *pHasThem) {
+nsresult nsMsgDatabase::HasAttachments(nsMsgKey key, bool* pHasThem) {
   NS_ENSURE_ARG_POINTER(pHasThem);
 
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
@@ -1987,12 +1987,12 @@ nsresult nsMsgDatabase::HasAttachments(nsMsgKey key, bool *pHasThem) {
   return rv;
 }
 
-bool nsMsgDatabase::SetHdrReadFlag(nsIMsgDBHdr *msgHdr, bool bRead) {
+bool nsMsgDatabase::SetHdrReadFlag(nsIMsgDBHdr* msgHdr, bool bRead) {
   return SetHdrFlag(msgHdr, bRead, nsMsgMessageFlags::Read);
 }
 
-nsresult nsMsgDatabase::MarkHdrReadInDB(nsIMsgDBHdr *msgHdr, bool bRead,
-                                        nsIDBChangeListener *instigator) {
+nsresult nsMsgDatabase::MarkHdrReadInDB(nsIMsgDBHdr* msgHdr, bool bRead,
+                                        nsIDBChangeListener* instigator) {
   nsresult rv;
   nsMsgKey key;
   uint32_t oldFlags;
@@ -2024,7 +2024,7 @@ nsresult nsMsgDatabase::MarkHdrReadInDB(nsIMsgDBHdr *msgHdr, bool bRead,
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkRead(nsMsgKey key, bool bRead,
-                                      nsIDBChangeListener *instigator) {
+                                      nsIDBChangeListener* instigator) {
   nsresult rv;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
@@ -2037,26 +2037,26 @@ NS_IMETHODIMP nsMsgDatabase::MarkRead(nsMsgKey key, bool bRead,
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkReplied(
-    nsMsgKey key, bool bReplied, nsIDBChangeListener *instigator /* = NULL */) {
+    nsMsgKey key, bool bReplied, nsIDBChangeListener* instigator /* = NULL */) {
   return SetKeyFlag(key, bReplied, nsMsgMessageFlags::Replied, instigator);
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkForwarded(
     nsMsgKey key, bool bForwarded,
-    nsIDBChangeListener *instigator /* = NULL */) {
+    nsIDBChangeListener* instigator /* = NULL */) {
   return SetKeyFlag(key, bForwarded, nsMsgMessageFlags::Forwarded, instigator);
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkHasAttachments(
-    nsMsgKey key, bool bHasAttachments, nsIDBChangeListener *instigator) {
+    nsMsgKey key, bool bHasAttachments, nsIDBChangeListener* instigator) {
   return SetKeyFlag(key, bHasAttachments, nsMsgMessageFlags::Attachment,
                     instigator);
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::MarkThreadRead(nsIMsgThread *thread,
-                              nsIDBChangeListener *instigator,
-                              nsTArray<nsMsgKey> &aThoseMarkedRead) {
+nsMsgDatabase::MarkThreadRead(nsIMsgThread* thread,
+                              nsIDBChangeListener* instigator,
+                              nsTArray<nsMsgKey>& aThoseMarkedRead) {
   NS_ENSURE_ARG_POINTER(thread);
   aThoseMarkedRead.ClearAndRetainStorage();
   nsresult rv = NS_OK;
@@ -2084,9 +2084,9 @@ nsMsgDatabase::MarkThreadRead(nsIMsgThread *thread,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::MarkThreadIgnored(nsIMsgThread *thread, nsMsgKey threadKey,
+nsMsgDatabase::MarkThreadIgnored(nsIMsgThread* thread, nsMsgKey threadKey,
                                  bool bIgnored,
-                                 nsIDBChangeListener *instigator) {
+                                 nsIDBChangeListener* instigator) {
   NS_ENSURE_ARG(thread);
   uint32_t threadFlags;
   thread->GetFlags(&threadFlags);
@@ -2106,8 +2106,8 @@ nsMsgDatabase::MarkThreadIgnored(nsIMsgThread *thread, nsMsgKey threadKey,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::MarkHeaderKilled(nsIMsgDBHdr *msg, bool bIgnored,
-                                nsIDBChangeListener *instigator) {
+nsMsgDatabase::MarkHeaderKilled(nsIMsgDBHdr* msg, bool bIgnored,
+                                nsIDBChangeListener* instigator) {
   uint32_t msgFlags;
   msg->GetFlags(&msgFlags);
   uint32_t oldFlags = msgFlags;
@@ -2121,9 +2121,9 @@ nsMsgDatabase::MarkHeaderKilled(nsIMsgDBHdr *msg, bool bIgnored,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::MarkThreadWatched(nsIMsgThread *thread, nsMsgKey threadKey,
+nsMsgDatabase::MarkThreadWatched(nsIMsgThread* thread, nsMsgKey threadKey,
                                  bool bWatched,
-                                 nsIDBChangeListener *instigator) {
+                                 nsIDBChangeListener* instigator) {
   NS_ENSURE_ARG(thread);
   uint32_t threadFlags;
   thread->GetFlags(&threadFlags);
@@ -2145,18 +2145,18 @@ nsMsgDatabase::MarkThreadWatched(nsIMsgThread *thread, nsMsgKey threadKey,
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkMarked(nsMsgKey key, bool mark,
-                                        nsIDBChangeListener *instigator) {
+                                        nsIDBChangeListener* instigator) {
   return SetKeyFlag(key, mark, nsMsgMessageFlags::Marked, instigator);
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkOffline(nsMsgKey key, bool offline,
-                                         nsIDBChangeListener *instigator) {
+                                         nsIDBChangeListener* instigator) {
   return SetKeyFlag(key, offline, nsMsgMessageFlags::Offline, instigator);
 }
 
 NS_IMETHODIMP nsMsgDatabase::SetStringProperty(nsMsgKey aKey,
-                                               const char *aProperty,
-                                               const char *aValue) {
+                                               const char* aProperty,
+                                               const char* aValue) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsresult rv = GetMsgHdrForKey(aKey, getter_AddRefs(msgHdr));
   if (NS_FAILED(rv) || !msgHdr)
@@ -2164,9 +2164,9 @@ NS_IMETHODIMP nsMsgDatabase::SetStringProperty(nsMsgKey aKey,
   return SetStringPropertyByHdr(msgHdr, aProperty, aValue);
 }
 
-NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr *msgHdr,
-                                                    const char *aProperty,
-                                                    const char *aValue) {
+NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr* msgHdr,
+                                                    const char* aProperty,
+                                                    const char* aValue) {
   // don't do notifications if message not yet added to database.
   // Ignore errors (consequences of failure are minor).
   bool notify = true;
@@ -2221,8 +2221,8 @@ NS_IMETHODIMP nsMsgDatabase::SetStringPropertyByHdr(nsIMsgDBHdr *msgHdr,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr *aMsgHdr,
-                                      const char *aProperty, uint32_t aValue) {
+nsMsgDatabase::SetUint32PropertyByHdr(nsIMsgDBHdr* aMsgHdr,
+                                      const char* aProperty, uint32_t aValue) {
   // If no change to this property, bail out.
   uint32_t oldValue;
   nsresult rv = aMsgHdr->GetUint32Property(aProperty, &oldValue);
@@ -2288,17 +2288,17 @@ NS_IMETHODIMP nsMsgDatabase::SetLabel(nsMsgKey key, nsMsgLabelValue label) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkImapDeleted(nsMsgKey key, bool deleted,
-                                             nsIDBChangeListener *instigator) {
+                                             nsIDBChangeListener* instigator) {
   return SetKeyFlag(key, deleted, nsMsgMessageFlags::IMAPDeleted, instigator);
 }
 
 NS_IMETHODIMP nsMsgDatabase::MarkMDNNeeded(
-    nsMsgKey key, bool bNeeded, nsIDBChangeListener *instigator /* = NULL */) {
+    nsMsgKey key, bool bNeeded, nsIDBChangeListener* instigator /* = NULL */) {
   return SetKeyFlag(key, bNeeded, nsMsgMessageFlags::MDNReportNeeded,
                     instigator);
 }
 
-NS_IMETHODIMP nsMsgDatabase::IsMDNNeeded(nsMsgKey key, bool *pNeeded) {
+NS_IMETHODIMP nsMsgDatabase::IsMDNNeeded(nsMsgKey key, bool* pNeeded) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
   nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
@@ -2312,11 +2312,11 @@ NS_IMETHODIMP nsMsgDatabase::IsMDNNeeded(nsMsgKey key, bool *pNeeded) {
 }
 
 nsresult nsMsgDatabase::MarkMDNSent(
-    nsMsgKey key, bool bSent, nsIDBChangeListener *instigator /* = NULL */) {
+    nsMsgKey key, bool bSent, nsIDBChangeListener* instigator /* = NULL */) {
   return SetKeyFlag(key, bSent, nsMsgMessageFlags::MDNReportSent, instigator);
 }
 
-nsresult nsMsgDatabase::IsMDNSent(nsMsgKey key, bool *pSent) {
+nsresult nsMsgDatabase::IsMDNSent(nsMsgKey key, bool* pSent) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
   nsresult rv = GetMsgHdrForKey(key, getter_AddRefs(msgHdr));
@@ -2331,7 +2331,7 @@ nsresult nsMsgDatabase::IsMDNSent(nsMsgKey key, bool *pSent) {
 
 nsresult nsMsgDatabase::SetKeyFlag(nsMsgKey key, bool set,
                                    nsMsgMessageFlagType flag,
-                                   nsIDBChangeListener *instigator) {
+                                   nsIDBChangeListener* instigator) {
   nsresult rv;
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
 
@@ -2342,9 +2342,9 @@ nsresult nsMsgDatabase::SetKeyFlag(nsMsgKey key, bool set,
   return SetMsgHdrFlag(msgHdr, set, flag, instigator);
 }
 
-nsresult nsMsgDatabase::SetMsgHdrFlag(nsIMsgDBHdr *msgHdr, bool set,
+nsresult nsMsgDatabase::SetMsgHdrFlag(nsIMsgDBHdr* msgHdr, bool set,
                                       nsMsgMessageFlagType flag,
-                                      nsIDBChangeListener *instigator) {
+                                      nsIDBChangeListener* instigator) {
   uint32_t oldFlags;
   (void)msgHdr->GetFlags(&oldFlags);
 
@@ -2358,7 +2358,7 @@ nsresult nsMsgDatabase::SetMsgHdrFlag(nsIMsgDBHdr *msgHdr, bool set,
 
 // Helper routine - lowest level of flag setting - returns true if flags change,
 // false otherwise.
-bool nsMsgDatabase::SetHdrFlag(nsIMsgDBHdr *msgHdr, bool bSet,
+bool nsMsgDatabase::SetHdrFlag(nsIMsgDBHdr* msgHdr, bool bSet,
                                nsMsgMessageFlagType flag) {
   uint32_t statusFlags;
   (void)msgHdr->GetFlags(&statusFlags);
@@ -2376,8 +2376,8 @@ bool nsMsgDatabase::SetHdrFlag(nsIMsgDBHdr *msgHdr, bool bSet,
   return false;
 }
 
-NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr *msgHdr, bool bRead,
-                                         nsIDBChangeListener *instigator) {
+NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr* msgHdr, bool bRead,
+                                         nsIDBChangeListener* instigator) {
   bool isReadInDB = true;
   nsresult rv = nsMsgDatabase::IsHeaderRead(msgHdr, &isReadInDB);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2414,20 +2414,20 @@ NS_IMETHODIMP nsMsgDatabase::MarkHdrRead(nsIMsgDBHdr *msgHdr, bool bRead,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::MarkHdrReplied(nsIMsgDBHdr *msgHdr, bool bReplied,
-                                            nsIDBChangeListener *instigator) {
+NS_IMETHODIMP nsMsgDatabase::MarkHdrReplied(nsIMsgDBHdr* msgHdr, bool bReplied,
+                                            nsIDBChangeListener* instigator) {
   return SetMsgHdrFlag(msgHdr, bReplied, nsMsgMessageFlags::Replied,
                        instigator);
 }
 
-NS_IMETHODIMP nsMsgDatabase::MarkHdrMarked(nsIMsgDBHdr *msgHdr, bool mark,
-                                           nsIDBChangeListener *instigator) {
+NS_IMETHODIMP nsMsgDatabase::MarkHdrMarked(nsIMsgDBHdr* msgHdr, bool mark,
+                                           nsIDBChangeListener* instigator) {
   return SetMsgHdrFlag(msgHdr, mark, nsMsgMessageFlags::Marked, instigator);
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::MarkHdrNotNew(nsIMsgDBHdr *aMsgHdr,
-                             nsIDBChangeListener *aInstigator) {
+nsMsgDatabase::MarkHdrNotNew(nsIMsgDBHdr* aMsgHdr,
+                             nsIDBChangeListener* aInstigator) {
   NS_ENSURE_ARG_POINTER(aMsgHdr);
   nsMsgKey msgKey;
   aMsgHdr->GetMessageKey(&msgKey);
@@ -2435,8 +2435,8 @@ nsMsgDatabase::MarkHdrNotNew(nsIMsgDBHdr *aMsgHdr,
   return SetMsgHdrFlag(aMsgHdr, false, nsMsgMessageFlags::New, aInstigator);
 }
 
-NS_IMETHODIMP nsMsgDatabase::MarkAllRead(nsTArray<nsMsgKey> &aThoseMarked) {
-  nsMsgHdr *pHeader;
+NS_IMETHODIMP nsMsgDatabase::MarkAllRead(nsTArray<nsMsgKey>& aThoseMarked) {
+  nsMsgHdr* pHeader;
   aThoseMarked.ClearAndRetainStorage();
 
   nsCOMPtr<nsISimpleEnumerator> hdrs;
@@ -2445,7 +2445,7 @@ NS_IMETHODIMP nsMsgDatabase::MarkAllRead(nsTArray<nsMsgKey> &aThoseMarked) {
   bool hasMore = false;
 
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
-    rv = hdrs->GetNext((nsISupports **)&pHeader);
+    rv = hdrs->GetNext((nsISupports**)&pHeader);
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
     if (NS_FAILED(rv)) break;
 
@@ -2507,14 +2507,14 @@ NS_IMETHODIMP nsMsgDatabase::ClearNewList(bool notify /* = FALSE */) {
   return err;
 }
 
-NS_IMETHODIMP nsMsgDatabase::HasNew(bool *_retval) {
+NS_IMETHODIMP nsMsgDatabase::HasNew(bool* _retval) {
   if (!_retval) return NS_ERROR_NULL_POINTER;
 
   *_retval = (m_newSet.Length() > 0);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetFirstNew(nsMsgKey *result) {
+NS_IMETHODIMP nsMsgDatabase::GetFirstNew(nsMsgKey* result) {
   bool hasnew;
   nsresult rv = HasNew(&hasnew);
   if (NS_FAILED(rv)) return rv;
@@ -2524,9 +2524,9 @@ NS_IMETHODIMP nsMsgDatabase::GetFirstNew(nsMsgKey *result) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-nsMsgDBEnumerator::nsMsgDBEnumerator(nsMsgDatabase *db, nsIMdbTable *table,
+nsMsgDBEnumerator::nsMsgDBEnumerator(nsMsgDatabase* db, nsIMdbTable* table,
                                      nsMsgDBEnumeratorFilter filter,
-                                     void *closure, bool iterateForwards)
+                                     void* closure, bool iterateForwards)
     : mDB(db),
       mDone(false),
       mIterateForwards(iterateForwards),
@@ -2565,7 +2565,7 @@ nsresult nsMsgDBEnumerator::GetRowCursor() {
                                    getter_AddRefs(mRowCursor));
 }
 
-NS_IMETHODIMP nsMsgDBEnumerator::GetNext(nsISupports **aItem) {
+NS_IMETHODIMP nsMsgDBEnumerator::GetNext(nsISupports** aItem) {
   if (!aItem) return NS_ERROR_NULL_POINTER;
   nsresult rv = NS_OK;
   if (!mNextPrefetched) rv = PrefetchNext();
@@ -2580,7 +2580,7 @@ NS_IMETHODIMP nsMsgDBEnumerator::GetNext(nsISupports **aItem) {
 
 nsresult nsMsgDBEnumerator::PrefetchNext() {
   nsresult rv = NS_OK;
-  nsIMdbRow *hdrRow;
+  nsIMdbRow* hdrRow;
   uint32_t flags;
 
   if (!mRowCursor) {
@@ -2632,7 +2632,7 @@ nsresult nsMsgDBEnumerator::PrefetchNext() {
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgDBEnumerator::HasMoreElements(bool *aResult) {
+NS_IMETHODIMP nsMsgDBEnumerator::HasMoreElements(bool* aResult) {
   if (!aResult) return NS_ERROR_NULL_POINTER;
 
   if (!mNextPrefetched && (NS_FAILED(PrefetchNext()))) mDone = true;
@@ -2640,8 +2640,8 @@ NS_IMETHODIMP nsMsgDBEnumerator::HasMoreElements(bool *aResult) {
   return NS_OK;
 }
 
-nsMsgFilteredDBEnumerator::nsMsgFilteredDBEnumerator(nsMsgDatabase *db,
-                                                     nsIMdbTable *table,
+nsMsgFilteredDBEnumerator::nsMsgFilteredDBEnumerator(nsMsgDatabase* db,
+                                                     nsIMdbTable* table,
                                                      bool reverse)
     : nsMsgDBEnumerator(db, table, nullptr, nullptr, !reverse) {}
 
@@ -2653,8 +2653,8 @@ nsMsgFilteredDBEnumerator::~nsMsgFilteredDBEnumerator() {}
  * terms in the array to the search session.
  */
 nsresult nsMsgFilteredDBEnumerator::InitSearchSession(
-    const nsTArray<RefPtr<nsIMsgSearchTerm>> &searchTerms,
-    nsIMsgFolder *folder) {
+    const nsTArray<RefPtr<nsIMsgSearchTerm>>& searchTerms,
+    nsIMsgFolder* folder) {
   nsresult rv;
   m_searchSession = do_CreateInstance(NS_MSGSEARCHSESSION_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -2687,7 +2687,7 @@ nsresult nsMsgFilteredDBEnumerator::PrefetchNext() {
 ////////////////////////////////////////////////////////////////////////////////
 
 NS_IMETHODIMP
-nsMsgDatabase::EnumerateMessages(nsISimpleEnumerator **result) {
+nsMsgDatabase::EnumerateMessages(nsISimpleEnumerator** result) {
   RememberLastUseTime();
   NS_ENSURE_ARG_POINTER(result);
   NS_ADDREF(*result = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable,
@@ -2696,7 +2696,7 @@ nsMsgDatabase::EnumerateMessages(nsISimpleEnumerator **result) {
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::ReverseEnumerateMessages(nsISimpleEnumerator **result) {
+nsMsgDatabase::ReverseEnumerateMessages(nsISimpleEnumerator** result) {
   NS_ENSURE_ARG_POINTER(result);
   NS_ADDREF(*result = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable,
                                             nullptr, nullptr, false));
@@ -2705,8 +2705,8 @@ nsMsgDatabase::ReverseEnumerateMessages(nsISimpleEnumerator **result) {
 
 NS_IMETHODIMP
 nsMsgDatabase::GetFilterEnumerator(
-    const nsTArray<RefPtr<nsIMsgSearchTerm>> &searchTerms, bool aReverse,
-    nsISimpleEnumerator **aResult) {
+    const nsTArray<RefPtr<nsIMsgSearchTerm>>& searchTerms, bool aReverse,
+    nsISimpleEnumerator** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   RefPtr<nsMsgFilteredDBEnumerator> e =
       new nsMsgFilteredDBEnumerator(this, m_mdbAllMsgHeadersTable, aReverse);
@@ -2759,7 +2759,7 @@ nsMsgDatabase::SyncCounts() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsIMsgKeyArray *aKeys) {
+NS_IMETHODIMP nsMsgDatabase::ListAllKeys(nsIMsgKeyArray* aKeys) {
   NS_ENSURE_ARG_POINTER(aKeys);
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMdbTableRowCursor> rowCursor;
@@ -2792,21 +2792,21 @@ class nsMsgDBThreadEnumerator : public nsSimpleEnumerator, nsIDBChangeListener {
   // nsISimpleEnumerator methods:
   NS_DECL_NSISIMPLEENUMERATOR
 
-  const nsID &DefaultInterface() override { return NS_GET_IID(nsIMsgThread); }
+  const nsID& DefaultInterface() override { return NS_GET_IID(nsIMsgThread); }
 
   NS_DECL_NSIDBCHANGELISTENER
 
   // nsMsgDBEnumerator methods:
-  typedef nsresult (*nsMsgDBThreadEnumeratorFilter)(nsIMsgThread *thread);
+  typedef nsresult (*nsMsgDBThreadEnumeratorFilter)(nsIMsgThread* thread);
 
-  nsMsgDBThreadEnumerator(nsMsgDatabase *db,
+  nsMsgDBThreadEnumerator(nsMsgDatabase* db,
                           nsMsgDBThreadEnumeratorFilter filter);
 
  protected:
   ~nsMsgDBThreadEnumerator() override;
   nsresult GetTableCursor(void);
   nsresult PrefetchNext();
-  nsMsgDatabase *mDB;
+  nsMsgDatabase* mDB;
   nsCOMPtr<nsIMdbPortTableCursor> mTableCursor;
   RefPtr<nsIMsgThread> mResultThread;
   bool mDone;
@@ -2815,7 +2815,7 @@ class nsMsgDBThreadEnumerator : public nsSimpleEnumerator, nsIDBChangeListener {
 };
 
 nsMsgDBThreadEnumerator::nsMsgDBThreadEnumerator(
-    nsMsgDatabase *db, nsMsgDBThreadEnumeratorFilter filter)
+    nsMsgDatabase* db, nsMsgDBThreadEnumeratorFilter filter)
     : mDB(db),
       mTableCursor(nullptr),
       mResultThread(nullptr),
@@ -2838,8 +2838,8 @@ NS_IMPL_ISUPPORTS_INHERITED(nsMsgDBThreadEnumerator, nsSimpleEnumerator,
  * aOldFlags, in unsigned long aNewFlags, in nsIDBChangeListener aInstigator);
  */
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrFlagsChanged(
-    nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
+    nsIDBChangeListener* aInstigator) {
   return NS_OK;
 }
 
@@ -2847,24 +2847,24 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrFlagsChanged(
 // inout uint32_t aStatus, in nsIDBChangeListener aInstigator);
 NS_IMETHODIMP
 nsMsgDBThreadEnumerator::OnHdrPropertyChanged(
-    nsIMsgDBHdr *aHdrToChange, bool aPreChange, uint32_t *aStatus,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrToChange, bool aPreChange, uint32_t* aStatus,
+    nsIDBChangeListener* aInstigator) {
   return NS_OK;
 }
 
 /* void onHdrDeleted (in nsIMsgDBHdr aHdrChanged, in nsMsgKey aParentKey, in
  * long aFlags, in nsIDBChangeListener aInstigator); */
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrDeleted(
-    nsIMsgDBHdr *aHdrChanged, nsMsgKey aParentKey, int32_t aFlags,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey, int32_t aFlags,
+    nsIDBChangeListener* aInstigator) {
   return NS_OK;
 }
 
 /* void onHdrAdded (in nsIMsgDBHdr aHdrChanged, in nsMsgKey aParentKey, in long
  * aFlags, in nsIDBChangeListener aInstigator); */
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrAdded(
-    nsIMsgDBHdr *aHdrChanged, nsMsgKey aParentKey, int32_t aFlags,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrChanged, nsMsgKey aParentKey, int32_t aFlags,
+    nsIDBChangeListener* aInstigator) {
   return NS_OK;
 }
 
@@ -2872,13 +2872,13 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::OnHdrAdded(
  * nsMsgKey newParent, in nsIDBChangeListener aInstigator); */
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnParentChanged(
     nsMsgKey aKeyChanged, nsMsgKey oldParent, nsMsgKey newParent,
-    nsIDBChangeListener *aInstigator) {
+    nsIDBChangeListener* aInstigator) {
   return NS_OK;
 }
 
 /* void onAnnouncerGoingAway (in nsIDBChangeAnnouncer instigator); */
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnAnnouncerGoingAway(
-    nsIDBChangeAnnouncer *instigator) {
+    nsIDBChangeAnnouncer* instigator) {
   mTableCursor = nullptr;
   mResultThread = nullptr;
   mDB->RemoveListener(this);
@@ -2886,20 +2886,20 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::OnAnnouncerGoingAway(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBThreadEnumerator::OnEvent(nsIMsgDatabase *aDB,
-                                               const char *aEvent) {
+NS_IMETHODIMP nsMsgDBThreadEnumerator::OnEvent(nsIMsgDatabase* aDB,
+                                               const char* aEvent) {
   return NS_OK;
 }
 
 /* void onReadChanged (in nsIDBChangeListener aInstigator); */
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnReadChanged(
-    nsIDBChangeListener *aInstigator) {
+    nsIDBChangeListener* aInstigator) {
   return NS_OK;
 }
 
 /* void onJunkScoreChanged (in nsIDBChangeListener aInstigator); */
 NS_IMETHODIMP nsMsgDBThreadEnumerator::OnJunkScoreChanged(
-    nsIDBChangeListener *aInstigator) {
+    nsIDBChangeListener* aInstigator) {
   return NS_OK;
 }
 
@@ -2916,7 +2916,7 @@ nsresult nsMsgDBThreadEnumerator::GetTableCursor(void) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDBThreadEnumerator::GetNext(nsISupports **aItem) {
+NS_IMETHODIMP nsMsgDBThreadEnumerator::GetNext(nsISupports** aItem) {
   NS_ENSURE_ARG_POINTER(aItem);
 
   *aItem = nullptr;
@@ -2977,7 +2977,7 @@ nsresult nsMsgDBThreadEnumerator::PrefetchNext() {
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgDBThreadEnumerator::HasMoreElements(bool *aResult) {
+NS_IMETHODIMP nsMsgDBThreadEnumerator::HasMoreElements(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   if (!mNextPrefetched) PrefetchNext();
@@ -2986,31 +2986,31 @@ NS_IMETHODIMP nsMsgDBThreadEnumerator::HasMoreElements(bool *aResult) {
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::EnumerateThreads(nsISimpleEnumerator **result) {
+nsMsgDatabase::EnumerateThreads(nsISimpleEnumerator** result) {
   RememberLastUseTime();
   NS_ADDREF(*result = new nsMsgDBThreadEnumerator(this, nullptr));
   return NS_OK;
 }
 
 // only return headers with a particular flag set
-static nsresult nsMsgFlagSetFilter(nsIMsgDBHdr *msg, void *closure) {
+static nsresult nsMsgFlagSetFilter(nsIMsgDBHdr* msg, void* closure) {
   uint32_t msgFlags, desiredFlags;
-  desiredFlags = *(uint32_t *)closure;
+  desiredFlags = *(uint32_t*)closure;
   msg->GetFlags(&msgFlags);
   return (msgFlags & desiredFlags) ? NS_OK : NS_ERROR_FAILURE;
 }
 
-nsresult nsMsgDatabase::EnumerateMessagesWithFlag(nsISimpleEnumerator **result,
-                                                  uint32_t *pFlag) {
+nsresult nsMsgDatabase::EnumerateMessagesWithFlag(nsISimpleEnumerator** result,
+                                                  uint32_t* pFlag) {
   RememberLastUseTime();
   NS_ADDREF(*result = new nsMsgDBEnumerator(this, m_mdbAllMsgHeadersTable,
                                             nsMsgFlagSetFilter, pFlag));
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::CreateNewHdr(nsMsgKey key, nsIMsgDBHdr **pnewHdr) {
+NS_IMETHODIMP nsMsgDatabase::CreateNewHdr(nsMsgKey key, nsIMsgDBHdr** pnewHdr) {
   nsresult err = NS_OK;
-  nsIMdbRow *hdrRow = nullptr;
+  nsIMdbRow* hdrRow = nullptr;
   struct mdbOid allMsgHdrsTableOID;
 
   if (!pnewHdr || !m_mdbAllMsgHeadersTable || !m_mdbStore)
@@ -3054,9 +3054,9 @@ NS_IMETHODIMP nsMsgDatabase::CreateNewHdr(nsMsgKey key, nsIMsgDBHdr **pnewHdr) {
   return err;
 }
 
-NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify) {
+NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr* newHdr, bool notify) {
   NS_ENSURE_ARG_POINTER(newHdr);
-  nsMsgHdr *hdr = static_cast<nsMsgHdr *>(newHdr);  // closed system, cast ok
+  nsMsgHdr* hdr = static_cast<nsMsgHdr*>(newHdr);  // closed system, cast ok
   bool newThread;
   bool hasKey = false;
   nsMsgKey msgKey = nsMsgKey_None;
@@ -3109,20 +3109,20 @@ NS_IMETHODIMP nsMsgDatabase::AddNewHdrToDB(nsIMsgDBHdr *newHdr, bool notify) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::CopyHdrFromExistingHdr(nsMsgKey key,
-                                                    nsIMsgDBHdr *existingHdr,
+                                                    nsIMsgDBHdr* existingHdr,
                                                     bool addHdrToDB,
-                                                    nsIMsgDBHdr **newHdr) {
+                                                    nsIMsgDBHdr** newHdr) {
   nsresult err = NS_OK;
 
   if (existingHdr) {
-    nsMsgHdr *sourceMsgHdr =
-        static_cast<nsMsgHdr *>(existingHdr);  // closed system, cast ok
-    nsMsgHdr *destMsgHdr = nullptr;
-    CreateNewHdr(key, (nsIMsgDBHdr **)&destMsgHdr);
-    nsIMdbRow *sourceRow = sourceMsgHdr->GetMDBRow();
+    nsMsgHdr* sourceMsgHdr =
+        static_cast<nsMsgHdr*>(existingHdr);  // closed system, cast ok
+    nsMsgHdr* destMsgHdr = nullptr;
+    CreateNewHdr(key, (nsIMsgDBHdr**)&destMsgHdr);
+    nsIMdbRow* sourceRow = sourceMsgHdr->GetMDBRow();
     if (!destMsgHdr || !sourceRow) return NS_MSG_MESSAGE_NOT_FOUND;
 
-    nsIMdbRow *destRow = destMsgHdr->GetMDBRow();
+    nsIMdbRow* destRow = destMsgHdr->GetMDBRow();
     if (!destRow) return NS_ERROR_UNEXPECTED;
 
     err = destRow->SetRow(GetEnv(), sourceRow);
@@ -3137,9 +3137,9 @@ NS_IMETHODIMP nsMsgDatabase::CopyHdrFromExistingHdr(nsMsgKey key,
   return err;
 }
 
-nsresult nsMsgDatabase::RowCellColumnTonsString(nsIMdbRow *hdrRow,
+nsresult nsMsgDatabase::RowCellColumnTonsString(nsIMdbRow* hdrRow,
                                                 mdb_token columnToken,
-                                                nsAString &resultStr) {
+                                                nsAString& resultStr) {
   NS_ENSURE_ARG_POINTER(hdrRow);
 
   struct mdbYarn yarn;
@@ -3152,19 +3152,19 @@ nsresult nsMsgDatabase::RowCellColumnTonsString(nsIMdbRow *hdrRow,
 // as long as the row still exists, and isn't changed, the returned const char
 // ** will be valid. But be very careful using this data - the caller should
 // never return it in turn to another caller.
-nsresult nsMsgDatabase::RowCellColumnToConstCharPtr(nsIMdbRow *hdrRow,
+nsresult nsMsgDatabase::RowCellColumnToConstCharPtr(nsIMdbRow* hdrRow,
                                                     mdb_token columnToken,
-                                                    const char **ptr) {
+                                                    const char** ptr) {
   NS_ENSURE_ARG_POINTER(hdrRow);
 
   struct mdbYarn yarn;
   nsresult rv = hdrRow->AliasCellYarn(GetEnv(), columnToken, &yarn);
   NS_ENSURE_SUCCESS(rv, rv);
-  *ptr = (const char *)yarn.mYarn_Buf;
+  *ptr = (const char*)yarn.mYarn_Buf;
   return NS_OK;
 }
 
-nsIMimeConverter *nsMsgDatabase::GetMimeConverter() {
+nsIMimeConverter* nsMsgDatabase::GetMimeConverter() {
   if (!m_mimeConverter) {
     // apply mime decode
     m_mimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID);
@@ -3172,8 +3172,8 @@ nsIMimeConverter *nsMsgDatabase::GetMimeConverter() {
   return m_mimeConverter;
 }
 
-nsresult nsMsgDatabase::GetEffectiveCharset(nsIMdbRow *row,
-                                            nsACString &resultCharset) {
+nsresult nsMsgDatabase::GetEffectiveCharset(nsIMdbRow* row,
+                                            nsACString& resultCharset) {
   resultCharset.Truncate();
   bool characterSetOverride;
   m_dbFolderInfo->GetCharacterSetOverride(&characterSetOverride);
@@ -3187,9 +3187,9 @@ nsresult nsMsgDatabase::GetEffectiveCharset(nsIMdbRow *row,
 }
 
 nsresult nsMsgDatabase::RowCellColumnToMime2DecodedString(
-    nsIMdbRow *row, mdb_token columnToken, nsAString &resultStr) {
+    nsIMdbRow* row, mdb_token columnToken, nsAString& resultStr) {
   nsresult err = NS_OK;
-  const char *nakedString = nullptr;
+  const char* nakedString = nullptr;
   err = RowCellColumnToConstCharPtr(row, columnToken, &nakedString);
   if (NS_SUCCEEDED(err) && nakedString && strlen(nakedString)) {
     GetMimeConverter();
@@ -3206,7 +3206,7 @@ nsresult nsMsgDatabase::RowCellColumnToMime2DecodedString(
 }
 
 nsresult nsMsgDatabase::RowCellColumnToAddressCollationKey(
-    nsIMdbRow *row, mdb_token colToken, nsTArray<uint8_t> &result) {
+    nsIMdbRow* row, mdb_token colToken, nsTArray<uint8_t>& result) {
   nsString sender;
   nsresult rv = RowCellColumnToMime2DecodedString(row, colToken, sender);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -3229,10 +3229,10 @@ nsresult nsMsgDatabase::GetCollationKeyGenerator() {
   return err;
 }
 
-nsresult nsMsgDatabase::RowCellColumnToCollationKey(nsIMdbRow *row,
+nsresult nsMsgDatabase::RowCellColumnToCollationKey(nsIMdbRow* row,
                                                     mdb_token columnToken,
-                                                    nsTArray<uint8_t> &result) {
-  const char *nakedString = nullptr;
+                                                    nsTArray<uint8_t>& result) {
+  const char* nakedString = nullptr;
   nsresult err;
 
   err = RowCellColumnToConstCharPtr(row, columnToken, &nakedString);
@@ -3255,9 +3255,9 @@ nsresult nsMsgDatabase::RowCellColumnToCollationKey(nsIMdbRow *row,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::CompareCollationKeys(const nsTArray<uint8_t> &key1,
-                                    const nsTArray<uint8_t> &key2,
-                                    int32_t *result) {
+nsMsgDatabase::CompareCollationKeys(const nsTArray<uint8_t>& key1,
+                                    const nsTArray<uint8_t>& key2,
+                                    int32_t* result) {
   nsresult rv = GetCollationKeyGenerator();
   NS_ENSURE_SUCCESS(rv, rv);
   if (!m_collationKeyGenerator) return NS_ERROR_FAILURE;
@@ -3268,8 +3268,8 @@ nsMsgDatabase::CompareCollationKeys(const nsTArray<uint8_t> &key1,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::CreateCollationKey(const nsAString &sourceString,
-                                  nsTArray<uint8_t> &result) {
+nsMsgDatabase::CreateCollationKey(const nsAString& sourceString,
+                                  nsTArray<uint8_t>& result) {
   nsresult err = GetCollationKeyGenerator();
   NS_ENSURE_SUCCESS(err, err);
   if (!m_collationKeyGenerator) return NS_ERROR_FAILURE;
@@ -3280,17 +3280,17 @@ nsMsgDatabase::CreateCollationKey(const nsAString &sourceString,
   return err;
 }
 
-nsresult nsMsgDatabase::RowCellColumnToUInt32(nsIMdbRow *hdrRow,
+nsresult nsMsgDatabase::RowCellColumnToUInt32(nsIMdbRow* hdrRow,
                                               mdb_token columnToken,
-                                              uint32_t &uint32Result,
+                                              uint32_t& uint32Result,
                                               uint32_t defaultValue) {
   return RowCellColumnToUInt32(hdrRow, columnToken, &uint32Result,
                                defaultValue);
 }
 
-nsresult nsMsgDatabase::RowCellColumnToUInt32(nsIMdbRow *hdrRow,
+nsresult nsMsgDatabase::RowCellColumnToUInt32(nsIMdbRow* hdrRow,
                                               mdb_token columnToken,
-                                              uint32_t *uint32Result,
+                                              uint32_t* uint32Result,
                                               uint32_t defaultValue) {
   nsresult err = NS_OK;
 
@@ -3304,7 +3304,7 @@ nsresult nsMsgDatabase::RowCellColumnToUInt32(nsIMdbRow *hdrRow,
   return err;
 }
 
-nsresult nsMsgDatabase::UInt32ToRowCellColumn(nsIMdbRow *row,
+nsresult nsMsgDatabase::UInt32ToRowCellColumn(nsIMdbRow* row,
                                               mdb_token columnToken,
                                               uint32_t value) {
   struct mdbYarn yarn;
@@ -3312,7 +3312,7 @@ nsresult nsMsgDatabase::UInt32ToRowCellColumn(nsIMdbRow *row,
 
   if (!row) return NS_ERROR_NULL_POINTER;
 
-  yarn.mYarn_Buf = (void *)yarnBuf;
+  yarn.mYarn_Buf = (void*)yarnBuf;
   yarn.mYarn_Size = sizeof(yarnBuf);
   yarn.mYarn_Fill = yarn.mYarn_Size;
   yarn.mYarn_Form = 0;
@@ -3320,25 +3320,25 @@ nsresult nsMsgDatabase::UInt32ToRowCellColumn(nsIMdbRow *row,
   return row->AddColumn(GetEnv(), columnToken, UInt32ToYarn(&yarn, value));
 }
 
-nsresult nsMsgDatabase::UInt64ToRowCellColumn(nsIMdbRow *row,
+nsresult nsMsgDatabase::UInt64ToRowCellColumn(nsIMdbRow* row,
                                               mdb_token columnToken,
                                               uint64_t value) {
   NS_ENSURE_ARG_POINTER(row);
   struct mdbYarn yarn;
   char yarnBuf[17];  // max string is 16 bytes, + 1 for null.
 
-  yarn.mYarn_Buf = (void *)yarnBuf;
+  yarn.mYarn_Buf = (void*)yarnBuf;
   yarn.mYarn_Size = sizeof(yarnBuf);
   yarn.mYarn_Form = 0;
   yarn.mYarn_Grow = NULL;
-  PR_snprintf((char *)yarn.mYarn_Buf, yarn.mYarn_Size, "%llx", value);
-  yarn.mYarn_Fill = PL_strlen((const char *)yarn.mYarn_Buf);
+  PR_snprintf((char*)yarn.mYarn_Buf, yarn.mYarn_Size, "%llx", value);
+  yarn.mYarn_Fill = PL_strlen((const char*)yarn.mYarn_Buf);
   return row->AddColumn(GetEnv(), columnToken, &yarn);
 }
 
-nsresult nsMsgDatabase::RowCellColumnToUInt64(nsIMdbRow *hdrRow,
+nsresult nsMsgDatabase::RowCellColumnToUInt64(nsIMdbRow* hdrRow,
                                               mdb_token columnToken,
-                                              uint64_t *uint64Result,
+                                              uint64_t* uint64Result,
                                               uint64_t defaultValue) {
   nsresult err = NS_OK;
 
@@ -3352,14 +3352,14 @@ nsresult nsMsgDatabase::RowCellColumnToUInt64(nsIMdbRow *hdrRow,
   return err;
 }
 
-nsresult nsMsgDatabase::CharPtrToRowCellColumn(nsIMdbRow *row,
+nsresult nsMsgDatabase::CharPtrToRowCellColumn(nsIMdbRow* row,
                                                mdb_token columnToken,
-                                               const char *charPtr) {
+                                               const char* charPtr) {
   if (!row) return NS_ERROR_NULL_POINTER;
 
   struct mdbYarn yarn;
-  yarn.mYarn_Buf = (void *)charPtr;
-  yarn.mYarn_Size = PL_strlen((const char *)yarn.mYarn_Buf) + 1;
+  yarn.mYarn_Buf = (void*)charPtr;
+  yarn.mYarn_Size = PL_strlen((const char*)yarn.mYarn_Buf) + 1;
   yarn.mYarn_Fill = yarn.mYarn_Size - 1;
   yarn.mYarn_Form =
       0;  // what to do with this? we're storing csid in the msg hdr...
@@ -3368,16 +3368,16 @@ nsresult nsMsgDatabase::CharPtrToRowCellColumn(nsIMdbRow *row,
 }
 
 // caller must free result
-nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow *row,
+nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow* row,
                                                mdb_token columnToken,
-                                               char **result) {
+                                               char** result) {
   nsresult err = NS_ERROR_NULL_POINTER;
 
   if (row && result) {
     struct mdbYarn yarn;
     err = row->AliasCellYarn(GetEnv(), columnToken, &yarn);
     if (NS_SUCCEEDED(err)) {
-      *result = (char *)moz_xmalloc(yarn.mYarn_Fill + 1);
+      *result = (char*)moz_xmalloc(yarn.mYarn_Fill + 1);
       if (*result) {
         if (yarn.mYarn_Fill > 0)
           memcpy(*result, yarn.mYarn_Buf, yarn.mYarn_Fill);
@@ -3389,8 +3389,8 @@ nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow *row,
   return err;
 }
 
-/* static */ struct mdbYarn *nsMsgDatabase::nsStringToYarn(
-    struct mdbYarn *yarn, const nsAString &str) {
+/* static */ struct mdbYarn* nsMsgDatabase::nsStringToYarn(
+    struct mdbYarn* yarn, const nsAString& str) {
   yarn->mYarn_Buf = ToNewCString(NS_ConvertUTF16toUTF8(str));
   yarn->mYarn_Size = str.Length() + 1;
   yarn->mYarn_Fill = yarn->mYarn_Size - 1;
@@ -3399,35 +3399,35 @@ nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow *row,
   return yarn;
 }
 
-/* static */ struct mdbYarn *nsMsgDatabase::UInt32ToYarn(struct mdbYarn *yarn,
+/* static */ struct mdbYarn* nsMsgDatabase::UInt32ToYarn(struct mdbYarn* yarn,
                                                          uint32_t i) {
-  PR_snprintf((char *)yarn->mYarn_Buf, yarn->mYarn_Size, "%lx", i);
-  yarn->mYarn_Fill = PL_strlen((const char *)yarn->mYarn_Buf);
+  PR_snprintf((char*)yarn->mYarn_Buf, yarn->mYarn_Size, "%lx", i);
+  yarn->mYarn_Fill = PL_strlen((const char*)yarn->mYarn_Buf);
   yarn->mYarn_Form =
       0;  // what to do with this? Should be parsed out of the mime2 header?
   return yarn;
 }
 
-/* static */ struct mdbYarn *nsMsgDatabase::UInt64ToYarn(struct mdbYarn *yarn,
+/* static */ struct mdbYarn* nsMsgDatabase::UInt64ToYarn(struct mdbYarn* yarn,
                                                          uint64_t i) {
-  PR_snprintf((char *)yarn->mYarn_Buf, yarn->mYarn_Size, "%llx", i);
-  yarn->mYarn_Fill = PL_strlen((const char *)yarn->mYarn_Buf);
+  PR_snprintf((char*)yarn->mYarn_Buf, yarn->mYarn_Size, "%llx", i);
+  yarn->mYarn_Fill = PL_strlen((const char*)yarn->mYarn_Buf);
   yarn->mYarn_Form = 0;
   return yarn;
 }
 
-/* static */ void nsMsgDatabase::YarnTonsString(struct mdbYarn *yarn,
-                                                nsAString &str) {
-  const char *buf = (const char *)yarn->mYarn_Buf;
+/* static */ void nsMsgDatabase::YarnTonsString(struct mdbYarn* yarn,
+                                                nsAString& str) {
+  const char* buf = (const char*)yarn->mYarn_Buf;
   if (buf)
     CopyASCIItoUTF16(Substring(buf, buf + yarn->mYarn_Fill), str);
   else
     str.Truncate();
 }
 
-/* static */ void nsMsgDatabase::YarnTonsCString(struct mdbYarn *yarn,
-                                                 nsACString &str) {
-  const char *buf = (const char *)yarn->mYarn_Buf;
+/* static */ void nsMsgDatabase::YarnTonsCString(struct mdbYarn* yarn,
+                                                 nsACString& str) {
+  const char* buf = (const char*)yarn->mYarn_Buf;
   if (buf)
     str.Assign(buf, yarn->mYarn_Fill);
   else
@@ -3436,28 +3436,28 @@ nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow *row,
 
 // WARNING - if yarn is empty, *pResult will not be changed!!!!
 // this is so we can leave default values as they were.
-/* static */ void nsMsgDatabase::YarnToUInt32(struct mdbYarn *yarn,
-                                              uint32_t *pResult) {
+/* static */ void nsMsgDatabase::YarnToUInt32(struct mdbYarn* yarn,
+                                              uint32_t* pResult) {
   uint8_t numChars = std::min<mdb_fill>(8, yarn->mYarn_Fill);
 
   if (numChars == 0) return;
 
-  *pResult = MsgUnhex((char *)yarn->mYarn_Buf, numChars);
+  *pResult = MsgUnhex((char*)yarn->mYarn_Buf, numChars);
 }
 
 // WARNING - if yarn is empty, *pResult will not be changed!!!!
 // this is so we can leave default values as they were.
-/* static */ void nsMsgDatabase::YarnToUInt64(struct mdbYarn *yarn,
-                                              uint64_t *pResult) {
+/* static */ void nsMsgDatabase::YarnToUInt64(struct mdbYarn* yarn,
+                                              uint64_t* pResult) {
   uint8_t numChars = std::min<mdb_fill>(16, yarn->mYarn_Fill);
 
   if (numChars == 0) return;
 
-  *pResult = MsgUnhex((char *)yarn->mYarn_Buf, numChars);
+  *pResult = MsgUnhex((char*)yarn->mYarn_Buf, numChars);
 }
 
-nsresult nsMsgDatabase::GetProperty(nsIMdbRow *row, const char *propertyName,
-                                    char **result) {
+nsresult nsMsgDatabase::GetProperty(nsIMdbRow* row, const char* propertyName,
+                                    char** result) {
   nsresult err = NS_OK;
   mdb_token property_token;
 
@@ -3471,8 +3471,8 @@ nsresult nsMsgDatabase::GetProperty(nsIMdbRow *row, const char *propertyName,
   return err;
 }
 
-nsresult nsMsgDatabase::SetProperty(nsIMdbRow *row, const char *propertyName,
-                                    const char *propertyVal) {
+nsresult nsMsgDatabase::SetProperty(nsIMdbRow* row, const char* propertyName,
+                                    const char* propertyVal) {
   nsresult err = NS_OK;
   mdb_token property_token;
 
@@ -3485,9 +3485,9 @@ nsresult nsMsgDatabase::SetProperty(nsIMdbRow *row, const char *propertyName,
   return err;
 }
 
-nsresult nsMsgDatabase::GetPropertyAsNSString(nsIMdbRow *row,
-                                              const char *propertyName,
-                                              nsAString &result) {
+nsresult nsMsgDatabase::GetPropertyAsNSString(nsIMdbRow* row,
+                                              const char* propertyName,
+                                              nsAString& result) {
   nsresult err = NS_OK;
   mdb_token property_token;
 
@@ -3501,9 +3501,9 @@ nsresult nsMsgDatabase::GetPropertyAsNSString(nsIMdbRow *row,
   return err;
 }
 
-nsresult nsMsgDatabase::SetPropertyFromNSString(nsIMdbRow *row,
-                                                const char *propertyName,
-                                                const nsAString &propertyVal) {
+nsresult nsMsgDatabase::SetPropertyFromNSString(nsIMdbRow* row,
+                                                const char* propertyName,
+                                                const nsAString& propertyVal) {
   nsresult err = NS_OK;
   mdb_token property_token;
 
@@ -3517,9 +3517,9 @@ nsresult nsMsgDatabase::SetPropertyFromNSString(nsIMdbRow *row,
   return err;
 }
 
-nsresult nsMsgDatabase::GetUint32Property(nsIMdbRow *row,
-                                          const char *propertyName,
-                                          uint32_t *result,
+nsresult nsMsgDatabase::GetUint32Property(nsIMdbRow* row,
+                                          const char* propertyName,
+                                          uint32_t* result,
                                           uint32_t defaultValue) {
   nsresult err = NS_OK;
   mdb_token property_token;
@@ -3534,9 +3534,9 @@ nsresult nsMsgDatabase::GetUint32Property(nsIMdbRow *row,
   return err;
 }
 
-nsresult nsMsgDatabase::GetUint64Property(nsIMdbRow *row,
-                                          const char *propertyName,
-                                          uint64_t *result,
+nsresult nsMsgDatabase::GetUint64Property(nsIMdbRow* row,
+                                          const char* propertyName,
+                                          uint64_t* result,
                                           uint64_t defaultValue) {
   nsresult err = NS_OK;
   mdb_token property_token;
@@ -3551,8 +3551,8 @@ nsresult nsMsgDatabase::GetUint64Property(nsIMdbRow *row,
   return err;
 }
 
-nsresult nsMsgDatabase::SetUint32Property(nsIMdbRow *row,
-                                          const char *propertyName,
+nsresult nsMsgDatabase::SetUint32Property(nsIMdbRow* row,
+                                          const char* propertyName,
                                           uint32_t propertyVal) {
   struct mdbYarn yarn;
   char int32StrBuf[20];
@@ -3574,8 +3574,8 @@ nsresult nsMsgDatabase::SetUint32Property(nsIMdbRow *row,
   return err;
 }
 
-nsresult nsMsgDatabase::SetUint64Property(nsIMdbRow *row,
-                                          const char *propertyName,
+nsresult nsMsgDatabase::SetUint64Property(nsIMdbRow* row,
+                                          const char* propertyName,
                                           uint64_t propertyVal) {
   struct mdbYarn yarn;
   char int64StrBuf[100];
@@ -3597,9 +3597,9 @@ nsresult nsMsgDatabase::SetUint64Property(nsIMdbRow *row,
   return err;
 }
 
-nsresult nsMsgDatabase::GetBooleanProperty(nsIMdbRow *row,
-                                           const char *propertyName,
-                                           bool *result,
+nsresult nsMsgDatabase::GetBooleanProperty(nsIMdbRow* row,
+                                           const char* propertyName,
+                                           bool* result,
                                            bool defaultValue /* = false */) {
   uint32_t res;
   nsresult rv =
@@ -3608,21 +3608,21 @@ nsresult nsMsgDatabase::GetBooleanProperty(nsIMdbRow *row,
   return rv;
 }
 
-nsresult nsMsgDatabase::SetBooleanProperty(nsIMdbRow *row,
-                                           const char *propertyName,
+nsresult nsMsgDatabase::SetBooleanProperty(nsIMdbRow* row,
+                                           const char* propertyName,
                                            bool propertyVal) {
   return SetUint32Property(row, propertyName, (uint32_t)propertyVal);
 }
 
 nsresult nsMsgDatabase::SetNSStringPropertyWithToken(
-    nsIMdbRow *row, mdb_token aProperty, const nsAString &propertyStr) {
+    nsIMdbRow* row, mdb_token aProperty, const nsAString& propertyStr) {
   NS_ENSURE_ARG(row);
   struct mdbYarn yarn;
 
   yarn.mYarn_Grow = NULL;
   nsresult err =
       row->AddColumn(GetEnv(), aProperty, nsStringToYarn(&yarn, propertyStr));
-  free((char *)yarn.mYarn_Buf);  // won't need this when we have nsCString
+  free((char*)yarn.mYarn_Buf);  // won't need this when we have nsCString
   return err;
 }
 
@@ -3634,7 +3634,7 @@ NS_IMETHODIMP nsMsgDatabase::SetSummaryValid(bool valid /* = true */) {
   //  not have been added to the cache. Add it now if missing.
   if (valid) {
     nsCOMPtr<nsIMsgDBService> serv(mozilla::services::GetDBService());
-    static_cast<nsMsgDBService *>(serv.get())->EnsureCached(this);
+    static_cast<nsMsgDBService*>(serv.get())->EnsureCached(this);
   }
   // setting the version to 0 ought to make it pretty invalid.
   if (m_dbFolderInfo) m_dbFolderInfo->SetVersion(valid ? GetCurVersion() : 0);
@@ -3643,7 +3643,7 @@ NS_IMETHODIMP nsMsgDatabase::SetSummaryValid(bool valid /* = true */) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetSummaryValid(bool *aResult) {
+NS_IMETHODIMP nsMsgDatabase::GetSummaryValid(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = true;
   return NS_OK;
@@ -3671,10 +3671,10 @@ bool nsMsgDatabase::UseCorrectThreading() {
 }
 
 // adapted from removed PL_DHashFreeStringKey
-static void msg_DHashFreeStringKey(PLDHashTable *aTable,
-                                   PLDHashEntryHdr *aEntry) {
-  const PLDHashEntryStub *stub = (const PLDHashEntryStub *)aEntry;
-  free((void *)stub->key);
+static void msg_DHashFreeStringKey(PLDHashTable* aTable,
+                                   PLDHashEntryHdr* aEntry) {
+  const PLDHashEntryStub* stub = (const PLDHashEntryStub*)aEntry;
+  free((void*)stub->key);
   PLDHashTable::ClearEntryStub(aTable, aEntry);
 }
 
@@ -3682,8 +3682,8 @@ PLDHashTableOps nsMsgDatabase::gRefHashTableOps = {
     PLDHashTable::HashStringKey, PLDHashTable::MatchStringKey,
     PLDHashTable::MoveEntryStub, msg_DHashFreeStringKey, nullptr};
 
-nsresult nsMsgDatabase::GetRefFromHash(nsCString &reference,
-                                       nsMsgKey *threadId) {
+nsresult nsMsgDatabase::GetRefFromHash(nsCString& reference,
+                                       nsMsgKey* threadId) {
   // Initialize the reference hash
   if (!m_msgReferences) {
     nsresult rv = InitRefHash();
@@ -3691,10 +3691,10 @@ nsresult nsMsgDatabase::GetRefFromHash(nsCString &reference,
   }
 
   // Find reference from the hash
-  PLDHashEntryHdr *entry =
-      m_msgReferences->Search((const void *)reference.get());
+  PLDHashEntryHdr* entry =
+      m_msgReferences->Search((const void*)reference.get());
   if (entry) {
-    RefHashElement *element = static_cast<RefHashElement *>(entry);
+    RefHashElement* element = static_cast<RefHashElement*>(entry);
     *threadId = element->mThreadId;
     return NS_OK;
   }
@@ -3702,13 +3702,13 @@ nsresult nsMsgDatabase::GetRefFromHash(nsCString &reference,
   return NS_ERROR_FAILURE;
 }
 
-nsresult nsMsgDatabase::AddRefToHash(nsCString &reference, nsMsgKey threadId) {
+nsresult nsMsgDatabase::AddRefToHash(nsCString& reference, nsMsgKey threadId) {
   if (m_msgReferences) {
-    PLDHashEntryHdr *entry =
-        m_msgReferences->Add((void *)reference.get(), mozilla::fallible);
+    PLDHashEntryHdr* entry =
+        m_msgReferences->Add((void*)reference.get(), mozilla::fallible);
     if (!entry) return NS_ERROR_OUT_OF_MEMORY;  // XXX out of memory
 
-    RefHashElement *element = static_cast<RefHashElement *>(entry);
+    RefHashElement* element = static_cast<RefHashElement*>(entry);
     if (!element->mRef) {
       element->mRef =
           ToNewCString(reference);  // Will be freed in msg_DHashFreeStringKey()
@@ -3721,7 +3721,7 @@ nsresult nsMsgDatabase::AddRefToHash(nsCString &reference, nsMsgKey threadId) {
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::AddMsgRefsToHash(nsIMsgDBHdr *msgHdr) {
+nsresult nsMsgDatabase::AddMsgRefsToHash(nsIMsgDBHdr* msgHdr) {
   uint16_t numReferences = 0;
   nsMsgKey threadId;
   nsresult rv = NS_OK;
@@ -3742,21 +3742,21 @@ nsresult nsMsgDatabase::AddMsgRefsToHash(nsIMsgDBHdr *msgHdr) {
   return rv;
 }
 
-nsresult nsMsgDatabase::RemoveRefFromHash(nsCString &reference) {
+nsresult nsMsgDatabase::RemoveRefFromHash(nsCString& reference) {
   if (m_msgReferences) {
-    PLDHashEntryHdr *entry =
-        m_msgReferences->Search((const void *)reference.get());
+    PLDHashEntryHdr* entry =
+        m_msgReferences->Search((const void*)reference.get());
     if (entry) {
-      RefHashElement *element = static_cast<RefHashElement *>(entry);
+      RefHashElement* element = static_cast<RefHashElement*>(entry);
       if (--element->mCount == 0)
-        m_msgReferences->Remove((void *)reference.get());
+        m_msgReferences->Remove((void*)reference.get());
     }
   }
   return NS_OK;
 }
 
 // Filter only messages with one or more references
-nsresult nsMsgDatabase::RemoveMsgRefsFromHash(nsIMsgDBHdr *msgHdr) {
+nsresult nsMsgDatabase::RemoveMsgRefsFromHash(nsIMsgDBHdr* msgHdr) {
   uint16_t numReferences = 0;
   nsresult rv = NS_OK;
 
@@ -3775,7 +3775,7 @@ nsresult nsMsgDatabase::RemoveMsgRefsFromHash(nsIMsgDBHdr *msgHdr) {
   return rv;
 }
 
-static nsresult nsReferencesOnlyFilter(nsIMsgDBHdr *msg, void *closure) {
+static nsresult nsReferencesOnlyFilter(nsIMsgDBHdr* msg, void* closure) {
   uint16_t numReferences = 0;
   msg->GetNumReferences(&numReferences);
   return (numReferences) ? NS_OK : NS_ERROR_FAILURE;
@@ -3811,8 +3811,8 @@ nsresult nsMsgDatabase::InitRefHash() {
   return rv;
 }
 
-nsresult nsMsgDatabase::CreateNewThread(nsMsgKey threadId, const char *subject,
-                                        nsMsgThread **pnewThread) {
+nsresult nsMsgDatabase::CreateNewThread(nsMsgKey threadId, const char* subject,
+                                        nsMsgThread** pnewThread) {
   nsresult err = NS_OK;
   nsCOMPtr<nsIMdbTable> threadTable;
   struct mdbOid threadTableOID;
@@ -3875,12 +3875,12 @@ nsresult nsMsgDatabase::CreateNewThread(nsMsgKey threadId, const char *subject,
   return err;
 }
 
-nsIMsgThread *nsMsgDatabase::GetThreadForReference(nsCString &msgID,
-                                                   nsIMsgDBHdr **pMsgHdr) {
+nsIMsgThread* nsMsgDatabase::GetThreadForReference(nsCString& msgID,
+                                                   nsIMsgDBHdr** pMsgHdr) {
   nsMsgKey threadId;
-  nsIMsgDBHdr *msgHdr = nullptr;
+  nsIMsgDBHdr* msgHdr = nullptr;
   GetMsgHdrForMessageID(msgID.get(), &msgHdr);
-  nsIMsgThread *thread = NULL;
+  nsIMsgThread* thread = NULL;
 
   if (msgHdr != NULL) {
     if (NS_SUCCEEDED(msgHdr->GetThreadId(&threadId))) {
@@ -3902,12 +3902,12 @@ nsIMsgThread *nsMsgDatabase::GetThreadForReference(nsCString &msgID,
   return thread;
 }
 
-nsIMsgThread *nsMsgDatabase::GetThreadForSubject(nsCString &subject) {
-  nsIMsgThread *thread = nullptr;
+nsIMsgThread* nsMsgDatabase::GetThreadForSubject(nsCString& subject) {
+  nsIMsgThread* thread = nullptr;
 
   mdbYarn subjectYarn;
 
-  subjectYarn.mYarn_Buf = (void *)subject.get();
+  subjectYarn.mYarn_Buf = (void*)subject.get();
   subjectYarn.mYarn_Fill = PL_strlen(subject.get());
   subjectYarn.mYarn_Form = 0;
   subjectYarn.mYarn_Size = subjectYarn.mYarn_Fill;
@@ -3964,8 +3964,8 @@ nsIMsgThread *nsMsgDatabase::GetThreadForSubject(nsCString &subject) {
 }
 
 // Returns thread that contains a message that references the passed message ID
-nsIMsgThread *nsMsgDatabase::GetThreadForMessageId(nsCString &msgId) {
-  nsIMsgThread *thread = NULL;
+nsIMsgThread* nsMsgDatabase::GetThreadForMessageId(nsCString& msgId) {
+  nsIMsgThread* thread = NULL;
   nsMsgKey threadId;
 
   if (NS_SUCCEEDED(GetRefFromHash(msgId, &threadId)))
@@ -3974,7 +3974,7 @@ nsIMsgThread *nsMsgDatabase::GetThreadForMessageId(nsCString &msgId) {
   return thread;
 }
 
-nsresult nsMsgDatabase::ThreadNewHdr(nsMsgHdr *newHdr, bool &newThread) {
+nsresult nsMsgDatabase::ThreadNewHdr(nsMsgHdr* newHdr, bool& newThread) {
   nsresult result = NS_ERROR_UNEXPECTED;
   nsCOMPtr<nsIMsgThread> thread;
   nsCOMPtr<nsIMsgDBHdr> replyToHdr;
@@ -4073,32 +4073,32 @@ nsresult nsMsgDatabase::ThreadNewHdr(nsMsgHdr *newHdr, bool &newThread) {
   return result;
 }
 
-nsresult nsMsgDatabase::AddToThread(nsMsgHdr *newHdr, nsIMsgThread *thread,
-                                    nsIMsgDBHdr *inReplyTo,
+nsresult nsMsgDatabase::AddToThread(nsMsgHdr* newHdr, nsIMsgThread* thread,
+                                    nsIMsgDBHdr* inReplyTo,
                                     bool threadInThread) {
   // don't worry about real threading yet.
   return thread->AddChild(newHdr, inReplyTo, threadInThread, this);
 }
 
-nsMsgHdr *nsMsgDatabase::GetMsgHdrForReference(nsCString &reference) {
+nsMsgHdr* nsMsgDatabase::GetMsgHdrForReference(nsCString& reference) {
   NS_ASSERTION(false, "not implemented yet.");
   return nullptr;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const char *aMsgID,
-                                                   nsIMsgDBHdr **aHdr) {
+NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const char* aMsgID,
+                                                   nsIMsgDBHdr** aHdr) {
   NS_ENSURE_ARG_POINTER(aHdr);
   NS_ENSURE_ARG_POINTER(aMsgID);
-  nsIMsgDBHdr *msgHdr = nullptr;
+  nsIMsgDBHdr* msgHdr = nullptr;
   nsresult rv = NS_OK;
   mdbYarn messageIdYarn;
 
-  messageIdYarn.mYarn_Buf = (void *)aMsgID;
+  messageIdYarn.mYarn_Buf = (void*)aMsgID;
   messageIdYarn.mYarn_Fill = PL_strlen(aMsgID);
   messageIdYarn.mYarn_Form = 0;
   messageIdYarn.mYarn_Size = messageIdYarn.mYarn_Fill;
 
-  nsIMdbRow *hdrRow;
+  nsIMdbRow* hdrRow;
   mdbOid outRowId;
   nsresult result;
   if (m_mdbStore)
@@ -4127,19 +4127,19 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForMessageID(const char *aMsgID,
   return NS_OK;    // it's not an error not to find a msg hdr.
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForGMMsgID(const char *aGMMsgId,
-                                                 nsIMsgDBHdr **aHdr) {
+NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForGMMsgID(const char* aGMMsgId,
+                                                 nsIMsgDBHdr** aHdr) {
   NS_ENSURE_ARG_POINTER(aGMMsgId);
   NS_ENSURE_ARG_POINTER(aHdr);
-  nsIMsgDBHdr *msgHdr = nullptr;
+  nsIMsgDBHdr* msgHdr = nullptr;
   nsresult rv = NS_OK;
   mdbYarn gMailMessageIdYarn;
-  gMailMessageIdYarn.mYarn_Buf = (void *)aGMMsgId;
+  gMailMessageIdYarn.mYarn_Buf = (void*)aGMMsgId;
   gMailMessageIdYarn.mYarn_Fill = strlen(aGMMsgId);
   gMailMessageIdYarn.mYarn_Form = 0;
   gMailMessageIdYarn.mYarn_Size = gMailMessageIdYarn.mYarn_Fill;
 
-  nsIMdbRow *hdrRow;
+  nsIMdbRow* hdrRow;
   mdbOid outRowId;
   nsresult result;
   mdb_token property_token;
@@ -4166,17 +4166,17 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgHdrForGMMsgID(const char *aGMMsgId,
   return NS_OK;  // it's not an error not to find a msg hdr.
 }
 
-nsIMsgDBHdr *nsMsgDatabase::GetMsgHdrForSubject(nsCString &subject) {
-  nsIMsgDBHdr *msgHdr = nullptr;
+nsIMsgDBHdr* nsMsgDatabase::GetMsgHdrForSubject(nsCString& subject) {
+  nsIMsgDBHdr* msgHdr = nullptr;
   nsresult rv = NS_OK;
   mdbYarn subjectYarn;
 
-  subjectYarn.mYarn_Buf = (void *)subject.get();
+  subjectYarn.mYarn_Buf = (void*)subject.get();
   subjectYarn.mYarn_Fill = PL_strlen(subject.get());
   subjectYarn.mYarn_Form = 0;
   subjectYarn.mYarn_Size = subjectYarn.mYarn_Fill;
 
-  nsIMdbRow *hdrRow;
+  nsIMdbRow* hdrRow;
   mdbOid outRowId;
   nsresult result =
       GetStore()->FindRow(GetEnv(), m_hdrRowScopeToken, m_subjectColumnToken,
@@ -4200,8 +4200,8 @@ nsIMsgDBHdr *nsMsgDatabase::GetMsgHdrForSubject(nsCString &subject) {
   return msgHdr;
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr,
-                                                       nsIMsgThread **result) {
+NS_IMETHODIMP nsMsgDatabase::GetThreadContainingMsgHdr(nsIMsgDBHdr* msgHdr,
+                                                       nsIMsgThread** result) {
   NS_ENSURE_ARG_POINTER(msgHdr);
   NS_ENSURE_ARG_POINTER(result);
 
@@ -4223,7 +4223,7 @@ NS_IMETHODIMP nsMsgDatabase::GetThreadContainingMsgHdr(nsIMsgDBHdr *msgHdr,
 }
 
 nsresult nsMsgDatabase::GetThreadForMsgKey(nsMsgKey msgKey,
-                                           nsIMsgThread **aResult) {
+                                           nsIMsgThread** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   nsCOMPtr<nsIMsgDBHdr> msg;
@@ -4235,8 +4235,8 @@ nsresult nsMsgDatabase::GetThreadForMsgKey(nsMsgKey msgKey,
 }
 
 // caller needs to unrefer.
-nsIMsgThread *nsMsgDatabase::GetThreadForThreadId(nsMsgKey threadId) {
-  nsIMsgThread *retThread = (threadId == m_cachedThreadId && m_cachedThread)
+nsIMsgThread* nsMsgDatabase::GetThreadForThreadId(nsMsgKey threadId) {
+  nsIMsgThread* retThread = (threadId == m_cachedThreadId && m_cachedThread)
                                 ? m_cachedThread.get()
                                 : FindExistingThread(threadId);
   if (retThread) {
@@ -4265,10 +4265,10 @@ nsIMsgThread *nsMsgDatabase::GetThreadForThreadId(nsMsgKey threadId) {
 }
 
 // make the passed in header a thread header
-nsresult nsMsgDatabase::AddNewThread(nsMsgHdr *msgHdr) {
+nsresult nsMsgDatabase::AddNewThread(nsMsgHdr* msgHdr) {
   if (!msgHdr) return NS_ERROR_NULL_POINTER;
 
-  nsMsgThread *threadHdr = nullptr;
+  nsMsgThread* threadHdr = nullptr;
 
   nsCString subject;
   nsMsgKey threadKey;
@@ -4293,7 +4293,7 @@ nsresult nsMsgDatabase::AddNewThread(nsMsgHdr *msgHdr) {
   return err;
 }
 
-nsresult nsMsgDatabase::GetBoolPref(const char *prefName, bool *result) {
+nsresult nsMsgDatabase::GetBoolPref(const char* prefName, bool* result) {
   bool prefValue = false;
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> pPrefBranch(
@@ -4305,7 +4305,7 @@ nsresult nsMsgDatabase::GetBoolPref(const char *prefName, bool *result) {
   return rv;
 }
 
-nsresult nsMsgDatabase::GetIntPref(const char *prefName, int32_t *result) {
+nsresult nsMsgDatabase::GetIntPref(const char* prefName, int32_t* result) {
   int32_t prefValue = 0;
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> pPrefBranch(
@@ -4317,9 +4317,9 @@ nsresult nsMsgDatabase::GetIntPref(const char *prefName, int32_t *result) {
   return rv;
 }
 
-nsresult nsMsgDatabase::ListAllThreads(nsTArray<nsMsgKey> *threadIds) {
+nsresult nsMsgDatabase::ListAllThreads(nsTArray<nsMsgKey>* threadIds) {
   nsresult rv;
-  nsMsgThread *pThread;
+  nsMsgThread* pThread;
 
   nsCOMPtr<nsISimpleEnumerator> threads;
   rv = EnumerateThreads(getter_AddRefs(threads));
@@ -4327,7 +4327,7 @@ nsresult nsMsgDatabase::ListAllThreads(nsTArray<nsMsgKey> *threadIds) {
   bool hasMore = false;
 
   while (NS_SUCCEEDED(rv = threads->HasMoreElements(&hasMore)) && hasMore) {
-    rv = threads->GetNext((nsISupports **)&pThread);
+    rv = threads->GetNext((nsISupports**)&pThread);
     NS_ENSURE_SUCCESS(rv, rv);
 
     if (threadIds) {
@@ -4341,39 +4341,39 @@ nsresult nsMsgDatabase::ListAllThreads(nsTArray<nsMsgKey> *threadIds) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgDatabase::SetAttributeOnPendingHdr(nsIMsgDBHdr *pendingHdr,
-                                                      const char *property,
-                                                      const char *propertyVal) {
+NS_IMETHODIMP nsMsgDatabase::SetAttributeOnPendingHdr(nsIMsgDBHdr* pendingHdr,
+                                                      const char* property,
+                                                      const char* propertyVal) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgDatabase::SetUint32AttributeOnPendingHdr(
-    nsIMsgDBHdr *pendingHdr, const char *property, uint32_t propertyVal) {
+    nsIMsgDBHdr* pendingHdr, const char* property, uint32_t propertyVal) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::SetUint64AttributeOnPendingHdr(nsIMsgDBHdr *aPendingHdr,
-                                              const char *aProperty,
+nsMsgDatabase::SetUint64AttributeOnPendingHdr(nsIMsgDBHdr* aPendingHdr,
+                                              const char* aProperty,
                                               uint64_t aPropertyVal) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::UpdatePendingAttributes(nsIMsgDBHdr *aNewHdr) { return NS_OK; }
+nsMsgDatabase::UpdatePendingAttributes(nsIMsgDBHdr* aNewHdr) { return NS_OK; }
 
 NS_IMETHODIMP nsMsgDatabase::GetOfflineOpForKey(
-    nsMsgKey msgKey, bool create, nsIMsgOfflineImapOperation **offlineOp) {
+    nsMsgKey msgKey, bool create, nsIMsgOfflineImapOperation** offlineOp) {
   NS_ASSERTION(false, "overridden by nsMailDatabase");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation *op) {
+NS_IMETHODIMP nsMsgDatabase::RemoveOfflineOp(nsIMsgOfflineImapOperation* op) {
   NS_ASSERTION(false, "overridden by nsMailDatabase");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsIMsgKeyArray *aKeys) {
+NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsIMsgKeyArray* aKeys) {
   NS_ENSURE_ARG_POINTER(aKeys);
   nsCOMPtr<nsISimpleEnumerator> enumerator;
   uint32_t flag = nsMsgMessageFlags::Offline;
@@ -4404,37 +4404,37 @@ NS_IMETHODIMP nsMsgDatabase::ListAllOfflineMsgs(nsIMsgKeyArray *aKeys) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::EnumerateOfflineOps(
-    nsISimpleEnumerator **enumerator) {
+    nsISimpleEnumerator** enumerator) {
   NS_ASSERTION(false, "overridden by nsMailDatabase");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineOpIds(
-    nsTArray<nsMsgKey> *offlineOpIds) {
+    nsTArray<nsMsgKey>* offlineOpIds) {
   NS_ASSERTION(false, "overridden by nsMailDatabase");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP nsMsgDatabase::ListAllOfflineDeletes(
-    nsTArray<nsMsgKey> *offlineDeletes) {
+    nsTArray<nsMsgKey>* offlineDeletes) {
   nsresult ret = NS_OK;
   if (!offlineDeletes) return NS_ERROR_NULL_POINTER;
 
   // technically, notimplemented, but no one's putting offline ops in anyway.
   return ret;
 }
-NS_IMETHODIMP nsMsgDatabase::GetHighWaterArticleNum(nsMsgKey *key) {
+NS_IMETHODIMP nsMsgDatabase::GetHighWaterArticleNum(nsMsgKey* key) {
   if (!m_dbFolderInfo) return NS_ERROR_NULL_POINTER;
   return m_dbFolderInfo->GetHighWater(key);
 }
 
-NS_IMETHODIMP nsMsgDatabase::GetLowWaterArticleNum(nsMsgKey *key) {
+NS_IMETHODIMP nsMsgDatabase::GetLowWaterArticleNum(nsMsgKey* key) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 /* attribute nsMsgKey NextPseudoMsgKey */
 
-NS_IMETHODIMP nsMsgDatabase::GetNextPseudoMsgKey(nsMsgKey *nextPseudoMsgKey) {
+NS_IMETHODIMP nsMsgDatabase::GetNextPseudoMsgKey(nsMsgKey* nextPseudoMsgKey) {
   NS_ENSURE_ARG_POINTER(nextPseudoMsgKey);
   *nextPseudoMsgKey = m_nextPseudoMsgKey--;
   return NS_OK;
@@ -4446,7 +4446,7 @@ NS_IMETHODIMP nsMsgDatabase::SetNextPseudoMsgKey(nsMsgKey nextPseudoMsgKey) {
 }
 
 NS_IMETHODIMP nsMsgDatabase::GetNextFakeOfflineMsgKey(
-    nsMsgKey *nextFakeOfflineMsgKey) {
+    nsMsgKey* nextFakeOfflineMsgKey) {
   NS_ENSURE_ARG_POINTER(nextFakeOfflineMsgKey);
   // iterate over hdrs looking for first non-existant fake offline msg key
   nsMsgKey fakeMsgKey = kIdStartOfFake;
@@ -4497,15 +4497,15 @@ nsresult nsMsgDatabase::DumpContents() {
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::DumpMsgChildren(nsIMsgDBHdr *msgHdr) { return NS_OK; }
+nsresult nsMsgDatabase::DumpMsgChildren(nsIMsgDBHdr* msgHdr) { return NS_OK; }
 
 nsresult nsMsgDatabase::DumpThread(nsMsgKey threadId) {
   nsresult rv = NS_OK;
-  nsIMsgThread *thread = nullptr;
+  nsIMsgThread* thread = nullptr;
 
   thread = GetThreadForThreadId(threadId);
   if (thread) {
-    nsISimpleEnumerator *enumerator = nullptr;
+    nsISimpleEnumerator* enumerator = nullptr;
 
     rv = thread->EnumerateMessages(nsMsgKey_None, &enumerator);
     if (NS_SUCCEEDED(rv) && enumerator) {
@@ -4527,7 +4527,7 @@ nsresult nsMsgDatabase::DumpThread(nsMsgKey threadId) {
 #endif /* DEBUG */
 
 NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(
-    nsIMsgRetentionSettings *retentionSettings) {
+    nsIMsgRetentionSettings* retentionSettings) {
   m_retentionSettings = retentionSettings;
   if (retentionSettings && m_dbFolderInfo) {
     nsresult rv;
@@ -4568,7 +4568,7 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgRetentionSettings(
 }
 
 NS_IMETHODIMP nsMsgDatabase::GetMsgRetentionSettings(
-    nsIMsgRetentionSettings **retentionSettings) {
+    nsIMsgRetentionSettings** retentionSettings) {
   NS_ENSURE_ARG_POINTER(retentionSettings);
   if (!m_retentionSettings) {
     // create a new one, and initialize it from the db.
@@ -4609,7 +4609,7 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgRetentionSettings(
 }
 
 NS_IMETHODIMP nsMsgDatabase::SetMsgDownloadSettings(
-    nsIMsgDownloadSettings *downloadSettings) {
+    nsIMsgDownloadSettings* downloadSettings) {
   m_downloadSettings = downloadSettings;
   if (downloadSettings && m_dbFolderInfo) {
     nsresult rv;
@@ -4640,7 +4640,7 @@ NS_IMETHODIMP nsMsgDatabase::SetMsgDownloadSettings(
 }
 
 NS_IMETHODIMP nsMsgDatabase::GetMsgDownloadSettings(
-    nsIMsgDownloadSettings **downloadSettings) {
+    nsIMsgDownloadSettings** downloadSettings) {
   NS_ENSURE_ARG_POINTER(downloadSettings);
   if (!m_downloadSettings) {
     // create a new one, and initialize it from the db.
@@ -4671,7 +4671,7 @@ NS_IMETHODIMP nsMsgDatabase::GetMsgDownloadSettings(
 }
 
 NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(
-    nsIMsgRetentionSettings *aMsgRetentionSettings, bool aDeleteViaFolder) {
+    nsIMsgRetentionSettings* aMsgRetentionSettings, bool aDeleteViaFolder) {
   NS_ENSURE_ARG_POINTER(aMsgRetentionSettings);
   nsresult rv = NS_OK;
 
@@ -4733,9 +4733,9 @@ NS_IMETHODIMP nsMsgDatabase::ApplyRetentionSettings(
 
 nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
                                                bool applyToFlaggedMessages,
-                                               nsIMutableArray *hdrsToDelete) {
+                                               nsIMutableArray* hdrsToDelete) {
   nsresult rv = NS_OK;
-  nsMsgHdr *pHeader;
+  nsMsgHdr* pHeader;
   nsCOMPtr<nsISimpleEnumerator> hdrs;
   rv = EnumerateMessages(getter_AddRefs(hdrs));
   nsTArray<nsMsgKey> keysToDelete;
@@ -4750,7 +4750,7 @@ nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
     bool purgeHdr = false;
 
-    rv = hdrs->GetNext((nsISupports **)&pHeader);
+    rv = hdrs->GetNext((nsISupports**)&pHeader);
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
     if (NS_FAILED(rv)) break;
 
@@ -4788,9 +4788,9 @@ nsresult nsMsgDatabase::PurgeMessagesOlderThan(uint32_t daysToKeepHdrs,
 
 nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
                                             bool applyToFlaggedMessages,
-                                            nsIMutableArray *hdrsToDelete) {
+                                            nsIMutableArray* hdrsToDelete) {
   nsresult rv = NS_OK;
-  nsMsgHdr *pHeader;
+  nsMsgHdr* pHeader;
   nsCOMPtr<nsISimpleEnumerator> hdrs;
   rv = EnumerateMessages(getter_AddRefs(hdrs));
   if (NS_FAILED(rv)) return rv;
@@ -4805,7 +4805,7 @@ nsresult nsMsgDatabase::PurgeExcessMessages(uint32_t numHeadersToKeep,
 
   while (NS_SUCCEEDED(rv = hdrs->HasMoreElements(&hasMore)) && hasMore) {
     bool purgeHdr = false;
-    rv = hdrs->GetNext((nsISupports **)&pHeader);
+    rv = hdrs->GetNext((nsISupports**)&pHeader);
     NS_ASSERTION(NS_SUCCEEDED(rv), "nsMsgDBEnumerator broken");
     if (NS_FAILED(rv)) break;
 
@@ -4859,7 +4859,7 @@ nsMsgRetentionSettings::~nsMsgRetentionSettings() {}
 /* attribute unsigned long retainByPreference */
 
 NS_IMETHODIMP nsMsgRetentionSettings::GetRetainByPreference(
-    nsMsgRetainByPreference *retainByPreference) {
+    nsMsgRetainByPreference* retainByPreference) {
   NS_ENSURE_ARG_POINTER(retainByPreference);
   *retainByPreference = m_retainByPreference;
   return NS_OK;
@@ -4873,7 +4873,7 @@ NS_IMETHODIMP nsMsgRetentionSettings::SetRetainByPreference(
 
 /* attribute long daysToKeepHdrs; */
 NS_IMETHODIMP nsMsgRetentionSettings::GetDaysToKeepHdrs(
-    uint32_t *aDaysToKeepHdrs) {
+    uint32_t* aDaysToKeepHdrs) {
   NS_ENSURE_ARG_POINTER(aDaysToKeepHdrs);
   *aDaysToKeepHdrs = m_daysToKeepHdrs;
   return NS_OK;
@@ -4887,7 +4887,7 @@ NS_IMETHODIMP nsMsgRetentionSettings::SetDaysToKeepHdrs(
 
 /* attribute long numHeadersToKeep; */
 NS_IMETHODIMP nsMsgRetentionSettings::GetNumHeadersToKeep(
-    uint32_t *aNumHeadersToKeep) {
+    uint32_t* aNumHeadersToKeep) {
   NS_ENSURE_ARG_POINTER(aNumHeadersToKeep);
   *aNumHeadersToKeep = m_numHeadersToKeep;
   return NS_OK;
@@ -4899,7 +4899,7 @@ NS_IMETHODIMP nsMsgRetentionSettings::SetNumHeadersToKeep(
 }
 /* attribute boolean useServerDefaults; */
 NS_IMETHODIMP nsMsgRetentionSettings::GetUseServerDefaults(
-    bool *aUseServerDefaults) {
+    bool* aUseServerDefaults) {
   NS_ENSURE_ARG_POINTER(aUseServerDefaults);
   *aUseServerDefaults = m_useServerDefaults;
   return NS_OK;
@@ -4912,7 +4912,7 @@ NS_IMETHODIMP nsMsgRetentionSettings::SetUseServerDefaults(
 
 /* attribute boolean cleanupBodiesByDays; */
 NS_IMETHODIMP nsMsgRetentionSettings::GetCleanupBodiesByDays(
-    bool *aCleanupBodiesByDays) {
+    bool* aCleanupBodiesByDays) {
   NS_ENSURE_ARG_POINTER(aCleanupBodiesByDays);
   *aCleanupBodiesByDays = m_cleanupBodiesByDays;
   return NS_OK;
@@ -4925,7 +4925,7 @@ NS_IMETHODIMP nsMsgRetentionSettings::SetCleanupBodiesByDays(
 
 /* attribute long daysToKeepBodies; */
 NS_IMETHODIMP nsMsgRetentionSettings::GetDaysToKeepBodies(
-    uint32_t *aDaysToKeepBodies) {
+    uint32_t* aDaysToKeepBodies) {
   NS_ENSURE_ARG_POINTER(aDaysToKeepBodies);
   *aDaysToKeepBodies = m_daysToKeepBodies;
   return NS_OK;
@@ -4938,7 +4938,7 @@ NS_IMETHODIMP nsMsgRetentionSettings::SetDaysToKeepBodies(
 
 /* attribute boolean applyToFlaggedMessages; */
 NS_IMETHODIMP nsMsgRetentionSettings::GetApplyToFlaggedMessages(
-    bool *aApplyToFlaggedMessages) {
+    bool* aApplyToFlaggedMessages) {
   NS_ENSURE_ARG_POINTER(aApplyToFlaggedMessages);
   *aApplyToFlaggedMessages = m_applyToFlaggedMessages;
   return NS_OK;
@@ -4962,7 +4962,7 @@ nsMsgDownloadSettings::~nsMsgDownloadSettings() {}
 
 /* attribute boolean useServerDefaults; */
 NS_IMETHODIMP nsMsgDownloadSettings::GetUseServerDefaults(
-    bool *aUseServerDefaults) {
+    bool* aUseServerDefaults) {
   NS_ENSURE_ARG_POINTER(aUseServerDefaults);
   *aUseServerDefaults = m_useServerDefaults;
   return NS_OK;
@@ -4975,7 +4975,7 @@ NS_IMETHODIMP nsMsgDownloadSettings::SetUseServerDefaults(
 
 /* attribute boolean downloadUnreadOnly; */
 NS_IMETHODIMP nsMsgDownloadSettings::GetDownloadUnreadOnly(
-    bool *aDownloadUnreadOnly) {
+    bool* aDownloadUnreadOnly) {
   NS_ENSURE_ARG_POINTER(aDownloadUnreadOnly);
   *aDownloadUnreadOnly = m_downloadUnreadOnly;
   return NS_OK;
@@ -4987,7 +4987,7 @@ NS_IMETHODIMP nsMsgDownloadSettings::SetDownloadUnreadOnly(
 }
 
 /* attribute boolean downloadByDate; */
-NS_IMETHODIMP nsMsgDownloadSettings::GetDownloadByDate(bool *aDownloadByDate) {
+NS_IMETHODIMP nsMsgDownloadSettings::GetDownloadByDate(bool* aDownloadByDate) {
   NS_ENSURE_ARG_POINTER(aDownloadByDate);
   *aDownloadByDate = m_downloadByDate;
   return NS_OK;
@@ -5000,7 +5000,7 @@ NS_IMETHODIMP nsMsgDownloadSettings::SetDownloadByDate(bool aDownloadByDate) {
 
 /* attribute long ageLimitOfMsgsToDownload; */
 NS_IMETHODIMP nsMsgDownloadSettings::GetAgeLimitOfMsgsToDownload(
-    uint32_t *ageLimitOfMsgsToDownload) {
+    uint32_t* ageLimitOfMsgsToDownload) {
   NS_ENSURE_ARG_POINTER(ageLimitOfMsgsToDownload);
   *ageLimitOfMsgsToDownload = m_ageLimitOfMsgsToDownload;
   return NS_OK;
@@ -5012,7 +5012,7 @@ NS_IMETHODIMP nsMsgDownloadSettings::SetAgeLimitOfMsgsToDownload(
 }
 
 NS_IMETHODIMP nsMsgDatabase::GetDefaultViewFlags(
-    nsMsgViewFlagsTypeValue *aDefaultViewFlags) {
+    nsMsgViewFlagsTypeValue* aDefaultViewFlags) {
   NS_ENSURE_ARG_POINTER(aDefaultViewFlags);
   GetIntPref("mailnews.default_view_flags", aDefaultViewFlags);
   if (*aDefaultViewFlags < nsMsgViewFlagsType::kNone ||
@@ -5025,7 +5025,7 @@ NS_IMETHODIMP nsMsgDatabase::GetDefaultViewFlags(
 }
 
 NS_IMETHODIMP nsMsgDatabase::GetDefaultSortType(
-    nsMsgViewSortTypeValue *aDefaultSortType) {
+    nsMsgViewSortTypeValue* aDefaultSortType) {
   NS_ENSURE_ARG_POINTER(aDefaultSortType);
   GetIntPref("mailnews.default_sort_type", aDefaultSortType);
   if (*aDefaultSortType < nsMsgViewSortType::byDate ||
@@ -5035,7 +5035,7 @@ NS_IMETHODIMP nsMsgDatabase::GetDefaultSortType(
 }
 
 NS_IMETHODIMP nsMsgDatabase::GetDefaultSortOrder(
-    nsMsgViewSortOrderValue *aDefaultSortOrder) {
+    nsMsgViewSortOrderValue* aDefaultSortOrder) {
   NS_ENSURE_ARG_POINTER(aDefaultSortOrder);
   GetIntPref("mailnews.default_sort_order", aDefaultSortOrder);
   if (*aDefaultSortOrder != nsMsgViewSortOrder::descending)
@@ -5052,14 +5052,14 @@ NS_IMETHODIMP nsMsgDatabase::ResetHdrCacheSize(uint32_t aSize) {
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::GetNewList(nsTArray<nsMsgKey> &aNewKeys) {
+nsMsgDatabase::GetNewList(nsTArray<nsMsgKey>& aNewKeys) {
   aNewKeys = m_newSet.Clone();
   return NS_OK;
 }
 
-nsresult nsMsgDatabase::GetSearchResultsTable(const char *searchFolderUri,
+nsresult nsMsgDatabase::GetSearchResultsTable(const char* searchFolderUri,
                                               bool createIfMissing,
-                                              nsIMdbTable **table) {
+                                              nsIMdbTable** table) {
   mdb_kind kindToken;
   mdb_count numTables;
   mdb_bool mustBeUnique;
@@ -5077,8 +5077,8 @@ nsresult nsMsgDatabase::GetSearchResultsTable(const char *searchFolderUri,
 }
 
 NS_IMETHODIMP
-nsMsgDatabase::GetCachedHits(const char *aSearchFolderUri,
-                             nsISimpleEnumerator **aEnumerator) {
+nsMsgDatabase::GetCachedHits(const char* aSearchFolderUri,
+                             nsISimpleEnumerator** aEnumerator) {
   nsCOMPtr<nsIMdbTable> table;
   (void)GetSearchResultsTable(aSearchFolderUri, false, getter_AddRefs(table));
   if (!table) return NS_ERROR_FAILURE;  // expected result for no cached hits
@@ -5087,9 +5087,9 @@ nsMsgDatabase::GetCachedHits(const char *aSearchFolderUri,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char *aSearchFolderUri,
-                                          nsTArray<nsMsgKey> const &aNewHits,
-                                          nsTArray<nsMsgKey> &aStaleHits) {
+NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char* aSearchFolderUri,
+                                          nsTArray<nsMsgKey> const& aNewHits,
+                                          nsTArray<nsMsgKey>& aStaleHits) {
   nsCOMPtr<nsIMdbTable> table;
   nsresult err =
       GetSearchResultsTable(aSearchFolderUri, true, getter_AddRefs(table));
@@ -5174,7 +5174,7 @@ NS_IMETHODIMP nsMsgDatabase::RefreshCache(const char *aSearchFolderUri,
 }
 
 // search sorted table
-mdb_pos nsMsgDatabase::FindInsertIndexInSortedTable(nsIMdbTable *table,
+mdb_pos nsMsgDatabase::FindInsertIndexInSortedTable(nsIMdbTable* table,
                                                     mdb_id idToInsert) {
   mdb_pos searchPos = 0;
   uint32_t rowCount;
@@ -5198,7 +5198,7 @@ mdb_pos nsMsgDatabase::FindInsertIndexInSortedTable(nsIMdbTable *table,
   return hi;
 }
 NS_IMETHODIMP
-nsMsgDatabase::UpdateHdrInCache(const char *aSearchFolderUri, nsIMsgDBHdr *aHdr,
+nsMsgDatabase::UpdateHdrInCache(const char* aSearchFolderUri, nsIMsgDBHdr* aHdr,
                                 bool aAdd) {
   nsCOMPtr<nsIMdbTable> table;
   nsresult err =
@@ -5206,9 +5206,9 @@ nsMsgDatabase::UpdateHdrInCache(const char *aSearchFolderUri, nsIMsgDBHdr *aHdr,
   NS_ENSURE_SUCCESS(err, err);
   nsMsgKey key;
   err = aHdr->GetMessageKey(&key);
-  nsMsgHdr *msgHdr =
-      static_cast<nsMsgHdr *>(aHdr);  // closed system, so this is ok
-  nsIMdbRow *hdrRow = msgHdr->GetMDBRow();
+  nsMsgHdr* msgHdr =
+      static_cast<nsMsgHdr*>(aHdr);  // closed system, so this is ok
+  nsIMdbRow* hdrRow = msgHdr->GetMDBRow();
   if (NS_SUCCEEDED(err) && m_mdbStore && hdrRow) {
     if (!aAdd) {
       table->CutRow(m_mdbEnv, hdrRow);
@@ -5229,8 +5229,8 @@ nsMsgDatabase::UpdateHdrInCache(const char *aSearchFolderUri, nsIMsgDBHdr *aHdr,
   return NS_OK;
 }
 NS_IMETHODIMP
-nsMsgDatabase::HdrIsInCache(const char *aSearchFolderUri, nsIMsgDBHdr *aHdr,
-                            bool *aResult) {
+nsMsgDatabase::HdrIsInCache(const char* aSearchFolderUri, nsIMsgDBHdr* aHdr,
+                            bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   nsCOMPtr<nsIMdbTable> table;
   nsresult err =

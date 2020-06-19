@@ -22,38 +22,38 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIMSGSEARCHNOTIFY
 
-  virtual const char *GetViewName(void) override { return "QuickSearchView"; }
-  NS_IMETHOD Open(nsIMsgFolder *folder, nsMsgViewSortTypeValue sortType,
+  virtual const char* GetViewName(void) override { return "QuickSearchView"; }
+  NS_IMETHOD Open(nsIMsgFolder* folder, nsMsgViewSortTypeValue sortType,
                   nsMsgViewSortOrderValue sortOrder,
-                  nsMsgViewFlagsTypeValue viewFlags, int32_t *pCount) override;
-  NS_IMETHOD OpenWithHdrs(nsISimpleEnumerator *aHeaders,
+                  nsMsgViewFlagsTypeValue viewFlags, int32_t* pCount) override;
+  NS_IMETHOD OpenWithHdrs(nsISimpleEnumerator* aHeaders,
                           nsMsgViewSortTypeValue aSortType,
                           nsMsgViewSortOrderValue aSortOrder,
                           nsMsgViewFlagsTypeValue aViewFlags,
-                          int32_t *aCount) override;
-  NS_IMETHOD CloneDBView(nsIMessenger *aMessengerInstance,
-                         nsIMsgWindow *aMsgWindow,
-                         nsIMsgDBViewCommandUpdater *aCommandUpdater,
-                         nsIMsgDBView **_retval) override;
-  NS_IMETHOD CopyDBView(nsMsgDBView *aNewMsgDBView,
-                        nsIMessenger *aMessengerInstance,
-                        nsIMsgWindow *aMsgWindow,
-                        nsIMsgDBViewCommandUpdater *aCmdUpdater) override;
+                          int32_t* aCount) override;
+  NS_IMETHOD CloneDBView(nsIMessenger* aMessengerInstance,
+                         nsIMsgWindow* aMsgWindow,
+                         nsIMsgDBViewCommandUpdater* aCommandUpdater,
+                         nsIMsgDBView** _retval) override;
+  NS_IMETHOD CopyDBView(nsMsgDBView* aNewMsgDBView,
+                        nsIMessenger* aMessengerInstance,
+                        nsIMsgWindow* aMsgWindow,
+                        nsIMsgDBViewCommandUpdater* aCmdUpdater) override;
   NS_IMETHOD DoCommand(nsMsgViewCommandTypeValue aCommand) override;
-  NS_IMETHOD GetViewType(nsMsgViewTypeValue *aViewType) override;
+  NS_IMETHOD GetViewType(nsMsgViewTypeValue* aViewType) override;
   NS_IMETHOD SetViewFlags(nsMsgViewFlagsTypeValue aViewFlags) override;
-  NS_IMETHOD SetSearchSession(nsIMsgSearchSession *aSearchSession) override;
-  NS_IMETHOD GetSearchSession(nsIMsgSearchSession **aSearchSession) override;
-  NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags,
+  NS_IMETHOD SetSearchSession(nsIMsgSearchSession* aSearchSession) override;
+  NS_IMETHOD GetSearchSession(nsIMsgSearchSession** aSearchSession) override;
+  NS_IMETHOD OnHdrFlagsChanged(nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags,
                                uint32_t aNewFlags,
-                               nsIDBChangeListener *aInstigator) override;
-  NS_IMETHOD OnHdrPropertyChanged(nsIMsgDBHdr *aHdrToChange, bool aPreChange,
-                                  uint32_t *aStatus,
-                                  nsIDBChangeListener *aInstigator) override;
-  NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted, nsMsgKey aParentKey,
+                               nsIDBChangeListener* aInstigator) override;
+  NS_IMETHOD OnHdrPropertyChanged(nsIMsgDBHdr* aHdrToChange, bool aPreChange,
+                                  uint32_t* aStatus,
+                                  nsIDBChangeListener* aInstigator) override;
+  NS_IMETHOD OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted, nsMsgKey aParentKey,
                           int32_t aFlags,
-                          nsIDBChangeListener *aInstigator) override;
-  NS_IMETHOD GetNumMsgsInView(int32_t *aNumMsgs) override;
+                          nsIDBChangeListener* aInstigator) override;
+  NS_IMETHOD GetNumMsgsInView(int32_t* aNumMsgs) override;
 
  protected:
   virtual ~nsMsgQuickSearchDBView();
@@ -62,35 +62,35 @@ class nsMsgQuickSearchDBView : public nsMsgThreadedDBView,
   bool m_usingCachedHits;
   bool m_cacheEmpty;
   nsCOMArray<nsIMsgDBHdr> m_hdrHits;
-  virtual nsresult AddHdr(nsIMsgDBHdr *msgHdr,
-                          nsMsgViewIndex *resultIndex = nullptr) override;
-  virtual nsresult OnNewHeader(nsIMsgDBHdr *newHdr, nsMsgKey aParentKey,
+  virtual nsresult AddHdr(nsIMsgDBHdr* msgHdr,
+                          nsMsgViewIndex* resultIndex = nullptr) override;
+  virtual nsresult OnNewHeader(nsIMsgDBHdr* newHdr, nsMsgKey aParentKey,
                                bool ensureListed) override;
-  virtual nsresult DeleteMessages(nsIMsgWindow *window, nsMsgViewIndex *indices,
+  virtual nsresult DeleteMessages(nsIMsgWindow* window, nsMsgViewIndex* indices,
                                   int32_t numIndices,
                                   bool deleteStorage) override;
   virtual nsresult SortThreads(nsMsgViewSortTypeValue sortType,
                                nsMsgViewSortOrderValue sortOrder) override;
   virtual nsresult GetFirstMessageHdrToDisplayInThread(
-      nsIMsgThread *threadHdr, nsIMsgDBHdr **result) override;
+      nsIMsgThread* threadHdr, nsIMsgDBHdr** result) override;
   virtual nsresult ExpansionDelta(nsMsgViewIndex index,
-                                  int32_t *expansionDelta) override;
+                                  int32_t* expansionDelta) override;
   virtual nsresult ListCollapsedChildren(
-      nsMsgViewIndex viewIndex, nsIMutableArray *messageArray) override;
-  virtual nsresult ListIdsInThread(nsIMsgThread *threadHdr,
+      nsMsgViewIndex viewIndex, nsIMutableArray* messageArray) override;
+  virtual nsresult ListIdsInThread(nsIMsgThread* threadHdr,
                                    nsMsgViewIndex startOfThreadViewIndex,
-                                   uint32_t *pNumListed) override;
-  virtual nsresult ListIdsInThreadOrder(nsIMsgThread *threadHdr,
+                                   uint32_t* pNumListed) override;
+  virtual nsresult ListIdsInThreadOrder(nsIMsgThread* threadHdr,
                                         nsMsgKey parentKey, uint32_t level,
-                                        nsMsgViewIndex *viewIndex,
-                                        uint32_t *pNumListed) override;
-  virtual nsresult ListIdsInThreadOrder(nsIMsgThread *threadHdr,
+                                        nsMsgViewIndex* viewIndex,
+                                        uint32_t* pNumListed) override;
+  virtual nsresult ListIdsInThreadOrder(nsIMsgThread* threadHdr,
                                         nsMsgKey parentKey, uint32_t level,
                                         uint32_t callLevel, nsMsgKey keyToSkip,
-                                        nsMsgViewIndex *viewIndex,
-                                        uint32_t *pNumListed);
+                                        nsMsgViewIndex* viewIndex,
+                                        uint32_t* pNumListed);
   virtual nsresult GetMessageEnumerator(
-      nsISimpleEnumerator **enumerator) override;
+      nsISimpleEnumerator** enumerator) override;
   void SavePreSearchInfo();
   void ClearPreSearchInfo();
 };

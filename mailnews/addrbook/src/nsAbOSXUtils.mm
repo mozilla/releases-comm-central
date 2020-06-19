@@ -13,31 +13,31 @@ using namespace mozilla;
 #include <AddressBook/AddressBook.h>
 #define kABDepartmentProperty (kABDepartmentProperty ? kABDepartmentProperty : @"ABDepartment")
 
-NSString *WrapString(const nsString &aString) {
-  unichar *chars = reinterpret_cast<unichar *>(const_cast<char16_t *>(aString.get()));
+NSString* WrapString(const nsString& aString) {
+  unichar* chars = reinterpret_cast<unichar*>(const_cast<char16_t*>(aString.get()));
 
   return [NSString stringWithCharacters:chars length:aString.Length()];
 }
 
-void AppendToString(const NSString *aString, nsString &aResult) {
+void AppendToString(const NSString* aString, nsString& aResult) {
   if (aString) {
-    const char *chars = [aString UTF8String];
+    const char* chars = [aString UTF8String];
     if (chars) {
       aResult.Append(NS_ConvertUTF8toUTF16(chars));
     }
   }
 }
 
-void AssignToString(const NSString *aString, nsString &aResult) {
+void AssignToString(const NSString* aString, nsString& aResult) {
   if (aString) {
-    const char *chars = [aString UTF8String];
+    const char* chars = [aString UTF8String];
     if (chars) CopyUTF8toUTF16(nsDependentCString(chars), aResult);
   }
 }
 
-void AppendToCString(const NSString *aString, nsCString &aResult) {
+void AppendToCString(const NSString* aString, nsCString& aResult) {
   if (aString) {
-    const char *chars = [aString UTF8String];
+    const char* chars = [aString UTF8String];
     if (chars) {
       aResult.Append(chars);
     }

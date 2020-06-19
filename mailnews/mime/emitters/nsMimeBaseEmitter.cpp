@@ -53,11 +53,11 @@ nsMimeBaseEmitter::nsMimeBaseEmitter() {
 
   // Setup array for attachments
   mAttachCount = 0;
-  mAttachArray = new nsTArray<attachmentInfoType *>();
+  mAttachArray = new nsTArray<attachmentInfoType*>();
   mCurrentAttachment = nullptr;
 
   // Header cache...
-  mHeaderArray = new nsTArray<headerInfoType *>();
+  mHeaderArray = new nsTArray<headerInfoType*>();
 
   // Embedded Header Cache...
   mEmbeddedHeaderArray = nullptr;
@@ -89,7 +89,7 @@ nsMimeBaseEmitter::~nsMimeBaseEmitter(void) {
   // Clean up the attachment array structures...
   if (mAttachArray) {
     for (size_t i = 0; i < mAttachArray->Length(); i++) {
-      attachmentInfoType *attachInfo = mAttachArray->ElementAt(i);
+      attachmentInfoType* attachInfo = mAttachArray->ElementAt(i);
       if (!attachInfo) continue;
 
       PR_FREEIF(attachInfo->contentType);
@@ -108,17 +108,17 @@ nsMimeBaseEmitter::~nsMimeBaseEmitter(void) {
   mEmbeddedHeaderArray = nullptr;
 }
 
-NS_IMETHODIMP nsMimeBaseEmitter::GetInterface(const nsIID &aIID,
-                                              void **aInstancePtr) {
+NS_IMETHODIMP nsMimeBaseEmitter::GetInterface(const nsIID& aIID,
+                                              void** aInstancePtr) {
   NS_ENSURE_ARG_POINTER(aInstancePtr);
   return QueryInterface(aIID, aInstancePtr);
 }
 
-void nsMimeBaseEmitter::CleanupHeaderArray(nsTArray<headerInfoType *> *aArray) {
+void nsMimeBaseEmitter::CleanupHeaderArray(nsTArray<headerInfoType*>* aArray) {
   if (!aArray) return;
 
   for (size_t i = 0; i < aArray->Length(); i++) {
-    headerInfoType *headerInfo = aArray->ElementAt(i);
+    headerInfoType* headerInfo = aArray->ElementAt(i);
     if (!headerInfo) continue;
 
     PR_FREEIF(headerInfo->name);
@@ -129,7 +129,7 @@ void nsMimeBaseEmitter::CleanupHeaderArray(nsTArray<headerInfoType *> *aArray) {
   delete aArray;
 }
 
-static int32_t MapHeaderNameToID(const char *header) {
+static int32_t MapHeaderNameToID(const char* header) {
   // emitter passes UPPERCASE for header names
   if (!strcmp(header, "DATE"))
     return MIME_MHTML_DATE;
@@ -169,7 +169,7 @@ static int32_t MapHeaderNameToID(const char *header) {
   return 0;
 }
 
-char *nsMimeBaseEmitter::MimeGetStringByName(const char *aHeaderName) {
+char* nsMimeBaseEmitter::MimeGetStringByName(const char* aHeaderName) {
   nsresult res = NS_OK;
 
   if (!m_headerStringBundle) {
@@ -200,7 +200,7 @@ char *nsMimeBaseEmitter::MimeGetStringByName(const char *aHeaderName) {
   }
 }
 
-char *nsMimeBaseEmitter::MimeGetStringByID(int32_t aID) {
+char* nsMimeBaseEmitter::MimeGetStringByID(int32_t aID) {
   nsresult res = NS_OK;
 
   if (!m_stringBundle) {
@@ -230,9 +230,9 @@ char *nsMimeBaseEmitter::MimeGetStringByID(int32_t aID) {
 // in all caps and a dropback default name is provided. The caller needs to free
 // the memory returned by this function.
 //
-char *nsMimeBaseEmitter::LocalizeHeaderName(const char *aHeaderName,
-                                            const char *aDefaultName) {
-  char *retVal = nullptr;
+char* nsMimeBaseEmitter::LocalizeHeaderName(const char* aHeaderName,
+                                            const char* aDefaultName) {
+  char* retVal = nullptr;
 
   // prefer to use translated strings if not for quoting
   if (mFormat != nsMimeOutput::nsMimeMessageQuoting &&
@@ -255,8 +255,8 @@ char *nsMimeBaseEmitter::LocalizeHeaderName(const char *aHeaderName,
 // nsMimeBaseEmitter Interface
 ///////////////////////////////////////////////////////////////////////////
 NS_IMETHODIMP
-nsMimeBaseEmitter::SetPipe(nsIInputStream *aInputStream,
-                           nsIOutputStream *outStream) {
+nsMimeBaseEmitter::SetPipe(nsIInputStream* aInputStream,
+                           nsIOutputStream* outStream) {
   mInputStream = aInputStream;
   mOutStream = outStream;
   return NS_OK;
@@ -266,7 +266,7 @@ nsMimeBaseEmitter::SetPipe(nsIInputStream *aInputStream,
 // anything to the stream since these may be image data
 // output streams, etc...
 NS_IMETHODIMP
-nsMimeBaseEmitter::Initialize(nsIURI *url, nsIChannel *aChannel,
+nsMimeBaseEmitter::Initialize(nsIURI* url, nsIChannel* aChannel,
                               int32_t aFormat) {
   // set the url
   mURL = url;
@@ -285,13 +285,13 @@ nsMimeBaseEmitter::Initialize(nsIURI *url, nsIChannel *aChannel,
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::SetOutputListener(nsIStreamListener *listener) {
+nsMimeBaseEmitter::SetOutputListener(nsIStreamListener* listener) {
   mOutListener = listener;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::GetOutputListener(nsIStreamListener **listener) {
+nsMimeBaseEmitter::GetOutputListener(nsIStreamListener** listener) {
   NS_ENSURE_ARG_POINTER(listener);
 
   NS_IF_ADDREF(*listener = mOutListener);
@@ -299,12 +299,12 @@ nsMimeBaseEmitter::GetOutputListener(nsIStreamListener **listener) {
 }
 
 // Attachment handling routines
-nsresult nsMimeBaseEmitter::StartAttachment(const nsACString &name,
-                                            const char *contentType,
-                                            const char *url,
+nsresult nsMimeBaseEmitter::StartAttachment(const nsACString& name,
+                                            const char* contentType,
+                                            const char* url,
                                             bool aIsExternalAttachment) {
   // Ok, now we will setup the attachment info
-  mCurrentAttachment = (attachmentInfoType *)PR_NEWZAP(attachmentInfoType);
+  mCurrentAttachment = (attachmentInfoType*)PR_NEWZAP(attachmentInfoType);
   if ((mCurrentAttachment) && mAttachArray) {
     ++mAttachCount;
 
@@ -330,12 +330,12 @@ nsresult nsMimeBaseEmitter::EndAttachment() {
 nsresult nsMimeBaseEmitter::EndAllAttachments() { return NS_OK; }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::AddAttachmentField(const char *field, const char *value) {
+nsMimeBaseEmitter::AddAttachmentField(const char* field, const char* value) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::UtilityWrite(const char *buf) {
+nsMimeBaseEmitter::UtilityWrite(const char* buf) {
   NS_ENSURE_ARG_POINTER(buf);
 
   uint32_t written;
@@ -344,14 +344,14 @@ nsMimeBaseEmitter::UtilityWrite(const char *buf) {
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::UtilityWrite(const nsACString &buf) {
+nsMimeBaseEmitter::UtilityWrite(const nsACString& buf) {
   uint32_t written;
   Write(buf, &written);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::UtilityWriteCRLF(const char *buf) {
+nsMimeBaseEmitter::UtilityWriteCRLF(const char* buf) {
   NS_ENSURE_ARG_POINTER(buf);
 
   uint32_t written;
@@ -361,7 +361,7 @@ nsMimeBaseEmitter::UtilityWriteCRLF(const char *buf) {
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::Write(const nsACString &buf, uint32_t *amountWritten) {
+nsMimeBaseEmitter::Write(const nsACString& buf, uint32_t* amountWritten) {
   unsigned int written = 0;
   nsresult rv = NS_OK;
   uint32_t needToWrite;
@@ -404,15 +404,15 @@ nsMimeBaseEmitter::Write(const nsACString &buf, uint32_t *amountWritten) {
   mTotalWritten += written;
 
   if (written < buf.Length()) {
-    const nsACString &remainder = Substring(buf, written);
+    const nsACString& remainder = Substring(buf, written);
     mBufferMgr->IncreaseBuffer(remainder);
   }
 
   return rv;
 }
 
-nsresult nsMimeBaseEmitter::WriteHelper(const nsACString &buf,
-                                        uint32_t *countWritten) {
+nsresult nsMimeBaseEmitter::WriteHelper(const nsACString& buf,
+                                        uint32_t* countWritten) {
   NS_ENSURE_TRUE(mOutStream, NS_ERROR_NOT_INITIALIZED);
 
   nsresult rv =
@@ -435,15 +435,15 @@ nsresult nsMimeBaseEmitter::WriteHelper(const nsACString &buf,
 //
 // Find a cached header! Note: Do NOT free this value!
 //
-const char *nsMimeBaseEmitter::GetHeaderValue(const char *aHeaderName) {
-  char *retVal = nullptr;
-  nsTArray<headerInfoType *> *array =
+const char* nsMimeBaseEmitter::GetHeaderValue(const char* aHeaderName) {
+  char* retVal = nullptr;
+  nsTArray<headerInfoType*>* array =
       mDocHeader ? mHeaderArray : mEmbeddedHeaderArray;
 
   if (!array) return nullptr;
 
   for (size_t i = 0; i < array->Length(); i++) {
-    headerInfoType *headerInfo = array->ElementAt(i);
+    headerInfoType* headerInfo = array->ElementAt(i);
     if ((!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)))
       continue;
 
@@ -466,7 +466,7 @@ const char *nsMimeBaseEmitter::GetHeaderValue(const char *aHeaderName) {
 //
 NS_IMETHODIMP
 nsMimeBaseEmitter::StartHeader(bool rootMailHeader, bool headerOnly,
-                               const char *msgID, const char *outCharset) {
+                               const char* msgID, const char* outCharset) {
   NS_ENSURE_ARG_POINTER(outCharset);
 
   mDocHeader = rootMailHeader;
@@ -477,7 +477,7 @@ nsMimeBaseEmitter::StartHeader(bool rootMailHeader, bool headerOnly,
   if (!mDocHeader) {
     if (mEmbeddedHeaderArray) CleanupHeaderArray(mEmbeddedHeaderArray);
 
-    mEmbeddedHeaderArray = new nsTArray<headerInfoType *>();
+    mEmbeddedHeaderArray = new nsTArray<headerInfoType*>();
     NS_ENSURE_TRUE(mEmbeddedHeaderArray, NS_ERROR_OUT_OF_MEMORY);
   }
 
@@ -493,18 +493,18 @@ nsMimeBaseEmitter::StartHeader(bool rootMailHeader, bool headerOnly,
 // need to be tagged as that charset by default.
 //
 NS_IMETHODIMP
-nsMimeBaseEmitter::UpdateCharacterSet(const char *aCharset) {
+nsMimeBaseEmitter::UpdateCharacterSet(const char* aCharset) {
   if (aCharset) {
     nsAutoCString contentType;
 
     if (NS_SUCCEEDED(mChannel->GetContentType(contentType)) &&
         !contentType.IsEmpty()) {
-      char *cBegin = contentType.BeginWriting();
+      char* cBegin = contentType.BeginWriting();
 
-      const char *cPtr = PL_strcasestr(cBegin, "charset=");
+      const char* cPtr = PL_strcasestr(cBegin, "charset=");
 
       if (cPtr) {
-        char *ptr = cBegin;
+        char* ptr = cBegin;
         while (*ptr) {
           if ((*ptr == ' ') || (*ptr == ';')) {
             if ((ptr + 1) >= cPtr) {
@@ -535,10 +535,10 @@ nsMimeBaseEmitter::UpdateCharacterSet(const char *aCharset) {
 // internal body or the outer message.
 //
 NS_IMETHODIMP
-nsMimeBaseEmitter::AddHeaderField(const char *field, const char *value) {
+nsMimeBaseEmitter::AddHeaderField(const char* field, const char* value) {
   if ((!field) || (!value)) return NS_OK;
 
-  nsTArray<headerInfoType *> *tPtr;
+  nsTArray<headerInfoType*>* tPtr;
   if (mDocHeader)
     tPtr = mHeaderArray;
   else
@@ -546,7 +546,7 @@ nsMimeBaseEmitter::AddHeaderField(const char *field, const char *value) {
 
   // This is a header so we need to cache and output later.
   // Ok, now we will setup the header info for the header array!
-  headerInfoType *ptr = (headerInfoType *)PR_NEWZAP(headerInfoType);
+  headerInfoType* ptr = (headerInfoType*)PR_NEWZAP(headerInfoType);
   if ((ptr) && tPtr) {
     ptr->name = strdup(field);
     ptr->value = strdup(value);
@@ -557,7 +557,7 @@ nsMimeBaseEmitter::AddHeaderField(const char *field, const char *value) {
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::AddAllHeaders(const nsACString &allheaders) {
+nsMimeBaseEmitter::AddAllHeaders(const nsACString& allheaders) {
   if (mDocHeader)  // We want to set only the main headers of a message, not the
                    // potentially embedded one
   {
@@ -579,8 +579,8 @@ nsMimeBaseEmitter::AddAllHeaders(const nsACString &allheaders) {
 // identical to the normal XUL output.
 ////////////////////////////////////////////////////////////////////////////////
 
-nsresult nsMimeBaseEmitter::GenerateDateString(const char *dateString,
-                                               nsACString &formattedDate,
+nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
+                                               nsACString& formattedDate,
                                                bool showDateForToday) {
   nsresult rv = NS_OK;
 
@@ -671,8 +671,8 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char *dateString,
   return rv;
 }
 
-char *nsMimeBaseEmitter::GetLocalizedDateString(const char *dateString) {
-  char *i18nValue = nullptr;
+char* nsMimeBaseEmitter::GetLocalizedDateString(const char* dateString) {
+  char* i18nValue = nullptr;
 
   bool displayOriginalDate = false;
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
@@ -694,10 +694,10 @@ char *nsMimeBaseEmitter::GetLocalizedDateString(const char *dateString) {
   return i18nValue;
 }
 
-nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char *field,
-                                                 const char *value) {
+nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char* field,
+                                                 const char* value) {
   nsCString newValue;
-  char *i18nValue = nullptr;
+  char* i18nValue = nullptr;
 
   if ((!field) || (!value)) return NS_OK;
 
@@ -751,7 +751,7 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char *field,
   newTagName.StripWhitespace();
   ToUpperCase(newTagName);
 
-  char *l10nTagName = LocalizeHeaderName(newTagName.get(), field);
+  char* l10nTagName = LocalizeHeaderName(newTagName.get(), field);
   if ((!l10nTagName) || (!*l10nTagName))
     mHTMLHeaders.Append(field);
   else {
@@ -775,7 +775,7 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char *field,
   return NS_OK;
 }
 
-nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString &name) {
+nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPrefix(const nsACString& name) {
   if (((mFormat == nsMimeOutput::nsMimeMessageSaveAs) && (mFirstHeaders)) ||
       ((mFormat == nsMimeOutput::nsMimeMessagePrintOutput) && (mFirstHeaders)))
     /* DO NOTHING */;  // rhp: Do nothing...leaving the conditional like this so
@@ -800,7 +800,7 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTMLPostfix() {
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::WriteHTMLHeaders(const nsACString &name) {
+nsMimeBaseEmitter::WriteHTMLHeaders(const nsACString& name) {
   WriteHeaderFieldHTMLPrefix(name);
 
   // Start with the subject, from date info!
@@ -846,10 +846,10 @@ nsresult nsMimeBaseEmitter::DumpSubjectFromDate() {
 }
 
 nsresult nsMimeBaseEmitter::DumpToCC() {
-  const char *toField = GetHeaderValue(HEADER_TO);
-  const char *ccField = GetHeaderValue(HEADER_CC);
-  const char *bccField = GetHeaderValue(HEADER_BCC);
-  const char *newsgroupField = GetHeaderValue(HEADER_NEWSGROUPS);
+  const char* toField = GetHeaderValue(HEADER_TO);
+  const char* ccField = GetHeaderValue(HEADER_CC);
+  const char* bccField = GetHeaderValue(HEADER_BCC);
+  const char* newsgroupField = GetHeaderValue(HEADER_NEWSGROUPS);
 
   // only dump these fields if we have at least one of them! When displaying
   // news messages that didn't have a To or Cc field, we'd always get an empty
@@ -871,7 +871,7 @@ nsresult nsMimeBaseEmitter::DumpToCC() {
 }
 
 nsresult nsMimeBaseEmitter::DumpRestOfHeaders() {
-  nsTArray<headerInfoType *> *array =
+  nsTArray<headerInfoType*>* array =
       mDocHeader ? mHeaderArray : mEmbeddedHeaderArray;
 
   mHTMLHeaders.AppendLiteral(
@@ -879,7 +879,7 @@ nsresult nsMimeBaseEmitter::DumpRestOfHeaders() {
       "class=\"header-part3\">");
 
   for (size_t i = 0; i < array->Length(); i++) {
-    headerInfoType *headerInfo = array->ElementAt(i);
+    headerInfoType* headerInfo = array->ElementAt(i);
     if ((!headerInfo) || (!headerInfo->name) || (!(*headerInfo->name)) ||
         (!headerInfo->value) || (!(*headerInfo->value)))
       continue;
@@ -898,8 +898,8 @@ nsresult nsMimeBaseEmitter::DumpRestOfHeaders() {
   return NS_OK;
 }
 
-nsresult nsMimeBaseEmitter::OutputGenericHeader(const char *aHeaderVal) {
-  const char *val = GetHeaderValue(aHeaderVal);
+nsresult nsMimeBaseEmitter::OutputGenericHeader(const char* aHeaderVal) {
+  const char* val = GetHeaderValue(aHeaderVal);
 
   if (val) return WriteHeaderFieldHTML(aHeaderVal, val);
 
@@ -949,17 +949,17 @@ nsMimeBaseEmitter::Complete() {
 // memory cleanup
 //
 NS_IMETHODIMP
-nsMimeBaseEmitter::EndHeader(const nsACString &name) { return NS_OK; }
+nsMimeBaseEmitter::EndHeader(const nsACString& name) { return NS_OK; }
 
 // body handling routines
 NS_IMETHODIMP
-nsMimeBaseEmitter::StartBody(bool bodyOnly, const char *msgID,
-                             const char *outCharset) {
+nsMimeBaseEmitter::StartBody(bool bodyOnly, const char* msgID,
+                             const char* outCharset) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMimeBaseEmitter::WriteBody(const nsACString &buf, uint32_t *amountWritten) {
+nsMimeBaseEmitter::WriteBody(const nsACString& buf, uint32_t* amountWritten) {
   return NS_OK;
 }
 

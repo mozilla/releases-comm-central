@@ -32,7 +32,7 @@ class nsLDAPControl final : public nsILDAPControl {
    *
    * @exception null pointer return if allocation failed
    */
-  nsresult ToLDAPControl(LDAPControl **aControl);
+  nsresult ToLDAPControl(LDAPControl** aControl);
 
  private:
   ~nsLDAPControl();

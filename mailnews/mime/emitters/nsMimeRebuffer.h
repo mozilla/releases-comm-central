@@ -18,9 +18,9 @@ class MimeRebuffer {
   virtual ~MimeRebuffer(void);
 
   uint32_t GetSize();
-  uint32_t IncreaseBuffer(const nsACString &addBuf);
+  uint32_t IncreaseBuffer(const nsACString& addBuf);
   uint32_t ReduceBuffer(uint32_t numBytes);
-  nsACString &GetBuffer();
+  nsACString& GetBuffer();
 
  protected:
   nsCString mBuf;

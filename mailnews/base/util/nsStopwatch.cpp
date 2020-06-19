@@ -88,13 +88,13 @@ NS_IMETHODIMP nsStopwatch::Resume() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsStopwatch::GetCpuTimeSeconds(double *result) {
+NS_IMETHODIMP nsStopwatch::GetCpuTimeSeconds(double* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = fTotalCpuTimeSecs;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsStopwatch::GetRealTimeSeconds(double *result) {
+NS_IMETHODIMP nsStopwatch::GetRealTimeSeconds(double* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = fTotalRealTimeSecs;
   return NS_OK;

@@ -21,23 +21,23 @@ static const char kModSeqPropertyName[] = "highestModSeq";
 static const char kHighestRecordedUIDPropertyName[] = "highestRecordedUID";
 static const char kDeletedHdrCountPropertyName[] = "numDeletedHeaders";
 
-extern nsresult nsImapURI2FullName(const char *rootURI, const char *hostname,
-                                   const char *uriStr, char **name);
+extern nsresult nsImapURI2FullName(const char* rootURI, const char* hostname,
+                                   const char* uriStr, char** name);
 
-extern nsresult nsParseImapMessageURI(const char *uri, nsCString &folderURI,
-                                      uint32_t *key, char **part);
+extern nsresult nsParseImapMessageURI(const char* uri, nsCString& folderURI,
+                                      uint32_t* key, char** part);
 
-extern nsresult nsBuildImapMessageURI(const char *baseURI, uint32_t key,
-                                      nsCString &uri);
+extern nsresult nsBuildImapMessageURI(const char* baseURI, uint32_t key,
+                                      nsCString& uri);
 
-extern nsresult nsCreateImapBaseMessageURI(const nsACString &baseURI,
-                                           nsCString &baseMessageURI);
+extern nsresult nsCreateImapBaseMessageURI(const nsACString& baseURI,
+                                           nsCString& baseMessageURI);
 
-void AllocateImapUidString(const uint32_t *msgUids, uint32_t &msgCount,
-                           nsImapFlagAndUidState *flagState,
-                           nsCString &returnString);
-void ParseUidString(const char *uidString, nsTArray<nsMsgKey> &keys);
-void AppendUid(nsCString &msgIds, uint32_t uid);
+void AllocateImapUidString(const uint32_t* msgUids, uint32_t& msgCount,
+                           nsImapFlagAndUidState* flagState,
+                           nsCString& returnString);
+void ParseUidString(const char* uidString, nsTArray<nsMsgKey>& keys);
+void AppendUid(nsCString& msgIds, uint32_t uid);
 
 class nsImapMailboxSpec : public nsIMailboxSpec {
  public:
@@ -46,10 +46,10 @@ class nsImapMailboxSpec : public nsIMailboxSpec {
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIMAILBOXSPEC
 
-  nsImapMailboxSpec &operator=(const nsImapMailboxSpec &aCopy);
+  nsImapMailboxSpec& operator=(const nsImapMailboxSpec& aCopy);
 
   nsCOMPtr<nsIImapFlagAndUidState> mFlagState;
-  nsIMAPNamespace *mNamespaceForFolder;
+  nsIMAPNamespace* mNamespaceForFolder;
 
   uint32_t mBoxFlags;
   uint32_t mSupportedUserFlags;
@@ -67,7 +67,7 @@ class nsImapMailboxSpec : public nsIMailboxSpec {
   bool mDiscoveredFromLsub;
   bool mOnlineVerified;
 
-  nsImapProtocol *mConnection;  // do we need this? It seems evil
+  nsImapProtocol* mConnection;  // do we need this? It seems evil
 
  private:
   virtual ~nsImapMailboxSpec();

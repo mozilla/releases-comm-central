@@ -24,8 +24,8 @@ class nsMailboxService : public nsIMailboxService,
                          public nsIProtocolHandler {
  public:
   nsMailboxService();
-  static nsresult NewURI(const nsACString &aSpec, const char *aOriginCharset,
-                         nsIURI *aBaseURI, nsIURI **_retval);
+  static nsresult NewURI(const nsACString& aSpec, const char* aOriginCharset,
+                         nsIURI* aBaseURI, nsIURI** _retval);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMAILBOXSERVICE
@@ -38,24 +38,24 @@ class nsMailboxService : public nsIMailboxService,
   bool mPrintingOperation;
 
   // helper functions used by the service
-  nsresult PrepareMessageUrl(const char *aSrcMsgMailboxURI,
-                             nsIUrlListener *aUrlListener,
+  nsresult PrepareMessageUrl(const char* aSrcMsgMailboxURI,
+                             nsIUrlListener* aUrlListener,
                              nsMailboxAction aMailboxAction,
-                             nsIMailboxUrl **aMailboxUrl,
-                             nsIMsgWindow *msgWindow);
+                             nsIMailboxUrl** aMailboxUrl,
+                             nsIMsgWindow* msgWindow);
 
-  nsresult RunMailboxUrl(nsIURI *aMailboxUrl,
-                         nsISupports *aDisplayConsumer = nullptr);
+  nsresult RunMailboxUrl(nsIURI* aMailboxUrl,
+                         nsISupports* aDisplayConsumer = nullptr);
 
   nsresult FetchMessage(
-      const char *aMessageURI, nsISupports *aDisplayConsumer,
-      nsIMsgWindow *aMsgWindow, nsIUrlListener *aUrlListener,
-      const char *aFileName, /* only used by open attachment */
-      nsMailboxAction mailboxAction, const char *aCharsetOverride,
-      nsIURI **aURL);
+      const char* aMessageURI, nsISupports* aDisplayConsumer,
+      nsIMsgWindow* aMsgWindow, nsIUrlListener* aUrlListener,
+      const char* aFileName, /* only used by open attachment */
+      nsMailboxAction mailboxAction, const char* aCharsetOverride,
+      nsIURI** aURL);
 
-  nsresult DecomposeMailboxURI(const char *aMessageURI, nsIMsgFolder **aFolder,
-                               nsMsgKey *aMsgKey);
+  nsresult DecomposeMailboxURI(const char* aMessageURI, nsIMsgFolder** aFolder,
+                               nsMsgKey* aMsgKey);
 };
 
 #endif /* nsMailboxService_h___ */

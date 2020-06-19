@@ -41,7 +41,7 @@ enum {
 
 NS_IMPL_ISUPPORTS(nsBeckyMail, nsIImportMail)
 
-nsresult nsBeckyMail::Create(nsIImportMail **aImport) {
+nsresult nsBeckyMail::Create(nsIImportMail** aImport) {
   NS_ENSURE_ARG_POINTER(aImport);
   NS_ADDREF(*aImport = new nsBeckyMail());
   return NS_OK;
@@ -52,8 +52,8 @@ nsBeckyMail::nsBeckyMail() : mReadBytes(0) {}
 nsBeckyMail::~nsBeckyMail() {}
 
 NS_IMETHODIMP
-nsBeckyMail::GetDefaultLocation(nsIFile **aLocation, bool *aFound,
-                                bool *aUserVerify) {
+nsBeckyMail::GetDefaultLocation(nsIFile** aLocation, bool* aFound,
+                                bool* aUserVerify) {
   NS_ENSURE_ARG_POINTER(aFound);
   NS_ENSURE_ARG_POINTER(aLocation);
   NS_ENSURE_ARG_POINTER(aUserVerify);
@@ -68,7 +68,7 @@ nsBeckyMail::GetDefaultLocation(nsIFile **aLocation, bool *aFound,
 }
 
 nsresult nsBeckyMail::CreateMailboxDescriptor(
-    nsIImportMailboxDescriptor **aDescriptor) {
+    nsIImportMailboxDescriptor** aDescriptor) {
   nsresult rv;
   nsCOMPtr<nsIImportService> importService;
   importService = do_GetService(NS_IMPORTSERVICE_CONTRACTID, &rv);
@@ -77,7 +77,7 @@ nsresult nsBeckyMail::CreateMailboxDescriptor(
   return importService->CreateNewMailboxDescriptor(aDescriptor);
 }
 
-nsresult nsBeckyMail::GetMailboxName(nsIFile *aMailbox, nsAString &aName) {
+nsresult nsBeckyMail::GetMailboxName(nsIFile* aMailbox, nsAString& aName) {
   nsCOMPtr<nsIFile> iniFile;
   nsBeckyUtils::GetMailboxINIFile(aMailbox, getter_AddRefs(iniFile));
   if (iniFile) {
@@ -101,10 +101,10 @@ nsresult nsBeckyMail::GetMailboxName(nsIFile *aMailbox, nsAString &aName) {
   return NS_OK;
 }
 
-nsresult nsBeckyMail::AppendMailboxDescriptor(nsIFile *aEntry,
-                                              const nsString &aName,
+nsresult nsBeckyMail::AppendMailboxDescriptor(nsIFile* aEntry,
+                                              const nsString& aName,
                                               uint32_t aDepth,
-                                              nsIMutableArray *aCollected) {
+                                              nsIMutableArray* aCollected) {
   nsresult rv;
   nsCOMPtr<nsIImportMailboxDescriptor> descriptor;
   rv = CreateMailboxDescriptor(getter_AddRefs(descriptor));
@@ -133,7 +133,7 @@ nsresult nsBeckyMail::AppendMailboxDescriptor(nsIFile *aEntry,
 }
 
 nsresult nsBeckyMail::CollectMailboxesInFolderListFile(
-    nsIFile *aListFile, uint32_t aDepth, nsIMutableArray *aCollected) {
+    nsIFile* aListFile, uint32_t aDepth, nsIMutableArray* aCollected) {
   nsresult rv;
   nsCOMPtr<nsILineInputStream> lineStream;
   rv = nsBeckyUtils::CreateLineInputStream(aListFile,
@@ -167,9 +167,9 @@ nsresult nsBeckyMail::CollectMailboxesInFolderListFile(
   return isEmpty ? NS_ERROR_FILE_NOT_FOUND : NS_OK;
 }
 
-nsresult nsBeckyMail::CollectMailboxesInDirectory(nsIFile *aDirectory,
+nsresult nsBeckyMail::CollectMailboxesInDirectory(nsIFile* aDirectory,
                                                   uint32_t aDepth,
-                                                  nsIMutableArray *aCollected) {
+                                                  nsIMutableArray* aCollected) {
   nsAutoString mailboxName;
   nsresult rv = GetMailboxName(aDirectory, mailboxName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -226,7 +226,7 @@ nsresult nsBeckyMail::CollectMailboxesInDirectory(nsIFile *aDirectory,
 }
 
 NS_IMETHODIMP
-nsBeckyMail::FindMailboxes(nsIFile *aLocation, nsIArray **_retval) {
+nsBeckyMail::FindMailboxes(nsIFile* aLocation, nsIArray** _retval) {
   NS_ENSURE_ARG_POINTER(aLocation);
   NS_ENSURE_ARG_POINTER(_retval);
 
@@ -242,8 +242,8 @@ nsBeckyMail::FindMailboxes(nsIFile *aLocation, nsIArray **_retval) {
   return NS_OK;
 }
 
-static nsresult GetBeckyStatusValue(const nsCString &aHeader,
-                                    nsACString &aValue) {
+static nsresult GetBeckyStatusValue(const nsCString& aHeader,
+                                    nsACString& aValue) {
   int32_t valueStartPosition;
 
   valueStartPosition = aHeader.FindChar(':');
@@ -263,8 +263,8 @@ static nsresult GetBeckyStatusValue(const nsCString &aHeader,
   return NS_OK;
 }
 
-static nsresult GetBeckyIncludeValue(const nsCString &aHeader,
-                                     nsACString &aValue) {
+static nsresult GetBeckyIncludeValue(const nsCString& aHeader,
+                                     nsACString& aValue) {
   int32_t valueStartPosition;
 
   valueStartPosition = aHeader.FindChar(':');
@@ -280,7 +280,7 @@ static nsresult GetBeckyIncludeValue(const nsCString &aHeader,
 }
 
 static bool ConvertBeckyStatusToMozillaStatus(
-    const nsCString &aHeader, nsMsgMessageFlagType *aMozillaStatusFlag) {
+    const nsCString& aHeader, nsMsgMessageFlagType* aMozillaStatusFlag) {
   nsresult rv;
   nsAutoCString statusString;
   rv = GetBeckyStatusValue(aHeader, statusString);
@@ -301,55 +301,55 @@ static bool ConvertBeckyStatusToMozillaStatus(
   return true;
 }
 
-static inline bool CheckHeaderKey(const nsCString &aHeader,
-                                  const char *aKeyString) {
+static inline bool CheckHeaderKey(const nsCString& aHeader,
+                                  const char* aKeyString) {
   nsAutoCString key(StringHead(aHeader, aHeader.FindChar(':')));
   key.Trim(" \t");
   return key.Equals(aKeyString);
 }
 
-static inline bool IsBeckyStatusHeader(const nsCString &aHeader) {
+static inline bool IsBeckyStatusHeader(const nsCString& aHeader) {
   return CheckHeaderKey(aHeader, X_BECKY_STATUS_HEADER);
 }
 
-static inline bool IsBeckyIncludeLine(const nsCString &aLine) {
+static inline bool IsBeckyIncludeLine(const nsCString& aLine) {
   return CheckHeaderKey(aLine, X_BECKY_INCLUDE_HEADER);
 }
 
-static inline bool IsEndOfHeaders(const nsCString &aLine) {
+static inline bool IsEndOfHeaders(const nsCString& aLine) {
   return aLine.IsEmpty();
 }
 
-static inline bool IsEndOfMessage(const nsCString &aLine) {
+static inline bool IsEndOfMessage(const nsCString& aLine) {
   return aLine.EqualsLiteral(".");
 }
 
 class ImportMessageRunnable : public mozilla::Runnable {
  public:
-  ImportMessageRunnable(nsIFile *aMessageFile, nsIMsgFolder *aFolder);
+  ImportMessageRunnable(nsIFile* aMessageFile, nsIMsgFolder* aFolder);
   NS_DECL_NSIRUNNABLE
   nsresult mResult;
 
  private:
-  nsresult WriteHeaders(nsCString &aHeaders, nsIOutputStream *aOutputStream);
-  nsresult HandleHeaderLine(const nsCString &aHeaderLine, nsACString &aHeaders);
-  nsresult GetAttachmentFile(nsIFile *aMailboxFile, const nsCString &aHeader,
-                             nsIFile **_retval);
-  nsresult WriteAttachmentFile(nsIFile *aMailboxFile, const nsCString &aHeader,
-                               nsIOutputStream *aOutputStream);
+  nsresult WriteHeaders(nsCString& aHeaders, nsIOutputStream* aOutputStream);
+  nsresult HandleHeaderLine(const nsCString& aHeaderLine, nsACString& aHeaders);
+  nsresult GetAttachmentFile(nsIFile* aMailboxFile, const nsCString& aHeader,
+                             nsIFile** _retval);
+  nsresult WriteAttachmentFile(nsIFile* aMailboxFile, const nsCString& aHeader,
+                               nsIOutputStream* aOutputStream);
 
   nsCOMPtr<nsIFile> mMessageFile;
   nsCOMPtr<nsIMsgFolder> mFolder;
 };
 
-ImportMessageRunnable::ImportMessageRunnable(nsIFile *aMessageFile,
-                                             nsIMsgFolder *aFolder)
+ImportMessageRunnable::ImportMessageRunnable(nsIFile* aMessageFile,
+                                             nsIMsgFolder* aFolder)
     : mozilla::Runnable("ImportMessageRunnable"),
       mMessageFile(aMessageFile),
       mFolder(aFolder) {}
 
-nsresult ImportMessageRunnable::WriteHeaders(nsCString &aHeaders,
-                                             nsIOutputStream *aOutputStream) {
+nsresult ImportMessageRunnable::WriteHeaders(nsCString& aHeaders,
+                                             nsIOutputStream* aOutputStream) {
   nsresult rv;
   uint32_t writtenBytes = 0;
 
@@ -365,15 +365,15 @@ nsresult ImportMessageRunnable::WriteHeaders(nsCString &aHeaders,
   return NS_OK;
 }
 
-nsresult ImportMessageRunnable::HandleHeaderLine(const nsCString &aHeaderLine,
-                                                 nsACString &aHeaders) {
+nsresult ImportMessageRunnable::HandleHeaderLine(const nsCString& aHeaderLine,
+                                                 nsACString& aHeaders) {
   aHeaders.Append(aHeaderLine);
   aHeaders.AppendLiteral(MSG_LINEBREAK);
 
   nsMsgMessageFlagType flag = 0;
   if (IsBeckyStatusHeader(aHeaderLine) &&
       ConvertBeckyStatusToMozillaStatus(aHeaderLine, &flag)) {
-    char *statusLine;
+    char* statusLine;
     statusLine = PR_smprintf(X_MOZILLA_STATUS_FORMAT MSG_LINEBREAK, flag);
     aHeaders.Append(statusLine);
     PR_smprintf_free(statusLine);
@@ -383,9 +383,9 @@ nsresult ImportMessageRunnable::HandleHeaderLine(const nsCString &aHeaderLine,
   return NS_OK;
 }
 
-nsresult ImportMessageRunnable::GetAttachmentFile(nsIFile *aMailboxFile,
-                                                  const nsCString &aHeader,
-                                                  nsIFile **_retval) {
+nsresult ImportMessageRunnable::GetAttachmentFile(nsIFile* aMailboxFile,
+                                                  const nsCString& aHeader,
+                                                  nsIFile** _retval) {
   nsresult rv;
   nsCOMPtr<nsIFile> attachmentFile;
 
@@ -411,8 +411,8 @@ nsresult ImportMessageRunnable::GetAttachmentFile(nsIFile *aMailboxFile,
 }
 
 nsresult ImportMessageRunnable::WriteAttachmentFile(
-    nsIFile *aMailboxFile, const nsCString &aHeader,
-    nsIOutputStream *aOutputStream) {
+    nsIFile* aMailboxFile, const nsCString& aHeader,
+    nsIOutputStream* aOutputStream) {
   nsresult rv;
   nsCOMPtr<nsIFile> parentDirectory;
   rv = aMailboxFile->GetParent(getter_AddRefs(parentDirectory));
@@ -502,8 +502,8 @@ NS_IMETHODIMP ImportMessageRunnable::Run() {
   return NS_OK;
 }
 
-static nsresult ProxyImportMessage(nsIFile *aMessageFile,
-                                   nsIMsgFolder *aFolder) {
+static nsresult ProxyImportMessage(nsIFile* aMessageFile,
+                                   nsIMsgFolder* aFolder) {
   RefPtr<ImportMessageRunnable> importMessage =
       new ImportMessageRunnable(aMessageFile, aFolder);
   nsresult rv = NS_DispatchToMainThread(importMessage, NS_DISPATCH_SYNC);
@@ -511,8 +511,8 @@ static nsresult ProxyImportMessage(nsIFile *aMessageFile,
   return importMessage->mResult;
 }
 
-nsresult nsBeckyMail::ImportMailFile(nsIFile *aMailFile,
-                                     nsIMsgFolder *aDestination) {
+nsresult nsBeckyMail::ImportMailFile(nsIFile* aMailFile,
+                                     nsIMsgFolder* aDestination) {
   int64_t size;
   aMailFile->GetFileSize(&size);
   if (size == 0) return NS_OK;
@@ -521,9 +521,9 @@ nsresult nsBeckyMail::ImportMailFile(nsIFile *aMailFile,
 }
 
 NS_IMETHODIMP
-nsBeckyMail::ImportMailbox(nsIImportMailboxDescriptor *aSource,
-                           nsIMsgFolder *aDestination, char16_t **aErrorLog,
-                           char16_t **aSuccessLog, bool *aFatalError) {
+nsBeckyMail::ImportMailbox(nsIImportMailboxDescriptor* aSource,
+                           nsIMsgFolder* aDestination, char16_t** aErrorLog,
+                           char16_t** aSuccessLog, bool* aFatalError) {
   NS_ENSURE_ARG_POINTER(aSource);
   NS_ENSURE_ARG_POINTER(aDestination);
   NS_ENSURE_ARG_POINTER(aErrorLog);
@@ -558,14 +558,14 @@ nsBeckyMail::ImportMailbox(nsIImportMailboxDescriptor *aSource,
 }
 
 NS_IMETHODIMP
-nsBeckyMail::GetImportProgress(uint32_t *_retval) {
+nsBeckyMail::GetImportProgress(uint32_t* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = mReadBytes;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsBeckyMail::TranslateFolderName(const nsAString &aFolderName,
-                                 nsAString &_retval) {
+nsBeckyMail::TranslateFolderName(const nsAString& aFolderName,
+                                 nsAString& _retval) {
   return nsBeckyUtils::TranslateFolderName(aFolderName, _retval);
 }

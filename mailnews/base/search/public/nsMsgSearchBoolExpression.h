@@ -41,13 +41,13 @@
 class nsMsgSearchBoolExpression {
  public:
   // create a leaf node expression
-  explicit nsMsgSearchBoolExpression(nsIMsgSearchTerm *aNewTerm,
-                                     char *aEncodingString = NULL);
+  explicit nsMsgSearchBoolExpression(nsIMsgSearchTerm* aNewTerm,
+                                     char* aEncodingString = NULL);
 
   // create a non-leaf node expression containing 2 expressions
   // and a boolean operator
-  nsMsgSearchBoolExpression(nsMsgSearchBoolExpression *,
-                            nsMsgSearchBoolExpression *,
+  nsMsgSearchBoolExpression(nsMsgSearchBoolExpression*,
+                            nsMsgSearchBoolExpression*,
                             nsMsgSearchBooleanOperator boolOp);
 
   nsMsgSearchBoolExpression();
@@ -57,19 +57,19 @@ class nsMsgSearchBoolExpression {
   // accessors
 
   // Offline
-  static nsMsgSearchBoolExpression *AddSearchTerm(
-      nsMsgSearchBoolExpression *aOrigExpr, nsIMsgSearchTerm *aNewTerm,
-      char *aEncodingStr);  // IMAP/NNTP
-  static nsMsgSearchBoolExpression *AddExpressionTree(
-      nsMsgSearchBoolExpression *aOrigExpr,
-      nsMsgSearchBoolExpression *aExpression, bool aBoolOp);
+  static nsMsgSearchBoolExpression* AddSearchTerm(
+      nsMsgSearchBoolExpression* aOrigExpr, nsIMsgSearchTerm* aNewTerm,
+      char* aEncodingStr);  // IMAP/NNTP
+  static nsMsgSearchBoolExpression* AddExpressionTree(
+      nsMsgSearchBoolExpression* aOrigExpr,
+      nsMsgSearchBoolExpression* aExpression, bool aBoolOp);
 
   // parses the expression tree and all
   // expressions underneath this node to
   // determine if the end result is true or false.
-  bool OfflineEvaluate(nsIMsgDBHdr *msgToMatch, const char *defaultCharset,
-                       nsIMsgSearchScopeTerm *scope, nsIMsgDatabase *db,
-                       const nsACString &headers, bool Filtering);
+  bool OfflineEvaluate(nsIMsgDBHdr* msgToMatch, const char* defaultCharset,
+                       nsIMsgSearchScopeTerm* scope, nsIMsgDatabase* db,
+                       const nsACString& headers, bool Filtering);
 
   // assuming the expression is for online
   // searches, determine the length of the
@@ -79,18 +79,18 @@ class nsMsgSearchBoolExpression {
   // fills pre-allocated
   // memory in buffer with
   // the IMAP/NNTP encoding for the expression
-  void GenerateEncodeStr(nsCString *buffer);
+  void GenerateEncodeStr(nsCString* buffer);
 
   // if we are not a leaf node, then we have two other expressions
   // and a boolean operator
-  nsMsgSearchBoolExpression *m_leftChild;
-  nsMsgSearchBoolExpression *m_rightChild;
+  nsMsgSearchBoolExpression* m_leftChild;
+  nsMsgSearchBoolExpression* m_rightChild;
   nsMsgSearchBooleanOperator m_boolOp;
 
  protected:
   // if we are a leaf node, all we have is a search term
 
-  nsIMsgSearchTerm *m_term;
+  nsIMsgSearchTerm* m_term;
 
   // store IMAP/NNTP encoding for the search term if applicable
   nsCString m_encodingStr;
@@ -103,8 +103,8 @@ class nsMsgSearchBoolExpression {
   // left to right evaluation so the tree is constructed to represent
   // that by calling leftToRightAddTerm. If future forms of evaluation
   // need to be supported, add new methods here for proper tree construction.
-  nsMsgSearchBoolExpression *leftToRightAddTerm(nsIMsgSearchTerm *newTerm,
-                                                char *encodingStr);
+  nsMsgSearchBoolExpression* leftToRightAddTerm(nsIMsgSearchTerm* newTerm,
+                                                char* encodingStr);
 };
 
 #endif

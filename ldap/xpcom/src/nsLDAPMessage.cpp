@@ -109,8 +109,8 @@ nsLDAPMessage::~nsLDAPMessage(void) {
  * @exception NS_ERROR_LDAP_DECODING_ERROR  problem during BER decoding
  * @exception NS_ERROR_OUT_OF_MEMORY        ran out of memory
  */
-nsresult nsLDAPMessage::Init(nsILDAPConnection *aConnection,
-                             LDAPMessage *aMsgHandle) {
+nsresult nsLDAPMessage::Init(nsILDAPConnection* aConnection,
+                             LDAPMessage* aMsgHandle) {
   int parseResult;
 
   if (!aConnection || !aMsgHandle) {
@@ -128,7 +128,7 @@ nsresult nsLDAPMessage::Init(nsILDAPConnection *aConnection,
   // same module.
   //
   mConnectionHandle =
-      static_cast<nsLDAPConnection *>(aConnection)->mConnectionHandle;
+      static_cast<nsLDAPConnection*>(aConnection)->mConnectionHandle;
 
   // do any useful message parsing
   //
@@ -206,7 +206,7 @@ nsresult nsLDAPMessage::Init(nsILDAPConnection *aConnection,
  * readonly attribute long errorCode;
  */
 NS_IMETHODIMP
-nsLDAPMessage::GetErrorCode(int32_t *aErrorCode) {
+nsLDAPMessage::GetErrorCode(int32_t* aErrorCode) {
   if (!aErrorCode) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
@@ -216,7 +216,7 @@ nsLDAPMessage::GetErrorCode(int32_t *aErrorCode) {
 }
 
 NS_IMETHODIMP
-nsLDAPMessage::GetType(int32_t *aType) {
+nsLDAPMessage::GetType(int32_t* aType) {
   if (!aType) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
@@ -231,10 +231,10 @@ nsLDAPMessage::GetType(int32_t *aType) {
 
 // Array<AUTF8String> getAttributes();
 NS_IMETHODIMP
-nsLDAPMessage::GetAttributes(nsTArray<nsCString> &attrs) {
+nsLDAPMessage::GetAttributes(nsTArray<nsCString>& attrs) {
   attrs.Clear();
-  BerElement *ber = nullptr;
-  char *attr = ldap_first_attribute(mConnectionHandle, mMsgHandle, &ber);
+  BerElement* ber = nullptr;
+  char* attr = ldap_first_attribute(mConnectionHandle, mMsgHandle, &ber);
   while (attr) {
     attrs.AppendElement(attr);
     ldap_memfree(attr);
@@ -267,8 +267,8 @@ nsLDAPMessage::GetAttributes(nsTArray<nsCString> &attrs) {
 }
 
 // readonly attribute wstring dn;
-NS_IMETHODIMP nsLDAPMessage::GetDn(nsACString &aDn) {
-  char *rawDn = ldap_get_dn(mConnectionHandle, mMsgHandle);
+NS_IMETHODIMP nsLDAPMessage::GetDn(nsACString& aDn) {
+  char* rawDn = ldap_get_dn(mConnectionHandle, mMsgHandle);
 
   if (!rawDn) {
     int32_t lderrno = ldap_get_lderrno(mConnectionHandle, 0, 0);
@@ -297,9 +297,9 @@ NS_IMETHODIMP nsLDAPMessage::GetDn(nsACString &aDn) {
 // wrapper for ldap_get_values()
 //
 NS_IMETHODIMP
-nsLDAPMessage::GetValues(const char *aAttr, nsTArray<nsString> &aValues) {
+nsLDAPMessage::GetValues(const char* aAttr, nsTArray<nsString>& aValues) {
   aValues.Clear();
-  char **values;
+  char** values;
 
 #if defined(DEBUG)
   // We only want this being logged for debug builds so as not to affect
@@ -355,9 +355,9 @@ nsLDAPMessage::GetValues(const char *aAttr, nsTArray<nsString> &aValues) {
 // wrapper for get_values_len
 //
 NS_IMETHODIMP
-nsLDAPMessage::GetBinaryValues(const char *aAttr,
-                               nsTArray<RefPtr<nsILDAPBERValue>> &aValues) {
-  struct berval **values;
+nsLDAPMessage::GetBinaryValues(const char* aAttr,
+                               nsTArray<RefPtr<nsILDAPBERValue>>& aValues) {
+  struct berval** values;
 
   aValues.Clear();
 #if defined(DEBUG)
@@ -411,7 +411,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr,
     // copy the value from the struct into the nsBERValue
     //
     rv = berValue->SetRaw(values[i]->bv_len,
-                          reinterpret_cast<uint8_t *>(values[i]->bv_val));
+                          reinterpret_cast<uint8_t*>(values[i]->bv_val));
     if (NS_FAILED(rv)) {
       NS_ERROR(
           "nsLDAPMessage::GetBinaryValues(): error setting"
@@ -429,7 +429,7 @@ nsLDAPMessage::GetBinaryValues(const char *aAttr,
 }
 
 // readonly attribute nsILDAPOperation operation;
-NS_IMETHODIMP nsLDAPMessage::GetOperation(nsILDAPOperation **_retval) {
+NS_IMETHODIMP nsLDAPMessage::GetOperation(nsILDAPOperation** _retval) {
   if (!_retval) {
     NS_ERROR("nsLDAPMessage::GetOperation: null pointer ");
     return NS_ERROR_NULL_POINTER;
@@ -440,18 +440,18 @@ NS_IMETHODIMP nsLDAPMessage::GetOperation(nsILDAPOperation **_retval) {
 }
 
 NS_IMETHODIMP
-nsLDAPMessage::ToUnicode(char16_t **aString) {
+nsLDAPMessage::ToUnicode(char16_t** aString) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsLDAPMessage::GetErrorMessage(nsACString &aErrorMessage) {
+nsLDAPMessage::GetErrorMessage(nsACString& aErrorMessage) {
   aErrorMessage.Assign(mErrorMessage);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPMessage::GetMatchedDn(nsACString &aMatchedDn) {
+nsLDAPMessage::GetMatchedDn(nsACString& aMatchedDn) {
   aMatchedDn.Assign(mMatchedDn);
   return NS_OK;
 }

@@ -17,7 +17,7 @@ class nsISmtpServer;
 class nsBeckySettings final : public nsIImportSettings {
  public:
   nsBeckySettings();
-  static nsresult Create(nsIImportSettings **aImport);
+  static nsresult Create(nsIImportSettings** aImport);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTSETTINGS
@@ -30,20 +30,20 @@ class nsBeckySettings final : public nsIImportSettings {
   nsCOMPtr<nsIINIParser> mParser;
 
   nsresult CreateParser();
-  nsresult CreateIdentity(nsIMsgIdentity **aIdentity);
-  nsresult CreateAccount(nsIMsgIdentity *aIdentity,
-                         nsIMsgIncomingServer *aIncomingServer,
-                         nsIMsgAccount **aAccount);
-  nsresult CreateSmtpServer(const nsCString &aUserName,
-                            const nsCString &aServerName,
-                            nsISmtpServer **aServer, bool *existing);
-  nsresult CreateIncomingServer(const nsCString &aUserName,
-                                const nsCString &aServerName,
-                                const nsCString &aProtocol,
-                                nsIMsgIncomingServer **aServer);
-  nsresult SetupIncomingServer(nsIMsgIncomingServer **aServer);
-  nsresult SetupSmtpServer(nsISmtpServer **aServer);
-  nsresult SetPop3ServerProperties(nsIMsgIncomingServer *aServer);
+  nsresult CreateIdentity(nsIMsgIdentity** aIdentity);
+  nsresult CreateAccount(nsIMsgIdentity* aIdentity,
+                         nsIMsgIncomingServer* aIncomingServer,
+                         nsIMsgAccount** aAccount);
+  nsresult CreateSmtpServer(const nsCString& aUserName,
+                            const nsCString& aServerName,
+                            nsISmtpServer** aServer, bool* existing);
+  nsresult CreateIncomingServer(const nsCString& aUserName,
+                                const nsCString& aServerName,
+                                const nsCString& aProtocol,
+                                nsIMsgIncomingServer** aServer);
+  nsresult SetupIncomingServer(nsIMsgIncomingServer** aServer);
+  nsresult SetupSmtpServer(nsISmtpServer** aServer);
+  nsresult SetPop3ServerProperties(nsIMsgIncomingServer* aServer);
   nsresult RemoveConvertedFile();
 };
 

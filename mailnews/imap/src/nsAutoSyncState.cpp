@@ -23,13 +23,13 @@ using namespace mozilla;
 extern LazyLogModule gAutoSyncLog;  // defined in nsAutoSyncManager.cpp
 
 MsgStrategyComparatorAdaptor::MsgStrategyComparatorAdaptor(
-    nsIAutoSyncMsgStrategy *aStrategy, nsIMsgFolder *aFolder,
-    nsIMsgDatabase *aDatabase)
+    nsIAutoSyncMsgStrategy* aStrategy, nsIMsgFolder* aFolder,
+    nsIMsgDatabase* aDatabase)
     : mStrategy(aStrategy), mFolder(aFolder), mDatabase(aDatabase) {}
 
 /** @return True if the elements are equals; false otherwise. */
-bool MsgStrategyComparatorAdaptor::Equals(const nsMsgKey &a,
-                                          const nsMsgKey &b) const {
+bool MsgStrategyComparatorAdaptor::Equals(const nsMsgKey& a,
+                                          const nsMsgKey& b) const {
   nsCOMPtr<nsIMsgDBHdr> hdrA;
   nsCOMPtr<nsIMsgDBHdr> hdrB;
 
@@ -50,8 +50,8 @@ bool MsgStrategyComparatorAdaptor::Equals(const nsMsgKey &a,
 }
 
 /** @return True if (a < b); false otherwise. */
-bool MsgStrategyComparatorAdaptor::LessThan(const nsMsgKey &a,
-                                            const nsMsgKey &b) const {
+bool MsgStrategyComparatorAdaptor::LessThan(const nsMsgKey& a,
+                                            const nsMsgKey& b) const {
   nsCOMPtr<nsIMsgDBHdr> hdrA;
   nsCOMPtr<nsIMsgDBHdr> hdrB;
 
@@ -71,7 +71,7 @@ bool MsgStrategyComparatorAdaptor::LessThan(const nsMsgKey &a,
   return false;
 }
 
-nsAutoSyncState::nsAutoSyncState(nsImapMailFolder *aOwnerFolder,
+nsAutoSyncState::nsAutoSyncState(nsImapMailFolder* aOwnerFolder,
                                  PRTime aLastSyncTime)
     : mSyncState(stCompletedIdle),
       mOffset(0U),
@@ -86,7 +86,7 @@ nsAutoSyncState::nsAutoSyncState(nsImapMailFolder *aOwnerFolder,
       mIsDownloadQChanged(false),
       mRetryCounter(0U) {
   mOwnerFolder =
-      do_GetWeakReference(static_cast<nsIMsgImapMailFolder *>(aOwnerFolder));
+      do_GetWeakReference(static_cast<nsIMsgImapMailFolder*>(aOwnerFolder));
 }
 
 nsAutoSyncState::~nsAutoSyncState() {}
@@ -96,7 +96,7 @@ nsAutoSyncState::~nsAutoSyncState() {}
 nsresult nsAutoSyncState::ManageStorageSpace() { return NS_OK; }
 
 nsresult nsAutoSyncState::PlaceIntoDownloadQ(
-    const nsTArray<nsMsgKey> &aMsgKeyList) {
+    const nsTArray<nsMsgKey>& aMsgKeyList) {
   nsresult rv = NS_OK;
   if (!aMsgKeyList.IsEmpty()) {
     nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mOwnerFolder, &rv);
@@ -153,7 +153,7 @@ nsresult nsAutoSyncState::PlaceIntoDownloadQ(
   return rv;
 }
 
-nsresult nsAutoSyncState::SortQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue) {
+nsresult nsAutoSyncState::SortQueueBasedOnStrategy(nsTArray<nsMsgKey>& aQueue) {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> folder = do_QueryReferent(mOwnerFolder, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -180,7 +180,7 @@ nsresult nsAutoSyncState::SortQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue) {
 // without changing the size of the queue. It is required since
 // we cannot sort ranges in nsTArray.
 nsresult nsAutoSyncState::SortSubQueueBasedOnStrategy(
-    nsTArray<nsMsgKey> &aQueue, uint32_t aStartingOffset) {
+    nsTArray<nsMsgKey>& aQueue, uint32_t aStartingOffset) {
   NS_ASSERTION(aStartingOffset < aQueue.Length(),
                "*** Starting offset is out of range");
 
@@ -201,8 +201,8 @@ nsresult nsAutoSyncState::SortSubQueueBasedOnStrategy(
 }
 
 NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(
-    uint32_t aSuggestedGroupSizeLimit, uint32_t *aActualGroupSize,
-    nsIMutableArray **aMessagesList) {
+    uint32_t aSuggestedGroupSizeLimit, uint32_t* aActualGroupSize,
+    nsIMutableArray** aMessagesList) {
   NS_ENSURE_ARG_POINTER(aMessagesList);
   NS_ENSURE_ARG_POINTER(aActualGroupSize);
 
@@ -304,7 +304,7 @@ NS_IMETHODIMP nsAutoSyncState::GetNextGroupOfMessages(
  * Usually called by nsAutoSyncManager when the last sync time is expired.
  */
 NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(
-    uint32_t aNumOfHdrsToProcess, uint32_t *aLeftToProcess) {
+    uint32_t aNumOfHdrsToProcess, uint32_t* aLeftToProcess) {
   NS_ENSURE_ARG_POINTER(aLeftToProcess);
 
   nsresult rv;
@@ -363,7 +363,7 @@ NS_IMETHODIMP nsAutoSyncState::ProcessExistingHeaders(
 }
 
 void nsAutoSyncState::OnNewHeaderFetchCompleted(
-    const nsTArray<nsMsgKey> &aMsgKeyList) {
+    const nsTArray<nsMsgKey>& aMsgKeyList) {
   SetLastUpdateTime(PR_Now());
   if (!aMsgKeyList.IsEmpty()) PlaceIntoDownloadQ(aMsgKeyList);
 }
@@ -382,7 +382,7 @@ NS_IMETHODIMP nsAutoSyncState::UpdateFolder() {
   return imapFolder->UpdateFolderWithListener(nullptr, autoSyncMgrListener);
 }
 
-NS_IMETHODIMP nsAutoSyncState::OnStartRunningUrl(nsIURI *aUrl) {
+NS_IMETHODIMP nsAutoSyncState::OnStartRunningUrl(nsIURI* aUrl) {
   nsresult rv = NS_OK;
 
   // if there is a problem to start the download, set rv with the
@@ -400,7 +400,7 @@ NS_IMETHODIMP nsAutoSyncState::OnStartRunningUrl(nsIURI *aUrl) {
   return autoSyncMgr->OnDownloadStarted(this, rv);
 }
 
-NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI *aUrl,
+NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI* aUrl,
                                                 nsresult aExitCode) {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder, &rv);
@@ -454,13 +454,13 @@ NS_IMETHODIMP nsAutoSyncState::OnStopRunningUrl(nsIURI *aUrl,
   return autoSyncMgr->OnDownloadCompleted(this, aExitCode);
 }
 
-NS_IMETHODIMP nsAutoSyncState::GetState(int32_t *aState) {
+NS_IMETHODIMP nsAutoSyncState::GetState(int32_t* aState) {
   NS_ENSURE_ARG_POINTER(aState);
   *aState = mSyncState;
   return NS_OK;
 }
 
-const char *stateStrings[] = {"idle",          "status issued",
+const char* stateStrings[] = {"idle",          "status issued",
                               "update needed", "update issued",
                               "downloading",   "ready to download"};
 
@@ -509,19 +509,19 @@ NS_IMETHODIMP nsAutoSyncState::ResetRetryCounter() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAutoSyncState::GetPendingMessageCount(int32_t *aMsgCount) {
+NS_IMETHODIMP nsAutoSyncState::GetPendingMessageCount(int32_t* aMsgCount) {
   NS_ENSURE_ARG_POINTER(aMsgCount);
   *aMsgCount = mDownloadQ.Length() - mOffset;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAutoSyncState::GetTotalMessageCount(int32_t *aMsgCount) {
+NS_IMETHODIMP nsAutoSyncState::GetTotalMessageCount(int32_t* aMsgCount) {
   NS_ENSURE_ARG_POINTER(aMsgCount);
   *aMsgCount = mDownloadQ.Length();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAutoSyncState::GetOwnerFolder(nsIMsgFolder **aFolder) {
+NS_IMETHODIMP nsAutoSyncState::GetOwnerFolder(nsIMsgFolder** aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
 
   nsresult rv;
@@ -550,8 +550,8 @@ NS_IMETHODIMP nsAutoSyncState::ResetDownloadQ() {
  * Tests whether the given folder is owned by the same imap server
  * or not.
  */
-NS_IMETHODIMP nsAutoSyncState::IsSibling(nsIAutoSyncState *aAnotherStateObj,
-                                         bool *aResult) {
+NS_IMETHODIMP nsAutoSyncState::IsSibling(nsIAutoSyncState* aAnotherStateObj,
+                                         bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = false;
 
@@ -579,7 +579,7 @@ NS_IMETHODIMP nsAutoSyncState::IsSibling(nsIAutoSyncState *aAnotherStateObj,
 }
 
 NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
-    nsIArray *aMessagesList) {
+    nsIArray* aMessagesList) {
   NS_ENSURE_ARG_POINTER(aMessagesList);
 
   uint32_t count;
@@ -616,7 +616,7 @@ NS_IMETHODIMP nsAutoSyncState::DownloadMessagesForOffline(
   return rv;
 }
 
-NS_IMETHODIMP nsAutoSyncState::GetLastSyncTime(PRTime *aLastSyncTime) {
+NS_IMETHODIMP nsAutoSyncState::GetLastSyncTime(PRTime* aLastSyncTime) {
   NS_ENSURE_ARG_POINTER(aLastSyncTime);
   *aLastSyncTime = mLastSyncTime;
   return NS_OK;
@@ -626,7 +626,7 @@ void nsAutoSyncState::SetLastSyncTimeInSec(int32_t aLastSyncTime) {
   mLastSyncTime = ((PRTime)aLastSyncTime * PR_USEC_PER_SEC);
 }
 
-NS_IMETHODIMP nsAutoSyncState::GetLastUpdateTime(PRTime *aLastUpdateTime) {
+NS_IMETHODIMP nsAutoSyncState::GetLastUpdateTime(PRTime* aLastUpdateTime) {
   NS_ENSURE_ARG_POINTER(aLastUpdateTime);
   *aLastUpdateTime = mLastUpdateTime;
   return NS_OK;
@@ -647,7 +647,7 @@ void nsAutoSyncState::SetServerCounts(int32_t total, int32_t recent,
 
 NS_IMPL_ISUPPORTS(nsAutoSyncState, nsIAutoSyncState, nsIUrlListener)
 
-void nsAutoSyncState::LogQWithSize(nsTArray<nsMsgKey> &q, uint32_t toOffset) {
+void nsAutoSyncState::LogQWithSize(nsTArray<nsMsgKey>& q, uint32_t toOffset) {
   nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder);
   if (ownerFolder) {
     nsCOMPtr<nsIMsgDatabase> database;
@@ -670,7 +670,7 @@ void nsAutoSyncState::LogQWithSize(nsTArray<nsMsgKey> &q, uint32_t toOffset) {
   }
 }
 
-void nsAutoSyncState::LogQWithSize(nsIMutableArray *q, uint32_t toOffset) {
+void nsAutoSyncState::LogQWithSize(nsIMutableArray* q, uint32_t toOffset) {
   nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder);
   if (ownerFolder) {
     nsCOMPtr<nsIMsgDatabase> database;
@@ -693,7 +693,7 @@ void nsAutoSyncState::LogQWithSize(nsIMutableArray *q, uint32_t toOffset) {
   }
 }
 
-void nsAutoSyncState::LogOwnerFolderName(const char *s) {
+void nsAutoSyncState::LogOwnerFolderName(const char* s) {
   nsCOMPtr<nsIMsgFolder> ownerFolder = do_QueryReferent(mOwnerFolder);
   if (ownerFolder) {
     nsCString folderName;

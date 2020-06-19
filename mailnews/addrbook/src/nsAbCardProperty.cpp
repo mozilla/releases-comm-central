@@ -43,8 +43,8 @@ enum EAppendType {
 };
 
 struct AppendItem {
-  const char *mColumn;
-  const char *mLabel;
+  const char* mColumn;
+  const char* mLabel;
   EAppendType mAppendType;
 };
 
@@ -109,7 +109,7 @@ nsAbCardProperty::~nsAbCardProperty(void) {}
 
 NS_IMPL_ISUPPORTS(nsAbCardProperty, nsIAbCard)
 
-NS_IMETHODIMP nsAbCardProperty::GetUuid(nsACString &uuid) {
+NS_IMETHODIMP nsAbCardProperty::GetUuid(nsACString& uuid) {
   // If we have indeterminate sub-ids, return an empty uuid.
   if (m_directoryId.IsEmpty() || m_localId.IsEmpty()) {
     uuid.Truncate();
@@ -123,29 +123,29 @@ NS_IMETHODIMP nsAbCardProperty::GetUuid(nsACString &uuid) {
   return manager->GenerateUUID(m_directoryId, m_localId, uuid);
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetDirectoryId(nsACString &dirId) {
+NS_IMETHODIMP nsAbCardProperty::GetDirectoryId(nsACString& dirId) {
   dirId = m_directoryId;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetDirectoryId(const nsACString &aDirId) {
+NS_IMETHODIMP nsAbCardProperty::SetDirectoryId(const nsACString& aDirId) {
   m_directoryId = aDirId;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetLocalId(nsACString &localId) {
+NS_IMETHODIMP nsAbCardProperty::GetLocalId(nsACString& localId) {
   localId = m_localId;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetLocalId(const nsACString &aLocalId) {
+NS_IMETHODIMP nsAbCardProperty::SetLocalId(const nsACString& aLocalId) {
   m_localId = aLocalId;
   return NS_OK;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsAbCardProperty::GetIsMailList(bool *aIsMailList) {
+NS_IMETHODIMP nsAbCardProperty::GetIsMailList(bool* aIsMailList) {
   *aIsMailList = m_IsMailList;
   return NS_OK;
 }
@@ -155,7 +155,7 @@ NS_IMETHODIMP nsAbCardProperty::SetIsMailList(bool aIsMailList) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetMailListURI(char **aMailListURI) {
+NS_IMETHODIMP nsAbCardProperty::GetMailListURI(char** aMailListURI) {
   if (aMailListURI) {
     *aMailListURI = ToNewCString(m_MailListURI);
     return (*aMailListURI) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
@@ -163,7 +163,7 @@ NS_IMETHODIMP nsAbCardProperty::GetMailListURI(char **aMailListURI) {
     return NS_ERROR_NULL_POINTER;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetMailListURI(const char *aMailListURI) {
+NS_IMETHODIMP nsAbCardProperty::SetMailListURI(const char* aMailListURI) {
   if (aMailListURI) {
     m_MailListURI = aMailListURI;
     return NS_OK;
@@ -177,7 +177,7 @@ NS_IMETHODIMP nsAbCardProperty::SetMailListURI(const char *aMailListURI) {
 
 class nsAbSimpleProperty final : public nsIProperty {
  public:
-  nsAbSimpleProperty(const nsACString &aName, nsIVariant *aValue)
+  nsAbSimpleProperty(const nsACString& aName, nsIVariant* aValue)
       : mName(aName), mValue(aValue) {}
 
   NS_DECL_ISUPPORTS
@@ -191,18 +191,18 @@ class nsAbSimpleProperty final : public nsIProperty {
 NS_IMPL_ISUPPORTS(nsAbSimpleProperty, nsIProperty)
 
 NS_IMETHODIMP
-nsAbSimpleProperty::GetName(nsAString &aName) {
+nsAbSimpleProperty::GetName(nsAString& aName) {
   aName.Assign(NS_ConvertUTF8toUTF16(mName));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsAbSimpleProperty::GetValue(nsIVariant **aValue) {
+nsAbSimpleProperty::GetValue(nsIVariant** aValue) {
   NS_IF_ADDREF(*aValue = mValue);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetProperties(nsISimpleEnumerator **props) {
+NS_IMETHODIMP nsAbCardProperty::GetProperties(nsISimpleEnumerator** props) {
   nsCOMArray<nsIProperty> propertyArray(m_properties.Count());
   for (auto iter = m_properties.Iter(); !iter.Done(); iter.Next()) {
     propertyArray.AppendObject(
@@ -211,15 +211,15 @@ NS_IMETHODIMP nsAbCardProperty::GetProperties(nsISimpleEnumerator **props) {
   return NS_NewArrayEnumerator(props, propertyArray, NS_GET_IID(nsIProperty));
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetProperty(const nsACString &name,
-                                            nsIVariant *defaultValue,
-                                            nsIVariant **value) {
+NS_IMETHODIMP nsAbCardProperty::GetProperty(const nsACString& name,
+                                            nsIVariant* defaultValue,
+                                            nsIVariant** value) {
   if (!m_properties.Get(name, value)) NS_ADDREF(*value = defaultValue);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetPropertyAsAString(const char *name,
-                                                     nsAString &value) {
+NS_IMETHODIMP nsAbCardProperty::GetPropertyAsAString(const char* name,
+                                                     nsAString& value) {
   NS_ENSURE_ARG_POINTER(name);
 
   nsCOMPtr<nsIVariant> variant;
@@ -228,8 +228,8 @@ NS_IMETHODIMP nsAbCardProperty::GetPropertyAsAString(const char *name,
              : NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetPropertyAsAUTF8String(const char *name,
-                                                         nsACString &value) {
+NS_IMETHODIMP nsAbCardProperty::GetPropertyAsAUTF8String(const char* name,
+                                                         nsACString& value) {
   NS_ENSURE_ARG_POINTER(name);
 
   nsCOMPtr<nsIVariant> variant;
@@ -238,8 +238,8 @@ NS_IMETHODIMP nsAbCardProperty::GetPropertyAsAUTF8String(const char *name,
              : NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetPropertyAsUint32(const char *name,
-                                                    uint32_t *value) {
+NS_IMETHODIMP nsAbCardProperty::GetPropertyAsUint32(const char* name,
+                                                    uint32_t* value) {
   NS_ENSURE_ARG_POINTER(name);
 
   nsCOMPtr<nsIVariant> variant;
@@ -248,8 +248,8 @@ NS_IMETHODIMP nsAbCardProperty::GetPropertyAsUint32(const char *name,
              : NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetPropertyAsBool(const char *name,
-                                                  bool *value) {
+NS_IMETHODIMP nsAbCardProperty::GetPropertyAsBool(const char* name,
+                                                  bool* value) {
   NS_ENSURE_ARG_POINTER(name);
 
   nsCOMPtr<nsIVariant> variant;
@@ -258,14 +258,14 @@ NS_IMETHODIMP nsAbCardProperty::GetPropertyAsBool(const char *name,
              : NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetProperty(const nsACString &name,
-                                            nsIVariant *value) {
+NS_IMETHODIMP nsAbCardProperty::SetProperty(const nsACString& name,
+                                            nsIVariant* value) {
   m_properties.Put(name, value);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetPropertyAsAString(const char *name,
-                                                     const nsAString &value) {
+NS_IMETHODIMP nsAbCardProperty::SetPropertyAsAString(const char* name,
+                                                     const nsAString& value) {
   NS_ENSURE_ARG_POINTER(name);
 
   nsCOMPtr<nsIWritableVariant> variant = new nsVariant();
@@ -275,7 +275,7 @@ NS_IMETHODIMP nsAbCardProperty::SetPropertyAsAString(const char *name,
 }
 
 NS_IMETHODIMP nsAbCardProperty::SetPropertyAsAUTF8String(
-    const char *name, const nsACString &value) {
+    const char* name, const nsACString& value) {
   NS_ENSURE_ARG_POINTER(name);
 
   nsCOMPtr<nsIWritableVariant> variant = new nsVariant();
@@ -284,7 +284,7 @@ NS_IMETHODIMP nsAbCardProperty::SetPropertyAsAUTF8String(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetPropertyAsUint32(const char *name,
+NS_IMETHODIMP nsAbCardProperty::SetPropertyAsUint32(const char* name,
                                                     uint32_t value) {
   NS_ENSURE_ARG_POINTER(name);
 
@@ -294,7 +294,7 @@ NS_IMETHODIMP nsAbCardProperty::SetPropertyAsUint32(const char *name,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetPropertyAsBool(const char *name,
+NS_IMETHODIMP nsAbCardProperty::SetPropertyAsBool(const char* name,
                                                   bool value) {
   NS_ENSURE_ARG_POINTER(name);
 
@@ -304,12 +304,12 @@ NS_IMETHODIMP nsAbCardProperty::SetPropertyAsBool(const char *name,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::DeleteProperty(const nsACString &name) {
+NS_IMETHODIMP nsAbCardProperty::DeleteProperty(const nsACString& name) {
   m_properties.Remove(name);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetUID(nsACString &uid) {
+NS_IMETHODIMP nsAbCardProperty::GetUID(nsACString& uid) {
   nsAutoString aString;
   nsresult rv = GetPropertyAsAString(kUIDProperty, aString);
   if (NS_SUCCEEDED(rv)) {
@@ -331,7 +331,7 @@ NS_IMETHODIMP nsAbCardProperty::GetUID(nsACString &uid) {
   return SetUID(uid);
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString &aUID) {
+NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString& aUID) {
   nsAutoString aString;
   nsresult rv = GetPropertyAsAString(kUIDProperty, aString);
   if (NS_SUCCEEDED(rv)) {
@@ -348,7 +348,7 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString &aUID) {
   }
 
   int ampIndex = m_directoryId.FindChar('&');
-  const nsACString &directoryId = Substring(m_directoryId, 0, ampIndex);
+  const nsACString& directoryId = Substring(m_directoryId, 0, ampIndex);
 
   nsCOMPtr<nsIAbManager> abManager =
       do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
@@ -372,7 +372,7 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString &aUID) {
   return directory->ModifyCard(this);
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetFirstName(nsAString &aString) {
+NS_IMETHODIMP nsAbCardProperty::GetFirstName(nsAString& aString) {
   nsresult rv = GetPropertyAsAString(kFirstNameProperty, aString);
   if (rv == NS_ERROR_NOT_AVAILABLE) {
     aString.Truncate();
@@ -381,11 +381,11 @@ NS_IMETHODIMP nsAbCardProperty::GetFirstName(nsAString &aString) {
   return rv;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetFirstName(const nsAString &aString) {
+NS_IMETHODIMP nsAbCardProperty::SetFirstName(const nsAString& aString) {
   return SetPropertyAsAString(kFirstNameProperty, aString);
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetLastName(nsAString &aString) {
+NS_IMETHODIMP nsAbCardProperty::GetLastName(nsAString& aString) {
   nsresult rv = GetPropertyAsAString(kLastNameProperty, aString);
   if (rv == NS_ERROR_NOT_AVAILABLE) {
     aString.Truncate();
@@ -394,11 +394,11 @@ NS_IMETHODIMP nsAbCardProperty::GetLastName(nsAString &aString) {
   return rv;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetLastName(const nsAString &aString) {
+NS_IMETHODIMP nsAbCardProperty::SetLastName(const nsAString& aString) {
   return SetPropertyAsAString(kLastNameProperty, aString);
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetDisplayName(nsAString &aString) {
+NS_IMETHODIMP nsAbCardProperty::GetDisplayName(nsAString& aString) {
   nsresult rv = GetPropertyAsAString(kDisplayNameProperty, aString);
   if (rv == NS_ERROR_NOT_AVAILABLE) {
     aString.Truncate();
@@ -407,11 +407,11 @@ NS_IMETHODIMP nsAbCardProperty::GetDisplayName(nsAString &aString) {
   return rv;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetDisplayName(const nsAString &aString) {
+NS_IMETHODIMP nsAbCardProperty::SetDisplayName(const nsAString& aString) {
   return SetPropertyAsAString(kDisplayNameProperty, aString);
 }
 
-NS_IMETHODIMP nsAbCardProperty::GetPrimaryEmail(nsAString &aString) {
+NS_IMETHODIMP nsAbCardProperty::GetPrimaryEmail(nsAString& aString) {
   nsresult rv = GetPropertyAsAString(kPriEmailProperty, aString);
   if (rv == NS_ERROR_NOT_AVAILABLE) {
     aString.Truncate();
@@ -420,12 +420,12 @@ NS_IMETHODIMP nsAbCardProperty::GetPrimaryEmail(nsAString &aString) {
   return rv;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetPrimaryEmail(const nsAString &aString) {
+NS_IMETHODIMP nsAbCardProperty::SetPrimaryEmail(const nsAString& aString) {
   return SetPropertyAsAString(kPriEmailProperty, aString);
 }
 
-NS_IMETHODIMP nsAbCardProperty::HasEmailAddress(const nsACString &aEmailAddress,
-                                                bool *aResult) {
+NS_IMETHODIMP nsAbCardProperty::HasEmailAddress(const nsACString& aEmailAddress,
+                                                bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = false;
@@ -448,7 +448,7 @@ NS_IMETHODIMP nsAbCardProperty::HasEmailAddress(const nsACString &aEmailAddress,
 
 // This function may be overridden by derived classes for
 // nsAb*Card specific implementations.
-NS_IMETHODIMP nsAbCardProperty::Copy(nsIAbCard *srcCard) {
+NS_IMETHODIMP nsAbCardProperty::Copy(nsIAbCard* srcCard) {
   NS_ENSURE_ARG_POINTER(srcCard);
 
   nsCOMPtr<nsISimpleEnumerator> properties;
@@ -484,7 +484,7 @@ NS_IMETHODIMP nsAbCardProperty::Copy(nsIAbCard *srcCard) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::Equals(nsIAbCard *card, bool *result) {
+NS_IMETHODIMP nsAbCardProperty::Equals(nsIAbCard* card, bool* result) {
   *result = (card == this);
   return NS_OK;
 }
@@ -494,8 +494,8 @@ NS_IMETHODIMP nsAbCardProperty::Equals(nsIAbCard *card, bool *result) {
 ////////////////////////////////////////////////////////////////////////////////
 
 // XXX: Use the category manager instead of this file to implement these
-NS_IMETHODIMP nsAbCardProperty::TranslateTo(const nsACString &type,
-                                            nsACString &result) {
+NS_IMETHODIMP nsAbCardProperty::TranslateTo(const nsACString& type,
+                                            nsACString& result) {
   if (type.EqualsLiteral("base64xml")) {
     return ConvertToBase64EncodedXML(result);
   } else if (type.EqualsLiteral("xml")) {
@@ -511,7 +511,7 @@ NS_IMETHODIMP nsAbCardProperty::TranslateTo(const nsACString &type,
   return NS_ERROR_ILLEGAL_VALUE;
 }
 
-nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString &aResult) {
+nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString& aResult) {
   nsresult rv;
   nsCOMPtr<nsIMsgVCardService> vCardService =
       do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
@@ -521,7 +521,7 @@ nsresult nsAbCardProperty::ConvertToEscapedVCard(nsACString &aResult) {
   return vCardService->AbCardToEscapedVCard(this, aResult);
 }
 
-nsresult nsAbCardProperty::ConvertToBase64EncodedXML(nsACString &result) {
+nsresult nsAbCardProperty::ConvertToBase64EncodedXML(nsACString& result) {
   nsresult rv;
   nsString xmlStr;
 
@@ -556,14 +556,14 @@ nsresult nsAbCardProperty::ConvertToBase64EncodedXML(nsACString &result) {
   xmlStr.Append(xmlSubstr);
   xmlStr.AppendLiteral("</directory>\n");
 
-  char *tmpRes =
+  char* tmpRes =
       PL_Base64Encode(NS_ConvertUTF16toUTF8(xmlStr).get(), 0, nullptr);
   result.Assign(tmpRes);
   PR_Free(tmpRes);
   return NS_OK;
 }
 
-nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr) {
+nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString& aXMLSubstr) {
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefBranch =
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
@@ -714,8 +714,8 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString &aXMLSubstr) {
 }
 
 nsresult nsAbCardProperty::AppendSection(
-    const AppendItem *aArray, int16_t aCount, const nsString &aHeading,
-    nsIStringBundle *aBundle, mozITXTToHTMLConv *aConv, nsString &aResult) {
+    const AppendItem* aArray, int16_t aCount, const nsString& aHeading,
+    nsIStringBundle* aBundle, mozITXTToHTMLConv* aConv, nsString& aResult) {
   nsresult rv = NS_OK;
 
   aResult.AppendLiteral("<section>");
@@ -766,9 +766,9 @@ nsresult nsAbCardProperty::AppendSection(
   return rv;
 }
 
-nsresult nsAbCardProperty::AppendLine(const AppendItem &aItem,
-                                      mozITXTToHTMLConv *aConv,
-                                      nsString &aResult) {
+nsresult nsAbCardProperty::AppendLine(const AppendItem& aItem,
+                                      mozITXTToHTMLConv* aConv,
+                                      nsString& aResult) {
   NS_ENSURE_ARG_POINTER(aConv);
 
   nsString attrValue;
@@ -793,10 +793,10 @@ nsresult nsAbCardProperty::AppendLine(const AppendItem &aItem,
   return NS_OK;
 }
 
-nsresult nsAbCardProperty::AppendLabel(const AppendItem &aItem,
-                                       nsIStringBundle *aBundle,
-                                       mozITXTToHTMLConv *aConv,
-                                       nsString &aResult) {
+nsresult nsAbCardProperty::AppendLabel(const AppendItem& aItem,
+                                       nsIStringBundle* aBundle,
+                                       mozITXTToHTMLConv* aConv,
+                                       nsString& aResult) {
   NS_ENSURE_ARG_POINTER(aBundle);
 
   nsresult rv;
@@ -822,10 +822,10 @@ nsresult nsAbCardProperty::AppendLabel(const AppendItem &aItem,
   return NS_OK;
 }
 
-nsresult nsAbCardProperty::AppendCityStateZip(const AppendItem &aItem,
-                                              nsIStringBundle *aBundle,
-                                              mozITXTToHTMLConv *aConv,
-                                              nsString &aResult) {
+nsresult nsAbCardProperty::AppendCityStateZip(const AppendItem& aItem,
+                                              nsIStringBundle* aBundle,
+                                              mozITXTToHTMLConv* aConv,
+                                              nsString& aResult) {
   NS_ENSURE_ARG_POINTER(aBundle);
 
   nsresult rv;
@@ -895,8 +895,8 @@ nsresult nsAbCardProperty::AppendCityStateZip(const AppendItem &aItem,
 }
 
 NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
-                                             nsIStringBundle *aBundle,
-                                             nsAString &aResult) {
+                                             nsIStringBundle* aBundle,
+                                             nsAString& aResult) {
   aResult.Truncate();
 
   // Cache the first and last names
@@ -967,7 +967,7 @@ NS_IMETHODIMP nsAbCardProperty::GenerateName(int32_t aGenerateFormat,
 }
 
 NS_IMETHODIMP nsAbCardProperty::GeneratePhoneticName(bool aLastNameFirst,
-                                                     nsAString &aResult) {
+                                                     nsAString& aResult) {
   nsAutoString firstName, lastName;
   GetPropertyAsAString(kPhoneticFirstNameProperty, firstName);
   GetPropertyAsAString(kPhoneticLastNameProperty, lastName);
@@ -983,7 +983,7 @@ NS_IMETHODIMP nsAbCardProperty::GeneratePhoneticName(bool aLastNameFirst,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::GenerateChatName(nsAString &aResult) {
+NS_IMETHODIMP nsAbCardProperty::GenerateChatName(nsAString& aResult) {
   aResult.Truncate();
 
 #define CHECK_CHAT_PROPERTY(aProtocol)                                       \

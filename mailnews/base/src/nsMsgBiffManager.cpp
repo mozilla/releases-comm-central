@@ -28,8 +28,8 @@ NS_IMPL_ISUPPORTS(nsMsgBiffManager, nsIMsgBiffManager,
                   nsIIncomingServerListener, nsIObserver,
                   nsISupportsWeakReference)
 
-void OnBiffTimer(nsITimer *timer, void *aBiffManager) {
-  nsMsgBiffManager *biffManager = (nsMsgBiffManager *)aBiffManager;
+void OnBiffTimer(nsITimer* timer, void* aBiffManager) {
+  nsMsgBiffManager* biffManager = (nsMsgBiffManager*)aBiffManager;
   biffManager->PerformBiff();
 }
 
@@ -96,23 +96,23 @@ NS_IMETHODIMP nsMsgBiffManager::Shutdown() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBiffManager::Observe(nsISupports *aSubject,
-                                        const char *aTopic,
-                                        const char16_t *someData) {
+NS_IMETHODIMP nsMsgBiffManager::Observe(nsISupports* aSubject,
+                                        const char* aTopic,
+                                        const char16_t* someData) {
   if (!strcmp(aTopic, "sleep_notification") && mBiffTimer) {
     mBiffTimer->Cancel();
     mBiffTimer = nullptr;
   } else if (!strcmp(aTopic, "wake_notification")) {
     // wait 10 seconds after waking up to start biffing again.
     mBiffTimer = do_CreateInstance("@mozilla.org/timer;1");
-    mBiffTimer->InitWithNamedFuncCallback(OnBiffTimer, (void *)this, 10000,
+    mBiffTimer->InitWithNamedFuncCallback(OnBiffTimer, (void*)this, 10000,
                                           nsITimer::TYPE_ONE_SHOT,
                                           "nsMsgBiffManager::OnBiffTimer");
   }
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBiffManager::AddServerBiff(nsIMsgIncomingServer *server) {
+NS_IMETHODIMP nsMsgBiffManager::AddServerBiff(nsIMsgIncomingServer* server) {
   NS_ENSURE_ARG_POINTER(server);
 
   int32_t biffMinutes;
@@ -137,7 +137,7 @@ NS_IMETHODIMP nsMsgBiffManager::AddServerBiff(nsIMsgIncomingServer *server) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBiffManager::RemoveServerBiff(nsIMsgIncomingServer *server) {
+NS_IMETHODIMP nsMsgBiffManager::RemoveServerBiff(nsIMsgIncomingServer* server) {
   int32_t pos = FindServer(server);
   if (pos != -1) mBiffArray.RemoveElementAt(pos);
 
@@ -146,13 +146,13 @@ NS_IMETHODIMP nsMsgBiffManager::RemoveServerBiff(nsIMsgIncomingServer *server) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgBiffManager::ForceBiff(nsIMsgIncomingServer *server) {
+NS_IMETHODIMP nsMsgBiffManager::ForceBiff(nsIMsgIncomingServer* server) {
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgBiffManager::ForceBiffAll() { return NS_OK; }
 
-NS_IMETHODIMP nsMsgBiffManager::OnServerLoaded(nsIMsgIncomingServer *server) {
+NS_IMETHODIMP nsMsgBiffManager::OnServerLoaded(nsIMsgIncomingServer* server) {
   NS_ENSURE_ARG_POINTER(server);
 
   bool doBiff = false;
@@ -163,17 +163,17 @@ NS_IMETHODIMP nsMsgBiffManager::OnServerLoaded(nsIMsgIncomingServer *server) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgBiffManager::OnServerUnloaded(nsIMsgIncomingServer *server) {
+NS_IMETHODIMP nsMsgBiffManager::OnServerUnloaded(nsIMsgIncomingServer* server) {
   return RemoveServerBiff(server);
 }
 
-NS_IMETHODIMP nsMsgBiffManager::OnServerChanged(nsIMsgIncomingServer *server) {
+NS_IMETHODIMP nsMsgBiffManager::OnServerChanged(nsIMsgIncomingServer* server) {
   // nothing required.  If the hostname or username changed
   // the next time biff fires, we'll ping the right server
   return NS_OK;
 }
 
-int32_t nsMsgBiffManager::FindServer(nsIMsgIncomingServer *server) {
+int32_t nsMsgBiffManager::FindServer(nsIMsgIncomingServer* server) {
   uint32_t count = mBiffArray.Length();
   for (uint32_t i = 0; i < count; i++) {
     if (server == mBiffArray[i].server.get()) return i;
@@ -181,7 +181,7 @@ int32_t nsMsgBiffManager::FindServer(nsIMsgIncomingServer *server) {
   return -1;
 }
 
-nsresult nsMsgBiffManager::AddBiffEntry(nsBiffEntry &biffEntry) {
+nsresult nsMsgBiffManager::AddBiffEntry(nsBiffEntry& biffEntry) {
   uint32_t i;
   uint32_t count = mBiffArray.Length();
   for (i = 0; i < count; i++) {
@@ -193,9 +193,9 @@ nsresult nsMsgBiffManager::AddBiffEntry(nsBiffEntry &biffEntry) {
   return NS_OK;
 }
 
-nsresult nsMsgBiffManager::SetNextBiffTime(nsBiffEntry &biffEntry,
+nsresult nsMsgBiffManager::SetNextBiffTime(nsBiffEntry& biffEntry,
                                            PRTime currentTime) {
-  nsIMsgIncomingServer *server = biffEntry.server;
+  nsIMsgIncomingServer* server = biffEntry.server;
   NS_ENSURE_TRUE(server, NS_ERROR_FAILURE);
 
   int32_t biffInterval;
@@ -232,7 +232,7 @@ nsresult nsMsgBiffManager::SetNextBiffTime(nsBiffEntry &biffEntry,
 nsresult nsMsgBiffManager::SetupNextBiff() {
   if (mBiffArray.Length() > 0) {
     // Get the next biff entry
-    const nsBiffEntry &biffEntry = mBiffArray[0];
+    const nsBiffEntry& biffEntry = mBiffArray[0];
     PRTime currentTime = PR_Now();
     int64_t biffDelay;
     int64_t ms(1000);
@@ -255,7 +255,7 @@ nsresult nsMsgBiffManager::SetupNextBiff() {
             ("setting %d timer", timeInMSUint32));
     mBiffTimer = do_CreateInstance("@mozilla.org/timer;1");
     mBiffTimer->InitWithNamedFuncCallback(
-        OnBiffTimer, (void *)this, timeInMSUint32, nsITimer::TYPE_ONE_SHOT,
+        OnBiffTimer, (void*)this, timeInMSUint32, nsITimer::TYPE_ONE_SHOT,
         "nsMsgBiffManager::OnBiffTimer");
   }
   return NS_OK;

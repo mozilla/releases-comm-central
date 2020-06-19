@@ -18,23 +18,23 @@ class MimeEncoder {
   virtual ~MimeEncoder() {}
 
   /// A callback for writing the encoded output
-  typedef nsresult (*OutputCallback)(const char *buf, int32_t size,
-                                     void *closure);
+  typedef nsresult (*OutputCallback)(const char* buf, int32_t size,
+                                     void* closure);
 
   /// Encodes the string in the buffer and sends it to the callback
-  virtual nsresult Write(const char *buffer, int32_t size) = 0;
+  virtual nsresult Write(const char* buffer, int32_t size) = 0;
   /// Flush all pending data when no more data exists
   virtual nsresult Flush() { return NS_OK; }
 
   /// Get an encoder that outputs Base64-encoded data
-  static MimeEncoder *GetBase64Encoder(OutputCallback callback, void *closure);
+  static MimeEncoder* GetBase64Encoder(OutputCallback callback, void* closure);
   /// Get an encoder that outputs quoted-printable data
-  static MimeEncoder *GetQPEncoder(OutputCallback callback, void *closure);
+  static MimeEncoder* GetQPEncoder(OutputCallback callback, void* closure);
 
  protected:
-  MimeEncoder(OutputCallback callback, void *closure);
+  MimeEncoder(OutputCallback callback, void* closure);
   OutputCallback mCallback;
-  void *mClosure;
+  void* mClosure;
   uint32_t mCurrentColumn;
 };
 

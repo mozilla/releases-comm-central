@@ -21,17 +21,17 @@
  * These elements are stored in reverse alphabetical order.
  */
 typedef struct _subscribeTreeNode {
-  char *name;
+  char* name;
   nsCString path;
   bool isSubscribed;
-  struct _subscribeTreeNode *prevSibling;
-  struct _subscribeTreeNode *nextSibling;
-  struct _subscribeTreeNode *firstChild;
-  struct _subscribeTreeNode *lastChild;
-  struct _subscribeTreeNode *parent;
-  struct _subscribeTreeNode *cachedChild;
+  struct _subscribeTreeNode* prevSibling;
+  struct _subscribeTreeNode* nextSibling;
+  struct _subscribeTreeNode* firstChild;
+  struct _subscribeTreeNode* lastChild;
+  struct _subscribeTreeNode* parent;
+  struct _subscribeTreeNode* cachedChild;
 #ifdef HAVE_SUBSCRIBE_DESCRIPTION
-  char16_t *description;
+  char16_t* description;
 #endif
 #ifdef HAVE_SUBSCRIBE_MESSAGES
   uint32_t messages;
@@ -53,7 +53,7 @@ class nsSubscribableServer : public nsISubscribableServer, public nsITreeView {
  private:
   virtual ~nsSubscribableServer();
 
-  nsresult ConvertNameToUnichar(const char *inStr, char16_t **outStr);
+  nsresult ConvertNameToUnichar(const char* inStr, char16_t** outStr);
   nsCOMPtr<nsISubscribeListener> mSubscribeListener;
   nsCString mIncomingServerUri;
   char mDelimiter;
@@ -62,22 +62,22 @@ class nsSubscribableServer : public nsISubscribableServer, public nsITreeView {
   nsCString mServerType;
 
   // root of the folder tree while items are discovered on the server
-  SubscribeTreeNode *mTreeRoot;
+  SubscribeTreeNode* mTreeRoot;
   // array of nodes representing the rows for the tree element
-  nsTArray<SubscribeTreeNode *> mRowMap;
+  nsTArray<SubscribeTreeNode*> mRowMap;
   nsCOMPtr<nsITreeSelection> mSelection;
   RefPtr<mozilla::dom::XULTreeElement> mTree;
-  nsresult FreeSubtree(SubscribeTreeNode *node);
+  nsresult FreeSubtree(SubscribeTreeNode* node);
   nsresult FreeRows();
-  nsresult CreateNode(SubscribeTreeNode *parent, const char *name,
-                      const nsACString &aPath, SubscribeTreeNode **result);
-  nsresult AddChildNode(SubscribeTreeNode *parent, const char *name,
-                        const nsACString &aPath, SubscribeTreeNode **child);
-  nsresult FindAndCreateNode(const nsACString &aPath,
-                             SubscribeTreeNode **aResult);
+  nsresult CreateNode(SubscribeTreeNode* parent, const char* name,
+                      const nsACString& aPath, SubscribeTreeNode** result);
+  nsresult AddChildNode(SubscribeTreeNode* parent, const char* name,
+                        const nsACString& aPath, SubscribeTreeNode** child);
+  nsresult FindAndCreateNode(const nsACString& aPath,
+                             SubscribeTreeNode** aResult);
 
-  int32_t GetRow(SubscribeTreeNode *node, bool *open);
-  int32_t AddSubtree(SubscribeTreeNode *node, int32_t index);
+  int32_t GetRow(SubscribeTreeNode* node, bool* open);
+  int32_t AddSubtree(SubscribeTreeNode* node, int32_t index);
 };
 
 #endif  // nsSubscribableServer_h__

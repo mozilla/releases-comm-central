@@ -73,8 +73,8 @@ using namespace mozilla::mailnews;
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 /* based on in NET_ExplainErrorDetails in mkmessag.c */
-nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
-                               const char *arg1, const char *arg2) {
+nsresult nsExplainErrorDetails(nsISmtpUrl* aSmtpUrl, nsresult aCode,
+                               const char* arg1, const char* arg2) {
   NS_ENSURE_ARG(aSmtpUrl);
 
   nsCOMPtr<nsIPrompt> dialog;
@@ -92,7 +92,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
       getter_AddRefs(bundle));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  const char *exitString;
+  const char* exitString;
 #ifdef __GNUC__
 // Temporary workaround until bug 783526 is fixed.
 #  pragma GCC diagnostic push
@@ -119,7 +119,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
         // message string smtpPermSizeExceeded1 contains a %d.
         // (The special case can be removed if that string ever changes, then
         // %d should be changed to %S.)
-        nsTextFormatter::ssprintf(msg, eMsg.get(), atoi(arg1), (void *)nullptr);
+        nsTextFormatter::ssprintf(msg, eMsg.get(), atoi(arg1), (void*)nullptr);
       } else {
         // Some error strings contain %s. We're supplying 16-bit strings,
         // so replace those with %S. It's a bit hacky. but it saves
@@ -188,8 +188,8 @@ nsresult nsExplainErrorDetails(nsISmtpUrl *aSmtpUrl, nsresult aCode,
 
  */
 /* caller must free the return buffer */
-static char *esmtp_value_encode(const char *addr) {
-  char *buffer = (char *)PR_Malloc(
+static char* esmtp_value_encode(const char* addr) {
+  char* buffer = (char*)PR_Malloc(
       512); /* esmtp ORCPT allow up to 500 chars encoded addresses */
   char *bp = buffer, *bpEnd = buffer + 500;
   int len, i;
@@ -219,7 +219,7 @@ static char *esmtp_value_encode(const char *addr) {
 NS_IMPL_ISUPPORTS_INHERITED(nsSmtpProtocol, nsMsgAsyncWriteProtocol,
                             msgIOAuth2ModuleListener, nsIProtocolProxyCallback)
 
-nsSmtpProtocol::nsSmtpProtocol(nsIURI *aURL)
+nsSmtpProtocol::nsSmtpProtocol(nsIURI* aURL)
     : nsMsgAsyncWriteProtocol(aURL), m_dataBuf(nullptr) {}
 
 nsSmtpProtocol::~nsSmtpProtocol() {
@@ -227,7 +227,7 @@ nsSmtpProtocol::~nsSmtpProtocol() {
   PR_FREEIF(m_dataBuf);
 }
 
-nsresult nsSmtpProtocol::Initialize(nsIURI *aURL) {
+nsresult nsSmtpProtocol::Initialize(nsIURI* aURL) {
   NS_ASSERTION(aURL, "invalid URL passed into Smtp Protocol");
   nsresult rv = NS_OK;
 
@@ -250,7 +250,7 @@ nsresult nsSmtpProtocol::Initialize(nsIURI *aURL) {
   if (mailnewsUrl)
     mailnewsUrl->GetStatusFeedback(getter_AddRefs(m_statusFeedback));
 
-  m_dataBuf = (char *)PR_Malloc(sizeof(char) * OUTPUT_BUFFER_SIZE);
+  m_dataBuf = (char*)PR_Malloc(sizeof(char) * OUTPUT_BUFFER_SIZE);
   m_dataBufSize = OUTPUT_BUFFER_SIZE;
 
   m_nextState = SMTP_START_CONNECT;
@@ -333,10 +333,10 @@ nsresult nsSmtpProtocol::Initialize(nsIURI *aURL) {
     addresses.Truncate();
     uint32_t count = m_addresses.Length();
     for (uint32_t i = 0; i < count; i++) {
-      const char *start = m_addresses[i].get();
+      const char* start = m_addresses[i].get();
       // Location of the @ character
-      const char *lastAt = nullptr;
-      const char *ch = start;
+      const char* lastAt = nullptr;
+      const char* ch = start;
       for (; *ch; ch++) {
         if (*ch == '@') lastAt = ch;
         // Check for first illegal character (outside 0x09,0x20-0x7e)
@@ -401,14 +401,14 @@ nsresult nsSmtpProtocol::Initialize(nsIURI *aURL) {
 
 // nsIProtocolProxyCallback
 NS_IMETHODIMP
-nsSmtpProtocol::OnProxyAvailable(nsICancelable *aRequest, nsIChannel *aChannel,
-                                 nsIProxyInfo *aProxyInfo, nsresult aStatus) {
+nsSmtpProtocol::OnProxyAvailable(nsICancelable* aRequest, nsIChannel* aChannel,
+                                 nsIProxyInfo* aProxyInfo, nsresult aStatus) {
   // No checking of 'aStatus' here, see nsHttpChannel::OnProxyAvailable().
   // Status is non-fatal and we just kick on.
   return InitializeInternal(aProxyInfo);
 }
 
-nsresult nsSmtpProtocol::InitializeInternal(nsIProxyInfo *proxyInfo) {
+nsresult nsSmtpProtocol::InitializeInternal(nsIProxyInfo* proxyInfo) {
   m_proxyRequest = nullptr;
 
   // When we are making a secure connection, we need to make sure that we
@@ -443,7 +443,7 @@ nsresult nsSmtpProtocol::InitializeInternal(nsIProxyInfo *proxyInfo) {
   return LoadUrlInternal(m_url, m_consumer);
 }
 
-void nsSmtpProtocol::AppendHelloArgument(nsACString &aResult) {
+void nsSmtpProtocol::AppendHelloArgument(nsACString& aResult) {
   nsresult rv;
 
   // is a custom EHLO/HELO argument configured for the transport to be used?
@@ -500,7 +500,7 @@ void nsSmtpProtocol::AppendHelloArgument(nsACString &aResult) {
 
 // stop binding is a "notification" informing us that the stream
 // associated with aURL is going away.
-NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request,
+NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest* request,
                                             nsresult aStatus) {
   bool connDroppedDuringAuth =
       NS_SUCCEEDED(aStatus) && !m_sendDone &&
@@ -546,7 +546,7 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest *request,
 // End of nsIStreamListenerSupport
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void nsSmtpProtocol::UpdateStatus(const char *aStatusName) {
+void nsSmtpProtocol::UpdateStatus(const char* aStatusName) {
   if (m_statusFeedback) {
     nsCOMPtr<nsIStringBundleService> bundleService =
         mozilla::services::GetStringBundleService();
@@ -562,7 +562,7 @@ void nsSmtpProtocol::UpdateStatus(const char *aStatusName) {
   }
 }
 
-void nsSmtpProtocol::UpdateStatusWithString(const char16_t *aStatusString) {
+void nsSmtpProtocol::UpdateStatusWithString(const char16_t* aStatusString) {
   if (m_statusFeedback && aStatusString)
     m_statusFeedback->ShowStatusString(nsDependentString(aStatusString));
 }
@@ -575,9 +575,9 @@ void nsSmtpProtocol::UpdateStatusWithString(const char16_t *aStatusString) {
  * gets the response code from the SMTP server and the
  * response line
  */
-nsresult nsSmtpProtocol::SmtpResponse(nsIInputStream *inputStream,
+nsresult nsSmtpProtocol::SmtpResponse(nsIInputStream* inputStream,
                                       uint32_t length) {
-  char *line = nullptr;
+  char* line = nullptr;
   char cont_char;
   uint32_t ln = 0;
   bool pauseForMoreData = false;
@@ -650,7 +650,7 @@ nsresult nsSmtpProtocol::SmtpResponse(nsIInputStream *inputStream,
   return NS_OK;
 }
 
-nsresult nsSmtpProtocol::ExtensionLoginResponse(nsIInputStream *inputStream,
+nsresult nsSmtpProtocol::ExtensionLoginResponse(nsIInputStream* inputStream,
                                                 uint32_t length) {
   nsresult status = NS_OK;
 
@@ -679,7 +679,7 @@ nsresult nsSmtpProtocol::ExtensionLoginResponse(nsIInputStream *inputStream,
   return (status);
 }
 
-nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream *inputStream,
+nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream* inputStream,
                                           uint32_t length) {
   nsresult status = NS_OK;
   nsAutoCString buffer;
@@ -799,7 +799,7 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream *inputStream,
   return (status);
 }
 
-nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream *inputStream,
+nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream* inputStream,
                                           uint32_t length) {
   nsresult status = NS_OK;
 
@@ -1230,7 +1230,7 @@ nsresult nsSmtpProtocol::ProcessAuth() {
   return NS_OK;
 }
 
-nsresult nsSmtpProtocol::AuthLoginResponse(nsIInputStream *stream,
+nsresult nsSmtpProtocol::AuthLoginResponse(nsIInputStream* stream,
                                            uint32_t length) {
   MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug,
           ("SMTP Login response, code %d", m_responseCode));
@@ -1437,7 +1437,7 @@ nsresult nsSmtpProtocol::AuthLoginStep1() {
   nsresult rv;
   nsresult status = NS_OK;
   nsCString username;
-  char *base64Str = nullptr;
+  char* base64Str = nullptr;
   nsAutoString password;
   nsCOMPtr<nsISmtpServer> smtpServer;
   rv = m_runningURL->GetSmtpServer(getter_AddRefs(smtpServer));
@@ -1540,7 +1540,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2() {
     if (m_currentAuthMethod == SMTP_AUTH_CRAM_MD5_ENABLED) {
       MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("CRAM auth, step 2"));
       unsigned char digest[DIGEST_LENGTH];
-      char *decodedChallenge = PL_Base64Decode(
+      char* decodedChallenge = PL_Base64Decode(
           m_responseText.get(), m_responseText.Length(), nullptr);
 
       if (decodedChallenge)
@@ -1571,7 +1571,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2() {
         if (userName.Length() > 255) userName.Truncate(255);
         PR_snprintf(buffer, sizeof(buffer), "%s %s", userName.get(),
                     encodedDigest.get());
-        char *base64Str = PL_Base64Encode(buffer, strlen(buffer), nullptr);
+        char* base64Str = PL_Base64Encode(buffer, strlen(buffer), nullptr);
         PR_snprintf(buffer, sizeof(buffer), "%s" CRLF, base64Str);
         free(base64Str);
       }
@@ -1586,7 +1586,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2() {
     } else if (m_currentAuthMethod == SMTP_AUTH_PLAIN_ENABLED) {
       MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Debug, ("PLAIN auth, step 2"));
       if (passwordUTF8.Length() > 255) passwordUTF8.Truncate(255);
-      char *base64Str =
+      char* base64Str =
           PL_Base64Encode(passwordUTF8.get(), passwordUTF8.Length(), nullptr);
       // Base64 encoding of 255 bytes gives 340 bytes.
       PR_snprintf(buffer, sizeof(buffer), "%s" CRLF, base64Str);
@@ -1599,7 +1599,7 @@ nsresult nsSmtpProtocol::AuthLoginStep2() {
         passwordUTF8 = NS_LossyConvertUTF16toASCII(
             password);  // Don't use UTF-8 after all.
       if (passwordUTF8.Length() > 255) passwordUTF8.Truncate(255);
-      char *base64Str =
+      char* base64Str =
           PL_Base64Encode(passwordUTF8.get(), passwordUTF8.Length(), nullptr);
       // Base64 encoding of 255 bytes gives 340 bytes.
       PR_snprintf(buffer, sizeof(buffer), "%s" CRLF, base64Str);
@@ -1628,7 +1628,7 @@ nsresult nsSmtpProtocol::AuthOAuth2Step1() {
   return NS_OK;
 }
 
-nsresult nsSmtpProtocol::OnSuccess(const nsACString &aOAuth2String) {
+nsresult nsSmtpProtocol::OnSuccess(const nsACString& aOAuth2String) {
   MOZ_ASSERT(mOAuth2Support, "Can't do anything without OAuth2 support");
 
   // Send the AUTH XOAUTH2 command, and then siphon us back to the regular
@@ -1711,11 +1711,11 @@ nsresult nsSmtpProtocol::SendMailResponse() {
   bool requestOnNever = false;
   rv = prefBranch->GetBoolPref("mail.dsn.request_never_on", &requestOnNever);
 
-  nsCString &address = m_addresses[m_addressesLeft - 1];
+  nsCString& address = m_addresses[m_addressesLeft - 1];
   if (TestFlag(SMTP_EHLO_DSN_ENABLED) && requestDSN &&
       (requestOnSuccess || requestOnFailure || requestOnDelay ||
        requestOnNever)) {
-    char *encodedAddress = esmtp_value_encode(address.get());
+    char* encodedAddress = esmtp_value_encode(address.get());
     nsAutoCString dsnBuffer;
 
     if (encodedAddress) {
@@ -1806,7 +1806,7 @@ nsresult nsSmtpProtocol::SendRecipientResponse() {
   return (status);
 }
 
-nsresult nsSmtpProtocol::SendData(const char *dataBuffer,
+nsresult nsSmtpProtocol::SendData(const char* dataBuffer,
                                   bool aSuppressLogging) {
   // XXX -1 is not a valid nsresult
   if (!dataBuffer) return static_cast<nsresult>(-1);
@@ -1910,14 +1910,14 @@ nsresult nsSmtpProtocol::SendQuit(SmtpState aNextStateAfterResponse) {
                                  // with the server.
 }
 
-nsresult nsSmtpProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
+nsresult nsSmtpProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
   if (!aURL) return NS_OK;
 
   m_consumer = aConsumer;
   return Initialize(aURL);
 }
 
-nsresult nsSmtpProtocol::LoadUrlInternal(nsIURI *aURL, nsISupports *aConsumer) {
+nsresult nsSmtpProtocol::LoadUrlInternal(nsIURI* aURL, nsISupports* aConsumer) {
   m_continuationResponse = -1; /* init */
   m_runningURL = do_QueryInterface(aURL);
   if (!m_runningURL) return NS_ERROR_FAILURE;
@@ -1947,8 +1947,8 @@ nsresult nsSmtpProtocol::LoadUrlInternal(nsIURI *aURL, nsISupports *aConsumer) {
  *
  * returns zero or more if the transfer needs to be continued.
  */
-nsresult nsSmtpProtocol::ProcessProtocolState(nsIURI *url,
-                                              nsIInputStream *inputStream,
+nsresult nsSmtpProtocol::ProcessProtocolState(nsIURI* url,
+                                              nsIInputStream* inputStream,
                                               uint64_t sourceOffset,
                                               uint32_t length) {
   nsresult status = NS_OK;
@@ -2128,7 +2128,7 @@ nsresult nsSmtpProtocol::ProcessProtocolState(nsIURI *url,
   return NS_OK;
 }
 
-nsresult nsSmtpProtocol::GetPassword(nsString &aPassword) {
+nsresult nsSmtpProtocol::GetPassword(nsString& aPassword) {
   nsresult rv;
   nsCOMPtr<nsISmtpUrl> smtpUrl = m_runningURL;
 
@@ -2171,10 +2171,10 @@ nsresult nsSmtpProtocol::GetPassword(nsString &aPassword) {
  * formatStrings is an array for the prompts, item 0 is the hostname, item 1
  * is the username.
  */
-nsresult nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer,
-                                           nsISmtpUrl *aSmtpUrl,
-                                           nsTArray<nsString> &formatStrings,
-                                           nsAString &aPassword) {
+nsresult nsSmtpProtocol::PromptForPassword(nsISmtpServer* aSmtpServer,
+                                           nsISmtpUrl* aSmtpUrl,
+                                           nsTArray<nsString>& formatStrings,
+                                           nsAString& aPassword) {
   nsCOMPtr<nsIStringBundleService> stringService =
       mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(stringService, NS_ERROR_UNEXPECTED);
@@ -2210,8 +2210,8 @@ nsresult nsSmtpProtocol::PromptForPassword(nsISmtpServer *aSmtpServer,
   return rv;
 }
 
-nsresult nsSmtpProtocol::GetUsernamePassword(nsACString &aUsername,
-                                             nsAString &aPassword) {
+nsresult nsSmtpProtocol::GetUsernamePassword(nsACString& aUsername,
+                                             nsAString& aPassword) {
   nsresult rv;
   nsCOMPtr<nsISmtpUrl> smtpUrl = m_runningURL;
 

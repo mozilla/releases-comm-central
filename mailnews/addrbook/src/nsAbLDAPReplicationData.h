@@ -29,7 +29,7 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
   nsAbLDAPProcessReplicationData();
 
   // nsILDAPMessageListener
-  NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage) override;
+  NS_IMETHOD OnLDAPMessage(nsILDAPMessage* aMessage) override;
 
  protected:
   virtual ~nsAbLDAPProcessReplicationData();
@@ -55,13 +55,13 @@ class nsAbLDAPProcessReplicationData : public nsIAbLDAPProcessReplicationData,
   nsCOMPtr<nsIAbLDAPDirectory> mDirectory;
   nsCOMPtr<nsIAbLDAPAttributeMap> mAttrMap;  // maps ab properties to ldap attrs
 
-  virtual nsresult OnLDAPSearchEntry(nsILDAPMessage *aMessage);
-  virtual nsresult OnLDAPSearchResult(nsILDAPMessage *aMessage);
+  virtual nsresult OnLDAPSearchEntry(nsILDAPMessage* aMessage);
+  virtual nsresult OnLDAPSearchResult(nsILDAPMessage* aMessage);
 
   nsresult OpenABForReplicatedDir(bool bCreate);
   void Done(bool aSuccess);
 
-  RefPtr<mozilla::GenericPromise> PromiseDatabaseClosed(nsIFile *file);
+  RefPtr<mozilla::GenericPromise> PromiseDatabaseClosed(nsIFile* file);
   RefPtr<mozilla::GenericPromise::Private> mDatabaseClosedPromise;
 };
 

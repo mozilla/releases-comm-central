@@ -56,7 +56,7 @@
 #include <float.h>
 
 // the main routine
-static double nsIncompleteGammaP(double a, double x, int *error);
+static double nsIncompleteGammaP(double a, double x, int* error);
 
 // nsLnGamma(z): either a wrapper around lgamma_r or the internal function.
 // C_m = B[2*m]/(2*m*(2*m-1)) where B is a Bernoulli number
@@ -133,7 +133,7 @@ static const double ln_2pi_2 = 0.918938533204672741803;  // log(2*PI)/2
    < 1e-10. In two small regions, 1 +/- .001 and 2 +/- .001 errors
    increase quickly.
 */
-static double nsLnGamma(double z_in, int *gsign) {
+static double nsLnGamma(double z_in, int* gsign) {
   double scale, z, sum, result;
   *gsign = 1;
 
@@ -157,7 +157,7 @@ static inline double lnPQfactor(double a, double x) {
   return a * log(x) - x - nsLnGamma(a, &gsign);
 }
 
-static double Pseries(double a, double x, int *error) {
+static double Pseries(double a, double x, int* error) {
   double sum, term;
   const double eps = 2.0 * DBL_EPSILON;
   const int imax = 5000;
@@ -175,7 +175,7 @@ static double Pseries(double a, double x, int *error) {
   return sum;
 }
 
-static double Qcontfrac(double a, double x, int *error) {
+static double Qcontfrac(double a, double x, int* error) {
   double result, D, C, e, f, term;
   const double eps = 2.0 * DBL_EPSILON;
   const double small = DBL_EPSILON * DBL_EPSILON * DBL_EPSILON * DBL_EPSILON;
@@ -205,7 +205,7 @@ static double Qcontfrac(double a, double x, int *error) {
   return result;
 }
 
-static double nsIncompleteGammaP(double a, double x, int *error) {
+static double nsIncompleteGammaP(double a, double x, int* error) {
   double result, dom, ldom;
   //  domain errors. the return values are meaningless but have
   //  to return something.

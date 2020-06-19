@@ -53,22 +53,22 @@ class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
   NS_DECL_NSICLASSINFO
 
  protected:
-  virtual nsresult Clone(nsIURI **_retval);
-  virtual nsresult SetScheme(const nsACString &aScheme);
-  virtual nsresult SetUserPass(const nsACString &aUserPass);
-  virtual nsresult SetUsername(const nsACString &aUsername);
-  virtual nsresult SetPassword(const nsACString &aPassword);
-  virtual nsresult SetHostPort(const nsACString &aHostPort);
-  virtual nsresult SetHost(const nsACString &aHost);
+  virtual nsresult Clone(nsIURI** _retval);
+  virtual nsresult SetScheme(const nsACString& aScheme);
+  virtual nsresult SetUserPass(const nsACString& aUserPass);
+  virtual nsresult SetUsername(const nsACString& aUsername);
+  virtual nsresult SetPassword(const nsACString& aPassword);
+  virtual nsresult SetHostPort(const nsACString& aHostPort);
+  virtual nsresult SetHost(const nsACString& aHost);
   virtual nsresult SetPort(int32_t aPort);
-  virtual nsresult SetPathQueryRef(const nsACString &aPath);
-  virtual nsresult SetRef(const nsACString &aRef);
-  virtual nsresult SetFilePath(const nsACString &aFilePath);
-  virtual nsresult SetQuery(const nsACString &aQuery);
-  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery,
-                                        const mozilla::Encoding *aEncoding);
-  virtual nsresult CreateURL(const nsACString &aSpec,
-                             nsIURL **aURL);  // nsMailboxUrl overrides this.
+  virtual nsresult SetPathQueryRef(const nsACString& aPath);
+  virtual nsresult SetRef(const nsACString& aRef);
+  virtual nsresult SetFilePath(const nsACString& aFilePath);
+  virtual nsresult SetQuery(const nsACString& aQuery);
+  virtual nsresult SetQueryWithEncoding(const nsACString& aQuery,
+                                        const mozilla::Encoding* aEncoding);
+  virtual nsresult CreateURL(const nsACString& aSpec,
+                             nsIURL** aURL);  // nsMailboxUrl overrides this.
 
  public:
   class Mutator : public nsIURIMutator,
@@ -76,17 +76,17 @@ class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
     NS_DECL_ISUPPORTS
     NS_FORWARD_SAFE_NSIURISETTERS_RET(mURI)
 
-    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams &aParams) override {
+    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override {
       return NS_ERROR_NOT_IMPLEMENTED;
     }
 
-    NS_IMETHOD Finalize(nsIURI **aURI) override {
+    NS_IMETHOD Finalize(nsIURI** aURI) override {
       mURI.forget(aURI);
       return NS_OK;
     }
 
-    NS_IMETHOD SetSpec(const nsACString &aSpec,
-                       nsIURIMutator **aMutator) override {
+    NS_IMETHOD SetSpec(const nsACString& aSpec,
+                       nsIURIMutator** aMutator) override {
       if (aMutator) NS_ADDREF(*aMutator = this);
       return InitFromSpec(aSpec);
     }

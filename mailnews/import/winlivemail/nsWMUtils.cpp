@@ -20,7 +20,7 @@
 #include "mozilla/ErrorResult.h"
 #include "mozilla/dom/DOMParser.h"
 
-nsresult nsWMUtils::FindWMKey(nsIWindowsRegKey **aKey) {
+nsresult nsWMUtils::FindWMKey(nsIWindowsRegKey** aKey) {
   nsresult rv;
   nsCOMPtr<nsIWindowsRegKey> key =
       do_CreateInstance("@mozilla.org/windows-registry-key;1", &rv);
@@ -41,7 +41,7 @@ nsresult nsWMUtils::FindWMKey(nsIWindowsRegKey **aKey) {
   return rv;
 }
 
-nsresult nsWMUtils::GetRootFolder(nsIFile **aRootFolder) {
+nsresult nsWMUtils::GetRootFolder(nsIFile** aRootFolder) {
   nsCOMPtr<nsIWindowsRegKey> key;
   if (NS_FAILED(nsWMUtils::FindWMKey(getter_AddRefs(key)))) {
     IMPORT_LOG0("*** Error finding Windows Live Mail registry account keys\n");
@@ -81,7 +81,7 @@ nsresult nsWMUtils::GetRootFolder(nsIFile **aRootFolder) {
   return NS_OK;
 }
 
-nsresult nsWMUtils::GetOEAccountFiles(nsCOMArray<nsIFile> &aFileArray) {
+nsresult nsWMUtils::GetOEAccountFiles(nsCOMArray<nsIFile>& aFileArray) {
   nsCOMPtr<nsIFile> rootFolder;
 
   nsresult rv = GetRootFolder(getter_AddRefs(rootFolder));
@@ -90,8 +90,8 @@ nsresult nsWMUtils::GetOEAccountFiles(nsCOMArray<nsIFile> &aFileArray) {
   return GetOEAccountFilesInFolder(rootFolder, aFileArray);
 }
 
-nsresult nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
-                                              nsCOMArray<nsIFile> &aFileArray) {
+nsresult nsWMUtils::GetOEAccountFilesInFolder(nsIFile* aFolder,
+                                              nsCOMArray<nsIFile>& aFileArray) {
   nsCOMPtr<nsIDirectoryEnumerator> entries;
   nsresult rv = aFolder->GetDirectoryEntries(getter_AddRefs(entries));
   if (NS_FAILED(rv) || !entries) return NS_ERROR_FAILURE;
@@ -119,8 +119,8 @@ nsresult nsWMUtils::GetOEAccountFilesInFolder(nsIFile *aFolder,
   return NS_OK;
 }
 
-nsresult nsWMUtils::MakeXMLdoc(mozilla::dom::Document **aXmlDoc,
-                               nsIFile *aFile) {
+nsresult nsWMUtils::MakeXMLdoc(mozilla::dom::Document** aXmlDoc,
+                               nsIFile* aFile) {
   nsresult rv;
   nsCOMPtr<nsIFileInputStream> stream =
       do_CreateInstance(NS_LOCALFILEINPUTSTREAM_CONTRACTID, &rv);
@@ -142,8 +142,8 @@ nsresult nsWMUtils::MakeXMLdoc(mozilla::dom::Document **aXmlDoc,
   return rv2.StealNSResult();
 }
 
-nsresult nsWMUtils::GetValueForTag(mozilla::dom::Document *aXmlDoc,
-                                   const char *aTagName, nsAString &aValue) {
+nsresult nsWMUtils::GetValueForTag(mozilla::dom::Document* aXmlDoc,
+                                   const char* aTagName, nsAString& aValue) {
   nsAutoString tagName;
   tagName.AssignASCII(aTagName);
   nsCOMPtr<nsINodeList> list = aXmlDoc->GetElementsByTagName(tagName);

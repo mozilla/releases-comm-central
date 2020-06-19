@@ -26,12 +26,12 @@
 //----------- Adapter class for searching XPAT-capable news servers -----------
 //-----------------------------------------------------------------------------
 
-const char *nsMsgSearchNews::m_kNntpFrom = "FROM ";
-const char *nsMsgSearchNews::m_kNntpSubject = "SUBJECT ";
-const char *nsMsgSearchNews::m_kTermSeparator = "/";
+const char* nsMsgSearchNews::m_kNntpFrom = "FROM ";
+const char* nsMsgSearchNews::m_kNntpSubject = "SUBJECT ";
+const char* nsMsgSearchNews::m_kTermSeparator = "/";
 
-nsMsgSearchNews::nsMsgSearchNews(nsMsgSearchScopeTerm *scope,
-                                 nsIArray *termList)
+nsMsgSearchNews::nsMsgSearchNews(nsMsgSearchScopeTerm* scope,
+                                 nsIArray* termList)
     : nsMsgSearchAdapter(scope, termList) {
   m_searchType = ST_UNINITIALIZED;
 }
@@ -47,21 +47,21 @@ nsresult nsMsgSearchNews::ValidateTerms() {
   return err;
 }
 
-nsresult nsMsgSearchNews::Search(bool *aDone) {
+nsresult nsMsgSearchNews::Search(bool* aDone) {
   // the state machine runs in the news: handler
   nsresult err = NS_ERROR_NOT_IMPLEMENTED;
   return err;
 }
 
-char16_t *nsMsgSearchNews::EncodeToWildmat(const char16_t *value) {
+char16_t* nsMsgSearchNews::EncodeToWildmat(const char16_t* value) {
   // Here we take advantage of XPAT's use of the wildmat format, which allows
   // a case-insensitive match by specifying each case possibility for each
   // character So, "FooBar" is encoded as "[Ff][Oo][Bb][Aa][Rr]"
 
-  char16_t *caseInsensitiveValue =
-      (char16_t *)moz_xmalloc(sizeof(char16_t) * ((4 * NS_strlen(value)) + 1));
+  char16_t* caseInsensitiveValue =
+      (char16_t*)moz_xmalloc(sizeof(char16_t) * ((4 * NS_strlen(value)) + 1));
   if (caseInsensitiveValue) {
-    char16_t *walkValue = caseInsensitiveValue;
+    char16_t* walkValue = caseInsensitiveValue;
     while (*value) {
       if (isalpha(*value)) {
         *walkValue++ = (char16_t)'[';
@@ -77,14 +77,14 @@ char16_t *nsMsgSearchNews::EncodeToWildmat(const char16_t *value) {
   return caseInsensitiveValue;
 }
 
-char *nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm *term) {
+char* nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm* term) {
   // Develop an XPAT-style encoding for the search term
 
   NS_ASSERTION(term, "null term");
   if (!term) return nullptr;
 
   // Find a string to represent the attribute
-  const char *attribEncoding = nullptr;
+  const char* attribEncoding = nullptr;
   nsMsgSearchAttribValue attrib;
 
   term->GetAttrib(&attrib);
@@ -145,7 +145,7 @@ char *nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm *term) {
   rv = searchValue->GetStr(intlNonRFC1522Value);
   if (NS_FAILED(rv) || intlNonRFC1522Value.IsEmpty()) return nullptr;
 
-  char16_t *caseInsensitiveValue = EncodeToWildmat(intlNonRFC1522Value.get());
+  char16_t* caseInsensitiveValue = EncodeToWildmat(intlNonRFC1522Value.get());
   if (!caseInsensitiveValue) return nullptr;
 
   // TO DO: Do INTL_FormatNNTPXPATInRFC1522Format trick for non-ASCII string
@@ -154,7 +154,7 @@ char *nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm *term) {
   // that so we should search a string in either RFC1522 format and non-RFC1522
   // format
 
-  char16_t *escapedValue = EscapeSearchUrl(caseInsensitiveValue);
+  char16_t* escapedValue = EscapeSearchUrl(caseInsensitiveValue);
   free(caseInsensitiveValue);
   if (!escapedValue) return nullptr;
 
@@ -169,7 +169,7 @@ char *nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm *term) {
   const char xpatTemplate[] = "XPAT %s 1- %s";
   int termLength = (sizeof(xpatTemplate) - 1) + strlen(attribEncoding) +
                    pattern.Length() + 1;
-  char *termEncoding = new char[termLength];
+  char* termEncoding = new char[termLength];
   if (termEncoding)
     PR_snprintf(termEncoding, termLength, xpatTemplate, attribEncoding,
                 pattern.get());
@@ -177,13 +177,13 @@ char *nsMsgSearchNews::EncodeTerm(nsIMsgSearchTerm *term) {
   return termEncoding;
 }
 
-nsresult nsMsgSearchNews::GetEncoding(char **result) {
+nsresult nsMsgSearchNews::GetEncoding(char** result) {
   NS_ENSURE_ARG(result);
   *result = ToNewCString(m_encoding);
   return (*result) ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-nsresult nsMsgSearchNews::Encode(nsCString *outEncoding) {
+nsresult nsMsgSearchNews::Encode(nsCString* outEncoding) {
   NS_ASSERTION(outEncoding, "no out encoding");
   if (!outEncoding) return NS_ERROR_NULL_POINTER;
 
@@ -192,7 +192,7 @@ nsresult nsMsgSearchNews::Encode(nsCString *outEncoding) {
   uint32_t numTerms;
 
   m_searchTerms->GetLength(&numTerms);
-  char **intermediateEncodings = new char *[numTerms];
+  char** intermediateEncodings = new char*[numTerms];
   if (intermediateEncodings) {
     // Build an XPAT command for each term
     int encodingLength = 0;
@@ -212,7 +212,7 @@ nsresult nsMsgSearchNews::Encode(nsCString *outEncoding) {
     }
     encodingLength += strlen("?search");
     // Combine all the term encodings into one big encoding
-    char *encoding = new char[encodingLength + 1];
+    char* encoding = new char[encodingLength + 1];
     if (encoding) {
       PL_strcpy(encoding, "?search");
 
@@ -331,7 +331,7 @@ void nsMsgSearchNews::ReportHits() {
 }
 
 // ### this should take an nsIMsgFolder instead of a string location.
-void nsMsgSearchNews::ReportHit(nsIMsgDBHdr *pHeaders, nsIMsgFolder *folder) {
+void nsMsgSearchNews::ReportHit(nsIMsgDBHdr* pHeaders, nsIMsgFolder* folder) {
   // this is totally filched from msg_SearchOfflineMail until I decide whether
   // the right thing is to get them from the db or from NNTP
   nsCOMPtr<nsIMsgSearchSession> session;

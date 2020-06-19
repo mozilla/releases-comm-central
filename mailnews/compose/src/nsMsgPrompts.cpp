@@ -14,7 +14,7 @@
 #include "nsMsgUtils.h"
 #include "mozilla/Services.h"
 
-nsresult nsMsgGetMessageByName(const char *aName, nsString &aResult) {
+nsresult nsMsgGetMessageByName(const char* aName, nsString& aResult) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
@@ -29,8 +29,8 @@ nsresult nsMsgGetMessageByName(const char *aName, nsString &aResult) {
   return bundle->GetStringFromName(aName, aResult);
 }
 
-static nsresult nsMsgBuildMessageByName(const char *aName, nsIFile *aFile,
-                                        nsString &aResult) {
+static nsresult nsMsgBuildMessageByName(const char* aName, nsIFile* aFile,
+                                        nsString& aResult) {
   NS_ENSURE_ARG_POINTER(aFile);
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -50,23 +50,23 @@ static nsresult nsMsgBuildMessageByName(const char *aName, nsIFile *aFile,
   return bundle->FormatStringFromName(aName, params, aResult);
 }
 
-nsresult nsMsgBuildMessageWithFile(nsIFile *aFile, nsString &aResult) {
+nsresult nsMsgBuildMessageWithFile(nsIFile* aFile, nsString& aResult) {
   return nsMsgBuildMessageByName("unableToOpenFile", aFile, aResult);
 }
 
-nsresult nsMsgBuildMessageWithTmpFile(nsIFile *aFile, nsString &aResult) {
+nsresult nsMsgBuildMessageWithTmpFile(nsIFile* aFile, nsString& aResult) {
   return nsMsgBuildMessageByName("unableToOpenTmpFile", aFile, aResult);
 }
 
-nsresult nsMsgDisplayMessageByName(nsIPrompt *aPrompt, const char *aName,
-                                   const char16_t *windowTitle) {
+nsresult nsMsgDisplayMessageByName(nsIPrompt* aPrompt, const char* aName,
+                                   const char16_t* windowTitle) {
   nsString msg;
   nsMsgGetMessageByName(aName, msg);
   return nsMsgDisplayMessageByString(aPrompt, msg.get(), windowTitle);
 }
 
-nsresult nsMsgDisplayMessageByString(nsIPrompt *aPrompt, const char16_t *msg,
-                                     const char16_t *windowTitle) {
+nsresult nsMsgDisplayMessageByString(nsIPrompt* aPrompt, const char16_t* msg,
+                                     const char16_t* windowTitle) {
   NS_ENSURE_ARG_POINTER(msg);
 
   nsresult rv = NS_OK;
@@ -83,9 +83,9 @@ nsresult nsMsgDisplayMessageByString(nsIPrompt *aPrompt, const char16_t *msg,
   return rv;
 }
 
-nsresult nsMsgAskBooleanQuestionByString(nsIPrompt *aPrompt,
-                                         const char16_t *msg, bool *answer,
-                                         const char16_t *windowTitle) {
+nsresult nsMsgAskBooleanQuestionByString(nsIPrompt* aPrompt,
+                                         const char16_t* msg, bool* answer,
+                                         const char16_t* windowTitle) {
   NS_ENSURE_TRUE(msg && *msg, NS_ERROR_INVALID_ARG);
 
   nsresult rv = NS_OK;

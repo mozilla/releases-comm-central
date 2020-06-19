@@ -141,23 +141,23 @@ class nsNNTPProtocol : public nsMsgProtocol,
 
   // Creating a protocol instance requires the URL
   // need to call Initialize after we do a new of nsNNTPProtocol
-  nsNNTPProtocol(nsINntpIncomingServer *aServer, nsIURI *aURL,
-                 nsIMsgWindow *aMsgWindow);
+  nsNNTPProtocol(nsINntpIncomingServer* aServer, nsIURI* aURL,
+                 nsIMsgWindow* aMsgWindow);
 
   // stop binding is a "notification" informing us that the stream associated
   // with aURL is going away.
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult aStatus) override;
+  NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult aStatus) override;
 
-  char *m_ProxyServer; /* proxy server hostname */
+  char* m_ProxyServer; /* proxy server hostname */
 
   NS_IMETHOD Cancel(nsresult status) override;  // handle stop button
-  NS_IMETHOD GetContentType(nsACString &aContentType) override;
-  NS_IMETHOD AsyncOpen(nsIStreamListener *listener) override;
-  NS_IMETHOD GetOriginalURI(nsIURI **aURI) override;
-  NS_IMETHOD SetOriginalURI(nsIURI *aURI) override;
+  NS_IMETHOD GetContentType(nsACString& aContentType) override;
+  NS_IMETHOD AsyncOpen(nsIStreamListener* listener) override;
+  NS_IMETHOD GetOriginalURI(nsIURI** aURI) override;
+  NS_IMETHOD SetOriginalURI(nsIURI* aURI) override;
   void PostLoadAssertions();
 
-  nsresult LoadUrl(nsIURI *aURL, nsISupports *aConsumer) override;
+  nsresult LoadUrl(nsIURI* aURL, nsISupports* aConsumer) override;
 
  private:
   virtual ~nsNNTPProtocol();
@@ -179,27 +179,27 @@ class nsNNTPProtocol : public nsMsgProtocol,
    * the code will not read the input stream at all. Therefore, it is strongly
    * advised to suspend the request before using this state.
    */
-  virtual nsresult ProcessProtocolState(nsIURI *url,
-                                        nsIInputStream *inputStream,
+  virtual nsresult ProcessProtocolState(nsIURI* url,
+                                        nsIInputStream* inputStream,
                                         uint64_t sourceOffset,
                                         uint32_t length) override;
   virtual nsresult CloseSocket() override;
 
   // we have our own implementation of SendData which writes to the nntp log
   // and then calls the base class to transmit the data
-  nsresult SendData(const char *dataBuffer,
+  nsresult SendData(const char* dataBuffer,
                     bool aSuppressLogging = false) override;
 
-  nsresult LoadUrlInternal(nsIProxyInfo *aProxyInfo);
+  nsresult LoadUrlInternal(nsIProxyInfo* aProxyInfo);
   nsresult CleanupAfterRunningUrl();
   void Cleanup();  // free char* member variables
 
-  void ParseHeaderForCancel(char *buf);
+  void ParseHeaderForCancel(char* buf);
 
-  virtual const char *GetType() override { return "nntp"; }
+  virtual const char* GetType() override { return "nntp"; }
 
-  static void CheckIfAuthor(nsIMsgIdentity *aIdentity,
-                            const nsCString &aOldFrom, nsCString &aFrom);
+  static void CheckIfAuthor(nsIMsgIdentity* aIdentity,
+                            const nsCString& aOldFrom, nsCString& aFrom);
 
   nsCOMPtr<nsINNTPNewsgroupList> m_newsgroupList;
   nsCOMPtr<nsINNTPArticleList> m_articleList;
@@ -227,9 +227,9 @@ class nsNNTPProtocol : public nsMsgProtocol,
   int32_t m_typeWanted;   /* Article, List, or Group */
   int32_t m_responseCode; /* code returned from NNTP server */
   int32_t m_previousResponseCode;
-  char *m_responseText; /* text returned from NNTP server */
+  char* m_responseText; /* text returned from NNTP server */
 
-  char *m_dataBuf;
+  char* m_dataBuf;
   uint32_t m_dataBufSize;
 
   /* for group command */
@@ -269,16 +269,16 @@ class nsNNTPProtocol : public nsMsgProtocol,
 
   nsCOMPtr<nsINntpIncomingServer> m_nntpServer;
 
-  nsresult GetNewsStringByName(const char *aName, char16_t **aString);
-  nsresult GetNewsStringByID(int32_t stringID, char16_t **aString);
+  nsresult GetNewsStringByName(const char* aName, char16_t** aString);
+  nsresult GetNewsStringByID(int32_t stringID, char16_t** aString);
 
-  nsresult PostMessageInFile(nsIFile *filePath);
+  nsresult PostMessageInFile(nsIFile* filePath);
 
   //////////////////////////////////////////////////////////////////////////////
   // Communication methods --> Reading and writing protocol
   //////////////////////////////////////////////////////////////////////////////
 
-  int32_t ReadLine(nsIInputStream *inputStream, uint32_t length, char **line);
+  int32_t ReadLine(nsIInputStream* inputStream, uint32_t length, char** line);
 
   //////////////////////////////////////////////////////////////////////////////
   // Protocol Methods --> This protocol is state driven so each protocol method
@@ -288,7 +288,7 @@ class nsNNTPProtocol : public nsMsgProtocol,
 
   // gets the response code from the nntp server and the response line. Returns
   // the TCP return code from the read.
-  nsresult NewsResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult NewsResponse(nsIInputStream* inputStream, uint32_t length);
 
   // Interpret the server response after the connect.
   // Returns negative if the server responds unexpectedly
@@ -297,27 +297,27 @@ class nsNNTPProtocol : public nsMsgProtocol,
   nsresult SendModeReaderResponse();
 
   nsresult SendListExtensions();
-  nsresult SendListExtensionsResponse(nsIInputStream *inputStream,
+  nsresult SendListExtensionsResponse(nsIInputStream* inputStream,
                                       uint32_t length);
 
   nsresult SendListSearches();
-  nsresult SendListSearchesResponse(nsIInputStream *inputStream,
+  nsresult SendListSearchesResponse(nsIInputStream* inputStream,
                                     uint32_t length);
 
   nsresult SendListSearchHeaders();
-  nsresult SendListSearchHeadersResponse(nsIInputStream *inputStream,
+  nsresult SendListSearchHeadersResponse(nsIInputStream* inputStream,
                                          uint32_t length);
 
   nsresult GetProperties();
-  nsresult GetPropertiesResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult GetPropertiesResponse(nsIInputStream* inputStream, uint32_t length);
 
   nsresult SendListSubscriptions();
-  nsresult SendListSubscriptionsResponse(nsIInputStream *inputStream,
+  nsresult SendListSubscriptionsResponse(nsIInputStream* inputStream,
                                          uint32_t length);
 
   // Figure out what the first command is and send it.
   // Returns the status from the NETWrite.
-  nsresult SendFirstNNTPCommand(nsIURI *url);
+  nsresult SendFirstNNTPCommand(nsIURI* url);
 
   // Interprets the server response from the first command sent.
   // returns negative if the server responds unexpectedly.
@@ -330,8 +330,8 @@ class nsNNTPProtocol : public nsMsgProtocol,
 
   nsresult SendArticleNumber();
   nsresult BeginArticle();
-  nsresult ReadArticle(nsIInputStream *inputStream, uint32_t length);
-  nsresult DisplayArticle(nsIInputStream *inputStream, uint32_t length);
+  nsresult ReadArticle(nsIInputStream* inputStream, uint32_t length);
+  nsresult DisplayArticle(nsIInputStream* inputStream, uint32_t length);
 
   //////////////////////////////////////////////////////////////////////////////
   // News authentication code
@@ -364,12 +364,12 @@ class nsNNTPProtocol : public nsMsgProtocol,
   nsresult PasswordResponse();
 
   nsresult BeginReadNewsList();
-  nsresult ReadNewsList(nsIInputStream *inputStream, uint32_t length);
+  nsresult ReadNewsList(nsIInputStream* inputStream, uint32_t length);
 
   // Newsgroup specific protocol handlers
   nsresult DisplayNewsgroups();
   nsresult BeginNewsgroups();
-  nsresult ProcessNewsgroups(nsIInputStream *inputStream, uint32_t length);
+  nsresult ProcessNewsgroups(nsIInputStream* inputStream, uint32_t length);
 
   // Protocol handlers used for posting data
   nsresult PostData();
@@ -415,7 +415,7 @@ class nsNNTPProtocol : public nsMsgProtocol,
    * It asks nsNNTPNewsgroupList to process the line using ProcessXOVERLINE.
    * Followed by: NNTP_XHDR_SEND
    */
-  nsresult ReadXover(nsIInputStream *inputStream, uint32_t length);
+  nsresult ReadXover(nsIInputStream* inputStream, uint32_t length);
 
   // The XHDR process core
   /**
@@ -435,7 +435,7 @@ class nsNNTPProtocol : public nsMsgProtocol,
    * Followed by: NNTP_READ_GROUP          if XHDR doesn't work properly
    *              NNTP_XHDR_SEND           when finished processing XHR.
    */
-  nsresult XhdrResponse(nsIInputStream *inputStream);
+  nsresult XhdrResponse(nsIInputStream* inputStream);
 
   // HEAD processing core
   /**
@@ -460,7 +460,7 @@ class nsNNTPProtocol : public nsMsgProtocol,
    * Once again, it passes information off to nsNNTPNewsgroupList.
    * Followed by: NNTP_READ_GROUP
    */
-  nsresult ReadNewsgroupBody(nsIInputStream *inputStream, uint32_t length);
+  nsresult ReadNewsgroupBody(nsIInputStream* inputStream, uint32_t length);
 
   /**
    * This state, NNTP_PROCESS_XOVER, is the final step of the filter-processing
@@ -476,38 +476,38 @@ class nsNNTPProtocol : public nsMsgProtocol,
 
   // XPAT
   nsresult XPATSend();
-  nsresult XPATResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult XPATResponse(nsIInputStream* inputStream, uint32_t length);
   nsresult ListPrettyNames();
-  nsresult ListPrettyNamesResponse(nsIInputStream *inputStream,
+  nsresult ListPrettyNamesResponse(nsIInputStream* inputStream,
                                    uint32_t length);
 
   nsresult ListXActive();
-  nsresult ListXActiveResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult ListXActiveResponse(nsIInputStream* inputStream, uint32_t length);
 
   // for "?list-ids"
   nsresult SendListGroup();
-  nsresult SendListGroupResponse(nsIInputStream *inputStream, uint32_t length);
+  nsresult SendListGroupResponse(nsIInputStream* inputStream, uint32_t length);
 
   // Searching Protocol....
   nsresult Search();
   nsresult SearchResponse();
-  nsresult SearchResults(nsIInputStream *inputStream, uint32_t length);
+  nsresult SearchResults(nsIInputStream* inputStream, uint32_t length);
 
   //////////////////////////////////////////////////////////////////////////////
   // End of Protocol Methods
   //////////////////////////////////////////////////////////////////////////////
 
-  nsresult ParseURL(nsIURI *aURL, nsCString &aGroup, nsCString &aMessageID);
+  nsresult ParseURL(nsIURI* aURL, nsCString& aGroup, nsCString& aMessageID);
 
   void SetProgressBarPercent(uint32_t aProgress, uint32_t aProgressMax);
-  nsresult SetProgressStatus(const char16_t *aMessage);
-  nsresult InitializeNewsFolderFromUri(const char *uri);
+  nsresult SetProgressStatus(const char16_t* aMessage);
+  nsresult InitializeNewsFolderFromUri(const char* uri);
   void TimerCallback();
 
   void HandleAuthenticationFailure();
   nsCOMPtr<nsIInputStream> mInputStream;
   nsCOMPtr<nsITimer> mUpdateTimer;
-  nsresult AlertError(int32_t errorCode, const char *text);
+  nsresult AlertError(int32_t errorCode, const char* text);
   int32_t mBytesReceived;
   int32_t mBytesReceivedSinceLastStatusUpdate;
   PRTime m_startTime;
@@ -527,9 +527,9 @@ class nsNNTPProtocol : public nsMsgProtocol,
                               // (offline) cache....
   nsresult
   ReadFromNewsConnection();  // creates a new news connection to read the url
-  nsresult ReadFromMemCache(nsICacheEntry *entry);  // attempts to read the url
+  nsresult ReadFromMemCache(nsICacheEntry* entry);  // attempts to read the url
                                                     // out of our memory cache
-  nsresult SetupPartExtractorListener(nsIStreamListener *aConsumer);
+  nsresult SetupPartExtractorListener(nsIStreamListener* aConsumer);
 };
 
 #endif  // nsNNTPProtocol_h___

@@ -39,28 +39,28 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
 
   nsMsgComposeSecure();
 
-  void GetOutputStream(nsIOutputStream **stream) {
+  void GetOutputStream(nsIOutputStream** stream) {
     NS_IF_ADDREF(*stream = mStream);
   }
-  nsresult GetSMIMEBundleString(const char16_t *name, nsString &outString);
+  nsresult GetSMIMEBundleString(const char16_t* name, nsString& outString);
 
  private:
   virtual ~nsMsgComposeSecure();
   typedef mozilla::mailnews::MimeEncoder MimeEncoder;
-  nsresult MimeInitMultipartSigned(bool aOuter, nsIMsgSendReport *sendReport);
-  nsresult MimeInitEncryption(bool aSign, nsIMsgSendReport *sendReport);
-  nsresult MimeFinishMultipartSigned(bool aOuter, nsIMsgSendReport *sendReport);
-  nsresult MimeFinishEncryption(bool aSign, nsIMsgSendReport *sendReport);
-  nsresult MimeCryptoHackCerts(const char *aRecipients,
-                               nsIMsgSendReport *sendReport, bool aEncrypt,
-                               bool aSign, nsIMsgIdentity *aIdentity);
+  nsresult MimeInitMultipartSigned(bool aOuter, nsIMsgSendReport* sendReport);
+  nsresult MimeInitEncryption(bool aSign, nsIMsgSendReport* sendReport);
+  nsresult MimeFinishMultipartSigned(bool aOuter, nsIMsgSendReport* sendReport);
+  nsresult MimeFinishEncryption(bool aSign, nsIMsgSendReport* sendReport);
+  nsresult MimeCryptoHackCerts(const char* aRecipients,
+                               nsIMsgSendReport* sendReport, bool aEncrypt,
+                               bool aSign, nsIMsgIdentity* aIdentity);
   bool InitializeSMIMEBundle();
-  nsresult SMIMEBundleFormatStringFromName(const char *name,
-                                           nsTArray<nsString> &params,
-                                           nsAString &outString);
-  nsresult ExtractEncryptionState(nsIMsgIdentity *aIdentity,
-                                  nsIMsgCompFields *aComposeFields,
-                                  bool *aSignMessage, bool *aEncrypt);
+  nsresult SMIMEBundleFormatStringFromName(const char* name,
+                                           nsTArray<nsString>& params,
+                                           nsAString& outString);
+  nsresult ExtractEncryptionState(nsIMsgIdentity* aIdentity,
+                                  nsIMsgCompFields* aComposeFields,
+                                  bool* aSignMessage, bool* aEncrypt);
 
   bool mSignMessage;
   bool mAlwaysEncryptMessage;
@@ -69,7 +69,7 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
   int16_t mHashType;
   nsCOMPtr<nsICryptoHash> mDataHash;
   mozilla::UniquePtr<MimeEncoder> mSigEncoder;
-  char *mMultipartSignedBoundary;
+  char* mMultipartSignedBoundary;
   nsString mSigningCertName;
   nsAutoCString mSigningCertDBKey;
   nsCOMPtr<nsIX509Cert> mSelfSigningCert;
@@ -85,13 +85,13 @@ class nsMsgComposeSecure : public nsIMsgComposeSecure {
   bool mIsDraft;
 
   enum { eBufferSize = 8192 };
-  char *mBuffer;
+  char* mBuffer;
   uint32_t mBufferedBytes;
 
   bool mErrorAlreadyReported;
-  void SetError(nsIMsgSendReport *sendReport, const char16_t *bundle_string);
-  void SetErrorWithParam(nsIMsgSendReport *sendReport,
-                         const char *bundle_string, const char *param);
+  void SetError(nsIMsgSendReport* sendReport, const char16_t* bundle_string);
+  void SetErrorWithParam(nsIMsgSendReport* sendReport,
+                         const char* bundle_string, const char* param);
 };
 
 #endif

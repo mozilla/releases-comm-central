@@ -14,8 +14,8 @@
 
 ////////////////////////////////////////////////////////////////////////
 
-nsresult nsImportFieldMap::Create(nsIStringBundle *aBundle, nsISupports *aOuter,
-                                  REFNSIID aIID, void **aResult) {
+nsresult nsImportFieldMap::Create(nsIStringBundle* aBundle, nsISupports* aOuter,
+                                  REFNSIID aIID, void** aResult) {
   if (aOuter) return NS_ERROR_NO_AGGREGATION;
 
   RefPtr<nsImportFieldMap> it = new nsImportFieldMap(aBundle);
@@ -24,7 +24,7 @@ nsresult nsImportFieldMap::Create(nsIStringBundle *aBundle, nsISupports *aOuter,
 
 NS_IMPL_ISUPPORTS(nsImportFieldMap, nsIImportFieldMap)
 
-NS_IMETHODIMP nsImportFieldMap::GetSkipFirstRecord(bool *result) {
+NS_IMETHODIMP nsImportFieldMap::GetSkipFirstRecord(bool* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = m_skipFirstRecord;
   return NS_OK;
@@ -35,7 +35,7 @@ NS_IMETHODIMP nsImportFieldMap::SetSkipFirstRecord(bool aResult) {
   return NS_OK;
 }
 
-nsImportFieldMap::nsImportFieldMap(nsIStringBundle *aBundle) {
+nsImportFieldMap::nsImportFieldMap(nsIStringBundle* aBundle) {
   m_numFields = 0;
   m_pFields = nullptr;
   m_pActive = nullptr;
@@ -45,7 +45,7 @@ nsImportFieldMap::nsImportFieldMap(nsIStringBundle *aBundle) {
   m_skipFirstRecord = false;
   nsCOMPtr<nsIStringBundle> pBundle = aBundle;
 
-  nsString *pStr;
+  nsString* pStr;
   for (int32_t i = IMPORT_FIELD_DESC_START; i <= IMPORT_FIELD_DESC_END;
        i++, m_mozFieldCount++) {
     pStr = new nsString();
@@ -61,7 +61,7 @@ nsImportFieldMap::~nsImportFieldMap() {
   if (m_pFields) delete[] m_pFields;
   if (m_pActive) delete[] m_pActive;
 
-  nsString *pStr;
+  nsString* pStr;
   for (int32_t i = 0; i < m_mozFieldCount; i++) {
     pStr = m_descriptions.ElementAt(i);
     delete pStr;
@@ -69,7 +69,7 @@ nsImportFieldMap::~nsImportFieldMap() {
   m_descriptions.Clear();
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetNumMozFields(int32_t *aNumFields) {
+NS_IMETHODIMP nsImportFieldMap::GetNumMozFields(int32_t* aNumFields) {
   NS_ASSERTION(aNumFields != nullptr, "null ptr");
   if (!aNumFields) return NS_ERROR_NULL_POINTER;
 
@@ -77,7 +77,7 @@ NS_IMETHODIMP nsImportFieldMap::GetNumMozFields(int32_t *aNumFields) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetMapSize(int32_t *aNumFields) {
+NS_IMETHODIMP nsImportFieldMap::GetMapSize(int32_t* aNumFields) {
   NS_ASSERTION(aNumFields != nullptr, "null ptr");
   if (!aNumFields) return NS_ERROR_NULL_POINTER;
 
@@ -86,7 +86,7 @@ NS_IMETHODIMP nsImportFieldMap::GetMapSize(int32_t *aNumFields) {
 }
 
 NS_IMETHODIMP nsImportFieldMap::GetFieldDescription(int32_t index,
-                                                    char16_t **_retval) {
+                                                    char16_t** _retval) {
   NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!_retval) return NS_ERROR_NULL_POINTER;
 
@@ -118,7 +118,7 @@ NS_IMETHODIMP nsImportFieldMap::DefaultFieldMap(int32_t size) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetFieldMap(int32_t index, int32_t *_retval) {
+NS_IMETHODIMP nsImportFieldMap::GetFieldMap(int32_t index, int32_t* _retval) {
   NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!_retval) return NS_ERROR_NULL_POINTER;
 
@@ -145,7 +145,7 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldMap(int32_t index, int32_t fieldNum) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::GetFieldActive(int32_t index, bool *active) {
+NS_IMETHODIMP nsImportFieldMap::GetFieldActive(int32_t index, bool* active) {
   NS_ASSERTION(active != nullptr, "null ptr");
   if (!active) return NS_ERROR_NULL_POINTER;
   if ((index < 0) || (index >= m_numFields)) return NS_ERROR_FAILURE;
@@ -161,9 +161,9 @@ NS_IMETHODIMP nsImportFieldMap::SetFieldActive(int32_t index, bool active) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAbDirectory *database,
-                                              nsIAbCard *row, int32_t fieldNum,
-                                              const nsAString &value) {
+NS_IMETHODIMP nsImportFieldMap::SetFieldValue(nsIAbDirectory* database,
+                                              nsIAbCard* row, int32_t fieldNum,
+                                              const nsAString& value) {
   // Allow the special value for a null field
   if (fieldNum == -1) return NS_OK;
 
@@ -299,9 +299,9 @@ nsresult nsImportFieldMap::Allocate(int32_t newSize) {
   int32_t sz = m_allocated;
   while (sz < newSize) sz += 30;
 
-  int32_t *pData = new int32_t[sz];
+  int32_t* pData = new int32_t[sz];
   if (!pData) return NS_ERROR_OUT_OF_MEMORY;
-  bool *pActive = new bool[sz];
+  bool* pActive = new bool[sz];
   if (!pActive) {
     delete[] pData;
     return NS_ERROR_OUT_OF_MEMORY;

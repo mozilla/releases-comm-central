@@ -48,13 +48,13 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
   // Deal with quoting issues...
   nsresult QuoteOriginalMessage();  // New template
   nsresult SetQuotingToFollow(bool aVal);
-  nsresult ConvertHTMLToText(nsIFile *aSigFile, nsString &aSigData);
-  nsresult ConvertTextToHTML(nsIFile *aSigFile, nsString &aSigData);
-  bool IsEmbeddedObjectSafe(const char *originalScheme,
-                            const char *originalHost, const char *originalPath,
-                            mozilla::dom::Element *element);
+  nsresult ConvertHTMLToText(nsIFile* aSigFile, nsString& aSigData);
+  nsresult ConvertTextToHTML(nsIFile* aSigFile, nsString& aSigData);
+  bool IsEmbeddedObjectSafe(const char* originalScheme,
+                            const char* originalHost, const char* originalPath,
+                            mozilla::dom::Element* element);
   nsresult ResetUrisForEmbeddedObjects();
-  nsresult TagEmbeddedObjects(nsIEditor *aEditor);
+  nsresult TagEmbeddedObjects(nsIEditor* aEditor);
 
   nsCString mQuoteCharset;
   nsCString mOriginalMsgURI;  // used so we can mark message disposition flags
@@ -62,34 +62,34 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
 
   int32_t mWhatHolder;
 
-  nsresult LoadDataFromFile(nsIFile *file, nsString &sigData,
+  nsresult LoadDataFromFile(nsIFile* file, nsString& sigData,
                             bool aAllowUTF8 = true, bool aAllowUTF16 = true);
 
-  bool CheckIncludeSignaturePrefs(nsIMsgIdentity *identity);
+  bool CheckIncludeSignaturePrefs(nsIMsgIdentity* identity);
   // m_folderName to store the value of the saved drafts folder.
   nsCString m_folderName;
-  void InsertDivWrappedTextAtSelection(const nsAString &aText,
-                                       const nsAString &classStr);
+  void InsertDivWrappedTextAtSelection(const nsAString& aText,
+                                       const nsAString& classStr);
 
  protected:
-  nsresult CreateMessage(const char *originalMsgURI, MSG_ComposeType type,
-                         nsIMsgCompFields *compFields);
-  void CleanUpRecipients(nsString &recipients);
-  nsresult GetABDirAndMailLists(const nsACString &aDirUri,
-                                nsCOMArray<nsIAbDirectory> &aDirArray,
-                                nsTArray<nsMsgMailList> &aMailListArray);
-  nsresult ResolveMailList(nsIAbDirectory *aMailList,
-                           nsCOMArray<nsIAbDirectory> &allDirectoriesArray,
-                           nsTArray<nsMsgMailList> &allMailListArray,
-                           nsTArray<nsMsgMailList> &mailListResolved,
-                           nsTArray<nsMsgRecipient> &aListMembers);
-  void TagConvertible(mozilla::dom::Element *node, int32_t *_retval);
-  void _NodeTreeConvertible(mozilla::dom::Element *node, int32_t *_retval);
+  nsresult CreateMessage(const char* originalMsgURI, MSG_ComposeType type,
+                         nsIMsgCompFields* compFields);
+  void CleanUpRecipients(nsString& recipients);
+  nsresult GetABDirAndMailLists(const nsACString& aDirUri,
+                                nsCOMArray<nsIAbDirectory>& aDirArray,
+                                nsTArray<nsMsgMailList>& aMailListArray);
+  nsresult ResolveMailList(nsIAbDirectory* aMailList,
+                           nsCOMArray<nsIAbDirectory>& allDirectoriesArray,
+                           nsTArray<nsMsgMailList>& allMailListArray,
+                           nsTArray<nsMsgMailList>& mailListResolved,
+                           nsTArray<nsMsgRecipient>& aListMembers);
+  void TagConvertible(mozilla::dom::Element* node, int32_t* _retval);
+  void _NodeTreeConvertible(mozilla::dom::Element* node, int32_t* _retval);
   nsresult MoveToAboveQuote(void);
   nsresult MoveToBeginningOfDocument(void);
   nsresult MoveToEndOfDocument(void);
-  nsresult ReplaceFileURLs(nsString &sigData);
-  nsresult DataURLForFileURL(const nsAString &aFileURL, nsAString &aDataURL);
+  nsresult ReplaceFileURLs(nsString& sigData);
+  nsresult DataURLForFileURL(const nsAString& aFileURL, nsAString& aDataURL);
 
 // 3 = To, Cc, Bcc
 #define MAX_OF_RECIPIENT_ARRAY 3
@@ -98,14 +98,14 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
    * This method parses the compose fields and associates email addresses with
    * the relevant cards from the address books.
    */
-  nsresult LookupAddressBook(RecipientsArray &recipientList);
+  nsresult LookupAddressBook(RecipientsArray& recipientList);
   bool IsLastWindow();
 
   // Helper function. Parameters are not checked.
   bool mConvertStructs;  // for TagConvertible
 
   nsCOMPtr<nsIEditor> m_editor;
-  mozIDOMWindowProxy *m_window;
+  mozIDOMWindowProxy* m_window;
   nsCOMPtr<nsIDocShell> mDocShell;
   nsCOMPtr<nsIBaseWindow> m_baseWindow;
   RefPtr<nsMsgCompFields> m_compFields;
@@ -148,23 +148,23 @@ class nsMsgCompose : public nsIMsgCompose, public nsSupportsWeakReference {
 ////////////////////////////////////////////////////////////////////////////////////
 class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener {
  public:
-  QuotingOutputStreamListener(const char *originalMsgURI,
-                              nsIMsgDBHdr *origMsgHdr, bool quoteHeaders,
-                              bool headersOnly, nsIMsgIdentity *identity,
-                              nsIMsgQuote *msgQuote, bool charsetFixed,
+  QuotingOutputStreamListener(const char* originalMsgURI,
+                              nsIMsgDBHdr* origMsgHdr, bool quoteHeaders,
+                              bool headersOnly, nsIMsgIdentity* identity,
+                              nsIMsgQuote* msgQuote, bool charsetFixed,
                               bool quoteOriginal,
-                              const nsACString &htmlToQuote);
+                              const nsACString& htmlToQuote);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
   NS_DECL_NSIMSGQUOTINGOUTPUTSTREAMLISTENER
 
-  nsresult SetComposeObj(nsIMsgCompose *obj);
+  nsresult SetComposeObj(nsIMsgCompose* obj);
   nsresult ConvertToPlainText(bool formatflowed, bool delsp, bool formatted,
                               bool disallowBreaks);
-  nsresult InsertToCompose(nsIEditor *aEditor, bool aHTMLEditor);
-  nsresult AppendToMsgBody(const nsCString &inStr);
+  nsresult InsertToCompose(nsIEditor* aEditor, bool aHTMLEditor);
+  nsresult AppendToMsgBody(const nsCString& inStr);
 
  private:
   virtual ~QuotingOutputStreamListener();
@@ -212,11 +212,11 @@ class nsMsgComposeSendListener : public nsIMsgComposeSendListener,
   // nsIWebProgressListener interface
   NS_DECL_NSIWEBPROGRESSLISTENER
 
-  nsresult RemoveDraftOrTemplate(nsIMsgCompose *compObj, nsCString msgURI,
+  nsresult RemoveDraftOrTemplate(nsIMsgCompose* compObj, nsCString msgURI,
                                  bool isSaveTemplate);
-  nsresult RemoveCurrentDraftMessage(nsIMsgCompose *compObj, bool calledByCopy,
+  nsresult RemoveCurrentDraftMessage(nsIMsgCompose* compObj, bool calledByCopy,
                                      bool isSaveTemplate);
-  nsresult GetMsgFolder(nsIMsgCompose *compObj, nsIMsgFolder **msgFolder);
+  nsresult GetMsgFolder(nsIMsgCompose* compObj, nsIMsgFolder** msgFolder);
 
  private:
   virtual ~nsMsgComposeSendListener();
@@ -228,7 +228,7 @@ class nsMsgComposeSendListener : public nsIMsgComposeSendListener,
  * nsMsgMailList
  ******************************************************************************/
 struct nsMsgMailList {
-  explicit nsMsgMailList(nsIAbDirectory *directory);
+  explicit nsMsgMailList(nsIAbDirectory* directory);
 
   nsString mName;
   nsString mDescription;

@@ -56,7 +56,7 @@ nsresult nsAbLDAPReplicationQuery::ConnectToLDAPServer() {
 }
 
 NS_IMETHODIMP nsAbLDAPReplicationQuery::Init(
-    nsIAbLDAPDirectory *aDirectory, nsIWebProgressListener *aProgressListener) {
+    nsIAbLDAPDirectory* aDirectory, nsIWebProgressListener* aProgressListener) {
   NS_ENSURE_ARG_POINTER(aDirectory);
 
   mDirectory = aDirectory;

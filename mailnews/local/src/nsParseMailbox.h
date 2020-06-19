@@ -33,7 +33,7 @@ class nsIMsgFolder;
 /* Used for the various things that parse RFC822 headers...
  */
 typedef struct message_header {
-  const char *value; /* The contents of a header (after ": ") */
+  const char* value; /* The contents of a header (after ": ") */
   int32_t length;    /* The length of the data (it is not NULL-terminated.) */
 } message_header;
 
@@ -48,14 +48,14 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   nsParseMailMessageState();
 
   void Init(uint64_t fileposition);
-  virtual nsresult ParseFolderLine(const char *line, uint32_t lineLength);
-  virtual nsresult StartNewEnvelope(const char *line, uint32_t lineLength);
+  virtual nsresult ParseFolderLine(const char* line, uint32_t lineLength);
+  virtual nsresult StartNewEnvelope(const char* line, uint32_t lineLength);
   nsresult ParseHeaders();
   nsresult FinalizeHeaders();
-  nsresult ParseEnvelope(const char *line, uint32_t line_size);
-  nsresult InternSubject(struct message_header *header);
+  nsresult ParseEnvelope(const char* line, uint32_t line_size);
+  nsresult InternSubject(struct message_header* header);
 
-  static bool IsEnvelopeLine(const char *buf, int32_t buf_size);
+  static bool IsEnvelopeLine(const char* buf, int32_t buf_size);
 
   nsCOMPtr<nsIMsgDBHdr> m_newMsgHdr; /* current message header we're building */
   nsCOMPtr<nsIMsgDatabase> m_mailDB;
@@ -88,13 +88,13 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   struct message_header m_bccList;
 
   // Support for having multiple To or Cc header lines in a message
-  nsTArray<struct message_header *> m_toList;
-  nsTArray<struct message_header *> m_ccList;
-  struct message_header *GetNextHeaderInAggregate(
-      nsTArray<struct message_header *> &list);
-  void GetAggregateHeader(nsTArray<struct message_header *> &list,
-                          struct message_header *);
-  void ClearAggregateHeader(nsTArray<struct message_header *> &list);
+  nsTArray<struct message_header*> m_toList;
+  nsTArray<struct message_header*> m_ccList;
+  struct message_header* GetNextHeaderInAggregate(
+      nsTArray<struct message_header*>& list);
+  void GetAggregateHeader(nsTArray<struct message_header*>& list,
+                          struct message_header*);
+  void ClearAggregateHeader(nsTArray<struct message_header*>& list);
 
   struct message_header m_envelope_from;
   struct message_header m_envelope_date;
@@ -116,7 +116,7 @@ class nsParseMailMessageState : public nsIMsgParseMailMsgState,
   // the .msf file as properties of nsIMsgHdr. It is initialized from a
   // pref, mailnews.customDBHeaders
   nsTArray<nsCString> m_customDBHeaders;
-  struct message_header *m_customDBHeaderValues;
+  struct message_header* m_customDBHeaderValues;
   nsCString m_receivedValue;  // accumulated received header
  protected:
   virtual ~nsParseMailMessageState();
@@ -127,7 +127,7 @@ class nsMsgMailboxParser : public nsIStreamListener,
                            public nsParseMailMessageState,
                            public nsMsgLineBuffer {
  public:
-  explicit nsMsgMailboxParser(nsIMsgFolder *);
+  explicit nsMsgMailboxParser(nsIMsgFolder*);
   nsMsgMailboxParser();
   nsresult Init();
 
@@ -142,31 +142,31 @@ class nsMsgMailboxParser : public nsIStreamListener,
   NS_DECL_NSIREQUESTOBSERVER
   NS_DECL_NSISTREAMLISTENER
 
-  void SetDB(nsIMsgDatabase *mailDB) { m_mailDB = mailDB; }
+  void SetDB(nsIMsgDatabase* mailDB) { m_mailDB = mailDB; }
 
   // message socket libnet callbacks, which come through folder pane
-  nsresult ProcessMailboxInputStream(nsIInputStream *aIStream,
+  nsresult ProcessMailboxInputStream(nsIInputStream* aIStream,
                                      uint32_t aLength);
 
   virtual void DoneParsingFolder(nsresult status);
   virtual void AbortNewHeader();
 
   // for nsMsgLineBuffer
-  virtual nsresult HandleLine(const char *line, uint32_t line_length) override;
+  virtual nsresult HandleLine(const char* line, uint32_t line_length) override;
 
   void UpdateDBFolderInfo();
-  void UpdateDBFolderInfo(nsIMsgDatabase *mailDB);
-  void UpdateStatusText(const char *stringName);
+  void UpdateDBFolderInfo(nsIMsgDatabase* mailDB);
+  void UpdateStatusText(const char* stringName);
 
   // Update the progress bar based on what we know.
   virtual void UpdateProgressPercent();
-  virtual void OnNewMessage(nsIMsgWindow *msgWindow);
+  virtual void OnNewMessage(nsIMsgWindow* msgWindow);
 
  protected:
   virtual ~nsMsgMailboxParser();
   nsCOMPtr<nsIMsgStatusFeedback> m_statusFeedback;
 
-  virtual int32_t PublishMsgHeader(nsIMsgWindow *msgWindow);
+  virtual int32_t PublishMsgHeader(nsIMsgWindow* msgWindow);
   void FreeBuffers();
 
   // data
@@ -174,7 +174,7 @@ class nsMsgMailboxParser : public nsIStreamListener,
   nsCString m_inboxUri;
   nsByteArray m_inputStream;
   int32_t m_obuffer_size;
-  char *m_obuffer;
+  char* m_obuffer;
   uint64_t m_graph_progress_total;
   uint64_t m_graph_progress_received;
   bool m_parsingDone;
@@ -198,9 +198,9 @@ class nsParseNewMailState : public nsMsgMailboxParser,
 
   NS_IMETHOD FinishHeader() override;
 
-  nsresult Init(nsIMsgFolder *rootFolder, nsIMsgFolder *downloadFolder,
-                nsIMsgWindow *aMsgWindow, nsIMsgDBHdr *aHdr,
-                nsIOutputStream *aOutputStream);
+  nsresult Init(nsIMsgFolder* rootFolder, nsIMsgFolder* downloadFolder,
+                nsIMsgWindow* aMsgWindow, nsIMsgDBHdr* aHdr,
+                nsIOutputStream* aOutputStream);
 
   virtual void DoneParsingFolder(nsresult status) override;
 
@@ -208,18 +208,18 @@ class nsParseNewMailState : public nsMsgMailboxParser,
 
   NS_DECL_NSIMSGFILTERHITNOTIFY
 
-  nsOutputFileStream *GetLogFile();
-  virtual int32_t PublishMsgHeader(nsIMsgWindow *msgWindow) override;
-  void GetMsgWindow(nsIMsgWindow **aMsgWindow);
+  nsOutputFileStream* GetLogFile();
+  virtual int32_t PublishMsgHeader(nsIMsgWindow* msgWindow) override;
+  void GetMsgWindow(nsIMsgWindow** aMsgWindow);
   nsresult EndMsgDownload();
 
-  nsresult AppendMsgFromStream(nsIInputStream *fileStream, nsIMsgDBHdr *aHdr,
-                               uint32_t length, nsIMsgFolder *destFolder);
+  nsresult AppendMsgFromStream(nsIInputStream* fileStream, nsIMsgDBHdr* aHdr,
+                               uint32_t length, nsIMsgFolder* destFolder);
 
-  virtual void ApplyFilters(bool *pMoved, nsIMsgWindow *msgWindow,
+  virtual void ApplyFilters(bool* pMoved, nsIMsgWindow* msgWindow,
                             uint64_t msgOffset);
-  nsresult ApplyForwardAndReplyFilter(nsIMsgWindow *msgWindow);
-  virtual void OnNewMessage(nsIMsgWindow *msgWindow) override;
+  nsresult ApplyForwardAndReplyFilter(nsIMsgWindow* msgWindow);
+  virtual void OnNewMessage(nsIMsgWindow* msgWindow) override;
 
   // this keeps track of how many messages we downloaded that
   // aren't new - e.g., marked read, or moved to an other server.
@@ -227,14 +227,14 @@ class nsParseNewMailState : public nsMsgMailboxParser,
 
  protected:
   virtual ~nsParseNewMailState();
-  virtual nsresult GetTrashFolder(nsIMsgFolder **pTrashFolder);
-  virtual nsresult MoveIncorporatedMessage(nsIMsgDBHdr *mailHdr,
-                                           nsIMsgDatabase *sourceDB,
-                                           nsIMsgFolder *destIFolder,
-                                           nsIMsgFilter *filter,
-                                           nsIMsgWindow *msgWindow);
-  virtual void MarkFilteredMessageRead(nsIMsgDBHdr *msgHdr);
-  virtual void MarkFilteredMessageUnread(nsIMsgDBHdr *msgHdr);
+  virtual nsresult GetTrashFolder(nsIMsgFolder** pTrashFolder);
+  virtual nsresult MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
+                                           nsIMsgDatabase* sourceDB,
+                                           nsIMsgFolder* destIFolder,
+                                           nsIMsgFilter* filter,
+                                           nsIMsgWindow* msgWindow);
+  virtual void MarkFilteredMessageRead(nsIMsgDBHdr* msgHdr);
+  virtual void MarkFilteredMessageUnread(nsIMsgDBHdr* msgHdr);
 
   nsCOMPtr<nsIMsgFilterList> m_filterList;
   nsCOMPtr<nsIMsgFilterList> m_deferredToServerFilterList;
@@ -250,7 +250,7 @@ class nsParseNewMailState : public nsMsgMailboxParser,
   bool m_msgCopiedByFilter;
   bool m_disableFilters;
   uint32_t m_ibuffer_fp;
-  char *m_ibuffer;
+  char* m_ibuffer;
   uint32_t m_ibuffer_size;
   // used for applying move filters, because in the case of using a temporary
   // download file, the offset/key in the msg hdr is not right.

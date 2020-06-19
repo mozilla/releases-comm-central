@@ -22,7 +22,7 @@ nsMsgProcessReport::nsMsgProcessReport() { Reset(); }
 nsMsgProcessReport::~nsMsgProcessReport() {}
 
 /* attribute boolean proceeded; */
-NS_IMETHODIMP nsMsgProcessReport::GetProceeded(bool *aProceeded) {
+NS_IMETHODIMP nsMsgProcessReport::GetProceeded(bool* aProceeded) {
   NS_ENSURE_ARG_POINTER(aProceeded);
   *aProceeded = mProceeded;
   return NS_OK;
@@ -33,7 +33,7 @@ NS_IMETHODIMP nsMsgProcessReport::SetProceeded(bool aProceeded) {
 }
 
 /* attribute nsresult error; */
-NS_IMETHODIMP nsMsgProcessReport::GetError(nsresult *aError) {
+NS_IMETHODIMP nsMsgProcessReport::GetError(nsresult* aError) {
   NS_ENSURE_ARG_POINTER(aError);
   *aError = mError;
   return NS_OK;
@@ -44,12 +44,12 @@ NS_IMETHODIMP nsMsgProcessReport::SetError(nsresult aError) {
 }
 
 /* attribute wstring message; */
-NS_IMETHODIMP nsMsgProcessReport::GetMessage(char16_t **aMessage) {
+NS_IMETHODIMP nsMsgProcessReport::GetMessage(char16_t** aMessage) {
   NS_ENSURE_ARG_POINTER(aMessage);
   *aMessage = ToNewUnicode(mMessage);
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgProcessReport::SetMessage(const char16_t *aMessage) {
+NS_IMETHODIMP nsMsgProcessReport::SetMessage(const char16_t* aMessage) {
   mMessage = aMessage;
   return NS_OK;
 }
@@ -79,7 +79,7 @@ nsMsgSendReport::~nsMsgSendReport() {
 }
 
 /* attribute long currentProcess; */
-NS_IMETHODIMP nsMsgSendReport::GetCurrentProcess(int32_t *aCurrentProcess) {
+NS_IMETHODIMP nsMsgSendReport::GetCurrentProcess(int32_t* aCurrentProcess) {
   NS_ENSURE_ARG_POINTER(aCurrentProcess);
   *aCurrentProcess = mCurrentProcess;
   return NS_OK;
@@ -96,7 +96,7 @@ NS_IMETHODIMP nsMsgSendReport::SetCurrentProcess(int32_t aCurrentProcess) {
 }
 
 /* attribute long deliveryMode; */
-NS_IMETHODIMP nsMsgSendReport::GetDeliveryMode(int32_t *aDeliveryMode) {
+NS_IMETHODIMP nsMsgSendReport::GetDeliveryMode(int32_t* aDeliveryMode) {
   NS_ENSURE_ARG_POINTER(aDeliveryMode);
   *aDeliveryMode = mDeliveryMode;
   return NS_OK;
@@ -159,7 +159,7 @@ NS_IMETHODIMP nsMsgSendReport::SetError(int32_t process, nsresult newError,
 /* void setMessage (in long process, in wstring message, in boolean
  * overwriteMessage); */
 NS_IMETHODIMP nsMsgSendReport::SetMessage(int32_t process,
-                                          const char16_t *message,
+                                          const char16_t* message,
                                           bool overwriteMessage) {
   if (process < process_Current || process > SEND_LAST_PROCESS)
     return NS_ERROR_ILLEGAL_VALUE;
@@ -184,7 +184,7 @@ NS_IMETHODIMP nsMsgSendReport::SetMessage(int32_t process,
 
 /* nsIMsgProcessReport getProcessReport (in long process); */
 NS_IMETHODIMP nsMsgSendReport::GetProcessReport(int32_t process,
-                                                nsIMsgProcessReport **_retval) {
+                                                nsIMsgProcessReport** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   if (process < process_Current || process > SEND_LAST_PROCESS)
     return NS_ERROR_ILLEGAL_VALUE;
@@ -203,10 +203,10 @@ NS_IMETHODIMP nsMsgSendReport::GetProcessReport(int32_t process,
 
 /* nsresult displayReport (in nsIPrompt prompt, in boolean showErrorOnly, in
  * boolean dontShowReportTwice); */
-NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt,
+NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt* prompt,
                                              bool showErrorOnly,
                                              bool dontShowReportTwice,
-                                             nsresult *_retval) {
+                                             nsresult* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   NS_ENSURE_TRUE(mCurrentProcess >= 0 && mCurrentProcess <= SEND_LAST_PROCESS,
@@ -260,7 +260,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt,
         // Ignore, don't need to repeat ourself.
         break;
       default:
-        const char *errorString = errorStringNameForErrorCode(currError);
+        const char* errorString = errorStringNameForErrorCode(currError);
         nsMsgGetMessageByName(errorString, currMessage);
         break;
     }
@@ -281,7 +281,7 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt,
 
     bundle->GetStringFromName("sendMessageErrorTitle", dialogTitle);
 
-    const char *preStrName = "sendFailed";
+    const char* preStrName = "sendFailed";
     bool askToGoBackToCompose = false;
     switch (mCurrentProcess) {
       case process_BuildMessage:
@@ -340,8 +340,8 @@ NS_IMETHODIMP nsMsgSendReport::DisplayReport(nsIPrompt *prompt,
       nsMsgDisplayMessageByString(prompt, dialogMessage.get(),
                                   dialogTitle.get());
   } else {
-    const char *title;
-    const char *messageName;
+    const char* title;
+    const char* messageName;
 
     switch (mDeliveryMode) {
       case nsIMsgCompDeliverMode::Later:

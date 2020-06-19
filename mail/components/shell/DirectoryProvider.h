@@ -43,15 +43,15 @@ class DirectoryProvider : public nsIDirectoryServiceProvider2 {
    public:
     NS_DECL_NSISIMPLEENUMERATOR
 
-    const nsID &DefaultInterface() override { return NS_GET_IID(nsIFile); }
+    const nsID& DefaultInterface() override { return NS_GET_IID(nsIFile); }
 
-    AppendingEnumerator(nsISimpleEnumerator *aBase,
-                        char const *const *aAppendList);
+    AppendingEnumerator(nsISimpleEnumerator* aBase,
+                        char const* const* aAppendList);
 
    private:
     ~AppendingEnumerator() override = default;
     nsCOMPtr<nsISimpleEnumerator> mBase;
-    char const *const *const mAppendList;
+    char const* const* const mAppendList;
     nsCOMPtr<nsIFile> mNext;
   };
 };

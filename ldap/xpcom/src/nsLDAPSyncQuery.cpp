@@ -30,7 +30,7 @@ nsLDAPSyncQuery::~nsLDAPSyncQuery() {}
 // void OnLDAPMessage (in nsILDAPMessage aMessage)
 //
 NS_IMETHODIMP
-nsLDAPSyncQuery::OnLDAPMessage(nsILDAPMessage *aMessage) {
+nsLDAPSyncQuery::OnLDAPMessage(nsILDAPMessage* aMessage) {
   int32_t messageType;
 
   // just in case.
@@ -87,7 +87,7 @@ nsLDAPSyncQuery::OnLDAPMessage(nsILDAPMessage *aMessage) {
 // void onLDAPInit (in nsresult aStatus);
 //
 NS_IMETHODIMP
-nsLDAPSyncQuery::OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus) {
+nsLDAPSyncQuery::OnLDAPInit(nsILDAPConnection* aConn, nsresult aStatus) {
   nsresult rv;  // temp for xpcom return values
   // create and initialize an LDAP operation (to be used for the bind)
   //
@@ -116,7 +116,7 @@ nsLDAPSyncQuery::OnLDAPInit(nsILDAPConnection *aConn, nsresult aStatus) {
   return NS_OK;
 }
 
-nsresult nsLDAPSyncQuery::OnLDAPBind(nsILDAPMessage *aMessage) {
+nsresult nsLDAPSyncQuery::OnLDAPBind(nsILDAPMessage* aMessage) {
   int32_t errCode;
 
   mOperation = nullptr;  // done with bind op; make nsCOMPtr release it
@@ -144,7 +144,7 @@ nsresult nsLDAPSyncQuery::OnLDAPBind(nsILDAPMessage *aMessage) {
   return StartLDAPSearch();
 }
 
-nsresult nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage *aMessage) {
+nsresult nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage* aMessage) {
   nsTArray<nsCString> attributes;
   nsresult rv = aMessage->GetAttributes(attributes);
   if (NS_FAILED(rv)) {
@@ -181,7 +181,7 @@ nsresult nsLDAPSyncQuery::OnLDAPSearchEntry(nsILDAPMessage *aMessage) {
   return rv;
 }
 
-nsresult nsLDAPSyncQuery::OnLDAPSearchResult(nsILDAPMessage *aMessage) {
+nsresult nsLDAPSyncQuery::OnLDAPSearchResult(nsILDAPMessage* aMessage) {
   // We are done with the LDAP search.
   // Release the control variable for the eventloop and other members
   //
@@ -312,9 +312,9 @@ void nsLDAPSyncQuery::FinishLDAPQuery() {
 
 /* wstring getQueryResults (in nsILDAPURL aServerURL, in unsigned long
  * aVersion); */
-NS_IMETHODIMP nsLDAPSyncQuery::GetQueryResults(nsILDAPURL *aServerURL,
+NS_IMETHODIMP nsLDAPSyncQuery::GetQueryResults(nsILDAPURL* aServerURL,
                                                uint32_t aProtocolVersion,
-                                               char16_t **_retval) {
+                                               char16_t** _retval) {
   nsresult rv;
 
   if (!aServerURL) {

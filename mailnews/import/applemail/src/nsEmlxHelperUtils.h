@@ -42,20 +42,20 @@ class nsEmlxHelperUtils {
   // "From-lines" that we need to escape. If it needs to modify any lines, it
   // will return a non-NULL aOutBuffer. If aOutBuffer is NULL, no modification
   // needed to be made.
-  static nsresult ConvertToMboxRD(const char *aMessageBufferStart,
-                                  const char *aMessageBufferEnd,
-                                  nsCString &aOutBuffer);
+  static nsresult ConvertToMboxRD(const char* aMessageBufferStart,
+                                  const char* aMessageBufferEnd,
+                                  nsCString& aOutBuffer);
 
   // returns an int representing the X-Mozilla-Status flags set (e.g. "read",
   // "flagged") converted from EMLX flags.
-  static nsresult ConvertToMozillaStatusFlags(const char *aXMLBufferStart,
-                                              const char *aXMLBufferEnd,
-                                              uint32_t *aMozillaStatusFlags);
+  static nsresult ConvertToMozillaStatusFlags(const char* aXMLBufferStart,
+                                              const char* aXMLBufferEnd,
+                                              uint32_t* aMozillaStatusFlags);
 
  public:
   // add an .emlx message to the mbox output
-  static nsresult AddEmlxMessageToStream(nsIFile *aEmlxFile,
-                                         nsIOutputStream *aOutoutStream);
+  static nsresult AddEmlxMessageToStream(nsIFile* aEmlxFile,
+                                         nsIOutputStream* aOutoutStream);
 };
 
 #endif  // nsEmlxHelperUtils_h___

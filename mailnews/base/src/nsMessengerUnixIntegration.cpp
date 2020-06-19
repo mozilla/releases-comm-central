@@ -62,7 +62,7 @@
 
 using namespace mozilla::mailnews;
 
-static void openMailWindow(const nsACString &aFolderUri) {
+static void openMailWindow(const nsACString& aFolderUri) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession(
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
@@ -116,28 +116,28 @@ nsresult nsMessengerUnixIntegration::Init() {
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemPropertyChanged(nsIMsgFolder *,
-                                                  const nsACString &,
-                                                  const nsACString &,
-                                                  const nsACString &) {
+nsMessengerUnixIntegration::OnItemPropertyChanged(nsIMsgFolder*,
+                                                  const nsACString&,
+                                                  const nsACString&,
+                                                  const nsACString&) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *,
-                                                         const nsACString &,
-                                                         const nsAString &,
-                                                         const nsAString &) {
+nsMessengerUnixIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder*,
+                                                         const nsACString&,
+                                                         const nsAString&,
+                                                         const nsAString&) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemRemoved(nsIMsgFolder *, nsISupports *) {
+nsMessengerUnixIntegration::OnItemRemoved(nsIMsgFolder*, nsISupports*) {
   return NS_OK;
 }
 
 nsresult nsMessengerUnixIntegration::GetStringBundle(
-    nsIStringBundle **aBundle) {
+    nsIStringBundle** aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
@@ -150,7 +150,7 @@ nsresult nsMessengerUnixIntegration::GetStringBundle(
 }
 
 bool nsMessengerUnixIntegration::BuildNotificationTitle(
-    nsIMsgFolder *aFolder, nsIStringBundle *aBundle, nsString &aTitle) {
+    nsIMsgFolder* aFolder, nsIStringBundle* aBundle, nsString& aTitle) {
   nsString accountName;
   aFolder->GetPrettyName(accountName);
 
@@ -174,8 +174,8 @@ bool nsMessengerUnixIntegration::BuildNotificationTitle(
 /* This comparator lets us sort an nsCOMArray of nsIMsgDBHdr's by
  * their dateInSeconds attributes in ascending order.
  */
-static int nsMsgDbHdrTimestampComparator(nsIMsgDBHdr *aElement1,
-                                         nsIMsgDBHdr *aElement2, void *aData) {
+static int nsMsgDbHdrTimestampComparator(nsIMsgDBHdr* aElement1,
+                                         nsIMsgDBHdr* aElement2, void* aData) {
   uint32_t aElement1Timestamp;
   nsresult rv = aElement1->GetDateInSeconds(&aElement1Timestamp);
   if (NS_FAILED(rv)) return 0;
@@ -187,9 +187,9 @@ static int nsMsgDbHdrTimestampComparator(nsIMsgDBHdr *aElement1,
   return aElement1Timestamp - aElement2Timestamp;
 }
 
-bool nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
-                                                       nsIStringBundle *aBundle,
-                                                       nsString &aBody) {
+bool nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr* aHdr,
+                                                       nsIStringBundle* aBundle,
+                                                       nsString& aBody) {
   nsAutoString alertBody;
 
   bool showPreview = true;
@@ -285,8 +285,8 @@ bool nsMessengerUnixIntegration::BuildNotificationBody(nsIMsgDBHdr *aHdr,
 }
 
 nsresult nsMessengerUnixIntegration::ShowAlertMessage(
-    const nsAString &aAlertTitle, const nsAString &aAlertText,
-    const nsACString &aFolderURI) {
+    const nsAString& aAlertTitle, const nsAString& aAlertText,
+    const nsACString& aFolderURI) {
   nsresult rv;
   // if we are already in the process of showing an alert, don't try to show
   // another....
@@ -350,7 +350,7 @@ nsresult nsMessengerUnixIntegration::ShowNewAlertNotification(
   ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsISupports> supports =
-      do_QueryInterface(static_cast<nsIMessengerOSIntegration *>(this));
+      do_QueryInterface(static_cast<nsIMessengerOSIntegration*>(this));
   ifptr->SetData(supports);
   ifptr->SetDataIID(&NS_GET_IID(nsIObserver));
   argsArray->AppendElement(ifptr);
@@ -388,8 +388,8 @@ nsresult nsMessengerUnixIntegration::AlertClicked() {
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::Observe(nsISupports *aSubject, const char *aTopic,
-                                    const char16_t *aData) {
+nsMessengerUnixIntegration::Observe(nsISupports* aSubject, const char* aTopic,
+                                    const char16_t* aData) {
   if (strcmp(aTopic, "alertfinished") == 0) return AlertFinished();
   if (strcmp(aTopic, "alertclickcallback") == 0) return AlertClicked();
 
@@ -501,7 +501,7 @@ void nsMessengerUnixIntegration::FillToolTipInfo() {
 // over all the subfolders looking for the first real folder with new mail.
 // Return the folderURI for that folder.
 nsresult nsMessengerUnixIntegration::GetFirstFolderWithNewMail(
-    nsACString &aFolderURI) {
+    nsACString& aFolderURI) {
   NS_ENSURE_TRUE(mFoldersWithNewMail, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIMsgFolder> folder;
@@ -575,31 +575,31 @@ nsresult nsMessengerUnixIntegration::GetFirstFolderWithNewMail(
 
 NS_IMETHODIMP
 nsMessengerUnixIntegration::OnItemPropertyFlagChanged(
-    nsIMsgDBHdr *item, const nsACString &property, uint32_t oldFlag,
+    nsIMsgDBHdr* item, const nsACString& property, uint32_t oldFlag,
     uint32_t newFlag) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemAdded(nsIMsgFolder *, nsISupports *) {
+nsMessengerUnixIntegration::OnItemAdded(nsIMsgFolder*, nsISupports*) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMessengerUnixIntegration::OnItemBoolPropertyChanged(
-    nsIMsgFolder *aItem, const nsACString &aProperty, bool aOldValue,
+    nsIMsgFolder* aItem, const nsACString& aProperty, bool aOldValue,
     bool aNewValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnItemEvent(nsIMsgFolder *, const nsACString &) {
+nsMessengerUnixIntegration::OnItemEvent(nsIMsgFolder*, const nsACString&) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMessengerUnixIntegration::OnItemIntPropertyChanged(
-    nsIMsgFolder *aItem, const nsACString &aProperty, int64_t aOldValue,
+    nsIMsgFolder* aItem, const nsACString& aProperty, int64_t aOldValue,
     int64_t aNewValue) {
   nsCString atomName;
   // if we got new mail show an icon in the system tray
@@ -635,10 +635,10 @@ nsMessengerUnixIntegration::OnItemIntPropertyChanged(
 }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnStartRunningUrl(nsIURI *aUrl) { return NS_OK; }
+nsMessengerUnixIntegration::OnStartRunningUrl(nsIURI* aUrl) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMessengerUnixIntegration::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
+nsMessengerUnixIntegration::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   if (NS_SUCCEEDED(aExitCode))
     // preview fetch is done.
     FillToolTipInfo();
@@ -646,7 +646,7 @@ nsMessengerUnixIntegration::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
 }
 
 nsresult nsMessengerUnixIntegration::GetMRUTimestampForFolder(
-    nsIMsgFolder *aFolder, uint32_t *aLastMRUTime) {
+    nsIMsgFolder* aFolder, uint32_t* aLastMRUTime) {
   nsCOMPtr<nsIMsgFolder> rootFolder = nullptr;
   nsresult rv = aFolder->GetRootFolder(getter_AddRefs(rootFolder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -659,7 +659,7 @@ nsresult nsMessengerUnixIntegration::GetMRUTimestampForFolder(
 }
 
 nsresult nsMessengerUnixIntegration::PutMRUTimestampForFolder(
-    nsIMsgFolder *aFolder, uint32_t aLastMRUTime) {
+    nsIMsgFolder* aFolder, uint32_t aLastMRUTime) {
   nsresult rv;
   nsCOMPtr<nsIMsgFolder> rootFolder = nullptr;
   rv = aFolder->GetRootFolder(getter_AddRefs(rootFolder));

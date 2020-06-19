@@ -16,11 +16,11 @@ class nsMimePlainEmitter : public nsMimeBaseEmitter {
 
   // Header handling routines.
   NS_IMETHOD StartHeader(bool rootMailHeader, bool headerOnly,
-                         const char *msgID, const char *outCharset) override;
-  NS_IMETHOD AddHeaderField(const char *field, const char *value) override;
-  NS_IMETHOD EndHeader(const nsACString &buf) override;
+                         const char* msgID, const char* outCharset) override;
+  NS_IMETHOD AddHeaderField(const char* field, const char* value) override;
+  NS_IMETHOD EndHeader(const nsACString& buf) override;
 
-  NS_IMETHOD WriteBody(const nsACString &buf, uint32_t *amountWritten) override;
+  NS_IMETHOD WriteBody(const nsACString& buf, uint32_t* amountWritten) override;
 };
 
 #endif /* _nsMimePlainEmitter_h_ */

@@ -20,22 +20,22 @@ typedef enum search_type {
 
 class nsMsgSearchNews : public nsMsgSearchAdapter {
  public:
-  nsMsgSearchNews(nsMsgSearchScopeTerm *scope, nsIArray *termList);
+  nsMsgSearchNews(nsMsgSearchScopeTerm* scope, nsIArray* termList);
   virtual ~nsMsgSearchNews();
 
   NS_IMETHOD ValidateTerms() override;
-  NS_IMETHOD Search(bool *aDone) override;
-  NS_IMETHOD GetEncoding(char **result) override;
+  NS_IMETHOD Search(bool* aDone) override;
+  NS_IMETHOD GetEncoding(char** result) override;
   NS_IMETHOD AddHit(nsMsgKey key) override;
   NS_IMETHOD CurrentUrlDone(nsresult exitCode) override;
 
-  virtual nsresult Encode(nsCString *outEncoding);
-  virtual char *EncodeTerm(nsIMsgSearchTerm *);
-  char16_t *EncodeToWildmat(const char16_t *);
+  virtual nsresult Encode(nsCString* outEncoding);
+  virtual char* EncodeTerm(nsIMsgSearchTerm*);
+  char16_t* EncodeToWildmat(const char16_t*);
 
   void ReportHits();
   void CollateHits();
-  void ReportHit(nsIMsgDBHdr *pHeaders, nsIMsgFolder *folder);
+  void ReportHit(nsIMsgDBHdr* pHeaders, nsIMsgFolder* folder);
 
  protected:
   nsCString m_encoding;
@@ -44,10 +44,10 @@ class nsMsgSearchNews : public nsMsgSearchAdapter {
   nsTArray<nsMsgKey> m_candidateHits;
   nsTArray<nsMsgKey> m_hits;
 
-  static const char *m_kNntpFrom;
-  static const char *m_kNntpSubject;
-  static const char *m_kTermSeparator;
-  static const char *m_kUrlPrefix;
+  static const char* m_kNntpFrom;
+  static const char* m_kNntpSubject;
+  static const char* m_kTermSeparator;
+  static const char* m_kUrlPrefix;
 };
 
 #endif

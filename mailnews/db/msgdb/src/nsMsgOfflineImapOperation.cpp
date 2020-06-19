@@ -33,8 +33,8 @@ NS_IMPL_ISUPPORTS(nsMsgOfflineImapOperation, nsIMsgOfflineImapOperation)
 #define PROP_MSG_SIZE "msgSize"
 #define PROP_PLAYINGBACK "inPlayback"
 
-nsMsgOfflineImapOperation::nsMsgOfflineImapOperation(nsMsgDatabase *db,
-                                                     nsIMdbRow *row) {
+nsMsgOfflineImapOperation::nsMsgOfflineImapOperation(nsMsgDatabase* db,
+                                                     nsIMdbRow* row) {
   NS_ASSERTION(db, "can't have null db");
   NS_ASSERTION(row, "can't have null row");
   m_operation = 0;
@@ -45,13 +45,12 @@ nsMsgOfflineImapOperation::nsMsgOfflineImapOperation(nsMsgDatabase *db,
   NS_ADDREF(m_mdb);
   m_mdbRow = row;
   m_newFlags = 0;
-  m_mdb->GetUint32Property(m_mdbRow, PROP_OPERATION, (uint32_t *)&m_operation,
+  m_mdb->GetUint32Property(m_mdbRow, PROP_OPERATION, (uint32_t*)&m_operation,
                            0);
   m_mdb->GetUint32Property(m_mdbRow, PROP_MESSAGE_KEY, &m_messageKey, 0);
   m_mdb->GetUint32Property(m_mdbRow, PROP_OPERATION_FLAGS, &m_operationFlags,
                            0);
-  m_mdb->GetUint32Property(m_mdbRow, PROP_NEW_FLAGS, (uint32_t *)&m_newFlags,
-                           0);
+  m_mdb->GetUint32Property(m_mdbRow, PROP_NEW_FLAGS, (uint32_t*)&m_newFlags, 0);
 }
 
 nsMsgOfflineImapOperation::~nsMsgOfflineImapOperation() {
@@ -63,7 +62,7 @@ nsMsgOfflineImapOperation::~nsMsgOfflineImapOperation() {
 
 /* attribute nsOfflineImapOperationType operation; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetOperation(
-    nsOfflineImapOperationType *aOperation) {
+    nsOfflineImapOperationType* aOperation) {
   NS_ENSURE_ARG(aOperation);
   *aOperation = m_operation;
   return NS_OK;
@@ -102,7 +101,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::ClearOperation(
 }
 
 /* attribute nsMsgKey messageKey; */
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetMessageKey(nsMsgKey *aMessageKey) {
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetMessageKey(nsMsgKey* aMessageKey) {
   NS_ENSURE_ARG(aMessageKey);
   *aMessageKey = m_messageKey;
   return NS_OK;
@@ -115,7 +114,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetMessageKey(nsMsgKey aMessageKey) {
 
 /* attribute nsMsgKey srcMessageKey; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetSrcMessageKey(
-    nsMsgKey *aMessageKey) {
+    nsMsgKey* aMessageKey) {
   NS_ENSURE_ARG(aMessageKey);
   return m_mdb->GetUint32Property(m_mdbRow, PROP_SRC_MESSAGE_KEY, aMessageKey,
                                   nsMsgKey_None);
@@ -129,7 +128,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetSrcMessageKey(
 
 /* attribute imapMessageFlagsType flagOperation; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetFlagOperation(
-    imapMessageFlagsType *aFlagOperation) {
+    imapMessageFlagsType* aFlagOperation) {
   NS_ENSURE_ARG(aFlagOperation);
   *aFlagOperation = m_operationFlags;
   return NS_OK;
@@ -151,7 +150,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetFlagOperation(
 
 /* attribute imapMessageFlagsType flagOperation; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetNewFlags(
-    imapMessageFlagsType *aNewFlags) {
+    imapMessageFlagsType* aNewFlags) {
   NS_ENSURE_ARG(aNewFlags);
   uint32_t flags;
   nsresult rv = m_mdb->GetUint32Property(m_mdbRow, PROP_NEW_FLAGS, &flags, 0);
@@ -171,7 +170,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetNewFlags(
 
 /* attribute string destinationFolderURI; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetDestinationFolderURI(
-    char **aDestinationFolderURI) {
+    char** aDestinationFolderURI) {
   NS_ENSURE_ARG(aDestinationFolderURI);
   (void)m_mdb->GetProperty(m_mdbRow, PROP_MOVE_DEST_FOLDER_URI,
                            getter_Copies(m_moveDestination));
@@ -180,7 +179,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetDestinationFolderURI(
 }
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetDestinationFolderURI(
-    const char *aDestinationFolderURI) {
+    const char* aDestinationFolderURI) {
   if (MOZ_LOG_TEST(IMAPOffline, LogLevel::Info))
     MOZ_LOG(IMAPOffline, LogLevel::Info,
             ("msg id %x SetDestinationFolderURI to %s", m_messageKey,
@@ -192,7 +191,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetDestinationFolderURI(
 
 /* attribute string sourceFolderURI; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetSourceFolderURI(
-    char **aSourceFolderURI) {
+    char** aSourceFolderURI) {
   NS_ENSURE_ARG(aSourceFolderURI);
   nsresult rv = m_mdb->GetProperty(m_mdbRow, PROP_SRC_FOLDER_URI,
                                    getter_Copies(m_sourceFolder));
@@ -201,7 +200,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetSourceFolderURI(
 }
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::SetSourceFolderURI(
-    const char *aSourceFolderURI) {
+    const char* aSourceFolderURI) {
   m_sourceFolder = aSourceFolderURI ? aSourceFolderURI : 0;
   SetOperation(kMoveResult);
 
@@ -209,7 +208,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetSourceFolderURI(
 }
 
 /* attribute string keyword; */
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToAdd(char **aKeywords) {
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToAdd(char** aKeywords) {
   NS_ENSURE_ARG(aKeywords);
   nsresult rv = m_mdb->GetProperty(m_mdbRow, PROP_KEYWORD_ADD,
                                    getter_Copies(m_keywordsToAdd));
@@ -217,13 +216,13 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToAdd(char **aKeywords) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgOfflineImapOperation::AddKeywordToAdd(const char *aKeyword) {
+NS_IMETHODIMP nsMsgOfflineImapOperation::AddKeywordToAdd(const char* aKeyword) {
   SetOperation(kAddKeywords);
   return AddKeyword(aKeyword, m_keywordsToAdd, PROP_KEYWORD_ADD,
                     m_keywordsToRemove, PROP_KEYWORD_REMOVE);
 }
 
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToRemove(char **aKeywords) {
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToRemove(char** aKeywords) {
   NS_ENSURE_ARG(aKeywords);
   nsresult rv = m_mdb->GetProperty(m_mdbRow, PROP_KEYWORD_REMOVE,
                                    getter_Copies(m_keywordsToRemove));
@@ -231,11 +230,11 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetKeywordsToRemove(char **aKeywords) {
   return rv;
 }
 
-nsresult nsMsgOfflineImapOperation::AddKeyword(const char *aKeyword,
-                                               nsCString &addList,
-                                               const char *addProp,
-                                               nsCString &removeList,
-                                               const char *removeProp) {
+nsresult nsMsgOfflineImapOperation::AddKeyword(const char* aKeyword,
+                                               nsCString& addList,
+                                               const char* addProp,
+                                               nsCString& removeList,
+                                               const char* removeProp) {
   int32_t startOffset, keywordLength;
   if (!MsgFindKeyword(nsDependentCString(aKeyword), addList, &startOffset,
                       &keywordLength)) {
@@ -253,14 +252,14 @@ nsresult nsMsgOfflineImapOperation::AddKeyword(const char *aKeyword,
 }
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::AddKeywordToRemove(
-    const char *aKeyword) {
+    const char* aKeyword) {
   SetOperation(kRemoveKeywords);
   return AddKeyword(aKeyword, m_keywordsToRemove, PROP_KEYWORD_REMOVE,
                     m_keywordsToAdd, PROP_KEYWORD_ADD);
 }
 
 NS_IMETHODIMP nsMsgOfflineImapOperation::AddMessageCopyOperation(
-    const char *destinationBox) {
+    const char* destinationBox) {
   SetOperation(kMsgCopy);
   nsAutoCString newDest(destinationBox);
   nsresult rv = GetCopiesFromDB();
@@ -312,7 +311,7 @@ nsresult nsMsgOfflineImapOperation::SetCopiesToDB() {
 
 /* attribute long numberOfCopies; */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetNumberOfCopies(
-    int32_t *aNumberOfCopies) {
+    int32_t* aNumberOfCopies) {
   NS_ENSURE_ARG(aNumberOfCopies);
   nsresult rv = GetCopiesFromDB();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -322,7 +321,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetNumberOfCopies(
 
 /* string getCopyDestination (in long copyIndex); */
 NS_IMETHODIMP nsMsgOfflineImapOperation::GetCopyDestination(int32_t copyIndex,
-                                                            char **retval) {
+                                                            char** retval) {
   NS_ENSURE_ARG(retval);
   nsresult rv = GetCopiesFromDB();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -333,7 +332,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::GetCopyDestination(int32_t copyIndex,
 }
 
 /* attribute unsigned log msgSize; */
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetMsgSize(uint32_t *aMsgSize) {
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetMsgSize(uint32_t* aMsgSize) {
   NS_ENSURE_ARG(aMsgSize);
   return m_mdb->GetUint32Property(m_mdbRow, PROP_MSG_SIZE, aMsgSize, 0);
 }
@@ -346,7 +345,7 @@ NS_IMETHODIMP nsMsgOfflineImapOperation::SetPlayingBack(bool aPlayingBack) {
   return m_mdb->SetBooleanProperty(m_mdbRow, PROP_PLAYINGBACK, aPlayingBack);
 }
 
-NS_IMETHODIMP nsMsgOfflineImapOperation::GetPlayingBack(bool *aPlayingBack) {
+NS_IMETHODIMP nsMsgOfflineImapOperation::GetPlayingBack(bool* aPlayingBack) {
   NS_ENSURE_ARG(aPlayingBack);
   return m_mdb->GetBooleanProperty(m_mdbRow, PROP_PLAYINGBACK, aPlayingBack);
 }

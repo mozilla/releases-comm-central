@@ -49,7 +49,7 @@ class nsMsgFilter : public nsIMsgFilter {
   nsMsgFilterTypeType GetType() { return m_type; }
   void SetType(nsMsgFilterTypeType type) { m_type = type; }
   bool GetEnabled() { return m_enabled; }
-  void SetFilterScript(nsCString *filterName);
+  void SetFilterScript(nsCString* filterName);
 
   bool IsScript() {
     return (m_type & (nsMsgFilterType::InboxJavaScript |
@@ -57,28 +57,28 @@ class nsMsgFilter : public nsIMsgFilter {
   }
 
   // filing routines.
-  nsresult SaveRule(nsIOutputStream *aStream);
+  nsresult SaveRule(nsIOutputStream* aStream);
 
   int16_t GetVersion();
 #ifdef DEBUG
   void Dump();
 #endif
 
-  nsresult ConvertMoveOrCopyToFolderValue(nsIMsgRuleAction *filterAction,
-                                          nsCString &relativePath);
-  static const char *GetActionStr(nsMsgRuleActionType action);
+  nsresult ConvertMoveOrCopyToFolderValue(nsIMsgRuleAction* filterAction,
+                                          nsCString& relativePath);
+  static const char* GetActionStr(nsMsgRuleActionType action);
   static nsresult GetActionFilingStr(nsMsgRuleActionType action,
-                                     nsCString &actionStr);
-  static nsMsgRuleActionType GetActionForFilingStr(nsCString &actionStr);
+                                     nsCString& actionStr);
+  static nsMsgRuleActionType GetActionForFilingStr(nsCString& actionStr);
 
  protected:
   /*
    * Reporting function for filtering success/failure.
    * Logging has to be enabled for the message to appear.
    */
-  nsresult LogRuleHitGeneric(nsIMsgRuleAction *aFilterAction,
-                             nsIMsgDBHdr *aMsgHdr, nsresult aRcode,
-                             const nsACString &aErrmsg);
+  nsresult LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
+                             nsIMsgDBHdr* aMsgHdr, nsresult aRcode,
+                             const nsACString& aErrmsg);
 
   virtual ~nsMsgFilter();
 
@@ -91,13 +91,13 @@ class nsMsgFilter : public nsIMsgFilter {
   bool m_enabled;
   bool m_temporary;
   bool m_unparseable;
-  nsIMsgFilterList *m_filterList;       /* owning filter list */
+  nsIMsgFilterList* m_filterList;       /* owning filter list */
   nsCOMPtr<nsIMutableArray> m_termList; /* linked list of criteria terms */
   nsCOMPtr<nsIMsgSearchScopeTerm>
       m_scope; /* default for mail rules is inbox, but news rules could
               have a newsgroup - LDAP would be invalid */
   nsTArray<nsCOMPtr<nsIMsgRuleAction>> m_actionList;
-  nsMsgSearchBoolExpression *m_expressionTree;
+  nsMsgSearchBoolExpression* m_expressionTree;
 };
 
 #endif

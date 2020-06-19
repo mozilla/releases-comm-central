@@ -33,50 +33,50 @@ class nsMessenger : public nsIMessenger,
   NS_DECL_NSIMESSENGER
   NS_DECL_NSIFOLDERLISTENER
 
-  nsresult Alert(const char *stringName);
+  nsresult Alert(const char* stringName);
 
-  nsresult SaveAttachment(nsIFile *file, const nsACString &unescapedUrl,
-                          const nsACString &messageUri,
-                          const nsACString &contentType, void *closure,
-                          nsIUrlListener *aListener);
-  nsresult PromptIfFileExists(nsIFile *file);
-  nsresult DetachAttachments(const nsTArray<nsCString> &aContentTypeArray,
-                             const nsTArray<nsCString> &aUrlArray,
-                             const nsTArray<nsCString> &aDisplayNameArray,
-                             const nsTArray<nsCString> &aMessageUriArray,
-                             nsTArray<nsCString> *saveFileUris,
+  nsresult SaveAttachment(nsIFile* file, const nsACString& unescapedUrl,
+                          const nsACString& messageUri,
+                          const nsACString& contentType, void* closure,
+                          nsIUrlListener* aListener);
+  nsresult PromptIfFileExists(nsIFile* file);
+  nsresult DetachAttachments(const nsTArray<nsCString>& aContentTypeArray,
+                             const nsTArray<nsCString>& aUrlArray,
+                             const nsTArray<nsCString>& aDisplayNameArray,
+                             const nsTArray<nsCString>& aMessageUriArray,
+                             nsTArray<nsCString>* saveFileUris,
                              bool withoutWarning = false);
-  nsresult SaveAllAttachments(const nsTArray<nsCString> &contentTypeArray,
-                              const nsTArray<nsCString> &urlArray,
-                              const nsTArray<nsCString> &displayNameArray,
-                              const nsTArray<nsCString> &messageUriArray,
+  nsresult SaveAllAttachments(const nsTArray<nsCString>& contentTypeArray,
+                              const nsTArray<nsCString>& urlArray,
+                              const nsTArray<nsCString>& displayNameArray,
+                              const nsTArray<nsCString>& messageUriArray,
                               bool detaching);
-  nsresult SaveOneAttachment(const nsACString &aContentType,
-                             const nsACString &aURL,
-                             const nsACString &aDisplayName,
-                             const nsACString &aMessageUri, bool detaching);
+  nsresult SaveOneAttachment(const nsACString& aContentType,
+                             const nsACString& aURL,
+                             const nsACString& aDisplayName,
+                             const nsACString& aMessageUri, bool detaching);
 
  protected:
   virtual ~nsMessenger();
 
-  void GetString(const nsString &aStringName, nsString &stringValue);
+  void GetString(const nsString& aStringName, nsString& stringValue);
   nsresult InitStringBundle();
   nsresult PromptIfDeleteAttachments(
-      bool saveFirst, const nsTArray<nsCString> &displayNameArray);
+      bool saveFirst, const nsTArray<nsCString>& displayNameArray);
 
  private:
-  nsresult GetLastSaveDirectory(nsIFile **aLastSaveAsDir);
+  nsresult GetLastSaveDirectory(nsIFile** aLastSaveAsDir);
   // if aLocalFile is a dir, we use it.  otherwise, we use the parent of
   // aLocalFile.
-  nsresult SetLastSaveDirectory(nsIFile *aLocalFile);
+  nsresult SetLastSaveDirectory(nsIFile* aLocalFile);
 
-  nsresult AdjustFileIfNameTooLong(nsIFile *aFile);
+  nsresult AdjustFileIfNameTooLong(nsIFile* aFile);
 
-  nsresult GetSaveAsFile(const nsAString &aMsgFilename,
-                         int32_t *aSaveAsFileType, nsIFile **aSaveAsFile);
+  nsresult GetSaveAsFile(const nsAString& aMsgFilename,
+                         int32_t* aSaveAsFileType, nsIFile** aSaveAsFile);
 
-  nsresult GetSaveToDir(nsIFile **aSaveToDir);
-  nsresult ShowPicker(nsIFilePicker *aPicker, int16_t *aResult);
+  nsresult GetSaveToDir(nsIFile** aSaveToDir);
+  nsresult ShowPicker(nsIFilePicker* aPicker, int16_t* aResult);
 
   class nsFilePickerShownCallback : public nsIFilePickerShownCallback {
     virtual ~nsFilePickerShownCallback() {}

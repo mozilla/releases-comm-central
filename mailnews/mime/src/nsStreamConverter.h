@@ -37,11 +37,11 @@ class nsStreamConverter : public nsIStreamConverter,
   ////////////////////////////////////////////////////////////////////////////
   // nsStreamConverter specific methods:
   ////////////////////////////////////////////////////////////////////////////
-  NS_IMETHOD Init(nsIURI *aURI, nsIStreamListener *aOutListener,
-                  nsIChannel *aChannel);
-  NS_IMETHOD GetContentType(char **aOutputContentType);
+  NS_IMETHOD Init(nsIURI* aURI, nsIStreamListener* aOutListener,
+                  nsIChannel* aChannel);
+  NS_IMETHOD GetContentType(char** aOutputContentType);
   NS_IMETHOD InternalCleanup(void);
-  NS_IMETHOD DetermineOutputFormat(const char *url, nsMimeOutputType *newType);
+  NS_IMETHOD DetermineOutputFormat(const char* url, nsMimeOutputType* newType);
   NS_IMETHOD FirePendingStartRequest(void);
 
  private:
@@ -62,7 +62,7 @@ class nsStreamConverter : public nsIStreamConverter,
                                       // operation
   bool mAlreadyKnowOutputType;
 
-  void *mBridgeStream;  // internal libmime data stream
+  void* mBridgeStream;  // internal libmime data stream
 
   // Type of output, entire message, header only, body only
   nsCString mOutputFormat;
@@ -87,7 +87,7 @@ class nsStreamConverter : public nsIStreamConverter,
 #ifdef DEBUG_mscott
   PRTime mConvertContentTime;
 #endif
-  nsIRequest *mPendingRequest;  // used when we need to delay to fire
+  nsIRequest* mPendingRequest;  // used when we need to delay to fire
                                 // onStartRequest
 };
 

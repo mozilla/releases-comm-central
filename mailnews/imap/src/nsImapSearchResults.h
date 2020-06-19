@@ -8,12 +8,12 @@
 
 #include "nsTArray.h"
 
-class nsImapSearchResultSequence : public nsTArray<char *> {
+class nsImapSearchResultSequence : public nsTArray<char*> {
  public:
   virtual ~nsImapSearchResultSequence();
-  static nsImapSearchResultSequence *CreateSearchResultSequence();
+  static nsImapSearchResultSequence* CreateSearchResultSequence();
 
-  virtual void AddSearchResultLine(const char *searchLine);
+  virtual void AddSearchResultLine(const char* searchLine);
   virtual void ResetSequence();
   void Clear();
 
@@ -25,16 +25,16 @@ class nsImapSearchResultSequence : public nsTArray<char *> {
 
 class nsImapSearchResultIterator {
  public:
-  explicit nsImapSearchResultIterator(nsImapSearchResultSequence &sequence);
+  explicit nsImapSearchResultIterator(nsImapSearchResultSequence& sequence);
   virtual ~nsImapSearchResultIterator();
 
   void ResetIterator();
   int32_t GetNextMessageNumber();  // returns 0 at end of list
  private:
-  nsImapSearchResultSequence &fSequence;
+  nsImapSearchResultSequence& fSequence;
   int32_t fSequenceIndex;
-  char *fCurrentLine;
-  char *fPositionInCurrentLine;
+  char* fCurrentLine;
+  char* fPositionInCurrentLine;
 };
 
 #endif

@@ -22,11 +22,11 @@
 #include "nsComposeStrings.h"
 #include "mozilla/mailnews/MimeEncoder.h"
 
-static char *mime_mailto_stream_read_buffer = 0;
+static char* mime_mailto_stream_read_buffer = 0;
 
 int32_t nsMsgSendPart::M_counter = 0;
 
-nsMsgSendPart::nsMsgSendPart(nsIMsgSend *state, const char *part_charset) {
+nsMsgSendPart::nsMsgSendPart(nsIMsgSend* state, const char* part_charset) {
   PL_strncpy(m_charset_name, (part_charset ? part_charset : "UTF-8"),
              sizeof(m_charset_name) - 1);
   m_charset_name[sizeof(m_charset_name) - 1] = '\0';
@@ -58,7 +58,7 @@ nsMsgSendPart::~nsMsgSendPart() {
   PR_FREEIF(m_type);
 }
 
-nsresult nsMsgSendPart::CopyString(char **dest, const char *src) {
+nsresult nsMsgSendPart::CopyString(char** dest, const char* src) {
   NS_ASSERTION(src, "src null");
 
   PR_FREEIF(*dest);
@@ -70,44 +70,44 @@ nsresult nsMsgSendPart::CopyString(char **dest, const char *src) {
   return *dest ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-nsresult nsMsgSendPart::SetFile(nsIFile *file) {
+nsresult nsMsgSendPart::SetFile(nsIFile* file) {
   m_file = file;
   return NS_OK;
 }
 
-nsresult nsMsgSendPart::SetBuffer(const char *buffer) {
+nsresult nsMsgSendPart::SetBuffer(const char* buffer) {
   PR_FREEIF(m_buffer);
   return CopyString(&m_buffer, buffer);
 }
 
-nsresult nsMsgSendPart::SetType(const char *type) {
+nsresult nsMsgSendPart::SetType(const char* type) {
   PR_FREEIF(m_type);
   m_type = PL_strdup(type);
   return m_type ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-nsresult nsMsgSendPart::SetOtherHeaders(const char *other) {
+nsresult nsMsgSendPart::SetOtherHeaders(const char* other) {
   return CopyString(&m_other, other);
 }
 
-nsresult nsMsgSendPart::SetMimeDeliveryState(nsIMsgSend *state) {
+nsresult nsMsgSendPart::SetMimeDeliveryState(nsIMsgSend* state) {
   m_state = state;
   if (GetNumChildren() > 0) {
     for (int i = 0; i < GetNumChildren(); i++) {
-      nsMsgSendPart *part = GetChild(i);
+      nsMsgSendPart* part = GetChild(i);
       if (part) part->SetMimeDeliveryState(state);
     }
   }
   return NS_OK;
 }
 
-nsresult nsMsgSendPart::AppendOtherHeaders(const char *more) {
+nsresult nsMsgSendPart::AppendOtherHeaders(const char* more) {
   if (!m_other) return SetOtherHeaders(more);
 
   if (!more || !*more) return NS_OK;
 
-  char *tmp = (char *)PR_Malloc(sizeof(char) *
-                                (PL_strlen(m_other) + PL_strlen(more) + 2));
+  char* tmp = (char*)PR_Malloc(sizeof(char) *
+                               (PL_strlen(m_other) + PL_strlen(more) + 2));
   if (!tmp) return NS_ERROR_OUT_OF_MEMORY;
 
   PL_strcpy(tmp, m_other);
@@ -123,9 +123,9 @@ nsresult nsMsgSendPart::SetMainPart(bool value) {
   return NS_OK;
 }
 
-nsresult nsMsgSendPart::AddChild(nsMsgSendPart *child) {
+nsresult nsMsgSendPart::AddChild(nsMsgSendPart* child) {
   m_numchildren++;
-  nsMsgSendPart **tmp = new nsMsgSendPart *[m_numchildren];
+  nsMsgSendPart** tmp = new nsMsgSendPart*[m_numchildren];
   if (tmp == nullptr) return NS_ERROR_OUT_OF_MEMORY;
   for (int i = 0; i < m_numchildren - 1; i++) {
     tmp[i] = m_children[i];
@@ -141,8 +141,8 @@ nsresult nsMsgSendPart::AddChild(nsMsgSendPart *child) {
   return NS_OK;
 }
 
-nsMsgSendPart *nsMsgSendPart::DetachChild(int32_t whichOne) {
-  nsMsgSendPart *returnValue = nullptr;
+nsMsgSendPart* nsMsgSendPart::DetachChild(int32_t whichOne) {
+  nsMsgSendPart* returnValue = nullptr;
 
   NS_ASSERTION(whichOne >= 0 && whichOne < m_numchildren,
                "parameter out of range");
@@ -150,7 +150,7 @@ nsMsgSendPart *nsMsgSendPart::DetachChild(int32_t whichOne) {
     returnValue = m_children[whichOne];
 
     if (m_numchildren > 1) {
-      nsMsgSendPart **tmp = new nsMsgSendPart *[m_numchildren - 1];
+      nsMsgSendPart** tmp = new nsMsgSendPart*[m_numchildren - 1];
       if (tmp != nullptr) {
         // move all the other kids over
         for (int i = 0; i < m_numchildren - 1; i++) {
@@ -175,7 +175,7 @@ nsMsgSendPart *nsMsgSendPart::DetachChild(int32_t whichOne) {
   return returnValue;
 }
 
-nsMsgSendPart *nsMsgSendPart::GetChild(int32_t which) {
+nsMsgSendPart* nsMsgSendPart::GetChild(int32_t which) {
   NS_ASSERTION(which >= 0 && which < m_numchildren, "parameter out of range");
   if (which >= 0 && which < m_numchildren) {
     return m_children[which];
@@ -183,16 +183,16 @@ nsMsgSendPart *nsMsgSendPart::GetChild(int32_t which) {
   return nullptr;
 }
 
-nsresult nsMsgSendPart::PushBody(const char *buffer, int32_t length) {
+nsresult nsMsgSendPart::PushBody(const char* buffer, int32_t length) {
   nsresult status = NS_OK;
-  const char *encoded_data = buffer;
+  const char* encoded_data = buffer;
 
   if (m_encoder) {
     status = m_encoder->Write(encoded_data, length);
   } else {
     // Merely translate all linebreaks to CRLF.
-    const char *in = encoded_data;
-    const char *end = in + length;
+    const char* in = encoded_data;
+    const char* end = in + length;
     char *buffer, *out;
 
     buffer = mime_get_stream_write_buffer();
@@ -250,7 +250,7 @@ nsresult nsMsgSendPart::PushBody(const char *buffer, int32_t length) {
   }
 
   if (encoded_data && encoded_data != buffer) {
-    PR_Free((char *)encoded_data);
+    PR_Free((char*)encoded_data);
   }
 
   return status;
@@ -263,27 +263,27 @@ itself.  (This relies on the fact that all body-related headers begin with
 
   (How many header parsers are in this program now?)
   */
-static nsresult divide_content_headers(const char *headers,
-                                       char **message_headers,
-                                       char **content_headers,
-                                       char **content_type_header) {
-  const char *tail;
+static nsresult divide_content_headers(const char* headers,
+                                       char** message_headers,
+                                       char** content_headers,
+                                       char** content_type_header) {
+  const char* tail;
   char *message_tail, *content_tail, *type_tail;
   int L = 0;
   if (headers) L = PL_strlen(headers);
 
   if (L == 0) return NS_OK;
 
-  *message_headers = (char *)PR_Malloc(L + 1);
+  *message_headers = (char*)PR_Malloc(L + 1);
   if (!*message_headers) return NS_ERROR_OUT_OF_MEMORY;
 
-  *content_headers = (char *)PR_Malloc(L + 1);
+  *content_headers = (char*)PR_Malloc(L + 1);
   if (!*content_headers) {
     PR_Free(*message_headers);
     return NS_ERROR_OUT_OF_MEMORY;
   }
 
-  *content_type_header = (char *)PR_Malloc(L + 1);
+  *content_type_header = (char*)PR_Malloc(L + 1);
   if (!*content_type_header) {
     PR_Free(*message_headers);
     PR_Free(*content_headers);
@@ -296,8 +296,8 @@ static nsresult divide_content_headers(const char *headers,
   tail = headers;
 
   while (*tail) {
-    const char *head = tail;
-    char **out;
+    const char* head = tail;
+    char** out;
     while (true) {
       /* Loop until we reach a newline that is not followed by whitespace.
        */
@@ -350,7 +350,7 @@ static nsresult divide_content_headers(const char *headers,
   //      ASSERT here which makes sure that no duplicate
   //      Content-Type or Content-Transfer-Encoding headers
   //      leave here undetected.
-  const char *tmp;
+  const char* tmp;
   if (*content_type_header) {
     tmp = PL_strstr(*content_type_header, "Content-Type");
     if (tmp) {
@@ -377,7 +377,7 @@ static nsresult divide_content_headers(const char *headers,
 
 nsresult nsMsgSendPart::Write() {
   nsresult status = NS_OK;
-  char *separator = nullptr;
+  char* separator = nullptr;
   bool needToWriteCRLFAfterEncodedBody = false;
 
 #define PUSHLEN(str, length)                                \
@@ -403,7 +403,7 @@ nsresult nsMsgSendPart::Write() {
       int64_t fileSize;
       if (NS_SUCCEEDED(m_file->GetFileSize(&fileSize))) length = fileSize;
 
-      m_buffer = (char *)PR_Malloc(sizeof(char) * (length + 1));
+      m_buffer = (char*)PR_Malloc(sizeof(char) * (length + 1));
       if (m_buffer) {
         nsCOMPtr<nsIInputStream> inputFile;
         nsresult rv =
@@ -427,9 +427,9 @@ nsresult nsMsgSendPart::Write() {
     // message/rfc822, then it's appropriate to emit no headers.
     //
   } else {
-    char *message_headers = 0;
-    char *content_headers = 0;
-    char *content_type_header = 0;
+    char* message_headers = 0;
+    char* content_headers = 0;
+    char* content_type_header = 0;
     status = divide_content_headers(m_other, &message_headers, &content_headers,
                                     &content_type_header);
     if (NS_FAILED(status)) goto FAIL;
@@ -473,7 +473,7 @@ nsresult nsMsgSendPart::Write() {
     */
     if (m_numchildren > 0) {
       int L;
-      char *ct2;
+      char* ct2;
       NS_ASSERTION(m_type, "null ptr");
 
       if (!separator) {
@@ -549,14 +549,14 @@ nsresult nsMsgSendPart::Write() {
 
     /* Kludge to avoid having to allocate memory on the toy computers... */
     if (!mime_mailto_stream_read_buffer) {
-      mime_mailto_stream_read_buffer = (char *)PR_Malloc(MIME_BUFFER_SIZE);
+      mime_mailto_stream_read_buffer = (char*)PR_Malloc(MIME_BUFFER_SIZE);
       if (!mime_mailto_stream_read_buffer) {
         status = NS_ERROR_OUT_OF_MEMORY;
         goto FAIL;
       }
     }
 
-    char *buffer = mime_mailto_stream_read_buffer;
+    char* buffer = mime_mailto_stream_read_buffer;
     if (m_strip_sensitive_headers) {
       // We are attaching a message, so we should be careful to
       // strip out certain sensitive internal header fields.
@@ -569,7 +569,7 @@ nsresult nsMsgSendPart::Write() {
 
         curLine.Append(CRLF);
 
-        char *line = (char *)curLine.get();
+        char* line = (char*)curLine.get();
         if (skipping) {
           if (*line == ' ' || *line == '\t')
             continue;

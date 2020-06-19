@@ -35,20 +35,20 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
   // therefore has the search params and return attributes specified.
   //  nsAbQueryLDAPMessageListener(nsIAbDirectoryQuery* directoryQuery,
   nsAbQueryLDAPMessageListener(
-      nsIAbDirectoryQueryResultListener *resultListener,
-      nsILDAPURL *directoryUrl, nsILDAPURL *searchUrl,
-      nsILDAPConnection *connection,
-      nsIAbDirectoryQueryArguments *queryArguments, const nsACString &login,
-      const nsACString &mechanism, const int32_t resultLimit = -1,
+      nsIAbDirectoryQueryResultListener* resultListener,
+      nsILDAPURL* directoryUrl, nsILDAPURL* searchUrl,
+      nsILDAPConnection* connection,
+      nsIAbDirectoryQueryArguments* queryArguments, const nsACString& login,
+      const nsACString& mechanism, const int32_t resultLimit = -1,
       const int32_t timeOut = 0);
 
   // nsILDAPMessageListener
-  NS_IMETHOD OnLDAPMessage(nsILDAPMessage *aMessage) override;
+  NS_IMETHOD OnLDAPMessage(nsILDAPMessage* aMessage) override;
 
  protected:
   virtual ~nsAbQueryLDAPMessageListener();
-  nsresult OnLDAPMessageSearchEntry(nsILDAPMessage *aMessage);
-  nsresult OnLDAPMessageSearchResult(nsILDAPMessage *aMessage);
+  nsresult OnLDAPMessageSearchEntry(nsILDAPMessage* aMessage);
+  nsresult OnLDAPMessageSearchResult(nsILDAPMessage* aMessage);
 
   friend class nsAbLDAPDirectoryQuery;
 
@@ -57,7 +57,7 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
   virtual void InitFailed(bool aCancelled = false) override;
 
   nsCOMPtr<nsILDAPURL> mSearchUrl;
-  nsIAbDirectoryQueryResultListener *mResultListener;
+  nsIAbDirectoryQueryResultListener* mResultListener;
   int32_t mContextID;
   nsCOMPtr<nsIAbDirectoryQueryArguments> mQueryArguments;
   int32_t mResultLimit;
@@ -69,10 +69,10 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
 NS_IMPL_ISUPPORTS(nsAbQueryLDAPMessageListener, nsILDAPMessageListener)
 
 nsAbQueryLDAPMessageListener::nsAbQueryLDAPMessageListener(
-    nsIAbDirectoryQueryResultListener *resultListener, nsILDAPURL *directoryUrl,
-    nsILDAPURL *searchUrl, nsILDAPConnection *connection,
-    nsIAbDirectoryQueryArguments *queryArguments, const nsACString &login,
-    const nsACString &mechanism, const int32_t resultLimit,
+    nsIAbDirectoryQueryResultListener* resultListener, nsILDAPURL* directoryUrl,
+    nsILDAPURL* searchUrl, nsILDAPConnection* connection,
+    nsIAbDirectoryQueryArguments* queryArguments, const nsACString& login,
+    const nsACString& mechanism, const int32_t resultLimit,
     const int32_t timeOut)
     : nsAbLDAPListenerBase(directoryUrl, connection, login, timeOut),
       mSearchUrl(searchUrl),
@@ -99,7 +99,7 @@ nsresult nsAbQueryLDAPMessageListener::Cancel() {
 }
 
 NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPMessage(
-    nsILDAPMessage *aMessage) {
+    nsILDAPMessage* aMessage) {
   nsresult rv = Initiate();
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -217,7 +217,7 @@ void nsAbQueryLDAPMessageListener::InitFailed(bool aCancelled) {
 }
 
 nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchEntry(
-    nsILDAPMessage *aMessage) {
+    nsILDAPMessage* aMessage) {
   nsresult rv;
 
   if (!mResultListener) return NS_ERROR_NULL_POINTER;
@@ -241,7 +241,7 @@ nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchEntry(
 }
 
 nsresult nsAbQueryLDAPMessageListener::OnLDAPMessageSearchResult(
-    nsILDAPMessage *aMessage) {
+    nsILDAPMessage* aMessage) {
   int32_t errorCode;
   nsresult rv = aMessage->GetErrorCode(&errorCode);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -265,9 +265,9 @@ nsAbLDAPDirectoryQuery::nsAbLDAPDirectoryQuery() : mInitialized(false) {}
 nsAbLDAPDirectoryQuery::~nsAbLDAPDirectoryQuery() {}
 
 NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(
-    nsIAbDirectory *aDirectory, nsIAbDirectoryQueryArguments *aArguments,
-    nsIAbDirSearchListener *aListener, int32_t aResultLimit, int32_t aTimeOut,
-    int32_t *_retval) {
+    nsIAbDirectory* aDirectory, nsIAbDirectoryQueryArguments* aArguments,
+    nsIAbDirSearchListener* aListener, int32_t aResultLimit, int32_t aTimeOut,
+    int32_t* _retval) {
   NS_ENSURE_ARG_POINTER(aListener);
   NS_ENSURE_ARG_POINTER(aArguments);
 
@@ -451,9 +451,9 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(
   // If we already have a connection, and don't need to re-do it, give it the
   // new search details and go for it...
   if (!redoConnection) {
-    nsAbQueryLDAPMessageListener *msgListener =
-        static_cast<nsAbQueryLDAPMessageListener *>(
-            static_cast<nsILDAPMessageListener *>(mListener.get()));
+    nsAbQueryLDAPMessageListener* msgListener =
+        static_cast<nsAbQueryLDAPMessageListener*>(
+            static_cast<nsILDAPMessageListener*>(mListener.get()));
     if (msgListener) {
       // Ensure the urls are correct
       msgListener->mDirectoryUrl = mDirectoryUrl;
@@ -470,11 +470,11 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectoryQueryResultListener> resultListener =
-      do_QueryInterface((nsIAbDirectoryQuery *)this, &rv);
+      do_QueryInterface((nsIAbDirectoryQuery*)this, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Initiate LDAP message listener
-  nsAbQueryLDAPMessageListener *_messageListener =
+  nsAbQueryLDAPMessageListener* _messageListener =
       new nsAbQueryLDAPMessageListener(
           resultListener, mDirectoryUrl, url, mConnection, aArguments,
           mCurrentLogin, mCurrentMechanism, aResultLimit, aTimeOut);
@@ -498,15 +498,15 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::StopQuery(int32_t contextID) {
 
   if (!mListener) return NS_OK;
 
-  nsAbQueryLDAPMessageListener *listener =
-      static_cast<nsAbQueryLDAPMessageListener *>(
-          static_cast<nsILDAPMessageListener *>(mListener.get()));
+  nsAbQueryLDAPMessageListener* listener =
+      static_cast<nsAbQueryLDAPMessageListener*>(
+          static_cast<nsILDAPMessageListener*>(mListener.get()));
   if (listener) return listener->Cancel();
 
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnQueryFoundCard(nsIAbCard *aCard) {
+NS_IMETHODIMP nsAbLDAPDirectoryQuery::OnQueryFoundCard(nsIAbCard* aCard) {
   aCard->SetDirectoryId(mDirectoryId);
 
   for (int32_t i = 0; i < mListeners.Count(); ++i)

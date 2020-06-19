@@ -29,14 +29,14 @@ nsNoneService::~nsNoneService() {}
 NS_IMPL_ISUPPORTS(nsNoneService, nsINoneService, nsIMsgProtocolInfo)
 
 NS_IMETHODIMP
-nsNoneService::SetDefaultLocalPath(nsIFile *aPath) {
+nsNoneService::SetDefaultLocalPath(nsIFile* aPath) {
   NS_ENSURE_ARG(aPath);
   return NS_SetPersistentFile(PREF_MAIL_ROOT_NONE_REL, PREF_MAIL_ROOT_NONE,
                               aPath);
 }
 
 NS_IMETHODIMP
-nsNoneService::GetDefaultLocalPath(nsIFile **aResult) {
+nsNoneService::GetDefaultLocalPath(nsIFile** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = nullptr;
 
@@ -64,13 +64,13 @@ nsNoneService::GetDefaultLocalPath(nsIFile **aResult) {
 }
 
 NS_IMETHODIMP
-nsNoneService::GetServerIID(nsIID **aServerIID) {
+nsNoneService::GetServerIID(nsIID** aServerIID) {
   *aServerIID = new nsIID(NS_GET_IID(nsINoIncomingServer));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetRequiresUsername(bool *aRequiresUsername) {
+nsNoneService::GetRequiresUsername(bool* aRequiresUsername) {
   NS_ENSURE_ARG_POINTER(aRequiresUsername);
   *aRequiresUsername = true;
   return NS_OK;
@@ -78,49 +78,49 @@ nsNoneService::GetRequiresUsername(bool *aRequiresUsername) {
 
 NS_IMETHODIMP
 nsNoneService::GetPreflightPrettyNameWithEmailAddress(
-    bool *aPreflightPrettyNameWithEmailAddress) {
+    bool* aPreflightPrettyNameWithEmailAddress) {
   NS_ENSURE_ARG_POINTER(aPreflightPrettyNameWithEmailAddress);
   *aPreflightPrettyNameWithEmailAddress = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetCanLoginAtStartUp(bool *aCanLoginAtStartUp) {
+nsNoneService::GetCanLoginAtStartUp(bool* aCanLoginAtStartUp) {
   NS_ENSURE_ARG_POINTER(aCanLoginAtStartUp);
   *aCanLoginAtStartUp = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetCanDelete(bool *aCanDelete) {
+nsNoneService::GetCanDelete(bool* aCanDelete) {
   NS_ENSURE_ARG_POINTER(aCanDelete);
   *aCanDelete = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetCanDuplicate(bool *aCanDuplicate) {
+nsNoneService::GetCanDuplicate(bool* aCanDuplicate) {
   NS_ENSURE_ARG_POINTER(aCanDuplicate);
   *aCanDuplicate = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetCanGetMessages(bool *aCanGetMessages) {
+nsNoneService::GetCanGetMessages(bool* aCanGetMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetMessages);
   *aCanGetMessages = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetCanGetIncomingMessages(bool *aCanGetIncomingMessages) {
+nsNoneService::GetCanGetIncomingMessages(bool* aCanGetIncomingMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetIncomingMessages);
   *aCanGetIncomingMessages = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetDefaultDoBiff(bool *aDoBiff) {
+nsNoneService::GetDefaultDoBiff(bool* aDoBiff) {
   NS_ENSURE_ARG_POINTER(aDoBiff);
   // by default, don't do biff for "none" servers
   *aDoBiff = false;
@@ -128,21 +128,21 @@ nsNoneService::GetDefaultDoBiff(bool *aDoBiff) {
 }
 
 NS_IMETHODIMP
-nsNoneService::GetDefaultServerPort(bool isSecure, int32_t *aDefaultPort) {
+nsNoneService::GetDefaultServerPort(bool isSecure, int32_t* aDefaultPort) {
   NS_ENSURE_ARG_POINTER(aDefaultPort);
   *aDefaultPort = -1;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetShowComposeMsgLink(bool *showComposeMsgLink) {
+nsNoneService::GetShowComposeMsgLink(bool* showComposeMsgLink) {
   NS_ENSURE_ARG_POINTER(showComposeMsgLink);
   *showComposeMsgLink = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNoneService::GetFoldersCreatedAsync(bool *aAsyncCreation) {
+nsNoneService::GetFoldersCreatedAsync(bool* aAsyncCreation) {
   NS_ENSURE_ARG_POINTER(aAsyncCreation);
   *aAsyncCreation = false;
   return NS_OK;

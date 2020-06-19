@@ -26,7 +26,7 @@
 #define kABUpdatedRecords (kABUpdatedRecords ? kABUpdatedRecords : @"ABUpdatedRecords")
 #define kABInsertedRecords (kABInsertedRecords ? kABInsertedRecords : @"ABInsertedRecords")
 
-static nsresult GetOrCreateGroup(NSString *aUid, nsIAbDirectory **aResult) {
+static nsresult GetOrCreateGroup(NSString* aUid, nsIAbDirectory** aResult) {
   NS_ASSERTION(aUid, "No UID for group!.");
 
   nsAutoCString uri(NS_ABOSXDIRECTORY_URI_PREFIX);
@@ -44,10 +44,10 @@ static nsresult GetOrCreateGroup(NSString *aUid, nsIAbDirectory **aResult) {
   return NS_OK;
 }
 
-static nsresult GetCard(ABRecord *aRecord, nsIAbCard **aResult, nsIAbOSXDirectory *osxDirectory) {
+static nsresult GetCard(ABRecord* aRecord, nsIAbCard** aResult, nsIAbOSXDirectory* osxDirectory) {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
-  NSString *uid = [aRecord uniqueId];
+  NSString* uid = [aRecord uniqueId];
   NS_ASSERTION(uid, "No UID for card!.");
   if (!uid) return NS_ERROR_FAILURE;
 
@@ -66,10 +66,10 @@ static nsresult GetCard(ABRecord *aRecord, nsIAbCard **aResult, nsIAbOSXDirector
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 }
 
-static nsresult CreateCard(ABRecord *aRecord, nsIAbCard **aResult) {
+static nsresult CreateCard(ABRecord* aRecord, nsIAbCard** aResult) {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
-  NSString *uid = [aRecord uniqueId];
+  NSString* uid = [aRecord uniqueId];
   NS_ASSERTION(uid, "No UID for card!.");
   if (!uid) return NS_ERROR_FAILURE;
 
@@ -92,11 +92,11 @@ static nsresult CreateCard(ABRecord *aRecord, nsIAbCard **aResult) {
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 }
 
-static nsresult Sync(NSString *aUid) {
+static nsresult Sync(NSString* aUid) {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
-  ABAddressBook *addressBook = [ABAddressBook sharedAddressBook];
-  ABRecord *card = [addressBook recordForUniqueId:aUid];
+  ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
+  ABRecord* card = [addressBook recordForUniqueId:aUid];
   if ([card isKindOfClass:[ABGroup class]]) {
     nsCOMPtr<nsIAbDirectory> directory;
     GetOrCreateGroup(aUid, getter_AddRefs(directory));
@@ -132,15 +132,15 @@ static nsresult Sync(NSString *aUid) {
 }
 
 @interface ABChangedMonitor : NSObject
-- (void)ABChanged:(NSNotification *)aNotification;
+- (void)ABChanged:(NSNotification*)aNotification;
 @end
 
 @implementation ABChangedMonitor
-- (void)ABChanged:(NSNotification *)aNotification {
-  NSDictionary *changes = [aNotification userInfo];
+- (void)ABChanged:(NSNotification*)aNotification {
+  NSDictionary* changes = [aNotification userInfo];
 
   nsresult rv;
-  NSArray *inserted = [changes objectForKey:kABInsertedRecords];
+  NSArray* inserted = [changes objectForKey:kABInsertedRecords];
 
   if (inserted) {
     nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
@@ -156,8 +156,8 @@ static nsresult Sync(NSString *aUid) {
 
     unsigned int i, count = [inserted count];
     for (i = 0; i < count; ++i) {
-      ABAddressBook *addressBook = [ABAddressBook sharedAddressBook];
-      ABRecord *card = [addressBook recordForUniqueId:[inserted objectAtIndex:i]];
+      ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
+      ABRecord* card = [addressBook recordForUniqueId:[inserted objectAtIndex:i]];
       if ([card isKindOfClass:[ABGroup class]]) {
         nsCOMPtr<nsIAbDirectory> directory;
         GetOrCreateGroup([inserted objectAtIndex:i], getter_AddRefs(directory));
@@ -175,16 +175,16 @@ static nsresult Sync(NSString *aUid) {
     }
   }
 
-  NSArray *updated = [changes objectForKey:kABUpdatedRecords];
+  NSArray* updated = [changes objectForKey:kABUpdatedRecords];
   if (updated) {
     unsigned int i, count = [updated count];
     for (i = 0; i < count; ++i) {
-      NSString *uid = [updated objectAtIndex:i];
+      NSString* uid = [updated objectAtIndex:i];
       Sync(uid);
     }
   }
 
-  NSArray *deleted = [changes objectForKey:kABDeletedRecords];
+  NSArray* deleted = [changes objectForKey:kABDeletedRecords];
   if (deleted) {
     nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS_VOID(rv);
@@ -199,7 +199,7 @@ static nsresult Sync(NSString *aUid) {
 
     unsigned int i, count = [deleted count];
     for (i = 0; i < count; ++i) {
-      NSString *deletedUid = [deleted objectAtIndex:i];
+      NSString* deletedUid = [deleted objectAtIndex:i];
 
       nsAutoCString uid;
       AppendToCString(deletedUid, uid);
@@ -217,7 +217,7 @@ static nsresult Sync(NSString *aUid) {
 @end
 
 static uint32_t sObserverCount = 0;
-static ABChangedMonitor *sObserver = nullptr;
+static ABChangedMonitor* sObserver = nullptr;
 
 nsAbOSXDirectory::nsAbOSXDirectory() {}
 
@@ -232,24 +232,24 @@ NS_IMPL_ISUPPORTS_INHERITED(nsAbOSXDirectory, nsAbDirProperty, nsIAbOSXDirectory
                             nsIAbDirSearchListener)
 
 NS_IMETHODIMP
-nsAbOSXDirectory::Init(const char *aUri) {
+nsAbOSXDirectory::Init(const char* aUri) {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
   nsresult rv;
   rv = nsAbDirProperty::Init(aUri);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  ABAddressBook *addressBook = [ABAddressBook sharedAddressBook];
+  ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
   if (sObserverCount == 0) {
     sObserver = [[ABChangedMonitor alloc] init];
-    [[NSNotificationCenter defaultCenter] addObserver:(ABChangedMonitor *)sObserver
+    [[NSNotificationCenter defaultCenter] addObserver:(ABChangedMonitor*)sObserver
                                              selector:@selector(ABChanged:)
                                                  name:kABDatabaseChangedExternallyNotification
                                                object:nil];
   }
   ++sObserverCount;
 
-  NSArray *cards;
+  NSArray* cards;
   nsCOMPtr<nsIMutableArray> cardList;
   bool isRootOSXDirectory = false;
 
@@ -269,13 +269,13 @@ nsAbOSXDirectory::Init(const char *aUri) {
     cardList = mCardList;
   } else {
     nsAutoCString uid(Substring(mURINoQuery, sizeof(NS_ABOSXDIRECTORY_URI_PREFIX) - 1));
-    ABRecord *card = [addressBook recordForUniqueId:[NSString stringWithUTF8String:uid.get()]];
+    ABRecord* card = [addressBook recordForUniqueId:[NSString stringWithUTF8String:uid.get()]];
     NS_ASSERTION([card isKindOfClass:[ABGroup class]], "Huh.");
 
     m_IsMailList = true;
     AppendToString([card valueForProperty:kABGroupNameProperty], m_ListDirName);
 
-    ABGroup *group = (ABGroup *)[addressBook
+    ABGroup* group = (ABGroup*)[addressBook
         recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURINoQuery, 21))
                                                              .get()]];
     cards = [[group members] arrayByAddingObjectsFromArray:[group subgroups]];
@@ -332,7 +332,7 @@ nsAbOSXDirectory::Init(const char *aUri) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetURI(nsACString &aURI) {
+nsAbOSXDirectory::GetURI(nsACString& aURI) {
   if (mURI.IsEmpty()) return NS_ERROR_NOT_INITIALIZED;
 
   aURI = mURI;
@@ -340,15 +340,15 @@ nsAbOSXDirectory::GetURI(nsACString &aURI) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetReadOnly(bool *aReadOnly) {
+nsAbOSXDirectory::GetReadOnly(bool* aReadOnly) {
   NS_ENSURE_ARG_POINTER(aReadOnly);
 
   *aReadOnly = true;
   return NS_OK;
 }
 
-static bool CheckRedundantCards(nsIAbManager *aManager, nsIAbDirectory *aDirectory,
-                                nsIAbCard *aCard, NSMutableArray *aCardList) {
+static bool CheckRedundantCards(nsIAbManager* aManager, nsIAbDirectory* aDirectory,
+                                nsIAbCard* aCard, NSMutableArray* aCardList) {
   nsresult rv;
   nsCOMPtr<nsIAbOSXCard> osxCard = do_QueryInterface(aCard, &rv);
   NS_ENSURE_SUCCESS(rv, false);
@@ -356,7 +356,7 @@ static bool CheckRedundantCards(nsIAbManager *aManager, nsIAbDirectory *aDirecto
   nsAutoCString uri;
   rv = osxCard->GetURI(uri);
   NS_ENSURE_SUCCESS(rv, false);
-  NSString *uid = [NSString stringWithUTF8String:(uri.get() + 21)];
+  NSString* uid = [NSString stringWithUTF8String:(uri.get() + 21)];
 
   unsigned int i, count = [aCardList count];
   for (i = 0; i < count; ++i) {
@@ -374,7 +374,7 @@ static bool CheckRedundantCards(nsIAbManager *aManager, nsIAbDirectory *aDirecto
   return false;
 }
 
-nsresult nsAbOSXDirectory::GetRootOSXDirectory(nsIAbOSXDirectory **aResult) {
+nsresult nsAbOSXDirectory::GetRootOSXDirectory(nsIAbOSXDirectory** aResult) {
   if (!mCacheTopLevelOSXAb) {
     // Attempt to get card from the toplevel directories
     nsresult rv;
@@ -406,14 +406,14 @@ nsresult nsAbOSXDirectory::Update() {
     return NS_OK;
   }
 
-  ABAddressBook *addressBook = [ABAddressBook sharedAddressBook];
+  ABAddressBook* addressBook = [ABAddressBook sharedAddressBook];
   // Due to the horrible way the address book code works wrt mailing lists
   // we have to use a different list depending on what we are. This pointer
   // holds a reference to that list.
-  nsIMutableArray *cardList;
+  nsIMutableArray* cardList;
   NSArray *groups, *cards;
   if (m_IsMailList) {
-    ABGroup *group = (ABGroup *)[addressBook
+    ABGroup* group = (ABGroup*)[addressBook
         recordForUniqueId:[NSString stringWithUTF8String:nsAutoCString(Substring(mURINoQuery, 21))
                                                              .get()]];
     groups = nil;
@@ -437,7 +437,7 @@ nsresult nsAbOSXDirectory::Update() {
     cardList = mCardList;
   }
 
-  NSMutableArray *mutableArray = [NSMutableArray arrayWithArray:cards];
+  NSMutableArray* mutableArray = [NSMutableArray arrayWithArray:cards];
   uint32_t addressCount;
   rv = cardList->GetLength(&addressCount);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -450,8 +450,8 @@ nsresult nsAbOSXDirectory::Update() {
       cardList->RemoveElementAt(addressCount);
   }
 
-  NSEnumerator *enumerator = [mutableArray objectEnumerator];
-  ABRecord *card;
+  NSEnumerator* enumerator = [mutableArray objectEnumerator];
+  ABRecord* card;
   nsCOMPtr<nsIAbCard> abCard;
   nsCOMPtr<nsIAbOSXDirectory> rootOSXDirectory;
   rv = GetRootOSXDirectory(getter_AddRefs(rootOSXDirectory));
@@ -464,14 +464,14 @@ nsresult nsAbOSXDirectory::Update() {
     AssertCard(abManager, abCard);
   }
 
-  card = (ABRecord *)[addressBook
+  card = (ABRecord*)[addressBook
       recordForUniqueId:[NSString
                             stringWithUTF8String:nsAutoCString(Substring(mURINoQuery, 21)).get()]];
-  NSString *stringValue = [card valueForProperty:kABGroupNameProperty];
+  NSString* stringValue = [card valueForProperty:kABGroupNameProperty];
   if (![stringValue isEqualToString:WrapString(m_ListDirName)]) {
     nsAutoString oldValue(m_ListDirName);
     AssignToString(stringValue, m_ListDirName);
-    nsCOMPtr<nsISupports> supports = do_QueryInterface(static_cast<nsIAbDirectory *>(this), &rv);
+    nsCOMPtr<nsISupports> supports = do_QueryInterface(static_cast<nsIAbDirectory*>(this), &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     abManager->NotifyItemPropertyChanged(supports, "DirName", oldValue, m_ListDirName);
   }
@@ -492,7 +492,7 @@ nsresult nsAbOSXDirectory::Update() {
         nsAutoCString uri;
         directory->GetURI(uri);
         uri.Cut(0, 21);
-        NSString *uid = [NSString stringWithUTF8String:uri.get()];
+        NSString* uid = [NSString stringWithUTF8String:uri.get()];
 
         unsigned int j, arrayCount = [mutableArray count];
         for (j = 0; j < arrayCount; ++j) {
@@ -534,7 +534,7 @@ nsresult nsAbOSXDirectory::AssertChildNodes() {
   nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  NSArray *groups = [[ABAddressBook sharedAddressBook] groups];
+  NSArray* groups = [[ABAddressBook sharedAddressBook] groups];
 
   unsigned int i, count = [groups count];
 
@@ -557,7 +557,7 @@ nsresult nsAbOSXDirectory::AssertChildNodes() {
   NS_OBJC_END_TRY_ABORT_BLOCK_NSRESULT;
 }
 
-nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager *aManager, nsIAbDirectory *aDirectory) {
+nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager* aManager, nsIAbDirectory* aDirectory) {
   uint32_t pos;
   if (m_AddressList && NS_SUCCEEDED(m_AddressList->IndexOf(0, aDirectory, &pos)))
     // We already have this directory, so no point in adding it again.
@@ -575,7 +575,7 @@ nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager *aManager, nsIAbDirector
   return aManager->NotifyDirectoryItemAdded(this, aDirectory);
 }
 
-nsresult nsAbOSXDirectory::AssertCard(nsIAbManager *aManager, nsIAbCard *aCard) {
+nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager, nsIAbCard* aCard) {
   nsAutoCString ourUuid;
   GetUuid(ourUuid);
   aCard->SetDirectoryId(ourUuid);
@@ -597,8 +597,8 @@ nsresult nsAbOSXDirectory::AssertCard(nsIAbManager *aManager, nsIAbCard *aCard) 
   return aManager->NotifyDirectoryItemAdded(this, aCard);
 }
 
-nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager *aManager, nsIAbCard *aCard,
-                                        nsIMutableArray *aCardList) {
+nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager* aManager, nsIAbCard* aCard,
+                                        nsIMutableArray* aCardList) {
   nsresult rv;
   uint32_t pos;
 
@@ -607,7 +607,7 @@ nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager *aManager, nsIAbCard *aCard
   return aManager->NotifyDirectoryItemDeleted(this, aCard);
 }
 
-nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager *aManager, nsIAbDirectory *aDirectory) {
+nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager* aManager, nsIAbDirectory* aDirectory) {
   NS_ENSURE_TRUE(m_AddressList, NS_ERROR_NULL_POINTER);
 
   uint32_t pos;
@@ -620,7 +620,7 @@ nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager *aManager, nsIAbDirect
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetChildNodes(nsISimpleEnumerator **aNodes) {
+nsAbOSXDirectory::GetChildNodes(nsISimpleEnumerator** aNodes) {
   NS_ENSURE_ARG_POINTER(aNodes);
 
   // Queries don't have childnodes.
@@ -630,7 +630,7 @@ nsAbOSXDirectory::GetChildNodes(nsISimpleEnumerator **aNodes) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator **aCards) {
+nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator** aCards) {
   NS_OBJC_BEGIN_TRY_ABORT_BLOCK_NSRESULT;
 
   NS_ENSURE_ARG_POINTER(aCards);
@@ -643,7 +643,7 @@ nsAbOSXDirectory::GetChildCards(nsISimpleEnumerator **aCards) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetIsQuery(bool *aResult) {
+nsAbOSXDirectory::GetIsQuery(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = mIsQueryURI;
   return NS_OK;
@@ -653,7 +653,7 @@ nsAbOSXDirectory::GetIsQuery(bool *aResult) {
  * it within this directory, it checks all subfolders.
  */
 NS_IMETHODIMP
-nsAbOSXDirectory::GetCardByUri(const nsACString &aUri, nsIAbOSXCard **aResult) {
+nsAbOSXDirectory::GetCardByUri(const nsACString& aUri, nsIAbOSXCard** aResult) {
   nsCOMPtr<nsIAbOSXCard> osxCard;
 
   // Base Case
@@ -686,15 +686,15 @@ nsAbOSXDirectory::GetCardByUri(const nsACString &aUri, nsIAbOSXCard **aResult) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetCardFromProperty(const char *aProperty, const nsACString &aValue,
-                                      bool aCaseSensitive, nsIAbCard **aResult) {
+nsAbOSXDirectory::GetCardFromProperty(const char* aProperty, const nsACString& aValue,
+                                      bool aCaseSensitive, nsIAbCard** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = nullptr;
 
   if (aValue.IsEmpty()) return NS_OK;
 
-  nsIMutableArray *list = m_IsMailList ? m_AddressList : mCardList;
+  nsIMutableArray* list = m_IsMailList ? m_AddressList : mCardList;
 
   if (!list) return NS_OK;
 
@@ -720,15 +720,15 @@ nsAbOSXDirectory::GetCardFromProperty(const char *aProperty, const nsACString &a
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::GetCardsFromProperty(const char *aProperty, const nsACString &aValue,
-                                       bool aCaseSensitive, nsISimpleEnumerator **aResult) {
+nsAbOSXDirectory::GetCardsFromProperty(const char* aProperty, const nsACString& aValue,
+                                       bool aCaseSensitive, nsISimpleEnumerator** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = nullptr;
 
   if (aValue.IsEmpty()) return NS_NewEmptyEnumerator(aResult);
 
-  nsIMutableArray *list = m_IsMailList ? m_AddressList : mCardList;
+  nsIMutableArray* list = m_IsMailList ? m_AddressList : mCardList;
 
   if (!list) return NS_NewEmptyEnumerator(aResult);
 
@@ -756,14 +756,14 @@ nsAbOSXDirectory::GetCardsFromProperty(const char *aProperty, const nsACString &
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::CardForEmailAddress(const nsACString &aEmailAddress, nsIAbCard **aResult) {
+nsAbOSXDirectory::CardForEmailAddress(const nsACString& aEmailAddress, nsIAbCard** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = nullptr;
 
   if (aEmailAddress.IsEmpty()) return NS_OK;
 
-  nsIMutableArray *list = m_IsMailList ? m_AddressList : mCardList;
+  nsIMutableArray* list = m_IsMailList ? m_AddressList : mCardList;
 
   if (!list) return NS_OK;
 
@@ -786,7 +786,7 @@ nsAbOSXDirectory::CardForEmailAddress(const nsACString &aEmailAddress, nsIAbCard
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::HasCard(nsIAbCard *aCard, bool *aHasCard) {
+nsAbOSXDirectory::HasCard(nsIAbCard* aCard, bool* aHasCard) {
   NS_ENSURE_ARG_POINTER(aCard);
   NS_ENSURE_ARG_POINTER(aHasCard);
 
@@ -803,7 +803,7 @@ nsAbOSXDirectory::HasCard(nsIAbCard *aCard, bool *aHasCard) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::HasDirectory(nsIAbDirectory *aDirectory, bool *aHasDirectory) {
+nsAbOSXDirectory::HasDirectory(nsIAbDirectory* aDirectory, bool* aHasDirectory) {
   NS_ENSURE_ARG_POINTER(aDirectory);
   NS_ENSURE_ARG_POINTER(aHasDirectory);
 
@@ -817,10 +817,10 @@ nsAbOSXDirectory::HasDirectory(nsIAbDirectory *aDirectory, bool *aHasDirectory) 
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::OnSearchFinished(int32_t aResult, const nsAString &aErrorMsg) { return NS_OK; }
+nsAbOSXDirectory::OnSearchFinished(int32_t aResult, const nsAString& aErrorMsg) { return NS_OK; }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::OnSearchFoundCard(nsIAbCard *aCard) {
+nsAbOSXDirectory::OnSearchFoundCard(nsIAbCard* aCard) {
   nsresult rv;
   if (!m_AddressList) {
     m_AddressList = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
@@ -846,7 +846,7 @@ nsAbOSXDirectory::OnSearchFoundCard(nsIAbCard *aCard) {
 }
 
 NS_IMETHODIMP
-nsAbOSXDirectory::Search(const nsAString &query, nsIAbDirSearchListener *listener) {
+nsAbOSXDirectory::Search(const nsAString& query, nsIAbDirSearchListener* listener) {
   nsresult rv;
 
   nsCOMPtr<nsIAbBooleanExpression> expression;
@@ -884,7 +884,7 @@ nsAbOSXDirectory::Search(const nsAString &query, nsIAbDirSearchListener *listene
   return NS_OK;
 }
 
-nsresult nsAbOSXDirectory::DeleteUid(const nsACString &aUid) {
+nsresult nsAbOSXDirectory::DeleteUid(const nsACString& aUid) {
   if (!m_AddressList) return NS_ERROR_NULL_POINTER;
 
   nsresult rv;

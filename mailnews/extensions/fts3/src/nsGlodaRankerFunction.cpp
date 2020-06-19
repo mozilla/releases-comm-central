@@ -32,8 +32,8 @@ static uint32_t COLUMN_SATURATION[] = {10, 1, 1, 1, 1};
  * subsuming it to MPL1.1/LGPL2/GPL2.
  */
 NS_IMETHODIMP
-nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
-                                      nsIVariant **_result) {
+nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray* aArguments,
+                                      nsIVariant** _result) {
   // all argument names are maintained from the original SQLite code.
   uint32_t nVal;
   nsresult rv = aArguments->GetNumEntries(&nVal);
@@ -48,7 +48,7 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
   if (nVal < 1) return NS_ERROR_INVALID_ARG;
 
   uint32_t lenArgsData;
-  uint32_t *aArgsData = (uint32_t *)aArguments->AsSharedBlob(0, &lenArgsData);
+  uint32_t* aArgsData = (uint32_t*)aArguments->AsSharedBlob(0, &lenArgsData);
 
   uint32_t nPhrase = aArgsData[0];
   uint32_t nCol = aArgsData[1];
@@ -83,7 +83,7 @@ nsGlodaRankerFunction::OnFunctionCall(mozIStorageValueArray *aArguments,
     ** the hit count and global hit counts for each column are found in
     ** aPhraseinfo[iCol*3] and aPhraseinfo[iCol*3+1], respectively.
     */
-    uint32_t *aPhraseinfo = &aArgsData[2 + iPhrase * nCol * 3];
+    uint32_t* aPhraseinfo = &aArgsData[2 + iPhrase * nCol * 3];
     for (uint32_t iCol = 0; iCol < nCol; iCol++) {
       uint32_t nHitCount = aPhraseinfo[3 * iCol];
       double weight = aArguments->AsDouble(iCol + 1);

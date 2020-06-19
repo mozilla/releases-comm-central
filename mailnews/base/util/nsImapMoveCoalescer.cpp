@@ -22,8 +22,8 @@
 
 NS_IMPL_ISUPPORTS(nsImapMoveCoalescer, nsIUrlListener)
 
-nsImapMoveCoalescer::nsImapMoveCoalescer(nsIMsgFolder *sourceFolder,
-                                         nsIMsgWindow *msgWindow) {
+nsImapMoveCoalescer::nsImapMoveCoalescer(nsIMsgFolder* sourceFolder,
+                                         nsIMsgWindow* msgWindow) {
   m_sourceFolder = sourceFolder;
   m_msgWindow = msgWindow;
   m_hasPendingMoves = false;
@@ -31,10 +31,10 @@ nsImapMoveCoalescer::nsImapMoveCoalescer(nsIMsgFolder *sourceFolder,
 
 nsImapMoveCoalescer::~nsImapMoveCoalescer() {}
 
-nsresult nsImapMoveCoalescer::AddMove(nsIMsgFolder *folder, nsMsgKey key) {
+nsresult nsImapMoveCoalescer::AddMove(nsIMsgFolder* folder, nsMsgKey key) {
   m_hasPendingMoves = true;
   int32_t folderIndex = m_destFolders.IndexOf(folder);
-  nsTArray<nsMsgKey> *keysToAdd = nullptr;
+  nsTArray<nsMsgKey>* keysToAdd = nullptr;
 
   if (folderIndex >= 0)
     keysToAdd = &(m_sourceKeyArrays[folderIndex]);
@@ -66,7 +66,7 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
     // is this the right place to make sure dest folder exists
     // (and has proper flags?), before we start copying?
     nsCOMPtr<nsIMsgFolder> destFolder(m_destFolders[i]);
-    nsTArray<nsMsgKey> &keysToAdd = m_sourceKeyArrays[i];
+    nsTArray<nsMsgKey>& keysToAdd = m_sourceKeyArrays[i];
     int32_t numNewMessages = 0;
     int32_t numKeysToAdd = keysToAdd.Length();
     if (numKeysToAdd == 0) continue;
@@ -107,7 +107,7 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
     if (copySvc) {
       nsCOMPtr<nsIMsgCopyServiceListener> listener;
       if (m_doNewMailNotification) {
-        nsMoveCoalescerCopyListener *copyListener =
+        nsMoveCoalescerCopyListener* copyListener =
             new nsMoveCoalescerCopyListener(this, destFolder);
         if (copyListener) listener = copyListener;
       }
@@ -120,13 +120,13 @@ nsresult nsImapMoveCoalescer::PlaybackMoves(
 }
 
 NS_IMETHODIMP
-nsImapMoveCoalescer::OnStartRunningUrl(nsIURI *aUrl) {
+nsImapMoveCoalescer::OnStartRunningUrl(nsIURI* aUrl) {
   NS_ASSERTION(aUrl, "just a sanity check");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsImapMoveCoalescer::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
+nsImapMoveCoalescer::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   m_outstandingMoves--;
   if (m_doNewMailNotification && !m_outstandingMoves) {
     nsCOMPtr<nsIMsgImapMailFolder> imapFolder =
@@ -136,7 +136,7 @@ nsImapMoveCoalescer::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
   return NS_OK;
 }
 
-nsTArray<nsMsgKey> *nsImapMoveCoalescer::GetKeyBucket(uint32_t keyArrayIndex) {
+nsTArray<nsMsgKey>* nsImapMoveCoalescer::GetKeyBucket(uint32_t keyArrayIndex) {
   NS_ASSERTION(keyArrayIndex < MOZ_ARRAY_LENGTH(m_keyBuckets), "invalid index");
 
   return keyArrayIndex < mozilla::ArrayLength(m_keyBuckets)
@@ -147,7 +147,7 @@ nsTArray<nsMsgKey> *nsImapMoveCoalescer::GetKeyBucket(uint32_t keyArrayIndex) {
 NS_IMPL_ISUPPORTS(nsMoveCoalescerCopyListener, nsIMsgCopyServiceListener)
 
 nsMoveCoalescerCopyListener::nsMoveCoalescerCopyListener(
-    nsImapMoveCoalescer *coalescer, nsIMsgFolder *destFolder) {
+    nsImapMoveCoalescer* coalescer, nsIMsgFolder* destFolder) {
   m_destFolder = destFolder;
   m_coalescer = coalescer;
 }
@@ -170,7 +170,7 @@ NS_IMETHODIMP nsMoveCoalescerCopyListener::SetMessageKey(uint32_t aKey) {
 }
 
 /* void GetMessageId (in nsACString aMessageId); */
-NS_IMETHODIMP nsMoveCoalescerCopyListener::GetMessageId(nsACString &messageId) {
+NS_IMETHODIMP nsMoveCoalescerCopyListener::GetMessageId(nsACString& messageId) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 

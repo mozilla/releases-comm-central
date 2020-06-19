@@ -21,9 +21,9 @@ class calICSService : public calIICSService, public cal::XpcomBase {
   virtual ~calICSService() {}
   class ParserWorker : public mozilla::Runnable {
    public:
-    ParserWorker(nsIThread *mainThread, nsIThread *workerThread,
-                 const nsACString &icsString, calITimezoneProvider *tzProvider,
-                 calIIcsComponentParsingListener *listener)
+    ParserWorker(nsIThread* mainThread, nsIThread* workerThread,
+                 const nsACString& icsString, calITimezoneProvider* tzProvider,
+                 calIIcsComponentParsingListener* listener)
         : mozilla::Runnable("ParserWorker"),
           mString(icsString),
           mProvider(tzProvider),
@@ -45,10 +45,10 @@ class calICSService : public calIICSService, public cal::XpcomBase {
     class ParserWorkerCompleter : public mozilla::Runnable {
      public:
       ParserWorkerCompleter(
-          nsIThread *workerThread, nsresult status,
-          calIIcalComponent *component,
-          const nsMainThreadPtrHandle<calIIcsComponentParsingListener>
-              &listener)
+          nsIThread* workerThread, nsresult status,
+          calIIcalComponent* component,
+          const nsMainThreadPtrHandle<calIIcsComponentParsingListener>&
+              listener)
           : mozilla::Runnable("ParserWorkerCompleter"),
             mWorkerThread(workerThread),
             mListener(listener),
@@ -77,7 +77,7 @@ class calIcalProperty : public calIIcalPropertyLibical, public cal::XpcomBase {
   friend class calIcalComponent;
 
  public:
-  calIcalProperty(icalproperty *prop, calIIcalComponentLibical *parent)
+  calIcalProperty(icalproperty* prop, calIIcalComponentLibical* parent)
       : mProperty(prop), mParent(parent) {}
 
   NS_DECL_ISUPPORTS
@@ -87,12 +87,12 @@ class calIcalProperty : public calIIcalPropertyLibical, public cal::XpcomBase {
  protected:
   virtual ~calIcalProperty();
 
-  static nsresult getDatetime_(calIcalComponent *parent, icalproperty *prop,
-                               calIDateTime **dtp);
-  static nsresult setDatetime_(calIcalComponent *parent, icalproperty *prop,
-                               calIDateTime *dt);
+  static nsresult getDatetime_(calIcalComponent* parent, icalproperty* prop,
+                               calIDateTime** dtp);
+  static nsresult setDatetime_(calIcalComponent* parent, icalproperty* prop,
+                               calIDateTime* dt);
 
-  icalproperty *mProperty;
+  icalproperty* mProperty;
   nsCOMPtr<calIIcalComponentLibical> mParent;
 };
 
@@ -101,15 +101,15 @@ class calIcalComponent : public calIIcalComponentLibical,
   friend class calIcalProperty;
 
  public:
-  calIcalComponent(icalcomponent *ical, calIIcalComponentLibical *parent,
-                   calITimezoneProvider *tzProvider = nullptr)
+  calIcalComponent(icalcomponent* ical, calIIcalComponentLibical* parent,
+                   calITimezoneProvider* tzProvider = nullptr)
       : mComponent(ical),
         mTimezone(nullptr),
         mTzProvider(tzProvider),
         mParent(parent) {}
 
   // VTIMEZONE ctor
-  calIcalComponent(icaltimezone *icaltz, icalcomponent *ical)
+  calIcalComponent(icaltimezone* icaltz, icalcomponent* ical)
       : mComponent(ical), mTimezone(icaltz) {}
 
   NS_DECL_THREADSAFE_ISUPPORTS
@@ -119,60 +119,60 @@ class calIcalComponent : public calIIcalComponentLibical,
  protected:
   virtual ~calIcalComponent();
 
-  calITimezoneProvider *getTzProvider() const {
+  calITimezoneProvider* getTzProvider() const {
     // walk up the parents to find a tz provider:
-    calIcalComponent const *that = this;
+    calIcalComponent const* that = this;
     while (that) {
-      calITimezoneProvider *const ret = that->mTzProvider;
+      calITimezoneProvider* const ret = that->mTzProvider;
       if (ret) {
         return ret;
       }
-      calIIcalComponentLibical *const p = that->mParent;
-      that = static_cast<calIcalComponent const *>(p);
+      calIIcalComponentLibical* const p = that->mParent;
+      that = static_cast<calIcalComponent const*>(p);
     }
     return nullptr;
   }
 
-  calIcalComponent *getParentVCalendarOrThis() {
+  calIcalComponent* getParentVCalendarOrThis() {
     // walk up the parents to find a VCALENDAR:
-    calIcalComponent *that = this;
+    calIcalComponent* that = this;
     while (that &&
            icalcomponent_isa(that->mComponent) != ICAL_VCALENDAR_COMPONENT) {
-      calIIcalComponentLibical *const p = that->mParent;
-      that = static_cast<calIcalComponent *>(p);
+      calIIcalComponentLibical* const p = that->mParent;
+      that = static_cast<calIcalComponent*>(p);
     }
     if (!that) that = this;
     return that;
   }
 
-  nsresult GetDateTimeAttribute(icalproperty_kind kind, calIDateTime **dtp);
-  nsresult SetDateTimeAttribute(icalproperty_kind kind, calIDateTime *dt);
+  nsresult GetDateTimeAttribute(icalproperty_kind kind, calIDateTime** dtp);
+  nsresult SetDateTimeAttribute(icalproperty_kind kind, calIDateTime* dt);
 
-  nsresult SetPropertyValue(icalproperty_kind kind, icalvalue *val);
-  nsresult SetProperty(icalproperty_kind kind, icalproperty *prop);
+  nsresult SetPropertyValue(icalproperty_kind kind, icalvalue* val);
+  nsresult SetProperty(icalproperty_kind kind, icalproperty* prop);
 
-  nsresult GetStringProperty(icalproperty_kind kind, nsACString &str);
-  nsresult SetStringProperty(icalproperty_kind kind, const nsACString &str);
+  nsresult GetStringProperty(icalproperty_kind kind, nsACString& str);
+  nsresult SetStringProperty(icalproperty_kind kind, const nsACString& str);
 
-  nsresult GetIntProperty(icalproperty_kind kind, int32_t *valp);
+  nsresult GetIntProperty(icalproperty_kind kind, int32_t* valp);
   nsresult SetIntProperty(icalproperty_kind kind, int32_t i);
 
   void ClearAllProperties(icalproperty_kind kind);
 
-  nsresult Serialize(char **icalstr);
+  nsresult Serialize(char** icalstr);
 
   nsInterfaceHashtable<nsCStringHashKey, calITimezone> mReferencedTimezones;
-  icalcomponent *mComponent;
-  icaltimezone *mTimezone;  // set iff VTIMEZONE
+  icalcomponent* mComponent;
+  icaltimezone* mTimezone;  // set iff VTIMEZONE
   nsCOMPtr<calITimezoneProvider> const mTzProvider;
   nsCOMPtr<calIIcalComponentLibical> mParent;
 };
 
-inline calIcalProperty *toIcalProperty(calIIcalPropertyLibical *p) {
-  return static_cast<calIcalProperty *>(p);
+inline calIcalProperty* toIcalProperty(calIIcalPropertyLibical* p) {
+  return static_cast<calIcalProperty*>(p);
 }
-inline calIcalComponent *toIcalComponent(calIIcalComponentLibical *p) {
-  return static_cast<calIcalComponent *>(p);
+inline calIcalComponent* toIcalComponent(calIIcalComponentLibical* p) {
+  return static_cast<calIcalComponent*>(p);
 }
 
 #endif  // INCLUDED_CALICSSERVICE_H

@@ -23,7 +23,7 @@ using namespace mozilla::mailnews;
 
 struct HeaderInfo {
   /// Header name
-  const char *mName;
+  const char* mName;
   /// If true, nsMsgCompFields should reflect the raw header value instead of
   /// the unstructured header value.
   bool mStructured;
@@ -92,14 +92,14 @@ nsMsgCompFields::nsMsgCompFields()
 nsMsgCompFields::~nsMsgCompFields() {}
 
 nsresult nsMsgCompFields::SetAsciiHeader(MsgHeaderID header,
-                                         const char *value) {
+                                         const char* value) {
   NS_ASSERTION(header >= 0 && header < MSG_MAX_HEADERS,
                "Invalid message header index!");
 
   // If we are storing this on the structured header object, we need to set the
   // value on that object as well. Note that the value may be null, which we'll
   // take as an attempt to delete the header.
-  const char *headerName = kHeaders[header].mName;
+  const char* headerName = kHeaders[header].mName;
   if (headerName) {
     if (!value || !*value) return mStructuredHeaders->DeleteHeader(headerName);
 
@@ -113,11 +113,11 @@ nsresult nsMsgCompFields::SetAsciiHeader(MsgHeaderID header,
   return NS_OK;
 }
 
-const char *nsMsgCompFields::GetAsciiHeader(MsgHeaderID header) {
+const char* nsMsgCompFields::GetAsciiHeader(MsgHeaderID header) {
   NS_ASSERTION(header >= 0 && header < MSG_MAX_HEADERS,
                "Invalid message header index!");
 
-  const char *headerName = kHeaders[header].mName;
+  const char* headerName = kHeaders[header].mName;
   if (headerName) {
     // We may be out of sync with the structured header object. Retrieve the
     // header value.
@@ -134,89 +134,89 @@ const char *nsMsgCompFields::GetAsciiHeader(MsgHeaderID header) {
 }
 
 nsresult nsMsgCompFields::SetUnicodeHeader(MsgHeaderID header,
-                                           const nsAString &value) {
+                                           const nsAString& value) {
   return SetAsciiHeader(header, NS_ConvertUTF16toUTF8(value).get());
 }
 
 nsresult nsMsgCompFields::GetUnicodeHeader(MsgHeaderID header,
-                                           nsAString &aResult) {
+                                           nsAString& aResult) {
   CopyUTF8toUTF16(nsDependentCString(GetAsciiHeader(header)), aResult);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetFrom(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetFrom(const nsAString& value) {
   return SetUnicodeHeader(MSG_FROM_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetFrom(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetFrom(nsAString& _retval) {
   return GetUnicodeHeader(MSG_FROM_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetReplyTo(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetReplyTo(const nsAString& value) {
   return SetUnicodeHeader(MSG_REPLY_TO_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetReplyTo(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetReplyTo(nsAString& _retval) {
   return GetUnicodeHeader(MSG_REPLY_TO_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetTo(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetTo(const nsAString& value) {
   return SetUnicodeHeader(MSG_TO_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetTo(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetTo(nsAString& _retval) {
   return GetUnicodeHeader(MSG_TO_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetCc(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetCc(const nsAString& value) {
   return SetUnicodeHeader(MSG_CC_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetCc(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetCc(nsAString& _retval) {
   return GetUnicodeHeader(MSG_CC_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetBcc(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetBcc(const nsAString& value) {
   return SetUnicodeHeader(MSG_BCC_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetBcc(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetBcc(nsAString& _retval) {
   return GetUnicodeHeader(MSG_BCC_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetFcc(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetFcc(const nsAString& value) {
   return SetUnicodeHeader(MSG_FCC_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetFcc(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetFcc(nsAString& _retval) {
   return GetUnicodeHeader(MSG_FCC_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetFcc2(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetFcc2(const nsAString& value) {
   return SetUnicodeHeader(MSG_FCC2_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetFcc2(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetFcc2(nsAString& _retval) {
   return GetUnicodeHeader(MSG_FCC2_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetNewsgroups(const nsAString &aValue) {
+NS_IMETHODIMP nsMsgCompFields::SetNewsgroups(const nsAString& aValue) {
   return SetUnicodeHeader(MSG_NEWSGROUPS_HEADER_ID, aValue);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetNewsgroups(nsAString &aGroup) {
+NS_IMETHODIMP nsMsgCompFields::GetNewsgroups(nsAString& aGroup) {
   return GetUnicodeHeader(MSG_NEWSGROUPS_HEADER_ID, aGroup);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetFollowupTo(const nsAString &aValue) {
+NS_IMETHODIMP nsMsgCompFields::SetFollowupTo(const nsAString& aValue) {
   return SetUnicodeHeader(MSG_FOLLOWUP_TO_HEADER_ID, aValue);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetFollowupTo(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetFollowupTo(nsAString& _retval) {
   return GetUnicodeHeader(MSG_FOLLOWUP_TO_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetHasRecipients(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetHasRecipients(bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   *_retval = NS_SUCCEEDED(mime_sanity_check_fields_recipients(
@@ -225,99 +225,99 @@ NS_IMETHODIMP nsMsgCompFields::GetHasRecipients(bool *_retval) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetCreatorIdentityKey(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetCreatorIdentityKey(const char* value) {
   return SetAsciiHeader(MSG_CREATOR_IDENTITY_KEY_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetCreatorIdentityKey(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetCreatorIdentityKey(char** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = strdup(GetAsciiHeader(MSG_CREATOR_IDENTITY_KEY_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetSubject(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetSubject(const nsAString& value) {
   return SetUnicodeHeader(MSG_SUBJECT_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetSubject(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetSubject(nsAString& _retval) {
   return GetUnicodeHeader(MSG_SUBJECT_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetOrganization(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetOrganization(const nsAString& value) {
   return SetUnicodeHeader(MSG_ORGANIZATION_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetOrganization(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetOrganization(nsAString& _retval) {
   return GetUnicodeHeader(MSG_ORGANIZATION_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetReferences(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetReferences(const char* value) {
   return SetAsciiHeader(MSG_REFERENCES_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetReferences(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetReferences(char** _retval) {
   *_retval = strdup(GetAsciiHeader(MSG_REFERENCES_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetNewspostUrl(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetNewspostUrl(const char* value) {
   return SetAsciiHeader(MSG_NEWSPOSTURL_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetNewspostUrl(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetNewspostUrl(char** _retval) {
   *_retval = strdup(GetAsciiHeader(MSG_NEWSPOSTURL_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetPriority(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetPriority(const char* value) {
   return SetAsciiHeader(MSG_PRIORITY_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetPriority(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetPriority(char** _retval) {
   *_retval = strdup(GetAsciiHeader(MSG_PRIORITY_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetCharacterSet(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetCharacterSet(const char* value) {
   return SetAsciiHeader(MSG_CHARACTER_SET_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetCharacterSet(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetCharacterSet(char** _retval) {
   *_retval = strdup(GetAsciiHeader(MSG_CHARACTER_SET_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetMessageId(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetMessageId(const char* value) {
   return SetAsciiHeader(MSG_MESSAGE_ID_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetMessageId(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetMessageId(char** _retval) {
   *_retval = strdup(GetAsciiHeader(MSG_MESSAGE_ID_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetTemplateName(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetTemplateName(const nsAString& value) {
   return SetUnicodeHeader(MSG_X_TEMPLATE_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetTemplateName(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetTemplateName(nsAString& _retval) {
   return GetUnicodeHeader(MSG_X_TEMPLATE_HEADER_ID, _retval);
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetDraftId(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetDraftId(const char* value) {
   return SetAsciiHeader(MSG_DRAFT_ID_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetDraftId(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetDraftId(char** _retval) {
   *_retval = strdup(GetAsciiHeader(MSG_DRAFT_ID_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetTemplateId(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetTemplateId(const char* value) {
   return SetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetTemplateId(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetTemplateId(char** _retval) {
   *_retval = strdup(GetAsciiHeader(MSG_TEMPLATE_ID_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
@@ -327,7 +327,7 @@ NS_IMETHODIMP nsMsgCompFields::SetReturnReceipt(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetReturnReceipt(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetReturnReceipt(bool* _retval) {
   *_retval = m_returnReceipt;
   return NS_OK;
 }
@@ -337,7 +337,7 @@ NS_IMETHODIMP nsMsgCompFields::SetReceiptHeaderType(int32_t value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetReceiptHeaderType(int32_t *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetReceiptHeaderType(int32_t* _retval) {
   *_retval = m_receiptHeaderType;
   return NS_OK;
 }
@@ -347,7 +347,7 @@ NS_IMETHODIMP nsMsgCompFields::SetDSN(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetDSN(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetDSN(bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = m_DSN;
   return NS_OK;
@@ -358,12 +358,12 @@ NS_IMETHODIMP nsMsgCompFields::SetAttachVCard(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetAttachVCard(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetAttachVCard(bool* _retval) {
   *_retval = m_attachVCard;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetAttachmentReminder(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetAttachmentReminder(bool* _retval) {
   *_retval = m_attachmentReminder;
   return NS_OK;
 }
@@ -388,17 +388,17 @@ NS_IMETHODIMP nsMsgCompFields::SetDeliveryFormat(int32_t value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetDeliveryFormat(int32_t *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetDeliveryFormat(int32_t* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = m_deliveryFormat;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetContentLanguage(const char *value) {
+NS_IMETHODIMP nsMsgCompFields::SetContentLanguage(const char* value) {
   return SetAsciiHeader(MSG_CONTENT_LANGUAGE_ID, value);
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetContentLanguage(char **_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetContentLanguage(char** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = strdup(GetAsciiHeader(MSG_CONTENT_LANGUAGE_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
@@ -409,7 +409,7 @@ NS_IMETHODIMP nsMsgCompFields::SetForcePlainText(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetForcePlainText(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetForcePlainText(bool* _retval) {
   *_retval = m_forcePlainText;
   return NS_OK;
 }
@@ -419,7 +419,7 @@ NS_IMETHODIMP nsMsgCompFields::SetForceMsgEncoding(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetForceMsgEncoding(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetForceMsgEncoding(bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = m_forceMsgEncoding;
   return NS_OK;
@@ -430,7 +430,7 @@ NS_IMETHODIMP nsMsgCompFields::SetUseMultipartAlternative(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetUseMultipartAlternative(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetUseMultipartAlternative(bool* _retval) {
   *_retval = m_useMultipartAlternative;
   return NS_OK;
 }
@@ -440,24 +440,24 @@ NS_IMETHODIMP nsMsgCompFields::SetBodyIsAsciiOnly(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetBodyIsAsciiOnly(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetBodyIsAsciiOnly(bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   *_retval = m_bodyIsAsciiOnly;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::SetBody(const nsAString &value) {
+NS_IMETHODIMP nsMsgCompFields::SetBody(const nsAString& value) {
   CopyUTF16toUTF8(value, m_body);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetBody(nsAString &_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetBody(nsAString& _retval) {
   CopyUTF8toUTF16(m_body, _retval);
   return NS_OK;
 }
 
-nsresult nsMsgCompFields::SetBody(const char *value) {
+nsresult nsMsgCompFields::SetBody(const char* value) {
   if (value)
     m_body = value;
   else
@@ -465,11 +465,11 @@ nsresult nsMsgCompFields::SetBody(const char *value) {
   return NS_OK;
 }
 
-const char *nsMsgCompFields::GetBody() { return m_body.get(); }
+const char* nsMsgCompFields::GetBody() { return m_body.get(); }
 
 /* readonly attribute nsISimpleEnumerator attachmentsArray; */
 NS_IMETHODIMP nsMsgCompFields::GetAttachments(
-    nsISimpleEnumerator **aAttachmentsEnum) {
+    nsISimpleEnumerator** aAttachmentsEnum) {
   return aAttachmentsEnum
              ? NS_NewArrayEnumerator(aAttachmentsEnum, m_attachments,
                                      NS_GET_IID(nsIMsgAttachment))
@@ -477,7 +477,7 @@ NS_IMETHODIMP nsMsgCompFields::GetAttachments(
 }
 
 /* void addAttachment (in nsIMsgAttachment attachment); */
-NS_IMETHODIMP nsMsgCompFields::AddAttachment(nsIMsgAttachment *attachment) {
+NS_IMETHODIMP nsMsgCompFields::AddAttachment(nsIMsgAttachment* attachment) {
   int32_t attachmentCount = m_attachments.Count();
 
   // Don't add twice the same attachment.
@@ -493,7 +493,7 @@ NS_IMETHODIMP nsMsgCompFields::AddAttachment(nsIMsgAttachment *attachment) {
 }
 
 /* void removeAttachment (in nsIMsgAttachment attachment); */
-NS_IMETHODIMP nsMsgCompFields::RemoveAttachment(nsIMsgAttachment *attachment) {
+NS_IMETHODIMP nsMsgCompFields::RemoveAttachment(nsIMsgAttachment* attachment) {
   int32_t attachmentCount = m_attachments.Count();
 
   nsCOMPtr<nsIMsgAttachment> element;
@@ -518,9 +518,9 @@ NS_IMETHODIMP nsMsgCompFields::RemoveAttachments() {
 
 // This method is called during the creation of a new window.
 NS_IMETHODIMP
-nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
+nsMsgCompFields::SplitRecipients(const nsAString& aRecipients,
                                  bool aEmailAddressOnly,
-                                 nsTArray<nsString> &aResult) {
+                                 nsTArray<nsString>& aResult) {
   nsCOMArray<msgIAddressObject> header(EncodedHeaderW(aRecipients));
   if (aEmailAddressOnly)
     ExtractEmails(header, aResult);
@@ -532,8 +532,8 @@ nsMsgCompFields::SplitRecipients(const nsAString &aRecipients,
 
 // This method is called during the sending of message from
 // nsMsgCompose::CheckAndPopulateRecipients()
-nsresult nsMsgCompFields::SplitRecipientsEx(const nsAString &recipients,
-                                            nsTArray<nsMsgRecipient> &aResult) {
+nsresult nsMsgCompFields::SplitRecipientsEx(const nsAString& recipients,
+                                            nsTArray<nsMsgRecipient>& aResult) {
   nsTArray<nsString> names, addresses;
   ExtractAllAddresses(EncodedHeaderW(recipients), names, addresses);
 
@@ -567,26 +567,26 @@ NS_IMETHODIMP nsMsgCompFields::ConvertBodyToPlainText() {
 }
 
 NS_IMETHODIMP nsMsgCompFields::GetComposeSecure(
-    nsIMsgComposeSecure **aComposeSecure) {
+    nsIMsgComposeSecure** aComposeSecure) {
   NS_ENSURE_ARG_POINTER(aComposeSecure);
   NS_IF_ADDREF(*aComposeSecure = mSecureCompFields);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgCompFields::SetComposeSecure(
-    nsIMsgComposeSecure *aComposeSecure) {
+    nsIMsgComposeSecure* aComposeSecure) {
   mSecureCompFields = aComposeSecure;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgCompFields::GetDefaultCharacterSet(
-    char **aDefaultCharacterSet) {
+    char** aDefaultCharacterSet) {
   NS_ENSURE_ARG_POINTER(aDefaultCharacterSet);
   *aDefaultCharacterSet = ToNewCString(m_DefaultCharacterSet);
   return *aDefaultCharacterSet ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
-NS_IMETHODIMP nsMsgCompFields::GetNeedToCheckCharset(bool *_retval) {
+NS_IMETHODIMP nsMsgCompFields::GetNeedToCheckCharset(bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = m_needToCheckCharset;
   return NS_OK;

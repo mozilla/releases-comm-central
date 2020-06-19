@@ -25,7 +25,7 @@ struct MimeSimpleStubClass {
 
 struct MimeSimpleStub {
   MimeInlineText text;
-  nsCString *buffer;
+  nsCString* buffer;
   nsCOMPtr<nsISimpleMimeConverter> innerScriptable;
 };
 
@@ -34,9 +34,9 @@ struct MimeSimpleStub {
 
 MimeDefClass(MimeSimpleStub, MimeSimpleStubClass, mimeSimpleStubClass, NULL);
 
-static int BeginGather(MimeObject *obj) {
-  MimeSimpleStub *ssobj = (MimeSimpleStub *)obj;
-  int status = ((MimeObjectClass *)XPCOM_GetmimeLeafClass())->parse_begin(obj);
+static int BeginGather(MimeObject* obj) {
+  MimeSimpleStub* ssobj = (MimeSimpleStub*)obj;
+  int status = ((MimeObjectClass*)XPCOM_GetmimeLeafClass())->parse_begin(obj);
 
   if (status < 0) return status;
 
@@ -48,8 +48,8 @@ static int BeginGather(MimeObject *obj) {
   return 0;
 }
 
-static int GatherLine(const char *line, int32_t length, MimeObject *obj) {
-  MimeSimpleStub *ssobj = (MimeSimpleStub *)obj;
+static int GatherLine(const char* line, int32_t length, MimeObject* obj) {
+  MimeSimpleStub* ssobj = (MimeSimpleStub*)obj;
 
   if (!obj->output_p || !obj->options || !obj->options->output_fn) {
     return 0;
@@ -62,19 +62,19 @@ static int GatherLine(const char *line, int32_t length, MimeObject *obj) {
   return 0;
 }
 
-static int EndGather(MimeObject *obj, bool abort_p) {
-  MimeSimpleStub *ssobj = (MimeSimpleStub *)obj;
+static int EndGather(MimeObject* obj, bool abort_p) {
+  MimeSimpleStub* ssobj = (MimeSimpleStub*)obj;
 
   if (obj->closed_p) return 0;
 
-  int status = ((MimeObjectClass *)MIME_GetmimeInlineTextClass())
+  int status = ((MimeObjectClass*)MIME_GetmimeInlineTextClass())
                    ->parse_eof(obj, abort_p);
   if (status < 0) return status;
 
   if (ssobj->buffer->IsEmpty()) return 0;
 
-  mime_stream_data *msd = (mime_stream_data *)(obj->options->stream_closure);
-  nsIChannel *channel = msd->channel;  // note the lack of ref counting...
+  mime_stream_data* msd = (mime_stream_data*)(obj->options->stream_closure);
+  nsIChannel* channel = msd->channel;  // note the lack of ref counting...
   if (channel) {
     nsCOMPtr<nsIURI> uri;
     channel->GetURI(getter_AddRefs(uri));
@@ -99,8 +99,8 @@ static int EndGather(MimeObject *obj, bool abort_p) {
   return 0;
 }
 
-static int Initialize(MimeObject *obj) {
-  MimeSimpleStub *ssobj = (MimeSimpleStub *)obj;
+static int Initialize(MimeObject* obj) {
+  MimeSimpleStub* ssobj = (MimeSimpleStub*)obj;
 
   nsresult rv;
   nsCOMPtr<nsICategoryManager> catman =
@@ -118,19 +118,19 @@ static int Initialize(MimeObject *obj) {
   ssobj->innerScriptable = do_CreateInstance(value.get(), &rv);
   if (NS_FAILED(rv) || !ssobj->innerScriptable) return -1;
   ssobj->buffer = new nsCString();
-  ((MimeObjectClass *)XPCOM_GetmimeLeafClass())->initialize(obj);
+  ((MimeObjectClass*)XPCOM_GetmimeLeafClass())->initialize(obj);
 
   return 0;
 }
 
-static void Finalize(MimeObject *obj) {
-  MimeSimpleStub *ssobj = (MimeSimpleStub *)obj;
+static void Finalize(MimeObject* obj) {
+  MimeSimpleStub* ssobj = (MimeSimpleStub*)obj;
   ssobj->innerScriptable = nullptr;
   delete ssobj->buffer;
 }
 
-static int MimeSimpleStubClassInitialize(MimeSimpleStubClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
+static int MimeSimpleStubClassInitialize(MimeSimpleStubClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   oclass->parse_begin = BeginGather;
   oclass->parse_line = GatherLine;
   oclass->parse_eof = EndGather;
@@ -141,18 +141,18 @@ static int MimeSimpleStubClassInitialize(MimeSimpleStubClass *clazz) {
 
 class nsSimpleMimeConverterStub : public nsIMimeContentTypeHandler {
  public:
-  explicit nsSimpleMimeConverterStub(const char *aContentType)
+  explicit nsSimpleMimeConverterStub(const char* aContentType)
       : mContentType(aContentType) {}
 
   NS_DECL_ISUPPORTS
 
-  NS_IMETHOD GetContentType(char **contentType) override {
+  NS_IMETHOD GetContentType(char** contentType) override {
     *contentType = ToNewCString(mContentType);
     return *contentType ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
   }
   NS_IMETHOD CreateContentTypeHandlerClass(
-      const char *contentType, contentTypeHandlerInitStruct *initString,
-      MimeObjectClass **objClass) override;
+      const char* contentType, contentTypeHandlerInitStruct* initString,
+      MimeObjectClass** objClass) override;
 
  private:
   virtual ~nsSimpleMimeConverterStub() {}
@@ -163,12 +163,12 @@ NS_IMPL_ISUPPORTS(nsSimpleMimeConverterStub, nsIMimeContentTypeHandler)
 
 NS_IMETHODIMP
 nsSimpleMimeConverterStub::CreateContentTypeHandlerClass(
-    const char *contentType, contentTypeHandlerInitStruct *initStruct,
-    MimeObjectClass **objClass) {
+    const char* contentType, contentTypeHandlerInitStruct* initStruct,
+    MimeObjectClass** objClass) {
   NS_ENSURE_ARG_POINTER(objClass);
 
-  *objClass = (MimeObjectClass *)&mimeSimpleStubClass;
-  (*objClass)->superclass = (MimeObjectClass *)XPCOM_GetmimeInlineTextClass();
+  *objClass = (MimeObjectClass*)&mimeSimpleStubClass;
+  (*objClass)->superclass = (MimeObjectClass*)XPCOM_GetmimeInlineTextClass();
   NS_ENSURE_TRUE((*objClass)->superclass, NS_ERROR_UNEXPECTED);
 
   initStruct->force_inline_display = true;
@@ -176,8 +176,8 @@ nsSimpleMimeConverterStub::CreateContentTypeHandlerClass(
   ;
 }
 
-nsresult MIME_NewSimpleMimeConverterStub(const char *aContentType,
-                                         nsIMimeContentTypeHandler **aResult) {
+nsresult MIME_NewSimpleMimeConverterStub(const char* aContentType,
+                                         nsIMimeContentTypeHandler** aResult) {
   RefPtr<nsSimpleMimeConverterStub> inst =
       new nsSimpleMimeConverterStub(aContentType);
   NS_ENSURE_TRUE(inst, NS_ERROR_OUT_OF_MEMORY);

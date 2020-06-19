@@ -30,10 +30,10 @@ class nsCMSSecureMessage : public nsICMSSecureMessage {
 
  private:
   virtual ~nsCMSSecureMessage();
-  nsresult encode(const unsigned char *data, int32_t dataLen, char **_retval);
-  nsresult decode(const char *data, unsigned char **result, int32_t *_retval);
-  nsresult CheckUsageOk(nsIX509Cert *cert, SECCertificateUsage usage,
-                        bool *_retval);
+  nsresult encode(const unsigned char* data, int32_t dataLen, char** _retval);
+  nsresult decode(const char* data, unsigned char** result, int32_t* _retval);
+  nsresult CheckUsageOk(nsIX509Cert* cert, SECCertificateUsage usage,
+                        bool* _retval);
 };
 
 #endif  // nsCMSSecureMessage_h

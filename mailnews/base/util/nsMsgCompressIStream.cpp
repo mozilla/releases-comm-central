@@ -16,7 +16,7 @@ nsMsgCompressIStream::~nsMsgCompressIStream() { Close(); }
 
 NS_IMPL_ISUPPORTS(nsMsgCompressIStream, nsIInputStream, nsIAsyncInputStream)
 
-nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream *rawStream) {
+nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream* rawStream) {
   // protect against repeat calls
   if (m_iStream) return NS_ERROR_UNEXPECTED;
 
@@ -46,7 +46,7 @@ nsresult nsMsgCompressIStream::InitInputStream(nsIInputStream *rawStream) {
 
 nsresult nsMsgCompressIStream::DoInflation() {
   // if there's something in the input buffer of the zstream, process it.
-  m_zstream.next_out = (Bytef *)m_databuf.get();
+  m_zstream.next_out = (Bytef*)m_databuf.get();
   m_zstream.avail_out = BUFFER_SIZE;
   int zr = inflate(&m_zstream, Z_SYNC_FLUSH);
 
@@ -100,7 +100,7 @@ NS_IMETHODIMP nsMsgCompressIStream::CloseWithStatus(nsresult reason) {
 }
 
 /* unsigned long long available (); */
-NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t *aResult) {
+NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t* aResult) {
   if (!m_iStream) return NS_BASE_STREAM_CLOSED;
 
   // check if there's anything still in flight
@@ -122,8 +122,8 @@ NS_IMETHODIMP nsMsgCompressIStream::Available(uint64_t *aResult) {
 }
 
 /* [noscript] unsigned long read (in charPtr aBuf, in unsigned long aCount); */
-NS_IMETHODIMP nsMsgCompressIStream::Read(char *aBuf, uint32_t aCount,
-                                         uint32_t *aResult) {
+NS_IMETHODIMP nsMsgCompressIStream::Read(char* aBuf, uint32_t aCount,
+                                         uint32_t* aResult) {
   if (!m_iStream) {
     *aResult = 0;
     return NS_OK;
@@ -152,7 +152,7 @@ NS_IMETHODIMP nsMsgCompressIStream::Read(char *aBuf, uint32_t aCount,
           m_iStream->Read(m_zbuf.get(), (uint32_t)BUFFER_SIZE, &bytesRead);
       NS_ENSURE_SUCCESS(rv, rv);
       if (!bytesRead) return NS_BASE_STREAM_CLOSED;
-      m_zstream.next_in = (Bytef *)m_zbuf.get();
+      m_zstream.next_in = (Bytef*)m_zbuf.get();
       m_zstream.avail_in = bytesRead;
     }
 
@@ -174,15 +174,15 @@ NS_IMETHODIMP nsMsgCompressIStream::Read(char *aBuf, uint32_t aCount,
 /* [noscript] unsigned long readSegments (in nsWriteSegmentFun aWriter, in
  * voidPtr aClosure, in unsigned long aCount); */
 NS_IMETHODIMP nsMsgCompressIStream::ReadSegments(nsWriteSegmentFun aWriter,
-                                                 void *aClosure,
+                                                 void* aClosure,
                                                  uint32_t aCount,
-                                                 uint32_t *_retval) {
+                                                 uint32_t* _retval) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgCompressIStream::AsyncWait(nsIInputStreamCallback *callback,
+NS_IMETHODIMP nsMsgCompressIStream::AsyncWait(nsIInputStreamCallback* callback,
                                               uint32_t flags, uint32_t amount,
-                                              nsIEventTarget *target) {
+                                              nsIEventTarget* target) {
   if (!m_iStream) return NS_BASE_STREAM_CLOSED;
 
   nsCOMPtr<nsIAsyncInputStream> asyncInputStream = do_QueryInterface(m_iStream);
@@ -193,7 +193,7 @@ NS_IMETHODIMP nsMsgCompressIStream::AsyncWait(nsIInputStreamCallback *callback,
 }
 
 /* boolean isNonBlocking (); */
-NS_IMETHODIMP nsMsgCompressIStream::IsNonBlocking(bool *aNonBlocking) {
+NS_IMETHODIMP nsMsgCompressIStream::IsNonBlocking(bool* aNonBlocking) {
   *aNonBlocking = false;
   return NS_OK;
 }

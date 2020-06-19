@@ -30,21 +30,21 @@ class nsIMimeObjectClassAccess : public nsISupports {
   // content type handler plugins for processing stream data.
 
   // This is the write call for outputting processed stream data.
-  NS_IMETHOD MimeObjectWrite(void *mimeObject, char *data, int32_t length,
+  NS_IMETHOD MimeObjectWrite(void* mimeObject, char* data, int32_t length,
                              bool user_visible_p) = 0;
 
   // The following group of calls expose the pointers for the object
   // system within libmime.
-  NS_IMETHOD GetmimeInlineTextClass(void **ptr) = 0;
-  NS_IMETHOD GetmimeLeafClass(void **ptr) = 0;
-  NS_IMETHOD GetmimeObjectClass(void **ptr) = 0;
-  NS_IMETHOD GetmimeContainerClass(void **ptr) = 0;
-  NS_IMETHOD GetmimeMultipartClass(void **ptr) = 0;
-  NS_IMETHOD GetmimeMultipartSignedClass(void **ptr) = 0;
-  NS_IMETHOD GetmimeEncryptedClass(void **ptr) = 0;
+  NS_IMETHOD GetmimeInlineTextClass(void** ptr) = 0;
+  NS_IMETHOD GetmimeLeafClass(void** ptr) = 0;
+  NS_IMETHOD GetmimeObjectClass(void** ptr) = 0;
+  NS_IMETHOD GetmimeContainerClass(void** ptr) = 0;
+  NS_IMETHOD GetmimeMultipartClass(void** ptr) = 0;
+  NS_IMETHOD GetmimeMultipartSignedClass(void** ptr) = 0;
+  NS_IMETHOD GetmimeEncryptedClass(void** ptr) = 0;
 
-  NS_IMETHOD MimeCreate(char *content_type, void *hdrs, void *opts,
-                        void **ptr) = 0;
+  NS_IMETHOD MimeCreate(char* content_type, void* hdrs, void* opts,
+                        void** ptr) = 0;
 };
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIMimeObjectClassAccess,

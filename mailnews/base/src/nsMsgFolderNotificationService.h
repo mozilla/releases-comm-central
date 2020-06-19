@@ -25,17 +25,17 @@ class nsMsgFolderNotificationService final
     nsCOMPtr<nsIMsgFolderListener> mListener;
     msgFolderListenerFlag mFlags;
 
-    MsgFolderListener(nsIMsgFolderListener *aListener,
+    MsgFolderListener(nsIMsgFolderListener* aListener,
                       msgFolderListenerFlag aFlags)
         : mListener(aListener), mFlags(aFlags) {}
-    MsgFolderListener(const MsgFolderListener &aListener)
+    MsgFolderListener(const MsgFolderListener& aListener)
         : mListener(aListener.mListener), mFlags(aListener.mFlags) {}
     ~MsgFolderListener() {}
 
-    int operator==(nsIMsgFolderListener *aListener) const {
+    int operator==(nsIMsgFolderListener* aListener) const {
       return mListener == aListener;
     }
-    int operator==(const MsgFolderListener &aListener) const {
+    int operator==(const MsgFolderListener& aListener) const {
       return mListener == aListener.mListener;
     }
   };

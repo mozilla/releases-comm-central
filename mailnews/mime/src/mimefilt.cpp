@@ -54,7 +54,7 @@ ERROR!  This is a unix-only file for the "mimefilt" standalone program.
 static char *
 test_file_type (const char *filename, void *stream_closure)
 {
-  const char *suf = PL_strrchr(filename, '.');
+  const char* suf = PL_strrchr(filename, '.');
   if (!suf) return 0;
   suf++;
 
@@ -89,19 +89,19 @@ test_file_type (const char *filename, void *stream_closure)
     return 0;
 }
 
-static int test_output_fn(char *buf, int32_t size, void *closure) {
-  FILE *out = (FILE *)closure;
+static int test_output_fn(char* buf, int32_t size, void* closure) {
+  FILE* out = (FILE*)closure;
   if (out)
     return fwrite(buf, sizeof(*buf), size, out);
   else
     return 0;
 }
 
-static int test_output_init_fn(const char *type, const char *charset,
-                               const char *name, const char *x_mac_type,
-                               const char *x_mac_creator,
-                               void *stream_closure) {
-  FILE *out = (FILE *)stream_closure;
+static int test_output_init_fn(const char* type, const char* charset,
+                               const char* name, const char* x_mac_type,
+                               const char* x_mac_creator,
+                               void* stream_closure) {
+  FILE* out = (FILE*)stream_closure;
   fprintf(out, "CONTENT-TYPE: %s", type);
   if (charset) fprintf(out, "; charset=\"%s\"", charset);
   if (name) fprintf(out, "; name=\"%s\"", name);
@@ -112,31 +112,31 @@ static int test_output_init_fn(const char *type, const char *charset,
   return 0;
 }
 
-static void *test_image_begin(const char *image_url, const char *content_type,
-                              void *stream_closure) {
-  return ((void *)strdup(image_url));
+static void* test_image_begin(const char* image_url, const char* content_type,
+                              void* stream_closure) {
+  return ((void*)strdup(image_url));
 }
 
-static void test_image_end(void *image_closure, int status) {
-  char *url = (char *)image_closure;
+static void test_image_end(void* image_closure, int status) {
+  char* url = (char*)image_closure;
   if (url) PR_Free(url);
 }
 
-static char *test_image_make_image_html(void *image_data) {
-  char *url = (char *)image_data;
+static char* test_image_make_image_html(void* image_data) {
+  char* url = (char*)image_data;
 #if 0
   const char *prefix = "<P><CENTER><IMG SRC=\"";
   const char *suffix = "\"></CENTER><P>";
 #else
-  const char *prefix =
+  const char* prefix =
       ("<P><CENTER><TABLE BORDER=2 CELLPADDING=20"
        " BGCOLOR=WHITE>"
        "<TR><TD ALIGN=CENTER>"
        "an inlined image would have gone here for<BR>");
-  const char *suffix = "</TD></TR></TABLE></CENTER><P>";
+  const char* suffix = "</TD></TR></TABLE></CENTER><P>";
 #endif
   uint32_t buflen = strlen(prefix) + strlen(suffix) + strlen(url) + 20;
-  char *buf = (char *)PR_MALLOC(buflen);
+  char* buf = (char*)PR_MALLOC(buflen);
   if (!buf) return 0;
   *buf = 0;
   PL_strcatn(buf, buflen, prefix);
@@ -145,12 +145,12 @@ static char *test_image_make_image_html(void *image_data) {
   return buf;
 }
 
-static int test_image_write_buffer(const char *buf, int32_t size,
-                                   void *image_closure) {
+static int test_image_write_buffer(const char* buf, int32_t size,
+                                   void* image_closure) {
   return 0;
 }
 
-static char *test_passwd_prompt(PK11SlotInfo *slot, void *wincx) {
+static char* test_passwd_prompt(PK11SlotInfo* slot, void* wincx) {
   char buf[2048], *s;
   fprintf(stdout, "#### Password required: ");
   s = fgets(buf, sizeof(buf) - 1, stdin);
@@ -160,12 +160,12 @@ static char *test_passwd_prompt(PK11SlotInfo *slot, void *wincx) {
   return s;
 }
 
-int test(FILE *in, FILE *out, const char *url, bool fancy_headers_p,
+int test(FILE* in, FILE* out, const char* url, bool fancy_headers_p,
          bool html_p, bool outline_p, bool dexlate_p,
          bool variable_width_plaintext_p) {
   int status = 0;
-  MimeObject *obj = 0;
-  MimeDisplayOptions *opt = new MimeDisplayOptions;
+  MimeObject* obj = 0;
+  MimeDisplayOptions* opt = new MimeDisplayOptions;
   //  memset(opt, 0, sizeof(*opt));
 
   if (dexlate_p) html_p = false;
@@ -197,7 +197,7 @@ int test(FILE *in, FILE *out, const char *url, bool fancy_headers_p,
 
   opt->variable_width_plaintext_p = variable_width_plaintext_p;
 
-  obj = mime_new((MimeObjectClass *)&mimeMessageClass, (MimeHeaders *)NULL,
+  obj = mime_new((MimeObjectClass*)&mimeMessageClass, (MimeHeaders*)NULL,
                  MESSAGE_RFC822);
   if (!obj) {
     PR_Free(opt);
@@ -249,7 +249,7 @@ int test(FILE *in, FILE *out, const char *url, bool fancy_headers_p,
   return 0;
 }
 
-static char *test_cdb_name_cb(void *arg, int vers) {
+static char* test_cdb_name_cb(void* arg, int vers) {
   static char f[1024];
   if (vers <= 4)
     sprintf(f, "%s/.netscape/cert.db", getenv("HOME"));
@@ -258,7 +258,7 @@ static char *test_cdb_name_cb(void *arg, int vers) {
   return f;
 }
 
-static char *test_kdb_name_cb(void *arg, int vers) {
+static char* test_kdb_name_cb(void* arg, int vers) {
   static char f[1024];
   if (vers <= 2)
     sprintf(f, "%s/.netscape/key.db", getenv("HOME"));
@@ -269,20 +269,20 @@ static char *test_kdb_name_cb(void *arg, int vers) {
 
 extern void SEC_Init(void);
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   int32_t i = 1;
-  char *url = "";
+  char* url = "";
   bool fancy_p = true;
   bool html_p = true;
   bool outline_p = false;
   bool dexlate_p = false;
   char filename[1000];
-  CERTCertDBHandle *cdb_handle;
-  SECKEYKeyDBHandle *kdb_handle;
+  CERTCertDBHandle* cdb_handle;
+  SECKEYKeyDBHandle* kdb_handle;
 
   PR_Init("mimefilt", 24, 1, 0);
 
-  cdb_handle = (CERTCertDBHandle *)calloc(1, sizeof(*cdb_handle));
+  cdb_handle = (CERTCertDBHandle*)calloc(1, sizeof(*cdb_handle));
 
   if (SECSuccess != CERT_OpenCertDB(cdb_handle, false, test_cdb_name_cb, NULL))
     CERT_OpenVolatileCertDB(cdb_handle);

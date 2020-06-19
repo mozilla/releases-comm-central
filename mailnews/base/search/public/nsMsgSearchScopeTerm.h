@@ -17,20 +17,20 @@
 
 class nsMsgSearchScopeTerm : public nsIMsgSearchScopeTerm {
  public:
-  nsMsgSearchScopeTerm(nsIMsgSearchSession *, nsMsgSearchScopeValue,
-                       nsIMsgFolder *);
+  nsMsgSearchScopeTerm(nsIMsgSearchSession*, nsMsgSearchScopeValue,
+                       nsIMsgFolder*);
   nsMsgSearchScopeTerm();
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHSCOPETERM
 
-  nsresult TimeSlice(bool *aDone);
-  nsresult InitializeAdapter(nsIArray *termList);
+  nsresult TimeSlice(bool* aDone);
+  nsresult InitializeAdapter(nsIArray* termList);
 
-  char *GetStatusBarName();
+  char* GetStatusBarName();
 
   nsMsgSearchScopeValue m_attribute;
-  char *m_name;
+  char* m_name;
   nsCOMPtr<nsIMsgFolder> m_folder;
   nsCOMPtr<nsIMsgSearchAdapter> m_adapter;
   nsCOMPtr<nsIInputStream> m_inputStream;  // for message bodies

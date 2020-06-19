@@ -15,7 +15,7 @@ NS_IMPL_ISUPPORTS_CI(calPeriod, calIPeriod, calIPeriodLibical)
 
 calPeriod::calPeriod() : mImmutable(false) {}
 
-calPeriod::calPeriod(const calPeriod &cpt) : mImmutable(false) {
+calPeriod::calPeriod(const calPeriod& cpt) : mImmutable(false) {
   if (cpt.mStart) {
     nsCOMPtr<calIDateTime> start;
     cpt.mStart->Clone(getter_AddRefs(start));
@@ -28,7 +28,7 @@ calPeriod::calPeriod(const calPeriod &cpt) : mImmutable(false) {
   }
 }
 
-calPeriod::calPeriod(struct icalperiodtype const *aPeriodPtr)
+calPeriod::calPeriod(struct icalperiodtype const* aPeriodPtr)
     : mImmutable(false) {
   FromIcalPeriod(aPeriodPtr);
 }
@@ -42,7 +42,7 @@ NS_IMETHODIMP
 calPeriod::SetIcalPeriod(JS::HandleValue) { return NS_ERROR_NOT_IMPLEMENTED; }
 
 NS_IMETHODIMP
-calPeriod::GetIsMutable(bool *aResult) {
+calPeriod::GetIsMutable(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = !mImmutable;
@@ -56,22 +56,22 @@ calPeriod::MakeImmutable() {
 }
 
 NS_IMETHODIMP
-calPeriod::Clone(calIPeriod **aResult) {
+calPeriod::Clone(calIPeriod** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
-  calPeriod *cpt = new calPeriod(*this);
+  calPeriod* cpt = new calPeriod(*this);
   if (!cpt) return NS_ERROR_OUT_OF_MEMORY;
 
   NS_ADDREF(*aResult = cpt);
   return NS_OK;
 }
 
-NS_IMETHODIMP calPeriod::GetStart(calIDateTime **_retval) {
+NS_IMETHODIMP calPeriod::GetStart(calIDateTime** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = mStart;
   NS_IF_ADDREF(*_retval);
   return NS_OK;
 }
-NS_IMETHODIMP calPeriod::SetStart(calIDateTime *aValue) {
+NS_IMETHODIMP calPeriod::SetStart(calIDateTime* aValue) {
   NS_ENSURE_ARG_POINTER(aValue);
   if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
 
@@ -79,13 +79,13 @@ NS_IMETHODIMP calPeriod::SetStart(calIDateTime *aValue) {
   return mStart->MakeImmutable();
 }
 
-NS_IMETHODIMP calPeriod::GetEnd(calIDateTime **_retval) {
+NS_IMETHODIMP calPeriod::GetEnd(calIDateTime** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = mEnd;
   NS_IF_ADDREF(*_retval);
   return NS_OK;
 }
-NS_IMETHODIMP calPeriod::SetEnd(calIDateTime *aValue) {
+NS_IMETHODIMP calPeriod::SetEnd(calIDateTime* aValue) {
   NS_ENSURE_ARG_POINTER(aValue);
   if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
 
@@ -93,17 +93,17 @@ NS_IMETHODIMP calPeriod::SetEnd(calIDateTime *aValue) {
   return mEnd->MakeImmutable();
 }
 
-NS_IMETHODIMP calPeriod::GetDuration(calIDuration **_retval) {
+NS_IMETHODIMP calPeriod::GetDuration(calIDuration** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   if (!mStart || !mEnd) return NS_ERROR_UNEXPECTED;
   return mEnd->SubtractDate(mStart, _retval);
 }
 
 NS_IMETHODIMP
-calPeriod::ToString(nsACString &aResult) { return GetIcalString(aResult); }
+calPeriod::ToString(nsACString& aResult) { return GetIcalString(aResult); }
 
 NS_IMETHODIMP_(void)
-calPeriod::ToIcalPeriod(struct icalperiodtype *icalp) {
+calPeriod::ToIcalPeriod(struct icalperiodtype* icalp) {
   // makes no sense to create a duration without bath a start and end
   if (!mStart || !mEnd) {
     *icalp = icalperiodtype_null_period();
@@ -114,7 +114,7 @@ calPeriod::ToIcalPeriod(struct icalperiodtype *icalp) {
   mEnd->ToIcalTime(&icalp->end);
 }
 
-void calPeriod::FromIcalPeriod(struct icalperiodtype const *icalp) {
+void calPeriod::FromIcalPeriod(struct icalperiodtype const* icalp) {
   mStart = new calDateTime(&(icalp->start), nullptr);
   mStart->MakeImmutable();
   mEnd = new calDateTime(&(icalp->end), nullptr);
@@ -123,12 +123,12 @@ void calPeriod::FromIcalPeriod(struct icalperiodtype const *icalp) {
 }
 
 NS_IMETHODIMP
-calPeriod::GetIcalString(nsACString &aResult) {
+calPeriod::GetIcalString(nsACString& aResult) {
   struct icalperiodtype ip;
   ToIcalPeriod(&ip);
 
   // note that ics is owned by libical, so we don't need to free
-  const char *ics = icalperiodtype_as_ical_string(ip);
+  const char* ics = icalperiodtype_as_ical_string(ip);
 
   if (ics) {
     aResult.Assign(ics);
@@ -139,7 +139,7 @@ calPeriod::GetIcalString(nsACString &aResult) {
 }
 
 NS_IMETHODIMP
-calPeriod::SetIcalString(const nsACString &aIcalString) {
+calPeriod::SetIcalString(const nsACString& aIcalString) {
   if (mImmutable) return NS_ERROR_OBJECT_IS_IMMUTABLE;
   struct icalperiodtype ip;
   ip = icalperiodtype_from_string(PromiseFlatCString(aIcalString).get());

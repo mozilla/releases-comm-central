@@ -26,13 +26,13 @@ void nsOutlookStringBundle::GetStringBundle(void) {
   }
 }
 
-void nsOutlookStringBundle::GetStringByID(int32_t stringID, nsString &result) {
-  char16_t *ptrv = GetStringByID(stringID);
+void nsOutlookStringBundle::GetStringByID(int32_t stringID, nsString& result) {
+  char16_t* ptrv = GetStringByID(stringID);
   result = ptrv;
   FreeString(ptrv);
 }
 
-char16_t *nsOutlookStringBundle::GetStringByID(int32_t stringID) {
+char16_t* nsOutlookStringBundle::GetStringByID(int32_t stringID) {
   if (m_pBundle) GetStringBundle();
 
   if (m_pBundle) {

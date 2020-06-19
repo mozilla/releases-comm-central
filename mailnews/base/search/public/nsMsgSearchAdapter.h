@@ -28,57 +28,57 @@ class nsIMsgSearchScopeTerm;
 
 class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
  public:
-  nsMsgSearchAdapter(nsIMsgSearchScopeTerm *, nsIArray *);
+  nsMsgSearchAdapter(nsIMsgSearchScopeTerm*, nsIArray*);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGSEARCHADAPTER
 
-  nsIMsgSearchScopeTerm *m_scope;
+  nsIMsgSearchScopeTerm* m_scope;
   nsCOMPtr<nsIArray> m_searchTerms; /* linked list of criteria terms */
 
   nsString m_defaultCharset;
 
-  static nsresult EncodeImap(char **ppEncoding, nsIArray *searchTerms,
-                             const char16_t *srcCharset,
-                             const char16_t *destCharset,
+  static nsresult EncodeImap(char** ppEncoding, nsIArray* searchTerms,
+                             const char16_t* srcCharset,
+                             const char16_t* destCharset,
                              bool reallyDredd = false);
 
-  static nsresult EncodeImapValue(char *encoding, const char *value,
+  static nsresult EncodeImapValue(char* encoding, const char* value,
                                   bool useQuotes, bool reallyDredd);
 
-  static char *GetImapCharsetParam(const char16_t *destCharset);
-  static char16_t *EscapeSearchUrl(const char16_t *nntpCommand);
-  static char16_t *EscapeImapSearchProtocol(const char16_t *imapCommand);
-  static char16_t *EscapeQuoteImapSearchProtocol(const char16_t *imapCommand);
-  static char *UnEscapeSearchUrl(const char *commandSpecificData);
+  static char* GetImapCharsetParam(const char16_t* destCharset);
+  static char16_t* EscapeSearchUrl(const char16_t* nntpCommand);
+  static char16_t* EscapeImapSearchProtocol(const char16_t* imapCommand);
+  static char16_t* EscapeQuoteImapSearchProtocol(const char16_t* imapCommand);
+  static char* UnEscapeSearchUrl(const char* commandSpecificData);
   // This stuff lives in the base class because the IMAP search syntax
   // is used by the Dredd SEARCH command as well as IMAP itself
-  static const char *m_kImapBefore;
-  static const char *m_kImapBody;
-  static const char *m_kImapCC;
-  static const char *m_kImapFrom;
-  static const char *m_kImapNot;
-  static const char *m_kImapOr;
-  static const char *m_kImapSince;
-  static const char *m_kImapSubject;
-  static const char *m_kImapTo;
-  static const char *m_kImapHeader;
-  static const char *m_kImapAnyText;
-  static const char *m_kImapKeyword;
-  static const char *m_kNntpKeywords;
-  static const char *m_kImapSentOn;
-  static const char *m_kImapSeen;
-  static const char *m_kImapAnswered;
-  static const char *m_kImapNotSeen;
-  static const char *m_kImapNotAnswered;
-  static const char *m_kImapCharset;
-  static const char *m_kImapUnDeleted;
-  static const char *m_kImapSizeSmaller;
-  static const char *m_kImapSizeLarger;
-  static const char *m_kImapNew;
-  static const char *m_kImapNotNew;
-  static const char *m_kImapFlagged;
-  static const char *m_kImapNotFlagged;
+  static const char* m_kImapBefore;
+  static const char* m_kImapBody;
+  static const char* m_kImapCC;
+  static const char* m_kImapFrom;
+  static const char* m_kImapNot;
+  static const char* m_kImapOr;
+  static const char* m_kImapSince;
+  static const char* m_kImapSubject;
+  static const char* m_kImapTo;
+  static const char* m_kImapHeader;
+  static const char* m_kImapAnyText;
+  static const char* m_kImapKeyword;
+  static const char* m_kNntpKeywords;
+  static const char* m_kImapSentOn;
+  static const char* m_kImapSeen;
+  static const char* m_kImapAnswered;
+  static const char* m_kImapNotSeen;
+  static const char* m_kImapNotAnswered;
+  static const char* m_kImapCharset;
+  static const char* m_kImapUnDeleted;
+  static const char* m_kImapSizeSmaller;
+  static const char* m_kImapSizeLarger;
+  static const char* m_kImapNew;
+  static const char* m_kImapNotNew;
+  static const char* m_kImapFlagged;
+  static const char* m_kImapNotFlagged;
 
  protected:
   virtual ~nsMsgSearchAdapter();
@@ -88,12 +88,12 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
     kSurround   /* "John Doe" -> "John* *Doe", advanced contains */
   } msg_TransformType;
 
-  char *TransformSpacesToStars(const char *, msg_TransformType transformType);
-  nsresult OpenNewsResultInUnknownGroup(nsMsgResultElement *);
+  char* TransformSpacesToStars(const char*, msg_TransformType transformType);
+  nsresult OpenNewsResultInUnknownGroup(nsMsgResultElement*);
 
-  static nsresult EncodeImapTerm(nsIMsgSearchTerm *, bool reallyDredd,
-                                 const char16_t *srcCharset,
-                                 const char16_t *destCharset, char **ppOutTerm);
+  static nsresult EncodeImapTerm(nsIMsgSearchTerm*, bool reallyDredd,
+                                 const char16_t* srcCharset,
+                                 const char16_t* destCharset, char** ppOutTerm);
 };
 
 //-----------------------------------------------------------------------------
@@ -152,19 +152,19 @@ inline nsresult nsMsgSearchValidityTable::SetValidButNotShown(int a, int o,
 }
 
 inline nsresult nsMsgSearchValidityTable::GetAvailable(int a, int o,
-                                                       bool *aResult) {
+                                                       bool* aResult) {
   CHECK_AO;
   *aResult = m_table[a][o].bitAvailable;
   return NS_OK;
 }
 inline nsresult nsMsgSearchValidityTable::GetEnabled(int a, int o,
-                                                     bool *aResult) {
+                                                     bool* aResult) {
   CHECK_AO;
   *aResult = m_table[a][o].bitEnabled;
   return NS_OK;
 }
 inline nsresult nsMsgSearchValidityTable::GetValidButNotShown(int a, int o,
-                                                              bool *aResult) {
+                                                              bool* aResult) {
   CHECK_AO;
   *aResult = m_table[a][o].bitValidButNotShown;
   return NS_OK;
@@ -182,7 +182,7 @@ class nsMsgSearchValidityManager : public nsIMsgSearchValidityManager {
   NS_DECL_NSIMSGSEARCHVALIDITYMANAGER
   NS_DECL_ISUPPORTS
 
-  nsresult GetTable(int, nsMsgSearchValidityTable **);
+  nsresult GetTable(int, nsMsgSearchValidityTable**);
 
  protected:
   // There's one global validity manager that everyone uses. You *could* do
@@ -209,7 +209,7 @@ class nsMsgSearchValidityManager : public nsIMsgSearchValidityManager {
   nsCOMPtr<nsIMsgSearchValidityTable> m_localABAndTable;
   nsCOMPtr<nsIMsgSearchValidityTable> m_newsFilterTable;
 
-  nsresult NewTable(nsIMsgSearchValidityTable **);
+  nsresult NewTable(nsIMsgSearchValidityTable**);
 
   nsresult InitOfflineMailTable();
   nsresult InitOfflineMailFilterTable();
@@ -225,15 +225,15 @@ class nsMsgSearchValidityManager : public nsIMsgSearchValidityManager {
 
   // set the custom headers in the table, changes whenever
   // "mailnews.customHeaders" pref changes.
-  nsresult SetOtherHeadersInTable(nsIMsgSearchValidityTable *table,
-                                  const char *customHeaders);
+  nsresult SetOtherHeadersInTable(nsIMsgSearchValidityTable* table,
+                                  const char* customHeaders);
 
   nsresult InitLdapTable();
   nsresult InitLdapAndTable();
   nsresult InitLocalABTable();
   nsresult InitLocalABAndTable();
-  nsresult SetUpABTable(nsIMsgSearchValidityTable *aTable, bool isOrTable);
-  nsresult EnableDirectoryAttribute(nsIMsgSearchValidityTable *table,
+  nsresult SetUpABTable(nsIMsgSearchValidityTable* aTable, bool isOrTable);
+  nsresult EnableDirectoryAttribute(nsIMsgSearchValidityTable* table,
                                     nsMsgSearchAttribValue aSearchAttrib);
 };
 

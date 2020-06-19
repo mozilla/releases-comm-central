@@ -31,13 +31,13 @@ NS_IMPL_ISUPPORTS(nsMsgIdentity, nsIMsgIdentity)
  */
 
 NS_IMETHODIMP
-nsMsgIdentity::GetKey(nsACString &aKey) {
+nsMsgIdentity::GetKey(nsACString& aKey) {
   aKey = mKey;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::SetKey(const nsACString &identityKey) {
+nsMsgIdentity::SetKey(const nsACString& identityKey) {
   mKey = identityKey;
   nsresult rv;
   nsCOMPtr<nsIPrefService> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
@@ -55,7 +55,7 @@ nsMsgIdentity::SetKey(const nsACString &identityKey) {
   return rv;
 }
 
-nsresult nsMsgIdentity::GetIdentityName(nsAString &idName) {
+nsresult nsMsgIdentity::GetIdentityName(nsAString& idName) {
   idName.AssignLiteral("");
   // Try to use "fullname <email>" as the name.
   nsresult rv = GetFullAddress(idName);
@@ -77,7 +77,7 @@ nsresult nsMsgIdentity::GetIdentityName(nsAString &idName) {
   return ToString(idName);
 }
 
-nsresult nsMsgIdentity::GetFullAddress(nsAString &fullAddress) {
+nsresult nsMsgIdentity::GetFullAddress(nsAString& fullAddress) {
   nsAutoString fullName;
   nsresult rv = GetFullName(fullName);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -96,7 +96,7 @@ nsresult nsMsgIdentity::GetFullAddress(nsAString &fullAddress) {
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::ToString(nsAString &aResult) {
+nsMsgIdentity::ToString(nsAString& aResult) {
   aResult.AssignLiteral("[nsIMsgIdentity: ");
   aResult.Append(NS_ConvertASCIItoUTF16(mKey));
   aResult.Append(']');
@@ -106,7 +106,7 @@ nsMsgIdentity::ToString(nsAString &aResult) {
 /* Identity attribute accessors */
 
 NS_IMETHODIMP
-nsMsgIdentity::GetSignature(nsIFile **sig) {
+nsMsgIdentity::GetSignature(nsIFile** sig) {
   bool gotRelPref;
   nsresult rv =
       NS_GetPersistentFile("sig_file" REL_FILE_PREF_SUFFIX, "sig_file", nullptr,
@@ -120,7 +120,7 @@ nsMsgIdentity::GetSignature(nsIFile **sig) {
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::SetSignature(nsIFile *sig) {
+nsMsgIdentity::SetSignature(nsIFile* sig) {
   nsresult rv = NS_OK;
   if (sig)
     rv = NS_SetPersistentFile("sig_file" REL_FILE_PREF_SUFFIX, "sig_file", sig,
@@ -178,7 +178,7 @@ NS_IMPL_IDPREF_BOOL(DoCc, "doCc")
 NS_IMPL_IDPREF_STR(DoCcList, "doCcList")
 
 NS_IMETHODIMP
-nsMsgIdentity::GetDoBcc(bool *aValue) {
+nsMsgIdentity::GetDoBcc(bool* aValue) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsresult rv = mPrefBranch->GetBoolPref("doBcc", aValue);
@@ -204,7 +204,7 @@ nsMsgIdentity::SetDoBcc(bool aValue) {
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::GetDoBccList(nsACString &aValue) {
+nsMsgIdentity::GetDoBccList(nsACString& aValue) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString val;
@@ -235,7 +235,7 @@ nsMsgIdentity::GetDoBccList(nsACString &aValue) {
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::SetDoBccList(const nsACString &aValue) {
+nsMsgIdentity::SetDoBccList(const nsACString& aValue) {
   return SetCharAttribute("doBccList", aValue);
 }
 
@@ -257,8 +257,8 @@ NS_IMPL_IDPREF_BOOL(AutocompleteToMyDomain, "autocompleteToMyDomain")
 
 NS_IMPL_IDPREF_BOOL(Valid, "valid")
 
-nsresult nsMsgIdentity::getFolderPref(const char *prefname, nsCString &retval,
-                                      const char *folderName,
+nsresult nsMsgIdentity::getFolderPref(const char* prefname, nsCString& retval,
+                                      const char* folderName,
                                       uint32_t folderflag) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
@@ -329,8 +329,8 @@ nsresult nsMsgIdentity::getFolderPref(const char *prefname, nsCString &retval,
   return NS_ERROR_FAILURE;
 }
 
-nsresult nsMsgIdentity::setFolderPref(const char *prefname,
-                                      const nsACString &value,
+nsresult nsMsgIdentity::setFolderPref(const char* prefname,
+                                      const nsACString& value,
                                       uint32_t folderflag) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
@@ -372,8 +372,8 @@ nsresult nsMsgIdentity::setFolderPref(const char *prefname,
   return rv;
 }
 
-NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char *aName,
-                                                 const nsAString &val) {
+NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char* aName,
+                                                 const nsAString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   if (!val.IsEmpty())
@@ -383,8 +383,8 @@ NS_IMETHODIMP nsMsgIdentity::SetUnicharAttribute(const char *aName,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::GetUnicharAttribute(const char *aName,
-                                                 nsAString &val) {
+NS_IMETHODIMP nsMsgIdentity::GetUnicharAttribute(const char* aName,
+                                                 nsAString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString valueUtf8;
@@ -395,8 +395,8 @@ NS_IMETHODIMP nsMsgIdentity::GetUnicharAttribute(const char *aName,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::SetCharAttribute(const char *aName,
-                                              const nsACString &val) {
+NS_IMETHODIMP nsMsgIdentity::SetCharAttribute(const char* aName,
+                                              const nsACString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   if (!val.IsEmpty()) return mPrefBranch->SetCharPref(aName, val);
@@ -405,8 +405,8 @@ NS_IMETHODIMP nsMsgIdentity::SetCharAttribute(const char *aName,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::GetCharAttribute(const char *aName,
-                                              nsACString &val) {
+NS_IMETHODIMP nsMsgIdentity::GetCharAttribute(const char* aName,
+                                              nsACString& val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   nsCString tmpVal;
@@ -416,13 +416,13 @@ NS_IMETHODIMP nsMsgIdentity::GetCharAttribute(const char *aName,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::SetBoolAttribute(const char *aName, bool val) {
+NS_IMETHODIMP nsMsgIdentity::SetBoolAttribute(const char* aName, bool val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   return mPrefBranch->SetBoolPref(aName, val);
 }
 
-NS_IMETHODIMP nsMsgIdentity::GetBoolAttribute(const char *aName, bool *val) {
+NS_IMETHODIMP nsMsgIdentity::GetBoolAttribute(const char* aName, bool* val) {
   NS_ENSURE_ARG_POINTER(val);
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
@@ -434,13 +434,13 @@ NS_IMETHODIMP nsMsgIdentity::GetBoolAttribute(const char *aName, bool *val) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgIdentity::SetIntAttribute(const char *aName, int32_t val) {
+NS_IMETHODIMP nsMsgIdentity::SetIntAttribute(const char* aName, int32_t val) {
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
 
   return mPrefBranch->SetIntPref(aName, val);
 }
 
-NS_IMETHODIMP nsMsgIdentity::GetIntAttribute(const char *aName, int32_t *val) {
+NS_IMETHODIMP nsMsgIdentity::GetIntAttribute(const char* aName, int32_t* val) {
   NS_ENSURE_ARG_POINTER(val);
 
   if (!mPrefBranch) return NS_ERROR_NOT_INITIALIZED;
@@ -498,7 +498,7 @@ NS_IMETHODIMP nsMsgIdentity::GetIntAttribute(const char *aName, int32_t *val) {
   }
 
 NS_IMETHODIMP
-nsMsgIdentity::Copy(nsIMsgIdentity *identity) {
+nsMsgIdentity::Copy(nsIMsgIdentity* identity) {
   NS_ENSURE_ARG_POINTER(identity);
 
   COPY_IDENTITY_BOOL_VALUE(identity, GetComposeHtml, SetComposeHtml)
@@ -537,7 +537,7 @@ nsMsgIdentity::Copy(nsIMsgIdentity *identity) {
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::GetRequestReturnReceipt(bool *aVal) {
+nsMsgIdentity::GetRequestReturnReceipt(bool* aVal) {
   NS_ENSURE_ARG_POINTER(aVal);
 
   bool useCustomPrefs = false;
@@ -552,7 +552,7 @@ nsMsgIdentity::GetRequestReturnReceipt(bool *aVal) {
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::GetReceiptHeaderType(int32_t *aType) {
+nsMsgIdentity::GetReceiptHeaderType(int32_t* aType) {
   NS_ENSURE_ARG_POINTER(aType);
 
   bool useCustomPrefs = false;
@@ -567,7 +567,7 @@ nsMsgIdentity::GetReceiptHeaderType(int32_t *aType) {
 }
 
 NS_IMETHODIMP
-nsMsgIdentity::GetRequestDSN(bool *aVal) {
+nsMsgIdentity::GetRequestDSN(bool* aVal) {
   NS_ENSURE_ARG_POINTER(aVal);
 
   bool useCustomPrefs = false;

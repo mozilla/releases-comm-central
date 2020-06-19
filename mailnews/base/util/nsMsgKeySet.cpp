@@ -70,7 +70,7 @@ nsMsgKeySet::nsMsgKeySet(/* MSG_NewsHost* host*/) {
   m_cached_value_index = 0;
   m_length = 0;
   m_data_size = 10;
-  m_data = (int32_t *)PR_Malloc(sizeof(int32_t) * m_data_size);
+  m_data = (int32_t*)PR_Malloc(sizeof(int32_t) * m_data_size);
 #ifdef NEWSRC_DOES_HOST_STUFF
   m_host = host;
 #endif
@@ -83,16 +83,16 @@ nsMsgKeySet::~nsMsgKeySet() {
 
 bool nsMsgKeySet::Grow() {
   int32_t new_size;
-  int32_t *new_data;
+  int32_t* new_data;
   new_size = m_data_size * 2;
-  new_data = (int32_t *)PR_REALLOC(m_data, sizeof(int32_t) * new_size);
+  new_data = (int32_t*)PR_REALLOC(m_data, sizeof(int32_t) * new_size);
   if (!new_data) return false;
   m_data_size = new_size;
   m_data = new_data;
   return true;
 }
 
-nsMsgKeySet::nsMsgKeySet(const char *numbers /* , MSG_NewsHost* host */) {
+nsMsgKeySet::nsMsgKeySet(const char* numbers /* , MSG_NewsHost* host */) {
   int32_t *head, *tail, *end;
   MOZ_COUNT_CTOR(nsMsgKeySet);
 
@@ -103,7 +103,7 @@ nsMsgKeySet::nsMsgKeySet(const char *numbers /* , MSG_NewsHost* host */) {
   m_cached_value_index = 0;
   m_length = 0;
   m_data_size = 10;
-  m_data = (int32_t *)PR_Malloc(sizeof(int32_t) * m_data_size);
+  m_data = (int32_t*)PR_Malloc(sizeof(int32_t) * m_data_size);
   if (!m_data) return;
 
   head = m_data;
@@ -179,8 +179,8 @@ nsMsgKeySet::nsMsgKeySet(const char *numbers /* , MSG_NewsHost* host */) {
   m_length = tail - head; /* size of data */
 }
 
-nsMsgKeySet *nsMsgKeySet::Create(/*MSG_NewsHost* host*/) {
-  nsMsgKeySet *set = new nsMsgKeySet(/* host */);
+nsMsgKeySet* nsMsgKeySet::Create(/*MSG_NewsHost* host*/) {
+  nsMsgKeySet* set = new nsMsgKeySet(/* host */);
   if (set && set->m_data == NULL) {
     delete set;
     set = NULL;
@@ -188,12 +188,12 @@ nsMsgKeySet *nsMsgKeySet::Create(/*MSG_NewsHost* host*/) {
   return set;
 }
 
-nsMsgKeySet *nsMsgKeySet::Create(const char *value /* , MSG_NewsHost* host */) {
+nsMsgKeySet* nsMsgKeySet::Create(const char* value /* , MSG_NewsHost* host */) {
 #ifdef DEBUG_MSGKEYSET
   printf("create from %s\n", value);
 #endif
 
-  nsMsgKeySet *set = new nsMsgKeySet(value /* , host */);
+  nsMsgKeySet* set = new nsMsgKeySet(value /* , host */);
   if (set && set->m_data == NULL) {
     delete set;
     set = NULL;
@@ -243,14 +243,14 @@ int32_t nsMsgKeySet::FirstNonMember() {
   }
 }
 
-nsresult nsMsgKeySet::Output(char **outputStr) {
+nsresult nsMsgKeySet::Output(char** outputStr) {
   NS_ENSURE_ARG(outputStr);
   int32_t size;
-  int32_t *head;
-  int32_t *tail;
-  int32_t *end;
+  int32_t* head;
+  int32_t* tail;
+  int32_t* end;
   int32_t s_size;
-  char *s_head;
+  char* s_head;
   char *s, *s_end;
   int32_t last_art = -1;
 
@@ -263,7 +263,7 @@ nsresult nsMsgKeySet::Output(char **outputStr) {
 
   s_size = (size * 12) +
            10;  // dmb - try to make this allocation get used at least once.
-  s_head = (char *)moz_xmalloc(s_size);
+  s_head = (char*)moz_xmalloc(s_size);
   if (!s_head) return NS_ERROR_OUT_OF_MEMORY;
 
   s_head[0] = '\0';  // otherwise, s_head will contain garbage.
@@ -279,7 +279,7 @@ nsresult nsMsgKeySet::Output(char **outputStr) {
                         plus 10 bytes of slop. */
       int32_t so = s - s_head;
       s_size += 200;
-      char *tmp = (char *)moz_xmalloc(s_size);
+      char* tmp = (char*)moz_xmalloc(s_size);
       if (tmp) PL_strcpy(tmp, s_head);
       free(s_head);
       s_head = tmp;
@@ -422,16 +422,16 @@ int32_t nsMsgKeySet::GetFirstMember() {
 bool nsMsgKeySet::Optimize() {
   int32_t input_size;
   int32_t output_size;
-  int32_t *input_tail;
-  int32_t *output_data;
-  int32_t *output_tail;
-  int32_t *input_end;
-  int32_t *output_end;
+  int32_t* input_tail;
+  int32_t* output_data;
+  int32_t* output_tail;
+  int32_t* input_end;
+  int32_t* output_end;
 
   input_size = m_length;
   output_size = input_size + 1;
   input_tail = m_data;
-  output_data = (int32_t *)PR_Malloc(sizeof(int32_t) * output_size);
+  output_data = (int32_t*)PR_Malloc(sizeof(int32_t) * output_size);
   if (!output_data) return false;
 
   output_tail = output_data;
@@ -527,9 +527,9 @@ bool nsMsgKeySet::Optimize() {
 bool nsMsgKeySet::IsMember(int32_t number) {
   bool value = false;
   int32_t size;
-  int32_t *head;
-  int32_t *tail;
-  int32_t *end;
+  int32_t* head;
+  int32_t* tail;
+  int32_t* end;
 
   size = m_length;
   head = m_data;
@@ -584,9 +584,9 @@ DONE:
 
 int nsMsgKeySet::Add(int32_t number) {
   int32_t size;
-  int32_t *head;
-  int32_t *tail;
-  int32_t *end;
+  int32_t* head;
+  int32_t* tail;
+  int32_t* end;
 
 #ifdef DEBUG_MSGKEYSET
   printf("add %d\n", number);
@@ -677,9 +677,9 @@ int nsMsgKeySet::Add(int32_t number) {
 
 int nsMsgKeySet::Remove(int32_t number) {
   int32_t size;
-  int32_t *head;
-  int32_t *tail;
-  int32_t *end;
+  int32_t* head;
+  int32_t* tail;
+  int32_t* end;
 #ifdef DEBUG_MSGKEYSET
   printf("remove %d\n", number);
 #endif
@@ -826,7 +826,7 @@ int nsMsgKeySet::Remove(int32_t number) {
   return 0;
 }
 
-static int32_t *msg_emit_range(int32_t *tmp, int32_t a, int32_t b) {
+static int32_t* msg_emit_range(int32_t* tmp, int32_t a, int32_t b) {
   if (a == b) {
     *tmp++ = a;
   } else {
@@ -839,10 +839,10 @@ static int32_t *msg_emit_range(int32_t *tmp, int32_t a, int32_t b) {
 
 int nsMsgKeySet::AddRange(int32_t start, int32_t end) {
   int32_t tmplength;
-  int32_t *tmp;
-  int32_t *in;
-  int32_t *out;
-  int32_t *tail;
+  int32_t* tmp;
+  int32_t* in;
+  int32_t* out;
+  int32_t* tail;
   int32_t a;
   int32_t b;
   bool didit = false;
@@ -858,7 +858,7 @@ int nsMsgKeySet::AddRange(int32_t start, int32_t end) {
   }
 
   tmplength = m_length + 2;
-  tmp = (int32_t *)PR_Malloc(sizeof(int32_t) * tmplength);
+  tmp = (int32_t*)PR_Malloc(sizeof(int32_t) * tmplength);
 
   if (!tmp)
     // out of memory
@@ -921,9 +921,9 @@ int nsMsgKeySet::AddRange(int32_t start, int32_t end) {
 int32_t nsMsgKeySet::CountMissingInRange(int32_t range_start,
                                          int32_t range_end) {
   int32_t count;
-  int32_t *head;
-  int32_t *tail;
-  int32_t *end;
+  int32_t* head;
+  int32_t* tail;
+  int32_t* end;
 
   NS_ASSERTION(range_start >= 0 && range_end >= 0 && range_end >= range_start,
                "invalid range");
@@ -956,12 +956,12 @@ int32_t nsMsgKeySet::CountMissingInRange(int32_t range_start,
   return count;
 }
 
-int nsMsgKeySet::FirstMissingRange(int32_t min, int32_t max, int32_t *first,
-                                   int32_t *last) {
+int nsMsgKeySet::FirstMissingRange(int32_t min, int32_t max, int32_t* first,
+                                   int32_t* last) {
   int32_t size;
-  int32_t *head;
-  int32_t *tail;
-  int32_t *end;
+  int32_t* head;
+  int32_t* tail;
+  int32_t* end;
   int32_t from = 0;
   int32_t to = 0;
   int32_t a;
@@ -1014,12 +1014,12 @@ int nsMsgKeySet::FirstMissingRange(int32_t min, int32_t max, int32_t *first,
 
 // I'm guessing we didn't include this because we didn't think we're going
 // to need it. I'm not so sure. I'm putting it in for now.
-int nsMsgKeySet::LastMissingRange(int32_t min, int32_t max, int32_t *first,
-                                  int32_t *last) {
+int nsMsgKeySet::LastMissingRange(int32_t min, int32_t max, int32_t* first,
+                                  int32_t* last) {
   int32_t size;
-  int32_t *head;
-  int32_t *tail;
-  int32_t *end;
+  int32_t* head;
+  int32_t* tail;
+  int32_t* end;
   int32_t from = 0;
   int32_t to = 0;
   int32_t a;
@@ -1075,11 +1075,11 @@ int nsMsgKeySet::LastMissingRange(int32_t min, int32_t max, int32_t *first,
 /**
  * Fill the passed in aArray with the keys in the message key set.
  */
-nsresult nsMsgKeySet::ToMsgKeyArray(nsTArray<nsMsgKey> &aArray) {
+nsresult nsMsgKeySet::ToMsgKeyArray(nsTArray<nsMsgKey>& aArray) {
   int32_t size;
-  int32_t *head;
-  int32_t *tail;
-  int32_t *end;
+  int32_t* head;
+  int32_t* tail;
+  int32_t* end;
   int32_t last_art = -1;
 
   size = m_length;
@@ -1125,9 +1125,9 @@ nsresult nsMsgKeySet::ToMsgKeyArray(nsTArray<nsMsgKey> &aArray) {
 
 #  define countof(x) (sizeof(x) / sizeof(*(x)))
 
-void nsMsgKeySet::test_decoder(const char *string) {
+void nsMsgKeySet::test_decoder(const char* string) {
   nsMsgKeySet set(string /* , NULL */);
-  char *tmp;
+  char* tmp;
   set.Output(&tmp);
   printf("\t\"%s\"\t--> \"%s\"\n", string, tmp);
   free(tmp);
@@ -1155,9 +1155,9 @@ void nsMsgKeySet::test_decoder(const char *string) {
     delete set;
 
 void nsMsgKeySet::test_adder(void) {
-  const char *string;
-  nsMsgKeySet *set;
-  char *s;
+  const char* string;
+  nsMsgKeySet* set;
+  char* s;
   int32_t i;
 
   START("0-70,72-99,105,107,110-111,117-200");
@@ -1265,9 +1265,9 @@ void nsMsgKeySet::test_adder(void) {
     delete set;
 
 void nsMsgKeySet::test_ranges(void) {
-  const char *string;
-  nsMsgKeySet *set;
-  char *s;
+  const char* string;
+  nsMsgKeySet* set;
+  char* s;
   int32_t i;
   int32_t j;
 
@@ -1297,10 +1297,10 @@ void nsMsgKeySet::test_ranges(void) {
     free(s);
 
 void nsMsgKeySet::test_member(bool with_cache) {
-  nsMsgKeySet *set;
-  char *s;
+  nsMsgKeySet* set;
+  char* s;
 
-  const char *st1 = "1-70,72-99,105,107,110-111,117-200";
+  const char* st1 = "1-70,72-99,105,107,110-111,117-200";
   printf("\n\nTesting %s (with%s cache)\n", st1, with_cache ? "" : "out");
   if (!(set = Create(st1))) {
     abort();
@@ -1312,7 +1312,7 @@ void nsMsgKeySet::test_member(bool with_cache) {
   TEST(20);
 
   delete set;
-  const char *st2 = "0-70,72-99,105,107,110-111,117-200";
+  const char* st2 = "0-70,72-99,105,107,110-111,117-200";
   printf("\n\nTesting %s (with%s cache)\n", st2, with_cache ? "" : "out");
   if (!(set = Create(st2))) {
     abort();

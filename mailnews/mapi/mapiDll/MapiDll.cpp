@@ -239,11 +239,11 @@ BOOL WINAPI DllMain(HINSTANCE aInstance, DWORD aReason, LPVOID aReserved) {
   return TRUE;
 }
 
-BOOL InitMozillaReference(nsIMapi **aRetValue) {
+BOOL InitMozillaReference(nsIMapi** aRetValue) {
   // Check whether this thread has a valid Interface
   // by looking into thread-specific-data variable
 
-  *aRetValue = (nsIMapi *)TlsGetValue(tId);
+  *aRetValue = (nsIMapi*)TlsGetValue(tId);
 
   // Check whether the pointer actually resolves to
   // a valid method call; otherwise mozilla is not running
@@ -253,7 +253,7 @@ BOOL InitMozillaReference(nsIMapi **aRetValue) {
   HRESULT hRes = ::CoInitialize(NULL);
 
   hRes = ::CoCreateInstance(CLSID_CMapiImp, NULL, CLSCTX_LOCAL_SERVER,
-                            IID_nsIMapi, (LPVOID *)aRetValue);
+                            IID_nsIMapi, (LPVOID*)aRetValue);
 
   if (hRes == S_OK && (*aRetValue)->Initialize() == S_OK)
     if (TlsSetValue(tId, (LPVOID)(*aRetValue))) return TRUE;
@@ -275,7 +275,7 @@ ULONG FAR PASCAL MAPILogon(ULONG aUIParam, LPSTR aProfileName, LPSTR aPassword,
                            FLAGS aFlags, ULONG aReserved, LPLHANDLE aSession) {
   HRESULT hr = 0;
   ULONG nSessionId = 0;
-  nsIMapi *pNsMapi = NULL;
+  nsIMapi* pNsMapi = NULL;
 
   if (!InitMozillaReference(&pNsMapi)) return MAPI_E_FAILURE;
 
@@ -290,7 +290,7 @@ ULONG FAR PASCAL MAPILogon(ULONG aUIParam, LPSTR aProfileName, LPSTR aPassword,
 
 ULONG FAR PASCAL MAPILogoff(LHANDLE aSession, ULONG aUIParam, FLAGS aFlags,
                             ULONG aReserved) {
-  nsIMapi *pNsMapi = (nsIMapi *)TlsGetValue(tId);
+  nsIMapi* pNsMapi = (nsIMapi*)TlsGetValue(tId);
   if (pNsMapi != NULL) {
     if (pNsMapi->Logoff((ULONG)aSession) == S_OK) pNsMapi->Release();
     pNsMapi = NULL;
@@ -304,11 +304,11 @@ ULONG FAR PASCAL MAPILogoff(LHANDLE aSession, ULONG aUIParam, FLAGS aFlags,
 }
 
 ULONG FAR PASCAL MAPISendMail(LHANDLE lhSession, ULONG ulUIParam,
-                              nsMapiMessage *lpMessage, FLAGS flFlags,
+                              nsMapiMessage* lpMessage, FLAGS flFlags,
                               ULONG ulReserved) {
   HRESULT hr = 0;
   BOOL bTempSession = FALSE;
-  nsIMapi *pNsMapi = NULL;
+  nsIMapi* pNsMapi = NULL;
 
   if (!InitMozillaReference(&pNsMapi)) return MAPI_E_FAILURE;
 
@@ -339,11 +339,11 @@ ULONG FAR PASCAL MAPISendMail(LHANDLE lhSession, ULONG ulUIParam,
 }
 
 ULONG FAR PASCAL MAPISendMailW(LHANDLE lhSession, ULONG ulUIParam,
-                               nsMapiMessageW *lpMessage, FLAGS flFlags,
+                               nsMapiMessageW* lpMessage, FLAGS flFlags,
                                ULONG ulReserved) {
   HRESULT hr = 0;
   BOOL bTempSession = FALSE;
-  nsIMapi *pNsMapi = nullptr;
+  nsIMapi* pNsMapi = nullptr;
 
   if (!InitMozillaReference(&pNsMapi)) return MAPI_E_FAILURE;
 
@@ -377,7 +377,7 @@ ULONG FAR PASCAL MAPISendDocuments(ULONG ulUIParam, LPSTR lpszDelimChar,
                                    LPSTR lpszFilePaths, LPSTR lpszFileNames,
                                    ULONG ulReserved) {
   LHANDLE lhSession;
-  nsIMapi *pNsMapi = NULL;
+  nsIMapi* pNsMapi = NULL;
 
   if (!InitMozillaReference(&pNsMapi)) return MAPI_E_FAILURE;
 
@@ -400,7 +400,7 @@ ULONG FAR PASCAL MAPIFindNext(LHANDLE lhSession, ULONG ulUIParam,
                               const LPSTR lpszSeedMessageID, FLAGS flFlags,
                               ULONG ulReserved,
                               unsigned char lpszMessageID[64]) {
-  nsIMapi *pNsMapi = NULL;
+  nsIMapi* pNsMapi = NULL;
 
   if (!InitMozillaReference(&pNsMapi)) return MAPI_E_FAILURE;
 
@@ -413,8 +413,8 @@ ULONG FAR PASCAL MAPIFindNext(LHANDLE lhSession, ULONG ulUIParam,
 
 ULONG FAR PASCAL MAPIReadMail(LHANDLE lhSession, ULONG ulUIParam,
                               LPSTR lpszMessageID, FLAGS flFlags,
-                              ULONG ulReserved, nsMapiMessage **lppMessage) {
-  nsIMapi *pNsMapi = NULL;
+                              ULONG ulReserved, nsMapiMessage** lppMessage) {
+  nsIMapi* pNsMapi = NULL;
 
   if (!InitMozillaReference(&pNsMapi)) return MAPI_E_FAILURE;
 
@@ -427,7 +427,7 @@ ULONG FAR PASCAL MAPIReadMail(LHANDLE lhSession, ULONG ulUIParam,
 ULONG FAR PASCAL MAPISaveMail(LHANDLE lhSession, ULONG ulUIParam,
                               lpnsMapiMessage lpMessage, FLAGS flFlags,
                               ULONG ulReserved, LPSTR lpszMessageID) {
-  nsIMapi *pNsMapi = NULL;
+  nsIMapi* pNsMapi = NULL;
 
   if (lhSession == 0) return MAPI_E_INVALID_SESSION;
 
@@ -439,7 +439,7 @@ ULONG FAR PASCAL MAPISaveMail(LHANDLE lhSession, ULONG ulUIParam,
 ULONG FAR PASCAL MAPIDeleteMail(LHANDLE lhSession, ULONG ulUIParam,
                                 LPSTR lpszMessageID, FLAGS flFlags,
                                 ULONG ulReserved) {
-  nsIMapi *pNsMapi = NULL;
+  nsIMapi* pNsMapi = NULL;
 
   if (lhSession == 0) return MAPI_E_INVALID_SESSION;
 
@@ -454,7 +454,7 @@ ULONG FAR PASCAL MAPIAddress(LHANDLE lhSession, ULONG ulUIParam,
                              LPSTR lpszLabels, ULONG nRecips,
                              lpMapiRecipDesc lpRecips, FLAGS flFlags,
                              ULONG ulReserved, LPULONG lpnNewRecips,
-                             lpMapiRecipDesc FAR *lppNewRecips) {
+                             lpMapiRecipDesc FAR* lppNewRecips) {
   return MAPI_E_NOT_SUPPORTED;
 }
 
@@ -467,16 +467,16 @@ ULONG FAR PASCAL MAPIDetails(LHANDLE lhSession, ULONG ulUIParam,
 ULONG FAR PASCAL MAPIResolveName(LHANDLE lhSession, ULONG ulUIParam,
                                  LPSTR lpszName, FLAGS flFlags,
                                  ULONG ulReserved,
-                                 lpMapiRecipDesc FAR *lppRecip) {
-  char *lpszRecipName = new char[(strlen((const char *)lpszName) + 1)];
+                                 lpMapiRecipDesc FAR* lppRecip) {
+  char* lpszRecipName = new char[(strlen((const char*)lpszName) + 1)];
   if (lpszRecipName == NULL) return MAPI_E_INSUFFICIENT_MEMORY;
-  char *lpszRecipAddress = new char[(strlen((const char *)lpszName) + 6)];
+  char* lpszRecipAddress = new char[(strlen((const char*)lpszName) + 6)];
   if (!lpszRecipAddress) {
     delete[] lpszRecipName;
     return MAPI_E_INSUFFICIENT_MEMORY;
   }
-  strcpy(lpszRecipName, (const char *)lpszName);
-  strcpy(lpszRecipAddress, (const char *)lpszName);
+  strcpy(lpszRecipName, (const char*)lpszName);
+  strcpy(lpszRecipAddress, (const char*)lpszName);
   (*lppRecip) = (lpMapiRecipDesc FAR)malloc(sizeof(MapiRecipDesc));
   if (!(*lppRecip)) {
     delete[] lpszRecipName;
@@ -502,10 +502,10 @@ ULONG FAR PASCAL MAPIFreeBuffer(LPVOID pv) {
   for (i = 0; i < MAX_POINTERS; i++) {
     if (pv == memArray[i].lpMem) {
       if (memArray[i].memType == MAPI_MESSAGE_TYPE) {
-        FreeMAPIMessage((MapiMessage *)pv);
+        FreeMAPIMessage((MapiMessage*)pv);
         memArray[i].lpMem = NULL;
       } else if (memArray[i].memType == MAPI_RECIPIENT_TYPE) {
-        FreeMAPIRecipient((MapiRecipDesc *)pv);
+        FreeMAPIRecipient((MapiRecipDesc*)pv);
         memArray[i].lpMem = NULL;
       }
     }

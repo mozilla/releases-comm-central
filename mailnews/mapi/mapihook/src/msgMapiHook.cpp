@@ -55,26 +55,26 @@ class MAPISendListener : public nsIMsgSendListener,
   NS_DECL_THREADSAFE_ISUPPORTS
 
   /* void OnStartSending (in string aMsgID, in uint32_t aMsgSize); */
-  NS_IMETHOD OnStartSending(const char *aMsgID, uint32_t aMsgSize) {
+  NS_IMETHOD OnStartSending(const char* aMsgID, uint32_t aMsgSize) {
     return NS_OK;
   }
 
   /* void OnProgress (in string aMsgID, in uint32_t aProgress, in uint32_t
    * aProgressMax); */
-  NS_IMETHOD OnProgress(const char *aMsgID, uint32_t aProgress,
+  NS_IMETHOD OnProgress(const char* aMsgID, uint32_t aProgress,
                         uint32_t aProgressMax) {
     return NS_OK;
   }
 
   /* void OnStatus (in string aMsgID, in wstring aMsg); */
-  NS_IMETHOD OnStatus(const char *aMsgID, const char16_t *aMsg) {
+  NS_IMETHOD OnStatus(const char* aMsgID, const char16_t* aMsg) {
     return NS_OK;
   }
 
   /* void OnStopSending (in string aMsgID, in nsresult aStatus, in wstring aMsg,
    * in nsIFile returnFile); */
-  NS_IMETHOD OnStopSending(const char *aMsgID, nsresult aStatus,
-                           const char16_t *aMsg, nsIFile *returnFile) {
+  NS_IMETHOD OnStopSending(const char* aMsgID, nsresult aStatus,
+                           const char16_t* aMsg, nsIFile* returnFile) {
     mozilla::ReentrantMonitorAutoEnter mon(*this);
     m_done = true;
     NotifyAll();
@@ -82,12 +82,12 @@ class MAPISendListener : public nsIMsgSendListener,
   }
 
   /* void OnSendNotPerformed */
-  NS_IMETHOD OnSendNotPerformed(const char *aMsgID, nsresult aStatus) {
+  NS_IMETHOD OnSendNotPerformed(const char* aMsgID, nsresult aStatus) {
     return OnStopSending(aMsgID, aStatus, nullptr, nullptr);
   }
 
   /* void OnGetDraftFolderURI (); */
-  NS_IMETHOD OnGetDraftFolderURI(const char *aFolderURI) { return NS_OK; }
+  NS_IMETHOD OnGetDraftFolderURI(const char* aFolderURI) { return NS_OK; }
 
   bool IsDone() { return m_done; }
 
@@ -99,7 +99,7 @@ class MAPISendListener : public nsIMsgSendListener,
 /// Helper for setting up the hidden window for blind MAPI.
 class MOZ_STACK_CLASS AutoHiddenWindow {
  public:
-  explicit AutoHiddenWindow(nsresult &rv)
+  explicit AutoHiddenWindow(nsresult& rv)
       : mAppService(do_GetService("@mozilla.org/appshell/appShellService;1")) {
     mCreatedHiddenWindow = false;
     rv = mAppService->GetHiddenDOMWindow(getter_AddRefs(mHiddenWindow));
@@ -116,8 +116,8 @@ class MOZ_STACK_CLASS AutoHiddenWindow {
   ~AutoHiddenWindow() {
     if (mCreatedHiddenWindow) mAppService->DestroyHiddenWindow();
   }
-  mozIDOMWindowProxy *operator->() { return mHiddenWindow; }
-  operator mozIDOMWindowProxy *() { return mHiddenWindow; }
+  mozIDOMWindowProxy* operator->() { return mHiddenWindow; }
+  operator mozIDOMWindowProxy*() { return mHiddenWindow; }
 
  private:
   nsCOMPtr<nsIAppShellService> mAppService;
@@ -134,8 +134,8 @@ void nsMapiHook::CleanUp() {
   // to cleanup mapi related stuff inside mozilla code.
 }
 
-bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t **aUsername,
-                                    char16_t **aPassword) {
+bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t** aUsername,
+                                    char16_t** aPassword) {
   nsresult rv;
   bool btnResult = false;
 
@@ -193,7 +193,7 @@ bool nsMapiHook::DisplayLoginDialog(bool aLogin, char16_t **aUsername,
   return btnResult;
 }
 
-bool nsMapiHook::VerifyUserName(const nsCString &aUsername, nsCString &aIdKey) {
+bool nsMapiHook::VerifyUserName(const nsCString& aUsername, nsCString& aIdKey) {
   nsresult rv;
 
   if (aUsername.IsEmpty()) return false;
@@ -272,7 +272,7 @@ bool nsMapiHook::IsBlindSendAllowed() {
 
 // this is used for Send without UI
 nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
-                                   nsIMsgCompFields *aCompFields) {
+                                   nsIMsgCompFields* aCompFields) {
   nsresult rv = NS_OK;
 
   if (!IsBlindSendAllowed()) return NS_ERROR_FAILURE;
@@ -282,10 +282,10 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // smtp password and Logged in used IdKey from MapiConfig (session obj)
-  nsMAPIConfiguration *pMapiConfig =
+  nsMAPIConfiguration* pMapiConfig =
       nsMAPIConfiguration::GetMAPIConfiguration();
   if (!pMapiConfig) return NS_ERROR_FAILURE;  // get the singelton obj
-  char16_t *password = pMapiConfig->GetPassword(aSession);
+  char16_t* password = pMapiConfig->GetPassword(aSession);
 
   // Id key
   nsCString MsgIdKey;
@@ -347,7 +347,7 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
   return rv;
 }
 
-nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields *aCompFields,
+nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
                                        int32_t aFileCount,
                                        lpnsMapiFileDesc aFiles, bool aIsUTF8) {
   nsresult rv = NS_OK;
@@ -375,8 +375,8 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields *aCompFields,
       MOZ_LOG(
           MAPI, mozilla::LogLevel::Debug,
           ("nsMapiHook::HandleAttachments: filename: %s path: %s exists = %s\n",
-           (const char *)aFiles[i].lpszFileName,
-           (const char *)aFiles[i].lpszPathName, bExist ? "true" : "false"));
+           (const char*)aFiles[i].lpszFileName,
+           (const char*)aFiles[i].lpszPathName, bExist ? "true" : "false"));
       if (NS_FAILED(rv) || (!bExist))
         return NS_ERROR_FILE_TARGET_DOES_NOT_EXIST;
 
@@ -464,7 +464,7 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields *aCompFields,
   return rv;
 }
 
-nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields *aCompFields,
+nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
                                         int32_t aFileCount,
                                         lpnsMapiFileDescW aFiles) {
   nsresult rv = NS_OK;
@@ -575,7 +575,7 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields *aCompFields,
 
 // this is used to convert non Unicode data and then populate comp fields
 nsresult nsMapiHook::PopulateCompFieldsWithConversion(
-    lpnsMapiMessage aMessage, nsIMsgCompFields *aCompFields) {
+    lpnsMapiMessage aMessage, nsIMsgCompFields* aCompFields) {
   bool isUTF8 = aMessage->ulReserved == CP_UTF8;
 
   if (aMessage->lpOriginator && aMessage->lpOriginator->lpszAddress) {
@@ -594,7 +594,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(
   if (aMessage->lpRecips) {
     for (int i = 0; i < (int)aMessage->nRecipCount; i++) {
       if (aMessage->lpRecips[i].lpszAddress || aMessage->lpRecips[i].lpszName) {
-        const char *addressWithoutType = (aMessage->lpRecips[i].lpszAddress)
+        const char* addressWithoutType = (aMessage->lpRecips[i].lpszAddress)
                                              ? aMessage->lpRecips[i].lpszAddress
                                              : aMessage->lpRecips[i].lpszName;
         if (!PL_strncasecmp(addressWithoutType, "SMTP:", 5))
@@ -691,7 +691,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(
 // This is used to populate comp fields with UTF-16 data from MAPISendMailW
 // function.
 nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
-                                         nsIMsgCompFields *aCompFields) {
+                                         nsIMsgCompFields* aCompFields) {
   if (aMessage->lpOriginator && aMessage->lpOriginator->lpszAddress)
     aCompFields->SetFrom(
         nsDependentString(aMessage->lpOriginator->lpszAddress));
@@ -705,7 +705,7 @@ nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
   if (aMessage->lpRecips) {
     for (int i = 0; i < (int)aMessage->nRecipCount; i++) {
       if (aMessage->lpRecips[i].lpszAddress || aMessage->lpRecips[i].lpszName) {
-        const wchar_t *addressWithoutType =
+        const wchar_t* addressWithoutType =
             (aMessage->lpRecips[i].lpszAddress)
                 ? aMessage->lpRecips[i].lpszAddress
                 : aMessage->lpRecips[i].lpszName;
@@ -769,7 +769,7 @@ nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
 // this is used to populate the docs as attachments in the Comp fields for Send
 // Documents
 nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
-    nsIMsgCompFields *aCompFields, ULONG aFlags, LPSTR aDelimChar,
+    nsIMsgCompFields* aCompFields, ULONG aFlags, LPSTR aDelimChar,
     LPSTR aFilePaths) {
   nsAutoCString strDelimChars;
   nsAutoCString strFilePaths;
@@ -802,7 +802,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
     nsCOMPtr<nsIFile> pFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
     if (NS_FAILED(rv) || (!pFile)) return rv;
 
-    char *newFilePaths = (char *)strFilePaths.get();
+    char* newFilePaths = (char*)strFilePaths.get();
     while (offset != kNotFound) {
       // Temp Directory
       nsCOMPtr<nsIFile> pTempDir;
@@ -891,7 +891,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
 
 // this used for Send with UI
 nsresult nsMapiHook::ShowComposerWindow(unsigned long aSession,
-                                        nsIMsgCompFields *aCompFields) {
+                                        nsIMsgCompFields* aCompFields) {
   nsresult rv = NS_OK;
 
   // create a send listener to get back the send status

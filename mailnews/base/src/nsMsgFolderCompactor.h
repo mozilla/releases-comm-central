@@ -36,17 +36,17 @@ class nsFolderCompactState : public nsIMsgFolderCompactor,
  protected:
   virtual ~nsFolderCompactState(void);
 
-  virtual nsresult InitDB(nsIMsgDatabase *db);
+  virtual nsresult InitDB(nsIMsgDatabase* db);
   virtual nsresult StartCompacting();
   virtual nsresult FinishCompact();
   void CloseOutputStream();
   void CleanupTempFilesAfterError();
 
-  nsresult Init(nsIMsgFolder *aFolder, const char *aBaseMsgUri,
-                nsIMsgDatabase *aDb, nsIFile *aPath, nsIMsgWindow *aMsgWindow);
-  nsresult GetMessage(nsIMsgDBHdr **message);
-  nsresult BuildMessageURI(const char *baseURI, nsMsgKey key, nsCString &uri);
-  nsresult ShowStatusMsg(const nsString &aMsg);
+  nsresult Init(nsIMsgFolder* aFolder, const char* aBaseMsgUri,
+                nsIMsgDatabase* aDb, nsIFile* aPath, nsIMsgWindow* aMsgWindow);
+  nsresult GetMessage(nsIMsgDBHdr** message);
+  nsresult BuildMessageURI(const char* baseURI, nsMsgKey key, nsCString& uri);
+  nsresult ShowStatusMsg(const nsString& aMsg);
   nsresult ReleaseFolderLock();
   void ShowCompactingStatusMsg();
   void CompactCompleted(nsresult exitCode);
@@ -99,13 +99,13 @@ class nsOfflineStoreCompactState : public nsFolderCompactState {
  public:
   nsOfflineStoreCompactState(void);
   virtual ~nsOfflineStoreCompactState(void);
-  NS_IMETHOD OnStopRequest(nsIRequest *request, nsresult status) override;
-  NS_IMETHODIMP OnDataAvailable(nsIRequest *request, nsIInputStream *inStr,
+  NS_IMETHOD OnStopRequest(nsIRequest* request, nsresult status) override;
+  NS_IMETHODIMP OnDataAvailable(nsIRequest* request, nsIInputStream* inStr,
                                 uint64_t sourceOffset, uint32_t count) override;
 
  protected:
-  nsresult CopyNextMessage(bool &done);
-  virtual nsresult InitDB(nsIMsgDatabase *db) override;
+  nsresult CopyNextMessage(bool& done);
+  virtual nsresult InitDB(nsIMsgDatabase* db) override;
   virtual nsresult StartCompacting() override;
   virtual nsresult FinishCompact() override;
 

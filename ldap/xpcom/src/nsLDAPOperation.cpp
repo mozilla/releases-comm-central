@@ -21,12 +21,12 @@
 #include "nsThreadUtils.h"
 
 // Declare helper fns for dealing with C++ LDAP <-> libldap mismatch.
-static nsresult convertValues(nsIArray *values, berval ***aBValues);
-static void freeValues(berval **aVals);
-static nsresult convertMods(nsIArray *aMods, LDAPMod ***aOut);
-static void freeMods(LDAPMod **aMods);
-static nsresult convertControlArray(nsIArray *aXpcomArray,
-                                    LDAPControl ***aArray);
+static nsresult convertValues(nsIArray* values, berval*** aBValues);
+static void freeValues(berval** aVals);
+static nsresult convertMods(nsIArray* aMods, LDAPMod*** aOut);
+static void freeMods(LDAPMod** aMods);
+static nsresult convertControlArray(nsIArray* aXpcomArray,
+                                    LDAPControl*** aArray);
 
 /**
  * OpRunnable is a helper class to dispatch ldap operations on the socket
@@ -34,7 +34,7 @@ static nsresult convertControlArray(nsIArray *aXpcomArray,
  */
 class OpRunnable : public mozilla::Runnable {
  public:
-  OpRunnable(const char *name, nsLDAPOperation *aOperation)
+  OpRunnable(const char* name, nsLDAPOperation* aOperation)
       : mozilla::Runnable(name), mOp(aOperation) {}
   RefPtr<nsLDAPOperation> mOp;
 
@@ -43,9 +43,9 @@ class OpRunnable : public mozilla::Runnable {
 
   // Provide access to protected members we need in nsLDAPOperation, without
   // declaring every individual Runnable as a friend class.
-  LDAP *LDAPHandle() { return mOp->mConnectionHandle; }
+  LDAP* LDAPHandle() { return mOp->mConnectionHandle; }
   void SetID(int32_t id) { mOp->mMsgID = id; }
-  nsLDAPConnection *Conn() { return mOp->mConnection; }
+  nsLDAPConnection* Conn() { return mOp->mConnection; }
 
   void NotifyLDAPError() {
     // At this point we should be letting the listener know that there's
@@ -119,9 +119,9 @@ NS_IMPL_CI_INTERFACE_GETTER(nsLDAPOperation, nsILDAPOperation)
  * @param aMessageListener where are the results are called back to.
  */
 NS_IMETHODIMP
-nsLDAPOperation::Init(nsILDAPConnection *aConnection,
-                      nsILDAPMessageListener *aMessageListener,
-                      nsISupports *aClosure) {
+nsLDAPOperation::Init(nsILDAPConnection* aConnection,
+                      nsILDAPMessageListener* aMessageListener,
+                      nsISupports* aClosure) {
   if (!aConnection) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
@@ -133,7 +133,7 @@ nsLDAPOperation::Init(nsILDAPConnection *aConnection,
 
   // set the member vars
   //
-  mConnection = static_cast<nsLDAPConnection *>(aConnection);
+  mConnection = static_cast<nsLDAPConnection*>(aConnection);
   mMessageListener = aMessageListener;
   mClosure = aClosure;
 
@@ -145,7 +145,7 @@ nsLDAPOperation::Init(nsILDAPConnection *aConnection,
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetClosure(nsISupports **_retval) {
+nsLDAPOperation::GetClosure(nsISupports** _retval) {
   if (!_retval) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
@@ -154,13 +154,13 @@ nsLDAPOperation::GetClosure(nsISupports **_retval) {
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::SetClosure(nsISupports *aClosure) {
+nsLDAPOperation::SetClosure(nsISupports* aClosure) {
   mClosure = aClosure;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetConnection(nsILDAPConnection **aConnection) {
+nsLDAPOperation::GetConnection(nsILDAPConnection** aConnection) {
   if (!aConnection) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
@@ -178,7 +178,7 @@ void nsLDAPOperation::Clear() {
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetMessageListener(nsILDAPMessageListener **aMessageListener) {
+nsLDAPOperation::GetMessageListener(nsILDAPMessageListener** aMessageListener) {
   if (!aMessageListener) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
@@ -195,13 +195,13 @@ nsLDAPOperation::GetMessageListener(nsILDAPMessageListener **aMessageListener) {
  */
 class SaslBindRunnable : public OpRunnable {
  public:
-  SaslBindRunnable(nsLDAPOperation *aOperation, const nsACString &bindName,
-                   const nsACString &mechanism, uint8_t *credData,
+  SaslBindRunnable(nsLDAPOperation* aOperation, const nsACString& bindName,
+                   const nsACString& mechanism, uint8_t* credData,
                    unsigned int credLen)
       : OpRunnable("SaslBindRunnable", aOperation),
         mBindName(bindName),
         mMechanism(mechanism) {
-    mCreds.bv_val = (char *)credData;
+    mCreds.bv_val = (char*)credData;
     mCreds.bv_len = credLen;
   }
   virtual ~SaslBindRunnable() { free(mCreds.bv_val); }
@@ -228,9 +228,9 @@ class SaslBindRunnable : public OpRunnable {
 };
 
 NS_IMETHODIMP
-nsLDAPOperation::SaslBind(const nsACString &service,
-                          const nsACString &mechanism,
-                          nsIAuthModule *authModule) {
+nsLDAPOperation::SaslBind(const nsACString& service,
+                          const nsACString& mechanism,
+                          nsIAuthModule* authModule) {
   nsresult rv;
   nsAutoCString bindName;
 
@@ -244,9 +244,9 @@ nsLDAPOperation::SaslBind(const nsACString &service,
                     nsIAuthModule::REQ_DEFAULT, nullptr,
                     NS_ConvertUTF8toUTF16(bindName).get(), nullptr);
 
-  uint8_t *credData = nullptr;
+  uint8_t* credData = nullptr;
   unsigned int credLen;
-  rv = mAuthModule->GetNextToken(nullptr, 0, (void **)&credData, &credLen);
+  rv = mAuthModule->GetNextToken(nullptr, 0, (void**)&credData, &credLen);
   if (NS_FAILED(rv) || !credData) return rv;
 
   nsCOMPtr<nsIRunnable> op =
@@ -262,7 +262,7 @@ nsLDAPOperation::SaslBind(const nsACString &service,
  * on the socket thread, so we don't need to do any fancy dispatch stuff here.
  */
 NS_IMETHODIMP
-nsLDAPOperation::SaslStep(const char *token, uint32_t tokenLen) {
+nsLDAPOperation::SaslStep(const char* token, uint32_t tokenLen) {
   nsresult rv;
   nsAutoCString bindName;
   struct berval clientCreds;
@@ -272,14 +272,14 @@ nsLDAPOperation::SaslStep(const char *token, uint32_t tokenLen) {
   rv = mConnection->RemovePendingOperation(mMsgID);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  serverCreds.bv_val = (char *)token;
+  serverCreds.bv_val = (char*)token;
   serverCreds.bv_len = tokenLen;
 
   rv = mConnection->GetBindName(bindName);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = mAuthModule->GetNextToken(serverCreds.bv_val, serverCreds.bv_len,
-                                 (void **)&clientCreds.bv_val, &credlen);
+                                 (void**)&clientCreds.bv_val, &credlen);
   NS_ENSURE_SUCCESS(rv, rv);
 
   clientCreds.bv_len = credlen;
@@ -303,8 +303,8 @@ nsLDAPOperation::SaslStep(const char *token, uint32_t tokenLen) {
  */
 class SimpleBindRunnable : public OpRunnable {
  public:
-  SimpleBindRunnable(nsLDAPOperation *aOperation, const nsACString &bindName,
-                     const nsACString &passwd)
+  SimpleBindRunnable(nsLDAPOperation* aOperation, const nsACString& bindName,
+                     const nsACString& passwd)
       : OpRunnable("SimpleBindRunnable", aOperation),
         mBindName(bindName),
         mPasswd(passwd) {}
@@ -314,7 +314,7 @@ class SimpleBindRunnable : public OpRunnable {
   nsCString mPasswd;
 
   NS_IMETHOD Run() override {
-    LDAP *ld = LDAPHandle();
+    LDAP* ld = LDAPHandle();
     int32_t msgID = ldap_simple_bind(ld, mBindName.get(), mPasswd.get());
 
     if (msgID == -1) {
@@ -332,7 +332,7 @@ class SimpleBindRunnable : public OpRunnable {
 // wrapper for ldap_simple_bind()
 //
 NS_IMETHODIMP
-nsLDAPOperation::SimpleBind(const nsACString &passwd) {
+nsLDAPOperation::SimpleBind(const nsACString& passwd) {
   RefPtr<nsLDAPConnection> connection = mConnection;
   // There is a possibility that mConnection can be cleared by another
   // thread. Grabbing a local reference to mConnection may avoid this.
@@ -377,8 +377,8 @@ nsLDAPOperation::SimpleBind(const nsACString &passwd) {
  * Given an nsIArray of nsILDAPControls, return the appropriate
  * zero-terminated array of LDAPControls ready to pass in to the C SDK.
  */
-static nsresult convertControlArray(nsIArray *aXpcomArray,
-                                    LDAPControl ***aArray) {
+static nsresult convertControlArray(nsIArray* aXpcomArray,
+                                    LDAPControl*** aArray) {
   // get the size of the original array
   uint32_t length;
   nsresult rv = aXpcomArray->GetLength(&length);
@@ -394,8 +394,8 @@ static nsresult convertControlArray(nsIArray *aXpcomArray,
   // +1 is to account for the final null terminator.  PR_Calloc is
   // is used so that ldap_controls_free will work anywhere during the
   // iteration
-  LDAPControl **controls =
-      static_cast<LDAPControl **>(PR_Calloc(length + 1, sizeof(LDAPControl)));
+  LDAPControl** controls =
+      static_cast<LDAPControl**>(PR_Calloc(length + 1, sizeof(LDAPControl)));
 
   // prepare to enumerate the array
   nsCOMPtr<nsISimpleEnumerator> enumerator;
@@ -420,8 +420,8 @@ static nsresult convertControlArray(nsIArray *aXpcomArray,
       ldap_controls_free(controls);
       return NS_ERROR_INVALID_ARG;  // bogus element in the array
     }
-    nsLDAPControl *ctl = static_cast<nsLDAPControl *>(
-        static_cast<nsILDAPControl *>(control.get()));
+    nsLDAPControl* ctl = static_cast<nsLDAPControl*>(
+        static_cast<nsILDAPControl*>(control.get()));
 
     // convert it to an LDAPControl structure placed in the new array
     rv = ctl->ToLDAPControl(&controls[i]);
@@ -444,7 +444,7 @@ static nsresult convertControlArray(nsIArray *aXpcomArray,
 }
 
 /* attribute unsigned long requestNum; */
-NS_IMETHODIMP nsLDAPOperation::GetRequestNum(uint32_t *aRequestNum) {
+NS_IMETHODIMP nsLDAPOperation::GetRequestNum(uint32_t* aRequestNum) {
   *aRequestNum = mRequestNum;
   return NS_OK;
 }
@@ -460,9 +460,9 @@ NS_IMETHODIMP nsLDAPOperation::SetRequestNum(uint32_t aRequestNum) {
  */
 class SearchExtRunnable : public OpRunnable {
  public:
-  SearchExtRunnable(nsLDAPOperation *aOperation, const nsACString &aBaseDn,
-                    int32_t aScope, const nsACString &aFilter, char **aAttrs,
-                    LDAPControl **aServerctls, LDAPControl **aClientctls,
+  SearchExtRunnable(nsLDAPOperation* aOperation, const nsACString& aBaseDn,
+                    int32_t aScope, const nsACString& aFilter, char** aAttrs,
+                    LDAPControl** aServerctls, LDAPControl** aClientctls,
                     int32_t aSizeLimit)
       : OpRunnable("SearchExtRunnable", aOperation),
         mBaseDn(aBaseDn),
@@ -488,14 +488,14 @@ class SearchExtRunnable : public OpRunnable {
   nsCString mBaseDn;
   int32_t mScope;
   nsCString mFilter;
-  char **mAttrs;
-  LDAPControl **mServerctls;
-  LDAPControl **mClientctls;
+  char** mAttrs;
+  LDAPControl** mServerctls;
+  LDAPControl** mClientctls;
   int32_t mSizeLimit;
 
   NS_IMETHOD Run() override {
     int32_t msgID;
-    LDAP *ld = LDAPHandle();
+    LDAP* ld = LDAPHandle();
     int retVal =
         ldap_search_ext(ld, PromiseFlatCString(mBaseDn).get(), mScope,
                         PromiseFlatCString(mFilter).get(), mAttrs, 0,
@@ -514,9 +514,9 @@ class SearchExtRunnable : public OpRunnable {
 };
 
 NS_IMETHODIMP
-nsLDAPOperation::SearchExt(const nsACString &aBaseDn, int32_t aScope,
-                           const nsACString &aFilter,
-                           const nsACString &aAttributes,
+nsLDAPOperation::SearchExt(const nsACString& aBaseDn, int32_t aScope,
+                           const nsACString& aFilter,
+                           const nsACString& aAttributes,
                            PRIntervalTime aTimeOut, int32_t aSizeLimit) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::SearchExt(): mMessageListener not set");
@@ -530,7 +530,7 @@ nsLDAPOperation::SearchExt(const nsACString &aBaseDn, int32_t aScope,
            PromiseFlatCString(aBaseDn).get(), PromiseFlatCString(aFilter).get(),
            PromiseFlatCString(aAttributes).get(), aSizeLimit));
 
-  LDAPControl **serverctls = 0;
+  LDAPControl** serverctls = 0;
   nsresult rv;
   if (mServerControls) {
     rv = convertControlArray(mServerControls, &serverctls);
@@ -543,7 +543,7 @@ nsLDAPOperation::SearchExt(const nsACString &aBaseDn, int32_t aScope,
     }
   }
 
-  LDAPControl **clientctls = 0;
+  LDAPControl** clientctls = 0;
   if (mClientControls) {
     rv = convertControlArray(mClientControls, &clientctls);
     if (NS_FAILED(rv)) {
@@ -560,11 +560,10 @@ nsLDAPOperation::SearchExt(const nsACString &aBaseDn, int32_t aScope,
   // convert to a char array and add a last NULL element.
   nsTArray<nsCString> attrArray;
   ParseString(aAttributes, ',', attrArray);
-  char **attrs = nullptr;
+  char** attrs = nullptr;
   uint32_t origLength = attrArray.Length();
   if (origLength) {
-    attrs =
-        static_cast<char **>(moz_xmalloc((origLength + 1) * sizeof(char *)));
+    attrs = static_cast<char**>(moz_xmalloc((origLength + 1) * sizeof(char*)));
     if (!attrs) return NS_ERROR_OUT_OF_MEMORY;
 
     for (uint32_t i = 0; i < origLength; ++i)
@@ -583,7 +582,7 @@ nsLDAPOperation::SearchExt(const nsACString &aBaseDn, int32_t aScope,
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetMessageID(int32_t *aMsgID) {
+nsLDAPOperation::GetMessageID(int32_t* aMsgID) {
   if (!aMsgID) {
     return NS_ERROR_ILLEGAL_VALUE;
   }
@@ -603,14 +602,14 @@ nsLDAPOperation::GetMessageID(int32_t *aMsgID) {
  */
 class AbandonExtRunnable : public OpRunnable {
  public:
-  AbandonExtRunnable(nsLDAPOperation *aOperation, int aMsgID)
+  AbandonExtRunnable(nsLDAPOperation* aOperation, int aMsgID)
       : OpRunnable("AbandonExtRunnable", aOperation), mMsgID(aMsgID) {}
   virtual ~AbandonExtRunnable() {}
 
   int32_t mMsgID;
 
   NS_IMETHOD Run() override {
-    LDAP *ld = LDAPHandle();
+    LDAP* ld = LDAPHandle();
     int retVal = ldap_abandon_ext(ld, mMsgID, 0, 0);
     if (retVal != LDAP_SUCCESS) {
       NotifyLDAPError();
@@ -665,23 +664,23 @@ nsLDAPOperation::AbandonExt() {
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::GetClientControls(nsIMutableArray **aControls) {
+nsLDAPOperation::GetClientControls(nsIMutableArray** aControls) {
   NS_IF_ADDREF(*aControls = mClientControls);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPOperation::SetClientControls(nsIMutableArray *aControls) {
+nsLDAPOperation::SetClientControls(nsIMutableArray* aControls) {
   mClientControls = aControls;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPOperation::GetServerControls(nsIMutableArray **aControls) {
+NS_IMETHODIMP nsLDAPOperation::GetServerControls(nsIMutableArray** aControls) {
   NS_IF_ADDREF(*aControls = mServerControls);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsLDAPOperation::SetServerControls(nsIMutableArray *aControls) {
+NS_IMETHODIMP nsLDAPOperation::SetServerControls(nsIMutableArray* aControls) {
   mServerControls = aControls;
   return NS_OK;
 }
@@ -692,17 +691,17 @@ NS_IMETHODIMP nsLDAPOperation::SetServerControls(nsIMutableArray *aControls) {
  */
 class AddExtRunnable : public OpRunnable {
  public:
-  AddExtRunnable(nsLDAPOperation *aOperation, const nsACString &aDn,
-                 LDAPMod **aMods)
+  AddExtRunnable(nsLDAPOperation* aOperation, const nsACString& aDn,
+                 LDAPMod** aMods)
       : OpRunnable("AddExtRunnable", aOperation), mDn(aDn), mMods(aMods) {}
   virtual ~AddExtRunnable() { freeMods(mMods); }
 
   nsCString mDn;
-  LDAPMod **mMods;
+  LDAPMod** mMods;
 
   NS_IMETHOD Run() override {
     int32_t msgID;
-    LDAP *ld = LDAPHandle();
+    LDAP* ld = LDAPHandle();
     int retVal =
         ldap_add_ext(ld, PromiseFlatCString(mDn).get(), mMods, 0, 0, &msgID);
     if (retVal != LDAP_SUCCESS) {
@@ -726,7 +725,7 @@ class AddExtRunnable : public OpRunnable {
  *
  */
 NS_IMETHODIMP
-nsLDAPOperation::AddExt(const nsACString &aBaseDn, nsIArray *aMods) {
+nsLDAPOperation::AddExt(const nsACString& aBaseDn, nsIArray* aMods) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::AddExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
@@ -735,7 +734,7 @@ nsLDAPOperation::AddExt(const nsACString &aBaseDn, nsIArray *aMods) {
   MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Debug,
           ("nsLDAPOperation::AddExt(): called with aBaseDn = '%s'",
            PromiseFlatCString(aBaseDn).get()));
-  LDAPMod **rawMods;
+  LDAPMod** rawMods;
 
   nsresult rv = convertMods(aMods, &rawMods);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -760,7 +759,7 @@ nsLDAPOperation::AddExt(const nsACString &aBaseDn, nsIArray *aMods) {
  */
 class DeleteExtRunnable : public OpRunnable {
  public:
-  DeleteExtRunnable(nsLDAPOperation *aOperation, const nsACString &aDn)
+  DeleteExtRunnable(nsLDAPOperation* aOperation, const nsACString& aDn)
       : OpRunnable("DeleteExtRunnable", aOperation), mDn(aDn) {}
   virtual ~DeleteExtRunnable() {}
 
@@ -768,7 +767,7 @@ class DeleteExtRunnable : public OpRunnable {
 
   NS_IMETHOD Run() override {
     int32_t msgID;
-    LDAP *ld = LDAPHandle();
+    LDAP* ld = LDAPHandle();
     int retVal =
         ldap_delete_ext(ld, PromiseFlatCString(mDn).get(), 0, 0, &msgID);
     if (retVal != LDAP_SUCCESS) {
@@ -792,7 +791,7 @@ class DeleteExtRunnable : public OpRunnable {
  * void deleteExt(in AUTF8String aBaseDn);
  */
 NS_IMETHODIMP
-nsLDAPOperation::DeleteExt(const nsACString &aDn) {
+nsLDAPOperation::DeleteExt(const nsACString& aDn) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::DeleteExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
@@ -813,17 +812,17 @@ nsLDAPOperation::DeleteExt(const nsACString &aDn) {
  */
 class ModifyExtRunnable : public OpRunnable {
  public:
-  ModifyExtRunnable(nsLDAPOperation *aOperation, const nsACString &aDn,
-                    LDAPMod **aMods)
+  ModifyExtRunnable(nsLDAPOperation* aOperation, const nsACString& aDn,
+                    LDAPMod** aMods)
       : OpRunnable("ModifyExtRunnable", aOperation), mDn(aDn), mMods(aMods) {}
   virtual ~ModifyExtRunnable() { freeMods(mMods); }
 
   nsCString mDn;
-  LDAPMod **mMods;
+  LDAPMod** mMods;
 
   NS_IMETHOD Run() override {
     int32_t msgID;
-    LDAP *ld = LDAPHandle();
+    LDAP* ld = LDAPHandle();
     int retVal =
         ldap_modify_ext(ld, PromiseFlatCString(mDn).get(), mMods, 0, 0, &msgID);
     if (retVal != LDAP_SUCCESS) {
@@ -850,7 +849,7 @@ class ModifyExtRunnable : public OpRunnable {
  *                 [array, size_is (aModCount)] in nsILDAPModification aMods);
  */
 NS_IMETHODIMP
-nsLDAPOperation::ModifyExt(const nsACString &aBaseDn, nsIArray *aMods) {
+nsLDAPOperation::ModifyExt(const nsACString& aBaseDn, nsIArray* aMods) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::ModifyExt(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
@@ -860,7 +859,7 @@ nsLDAPOperation::ModifyExt(const nsACString &aBaseDn, nsIArray *aMods) {
           ("nsLDAPOperation::ModifyExt(): called with aBaseDn = '%s'",
            PromiseFlatCString(aBaseDn).get()));
 
-  LDAPMod **rawMods;
+  LDAPMod** rawMods;
   nsresult rv = convertMods(aMods, &rawMods);
   NS_ENSURE_SUCCESS(rv, rv);
   if (rawMods) {
@@ -876,8 +875,8 @@ nsLDAPOperation::ModifyExt(const nsACString &aBaseDn, nsIArray *aMods) {
  */
 class RenameRunnable : public OpRunnable {
  public:
-  RenameRunnable(nsLDAPOperation *aOperation, const nsACString &aBaseDn,
-                 const nsACString &aNewRDn, const nsACString &aNewParent,
+  RenameRunnable(nsLDAPOperation* aOperation, const nsACString& aBaseDn,
+                 const nsACString& aNewRDn, const nsACString& aNewParent,
                  bool aDeleteOldRDn)
       : OpRunnable("RenameRunnable", aOperation),
         mBaseDn(aBaseDn),
@@ -921,8 +920,8 @@ class RenameRunnable : public OpRunnable {
  *             in AUTF8String aNewParent, in boolean aDeleteOldRDn);
  */
 NS_IMETHODIMP
-nsLDAPOperation::Rename(const nsACString &aBaseDn, const nsACString &aNewRDn,
-                        const nsACString &aNewParent, bool aDeleteOldRDn) {
+nsLDAPOperation::Rename(const nsACString& aBaseDn, const nsACString& aNewRDn,
+                        const nsACString& aNewParent, bool aDeleteOldRDn) {
   if (!mMessageListener) {
     NS_ERROR("nsLDAPOperation::Rename(): mMessageListener not set");
     return NS_ERROR_NOT_INITIALIZED;
@@ -941,13 +940,13 @@ nsLDAPOperation::Rename(const nsACString &aBaseDn, const nsACString &aNewRDn,
  * Convert nsILDAPBERValue array to null-terminated array of berval ptrs.
  * The returned array should be freed with freeValues().
  */
-static nsresult convertValues(nsIArray *values, berval ***aBValues) {
+static nsresult convertValues(nsIArray* values, berval*** aBValues) {
   uint32_t valuesCount;
   nsresult rv = values->GetLength(&valuesCount);
   NS_ENSURE_SUCCESS(rv, rv);
 
   *aBValues =
-      static_cast<berval **>(moz_xmalloc((valuesCount + 1) * sizeof(berval *)));
+      static_cast<berval**>(moz_xmalloc((valuesCount + 1) * sizeof(berval*)));
   if (!*aBValues) return NS_ERROR_OUT_OF_MEMORY;
 
   uint32_t valueIndex;
@@ -958,9 +957,9 @@ static nsresult convertValues(nsIArray *values, berval ***aBValues) {
     rv = value->Get(tmp);
     if (NS_FAILED(rv)) break;
 
-    berval *bval = new berval;
+    berval* bval = new berval;
     bval->bv_len = tmp.Length() * sizeof(uint8_t);
-    bval->bv_val = static_cast<char *>(moz_xmalloc(bval->bv_len));
+    bval->bv_val = static_cast<char*>(moz_xmalloc(bval->bv_len));
     if (!bval->bv_val) {
       rv = NS_ERROR_OUT_OF_MEMORY;
       break;
@@ -978,7 +977,7 @@ static nsresult convertValues(nsIArray *values, berval ***aBValues) {
   return NS_OK;
 }
 
-static void freeValues(berval **aVals) {
+static void freeValues(berval** aVals) {
   if (!aVals) {
     return;
   }
@@ -995,7 +994,7 @@ static void freeValues(berval **aVals) {
  * Will return null upon error.
  * The returned array should be freed with freeMods().
  */
-static nsresult convertMods(nsIArray *aMods, LDAPMod ***aOut) {
+static nsresult convertMods(nsIArray* aMods, LDAPMod*** aOut) {
   *aOut = nullptr;
 
   uint32_t modCount = 0;
@@ -1003,8 +1002,8 @@ static nsresult convertMods(nsIArray *aMods, LDAPMod ***aOut) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aMods && modCount) {
-    *aOut = static_cast<LDAPMod **>(
-        moz_xmalloc((modCount + 1) * sizeof(LDAPMod *)));
+    *aOut =
+        static_cast<LDAPMod**>(moz_xmalloc((modCount + 1) * sizeof(LDAPMod*)));
     if (!*aOut) {
       NS_ERROR("nsLDAPOperation::AddExt: out of memory ");
       return NS_ERROR_OUT_OF_MEMORY;
@@ -1013,7 +1012,7 @@ static nsresult convertMods(nsIArray *aMods, LDAPMod ***aOut) {
     nsAutoCString type;
     uint32_t index;
     for (index = 0; index < modCount && NS_SUCCEEDED(rv); ++index) {
-      LDAPMod *mod = new LDAPMod();
+      LDAPMod* mod = new LDAPMod();
 
       nsCOMPtr<nsILDAPModification> modif(do_QueryElementAt(aMods, index, &rv));
       if (NS_FAILED(rv)) break;
@@ -1052,13 +1051,13 @@ static nsresult convertMods(nsIArray *aMods, LDAPMod ***aOut) {
 /**
  * Free an LDAPMod array created by convertMods().
  */
-static void freeMods(LDAPMod **aMods) {
+static void freeMods(LDAPMod** aMods) {
   if (!aMods) {
     return;
   }
   int i;
   for (i = 0; aMods[i]; ++i) {
-    LDAPMod *mod = aMods[i];
+    LDAPMod* mod = aMods[i];
     free(mod->mod_type);
     freeValues(mod->mod_bvalues);
     delete mod;

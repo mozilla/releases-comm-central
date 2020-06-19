@@ -21,19 +21,18 @@
 #include "nsMimeStringResources.h"
 
 extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
-                               uint32_t quantum, char **buffer, int32_t *size) {
+                               uint32_t quantum, char** buffer, int32_t* size) {
   if ((uint32_t)*size <= desired_size) {
-    char *new_buf;
+    char* new_buf;
     uint32_t increment = desired_size - *size;
     if (increment < quantum) /* always grow by a minimum of N bytes */
       increment = quantum;
 
     new_buf =
-        (*buffer
-             ? (char *)PR_Realloc(
-                   *buffer, (*size + increment) * (element_size / sizeof(char)))
-             : (char *)PR_MALLOC((*size + increment) *
-                                 (element_size / sizeof(char))));
+        (*buffer ? (char*)PR_Realloc(*buffer, (*size + increment) *
+                                                  (element_size / sizeof(char)))
+                 : (char*)PR_MALLOC((*size + increment) *
+                                    (element_size / sizeof(char))));
     if (!new_buf) return MIME_OUT_OF_MEMORY;
     *buffer = new_buf;
     *size += increment;
@@ -47,13 +46,13 @@ extern "C" int mime_GrowBuffer(uint32_t desired_size, uint32_t element_size,
    Pass in a desired_buffer_size 0 to tell it to flush (for example, in
    in the very last call to this function.)
  */
-extern "C" int mime_ReBuffer(const char *net_buffer, int32_t net_buffer_size,
-                             uint32_t desired_buffer_size, char **bufferP,
-                             int32_t *buffer_sizeP, uint32_t *buffer_fpP,
-                             int32_t (*per_buffer_fn)(char *buffer,
+extern "C" int mime_ReBuffer(const char* net_buffer, int32_t net_buffer_size,
+                             uint32_t desired_buffer_size, char** bufferP,
+                             int32_t* buffer_sizeP, uint32_t* buffer_fpP,
+                             int32_t (*per_buffer_fn)(char* buffer,
                                                       uint32_t buffer_size,
-                                                      void *closure),
-                             void *closure) {
+                                                      void* closure),
+                             void* closure) {
   int status = 0;
 
   if (desired_buffer_size >= (uint32_t)(*buffer_sizeP)) {
@@ -83,12 +82,12 @@ extern "C" int mime_ReBuffer(const char *net_buffer, int32_t net_buffer_size,
 }
 
 static int convert_and_send_buffer(
-    char *buf, int length, bool convert_newlines_p,
-    int32_t (*per_line_fn)(char *line, uint32_t line_length, void *closure),
-    void *closure) {
+    char* buf, int length, bool convert_newlines_p,
+    int32_t (*per_line_fn)(char* line, uint32_t line_length, void* closure),
+    void* closure) {
   /* Convert the line terminator to the native form.
    */
-  char *newline;
+  char* newline;
 
 #if (MSG_LINEBREAK_LEN == 2)
   /*
@@ -134,10 +133,10 @@ static int convert_and_send_buffer(
 }
 
 extern "C" int mime_LineBuffer(
-    const char *net_buffer, int32_t net_buffer_size, char **bufferP,
-    int32_t *buffer_sizeP, uint32_t *buffer_fpP, bool convert_newlines_p,
-    int32_t (*per_line_fn)(char *line, uint32_t line_length, void *closure),
-    void *closure) {
+    const char* net_buffer, int32_t net_buffer_size, char** bufferP,
+    int32_t* buffer_sizeP, uint32_t* buffer_fpP, bool convert_newlines_p,
+    int32_t (*per_line_fn)(char* line, uint32_t line_length, void* closure),
+    void* closure) {
   int status = 0;
   if (*buffer_fpP > 0 && *bufferP && (*bufferP)[*buffer_fpP - 1] == '\r' &&
       net_buffer_size > 0 && net_buffer[0] != '\n') {
@@ -152,9 +151,9 @@ extern "C" int mime_LineBuffer(
     *buffer_fpP = 0;
   }
   while (net_buffer_size > 0) {
-    const char *net_buffer_end = net_buffer + net_buffer_size;
-    const char *newline = 0;
-    const char *s;
+    const char* net_buffer_end = net_buffer + net_buffer_size;
+    const char* newline = 0;
+    const char* s;
 
     for (s = net_buffer; s < net_buffer_end; s++) {
       /* Move forward in the buffer until the first newline.
@@ -183,7 +182,7 @@ extern "C" int mime_LineBuffer(
     /* Ensure room in the net_buffer and append some or all of the current
      chunk of data to it. */
     {
-      const char *end = (newline ? newline : net_buffer_end);
+      const char* end = (newline ? newline : net_buffer_end);
       uint32_t desired_size = (end - net_buffer) + (*buffer_fpP) + 1;
 
       if (desired_size >= (uint32_t)(*buffer_sizeP)) {

@@ -19,7 +19,7 @@ class nsImportABDescriptor : public nsIImportABDescriptor {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
-  NS_IMETHOD GetIdentifier(uint32_t *pIdentifier) override {
+  NS_IMETHOD GetIdentifier(uint32_t* pIdentifier) override {
     *pIdentifier = mId;
     return NS_OK;
   }
@@ -28,7 +28,7 @@ class nsImportABDescriptor : public nsIImportABDescriptor {
     return NS_OK;
   }
 
-  NS_IMETHOD GetRef(uint32_t *pRef) override {
+  NS_IMETHOD GetRef(uint32_t* pRef) override {
     *pRef = mRef;
     return NS_OK;
   }
@@ -38,7 +38,7 @@ class nsImportABDescriptor : public nsIImportABDescriptor {
   }
 
   /* attribute unsigned long size; */
-  NS_IMETHOD GetSize(uint32_t *pSize) override {
+  NS_IMETHOD GetSize(uint32_t* pSize) override {
     *pSize = mSize;
     return NS_OK;
   }
@@ -48,23 +48,23 @@ class nsImportABDescriptor : public nsIImportABDescriptor {
   }
 
   /* attribute AString displayName; */
-  NS_IMETHOD GetPreferredName(nsAString &aName) override {
+  NS_IMETHOD GetPreferredName(nsAString& aName) override {
     aName = mDisplayName;
     return NS_OK;
   }
-  NS_IMETHOD SetPreferredName(const nsAString &aName) override {
+  NS_IMETHOD SetPreferredName(const nsAString& aName) override {
     mDisplayName = aName;
     return NS_OK;
   }
 
   /* readonly attribute nsIFile fileSpec; */
-  NS_IMETHOD GetAbFile(nsIFile **aFile) override {
+  NS_IMETHOD GetAbFile(nsIFile** aFile) override {
     if (!mFile) return NS_ERROR_NULL_POINTER;
 
     return mFile->Clone(aFile);
   }
 
-  NS_IMETHOD SetAbFile(nsIFile *aFile) override {
+  NS_IMETHOD SetAbFile(nsIFile* aFile) override {
     if (!aFile) {
       mFile = nullptr;
       return NS_OK;
@@ -74,7 +74,7 @@ class nsImportABDescriptor : public nsIImportABDescriptor {
   }
 
   /* attribute boolean import; */
-  NS_IMETHOD GetImport(bool *pImport) override {
+  NS_IMETHOD GetImport(bool* pImport) override {
     *pImport = mImport;
     return NS_OK;
   }
@@ -85,7 +85,7 @@ class nsImportABDescriptor : public nsIImportABDescriptor {
 
   nsImportABDescriptor();
 
-  static nsresult Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
+  static nsresult Create(nsISupports* aOuter, REFNSIID aIID, void** aResult);
 
  private:
   virtual ~nsImportABDescriptor() {}

@@ -27,23 +27,23 @@ MailnewsLoadContextInfo::MailnewsLoadContextInfo(
 
 MailnewsLoadContextInfo::~MailnewsLoadContextInfo() {}
 
-NS_IMETHODIMP MailnewsLoadContextInfo::GetIsPrivate(bool *aIsPrivate) {
+NS_IMETHODIMP MailnewsLoadContextInfo::GetIsPrivate(bool* aIsPrivate) {
   *aIsPrivate = mIsPrivate;
   return NS_OK;
 }
 
-NS_IMETHODIMP MailnewsLoadContextInfo::GetIsAnonymous(bool *aIsAnonymous) {
+NS_IMETHODIMP MailnewsLoadContextInfo::GetIsAnonymous(bool* aIsAnonymous) {
   *aIsAnonymous = mIsAnonymous;
   return NS_OK;
 }
 
-mozilla::OriginAttributes const *
+mozilla::OriginAttributes const*
 MailnewsLoadContextInfo::OriginAttributesPtr() {
   return &mOriginAttributes;
 }
 
 NS_IMETHODIMP MailnewsLoadContextInfo::GetOriginAttributes(
-    JSContext *aCx, JS::MutableHandle<JS::Value> aVal) {
+    JSContext* aCx, JS::MutableHandle<JS::Value> aVal) {
   if (NS_WARN_IF(!ToJSValue(aCx, mOriginAttributes, aVal))) {
     return NS_ERROR_FAILURE;
   }

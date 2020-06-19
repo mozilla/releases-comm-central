@@ -45,19 +45,19 @@ using namespace mozilla::psm;
 static const char crypto_multipart_blurb[] =
     "This is a cryptographically signed message in MIME format.";
 
-static void mime_crypto_write_base64(void *closure, const char *buf,
+static void mime_crypto_write_base64(void* closure, const char* buf,
                                      unsigned long size);
-static nsresult mime_encoder_output_fn(const char *buf, int32_t size,
-                                       void *closure);
-static nsresult mime_nested_encoder_output_fn(const char *buf, int32_t size,
-                                              void *closure);
+static nsresult mime_encoder_output_fn(const char* buf, int32_t size,
+                                       void* closure);
+static nsresult mime_nested_encoder_output_fn(const char* buf, int32_t size,
+                                              void* closure);
 static nsresult make_multipart_signed_header_string(bool outer_p,
-                                                    char **header_return,
-                                                    char **boundary_return,
+                                                    char** header_return,
+                                                    char** boundary_return,
                                                     int16_t hash_type);
-static char *mime_make_separator(const char *prefix);
+static char* mime_make_separator(const char* prefix);
 
-static void GenerateGlobalRandomBytes(unsigned char *buf, int32_t len) {
+static void GenerateGlobalRandomBytes(unsigned char* buf, int32_t len) {
   static bool firstTime = true;
 
   if (firstTime) {
@@ -70,7 +70,7 @@ static void GenerateGlobalRandomBytes(unsigned char *buf, int32_t len) {
   for (int32_t i = 0; i < len; i++) buf[i] = rand() % 10;
 }
 
-char *mime_make_separator(const char *prefix) {
+char* mime_make_separator(const char* prefix) {
   unsigned char rand_buf[13];
   GenerateGlobalRandomBytes(rand_buf, 12);
 
@@ -121,7 +121,7 @@ NS_IMETHODIMP nsMsgComposeSecure::SetSignMessage(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgComposeSecure::GetSignMessage(bool *_retval) {
+NS_IMETHODIMP nsMsgComposeSecure::GetSignMessage(bool* _retval) {
   *_retval = mSignMessage;
   return NS_OK;
 }
@@ -131,14 +131,14 @@ NS_IMETHODIMP nsMsgComposeSecure::SetRequireEncryptMessage(bool value) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgComposeSecure::GetRequireEncryptMessage(bool *_retval) {
+NS_IMETHODIMP nsMsgComposeSecure::GetRequireEncryptMessage(bool* _retval) {
   *_retval = mAlwaysEncryptMessage;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgComposeSecure::RequiresCryptoEncapsulation(
-    nsIMsgIdentity *aIdentity, nsIMsgCompFields *aCompFields,
-    bool *aRequiresEncryptionWork) {
+    nsIMsgIdentity* aIdentity, nsIMsgCompFields* aCompFields,
+    bool* aRequiresEncryptionWork) {
   NS_ENSURE_ARG_POINTER(aRequiresEncryptionWork);
 
   *aRequiresEncryptionWork = false;
@@ -154,8 +154,8 @@ NS_IMETHODIMP nsMsgComposeSecure::RequiresCryptoEncapsulation(
   return NS_OK;
 }
 
-nsresult nsMsgComposeSecure::GetSMIMEBundleString(const char16_t *name,
-                                                  nsString &outString) {
+nsresult nsMsgComposeSecure::GetSMIMEBundleString(const char16_t* name,
+                                                  nsString& outString) {
   outString.Truncate();
 
   NS_ENSURE_ARG_POINTER(name);
@@ -167,7 +167,7 @@ nsresult nsMsgComposeSecure::GetSMIMEBundleString(const char16_t *name,
 }
 
 nsresult nsMsgComposeSecure::SMIMEBundleFormatStringFromName(
-    const char *name, nsTArray<nsString> &params, nsAString &outString) {
+    const char* name, nsTArray<nsString>& params, nsAString& outString) {
   NS_ENSURE_ARG_POINTER(name);
 
   if (!InitializeSMIMEBundle()) return NS_ERROR_FAILURE;
@@ -187,8 +187,8 @@ bool nsMsgComposeSecure::InitializeSMIMEBundle() {
   return true;
 }
 
-void nsMsgComposeSecure::SetError(nsIMsgSendReport *sendReport,
-                                  const char16_t *bundle_string) {
+void nsMsgComposeSecure::SetError(nsIMsgSendReport* sendReport,
+                                  const char16_t* bundle_string) {
   if (!sendReport || !bundle_string) return;
 
   if (mErrorAlreadyReported) return;
@@ -203,9 +203,9 @@ void nsMsgComposeSecure::SetError(nsIMsgSendReport *sendReport,
   }
 }
 
-void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport,
-                                           const char *bundle_string,
-                                           const char *param) {
+void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport* sendReport,
+                                           const char* bundle_string,
+                                           const char* param) {
   if (!sendReport || !bundle_string || !param) return;
 
   if (mErrorAlreadyReported) return;
@@ -225,8 +225,8 @@ void nsMsgComposeSecure::SetErrorWithParam(nsIMsgSendReport *sendReport,
 }
 
 nsresult nsMsgComposeSecure::ExtractEncryptionState(
-    nsIMsgIdentity *aIdentity, nsIMsgCompFields *aComposeFields,
-    bool *aSignMessage, bool *aEncrypt) {
+    nsIMsgIdentity* aIdentity, nsIMsgCompFields* aComposeFields,
+    bool* aSignMessage, bool* aEncrypt) {
   if (!aComposeFields && !aIdentity)
     return NS_ERROR_FAILURE;  // kick out...invalid args....
 
@@ -241,10 +241,10 @@ nsresult nsMsgComposeSecure::ExtractEncryptionState(
 
 // Select a hash algorithm to sign message
 // based on subject public key type and size.
-static nsresult GetSigningHashFunction(nsIX509Cert *aSigningCert,
-                                       int16_t *hashType) {
+static nsresult GetSigningHashFunction(nsIX509Cert* aSigningCert,
+                                       int16_t* hashType) {
   // Get the signing certificate
-  CERTCertificate *scert = nullptr;
+  CERTCertificate* scert = nullptr;
   if (aSigningCert) {
     scert = aSigningCert->GetCert();
   }
@@ -322,9 +322,9 @@ static nsresult GetSigningHashFunction(nsIX509Cert *aSigningCert,
 /* void beginCryptoEncapsulation (in nsOutputFileStream aStream, in boolean
  * aEncrypt, in boolean aSign, in string aRecipeints, in boolean aIsDraft); */
 NS_IMETHODIMP nsMsgComposeSecure::BeginCryptoEncapsulation(
-    nsIOutputStream *aStream, const char *aRecipients,
-    nsIMsgCompFields *aCompFields, nsIMsgIdentity *aIdentity,
-    nsIMsgSendReport *sendReport, bool aIsDraft) {
+    nsIOutputStream* aStream, const char* aRecipients,
+    nsIMsgCompFields* aCompFields, nsIMsgIdentity* aIdentity,
+    nsIMsgSendReport* sendReport, bool aIsDraft) {
   mErrorAlreadyReported = false;
   nsresult rv = NS_OK;
 
@@ -394,7 +394,7 @@ FAIL:
 
 /* void finishCryptoEncapsulation (in boolean aAbort); */
 NS_IMETHODIMP nsMsgComposeSecure::FinishCryptoEncapsulation(
-    bool aAbort, nsIMsgSendReport *sendReport) {
+    bool aAbort, nsIMsgSendReport* sendReport) {
   nsresult rv = NS_OK;
 
   if (!aAbort) {
@@ -422,11 +422,11 @@ NS_IMETHODIMP nsMsgComposeSecure::FinishCryptoEncapsulation(
 }
 
 nsresult nsMsgComposeSecure::MimeInitMultipartSigned(
-    bool aOuter, nsIMsgSendReport *sendReport) {
+    bool aOuter, nsIMsgSendReport* sendReport) {
   /* First, construct and write out the multipart/signed MIME header data.
    */
   nsresult rv = NS_OK;
-  char *header = 0;
+  char* header = 0;
   uint32_t L;
 
   rv = make_multipart_signed_header_string(
@@ -468,7 +468,7 @@ nsresult nsMsgComposeSecure::MimeInitMultipartSigned(
 }
 
 nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
-                                                nsIMsgSendReport *sendReport) {
+                                                nsIMsgSendReport* sendReport) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleSvc =
       mozilla::services::GetStringBundleService();
@@ -496,7 +496,7 @@ nsresult nsMsgComposeSecure::MimeInitEncryption(bool aSign,
   /* First, construct and write out the opaque-crypto-blob MIME header data.
    */
 
-  char *s = PR_smprintf("Content-Type: " APPLICATION_PKCS7_MIME
+  char* s = PR_smprintf("Content-Type: " APPLICATION_PKCS7_MIME
                         "; name=\"smime.p7m\"; smime-type=enveloped-data" CRLF
                         "Content-Transfer-Encoding: " ENCODING_BASE64 CRLF
                         "Content-Disposition: attachment"
@@ -570,7 +570,7 @@ FAIL:
 }
 
 nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
-    bool aOuter, nsIMsgSendReport *sendReport) {
+    bool aOuter, nsIMsgSendReport* sendReport) {
   nsresult rv;
   nsCOMPtr<nsICMSMessage> cinfo =
       do_CreateInstance(NS_CMSMESSAGE_CONTRACTID, &rv);
@@ -580,7 +580,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
       do_CreateInstance(NS_CMSENCODER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  char *header = nullptr;
+  char* header = nullptr;
   nsCOMPtr<nsIStringBundleService> bundleSvc =
       mozilla::services::GetStringBundleService();
   NS_ENSURE_TRUE(bundleSvc, NS_ERROR_UNEXPECTED);
@@ -686,7 +686,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
    */
   {
     uint32_t L;
-    char *header = PR_smprintf(CRLF "--%s--" CRLF, mMultipartSignedBoundary);
+    char* header = PR_smprintf(CRLF "--%s--" CRLF, mMultipartSignedBoundary);
     PR_Free(mMultipartSignedBoundary);
     mMultipartSignedBoundary = 0;
 
@@ -714,7 +714,7 @@ nsresult nsMsgComposeSecure::MimeFinishMultipartSigned(
    an opaque crypto object (for encrypted or signed-and-encrypted messages.)
  */
 nsresult nsMsgComposeSecure::MimeFinishEncryption(
-    bool aSign, nsIMsgSendReport *sendReport) {
+    bool aSign, nsIMsgSendReport* sendReport) {
   nsresult rv;
 
   /* If this object is both encrypted and signed, close off the
@@ -769,10 +769,10 @@ FAIL:
 
 /* Used to figure out what certs should be used when encrypting this message.
  */
-nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
-                                                 nsIMsgSendReport *sendReport,
+nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
+                                                 nsIMsgSendReport* sendReport,
                                                  bool aEncrypt, bool aSign,
-                                                 nsIMsgIdentity *aIdentity) {
+                                                 nsIMsgIdentity* aIdentity) {
   nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
   nsresult res;
 
@@ -793,7 +793,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   // Calling CERT_GetCertNicknames has the desired side effect of
   // traversing all tokens, and bringing up prompts to unlock them.
   nsCOMPtr<nsIInterfaceRequestor> ctx = new PipUIContext();
-  CERTCertNicknames *result_unused = CERT_GetCertNicknames(
+  CERTCertNicknames* result_unused = CERT_GetCertNicknames(
       CERT_GetDefaultCertDB(), SEC_CERT_NICKNAMES_USER, ctx);
   CERT_FreeNicknames(result_unused);
 
@@ -903,7 +903,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char *aRecipients,
   return res;
 }
 
-NS_IMETHODIMP nsMsgComposeSecure::MimeCryptoWriteBlock(const char *buf,
+NS_IMETHODIMP nsMsgComposeSecure::MimeCryptoWriteBlock(const char* buf,
                                                        int32_t size) {
   int status = 0;
   nsresult rv;
@@ -929,7 +929,7 @@ NS_IMETHODIMP nsMsgComposeSecure::MimeCryptoWriteBlock(const char *buf,
    the computation of the hash. */
   if (mDataHash) {
     PR_SetError(0, 0);
-    mDataHash->Update((const uint8_t *)buf, size);
+    mDataHash->Update((const uint8_t*)buf, size);
     status = PR_GetError();
     if (status < 0) goto FAIL;
   }
@@ -940,7 +940,7 @@ NS_IMETHODIMP nsMsgComposeSecure::MimeCryptoWriteBlock(const char *buf,
        by filtering it through the crypto library. */
 
     /* We want to create equally sized encryption strings */
-    const char *inputBytesIterator = buf;
+    const char* inputBytesIterator = buf;
     uint32_t inputBytesLeft = size;
 
     while (inputBytesLeft) {
@@ -988,10 +988,10 @@ FAIL:
    the caller knows what to write to close it off.)
  */
 static nsresult make_multipart_signed_header_string(bool outer_p,
-                                                    char **header_return,
-                                                    char **boundary_return,
+                                                    char** header_return,
+                                                    char** boundary_return,
                                                     int16_t hash_type) {
-  const char *hashStr;
+  const char* hashStr;
   *header_return = 0;
   *boundary_return = mime_make_separator("ms");
 
@@ -1044,9 +1044,9 @@ static nsresult make_multipart_signed_header_string(bool outer_p,
    it's used to write the encoded representation of the signature.  The only
    difference is which MimeEncoder object is used.
  */
-static void mime_crypto_write_base64(void *closure, const char *buf,
+static void mime_crypto_write_base64(void* closure, const char* buf,
                                      unsigned long size) {
-  MimeEncoder *encoder = (MimeEncoder *)closure;
+  MimeEncoder* encoder = (MimeEncoder*)closure;
   nsresult rv = encoder->Write(buf, size);
   PR_SetError(NS_FAILED(rv) ? static_cast<uint32_t>(rv) : 0, 0);
 }
@@ -1056,12 +1056,12 @@ static void mime_crypto_write_base64(void *closure, const char *buf,
    base64-encoded representation of the signature to the file.
  */
 // TODO: size should probably be converted to uint32_t
-nsresult mime_encoder_output_fn(const char *buf, int32_t size, void *closure) {
-  nsMsgComposeSecure *state = (nsMsgComposeSecure *)closure;
+nsresult mime_encoder_output_fn(const char* buf, int32_t size, void* closure) {
+  nsMsgComposeSecure* state = (nsMsgComposeSecure*)closure;
   nsCOMPtr<nsIOutputStream> stream;
   state->GetOutputStream(getter_AddRefs(stream));
   uint32_t n;
-  nsresult rv = stream->Write((char *)buf, size, &n);
+  nsresult rv = stream->Write((char*)buf, size, &n);
   if (NS_FAILED(rv) || n < (uint32_t)size)
     return NS_ERROR_FAILURE;
   else
@@ -1073,9 +1073,9 @@ nsresult mime_encoder_output_fn(const char *buf, int32_t size, void *closure) {
    signature should be fed into the crypto engine, rather than being written
    directly to the file.
  */
-static nsresult mime_nested_encoder_output_fn(const char *buf, int32_t size,
-                                              void *closure) {
-  nsMsgComposeSecure *state = (nsMsgComposeSecure *)closure;
+static nsresult mime_nested_encoder_output_fn(const char* buf, int32_t size,
+                                              void* closure) {
+  nsMsgComposeSecure* state = (nsMsgComposeSecure*)closure;
 
   // Copy to new null-terminated string so JS glue doesn't crash when
   // MimeCryptoWriteBlock() is implemented in JS.
@@ -1085,9 +1085,9 @@ static nsresult mime_nested_encoder_output_fn(const char *buf, int32_t size,
 }
 
 NS_IMETHODIMP
-nsMsgComposeSecure::FindCertByEmailAddress(const nsACString &aEmailAddress,
+nsMsgComposeSecure::FindCertByEmailAddress(const nsACString& aEmailAddress,
                                            bool aRequireValidCert,
-                                           nsIX509Cert **_retval) {
+                                           nsIX509Cert** _retval) {
   nsresult rv = BlockUntilLoadableCertsLoaded();
   if (NS_FAILED(rv)) {
     return rv;
@@ -1096,7 +1096,7 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString &aEmailAddress,
   RefPtr<SharedCertVerifier> certVerifier(GetDefaultCertVerifier());
   NS_ENSURE_TRUE(certVerifier, NS_ERROR_UNEXPECTED);
 
-  const nsCString &flatEmailAddress = PromiseFlatCString(aEmailAddress);
+  const nsCString& flatEmailAddress = PromiseFlatCString(aEmailAddress);
   UniqueCERTCertList certlist(
       PK11_FindCertsFromEmailAddress(flatEmailAddress.get(), nullptr));
   if (!certlist) return NS_ERROR_FAILURE;
@@ -1107,7 +1107,7 @@ nsMsgComposeSecure::FindCertByEmailAddress(const nsACString &aEmailAddress,
   if (CERT_LIST_END(CERT_LIST_HEAD(certlist), certlist))
     return NS_ERROR_FAILURE;  // no certs found
 
-  CERTCertListNode *node;
+  CERTCertListNode* node;
   // search for a valid certificate
   for (node = CERT_LIST_HEAD(certlist); !CERT_LIST_END(node, certlist);
        node = CERT_LIST_NEXT(node)) {

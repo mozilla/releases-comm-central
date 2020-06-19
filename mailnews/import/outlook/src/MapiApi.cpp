@@ -17,7 +17,7 @@
 
 int CMapiApi::m_clients = 0;
 BOOL CMapiApi::m_initialized = false;
-nsTArray<CMsgStore *> *CMapiApi::m_pStores = NULL;
+nsTArray<CMsgStore*>* CMapiApi::m_pStores = NULL;
 LPMAPISESSION CMapiApi::m_lpSession = NULL;
 LPMDB CMapiApi::m_lpMdb = NULL;
 HRESULT CMapiApi::m_lastError;
@@ -41,8 +41,8 @@ LPOPENSTREAMONFILE gpMapiOpenStreamOnFile = NULL;
 
 typedef HRESULT(STDMETHODCALLTYPE WRAPCOMPRESSEDRTFSTREAM)(
     LPSTREAM lpCompressedRTFStream, ULONG ulFlags,
-    LPSTREAM FAR *lpUncompressedRTFStream);
-typedef WRAPCOMPRESSEDRTFSTREAM *LPWRAPCOMPRESSEDRTFSTREAM;
+    LPSTREAM FAR* lpUncompressedRTFStream);
+typedef WRAPCOMPRESSEDRTFSTREAM* LPWRAPCOMPRESSEDRTFSTREAM;
 LPWRAPCOMPRESSEDRTFSTREAM gpWrapCompressedRTFStream = NULL;
 
 // WrapCompressedRTFStreamEx related stuff - see
@@ -59,9 +59,9 @@ typedef struct {
 } RTF_WCSRETINFO;
 
 typedef HRESULT(STDMETHODCALLTYPE WRAPCOMPRESSEDRTFSTREAMEX)(
-    LPSTREAM lpCompressedRTFStream, CONST RTF_WCSINFO *pWCSInfo,
-    LPSTREAM *lppUncompressedRTFStream, RTF_WCSRETINFO *pRetInfo);
-typedef WRAPCOMPRESSEDRTFSTREAMEX *LPWRAPCOMPRESSEDRTFSTREAMEX;
+    LPSTREAM lpCompressedRTFStream, CONST RTF_WCSINFO* pWCSInfo,
+    LPSTREAM* lppUncompressedRTFStream, RTF_WCSRETINFO* pRetInfo);
+typedef WRAPCOMPRESSEDRTFSTREAMEX* LPWRAPCOMPRESSEDRTFSTREAMEX;
 LPWRAPCOMPRESSEDRTFSTREAMEX gpWrapCompressedRTFStreamEx = NULL;
 
 BOOL CMapiApi::LoadMapiEntryPoints(void) {
@@ -98,8 +98,8 @@ BOOL CMapiApi::LoadMapiEntryPoints(void) {
 
 // Gets the PR_RTF_COMPRESSED tag property
 // Codepage is used only if the WrapCompressedRTFStreamEx is available
-BOOL CMapiApi::GetRTFPropertyDecodedAsUTF16(LPMAPIPROP pProp, nsString &val,
-                                            unsigned long &nativeBodyType,
+BOOL CMapiApi::GetRTFPropertyDecodedAsUTF16(LPMAPIPROP pProp, nsString& val,
+                                            unsigned long& nativeBodyType,
                                             unsigned long codepage) {
   if (!m_hMapi32 || !(gpWrapCompressedRTFStreamEx || gpWrapCompressedRTFStream))
     return FALSE;  // Fallback to the default processing
@@ -108,7 +108,7 @@ BOOL CMapiApi::GetRTFPropertyDecodedAsUTF16(LPMAPIPROP pProp, nsString &val,
   LPSTREAM iunstream = 0;  // for the uncompressed stream
   HRESULT hr =
       pProp->OpenProperty(PR_RTF_COMPRESSED, &IID_IStream,
-                          STGM_READ | STGM_DIRECT, 0, (LPUNKNOWN *)&icstream);
+                          STGM_READ | STGM_DIRECT, 0, (LPUNKNOWN*)&icstream);
   if (HR_FAILED(hr)) return FALSE;
 
   if (gpWrapCompressedRTFStreamEx) {  // Impossible - we use mapi32.dll!
@@ -176,7 +176,7 @@ HRESULT CMapiApi::MAPIInitialize(LPVOID lpInit) {
                                          : MAPI_E_NOT_INITIALIZED;
 }
 
-SCODE CMapiApi::MAPIAllocateBuffer(ULONG cbSize, LPVOID FAR *lppBuffer) {
+SCODE CMapiApi::MAPIAllocateBuffer(ULONG cbSize, LPVOID FAR* lppBuffer) {
   return (m_hMapi32 && gpMapiAllocateBuffer)
              ? (*gpMapiAllocateBuffer)(cbSize, lppBuffer)
              : MAPI_E_NOT_INITIALIZED;
@@ -189,7 +189,7 @@ ULONG CMapiApi::MAPIFreeBuffer(LPVOID lpBuff) {
 
 HRESULT CMapiApi::MAPILogonEx(ULONG ulUIParam, LPTSTR lpszProfileName,
                               LPTSTR lpszPassword, FLAGS flFlags,
-                              LPMAPISESSION FAR *lppSession) {
+                              LPMAPISESSION FAR* lppSession) {
   return (m_hMapi32 && gpMapiLogonEx)
              ? (*gpMapiLogonEx)(ulUIParam, lpszProfileName, lpszPassword,
                                 flFlags, lppSession)
@@ -199,7 +199,7 @@ HRESULT CMapiApi::MAPILogonEx(ULONG ulUIParam, LPTSTR lpszProfileName,
 HRESULT CMapiApi::OpenStreamOnFile(LPALLOCATEBUFFER lpAllocateBuffer,
                                    LPFREEBUFFER lpFreeBuffer, ULONG ulFlags,
                                    LPCTSTR lpszFileName, LPTSTR lpszPrefix,
-                                   LPSTREAM FAR *lppStream) {
+                                   LPSTREAM FAR* lppStream) {
   return (m_hMapi32 && gpMapiOpenStreamOnFile)
              ? (*gpMapiOpenStreamOnFile)(lpAllocateBuffer, lpFreeBuffer,
                                          ulFlags, lpszFileName, lpszPrefix,
@@ -239,7 +239,7 @@ void CMapiApi::UnloadMapi(void) {
 CMapiApi::CMapiApi() {
   m_clients++;
   LoadMapi();
-  if (!m_pStores) m_pStores = new nsTArray<CMsgStore *>();
+  if (!m_pStores) m_pStores = new nsTArray<CMsgStore*>();
 }
 
 CMapiApi::~CMapiApi() {
@@ -271,7 +271,7 @@ CMapiApi::~CMapiApi() {
   }
 }
 
-void CMapiApi::CStrToUnicode(const char *pStr, nsString &result) {
+void CMapiApi::CStrToUnicode(const char* pStr, nsString& result) {
   NS_CopyNativeToUnicode(nsDependentCString(pStr), result);
 }
 
@@ -325,22 +325,22 @@ BOOL CMapiApi::LogOn(void) {
 
 class CGetStoreFoldersIter : public CMapiHierarchyIter {
  public:
-  CGetStoreFoldersIter(CMapiApi *pApi, CMapiFolderList &folders, int depth,
+  CGetStoreFoldersIter(CMapiApi* pApi, CMapiFolderList& folders, int depth,
                        BOOL isMail = TRUE);
 
   virtual BOOL HandleHierarchyItem(ULONG oType, ULONG cb, LPENTRYID pEntry);
 
  protected:
-  BOOL ExcludeFolderClass(const char16_t *pName);
+  BOOL ExcludeFolderClass(const char16_t* pName);
 
   BOOL m_isMail;
-  CMapiApi *m_pApi;
-  CMapiFolderList *m_pList;
+  CMapiApi* m_pApi;
+  CMapiFolderList* m_pList;
   int m_depth;
 };
 
-CGetStoreFoldersIter::CGetStoreFoldersIter(CMapiApi *pApi,
-                                           CMapiFolderList &folders, int depth,
+CGetStoreFoldersIter::CGetStoreFoldersIter(CMapiApi* pApi,
+                                           CMapiFolderList& folders, int depth,
                                            BOOL isMail) {
   m_pApi = pApi;
   m_pList = &folders;
@@ -348,7 +348,7 @@ CGetStoreFoldersIter::CGetStoreFoldersIter(CMapiApi *pApi,
   m_isMail = isMail;
 }
 
-BOOL CGetStoreFoldersIter::ExcludeFolderClass(const char16_t *pName) {
+BOOL CGetStoreFoldersIter::ExcludeFolderClass(const char16_t* pName) {
   BOOL bResult;
   nsDependentString pNameStr(pName);
   if (m_isMail) {
@@ -380,7 +380,7 @@ BOOL CGetStoreFoldersIter::HandleHierarchyItem(ULONG oType, ULONG cb,
                                                LPENTRYID pEntry) {
   if (oType == MAPI_FOLDER) {
     LPMAPIFOLDER pFolder;
-    if (m_pApi->OpenEntry(cb, pEntry, (LPUNKNOWN *)&pFolder)) {
+    if (m_pApi->OpenEntry(cb, pEntry, (LPUNKNOWN*)&pFolder)) {
       LPSPropValue pVal;
       nsString name;
 
@@ -393,7 +393,7 @@ BOOL CGetStoreFoldersIter::HandleHierarchyItem(ULONG oType, ULONG cb,
       if ((name.IsEmpty() && m_isMail) || (!ExcludeFolderClass(name.get()))) {
         pVal = m_pApi->GetMapiProperty(pFolder, PR_DISPLAY_NAME);
         m_pApi->GetStringFromProp(pVal, name);
-        CMapiFolder *pNewFolder =
+        CMapiFolder* pNewFolder =
             new CMapiFolder(name.get(), cb, pEntry, m_depth);
         m_pList->AddItem(pNewFolder);
 
@@ -420,7 +420,7 @@ BOOL CGetStoreFoldersIter::HandleHierarchyItem(ULONG oType, ULONG cb,
 }
 
 BOOL CMapiApi::GetStoreFolders(ULONG cbEid, LPENTRYID lpEid,
-                               CMapiFolderList &folders, int startDepth) {
+                               CMapiFolderList& folders, int startDepth) {
   // Fill in the array with the folders in the given store
   if (!m_initialized || !m_lpSession) {
     MAPI_TRACE0("MAPI not initialized for GetStoreFolders\n");
@@ -429,7 +429,7 @@ BOOL CMapiApi::GetStoreFolders(ULONG cbEid, LPENTRYID lpEid,
 
   m_lpMdb = NULL;
 
-  CMsgStore *pStore = FindMessageStore(cbEid, lpEid);
+  CMsgStore* pStore = FindMessageStore(cbEid, lpEid);
   BOOL bResult = FALSE;
   LPSPropValue pVal;
 
@@ -443,7 +443,7 @@ BOOL CMapiApi::GetStoreFolders(ULONG cbEid, LPENTRYID lpEid,
 
       if (GetEntryIdFromProp(pVal, cbEntry, pEntry)) {
         // Open up the folder!
-        bResult = OpenEntry(cbEntry, pEntry, (LPUNKNOWN *)&lpSubTree);
+        bResult = OpenEntry(cbEntry, pEntry, (LPUNKNOWN*)&lpSubTree);
         MAPIFreeBuffer(pEntry);
         if (bResult && lpSubTree) {
           // Iterate the subtree with the results going into the folder list
@@ -469,7 +469,7 @@ BOOL CMapiApi::GetStoreFolders(ULONG cbEid, LPENTRYID lpEid,
 }
 
 BOOL CMapiApi::GetStoreAddressFolders(ULONG cbEid, LPENTRYID lpEid,
-                                      CMapiFolderList &folders) {
+                                      CMapiFolderList& folders) {
   // Fill in the array with the folders in the given store
   if (!m_initialized || !m_lpSession) {
     MAPI_TRACE0("MAPI not initialized for GetStoreAddressFolders\n");
@@ -478,7 +478,7 @@ BOOL CMapiApi::GetStoreAddressFolders(ULONG cbEid, LPENTRYID lpEid,
 
   m_lpMdb = NULL;
 
-  CMsgStore *pStore = FindMessageStore(cbEid, lpEid);
+  CMsgStore* pStore = FindMessageStore(cbEid, lpEid);
   BOOL bResult = FALSE;
   LPSPropValue pVal;
 
@@ -492,7 +492,7 @@ BOOL CMapiApi::GetStoreAddressFolders(ULONG cbEid, LPENTRYID lpEid,
 
       if (GetEntryIdFromProp(pVal, cbEntry, pEntry)) {
         // Open up the folder!
-        bResult = OpenEntry(cbEntry, pEntry, (LPUNKNOWN *)&lpSubTree);
+        bResult = OpenEntry(cbEntry, pEntry, (LPUNKNOWN*)&lpSubTree);
         MAPIFreeBuffer(pEntry);
         if (bResult && lpSubTree) {
           // Iterate the subtree with the results going into the folder list
@@ -516,18 +516,18 @@ BOOL CMapiApi::GetStoreAddressFolders(ULONG cbEid, LPENTRYID lpEid,
   return bResult;
 }
 
-BOOL CMapiApi::OpenStore(ULONG cbEid, LPENTRYID lpEid, LPMDB *ppMdb) {
+BOOL CMapiApi::OpenStore(ULONG cbEid, LPENTRYID lpEid, LPMDB* ppMdb) {
   if (!m_lpSession) {
     MAPI_TRACE0("OpenStore called before a session was opened\n");
     return FALSE;
   }
 
-  CMsgStore *pStore = FindMessageStore(cbEid, lpEid);
+  CMsgStore* pStore = FindMessageStore(cbEid, lpEid);
   if (pStore && pStore->Open(m_lpSession, ppMdb)) return TRUE;
   return FALSE;
 }
 
-BOOL CMapiApi::OpenEntry(ULONG cbEntry, LPENTRYID pEntryId, LPUNKNOWN *ppOpen) {
+BOOL CMapiApi::OpenEntry(ULONG cbEntry, LPENTRYID pEntryId, LPUNKNOWN* ppOpen) {
   if (!m_lpMdb) {
     MAPI_TRACE0("OpenEntry called before the message store is open\n");
     return FALSE;
@@ -537,11 +537,11 @@ BOOL CMapiApi::OpenEntry(ULONG cbEntry, LPENTRYID pEntryId, LPUNKNOWN *ppOpen) {
 }
 
 BOOL CMapiApi::OpenMdbEntry(LPMDB lpMdb, ULONG cbEntry, LPENTRYID pEntryId,
-                            LPUNKNOWN *ppOpen) {
+                            LPUNKNOWN* ppOpen) {
   ULONG ulObjType;
   HRESULT hr;
   hr = m_lpSession->OpenEntry(cbEntry, pEntryId, NULL, 0, &ulObjType,
-                              (LPUNKNOWN *)ppOpen);
+                              (LPUNKNOWN*)ppOpen);
   if (FAILED(hr)) {
     MAPI_TRACE2("OpenMdbEntry failed: 0x%lx, %d\n", (long)hr, (int)hr);
     return FALSE;
@@ -557,7 +557,7 @@ static const SizedSPropTagArray(ieidMax, ptaEid) = {ieidMax,
                                                         PR_OBJECT_TYPE,
                                                     }};
 
-BOOL CMapiApi::IterateContents(CMapiContentIter *pIter, LPMAPIFOLDER pFolder,
+BOOL CMapiApi::IterateContents(CMapiContentIter* pIter, LPMAPIFOLDER pFolder,
                                ULONG flags) {
   // flags can be 0 or MAPI_ASSOCIATED
   // MAPI_ASSOCIATED is usually used for forms and views
@@ -625,7 +625,7 @@ BOOL CMapiApi::IterateContents(CMapiContentIter *pIter, LPMAPIFOLDER pFolder,
 BOOL CMapiApi::HandleContentsItem(ULONG oType, ULONG cb, LPENTRYID pEntry) {
   if (oType == MAPI_MESSAGE) {
     LPMESSAGE pMsg;
-    if (OpenEntry(cb, pEntry, (LPUNKNOWN *)&pMsg)) {
+    if (OpenEntry(cb, pEntry, (LPUNKNOWN*)&pMsg)) {
       LPSPropValue pVal;
       pVal = GetMapiProperty(pMsg, PR_SUBJECT);
       ReportStringProp("PR_SUBJECT:", pVal);
@@ -656,7 +656,7 @@ void CMapiApi::ListProperties(LPMAPIPROP lpProp, BOOL getValues) {
     return;
   }
   ULONG count = 0;
-  LPMAPINAMEID FAR *lppPropNames;
+  LPMAPINAMEID FAR* lppPropNames;
   SPropTagArray tagArray;
   LPSPropTagArray lpTagArray = &tagArray;
   tagArray.cValues = (ULONG)1;
@@ -709,7 +709,7 @@ ULONG CMapiApi::GetEmailPropertyTag(LPMAPIPROP lpProp, LONG nameID) {
 BOOL CMapiApi::HandleHierarchyItem(ULONG oType, ULONG cb, LPENTRYID pEntry) {
   if (oType == MAPI_FOLDER) {
     LPMAPIFOLDER pFolder;
-    if (OpenEntry(cb, pEntry, (LPUNKNOWN *)&pFolder)) {
+    if (OpenEntry(cb, pEntry, (LPUNKNOWN*)&pFolder)) {
       LPSPropValue pVal;
       pVal = GetMapiProperty(pFolder, PR_DISPLAY_NAME);
       ReportStringProp("Folder name:", pVal);
@@ -725,7 +725,7 @@ BOOL CMapiApi::HandleHierarchyItem(ULONG oType, ULONG cb, LPENTRYID pEntry) {
   return TRUE;
 }
 
-BOOL CMapiApi::IterateHierarchy(CMapiHierarchyIter *pIter, LPMAPIFOLDER pFolder,
+BOOL CMapiApi::IterateHierarchy(CMapiHierarchyIter* pIter, LPMAPIFOLDER pFolder,
                                 ULONG flags) {
   // flags can be CONVENIENT_DEPTH or 0
   // CONVENIENT_DEPTH will return all depths I believe instead
@@ -813,7 +813,7 @@ static const SizedSPropTagArray(itblMax, ptaTbl) = {itblMax,
                                                         PR_ENTRYID,
                                                     }};
 
-BOOL CMapiApi::IterateStores(CMapiFolderList &stores) {
+BOOL CMapiApi::IterateStores(CMapiFolderList& stores) {
   stores.ClearAll();
 
   if (!m_lpSession) {
@@ -916,8 +916,8 @@ BOOL CMapiApi::IterateStores(CMapiFolderList &stores) {
         // which is the desired behaviour.
 
         int strLen = strlen(lpStr);
-        char16_t *pwszStr =
-            (char16_t *)moz_xmalloc((strLen + 1) * sizeof(WCHAR));
+        char16_t* pwszStr =
+            (char16_t*)moz_xmalloc((strLen + 1) * sizeof(WCHAR));
         if (!pwszStr) {
           // out of memory
           FreeProws(lpRow);
@@ -925,9 +925,9 @@ BOOL CMapiApi::IterateStores(CMapiFolderList &stores) {
           return FALSE;
         }
         ::MultiByteToWideChar(CP_ACP, 0, lpStr, strlen(lpStr) + 1,
-                              reinterpret_cast<wchar_t *>(pwszStr),
+                              reinterpret_cast<wchar_t*>(pwszStr),
                               (strLen + 1) * sizeof(WCHAR));
-        CMapiFolder *pFolder =
+        CMapiFolder* pFolder =
             new CMapiFolder(pwszStr, cbEID, lpEID, 0, MAPI_STORE);
         free(pwszStr);
 
@@ -953,7 +953,7 @@ BOOL CMapiApi::IterateStores(CMapiFolderList &stores) {
   return bResult;
 }
 
-void CMapiApi::GetStoreInfo(CMapiFolder *pFolder, long *pSzContents) {
+void CMapiApi::GetStoreInfo(CMapiFolder* pFolder, long* pSzContents) {
   HRESULT hr;
   LPMDB lpMdb;
 
@@ -1010,7 +1010,7 @@ void CMapiApi::GetStoreInfo(CMapiFolder *pFolder, long *pSzContents) {
       // Open up the folder!
       ULONG ulObjType;
       hr = lpMdb->OpenEntry(cbEntry, pEntry, NULL, 0, &ulObjType,
-                            (LPUNKNOWN *)&lpSubTree);
+                            (LPUNKNOWN*)&lpSubTree);
       MAPIFreeBuffer(pEntry);
       if (SUCCEEDED(hr) && lpSubTree) {
         // Find out if there are any contents in the
@@ -1035,7 +1035,7 @@ void CMapiApi::GetStoreInfo(CMapiFolder *pFolder, long *pSzContents) {
 
 void CMapiApi::ClearMessageStores(void) {
   if (m_pStores) {
-    CMsgStore *pStore;
+    CMsgStore* pStore;
     for (size_t i = 0; i < m_pStores->Length(); i++) {
       pStore = m_pStores->ElementAt(i);
       delete pStore;
@@ -1044,11 +1044,11 @@ void CMapiApi::ClearMessageStores(void) {
   }
 }
 
-void CMapiApi::AddMessageStore(CMsgStore *pStore) {
+void CMapiApi::AddMessageStore(CMsgStore* pStore) {
   if (m_pStores) m_pStores->AppendElement(pStore);
 }
 
-CMsgStore *CMapiApi::FindMessageStore(ULONG cbEid, LPENTRYID lpEid) {
+CMsgStore* CMapiApi::FindMessageStore(ULONG cbEid, LPENTRYID lpEid) {
   if (!m_lpSession) {
     MAPI_TRACE0("FindMessageStore called before session is open\n");
     m_lastError = E_UNEXPECTED;
@@ -1057,7 +1057,7 @@ CMsgStore *CMapiApi::FindMessageStore(ULONG cbEid, LPENTRYID lpEid) {
 
   ULONG result;
   HRESULT hr;
-  CMsgStore *pStore;
+  CMsgStore* pStore;
   for (size_t i = 0; i < m_pStores->Length(); i++) {
     pStore = m_pStores->ElementAt(i);
     hr = m_lpSession->CompareEntryIDs(cbEid, lpEid, pStore->GetCBEntryID(),
@@ -1085,7 +1085,7 @@ LPSPropValue CMapiApi::GetMapiProperty(LPMAPIPROP pProp, ULONG tag) {
   if (!pProp) return NULL;
 
   int sz = CbNewSPropTagArray(1);
-  SPropTagArray *pTag = (SPropTagArray *)new char[sz];
+  SPropTagArray* pTag = (SPropTagArray*)new char[sz];
   pTag->cValues = 1;
   pTag->aulPropTag[0] = tag;
   LPSPropValue lpProp = NULL;
@@ -1113,10 +1113,10 @@ BOOL CMapiApi::IsLargeProperty(LPSPropValue pVal) {
 }
 
 // The output buffer (result) must be freed with operator delete[]
-BOOL CMapiApi::GetLargeProperty(LPMAPIPROP pProp, ULONG tag, void **result) {
+BOOL CMapiApi::GetLargeProperty(LPMAPIPROP pProp, ULONG tag, void** result) {
   LPSTREAM lpStream;
   HRESULT hr =
-      pProp->OpenProperty(tag, &IID_IStream, 0, 0, (LPUNKNOWN *)&lpStream);
+      pProp->OpenProperty(tag, &IID_IStream, 0, 0, (LPUNKNOWN*)&lpStream);
   if (HR_FAILED(hr)) return FALSE;
   STATSTG st;
   BOOL bResult = TRUE;
@@ -1125,7 +1125,7 @@ BOOL CMapiApi::GetLargeProperty(LPMAPIPROP pProp, ULONG tag, void **result) {
     bResult = FALSE;
   else {
     if (!st.cbSize.QuadPart) st.cbSize.QuadPart = 1;
-    char *pVal = new char[(int)st.cbSize.QuadPart + 2];
+    char* pVal = new char[(int)st.cbSize.QuadPart + 2];
     if (pVal) {
       ULONG sz;
       hr = lpStream->Read(pVal, (ULONG)st.cbSize.QuadPart, &sz);
@@ -1147,43 +1147,43 @@ BOOL CMapiApi::GetLargeProperty(LPMAPIPROP pProp, ULONG tag, void **result) {
 }
 
 BOOL CMapiApi::GetLargeStringProperty(LPMAPIPROP pProp, ULONG tag,
-                                      nsCString &val) {
-  void *result;
+                                      nsCString& val) {
+  void* result;
   if (!GetLargeProperty(pProp, tag, &result)) return FALSE;
   if (PROP_TYPE(tag) == PT_UNICODE)  // unicode string
-    LossyCopyUTF16toASCII(nsDependentString(static_cast<wchar_t *>(result)),
+    LossyCopyUTF16toASCII(nsDependentString(static_cast<wchar_t*>(result)),
                           val);
   else  // either PT_STRING8 or some other binary - use as is
-    val.Assign(static_cast<char *>(result));
+    val.Assign(static_cast<char*>(result));
   // Despite being used as wchar_t*, result it allocated as "new char[]" in
   // GetLargeProperty().
-  delete[] static_cast<char *>(result);
+  delete[] static_cast<char*>(result);
   return TRUE;
 }
 
 BOOL CMapiApi::GetLargeStringProperty(LPMAPIPROP pProp, ULONG tag,
-                                      nsString &val) {
-  void *result;
+                                      nsString& val) {
+  void* result;
   if (!GetLargeProperty(pProp, tag, &result)) return FALSE;
   if (PROP_TYPE(tag) == PT_UNICODE)  // We already get the unicode string
-    val.Assign(static_cast<wchar_t *>(result));
+    val.Assign(static_cast<wchar_t*>(result));
   else  // either PT_STRING8 or some other binary
-    CStrToUnicode(static_cast<char *>(result), val);
+    CStrToUnicode(static_cast<char*>(result), val);
   // Despite being used as wchar_t*, result it allocated as "new char[]" in
   // GetLargeProperty().
-  delete[] static_cast<char *>(result);
+  delete[] static_cast<char*>(result);
   return TRUE;
 }
 // If the value is a string, get it...
-BOOL CMapiApi::GetEntryIdFromProp(LPSPropValue pVal, ULONG &cbEntryId,
-                                  LPENTRYID &lpEntryId, BOOL delVal) {
+BOOL CMapiApi::GetEntryIdFromProp(LPSPropValue pVal, ULONG& cbEntryId,
+                                  LPENTRYID& lpEntryId, BOOL delVal) {
   if (!pVal) return FALSE;
 
   BOOL bResult = TRUE;
   switch (PROP_TYPE(pVal->ulPropTag)) {
     case PT_BINARY:
       cbEntryId = pVal->Value.bin.cb;
-      MAPIAllocateBuffer(cbEntryId, (LPVOID *)&lpEntryId);
+      MAPIAllocateBuffer(cbEntryId, (LPVOID*)&lpEntryId);
       memcpy(lpEntryId, pVal->Value.bin.lpb, cbEntryId);
       break;
 
@@ -1198,7 +1198,7 @@ BOOL CMapiApi::GetEntryIdFromProp(LPSPropValue pVal, ULONG &cbEntryId,
   return bResult;
 }
 
-BOOL CMapiApi::GetStringFromProp(LPSPropValue pVal, nsCString &val,
+BOOL CMapiApi::GetStringFromProp(LPSPropValue pVal, nsCString& val,
                                  BOOL delVal) {
   BOOL bResult = TRUE;
   if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_STRING8))
@@ -1227,13 +1227,13 @@ BOOL CMapiApi::GetStringFromProp(LPSPropValue pVal, nsCString &val,
   return bResult;
 }
 
-BOOL CMapiApi::GetStringFromProp(LPSPropValue pVal, nsString &val,
+BOOL CMapiApi::GetStringFromProp(LPSPropValue pVal, nsString& val,
                                  BOOL delVal) {
   BOOL bResult = TRUE;
   if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_STRING8)) {
-    CStrToUnicode((const char *)pVal->Value.lpszA, val);
+    CStrToUnicode((const char*)pVal->Value.lpszA, val);
   } else if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_UNICODE)) {
-    val = (char16_t *)pVal->Value.lpszW;
+    val = (char16_t*)pVal->Value.lpszW;
   } else if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_NULL)) {
     val.Truncate();
   } else if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_ERROR)) {
@@ -1273,7 +1273,7 @@ LONG CMapiApi::GetLongFromProp(LPSPropValue pVal, BOOL delVal) {
   return val;
 }
 
-void CMapiApi::ReportUIDProp(const char *pTag, LPSPropValue pVal) {
+void CMapiApi::ReportUIDProp(const char* pTag, LPSPropValue pVal) {
   if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_BINARY)) {
     if (pVal->Value.bin.cb != 16) {
       MAPI_TRACE1("%s - INVALID, expecting 16 bytes of binary data for UID\n",
@@ -1281,9 +1281,9 @@ void CMapiApi::ReportUIDProp(const char *pTag, LPSPropValue pVal) {
     } else {
       nsIID uid;
       memcpy(&uid, pVal->Value.bin.lpb, 16);
-      char *pStr = uid.ToString();
+      char* pStr = uid.ToString();
       if (pStr) {
-        MAPI_TRACE2("%s %s\n", pTag, (const char *)pStr);
+        MAPI_TRACE2("%s %s\n", pTag, (const char*)pStr);
         free(pStr);
       }
     }
@@ -1297,7 +1297,7 @@ void CMapiApi::ReportUIDProp(const char *pTag, LPSPropValue pVal) {
   if (pVal) MAPIFreeBuffer(pVal);
 }
 
-void CMapiApi::ReportLongProp(const char *pTag, LPSPropValue pVal) {
+void CMapiApi::ReportLongProp(const char* pTag, LPSPropValue pVal) {
   if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_LONG)) {
     nsCString num;
     nsCString num2;
@@ -1315,7 +1315,7 @@ void CMapiApi::ReportLongProp(const char *pTag, LPSPropValue pVal) {
   if (pVal) MAPIFreeBuffer(pVal);
 }
 
-void CMapiApi::ReportStringProp(const char *pTag, LPSPropValue pVal) {
+void CMapiApi::ReportStringProp(const char* pTag, LPSPropValue pVal) {
   if (pVal && (PROP_TYPE(pVal->ulPropTag) == PT_TSTRING)) {
     nsCString val((LPCTSTR)(pVal->Value.LPSZ));
     MAPI_TRACE2("%s %s\n", pTag, val.get());
@@ -1329,7 +1329,7 @@ void CMapiApi::ReportStringProp(const char *pTag, LPSPropValue pVal) {
   if (pVal) MAPIFreeBuffer(pVal);
 }
 
-void CMapiApi::GetPropTagName(ULONG tag, nsCString &s) {
+void CMapiApi::GetPropTagName(ULONG tag, nsCString& s) {
   char numStr[256];
   PR_snprintf(numStr, 256, "0x%lx, %ld", tag, tag);
   s = numStr;
@@ -1430,7 +1430,7 @@ void CMapiApi::GetPropTagName(ULONG tag, nsCString &s) {
   }
 }
 
-void CMapiApi::ListPropertyValue(LPSPropValue pVal, nsCString &s) {
+void CMapiApi::ListPropertyValue(LPSPropValue pVal, nsCString& s) {
   nsCString strVal;
   char nBuff[64];
 
@@ -1480,13 +1480,13 @@ CMapiFolderList::CMapiFolderList() {}
 
 CMapiFolderList::~CMapiFolderList() { ClearAll(); }
 
-void CMapiFolderList::AddItem(CMapiFolder *pFolder) {
+void CMapiFolderList::AddItem(CMapiFolder* pFolder) {
   EnsureUniqueName(pFolder);
   GenerateFilePath(pFolder);
   m_array.AppendElement(pFolder);
 }
 
-void CMapiFolderList::ChangeName(nsString &name) {
+void CMapiFolderList::ChangeName(nsString& name) {
   if (name.IsEmpty()) {
     name.Assign('1');
     return;
@@ -1506,10 +1506,10 @@ void CMapiFolderList::ChangeName(nsString &name) {
   }
 }
 
-void CMapiFolderList::EnsureUniqueName(CMapiFolder *pFolder) {
+void CMapiFolderList::EnsureUniqueName(CMapiFolder* pFolder) {
   // For everybody in the array before me with the SAME
   // depth, my name must be unique
-  CMapiFolder *pCurrent;
+  CMapiFolder* pCurrent;
   int i;
   BOOL done;
   nsString name;
@@ -1536,7 +1536,7 @@ void CMapiFolderList::EnsureUniqueName(CMapiFolder *pFolder) {
   } while (!done);
 }
 
-void CMapiFolderList::GenerateFilePath(CMapiFolder *pFolder) {
+void CMapiFolderList::GenerateFilePath(CMapiFolder* pFolder) {
   // A file path, includes all of my parent's path, plus mine
   nsString name;
   nsString path;
@@ -1546,7 +1546,7 @@ void CMapiFolderList::GenerateFilePath(CMapiFolder *pFolder) {
     return;
   }
 
-  CMapiFolder *pCurrent;
+  CMapiFolder* pCurrent;
   int i = m_array.Length() - 1;
   while (i >= 0) {
     pCurrent = GetAt(i);
@@ -1565,7 +1565,7 @@ void CMapiFolderList::GenerateFilePath(CMapiFolder *pFolder) {
 }
 
 void CMapiFolderList::ClearAll(void) {
-  CMapiFolder *pFolder;
+  CMapiFolder* pFolder;
   for (size_t i = 0; i < m_array.Length(); i++) {
     pFolder = GetAt(i);
     delete pFolder;
@@ -1574,7 +1574,7 @@ void CMapiFolderList::ClearAll(void) {
 }
 
 void CMapiFolderList::DumpList(void) {
-  CMapiFolder *pFolder;
+  CMapiFolder* pFolder;
   nsString str;
   int depth;
   char prefix[256];
@@ -1589,7 +1589,7 @@ void CMapiFolderList::DumpList(void) {
     memset(prefix, ' ', depth);
     prefix[depth] = 0;
 #ifdef MAPI_DEBUG
-    char *ansiStr = ToNewCString(str);
+    char* ansiStr = ToNewCString(str);
     MAPI_TRACE2("%s%s: ", prefix, ansiStr);
     free(ansiStr);
 #endif
@@ -1611,7 +1611,7 @@ CMapiFolder::CMapiFolder() {
   m_doImport = TRUE;
 }
 
-CMapiFolder::CMapiFolder(const char16_t *pDisplayName, ULONG cbEid,
+CMapiFolder::CMapiFolder(const char16_t* pDisplayName, ULONG cbEid,
                          LPENTRYID lpEid, int depth, LONG oType) {
   m_cbEid = 0;
   m_lpEid = NULL;
@@ -1622,7 +1622,7 @@ CMapiFolder::CMapiFolder(const char16_t *pDisplayName, ULONG cbEid,
   SetDoImport(TRUE);
 }
 
-CMapiFolder::CMapiFolder(const CMapiFolder *pCopyFrom) {
+CMapiFolder::CMapiFolder(const CMapiFolder* pCopyFrom) {
   m_lpEid = NULL;
   m_cbEid = 0;
   SetDoImport(pCopyFrom->GetDoImport());
@@ -1686,7 +1686,7 @@ void CMsgStore::SetEntryID(ULONG cbEid, LPENTRYID lpEid) {
   }
 }
 
-BOOL CMsgStore::Open(LPMAPISESSION pSession, LPMDB *ppMdb) {
+BOOL CMsgStore::Open(LPMAPISESSION pSession, LPMDB* ppMdb) {
   if (m_lpMdb) {
     if (ppMdb) *ppMdb = m_lpMdb;
     return TRUE;
@@ -1737,7 +1737,7 @@ BOOL CMapiFolderContents::SetUpIter(void) {
   ULONG ulObjType;
   HRESULT hr;
   hr = m_lpMdb->OpenEntry(m_fCbEid, (LPENTRYID)m_fLpEid, NULL, 0, &ulObjType,
-                          (LPUNKNOWN *)&m_lpFolder);
+                          (LPUNKNOWN*)&m_lpFolder);
 
   if (FAILED(hr) || !m_lpFolder) {
     m_lpFolder = NULL;
@@ -1788,8 +1788,8 @@ BOOL CMapiFolderContents::SetUpIter(void) {
   return TRUE;
 }
 
-BOOL CMapiFolderContents::GetNext(ULONG *pcbEid, LPENTRYID *ppEid,
-                                  ULONG *poType, BOOL *pDone) {
+BOOL CMapiFolderContents::GetNext(ULONG* pcbEid, LPENTRYID* ppEid,
+                                  ULONG* poType, BOOL* pDone) {
   *pDone = FALSE;
   if (m_failure) return FALSE;
   if (!m_lpFolder) {

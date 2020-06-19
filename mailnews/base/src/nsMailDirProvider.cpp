@@ -23,7 +23,7 @@
 #define NEWS_DIR_50_NAME "News"
 #define MSG_FOLDER_CACHE_DIR_50_NAME "panacea.dat"
 
-nsresult nsMailDirProvider::EnsureDirectory(nsIFile *aDirectory) {
+nsresult nsMailDirProvider::EnsureDirectory(nsIFile* aDirectory) {
   bool exists;
   nsresult rv = aDirectory->Exists(&exists);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -37,12 +37,12 @@ NS_IMPL_ISUPPORTS(nsMailDirProvider, nsIDirectoryServiceProvider,
                   nsIDirectoryServiceProvider2)
 
 NS_IMETHODIMP
-nsMailDirProvider::GetFile(const char *aKey, bool *aPersist,
-                           nsIFile **aResult) {
+nsMailDirProvider::GetFile(const char* aKey, bool* aPersist,
+                           nsIFile** aResult) {
   // NOTE: This function can be reentrant through the NS_GetSpecialDirectory
   // call, so be careful not to cause infinite recursion.
   // i.e. the check for supported files must come first.
-  const char *leafName = nullptr;
+  const char* leafName = nullptr;
   bool isDirectory = true;
 
   if (!strcmp(aKey, NS_APP_MAIL_50_DIR))
@@ -81,7 +81,7 @@ nsMailDirProvider::GetFile(const char *aKey, bool *aPersist,
 }
 
 NS_IMETHODIMP
-nsMailDirProvider::GetFiles(const char *aKey, nsISimpleEnumerator **aResult) {
+nsMailDirProvider::GetFiles(const char* aKey, nsISimpleEnumerator** aResult) {
   if (strcmp(aKey, ISP_DIRECTORY_LIST) != 0) return NS_ERROR_FAILURE;
 
   // The list of isp directories includes the isp directory
@@ -108,13 +108,13 @@ nsMailDirProvider::GetFiles(const char *aKey, nsISimpleEnumerator **aResult) {
 }
 
 NS_IMETHODIMP
-nsMailDirProvider::AppendingEnumerator::HasMoreElements(bool *aResult) {
+nsMailDirProvider::AppendingEnumerator::HasMoreElements(bool* aResult) {
   *aResult = mNext || mNextWithLocale ? true : false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMailDirProvider::AppendingEnumerator::GetNext(nsISupports **aResult) {
+nsMailDirProvider::AppendingEnumerator::GetNext(nsISupports** aResult) {
   // Set the return value to the next directory we want to enumerate over
   if (aResult) NS_ADDREF(*aResult = mNext);
 
@@ -153,7 +153,7 @@ nsMailDirProvider::AppendingEnumerator::GetNext(nsISupports **aResult) {
 }
 
 nsMailDirProvider::AppendingEnumerator::AppendingEnumerator(
-    nsISimpleEnumerator *aBase)
+    nsISimpleEnumerator* aBase)
     : mBase(aBase) {
   // Initialize mNext to begin
   GetNext(nullptr);

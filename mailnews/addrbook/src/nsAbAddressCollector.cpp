@@ -39,8 +39,8 @@ nsAbAddressCollector::~nsAbAddressCollector() {
  * returns an already addrefed pointer to the card if the card is found.
  */
 already_AddRefed<nsIAbCard> nsAbAddressCollector::GetCardForAddress(
-    const char *aProperty, const nsACString &aEmailAddress,
-    nsIAbDirectory **aDirectory) {
+    const char* aProperty, const nsACString& aEmailAddress,
+    nsIAbDirectory** aDirectory) {
   nsresult rv;
   nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, nullptr);
@@ -76,7 +76,7 @@ already_AddRefed<nsIAbCard> nsAbAddressCollector::GetCardForAddress(
 }
 
 NS_IMETHODIMP
-nsAbAddressCollector::CollectAddress(const nsACString &aAddresses,
+nsAbAddressCollector::CollectAddress(const nsACString& aAddresses,
                                      bool aCreateCard, uint32_t aSendFormat) {
   // If we've not got a valid directory, no point in going any further
   if (!mDirectory) return NS_OK;
@@ -102,8 +102,8 @@ nsAbAddressCollector::CollectAddress(const nsACString &aAddresses,
 }
 
 NS_IMETHODIMP
-nsAbAddressCollector::CollectSingleAddress(const nsACString &aEmail,
-                                           const nsACString &aDisplayName,
+nsAbAddressCollector::CollectSingleAddress(const nsACString& aEmail,
+                                           const nsACString& aDisplayName,
                                            bool aCreateCard,
                                            uint32_t aSendFormat,
                                            bool aSkipCheckExisting) {
@@ -178,14 +178,14 @@ nsAbAddressCollector::CollectSingleAddress(const nsACString &aEmail,
 }
 
 // Works out the screen name to put on the card for some well-known addresses
-void nsAbAddressCollector::AutoCollectScreenName(nsIAbCard *aCard,
-                                                 const nsACString &aEmail) {
+void nsAbAddressCollector::AutoCollectScreenName(nsIAbCard* aCard,
+                                                 const nsACString& aEmail) {
   if (!aCard) return;
 
   int32_t atPos = aEmail.FindChar('@');
   if (atPos == -1) return;
 
-  const nsACString &domain = Substring(aEmail, atPos + 1);
+  const nsACString& domain = Substring(aEmail, atPos + 1);
 
   if (domain.IsEmpty()) return;
   // username in
@@ -204,8 +204,8 @@ void nsAbAddressCollector::AutoCollectScreenName(nsIAbCard *aCard,
 }
 
 // Returns true if the card was modified successfully.
-bool nsAbAddressCollector::SetNamesForCard(nsIAbCard *aSenderCard,
-                                           const nsACString &aFullName) {
+bool nsAbAddressCollector::SetNamesForCard(nsIAbCard* aSenderCard,
+                                           const nsACString& aFullName) {
   nsCString firstName;
   nsCString lastName;
   bool modifiedCard = false;
@@ -231,9 +231,9 @@ bool nsAbAddressCollector::SetNamesForCard(nsIAbCard *aSenderCard,
 }
 
 // Splits the first and last name based on the space between them.
-void nsAbAddressCollector::SplitFullName(const nsCString &aFullName,
-                                         nsCString &aFirstName,
-                                         nsCString &aLastName) {
+void nsAbAddressCollector::SplitFullName(const nsCString& aFullName,
+                                         nsCString& aFirstName,
+                                         nsCString& aLastName) {
   int index = aFullName.RFindChar(' ');
   if (index != -1) {
     aLastName = Substring(aFullName, index + 1);
@@ -243,8 +243,8 @@ void nsAbAddressCollector::SplitFullName(const nsCString &aFullName,
 
 // Observes the collected address book pref in case it changes.
 NS_IMETHODIMP
-nsAbAddressCollector::Observe(nsISupports *aSubject, const char *aTopic,
-                              const char16_t *aData) {
+nsAbAddressCollector::Observe(nsISupports* aSubject, const char* aTopic,
+                              const char16_t* aData) {
   nsCOMPtr<nsIPrefBranch> prefBranch = do_QueryInterface(aSubject);
   if (!prefBranch) {
     NS_ASSERTION(prefBranch, "failed to get prefs");
@@ -271,7 +271,7 @@ nsresult nsAbAddressCollector::Init(void) {
 
 // Performs the necessary changes to set up the collector for the specified
 // collected address book.
-void nsAbAddressCollector::SetUpAbFromPrefs(nsIPrefBranch *aPrefBranch) {
+void nsAbAddressCollector::SetUpAbFromPrefs(nsIPrefBranch* aPrefBranch) {
   nsCString abURI;
   aPrefBranch->GetCharPref(PREF_MAIL_COLLECT_ADDRESSBOOK, abURI);
 

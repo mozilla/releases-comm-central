@@ -28,8 +28,8 @@ class NS_MSG_BASE nsMsgReadStateTxn : public nsMsgTxn {
   nsMsgReadStateTxn();
   virtual ~nsMsgReadStateTxn();
 
-  nsresult Init(nsIMsgFolder *aParentFolder, uint32_t aNumKeys,
-                nsMsgKey *aMsgKeyArray);
+  nsresult Init(nsIMsgFolder* aParentFolder, uint32_t aNumKeys,
+                nsMsgKey* aMsgKeyArray);
   NS_IMETHOD UndoTransaction() override;
   NS_IMETHOD RedoTransaction() override;
 

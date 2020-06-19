@@ -14,7 +14,7 @@
 //
 // External Defines...
 //
-extern nsresult nsMsgCreateTempFile(const char *tFileName, nsIFile **tFile);
+extern nsresult nsMsgCreateTempFile(const char* tFileName, nsIFile** tFile);
 
 /* See mimepbuf.h for a description of the mission of this file.
 
@@ -48,7 +48,7 @@ extern nsresult nsMsgCreateTempFile(const char *tFileName, nsIFile **tFile);
 #define DISK_BUFFER_SIZE (1024 * 10)            /* read disk in 10k chunks */
 
 struct MimePartBufferData {
-  char *part_buffer;        /* Buffer used for part-lookahead. */
+  char* part_buffer;        /* Buffer used for part-lookahead. */
   int32_t part_buffer_fp;   /* Active length. */
   int32_t part_buffer_size; /* How big it is. */
 
@@ -60,11 +60,11 @@ struct MimePartBufferData {
       : part_buffer(nullptr), part_buffer_fp(0), part_buffer_size(0) {}
 };
 
-MimePartBufferData *MimePartBufferCreate(void) {
+MimePartBufferData* MimePartBufferCreate(void) {
   return new MimePartBufferData();
 }
 
-void MimePartBufferClose(MimePartBufferData *data) {
+void MimePartBufferClose(MimePartBufferData* data) {
   NS_ASSERTION(data, "MimePartBufferClose: no data");
   if (!data) return;
 
@@ -79,7 +79,7 @@ void MimePartBufferClose(MimePartBufferData *data) {
   }
 }
 
-void MimePartBufferReset(MimePartBufferData *data) {
+void MimePartBufferReset(MimePartBufferData* data) {
   NS_ASSERTION(data, "MimePartBufferReset: no data");
   if (!data) return;
 
@@ -102,14 +102,14 @@ void MimePartBufferReset(MimePartBufferData *data) {
   }
 }
 
-void MimePartBufferDestroy(MimePartBufferData *data) {
+void MimePartBufferDestroy(MimePartBufferData* data) {
   NS_ASSERTION(data, "MimePartBufferDestroy: no data");
   if (!data) return;
   MimePartBufferReset(data);
   delete data;
 }
 
-int MimePartBufferWrite(MimePartBufferData *data, const char *buf,
+int MimePartBufferWrite(MimePartBufferData* data, const char* buf,
                         int32_t size) {
   NS_ASSERTION(data && buf && size > 0, "MimePartBufferWrite: Bad param");
   if (!data || !buf || size <= 0) return -1;
@@ -120,7 +120,7 @@ int MimePartBufferWrite(MimePartBufferData *data, const char *buf,
   if (!data->part_buffer && !data->file_buffer) {
     int target_size = TARGET_MEMORY_BUFFER_SIZE;
     while (target_size > 0) {
-      data->part_buffer = (char *)PR_MALLOC(target_size);
+      data->part_buffer = (char*)PR_MALLOC(target_size);
       if (data->part_buffer) break;                 // got it!
       target_size -= TARGET_MEMORY_BUFFER_QUANTUM;  // decrease it and try again
     }
@@ -198,8 +198,8 @@ int MimePartBufferWrite(MimePartBufferData *data, const char *buf,
   return 0;
 }
 
-int MimePartBufferRead(MimePartBufferData *data,
-                       MimeConverterOutputCallback read_fn, void *closure) {
+int MimePartBufferRead(MimePartBufferData* data,
+                       MimeConverterOutputCallback read_fn, void* closure) {
   int status = 0;
   NS_ASSERTION(data, "no data");
   if (!data) return -1;
@@ -210,7 +210,7 @@ int MimePartBufferRead(MimePartBufferData *data,
   } else if (data->file_buffer) {
     /* Read it off disk.
      */
-    char *buf;
+    char* buf;
     int32_t buf_size = DISK_BUFFER_SIZE;
 
     NS_ASSERTION(data->part_buffer_size == 0 && data->part_buffer_fp == 0,
@@ -218,7 +218,7 @@ int MimePartBufferRead(MimePartBufferData *data,
     NS_ASSERTION(data->file_buffer, "no file buffer name");
     if (!data->file_buffer) return -1;
 
-    buf = (char *)PR_MALLOC(buf_size);
+    buf = (char*)PR_MALLOC(buf_size);
     if (!buf) return MIME_OUT_OF_MEMORY;
 
     // First, close the output file to open the input file!

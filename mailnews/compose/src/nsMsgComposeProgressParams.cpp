@@ -14,20 +14,20 @@ nsMsgComposeProgressParams::nsMsgComposeProgressParams()
 nsMsgComposeProgressParams::~nsMsgComposeProgressParams() {}
 
 /* attribute wstring subject; */
-NS_IMETHODIMP nsMsgComposeProgressParams::GetSubject(char16_t **aSubject) {
+NS_IMETHODIMP nsMsgComposeProgressParams::GetSubject(char16_t** aSubject) {
   NS_ENSURE_ARG(aSubject);
 
   *aSubject = ToNewUnicode(m_subject);
   return NS_OK;
 }
-NS_IMETHODIMP nsMsgComposeProgressParams::SetSubject(const char16_t *aSubject) {
+NS_IMETHODIMP nsMsgComposeProgressParams::SetSubject(const char16_t* aSubject) {
   m_subject = aSubject;
   return NS_OK;
 }
 
 /* attribute MSG_DeliverMode deliveryMode; */
 NS_IMETHODIMP nsMsgComposeProgressParams::GetDeliveryMode(
-    MSG_DeliverMode *aDeliveryMode) {
+    MSG_DeliverMode* aDeliveryMode) {
   NS_ENSURE_ARG(aDeliveryMode);
 
   *aDeliveryMode = m_deliveryMode;

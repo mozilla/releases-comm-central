@@ -12,20 +12,20 @@
 class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation {
  public:
   /** Instance Methods **/
-  nsMsgOfflineImapOperation(nsMsgDatabase *db, nsIMdbRow *row);
+  nsMsgOfflineImapOperation(nsMsgDatabase* db, nsIMdbRow* row);
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGOFFLINEIMAPOPERATION
 
-  nsIMdbRow *GetMDBRow() { return m_mdbRow; }
+  nsIMdbRow* GetMDBRow() { return m_mdbRow; }
   nsresult GetCopiesFromDB();
   nsresult SetCopiesToDB();
   void Log();
 
  protected:
   virtual ~nsMsgOfflineImapOperation();
-  nsresult AddKeyword(const char *aKeyword, nsCString &addList,
-                      const char *addProp, nsCString &removeList,
-                      const char *removeProp);
+  nsresult AddKeyword(const char* aKeyword, nsCString& addList,
+                      const char* addProp, nsCString& removeList,
+                      const char* removeProp);
 
   nsOfflineImapOperationType m_operation;
   nsMsgKey m_messageKey;
@@ -45,7 +45,7 @@ class nsMsgOfflineImapOperation : public nsIMsgOfflineImapOperation {
   // nsMsgOfflineImapOperation will have to know what db and row they belong to,
   // since they are really just a wrapper around the offline operation row in
   // the mdb. though I hope not.
-  nsMsgDatabase *m_mdb;
+  nsMsgDatabase* m_mdb;
   nsCOMPtr<nsIMdbRow> m_mdbRow;
 };
 

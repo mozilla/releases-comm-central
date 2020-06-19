@@ -52,8 +52,8 @@ NS_IMPL_ADDREF(nsMsgFilterList)
 NS_IMPL_RELEASE(nsMsgFilterList)
 NS_IMPL_QUERY_INTERFACE(nsMsgFilterList, nsIMsgFilterList)
 
-NS_IMETHODIMP nsMsgFilterList::CreateFilter(const nsAString &name,
-                                            class nsIMsgFilter **aFilter) {
+NS_IMETHODIMP nsMsgFilterList::CreateFilter(const nsAString& name,
+                                            class nsIMsgFilter** aFilter) {
   NS_ENSURE_ARG_POINTER(aFilter);
 
   NS_ADDREF(*aFilter = new nsMsgFilter);
@@ -66,24 +66,24 @@ NS_IMETHODIMP nsMsgFilterList::CreateFilter(const nsAString &name,
 
 NS_IMPL_GETSET(nsMsgFilterList, LoggingEnabled, bool, m_loggingEnabled)
 
-NS_IMETHODIMP nsMsgFilterList::GetListId(nsACString &aListId) {
+NS_IMETHODIMP nsMsgFilterList::GetListId(nsACString& aListId) {
   aListId.Assign(m_listId);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilterList::GetFolder(nsIMsgFolder **aFolder) {
+NS_IMETHODIMP nsMsgFilterList::GetFolder(nsIMsgFolder** aFolder) {
   NS_ENSURE_ARG_POINTER(aFolder);
 
   NS_IF_ADDREF(*aFolder = m_folder);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilterList::SetFolder(nsIMsgFolder *aFolder) {
+NS_IMETHODIMP nsMsgFilterList::SetFolder(nsIMsgFolder* aFolder) {
   m_folder = aFolder;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilterList::SaveToFile(nsIOutputStream *stream) {
+NS_IMETHODIMP nsMsgFilterList::SaveToFile(nsIOutputStream* stream) {
   if (!stream) return NS_ERROR_NULL_POINTER;
   return SaveTextFilters(stream);
 }
@@ -95,7 +95,7 @@ NS_IMETHODIMP nsMsgFilterList::SaveToFile(nsIOutputStream *stream) {
   "New\",Courier,monospace;font-size:small}</style>\n</head>\n<body>\n"
 #define LOG_HEADER_LEN (strlen(LOG_HEADER))
 
-nsresult nsMsgFilterList::EnsureLogFile(nsIFile *file) {
+nsresult nsMsgFilterList::EnsureLogFile(nsIFile* file) {
   bool exists;
   nsresult rv = file->Exists(&exists);
   if (NS_SUCCEEDED(rv) && !exists) {
@@ -155,7 +155,7 @@ NS_IMETHODIMP nsMsgFilterList::ClearLog() {
   return NS_OK;
 }
 
-nsresult nsMsgFilterList::GetLogFile(nsIFile **aFile) {
+nsresult nsMsgFilterList::GetLogFile(nsIFile** aFile) {
   NS_ENSURE_ARG_POINTER(aFile);
 
   // XXX todo
@@ -218,7 +218,7 @@ nsresult nsMsgFilterList::GetLogFile(nsIFile **aFile) {
 }
 
 NS_IMETHODIMP
-nsMsgFilterList::GetLogURL(nsACString &aLogURL) {
+nsMsgFilterList::GetLogURL(nsACString& aLogURL) {
   nsCOMPtr<nsIFile> file;
   nsresult rv = GetLogFile(getter_AddRefs(file));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -230,7 +230,7 @@ nsMsgFilterList::GetLogURL(nsACString &aLogURL) {
 }
 
 NS_IMETHODIMP
-nsMsgFilterList::SetLogStream(nsIOutputStream *aLogStream) {
+nsMsgFilterList::SetLogStream(nsIOutputStream* aLogStream) {
   // if there is a log stream already, close it
   if (m_logStream) {
     // will flush
@@ -243,7 +243,7 @@ nsMsgFilterList::SetLogStream(nsIOutputStream *aLogStream) {
 }
 
 NS_IMETHODIMP
-nsMsgFilterList::GetLogStream(nsIOutputStream **aLogStream) {
+nsMsgFilterList::GetLogStream(nsIOutputStream** aLogStream) {
   NS_ENSURE_ARG_POINTER(aLogStream);
 
   nsresult rv;
@@ -268,11 +268,11 @@ nsMsgFilterList::GetLogStream(nsIOutputStream **aLogStream) {
 
 NS_IMETHODIMP
 nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
-                                   nsIMsgDBHdr *msgHdr, nsIMsgFolder *folder,
-                                   nsIMsgDatabase *db,
-                                   const nsACString &headers,
-                                   nsIMsgFilterHitNotify *listener,
-                                   nsIMsgWindow *msgWindow) {
+                                   nsIMsgDBHdr* msgHdr, nsIMsgFolder* folder,
+                                   nsIMsgDatabase* db,
+                                   const nsACString& headers,
+                                   nsIMsgFilterHitNotify* listener,
+                                   nsIMsgWindow* msgWindow) {
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Auto) nsMsgFilterList::ApplyFiltersToHdr"));
   if (!msgHdr) {
@@ -396,13 +396,13 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
 }
 
 NS_IMETHODIMP
-nsMsgFilterList::SetDefaultFile(nsIFile *aFile) {
+nsMsgFilterList::SetDefaultFile(nsIFile* aFile) {
   m_defaultFile = aFile;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgFilterList::GetDefaultFile(nsIFile **aResult) {
+nsMsgFilterList::GetDefaultFile(nsIFile** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   NS_IF_ADDREF(*aResult = m_defaultFile);
@@ -421,7 +421,7 @@ nsMsgFilterList::SaveToDefaultFile() {
 
 typedef struct {
   nsMsgFilterFileAttribValue attrib;
-  const char *attribName;
+  const char* attribName;
 } FilterFileAttribEntry;
 
 static FilterFileAttribEntry FilterFileAttribTable[] = {
@@ -443,7 +443,7 @@ static const unsigned int sNumFilterFileAttribTable =
     MOZ_ARRAY_LENGTH(FilterFileAttribTable);
 
 // If we want to buffer file IO, wrap it in here.
-int nsMsgFilterList::ReadChar(nsIInputStream *aStream) {
+int nsMsgFilterList::ReadChar(nsIInputStream* aStream) {
   char newChar;
   uint32_t bytesRead;
   nsresult rv = aStream->Read(&newChar, 1, &bytesRead);
@@ -458,7 +458,7 @@ int nsMsgFilterList::ReadChar(nsIInputStream *aStream) {
   }
 }
 
-int nsMsgFilterList::SkipWhitespace(nsIInputStream *aStream) {
+int nsMsgFilterList::SkipWhitespace(nsIInputStream* aStream) {
   int ch;
   do {
     ch = ReadChar(aStream);
@@ -468,12 +468,12 @@ int nsMsgFilterList::SkipWhitespace(nsIInputStream *aStream) {
   return ch;
 }
 
-bool nsMsgFilterList::StrToBool(nsCString &str) {
+bool nsMsgFilterList::StrToBool(nsCString& str) {
   return str.EqualsLiteral("yes");
 }
 
-int nsMsgFilterList::LoadAttrib(nsMsgFilterFileAttribValue &attrib,
-                                nsIInputStream *aStream) {
+int nsMsgFilterList::LoadAttrib(nsMsgFilterFileAttribValue& attrib,
+                                nsIInputStream* aStream) {
   char attribStr[100];
   int curChar;
   attrib = nsIMsgFilterList::attribNone;
@@ -499,7 +499,7 @@ int nsMsgFilterList::LoadAttrib(nsMsgFilterFileAttribValue &attrib,
   return curChar;
 }
 
-const char *nsMsgFilterList::GetStringForAttrib(
+const char* nsMsgFilterList::GetStringForAttrib(
     nsMsgFilterFileAttribValue attrib) {
   for (unsigned int tableIndex = 0; tableIndex < sNumFilterFileAttribTable;
        tableIndex++) {
@@ -509,7 +509,7 @@ const char *nsMsgFilterList::GetStringForAttrib(
   return nullptr;
 }
 
-nsresult nsMsgFilterList::LoadValue(nsCString &value, nsIInputStream *aStream) {
+nsresult nsMsgFilterList::LoadValue(nsCString& value, nsIInputStream* aStream) {
   nsAutoCString valueStr;
   int curChar;
   value = "";
@@ -608,12 +608,12 @@ nsresult nsMsgFilterList::LoadTextFilters(
           }
           m_unparsedFilterBuffer = nextFilterPart;
         }
-        nsMsgFilter *filter = new nsMsgFilter;
+        nsMsgFilter* filter = new nsMsgFilter;
         if (filter == nullptr) {
           err = NS_ERROR_OUT_OF_MEMORY;
           break;
         }
-        filter->SetFilterList(static_cast<nsIMsgFilterList *>(this));
+        filter->SetFilterList(static_cast<nsIMsgFilterList*>(this));
         nsAutoString unicodeStr;
         if (m_fileVersion == k45Version) {
           NS_CopyNativeToUnicode(value, unicodeStr);
@@ -738,15 +738,15 @@ nsresult nsMsgFilterList::LoadTextFilters(
 // I guess interior quotes will need to be escaped - ("foo\")")
 // which will get written out as (\"foo\\")\") and read in as ("foo\")"
 // ALL means match all messages.
-NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter *aFilter,
-                                              const char *aCondition) {
+NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter* aFilter,
+                                              const char* aCondition) {
   NS_ENSURE_ARG_POINTER(aFilter);
 
   bool done = false;
   nsresult err = NS_OK;
-  const char *curPtr = aCondition;
+  const char* curPtr = aCondition;
   if (!strcmp(aCondition, "ALL")) {
-    nsMsgSearchTerm *newTerm = new nsMsgSearchTerm;
+    nsMsgSearchTerm* newTerm = new nsMsgSearchTerm;
 
     if (newTerm) {
       newTerm->m_matchAll = true;
@@ -758,15 +758,15 @@ NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter *aFilter,
   while (!done) {
     // insert code to save the boolean operator if there is one for this search
     // term....
-    const char *openParen = PL_strchr(curPtr, '(');
-    const char *orTermPos = PL_strchr(
+    const char* openParen = PL_strchr(curPtr, '(');
+    const char* orTermPos = PL_strchr(
         curPtr, 'O');  // determine if an "OR" appears b4 the openParen...
     bool ANDTerm = true;
     if (orTermPos &&
         orTermPos < openParen)  // make sure OR term falls before the '('
       ANDTerm = false;
 
-    char *termDup = nullptr;
+    char* termDup = nullptr;
     if (openParen) {
       bool foundEndTerm = false;
       bool inQuote = false;
@@ -781,7 +781,7 @@ NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter *aFilter,
       }
       if (foundEndTerm) {
         int termLen = curPtr - openParen - 1;
-        termDup = (char *)PR_Malloc(termLen + 1);
+        termDup = (char*)PR_Malloc(termLen + 1);
         if (termDup) {
           PL_strncpy(termDup, openParen + 1, termLen + 1);
           termDup[termLen] = '\0';
@@ -793,7 +793,7 @@ NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter *aFilter,
     } else
       break;
     if (termDup) {
-      nsMsgSearchTerm *newTerm = new nsMsgSearchTerm;
+      nsMsgSearchTerm* newTerm = new nsMsgSearchTerm;
 
       if (newTerm) {
         /* Invert nsMsgSearchTerm::EscapeQuotesInStr() */
@@ -816,9 +816,9 @@ NS_IMETHODIMP nsMsgFilterList::ParseCondition(nsIMsgFilter *aFilter,
 }
 
 nsresult nsMsgFilterList::WriteIntAttr(nsMsgFilterFileAttribValue attrib,
-                                       int value, nsIOutputStream *aStream) {
+                                       int value, nsIOutputStream* aStream) {
   nsresult rv = NS_OK;
-  const char *attribStr = GetStringForAttrib(attrib);
+  const char* attribStr = GetStringForAttrib(attrib);
   if (attribStr) {
     uint32_t bytesWritten;
     nsAutoCString writeStr(attribStr);
@@ -832,16 +832,16 @@ nsresult nsMsgFilterList::WriteIntAttr(nsMsgFilterFileAttribValue attrib,
 
 NS_IMETHODIMP
 nsMsgFilterList::WriteStrAttr(nsMsgFilterFileAttribValue attrib,
-                              const char *aStr, nsIOutputStream *aStream) {
+                              const char* aStr, nsIOutputStream* aStream) {
   nsresult rv = NS_OK;
   if (aStr && *aStr &&
       aStream)  // only proceed if we actually have a string to write out.
   {
-    char *escapedStr = nullptr;
+    char* escapedStr = nullptr;
     if (PL_strchr(aStr, '"'))
       escapedStr = nsMsgSearchTerm::EscapeQuotesInStr(aStr);
 
-    const char *attribStr = GetStringForAttrib(attrib);
+    const char* attribStr = GetStringForAttrib(attrib);
     if (attribStr) {
       uint32_t bytesWritten;
       nsAutoCString writeStr(attribStr);
@@ -857,18 +857,18 @@ nsMsgFilterList::WriteStrAttr(nsMsgFilterFileAttribValue attrib,
 
 nsresult nsMsgFilterList::WriteBoolAttr(nsMsgFilterFileAttribValue attrib,
                                         bool boolVal,
-                                        nsIOutputStream *aStream) {
+                                        nsIOutputStream* aStream) {
   return WriteStrAttr(attrib, (boolVal) ? "yes" : "no", aStream);
 }
 
 nsresult nsMsgFilterList::WriteWstrAttr(nsMsgFilterFileAttribValue attrib,
-                                        const char16_t *aFilterName,
-                                        nsIOutputStream *aStream) {
+                                        const char16_t* aFilterName,
+                                        nsIOutputStream* aStream) {
   WriteStrAttr(attrib, NS_ConvertUTF16toUTF8(aFilterName).get(), aStream);
   return NS_OK;
 }
 
-nsresult nsMsgFilterList::SaveTextFilters(nsIOutputStream *aStream) {
+nsresult nsMsgFilterList::SaveTextFilters(nsIOutputStream* aStream) {
   uint32_t filterCount = 0;
   nsresult err = GetFilterCount(&filterCount);
   NS_ENSURE_SUCCESS(err, err);
@@ -904,7 +904,7 @@ nsMsgFilterList::~nsMsgFilterList() {
 
 nsresult nsMsgFilterList::Close() { return NS_ERROR_NOT_IMPLEMENTED; }
 
-nsresult nsMsgFilterList::GetFilterCount(uint32_t *pCount) {
+nsresult nsMsgFilterList::GetFilterCount(uint32_t* pCount) {
   NS_ENSURE_ARG_POINTER(pCount);
 
   *pCount = m_filters.Length();
@@ -912,7 +912,7 @@ nsresult nsMsgFilterList::GetFilterCount(uint32_t *pCount) {
 }
 
 nsresult nsMsgFilterList::GetFilterAt(uint32_t filterIndex,
-                                      nsIMsgFilter **filter) {
+                                      nsIMsgFilter** filter) {
   NS_ENSURE_ARG_POINTER(filter);
 
   uint32_t filterCount = 0;
@@ -923,8 +923,8 @@ nsresult nsMsgFilterList::GetFilterAt(uint32_t filterIndex,
   return NS_OK;
 }
 
-nsresult nsMsgFilterList::GetFilterNamed(const nsAString &aName,
-                                         nsIMsgFilter **aResult) {
+nsresult nsMsgFilterList::GetFilterNamed(const nsAString& aName,
+                                         nsIMsgFilter** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   uint32_t count = 0;
@@ -949,7 +949,7 @@ nsresult nsMsgFilterList::GetFilterNamed(const nsAString &aName,
 }
 
 nsresult nsMsgFilterList::SetFilterAt(uint32_t filterIndex,
-                                      nsIMsgFilter *filter) {
+                                      nsIMsgFilter* filter) {
   m_filters[filterIndex] = filter;
   return NS_OK;
 }
@@ -959,13 +959,13 @@ nsresult nsMsgFilterList::RemoveFilterAt(uint32_t filterIndex) {
   return NS_OK;
 }
 
-nsresult nsMsgFilterList::RemoveFilter(nsIMsgFilter *aFilter) {
+nsresult nsMsgFilterList::RemoveFilter(nsIMsgFilter* aFilter) {
   m_filters.RemoveElement(aFilter);
   return NS_OK;
 }
 
 nsresult nsMsgFilterList::InsertFilterAt(uint32_t filterIndex,
-                                         nsIMsgFilter *aFilter) {
+                                         nsIMsgFilter* aFilter) {
   if (!m_temporaryList) aFilter->SetFilterList(this);
   m_filters.InsertElementAt(filterIndex, aFilter);
 
@@ -1014,7 +1014,7 @@ nsresult nsMsgFilterList::MoveFilterAt(uint32_t filterIndex,
   return NS_OK;
 }
 
-nsresult nsMsgFilterList::MoveFilter(nsIMsgFilter *aFilter,
+nsresult nsMsgFilterList::MoveFilter(nsIMsgFilter* aFilter,
                                      nsMsgFilterMotionValue motion) {
   size_t filterIndex = m_filters.IndexOf(aFilter, 0);
   NS_ENSURE_ARG(filterIndex != m_filters.NoIndex);
@@ -1022,15 +1022,15 @@ nsresult nsMsgFilterList::MoveFilter(nsIMsgFilter *aFilter,
   return MoveFilterAt(filterIndex, motion);
 }
 
-nsresult nsMsgFilterList::GetVersion(int16_t *aResult) {
+nsresult nsMsgFilterList::GetVersion(int16_t* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = m_fileVersion;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgFilterList::MatchOrChangeFilterTarget(
-    const nsACString &oldFolderUri, const nsACString &newFolderUri,
-    bool caseInsensitive, bool *found) {
+    const nsACString& oldFolderUri, const nsACString& newFolderUri,
+    bool caseInsensitive, bool* found) {
   NS_ENSURE_ARG_POINTER(found);
 
   uint32_t numFilters = 0;
@@ -1086,7 +1086,7 @@ NS_IMETHODIMP nsMsgFilterList::MatchOrChangeFilterTarget(
 
 // this would only return true if any filter was on "any header", which we
 // don't support in 6.x
-NS_IMETHODIMP nsMsgFilterList::GetShouldDownloadAllHeaders(bool *aResult) {
+NS_IMETHODIMP nsMsgFilterList::GetShouldDownloadAllHeaders(bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   *aResult = false;
@@ -1129,7 +1129,7 @@ nsresult nsMsgFilterList::ComputeArbitraryHeaders() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilterList::GetArbitraryHeaders(nsACString &aResult) {
+NS_IMETHODIMP nsMsgFilterList::GetArbitraryHeaders(nsACString& aResult) {
   ComputeArbitraryHeaders();
   aResult = m_arbitraryHeaders;
   return NS_OK;
@@ -1157,8 +1157,8 @@ NS_IMETHODIMP nsMsgFilterList::FlushLogIfNecessary() {
 #define LOG_ENTRY_END_TAG "</p>\n"
 #define LOG_ENTRY_END_TAG_LEN (strlen(LOG_ENTRY_END_TAG))
 
-NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString &message,
-                                                nsIMsgFilter *filter) {
+NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
+                                                nsIMsgFilter* filter) {
   nsCOMPtr<nsIOutputStream> logStream;
   nsresult rv = GetLogStream(getter_AddRefs(logStream));
   NS_ENSURE_SUCCESS(rv, rv);

@@ -44,29 +44,29 @@ nsPop3Service::~nsPop3Service() {}
 NS_IMPL_ISUPPORTS(nsPop3Service, nsIPop3Service, nsIProtocolHandler,
                   nsIMsgProtocolInfo)
 
-NS_IMETHODIMP nsPop3Service::CheckForNewMail(nsIMsgWindow *aMsgWindow,
-                                             nsIUrlListener *aUrlListener,
-                                             nsIMsgFolder *aInbox,
-                                             nsIPop3IncomingServer *aPopServer,
-                                             nsIURI **aURL) {
+NS_IMETHODIMP nsPop3Service::CheckForNewMail(nsIMsgWindow* aMsgWindow,
+                                             nsIUrlListener* aUrlListener,
+                                             nsIMsgFolder* aInbox,
+                                             nsIPop3IncomingServer* aPopServer,
+                                             nsIURI** aURL) {
   return GetMail(false /* don't download, just check */, aMsgWindow,
                  aUrlListener, aInbox, aPopServer, aURL);
 }
 
-nsresult nsPop3Service::GetNewMail(nsIMsgWindow *aMsgWindow,
-                                   nsIUrlListener *aUrlListener,
-                                   nsIMsgFolder *aInbox,
-                                   nsIPop3IncomingServer *aPopServer,
-                                   nsIURI **aURL) {
+nsresult nsPop3Service::GetNewMail(nsIMsgWindow* aMsgWindow,
+                                   nsIUrlListener* aUrlListener,
+                                   nsIMsgFolder* aInbox,
+                                   nsIPop3IncomingServer* aPopServer,
+                                   nsIURI** aURL) {
   return GetMail(true /* download */, aMsgWindow, aUrlListener, aInbox,
                  aPopServer, aURL);
 }
 
-nsresult nsPop3Service::GetMail(bool downloadNewMail, nsIMsgWindow *aMsgWindow,
-                                nsIUrlListener *aUrlListener,
-                                nsIMsgFolder *aInbox,
-                                nsIPop3IncomingServer *aPopServer,
-                                nsIURI **aURL) {
+nsresult nsPop3Service::GetMail(bool downloadNewMail, nsIMsgWindow* aMsgWindow,
+                                nsIUrlListener* aUrlListener,
+                                nsIMsgFolder* aInbox,
+                                nsIPop3IncomingServer* aPopServer,
+                                nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aInbox);
   int32_t popPort = -1;
 
@@ -106,7 +106,7 @@ nsresult nsPop3Service::GetMail(bool downloadNewMail, nsIMsgWindow *aMsgWindow,
     // now construct a pop3 url...
     // we need to escape the username because it may contain
     // characters like / % or @
-    char *urlSpec =
+    char* urlSpec =
         (downloadNewMail)
             ? PR_smprintf("pop3://%s@%s:%d", escapedUsername.get(),
                           popHost.get(), popPort)
@@ -128,10 +128,10 @@ nsresult nsPop3Service::GetMail(bool downloadNewMail, nsIMsgWindow *aMsgWindow,
   return rv;
 }
 
-NS_IMETHODIMP nsPop3Service::VerifyLogon(nsIMsgIncomingServer *aServer,
-                                         nsIUrlListener *aUrlListener,
-                                         nsIMsgWindow *aMsgWindow,
-                                         nsIURI **aURL) {
+NS_IMETHODIMP nsPop3Service::VerifyLogon(nsIMsgIncomingServer* aServer,
+                                         nsIUrlListener* aUrlListener,
+                                         nsIMsgWindow* aMsgWindow,
+                                         nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aServer);
   nsCString popHost;
   nsCString popUser;
@@ -158,7 +158,7 @@ NS_IMETHODIMP nsPop3Service::VerifyLogon(nsIMsgIncomingServer *aServer,
   // now construct a pop3 url...
   // we need to escape the username because it may contain
   // characters like / % or @
-  char *urlSpec = PR_smprintf("pop3://%s@%s:%d/?verifyLogon",
+  char* urlSpec = PR_smprintf("pop3://%s@%s:%d/?verifyLogon",
                               escapedUsername.get(), popHost.get(), popPort);
   NS_ENSURE_TRUE(urlSpec, NS_ERROR_OUT_OF_MEMORY);
 
@@ -175,13 +175,13 @@ NS_IMETHODIMP nsPop3Service::VerifyLogon(nsIMsgIncomingServer *aServer,
   return rv;
 }
 
-nsresult nsPop3Service::BuildPop3Url(const char *urlSpec, nsIMsgFolder *inbox,
-                                     nsIPop3IncomingServer *server,
-                                     nsIUrlListener *aUrlListener,
-                                     nsIURI **aUrl, nsIMsgWindow *aMsgWindow) {
+nsresult nsPop3Service::BuildPop3Url(const char* urlSpec, nsIMsgFolder* inbox,
+                                     nsIPop3IncomingServer* server,
+                                     nsIUrlListener* aUrlListener,
+                                     nsIURI** aUrl, nsIMsgWindow* aMsgWindow) {
   nsresult rv;
 
-  nsPop3Sink *pop3Sink = new nsPop3Sink();
+  nsPop3Sink* pop3Sink = new nsPop3Sink();
 
   NS_ENSURE_TRUE(pop3Sink, NS_ERROR_OUT_OF_MEMORY);
 
@@ -210,8 +210,8 @@ nsresult nsPop3Service::BuildPop3Url(const char *urlSpec, nsIMsgFolder *inbox,
   return rv;
 }
 
-nsresult nsPop3Service::RunPopUrl(nsIMsgIncomingServer *aServer,
-                                  nsIURI *aUrlToRun) {
+nsresult nsPop3Service::RunPopUrl(nsIMsgIncomingServer* aServer,
+                                  nsIURI* aUrlToRun) {
   NS_ENSURE_ARG_POINTER(aServer);
   NS_ENSURE_ARG_POINTER(aUrlToRun);
 
@@ -244,47 +244,47 @@ nsresult nsPop3Service::RunPopUrl(nsIMsgIncomingServer *aServer,
   return rv;
 }
 
-NS_IMETHODIMP nsPop3Service::GetScheme(nsACString &aScheme) {
+NS_IMETHODIMP nsPop3Service::GetScheme(nsACString& aScheme) {
   aScheme.AssignLiteral("pop3");
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Service::GetDefaultPort(int32_t *aDefaultPort) {
+NS_IMETHODIMP nsPop3Service::GetDefaultPort(int32_t* aDefaultPort) {
   NS_ENSURE_ARG_POINTER(aDefaultPort);
   *aDefaultPort = nsIPop3URL::DEFAULT_POP3_PORT;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Service::AllowPort(int32_t port, const char *scheme,
-                                       bool *_retval) {
+NS_IMETHODIMP nsPop3Service::AllowPort(int32_t port, const char* scheme,
+                                       bool* _retval) {
   *_retval = true;  // allow pop on any port
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Service::GetDefaultDoBiff(bool *aDoBiff) {
+NS_IMETHODIMP nsPop3Service::GetDefaultDoBiff(bool* aDoBiff) {
   NS_ENSURE_ARG_POINTER(aDoBiff);
   // by default, do biff for POP3 servers
   *aDoBiff = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Service::GetProtocolFlags(uint32_t *result) {
+NS_IMETHODIMP nsPop3Service::GetProtocolFlags(uint32_t* result) {
   NS_ENSURE_ARG_POINTER(result);
   *result = URI_NORELATIVE | URI_DANGEROUS_TO_LOAD | ALLOWS_PROXY |
             URI_FORBIDS_COOKIE_ACCESS;
   return NS_OK;
 }
 
-nsresult nsPop3Service::NewURI(const nsACString &aSpec,
-                               const char *aOriginCharset,  // ignored
-                               nsIURI *aBaseURI, nsIURI **_retval) {
+nsresult nsPop3Service::NewURI(const nsACString& aSpec,
+                               const char* aOriginCharset,  // ignored
+                               nsIURI* aBaseURI, nsIURI** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsAutoCString folderUri(aSpec);
   int32_t offset = folderUri.FindChar('?');
   if (offset != kNotFound) folderUri.SetLength(offset);
 
-  const char *uidl = PL_strstr(nsCString(aSpec).get(), "uidl=");
+  const char* uidl = PL_strstr(nsCString(aSpec).get(), "uidl=");
   NS_ENSURE_TRUE(uidl, NS_ERROR_FAILURE);
 
   nsresult rv;
@@ -383,7 +383,7 @@ nsresult nsPop3Service::NewURI(const nsACString &aSpec,
   return NS_OK;
 }
 
-void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl *url) {
+void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl* url) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
@@ -418,8 +418,8 @@ void nsPop3Service::AlertServerBusy(nsIMsgMailNewsUrl *url) {
     dialog->Alert(dialogTitle.get(), alertString.get());
 }
 
-NS_IMETHODIMP nsPop3Service::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
-                                        nsIChannel **_retval) {
+NS_IMETHODIMP nsPop3Service::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
+                                        nsIChannel** _retval) {
   NS_ENSURE_ARG_POINTER(aURI);
   nsresult rv;
 
@@ -458,14 +458,14 @@ NS_IMETHODIMP nsPop3Service::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
 }
 
 NS_IMETHODIMP
-nsPop3Service::SetDefaultLocalPath(nsIFile *aPath) {
+nsPop3Service::SetDefaultLocalPath(nsIFile* aPath) {
   NS_ENSURE_ARG(aPath);
   return NS_SetPersistentFile(PREF_MAIL_ROOT_POP3_REL, PREF_MAIL_ROOT_POP3,
                               aPath);
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetDefaultLocalPath(nsIFile **aResult) {
+nsPop3Service::GetDefaultLocalPath(nsIFile** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   *aResult = nullptr;
 
@@ -493,13 +493,13 @@ nsPop3Service::GetDefaultLocalPath(nsIFile **aResult) {
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetServerIID(nsIID **aServerIID) {
+nsPop3Service::GetServerIID(nsIID** aServerIID) {
   *aServerIID = new nsIID(NS_GET_IID(nsIPop3IncomingServer));
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetRequiresUsername(bool *aRequiresUsername) {
+nsPop3Service::GetRequiresUsername(bool* aRequiresUsername) {
   NS_ENSURE_ARG_POINTER(aRequiresUsername);
   *aRequiresUsername = true;
   return NS_OK;
@@ -507,63 +507,63 @@ nsPop3Service::GetRequiresUsername(bool *aRequiresUsername) {
 
 NS_IMETHODIMP
 nsPop3Service::GetPreflightPrettyNameWithEmailAddress(
-    bool *aPreflightPrettyNameWithEmailAddress) {
+    bool* aPreflightPrettyNameWithEmailAddress) {
   NS_ENSURE_ARG_POINTER(aPreflightPrettyNameWithEmailAddress);
   *aPreflightPrettyNameWithEmailAddress = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetCanLoginAtStartUp(bool *aCanLoginAtStartUp) {
+nsPop3Service::GetCanLoginAtStartUp(bool* aCanLoginAtStartUp) {
   NS_ENSURE_ARG_POINTER(aCanLoginAtStartUp);
   *aCanLoginAtStartUp = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetCanDelete(bool *aCanDelete) {
+nsPop3Service::GetCanDelete(bool* aCanDelete) {
   NS_ENSURE_ARG_POINTER(aCanDelete);
   *aCanDelete = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetCanDuplicate(bool *aCanDuplicate) {
+nsPop3Service::GetCanDuplicate(bool* aCanDuplicate) {
   NS_ENSURE_ARG_POINTER(aCanDuplicate);
   *aCanDuplicate = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetCanGetMessages(bool *aCanGetMessages) {
+nsPop3Service::GetCanGetMessages(bool* aCanGetMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetMessages);
   *aCanGetMessages = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetCanGetIncomingMessages(bool *aCanGetIncomingMessages) {
+nsPop3Service::GetCanGetIncomingMessages(bool* aCanGetIncomingMessages) {
   NS_ENSURE_ARG_POINTER(aCanGetIncomingMessages);
   *aCanGetIncomingMessages = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetShowComposeMsgLink(bool *showComposeMsgLink) {
+nsPop3Service::GetShowComposeMsgLink(bool* showComposeMsgLink) {
   NS_ENSURE_ARG_POINTER(showComposeMsgLink);
   *showComposeMsgLink = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetFoldersCreatedAsync(bool *aAsyncCreation) {
+nsPop3Service::GetFoldersCreatedAsync(bool* aAsyncCreation) {
   NS_ENSURE_ARG_POINTER(aAsyncCreation);
   *aAsyncCreation = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3Service::GetDefaultServerPort(bool isSecure, int32_t *aPort) {
+nsPop3Service::GetDefaultServerPort(bool isSecure, int32_t* aPort) {
   NS_ENSURE_ARG_POINTER(aPort);
 
   if (!isSecure) return GetDefaultPort(aPort);
@@ -574,7 +574,7 @@ nsPop3Service::GetDefaultServerPort(bool isSecure, int32_t *aPort) {
 }
 
 NS_IMETHODIMP
-nsPop3Service::NotifyDownloadStarted(nsIMsgFolder *aFolder) {
+nsPop3Service::NotifyDownloadStarted(nsIMsgFolder* aFolder) {
   nsTObserverArray<nsCOMPtr<nsIPop3ServiceListener> >::ForwardIterator iter(
       mListeners);
   nsCOMPtr<nsIPop3ServiceListener> listener;
@@ -586,7 +586,7 @@ nsPop3Service::NotifyDownloadStarted(nsIMsgFolder *aFolder) {
 }
 
 NS_IMETHODIMP
-nsPop3Service::NotifyDownloadProgress(nsIMsgFolder *aFolder,
+nsPop3Service::NotifyDownloadProgress(nsIMsgFolder* aFolder,
                                       uint32_t aNumMessages,
                                       uint32_t aNumTotalMessages) {
   nsTObserverArray<nsCOMPtr<nsIPop3ServiceListener> >::ForwardIterator iter(
@@ -600,7 +600,7 @@ nsPop3Service::NotifyDownloadProgress(nsIMsgFolder *aFolder,
 }
 
 NS_IMETHODIMP
-nsPop3Service::NotifyDownloadCompleted(nsIMsgFolder *aFolder,
+nsPop3Service::NotifyDownloadCompleted(nsIMsgFolder* aFolder,
                                        uint32_t aNumMessages) {
   nsTObserverArray<nsCOMPtr<nsIPop3ServiceListener> >::ForwardIterator iter(
       mListeners);
@@ -612,13 +612,13 @@ nsPop3Service::NotifyDownloadCompleted(nsIMsgFolder *aFolder,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Service::AddListener(nsIPop3ServiceListener *aListener) {
+NS_IMETHODIMP nsPop3Service::AddListener(nsIPop3ServiceListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
   mListeners.AppendElementUnlessExists(aListener);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3Service::RemoveListener(nsIPop3ServiceListener *aListener) {
+NS_IMETHODIMP nsPop3Service::RemoveListener(nsIPop3ServiceListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
   mListeners.RemoveElement(aListener);
   return NS_OK;

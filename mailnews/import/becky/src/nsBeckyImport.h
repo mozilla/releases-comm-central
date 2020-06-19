@@ -29,10 +29,10 @@ class nsBeckyImport final : public nsIImportModule {
  private:
   virtual ~nsBeckyImport();
 
-  nsresult GetMailImportInterface(nsISupports **aInterface);
-  nsresult GetAddressBookImportInterface(nsISupports **aInterface);
-  nsresult GetSettingsImportInterface(nsISupports **aInterface);
-  nsresult GetFiltersImportInterface(nsISupports **aInterface);
+  nsresult GetMailImportInterface(nsISupports** aInterface);
+  nsresult GetAddressBookImportInterface(nsISupports** aInterface);
+  nsresult GetSettingsImportInterface(nsISupports** aInterface);
+  nsresult GetFiltersImportInterface(nsISupports** aInterface);
 };
 
 #endif /* nsBeckyImport_h___ */

@@ -14,8 +14,8 @@
 #include "nsArrayUtils.h"
 // Implementation of search for IMAP mail folders
 
-nsMsgSearchOnlineMail::nsMsgSearchOnlineMail(nsMsgSearchScopeTerm *scope,
-                                             nsIArray *termList)
+nsMsgSearchOnlineMail::nsMsgSearchOnlineMail(nsMsgSearchScopeTerm* scope,
+                                             nsIArray* termList)
     : nsMsgSearchAdapter(scope, termList) {}
 
 nsMsgSearchOnlineMail::~nsMsgSearchOnlineMail() {}
@@ -37,12 +37,12 @@ nsresult nsMsgSearchOnlineMail::ValidateTerms() {
   return err;
 }
 
-NS_IMETHODIMP nsMsgSearchOnlineMail::GetEncoding(char **result) {
+NS_IMETHODIMP nsMsgSearchOnlineMail::GetEncoding(char** result) {
   *result = ToNewCString(m_encoding);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgSearchOnlineMail::AddResultElement(nsIMsgDBHdr *pHeaders) {
+NS_IMETHODIMP nsMsgSearchOnlineMail::AddResultElement(nsIMsgDBHdr* pHeaders) {
   nsresult err = NS_OK;
 
   nsCOMPtr<nsIMsgSearchSession> searchSession;
@@ -57,7 +57,7 @@ NS_IMETHODIMP nsMsgSearchOnlineMail::AddResultElement(nsIMsgDBHdr *pHeaders) {
   return err;
 }
 
-nsresult nsMsgSearchOnlineMail::Search(bool *aDone) {
+nsresult nsMsgSearchOnlineMail::Search(bool* aDone) {
   // we should never end up here for a purely online
   // folder.  We might for an offline IMAP folder.
   nsresult err = NS_ERROR_NOT_IMPLEMENTED;
@@ -65,9 +65,9 @@ nsresult nsMsgSearchOnlineMail::Search(bool *aDone) {
   return err;
 }
 
-nsresult nsMsgSearchOnlineMail::Encode(nsCString &pEncoding,
-                                       nsIArray *searchTerms,
-                                       const char16_t *destCharset) {
+nsresult nsMsgSearchOnlineMail::Encode(nsCString& pEncoding,
+                                       nsIArray* searchTerms,
+                                       const char16_t* destCharset) {
   nsCString imapTerms;
 
   // check if searchTerms are ascii only
@@ -97,7 +97,7 @@ nsresult nsMsgSearchOnlineMail::Encode(nsCString &pEncoding,
         rv = searchValue->GetStr(pchar);
         if (NS_FAILED(rv) || pchar.IsEmpty()) continue;
         asciiOnly = mozilla::IsAsciiNullTerminated(
-            static_cast<const char16_t *>(pchar.get()));
+            static_cast<const char16_t*>(pchar.get()));
       }
     }
   }
@@ -105,9 +105,9 @@ nsresult nsMsgSearchOnlineMail::Encode(nsCString &pEncoding,
   //    asciiOnly = false; // TODO: enable this line when the condition is not a
   //    plain "true" in the if().
 
-  const char16_t *usAsciiCharSet = u"us-ascii";
+  const char16_t* usAsciiCharSet = u"us-ascii";
   // Get the optional CHARSET parameter, in case we need it.
-  char *csname = GetImapCharsetParam(asciiOnly ? usAsciiCharSet : destCharset);
+  char* csname = GetImapCharsetParam(asciiOnly ? usAsciiCharSet : destCharset);
 
   // We do not need "srcCharset" since the search term in always unicode.
   // I just pass destCharset for both src and dest charset instead of removing

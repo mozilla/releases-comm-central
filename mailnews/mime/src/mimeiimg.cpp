@@ -17,17 +17,17 @@
 MimeDefClass(MimeInlineImage, MimeInlineImageClass, mimeInlineImageClass,
              &MIME_SUPERCLASS);
 
-static int MimeInlineImage_initialize(MimeObject *);
-static void MimeInlineImage_finalize(MimeObject *);
-static int MimeInlineImage_parse_begin(MimeObject *);
-static int MimeInlineImage_parse_line(const char *, int32_t, MimeObject *);
-static int MimeInlineImage_parse_eof(MimeObject *, bool);
-static int MimeInlineImage_parse_decoded_buffer(const char *, int32_t,
-                                                MimeObject *);
+static int MimeInlineImage_initialize(MimeObject*);
+static void MimeInlineImage_finalize(MimeObject*);
+static int MimeInlineImage_parse_begin(MimeObject*);
+static int MimeInlineImage_parse_line(const char*, int32_t, MimeObject*);
+static int MimeInlineImage_parse_eof(MimeObject*, bool);
+static int MimeInlineImage_parse_decoded_buffer(const char*, int32_t,
+                                                MimeObject*);
 
-static int MimeInlineImageClassInitialize(MimeInlineImageClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
-  MimeLeafClass *lclass = (MimeLeafClass *)clazz;
+static int MimeInlineImageClassInitialize(MimeInlineImageClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+  MimeLeafClass* lclass = (MimeLeafClass*)clazz;
 
   NS_ASSERTION(!oclass->class_initialized,
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
@@ -41,20 +41,20 @@ static int MimeInlineImageClassInitialize(MimeInlineImageClass *clazz) {
   return 0;
 }
 
-static int MimeInlineImage_initialize(MimeObject *object) {
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->initialize(object);
+static int MimeInlineImage_initialize(MimeObject* object) {
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(object);
 }
 
-static void MimeInlineImage_finalize(MimeObject *object) {
-  ((MimeObjectClass *)&MIME_SUPERCLASS)->finalize(object);
+static void MimeInlineImage_finalize(MimeObject* object) {
+  ((MimeObjectClass*)&MIME_SUPERCLASS)->finalize(object);
 }
 
-static int MimeInlineImage_parse_begin(MimeObject *obj) {
-  MimeInlineImage *img = (MimeInlineImage *)obj;
+static int MimeInlineImage_parse_begin(MimeObject* obj) {
+  MimeInlineImage* img = (MimeInlineImage*)obj;
 
   int status;
 
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_begin(obj);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
   if (status < 0) return status;
 
   if (!obj->output_p) return 0;
@@ -68,12 +68,12 @@ static int MimeInlineImage_parse_begin(MimeObject *obj) {
   if (obj->options && obj->options->image_begin && obj->options->write_html_p &&
       obj->options->image_write_buffer) {
     char *html, *part, *image_url;
-    const char *ct;
+    const char* ct;
 
     part = mime_part_address(obj);
     if (!part) return MIME_OUT_OF_MEMORY;
 
-    char *no_part_url = nullptr;
+    char* no_part_url = nullptr;
     if (obj->options->part_to_load &&
         obj->options->format_out == nsMimeOutput::nsMimeMessageBodyDisplay)
       no_part_url = mime_get_base_url(obj->options->url);
@@ -97,7 +97,7 @@ static int MimeInlineImage_parse_begin(MimeObject *obj) {
     nsAutoCString url_with_filename(image_url);
     url_with_filename += "&type=";
     url_with_filename += ct;
-    char *filename = MimeHeaders_get_name(obj->headers, obj->options);
+    char* filename = MimeHeaders_get_name(obj->headers, obj->options);
     if (filename) {
       nsCString escapedName;
       MsgEscapeString(nsDependentCString(filename), nsINetUtil::ESCAPE_URL_PATH,
@@ -129,7 +129,7 @@ static int MimeInlineImage_parse_begin(MimeObject *obj) {
   // URI for the url being run...
   //
   if (obj->options && obj->options->stream_closure && obj->content_type) {
-    mime_stream_data *msd = (mime_stream_data *)(obj->options->stream_closure);
+    mime_stream_data* msd = (mime_stream_data*)(obj->options->stream_closure);
     if ((msd) && (msd->channel)) {
       msd->channel->SetContentType(nsDependentCString(obj->content_type));
     }
@@ -138,13 +138,13 @@ static int MimeInlineImage_parse_begin(MimeObject *obj) {
   return 0;
 }
 
-static int MimeInlineImage_parse_eof(MimeObject *obj, bool abort_p) {
-  MimeInlineImage *img = (MimeInlineImage *)obj;
+static int MimeInlineImage_parse_eof(MimeObject* obj, bool abort_p) {
+  MimeInlineImage* img = (MimeInlineImage*)obj;
   int status;
   if (obj->closed_p) return 0;
 
   /* Force out any buffered data from the superclass (the base64 decoder.) */
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0) abort_p = true;
 
   if (img->image_data) {
@@ -156,13 +156,13 @@ static int MimeInlineImage_parse_eof(MimeObject *obj, bool abort_p) {
   return status;
 }
 
-static int MimeInlineImage_parse_decoded_buffer(const char *buf, int32_t size,
-                                                MimeObject *obj) {
+static int MimeInlineImage_parse_decoded_buffer(const char* buf, int32_t size,
+                                                MimeObject* obj) {
   /* This is called (by MimeLeafClass->parse_buffer) with blocks of data
    that have already been base64-decoded.  Pass this raw image data
    along to the backend-specific image display code.
    */
-  MimeInlineImage *img = (MimeInlineImage *)obj;
+  MimeInlineImage* img = (MimeInlineImage*)obj;
   int status;
 
   /* Don't do a roundtrip through XPConnect when we're only interested in
@@ -211,8 +211,8 @@ static int MimeInlineImage_parse_decoded_buffer(const char *buf, int32_t size,
   return status;
 }
 
-static int MimeInlineImage_parse_line(const char *line, int32_t length,
-                                      MimeObject *obj) {
+static int MimeInlineImage_parse_line(const char* line, int32_t length,
+                                      MimeObject* obj) {
   NS_ERROR(
       "This method should never be called (inline images do no line "
       "buffering).");

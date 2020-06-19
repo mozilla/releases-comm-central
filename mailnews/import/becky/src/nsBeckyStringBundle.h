@@ -10,10 +10,10 @@ class nsIStringBundle;
 
 class nsBeckyStringBundle final {
  public:
-  static char16_t *GetStringByName(const char *name);
-  static nsresult FormatStringFromName(const char *name,
-                                       nsTArray<nsString> &params,
-                                       nsAString &_retval);
+  static char16_t* GetStringByName(const char* name);
+  static nsresult FormatStringFromName(const char* name,
+                                       nsTArray<nsString>& params,
+                                       nsAString& _retval);
   static void GetStringBundle(void);
   static void EnsureStringBundle(void);
   static void Cleanup(void);

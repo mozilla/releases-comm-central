@@ -56,7 +56,7 @@ class nsIPrefBranch;
 #define kDownLoadCacheSize 16000u  // was 1536 - try making it bigger
 
 typedef struct _msg_line_info {
-  const char *adoptedMessageLine;
+  const char* adoptedMessageLine;
   uint32_t uidOfMessage;
 } msg_line_info;
 
@@ -70,12 +70,12 @@ class nsMsgImapLineDownloadCache : public nsIImapHeaderInfo,
   uint32_t SpaceAvailable();
   bool CacheEmpty();
 
-  msg_line_info *GetCurrentLineInfo();
+  msg_line_info* GetCurrentLineInfo();
 
  private:
   virtual ~nsMsgImapLineDownloadCache();
 
-  msg_line_info *fLineInfo;
+  msg_line_info* fLineInfo;
   int32_t m_msgSize;
 };
 
@@ -90,7 +90,7 @@ class nsMsgImapHdrXferInfo : public nsIImapHeaderXferInfo {
   void ReleaseAll();  // release HeaderInfos (frees up memory)
   // this will return null if we're full, in which case the client code
   // should transfer the headers and retry.
-  nsIImapHeaderInfo *StartNewHdr();
+  nsIImapHeaderInfo* StartNewHdr();
   // call when we've finished adding lines to current hdr
   void FinishCurrentHdr();
 
@@ -104,12 +104,12 @@ class nsMsgImapHdrXferInfo : public nsIImapHeaderXferInfo {
 // its children have been listed.
 class nsIMAPMailboxInfo {
  public:
-  nsIMAPMailboxInfo(const nsACString &aName, char aDelimiter);
+  nsIMAPMailboxInfo(const nsACString& aName, char aDelimiter);
   virtual ~nsIMAPMailboxInfo();
 
   void SetChildrenListed(bool childrenListed);
   bool GetChildrenListed();
-  const nsACString &GetMailboxName();
+  const nsACString& GetMailboxName();
   char GetDelimiter();
 
  protected:
@@ -193,8 +193,8 @@ class nsImapProtocol : public nsIImapProtocol,
   NS_DECL_NSIPROTOCOLPROXYCALLBACK
   nsImapProtocol();
 
-  virtual nsresult ProcessProtocolState(nsIURI *url,
-                                        nsIInputStream *inputStream,
+  virtual nsresult ProcessProtocolState(nsIURI* url,
+                                        nsIInputStream* inputStream,
                                         uint64_t sourceOffset,
                                         uint32_t length) override;
 
@@ -214,37 +214,37 @@ class nsImapProtocol : public nsIImapProtocol,
   NS_DECL_NSIMSGASYNCPROMPTLISTENER
 
   // message id string utilities.
-  uint32_t CountMessagesInIdString(const char *idString);
-  static bool HandlingMultipleMessages(const nsCString &messageIdString);
+  uint32_t CountMessagesInIdString(const char* idString);
+  static bool HandlingMultipleMessages(const nsCString& messageIdString);
   // escape slashes and double quotes in username/passwords for insecure login.
-  static void EscapeUserNamePasswordString(const char *strToEscape,
-                                           nsCString *resultStr);
+  static void EscapeUserNamePasswordString(const char* strToEscape,
+                                           nsCString* resultStr);
 
   // used to start fetching a message.
-  void GetShouldDownloadAllHeaders(bool *aResult);
-  void GetArbitraryHeadersToDownload(nsCString &aResult);
+  void GetShouldDownloadAllHeaders(bool* aResult);
+  void GetArbitraryHeadersToDownload(nsCString& aResult);
   virtual void AdjustChunkSize();
-  virtual void FetchMessage(const nsCString &messageIds,
+  virtual void FetchMessage(const nsCString& messageIds,
                             nsIMAPeFetchFields whatToFetch,
-                            const char *fetchModifier = nullptr,
+                            const char* fetchModifier = nullptr,
                             uint32_t startByte = 0, uint32_t numBytes = 0,
-                            char *part = 0);
-  void FetchTryChunking(const nsCString &messageIds,
+                            char* part = 0);
+  void FetchTryChunking(const nsCString& messageIds,
                         nsIMAPeFetchFields whatToFetch, bool idIsUid,
-                        char *part, uint32_t downloadSize, bool tryChunking);
+                        char* part, uint32_t downloadSize, bool tryChunking);
   virtual void PipelinedFetchMessageParts(
-      nsCString &uid, const nsTArray<nsIMAPMessagePartID> &parts);
-  void FallbackToFetchWholeMsg(const nsCString &messageId,
+      nsCString& uid, const nsTArray<nsIMAPMessagePartID>& parts);
+  void FallbackToFetchWholeMsg(const nsCString& messageId,
                                uint32_t messageSize);
   // used when streaming a message fetch
   virtual nsresult BeginMessageDownLoad(
       uint32_t totalSize,        // for user, headers and body
-      const char *contentType);  // some downloads are header only
-  virtual void HandleMessageDownLoadLine(const char *line, bool isPartialLine,
-                                         char *lineCopy = nullptr);
+      const char* contentType);  // some downloads are header only
+  virtual void HandleMessageDownLoadLine(const char* line, bool isPartialLine,
+                                         char* lineCopy = nullptr);
   virtual void NormalMessageEndDownload();
   virtual void AbortMessageDownLoad();
-  virtual void PostLineDownLoadEvent(const char *line, uint32_t uid);
+  virtual void PostLineDownLoadEvent(const char* line, uint32_t uid);
   void FlushDownloadCache();
 
   virtual void SetMailboxDiscoveryStatus(EMailboxDiscoverStatus status);
@@ -252,14 +252,14 @@ class nsImapProtocol : public nsIImapProtocol,
 
   virtual void ProcessMailboxUpdate(bool handlePossibleUndo);
   // Send log output...
-  void Log(const char *logSubName, const char *extraInfo, const char *logData);
-  static void LogImapUrl(const char *logMsg, nsIImapUrl *imapUrl);
+  void Log(const char* logSubName, const char* extraInfo, const char* logData);
+  static void LogImapUrl(const char* logMsg, nsIImapUrl* imapUrl);
   // Comment from 4.5: We really need to break out the thread synchronizer from
   // the connection class...Not sure what this means
   bool GetPseudoInterrupted();
   void PseudoInterrupt(bool the_interrupt);
 
-  uint32_t GetMessageSize(const nsACString &messageId);
+  uint32_t GetMessageSize(const nsACString& messageId);
   bool GetSubscribingNow();
 
   bool DeathSignalReceived();
@@ -275,73 +275,73 @@ class nsImapProtocol : public nsIImapProtocol,
   bool GetShouldFetchAllParts();
   bool GetIgnoreExpunges() { return m_ignoreExpunges; }
   // Generic accessors required by the imap parser
-  char *CreateNewLineFromSocket();
+  char* CreateNewLineFromSocket();
   nsresult GetConnectionStatus();
   void SetConnectionStatus(nsresult status);
 
   // Cleanup the connection and shutdown the thread.
   void TellThreadToDie();
 
-  const nsCString &
+  const nsCString&
   GetImapHostName();  // return the host name from the url for the
   // current connection
-  const nsCString &GetImapUserName();  // return the user name from the identity
-  const char *
+  const nsCString& GetImapUserName();  // return the user name from the identity
+  const char*
   GetImapServerKey();  // return the user name from the incoming server;
 
   // state set by the imap parser...
   void NotifyMessageFlags(imapMessageFlagsType flags,
-                          const nsACString &keywords, nsMsgKey key,
+                          const nsACString& keywords, nsMsgKey key,
                           uint64_t highestModSeq);
-  void NotifySearchHit(const char *hitLine);
+  void NotifySearchHit(const char* hitLine);
 
   // Event handlers for the imap parser.
-  void DiscoverMailboxSpec(nsImapMailboxSpec *adoptedBoxSpec);
-  void AlertUserEventUsingName(const char *aMessageId);
-  void AlertUserEvent(const char *message);
-  void AlertUserEventFromServer(const char *aServerEvent,
+  void DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec);
+  void AlertUserEventUsingName(const char* aMessageId);
+  void AlertUserEvent(const char* message);
+  void AlertUserEventFromServer(const char* aServerEvent,
                                 bool aForIdle = false);
 
-  void ProgressEventFunctionUsingName(const char *aMsgId);
-  void ProgressEventFunctionUsingNameWithString(const char *aMsgName,
-                                                const char *aExtraInfo);
-  void PercentProgressUpdateEvent(const char16_t *message,
+  void ProgressEventFunctionUsingName(const char* aMsgId);
+  void ProgressEventFunctionUsingNameWithString(const char* aMsgName,
+                                                const char* aExtraInfo);
+  void PercentProgressUpdateEvent(const char16_t* message,
                                   int64_t currentProgress, int64_t maxProgress);
   void ShowProgress();
 
   // utility function calls made by the server
 
-  void Copy(const char *messageList, const char *destinationMailbox,
+  void Copy(const char* messageList, const char* destinationMailbox,
             bool idsAreUid);
-  void Search(const char *searchCriteria, bool useUID, bool notifyHit = true);
+  void Search(const char* searchCriteria, bool useUID, bool notifyHit = true);
   // imap commands issued by the parser
-  void Store(const nsCString &aMessageList, const char *aMessageData,
+  void Store(const nsCString& aMessageList, const char* aMessageData,
              bool aIdsAreUid);
-  void ProcessStoreFlags(const nsCString &messageIds, bool idsAreUids,
+  void ProcessStoreFlags(const nsCString& messageIds, bool idsAreUids,
                          imapMessageFlagsType flags, bool addFlags);
-  void IssueUserDefinedMsgCommand(const char *command, const char *messageList);
-  void FetchMsgAttribute(const nsCString &messageIds,
-                         const nsCString &attribute);
+  void IssueUserDefinedMsgCommand(const char* command, const char* messageList);
+  void FetchMsgAttribute(const nsCString& messageIds,
+                         const nsCString& attribute);
   void Expunge();
-  void UidExpunge(const nsCString &messageSet);
+  void UidExpunge(const nsCString& messageSet);
   void Close(bool shuttingDown = false, bool waitForResponse = true);
   void Check();
-  void SelectMailbox(const char *mailboxName);
+  void SelectMailbox(const char* mailboxName);
   // more imap commands
   void Logout(bool shuttingDown = false, bool waitForResponse = true);
   void Noop();
   void XServerInfo();
   void Netscape();
-  void XMailboxInfo(const char *mailboxName);
-  void XAOL_Option(const char *option);
+  void XMailboxInfo(const char* mailboxName);
+  void XAOL_Option(const char* option);
   void MailboxData();
-  void GetMyRightsForFolder(const char *mailboxName);
-  void Bodystructure(const nsCString &messageId, bool idIsUid);
-  void PipelinedFetchMessageParts(const char *uid,
-                                  const nsTArray<nsIMAPMessagePartID> &parts);
+  void GetMyRightsForFolder(const char* mailboxName);
+  void Bodystructure(const nsCString& messageId, bool idIsUid);
+  void PipelinedFetchMessageParts(const char* uid,
+                                  const nsTArray<nsIMAPMessagePartID>& parts);
 
   // this function does not ref count!!! be careful!!!
-  nsIImapUrl *GetCurrentUrl() { return m_runningUrl; }
+  nsIImapUrl* GetCurrentUrl() { return m_runningUrl; }
 
   // acl and namespace stuff
   // notifies libmsg that we have a new personal/default namespace that we're
@@ -353,29 +353,29 @@ class nsImapProtocol : public nsIImapProtocol,
   // Adds a set of rights for a given user on a given mailbox on the current
   // host. if userName is NULL, it means "me," or MYRIGHTS. rights is a single
   // string of rights, as specified by RFC2086, the IMAP ACL extension.
-  void AddFolderRightsForUser(const char *mailboxName, const char *userName,
-                              const char *rights);
+  void AddFolderRightsForUser(const char* mailboxName, const char* userName,
+                              const char* rights);
   // Clears all rights for the current folder, for all users.
   void ClearAllFolderRights();
-  void RefreshFolderACLView(const char *mailboxName,
-                            nsIMAPNamespace *nsForMailbox);
+  void RefreshFolderACLView(const char* mailboxName,
+                            nsIMAPNamespace* nsForMailbox);
 
-  nsresult SetFolderAdminUrl(const char *mailboxName);
+  nsresult SetFolderAdminUrl(const char* mailboxName);
   void HandleMemoryFailure();
   void HandleCurrentUrlError();
 
   // UIDPLUS extension
-  void SetCopyResponseUid(const char *msgIdString);
+  void SetCopyResponseUid(const char* msgIdString);
 
   // Quota support
-  void UpdateFolderQuotaData(nsImapQuotaAction aAction, nsCString &aQuotaRoot,
+  void UpdateFolderQuotaData(nsImapQuotaAction aAction, nsCString& aQuotaRoot,
                              uint32_t aUsed, uint32_t aMax);
 
   bool GetPreferPlainText() { return m_preferPlainText; }
 
   int32_t GetCurFetchSize() { return m_curFetchSize; }
 
-  const nsString &GetEmptyMimePartString() { return m_emptyMimePartString; }
+  const nsString& GetEmptyMimePartString() { return m_emptyMimePartString; }
 
  private:
   virtual ~nsImapProtocol();
@@ -394,7 +394,7 @@ class nsImapProtocol : public nsIImapProtocol,
   nsCString m_userName;
   nsCString m_serverKey;
   nsCString m_realHostName;
-  char *m_dataOutputBuf;
+  char* m_dataOutputBuf;
   RefPtr<nsMsgLineStreamBuffer> m_inputStreamBuffer;
   nsCString m_trashFolderPath;
 
@@ -417,7 +417,7 @@ class nsImapProtocol : public nsIImapProtocol,
 
   // ******* Thread support *******
   nsCOMPtr<nsIThread> m_iThread;
-  PRThread *m_thread;
+  PRThread* m_thread;
   mozilla::ReentrantMonitor
       m_dataAvailableMonitor;  // used to notify the arrival of data from the
                                // server
@@ -462,32 +462,32 @@ class nsImapProtocol : public nsIImapProtocol,
   bool GetShowDeletedMessages();
   nsCString m_currentCommand;
   nsImapServerResponseParser m_parser;
-  nsImapServerResponseParser &GetServerStateParser() { return m_parser; }
+  nsImapServerResponseParser& GetServerStateParser() { return m_parser; }
 
   void HandleIdleResponses();
   virtual bool ProcessCurrentURL();
   void EstablishServerConnection();
-  virtual void ParseIMAPandCheckForNewMail(const char *commandString = nullptr,
+  virtual void ParseIMAPandCheckForNewMail(const char* commandString = nullptr,
                                            bool ignoreBadNOResponses = false);
   // biff
   void PeriodicBiff();
   void SendSetBiffIndicatorEvent(nsMsgBiffState newState);
 
   // folder opening and listing header functions
-  void FolderHeaderDump(uint32_t *msgUids, uint32_t msgCount);
-  void FolderMsgDump(uint32_t *msgUids, uint32_t msgCount,
+  void FolderHeaderDump(uint32_t* msgUids, uint32_t msgCount);
+  void FolderMsgDump(uint32_t* msgUids, uint32_t msgCount,
                      nsIMAPeFetchFields fields);
-  void FolderMsgDumpLoop(uint32_t *msgUids, uint32_t msgCount,
+  void FolderMsgDumpLoop(uint32_t* msgUids, uint32_t msgCount,
                          nsIMAPeFetchFields fields);
-  void WaitForPotentialListOfBodysToFetch(nsTArray<nsMsgKey> &msgIdList);
+  void WaitForPotentialListOfBodysToFetch(nsTArray<nsMsgKey>& msgIdList);
   void HeaderFetchCompleted();
-  void UploadMessageFromFile(nsIFile *file, const char *mailboxName,
+  void UploadMessageFromFile(nsIFile* file, const char* mailboxName,
                              PRTime date, imapMessageFlagsType flags,
-                             nsCString &keywords);
+                             nsCString& keywords);
 
   // mailbox name utilities.
-  void CreateEscapedMailboxName(const char *rawName, nsCString &escapedName);
-  void SetupMessageFlagsString(nsCString &flagString,
+  void CreateEscapedMailboxName(const char* rawName, nsCString& escapedName);
+  void SetupMessageFlagsString(nsCString& flagString,
                                imapMessageFlagsType flags, uint16_t userFlags);
 
   // body fetching listing data
@@ -495,8 +495,8 @@ class nsImapProtocol : public nsIImapProtocol,
   nsTArray<nsMsgKey> m_fetchBodyIdList;
 
   // initialization function given a new url and transport layer
-  nsresult SetupWithUrl(nsIURI *aURL, nsISupports *aConsumer);
-  nsresult SetupWithUrlCallback(nsIProxyInfo *proxyInfo);
+  nsresult SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer);
+  nsresult SetupWithUrlCallback(nsIProxyInfo* proxyInfo);
   void ReleaseUrlState(bool rerunningUrl);  // release any state that is stored
                                             // on a per action basis.
   /**
@@ -507,7 +507,7 @@ class nsImapProtocol : public nsIImapProtocol,
    *
    * @returns true if the url has been run locally, or doesn't need to be run.
    */
-  bool TryToRunUrlLocally(nsIURI *aURL, nsISupports *aConsumer);
+  bool TryToRunUrlLocally(nsIURI* aURL, nsISupports* aConsumer);
 
   ////////////////////////////////////////////////////////////////////////////////////////
   // Communication methods --> Reading and writing protocol
@@ -520,7 +520,7 @@ class nsImapProtocol : public nsIImapProtocol,
   // sure we don't log authenication information like the user's password (which
   // was encoded anyway), but still we shouldn't add that information to the
   // log.
-  nsresult SendData(const char *dataBuffer,
+  nsresult SendData(const char* dataBuffer,
                     bool aSuppressLogging = false) override;
 
   // state ported over from 4.5
@@ -545,14 +545,14 @@ class nsImapProtocol : public nsIImapProtocol,
   char m_currentServerCommandTag[11];
   uint32_t m_currentServerCommandTagNumber;
   void IncrementCommandTagNumber();
-  const char *GetServerCommandTag();
+  const char* GetServerCommandTag();
 
   void StartTLS();
 
   // login related methods.
-  nsresult GetPassword(nsString &password, bool aNewPasswordRequested);
+  nsresult GetPassword(nsString& password, bool aNewPasswordRequested);
   void InitPrefAuthMethods(int32_t authMethodPrefValue,
-                           nsIMsgIncomingServer *aServer);
+                           nsIMsgIncomingServer* aServer);
   nsresult ChooseAuthMethod();
   void MarkAuthMethodAsFailed(eIMAPCapabilityFlags failedAuthMethod);
   void ResetAuthMethods();
@@ -565,12 +565,12 @@ class nsImapProtocol : public nsIImapProtocol,
   nsresult BeginCompressing();
   void Language();  // set the language on the server if it supports it
   void Namespace();
-  void InsecureLogin(const char *userName, const nsCString &password);
+  void InsecureLogin(const char* userName, const nsCString& password);
   nsresult ClientID();
-  nsresult AuthLogin(const char *userName, const nsString &password,
+  nsresult AuthLogin(const char* userName, const nsString& password,
                      eIMAPCapabilityFlag flag);
-  nsresult SendDataParseIMAPandCheckForNewMail(const char *data,
-                                               const char *command);
+  nsresult SendDataParseIMAPandCheckForNewMail(const char* data,
+                                               const char* command);
   void ProcessAuthenticatedStateURL();
   void ProcessAfterAuthenticated();
   void ProcessSelectedStateURL();
@@ -583,82 +583,82 @@ class nsImapProtocol : public nsIImapProtocol,
   void OnLSubFolders();
   void OnAppendMsgFromFile();
 
-  char *GetFolderPathString();  // OK to call from UI thread
+  char* GetFolderPathString();  // OK to call from UI thread
 
-  char *OnCreateServerSourceFolderPathString();
-  char *OnCreateServerDestinationFolderPathString();
-  nsresult CreateServerSourceFolderPathString(char **result);
-  void OnCreateFolder(const char *aSourceMailbox);
-  void OnEnsureExistsFolder(const char *aSourceMailbox);
-  void OnSubscribe(const char *aSourceMailbox);
-  void OnUnsubscribe(const char *aSourceMailbox);
-  void RefreshACLForFolderIfNecessary(const char *mailboxName);
-  void RefreshACLForFolder(const char *aSourceMailbox);
-  void GetACLForFolder(const char *aMailboxName);
+  char* OnCreateServerSourceFolderPathString();
+  char* OnCreateServerDestinationFolderPathString();
+  nsresult CreateServerSourceFolderPathString(char** result);
+  void OnCreateFolder(const char* aSourceMailbox);
+  void OnEnsureExistsFolder(const char* aSourceMailbox);
+  void OnSubscribe(const char* aSourceMailbox);
+  void OnUnsubscribe(const char* aSourceMailbox);
+  void RefreshACLForFolderIfNecessary(const char* mailboxName);
+  void RefreshACLForFolder(const char* aSourceMailbox);
+  void GetACLForFolder(const char* aMailboxName);
   void OnRefreshAllACLs();
-  void OnListFolder(const char *aSourceMailbox, bool aBool);
-  void OnStatusForFolder(const char *sourceMailbox);
-  void OnDeleteFolder(const char *aSourceMailbox);
-  void OnRenameFolder(const char *aSourceMailbox);
-  void OnMoveFolderHierarchy(const char *aSourceMailbox);
-  void DeleteFolderAndMsgs(const char *aSourceMailbox);
+  void OnListFolder(const char* aSourceMailbox, bool aBool);
+  void OnStatusForFolder(const char* sourceMailbox);
+  void OnDeleteFolder(const char* aSourceMailbox);
+  void OnRenameFolder(const char* aSourceMailbox);
+  void OnMoveFolderHierarchy(const char* aSourceMailbox);
+  void DeleteFolderAndMsgs(const char* aSourceMailbox);
   void RemoveMsgsAndExpunge();
   void FindMailboxesIfNecessary();
-  void CreateMailbox(const char *mailboxName);
-  void DeleteMailbox(const char *mailboxName);
-  void RenameMailbox(const char *existingName, const char *newName);
-  void RemoveHierarchyDelimiter(nsCString &mailboxName);
-  bool CreateMailboxRespectingSubscriptions(const char *mailboxName);
-  bool DeleteMailboxRespectingSubscriptions(const char *mailboxName);
-  bool RenameMailboxRespectingSubscriptions(const char *existingName,
-                                            const char *newName,
+  void CreateMailbox(const char* mailboxName);
+  void DeleteMailbox(const char* mailboxName);
+  void RenameMailbox(const char* existingName, const char* newName);
+  void RemoveHierarchyDelimiter(nsCString& mailboxName);
+  bool CreateMailboxRespectingSubscriptions(const char* mailboxName);
+  bool DeleteMailboxRespectingSubscriptions(const char* mailboxName);
+  bool RenameMailboxRespectingSubscriptions(const char* existingName,
+                                            const char* newName,
                                             bool reallyRename);
   // notify the fe that a folder was deleted
-  void FolderDeleted(const char *mailboxName);
+  void FolderDeleted(const char* mailboxName);
   // notify the fe that a folder creation failed
-  void FolderNotCreated(const char *mailboxName);
+  void FolderNotCreated(const char* mailboxName);
   // notify the fe that a folder was deleted
-  void FolderRenamed(const char *oldName, const char *newName);
+  void FolderRenamed(const char* oldName, const char* newName);
 
-  bool FolderIsSelected(const char *mailboxName);
+  bool FolderIsSelected(const char* mailboxName);
 
-  bool MailboxIsNoSelectMailbox(const char *mailboxName);
-  bool FolderNeedsACLInitialized(const char *folderName);
+  bool MailboxIsNoSelectMailbox(const char* mailboxName);
+  bool FolderNeedsACLInitialized(const char* folderName);
   void DiscoverMailboxList();
   void DiscoverAllAndSubscribedBoxes();
   void MailboxDiscoveryFinished();
-  void NthLevelChildList(const char *onlineMailboxPrefix, int32_t depth);
+  void NthLevelChildList(const char* onlineMailboxPrefix, int32_t depth);
   // LIST SUBSCRIBED command (from RFC 5258) crashes some servers. so we need to
   // identify those servers
   bool GetListSubscribedIsBrokenOnServer();
   bool IsExtraSelectNeeded();
-  void Lsub(const char *mailboxPattern, bool addDirectoryIfNecessary);
-  void List(const char *mailboxPattern, bool addDirectoryIfNecessary,
+  void Lsub(const char* mailboxPattern, bool addDirectoryIfNecessary);
+  void List(const char* mailboxPattern, bool addDirectoryIfNecessary,
             bool useXLIST = false);
-  void Subscribe(const char *mailboxName);
-  void Unsubscribe(const char *mailboxName);
+  void Subscribe(const char* mailboxName);
+  void Unsubscribe(const char* mailboxName);
   void Idle();
   void EndIdle(bool waitForResponse = true);
   // Some imap servers include the mailboxName following the dir-separator in
   // the list of subfolders of the mailboxName. In fact, they are the same. So
   // we should decide if we should delete such subfolder and provide feedback if
   // the delete operation succeed.
-  bool DeleteSubFolders(const char *aMailboxName, bool &aDeleteSelf);
-  bool RenameHierarchyByHand(const char *oldParentMailboxName,
-                             const char *newParentMailboxName);
+  bool DeleteSubFolders(const char* aMailboxName, bool& aDeleteSelf);
+  bool RenameHierarchyByHand(const char* oldParentMailboxName,
+                             const char* newParentMailboxName);
   bool RetryUrl();
 
-  nsresult GlobalInitialization(nsIPrefBranch *aPrefBranch);
+  nsresult GlobalInitialization(nsIPrefBranch* aPrefBranch);
   nsresult Configure(int32_t TooFastTime, int32_t IdealTime,
                      int32_t ChunkAddSize, int32_t ChunkSize,
                      int32_t ChunkThreshold, bool FetchByChunks);
-  nsresult GetMsgWindow(nsIMsgWindow **aMsgWindow);
+  nsresult GetMsgWindow(nsIMsgWindow** aMsgWindow);
   // End Process AuthenticatedState Url helper methods
 
-  virtual char const *GetType() override { return "imap"; }
+  virtual char const* GetType() override { return "imap"; }
 
   // Quota support
-  void GetQuotaDataIfSupported(const char *aBoxName);
+  void GetQuotaDataIfSupported(const char* aBoxName);
 
   // CondStore support - true if server supports it, and the user hasn't
   // disabled it.
@@ -755,8 +755,8 @@ class nsImapProtocol : public nsIImapProtocol,
   };
   EMailboxHierarchyNameState m_hierarchyNameState;
   EMailboxDiscoverStatus m_discoveryStatus;
-  nsTArray<nsIMAPMailboxInfo *> m_listedMailboxList;
-  nsTArray<char *> *m_deletableChildren;
+  nsTArray<nsIMAPMailboxInfo*> m_listedMailboxList;
+  nsTArray<char*>* m_deletableChildren;
   uint32_t m_flagChangeCount;
   PRTime m_lastCheckTime;
 
@@ -792,7 +792,7 @@ class nsImapMockChannel : public nsIImapMockChannel,
   NS_DECL_NSITRANSPORTEVENTSINK
 
   nsImapMockChannel();
-  static nsresult Create(const nsIID &iid, void **result);
+  static nsresult Create(const nsIID& iid, void** result);
   nsresult RunOnStopRequestFailure();
 
  protected:
@@ -827,13 +827,13 @@ class nsImapMockChannel : public nsIImapMockChannel,
                               // (offline) cache....
   nsresult
   ReadFromImapConnection();  // creates a new imap connection to read the url
-  nsresult ReadFromMemCache(nsICacheEntry *entry);  // attempts to read the url
+  nsresult ReadFromMemCache(nsICacheEntry* entry);  // attempts to read the url
                                                     // out of our memory cache
   nsresult NotifyStartEndReadFromCache(bool start);
 
   // we end up daisy chaining multiple nsIStreamListeners into the load process.
-  nsresult SetupPartExtractorListener(nsIImapUrl *aUrl,
-                                      nsIStreamListener *aConsumer);
+  nsresult SetupPartExtractorListener(nsIImapUrl* aUrl,
+                                      nsIStreamListener* aConsumer);
 };
 
 #endif  // nsImapProtocol_h___

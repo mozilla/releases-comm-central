@@ -61,11 +61,10 @@ class morkRowCellCursor : public morkCursor,
   // } ----- end attribute methods -----
 
   // { ----- begin cell seeking methods -----
-  NS_IMETHOD SeekCell(
-      nsIMdbEnv* ev,          // context
-      mdb_pos inPos,          // position of cell in row sequence
-      mdb_column* outColumn,  // column for this particular cell
-      nsIMdbCell** acqCell) override;  // the cell at inPos
+  NS_IMETHOD SeekCell(nsIMdbEnv* ev,  // context
+                      mdb_pos inPos,  // position of cell in row sequence
+                      mdb_column* outColumn,  // column for this particular cell
+                      nsIMdbCell** acqCell) override;  // the cell at inPos
   // } ----- end cell seeking methods -----
 
   // { ----- begin cell iteration methods -----

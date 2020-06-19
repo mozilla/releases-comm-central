@@ -18,7 +18,7 @@ class nsMsgDatabase;
 class nsMsgThread : public nsIMsgThread {
  public:
   nsMsgThread();
-  nsMsgThread(nsMsgDatabase *db, nsIMdbTable *table);
+  nsMsgThread(nsMsgDatabase* db, nsIMdbTable* table);
 
   friend class nsMsgThreadEnumerator;
   friend class nsMsgDatabase;
@@ -38,16 +38,16 @@ class nsMsgThread : public nsIMsgThread {
   nsresult ChangeUnreadChildCount(int32_t delta);
   nsresult RemoveChild(nsMsgKey msgKey);
   nsresult SetThreadRootKey(nsMsgKey threadRootKey);
-  nsresult GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr **result,
-                             int32_t *resultIndex);
-  nsresult RerootThread(nsIMsgDBHdr *newParentOfOldRoot, nsIMsgDBHdr *oldRoot,
-                        nsIDBChangeAnnouncer *announcer);
+  nsresult GetChildHdrForKey(nsMsgKey desiredKey, nsIMsgDBHdr** result,
+                             int32_t* resultIndex);
+  nsresult RerootThread(nsIMsgDBHdr* newParentOfOldRoot, nsIMsgDBHdr* oldRoot,
+                        nsIDBChangeAnnouncer* announcer);
   nsresult ReparentChildrenOf(nsMsgKey oldParent, nsMsgKey newParent,
-                              nsIDBChangeAnnouncer *announcer);
+                              nsIDBChangeAnnouncer* announcer);
 
-  nsresult ReparentNonReferenceChildrenOf(nsIMsgDBHdr *topLevelHdr,
+  nsresult ReparentNonReferenceChildrenOf(nsIMsgDBHdr* topLevelHdr,
                                           nsMsgKey newParentKey,
-                                          nsIDBChangeAnnouncer *announcer);
+                                          nsIDBChangeAnnouncer* announcer);
   nsresult ReparentMsgsWithInvalidParent(uint32_t numChildren,
                                          nsMsgKey threadParentKey);
 

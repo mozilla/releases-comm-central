@@ -50,10 +50,10 @@ using namespace mozilla;
 NS_IMPL_ISUPPORTS(nsMsgProtocol, nsIChannel, nsIStreamListener,
                   nsIRequestObserver, nsIRequest, nsITransportEventSink)
 
-static char16_t *FormatStringWithHostNameByName(const char16_t *stringName,
-                                                nsIMsgMailNewsUrl *msgUri);
+static char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
+                                                nsIMsgMailNewsUrl* msgUri);
 
-nsMsgProtocol::nsMsgProtocol(nsIURI *aURL) {
+nsMsgProtocol::nsMsgProtocol(nsIURI* aURL) {
   m_flags = 0;
   m_readCount = 0;
   mLoadFlags = 0;
@@ -68,7 +68,7 @@ nsMsgProtocol::nsMsgProtocol(nsIURI *aURL) {
   InitFromURI(aURL);
 }
 
-nsresult nsMsgProtocol::InitFromURI(nsIURI *aUrl) {
+nsresult nsMsgProtocol::InitFromURI(nsIURI* aUrl) {
   m_url = aUrl;
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailUrl = do_QueryInterface(aUrl);
@@ -90,9 +90,9 @@ nsMsgProtocol::~nsMsgProtocol() {}
 static bool gGotTimeoutPref;
 static int32_t gSocketTimeout = 60;
 
-nsresult nsMsgProtocol::GetQoSBits(uint8_t *aQoSBits) {
+nsresult nsMsgProtocol::GetQoSBits(uint8_t* aQoSBits) {
   NS_ENSURE_ARG_POINTER(aQoSBits);
-  const char *protocol = GetType();
+  const char* protocol = GetType();
 
   if (!protocol) return NS_ERROR_NOT_IMPLEMENTED;
 
@@ -113,8 +113,8 @@ nsresult nsMsgProtocol::GetQoSBits(uint8_t *aQoSBits) {
 }
 
 nsresult nsMsgProtocol::OpenNetworkSocketWithInfo(
-    const char *aHostName, int32_t aGetPort, const char *connectionType,
-    nsIProxyInfo *aProxyInfo, nsIInterfaceRequestor *callbacks) {
+    const char* aHostName, int32_t aGetPort, const char* connectionType,
+    nsIProxyInfo* aProxyInfo, nsIInterfaceRequestor* callbacks) {
   NS_ENSURE_ARG(aHostName);
 
   nsresult rv = NS_OK;
@@ -160,7 +160,7 @@ nsresult nsMsgProtocol::OpenNetworkSocketWithInfo(
   return SetupTransportState();
 }
 
-nsresult nsMsgProtocol::GetFileFromURL(nsIURI *aURL, nsIFile **aResult) {
+nsresult nsMsgProtocol::GetFileFromURL(nsIURI* aURL, nsIFile** aResult) {
   NS_ENSURE_ARG_POINTER(aURL);
   NS_ENSURE_ARG_POINTER(aResult);
   // extract the file path from the uri...
@@ -180,7 +180,7 @@ nsresult nsMsgProtocol::GetFileFromURL(nsIURI *aURL, nsIFile **aResult) {
   // dougt
 }
 
-nsresult nsMsgProtocol::OpenFileSocket(nsIURI *aURL, uint64_t aStartPosition,
+nsresult nsMsgProtocol::OpenFileSocket(nsIURI* aURL, uint64_t aStartPosition,
                                        int64_t aReadCount) {
   // mscott - file needs to be encoded directly into aURL. I should be able to
   // get rid of this method completely.
@@ -213,7 +213,7 @@ nsresult nsMsgProtocol::OpenFileSocket(nsIURI *aURL, uint64_t aStartPosition,
   return rv;
 }
 
-nsresult nsMsgProtocol::GetTopmostMsgWindow(nsIMsgWindow **aWindow) {
+nsresult nsMsgProtocol::GetTopmostMsgWindow(nsIMsgWindow** aWindow) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession(
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
@@ -271,7 +271,7 @@ nsresult nsMsgProtocol::CloseSocket() {
  * ignored.
  */
 
-nsresult nsMsgProtocol::SendData(const char *dataBuffer,
+nsresult nsMsgProtocol::SendData(const char* dataBuffer,
                                  bool aSuppressLogging) {
   uint32_t writeCount = 0;
 
@@ -286,8 +286,8 @@ nsresult nsMsgProtocol::SendData(const char *dataBuffer,
 // Whenever data arrives from the connection, core netlib notifices the protocol
 // by calling OnDataAvailable. We then read and process the incoming data from
 // the input stream.
-NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest *request,
-                                             nsIInputStream *inStr,
+NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest* request,
+                                             nsIInputStream* inStr,
                                              uint64_t sourceOffset,
                                              uint32_t count) {
   // right now, this really just means turn around and churn through the state
@@ -298,7 +298,7 @@ NS_IMETHODIMP nsMsgProtocol::OnDataAvailable(nsIRequest *request,
   return ProcessProtocolState(uri, inStr, sourceOffset, count);
 }
 
-NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request) {
+NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest* request) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIURI> uri;
   GetURI(getter_AddRefs(uri));
@@ -307,7 +307,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request) {
     nsCOMPtr<nsIMsgMailNewsUrl> aMsgUrl = do_QueryInterface(uri);
     rv = aMsgUrl->SetUrlState(true, NS_OK);
     if (m_loadGroup)
-      m_loadGroup->AddRequest(static_cast<nsIRequest *>(this),
+      m_loadGroup->AddRequest(static_cast<nsIRequest*>(this),
                               nullptr /* context isupports */);
   }
 
@@ -328,9 +328,9 @@ NS_IMETHODIMP nsMsgProtocol::OnStartRequest(nsIRequest *request) {
   return rv;
 }
 
-void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl,
+void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl* aMsgUrl,
                                      nsresult aStatus) {
-  const char16_t *errorString = nullptr;
+  const char16_t* errorString = nullptr;
   switch (aStatus) {
     case NS_ERROR_UNKNOWN_HOST:
     case NS_ERROR_UNKNOWN_PROXY_HOST:
@@ -375,7 +375,7 @@ void nsMsgProtocol::ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl,
 
 // stop binding is a "notification" informing us that the stream associated with
 // aURL is going away.
-NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request,
+NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest* request,
                                            nsresult aStatus) {
   nsresult rv = NS_OK;
 
@@ -392,7 +392,7 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request,
     nsCOMPtr<nsIMsgMailNewsUrl> msgUrl = do_QueryInterface(uri);
     rv = msgUrl->SetUrlState(false, aStatus);  // Always returns NS_OK.
     if (m_loadGroup)
-      m_loadGroup->RemoveRequest(static_cast<nsIRequest *>(this), nullptr,
+      m_loadGroup->RemoveRequest(static_cast<nsIRequest*>(this), nullptr,
                                  aStatus);
 
     // !m_isChannel because if we're set up as a channel, then the remove
@@ -417,8 +417,8 @@ NS_IMETHODIMP nsMsgProtocol::OnStopRequest(nsIRequest *request,
   return rv;
 }
 
-nsresult nsMsgProtocol::GetPromptDialogFromUrl(nsIMsgMailNewsUrl *aMsgUrl,
-                                               nsIPrompt **aPromptDialog) {
+nsresult nsMsgProtocol::GetPromptDialogFromUrl(nsIMsgMailNewsUrl* aMsgUrl,
+                                               nsIPrompt** aPromptDialog) {
   // get the nsIPrompt interface from the message window associated wit this
   // url.
   nsCOMPtr<nsIMsgWindow> msgWindow;
@@ -432,7 +432,7 @@ nsresult nsMsgProtocol::GetPromptDialogFromUrl(nsIMsgMailNewsUrl *aMsgUrl,
   return NS_OK;
 }
 
-nsresult nsMsgProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
+nsresult nsMsgProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
   // okay now kick us off to the next state...
   // our first state is a process state so drive the state machine...
   nsresult rv = NS_OK;
@@ -492,17 +492,17 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI *aURL, nsISupports *aConsumer) {
 // The rest of this file is mostly nsIChannel mumbo jumbo stuff
 ///////////////////////////////////////////////////////////////////////
 
-nsresult nsMsgProtocol::SetUrl(nsIURI *aURL) {
+nsresult nsMsgProtocol::SetUrl(nsIURI* aURL) {
   m_url = aURL;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::SetLoadGroup(nsILoadGroup *aLoadGroup) {
+NS_IMETHODIMP nsMsgProtocol::SetLoadGroup(nsILoadGroup* aLoadGroup) {
   m_loadGroup = aLoadGroup;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetTRRMode(nsIRequest::TRRMode *aTRRMode) {
+NS_IMETHODIMP nsMsgProtocol::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
   return GetTRRModeImpl(aTRRMode);
 }
 
@@ -510,22 +510,22 @@ NS_IMETHODIMP nsMsgProtocol::SetTRRMode(nsIRequest::TRRMode aTRRMode) {
   return SetTRRModeImpl(aTRRMode);
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetOriginalURI(nsIURI **aURI) {
+NS_IMETHODIMP nsMsgProtocol::GetOriginalURI(nsIURI** aURI) {
   NS_IF_ADDREF(*aURI = m_originalUrl ? m_originalUrl : m_url);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::SetOriginalURI(nsIURI *aURI) {
+NS_IMETHODIMP nsMsgProtocol::SetOriginalURI(nsIURI* aURI) {
   m_originalUrl = aURI;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetURI(nsIURI **aURI) {
+NS_IMETHODIMP nsMsgProtocol::GetURI(nsIURI** aURI) {
   NS_IF_ADDREF(*aURI = m_url);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::Open(nsIInputStream **_retval) {
+NS_IMETHODIMP nsMsgProtocol::Open(nsIInputStream** _retval) {
   nsCOMPtr<nsIStreamListener> listener;
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);
@@ -533,7 +533,7 @@ NS_IMETHODIMP nsMsgProtocol::Open(nsIInputStream **_retval) {
   return NS_ImplementChannelOpen(this, _retval);
 }
 
-NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *aListener) {
+NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener* aListener) {
   nsCOMPtr<nsIStreamListener> listener = aListener;
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);
@@ -557,7 +557,7 @@ NS_IMETHODIMP nsMsgProtocol::AsyncOpen(nsIStreamListener *aListener) {
   return LoadUrl(m_url, nullptr);
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetLoadFlags(nsLoadFlags *aLoadFlags) {
+NS_IMETHODIMP nsMsgProtocol::GetLoadFlags(nsLoadFlags* aLoadFlags) {
   *aLoadFlags = mLoadFlags;
   return NS_OK;
 }
@@ -567,7 +567,7 @@ NS_IMETHODIMP nsMsgProtocol::SetLoadFlags(nsLoadFlags aLoadFlags) {
   return NS_OK;  // don't fail when trying to set this
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetContentType(nsACString &aContentType) {
+NS_IMETHODIMP nsMsgProtocol::GetContentType(nsACString& aContentType) {
   // as url dispatching matures, we'll be intelligent and actually start
   // opening the url before specifying the content type. This will allow
   // us to optimize the case where the message url actual refers to
@@ -580,7 +580,7 @@ NS_IMETHODIMP nsMsgProtocol::GetContentType(nsACString &aContentType) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::SetContentType(const nsACString &aContentType) {
+NS_IMETHODIMP nsMsgProtocol::SetContentType(const nsACString& aContentType) {
   nsAutoCString charset;
   nsresult rv =
       NS_ParseResponseContentType(aContentType, mContentType, charset);
@@ -589,19 +589,19 @@ NS_IMETHODIMP nsMsgProtocol::SetContentType(const nsACString &aContentType) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetContentCharset(nsACString &aContentCharset) {
+NS_IMETHODIMP nsMsgProtocol::GetContentCharset(nsACString& aContentCharset) {
   aContentCharset.Assign(mCharset);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgProtocol::SetContentCharset(
-    const nsACString &aContentCharset) {
+    const nsACString& aContentCharset) {
   mCharset.Assign(aContentCharset);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgProtocol::GetContentDisposition(uint32_t *aContentDisposition) {
+nsMsgProtocol::GetContentDisposition(uint32_t* aContentDisposition) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
@@ -612,23 +612,23 @@ nsMsgProtocol::SetContentDisposition(uint32_t aContentDisposition) {
 
 NS_IMETHODIMP
 nsMsgProtocol::GetContentDispositionFilename(
-    nsAString &aContentDispositionFilename) {
+    nsAString& aContentDispositionFilename) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP
 nsMsgProtocol::SetContentDispositionFilename(
-    const nsAString &aContentDispositionFilename) {
+    const nsAString& aContentDispositionFilename) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP
 nsMsgProtocol::GetContentDispositionHeader(
-    nsACString &aContentDispositionHeader) {
+    nsACString& aContentDispositionHeader) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetContentLength(int64_t *aContentLength) {
+NS_IMETHODIMP nsMsgProtocol::GetContentLength(int64_t* aContentLength) {
   *aContentLength = mContentLength;
   return NS_OK;
 }
@@ -638,58 +638,58 @@ NS_IMETHODIMP nsMsgProtocol::SetContentLength(int64_t aContentLength) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetSecurityInfo(nsISupports **aSecurityInfo) {
+NS_IMETHODIMP nsMsgProtocol::GetSecurityInfo(nsISupports** aSecurityInfo) {
   *aSecurityInfo = nullptr;
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetName(nsACString &result) {
+NS_IMETHODIMP nsMsgProtocol::GetName(nsACString& result) {
   if (m_url) return m_url->GetSpec(result);
   result.Truncate();
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetOwner(nsISupports **aPrincipal) {
+NS_IMETHODIMP nsMsgProtocol::GetOwner(nsISupports** aPrincipal) {
   NS_IF_ADDREF(*aPrincipal = mOwner);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::SetOwner(nsISupports *aPrincipal) {
+NS_IMETHODIMP nsMsgProtocol::SetOwner(nsISupports* aPrincipal) {
   mOwner = aPrincipal;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetLoadGroup(nsILoadGroup **aLoadGroup) {
+NS_IMETHODIMP nsMsgProtocol::GetLoadGroup(nsILoadGroup** aLoadGroup) {
   NS_IF_ADDREF(*aLoadGroup = m_loadGroup);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetLoadInfo(nsILoadInfo **aLoadInfo) {
+NS_IMETHODIMP nsMsgProtocol::GetLoadInfo(nsILoadInfo** aLoadInfo) {
   NS_IF_ADDREF(*aLoadInfo = m_loadInfo);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::SetLoadInfo(nsILoadInfo *aLoadInfo) {
+NS_IMETHODIMP nsMsgProtocol::SetLoadInfo(nsILoadInfo* aLoadInfo) {
   m_loadInfo = aLoadInfo;
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgProtocol::GetNotificationCallbacks(
-    nsIInterfaceRequestor **aNotificationCallbacks) {
+    nsIInterfaceRequestor** aNotificationCallbacks) {
   NS_IF_ADDREF(*aNotificationCallbacks = mCallbacks.get());
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMsgProtocol::SetNotificationCallbacks(
-    nsIInterfaceRequestor *aNotificationCallbacks) {
+    nsIInterfaceRequestor* aNotificationCallbacks) {
   mCallbacks = aNotificationCallbacks;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgProtocol::OnTransportStatus(nsITransport *transport, nsresult status,
+nsMsgProtocol::OnTransportStatus(nsITransport* transport, nsresult status,
                                  int64_t progress, int64_t progressMax) {
   if ((mLoadFlags & LOAD_BACKGROUND) || !m_url) return NS_OK;
 
@@ -718,7 +718,7 @@ nsMsgProtocol::OnTransportStatus(nsITransport *transport, nsresult status,
 }
 
 NS_IMETHODIMP
-nsMsgProtocol::GetIsDocument(bool *aIsDocument) {
+nsMsgProtocol::GetIsDocument(bool* aIsDocument) {
   return NS_GetIsDocumentChannel(this, aIsDocument);
 }
 
@@ -726,12 +726,12 @@ nsMsgProtocol::GetIsDocument(bool *aIsDocument) {
 // From nsIRequest
 ////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsMsgProtocol::IsPending(bool *result) {
+NS_IMETHODIMP nsMsgProtocol::IsPending(bool* result) {
   *result = m_channelListener != nullptr;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetStatus(nsresult *status) {
+NS_IMETHODIMP nsMsgProtocol::GetStatus(nsresult* status) {
   if (m_request) return m_request->GetStatus(status);
 
   *status = NS_OK;
@@ -747,7 +747,7 @@ NS_IMETHODIMP nsMsgProtocol::Cancel(nsresult status) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetCanceled(bool *aCanceled) {
+NS_IMETHODIMP nsMsgProtocol::GetCanceled(bool* aCanceled) {
   nsresult status = NS_ERROR_FAILURE;
   GetStatus(&status);
   *aCanceled = NS_FAILED(status);
@@ -768,7 +768,7 @@ NS_IMETHODIMP nsMsgProtocol::Resume() {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-nsresult nsMsgProtocol::PostMessage(nsIURI *url, nsIFile *postFile) {
+nsresult nsMsgProtocol::PostMessage(nsIURI* url, nsIFile* postFile) {
   if (!url || !postFile) return NS_ERROR_NULL_POINTER;
 
 #define POST_DATA_BUFFER_SIZE 2048
@@ -810,8 +810,8 @@ nsresult nsMsgProtocol::PostMessage(nsIURI *url, nsIFile *postFile) {
   return NS_OK;
 }
 
-nsresult nsMsgProtocol::DoGSSAPIStep1(const char *service, const char *username,
-                                      nsCString &response) {
+nsresult nsMsgProtocol::DoGSSAPIStep1(const char* service, const char* username,
+                                      nsCString& response) {
   nsresult rv;
 #ifdef DEBUG_BenB
   printf("GSSAPI step 1 for service %s, username %s\n", service, username);
@@ -823,11 +823,11 @@ nsresult nsMsgProtocol::DoGSSAPIStep1(const char *service, const char *username,
   m_authModule->Init(service, nsIAuthModule::REQ_DEFAULT, nullptr,
                      NS_ConvertUTF8toUTF16(username).get(), nullptr);
 
-  void *outBuf;
+  void* outBuf;
   uint32_t outBufLen;
-  rv = m_authModule->GetNextToken((void *)nullptr, 0, &outBuf, &outBufLen);
+  rv = m_authModule->GetNextToken((void*)nullptr, 0, &outBuf, &outBufLen);
   if (NS_SUCCEEDED(rv) && outBuf) {
-    char *base64Str = PL_Base64Encode((char *)outBuf, outBufLen, nullptr);
+    char* base64Str = PL_Base64Encode((char*)outBuf, outBufLen, nullptr);
     if (base64Str)
       response.Adopt(base64Str);
     else
@@ -841,8 +841,8 @@ nsresult nsMsgProtocol::DoGSSAPIStep1(const char *service, const char *username,
   return rv;
 }
 
-nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse,
-                                      nsCString &response) {
+nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString& commandResponse,
+                                      nsCString& response) {
 #ifdef DEBUG_BenB
   printf("GSSAPI step 2\n");
 #endif
@@ -859,7 +859,7 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse,
     if (!inBuf) return NS_ERROR_OUT_OF_MEMORY;
 
     // strip off any padding (see bug 230351)
-    const char *challenge = commandResponse.get();
+    const char* challenge = commandResponse.get();
     while (challenge[len - 1] == '=') len--;
 
     // We need to know the exact length of the decoded string to give to
@@ -873,7 +873,7 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse,
     inBufLen =
         (len / 4) * 3 + ((len % 4 == 3) ? 2 : 0) + ((len % 4 == 2) ? 1 : 0);
 
-    rv = (PL_Base64Decode(challenge, len, (char *)inBuf))
+    rv = (PL_Base64Decode(challenge, len, (char*)inBuf))
              ? m_authModule->GetNextToken(inBuf, inBufLen, &outBuf, &outBufLen)
              : NS_ERROR_FAILURE;
 
@@ -884,13 +884,13 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse,
   if (NS_SUCCEEDED(rv)) {
     // And in return, we may need to send Cyrus zero length tokens back
     if (outBuf) {
-      char *base64Str = PL_Base64Encode((char *)outBuf, outBufLen, nullptr);
+      char* base64Str = PL_Base64Encode((char*)outBuf, outBufLen, nullptr);
       if (base64Str)
         response.Adopt(base64Str);
       else
         rv = NS_ERROR_OUT_OF_MEMORY;
     } else
-      response.Adopt((char *)moz_xmemdup("", 1));
+      response.Adopt((char*)moz_xmemdup("", 1));
   }
 
 #ifdef DEBUG_BenB
@@ -900,9 +900,9 @@ nsresult nsMsgProtocol::DoGSSAPIStep2(nsCString &commandResponse,
   return rv;
 }
 
-nsresult nsMsgProtocol::DoNtlmStep1(const nsACString &username,
-                                    const nsAString &password,
-                                    nsCString &response) {
+nsresult nsMsgProtocol::DoNtlmStep1(const nsACString& username,
+                                    const nsAString& password,
+                                    nsCString& response) {
   nsresult rv;
 
   m_authModule = nsIAuthModule::CreateInstance("ntlm");
@@ -910,11 +910,11 @@ nsresult nsMsgProtocol::DoNtlmStep1(const nsACString &username,
   m_authModule->Init(nullptr, 0, nullptr, NS_ConvertUTF8toUTF16(username).get(),
                      PromiseFlatString(password).get());
 
-  void *outBuf;
+  void* outBuf;
   uint32_t outBufLen;
-  rv = m_authModule->GetNextToken((void *)nullptr, 0, &outBuf, &outBufLen);
+  rv = m_authModule->GetNextToken((void*)nullptr, 0, &outBuf, &outBufLen);
   if (NS_SUCCEEDED(rv) && outBuf) {
-    char *base64Str = PL_Base64Encode((char *)outBuf, outBufLen, nullptr);
+    char* base64Str = PL_Base64Encode((char*)outBuf, outBufLen, nullptr);
     if (base64Str)
       response.Adopt(base64Str);
     else
@@ -925,8 +925,8 @@ nsresult nsMsgProtocol::DoNtlmStep1(const nsACString &username,
   return rv;
 }
 
-nsresult nsMsgProtocol::DoNtlmStep2(nsCString &commandResponse,
-                                    nsCString &response) {
+nsresult nsMsgProtocol::DoNtlmStep2(nsCString& commandResponse,
+                                    nsCString& response) {
   nsresult rv;
   void *inBuf, *outBuf;
   uint32_t inBufLen, outBufLen;
@@ -938,16 +938,16 @@ nsresult nsMsgProtocol::DoNtlmStep2(nsCString &commandResponse,
   if (!inBuf) return NS_ERROR_OUT_OF_MEMORY;
 
   // strip off any padding (see bug 230351)
-  const char *challenge = commandResponse.get();
+  const char* challenge = commandResponse.get();
   while (challenge[len - 1] == '=') len--;
 
-  rv = (PL_Base64Decode(challenge, len, (char *)inBuf))
+  rv = (PL_Base64Decode(challenge, len, (char*)inBuf))
            ? m_authModule->GetNextToken(inBuf, inBufLen, &outBuf, &outBufLen)
            : NS_ERROR_FAILURE;
 
   free(inBuf);
   if (NS_SUCCEEDED(rv) && outBuf) {
-    char *base64Str = PL_Base64Encode((char *)outBuf, outBufLen, nullptr);
+    char* base64Str = PL_Base64Encode((char*)outBuf, outBufLen, nullptr);
     if (base64Str)
       response.Adopt(base64Str);
     else
@@ -970,17 +970,17 @@ class nsMsgProtocolStreamProvider : public nsIOutputStreamCallback {
 
   nsMsgProtocolStreamProvider() {}
 
-  void Init(nsMsgAsyncWriteProtocol *aProtInstance,
-            nsIInputStream *aInputStream) {
+  void Init(nsMsgAsyncWriteProtocol* aProtInstance,
+            nsIInputStream* aInputStream) {
     mMsgProtocol =
-        do_GetWeakReference(static_cast<nsIStreamListener *>(aProtInstance));
+        do_GetWeakReference(static_cast<nsIStreamListener*>(aProtInstance));
     mInStream = aInputStream;
   }
 
   //
   // nsIOutputStreamCallback implementation ...
   //
-  NS_IMETHODIMP OnOutputStreamReady(nsIAsyncOutputStream *aOutStream) override {
+  NS_IMETHODIMP OnOutputStreamReady(nsIAsyncOutputStream* aOutStream) override {
     NS_ASSERTION(mInStream, "not initialized");
 
     nsresult rv;
@@ -993,10 +993,10 @@ class nsMsgProtocolStreamProvider : public nsIOutputStreamCallback {
     rv = mInStream->Available(&avail);
     if (NS_FAILED(rv)) return rv;
 
-    nsMsgAsyncWriteProtocol *protInst = nullptr;
+    nsMsgAsyncWriteProtocol* protInst = nullptr;
     nsCOMPtr<nsIStreamListener> callback = do_QueryReferent(mMsgProtocol);
     if (!callback) return NS_ERROR_FAILURE;
-    protInst = static_cast<nsMsgAsyncWriteProtocol *>(callback.get());
+    protInst = static_cast<nsMsgAsyncWriteProtocol*>(callback.get());
 
     if (avail == 0 && !protInst->mAsyncBuffer.Length()) {
       // ok, stop writing...
@@ -1048,8 +1048,8 @@ class nsMsgFilePostHelper : public nsIStreamListener {
   NS_DECL_NSISTREAMLISTENER
 
   nsMsgFilePostHelper() { mSuspendedPostFileRead = false; }
-  nsresult Init(nsIOutputStream *aOutStream,
-                nsMsgAsyncWriteProtocol *aProtInstance, nsIFile *aFileToPost);
+  nsresult Init(nsIOutputStream* aOutStream,
+                nsMsgAsyncWriteProtocol* aProtInstance, nsIFile* aFileToPost);
   nsCOMPtr<nsIRequest> mPostFileRequest;
   bool mSuspendedPostFileRead;
   void CloseSocket() { mProtInstance = nullptr; }
@@ -1062,13 +1062,13 @@ class nsMsgFilePostHelper : public nsIStreamListener {
 
 NS_IMPL_ISUPPORTS(nsMsgFilePostHelper, nsIStreamListener, nsIRequestObserver)
 
-nsresult nsMsgFilePostHelper::Init(nsIOutputStream *aOutStream,
-                                   nsMsgAsyncWriteProtocol *aProtInstance,
-                                   nsIFile *aFileToPost) {
+nsresult nsMsgFilePostHelper::Init(nsIOutputStream* aOutStream,
+                                   nsMsgAsyncWriteProtocol* aProtInstance,
+                                   nsIFile* aFileToPost) {
   nsresult rv = NS_OK;
   mOutStream = aOutStream;
   mProtInstance =
-      do_GetWeakReference(static_cast<nsIStreamListener *>(aProtInstance));
+      do_GetWeakReference(static_cast<nsIStreamListener*>(aProtInstance));
 
   nsCOMPtr<nsIInputStream> stream;
   rv = NS_NewLocalFileInputStream(getter_AddRefs(stream), aFileToPost);
@@ -1085,16 +1085,16 @@ nsresult nsMsgFilePostHelper::Init(nsIOutputStream *aOutStream,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilePostHelper::OnStartRequest(nsIRequest *aChannel) {
+NS_IMETHODIMP nsMsgFilePostHelper::OnStartRequest(nsIRequest* aChannel) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilePostHelper::OnStopRequest(nsIRequest *aChannel,
+NS_IMETHODIMP nsMsgFilePostHelper::OnStopRequest(nsIRequest* aChannel,
                                                  nsresult aStatus) {
-  nsMsgAsyncWriteProtocol *protInst = nullptr;
+  nsMsgAsyncWriteProtocol* protInst = nullptr;
   nsCOMPtr<nsIStreamListener> callback = do_QueryReferent(mProtInstance);
   if (!callback) return NS_OK;
-  protInst = static_cast<nsMsgAsyncWriteProtocol *>(callback.get());
+  protInst = static_cast<nsMsgAsyncWriteProtocol*>(callback.get());
 
   if (!mSuspendedPostFileRead) protInst->PostDataFinished();
 
@@ -1103,15 +1103,15 @@ NS_IMETHODIMP nsMsgFilePostHelper::OnStopRequest(nsIRequest *aChannel,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgFilePostHelper::OnDataAvailable(nsIRequest * /* aChannel */,
-                                                   nsIInputStream *inStr,
+NS_IMETHODIMP nsMsgFilePostHelper::OnDataAvailable(nsIRequest* /* aChannel */,
+                                                   nsIInputStream* inStr,
                                                    uint64_t sourceOffset,
                                                    uint32_t count) {
-  nsMsgAsyncWriteProtocol *protInst = nullptr;
+  nsMsgAsyncWriteProtocol* protInst = nullptr;
   nsCOMPtr<nsIStreamListener> callback = do_QueryReferent(mProtInstance);
   if (!callback) return NS_OK;
 
-  protInst = static_cast<nsMsgAsyncWriteProtocol *>(callback.get());
+  protInst = static_cast<nsMsgAsyncWriteProtocol*>(callback.get());
 
   if (mSuspendedPostFileRead) {
     protInst->UpdateSuspendedReadBytes(count, protInst->mInsertPeriodRequired);
@@ -1139,7 +1139,7 @@ NS_INTERFACE_MAP_BEGIN(nsMsgAsyncWriteProtocol)
   NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
 NS_INTERFACE_MAP_END_INHERITING(nsMsgProtocol)
 
-nsMsgAsyncWriteProtocol::nsMsgAsyncWriteProtocol(nsIURI *aURL)
+nsMsgAsyncWriteProtocol::nsMsgAsyncWriteProtocol(nsIURI* aURL)
     : nsMsgProtocol(aURL) {
   mSuspendedWrite = false;
   mSuspendedReadBytes = 0;
@@ -1166,7 +1166,7 @@ NS_IMETHODIMP nsMsgAsyncWriteProtocol::Cancel(nsresult status) {
   return NS_OK;
 }
 
-nsresult nsMsgAsyncWriteProtocol::PostMessage(nsIURI *url, nsIFile *file) {
+nsresult nsMsgAsyncWriteProtocol::PostMessage(nsIURI* url, nsIFile* file) {
   nsCOMPtr<nsIStreamListener> listener = new nsMsgFilePostHelper();
 
   if (!listener) return NS_ERROR_OUT_OF_MEMORY;
@@ -1180,10 +1180,10 @@ nsresult nsMsgAsyncWriteProtocol::PostMessage(nsIURI *url, nsIFile *file) {
   mSuspendedReadBytesPostPeriod = 0;
   mGenerateProgressNotifications = true;
 
-  mFilePostHelper = static_cast<nsMsgFilePostHelper *>(
-      static_cast<nsIStreamListener *>(listener));
+  mFilePostHelper = static_cast<nsMsgFilePostHelper*>(
+      static_cast<nsIStreamListener*>(listener));
 
-  static_cast<nsMsgFilePostHelper *>(static_cast<nsIStreamListener *>(listener))
+  static_cast<nsMsgFilePostHelper*>(static_cast<nsIStreamListener*>(listener))
       ->Init(m_outputStream, this, file);
 
   return NS_OK;
@@ -1235,7 +1235,7 @@ nsresult nsMsgAsyncWriteProtocol::PostDataFinished() {
   return NS_OK;
 }
 
-nsresult nsMsgAsyncWriteProtocol::ProcessIncomingPostData(nsIInputStream *inStr,
+nsresult nsMsgAsyncWriteProtocol::ProcessIncomingPostData(nsIInputStream* inStr,
                                                           uint32_t count) {
   if (!m_socketIsOpen) return NS_OK;  // kick out if the socket was canceled
 
@@ -1366,19 +1366,19 @@ nsresult nsMsgAsyncWriteProtocol::SetupTransportState() {
     rv = pipe->Init(true, true, 1024, 8);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsIAsyncInputStream *inputStream = nullptr;
+    nsIAsyncInputStream* inputStream = nullptr;
     // This always succeeds because the pipe is initialized above.
     MOZ_ALWAYS_SUCCEEDS(pipe->GetInputStream(&inputStream));
-    mInStream = dont_AddRef(static_cast<nsIInputStream *>(inputStream));
+    mInStream = dont_AddRef(static_cast<nsIInputStream*>(inputStream));
 
-    nsIAsyncOutputStream *outputStream = nullptr;
+    nsIAsyncOutputStream* outputStream = nullptr;
     // This always succeeds because the pipe is initialized above.
     MOZ_ALWAYS_SUCCEEDS(pipe->GetOutputStream(&outputStream));
-    m_outputStream = dont_AddRef(static_cast<nsIOutputStream *>(outputStream));
+    m_outputStream = dont_AddRef(static_cast<nsIOutputStream*>(outputStream));
 
     mProviderThread = do_GetCurrentThread();
 
-    nsMsgProtocolStreamProvider *provider = new nsMsgProtocolStreamProvider();
+    nsMsgProtocolStreamProvider* provider = new nsMsgProtocolStreamProvider();
 
     if (!provider) return NS_ERROR_OUT_OF_MEMORY;
 
@@ -1442,15 +1442,15 @@ void nsMsgAsyncWriteProtocol::UpdateProgress(uint32_t aNewBytes) {
   return;
 }
 
-nsresult nsMsgAsyncWriteProtocol::SendData(const char *dataBuffer,
+nsresult nsMsgAsyncWriteProtocol::SendData(const char* dataBuffer,
                                            bool aSuppressLogging) {
   this->mAsyncBuffer.Append(dataBuffer);
   if (!mAsyncOutStream) return NS_ERROR_FAILURE;
   return mAsyncOutStream->AsyncWait(mProvider, 0, 0, mProviderThread);
 }
 
-char16_t *FormatStringWithHostNameByName(const char16_t *stringName,
-                                         nsIMsgMailNewsUrl *msgUri) {
+char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
+                                         nsIMsgMailNewsUrl* msgUri) {
   if (!msgUri) return nullptr;
 
   nsresult rv;

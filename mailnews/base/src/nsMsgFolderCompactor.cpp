@@ -69,7 +69,7 @@ nsFolderCompactState::~nsFolderCompactState() {
   }
 }
 
-nsresult GetBaseStringBundle(nsIStringBundle **aBundle) {
+nsresult GetBaseStringBundle(nsIStringBundle** aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
@@ -95,8 +95,8 @@ void nsFolderCompactState::CleanupTempFilesAfterError() {
   summaryFile->Remove(false);
 }
 
-nsresult nsFolderCompactState::BuildMessageURI(const char *baseURI,
-                                               nsMsgKey key, nsCString &uri) {
+nsresult nsFolderCompactState::BuildMessageURI(const char* baseURI,
+                                               nsMsgKey key, nsCString& uri) {
   uri.Append(baseURI);
   uri.Append('#');
   uri.AppendInt(key);
@@ -104,7 +104,7 @@ nsresult nsFolderCompactState::BuildMessageURI(const char *baseURI,
   return NS_OK;
 }
 
-nsresult nsFolderCompactState::InitDB(nsIMsgDatabase *db) {
+nsresult nsFolderCompactState::InitDB(nsIMsgDatabase* db) {
   nsCOMPtr<nsIMsgDatabase> mailDBFactory;
   nsresult rv = db->ListAllKeys(m_keyArray);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -125,9 +125,9 @@ nsresult nsFolderCompactState::InitDB(nsIMsgDatabase *db) {
 }
 
 NS_IMETHODIMP nsFolderCompactState::CompactFolders(
-    const nsTArray<RefPtr<nsIMsgFolder>> &aArrayOfFoldersToCompact,
-    const nsTArray<RefPtr<nsIMsgFolder>> &aOfflineFolderArray,
-    nsIUrlListener *aUrlListener, nsIMsgWindow *aMsgWindow) {
+    const nsTArray<RefPtr<nsIMsgFolder>>& aArrayOfFoldersToCompact,
+    const nsTArray<RefPtr<nsIMsgFolder>>& aOfflineFolderArray,
+    nsIUrlListener* aUrlListener, nsIMsgWindow* aMsgWindow) {
   m_window = aMsgWindow;
   m_listener = aUrlListener;
   if (!aArrayOfFoldersToCompact.IsEmpty()) {
@@ -156,9 +156,9 @@ NS_IMETHODIMP nsFolderCompactState::CompactFolders(
 }
 
 NS_IMETHODIMP
-nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
-                              nsIUrlListener *aListener,
-                              nsIMsgWindow *aMsgWindow) {
+nsFolderCompactState::Compact(nsIMsgFolder* folder, bool aOfflineStore,
+                              nsIUrlListener* aListener,
+                              nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(folder);
   m_listener = aListener;
   if (!m_compactingOfflineFolders && !aOfflineStore) {
@@ -275,7 +275,7 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
 
     // If we got here start the real compacting.
     nsCOMPtr<nsISupports> supports =
-        do_QueryInterface(static_cast<nsIMsgFolderCompactor *>(this));
+        do_QueryInterface(static_cast<nsIMsgFolderCompactor*>(this));
     m_folder->AcquireSemaphore(supports);
     m_totalExpungedBytes += expunged;
     return StartCompacting();
@@ -289,7 +289,7 @@ nsFolderCompactState::Compact(nsIMsgFolder *folder, bool aOfflineStore,
     return NS_OK;
 }
 
-nsresult nsFolderCompactState::ShowStatusMsg(const nsString &aMsg) {
+nsresult nsFolderCompactState::ShowStatusMsg(const nsString& aMsg) {
   if (!m_window || aMsg.IsEmpty()) return NS_OK;
 
   nsCOMPtr<nsIMsgStatusFeedback> statusFeedback;
@@ -317,9 +317,9 @@ nsresult nsFolderCompactState::ShowStatusMsg(const nsString &aMsg) {
   return statusFeedback->SetStatusString(statusMessage);
 }
 
-nsresult nsFolderCompactState::Init(nsIMsgFolder *folder,
-                                    const char *baseMsgUri, nsIMsgDatabase *db,
-                                    nsIFile *path, nsIMsgWindow *aMsgWindow) {
+nsresult nsFolderCompactState::Init(nsIMsgFolder* folder,
+                                    const char* baseMsgUri, nsIMsgDatabase* db,
+                                    nsIFile* path, nsIMsgWindow* aMsgWindow) {
   nsresult rv;
 
   m_folder = folder;
@@ -365,11 +365,11 @@ void nsFolderCompactState::ShowCompactingStatusMsg() {
   if (!statusString.IsEmpty() && NS_SUCCEEDED(rv)) ShowStatusMsg(statusString);
 }
 
-NS_IMETHODIMP nsFolderCompactState::OnStartRunningUrl(nsIURI *url) {
+NS_IMETHODIMP nsFolderCompactState::OnStartRunningUrl(nsIURI* url) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsFolderCompactState::OnStopRunningUrl(nsIURI *url,
+NS_IMETHODIMP nsFolderCompactState::OnStopRunningUrl(nsIURI* url,
                                                      nsresult status) {
   if (m_parsingFolder) {
     m_parsingFolder = false;
@@ -499,15 +499,14 @@ nsresult nsFolderCompactState::FinishCompact() {
       rv = tempSummaryFile->GetNativeLeafName(tempSummaryFileName);
 
     if (NS_SUCCEEDED(rv))
-      rv =
-          oldSummaryFile->MoveToNative((nsIFile *)nullptr, tempSummaryFileName);
+      rv = oldSummaryFile->MoveToNative((nsIFile*)nullptr, tempSummaryFileName);
 
     NS_WARNING_ASSERTION(NS_SUCCEEDED(rv),
                          "error moving compacted folder's db out of the way");
     if (NS_SUCCEEDED(rv)) {
       // Now we've successfully moved the summary file out the way, try moving
       // the newly compacted message file over the old one.
-      rv = m_file->MoveToNative((nsIFile *)nullptr, folderName);
+      rv = m_file->MoveToNative((nsIFile*)nullptr, folderName);
       folderRenameSucceeded = NS_SUCCEEDED(rv);
       NS_WARNING_ASSERTION(folderRenameSucceeded,
                            "error renaming compacted folder");
@@ -516,7 +515,7 @@ nsresult nsFolderCompactState::FinishCompact() {
         nsCOMPtr<nsIFile> renamedCompactedSummaryFile;
         newSummaryFile->Clone(getter_AddRefs(renamedCompactedSummaryFile));
         if (renamedCompactedSummaryFile) {
-          rv = renamedCompactedSummaryFile->MoveToNative((nsIFile *)nullptr,
+          rv = renamedCompactedSummaryFile->MoveToNative((nsIFile*)nullptr,
                                                          dbName);
           msfRenameSucceeded = NS_SUCCEEDED(rv);
         }
@@ -526,7 +525,7 @@ nsresult nsFolderCompactState::FinishCompact() {
 
       if (!msfRenameSucceeded) {
         // Do our best to put the summary file back to where it was
-        rv = tempSummaryFile->MoveToNative((nsIFile *)nullptr, dbName);
+        rv = tempSummaryFile->MoveToNative((nsIFile*)nullptr, dbName);
         if (NS_SUCCEEDED(rv)) {
           // Flagging that a renamed db no longer exists.
           tempSummaryFile = nullptr;
@@ -608,7 +607,7 @@ nsresult nsFolderCompactState::ReleaseFolderLock() {
   if (!m_folder) return result;
   bool haveSemaphore;
   nsCOMPtr<nsISupports> supports =
-      do_QueryInterface(static_cast<nsIMsgFolderCompactor *>(this));
+      do_QueryInterface(static_cast<nsIMsgFolderCompactor*>(this));
   result = m_folder->TestSemaphore(supports, &haveSemaphore);
   if (NS_SUCCEEDED(result) && haveSemaphore)
     result = m_folder->ReleaseSemaphore(supports);
@@ -649,17 +648,17 @@ nsresult nsFolderCompactState::CompactNextFolder() {
   return Compact(folder, m_compactingOfflineFolders, m_listener, m_window);
 }
 
-nsresult nsFolderCompactState::GetMessage(nsIMsgDBHdr **message) {
+nsresult nsFolderCompactState::GetMessage(nsIMsgDBHdr** message) {
   return GetMsgDBHdrFromURI(m_messageUri.get(), message);
 }
 
 NS_IMETHODIMP
-nsFolderCompactState::OnStartRequest(nsIRequest *request) {
+nsFolderCompactState::OnStartRequest(nsIRequest* request) {
   return StartMessage();
 }
 
 NS_IMETHODIMP
-nsFolderCompactState::OnStopRequest(nsIRequest *request, nsresult status) {
+nsFolderCompactState::OnStopRequest(nsIRequest* request, nsresult status) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   if (NS_FAILED(status)) {
     // Set m_status to status so the destructor can remove the temp folder and
@@ -689,8 +688,8 @@ nsFolderCompactState::OnStopRequest(nsIRequest *request, nsresult status) {
 }
 
 NS_IMETHODIMP
-nsFolderCompactState::OnDataAvailable(nsIRequest *request,
-                                      nsIInputStream *inStr,
+nsFolderCompactState::OnDataAvailable(nsIRequest* request,
+                                      nsIInputStream* inStr,
                                       uint64_t sourceOffset, uint32_t count) {
   if (!m_fileStream || !inStr) return NS_ERROR_FAILURE;
 
@@ -746,7 +745,7 @@ nsFolderCompactState::OnDataAvailable(nsIRequest *request,
         // make sure that status offset really points to x-mozilla-status line
         if (!strncmp(m_dataBuffer + statusOffset, X_MOZILLA_STATUS,
                      X_MOZILLA_STATUS_LEN)) {
-          const char *keywordHdr =
+          const char* keywordHdr =
               PL_strnrstr(m_dataBuffer, HEADER_X_MOZILLA_KEYWORDS, readCount);
           if (keywordHdr)
             m_curSrcHdr->GetUint32Property("growKeywords", &needToGrowKeywords);
@@ -915,7 +914,7 @@ nsOfflineStoreCompactState::nsOfflineStoreCompactState() {}
 
 nsOfflineStoreCompactState::~nsOfflineStoreCompactState() {}
 
-nsresult nsOfflineStoreCompactState::InitDB(nsIMsgDatabase *db) {
+nsresult nsOfflineStoreCompactState::InitDB(nsIMsgDatabase* db) {
   // Start with the list of messages we have offline as the possible
   // message to keep when compacting the offline store.
   db->ListAllOfflineMsgs(m_keyArray);
@@ -929,7 +928,7 @@ nsresult nsOfflineStoreCompactState::InitDB(nsIMsgDatabase *db) {
  * copy the next message, it will keep trying messages until it finds one
  * it can copy, or it runs out of messages.
  */
-nsresult nsOfflineStoreCompactState::CopyNextMessage(bool &done) {
+nsresult nsOfflineStoreCompactState::CopyNextMessage(bool& done) {
   while (m_curIndex < m_size) {
     // Filter out msgs that have the "pendingRemoval" attribute set.
     nsCOMPtr<nsIMsgDBHdr> hdr;
@@ -980,7 +979,7 @@ nsresult nsOfflineStoreCompactState::CopyNextMessage(bool &done) {
 }
 
 NS_IMETHODIMP
-nsOfflineStoreCompactState::OnStopRequest(nsIRequest *request,
+nsOfflineStoreCompactState::OnStopRequest(nsIRequest* request,
                                           nsresult status) {
   nsresult rv = status;
   nsCOMPtr<nsIURI> uri;
@@ -1087,7 +1086,7 @@ nsresult nsOfflineStoreCompactState::FinishCompact() {
   path->Remove(false);
 
   // rename the copied folder to be the original folder
-  m_file->MoveToNative((nsIFile *)nullptr, leafName);
+  m_file->MoveToNative((nsIFile*)nullptr, leafName);
 
   ShowStatusMsg(EmptyString());
   m_folder->NotifyCompactCompleted();
@@ -1096,9 +1095,9 @@ nsresult nsOfflineStoreCompactState::FinishCompact() {
 }
 
 NS_IMETHODIMP
-nsFolderCompactState::Init(nsIMsgFolder *srcFolder,
-                           nsICopyMessageListener *destination,
-                           nsISupports *listenerData) {
+nsFolderCompactState::Init(nsIMsgFolder* srcFolder,
+                           nsICopyMessageListener* destination,
+                           nsISupports* listenerData) {
   return NS_OK;
 }
 
@@ -1129,7 +1128,7 @@ nsFolderCompactState::EndMessage(nsMsgKey key) { return NS_OK; }
 // XXX TODO: This function is sadly lacking all status checking, it always
 // returns NS_OK and moves onto the next message.
 NS_IMETHODIMP
-nsFolderCompactState::EndCopy(nsISupports *url, nsresult aStatus) {
+nsFolderCompactState::EndCopy(nsISupports* url, nsresult aStatus) {
   nsCOMPtr<nsIMsgDBHdr> msgHdr;
   nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
 
@@ -1198,8 +1197,8 @@ nsresult nsOfflineStoreCompactState::StartCompacting() {
 }
 
 NS_IMETHODIMP
-nsOfflineStoreCompactState::OnDataAvailable(nsIRequest *request,
-                                            nsIInputStream *inStr,
+nsOfflineStoreCompactState::OnDataAvailable(nsIRequest* request,
+                                            nsIInputStream* inStr,
                                             uint64_t sourceOffset,
                                             uint32_t count) {
   if (!m_fileStream || !inStr) return NS_ERROR_FAILURE;

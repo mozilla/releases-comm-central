@@ -15,13 +15,13 @@
 MimeDefClass(MimeMultipartAppleDouble, MimeMultipartAppleDoubleClass,
              mimeMultipartAppleDoubleClass, &MIME_SUPERCLASS);
 
-static int MimeMultipartAppleDouble_parse_begin(MimeObject *);
-static bool MimeMultipartAppleDouble_output_child_p(MimeObject *, MimeObject *);
+static int MimeMultipartAppleDouble_parse_begin(MimeObject*);
+static bool MimeMultipartAppleDouble_output_child_p(MimeObject*, MimeObject*);
 
 static int MimeMultipartAppleDoubleClassInitialize(
-    MimeMultipartAppleDoubleClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
-  MimeMultipartClass *mclass = (MimeMultipartClass *)clazz;
+    MimeMultipartAppleDoubleClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+  MimeMultipartClass* mclass = (MimeMultipartClass*)clazz;
 
   NS_ASSERTION(!oclass->class_initialized, "mime class not initialized");
   oclass->parse_begin = MimeMultipartAppleDouble_parse_begin;
@@ -29,13 +29,13 @@ static int MimeMultipartAppleDoubleClassInitialize(
   return 0;
 }
 
-static int MimeMultipartAppleDouble_parse_begin(MimeObject *obj) {
+static int MimeMultipartAppleDouble_parse_begin(MimeObject* obj) {
   /* #### This method is identical to MimeExternalObject_parse_begin
    which kinda s#$%s...
    */
   int status;
 
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_begin(obj);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
   if (status < 0) return status;
 
   /* If we're writing this object, and we're doing it in raw form, then
@@ -67,16 +67,16 @@ static int MimeMultipartAppleDouble_parse_begin(MimeObject *obj) {
    */
   if (obj->options && obj->output_p && obj->options->write_html_p &&
       obj->options->output_fn) {
-    char *id = 0;
-    char *id_url = 0;
-    char *id_imap = 0;
+    char* id = 0;
+    char* id_url = 0;
+    char* id_imap = 0;
 
     id = mime_part_address(obj);
     if (!id) return MIME_OUT_OF_MEMORY;
     if (obj->options->missing_parts) id_imap = mime_imap_part_address(obj);
 
     if (obj->options && obj->options->url) {
-      const char *url = obj->options->url;
+      const char* url = obj->options->url;
       if (id_imap && id) {
         /* if this is an IMAP part. */
         id_url = mime_set_url_imap_part(url, id_imap, id);
@@ -147,9 +147,9 @@ done:
   return 0;
 }
 
-static bool MimeMultipartAppleDouble_output_child_p(MimeObject *obj,
-                                                    MimeObject *child) {
-  MimeContainer *cont = (MimeContainer *)obj;
+static bool MimeMultipartAppleDouble_output_child_p(MimeObject* obj,
+                                                    MimeObject* child) {
+  MimeContainer* cont = (MimeContainer*)obj;
 
   /* If this is the first child, and it's an application/applefile, then
    don't emit a link for it.  (There *should* be only two children, and

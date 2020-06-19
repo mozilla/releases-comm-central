@@ -41,7 +41,7 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
                                   public nsIChannel,
                                   public nsITransportEventSink {
  public:
-  nsMsgProtocol(nsIURI *aURL);
+  nsMsgProtocol(nsIURI* aURL);
 
   NS_DECL_THREADSAFE_ISUPPORTS
   // nsIChannel support
@@ -57,11 +57,11 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
   // it needs opened. If the socket is already opened then we just call
   // ProcessProtocolState to start the churning process. aConsumer is the
   // consumer for the url. It can be null if this argument is not appropriate
-  virtual nsresult LoadUrl(nsIURI *aURL, nsISupports *aConsumer = nullptr);
+  virtual nsresult LoadUrl(nsIURI* aURL, nsISupports* aConsumer = nullptr);
 
   virtual nsresult SetUrl(
-      nsIURI *aURL);  // sometimes we want to set the url before we load it
-  void ShowAlertMessage(nsIMsgMailNewsUrl *aMsgUrl, nsresult aStatus);
+      nsIURI* aURL);  // sometimes we want to set the url before we load it
+  void ShowAlertMessage(nsIMsgMailNewsUrl* aMsgUrl, nsresult aStatus);
 
   // Flag manipulators
   virtual bool TestFlag(uint32_t flag) { return flag & m_flags; }
@@ -78,21 +78,21 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
 
   // open a connection with a specific host and port
   // aHostName must be UTF-8 encoded.
-  virtual nsresult OpenNetworkSocketWithInfo(const char *aHostName,
+  virtual nsresult OpenNetworkSocketWithInfo(const char* aHostName,
                                              int32_t aGetPort,
-                                             const char *connectionType,
-                                             nsIProxyInfo *aProxyInfo,
-                                             nsIInterfaceRequestor *callbacks);
+                                             const char* connectionType,
+                                             nsIProxyInfo* aProxyInfo,
+                                             nsIInterfaceRequestor* callbacks);
   // helper routine
-  nsresult GetFileFromURL(nsIURI *aURL, nsIFile **aResult);
+  nsresult GetFileFromURL(nsIURI* aURL, nsIFile** aResult);
   virtual nsresult OpenFileSocket(
-      nsIURI *aURL, uint64_t aStartPosition,
+      nsIURI* aURL, uint64_t aStartPosition,
       int64_t aReadCount);  // used to open a file socket connection
 
-  nsresult GetTopmostMsgWindow(nsIMsgWindow **aWindow);
+  nsresult GetTopmostMsgWindow(nsIMsgWindow** aWindow);
 
-  virtual const char *GetType() { return nullptr; }
-  nsresult GetQoSBits(uint8_t *aQoSBits);
+  virtual const char* GetType() { return nullptr; }
+  nsresult GetQoSBits(uint8_t* aQoSBits);
 
   // a Protocol typically overrides this method. They free any of their own
   // connection state and then they call up into the base class to free the
@@ -107,8 +107,8 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
   // OnDataAvailable. As data arrives on the socket, OnDataAvailable calls
   // ProcessProtocolState.
 
-  virtual nsresult ProcessProtocolState(nsIURI *url,
-                                        nsIInputStream *inputStream,
+  virtual nsresult ProcessProtocolState(nsIURI* url,
+                                        nsIInputStream* inputStream,
                                         uint64_t sourceOffset,
                                         uint32_t length) = 0;
 
@@ -117,20 +117,20 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
   // for transmission. Returns a positive number for success, 0 for failure (not
   // all the bytes were written to the stream, etc). aSuppressLogging is a hint
   // that sensitive data is being sent and should not be logged
-  virtual nsresult SendData(const char *dataBuffer,
+  virtual nsresult SendData(const char* dataBuffer,
                             bool aSuppressLogging = false);
 
-  virtual nsresult PostMessage(nsIURI *url, nsIFile *aPostFile);
+  virtual nsresult PostMessage(nsIURI* url, nsIFile* aPostFile);
 
-  virtual nsresult InitFromURI(nsIURI *aUrl);
+  virtual nsresult InitFromURI(nsIURI* aUrl);
 
-  nsresult DoNtlmStep1(const nsACString &username, const nsAString &password,
-                       nsCString &response);
-  nsresult DoNtlmStep2(nsCString &commandResponse, nsCString &response);
+  nsresult DoNtlmStep1(const nsACString& username, const nsAString& password,
+                       nsCString& response);
+  nsresult DoNtlmStep2(nsCString& commandResponse, nsCString& response);
 
-  nsresult DoGSSAPIStep1(const char *service, const char *username,
-                         nsCString &response);
-  nsresult DoGSSAPIStep2(nsCString &commandResponse, nsCString &response);
+  nsresult DoGSSAPIStep1(const char* service, const char* username,
+                         nsCString& response);
+  nsresult DoGSSAPIStep2(nsCString& commandResponse, nsCString& response);
   // Output stream for writing commands to the socket
   nsCOMPtr<nsIOutputStream>
       m_outputStream;  // this will be obtained from the transport interface
@@ -175,8 +175,8 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
 
   // private helper routine used by subclasses to quickly get a reference to the
   // correct prompt dialog for a mailnews url.
-  nsresult GetPromptDialogFromUrl(nsIMsgMailNewsUrl *aMsgUrl,
-                                  nsIPrompt **aPromptDialog);
+  nsresult GetPromptDialogFromUrl(nsIMsgMailNewsUrl* aMsgUrl,
+                                  nsIPrompt** aPromptDialog);
 
   // if a url isn't going to result in any content then we want to suppress
   // calls to OnStartRequest, OnDataAvailable and OnStopRequest
@@ -194,14 +194,14 @@ class NS_MSG_BASE nsMsgAsyncWriteProtocol : public nsMsgProtocol,
 
   NS_IMETHOD Cancel(nsresult status) override;
 
-  nsMsgAsyncWriteProtocol(nsIURI *aURL);
+  nsMsgAsyncWriteProtocol(nsIURI* aURL);
 
   // temporary over ride...
-  virtual nsresult PostMessage(nsIURI *url, nsIFile *postFile) override;
+  virtual nsresult PostMessage(nsIURI* url, nsIFile* postFile) override;
 
   // over ride the following methods from the base class
   virtual nsresult SetupTransportState() override;
-  virtual nsresult SendData(const char *dataBuffer,
+  virtual nsresult SendData(const char* dataBuffer,
                             bool aSuppressLogging = false) override;
   nsCString mAsyncBuffer;
 
@@ -220,7 +220,7 @@ class NS_MSG_BASE nsMsgAsyncWriteProtocol : public nsMsgProtocol,
   bool mInsertPeriodRequired;  // do we need to insert a '.' as part of the
                                // unblocking process
 
-  nsresult ProcessIncomingPostData(nsIInputStream *inStr, uint32_t count);
+  nsresult ProcessIncomingPostData(nsIInputStream* inStr, uint32_t count);
   nsresult UnblockPostReader();
   nsresult UpdateSuspendedReadBytes(uint32_t aNewBytes,
                                     bool aAddToPostPeriodByteCount);
@@ -234,7 +234,7 @@ class NS_MSG_BASE nsMsgAsyncWriteProtocol : public nsMsgProtocol,
   nsresult ResumePostFileRead();
   nsresult UpdateSuspendedReadBytes(uint32_t aNewBytes);
   void UpdateProgress(uint32_t aNewBytes);
-  nsMsgFilePostHelper *mFilePostHelper;  // needs to be a weak reference
+  nsMsgFilePostHelper* mFilePostHelper;  // needs to be a weak reference
  protected:
   virtual ~nsMsgAsyncWriteProtocol();
 

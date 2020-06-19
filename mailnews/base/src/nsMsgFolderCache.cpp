@@ -12,9 +12,9 @@
 #include "nsMsgBaseCID.h"
 #include "nsServiceManagerUtils.h"
 
-const char *kFoldersScope =
+const char* kFoldersScope =
     "ns:msg:db:row:scope:folders:all";  // scope for all folders table
-const char *kFoldersTableKind = "ns:msg:db:table:kind:folders";
+const char* kFoldersTableKind = "ns:msg:db:table:kind:folders";
 
 nsMsgFolderCache::nsMsgFolderCache() {
   m_mdbEnv = nullptr;
@@ -23,7 +23,7 @@ nsMsgFolderCache::nsMsgFolderCache() {
 }
 
 // should this, could this be an nsCOMPtr ?
-static nsIMdbFactory *gMDBFactory = nullptr;
+static nsIMdbFactory* gMDBFactory = nullptr;
 
 nsMsgFolderCache::~nsMsgFolderCache() {
   // Make sure the folder cache elements are released before we
@@ -37,7 +37,7 @@ nsMsgFolderCache::~nsMsgFolderCache() {
 
 NS_IMPL_ISUPPORTS(nsMsgFolderCache, nsIMsgFolderCache)
 
-nsresult nsMsgFolderCache::GetMDBFactory(nsIMdbFactory **aMdbFactory) {
+nsresult nsMsgFolderCache::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
   if (!mMdbFactory) {
     nsresult rv;
     nsCOMPtr<nsIMdbFactoryService> mdbFactoryService =
@@ -75,7 +75,7 @@ nsresult nsMsgFolderCache::InitMDBInfo() {
 nsresult nsMsgFolderCache::InitNewDB() {
   nsresult err = InitMDBInfo();
   if (NS_SUCCEEDED(err)) {
-    nsIMdbStore *store = GetStore();
+    nsIMdbStore* store = GetStore();
     // create the unique table for the dbFolderInfo.
     // TODO: this error assignment is suspicious and never checked.
     (void)store->NewTable(GetEnv(), m_folderRowScopeToken,
@@ -92,14 +92,14 @@ nsresult nsMsgFolderCache::InitExistingDB() {
   err = GetStore()->GetTable(GetEnv(), &m_allFoldersTableOID,
                              &m_mdbAllFoldersTable);
   if (NS_SUCCEEDED(err) && m_mdbAllFoldersTable) {
-    nsIMdbTableRowCursor *rowCursor = nullptr;
+    nsIMdbTableRowCursor* rowCursor = nullptr;
     err = m_mdbAllFoldersTable->GetTableRowCursor(GetEnv(), -1, &rowCursor);
     if (NS_SUCCEEDED(err) && rowCursor) {
       // iterate over the table rows and create nsMsgFolderCacheElements for
       // each.
       while (true) {
         nsresult rv;
-        nsIMdbRow *hdrRow;
+        nsIMdbRow* hdrRow;
         mdb_pos rowPos;
 
         rv = rowCursor->NextRow(GetEnv(), &hdrRow, &rowPos);
@@ -117,15 +117,15 @@ nsresult nsMsgFolderCache::InitExistingDB() {
   return err;
 }
 
-nsresult nsMsgFolderCache::OpenMDB(const PathString &dbName, bool exists) {
+nsresult nsMsgFolderCache::OpenMDB(const PathString& dbName, bool exists) {
   nsCOMPtr<nsIMdbFactory> mdbFactory;
   nsresult ret = GetMDBFactory(getter_AddRefs(mdbFactory));
   NS_ENSURE_SUCCESS(ret, ret);
 
   ret = mdbFactory->MakeEnv(nullptr, &m_mdbEnv);
   if (NS_SUCCEEDED(ret)) {
-    nsIMdbThumb *thumb = nullptr;
-    nsIMdbHeap *dbHeap = nullptr;
+    nsIMdbThumb* thumb = nullptr;
+    nsIMdbHeap* dbHeap = nullptr;
 
     if (m_mdbEnv) m_mdbEnv->SetAutoClear(true);
     if (exists) {
@@ -133,7 +133,7 @@ nsresult nsMsgFolderCache::OpenMDB(const PathString &dbName, bool exists) {
       mdb_bool canOpen;
       mdbYarn outFormatVersion;
 
-      nsIMdbFile *oldFile = nullptr;
+      nsIMdbFile* oldFile = nullptr;
       ret = mdbFactory->OpenOldFile(
           m_mdbEnv, dbHeap, dbName.get(),
           mdbBool_kFalse,  // not readonly, we want modifiable
@@ -178,7 +178,7 @@ nsresult nsMsgFolderCache::OpenMDB(const PathString &dbName, bool exists) {
       DumpContents();
 #endif
     } else {  // ### need error code saying why open file store failed
-      nsIMdbFile *newFile = 0;
+      nsIMdbFile* newFile = 0;
       ret = mdbFactory->CreateNewFile(m_mdbEnv, dbHeap, dbName.get(), &newFile);
       if (newFile) {
         if (NS_SUCCEEDED(ret)) {
@@ -201,7 +201,7 @@ nsresult nsMsgFolderCache::OpenMDB(const PathString &dbName, bool exists) {
   return ret;
 }
 
-NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile *aFile) {
+NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile* aFile) {
   NS_ENSURE_ARG_POINTER(aFile);
 
   bool exists;
@@ -221,8 +221,8 @@ NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile *aFile) {
 }
 
 NS_IMETHODIMP nsMsgFolderCache::GetCacheElement(
-    const nsACString &pathKey, bool createIfMissing,
-    nsIMsgFolderCacheElement **result) {
+    const nsACString& pathKey, bool createIfMissing,
+    nsIMsgFolderCacheElement** result) {
   NS_ENSURE_ARG_POINTER(result);
   NS_ENSURE_TRUE(!pathKey.IsEmpty(), NS_ERROR_FAILURE);
 
@@ -233,7 +233,7 @@ NS_IMETHODIMP nsMsgFolderCache::GetCacheElement(
   if (*result)
     return NS_OK;
   else if (createIfMissing) {
-    nsIMdbRow *hdrRow;
+    nsIMdbRow* hdrRow;
 
     if (GetStore()) {
       nsresult err = GetStore()->NewRow(
@@ -251,13 +251,12 @@ NS_IMETHODIMP nsMsgFolderCache::GetCacheElement(
   return NS_ERROR_FAILURE;
 }
 
-NS_IMETHODIMP nsMsgFolderCache::RemoveElement(const nsACString &key) {
+NS_IMETHODIMP nsMsgFolderCache::RemoveElement(const nsACString& key) {
   nsCOMPtr<nsIMsgFolderCacheElement> folderCacheEl;
   m_cacheElements.Get(key, getter_AddRefs(folderCacheEl));
   if (!folderCacheEl) return NS_ERROR_FAILURE;
-  nsMsgFolderCacheElement *element =
-      static_cast<nsMsgFolderCacheElement *>(static_cast<nsISupports *>(
-          folderCacheEl.get()));  // why the double cast??
+  nsMsgFolderCacheElement* element = static_cast<nsMsgFolderCacheElement*>(
+      static_cast<nsISupports*>(folderCacheEl.get()));  // why the double cast??
   m_mdbAllFoldersTable->CutRow(GetEnv(), element->m_mdbRow);
   m_cacheElements.Remove(key);
   return NS_OK;
@@ -273,7 +272,7 @@ NS_IMETHODIMP nsMsgFolderCache::Close() { return Commit(true); }
 
 NS_IMETHODIMP nsMsgFolderCache::Commit(bool compress) {
   nsresult ret = NS_OK;
-  nsIMdbThumb *commitThumb = nullptr;
+  nsIMdbThumb* commitThumb = nullptr;
   if (m_mdbStore) {
     if (compress)
       ret = m_mdbStore->CompressCommit(GetEnv(), &commitThumb);
@@ -297,10 +296,10 @@ NS_IMETHODIMP nsMsgFolderCache::Commit(bool compress) {
   return ret;
 }
 
-nsresult nsMsgFolderCache::AddCacheElement(const nsACString &key,
-                                           nsIMdbRow *row,
-                                           nsIMsgFolderCacheElement **result) {
-  nsMsgFolderCacheElement *cacheElement = new nsMsgFolderCacheElement;
+nsresult nsMsgFolderCache::AddCacheElement(const nsACString& key,
+                                           nsIMdbRow* row,
+                                           nsIMsgFolderCacheElement** result) {
+  nsMsgFolderCacheElement* cacheElement = new nsMsgFolderCacheElement;
   NS_ENSURE_TRUE(cacheElement, NS_ERROR_OUT_OF_MEMORY);
   nsCOMPtr<nsIMsgFolderCacheElement> folderCacheEl = cacheElement;
 
@@ -315,18 +314,18 @@ nsresult nsMsgFolderCache::AddCacheElement(const nsACString &key,
   return NS_OK;
 }
 
-nsresult nsMsgFolderCache::RowCellColumnToCharPtr(nsIMdbRow *hdrRow,
+nsresult nsMsgFolderCache::RowCellColumnToCharPtr(nsIMdbRow* hdrRow,
                                                   mdb_token columnToken,
-                                                  nsACString &resultStr) {
+                                                  nsACString& resultStr) {
   nsresult err = NS_OK;
-  nsIMdbCell *hdrCell;
+  nsIMdbCell* hdrCell;
   if (hdrRow)  // ### probably should be an error if hdrRow is NULL...
   {
     err = hdrRow->GetCell(GetEnv(), columnToken, &hdrCell);
     if (NS_SUCCEEDED(err) && hdrCell) {
       struct mdbYarn yarn;
       hdrCell->AliasYarn(GetEnv(), &yarn);
-      resultStr.Assign((const char *)yarn.mYarn_Buf, yarn.mYarn_Fill);
+      resultStr.Assign((const char*)yarn.mYarn_Buf, yarn.mYarn_Fill);
       // Ensure the string is null terminated.
       resultStr.SetLength(yarn.mYarn_Fill);
       hdrCell->Release();  // always release ref

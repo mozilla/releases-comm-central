@@ -37,10 +37,10 @@ class nsMsgBiffManager : public nsIMsgBiffManager,
  protected:
   virtual ~nsMsgBiffManager();
 
-  int32_t FindServer(nsIMsgIncomingServer *server);
-  nsresult SetNextBiffTime(nsBiffEntry &biffEntry, PRTime currentTime);
+  int32_t FindServer(nsIMsgIncomingServer* server);
+  nsresult SetNextBiffTime(nsBiffEntry& biffEntry, PRTime currentTime);
   nsresult SetupNextBiff();
-  nsresult AddBiffEntry(nsBiffEntry &biffEntry);
+  nsresult AddBiffEntry(nsBiffEntry& biffEntry);
 
  protected:
   nsCOMPtr<nsITimer> mBiffTimer;

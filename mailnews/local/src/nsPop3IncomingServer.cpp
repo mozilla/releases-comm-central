@@ -34,9 +34,9 @@ class nsPop3GetMailChainer final : public nsIUrlListener {
 
   nsPop3GetMailChainer();
   nsresult GetNewMailForServers(
-      const nsTArray<RefPtr<nsIPop3IncomingServer>> &servers,
-      nsIMsgWindow *msgWindow, nsIMsgFolder *folderToDownloadTo,
-      nsIUrlListener *listener);
+      const nsTArray<RefPtr<nsIPop3IncomingServer>>& servers,
+      nsIMsgWindow* msgWindow, nsIMsgFolder* folderToDownloadTo,
+      nsIUrlListener* listener);
   nsresult RunNextGetNewMail();
 
  protected:
@@ -81,7 +81,7 @@ NS_IMPL_SERVERPREF_INT(nsPop3IncomingServer, NumDaysToLeaveOnServer,
 NS_IMPL_SERVERPREF_BOOL(nsPop3IncomingServer, DeferGetNewMail,
                         "defer_get_new_mail")
 
-NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString &aRetVal) {
+NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString& aRetVal) {
   nsresult rv = GetCharValue("deferred_to_account", aRetVal);
   if (aRetVal.IsEmpty()) return rv;
   // We need to repair broken profiles that defer to hidden or invalid servers,
@@ -171,7 +171,7 @@ NS_IMETHODIMP nsPop3IncomingServer::GetDeferredToAccount(nsACString &aRetVal) {
 }
 
 NS_IMETHODIMP nsPop3IncomingServer::SetDeferredToAccount(
-    const nsACString &aAccountKey) {
+    const nsACString& aAccountKey) {
   nsCString deferredToAccount;
   GetDeferredToAccount(deferredToAccount);
   m_rootMsgFolder = nullptr;  // clear this so we'll recalculate it on demand.
@@ -235,7 +235,7 @@ NS_IMETHODIMP nsPop3IncomingServer::SetDeferredToAccount(
 
 // NS_IMPL_GETSET(nsPop3IncomingServer, Authenticated, bool, m_authenticated);
 
-NS_IMETHODIMP nsPop3IncomingServer::GetAuthenticated(bool *aAuthenticated) {
+NS_IMETHODIMP nsPop3IncomingServer::GetAuthenticated(bool* aAuthenticated) {
   NS_ENSURE_ARG_POINTER(aAuthenticated);
   *aAuthenticated = m_authenticated;
   return NS_OK;
@@ -246,7 +246,7 @@ NS_IMETHODIMP nsPop3IncomingServer::SetAuthenticated(bool aAuthenticated) {
   return NS_OK;
 }
 
-nsresult nsPop3IncomingServer::GetPop3CapabilityFlags(uint32_t *flags) {
+nsresult nsPop3IncomingServer::GetPop3CapabilityFlags(uint32_t* flags) {
   *flags = m_capabilityFlags;
   return NS_OK;
 }
@@ -257,7 +257,7 @@ nsresult nsPop3IncomingServer::SetPop3CapabilityFlags(uint32_t flags) {
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder) {
+nsPop3IncomingServer::GetRootMsgFolder(nsIMsgFolder** aRootMsgFolder) {
   NS_ENSURE_ARG_POINTER(aRootMsgFolder);
   nsresult rv = NS_OK;
   if (!m_rootMsgFolder) {
@@ -292,8 +292,8 @@ nsPop3IncomingServer::GetRootMsgFolder(nsIMsgFolder **aRootMsgFolder) {
   return m_rootMsgFolder ? rv : NS_ERROR_FAILURE;
 }
 
-nsresult nsPop3IncomingServer::GetInbox(nsIMsgWindow *msgWindow,
-                                        nsIMsgFolder **inbox) {
+nsresult nsPop3IncomingServer::GetInbox(nsIMsgWindow* msgWindow,
+                                        nsIMsgFolder** inbox) {
   NS_ENSURE_ARG_POINTER(inbox);
   nsCOMPtr<nsIMsgFolder> rootFolder;
   nsresult rv = GetRootMsgFolder(getter_AddRefs(rootFolder));
@@ -317,7 +317,7 @@ nsresult nsPop3IncomingServer::GetInbox(nsIMsgWindow *msgWindow,
   return rv;
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsPop3IncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   nsresult rv;
   nsCOMPtr<nsIPop3Service> pop3Service(do_GetService(kCPop3ServiceCID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -395,7 +395,7 @@ NS_IMETHODIMP nsPop3IncomingServer::CreateDefaultMailboxes() {
 // menu items.
 NS_IMETHODIMP
 nsPop3IncomingServer::GetCanFileMessagesOnServer(
-    bool *aCanFileMessagesOnServer) {
+    bool* aCanFileMessagesOnServer) {
   NS_ENSURE_ARG_POINTER(aCanFileMessagesOnServer);
 
   nsCString deferredToAccount;
@@ -406,7 +406,7 @@ nsPop3IncomingServer::GetCanFileMessagesOnServer(
 
 NS_IMETHODIMP
 nsPop3IncomingServer::GetCanCreateFoldersOnServer(
-    bool *aCanCreateFoldersOnServer) {
+    bool* aCanCreateFoldersOnServer) {
   NS_ENSURE_ARG_POINTER(aCanCreateFoldersOnServer);
 
   nsCString deferredToAccount;
@@ -416,8 +416,8 @@ nsPop3IncomingServer::GetCanCreateFoldersOnServer(
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::VerifyLogon(nsIUrlListener *aUrlListener,
-                                  nsIMsgWindow *aMsgWindow, nsIURI **aURL) {
+nsPop3IncomingServer::VerifyLogon(nsIUrlListener* aUrlListener,
+                                  nsIMsgWindow* aMsgWindow, nsIURI** aURL) {
   nsresult rv;
   nsCOMPtr<nsIPop3Service> pop3Service = do_GetService(kCPop3ServiceCID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -425,18 +425,18 @@ nsPop3IncomingServer::VerifyLogon(nsIUrlListener *aUrlListener,
 }
 
 NS_IMETHODIMP nsPop3IncomingServer::DownloadMailFromServers(
-    const nsTArray<RefPtr<nsIPop3IncomingServer>> &aServers,
-    nsIMsgWindow *aMsgWindow, nsIMsgFolder *aFolder,
-    nsIUrlListener *aUrlListener) {
+    const nsTArray<RefPtr<nsIPop3IncomingServer>>& aServers,
+    nsIMsgWindow* aMsgWindow, nsIMsgFolder* aFolder,
+    nsIUrlListener* aUrlListener) {
   RefPtr<nsPop3GetMailChainer> getMailChainer = new nsPop3GetMailChainer;
   return getMailChainer->GetNewMailForServers(aServers, aMsgWindow, aFolder,
                                               aUrlListener);
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
-                                               nsIUrlListener *aUrlListener,
-                                               nsIMsgFolder *aInbox,
-                                               nsIURI **aResult) {
+NS_IMETHODIMP nsPop3IncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
+                                               nsIUrlListener* aUrlListener,
+                                               nsIMsgFolder* aInbox,
+                                               nsIURI** aResult) {
   nsresult rv;
   nsCOMPtr<nsIPop3Service> pop3Service = do_GetService(kCPop3ServiceCID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -448,9 +448,9 @@ NS_IMETHODIMP nsPop3IncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
 // this server, we need to get new mail for them. But if this server defers to
 // an other server, I think we only get new mail for this server.
 NS_IMETHODIMP
-nsPop3IncomingServer::GetNewMessages(nsIMsgFolder *aFolder,
-                                     nsIMsgWindow *aMsgWindow,
-                                     nsIUrlListener *aUrlListener) {
+nsPop3IncomingServer::GetNewMessages(nsIMsgFolder* aFolder,
+                                     nsIMsgWindow* aMsgWindow,
+                                     nsIUrlListener* aUrlListener) {
   nsresult rv;
 
   nsCOMPtr<nsIPop3Service> pop3Service = do_GetService(kCPop3ServiceCID, &rv);
@@ -482,7 +482,7 @@ nsPop3IncomingServer::GetNewMessages(nsIMsgFolder *aFolder,
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetDownloadMessagesAtStartup(bool *getMessagesAtStartup) {
+nsPop3IncomingServer::GetDownloadMessagesAtStartup(bool* getMessagesAtStartup) {
   NS_ENSURE_ARG_POINTER(getMessagesAtStartup);
   // GetMessages is not automatically done for pop servers at startup.
   // We need to trigger that action. Return true.
@@ -491,14 +491,14 @@ nsPop3IncomingServer::GetDownloadMessagesAtStartup(bool *getMessagesAtStartup) {
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetCanBeDefaultServer(bool *canBeDefaultServer) {
+nsPop3IncomingServer::GetCanBeDefaultServer(bool* canBeDefaultServer) {
   NS_ENSURE_ARG_POINTER(canBeDefaultServer);
   *canBeDefaultServer = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetCanSearchMessages(bool *canSearchMessages) {
+nsPop3IncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   // this will return false if this server is deferred, which is what we want.
   return GetCanFileMessagesOnServer(canSearchMessages);
 }
@@ -511,7 +511,7 @@ nsPop3IncomingServer::CloseCachedConnections() {
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::GetOfflineSupportLevel(int32_t *aSupportLevel) {
+nsPop3IncomingServer::GetOfflineSupportLevel(int32_t* aSupportLevel) {
   NS_ENSURE_ARG_POINTER(aSupportLevel);
 
   nsresult rv;
@@ -524,24 +524,24 @@ nsPop3IncomingServer::GetOfflineSupportLevel(int32_t *aSupportLevel) {
 }
 
 NS_IMETHODIMP
-nsPop3IncomingServer::SetRunningProtocol(nsIPop3Protocol *aProtocol) {
+nsPop3IncomingServer::SetRunningProtocol(nsIPop3Protocol* aProtocol) {
   NS_ASSERTION(!aProtocol || !m_runningProtocol, "overriding running protocol");
   m_runningProtocol = aProtocol;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsPop3IncomingServer::GetRunningProtocol(
-    nsIPop3Protocol **aProtocol) {
+    nsIPop3Protocol** aProtocol) {
   NS_ENSURE_ARG_POINTER(aProtocol);
   NS_IF_ADDREF(*aProtocol = m_runningProtocol);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsPop3IncomingServer::AddUidlToMark(const char *aUidl,
+NS_IMETHODIMP nsPop3IncomingServer::AddUidlToMark(const char* aUidl,
                                                   int32_t aMark) {
   NS_ENSURE_ARG_POINTER(aUidl);
 
-  Pop3UidlEntry *uidlEntry = PR_NEWZAP(Pop3UidlEntry);
+  Pop3UidlEntry* uidlEntry = PR_NEWZAP(Pop3UidlEntry);
   NS_ENSURE_TRUE(uidlEntry, NS_ERROR_OUT_OF_MEMORY);
 
   uidlEntry->uidl = strdup(aUidl);
@@ -576,7 +576,7 @@ NS_IMETHODIMP nsPop3IncomingServer::MarkMessages() {
   }
   uint32_t count = m_uidlsToMark.Length();
   for (uint32_t i = 0; i < count; i++) {
-    Pop3UidlEntry *ue = m_uidlsToMark[i];
+    Pop3UidlEntry* ue = m_uidlsToMark[i];
     PR_Free(ue->uidl);
     PR_Free(ue);
   }
@@ -590,9 +590,9 @@ nsPop3GetMailChainer::nsPop3GetMailChainer() {}
 nsPop3GetMailChainer::~nsPop3GetMailChainer() {}
 
 nsresult nsPop3GetMailChainer::GetNewMailForServers(
-    const nsTArray<RefPtr<nsIPop3IncomingServer>> &servers,
-    nsIMsgWindow *msgWindow, nsIMsgFolder *folderToDownloadTo,
-    nsIUrlListener *listener) {
+    const nsTArray<RefPtr<nsIPop3IncomingServer>>& servers,
+    nsIMsgWindow* msgWindow, nsIMsgFolder* folderToDownloadTo,
+    nsIUrlListener* listener) {
   NS_ENSURE_ARG_POINTER(folderToDownloadTo);
 
   m_serversToGetNewMailFor = servers.Clone();
@@ -617,10 +617,10 @@ nsresult nsPop3GetMailChainer::GetNewMailForServers(
 }
 
 NS_IMETHODIMP
-nsPop3GetMailChainer::OnStartRunningUrl(nsIURI *url) { return NS_OK; }
+nsPop3GetMailChainer::OnStartRunningUrl(nsIURI* url) { return NS_OK; }
 
 NS_IMETHODIMP
-nsPop3GetMailChainer::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
+nsPop3GetMailChainer::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   return RunNextGetNewMail();
 }
 

@@ -19,7 +19,7 @@ extern MimeInlineTextHTMLParsedClass mimeInlineTextHTMLParsedClass;
 
 struct MimeInlineTextHTMLParsed {
   MimeInlineTextHTML html;
-  nsString *complete_buffer;  // Gecko parser expects wide strings
+  nsString* complete_buffer;  // Gecko parser expects wide strings
 };
 
 #define MimeInlineTextHTMLParsedClassInitializer(ITYPE, CSUPER) \

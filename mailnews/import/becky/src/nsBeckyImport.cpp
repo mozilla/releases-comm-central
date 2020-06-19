@@ -33,14 +33,14 @@ nsBeckyImport::~nsBeckyImport() {}
 NS_IMPL_ISUPPORTS(nsBeckyImport, nsIImportModule)
 
 NS_IMETHODIMP
-nsBeckyImport::GetName(char16_t **aName) {
+nsBeckyImport::GetName(char16_t** aName) {
   NS_ENSURE_ARG_POINTER(aName);
   *aName = nsBeckyStringBundle::GetStringByName("BeckyImportName");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsBeckyImport::GetDescription(char16_t **aDescription) {
+nsBeckyImport::GetDescription(char16_t** aDescription) {
   NS_ENSURE_ARG_POINTER(aDescription);
   *aDescription =
       nsBeckyStringBundle::GetStringByName("BeckyImportDescription");
@@ -48,20 +48,20 @@ nsBeckyImport::GetDescription(char16_t **aDescription) {
 }
 
 NS_IMETHODIMP
-nsBeckyImport::GetSupports(char **aSupports) {
+nsBeckyImport::GetSupports(char** aSupports) {
   NS_ENSURE_ARG_POINTER(aSupports);
   *aSupports = strdup(kBeckySupportsString);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsBeckyImport::GetSupportsUpgrade(bool *aUpgrade) {
+nsBeckyImport::GetSupportsUpgrade(bool* aUpgrade) {
   NS_ENSURE_ARG_POINTER(aUpgrade);
   *aUpgrade = true;
   return NS_OK;
 }
 
-nsresult nsBeckyImport::GetMailImportInterface(nsISupports **aInterface) {
+nsresult nsBeckyImport::GetMailImportInterface(nsISupports** aInterface) {
   nsCOMPtr<nsIImportMail> importer;
   nsresult rv = nsBeckyMail::Create(getter_AddRefs(importer));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -89,7 +89,7 @@ nsresult nsBeckyImport::GetMailImportInterface(nsISupports **aInterface) {
 }
 
 nsresult nsBeckyImport::GetAddressBookImportInterface(
-    nsISupports **aInterface) {
+    nsISupports** aInterface) {
   nsresult rv;
   nsCOMPtr<nsIImportAddressBooks> importer;
   rv = nsBeckyAddressBooks::Create(getter_AddRefs(importer));
@@ -107,7 +107,7 @@ nsresult nsBeckyImport::GetAddressBookImportInterface(
   return CallQueryInterface(generic, aInterface);
 }
 
-nsresult nsBeckyImport::GetSettingsImportInterface(nsISupports **aInterface) {
+nsresult nsBeckyImport::GetSettingsImportInterface(nsISupports** aInterface) {
   nsresult rv;
   nsCOMPtr<nsIImportSettings> importer;
   rv = nsBeckySettings::Create(getter_AddRefs(importer));
@@ -116,7 +116,7 @@ nsresult nsBeckyImport::GetSettingsImportInterface(nsISupports **aInterface) {
   return CallQueryInterface(importer, aInterface);
 }
 
-nsresult nsBeckyImport::GetFiltersImportInterface(nsISupports **aInterface) {
+nsresult nsBeckyImport::GetFiltersImportInterface(nsISupports** aInterface) {
   nsresult rv;
   nsCOMPtr<nsIImportFilters> importer;
   rv = nsBeckyFilters::Create(getter_AddRefs(importer));
@@ -126,8 +126,8 @@ nsresult nsBeckyImport::GetFiltersImportInterface(nsISupports **aInterface) {
 }
 
 NS_IMETHODIMP
-nsBeckyImport::GetImportInterface(const char *aImportType,
-                                  nsISupports **aInterface) {
+nsBeckyImport::GetImportInterface(const char* aImportType,
+                                  nsISupports** aInterface) {
   NS_ENSURE_ARG_POINTER(aImportType);
   NS_ENSURE_ARG_POINTER(aInterface);
 

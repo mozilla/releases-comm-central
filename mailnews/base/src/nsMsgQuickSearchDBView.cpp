@@ -27,11 +27,11 @@ nsMsgQuickSearchDBView::~nsMsgQuickSearchDBView() {}
 NS_IMPL_ISUPPORTS_INHERITED(nsMsgQuickSearchDBView, nsMsgDBView, nsIMsgDBView,
                             nsIMsgSearchNotify)
 
-NS_IMETHODIMP nsMsgQuickSearchDBView::Open(nsIMsgFolder *folder,
+NS_IMETHODIMP nsMsgQuickSearchDBView::Open(nsIMsgFolder* folder,
                                            nsMsgViewSortTypeValue sortType,
                                            nsMsgViewSortOrderValue sortOrder,
                                            nsMsgViewFlagsTypeValue viewFlags,
-                                           int32_t *pCount) {
+                                           int32_t* pCount) {
   nsresult rv =
       nsMsgDBView::Open(folder, sortType, sortOrder, viewFlags, pCount);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -43,11 +43,11 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::Open(nsIMsgFolder *folder,
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::CloneDBView(nsIMessenger *aMessengerInstance,
-                                    nsIMsgWindow *aMsgWindow,
-                                    nsIMsgDBViewCommandUpdater *aCmdUpdater,
-                                    nsIMsgDBView **_retval) {
-  nsMsgQuickSearchDBView *newMsgDBView = new nsMsgQuickSearchDBView();
+nsMsgQuickSearchDBView::CloneDBView(nsIMessenger* aMessengerInstance,
+                                    nsIMsgWindow* aMsgWindow,
+                                    nsIMsgDBViewCommandUpdater* aCmdUpdater,
+                                    nsIMsgDBView** _retval) {
+  nsMsgQuickSearchDBView* newMsgDBView = new nsMsgQuickSearchDBView();
   nsresult rv =
       CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -57,22 +57,21 @@ nsMsgQuickSearchDBView::CloneDBView(nsIMessenger *aMessengerInstance,
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView *aNewMsgDBView,
-                                   nsIMessenger *aMessengerInstance,
-                                   nsIMsgWindow *aMsgWindow,
-                                   nsIMsgDBViewCommandUpdater *aCmdUpdater) {
+nsMsgQuickSearchDBView::CopyDBView(nsMsgDBView* aNewMsgDBView,
+                                   nsIMessenger* aMessengerInstance,
+                                   nsIMsgWindow* aMsgWindow,
+                                   nsIMsgDBViewCommandUpdater* aCmdUpdater) {
   nsMsgThreadedDBView::CopyDBView(aNewMsgDBView, aMessengerInstance, aMsgWindow,
                                   aCmdUpdater);
-  nsMsgQuickSearchDBView *newMsgDBView =
-      (nsMsgQuickSearchDBView *)aNewMsgDBView;
+  nsMsgQuickSearchDBView* newMsgDBView = (nsMsgQuickSearchDBView*)aNewMsgDBView;
 
   // now copy all of our private member data
   newMsgDBView->m_origKeys = m_origKeys.Clone();
   return NS_OK;
 }
 
-nsresult nsMsgQuickSearchDBView::DeleteMessages(nsIMsgWindow *window,
-                                                nsMsgViewIndex *indices,
+nsresult nsMsgQuickSearchDBView::DeleteMessages(nsIMsgWindow* window,
+                                                nsMsgViewIndex* indices,
                                                 int32_t numIndices,
                                                 bool deleteStorage) {
   for (nsMsgViewIndex i = 0; i < (nsMsgViewIndex)numIndices; i++) {
@@ -112,14 +111,14 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::DoCommand(
 }
 
 NS_IMETHODIMP nsMsgQuickSearchDBView::GetViewType(
-    nsMsgViewTypeValue *aViewType) {
+    nsMsgViewTypeValue* aViewType) {
   NS_ENSURE_ARG_POINTER(aViewType);
   *aViewType = nsMsgViewType::eShowQuickSearchResults;
   return NS_OK;
 }
 
-nsresult nsMsgQuickSearchDBView::AddHdr(nsIMsgDBHdr *msgHdr,
-                                        nsMsgViewIndex *resultIndex) {
+nsresult nsMsgQuickSearchDBView::AddHdr(nsIMsgDBHdr* msgHdr,
+                                        nsMsgViewIndex* resultIndex) {
   nsMsgKey msgKey;
   msgHdr->GetMessageKey(&msgKey);
   // protect against duplication.
@@ -138,7 +137,7 @@ nsresult nsMsgQuickSearchDBView::AddHdr(nsIMsgDBHdr *msgHdr,
     return nsMsgDBView::AddHdr(msgHdr, resultIndex);
 }
 
-nsresult nsMsgQuickSearchDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
+nsresult nsMsgQuickSearchDBView::OnNewHeader(nsIMsgDBHdr* newHdr,
                                              nsMsgKey aParentKey,
                                              bool ensureListed) {
   if (newHdr) {
@@ -164,8 +163,8 @@ nsresult nsMsgQuickSearchDBView::OnNewHeader(nsIMsgDBHdr *newHdr,
 }
 
 NS_IMETHODIMP nsMsgQuickSearchDBView::OnHdrFlagsChanged(
-    nsIMsgDBHdr *aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
-    nsIDBChangeListener *aInstigator) {
+    nsIMsgDBHdr* aHdrChanged, uint32_t aOldFlags, uint32_t aNewFlags,
+    nsIDBChangeListener* aInstigator) {
   nsresult rv = nsMsgGroupView::OnHdrFlagsChanged(aHdrChanged, aOldFlags,
                                                   aNewFlags, aInstigator);
 
@@ -214,9 +213,9 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::OnHdrFlagsChanged(
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::OnHdrPropertyChanged(nsIMsgDBHdr *aHdrChanged,
-                                             bool aPreChange, uint32_t *aStatus,
-                                             nsIDBChangeListener *aInstigator) {
+nsMsgQuickSearchDBView::OnHdrPropertyChanged(nsIMsgDBHdr* aHdrChanged,
+                                             bool aPreChange, uint32_t* aStatus,
+                                             nsIDBChangeListener* aInstigator) {
   // If the junk mail plugin just activated on a message, then
   // we'll allow filters to remove from view.
   // Otherwise, just update the view line.
@@ -260,20 +259,20 @@ nsMsgQuickSearchDBView::OnHdrPropertyChanged(nsIMsgDBHdr *aHdrChanged,
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::GetSearchSession(nsIMsgSearchSession **aSession) {
+nsMsgQuickSearchDBView::GetSearchSession(nsIMsgSearchSession** aSession) {
   NS_ASSERTION(false, "GetSearchSession method is not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::SetSearchSession(nsIMsgSearchSession *aSession) {
+nsMsgQuickSearchDBView::SetSearchSession(nsIMsgSearchSession* aSession) {
   m_searchSession = do_GetWeakReference(aSession);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::OnSearchHit(nsIMsgDBHdr *aMsgHdr,
-                                    nsIMsgFolder *folder) {
+nsMsgQuickSearchDBView::OnSearchHit(nsIMsgDBHdr* aMsgHdr,
+                                    nsIMsgFolder* folder) {
   NS_ENSURE_ARG(aMsgHdr);
   if (!m_db) return NS_ERROR_NULL_POINTER;
   // remember search hit and when search is done, reconcile cache
@@ -391,7 +390,7 @@ nsMsgQuickSearchDBView::OnNewSearch() {
 }
 
 nsresult nsMsgQuickSearchDBView::GetFirstMessageHdrToDisplayInThread(
-    nsIMsgThread *threadHdr, nsIMsgDBHdr **result) {
+    nsIMsgThread* threadHdr, nsIMsgDBHdr** result) {
   uint32_t numChildren;
   nsresult rv = NS_OK;
   uint8_t minLevel = 0xff;
@@ -536,7 +535,7 @@ nsresult nsMsgQuickSearchDBView::SortThreads(
 }
 
 nsresult nsMsgQuickSearchDBView::ListCollapsedChildren(
-    nsMsgViewIndex viewIndex, nsIMutableArray *messageArray) {
+    nsMsgViewIndex viewIndex, nsIMutableArray* messageArray) {
   nsCOMPtr<nsIMsgThread> threadHdr;
   nsresult rv = GetThreadContainingIndex(viewIndex, getter_AddRefs(threadHdr));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -567,8 +566,8 @@ nsresult nsMsgQuickSearchDBView::ListCollapsedChildren(
 }
 
 nsresult nsMsgQuickSearchDBView::ListIdsInThread(
-    nsIMsgThread *threadHdr, nsMsgViewIndex startOfThreadViewIndex,
-    uint32_t *pNumListed) {
+    nsIMsgThread* threadHdr, nsMsgViewIndex startOfThreadViewIndex,
+    uint32_t* pNumListed) {
   if (m_viewFlags & nsMsgViewFlagsType::kThreadedDisplay &&
       !(m_viewFlags & nsMsgViewFlagsType::kGroupBySort)) {
     nsMsgKey parentKey = m_keys[startOfThreadViewIndex++];
@@ -619,9 +618,9 @@ nsresult nsMsgQuickSearchDBView::ListIdsInThread(
 }
 
 nsresult nsMsgQuickSearchDBView::ListIdsInThreadOrder(
-    nsIMsgThread *threadHdr, nsMsgKey parentKey, uint32_t level,
-    uint32_t callLevel, nsMsgKey keyToSkip, nsMsgViewIndex *viewIndex,
-    uint32_t *pNumListed) {
+    nsIMsgThread* threadHdr, nsMsgKey parentKey, uint32_t level,
+    uint32_t callLevel, nsMsgKey keyToSkip, nsMsgViewIndex* viewIndex,
+    uint32_t* pNumListed) {
   nsCOMPtr<nsISimpleEnumerator> msgEnumerator;
   nsresult rv =
       threadHdr->EnumerateMessages(parentKey, getter_AddRefs(msgEnumerator));
@@ -670,11 +669,11 @@ nsresult nsMsgQuickSearchDBView::ListIdsInThreadOrder(
   return rv;
 }
 
-nsresult nsMsgQuickSearchDBView::ListIdsInThreadOrder(nsIMsgThread *threadHdr,
+nsresult nsMsgQuickSearchDBView::ListIdsInThreadOrder(nsIMsgThread* threadHdr,
                                                       nsMsgKey parentKey,
                                                       uint32_t level,
-                                                      nsMsgViewIndex *viewIndex,
-                                                      uint32_t *pNumListed) {
+                                                      nsMsgViewIndex* viewIndex,
+                                                      uint32_t* pNumListed) {
   nsresult rv = ListIdsInThreadOrder(threadHdr, parentKey, level, level,
                                      nsMsgKey_None, viewIndex, pNumListed);
   // Because a quick search view might not have the actual thread root
@@ -700,7 +699,7 @@ nsresult nsMsgQuickSearchDBView::ListIdsInThreadOrder(nsIMsgThread *threadHdr,
 }
 
 nsresult nsMsgQuickSearchDBView::ExpansionDelta(nsMsgViewIndex index,
-                                                int32_t *expansionDelta) {
+                                                int32_t* expansionDelta) {
   *expansionDelta = 0;
   if (index >= ((nsMsgViewIndex)m_keys.Length()))
     return NS_MSG_MESSAGE_NOT_FOUND;
@@ -741,11 +740,11 @@ nsresult nsMsgQuickSearchDBView::ExpansionDelta(nsMsgViewIndex index,
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::OpenWithHdrs(nsISimpleEnumerator *aHeaders,
+nsMsgQuickSearchDBView::OpenWithHdrs(nsISimpleEnumerator* aHeaders,
                                      nsMsgViewSortTypeValue aSortType,
                                      nsMsgViewSortOrderValue aSortOrder,
                                      nsMsgViewFlagsTypeValue aViewFlags,
-                                     int32_t *aCount) {
+                                     int32_t* aCount) {
   if (aViewFlags & nsMsgViewFlagsType::kGroupBySort)
     return nsMsgGroupView::OpenWithHdrs(aHeaders, aSortType, aSortOrder,
                                         aViewFlags, aCount);
@@ -783,14 +782,14 @@ NS_IMETHODIMP nsMsgQuickSearchDBView::SetViewFlags(
 }
 
 nsresult nsMsgQuickSearchDBView::GetMessageEnumerator(
-    nsISimpleEnumerator **enumerator) {
+    nsISimpleEnumerator** enumerator) {
   return GetViewEnumerator(enumerator);
 }
 
 NS_IMETHODIMP
-nsMsgQuickSearchDBView::OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted,
+nsMsgQuickSearchDBView::OnHdrDeleted(nsIMsgDBHdr* aHdrDeleted,
                                      nsMsgKey aParentKey, int32_t aFlags,
-                                     nsIDBChangeListener *aInstigator) {
+                                     nsIDBChangeListener* aInstigator) {
   NS_ENSURE_ARG_POINTER(aHdrDeleted);
   nsMsgKey msgKey;
   aHdrDeleted->GetMessageKey(&msgKey);
@@ -800,7 +799,7 @@ nsMsgQuickSearchDBView::OnHdrDeleted(nsIMsgDBHdr *aHdrDeleted,
                                            aInstigator);
 }
 
-NS_IMETHODIMP nsMsgQuickSearchDBView::GetNumMsgsInView(int32_t *aNumMsgs) {
+NS_IMETHODIMP nsMsgQuickSearchDBView::GetNumMsgsInView(int32_t* aNumMsgs) {
   NS_ENSURE_ARG_POINTER(aNumMsgs);
   *aNumMsgs = m_origKeys.Length();
   return NS_OK;

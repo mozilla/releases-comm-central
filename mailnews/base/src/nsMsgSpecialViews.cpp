@@ -14,13 +14,13 @@ nsMsgThreadsWithUnreadDBView::nsMsgThreadsWithUnreadDBView()
 nsMsgThreadsWithUnreadDBView::~nsMsgThreadsWithUnreadDBView() {}
 
 NS_IMETHODIMP nsMsgThreadsWithUnreadDBView::GetViewType(
-    nsMsgViewTypeValue *aViewType) {
+    nsMsgViewTypeValue* aViewType) {
   NS_ENSURE_ARG_POINTER(aViewType);
   *aViewType = nsMsgViewType::eShowThreadsWithUnread;
   return NS_OK;
 }
 
-bool nsMsgThreadsWithUnreadDBView::WantsThisThread(nsIMsgThread *threadHdr) {
+bool nsMsgThreadsWithUnreadDBView::WantsThisThread(nsIMsgThread* threadHdr) {
   if (threadHdr) {
     uint32_t numNewChildren;
 
@@ -34,7 +34,7 @@ bool nsMsgThreadsWithUnreadDBView::WantsThisThread(nsIMsgThread *threadHdr) {
 }
 
 nsresult nsMsgThreadsWithUnreadDBView::AddMsgToThreadNotInView(
-    nsIMsgThread *threadHdr, nsIMsgDBHdr *msgHdr, bool ensureListed) {
+    nsIMsgThread* threadHdr, nsIMsgDBHdr* msgHdr, bool ensureListed) {
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsIMsgDBHdr> parentHdr;
@@ -61,9 +61,9 @@ nsresult nsMsgThreadsWithUnreadDBView::AddMsgToThreadNotInView(
 
 NS_IMETHODIMP
 nsMsgThreadsWithUnreadDBView::CloneDBView(
-    nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow,
-    nsIMsgDBViewCommandUpdater *aCmdUpdater, nsIMsgDBView **_retval) {
-  nsMsgThreadsWithUnreadDBView *newMsgDBView =
+    nsIMessenger* aMessengerInstance, nsIMsgWindow* aMsgWindow,
+    nsIMsgDBViewCommandUpdater* aCmdUpdater, nsIMsgDBView** _retval) {
+  nsMsgThreadsWithUnreadDBView* newMsgDBView =
       new nsMsgThreadsWithUnreadDBView();
   nsresult rv =
       CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
@@ -74,7 +74,7 @@ nsMsgThreadsWithUnreadDBView::CloneDBView(
 }
 
 NS_IMETHODIMP nsMsgThreadsWithUnreadDBView::GetNumMsgsInView(
-    int32_t *aNumMsgs) {
+    int32_t* aNumMsgs) {
   nsresult rv = nsMsgDBView::GetNumMsgsInView(aNumMsgs);
   NS_ENSURE_SUCCESS(rv, rv);
   *aNumMsgs = *aNumMsgs - m_totalUnwantedMessagesInView;
@@ -85,14 +85,14 @@ nsMsgWatchedThreadsWithUnreadDBView::nsMsgWatchedThreadsWithUnreadDBView()
     : m_totalUnwantedMessagesInView(0) {}
 
 NS_IMETHODIMP nsMsgWatchedThreadsWithUnreadDBView::GetViewType(
-    nsMsgViewTypeValue *aViewType) {
+    nsMsgViewTypeValue* aViewType) {
   NS_ENSURE_ARG_POINTER(aViewType);
   *aViewType = nsMsgViewType::eShowWatchedThreadsWithUnread;
   return NS_OK;
 }
 
 bool nsMsgWatchedThreadsWithUnreadDBView::WantsThisThread(
-    nsIMsgThread *threadHdr) {
+    nsIMsgThread* threadHdr) {
   if (threadHdr) {
     uint32_t numNewChildren;
     uint32_t threadFlags;
@@ -109,7 +109,7 @@ bool nsMsgWatchedThreadsWithUnreadDBView::WantsThisThread(
 }
 
 nsresult nsMsgWatchedThreadsWithUnreadDBView::AddMsgToThreadNotInView(
-    nsIMsgThread *threadHdr, nsIMsgDBHdr *msgHdr, bool ensureListed) {
+    nsIMsgThread* threadHdr, nsIMsgDBHdr* msgHdr, bool ensureListed) {
   nsresult rv = NS_OK;
   uint32_t threadFlags;
   uint32_t msgFlags;
@@ -142,9 +142,9 @@ nsresult nsMsgWatchedThreadsWithUnreadDBView::AddMsgToThreadNotInView(
 
 NS_IMETHODIMP
 nsMsgWatchedThreadsWithUnreadDBView::CloneDBView(
-    nsIMessenger *aMessengerInstance, nsIMsgWindow *aMsgWindow,
-    nsIMsgDBViewCommandUpdater *aCmdUpdater, nsIMsgDBView **_retval) {
-  nsMsgWatchedThreadsWithUnreadDBView *newMsgDBView =
+    nsIMessenger* aMessengerInstance, nsIMsgWindow* aMsgWindow,
+    nsIMsgDBViewCommandUpdater* aCmdUpdater, nsIMsgDBView** _retval) {
+  nsMsgWatchedThreadsWithUnreadDBView* newMsgDBView =
       new nsMsgWatchedThreadsWithUnreadDBView();
   nsresult rv =
       CopyDBView(newMsgDBView, aMessengerInstance, aMsgWindow, aCmdUpdater);
@@ -155,7 +155,7 @@ nsMsgWatchedThreadsWithUnreadDBView::CloneDBView(
 }
 
 NS_IMETHODIMP
-nsMsgWatchedThreadsWithUnreadDBView::GetNumMsgsInView(int32_t *aNumMsgs) {
+nsMsgWatchedThreadsWithUnreadDBView::GetNumMsgsInView(int32_t* aNumMsgs) {
   nsresult rv = nsMsgDBView::GetNumMsgsInView(aNumMsgs);
   NS_ENSURE_SUCCESS(rv, rv);
   *aNumMsgs = *aNumMsgs - m_totalUnwantedMessagesInView;

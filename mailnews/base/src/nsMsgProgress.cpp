@@ -34,8 +34,8 @@ nsMsgProgress::nsMsgProgress() {
 nsMsgProgress::~nsMsgProgress() { (void)ReleaseListeners(); }
 
 NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(
-    mozIDOMWindowProxy *parentDOMWindow, nsIMsgWindow *aMsgWindow,
-    const char *dialogURL, bool inDisplayModal, nsISupports *parameters) {
+    mozIDOMWindowProxy* parentDOMWindow, nsIMsgWindow* aMsgWindow,
+    const char* dialogURL, bool inDisplayModal, nsISupports* parameters) {
   nsresult rv;
 
   if (aMsgWindow) {
@@ -56,7 +56,7 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(
       do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  ifptr->SetData(static_cast<nsIMsgProgress *>(this));
+  ifptr->SetData(static_cast<nsIMsgProgress*>(this));
   ifptr->SetDataIID(&NS_GET_IID(nsIMsgProgress));
 
   array->AppendElement(ifptr);
@@ -80,7 +80,7 @@ NS_IMETHODIMP nsMsgProgress::CloseProgressDialog(bool forceClose) {
 }
 
 NS_IMETHODIMP nsMsgProgress::GetProcessCanceledByUser(
-    bool *aProcessCanceledByUser) {
+    bool* aProcessCanceledByUser) {
   NS_ENSURE_ARG_POINTER(aProcessCanceledByUser);
   *aProcessCanceledByUser = m_processCanceled;
   return NS_OK;
@@ -94,7 +94,7 @@ NS_IMETHODIMP nsMsgProgress::SetProcessCanceledByUser(
 }
 
 NS_IMETHODIMP nsMsgProgress::RegisterListener(
-    nsIWebProgressListener *listener) {
+    nsIWebProgressListener* listener) {
   if (!listener)  // Nothing to do with a null listener!
     return NS_OK;
 
@@ -115,13 +115,13 @@ NS_IMETHODIMP nsMsgProgress::RegisterListener(
 }
 
 NS_IMETHODIMP nsMsgProgress::UnregisterListener(
-    nsIWebProgressListener *listener) {
+    nsIWebProgressListener* listener) {
   if (listener) m_listenerList.RemoveObject(listener);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::OnStateChange(nsIWebProgress *aWebProgress,
-                                           nsIRequest *aRequest,
+NS_IMETHODIMP nsMsgProgress::OnStateChange(nsIWebProgress* aWebProgress,
+                                           nsIRequest* aRequest,
                                            uint32_t aStateFlags,
                                            nsresult aStatus) {
   m_pendingStateFlags = aStateFlags;
@@ -141,8 +141,8 @@ NS_IMETHODIMP nsMsgProgress::OnStateChange(nsIWebProgress *aWebProgress,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::OnProgressChange(nsIWebProgress *aWebProgress,
-                                              nsIRequest *aRequest,
+NS_IMETHODIMP nsMsgProgress::OnProgressChange(nsIWebProgress* aWebProgress,
+                                              nsIRequest* aRequest,
                                               int32_t aCurSelfProgress,
                                               int32_t aMaxSelfProgress,
                                               int32_t aCurTotalProgress,
@@ -154,17 +154,17 @@ NS_IMETHODIMP nsMsgProgress::OnProgressChange(nsIWebProgress *aWebProgress,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::OnLocationChange(nsIWebProgress *aWebProgress,
-                                              nsIRequest *aRequest,
-                                              nsIURI *location,
+NS_IMETHODIMP nsMsgProgress::OnLocationChange(nsIWebProgress* aWebProgress,
+                                              nsIRequest* aRequest,
+                                              nsIURI* location,
                                               uint32_t aFlags) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::OnStatusChange(nsIWebProgress *aWebProgress,
-                                            nsIRequest *aRequest,
+NS_IMETHODIMP nsMsgProgress::OnStatusChange(nsIWebProgress* aWebProgress,
+                                            nsIRequest* aRequest,
                                             nsresult aStatus,
-                                            const char16_t *aMessage) {
+                                            const char16_t* aMessage) {
   if (aMessage && *aMessage) m_pendingStatus = aMessage;
   for (int32_t i = m_listenerList.Count() - 1; i >= 0; i--)
     m_listenerList[i]->OnStatusChange(aWebProgress, aRequest, aStatus,
@@ -172,15 +172,15 @@ NS_IMETHODIMP nsMsgProgress::OnStatusChange(nsIWebProgress *aWebProgress,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::OnSecurityChange(nsIWebProgress *aWebProgress,
-                                              nsIRequest *aRequest,
+NS_IMETHODIMP nsMsgProgress::OnSecurityChange(nsIWebProgress* aWebProgress,
+                                              nsIRequest* aRequest,
                                               uint32_t state) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMsgProgress::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
-                                      nsIRequest *aRequest, uint32_t aEvent) {
+nsMsgProgress::OnContentBlockingEvent(nsIWebProgress* aWebProgress,
+                                      nsIRequest* aRequest, uint32_t aEvent) {
   return NS_OK;
 }
 
@@ -189,12 +189,12 @@ nsresult nsMsgProgress::ReleaseListeners() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::ShowStatusString(const nsAString &aStatus) {
+NS_IMETHODIMP nsMsgProgress::ShowStatusString(const nsAString& aStatus) {
   return OnStatusChange(nullptr, nullptr, NS_OK,
                         PromiseFlatString(aStatus).get());
 }
 
-NS_IMETHODIMP nsMsgProgress::SetStatusString(const nsAString &aStatus) {
+NS_IMETHODIMP nsMsgProgress::SetStatusString(const nsAString& aStatus) {
   return OnStatusChange(nullptr, nullptr, NS_OK,
                         PromiseFlatString(aStatus).get());
 }
@@ -208,16 +208,16 @@ NS_IMETHODIMP nsMsgProgress::ShowProgress(int32_t percent) {
 }
 
 NS_IMETHODIMP nsMsgProgress::SetWrappedStatusFeedback(
-    nsIMsgStatusFeedback *aJSStatusFeedback) {
+    nsIMsgStatusFeedback* aJSStatusFeedback) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsMsgProgress::SetMsgWindow(nsIMsgWindow *aMsgWindow) {
+NS_IMETHODIMP nsMsgProgress::SetMsgWindow(nsIMsgWindow* aMsgWindow) {
   m_msgWindow = do_GetWeakReference(aMsgWindow);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::GetMsgWindow(nsIMsgWindow **aMsgWindow) {
+NS_IMETHODIMP nsMsgProgress::GetMsgWindow(nsIMsgWindow** aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aMsgWindow);
 
   if (m_msgWindow)
@@ -228,7 +228,7 @@ NS_IMETHODIMP nsMsgProgress::GetMsgWindow(nsIMsgWindow **aMsgWindow) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest *request, int64_t aProgress,
+NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest* request, int64_t aProgress,
                                         int64_t aProgressMax) {
   // XXX: What should the nsIWebProgress be?
   // XXX: This truncates 64-bit to 32-bit
@@ -238,8 +238,8 @@ NS_IMETHODIMP nsMsgProgress::OnProgress(nsIRequest *request, int64_t aProgress,
                           int32_t(aProgressMax) /* max total progress */);
 }
 
-NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest *request, nsresult aStatus,
-                                      const char16_t *aStatusArg) {
+NS_IMETHODIMP nsMsgProgress::OnStatus(nsIRequest* request, nsresult aStatus,
+                                      const char16_t* aStatusArg) {
   nsresult rv;
   nsCOMPtr<nsIStringBundleService> sbs =
       mozilla::services::GetStringBundleService();

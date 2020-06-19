@@ -9,8 +9,8 @@
 #include "nsMsgUtils.h"
 
 /* parses NewsMessageURI */
-nsresult nsParseNewsMessageURI(const char *uri, nsCString &group,
-                               nsMsgKey *key) {
+nsresult nsParseNewsMessageURI(const char* uri, nsCString& group,
+                               nsMsgKey* key) {
   NS_ENSURE_ARG_POINTER(uri);
   NS_ENSURE_ARG_POINTER(key);
 
@@ -44,8 +44,8 @@ nsresult nsParseNewsMessageURI(const char *uri, nsCString &group,
   return NS_ERROR_FAILURE;
 }
 
-nsresult nsCreateNewsBaseMessageURI(const char *baseURI,
-                                    nsCString &baseMessageURI) {
+nsresult nsCreateNewsBaseMessageURI(const char* baseURI,
+                                    nsCString& baseMessageURI) {
   nsAutoCString tailURI(baseURI);
 
   // chop off news:/

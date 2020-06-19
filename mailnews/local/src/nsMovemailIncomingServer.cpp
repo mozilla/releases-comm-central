@@ -24,7 +24,7 @@ nsMovemailIncomingServer::nsMovemailIncomingServer() {
 nsMovemailIncomingServer::~nsMovemailIncomingServer() {}
 
 NS_IMETHODIMP
-nsMovemailIncomingServer::PerformBiff(nsIMsgWindow *aMsgWindow) {
+nsMovemailIncomingServer::PerformBiff(nsIMsgWindow* aMsgWindow) {
   nsresult rv;
   nsCOMPtr<nsIMovemailService> movemailService(
       do_GetService(kCMovemailServiceCID, &rv));
@@ -95,10 +95,10 @@ NS_IMETHODIMP nsMovemailIncomingServer::CreateDefaultMailboxes() {
 }
 
 NS_IMETHODIMP
-nsMovemailIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
-                                     nsIUrlListener *aUrlListener,
-                                     nsIMsgFolder *aMsgFolder,
-                                     nsIURI **aResult) {
+nsMovemailIncomingServer::GetNewMail(nsIMsgWindow* aMsgWindow,
+                                     nsIUrlListener* aUrlListener,
+                                     nsIMsgFolder* aMsgFolder,
+                                     nsIURI** aResult) {
   nsresult rv;
 
   nsCOMPtr<nsIMovemailService> movemailService =
@@ -114,21 +114,21 @@ nsMovemailIncomingServer::GetNewMail(nsIMsgWindow *aMsgWindow,
 
 NS_IMETHODIMP
 nsMovemailIncomingServer::GetDownloadMessagesAtStartup(
-    bool *getMessagesAtStartup) {
+    bool* getMessagesAtStartup) {
   NS_ENSURE_ARG_POINTER(getMessagesAtStartup);
   *getMessagesAtStartup = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailIncomingServer::GetCanBeDefaultServer(bool *aCanBeDefaultServer) {
+nsMovemailIncomingServer::GetCanBeDefaultServer(bool* aCanBeDefaultServer) {
   NS_ENSURE_ARG_POINTER(aCanBeDefaultServer);
   *aCanBeDefaultServer = true;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailIncomingServer::GetCanSearchMessages(bool *canSearchMessages) {
+nsMovemailIncomingServer::GetCanSearchMessages(bool* canSearchMessages) {
   NS_ENSURE_ARG_POINTER(canSearchMessages);
   *canSearchMessages = true;
   return NS_OK;
@@ -136,14 +136,14 @@ nsMovemailIncomingServer::GetCanSearchMessages(bool *canSearchMessages) {
 
 NS_IMETHODIMP
 nsMovemailIncomingServer::GetServerRequiresPasswordForBiff(
-    bool *aServerRequiresPasswordForBiff) {
+    bool* aServerRequiresPasswordForBiff) {
   NS_ENSURE_ARG_POINTER(aServerRequiresPasswordForBiff);
   *aServerRequiresPasswordForBiff = false;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMovemailIncomingServer::GetAccountManagerChrome(nsAString &aResult) {
+nsMovemailIncomingServer::GetAccountManagerChrome(nsAString& aResult) {
   aResult.AssignLiteral("am-main.xhtml");
   return NS_OK;
 }

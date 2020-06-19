@@ -12,8 +12,8 @@
 #include "nsComponentManagerUtils.h"
 #include "mozilla/Services.h"
 
-nsresult nsImportStringBundle::GetStringBundle(const char *aPropertyURL,
-                                               nsIStringBundle **aBundle) {
+nsresult nsImportStringBundle::GetStringBundle(const char* aPropertyURL,
+                                               nsIStringBundle** aBundle) {
   nsresult rv;
 
   nsCOMPtr<nsIStringBundleService> sBundleService =
@@ -25,13 +25,13 @@ nsresult nsImportStringBundle::GetStringBundle(const char *aPropertyURL,
 }
 
 void nsImportStringBundle::GetStringByID(int32_t aStringID,
-                                         nsIStringBundle *aBundle,
-                                         nsString &aResult) {
+                                         nsIStringBundle* aBundle,
+                                         nsString& aResult) {
   aResult.Adopt(GetStringByID(aStringID, aBundle));
 }
 
-char16_t *nsImportStringBundle::GetStringByID(int32_t aStringID,
-                                              nsIStringBundle *aBundle) {
+char16_t* nsImportStringBundle::GetStringByID(int32_t aStringID,
+                                              nsIStringBundle* aBundle) {
   if (aBundle) {
     nsAutoString str;
     nsresult rv = aBundle->GetStringFromID(aStringID, str);
@@ -45,14 +45,14 @@ char16_t *nsImportStringBundle::GetStringByID(int32_t aStringID,
   return ToNewUnicode(resultString);
 }
 
-void nsImportStringBundle::GetStringByName(const char *aName,
-                                           nsIStringBundle *aBundle,
-                                           nsString &aResult) {
+void nsImportStringBundle::GetStringByName(const char* aName,
+                                           nsIStringBundle* aBundle,
+                                           nsString& aResult) {
   aResult.Adopt(GetStringByName(aName, aBundle));
 }
 
-char16_t *nsImportStringBundle::GetStringByName(const char *aName,
-                                                nsIStringBundle *aBundle) {
+char16_t* nsImportStringBundle::GetStringByName(const char* aName,
+                                                nsIStringBundle* aBundle) {
   if (aBundle) {
     nsAutoString str;
     nsresult rv = aBundle->GetStringFromName(aName, str);

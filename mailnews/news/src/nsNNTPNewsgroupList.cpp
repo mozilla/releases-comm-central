@@ -92,8 +92,8 @@ nsNNTPNewsgroupList::~nsNNTPNewsgroupList() { CleanUp(); }
 NS_IMPL_ISUPPORTS(nsNNTPNewsgroupList, nsINNTPNewsgroupList,
                   nsIMsgFilterHitNotify)
 
-nsresult nsNNTPNewsgroupList::Initialize(nsINntpUrl *runningURL,
-                                         nsIMsgNewsFolder *newsFolder) {
+nsresult nsNNTPNewsgroupList::Initialize(nsINntpUrl* runningURL,
+                                         nsIMsgNewsFolder* newsFolder) {
   m_newsFolder = newsFolder;
   m_runningURL = runningURL;
   m_knownArts.set = nsMsgKeySet::Create();
@@ -193,11 +193,11 @@ nsresult nsNNTPNewsgroupList::CleanUp() {
 }
 
 #ifdef HAVE_CHANGELISTENER
-void nsNNTPNewsgroupList::OnAnnouncerGoingAway(ChangeAnnouncer *instigator) {}
+void nsNNTPNewsgroupList::OnAnnouncerGoingAway(ChangeAnnouncer* instigator) {}
 #endif
 
-static nsresult openWindow(nsIMsgWindow *aMsgWindow, const char *chromeURL,
-                           nsINewsDownloadDialogArgs *param) {
+static nsresult openWindow(nsIMsgWindow* aMsgWindow, const char* chromeURL,
+                           nsINewsDownloadDialogArgs* param) {
   nsresult rv;
   NS_ENSURE_ARG_POINTER(aMsgWindow);
   nsCOMPtr<nsIDocShell> docShell;
@@ -226,8 +226,8 @@ static nsresult openWindow(nsIMsgWindow *aMsgWindow, const char *chromeURL,
 }
 
 nsresult nsNNTPNewsgroupList::GetRangeOfArtsToDownload(
-    nsIMsgWindow *aMsgWindow, int32_t first_possible, int32_t last_possible,
-    int32_t maxextra, int32_t *first, int32_t *last, int32_t *status) {
+    nsIMsgWindow* aMsgWindow, int32_t first_possible, int32_t last_possible,
+    int32_t maxextra, int32_t* first, int32_t* last, int32_t* status) {
   nsresult rv = NS_OK;
 
   NS_ENSURE_ARG_POINTER(first);
@@ -455,7 +455,7 @@ nsresult nsNNTPNewsgroupList::InitXOVER(int32_t first_msg, int32_t last_msg) {
 #define SUBJECT_HEADER "Subject: "
 #define DATE_HEADER "Date: "
 
-nsresult nsNNTPNewsgroupList::ParseLine(char *line, uint32_t *message_number) {
+nsresult nsNNTPNewsgroupList::ParseLine(char* line, uint32_t* message_number) {
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgDBHdr> newMsgHdr;
 
@@ -463,7 +463,7 @@ nsresult nsNNTPNewsgroupList::ParseLine(char *line, uint32_t *message_number) {
     return NS_ERROR_NULL_POINTER;
   }
 
-  char *next = line;
+  char* next = line;
 
 #define GET_TOKEN()                          \
   line = next;                               \
@@ -484,7 +484,7 @@ nsresult nsNNTPNewsgroupList::ParseLine(char *line, uint32_t *message_number) {
 
   GET_TOKEN(); /* subject */
   if (line) {
-    const char *subject = line; /* #### const evilness */
+    const char* subject = line; /* #### const evilness */
 
     uint32_t flags = 0;
     // ### should call IsHeaderRead here...
@@ -521,9 +521,9 @@ nsresult nsNNTPNewsgroupList::ParseLine(char *line, uint32_t *message_number) {
 
   GET_TOKEN(); /* message id */
   if (line) {
-    char *strippedId = line;
+    char* strippedId = line;
     if (strippedId[0] == '<') strippedId++;
-    char *lastChar = strippedId + PL_strlen(strippedId) - 1;
+    char* lastChar = strippedId + PL_strlen(strippedId) - 1;
 
     if (*lastChar == '>') *lastChar = '\0';
 
@@ -560,9 +560,9 @@ nsresult nsNNTPNewsgroupList::ParseLine(char *line, uint32_t *message_number) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter,
-                                                  nsIMsgWindow *aMsgWindow,
-                                                  bool *aApplyMore) {
+NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter* aFilter,
+                                                  nsIMsgWindow* aMsgWindow,
+                                                  bool* aApplyMore) {
   NS_ENSURE_ARG_POINTER(aFilter);
   NS_ENSURE_ARG_POINTER(aApplyMore);
   NS_ENSURE_TRUE(m_newMsgHdr, NS_ERROR_UNEXPECTED);
@@ -714,8 +714,8 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter *aFilter,
   return finalResult;
 }
 
-nsresult nsNNTPNewsgroupList::ProcessXOVERLINE(const char *line,
-                                               uint32_t *status) {
+nsresult nsNNTPNewsgroupList::ProcessXOVERLINE(const char* line,
+                                               uint32_t* status) {
   uint32_t message_number = 0;
   //  int32_t lines;
   nsresult rv = NS_OK;
@@ -724,7 +724,7 @@ nsresult nsNNTPNewsgroupList::ProcessXOVERLINE(const char *line,
   if (!line) return NS_ERROR_NULL_POINTER;
 
   if (m_newsDB) {
-    char *xoverline = PL_strdup(line);
+    char* xoverline = PL_strdup(line);
     if (!xoverline) return NS_ERROR_OUT_OF_MEMORY;
     rv = ParseLine(xoverline, &message_number);
     PL_strfree(xoverline);
@@ -785,9 +785,9 @@ nsresult nsNNTPNewsgroupList::ResetXOVER() {
   return NS_OK;
 }
 
-nsresult nsNNTPNewsgroupList::FinishXOVERLINE(int status, int *newstatus) {
+nsresult nsNNTPNewsgroupList::FinishXOVERLINE(int status, int* newstatus) {
   nsresult rv;
-  struct MSG_NewsKnown *k;
+  struct MSG_NewsKnown* k;
 
   /* If any XOVER lines from the last time failed to come in, mark those
      messages as read. */
@@ -851,7 +851,7 @@ nsresult nsNNTPNewsgroupList::FinishXOVERLINE(int status, int *newstatus) {
 }
 
 NS_IMETHODIMP
-nsNNTPNewsgroupList::InitXHDR(nsACString &header) {
+nsNNTPNewsgroupList::InitXHDR(nsACString& header) {
   if (++m_currentXHDRIndex >= m_filterHeaders.Length())
     header.Truncate();
   else
@@ -864,7 +864,7 @@ nsNNTPNewsgroupList::InitXHDR(nsACString &header) {
 }
 
 NS_IMETHODIMP
-nsNNTPNewsgroupList::ProcessXHDRLine(const nsACString &line) {
+nsNNTPNewsgroupList::ProcessXHDRLine(const nsACString& line) {
   int32_t middle = line.FindChar(' ');
   nsCString value, key = PromiseFlatCString(line);
   if (middle == -1) return NS_OK;
@@ -941,7 +941,7 @@ nsNNTPNewsgroupList::HEADFailed(int32_t number) {
 }
 
 NS_IMETHODIMP
-nsNNTPNewsgroupList::ProcessHEADLine(const nsACString &line) {
+nsNNTPNewsgroupList::ProcessHEADLine(const nsACString& line) {
   int32_t colon = line.FindChar(':');
   nsCString header = PromiseFlatCString(line), value;
   if (colon != -1) {
@@ -969,7 +969,7 @@ nsNNTPNewsgroupList::ProcessHEADLine(const nsACString &line) {
   return NS_OK;
 }
 
-nsresult nsNNTPNewsgroupList::AddHeader(const char *header, const char *value) {
+nsresult nsNNTPNewsgroupList::AddHeader(const char* header, const char* value) {
   nsresult rv = NS_OK;
   // The From, Date, and Subject headers have special requirements.
   if (PL_strcmp(header, "from") == 0) {
@@ -979,7 +979,7 @@ nsresult nsNNTPNewsgroupList::AddHeader(const char *header, const char *value) {
     PRStatus status = PR_ParseTimeString(value, false, &date);
     if (PR_SUCCESS == status) rv = m_newMsgHdr->SetDate(date);
   } else if (PL_strcmp(header, "subject") == 0) {
-    const char *subject = value;
+    const char* subject = value;
 
     uint32_t flags = 0;
     // ### should call IsHeaderRead here...
@@ -1135,7 +1135,7 @@ void nsNNTPNewsgroupList::SetProgressBarPercent(int32_t percent) {
   }
 }
 
-void nsNNTPNewsgroupList::SetProgressStatus(const nsString &aMessage) {
+void nsNNTPNewsgroupList::SetProgressStatus(const nsString& aMessage) {
   if (!m_runningURL) return;
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsUrl = do_QueryInterface(m_runningURL);
@@ -1219,7 +1219,7 @@ NS_IMETHODIMP nsNNTPNewsgroupList::SetGetOldMessages(bool aGetOldMessages) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNNTPNewsgroupList::GetGetOldMessages(bool *aGetOldMessages) {
+NS_IMETHODIMP nsNNTPNewsgroupList::GetGetOldMessages(bool* aGetOldMessages) {
   NS_ENSURE_ARG(aGetOldMessages);
 
   *aGetOldMessages = m_getOldMessages;

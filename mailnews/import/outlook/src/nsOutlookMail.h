@@ -22,27 +22,27 @@ class nsOutlookMail {
   nsOutlookMail();
   ~nsOutlookMail();
 
-  nsresult GetMailFolders(nsIArray **pArray);
-  nsresult GetAddressBooks(nsIArray **pArray);
-  nsresult ImportMailbox(uint32_t *pDoneSoFar, bool *pAbort, int32_t index,
-                         const char16_t *pName, nsIMsgFolder *pDest,
-                         int32_t *pMsgCount);
-  nsresult ImportAddresses(uint32_t *pCount, uint32_t *pTotal,
-                           const char16_t *pName, uint32_t id,
-                           nsIAbDirectory *pDirectory, nsString &errors);
-  void OpenMessageStore(CMapiFolder *pNextFolder);
-  static BOOL WriteData(nsIOutputStream *pDest, const char *pData, int32_t len);
+  nsresult GetMailFolders(nsIArray** pArray);
+  nsresult GetAddressBooks(nsIArray** pArray);
+  nsresult ImportMailbox(uint32_t* pDoneSoFar, bool* pAbort, int32_t index,
+                         const char16_t* pName, nsIMsgFolder* pDest,
+                         int32_t* pMsgCount);
+  nsresult ImportAddresses(uint32_t* pCount, uint32_t* pTotal,
+                           const char16_t* pName, uint32_t id,
+                           nsIAbDirectory* pDirectory, nsString& errors);
+  void OpenMessageStore(CMapiFolder* pNextFolder);
+  static BOOL WriteData(nsIOutputStream* pDest, const char* pData, int32_t len);
 
  private:
-  bool IsAddressBookNameUnique(nsString &name, nsString &list);
-  void MakeAddressBookNameUnique(nsString &name, nsString &list);
-  void SanitizeValue(nsString &val);
-  void SplitString(nsString &val1, nsString &val2);
-  bool BuildCard(const char16_t *pName, nsIAbDirectory *pDirectory,
-                 nsIAbCard *newCard, LPMAPIPROP pUser,
-                 nsIImportFieldMap *pFieldMap);
-  nsresult CreateList(const nsString &pName, nsIAbDirectory *pDirectory,
-                      LPMAPIPROP pUserList, nsIImportFieldMap *pFieldMap);
+  bool IsAddressBookNameUnique(nsString& name, nsString& list);
+  void MakeAddressBookNameUnique(nsString& name, nsString& list);
+  void SanitizeValue(nsString& val);
+  void SplitString(nsString& val1, nsString& val2);
+  bool BuildCard(const char16_t* pName, nsIAbDirectory* pDirectory,
+                 nsIAbCard* newCard, LPMAPIPROP pUser,
+                 nsIImportFieldMap* pFieldMap);
+  nsresult CreateList(const nsString& pName, nsIAbDirectory* pDirectory,
+                      LPMAPIPROP pUserList, nsIImportFieldMap* pFieldMap);
 
  private:
   bool m_gotFolders;
@@ -60,23 +60,23 @@ class nsOutlookMail {
 
 class ImportMailboxRunnable : public mozilla::Runnable {
  public:
-  ImportMailboxRunnable(uint32_t *pDoneSoFar, bool *pAbort, int32_t index,
-                        const char16_t *pName, nsIMsgFolder *dstFolder,
-                        int32_t *pMsgCount, nsOutlookMail *aCaller);
+  ImportMailboxRunnable(uint32_t* pDoneSoFar, bool* pAbort, int32_t index,
+                        const char16_t* pName, nsIMsgFolder* dstFolder,
+                        int32_t* pMsgCount, nsOutlookMail* aCaller);
   NS_DECL_NSIRUNNABLE
-  static nsresult ImportMessage(LPMESSAGE lpMsg, nsIOutputStream *pDest,
+  static nsresult ImportMessage(LPMESSAGE lpMsg, nsIOutputStream* pDest,
                                 nsMsgDeliverMode mode);
   nsresult mResult;
 
  private:
-  nsOutlookMail *mCaller;
-  uint32_t *mDoneSoFar;
-  bool *mAbort;
+  nsOutlookMail* mCaller;
+  uint32_t* mDoneSoFar;
+  bool* mAbort;
   int32_t mIndex;
-  const char16_t *mName;
+  const char16_t* mName;
   nsCOMPtr<nsIFile> mMessageFile;
   nsCOMPtr<nsIMsgFolder> mDstFolder;
-  int32_t *mMsgCount;
+  int32_t* mMsgCount;
 };
 
 #endif /* nsOutlookMail_h___ */

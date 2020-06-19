@@ -45,13 +45,13 @@
 
 #  define AD_WORKING_BUFF_SIZE FILE_IO_BUFFER_SIZE
 
-extern void MacGetFileType(nsIFile *fs, bool *useDefault, char **type,
-                           char **encoding);
+extern void MacGetFileType(nsIFile* fs, bool* useDefault, char** type,
+                           char** encoding);
 
 #  include "nsILocalFileMac.h"
 
 /* static */
-nsresult nsSimpleZipper::Zip(nsIFile *aInputFile, nsIFile *aOutputFile) {
+nsresult nsSimpleZipper::Zip(nsIFile* aInputFile, nsIFile* aOutputFile) {
   // create zipwriter object
   nsresult rv;
   nsCOMPtr<nsIZipWriter> zipWriter =
@@ -70,8 +70,8 @@ nsresult nsSimpleZipper::Zip(nsIFile *aInputFile, nsIFile *aOutputFile) {
 }
 
 /* static */
-nsresult nsSimpleZipper::AddToZip(nsIZipWriter *aZipWriter, nsIFile *aFile,
-                                  const nsACString &aPath) {
+nsresult nsSimpleZipper::AddToZip(nsIZipWriter* aZipWriter, nsIFile* aFile,
+                                  const nsACString& aPath) {
   // find out the path this file/dir should have in the zip
   nsCString leafName;
   aFile->GetNativeLeafName(leafName);
@@ -149,12 +149,12 @@ NS_IMPL_ISUPPORTS(nsMsgAttachmentHandler, nsIMsgAttachmentHandler)
 
 // nsIMsgAttachmentHandler implementation.
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetType(nsACString &aType) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetType(nsACString& aType) {
   aType.Assign(m_type);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetUri(nsACString &aUri) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetUri(nsACString& aUri) {
   nsAutoCString turl;
   if (!mURL) {
     if (!m_uri.IsEmpty()) turl = m_uri;
@@ -166,46 +166,46 @@ NS_IMETHODIMP nsMsgAttachmentHandler::GetUri(nsACString &aUri) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetTmpFile(nsIFile **aTmpFile) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetTmpFile(nsIFile** aTmpFile) {
   NS_ENSURE_ARG_POINTER(aTmpFile);
   if (!mTmpFile) return NS_ERROR_FAILURE;
   NS_ADDREF(*aTmpFile = mTmpFile);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetName(nsACString &aName) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetName(nsACString& aName) {
   aName.Assign(m_realName);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetSize(uint32_t *aSize) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetSize(uint32_t* aSize) {
   NS_ENSURE_ARG_POINTER(aSize);
   *aSize = m_size;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetContentId(nsACString &aContentId) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetContentId(nsACString& aContentId) {
   aContentId.Assign(m_contentId);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetSendViaCloud(bool *aSendViaCloud) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetSendViaCloud(bool* aSendViaCloud) {
   NS_ENSURE_ARG_POINTER(aSendViaCloud);
   *aSendViaCloud = mSendViaCloud;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetCharset(nsACString &aCharset) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetCharset(nsACString& aCharset) {
   aCharset.Assign(m_charset);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetEncoding(nsACString &aEncoding) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetEncoding(nsACString& aEncoding) {
   aEncoding.Assign(m_encoding);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgAttachmentHandler::GetAlreadyEncoded(bool *aAlreadyEncoded) {
+NS_IMETHODIMP nsMsgAttachmentHandler::GetAlreadyEncoded(bool* aAlreadyEncoded) {
   NS_ENSURE_ARG_POINTER(aAlreadyEncoded);
   *aAlreadyEncoded = m_already_encoded_p;
   return NS_OK;
@@ -222,10 +222,10 @@ void nsMsgAttachmentHandler::CleanupTempFile() {
 #endif  // XP_MACOSX
 }
 
-void nsMsgAttachmentHandler::AnalyzeDataChunk(const char *chunk,
+void nsMsgAttachmentHandler::AnalyzeDataChunk(const char* chunk,
                                               int32_t length) {
-  unsigned char *s = (unsigned char *)chunk;
-  unsigned char *end = s + length;
+  unsigned char* s = (unsigned char*)chunk;
+  unsigned char* end = s + length;
   for (; s < end; s++) {
     if (*s > 126) {
       m_highbit_count++;
@@ -294,8 +294,8 @@ void nsMsgAttachmentHandler::AnalyzeSnarfedFile(void) {
 
 // Given a content-type and some info about the contents of the document,
 // decide what encoding it should have.
-nsresult nsMsgAttachmentHandler::PickEncoding(const char *charset,
-                                              nsIMsgSend *mime_delivery_state) {
+nsresult nsMsgAttachmentHandler::PickEncoding(const char* charset,
+                                              nsIMsgSend* mime_delivery_state) {
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
 
   bool needsB64 = false;
@@ -333,7 +333,7 @@ nsresult nsMsgAttachmentHandler::PickEncoding(const char *charset,
     if (mCompFields) {
       if (mCompFields->GetForceMsgEncoding()) force_p = true;
     } else if (mime_delivery_state) {
-      if (((nsMsgComposeAndSend *)mime_delivery_state)
+      if (((nsMsgComposeAndSend*)mime_delivery_state)
               ->mCompFields->GetForceMsgEncoding()) {
         force_p = true;
       }
@@ -463,11 +463,11 @@ nsresult nsMsgAttachmentHandler::PickCharset() {
 }
 
 static nsresult FetcherURLDoneCallback(nsresult aStatus,
-                                       const nsACString &aContentType,
-                                       const nsACString &aCharset,
-                                       int32_t totalSize, const char16_t *aMsg,
-                                       void *tagData) {
-  nsMsgAttachmentHandler *ma = (nsMsgAttachmentHandler *)tagData;
+                                       const nsACString& aContentType,
+                                       const nsACString& aCharset,
+                                       int32_t totalSize, const char16_t* aMsg,
+                                       void* tagData) {
+  nsMsgAttachmentHandler* ma = (nsMsgAttachmentHandler*)tagData;
   NS_ASSERTION(ma != nullptr, "not-null mime attachment");
 
   if (ma != nullptr) {
@@ -492,7 +492,7 @@ static nsresult FetcherURLDoneCallback(nsresult aStatus,
 }
 
 nsresult nsMsgAttachmentHandler::SnarfMsgAttachment(
-    nsMsgCompFields *compFields) {
+    nsMsgCompFields* compFields) {
   nsresult rv = NS_ERROR_INVALID_ARG;
   nsCOMPtr<nsIMsgMessageService> messageService;
 
@@ -603,7 +603,7 @@ done:
 }
 
 #ifdef XP_MACOSX
-bool nsMsgAttachmentHandler::HasResourceFork(FSRef *fsRef) {
+bool nsMsgAttachmentHandler::HasResourceFork(FSRef* fsRef) {
   FSCatalogInfo catalogInfo;
   OSErr err = FSGetCatalogInfo(fsRef, kFSCatInfoDataSizes + kFSCatInfoRsrcSizes,
                                &catalogInfo, nullptr, nullptr, nullptr);
@@ -611,7 +611,7 @@ bool nsMsgAttachmentHandler::HasResourceFork(FSRef *fsRef) {
 }
 #endif
 
-nsresult nsMsgAttachmentHandler::SnarfAttachment(nsMsgCompFields *compFields) {
+nsresult nsMsgAttachmentHandler::SnarfAttachment(nsMsgCompFields* compFields) {
   NS_ASSERTION(!m_done, "Already done");
 
   if (!mURL) return SnarfMsgAttachment(compFields);
@@ -693,7 +693,7 @@ nsresult nsMsgAttachmentHandler::SnarfAttachment(nsMsgCompFields *compFields) {
 
 #ifdef XP_MACOSX
 nsresult nsMsgAttachmentHandler::ConvertToZipFile(
-    nsILocalFileMac *aSourceFile) {
+    nsILocalFileMac* aSourceFile) {
   // append ".zip" to the real file name
   nsAutoCString zippedName;
   nsresult rv = aSourceFile->GetNativeLeafName(zippedName);
@@ -721,8 +721,8 @@ nsresult nsMsgAttachmentHandler::ConvertToZipFile(
 }
 
 nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
-    const nsCString &aFileURI, const nsCString &aFilePath,
-    nsILocalFileMac *aSourceFile) {
+    const nsCString& aFileURI, const nsCString& aFilePath,
+    nsILocalFileMac* aSourceFile) {
   // convert the apple file to AppleDouble first, and then patch the
   // address in the url.
 
@@ -773,7 +773,7 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
 
   // Only use appledouble if we aren't uuencoding.
   if (sendResourceFork) {
-    char *separator;
+    char* separator;
 
     separator = mime_make_separator("ad");
     if (!separator) return NS_ERROR_OUT_OF_MEMORY;
@@ -791,7 +791,7 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
     // into the mEncodedWorkingFile location. Then, we need to patch the new
     // file spec into the array and send this as part of the 2 part
     // appledouble/mime encoded mime part.
-    AppleDoubleEncodeObject *obj = new (AppleDoubleEncodeObject);
+    AppleDoubleEncodeObject* obj = new (AppleDoubleEncodeObject);
     if (obj == NULL) {
       mEncodedWorkingFile = nullptr;
       PR_FREEIF(separator);
@@ -805,7 +805,7 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
       return NS_ERROR_OUT_OF_MEMORY;
     }
 
-    char *working_buff = (char *)PR_Malloc(AD_WORKING_BUFF_SIZE);
+    char* working_buff = (char*)PR_Malloc(AD_WORKING_BUFF_SIZE);
     if (!working_buff) {
       PR_FREEIF(separator);
       delete obj;
@@ -883,11 +883,11 @@ nsresult nsMsgAttachmentHandler::ConvertToAppleEncoding(
 }
 #endif  // XP_MACOSX
 
-nsresult nsMsgAttachmentHandler::LoadDataFromFile(nsIFile *file,
-                                                  nsString &sigData,
+nsresult nsMsgAttachmentHandler::LoadDataFromFile(nsIFile* file,
+                                                  nsString& sigData,
                                                   bool charsetConversion) {
   int32_t readSize;
-  char *readBuf;
+  char* readBuf;
 
   nsCOMPtr<nsIInputStream> inputFile;
   nsresult rv = NS_NewLocalFileInputStream(getter_AddRefs(inputFile), file);
@@ -897,7 +897,7 @@ nsresult nsMsgAttachmentHandler::LoadDataFromFile(nsIFile *file,
   file->GetFileSize(&fileSize);
   readSize = (uint32_t)fileSize;
 
-  readBuf = (char *)PR_Malloc(readSize + 1);
+  readBuf = (char*)PR_Malloc(readSize + 1);
   if (!readBuf) return NS_ERROR_OUT_OF_MEMORY;
   memset(readBuf, 0, readSize + 1);
 
@@ -942,7 +942,7 @@ nsresult nsMsgAttachmentHandler::Abort() {
 }
 
 nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
-                                         const char16_t *aMsg) {
+                                         const char16_t* aMsg) {
   NS_ASSERTION(m_mime_delivery_state != nullptr,
                "not-null m_mime_delivery_state");
 
@@ -1106,8 +1106,8 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
     // Find the next attachment which has not yet been loaded,
     // if any, and start it going.
     uint32_t i;
-    nsMsgAttachmentHandler *next = 0;
-    nsTArray<RefPtr<nsMsgAttachmentHandler>> *attachments;
+    nsMsgAttachmentHandler* next = 0;
+    nsTArray<RefPtr<nsMsgAttachmentHandler>>* attachments;
 
     m_mime_delivery_state->GetAttachmentHandlers(&attachments);
 
@@ -1183,14 +1183,14 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
   return NS_OK;
 }
 
-nsresult nsMsgAttachmentHandler::GetMimeDeliveryState(nsIMsgSend **_retval) {
+nsresult nsMsgAttachmentHandler::GetMimeDeliveryState(nsIMsgSend** _retval) {
   NS_ENSURE_ARG(_retval);
   NS_IF_ADDREF(*_retval = m_mime_delivery_state);
   return NS_OK;
 }
 
 nsresult nsMsgAttachmentHandler::SetMimeDeliveryState(
-    nsIMsgSend *mime_delivery_state) {
+    nsIMsgSend* mime_delivery_state) {
   m_mime_delivery_state = mime_delivery_state;
   return NS_OK;
 }

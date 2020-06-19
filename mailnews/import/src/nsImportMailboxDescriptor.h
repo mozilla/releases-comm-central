@@ -19,7 +19,7 @@ class nsImportMailboxDescriptor : public nsIImportMailboxDescriptor {
  public:
   NS_DECL_THREADSAFE_ISUPPORTS
 
-  NS_IMETHOD GetIdentifier(uint32_t *pIdentifier) override {
+  NS_IMETHOD GetIdentifier(uint32_t* pIdentifier) override {
     *pIdentifier = m_id;
     return NS_OK;
   }
@@ -29,7 +29,7 @@ class nsImportMailboxDescriptor : public nsIImportMailboxDescriptor {
   }
 
   /* attribute unsigned long depth; */
-  NS_IMETHOD GetDepth(uint32_t *pDepth) override {
+  NS_IMETHOD GetDepth(uint32_t* pDepth) override {
     *pDepth = m_depth;
     return NS_OK;
   }
@@ -39,7 +39,7 @@ class nsImportMailboxDescriptor : public nsIImportMailboxDescriptor {
   }
 
   /* attribute unsigned long size; */
-  NS_IMETHOD GetSize(uint32_t *pSize) override {
+  NS_IMETHOD GetSize(uint32_t* pSize) override {
     *pSize = m_size;
     return NS_OK;
   }
@@ -49,17 +49,17 @@ class nsImportMailboxDescriptor : public nsIImportMailboxDescriptor {
   }
 
   /* attribute wstring displayName; */
-  NS_IMETHOD GetDisplayName(char16_t **pName) override {
+  NS_IMETHOD GetDisplayName(char16_t** pName) override {
     *pName = ToNewUnicode(m_displayName);
     return NS_OK;
   }
-  NS_IMETHOD SetDisplayName(const char16_t *pName) override {
+  NS_IMETHOD SetDisplayName(const char16_t* pName) override {
     m_displayName = pName;
     return NS_OK;
   }
 
   /* attribute boolean import; */
-  NS_IMETHOD GetImport(bool *pImport) override {
+  NS_IMETHOD GetImport(bool* pImport) override {
     *pImport = m_import;
     return NS_OK;
   }
@@ -69,7 +69,7 @@ class nsImportMailboxDescriptor : public nsIImportMailboxDescriptor {
   }
 
   /* readonly attribute nsIFile file; */
-  NS_IMETHOD GetFile(nsIFile **aFile) override {
+  NS_IMETHOD GetFile(nsIFile** aFile) override {
     if (m_pFile) {
       NS_ADDREF(*aFile = m_pFile);
       return NS_OK;
@@ -79,7 +79,7 @@ class nsImportMailboxDescriptor : public nsIImportMailboxDescriptor {
 
   nsImportMailboxDescriptor();
 
-  static nsresult Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
+  static nsresult Create(nsISupports* aOuter, REFNSIID aIID, void** aResult);
 
  private:
   virtual ~nsImportMailboxDescriptor() {}

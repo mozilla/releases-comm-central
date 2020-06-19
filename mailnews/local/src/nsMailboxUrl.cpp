@@ -34,8 +34,8 @@
 #include "mozilla/Services.h"
 
 // helper function for parsing the search field of a url
-char *extractAttributeValue(const char *searchString,
-                            const char *attributeName);
+char* extractAttributeValue(const char* searchString,
+                            const char* attributeName);
 
 nsMailboxUrl::nsMailboxUrl() {
   m_mailboxAction = nsIMailboxUrl::ActionParseMailbox;
@@ -64,12 +64,12 @@ NS_INTERFACE_MAP_END_INHERITING(nsMsgMailNewsUrl)
 ////////////////////////////////////////////////////////////////////////////////////
 // Begin nsIMailboxUrl specific support
 ////////////////////////////////////////////////////////////////////////////////////
-nsresult nsMailboxUrl::SetMailboxParser(nsIStreamListener *aMailboxParser) {
+nsresult nsMailboxUrl::SetMailboxParser(nsIStreamListener* aMailboxParser) {
   if (aMailboxParser) m_mailboxParser = aMailboxParser;
   return NS_OK;
 }
 
-nsresult nsMailboxUrl::GetMailboxParser(nsIStreamListener **aConsumer) {
+nsresult nsMailboxUrl::GetMailboxParser(nsIStreamListener** aConsumer) {
   NS_ENSURE_ARG_POINTER(aConsumer);
 
   NS_IF_ADDREF(*aConsumer = m_mailboxParser);
@@ -77,13 +77,13 @@ nsresult nsMailboxUrl::GetMailboxParser(nsIStreamListener **aConsumer) {
 }
 
 nsresult nsMailboxUrl::SetMailboxCopyHandler(
-    nsIStreamListener *aMailboxCopyHandler) {
+    nsIStreamListener* aMailboxCopyHandler) {
   if (aMailboxCopyHandler) m_mailboxCopyHandler = aMailboxCopyHandler;
   return NS_OK;
 }
 
 nsresult nsMailboxUrl::GetMailboxCopyHandler(
-    nsIStreamListener **aMailboxCopyHandler) {
+    nsIStreamListener** aMailboxCopyHandler) {
   NS_ENSURE_ARG_POINTER(aMailboxCopyHandler);
 
   if (aMailboxCopyHandler) {
@@ -93,12 +93,12 @@ nsresult nsMailboxUrl::GetMailboxCopyHandler(
   return NS_OK;
 }
 
-nsresult nsMailboxUrl::GetMessageKey(nsMsgKey *aMessageKey) {
+nsresult nsMailboxUrl::GetMessageKey(nsMsgKey* aMessageKey) {
   *aMessageKey = m_messageKey;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetMessageSize(uint32_t *aMessageSize) {
+NS_IMETHODIMP nsMailboxUrl::GetMessageSize(uint32_t* aMessageSize) {
   if (aMessageSize) {
     *aMessageSize = m_messageSize;
     return NS_OK;
@@ -111,7 +111,7 @@ nsresult nsMailboxUrl::SetMessageSize(uint32_t aMessageSize) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString &aPrincipalSpec) {
+NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsURL;
   QueryInterface(NS_GET_IID(nsIMsgMailNewsUrl), getter_AddRefs(mailnewsURL));
 
@@ -123,7 +123,7 @@ NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString &aPrincipalSpec) {
   // We also need to translate the second form
   // mailbox://user@domain@server/folder?number=nn.
 
-  char *messageKey = extractAttributeValue(spec.get(), "number=");
+  char* messageKey = extractAttributeValue(spec.get(), "number=");
 
   // Strip any query part beginning with ? or /;
   MsgRemoveQueryPart(spec);
@@ -152,7 +152,7 @@ NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString &aPrincipalSpec) {
   return NS_OK;
 }
 
-nsresult nsMailboxUrl::CreateURL(const nsACString &aSpec, nsIURL **aURL) {
+nsresult nsMailboxUrl::CreateURL(const nsACString& aSpec, nsIURL** aURL) {
   nsresult rv;
   nsCOMPtr<nsIURL> url;
   // Check whether the URL is of the form
@@ -177,12 +177,12 @@ nsresult nsMailboxUrl::CreateURL(const nsACString &aSpec, nsIURL **aURL) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::SetUri(const char *aURI) {
+NS_IMETHODIMP nsMailboxUrl::SetUri(const char* aURI) {
   mURI = aURI;
   return NS_OK;
 }
 
-nsresult nsMailboxUrl::Clone(nsIURI **_retval) {
+nsresult nsMailboxUrl::Clone(nsIURI** _retval) {
   nsresult rv = nsMsgMailNewsUrl::Clone(_retval);
   NS_ENSURE_SUCCESS(rv, rv);
   // also clone the mURI member, because GetUri below won't work if
@@ -192,7 +192,7 @@ nsresult nsMailboxUrl::Clone(nsIURI **_retval) {
   return rv;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetUri(char **aURI) {
+NS_IMETHODIMP nsMailboxUrl::GetUri(char** aURI) {
   // if we have been given a uri to associate with this url, then use it
   // otherwise try to reconstruct a URI on the fly....
 
@@ -225,7 +225,7 @@ NS_IMETHODIMP nsMailboxUrl::GetUri(char **aURI) {
   return NS_OK;
 }
 
-nsresult nsMailboxUrl::GetMsgHdrForKey(nsMsgKey msgKey, nsIMsgDBHdr **aMsgHdr) {
+nsresult nsMailboxUrl::GetMsgHdrForKey(nsMsgKey msgKey, nsIMsgDBHdr** aMsgHdr) {
   nsresult rv = NS_OK;
   if (aMsgHdr && m_filePath) {
     nsCOMPtr<nsIMsgDatabase> mailDBFactory;
@@ -268,7 +268,7 @@ nsresult nsMailboxUrl::GetMsgHdrForKey(nsMsgKey msgKey, nsIMsgDBHdr **aMsgHdr) {
   return rv;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetMessageHeader(nsIMsgDBHdr **aMsgHdr) {
+NS_IMETHODIMP nsMailboxUrl::GetMessageHeader(nsIMsgDBHdr** aMsgHdr) {
   if (m_dummyHdr) {
     NS_IF_ADDREF(*aMsgHdr = m_dummyHdr);
     return NS_OK;
@@ -276,7 +276,7 @@ NS_IMETHODIMP nsMailboxUrl::GetMessageHeader(nsIMsgDBHdr **aMsgHdr) {
   return GetMsgHdrForKey(m_messageKey, aMsgHdr);
 }
 
-NS_IMETHODIMP nsMailboxUrl::SetMessageHeader(nsIMsgDBHdr *aMsgHdr) {
+NS_IMETHODIMP nsMailboxUrl::SetMessageHeader(nsIMsgDBHdr* aMsgHdr) {
   m_dummyHdr = aMsgHdr;
   return NS_OK;
 }
@@ -285,30 +285,30 @@ NS_IMPL_GETSET(nsMailboxUrl, AddDummyEnvelope, bool, m_addDummyEnvelope)
 NS_IMPL_GETSET(nsMailboxUrl, CanonicalLineEnding, bool, m_canonicalLineEnding)
 
 NS_IMETHODIMP
-nsMailboxUrl::GetOriginalSpec(char **aSpec) {
+nsMailboxUrl::GetOriginalSpec(char** aSpec) {
   if (!aSpec || m_originalSpec.IsEmpty()) return NS_ERROR_NULL_POINTER;
   *aSpec = ToNewCString(m_originalSpec);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMailboxUrl::SetOriginalSpec(const char *aSpec) {
+nsMailboxUrl::SetOriginalSpec(const char* aSpec) {
   m_originalSpec = aSpec;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::SetMessageFile(nsIFile *aFile) {
+NS_IMETHODIMP nsMailboxUrl::SetMessageFile(nsIFile* aFile) {
   m_messageFile = aFile;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetMessageFile(nsIFile **aFile) {
+NS_IMETHODIMP nsMailboxUrl::GetMessageFile(nsIFile** aFile) {
   // why don't we return an error for null aFile?
   if (aFile) NS_IF_ADDREF(*aFile = m_messageFile);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::IsUrlType(uint32_t type, bool *isType) {
+NS_IMETHODIMP nsMailboxUrl::IsUrlType(uint32_t type, bool* isType) {
   NS_ENSURE_ARG(isType);
 
   switch (type) {
@@ -342,14 +342,14 @@ nsresult nsMailboxUrl::ParseSearchPart() {
   // add code to this function to decompose everything past the '?'.....
   if (NS_SUCCEEDED(rv) && !searchPart.IsEmpty()) {
     // the action for this mailbox must be a display message...
-    char *msgPart = extractAttributeValue(searchPart.get(), "part=");
+    char* msgPart = extractAttributeValue(searchPart.get(), "part=");
     if (msgPart)  // if we have a part in the url then we must be fetching just
                   // the part.
       m_mailboxAction = nsIMailboxUrl::ActionFetchPart;
     else
       m_mailboxAction = nsIMailboxUrl::ActionFetchMessage;
 
-    char *messageKey = extractAttributeValue(searchPart.get(), "number=");
+    char* messageKey = extractAttributeValue(searchPart.get(), "number=");
     m_messageID = extractAttributeValue(searchPart.get(), "messageid=");
     if (messageKey)
       m_messageKey =
@@ -395,7 +395,7 @@ nsresult nsMailboxUrl::ParseUrl() {
   return NS_OK;
 }
 
-nsresult nsMailboxUrl::SetSpecInternal(const nsACString &aSpec) {
+nsresult nsMailboxUrl::SetSpecInternal(const nsACString& aSpec) {
   nsresult rv = nsMsgMailNewsUrl::SetSpecInternal(aSpec);
   if (NS_SUCCEEDED(rv)) {
     // Do not try to parse URLs of the form
@@ -412,7 +412,7 @@ nsresult nsMailboxUrl::SetSpecInternal(const nsACString &aSpec) {
   return rv;
 }
 
-nsresult nsMailboxUrl::SetQuery(const nsACString &aQuery) {
+nsresult nsMailboxUrl::SetQuery(const nsACString& aQuery) {
   nsresult rv = nsMsgMailNewsUrl::SetQuery(aQuery);
   if (NS_SUCCEEDED(rv)) rv = ParseUrl();
   return rv;
@@ -424,19 +424,19 @@ nsresult nsMailboxUrl::SetQuery(const nsACString &aQuery) {
 // this string...
 
 // Assumption: attribute pairs in the string are separated by '&'.
-char *extractAttributeValue(const char *searchString,
-                            const char *attributeName) {
-  char *attributeValue = nullptr;
+char* extractAttributeValue(const char* searchString,
+                            const char* attributeName) {
+  char* attributeValue = nullptr;
 
   if (searchString && attributeName) {
     // search the string for attributeName
     uint32_t attributeNameSize = PL_strlen(attributeName);
-    char *startOfAttribute = PL_strcasestr(searchString, attributeName);
+    char* startOfAttribute = PL_strcasestr(searchString, attributeName);
     if (startOfAttribute) {
       startOfAttribute += attributeNameSize;  // skip over the attributeName
       if (startOfAttribute)  // is there something after the attribute name
       {
-        char *endOfAttribute =
+        char* endOfAttribute =
             startOfAttribute ? PL_strchr(startOfAttribute, '&') : nullptr;
         nsDependentCString attributeValueStr;
         if (startOfAttribute &&
@@ -460,7 +460,7 @@ char *extractAttributeValue(const char *searchString,
 
 // nsIMsgI18NUrl support
 
-nsresult nsMailboxUrl::GetFolder(nsIMsgFolder **msgFolder) {
+nsresult nsMailboxUrl::GetFolder(nsIMsgFolder** msgFolder) {
   // if we have a RDF URI, then try to get the folder for that URI and then ask
   // the folder for it's charset....
   nsCString uri;
@@ -472,7 +472,7 @@ nsresult nsMailboxUrl::GetFolder(nsIMsgFolder **msgFolder) {
   return msg->GetFolder(msgFolder);
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetFolderCharset(char **aCharacterSet) {
+NS_IMETHODIMP nsMailboxUrl::GetFolderCharset(char** aCharacterSet) {
   NS_ENSURE_ARG_POINTER(aCharacterSet);
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = GetFolder(getter_AddRefs(folder));
@@ -487,7 +487,7 @@ NS_IMETHODIMP nsMailboxUrl::GetFolderCharset(char **aCharacterSet) {
 }
 
 NS_IMETHODIMP nsMailboxUrl::GetFolderCharsetOverride(
-    bool *aCharacterSetOverride) {
+    bool* aCharacterSetOverride) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = GetFolder(getter_AddRefs(folder));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -497,7 +497,7 @@ NS_IMETHODIMP nsMailboxUrl::GetFolderCharsetOverride(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetCharsetOverRide(char **aCharacterSet) {
+NS_IMETHODIMP nsMailboxUrl::GetCharsetOverRide(char** aCharacterSet) {
   if (!mCharsetOverride.IsEmpty())
     *aCharacterSet = ToNewCString(mCharsetOverride);
   else
@@ -505,13 +505,13 @@ NS_IMETHODIMP nsMailboxUrl::GetCharsetOverRide(char **aCharacterSet) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMailboxUrl::SetCharsetOverRide(const char *aCharacterSet) {
+NS_IMETHODIMP nsMailboxUrl::SetCharsetOverRide(const char* aCharacterSet) {
   mCharsetOverride = aCharacterSet;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsMailboxUrl::SetMoveCopyMsgKeys(
-    const nsTArray<nsMsgKey> &keysToFlag) {
+    const nsTArray<nsMsgKey>& keysToFlag) {
   m_keys = keysToFlag.Clone();
   if (!m_keys.IsEmpty() && m_messageKey == nsMsgKey_None)
     m_messageKey = m_keys[0];
@@ -519,7 +519,7 @@ NS_IMETHODIMP nsMailboxUrl::SetMoveCopyMsgKeys(
 }
 
 NS_IMETHODIMP nsMailboxUrl::GetMoveCopyMsgHdrForIndex(uint32_t msgIndex,
-                                                      nsIMsgDBHdr **msgHdr) {
+                                                      nsIMsgDBHdr** msgHdr) {
   NS_ENSURE_ARG(msgHdr);
   if (msgIndex < m_keys.Length()) {
     nsMsgKey nextKey = m_keys[msgIndex];
@@ -528,7 +528,7 @@ NS_IMETHODIMP nsMailboxUrl::GetMoveCopyMsgHdrForIndex(uint32_t msgIndex,
   return NS_MSG_MESSAGE_NOT_FOUND;
 }
 
-NS_IMETHODIMP nsMailboxUrl::GetNumMoveCopyMsgs(uint32_t *numMsgs) {
+NS_IMETHODIMP nsMailboxUrl::GetNumMoveCopyMsgs(uint32_t* numMsgs) {
   NS_ENSURE_ARG(numMsgs);
   *numMsgs = m_keys.Length();
   return NS_OK;

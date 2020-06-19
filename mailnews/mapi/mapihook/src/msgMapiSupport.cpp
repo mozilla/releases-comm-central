@@ -21,8 +21,8 @@
 NS_IMPL_ISUPPORTS(nsMapiSupport, nsIMapiSupport, nsIObserver)
 
 NS_IMETHODIMP
-nsMapiSupport::Observe(nsISupports *aSubject, const char *aTopic,
-                       const char16_t *aData) {
+nsMapiSupport::Observe(nsISupports* aSubject, const char* aTopic,
+                       const char16_t* aData) {
   nsresult rv = NS_OK;
 
   if (!strcmp(aTopic, "profile-after-change")) return InitializeMAPISupport();

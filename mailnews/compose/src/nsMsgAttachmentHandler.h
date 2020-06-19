@@ -24,7 +24,7 @@
 class AppleDoubleEncodeObject {
  public:
   appledouble_encode_object ap_encode_obj;
-  char *buff;                            // the working buff
+  char* buff;                            // the working buff
   int32_t s_buff;                        // the working buff size
   nsCOMPtr<nsIOutputStream> fileStream;  // file to hold the encoding
 };
@@ -38,12 +38,12 @@ class nsSimpleZipper {
  public:
   // Synchronously zips the input file/folder and writes all
   // data to the output file.
-  static nsresult Zip(nsIFile *aInputFile, nsIFile *aOutputFile);
+  static nsresult Zip(nsIFile* aInputFile, nsIFile* aOutputFile);
 
  private:
   // Recursively adds the file or folder to aZipWriter.
-  static nsresult AddToZip(nsIZipWriter *aZipWriter, nsIFile *aFile,
-                           const nsACString &aPath);
+  static nsresult AddToZip(nsIZipWriter* aZipWriter, nsIFile* aFile,
+                           const nsACString& aPath);
 };
 #endif  // XP_MACOSX
 
@@ -67,14 +67,14 @@ class nsMsgAttachmentHandler : public nsIMsgAttachmentHandler {
   nsMsgAttachmentHandler();
 
  public:
-  nsresult SnarfAttachment(nsMsgCompFields *compFields);
-  nsresult PickEncoding(const char *charset, nsIMsgSend *mime_delivery_state);
+  nsresult SnarfAttachment(nsMsgCompFields* compFields);
+  nsresult PickEncoding(const char* charset, nsIMsgSend* mime_delivery_state);
   nsresult PickCharset();
   void AnalyzeSnarfedFile();  // Analyze a previously-snarfed file.
                               // (Currently only used for plaintext
                               // converted from HTML.)
   nsresult Abort();
-  nsresult UrlExit(nsresult status, const char16_t *aMsg);
+  nsresult UrlExit(nsresult status, const char16_t* aMsg);
 
   // if there's an intermediate temp file left, takes care to remove it from
   // disk.
@@ -88,21 +88,21 @@ class nsMsgAttachmentHandler : public nsIMsgAttachmentHandler {
 
   // use when a message (e.g. original message in a reply) is attached as a
   // rfc822 attachment.
-  nsresult SnarfMsgAttachment(nsMsgCompFields *compFields);
+  nsresult SnarfMsgAttachment(nsMsgCompFields* compFields);
   bool UseUUEncode_p(void);
-  void AnalyzeDataChunk(const char *chunk, int32_t chunkSize);
+  void AnalyzeDataChunk(const char* chunk, int32_t chunkSize);
   nsresult LoadDataFromFile(
-      nsIFile *file, nsString &sigData,
+      nsIFile* file, nsString& sigData,
       bool charsetConversion);  // A similar function already exist in
                                 // nsMsgCompose!
 #ifdef XP_MACOSX
-  nsresult ConvertToAppleEncoding(const nsCString &aFileSpecURI,
-                                  const nsCString &aFilePath,
-                                  nsILocalFileMac *aSourceFile);
+  nsresult ConvertToAppleEncoding(const nsCString& aFileSpecURI,
+                                  const nsCString& aFilePath,
+                                  nsILocalFileMac* aSourceFile);
   // zips this attachment and does the work to make this attachment handler
   // handle it properly.
-  nsresult ConvertToZipFile(nsILocalFileMac *aSourceFile);
-  bool HasResourceFork(FSRef *fsRef);
+  nsresult ConvertToZipFile(nsILocalFileMac* aSourceFile);
+  bool HasResourceFork(FSRef* fsRef);
 #endif
 
   //
@@ -112,7 +112,7 @@ class nsMsgAttachmentHandler : public nsIMsgAttachmentHandler {
   nsCOMPtr<nsIOutputStream> mOutFile;
   nsCOMPtr<nsIRequest>
       mRequest;  // The live request used while fetching an attachment
-  nsMsgCompFields *mCompFields;  // Message composition fields for the sender
+  nsMsgCompFields* mCompFields;  // Message composition fields for the sender
   bool m_bogus_attachment;       // This is to catch problem children...
 
 #ifdef XP_MACOSX
@@ -176,8 +176,8 @@ class nsMsgAttachmentHandler : public nsIMsgAttachmentHandler {
   mozilla::UniquePtr<MimeEncoder> m_encoder;
   nsCString m_uri;  // original uri string
 
-  nsresult GetMimeDeliveryState(nsIMsgSend **_retval);
-  nsresult SetMimeDeliveryState(nsIMsgSend *mime_delivery_state);
+  nsresult GetMimeDeliveryState(nsIMsgSend** _retval);
+  nsresult SetMimeDeliveryState(nsIMsgSend* mime_delivery_state);
 
  private:
   nsCOMPtr<nsIMsgSend> m_mime_delivery_state;

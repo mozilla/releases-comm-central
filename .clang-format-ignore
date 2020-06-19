@@ -1,0 +1,17 @@
+# Paths we don't want clang-format to touch.
+# NOTE:
+# This is currently just documenting intent. Due to Bug 1575449
+# `mach clang-format` will likely not pick up this file.
+
+# Specific modules to exclude.
+calendar/libical/.*
+ldap/c-sdk/.*
+suite/.*
+third_party/.*
+
+# General support directories (which don't contain any C++ anyway).
+build/.*
+mozharness/.*
+python/.*
+taskcluster/.*
+tools/.*

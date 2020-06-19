@@ -45,20 +45,20 @@ class nsMsgFilterList : public nsIMsgFilterList {
   virtual ~nsMsgFilterList();
 
   nsresult ComputeArbitraryHeaders();
-  nsresult SaveTextFilters(nsIOutputStream *aStream);
+  nsresult SaveTextFilters(nsIOutputStream* aStream);
   // file streaming methods
-  int ReadChar(nsIInputStream *aStream);
-  int SkipWhitespace(nsIInputStream *aStream);
-  bool StrToBool(nsCString &str);
-  int LoadAttrib(nsMsgFilterFileAttribValue &attrib, nsIInputStream *aStream);
-  const char *GetStringForAttrib(nsMsgFilterFileAttribValue attrib);
-  nsresult LoadValue(nsCString &value, nsIInputStream *aStream);
+  int ReadChar(nsIInputStream* aStream);
+  int SkipWhitespace(nsIInputStream* aStream);
+  bool StrToBool(nsCString& str);
+  int LoadAttrib(nsMsgFilterFileAttribValue& attrib, nsIInputStream* aStream);
+  const char* GetStringForAttrib(nsMsgFilterFileAttribValue attrib);
+  nsresult LoadValue(nsCString& value, nsIInputStream* aStream);
   int16_t m_fileVersion;
   bool m_loggingEnabled;
   bool m_startWritingToBuffer;  // tells us when to start writing one whole
                                 // filter to m_unparsedBuffer
   nsCOMPtr<nsIMsgFolder> m_folder;
-  nsMsgFilter *m_curFilter;  // filter we're filing in or out(?)
+  nsMsgFilter* m_curFilter;  // filter we're filing in or out(?)
   nsCString m_listId;
   nsTArray<nsCOMPtr<nsIMsgFilter> > m_filters;
   nsCString m_arbitraryHeaders;
@@ -67,8 +67,8 @@ class nsMsgFilterList : public nsIMsgFilterList {
 
  private:
   nsresult TruncateLog();
-  nsresult GetLogFile(nsIFile **aFile);
-  nsresult EnsureLogFile(nsIFile *file);
+  nsresult GetLogFile(nsIFile** aFile);
+  nsresult EnsureLogFile(nsIFile* file);
   nsCOMPtr<nsIOutputStream> m_logStream;
 };
 

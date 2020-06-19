@@ -74,126 +74,126 @@ class CMapiApi {
 
   static void MAPIUninitialize(void);
   static HRESULT MAPIInitialize(LPVOID lpInit);
-  static SCODE MAPIAllocateBuffer(ULONG cbSize, LPVOID FAR *lppBuffer);
+  static SCODE MAPIAllocateBuffer(ULONG cbSize, LPVOID FAR* lppBuffer);
   static ULONG MAPIFreeBuffer(LPVOID lpBuff);
   static HRESULT MAPILogonEx(ULONG ulUIParam, LPTSTR lpszProfileName,
                              LPTSTR lpszPassword, FLAGS flFlags,
-                             LPMAPISESSION FAR *lppSession);
+                             LPMAPISESSION FAR* lppSession);
   static HRESULT OpenStreamOnFile(LPALLOCATEBUFFER lpAllocateBuffer,
                                   LPFREEBUFFER lpFreeBuffer, ULONG ulFlags,
                                   LPCTSTR lpszFileName, LPTSTR lpszPrefix,
-                                  LPSTREAM FAR *lppStream);
+                                  LPSTREAM FAR* lppStream);
   static void FreeProws(LPSRowSet prows);
 
   BOOL Initialize(void);
   BOOL LogOn(void);
 
-  void AddMessageStore(CMsgStore *pStore);
+  void AddMessageStore(CMsgStore* pStore);
   void SetCurrentMsgStore(LPMDB lpMdb) { m_lpMdb = lpMdb; }
 
   // Open any given entry from the current Message Store
-  BOOL OpenEntry(ULONG cbEntry, LPENTRYID pEntryId, LPUNKNOWN *ppOpen);
+  BOOL OpenEntry(ULONG cbEntry, LPENTRYID pEntryId, LPUNKNOWN* ppOpen);
   static BOOL OpenMdbEntry(LPMDB lpMdb, ULONG cbEntry, LPENTRYID pEntryId,
-                           LPUNKNOWN *ppOpen);
+                           LPUNKNOWN* ppOpen);
 
   // Fill in the folders list with the hierarchy from the given
   // message store.
-  BOOL GetStoreFolders(ULONG cbEid, LPENTRYID lpEid, CMapiFolderList &folders,
+  BOOL GetStoreFolders(ULONG cbEid, LPENTRYID lpEid, CMapiFolderList& folders,
                        int startDepth);
   BOOL GetStoreAddressFolders(ULONG cbEid, LPENTRYID lpEid,
-                              CMapiFolderList &folders);
-  BOOL OpenStore(ULONG cbEid, LPENTRYID lpEid, LPMDB *ppMdb);
+                              CMapiFolderList& folders);
+  BOOL OpenStore(ULONG cbEid, LPENTRYID lpEid, LPMDB* ppMdb);
 
   // Iteration
-  BOOL IterateStores(CMapiFolderList &list);
-  BOOL IterateContents(CMapiContentIter *pIter, LPMAPIFOLDER pFolder,
+  BOOL IterateStores(CMapiFolderList& list);
+  BOOL IterateContents(CMapiContentIter* pIter, LPMAPIFOLDER pFolder,
                        ULONG flags = 0);
-  BOOL IterateHierarchy(CMapiHierarchyIter *pIter, LPMAPIFOLDER pFolder,
+  BOOL IterateHierarchy(CMapiHierarchyIter* pIter, LPMAPIFOLDER pFolder,
                         ULONG flags = 0);
 
   // Properties
   static LPSPropValue GetMapiProperty(LPMAPIPROP pProp, ULONG tag);
   // If delVal is true, functions will call CMapiApi::MAPIFreeBuffer on pVal.
-  static BOOL GetEntryIdFromProp(LPSPropValue pVal, ULONG &cbEntryId,
-                                 LPENTRYID &lpEntryId, BOOL delVal = TRUE);
-  static BOOL GetStringFromProp(LPSPropValue pVal, nsCString &val,
+  static BOOL GetEntryIdFromProp(LPSPropValue pVal, ULONG& cbEntryId,
+                                 LPENTRYID& lpEntryId, BOOL delVal = TRUE);
+  static BOOL GetStringFromProp(LPSPropValue pVal, nsCString& val,
                                 BOOL delVal = TRUE);
-  static BOOL GetStringFromProp(LPSPropValue pVal, nsString &val,
+  static BOOL GetStringFromProp(LPSPropValue pVal, nsString& val,
                                 BOOL delVal = TRUE);
   static LONG GetLongFromProp(LPSPropValue pVal, BOOL delVal = TRUE);
   static BOOL GetLargeStringProperty(LPMAPIPROP pProp, ULONG tag,
-                                     nsCString &val);
+                                     nsCString& val);
   static BOOL GetLargeStringProperty(LPMAPIPROP pProp, ULONG tag,
-                                     nsString &val);
+                                     nsString& val);
   static BOOL IsLargeProperty(LPSPropValue pVal);
   static ULONG GetEmailPropertyTag(LPMAPIPROP lpProp, LONG nameID);
 
-  static BOOL GetRTFPropertyDecodedAsUTF16(LPMAPIPROP pProp, nsString &val,
-                                           unsigned long &nativeBodyType,
+  static BOOL GetRTFPropertyDecodedAsUTF16(LPMAPIPROP pProp, nsString& val,
+                                           unsigned long& nativeBodyType,
                                            unsigned long codepage = 0);
 
   // Debugging & reporting stuff
   static void ListProperties(LPMAPIPROP lpProp, BOOL getValues = TRUE);
-  static void ListPropertyValue(LPSPropValue pVal, nsCString &s);
+  static void ListPropertyValue(LPSPropValue pVal, nsCString& s);
 
  protected:
   BOOL HandleHierarchyItem(ULONG oType, ULONG cb, LPENTRYID pEntry);
   BOOL HandleContentsItem(ULONG oType, ULONG cb, LPENTRYID pEntry);
-  void GetStoreInfo(CMapiFolder *pFolder, long *pSzContents);
+  void GetStoreInfo(CMapiFolder* pFolder, long* pSzContents);
 
   // array of available message stores, cached so that
   // message stores are only opened once, preventing multiple
   // logon's by the user if the store requires a logon.
-  CMsgStore *FindMessageStore(ULONG cbEid, LPENTRYID lpEid);
+  CMsgStore* FindMessageStore(ULONG cbEid, LPENTRYID lpEid);
   void ClearMessageStores(void);
 
-  static void CStrToUnicode(const char *pStr, nsString &result);
+  static void CStrToUnicode(const char* pStr, nsString& result);
 
   // Debugging & reporting stuff
-  static void GetPropTagName(ULONG tag, nsCString &s);
-  static void ReportStringProp(const char *pTag, LPSPropValue pVal);
-  static void ReportUIDProp(const char *pTag, LPSPropValue pVal);
-  static void ReportLongProp(const char *pTag, LPSPropValue pVal);
+  static void GetPropTagName(ULONG tag, nsCString& s);
+  static void ReportStringProp(const char* pTag, LPSPropValue pVal);
+  static void ReportUIDProp(const char* pTag, LPSPropValue pVal);
+  static void ReportLongProp(const char* pTag, LPSPropValue pVal);
 
  private:
   static int m_clients;
   static BOOL m_initialized;
-  static nsTArray<CMsgStore *> *m_pStores;
+  static nsTArray<CMsgStore*>* m_pStores;
   static LPMAPISESSION m_lpSession;
   static LPMDB m_lpMdb;
   static HRESULT m_lastError;
-  static char16_t *m_pUniBuff;
+  static char16_t* m_pUniBuff;
   static int m_uniBuffLen;
 
-  static BOOL GetLargeProperty(LPMAPIPROP pProp, ULONG tag, void **result);
+  static BOOL GetLargeProperty(LPMAPIPROP pProp, ULONG tag, void** result);
 };
 
 class CMapiFolder {
  public:
   CMapiFolder();
-  explicit CMapiFolder(const CMapiFolder *pCopyFrom);
-  CMapiFolder(const char16_t *pDisplayName, ULONG cbEid, LPENTRYID lpEid,
+  explicit CMapiFolder(const CMapiFolder* pCopyFrom);
+  CMapiFolder(const char16_t* pDisplayName, ULONG cbEid, LPENTRYID lpEid,
               int depth, LONG oType = MAPI_FOLDER);
   ~CMapiFolder();
 
   void SetDoImport(BOOL doIt) { m_doImport = doIt; }
   void SetObjectType(long oType) { m_objectType = oType; }
-  void SetDisplayName(const char16_t *pDisplayName) {
+  void SetDisplayName(const char16_t* pDisplayName) {
     m_displayName = pDisplayName;
   }
   void SetEntryID(ULONG cbEid, LPENTRYID lpEid);
   void SetDepth(int depth) { m_depth = depth; }
-  void SetFilePath(const char16_t *pFilePath) { m_mailFilePath = pFilePath; }
+  void SetFilePath(const char16_t* pFilePath) { m_mailFilePath = pFilePath; }
 
   BOOL GetDoImport(void) const { return m_doImport; }
   LONG GetObjectType(void) const { return m_objectType; }
-  void GetDisplayName(nsString &name) const { name = m_displayName; }
-  void GetFilePath(nsString &path) const { path = m_mailFilePath; }
+  void GetDisplayName(nsString& name) const { name = m_displayName; }
+  void GetFilePath(nsString& path) const { path = m_mailFilePath; }
   BOOL IsStore(void) const { return m_objectType == MAPI_STORE; }
   BOOL IsFolder(void) const { return m_objectType == MAPI_FOLDER; }
   int GetDepth(void) const { return m_depth; }
 
-  LPENTRYID GetEntryID(ULONG *pCb = NULL) const {
+  LPENTRYID GetEntryID(ULONG* pCb = NULL) const {
     if (pCb) *pCb = m_cbEid;
     return (LPENTRYID)m_lpEid;
   }
@@ -202,7 +202,7 @@ class CMapiFolder {
  private:
   LONG m_objectType;
   ULONG m_cbEid;
-  BYTE *m_lpEid;
+  BYTE* m_lpEid;
   nsString m_displayName;
   int m_depth;
   nsString m_mailFilePath;
@@ -214,8 +214,8 @@ class CMapiFolderList {
   CMapiFolderList();
   ~CMapiFolderList();
 
-  void AddItem(CMapiFolder *pFolder);
-  CMapiFolder *GetItem(int index) {
+  void AddItem(CMapiFolder* pFolder);
+  CMapiFolder* GetItem(int index) {
     if ((index >= 0) && (index < (int)m_array.Length()))
       return GetAt(index);
     else
@@ -226,16 +226,16 @@ class CMapiFolderList {
   // Debugging and reporting
   void DumpList(void);
 
-  CMapiFolder *GetAt(int index) { return m_array.ElementAt(index); }
+  CMapiFolder* GetAt(int index) { return m_array.ElementAt(index); }
   int GetSize(void) { return m_array.Length(); }
 
  protected:
-  void EnsureUniqueName(CMapiFolder *pFolder);
-  void GenerateFilePath(CMapiFolder *pFolder);
-  void ChangeName(nsString &name);
+  void EnsureUniqueName(CMapiFolder* pFolder);
+  void GenerateFilePath(CMapiFolder* pFolder);
+  void ChangeName(nsString& name);
 
  private:
-  nsTArray<CMapiFolder *> m_array;
+  nsTArray<CMapiFolder*> m_array;
 };
 
 class CMsgStore {
@@ -244,14 +244,14 @@ class CMsgStore {
   ~CMsgStore();
 
   void SetEntryID(ULONG cbEid, LPENTRYID lpEid);
-  BOOL Open(LPMAPISESSION pSession, LPMDB *ppMdb);
+  BOOL Open(LPMAPISESSION pSession, LPMDB* ppMdb);
 
   ULONG GetCBEntryID(void) { return m_cbEid; }
   LPENTRYID GetLPEntryID(void) { return (LPENTRYID)m_lpEid; }
 
  private:
   ULONG m_cbEid;
-  BYTE *m_lpEid;
+  BYTE* m_lpEid;
   LPMDB m_lpMdb;
 };
 
@@ -260,7 +260,7 @@ class CMapiFolderContents {
   CMapiFolderContents(LPMDB lpMdb, ULONG cbEID, LPENTRYID lpEid);
   ~CMapiFolderContents();
 
-  BOOL GetNext(ULONG *pcbEid, LPENTRYID *ppEid, ULONG *poType, BOOL *pDone);
+  BOOL GetNext(ULONG* pcbEid, LPENTRYID* ppEid, ULONG* poType, BOOL* pDone);
 
   ULONG GetCount(void) { return m_count; }
 
@@ -274,10 +274,10 @@ class CMapiFolderContents {
   LPMAPIFOLDER m_lpFolder;
   LPMAPITABLE m_lpTable;
   ULONG m_fCbEid;
-  BYTE *m_fLpEid;
+  BYTE* m_fLpEid;
   ULONG m_count;
   ULONG m_iterCount;
-  BYTE *m_lastLpEid;
+  BYTE* m_lastLpEid;
   ULONG m_lastCbEid;
 };
 

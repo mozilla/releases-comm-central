@@ -29,32 +29,32 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsAbOutlookDirectory(void);
 
   // nsAbDirProperty methods
-  NS_IMETHOD GetDirType(int32_t *aDirType) override;
-  NS_IMETHOD GetURI(nsACString &aURI) override;
-  NS_IMETHOD GetChildCards(nsISimpleEnumerator **aCards) override;
-  NS_IMETHOD GetChildNodes(nsISimpleEnumerator **aNodes) override;
-  NS_IMETHOD GetIsQuery(bool *aResult) override;
-  NS_IMETHOD HasCard(nsIAbCard *aCard, bool *aHasCard) override;
-  NS_IMETHOD HasDirectory(nsIAbDirectory *aDirectory,
-                          bool *aHasDirectory) override;
-  NS_IMETHOD DeleteCards(const nsTArray<RefPtr<nsIAbCard>> &aCards) override;
-  NS_IMETHOD DeleteDirectory(nsIAbDirectory *aDirectory) override;
-  NS_IMETHOD UseForAutocomplete(const nsACString &aIdentityKey,
-                                bool *aResult) override;
-  NS_IMETHOD AddCard(nsIAbCard *aData, nsIAbCard **addedCard) override;
-  NS_IMETHOD ModifyCard(nsIAbCard *aModifiedCard) override;
-  NS_IMETHOD DropCard(nsIAbCard *aData, bool needToCopyCard) override;
-  NS_IMETHOD AddMailList(nsIAbDirectory *aMailList,
-                         nsIAbDirectory **addedList) override;
-  NS_IMETHOD EditMailListToDatabase(nsIAbCard *listCard) override;
+  NS_IMETHOD GetDirType(int32_t* aDirType) override;
+  NS_IMETHOD GetURI(nsACString& aURI) override;
+  NS_IMETHOD GetChildCards(nsISimpleEnumerator** aCards) override;
+  NS_IMETHOD GetChildNodes(nsISimpleEnumerator** aNodes) override;
+  NS_IMETHOD GetIsQuery(bool* aResult) override;
+  NS_IMETHOD HasCard(nsIAbCard* aCard, bool* aHasCard) override;
+  NS_IMETHOD HasDirectory(nsIAbDirectory* aDirectory,
+                          bool* aHasDirectory) override;
+  NS_IMETHOD DeleteCards(const nsTArray<RefPtr<nsIAbCard>>& aCards) override;
+  NS_IMETHOD DeleteDirectory(nsIAbDirectory* aDirectory) override;
+  NS_IMETHOD UseForAutocomplete(const nsACString& aIdentityKey,
+                                bool* aResult) override;
+  NS_IMETHOD AddCard(nsIAbCard* aData, nsIAbCard** addedCard) override;
+  NS_IMETHOD ModifyCard(nsIAbCard* aModifiedCard) override;
+  NS_IMETHOD DropCard(nsIAbCard* aData, bool needToCopyCard) override;
+  NS_IMETHOD AddMailList(nsIAbDirectory* aMailList,
+                         nsIAbDirectory** addedList) override;
+  NS_IMETHOD EditMailListToDatabase(nsIAbCard* listCard) override;
 
   // nsAbDirProperty method
-  NS_IMETHOD Init(const char *aUri) override;
+  NS_IMETHOD Init(const char* aUri) override;
   // nsIAbDirectoryQuery methods
   NS_DECL_NSIABDIRECTORYQUERY
   // Perform a MAPI query (function executed in a separate thread)
-  nsresult ExecuteQuery(SRestriction &aRestriction,
-                        nsIAbDirSearchListener *aListener, int32_t aResultLimit,
+  nsresult ExecuteQuery(SRestriction& aRestriction,
+                        nsIAbDirSearchListener* aListener, int32_t aResultLimit,
                         int32_t aTimeout, int32_t aThreadId);
 
  protected:
@@ -62,24 +62,24 @@ class nsAbOutlookDirectory : public nsAbDirProperty,  // nsIAbDirectory
   nsresult StopSearch();
 
   // Retrieve hierarchy as cards, with an optional restriction
-  nsresult GetChildCards(nsIMutableArray *aCards, void *aRestriction);
+  nsresult GetChildCards(nsIMutableArray* aCards, void* aRestriction);
   // Retrieve hierarchy as directories
-  nsresult GetChildNodes(nsIMutableArray *aNodes);
+  nsresult GetChildNodes(nsIMutableArray* aNodes);
   // Create a new card
-  nsresult CreateCard(nsIAbCard *aData, nsIAbCard **aNewCard);
+  nsresult CreateCard(nsIAbCard* aData, nsIAbCard** aNewCard);
   // Notification for the UI
-  nsresult NotifyItemDeletion(nsISupports *aItem);
-  nsresult NotifyItemAddition(nsISupports *aItem);
+  nsresult NotifyItemDeletion(nsISupports* aItem);
+  nsresult NotifyItemAddition(nsISupports* aItem);
   // Force update of MAPI repository for mailing list
   nsresult CommitAddressList(void);
   // Read MAPI repository
   nsresult UpdateAddressList(void);
 
-  nsMapiEntry *mMapiData;
+  nsMapiEntry* mMapiData;
   // Container for the query threads
-  nsDataHashtable<nsUint32HashKey, PRThread *> mQueryThreads;
+  nsDataHashtable<nsUint32HashKey, PRThread*> mQueryThreads;
   int32_t mCurrentQueryId;
-  PRLock *mProtector;
+  PRLock* mProtector;
   // Data for the search interfaces
   nsInterfaceHashtable<nsISupportsHashKey, nsIAbCard> mCardList;
   int32_t mSearchContext;
@@ -144,6 +144,6 @@ static const ULONG OutlookCardMAPIProps[] = {
     PR_PERSONAL_HOME_PAGE_W,
     PR_COMMENT_W};
 
-nsresult OutlookCardForURI(const nsACString &aUri, nsIAbCard **card);
+nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** card);
 
 #endif  // nsAbOutlookDirectory_h___

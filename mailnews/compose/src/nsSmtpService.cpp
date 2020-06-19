@@ -37,29 +37,29 @@
 using namespace mozilla;
 
 typedef struct _findServerByKeyEntry {
-  const char *key;
-  nsISmtpServer *server;
+  const char* key;
+  nsISmtpServer* server;
 } findServerByKeyEntry;
 
 typedef struct _findServerByHostnameEntry {
   nsCString hostname;
   nsCString username;
-  nsISmtpServer *server;
+  nsISmtpServer* server;
 } findServerByHostnameEntry;
 
 static NS_DEFINE_CID(kCSmtpUrlCID, NS_SMTPURL_CID);
 
 // forward declarations...
-nsresult NS_MsgBuildSmtpUrl(nsIFile *aFilePath, nsISmtpServer *aServer,
-                            const char *aRecipients,
-                            nsIMsgIdentity *aSenderIdentity,
-                            const char *aSender, nsIUrlListener *aUrlListener,
-                            nsIMsgStatusFeedback *aStatusFeedback,
-                            nsIInterfaceRequestor *aNotificationCallbacks,
-                            nsIURI **aUrl, bool aRequestDSN);
+nsresult NS_MsgBuildSmtpUrl(nsIFile* aFilePath, nsISmtpServer* aServer,
+                            const char* aRecipients,
+                            nsIMsgIdentity* aSenderIdentity,
+                            const char* aSender, nsIUrlListener* aUrlListener,
+                            nsIMsgStatusFeedback* aStatusFeedback,
+                            nsIInterfaceRequestor* aNotificationCallbacks,
+                            nsIURI** aUrl, bool aRequestDSN);
 
-nsresult NS_MsgLoadSmtpUrl(nsIURI *aUrl, nsISupports *aConsumer,
-                           nsIRequest **aRequest);
+nsresult NS_MsgLoadSmtpUrl(nsIURI* aUrl, nsISupports* aConsumer,
+                           nsIRequest** aRequest);
 
 nsSmtpService::nsSmtpService() : mSmtpServersLoaded(false) {}
 
@@ -70,13 +70,13 @@ nsSmtpService::~nsSmtpService() {
 NS_IMPL_ISUPPORTS(nsSmtpService, nsISmtpService, nsIProtocolHandler)
 
 NS_IMETHODIMP nsSmtpService::SendMailMessage(
-    nsIFile *aFilePath, const char *aRecipients,
-    nsIMsgIdentity *aSenderIdentity, const char *aSender,
-    const nsAString &aPassword, nsIUrlListener *aUrlListener,
-    nsIMsgStatusFeedback *aStatusFeedback,
-    nsIInterfaceRequestor *aNotificationCallbacks, bool aRequestDSN,
-    nsIURI **aURL, nsIRequest **aRequest) {
-  nsIURI *urlToRun = nullptr;
+    nsIFile* aFilePath, const char* aRecipients,
+    nsIMsgIdentity* aSenderIdentity, const char* aSender,
+    const nsAString& aPassword, nsIUrlListener* aUrlListener,
+    nsIMsgStatusFeedback* aStatusFeedback,
+    nsIInterfaceRequestor* aNotificationCallbacks, bool aRequestDSN,
+    nsIURI** aURL, nsIRequest** aRequest) {
+  nsIURI* urlToRun = nullptr;
   nsresult rv = NS_OK;
 
   nsCOMPtr<nsISmtpServer> smtpServer;
@@ -109,13 +109,13 @@ NS_IMETHODIMP nsSmtpService::SendMailMessage(
 // building and running a mail to url...
 
 // short cut function for creating a mailto url...
-nsresult NS_MsgBuildSmtpUrl(nsIFile *aFilePath, nsISmtpServer *aSmtpServer,
-                            const char *aRecipients,
-                            nsIMsgIdentity *aSenderIdentity,
-                            const char *aSender, nsIUrlListener *aUrlListener,
-                            nsIMsgStatusFeedback *aStatusFeedback,
-                            nsIInterfaceRequestor *aNotificationCallbacks,
-                            nsIURI **aUrl, bool aRequestDSN) {
+nsresult NS_MsgBuildSmtpUrl(nsIFile* aFilePath, nsISmtpServer* aSmtpServer,
+                            const char* aRecipients,
+                            nsIMsgIdentity* aSenderIdentity,
+                            const char* aSender, nsIUrlListener* aUrlListener,
+                            nsIMsgStatusFeedback* aStatusFeedback,
+                            nsIInterfaceRequestor* aNotificationCallbacks,
+                            nsIURI** aUrl, bool aRequestDSN) {
   // mscott: this function is a convenience hack until netlib actually
   // dispatches smtp urls. in addition until we have a session to get a
   // password, host and other stuff from, we need to use default values....
@@ -192,8 +192,8 @@ nsresult NS_MsgBuildSmtpUrl(nsIFile *aFilePath, nsISmtpServer *aSmtpServer,
   return CallQueryInterface(smtpUrl, aUrl);
 }
 
-nsresult NS_MsgLoadSmtpUrl(nsIURI *aUrl, nsISupports *aConsumer,
-                           nsIRequest **aRequest) {
+nsresult NS_MsgLoadSmtpUrl(nsIURI* aUrl, nsISupports* aConsumer,
+                           nsIRequest** aRequest) {
   NS_ENSURE_ARG_POINTER(aUrl);
 
   // For now, assume the url is an smtp url and load it.
@@ -214,10 +214,10 @@ nsresult NS_MsgLoadSmtpUrl(nsIURI *aUrl, nsISupports *aConsumer,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSmtpService::VerifyLogon(nsISmtpServer *aServer,
-                                         nsIUrlListener *aUrlListener,
-                                         nsIMsgWindow *aMsgWindow,
-                                         nsIURI **aURL) {
+NS_IMETHODIMP nsSmtpService::VerifyLogon(nsISmtpServer* aServer,
+                                         nsIUrlListener* aUrlListener,
+                                         nsIMsgWindow* aMsgWindow,
+                                         nsIURI** aURL) {
   NS_ENSURE_ARG_POINTER(aServer);
   nsCString popHost;
   nsCString popUser;
@@ -236,12 +236,12 @@ NS_IMETHODIMP nsSmtpService::VerifyLogon(nsISmtpServer *aServer,
   return rv;
 }
 
-NS_IMETHODIMP nsSmtpService::GetScheme(nsACString &aScheme) {
+NS_IMETHODIMP nsSmtpService::GetScheme(nsACString& aScheme) {
   aScheme = "mailto";
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSmtpService::GetDefaultPort(int32_t *aDefaultPort) {
+NS_IMETHODIMP nsSmtpService::GetDefaultPort(int32_t* aDefaultPort) {
   nsresult rv = NS_OK;
   if (aDefaultPort)
     *aDefaultPort = nsISmtpUrl::DEFAULT_SMTP_PORT;
@@ -251,13 +251,13 @@ NS_IMETHODIMP nsSmtpService::GetDefaultPort(int32_t *aDefaultPort) {
 }
 
 NS_IMETHODIMP
-nsSmtpService::AllowPort(int32_t port, const char *scheme, bool *_retval) {
+nsSmtpService::AllowPort(int32_t port, const char* scheme, bool* _retval) {
   // allow smtp to run on any port
   *_retval = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsSmtpService::GetProtocolFlags(uint32_t *result) {
+NS_IMETHODIMP nsSmtpService::GetProtocolFlags(uint32_t* result) {
   *result = URI_NORELATIVE | ALLOWS_PROXY | URI_LOADABLE_BY_ANYONE |
             URI_NON_PERSISTABLE | URI_DOES_NOT_RETURN_DATA |
             URI_FORBIDS_COOKIE_ACCESS;
@@ -267,9 +267,9 @@ NS_IMETHODIMP nsSmtpService::GetProtocolFlags(uint32_t *result) {
 // the smtp service is also the protocol handler for mailto urls....
 
 nsresult nsSmtpService::NewMailtoURI(
-    const nsACString &aSpec,
-    const char *aOriginCharset,  // ignored, always UTF-8.
-    nsIURI *aBaseURI, nsIURI **_retval) {
+    const nsACString& aSpec,
+    const char* aOriginCharset,  // ignored, always UTF-8.
+    nsIURI* aBaseURI, nsIURI** _retval) {
   nsresult rv;
 
   nsCOMPtr<nsIURI> mailtoUrl;
@@ -282,9 +282,9 @@ nsresult nsSmtpService::NewMailtoURI(
   return NS_OK;
 }
 
-nsresult nsSmtpService::NewSmtpURI(const nsACString &aSpec,
-                                   const char *aOriginCharset, nsIURI *aBaseURI,
-                                   nsIURI **_retval) {
+nsresult nsSmtpService::NewSmtpURI(const nsACString& aSpec,
+                                   const char* aOriginCharset, nsIURI* aBaseURI,
+                                   nsIURI** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = 0;
   nsresult rv;
@@ -306,8 +306,8 @@ nsresult nsSmtpService::NewSmtpURI(const nsACString &aSpec,
   return rv;
 }
 
-NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
-                                        nsIChannel **_retval) {
+NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
+                                        nsIChannel** _retval) {
   NS_ENSURE_ARG_POINTER(aURI);
   // create an empty pipe for use with the input stream channel.
   nsCOMPtr<nsIAsyncInputStream> pipeIn;
@@ -340,7 +340,7 @@ NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI *aURI, nsILoadInfo *aLoadInfo,
 }
 
 NS_IMETHODIMP
-nsSmtpService::GetServers(nsISimpleEnumerator **aResult) {
+nsSmtpService::GetServers(nsISimpleEnumerator** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   // now read in the servers from prefs if necessary
@@ -445,8 +445,8 @@ nsresult nsSmtpService::saveKeyList() {
   return prefBranch->SetCharPref(PREF_MAIL_SMTPSERVERS, mServerKeyList);
 }
 
-nsresult nsSmtpService::createKeyedServer(const char *key,
-                                          nsISmtpServer **aResult) {
+nsresult nsSmtpService::createKeyedServer(const char* key,
+                                          nsISmtpServer** aResult) {
   if (!key) return NS_ERROR_NULL_POINTER;
 
   nsresult rv;
@@ -470,7 +470,7 @@ nsresult nsSmtpService::createKeyedServer(const char *key,
 }
 
 NS_IMETHODIMP
-nsSmtpService::GetSessionDefaultServer(nsISmtpServer **aServer) {
+nsSmtpService::GetSessionDefaultServer(nsISmtpServer** aServer) {
   NS_ENSURE_ARG_POINTER(aServer);
 
   if (!mSessionDefaultServer) return GetDefaultServer(aServer);
@@ -480,13 +480,13 @@ nsSmtpService::GetSessionDefaultServer(nsISmtpServer **aServer) {
 }
 
 NS_IMETHODIMP
-nsSmtpService::SetSessionDefaultServer(nsISmtpServer *aServer) {
+nsSmtpService::SetSessionDefaultServer(nsISmtpServer* aServer) {
   mSessionDefaultServer = aServer;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsSmtpService::GetDefaultServer(nsISmtpServer **aServer) {
+nsSmtpService::GetDefaultServer(nsISmtpServer** aServer) {
   NS_ENSURE_ARG_POINTER(aServer);
 
   loadSmtpServers();
@@ -540,7 +540,7 @@ nsSmtpService::GetDefaultServer(nsISmtpServer **aServer) {
 }
 
 NS_IMETHODIMP
-nsSmtpService::SetDefaultServer(nsISmtpServer *aServer) {
+nsSmtpService::SetDefaultServer(nsISmtpServer* aServer) {
   NS_ENSURE_ARG_POINTER(aServer);
 
   mDefaultSmtpServer = aServer;
@@ -556,8 +556,8 @@ nsSmtpService::SetDefaultServer(nsISmtpServer *aServer) {
   return NS_OK;
 }
 
-bool nsSmtpService::findServerByKey(nsISmtpServer *aServer, void *aData) {
-  findServerByKeyEntry *entry = (findServerByKeyEntry *)aData;
+bool nsSmtpService::findServerByKey(nsISmtpServer* aServer, void* aData) {
+  findServerByKeyEntry* entry = (findServerByKeyEntry*)aData;
 
   nsCString key;
   nsresult rv = aServer->GetKey(getter_Copies(key));
@@ -572,7 +572,7 @@ bool nsSmtpService::findServerByKey(nsISmtpServer *aServer, void *aData) {
 }
 
 NS_IMETHODIMP
-nsSmtpService::CreateServer(nsISmtpServer **aResult) {
+nsSmtpService::CreateServer(nsISmtpServer** aResult) {
   if (!aResult) return NS_ERROR_NULL_POINTER;
 
   loadSmtpServers();
@@ -589,7 +589,7 @@ nsSmtpService::CreateServer(nsISmtpServer **aResult) {
     entry.key = key.get();
     entry.server = nullptr;
 
-    for (nsISmtpServer *s : mSmtpServers) findServerByKey(s, (void *)&entry);
+    for (nsISmtpServer* s : mSmtpServers) findServerByKey(s, (void*)&entry);
     if (!entry.server) unique = true;
 
   } while (!unique);
@@ -599,8 +599,8 @@ nsSmtpService::CreateServer(nsISmtpServer **aResult) {
   return saveKeyList();
 }
 
-nsresult nsSmtpService::GetServerByKey(const char *aKey,
-                                       nsISmtpServer **aResult) {
+nsresult nsSmtpService::GetServerByKey(const char* aKey,
+                                       nsISmtpServer** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   if (!aKey || !*aKey) {
@@ -610,7 +610,7 @@ nsresult nsSmtpService::GetServerByKey(const char *aKey,
   findServerByKeyEntry entry;
   entry.key = aKey;
   entry.server = nullptr;
-  for (nsISmtpServer *s : mSmtpServers) findServerByKey(s, (void *)&entry);
+  for (nsISmtpServer* s : mSmtpServers) findServerByKey(s, (void*)&entry);
 
   if (entry.server) {
     NS_ADDREF(*aResult = entry.server);
@@ -622,7 +622,7 @@ nsresult nsSmtpService::GetServerByKey(const char *aKey,
 }
 
 NS_IMETHODIMP
-nsSmtpService::DeleteServer(nsISmtpServer *aServer) {
+nsSmtpService::DeleteServer(nsISmtpServer* aServer) {
   if (!aServer) return NS_OK;
 
   int32_t idx = mSmtpServers.IndexOf(aServer);
@@ -638,8 +638,8 @@ nsSmtpService::DeleteServer(nsISmtpServer *aServer) {
 
   nsAutoCString newServerList;
   nsCString tmpStr = mServerKeyList;
-  char *newStr = tmpStr.BeginWriting();
-  char *token = NS_strtok(",", &newStr);
+  char* newStr = tmpStr.BeginWriting();
+  char* token = NS_strtok(",", &newStr);
   while (token) {
     // only re-add the string if it's not the key
     if (strcmp(token, serverKey.get()) != 0) {
@@ -661,8 +661,8 @@ nsSmtpService::DeleteServer(nsISmtpServer *aServer) {
   return NS_OK;
 }
 
-bool nsSmtpService::findServerByHostname(nsISmtpServer *aServer, void *aData) {
-  findServerByHostnameEntry *entry = (findServerByHostnameEntry *)aData;
+bool nsSmtpService::findServerByHostname(nsISmtpServer* aServer, void* aData) {
+  findServerByHostnameEntry* entry = (findServerByHostnameEntry*)aData;
 
   nsCString hostname;
   nsresult rv = aServer->GetHostname(hostname);
@@ -686,8 +686,8 @@ bool nsSmtpService::findServerByHostname(nsISmtpServer *aServer, void *aData) {
 }
 
 NS_IMETHODIMP
-nsSmtpService::FindServer(const char *aUsername, const char *aHostname,
-                          nsISmtpServer **aResult) {
+nsSmtpService::FindServer(const char* aUsername, const char* aHostname,
+                          nsISmtpServer** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   findServerByHostnameEntry entry;
@@ -695,7 +695,7 @@ nsSmtpService::FindServer(const char *aUsername, const char *aHostname,
   entry.hostname = aHostname;
   entry.username = aUsername;
 
-  for (nsISmtpServer *s : mSmtpServers) findServerByHostname(s, (void *)&entry);
+  for (nsISmtpServer* s : mSmtpServers) findServerByHostname(s, (void*)&entry);
 
   // entry.server may be null, but that's ok.
   // just return null if no server is found
@@ -705,8 +705,8 @@ nsSmtpService::FindServer(const char *aUsername, const char *aHostname,
 }
 
 NS_IMETHODIMP
-nsSmtpService::GetServerByIdentity(nsIMsgIdentity *aSenderIdentity,
-                                   nsISmtpServer **aSmtpServer) {
+nsSmtpService::GetServerByIdentity(nsIMsgIdentity* aSenderIdentity,
+                                   nsISmtpServer** aSmtpServer) {
   NS_ENSURE_ARG_POINTER(aSmtpServer);
   nsresult rv = NS_ERROR_FAILURE;
 

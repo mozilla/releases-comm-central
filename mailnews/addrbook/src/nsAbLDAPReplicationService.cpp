@@ -24,7 +24,7 @@ nsAbLDAPReplicationService::~nsAbLDAPReplicationService() {}
 /* void startReplication(in string aURI, in nsIWebProgressListener
  * progressListener); */
 NS_IMETHODIMP nsAbLDAPReplicationService::StartReplication(
-    nsIAbLDAPDirectory *aDirectory, nsIWebProgressListener *progressListener) {
+    nsIAbLDAPDirectory* aDirectory, nsIWebProgressListener* progressListener) {
   NS_ENSURE_ARG_POINTER(aDirectory);
 
   // Makes sure to allow only one replication at a time.
@@ -61,7 +61,7 @@ NS_IMETHODIMP nsAbLDAPReplicationService::StartReplication(
 
 /* void cancelReplication(in string aURI); */
 NS_IMETHODIMP nsAbLDAPReplicationService::CancelReplication(
-    nsIAbLDAPDirectory *aDirectory) {
+    nsIAbLDAPDirectory* aDirectory) {
   NS_ENSURE_ARG_POINTER(aDirectory);
 
   nsresult rv = NS_ERROR_FAILURE;

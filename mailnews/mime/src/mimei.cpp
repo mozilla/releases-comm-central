@@ -80,7 +80,7 @@
 using namespace mozilla;
 
 // forward declaration
-void getMsgHdrForCurrentURL(MimeDisplayOptions *opts, nsIMsgDBHdr **aMsgHdr);
+void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr);
 
 #define IMAP_EXTERNAL_CONTENT_HEADER "X-Mozilla-IMAP-Part"
 #define EXTERNAL_ATTACHMENT_URL_HEADER "X-Mozilla-External-Attachment-URL"
@@ -89,7 +89,7 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions *opts, nsIMsgDBHdr **aMsgHdr);
    Allocation and destruction
    ==========================================================================
  */
-static int mime_classinit(MimeObjectClass *clazz);
+static int mime_classinit(MimeObjectClass* clazz);
 
 /*
  * These are the necessary defines/variables for doing
@@ -100,19 +100,19 @@ typedef struct {
   bool force_inline_display;
 } cthandler_struct;
 
-nsTArray<cthandler_struct *> *ctHandlerList = nullptr;
+nsTArray<cthandler_struct*>* ctHandlerList = nullptr;
 
 /*
  * This will return TRUE if the content_type is found in the
  * list, FALSE if it is not found.
  */
-bool find_content_type_attribs(const char *content_type,
-                               bool *force_inline_display) {
+bool find_content_type_attribs(const char* content_type,
+                               bool* force_inline_display) {
   *force_inline_display = false;
   if (!ctHandlerList) return false;
 
   for (size_t i = 0; i < ctHandlerList->Length(); i++) {
-    cthandler_struct *ptr = ctHandlerList->ElementAt(i);
+    cthandler_struct* ptr = ctHandlerList->ElementAt(i);
     if (PL_strcasecmp(content_type, ptr->content_type) == 0) {
       *force_inline_display = ptr->force_inline_display;
       return true;
@@ -122,20 +122,20 @@ bool find_content_type_attribs(const char *content_type,
   return false;
 }
 
-void add_content_type_attribs(const char *content_type,
-                              contentTypeHandlerInitStruct *ctHandlerInfo) {
-  cthandler_struct *ptr = nullptr;
+void add_content_type_attribs(const char* content_type,
+                              contentTypeHandlerInitStruct* ctHandlerInfo) {
+  cthandler_struct* ptr = nullptr;
   bool force_inline_display;
 
   if (find_content_type_attribs(content_type, &force_inline_display)) return;
 
   if (!content_type || !ctHandlerInfo) return;
 
-  if (!ctHandlerList) ctHandlerList = new nsTArray<cthandler_struct *>();
+  if (!ctHandlerList) ctHandlerList = new nsTArray<cthandler_struct*>();
 
   if (!ctHandlerList) return;
 
-  ptr = (cthandler_struct *)PR_MALLOC(sizeof(cthandler_struct));
+  ptr = (cthandler_struct*)PR_MALLOC(sizeof(cthandler_struct));
   if (!ptr) return;
 
   PL_strncpy(ptr->content_type, content_type, sizeof(ptr->content_type));
@@ -147,7 +147,7 @@ void add_content_type_attribs(const char *content_type,
  * This routine will find all content type handler for a specific content
  * type (if it exists)
  */
-bool force_inline_display(const char *content_type) {
+bool force_inline_display(const char* content_type) {
   bool force_inline_disp;
 
   find_content_type_attribs(content_type, &force_inline_disp);
@@ -158,12 +158,12 @@ bool force_inline_display(const char *content_type) {
  * This routine will find all content type handler for a specific content
  * type (if it exists) and is defined to the nsRegistry
  */
-MimeObjectClass *mime_locate_external_content_handler(
-    const char *content_type, contentTypeHandlerInitStruct *ctHandlerInfo) {
+MimeObjectClass* mime_locate_external_content_handler(
+    const char* content_type, contentTypeHandlerInitStruct* ctHandlerInfo) {
   if (!content_type || !*(content_type))  // null or empty content type
     return nullptr;
 
-  MimeObjectClass *newObj = nullptr;
+  MimeObjectClass* newObj = nullptr;
   nsresult rv;
 
   nsAutoCString lookupID("@mozilla.org/mimecth;1?type=");
@@ -196,15 +196,15 @@ MimeObjectClass *mime_locate_external_content_handler(
 }
 
 /* This is necessary to expose the MimeObject method outside of this DLL */
-int MIME_MimeObject_write(MimeObject *obj, const char *output, int32_t length,
+int MIME_MimeObject_write(MimeObject* obj, const char* output, int32_t length,
                           bool user_visible_p) {
   return MimeObject_write(obj, output, length, user_visible_p);
 }
 
-MimeObject *mime_new(MimeObjectClass *clazz, MimeHeaders *hdrs,
-                     const char *override_content_type) {
+MimeObject* mime_new(MimeObjectClass* clazz, MimeHeaders* hdrs,
+                     const char* override_content_type) {
   int size = clazz->instance_size;
-  MimeObject *object;
+  MimeObject* object;
   int status;
 
   /* Some assertions to verify that this isn't random junk memory... */
@@ -226,7 +226,7 @@ MimeObject *mime_new(MimeObjectClass *clazz, MimeHeaders *hdrs,
     if (!hdrs) return 0;
   }
 
-  object = (MimeObject *)PR_MALLOC(size);
+  object = (MimeObject*)PR_MALLOC(size);
   if (!object) return 0;
 
   memset(object, 0, size);
@@ -247,10 +247,10 @@ MimeObject *mime_new(MimeObjectClass *clazz, MimeHeaders *hdrs,
   return object;
 }
 
-void mime_free(MimeObject *object) {
+void mime_free(MimeObject* object) {
 #ifdef DEBUG__
   int i, size = object->clazz->instance_size;
-  uint32_t *array = (uint32_t *)object;
+  uint32_t* array = (uint32_t*)object;
 #endif /* DEBUG */
 
   object->clazz->finalize(object);
@@ -262,7 +262,7 @@ void mime_free(MimeObject *object) {
   PR_Free(object);
 }
 
-bool mime_is_allowed_class(const MimeObjectClass *clazz,
+bool mime_is_allowed_class(const MimeObjectClass* clazz,
                            int32_t types_of_classes_to_disallow) {
   if (types_of_classes_to_disallow == 0) return true;
   bool avoid_html = (types_of_classes_to_disallow >= 1);
@@ -280,47 +280,47 @@ bool mime_is_allowed_class(const MimeObjectClass *clazz,
        "whitelist" in this case.
        This idea comes from Georgi Guninski.
     */
-    return (clazz == (MimeObjectClass *)&mimeInlineTextPlainClass ||
-            clazz == (MimeObjectClass *)&mimeInlineTextPlainFlowedClass ||
-            clazz == (MimeObjectClass *)&mimeInlineTextHTMLSanitizedClass ||
-            clazz == (MimeObjectClass *)&mimeInlineTextHTMLAsPlaintextClass ||
+    return (clazz == (MimeObjectClass*)&mimeInlineTextPlainClass ||
+            clazz == (MimeObjectClass*)&mimeInlineTextPlainFlowedClass ||
+            clazz == (MimeObjectClass*)&mimeInlineTextHTMLSanitizedClass ||
+            clazz == (MimeObjectClass*)&mimeInlineTextHTMLAsPlaintextClass ||
             /* The latter 2 classes bear some risk, because they use the Gecko
                HTML parser, but the user has the option to make an explicit
                choice in this case, via html_as. */
-            clazz == (MimeObjectClass *)&mimeMultipartMixedClass ||
-            clazz == (MimeObjectClass *)&mimeMultipartAlternativeClass ||
-            clazz == (MimeObjectClass *)&mimeMultipartDigestClass ||
-            clazz == (MimeObjectClass *)&mimeMultipartAppleDoubleClass ||
-            clazz == (MimeObjectClass *)&mimeMessageClass ||
-            clazz == (MimeObjectClass *)&mimeExternalObjectClass ||
+            clazz == (MimeObjectClass*)&mimeMultipartMixedClass ||
+            clazz == (MimeObjectClass*)&mimeMultipartAlternativeClass ||
+            clazz == (MimeObjectClass*)&mimeMultipartDigestClass ||
+            clazz == (MimeObjectClass*)&mimeMultipartAppleDoubleClass ||
+            clazz == (MimeObjectClass*)&mimeMessageClass ||
+            clazz == (MimeObjectClass*)&mimeExternalObjectClass ||
     /*    mimeUntypedTextClass? -- does uuencode */
 #ifdef ENABLE_SMIME
-            clazz == (MimeObjectClass *)&mimeMultipartSignedCMSClass ||
-            clazz == (MimeObjectClass *)&mimeEncryptedCMSClass ||
+            clazz == (MimeObjectClass*)&mimeMultipartSignedCMSClass ||
+            clazz == (MimeObjectClass*)&mimeEncryptedCMSClass ||
 #endif
             clazz == 0);
 
   /* Contrairy to above, the below code is a "blacklist", i.e. it
    *excludes* some "bad" classes. */
   return !(
-      (avoid_html && (clazz == (MimeObjectClass *)&mimeInlineTextHTMLParsedClass
+      (avoid_html && (clazz == (MimeObjectClass*)&mimeInlineTextHTMLParsedClass
                       /* Should not happen - we protect against that in
                          mime_find_class(). Still for safety... */
                       )) ||
-      (avoid_images && (clazz == (MimeObjectClass *)&mimeInlineImageClass)) ||
+      (avoid_images && (clazz == (MimeObjectClass*)&mimeInlineImageClass)) ||
       (avoid_strange_content &&
-       (clazz == (MimeObjectClass *)&mimeInlineTextEnrichedClass ||
-        clazz == (MimeObjectClass *)&mimeInlineTextRichtextClass ||
-        clazz == (MimeObjectClass *)&mimeSunAttachmentClass ||
-        clazz == (MimeObjectClass *)&mimeExternalBodyClass)));
+       (clazz == (MimeObjectClass*)&mimeInlineTextEnrichedClass ||
+        clazz == (MimeObjectClass*)&mimeInlineTextRichtextClass ||
+        clazz == (MimeObjectClass*)&mimeSunAttachmentClass ||
+        clazz == (MimeObjectClass*)&mimeExternalBodyClass)));
 }
 
-void getMsgHdrForCurrentURL(MimeDisplayOptions *opts, nsIMsgDBHdr **aMsgHdr) {
+void getMsgHdrForCurrentURL(MimeDisplayOptions* opts, nsIMsgDBHdr** aMsgHdr) {
   *aMsgHdr = nullptr;
 
   if (!opts) return;
 
-  mime_stream_data *msd = (mime_stream_data *)(opts->stream_closure);
+  mime_stream_data* msd = (mime_stream_data*)(opts->stream_closure);
   if (!msd) return;
 
   nsCOMPtr<nsIChannel> channel =
@@ -348,14 +348,14 @@ void getMsgHdrForCurrentURL(MimeDisplayOptions *opts, nsIMsgDBHdr **aMsgHdr) {
   return;
 }
 
-MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
-                                 MimeDisplayOptions *opts, bool exact_match_p) {
-  MimeObjectClass *clazz = 0;
-  MimeObjectClass *tempClass = 0;
+MimeObjectClass* mime_find_class(const char* content_type, MimeHeaders* hdrs,
+                                 MimeDisplayOptions* opts, bool exact_match_p) {
+  MimeObjectClass* clazz = 0;
+  MimeObjectClass* tempClass = 0;
   contentTypeHandlerInitStruct ctHandlerInfo;
 
   // Read some prefs
-  nsIPrefBranch *prefBranch = GetPrefBranch(opts);
+  nsIPrefBranch* prefBranch = GetPrefBranch(opts);
   int32_t html_as = 0;                      // def. see below
   int32_t types_of_classes_to_disallow = 0; /* Let only a few libmime classes
       process incoming data. This protects from bugs (e.g. buffer overflows)
@@ -423,10 +423,10 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
     // thunderbird build AND we have found an external mime content handler for
     // text/calendar This will enable iMIP support in Lightning
     if (hdrs && (!PL_strncasecmp(content_type, "text/calendar", 13))) {
-      char *full_content_type =
+      char* full_content_type =
           MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false);
       if (full_content_type) {
-        char *imip_method = MimeHeaders_get_parameter(
+        char* imip_method = MimeHeaders_get_parameter(
             full_content_type, "method", nullptr, nullptr);
         nsCOMPtr<nsIMsgDBHdr> msgHdr;
         getMsgHdrForCurrentURL(opts, getter_AddRefs(msgHdr));
@@ -448,13 +448,13 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
        of the user. */
     {
       if (!exact_match_p)
-        clazz = (MimeObjectClass *)&mimeExternalObjectClass;  // As attachment
+        clazz = (MimeObjectClass*)&mimeExternalObjectClass;  // As attachment
     } else
-      clazz = (MimeObjectClass *)tempClass;
+      clazz = (MimeObjectClass*)tempClass;
   } else {
     if (!content_type || !*content_type ||
         !PL_strcasecmp(content_type, "text")) /* with no / in the type */
-      clazz = (MimeObjectClass *)&mimeUntypedTextClass;
+      clazz = (MimeObjectClass*)&mimeUntypedTextClass;
 
     /* Subtypes of text...
      */
@@ -473,35 +473,35 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
           // - snarfing attachments (nsMimeMessageDecrypt used in
           // SnarfMsgAttachment)
           // - processing attachments (like deleting attachments).
-          clazz = (MimeObjectClass *)&mimeInlineTextHTMLClass;
+          clazz = (MimeObjectClass*)&mimeInlineTextHTMLClass;
           types_of_classes_to_disallow = 0;
         } else if (html_as == 0 || html_as == 4)  // Render sender's HTML
-          clazz = (MimeObjectClass *)&mimeInlineTextHTMLParsedClass;
+          clazz = (MimeObjectClass*)&mimeInlineTextHTMLParsedClass;
         else if (html_as == 1)  // convert HTML to plaintext
           // Do a HTML->TXT->HTML conversion, see mimethpl.h.
-          clazz = (MimeObjectClass *)&mimeInlineTextHTMLAsPlaintextClass;
+          clazz = (MimeObjectClass*)&mimeInlineTextHTMLAsPlaintextClass;
         else if (html_as == 2)  // display HTML source
           /* This is for the freaks. Treat HTML as plaintext,
              which will cause the HTML source to be displayed.
              Not very user-friendly, but some seem to want this. */
-          clazz = (MimeObjectClass *)&mimeInlineTextPlainClass;
+          clazz = (MimeObjectClass*)&mimeInlineTextPlainClass;
         else if (html_as == 3)  // Sanitize
           // Strip all but allowed HTML
-          clazz = (MimeObjectClass *)&mimeInlineTextHTMLSanitizedClass;
+          clazz = (MimeObjectClass*)&mimeInlineTextHTMLSanitizedClass;
         else  // Goofy pref
           /* User has an unknown pref value. Maybe he used a newer Mozilla
              with a new alternative to avoid HTML. Defaulting to option 1,
              which is less dangerous than defaulting to the raw HTML. */
-          clazz = (MimeObjectClass *)&mimeInlineTextHTMLAsPlaintextClass;
+          clazz = (MimeObjectClass*)&mimeInlineTextHTMLAsPlaintextClass;
       } else if (!PL_strcasecmp(content_type + 5, "enriched"))
-        clazz = (MimeObjectClass *)&mimeInlineTextEnrichedClass;
+        clazz = (MimeObjectClass*)&mimeInlineTextEnrichedClass;
       else if (!PL_strcasecmp(content_type + 5, "richtext"))
-        clazz = (MimeObjectClass *)&mimeInlineTextRichtextClass;
+        clazz = (MimeObjectClass*)&mimeInlineTextRichtextClass;
       else if (!PL_strcasecmp(content_type + 5, "rtf"))
-        clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+        clazz = (MimeObjectClass*)&mimeExternalObjectClass;
       else if (!PL_strcasecmp(content_type + 5, "plain")) {
         // Preliminary use the normal plain text
-        clazz = (MimeObjectClass *)&mimeInlineTextPlainClass;
+        clazz = (MimeObjectClass*)&mimeInlineTextPlainClass;
 
         if (opts &&
             opts->format_out != nsMimeOutput::nsMimeMessageFilterSniffer &&
@@ -518,7 +518,7 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
             // the contenttype!
             // Look in headers instead even though it's expensive and clumsy
             // First find Content-Type:
-            char *content_type_row =
+            char* content_type_row =
                 hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false)
                      : 0;
             // Then the format parameter if there is one.
@@ -526,7 +526,7 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
             // place to put the define. The others seems to be in net.h
             // but is that really really the right place? There is also
             // a nsMimeTypes.h but that one isn't included. Bug?
-            char *content_type_format =
+            char* content_type_format =
                 content_type_row
                     ? MimeHeaders_get_parameter(content_type_row, "format",
                                                 nullptr, nullptr)
@@ -534,13 +534,13 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
 
             if (content_type_format &&
                 !PL_strcasecmp(content_type_format, "flowed"))
-              clazz = (MimeObjectClass *)&mimeInlineTextPlainFlowedClass;
+              clazz = (MimeObjectClass*)&mimeInlineTextPlainFlowedClass;
             PR_FREEIF(content_type_format);
             PR_FREEIF(content_type_row);
           }
         }
       } else if (!exact_match_p)
-        clazz = (MimeObjectClass *)&mimeInlineTextPlainClass;
+        clazz = (MimeObjectClass*)&mimeInlineTextPlainClass;
     }
 
     /* Subtypes of multipart...
@@ -569,31 +569,30 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
           (opts && opts->format_out == nsMimeOutput::nsMimeMessageAttach);
       if (!PL_strcasecmp(content_type + 10, "alternative"))
         clazz = basic_formatting
-                    ? (MimeObjectClass *)&mimeMultipartMixedClass
-                    : (MimeObjectClass *)&mimeMultipartAlternativeClass;
+                    ? (MimeObjectClass*)&mimeMultipartMixedClass
+                    : (MimeObjectClass*)&mimeMultipartAlternativeClass;
       else if (!PL_strcasecmp(content_type + 10, "related"))
-        clazz = basic_formatting
-                    ? (MimeObjectClass *)&mimeMultipartMixedClass
-                    : (MimeObjectClass *)&mimeMultipartRelatedClass;
+        clazz = basic_formatting ? (MimeObjectClass*)&mimeMultipartMixedClass
+                                 : (MimeObjectClass*)&mimeMultipartRelatedClass;
       else if (!PL_strcasecmp(content_type + 10, "digest"))
-        clazz = (MimeObjectClass *)&mimeMultipartDigestClass;
+        clazz = (MimeObjectClass*)&mimeMultipartDigestClass;
       else if (!PL_strcasecmp(content_type + 10, "appledouble") ||
                !PL_strcasecmp(content_type + 10, "header-set"))
-        clazz = (MimeObjectClass *)&mimeMultipartAppleDoubleClass;
+        clazz = (MimeObjectClass*)&mimeMultipartAppleDoubleClass;
       else if (!PL_strcasecmp(content_type + 10, "parallel"))
-        clazz = (MimeObjectClass *)&mimeMultipartParallelClass;
+        clazz = (MimeObjectClass*)&mimeMultipartParallelClass;
       else if (!PL_strcasecmp(content_type + 10, "mixed"))
-        clazz = (MimeObjectClass *)&mimeMultipartMixedClass;
+        clazz = (MimeObjectClass*)&mimeMultipartMixedClass;
 #ifdef ENABLE_SMIME
       else if (!PL_strcasecmp(content_type + 10, "signed")) {
         /* Check that the "protocol" and "micalg" parameters are ones we
            know about. */
-        char *ct =
+        char* ct =
             hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false) : 0;
-        char *proto =
+        char* proto =
             ct ? MimeHeaders_get_parameter(ct, PARAM_PROTOCOL, nullptr, nullptr)
                : 0;
-        char *micalg =
+        char* micalg =
             ct ? MimeHeaders_get_parameter(ct, PARAM_MICALG, nullptr, nullptr)
                : 0;
 
@@ -618,7 +617,7 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
                        !PL_strcasecmp(micalg, PARAM_MICALG_SHA512_2) ||
                        !PL_strcasecmp(micalg, PARAM_MICALG_SHA512_3) ||
                        !PL_strcasecmp(micalg, PARAM_MICALG_MD2))))
-          clazz = (MimeObjectClass *)&mimeMultipartSignedCMSClass;
+          clazz = (MimeObjectClass*)&mimeMultipartSignedCMSClass;
         else
           clazz = 0;
 
@@ -630,12 +629,12 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
 
       if (!clazz && !exact_match_p)
         /* Treat all unknown multipart subtypes as "multipart/mixed" */
-        clazz = (MimeObjectClass *)&mimeMultipartMixedClass;
+        clazz = (MimeObjectClass*)&mimeMultipartMixedClass;
 
       /* If we are sniffing a message, let's treat alternative parts as mixed */
       if (opts && opts->format_out == nsMimeOutput::nsMimeMessageFilterSniffer)
-        if (clazz == (MimeObjectClass *)&mimeMultipartAlternativeClass)
-          clazz = (MimeObjectClass *)&mimeMultipartMixedClass;
+        if (clazz == (MimeObjectClass*)&mimeMultipartAlternativeClass)
+          clazz = (MimeObjectClass*)&mimeMultipartMixedClass;
     }
 
     /* Subtypes of message...
@@ -643,15 +642,15 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
     else if (!PL_strncasecmp(content_type, "message/", 8)) {
       if (!PL_strcasecmp(content_type + 8, "rfc822") ||
           !PL_strcasecmp(content_type + 8, "news"))
-        clazz = (MimeObjectClass *)&mimeMessageClass;
+        clazz = (MimeObjectClass*)&mimeMessageClass;
       else if (!PL_strcasecmp(content_type + 8, "external-body"))
-        clazz = (MimeObjectClass *)&mimeExternalBodyClass;
+        clazz = (MimeObjectClass*)&mimeExternalBodyClass;
       else if (!PL_strcasecmp(content_type + 8, "partial"))
         /* I guess these are most useful as externals, for now... */
-        clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+        clazz = (MimeObjectClass*)&mimeExternalObjectClass;
       else if (!exact_match_p)
         /* Treat all unknown message subtypes as "text/plain" */
-        clazz = (MimeObjectClass *)&mimeInlineTextPlainClass;
+        clazz = (MimeObjectClass*)&mimeInlineTextPlainClass;
     }
 
     /* The magic image types which we are able to display internally...
@@ -659,9 +658,9 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
     else if (!PL_strncasecmp(content_type, "image/", 6)) {
       if (imgLoader::SupportImageWithMimeType(
               content_type, AcceptedMimeTypes::IMAGES_AND_DOCUMENTS))
-        clazz = (MimeObjectClass *)&mimeInlineImageClass;
+        clazz = (MimeObjectClass*)&mimeInlineImageClass;
       else
-        clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+        clazz = (MimeObjectClass*)&mimeExternalObjectClass;
     }
 #ifdef ENABLE_SMIME
     else if (!PL_strcasecmp(content_type, APPLICATION_XPKCS7_MIME) ||
@@ -672,30 +671,30 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
         // Allowing them would leak the plain text in case the part is
         // cleverly hidden and the decrypted content gets included in
         // replies and forwards.
-        clazz = (MimeObjectClass *)&mimeSuppressedCryptoClass;
+        clazz = (MimeObjectClass*)&mimeSuppressedCryptoClass;
       } else {
-        char *ct =
+        char* ct =
             hdrs ? MimeHeaders_get(hdrs, HEADER_CONTENT_TYPE, false, false)
                  : nullptr;
-        char *st =
+        char* st =
             ct ? MimeHeaders_get_parameter(ct, "smime-type", nullptr, nullptr)
                : nullptr;
 
         /* by default, assume that it is an encrypted message */
-        clazz = (MimeObjectClass *)&mimeEncryptedCMSClass;
+        clazz = (MimeObjectClass*)&mimeEncryptedCMSClass;
 
         /* if the smime-type parameter says that it's a certs-only or
            compressed file, then show it as an attachment, however
            (MimeEncryptedCMS doesn't handle these correctly) */
         if (st && (!PL_strcasecmp(st, "certs-only") ||
                    !PL_strcasecmp(st, "compressed-data")))
-          clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+          clazz = (MimeObjectClass*)&mimeExternalObjectClass;
         else {
           /* look at the file extension... less reliable, but still covered
              by the S/MIME specification (RFC 3851, section 3.2.1)  */
-          char *name = (hdrs ? MimeHeaders_get_name(hdrs, opts) : nullptr);
+          char* name = (hdrs ? MimeHeaders_get_name(hdrs, opts) : nullptr);
           if (name) {
-            char *suf = PL_strrchr(name, '.');
+            char* suf = PL_strrchr(name, '.');
             bool p7mExternal = false;
 
             if (prefBranch)
@@ -703,7 +702,7 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
             if (suf &&
                 ((!PL_strcasecmp(suf, ".p7m") && p7mExternal) ||
                  !PL_strcasecmp(suf, ".p7c") || !PL_strcasecmp(suf, ".p7z")))
-              clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+              clazz = (MimeObjectClass*)&mimeExternalObjectClass;
           }
           PR_Free(name);
         }
@@ -717,21 +716,21 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
     */
     else if (!PL_strcasecmp(content_type, APPLICATION_PGP) ||
              !PL_strcasecmp(content_type, APPLICATION_PGP2))
-      clazz = (MimeObjectClass *)&mimeInlineTextPlainClass;
+      clazz = (MimeObjectClass*)&mimeInlineTextPlainClass;
 
     else if (!PL_strcasecmp(content_type, SUN_ATTACHMENT))
-      clazz = (MimeObjectClass *)&mimeSunAttachmentClass;
+      clazz = (MimeObjectClass*)&mimeSunAttachmentClass;
 
     /* Everything else gets represented as a clickable link.
      */
     else if (!exact_match_p)
-      clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+      clazz = (MimeObjectClass*)&mimeExternalObjectClass;
 
     if (!mime_is_allowed_class(clazz, types_of_classes_to_disallow)) {
       /* Do that check here (not after the if block), because we want to allow
          user-installed plugins. */
       if (!exact_match_p)
-        clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+        clazz = (MimeObjectClass*)&mimeExternalObjectClass;
       else
         clazz = 0;
     }
@@ -740,8 +739,8 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
 #ifdef ENABLE_SMIME
   // see bug #189988
   if (opts && opts->format_out == nsMimeOutput::nsMimeMessageDecrypt &&
-      (clazz != (MimeObjectClass *)&mimeEncryptedCMSClass)) {
-    clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+      (clazz != (MimeObjectClass*)&mimeEncryptedCMSClass)) {
+    clazz = (MimeObjectClass*)&mimeExternalObjectClass;
   }
 #endif
 
@@ -759,8 +758,8 @@ MimeObjectClass *mime_find_class(const char *content_type, MimeHeaders *hdrs,
   return clazz;
 }
 
-MimeObject *mime_create(const char *content_type, MimeHeaders *hdrs,
-                        MimeDisplayOptions *opts,
+MimeObject* mime_create(const char* content_type, MimeHeaders* hdrs,
+                        MimeDisplayOptions* opts,
                         bool forceInline /* = false */) {
   /* If there is no Content-Disposition header, or if the Content-Disposition
    is ``inline'', then we display the part inline (and let mime_find_class()
@@ -775,17 +774,17 @@ MimeObject *mime_create(const char *content_type, MimeHeaders *hdrs,
    this is to spec, but from a usability standpoint, I think it's necessary.
    */
 
-  MimeObjectClass *clazz = 0;
-  char *content_disposition = 0;
-  MimeObject *obj = 0;
-  char *override_content_type = 0;
+  MimeObjectClass* clazz = 0;
+  char* content_disposition = 0;
+  MimeObject* obj = 0;
+  char* override_content_type = 0;
 
   /* We've had issues where the incoming content_type is invalid, of a format:
      content_type="=?windows-1252?q?application/pdf" (bug 659355)
      We decided to fix that by simply trimming the stuff before the ?
   */
   if (content_type) {
-    const char *lastQuestion = strrchr(content_type, '?');
+    const char* lastQuestion = strrchr(content_type, '?');
     if (lastQuestion)
       content_type = lastQuestion + 1;  // the substring after the last '?'
   }
@@ -806,7 +805,7 @@ MimeObject *mime_create(const char *content_type, MimeHeaders *hdrs,
       (!content_type ||
        !PL_strcasecmp(content_type, APPLICATION_OCTET_STREAM) ||
        !PL_strcasecmp(content_type, UNKNOWN_CONTENT_TYPE))) {
-    char *name = MimeHeaders_get_name(hdrs, opts);
+    char* name = MimeHeaders_get_name(hdrs, opts);
     if (name) {
       override_content_type = opts->file_type_fn(name, opts->stream_closure);
       // appledouble isn't a valid override content type, and makes
@@ -847,8 +846,8 @@ MimeObject *mime_create(const char *content_type, MimeHeaders *hdrs,
        `attachment'. */
     content_disposition = 0;
 
-  else if (mime_subclass_p(clazz, (MimeObjectClass *)&mimeContainerClass) &&
-           !mime_subclass_p(clazz, (MimeObjectClass *)&mimeMessageClass))
+  else if (mime_subclass_p(clazz, (MimeObjectClass*)&mimeContainerClass) &&
+           !mime_subclass_p(clazz, (MimeObjectClass*)&mimeMessageClass))
     /* Ignore Content-Disposition on all containers except `message'.
        That is, Content-Disposition is ignored for multipart/mixed objects,
        but is obeyed for message/rfc822 objects. */
@@ -871,23 +870,23 @@ MimeObject *mime_create(const char *content_type, MimeHeaders *hdrs,
   else {
     // override messages that have content disposition set to "attachment"
     // even though we probably should show them inline.
-    if ((clazz != (MimeObjectClass *)&mimeMessageClass) &&
-        (clazz != (MimeObjectClass *)&mimeInlineImageClass) &&
+    if ((clazz != (MimeObjectClass*)&mimeMessageClass) &&
+        (clazz != (MimeObjectClass*)&mimeInlineImageClass) &&
         (!opts->show_attachment_inline_text ||
-         ((clazz != (MimeObjectClass *)&mimeInlineTextHTMLClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextHTMLParsedClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextHTMLSanitizedClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextHTMLAsPlaintextClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextRichtextClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextEnrichedClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextPlainClass) &&
-          (clazz != (MimeObjectClass *)&mimeInlineTextPlainFlowedClass)))) {
+         ((clazz != (MimeObjectClass*)&mimeInlineTextHTMLClass) &&
+          (clazz != (MimeObjectClass*)&mimeInlineTextHTMLParsedClass) &&
+          (clazz != (MimeObjectClass*)&mimeInlineTextHTMLSanitizedClass) &&
+          (clazz != (MimeObjectClass*)&mimeInlineTextHTMLAsPlaintextClass) &&
+          (clazz != (MimeObjectClass*)&mimeInlineTextRichtextClass) &&
+          (clazz != (MimeObjectClass*)&mimeInlineTextEnrichedClass) &&
+          (clazz != (MimeObjectClass*)&mimeInlineTextClass) &&
+          (clazz != (MimeObjectClass*)&mimeInlineTextPlainClass) &&
+          (clazz != (MimeObjectClass*)&mimeInlineTextPlainFlowedClass)))) {
       // not a special inline type, so show as attachment
       // However, mimeSuppressedCryptoClass is treated identically as
       // mimeExternalObjectClass, let's not lose that type information.
-      if (clazz != (MimeObjectClass *)&mimeSuppressedCryptoClass) {
-        clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+      if (clazz != (MimeObjectClass*)&mimeSuppressedCryptoClass) {
+        clazz = (MimeObjectClass*)&mimeExternalObjectClass;
       }
     }
   }
@@ -901,24 +900,24 @@ MimeObject *mime_create(const char *content_type, MimeHeaders *hdrs,
        (!opts->quote_attachment_inline_p &&
         (opts->format_out == nsMimeOutput::nsMimeMessageQuoting ||
          opts->format_out == nsMimeOutput::nsMimeMessageBodyQuoting)))) {
-    if (mime_subclass_p(clazz, (MimeObjectClass *)&mimeInlineTextClass)) {
+    if (mime_subclass_p(clazz, (MimeObjectClass*)&mimeInlineTextClass)) {
       /* It's a text type.  Write it only if it's the *first* part
          that we're writing, and then only if it has no "filename"
          specified (the assumption here being, if it has a filename,
          it wasn't simply typed into the text field -- it was actually
          an attached document.) */
       if (opts->state && opts->state->first_part_written_p)
-        clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+        clazz = (MimeObjectClass*)&mimeExternalObjectClass;
       else {
         /* If there's a name, then write this as an attachment. */
-        char *name = (hdrs ? MimeHeaders_get_name(hdrs, opts) : nullptr);
+        char* name = (hdrs ? MimeHeaders_get_name(hdrs, opts) : nullptr);
         if (name) {
-          clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+          clazz = (MimeObjectClass*)&mimeExternalObjectClass;
           PR_Free(name);
         }
       }
-    } else if (mime_subclass_p(clazz, (MimeObjectClass *)&mimeContainerClass) &&
-               !mime_subclass_p(clazz, (MimeObjectClass *)&mimeMessageClass))
+    } else if (mime_subclass_p(clazz, (MimeObjectClass*)&mimeContainerClass) &&
+               !mime_subclass_p(clazz, (MimeObjectClass*)&mimeMessageClass))
       /* Multipart subtypes are ok, except for messages; descend into
          multiparts, and defer judgement.
 
@@ -928,13 +927,13 @@ MimeObject *mime_create(const char *content_type, MimeHeaders *hdrs,
          to always be wrapped inside a message/rfc822.  That's ok.) */
       ;
     else if (opts && opts->part_to_load &&
-             mime_subclass_p(clazz, (MimeObjectClass *)&mimeMessageClass))
+             mime_subclass_p(clazz, (MimeObjectClass*)&mimeMessageClass))
       /* Descend into messages only if we're looking for a specific sub-part. */
       ;
     else {
       /* Anything else, and display it as a link (and cause subsequent
          text parts to also be displayed as links.) */
-      clazz = (MimeObjectClass *)&mimeExternalObjectClass;
+      clazz = (MimeObjectClass*)&mimeExternalObjectClass;
     }
   }
 
@@ -959,9 +958,9 @@ FAIL:
   return obj;
 }
 
-static int mime_classinit_1(MimeObjectClass *clazz, MimeObjectClass *target);
+static int mime_classinit_1(MimeObjectClass* clazz, MimeObjectClass* target);
 
-static int mime_classinit(MimeObjectClass *clazz) {
+static int mime_classinit(MimeObjectClass* clazz) {
   int status;
   if (clazz->class_initialized) return 0;
 
@@ -986,7 +985,7 @@ static int mime_classinit(MimeObjectClass *clazz) {
   return 0;
 }
 
-static int mime_classinit_1(MimeObjectClass *clazz, MimeObjectClass *target) {
+static int mime_classinit_1(MimeObjectClass* clazz, MimeObjectClass* target) {
   int status;
   if (clazz->superclass) {
     status = mime_classinit_1(clazz->superclass, target);
@@ -995,13 +994,13 @@ static int mime_classinit_1(MimeObjectClass *clazz, MimeObjectClass *target) {
   return clazz->class_initialize(target);
 }
 
-bool mime_subclass_p(MimeObjectClass *child, MimeObjectClass *parent) {
+bool mime_subclass_p(MimeObjectClass* child, MimeObjectClass* parent) {
   if (child == parent) return true;
   if (!child->superclass) return false;
   return mime_subclass_p(child->superclass, parent);
 }
 
-bool mime_typep(MimeObject *obj, MimeObjectClass *clazz) {
+bool mime_typep(MimeObject* obj, MimeObjectClass* clazz) {
   return mime_subclass_p(obj->clazz, clazz);
 }
 
@@ -1011,15 +1010,15 @@ bool mime_typep(MimeObject *obj, MimeObjectClass *clazz) {
 /* Returns a string describing the location of the part (like "2.5.3").
    This is not a full URL, just a part-number.
  */
-char *mime_part_address(MimeObject *obj) {
+char* mime_part_address(MimeObject* obj) {
   if (!obj->parent) return strdup("0");
 
   /* Find this object in its parent. */
   int32_t i, j = -1;
   char buf[20];
-  char *higher = 0;
-  MimeContainer *cont = (MimeContainer *)obj->parent;
-  NS_ASSERTION(mime_typep(obj->parent, (MimeObjectClass *)&mimeContainerClass),
+  char* higher = 0;
+  MimeContainer* cont = (MimeContainer*)obj->parent;
+  NS_ASSERTION(mime_typep(obj->parent, (MimeObjectClass*)&mimeContainerClass),
                "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
   for (i = 0; i < cont->nchildren; i++)
     if (cont->children[i] == obj) {
@@ -1040,7 +1039,7 @@ char *mime_part_address(MimeObject *obj) {
   if (!higher) return strdup(buf);
 
   uint32_t slen = strlen(higher) + strlen(buf) + 3;
-  char *s = (char *)PR_MALLOC(slen);
+  char* s = (char*)PR_MALLOC(slen);
   if (!s) {
     PR_Free(higher);
     return 0; /* MIME_OUT_OF_MEMORY */
@@ -1057,7 +1056,7 @@ char *mime_part_address(MimeObject *obj) {
    This part is explicitly passed in the X-Mozilla-IMAP-Part header.
    Return value must be freed by the caller.
  */
-char *mime_imap_part_address(MimeObject *obj) {
+char* mime_imap_part_address(MimeObject* obj) {
   if (!obj || !obj->headers) return 0;
   return MimeHeaders_get(obj->headers, IMAP_EXTERNAL_CONTENT_HEADER, false,
                          false);
@@ -1067,7 +1066,7 @@ char *mime_imap_part_address(MimeObject *obj) {
    EXTERNAL_ATTACHMENT_URL_HEADER header. Return value must be freed by the
    caller.
 */
-char *mime_external_attachment_url(MimeObject *obj) {
+char* mime_external_attachment_url(MimeObject* obj) {
   if (!obj || !obj->headers) return 0;
   return MimeHeaders_get(obj->headers, EXTERNAL_ATTACHMENT_URL_HEADER, false,
                          false);
@@ -1078,10 +1077,10 @@ char *mime_external_attachment_url(MimeObject *obj) {
    or encrypted objects that we know about.  (MimeMessageClass uses this
    to decide if the headers need to be presented differently.)
  */
-bool mime_crypto_object_p(MimeHeaders *hdrs, bool clearsigned_counts,
-                          MimeDisplayOptions *opts) {
-  char *ct;
-  MimeObjectClass *clazz;
+bool mime_crypto_object_p(MimeHeaders* hdrs, bool clearsigned_counts,
+                          MimeDisplayOptions* opts) {
+  char* ct;
+  MimeObjectClass* clazz;
 
   if (!hdrs) return false;
 
@@ -1099,10 +1098,10 @@ bool mime_crypto_object_p(MimeHeaders *hdrs, bool clearsigned_counts,
   clazz = mime_find_class(ct, hdrs, opts, true);
   PR_Free(ct);
 
-  if (clazz == ((MimeObjectClass *)&mimeEncryptedCMSClass)) return true;
+  if (clazz == ((MimeObjectClass*)&mimeEncryptedCMSClass)) return true;
 
   if (clearsigned_counts &&
-      clazz == ((MimeObjectClass *)&mimeMultipartSignedCMSClass))
+      clazz == ((MimeObjectClass*)&mimeMultipartSignedCMSClass))
     return true;
 
   return false;
@@ -1114,12 +1113,12 @@ bool mime_crypto_object_p(MimeHeaders *hdrs, bool clearsigned_counts,
    is appended to any existing part-number already in that URL; otherwise,
    it replaces it.
  */
-char *mime_set_url_part(const char *url, const char *part, bool append_p) {
-  const char *part_begin = 0;
-  const char *part_end = 0;
+char* mime_set_url_part(const char* url, const char* part, bool append_p) {
+  const char* part_begin = 0;
+  const char* part_end = 0;
   bool got_q = false;
-  const char *s;
-  char *result;
+  const char* s;
+  char* result;
 
   if (!url || !part) return 0;
 
@@ -1147,7 +1146,7 @@ char *mime_set_url_part(const char *url, const char *part, bool append_p) {
   }
 
   uint32_t resultlen = strlen(url) + strlen(part) + 10;
-  result = (char *)PR_MALLOC(resultlen);
+  result = (char*)PR_MALLOC(resultlen);
   if (!result) return 0;
 
   if (part_begin) {
@@ -1186,17 +1185,17 @@ char *mime_set_url_part(const char *url, const char *part, bool append_p) {
    Strips off any previous *IMAP* part numbers, since they are absolute, not
    relative.
  */
-char *mime_set_url_imap_part(const char *url, const char *imappart,
-                             const char *libmimepart) {
-  char *result = 0;
-  char *whereCurrent = PL_strstr(url, "/;section=");
+char* mime_set_url_imap_part(const char* url, const char* imappart,
+                             const char* libmimepart) {
+  char* result = 0;
+  char* whereCurrent = PL_strstr(url, "/;section=");
   if (whereCurrent) {
     *whereCurrent = 0;
   }
 
   uint32_t resultLen =
       strlen(url) + strlen(imappart) + strlen(libmimepart) + 17;
-  result = (char *)PR_MALLOC(resultLen);
+  result = (char*)PR_MALLOC(resultLen);
   if (!result) return 0;
 
   PL_strncpyz(result, url, resultLen);
@@ -1214,7 +1213,7 @@ char *mime_set_url_imap_part(const char *url, const char *imappart,
    number matches, and returns the MimeObject (else NULL.)
    (part is not a URL -- it's of the form "1.3.5".)
  */
-MimeObject *mime_address_to_part(const char *part, MimeObject *obj) {
+MimeObject* mime_address_to_part(const char* part, MimeObject* obj) {
   /* Note: this is an N^2 operation, but the number of parts in a message
    shouldn't ever be large enough that this really matters... */
 
@@ -1223,7 +1222,7 @@ MimeObject *mime_address_to_part(const char *part, MimeObject *obj) {
   if (!part || !*part) {
     match = !obj->parent;
   } else {
-    char *part2 = mime_part_address(obj);
+    char* part2 = mime_part_address(obj);
     if (!part2) return 0; /* MIME_OUT_OF_MEMORY */
     match = !strcmp(part, part2);
     PR_Free(part2);
@@ -1232,14 +1231,14 @@ MimeObject *mime_address_to_part(const char *part, MimeObject *obj) {
   if (match) {
     /* These are the droids we're looking for. */
     return obj;
-  } else if (!mime_typep(obj, (MimeObjectClass *)&mimeContainerClass)) {
+  } else if (!mime_typep(obj, (MimeObjectClass*)&mimeContainerClass)) {
     /* Not a container, pull up, pull up! */
     return 0;
   } else {
     int32_t i;
-    MimeContainer *cont = (MimeContainer *)obj;
+    MimeContainer* cont = (MimeContainer*)obj;
     for (i = 0; i < cont->nchildren; i++) {
-      MimeObject *o2 = mime_address_to_part(part, cont->children[i]);
+      MimeObject* o2 = mime_address_to_part(part, cont->children[i]);
       if (o2) return o2;
     }
     return 0;
@@ -1250,8 +1249,8 @@ MimeObject *mime_address_to_part(const char *part, MimeObject *obj) {
    number matches; if one is found, returns the Content-Name of that part.
    Else returns NULL.  (part is not a URL -- it's of the form "1.3.5".)
  */
-char *mime_find_content_type_of_part(const char *part, MimeObject *obj) {
-  char *result = 0;
+char* mime_find_content_type_of_part(const char* part, MimeObject* obj) {
+  char* result = 0;
 
   obj = mime_address_to_part(part, obj);
   if (!obj) return 0;
@@ -1267,8 +1266,8 @@ char *mime_find_content_type_of_part(const char *part, MimeObject *obj) {
    number matches; if one is found, returns the Content-Name of that part.
    Else returns NULL.  (part is not a URL -- it's of the form "1.3.5".)
  */
-char *mime_find_suggested_name_of_part(const char *part, MimeObject *obj) {
-  char *result = 0;
+char* mime_find_suggested_name_of_part(const char* part, MimeObject* obj) {
+  char* result = 0;
 
   obj = mime_address_to_part(part, obj);
   if (!obj) return 0;
@@ -1279,15 +1278,14 @@ char *mime_find_suggested_name_of_part(const char *part, MimeObject *obj) {
   /* If this part doesn't have a name, but this part is one fork of an
    AppleDouble, and the AppleDouble itself has a name, then use that. */
   if (!result && obj->parent && obj->parent->headers &&
-      mime_typep(obj->parent,
-                 (MimeObjectClass *)&mimeMultipartAppleDoubleClass))
+      mime_typep(obj->parent, (MimeObjectClass*)&mimeMultipartAppleDoubleClass))
     result = MimeHeaders_get_name(obj->parent->headers, obj->options);
 
   /* Else, if this part is itself an AppleDouble, and one of its children
    has a name, then use that (check data fork first, then resource.) */
   if (!result &&
-      mime_typep(obj, (MimeObjectClass *)&mimeMultipartAppleDoubleClass)) {
-    MimeContainer *cont = (MimeContainer *)obj;
+      mime_typep(obj, (MimeObjectClass*)&mimeMultipartAppleDoubleClass)) {
+    MimeContainer* cont = (MimeContainer*)obj;
     if (cont->nchildren > 1 && cont->children[1] && cont->children[1]->headers)
       result = MimeHeaders_get_name(cont->children[1]->headers, obj->options);
 
@@ -1313,7 +1311,7 @@ char *mime_find_suggested_name_of_part(const char *part, MimeObject *obj) {
    */
   if (result && obj->encoding && *obj->encoding) {
     int32_t L = strlen(result);
-    const char **exts = 0;
+    const char** exts = 0;
 
     /*
      I'd like to ask the mime.types file, "what extensions correspond
@@ -1326,12 +1324,12 @@ char *mime_find_suggested_name_of_part(const char *part, MimeObject *obj) {
      Note that it's special-cased in a similar way in libmsg/compose.c.
      */
     if (!PL_strcasecmp(obj->encoding, ENCODING_UUENCODE)) {
-      static const char *uue_exts[] = {"uu", "uue", 0};
+      static const char* uue_exts[] = {"uu", "uue", 0};
       exts = uue_exts;
     }
 
     while (exts && *exts) {
-      const char *ext = *exts;
+      const char* ext = *exts;
       int32_t L2 = strlen(ext);
       if (L > L2 + 1 &&                           /* long enough */
           result[L - L2 - 1] == '.' &&            /* '.' in right place*/
@@ -1349,8 +1347,8 @@ char *mime_find_suggested_name_of_part(const char *part, MimeObject *obj) {
 
 /* Parse the various "?" options off the URL and into the options struct.
  */
-int mime_parse_url_options(const char *url, MimeDisplayOptions *options) {
-  const char *q;
+int mime_parse_url_options(const char* url, MimeDisplayOptions* options) {
+  const char* q;
 
   if (!url || !*url) return 0;
   if (!options) return 0;
@@ -1391,7 +1389,7 @@ int mime_parse_url_options(const char *url, MimeDisplayOptions *options) {
                options->format_out != nsMimeOutput::nsMimeMessageBodyQuoting) {
       PR_FREEIF(options->part_to_load);
       if (end > value) {
-        options->part_to_load = (char *)PR_MALLOC(end - value + 1);
+        options->part_to_load = (char*)PR_MALLOC(end - value + 1);
         if (!options->part_to_load) return MIME_OUT_OF_MEMORY;
         memcpy(options->part_to_load, value, end - value);
         options->part_to_load[end - value] = 0;
@@ -1495,9 +1493,9 @@ int mime_parse_url_options(const char *url, MimeDisplayOptions *options) {
       if (!options->part_to_load) return MIME_OUT_OF_MEMORY;
     } else if (strcmp(options->part_to_load, "1")) /* not 1 */
     {
-      const char *prefix = "1.";
+      const char* prefix = "1.";
       uint32_t slen = strlen(options->part_to_load) + strlen(prefix) + 1;
-      char *s = (char *)PR_MALLOC(slen);
+      char* s = (char*)PR_MALLOC(slen);
       if (!s) return MIME_OUT_OF_MEMORY;
       PL_strncpyz(s, prefix, slen);
       PL_strcatn(s, slen, options->part_to_load);
@@ -1512,10 +1510,10 @@ int mime_parse_url_options(const char *url, MimeDisplayOptions *options) {
 /* Some output-generation utility functions...
  */
 
-int MimeOptions_write(MimeHeaders *hdrs, MimeDisplayOptions *opt,
-                      const char *data, int32_t length, bool user_visible_p) {
+int MimeOptions_write(MimeHeaders* hdrs, MimeDisplayOptions* opt,
+                      const char* data, int32_t length, bool user_visible_p) {
   int status = 0;
-  void *closure = 0;
+  void* closure = 0;
   if (!opt || !opt->output_fn || !opt->state) return 0;
 
   closure = opt->output_closure;
@@ -1528,7 +1526,7 @@ int MimeOptions_write(MimeHeaders *hdrs, MimeDisplayOptions *opt,
     if (opt->state->separator_suppressed_p)
       opt->state->separator_suppressed_p = false;
     else {
-      const char *sep = "<BR><FIELDSET CLASS=\"mimeAttachmentHeader\">";
+      const char* sep = "<BR><FIELDSET CLASS=\"mimeAttachmentHeader\">";
       int lstatus = opt->output_fn(sep, strlen(sep), closure);
       opt->state->separator_suppressed_p = false;
       if (lstatus < 0) return lstatus;
@@ -1573,7 +1571,7 @@ int MimeOptions_write(MimeHeaders *hdrs, MimeDisplayOptions *opt,
   return 0;
 }
 
-int MimeObject_write(MimeObject *obj, const char *output, int32_t length,
+int MimeObject_write(MimeObject* obj, const char* output, int32_t length,
                      bool user_visible_p) {
   if (!obj->output_p) return 0;
 
@@ -1582,7 +1580,7 @@ int MimeObject_write(MimeObject *obj, const char *output, int32_t length,
     // if true, mime generates a separator in html - we don't want that.
     user_visible_p = false;
 
-    for (MimeObject *parent = obj->parent; parent; parent = parent->parent) {
+    for (MimeObject* parent = obj->parent; parent; parent = parent->parent) {
       if (!parent->output_p) return 0;
     }
   }
@@ -1597,7 +1595,7 @@ int MimeObject_write(MimeObject *obj, const char *output, int32_t length,
                            user_visible_p);
 }
 
-int MimeObject_write_separator(MimeObject *obj) {
+int MimeObject_write_separator(MimeObject* obj) {
   if (obj->options && obj->options->state &&
       // we never want separators if we are asking for pure bodies
       !obj->options->write_pure_bodies)
@@ -1605,11 +1603,11 @@ int MimeObject_write_separator(MimeObject *obj) {
   return 0;
 }
 
-int MimeObject_output_init(MimeObject *obj, const char *content_type) {
+int MimeObject_output_init(MimeObject* obj, const char* content_type) {
   if (obj && obj->options && obj->options->state &&
       !obj->options->state->first_data_written_p) {
     int status;
-    const char *charset = 0;
+    const char* charset = 0;
     char *name = 0, *x_mac_type = 0, *x_mac_creator = 0;
 
     if (!obj->options->output_init_fn) {
@@ -1618,7 +1616,7 @@ int MimeObject_output_init(MimeObject *obj, const char *content_type) {
     }
 
     if (obj->headers) {
-      char *ct;
+      char* ct;
       name = MimeHeaders_get_name(obj->headers, obj->options);
 
       ct = MimeHeaders_get(obj->headers, HEADER_CONTENT_TYPE, false, false);
@@ -1631,7 +1629,7 @@ int MimeObject_output_init(MimeObject *obj, const char *content_type) {
          * it from its parent */
         if (!x_mac_type && !x_mac_creator && obj->parent &&
             obj->parent->headers) {
-          char *ctp = MimeHeaders_get(obj->parent->headers, HEADER_CONTENT_TYPE,
+          char* ctp = MimeHeaders_get(obj->parent->headers, HEADER_CONTENT_TYPE,
                                       false, false);
           if (ctp) {
             x_mac_type = MimeHeaders_get_parameter(ctp, PARAM_X_MAC_TYPE,
@@ -1643,7 +1641,7 @@ int MimeObject_output_init(MimeObject *obj, const char *content_type) {
         }
 
         if (!(obj->options->override_charset)) {
-          char *charset =
+          char* charset =
               MimeHeaders_get_parameter(ct, "charset", nullptr, nullptr);
           if (charset) {
             PR_FREEIF(obj->options->default_charset);
@@ -1654,8 +1652,8 @@ int MimeObject_output_init(MimeObject *obj, const char *content_type) {
       }
     }
 
-    if (mime_typep(obj, (MimeObjectClass *)&mimeInlineTextClass))
-      charset = ((MimeInlineText *)obj)->charset;
+    if (mime_typep(obj, (MimeObjectClass*)&mimeInlineTextClass))
+      charset = ((MimeInlineText*)obj)->charset;
 
     if (!content_type) content_type = obj->content_type;
     if (!content_type) content_type = TEXT_PLAIN;
@@ -1684,23 +1682,23 @@ int MimeObject_output_init(MimeObject *obj, const char *content_type) {
   return 0;
 }
 
-char *mime_get_base_url(const char *url) {
+char* mime_get_base_url(const char* url) {
   if (!url) return nullptr;
 
-  const char *s = strrchr(url, '?');
+  const char* s = strrchr(url, '?');
   if (s && !strncmp(s, "?type=application/x-message-display",
                     sizeof("?type=application/x-message-display") - 1)) {
-    const char *nextTerm = strchr(s, '&');
+    const char* nextTerm = strchr(s, '&');
     s = nextTerm ? nextTerm : s + strlen(s) - 1;
   }
   // we need to keep the ?number part of the url, or we won't know
   // which local message the part belongs to.
   if (s && *s && *(s + 1) &&
       !strncmp(s + 1, "number=", sizeof("number=") - 1)) {
-    const char *nextTerm = strchr(++s, '&');
+    const char* nextTerm = strchr(++s, '&');
     s = nextTerm ? nextTerm : s + strlen(s) - 1;
   }
-  char *result = (char *)PR_MALLOC(strlen(url) + 1);
+  char* result = (char*)PR_MALLOC(strlen(url) + 1);
   NS_ASSERTION(result, "out of memory");
   if (!result) return nullptr;
 

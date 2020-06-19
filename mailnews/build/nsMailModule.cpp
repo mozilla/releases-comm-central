@@ -723,12 +723,12 @@ NS_DEFINE_NAMED_CID(NS_PGPMIMEPROXY_CID);
 
 NS_DEFINE_NAMED_CID(NS_PGPMIME_CONTENT_TYPE_HANDLER_CID);
 
-extern "C" MimeObjectClass *MIME_PgpMimeCreateContentTypeHandlerClass(
-    const char *content_type, contentTypeHandlerInitStruct *initStruct);
+extern "C" MimeObjectClass* MIME_PgpMimeCreateContentTypeHandlerClass(
+    const char* content_type, contentTypeHandlerInitStruct* initStruct);
 
-static nsresult nsPgpMimeMimeContentTypeHandlerConstructor(nsISupports *aOuter,
+static nsresult nsPgpMimeMimeContentTypeHandlerConstructor(nsISupports* aOuter,
                                                            REFNSIID aIID,
-                                                           void **aResult) {
+                                                           void** aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
   NS_ENSURE_FALSE(aOuter, NS_ERROR_NO_AGGREGATION);
   *aResult = nullptr;

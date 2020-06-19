@@ -38,7 +38,7 @@ nsresult nsMimeXmlEmitter::Complete() {
   return nsMimeBaseEmitter::Complete();
 }
 
-nsresult nsMimeXmlEmitter::WriteXMLHeader(const char *msgID) {
+nsresult nsMimeXmlEmitter::WriteXMLHeader(const char* msgID) {
   if ((!msgID) || (!*msgID)) msgID = "none";
 
   nsCString newValue;
@@ -58,10 +58,10 @@ nsresult nsMimeXmlEmitter::WriteXMLHeader(const char *msgID) {
   return NS_OK;
 }
 
-nsresult nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value) {
+nsresult nsMimeXmlEmitter::WriteXMLTag(const char* tagName, const char* value) {
   if ((!value) || (!*value)) return NS_OK;
 
-  char *upCaseTag = NULL;
+  char* upCaseTag = NULL;
   nsCString newValue;
   nsAppendEscapedHTML(nsDependentCString(value), newValue);
 
@@ -79,7 +79,7 @@ nsresult nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value) {
   // be the name of the header itself.
   //
   UtilityWrite("<headerdisplayname>");
-  char *l10nTagName = LocalizeHeaderName(upCaseTag, tagName);
+  char* l10nTagName = LocalizeHeaderName(upCaseTag, tagName);
   if ((!l10nTagName) || (!*l10nTagName))
     UtilityWrite(tagName);
   else {
@@ -102,8 +102,8 @@ nsresult nsMimeXmlEmitter::WriteXMLTag(const char *tagName, const char *value) {
 
 // Header handling routines.
 nsresult nsMimeXmlEmitter::StartHeader(bool rootMailHeader, bool headerOnly,
-                                       const char *msgID,
-                                       const char *outCharset) {
+                                       const char* msgID,
+                                       const char* outCharset) {
   mDocHeader = rootMailHeader;
   WriteXMLHeader(msgID);
   UtilityWrite("<mailheader>");
@@ -111,23 +111,23 @@ nsresult nsMimeXmlEmitter::StartHeader(bool rootMailHeader, bool headerOnly,
   return NS_OK;
 }
 
-nsresult nsMimeXmlEmitter::AddHeaderField(const char *field,
-                                          const char *value) {
+nsresult nsMimeXmlEmitter::AddHeaderField(const char* field,
+                                          const char* value) {
   if ((!field) || (!value)) return NS_OK;
 
   WriteXMLTag(field, value);
   return NS_OK;
 }
 
-nsresult nsMimeXmlEmitter::EndHeader(const nsACString &name) {
+nsresult nsMimeXmlEmitter::EndHeader(const nsACString& name) {
   UtilityWrite("</mailheader>");
   return NS_OK;
 }
 
 // Attachment handling routines
-nsresult nsMimeXmlEmitter::StartAttachment(const nsACString &name,
-                                           const char *contentType,
-                                           const char *url,
+nsresult nsMimeXmlEmitter::StartAttachment(const nsACString& name,
+                                           const char* contentType,
+                                           const char* url,
                                            bool aIsExternalAttachment) {
   char buf[128];
 
@@ -140,8 +140,8 @@ nsresult nsMimeXmlEmitter::StartAttachment(const nsACString &name,
   return NS_OK;
 }
 
-nsresult nsMimeXmlEmitter::AddAttachmentField(const char *field,
-                                              const char *value) {
+nsresult nsMimeXmlEmitter::AddAttachmentField(const char* field,
+                                              const char* value) {
   WriteXMLTag(field, value);
   return NS_OK;
 }

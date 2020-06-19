@@ -66,11 +66,11 @@ class nsIMimeContentTypeHandler : public nsISupports {
  public:
   NS_DECLARE_STATIC_IID_ACCESSOR(NS_IMIME_CONTENT_TYPE_HANDLER_IID)
 
-  NS_IMETHOD GetContentType(char **contentType) = 0;
+  NS_IMETHOD GetContentType(char** contentType) = 0;
 
   NS_IMETHOD CreateContentTypeHandlerClass(
-      const char *content_type, contentTypeHandlerInitStruct *initStruct,
-      MimeObjectClass **objClass) = 0;
+      const char* content_type, contentTypeHandlerInitStruct* initStruct,
+      MimeObjectClass** objClass) = 0;
 };
 
 NS_DEFINE_STATIC_IID_ACCESSOR(nsIMimeContentTypeHandler,

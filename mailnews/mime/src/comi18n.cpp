@@ -19,9 +19,9 @@ using namespace mozilla;
 // BEGIN PUBLIC INTERFACE
 extern "C" {
 
-void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
+void MIME_DecodeMimeHeader(const char* header, const char* default_charset,
                            bool override_charset, bool eatContinuations,
-                           nsACString &result) {
+                           nsACString& result) {
   nsresult rv;
   nsCOMPtr<nsIMimeConverter> mimeConverter =
       do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
@@ -34,8 +34,8 @@ void MIME_DecodeMimeHeader(const char *header, const char *default_charset,
                                         eatContinuations, result);
 }
 
-nsresult MIME_detect_charset(const char *aBuf, int32_t aLength,
-                             nsACString &aCharset) {
+nsresult MIME_detect_charset(const char* aBuf, int32_t aLength,
+                             nsACString& aCharset) {
   mozilla::UniquePtr<mozilla::EncodingDetector> detector =
       mozilla::EncodingDetector::Create();
   mozilla::Span<const uint8_t> src =

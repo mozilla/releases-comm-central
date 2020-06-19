@@ -27,38 +27,38 @@ class nsMailtoUrl : public nsIMailtoUrl, public nsIURI {
   nsMailtoUrl();
 
  protected:
-  virtual nsresult Clone(nsIURI **_retval);
-  virtual nsresult SetSpecInternal(const nsACString &aSpec);
-  virtual nsresult SetScheme(const nsACString &aScheme);
-  virtual nsresult SetUserPass(const nsACString &aUserPass);
-  virtual nsresult SetUsername(const nsACString &aUsername);
-  virtual nsresult SetPassword(const nsACString &aPassword);
-  virtual nsresult SetHostPort(const nsACString &aHostPort);
-  virtual nsresult SetHost(const nsACString &aHost);
+  virtual nsresult Clone(nsIURI** _retval);
+  virtual nsresult SetSpecInternal(const nsACString& aSpec);
+  virtual nsresult SetScheme(const nsACString& aScheme);
+  virtual nsresult SetUserPass(const nsACString& aUserPass);
+  virtual nsresult SetUsername(const nsACString& aUsername);
+  virtual nsresult SetPassword(const nsACString& aPassword);
+  virtual nsresult SetHostPort(const nsACString& aHostPort);
+  virtual nsresult SetHost(const nsACString& aHost);
   virtual nsresult SetPort(int32_t aPort);
-  virtual nsresult SetPathQueryRef(const nsACString &aPath);
-  virtual nsresult SetRef(const nsACString &aRef);
-  virtual nsresult SetFilePath(const nsACString &aFilePath);
-  virtual nsresult SetQuery(const nsACString &aQuery);
-  virtual nsresult SetQueryWithEncoding(const nsACString &aQuery,
-                                        const mozilla::Encoding *aEncoding);
+  virtual nsresult SetPathQueryRef(const nsACString& aPath);
+  virtual nsresult SetRef(const nsACString& aRef);
+  virtual nsresult SetFilePath(const nsACString& aFilePath);
+  virtual nsresult SetQuery(const nsACString& aQuery);
+  virtual nsresult SetQueryWithEncoding(const nsACString& aQuery,
+                                        const mozilla::Encoding* aEncoding);
 
  public:
   class Mutator : public nsIURIMutator, public BaseURIMutator<nsMailtoUrl> {
     NS_DECL_ISUPPORTS
     NS_FORWARD_SAFE_NSIURISETTERS_RET(mURI)
 
-    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams &aParams) override {
+    NS_IMETHOD Deserialize(const mozilla::ipc::URIParams& aParams) override {
       return NS_ERROR_NOT_IMPLEMENTED;
     }
 
-    NS_IMETHOD Finalize(nsIURI **aURI) override {
+    NS_IMETHOD Finalize(nsIURI** aURI) override {
       mURI.forget(aURI);
       return NS_OK;
     }
 
-    NS_IMETHOD SetSpec(const nsACString &aSpec,
-                       nsIURIMutator **aMutator) override {
+    NS_IMETHOD SetSpec(const nsACString& aSpec,
+                       nsIURIMutator** aMutator) override {
       if (aMutator) NS_ADDREF(*aMutator = this);
       return InitFromSpec(aSpec);
     }
@@ -76,7 +76,7 @@ class nsMailtoUrl : public nsIMailtoUrl, public nsIURI {
   virtual ~nsMailtoUrl();
   nsresult ParseUrl();
   nsresult CleanupMailtoState();
-  nsresult ParseMailtoUrl(char *searchPart);
+  nsresult ParseMailtoUrl(char* searchPart);
 
   nsCOMPtr<nsIURI> m_baseURL;
 
@@ -134,7 +134,7 @@ class nsSmtpUrl : public nsISmtpUrl, public nsMsgMailNewsUrl {
   // it is possible to encode the message to parse in the form of a url.
   // This function is used to decompose the search and path part into the bare
   // message components (to, fcc, bcc, etc.)
-  nsresult ParseMessageToPost(char *searchPart);
+  nsresult ParseMessageToPost(char* searchPart);
 };
 
 #endif  // nsSmtpUrl_h__

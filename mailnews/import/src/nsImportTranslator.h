@@ -16,10 +16,10 @@ class ImportOutFile;
 class UMimeEncode {
  public:
   static uint32_t GetBufferSize(uint32_t inByes);
-  static uint32_t ConvertBuffer(const uint8_t *pIn, uint32_t inLen,
-                                uint8_t *pOut, uint32_t maxLen = 72,
+  static uint32_t ConvertBuffer(const uint8_t* pIn, uint32_t inLen,
+                                uint8_t* pOut, uint32_t maxLen = 72,
                                 uint32_t firstLineLen = 72,
-                                const char *pEolStr = nullptr);
+                                const char* pEolStr = nullptr);
 };
 
 class nsImportTranslator {
@@ -27,21 +27,21 @@ class nsImportTranslator {
   virtual ~nsImportTranslator() {}
   virtual bool Supports8bitEncoding(void) { return false; }
   virtual uint32_t GetMaxBufferSize(uint32_t inLen) { return inLen + 1; }
-  virtual void ConvertBuffer(const uint8_t *pIn, uint32_t inLen,
-                             uint8_t *pOut) {
+  virtual void ConvertBuffer(const uint8_t* pIn, uint32_t inLen,
+                             uint8_t* pOut) {
     memcpy(pOut, pIn, inLen);
     pOut[inLen] = 0;
   }
-  virtual bool ConvertToFile(const uint8_t *pIn, uint32_t inLen,
-                             ImportOutFile *pOutFile,
-                             uint32_t *pProcessed = nullptr);
-  virtual bool FinishConvertToFile(ImportOutFile * /* pOutFile */) {
+  virtual bool ConvertToFile(const uint8_t* pIn, uint32_t inLen,
+                             ImportOutFile* pOutFile,
+                             uint32_t* pProcessed = nullptr);
+  virtual bool FinishConvertToFile(ImportOutFile* /* pOutFile */) {
     return true;
   }
 
-  virtual void GetCharset(nsCString &charSet) { charSet = "us-ascii"; }
-  virtual void GetLanguage(nsCString &lang) { lang = "en"; }
-  virtual void GetEncoding(nsCString &encoding) { encoding.Truncate(); }
+  virtual void GetCharset(nsCString& charSet) { charSet = "us-ascii"; }
+  virtual void GetLanguage(nsCString& lang) { lang = "en"; }
+  virtual void GetEncoding(nsCString& encoding) { encoding.Truncate(); }
 };
 
 // Specialized encoder, not a valid language translator, used for Mime headers.
@@ -51,11 +51,11 @@ class CMHTranslator : public nsImportTranslator {
   virtual uint32_t GetMaxBufferSize(uint32_t inLen) override {
     return (inLen * 3) + 1;
   }
-  virtual void ConvertBuffer(const uint8_t *pIn, uint32_t inLen,
-                             uint8_t *pOut) override;
-  virtual bool ConvertToFile(const uint8_t *pIn, uint32_t inLen,
-                             ImportOutFile *pOutFile,
-                             uint32_t *pProcessed = nullptr) override;
+  virtual void ConvertBuffer(const uint8_t* pIn, uint32_t inLen,
+                             uint8_t* pOut) override;
+  virtual bool ConvertToFile(const uint8_t* pIn, uint32_t inLen,
+                             ImportOutFile* pOutFile,
+                             uint32_t* pProcessed = nullptr) override;
 };
 
 // Specialized encoder, not a valid language translator, used for mail headers
@@ -64,7 +64,7 @@ class C2047Translator : public nsImportTranslator {
  public:
   virtual ~C2047Translator() {}
 
-  C2047Translator(const char *pCharset, uint32_t headerLen) {
+  C2047Translator(const char* pCharset, uint32_t headerLen) {
     m_charset = pCharset;
     m_startLen = headerLen;
     m_useQuotedPrintable = false;
@@ -72,11 +72,11 @@ class C2047Translator : public nsImportTranslator {
 
   void SetUseQuotedPrintable(void) { m_useQuotedPrintable = true; }
 
-  virtual bool ConvertToFile(const uint8_t *pIn, uint32_t inLen,
-                             ImportOutFile *pOutFile,
-                             uint32_t *pProcessed = nullptr) override;
-  bool ConvertToFileQ(const uint8_t *pIn, uint32_t inLen,
-                      ImportOutFile *pOutFile, uint32_t *pProcessed);
+  virtual bool ConvertToFile(const uint8_t* pIn, uint32_t inLen,
+                             ImportOutFile* pOutFile,
+                             uint32_t* pProcessed = nullptr) override;
+  bool ConvertToFileQ(const uint8_t* pIn, uint32_t inLen,
+                      ImportOutFile* pOutFile, uint32_t* pProcessed);
 
  protected:
   bool m_useQuotedPrintable;

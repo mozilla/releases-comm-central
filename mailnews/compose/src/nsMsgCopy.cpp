@@ -66,7 +66,7 @@ nsresult CopyListener::SetMessageKey(nsMsgKey aMessageKey) {
 }
 
 NS_IMETHODIMP
-CopyListener::GetMessageId(nsACString &aMessageId) {
+CopyListener::GetMessageId(nsACString& aMessageId) {
   if (mComposeAndSend) mComposeAndSend->GetMessageId(aMessageId);
   return NS_OK;
 }
@@ -93,7 +93,7 @@ nsresult CopyListener::OnStopCopy(nsresult aStatus) {
   return NS_OK;
 }
 
-nsresult CopyListener::SetMsgComposeAndSendObject(nsIMsgSend *obj) {
+nsresult CopyListener::SetMsgComposeAndSendObject(nsIMsgSend* obj) {
   if (obj) mComposeAndSend = obj;
 
   return NS_OK;
@@ -115,11 +115,11 @@ nsMsgCopy::nsMsgCopy() {
 
 nsMsgCopy::~nsMsgCopy() { PR_Free(mSavePref); }
 
-nsresult nsMsgCopy::StartCopyOperation(nsIMsgIdentity *aUserIdentity,
-                                       nsIFile *aFile, nsMsgDeliverMode aMode,
-                                       nsIMsgSend *aMsgSendObj,
-                                       const char *aSavePref,
-                                       nsIMsgDBHdr *aMsgToReplace) {
+nsresult nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity,
+                                       nsIFile* aFile, nsMsgDeliverMode aMode,
+                                       nsIMsgSend* aMsgSendObj,
+                                       const char* aSavePref,
+                                       nsIMsgDBHdr* aMsgToReplace) {
   nsCOMPtr<nsIMsgFolder> dstFolder;
   bool isDraft = false;
   bool waitForUrl = false;
@@ -185,9 +185,9 @@ nsresult nsMsgCopy::StartCopyOperation(nsIMsgIdentity *aUserIdentity,
   return rv;
 }
 
-nsresult nsMsgCopy::DoCopy(nsIFile *aDiskFile, nsIMsgFolder *dstFolder,
-                           nsIMsgDBHdr *aMsgToReplace, bool aIsDraft,
-                           nsIMsgWindow *msgWindow, nsIMsgSend *aMsgSendObj) {
+nsresult nsMsgCopy::DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
+                           nsIMsgDBHdr* aMsgToReplace, bool aIsDraft,
+                           nsIMsgWindow* msgWindow, nsIMsgSend* aMsgSendObj) {
   nsresult rv = NS_OK;
 
   // Check sanity
@@ -239,10 +239,10 @@ nsresult nsMsgCopy::DoCopy(nsIFile *aDiskFile, nsIMsgFolder *dstFolder,
 
 // nsIUrlListener methods
 NS_IMETHODIMP
-nsMsgCopy::OnStartRunningUrl(nsIURI *aUrl) { return NS_OK; }
+nsMsgCopy::OnStartRunningUrl(nsIURI* aUrl) { return NS_OK; }
 
 NS_IMETHODIMP
-nsMsgCopy::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
+nsMsgCopy::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
   nsresult rv = aExitCode;
   if (NS_SUCCEEDED(aExitCode)) {
     rv = DoCopy(mFile, mDstFolder, mMsgToReplace, mIsDraft, nullptr,
@@ -251,9 +251,9 @@ nsMsgCopy::OnStopRunningUrl(nsIURI *aUrl, nsresult aExitCode) {
   return rv;
 }
 
-nsresult nsMsgCopy::GetUnsentMessagesFolder(nsIMsgIdentity *userIdentity,
-                                            nsIMsgFolder **folder,
-                                            bool *waitForUrl) {
+nsresult nsMsgCopy::GetUnsentMessagesFolder(nsIMsgIdentity* userIdentity,
+                                            nsIMsgFolder** folder,
+                                            bool* waitForUrl) {
   nsresult ret = LocateMessageFolder(
       userIdentity, nsIMsgSend::nsMsgQueueForLater, mSavePref, folder);
   if (*folder) (*folder)->SetFlag(nsMsgFolderFlags::Queue);
@@ -261,8 +261,8 @@ nsresult nsMsgCopy::GetUnsentMessagesFolder(nsIMsgIdentity *userIdentity,
   return ret;
 }
 
-nsresult nsMsgCopy::GetDraftsFolder(nsIMsgIdentity *userIdentity,
-                                    nsIMsgFolder **folder, bool *waitForUrl) {
+nsresult nsMsgCopy::GetDraftsFolder(nsIMsgIdentity* userIdentity,
+                                    nsIMsgFolder** folder, bool* waitForUrl) {
   nsresult ret = LocateMessageFolder(userIdentity, nsIMsgSend::nsMsgSaveAsDraft,
                                      mSavePref, folder);
   if (*folder) (*folder)->SetFlag(nsMsgFolderFlags::Drafts);
@@ -270,9 +270,9 @@ nsresult nsMsgCopy::GetDraftsFolder(nsIMsgIdentity *userIdentity,
   return ret;
 }
 
-nsresult nsMsgCopy::GetTemplatesFolder(nsIMsgIdentity *userIdentity,
-                                       nsIMsgFolder **folder,
-                                       bool *waitForUrl) {
+nsresult nsMsgCopy::GetTemplatesFolder(nsIMsgIdentity* userIdentity,
+                                       nsIMsgFolder** folder,
+                                       bool* waitForUrl) {
   nsresult ret = LocateMessageFolder(
       userIdentity, nsIMsgSend::nsMsgSaveAsTemplate, mSavePref, folder);
   if (*folder) (*folder)->SetFlag(nsMsgFolderFlags::Templates);
@@ -280,8 +280,8 @@ nsresult nsMsgCopy::GetTemplatesFolder(nsIMsgIdentity *userIdentity,
   return ret;
 }
 
-nsresult nsMsgCopy::GetSentFolder(nsIMsgIdentity *userIdentity,
-                                  nsIMsgFolder **folder, bool *waitForUrl) {
+nsresult nsMsgCopy::GetSentFolder(nsIMsgIdentity* userIdentity,
+                                  nsIMsgFolder** folder, bool* waitForUrl) {
   nsresult ret = LocateMessageFolder(userIdentity, nsIMsgSend::nsMsgDeliverNow,
                                      mSavePref, folder);
   if (*folder) {
@@ -295,7 +295,7 @@ nsresult nsMsgCopy::GetSentFolder(nsIMsgIdentity *userIdentity,
   return ret;
 }
 
-nsresult nsMsgCopy::CreateIfMissing(nsIMsgFolder **folder, bool *waitForUrl) {
+nsresult nsMsgCopy::CreateIfMissing(nsIMsgFolder** folder, bool* waitForUrl) {
   nsresult rv = NS_OK;
   if (folder && *folder) {
     nsCOMPtr<nsIMsgFolder> parent;
@@ -336,9 +336,9 @@ nsresult nsMsgCopy::CreateIfMissing(nsIMsgFolder **folder, bool *waitForUrl) {
 ////////////////////////////////////////////////////////////////////////////////////
 // Utility Functions for MsgFolders
 ////////////////////////////////////////////////////////////////////////////////////
-nsresult LocateMessageFolder(nsIMsgIdentity *userIdentity,
+nsresult LocateMessageFolder(nsIMsgIdentity* userIdentity,
                              nsMsgDeliverMode aFolderType,
-                             const char *aFolderURI, nsIMsgFolder **msgFolder) {
+                             const char* aFolderURI, nsIMsgFolder** msgFolder) {
   nsresult rv = NS_OK;
 
   if (!msgFolder) return NS_ERROR_NULL_POINTER;
@@ -426,9 +426,9 @@ nsresult LocateMessageFolder(nsIMsgIdentity *userIdentity,
 // Figure out if a folder is local or not and return a boolean to
 // say so.
 //
-nsresult MessageFolderIsLocal(nsIMsgIdentity *userIdentity,
+nsresult MessageFolderIsLocal(nsIMsgIdentity* userIdentity,
                               nsMsgDeliverMode aFolderType,
-                              const char *aFolderURI, bool *aResult) {
+                              const char* aFolderURI, bool* aResult) {
   nsresult rv;
 
   if (!aFolderURI) return NS_ERROR_NULL_POINTER;

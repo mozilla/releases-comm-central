@@ -23,7 +23,7 @@ extern MimeMessageClass mimeMessageClass;
 
 struct MimeMessage {
   MimeContainer container; /* superclass variables */
-  MimeHeaders *hdrs;       /* headers of this message */
+  MimeHeaders* hdrs;       /* headers of this message */
   bool newline_p;          /* whether the last line ended in a newline */
 
   bool grabSubject;   /* Should we try to grab the subject of this message */

@@ -18,19 +18,19 @@ class nsMimeXmlEmitter : public nsMimeBaseEmitter {
 
   // Header handling routines.
   NS_IMETHOD StartHeader(bool rootMailHeader, bool headerOnly,
-                         const char *msgID, const char *outCharset) override;
-  NS_IMETHOD AddHeaderField(const char *field, const char *value) override;
-  NS_IMETHOD EndHeader(const nsACString &buf) override;
+                         const char* msgID, const char* outCharset) override;
+  NS_IMETHOD AddHeaderField(const char* field, const char* value) override;
+  NS_IMETHOD EndHeader(const nsACString& buf) override;
 
   // Attachment handling routines
-  NS_IMETHOD StartAttachment(const nsACString &name, const char *contentType,
-                             const char *url,
+  NS_IMETHOD StartAttachment(const nsACString& name, const char* contentType,
+                             const char* url,
                              bool aIsExternalAttachment) override;
-  NS_IMETHOD AddAttachmentField(const char *field, const char *value) override;
+  NS_IMETHOD AddAttachmentField(const char* field, const char* value) override;
   NS_IMETHOD EndAttachment() override;
 
-  NS_IMETHOD WriteXMLHeader(const char *msgID);
-  NS_IMETHOD WriteXMLTag(const char *tagName, const char *value);
+  NS_IMETHOD WriteXMLHeader(const char* msgID);
+  NS_IMETHOD WriteXMLTag(const char* tagName, const char* value);
 
  protected:
   // For header determination...

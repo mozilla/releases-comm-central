@@ -14,7 +14,7 @@
 
 NS_IMPL_ISUPPORTS(nsNntpMockChannel, nsIChannel, nsIRequest)
 
-nsNntpMockChannel::nsNntpMockChannel(nsIURI *aUri, nsIMsgWindow *aMsgWindow)
+nsNntpMockChannel::nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow)
     : m_url(aUri),
       m_msgWindow(aMsgWindow),
       m_channelState(CHANNEL_UNOPENED),
@@ -23,8 +23,8 @@ nsNntpMockChannel::nsNntpMockChannel(nsIURI *aUri, nsIMsgWindow *aMsgWindow)
       m_loadFlags(0),
       m_contentLength(-1) {}
 
-nsNntpMockChannel::nsNntpMockChannel(nsIURI *aUri, nsIMsgWindow *aMsgWindow,
-                                     nsISupports *aConsumer)
+nsNntpMockChannel::nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow,
+                                     nsISupports* aConsumer)
     : m_url(aUri),
       m_context(aConsumer),
       m_msgWindow(aMsgWindow),
@@ -43,19 +43,19 @@ nsNntpMockChannel::~nsNntpMockChannel() {}
 // nsIRequest methods //
 ////////////////////////
 
-NS_IMETHODIMP nsNntpMockChannel::GetName(nsACString &result) {
+NS_IMETHODIMP nsNntpMockChannel::GetName(nsACString& result) {
   FORWARD_CALL(GetName, result)
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::IsPending(bool *result) {
+NS_IMETHODIMP nsNntpMockChannel::IsPending(bool* result) {
   FORWARD_CALL(IsPending, result)
   // We haven't been loaded yet, so we're still pending.
   *result = true;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetStatus(nsresult *status) {
+NS_IMETHODIMP nsNntpMockChannel::GetStatus(nsresult* status) {
   FORWARD_CALL(GetStatus, status)
   *status = m_cancelStatus;
   return NS_OK;
@@ -67,7 +67,7 @@ NS_IMETHODIMP nsNntpMockChannel::Cancel(nsresult status) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetCanceled(bool *aCanceled) {
+NS_IMETHODIMP nsNntpMockChannel::GetCanceled(bool* aCanceled) {
   nsresult status = NS_ERROR_FAILURE;
   GetStatus(&status);
   *aCanceled = NS_FAILED(status);
@@ -84,19 +84,19 @@ NS_IMETHODIMP nsNntpMockChannel::Resume() {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::SetLoadGroup(nsILoadGroup *aLoadGroup) {
+NS_IMETHODIMP nsNntpMockChannel::SetLoadGroup(nsILoadGroup* aLoadGroup) {
   FORWARD_CALL(SetLoadGroup, aLoadGroup)
   m_loadGroup = aLoadGroup;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetLoadGroup(nsILoadGroup **aLoadGroup) {
+NS_IMETHODIMP nsNntpMockChannel::GetLoadGroup(nsILoadGroup** aLoadGroup) {
   FORWARD_CALL(GetLoadGroup, aLoadGroup)
   NS_IF_ADDREF(*aLoadGroup = m_loadGroup);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetTRRMode(nsIRequest::TRRMode *aTRRMode) {
+NS_IMETHODIMP nsNntpMockChannel::GetTRRMode(nsIRequest::TRRMode* aTRRMode) {
   return GetTRRModeImpl(aTRRMode);
 }
 
@@ -104,7 +104,7 @@ NS_IMETHODIMP nsNntpMockChannel::SetTRRMode(nsIRequest::TRRMode aTRRMode) {
   return SetTRRModeImpl(aTRRMode);
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetLoadFlags(nsLoadFlags *aLoadFlags) {
+NS_IMETHODIMP nsNntpMockChannel::GetLoadFlags(nsLoadFlags* aLoadFlags) {
   FORWARD_CALL(GetLoadFlags, aLoadFlags)
   *aLoadFlags = m_loadFlags;
   return NS_OK;
@@ -116,13 +116,13 @@ NS_IMETHODIMP nsNntpMockChannel::SetLoadFlags(nsLoadFlags aLoadFlags) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetLoadInfo(nsILoadInfo **aLoadInfo) {
+NS_IMETHODIMP nsNntpMockChannel::GetLoadInfo(nsILoadInfo** aLoadInfo) {
   FORWARD_CALL(GetLoadInfo, aLoadInfo)
   NS_IF_ADDREF(*aLoadInfo = m_loadInfo);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::SetLoadInfo(nsILoadInfo *aLoadInfo) {
+NS_IMETHODIMP nsNntpMockChannel::SetLoadInfo(nsILoadInfo* aLoadInfo) {
   FORWARD_CALL(SetLoadInfo, aLoadInfo)
   m_loadInfo = aLoadInfo;
   return NS_OK;
@@ -132,82 +132,82 @@ NS_IMETHODIMP nsNntpMockChannel::SetLoadInfo(nsILoadInfo *aLoadInfo) {
 // nsIChannel methods //
 ////////////////////////
 
-NS_IMETHODIMP nsNntpMockChannel::GetOriginalURI(nsIURI **aURI) {
+NS_IMETHODIMP nsNntpMockChannel::GetOriginalURI(nsIURI** aURI) {
   FORWARD_CALL(GetOriginalURI, aURI)
   NS_IF_ADDREF(*aURI = m_url);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::SetOriginalURI(nsIURI *aURI) {
+NS_IMETHODIMP nsNntpMockChannel::SetOriginalURI(nsIURI* aURI) {
   FORWARD_CALL(SetOriginalURI, aURI)
   // News does not seem to have the notion of an original URI.
   // (See bug 193317 and bug 1312314.)
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetURI(nsIURI **aURI) {
+NS_IMETHODIMP nsNntpMockChannel::GetURI(nsIURI** aURI) {
   NS_IF_ADDREF(*aURI = m_url);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetOwner(nsISupports **owner) {
+NS_IMETHODIMP nsNntpMockChannel::GetOwner(nsISupports** owner) {
   FORWARD_CALL(GetOwner, owner)
   NS_IF_ADDREF(*owner = m_owner);
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::SetOwner(nsISupports *aOwner) {
+NS_IMETHODIMP nsNntpMockChannel::SetOwner(nsISupports* aOwner) {
   FORWARD_CALL(SetOwner, aOwner)
   m_owner = aOwner;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpMockChannel::GetNotificationCallbacks(nsIInterfaceRequestor **callbacks) {
+nsNntpMockChannel::GetNotificationCallbacks(nsIInterfaceRequestor** callbacks) {
   FORWARD_CALL(GetNotificationCallbacks, callbacks)
   NS_IF_ADDREF(*callbacks = m_notificationCallbacks);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpMockChannel::SetNotificationCallbacks(nsIInterfaceRequestor *aCallbacks) {
+nsNntpMockChannel::SetNotificationCallbacks(nsIInterfaceRequestor* aCallbacks) {
   FORWARD_CALL(SetNotificationCallbacks, aCallbacks)
   m_notificationCallbacks = aCallbacks;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetSecurityInfo(nsISupports **securityInfo) {
+NS_IMETHODIMP nsNntpMockChannel::GetSecurityInfo(nsISupports** securityInfo) {
   FORWARD_CALL(GetSecurityInfo, securityInfo)
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetContentType(nsACString &aContentType) {
+NS_IMETHODIMP nsNntpMockChannel::GetContentType(nsACString& aContentType) {
   FORWARD_CALL(GetContentType, aContentType)
   aContentType = m_contentType;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsNntpMockChannel::SetContentType(
-    const nsACString &aContentType) {
+    const nsACString& aContentType) {
   FORWARD_CALL(SetContentType, aContentType)
   return NS_ParseResponseContentType(aContentType, m_contentType,
                                      m_contentCharset);
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetContentCharset(nsACString &aCharset) {
+NS_IMETHODIMP nsNntpMockChannel::GetContentCharset(nsACString& aCharset) {
   FORWARD_CALL(GetContentCharset, aCharset)
   aCharset = m_contentCharset;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::SetContentCharset(const nsACString &aCharset) {
+NS_IMETHODIMP nsNntpMockChannel::SetContentCharset(const nsACString& aCharset) {
   FORWARD_CALL(SetContentCharset, aCharset)
   m_contentCharset = aCharset;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsNntpMockChannel::GetContentDisposition(uint32_t *aContentDisposition) {
+nsNntpMockChannel::GetContentDisposition(uint32_t* aContentDisposition) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
@@ -218,23 +218,23 @@ nsNntpMockChannel::SetContentDisposition(uint32_t aContentDisposition) {
 
 NS_IMETHODIMP
 nsNntpMockChannel::GetContentDispositionFilename(
-    nsAString &aContentDispositionFilename) {
+    nsAString& aContentDispositionFilename) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP
 nsNntpMockChannel::SetContentDispositionFilename(
-    const nsAString &aContentDispositionFilename) {
+    const nsAString& aContentDispositionFilename) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
 NS_IMETHODIMP
 nsNntpMockChannel::GetContentDispositionHeader(
-    nsACString &aContentDispositionHeader) {
+    nsACString& aContentDispositionHeader) {
   return NS_ERROR_NOT_AVAILABLE;
 }
 
-NS_IMETHODIMP nsNntpMockChannel::GetContentLength(int64_t *length) {
+NS_IMETHODIMP nsNntpMockChannel::GetContentLength(int64_t* length) {
   FORWARD_CALL(GetContentLength, length)
   *length = m_contentLength;
   return NS_OK;
@@ -248,7 +248,7 @@ nsNntpMockChannel::SetContentLength(int64_t aLength) {
 }
 
 NS_IMETHODIMP
-nsNntpMockChannel::GetIsDocument(bool *aIsDocument) {
+nsNntpMockChannel::GetIsDocument(bool* aIsDocument) {
   return NS_GetIsDocumentChannel(this, aIsDocument);
 }
 
@@ -256,7 +256,7 @@ nsNntpMockChannel::GetIsDocument(bool *aIsDocument) {
 // nsIChannel and nsNNTPProtocol glue //
 ////////////////////////////////////////
 
-NS_IMETHODIMP nsNntpMockChannel::Open(nsIInputStream **_retval) {
+NS_IMETHODIMP nsNntpMockChannel::Open(nsIInputStream** _retval) {
   nsCOMPtr<nsIStreamListener> listener;
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);
@@ -264,7 +264,7 @@ NS_IMETHODIMP nsNntpMockChannel::Open(nsIInputStream **_retval) {
   return NS_ImplementChannelOpen(this, _retval);
 }
 
-NS_IMETHODIMP nsNntpMockChannel::AsyncOpen(nsIStreamListener *aListener) {
+NS_IMETHODIMP nsNntpMockChannel::AsyncOpen(nsIStreamListener* aListener) {
   nsCOMPtr<nsIStreamListener> listener = aListener;
   nsresult rv =
       nsContentSecurityManager::doContentSecurityCheck(this, listener);
@@ -282,7 +282,7 @@ NS_IMETHODIMP nsNntpMockChannel::AsyncOpen(nsIStreamListener *aListener) {
   return NS_OK;
 }
 
-nsresult nsNntpMockChannel::AttachNNTPConnection(nsNNTPProtocol &protocol) {
+nsresult nsNntpMockChannel::AttachNNTPConnection(nsNNTPProtocol& protocol) {
   // First things first. Were we canceled? If so, tell the protocol.
   if (m_channelState == CHANNEL_CLOSED || m_channelState == CHANNEL_UNOPENED)
     return NS_ERROR_FAILURE;

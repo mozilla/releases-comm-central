@@ -24,23 +24,23 @@ class nsIMsgDatabase;
  */
 class MsgStrategyComparatorAdaptor {
  public:
-  MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy *aStrategy,
-                               nsIMsgFolder *aFolder,
-                               nsIMsgDatabase *aDatabase);
+  MsgStrategyComparatorAdaptor(nsIAutoSyncMsgStrategy* aStrategy,
+                               nsIMsgFolder* aFolder,
+                               nsIMsgDatabase* aDatabase);
 
   /** @return True if the elements are equals; false otherwise. */
-  bool Equals(const nsMsgKey &a, const nsMsgKey &b) const;
+  bool Equals(const nsMsgKey& a, const nsMsgKey& b) const;
 
   /** @return True if (a < b); false otherwise. */
-  bool LessThan(const nsMsgKey &a, const nsMsgKey &b) const;
+  bool LessThan(const nsMsgKey& a, const nsMsgKey& b) const;
 
  private:
   MsgStrategyComparatorAdaptor();
 
  private:
-  nsIAutoSyncMsgStrategy *mStrategy;
-  nsIMsgFolder *mFolder;
-  nsIMsgDatabase *mDatabase;
+  nsIAutoSyncMsgStrategy* mStrategy;
+  nsIMsgFolder* mFolder;
+  nsIMsgDatabase* mDatabase;
 };
 
 /**
@@ -52,11 +52,11 @@ class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
   NS_DECL_NSIAUTOSYNCSTATE
   NS_DECL_NSIURLLISTENER
 
-  explicit nsAutoSyncState(nsImapMailFolder *aOwnerFolder,
+  explicit nsAutoSyncState(nsImapMailFolder* aOwnerFolder,
                            PRTime aLastSyncTime = 0UL);
 
   /// Called by owner folder when new headers are fetched from the server
-  void OnNewHeaderFetchCompleted(const nsTArray<nsMsgKey> &aMsgKeyList);
+  void OnNewHeaderFetchCompleted(const nsTArray<nsMsgKey>& aMsgKeyList);
 
   /// Sets the last sync time in lower precision (seconds)
   void SetLastSyncTimeInSec(int32_t aLastSyncTime);
@@ -70,14 +70,14 @@ class nsAutoSyncState final : public nsIAutoSyncState, public nsIUrlListener {
  private:
   ~nsAutoSyncState();
 
-  nsresult PlaceIntoDownloadQ(const nsTArray<nsMsgKey> &aMsgKeyList);
-  nsresult SortQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue);
-  nsresult SortSubQueueBasedOnStrategy(nsTArray<nsMsgKey> &aQueue,
+  nsresult PlaceIntoDownloadQ(const nsTArray<nsMsgKey>& aMsgKeyList);
+  nsresult SortQueueBasedOnStrategy(nsTArray<nsMsgKey>& aQueue);
+  nsresult SortSubQueueBasedOnStrategy(nsTArray<nsMsgKey>& aQueue,
                                        uint32_t aStartingOffset);
 
-  void LogOwnerFolderName(const char *s);
-  void LogQWithSize(nsTArray<nsMsgKey> &q, uint32_t toOffset = 0);
-  void LogQWithSize(nsIMutableArray *q, uint32_t toOffset = 0);
+  void LogOwnerFolderName(const char* s);
+  void LogQWithSize(nsTArray<nsMsgKey>& q, uint32_t toOffset = 0);
+  void LogQWithSize(nsIMutableArray* q, uint32_t toOffset = 0);
 
  private:
   int32_t mSyncState;

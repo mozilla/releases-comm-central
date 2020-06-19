@@ -52,8 +52,8 @@ class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
   // user cancels the master password dialog.
   nsresult GetPasswordWithoutUI();
 
-  nsresult ConfigureTemporaryReturnReceiptsFilter(nsIMsgFilterList *filterList);
-  nsresult ConfigureTemporaryServerSpamFilters(nsIMsgFilterList *filterList);
+  nsresult ConfigureTemporaryReturnReceiptsFilter(nsIMsgFilterList* filterList);
+  nsresult ConfigureTemporaryServerSpamFilters(nsIMsgFilterList* filterList);
 
   nsCOMPtr<nsIMsgFolder> m_rootFolder;
   nsCOMPtr<nsIMsgDownloadSettings> m_downloadSettings;
@@ -64,18 +64,18 @@ class NS_MSG_BASE nsMsgIncomingServer : public nsIMsgIncomingServer,
 
   /// Helper routine to create local folder on disk if it doesn't exist
   /// under the account's rootFolder.
-  nsresult CreateLocalFolder(const nsAString &folderName);
+  nsresult CreateLocalFolder(const nsAString& folderName);
 
   static nsresult GetDeferredServers(
-      nsIMsgIncomingServer *destServer,
-      nsTArray<RefPtr<nsIPop3IncomingServer>> &aServers);
+      nsIMsgIncomingServer* destServer,
+      nsTArray<RefPtr<nsIPop3IncomingServer>>& aServers);
 
   nsresult CreateRootFolder();
-  virtual nsresult CreateRootFolderFromUri(const nsCString &serverUri,
-                                           nsIMsgFolder **rootFolder) = 0;
+  virtual nsresult CreateRootFolderFromUri(const nsCString& serverUri,
+                                           nsIMsgFolder** rootFolder) = 0;
 
-  nsresult InternalSetHostName(const nsACString &aHostname,
-                               const char *prefName);
+  nsresult InternalSetHostName(const nsACString& aHostname,
+                               const char* prefName);
 
   nsCOMPtr<nsIFile> mFilterFile;
   nsCOMPtr<nsIMsgFilterList> mFilterList;

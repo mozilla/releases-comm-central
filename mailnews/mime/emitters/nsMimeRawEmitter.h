@@ -14,7 +14,7 @@ class nsMimeRawEmitter : public nsMimeBaseEmitter {
   nsMimeRawEmitter();
   virtual ~nsMimeRawEmitter(void);
 
-  NS_IMETHOD WriteBody(const nsACString &buf, uint32_t *amountWritten) override;
+  NS_IMETHOD WriteBody(const nsACString& buf, uint32_t* amountWritten) override;
 
  protected:
 };

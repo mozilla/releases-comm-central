@@ -24,13 +24,13 @@ class nsSmtpService : public nsISmtpService, public nsIProtocolHandler {
  public:
   nsSmtpService();
   static nsresult NewMailtoURI(
-      const nsACString &aSpec,
-      const char *aOriginCharset,  // ignored, always UTF-8.
-      nsIURI *aBaseURI, nsIURI **_retval);
+      const nsACString& aSpec,
+      const char* aOriginCharset,  // ignored, always UTF-8.
+      nsIURI* aBaseURI, nsIURI** _retval);
   static nsresult NewSmtpURI(
-      const nsACString &aSpec,
-      const char *aOriginCharset,  // ignored, always UTF-8.
-      nsIURI *aBaseURI, nsIURI **_retval);
+      const nsACString& aSpec,
+      const char* aOriginCharset,  // ignored, always UTF-8.
+      nsIURI* aBaseURI, nsIURI** _retval);
   NS_DECL_ISUPPORTS
 
   ////////////////////////////////////////////////////////////////////////
@@ -48,11 +48,11 @@ class nsSmtpService : public nsISmtpService, public nsIProtocolHandler {
 
  private:
   virtual ~nsSmtpService();
-  static bool findServerByKey(nsISmtpServer *aServer, void *aData);
-  static bool findServerByHostname(nsISmtpServer *aServer, void *aData);
+  static bool findServerByKey(nsISmtpServer* aServer, void* aData);
+  static bool findServerByHostname(nsISmtpServer* aServer, void* aData);
 
-  nsresult createKeyedServer(const char *key,
-                             nsISmtpServer **aResult = nullptr);
+  nsresult createKeyedServer(const char* key,
+                             nsISmtpServer** aResult = nullptr);
   nsresult saveKeyList();
 
   nsCOMArray<nsISmtpServer> mSmtpServers;

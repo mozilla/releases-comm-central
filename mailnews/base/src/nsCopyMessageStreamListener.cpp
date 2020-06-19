@@ -16,7 +16,7 @@
 NS_IMPL_ISUPPORTS(nsCopyMessageStreamListener, nsIStreamListener,
                   nsIRequestObserver, nsICopyMessageStreamListener)
 
-static nsresult GetMessage(nsIURI *aURL, nsIMsgDBHdr **message) {
+static nsresult GetMessage(nsIURI* aURL, nsIMsgDBHdr** message) {
   NS_ENSURE_ARG_POINTER(message);
 
   nsCOMPtr<nsIMsgMessageUrl> uriURL;
@@ -51,8 +51,8 @@ nsCopyMessageStreamListener::~nsCopyMessageStreamListener() {
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::Init(
-    nsIMsgFolder *srcFolder, nsICopyMessageListener *destination,
-    nsISupports *listenerData) {
+    nsIMsgFolder* srcFolder, nsICopyMessageListener* destination,
+    nsISupports* listenerData) {
   mSrcFolder = srcFolder;
   mDestination = destination;
   mListenerData = listenerData;
@@ -72,14 +72,14 @@ NS_IMETHODIMP nsCopyMessageStreamListener::EndMessage(nsMsgKey key) {
 }
 
 NS_IMETHODIMP nsCopyMessageStreamListener::OnDataAvailable(
-    nsIRequest * /* request */, nsIInputStream *aIStream, uint64_t sourceOffset,
+    nsIRequest* /* request */, nsIInputStream* aIStream, uint64_t sourceOffset,
     uint32_t aLength) {
   nsresult rv;
   rv = mDestination->CopyData(aIStream, aLength);
   return rv;
 }
 
-NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest *request) {
+NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest* request) {
   nsCOMPtr<nsIMsgDBHdr> message;
   nsresult rv = NS_OK;
   nsCOMPtr<nsIURI> uri;
@@ -97,7 +97,7 @@ NS_IMETHODIMP nsCopyMessageStreamListener::OnStartRequest(nsIRequest *request) {
   return rv;
 }
 
-NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsISupports *url,
+NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsISupports* url,
                                                    nsresult aStatus) {
   nsresult rv;
   nsCOMPtr<nsIURI> uri = do_QueryInterface(url, &rv);
@@ -130,7 +130,7 @@ NS_IMETHODIMP nsCopyMessageStreamListener::EndCopy(nsISupports *url,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsCopyMessageStreamListener::OnStopRequest(nsIRequest *request,
+NS_IMETHODIMP nsCopyMessageStreamListener::OnStopRequest(nsIRequest* request,
                                                          nsresult aStatus) {
   nsresult rv;
   // We know the request is an nsIChannel we can get a URI from, but this is

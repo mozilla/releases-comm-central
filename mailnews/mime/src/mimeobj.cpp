@@ -31,21 +31,21 @@
 
 MimeDefClass(MimeObject, MimeObjectClass, mimeObjectClass, NULL);
 
-static int MimeObject_initialize(MimeObject *);
-static void MimeObject_finalize(MimeObject *);
-static int MimeObject_parse_begin(MimeObject *);
-static int MimeObject_parse_buffer(const char *, int32_t, MimeObject *);
-static int MimeObject_parse_line(const char *, int32_t, MimeObject *);
-static int MimeObject_parse_eof(MimeObject *, bool);
-static int MimeObject_parse_end(MimeObject *, bool);
-static bool MimeObject_displayable_inline_p(MimeObjectClass *clazz,
-                                            MimeHeaders *hdrs);
+static int MimeObject_initialize(MimeObject*);
+static void MimeObject_finalize(MimeObject*);
+static int MimeObject_parse_begin(MimeObject*);
+static int MimeObject_parse_buffer(const char*, int32_t, MimeObject*);
+static int MimeObject_parse_line(const char*, int32_t, MimeObject*);
+static int MimeObject_parse_eof(MimeObject*, bool);
+static int MimeObject_parse_end(MimeObject*, bool);
+static bool MimeObject_displayable_inline_p(MimeObjectClass* clazz,
+                                            MimeHeaders* hdrs);
 
 #if defined(DEBUG) && defined(XP_UNIX)
-static int MimeObject_debug_print(MimeObject *, PRFileDesc *, int32_t depth);
+static int MimeObject_debug_print(MimeObject*, PRFileDesc*, int32_t depth);
 #endif
 
-static int MimeObjectClassInitialize(MimeObjectClass *clazz) {
+static int MimeObjectClassInitialize(MimeObjectClass* clazz) {
   NS_ASSERTION(!clazz->class_initialized,
                "class shouldn't already be initialized");
   clazz->initialize = MimeObject_initialize;
@@ -63,7 +63,7 @@ static int MimeObjectClassInitialize(MimeObjectClass *clazz) {
   return 0;
 }
 
-static int MimeObject_initialize(MimeObject *obj) {
+static int MimeObject_initialize(MimeObject* obj) {
   /* This is an abstract class; it shouldn't be directly instantiated. */
   NS_ASSERTION(obj->clazz != &mimeObjectClass,
                "should directly instantiate abstract class");
@@ -120,7 +120,7 @@ static int MimeObject_initialize(MimeObject *obj) {
   return 0;
 }
 
-static void MimeObject_finalize(MimeObject *obj) {
+static void MimeObject_finalize(MimeObject* obj) {
   obj->clazz->parse_eof(obj, false);
   obj->clazz->parse_end(obj, false);
 
@@ -144,7 +144,7 @@ static void MimeObject_finalize(MimeObject *obj) {
   }
 }
 
-static int MimeObject_parse_begin(MimeObject *obj) {
+static int MimeObject_parse_begin(MimeObject* obj) {
   NS_ASSERTION(!obj->closed_p, "object shouldn't be already closed");
 
   /* If we haven't set up the state object yet, then this should be
@@ -158,11 +158,11 @@ static int MimeObject_parse_begin(MimeObject *obj) {
     if (!obj->options->state) return MIME_OUT_OF_MEMORY;
     obj->options->state->root = obj;
     obj->options->state->separator_suppressed_p = true; /* no first sep */
-    const char *delParts = PL_strcasestr(obj->options->url, "&del=");
-    const char *detachLocations =
+    const char* delParts = PL_strcasestr(obj->options->url, "&del=");
+    const char* detachLocations =
         PL_strcasestr(obj->options->url, "&detachTo=");
     if (delParts) {
-      const char *delEnd = PL_strcasestr(delParts + 1, "&");
+      const char* delEnd = PL_strcasestr(delParts + 1, "&");
       if (!delEnd) delEnd = delParts + strlen(delParts);
       ParseString(Substring(delParts + 5, delEnd), ',',
                   obj->options->state->partsToStrip);
@@ -181,12 +181,12 @@ static int MimeObject_parse_begin(MimeObject *obj) {
          object, we must not output it without parsing it first */
       || (obj->options->decompose_file_p &&
           obj->options->decompose_file_output_fn &&
-          mime_typep(obj, (MimeObjectClass *)&mimeMultipartClass)))
+          mime_typep(obj, (MimeObjectClass*)&mimeMultipartClass)))
     obj->output_p = false;
   else if (!obj->options->part_to_load)
     obj->output_p = true;
   else {
-    char *id = mime_part_address(obj);
+    char* id = mime_part_address(obj);
     if (!id) return MIME_OUT_OF_MEMORY;
 
     // We need to check if a part is the subpart of the part to load.
@@ -215,26 +215,26 @@ static int MimeObject_parse_begin(MimeObject *obj) {
   return 0;
 }
 
-static int MimeObject_parse_buffer(const char *buffer, int32_t size,
-                                   MimeObject *obj) {
+static int MimeObject_parse_buffer(const char* buffer, int32_t size,
+                                   MimeObject* obj) {
   NS_ASSERTION(!obj->closed_p, "object shouldn't be closed");
   if (obj->closed_p) return -1;
 
   return mime_LineBuffer(buffer, size, &obj->ibuffer, &obj->ibuffer_size,
                          &obj->ibuffer_fp, true,
-                         ((int (*)(char *, int32_t, void *))
+                         ((int (*)(char*, int32_t, void*))
                           /* This cast is to turn void into MimeObject */
                           obj->clazz->parse_line),
                          obj);
 }
 
-static int MimeObject_parse_line(const char *line, int32_t length,
-                                 MimeObject *obj) {
+static int MimeObject_parse_line(const char* line, int32_t length,
+                                 MimeObject* obj) {
   NS_ERROR("shouldn't call this method");
   return -1;
 }
 
-static int MimeObject_parse_eof(MimeObject *obj, bool abort_p) {
+static int MimeObject_parse_eof(MimeObject* obj, bool abort_p) {
   if (obj->closed_p) return 0;
   NS_ASSERTION(!obj->parsed_p, "obj already parsed");
 
@@ -256,7 +256,7 @@ static int MimeObject_parse_eof(MimeObject *obj, bool abort_p) {
   return 0;
 }
 
-static int MimeObject_parse_end(MimeObject *obj, bool abort_p) {
+static int MimeObject_parse_end(MimeObject* obj, bool abort_p) {
   if (obj->parsed_p) {
     NS_ASSERTION(obj->closed_p, "object should be closed");
     return 0;
@@ -274,17 +274,17 @@ static int MimeObject_parse_end(MimeObject *obj, bool abort_p) {
   return 0;
 }
 
-static bool MimeObject_displayable_inline_p(MimeObjectClass *clazz,
-                                            MimeHeaders *hdrs) {
+static bool MimeObject_displayable_inline_p(MimeObjectClass* clazz,
+                                            MimeHeaders* hdrs) {
   NS_ERROR("shouldn't call this method");
   return false;
 }
 
 #if defined(DEBUG) && defined(XP_UNIX)
-static int MimeObject_debug_print(MimeObject *obj, PRFileDesc *stream,
+static int MimeObject_debug_print(MimeObject* obj, PRFileDesc* stream,
                                   int32_t depth) {
   int i;
-  char *addr = mime_part_address(obj);
+  char* addr = mime_part_address(obj);
   for (i = 0; i < depth; i++) PR_Write(stream, "  ", 2);
   /*
     fprintf(stream, "<%s %s 0x%08X>\n", obj->clazz->class_name,

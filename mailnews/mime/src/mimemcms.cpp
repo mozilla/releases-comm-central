@@ -28,24 +28,24 @@
 MimeDefClass(MimeMultipartSignedCMS, MimeMultipartSignedCMSClass,
              mimeMultipartSignedCMSClass, &MIME_SUPERCLASS);
 
-static int MimeMultipartSignedCMS_initialize(MimeObject *);
+static int MimeMultipartSignedCMS_initialize(MimeObject*);
 
-static void *MimeMultCMS_init(MimeObject *);
-static int MimeMultCMS_data_hash(const char *, int32_t, void *);
-static int MimeMultCMS_sig_hash(const char *, int32_t, void *);
-static int MimeMultCMS_data_eof(void *, bool);
-static int MimeMultCMS_sig_eof(void *, bool);
-static int MimeMultCMS_sig_init(void *, MimeObject *, MimeHeaders *);
-static char *MimeMultCMS_generate(void *);
-static void MimeMultCMS_free(void *);
-static void MimeMultCMS_suppressed_child(void *crypto_closure);
+static void* MimeMultCMS_init(MimeObject*);
+static int MimeMultCMS_data_hash(const char*, int32_t, void*);
+static int MimeMultCMS_sig_hash(const char*, int32_t, void*);
+static int MimeMultCMS_data_eof(void*, bool);
+static int MimeMultCMS_sig_eof(void*, bool);
+static int MimeMultCMS_sig_init(void*, MimeObject*, MimeHeaders*);
+static char* MimeMultCMS_generate(void*);
+static void MimeMultCMS_free(void*);
+static void MimeMultCMS_suppressed_child(void* crypto_closure);
 
 extern int SEC_ERROR_CERT_ADDR_MISMATCH;
 
 static int MimeMultipartSignedCMSClassInitialize(
-    MimeMultipartSignedCMSClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
-  MimeMultipartSignedClass *sclass = (MimeMultipartSignedClass *)clazz;
+    MimeMultipartSignedCMSClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
+  MimeMultipartSignedClass* sclass = (MimeMultipartSignedClass*)clazz;
 
   oclass->initialize = MimeMultipartSignedCMS_initialize;
 
@@ -63,8 +63,8 @@ static int MimeMultipartSignedCMSClassInitialize(
   return 0;
 }
 
-static int MimeMultipartSignedCMS_initialize(MimeObject *object) {
-  return ((MimeObjectClass *)&MIME_SUPERCLASS)->initialize(object);
+static int MimeMultipartSignedCMS_initialize(MimeObject* object) {
+  return ((MimeObjectClass*)&MIME_SUPERCLASS)->initialize(object);
 }
 
 typedef struct MimeMultCMSdata {
@@ -72,11 +72,11 @@ typedef struct MimeMultCMSdata {
   nsCOMPtr<nsICryptoHash> data_hash_context;
   nsCOMPtr<nsICMSDecoder> sig_decoder_context;
   nsCOMPtr<nsICMSMessage> content_info;
-  char *sender_addr;
+  char* sender_addr;
   bool decoding_failed;
-  unsigned char *item_data;
+  unsigned char* item_data;
   uint32_t item_len;
-  MimeObject *self;
+  MimeObject* self;
   nsCOMPtr<nsIMsgSMIMEHeaderSink> smimeHeaderSink;
   nsCString url;
 
@@ -102,25 +102,25 @@ typedef struct MimeMultCMSdata {
 
 /* #### MimeEncryptedCMS and MimeMultipartSignedCMS have a sleazy,
         incestuous, dysfunctional relationship. */
-extern bool MimeAnyParentCMSSigned(MimeObject *obj);
-extern void MimeCMSGetFromSender(MimeObject *obj, nsCString &from_addr,
-                                 nsCString &from_name, nsCString &sender_addr,
-                                 nsCString &sender_name);
+extern bool MimeAnyParentCMSSigned(MimeObject* obj);
+extern void MimeCMSGetFromSender(MimeObject* obj, nsCString& from_addr,
+                                 nsCString& from_name, nsCString& sender_addr,
+                                 nsCString& sender_name);
 extern bool MimeCMSHeadersAndCertsMatch(
-    MimeObject *obj, nsICMSMessage *, bool *signing_cert_without_email_address);
+    MimeObject* obj, nsICMSMessage*, bool* signing_cert_without_email_address);
 extern void MimeCMSRequestAsyncSignatureVerification(
-    nsICMSMessage *aCMSMsg, const char *aFromAddr, const char *aFromName,
-    const char *aSenderAddr, const char *aSenderName,
-    nsIMsgSMIMEHeaderSink *aHeaderSink, int32_t aMimeNestingLevel,
-    const nsCString &aMsgNeckoURL, const nsTArray<uint8_t> &aDigestData,
+    nsICMSMessage* aCMSMsg, const char* aFromAddr, const char* aFromName,
+    const char* aSenderAddr, const char* aSenderName,
+    nsIMsgSMIMEHeaderSink* aHeaderSink, int32_t aMimeNestingLevel,
+    const nsCString& aMsgNeckoURL, const nsTArray<uint8_t>& aDigestData,
     int16_t aDigestType);
-extern char *MimeCMS_MakeSAURL(MimeObject *obj);
-extern char *IMAP_CreateReloadAllPartsUrl(const char *url);
-extern int MIMEGetRelativeCryptoNestLevel(MimeObject *obj);
+extern char* MimeCMS_MakeSAURL(MimeObject* obj);
+extern char* IMAP_CreateReloadAllPartsUrl(const char* url);
+extern int MIMEGetRelativeCryptoNestLevel(MimeObject* obj);
 
-static void *MimeMultCMS_init(MimeObject *obj) {
-  MimeHeaders *hdrs = obj->headers;
-  MimeMultCMSdata *data = 0;
+static void* MimeMultCMS_init(MimeObject* obj) {
+  MimeHeaders* hdrs = obj->headers;
+  MimeMultCMSdata* data = 0;
   char *ct, *micalg;
   int16_t hash_type;
   nsresult rv;
@@ -130,10 +130,10 @@ static void *MimeMultCMS_init(MimeObject *obj) {
 
   data->self = obj;
 
-  mime_stream_data *msd =
-      (mime_stream_data *)(data->self->options->stream_closure);
+  mime_stream_data* msd =
+      (mime_stream_data*)(data->self->options->stream_closure);
   if (msd) {
-    nsIChannel *channel = msd->channel;  // note the lack of ref counting...
+    nsIChannel* channel = msd->channel;  // note the lack of ref counting...
     if (channel) {
       nsCOMPtr<nsIURI> uri;
       nsCOMPtr<nsIMsgWindow> msgWindow;
@@ -259,22 +259,22 @@ static void *MimeMultCMS_init(MimeObject *obj) {
   return data;
 }
 
-static int MimeMultCMS_data_hash(const char *buf, int32_t size,
-                                 void *crypto_closure) {
-  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
+static int MimeMultCMS_data_hash(const char* buf, int32_t size,
+                                 void* crypto_closure) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   if (!data || !data->data_hash_context) {
     return -1;
   }
 
   PR_SetError(0, 0);
-  nsresult rv = data->data_hash_context->Update((unsigned char *)buf, size);
+  nsresult rv = data->data_hash_context->Update((unsigned char*)buf, size);
   data->decoding_failed = NS_FAILED(rv);
 
   return 0;
 }
 
-static int MimeMultCMS_data_eof(void *crypto_closure, bool abort_p) {
-  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
+static int MimeMultCMS_data_eof(void* crypto_closure, bool abort_p) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   if (!data || !data->data_hash_context) {
     return -1;
   }
@@ -299,11 +299,11 @@ static int MimeMultCMS_data_eof(void *crypto_closure, bool abort_p) {
   return 0;
 }
 
-static int MimeMultCMS_sig_init(void *crypto_closure,
-                                MimeObject *multipart_object,
-                                MimeHeaders *signature_hdrs) {
-  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
-  char *ct;
+static int MimeMultCMS_sig_init(void* crypto_closure,
+                                MimeObject* multipart_object,
+                                MimeHeaders* signature_hdrs) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
+  char* ct;
   int status = 0;
   nsresult rv;
 
@@ -333,9 +333,9 @@ static int MimeMultCMS_sig_init(void *crypto_closure,
   return status;
 }
 
-static int MimeMultCMS_sig_hash(const char *buf, int32_t size,
-                                void *crypto_closure) {
-  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
+static int MimeMultCMS_sig_hash(const char* buf, int32_t size,
+                                void* crypto_closure) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   nsresult rv;
 
   if (!data || !data->sig_decoder_context) {
@@ -348,8 +348,8 @@ static int MimeMultCMS_sig_hash(const char *buf, int32_t size,
   return 0;
 }
 
-static int MimeMultCMS_sig_eof(void *crypto_closure, bool abort_p) {
-  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
+static int MimeMultCMS_sig_eof(void* crypto_closure, bool abort_p) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
 
   if (!data) {
     return -1;
@@ -371,17 +371,17 @@ static int MimeMultCMS_sig_eof(void *crypto_closure, bool abort_p) {
   return 0;
 }
 
-static void MimeMultCMS_free(void *crypto_closure) {
-  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
+static void MimeMultCMS_free(void* crypto_closure) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   if (!data) return;
 
   delete data;
 }
 
-static void MimeMultCMS_suppressed_child(void *crypto_closure) {
+static void MimeMultCMS_suppressed_child(void* crypto_closure) {
   // I'm a multipart/signed. If one of my cryptographic child elements
   // was suppressed, then I want my signature to be shown as invalid.
-  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   if (data && data->smimeHeaderSink) {
     data->smimeHeaderSink->SignedStatus(
         MIMEGetRelativeCryptoNestLevel(data->self),
@@ -389,8 +389,8 @@ static void MimeMultCMS_suppressed_child(void *crypto_closure) {
   }
 }
 
-static char *MimeMultCMS_generate(void *crypto_closure) {
-  MimeMultCMSdata *data = (MimeMultCMSdata *)crypto_closure;
+static char* MimeMultCMS_generate(void* crypto_closure) {
+  MimeMultCMSdata* data = (MimeMultCMSdata*)crypto_closure;
   if (!data) return 0;
   nsCOMPtr<nsIX509Cert> signerCert;
 

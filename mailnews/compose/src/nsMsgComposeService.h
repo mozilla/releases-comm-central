@@ -37,19 +37,19 @@ class nsMsgComposeService : public nsIMsgComposeService,
   virtual ~nsMsgComposeService();
   bool mLogComposePerformance;
 
-  nsresult LoadDraftOrTemplate(const nsACString &aMsgURI,
+  nsresult LoadDraftOrTemplate(const nsACString& aMsgURI,
                                nsMimeOutputType aOutType,
-                               nsIMsgIdentity *aIdentity,
-                               const char *aOriginalMsgURI,
-                               nsIMsgDBHdr *aOrigMsgHdr, bool aForwardInline,
+                               nsIMsgIdentity* aIdentity,
+                               const char* aOriginalMsgURI,
+                               nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline,
                                bool overrideComposeFormat,
-                               nsIMsgWindow *aMsgWindow);
+                               nsIMsgWindow* aMsgWindow);
 
   nsresult RunMessageThroughMimeDraft(
-      const nsACString &aMsgURI, nsMimeOutputType aOutType,
-      nsIMsgIdentity *aIdentity, const char *aOriginalMsgURI,
-      nsIMsgDBHdr *aOrigMsgHdr, bool aForwardInline, const nsAString &forwardTo,
-      bool overrideComposeFormat, nsIMsgWindow *aMsgWindow);
+      const nsACString& aMsgURI, nsMimeOutputType aOutType,
+      nsIMsgIdentity* aIdentity, const char* aOriginalMsgURI,
+      nsIMsgDBHdr* aOrigMsgHdr, bool aForwardInline, const nsAString& forwardTo,
+      bool overrideComposeFormat, nsIMsgWindow* aMsgWindow);
 
   // hash table mapping dom windows to nsIMsgCompose objects
   nsInterfaceHashtable<nsISupportsHashKey, nsIWeakReference>
@@ -59,8 +59,8 @@ class nsMsgComposeService : public nsIMsgComposeService,
   // selected text in the original message window so that it can be quoted
   // instead of the entire message.
   nsresult GetOrigWindowSelection(MSG_ComposeType type,
-                                  nsIMsgWindow *aMsgWindow,
-                                  nsACString &aSelHTML);
+                                  nsIMsgWindow* aMsgWindow,
+                                  nsACString& aSelHTML);
 
 #ifdef MSGCOMP_TRACE_PERFORMANCE
   PRIntervalTime mStartTime;

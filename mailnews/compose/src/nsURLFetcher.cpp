@@ -47,7 +47,7 @@ nsURLFetcher::nsURLFetcher() {
   mCallback = nullptr;
   mOnStopRequestProcessed = false;
   mIsFile = false;
-  nsURLFetcherStreamConsumer *consumer = new nsURLFetcherStreamConsumer(this);
+  nsURLFetcherStreamConsumer* consumer = new nsURLFetcherStreamConsumer(this);
   mConverter = consumer;
 }
 
@@ -63,8 +63,8 @@ nsURLFetcher::~nsURLFetcher() {
   }
 }
 
-NS_IMETHODIMP nsURLFetcher::GetInterface(const nsIID &aIID,
-                                         void **aInstancePtr) {
+NS_IMETHODIMP nsURLFetcher::GetInterface(const nsIID& aIID,
+                                         void** aInstancePtr) {
   NS_ENSURE_ARG_POINTER(aInstancePtr);
   return QueryInterface(aIID, aInstancePtr);
 }
@@ -72,8 +72,8 @@ NS_IMETHODIMP nsURLFetcher::GetInterface(const nsIID &aIID,
 // nsIURIContentListener support
 
 NS_IMETHODIMP
-nsURLFetcher::IsPreferred(const char *aContentType, char **aDesiredContentType,
-                          bool *aCanHandleContent)
+nsURLFetcher::IsPreferred(const char* aContentType, char** aDesiredContentType,
+                          bool* aCanHandleContent)
 
 {
   return CanHandleContent(aContentType, true, aDesiredContentType,
@@ -81,10 +81,10 @@ nsURLFetcher::IsPreferred(const char *aContentType, char **aDesiredContentType,
 }
 
 NS_IMETHODIMP
-nsURLFetcher::CanHandleContent(const char *aContentType,
+nsURLFetcher::CanHandleContent(const char* aContentType,
                                bool aIsContentPreferred,
-                               char **aDesiredContentType,
-                               bool *aCanHandleContent)
+                               char** aDesiredContentType,
+                               bool* aCanHandleContent)
 
 {
   if (!mIsFile && PL_strcasecmp(aContentType, MESSAGE_RFC822) == 0)
@@ -96,14 +96,14 @@ nsURLFetcher::CanHandleContent(const char *aContentType,
 }
 
 NS_IMETHODIMP
-nsURLFetcher::DoContent(const nsACString &aContentType,
-                        bool aIsContentPreferred, nsIRequest *request,
-                        nsIStreamListener **aContentHandler,
-                        bool *aAbortProcess) {
+nsURLFetcher::DoContent(const nsACString& aContentType,
+                        bool aIsContentPreferred, nsIRequest* request,
+                        nsIStreamListener** aContentHandler,
+                        bool* aAbortProcess) {
   nsresult rv = NS_OK;
 
   if (aAbortProcess) *aAbortProcess = false;
-  QueryInterface(NS_GET_IID(nsIStreamListener), (void **)aContentHandler);
+  QueryInterface(NS_GET_IID(nsIStreamListener), (void**)aContentHandler);
 
   /*
     Check the content-type to see if we need to insert a converter
@@ -125,24 +125,24 @@ nsURLFetcher::DoContent(const nsACString &aContentType,
 }
 
 NS_IMETHODIMP
-nsURLFetcher::GetParentContentListener(nsIURIContentListener **aParent) {
+nsURLFetcher::GetParentContentListener(nsIURIContentListener** aParent) {
   *aParent = nullptr;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsURLFetcher::SetParentContentListener(nsIURIContentListener *aParent) {
+nsURLFetcher::SetParentContentListener(nsIURIContentListener* aParent) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsURLFetcher::GetLoadCookie(nsISupports **aLoadCookie) {
+nsURLFetcher::GetLoadCookie(nsISupports** aLoadCookie) {
   NS_IF_ADDREF(*aLoadCookie = mLoadCookie);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsURLFetcher::SetLoadCookie(nsISupports *aLoadCookie) {
+nsURLFetcher::SetLoadCookie(nsISupports* aLoadCookie) {
   // Remove the DocShell as a listener of the old WebProgress...
   if (mLoadCookie) {
     nsCOMPtr<nsIWebProgress> webProgress(do_QueryInterface(mLoadCookie));
@@ -162,14 +162,14 @@ nsURLFetcher::SetLoadCookie(nsISupports *aLoadCookie) {
   return NS_OK;
 }
 
-nsresult nsURLFetcher::StillRunning(bool *running) {
+nsresult nsURLFetcher::StillRunning(bool* running) {
   *running = mStillRunning;
   return NS_OK;
 }
 
 // Methods for nsIStreamListener...
-nsresult nsURLFetcher::OnDataAvailable(nsIRequest *request,
-                                       nsIInputStream *aIStream,
+nsresult nsURLFetcher::OnDataAvailable(nsIRequest* request,
+                                       nsIInputStream* aIStream,
                                        uint64_t sourceOffset,
                                        uint32_t aLength) {
   /* let our converter or consumer process the data */
@@ -179,7 +179,7 @@ nsresult nsURLFetcher::OnDataAvailable(nsIRequest *request,
 }
 
 // Methods for nsIStreamObserver
-nsresult nsURLFetcher::OnStartRequest(nsIRequest *request) {
+nsresult nsURLFetcher::OnStartRequest(nsIRequest* request) {
   /* check if the user has canceld the operation */
   if (mTagData) {
     nsCOMPtr<nsIMsgSend> sendPtr;
@@ -203,7 +203,7 @@ nsresult nsURLFetcher::OnStartRequest(nsIRequest *request) {
 }
 
 NS_IMETHODIMP
-nsURLFetcher::OnStopRequest(nsIRequest *request, nsresult aStatus) {
+nsURLFetcher::OnStopRequest(nsIRequest* request, nsresult aStatus) {
   // it's possible we could get in here from the channel calling us with an
   // OnStopRequest and from our onStatusChange method (in the case of an error).
   // So we should protect against this to make sure we don't process the on stop
@@ -244,10 +244,10 @@ nsURLFetcher::OnStopRequest(nsIRequest *request, nsresult aStatus) {
   return NS_OK;
 }
 
-nsresult nsURLFetcher::Initialize(nsIFile *localFile,
-                                  nsIOutputStream *outputStream,
+nsresult nsURLFetcher::Initialize(nsIFile* localFile,
+                                  nsIOutputStream* outputStream,
                                   nsAttachSaveCompletionCallback cb,
-                                  nsMsgAttachmentHandler *tagData) {
+                                  nsMsgAttachmentHandler* tagData) {
   if (!outputStream || !localFile) return NS_ERROR_INVALID_ARG;
 
   mOutStream = outputStream;
@@ -257,10 +257,10 @@ nsresult nsURLFetcher::Initialize(nsIFile *localFile,
   return NS_OK;
 }
 
-nsresult nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile,
-                                      nsIOutputStream *outputStream,
+nsresult nsURLFetcher::FireURLRequest(nsIURI* aURL, nsIFile* localFile,
+                                      nsIOutputStream* outputStream,
                                       nsAttachSaveCompletionCallback cb,
-                                      nsMsgAttachmentHandler *tagData) {
+                                      nsMsgAttachmentHandler* tagData) {
   nsresult rv;
 
   rv = Initialize(localFile, outputStream, cb, tagData);
@@ -291,7 +291,7 @@ nsresult nsURLFetcher::FireURLRequest(nsIURI *aURL, nsIFile *localFile,
   return pURILoader->OpenURI(channel, false, this);
 }
 
-nsresult nsURLFetcher::InsertConverter(const char *aContentType) {
+nsresult nsURLFetcher::InsertConverter(const char* aContentType) {
   nsresult rv;
 
   nsCOMPtr<nsIStreamConverterService> convServ(
@@ -311,7 +311,7 @@ nsresult nsURLFetcher::InsertConverter(const char *aContentType) {
 // web progress listener implementation
 
 NS_IMETHODIMP
-nsURLFetcher::OnProgressChange(nsIWebProgress *aProgress, nsIRequest *aRequest,
+nsURLFetcher::OnProgressChange(nsIWebProgress* aProgress, nsIRequest* aRequest,
                                int32_t aCurSelfProgress,
                                int32_t aMaxSelfProgress,
                                int32_t aCurTotalProgress,
@@ -320,7 +320,7 @@ nsURLFetcher::OnProgressChange(nsIWebProgress *aProgress, nsIRequest *aRequest,
 }
 
 NS_IMETHODIMP
-nsURLFetcher::OnStateChange(nsIWebProgress *aProgress, nsIRequest *aRequest,
+nsURLFetcher::OnStateChange(nsIWebProgress* aProgress, nsIRequest* aRequest,
                             uint32_t aStateFlags, nsresult aStatus) {
   // all we care about is the case where an error occurred (as in we were unable
   // to locate the the url....
@@ -331,30 +331,30 @@ nsURLFetcher::OnStateChange(nsIWebProgress *aProgress, nsIRequest *aRequest,
 }
 
 NS_IMETHODIMP
-nsURLFetcher::OnLocationChange(nsIWebProgress *aWebProgress,
-                               nsIRequest *aRequest, nsIURI *aURI,
+nsURLFetcher::OnLocationChange(nsIWebProgress* aWebProgress,
+                               nsIRequest* aRequest, nsIURI* aURI,
                                uint32_t aFlags) {
   MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsURLFetcher::OnStatusChange(nsIWebProgress *aWebProgress, nsIRequest *aRequest,
-                             nsresult aStatus, const char16_t *aMessage) {
+nsURLFetcher::OnStatusChange(nsIWebProgress* aWebProgress, nsIRequest* aRequest,
+                             nsresult aStatus, const char16_t* aMessage) {
   MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsURLFetcher::OnSecurityChange(nsIWebProgress *aWebProgress,
-                               nsIRequest *aRequest, uint32_t state) {
+nsURLFetcher::OnSecurityChange(nsIWebProgress* aWebProgress,
+                               nsIRequest* aRequest, uint32_t state) {
   MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsURLFetcher::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
-                                     nsIRequest *aRequest, uint32_t aEvent) {
+nsURLFetcher::OnContentBlockingEvent(nsIWebProgress* aWebProgress,
+                                     nsIRequest* aRequest, uint32_t aEvent) {
   MOZ_ASSERT_UNREACHABLE("notification excluded in AddProgressListener(...)");
   return NS_OK;
 }
@@ -367,7 +367,7 @@ nsURLFetcher::OnContentBlockingEvent(nsIWebProgress *aWebProgress,
 NS_IMPL_ISUPPORTS(nsURLFetcherStreamConsumer, nsIStreamListener,
                   nsIRequestObserver)
 
-nsURLFetcherStreamConsumer::nsURLFetcherStreamConsumer(nsURLFetcher *urlFetcher)
+nsURLFetcherStreamConsumer::nsURLFetcherStreamConsumer(nsURLFetcher* urlFetcher)
     : mURLFetcher(urlFetcher) {}
 
 nsURLFetcherStreamConsumer::~nsURLFetcherStreamConsumer() {}
@@ -375,7 +375,7 @@ nsURLFetcherStreamConsumer::~nsURLFetcherStreamConsumer() {}
 /** nsIRequestObserver methods **/
 
 /* void onStartRequest (in nsIRequest request); */
-NS_IMETHODIMP nsURLFetcherStreamConsumer::OnStartRequest(nsIRequest *aRequest) {
+NS_IMETHODIMP nsURLFetcherStreamConsumer::OnStartRequest(nsIRequest* aRequest) {
   if (!mURLFetcher || !mURLFetcher->mOutStream) return NS_ERROR_FAILURE;
 
   /* In case of multipart/x-mixed-replace, we need to erase the output file
@@ -392,7 +392,7 @@ NS_IMETHODIMP nsURLFetcherStreamConsumer::OnStartRequest(nsIRequest *aRequest) {
 }
 
 /* void onStopRequest (in nsIRequest request, in nsresult status); */
-NS_IMETHODIMP nsURLFetcherStreamConsumer::OnStopRequest(nsIRequest *aRequest,
+NS_IMETHODIMP nsURLFetcherStreamConsumer::OnStopRequest(nsIRequest* aRequest,
                                                         nsresult status) {
   if (!mURLFetcher) return NS_ERROR_FAILURE;
 
@@ -427,8 +427,8 @@ NS_IMETHODIMP nsURLFetcherStreamConsumer::OnStopRequest(nsIRequest *aRequest,
 
 /* void onDataAvailable (in nsIRequest request, in nsIInputStream inStr, in
  * unsigned long long sourceOffset, in unsigned long count); */
-NS_IMETHODIMP nsURLFetcherStreamConsumer::OnDataAvailable(nsIRequest *aRequest,
-                                                          nsIInputStream *inStr,
+NS_IMETHODIMP nsURLFetcherStreamConsumer::OnDataAvailable(nsIRequest* aRequest,
+                                                          nsIInputStream* inStr,
                                                           uint64_t sourceOffset,
                                                           uint32_t count) {
   uint32_t readLen = count;
@@ -446,7 +446,7 @@ NS_IMETHODIMP nsURLFetcherStreamConsumer::OnDataAvailable(nsIRequest *aRequest,
     else
       mURLFetcher->mBufferSize = 0x1000;
 
-    mURLFetcher->mBuffer = (char *)PR_Malloc(mURLFetcher->mBufferSize);
+    mURLFetcher->mBuffer = (char*)PR_Malloc(mURLFetcher->mBufferSize);
     if (!mURLFetcher->mBuffer)
       return NS_ERROR_OUT_OF_MEMORY; /* we couldn't allocate the object */
   }

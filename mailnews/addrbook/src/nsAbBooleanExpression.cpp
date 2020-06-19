@@ -15,7 +15,7 @@ nsAbBooleanConditionString::~nsAbBooleanConditionString() {}
 
 /* attribute nsAbBooleanConditionType condition; */
 NS_IMETHODIMP nsAbBooleanConditionString::GetCondition(
-    nsAbBooleanConditionType *aCondition) {
+    nsAbBooleanConditionType* aCondition) {
   if (!aCondition) return NS_ERROR_NULL_POINTER;
 
   *aCondition = mCondition;
@@ -30,14 +30,14 @@ NS_IMETHODIMP nsAbBooleanConditionString::SetCondition(
 }
 
 /* attribute string name; */
-NS_IMETHODIMP nsAbBooleanConditionString::GetName(char **aName) {
+NS_IMETHODIMP nsAbBooleanConditionString::GetName(char** aName) {
   if (!aName) return NS_ERROR_NULL_POINTER;
 
   *aName = mName.IsEmpty() ? 0 : ToNewCString(mName);
 
   return NS_OK;
 }
-NS_IMETHODIMP nsAbBooleanConditionString::SetName(const char *aName) {
+NS_IMETHODIMP nsAbBooleanConditionString::SetName(const char* aName) {
   if (!aName) return NS_ERROR_NULL_POINTER;
 
   mName = aName;
@@ -46,14 +46,14 @@ NS_IMETHODIMP nsAbBooleanConditionString::SetName(const char *aName) {
 }
 
 /* attribute wstring value; */
-NS_IMETHODIMP nsAbBooleanConditionString::GetValue(char16_t **aValue) {
+NS_IMETHODIMP nsAbBooleanConditionString::GetValue(char16_t** aValue) {
   if (!aValue) return NS_ERROR_NULL_POINTER;
 
   *aValue = ToNewUnicode(mValue);
 
   return NS_OK;
 }
-NS_IMETHODIMP nsAbBooleanConditionString::SetValue(const char16_t *aValue) {
+NS_IMETHODIMP nsAbBooleanConditionString::SetValue(const char16_t* aValue) {
   if (!aValue) return NS_ERROR_NULL_POINTER;
 
   mValue = aValue;
@@ -70,7 +70,7 @@ nsAbBooleanExpression::~nsAbBooleanExpression() {}
 
 /* attribute nsAbBooleanOperationType operation; */
 NS_IMETHODIMP nsAbBooleanExpression::GetOperation(
-    nsAbBooleanOperationType *aOperation) {
+    nsAbBooleanOperationType* aOperation) {
   if (!aOperation) return NS_ERROR_NULL_POINTER;
 
   *aOperation = mOperation;
@@ -86,13 +86,13 @@ NS_IMETHODIMP nsAbBooleanExpression::SetOperation(
 
 /* attribute Array<nsISupports> expressions; */
 NS_IMETHODIMP nsAbBooleanExpression::GetExpressions(
-    nsTArray<RefPtr<nsISupports>> &aExpressions) {
+    nsTArray<RefPtr<nsISupports>>& aExpressions) {
   aExpressions = mExpressions.Clone();
   return NS_OK;
 }
 
 NS_IMETHODIMP nsAbBooleanExpression::SetExpressions(
-    const nsTArray<RefPtr<nsISupports>> &aExpressions) {
+    const nsTArray<RefPtr<nsISupports>>& aExpressions) {
   mExpressions = aExpressions.Clone();
   return NS_OK;
 }

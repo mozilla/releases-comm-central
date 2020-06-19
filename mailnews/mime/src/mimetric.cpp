@@ -14,14 +14,13 @@
 MimeDefClass(MimeInlineTextRichtext, MimeInlineTextRichtextClass,
              mimeInlineTextRichtextClass, &MIME_SUPERCLASS);
 
-static int MimeInlineTextRichtext_parse_line(const char *, int32_t,
-                                             MimeObject *);
-static int MimeInlineTextRichtext_parse_begin(MimeObject *);
-static int MimeInlineTextRichtext_parse_eof(MimeObject *, bool);
+static int MimeInlineTextRichtext_parse_line(const char*, int32_t, MimeObject*);
+static int MimeInlineTextRichtext_parse_begin(MimeObject*);
+static int MimeInlineTextRichtext_parse_eof(MimeObject*, bool);
 
 static int MimeInlineTextRichtextClassInitialize(
-    MimeInlineTextRichtextClass *clazz) {
-  MimeObjectClass *oclass = (MimeObjectClass *)clazz;
+    MimeInlineTextRichtextClass* clazz) {
+  MimeObjectClass* oclass = (MimeObjectClass*)clazz;
   PR_ASSERT(!oclass->class_initialized);
   oclass->parse_begin = MimeInlineTextRichtext_parse_begin;
   oclass->parse_line = MimeInlineTextRichtext_parse_line;
@@ -32,8 +31,8 @@ static int MimeInlineTextRichtextClassInitialize(
 /* This function has this clunky interface because it needs to be called
    from outside this module (no MimeObject, etc.)
  */
-int MimeRichtextConvert(const char *line, int32_t length, MimeObject *obj,
-                        char **obufferP, int32_t *obuffer_sizeP,
+int MimeRichtextConvert(const char* line, int32_t length, MimeObject* obj,
+                        char** obufferP, int32_t* obuffer_sizeP,
                         bool enriched_p) {
   /* RFC 1341 (the original MIME spec) defined text/richtext.
    RFC 1563 superseded text/richtext with text/enriched.
@@ -59,11 +58,11 @@ int MimeRichtextConvert(const char *line, int32_t length, MimeObject *obj,
    Internet mail."
    */
   int status = 0;
-  char *out;
-  const char *data_end;
-  const char *last_end;
-  const char *this_start;
-  const char *this_end;
+  char* out;
+  const char* data_end;
+  const char* last_end;
+  const char* this_start;
+  const char* this_end;
   unsigned int desired_size;
 
   // The code below must never expand the input by more than 5x;
@@ -142,9 +141,9 @@ int MimeRichtextConvert(const char *line, int32_t length, MimeObject *obj,
       out += addedlen;
     } else if (this_start != this_end) {
       /* Push out this ID. */
-      const char *old = this_start + 1;
-      const char *tag_open = 0;
-      const char *tag_close = 0;
+      const char* old = this_start + 1;
+      const char* tag_open = 0;
+      const char* tag_close = 0;
       if (*old == '/') {
         /* This is </tag> */
         old++;
@@ -330,27 +329,27 @@ int MimeRichtextConvert(const char *line, int32_t length, MimeObject *obj,
   return MimeObject_write(obj, *obufferP, out - *obufferP, true);
 }
 
-static int MimeInlineTextRichtext_parse_line(const char *line, int32_t length,
-                                             MimeObject *obj) {
-  bool enriched_p = (((MimeInlineTextRichtextClass *)obj->clazz)->enriched_p);
+static int MimeInlineTextRichtext_parse_line(const char* line, int32_t length,
+                                             MimeObject* obj) {
+  bool enriched_p = (((MimeInlineTextRichtextClass*)obj->clazz)->enriched_p);
 
   return MimeRichtextConvert(line, length, obj, &obj->obuffer,
                              &obj->obuffer_size, enriched_p);
 }
 
-static int MimeInlineTextRichtext_parse_begin(MimeObject *obj) {
-  int status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_begin(obj);
+static int MimeInlineTextRichtext_parse_begin(MimeObject* obj) {
+  int status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_begin(obj);
   char s[] = "";
   if (status < 0) return status;
   return MimeObject_write(obj, s, 0, true); /* force out any separators... */
 }
 
-static int MimeInlineTextRichtext_parse_eof(MimeObject *obj, bool abort_p) {
+static int MimeInlineTextRichtext_parse_eof(MimeObject* obj, bool abort_p) {
   int status;
   if (obj->closed_p) return 0;
 
   /* Run parent method first, to flush out any buffered data. */
-  status = ((MimeObjectClass *)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
+  status = ((MimeObjectClass*)&MIME_SUPERCLASS)->parse_eof(obj, abort_p);
   if (status < 0) return status;
 
   return 0;

@@ -52,7 +52,7 @@ RefPtr<ShutdownObserver> ShutdownObserver::sShutdownObserver = nullptr;
 }  // namespace
 
 #define MOZ_SERVICE(NAME, TYPE, CONTRACT_ID)                        \
-  static TYPE *g##NAME = nullptr;                                   \
+  static TYPE* g##NAME = nullptr;                                   \
   already_AddRefed<TYPE> Get##NAME() {                              \
     ShutdownObserver::EnsureInitialized();                          \
     if (!g##NAME) {                                                 \
@@ -68,9 +68,9 @@ RefPtr<ShutdownObserver> ShutdownObserver::sShutdownObserver = nullptr;
 
 NS_IMPL_ISUPPORTS(ShutdownObserver, nsIObserver)
 
-NS_IMETHODIMP ShutdownObserver::Observe(nsISupports *aSubject,
-                                        const char *aTopic,
-                                        const char16_t *aData) {
+NS_IMETHODIMP ShutdownObserver::Observe(nsISupports* aSubject,
+                                        const char* aTopic,
+                                        const char16_t* aData) {
   if (!strcmp(aTopic, "xpcom-shutdown-threads")) ShutdownServices();
   return NS_OK;
 }

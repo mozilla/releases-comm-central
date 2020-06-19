@@ -25,13 +25,13 @@ void nsWMStringBundle::GetStringBundle(void) {
   }
 }
 
-void nsWMStringBundle::GetStringByID(int32_t stringID, nsString &result) {
-  char16_t *ptrv = GetStringByID(stringID);
+void nsWMStringBundle::GetStringByID(int32_t stringID, nsString& result) {
+  char16_t* ptrv = GetStringByID(stringID);
   result = ptrv;
   FreeString(ptrv);
 }
 
-char16_t *nsWMStringBundle::GetStringByID(int32_t stringID) {
+char16_t* nsWMStringBundle::GetStringByID(int32_t stringID) {
   if (!m_pBundle) GetStringBundle();
 
   if (m_pBundle) {

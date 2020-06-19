@@ -99,26 +99,26 @@ struct MimeObjectClass {
   /* Note: the order of these first five slots is known by MimeDefClass().
    Technically, these are part of the object system, not the MIME code.
    */
-  const char *class_name;
+  const char* class_name;
   int instance_size;
-  struct MimeObjectClass *superclass;
-  int (*class_initialize)(MimeObjectClass *clazz);
+  struct MimeObjectClass* superclass;
+  int (*class_initialize)(MimeObjectClass* clazz);
   bool class_initialized;
 
   /* These are the methods shared by all MIME objects.  See comment above.
    */
-  int (*initialize)(MimeObject *obj);
-  void (*finalize)(MimeObject *obj);
-  int (*parse_begin)(MimeObject *obj);
-  int (*parse_buffer)(const char *buf, int32_t size, MimeObject *obj);
-  int (*parse_line)(const char *line, int32_t length, MimeObject *obj);
-  int (*parse_eof)(MimeObject *obj, bool abort_p);
-  int (*parse_end)(MimeObject *obj, bool abort_p);
+  int (*initialize)(MimeObject* obj);
+  void (*finalize)(MimeObject* obj);
+  int (*parse_begin)(MimeObject* obj);
+  int (*parse_buffer)(const char* buf, int32_t size, MimeObject* obj);
+  int (*parse_line)(const char* line, int32_t length, MimeObject* obj);
+  int (*parse_eof)(MimeObject* obj, bool abort_p);
+  int (*parse_end)(MimeObject* obj, bool abort_p);
 
-  bool (*displayable_inline_p)(MimeObjectClass *clazz, MimeHeaders *hdrs);
+  bool (*displayable_inline_p)(MimeObjectClass* clazz, MimeHeaders* hdrs);
 
 #if defined(DEBUG) && defined(XP_UNIX)
-  int (*debug_print)(MimeObject *obj, PRFileDesc *stream, int32_t depth);
+  int (*debug_print)(MimeObject* obj, PRFileDesc* stream, int32_t depth);
 #endif
 };
 
@@ -126,9 +126,9 @@ extern "C" MimeObjectClass mimeObjectClass;
 
 /* this one is typdedef'ed in mimei.h, since it is the base-class. */
 struct MimeObject {
-  MimeObjectClass *clazz; /* Pointer to class object, for `type-of' */
+  MimeObjectClass* clazz; /* Pointer to class object, for `type-of' */
 
-  MimeHeaders *headers; /* The header data associated with this object;
+  MimeHeaders* headers; /* The header data associated with this object;
                            this is where the content-type, disposition,
                            description, and other meta-data live.
 
@@ -142,16 +142,16 @@ struct MimeObject {
                            child.)
                          */
 
-  char *content_type; /* The MIME content-type and encoding.  */
-  char *encoding;     /* In most cases, these will be the same as the
+  char* content_type; /* The MIME content-type and encoding.  */
+  char* encoding;     /* In most cases, these will be the same as the
                          values to be found in the `headers' object,
                          but in some cases, the values in these slots
                          will be more correct than the headers.
                        */
 
-  MimeObject *parent; /* Backpointer to a MimeContainer object. */
+  MimeObject* parent; /* Backpointer to a MimeContainer object. */
 
-  MimeDisplayOptions *options; /* Display preferences set by caller. */
+  MimeDisplayOptions* options; /* Display preferences set by caller. */
 
   bool closed_p;             /* Whether it's done being written to. */
   bool parsed_p;             /* Whether the parser has been shut down. */
@@ -176,7 +176,7 @@ struct MimeObject {
   (((desired_size) >= (obj)->obuffer_size)                                 \
        ? mime_GrowBuffer((uint32_t)(desired_size), (uint32_t)sizeof(char), \
                          1024, &(obj)->obuffer,                            \
-                         (int32_t *)&(obj)->obuffer_size)                  \
+                         (int32_t*)&(obj)->obuffer_size)                   \
        : 0)
 
 #endif /* _MIMEOBJ_H_ */

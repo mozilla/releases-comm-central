@@ -19,8 +19,8 @@ class nsImapOfflineSync : public nsIUrlListener,
                           public nsIMsgCopyServiceListener,
                           public nsIDBChangeListener {
  public:  // set to one folder to playback one folder only
-  nsImapOfflineSync(nsIMsgWindow *window, nsIUrlListener *listener,
-                    nsIMsgFolder *singleFolderOnly = nullptr,
+  nsImapOfflineSync(nsIMsgWindow* window, nsIUrlListener* listener,
+                    nsIMsgFolder* singleFolderOnly = nullptr,
                     bool isPseudoOffline = false);
 
   NS_DECL_ISUPPORTS
@@ -39,14 +39,14 @@ class nsImapOfflineSync : public nsIUrlListener,
     return m_singleFolderToUpdate != nullptr;
   }
 
-  bool CreateOfflineFolder(nsIMsgFolder *folder);
-  void SetWindow(nsIMsgWindow *window);
+  bool CreateOfflineFolder(nsIMsgFolder* folder);
+  void SetWindow(nsIMsgWindow* window);
 
  protected:
   virtual ~nsImapOfflineSync();
 
   bool CreateOfflineFolders();
-  bool DestFolderOnSameServer(nsIMsgFolder *destFolder);
+  bool DestFolderOnSameServer(nsIMsgFolder* destFolder);
   bool AdvanceToNextServer();
   bool AdvanceToNextFolder();
   void AdvanceToFirstIMAPFolder();
@@ -54,12 +54,12 @@ class nsImapOfflineSync : public nsIUrlListener,
   void ClearCurrentOps();
   // Clears m_currentDB, and unregister listener.
   void ClearDB();
-  void ProcessFlagOperation(nsIMsgOfflineImapOperation *currentOp);
-  void ProcessKeywordOperation(nsIMsgOfflineImapOperation *op);
-  void ProcessMoveOperation(nsIMsgOfflineImapOperation *currentOp);
-  void ProcessCopyOperation(nsIMsgOfflineImapOperation *currentOp);
+  void ProcessFlagOperation(nsIMsgOfflineImapOperation* currentOp);
+  void ProcessKeywordOperation(nsIMsgOfflineImapOperation* op);
+  void ProcessMoveOperation(nsIMsgOfflineImapOperation* currentOp);
+  void ProcessCopyOperation(nsIMsgOfflineImapOperation* currentOp);
   void ProcessEmptyTrash();
-  void ProcessAppendMsgOperation(nsIMsgOfflineImapOperation *currentOp,
+  void ProcessAppendMsgOperation(nsIMsgOfflineImapOperation* currentOp,
                                  nsOfflineImapOperationType opType);
 
   nsCOMPtr<nsIMsgFolder> m_currentFolder;
@@ -87,7 +87,7 @@ class nsImapOfflineSync : public nsIUrlListener,
 
 class nsImapOfflineDownloader : public nsImapOfflineSync {
  public:
-  nsImapOfflineDownloader(nsIMsgWindow *window, nsIUrlListener *listener);
+  nsImapOfflineDownloader(nsIMsgWindow* window, nsIUrlListener* listener);
   virtual ~nsImapOfflineDownloader();
   virtual nsresult ProcessNextOperation() override;  // this kicks off download
 };

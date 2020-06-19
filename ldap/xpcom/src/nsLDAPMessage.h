@@ -38,15 +38,15 @@ class nsLDAPMessage : public nsILDAPMessage {
  protected:
   virtual ~nsLDAPMessage();
 
-  nsresult IterateAttrErrHandler(int32_t aLderrno, uint32_t *aAttrCount,
-                                 char ***aAttributes, BerElement *position);
-  nsresult IterateAttributes(uint32_t *aAttrCount, char ***aAttributes,
+  nsresult IterateAttrErrHandler(int32_t aLderrno, uint32_t* aAttrCount,
+                                 char*** aAttributes, BerElement* position);
+  nsresult IterateAttributes(uint32_t* aAttrCount, char*** aAttributes,
                              bool getP);
-  nsresult Init(nsILDAPConnection *aConnection, LDAPMessage *aMsgHandle);
-  LDAPMessage *mMsgHandle;                // the message we're wrapping
+  nsresult Init(nsILDAPConnection* aConnection, LDAPMessage* aMsgHandle);
+  LDAPMessage* mMsgHandle;                // the message we're wrapping
   nsCOMPtr<nsILDAPOperation> mOperation;  // operation this msg relates to
 
-  LDAP *mConnectionHandle;  // cached connection this op is on
+  LDAP* mConnectionHandle;  // cached connection this op is on
 
   // since we're caching the connection handle (above), we need to
   // hold an owning ref to the relevant nsLDAPConnection object as long
@@ -57,10 +57,10 @@ class nsLDAPMessage : public nsILDAPMessage {
   // the next five member vars are returned by ldap_parse_result()
   //
   int mErrorCode;
-  char *mMatchedDn;
-  char *mErrorMessage;
-  char **mReferrals;
-  LDAPControl **mServerControls;
+  char* mMatchedDn;
+  char* mErrorMessage;
+  char** mReferrals;
+  LDAPControl** mServerControls;
 };
 
 #endif  // _nsLDAPMessage_h

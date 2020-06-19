@@ -37,8 +37,8 @@ class nsMsgSearchSession : public nsIMsgSearchSession,
   nsWeakPtr m_msgWindowWeak;
   nsresult Initialize();
   nsresult StartTimer();
-  nsresult TimeSlice(bool *aDone);
-  nsMsgSearchScopeTerm *GetRunningScope();
+  nsresult TimeSlice(bool* aDone);
+  nsMsgSearchScopeTerm* GetRunningScope();
   void StopRunning();
   nsresult BeginSearching();
   nsresult DoNextSearch();
@@ -74,9 +74,9 @@ class nsMsgSearchSession : public nsIMsgSearchSession,
   void DestroyTermList();
   void DestroyScopeList();
 
-  static void TimerCallback(nsITimer *aTimer, void *aClosure);
+  static void TimerCallback(nsITimer* aTimer, void* aClosure);
   // support for searching multiple scopes in serial
-  nsresult TimeSliceSerial(bool *aDone);
+  nsresult TimeSliceSerial(bool* aDone);
   nsresult TimeSliceParallel();
 
   nsMsgSearchAttribValue m_sortAttribute;
@@ -85,7 +85,7 @@ class nsMsgSearchSession : public nsIMsgSearchSession,
   nsCString m_runningUrl;  // The url for the current search
   nsCOMPtr<nsITimer> m_backgroundTimer;
   bool m_searchPaused;
-  nsMsgSearchBoolExpression *m_expressionTree;
+  nsMsgSearchBoolExpression* m_expressionTree;
 };
 
 #endif

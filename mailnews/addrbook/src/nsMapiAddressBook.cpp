@@ -150,7 +150,7 @@ BOOL nsMapiAddressBook::Initialize(void) {
   return TRUE;
 }
 
-void nsMapiAddressBook::AllocateBuffer(ULONG aByteCount, LPVOID *aBuffer) {
+void nsMapiAddressBook::AllocateBuffer(ULONG aByteCount, LPVOID* aBuffer) {
   mMAPIAllocateBuffer(aByteCount, aBuffer);
 }
 

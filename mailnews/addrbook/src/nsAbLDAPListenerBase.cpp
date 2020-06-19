@@ -23,9 +23,9 @@ using namespace mozilla;
 
 uint32_t nsAbLDAPListenerBase::sCurrentRequestNum = 0;
 
-nsAbLDAPListenerBase::nsAbLDAPListenerBase(nsILDAPURL *url,
-                                           nsILDAPConnection *connection,
-                                           const nsACString &login,
+nsAbLDAPListenerBase::nsAbLDAPListenerBase(nsILDAPURL* url,
+                                           nsILDAPConnection* connection,
+                                           const nsACString& login,
                                            const int32_t timeOut)
     : mDirectoryUrl(url),
       mConnection(connection),
@@ -50,7 +50,7 @@ nsresult nsAbLDAPListenerBase::Initiate() {
 // If something fails in this function, we must call InitFailed() so that the
 // derived class (and listener) knows to cancel what its doing as there is
 // a problem.
-NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn,
+NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection* aConn,
                                                nsresult aStatus) {
   if (!mConnection || !mDirectoryUrl) {
     InitFailed();
@@ -273,7 +273,7 @@ NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection *aConn,
   return rv;
 }
 
-nsresult nsAbLDAPListenerBase::OnLDAPMessageBind(nsILDAPMessage *aMessage) {
+nsresult nsAbLDAPListenerBase::OnLDAPMessageBind(nsILDAPMessage* aMessage) {
   if (mBound) return NS_OK;
 
   // see whether the bind actually succeeded

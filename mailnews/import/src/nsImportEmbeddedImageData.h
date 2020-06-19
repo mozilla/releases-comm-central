@@ -13,9 +13,9 @@
 
 class nsImportEmbeddedImageData final : public nsIMsgEmbeddedImageData {
  public:
-  nsImportEmbeddedImageData(nsIURI *aUri, const nsACString &aCID);
-  nsImportEmbeddedImageData(nsIURI *aUri, const nsACString &aCID,
-                            const nsACString &aName);
+  nsImportEmbeddedImageData(nsIURI* aUri, const nsACString& aCID);
+  nsImportEmbeddedImageData(nsIURI* aUri, const nsACString& aCID,
+                            const nsACString& aName);
   nsImportEmbeddedImageData();
   NS_DECL_NSIMSGEMBEDDEDIMAGEDATA
   NS_DECL_ISUPPORTS

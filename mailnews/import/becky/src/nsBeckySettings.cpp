@@ -20,7 +20,7 @@
 
 NS_IMPL_ISUPPORTS(nsBeckySettings, nsIImportSettings)
 
-nsresult nsBeckySettings::Create(nsIImportSettings **aImport) {
+nsresult nsBeckySettings::Create(nsIImportSettings** aImport) {
   NS_ENSURE_ARG_POINTER(aImport);
   NS_ADDREF(*aImport = new nsBeckySettings());
   return NS_OK;
@@ -31,8 +31,8 @@ nsBeckySettings::nsBeckySettings() {}
 nsBeckySettings::~nsBeckySettings() {}
 
 NS_IMETHODIMP
-nsBeckySettings::AutoLocate(char16_t **aDescription, nsIFile **aLocation,
-                            bool *_retval) {
+nsBeckySettings::AutoLocate(char16_t** aDescription, nsIFile** aLocation,
+                            bool* _retval) {
   NS_ENSURE_ARG_POINTER(aDescription);
   NS_ENSURE_ARG_POINTER(aLocation);
   NS_ENSURE_ARG_POINTER(_retval);
@@ -54,7 +54,7 @@ nsBeckySettings::AutoLocate(char16_t **aDescription, nsIFile **aLocation,
 }
 
 NS_IMETHODIMP
-nsBeckySettings::SetLocation(nsIFile *aLocation) {
+nsBeckySettings::SetLocation(nsIFile* aLocation) {
   mLocation = aLocation;
   return NS_OK;
 }
@@ -77,10 +77,10 @@ nsresult nsBeckySettings::CreateParser() {
                                               getter_AddRefs(mParser));
 }
 
-nsresult nsBeckySettings::CreateSmtpServer(const nsCString &aUserName,
-                                           const nsCString &aServerName,
-                                           nsISmtpServer **aServer,
-                                           bool *existing) {
+nsresult nsBeckySettings::CreateSmtpServer(const nsCString& aUserName,
+                                           const nsCString& aServerName,
+                                           nsISmtpServer** aServer,
+                                           bool* existing) {
   nsresult rv;
 
   nsCOMPtr<nsISmtpService> smtpService =
@@ -107,10 +107,10 @@ nsresult nsBeckySettings::CreateSmtpServer(const nsCString &aUserName,
   return NS_OK;
 }
 
-nsresult nsBeckySettings::CreateIncomingServer(const nsCString &aUserName,
-                                               const nsCString &aServerName,
-                                               const nsCString &aProtocol,
-                                               nsIMsgIncomingServer **aServer) {
+nsresult nsBeckySettings::CreateIncomingServer(const nsCString& aUserName,
+                                               const nsCString& aServerName,
+                                               const nsCString& aProtocol,
+                                               nsIMsgIncomingServer** aServer) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -130,7 +130,7 @@ nsresult nsBeckySettings::CreateIncomingServer(const nsCString &aUserName,
   return NS_OK;
 }
 
-nsresult nsBeckySettings::SetupSmtpServer(nsISmtpServer **aServer) {
+nsresult nsBeckySettings::SetupSmtpServer(nsISmtpServer** aServer) {
   nsresult rv;
   nsAutoCString userName, serverName;
 
@@ -188,7 +188,7 @@ nsresult nsBeckySettings::SetupSmtpServer(nsISmtpServer **aServer) {
 }
 
 nsresult nsBeckySettings::SetPop3ServerProperties(
-    nsIMsgIncomingServer *aServer) {
+    nsIMsgIncomingServer* aServer) {
   nsCOMPtr<nsIPop3IncomingServer> pop3Server = do_QueryInterface(aServer);
 
   nsAutoCString value;
@@ -228,7 +228,7 @@ nsresult nsBeckySettings::SetPop3ServerProperties(
   return NS_OK;
 }
 
-nsresult nsBeckySettings::SetupIncomingServer(nsIMsgIncomingServer **aServer) {
+nsresult nsBeckySettings::SetupIncomingServer(nsIMsgIncomingServer** aServer) {
   nsAutoCString value;
   mParser->GetString(NS_LITERAL_CSTRING("Account"),
                      NS_LITERAL_CSTRING("Protocol"), value);
@@ -295,7 +295,7 @@ nsresult nsBeckySettings::SetupIncomingServer(nsIMsgIncomingServer **aServer) {
   return NS_OK;
 }
 
-nsresult nsBeckySettings::CreateIdentity(nsIMsgIdentity **aIdentity) {
+nsresult nsBeckySettings::CreateIdentity(nsIMsgIdentity** aIdentity) {
   nsAutoCString email, fullName, identityName, bccAddress;
 
   mParser->GetString(NS_LITERAL_CSTRING("Account"), NS_LITERAL_CSTRING("Name"),
@@ -329,9 +329,9 @@ nsresult nsBeckySettings::CreateIdentity(nsIMsgIdentity **aIdentity) {
   return NS_OK;
 }
 
-nsresult nsBeckySettings::CreateAccount(nsIMsgIdentity *aIdentity,
-                                        nsIMsgIncomingServer *aIncomingServer,
-                                        nsIMsgAccount **aAccount) {
+nsresult nsBeckySettings::CreateAccount(nsIMsgIdentity* aIdentity,
+                                        nsIMsgIncomingServer* aIncomingServer,
+                                        nsIMsgAccount** aAccount) {
   nsresult rv;
   nsCOMPtr<nsIMsgAccountManager> accountManager =
       do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv);
@@ -369,7 +369,7 @@ nsresult nsBeckySettings::RemoveConvertedFile() {
   }
 
 NS_IMETHODIMP
-nsBeckySettings::Import(nsIMsgAccount **aLocalMailAccount, bool *_retval) {
+nsBeckySettings::Import(nsIMsgAccount** aLocalMailAccount, bool* _retval) {
   NS_ENSURE_ARG_POINTER(aLocalMailAccount);
   NS_ENSURE_ARG_POINTER(_retval);
 

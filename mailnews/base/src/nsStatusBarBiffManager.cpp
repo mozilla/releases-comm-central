@@ -72,7 +72,7 @@ nsresult nsStatusBarBiffManager::Init() {
   return NS_OK;
 }
 
-nsresult nsStatusBarBiffManager::PlayBiffSound(const char *aPrefBranch) {
+nsresult nsStatusBarBiffManager::PlayBiffSound(const char* aPrefBranch) {
   nsresult rv;
   nsCOMPtr<nsIPrefService> prefSvc =
       (do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
@@ -142,28 +142,28 @@ nsresult nsStatusBarBiffManager::PlayBiffSound(const char *aPrefBranch) {
 
 // nsIFolderListener methods....
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemAdded(nsIMsgFolder *parentItem,
-                                    nsISupports *item) {
+nsStatusBarBiffManager::OnItemAdded(nsIMsgFolder* parentItem,
+                                    nsISupports* item) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemRemoved(nsIMsgFolder *parentItem,
-                                      nsISupports *item) {
+nsStatusBarBiffManager::OnItemRemoved(nsIMsgFolder* parentItem,
+                                      nsISupports* item) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemPropertyChanged(nsIMsgFolder *item,
-                                              const nsACString &property,
-                                              const nsACString &oldValue,
-                                              const nsACString &newValue) {
+nsStatusBarBiffManager::OnItemPropertyChanged(nsIMsgFolder* item,
+                                              const nsACString& property,
+                                              const nsACString& oldValue,
+                                              const nsACString& newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder *item,
-                                                 const nsACString &property,
+nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder* item,
+                                                 const nsACString& property,
                                                  int64_t oldValue,
                                                  int64_t newValue) {
   if (property.Equals(kBiffState) && mCurrentBiffState != newValue) {
@@ -187,15 +187,15 @@ nsStatusBarBiffManager::OnItemIntPropertyChanged(nsIMsgFolder *item,
 
     if (observerService)
       observerService->NotifyObservers(
-          static_cast<nsIStatusBarBiffManager *>(this),
+          static_cast<nsIStatusBarBiffManager*>(this),
           "mail:biff-state-changed", nullptr);
   }
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemBoolPropertyChanged(nsIMsgFolder *item,
-                                                  const nsACString &property,
+nsStatusBarBiffManager::OnItemBoolPropertyChanged(nsIMsgFolder* item,
+                                                  const nsACString& property,
                                                   bool oldValue,
                                                   bool newValue) {
   return NS_OK;
@@ -203,35 +203,35 @@ nsStatusBarBiffManager::OnItemBoolPropertyChanged(nsIMsgFolder *item,
 
 NS_IMETHODIMP
 nsStatusBarBiffManager::OnItemUnicharPropertyChanged(
-    nsIMsgFolder *item, const nsACString &property, const nsAString &oldValue,
-    const nsAString &newValue) {
+    nsIMsgFolder* item, const nsACString& property, const nsAString& oldValue,
+    const nsAString& newValue) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemPropertyFlagChanged(nsIMsgDBHdr *item,
-                                                  const nsACString &property,
+nsStatusBarBiffManager::OnItemPropertyFlagChanged(nsIMsgDBHdr* item,
+                                                  const nsACString& property,
                                                   uint32_t oldFlag,
                                                   uint32_t newFlag) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsStatusBarBiffManager::OnItemEvent(nsIMsgFolder *item,
-                                    const nsACString &event) {
+nsStatusBarBiffManager::OnItemEvent(nsIMsgFolder* item,
+                                    const nsACString& event) {
   return NS_OK;
 }
 
 // nsIObserver implementation
 NS_IMETHODIMP
-nsStatusBarBiffManager::Observe(nsISupports *aSubject, const char *aTopic,
-                                const char16_t *aData) {
+nsStatusBarBiffManager::Observe(nsISupports* aSubject, const char* aTopic,
+                                const char16_t* aData) {
   return PlayBiffSound(CHAT_PREF_BRANCH);
 }
 
 // nsIStatusBarBiffManager method....
 NS_IMETHODIMP
-nsStatusBarBiffManager::GetBiffState(int32_t *aBiffState) {
+nsStatusBarBiffManager::GetBiffState(int32_t* aBiffState) {
   NS_ENSURE_ARG_POINTER(aBiffState);
   *aBiffState = mCurrentBiffState;
   return NS_OK;

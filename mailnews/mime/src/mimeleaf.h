@@ -35,8 +35,8 @@ typedef struct MimeLeaf MimeLeaf;
 struct MimeLeafClass {
   MimeObjectClass object;
   /* This is the callback that is handed to the decoder. */
-  int (*parse_decoded_buffer)(const char *buf, int32_t size, MimeObject *obj);
-  int (*close_decoder)(MimeObject *obj);
+  int (*parse_decoded_buffer)(const char* buf, int32_t size, MimeObject* obj);
+  int (*close_decoder)(MimeObject* obj);
 };
 
 extern MimeLeafClass mimeLeafClass;
@@ -46,7 +46,7 @@ struct MimeLeaf {
 
   /* If we're doing Base64, Quoted-Printable, or UU decoding, this is the
    state object for the decoder. */
-  MimeDecoderData *decoder_data;
+  MimeDecoderData* decoder_data;
 
   /* We want to count the size of the MimeObject to offer consumers the
    * opportunity to display the sizes of attachments.

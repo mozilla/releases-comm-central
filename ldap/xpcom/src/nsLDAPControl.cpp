@@ -16,31 +16,31 @@ nsLDAPControl::nsLDAPControl() : mIsCritical(false) {}
 nsLDAPControl::~nsLDAPControl() {}
 
 /* attribute ACString oid; */
-NS_IMETHODIMP nsLDAPControl::GetOid(nsACString &aOid) {
+NS_IMETHODIMP nsLDAPControl::GetOid(nsACString& aOid) {
   aOid.Assign(mOid);
   return NS_OK;
 }
-NS_IMETHODIMP nsLDAPControl::SetOid(const nsACString &aOid) {
+NS_IMETHODIMP nsLDAPControl::SetOid(const nsACString& aOid) {
   mOid = aOid;
   return NS_OK;
 }
 
 /* attribute nsILDAPBERValue value; */
 NS_IMETHODIMP
-nsLDAPControl::GetValue(nsILDAPBERValue **aValue) {
+nsLDAPControl::GetValue(nsILDAPBERValue** aValue) {
   NS_IF_ADDREF(*aValue = mValue);
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsLDAPControl::SetValue(nsILDAPBERValue *aValue) {
+nsLDAPControl::SetValue(nsILDAPBERValue* aValue) {
   mValue = aValue;
   return NS_OK;
 }
 
 /* attribute boolean isCritical; */
 NS_IMETHODIMP
-nsLDAPControl::GetIsCritical(bool *aIsCritical) {
+nsLDAPControl::GetIsCritical(bool* aIsCritical) {
   *aIsCritical = mIsCritical;
   return NS_OK;
 }
@@ -53,13 +53,13 @@ nsLDAPControl::SetIsCritical(bool aIsCritical) {
 /**
  * utility routine for use inside the LDAP XPCOM SDK
  */
-nsresult nsLDAPControl::ToLDAPControl(LDAPControl **control) {
+nsresult nsLDAPControl::ToLDAPControl(LDAPControl** control) {
   // because nsLDAPProtocolModule::Init calls prldap_install_routines we know
   // that the C SDK will be using the NSPR allocator under the hood, so our
   // callers will therefore be able to use ldap_control_free() and friends on
   // this control.
-  LDAPControl *ctl =
-      static_cast<LDAPControl *>(PR_Calloc(1, sizeof(LDAPControl)));
+  LDAPControl* ctl =
+      static_cast<LDAPControl*>(PR_Calloc(1, sizeof(LDAPControl)));
   if (!ctl) {
     return NS_ERROR_OUT_OF_MEMORY;
   }
@@ -79,8 +79,8 @@ nsresult nsLDAPControl::ToLDAPControl(LDAPControl **control) {
     ctl->ldctl_value.bv_val = 0;
   } else {
     // just to make the code below a bit more readable
-    nsLDAPBERValue *nsBerVal = static_cast<nsLDAPBERValue *>(
-        static_cast<nsILDAPBERValue *>(mValue.get()));
+    nsLDAPBERValue* nsBerVal = static_cast<nsLDAPBERValue*>(
+        static_cast<nsILDAPBERValue*>(mValue.get()));
     ctl->ldctl_value.bv_len = nsBerVal->mSize;
 
     if (!nsBerVal->mSize) {
@@ -89,7 +89,7 @@ nsresult nsLDAPControl::ToLDAPControl(LDAPControl **control) {
     } else {
       // same for the berval itself
       ctl->ldctl_value.bv_len = nsBerVal->mSize;
-      ctl->ldctl_value.bv_val = static_cast<char *>(PR_Malloc(nsBerVal->mSize));
+      ctl->ldctl_value.bv_val = static_cast<char*>(PR_Malloc(nsBerVal->mSize));
       if (!ctl->ldctl_value.bv_val) {
         ldap_control_free(ctl);
         return NS_ERROR_OUT_OF_MEMORY;

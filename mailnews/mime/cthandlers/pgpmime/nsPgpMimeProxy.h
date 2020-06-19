@@ -40,7 +40,7 @@ class nsPgpMimeProxy : public nsIPgpMimeProxy,
   nsPgpMimeProxy();
 
   // Define a Create method to be used with a factory:
-  static nsresult Create(nsISupports *aOuter, REFNSIID aIID, void **aResult);
+  static nsresult Create(nsISupports* aOuter, REFNSIID aIID, void** aResult);
 
  protected:
   virtual ~nsPgpMimeProxy();
@@ -48,7 +48,7 @@ class nsPgpMimeProxy : public nsIPgpMimeProxy,
   nsCOMPtr<nsIStreamListener> mDecryptor;
 
   MimeDecodeCallbackFun mOutputFun;
-  void *mOutputClosure;
+  void* mOutputClosure;
 
   nsCOMPtr<nsILoadGroup> mLoadGroup;
   nsLoadFlags mLoadFlags;

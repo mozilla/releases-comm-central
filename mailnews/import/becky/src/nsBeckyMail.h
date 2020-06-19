@@ -15,7 +15,7 @@ class nsIMsgFolder;
 class nsBeckyMail final : public nsIImportMail {
  public:
   nsBeckyMail();
-  static nsresult Create(nsIImportMail **aImport);
+  static nsresult Create(nsIImportMail** aImport);
 
   NS_DECL_ISUPPORTS
   NS_DECL_NSIIMPORTMAIL
@@ -25,16 +25,16 @@ class nsBeckyMail final : public nsIImportMail {
 
   uint32_t mReadBytes;
 
-  nsresult CollectMailboxesInDirectory(nsIFile *aDirectory, uint32_t aDepth,
-                                       nsIMutableArray *aCollected);
-  nsresult CollectMailboxesInFolderListFile(nsIFile *aListFile, uint32_t aDepth,
-                                            nsIMutableArray *aCollected);
-  nsresult AppendMailboxDescriptor(nsIFile *aEntry, const nsString &aName,
+  nsresult CollectMailboxesInDirectory(nsIFile* aDirectory, uint32_t aDepth,
+                                       nsIMutableArray* aCollected);
+  nsresult CollectMailboxesInFolderListFile(nsIFile* aListFile, uint32_t aDepth,
+                                            nsIMutableArray* aCollected);
+  nsresult AppendMailboxDescriptor(nsIFile* aEntry, const nsString& aName,
                                    uint32_t aDepth,
-                                   nsIMutableArray *aCollected);
-  nsresult ImportMailFile(nsIFile *aMailFile, nsIMsgFolder *aDestination);
-  nsresult CreateMailboxDescriptor(nsIImportMailboxDescriptor **aDescriptor);
-  nsresult GetMailboxName(nsIFile *aMailbox, nsAString &aName);
+                                   nsIMutableArray* aCollected);
+  nsresult ImportMailFile(nsIFile* aMailFile, nsIMsgFolder* aDestination);
+  nsresult CreateMailboxDescriptor(nsIImportMailboxDescriptor** aDescriptor);
+  nsresult GetMailboxName(nsIFile* aMailbox, nsAString& aName);
 };
 
 #endif /* nsBeckyMail_h___ */

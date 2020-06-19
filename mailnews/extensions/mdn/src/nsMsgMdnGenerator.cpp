@@ -96,9 +96,9 @@ nsMsgMdnGenerator::nsMsgMdnGenerator() {
 
 nsMsgMdnGenerator::~nsMsgMdnGenerator() {}
 
-nsresult nsMsgMdnGenerator::FormatStringFromName(const char *aName,
-                                                 const nsString &aString,
-                                                 nsAString &aResultString) {
+nsresult nsMsgMdnGenerator::FormatStringFromName(const char* aName,
+                                                 const nsString& aString,
+                                                 nsAString& aResultString) {
   DEBUG_MDN("nsMsgMdnGenerator::FormatStringFromName");
 
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -116,8 +116,8 @@ nsresult nsMsgMdnGenerator::FormatStringFromName(const char *aName,
   return rv;
 }
 
-nsresult nsMsgMdnGenerator::GetStringFromName(const char *aName,
-                                              nsAString &aResultString) {
+nsresult nsMsgMdnGenerator::GetStringFromName(const char* aName,
+                                              nsAString& aResultString) {
   DEBUG_MDN("nsMsgMdnGenerator::GetStringFromName");
 
   nsCOMPtr<nsIStringBundleService> bundleService =
@@ -134,7 +134,7 @@ nsresult nsMsgMdnGenerator::GetStringFromName(const char *aName,
   return rv;
 }
 
-nsresult nsMsgMdnGenerator::StoreMDNSentFlag(nsIMsgFolder *folder,
+nsresult nsMsgMdnGenerator::StoreMDNSentFlag(nsIMsgFolder* folder,
                                              nsMsgKey key) {
   DEBUG_MDN("nsMsgMdnGenerator::StoreMDNSentFlag");
 
@@ -151,7 +151,7 @@ nsresult nsMsgMdnGenerator::StoreMDNSentFlag(nsIMsgFolder *folder,
   return rv;
 }
 
-nsresult nsMsgMdnGenerator::ClearMDNNeededFlag(nsIMsgFolder *folder,
+nsresult nsMsgMdnGenerator::ClearMDNNeededFlag(nsIMsgFolder* folder,
                                                nsMsgKey key) {
   DEBUG_MDN("nsMsgMdnGenerator::ClearMDNNeededFlag");
 
@@ -169,7 +169,7 @@ bool nsMsgMdnGenerator::ProcessSendMode() {
     m_identity->GetEmail(m_email);
     if (m_email.IsEmpty()) return m_reallySendMdn;
 
-    const char *accountDomain = strchr(m_email.get(), '@');
+    const char* accountDomain = strchr(m_email.get(), '@');
     if (!accountDomain) return m_reallySendMdn;
 
     if (MailAddrMatch(m_email.get(),
@@ -257,7 +257,7 @@ bool nsMsgMdnGenerator::ProcessSendMode() {
   return m_reallySendMdn;
 }
 
-bool nsMsgMdnGenerator::MailAddrMatch(const char *addr1, const char *addr2) {
+bool nsMsgMdnGenerator::MailAddrMatch(const char* addr1, const char* addr2) {
   // Comparing two email addresses returns true if matched; local/account
   // part comparison is case sensitive; domain part comparison is case
   // insensitive
@@ -371,7 +371,7 @@ nsresult nsMsgMdnGenerator::CreateMdnMsg() {
 nsresult nsMsgMdnGenerator::CreateFirstPart() {
   DEBUG_MDN("nsMsgMdnGenerator::CreateFirstPart");
   char *convbuf = nullptr, *tmpBuffer = nullptr;
-  char *parm = nullptr;
+  char* parm = nullptr;
   nsString firstPart1;
   nsString firstPart2;
   nsresult rv = NS_OK;
@@ -385,7 +385,7 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
   }
   if (m_mimeSeparator.IsEmpty()) return NS_ERROR_OUT_OF_MEMORY;
 
-  tmpBuffer = (char *)PR_CALLOC(256);
+  tmpBuffer = (char*)PR_CALLOC(256);
 
   if (!tmpBuffer) return NS_ERROR_OUT_OF_MEMORY;
 
@@ -469,7 +469,7 @@ nsresult nsMsgMdnGenerator::CreateFirstPart() {
 
   receipt_string.AppendLiteral(" - ");
 
-  char *encodedReceiptString =
+  char* encodedReceiptString =
       nsMsgI18NEncodeMimePartIIStr(NS_ConvertUTF16toUTF8(receipt_string).get(),
                                    false, "UTF-8", 0, conformToStandard);
 
@@ -567,8 +567,8 @@ report-type=disposition-notification;\r\n\tboundary=\"%s\"" CRLF CRLF,
 
 nsresult nsMsgMdnGenerator::CreateSecondPart() {
   DEBUG_MDN("nsMsgMdnGenerator::CreateSecondPart");
-  char *tmpBuffer = nullptr;
-  char *convbuf = nullptr;
+  char* tmpBuffer = nullptr;
+  char* convbuf = nullptr;
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMsgCompUtils> compUtils;
   bool conformToStandard = false;
@@ -648,7 +648,7 @@ nsresult nsMsgMdnGenerator::CreateSecondPart() {
 
 nsresult nsMsgMdnGenerator::CreateThirdPart() {
   DEBUG_MDN("nsMsgMdnGenerator::CreateThirdPart");
-  char *tmpBuffer = nullptr;
+  char* tmpBuffer = nullptr;
   nsresult rv = NS_OK;
 
   tmpBuffer = PR_smprintf("--%s" CRLF, m_mimeSeparator.get());
@@ -687,8 +687,8 @@ nsresult nsMsgMdnGenerator::OutputAllHeaders() {
   rv = m_headers->GetAllHeaders(all_headers);
   if (NS_FAILED(rv)) return rv;
   all_headers_size = all_headers.Length();
-  char *buf = (char *)all_headers.get(),
-       *buf_end = (char *)all_headers.get() + all_headers_size;
+  char *buf = (char*)all_headers.get(),
+       *buf_end = (char*)all_headers.get() + all_headers_size;
   char *start = buf, *end = buf;
 
   while (buf < buf_end) {
@@ -762,7 +762,7 @@ nsresult nsMsgMdnGenerator::SendMdnMsg() {
   return NS_OK;
 }
 
-nsresult nsMsgMdnGenerator::WriteString(const char *str) {
+nsresult nsMsgMdnGenerator::WriteString(const char* str) {
   NS_ENSURE_ARG(str);
   uint32_t len = strlen(str);
   uint32_t wLen = 0;
@@ -770,7 +770,7 @@ nsresult nsMsgMdnGenerator::WriteString(const char *str) {
   return m_outputStream->Write(str, len, &wLen);
 }
 
-nsresult nsMsgMdnGenerator::InitAndProcess(bool *needToAskUser) {
+nsresult nsMsgMdnGenerator::InitAndProcess(bool* needToAskUser) {
   DEBUG_MDN("nsMsgMdnGenerator::InitAndProcess");
   nsresult rv = m_folder->GetServer(getter_AddRefs(m_server));
   nsCOMPtr<nsIMsgAccountManager> accountManager =
@@ -877,10 +877,10 @@ nsresult nsMsgMdnGenerator::InitAndProcess(bool *needToAskUser) {
 }
 
 NS_IMETHODIMP nsMsgMdnGenerator::Process(EDisposeType type,
-                                         nsIMsgWindow *aWindow,
-                                         nsIMsgFolder *folder, nsMsgKey key,
-                                         nsIMimeHeaders *headers,
-                                         bool autoAction, bool *_retval) {
+                                         nsIMsgWindow* aWindow,
+                                         nsIMsgFolder* folder, nsMsgKey key,
+                                         nsIMimeHeaders* headers,
+                                         bool autoAction, bool* _retval) {
   DEBUG_MDN("nsMsgMdnGenerator::Process");
   NS_ENSURE_ARG_POINTER(folder);
   NS_ENSURE_ARG_POINTER(headers);
@@ -921,12 +921,12 @@ nsresult nsMsgMdnGenerator::NoteMDNRequestHandled() {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgMdnGenerator::OnStartRunningUrl(nsIURI *url) {
+NS_IMETHODIMP nsMsgMdnGenerator::OnStartRunningUrl(nsIURI* url) {
   DEBUG_MDN("nsMsgMdnGenerator::OnStartRunningUrl");
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
+NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI* url,
                                                   nsresult aExitCode) {
   nsresult rv;
 
@@ -935,7 +935,7 @@ NS_IMETHODIMP nsMsgMdnGenerator::OnStopRunningUrl(nsIURI *url,
 
   if (NS_SUCCEEDED(aExitCode)) return NS_OK;
 
-  const char *exitString;
+  const char* exitString;
 
   switch (aExitCode) {
     case NS_ERROR_UNKNOWN_HOST:

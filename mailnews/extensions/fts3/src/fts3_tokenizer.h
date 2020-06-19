@@ -73,15 +73,15 @@ struct sqlite3_tokenizer_module {
   ** this callback. The caller will do so.
   */
   int (*xCreate)(int argc,                /* Size of argv array */
-                 const char *const *argv, /* Tokenizer argument strings */
-                 sqlite3_tokenizer **ppTokenizer /* OUT: Created tokenizer */
+                 const char* const* argv, /* Tokenizer argument strings */
+                 sqlite3_tokenizer** ppTokenizer /* OUT: Created tokenizer */
   );
 
   /*
   ** Destroy an existing tokenizer. The fts3 module calls this method
   ** exactly once for each successful call to xCreate().
   */
-  int (*xDestroy)(sqlite3_tokenizer *pTokenizer);
+  int (*xDestroy)(sqlite3_tokenizer* pTokenizer);
 
   /*
   ** Create a tokenizer cursor to tokenize an input buffer. The caller
@@ -89,16 +89,16 @@ struct sqlite3_tokenizer_module {
   ** until the cursor is closed (using the xClose() method).
   */
   int (*xOpen)(
-      sqlite3_tokenizer *pTokenizer,      /* Tokenizer object */
-      const char *pInput, int nBytes,     /* Input buffer */
-      sqlite3_tokenizer_cursor **ppCursor /* OUT: Created tokenizer cursor */
+      sqlite3_tokenizer* pTokenizer,      /* Tokenizer object */
+      const char* pInput, int nBytes,     /* Input buffer */
+      sqlite3_tokenizer_cursor** ppCursor /* OUT: Created tokenizer cursor */
   );
 
   /*
   ** Destroy an existing tokenizer cursor. The fts3 module calls this
   ** method exactly once for each successful call to xOpen().
   */
-  int (*xClose)(sqlite3_tokenizer_cursor *pCursor);
+  int (*xClose)(sqlite3_tokenizer_cursor* pCursor);
 
   /*
   ** Retrieve the next token from the tokenizer cursor pCursor. This
@@ -125,21 +125,21 @@ struct sqlite3_tokenizer_module {
   ** should be converted to zInput.
   */
   int (*xNext)(
-      sqlite3_tokenizer_cursor *pCursor,  /* Tokenizer cursor */
-      const char **ppToken, int *pnBytes, /* OUT: Normalized text for token */
-      int *piStartOffset, /* OUT: Byte offset of token in input buffer */
-      int *piEndOffset,   /* OUT: Byte offset of end of token in input buffer */
-      int *piPosition     /* OUT: Number of tokens returned before this one */
+      sqlite3_tokenizer_cursor* pCursor,  /* Tokenizer cursor */
+      const char** ppToken, int* pnBytes, /* OUT: Normalized text for token */
+      int* piStartOffset, /* OUT: Byte offset of token in input buffer */
+      int* piEndOffset,   /* OUT: Byte offset of end of token in input buffer */
+      int* piPosition     /* OUT: Number of tokens returned before this one */
   );
 };
 
 struct sqlite3_tokenizer {
-  const sqlite3_tokenizer_module *pModule; /* The module for this tokenizer */
+  const sqlite3_tokenizer_module* pModule; /* The module for this tokenizer */
   /* Tokenizer implementations will typically add additional fields */
 };
 
 struct sqlite3_tokenizer_cursor {
-  sqlite3_tokenizer *pTokenizer; /* Tokenizer for this cursor. */
+  sqlite3_tokenizer* pTokenizer; /* Tokenizer for this cursor. */
   /* Tokenizer implementations will typically add additional fields */
 };
 

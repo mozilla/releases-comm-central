@@ -88,7 +88,7 @@
 using namespace mozilla;
 
 // begin shameless copying from nsNativeAppSupportWin
-static HWND hwndForDOMWindow(mozIDOMWindowProxy *window) {
+static HWND hwndForDOMWindow(mozIDOMWindowProxy* window) {
   if (!window) {
     return 0;
   }
@@ -104,7 +104,7 @@ static HWND hwndForDOMWindow(mozIDOMWindowProxy *window) {
   return (HWND)(ppWidget->GetNativeData(NS_NATIVE_WIDGET));
 }
 
-static void activateWindow(mozIDOMWindowProxy *win) {
+static void activateWindow(mozIDOMWindowProxy* win) {
   // Try to get native window handle.
   HWND hwnd = hwndForDOMWindow(win);
   if (hwnd) {
@@ -120,7 +120,7 @@ static void activateWindow(mozIDOMWindowProxy *win) {
 }
 // end shameless copying from nsNativeAppWinSupport.cpp
 
-static void openMailWindow(const nsACString &aFolderUri) {
+static void openMailWindow(const nsACString& aFolderUri) {
   nsresult rv;
   nsCOMPtr<nsIMsgMailSession> mailSession(
       do_GetService(NS_MSGMAILSESSION_CONTRACTID, &rv));
@@ -165,9 +165,9 @@ static void CALLBACK delayedSingleClick(HWND msgWindow, UINT msg,
       do_GetService(NS_MESSENGEROSINTEGRATION_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv)) {
     // we know we are dealing with the windows integration object
-    nsMessengerWinIntegration *winIntegrationService =
-        static_cast<nsMessengerWinIntegration *>(
-            static_cast<nsIMessengerOSIntegration *>(integrationService.get()));
+    nsMessengerWinIntegration* winIntegrationService =
+        static_cast<nsMessengerWinIntegration*>(
+            static_cast<nsIMessengerOSIntegration*>(integrationService.get()));
     winIntegrationService->ShowNewAlertNotification(true, EmptyString(),
                                                     EmptyString());
   }
@@ -338,7 +338,7 @@ nsresult nsMessengerWinIntegration::Init() {
   // get application path
   WCHAR appPath[_MAX_PATH] = {0};
   ::GetModuleFileNameW(nullptr, appPath, sizeof(appPath));
-  mAppName.Assign((char16_t *)appPath);
+  mAppName.Assign((char16_t*)appPath);
 
   rv = ResetCurrent();
   NS_ENSURE_SUCCESS(rv, rv);
@@ -347,27 +347,27 @@ nsresult nsMessengerWinIntegration::Init() {
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemPropertyChanged(nsIMsgFolder *,
-                                                 const nsACString &,
-                                                 const nsACString &,
-                                                 const nsACString &) {
+nsMessengerWinIntegration::OnItemPropertyChanged(nsIMsgFolder*,
+                                                 const nsACString&,
+                                                 const nsACString&,
+                                                 const nsACString&) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder *,
-                                                        const nsACString &,
-                                                        const nsAString &,
-                                                        const nsAString &) {
+nsMessengerWinIntegration::OnItemUnicharPropertyChanged(nsIMsgFolder*,
+                                                        const nsACString&,
+                                                        const nsAString&,
+                                                        const nsAString&) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemRemoved(nsIMsgFolder *, nsISupports *) {
+nsMessengerWinIntegration::OnItemRemoved(nsIMsgFolder*, nsISupports*) {
   return NS_OK;
 }
 
-nsresult nsMessengerWinIntegration::GetStringBundle(nsIStringBundle **aBundle) {
+nsresult nsMessengerWinIntegration::GetStringBundle(nsIStringBundle** aBundle) {
   NS_ENSURE_ARG_POINTER(aBundle);
   nsCOMPtr<nsIStringBundleService> bundleService =
       mozilla::services::GetStringBundleService();
@@ -381,8 +381,8 @@ nsresult nsMessengerWinIntegration::GetStringBundle(nsIStringBundle **aBundle) {
 
 #ifndef MOZ_THUNDERBIRD
 nsresult nsMessengerWinIntegration::ShowAlertMessage(
-    const nsString &aAlertTitle, const nsString &aAlertText,
-    const nsACString &aFolderURI) {
+    const nsString& aAlertTitle, const nsString& aAlertText,
+    const nsACString& aFolderURI) {
   nsresult rv;
 
   // if we are already in the process of showing an alert, don't try to show
@@ -428,8 +428,8 @@ nsresult nsMessengerWinIntegration::ShowAlertMessage(
 // aUserInitiated --> true if we are opening the alert notification in response
 //                    to a user action like clicking on the biff icon
 nsresult nsMessengerWinIntegration::ShowNewAlertNotification(
-    bool aUserInitiated, const nsString &aAlertTitle,
-    const nsString &aAlertText) {
+    bool aUserInitiated, const nsString& aAlertTitle,
+    const nsString& aAlertText) {
   nsresult rv;
 
   // if we are already in the process of showing an alert, don't try to show
@@ -481,7 +481,7 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(
     ifptr = do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsISupports> supports =
-        do_QueryInterface(static_cast<nsIMessengerOSIntegration *>(this));
+        do_QueryInterface(static_cast<nsIMessengerOSIntegration*>(this));
     ifptr->SetData(supports);
     ifptr->SetDataIID(&NS_GET_IID(nsIObserver));
     rv = argsArray->AppendElement(ifptr);
@@ -574,8 +574,8 @@ nsresult nsMessengerWinIntegration::AlertClickedSimple() {
 #endif
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::Observe(nsISupports *aSubject, const char *aTopic,
-                                   const char16_t *aData) {
+nsMessengerWinIntegration::Observe(nsISupports* aSubject, const char* aTopic,
+                                   const char16_t* aData) {
   if (strcmp(aTopic, "alertfinished") == 0) return AlertFinished();
 
   if (strcmp(aTopic, "alertclickcallback") == 0) return AlertClicked();
@@ -590,7 +590,7 @@ nsMessengerWinIntegration::Observe(nsISupports *aSubject, const char *aTopic,
   return NS_OK;
 }
 
-static void EscapeAmpersands(nsString &aToolTip) {
+static void EscapeAmpersands(nsString& aToolTip) {
   // First, check to see whether we have any ampersands.
   int32_t pos = aToolTip.FindChar('&');
   if (pos == kNotFound) return;
@@ -697,7 +697,7 @@ void nsMessengerWinIntegration::FillToolTipInfo() {
 // over all the subfolders looking for the first real folder with new mail.
 // Return the folderURI for that folder.
 nsresult nsMessengerWinIntegration::GetFirstFolderWithNewMail(
-    nsACString &aFolderURI) {
+    nsACString& aFolderURI) {
   NS_ENSURE_TRUE(mFoldersWithNewMail, NS_ERROR_FAILURE);
 
   nsCOMPtr<nsIMsgFolder> folder;
@@ -742,21 +742,21 @@ void nsMessengerWinIntegration::GenericShellNotify(DWORD aMessage) {
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr *item,
-                                                     const nsACString &property,
+nsMessengerWinIntegration::OnItemPropertyFlagChanged(nsIMsgDBHdr* item,
+                                                     const nsACString& property,
                                                      uint32_t oldFlag,
                                                      uint32_t newFlag) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemAdded(nsIMsgFolder *, nsISupports *) {
+nsMessengerWinIntegration::OnItemAdded(nsIMsgFolder*, nsISupports*) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsMessengerWinIntegration::OnItemBoolPropertyChanged(
-    nsIMsgFolder *aItem, const nsACString &aProperty, bool aOldValue,
+    nsIMsgFolder* aItem, const nsACString& aProperty, bool aOldValue,
     bool aNewValue) {
   if (aProperty.Equals(kDefaultServer)) {
     nsresult rv;
@@ -783,13 +783,13 @@ nsMessengerWinIntegration::OnItemBoolPropertyChanged(
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemEvent(nsIMsgFolder *, const nsACString &) {
+nsMessengerWinIntegration::OnItemEvent(nsIMsgFolder*, const nsACString&) {
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem,
-                                                    const nsACString &aProperty,
+nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder* aItem,
+                                                    const nsACString& aProperty,
                                                     int64_t aOldValue,
                                                     int64_t aNewValue) {
   // if we got new mail show a icon in the system tray
@@ -859,10 +859,10 @@ nsMessengerWinIntegration::OnItemIntPropertyChanged(nsIMsgFolder *aItem,
   return NS_OK;
 }
 
-void nsMessengerWinIntegration::OnUnreadCountUpdateTimer(nsITimer *timer,
-                                                         void *osIntegration) {
-  nsMessengerWinIntegration *winIntegration =
-      (nsMessengerWinIntegration *)osIntegration;
+void nsMessengerWinIntegration::OnUnreadCountUpdateTimer(nsITimer* timer,
+                                                         void* osIntegration) {
+  nsMessengerWinIntegration* winIntegration =
+      (nsMessengerWinIntegration*)osIntegration;
 
   winIntegration->mUnreadTimerActive = false;
   mozilla::DebugOnly<nsresult> rv = winIntegration->UpdateUnreadCount();
@@ -1042,7 +1042,7 @@ nsresult nsMessengerWinIntegration::SetupUnreadCountUpdateTimer() {
     mUnreadCountUpdateTimer = do_CreateInstance("@mozilla.org/timer;1");
 
   mUnreadCountUpdateTimer->InitWithNamedFuncCallback(
-      OnUnreadCountUpdateTimer, (void *)this, UNREAD_UPDATE_INTERVAL,
+      OnUnreadCountUpdateTimer, (void*)this, UNREAD_UPDATE_INTERVAL,
       nsITimer::TYPE_ONE_SHOT,
       "nsMessengerWinIntegration::OnUnreadCountUpdateTimer");
 
@@ -1100,7 +1100,7 @@ WNDCLASS sClassStruct = {
     /* lpszMenuName */ 0,
     /* lpszClassName */ L"IconWindowClass"};
 
-nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow *aWindow) {
+nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
   aWindow->SetVisibility(false);
   sHiddenWindows.AppendElement(aWindow);
 

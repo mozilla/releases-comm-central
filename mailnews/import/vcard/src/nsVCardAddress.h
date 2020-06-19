@@ -16,13 +16,13 @@ class nsVCardAddress {
   nsVCardAddress();
   virtual ~nsVCardAddress();
 
-  nsresult ImportAddresses(bool *pAbort, const char16_t *pName, nsIFile *pSrc,
-                           nsIAbDirectory *pDirectory, nsString &errors,
-                           uint32_t *pProgress);
+  nsresult ImportAddresses(bool* pAbort, const char16_t* pName, nsIFile* pSrc,
+                           nsIAbDirectory* pDirectory, nsString& errors,
+                           uint32_t* pProgress);
 
  private:
-  static nsresult ReadRecord(nsILineInputStream *aLineStream,
-                             nsCString &aRecord, bool *aMore);
+  static nsresult ReadRecord(nsILineInputStream* aLineStream,
+                             nsCString& aRecord, bool* aMore);
 };
 
 #endif /* nsVCardAddress_h__ */

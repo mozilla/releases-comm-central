@@ -34,7 +34,7 @@ ImportOutFile::ImportOutFile() {
   m_pTransBuf = nullptr;
 }
 
-ImportOutFile::ImportOutFile(nsIFile *pFile, uint8_t *pBuf, uint32_t sz) {
+ImportOutFile::ImportOutFile(nsIFile* pFile, uint8_t* pBuf, uint32_t sz) {
   m_pTransBuf = nullptr;
   m_pTransOut = nullptr;
   m_pTrans = nullptr;
@@ -53,7 +53,7 @@ ImportOutFile::~ImportOutFile() {
   delete[] m_pTransBuf;
 }
 
-bool ImportOutFile::Set8bitTranslator(nsImportTranslator *pTrans) {
+bool ImportOutFile::Set8bitTranslator(nsImportTranslator* pTrans) {
   if (!Flush()) return false;
 
   m_engaged = false;
@@ -63,8 +63,8 @@ bool ImportOutFile::Set8bitTranslator(nsImportTranslator *pTrans) {
   return true;
 }
 
-bool ImportOutFile::End8bitTranslation(bool *pEngaged, nsCString &useCharset,
-                                       nsCString &encoding) {
+bool ImportOutFile::End8bitTranslation(bool* pEngaged, nsCString& useCharset,
+                                       nsCString& encoding) {
   if (!m_pTrans) return false;
 
   bool bResult = Flush();
@@ -89,7 +89,7 @@ bool ImportOutFile::End8bitTranslation(bool *pEngaged, nsCString &useCharset,
   return bResult;
 }
 
-bool ImportOutFile::InitOutFile(nsIFile *pFile, uint32_t bufSz) {
+bool ImportOutFile::InitOutFile(nsIFile* pFile, uint32_t bufSz) {
   if (!bufSz) bufSz = 32 * 1024;
   if (!m_pBuf) m_pBuf = new uint8_t[bufSz];
 
@@ -113,7 +113,7 @@ bool ImportOutFile::InitOutFile(nsIFile *pFile, uint32_t bufSz) {
   return true;
 }
 
-void ImportOutFile::InitOutFile(nsIFile *pFile, uint8_t *pBuf, uint32_t sz) {
+void ImportOutFile::InitOutFile(nsIFile* pFile, uint8_t* pBuf, uint32_t sz) {
   m_ownsFileAndBuffer = false;
   m_pFile = pFile;
   m_pBuf = pBuf;
@@ -147,7 +147,7 @@ bool ImportOutFile::Flush(void) {
       duddleyDoWrite = true;
     } else {
       // should we engage?
-      uint8_t *pChar = m_pBuf;
+      uint8_t* pChar = m_pBuf;
       uint32_t len = m_pos;
       while (len) {
         if (!ImportCharSet::IsUSAscii(*pChar)) break;
@@ -173,7 +173,7 @@ bool ImportOutFile::Flush(void) {
   if (duddleyDoWrite) {
     uint32_t written = 0;
     nsresult rv =
-        m_outputStream->Write((const char *)m_pBuf, (int32_t)m_pos, &written);
+        m_outputStream->Write((const char*)m_pBuf, (int32_t)m_pos, &written);
     if (NS_FAILED(rv) || ((uint32_t)written != m_pos)) return false;
     m_pos = 0;
   }
@@ -181,7 +181,7 @@ bool ImportOutFile::Flush(void) {
   return true;
 }
 
-bool ImportOutFile::WriteU8NullTerm(const uint8_t *pSrc, bool includeNull) {
+bool ImportOutFile::WriteU8NullTerm(const uint8_t* pSrc, bool includeNull) {
   while (*pSrc) {
     if (m_pos >= m_bufSz) {
       if (!Flush()) return false;
@@ -231,7 +231,7 @@ void ImportOutFile::ClearMarker(int markerID) {
   if (markerID < kMaxMarkers) m_markers[markerID] = 0;
 }
 
-bool ImportOutFile::WriteStrAtMarker(int markerID, const char *pStr) {
+bool ImportOutFile::WriteStrAtMarker(int markerID, const char* pStr) {
   if (markerID >= kMaxMarkers) return false;
 
   if (!Flush()) return false;

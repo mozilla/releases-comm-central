@@ -15,7 +15,7 @@ class nsMorkFactoryService final : public nsIMdbFactoryService {
   // nsISupports methods
   NS_DECL_ISUPPORTS
 
-  NS_IMETHOD GetMdbFactory(nsIMdbFactory **aFactory) override;
+  NS_IMETHOD GetMdbFactory(nsIMdbFactory** aFactory) override;
 
  protected:
   ~nsMorkFactoryService() {}
@@ -37,7 +37,7 @@ extern const mozilla::Module kMorkModule = {mozilla::Module::kVersion,
 
 NS_IMPL_ISUPPORTS(nsMorkFactoryService, nsIMdbFactoryService)
 
-NS_IMETHODIMP nsMorkFactoryService::GetMdbFactory(nsIMdbFactory **aFactory) {
+NS_IMETHODIMP nsMorkFactoryService::GetMdbFactory(nsIMdbFactory** aFactory) {
   if (!mMdbFactory) mMdbFactory = MakeMdbFactory();
   NS_IF_ADDREF(*aFactory = mMdbFactory);
   return *aFactory ? NS_OK : NS_ERROR_OUT_OF_MEMORY;

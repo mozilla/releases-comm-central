@@ -25,8 +25,8 @@ class nsMAPIConfiguration {
  private:
   static uint32_t session_generator;
   static uint32_t sessionCount;
-  static nsMAPIConfiguration *m_pSelfRef;
-  PRLock *m_Lock;
+  static nsMAPIConfiguration* m_pSelfRef;
+  PRLock* m_Lock;
   uint32_t m_nMaxSessions;
 
   nsDataHashtable<nsCStringHashKey, uint32_t> m_ProfileMap;
@@ -35,18 +35,18 @@ class nsMAPIConfiguration {
   ~nsMAPIConfiguration();
 
  public:
-  static nsMAPIConfiguration *GetMAPIConfiguration();
+  static nsMAPIConfiguration* GetMAPIConfiguration();
   void OpenConfiguration();
-  int16_t RegisterSession(uint32_t aHwnd, const nsCString &aUserName,
-                          const nsCString &aPassword, bool aForceDownLoad,
-                          bool aNewSession, uint32_t *aSession,
-                          const char *aIdKey);
+  int16_t RegisterSession(uint32_t aHwnd, const nsCString& aUserName,
+                          const nsCString& aPassword, bool aForceDownLoad,
+                          bool aNewSession, uint32_t* aSession,
+                          const char* aIdKey);
   bool IsSessionValid(uint32_t aSessionID);
   bool UnRegisterSession(uint32_t aSessionID);
-  char16_t *GetPassword(uint32_t aSessionID);
-  void GetIdKey(uint32_t aSessionID, nsCString &aKey);
-  void *GetMapiListContext(uint32_t aSessionID);
-  void SetMapiListContext(uint32_t aSessionID, void *mapiListContext);
+  char16_t* GetPassword(uint32_t aSessionID);
+  void GetIdKey(uint32_t aSessionID, nsCString& aKey);
+  void* GetMapiListContext(uint32_t aSessionID);
+  void SetMapiListContext(uint32_t aSessionID, void* mapiListContext);
 
   // a util func
   static HRESULT GetMAPIErrorFromNSError(nsresult res);
@@ -60,21 +60,21 @@ class nsMAPISession {
   nsCString m_pIdKey;
   nsCString m_pProfileName;
   nsCString m_pPassword;
-  void *m_listContext;  // used by findNext
+  void* m_listContext;  // used by findNext
 
  public:
-  nsMAPISession(uint32_t aHwnd, const nsCString &aUserName,
-                const nsCString &aPassword, bool aForceDownLoad,
-                const char *aKey);
+  nsMAPISession(uint32_t aHwnd, const nsCString& aUserName,
+                const nsCString& aPassword, bool aForceDownLoad,
+                const char* aKey);
   uint32_t IncrementSession();
   uint32_t DecrementSession();
   uint32_t GetSessionCount();
-  char16_t *GetPassword();
-  void GetIdKey(nsCString &aKey);
+  char16_t* GetPassword();
+  void GetIdKey(nsCString& aKey);
   ~nsMAPISession();
   // For enumerating Messages...
-  void SetMapiListContext(void *listContext) { m_listContext = listContext; }
-  void *GetMapiListContext() { return m_listContext; }
+  void SetMapiListContext(void* listContext) { m_listContext = listContext; }
+  void* GetMapiListContext() { return m_listContext; }
 };
 
 #endif  // MSG_MAPI_MAIN_H_

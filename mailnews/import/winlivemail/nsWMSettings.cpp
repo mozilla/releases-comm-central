@@ -38,25 +38,25 @@
 
 class WMSettings {
  public:
-  static bool DoImport(nsIMsgAccount **ppAccount);
-  static bool DoIMAPServer(nsIMsgAccountManager *pMgr,
-                           mozilla::dom::Document *xmlDoc,
-                           const nsString &serverName,
-                           nsIMsgAccount **ppAccount);
-  static bool DoPOP3Server(nsIMsgAccountManager *pMgr,
-                           mozilla::dom::Document *xmlDoc,
-                           const nsString &serverName,
-                           nsIMsgAccount **ppAccount);
-  static bool DoNNTPServer(nsIMsgAccountManager *pMgr,
-                           mozilla::dom::Document *xmlDoc,
-                           const nsString &serverName,
-                           nsIMsgAccount **ppAccount);
-  static void SetIdentities(nsIMsgAccountManager *pMgr, nsIMsgAccount *pAcc,
-                            mozilla::dom::Document *xmlDoc,
-                            nsAutoString &userName, int32_t authMethodIncoming,
+  static bool DoImport(nsIMsgAccount** ppAccount);
+  static bool DoIMAPServer(nsIMsgAccountManager* pMgr,
+                           mozilla::dom::Document* xmlDoc,
+                           const nsString& serverName,
+                           nsIMsgAccount** ppAccount);
+  static bool DoPOP3Server(nsIMsgAccountManager* pMgr,
+                           mozilla::dom::Document* xmlDoc,
+                           const nsString& serverName,
+                           nsIMsgAccount** ppAccount);
+  static bool DoNNTPServer(nsIMsgAccountManager* pMgr,
+                           mozilla::dom::Document* xmlDoc,
+                           const nsString& serverName,
+                           nsIMsgAccount** ppAccount);
+  static void SetIdentities(nsIMsgAccountManager* pMgr, nsIMsgAccount* pAcc,
+                            mozilla::dom::Document* xmlDoc,
+                            nsAutoString& userName, int32_t authMethodIncoming,
                             bool isNNTP);
-  static void SetSmtpServer(mozilla::dom::Document *xmlDoc, nsIMsgIdentity *id,
-                            nsAutoString &inUserName,
+  static void SetSmtpServer(mozilla::dom::Document* xmlDoc, nsIMsgIdentity* id,
+                            nsAutoString& inUserName,
                             int32_t authMethodIncoming);
 };
 
@@ -66,7 +66,7 @@ static bool checkNewMail;         // WM global setting, let's default to false
                                   // user can set prefs after import
 
 ////////////////////////////////////////////////////////////////////////
-nsresult nsWMSettings::Create(nsIImportSettings **aImport) {
+nsresult nsWMSettings::Create(nsIImportSettings** aImport) {
   NS_ENSURE_ARG_POINTER(aImport);
   NS_ADDREF(*aImport = new nsWMSettings());
   return NS_OK;
@@ -78,8 +78,8 @@ nsWMSettings::~nsWMSettings() {}
 
 NS_IMPL_ISUPPORTS(nsWMSettings, nsIImportSettings)
 
-NS_IMETHODIMP nsWMSettings::AutoLocate(char16_t **description,
-                                       nsIFile **location, bool *_retval) {
+NS_IMETHODIMP nsWMSettings::AutoLocate(char16_t** description,
+                                       nsIFile** location, bool* _retval) {
   NS_ASSERTION(description != nullptr, "null ptr");
   NS_ASSERTION(_retval != nullptr, "null ptr");
   if (!description || !_retval) return NS_ERROR_NULL_POINTER;
@@ -94,10 +94,10 @@ NS_IMETHODIMP nsWMSettings::AutoLocate(char16_t **description,
   return NS_OK;
 }
 
-NS_IMETHODIMP nsWMSettings::SetLocation(nsIFile *location) { return NS_OK; }
+NS_IMETHODIMP nsWMSettings::SetLocation(nsIFile* location) { return NS_OK; }
 
-NS_IMETHODIMP nsWMSettings::Import(nsIMsgAccount **localMailAccount,
-                                   bool *_retval) {
+NS_IMETHODIMP nsWMSettings::Import(nsIMsgAccount** localMailAccount,
+                                   bool* _retval) {
   NS_ASSERTION(_retval != nullptr, "null ptr");
 
   if (WMSettings::DoImport(localMailAccount)) {
@@ -111,7 +111,7 @@ NS_IMETHODIMP nsWMSettings::Import(nsIMsgAccount **localMailAccount,
   return NS_OK;
 }
 
-bool WMSettings::DoImport(nsIMsgAccount **ppAccount) {
+bool WMSettings::DoImport(nsIMsgAccount** ppAccount) {
   // do the windows registry stuff first
   nsCOMPtr<nsIWindowsRegKey> key;
   if (NS_FAILED(nsWMUtils::FindWMKey(getter_AddRefs(key)))) {
@@ -196,10 +196,10 @@ bool WMSettings::DoImport(nsIMsgAccount **ppAccount) {
   return accounts != 0;
 }
 
-bool WMSettings::DoIMAPServer(nsIMsgAccountManager *pMgr,
-                              mozilla::dom::Document *xmlDoc,
-                              const nsString &serverName,
-                              nsIMsgAccount **ppAccount) {
+bool WMSettings::DoIMAPServer(nsIMsgAccountManager* pMgr,
+                              mozilla::dom::Document* xmlDoc,
+                              const nsString& serverName,
+                              nsIMsgAccount** ppAccount) {
   int32_t authMethod;  // Secure Password Authentication (SPA)
   nsresult errorCode;
   if (ppAccount) *ppAccount = nullptr;
@@ -291,10 +291,10 @@ bool WMSettings::DoIMAPServer(nsIMsgAccountManager *pMgr,
   return result;
 }
 
-bool WMSettings::DoPOP3Server(nsIMsgAccountManager *pMgr,
-                              mozilla::dom::Document *xmlDoc,
-                              const nsString &serverName,
-                              nsIMsgAccount **ppAccount) {
+bool WMSettings::DoPOP3Server(nsIMsgAccountManager* pMgr,
+                              mozilla::dom::Document* xmlDoc,
+                              const nsString& serverName,
+                              nsIMsgAccount** ppAccount) {
   int32_t authMethod;  // Secure Password Authentication (SPA)
   nsresult errorCode;
   if (ppAccount) *ppAccount = nullptr;
@@ -438,10 +438,10 @@ bool WMSettings::DoPOP3Server(nsIMsgAccountManager *pMgr,
   return result;
 }
 
-bool WMSettings::DoNNTPServer(nsIMsgAccountManager *pMgr,
-                              mozilla::dom::Document *xmlDoc,
-                              const nsString &serverName,
-                              nsIMsgAccount **ppAccount) {
+bool WMSettings::DoNNTPServer(nsIMsgAccountManager* pMgr,
+                              mozilla::dom::Document* xmlDoc,
+                              const nsString& serverName,
+                              nsIMsgAccount** ppAccount) {
   int32_t authMethod;
   nsresult errorCode;
   if (ppAccount) *ppAccount = nullptr;
@@ -530,9 +530,9 @@ bool WMSettings::DoNNTPServer(nsIMsgAccountManager *pMgr,
   return result;
 }
 
-void WMSettings::SetIdentities(nsIMsgAccountManager *pMgr, nsIMsgAccount *pAcc,
-                               mozilla::dom::Document *xmlDoc,
-                               nsAutoString &inUserName,
+void WMSettings::SetIdentities(nsIMsgAccountManager* pMgr, nsIMsgAccount* pAcc,
+                               mozilla::dom::Document* xmlDoc,
+                               nsAutoString& inUserName,
                                int32_t authMethodIncoming, bool isNNTP) {
   // Get the relevant information for an identity
   nsresult rv;
@@ -580,8 +580,8 @@ void WMSettings::SetIdentities(nsIMsgAccountManager *pMgr, nsIMsgAccount *pAcc,
     SetSmtpServer(xmlDoc, id, inUserName, authMethodIncoming);
 }
 
-void WMSettings::SetSmtpServer(mozilla::dom::Document *xmlDoc,
-                               nsIMsgIdentity *id, nsAutoString &inUserName,
+void WMSettings::SetSmtpServer(mozilla::dom::Document* xmlDoc,
+                               nsIMsgIdentity* id, nsAutoString& inUserName,
                                int32_t authMethodIncoming) {
   nsresult errorCode;
 

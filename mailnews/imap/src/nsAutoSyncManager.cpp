@@ -27,8 +27,8 @@ using namespace mozilla;
 
 NS_IMPL_ISUPPORTS(nsDefaultAutoSyncMsgStrategy, nsIAutoSyncMsgStrategy)
 
-const char *kAppIdleNotification = "mail:appIdle";
-const char *kStartupDoneNotification = "mail-startup-done";
+const char* kAppIdleNotification = "mail:appIdle";
+const char* kStartupDoneNotification = "mail-startup-done";
 LazyLogModule gAutoSyncLog("IMAPAutoSync");
 
 // recommended size of each group of messages per download
@@ -39,8 +39,8 @@ nsDefaultAutoSyncMsgStrategy::nsDefaultAutoSyncMsgStrategy() {}
 nsDefaultAutoSyncMsgStrategy::~nsDefaultAutoSyncMsgStrategy() {}
 
 NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::Sort(
-    nsIMsgFolder *aFolder, nsIMsgDBHdr *aMsgHdr1, nsIMsgDBHdr *aMsgHdr2,
-    nsAutoSyncStrategyDecisionType *aDecision) {
+    nsIMsgFolder* aFolder, nsIMsgDBHdr* aMsgHdr1, nsIMsgDBHdr* aMsgHdr2,
+    nsAutoSyncStrategyDecisionType* aDecision) {
   NS_ENSURE_ARG_POINTER(aDecision);
 
   uint32_t msgSize1 = 0, msgSize2 = 0;
@@ -84,9 +84,9 @@ NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::Sort(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::IsExcluded(nsIMsgFolder *aFolder,
-                                                       nsIMsgDBHdr *aMsgHdr,
-                                                       bool *aDecision) {
+NS_IMETHODIMP nsDefaultAutoSyncMsgStrategy::IsExcluded(nsIMsgFolder* aFolder,
+                                                       nsIMsgDBHdr* aMsgHdr,
+                                                       bool* aDecision) {
   NS_ENSURE_ARG_POINTER(aDecision);
   NS_ENSURE_ARG_POINTER(aMsgHdr);
   NS_ENSURE_ARG_POINTER(aFolder);
@@ -112,8 +112,8 @@ nsDefaultAutoSyncFolderStrategy::nsDefaultAutoSyncFolderStrategy() {}
 nsDefaultAutoSyncFolderStrategy::~nsDefaultAutoSyncFolderStrategy() {}
 
 NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(
-    nsIMsgFolder *aFolderA, nsIMsgFolder *aFolderB,
-    nsAutoSyncStrategyDecisionType *aDecision) {
+    nsIMsgFolder* aFolderA, nsIMsgFolder* aFolderB,
+    nsAutoSyncStrategyDecisionType* aDecision) {
   NS_ENSURE_ARG_POINTER(aDecision);
 
   if (!aFolderA || !aFolderB) {
@@ -166,8 +166,8 @@ NS_IMETHODIMP nsDefaultAutoSyncFolderStrategy::Sort(
 }
 
 NS_IMETHODIMP
-nsDefaultAutoSyncFolderStrategy::IsExcluded(nsIMsgFolder *aFolder,
-                                            bool *aDecision) {
+nsDefaultAutoSyncFolderStrategy::IsExcluded(nsIMsgFolder* aFolder,
+                                            bool* aDecision) {
   NS_ENSURE_ARG_POINTER(aDecision);
   NS_ENSURE_ARG_POINTER(aFolder);
   uint32_t folderFlags;
@@ -231,7 +231,7 @@ void nsAutoSyncManager::InitTimer() {
                  "failed to create timer in nsAutoSyncManager");
 
     mTimer->InitWithNamedFuncCallback(
-        TimerCallback, (void *)this, kTimerIntervalInMs,
+        TimerCallback, (void*)this, kTimerIntervalInMs,
         nsITimer::TYPE_REPEATING_SLACK, "nsAutoSyncManager::TimerCallback");
   }
 }
@@ -247,10 +247,10 @@ void nsAutoSyncManager::StartTimerIfNeeded() {
   if ((mUpdateQ.Count() > 0 || mDiscoveryQ.Count() > 0) && !mTimer) InitTimer();
 }
 
-void nsAutoSyncManager::TimerCallback(nsITimer *aTimer, void *aClosure) {
+void nsAutoSyncManager::TimerCallback(nsITimer* aTimer, void* aClosure) {
   if (!aClosure) return;
 
-  nsAutoSyncManager *autoSyncMgr = static_cast<nsAutoSyncManager *>(aClosure);
+  nsAutoSyncManager* autoSyncMgr = static_cast<nsAutoSyncManager*>(aClosure);
   if (autoSyncMgr->GetIdleState() == notIdle ||
       (autoSyncMgr->mDiscoveryQ.Count() <= 0 &&
        autoSyncMgr->mUpdateQ.Count() <= 0)) {
@@ -331,8 +331,8 @@ void nsAutoSyncManager::TimerCallback(nsITimer *aTimer, void *aClosure) {
  * Assumes that aChainedQ initially empty.
  */
 void nsAutoSyncManager::ChainFoldersInQ(
-    const nsCOMArray<nsIAutoSyncState> &aQueue,
-    nsCOMArray<nsIAutoSyncState> &aChainedQ) {
+    const nsCOMArray<nsIAutoSyncState>& aQueue,
+    nsCOMArray<nsIAutoSyncState>& aChainedQ) {
   if (aQueue.Count() > 0) aChainedQ.AppendObject(aQueue[0]);
 
   int32_t pqElemCount = aQueue.Count();
@@ -372,9 +372,9 @@ void nsAutoSyncManager::ChainFoldersInQ(
 /**
  * Searches the given queue for another folder owned by the same imap server.
  */
-nsIAutoSyncState *nsAutoSyncManager::SearchQForSibling(
-    const nsCOMArray<nsIAutoSyncState> &aQueue,
-    nsIAutoSyncState *aAutoSyncStateObj, int32_t aStartIdx, int32_t *aIndex) {
+nsIAutoSyncState* nsAutoSyncManager::SearchQForSibling(
+    const nsCOMArray<nsIAutoSyncState>& aQueue,
+    nsIAutoSyncState* aAutoSyncStateObj, int32_t aStartIdx, int32_t* aIndex) {
   if (aIndex) *aIndex = -1;
 
   if (aAutoSyncStateObj) {
@@ -397,9 +397,9 @@ nsIAutoSyncState *nsAutoSyncManager::SearchQForSibling(
  * Searches for the next folder owned by the same imap server in the given
  * queue, starting from the index of the given folder.
  */
-nsIAutoSyncState *nsAutoSyncManager::GetNextSibling(
-    const nsCOMArray<nsIAutoSyncState> &aQueue,
-    nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex) {
+nsIAutoSyncState* nsAutoSyncManager::GetNextSibling(
+    const nsCOMArray<nsIAutoSyncState>& aQueue,
+    nsIAutoSyncState* aAutoSyncStateObj, int32_t* aIndex) {
   if (aIndex) *aIndex = -1;
 
   if (aAutoSyncStateObj) {
@@ -436,14 +436,14 @@ nsIAutoSyncState *nsAutoSyncManager::GetNextSibling(
  * @return true if found, false otherwise
  */
 bool nsAutoSyncManager::DoesQContainAnySiblingOf(
-    const nsCOMArray<nsIAutoSyncState> &aQueue,
-    nsIAutoSyncState *aAutoSyncStateObj, const int32_t aState,
-    int32_t *aIndex) {
+    const nsCOMArray<nsIAutoSyncState>& aQueue,
+    nsIAutoSyncState* aAutoSyncStateObj, const int32_t aState,
+    int32_t* aIndex) {
   if (aState == -1)
     return (nullptr != SearchQForSibling(aQueue, aAutoSyncStateObj, 0, aIndex));
 
   int32_t offset = 0;
-  nsIAutoSyncState *autoSyncState;
+  nsIAutoSyncState* autoSyncState;
   while ((autoSyncState =
               SearchQForSibling(aQueue, aAutoSyncStateObj, offset, &offset))) {
     int32_t state;
@@ -461,18 +461,18 @@ bool nsAutoSyncManager::DoesQContainAnySiblingOf(
  * Searches the given queue for the highest priority folder owned by the
  * same imap server.
  */
-nsIAutoSyncState *nsAutoSyncManager::GetHighestPrioSibling(
-    const nsCOMArray<nsIAutoSyncState> &aQueue,
-    nsIAutoSyncState *aAutoSyncStateObj, int32_t *aIndex) {
+nsIAutoSyncState* nsAutoSyncManager::GetHighestPrioSibling(
+    const nsCOMArray<nsIAutoSyncState>& aQueue,
+    nsIAutoSyncState* aAutoSyncStateObj, int32_t* aIndex) {
   return SearchQForSibling(aQueue, aAutoSyncStateObj, 0, aIndex);
 }
 
 // to chain update folder actions
-NS_IMETHODIMP nsAutoSyncManager::OnStartRunningUrl(nsIURI *aUrl) {
+NS_IMETHODIMP nsAutoSyncManager::OnStartRunningUrl(nsIURI* aUrl) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAutoSyncManager::OnStopRunningUrl(nsIURI *aUrl,
+NS_IMETHODIMP nsAutoSyncManager::OnStopRunningUrl(nsIURI* aUrl,
                                                   nsresult aExitCode) {
   mUpdateState = completed;
   if (mUpdateQ.Count() > 0) mUpdateQ.RemoveObjectAt(0);
@@ -494,8 +494,8 @@ NS_IMETHODIMP nsAutoSyncManager::Resume() {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports *, const char *aTopic,
-                                         const char16_t *aSomeData) {
+NS_IMETHODIMP nsAutoSyncManager::Observe(nsISupports*, const char* aTopic,
+                                         const char16_t* aSomeData) {
   if (!PL_strcmp(aTopic, NS_XPCOM_SHUTDOWN_OBSERVER_ID)) {
     nsCOMPtr<nsIObserverService> observerService =
         mozilla::services::GetObserverService();
@@ -583,7 +583,7 @@ nsresult nsAutoSyncManager::StartIdleProcessing() {
   NOTIFY_LISTENERS(OnStateChanged, (true));
 
   nsCOMArray<nsIAutoSyncState> chainedQ;
-  nsCOMArray<nsIAutoSyncState> *queue = &mPriorityQ;
+  nsCOMArray<nsIAutoSyncState>* queue = &mPriorityQ;
   if (mDownloadModel == dmChained) {
     ChainFoldersInQ(mPriorityQ, chainedQ);
     queue = &chainedQ;
@@ -767,7 +767,7 @@ nsresult nsAutoSyncManager::AutoUpdateFolders() {
  * strategy function.
  */
 void nsAutoSyncManager::ScheduleFolderForOfflineDownload(
-    nsIAutoSyncState *aAutoSyncStateObj) {
+    nsIAutoSyncState* aAutoSyncStateObj) {
   if (aAutoSyncStateObj && (mPriorityQ.IndexOf(aAutoSyncStateObj) == -1)) {
     nsCOMPtr<nsIAutoSyncFolderStrategy> folStrategy;
     GetFolderStrategy(getter_AddRefs(folStrategy));
@@ -828,7 +828,7 @@ void nsAutoSyncManager::ScheduleFolderForOfflineDownload(
  * Zero aSizeLimit means no limit
  */
 nsresult nsAutoSyncManager::DownloadMessagesForOffline(
-    nsIAutoSyncState *aAutoSyncStateObj, uint32_t aSizeLimit) {
+    nsIAutoSyncState* aAutoSyncStateObj, uint32_t aSizeLimit) {
   if (!aAutoSyncStateObj) return NS_ERROR_INVALID_ARG;
 
   int32_t count;
@@ -888,7 +888,7 @@ nsresult nsAutoSyncManager::DownloadMessagesForOffline(
  */
 // clang-format on
 nsresult nsAutoSyncManager::HandleDownloadErrorFor(
-    nsIAutoSyncState *aAutoSyncStateObj, const nsresult error) {
+    nsIAutoSyncState* aAutoSyncStateObj, const nsresult error) {
   if (!aAutoSyncStateObj) return NS_ERROR_INVALID_ARG;
 
   // ensure that an error occurred
@@ -913,8 +913,8 @@ nsresult nsAutoSyncManager::HandleDownloadErrorFor(
 
   if (mDownloadModel == dmChained) {
     // switch to the next folder in the chain and continue downloading
-    nsIAutoSyncState *autoSyncStateObj = aAutoSyncStateObj;
-    nsIAutoSyncState *nextAutoSyncStateObj = nullptr;
+    nsIAutoSyncState* autoSyncStateObj = aAutoSyncStateObj;
+    nsIAutoSyncState* nextAutoSyncStateObj = nullptr;
     while (
         (nextAutoSyncStateObj = GetNextSibling(mPriorityQ, autoSyncStateObj))) {
       autoSyncStateObj = nextAutoSyncStateObj;
@@ -932,7 +932,7 @@ nsresult nsAutoSyncManager::HandleDownloadErrorFor(
 }
 
 uint32_t nsAutoSyncManager::GetUpdateIntervalFor(
-    nsIAutoSyncState *aAutoSyncStateObj) {
+    nsIAutoSyncState* aAutoSyncStateObj) {
   nsCOMPtr<nsIMsgFolder> folder;
   nsresult rv = aAutoSyncStateObj->GetOwnerFolder(getter_AddRefs(folder));
   if (NS_FAILED(rv)) return kDefaultUpdateInterval;
@@ -951,7 +951,7 @@ uint32_t nsAutoSyncManager::GetUpdateIntervalFor(
   return kDefaultUpdateInterval;
 }
 
-NS_IMETHODIMP nsAutoSyncManager::GetGroupSize(uint32_t *aGroupSize) {
+NS_IMETHODIMP nsAutoSyncManager::GetGroupSize(uint32_t* aGroupSize) {
   NS_ENSURE_ARG_POINTER(aGroupSize);
   *aGroupSize = mGroupSize;
   return NS_OK;
@@ -962,7 +962,7 @@ NS_IMETHODIMP nsAutoSyncManager::SetGroupSize(uint32_t aGroupSize) {
 }
 
 NS_IMETHODIMP nsAutoSyncManager::GetMsgStrategy(
-    nsIAutoSyncMsgStrategy **aMsgStrategy) {
+    nsIAutoSyncMsgStrategy** aMsgStrategy) {
   NS_ENSURE_ARG_POINTER(aMsgStrategy);
 
   // lazily create if it is not done already
@@ -975,13 +975,13 @@ NS_IMETHODIMP nsAutoSyncManager::GetMsgStrategy(
   return NS_OK;
 }
 NS_IMETHODIMP nsAutoSyncManager::SetMsgStrategy(
-    nsIAutoSyncMsgStrategy *aMsgStrategy) {
+    nsIAutoSyncMsgStrategy* aMsgStrategy) {
   mMsgStrategyImpl = aMsgStrategy;
   return NS_OK;
 }
 
 NS_IMETHODIMP nsAutoSyncManager::GetFolderStrategy(
-    nsIAutoSyncFolderStrategy **aFolderStrategy) {
+    nsIAutoSyncFolderStrategy** aFolderStrategy) {
   NS_ENSURE_ARG_POINTER(aFolderStrategy);
 
   // lazily create if it is not done already
@@ -994,14 +994,14 @@ NS_IMETHODIMP nsAutoSyncManager::GetFolderStrategy(
   return NS_OK;
 }
 NS_IMETHODIMP nsAutoSyncManager::SetFolderStrategy(
-    nsIAutoSyncFolderStrategy *aFolderStrategy) {
+    nsIAutoSyncFolderStrategy* aFolderStrategy) {
   mFolderStrategyImpl = aFolderStrategy;
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsAutoSyncManager::DoesMsgFitDownloadCriteria(nsIMsgDBHdr *aMsgHdr,
-                                              bool *aResult) {
+nsAutoSyncManager::DoesMsgFitDownloadCriteria(nsIMsgDBHdr* aMsgHdr,
+                                              bool* aResult) {
   NS_ENSURE_ARG_POINTER(aResult);
 
   uint32_t msgFlags = 0;
@@ -1029,7 +1029,7 @@ nsAutoSyncManager::DoesMsgFitDownloadCriteria(nsIMsgDBHdr *aMsgHdr,
 }
 
 NS_IMETHODIMP nsAutoSyncManager::OnDownloadQChanged(
-    nsIAutoSyncState *aAutoSyncStateObj) {
+    nsIAutoSyncState* aAutoSyncStateObj) {
   nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(aAutoSyncStateObj);
   if (!autoSyncStateObj) return NS_ERROR_INVALID_ARG;
 
@@ -1074,7 +1074,7 @@ NS_IMETHODIMP nsAutoSyncManager::OnDownloadQChanged(
 }
 
 NS_IMETHODIMP
-nsAutoSyncManager::OnDownloadStarted(nsIAutoSyncState *aAutoSyncStateObj,
+nsAutoSyncManager::OnDownloadStarted(nsIAutoSyncState* aAutoSyncStateObj,
                                      nsresult aStartCode) {
   nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(aAutoSyncStateObj);
   if (!autoSyncStateObj) return NS_ERROR_INVALID_ARG;
@@ -1087,7 +1087,7 @@ nsAutoSyncManager::OnDownloadStarted(nsIAutoSyncState *aAutoSyncStateObj,
 }
 
 NS_IMETHODIMP
-nsAutoSyncManager::OnDownloadCompleted(nsIAutoSyncState *aAutoSyncStateObj,
+nsAutoSyncManager::OnDownloadCompleted(nsIAutoSyncState* aAutoSyncStateObj,
                                        nsresult aExitCode) {
   nsCOMPtr<nsIAutoSyncState> autoSyncStateObj(aAutoSyncStateObj);
   if (!autoSyncStateObj) return NS_ERROR_INVALID_ARG;
@@ -1116,7 +1116,7 @@ nsAutoSyncManager::OnDownloadCompleted(nsIAutoSyncState *aAutoSyncStateObj,
   rv = autoSyncStateObj->GetPendingMessageCount(&count);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsIAutoSyncState *nextFolderToDownload = nullptr;
+  nsIAutoSyncState* nextFolderToDownload = nullptr;
   if (count > 0) {
     autoSyncStateObj->SetState(nsAutoSyncState::stReadyToDownload);
 
@@ -1132,7 +1132,7 @@ nsAutoSyncManager::OnDownloadCompleted(nsIAutoSyncState *aAutoSyncStateObj,
       int32_t myIndex = mPriorityQ.IndexOf(autoSyncStateObj);
 
       int32_t siblingIndex;
-      nsIAutoSyncState *sibling =
+      nsIAutoSyncState* sibling =
           GetHighestPrioSibling(mPriorityQ, autoSyncStateObj, &siblingIndex);
 
       // lesser index = higher priority
@@ -1166,7 +1166,7 @@ nsAutoSyncManager::OnDownloadCompleted(nsIAutoSyncState *aAutoSyncStateObj,
   return rv;
 }
 
-NS_IMETHODIMP nsAutoSyncManager::GetDownloadModel(int32_t *aDownloadModel) {
+NS_IMETHODIMP nsAutoSyncManager::GetDownloadModel(int32_t* aDownloadModel) {
   NS_ENSURE_ARG_POINTER(aDownloadModel);
   *aDownloadModel = mDownloadModel;
   return NS_OK;
@@ -1177,14 +1177,14 @@ NS_IMETHODIMP nsAutoSyncManager::SetDownloadModel(int32_t aDownloadModel) {
 }
 
 NS_IMETHODIMP nsAutoSyncManager::AddListener(
-    nsIAutoSyncMgrListener *aListener) {
+    nsIAutoSyncMgrListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
   mListeners.AppendElementUnlessExists(aListener);
   return NS_OK;
 }
 
 NS_IMETHODIMP nsAutoSyncManager::RemoveListener(
-    nsIAutoSyncMgrListener *aListener) {
+    nsIAutoSyncMgrListener* aListener) {
   NS_ENSURE_ARG_POINTER(aListener);
   mListeners.RemoveElement(aListener);
   return NS_OK;
@@ -1192,14 +1192,14 @@ NS_IMETHODIMP nsAutoSyncManager::RemoveListener(
 
 /* readonly attribute unsigned long discoveryQLength; */
 NS_IMETHODIMP nsAutoSyncManager::GetDiscoveryQLength(
-    uint32_t *aDiscoveryQLength) {
+    uint32_t* aDiscoveryQLength) {
   NS_ENSURE_ARG_POINTER(aDiscoveryQLength);
   *aDiscoveryQLength = mDiscoveryQ.Count();
   return NS_OK;
 }
 
 /* readonly attribute unsigned long uploadQLength; */
-NS_IMETHODIMP nsAutoSyncManager::GetUpdateQLength(uint32_t *aUpdateQLength) {
+NS_IMETHODIMP nsAutoSyncManager::GetUpdateQLength(uint32_t* aUpdateQLength) {
   NS_ENSURE_ARG_POINTER(aUpdateQLength);
   *aUpdateQLength = mUpdateQ.Count();
   return NS_OK;
@@ -1207,14 +1207,14 @@ NS_IMETHODIMP nsAutoSyncManager::GetUpdateQLength(uint32_t *aUpdateQLength) {
 
 /* readonly attribute unsigned long downloadQLength; */
 NS_IMETHODIMP nsAutoSyncManager::GetDownloadQLength(
-    uint32_t *aDownloadQLength) {
+    uint32_t* aDownloadQLength) {
   NS_ENSURE_ARG_POINTER(aDownloadQLength);
   *aDownloadQLength = mPriorityQ.Count();
   return NS_OK;
 }
 
 NS_IMETHODIMP
-nsAutoSyncManager::OnFolderHasPendingMsgs(nsIAutoSyncState *aAutoSyncStateObj) {
+nsAutoSyncManager::OnFolderHasPendingMsgs(nsIAutoSyncState* aAutoSyncStateObj) {
   NS_ENSURE_ARG_POINTER(aAutoSyncStateObj);
   if (mUpdateQ.IndexOf(aAutoSyncStateObj) == -1) {
     nsCOMPtr<nsIMsgFolder> folder;
