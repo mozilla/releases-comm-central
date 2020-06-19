@@ -873,12 +873,12 @@ agendaListbox.calendarObserver.onStartBatch = function() {
   this.needsRefresh = true;
 };
 
-agendaListbox.calendarObserver.onEndBatch = function() {};
-
-agendaListbox.calendarObserver.onLoad = function() {
+agendaListbox.calendarObserver.onEndBatch = function() {
   this.needsRefresh = false;
   this.agendaListbox.refreshCalendarQuery();
 };
+
+agendaListbox.calendarObserver.onLoad = function() {};
 
 agendaListbox.calendarObserver.onAddItem = function(item) {
   if (this.needsRefresh || !cal.item.isEvent(item)) {

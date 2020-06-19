@@ -71,9 +71,7 @@ var unifinderObserver = {
     gUnifinderNeedsRefresh = true;
   },
 
-  onEndBatch() {},
-
-  onLoad() {
+  onEndBatch() {
     if (isUnifinderHidden()) {
       // If the unifinder is hidden, all further item operations might
       // produce invalid entries in the unifinder. From now on, ignore
@@ -85,6 +83,8 @@ var unifinderObserver = {
       refreshEventTree();
     }
   },
+
+  onLoad() {},
 
   onAddItem(aItem) {
     if (
