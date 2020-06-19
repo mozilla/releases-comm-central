@@ -52,6 +52,8 @@ treeherder:
         'X': 'Xpcshell tests'
         'M': 'Mochitests'
 
+        'Searchfox': 'Searchfox builds'
+
 index:
     products:
         - thunderbird
