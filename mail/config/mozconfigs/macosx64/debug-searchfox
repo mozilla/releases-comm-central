@@ -1,0 +1,18 @@
+MOZ_AUTOMATION_BUILD_SYMBOLS=0
+MOZ_AUTOMATION_CHECK=0
+
+. "$topsrcdir/build/macosx/mozconfig.common"
+. "$topsrcdir/build/mozconfig.stylo"
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
+
+ac_add_options --enable-debug
+
+# Save rust analysis (this requires unlocking the unstable features,
+# which is done in the taskcluster task definition via RUSTC_BOOTSTRAP)
+export RUSTFLAGS="-Zsave-analysis"
+
+ac_add_options --enable-clang-plugin
+ac_add_options --enable-mozsearch-plugin
+
+# Disable enforcing that add-ons are signed by the trusted root
+MOZ_REQUIRE_ADDON_SIGNING=0
