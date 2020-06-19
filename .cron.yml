@@ -55,3 +55,13 @@ jobs:
       run-on-projects:
           - comm-central
       when: []  # never (hook only)
+
+    - name: searchfox-index
+      job:
+          type: decision-task
+          treeherder-symbol: Searchfox
+          target-tasks-method: searchfox_index
+      run-on-projects:
+          - comm-central
+      when:
+          - {hour: 11, minute: 0}
