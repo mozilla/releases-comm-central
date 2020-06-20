@@ -859,7 +859,7 @@ define(function(require) {
         // etc. also when encoded.
         // \u00AD is soft hypen. \u200B is zero width space.
         // unescape(encodeURIComponent(source)) encodes the JavaScript UTF-16 representation
-        // of the string into UTF-8. Example: encodeURIComponent("ö") returns %C3%B6,
+        // of the string into UTF-8. Example: encodeURIComponent("ö") returns "%C3%B6",
         // unescape("%C3%B6") returns the bytes 0xC3B6 which is the UTF-8 encoding of "ö".
         // See bug 1551746 for other ways.
         [
