@@ -1661,6 +1661,12 @@
                        class="subviewbutton subviewbutton-iconic"
                        label="&importCmd.label;"
                        oncommand="toImport();"/>
+#ifdef MOZ_OPENPGP
+        <toolbarbutton id="appmenu_manageKeysOpenPGP"
+                       class="subviewbutton subviewbutton-iconic openpgp-item"
+                       data-l10n-id="openpgp-manage-keys-openpgp-cmd"
+                       oncommand="BondOpenPGP.openKeyManager(window)"/>
+#endif
         <toolbarbutton id="appmenu_devtoolsMenu"
                        class="subviewbutton subviewbutton-nav"
                        label="&devtoolsMenu.label;"
