@@ -2301,13 +2301,13 @@ FolderDisplayWidget.prototype = {
   /**
    * The maximum number of messages canMarkThreadAsRead will look through.
    * If the number exceeds this limit, as a performance measure, we return
-   * true rather than looking looking through the messages and possible
+   * true rather than looking through the messages and possible
    * submessages.
    */
   MAX_COUNT_FOR_MARK_THREAD: 1000,
 
   /**
-   * Check if the thread for the currently-selected message can be marked as
+   * Check if the thread for the currently selected message can be marked as
    * read. A thread can be marked as read if and only if it has at least one
    * unread message.
    */
