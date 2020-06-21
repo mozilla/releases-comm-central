@@ -300,7 +300,7 @@ int PASCAL FAR WSAStartup(WORD wVersionRequested, LPWSADATA lpWSAData) {
     }
 
     hWinsock = MyHandle;
-    // AllRight, attempt to make our first proxied call.
+    // Alright, attempt to make our first proxied call.
     if (IsWinsockLoaded(sp_WSAStartup)) {
       iRetval = ((sp_int_WORD_LPWSADATA)spArray[sp_WSAStartup])(
           wVersionRequested, lpWSAData);

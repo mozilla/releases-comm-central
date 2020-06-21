@@ -1670,7 +1670,7 @@ class nsIMdbCollection : public nsISupports {  // sequence of objects
 **| respect to other collections of such rows in the same row scope.  Also by
 **| convention, at least one table in a row scope has a table kind purporting
 **| to contain ALL the rows that belong in that row scope, so that at least
-**| one table exists that allows all rows in a scope to be interated over.
+**| one table exists that allows all rows in a scope to be iterated over.
 **| (A table with zero table kind is never allowed because this would make it
 **| ambiguous to use a zero table kind when iterating over tables in a port to
 **| indicate that all table kinds in a row scope should be seen by a cursor.)

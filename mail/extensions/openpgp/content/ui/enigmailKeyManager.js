@@ -602,7 +602,7 @@ async function enigmailExportKeys() {
 
   var exportSecretKey = false;
   if (secretFound) {
-    // double check that also the pivate keys shall be exportet
+    // double check that also the pivate keys shall be exported
     var r = EnigmailDialog.msgBox(window, {
       msgtext: await document.l10n.formatValue("export-secret-key"),
       dialogTitle: EnigGetString("enigConfirm2"),

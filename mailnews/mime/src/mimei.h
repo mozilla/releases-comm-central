@@ -104,7 +104,7 @@
       typedef struct Foobar      Foobar;
 
   CLASS DECLARATION:
-  Theis structure defines the callback routines and other per-class data
+  This structure defines the callback routines and other per-class data
   of the class defined in this module.
 
       struct FoobarClass {
@@ -121,7 +121,7 @@
       extern FoobarClass foobarClass;
 
   INSTANCE DECLARATION:
-  Theis structure defines the per-instance data of an object, and a pointer
+  This structure defines the per-instance data of an object, and a pointer
   to the corresponding class record.
 
       struct Foobar {

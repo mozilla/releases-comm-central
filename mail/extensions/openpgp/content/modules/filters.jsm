@@ -271,7 +271,7 @@ function isPGPEncrypted(data) {
   // If there are no subparts we just look in the body.
   //
   // This intentionally does not match more complex cases
-  // with sub parts beeing encrypted etc. as auto processing
+  // with sub parts being encrypted etc. as auto processing
   // these kinds of mails will be error prone and better not
   // done through a filter
 

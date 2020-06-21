@@ -225,7 +225,7 @@ function imAccount(aKey, aName, aPrplId) {
   Services.logins.initializationPromise.then(() => {
     // Try to convert old passwords stored in the preferences.
     // Don't try too hard if the user has canceled a master password prompt:
-    // we don't want to display several of theses prompts at startup.
+    // we don't want to display several of these prompts at startup.
     if (gConvertingOldPasswords && !this.protocol.noPassword) {
       try {
         let password = this.prefBranch.getStringPref(kPrefAccountPassword);
