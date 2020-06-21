@@ -144,6 +144,7 @@ tb.filelink:
     bug_numbers:
       - 1615984
     description: How many times filelink suggestion are ignored.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
