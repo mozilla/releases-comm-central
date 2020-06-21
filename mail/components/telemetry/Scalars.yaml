@@ -55,7 +55,8 @@ tb.account:
   count:
     bug_numbers:
       - 1615981
-    description: Count of how many accounts were set up, keyed account type.
+    description: Count of how many accounts were set up, keyed by account type.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -70,6 +71,7 @@ tb.account:
     bug_numbers:
       - 1615987
     description: How many times email accounts setup succeeded, keyed by account config source.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -84,6 +86,7 @@ tb.account:
     bug_numbers:
       - 1615987
     description: How many times email accounts setup failed, keyed by account config source.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -126,6 +129,7 @@ tb.filelink:
     bug_numbers:
       - 1615984
     description: Accumulated file size (bytes) uploaded to filelink services, keyed by filelink provider type.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -180,6 +184,7 @@ tb.websearch:
     bug_numbers:
       - 1641773
     description: How many times search the web was used, keyed by search engine name.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -195,6 +200,7 @@ tb.addressbook:
     bug_numbers:
       - 1615986
     description: How many addressbooks were set up, keyed by addressbook directory URI scheme.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -209,6 +215,7 @@ tb.addressbook:
     bug_numbers:
       - 1615986
     description: Count of contacts in all addressbooks, keyed by addressbook directory URI scheme.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -224,6 +231,7 @@ tb.calendar:
     bug_numbers:
       - 1615985
     description: How many calendars were set up, keyed by caldendar type.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
@@ -238,6 +246,7 @@ tb.calendar:
     bug_numbers:
       - 1615985
     description: How many read only calendars were set up, keyed by caldendar type.
+    release_channel_collection: opt-out
     expires: never
     products:
       - 'thunderbird'
