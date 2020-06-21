@@ -27,7 +27,7 @@ function getPasswdForHost(hostname, userObj, passwdObj) {
 
   // look for any other password for same host
   logins = loginmgr.getAllLogins({});
-  for (var i = 0; i < logins.lenth; i++) {
+  for (var i = 0; i < logins.length; i++) {
     if (hostname == logins[i].hostname.replace(/^.*:\/\//, "")) {
       userObj.value = logins[i].username;
       passwdObj.value = logins[i].password;

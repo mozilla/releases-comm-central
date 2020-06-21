@@ -734,7 +734,7 @@ static nsresult nsPgpMimeMimeContentTypeHandlerConstructor(nsISupports* aOuter,
   *aResult = nullptr;
 
   RefPtr<nsMimeContentTypeHandler> inst(new nsMimeContentTypeHandler(
-      "mulitpart/encrypted", &MIME_PgpMimeCreateContentTypeHandlerClass));
+      "multipart/encrypted", &MIME_PgpMimeCreateContentTypeHandlerClass));
 
   NS_ENSURE_TRUE(inst, NS_ERROR_OUT_OF_MEMORY);
 
