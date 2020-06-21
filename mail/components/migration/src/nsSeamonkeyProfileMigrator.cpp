@@ -389,7 +389,7 @@ nsresult nsSeamonkeyProfileMigrator::CopySignatureFiles(
     // a partial fix for bug #255043
     // if the user's signature file from seamonkey lives in the
     // seamonkey profile root, we'll copy it over to the new
-    // thunderbird profile root and thenn set the pref to the new value
+    // thunderbird profile root and then set the pref to the new value
     // note, this doesn't work for multiple signatures that live
     // below the seamonkey profile root
     if (StringEndsWith(prefName, nsDependentCString(".sig_file"))) {

@@ -115,7 +115,7 @@ static int ldap_ufn_search_ctx(LDAP *ld, char **ufncomp, int ncomp,
    * in phases 1 and 2, we are building a list of candidate DNs,
    * below which we will search for the final component of the ufn.
    * for each component we try the filters listed in the
-   * filterconfig file, first one-level (except the last compoment),
+   * filterconfig file, first one-level (except the last component),
    * then subtree.  if any of them produce any results, we go on to
    * the next component.
    */

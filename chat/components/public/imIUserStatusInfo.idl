@@ -32,7 +32,7 @@ interface imIUserStatusInfo: nsISupports {
   /**
    * Sets the user icon, or removes it if null is passed as a parameter.
    *
-   * Calling this will fire a user-icon-changed notificaton.
+   * Calling this will fire a user-icon-changed notification.
    */
   void setUserIcon(in nsIFile aIconFile);
 
@@ -41,7 +41,7 @@ interface imIUserStatusInfo: nsISupports {
    */
   nsIFileURL getUserIcon();
 
-  /* The setter will fire a user-display-name-changed notificaton. */
+  /* The setter will fire a user-display-name-changed notification. */
   attribute AUTF8String displayName;
 
   void addObserver(in nsIObserver aObserver);

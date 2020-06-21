@@ -802,7 +802,7 @@ Contact.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
     }
 
-    // Save the list of tags, it may be destoyed if the buddy was the last one.
+    // Save the list of tags, it may be destroyed if the buddy was the last one.
     let tags = buddy.contact.getTags();
 
     // Create a new dummy contact and use it for the detached buddy.

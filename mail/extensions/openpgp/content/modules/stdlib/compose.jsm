@@ -208,7 +208,7 @@ function simpleWrap(txt, width) {
  * @return {String} A text/plain string suitable for insertion in a mail body.
  */
 function htmlToPlainText(aHtml) {
-  // Yes, this is ridiculous, we're instanciating composition fields just so
+  // Yes, this is ridiculous, we're instantiating composition fields just so
   //  that they call ConvertBufPlainText for us. But ConvertBufToPlainText
   //  really isn't easily scriptable, so...
   let fields = Cc[

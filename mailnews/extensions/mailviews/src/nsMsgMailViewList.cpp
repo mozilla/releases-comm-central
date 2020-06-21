@@ -237,7 +237,7 @@ nsresult nsMsgMailViewList::LoadMailViews() {
   // service already knows how to take a nsIFile and parse the contents into
   // filters which are very similar to mail views. Instead of re-writing all of
   // that dirty parsing code, let's just re-use it then convert the results into
-  // a data strcuture we wish to give to our consumers.
+  // a data structure we wish to give to our consumers.
 
   nsCOMPtr<nsIMsgFilterService> filterService =
       do_GetService(NS_MSGFILTERSERVICE_CONTRACTID, &rv);

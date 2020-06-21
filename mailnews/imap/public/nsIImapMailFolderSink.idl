@@ -59,7 +59,7 @@ interface nsIImapMailFolderSink : nsISupports {
    * @param aAction             Invalidate, store or validate the quota data.
    *                            Remaining params are relevant only for store.
    * @param aFolderQuotaRoot    The IMAP quotaroot and resource names for this
-   *                            folder separted by a slash as obtained from the
+   *                            folder separated by a slash as obtained from the
    *                            GETQUOTAROOT IMAP command response.
    * @param aFolderQuotaUsage   Amount of resourse in use, in KB for STORAGE
    *                            resource.

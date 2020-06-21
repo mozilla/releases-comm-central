@@ -572,7 +572,7 @@ function openKeyWizard() {
 }
 
 /**
- * Show a succesfull notification after a new OpenPGP key was created, and
+ * Show a successful notification after a new OpenPGP key was created, and
  * trigger the reload of the key listing UI.
  */
 async function keyWizardSuccess() {
@@ -607,7 +607,7 @@ async function reloadOpenPgpUI() {
   // Show the radiogroup only if the current identity has keys.
   document.getElementById("openPgpKeyList").collapsed = !result.all.length;
 
-  // Interrupt and udpate the UI accordingly if no Key is associated with the
+  // Interrupt and update the UI accordingly if no Key is associated with the
   // current identity.
   if (!result.all.length) {
     // Hide the selection status.
@@ -970,7 +970,7 @@ async function enigmailEditKeyDate(event) {
   Services.prompt.alert(
     window,
     title,
-    "Work in Progress: Key date extention not yet implemented"
+    "Work in Progress: Key date extension not yet implemented"
   );
 }
 

@@ -2140,7 +2140,7 @@
           if (event.key == "Tab" && !event.shiftKey) {
             event.preventDefault();
             let row = this.querySelector(".address-row:not(.hidden)");
-            // If the close label is collpased, focus on the input field.
+            // If the close label is collapsed, focus on the input field.
             if (row.querySelector(".aw-firstColBox > label").collapsed) {
               row
                 .querySelector(`input[is="autocomplete-input"][recipienttype]`)

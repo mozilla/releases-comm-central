@@ -145,7 +145,7 @@ var EnigmailDecryption = {
    *out @sigDetailsObj
    *out @errorMsgObj  error string
    *out @blockSeparationObj
-   *out @encToDetailsObj  returns in details, which keys the mesage was encrypted for (ENC_TO entries)
+   *out @encToDetailsObj  returns in details, which keys the message was encrypted for (ENC_TO entries)
    *
    * @return string plaintext ("" if error)
    *
@@ -333,7 +333,7 @@ var EnigmailDecryption = {
     statusFlagsObj.value = result.statusFlags;
     errorMsgObj.value = result.errorMsg;
 
-    // do not return anything if gpg signales DECRYPTION_FAILED
+    // do not return anything if gpg signals DECRYPTION_FAILED
     // (which could be possible in case of MDC errors)
     if (
       uiFlags & EnigmailConstants.UI_IGNORE_MDC_ERROR &&

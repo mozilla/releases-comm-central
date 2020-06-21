@@ -103,7 +103,7 @@ class nsMsgSearchAdapter : public nsIMsgSearchAdapter {
 //      the menus and enable their items
 //   2. when the FE fires off a search, we need to check their lists for
 //      correctness
-//   3. for on-the-fly capability negotion e.g. with XSEARCH-capable news
+//   3. for on-the-fly capability negotiation e.g. with XSEARCH-capable news
 //      servers
 //-----------------------------------------------------------------------------
 

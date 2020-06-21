@@ -23,7 +23,7 @@ XPCOMUtils.defineLazyGetter(this, "log", () => {
   });
 });
 
-// Don't use const here because this is acessed by
+// Don't use const here because this is accessed by
 // tests through the BackstagePass object.
 var PROXY_TYPES_MAP = new Map([
   ["none", Ci.nsIProtocolProxyService.PROXYCONFIG_DIRECT],

@@ -22,7 +22,7 @@ var EnigmailEvents = {
    * dispatch event aynchronously to the main thread
    *
    * @callbackFunction: Function - any function specification
-   * @sleepTimeMs:      Number - optional number of miliseconds to delay
+   * @sleepTimeMs:      Number - optional number of milliseconds to delay
    *                             (0 if not specified)
    * @arrayOfArgs:      Array - arguments to pass to callbackFunction
    */

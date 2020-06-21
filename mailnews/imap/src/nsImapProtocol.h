@@ -517,7 +517,7 @@ class nsImapProtocol : public nsIImapProtocol,
   // output stream but it also informs the consumer that the data has been
   // written to the stream. aSuppressLogging --> set to true if you wish to
   // suppress logging for this particular command. this is useful for making
-  // sure we don't log authenication information like the user's password (which
+  // sure we don't log authentication information like the user's password (which
   // was encoded anyway), but still we shouldn't add that information to the
   // log.
   nsresult SendData(const char* dataBuffer,

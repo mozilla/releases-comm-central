@@ -78,7 +78,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * @param {String} fpr:                a single FPR
    * @param {String} email:              [optional] the email address of the desired user ID.
    *                                     If the desired user ID cannot be found or is not valid, use the primary UID instead
-   * @param {Array<Number>} subkeyDates: [optional] remove subkeys with sepcific creation Dates
+   * @param {Array<Number>} subkeyDates: [optional] remove subkeys with specific creation Dates
    *
    * @return {Promise<Object>}:
    *    - exitCode (0 = success)

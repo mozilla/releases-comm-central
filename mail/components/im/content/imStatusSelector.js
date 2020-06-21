@@ -268,7 +268,7 @@ var statusSelector = {
       displayNameInput.addEventListener("blur", event => {
         this.finishEditDisplayName(true);
       });
-      // force binding attachmant by forcing layout
+      // force binding attachment by forcing layout
       displayNameInput.getBoundingClientRect();
       displayNameInput.select();
     }

@@ -198,7 +198,7 @@ var PgpSqliteDb2 = {
 
 var EnigmailSqliteDb = {
   /**
-   * Provide an sqlite conection object asynchronously, retrying if needed
+   * Provide an sqlite connection object asynchronously, retrying if needed
    *
    * @return {Promise<Sqlite Connection>}: the Sqlite database object
    */

@@ -14,11 +14,11 @@ const { setTimeout, clearTimeout } = ChromeUtils.import(
 
 var EnigmailTimer = {
   /**
-   * wait a defined number of miliseconds, then call a callback function
+   * wait a defined number of milliseconds, then call a callback function
    * asynchronously
    *
    * @param callbackFunction: Function - any function specification
-   * @param sleepTimeMs:      Number - optional number of miliseconds to delay
+   * @param sleepTimeMs:      Number - optional number of milliseconds to delay
    *                             (0 if not specified)
    *
    * @return Number: timeoutID

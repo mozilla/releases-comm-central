@@ -245,8 +245,8 @@ class nsNNTPProtocol : public nsMsgProtocol,
                                   for. */
   int32_t m_maxArticles;       /* max articles to get during an XOVER */
 
-  // Cancelation specific state. In particular, the headers that should be
-  // used for the cancelation message.
+  // Cancellation specific state. In particular, the headers that should be
+  // used for the cancellation message.
   nsCString m_cancelFromHdr;
   nsCString m_cancelNewsgroups;
   nsCString m_cancelDistribution;

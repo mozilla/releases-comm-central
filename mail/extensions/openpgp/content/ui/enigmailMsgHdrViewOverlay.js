@@ -1027,7 +1027,7 @@ Enigmail.hdrView = {
      * Determine if a given mime part number should be displayed.
      * Returns true if one of these conditions is true:
      *  - this is the 1st displayed block of the message
-     *  - the message part displayed corresonds to the decrypted part
+     *  - the message part displayed corresponds to the decrypted part
      *
      * @param mimePartNumber: String - the MIME part number that was decrypted/verified
      * @param uriSpec:        String - the URI spec that is being displayed
@@ -1128,7 +1128,7 @@ Enigmail.hdrView = {
       extraDetails,
       mimePartNumber
     ) {
-      // uriSpec is not used for Enigmail anymore. It is here becaue other addons and pEp rely on it
+      // uriSpec is not used for Enigmail anymore. It is here because other addons and pEp rely on it
 
       EnigmailLog.DEBUG(
         "enigmailMsgHdrViewOverlay.js: updateSecurityStatus: mimePart=" +

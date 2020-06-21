@@ -97,7 +97,7 @@ add_task(function test_paste_file_urls() {
 
       tmpFileURL = fileHandler.getURLSpecFromFile(tmpFile);
       putHTMLOnClipboard(
-        "<img id='bad-img' src='file://foo/non-existant' alt='bad' /> and " +
+        "<img id='bad-img' src='file://foo/non-existent' alt='bad' /> and " +
           "<img id='tmp-img' src='" +
           tmpFileURL +
           "' alt='tmp' />"
@@ -130,8 +130,8 @@ add_task(function test_paste_file_urls() {
   let outMsgContent = get_msg_source(outMsg);
 
   Assert.ok(
-    outMsgContent.includes("file://foo/non-existant"),
-    "non-existant file not in content=" + outMsgContent
+    outMsgContent.includes("file://foo/non-existent"),
+    "non-existent file not in content=" + outMsgContent
   );
 
   Assert.ok(

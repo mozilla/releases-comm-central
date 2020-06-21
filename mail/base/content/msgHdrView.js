@@ -37,7 +37,7 @@ var { Status: statusUtils } = ChromeUtils.import(
 // headers for a selected message remain as fast as possible. In particular,
 // right now, we only introduce one reflow per message. i.e. if you click on
 // a message in the thread pane, we batch up all the changes for displaying
-// the header pane (to, cc, attachements button, etc.) and we make a single
+// the header pane (to, cc, attachments button, etc.) and we make a single
 // pass to display them. It's critical that we maintain this one reflow per
 // message view in the message header pane.
 

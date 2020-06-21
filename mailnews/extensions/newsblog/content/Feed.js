@@ -267,7 +267,7 @@ Feed.prototype = {
         );
         if (errType == "SecurityCertificate") {
           // This is the code for nsINSSErrorsService.ERROR_CLASS_BAD_CERT
-          // overrideable security certificate errors.
+          // overridable security certificate errors.
           error = FeedUtils.kNewsBlogBadCertError;
         }
 

@@ -14,13 +14,13 @@ const { EnigmailTimer } = ChromeUtils.import(
 
 var EnigmailSearchCallback = {
   /**
-   * Set up a callback function on a textbox that tiggers an action.
+   * Set up a callback function on a textbox that triggers an action.
    * If ESC is pressed, the input field is emtpied; return triggers the action immediately.
    *
    * @param targetObj {XULElement}: the XUL element to observe
    * @param timoeoutObj {object}: timeoutObj.value will hold the timeout ID
    * @param actionCallback {function}: callback function that is called if something is typed
-   * @param timeoutMs {number}: delay triggering the function (in miliseconds)
+   * @param timeoutMs {number}: delay triggering the function (in milliseconds)
    */
   setup(targetObj, timeoutObj, actionCallback, timeoutMs = 200) {
     function applyActionImmediately() {

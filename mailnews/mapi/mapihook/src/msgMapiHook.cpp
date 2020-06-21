@@ -284,7 +284,7 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
   // smtp password and Logged in used IdKey from MapiConfig (session obj)
   nsMAPIConfiguration* pMapiConfig =
       nsMAPIConfiguration::GetMAPIConfiguration();
-  if (!pMapiConfig) return NS_ERROR_FAILURE;  // get the singelton obj
+  if (!pMapiConfig) return NS_ERROR_FAILURE;  // get the singleton obj
   char16_t* password = pMapiConfig->GetPassword(aSession);
 
   // Id key

@@ -281,7 +281,7 @@ function enigmailKeygenStart() {
   let revFile = EnigmailApp.getProfileDirectory();
   revFile.append("0x" + gGeneratedKey + "_rev.asc");
 
-  // create a revokation cert in the TB profile directoy
+  // create a revokation cert in the TB profile directory
   EnigmailFiles.writeFileContents(revFile, revFull, DEFAULT_FILE_PERMS);
 }
 

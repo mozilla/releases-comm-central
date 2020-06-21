@@ -211,7 +211,7 @@ function CompFields2Recipients(msgCompFields) {
 
 /**
  * Update the recipients area UI to show News related fields and hide
- * Mail releated fields.
+ * Mail related fields.
  */
 function updateUIforNNTPAccount() {
   // Hide the `mail-primary-input` field row if no pills have been created.
@@ -263,7 +263,7 @@ function updateUIforNNTPAccount() {
 
 /**
  * Update the recipients area UI to show Mail related fields and hide
- * News releated fields. This method is called only if the UI was previously
+ * News related fields. This method is called only if the UI was previously
  * updated to accommodate a News account type.
  */
 function updateUIforIMAPAccount() {

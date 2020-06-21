@@ -29,7 +29,7 @@ var { mc } = ChromeUtils.import(
 function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
   // Make sure the accessibility tabfocus is set to 7 to enable normal Tab
   // focus on non-input field elements. This is necessary only for macOS as
-  // the dafault value is 2 instead of the default 7 used on Windows and Linux.
+  // the default value is 2 instead of the default 7 used on Windows and Linux.
   Services.prefs.setIntPref("accessibility.tabfocus", 7);
 
   let addressingElement = controller.e("toAddrInput");

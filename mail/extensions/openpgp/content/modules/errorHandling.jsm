@@ -29,7 +29,7 @@ const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 var EnigmailErrorHandling = {
   /**
-   * Determin why a given key or userID cannot be used for signing
+   * Determine why a given key or userID cannot be used for signing
    *
    * @param keySpec String - key ID or user ID
    *
@@ -73,7 +73,7 @@ var EnigmailErrorHandling = {
   },
 
   /**
-   * Determin why a given key or userID cannot be used for encryption
+   * Determine why a given key or userID cannot be used for encryption
    *
    * @param keySpec String - key ID or user ID
    *

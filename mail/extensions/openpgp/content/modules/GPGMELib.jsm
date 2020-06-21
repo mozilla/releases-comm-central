@@ -9,7 +9,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var abi = ctypes.default_abi;
 
-// Default libary paths to look for on macOS
+// Default library paths to look for on macOS
 const ADDITIONAL_LIB_PATHS = ["/usr/local/lib", "/opt/local/lib"];
 
 // Open libgpgme. Determine the path to the chrome directory and look for it

@@ -350,7 +350,7 @@ async function validateExpiration() {
 
 /**
  * Resize the dialog to account for the newly visible sections. The timeout is
- * neccessary in order to wait until the end of revealing animations.
+ * necessary in order to wait until the end of revealing animations.
  */
 function resizeDialog() {
   // Timeout to trigger the dialog resize after the reveal animation completed.
@@ -502,10 +502,10 @@ async function openPgpKeygenConfirm() {
   let revFile = EnigmailApp.getProfileDirectory();
   revFile.append(`0x${gGeneratedKey}_rev.asc`);
 
-  // Create a revokation cert in the Thunderbird profile directoy.
+  // Create a revokation cert in the Thunderbird profile directory.
   EnigmailFiles.writeFileContents(revFile, revFull, DEFAULT_FILE_PERMS);
 
-  // Key succesfully created. Assign the new key to the current identity, close
+  // Key successfully created. Assign the new key to the current identity, close
   // the dialog and show a confirmation message.
   gIdentity.setUnicharAttribute("openpgp_key_id", gGeneratedKey);
   window.arguments[0].okCallback();

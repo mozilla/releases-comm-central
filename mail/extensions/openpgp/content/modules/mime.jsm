@@ -443,7 +443,7 @@ var EnigmailMime = {
   },
 
   /**
-   * Parse a MIME message and return a tree structur of TreeObject
+   * Parse a MIME message and return a tree structure of TreeObject
    *
    * @param url:         String   - the URL to load and parse
    * @param getBody:     Boolean  - if true, delivers the body text of each MIME part

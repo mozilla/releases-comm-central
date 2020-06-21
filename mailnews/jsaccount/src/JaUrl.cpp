@@ -117,7 +117,7 @@ NS_IMETHODIMP JaBaseCppUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
 }
 
 NS_IMETHODIMP JaBaseCppUrl::GetMessageHeader(nsIMsgDBHdr** aMessageHeader) {
-  // This routine does a lookup using messenger, assumming that the message URI
+  // This routine does a lookup using messenger, assuming that the message URI
   // has been set in mUri.
   NS_ENSURE_TRUE(!mUri.IsEmpty(), NS_ERROR_NOT_INITIALIZED);
   nsresult rv;

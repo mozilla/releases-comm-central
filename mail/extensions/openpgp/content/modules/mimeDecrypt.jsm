@@ -196,7 +196,7 @@ MimeDecryptHandler.prototype = {
     ++gNumProc;
     if (gNumProc > EnigmailPrefs.getPref("maxNumProcesses")) {
       EnigmailLog.DEBUG(
-        "mimeDecrypt.jsm: number of parallel requests above threshold - ignoring requst\n"
+        "mimeDecrypt.jsm: number of parallel requests above threshold - ignoring request\n"
       );
       return;
     }
@@ -339,7 +339,7 @@ MimeDecryptHandler.prototype = {
 
       try {
         atob(str);
-        // if the conversion succeds, we have a base64 encoded message
+        // if the conversion succeeds, we have a base64 encoded message
         ret = true;
       } catch (ex) {
         // not a base64 encoded

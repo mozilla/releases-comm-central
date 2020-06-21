@@ -38,7 +38,7 @@ NS_MSG_BASE char* nsMsgI18NEncodeMimePartIIStr(const char* header,
 NS_MSG_BASE bool nsMsgI18Nstateful_charset(const char* charset);
 
 /**
- * Check if given charset is multibye (e.g. Shift_JIS, Big5).
+ * Check if given charset is multibyte (e.g. Shift_JIS, Big5).
  *
  * @param charset     [IN] Charset name.
  * @return            True if multibyte
