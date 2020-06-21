@@ -600,7 +600,7 @@ function detectStandardProtocols(config, domain, successCallback) {
     return;
   }
 
-  // Autodiscover is known not to advertize all that it supports. Let's see
+  // Autodiscover is known not to advertise all that it supports. Let's see
   // if there really isn't any IMAP/POP3 support by probing the Exchange
   // server. Use the server hostname already found.
   let config2 = new AccountConfig();
@@ -629,7 +629,7 @@ function detectStandardProtocols(config, domain, successCallback) {
       );
     },
     function(probedConfig) {
-      // Probing succeded: found open protocols, yay!
+      // Probing succeeded: found open protocols, yay!
       successCallback(probedConfig);
     },
     function(e, probedConfig) {

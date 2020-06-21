@@ -8,7 +8,7 @@
 interface nsIMsgAsyncPromptListener;
 
 /**
- * The nsIMsgAsyncPrompter is intended to provide a way to make asynchoronous
+ * The nsIMsgAsyncPrompter is intended to provide a way to make asynchronous
  * message prompts into synchronous ones - so that the user is only prompted
  * with one at a time.
  */

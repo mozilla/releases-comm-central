@@ -532,7 +532,7 @@ class CardDAVDirectory extends AddrBookDirectory {
                     }
                   } catch (e) {
                     if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
-                      // The header could possibly not be availible, ignore that
+                      // The header could possibly not be available, ignore that
                       // case but throw otherwise
                       throw e;
                     }

@@ -329,7 +329,7 @@ LONG CMapiImp::InitContext(unsigned long session,
                            MsgMapiListContext** listContext) {
   nsMAPIConfiguration* pMapiConfig =
       nsMAPIConfiguration::GetMAPIConfiguration();
-  if (!pMapiConfig) return MAPI_E_FAILURE;  // get the singelton obj
+  if (!pMapiConfig) return MAPI_E_FAILURE;  // get the singleton obj
   *listContext = (MsgMapiListContext*)pMapiConfig->GetMapiListContext(session);
   // This is the first message
   if (!*listContext) {
@@ -371,7 +371,7 @@ STDMETHODIMP CMapiImp::FindNext(unsigned long aSession, unsigned long ulUIParam,
       nsMAPIConfiguration::GetMAPIConfiguration();
   if (!pMapiConfig) {
     NS_ASSERTION(false, "failed to get config in findnext");
-    return MAPI_E_FAILURE;  // get the singelton obj
+    return MAPI_E_FAILURE;  // get the singleton obj
   }
   MsgMapiListContext* listContext;
   LONG ret = InitContext(aSession, &listContext);

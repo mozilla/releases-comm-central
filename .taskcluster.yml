@@ -44,8 +44,8 @@
 #     push: {owner, pushlog_id, revision},
 #     repository: {url, project, level},
 #     input,
-#     taskId,      // targetted taskId
-#     taskGroupId, // targetted taskGroupId
+#     taskId,      // targeted taskId
+#     taskGroupId, // targeted taskGroupId
 #     action: {name, title, description, taskGroupId, symbol, repo_scope, cb_name}
 #     ownTaskId:   // taskId of the task that will be created
 #     clientId:    // clientId that triggered this hook

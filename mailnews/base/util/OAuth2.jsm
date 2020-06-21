@@ -225,7 +225,7 @@ OAuth2.prototype = {
     data.append("client_id", this.clientId);
     if (this.consumerSecret !== null) {
       // Section 2.3.1. of RFC 6749 states that empty secrets MAY be omitted
-      // by the client. This OAuth implementation delegates this decission to
+      // by the client. This OAuth implementation delegates this decision to
       // the caller: If the secret is null, it will be omitted.
       data.append("client_secret", this.consumerSecret);
     }

@@ -164,7 +164,7 @@ var gCookiesWindow = {
     this._addCookie(strippedHost, changedCookie, addedHost);
     if (!this._view._filtered) {
       // The Host collection for this cookie already exists, and it's not open,
-      // so don't increment the rowCountImpact becaues the user is not going to
+      // so don't increment the rowCountImpact because the user is not going to
       // see the additional rows as they're hidden.
       if (addedHost.value || this._hosts[strippedHost].open) {
         ++rowCountImpact;

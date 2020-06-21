@@ -13,7 +13,7 @@ const { JSAccountUtils } = ChromeUtils.import(
 // A partial JavaScript implementation of the base server methods.
 
 const JaBaseUrlProperties = {
-  // The CPP object that delgates to CPP or JS.
+  // The CPP object that delegates to CPP or JS.
   baseContractID: "@mozilla.org/jacppurldelegator;1",
 
   // Interfaces implemented by the base CPP version of this object.

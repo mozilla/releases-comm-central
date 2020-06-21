@@ -417,7 +417,7 @@ function hideShowControls(serverType) {
   }
 
   // hide the privileges button if the imap folder doesn't have an admin url
-  // mabye should leave this hidden by default and only show it in this case instead
+  // maybe should leave this hidden by default and only show it in this case instead
   try {
     var imapFolder = gMsgFolder.QueryInterface(Ci.nsIMsgImapMailFolder);
     if (imapFolder) {

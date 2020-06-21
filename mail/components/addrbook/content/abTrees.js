@@ -228,7 +228,7 @@ directoryTreeView.prototype = {
   isEditable(aRow, aCol) {
     let selectedDirectory = this.getDirectoryAtIndex(aRow);
 
-    // Prevent the renaming of Personal Address Book, Collected Addressses
+    // Prevent the renaming of Personal Address Book, Collected Addresses
     // and All Address Books directories.
     if (
       !selectedDirectory ||

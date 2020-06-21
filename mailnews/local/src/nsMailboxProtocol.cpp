@@ -62,7 +62,7 @@ nsresult nsMailboxProtocol::OpenMultipleMsgTransport(uint64_t offset,
                            getter_AddRefs(replacementStream));
   NS_ENSURE_SUCCESS(rv, rv);
   if (replacementStream) {
-    // If m_multipleMsgMoveCopyStream is not cloneable, NS_CloneInputStream
+    // If m_multipleMsgMoveCopyStream is not clonable, NS_CloneInputStream
     // will clone it using a pipe. In order to keep the copy alive and working,
     // we have to replace the original stream with the replacement.
     m_multipleMsgMoveCopyStream = replacementStream.forget();
@@ -156,7 +156,7 @@ nsresult nsMailboxProtocol::Initialize(nsIURI* aURL) {
                                          getter_AddRefs(replacementStream));
                 NS_ENSURE_SUCCESS(rv, rv);
                 if (replacementStream) {
-                  // If stream is not cloneable, NS_CloneInputStream
+                  // If stream is not clonable, NS_CloneInputStream
                   // will clone it using a pipe. In order to keep the copy alive
                   // and working, we have to replace the original stream with
                   // the replacement.

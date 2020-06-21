@@ -2249,7 +2249,7 @@ function toggle_message_pane() {
 
 /**
  * Make the folder pane visible in order to run tests.
- * This is necessary as the FolderPane is collpased if no account is available.
+ * This is necessary as the FolderPane is collapsed if no account is available.
  */
 function show_folder_pane() {
   mc.e("folderPaneBox").collapsed = false;

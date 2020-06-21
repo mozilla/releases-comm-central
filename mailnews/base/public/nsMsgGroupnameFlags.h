@@ -23,7 +23,7 @@
 /* A newsgroup which has just been added by the `Check New Groups` command. */
 #define MSG_GROUPNAME_FLAG_NEW_GROUP 0x0080
 
-/* Whether there are children of this group. Whether those chilren are visible
+/* Whether there are children of this group. Whether those children are visible
    in this list is determined by the above "ELIDED" flag. Setting this to the
    same value as an nsMsgFolderFlags IMAP server, since an IMAP _server_ will
    never appear in the subscribe pane. */

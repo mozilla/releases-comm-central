@@ -8010,7 +8010,7 @@ function SetFocusOnPreviousAvailableElement(element) {
     }
   }
 
-  // If a previous address row is abailable and not hidden,
+  // If a previous address row is available and not hidden,
   // focus on the autocomplete input field.
   let previousRow = element.closest(".address-row").previousElementSibling;
   while (previousRow) {
@@ -8034,7 +8034,7 @@ function SetFocusOnPreviousAvailableElement(element) {
  * @param {HTMLElement} element - The currently focused element.
  */
 function SetFocusOnNextAvailableElement(element) {
-  // If a next address row is abailable and not hidden,
+  // If a next address row is available and not hidden,
   // focus on the autocomplete input field.
   let nextRow = element.closest(".address-row").nextElementSibling;
   while (nextRow) {

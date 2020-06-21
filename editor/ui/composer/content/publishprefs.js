@@ -671,7 +671,7 @@ function FindSiteIndexAndDocDir(publishSiteData, docUrl, dirObj)
 // (We need to look at both "publishUrl" and "browseUrl" in case we are editing
 //  an http: document but using ftp: to publish.)
 // If match is found:
-//    Fill in the filename and subirectory based on the docUrl and
+//    Fill in the filename and subdirectory based on the docUrl and
 //    return the length of the docUrl with username+password stripped out
 function FillInMatchingPublishData(publishData, docUrl)
 {

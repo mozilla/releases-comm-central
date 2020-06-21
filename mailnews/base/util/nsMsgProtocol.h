@@ -184,7 +184,7 @@ class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
 };
 
 // This is is a subclass of nsMsgProtocol extends the parent class with
-// AsyncWrite support. Protocols like smtp and news want to leverage aysnc
+// AsyncWrite support. Protocols like smtp and news want to leverage async
 // write. We don't want everyone who inherits from nsMsgProtocol to have to pick
 // up the extra overhead.
 class NS_MSG_BASE nsMsgAsyncWriteProtocol : public nsMsgProtocol,

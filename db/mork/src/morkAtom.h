@@ -251,7 +251,7 @@ class morkFarBookAtom : public morkBookAtom {  //
  public:
   mork_cscode mFarBookAtom_Form;  // charset format encoding
   mork_size mFarBookAtom_Size;    // size of content vector
-  mork_u1* mFarBookAtom_Body;     // bytes are elsewere, out of line
+  mork_u1* mFarBookAtom_Body;     // bytes are elsewhere, out of line
 
  public:  // empty construction does nothing
   morkFarBookAtom() {}

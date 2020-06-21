@@ -30,7 +30,7 @@ var mc = folderDisplayHelper.mc;
  *        for the subscribe dialogue as parameter
  */
 function open_subscribe_window_from_context_menu(aFolder, aFunction) {
-  // Make the folder pane visible as it starts collpased when no accounts are
+  // Make the folder pane visible as it starts collapsed when no accounts are
   // available on startup.
   mc.e("folderPaneBox").collapsed = false;
 
