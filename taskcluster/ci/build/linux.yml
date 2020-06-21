@@ -123,6 +123,47 @@ linux64/debug:
             - linux64-rust-size
             - linux64-sccache
 
+linux64-asan/opt:
+    description: "Linux64 Opt ASAN"
+    index:
+        product: thunderbird
+        job-name: linux64-asan-opt
+    treeherder:
+        platform: linux64/asan
+        symbol: Bo
+    worker-type: b-linux
+    worker:
+        env:
+            PERFHERDER_EXTRA_OPTIONS: "opt asan"
+            ASAN_OPTIONS: "detect_leaks=0"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "0"
+        max-run-time: 5400
+    run:
+        using: mozharness
+        comm-checkout: true
+        actions: [build]
+        config-paths:
+            - comm/mozharness
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/releng_base_linux_64_builds.py
+        script: "mozharness/scripts/fx_desktop_build.py"
+        custom-build-variant-cfg: asan-tc
+        mozconfig-variant: nightly-asan
+        tooltool-downloads: public
+        need-xvfb: true
+    fetches:
+        toolchain:
+            - linux64-binutils
+            - linux64-cbindgen
+            - linux64-clang
+            - linux64-libotr
+            - linux64-nasm
+            - linux64-node
+            - linux64-rust
+            - linux64-rust-size
+            - linux64-sccache
+
 linux/opt:
     description: "Linux32 Opt"
     index:
