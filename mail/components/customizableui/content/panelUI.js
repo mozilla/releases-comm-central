@@ -91,72 +91,6 @@ const PanelUI = {
 
   kAppMenuButtons: new Set(),
 
-  /**
-   * Used for the View / Text Encoding view.
-   * Not ideal: copied from: mozilla-central/toolkit/modules/CharsetMenu.jsm
-   * This set contains encodings that are in the Encoding Standard, except:
-   *  - Japanese encodings are represented by one autodetection item
-   *  - x-user-defined, which practically never makes sense as an end-user-chosen
-   *    override.
-   *  - Encodings that IE11 doesn't have in its corresponding menu.
-   */
-  kEncodings: new Set([
-    // Globally relevant
-    "UTF-8",
-    "windows-1252",
-    // Arabic
-    "windows-1256",
-    "ISO-8859-6",
-    // Baltic
-    "windows-1257",
-    "ISO-8859-4",
-    // "ISO-8859-13", // Hidden since not in menu in IE11
-    // Central European
-    "windows-1250",
-    "ISO-8859-2",
-    // Chinese, Simplified
-    "GBK",
-    // Chinese, Traditional
-    "Big5",
-    // Cyrillic
-    "windows-1251",
-    "ISO-8859-5",
-    "KOI8-R",
-    "KOI8-U",
-    "IBM866", // Not in menu in Chromium. Maybe drop this?
-    // "x-mac-cyrillic", // Not in menu in IE11 or Chromium.
-    // Greek
-    "windows-1253",
-    "ISO-8859-7",
-    // Hebrew
-    "windows-1255",
-    "ISO-8859-8",
-    // Japanese (NOT AN ENCODING NAME)
-    "Japanese",
-    // Korean
-    "EUC-KR",
-    // Thai
-    "windows-874",
-    // Turkish
-    "windows-1254",
-    // Vietnamese
-    "windows-1258",
-    // Hiding rare European encodings that aren't in the menu in IE11 and would
-    // make the menu messy by sorting all over the place
-    // "ISO-8859-3",
-    // "ISO-8859-10",
-    // "ISO-8859-14",
-    // "ISO-8859-15",
-    // "ISO-8859-16",
-    // "macintosh"
-  ]),
-
-  // Used for the View / Text Encoding view.
-  // Not ideal: copied from: mozilla-central/toolkit/modules/CharsetMenu.jsm
-  // Always at the start of the text encodings view, in this order, followed by
-  // a separator.
-  kPinnedEncodings: ["UTF-8", "windows-1252"],
-
   _initialized: false,
   _notifications: null,
 
@@ -981,22 +915,14 @@ const PanelUI = {
     }
 
     // Add a toolbarbutton for each character encoding.
-    const pinnedInfoCache = CharsetMenu.getCharsetInfo(
-      PanelUI.kPinnedEncodings,
-      false
-    );
+    let { pinnedCharsets, otherCharsets } = CharsetMenu.getData();
 
-    const charsetInfoCache = CharsetMenu.getCharsetInfo(PanelUI.kEncodings);
+    let addButton = charsetInfo =>
+      parent.appendChild(PanelUI._createTextEncodingNode(doc, charsetInfo));
 
-    pinnedInfoCache.forEach(charsetInfo =>
-      parent.appendChild(PanelUI._createTextEncodingNode(doc, charsetInfo))
-    );
-
+    pinnedCharsets.forEach(addButton);
     parent.appendChild(doc.createXULElement("toolbarseparator"));
-
-    charsetInfoCache.forEach(charsetInfo =>
-      parent.appendChild(PanelUI._createTextEncodingNode(doc, charsetInfo))
-    );
+    otherCharsets.forEach(addButton);
 
     UpdateCharsetMenu(msgWindow.mailCharacterSet, parent);
   },
