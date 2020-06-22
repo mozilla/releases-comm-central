@@ -163,7 +163,7 @@ interface calIItemBase : nsISupports
   //
 
   // Note that if this item is a proxy, then any requests for
-  // non-existant properties will be forward to the parent item.
+  // non-existent properties will be forward to the parent item.
 
   // some other properties that may exist:
   //

@@ -60,7 +60,7 @@ function _calendarInfo(aLocale = null, aResetCache = false) {
   // purposes since changing intl.regional_prefs.use_os_locales preference
   // would provide different result when called without aLocale and we
   // need to investigate whether this is wanted or chaching more selctively.
-  // when starting to use it to deteremine the first week of a year, we would
+  // when starting to use it to determine the first week of a year, we would
   // need to at least reset that cached properties on pref change.
   if (!("firstDayOfWeek" in _calendarInfo._startup) || aLocale) {
     let info = Services.intl.getCalendarInfo(aLocale);

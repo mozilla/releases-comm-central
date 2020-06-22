@@ -247,7 +247,7 @@ Extractor.prototype = {
    * @param now   reference time against which relative times are interpreted,
    *                  when null current time is used
    * @param sel   selection object of email content, when defined times
-   *                  outside selection are disgarded
+   *                  outside selection are discarded
    * @param title email title
    * @return      sorted list of extracted datetime objects
    */

@@ -645,7 +645,7 @@ CalICSCalendar.prototype = {
    * After the back up is finished, will call aCallback.
    *
    * @param aCallback
-   *           Function that will be calles after the backup is finished.
+   *           Function that will be called after the backup is finished.
    *           will be called in the original context in which makeBackup
    *           was called
    */

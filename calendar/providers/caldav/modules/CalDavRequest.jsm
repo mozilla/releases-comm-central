@@ -188,7 +188,7 @@ class CalDavRequestBase {
         }
       } catch (e) {
         if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
-          // The header could possibly not be availible, ignore that
+          // The header could possibly not be available, ignore that
           // case but throw otherwise
           throw e;
         }
@@ -314,7 +314,7 @@ class CalDavResponseBase {
   }
 
   /**
-   * Raise an exception if one of the handled 4xx and 5xx occured.
+   * Raise an exception if one of the handled 4xx and 5xx occurred.
    */
   raiseForStatus() {
     if (this.authError) {
@@ -888,7 +888,7 @@ class CalDavPrincipalPropertySearchRequest extends CalDavRequestBase {
    * @param {nsIURI} aUri                             The uri to request
    * @param {String} aMatch                           The href to search in
    * @param {String} aSearchProp                      The property to search for
-   * @param {String[]} aProps                         The properties to retieve
+   * @param {String[]} aProps                         The properties to retrieve
    * @param {Number} aDepth                           The depth of the query, defaults to 1
    */
   constructor(aSession, aCalendar, aUri, aMatch, aSearchProp, aProps, aDepth = 1) {
@@ -932,7 +932,7 @@ class CalDavOutboxRequest extends CalDavRequestBase {
    * @param {nsIURI} aUri                             The uri to request
    * @param {String} aOrganizer                       The organizer of the request
    * @param {String} aRecipients                      The recipients of the request
-   * @param {String} aResponseMethod                  The itip resonse method, e.g. REQUEST,REPLY
+   * @param {String} aResponseMethod                  The itip response method, e.g. REQUEST,REPLY
    * @param {calIItemBase} aItem                      The item to send
    */
   constructor(aSession, aCalendar, aUri, aOrganizer, aRecipients, aResponseMethod, aItem) {

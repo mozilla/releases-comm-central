@@ -11,7 +11,7 @@ interface nsIVariant;
 interface calIProviderListener;
 
 /**
- * High-level interface to allow providers to be plugable.
+ * High-level interface to allow providers to be pluggable.
  */
 [scriptable, uuid(30e22db4-9f13-11d9-80d6-000b7d081f44)]
 interface calICalendarProvider : nsISupports

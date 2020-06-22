@@ -199,7 +199,7 @@ var caldtz = {
    * Convert a calIDateTime to a Javascript date object. This is the
    * replacement for the former .jsDate property.
    *
-   * @param cdt       The calIDateTime instnace
+   * @param cdt       The calIDateTime instance
    * @return          The Javascript date equivalent.
    */
   dateTimeToJsDate(cdt) {

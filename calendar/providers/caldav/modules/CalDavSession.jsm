@@ -21,7 +21,7 @@ const OAUTH_GRACE_TIME = 30 * 1000;
  */
 class CalDavGoogleOAuth extends OAuth2 {
   /**
-   * Constructs a new Google OAuth autentication provider
+   * Constructs a new Google OAuth authentication provider
    *
    * @param {String} sessionId    The session id, used in the password manager
    * @param {String} name         The user-readable description of this session
@@ -67,7 +67,7 @@ class CalDavGoogleOAuth extends OAuth2 {
         let origin = "oauth:" + this.id;
         cal.auth.passwordManagerGet(this.id, pass, origin, this.pwMgrId);
       } catch (e) {
-        // User might have cancelled the master password prompt, thats ok
+        // User might have cancelled the master password prompt, that's ok
         if (e.result != Cr.NS_ERROR_ABORT) {
           throw e;
         }
@@ -90,7 +90,7 @@ class CalDavGoogleOAuth extends OAuth2 {
         cal.auth.passwordManagerRemove(this.id, origin, this.pwMgrId);
       }
     } catch (e) {
-      // User might have cancelled the master password prompt, thats ok
+      // User might have cancelled the master password prompt, that's ok
       if (e.result != Cr.NS_ERROR_ABORT) {
         throw e;
       }
@@ -197,7 +197,7 @@ class CalDavGoogleOAuth extends OAuth2 {
       }
     } catch (e) {
       if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
-        // The header could possibly not be availible, ignore that
+        // The header could possibly not be available, ignore that
         // case but throw otherwise
         throw e;
       }

@@ -245,7 +245,7 @@ CalDavEtagsHandler.prototype = {
             resp.getcontenttype = "text/calendar";
           }
           if (resp.getcontenttype == "text/vtodo") {
-            // workaround Kerio wierdness
+            // workaround Kerio weirdness
             resp.getcontenttype = "text/calendar";
           }
 
