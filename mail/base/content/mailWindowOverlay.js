@@ -119,6 +119,9 @@ function menu_new_init() {
     document
       .getElementById("newAccountMenuItem")
       .setAttribute("disabled", "true");
+    document
+      .getElementById("appmenu_newAccountMenuItem")
+      .setAttribute("disabled", "true");
   }
 
   var isInbox = folder.isSpecialFolder(Ci.nsMsgFolderFlags.Inbox);
