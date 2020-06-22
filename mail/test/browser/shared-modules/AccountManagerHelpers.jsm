@@ -72,7 +72,7 @@ function open_mail_account_setup_wizard(callback) {
 /**
  * Click a row in the account settings tree.
  *
- * @param {Object} tab - The account manager tab controller that opened.
+ * @param {Object} tab - The account manger tab controller that opened.
  * @param {Number} rowIndex - The row to click.
  */
 function click_account_tree_row(tab, rowIndex) {
@@ -163,7 +163,7 @@ function get_account_tree_row(accountKey, paneId, tab) {
  * Remove an account via the account manager UI.
  *
  * @param {Object} account - The account to remove.
- * @param {Object} tab - The account manager tab that opened.
+ * @param {Object} tab - The account manger tab that opened.
  * @param {boolean} removeAccount - Remove the account itself.
  * @param {boolean} removeData - Remove the message data of the account.
  */

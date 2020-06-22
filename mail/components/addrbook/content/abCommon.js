@@ -161,7 +161,7 @@ var DirPaneController = {
         return !!getSelectedDirectoryURI();
       case "cmd_rename":
         let selectedDirectoryURI = getSelectedDirectoryURI();
-        // Prevent the renaming of Personal Address Book, Collected Addresses and All Address Books directories
+        // Prevent the renaming of Personal Address Book, Collected Addressses and All Address Books directories
         if (
           !selectedDirectoryURI ||
           selectedDirectoryURI == kAllDirectoryRoot + "?" ||

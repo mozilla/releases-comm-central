@@ -1103,7 +1103,7 @@ SSLErrorHandler.prototype = {
 
 /**
  * @param hostname {String} The DNS hostname to connect to.
- * @param port {Integer} The numeric port to connect to on the host.
+ * @param port {Integer} The numberic port to connect to on the host.
  * @param ssl {Integer} SSL, TLS or NONE
  * @param commands {Array of String}: protocol commands
  *          to send to the server.

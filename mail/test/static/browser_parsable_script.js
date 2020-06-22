@@ -104,7 +104,7 @@ function parsePromise(uri, parseTarget) {
 add_task(async function checkAllTheJS() {
   // In debug builds, even on a fast machine, collecting the file list may take
   // more than 30 seconds, and parsing all files may take four more minutes.
-  // For this reason, this test must be explicitly requested in debug builds by
+  // For this reason, this test must be explictly requested in debug builds by
   // using the "--setpref parse=<filter>" argument to mach.  You can specify:
   //  - A case-sensitive substring of the file name to test (slow).
   //  - A single absolute URI printed out by a previous run (fast).

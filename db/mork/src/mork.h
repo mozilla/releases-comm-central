@@ -72,7 +72,7 @@
 **| to member slots back into pointers to enclosing objects, and
 **| have this exactly match what the compiler thinks is true.
 **|
-**|| Basically we are asking the compiler to determine the offset at
+**|| Bascially we are asking the compiler to determine the offset at
 **| compile time, and we use the definition of address artithmetic
 **| to do this.  By casting integer zero to a pointer of type obj*,
 **| we can reference the address of a slot in such an object that

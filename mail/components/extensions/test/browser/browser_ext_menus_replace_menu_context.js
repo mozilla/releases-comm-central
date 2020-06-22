@@ -21,7 +21,7 @@ function checkIsDefaultMenuItemVisible(visibleMenuItemIds) {
 // Tests that the context of an extension menu can be changed to:
 // - tab
 add_task(async function overrideContext_with_context() {
-  // Background script of the main test extension and the auxiliary other extension.
+  // Background script of the main test extension and the auxilary other extension.
   function background() {
     const HTTP_URL = "http://example.com/?SomeTab";
     browser.test.onMessage.addListener(async (msg, tabId) => {

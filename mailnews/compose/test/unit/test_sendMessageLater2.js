@@ -6,7 +6,7 @@
  * XXX: This test is intended to additionally test sending of multiple messages
  * from one send later instance, however due to the fact we use one connection
  * per message sent, it is very difficult to consistently get the fake server
- * reconnected in time for the next connection. Thus, sending of multiple
+ * reconected in time for the next connection. Thus, sending of multiple
  * messages is currently disabled (but commented out for local testing if
  * required), when we fix bug 136871 we should be able to enable the multiple
  * messages option.

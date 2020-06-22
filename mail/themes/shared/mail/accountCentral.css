@@ -156,7 +156,7 @@ aside.settings-btn-container {
   white-space: nowrap;
   overflow: hidden;
   margin-block: 0;
-  /* Prevents UI jumping when dynamically changing the content. */
+  /* Prevents UI jumping when dinamically changing the content. */
   min-height: 21px;
 }
 
@@ -216,7 +216,7 @@ aside.settings-btn-container {
   font-weight: 600;
   color: var(--title-color);
   margin-block: 10px 20px;
-  /* Prevents UI jumping when dynamically changing the content. */
+  /* Prevents UI jumping when dinamically changing the content. */
   min-height: 21px;
 }
 

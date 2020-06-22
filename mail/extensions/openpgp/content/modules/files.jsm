@@ -518,7 +518,7 @@ var EnigmailFiles = {
    * @param zipFile   - nsIZipReader object: file to be extracted
    * @param targetDir - nsIFile object:      target directory
    *
-   * @return Boolean: true if extraction successful, false otherwise
+   * @return Boolean: true if extraction successfull, false otherwise
    */
   extractZipFile(zipFile, targetDir) {
     // create missing parent directories

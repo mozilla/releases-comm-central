@@ -1821,7 +1821,7 @@ morkStore::NewRow(nsIMdbEnv* mev,        // new row with db assigned oid
 }
 // } ----- end row methods -----
 
-// { ----- begin import/export methods -----
+// { ----- begin inport/export methods -----
 NS_IMETHODIMP
 morkStore::ImportContent(    // import content from port
     nsIMdbEnv* mev,          // context
@@ -1846,7 +1846,7 @@ morkStore::ImportFile(       // import content from port
   NS_ASSERTION(false, " not implemented");
   return NS_ERROR_NOT_IMPLEMENTED;
 }
-// } ----- end import/export methods -----
+// } ----- end inport/export methods -----
 
 // { ----- begin hinting methods -----
 NS_IMETHODIMP

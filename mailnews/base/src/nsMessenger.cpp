@@ -1963,7 +1963,7 @@ NS_IMETHODIMP nsMessenger::OnItemRemoved(nsIMsgFolder* parentItem,
       nsMsgKey msgKey;
       msgHdr->GetMessageKey(&msgKey);
       folder->GenerateMessageURI(msgKey, msgUri);
-      // need to remove the corresponding folder entry, and
+      // need to remove the correspnding folder entry, and
       // adjust the current history pos.
       size_t uriPos = mLoadedMsgHistory.IndexOf(msgUri);
       if (uriPos != mLoadedMsgHistory.NoIndex) {

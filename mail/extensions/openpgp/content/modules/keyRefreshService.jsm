@@ -178,7 +178,7 @@ function start(keyserver) {
 }
 
 /*
-  This module initializes the continuous key refresh functionality. This includes randomly selecting th key to refresh and the timing to wait between each refresh
+  This module intializes the continuous key refresh functionality. This includes randomly selecting th key to refresh and the timing to wait between each refresh
 */
 
 var EnigmailKeyRefreshService = {

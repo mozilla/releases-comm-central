@@ -108,7 +108,7 @@ pref("temp.openpgp.autoKeyServerSelection", true);
 pref("temp.openpgp.maxIdleMinutes", 5);
 
 // maximum number of parallel decrypt processes that Enigmaik will handle
-// (requests above the threshold are ignored)
+// (requests aboved the threshold are ignored)
 pref("temp.openpgp.maxNumProcesses", 3);
 
 // GnuPG hash algorithm

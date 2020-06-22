@@ -830,7 +830,7 @@ var ircBase = {
     "303": function(aMessage) {
       // RPL_ISON
       // :*1<nick> *( " " <nick> )"
-      // Set the status of the buddies based the latest ISON response.
+      // Set the status of the buddies based the lastest ISON response.
       let receivedBuddyNames = [];
       // The buddy names as returned by the server.
       if (aMessage.params.length > 1) {

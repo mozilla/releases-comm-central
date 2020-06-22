@@ -248,7 +248,7 @@ class morkMap : public morkNode {
   Hash(morkEnv* ev, const void* inKey) const = 0;
   // } ===== end morkMap poly interface =====
 
- public:  // open utility methods
+ public:  // open utitity methods
   mork_bool GoodMapTag() const { return mMap_Tag == morkMap_kTag; }
   mork_bool GoodMap() const { return (IsNode() && GoodMapTag()); }
 
@@ -257,7 +257,7 @@ class morkMap : public morkNode {
   void NewSlotsUnderflowWarning(morkEnv* ev);
   void InitMap(morkEnv* ev, mork_size inSlots);
 
- protected:  // internal utility methods
+ protected:  // internal utitity methods
   friend class morkMapIter;
   void clear_map(morkEnv* ev, nsIMdbHeap* ioHeap);
 

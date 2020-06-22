@@ -4448,7 +4448,7 @@ NS_IMETHODIMP nsMsgDatabase::SetNextPseudoMsgKey(nsMsgKey nextPseudoMsgKey) {
 NS_IMETHODIMP nsMsgDatabase::GetNextFakeOfflineMsgKey(
     nsMsgKey* nextFakeOfflineMsgKey) {
   NS_ENSURE_ARG_POINTER(nextFakeOfflineMsgKey);
-  // iterate over hdrs looking for first non-existent fake offline msg key
+  // iterate over hdrs looking for first non-existant fake offline msg key
   nsMsgKey fakeMsgKey = kIdStartOfFake;
 
   bool containsKey;

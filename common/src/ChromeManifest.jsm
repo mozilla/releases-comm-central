@@ -12,7 +12,7 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  */
 class ChromeManifest {
   /**
-   * Constructs the chrome.manifest parser
+   * Constucts the chrome.manifest parser
    *
    * @param {Function} loader           An asynchronous function that will load further files, e.g.
    *                                      those included via the |manifest| instruction. The

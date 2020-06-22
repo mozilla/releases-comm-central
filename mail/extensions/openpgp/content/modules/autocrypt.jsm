@@ -360,7 +360,7 @@ var EnigmailAutocrypt = {
         prev.type === "1" &&
         keyArr[i].type === "1g"
       ) {
-        // skip if we have "gossip" key preceded by a "regular" key
+        // skip if we have "gossip" key preceeded by a "regular" key
         continue;
       }
       if (!acceptGossipKeys && keyArr[i].type === "1g") {
@@ -428,7 +428,7 @@ var EnigmailAutocrypt = {
         let key = EnigmailKeyRing.getKeyById(keysObj.value[0]);
 
         // enable encryption if state (prefer-encrypt) is "mutual";
-        // otherwise, disable it explicitly
+        // otherwise, disable it explicitely
         let signEncrypt = autocryptState === "mutual" ? 1 : 0;
 
         if (key && key.fpr) {

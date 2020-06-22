@@ -85,5 +85,5 @@ mail/locales/en-US/all-l10n.js
 mail/components/compose/texzilla/**
 mail/components/compose/composer.js
 
-# exclude MailConstants.jsm because: #filter substitution
+# exclude MailConstants.jsm because: #filter subtitution
 mail/base/modules/MailConstants.jsm

@@ -294,7 +294,7 @@ function processCSSRules(sheet) {
     // Note: CSSRule.cssText always has double quotes around URLs even
     //       when the original CSS file didn't.
     let urls = rule.cssText.match(/url\("[^"]*"\)/g);
-    // Extract props by searching all "--" preceded by "var(" or a non-word
+    // Extract props by searching all "--" preceeded by "var(" or a non-word
     // character.
     let props = rule.cssText.match(/(var\(|\W)(--[\w\-]+)/g);
     if (!urls && !props) {

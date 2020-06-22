@@ -429,7 +429,7 @@ class morkStore : public morkObject, public nsIMdbStore {
 
   // } ----- end row methods -----
 
-  // { ----- begin import/export methods -----
+  // { ----- begin inport/export methods -----
   NS_IMETHOD ImportContent(  // import content from port
       nsIMdbEnv* ev,         // context
       mdb_scope inRowScope,  // scope for rows (or zero for all?)
@@ -444,7 +444,7 @@ class morkStore : public morkObject, public nsIMdbStore {
       nsIMdbThumb** acqThumb) override;  // acquire thumb for incremental import
   // Call nsIMdbThumb::DoMore() until done, or until the thumb is broken, and
   // then the import will be finished.
-  // } ----- end import/export methods -----
+  // } ----- end inport/export methods -----
 
   // { ----- begin hinting methods -----
   NS_IMETHOD

@@ -485,7 +485,7 @@ interface nsIActivityListener : nsISupports {
    *
    * This is mostly used to update the UI of the activity when
    * one of the handler is set to null after the operation is completed.
-   * For example after the activity is undone, to make the undo button
+   * For example after the activity is undoed, to make the undo button
    * invisible.
    */
   void onHandlerChanged(in nsIActivity aActivity);

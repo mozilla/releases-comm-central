@@ -343,7 +343,7 @@ var EnigmailEncryption = {
    *
    * @return Object:
    *         - keyId:    String - the found key ID, or null if fromMailAddr is not valid
-   *         - errorMsg: String - the error message if key not valid, or null if key is valid
+   *         - errorMsg: String - the erorr message if key not valid, or null if key is valid
    */
   determineOwnKeyUsability(sendFlags, fromMailAddr) {
     EnigmailLog.DEBUG(

@@ -181,7 +181,7 @@ var EnigmailFuncs = {
     var prefRoot = EnigmailPrefs.getPrefRoot();
     var fontStyle = "";
 
-    // set the style stuff according to preferences
+    // set the style stuff according to perferences
 
     switch (prefRoot.getIntPref("mail.quoted_style")) {
       case 1:

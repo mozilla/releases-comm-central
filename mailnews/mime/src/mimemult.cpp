@@ -431,7 +431,7 @@ static int MimeMultipart_create_child(MimeObject* obj) {
         /* bug 21869 -- due to the fact that we are not generating the
            correct mime class object for content-typ multipart/signed part
            the above check failed. to solve the problem in general and not
-           to cause early termination when parsing message for opening as
+           to cause early temination when parsing message for opening as
            draft we can simply make sure that the child is not a multipart
            mime object. this way we could have a proper decomposing message
            part functions set correctly */
@@ -520,7 +520,7 @@ static int MimeMultipart_close_child(MimeObject* object) {
             /* bug 21869 -- due to the fact that we are not generating the
                correct mime class object for content-typ multipart/signed part
                the above check failed. to solve the problem in general and not
-               to cause early termination when parsing message for opening as
+               to cause early temination when parsing message for opening as
                draft we can simply make sure that the child is not a multipart
                mime object. this way we could have a proper decomposing message
                part functions set correctly */
@@ -563,7 +563,7 @@ static int MimeMultipart_parse_child_line(MimeObject* obj, const char* line,
         /* bug 21869 -- due to the fact that we are not generating the
            correct mime class object for content-typ multipart/signed part
            the above check failed. to solve the problem in general and not
-           to cause early termination when parsing message for opening as
+           to cause early temination when parsing message for opening as
            draft we can simply make sure that the child is not a multipart
            mime object. this way we could have a proper decomposing message
            part functions set correctly */

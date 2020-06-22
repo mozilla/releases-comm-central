@@ -65,7 +65,7 @@ add_task(() =>
 );
 
 // Test that an update that narrows origin permissions is just applied without
-// showing a notification prompt
+// showing a notification promt
 add_task(() =>
   testUpdateNoPrompt(
     "browser_webext_update_origins1.xpi",

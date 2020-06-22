@@ -66,7 +66,7 @@ function* testFetchCustomValue() {
   yield false;
 }
 
-// listens for response from fetchCustomMsgAttribute request for X-CUSTOM-VALUE
+// listens for resposne from fetchCustomMsgAttribute request for X-CUSTOM-VALUE
 var fetchCustomValueListener = {
   OnStartRunningUrl(aUrl) {},
 

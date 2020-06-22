@@ -125,7 +125,7 @@ function _disable(id) {
 
 function setText(id, value) {
   var element = e(id);
-  assert(element, "setText() on non-existent element ID");
+  assert(element, "setText() on non-existant element ID");
 
   if (element.localName == "input" || element.localName == "label") {
     element.value = value;

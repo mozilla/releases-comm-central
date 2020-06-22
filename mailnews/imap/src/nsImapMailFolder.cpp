@@ -8032,7 +8032,7 @@ NS_IMETHODIMP nsImapMailFolder::SetFolderQuotaData(
           aFolderQuotaRoot, aFolderQuotaUsage, aFolderQuotaLimit));
       break;
     case kValidateQuota:
-      // GETQUOTAROOT command was successful and OK response has occurred. This
+      // GETQUOTAROOT command was successful and OK response has occcured. This
       // indicates that all the untagged QUOTA responses have occurred so mark
       // as valid.
       m_folderQuotaDataIsValid = true;

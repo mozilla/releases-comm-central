@@ -2357,7 +2357,7 @@ nsMsgLocalMailFolder::EndMove(bool moveSucceeded) {
     srcFolder->NotifyFolderEvent(kDeleteOrMoveMsgFailed);
 
     /* passing true because the messages that have been successfully copied have
-       their corresponding hdrs in place. The message that has failed has been
+       their corressponding hdrs in place. The message that has failed has been
        truncated so the msf file and berkeley mailbox are in sync*/
 
     (void)OnCopyCompleted(mCopyState->m_srcSupport, true);

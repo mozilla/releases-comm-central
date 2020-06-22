@@ -143,7 +143,7 @@ function msgHdrFromNeckoUrl(aUrl) {
 }
 
 /**
- * Get a string containing the body of a message.
+ * Get a string containing the body of a messsage.
  * @param {nsIMsgDbHdr} aMessageHeader The message header
  * @param {bool} aStripHtml Keep html?
  * @return {string}

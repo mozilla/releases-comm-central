@@ -155,7 +155,7 @@ var EnigmailKeyRing = {
    *
    * @param keyId      - String: key Id with 16 characters (preferred) or 8 characters),
    *                             or fingerprint (40 or 32 characters).
-   *                             Optionally preceded with "0x"
+   *                             Optionally preceeded with "0x"
    * @param noLoadKeys - Boolean [optional]: do not try to load the key list first
    *
    * @return Object - found KeyObject or null if key not found
@@ -445,7 +445,7 @@ var EnigmailKeyRing = {
    * Get a list of UserIds for a given key.
    * Only the Only UIDs with highest trust level are returned.
    *
-   * @param  String  keyId   key, optionally preceded with 0x
+   * @param  String  keyId   key, optionally preceeded with 0x
    *
    * @return Array of String: list of UserIds
    */

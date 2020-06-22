@@ -240,7 +240,7 @@ Enigmail.msg = {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.handleClick\n");
     switch (event.button) {
       case 2:
-        // do not process the event any further
+        // do not process the event any futher
         // needed on Windows to prevent displaying the context menu
         event.preventDefault();
         this.doPgpButton();
@@ -488,7 +488,7 @@ Enigmail.msg = {
           });
         } catch (ex) {
           EnigmailLog.DEBUG(
-            "enigmailMessengerOverlay.js: Enigmail.msg.getMsgProperties: exception in getMimeTreeFromUrl\n"
+            "enigmailMessengerOverlay.js: Enigmail.msg.getMsgProperties: excetion in getMimeTreeFromUrl\n"
           );
         }
       }

@@ -1179,7 +1179,7 @@ add_task(function test_disabled_fields_when_searching() {
  * Subtest for test_disabled_fields_when_searching. Sets up a fake HTTP server
  * that slowly returns a search suggestion, and then checks to ensure all the
  * right fields are disabled (search input, search button, all check boxes).
- * We also make sure those fields are re-enabled once the test is completed.
+ * We also make sure those fields are renabled once the test is completed.
  */
 function subtest_disabled_fields_when_searching(aController) {
   const kSuggestPath = "/slowSuggest";

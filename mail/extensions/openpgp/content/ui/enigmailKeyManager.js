@@ -1006,7 +1006,7 @@ function enigmailDowloadContactKeysEngine() {
     }
   }
 
-  // list of emails might be empty here, in which case we do nothing
+  // list of emails might be emoty here, in which case we do nothing
   if (emails.length <= 0) {
     return;
   }

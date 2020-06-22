@@ -193,7 +193,7 @@ var MimeTypeNoun = {
 
   /**
    * In order to allow the gloda query mechanism to avoid hitting the database,
-   *  we need to either define the noun type as cacheable and have a super-large
+   *  we need to either define the noun type as cachable and have a super-large
    *  cache or simply have a collection with every MIME type in it that stays
    *  alive forever.
    * This is that collection.  It is initialized by |_loadMimeTypes|.  As new

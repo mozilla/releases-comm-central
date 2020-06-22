@@ -196,7 +196,7 @@ int32_t nsMsgSearchBoolExpression::CalcEncodeStrSize()
 }
 
 void nsMsgSearchBoolExpression::GenerateEncodeStr(nsCString* buffer)
-// recursively combine sub expressions to form a single IMAP/NNTP encoded string
+// recurively combine sub expressions to form a single IMAP/NNTP encoded string
 {
   if ((!m_term && (!m_leftChild || !m_rightChild)))  // is expression empty?
     return;

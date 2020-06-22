@@ -48,7 +48,7 @@
             this.proceedDefaultAction();
           }
         }
-        // Prevent from loading an account wizard
+        // Prevent from loading an account wizzard
         event.stopPropagation();
       });
 

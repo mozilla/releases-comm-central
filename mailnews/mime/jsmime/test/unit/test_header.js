@@ -844,7 +844,7 @@ define(function(require) {
         ],
         // Collapse multiple consecutive "special" spaces, like zero width space
         // etc.
-        // \u00AD is soft hyphen. \u200B is zero width space.
+        // \u00AD is soft hypen. \u200B is zero width space.
         [
           `invisiblespaceA@friend.example.com B \u200B\u00AD \u200B \u200B A. <foeA@example.com>`,
           [
@@ -857,7 +857,7 @@ define(function(require) {
 
         // Collapse multiple consecutive "special" spaces, like zero width space
         // etc. also when encoded.
-        // \u00AD is soft hyphen. \u200B is zero width space.
+        // \u00AD is soft hypen. \u200B is zero width space.
         // unescape(encodeURIComponent(source)) encodes the JavaScript UTF-16 representation
         // of the string into UTF-8. Example: encodeURIComponent("ö") returns "%C3%B6",
         // unescape("%C3%B6") returns the bytes 0xC3B6 which is the UTF-8 encoding of "ö".

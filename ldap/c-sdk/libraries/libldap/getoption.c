@@ -356,7 +356,7 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
 
 /*
  * Table of extended API features we support.
- * The first field is the version of the info. structure itself; we do not
+ * The first field is the version of the info. strcuture itself; we do not
  * use the ones from this table so it is okay to leave as zero.
  */
 static LDAPAPIFeatureInfo nsldapi_extensions[] = {

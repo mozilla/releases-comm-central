@@ -6656,7 +6656,7 @@ bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
       nsCString newChildName(newParentMailboxName);
       newChildName += (currentName + PL_strlen(oldParentMailboxName));
       // Pass in 'nonHierarchicalRename' to determine if we should really
-      // rename, or just move subscriptions.
+      // reanme, or just move subscriptions.
       renameSucceeded = RenameMailboxRespectingSubscriptions(
           currentName, newChildName.get(), nonHierarchicalRename);
       PR_FREEIF(currentName);

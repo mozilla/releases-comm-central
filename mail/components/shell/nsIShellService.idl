@@ -21,7 +21,7 @@ interface nsIShellService : nsISupports
    * passed in app type.
    *
    * This is simply whether or not Thunderbid is registered to handle
-   * the url scheme associated with the app.
+   * the url scheme associatd with the app.
    *
    * @param aStartupCheck true if this is the check being performed
    *                      by the first mail window at startup,

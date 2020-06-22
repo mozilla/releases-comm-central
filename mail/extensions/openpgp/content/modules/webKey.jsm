@@ -182,7 +182,7 @@ function getWkdIdentities(keys) {
  * @param win:         nsIWindow - parent window
  * @param observer:    Object:
  *                       - onProgress: function(percentComplete [0 .. 100])
- *                             called after processing of every key (independent of status)
+ *                             called after processing of every key (indpendent of status)
  *                       - onUpload: function(fpr)
  *                              called after successful uploading of a key
  *                       - onFinished: function(completionStatus, errorMessage, displayError)

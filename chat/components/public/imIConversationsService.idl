@@ -20,7 +20,7 @@ interface imIConversation: prplIConversation {
                      [optional] in boolean aIsError,
                      [optional] in boolean aNoCollapse);
 
-  // Write a system message into the conversation and trigger the update of the
+  // Write a system message into the conversation and trigger the udpate of the
   // notification counter during an off-the-record authentication request.
   // Note: this will not be logged.
   void notifyVerifyOTR(in AUTF8String aMessage);

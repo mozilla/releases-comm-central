@@ -69,7 +69,7 @@ const throwErrors = {
 };
 
 /**
- * UnknownProtoHandler is a default handler for unknown protocols. It ensures that the
+ * UnknownProtoHandler is a default handler for unkonwn protocols. It ensures that the
  * signed message part is always displayed without any further action.
  */
 function UnknownProtoHandler() {
@@ -97,7 +97,7 @@ UnknownProtoHandler.prototype = {
       readMode:
         0: before message
         1: inside message
-        2: after message
+        2: afer message
     */
     this.readMode = 0;
   },

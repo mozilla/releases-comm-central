@@ -35,7 +35,7 @@ const str_encrypt = "encrypt";
 const str_sign = "sign";
 const str_certify = "certify";
 const str_authenticate = "authenticate";
-const RNP_PHOTO_USERID_ID = "(photo)"; // string is hardcoded inside RNP
+const RNP_PHOTO_USERID_ID = "(photo)"; // string is harcoded inside RNP
 
 var RNPLib;
 
@@ -1125,7 +1125,7 @@ var RNP = {
 
     if (typeof keyBlockStr != "string") {
       throw new Error(
-        "keyBlockStr of unexpected type importToFFI: %o",
+        "keyBlockStr of unepected type importToFFI: %o",
         keyBlockStr
       );
     }

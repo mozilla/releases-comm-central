@@ -322,7 +322,7 @@ var EnigmailAutoSetup = {
    * to use that key. The keys are not protected by a password.
    *
    * The creation is done in the background after waiting timeoutValue ms
-   * @param {Number} timeoutValue: number of milliseconds to wait before starting
+   * @param {Number} timeoutValue: number of miliseconds to wait before starting
    *                               the process
    */
   createKeyForAllAccounts(timeoutValue = 1000) {
@@ -558,7 +558,7 @@ function checkHeaders(
       headerObj["autocrypt-setup-message"] &&
       msgHeader.author == msgHeader.recipients
     ) {
-      // To extract Attachment for Autocrypt Setup Message
+      // To extract Attachement for Autocrypt Setup Message
 
       returnMsgValue.attachment = await getStreamedMessage(
         msgFolder,

@@ -30,7 +30,7 @@ var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 var EnigmailKey = {
   /**
    * Format a key fingerprint
-   * @fingerprint |string|  -  unformatted OpenPGP fingerprint
+   * @fingerprint |string|  -  unformated OpenPGP fingerprint
    *
    * @return |string| - formatted string
    */

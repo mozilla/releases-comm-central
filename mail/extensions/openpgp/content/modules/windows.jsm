@@ -102,7 +102,7 @@ var EnigmailWindows = {
    * matching name.
    *
    * @win:       nsIWindow - XUL window to search
-   * @frameName: String    - name of the frame to search
+   * @frameName: String    - name of the frame to seach
    *
    * @return:    the frame object or null if not found
    */
@@ -353,7 +353,7 @@ var EnigmailWindows = {
    * @win        - |object| holding the parent window for the dialog
    * @keyId      - |string| containing the key ID (eg. "0x12345678")
    * @userId     - |string| containing the User ID (for displaing in the dialog only)
-   * @photoNumber - |number| UAT entry in the sequence of appearance in the key listing, starting with 0
+   * @photoNumber - |number| UAT entry in the squence of appearance in the key listing, starting with 0
    * no return value
    */
   showPhoto(win, keyId, userId, photoNumber) {
