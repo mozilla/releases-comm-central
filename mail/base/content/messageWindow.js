@@ -9,6 +9,7 @@
 /* import-globals-from ../../../../toolkit/content/viewZoomOverlay.js */
 /* import-globals-from ../../../mailnews/base/content/junkCommands.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
+/* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mail-offline.js */
@@ -21,7 +22,6 @@
 /* import-globals-from msgViewNavigation.js */
 /* import-globals-from phishingDetector.js */
 /* import-globals-from toolbarIconColor.js */
-/* globals PanelUI */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
@@ -279,6 +279,7 @@ StandaloneMessageDisplayWidget.prototype = {
 
     // Initialize the appmenu.
     PanelUI.init();
+    gExtensionsNotifications.init();
 
     // We've loaded a message, so this should be set to false
     this.aboutToLoadMessage = false;

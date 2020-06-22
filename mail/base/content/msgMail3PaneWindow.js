@@ -7,22 +7,22 @@
 /* import-globals-from ../../../calendar/base/content/calendar-chrome-startup.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../../mailnews/base/util/MailnewsMigrator.jsm */
+/* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
-/* import-globals-from messenger-customization.js */
+/* import-globals-from ../../extensions/openpgp/content/BondOpenPGP.jsm */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from folderPane.js */
 /* import-globals-from glodaFacetTab.js */
 /* import-globals-from mailTabs.js */
 /* import-globals-from mailWindow.js */
+/* import-globals-from messenger-customization.js */
 /* import-globals-from quickFilterBar.js */
 /* import-globals-from searchBar.js */
 /* import-globals-from searchBar.js */
 /* import-globals-from specialTabs.js */
 /* import-globals-from toolbarIconColor.js */
-/* import-globals-from ../../extensions/openpgp/content/BondOpenPGP.jsm */
-/* globals PanelUI */
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
@@ -596,6 +596,7 @@ function OnLoadMessenger() {
 
   // Set up the appmenus. (This has to happen after the DOM has loaded.)
   PanelUI.init();
+  gExtensionsNotifications.init();
 
   // Load the periodic filter timer.
   PeriodicFilterManager.setupFiltering();

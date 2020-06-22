@@ -1300,7 +1300,6 @@ var gExtensionsNotifications = {
   },
 };
 
-addEventListener("load", () => gExtensionsNotifications.init(), { once: true });
 addEventListener("unload", () => gExtensionsNotifications.uninit(), {
   once: true,
 });
