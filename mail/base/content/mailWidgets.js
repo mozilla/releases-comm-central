@@ -625,10 +625,13 @@
         let title = useChildren
           ? "threadPane.columnPicker.confirmFolder.withChildren.title"
           : "threadPane.columnPicker.confirmFolder.noChildren.title";
+        let message = useChildren
+          ? "threadPane.columnPicker.confirmFolder.withChildren.message"
+          : "threadPane.columnPicker.confirmFolder.noChildren.message";
         let confirmed = Services.prompt.confirm(
           null,
-          title,
-          bundle.getFormattedString(title, [destFolder.prettyName])
+          bundle.getString(title),
+          bundle.getFormattedString(message, [destFolder.prettyName])
         );
         if (confirmed) {
           this._applyColumns(destFolder, useChildren);
