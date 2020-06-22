@@ -103,11 +103,12 @@ nsContextMenu.prototype = {
       let menuObject = PageMenuParent.maybeBuild(this.target);
       this.hasPageMenu = PageMenuParent.addToPopup(menuObject, null, aPopup);
 
+      // The rest of this block sends menu information to WebExtensions.
       let subject = {
         menu: aPopup,
         tab: document.getElementById("tabmail")
           ? document.getElementById("tabmail").currentTabInfo
-          : undefined,
+          : window,
         isContentSelected: this.isContentSelected,
         isTextSelected: this.isTextSelected,
         onTextInput: this.onTextInput,
