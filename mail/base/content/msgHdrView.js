@@ -1242,6 +1242,7 @@ function UpdateExpandedMessageHeaders() {
 
 function ClearCurrentHeaders() {
   currentHeaderData = {};
+  // eslint-disable-next-line no-global-assign
   currentAttachments = [];
 }
 
