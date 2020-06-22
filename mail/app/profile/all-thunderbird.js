@@ -1218,8 +1218,7 @@ pref("devtools.whatsnew.feature-enabled", true);
 // Telemetry settings.
 
 // Server to submit telemetry pings to.
-// For now we'll just default to local testing:
-pref("toolkit.telemetry.server", "http://localhost:8080");
+pref("toolkit.telemetry.server", "https://incoming-telemetry.thunderbird.net");
 pref("toolkit.telemetry.server_owner", "Thunderbird");
 
 // Determines if Telemetry pings can be archived locally.
