@@ -56,6 +56,7 @@ CustomizeDialogHelper.prototype = {
     } else {
       ctc = wh.wait_for_existing_window(this._windowType);
     }
+    ctc.sleep(500);
     return ctc;
   },
 
