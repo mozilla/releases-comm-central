@@ -41,12 +41,15 @@ ABView.prototype = {
     "addrbook-directory-invalidated",
     "addrbook-contact-created",
     "addrbook-contact-deleted",
+    "addrbook-contact-updated",
+    "addrbook-list-updated",
     "addrbook-list-member-added",
     "addrbook-list-member-removed",
   ],
 
   sortColumn: "",
   sortDirection: "",
+  collator: new Intl.Collator(undefined, { numeric: true }),
 
   deleteSelectedCards() {
     let directoryMap = new Map();
@@ -95,10 +98,10 @@ ABView.prototype = {
       this._rowMap.sort((a, b) => {
         let aText = a.getText(sortColumn);
         let bText = b.getText(sortColumn);
-        if (aText == bText) {
-          return 0;
+        if (sortDirection == "descending") {
+          return this.collator.compare(bText, aText);
         }
-        return aText < bText ? -1 : 1;
+        return this.collator.compare(aText, bText);
       });
     }
 
@@ -165,11 +168,55 @@ ABView.prototype = {
         }
       // Falls through.
       case "addrbook-contact-created":
-        this._rowMap.push(new abViewCard(subject));
+        let viewCard = new abViewCard(subject);
+        let sortText = viewCard.getText(this.sortColumn);
+        let added = false;
+        for (let i = this._rowMap.length - 1; !added && i >= 0; i--) {
+          if (
+            this.collator.compare(
+              sortText,
+              this._rowMap[i].getText(this.sortColumn)
+            ) < 0
+          ) {
+            this._rowMap.splice(
+              this.sortDirection == "ascending" ? i : i + 1,
+              0,
+              viewCard
+            );
+            added = true;
+          }
+        }
+        if (!added) {
+          if (this.sortDirection == "ascending") {
+            this._rowMap.push(viewCard);
+          } else {
+            this._rowMap.unshift(viewCard);
+          }
+        }
         if (this.listener) {
           this.listener.onCountChanged(this.rowCount);
         }
         break;
+
+      case "addrbook-list-updated":
+        if (!this.directory) {
+          break;
+        }
+      // Falls through.
+      case "addrbook-contact-updated": {
+        let needsSort = false;
+        for (let i = this._rowMap.length - 1; i >= 0; i--) {
+          if (this._rowMap[i].card.equals(subject)) {
+            this._rowMap[i]._getTextCache = {};
+            needsSort = true;
+          }
+        }
+        if (needsSort) {
+          this.sortBy(this.sortColumn, this.sortDirection, true);
+        }
+        break;
+      }
+
       case "addrbook-list-member-removed":
         if (!this.directory) {
           break;
@@ -191,9 +238,10 @@ ABView.prototype = {
 
 function abViewCard(card) {
   this.card = card;
+  this._getTextCache = {};
 }
 abViewCard.prototype = {
-  getText(columnID) {
+  _getText(columnID) {
     try {
       switch (columnID) {
         case "addrbook": {
@@ -216,6 +264,12 @@ abViewCard.prototype = {
     } catch (ex) {
       return "";
     }
+  },
+  getText(columnID) {
+    if (!(columnID in this._getTextCache)) {
+      this._getTextCache[columnID] = this._getText(columnID);
+    }
+    return this._getTextCache[columnID];
   },
   get id() {
     return this.card.UID;

@@ -234,3 +234,106 @@ add_task(async () => {
 
   observer.cleanUp();
 });
+
+add_task(async () => {
+  function openDirectory(directory) {
+    for (let i = 0; i < abDirTree.view.rowCount; i++) {
+      abDirTree.changeOpenState(i, true);
+    }
+
+    let row = abWindow.gDirectoryTreeView.getIndexForId(directory.URI);
+    mailTestUtils.treeClick(EventUtils, abWindow, abDirTree, row, 0, {});
+  }
+
+  function checkRows(...expectedCards) {
+    Assert.equal(
+      abWindow.gAbView.rowCount,
+      expectedCards.length,
+      "rowCount correct"
+    );
+    for (let i = 0; i < expectedCards.length; i++) {
+      Assert.equal(
+        abWindow.gAbView.getCardFromRow(i).displayName,
+        expectedCards[i].displayName
+      );
+    }
+  }
+
+  let abWindow = await openAddressBookWindow();
+  let abDirTree = abWindow.GetDirTree();
+  let abContactTree = abWindow.document.getElementById("abResultsTree");
+
+  Assert.equal(abContactTree.columns[0].element.id, "GeneratedName");
+  Assert.equal(
+    abContactTree.columns[0].element.getAttribute("sortDirection"),
+    "ascending"
+  );
+  for (let i = 1; i < abContactTree.columns.length; i++) {
+    Assert.equal(
+      abContactTree.columns[i].element.getAttribute("sortDirection"),
+      ""
+    );
+  }
+
+  let bookA = createAddressBook("book A");
+  openDirectory(bookA);
+  checkRows();
+  let contactA2 = bookA.addCard(createContact("contact", "A2"));
+  let contactA1 = bookA.addCard(createContact("contact", "A1")); // Add first.
+  let contactA5 = bookA.addCard(createContact("contact", "A5")); // Add last.
+  checkRows(contactA1, contactA2, contactA5);
+  let contactA3 = bookA.addCard(createContact("contact", "A3")); // Add in the middle.
+  checkRows(contactA1, contactA2, contactA3, contactA5);
+
+  // Flip sort direction.
+  EventUtils.synthesizeMouseAtCenter(
+    abContactTree.columns.GeneratedName.element,
+    {},
+    abWindow
+  );
+  Assert.equal(
+    abContactTree.columns[0].element.getAttribute("sortDirection"),
+    "descending"
+  );
+  checkRows(contactA5, contactA3, contactA2, contactA1);
+  let contactA4 = bookA.addCard(createContact("contact", "A4")); // Add in the middle.
+  checkRows(contactA5, contactA4, contactA3, contactA2, contactA1);
+  let contactA7 = bookA.addCard(createContact("contact", "A7")); // Add first.
+  checkRows(contactA7, contactA5, contactA4, contactA3, contactA2, contactA1);
+  let contactA0 = bookA.addCard(createContact("contact", "A0")); // Add last.
+  checkRows(
+    contactA7,
+    contactA5,
+    contactA4,
+    contactA3,
+    contactA2,
+    contactA1,
+    contactA0
+  );
+
+  contactA3.displayName = "contact A6";
+  contactA3.lastName = "contact A3";
+  contactA3.primaryEmail = "contact.A6@invalid";
+  bookA.modifyCard(contactA3); // Rename, should change position.
+  checkRows(
+    contactA7,
+    contactA3, // Actually A6.
+    contactA5,
+    contactA4,
+    contactA2,
+    contactA1,
+    contactA0
+  );
+
+  // Restore original sort direction.
+  EventUtils.synthesizeMouseAtCenter(
+    abContactTree.columns.GeneratedName.element,
+    {},
+    abWindow
+  );
+  await closeAddressBookWindow(abWindow);
+
+  let deletePromise = promiseDirectoryRemoved();
+  MailServices.ab.deleteAddressBook(bookA.URI);
+  await deletePromise;
+});
