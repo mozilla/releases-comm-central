@@ -399,7 +399,7 @@ function view_init() {
     .setAttribute("disabled", !gMessageDisplay.displayedMessage);
   let appmenuCharset = document.getElementById("appmenu_charsetMenu");
   if (appmenuCharset) {
-    appmenuCharset.setAttribute("disabled", !gMessageDisplay.displayedMessage);
+    appmenuCharset.disabled = !gMessageDisplay.displayedMessage;
   }
 }
 
