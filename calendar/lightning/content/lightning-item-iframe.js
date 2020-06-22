@@ -410,6 +410,18 @@ function onLoad() {
     }
   }
 
+  window.addEventListener("resize", () => {
+    let { attendeesInRow, maxLabelWidth } = rearrangeAttendees(
+      window.attendees,
+      document,
+      window.attendeesInRow,
+      window.maxLabelWidth
+    );
+
+    window.attendeesInRow = attendeesInRow;
+    window.maxLabelWidth = maxLabelWidth;
+  });
+
   // we store the recurrence info in the window so it
   // can be accessed from any location. since the recurrence
   // info is a property of the parent item we need to check
