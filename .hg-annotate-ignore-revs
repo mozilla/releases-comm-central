@@ -5,3 +5,5 @@ ab9b63f9d2266b4607b926ba227d89ae117bb3f9 - Paul Morris - Bug 1577835 - Reformat 
 883449e17f9dc912d4f5487faac540db61850ca1 - Paul Morris - Bug 1577835 - Reformat mail/ code with eslint and Prettier. r=mkmelin
 5b47088d84e77f42fd810d0c68c9518be20bc6f5 - Paul Morris - Bug 1577835 - Reformat mailnews/ code with eslint and Prettier. r=mkmelin
 8177b85d18db77c4787461cd6db9575ef9935aea - Paul Morris - Bug 1577835 - Reformat the .eslintrc.js files with Prettier. r=mkmelin
+06085479b24375af086fd0000cc00b5ce78d1d61 - Ben Campbell - Bug 1643561 - Reformat C++ to M-C clang-format rules (mainly PointerAlignment: Left). rs=mkmelin
+7e4d2d1cab11d7e423b5f3eaed2617add76e480b - Ben Campbell - Bug 1643561 - Apply M-C clang-format rules to ldap c-sdk. rs=mkmelin
