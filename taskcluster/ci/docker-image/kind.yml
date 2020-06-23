@@ -27,7 +27,6 @@ reference-jobs:
     - deb8-toolchain-build
     - deb9-toolchain-build
     - deb10-toolchain-build
-    - desktop1604-test
     - fetch
     - funsize-update-generator
     - index-task
@@ -35,6 +34,7 @@ reference-jobs:
     - lint
     - mingw32-build
     - periodic-updates
+    - ubuntu1804-test
     - update-verify
 
 transforms:

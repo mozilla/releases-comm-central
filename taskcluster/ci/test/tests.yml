@@ -17,8 +17,6 @@ xpcshell:
     suite: xpcshell
     treeherder-symbol: X(X)
     run-on-projects: built-projects
-    docker-image:
-        in-tree: "desktop1604-test"
     chunks: 4
     instance-size: default
     max-run-time: 5400
