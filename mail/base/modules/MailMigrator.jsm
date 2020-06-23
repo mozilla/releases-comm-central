@@ -782,15 +782,34 @@ var MailMigrator = {
         await newBook._bulkAddCards(cardMap.values());
 
         for (let card of database.enumerateCards(directory)) {
-          if (card.isMailList) {
+          if (!card.isMailList) {
+            continue;
+          }
+          try {
+            let listName = card.displayName
+              .replace(/[,;"<>]/g, "")
+              .replace(/\s\s+/g, " ")
+              .trim();
+            if (!listName) {
+              listName = "List";
+            }
+            if (uniqueListNames.has(listName)) {
+              let ordinal = 1;
+              let tempName;
+              do {
+                tempName = `${listName} ${ordinal++}`;
+              } while (uniqueListNames.has(tempName));
+              listName = tempName;
+            }
             let mailList = Cc[
               "@mozilla.org/addressbook/directoryproperty;1"
             ].createInstance(Ci.nsIAbDirectory);
             mailList.isMailList = true;
-            mailList.dirName = card.displayName;
+            mailList.dirName = listName;
             mailList.listNickName = card.getProperty("NickName", "");
             mailList.description = card.getProperty("Notes", "");
             mailList = newBook.addMailList(mailList);
+            uniqueListNames.add(listName);
 
             for (let listCard of database.enumerateListAddresses(
               directory,
@@ -801,6 +820,8 @@ var MailMigrator = {
                 mailList.addCard(cardMap.get(listCard.localId));
               }
             }
+          } catch (ex) {
+            Cu.reportError(ex);
           }
         }
       }
@@ -815,6 +836,7 @@ var MailMigrator = {
       oldFile.renameTo(profileDir, backupFile.leafName);
     }
 
+    let uniqueListNames = new Set();
     let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
     for (let name of Services.prefs.getChildList("ldap_2.servers.")) {
       try {
