@@ -1452,7 +1452,7 @@ var RNP = {
       throw new Error("rnp_locate_key failed");
     }
 
-    let flags = RNPLib.RNP_KEY_REMOVE_PUBLIC;
+    let flags = RNPLib.RNP_KEY_REMOVE_PUBLIC | RNPLib.RNP_KEY_REMOVE_SUBKEYS;
     if (deleteSecret) {
       flags |= RNPLib.RNP_KEY_REMOVE_SECRET;
     }
