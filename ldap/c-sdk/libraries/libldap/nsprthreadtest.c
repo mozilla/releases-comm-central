@@ -42,49 +42,49 @@
 #define PASSWORD "secret99"
 #define BASE "dc=example,dc=com"
 
-static int simplebind(LDAP *ld, char *msg, int tries);
-static void search_thread(void *);
-static void modify_thread(void *);
-static void add_thread(void *);
-static void delete_thread(void *);
+static int simplebind(LDAP* ld, char* msg, int tries);
+static void search_thread(void*);
+static void modify_thread(void*);
+static void add_thread(void*);
+static void delete_thread(void*);
 static void set_ld_error();
 static int get_ld_error();
 static void set_errno();
 static int get_errno();
 static void tsd_setup();
-static void *my_mutex_alloc(void);
-static void my_mutex_free(void *);
-static int my_mutex_lock(void *);
-static int my_mutex_unlock(void *);
-static LDAPHostEnt *my_gethostbyname(const char *name, LDAPHostEnt *result,
-                                     char *buffer, int buflen, int *statusp,
-                                     void *extradata);
-static LDAPHostEnt *my_gethostbyaddr(const char *addr, int length, int type,
-                                     LDAPHostEnt *result, char *buffer,
-                                     int buflen, int *statusp, void *extradata);
-static LDAPHostEnt *copyPRHostEnt2LDAPHostEnt(LDAPHostEnt *ldhp,
-                                              PRHostEnt *prhp);
+static void* my_mutex_alloc(void);
+static void my_mutex_free(void*);
+static int my_mutex_lock(void*);
+static int my_mutex_unlock(void*);
+static LDAPHostEnt* my_gethostbyname(const char* name, LDAPHostEnt* result,
+                                     char* buffer, int buflen, int* statusp,
+                                     void* extradata);
+static LDAPHostEnt* my_gethostbyaddr(const char* addr, int length, int type,
+                                     LDAPHostEnt* result, char* buffer,
+                                     int buflen, int* statusp, void* extradata);
+static LDAPHostEnt* copyPRHostEnt2LDAPHostEnt(LDAPHostEnt* ldhp,
+                                              PRHostEnt* prhp);
 
 typedef struct ldapmsgwrapper {
-  LDAPMessage *lmw_messagep;
-  struct ldapmsgwrapper *lmw_next;
+  LDAPMessage* lmw_messagep;
+  struct ldapmsgwrapper* lmw_next;
 } ldapmsgwrapper;
 
 #define CONNECTION_ERROR(lderr) \
   ((lderr) == LDAP_SERVER_DOWN || (lderr) == LDAP_CONNECT_ERROR)
 
-LDAP *ld;
+LDAP* ld;
 PRUintn tsdindex;
 #ifdef LDAP_MEMCACHE
-LDAPMemCache *memcache = NULL;
+LDAPMemCache* memcache = NULL;
 #  define MEMCACHE_SIZE (256 * 1024) /* 256K bytes */
 #  define MEMCACHE_TTL (15 * 60)     /* 15 minutes */
 #endif
 
-main(int argc, char **argv) {
+main(int argc, char** argv) {
   PRThread *search_tid, *search_tid2, *search_tid3;
   PRThread *search_tid4, *modify_tid, *add_tid;
-  PRThread *delete_tid;
+  PRThread* delete_tid;
   struct ldap_thread_fns tfns;
   struct ldap_dns_fns dnsfns;
   int rc;
@@ -117,7 +117,7 @@ main(int argc, char **argv) {
   tfns.ltf_get_lderrno = get_ld_error;
   tfns.ltf_set_lderrno = set_ld_error;
   tfns.ltf_lderrno_arg = NULL;
-  if (ldap_set_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void *)&tfns) != 0) {
+  if (ldap_set_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void*)&tfns) != 0) {
     ldap_perror(ld, "ldap_set_option: thread functions");
     exit(1);
   }
@@ -127,7 +127,7 @@ main(int argc, char **argv) {
   dnsfns.lddnsfn_bufsize = PR_NETDB_BUF_SIZE;
   dnsfns.lddnsfn_gethostbyname = my_gethostbyname;
   dnsfns.lddnsfn_gethostbyaddr = my_gethostbyaddr;
-  if (ldap_set_option(ld, LDAP_OPT_DNS_FN_PTRS, (void *)&dnsfns) != 0) {
+  if (ldap_set_option(ld, LDAP_OPT_DNS_FN_PTRS, (void*)&dnsfns) != 0) {
     ldap_perror(ld, "ldap_set_option: DNS functions");
     exit(1);
   }
@@ -207,7 +207,7 @@ main(int argc, char **argv) {
   return (0);
 }
 
-static int simplebind(LDAP *ld, char *msg, int tries) {
+static int simplebind(LDAP* ld, char* msg, int tries) {
   int rc;
 
   while (tries-- > 0) {
@@ -226,16 +226,16 @@ static int simplebind(LDAP *ld, char *msg, int tries) {
   return (rc);
 }
 
-static void search_thread(void *arg1) {
-  LDAPMessage *res;
-  LDAPMessage *e;
-  char *a;
-  char **v;
-  char *dn;
-  BerElement *ber;
+static void search_thread(void* arg1) {
+  LDAPMessage* res;
+  LDAPMessage* e;
+  char* a;
+  char** v;
+  char* dn;
+  BerElement* ber;
   int i, rc, msgid;
-  void *tsd;
-  char *id = arg1;
+  void* tsd;
+  char* id = arg1;
 
   printf("search_thread\n");
   tsd_setup();
@@ -294,15 +294,15 @@ static void search_thread(void *arg1) {
   }
 }
 
-static void modify_thread(void *arg1) {
-  LDAPMessage *res;
-  LDAPMessage *e;
+static void modify_thread(void* arg1) {
+  LDAPMessage* res;
+  LDAPMessage* e;
   int i, modentry, entries, msgid, rc;
   LDAPMod mod;
-  LDAPMod *mods[2];
-  char *vals[2];
-  char *dn;
-  char *id = arg1;
+  LDAPMod* mods[2];
+  char* vals[2];
+  char* dn;
+  char* id = arg1;
   ldapmsgwrapper *list, *lmwp, *lastlmwp;
 
   printf("modify_thread\n");
@@ -317,7 +317,7 @@ static void modify_thread(void *arg1) {
   while ((rc = ldap_result(ld, msgid, 0, NULL, &res)) ==
          LDAP_RES_SEARCH_ENTRY) {
     entries++;
-    if ((lmwp = (ldapmsgwrapper *)malloc(sizeof(ldapmsgwrapper))) == NULL) {
+    if ((lmwp = (ldapmsgwrapper*)malloc(sizeof(ldapmsgwrapper))) == NULL) {
       perror("modify_thread: malloc");
       exit(1);
     }
@@ -372,13 +372,13 @@ static void modify_thread(void *arg1) {
   }
 }
 
-static void add_thread(void *arg1) {
+static void add_thread(void* arg1) {
   LDAPMod mod[5];
-  LDAPMod *mods[6];
+  LDAPMod* mods[6];
   char dn[BUFSIZ], name[40];
   char *cnvals[2], *snvals[2], *ocvals[2];
   int i, rc;
-  char *id = arg1;
+  char* id = arg1;
 
   printf("add_thread\n");
   tsd_setup();
@@ -418,11 +418,11 @@ static void add_thread(void *arg1) {
   }
 }
 
-static void delete_thread(void *arg1) {
-  LDAPMessage *res;
+static void delete_thread(void* arg1) {
+  LDAPMessage* res;
   char dn[BUFSIZ], name[40];
   int entries, msgid, rc;
-  char *id = arg1;
+  char* id = arg1;
 
   printf("delete_thread\n");
   tsd_setup();
@@ -461,29 +461,29 @@ static void delete_thread(void *arg1) {
 
 struct ldap_error {
   int le_errno;
-  char *le_matched;
-  char *le_errmsg;
+  char* le_matched;
+  char* le_errmsg;
 };
 
 static void tsd_setup() {
-  void *tsd;
+  void* tsd;
 
-  tsd = (void *)PR_GetThreadPrivate(tsdindex);
+  tsd = (void*)PR_GetThreadPrivate(tsdindex);
   if (tsd != NULL) {
     fprintf(stderr, "tsd non-null!\n");
     exit(1);
   }
-  tsd = (void *)calloc(1, sizeof(struct ldap_error));
+  tsd = (void*)calloc(1, sizeof(struct ldap_error));
   if (PR_SetThreadPrivate(tsdindex, tsd) != 0) {
     perror("PR_SetThreadPrivate");
     exit(1);
   }
 }
 
-static void set_ld_error(int err, char *matched, char *errmsg, void *dummy) {
-  struct ldap_error *le;
+static void set_ld_error(int err, char* matched, char* errmsg, void* dummy) {
+  struct ldap_error* le;
 
-  le = (void *)PR_GetThreadPrivate(tsdindex);
+  le = (void*)PR_GetThreadPrivate(tsdindex);
   le->le_errno = err;
   if (le->le_matched != NULL) {
     ldap_memfree(le->le_matched);
@@ -495,8 +495,8 @@ static void set_ld_error(int err, char *matched, char *errmsg, void *dummy) {
   le->le_errmsg = errmsg;
 }
 
-static int get_ld_error(char **matchedp, char **errmsgp, void *dummy) {
-  struct ldap_error *le;
+static int get_ld_error(char** matchedp, char** errmsgp, void* dummy) {
+  struct ldap_error* le;
 
   le = PR_GetThreadPrivate(tsdindex);
   if (matchedp != NULL) {
@@ -518,26 +518,26 @@ static int get_errno(void) {
   return (PR_GetOSError());
 }
 
-static void *my_mutex_alloc(void) { return ((void *)PR_NewLock()); }
+static void* my_mutex_alloc(void) { return ((void*)PR_NewLock()); }
 
-static void my_mutex_free(void *mutex) { PR_DestroyLock((PRLock *)mutex); }
+static void my_mutex_free(void* mutex) { PR_DestroyLock((PRLock*)mutex); }
 
-static int my_mutex_lock(void *mutex) {
-  PR_Lock((PRLock *)mutex);
+static int my_mutex_lock(void* mutex) {
+  PR_Lock((PRLock*)mutex);
   return (0);
 }
 
-static int my_mutex_unlock(void *mutex) {
-  if (PR_Unlock((PRLock *)mutex) == PR_FAILURE) {
+static int my_mutex_unlock(void* mutex) {
+  if (PR_Unlock((PRLock*)mutex) == PR_FAILURE) {
     return (-1);
   }
 
   return (0);
 }
 
-static LDAPHostEnt *my_gethostbyname(const char *name, LDAPHostEnt *result,
-                                     char *buffer, int buflen, int *statusp,
-                                     void *extradata) {
+static LDAPHostEnt* my_gethostbyname(const char* name, LDAPHostEnt* result,
+                                     char* buffer, int buflen, int* statusp,
+                                     void* extradata) {
   PRHostEnt prhent;
 
   if (PR_GetHostByName(name, buffer, buflen, &prhent) != PR_SUCCESS) {
@@ -547,13 +547,13 @@ static LDAPHostEnt *my_gethostbyname(const char *name, LDAPHostEnt *result,
   return (copyPRHostEnt2LDAPHostEnt(result, &prhent));
 }
 
-static LDAPHostEnt *my_gethostbyaddr(const char *addr, int length, int type,
-                                     LDAPHostEnt *result, char *buffer,
-                                     int buflen, int *statusp,
-                                     void *extradata) {
+static LDAPHostEnt* my_gethostbyaddr(const char* addr, int length, int type,
+                                     LDAPHostEnt* result, char* buffer,
+                                     int buflen, int* statusp,
+                                     void* extradata) {
   PRHostEnt prhent;
 
-  if (PR_GetHostByAddr((PRNetAddr *)addr, buffer, buflen, &prhent) !=
+  if (PR_GetHostByAddr((PRNetAddr*)addr, buffer, buflen, &prhent) !=
       PR_SUCCESS) {
     return (NULL);
   }
@@ -561,8 +561,8 @@ static LDAPHostEnt *my_gethostbyaddr(const char *addr, int length, int type,
   return (copyPRHostEnt2LDAPHostEnt(result, &prhent));
 }
 
-static LDAPHostEnt *copyPRHostEnt2LDAPHostEnt(LDAPHostEnt *ldhp,
-                                              PRHostEnt *prhp) {
+static LDAPHostEnt* copyPRHostEnt2LDAPHostEnt(LDAPHostEnt* ldhp,
+                                              PRHostEnt* prhp) {
   ldhp->ldaphe_name = prhp->h_name;
   ldhp->ldaphe_aliases = prhp->h_aliases;
   ldhp->ldaphe_addrtype = prhp->h_addrtype;

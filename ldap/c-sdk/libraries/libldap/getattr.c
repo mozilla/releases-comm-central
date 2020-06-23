@@ -50,7 +50,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 
 #include "ldap-int.h"
 
-static unsigned long bytes_remaining(BerElement *ber) {
+static unsigned long bytes_remaining(BerElement* ber) {
   ber_len_t len;
 
   if (ber_get_option(ber, LBER_OPT_REMAINING_BYTES, &len) != 0) {
@@ -59,9 +59,9 @@ static unsigned long bytes_remaining(BerElement *ber) {
   return (len);
 }
 
-char *LDAP_CALL ldap_first_attribute(LDAP *ld, LDAPMessage *entry,
-                                     BerElement **ber) {
-  char *attr;
+char* LDAP_CALL ldap_first_attribute(LDAP* ld, LDAPMessage* entry,
+                                     BerElement** ber) {
+  char* attr;
   int err;
   ber_len_t seqlength;
 
@@ -111,9 +111,9 @@ char *LDAP_CALL ldap_first_attribute(LDAP *ld, LDAPMessage *entry,
 }
 
 /* ARGSUSED */
-char *LDAP_CALL ldap_next_attribute(LDAP *ld, LDAPMessage *entry,
-                                    BerElement *ber) {
-  char *attr;
+char* LDAP_CALL ldap_next_attribute(LDAP* ld, LDAPMessage* entry,
+                                    BerElement* ber) {
+  char* attr;
   int err;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_next_attribute\n", 0, 0, 0);

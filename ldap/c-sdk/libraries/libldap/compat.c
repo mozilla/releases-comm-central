@@ -54,18 +54,18 @@ static char copyright[] = "@(#) Copyright (c) 1994 The Regents of the University
 #if defined(HPUX10) && defined(_REENTRANT) && !defined(HPUX11)
 extern int h_errno;
 
-struct hostent *nsldapi_compat_gethostbyname_r(const char *name,
-                                               struct hostent *result,
-                                               char *buffer, int buflen,
-                                               int *h_errnop) {
-  struct hostent_data *hep;
+struct hostent* nsldapi_compat_gethostbyname_r(const char* name,
+                                               struct hostent* result,
+                                               char* buffer, int buflen,
+                                               int* h_errnop) {
+  struct hostent_data* hep;
 
   if (buflen < sizeof(struct hostent_data)) { /* sanity check */
     *h_errnop = NO_RECOVERY;                  /* XXX best error code to use? */
     return (NULL);
   }
 
-  hep = (struct hostent_data *)buffer;
+  hep = (struct hostent_data*)buffer;
   hep->current = NULL;
 
   if (gethostbyname_r(name, result, hep) == -1) {
@@ -75,7 +75,7 @@ struct hostent *nsldapi_compat_gethostbyname_r(const char *name,
   return result;
 }
 
-char *nsldapi_compat_ctime_r(const time_t *clock, char *buf, int buflen) {
+char* nsldapi_compat_ctime_r(const time_t* clock, char* buf, int buflen) {
   NSLDAPI_CTIME1(clock, buf, buflen);
   return buf;
 }
@@ -87,7 +87,7 @@ char *nsldapi_compat_ctime_r(const time_t *clock, char *buf, int buflen) {
  * overflow the destination buffer and the buffer will always be null
  * terminated.
  */
-size_t nsldapi_compat_strlcpy(char *dst, const char *src, size_t len) {
+size_t nsldapi_compat_strlcpy(char* dst, const char* src, size_t len) {
   size_t slen = strlen(src);
   size_t copied;
 

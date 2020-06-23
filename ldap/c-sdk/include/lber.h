@@ -112,8 +112,8 @@ extern "C" {
 #define LBER_SOCKBUF_OPT_VALID_TAG 0x200
 #define LBER_SOCKBUF_OPT_SOCK_ARG 0x400
 
-#define LBER_OPT_ON ((void *)1)
-#define LBER_OPT_OFF ((void *)0)
+#define LBER_OPT_ON ((void*)1)
+#define LBER_OPT_OFF ((void*)0)
 
 typedef unsigned int ber_len_t;  /* for BER len */
 typedef unsigned int ber_tag_t;  /* for BER tags */
@@ -123,12 +123,12 @@ typedef int ber_slen_t;          /* signed equivalent of ber_len_t */
 
 typedef struct berval {
   ber_len_t bv_len;
-  char *bv_val;
+  char* bv_val;
 } BerValue;
 
 typedef struct berelement BerElement;
 typedef struct sockbuf Sockbuf;
-typedef int (*BERTranslateProc)(char **bufp, ber_uint_t *buflenp,
+typedef int (*BERTranslateProc)(char** bufp, ber_uint_t* buflenp,
                                 int free_input);
 #ifndef macintosh
 #  if defined(_WINDOWS) || defined(_WIN32) || defined(_CONSOLE)
@@ -138,7 +138,7 @@ typedef SOCKET LBER_SOCKET;
 typedef long LBER_SOCKET;
 #  endif /* _WINDOWS */
 #else    /* macintosh */
-typedef void *LBER_SOCKET;
+typedef void* LBER_SOCKET;
 #endif   /* macintosh */
 
 /* calling conventions used by library */
@@ -181,7 +181,7 @@ struct lextiof_session_private; /* Defined by the extended I/O */
 /* This is modeled after the PRIOVec that is passed to the NSPR
    writev function! The void* is a char* in that struct */
 typedef struct ldap_x_iovec {
-  char *ldapiov_base;
+  char* ldapiov_base;
   int ldapiov_len;
 } ldap_x_iovec;
 
@@ -190,18 +190,18 @@ typedef struct ldap_x_iovec {
  * types are defined in ldap.h
  */
 typedef int(LDAP_C LDAP_CALLBACK LDAP_IOF_READ_CALLBACK)(LBER_SOCKET s,
-                                                         void *buf,
+                                                         void* buf,
                                                          int bufsize);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_IOF_WRITE_CALLBACK)(LBER_SOCKET s,
-                                                          const void *buf,
+                                                          const void* buf,
                                                           int len);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_READ_CALLBACK)(
-    int s, void *buf, int bufsize, struct lextiof_socket_private *socketarg);
+    int s, void* buf, int bufsize, struct lextiof_socket_private* socketarg);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_WRITE_CALLBACK)(
-    int s, const void *buf, int len, struct lextiof_socket_private *socketarg);
+    int s, const void* buf, int len, struct lextiof_socket_private* socketarg);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_WRITEV_CALLBACK)(
     int s, const ldap_x_iovec iov[], int iovcnt,
-    struct lextiof_socket_private *socketarg);
+    struct lextiof_socket_private* socketarg);
 
 /*
  * Structure for use with LBER_SOCKBUF_OPT_EXT_IO_FNS:
@@ -209,10 +209,10 @@ typedef int(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_WRITEV_CALLBACK)(
 struct lber_x_ext_io_fns {
   /* lbextiofn_size should always be set to LBER_X_EXTIO_FNS_SIZE */
   int lbextiofn_size;
-  LDAP_X_EXTIOF_READ_CALLBACK *lbextiofn_read;
-  LDAP_X_EXTIOF_WRITE_CALLBACK *lbextiofn_write;
-  struct lextiof_socket_private *lbextiofn_socket_arg;
-  LDAP_X_EXTIOF_WRITEV_CALLBACK *lbextiofn_writev;
+  LDAP_X_EXTIOF_READ_CALLBACK* lbextiofn_read;
+  LDAP_X_EXTIOF_WRITE_CALLBACK* lbextiofn_write;
+  struct lextiof_socket_private* lbextiofn_socket_arg;
+  LDAP_X_EXTIOF_WRITEV_CALLBACK* lbextiofn_writev;
 };
 #define LBER_X_EXTIO_FNS_SIZE sizeof(struct lber_x_ext_io_fns)
 
@@ -221,118 +221,118 @@ struct lber_x_ext_io_fns {
  *  Sockbufs and BerElements.  Install your own functions by using a call
  *  like this: ber_set_option( NULL, LBER_OPT_MEMALLOC_FN_PTRS, &memalloc_fns );
  */
-typedef void *(LDAP_C LDAP_CALLBACK LDAP_MALLOC_CALLBACK)(size_t size);
-typedef void *(LDAP_C LDAP_CALLBACK LDAP_CALLOC_CALLBACK)(size_t nelem,
-                                                          size_t elsize);
-typedef void *(LDAP_C LDAP_CALLBACK LDAP_REALLOC_CALLBACK)(void *ptr,
-                                                           size_t size);
-typedef void(LDAP_C LDAP_CALLBACK LDAP_FREE_CALLBACK)(void *ptr);
+typedef void*(LDAP_C LDAP_CALLBACK LDAP_MALLOC_CALLBACK)(size_t size);
+typedef void*(LDAP_C LDAP_CALLBACK LDAP_CALLOC_CALLBACK)(size_t nelem,
+                                                         size_t elsize);
+typedef void*(LDAP_C LDAP_CALLBACK LDAP_REALLOC_CALLBACK)(void* ptr,
+                                                          size_t size);
+typedef void(LDAP_C LDAP_CALLBACK LDAP_FREE_CALLBACK)(void* ptr);
 
 struct lber_memalloc_fns {
-  LDAP_MALLOC_CALLBACK *lbermem_malloc;
-  LDAP_CALLOC_CALLBACK *lbermem_calloc;
-  LDAP_REALLOC_CALLBACK *lbermem_realloc;
-  LDAP_FREE_CALLBACK *lbermem_free;
+  LDAP_MALLOC_CALLBACK* lbermem_malloc;
+  LDAP_CALLOC_CALLBACK* lbermem_calloc;
+  LDAP_REALLOC_CALLBACK* lbermem_realloc;
+  LDAP_FREE_CALLBACK* lbermem_free;
 };
 
 /*
  * decode routines
  */
-LDAP_API(ber_tag_t) LDAP_CALL ber_get_tag(BerElement *ber);
-LDAP_API(ber_tag_t) LDAP_CALL ber_skip_tag(BerElement *ber, ber_len_t *len);
-LDAP_API(ber_tag_t) LDAP_CALL ber_peek_tag(BerElement *ber, ber_len_t *len);
-LDAP_API(ber_tag_t) LDAP_CALL ber_get_int(BerElement *ber, ber_int_t *num);
+LDAP_API(ber_tag_t) LDAP_CALL ber_get_tag(BerElement* ber);
+LDAP_API(ber_tag_t) LDAP_CALL ber_skip_tag(BerElement* ber, ber_len_t* len);
+LDAP_API(ber_tag_t) LDAP_CALL ber_peek_tag(BerElement* ber, ber_len_t* len);
+LDAP_API(ber_tag_t) LDAP_CALL ber_get_int(BerElement* ber, ber_int_t* num);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_get_stringb(BerElement *ber, char *buf, ber_len_t *len);
-LDAP_API(ber_tag_t) LDAP_CALL ber_get_stringa(BerElement *ber, char **buf);
+LDAP_CALL ber_get_stringb(BerElement* ber, char* buf, ber_len_t* len);
+LDAP_API(ber_tag_t) LDAP_CALL ber_get_stringa(BerElement* ber, char** buf);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_get_stringal(BerElement *ber, struct berval **bv);
+LDAP_CALL ber_get_stringal(BerElement* ber, struct berval** bv);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_get_bitstringa(BerElement *ber, char **buf, ber_len_t *len);
-LDAP_API(ber_tag_t) LDAP_CALL ber_get_null(BerElement *ber);
+LDAP_CALL ber_get_bitstringa(BerElement* ber, char** buf, ber_len_t* len);
+LDAP_API(ber_tag_t) LDAP_CALL ber_get_null(BerElement* ber);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_get_boolean(BerElement *ber, ber_int_t *boolval);
+LDAP_CALL ber_get_boolean(BerElement* ber, ber_int_t* boolval);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_first_element(BerElement *ber, ber_len_t *len, char **last);
+LDAP_CALL ber_first_element(BerElement* ber, ber_len_t* len, char** last);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_next_element(BerElement *ber, ber_len_t *len, char *last);
-LDAP_API(ber_tag_t) LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...);
-LDAP_API(void) LDAP_CALL ber_bvfree(struct berval *bv);
-LDAP_API(void) LDAP_CALL ber_bvecfree(struct berval **bv);
-LDAP_API(void) LDAP_CALL ber_svecfree(char **vals);
-LDAP_API(struct berval *) LDAP_CALL ber_bvdup(const struct berval *bv);
+LDAP_CALL ber_next_element(BerElement* ber, ber_len_t* len, char* last);
+LDAP_API(ber_tag_t) LDAP_C ber_scanf(BerElement* ber, const char* fmt, ...);
+LDAP_API(void) LDAP_CALL ber_bvfree(struct berval* bv);
+LDAP_API(void) LDAP_CALL ber_bvecfree(struct berval** bv);
+LDAP_API(void) LDAP_CALL ber_svecfree(char** vals);
+LDAP_API(struct berval*) LDAP_CALL ber_bvdup(const struct berval* bv);
 LDAP_API(void)
 LDAP_CALL
-ber_set_string_translators(BerElement *ber, BERTranslateProc encode_proc,
+ber_set_string_translators(BerElement* ber, BERTranslateProc encode_proc,
                            BERTranslateProc decode_proc);
-LDAP_API(BerElement *) LDAP_CALL ber_init(const struct berval *bv);
+LDAP_API(BerElement*) LDAP_CALL ber_init(const struct berval* bv);
 
 /*
  * encoding routines
  */
 LDAP_API(int)
-LDAP_CALL ber_put_enum(BerElement *ber, ber_int_t num, ber_tag_t tag);
+LDAP_CALL ber_put_enum(BerElement* ber, ber_int_t num, ber_tag_t tag);
 LDAP_API(int)
-LDAP_CALL ber_put_int(BerElement *ber, ber_int_t num, ber_tag_t tag);
+LDAP_CALL ber_put_int(BerElement* ber, ber_int_t num, ber_tag_t tag);
 LDAP_API(int)
 LDAP_CALL
-ber_put_ostring(BerElement *ber, char *str, ber_len_t len, ber_tag_t tag);
+ber_put_ostring(BerElement* ber, char* str, ber_len_t len, ber_tag_t tag);
 LDAP_API(int)
-LDAP_CALL ber_put_string(BerElement *ber, char *str, ber_tag_t tag);
+LDAP_CALL ber_put_string(BerElement* ber, char* str, ber_tag_t tag);
 LDAP_API(int)
-LDAP_CALL ber_put_bitstring(BerElement *ber, char *str, ber_len_t bitlen,
+LDAP_CALL ber_put_bitstring(BerElement* ber, char* str, ber_len_t bitlen,
                             ber_tag_t tag);
-LDAP_API(int) LDAP_CALL ber_put_null(BerElement *ber, ber_tag_t tag);
+LDAP_API(int) LDAP_CALL ber_put_null(BerElement* ber, ber_tag_t tag);
 LDAP_API(int)
-LDAP_CALL ber_put_boolean(BerElement *ber, ber_int_t boolval, ber_tag_t tag);
-LDAP_API(int) LDAP_CALL ber_start_seq(BerElement *ber, ber_tag_t tag);
-LDAP_API(int) LDAP_CALL ber_start_set(BerElement *ber, ber_tag_t tag);
-LDAP_API(int) LDAP_CALL ber_put_seq(BerElement *ber);
-LDAP_API(int) LDAP_CALL ber_put_set(BerElement *ber);
-LDAP_API(int) LDAP_C ber_printf(BerElement *ber, const char *fmt, ...);
-LDAP_API(int) LDAP_CALL ber_flatten(BerElement *ber, struct berval **bvPtr);
+LDAP_CALL ber_put_boolean(BerElement* ber, ber_int_t boolval, ber_tag_t tag);
+LDAP_API(int) LDAP_CALL ber_start_seq(BerElement* ber, ber_tag_t tag);
+LDAP_API(int) LDAP_CALL ber_start_set(BerElement* ber, ber_tag_t tag);
+LDAP_API(int) LDAP_CALL ber_put_seq(BerElement* ber);
+LDAP_API(int) LDAP_CALL ber_put_set(BerElement* ber);
+LDAP_API(int) LDAP_C ber_printf(BerElement* ber, const char* fmt, ...);
+LDAP_API(int) LDAP_CALL ber_flatten(BerElement* ber, struct berval** bvPtr);
 
 /*
  * miscellaneous routines
  */
-LDAP_API(void) LDAP_CALL ber_free(BerElement *ber, int freebuf);
-LDAP_API(void) LDAP_CALL ber_special_free(void *buf, BerElement *ber);
-LDAP_API(int) LDAP_CALL ber_flush(Sockbuf *sb, BerElement *ber, int freeit);
-LDAP_API(BerElement *) LDAP_CALL ber_alloc(void);
-LDAP_API(BerElement *) LDAP_CALL der_alloc(void);
-LDAP_API(BerElement *) LDAP_CALL ber_alloc_t(int options);
-LDAP_API(void *) LDAP_CALL ber_special_alloc(size_t size, BerElement **ppBer);
-LDAP_API(BerElement *) LDAP_CALL ber_dup(BerElement *ber);
+LDAP_API(void) LDAP_CALL ber_free(BerElement* ber, int freebuf);
+LDAP_API(void) LDAP_CALL ber_special_free(void* buf, BerElement* ber);
+LDAP_API(int) LDAP_CALL ber_flush(Sockbuf* sb, BerElement* ber, int freeit);
+LDAP_API(BerElement*) LDAP_CALL ber_alloc(void);
+LDAP_API(BerElement*) LDAP_CALL der_alloc(void);
+LDAP_API(BerElement*) LDAP_CALL ber_alloc_t(int options);
+LDAP_API(void*) LDAP_CALL ber_special_alloc(size_t size, BerElement** ppBer);
+LDAP_API(BerElement*) LDAP_CALL ber_dup(BerElement* ber);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_get_next(Sockbuf *sb, ber_len_t *len, BerElement *ber);
+LDAP_CALL ber_get_next(Sockbuf* sb, ber_len_t* len, BerElement* ber);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_get_next_buffer(void *buffer, size_t buffer_size, ber_len_t *len,
-                              BerElement *ber, ber_len_t *Bytes_Scanned);
+LDAP_CALL ber_get_next_buffer(void* buffer, size_t buffer_size, ber_len_t* len,
+                              BerElement* ber, ber_len_t* Bytes_Scanned);
 LDAP_API(ber_tag_t)
-LDAP_CALL ber_get_next_buffer_ext(void *buffer, size_t buffer_size,
-                                  ber_len_t *len, BerElement *ber,
-                                  ber_len_t *Bytes_Scanned, Sockbuf *sb);
+LDAP_CALL ber_get_next_buffer_ext(void* buffer, size_t buffer_size,
+                                  ber_len_t* len, BerElement* ber,
+                                  ber_len_t* Bytes_Scanned, Sockbuf* sb);
 LDAP_API(ber_int_t)
-LDAP_CALL ber_read(BerElement *ber, char *buf, ber_len_t len);
+LDAP_CALL ber_read(BerElement* ber, char* buf, ber_len_t len);
 LDAP_API(ber_int_t)
-LDAP_CALL ber_write(BerElement *ber, char *buf, ber_len_t len, int nosos);
-LDAP_API(void) LDAP_CALL ber_init_w_nullchar(BerElement *ber, int options);
-LDAP_API(void) LDAP_CALL ber_reset(BerElement *ber, int was_writing);
-LDAP_API(size_t) LDAP_CALL ber_get_buf_datalen(BerElement *ber);
+LDAP_CALL ber_write(BerElement* ber, char* buf, ber_len_t len, int nosos);
+LDAP_API(void) LDAP_CALL ber_init_w_nullchar(BerElement* ber, int options);
+LDAP_API(void) LDAP_CALL ber_reset(BerElement* ber, int was_writing);
+LDAP_API(size_t) LDAP_CALL ber_get_buf_datalen(BerElement* ber);
 LDAP_API(int)
-LDAP_CALL ber_stack_init(BerElement *ber, int options, char *buf, size_t size);
-LDAP_API(char *) LDAP_CALL ber_get_buf_databegin(BerElement *ber);
-LDAP_API(void) LDAP_CALL ber_sockbuf_free_data(Sockbuf *p);
+LDAP_CALL ber_stack_init(BerElement* ber, int options, char* buf, size_t size);
+LDAP_API(char*) LDAP_CALL ber_get_buf_databegin(BerElement* ber);
+LDAP_API(void) LDAP_CALL ber_sockbuf_free_data(Sockbuf* p);
 LDAP_API(int)
-LDAP_CALL ber_set_option(BerElement *ber, int option, void *value);
+LDAP_CALL ber_set_option(BerElement* ber, int option, void* value);
 LDAP_API(int)
-LDAP_CALL ber_get_option(BerElement *ber, int option, void *value);
-LDAP_API(Sockbuf *) LDAP_CALL ber_sockbuf_alloc(void);
-LDAP_API(void) LDAP_CALL ber_sockbuf_free(Sockbuf *p);
+LDAP_CALL ber_get_option(BerElement* ber, int option, void* value);
+LDAP_API(Sockbuf*) LDAP_CALL ber_sockbuf_alloc(void);
+LDAP_API(void) LDAP_CALL ber_sockbuf_free(Sockbuf* p);
 LDAP_API(int)
-LDAP_CALL ber_sockbuf_set_option(Sockbuf *sb, int option, void *value);
+LDAP_CALL ber_sockbuf_set_option(Sockbuf* sb, int option, void* value);
 LDAP_API(int)
-LDAP_CALL ber_sockbuf_get_option(Sockbuf *sb, int option, void *value);
+LDAP_CALL ber_sockbuf_get_option(Sockbuf* sb, int option, void* value);
 
 #ifdef __cplusplus
 }

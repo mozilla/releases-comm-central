@@ -69,7 +69,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
  *   }
  * msgid = ldap_add(ld, dn, attrs);
  */
-int LDAP_CALL ldap_add(LDAP *ld, const char *dn, LDAPMod **attrs) {
+int LDAP_CALL ldap_add(LDAP* ld, const char* dn, LDAPMod** attrs) {
   int msgid;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_add\n", 0, 0, 0);
@@ -85,10 +85,10 @@ int LDAP_CALL ldap_add(LDAP *ld, const char *dn, LDAPMod **attrs) {
  * LDAPv3 extended add.
  * Returns an LDAP error code.
  */
-int LDAP_CALL ldap_add_ext(LDAP *ld, const char *dn, LDAPMod **attrs,
-                           LDAPControl **serverctrls, LDAPControl **clientctrls,
-                           int *msgidp) {
-  BerElement *ber;
+int LDAP_CALL ldap_add_ext(LDAP* ld, const char* dn, LDAPMod** attrs,
+                           LDAPControl** serverctrls, LDAPControl** clientctrls,
+                           int* msgidp) {
+  BerElement* ber;
   int i, rc, lderr;
 
   /*
@@ -177,27 +177,27 @@ int LDAP_CALL ldap_add_ext(LDAP *ld, const char *dn, LDAPMod **attrs,
   }
 
   /* send the message */
-  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_ADD, (char *)dn, ber);
+  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_ADD, (char*)dn, ber);
   *msgidp = rc;
   return (rc < 0 ? LDAP_GET_LDERRNO(ld, NULL, NULL) : LDAP_SUCCESS);
 }
 
-int LDAP_CALL ldap_add_s(LDAP *ld, const char *dn, LDAPMod **attrs) {
+int LDAP_CALL ldap_add_s(LDAP* ld, const char* dn, LDAPMod** attrs) {
   return (ldap_add_ext_s(ld, dn, attrs, NULL, NULL));
 }
 
-int LDAP_CALL ldap_add_ext_s(LDAP *ld, const char *dn, LDAPMod **attrs,
-                             LDAPControl **serverctrls,
-                             LDAPControl **clientctrls) {
+int LDAP_CALL ldap_add_ext_s(LDAP* ld, const char* dn, LDAPMod** attrs,
+                             LDAPControl** serverctrls,
+                             LDAPControl** clientctrls) {
   int err, msgid;
-  LDAPMessage *res;
+  LDAPMessage* res;
 
   if ((err = ldap_add_ext(ld, dn, attrs, serverctrls, clientctrls, &msgid)) !=
       LDAP_SUCCESS) {
     return (err);
   }
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)NULL, &res) == -1) {
+  if (ldap_result(ld, msgid, 1, (struct timeval*)NULL, &res) == -1) {
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
   }
 

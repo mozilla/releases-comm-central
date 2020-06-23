@@ -51,20 +51,20 @@ static char copyright[] = "@(#) Copyright (c) 1993 Regents of the University of 
 #include "ldap-int.h"
 #include "regex.h"
 
-static int break_into_words(char *str, char *delims, char ***wordsp);
+static int break_into_words(char* str, char* delims, char*** wordsp);
 
 #if !defined(macintosh) && !defined(DOS)
-extern char *LDAP_CALL re_comp();
+extern char* LDAP_CALL re_comp();
 #endif
 
 #define FILT_MAX_LINE_LEN 1024
 
-LDAPFiltDesc *LDAP_CALL ldap_init_getfilter(char *fname) {
-  FILE *fp;
-  char *buf;
+LDAPFiltDesc* LDAP_CALL ldap_init_getfilter(char* fname) {
+  FILE* fp;
+  char* buf;
   long rlen, len;
   int eof;
-  LDAPFiltDesc *lfdp;
+  LDAPFiltDesc* lfdp;
 
   if ((fp = NSLDAPI_FOPEN(fname, "r")) == NULL) {
     return (NULL);
@@ -102,16 +102,15 @@ LDAPFiltDesc *LDAP_CALL ldap_init_getfilter(char *fname) {
   return (lfdp);
 }
 
-LDAPFiltDesc *LDAP_CALL ldap_init_getfilter_buf(char *buf, long buflen) {
-  LDAPFiltDesc *lfdp;
+LDAPFiltDesc* LDAP_CALL ldap_init_getfilter_buf(char* buf, long buflen) {
+  LDAPFiltDesc* lfdp;
   LDAPFiltList *flp, *nextflp;
   LDAPFiltInfo *fip, *nextfip;
   char *errmsg, *tag, **tok;
   int tokcnt, i;
 
   if ((buf == NULL) || (buflen < 0) ||
-      (lfdp = (LDAPFiltDesc *)NSLDAPI_CALLOC(1, sizeof(LDAPFiltDesc))) ==
-          NULL) {
+      (lfdp = (LDAPFiltDesc*)NSLDAPI_CALLOC(1, sizeof(LDAPFiltDesc))) == NULL) {
     return (NULL);
   }
 
@@ -131,7 +130,7 @@ LDAPFiltDesc *LDAP_CALL ldap_init_getfilter_buf(char *buf, long buflen) {
         break;
       case 4:
       case 5: /* start of filter info. list */
-        if ((nextflp = (LDAPFiltList *)NSLDAPI_CALLOC(
+        if ((nextflp = (LDAPFiltList*)NSLDAPI_CALLOC(
                  1, sizeof(LDAPFiltList))) == NULL) {
           ldap_getfilter_free(lfdp);
           return (NULL);
@@ -166,7 +165,7 @@ LDAPFiltDesc *LDAP_CALL ldap_init_getfilter_buf(char *buf, long buflen) {
       case 2:
       case 3:                  /* filter, desc, and optional search scope */
         if (nextflp != NULL) { /* add to info list */
-          if ((nextfip = (LDAPFiltInfo *)NSLDAPI_CALLOC(
+          if ((nextfip = (LDAPFiltInfo*)NSLDAPI_CALLOC(
                    1, sizeof(LDAPFiltInfo))) == NULL) {
             ldap_getfilter_free(lfdp);
             nsldapi_free_strarray(tok);
@@ -218,8 +217,8 @@ LDAPFiltDesc *LDAP_CALL ldap_init_getfilter_buf(char *buf, long buflen) {
   return (lfdp);
 }
 
-int LDAP_CALL ldap_set_filter_additions(LDAPFiltDesc *lfdp, char *prefix,
-                                        char *suffix) {
+int LDAP_CALL ldap_set_filter_additions(LDAPFiltDesc* lfdp, char* prefix,
+                                        char* suffix) {
   if (lfdp == NULL) {
     return (LDAP_PARAM_ERROR);
   }
@@ -240,14 +239,14 @@ int LDAP_CALL ldap_set_filter_additions(LDAPFiltDesc *lfdp, char *prefix,
 /*
  * ldap_setfilteraffixes() is deprecated -- use ldap_set_filter_additions()
  */
-void LDAP_CALL ldap_setfilteraffixes(LDAPFiltDesc *lfdp, char *prefix,
-                                     char *suffix) {
+void LDAP_CALL ldap_setfilteraffixes(LDAPFiltDesc* lfdp, char* prefix,
+                                     char* suffix) {
   (void)ldap_set_filter_additions(lfdp, prefix, suffix);
 }
 
-LDAPFiltInfo *LDAP_CALL ldap_getfirstfilter(LDAPFiltDesc *lfdp, char *tagpat,
-                                            char *value) {
-  LDAPFiltList *flp;
+LDAPFiltInfo* LDAP_CALL ldap_getfirstfilter(LDAPFiltDesc* lfdp, char* tagpat,
+                                            char* value) {
+  LDAPFiltList* flp;
 
   if (lfdp == NULL || tagpat == NULL || value == NULL) {
     return (NULL); /* punt */
@@ -291,8 +290,8 @@ LDAPFiltInfo *LDAP_CALL ldap_getfirstfilter(LDAPFiltDesc *lfdp, char *tagpat,
   return (ldap_getnextfilter(lfdp));
 }
 
-LDAPFiltInfo *LDAP_CALL ldap_getnextfilter(LDAPFiltDesc *lfdp) {
-  LDAPFiltInfo *fip;
+LDAPFiltInfo* LDAP_CALL ldap_getnextfilter(LDAPFiltDesc* lfdp) {
+  LDAPFiltInfo* fip;
 
   if (lfdp == NULL || (fip = lfdp->lfd_curfip) == NULL) {
     return (NULL);
@@ -311,7 +310,7 @@ LDAPFiltInfo *LDAP_CALL ldap_getnextfilter(LDAPFiltDesc *lfdp) {
   return (&lfdp->lfd_retfi);
 }
 
-static char *filter_add_strn(char *f, char *flimit, char *v, size_t vlen)
+static char* filter_add_strn(char* f, char* flimit, char* v, size_t vlen)
 /* Copy v into f.  If flimit is too small, return NULL;
  * otherwise return (f + vlen).
  */
@@ -325,7 +324,7 @@ static char *filter_add_strn(char *f, char *flimit, char *v, size_t vlen)
   return f + vlen;
 }
 
-static char *filter_add_value(char *f, char *flimit, char *v, int escape_all)
+static char* filter_add_value(char* f, char* flimit, char* v, int escape_all)
 /* Copy v into f, but with parentheses escaped.  But only escape * and \
  * if escape_all is non-zero so that either "*" or "\2a" can be used in
  * v, with different meanings.
@@ -382,9 +381,9 @@ static char *filter_add_value(char *f, char *flimit, char *v, int escape_all)
   return f;
 }
 
-int LDAP_CALL ldap_create_filter(char *filtbuf, unsigned long buflen,
-                                 char *pattern, char *prefix, char *suffix,
-                                 char *attr, char *value, char **valwords) {
+int LDAP_CALL ldap_create_filter(char* filtbuf, unsigned long buflen,
+                                 char* pattern, char* prefix, char* suffix,
+                                 char* attr, char* value, char** valwords) {
   char *p, *f, *flimit;
   int i, wordcount, wordnum, endwordnum, escape_all;
 
@@ -483,19 +482,19 @@ int LDAP_CALL ldap_create_filter(char *filtbuf, unsigned long buflen,
 /*
  * ldap_build_filter() is deprecated -- use ldap_create_filter() instead
  */
-void LDAP_CALL ldap_build_filter(char *filtbuf, unsigned long buflen,
-                                 char *pattern, char *prefix, char *suffix,
-                                 char *attr, char *value, char **valwords) {
+void LDAP_CALL ldap_build_filter(char* filtbuf, unsigned long buflen,
+                                 char* pattern, char* prefix, char* suffix,
+                                 char* attr, char* value, char** valwords) {
   (void)ldap_create_filter(filtbuf, buflen, pattern, prefix, suffix, attr,
                            value, valwords);
 }
 
-static int break_into_words(char *str, char *delims, char ***wordsp) {
+static int break_into_words(char* str, char* delims, char*** wordsp) {
   char *word, **words;
   int count;
-  char *lasts;
+  char* lasts;
 
-  if ((words = (char **)NSLDAPI_CALLOC(1, sizeof(char *))) == NULL) {
+  if ((words = (char**)NSLDAPI_CALLOC(1, sizeof(char*))) == NULL) {
     return (-1);
   }
   count = 0;
@@ -503,8 +502,8 @@ static int break_into_words(char *str, char *delims, char ***wordsp) {
 
   word = ldap_utf8strtok_r(str, delims, &lasts);
   while (word != NULL) {
-    if ((words = (char **)NSLDAPI_REALLOC(
-             words, (count + 2) * sizeof(char *))) == NULL) {
+    if ((words = (char**)NSLDAPI_REALLOC(words, (count + 2) * sizeof(char*))) ==
+        NULL) {
       return (-1);
     }
 

@@ -57,21 +57,21 @@
  * will need to be changed.
  */
 /* return the tag - LBER_DEFAULT returned means trouble */
-ber_tag_t LDAP_CALL ber_get_tag(BerElement *ber) {
+ber_tag_t LDAP_CALL ber_get_tag(BerElement* ber) {
   unsigned char xbyte;
   ber_tag_t tag;
-  char *tagp;
+  char* tagp;
   int i;
 
-  if (ber_read(ber, (char *)&xbyte, 1) != 1) return (LBER_DEFAULT);
+  if (ber_read(ber, (char*)&xbyte, 1) != 1) return (LBER_DEFAULT);
 
   if ((xbyte & LBER_BIG_TAG_MASK) != LBER_BIG_TAG_MASK)
     return ((ber_uint_t)xbyte);
 
-  tagp = (char *)&tag;
+  tagp = (char*)&tag;
   tagp[0] = xbyte;
   for (i = 1; i < sizeof(ber_int_t); i++) {
-    if (ber_read(ber, (char *)&xbyte, 1) != 1) return (LBER_DEFAULT);
+    if (ber_read(ber, (char*)&xbyte, 1) != 1) return (LBER_DEFAULT);
 
     tagp[i] = xbyte;
 
@@ -90,7 +90,7 @@ ber_tag_t LDAP_CALL ber_get_tag(BerElement *ber) {
  * If that changes, the implementation of ber_peek_tag() will need to
  * be changed.
  */
-ber_tag_t LDAP_CALL ber_skip_tag(BerElement *ber, ber_len_t *len) {
+ber_tag_t LDAP_CALL ber_skip_tag(BerElement* ber, ber_len_t* len) {
   ber_tag_t tag;
   unsigned char lc;
   int noctets, diff;
@@ -120,12 +120,12 @@ ber_tag_t LDAP_CALL ber_skip_tag(BerElement *ber, ber_len_t *len) {
    */
 
   *len = netlen = 0;
-  if (ber_read(ber, (char *)&lc, 1) != 1) return (LBER_DEFAULT);
+  if (ber_read(ber, (char*)&lc, 1) != 1) return (LBER_DEFAULT);
   if (lc & 0x80) {
     noctets = (lc & 0x7f);
     if (noctets > sizeof(ber_uint_t)) return (LBER_DEFAULT);
     diff = sizeof(ber_int_t) - noctets;
-    if (ber_read(ber, (char *)&netlen + diff, noctets) != noctets)
+    if (ber_read(ber, (char*)&netlen + diff, noctets) != noctets)
       return (LBER_DEFAULT);
     *len = LBER_NTOHL(netlen);
   } else {
@@ -141,7 +141,7 @@ ber_tag_t LDAP_CALL ber_skip_tag(BerElement *ber, ber_len_t *len) {
  * of the fact that the only ber structure elements touched by ber_skip_tag()
  * are ber_end and ber_ptr.  If that changes, this code must change too.
  */
-ber_tag_t LDAP_CALL ber_peek_tag(BerElement *ber, ber_len_t *len) {
+ber_tag_t LDAP_CALL ber_peek_tag(BerElement* ber, ber_len_t* len) {
   BerElement bercopy;
 
   bercopy.ber_end = ber->ber_end;
@@ -149,7 +149,7 @@ ber_tag_t LDAP_CALL ber_peek_tag(BerElement *ber, ber_len_t *len) {
   return (ber_skip_tag(&bercopy, len));
 }
 
-static int ber_getnint(BerElement *ber, ber_int_t *num, ber_slen_t len) {
+static int ber_getnint(BerElement* ber, ber_int_t* num, ber_slen_t len) {
   int i;
   ber_int_t value;
   unsigned char buffer[sizeof(ber_int_t)];
@@ -163,7 +163,7 @@ static int ber_getnint(BerElement *ber, ber_int_t *num, ber_slen_t len) {
   if (len > sizeof(ber_slen_t)) return (-1);
 
   /* read into the low-order bytes of netnum */
-  if (ber_read(ber, (char *)buffer, len) != len) return (-1);
+  if (ber_read(ber, (char*)buffer, len) != len) return (-1);
 
   /* This sets the required sign extension */
   if (len != 0) {
@@ -179,7 +179,7 @@ static int ber_getnint(BerElement *ber, ber_int_t *num, ber_slen_t len) {
   return (len);
 }
 
-ber_tag_t LDAP_CALL ber_get_int(BerElement *ber, ber_int_t *num) {
+ber_tag_t LDAP_CALL ber_get_int(BerElement* ber, ber_int_t* num) {
   ber_tag_t tag;
   ber_len_t len;
 
@@ -195,12 +195,12 @@ ber_tag_t LDAP_CALL ber_get_int(BerElement *ber, ber_int_t *num) {
     return (tag);
 }
 
-ber_tag_t LDAP_CALL ber_get_stringb(BerElement *ber, char *buf,
-                                    ber_len_t *len) {
+ber_tag_t LDAP_CALL ber_get_stringb(BerElement* ber, char* buf,
+                                    ber_len_t* len) {
   ber_len_t datalen;
   ber_tag_t tag;
 #ifdef STR_TRANSLATION
-  char *transbuf;
+  char* transbuf;
 #endif /* STR_TRANSLATION */
 
   if ((tag = ber_skip_tag(ber, &datalen)) == LBER_DEFAULT)
@@ -237,7 +237,7 @@ ber_tag_t LDAP_CALL ber_get_stringb(BerElement *ber, char *buf,
   return (tag);
 }
 
-ber_tag_t LDAP_CALL ber_get_stringa(BerElement *ber, char **buf) {
+ber_tag_t LDAP_CALL ber_get_stringa(BerElement* ber, char** buf) {
   ber_len_t datalen, ndatalen;
   ber_tag_t tag;
 
@@ -246,7 +246,7 @@ ber_tag_t LDAP_CALL ber_get_stringa(BerElement *ber, char **buf) {
 
   if (((ndatalen = (size_t)datalen + 1) < (size_t)datalen) ||
       (datalen > (ber->ber_end - ber->ber_ptr)) ||
-      ((*buf = (char *)NSLBERI_MALLOC((size_t)ndatalen)) == NULL))
+      ((*buf = (char*)NSLBERI_MALLOC((size_t)ndatalen)) == NULL))
     return (LBER_DEFAULT);
 
   /*
@@ -275,11 +275,11 @@ ber_tag_t LDAP_CALL ber_get_stringa(BerElement *ber, char **buf) {
   return (tag);
 }
 
-ber_tag_t LDAP_CALL ber_get_stringal(BerElement *ber, struct berval **bv) {
+ber_tag_t LDAP_CALL ber_get_stringal(BerElement* ber, struct berval** bv) {
   ber_len_t len, nlen;
   ber_tag_t tag;
 
-  if ((*bv = (struct berval *)NSLBERI_MALLOC(sizeof(struct berval))) == NULL) {
+  if ((*bv = (struct berval*)NSLBERI_MALLOC(sizeof(struct berval))) == NULL) {
     return (LBER_DEFAULT);
   }
 
@@ -294,7 +294,7 @@ ber_tag_t LDAP_CALL ber_get_stringal(BerElement *ber, struct berval **bv) {
 
   if (((nlen = (size_t)len + 1) < (size_t)len) ||
       (len > (ber->ber_end - ber->ber_ptr)) ||
-      (((*bv)->bv_val = (char *)NSLBERI_MALLOC((size_t)nlen)) == NULL)) {
+      (((*bv)->bv_val = (char*)NSLBERI_MALLOC((size_t)nlen)) == NULL)) {
     NSLBERI_FREE(*bv);
     *bv = NULL;
     return (LBER_DEFAULT);
@@ -332,8 +332,8 @@ ber_tag_t LDAP_CALL ber_get_stringal(BerElement *ber, struct berval **bv) {
   return (tag);
 }
 
-ber_tag_t LDAP_CALL ber_get_bitstringa(BerElement *ber, char **buf,
-                                       ber_len_t *blen) {
+ber_tag_t LDAP_CALL ber_get_bitstringa(BerElement* ber, char** buf,
+                                       ber_len_t* blen) {
   ber_len_t datalen;
   ber_tag_t tag;
   unsigned char unusedbits;
@@ -343,10 +343,10 @@ ber_tag_t LDAP_CALL ber_get_bitstringa(BerElement *ber, char **buf,
   --datalen;
 
   if ((datalen > (ber->ber_end - ber->ber_ptr)) ||
-      ((*buf = (char *)NSLBERI_MALLOC((size_t)datalen)) == NULL))
+      ((*buf = (char*)NSLBERI_MALLOC((size_t)datalen)) == NULL))
     return (LBER_DEFAULT);
 
-  if (ber_read(ber, (char *)&unusedbits, 1) != 1) {
+  if (ber_read(ber, (char*)&unusedbits, 1) != 1) {
     NSLBERI_FREE(*buf);
     *buf = NULL;
     return (LBER_DEFAULT);
@@ -365,7 +365,7 @@ ber_tag_t LDAP_CALL ber_get_bitstringa(BerElement *ber, char **buf,
   return (tag);
 }
 
-ber_tag_t LDAP_CALL ber_get_null(BerElement *ber) {
+ber_tag_t LDAP_CALL ber_get_null(BerElement* ber) {
   ber_len_t len;
   ber_tag_t tag;
 
@@ -376,7 +376,7 @@ ber_tag_t LDAP_CALL ber_get_null(BerElement *ber) {
   return (tag);
 }
 
-ber_tag_t LDAP_CALL ber_get_boolean(BerElement *ber, ber_int_t *boolval) {
+ber_tag_t LDAP_CALL ber_get_boolean(BerElement* ber, ber_int_t* boolval) {
   int rc;
 
   rc = ber_get_int(ber, boolval);
@@ -384,8 +384,8 @@ ber_tag_t LDAP_CALL ber_get_boolean(BerElement *ber, ber_int_t *boolval) {
   return (rc);
 }
 
-ber_tag_t LDAP_CALL ber_first_element(BerElement *ber, ber_len_t *len,
-                                      char **last) {
+ber_tag_t LDAP_CALL ber_first_element(BerElement* ber, ber_len_t* len,
+                                      char** last) {
   /* skip the sequence header, use the len to mark where to stop */
   if (ber_skip_tag(ber, len) == LBER_DEFAULT) {
     return (LBER_ERROR);
@@ -400,8 +400,8 @@ ber_tag_t LDAP_CALL ber_first_element(BerElement *ber, ber_len_t *len,
   return (ber_peek_tag(ber, len));
 }
 
-ber_tag_t LDAP_CALL ber_next_element(BerElement *ber, ber_len_t *len,
-                                     char *last) {
+ber_tag_t LDAP_CALL ber_next_element(BerElement* ber, ber_len_t* len,
+                                     char* last) {
   if (ber->ber_ptr == last) {
     return (LBER_END_OF_SEQORSET);
   }
@@ -410,14 +410,14 @@ ber_tag_t LDAP_CALL ber_next_element(BerElement *ber, ber_len_t *len,
 }
 
 /* VARARGS */
-ber_tag_t LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...) {
+ber_tag_t LDAP_C ber_scanf(BerElement* ber, const char* fmt, ...) {
   va_list ap;
   char *last, *p;
   char *s, **ss, ***sss;
   struct berval ***bv, **bvp, *bval;
   int *i, j;
   ber_int_t *l, rc, tag;
-  ber_tag_t *t;
+  ber_tag_t* t;
   ber_len_t len;
   size_t array_size;
 
@@ -431,27 +431,27 @@ ber_tag_t LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...) {
     ber_dump(ber, 1);
   }
 #endif
-  for (rc = 0, p = (char *)fmt; *p && rc != LBER_DEFAULT; p++) {
+  for (rc = 0, p = (char*)fmt; *p && rc != LBER_DEFAULT; p++) {
     switch (*p) {
       case 'a': /* octet string - allocate storage as needed */
-        ss = va_arg(ap, char **);
+        ss = va_arg(ap, char**);
         rc = ber_get_stringa(ber, ss);
         break;
 
       case 'b': /* boolean */
-        i = va_arg(ap, int *);
+        i = va_arg(ap, int*);
         rc = ber_get_boolean(ber, i);
         break;
 
       case 'e': /* enumerated */
       case 'i': /* int */
-        l = va_arg(ap, ber_slen_t *);
+        l = va_arg(ap, ber_slen_t*);
         rc = ber_get_int(ber, l);
         break;
 
       case 'l': /* length of next item */
-        l = va_arg(ap, ber_slen_t *);
-        rc = ber_peek_tag(ber, (ber_len_t *)l);
+        l = va_arg(ap, ber_slen_t*);
+        rc = ber_peek_tag(ber, (ber_len_t*)l);
         break;
 
       case 'n': /* null */
@@ -459,40 +459,40 @@ ber_tag_t LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...) {
         break;
 
       case 's': /* octet string - in a buffer */
-        s = va_arg(ap, char *);
-        l = va_arg(ap, ber_slen_t *);
-        rc = ber_get_stringb(ber, s, (ber_len_t *)l);
+        s = va_arg(ap, char*);
+        l = va_arg(ap, ber_slen_t*);
+        rc = ber_get_stringb(ber, s, (ber_len_t*)l);
         break;
 
       case 'o': /* octet string in a supplied berval */
-        bval = va_arg(ap, struct berval *);
+        bval = va_arg(ap, struct berval*);
         ber_peek_tag(ber, &bval->bv_len);
         rc = ber_get_stringa(ber, &bval->bv_val);
         break;
 
       case 'O': /* octet string - allocate & include length */
-        bvp = va_arg(ap, struct berval **);
+        bvp = va_arg(ap, struct berval**);
         rc = ber_get_stringal(ber, bvp);
         break;
 
       case 'B': /* bit string - allocate storage as needed */
-        ss = va_arg(ap, char **);
-        l = va_arg(ap, ber_slen_t *); /* for length, in bits */
-        rc = ber_get_bitstringa(ber, ss, (ber_len_t *)l);
+        ss = va_arg(ap, char**);
+        l = va_arg(ap, ber_slen_t*); /* for length, in bits */
+        rc = ber_get_bitstringa(ber, ss, (ber_len_t*)l);
         break;
 
       case 't': /* tag of next item */
-        t = va_arg(ap, ber_tag_t *);
+        t = va_arg(ap, ber_tag_t*);
         *t = rc = ber_peek_tag(ber, &len);
         break;
 
       case 'T': /* skip tag of next item */
-        t = va_arg(ap, ber_tag_t *);
+        t = va_arg(ap, ber_tag_t*);
         *t = rc = ber_skip_tag(ber, &len);
         break;
 
       case 'v': /* sequence of strings */
-        sss = va_arg(ap, char ***);
+        sss = va_arg(ap, char***);
         *sss = NULL;
         j = 0;
         array_size = 0;
@@ -502,18 +502,18 @@ ber_tag_t LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...) {
              tag = ber_next_element(ber, &len, last)) {
           if (*sss == NULL) {
             /* Make room for at least 15 strings */
-            *sss = (char **)NSLBERI_MALLOC(16 * sizeof(char *));
+            *sss = (char**)NSLBERI_MALLOC(16 * sizeof(char*));
             if (!*sss) {
               rc = LBER_DEFAULT;
               break; /* out of memory - cannot continue */
             }
             array_size = 16;
           } else {
-            char **save_sss = *sss;
+            char** save_sss = *sss;
             if ((size_t)(j + 2) > array_size) {
               /* We'v overflowed our buffer */
-              *sss = (char **)NSLBERI_REALLOC(
-                  *sss, (array_size * 2) * sizeof(char *));
+              *sss = (char**)NSLBERI_REALLOC(*sss,
+                                             (array_size * 2) * sizeof(char*));
               array_size = array_size * 2;
             }
             if (!*sss) {
@@ -535,7 +535,7 @@ ber_tag_t LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...) {
         break;
 
       case 'V': /* sequence of strings + lengths */
-        bv = va_arg(ap, struct berval ***);
+        bv = va_arg(ap, struct berval***);
         *bv = NULL;
         j = 0;
         for (tag = ber_first_element(ber, &len, &last);
@@ -543,15 +543,15 @@ ber_tag_t LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...) {
              rc != LBER_DEFAULT;
              tag = ber_next_element(ber, &len, last)) {
           if (*bv == NULL) {
-            *bv = (struct berval **)NSLBERI_MALLOC(2 * sizeof(struct berval *));
+            *bv = (struct berval**)NSLBERI_MALLOC(2 * sizeof(struct berval*));
             if (!*bv) {
               rc = LBER_DEFAULT;
               break; /* out of memory - cannot continue */
             }
           } else {
-            struct berval **save_bv = *bv;
-            *bv = (struct berval **)NSLBERI_REALLOC(
-                *bv, (j + 2) * sizeof(struct berval *));
+            struct berval** save_bv = *bv;
+            *bv = (struct berval**)NSLBERI_REALLOC(
+                *bv, (j + 2) * sizeof(struct berval*));
             if (!*bv) {
               rc = LBER_DEFAULT;
               ber_bvecfree(save_bv);
@@ -600,67 +600,67 @@ ber_tag_t LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...) {
     for (p--; fmt < p && *fmt; fmt++) {
       switch (*fmt) {
         case 'a': /* octet string - allocate storage as needed */
-          ss = va_arg(ap, char **);
+          ss = va_arg(ap, char**);
           NSLBERI_FREE(*ss);
           *ss = NULL;
           break;
 
         case 'b': /* boolean */
-          i = va_arg(ap, int *);
+          i = va_arg(ap, int*);
           break;
 
         case 'e': /* enumerated */
         case 'i': /* int */
-          l = va_arg(ap, ber_slen_t *);
+          l = va_arg(ap, ber_slen_t*);
           break;
 
         case 'l': /* length of next item */
-          l = va_arg(ap, ber_slen_t *);
+          l = va_arg(ap, ber_slen_t*);
           break;
 
         case 'n': /* null */
           break;
 
         case 's': /* octet string - in a buffer */
-          s = va_arg(ap, char *);
-          l = va_arg(ap, ber_slen_t *);
+          s = va_arg(ap, char*);
+          l = va_arg(ap, ber_slen_t*);
           break;
 
         case 'o': /* octet string in a supplied berval */
-          bval = va_arg(ap, struct berval *);
+          bval = va_arg(ap, struct berval*);
           if (bval->bv_val) NSLBERI_FREE(bval->bv_val);
           memset(bval, 0, sizeof(struct berval));
           break;
 
         case 'O': /* octet string - allocate & include length */
-          bvp = va_arg(ap, struct berval **);
+          bvp = va_arg(ap, struct berval**);
           ber_bvfree(*bvp);
           bvp = NULL;
           break;
 
         case 'B': /* bit string - allocate storage as needed */
-          ss = va_arg(ap, char **);
-          l = va_arg(ap, ber_slen_t *); /* for length, in bits */
+          ss = va_arg(ap, char**);
+          l = va_arg(ap, ber_slen_t*); /* for length, in bits */
           if (*ss) NSLBERI_FREE(*ss);
           *ss = NULL;
           break;
 
         case 't': /* tag of next item */
-          t = va_arg(ap, ber_tag_t *);
+          t = va_arg(ap, ber_tag_t*);
           break;
 
         case 'T': /* skip tag of next item */
-          t = va_arg(ap, ber_tag_t *);
+          t = va_arg(ap, ber_tag_t*);
           break;
 
         case 'v': /* sequence of strings */
-          sss = va_arg(ap, char ***);
+          sss = va_arg(ap, char***);
           ber_svecfree(*sss);
           *sss = NULL;
           break;
 
         case 'V': /* sequence of strings + lengths */
-          bv = va_arg(ap, struct berval ***);
+          bv = va_arg(ap, struct berval***);
           ber_bvecfree(*bv);
           *bv = NULL;
           break;
@@ -686,37 +686,37 @@ ber_tag_t LDAP_C ber_scanf(BerElement *ber, const char *fmt, ...) {
   return (rc);
 }
 
-void LDAP_CALL ber_bvfree(struct berval *bv) {
+void LDAP_CALL ber_bvfree(struct berval* bv) {
   if (bv != NULL) {
     if (bv->bv_val != NULL) {
       NSLBERI_FREE(bv->bv_val);
     }
-    NSLBERI_FREE((char *)bv);
+    NSLBERI_FREE((char*)bv);
   }
 }
 
-void LDAP_CALL ber_bvecfree(struct berval **bv) {
+void LDAP_CALL ber_bvecfree(struct berval** bv) {
   int i;
 
   if (bv != NULL) {
     for (i = 0; bv[i] != NULL; i++) {
       ber_bvfree(bv[i]);
     }
-    NSLBERI_FREE((char *)bv);
+    NSLBERI_FREE((char*)bv);
   }
 }
 
-struct berval *LDAP_CALL ber_bvdup(const struct berval *bv) {
-  struct berval *new;
+struct berval* LDAP_CALL ber_bvdup(const struct berval* bv) {
+  struct berval* new;
 
-  if ((new = (struct berval *)NSLBERI_MALLOC(sizeof(struct berval))) == NULL) {
+  if ((new = (struct berval*)NSLBERI_MALLOC(sizeof(struct berval))) == NULL) {
     return (NULL);
   }
   if (bv->bv_val == NULL) {
     new->bv_val = NULL;
     new->bv_len = 0;
   } else {
-    if ((new->bv_val = (char *)NSLBERI_MALLOC(bv->bv_len + 1)) == NULL) {
+    if ((new->bv_val = (char*)NSLBERI_MALLOC(bv->bv_len + 1)) == NULL) {
       NSLBERI_FREE(new);
       new = NULL;
       return (NULL);
@@ -729,16 +729,16 @@ struct berval *LDAP_CALL ber_bvdup(const struct berval *bv) {
   return (new);
 }
 
-void LDAP_CALL ber_svecfree(char **vals) {
+void LDAP_CALL ber_svecfree(char** vals) {
   int i;
 
   if (vals == NULL) return;
   for (i = 0; vals[i] != NULL; i++) NSLBERI_FREE(vals[i]);
-  NSLBERI_FREE((char *)vals);
+  NSLBERI_FREE((char*)vals);
 }
 
 #ifdef STR_TRANSLATION
-void LDAP_CALL ber_set_string_translators(BerElement *ber,
+void LDAP_CALL ber_set_string_translators(BerElement* ber,
                                           BERTranslateProc encode_proc,
                                           BERTranslateProc decode_proc) {
   ber->ber_encode_translate_proc = encode_proc;

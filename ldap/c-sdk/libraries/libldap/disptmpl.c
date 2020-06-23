@@ -52,11 +52,11 @@
 #include "ldap-int.h"
 #include "disptmpl.h"
 
-static void free_disptmpl(struct ldap_disptmpl *tmpl);
-static int read_next_tmpl(char **bufp, long *blenp,
-                          struct ldap_disptmpl **tmplp, int dtversion);
+static void free_disptmpl(struct ldap_disptmpl* tmpl);
+static int read_next_tmpl(char** bufp, long* blenp,
+                          struct ldap_disptmpl** tmplp, int dtversion);
 
-static char *tmploptions[] = {"addable", "modrdn", "altview", NULL};
+static char* tmploptions[] = {"addable", "modrdn", "altview", NULL};
 
 static unsigned long tmploptvals[] = {
     LDAP_DTMPL_OPT_ADDABLE,
@@ -64,7 +64,7 @@ static unsigned long tmploptvals[] = {
     LDAP_DTMPL_OPT_ALTVIEW,
 };
 
-static char *itemtypes[] = {
+static char* itemtypes[] = {
     "cis",      "mls",      "dn",        "bool", "jpeg", "jpegbtn",   "fax",
     "faxbtn",   "audiobtn", "time",      "date", "url",  "searchact", "linkact",
     "adddnact", "addact",   "verifyact", "mail", NULL};
@@ -78,7 +78,7 @@ static unsigned long itemsynids[] = {
     LDAP_SYN_ADDDNACTION,   LDAP_SYN_VERIFYDNACTION, LDAP_SYN_RFC822ADDR,
 };
 
-static char *itemoptions[] = {"ro",       "sort",        "1val", "hide",
+static char* itemoptions[] = {"ro",       "sort",        "1val", "hide",
                               "required", "hideiffalse", NULL};
 
 static unsigned long itemoptvals[] = {
@@ -90,10 +90,10 @@ static unsigned long itemoptvals[] = {
 #define ADDEF_CONSTANT "constant"
 #define ADDEF_ADDERSDN "addersdn"
 
-int LDAP_CALL ldap_init_templates(char *file,
-                                  struct ldap_disptmpl **tmpllistp) {
-  FILE *fp;
-  char *buf;
+int LDAP_CALL ldap_init_templates(char* file,
+                                  struct ldap_disptmpl** tmpllistp) {
+  FILE* fp;
+  char* buf;
   long rlen, len;
   int rc, eof;
 
@@ -135,10 +135,10 @@ int LDAP_CALL ldap_init_templates(char *file,
   return (rc);
 }
 
-int LDAP_CALL ldap_init_templates_buf(char *buf, long buflen,
-                                      struct ldap_disptmpl **tmpllistp) {
+int LDAP_CALL ldap_init_templates_buf(char* buf, long buflen,
+                                      struct ldap_disptmpl** tmpllistp) {
   int rc = 0, version;
-  char **toks;
+  char** toks;
   struct ldap_disptmpl *prevtmpl, *tmpl;
 
   *tmpllistp = prevtmpl = NULLDISPTMPL;
@@ -172,7 +172,7 @@ int LDAP_CALL ldap_init_templates_buf(char *buf, long buflen,
   return (rc);
 }
 
-void LDAP_CALL ldap_free_templates(struct ldap_disptmpl *tmpllist) {
+void LDAP_CALL ldap_free_templates(struct ldap_disptmpl* tmpllist) {
   struct ldap_disptmpl *tp, *nexttp;
 
   if (tmpllist != NULL) {
@@ -183,7 +183,7 @@ void LDAP_CALL ldap_free_templates(struct ldap_disptmpl *tmpllist) {
   }
 }
 
-static void free_disptmpl(struct ldap_disptmpl *tmpl) {
+static void free_disptmpl(struct ldap_disptmpl* tmpl) {
   if (tmpl != NULL) {
     if (tmpl->dt_name != NULL) {
       NSLDAPI_FREE(tmpl->dt_name);
@@ -259,19 +259,19 @@ static void free_disptmpl(struct ldap_disptmpl *tmpl) {
   }
 }
 
-struct ldap_disptmpl *LDAP_CALL
-ldap_first_disptmpl(struct ldap_disptmpl *tmpllist) {
+struct ldap_disptmpl* LDAP_CALL
+ldap_first_disptmpl(struct ldap_disptmpl* tmpllist) {
   return (tmpllist);
 }
 
-struct ldap_disptmpl *LDAP_CALL
-ldap_next_disptmpl(struct ldap_disptmpl *tmpllist, struct ldap_disptmpl *tmpl) {
+struct ldap_disptmpl* LDAP_CALL
+ldap_next_disptmpl(struct ldap_disptmpl* tmpllist, struct ldap_disptmpl* tmpl) {
   return (tmpl == NULLDISPTMPL ? tmpl : tmpl->dt_next);
 }
 
-struct ldap_disptmpl *LDAP_CALL
-ldap_name2template(char *name, struct ldap_disptmpl *tmpllist) {
-  struct ldap_disptmpl *dtp;
+struct ldap_disptmpl* LDAP_CALL
+ldap_name2template(char* name, struct ldap_disptmpl* tmpllist) {
+  struct ldap_disptmpl* dtp;
 
   for (dtp = ldap_first_disptmpl(tmpllist); dtp != NULLDISPTMPL;
        dtp = ldap_next_disptmpl(tmpllist, dtp)) {
@@ -283,10 +283,10 @@ ldap_name2template(char *name, struct ldap_disptmpl *tmpllist) {
   return (NULLDISPTMPL);
 }
 
-struct ldap_disptmpl *LDAP_CALL
-ldap_oc2template(char **oclist, struct ldap_disptmpl *tmpllist) {
-  struct ldap_disptmpl *dtp;
-  struct ldap_oclist *oclp;
+struct ldap_disptmpl* LDAP_CALL
+ldap_oc2template(char** oclist, struct ldap_disptmpl* tmpllist) {
+  struct ldap_disptmpl* dtp;
+  struct ldap_oclist* oclp;
   int i, j, needcnt, matchcnt;
 
   if (tmpllist == NULL || oclist == NULL || oclist[0] == NULL) {
@@ -315,46 +315,46 @@ ldap_oc2template(char **oclist, struct ldap_disptmpl *tmpllist) {
   return (NULLDISPTMPL);
 }
 
-struct ldap_tmplitem *LDAP_CALL ldap_first_tmplrow(struct ldap_disptmpl *tmpl) {
+struct ldap_tmplitem* LDAP_CALL ldap_first_tmplrow(struct ldap_disptmpl* tmpl) {
   return (tmpl->dt_items);
 }
 
-struct ldap_tmplitem *LDAP_CALL ldap_next_tmplrow(struct ldap_disptmpl *tmpl,
-                                                  struct ldap_tmplitem *row) {
+struct ldap_tmplitem* LDAP_CALL ldap_next_tmplrow(struct ldap_disptmpl* tmpl,
+                                                  struct ldap_tmplitem* row) {
   return (row == NULLTMPLITEM ? row : row->ti_next_in_col);
 }
 
-struct ldap_tmplitem *LDAP_CALL ldap_first_tmplcol(struct ldap_disptmpl *tmpl,
-                                                   struct ldap_tmplitem *row) {
+struct ldap_tmplitem* LDAP_CALL ldap_first_tmplcol(struct ldap_disptmpl* tmpl,
+                                                   struct ldap_tmplitem* row) {
   return (row);
 }
 
-struct ldap_tmplitem *LDAP_CALL ldap_next_tmplcol(struct ldap_disptmpl *tmpl,
-                                                  struct ldap_tmplitem *row,
-                                                  struct ldap_tmplitem *col) {
+struct ldap_tmplitem* LDAP_CALL ldap_next_tmplcol(struct ldap_disptmpl* tmpl,
+                                                  struct ldap_tmplitem* row,
+                                                  struct ldap_tmplitem* col) {
   return (col == NULLTMPLITEM ? col : col->ti_next_in_row);
 }
 
-char **LDAP_CALL ldap_tmplattrs(struct ldap_disptmpl *tmpl, char **includeattrs,
+char** LDAP_CALL ldap_tmplattrs(struct ldap_disptmpl* tmpl, char** includeattrs,
                                 int exclude, unsigned long syntaxmask) {
   /*
    * this routine should filter out duplicate attributes...
    */
   struct ldap_tmplitem *tirowp, *ticolp;
   int i, attrcnt, memerr;
-  char **attrs;
+  char** attrs;
 
   attrcnt = 0;
   memerr = 0;
 
-  if ((attrs = (char **)NSLDAPI_MALLOC(sizeof(char *))) == NULL) {
+  if ((attrs = (char**)NSLDAPI_MALLOC(sizeof(char*))) == NULL) {
     return (NULL);
   }
 
   if (includeattrs != NULL) {
     for (i = 0; !memerr && includeattrs[i] != NULL; ++i) {
-      if ((attrs = (char **)NSLDAPI_REALLOC(
-               attrs, (attrcnt + 2) * sizeof(char *))) == NULL ||
+      if ((attrs = (char**)NSLDAPI_REALLOC(
+               attrs, (attrcnt + 2) * sizeof(char*))) == NULL ||
           (attrs[attrcnt++] = nsldapi_strdup(includeattrs[i])) == NULL) {
         memerr = 1;
       } else {
@@ -375,8 +375,8 @@ char **LDAP_CALL ldap_tmplattrs(struct ldap_disptmpl *tmpl, char **includeattrs,
       }
 
       if (ticolp->ti_attrname != NULL) {
-        if ((attrs = (char **)NSLDAPI_REALLOC(
-                 attrs, (attrcnt + 2) * sizeof(char *))) == NULL ||
+        if ((attrs = (char**)NSLDAPI_REALLOC(
+                 attrs, (attrcnt + 2) * sizeof(char*))) == NULL ||
             (attrs[attrcnt++] = nsldapi_strdup(ticolp->ti_attrname)) == NULL) {
           memerr = 1;
         } else {
@@ -393,18 +393,18 @@ char **LDAP_CALL ldap_tmplattrs(struct ldap_disptmpl *tmpl, char **includeattrs,
       }
     }
 
-    NSLDAPI_FREE((char *)attrs);
+    NSLDAPI_FREE((char*)attrs);
     return (NULL);
   }
 
   return (attrs);
 }
 
-static int read_next_tmpl(char **bufp, long *blenp,
-                          struct ldap_disptmpl **tmplp, int dtversion) {
+static int read_next_tmpl(char** bufp, long* blenp,
+                          struct ldap_disptmpl** tmplp, int dtversion) {
   int i, j, tokcnt, samerow, adsource;
   char **toks, *itemopts;
-  struct ldap_disptmpl *tmpl = NULL;
+  struct ldap_disptmpl* tmpl = NULL;
   struct ldap_oclist *ocp = NULL, *prevocp = NULL;
   struct ldap_adddeflist *adp = NULL, *prevadp = NULL;
   struct ldap_tmplitem *rowp = NULL, *ip = NULL, *previp = NULL;
@@ -417,13 +417,13 @@ static int read_next_tmpl(char **bufp, long *blenp,
     return (tokcnt == 0 ? 0 : LDAP_TMPL_ERR_SYNTAX);
   }
 
-  if ((tmpl = (struct ldap_disptmpl *)NSLDAPI_CALLOC(
+  if ((tmpl = (struct ldap_disptmpl*)NSLDAPI_CALLOC(
            1, sizeof(struct ldap_disptmpl))) == NULL) {
     nsldapi_free_strarray(toks);
     return (LDAP_TMPL_ERR_MEM);
   }
   tmpl->dt_name = toks[0];
-  NSLDAPI_FREE((char *)toks);
+  NSLDAPI_FREE((char*)toks);
 
   /*
    * template plural name comes next
@@ -434,7 +434,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
     return (LDAP_TMPL_ERR_SYNTAX);
   }
   tmpl->dt_pluralname = toks[0];
-  NSLDAPI_FREE((char *)toks);
+  NSLDAPI_FREE((char*)toks);
 
   /*
    * template icon name is next
@@ -445,7 +445,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
     return (LDAP_TMPL_ERR_SYNTAX);
   }
   tmpl->dt_iconname = toks[0];
-  NSLDAPI_FREE((char *)toks);
+  NSLDAPI_FREE((char*)toks);
 
   /*
    * template options come next
@@ -468,7 +468,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
    * object class list is next
    */
   while ((tokcnt = nsldapi_next_line_tokens(bufp, blenp, &toks)) > 0) {
-    if ((ocp = (struct ldap_oclist *)NSLDAPI_CALLOC(
+    if ((ocp = (struct ldap_oclist*)NSLDAPI_CALLOC(
              1, sizeof(struct ldap_oclist))) == NULL) {
       nsldapi_free_strarray(toks);
       free_disptmpl(tmpl);
@@ -500,7 +500,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
   } else {
     NSLDAPI_FREE(toks[0]);
   }
-  NSLDAPI_FREE((char *)toks);
+  NSLDAPI_FREE((char*)toks);
 
   /*
    * read default attribute to use for RDN
@@ -511,7 +511,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
     return (LDAP_TMPL_ERR_SYNTAX);
   }
   tmpl->dt_defrdnattrname = toks[0];
-  NSLDAPI_FREE((char *)toks);
+  NSLDAPI_FREE((char*)toks);
 
   /*
    * read default location for new entries
@@ -526,7 +526,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
   } else {
     NSLDAPI_FREE(toks[0]);
   }
-  NSLDAPI_FREE((char *)toks);
+  NSLDAPI_FREE((char*)toks);
 
   /*
    * read list of rules used to define default values for new entries
@@ -547,7 +547,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
       return (LDAP_TMPL_ERR_SYNTAX);
     }
 
-    if ((adp = (struct ldap_adddeflist *)NSLDAPI_CALLOC(
+    if ((adp = (struct ldap_adddeflist*)NSLDAPI_CALLOC(
              1, sizeof(struct ldap_adddeflist))) == NULL) {
       nsldapi_free_strarray(toks);
       free_disptmpl(tmpl);
@@ -559,7 +559,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
       adp->ad_value = toks[2];
     }
     NSLDAPI_FREE(toks[0]);
-    NSLDAPI_FREE((char *)toks);
+    NSLDAPI_FREE((char*)toks);
 
     if (tmpl->dt_adddeflist == NULL) {
       tmpl->dt_adddeflist = adp;
@@ -581,7 +581,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
         return (LDAP_TMPL_ERR_SYNTAX);
       }
 
-      if ((ip = (struct ldap_tmplitem *)NSLDAPI_CALLOC(
+      if ((ip = (struct ldap_tmplitem*)NSLDAPI_CALLOC(
                1, sizeof(struct ldap_tmplitem))) == NULL) {
         nsldapi_free_strarray(toks);
         free_disptmpl(tmpl);
@@ -631,7 +631,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
         for (i = 0; toks[i + 4] != NULL; ++i) {
           ;
         }
-        if ((ip->ti_args = (char **)NSLDAPI_CALLOC(i + 1, sizeof(char *))) ==
+        if ((ip->ti_args = (char**)NSLDAPI_CALLOC(i + 1, sizeof(char*))) ==
             NULL) {
           free_disptmpl(tmpl);
           return (LDAP_TMPL_ERR_MEM);
@@ -640,7 +640,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
           ip->ti_args[i] = toks[i + 4];
         }
       }
-      NSLDAPI_FREE((char *)toks);
+      NSLDAPI_FREE((char*)toks);
 
       if (tmpl->dt_items == NULL) {
         tmpl->dt_items = rowp = ip;
@@ -672,7 +672,7 @@ static int read_next_tmpl(char **bufp, long *blenp,
 
 struct tmplerror {
   int e_code;
-  char *e_reason;
+  char* e_reason;
 };
 
 static struct tmplerror ldap_tmplerrlist[] = {
@@ -682,7 +682,7 @@ static struct tmplerror ldap_tmplerrlist[] = {
     {LDAP_TMPL_ERR_FILE, "File error reading template"},
     {-1, 0}};
 
-char *LDAP_CALL ldap_tmplerr2string(int err) {
+char* LDAP_CALL ldap_tmplerr2string(int err) {
   int i;
 
   for (i = 0; ldap_tmplerrlist[i].e_code != -1; i++) {

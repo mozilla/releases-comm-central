@@ -42,11 +42,11 @@
  * Add s at the end of the array of strings *a.
  * Return 0 for success, -1 for failure.
  */
-int LDAP_CALL ldap_charray_add(char ***a, char *s) {
+int LDAP_CALL ldap_charray_add(char*** a, char* s) {
   int n;
 
   if (*a == NULL) {
-    *a = (char **)NSLDAPI_MALLOC(2 * sizeof(char *));
+    *a = (char**)NSLDAPI_MALLOC(2 * sizeof(char*));
     if (*a == NULL) {
       return -1;
     }
@@ -56,7 +56,7 @@ int LDAP_CALL ldap_charray_add(char ***a, char *s) {
       ; /* NULL */
     }
 
-    *a = (char **)NSLDAPI_REALLOC((char *)*a, (n + 2) * sizeof(char *));
+    *a = (char**)NSLDAPI_REALLOC((char*)*a, (n + 2) * sizeof(char*));
     if (*a == NULL) {
       return -1;
     }
@@ -71,7 +71,7 @@ int LDAP_CALL ldap_charray_add(char ***a, char *s) {
  * Add array of strings s at the end of the array of strings *a.
  * Return 0 for success, -1 for failure.
  */
-int LDAP_CALL ldap_charray_merge(char ***a, char **s) {
+int LDAP_CALL ldap_charray_merge(char*** a, char** s) {
   int i, n, nn;
 
   if ((s == NULL) || (s[0] == NULL)) return 0;
@@ -83,7 +83,7 @@ int LDAP_CALL ldap_charray_merge(char ***a, char **s) {
     ; /* NULL */
   }
 
-  *a = (char **)NSLDAPI_REALLOC((char *)*a, (n + nn + 1) * sizeof(char *));
+  *a = (char**)NSLDAPI_REALLOC((char*)*a, (n + nn + 1) * sizeof(char*));
   if (*a == NULL) {
     return -1;
   }
@@ -95,8 +95,8 @@ int LDAP_CALL ldap_charray_merge(char ***a, char **s) {
   return 0;
 }
 
-void LDAP_CALL ldap_charray_free(char **array) {
-  char **a;
+void LDAP_CALL ldap_charray_free(char** array) {
+  char** a;
 
   if (array == NULL) {
     return;
@@ -107,10 +107,10 @@ void LDAP_CALL ldap_charray_free(char **array) {
       NSLDAPI_FREE(*a);
     }
   }
-  NSLDAPI_FREE((char *)array);
+  NSLDAPI_FREE((char*)array);
 }
 
-int LDAP_CALL ldap_charray_inlist(char **a, char *s) {
+int LDAP_CALL ldap_charray_inlist(char** a, char* s) {
   int i;
 
   if (a == NULL) return (0);
@@ -127,14 +127,14 @@ int LDAP_CALL ldap_charray_inlist(char **a, char *s) {
 /*
  * Duplicate the array of strings a, return NULL upon any memory failure.
  */
-char **LDAP_CALL ldap_charray_dup(char **a) {
+char** LDAP_CALL ldap_charray_dup(char** a) {
   int i;
-  char **new;
+  char** new;
 
   for (i = 0; a[i] != NULL; i++)
     ; /* NULL */
 
-  new = (char **)NSLDAPI_MALLOC((i + 1) * sizeof(char *));
+  new = (char**)NSLDAPI_MALLOC((i + 1) * sizeof(char*));
   if (new == NULL) {
     return NULL;
   }
@@ -159,16 +159,16 @@ char **LDAP_CALL ldap_charray_dup(char **a) {
  * XXX: on many platforms this function is not thread safe because it
  * uses strtok().
  */
-char **LDAP_CALL ldap_str2charray(char *str, char *brkstr)
+char** LDAP_CALL ldap_str2charray(char* str, char* brkstr)
 /* This implementation fails if brkstr contains multibyte characters.
    But it works OK if str is UTF-8 and brkstr is 7-bit ASCII.
  */
 {
-  char **res;
-  char *s;
+  char** res;
+  char* s;
   int i;
 #ifdef HAVE_STRTOK_R /* defined in portable.h */
-  char *lasts;
+  char* lasts;
 #endif
 
   i = 1;
@@ -178,7 +178,7 @@ char **LDAP_CALL ldap_str2charray(char *str, char *brkstr)
     }
   }
 
-  res = (char **)NSLDAPI_MALLOC((i + 1) * sizeof(char *));
+  res = (char**)NSLDAPI_MALLOC((i + 1) * sizeof(char*));
   if (res == NULL) {
     return NULL;
   }
@@ -199,7 +199,7 @@ char **LDAP_CALL ldap_str2charray(char *str, char *brkstr)
   return (res);
 }
 
-int LDAP_CALL ldap_charray_position(char **a, char *s) {
+int LDAP_CALL ldap_charray_position(char** a, char* s) {
   int i;
 
   for (i = 0; a[i] != NULL; i++) {

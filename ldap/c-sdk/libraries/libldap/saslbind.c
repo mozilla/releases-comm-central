@@ -53,7 +53,7 @@ sasl_callback_t client_callbacks[] = {{SASL_CB_GETOPT, nsldapi_sasl_fail, NULL},
                                       {SASL_CB_NOECHOPROMPT, NULL, NULL},
                                       {SASL_CB_LIST_END, NULL, NULL}};
 
-int nsldapi_sasl_cvterrno(LDAP *ld, int err, char *msg) {
+int nsldapi_sasl_cvterrno(LDAP* ld, int err, char* msg) {
   int rc = LDAP_LOCAL_ERROR;
 
   switch (err) {
@@ -104,8 +104,8 @@ int nsldapi_sasl_cvterrno(LDAP *ld, int err, char *msg) {
  * Get available SASL Mechanisms supported by the server
  */
 
-static int nsldapi_get_sasl_mechs(LDAP *ld, char **pmech) {
-  char *attr[] = {"supportedSASLMechanisms", NULL};
+static int nsldapi_get_sasl_mechs(LDAP* ld, char** pmech) {
+  char* attr[] = {"supportedSASLMechanisms", NULL};
   char **values, **v, *mech, *m;
   LDAPMessage *res, *e;
   struct timeval timeout;
@@ -171,11 +171,11 @@ static int nsldapi_get_sasl_mechs(LDAP *ld, char **pmech) {
 }
 #  endif /* LDAP_SASLIO_GET_MECHS_FROM_SERVER */
 
-int nsldapi_sasl_secprops(const char *in,
-                          sasl_security_properties_t *secprops) {
+int nsldapi_sasl_secprops(const char* in,
+                          sasl_security_properties_t* secprops) {
   int i;
-  char **props = NULL;
-  char *inp;
+  char** props = NULL;
+  char* inp;
   unsigned sflags = 0;
   sasl_ssf_t max_ssf = 0;
   sasl_ssf_t min_ssf = 0;
@@ -278,14 +278,14 @@ int nsldapi_sasl_secprops(const char *in,
 }
 #endif /* LDAP_SASLIO_HOOKS */
 
-static int nsldapi_sasl_bind_s(LDAP *ld, const char *dn, const char *mechanism,
-                               const struct berval *cred,
-                               LDAPControl **serverctrls,
-                               LDAPControl **clientctrls,
-                               struct berval **servercredp,
-                               LDAPControl ***responsectrls) {
+static int nsldapi_sasl_bind_s(LDAP* ld, const char* dn, const char* mechanism,
+                               const struct berval* cred,
+                               LDAPControl** serverctrls,
+                               LDAPControl** clientctrls,
+                               struct berval** servercredp,
+                               LDAPControl*** responsectrls) {
   int err, msgid;
-  LDAPMessage *result;
+  LDAPMessage* result;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_sasl_bind_s\n", 0, 0, 0);
 
@@ -302,7 +302,7 @@ static int nsldapi_sasl_bind_s(LDAP *ld, const char *dn, const char *mechanism,
                             &msgid)) != LDAP_SUCCESS)
     return (err);
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)0, &result) == -1)
+  if (ldap_result(ld, msgid, 1, (struct timeval*)0, &result) == -1)
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
 
   /* Get the controls sent by the server if requested */
@@ -322,20 +322,20 @@ static int nsldapi_sasl_bind_s(LDAP *ld, const char *dn, const char *mechanism,
 }
 
 #ifdef LDAP_SASLIO_HOOKS
-static int nsldapi_sasl_do_bind(LDAP *ld, const char *dn, const char *mechs,
+static int nsldapi_sasl_do_bind(LDAP* ld, const char* dn, const char* mechs,
                                 unsigned flags,
-                                LDAP_SASL_INTERACT_PROC *callback,
-                                void *defaults, LDAPControl **sctrl,
-                                LDAPControl **cctrl, LDAPControl ***rctrl) {
-  sasl_interact_t *prompts = NULL;
-  sasl_conn_t *ctx = NULL;
-  sasl_ssf_t *ssf = NULL;
-  const char *mech = NULL;
+                                LDAP_SASL_INTERACT_PROC* callback,
+                                void* defaults, LDAPControl** sctrl,
+                                LDAPControl** cctrl, LDAPControl*** rctrl) {
+  sasl_interact_t* prompts = NULL;
+  sasl_conn_t* ctx = NULL;
+  sasl_ssf_t* ssf = NULL;
+  const char* mech = NULL;
   int saslrc, rc;
   struct berval ccred;
   unsigned credlen;
   int stepnum = 1;
-  char *sasl_username = NULL;
+  char* sasl_username = NULL;
 
   if (rctrl) {
     /* init to NULL so we can call ldap_controls_free below */
@@ -364,7 +364,7 @@ static int nsldapi_sasl_do_bind(LDAP *ld, const char *dn, const char *mechs,
 
   do {
     saslrc = sasl_client_start(ctx, mechs, &prompts,
-                               (const char **)&ccred.bv_val, &credlen, &mech);
+                               (const char**)&ccred.bv_val, &credlen, &mech);
 
     LDAPDebug(LDAP_DEBUG_TRACE,
               "Doing step %d of client start for SASL/%s authentication\n",
@@ -387,7 +387,7 @@ static int nsldapi_sasl_do_bind(LDAP *ld, const char *dn, const char *mechs,
   stepnum = 1;
 
   do {
-    struct berval *scred;
+    struct berval* scred;
     int clientstepnum = 1;
 
     scred = NULL;
@@ -453,7 +453,7 @@ static int nsldapi_sasl_do_bind(LDAP *ld, const char *dn, const char *mechs,
       clientstepnum++;
       saslrc = sasl_client_step(ctx, (scred == NULL) ? NULL : scred->bv_val,
                                 (scred == NULL) ? 0 : scred->bv_len, &prompts,
-                                (const char **)&ccred.bv_val, &credlen);
+                                (const char**)&ccred.bv_val, &credlen);
 
       if (saslrc == SASL_INTERACT &&
           (callback)(ld, flags, defaults, prompts) != LDAP_SUCCESS) {
@@ -479,12 +479,12 @@ static int nsldapi_sasl_do_bind(LDAP *ld, const char *dn, const char *mechs,
         nsldapi_sasl_cvterrno(ld, saslrc, nsldapi_strdup(sasl_errdetail(ctx))));
   }
 
-  saslrc = sasl_getprop(ctx, SASL_USERNAME, (const void **)&sasl_username);
+  saslrc = sasl_getprop(ctx, SASL_USERNAME, (const void**)&sasl_username);
   if ((saslrc == SASL_OK) && sasl_username) {
     LDAPDebug(LDAP_DEBUG_TRACE, "SASL identity: %s\n", sasl_username, 0, 0);
   }
 
-  saslrc = sasl_getprop(ctx, SASL_SSF, (const void **)&ssf);
+  saslrc = sasl_getprop(ctx, SASL_SSF, (const void**)&ssf);
   if (saslrc == SASL_OK) {
     if (ssf && *ssf) {
       LDAPDebug(LDAP_DEBUG_TRACE, "SASL install encryption, for SSF: %lu\n",
@@ -512,11 +512,11 @@ static int nsldapi_sasl_do_bind(LDAP *ld, const char *dn, const char *mechs,
  * err = ldap_sasl_bind(ld, "cn=manager, o=university of michigan, c=us",
  *                      "mechanismname", &creds, ctrls, NULL, &msgid);
  */
-int LDAP_CALL ldap_sasl_bind(LDAP *ld, const char *dn, const char *mechanism,
-                             const struct berval *cred,
-                             LDAPControl **serverctrls,
-                             LDAPControl **clientctrls, int *msgidp) {
-  BerElement *ber;
+int LDAP_CALL ldap_sasl_bind(LDAP* ld, const char* dn, const char* mechanism,
+                             const struct berval* cred,
+                             LDAPControl** serverctrls,
+                             LDAPControl** clientctrls, int* msgidp) {
+  BerElement* ber;
   int rc, simple, msgid, ldapversion;
 
   /*
@@ -617,7 +617,7 @@ int LDAP_CALL ldap_sasl_bind(LDAP *ld, const char *dn, const char *mechanism,
   }
 
   /* send the message */
-  rc = nsldapi_send_initial_request(ld, msgid, LDAP_REQ_BIND, (char *)dn, ber);
+  rc = nsldapi_send_initial_request(ld, msgid, LDAP_REQ_BIND, (char*)dn, ber);
   *msgidp = rc;
   return (rc < 0 ? LDAP_GET_LDERRNO(ld, NULL, NULL) : LDAP_SUCCESS);
 }
@@ -634,11 +634,11 @@ int LDAP_CALL ldap_sasl_bind(LDAP *ld, const char *dn, const char *mechanism,
  * ldap_sasl_bind_s(ld, "cn=manager, o=university of michigan, c=us",
  *                  "mechanismname", &creds)
  */
-int LDAP_CALL ldap_sasl_bind_s(LDAP *ld, const char *dn, const char *mechanism,
-                               const struct berval *cred,
-                               LDAPControl **serverctrls,
-                               LDAPControl **clientctrls,
-                               struct berval **servercredp) {
+int LDAP_CALL ldap_sasl_bind_s(LDAP* ld, const char* dn, const char* mechanism,
+                               const struct berval* cred,
+                               LDAPControl** serverctrls,
+                               LDAPControl** clientctrls,
+                               struct berval** servercredp) {
   return (nsldapi_sasl_bind_s(ld, dn, mechanism, cred, serverctrls, clientctrls,
                               servercredp, NULL));
 }
@@ -657,12 +657,12 @@ int LDAP_CALL ldap_sasl_bind_s(LDAP *ld, const char *dn, const char *mechanism,
  *   A mech list must be provided
  *   LDAP_SASL_INTERACTIVE mode requires a callback
  */
-int LDAP_CALL ldap_sasl_interactive_bind_s(LDAP *ld, const char *dn,
-                                           const char *saslMechanism,
-                                           LDAPControl **sctrl,
-                                           LDAPControl **cctrl, unsigned flags,
-                                           LDAP_SASL_INTERACT_PROC *callback,
-                                           void *defaults) {
+int LDAP_CALL ldap_sasl_interactive_bind_s(LDAP* ld, const char* dn,
+                                           const char* saslMechanism,
+                                           LDAPControl** sctrl,
+                                           LDAPControl** cctrl, unsigned flags,
+                                           LDAP_SASL_INTERACT_PROC* callback,
+                                           void* defaults) {
   return ldap_sasl_interactive_bind_ext_s(ld, dn, saslMechanism, sctrl, cctrl,
                                           flags, callback, defaults, NULL);
 }
@@ -683,11 +683,11 @@ int LDAP_CALL ldap_sasl_interactive_bind_s(LDAP *ld, const char *dn,
  * intermediate controls (if any, usually not) are discarded.
  */
 int LDAP_CALL ldap_sasl_interactive_bind_ext_s(
-    LDAP *ld, const char *dn, const char *saslMechanism, LDAPControl **sctrl,
-    LDAPControl **cctrl, unsigned flags, LDAP_SASL_INTERACT_PROC *callback,
-    void *defaults, LDAPControl ***rctrl) {
+    LDAP* ld, const char* dn, const char* saslMechanism, LDAPControl** sctrl,
+    LDAPControl** cctrl, unsigned flags, LDAP_SASL_INTERACT_PROC* callback,
+    void* defaults, LDAPControl*** rctrl) {
 #  ifdef LDAP_SASLIO_GET_MECHS_FROM_SERVER
-  char *smechs;
+  char* smechs;
 #  endif
   int rc;
 
@@ -725,26 +725,26 @@ int LDAP_CALL ldap_sasl_interactive_bind_ext_s(
 }
 #else  /* LDAP_SASLIO_HOOKS */
 /* stubs for platforms that do not support SASL */
-int LDAP_CALL ldap_sasl_interactive_bind_s(LDAP *ld, const char *dn,
-                                           const char *saslMechanism,
-                                           LDAPControl **sctrl,
-                                           LDAPControl **cctrl, unsigned flags,
-                                           LDAP_SASL_INTERACT_PROC *callback,
-                                           void *defaults) {
+int LDAP_CALL ldap_sasl_interactive_bind_s(LDAP* ld, const char* dn,
+                                           const char* saslMechanism,
+                                           LDAPControl** sctrl,
+                                           LDAPControl** cctrl, unsigned flags,
+                                           LDAP_SASL_INTERACT_PROC* callback,
+                                           void* defaults) {
   return LDAP_SUCCESS;
 }
 
 int LDAP_CALL ldap_sasl_interactive_bind_ext_s(
-    LDAP *ld, const char *dn, const char *saslMechanism, LDAPControl **sctrl,
-    LDAPControl **cctrl, unsigned flags, LDAP_SASL_INTERACT_PROC *callback,
-    void *defaults, LDAPControl ***rctrl) {
+    LDAP* ld, const char* dn, const char* saslMechanism, LDAPControl** sctrl,
+    LDAPControl** cctrl, unsigned flags, LDAP_SASL_INTERACT_PROC* callback,
+    void* defaults, LDAPControl*** rctrl) {
   return LDAP_SUCCESS;
 }
 #endif /* LDAP_SASLIO_HOOKS */
 
 /* returns an LDAP error code that indicates if parse succeeded or not */
-int LDAP_CALL ldap_parse_sasl_bind_result(LDAP *ld, LDAPMessage *res,
-                                          struct berval **servercredp,
+int LDAP_CALL ldap_parse_sasl_bind_result(LDAP* ld, LDAPMessage* res,
+                                          struct berval** servercredp,
                                           int freeit) {
   BerElement ber;
   int rc, err;

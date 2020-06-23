@@ -50,7 +50,7 @@ static char copyright[] = "@(#) Copyright (c) 1993 Regents of the University of 
 
 #include "ldap-int.h"
 
-static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
+static int simple_bind_nolock(LDAP* ld, const char* dn, const char* passwd,
                               int unlock_permitted);
 
 /*
@@ -63,7 +63,7 @@ static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
  *                  "secret")
  */
 
-int LDAP_CALL ldap_simple_bind(LDAP *ld, const char *dn, const char *passwd) {
+int LDAP_CALL ldap_simple_bind(LDAP* ld, const char* dn, const char* passwd) {
   int rc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_simple_bind\n", 0, 0, 0);
@@ -81,9 +81,9 @@ int LDAP_CALL ldap_simple_bind(LDAP *ld, const char *dn, const char *passwd) {
   return (rc);
 }
 
-static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
+static int simple_bind_nolock(LDAP* ld, const char* dn, const char* passwd,
                               int unlock_permitted) {
-  BerElement *ber;
+  BerElement* ber;
   int rc, msgid;
 
   /*
@@ -108,7 +108,7 @@ static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
   if (ld->ld_cache_on && ld->ld_cache_bind != NULL) {
     struct berval bv;
 
-    bv.bv_val = (char *)passwd;
+    bv.bv_val = (char*)passwd;
     bv.bv_len = strlen(passwd);
     /* if ( unlock_permitted ) LDAP_MUTEX_UNLOCK( ld ); */
     LDAP_MUTEX_LOCK(ld, LDAP_CACHE_LOCK);
@@ -142,7 +142,7 @@ static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
 
   /* send the message */
   return (
-      nsldapi_send_initial_request(ld, msgid, LDAP_REQ_BIND, (char *)dn, ber));
+      nsldapi_send_initial_request(ld, msgid, LDAP_REQ_BIND, (char*)dn, ber));
 }
 
 /*
@@ -155,9 +155,9 @@ static int simple_bind_nolock(LDAP *ld, const char *dn, const char *passwd,
  * ldap_simple_bind_s(ld, "cn=manager, o=university of michigan, c=us",
  *                    "secret")
  */
-int LDAP_CALL ldap_simple_bind_s(LDAP *ld, const char *dn, const char *passwd) {
+int LDAP_CALL ldap_simple_bind_s(LDAP* ld, const char* dn, const char* passwd) {
   int msgid;
-  LDAPMessage *result;
+  LDAPMessage* result;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_simple_bind_s\n", 0, 0, 0);
 
@@ -168,13 +168,13 @@ int LDAP_CALL ldap_simple_bind_s(LDAP *ld, const char *dn, const char *passwd) {
   if ((msgid = ldap_simple_bind(ld, dn, passwd)) == -1)
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)0, &result) == -1)
+  if (ldap_result(ld, msgid, 1, (struct timeval*)0, &result) == -1)
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
 
   return (ldap_result2error(ld, result, 1));
 }
 
-void nsldapi_handle_reconnect(LDAP *ld) {
+void nsldapi_handle_reconnect(LDAP* ld) {
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_handle_reconnect\n", 0, 0, 0);
 
   /*

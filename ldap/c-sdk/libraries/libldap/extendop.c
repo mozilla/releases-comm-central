@@ -49,11 +49,11 @@
  * err = ldap_extended_operation(ld, exoid, &exdata, NULL, NULL, &msgid);
  */
 
-int LDAP_CALL ldap_extended_operation(LDAP *ld, const char *exoid,
-                                      const struct berval *exdata,
-                                      LDAPControl **serverctrls,
-                                      LDAPControl **clientctrls, int *msgidp) {
-  BerElement *ber;
+int LDAP_CALL ldap_extended_operation(LDAP* ld, const char* exoid,
+                                      const struct berval* exdata,
+                                      LDAPControl** serverctrls,
+                                      LDAPControl** clientctrls, int* msgidp) {
+  BerElement* ber;
   int rc, msgid;
 
   /*
@@ -150,21 +150,21 @@ int LDAP_CALL ldap_extended_operation(LDAP *ld, const char *exoid,
  * ... fill in oid and data ...
  * rc = ldap_extended_operation_s(ld, exoid, &exdata, &exretval);
  */
-int LDAP_CALL ldap_extended_operation_s(LDAP *ld, const char *requestoid,
-                                        const struct berval *requestdata,
-                                        LDAPControl **serverctrls,
-                                        LDAPControl **clientctrls,
-                                        char **retoidp,
-                                        struct berval **retdatap) {
+int LDAP_CALL ldap_extended_operation_s(LDAP* ld, const char* requestoid,
+                                        const struct berval* requestdata,
+                                        LDAPControl** serverctrls,
+                                        LDAPControl** clientctrls,
+                                        char** retoidp,
+                                        struct berval** retdatap) {
   int err, msgid;
-  LDAPMessage *result;
+  LDAPMessage* result;
 
   if ((err = ldap_extended_operation(ld, requestoid, requestdata, serverctrls,
                                      clientctrls, &msgid)) != LDAP_SUCCESS) {
     return (err);
   }
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)0, &result) == -1) {
+  if (ldap_result(ld, msgid, 1, (struct timeval*)0, &result) == -1) {
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
   }
 
@@ -182,14 +182,14 @@ int LDAP_CALL ldap_extended_operation_s(LDAP *ld, const char *requestoid,
  * operation result.  Return an LDAP error code.
  */
 int LDAP_CALL ldap_parse_extended_result(
-    LDAP *ld, LDAPMessage *res, char **retoidp, /* may be NULL */
-    struct berval **retdatap,                   /* may be NULL */
+    LDAP* ld, LDAPMessage* res, char** retoidp, /* may be NULL */
+    struct berval** retdatap,                   /* may be NULL */
     int freeit) {
   struct berelement ber;
   ber_len_t len;
   ber_int_t err;
   char *m, *e, *roid;
-  struct berval *rdata;
+  struct berval* rdata;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_parse_extended_result\n", 0, 0, 0);
 

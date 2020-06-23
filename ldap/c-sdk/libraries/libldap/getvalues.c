@@ -50,12 +50,12 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 
 #include "ldap-int.h"
 
-static void **internal_ldap_get_values(LDAP *ld, LDAPMessage *entry,
-                                       const char *target, int lencall) {
+static void** internal_ldap_get_values(LDAP* ld, LDAPMessage* entry,
+                                       const char* target, int lencall) {
   struct berelement ber;
-  char *attr;
+  char* attr;
   int rc;
-  void **vals;
+  void** vals;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_values\n", 0, 0, 0);
 
@@ -75,7 +75,7 @@ static void **internal_ldap_get_values(LDAP *ld, LDAPMessage *entry,
     return (NULL);
   }
 
-  rc = strcasecmp((char *)target, attr);
+  rc = strcasecmp((char*)target, attr);
   NSLDAPI_FREE(attr);
   if (rc != 0) {
     while (1) {
@@ -84,7 +84,7 @@ static void **internal_ldap_get_values(LDAP *ld, LDAPMessage *entry,
         return (NULL);
       }
 
-      rc = strcasecmp((char *)target, attr);
+      rc = strcasecmp((char*)target, attr);
       if (rc == 0) {
         NSLDAPI_FREE(attr);
         break;
@@ -149,12 +149,12 @@ typedef struct {
   int length;
 } _SubStringIndex;
 
-static int parse_subtypes(const char *target, int *baseLenp, char **langp,
-                          _SubStringIndex **subs, int *nsubtypes) {
+static int parse_subtypes(const char* target, int* baseLenp, char** langp,
+                          _SubStringIndex** subs, int* nsubtypes) {
   int nSubtypes = 0;
   int ind = 0;
-  char *nextToken;
-  _SubStringIndex *result = NULL;
+  char* nextToken;
+  _SubStringIndex* result = NULL;
   int langIndex;
   int targetLen;
   int subtypeStart;
@@ -178,9 +178,9 @@ static int parse_subtypes(const char *target, int *baseLenp, char **langp,
   ind = subtypeStart;
 
   /* How many subtypes? */
-  nextToken = (char *)target + subtypeStart;
+  nextToken = (char*)target + subtypeStart;
   while (nextToken && *nextToken) {
-    char *thisToken = nextToken;
+    char* thisToken = nextToken;
     nextToken = strchr(thisToken, ';');
     if (NULL != nextToken) nextToken++;
     if (0 == strncasecmp(thisToken, "lang-", 5)) {
@@ -200,27 +200,27 @@ static int parse_subtypes(const char *target, int *baseLenp, char **langp,
 
   /* Allocate array of non-language subtypes */
   if (nSubtypes > 0) {
-    result = (_SubStringIndex *)NSLDAPI_MALLOC(sizeof(*result) * nSubtypes);
+    result = (_SubStringIndex*)NSLDAPI_MALLOC(sizeof(*result) * nSubtypes);
     memset(result, 0, sizeof(*result) * nSubtypes);
   }
   ind = 0;
   nSubtypes = 0;
   ind = subtypeStart;
-  nextToken = (char *)target + subtypeStart;
+  nextToken = (char*)target + subtypeStart;
   while (nextToken && *nextToken) {
-    char *thisToken = nextToken;
+    char* thisToken = nextToken;
     int len;
     nextToken = strchr(thisToken, ';');
     if (NULL != nextToken) {
       len = nextToken - thisToken;
       nextToken++;
     } else {
-      nextToken = (char *)target + targetLen;
+      nextToken = (char*)target + targetLen;
       len = nextToken - thisToken;
     }
     if (0 == strncasecmp(thisToken, "lang-", 5)) {
       int i;
-      *langp = (char *)NSLDAPI_MALLOC(len + 1);
+      *langp = (char*)NSLDAPI_MALLOC(len + 1);
       for (i = 0; i < len; i++) (*langp)[i] = toupper(target[ind + i]);
       (*langp)[len] = 0;
     } else {
@@ -234,13 +234,13 @@ static int parse_subtypes(const char *target, int *baseLenp, char **langp,
   return langIndex;
 }
 
-static int check_lang_match(const char *target, const char *baseTarget,
-                            _SubStringIndex *targetTypes, int ntargetTypes,
-                            char *targetLang, char *attr) {
+static int check_lang_match(const char* target, const char* baseTarget,
+                            _SubStringIndex* targetTypes, int ntargetTypes,
+                            char* targetLang, char* attr) {
   int langIndex;
-  _SubStringIndex *subtypes;
+  _SubStringIndex* subtypes;
   int baseLen;
-  char *lang;
+  char* lang;
   int nsubtypes;
   int mismatch = 0;
   int match = -1;
@@ -252,11 +252,11 @@ static int check_lang_match(const char *target, const char *baseTarget,
   /* Check if there any required non-language subtypes which are
      not in this attribute */
   for (i = 0; i < ntargetTypes; i++) {
-    char *t = (char *)target + targetTypes[i].start;
+    char* t = (char*)target + targetTypes[i].start;
     int tlen = targetTypes[i].length;
     int j;
     for (j = 0; j < nsubtypes; j++) {
-      char *a = attr + subtypes[j].start;
+      char* a = attr + subtypes[j].start;
       int alen = subtypes[j].length;
       if ((tlen == alen) && !strncasecmp(t, a, tlen)) break;
     }
@@ -296,7 +296,7 @@ static int check_lang_match(const char *target, const char *baseTarget,
   return match;
 }
 
-static int check_base_match(const char *target, char *attr) {
+static int check_base_match(const char* target, char* attr) {
   int i = 0;
   int rc;
   while (target[i] && attr[i] && (toupper(target[i]) == toupper(attr[i]))) i++;
@@ -304,22 +304,22 @@ static int check_base_match(const char *target, char *attr) {
   return rc;
 }
 
-static void **internal_ldap_get_lang_values(LDAP *ld, LDAPMessage *entry,
-                                            const char *target, char **type,
+static void** internal_ldap_get_lang_values(LDAP* ld, LDAPMessage* entry,
+                                            const char* target, char** type,
                                             int lencall) {
   struct berelement ber;
-  char *attr = NULL;
+  char* attr = NULL;
   int rc;
-  void **vals = NULL;
+  void** vals = NULL;
   int langIndex;
-  _SubStringIndex *subtypes;
+  _SubStringIndex* subtypes;
   int nsubtypes;
-  char *baseTarget = NULL;
+  char* baseTarget = NULL;
   int bestMatch = 0;
-  char *lang = NULL;
+  char* lang = NULL;
   int len;
   int firstAttr = 1;
-  char *bestType = NULL;
+  char* bestType = NULL;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_values\n", 0, 0, 0);
 
@@ -344,7 +344,7 @@ static void **internal_ldap_get_lang_values(LDAP *ld, LDAPMessage *entry,
     return vals;
   } else {
     /* Get just the base attribute name */
-    baseTarget = (char *)NSLDAPI_MALLOC(len + 1);
+    baseTarget = (char*)NSLDAPI_MALLOC(len + 1);
     memcpy(baseTarget, target, len);
     baseTarget[len] = 0;
   }
@@ -367,7 +367,7 @@ static void **internal_ldap_get_lang_values(LDAP *ld, LDAPMessage *entry,
       }
     }
 
-    if (check_base_match((const char *)baseTarget, attr)) {
+    if (check_base_match((const char*)baseTarget, attr)) {
       int thisMatch =
           check_lang_match(target, baseTarget, subtypes, nsubtypes, lang, attr);
       if (thisMatch > bestMatch) {
@@ -410,24 +410,24 @@ static void **internal_ldap_get_lang_values(LDAP *ld, LDAPMessage *entry,
   return (vals);
 }
 
-char **LDAP_CALL ldap_get_values(LDAP *ld, LDAPMessage *entry,
-                                 const char *target) {
-  return ((char **)internal_ldap_get_values(ld, entry, target, 0));
+char** LDAP_CALL ldap_get_values(LDAP* ld, LDAPMessage* entry,
+                                 const char* target) {
+  return ((char**)internal_ldap_get_values(ld, entry, target, 0));
 }
 
-struct berval **LDAP_CALL ldap_get_values_len(LDAP *ld, LDAPMessage *entry,
-                                              const char *target) {
-  return ((struct berval **)internal_ldap_get_values(ld, entry, target, 1));
+struct berval** LDAP_CALL ldap_get_values_len(LDAP* ld, LDAPMessage* entry,
+                                              const char* target) {
+  return ((struct berval**)internal_ldap_get_values(ld, entry, target, 1));
 }
 
-char **LDAP_CALL ldap_get_lang_values(LDAP *ld, LDAPMessage *entry,
-                                      const char *target, char **type) {
-  return ((char **)internal_ldap_get_lang_values(ld, entry, target, type, 0));
+char** LDAP_CALL ldap_get_lang_values(LDAP* ld, LDAPMessage* entry,
+                                      const char* target, char** type) {
+  return ((char**)internal_ldap_get_lang_values(ld, entry, target, type, 0));
 }
 
-struct berval **LDAP_CALL ldap_get_lang_values_len(LDAP *ld, LDAPMessage *entry,
-                                                   const char *target,
-                                                   char **type) {
-  return ((struct berval **)internal_ldap_get_lang_values(ld, entry, target,
-                                                          type, 1));
+struct berval** LDAP_CALL ldap_get_lang_values_len(LDAP* ld, LDAPMessage* entry,
+                                                   const char* target,
+                                                   char** type) {
+  return ((struct berval**)internal_ldap_get_lang_values(ld, entry, target,
+                                                         type, 1));
 }

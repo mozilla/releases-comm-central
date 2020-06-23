@@ -50,37 +50,37 @@
 
 /* This is totally lame, since it should be coming from time.h, but isn't. */
 #if defined(SOLARIS)
-char *ctime_r(const time_t *, char *, int);
+char* ctime_r(const time_t*, char*, int);
 #endif
 
-static int do_entry2text(LDAP *ld, char *buf, char *base, LDAPMessage *entry,
-                         struct ldap_disptmpl *tmpl, char **defattrs,
-                         char ***defvals, writeptype writeproc, void *writeparm,
-                         char *eol, int rdncount, unsigned long opts,
-                         char *urlprefix);
-static int do_entry2text_search(LDAP *ld, char *dn, char *base,
-                                LDAPMessage *entry,
-                                struct ldap_disptmpl *tmpllist, char **defattrs,
-                                char ***defvals, writeptype writeproc,
-                                void *writeparm, char *eol, int rdncount,
-                                unsigned long opts, char *urlprefix);
-static int do_vals2text(LDAP *ld, char *buf, char **vals, char *label,
+static int do_entry2text(LDAP* ld, char* buf, char* base, LDAPMessage* entry,
+                         struct ldap_disptmpl* tmpl, char** defattrs,
+                         char*** defvals, writeptype writeproc, void* writeparm,
+                         char* eol, int rdncount, unsigned long opts,
+                         char* urlprefix);
+static int do_entry2text_search(LDAP* ld, char* dn, char* base,
+                                LDAPMessage* entry,
+                                struct ldap_disptmpl* tmpllist, char** defattrs,
+                                char*** defvals, writeptype writeproc,
+                                void* writeparm, char* eol, int rdncount,
+                                unsigned long opts, char* urlprefix);
+static int do_vals2text(LDAP* ld, char* buf, char** vals, char* label,
                         int labelwidth, unsigned long syntaxid,
-                        writeptype writeproc, void *writeparm, char *eol,
-                        int rdncount, char *urlprefix);
-static int max_label_len(struct ldap_disptmpl *tmpl);
-static int output_label(char *buf, char *label, int width, writeptype writeproc,
-                        void *writeparm, char *eol, int html);
-static int output_dn(char *buf, char *dn, int width, int rdncount,
-                     writeptype writeproc, void *writeparm, char *eol,
-                     char *urlprefix);
-static void strcat_escaped(char *s1, char *s2);
-static char *time2text(char *ldtimestr, int dateonly);
-static long gtime(struct tm *tm);
-static int searchaction(LDAP *ld, char *buf, char *base, LDAPMessage *entry,
-                        char *dn, struct ldap_tmplitem *tip, int labelwidth,
-                        int rdncount, writeptype writeproc, void *writeparm,
-                        char *eol, char *urlprefix);
+                        writeptype writeproc, void* writeparm, char* eol,
+                        int rdncount, char* urlprefix);
+static int max_label_len(struct ldap_disptmpl* tmpl);
+static int output_label(char* buf, char* label, int width, writeptype writeproc,
+                        void* writeparm, char* eol, int html);
+static int output_dn(char* buf, char* dn, int width, int rdncount,
+                     writeptype writeproc, void* writeparm, char* eol,
+                     char* urlprefix);
+static void strcat_escaped(char* s1, char* s2);
+static char* time2text(char* ldtimestr, int dateonly);
+static long gtime(struct tm* tm);
+static int searchaction(LDAP* ld, char* buf, char* base, LDAPMessage* entry,
+                        char* dn, struct ldap_tmplitem* tip, int labelwidth,
+                        int rdncount, writeptype writeproc, void* writeparm,
+                        char* eol, char* urlprefix);
 
 #define DEF_LABEL_WIDTH 15
 #define SEARCH_TIMEOUT_SECS 120
@@ -92,10 +92,10 @@ static int searchaction(LDAP *ld, char *buf, char *base, LDAPMessage *entry,
 
 #define DEF_LDAP_URL_PREFIX "ldap:///"
 
-int LDAP_CALL ldap_entry2text(LDAP *ld, char *buf, /* NULL for "use internal" */
-                              LDAPMessage *entry, struct ldap_disptmpl *tmpl,
-                              char **defattrs, char ***defvals,
-                              writeptype writeproc, void *writeparm, char *eol,
+int LDAP_CALL ldap_entry2text(LDAP* ld, char* buf, /* NULL for "use internal" */
+                              LDAPMessage* entry, struct ldap_disptmpl* tmpl,
+                              char** defattrs, char*** defvals,
+                              writeptype writeproc, void* writeparm, char* eol,
                               int rdncount, unsigned long opts) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2text\n", 0, 0, 0);
 
@@ -103,12 +103,12 @@ int LDAP_CALL ldap_entry2text(LDAP *ld, char *buf, /* NULL for "use internal" */
                         writeproc, writeparm, eol, rdncount, opts, NULL));
 }
 
-int LDAP_CALL ldap_entry2html(LDAP *ld, char *buf, /* NULL for "use internal" */
-                              LDAPMessage *entry, struct ldap_disptmpl *tmpl,
-                              char **defattrs, char ***defvals,
-                              writeptype writeproc, void *writeparm, char *eol,
-                              int rdncount, unsigned long opts, char *base,
-                              char *urlprefix) {
+int LDAP_CALL ldap_entry2html(LDAP* ld, char* buf, /* NULL for "use internal" */
+                              LDAPMessage* entry, struct ldap_disptmpl* tmpl,
+                              char** defattrs, char*** defvals,
+                              writeptype writeproc, void* writeparm, char* eol,
+                              int rdncount, unsigned long opts, char* base,
+                              char* urlprefix) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2html\n", 0, 0, 0);
 
   if (urlprefix == NULL) {
@@ -119,13 +119,13 @@ int LDAP_CALL ldap_entry2html(LDAP *ld, char *buf, /* NULL for "use internal" */
                         writeproc, writeparm, eol, rdncount, opts, urlprefix));
 }
 
-static int do_entry2text(LDAP *ld, char *buf, /* NULL for use-internal */
-                         char *base,          /* used for search actions */
-                         LDAPMessage *entry, struct ldap_disptmpl *tmpl,
-                         char **defattrs, char ***defvals, writeptype writeproc,
-                         void *writeparm, char *eol, int rdncount,
+static int do_entry2text(LDAP* ld, char* buf, /* NULL for use-internal */
+                         char* base,          /* used for search actions */
+                         LDAPMessage* entry, struct ldap_disptmpl* tmpl,
+                         char** defattrs, char*** defvals, writeptype writeproc,
+                         void* writeparm, char* eol, int rdncount,
                          unsigned long opts,
-                         char *urlprefix /* if non-NULL, do HTML */
+                         char* urlprefix /* if non-NULL, do HTML */
 ) {
   int i, err, html, show, labelwidth;
   int freebuf, freevals;
@@ -179,7 +179,7 @@ static int do_entry2text(LDAP *ld, char *buf, /* NULL for use-internal */
 
     if ((opts & LDAP_DISP_OPT_NONLEAF) != 0 &&
         (vals = ldap_explode_dn(dn, 0)) != NULL) {
-      char *untagged;
+      char* untagged;
 
       /*
        * add "Move Up" link
@@ -233,8 +233,8 @@ static int do_entry2text(LDAP *ld, char *buf, /* NULL for use-internal */
   err = LDAP_SUCCESS;
 
   if (tmpl == NULL) {
-    BerElement *ber;
-    char *attr;
+    BerElement* ber;
+    char* attr;
 
     ber = NULL;
     for (attr = ldap_first_attribute(ld, entry, &ber);
@@ -355,12 +355,12 @@ static int do_entry2text(LDAP *ld, char *buf, /* NULL for use-internal */
 }
 
 int LDAP_CALL ldap_entry2text_search(
-    LDAP *ld, char *dn,             /* if NULL, use entry */
-    char *base,                     /* if NULL, no search actions */
-    LDAPMessage *entry,             /* if NULL, use dn */
-    struct ldap_disptmpl *tmpllist, /* if NULL, load default file */
-    char **defattrs, char ***defvals, writeptype writeproc, void *writeparm,
-    char *eol, int rdncount, /* if 0, display full DN */
+    LDAP* ld, char* dn,             /* if NULL, use entry */
+    char* base,                     /* if NULL, no search actions */
+    LDAPMessage* entry,             /* if NULL, use dn */
+    struct ldap_disptmpl* tmpllist, /* if NULL, load default file */
+    char** defattrs, char*** defvals, writeptype writeproc, void* writeparm,
+    char* eol, int rdncount, /* if 0, display full DN */
     unsigned long opts) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2text_search\n", 0, 0, 0);
 
@@ -370,13 +370,13 @@ int LDAP_CALL ldap_entry2text_search(
 }
 
 int LDAP_CALL ldap_entry2html_search(
-    LDAP *ld, char *dn,             /* if NULL, use entry */
-    char *base,                     /* if NULL, no search actions */
-    LDAPMessage *entry,             /* if NULL, use dn */
-    struct ldap_disptmpl *tmpllist, /* if NULL, load default file */
-    char **defattrs, char ***defvals, writeptype writeproc, void *writeparm,
-    char *eol, int rdncount, /* if 0, display full DN */
-    unsigned long opts, char *urlprefix) {
+    LDAP* ld, char* dn,             /* if NULL, use entry */
+    char* base,                     /* if NULL, no search actions */
+    LDAPMessage* entry,             /* if NULL, use dn */
+    struct ldap_disptmpl* tmpllist, /* if NULL, load default file */
+    char** defattrs, char*** defvals, writeptype writeproc, void* writeparm,
+    char* eol, int rdncount, /* if 0, display full DN */
+    unsigned long opts, char* urlprefix) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_entry2html_search\n", 0, 0, 0);
 
   return (do_entry2text_search(ld, dn, base, entry, tmpllist, defattrs, defvals,
@@ -385,17 +385,17 @@ int LDAP_CALL ldap_entry2html_search(
 }
 
 static int do_entry2text_search(
-    LDAP *ld, char *dn,             /* if NULL, use entry */
-    char *base,                     /* if NULL, no search actions */
-    LDAPMessage *entry,             /* if NULL, use dn */
-    struct ldap_disptmpl *tmpllist, /* if NULL, no template used */
-    char **defattrs, char ***defvals, writeptype writeproc, void *writeparm,
-    char *eol, int rdncount, /* if 0, display full DN */
-    unsigned long opts, char *urlprefix) {
+    LDAP* ld, char* dn,             /* if NULL, use entry */
+    char* base,                     /* if NULL, no search actions */
+    LDAPMessage* entry,             /* if NULL, use dn */
+    struct ldap_disptmpl* tmpllist, /* if NULL, no template used */
+    char** defattrs, char*** defvals, writeptype writeproc, void* writeparm,
+    char* eol, int rdncount, /* if 0, display full DN */
+    unsigned long opts, char* urlprefix) {
   int err, freedn, html;
   char *buf, **fetchattrs, **vals;
-  LDAPMessage *ldmp;
-  struct ldap_disptmpl *tmpl;
+  LDAPMessage* ldmp;
+  struct ldap_disptmpl* tmpl;
   struct timeval timeout;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -434,7 +434,7 @@ static int do_entry2text_search(
     ldmp = NULLMSG;
 
     if (entry == NULL) {
-      char *ocattrs[2];
+      char* ocattrs[2];
 
       ocattrs[0] = OCATTRNAME;
       ocattrs[1] = NULL;
@@ -501,23 +501,23 @@ static int do_entry2text_search(
   return (err);
 }
 
-int LDAP_CALL ldap_vals2text(LDAP *ld, char *buf, /* NULL for "use internal" */
-                             char **vals, char *label,
+int LDAP_CALL ldap_vals2text(LDAP* ld, char* buf, /* NULL for "use internal" */
+                             char** vals, char* label,
                              int labelwidth, /* 0 means use default */
                              unsigned long syntaxid, writeptype writeproc,
-                             void *writeparm, char *eol, int rdncount) {
+                             void* writeparm, char* eol, int rdncount) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_vals2text\n", 0, 0, 0);
 
   return (do_vals2text(ld, buf, vals, label, labelwidth, syntaxid, writeproc,
                        writeparm, eol, rdncount, NULL));
 }
 
-int LDAP_CALL ldap_vals2html(LDAP *ld, char *buf, /* NULL for "use internal" */
-                             char **vals, char *label,
+int LDAP_CALL ldap_vals2html(LDAP* ld, char* buf, /* NULL for "use internal" */
+                             char** vals, char* label,
                              int labelwidth, /* 0 means use default */
                              unsigned long syntaxid, writeptype writeproc,
-                             void *writeparm, char *eol, int rdncount,
-                             char *urlprefix) {
+                             void* writeparm, char* eol, int rdncount,
+                             char* urlprefix) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_vals2html\n", 0, 0, 0);
 
   if (urlprefix == NULL) {
@@ -528,12 +528,12 @@ int LDAP_CALL ldap_vals2html(LDAP *ld, char *buf, /* NULL for "use internal" */
                        writeparm, eol, rdncount, urlprefix));
 }
 
-static int do_vals2text(LDAP *ld, char *buf, /* NULL for "use internal" */
-                        char **vals, char *label,
+static int do_vals2text(LDAP* ld, char* buf, /* NULL for "use internal" */
+                        char** vals, char* label,
                         int labelwidth, /* 0 means use default */
                         unsigned long syntaxid, writeptype writeproc,
-                        void *writeparm, char *eol, int rdncount,
-                        char *urlprefix) {
+                        void* writeparm, char* eol, int rdncount,
+                        char* urlprefix) {
   int err, i, html, writeoutval, freebuf, notascii;
   char *p, *s, *outval;
 
@@ -690,7 +690,7 @@ static int do_vals2text(LDAP *ld, char *buf, /* NULL for "use internal" */
   return (LDAP_SUCCESS);
 }
 
-static int max_label_len(struct ldap_disptmpl *tmpl) {
+static int max_label_len(struct ldap_disptmpl* tmpl) {
   struct ldap_tmplitem *rowp, *colp;
   int len, maxlen;
 
@@ -709,9 +709,9 @@ static int max_label_len(struct ldap_disptmpl *tmpl) {
   return (maxlen);
 }
 
-static int output_label(char *buf, char *label, int width, writeptype writeproc,
-                        void *writeparm, char *eol, int html) {
-  char *p;
+static int output_label(char* buf, char* label, int width, writeptype writeproc,
+                        void* writeparm, char* eol, int html) {
+  char* p;
 
   if (html) {
     sprintf(buf, "<DT><B>%s</B>", label);
@@ -731,10 +731,10 @@ static int output_label(char *buf, char *label, int width, writeptype writeproc,
   return ((*writeproc)(writeparm, buf, strlen(buf)));
 }
 
-static int output_dn(char *buf, char *dn, int width, int rdncount,
-                     writeptype writeproc, void *writeparm, char *eol,
-                     char *urlprefix) {
-  char **dnrdns;
+static int output_dn(char* buf, char* dn, int width, int rdncount,
+                     writeptype writeproc, void* writeparm, char* eol,
+                     char* urlprefix) {
+  char** dnrdns;
   int i;
 
   if ((dnrdns = ldap_explode_dn(dn, 1)) == NULL) {
@@ -773,9 +773,9 @@ static int output_dn(char *buf, char *dn, int width, int rdncount,
   ((c >= '-' && c <= '9') || (c >= '@' && c <= 'Z') || (c == '_') || \
    (c >= 'a' && c <= 'z'))
 
-static void strcat_escaped(char *s1, char *s2) {
+static void strcat_escaped(char* s1, char* s2) {
   char *p, *q;
-  char *hexdig = "0123456789ABCDEF";
+  char* hexdig = "0123456789ABCDEF";
 
   p = s1 + strlen(s1);
   for (q = s2; *q != '\0'; ++q) {
@@ -783,7 +783,7 @@ static void strcat_escaped(char *s1, char *s2) {
       *p++ = *q;
     } else {
       *p++ = '%';
-      *p++ = hexdig[0x0F & ((*(unsigned char *)q) >> 4)];
+      *p++ = hexdig[0x0F & ((*(unsigned char*)q) >> 4)];
       *p++ = hexdig[0x0F & *q];
     }
   }
@@ -793,7 +793,7 @@ static void strcat_escaped(char *s1, char *s2) {
 
 #define GET2BYTENUM(p) ((*p - '0') * 10 + (*(p + 1) - '0'))
 
-static char *time2text(char *ldtimestr, int dateonly) {
+static char* time2text(char* ldtimestr, int dateonly) {
   int len;
   struct tm t;
   char *p, *timestr, zone, *fmterr = "badly formatted time";
@@ -805,7 +805,7 @@ static char *time2text(char *ldtimestr, int dateonly) {
   char buf[26];
 #endif
 
-  memset((char *)&t, 0, sizeof(struct tm));
+  memset((char*)&t, 0, sizeof(struct tm));
   if ((len = (int)strlen(ldtimestr)) < 13) {
     return (fmterr);
   }
@@ -884,7 +884,7 @@ static int dmsize[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 /*  */
 
-static long gtime(struct tm *tm) {
+static long gtime(struct tm* tm) {
   register int i, sec, mins, hour, mday, mon, year;
   register long result;
 
@@ -911,15 +911,15 @@ static long gtime(struct tm *tm) {
   return result;
 }
 
-static int searchaction(LDAP *ld, char *buf, char *base, LDAPMessage *entry,
-                        char *dn, struct ldap_tmplitem *tip, int labelwidth,
-                        int rdncount, writeptype writeproc, void *writeparm,
-                        char *eol, char *urlprefix) {
+static int searchaction(LDAP* ld, char* buf, char* base, LDAPMessage* entry,
+                        char* dn, struct ldap_tmplitem* tip, int labelwidth,
+                        int rdncount, writeptype writeproc, void* writeparm,
+                        char* eol, char* urlprefix) {
   int err = LDAP_SUCCESS, lderr, i, count, html;
   char **vals, **members;
   char *value, *filtpattern, *attr, *selectname;
   char *retattrs[2], filter[256];
-  LDAPMessage *ldmp;
+  LDAPMessage* ldmp;
   struct timeval timeout;
 
   html = (urlprefix != NULL);
@@ -986,7 +986,7 @@ static int searchaction(LDAP *ld, char *buf, char *base, LDAPMessage *entry,
 
   if (lderr == LDAP_SUCCESS || NONFATAL_LDAP_ERR(lderr)) {
     if ((count = ldap_count_entries(ld, ldmp)) > 0) {
-      if ((members = (char **)NSLDAPI_MALLOC((count + 1) * sizeof(char *))) ==
+      if ((members = (char**)NSLDAPI_MALLOC((count + 1) * sizeof(char*))) ==
           NULL) {
         err = LDAP_NO_MEMORY;
       } else {

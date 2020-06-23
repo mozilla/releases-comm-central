@@ -127,17 +127,17 @@ extern "C" {
 
 #ifndef _IFP
 #  define _IFP
-typedef int(LDAP_C LDAP_CALLBACK *IFP)();
+typedef int(LDAP_C LDAP_CALLBACK* IFP)();
 #endif
 
 typedef struct seqorset {
   ber_len_t sos_clen;
   ber_tag_t sos_tag;
-  char *sos_first;
-  char *sos_ptr;
-  struct seqorset *sos_next;
+  char* sos_first;
+  char* sos_ptr;
+  struct seqorset* sos_next;
 } Seqorset;
-#define NULLSEQORSET ((Seqorset *)0)
+#define NULLSEQORSET ((Seqorset*)0)
 
 #define SOS_STACK_SIZE 8 /* depth of the pre-allocated sos structure stack */
 
@@ -165,17 +165,17 @@ struct berelement {
   char ber_pre_contents[MAX_VALUE_PREFIX_SIZE];
   char ber_suf_contents[MAX_LEN_SIZE + 1];
 
-  char *ber_buf; /* update the value value when writing in case realloc is
+  char* ber_buf; /* update the value value when writing in case realloc is
                     called */
-  char *ber_ptr;
-  char *ber_end;
-  struct seqorset *ber_sos;
+  char* ber_ptr;
+  char* ber_end;
+  struct seqorset* ber_sos;
   ber_len_t ber_tag_len_read;
   ber_tag_t ber_tag; /* Remove me someday */
   ber_len_t ber_len; /* Remove me someday */
   int ber_usertag;
   char ber_options;
-  char *ber_rwptr;
+  char* ber_rwptr;
   BERTranslateProc ber_encode_translate_proc;
   BERTranslateProc ber_decode_translate_proc;
   int ber_flags;
@@ -187,18 +187,18 @@ struct berelement {
 
 #define BER_CONTENTS_STRUCT_SIZE (sizeof(ldap_x_iovec) * BER_ARRAY_QUANTITY)
 
-#define NULLBER ((BerElement *)NULL)
+#define NULLBER ((BerElement*)NULL)
 
 #ifdef LDAP_DEBUG
-void ber_dump(BerElement *ber, int inout);
+void ber_dump(BerElement* ber, int inout);
 #endif
 
 /*
  * structure for read/write I/O callback functions.
  */
 struct nslberi_io_fns {
-  LDAP_IOF_READ_CALLBACK *lbiof_read;
-  LDAP_IOF_WRITE_CALLBACK *lbiof_write;
+  LDAP_IOF_READ_CALLBACK* lbiof_read;
+  LDAP_IOF_WRITE_CALLBACK* lbiof_write;
 };
 
 /*
@@ -207,9 +207,9 @@ struct nslberi_io_fns {
 struct lber_x_ext_io_fns_rev0 {
   /* lbextiofn_size should always be set to LBER_X_EXTIO_FNS_SIZE */
   int lbextiofn_size;
-  LDAP_X_EXTIOF_READ_CALLBACK *lbextiofn_read;
-  LDAP_X_EXTIOF_WRITE_CALLBACK *lbextiofn_write;
-  struct lextiof_socket_private *lbextiofn_socket_arg;
+  LDAP_X_EXTIOF_READ_CALLBACK* lbextiofn_read;
+  LDAP_X_EXTIOF_WRITE_CALLBACK* lbextiofn_write;
+  struct lextiof_socket_private* lbextiofn_socket_arg;
 };
 #define LBER_X_EXTIO_FNS_SIZE_REV0 sizeof(struct lber_x_ext_io_fns_rev0)
 
@@ -217,9 +217,9 @@ struct sockbuf {
   LBER_SOCKET sb_sd;
   BerElement sb_ber;
   int sb_naddr;      /* > 0 implies using CLDAP (UDP) */
-  void *sb_useaddr;  /* pointer to sockaddr to use next */
-  void *sb_fromaddr; /* pointer to message source sockaddr */
-  void **sb_addrs;   /* actually an array of pointers to
+  void* sb_useaddr;  /* pointer to sockaddr to use next */
+  void* sb_fromaddr; /* pointer to message source sockaddr */
+  void** sb_addrs;   /* actually an array of pointers to
                         sockaddrs */
 
   int sb_options;        /* to support copying ber elements */
@@ -230,10 +230,10 @@ struct sockbuf {
 
   struct lber_x_ext_io_fns sb_ext_io_fns; /* extended I/O callback functions */
 };
-#define NULLSOCKBUF ((Sockbuf *)NULL)
+#define NULLSOCKBUF ((Sockbuf*)NULL)
 
 /* needed by libldap, even in non-DEBUG builds */
-void ber_err_print(char *data);
+void ber_err_print(char* data);
 
 #ifndef NSLBERI_LBER_INT_FRIEND
 /*
@@ -255,14 +255,14 @@ void ber_err_print(char *data);
 
 /* function prototypes */
 #  ifdef LDAP_DEBUG
-void lber_bprint(char *data, int len);
+void lber_bprint(char* data, int len);
 #  endif
-void ber_err_print(char *data);
-void *nslberi_malloc(size_t size);
-void *nslberi_calloc(size_t nelem, size_t elsize);
-void *nslberi_realloc(void *ptr, size_t size);
-void nslberi_free(void *ptr);
-int nslberi_ber_realloc(BerElement *ber, ber_len_t len);
+void ber_err_print(char* data);
+void* nslberi_malloc(size_t size);
+void* nslberi_calloc(size_t nelem, size_t elsize);
+void* nslberi_realloc(void* ptr, size_t size);
+void nslberi_free(void* ptr);
+int nslberi_ber_realloc(BerElement* ber, ber_len_t len);
 
 /* blame: dboreham
  * slapd spends much of its time doing memcpy's for the ber code.
@@ -278,10 +278,10 @@ int nslberi_ber_realloc(BerElement *ber, ber_len_t len);
 
 #  ifdef SAFEMEMCPY
 #    undef SAFEMEMCPY
-#    define SAFEMEMCPY(d, s, n)      \
-      if (1 == n)                    \
-        *((char *)d) = *((char *)s); \
-      else                           \
+#    define SAFEMEMCPY(d, s, n)    \
+      if (1 == n)                  \
+        *((char*)d) = *((char*)s); \
+      else                         \
         THEMEMCPY(d, s, n);
 #  endif
 

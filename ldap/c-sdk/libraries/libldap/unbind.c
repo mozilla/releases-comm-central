@@ -51,18 +51,18 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 
 #include "ldap-int.h"
 
-int LDAP_CALL ldap_unbind(LDAP *ld) {
+int LDAP_CALL ldap_unbind(LDAP* ld) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_unbind\n", 0, 0, 0);
 
   return (ldap_ld_free(ld, NULL, NULL, 1));
 }
 
-int LDAP_CALL ldap_unbind_s(LDAP *ld) {
+int LDAP_CALL ldap_unbind_s(LDAP* ld) {
   return (ldap_ld_free(ld, NULL, NULL, 1));
 }
 
-int LDAP_CALL ldap_unbind_ext(LDAP *ld, LDAPControl **serverctrls,
-                              LDAPControl **clientctrls) {
+int LDAP_CALL ldap_unbind_ext(LDAP* ld, LDAPControl** serverctrls,
+                              LDAPControl** clientctrls) {
   return (ldap_ld_free(ld, serverctrls, clientctrls, 1));
 }
 
@@ -70,7 +70,7 @@ int LDAP_CALL ldap_unbind_ext(LDAP *ld, LDAPControl **serverctrls,
  * Dispose of the LDAP session ld, including all associated connections
  * and resources.  If close is non-zero, an unbind() request is sent as well.
  */
-int ldap_ld_free(LDAP *ld, LDAPControl **serverctrls, LDAPControl **clientctrls,
+int ldap_ld_free(LDAP* ld, LDAPControl** serverctrls, LDAPControl** clientctrls,
                  int close) {
   LDAPMessage *lm, *next;
   int err = LDAP_SUCCESS;
@@ -161,14 +161,14 @@ int ldap_ld_free(LDAP *ld, LDAPControl **serverctrls, LDAPControl **clientctrls,
   nsldapi_mutex_free_all(ld);
   NSLDAPI_FREE(ld->ld_mutex);
 
-  NSLDAPI_FREE((char *)ld);
+  NSLDAPI_FREE((char*)ld);
 
   return (err);
 }
 
-int nsldapi_send_unbind(LDAP *ld, Sockbuf *sb, LDAPControl **serverctrls,
-                        LDAPControl **clientctrls) {
-  BerElement *ber;
+int nsldapi_send_unbind(LDAP* ld, Sockbuf* sb, LDAPControl** serverctrls,
+                        LDAPControl** clientctrls) {
+  BerElement* ber;
   int err, msgid;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_unbind\n", 0, 0, 0);

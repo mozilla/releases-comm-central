@@ -60,7 +60,7 @@ extern "C" {
 /*
  * establish an ldap session
  */
-LDAP_API(LDAP *) LDAP_CALL ldap_open(const char *host, int port);
+LDAP_API(LDAP*) LDAP_CALL ldap_open(const char* host, int port);
 
 /*
  * Authentication methods:
@@ -70,23 +70,23 @@ LDAP_API(LDAP *) LDAP_CALL ldap_open(const char *host, int port);
 #define LDAP_AUTH_SASL 0xa3L
 LDAP_API(int)
 LDAP_CALL
-ldap_bind(LDAP *ld, const char *who, const char *passwd, int authmethod);
+ldap_bind(LDAP* ld, const char* who, const char* passwd, int authmethod);
 LDAP_API(int)
-LDAP_CALL ldap_bind_s(LDAP *ld, const char *who, const char *cred, int method);
+LDAP_CALL ldap_bind_s(LDAP* ld, const char* who, const char* cred, int method);
 
 LDAP_API(int)
-LDAP_CALL ldap_modrdn(LDAP *ld, const char *dn, const char *newrdn);
+LDAP_CALL ldap_modrdn(LDAP* ld, const char* dn, const char* newrdn);
 LDAP_API(int)
-LDAP_CALL ldap_modrdn_s(LDAP *ld, const char *dn, const char *newrdn);
+LDAP_CALL ldap_modrdn_s(LDAP* ld, const char* dn, const char* newrdn);
 LDAP_API(int)
-LDAP_CALL ldap_modrdn2(LDAP *ld, const char *dn, const char *newrdn,
+LDAP_CALL ldap_modrdn2(LDAP* ld, const char* dn, const char* newrdn,
                        int deleteoldrdn);
 LDAP_API(int)
-LDAP_CALL ldap_modrdn2_s(LDAP *ld, const char *dn, const char *newrdn,
+LDAP_CALL ldap_modrdn2_s(LDAP* ld, const char* dn, const char* newrdn,
                          int deleteoldrdn);
 
-LDAP_API(void) LDAP_CALL ldap_perror(LDAP *ld, const char *s);
-LDAP_API(int) LDAP_CALL ldap_result2error(LDAP *ld, LDAPMessage *r, int freeit);
+LDAP_API(void) LDAP_CALL ldap_perror(LDAP* ld, const char* s);
+LDAP_API(int) LDAP_CALL ldap_result2error(LDAP* ld, LDAPMessage* r, int freeit);
 
 /*
  * Preferred language and get_lang_values (an API extension --
@@ -96,12 +96,12 @@ LDAP_API(int) LDAP_CALL ldap_result2error(LDAP *ld, LDAPMessage *r, int freeit);
  */
 
 #define LDAP_OPT_PREFERRED_LANGUAGE 0x14 /* 20 - API extension */
-LDAP_API(char **)
-LDAP_CALL ldap_get_lang_values(LDAP *ld, LDAPMessage *entry, const char *target,
-                               char **type);
-LDAP_API(struct berval **)
-LDAP_CALL ldap_get_lang_values_len(LDAP *ld, LDAPMessage *entry,
-                                   const char *target, char **type);
+LDAP_API(char**)
+LDAP_CALL ldap_get_lang_values(LDAP* ld, LDAPMessage* entry, const char* target,
+                               char** type);
+LDAP_API(struct berval**)
+LDAP_CALL ldap_get_lang_values_len(LDAP* ld, LDAPMessage* entry,
+                                   const char* target, char** type);
 
 /*
  * Asynchronous I/O (an API extension).
@@ -127,16 +127,16 @@ typedef struct _LDAPVersion {
   int reserved[4];
 } LDAPVersion;
 #define LDAP_SECURITY_NONE 0
-LDAP_API(int) LDAP_CALL ldap_version(LDAPVersion *ver);
+LDAP_API(int) LDAP_CALL ldap_version(LDAPVersion* ver);
 
 /* use ldap_create_filter() instead of ldap_build_filter() */
 LDAP_API(void)
-LDAP_CALL ldap_build_filter(char *buf, unsigned long buflen, char *pattern,
-                            char *prefix, char *suffix, char *attr, char *value,
-                            char **valwords);
+LDAP_CALL ldap_build_filter(char* buf, unsigned long buflen, char* pattern,
+                            char* prefix, char* suffix, char* attr, char* value,
+                            char** valwords);
 /* use ldap_set_filter_additions() instead of ldap_setfilteraffixes() */
 LDAP_API(void)
-LDAP_CALL ldap_setfilteraffixes(LDAPFiltDesc *lfdp, char *prefix, char *suffix);
+LDAP_CALL ldap_setfilteraffixes(LDAPFiltDesc* lfdp, char* prefix, char* suffix);
 
 /* older result types a server can return -- use LDAP_RES_MODDN instead */
 #define LDAP_RES_MODRDN LDAP_RES_MODDN
@@ -158,55 +158,55 @@ LDAP_CALL ldap_setfilteraffixes(LDAPFiltDesc *lfdp, char *prefix, char *suffix);
 #define LDAP_CACHE_LOCALDB 2
 
 typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_BIND_CALLBACK)(
-    LDAP *ld, int msgid, unsigned long tag, const char *dn,
-    const struct berval *creds, int method);
+    LDAP* ld, int msgid, unsigned long tag, const char* dn,
+    const struct berval* creds, int method);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_UNBIND_CALLBACK)(
-    LDAP *ld, int unused0, unsigned long unused1);
+    LDAP* ld, int unused0, unsigned long unused1);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_SEARCH_CALLBACK)(
-    LDAP *ld, int msgid, unsigned long tag, const char *base, int scope,
-    const char LDAP_CALLBACK *filter, char **attrs, int attrsonly);
+    LDAP* ld, int msgid, unsigned long tag, const char* base, int scope,
+    const char LDAP_CALLBACK* filter, char** attrs, int attrsonly);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_COMPARE_CALLBACK)(
-    LDAP *ld, int msgid, unsigned long tag, const char *dn, const char *attr,
-    const struct berval *value);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_ADD_CALLBACK)(LDAP *ld, int msgid,
+    LDAP* ld, int msgid, unsigned long tag, const char* dn, const char* attr,
+    const struct berval* value);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_ADD_CALLBACK)(LDAP* ld, int msgid,
                                                        unsigned long tag,
-                                                       const char *dn,
-                                                       LDAPMod **attrs);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_DELETE_CALLBACK)(LDAP *ld, int msgid,
+                                                       const char* dn,
+                                                       LDAPMod** attrs);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_DELETE_CALLBACK)(LDAP* ld, int msgid,
                                                           unsigned long tag,
-                                                          const char *dn);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_MODIFY_CALLBACK)(LDAP *ld, int msgid,
+                                                          const char* dn);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_MODIFY_CALLBACK)(LDAP* ld, int msgid,
                                                           unsigned long tag,
-                                                          const char *dn,
-                                                          LDAPMod **mods);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_MODRDN_CALLBACK)(LDAP *ld, int msgid,
+                                                          const char* dn,
+                                                          LDAPMod** mods);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_MODRDN_CALLBACK)(LDAP* ld, int msgid,
                                                           unsigned long tag,
-                                                          const char *dn,
-                                                          const char *newrdn,
+                                                          const char* dn,
+                                                          const char* newrdn,
                                                           int deleteoldrdn);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_RESULT_CALLBACK)(
-    LDAP *ld, int msgid, int all, struct timeval *timeout,
-    LDAPMessage **result);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_FLUSH_CALLBACK)(LDAP *ld,
-                                                         const char *dn,
-                                                         const char *filter);
+    LDAP* ld, int msgid, int all, struct timeval* timeout,
+    LDAPMessage** result);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_CF_FLUSH_CALLBACK)(LDAP* ld,
+                                                         const char* dn,
+                                                         const char* filter);
 
 struct ldap_cache_fns {
-  void *lcf_private;
-  LDAP_CF_BIND_CALLBACK *lcf_bind;
-  LDAP_CF_UNBIND_CALLBACK *lcf_unbind;
-  LDAP_CF_SEARCH_CALLBACK *lcf_search;
-  LDAP_CF_COMPARE_CALLBACK *lcf_compare;
-  LDAP_CF_ADD_CALLBACK *lcf_add;
-  LDAP_CF_DELETE_CALLBACK *lcf_delete;
-  LDAP_CF_MODIFY_CALLBACK *lcf_modify;
-  LDAP_CF_MODRDN_CALLBACK *lcf_modrdn;
-  LDAP_CF_RESULT_CALLBACK *lcf_result;
-  LDAP_CF_FLUSH_CALLBACK *lcf_flush;
+  void* lcf_private;
+  LDAP_CF_BIND_CALLBACK* lcf_bind;
+  LDAP_CF_UNBIND_CALLBACK* lcf_unbind;
+  LDAP_CF_SEARCH_CALLBACK* lcf_search;
+  LDAP_CF_COMPARE_CALLBACK* lcf_compare;
+  LDAP_CF_ADD_CALLBACK* lcf_add;
+  LDAP_CF_DELETE_CALLBACK* lcf_delete;
+  LDAP_CF_MODIFY_CALLBACK* lcf_modify;
+  LDAP_CF_MODRDN_CALLBACK* lcf_modrdn;
+  LDAP_CF_RESULT_CALLBACK* lcf_result;
+  LDAP_CF_FLUSH_CALLBACK* lcf_flush;
 };
 
 LDAP_API(int)
-LDAP_CALL ldap_cache_flush(LDAP *ld, const char *dn, const char *filter);
+LDAP_CALL ldap_cache_flush(LDAP* ld, const char* dn, const char* filter);
 
 #ifdef __cplusplus
 }

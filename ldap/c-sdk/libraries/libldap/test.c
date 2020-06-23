@@ -92,23 +92,23 @@
 #  define MOD_USE_BVALS
 #endif /* !PCNFS && !WINSOCK && !MACOS */
 
-static void handle_result(LDAP *ld, LDAPMessage *lm, int onlyone);
-static void print_ldap_result(LDAP *ld, LDAPMessage *lm, char *s);
-static void print_controls(LDAPControl **ctrls, int freeit);
-static void print_referrals(char **refs, int freeit);
-static void print_search_entry(LDAP *ld, LDAPMessage *res, int onlyone);
-static char *changetype_num2string(ber_int_t chgtype);
-static void print_search_reference(LDAP *ld, LDAPMessage *res, int onlyone);
-static void free_list(char **list);
-static int entry2textwrite(void *fp, char *buf, int len);
-static void bprint(char *data, int len);
-static char **string2words(char *str, char *delims);
-static const char *url_parse_err2string(int e);
+static void handle_result(LDAP* ld, LDAPMessage* lm, int onlyone);
+static void print_ldap_result(LDAP* ld, LDAPMessage* lm, char* s);
+static void print_controls(LDAPControl** ctrls, int freeit);
+static void print_referrals(char** refs, int freeit);
+static void print_search_entry(LDAP* ld, LDAPMessage* res, int onlyone);
+static char* changetype_num2string(ber_int_t chgtype);
+static void print_search_reference(LDAP* ld, LDAPMessage* res, int onlyone);
+static void free_list(char** list);
+static int entry2textwrite(void* fp, char* buf, int len);
+static void bprint(char* data, int len);
+static char** string2words(char* str, char* delims);
+static const char* url_parse_err2string(int e);
 
-char *dnsuffix;
+char* dnsuffix;
 
 #ifndef WINSOCK
-static char *getline(char *line, int len, FILE *fp, char *prompt) {
+static char* getline(char* line, int len, FILE* fp, char* prompt) {
   printf(prompt);
 
   if (fgets(line, len, fp) == NULL) return (NULL);
@@ -119,46 +119,46 @@ static char *getline(char *line, int len, FILE *fp, char *prompt) {
 }
 #endif /* WINSOCK */
 
-static char **get_list(char *prompt) {
+static char** get_list(char* prompt) {
   static char buf[256];
   int num;
-  char **result;
+  char** result;
 
   num = 0;
-  result = (char **)0;
+  result = (char**)0;
   while (1) {
     getline(buf, sizeof(buf), stdin, prompt);
 
     if (*buf == '\0') break;
 
-    if (result == (char **)0)
-      result = (char **)malloc(sizeof(char *));
+    if (result == (char**)0)
+      result = (char**)malloc(sizeof(char*));
     else
-      result = (char **)realloc(result, sizeof(char *) * (num + 1));
+      result = (char**)realloc(result, sizeof(char*) * (num + 1));
 
-    result[num++] = (char *)strdup(buf);
+    result[num++] = (char*)strdup(buf);
   }
-  if (result == (char **)0) return (NULL);
-  result = (char **)realloc(result, sizeof(char *) * (num + 1));
+  if (result == (char**)0) return (NULL);
+  result = (char**)realloc(result, sizeof(char*) * (num + 1));
   result[num] = NULL;
 
   return (result);
 }
 
-static void free_list(char **list) {
+static void free_list(char** list) {
   int i;
 
   if (list != NULL) {
     for (i = 0; list[i] != NULL; ++i) {
       free(list[i]);
     }
-    free((char *)list);
+    free((char*)list);
   }
 }
 
 #ifdef MOD_USE_BVALS
-static int file_read(char *path, struct berval *bv) {
-  FILE *fp;
+static int file_read(char* path, struct berval* bv) {
+  FILE* fp;
   long rlen;
   int eof;
 
@@ -175,7 +175,7 @@ static int file_read(char *path, struct berval *bv) {
 
   bv->bv_len = ftell(fp);
 
-  if ((bv->bv_val = (char *)malloc(bv->bv_len)) == NULL) {
+  if ((bv->bv_val = (char*)malloc(bv->bv_len)) == NULL) {
     perror("malloc");
     fclose(fp);
     return (-1);
@@ -201,13 +201,13 @@ static int file_read(char *path, struct berval *bv) {
 }
 #endif /* MOD_USE_BVALS */
 
-static LDAPMod **get_modlist(char *prompt1, char *prompt2, char *prompt3) {
+static LDAPMod** get_modlist(char* prompt1, char* prompt2, char* prompt3) {
   static char buf[256];
   int num;
   LDAPMod tmp;
-  LDAPMod **result;
+  LDAPMod** result;
 #ifdef MOD_USE_BVALS
-  struct berval **bvals;
+  struct berval** bvals;
 #endif /* MOD_USE_BVALS */
 
   num = 0;
@@ -233,9 +233,9 @@ static LDAPMod **get_modlist(char *prompt1, char *prompt2, char *prompt3) {
 
       for (i = 0; tmp.mod_values[i] != NULL; ++i)
         ;
-      bvals = (struct berval **)calloc(i + 1, sizeof(struct berval *));
+      bvals = (struct berval**)calloc(i + 1, sizeof(struct berval*));
       for (i = 0; tmp.mod_values[i] != NULL; ++i) {
-        bvals[i] = (struct berval *)malloc(sizeof(struct berval));
+        bvals[i] = (struct berval*)malloc(sizeof(struct berval));
         if (strncmp(tmp.mod_values[i], "{FILE}", 6) == 0) {
           if (file_read(tmp.mod_values[i] + 6, bvals[i]) < 0) {
             return (NULL);
@@ -251,24 +251,24 @@ static LDAPMod **get_modlist(char *prompt1, char *prompt2, char *prompt3) {
 #endif /* MOD_USE_BVALS */
 
     if (result == NULL)
-      result = (LDAPMod **)malloc(sizeof(LDAPMod *));
+      result = (LDAPMod**)malloc(sizeof(LDAPMod*));
     else
-      result = (LDAPMod **)realloc(result, sizeof(LDAPMod *) * (num + 1));
+      result = (LDAPMod**)realloc(result, sizeof(LDAPMod*) * (num + 1));
 
-    result[num] = (LDAPMod *)malloc(sizeof(LDAPMod));
+    result[num] = (LDAPMod*)malloc(sizeof(LDAPMod));
     *(result[num]) = tmp; /* struct copy */
     num++;
   }
   if (result == NULL) return (NULL);
-  result = (LDAPMod **)realloc(result, sizeof(LDAPMod *) * (num + 1));
+  result = (LDAPMod**)realloc(result, sizeof(LDAPMod*) * (num + 1));
   result[num] = NULL;
 
   return (result);
 }
 
-int LDAP_CALL LDAP_CALLBACK bind_prompt(LDAP *ld, char **dnp, char **passwdp,
-                                        int *authmethodp, int freeit,
-                                        void *dummy) {
+int LDAP_CALL LDAP_CALLBACK bind_prompt(LDAP* ld, char** dnp, char** passwdp,
+                                        int* authmethodp, int freeit,
+                                        void* dummy) {
   static char dn[256], passwd[256];
 
   if (!freeit) {
@@ -301,7 +301,7 @@ int LDAP_CALL LDAP_CALLBACK bind_prompt(LDAP *ld, char **dnp, char **passwdp,
 
 #define HEX2BIN(h) ((h) >= '0' && (h) <= '9' ? (h) - '0' : (h) - 'A' + 10)
 
-void berval_from_hex(struct berval *bvp, char *hexstr) {
+void berval_from_hex(struct berval* bvp, char* hexstr) {
   char *src, *dst, c;
   unsigned char abyte;
 
@@ -328,17 +328,17 @@ void berval_from_hex(struct berval *bvp, char *hexstr) {
   }
 }
 
-static void add_control(LDAPControl ***ctrlsp, LDAPControl *newctrl) {
+static void add_control(LDAPControl*** ctrlsp, LDAPControl* newctrl) {
   int i;
 
   if (*ctrlsp == NULL) {
-    *ctrlsp = (LDAPControl **)calloc(2, sizeof(LDAPControl *));
+    *ctrlsp = (LDAPControl**)calloc(2, sizeof(LDAPControl*));
     i = 0;
   } else {
     for (i = 0; (*ctrlsp)[i] != NULL; i++) {
       ; /* NULL */
     }
-    *ctrlsp = (LDAPControl **)realloc(*ctrlsp, (i + 2) * sizeof(LDAPControl *));
+    *ctrlsp = (LDAPControl**)realloc(*ctrlsp, (i + 2) * sizeof(LDAPControl*));
   }
   (*ctrlsp)[i] = newctrl;
   (*ctrlsp)[i + 1] = NULL;
@@ -352,12 +352,12 @@ typedef struct my_malloc_info {
 } MyMallocInfo;
 #  define MY_MALLOC_MAGIC_NUMBER 0x19940618
 
-void *my_malloc(size_t size) {
-  void *p;
-  MyMallocInfo *mmip;
+void* my_malloc(size_t size) {
+  void* p;
+  MyMallocInfo* mmip;
 
   if ((p = malloc(size + sizeof(struct my_malloc_info))) != NULL) {
-    mmip = (MyMallocInfo *)p;
+    mmip = (MyMallocInfo*)p;
     mmip->mmi_magic = MY_MALLOC_MAGIC_NUMBER;
     mmip->mmi_actualsize = size;
   }
@@ -365,11 +365,11 @@ void *my_malloc(size_t size) {
   fprintf(stderr, "my_malloc: allocated ptr 0x%x, size %ld\n", p,
           mmip->mmi_actualsize);
 
-  return ((char *)p + sizeof(MyMallocInfo));
+  return ((char*)p + sizeof(MyMallocInfo));
 }
 
-void *my_calloc(size_t nelem, size_t elsize) {
-  void *p;
+void* my_calloc(size_t nelem, size_t elsize) {
+  void* p;
 
   if ((p = my_malloc(nelem * elsize)) != NULL) {
     memset(p, 0, nelem * elsize);
@@ -378,13 +378,13 @@ void *my_calloc(size_t nelem, size_t elsize) {
   return (p);
 }
 
-void my_free(void *ptr) {
-  char *p;
-  MyMallocInfo *mmip;
+void my_free(void* ptr) {
+  char* p;
+  MyMallocInfo* mmip;
 
-  p = (char *)ptr;
+  p = (char*)ptr;
   p -= sizeof(MyMallocInfo);
-  mmip = (MyMallocInfo *)p;
+  mmip = (MyMallocInfo*)p;
   if (mmip->mmi_magic != MY_MALLOC_MAGIC_NUMBER) {
     fprintf(stderr, "my_malloc_check_magic: ptr 0x%x bad magic number\n", ptr);
     exit(1);
@@ -397,15 +397,15 @@ void my_free(void *ptr) {
   free(p);
 }
 
-void *my_realloc(void *ptr, size_t size) {
-  void *p;
-  MyMallocInfo *mmip;
+void* my_realloc(void* ptr, size_t size) {
+  void* p;
+  MyMallocInfo* mmip;
 
   if (ptr == NULL) {
     return (my_malloc(size));
   }
 
-  mmip = (MyMallocInfo *)((char *)ptr - sizeof(MyMallocInfo));
+  mmip = (MyMallocInfo*)((char*)ptr - sizeof(MyMallocInfo));
   if (mmip->mmi_magic != MY_MALLOC_MAGIC_NUMBER) {
     fprintf(stderr, "my_malloc_check_magic: ptr 0x%x bad magic number\n", ptr);
     exit(1);
@@ -432,7 +432,7 @@ main(
 #endif /* WINSOCK */
  int argc, char **argv )
 {
-  LDAP *ld;
+  LDAP* ld;
   int rc, i, c, port, cldapflg, errflg, method, id, msgtype;
   int version;
   char line[256], command1, command2, command3;
@@ -440,20 +440,20 @@ main(
   char filter[256], *host, **types;
   char **exdn, *fnname;
   int bound, all, scope, attrsonly, optval, ldapversion;
-  LDAPMessage *res;
+  LDAPMessage* res;
   LDAPMod **mods, **attrs;
   struct timeval timeout, *tvp;
-  char *copyfname = NULL;
+  char* copyfname = NULL;
   int copyoptions = 0;
-  LDAPURLDesc *ludp;
-  struct ldap_disptmpl *tmpllist = NULL;
+  LDAPURLDesc* ludp;
+  struct ldap_disptmpl* tmpllist = NULL;
   int changetypes, changesonly, return_echg_ctls;
   LDAPControl **tmpctrls, *newctrl, **controls = NULL;
-  char *usage =
+  char* usage =
       "usage: %s [-u] [-h host] [-d level] [-s dnsuffix] [-p port] [-t file] "
       "[-T file] [-V protocolversion]\n";
 
-  extern char *optarg;
+  extern char* optarg;
   extern int optind;
 
 #ifdef MACOS
@@ -575,7 +575,7 @@ main(
   }
 
   if (ldapversion != 0 && ldap_set_option(ld, LDAP_OPT_PROTOCOL_VERSION,
-                                          (void *)&ldapversion) != 0) {
+                                          (void*)&ldapversion) != 0) {
     ldap_perror(ld, "ldap_set_option (protocol version)");
     exit(1);
   }
@@ -584,14 +584,14 @@ main(
 #  if !defined(MACOS) && !defined(DOS)
   if (copyfname != NULL) {
     int fd;
-    Sockbuf *sb;
+    Sockbuf* sb;
 
     if ((fd = open(copyfname, O_WRONLY | O_CREAT, 0600)) == -1) {
       perror(copyfname);
       exit(1);
     }
     ldap_get_option(ld, LDAP_OPT_SOCKBUF, &sb);
-    ber_sockbuf_set_option(sb, LBER_SOCKBUF_OPT_COPYDESC, (void *)&fd);
+    ber_sockbuf_set_option(sb, LBER_SOCKBUF_OPT_COPYDESC, (void*)&fd);
     ber_sockbuf_set_option(sb, copyoptions, LBER_OPT_ON);
   }
 #  endif
@@ -637,7 +637,7 @@ main(
       case 'v': /* ldap protocol version */
         getline(line, sizeof(line), stdin, "ldap version? ");
         version = atoi(line);
-        if (ldap_set_option(ld, LDAP_OPT_PROTOCOL_VERSION, (void *)&version) !=
+        if (ldap_set_option(ld, LDAP_OPT_PROTOCOL_VERSION, (void*)&version) !=
             0) {
           ldap_perror(ld, "ldap_set_option");
         }
@@ -752,7 +752,7 @@ main(
         getline(oid, sizeof(oid), stdin, "oid? ");
         getline(value, sizeof(value), stdin, "value? ");
         if (strncmp(value, "0x", 2) == 0) {
-          val.bv_val = (char *)malloc(strlen(value) / 2);
+          val.bv_val = (char*)malloc(strlen(value) / 2);
           berval_from_hex(&val, value + 2);
         } else {
           val.bv_val = strdup(value);
@@ -778,7 +778,7 @@ main(
         if (i == 0) { /* memcache */
           unsigned long ttl, size;
           char **basedns, *dnarray[2];
-          LDAPMemCache *mc;
+          LDAPMemCache* mc;
 
           getline(line, sizeof(line), stdin, "memcache ttl? ");
           ttl = atoi(line);
@@ -1077,11 +1077,11 @@ main(
         if (*line == '.' && *(line + 1) == '\0') {
           controls = NULL;
         } else {
-          newctrl = (LDAPControl *)malloc(sizeof(LDAPControl));
+          newctrl = (LDAPControl*)malloc(sizeof(LDAPControl));
           newctrl->ldctl_oid = strdup(line);
           getline(line, sizeof(line), stdin, "Control value? ");
           if (strncmp(line, "0x", 2) == 0) {
-            newctrl->ldctl_value.bv_val = (char *)malloc(strlen(line) / 2);
+            newctrl->ldctl_value.bv_val = (char*)malloc(strlen(line) / 2);
             berval_from_hex(&(newctrl->ldctl_value), line + 2);
           } else {
             newctrl->ldctl_value.bv_val = strdup(line);
@@ -1158,13 +1158,13 @@ main(
             line, sizeof(line), stdin,
             "Use DN & DNS to determine where to send requests (0=no, 1=yes)?");
         optval = (atoi(line) != 0);
-        ldap_set_option(ld, LDAP_OPT_DNS, (void *)optval);
+        ldap_set_option(ld, LDAP_OPT_DNS, (void*)optval);
 #endif /* LDAP_DNS */
 
         getline(line, sizeof(line), stdin,
                 "Recognize and chase referrals (0=no, 1=yes)?");
         optval = (atoi(line) != 0);
-        ldap_set_option(ld, LDAP_OPT_REFERRALS, (void *)optval);
+        ldap_set_option(ld, LDAP_OPT_REFERRALS, (void*)optval);
         if (optval) {
           getline(line, sizeof(line), stdin,
                   "Prompt for bind credentials when chasing referrals (0=no, "
@@ -1304,7 +1304,7 @@ main(
   return (0);
 }
 
-static void handle_result(LDAP *ld, LDAPMessage *lm, int onlyone) {
+static void handle_result(LDAP* ld, LDAPMessage* lm, int onlyone) {
   int msgtype;
 
   switch ((msgtype = ldap_msgtype(lm))) {
@@ -1372,10 +1372,10 @@ static void handle_result(LDAP *ld, LDAPMessage *lm, int onlyone) {
   }
 }
 
-static void print_ldap_result(LDAP *ld, LDAPMessage *lm, char *s) {
+static void print_ldap_result(LDAP* ld, LDAPMessage* lm, char* s) {
   int lderr;
   char *matcheddn, *errmsg, *oid, **refs;
-  LDAPControl **ctrls;
+  LDAPControl** ctrls;
   struct berval *servercred, *data;
 
   if (ldap_parse_result(ld, lm, &lderr, &matcheddn, &errmsg, &refs, &ctrls,
@@ -1432,13 +1432,13 @@ static void print_ldap_result(LDAP *ld, LDAPMessage *lm, char *s) {
   }
 }
 
-static void print_search_entry(LDAP *ld, LDAPMessage *res, int onlyone) {
-  BerElement *ber;
+static void print_search_entry(LDAP* ld, LDAPMessage* res, int onlyone) {
+  BerElement* ber;
   char *a, *dn, *ufn;
-  struct berval **vals;
+  struct berval** vals;
   int i, count;
   LDAPMessage *e, *msg;
-  LDAPControl **ectrls;
+  LDAPControl** ectrls;
 
   count = 0;
   for (msg = ldap_first_message(ld, res);
@@ -1504,7 +1504,7 @@ static void print_search_entry(LDAP *ld, LDAPMessage *res, int onlyone) {
     } else {
       int changenumpresent;
       ber_int_t changetype;
-      char *prevdn;
+      char* prevdn;
       ber_int_t changenum;
 
       if (ldap_parse_entrychange_control(ld, ectrls, &changetype, &prevdn,
@@ -1529,9 +1529,9 @@ static void print_search_entry(LDAP *ld, LDAPMessage *res, int onlyone) {
   }
 }
 
-static char *changetype_num2string(ber_int_t chgtype) {
+static char* changetype_num2string(ber_int_t chgtype) {
   static char buf[25];
-  char *s;
+  char* s;
 
   switch (chgtype) {
     case LDAP_CHANGETYPE_ADD:
@@ -1554,10 +1554,10 @@ static char *changetype_num2string(ber_int_t chgtype) {
   return (s);
 }
 
-static void print_search_reference(LDAP *ld, LDAPMessage *res, int onlyone) {
-  LDAPMessage *msg;
-  LDAPControl **ctrls;
-  char **refs;
+static void print_search_reference(LDAP* ld, LDAPMessage* res, int onlyone) {
+  LDAPMessage* msg;
+  LDAPControl** ctrls;
+  char** refs;
   int count;
 
   count = 0;
@@ -1578,7 +1578,7 @@ static void print_search_reference(LDAP *ld, LDAPMessage *res, int onlyone) {
   }
 }
 
-static void print_referrals(char **refs, int freeit) {
+static void print_referrals(char** refs, int freeit) {
   int i;
 
   if (refs == NULL) {
@@ -1595,7 +1595,7 @@ static void print_referrals(char **refs, int freeit) {
   }
 }
 
-static void print_controls(LDAPControl **ctrls, int freeit) {
+static void print_controls(LDAPControl** ctrls, int freeit) {
   int i;
 
   if (ctrls == NULL) {
@@ -1619,17 +1619,17 @@ static void print_controls(LDAPControl **ctrls, int freeit) {
   }
 }
 
-static int entry2textwrite(void *fp, char *buf, int len) {
-  return (fwrite(buf, len, 1, (FILE *)fp) == 0 ? -1 : len);
+static int entry2textwrite(void* fp, char* buf, int len) {
+  return (fwrite(buf, len, 1, (FILE*)fp) == 0 ? -1 : len);
 }
 
 /* similar to getfilter.c:break_into_words() */
-static char **string2words(char *str, char *delims) {
+static char** string2words(char* str, char* delims) {
   char *word, **words;
   int count;
-  char *lasts;
+  char* lasts;
 
-  if ((words = (char **)calloc(1, sizeof(char *))) == NULL) {
+  if ((words = (char**)calloc(1, sizeof(char*))) == NULL) {
     return (NULL);
   }
   count = 0;
@@ -1637,8 +1637,7 @@ static char **string2words(char *str, char *delims) {
 
   word = ldap_utf8strtok_r(str, delims, &lasts);
   while (word != NULL) {
-    if ((words = (char **)realloc(words, (count + 2) * sizeof(char *))) ==
-        NULL) {
+    if ((words = (char**)realloc(words, (count + 2) * sizeof(char*))) == NULL) {
       free(words);
       return (NULL);
     }
@@ -1651,8 +1650,8 @@ static char **string2words(char *str, char *delims) {
   return (words);
 }
 
-static const char *url_parse_err2string(int e) {
-  const char *s = "unknown";
+static const char* url_parse_err2string(int e) {
+  const char* s = "unknown";
 
   switch (e) {
     case LDAP_URL_ERR_NOTLDAP:
@@ -1683,7 +1682,7 @@ static const char *url_parse_err2string(int e) {
  */
 
 #define BPLEN 48
-static void bprint(char *data, int len) {
+static void bprint(char* data, int len) {
   static char hexdig[] = "0123456789abcdef";
   char out[BPLEN];
   int i = 0;

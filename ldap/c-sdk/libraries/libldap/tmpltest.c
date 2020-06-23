@@ -53,8 +53,8 @@
 #endif /* MACOS */
 
 #ifdef NEEDPROTOS
-void dump_tmpl(struct ldap_disptmpl *tmpl);
-void dump_srchpref(struct ldap_searchobj *sp);
+void dump_tmpl(struct ldap_disptmpl* tmpl);
+void dump_srchpref(struct ldap_searchobj* sp);
 #else  /* NEEDPROTOS */
 void dump_tmpl();
 void dump_srchpref();
@@ -62,7 +62,7 @@ void dump_srchpref();
 
 #define NULLSTRINGIFNULL(s) (s == NULL ? "(null)" : s)
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   struct ldap_disptmpl *templates, *dtp;
   struct ldap_searchobj *so, *sop;
   int err;
@@ -114,19 +114,19 @@ int main(int argc, char **argv) {
   exit(0);
 }
 
-static char *syn_name[] = {
+static char* syn_name[] = {
     "?",       "CIS",       "MLS",     "DN",       "BOOL",      "JPEG",
     "JPEGBTN", "FAX",       "FAXBTN",  "AUDIOBTN", "TIME",      "DATE",
     "URL",     "SEARCHACT", "LINKACT", "ADDDNACT", "VERIFYACT",
 };
 
-static char *syn_type[] = {"?", "txt", "img", "?", "bool",   "?",
+static char* syn_type[] = {"?", "txt", "img", "?", "bool",   "?",
                            "?", "?",   "btn", "?", "?",      "?",
                            "?", "?",   "?",   "?", "action", "?"};
 
-static char *includeattrs[] = {"objectClass", "sn", NULL};
+static char* includeattrs[] = {"objectClass", "sn", NULL};
 
-static char *item_opts[] = {"ro",       "sort",        "1val", "hide",
+static char* item_opts[] = {"ro",       "sort",        "1val", "hide",
                             "required", "hideiffalse", NULL};
 
 static unsigned long item_opt_vals[] = {
@@ -135,12 +135,12 @@ static unsigned long item_opt_vals[] = {
     LDAP_DITEM_OPT_VALUEREQUIRED, LDAP_DITEM_OPT_HIDEIFFALSE,
 };
 
-void dump_tmpl(struct ldap_disptmpl *tmpl) {
+void dump_tmpl(struct ldap_disptmpl* tmpl) {
   struct ldap_tmplitem *rowp, *colp;
   int i, rowcnt, colcnt;
-  char **fetchattrs;
-  struct ldap_oclist *ocp;
-  struct ldap_adddeflist *adp;
+  char** fetchattrs;
+  struct ldap_oclist* ocp;
+  struct ldap_adddeflist* adp;
 
   printf("** Template \"%s\" (plural \"%s\", icon \"%s\")\n",
          NULLSTRINGIFNULL(tmpl->dt_name), NULLSTRINGIFNULL(tmpl->dt_pluralname),
@@ -201,7 +201,7 @@ void dump_tmpl(struct ldap_disptmpl *tmpl) {
       printf("  %s\n", fetchattrs[i]);
       free(fetchattrs[i]);
     }
-    free((char *)fetchattrs);
+    free((char*)fetchattrs);
   }
 
   printf("\nfetch attributes only:\n");
@@ -213,7 +213,7 @@ void dump_tmpl(struct ldap_disptmpl *tmpl) {
       printf("  %s\n", fetchattrs[i]);
       free(fetchattrs[i]);
     }
-    free((char *)fetchattrs);
+    free((char*)fetchattrs);
   }
 
   printf("\ntemplate items:\n");
@@ -253,10 +253,10 @@ void dump_tmpl(struct ldap_disptmpl *tmpl) {
   }
 }
 
-void dump_srchpref(struct ldap_searchobj *so) {
+void dump_srchpref(struct ldap_searchobj* so) {
   int i;
-  struct ldap_searchattr *sa;
-  struct ldap_searchmatch *sm;
+  struct ldap_searchattr* sa;
+  struct ldap_searchmatch* sm;
 
   printf("Object type prompt:  %s\n", NULLSTRINGIFNULL(so->so_objtypeprompt));
   printf("Options:             %s\n",

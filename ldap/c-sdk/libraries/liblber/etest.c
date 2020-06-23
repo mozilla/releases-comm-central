@@ -65,12 +65,12 @@
 #endif   /* MACOS */
 #include "lber.h"
 
-int SSL_Recv(int s, char *b, unsigned l, int dummy) { return (read(s, b, l)); }
+int SSL_Recv(int s, char* b, unsigned l, int dummy) { return (read(s, b, l)); }
 
-SSL_Send(int s, char *b, unsigned l, int dummy) { return (write(s, b, l)); }
+SSL_Send(int s, char* b, unsigned l, int dummy) { return (write(s, b, l)); }
 
-int getline(char *prompt, char c, char *buf, int bsize) {
-  char *p;
+int getline(char* prompt, char c, char* buf, int bsize) {
+  char* p;
 
   if (prompt != NULL) {
     fprintf(stderr, "%s: ", prompt);
@@ -87,16 +87,16 @@ int getline(char *prompt, char c, char *buf, int bsize) {
   return (0);
 }
 
-static void usage(char *name) {
+static void usage(char* name) {
   fprintf(stderr, "usage: %s fmtstring\n", name);
 }
 
-main(int argc, char **argv) {
+main(int argc, char** argv) {
   int rc, fd;
   char *s, *p;
   void *arg1, *arg2;
-  Sockbuf *sb;
-  BerElement *ber;
+  Sockbuf* sb;
+  BerElement* ber;
   char fmt[2];
   char buf[BUFSIZ];
   extern int lber_debug;
@@ -124,7 +124,7 @@ main(int argc, char **argv) {
       case 'b': /* boolean */
       case 'e': /* enumeration */
         getline(NULL, *s, buf, sizeof(buf));
-        arg1 = (void *)atoi(buf);
+        arg1 = (void*)atoi(buf);
         break;
 
       case 'n': /* null */
@@ -133,24 +133,24 @@ main(int argc, char **argv) {
 
       case 'o': /* octet string (non-null terminated) */
         getline(NULL, *s, buf, sizeof(buf));
-        arg1 = (void *)buf;
-        arg2 = (void *)strlen(buf);
+        arg1 = (void*)buf;
+        arg2 = (void*)strlen(buf);
         break;
 
       case 's': /* string */
         getline(NULL, *s, buf, sizeof(buf));
-        arg1 = (void *)buf;
+        arg1 = (void*)buf;
         break;
 
       case 'B': /* bit string */
         getline(NULL, *s, buf, sizeof(buf));
-        arg1 = (void *)buf;
-        arg2 = (void *)strlen(buf);
+        arg1 = (void*)buf;
+        arg2 = (void*)strlen(buf);
         break;
 
       case 't': /* tag for the next element */
         getline(NULL, *s, buf, sizeof(buf));
-        arg1 = (void *)buf;
+        arg1 = (void*)buf;
         break;
 
       case '{': /* begin sequence */

@@ -60,8 +60,8 @@
 typedef struct prldap_errorinfo {
   int plei_magic; /* must be first in the structure */
   int plei_lderrno;
-  char *plei_matched;
-  char *plei_errmsg;
+  char* plei_matched;
+  char* plei_errmsg;
 } PRLDAP_ErrorInfo;
 
 #define PRLDAP_ERRORINFO_MAGIC 0x4D4F5A45 /* 'MOZE' */
@@ -73,7 +73,7 @@ typedef struct prldap_errorinfo {
  */
 typedef struct prldap_tpd_header {
   int ptpdh_tpd_count;    /* # of data items allocated */
-  void **ptpdh_dataitems; /* array of data items */
+  void** ptpdh_dataitems; /* array of data items */
 } PRLDAP_TPDHeader;
 
 /*
@@ -82,9 +82,9 @@ typedef struct prldap_tpd_header {
  * handle.
  */
 typedef struct prldap_tpd_map {
-  LDAP *prtm_ld;      /* non-NULL if in use */
+  LDAP* prtm_ld;      /* non-NULL if in use */
   PRUintn prtm_index; /* index into TPD array */
-  struct prldap_tpd_map *prtm_next;
+  struct prldap_tpd_map* prtm_next;
 } PRLDAP_TPDMap;
 
 /*
@@ -95,12 +95,12 @@ typedef struct prldap_tpd_map {
  * we have ever allocated.  We recycle them as we open and close LDAP
  * sessions.
  */
-static PRLDAP_TPDMap *prldap_map_list = NULL;
+static PRLDAP_TPDMap* prldap_map_list = NULL;
 
 /*
  * The prldap_map_mutex is used to protect access to the prldap_map_list.
  */
-static PRLock *prldap_map_mutex = NULL;
+static PRLock* prldap_map_mutex = NULL;
 
 /*
  * The prldap_tpd_maxindex value is used to track the largest TPD array
@@ -124,23 +124,23 @@ static PRCallOnceType prldap_callonce_init_tpd = {0, 0, 0};
 /*
  * Private function prototypes:
  */
-static void prldap_set_ld_error(int err, char *matched, char *errmsg,
-                                void *errorarg);
-static int prldap_get_ld_error(char **matchedp, char **errmsgp, void *errorarg);
-static void *prldap_mutex_alloc(void);
-static void prldap_mutex_free(void *mutex);
-static int prldap_mutex_lock(void *mutex);
-static int prldap_mutex_unlock(void *mutex);
-static void *prldap_get_thread_id(void);
+static void prldap_set_ld_error(int err, char* matched, char* errmsg,
+                                void* errorarg);
+static int prldap_get_ld_error(char** matchedp, char** errmsgp, void* errorarg);
+static void* prldap_mutex_alloc(void);
+static void prldap_mutex_free(void* mutex);
+static int prldap_mutex_lock(void* mutex);
+static int prldap_mutex_unlock(void* mutex);
+static void* prldap_get_thread_id(void);
 static PRStatus prldap_init_tpd(void);
-static PRLDAP_TPDMap *prldap_allocate_map(LDAP *ld);
-static void prldap_return_map(PRLDAP_TPDMap *map);
+static PRLDAP_TPDMap* prldap_allocate_map(LDAP* ld);
+static void prldap_return_map(PRLDAP_TPDMap* map);
 static PRUintn prldap_new_tpdindex(void);
-static int prldap_set_thread_private(PRInt32 tpdindex, void *priv);
-static void *prldap_get_thread_private(PRInt32 tpdindex);
-static PRLDAP_TPDHeader *prldap_tsd_realloc(PRLDAP_TPDHeader *tsdhdr,
+static int prldap_set_thread_private(PRInt32 tpdindex, void* priv);
+static void* prldap_get_thread_private(PRInt32 tpdindex);
+static PRLDAP_TPDHeader* prldap_tsd_realloc(PRLDAP_TPDHeader* tsdhdr,
                                             int maxindex);
-static void prldap_tsd_destroy(void *priv);
+static void prldap_tsd_destroy(void* priv);
 
 /*
  * Install NSPR thread functions into ld (if ld is NULL, they are installed
@@ -148,7 +148,7 @@ static void prldap_tsd_destroy(void *priv);
  *
  * Returns 0 if all goes well and -1 if not.
  */
-int prldap_install_thread_functions(LDAP *ld, int shared) {
+int prldap_install_thread_functions(LDAP* ld, int shared) {
   struct ldap_thread_fns tfns;
   struct ldap_extra_thread_fns xtfns;
 
@@ -175,55 +175,55 @@ int prldap_install_thread_functions(LDAP *ld, int shared) {
        * If ld is NULL we do not do this here but it is done in
        * prldap_thread_new_handle().
        */
-      if ((tfns.ltf_lderrno_arg = (void *)prldap_allocate_map(ld)) == NULL) {
+      if ((tfns.ltf_lderrno_arg = (void*)prldap_allocate_map(ld)) == NULL) {
         return (-1);
       }
     }
   }
 
-  if (ldap_set_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void *)&tfns) != 0) {
-    prldap_return_map((PRLDAP_TPDMap *)tfns.ltf_lderrno_arg);
+  if (ldap_set_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void*)&tfns) != 0) {
+    prldap_return_map((PRLDAP_TPDMap*)tfns.ltf_lderrno_arg);
     return (-1);
   }
 
   /* set extended thread function pointers */
   memset(&xtfns, '\0', sizeof(struct ldap_extra_thread_fns));
   xtfns.ltf_threadid_fn = prldap_get_thread_id;
-  if (ldap_set_option(ld, LDAP_OPT_EXTRA_THREAD_FN_PTRS, (void *)&xtfns) != 0) {
+  if (ldap_set_option(ld, LDAP_OPT_EXTRA_THREAD_FN_PTRS, (void*)&xtfns) != 0) {
     return (-1);
   }
 
   return (0);
 }
 
-static void *prldap_mutex_alloc(void) { return ((void *)PR_NewLock()); }
+static void* prldap_mutex_alloc(void) { return ((void*)PR_NewLock()); }
 
-static void prldap_mutex_free(void *mutex) { PR_DestroyLock((PRLock *)mutex); }
+static void prldap_mutex_free(void* mutex) { PR_DestroyLock((PRLock*)mutex); }
 
-static int prldap_mutex_lock(void *mutex) {
-  PR_Lock((PRLock *)mutex);
+static int prldap_mutex_lock(void* mutex) {
+  PR_Lock((PRLock*)mutex);
   return (0);
 }
 
-static int prldap_mutex_unlock(void *mutex) {
-  if (PR_Unlock((PRLock *)mutex) == PR_FAILURE) {
+static int prldap_mutex_unlock(void* mutex) {
+  if (PR_Unlock((PRLock*)mutex) == PR_FAILURE) {
     return (-1);
   }
 
   return (0);
 }
 
-static void *prldap_get_thread_id(void) {
-  return ((void *)PR_GetCurrentThread());
+static void* prldap_get_thread_id(void) {
+  return ((void*)PR_GetCurrentThread());
 }
 
-static int prldap_get_ld_error(char **matchedp, char **errmsgp,
-                               void *errorarg) {
-  PRLDAP_TPDMap *map;
-  PRLDAP_ErrorInfo *eip;
+static int prldap_get_ld_error(char** matchedp, char** errmsgp,
+                               void* errorarg) {
+  PRLDAP_TPDMap* map;
+  PRLDAP_ErrorInfo* eip;
 
-  if ((map = (PRLDAP_TPDMap *)errorarg) != NULL &&
-      (eip = (PRLDAP_ErrorInfo *)prldap_get_thread_private(map->prtm_index)) !=
+  if ((map = (PRLDAP_TPDMap*)errorarg) != NULL &&
+      (eip = (PRLDAP_ErrorInfo*)prldap_get_thread_private(map->prtm_index)) !=
           NULL) {
     if (matchedp != NULL) {
       *matchedp = eip->plei_matched;
@@ -243,14 +243,14 @@ static int prldap_get_ld_error(char **matchedp, char **errmsgp,
   }
 }
 
-static void prldap_set_ld_error(int err, char *matched, char *errmsg,
-                                void *errorarg) {
-  PRLDAP_TPDMap *map;
-  PRLDAP_ErrorInfo *eip;
+static void prldap_set_ld_error(int err, char* matched, char* errmsg,
+                                void* errorarg) {
+  PRLDAP_TPDMap* map;
+  PRLDAP_ErrorInfo* eip;
 
-  if ((map = (PRLDAP_TPDMap *)errorarg) != NULL) {
-    if ((eip = (PRLDAP_ErrorInfo *)prldap_get_thread_private(
-             map->prtm_index)) == NULL) {
+  if ((map = (PRLDAP_TPDMap*)errorarg) != NULL) {
+    if ((eip = (PRLDAP_ErrorInfo*)prldap_get_thread_private(map->prtm_index)) ==
+        NULL) {
       /*
        * Error info. has not yet been allocated for this thread.
        * Do so now.  Note that we free this memory only for the
@@ -262,7 +262,7 @@ static void prldap_set_ld_error(int err, char *matched, char *errmsg,
        * thread-private memory is freed when a thread exits
        * (inside the prldap_tsd_destroy() function).
        */
-      eip = (PRLDAP_ErrorInfo *)PR_Calloc(1, sizeof(PRLDAP_ErrorInfo));
+      eip = (PRLDAP_ErrorInfo*)PR_Calloc(1, sizeof(PRLDAP_ErrorInfo));
       if (eip == NULL) {
         return; /* punt */
       }
@@ -288,7 +288,7 @@ static void prldap_set_ld_error(int err, char *matched, char *errmsg,
  * Utility function to free a PRLDAP_ErrorInfo structure and everything
  * it contains.
  */
-static void prldap_free_errorinfo(PRLDAP_ErrorInfo *eip) {
+static void prldap_free_errorinfo(PRLDAP_ErrorInfo* eip) {
   if (NULL != eip && PRLDAP_ERRORINFO_MAGIC == eip->plei_magic) {
     if (eip->plei_matched != NULL) {
       ldap_memfree(eip->plei_matched);
@@ -308,16 +308,16 @@ static void prldap_free_errorinfo(PRLDAP_ErrorInfo *eip) {
  * been installed.  If ld is not NULL when prldap_install_thread_functions()
  * is called, we will have already allocated the thread-private data there.
  */
-int prldap_thread_new_handle(LDAP *ld, void *sessionarg) {
+int prldap_thread_new_handle(LDAP* ld, void* sessionarg) {
   struct ldap_thread_fns tfns;
 
-  if (ldap_get_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void *)&tfns) != 0) {
+  if (ldap_get_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void*)&tfns) != 0) {
     return (LDAP_LOCAL_ERROR);
   }
 
   if (tfns.ltf_lderrno_arg == NULL && tfns.ltf_get_lderrno != NULL) {
-    if ((tfns.ltf_lderrno_arg = (void *)prldap_allocate_map(ld)) == NULL ||
-        ldap_set_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void *)&tfns) != 0) {
+    if ((tfns.ltf_lderrno_arg = (void*)prldap_allocate_map(ld)) == NULL ||
+        ldap_set_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void*)&tfns) != 0) {
       return (LDAP_LOCAL_ERROR);
     }
   }
@@ -329,12 +329,12 @@ int prldap_thread_new_handle(LDAP *ld, void *sessionarg) {
  * Called when an LDAP * session handle is being destroyed.
  * Clean up our thread private data map.
  */
-void prldap_thread_dispose_handle(LDAP *ld, void *sessionarg) {
+void prldap_thread_dispose_handle(LDAP* ld, void* sessionarg) {
   struct ldap_thread_fns tfns;
 
-  if (ldap_get_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void *)&tfns) == 0 &&
+  if (ldap_get_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void*)&tfns) == 0 &&
       tfns.ltf_lderrno_arg != NULL) {
-    prldap_return_map((PRLDAP_TPDMap *)tfns.ltf_lderrno_arg);
+    prldap_return_map((PRLDAP_TPDMap*)tfns.ltf_lderrno_arg);
   }
 }
 
@@ -356,7 +356,7 @@ static PRStatus prldap_init_tpd(void) {
  * LDAP session handle.
  * Returns: a pointer to the TPD map or NULL if none available.
  */
-static PRLDAP_TPDMap *prldap_allocate_map(LDAP *ld) {
+static PRLDAP_TPDMap* prldap_allocate_map(LDAP* ld) {
   PRLDAP_TPDMap *map, *prevmap;
 
   PR_Lock(prldap_map_mutex);
@@ -380,7 +380,7 @@ static PRLDAP_TPDMap *prldap_allocate_map(LDAP *ld) {
     PRUintn tpdindex;
 
     tpdindex = prldap_new_tpdindex();
-    map = (PRLDAP_TPDMap *)PR_Malloc(sizeof(PRLDAP_TPDMap));
+    map = (PRLDAP_TPDMap*)PR_Malloc(sizeof(PRLDAP_TPDMap));
     if (map != NULL) {
       map->prtm_index = tpdindex;
       map->prtm_next = NULL;
@@ -415,8 +415,8 @@ static PRLDAP_TPDMap *prldap_allocate_map(LDAP *ld) {
  * Description: return a thread-private data map to the pool of ones
  * available for re-use.
  */
-static void prldap_return_map(PRLDAP_TPDMap *map) {
-  PRLDAP_ErrorInfo *eip;
+static void prldap_return_map(PRLDAP_TPDMap* map) {
+  PRLDAP_ErrorInfo* eip;
 
   PR_Lock(prldap_map_mutex);
 
@@ -425,7 +425,7 @@ static void prldap_return_map(PRLDAP_TPDMap *map) {
    * only disposes of the memory consumed on THIS thread, but that is
    * okay.  See the comment in prldap_set_ld_error() for the reason why.
    */
-  if ((eip = (PRLDAP_ErrorInfo *)prldap_get_thread_private(map->prtm_index)) !=
+  if ((eip = (PRLDAP_ErrorInfo*)prldap_get_thread_private(map->prtm_index)) !=
           NULL &&
       prldap_set_thread_private(map->prtm_index, NULL) == 0) {
     prldap_free_errorinfo(eip);
@@ -454,14 +454,14 @@ static PRUintn prldap_new_tpdindex(void) {
  * Description: store a piece of thread-private data.
  * Returns: 0 if successful and -1 if not.
  */
-static int prldap_set_thread_private(PRInt32 tpdindex, void *priv) {
-  PRLDAP_TPDHeader *tsdhdr;
+static int prldap_set_thread_private(PRInt32 tpdindex, void* priv) {
+  PRLDAP_TPDHeader* tsdhdr;
 
   if (tpdindex > prldap_tpd_maxindex) {
     return (-1); /* bad index */
   }
 
-  tsdhdr = (PRLDAP_TPDHeader *)PR_GetThreadPrivate(prldap_tpdindex);
+  tsdhdr = (PRLDAP_TPDHeader*)PR_GetThreadPrivate(prldap_tpdindex);
   if (tsdhdr == NULL || tpdindex >= tsdhdr->ptpdh_tpd_count) {
     tsdhdr = prldap_tsd_realloc(tsdhdr, tpdindex);
     if (tsdhdr == NULL) {
@@ -479,10 +479,10 @@ static int prldap_set_thread_private(PRInt32 tpdindex, void *priv) {
  * NULL is returned.
  * Returns: 0 if successful and -1 if not.
  */
-static void *prldap_get_thread_private(PRInt32 tpdindex) {
-  PRLDAP_TPDHeader *tsdhdr;
+static void* prldap_get_thread_private(PRInt32 tpdindex) {
+  PRLDAP_TPDHeader* tsdhdr;
 
-  tsdhdr = (PRLDAP_TPDHeader *)PR_GetThreadPrivate(prldap_tpdindex);
+  tsdhdr = (PRLDAP_TPDHeader*)PR_GetThreadPrivate(prldap_tpdindex);
   if (tsdhdr == NULL) {
     return (NULL); /* no thread private data */
   }
@@ -500,9 +500,9 @@ static void *prldap_get_thread_private(PRInt32 tpdindex) {
  * Returns: the new PRLDAP_TPDHeader value (non-NULL if successful).
  * Note: tsdhdr can be NULL (allocates a new PRLDAP_TPDHeader).
  */
-static PRLDAP_TPDHeader *prldap_tsd_realloc(PRLDAP_TPDHeader *tsdhdr,
+static PRLDAP_TPDHeader* prldap_tsd_realloc(PRLDAP_TPDHeader* tsdhdr,
                                             int maxindex) {
-  void *newdataitems = NULL;
+  void* newdataitems = NULL;
   int count;
 
   if (tsdhdr == NULL) {
@@ -522,13 +522,13 @@ static PRLDAP_TPDHeader *prldap_tsd_realloc(PRLDAP_TPDHeader *tsdhdr,
 
   /* increase the size of the data item array if necessary */
   if (count > tsdhdr->ptpdh_tpd_count) {
-    newdataitems = (PRLDAP_ErrorInfo *)PR_Calloc(count, sizeof(void *));
+    newdataitems = (PRLDAP_ErrorInfo*)PR_Calloc(count, sizeof(void*));
     if (newdataitems == NULL) {
       return (NULL);
     }
     if (tsdhdr->ptpdh_dataitems != NULL) { /* preserve old data */
       memcpy(newdataitems, tsdhdr->ptpdh_dataitems,
-             tsdhdr->ptpdh_tpd_count * sizeof(void *));
+             tsdhdr->ptpdh_tpd_count * sizeof(void*));
       PR_Free(tsdhdr->ptpdh_dataitems);
     }
 
@@ -545,17 +545,17 @@ static PRLDAP_TPDHeader *prldap_tsd_realloc(PRLDAP_TPDHeader *tsdhdr,
  * destructor function
  * Returns: nothing.
  */
-static void prldap_tsd_destroy(void *priv) {
-  PRLDAP_TPDHeader *tsdhdr;
-  PRLDAP_ErrorInfo *eip;
+static void prldap_tsd_destroy(void* priv) {
+  PRLDAP_TPDHeader* tsdhdr;
+  PRLDAP_ErrorInfo* eip;
   int i;
 
-  tsdhdr = (PRLDAP_TPDHeader *)priv;
+  tsdhdr = (PRLDAP_TPDHeader*)priv;
   if (tsdhdr != NULL) {
     if (tsdhdr->ptpdh_dataitems != NULL) {
       for (i = 0; i < tsdhdr->ptpdh_tpd_count; ++i) {
         if (tsdhdr->ptpdh_dataitems[i] != NULL) {
-          eip = (PRLDAP_ErrorInfo *)tsdhdr->ptpdh_dataitems[i];
+          eip = (PRLDAP_ErrorInfo*)tsdhdr->ptpdh_dataitems[i];
           if (PRLDAP_ERRORINFO_MAGIC == eip->plei_magic) {
             prldap_free_errorinfo(eip);
           } else {

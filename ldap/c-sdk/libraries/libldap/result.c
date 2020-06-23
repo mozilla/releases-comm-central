@@ -57,23 +57,23 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 #define NSLDAPI_RESULT_ERROR (-1)
 #define NSLDAPI_RESULT_NOT_FOUND (-2)
 
-static int check_response_queue(LDAP *ld, int msgid, int all,
-                                int do_abandon_check, LDAPMessage **result);
-static int ldap_abandoned(LDAP *ld, int msgid);
-static int ldap_mark_abandoned(LDAP *ld, int msgid);
-static int wait4msg(LDAP *ld, int msgid, int all, int unlock_permitted,
-                    struct timeval *timeout, LDAPMessage **result);
-static int read1msg(LDAP *ld, int msgid, int all, Sockbuf *sb, LDAPConn **lcp,
-                    LDAPMessage **result);
-static void check_for_refs(LDAP *ld, LDAPRequest *lr, BerElement *ber,
-                           int ldapversion, int *totalcountp,
-                           int *chasingcountp);
-static int build_result_ber(LDAP *ld, BerElement **berp, LDAPRequest *lr);
-static void merge_error_info(LDAP *ld, LDAPRequest *parentr, LDAPRequest *lr);
+static int check_response_queue(LDAP* ld, int msgid, int all,
+                                int do_abandon_check, LDAPMessage** result);
+static int ldap_abandoned(LDAP* ld, int msgid);
+static int ldap_mark_abandoned(LDAP* ld, int msgid);
+static int wait4msg(LDAP* ld, int msgid, int all, int unlock_permitted,
+                    struct timeval* timeout, LDAPMessage** result);
+static int read1msg(LDAP* ld, int msgid, int all, Sockbuf* sb, LDAPConn** lcp,
+                    LDAPMessage** result);
+static void check_for_refs(LDAP* ld, LDAPRequest* lr, BerElement* ber,
+                           int ldapversion, int* totalcountp,
+                           int* chasingcountp);
+static int build_result_ber(LDAP* ld, BerElement** berp, LDAPRequest* lr);
+static void merge_error_info(LDAP* ld, LDAPRequest* parentr, LDAPRequest* lr);
 #if defined(CLDAP)
-static int cldap_select1(LDAP *ld, struct timeval *timeout);
+static int cldap_select1(LDAP* ld, struct timeval* timeout);
 #endif
-static void link_pend(LDAP *ld, LDAPPend *lp);
+static void link_pend(LDAP* ld, LDAPPend* lp);
 
 /*
  * ldap_result - wait for an ldap result response to a message from the
@@ -89,8 +89,8 @@ static void link_pend(LDAP *ld, LDAPPend *lp);
  * Example:
  * ldap_result(s, msgid, all, timeout, result)
  */
-int LDAP_CALL ldap_result(LDAP *ld, int msgid, int all, struct timeval *timeout,
-                          LDAPMessage **result) {
+int LDAP_CALL ldap_result(LDAP* ld, int msgid, int all, struct timeval* timeout,
+                          LDAPMessage** result) {
   int rc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_result\n", 0, 0, 0);
@@ -108,8 +108,8 @@ int LDAP_CALL ldap_result(LDAP *ld, int msgid, int all, struct timeval *timeout,
   return (rc);
 }
 
-int nsldapi_result_nolock(LDAP *ld, int msgid, int all, int unlock_permitted,
-                          struct timeval *timeout, LDAPMessage **result) {
+int nsldapi_result_nolock(LDAP* ld, int msgid, int all, int unlock_permitted,
+                          struct timeval* timeout, LDAPMessage** result) {
   int rc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_result_nolock (msgid=%d, all=%d)\n",
@@ -156,10 +156,10 @@ int nsldapi_result_nolock(LDAP *ld, int msgid, int all, int unlock_permitted,
  *
  * If not, *result is set to NULL and this function returns 0.
  */
-static int check_response_queue(LDAP *ld, int msgid, int all,
-                                int do_abandon_check, LDAPMessage **result) {
+static int check_response_queue(LDAP* ld, int msgid, int all,
+                                int do_abandon_check, LDAPMessage** result) {
   LDAPMessage *lm, *lastlm, *nextlm;
-  LDAPRequest *lr;
+  LDAPRequest* lr;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "=> check_response_queue (msgid=%d, all=%d)\n",
             msgid, all, 0);
@@ -185,7 +185,7 @@ static int check_response_queue(LDAP *ld, int msgid, int all,
     }
 
     if (msgid == LDAP_RES_ANY || lm->lm_msgid == msgid) {
-      LDAPMessage *tmp;
+      LDAPMessage* tmp;
 
       if (all == 0 || (lm->lm_msgtype != LDAP_RES_SEARCH_RESULT &&
                        lm->lm_msgtype != LDAP_RES_SEARCH_REFERENCE &&
@@ -265,14 +265,14 @@ static int check_response_queue(LDAP *ld, int msgid, int all,
  *  NSLDAPI_RESULT_TIMEOUT    timeout exceeded.
  *  NSLDAPI_RESULT_ERROR      fatal error occurred such as connection closed.
  */
-static int wait4msg(LDAP *ld, int msgid, int all, int unlock_permitted,
-                    struct timeval *timeout, LDAPMessage **result) {
+static int wait4msg(LDAP* ld, int msgid, int all, int unlock_permitted,
+                    struct timeval* timeout, LDAPMessage** result) {
   int err, rc = NSLDAPI_RESULT_NOT_FOUND, msgfound;
   struct timeval tv, *tvp;
   long start_time = 0, tmp_time;
   LDAPConn *lc, *nextlc;
   /* lr points to the specific request we are waiting for, if any */
-  LDAPRequest *lr = NULL;
+  LDAPRequest* lr = NULL;
 
 #ifdef LDAP_DEBUG
   if (timeout == NULL) {
@@ -509,18 +509,18 @@ static int wait4msg(LDAP *ld, int msgid, int all, int unlock_permitted,
  *  The LDAPConn passed in my be freed by read1msg() if the reference count
  *  shows that it's no longer needed.
  */
-static int read1msg(LDAP *ld, int msgid, int all, Sockbuf *sb, LDAPConn **lcp,
-                    LDAPMessage **result) {
-  BerElement *ber;
-  LDAPMessage *new, *l, *prev, *chainprev, *tmp;
+static int read1msg(LDAP* ld, int msgid, int all, Sockbuf* sb, LDAPConn** lcp,
+                    LDAPMessage** result) {
+  BerElement* ber;
+  LDAPMessage* new, *l, *prev, *chainprev, *tmp;
   ber_int_t id;
   ber_tag_t tag;
   ber_len_t len;
   int terrno, lderr, foundit = 0;
-  LDAPRequest *lr;
+  LDAPRequest* lr;
   int rc, has_parent, message_can_be_returned;
   int manufactured_result = 0;
-  LDAPConn *lc = *lcp;
+  LDAPConn* lc = *lcp;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "read1msg\n", 0, 0, 0);
 
@@ -607,7 +607,7 @@ static int read1msg(LDAP *ld, int msgid, int all, Sockbuf *sb, LDAPConn **lcp,
   if (id != LDAP_RES_UNSOLICITED &&
       (tag == LDAP_RES_SEARCH_REFERENCE || tag != LDAP_RES_SEARCH_ENTRY)) {
     int refchasing, reftotal, simple_request = 0;
-    LDAPControl **ctrls = NULL;
+    LDAPControl** ctrls = NULL;
 
     check_for_refs(ld, lr, ber, lc->lconn_version, &reftotal, &refchasing);
 
@@ -735,8 +735,7 @@ static int read1msg(LDAP *ld, int msgid, int all, Sockbuf *sb, LDAPConn **lcp,
   }
 
   /* make a new ldap message */
-  if ((new = (LDAPMessage *)NSLDAPI_CALLOC(1, sizeof(struct ldapmsg))) ==
-      NULL) {
+  if ((new = (LDAPMessage*)NSLDAPI_CALLOC(1, sizeof(struct ldapmsg))) == NULL) {
     LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
     return (NSLDAPI_RESULT_ERROR);
   }
@@ -926,9 +925,9 @@ static int read1msg(LDAP *ld, int msgid, int all, Sockbuf *sb, LDAPConn **lcp,
  * check for LDAPv2+ (UMich extension) or LDAPv3 referrals or references
  * errors are merged in "lr".
  */
-static void check_for_refs(LDAP *ld, LDAPRequest *lr, BerElement *ber,
-                           int ldapversion, int *totalcountp,
-                           int *chasingcountp) {
+static void check_for_refs(LDAP* ld, LDAPRequest* lr, BerElement* ber,
+                           int ldapversion, int* totalcountp,
+                           int* chasingcountp) {
   int err, origerr;
   char *errstr, *matcheddn, **v3refs;
 
@@ -1011,10 +1010,10 @@ static void check_for_refs(LDAP *ld, LDAPRequest *lr, BerElement *ber,
 }
 
 /* returns an LDAP error code and also sets it in LDAP * */
-static int build_result_ber(LDAP *ld, BerElement **berp, LDAPRequest *lr) {
+static int build_result_ber(LDAP* ld, BerElement** berp, LDAPRequest* lr) {
   ber_len_t len;
   ber_int_t along;
-  BerElement *ber;
+  BerElement* ber;
   int err;
 
   if ((err = nsldapi_alloc_ber_with_options(ld, &ber)) != LDAP_SUCCESS) {
@@ -1044,7 +1043,7 @@ static int build_result_ber(LDAP *ld, BerElement **berp, LDAPRequest *lr) {
   return (LDAP_SUCCESS);
 }
 
-static void merge_error_info(LDAP *ld, LDAPRequest *parentr, LDAPRequest *lr) {
+static void merge_error_info(LDAP* ld, LDAPRequest* parentr, LDAPRequest* lr) {
   /*
    * Merge error information in "lr" with "parentr" error code and string.
    */
@@ -1083,10 +1082,10 @@ static void merge_error_info(LDAP *ld, LDAPRequest *parentr, LDAPRequest *lr) {
 #  if !defined(macintosh) && !defined(DOS) && !defined(_WINDOWS) && \
       !defined(XP_OS2)
 /* XXXmcs: was revised to support extended I/O callbacks but never compiled! */
-static int cldap_select1(LDAP *ld, struct timeval *timeout) {
+static int cldap_select1(LDAP* ld, struct timeval* timeout) {
   int rc;
   static int tblsize = 0;
-  NSLDAPIIOStatus *iosp = ld->ld_iostatus;
+  NSLDAPIIOStatus* iosp = ld->ld_iostatus;
 
   if (tblsize == 0) {
 #    ifdef USE_SYSCONF
@@ -1132,7 +1131,7 @@ static int cldap_select1(LDAP *ld, struct timeval *timeout) {
 #  endif /* !macintosh */
 
 #  ifdef macintosh
-static int cldap_select1(LDAP *ld, struct timeval *timeout) {
+static int cldap_select1(LDAP* ld, struct timeval* timeout) {
   /* XXXmcs: needs to be revised to support I/O callbacks */
   return (tcpselect(ld->ld_sbp->sb_sd, timeout));
 }
@@ -1140,7 +1139,7 @@ static int cldap_select1(LDAP *ld, struct timeval *timeout) {
 
 #  if (defined(DOS) && defined(WINSOCK)) || defined(_WINDOWS) || defined(XP_OS2)
 /* XXXmcs: needs to be revised to support extended I/O callbacks */
-static int cldap_select1(LDAP *ld, struct timeval *timeout) {
+static int cldap_select1(LDAP* ld, struct timeval* timeout) {
   fd_set readfds;
   int rc;
 
@@ -1163,8 +1162,8 @@ static int cldap_select1(LDAP *ld, struct timeval *timeout) {
 #  endif /* WINSOCK || _WINDOWS */
 #endif   /* CLDAP */
 
-int LDAP_CALL ldap_msgfree(LDAPMessage *lm) {
-  LDAPMessage *next;
+int LDAP_CALL ldap_msgfree(LDAPMessage* lm) {
+  LDAPMessage* next;
   int type = 0;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_msgfree\n", 0, 0, 0);
@@ -1173,7 +1172,7 @@ int LDAP_CALL ldap_msgfree(LDAPMessage *lm) {
     next = lm->lm_chain;
     type = lm->lm_msgtype;
     ber_free(lm->lm_ber, 1);
-    NSLDAPI_FREE((char *)lm);
+    NSLDAPI_FREE((char*)lm);
   }
 
   return (type);
@@ -1184,7 +1183,7 @@ int LDAP_CALL ldap_msgfree(LDAPMessage *lm) {
  *   0  if the entire message was deleted
  *  -1  if the message was not found, or only part of it was found
  */
-int ldap_msgdelete(LDAP *ld, int msgid) {
+int ldap_msgdelete(LDAP* ld, int msgid) {
   LDAPMessage *lm, *prev;
   int msgtype;
 
@@ -1224,7 +1223,7 @@ int ldap_msgdelete(LDAP *ld, int msgid) {
 /*
  * return 1 if message msgid is waiting to be abandoned, 0 otherwise
  */
-static int ldap_abandoned(LDAP *ld, int msgid) {
+static int ldap_abandoned(LDAP* ld, int msgid) {
   int i;
 
   LDAP_MUTEX_LOCK(ld, LDAP_ABANDON_LOCK);
@@ -1243,7 +1242,7 @@ static int ldap_abandoned(LDAP *ld, int msgid) {
   return (0);
 }
 
-static int ldap_mark_abandoned(LDAP *ld, int msgid) {
+static int ldap_mark_abandoned(LDAP* ld, int msgid) {
   int i;
 
   LDAP_MUTEX_LOCK(ld, LDAP_ABANDON_LOCK);
@@ -1269,7 +1268,7 @@ static int ldap_mark_abandoned(LDAP *ld, int msgid) {
 }
 
 #ifdef CLDAP
-int cldap_getmsg(LDAP *ld, struct timeval *timeout, BerElement **ber) {
+int cldap_getmsg(LDAP* ld, struct timeval* timeout, BerElement** ber) {
   int rc;
   ber_tag_t tag;
   ber_len_t len;
@@ -1295,8 +1294,8 @@ int cldap_getmsg(LDAP *ld, struct timeval *timeout, BerElement **ber) {
 }
 #endif /* CLDAP */
 
-int nsldapi_post_result(LDAP *ld, int msgid, LDAPMessage *result) {
-  LDAPPend *lp;
+int nsldapi_post_result(LDAP* ld, int msgid, LDAPMessage* result) {
+  LDAPPend* lp;
 
   LDAPDebug(LDAP_DEBUG_TRACE,
             "nsldapi_post_result(ld=0x%p, msgid=%d, result=0x%p)\n", ld, msgid,
@@ -1329,8 +1328,8 @@ int nsldapi_post_result(LDAP *ld, int msgid, LDAPMessage *result) {
        * No pending requests for this response... append to
        * our pending result list.
        */
-      LDAPPend *newlp;
-      newlp = (LDAPPend *)NSLDAPI_CALLOC(1, sizeof(LDAPPend));
+      LDAPPend* newlp;
+      newlp = (LDAPPend*)NSLDAPI_CALLOC(1, sizeof(LDAPPend));
       if (newlp == NULL) {
         LDAP_MUTEX_UNLOCK(ld, LDAP_PEND_LOCK);
         LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
@@ -1355,7 +1354,7 @@ int nsldapi_post_result(LDAP *ld, int msgid, LDAPMessage *result) {
   return (0);
 }
 
-static void link_pend(LDAP *ld, LDAPPend *lp) {
+static void link_pend(LDAP* ld, LDAPPend* lp) {
   if ((lp->lp_next = ld->ld_pend) != NULL) {
     lp->lp_next->lp_prev = lp;
   }

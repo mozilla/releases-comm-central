@@ -77,7 +77,7 @@ extern "C" {
 
 #define LDAP_OPT_DESC 0x01 /*  1 */
 
-#define NULLMSG ((LDAPMessage *)0)
+#define NULLMSG ((LDAPMessage*)0)
 
 /*built-in SASL methods */
 #define LDAP_SASL_EXTERNAL "EXTERNAL" /* TLS/SSL extension */
@@ -145,18 +145,18 @@ extern "C" {
 /* "Who am I?" Extended Operation */
 #define LDAP_EXOP_WHO_AM_I "1.3.6.1.4.1.4203.1.11.3"
 
-LDAP_API(void) LDAP_CALL ldap_ber_free(BerElement *ber, int freebuf);
+LDAP_API(void) LDAP_CALL ldap_ber_free(BerElement* ber, int freebuf);
 
-LDAP_API(LDAPControl *)
-LDAP_CALL ldap_find_control(const char *oid, LDAPControl **ctrls);
+LDAP_API(LDAPControl*)
+LDAP_CALL ldap_find_control(const char* oid, LDAPControl** ctrls);
 
 /*
  * Server side sorting of search results (an LDAPv3 extension --
  * LDAP_API_FEATURE_SERVER_SIDE_SORT)
  */
 typedef struct LDAPsortkey { /* structure for a sort-key */
-  char *sk_attrtype;
-  char *sk_matchruleoid;
+  char* sk_attrtype;
+  char* sk_matchruleoid;
   int sk_reverseorder;
 } LDAPsortkey;
 
@@ -195,65 +195,65 @@ typedef enum passpolicyerror_enum {
 
 LDAP_API(int)
 LDAP_CALL
-ldap_create_sort_control(LDAP *ld, LDAPsortkey **sortKeyList,
-                         const char ctl_iscritical, LDAPControl **ctrlp);
+ldap_create_sort_control(LDAP* ld, LDAPsortkey** sortKeyList,
+                         const char ctl_iscritical, LDAPControl** ctrlp);
 LDAP_API(int)
-LDAP_CALL ldap_parse_sort_control(LDAP *ld, LDAPControl **ctrls,
-                                  ber_int_t *result, char **attribute);
+LDAP_CALL ldap_parse_sort_control(LDAP* ld, LDAPControl** ctrls,
+                                  ber_int_t* result, char** attribute);
 
-LDAP_API(void) LDAP_CALL ldap_free_sort_keylist(LDAPsortkey **sortKeyList);
+LDAP_API(void) LDAP_CALL ldap_free_sort_keylist(LDAPsortkey** sortKeyList);
 LDAP_API(int)
-LDAP_CALL ldap_create_sort_keylist(LDAPsortkey ***sortKeyList,
-                                   const char *string_rep);
-
-LDAP_API(int)
-LDAP_CALL ldap_create_userstatus_control(LDAP *ld, const char ctl_iscritical,
-                                         LDAPControl **ctrlp);
-LDAP_API(int)
-LDAP_CALL ldap_parse_userstatus_control(LDAP *ld, LDAPControl **ctrlp,
-                                        LDAPuserstatus *us);
+LDAP_CALL ldap_create_sort_keylist(LDAPsortkey*** sortKeyList,
+                                   const char* string_rep);
 
 LDAP_API(int)
-LDAP_CALL ldap_create_passwordpolicy_control(LDAP *ld, LDAPControl **ctrlp);
+LDAP_CALL ldap_create_userstatus_control(LDAP* ld, const char ctl_iscritical,
+                                         LDAPControl** ctrlp);
+LDAP_API(int)
+LDAP_CALL ldap_parse_userstatus_control(LDAP* ld, LDAPControl** ctrlp,
+                                        LDAPuserstatus* us);
+
+LDAP_API(int)
+LDAP_CALL ldap_create_passwordpolicy_control(LDAP* ld, LDAPControl** ctrlp);
 LDAP_API(int)
 LDAP_CALL
-ldap_create_passwordpolicy_control_ext(LDAP *ld, const char ctl_iscritical,
-                                       LDAPControl **ctrlp);
+ldap_create_passwordpolicy_control_ext(LDAP* ld, const char ctl_iscritical,
+                                       LDAPControl** ctrlp);
 LDAP_API(int)
 LDAP_CALL
-ldap_parse_passwordpolicy_control(LDAP *ld, LDAPControl *ctrlp,
-                                  ber_int_t *expirep, ber_int_t *gracep,
-                                  LDAPPasswordPolicyError *errorp);
+ldap_parse_passwordpolicy_control(LDAP* ld, LDAPControl* ctrlp,
+                                  ber_int_t* expirep, ber_int_t* gracep,
+                                  LDAPPasswordPolicyError* errorp);
 LDAP_API(int)
 LDAP_CALL
-ldap_parse_passwordpolicy_control_ext(LDAP *ld, LDAPControl **ctrlp,
-                                      ber_int_t *expirep, ber_int_t *gracep,
-                                      LDAPPasswordPolicyError *errorp);
-LDAP_API(const char *)
+ldap_parse_passwordpolicy_control_ext(LDAP* ld, LDAPControl** ctrlp,
+                                      ber_int_t* expirep, ber_int_t* gracep,
+                                      LDAPPasswordPolicyError* errorp);
+LDAP_API(const char*)
 LDAP_CALL ldap_passwordpolicy_err2txt(LDAPPasswordPolicyError err);
 
 LDAP_API(int)
-LDAP_CALL ldap_create_authzid_control(LDAP *ld, const char ctl_iscritical,
-                                      LDAPControl **ctrlp);
+LDAP_CALL ldap_create_authzid_control(LDAP* ld, const char ctl_iscritical,
+                                      LDAPControl** ctrlp);
 LDAP_API(int)
 LDAP_CALL
-ldap_parse_authzid_control(LDAP *ld, LDAPControl **ctrlp, char **authzid);
+ldap_parse_authzid_control(LDAP* ld, LDAPControl** ctrlp, char** authzid);
 
 LDAP_API(int)
-LDAP_CALL ldap_whoami(LDAP *ld, LDAPControl **serverctrls,
-                      LDAPControl **clientctrls, int *msgidp);
+LDAP_CALL ldap_whoami(LDAP* ld, LDAPControl** serverctrls,
+                      LDAPControl** clientctrls, int* msgidp);
 LDAP_API(int)
-LDAP_CALL ldap_whoami_s(LDAP *ld, struct berval **authzid,
-                        LDAPControl **serverctrls, LDAPControl **clientctrls);
+LDAP_CALL ldap_whoami_s(LDAP* ld, struct berval** authzid,
+                        LDAPControl** serverctrls, LDAPControl** clientctrls);
 LDAP_API(int)
 LDAP_CALL
-ldap_parse_whoami(LDAP *ld, LDAPMessage *result, struct berval **authzid);
+ldap_parse_whoami(LDAP* ld, LDAPMessage* result, struct berval** authzid);
 
 LDAP_API(int)
-LDAP_CALL ldap_create_geteffectiveRights_control(LDAP *ld, const char *authzid,
-                                                 const char **attrlist,
+LDAP_CALL ldap_create_geteffectiveRights_control(LDAP* ld, const char* authzid,
+                                                 const char** attrlist,
                                                  const char ctl_iscritical,
-                                                 LDAPControl **ctrlp);
+                                                 LDAPControl** ctrlp);
 
 /*
  * Virtual list view (an LDAPv3 extension -- LDAP_API_FEATURE_VIRTUAL_LIST_VIEW)
@@ -266,23 +266,23 @@ LDAP_CALL ldap_create_geteffectiveRights_control(LDAP *ld, const char *authzid,
 typedef struct ldapvirtuallist {
   ber_int_t ldvlist_before_count; /* # entries before target */
   ber_int_t ldvlist_after_count;  /* # entries after target */
-  char *ldvlist_attrvalue;        /* jump to this value */
+  char* ldvlist_attrvalue;        /* jump to this value */
   ber_int_t ldvlist_index;        /* list offset */
   ber_int_t ldvlist_size;         /* number of items in vlist */
-  void *ldvlist_extradata;        /* for use by application */
+  void* ldvlist_extradata;        /* for use by application */
 } LDAPVirtualList;
 
 /*
  * VLV functions:
  */
 LDAP_API(int)
-LDAP_CALL ldap_create_virtuallist_control(LDAP *ld, LDAPVirtualList *ldvlistp,
-                                          LDAPControl **ctrlp);
+LDAP_CALL ldap_create_virtuallist_control(LDAP* ld, LDAPVirtualList* ldvlistp,
+                                          LDAPControl** ctrlp);
 
 LDAP_API(int)
-LDAP_CALL ldap_parse_virtuallist_control(LDAP *ld, LDAPControl **ctrls,
-                                         ber_int_t *target_posp,
-                                         ber_int_t *list_sizep, int *errcodep);
+LDAP_CALL ldap_parse_virtuallist_control(LDAP* ld, LDAPControl** ctrls,
+                                         ber_int_t* target_posp,
+                                         ber_int_t* list_sizep, int* errcodep);
 
 /*
  * Routines for creating persistent search controls and for handling
@@ -296,14 +296,14 @@ LDAP_CALL ldap_parse_virtuallist_control(LDAP *ld, LDAPControl **ctrls,
 #define LDAP_CHANGETYPE_ANY (1 | 2 | 4 | 8)
 LDAP_API(int)
 LDAP_CALL
-ldap_create_persistentsearch_control(LDAP *ld, int changetypes, int changesonly,
+ldap_create_persistentsearch_control(LDAP* ld, int changetypes, int changesonly,
                                      int return_echg_ctls, char ctl_iscritical,
-                                     LDAPControl **ctrlp);
+                                     LDAPControl** ctrlp);
 LDAP_API(int)
 LDAP_CALL
-ldap_parse_entrychange_control(LDAP *ld, LDAPControl **ctrls,
-                               ber_int_t *chgtypep, char **prevdnp,
-                               int *chgnumpresentp, ber_int_t *chgnump);
+ldap_parse_entrychange_control(LDAP* ld, LDAPControl** ctrls,
+                               ber_int_t* chgtypep, char** prevdnp,
+                               int* chgnumpresentp, ber_int_t* chgnump);
 
 /*
  * Routines for creating Proxied Authorization controls (an LDAPv3
@@ -312,12 +312,12 @@ ldap_parse_entrychange_control(LDAP *ld, LDAPControl **ctrls,
  * ldap_create_proxiedauth_control() is for the newer (version 2) control.
  */
 LDAP_API(int)
-LDAP_CALL ldap_create_proxyauth_control(LDAP *ld, const char *dn,
+LDAP_CALL ldap_create_proxyauth_control(LDAP* ld, const char* dn,
                                         const char ctl_iscritical,
-                                        LDAPControl **ctrlp);
+                                        LDAPControl** ctrlp);
 LDAP_API(int)
-LDAP_CALL ldap_create_proxiedauth_control(LDAP *ld, const char *authzid,
-                                          LDAPControl **ctrlp);
+LDAP_CALL ldap_create_proxiedauth_control(LDAP* ld, const char* authzid,
+                                          LDAPControl** ctrlp);
 
 /*
  * Functions to get and set LDAP error information (API extension --
@@ -326,8 +326,8 @@ LDAP_CALL ldap_create_proxiedauth_control(LDAP *ld, const char *authzid,
  * By using LDAP_OPT_THREAD_FN_PTRS, you can arrange for the error info. to
  * be thread-specific.
  */
-LDAP_API(int) LDAP_CALL ldap_get_lderrno(LDAP *ld, char **m, char **s);
-LDAP_API(int) LDAP_CALL ldap_set_lderrno(LDAP *ld, int e, char *m, char *s);
+LDAP_API(int) LDAP_CALL ldap_get_lderrno(LDAP* ld, char** m, char** s);
+LDAP_API(int) LDAP_CALL ldap_set_lderrno(LDAP* ld, int e, char* m, char* s);
 
 /*
  * LDAP URL functions and definitions (an API extension --
@@ -337,18 +337,18 @@ LDAP_API(int) LDAP_CALL ldap_set_lderrno(LDAP *ld, int e, char *m, char *s);
  * types for ldap URL handling
  */
 typedef struct ldap_url_desc {
-  char *lud_host;
+  char* lud_host;
   int lud_port;
-  char *lud_dn;
-  char **lud_attrs;
+  char* lud_dn;
+  char** lud_attrs;
   int lud_scope;
-  char *lud_filter;
+  char* lud_filter;
   unsigned long lud_options;
 #define LDAP_URL_OPT_SECURE 0x01
-  char *lud_string; /* for internal use only */
+  char* lud_string; /* for internal use only */
 } LDAPURLDesc;
 
-#define NULLLDAPURLDESC ((LDAPURLDesc *)NULL)
+#define NULLLDAPURLDESC ((LDAPURLDesc*)NULL)
 
 /*
  * possible errors returned by ldap_url_parse()
@@ -363,27 +363,27 @@ typedef struct ldap_url_desc {
 /*
  * URL functions:
  */
-LDAP_API(int) LDAP_CALL ldap_is_ldap_url(const char *url);
-LDAP_API(int) LDAP_CALL ldap_url_parse(const char *url, LDAPURLDesc **ludpp);
+LDAP_API(int) LDAP_CALL ldap_is_ldap_url(const char* url);
+LDAP_API(int) LDAP_CALL ldap_url_parse(const char* url, LDAPURLDesc** ludpp);
 LDAP_API(int)
-LDAP_CALL ldap_url_parse_no_defaults(const char *url, LDAPURLDesc **ludpp,
+LDAP_CALL ldap_url_parse_no_defaults(const char* url, LDAPURLDesc** ludpp,
                                      int dn_required);
-LDAP_API(void) LDAP_CALL ldap_free_urldesc(LDAPURLDesc *ludp);
+LDAP_API(void) LDAP_CALL ldap_free_urldesc(LDAPURLDesc* ludp);
 LDAP_API(int)
-LDAP_CALL ldap_url_search(LDAP *ld, const char *url, int attrsonly);
+LDAP_CALL ldap_url_search(LDAP* ld, const char* url, int attrsonly);
 LDAP_API(int)
-LDAP_CALL ldap_url_search_s(LDAP *ld, const char *url, int attrsonly,
-                            LDAPMessage **res);
+LDAP_CALL ldap_url_search_s(LDAP* ld, const char* url, int attrsonly,
+                            LDAPMessage** res);
 LDAP_API(int)
-LDAP_CALL ldap_url_search_st(LDAP *ld, const char *url, int attrsonly,
-                             struct timeval *timeout, LDAPMessage **res);
+LDAP_CALL ldap_url_search_st(LDAP* ld, const char* url, int attrsonly,
+                             struct timeval* timeout, LDAPMessage** res);
 
 /*
  * Function to dispose of an array of LDAPMod structures (an API extension).
  * Warning: don't use this unless the mods array was allocated using the
  * same memory allocator as is being used by libldap.
  */
-LDAP_API(void) LDAP_CALL ldap_mods_free(LDAPMod **mods, int freemods);
+LDAP_API(void) LDAP_CALL ldap_mods_free(LDAPMod** mods, int freemods);
 
 /*
  * SSL option (an API extension):
@@ -401,11 +401,11 @@ LDAP_API(void) LDAP_CALL ldap_mods_free(LDAPMod **mods, int freemods);
 #define LDAP_OPT_REBIND_FN 0x06  /* 6 - API extension */
 #define LDAP_OPT_REBIND_ARG 0x07 /* 7 - API extension */
 typedef int(LDAP_CALL LDAP_CALLBACK LDAP_REBINDPROC_CALLBACK)(
-    LDAP *ld, char **dnp, char **passwdp, int *authmethodp, int freeit,
-    void *arg);
+    LDAP* ld, char** dnp, char** passwdp, int* authmethodp, int freeit,
+    void* arg);
 LDAP_API(void)
-LDAP_CALL ldap_set_rebind_proc(LDAP *ld, LDAP_REBINDPROC_CALLBACK *rebindproc,
-                               void *arg);
+LDAP_CALL ldap_set_rebind_proc(LDAP* ld, LDAP_REBINDPROC_CALLBACK* rebindproc,
+                               void* arg);
 
 /*
  * Thread function callbacks (an API extension --
@@ -416,33 +416,33 @@ LDAP_CALL ldap_set_rebind_proc(LDAP *ld, LDAP_REBINDPROC_CALLBACK *rebindproc,
 /*
  * Thread callback functions:
  */
-typedef void *(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_ALLOC_CALLBACK)(void);
-typedef void(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_FREE_CALLBACK)(void *m);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_LOCK_CALLBACK)(void *m);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_UNLOCK_CALLBACK)(void *m);
+typedef void*(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_ALLOC_CALLBACK)(void);
+typedef void(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_FREE_CALLBACK)(void* m);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_LOCK_CALLBACK)(void* m);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_UNLOCK_CALLBACK)(void* m);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_GET_ERRNO_CALLBACK)(void);
 typedef void(LDAP_C LDAP_CALLBACK LDAP_TF_SET_ERRNO_CALLBACK)(int e);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_GET_LDERRNO_CALLBACK)(char **matchedp,
-                                                               char **errmsgp,
-                                                               void *arg);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_GET_LDERRNO_CALLBACK)(char** matchedp,
+                                                               char** errmsgp,
+                                                               void* arg);
 typedef void(LDAP_C LDAP_CALLBACK LDAP_TF_SET_LDERRNO_CALLBACK)(int err,
-                                                                char *matched,
-                                                                char *errmsg,
-                                                                void *arg);
+                                                                char* matched,
+                                                                char* errmsg,
+                                                                void* arg);
 
 /*
  * Structure to hold thread function pointers:
  */
 struct ldap_thread_fns {
-  LDAP_TF_MUTEX_ALLOC_CALLBACK *ltf_mutex_alloc;
-  LDAP_TF_MUTEX_FREE_CALLBACK *ltf_mutex_free;
-  LDAP_TF_MUTEX_LOCK_CALLBACK *ltf_mutex_lock;
-  LDAP_TF_MUTEX_UNLOCK_CALLBACK *ltf_mutex_unlock;
-  LDAP_TF_GET_ERRNO_CALLBACK *ltf_get_errno;
-  LDAP_TF_SET_ERRNO_CALLBACK *ltf_set_errno;
-  LDAP_TF_GET_LDERRNO_CALLBACK *ltf_get_lderrno;
-  LDAP_TF_SET_LDERRNO_CALLBACK *ltf_set_lderrno;
-  void *ltf_lderrno_arg;
+  LDAP_TF_MUTEX_ALLOC_CALLBACK* ltf_mutex_alloc;
+  LDAP_TF_MUTEX_FREE_CALLBACK* ltf_mutex_free;
+  LDAP_TF_MUTEX_LOCK_CALLBACK* ltf_mutex_lock;
+  LDAP_TF_MUTEX_UNLOCK_CALLBACK* ltf_mutex_unlock;
+  LDAP_TF_GET_ERRNO_CALLBACK* ltf_get_errno;
+  LDAP_TF_SET_ERRNO_CALLBACK* ltf_set_errno;
+  LDAP_TF_GET_LDERRNO_CALLBACK* ltf_get_lderrno;
+  LDAP_TF_SET_LDERRNO_CALLBACK* ltf_set_lderrno;
+  void* ltf_lderrno_arg;
 };
 
 /*
@@ -507,7 +507,7 @@ struct ldap_thread_fns {
  */
 typedef struct ldap_x_pollfd { /* used by LDAP_X_EXTIOF_POLL_CALLBACK */
   int lpoll_fd;                /* integer file descriptor / socket */
-  struct lextiof_socket_private *lpoll_socketarg;
+  struct lextiof_socket_private* lpoll_socketarg;
   /* pointer socket and for use by */
   /* application */
   short lpoll_events;  /* requested event */
@@ -531,35 +531,35 @@ typedef struct ldap_x_pollfd { /* used by LDAP_X_EXTIOF_POLL_CALLBACK */
 /* extended I/O callback function prototypes:
  */
 typedef int(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_CONNECT_CALLBACK)(
-    const char *hostlist, int port, /* host byte order */
+    const char* hostlist, int port, /* host byte order */
     int timeout /* milliseconds */,
     unsigned long options, /* bitmapped options */
-    struct lextiof_session_private *sessionarg,
-    struct lextiof_socket_private **socketargp);
+    struct lextiof_session_private* sessionarg,
+    struct lextiof_socket_private** socketargp);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_CLOSE_CALLBACK)(
-    int s, struct lextiof_socket_private *socketarg);
+    int s, struct lextiof_socket_private* socketarg);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_POLL_CALLBACK)(
     LDAP_X_PollFD fds[], int nfds, int timeout /* milliseconds */,
-    struct lextiof_session_private *sessionarg);
+    struct lextiof_session_private* sessionarg);
 typedef int(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_NEWHANDLE_CALLBACK)(
-    LDAP *ld, struct lextiof_session_private *sessionarg);
+    LDAP* ld, struct lextiof_session_private* sessionarg);
 typedef void(LDAP_C LDAP_CALLBACK LDAP_X_EXTIOF_DISPOSEHANDLE_CALLBACK)(
-    LDAP *ld, struct lextiof_session_private *sessionarg);
+    LDAP* ld, struct lextiof_session_private* sessionarg);
 
 /* Structure to hold extended I/O function pointers:
  */
 struct ldap_x_ext_io_fns {
   /* lextiof_size should always be set to LDAP_X_EXTIO_FNS_SIZE */
   int lextiof_size;
-  LDAP_X_EXTIOF_CONNECT_CALLBACK *lextiof_connect;
-  LDAP_X_EXTIOF_CLOSE_CALLBACK *lextiof_close;
-  LDAP_X_EXTIOF_READ_CALLBACK *lextiof_read;
-  LDAP_X_EXTIOF_WRITE_CALLBACK *lextiof_write;
-  LDAP_X_EXTIOF_POLL_CALLBACK *lextiof_poll;
-  LDAP_X_EXTIOF_NEWHANDLE_CALLBACK *lextiof_newhandle;
-  LDAP_X_EXTIOF_DISPOSEHANDLE_CALLBACK *lextiof_disposehandle;
-  void *lextiof_session_arg;
-  LDAP_X_EXTIOF_WRITEV_CALLBACK *lextiof_writev;
+  LDAP_X_EXTIOF_CONNECT_CALLBACK* lextiof_connect;
+  LDAP_X_EXTIOF_CLOSE_CALLBACK* lextiof_close;
+  LDAP_X_EXTIOF_READ_CALLBACK* lextiof_read;
+  LDAP_X_EXTIOF_WRITE_CALLBACK* lextiof_write;
+  LDAP_X_EXTIOF_POLL_CALLBACK* lextiof_poll;
+  LDAP_X_EXTIOF_NEWHANDLE_CALLBACK* lextiof_newhandle;
+  LDAP_X_EXTIOF_DISPOSEHANDLE_CALLBACK* lextiof_disposehandle;
+  void* lextiof_session_arg;
+  LDAP_X_EXTIOF_WRITEV_CALLBACK* lextiof_writev;
 };
 #define LDAP_X_EXTIO_FNS_SIZE sizeof(struct ldap_x_ext_io_fns)
 
@@ -569,14 +569,14 @@ struct ldap_x_ext_io_fns {
  */
 struct ldap_x_hostlist_status;
 LDAP_API(int)
-LDAP_CALL ldap_x_hostlist_first(const char *hostlist, int defport, char **hostp,
-                                int *portp /* host byte order */,
-                                struct ldap_x_hostlist_status **statusp);
+LDAP_CALL ldap_x_hostlist_first(const char* hostlist, int defport, char** hostp,
+                                int* portp /* host byte order */,
+                                struct ldap_x_hostlist_status** statusp);
 LDAP_API(int)
-LDAP_CALL ldap_x_hostlist_next(char **hostp, int *portp /* host byte order */,
-                               struct ldap_x_hostlist_status *status);
+LDAP_CALL ldap_x_hostlist_next(char** hostp, int* portp /* host byte order */,
+                               struct ldap_x_hostlist_status* status);
 LDAP_API(void)
-LDAP_CALL ldap_x_hostlist_statusfree(struct ldap_x_hostlist_status *status);
+LDAP_CALL ldap_x_hostlist_statusfree(struct ldap_x_hostlist_status* status);
 
 /*
  * Client side sorting of entries (an API extension --
@@ -585,36 +585,36 @@ LDAP_CALL ldap_x_hostlist_statusfree(struct ldap_x_hostlist_status *status);
 /*
  * Client side sorting callback functions:
  */
-typedef const struct berval *(LDAP_C LDAP_CALLBACK LDAP_KEYGEN_CALLBACK)(
-    void *arg, LDAP *ld, LDAPMessage *entry);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_KEYCMP_CALLBACK)(void *arg,
-                                                       const struct berval *,
-                                                       const struct berval *);
-typedef void(LDAP_C LDAP_CALLBACK LDAP_KEYFREE_CALLBACK)(void *arg,
-                                                         const struct berval *);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_CMP_CALLBACK)(const char *val1,
-                                                    const char *val2);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_VALCMP_CALLBACK)(const char **val1p,
-                                                       const char **val2p);
+typedef const struct berval*(LDAP_C LDAP_CALLBACK LDAP_KEYGEN_CALLBACK)(
+    void* arg, LDAP* ld, LDAPMessage* entry);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_KEYCMP_CALLBACK)(void* arg,
+                                                       const struct berval*,
+                                                       const struct berval*);
+typedef void(LDAP_C LDAP_CALLBACK LDAP_KEYFREE_CALLBACK)(void* arg,
+                                                         const struct berval*);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_CMP_CALLBACK)(const char* val1,
+                                                    const char* val2);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_VALCMP_CALLBACK)(const char** val1p,
+                                                       const char** val2p);
 
 /*
  * Client side sorting functions:
  */
 LDAP_API(int)
 LDAP_CALL
-ldap_keysort_entries(LDAP *ld, LDAPMessage **chain, void *arg,
-                     LDAP_KEYGEN_CALLBACK *gen, LDAP_KEYCMP_CALLBACK *cmp,
-                     LDAP_KEYFREE_CALLBACK *fre);
+ldap_keysort_entries(LDAP* ld, LDAPMessage** chain, void* arg,
+                     LDAP_KEYGEN_CALLBACK* gen, LDAP_KEYCMP_CALLBACK* cmp,
+                     LDAP_KEYFREE_CALLBACK* fre);
 LDAP_API(int)
-LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain, char **attr,
-                                 LDAP_CMP_CALLBACK *cmp);
+LDAP_CALL ldap_multisort_entries(LDAP* ld, LDAPMessage** chain, char** attr,
+                                 LDAP_CMP_CALLBACK* cmp);
 LDAP_API(int)
-LDAP_CALL ldap_sort_entries(LDAP *ld, LDAPMessage **chain, char *attr,
-                            LDAP_CMP_CALLBACK *cmp);
+LDAP_CALL ldap_sort_entries(LDAP* ld, LDAPMessage** chain, char* attr,
+                            LDAP_CMP_CALLBACK* cmp);
 LDAP_API(int)
-LDAP_CALL ldap_sort_values(LDAP *ld, char **vals, LDAP_VALCMP_CALLBACK *cmp);
+LDAP_CALL ldap_sort_values(LDAP* ld, char** vals, LDAP_VALCMP_CALLBACK* cmp);
 LDAP_API(int)
-LDAP_C LDAP_CALLBACK ldap_sort_strcasecmp(const char **a, const char **b);
+LDAP_C LDAP_CALLBACK ldap_sort_strcasecmp(const char** a, const char** b);
 
 /*
  * Filter functions and definitions (an API extension --
@@ -624,11 +624,11 @@ LDAP_C LDAP_CALLBACK ldap_sort_strcasecmp(const char **a, const char **b);
  * Structures, constants, and types for filter utility routines:
  */
 typedef struct ldap_filt_info {
-  char *lfi_filter;
-  char *lfi_desc;
+  char* lfi_filter;
+  char* lfi_desc;
   int lfi_scope;   /* LDAP_SCOPE_BASE, etc */
   int lfi_isexact; /* exact match filter? */
-  struct ldap_filt_info *lfi_next;
+  struct ldap_filt_info* lfi_next;
 } LDAPFiltInfo;
 
 #define LDAP_FILT_MAXSIZ 1024
@@ -639,31 +639,31 @@ typedef struct ldap_filt_desc LDAPFiltDesc; /* opaque filter desc handle */
 /*
  * Filter utility functions:
  */
-LDAP_API(LDAPFiltDesc *) LDAP_CALL ldap_init_getfilter(char *fname);
-LDAP_API(LDAPFiltDesc *)
-LDAP_CALL ldap_init_getfilter_buf(char *buf, long buflen);
-LDAP_API(LDAPFiltInfo *)
-LDAP_CALL ldap_getfirstfilter(LDAPFiltDesc *lfdp, char *tagpat, char *value);
-LDAP_API(LDAPFiltInfo *) LDAP_CALL ldap_getnextfilter(LDAPFiltDesc *lfdp);
+LDAP_API(LDAPFiltDesc*) LDAP_CALL ldap_init_getfilter(char* fname);
+LDAP_API(LDAPFiltDesc*)
+LDAP_CALL ldap_init_getfilter_buf(char* buf, long buflen);
+LDAP_API(LDAPFiltInfo*)
+LDAP_CALL ldap_getfirstfilter(LDAPFiltDesc* lfdp, char* tagpat, char* value);
+LDAP_API(LDAPFiltInfo*) LDAP_CALL ldap_getnextfilter(LDAPFiltDesc* lfdp);
 LDAP_API(int)
 LDAP_CALL
-ldap_set_filter_additions(LDAPFiltDesc *lfdp, char *prefix, char *suffix);
+ldap_set_filter_additions(LDAPFiltDesc* lfdp, char* prefix, char* suffix);
 LDAP_API(int)
-LDAP_CALL ldap_create_filter(char *buf, unsigned long buflen, char *pattern,
-                             char *prefix, char *suffix, char *attr,
-                             char *value, char **valwords);
-LDAP_API(void) LDAP_CALL ldap_getfilter_free(LDAPFiltDesc *lfdp);
+LDAP_CALL ldap_create_filter(char* buf, unsigned long buflen, char* pattern,
+                             char* prefix, char* suffix, char* attr,
+                             char* value, char** valwords);
+LDAP_API(void) LDAP_CALL ldap_getfilter_free(LDAPFiltDesc* lfdp);
 
 /*
  * Friendly mapping structure and routines (an API extension)
  */
 typedef struct friendly {
-  char *f_unfriendly;
-  char *f_friendly;
+  char* f_unfriendly;
+  char* f_friendly;
 } * FriendlyMap;
-LDAP_API(char *)
-LDAP_CALL ldap_friendly_name(char *filename, char *name, FriendlyMap *map);
-LDAP_API(void) LDAP_CALL ldap_free_friendlymap(FriendlyMap *map);
+LDAP_API(char*)
+LDAP_CALL ldap_friendly_name(char* filename, char* name, FriendlyMap* map);
+LDAP_API(void) LDAP_CALL ldap_free_friendlymap(FriendlyMap* map);
 
 /*
  * In Memory Cache (an API extension -- LDAP_API_FEATURE_X_MEMCACHE)
@@ -672,16 +672,16 @@ typedef struct ldapmemcache LDAPMemCache; /* opaque in-memory cache handle */
 
 LDAP_API(int)
 LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
-                             char **baseDNs, struct ldap_thread_fns *thread_fns,
-                             LDAPMemCache **cachep);
-LDAP_API(int) LDAP_CALL ldap_memcache_set(LDAP *ld, LDAPMemCache *cache);
-LDAP_API(int) LDAP_CALL ldap_memcache_get(LDAP *ld, LDAPMemCache **cachep);
+                             char** baseDNs, struct ldap_thread_fns* thread_fns,
+                             LDAPMemCache** cachep);
+LDAP_API(int) LDAP_CALL ldap_memcache_set(LDAP* ld, LDAPMemCache* cache);
+LDAP_API(int) LDAP_CALL ldap_memcache_get(LDAP* ld, LDAPMemCache** cachep);
 LDAP_API(void)
-LDAP_CALL ldap_memcache_flush(LDAPMemCache *cache, char *dn, int scope);
+LDAP_CALL ldap_memcache_flush(LDAPMemCache* cache, char* dn, int scope);
 LDAP_API(void)
-LDAP_CALL ldap_memcache_flush_results(LDAPMemCache *cache, char *dn, int scope);
-LDAP_API(void) LDAP_CALL ldap_memcache_destroy(LDAPMemCache *cache);
-LDAP_API(void) LDAP_CALL ldap_memcache_update(LDAPMemCache *cache);
+LDAP_CALL ldap_memcache_flush_results(LDAPMemCache* cache, char* dn, int scope);
+LDAP_API(void) LDAP_CALL ldap_memcache_destroy(LDAPMemCache* cache);
+LDAP_API(void) LDAP_CALL ldap_memcache_update(LDAPMemCache* cache);
 
 /*
  * Timeout value for nonblocking connect call
@@ -707,19 +707,19 @@ LDAP_API(void) LDAP_CALL ldap_memcache_update(LDAPMemCache *cache);
 #define LDAP_OPT_MEMALLOC_FN_PTRS 0x61 /* 97 - API extension */
 
 struct ldap_memalloc_fns {
-  LDAP_MALLOC_CALLBACK *ldapmem_malloc;
-  LDAP_CALLOC_CALLBACK *ldapmem_calloc;
-  LDAP_REALLOC_CALLBACK *ldapmem_realloc;
-  LDAP_FREE_CALLBACK *ldapmem_free;
+  LDAP_MALLOC_CALLBACK* ldapmem_malloc;
+  LDAP_CALLOC_CALLBACK* ldapmem_calloc;
+  LDAP_REALLOC_CALLBACK* ldapmem_realloc;
+  LDAP_FREE_CALLBACK* ldapmem_free;
 };
 
 /*
  * Memory allocation functions (an API extension)
  */
-void *ldap_x_malloc(size_t size);
-void *ldap_x_calloc(size_t nelem, size_t elsize);
-void *ldap_x_realloc(void *ptr, size_t size);
-void ldap_x_free(void *ptr);
+void* ldap_x_malloc(size_t size);
+void* ldap_x_calloc(size_t nelem, size_t elsize);
+void* ldap_x_realloc(void* ptr, size_t size);
+void ldap_x_free(void* ptr);
 
 /*
  * Server reconnect (an API extension).
@@ -737,20 +737,20 @@ void ldap_x_free(void *ptr);
  */
 #define LDAP_OPT_NOREBIND 0x66 /* 102 - API extension */
 
-typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_TRYLOCK_CALLBACK)(void *m);
-typedef void *(LDAP_C LDAP_CALLBACK LDAP_TF_SEMA_ALLOC_CALLBACK)(void);
-typedef void(LDAP_C LDAP_CALLBACK LDAP_TF_SEMA_FREE_CALLBACK)(void *s);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_SEMA_WAIT_CALLBACK)(void *s);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_SEMA_POST_CALLBACK)(void *s);
-typedef void *(LDAP_C LDAP_CALLBACK LDAP_TF_THREADID_CALLBACK)(void);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_MUTEX_TRYLOCK_CALLBACK)(void* m);
+typedef void*(LDAP_C LDAP_CALLBACK LDAP_TF_SEMA_ALLOC_CALLBACK)(void);
+typedef void(LDAP_C LDAP_CALLBACK LDAP_TF_SEMA_FREE_CALLBACK)(void* s);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_SEMA_WAIT_CALLBACK)(void* s);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_TF_SEMA_POST_CALLBACK)(void* s);
+typedef void*(LDAP_C LDAP_CALLBACK LDAP_TF_THREADID_CALLBACK)(void);
 
 struct ldap_extra_thread_fns {
-  LDAP_TF_MUTEX_TRYLOCK_CALLBACK *ltf_mutex_trylock;
-  LDAP_TF_SEMA_ALLOC_CALLBACK *ltf_sema_alloc;
-  LDAP_TF_SEMA_FREE_CALLBACK *ltf_sema_free;
-  LDAP_TF_SEMA_WAIT_CALLBACK *ltf_sema_wait;
-  LDAP_TF_SEMA_POST_CALLBACK *ltf_sema_post;
-  LDAP_TF_THREADID_CALLBACK *ltf_threadid_fn;
+  LDAP_TF_MUTEX_TRYLOCK_CALLBACK* ltf_mutex_trylock;
+  LDAP_TF_SEMA_ALLOC_CALLBACK* ltf_sema_alloc;
+  LDAP_TF_SEMA_FREE_CALLBACK* ltf_sema_free;
+  LDAP_TF_SEMA_WAIT_CALLBACK* ltf_sema_wait;
+  LDAP_TF_SEMA_POST_CALLBACK* ltf_sema_post;
+  LDAP_TF_THREADID_CALLBACK* ltf_threadid_fn;
 };
 
 /*
@@ -761,8 +761,8 @@ struct ldap_extra_thread_fns {
 /* On NT, each dll keeps its own module_ldap_debug, which */
 /* points to the process' ldap_debug and needs initializing after load */
 #ifdef _WIN32
-extern int *module_ldap_debug;
-typedef void (*set_debug_level_fn_t)(int *);
+extern int* module_ldap_debug;
+typedef void (*set_debug_level_fn_t)(int*);
 #endif
 
 #ifdef LDAP_DNS
@@ -773,47 +773,47 @@ typedef void (*set_debug_level_fn_t)(int *);
  * UTF-8 routines (should these move into libnls?)
  */
 /* number of bytes in character */
-LDAP_API(int) LDAP_CALL ldap_utf8len(const char *);
+LDAP_API(int) LDAP_CALL ldap_utf8len(const char*);
 /* find next character */
-LDAP_API(char *) LDAP_CALL ldap_utf8next(char *);
+LDAP_API(char*) LDAP_CALL ldap_utf8next(char*);
 /* find previous character */
-LDAP_API(char *) LDAP_CALL ldap_utf8prev(char *);
+LDAP_API(char*) LDAP_CALL ldap_utf8prev(char*);
 /* copy one character */
-LDAP_API(int) LDAP_CALL ldap_utf8copy(char *dst, const char *src);
+LDAP_API(int) LDAP_CALL ldap_utf8copy(char* dst, const char* src);
 /* total number of characters */
-LDAP_API(size_t) LDAP_CALL ldap_utf8characters(const char *);
+LDAP_API(size_t) LDAP_CALL ldap_utf8characters(const char*);
 /* get one UCS-4 character, and move *src to the next character */
-LDAP_API(unsigned long) LDAP_CALL ldap_utf8getcc(const char **src);
+LDAP_API(unsigned long) LDAP_CALL ldap_utf8getcc(const char** src);
 /* UTF-8 aware strtok_r() */
-LDAP_API(char *)
-LDAP_CALL ldap_utf8strtok_r(char *src, const char *brk, char **next);
+LDAP_API(char*)
+LDAP_CALL ldap_utf8strtok_r(char* src, const char* brk, char** next);
 
 /* like isalnum(*s) in the C locale */
-LDAP_API(int) LDAP_CALL ldap_utf8isalnum(char *s);
+LDAP_API(int) LDAP_CALL ldap_utf8isalnum(char* s);
 /* like isalpha(*s) in the C locale */
-LDAP_API(int) LDAP_CALL ldap_utf8isalpha(char *s);
+LDAP_API(int) LDAP_CALL ldap_utf8isalpha(char* s);
 /* like isdigit(*s) in the C locale */
-LDAP_API(int) LDAP_CALL ldap_utf8isdigit(char *s);
+LDAP_API(int) LDAP_CALL ldap_utf8isdigit(char* s);
 /* like isxdigit(*s) in the C locale */
-LDAP_API(int) LDAP_CALL ldap_utf8isxdigit(char *s);
+LDAP_API(int) LDAP_CALL ldap_utf8isxdigit(char* s);
 /* like isspace(*s) in the C locale */
-LDAP_API(int) LDAP_CALL ldap_utf8isspace(char *s);
+LDAP_API(int) LDAP_CALL ldap_utf8isspace(char* s);
 
-#define LDAP_UTF8LEN(s) ((0x80 & *(unsigned char *)(s)) ? ldap_utf8len(s) : 1)
+#define LDAP_UTF8LEN(s) ((0x80 & *(unsigned char*)(s)) ? ldap_utf8len(s) : 1)
 #define LDAP_UTF8NEXT(s) \
-  ((0x80 & *(unsigned char *)(s)) ? ldap_utf8next(s) : (s) + 1)
+  ((0x80 & *(unsigned char*)(s)) ? ldap_utf8next(s) : (s) + 1)
 #define LDAP_UTF8INC(s) \
-  ((0x80 & *(unsigned char *)(s)) ? s = ldap_utf8next(s) : ++s)
+  ((0x80 & *(unsigned char*)(s)) ? s = ldap_utf8next(s) : ++s)
 
 #define LDAP_UTF8PREV(s) ldap_utf8prev(s)
 #define LDAP_UTF8DEC(s) (s = ldap_utf8prev(s))
 
 #define LDAP_UTF8COPY(d, s) \
-  ((0x80 & *(unsigned char *)(s)) ? ldap_utf8copy(d, s) : ((*(d) = *(s)), 1))
+  ((0x80 & *(unsigned char*)(s)) ? ldap_utf8copy(d, s) : ((*(d) = *(s)), 1))
 #define LDAP_UTF8GETCC(s) \
-  ((0x80 & *(unsigned char *)(s)) ? ldap_utf8getcc(&s) : *s++)
+  ((0x80 & *(unsigned char*)(s)) ? ldap_utf8getcc(&s) : *s++)
 #define LDAP_UTF8GETC(s) \
-  ((0x80 & *(unsigned char *)(s)) ? ldap_utf8getcc((const char **)&s) : *s++)
+  ((0x80 & *(unsigned char*)(s)) ? ldap_utf8getcc((const char**)&s) : *s++)
 
 /* SASL options */
 #define LDAP_OPT_X_SASL_MECH 0x6100
@@ -842,55 +842,55 @@ LDAP_API(int) LDAP_CALL ldap_utf8isspace(char *s);
  *      when using Cyrus SASL, interact is pointer to sasl_interact_t
  *  should likely passed in a control (and provided controls)
  */
-typedef int(LDAP_SASL_INTERACT_PROC)(LDAP *ld, unsigned flags, void *defaults,
-                                     void *interact);
+typedef int(LDAP_SASL_INTERACT_PROC)(LDAP* ld, unsigned flags, void* defaults,
+                                     void* interact);
 
 LDAP_API(int)
 LDAP_CALL
-ldap_sasl_interactive_bind_s(LDAP *ld, const char *dn, /* usually NULL */
-                             const char *saslMechanism,
-                             LDAPControl **serverControls,
-                             LDAPControl **clientControls,
+ldap_sasl_interactive_bind_s(LDAP* ld, const char* dn, /* usually NULL */
+                             const char* saslMechanism,
+                             LDAPControl** serverControls,
+                             LDAPControl** clientControls,
 
                              /* should be client controls */
-                             unsigned flags, LDAP_SASL_INTERACT_PROC *proc,
-                             void *defaults);
+                             unsigned flags, LDAP_SASL_INTERACT_PROC* proc,
+                             void* defaults);
 
 LDAP_API(int)
 LDAP_CALL ldap_sasl_interactive_bind_ext_s(
-    LDAP *ld, const char *dn, /* usually NULL */
-    const char *saslMechanism, LDAPControl **serverControls,
-    LDAPControl **clientControls,
+    LDAP* ld, const char* dn, /* usually NULL */
+    const char* saslMechanism, LDAPControl** serverControls,
+    LDAPControl** clientControls,
 
     /* should be client controls */
-    unsigned flags, LDAP_SASL_INTERACT_PROC *proc, void *defaults,
-    LDAPControl ***responseControls);
+    unsigned flags, LDAP_SASL_INTERACT_PROC* proc, void* defaults,
+    LDAPControl*** responseControls);
 
 /*
  * Password modify functions
  */
 LDAP_API(int)
-LDAP_CALL ldap_passwd(LDAP *ld, struct berval *userid, struct berval *oldpasswd,
-                      struct berval *newpasswd, LDAPControl **serverctrls,
-                      LDAPControl **clientctrls, int *msgidp);
+LDAP_CALL ldap_passwd(LDAP* ld, struct berval* userid, struct berval* oldpasswd,
+                      struct berval* newpasswd, LDAPControl** serverctrls,
+                      LDAPControl** clientctrls, int* msgidp);
 
 LDAP_API(int)
 LDAP_CALL
-ldap_passwd_s(LDAP *ld, struct berval *userid, struct berval *oldpasswd,
-              struct berval *newpasswd, struct berval *genpasswd,
-              LDAPControl **serverctrls, LDAPControl **clientctrls);
+ldap_passwd_s(LDAP* ld, struct berval* userid, struct berval* oldpasswd,
+              struct berval* newpasswd, struct berval* genpasswd,
+              LDAPControl** serverctrls, LDAPControl** clientctrls);
 
 LDAP_API(int)
 LDAP_CALL
-ldap_parse_passwd(LDAP *ld, LDAPMessage *result, struct berval *genpasswd);
+ldap_parse_passwd(LDAP* ld, LDAPMessage* result, struct berval* genpasswd);
 
 /*
  * in reslist.c
  */
-LDAP_API(LDAPMessage *)
-LDAP_CALL ldap_delete_result_entry(LDAPMessage **list, LDAPMessage *e);
+LDAP_API(LDAPMessage*)
+LDAP_CALL ldap_delete_result_entry(LDAPMessage** list, LDAPMessage* e);
 LDAP_API(void)
-LDAP_CALL ldap_add_result_entry(LDAPMessage **list, LDAPMessage *e);
+LDAP_CALL ldap_add_result_entry(LDAPMessage** list, LDAPMessage* e);
 
 #ifdef __cplusplus
 }

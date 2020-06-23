@@ -166,9 +166,9 @@ typedef enum {
 struct ldapmsg {
   int lm_msgid;             /* the message id */
   ber_tag_t lm_msgtype;     /* the message type */
-  BerElement *lm_ber;       /* the ber encoded message contents */
-  struct ldapmsg *lm_chain; /* for search - next msg in the resp */
-  struct ldapmsg *lm_next;  /* next response */
+  BerElement* lm_ber;       /* the ber encoded message contents */
+  struct ldapmsg* lm_chain; /* for search - next msg in the resp */
+  struct ldapmsg* lm_next;  /* next response */
   int lm_fromcache;         /* memcache: origin of message */
 };
 
@@ -176,20 +176,20 @@ struct ldapmsg {
  * structure for tracking LDAP server host, ports, DNs, etc.
  */
 typedef struct ldap_server {
-  char *lsrv_host;
-  char *lsrv_dn; /* if NULL, use default */
+  char* lsrv_host;
+  char* lsrv_dn; /* if NULL, use default */
   int lsrv_port;
   unsigned long lsrv_options; /* boolean options */
 #define LDAP_SRV_OPT_SECURE 0x01
-  struct ldap_server *lsrv_next;
+  struct ldap_server* lsrv_next;
 } LDAPServer;
 
 /*
  * structure for representing an LDAP server connection
  */
 typedef struct ldap_conn {
-  Sockbuf *lconn_sb;
-  BerElement *lconn_ber; /* non-NULL if in midst of msg. */
+  Sockbuf* lconn_sb;
+  BerElement* lconn_ber; /* non-NULL if in midst of msg. */
   int lconn_version;     /* LDAP protocol version */
   int lconn_refcnt;
   unsigned long lconn_lastused; /* time */
@@ -197,15 +197,15 @@ typedef struct ldap_conn {
 #define LDAP_CONNST_CONNECTING 2
 #define LDAP_CONNST_CONNECTED 3
 #define LDAP_CONNST_DEAD 4
-  LDAPServer *lconn_server;
-  char *lconn_binddn;         /* DN of last successful bind */
+  LDAPServer* lconn_server;
+  char* lconn_binddn;         /* DN of last successful bind */
   int lconn_bound;            /* has a bind been done? */
   int lconn_pending_requests; /* count of unsent req*/
-  char *lconn_krbinstance;
+  char* lconn_krbinstance;
 #ifdef LDAP_SASLIO_HOOKS
-  sasl_conn_t *lconn_sasl_ctx; /* the sasl connection context */
+  sasl_conn_t* lconn_sasl_ctx; /* the sasl connection context */
 #endif                         /* LDAP_SASLIO_HOOKS */
-  struct ldap_conn *lconn_next;
+  struct ldap_conn* lconn_next;
 } LDAPConn;
 
 /*
@@ -224,25 +224,25 @@ typedef struct ldapreq {
   ber_tag_t lr_res_msgtype;   /* result message type */
   int lr_expect_resp;         /* if non-zero, expect a response */
   int lr_res_errno;           /* result LDAP errno */
-  char *lr_res_error;         /* result error string */
-  char *lr_res_matched;       /* result matched DN string */
-  BerElement *lr_ber;         /* ber encoded request contents */
-  LDAPConn *lr_conn;          /* connection used to send request */
-  char *lr_binddn;            /* request is a bind for this DN */
-  struct ldapreq *lr_parent;  /* request that spawned this referral */
-  struct ldapreq *lr_child;   /* list of requests we spawned */
-  struct ldapreq *lr_sibling; /* next referral spawned */
-  struct ldapreq *lr_prev;    /* ld->ld_requests previous request */
-  struct ldapreq *lr_next;    /* ld->ld_requests next request */
-  LDAPControl **lr_res_ctrls; /* result controls */
+  char* lr_res_error;         /* result error string */
+  char* lr_res_matched;       /* result matched DN string */
+  BerElement* lr_ber;         /* ber encoded request contents */
+  LDAPConn* lr_conn;          /* connection used to send request */
+  char* lr_binddn;            /* request is a bind for this DN */
+  struct ldapreq* lr_parent;  /* request that spawned this referral */
+  struct ldapreq* lr_child;   /* list of requests we spawned */
+  struct ldapreq* lr_sibling; /* next referral spawned */
+  struct ldapreq* lr_prev;    /* ld->ld_requests previous request */
+  struct ldapreq* lr_next;    /* ld->ld_requests next request */
+  LDAPControl** lr_res_ctrls; /* result controls */
 } LDAPRequest;
 
 typedef struct ldappend {
-  void *lp_sema;            /* semaphore to post */
+  void* lp_sema;            /* semaphore to post */
   int lp_msgid;             /* message id */
-  LDAPMessage *lp_result;   /* result storage */
-  struct ldappend *lp_prev; /* previous pending */
-  struct ldappend *lp_next; /* next pending */
+  LDAPMessage* lp_result;   /* result storage */
+  struct ldappend* lp_prev; /* previous pending */
+  struct ldappend* lp_next; /* next pending */
 } LDAPPend;
 
 /*
@@ -255,14 +255,14 @@ typedef struct nsldapi_iostatus_info NSLDAPIIOStatus;
  */
 struct ldap_x_ext_io_fns_rev0 {
   int lextiof_size;
-  LDAP_X_EXTIOF_CONNECT_CALLBACK *lextiof_connect;
-  LDAP_X_EXTIOF_CLOSE_CALLBACK *lextiof_close;
-  LDAP_X_EXTIOF_READ_CALLBACK *lextiof_read;
-  LDAP_X_EXTIOF_WRITE_CALLBACK *lextiof_write;
-  LDAP_X_EXTIOF_POLL_CALLBACK *lextiof_poll;
-  LDAP_X_EXTIOF_NEWHANDLE_CALLBACK *lextiof_newhandle;
-  LDAP_X_EXTIOF_DISPOSEHANDLE_CALLBACK *lextiof_disposehandle;
-  void *lextiof_session_arg;
+  LDAP_X_EXTIOF_CONNECT_CALLBACK* lextiof_connect;
+  LDAP_X_EXTIOF_CLOSE_CALLBACK* lextiof_close;
+  LDAP_X_EXTIOF_READ_CALLBACK* lextiof_read;
+  LDAP_X_EXTIOF_WRITE_CALLBACK* lextiof_write;
+  LDAP_X_EXTIOF_POLL_CALLBACK* lextiof_poll;
+  LDAP_X_EXTIOF_NEWHANDLE_CALLBACK* lextiof_newhandle;
+  LDAP_X_EXTIOF_DISPOSEHANDLE_CALLBACK* lextiof_disposehandle;
+  void* lextiof_session_arg;
 };
 #define LDAP_X_EXTIO_FNS_SIZE_REV0 sizeof(struct ldap_x_ext_io_fns_rev0)
 
@@ -273,8 +273,8 @@ struct ldap_x_ext_io_fns_rev0 {
  * applications that use the LDAP API.
  */
 struct ldap {
-  struct sockbuf *ld_sbp; /* pointer to socket desc. & buffer */
-  char *ld_host;
+  struct sockbuf* ld_sbp; /* pointer to socket desc. & buffer */
+  char* ld_host;
   int ld_version; /* LDAP protocol version */
   char ld_lberoptions;
   int ld_deref;
@@ -282,19 +282,19 @@ struct ldap {
   int ld_timelimit;
   int ld_sizelimit;
 
-  struct ldap_filt_desc *ld_filtd; /* from getfilter for ufn searches */
-  char *ld_ufnprefix;              /* for incomplete ufn's */
+  struct ldap_filt_desc* ld_filtd; /* from getfilter for ufn searches */
+  char* ld_ufnprefix;              /* for incomplete ufn's */
 
   int ld_errno;
-  char *ld_error;
-  char *ld_matched;
+  char* ld_error;
+  char* ld_matched;
   int ld_msgid;
 
   /* Note: the ld_requests list is ordered old to new */
-  LDAPRequest *ld_requests;  /* list of outstanding requests */
-  LDAPMessage *ld_responses; /* list of outstanding responses */
-  int *ld_abandoned;         /* array of abandoned requests */
-  char *ld_cldapdn;          /* DN used in connectionless search */
+  LDAPRequest* ld_requests;  /* list of outstanding requests */
+  LDAPMessage* ld_responses; /* list of outstanding responses */
+  int* ld_abandoned;         /* array of abandoned requests */
+  char* ld_cldapdn;          /* DN used in connectionless search */
 
   int ld_cldaptries;        /* connectionless search retry count */
   int ld_cldaptimeout;      /* time between retries */
@@ -309,15 +309,15 @@ struct ldap {
 #define LDAP_BITOPT_ASYNC 0x04000000
 #define LDAP_BITOPT_NOREBIND 0x02000000
 
-  char *ld_defhost; /* full name of default server */
+  char* ld_defhost; /* full name of default server */
   int ld_defport;   /* port of default server */
   BERTranslateProc ld_lber_encode_translate_proc;
   BERTranslateProc ld_lber_decode_translate_proc;
-  LDAPConn *ld_defconn;         /* default connection */
-  LDAPConn *ld_conns;           /* list of all server connections */
-  NSLDAPIIOStatus *ld_iostatus; /* status info. about network sockets */
-  LDAP_REBINDPROC_CALLBACK *ld_rebind_fn;
-  void *ld_rebind_arg;
+  LDAPConn* ld_defconn;         /* default connection */
+  LDAPConn* ld_conns;           /* list of all server connections */
+  NSLDAPIIOStatus* ld_iostatus; /* status info. about network sockets */
+  LDAP_REBINDPROC_CALLBACK* ld_rebind_fn;
+  void* ld_rebind_arg;
 
   /* function pointers, etc. for extended I/O */
   struct ldap_x_ext_io_fns ld_ext_io_fns;
@@ -333,7 +333,7 @@ struct ldap {
 #define ld_ext_session_arg ld_ext_io_fns.lextiof_session_arg
 
   /* allocated pointer for older I/O functions */
-  struct ldap_io_fns *ld_io_fns_ptr;
+  struct ldap_io_fns* ld_io_fns_ptr;
 #define NSLDAPI_USING_CLASSIC_IO_FUNCTIONS(ld) ((ld)->ld_io_fns_ptr != NULL)
 
   /* function pointers, etc. for DNS */
@@ -355,7 +355,7 @@ struct ldap {
 #define ld_get_lderrno_fn ld_thread.ltf_get_lderrno
 #define ld_set_lderrno_fn ld_thread.ltf_set_lderrno
 #define ld_lderrno_arg ld_thread.ltf_lderrno_arg
-  void **ld_mutex;
+  void** ld_mutex;
 
   /* function pointers, etc. for caching */
   int ld_cache_on;
@@ -379,17 +379,17 @@ struct ldap {
 #define ld_cache_arg ld_cache.lcf_arg
 
   /* ldapv3 controls */
-  LDAPControl **ld_servercontrols;
-  LDAPControl **ld_clientcontrols;
+  LDAPControl** ld_servercontrols;
+  LDAPControl** ld_clientcontrols;
 
   /* Preferred language */
-  char *ld_preferred_language;
+  char* ld_preferred_language;
 
   /* MemCache */
-  LDAPMemCache *ld_memcache;
+  LDAPMemCache* ld_memcache;
 
   /* Pending results */
-  LDAPPend *ld_pend; /* list of pending results */
+  LDAPPend* ld_pend; /* list of pending results */
 
   /* extra thread function pointers */
   struct ldap_extra_thread_fns ld_thread2;
@@ -407,7 +407,7 @@ struct ldap {
 #define ld_threadid_fn ld_thread2.ltf_threadid_fn
 
   /* extra data for mutex handling in referrals */
-  void *ld_mutex_threadid[LDAP_MAX_LOCK];
+  void* ld_mutex_threadid[LDAP_MAX_LOCK];
   unsigned long ld_mutex_refcnt[LDAP_MAX_LOCK];
 
   /* connect timeout value (milliseconds) */
@@ -415,10 +415,10 @@ struct ldap {
 
 #ifdef LDAP_SASLIO_HOOKS
   /* SASL default option settings */
-  char *ld_def_sasl_mech;
-  char *ld_def_sasl_realm;
-  char *ld_def_sasl_authcid;
-  char *ld_def_sasl_authzid;
+  char* ld_def_sasl_mech;
+  char* ld_def_sasl_realm;
+  char* ld_def_sasl_authcid;
+  char* ld_def_sasl_authzid;
   /* SASL Security properties */
   struct sasl_security_properties ld_sasl_secprops;
 #endif
@@ -467,7 +467,7 @@ struct ldap {
       if ((ld)->ld_mutex_threadid[lock] == (ld)->ld_threadid_fn()) { \
         (ld)->ld_mutex_refcnt[lock]--;                               \
         if ((ld)->ld_mutex_refcnt[lock] <= 0) {                      \
-          (ld)->ld_mutex_threadid[lock] = (void *)-1;                \
+          (ld)->ld_mutex_threadid[lock] = (void*)-1;                 \
           (ld)->ld_mutex_refcnt[lock] = 0;                           \
           (ld)->ld_mutex_unlock_fn(ld->ld_mutex[lock]);              \
         }                                                            \
@@ -593,23 +593,23 @@ struct ldap {
 #define LDAP_FILT_MAXSIZ 1024
 
 struct ldap_filt_list {
-  char *lfl_tag;
-  char *lfl_pattern;
-  char *lfl_delims;
-  struct ldap_filt_info *lfl_ilist;
-  struct ldap_filt_list *lfl_next;
+  char* lfl_tag;
+  char* lfl_pattern;
+  char* lfl_delims;
+  struct ldap_filt_info* lfl_ilist;
+  struct ldap_filt_list* lfl_next;
 };
 
 struct ldap_filt_desc {
-  LDAPFiltList *lfd_filtlist;
-  LDAPFiltInfo *lfd_curfip;
+  LDAPFiltList* lfd_filtlist;
+  LDAPFiltInfo* lfd_curfip;
   LDAPFiltInfo lfd_retfi;
   char lfd_filter[LDAP_FILT_MAXSIZ];
-  char *lfd_curval;
-  char *lfd_curvalcopy;
-  char **lfd_curvalwords;
-  char *lfd_filtprefix;
-  char *lfd_filtsuffix;
+  char* lfd_curval;
+  char* lfd_curvalcopy;
+  char** lfd_curvalwords;
+  char* lfd_filtprefix;
+  char* lfd_filtsuffix;
 };
 
 /*
@@ -664,113 +664,113 @@ extern int nsldapi_initialized;
 /*
  * in bind.c
  */
-char *nsldapi_get_binddn(LDAP *ld);
+char* nsldapi_get_binddn(LDAP* ld);
 
 /*
  * in cache.c
  */
-void nsldapi_add_result_to_cache(LDAP *ld, LDAPMessage *result);
+void nsldapi_add_result_to_cache(LDAP* ld, LDAPMessage* result);
 
 /*
  * in dsparse.c
  */
-int nsldapi_next_line_tokens(char **bufp, long *blenp, char ***toksp);
-void nsldapi_free_strarray(char **sap);
+int nsldapi_next_line_tokens(char** bufp, long* blenp, char*** toksp);
+void nsldapi_free_strarray(char** sap);
 
 /*
  * in error.c
  */
-int nsldapi_parse_result(LDAP *ld, int msgtype, BerElement *rber, int *errcodep,
-                         char **matchednp, char **errmsgp, char ***referralsp,
-                         LDAPControl ***serverctrlsp);
+int nsldapi_parse_result(LDAP* ld, int msgtype, BerElement* rber, int* errcodep,
+                         char** matchednp, char** errmsgp, char*** referralsp,
+                         LDAPControl*** serverctrlsp);
 
 /*
  * in open.c
  */
 void nsldapi_initialize_defaults(void);
-void nsldapi_mutex_alloc_all(LDAP *ld);
-void nsldapi_mutex_free_all(LDAP *ld);
-int nsldapi_open_ldap_defconn(LDAP *ld);
-char *nsldapi_strdup(const char *s); /* if s is NULL, returns NULL */
+void nsldapi_mutex_alloc_all(LDAP* ld);
+void nsldapi_mutex_free_all(LDAP* ld);
+int nsldapi_open_ldap_defconn(LDAP* ld);
+char* nsldapi_strdup(const char* s); /* if s is NULL, returns NULL */
 
 /*
  * in os-ip.c
  */
-int nsldapi_connect_to_host(LDAP *ld, Sockbuf *sb, const char *host, int port,
-                            int secure, char **krbinstancep);
-void nsldapi_close_connection(LDAP *ld, Sockbuf *sb);
+int nsldapi_connect_to_host(LDAP* ld, Sockbuf* sb, const char* host, int port,
+                            int secure, char** krbinstancep);
+void nsldapi_close_connection(LDAP* ld, Sockbuf* sb);
 
-int nsldapi_iostatus_poll(LDAP *ld, struct timeval *timeout);
-void nsldapi_iostatus_free(LDAP *ld);
-int nsldapi_iostatus_interest_write(LDAP *ld, Sockbuf *sb);
-int nsldapi_iostatus_interest_read(LDAP *ld, Sockbuf *sb);
-int nsldapi_iostatus_interest_clear(LDAP *ld, Sockbuf *sb);
-int nsldapi_iostatus_is_read_ready(LDAP *ld, Sockbuf *sb);
-int nsldapi_iostatus_is_write_ready(LDAP *ld, Sockbuf *sb);
-int nsldapi_install_lber_extiofns(LDAP *ld, Sockbuf *sb);
-int nsldapi_install_compat_io_fns(LDAP *ld, struct ldap_io_fns *iofns);
+int nsldapi_iostatus_poll(LDAP* ld, struct timeval* timeout);
+void nsldapi_iostatus_free(LDAP* ld);
+int nsldapi_iostatus_interest_write(LDAP* ld, Sockbuf* sb);
+int nsldapi_iostatus_interest_read(LDAP* ld, Sockbuf* sb);
+int nsldapi_iostatus_interest_clear(LDAP* ld, Sockbuf* sb);
+int nsldapi_iostatus_is_read_ready(LDAP* ld, Sockbuf* sb);
+int nsldapi_iostatus_is_write_ready(LDAP* ld, Sockbuf* sb);
+int nsldapi_install_lber_extiofns(LDAP* ld, Sockbuf* sb);
+int nsldapi_install_compat_io_fns(LDAP* ld, struct ldap_io_fns* iofns);
 
 /*
  * if referral.c
  */
-int nsldapi_parse_reference(LDAP *ld, BerElement *rber, char ***referralsp,
-                            LDAPControl ***serverctrlsp);
+int nsldapi_parse_reference(LDAP* ld, BerElement* rber, char*** referralsp,
+                            LDAPControl*** serverctrlsp);
 
 /*
  * in result.c
  */
-int ldap_msgdelete(LDAP *ld, int msgid);
-int nsldapi_result_nolock(LDAP *ld, int msgid, int all, int unlock_permitted,
-                          struct timeval *timeout, LDAPMessage **result);
-int nsldapi_wait_result(LDAP *ld, int msgid, int all, struct timeval *timeout,
-                        LDAPMessage **result);
-int nsldapi_post_result(LDAP *ld, int msgid, LDAPMessage *result);
+int ldap_msgdelete(LDAP* ld, int msgid);
+int nsldapi_result_nolock(LDAP* ld, int msgid, int all, int unlock_permitted,
+                          struct timeval* timeout, LDAPMessage** result);
+int nsldapi_wait_result(LDAP* ld, int msgid, int all, struct timeval* timeout,
+                        LDAPMessage** result);
+int nsldapi_post_result(LDAP* ld, int msgid, LDAPMessage* result);
 
 /*
  * in request.c
  */
-int nsldapi_send_initial_request(LDAP *ld, int msgid, unsigned long msgtype,
-                                 char *dn, BerElement *ber);
-int nsldapi_send_pending_requests_nolock(LDAP *ld, LDAPConn *lc);
-int nsldapi_alloc_ber_with_options(LDAP *ld, BerElement **berp);
-void nsldapi_set_ber_options(LDAP *ld, BerElement *ber);
-int nsldapi_send_ber_message(LDAP *ld, Sockbuf *sb, BerElement *ber, int freeit,
+int nsldapi_send_initial_request(LDAP* ld, int msgid, unsigned long msgtype,
+                                 char* dn, BerElement* ber);
+int nsldapi_send_pending_requests_nolock(LDAP* ld, LDAPConn* lc);
+int nsldapi_alloc_ber_with_options(LDAP* ld, BerElement** berp);
+void nsldapi_set_ber_options(LDAP* ld, BerElement* ber);
+int nsldapi_send_ber_message(LDAP* ld, Sockbuf* sb, BerElement* ber, int freeit,
                              int epipe_handler);
-int nsldapi_send_server_request(LDAP *ld, BerElement *ber, int msgid,
-                                LDAPRequest *parentreq, LDAPServer *srvlist,
-                                LDAPConn *lc, char *bindreqdn, int bind);
-LDAPConn *nsldapi_new_connection(LDAP *ld, LDAPServer **srvlistp, int use_ldsb,
+int nsldapi_send_server_request(LDAP* ld, BerElement* ber, int msgid,
+                                LDAPRequest* parentreq, LDAPServer* srvlist,
+                                LDAPConn* lc, char* bindreqdn, int bind);
+LDAPConn* nsldapi_new_connection(LDAP* ld, LDAPServer** srvlistp, int use_ldsb,
                                  int connect, int bind);
-LDAPRequest *nsldapi_find_request_by_msgid(LDAP *ld, int msgid);
-LDAPRequest *nsldapi_new_request(LDAPConn *lc, BerElement *ber, int msgid,
+LDAPRequest* nsldapi_find_request_by_msgid(LDAP* ld, int msgid);
+LDAPRequest* nsldapi_new_request(LDAPConn* lc, BerElement* ber, int msgid,
                                  int expect_resp);
-void nsldapi_free_request(LDAP *ld, LDAPRequest *lr, int free_conn);
-void nsldapi_queue_request_nolock(LDAP *ld, LDAPRequest *lr);
-void nsldapi_free_connection(LDAP *ld, LDAPConn *lc, LDAPControl **serverctrls,
-                             LDAPControl **clientctrls, int force, int unbind);
-void nsldapi_dump_connection(LDAP *ld, LDAPConn *lconns, int all);
-void nsldapi_dump_requests_and_responses(LDAP *ld);
-int nsldapi_chase_v2_referrals(LDAP *ld, LDAPRequest *lr, char **errstrp,
-                               int *totalcountp, int *chasingcountp);
-int nsldapi_chase_v3_refs(LDAP *ld, LDAPRequest *lr, char **refs,
-                          int is_reference, int *totalcountp,
-                          int *chasingcountp);
-int nsldapi_append_referral(LDAP *ld, char **referralsp, char *s);
-void nsldapi_connection_lost_nolock(LDAP *ld, Sockbuf *sb);
+void nsldapi_free_request(LDAP* ld, LDAPRequest* lr, int free_conn);
+void nsldapi_queue_request_nolock(LDAP* ld, LDAPRequest* lr);
+void nsldapi_free_connection(LDAP* ld, LDAPConn* lc, LDAPControl** serverctrls,
+                             LDAPControl** clientctrls, int force, int unbind);
+void nsldapi_dump_connection(LDAP* ld, LDAPConn* lconns, int all);
+void nsldapi_dump_requests_and_responses(LDAP* ld);
+int nsldapi_chase_v2_referrals(LDAP* ld, LDAPRequest* lr, char** errstrp,
+                               int* totalcountp, int* chasingcountp);
+int nsldapi_chase_v3_refs(LDAP* ld, LDAPRequest* lr, char** refs,
+                          int is_reference, int* totalcountp,
+                          int* chasingcountp);
+int nsldapi_append_referral(LDAP* ld, char** referralsp, char* s);
+void nsldapi_connection_lost_nolock(LDAP* ld, Sockbuf* sb);
 
 #ifdef LDAP_SASLIO_HOOKS
 /*
  * in saslbind.c
  */
 int nsldapi_sasl_is_inited();
-int nsldapi_sasl_cvterrno(LDAP *ld, int err, char *msg);
-int nsldapi_sasl_secprops(const char *in, sasl_security_properties_t *secprops);
+int nsldapi_sasl_cvterrno(LDAP* ld, int err, char* msg);
+int nsldapi_sasl_secprops(const char* in, sasl_security_properties_t* secprops);
 
 /*
  * in saslio.c
  */
-int nsldapi_sasl_install(LDAP *ld, LDAPConn *lconn);
-int nsldapi_sasl_open(LDAP *ld, LDAPConn *lconn, sasl_conn_t **ctx,
+int nsldapi_sasl_install(LDAP* ld, LDAPConn* lconn);
+int nsldapi_sasl_open(LDAP* ld, LDAPConn* lconn, sasl_conn_t** ctx,
                       sasl_ssf_t ssf);
 
 #endif /* LDAP_SASLIO_HOOKS */
@@ -778,60 +778,60 @@ int nsldapi_sasl_open(LDAP *ld, LDAPConn *lconn, sasl_conn_t **ctx,
 /*
  * in search.c
  */
-int nsldapi_build_search_req(LDAP *ld, const char *base, int scope,
-                             const char *filter, char **attrs, int attrsonly,
-                             LDAPControl **serverctrls,
-                             LDAPControl **clientctrls, int timelimit,
-                             int sizelimit, int msgid, BerElement **berp);
+int nsldapi_build_search_req(LDAP* ld, const char* base, int scope,
+                             const char* filter, char** attrs, int attrsonly,
+                             LDAPControl** serverctrls,
+                             LDAPControl** clientctrls, int timelimit,
+                             int sizelimit, int msgid, BerElement** berp);
 
 /*
  * in unbind.c
  */
-int ldap_ld_free(LDAP *ld, LDAPControl **serverctrls, LDAPControl **clientctrls,
+int ldap_ld_free(LDAP* ld, LDAPControl** serverctrls, LDAPControl** clientctrls,
                  int close);
-int nsldapi_send_unbind(LDAP *ld, Sockbuf *sb, LDAPControl **serverctrls,
-                        LDAPControl **clientctrls);
+int nsldapi_send_unbind(LDAP* ld, Sockbuf* sb, LDAPControl** serverctrls,
+                        LDAPControl** clientctrls);
 
 #ifdef LDAP_DNS
 /*
  * in getdxbyname.c
  */
-char **nsldapi_getdxbyname(char *domain);
+char** nsldapi_getdxbyname(char* domain);
 
 #endif /* LDAP_DNS */
 
 /*
  * in unescape.c
  */
-void nsldapi_hex_unescape(char *s);
+void nsldapi_hex_unescape(char* s);
 
 /*
  * in compat.c
  */
 #ifdef hpux
-char *nsldapi_compat_ctime_r(const time_t *clock, char *buf, int buflen);
-struct hostent *nsldapi_compat_gethostbyname_r(const char *name,
-                                               struct hostent *result,
-                                               char *buffer, int buflen,
-                                               int *h_errnop);
+char* nsldapi_compat_ctime_r(const time_t* clock, char* buf, int buflen);
+struct hostent* nsldapi_compat_gethostbyname_r(const char* name,
+                                               struct hostent* result,
+                                               char* buffer, int buflen,
+                                               int* h_errnop);
 #endif /* hpux */
 
 /*
  * in control.c
  */
-int nsldapi_put_controls(LDAP *ld, LDAPControl **ctrls, int closeseq,
-                         BerElement *ber);
-int nsldapi_get_controls(BerElement *ber, LDAPControl ***controlsp);
-int nsldapi_find_controls(BerElement *ber, LDAPControl ***controlsp);
-int nsldapi_dup_controls(LDAP *ld, LDAPControl ***ldctrls,
-                         LDAPControl **newctrls);
-int nsldapi_build_control(char *oid, BerElement *ber, int freeber,
-                          char iscritical, LDAPControl **ctrlp);
+int nsldapi_put_controls(LDAP* ld, LDAPControl** ctrls, int closeseq,
+                         BerElement* ber);
+int nsldapi_get_controls(BerElement* ber, LDAPControl*** controlsp);
+int nsldapi_find_controls(BerElement* ber, LDAPControl*** controlsp);
+int nsldapi_dup_controls(LDAP* ld, LDAPControl*** ldctrls,
+                         LDAPControl** newctrls);
+int nsldapi_build_control(char* oid, BerElement* ber, int freeber,
+                          char iscritical, LDAPControl** ctrlp);
 
 /*
  * in url.c
  */
-int nsldapi_url_parse(const char *inurl, LDAPURLDesc **ludpp, int dn_required);
+int nsldapi_url_parse(const char* inurl, LDAPURLDesc** ludpp, int dn_required);
 
 /*
  * in charset.c
@@ -840,35 +840,35 @@ int nsldapi_url_parse(const char *inurl, LDAPURLDesc **ludpp, int dn_required);
  * users of libldap, all of these prototypes will need to be moved to ldap.h
  */
 #ifdef STR_TRANSLATION
-void ldap_set_string_translators(LDAP *ld, BERTranslateProc encode_proc,
+void ldap_set_string_translators(LDAP* ld, BERTranslateProc encode_proc,
                                  BERTranslateProc decode_proc);
-int ldap_translate_from_t61(LDAP *ld, char **bufp, unsigned long *lenp,
+int ldap_translate_from_t61(LDAP* ld, char** bufp, unsigned long* lenp,
                             int free_input);
-int ldap_translate_to_t61(LDAP *ld, char **bufp, unsigned long *lenp,
+int ldap_translate_to_t61(LDAP* ld, char** bufp, unsigned long* lenp,
                           int free_input);
-void ldap_enable_translation(LDAP *ld, LDAPMessage *entry, int enable);
+void ldap_enable_translation(LDAP* ld, LDAPMessage* entry, int enable);
 #  ifdef LDAP_CHARSET_8859
-int ldap_t61_to_8859(char **bufp, unsigned long *buflenp, int free_input);
-int ldap_8859_to_t61(char **bufp, unsigned long *buflenp, int free_input);
+int ldap_t61_to_8859(char** bufp, unsigned long* buflenp, int free_input);
+int ldap_8859_to_t61(char** bufp, unsigned long* buflenp, int free_input);
 #  endif /* LDAP_CHARSET_8859 */
 #endif   /* STR_TRANSLATION */
 
 /*
  * in memcache.h
  */
-int ldap_memcache_createkey(LDAP *ld, const char *base, int scope,
-                            const char *filter, char **attrs, int attrsonly,
-                            LDAPControl **serverctrls,
-                            LDAPControl **clientctrls, unsigned long *keyp);
-int ldap_memcache_result(LDAP *ld, int msgid, unsigned long key);
-int ldap_memcache_new(LDAP *ld, int msgid, unsigned long key,
-                      const char *basedn);
-int ldap_memcache_append(LDAP *ld, int msgid, int bLast, LDAPMessage *result);
-int ldap_memcache_abandon(LDAP *ld, int msgid);
+int ldap_memcache_createkey(LDAP* ld, const char* base, int scope,
+                            const char* filter, char** attrs, int attrsonly,
+                            LDAPControl** serverctrls,
+                            LDAPControl** clientctrls, unsigned long* keyp);
+int ldap_memcache_result(LDAP* ld, int msgid, unsigned long key);
+int ldap_memcache_new(LDAP* ld, int msgid, unsigned long key,
+                      const char* basedn);
+int ldap_memcache_append(LDAP* ld, int msgid, int bLast, LDAPMessage* result);
+int ldap_memcache_abandon(LDAP* ld, int msgid);
 
 /*
  * in sbind.c
  */
-void nsldapi_handle_reconnect(LDAP *ld);
+void nsldapi_handle_reconnect(LDAP* ld);
 
 #endif /* _LDAPINT_H */

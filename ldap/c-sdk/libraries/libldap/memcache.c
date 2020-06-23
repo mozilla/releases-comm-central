@@ -112,21 +112,21 @@
 #define NSLDAPI_IS_SEPARATER(c) ((c) == ',')
 
 /* Hash table callback function pointer definition */
-typedef int (*HashFuncPtr)(int table_size, void *key);
-typedef int (*PutDataPtr)(void **ppTableData, void *key, void *pData);
-typedef int (*GetDataPtr)(void *pTableData, void *key, void **ppData);
-typedef int (*RemoveDataPtr)(void **ppTableData, void *key, void **ppData);
-typedef int (*MiscFuncPtr)(void **ppTableData, void *key, void *pData);
-typedef void (*ClrTableNodePtr)(void **ppTableData, void *pData);
+typedef int (*HashFuncPtr)(int table_size, void* key);
+typedef int (*PutDataPtr)(void** ppTableData, void* key, void* pData);
+typedef int (*GetDataPtr)(void* pTableData, void* key, void** ppData);
+typedef int (*RemoveDataPtr)(void** ppTableData, void* key, void** ppData);
+typedef int (*MiscFuncPtr)(void** ppTableData, void* key, void* pData);
+typedef void (*ClrTableNodePtr)(void** ppTableData, void* pData);
 
 /* Structure of a node in a hash table */
 typedef struct HashTableNode_struct {
-  void *pData;
+  void* pData;
 } HashTableNode;
 
 /* Structure of a hash table */
 typedef struct HashTable_struct {
-  HashTableNode *table;
+  HashTableNode* table;
   int size;
   HashFuncPtr hashfunc;
   PutDataPtr putdata;
@@ -138,28 +138,28 @@ typedef struct HashTable_struct {
 
 /* Structure uniquely identifies a search request */
 typedef struct ldapmemcacheReqId_struct {
-  LDAP *ldmemcrid_ld;
+  LDAP* ldmemcrid_ld;
   int ldmemcrid_msgid;
 } ldapmemcacheReqId;
 
 /* Structure representing a ldap handle associated to memcache */
 typedef struct ldapmemcacheld_struct {
-  LDAP *ldmemcl_ld;
-  struct ldapmemcacheld_struct *ldmemcl_next;
+  LDAP* ldmemcl_ld;
+  struct ldapmemcacheld_struct* ldmemcl_next;
 } ldapmemcacheld;
 
 /* Structure representing header of a search result */
 typedef struct ldapmemcacheRes_struct {
-  char *ldmemcr_basedn;
+  char* ldmemcr_basedn;
   unsigned long ldmemcr_crc_key;
   unsigned long ldmemcr_resSize;
   unsigned long ldmemcr_timestamp;
-  LDAPMessage *ldmemcr_resHead;
-  LDAPMessage *ldmemcr_resTail;
+  LDAPMessage* ldmemcr_resHead;
+  LDAPMessage* ldmemcr_resTail;
   ldapmemcacheReqId ldmemcr_req_id;
-  struct ldapmemcacheRes_struct *ldmemcr_next[LIST_TOTAL];
-  struct ldapmemcacheRes_struct *ldmemcr_prev[LIST_TOTAL];
-  struct ldapmemcacheRes_struct *ldmemcr_htable_next;
+  struct ldapmemcacheRes_struct* ldmemcr_next[LIST_TOTAL];
+  struct ldapmemcacheRes_struct* ldmemcr_prev[LIST_TOTAL];
+  struct ldapmemcacheRes_struct* ldmemcr_htable_next;
 } ldapmemcacheRes;
 
 /* Structure for memcache statistics */
@@ -174,92 +174,92 @@ struct ldapmemcache {
   unsigned long ldmemc_size;
   unsigned long ldmemc_size_used;
   unsigned long ldmemc_size_entries;
-  char **ldmemc_basedns;
-  void *ldmemc_lock;
-  ldapmemcacheld *ldmemc_lds;
-  HashTable *ldmemc_resTmp;
-  HashTable *ldmemc_resLookup;
-  ldapmemcacheRes *ldmemc_resHead[LIST_TOTAL];
-  ldapmemcacheRes *ldmemc_resTail[LIST_TOTAL];
+  char** ldmemc_basedns;
+  void* ldmemc_lock;
+  ldapmemcacheld* ldmemc_lds;
+  HashTable* ldmemc_resTmp;
+  HashTable* ldmemc_resLookup;
+  ldapmemcacheRes* ldmemc_resHead[LIST_TOTAL];
+  ldapmemcacheRes* ldmemc_resTail[LIST_TOTAL];
   struct ldap_thread_fns ldmemc_lock_fns;
   ldapmemcacheStats ldmemc_stats;
 };
 
 /* Function prototypes */
-static int memcache_exist(LDAP *ld);
-static int memcache_add_to_ld(LDAP *ld, int msgid, LDAPMessage *pMsg);
-static int memcache_compare_dn(const char *main_dn, const char *dn, int scope);
-static int memcache_dup_message(LDAPMessage *res, int msgid, int fromcache,
-                                LDAPMessage **ppResCopy, unsigned long *pSize);
-static BerElement *memcache_ber_dup(BerElement *pBer, unsigned long *pSize);
+static int memcache_exist(LDAP* ld);
+static int memcache_add_to_ld(LDAP* ld, int msgid, LDAPMessage* pMsg);
+static int memcache_compare_dn(const char* main_dn, const char* dn, int scope);
+static int memcache_dup_message(LDAPMessage* res, int msgid, int fromcache,
+                                LDAPMessage** ppResCopy, unsigned long* pSize);
+static BerElement* memcache_ber_dup(BerElement* pBer, unsigned long* pSize);
 
-static void memcache_trim_basedn_spaces(char *basedn);
-static int memcache_validate_basedn(LDAPMemCache *cache, const char *basedn);
-static int memcache_get_ctrls_len(LDAPControl **ctrls);
-static void memcache_append_ctrls(char *buf, LDAPControl **serverCtrls,
-                                  LDAPControl **clientCtrls);
-static int memcache_adj_size(LDAPMemCache *cache, unsigned long size,
+static void memcache_trim_basedn_spaces(char* basedn);
+static int memcache_validate_basedn(LDAPMemCache* cache, const char* basedn);
+static int memcache_get_ctrls_len(LDAPControl** ctrls);
+static void memcache_append_ctrls(char* buf, LDAPControl** serverCtrls,
+                                  LDAPControl** clientCtrls);
+static int memcache_adj_size(LDAPMemCache* cache, unsigned long size,
                              int usageFlags, int bAdd);
-static int memcache_free_entry(LDAPMemCache *cache, ldapmemcacheRes *pRes);
-static int memcache_expired(LDAPMemCache *cache, ldapmemcacheRes *pRes,
+static int memcache_free_entry(LDAPMemCache* cache, ldapmemcacheRes* pRes);
+static int memcache_expired(LDAPMemCache* cache, ldapmemcacheRes* pRes,
                             unsigned long curTime);
-static int memcache_add_to_list(LDAPMemCache *cache, ldapmemcacheRes *pRes,
+static int memcache_add_to_list(LDAPMemCache* cache, ldapmemcacheRes* pRes,
                                 int index);
-static int memcache_add_res_to_list(ldapmemcacheRes *pRes, LDAPMessage *pMsg,
+static int memcache_add_res_to_list(ldapmemcacheRes* pRes, LDAPMessage* pMsg,
                                     unsigned long size);
-static int memcache_free_from_list(LDAPMemCache *cache, ldapmemcacheRes *pRes,
+static int memcache_free_from_list(LDAPMemCache* cache, ldapmemcacheRes* pRes,
                                    int index);
-static int memcache_search(LDAP *ld, unsigned long key, LDAPMessage **ppRes);
-static int memcache_add(LDAP *ld, unsigned long key, int msgid,
-                        const char *basedn);
-static int memcache_append(LDAP *ld, int msgid, LDAPMessage *pRes);
-static int memcache_append_last(LDAP *ld, int msgid, LDAPMessage *pRes);
-static int memcache_remove(LDAP *ld, int msgid);
+static int memcache_search(LDAP* ld, unsigned long key, LDAPMessage** ppRes);
+static int memcache_add(LDAP* ld, unsigned long key, int msgid,
+                        const char* basedn);
+static int memcache_append(LDAP* ld, int msgid, LDAPMessage* pRes);
+static int memcache_append_last(LDAP* ld, int msgid, LDAPMessage* pRes);
+static int memcache_remove(LDAP* ld, int msgid);
 #if 0  /* function not used */
 static int memcache_remove_all(LDAP *ld);
 #endif /* 0 */
-static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
-                           void *pData2, void *pData3);
-static void memcache_flush(LDAPMemCache *cache, char *dn, int scope,
+static int memcache_access(LDAPMemCache* cache, int mode, void* pData1,
+                           void* pData2, void* pData3);
+static void memcache_flush(LDAPMemCache* cache, char* dn, int scope,
                            int flushresults);
 #ifdef LDAP_DEBUG
-static void memcache_print_list(LDAPMemCache *cache, int index);
-static void memcache_report_statistics(LDAPMemCache *cache);
+static void memcache_print_list(LDAPMemCache* cache, int index);
+static void memcache_report_statistics(LDAPMemCache* cache);
 #endif /* LDAP_DEBUG */
 
 static int htable_calculate_size(int sizelimit);
-static int htable_sizeinbytes(HashTable *pTable);
-static int htable_put(HashTable *pTable, void *key, void *pData);
-static int htable_get(HashTable *pTable, void *key, void **ppData);
-static int htable_misc(HashTable *pTable, void *key, void *pData);
-static int htable_remove(HashTable *pTable, void *key, void **ppData);
-static int htable_removeall(HashTable *pTable, void *pData);
+static int htable_sizeinbytes(HashTable* pTable);
+static int htable_put(HashTable* pTable, void* key, void* pData);
+static int htable_get(HashTable* pTable, void* key, void** ppData);
+static int htable_misc(HashTable* pTable, void* key, void* pData);
+static int htable_remove(HashTable* pTable, void* key, void** ppData);
+static int htable_removeall(HashTable* pTable, void* pData);
 static int htable_create(int size_limit, HashFuncPtr hashf, PutDataPtr putDataf,
                          GetDataPtr getDataf, RemoveDataPtr removeDataf,
                          ClrTableNodePtr clrNodef, MiscFuncPtr miscOpf,
-                         HashTable **ppTable);
-static int htable_free(HashTable *pTable);
+                         HashTable** ppTable);
+static int htable_free(HashTable* pTable);
 
-static int msgid_hashf(int table_size, void *key);
-static int msgid_putdata(void **ppTableData, void *key, void *pData);
-static int msgid_getdata(void *pTableData, void *key, void **ppData);
-static int msgid_removedata(void **ppTableData, void *key, void **ppData);
-static int msgid_clear_ld_items(void **ppTableData, void *key, void *pData);
-static void msgid_clearnode(void **ppTableData, void *pData);
+static int msgid_hashf(int table_size, void* key);
+static int msgid_putdata(void** ppTableData, void* key, void* pData);
+static int msgid_getdata(void* pTableData, void* key, void** ppData);
+static int msgid_removedata(void** ppTableData, void* key, void** ppData);
+static int msgid_clear_ld_items(void** ppTableData, void* key, void* pData);
+static void msgid_clearnode(void** ppTableData, void* pData);
 
-static int attrkey_hashf(int table_size, void *key);
-static int attrkey_putdata(void **ppTableData, void *key, void *pData);
-static int attrkey_getdata(void *pTableData, void *key, void **ppData);
-static int attrkey_removedata(void **ppTableData, void *key, void **ppData);
-static void attrkey_clearnode(void **ppTableData, void *pData);
+static int attrkey_hashf(int table_size, void* key);
+static int attrkey_putdata(void** ppTableData, void* key, void* pData);
+static int attrkey_getdata(void* pTableData, void* key, void** ppData);
+static int attrkey_removedata(void** ppTableData, void* key, void** ppData);
+static void attrkey_clearnode(void** ppTableData, void* pData);
 
-static unsigned long crc32_convert(char *buf, int len);
+static unsigned long crc32_convert(char* buf, int len);
 
 /* Create a memcache object. */
 int LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
-                                 char **baseDNs,
-                                 struct ldap_thread_fns *thread_fns,
-                                 LDAPMemCache **cachep) {
+                                 char** baseDNs,
+                                 struct ldap_thread_fns* thread_fns,
+                                 LDAPMemCache** cachep) {
   unsigned long total_size = 0;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_init\n", 0, 0, 0);
@@ -268,7 +268,7 @@ int LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
     return (LDAP_PARAM_ERROR);
   }
 
-  if ((*cachep = (LDAPMemCache *)NSLDAPI_CALLOC(1, sizeof(LDAPMemCache))) ==
+  if ((*cachep = (LDAPMemCache*)NSLDAPI_CALLOC(1, sizeof(LDAPMemCache))) ==
       NULL) {
     return (LDAP_NO_MEMORY);
   }
@@ -299,7 +299,7 @@ int LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
       ;
     }
 
-    (*cachep)->ldmemc_basedns = (char **)NSLDAPI_CALLOC(i + 1, sizeof(char *));
+    (*cachep)->ldmemc_basedns = (char**)NSLDAPI_CALLOC(i + 1, sizeof(char*));
 
     if ((*cachep)->ldmemc_basedns == NULL) {
       ldap_memcache_destroy(*cachep);
@@ -307,7 +307,7 @@ int LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
       return (LDAP_NO_MEMORY);
     }
 
-    total_size += (i + 1) * sizeof(char *);
+    total_size += (i + 1) * sizeof(char*);
 
     for (i = 0; baseDNs[i]; i++) {
       (*cachep)->ldmemc_basedns[i] = nsldapi_strdup(baseDNs[i]);
@@ -354,7 +354,7 @@ int LDAP_CALL ldap_memcache_init(unsigned long ttl, unsigned long size,
 }
 
 /* Associates a ldap handle to a memcache object. */
-int LDAP_CALL ldap_memcache_set(LDAP *ld, LDAPMemCache *cache) {
+int LDAP_CALL ldap_memcache_set(LDAP* ld, LDAPMemCache* cache) {
   int nRes = LDAP_SUCCESS;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_set\n", 0, 0, 0);
@@ -364,9 +364,9 @@ int LDAP_CALL ldap_memcache_set(LDAP *ld, LDAPMemCache *cache) {
   LDAP_MUTEX_LOCK(ld, LDAP_MEMCACHE_LOCK);
 
   if (ld->ld_memcache != cache) {
-    LDAPMemCache *c = ld->ld_memcache;
-    ldapmemcacheld *pCur = NULL;
-    ldapmemcacheld *pPrev = NULL;
+    LDAPMemCache* c = ld->ld_memcache;
+    ldapmemcacheld* pCur = NULL;
+    ldapmemcacheld* pPrev = NULL;
 
     /* First dissociate handle from old cache */
 
@@ -383,7 +383,7 @@ int LDAP_CALL ldap_memcache_set(LDAP *ld, LDAPMemCache *cache) {
 
       reqid.ldmemcrid_ld = ld;
       reqid.ldmemcrid_msgid = -1;
-      htable_misc(c->ldmemc_resTmp, (void *)&reqid, (void *)c);
+      htable_misc(c->ldmemc_resTmp, (void*)&reqid, (void*)c);
 
       if (pPrev)
         pPrev->ldmemcl_next = pCur->ldmemcl_next;
@@ -418,7 +418,7 @@ int LDAP_CALL ldap_memcache_set(LDAP *ld, LDAPMemCache *cache) {
       return nRes;
     }
 
-    pCur = (ldapmemcacheld *)NSLDAPI_CALLOC(1, sizeof(ldapmemcacheld));
+    pCur = (ldapmemcacheld*)NSLDAPI_CALLOC(1, sizeof(ldapmemcacheld));
     if (pCur == NULL) {
       memcache_adj_size(cache, sizeof(ldapmemcacheld),
                         MEMCACHE_SIZE_NON_ENTRIES, MEMCACHE_SIZE_DEDUCT);
@@ -439,7 +439,7 @@ int LDAP_CALL ldap_memcache_set(LDAP *ld, LDAPMemCache *cache) {
 }
 
 /* Retrieves memcache with which the ldap handle has been associated. */
-int LDAP_CALL ldap_memcache_get(LDAP *ld, LDAPMemCache **cachep) {
+int LDAP_CALL ldap_memcache_get(LDAP* ld, LDAPMemCache** cachep) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_get ld: 0x%p\n", ld, 0, 0);
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || cachep == NULL) {
@@ -458,7 +458,7 @@ int LDAP_CALL ldap_memcache_get(LDAP *ld, LDAPMemCache **cachep) {
  * the given cache.  This should be called from a newly created thread since
  * it will not return until after ldap_memcache_destroy() is called.
  */
-void LDAP_CALL ldap_memcache_update(LDAPMemCache *cache) {
+void LDAP_CALL ldap_memcache_update(LDAPMemCache* cache) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_update: cache 0x%p\n", cache, 0,
             0);
 
@@ -473,7 +473,7 @@ void LDAP_CALL ldap_memcache_update(LDAPMemCache *cache) {
 
 /* Removes specified entries from given memcache. Only clears out search
    results that included search entries. */
-void LDAP_CALL ldap_memcache_flush(LDAPMemCache *cache, char *dn, int scope) {
+void LDAP_CALL ldap_memcache_flush(LDAPMemCache* cache, char* dn, int scope) {
   LDAPDebug(LDAP_DEBUG_TRACE,
             "ldap_memcache_flush( cache: 0x%p, dn: %s, scope: %d)\n", cache,
             (dn == NULL) ? "(null)" : dn, scope);
@@ -482,7 +482,7 @@ void LDAP_CALL ldap_memcache_flush(LDAPMemCache *cache, char *dn, int scope) {
 
 /* Removes specified entries from given memcache, including search
    results that returned no entries. */
-void LDAP_CALL ldap_memcache_flush_results(LDAPMemCache *cache, char *dn,
+void LDAP_CALL ldap_memcache_flush_results(LDAPMemCache* cache, char* dn,
                                            int scope) {
   LDAPDebug(LDAP_DEBUG_TRACE,
             "ldap_memcache_flush_results( cache: 0x%p, dn: %s, scope: %d)\n",
@@ -491,7 +491,7 @@ void LDAP_CALL ldap_memcache_flush_results(LDAPMemCache *cache, char *dn,
 }
 
 /* Destroys the given memcache. */
-void LDAP_CALL ldap_memcache_destroy(LDAPMemCache *cache) {
+void LDAP_CALL ldap_memcache_destroy(LDAPMemCache* cache) {
   int i = 0;
   unsigned long size = sizeof(LDAPMemCache);
   ldapmemcacheld *pNode = NULL, *pNextNode = NULL;
@@ -524,7 +524,7 @@ void LDAP_CALL ldap_memcache_destroy(LDAPMemCache *cache) {
       size += strlen(cache->ldmemc_basedns[i]) + 1;
       NSLDAPI_FREE(cache->ldmemc_basedns[i]);
     }
-    size += (i + 1) * sizeof(char *);
+    size += (i + 1) * sizeof(char*);
     NSLDAPI_FREE(cache->ldmemc_basedns);
   }
 
@@ -557,10 +557,10 @@ void LDAP_CALL ldap_memcache_destroy(LDAPMemCache *cache) {
    current bind DN.  The key is used in the cache for looking up cached
    entries.  It is assumed that the CRC algorithm will generate
    different integers from different byte strings. */
-int ldap_memcache_createkey(LDAP *ld, const char *base, int scope,
-                            const char *filter, char **attrs, int attrsonly,
-                            LDAPControl **serverctrls,
-                            LDAPControl **clientctrls, unsigned long *keyp) {
+int ldap_memcache_createkey(LDAP* ld, const char* base, int scope,
+                            const char* filter, char** attrs, int attrsonly,
+                            LDAPControl** serverctrls,
+                            LDAPControl** clientctrls, unsigned long* keyp) {
   int nRes, i, j, i_smallest;
   int len;
   int defport;
@@ -615,7 +615,7 @@ int ldap_memcache_createkey(LDAP *ld, const char *base, int scope,
   len += memcache_get_ctrls_len(serverctrls) +
          memcache_get_ctrls_len(clientctrls) + 1;
 
-  if ((keystr = (char *)NSLDAPI_CALLOC(len, sizeof(char))) == NULL) {
+  if ((keystr = (char*)NSLDAPI_CALLOC(len, sizeof(char))) == NULL) {
     NSLDAPI_FREE(defhost);
     return (LDAP_NO_MEMORY);
   }
@@ -652,9 +652,9 @@ int ldap_memcache_createkey(LDAP *ld, const char *base, int scope,
 /* Searches the cache for the right cached entries, and if found, attaches
    them to the given ldap handle.  This function relies on locking by the
    caller. */
-int ldap_memcache_result(LDAP *ld, int msgid, unsigned long key) {
+int ldap_memcache_result(LDAP* ld, int msgid, unsigned long key) {
   int nRes;
-  LDAPMessage *pMsg = NULL;
+  LDAPMessage* pMsg = NULL;
 
   LDAPDebug(LDAP_DEBUG_TRACE,
             "ldap_memcache_result( ld: 0x%p, msgid: %d, key: 0x%8.8lx)\n", ld,
@@ -697,8 +697,8 @@ int ldap_memcache_result(LDAP *ld, int msgid, unsigned long key) {
 
 /* Creates a new header in the cache so that entries arriving from the
    directory server can later be cached under the header. */
-int ldap_memcache_new(LDAP *ld, int msgid, unsigned long key,
-                      const char *basedn) {
+int ldap_memcache_new(LDAP* ld, int msgid, unsigned long key,
+                      const char* basedn) {
   int nRes;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -723,7 +723,7 @@ int ldap_memcache_new(LDAP *ld, int msgid, unsigned long key,
 /* Appends a chain of entries to an existing cache header.  Parameter "bLast"
    indicates whether there will be more entries arriving for the search in
    question. */
-int ldap_memcache_append(LDAP *ld, int msgid, int bLast, LDAPMessage *result) {
+int ldap_memcache_append(LDAP* ld, int msgid, int bLast, LDAPMessage* result) {
   int nRes = LDAP_SUCCESS;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_memcache_append( ld: 0x%p, ", ld, 0, 0);
@@ -759,7 +759,7 @@ int ldap_memcache_append(LDAP *ld, int msgid, int bLast, LDAPMessage *result) {
 
 /* Removes partially cached results for a search as a result of calling
    ldap_abandon() by the client. */
-int ldap_memcache_abandon(LDAP *ld, int msgid) {
+int ldap_memcache_abandon(LDAP* ld, int msgid) {
   int nRes;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || (msgid < 0)) {
@@ -790,7 +790,7 @@ int ldap_memcache_abandon(LDAP *ld, int msgid) {
  * XXXmcs: this is a bit too aggressive... we need to deal with the fact that
  * commas and spaces may be quoted, in which case it is wrong to remove them.
  */
-static void memcache_trim_basedn_spaces(char *basedn) {
+static void memcache_trim_basedn_spaces(char* basedn) {
   char *pRead, *pWrite;
 
   if (!basedn) return;
@@ -809,7 +809,7 @@ static void memcache_trim_basedn_spaces(char *basedn) {
 /* Verifies whether the results of a search should be cached or not by
    checking if the search's basedn falls under any of the basedns for which
    the memcache is responsible. */
-static int memcache_validate_basedn(LDAPMemCache *cache, const char *basedn) {
+static int memcache_validate_basedn(LDAPMemCache* cache, const char* basedn) {
   int i;
 
   if (cache->ldmemc_basedns == NULL) {
@@ -841,7 +841,7 @@ static int memcache_validate_basedn(LDAPMemCache *cache, const char *basedn) {
 
 /* Calculates the length of the buffer needed to concatenate the contents of
    a ldap control. */
-static int memcache_get_ctrls_len(LDAPControl **ctrls) {
+static int memcache_get_ctrls_len(LDAPControl** ctrls) {
   int len = 0, i;
 
   if (ctrls) {
@@ -855,11 +855,11 @@ static int memcache_get_ctrls_len(LDAPControl **ctrls) {
 }
 
 /* Contenates the contents of client and server controls to a buffer. */
-static void memcache_append_ctrls(char *buf, LDAPControl **serverCtrls,
-                                  LDAPControl **clientCtrls) {
+static void memcache_append_ctrls(char* buf, LDAPControl** serverCtrls,
+                                  LDAPControl** clientCtrls) {
   int i, j;
-  char *pCh = buf + strlen(buf);
-  LDAPControl **ctrls;
+  char* pCh = buf + strlen(buf);
+  LDAPControl** ctrls;
 
   for (j = 0; j < 2; j++) {
     if ((ctrls = (j ? clientCtrls : serverCtrls)) == NULL) continue;
@@ -880,7 +880,7 @@ static void memcache_append_ctrls(char *buf, LDAPControl **serverCtrls,
 
 /* Increases or decreases the size (in bytes) the given memcache currently
    uses.  If the size goes over the limit, the function returns an error. */
-static int memcache_adj_size(LDAPMemCache *cache, unsigned long size,
+static int memcache_adj_size(LDAPMemCache* cache, unsigned long size,
                              int usageFlags, int bAdd) {
   LDAPDebug(LDAP_DEBUG_TRACE,
             "memcache_adj_size: attempting to %s %ld %s bytes...\n",
@@ -935,16 +935,16 @@ static int memcache_adj_size(LDAPMemCache *cache, unsigned long size,
 
 /* Searches the cache for results for a particular search identified by
    parameter "key", which was generated ldap_memcache_createkey(). */
-static int memcache_search(LDAP *ld, unsigned long key, LDAPMessage **ppRes) {
+static int memcache_search(LDAP* ld, unsigned long key, LDAPMessage** ppRes) {
   int nRes;
-  ldapmemcacheRes *pRes;
+  ldapmemcacheRes* pRes;
 
   *ppRes = NULL;
 
   if (!memcache_exist(ld)) return LDAP_LOCAL_ERROR;
 
-  nRes = memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_FIND, (void *)&key,
-                         (void *)(&pRes), NULL);
+  nRes = memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_FIND, (void*)&key,
+                         (void*)(&pRes), NULL);
 
   if (nRes != LDAP_SUCCESS) return nRes;
 
@@ -956,8 +956,8 @@ static int memcache_search(LDAP *ld, unsigned long key, LDAPMessage **ppRes) {
 
 /* Adds a new header into the cache as a place holder for entries
    arriving later. */
-static int memcache_add(LDAP *ld, unsigned long key, int msgid,
-                        const char *basedn) {
+static int memcache_add(LDAP* ld, unsigned long key, int msgid,
+                        const char* basedn) {
   ldapmemcacheReqId reqid;
 
   if (!memcache_exist(ld)) return LDAP_LOCAL_ERROR;
@@ -965,12 +965,12 @@ static int memcache_add(LDAP *ld, unsigned long key, int msgid,
   reqid.ldmemcrid_msgid = msgid;
   reqid.ldmemcrid_ld = ld;
 
-  return memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_ADD, (void *)&key,
-                         (void *)&reqid, (void *)basedn);
+  return memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_ADD, (void*)&key,
+                         (void*)&reqid, (void*)basedn);
 }
 
 /* Appends search entries arriving from the dir server to the cache. */
-static int memcache_append(LDAP *ld, int msgid, LDAPMessage *pRes) {
+static int memcache_append(LDAP* ld, int msgid, LDAPMessage* pRes) {
   ldapmemcacheReqId reqid;
 
   if (!memcache_exist(ld)) return LDAP_LOCAL_ERROR;
@@ -978,15 +978,15 @@ static int memcache_append(LDAP *ld, int msgid, LDAPMessage *pRes) {
   reqid.ldmemcrid_msgid = msgid;
   reqid.ldmemcrid_ld = ld;
 
-  return memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_APPEND,
-                         (void *)&reqid, (void *)pRes, NULL);
+  return memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_APPEND, (void*)&reqid,
+                         (void*)pRes, NULL);
 }
 
 /* Same as memcache_append(), but the entries being appended are the
    last from the dir server.  Once all entries for a search have arrived,
    the entries are moved from secondary to primary cache, and a time
    stamp is given to the entries. */
-static int memcache_append_last(LDAP *ld, int msgid, LDAPMessage *pRes) {
+static int memcache_append_last(LDAP* ld, int msgid, LDAPMessage* pRes) {
   ldapmemcacheReqId reqid;
 
   if (!memcache_exist(ld)) return LDAP_LOCAL_ERROR;
@@ -995,11 +995,11 @@ static int memcache_append_last(LDAP *ld, int msgid, LDAPMessage *pRes) {
   reqid.ldmemcrid_ld = ld;
 
   return memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_APPEND_LAST,
-                         (void *)&reqid, (void *)pRes, NULL);
+                         (void*)&reqid, (void*)pRes, NULL);
 }
 
 /* Removes entries from the temporary cache. */
-static int memcache_remove(LDAP *ld, int msgid) {
+static int memcache_remove(LDAP* ld, int msgid) {
   ldapmemcacheReqId reqid;
 
   if (!memcache_exist(ld)) return LDAP_LOCAL_ERROR;
@@ -1007,8 +1007,8 @@ static int memcache_remove(LDAP *ld, int msgid) {
   reqid.ldmemcrid_msgid = msgid;
   reqid.ldmemcrid_ld = ld;
 
-  return memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_DELETE,
-                         (void *)&reqid, NULL, NULL);
+  return memcache_access(ld->ld_memcache, MEMCACHE_ACCESS_DELETE, (void*)&reqid,
+                         NULL, NULL);
 }
 
 #if 0  /* this function is not used */
@@ -1025,13 +1025,13 @@ memcache_remove_all(LDAP *ld)
 #endif /* 0 */
 
 /* Returns TRUE or FALSE */
-static int memcache_exist(LDAP *ld) { return (ld->ld_memcache != NULL); }
+static int memcache_exist(LDAP* ld) { return (ld->ld_memcache != NULL); }
 
 /* Attaches cached entries to an ldap handle. */
-static int memcache_add_to_ld(LDAP *ld, int msgid, LDAPMessage *pMsg) {
+static int memcache_add_to_ld(LDAP* ld, int msgid, LDAPMessage* pMsg) {
   int nRes = LDAP_SUCCESS;
-  LDAPMessage **r;
-  LDAPMessage *pCopy;
+  LDAPMessage** r;
+  LDAPMessage* pCopy;
 
   nRes = memcache_dup_message(pMsg, msgid, 1, &pCopy, NULL);
   if (nRes != LDAP_SUCCESS) return nRes;
@@ -1054,10 +1054,10 @@ static int memcache_add_to_ld(LDAP *ld, int msgid, LDAPMessage *pMsg) {
 }
 
 /* Check if main_dn is included in {dn, scope} */
-static int memcache_compare_dn(const char *main_dn, const char *dn, int scope) {
+static int memcache_compare_dn(const char* main_dn, const char* dn, int scope) {
   int nRes;
-  char **components = NULL;
-  char **main_components = NULL;
+  char** components = NULL;
+  char** main_components = NULL;
 
   components = ldap_explode_dn(dn, 0);
   main_components = ldap_explode_dn(main_dn, 0);
@@ -1104,8 +1104,8 @@ static int memcache_compare_dn(const char *main_dn, const char *dn, int scope) {
 
 /* Dup a complete separate copy of a berelement, including the buffers
    the berelement points to. */
-static BerElement *memcache_ber_dup(BerElement *pBer, unsigned long *pSize) {
-  BerElement *p = ber_dup(pBer);
+static BerElement* memcache_ber_dup(BerElement* pBer, unsigned long* pSize) {
+  BerElement* p = ber_dup(pBer);
 
   *pSize = 0;
 
@@ -1114,10 +1114,10 @@ static BerElement *memcache_ber_dup(BerElement *pBer, unsigned long *pSize) {
 
     if (p->ber_len <= EXTRA_SIZE) {
       p->ber_flags |= LBER_FLAG_NO_FREE_BUFFER;
-      p->ber_buf = (char *)p + sizeof(BerElement);
+      p->ber_buf = (char*)p + sizeof(BerElement);
     } else {
       p->ber_flags &= ~LBER_FLAG_NO_FREE_BUFFER;
-      p->ber_buf = (char *)NSLDAPI_CALLOC(1, p->ber_len);
+      p->ber_buf = (char*)NSLDAPI_CALLOC(1, p->ber_len);
       *pSize += (p->ber_buf ? p->ber_len : 0);
     }
 
@@ -1136,12 +1136,12 @@ static BerElement *memcache_ber_dup(BerElement *pBer, unsigned long *pSize) {
 }
 
 /* Dup a entry or a chain of entries. */
-static int memcache_dup_message(LDAPMessage *res, int msgid, int fromcache,
-                                LDAPMessage **ppResCopy, unsigned long *pSize) {
+static int memcache_dup_message(LDAPMessage* res, int msgid, int fromcache,
+                                LDAPMessage** ppResCopy, unsigned long* pSize) {
   int nRes = LDAP_SUCCESS;
   unsigned long ber_size;
-  LDAPMessage *pCur;
-  LDAPMessage **ppCurNew;
+  LDAPMessage* pCur;
+  LDAPMessage** ppCurNew;
 
   *ppResCopy = NULL;
 
@@ -1150,7 +1150,7 @@ static int memcache_dup_message(LDAPMessage *res, int msgid, int fromcache,
   /* Make a copy of res */
   for (pCur = res, ppCurNew = ppResCopy; pCur;
        pCur = pCur->lm_chain, ppCurNew = &((*ppCurNew)->lm_chain)) {
-    if ((*ppCurNew = (LDAPMessage *)NSLDAPI_CALLOC(1, sizeof(LDAPMessage))) ==
+    if ((*ppCurNew = (LDAPMessage*)NSLDAPI_CALLOC(1, sizeof(LDAPMessage))) ==
         NULL) {
       nRes = LDAP_NO_MEMORY;
       break;
@@ -1177,7 +1177,7 @@ static int memcache_dup_message(LDAPMessage *res, int msgid, int fromcache,
 /************************* Cache Functions ***********************/
 
 /* Frees a cache header. */
-static int memcache_free_entry(LDAPMemCache *cache, ldapmemcacheRes *pRes) {
+static int memcache_free_entry(LDAPMemCache* cache, ldapmemcacheRes* pRes) {
   if (pRes) {
     unsigned long size = sizeof(ldapmemcacheRes);
 
@@ -1200,7 +1200,7 @@ static int memcache_free_entry(LDAPMemCache *cache, ldapmemcacheRes *pRes) {
 }
 
 /* Detaches a cache header from the list of headers. */
-static int memcache_free_from_list(LDAPMemCache *cache, ldapmemcacheRes *pRes,
+static int memcache_free_from_list(LDAPMemCache* cache, ldapmemcacheRes* pRes,
                                    int index) {
   if (pRes->ldmemcr_prev[index])
     pRes->ldmemcr_prev[index]->ldmemcr_next[index] = pRes->ldmemcr_next[index];
@@ -1221,7 +1221,7 @@ static int memcache_free_from_list(LDAPMemCache *cache, ldapmemcacheRes *pRes,
 }
 
 /* Inserts a new cache header to a list of headers. */
-static int memcache_add_to_list(LDAPMemCache *cache, ldapmemcacheRes *pRes,
+static int memcache_add_to_list(LDAPMemCache* cache, ldapmemcacheRes* pRes,
                                 int index) {
   if (cache->ldmemc_resHead[index])
     cache->ldmemc_resHead[index]->ldmemcr_prev[index] = pRes;
@@ -1236,7 +1236,7 @@ static int memcache_add_to_list(LDAPMemCache *cache, ldapmemcacheRes *pRes,
 }
 
 /* Appends a chain of entries to the given cache header. */
-static int memcache_add_res_to_list(ldapmemcacheRes *pRes, LDAPMessage *pMsg,
+static int memcache_add_res_to_list(ldapmemcacheRes* pRes, LDAPMessage* pMsg,
                                     unsigned long size) {
   if (pRes->ldmemcr_resTail)
     pRes->ldmemcr_resTail->lm_chain = pMsg;
@@ -1254,9 +1254,9 @@ static int memcache_add_res_to_list(ldapmemcacheRes *pRes, LDAPMessage *pMsg,
 }
 
 #ifdef LDAP_DEBUG
-static void memcache_print_list(LDAPMemCache *cache, int index) {
-  char *name;
-  ldapmemcacheRes *restmp;
+static void memcache_print_list(LDAPMemCache* cache, int index) {
+  char* name;
+  ldapmemcacheRes* restmp;
 
   switch (index) {
     case LIST_TTL:
@@ -1288,7 +1288,7 @@ static void memcache_print_list(LDAPMemCache *cache, int index) {
 #endif /* LDAP_DEBUG */
 
 /* Tells whether a cached result has expired. */
-static int memcache_expired(LDAPMemCache *cache, ldapmemcacheRes *pRes,
+static int memcache_expired(LDAPMemCache* cache, ldapmemcacheRes* pRes,
                             unsigned long curTime) {
   if (!cache->ldmemc_ttl) return 0;
 
@@ -1298,33 +1298,33 @@ static int memcache_expired(LDAPMemCache *cache, ldapmemcacheRes *pRes,
 }
 
 /* Operates the cache in a central place. */
-static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
-                           void *pData2, void *pData3) {
+static int memcache_access(LDAPMemCache* cache, int mode, void* pData1,
+                           void* pData2, void* pData3) {
   int nRes = LDAP_SUCCESS;
   unsigned long size = 0;
 
   /* Add a new cache header to the cache. */
   if (mode == MEMCACHE_ACCESS_ADD) {
-    unsigned long key = *((unsigned long *)pData1);
-    char *basedn = (char *)pData3;
-    ldapmemcacheRes *pRes = NULL;
-    void *hashResult = NULL;
+    unsigned long key = *((unsigned long*)pData1);
+    char* basedn = (char*)pData3;
+    ldapmemcacheRes* pRes = NULL;
+    void* hashResult = NULL;
 
     nRes = htable_get(cache->ldmemc_resTmp, pData2, &hashResult);
     if (nRes == LDAP_SUCCESS) return (LDAP_ALREADY_EXISTS);
 
-    pRes = (ldapmemcacheRes *)NSLDAPI_CALLOC(1, sizeof(ldapmemcacheRes));
+    pRes = (ldapmemcacheRes*)NSLDAPI_CALLOC(1, sizeof(ldapmemcacheRes));
     if (pRes == NULL) return (LDAP_NO_MEMORY);
 
     pRes->ldmemcr_crc_key = key;
-    pRes->ldmemcr_req_id = *((ldapmemcacheReqId *)pData2);
+    pRes->ldmemcr_req_id = *((ldapmemcacheReqId*)pData2);
     pRes->ldmemcr_basedn = (basedn ? nsldapi_strdup(basedn) : NULL);
 
     size += sizeof(ldapmemcacheRes) + strlen(basedn) + 1;
     nRes = memcache_adj_size(cache, size, MEMCACHE_SIZE_ENTRIES,
                              MEMCACHE_SIZE_ADD);
     if (nRes == LDAP_SUCCESS)
-      nRes = htable_put(cache->ldmemc_resTmp, pData2, (void *)pRes);
+      nRes = htable_put(cache->ldmemc_resTmp, pData2, (void*)pRes);
     if (nRes == LDAP_SUCCESS)
       memcache_add_to_list(cache, pRes, LIST_TMP);
     else
@@ -1333,15 +1333,15 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
   /* Append entries to an existing cache header. */
   else if ((mode == MEMCACHE_ACCESS_APPEND) ||
            (mode == MEMCACHE_ACCESS_APPEND_LAST)) {
-    LDAPMessage *pMsg = (LDAPMessage *)pData2;
-    LDAPMessage *pCopy = NULL;
-    ldapmemcacheRes *pRes = NULL;
-    void *hashResult = NULL;
+    LDAPMessage* pMsg = (LDAPMessage*)pData2;
+    LDAPMessage* pCopy = NULL;
+    ldapmemcacheRes* pRes = NULL;
+    void* hashResult = NULL;
 
     nRes = htable_get(cache->ldmemc_resTmp, pData1, &hashResult);
     if (nRes != LDAP_SUCCESS) return nRes;
 
-    pRes = (ldapmemcacheRes *)hashResult;
+    pRes = (ldapmemcacheRes*)hashResult;
     nRes = memcache_dup_message(pMsg, pMsg->lm_msgid, 0, &pCopy, &size);
     if (nRes != LDAP_SUCCESS) {
       nRes = htable_remove(cache->ldmemc_resTmp, pData1, NULL);
@@ -1374,7 +1374,7 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
     pRes->ldmemcr_timestamp = (unsigned long)time(NULL);
 
     if ((nRes = htable_put(cache->ldmemc_resLookup,
-                           (void *)&(pRes->ldmemcr_crc_key), (void *)pRes)) ==
+                           (void*)&(pRes->ldmemcr_crc_key), (void*)pRes)) ==
         LDAP_SUCCESS) {
       memcache_add_to_list(cache, pRes, LIST_TTL);
       memcache_add_to_list(cache, pRes, LIST_LRU);
@@ -1384,9 +1384,9 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
   }
   /* Search for cached entries for a particular search. */
   else if (mode == MEMCACHE_ACCESS_FIND) {
-    ldapmemcacheRes **ppRes = (ldapmemcacheRes **)pData2;
+    ldapmemcacheRes** ppRes = (ldapmemcacheRes**)pData2;
 
-    nRes = htable_get(cache->ldmemc_resLookup, pData1, (void **)ppRes);
+    nRes = htable_get(cache->ldmemc_resLookup, pData1, (void**)ppRes);
     if (nRes != LDAP_SUCCESS) return nRes;
 
     if (!memcache_expired(cache, *ppRes, (unsigned long)time(0))) {
@@ -1405,29 +1405,29 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
   }
   /* Remove cached entries in the temporary cache. */
   else if (mode == MEMCACHE_ACCESS_DELETE) {
-    void *hashResult = NULL;
+    void* hashResult = NULL;
 
     if ((nRes = htable_remove(cache->ldmemc_resTmp, pData1, &hashResult)) ==
         LDAP_SUCCESS) {
-      ldapmemcacheRes *pCurRes = (ldapmemcacheRes *)hashResult;
+      ldapmemcacheRes* pCurRes = (ldapmemcacheRes*)hashResult;
       memcache_free_from_list(cache, pCurRes, LIST_TMP);
       memcache_free_entry(cache, pCurRes);
     }
   }
   /* Wipe out the temporary cache. */
   else if (mode == MEMCACHE_ACCESS_DELETE_ALL) {
-    nRes = htable_removeall(cache->ldmemc_resTmp, (void *)cache);
+    nRes = htable_removeall(cache->ldmemc_resTmp, (void*)cache);
   }
   /* Remove expired entries from primary cache. */
   else if (mode == MEMCACHE_ACCESS_UPDATE) {
-    ldapmemcacheRes *pCurRes = cache->ldmemc_resTail[LIST_TTL];
+    ldapmemcacheRes* pCurRes = cache->ldmemc_resTail[LIST_TTL];
     unsigned long curTime = (unsigned long)time(NULL);
 
     for (; pCurRes; pCurRes = cache->ldmemc_resTail[LIST_TTL]) {
       if (!memcache_expired(cache, pCurRes, curTime)) break;
 
       nRes = htable_remove(cache->ldmemc_resLookup,
-                           (void *)&(pCurRes->ldmemcr_crc_key), NULL);
+                           (void*)&(pCurRes->ldmemcr_crc_key), NULL);
       assert(nRes == LDAP_SUCCESS);
       memcache_free_from_list(cache, pCurRes, LIST_TTL);
       memcache_free_from_list(cache, pCurRes, LIST_LRU);
@@ -1436,9 +1436,9 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
   }
   /* Wipe out the primary cache. */
   else if (mode == MEMCACHE_ACCESS_FLUSH_ALL) {
-    ldapmemcacheRes *pCurRes = cache->ldmemc_resHead[LIST_TTL];
+    ldapmemcacheRes* pCurRes = cache->ldmemc_resHead[LIST_TTL];
 
-    nRes = htable_removeall(cache->ldmemc_resLookup, (void *)cache);
+    nRes = htable_removeall(cache->ldmemc_resLookup, (void*)cache);
 
     for (; pCurRes; pCurRes = cache->ldmemc_resHead[LIST_TTL]) {
       memcache_free_from_list(cache, pCurRes, LIST_LRU);
@@ -1453,11 +1453,11 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
            (mode == MEMCACHE_ACCESS_FLUSH_RESULTS)) {
     int i, list_id, bDone;
     int scope = (int)pData2;
-    char *dn = (char *)pData1;
-    char *dnTmp;
+    char* dn = (char*)pData1;
+    char* dnTmp;
     BerElement ber;
-    LDAPMessage *pMsg;
-    ldapmemcacheRes *pRes;
+    LDAPMessage* pMsg;
+    ldapmemcacheRes* pRes;
 
     if (cache->ldmemc_basedns) {
       for (i = 0; cache->ldmemc_basedns[i]; i++) {
@@ -1507,13 +1507,13 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
 
         if (list_id == LIST_TTL) {
           nRes = htable_remove(cache->ldmemc_resLookup,
-                               (void *)&(pRes->ldmemcr_crc_key), NULL);
+                               (void*)&(pRes->ldmemcr_crc_key), NULL);
           assert(nRes == LDAP_SUCCESS);
           memcache_free_from_list(cache, pRes, LIST_TTL);
           memcache_free_from_list(cache, pRes, LIST_LRU);
         } else {
           nRes = htable_remove(cache->ldmemc_resTmp,
-                               (void *)&(pRes->ldmemcr_req_id), NULL);
+                               (void*)&(pRes->ldmemcr_req_id), NULL);
           assert(nRes == LDAP_SUCCESS);
           memcache_free_from_list(cache, pRes, LIST_TMP);
         }
@@ -1523,7 +1523,7 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
   }
   /* Flush least recently used entries from cache */
   else if (mode == MEMCACHE_ACCESS_FLUSH_LRU) {
-    ldapmemcacheRes *pRes = cache->ldmemc_resTail[LIST_LRU];
+    ldapmemcacheRes* pRes = cache->ldmemc_resTail[LIST_LRU];
 
     if (pRes == NULL) return LDAP_NO_SUCH_OBJECT;
 
@@ -1531,7 +1531,7 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
               "memcache_access FLUSH_LRU: removing key 0x%8.8lx\n",
               pRes->ldmemcr_crc_key, 0, 0);
     nRes = htable_remove(cache->ldmemc_resLookup,
-                         (void *)&(pRes->ldmemcr_crc_key), NULL);
+                         (void*)&(pRes->ldmemcr_crc_key), NULL);
     assert(nRes == LDAP_SUCCESS);
     memcache_free_from_list(cache, pRes, LIST_TTL);
     memcache_free_from_list(cache, pRes, LIST_LRU);
@@ -1545,7 +1545,7 @@ static int memcache_access(LDAPMemCache *cache, int mode, void *pData1,
   return nRes;
 }
 
-static void memcache_flush(LDAPMemCache *cache, char *dn, int scope,
+static void memcache_flush(LDAPMemCache* cache, char* dn, int scope,
                            int flushresults) {
   if (!NSLDAPI_VALID_MEMCACHE_POINTER(cache)) {
     return;
@@ -1557,10 +1557,10 @@ static void memcache_flush(LDAPMemCache *cache, char *dn, int scope,
     memcache_access(cache, MEMCACHE_ACCESS_FLUSH_ALL, NULL, NULL, NULL);
   } else {
     if (flushresults) {
-      memcache_access(cache, MEMCACHE_ACCESS_FLUSH_RESULTS, (void *)dn,
-                      (void *)scope, NULL);
+      memcache_access(cache, MEMCACHE_ACCESS_FLUSH_RESULTS, (void*)dn,
+                      (void*)scope, NULL);
     } else {
-      memcache_access(cache, MEMCACHE_ACCESS_FLUSH, (void *)dn, (void *)scope,
+      memcache_access(cache, MEMCACHE_ACCESS_FLUSH, (void*)dn, (void*)scope,
                       NULL);
     }
   }
@@ -1569,7 +1569,7 @@ static void memcache_flush(LDAPMemCache *cache, char *dn, int scope,
 }
 
 #ifdef LDAP_DEBUG
-static void memcache_report_statistics(LDAPMemCache *cache) {
+static void memcache_report_statistics(LDAPMemCache* cache) {
   unsigned long hitrate;
 
   if (cache->ldmemc_stats.ldmemcstat_tries == 0) {
@@ -1617,14 +1617,14 @@ static int htable_calculate_size(int sizelimit) {
 }
 
 /* Returns the size in bytes of the given hash table. */
-static int htable_sizeinbytes(HashTable *pTable) {
+static int htable_sizeinbytes(HashTable* pTable) {
   if (!pTable) return 0;
 
   return (pTable->size * sizeof(HashTableNode));
 }
 
 /* Inserts an item into the hash table. */
-static int htable_put(HashTable *pTable, void *key, void *pData) {
+static int htable_put(HashTable* pTable, void* key, void* pData) {
   int index = pTable->hashfunc(pTable->size, key);
 
   if (index >= 0 && index < pTable->size)
@@ -1634,7 +1634,7 @@ static int htable_put(HashTable *pTable, void *key, void *pData) {
 }
 
 /* Retrieves an item from the hash table. */
-static int htable_get(HashTable *pTable, void *key, void **ppData) {
+static int htable_get(HashTable* pTable, void* key, void** ppData) {
   int index = pTable->hashfunc(pTable->size, key);
 
   *ppData = NULL;
@@ -1646,7 +1646,7 @@ static int htable_get(HashTable *pTable, void *key, void **ppData) {
 }
 
 /* Performs a miscellaneous operation on a hash table entry. */
-static int htable_misc(HashTable *pTable, void *key, void *pData) {
+static int htable_misc(HashTable* pTable, void* key, void* pData) {
   if (pTable->miscfunc) {
     int index = pTable->hashfunc(pTable->size, key);
     if (index >= 0 && index < pTable->size)
@@ -1657,7 +1657,7 @@ static int htable_misc(HashTable *pTable, void *key, void *pData) {
 }
 
 /* Removes an item from the hash table. */
-static int htable_remove(HashTable *pTable, void *key, void **ppData) {
+static int htable_remove(HashTable* pTable, void* key, void** ppData) {
   int index = pTable->hashfunc(pTable->size, key);
 
   if (ppData) *ppData = NULL;
@@ -1669,7 +1669,7 @@ static int htable_remove(HashTable *pTable, void *key, void **ppData) {
 }
 
 /* Removes everything in the hash table. */
-static int htable_removeall(HashTable *pTable, void *pData) {
+static int htable_removeall(HashTable* pTable, void* pData) {
   int i;
 
   for (i = 0; i < pTable->size; i++)
@@ -1682,14 +1682,14 @@ static int htable_removeall(HashTable *pTable, void *pData) {
 static int htable_create(int size_limit, HashFuncPtr hashf, PutDataPtr putDataf,
                          GetDataPtr getDataf, RemoveDataPtr removeDataf,
                          ClrTableNodePtr clrNodef, MiscFuncPtr miscOpf,
-                         HashTable **ppTable) {
+                         HashTable** ppTable) {
   size_limit = htable_calculate_size(size_limit);
 
-  if ((*ppTable = (HashTable *)NSLDAPI_CALLOC(1, sizeof(HashTable))) == NULL)
+  if ((*ppTable = (HashTable*)NSLDAPI_CALLOC(1, sizeof(HashTable))) == NULL)
     return (LDAP_NO_MEMORY);
 
   (*ppTable)->table =
-      (HashTableNode *)NSLDAPI_CALLOC(size_limit, sizeof(HashTableNode));
+      (HashTableNode*)NSLDAPI_CALLOC(size_limit, sizeof(HashTableNode));
   if ((*ppTable)->table == NULL) {
     NSLDAPI_FREE(*ppTable);
     *ppTable = NULL;
@@ -1708,7 +1708,7 @@ static int htable_create(int size_limit, HashFuncPtr hashf, PutDataPtr putDataf,
 }
 
 /* Destroys a hash table. */
-static int htable_free(HashTable *pTable) {
+static int htable_free(HashTable* pTable) {
   NSLDAPI_FREE(pTable->table);
   NSLDAPI_FREE(pTable);
   return (LDAP_SUCCESS);
@@ -1717,18 +1717,18 @@ static int htable_free(HashTable *pTable) {
 /**************** Hash table callbacks for temporary cache ****************/
 
 /* Hash function */
-static int msgid_hashf(int table_size, void *key) {
-  unsigned code = (unsigned)((ldapmemcacheReqId *)key)->ldmemcrid_ld;
+static int msgid_hashf(int table_size, void* key) {
+  unsigned code = (unsigned)((ldapmemcacheReqId*)key)->ldmemcrid_ld;
   return (((code << 20) + (code >> 12)) % table_size);
 }
 
 /* Called by hash table to insert an item. */
-static int msgid_putdata(void **ppTableData, void *key, void *pData) {
-  ldapmemcacheReqId *pReqId = (ldapmemcacheReqId *)key;
-  ldapmemcacheRes *pRes = (ldapmemcacheRes *)pData;
-  ldapmemcacheRes **ppHead = (ldapmemcacheRes **)ppTableData;
-  ldapmemcacheRes *pCurRes = *ppHead;
-  ldapmemcacheRes *pPrev = NULL;
+static int msgid_putdata(void** ppTableData, void* key, void* pData) {
+  ldapmemcacheReqId* pReqId = (ldapmemcacheReqId*)key;
+  ldapmemcacheRes* pRes = (ldapmemcacheRes*)pData;
+  ldapmemcacheRes** ppHead = (ldapmemcacheRes**)ppTableData;
+  ldapmemcacheRes* pCurRes = *ppHead;
+  ldapmemcacheRes* pPrev = NULL;
 
   for (; pCurRes; pCurRes = pCurRes->ldmemcr_htable_next) {
     if ((pCurRes->ldmemcr_req_id).ldmemcrid_ld == pReqId->ldmemcrid_ld) break;
@@ -1756,9 +1756,9 @@ static int msgid_putdata(void **ppTableData, void *key, void *pData) {
 }
 
 /* Called by hash table to retrieve an item. */
-static int msgid_getdata(void *pTableData, void *key, void **ppData) {
-  ldapmemcacheReqId *pReqId = (ldapmemcacheReqId *)key;
-  ldapmemcacheRes *pCurRes = (ldapmemcacheRes *)pTableData;
+static int msgid_getdata(void* pTableData, void* key, void** ppData) {
+  ldapmemcacheReqId* pReqId = (ldapmemcacheReqId*)key;
+  ldapmemcacheRes* pCurRes = (ldapmemcacheRes*)pTableData;
 
   *ppData = NULL;
 
@@ -1770,7 +1770,7 @@ static int msgid_getdata(void *pTableData, void *key, void **ppData) {
 
   for (; pCurRes; pCurRes = pCurRes->ldmemcr_next[LIST_TTL]) {
     if ((pCurRes->ldmemcr_req_id).ldmemcrid_msgid == pReqId->ldmemcrid_msgid) {
-      *ppData = (void *)pCurRes;
+      *ppData = (void*)pCurRes;
       return (LDAP_SUCCESS);
     }
   }
@@ -1779,11 +1779,11 @@ static int msgid_getdata(void *pTableData, void *key, void **ppData) {
 }
 
 /* Called by hash table to remove an item. */
-static int msgid_removedata(void **ppTableData, void *key, void **ppData) {
-  ldapmemcacheRes *pHead = *((ldapmemcacheRes **)ppTableData);
-  ldapmemcacheRes *pCurRes = NULL;
-  ldapmemcacheRes *pPrev = NULL;
-  ldapmemcacheReqId *pReqId = (ldapmemcacheReqId *)key;
+static int msgid_removedata(void** ppTableData, void* key, void** ppData) {
+  ldapmemcacheRes* pHead = *((ldapmemcacheRes**)ppTableData);
+  ldapmemcacheRes* pCurRes = NULL;
+  ldapmemcacheRes* pPrev = NULL;
+  ldapmemcacheReqId* pReqId = (ldapmemcacheReqId*)key;
 
   if (ppData) *ppData = NULL;
 
@@ -1805,7 +1805,7 @@ static int msgid_removedata(void **ppTableData, void *key, void **ppData) {
     pCurRes->ldmemcr_next[LIST_TTL] = NULL;
     pCurRes->ldmemcr_prev[LIST_TTL] = NULL;
     pCurRes->ldmemcr_htable_next = NULL;
-    *ppData = (void *)pCurRes;
+    *ppData = (void*)pCurRes;
   }
 
   if (pCurRes != pHead) {
@@ -1828,11 +1828,11 @@ static int msgid_removedata(void **ppTableData, void *key, void **ppData) {
     }
   } else {
     if (pHead->ldmemcr_next[LIST_TTL]) {
-      *((ldapmemcacheRes **)ppTableData) = pHead->ldmemcr_next[LIST_TTL];
+      *((ldapmemcacheRes**)ppTableData) = pHead->ldmemcr_next[LIST_TTL];
       pHead->ldmemcr_next[LIST_TTL]->ldmemcr_htable_next =
           pHead->ldmemcr_htable_next;
     } else {
-      *((ldapmemcacheRes **)ppTableData) = pHead->ldmemcr_htable_next;
+      *((ldapmemcacheRes**)ppTableData) = pHead->ldmemcr_htable_next;
     }
   }
 
@@ -1841,12 +1841,12 @@ static int msgid_removedata(void **ppTableData, void *key, void **ppData) {
 
 /* Called by hash table to remove all cached entries associated to searches
    being performed using the given ldap handle. */
-static int msgid_clear_ld_items(void **ppTableData, void *key, void *pData) {
-  LDAPMemCache *cache = (LDAPMemCache *)pData;
-  ldapmemcacheRes *pHead = *((ldapmemcacheRes **)ppTableData);
-  ldapmemcacheRes *pPrev = NULL;
-  ldapmemcacheRes *pCurRes = NULL;
-  ldapmemcacheReqId *pReqId = (ldapmemcacheReqId *)key;
+static int msgid_clear_ld_items(void** ppTableData, void* key, void* pData) {
+  LDAPMemCache* cache = (LDAPMemCache*)pData;
+  ldapmemcacheRes* pHead = *((ldapmemcacheRes**)ppTableData);
+  ldapmemcacheRes* pPrev = NULL;
+  ldapmemcacheRes* pCurRes = NULL;
+  ldapmemcacheReqId* pReqId = (ldapmemcacheReqId*)key;
 
   for (; pHead; pHead = pHead->ldmemcr_htable_next) {
     if ((pHead->ldmemcr_req_id).ldmemcrid_ld == pReqId->ldmemcrid_ld) break;
@@ -1858,7 +1858,7 @@ static int msgid_clear_ld_items(void **ppTableData, void *key, void *pData) {
   if (pPrev)
     pPrev->ldmemcr_htable_next = pHead->ldmemcr_htable_next;
   else
-    *((ldapmemcacheRes **)ppTableData) = pHead->ldmemcr_htable_next;
+    *((ldapmemcacheRes**)ppTableData) = pHead->ldmemcr_htable_next;
 
   for (pCurRes = pHead; pHead; pCurRes = pHead) {
     pHead = pHead->ldmemcr_next[LIST_TTL];
@@ -1870,11 +1870,11 @@ static int msgid_clear_ld_items(void **ppTableData, void *key, void *pData) {
 }
 
 /* Called by hash table for removing all items in the table. */
-static void msgid_clearnode(void **ppTableData, void *pData) {
-  LDAPMemCache *cache = (LDAPMemCache *)pData;
-  ldapmemcacheRes **ppHead = (ldapmemcacheRes **)ppTableData;
-  ldapmemcacheRes *pSubHead = *ppHead;
-  ldapmemcacheRes *pCurRes = NULL;
+static void msgid_clearnode(void** ppTableData, void* pData) {
+  LDAPMemCache* cache = (LDAPMemCache*)pData;
+  ldapmemcacheRes** ppHead = (ldapmemcacheRes**)ppTableData;
+  ldapmemcacheRes* pSubHead = *ppHead;
+  ldapmemcacheRes* pCurRes = NULL;
 
   for (; *ppHead; pSubHead = *ppHead) {
     ppHead = &((*ppHead)->ldmemcr_htable_next);
@@ -1889,21 +1889,21 @@ static void msgid_clearnode(void **ppTableData, void *pData) {
 /********************* Hash table for primary cache ************************/
 
 /* Hash function */
-static int attrkey_hashf(int table_size, void *key) {
-  return ((*((unsigned long *)key)) % table_size);
+static int attrkey_hashf(int table_size, void* key) {
+  return ((*((unsigned long*)key)) % table_size);
 }
 
 /* Called by hash table to insert an item. */
-static int attrkey_putdata(void **ppTableData, void *key, void *pData) {
-  unsigned long attrkey = *((unsigned long *)key);
-  ldapmemcacheRes **ppHead = (ldapmemcacheRes **)ppTableData;
-  ldapmemcacheRes *pRes = *ppHead;
+static int attrkey_putdata(void** ppTableData, void* key, void* pData) {
+  unsigned long attrkey = *((unsigned long*)key);
+  ldapmemcacheRes** ppHead = (ldapmemcacheRes**)ppTableData;
+  ldapmemcacheRes* pRes = *ppHead;
 
   for (; pRes; pRes = pRes->ldmemcr_htable_next) {
     if (pRes->ldmemcr_crc_key == attrkey) return (LDAP_ALREADY_EXISTS);
   }
 
-  pRes = (ldapmemcacheRes *)pData;
+  pRes = (ldapmemcacheRes*)pData;
   pRes->ldmemcr_htable_next = *ppHead;
   *ppHead = pRes;
 
@@ -1911,13 +1911,13 @@ static int attrkey_putdata(void **ppTableData, void *key, void *pData) {
 }
 
 /* Called by hash table to retrieve an item. */
-static int attrkey_getdata(void *pTableData, void *key, void **ppData) {
-  unsigned long attrkey = *((unsigned long *)key);
-  ldapmemcacheRes *pRes = (ldapmemcacheRes *)pTableData;
+static int attrkey_getdata(void* pTableData, void* key, void** ppData) {
+  unsigned long attrkey = *((unsigned long*)key);
+  ldapmemcacheRes* pRes = (ldapmemcacheRes*)pTableData;
 
   for (; pRes; pRes = pRes->ldmemcr_htable_next) {
     if (pRes->ldmemcr_crc_key == attrkey) {
-      *ppData = (void *)pRes;
+      *ppData = (void*)pRes;
       return (LDAP_SUCCESS);
     }
   }
@@ -1928,15 +1928,15 @@ static int attrkey_getdata(void *pTableData, void *key, void **ppData) {
 }
 
 /* Called by hash table to remove an item. */
-static int attrkey_removedata(void **ppTableData, void *key, void **ppData) {
-  unsigned long attrkey = *((unsigned long *)key);
-  ldapmemcacheRes **ppHead = (ldapmemcacheRes **)ppTableData;
-  ldapmemcacheRes *pRes = *ppHead;
-  ldapmemcacheRes *pPrev = NULL;
+static int attrkey_removedata(void** ppTableData, void* key, void** ppData) {
+  unsigned long attrkey = *((unsigned long*)key);
+  ldapmemcacheRes** ppHead = (ldapmemcacheRes**)ppTableData;
+  ldapmemcacheRes* pRes = *ppHead;
+  ldapmemcacheRes* pPrev = NULL;
 
   for (; pRes; pRes = pRes->ldmemcr_htable_next) {
     if (pRes->ldmemcr_crc_key == attrkey) {
-      if (ppData) *ppData = (void *)pRes;
+      if (ppData) *ppData = (void*)pRes;
       if (pPrev)
         pPrev->ldmemcr_htable_next = pRes->ldmemcr_htable_next;
       else
@@ -1953,9 +1953,9 @@ static int attrkey_removedata(void **ppTableData, void *key, void **ppData) {
 }
 
 /* Called by hash table for removing all items in the table. */
-static void attrkey_clearnode(void **ppTableData, void *pData) {
-  ldapmemcacheRes **ppHead = (ldapmemcacheRes **)ppTableData;
-  ldapmemcacheRes *pRes = *ppHead;
+static void attrkey_clearnode(void** ppTableData, void* pData) {
+  ldapmemcacheRes** ppHead = (ldapmemcacheRes**)ppTableData;
+  ldapmemcacheRes* pRes = *ppHead;
 
   (void)pData;
 
@@ -2023,12 +2023,12 @@ static nsldapi_uint_32 crc32_table[256] = {
  * statically initialize it at compile time. [Another exercise.]
  */
 
-static unsigned long crc32_convert(char *buf, int len) {
-  unsigned char *p;
+static unsigned long crc32_convert(char* buf, int len) {
+  unsigned char* p;
   nsldapi_uint_32 crc;
 
   crc = 0xffffffff; /* preload shift register, per CRC-32 spec */
-  for (p = (unsigned char *)buf; len > 0; ++p, --len)
+  for (p = (unsigned char*)buf; len > 0; ++p, --len)
     crc = ((crc << 8) ^ crc32_table[(crc >> 24) ^ *p]) & 0xffffffff;
 
   return (unsigned long)~crc; /* transmit complement, per CRC-32 spec */

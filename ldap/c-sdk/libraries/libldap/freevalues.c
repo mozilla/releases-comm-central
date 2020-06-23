@@ -44,15 +44,15 @@
 
 #include "ldap-int.h"
 
-void LDAP_CALL ldap_value_free(char **vals) {
+void LDAP_CALL ldap_value_free(char** vals) {
   int i;
 
   if (vals == NULL) return;
   for (i = 0; vals[i] != NULL; i++) NSLDAPI_FREE(vals[i]);
-  NSLDAPI_FREE((char *)vals);
+  NSLDAPI_FREE((char*)vals);
 }
 
-void LDAP_CALL ldap_value_free_len(struct berval **vals) {
+void LDAP_CALL ldap_value_free_len(struct berval** vals) {
   int i;
 
   if (vals == NULL) return;
@@ -60,5 +60,5 @@ void LDAP_CALL ldap_value_free_len(struct berval **vals) {
     NSLDAPI_FREE(vals[i]->bv_val);
     NSLDAPI_FREE(vals[i]);
   }
-  NSLDAPI_FREE((char *)vals);
+  NSLDAPI_FREE((char*)vals);
 }

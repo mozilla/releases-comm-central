@@ -97,35 +97,35 @@ static pthread_mutex_t nsldapi_init_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 struct nsldapi_ldap_error {
   int le_errno;
-  char *le_matched;
-  char *le_errmsg;
+  char* le_matched;
+  char* le_errmsg;
 };
 #elif defined(USE_WINDOWS_TLS)
 static DWORD dwTlsIndex;
 struct nsldapi_ldap_error {
   int le_errno;
-  char *le_matched;
-  char *le_errmsg;
+  char* le_matched;
+  char* le_errmsg;
 };
 #elif defined(_WINDOWS) /* use static tls */
 __declspec(thread) int nsldapi_gldaperrno;
-__declspec(thread) char *nsldapi_gmatched = NULL;
-__declspec(thread) char *nsldapi_gldaperror = NULL;
+__declspec(thread) char* nsldapi_gmatched = NULL;
+__declspec(thread) char* nsldapi_gldaperror = NULL;
 #endif                  /* USE_WINDOWS_TLS */
 
 #ifdef _WINDOWS
 #  define LDAP_MUTEX_T HANDLE
 static LDAP_MUTEX_T nsldapi_init_mutex;
 
-int pthread_mutex_init(LDAP_MUTEX_T *mp, void *attr) {
+int pthread_mutex_init(LDAP_MUTEX_T* mp, void* attr) {
   if ((*mp = CreateMutex(NULL, FALSE, NULL)) == NULL)
     return (1);
   else
     return (0);
 }
 
-static void *pthread_mutex_alloc(void) {
-  LDAP_MUTEX_T *mutexp;
+static void* pthread_mutex_alloc(void) {
+  LDAP_MUTEX_T* mutexp;
 
   if ((mutexp = malloc(sizeof(LDAP_MUTEX_T))) != NULL) {
     pthread_mutex_init(mutexp, NULL);
@@ -133,26 +133,26 @@ static void *pthread_mutex_alloc(void) {
   return (mutexp);
 }
 
-int pthread_mutex_destroy(LDAP_MUTEX_T *mp) {
+int pthread_mutex_destroy(LDAP_MUTEX_T* mp) {
   if (!(CloseHandle(*mp)))
     return (1);
   else
     return (0);
 }
 
-static void pthread_mutex_free(void *mutexp) {
-  pthread_mutex_destroy((LDAP_MUTEX_T *)mutexp);
+static void pthread_mutex_free(void* mutexp) {
+  pthread_mutex_destroy((LDAP_MUTEX_T*)mutexp);
   free(mutexp);
 }
 
-int pthread_mutex_lock(LDAP_MUTEX_T *mp) {
+int pthread_mutex_lock(LDAP_MUTEX_T* mp) {
   if ((WaitForSingleObject(*mp, INFINITE) != WAIT_OBJECT_0))
     return (1);
   else
     return (0);
 }
 
-int pthread_mutex_unlock(LDAP_MUTEX_T *mp) {
+int pthread_mutex_unlock(LDAP_MUTEX_T* mp) {
   if (!(ReleaseMutex(*mp)))
     return (1);
   else
@@ -164,14 +164,14 @@ static int get_errno(void) { return errno; }
 static void set_errno(int Errno) { errno = Errno; }
 
 #  ifdef USE_WINDOWS_TLS
-static void set_ld_error(int err, char *matched, char *errmsg, void *dummy) {
-  struct nsldapi_ldap_error *le;
-  void *tsd;
+static void set_ld_error(int err, char* matched, char* errmsg, void* dummy) {
+  struct nsldapi_ldap_error* le;
+  void* tsd;
 
   le = TlsGetValue(dwTlsIndex);
 
   if (le == NULL) {
-    tsd = (void *)calloc(1, sizeof(struct nsldapi_ldap_error));
+    tsd = (void*)calloc(1, sizeof(struct nsldapi_ldap_error));
     TlsSetValue(dwTlsIndex, tsd);
   }
 
@@ -192,8 +192,8 @@ static void set_ld_error(int err, char *matched, char *errmsg, void *dummy) {
   le->le_errmsg = errmsg;
 }
 
-static int get_ld_error(char **matched, char **errmsg, void *dummy) {
-  struct nsldapi_ldap_error *le;
+static int get_ld_error(char** matched, char** errmsg, void* dummy) {
+  struct nsldapi_ldap_error* le;
 
   le = TlsGetValue(dwTlsIndex);
   if (matched != NULL) {
@@ -207,7 +207,7 @@ static int get_ld_error(char **matched, char **errmsg, void *dummy) {
   return (le->le_errno);
 }
 #  else
-static int get_ld_error(char **LDMatched, char **LDError, void *Args) {
+static int get_ld_error(char** LDMatched, char** LDError, void* Args) {
   if (LDMatched != NULL) {
     *LDMatched = nsldapi_gmatched;
   }
@@ -217,8 +217,8 @@ static int get_ld_error(char **LDMatched, char **LDError, void *Args) {
   return nsldapi_gldaperrno;
 }
 
-static void set_ld_error(int LDErrno, char *LDMatched, char *LDError,
-                         void *Args) {
+static void set_ld_error(int LDErrno, char* LDMatched, char* LDError,
+                         void* Args) {
   /* Clean up any previous string storage. */
   if (nsldapi_gmatched != NULL) {
     ldap_memfree(nsldapi_gmatched);
@@ -235,8 +235,8 @@ static void set_ld_error(int LDErrno, char *LDMatched, char *LDError,
 #endif   /* ! _WINDOWS */
 
 #ifdef USE_PTHREADS
-static void *pthread_mutex_alloc(void) {
-  pthread_mutex_t *mutexp;
+static void* pthread_mutex_alloc(void) {
+  pthread_mutex_t* mutexp;
 
   if ((mutexp = malloc(sizeof(pthread_mutex_t))) != NULL) {
     pthread_mutex_init(mutexp, NULL);
@@ -244,19 +244,19 @@ static void *pthread_mutex_alloc(void) {
   return (mutexp);
 }
 
-static void pthread_mutex_free(void *mutexp) {
-  pthread_mutex_destroy((pthread_mutex_t *)mutexp);
+static void pthread_mutex_free(void* mutexp) {
+  pthread_mutex_destroy((pthread_mutex_t*)mutexp);
   free(mutexp);
 }
 
-static void set_ld_error(int err, char *matched, char *errmsg, void *dummy) {
-  struct nsldapi_ldap_error *le;
-  void *tsd;
+static void set_ld_error(int err, char* matched, char* errmsg, void* dummy) {
+  struct nsldapi_ldap_error* le;
+  void* tsd;
 
   le = pthread_getspecific(nsldapi_key);
 
   if (le == NULL) {
-    tsd = (void *)calloc(1, sizeof(struct nsldapi_ldap_error));
+    tsd = (void*)calloc(1, sizeof(struct nsldapi_ldap_error));
     pthread_setspecific(nsldapi_key, tsd);
   }
 
@@ -277,8 +277,8 @@ static void set_ld_error(int err, char *matched, char *errmsg, void *dummy) {
   le->le_errmsg = errmsg;
 }
 
-static int get_ld_error(char **matched, char **errmsg, void *dummy) {
-  struct nsldapi_ldap_error *le;
+static int get_ld_error(char** matched, char** errmsg, void* dummy) {
+  struct nsldapi_ldap_error* le;
 
   le = pthread_getspecific(nsldapi_key);
 
@@ -300,14 +300,14 @@ static int get_errno(void) { return (errno); }
 
 #if defined(USE_PTHREADS) || defined(_WINDOWS)
 static struct ldap_thread_fns nsldapi_default_thread_fns = {
-    (void *(*)(void))pthread_mutex_alloc,
-    (void (*)(void *))pthread_mutex_free,
-    (int (*)(void *))pthread_mutex_lock,
-    (int (*)(void *))pthread_mutex_unlock,
+    (void* (*)(void))pthread_mutex_alloc,
+    (void (*)(void*))pthread_mutex_free,
+    (int (*)(void*))pthread_mutex_lock,
+    (int (*)(void*))pthread_mutex_unlock,
     (int (*)(void))get_errno,
     (void (*)(int))set_errno,
-    (int (*)(char **, char **, void *))get_ld_error,
-    (void (*)(int, char *, char *, void *))set_ld_error,
+    (int (*)(char**, char**, void*))get_ld_error,
+    (void (*)(int, char*, char*, void*))set_ld_error,
     0};
 
 static struct ldap_extra_thread_fns nsldapi_default_extra_thread_fns = {0, 0, 0,
@@ -367,14 +367,14 @@ void nsldapi_initialize_defaults(void) {
 
   /* SASL mutex function callbacks */
   sasl_set_mutex(
-      (sasl_mutex_alloc_t *)nsldapi_default_thread_fns.ltf_mutex_alloc,
-      (sasl_mutex_lock_t *)nsldapi_default_thread_fns.ltf_mutex_lock,
-      (sasl_mutex_unlock_t *)nsldapi_default_thread_fns.ltf_mutex_unlock,
-      (sasl_mutex_free_t *)nsldapi_default_thread_fns.ltf_mutex_free);
+      (sasl_mutex_alloc_t*)nsldapi_default_thread_fns.ltf_mutex_alloc,
+      (sasl_mutex_lock_t*)nsldapi_default_thread_fns.ltf_mutex_lock,
+      (sasl_mutex_unlock_t*)nsldapi_default_thread_fns.ltf_mutex_unlock,
+      (sasl_mutex_free_t*)nsldapi_default_thread_fns.ltf_mutex_free);
 
   /* SASL memory allocation function callbacks */
-  sasl_set_alloc((sasl_malloc_t *)ldap_x_malloc, (sasl_calloc_t *)ldap_x_calloc,
-                 (sasl_realloc_t *)ldap_x_realloc, (sasl_free_t *)ldap_x_free);
+  sasl_set_alloc((sasl_malloc_t*)ldap_x_malloc, (sasl_calloc_t*)ldap_x_calloc,
+                 (sasl_realloc_t*)ldap_x_realloc, (sasl_free_t*)ldap_x_free);
 
   /* SASL library initialization */
   if (sasl_client_init(client_callbacks) != SASL_OK) {
@@ -399,7 +399,7 @@ void nsldapi_initialize_defaults(void) {
 #if defined(USE_PTHREADS) || defined(_WINDOWS)
   /* load up default platform specific locking routines */
   if (ldap_set_option(&nsldapi_ld_defaults, LDAP_OPT_THREAD_FN_PTRS,
-                      (void *)&nsldapi_default_thread_fns) != LDAP_SUCCESS) {
+                      (void*)&nsldapi_default_thread_fns) != LDAP_SUCCESS) {
     nsldapi_initialized = 0;
     pthread_mutex_unlock(&nsldapi_init_mutex);
     return;
@@ -408,7 +408,7 @@ void nsldapi_initialize_defaults(void) {
 #  ifndef _WINDOWS
   /* load up default threadid function */
   if (ldap_set_option(&nsldapi_ld_defaults, LDAP_OPT_EXTRA_THREAD_FN_PTRS,
-                      (void *)&nsldapi_default_extra_thread_fns) !=
+                      (void*)&nsldapi_default_extra_thread_fns) !=
       LDAP_SUCCESS) {
     nsldapi_initialized = 0;
     pthread_mutex_unlock(&nsldapi_init_mutex);
@@ -438,7 +438,7 @@ void nsldapi_initialize_defaults(void) {
  *   fprintf(stderr, "LDAP SDK level insufficient\n");
  */
 
-int LDAP_CALL ldap_version(LDAPVersion *ver) {
+int LDAP_CALL ldap_version(LDAPVersion* ver) {
   if (NULL != ver) {
     memset(ver, 0, sizeof(*ver));
     ver->sdk_version = (int)(VI_PRODUCTVERSION * 100);
@@ -470,8 +470,8 @@ int LDAP_CALL ldap_version(LDAPVersion *ver) {
  * ld = ldap_open(hostname, port);
  */
 
-LDAP *LDAP_CALL ldap_open(const char *host, int port) {
-  LDAP *ld;
+LDAP* LDAP_CALL ldap_open(const char* host, int port) {
+  LDAP* ld;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_open\n", 0, 0, 0);
 
@@ -506,8 +506,8 @@ LDAP *LDAP_CALL ldap_open(const char *host, int port) {
  * LDAP  *ld;
  * ld = ldap_init(default_hostname, default_port);
  */
-LDAP *LDAP_CALL ldap_init(const char *defhost, int defport) {
-  LDAP *ld;
+LDAP* LDAP_CALL ldap_init(const char* defhost, int defport) {
+  LDAP* ld;
 
   if (!nsldapi_initialized) {
     nsldapi_initialize_defaults();
@@ -526,16 +526,16 @@ LDAP *LDAP_CALL ldap_init(const char *defhost, int defport) {
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_init\n", 0, 0, 0);
 
-  if ((ld = (LDAP *)NSLDAPI_MALLOC(sizeof(struct ldap))) == NULL) {
+  if ((ld = (LDAP*)NSLDAPI_MALLOC(sizeof(struct ldap))) == NULL) {
     return (NULL);
   }
 
   /* copy defaults */
   SAFEMEMCPY(ld, &nsldapi_ld_defaults, sizeof(struct ldap));
   if (nsldapi_ld_defaults.ld_io_fns_ptr != NULL) {
-    if ((ld->ld_io_fns_ptr = (struct ldap_io_fns *)NSLDAPI_MALLOC(
+    if ((ld->ld_io_fns_ptr = (struct ldap_io_fns*)NSLDAPI_MALLOC(
              sizeof(struct ldap_io_fns))) == NULL) {
-      NSLDAPI_FREE((char *)ld);
+      NSLDAPI_FREE((char*)ld);
       return (NULL);
     }
     /* struct copy */
@@ -549,7 +549,7 @@ LDAP *LDAP_CALL ldap_init(const char *defhost, int defport) {
      * the new handle callback.
      */
     if (ld->ld_extnewhandle_fn(ld, ld->ld_ext_session_arg) != LDAP_SUCCESS) {
-      NSLDAPI_FREE((char *)ld);
+      NSLDAPI_FREE((char*)ld);
       return (NULL);
     }
   }
@@ -557,15 +557,15 @@ LDAP *LDAP_CALL ldap_init(const char *defhost, int defport) {
   /* allocate session-specific resources */
   if ((ld->ld_sbp = ber_sockbuf_alloc()) == NULL ||
       (defhost != NULL && (ld->ld_defhost = nsldapi_strdup(defhost)) == NULL) ||
-      ((ld->ld_mutex =
-            (void **)NSLDAPI_CALLOC(LDAP_MAX_LOCK, sizeof(void *))) == NULL)) {
+      ((ld->ld_mutex = (void**)NSLDAPI_CALLOC(LDAP_MAX_LOCK, sizeof(void*))) ==
+       NULL)) {
     if (ld->ld_sbp != NULL) {
       ber_sockbuf_free(ld->ld_sbp);
     }
     if (ld->ld_mutex != NULL) {
       NSLDAPI_FREE(ld->ld_mutex);
     }
-    NSLDAPI_FREE((char *)ld);
+    NSLDAPI_FREE((char*)ld);
     return (NULL);
   }
 
@@ -581,7 +581,7 @@ LDAP *LDAP_CALL ldap_init(const char *defhost, int defport) {
     lberiofns.lbextiofn_writev = ld->ld_extwritev_fn;
     lberiofns.lbextiofn_socket_arg = NULL;
     ber_sockbuf_set_option(ld->ld_sbp, LBER_SOCKBUF_OPT_EXT_IO_FNS,
-                           (void *)&lberiofns);
+                           (void*)&lberiofns);
   }
 
   /* allocate mutexes */
@@ -593,19 +593,19 @@ LDAP *LDAP_CALL ldap_init(const char *defhost, int defport) {
   return (ld);
 }
 
-void nsldapi_mutex_alloc_all(LDAP *ld) {
+void nsldapi_mutex_alloc_all(LDAP* ld) {
   int i;
 
   if (ld != &nsldapi_ld_defaults && ld->ld_mutex != NULL) {
     for (i = 0; i < LDAP_MAX_LOCK; i++) {
       ld->ld_mutex[i] = LDAP_MUTEX_ALLOC(ld);
-      ld->ld_mutex_threadid[i] = (void *)-1;
+      ld->ld_mutex_threadid[i] = (void*)-1;
       ld->ld_mutex_refcnt[i] = 0;
     }
   }
 }
 
-void nsldapi_mutex_free_all(LDAP *ld) {
+void nsldapi_mutex_free_all(LDAP* ld) {
   int i;
 
   if (ld != &nsldapi_ld_defaults && ld->ld_mutex != NULL) {
@@ -616,10 +616,10 @@ void nsldapi_mutex_free_all(LDAP *ld) {
 }
 
 /* returns 0 if connection opened and -1 if an error occurs */
-int nsldapi_open_ldap_defconn(LDAP *ld) {
-  LDAPServer *srv;
+int nsldapi_open_ldap_defconn(LDAP* ld) {
+  LDAPServer* srv;
 
-  if ((srv = (LDAPServer *)NSLDAPI_CALLOC(1, sizeof(LDAPServer))) == NULL ||
+  if ((srv = (LDAPServer*)NSLDAPI_CALLOC(1, sizeof(LDAPServer))) == NULL ||
       (ld->ld_defhost != NULL &&
        (srv->lsrv_host = nsldapi_strdup(ld->ld_defhost)) == NULL)) {
     LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
@@ -635,7 +635,7 @@ int nsldapi_open_ldap_defconn(LDAP *ld) {
     if (ld->ld_defhost != NULL) {
       NSLDAPI_FREE(srv->lsrv_host);
     }
-    NSLDAPI_FREE((char *)srv);
+    NSLDAPI_FREE((char*)srv);
     return (-1);
   }
   ++ld->ld_defconn->lconn_refcnt; /* so it never gets closed/freed */
@@ -644,8 +644,8 @@ int nsldapi_open_ldap_defconn(LDAP *ld) {
 }
 
 struct ldap_x_hostlist_status {
-  char *lhs_hostlist;
-  char *lhs_nexthost;
+  char* lhs_hostlist;
+  char* lhs_nexthost;
   int lhs_defport;
 };
 
@@ -655,9 +655,9 @@ struct ldap_x_hostlist_status {
  * Note that a NULL or zero-length hostlist causes the host "127.0.0.1" to
  * be returned.
  */
-int LDAP_CALL ldap_x_hostlist_first(const char *hostlist, int defport,
-                                    char **hostp, int *portp,
-                                    struct ldap_x_hostlist_status **statusp) {
+int LDAP_CALL ldap_x_hostlist_first(const char* hostlist, int defport,
+                                    char** hostp, int* portp,
+                                    struct ldap_x_hostlist_status** statusp) {
   if (NULL == hostp || NULL == portp || NULL == statusp) {
     return (LDAP_PARAM_ERROR);
   }
@@ -691,9 +691,9 @@ int LDAP_CALL ldap_x_hostlist_first(const char *hostlist, int defport,
  * If no more hosts are available, LDAP_SUCCESS is returned but *hostp is set
  * to NULL.
  */
-int LDAP_CALL ldap_x_hostlist_next(char **hostp, int *portp,
-                                   struct ldap_x_hostlist_status *status) {
-  char *q;
+int LDAP_CALL ldap_x_hostlist_next(char** hostp, int* portp,
+                                   struct ldap_x_hostlist_status* status) {
+  char* q;
   int squarebrackets = 0;
 
   if (NULL == hostp || NULL == portp) {
@@ -753,7 +753,7 @@ int LDAP_CALL ldap_x_hostlist_next(char **hostp, int *portp,
 }
 
 void LDAP_CALL
-ldap_x_hostlist_statusfree(struct ldap_x_hostlist_status *status) {
+ldap_x_hostlist_statusfree(struct ldap_x_hostlist_status* status) {
   if (NULL != status) {
     if (NULL != status->lhs_hostlist) {
       NSLDAPI_FREE(status->lhs_hostlist);
@@ -767,25 +767,25 @@ ldap_x_hostlist_statusfree(struct ldap_x_hostlist_status *status) {
  *    LDAP application is likely to pull the rest of the code in this file
  *    in anyways.
  */
-void *ldap_x_malloc(size_t size) {
+void* ldap_x_malloc(size_t size) {
   return (nsldapi_memalloc_fns.ldapmem_malloc == NULL
               ? malloc(size)
               : nsldapi_memalloc_fns.ldapmem_malloc(size));
 }
 
-void *ldap_x_calloc(size_t nelem, size_t elsize) {
+void* ldap_x_calloc(size_t nelem, size_t elsize) {
   return (nsldapi_memalloc_fns.ldapmem_calloc == NULL
               ? calloc(nelem, elsize)
               : nsldapi_memalloc_fns.ldapmem_calloc(nelem, elsize));
 }
 
-void *ldap_x_realloc(void *ptr, size_t size) {
+void* ldap_x_realloc(void* ptr, size_t size) {
   return (nsldapi_memalloc_fns.ldapmem_realloc == NULL
               ? realloc(ptr, size)
               : nsldapi_memalloc_fns.ldapmem_realloc(ptr, size));
 }
 
-void ldap_x_free(void *ptr) {
+void ldap_x_free(void* ptr) {
   if (nsldapi_memalloc_fns.ldapmem_free == NULL) {
     free(ptr);
   } else {
@@ -794,10 +794,10 @@ void ldap_x_free(void *ptr) {
 }
 
 /* if s is NULL, returns NULL */
-char *nsldapi_strdup(const char *s) {
-  char *p;
+char* nsldapi_strdup(const char* s) {
+  char* p;
 
-  if (s == NULL || (p = (char *)NSLDAPI_MALLOC(strlen(s) + 1)) == NULL)
+  if (s == NULL || (p = (char*)NSLDAPI_MALLOC(strlen(s) + 1)) == NULL)
     return (NULL);
 
   strcpy(p, s);

@@ -59,7 +59,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
  *           LDAP_AUTH_SIMPLE)
  */
 
-int LDAP_CALL ldap_bind(LDAP *ld, const char *dn, const char *passwd,
+int LDAP_CALL ldap_bind(LDAP* ld, const char* dn, const char* passwd,
                         int authmethod) {
   /*
    * The bind request looks like this:
@@ -103,7 +103,7 @@ int LDAP_CALL ldap_bind(LDAP *ld, const char *dn, const char *passwd,
  * ldap_bind_s(ld, "cn=manager, o=university of michigan, c=us",
  *             NULL, LDAP_AUTH_KRBV4)
  */
-int LDAP_CALL ldap_bind_s(LDAP *ld, const char *dn, const char *passwd,
+int LDAP_CALL ldap_bind_s(LDAP* ld, const char* dn, const char* passwd,
                           int authmethod) {
   int err;
 
@@ -120,9 +120,9 @@ int LDAP_CALL ldap_bind_s(LDAP *ld, const char *dn, const char *passwd,
   }
 }
 
-void LDAP_CALL ldap_set_rebind_proc(LDAP *ld,
-                                    LDAP_REBINDPROC_CALLBACK *rebindproc,
-                                    void *arg) {
+void LDAP_CALL ldap_set_rebind_proc(LDAP* ld,
+                                    LDAP_REBINDPROC_CALLBACK* rebindproc,
+                                    void* arg) {
   if (ld == NULL) {
     if (!nsldapi_initialized) {
       nsldapi_initialize_defaults();
@@ -142,8 +142,8 @@ void LDAP_CALL ldap_set_rebind_proc(LDAP *ld,
  * return a pointer to the bind DN for the default connection (a copy is
  * not made).  If there is no bind DN available, NULL is returned.
  */
-char *nsldapi_get_binddn(LDAP *ld) {
-  char *binddn;
+char* nsldapi_get_binddn(LDAP* ld) {
+  char* binddn;
 
   binddn = NULL; /* default -- assume they are not bound */
 

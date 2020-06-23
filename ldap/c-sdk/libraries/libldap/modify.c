@@ -67,7 +67,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
  *   }
  * msgid = ldap_modify(ld, dn, mods);
  */
-int LDAP_CALL ldap_modify(LDAP *ld, const char *dn, LDAPMod **mods) {
+int LDAP_CALL ldap_modify(LDAP* ld, const char* dn, LDAPMod** mods) {
   int msgid;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_modify\n", 0, 0, 0);
@@ -79,10 +79,10 @@ int LDAP_CALL ldap_modify(LDAP *ld, const char *dn, LDAPMod **mods) {
   }
 }
 
-int LDAP_CALL ldap_modify_ext(LDAP *ld, const char *dn, LDAPMod **mods,
-                              LDAPControl **serverctrls,
-                              LDAPControl **clientctrls, int *msgidp) {
-  BerElement *ber;
+int LDAP_CALL ldap_modify_ext(LDAP* ld, const char* dn, LDAPMod** mods,
+                              LDAPControl** serverctrls,
+                              LDAPControl** clientctrls, int* msgidp) {
+  BerElement* ber;
   int i, rc, lderr;
 
   /*
@@ -181,28 +181,28 @@ int LDAP_CALL ldap_modify_ext(LDAP *ld, const char *dn, LDAPMod **mods,
   }
 
   /* send the message */
-  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_MODIFY, (char *)dn,
+  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_MODIFY, (char*)dn,
                                     ber);
   *msgidp = rc;
   return (rc < 0 ? LDAP_GET_LDERRNO(ld, NULL, NULL) : LDAP_SUCCESS);
 }
 
-int LDAP_CALL ldap_modify_s(LDAP *ld, const char *dn, LDAPMod **mods) {
+int LDAP_CALL ldap_modify_s(LDAP* ld, const char* dn, LDAPMod** mods) {
   return (ldap_modify_ext_s(ld, dn, mods, NULL, NULL));
 }
 
-int LDAP_CALL ldap_modify_ext_s(LDAP *ld, const char *dn, LDAPMod **mods,
-                                LDAPControl **serverctrls,
-                                LDAPControl **clientctrls) {
+int LDAP_CALL ldap_modify_ext_s(LDAP* ld, const char* dn, LDAPMod** mods,
+                                LDAPControl** serverctrls,
+                                LDAPControl** clientctrls) {
   int msgid, err;
-  LDAPMessage *res;
+  LDAPMessage* res;
 
   if ((err = ldap_modify_ext(ld, dn, mods, serverctrls, clientctrls, &msgid)) !=
       LDAP_SUCCESS) {
     return (err);
   }
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)NULL, &res) == -1) {
+  if (ldap_result(ld, msgid, 1, (struct timeval*)NULL, &res) == -1) {
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
   }
 

@@ -54,10 +54,10 @@
    ctrlp           the address of a place to put the constructed control
 */
 
-int LDAP_CALL ldap_create_proxyauth_control(LDAP *ld, const char *dn,
+int LDAP_CALL ldap_create_proxyauth_control(LDAP* ld, const char* dn,
                                             const char ctl_iscritical,
-                                            LDAPControl **ctrlp) {
-  BerElement *ber;
+                                            LDAPControl** ctrlp) {
+  BerElement* ber;
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -105,9 +105,9 @@ int LDAP_CALL ldap_create_proxyauth_control(LDAP *ld, const char *dn,
    ctrlp           the address of a place to put the constructed control
 */
 
-int LDAP_CALL ldap_create_proxiedauth_control(LDAP *ld, const char *authzid,
-                                              LDAPControl **ctrlp) {
-  BerElement *ber;
+int LDAP_CALL ldap_create_proxiedauth_control(LDAP* ld, const char* authzid,
+                                              LDAPControl** ctrlp) {
+  BerElement* ber;
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {

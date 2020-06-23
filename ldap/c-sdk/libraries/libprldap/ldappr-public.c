@@ -55,8 +55,8 @@
  *
  * prldap_init() returns an LDAP session handle (or NULL if an error occurs).
  */
-LDAP *LDAP_CALL prldap_init(const char *defhost, int defport, int shared) {
-  LDAP *ld;
+LDAP* LDAP_CALL prldap_init(const char* defhost, int defport, int shared) {
+  LDAP* ld;
 
   if ((ld = ldap_init(defhost, defport)) != NULL) {
     if (prldap_install_routines(ld, shared) != LDAP_SUCCESS) {
@@ -85,7 +85,7 @@ LDAP *LDAP_CALL prldap_init(const char *defhost, int defport, int shared) {
  * prldap_install_routines() returns an LDAP API error code (LDAP_SUCCESS
  * if all goes well).
  */
-int LDAP_CALL prldap_install_routines(LDAP *ld, int shared) {
+int LDAP_CALL prldap_install_routines(LDAP* ld, int shared) {
   if (prldap_install_io_functions(ld, shared) != 0 ||
       prldap_install_thread_functions(ld, shared) != 0 ||
       prldap_install_dns_functions(ld) != 0) {
@@ -107,10 +107,10 @@ int LDAP_CALL prldap_install_routines(LDAP *ld, int shared) {
  *
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well).
  */
-int LDAP_CALL prldap_set_session_option(LDAP *ld, void *sessionarg, int option,
+int LDAP_CALL prldap_set_session_option(LDAP* ld, void* sessionarg, int option,
                                         ...) {
   int rc = LDAP_SUCCESS; /* optimistic */
-  PRLDAPIOSessionArg *prsessp = NULL;
+  PRLDAPIOSessionArg* prsessp = NULL;
   va_list ap;
 
   if (NULL != ld) {
@@ -118,7 +118,7 @@ int LDAP_CALL prldap_set_session_option(LDAP *ld, void *sessionarg, int option,
       return (rc);
     }
   } else if (NULL != sessionarg) {
-    prsessp = (PRLDAPIOSessionArg *)sessionarg;
+    prsessp = (PRLDAPIOSessionArg*)sessionarg;
   }
 
   va_start(ap, option);
@@ -146,10 +146,10 @@ int LDAP_CALL prldap_set_session_option(LDAP *ld, void *sessionarg, int option,
  *
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well).
  */
-int LDAP_CALL prldap_get_session_option(LDAP *ld, void *sessionarg, int option,
+int LDAP_CALL prldap_get_session_option(LDAP* ld, void* sessionarg, int option,
                                         ...) {
   int rc = LDAP_SUCCESS; /* optimistic */
-  PRLDAPIOSessionArg *prsessp = NULL;
+  PRLDAPIOSessionArg* prsessp = NULL;
   va_list ap;
 
   if (NULL != ld) {
@@ -157,13 +157,13 @@ int LDAP_CALL prldap_get_session_option(LDAP *ld, void *sessionarg, int option,
       return (rc);
     }
   } else if (NULL != sessionarg) {
-    prsessp = (PRLDAPIOSessionArg *)sessionarg;
+    prsessp = (PRLDAPIOSessionArg*)sessionarg;
   }
 
   va_start(ap, option);
   switch (option) {
     case PRLDAP_OPT_IO_MAX_TIMEOUT:
-      rc = prldap_get_io_max_timeout(prsessp, va_arg(ap, int *));
+      rc = prldap_get_io_max_timeout(prsessp, va_arg(ap, int*));
       break;
     default:
       rc = LDAP_PARAM_ERROR;
@@ -180,10 +180,10 @@ int LDAP_CALL prldap_get_session_option(LDAP *ld, void *sessionarg, int option,
  *
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well).
  */
-int LDAP_CALL prldap_set_session_info(LDAP *ld, void *sessionarg,
-                                      PRLDAPSessionInfo *seip) {
+int LDAP_CALL prldap_set_session_info(LDAP* ld, void* sessionarg,
+                                      PRLDAPSessionInfo* seip) {
   int rc;
-  PRLDAPIOSessionArg *prsessp;
+  PRLDAPIOSessionArg* prsessp;
 
   if (seip == NULL || PRLDAP_SESSIONINFO_SIZE != seip->seinfo_size) {
     ldap_set_lderrno(ld, LDAP_PARAM_ERROR, NULL, NULL);
@@ -195,7 +195,7 @@ int LDAP_CALL prldap_set_session_info(LDAP *ld, void *sessionarg,
       return (rc);
     }
   } else if (NULL != sessionarg) {
-    prsessp = (PRLDAPIOSessionArg *)sessionarg;
+    prsessp = (PRLDAPIOSessionArg*)sessionarg;
   } else {
     ldap_set_lderrno(ld, LDAP_PARAM_ERROR, NULL, NULL);
     return (LDAP_PARAM_ERROR);
@@ -213,10 +213,10 @@ int LDAP_CALL prldap_set_session_info(LDAP *ld, void *sessionarg,
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well, in
  * which case the fields in the structure that seip points to are filled in).
  */
-int LDAP_CALL prldap_get_session_info(LDAP *ld, void *sessionarg,
-                                      PRLDAPSessionInfo *seip) {
+int LDAP_CALL prldap_get_session_info(LDAP* ld, void* sessionarg,
+                                      PRLDAPSessionInfo* seip) {
   int rc;
-  PRLDAPIOSessionArg *prsessp;
+  PRLDAPIOSessionArg* prsessp;
 
   if (seip == NULL || PRLDAP_SESSIONINFO_SIZE != seip->seinfo_size) {
     ldap_set_lderrno(ld, LDAP_PARAM_ERROR, NULL, NULL);
@@ -228,7 +228,7 @@ int LDAP_CALL prldap_get_session_info(LDAP *ld, void *sessionarg,
       return (rc);
     }
   } else if (NULL != sessionarg) {
-    prsessp = (PRLDAPIOSessionArg *)sessionarg;
+    prsessp = (PRLDAPIOSessionArg*)sessionarg;
   } else {
     ldap_set_lderrno(ld, LDAP_PARAM_ERROR, NULL, NULL);
     return (LDAP_PARAM_ERROR);
@@ -249,16 +249,16 @@ int LDAP_CALL prldap_get_session_info(LDAP *ld, void *sessionarg,
  * Note: it is only safe to change soinfo_prfd from within the SOCKET
  * extended I/O callback function.
  */
-int LDAP_CALL prldap_set_socket_info(int fd, void *socketarg,
-                                     PRLDAPSocketInfo *soip) {
-  PRLDAPIOSocketArg *prsockp;
+int LDAP_CALL prldap_set_socket_info(int fd, void* socketarg,
+                                     PRLDAPSocketInfo* soip) {
+  PRLDAPIOSocketArg* prsockp;
 
   if (NULL == socketarg || NULL == soip ||
       PRLDAP_SOCKETINFO_SIZE != soip->soinfo_size) {
     return (LDAP_PARAM_ERROR);
   }
 
-  prsockp = (PRLDAPIOSocketArg *)socketarg;
+  prsockp = (PRLDAPIOSocketArg*)socketarg;
   prsockp->prsock_prfd = soip->soinfo_prfd;
   prsockp->prsock_appdata = soip->soinfo_appdata;
 
@@ -274,16 +274,16 @@ int LDAP_CALL prldap_set_socket_info(int fd, void *socketarg,
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well, in
  * which case the fields in the structure that soip points to are filled in).
  */
-int LDAP_CALL prldap_get_socket_info(int fd, void *socketarg,
-                                     PRLDAPSocketInfo *soip) {
-  PRLDAPIOSocketArg *prsockp;
+int LDAP_CALL prldap_get_socket_info(int fd, void* socketarg,
+                                     PRLDAPSocketInfo* soip) {
+  PRLDAPIOSocketArg* prsockp;
 
   if (NULL == socketarg || NULL == soip ||
       PRLDAP_SOCKETINFO_SIZE != soip->soinfo_size) {
     return (LDAP_PARAM_ERROR);
   }
 
-  prsockp = (PRLDAPIOSocketArg *)socketarg;
+  prsockp = (PRLDAPIOSocketArg*)socketarg;
   soip->soinfo_prfd = prsockp->prsock_prfd;
   soip->soinfo_appdata = prsockp->prsock_appdata;
 
@@ -299,9 +299,9 @@ int LDAP_CALL prldap_get_socket_info(int fd, void *socketarg,
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well, in
  * which case the fields in the structure that soip points to are filled in).
  */
-int LDAP_CALL prldap_get_default_socket_info(LDAP *ld, PRLDAPSocketInfo *soip) {
+int LDAP_CALL prldap_get_default_socket_info(LDAP* ld, PRLDAPSocketInfo* soip) {
   int rc;
-  PRLDAPIOSocketArg *prsockp;
+  PRLDAPIOSocketArg* prsockp;
 
   if (NULL == soip || PRLDAP_SOCKETINFO_SIZE != soip->soinfo_size) {
     ldap_set_lderrno(ld, LDAP_PARAM_ERROR, NULL, NULL);
@@ -332,9 +332,9 @@ int LDAP_CALL prldap_get_default_socket_info(LDAP *ld, PRLDAPSocketInfo *soip) {
  * Returns an LDAP API error code (LDAP_SUCCESS if all goes well, in
  * which case the fields in the structure that soip points to are filled in).
  */
-int LDAP_CALL prldap_set_default_socket_info(LDAP *ld, PRLDAPSocketInfo *soip) {
+int LDAP_CALL prldap_set_default_socket_info(LDAP* ld, PRLDAPSocketInfo* soip) {
   int rc;
-  PRLDAPIOSocketArg *prsockp;
+  PRLDAPIOSocketArg* prsockp;
 
   if (NULL == soip || PRLDAP_SOCKETINFO_SIZE != soip->soinfo_size) {
     ldap_set_lderrno(ld, LDAP_PARAM_ERROR, NULL, NULL);
@@ -364,13 +364,13 @@ int LDAP_CALL prldap_set_default_socket_info(LDAP *ld, PRLDAPSocketInfo *soip) {
  *
  * Returns an LDAP API code (LDAP_SUCCESS) if all goes well.
  */
-int LDAP_CALL prldap_import_connection(LDAP *ld) {
+int LDAP_CALL prldap_import_connection(LDAP* ld) {
   int rc = LDAP_SUCCESS; /* optimistic */
   int shared = 1;        /* Assume shared init */
   LBER_SOCKET orig_socket = -1;
-  PRLDAPIOSessionArg *prsessp = NULL;
-  PRLDAPIOSocketArg *prsockp = NULL;
-  PRFileDesc *pr_socket = NULL;
+  PRLDAPIOSessionArg* prsessp = NULL;
+  PRLDAPIOSocketArg* prsockp = NULL;
+  PRFileDesc* pr_socket = NULL;
 
   /* Check for invalid ld handle */
   if (ld == NULL) {

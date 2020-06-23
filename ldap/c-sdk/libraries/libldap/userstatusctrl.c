@@ -50,9 +50,9 @@
    ctrlp           the address of a place to put the constructed control
 */
 
-int LDAP_CALL ldap_create_userstatus_control(LDAP *ld,
+int LDAP_CALL ldap_create_userstatus_control(LDAP* ld,
                                              const char ctl_iscritical,
-                                             LDAPControl **ctrlp) {
+                                             LDAPControl** ctrlp) {
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -85,11 +85,11 @@ int LDAP_CALL ldap_create_userstatus_control(LDAP *ld,
                    to parse control results to
 */
 
-int LDAP_CALL ldap_parse_userstatus_control(LDAP *ld, LDAPControl **ctrlp,
-                                            LDAPuserstatus *us) {
-  BerElement *ber = NULL;
+int LDAP_CALL ldap_parse_userstatus_control(LDAP* ld, LDAPControl** ctrlp,
+                                            LDAPuserstatus* us) {
+  BerElement* ber = NULL;
   int i, foundUSControl;
-  LDAPControl *USCtrlp = NULL;
+  LDAPControl* USCtrlp = NULL;
   ber_tag_t tag;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || us == NULL) {

@@ -43,16 +43,16 @@
 
 #include "ldappr-int.h"
 
-static LDAPHostEnt *prldap_gethostbyname(const char *name, LDAPHostEnt *result,
-                                         char *buffer, int buflen, int *statusp,
-                                         void *extradata);
-static LDAPHostEnt *prldap_gethostbyaddr(const char *addr, int length, int type,
-                                         LDAPHostEnt *result, char *buffer,
-                                         int buflen, int *statusp,
-                                         void *extradata);
-static int prldap_getpeername(LDAP *ld, struct sockaddr *addr, char *buffer,
+static LDAPHostEnt* prldap_gethostbyname(const char* name, LDAPHostEnt* result,
+                                         char* buffer, int buflen, int* statusp,
+                                         void* extradata);
+static LDAPHostEnt* prldap_gethostbyaddr(const char* addr, int length, int type,
+                                         LDAPHostEnt* result, char* buffer,
+                                         int buflen, int* statusp,
+                                         void* extradata);
+static int prldap_getpeername(LDAP* ld, struct sockaddr* addr, char* buffer,
                               int buflen);
-static LDAPHostEnt *prldap_convert_hostent(LDAPHostEnt *ldhp, PRHostEnt *prhp);
+static LDAPHostEnt* prldap_convert_hostent(LDAPHostEnt* ldhp, PRHostEnt* prhp);
 
 /*
  * Install NSPR DNS functions into ld (if ld is NULL, they are installed
@@ -60,7 +60,7 @@ static LDAPHostEnt *prldap_convert_hostent(LDAPHostEnt *ldhp, PRHostEnt *prhp);
  *
  * Returns 0 if all goes well and -1 if not.
  */
-int prldap_install_dns_functions(LDAP *ld) {
+int prldap_install_dns_functions(LDAP* ld) {
   struct ldap_dns_fns dnsfns;
 
   memset(&dnsfns, '\0', sizeof(struct ldap_dns_fns));
@@ -68,16 +68,16 @@ int prldap_install_dns_functions(LDAP *ld) {
   dnsfns.lddnsfn_gethostbyname = prldap_gethostbyname;
   dnsfns.lddnsfn_gethostbyaddr = prldap_gethostbyaddr;
   dnsfns.lddnsfn_getpeername = prldap_getpeername;
-  if (ldap_set_option(ld, LDAP_OPT_DNS_FN_PTRS, (void *)&dnsfns) != 0) {
+  if (ldap_set_option(ld, LDAP_OPT_DNS_FN_PTRS, (void*)&dnsfns) != 0) {
     return (-1);
   }
 
   return (0);
 }
 
-static LDAPHostEnt *prldap_gethostbyname(const char *name, LDAPHostEnt *result,
-                                         char *buffer, int buflen, int *statusp,
-                                         void *extradata) {
+static LDAPHostEnt* prldap_gethostbyname(const char* name, LDAPHostEnt* result,
+                                         char* buffer, int buflen, int* statusp,
+                                         void* extradata) {
   PRHostEnt prhent;
 
   if (!statusp || (*statusp = (int)PR_GetIPNodeByName(
@@ -89,10 +89,10 @@ static LDAPHostEnt *prldap_gethostbyname(const char *name, LDAPHostEnt *result,
   return (prldap_convert_hostent(result, &prhent));
 }
 
-static LDAPHostEnt *prldap_gethostbyaddr(const char *addr, int length, int type,
-                                         LDAPHostEnt *result, char *buffer,
-                                         int buflen, int *statusp,
-                                         void *extradata) {
+static LDAPHostEnt* prldap_gethostbyaddr(const char* addr, int length, int type,
+                                         LDAPHostEnt* result, char* buffer,
+                                         int buflen, int* statusp,
+                                         void* extradata) {
   PRHostEnt prhent;
   PRNetAddr iaddr;
 
@@ -114,9 +114,9 @@ static LDAPHostEnt *prldap_gethostbyaddr(const char *addr, int length, int type,
   return (prldap_convert_hostent(result, &prhent));
 }
 
-static int prldap_getpeername(LDAP *ld, struct sockaddr *addr, char *buffer,
+static int prldap_getpeername(LDAP* ld, struct sockaddr* addr, char* buffer,
                               int buflen) {
-  PRLDAPIOSocketArg *sa;
+  PRLDAPIOSocketArg* sa;
   PRNetAddr iaddr;
   int ret;
 
@@ -129,7 +129,7 @@ static int prldap_getpeername(LDAP *ld, struct sockaddr *addr, char *buffer,
     if (ret == PR_FAILURE) {
       return (-1);
     }
-    *addr = *((struct sockaddr *)&iaddr.raw);
+    *addr = *((struct sockaddr*)&iaddr.raw);
     ret = PR_NetAddrToString(&iaddr, buffer, buflen);
     if (ret == PR_FAILURE) {
       return (-1);
@@ -144,7 +144,7 @@ static int prldap_getpeername(LDAP *ld, struct sockaddr *addr, char *buffer,
  * Description: copy the fields of a PRHostEnt struct to an LDAPHostEnt
  * Returns: the LDAPHostEnt pointer passed in.
  */
-static LDAPHostEnt *prldap_convert_hostent(LDAPHostEnt *ldhp, PRHostEnt *prhp) {
+static LDAPHostEnt* prldap_convert_hostent(LDAPHostEnt* ldhp, PRHostEnt* prhp) {
   ldhp->ldaphe_name = prhp->h_name;
   ldhp->ldaphe_aliases = prhp->h_aliases;
   ldhp->ldaphe_addrtype = prhp->h_addrtype;

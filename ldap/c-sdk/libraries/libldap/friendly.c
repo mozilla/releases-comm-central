@@ -50,11 +50,11 @@ static char copyright[] = "@(#) Copyright (c) 1993 Regents of the University of 
 
 #include "ldap-int.h"
 
-char *LDAP_CALL ldap_friendly_name(char *filename, char *name,
-                                   FriendlyMap *map) {
+char* LDAP_CALL ldap_friendly_name(char* filename, char* name,
+                                   FriendlyMap* map) {
   int i, entries;
-  FILE *fp;
-  char *s;
+  FILE* fp;
+  char* s;
   char buf[BUFSIZ];
 
   if (map == NULL) {
@@ -122,8 +122,8 @@ char *LDAP_CALL ldap_friendly_name(char *filename, char *name,
   return (name);
 }
 
-void LDAP_CALL ldap_free_friendlymap(FriendlyMap *map) {
-  struct friendly *pF;
+void LDAP_CALL ldap_free_friendlymap(FriendlyMap* map) {
+  struct friendly* pF;
 
   if (map == NULL || *map == NULL) {
     return;

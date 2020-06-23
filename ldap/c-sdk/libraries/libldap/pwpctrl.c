@@ -45,8 +45,8 @@ ld              LDAP pointer to the desired connection
 ctrlp           the address of a place to put the constructed control
 */
 
-int LDAP_CALL ldap_create_passwordpolicy_control(LDAP *ld,
-                                                 LDAPControl **ctrlp) {
+int LDAP_CALL ldap_create_passwordpolicy_control(LDAP* ld,
+                                                 LDAPControl** ctrlp) {
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -78,9 +78,9 @@ ctl_iscritical  Indicates whether the control is critical of not. If
 ctrlp           the address of a place to put the constructed control
 */
 
-int LDAP_CALL ldap_create_passwordpolicy_control_ext(LDAP *ld,
+int LDAP_CALL ldap_create_passwordpolicy_control_ext(LDAP* ld,
                                                      const char ctl_iscritical,
-                                                     LDAPControl **ctrlp) {
+                                                     LDAPControl** ctrlp) {
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -119,15 +119,15 @@ errorcodep      result parameter is filled in with the error code of the
 */
 
 int LDAP_CALL ldap_parse_passwordpolicy_control(
-    LDAP *ld, LDAPControl *ctrlp, ber_int_t *expirep, ber_int_t *gracep,
-    LDAPPasswordPolicyError *errorp) {
+    LDAP* ld, LDAPControl* ctrlp, ber_int_t* expirep, ber_int_t* gracep,
+    LDAPPasswordPolicyError* errorp) {
   ber_len_t len;
   ber_tag_t tag;
   ber_int_t pp_exp = -1;
   ber_int_t pp_grace = -1;
   ber_int_t pp_warning = -1;
   ber_int_t pp_err = PP_noError;
-  BerElement *ber = NULL;
+  BerElement* ber = NULL;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -229,10 +229,10 @@ errorcodep      result parameter is filled in with the error code of the
 */
 
 int LDAP_CALL ldap_parse_passwordpolicy_control_ext(
-    LDAP *ld, LDAPControl **ctrlp, ber_int_t *expirep, ber_int_t *gracep,
-    LDAPPasswordPolicyError *errorp) {
+    LDAP* ld, LDAPControl** ctrlp, ber_int_t* expirep, ber_int_t* gracep,
+    LDAPPasswordPolicyError* errorp) {
   int i, foundPPControl;
-  LDAPControl *PPCtrlp = NULL;
+  LDAPControl* PPCtrlp = NULL;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -259,7 +259,7 @@ int LDAP_CALL ldap_parse_passwordpolicy_control_ext(
       ldap_parse_passwordpolicy_control(ld, PPCtrlp, expirep, gracep, errorp));
 }
 
-const char *LDAP_CALL ldap_passwordpolicy_err2txt(LDAPPasswordPolicyError err) {
+const char* LDAP_CALL ldap_passwordpolicy_err2txt(LDAPPasswordPolicyError err) {
   switch (err) {
     case PP_passwordExpired:
       return "Password expired";

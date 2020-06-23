@@ -58,14 +58,14 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
  * Example:
  * ldap_compare(ld, "c=us@cn=bob", "userPassword", "secret")
  */
-int LDAP_CALL ldap_compare(LDAP *ld, const char *dn, const char *attr,
-                           const char *value) {
+int LDAP_CALL ldap_compare(LDAP* ld, const char* dn, const char* attr,
+                           const char* value) {
   int msgid;
   struct berval bv;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_compare\n", 0, 0, 0);
 
-  bv.bv_val = (char *)value;
+  bv.bv_val = (char*)value;
   bv.bv_len = (value == NULL) ? 0 : strlen(value);
 
   if (ldap_compare_ext(ld, dn, attr, &bv, NULL, NULL, &msgid) == LDAP_SUCCESS) {
@@ -75,11 +75,11 @@ int LDAP_CALL ldap_compare(LDAP *ld, const char *dn, const char *attr,
   }
 }
 
-int LDAP_CALL ldap_compare_ext(LDAP *ld, const char *dn, const char *attr,
-                               const struct berval *bvalue,
-                               LDAPControl **serverctrls,
-                               LDAPControl **clientctrls, int *msgidp) {
-  BerElement *ber;
+int LDAP_CALL ldap_compare_ext(LDAP* ld, const char* dn, const char* attr,
+                               const struct berval* bvalue,
+                               LDAPControl** serverctrls,
+                               LDAPControl** clientctrls, int* msgidp) {
+  BerElement* ber;
   int rc, lderr;
 
   /* The compare request looks like this:
@@ -143,35 +143,35 @@ int LDAP_CALL ldap_compare_ext(LDAP *ld, const char *dn, const char *attr,
   }
 
   /* send the message */
-  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_COMPARE, (char *)dn,
+  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_COMPARE, (char*)dn,
                                     ber);
   *msgidp = rc;
   return (rc < 0 ? LDAP_GET_LDERRNO(ld, NULL, NULL) : LDAP_SUCCESS);
 }
 
-int LDAP_CALL ldap_compare_s(LDAP *ld, const char *dn, const char *attr,
-                             const char *value) {
+int LDAP_CALL ldap_compare_s(LDAP* ld, const char* dn, const char* attr,
+                             const char* value) {
   struct berval bv;
 
-  bv.bv_val = (char *)value;
+  bv.bv_val = (char*)value;
   bv.bv_len = (value == NULL) ? 0 : strlen(value);
 
   return (ldap_compare_ext_s(ld, dn, attr, &bv, NULL, NULL));
 }
 
-int LDAP_CALL ldap_compare_ext_s(LDAP *ld, const char *dn, const char *attr,
-                                 const struct berval *bvalue,
-                                 LDAPControl **serverctrls,
-                                 LDAPControl **clientctrls) {
+int LDAP_CALL ldap_compare_ext_s(LDAP* ld, const char* dn, const char* attr,
+                                 const struct berval* bvalue,
+                                 LDAPControl** serverctrls,
+                                 LDAPControl** clientctrls) {
   int err, msgid;
-  LDAPMessage *res;
+  LDAPMessage* res;
 
   if ((err = ldap_compare_ext(ld, dn, attr, bvalue, serverctrls, clientctrls,
                               &msgid)) != LDAP_SUCCESS) {
     return (err);
   }
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)NULL, &res) == -1) {
+  if (ldap_result(ld, msgid, 1, (struct timeval*)NULL, &res) == -1) {
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
   }
 

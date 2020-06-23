@@ -55,7 +55,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
  * Example:
  * msgid = ldap_delete(ld, dn);
  */
-int LDAP_CALL ldap_delete(LDAP *ld, const char *dn) {
+int LDAP_CALL ldap_delete(LDAP* ld, const char* dn) {
   int msgid;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_delete\n", 0, 0, 0);
@@ -67,10 +67,10 @@ int LDAP_CALL ldap_delete(LDAP *ld, const char *dn) {
   }
 }
 
-int LDAP_CALL ldap_delete_ext(LDAP *ld, const char *dn,
-                              LDAPControl **serverctrls,
-                              LDAPControl **clientctrls, int *msgidp) {
-  BerElement *ber;
+int LDAP_CALL ldap_delete_ext(LDAP* ld, const char* dn,
+                              LDAPControl** serverctrls,
+                              LDAPControl** clientctrls, int* msgidp) {
+  BerElement* ber;
   int rc, lderr;
 
   /*
@@ -125,28 +125,28 @@ int LDAP_CALL ldap_delete_ext(LDAP *ld, const char *dn,
   }
 
   /* send the message */
-  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_DELETE, (char *)dn,
+  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_DELETE, (char*)dn,
                                     ber);
   *msgidp = rc;
   return (rc < 0 ? LDAP_GET_LDERRNO(ld, NULL, NULL) : LDAP_SUCCESS);
 }
 
-int LDAP_CALL ldap_delete_s(LDAP *ld, const char *dn) {
+int LDAP_CALL ldap_delete_s(LDAP* ld, const char* dn) {
   return (ldap_delete_ext_s(ld, dn, NULL, NULL));
 }
 
-int LDAP_CALL ldap_delete_ext_s(LDAP *ld, const char *dn,
-                                LDAPControl **serverctrls,
-                                LDAPControl **clientctrls) {
+int LDAP_CALL ldap_delete_ext_s(LDAP* ld, const char* dn,
+                                LDAPControl** serverctrls,
+                                LDAPControl** clientctrls) {
   int err, msgid;
-  LDAPMessage *res;
+  LDAPMessage* res;
 
   if ((err = ldap_delete_ext(ld, dn, serverctrls, clientctrls, &msgid)) !=
       LDAP_SUCCESS) {
     return (err);
   }
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)NULL, &res) == -1) {
+  if (ldap_result(ld, msgid, 1, (struct timeval*)NULL, &res) == -1) {
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
   }
 

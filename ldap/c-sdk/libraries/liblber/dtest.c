@@ -63,20 +63,20 @@
 #endif   /* MACOS */
 #include "lber.h"
 
-int SSL_Recv(int s, char *b, unsigned l, int dummy) { return (read(s, b, l)); }
+int SSL_Recv(int s, char* b, unsigned l, int dummy) { return (read(s, b, l)); }
 
-SSL_Send(int s, char *b, unsigned l, int dummy) { return (write(s, b, l)); }
+SSL_Send(int s, char* b, unsigned l, int dummy) { return (write(s, b, l)); }
 
-static void usage(char *name) {
+static void usage(char* name) {
   fprintf(stderr, "usage: %s < berfile\n", name);
 }
 
-main(int argc, char **argv) {
+main(int argc, char** argv) {
   long i, fd;
   ber_len_t len;
   ber_tag_t tag;
-  BerElement *ber;
-  Sockbuf *sb;
+  BerElement* ber;
+  Sockbuf* sb;
   extern int lber_debug;
 
   lber_debug = 255;

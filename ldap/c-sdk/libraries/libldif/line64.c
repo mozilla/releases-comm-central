@@ -80,7 +80,7 @@ static unsigned char b642nib[0x80] = {
     0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30,
     0x31, 0x32, 0x33, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-static int ldif_base64_encode_internal(unsigned char *src, char *dst,
+static int ldif_base64_encode_internal(unsigned char* src, char* dst,
                                        int srclen, int lenused, int wraplen);
 
 /*
@@ -90,7 +90,7 @@ static int ldif_base64_encode_internal(unsigned char *src, char *dst,
  * (in place) before returning.
  */
 
-int ldif_parse_line(char *line, char **type, char **value, int *vlen) {
+int ldif_parse_line(char* line, char** type, char** value, int* vlen) {
   char *p, *s, *d;
   int b64;
 
@@ -155,7 +155,7 @@ int ldif_parse_line(char *line, char **type, char **value, int *vlen) {
 
   *value = s;
   if (b64) {
-    if ((*vlen = ldif_base64_decode(s, (unsigned char *)s)) < 0) {
+    if ((*vlen = ldif_base64_decode(s, (unsigned char*)s)) < 0) {
       /* Comment-out while we address calling libldif from ns-back-ldbm
               on NT. 3 of 3 */
 #if defined(_WIN32)
@@ -190,7 +190,7 @@ int ldif_parse_line(char *line, char **type, char **value, int *vlen) {
  * -1 is returned if the BASE64 encoding in "src" is invalid.
  */
 
-int ldif_base64_decode(char *src, unsigned char *dst) {
+int ldif_base64_decode(char* src, unsigned char* dst) {
   char *p, *stop;
   unsigned char nib, *byte;
   int i, len;
@@ -253,10 +253,10 @@ int ldif_base64_decode(char *src, unsigned char *dst) {
  * XXX supports <CR><LF> as of 07/29/1998 (richm)
  */
 
-char *ldif_getline(char **next) {
-  char *l;
+char* ldif_getline(char** next) {
+  char* l;
   char c;
-  char *p;
+  char* p;
 
   if (*next == NULL || **next == '\n' || **next == '\0') {
     return (NULL);
@@ -301,10 +301,10 @@ char *ldif_getline(char **next) {
   (LDIF_SAFE_INITCHAR(c) && !(isascii((c)) && isspace((c))))
 #define LDIF_CONSERVATIVE_FINALCHAR(c) ((c) != ' ')
 
-void ldif_put_type_and_value_with_options(char **out, char *t, char *val,
+void ldif_put_type_and_value_with_options(char** out, char* t, char* val,
                                           int vlen, unsigned long options) {
   unsigned char *p, *byte, *stop;
-  char *save;
+  char* save;
   int b64, len, savelen, wraplen;
   len = 0;
 
@@ -315,7 +315,7 @@ void ldif_put_type_and_value_with_options(char **out, char *t, char *val,
   }
 
   /* put the type + ": " */
-  for (p = (unsigned char *)t; *p; p++, len++) {
+  for (p = (unsigned char*)t; *p; p++, len++) {
     *(*out)++ = *p;
   }
   *(*out)++ = ':';
@@ -328,10 +328,10 @@ void ldif_put_type_and_value_with_options(char **out, char *t, char *val,
   savelen = len;
   b64 = 0;
 
-  stop = (unsigned char *)val;
+  stop = (unsigned char*)val;
   if (val && vlen > 0) {
     *(*out)++ = ' ';
-    stop = (unsigned char *)(val + vlen);
+    stop = (unsigned char*)(val + vlen);
     if (LDIF_OPT_ISSET(options, LDIF_OPT_MINIMAL_ENCODING)) {
       if (!LDIF_SAFE_INITCHAR(val[0])) {
         b64 = 1;
@@ -345,7 +345,7 @@ void ldif_put_type_and_value_with_options(char **out, char *t, char *val,
   }
 
   if (!b64) {
-    for (byte = (unsigned char *)val; byte < stop; byte++, len++) {
+    for (byte = (unsigned char*)val; byte < stop; byte++, len++) {
       if (LDIF_OPT_ISSET(options, LDIF_OPT_MINIMAL_ENCODING)) {
         if (!LDIF_SAFE_CHAR(*byte)) {
           b64 = 1;
@@ -369,7 +369,7 @@ void ldif_put_type_and_value_with_options(char **out, char *t, char *val,
     *out = save;
     *(*out)++ = ':';
     *(*out)++ = ' ';
-    len = ldif_base64_encode_internal((unsigned char *)val, *out, vlen,
+    len = ldif_base64_encode_internal((unsigned char*)val, *out, vlen,
                                       savelen + 2, wraplen);
     *out += len;
   }
@@ -377,11 +377,11 @@ void ldif_put_type_and_value_with_options(char **out, char *t, char *val,
   *(*out)++ = '\n';
 }
 
-void ldif_put_type_and_value(char **out, char *t, char *val, int vlen) {
+void ldif_put_type_and_value(char** out, char* t, char* val, int vlen) {
   ldif_put_type_and_value_with_options(out, t, val, vlen, 0);
 }
 
-void ldif_put_type_and_value_nowrap(char **out, char *t, char *val, int vlen) {
+void ldif_put_type_and_value_nowrap(char** out, char* t, char* val, int vlen) {
   ldif_put_type_and_value_with_options(out, t, val, vlen, LDIF_OPT_NOWRAP);
 }
 
@@ -400,11 +400,11 @@ void ldif_put_type_and_value_nowrap(char **out, char *t, char *val, int vlen) {
  * macro can be used to determine how many bytes will be placed in "dst."
  */
 
-static int ldif_base64_encode_internal(unsigned char *src, char *dst,
+static int ldif_base64_encode_internal(unsigned char* src, char* dst,
                                        int srclen, int lenused, int wraplen) {
   unsigned char *byte, *stop;
   unsigned char buf[3];
-  char *out;
+  char* out;
   unsigned long bits;
   int i, pad, len;
 
@@ -465,12 +465,12 @@ static int ldif_base64_encode_internal(unsigned char *src, char *dst,
   return (out - dst);
 }
 
-int ldif_base64_encode(unsigned char *src, char *dst, int srclen, int lenused) {
+int ldif_base64_encode(unsigned char* src, char* dst, int srclen, int lenused) {
   return ldif_base64_encode_internal(src, dst, srclen, lenused,
                                      LDIF_MAX_LINE_WIDTH);
 }
 
-int ldif_base64_encode_nowrap(unsigned char *src, char *dst, int srclen,
+int ldif_base64_encode_nowrap(unsigned char* src, char* dst, int srclen,
                               int lenused) {
   return ldif_base64_encode_internal(src, dst, srclen, lenused, -1);
 }
@@ -478,13 +478,13 @@ int ldif_base64_encode_nowrap(unsigned char *src, char *dst, int srclen,
 /*
  * return malloc'd, zero-terminated LDIF line
  */
-char *ldif_type_and_value_with_options(char *type, char *val, int vlen,
+char* ldif_type_and_value_with_options(char* type, char* val, int vlen,
                                        unsigned long options) {
   char *buf, *p;
   int tlen;
 
   tlen = strlen(type);
-  if ((buf = (char *)malloc(LDIF_SIZE_NEEDED(tlen, vlen) + 1)) != NULL) {
+  if ((buf = (char*)malloc(LDIF_SIZE_NEEDED(tlen, vlen) + 1)) != NULL) {
     p = buf;
     ldif_put_type_and_value_with_options(&p, type, val, vlen, options);
     *p = '\0';
@@ -493,11 +493,11 @@ char *ldif_type_and_value_with_options(char *type, char *val, int vlen,
   return (buf);
 }
 
-char *ldif_type_and_value(char *type, char *val, int vlen) {
+char* ldif_type_and_value(char* type, char* val, int vlen) {
   return ldif_type_and_value_with_options(type, val, vlen, 0);
 }
 
-char *ldif_type_and_value_nowrap(char *type, char *val, int vlen) {
+char* ldif_type_and_value_nowrap(char* type, char* val, int vlen) {
   return ldif_type_and_value_with_options(type, val, vlen, LDIF_OPT_NOWRAP);
 }
 
@@ -506,9 +506,9 @@ char *ldif_type_and_value_nowrap(char *type, char *val, int vlen) {
  * by fp. return a pointer to a malloc'd, null-terminated buffer. also
  * returned is the last line number read, in *lineno.
  */
-char *ldif_get_entry(FILE *fp, int *lineno) {
+char* ldif_get_entry(FILE* fp, int* lineno) {
   char line[BUFSIZ];
-  char *buf;
+  char* buf;
   int max, cur, len, gotsome;
 
   buf = NULL;
@@ -547,10 +547,10 @@ char *ldif_get_entry(FILE *fp, int *lineno) {
     while (cur + (len + 1) > max) {
       if (buf == NULL) {
         max += BUFSIZ;
-        buf = (char *)malloc(max);
+        buf = (char*)malloc(max);
       } else {
         max *= 2;
-        buf = (char *)realloc(buf, max);
+        buf = (char*)realloc(buf, max);
       }
       if (buf == NULL) {
         return (NULL);

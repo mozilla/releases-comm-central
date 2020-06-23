@@ -37,13 +37,13 @@
 #include "ldap-int.h"
 
 /* ldap_passwd */
-int LDAP_CALL ldap_passwd(LDAP *ld, struct berval *userid,
-                          struct berval *oldpasswd, struct berval *newpasswd,
-                          LDAPControl **serverctrls, LDAPControl **clientctrls,
-                          int *msgidp) {
+int LDAP_CALL ldap_passwd(LDAP* ld, struct berval* userid,
+                          struct berval* oldpasswd, struct berval* newpasswd,
+                          LDAPControl** serverctrls, LDAPControl** clientctrls,
+                          int* msgidp) {
   int rc;
-  BerElement *ber = NULL;
-  struct berval *requestdata = NULL;
+  BerElement* ber = NULL;
+  struct berval* requestdata = NULL;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
@@ -138,12 +138,12 @@ int LDAP_CALL ldap_passwd(LDAP *ld, struct berval *userid,
 }
 
 /* ldap_parse_passwd */
-int LDAP_CALL ldap_parse_passwd(LDAP *ld, LDAPMessage *result,
-                                struct berval *genpasswd) {
+int LDAP_CALL ldap_parse_passwd(LDAP* ld, LDAPMessage* result,
+                                struct berval* genpasswd) {
   int rc;
-  char *retoidp = NULL;
-  struct berval *retdatap = NULL;
-  BerElement *ber = NULL;
+  char* retoidp = NULL;
+  struct berval* retdatap = NULL;
+  BerElement* ber = NULL;
   ber_len_t len;
   ber_tag_t tag;
 
@@ -212,12 +212,12 @@ int LDAP_CALL ldap_parse_passwd(LDAP *ld, LDAPMessage *result,
 }
 
 /* ldap_passwd_s */
-int LDAP_CALL ldap_passwd_s(LDAP *ld, struct berval *userid,
-                            struct berval *oldpasswd, struct berval *newpasswd,
-                            struct berval *genpasswd, LDAPControl **serverctrls,
-                            LDAPControl **clientctrls) {
+int LDAP_CALL ldap_passwd_s(LDAP* ld, struct berval* userid,
+                            struct berval* oldpasswd, struct berval* newpasswd,
+                            struct berval* genpasswd, LDAPControl** serverctrls,
+                            LDAPControl** clientctrls) {
   int rc, msgid;
-  LDAPMessage *result = NULL;
+  LDAPMessage* result = NULL;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);

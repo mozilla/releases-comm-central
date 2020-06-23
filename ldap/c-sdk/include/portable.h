@@ -183,7 +183,7 @@
       ((p)->fds_bits[(n) / NFDBITS] &= ~(1 << ((n) % NFDBITS)))
 #    define FD_ISSET(n, p) \
       ((p)->fds_bits[(n) / NFDBITS] & (1 << ((n) % NFDBITS)))
-#    define FD_ZERO(p) bzero((char *)(p), sizeof(*(p)))
+#    define FD_ZERO(p) bzero((char*)(p), sizeof(*(p)))
 #  endif /* !FD_SET */
 #endif   /* !WINSOCK && !_WINDOWS && !macintosh */
 
@@ -244,12 +244,12 @@
 #endif
 
 #if defined(SNI) || defined(LINUX1_2)
-int strcasecmp(const char *, const char *);
+int strcasecmp(const char*, const char*);
 #  ifdef SNI
-int strncasecmp(const char *, const char *, int);
+int strncasecmp(const char*, const char*, int);
 #  endif /* SNI */
 #  ifdef LINUX1_2
-int strncasecmp(const char *, const char *, size_t);
+int strncasecmp(const char*, const char*, size_t);
 #  endif /* LINUX1_2 */
 #endif   /* SNI || LINUX1_2 */
 
@@ -291,7 +291,7 @@ typedef char GETHOSTBYNAME_buf_t[NSLDAPI_NETDB_BUF_SIZE];
 #  elif defined(HPUX10)
 #    define GETHOSTBYNAME_BUF_T struct hostent_data
 #    define GETHOSTBYNAME(n, r, b, l, e) \
-      nsldapi_compat_gethostbyname_r(n, r, (char *)&b, l, e)
+      nsldapi_compat_gethostbyname_r(n, r, (char*)&b, l, e)
 #  elif defined(LINUX) || defined(DRAGONFLY)
 typedef char GETHOSTBYNAME_buf_t[NSLDAPI_NETDB_BUF_SIZE];
 #    define GETHOSTBYNAME_BUF_T GETHOSTBYNAME_buf_t
@@ -329,14 +329,14 @@ typedef char GETHOSTBYNAME_buf_t[NSLDAPI_NETDB_BUF_SIZE];
 #  else
 #    define HAVE_STRTOK_R
 #    ifndef strtok_r
-char *strtok_r(char *, const char *, char **);
+char* strtok_r(char*, const char*, char**);
 #    endif
-#    define STRTOK(s1, s2, l) (char *)strtok_r(s1, s2, l)
+#    define STRTOK(s1, s2, l) (char*)strtok_r(s1, s2, l)
 #  endif /* STRTOK */
 #endif   /* UNIX */
 
 #if defined(ultrix) || defined(nextstep)
-extern char *strdup();
+extern char* strdup();
 #endif /* ultrix || nextstep */
 
 #if defined(sunos4) || defined(OSF1)
@@ -376,31 +376,31 @@ typedef nsldapi_uint_32 nsldapi_in_addr_t;
 
 #ifdef SUNOS4
 #  include <pcfs/pc_dir.h> /* for toupper() */
-int fprintf(FILE *, char *, ...);
-int fseek(FILE *, long, int);
-int fread(char *, int, int, FILE *);
-int fclose(FILE *);
-int fflush(FILE *);
-int rewind(FILE *);
-void *memmove(void *, const void *, size_t);
-int strcasecmp(char *, char *);
-int strncasecmp(char *, char *, int);
-time_t time(time_t *);
-void perror(char *);
-int fputc(char, FILE *);
-int fputs(char *, FILE *);
-int re_exec(char *);
+int fprintf(FILE*, char*, ...);
+int fseek(FILE*, long, int);
+int fread(char*, int, int, FILE*);
+int fclose(FILE*);
+int fflush(FILE*);
+int rewind(FILE*);
+void* memmove(void*, const void*, size_t);
+int strcasecmp(char*, char*);
+int strncasecmp(char*, char*, int);
+time_t time(time_t*);
+void perror(char*);
+int fputc(char, FILE*);
+int fputs(char*, FILE*);
+int re_exec(char*);
 int socket(int, int, int);
-void bzero(char *, int);
-unsigned long inet_addr(char *);
-char *inet_ntoa(struct in_addr);
+void bzero(char*, int);
+unsigned long inet_addr(char*);
+char* inet_ntoa(struct in_addr);
 int getdtablesize();
-int connect(int, struct sockaddr *, int);
+int connect(int, struct sockaddr*, int);
 #endif /* SUNOS4 */
 
 /* #if defined(SUNOS4) || defined(SNI) */
 #if defined(SUNOS4)
-int select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
+int select(int, fd_set*, fd_set*, fd_set*, struct timeval*);
 #endif /* SUNOS4 || SNI */
 
 /*
@@ -451,7 +451,7 @@ int select(int, fd_set *, fd_set *, fd_set *, struct timeval *);
 #endif
 
 #if defined(LINUX) || defined(AIX) || defined(HPUX) || defined(_WINDOWS)
-size_t nsldapi_compat_strlcpy(char *dst, const char *src, size_t len);
+size_t nsldapi_compat_strlcpy(char* dst, const char* src, size_t len);
 #  define STRLCPY nsldapi_compat_strlcpy
 #else
 #  define STRLCPY strlcpy

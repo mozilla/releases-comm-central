@@ -50,21 +50,21 @@ static char copyright[] = "@(#) Copyright (c) 1995 Regents of the University of 
 
 #include "ldap-int.h"
 
-static LDAPConn *find_connection(LDAP *ld, LDAPServer *srv, int any);
-static void free_servers(LDAPServer *srvlist);
-static int chase_one_referral(LDAP *ld, LDAPRequest *lr, LDAPRequest *origreq,
-                              char *refurl, char *desc, int *unknownp,
+static LDAPConn* find_connection(LDAP* ld, LDAPServer* srv, int any);
+static void free_servers(LDAPServer* srvlist);
+static int chase_one_referral(LDAP* ld, LDAPRequest* lr, LDAPRequest* origreq,
+                              char* refurl, char* desc, int* unknownp,
                               int is_reference);
-static int re_encode_request(LDAP *ld, BerElement *origber, int msgid,
-                             LDAPURLDesc *ludp, BerElement **berp,
+static int re_encode_request(LDAP* ld, BerElement* origber, int msgid,
+                             LDAPURLDesc* ludp, BerElement** berp,
                              int is_reference);
 
 #ifdef LDAP_DNS
-static LDAPServer *dn2servers(LDAP *ld, char *dn);
+static LDAPServer* dn2servers(LDAP* ld, char* dn);
 #endif /* LDAP_DNS */
 
 /* returns an LDAP error code and also sets error inside LDAP * */
-int nsldapi_alloc_ber_with_options(LDAP *ld, BerElement **berp) {
+int nsldapi_alloc_ber_with_options(LDAP* ld, BerElement** berp) {
   int err;
 
   LDAP_MUTEX_LOCK(ld, LDAP_OPTION_LOCK);
@@ -82,7 +82,7 @@ int nsldapi_alloc_ber_with_options(LDAP *ld, BerElement **berp) {
   return (err);
 }
 
-void nsldapi_set_ber_options(LDAP *ld, BerElement *ber) {
+void nsldapi_set_ber_options(LDAP* ld, BerElement* ber) {
   ber->ber_options = ld->ld_lberoptions;
 #ifdef STR_TRANSLATION
   if ((ld->ld_lberoptions & LBER_OPT_TRANSLATE_STRINGS) != 0) {
@@ -93,9 +93,9 @@ void nsldapi_set_ber_options(LDAP *ld, BerElement *ber) {
 }
 
 /* returns the message id of the request or -1 if an error occurs */
-int nsldapi_send_initial_request(LDAP *ld, int msgid, unsigned long msgtype,
-                                 char *dn, BerElement *ber) {
-  LDAPServer *servers;
+int nsldapi_send_initial_request(LDAP* ld, int msgid, unsigned long msgtype,
+                                 char* dn, BerElement* ber) {
+  LDAPServer* servers;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_initial_request\n", 0, 0, 0);
 
@@ -110,7 +110,7 @@ int nsldapi_send_initial_request(LDAP *ld, int msgid, unsigned long msgtype,
 
 #  ifdef LDAP_DEBUG
     if (ldap_debug & LDAP_DEBUG_TRACE) {
-      LDAPServer *srv;
+      LDAPServer* srv;
       char msg[256];
 
       for (srv = servers; srv != NULL; srv = srv->lsrv_next) {
@@ -140,25 +140,25 @@ int nsldapi_send_initial_request(LDAP *ld, int msgid, unsigned long msgtype,
 
 /* returns the message id of the request or -1 if an error occurs */
 int nsldapi_send_server_request(
-    LDAP *ld,               /* session handle */
-    BerElement *ber,        /* message to send */
+    LDAP* ld,               /* session handle */
+    BerElement* ber,        /* message to send */
     int msgid,              /* ID of message to send */
-    LDAPRequest *parentreq, /* non-NULL for referred requests */
-    LDAPServer *srvlist,    /* servers to connect to (NULL for default) */
-    LDAPConn *lc,           /* connection to use (NULL for default) */
-    char *bindreqdn,        /* non-NULL for bind requests */
+    LDAPRequest* parentreq, /* non-NULL for referred requests */
+    LDAPServer* srvlist,    /* servers to connect to (NULL for default) */
+    LDAPConn* lc,           /* connection to use (NULL for default) */
+    char* bindreqdn,        /* non-NULL for bind requests */
     int bind                /* perform a bind after opening new conn.? */
 ) {
-  LDAPRequest *lr;
+  LDAPRequest* lr;
   int err;
   int incparent; /* did we bump parent's ref count? */
   /* EPIPE and Unsolicited Response handling variables */
   int res_rc = 0;
   int epipe_err = 0;
   int ext_res_rc = 0;
-  char *ext_oid = NULL;
-  struct berval *ext_data = NULL;
-  LDAPMessage *ext_res = NULL;
+  char* ext_oid = NULL;
+  struct berval* ext_data = NULL;
+  LDAPMessage* ext_res = NULL;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_send_server_request\n", 0, 0, 0);
 
@@ -322,7 +322,7 @@ int nsldapi_send_server_request(
       epipe_err = LDAP_GET_ERRNO(ld);
       if (epipe_err == EPIPE) {
         res_rc = nsldapi_result_nolock(ld, LDAP_RES_UNSOLICITED, 1, 1,
-                                       (struct timeval *)NULL, &ext_res);
+                                       (struct timeval*)NULL, &ext_res);
         if ((res_rc == LDAP_RES_EXTENDED) && ext_res) {
           ext_res_rc =
               ldap_parse_extended_result(ld, ext_res, &ext_oid, &ext_data, 0);
@@ -434,7 +434,7 @@ int nsldapi_send_server_request(
  *   -1: a fatal error occurred while trying to send.
  *   -2: async. I/O is enabled and the send would block.
  */
-int nsldapi_send_ber_message(LDAP *ld, Sockbuf *sb, BerElement *ber, int freeit,
+int nsldapi_send_ber_message(LDAP* ld, Sockbuf* sb, BerElement* ber, int freeit,
                              int epipe_handler) {
   int rc = 0; /* optimistic */
   int async = (0 != (ld->ld_options & LDAP_BITOPT_ASYNC));
@@ -480,12 +480,12 @@ int nsldapi_send_ber_message(LDAP *ld, Sockbuf *sb, BerElement *ber, int freeit,
  * LDAP_CONN_LOCK
  * LDAP_REQ_LOCK
  */
-int nsldapi_send_pending_requests_nolock(LDAP *ld, LDAPConn *lc) {
+int nsldapi_send_pending_requests_nolock(LDAP* ld, LDAPConn* lc) {
   int err;
   int waiting_for_a_response = 0;
   int rc = 0;
-  LDAPRequest *lr;
-  char *logname = "nsldapi_send_pending_requests_nolock";
+  LDAPRequest* lr;
+  char* logname = "nsldapi_send_pending_requests_nolock";
 
   LDAPDebug(LDAP_DEBUG_TRACE, "%s\n", logname, 0, 0);
 
@@ -552,20 +552,20 @@ int nsldapi_send_pending_requests_nolock(LDAP *ld, LDAPConn *lc) {
   return (rc);
 }
 
-LDAPConn *nsldapi_new_connection(LDAP *ld, LDAPServer **srvlistp, int use_ldsb,
+LDAPConn* nsldapi_new_connection(LDAP* ld, LDAPServer** srvlistp, int use_ldsb,
                                  int connect, int bind) {
   int rc = -1;
-  LDAPConn *lc;
+  LDAPConn* lc;
   LDAPServer *prevsrv, *srv;
-  Sockbuf *sb = NULL;
+  Sockbuf* sb = NULL;
 
   /*
    * make a new LDAP server connection
    */
-  if ((lc = (LDAPConn *)NSLDAPI_CALLOC(1, sizeof(LDAPConn))) == NULL ||
+  if ((lc = (LDAPConn*)NSLDAPI_CALLOC(1, sizeof(LDAPConn))) == NULL ||
       (!use_ldsb && (sb = ber_sockbuf_alloc()) == NULL)) {
     if (lc != NULL) {
-      NSLDAPI_FREE((char *)lc);
+      NSLDAPI_FREE((char*)lc);
     }
     LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
     return (NULL);
@@ -587,14 +587,14 @@ LDAPConn *nsldapi_new_connection(LDAP *ld, LDAPServer **srvlistp, int use_ldsb,
       ber_sockbuf_set_option(sb, LBER_SOCKBUF_OPT_EXT_IO_FNS, &extiofns);
     }
     if (ber_sockbuf_get_option(ld->ld_sbp, LBER_SOCKBUF_OPT_READ_FN,
-                               (void *)&sb_fn) == 0 &&
+                               (void*)&sb_fn) == 0 &&
         sb_fn != NULL) {
-      ber_sockbuf_set_option(sb, LBER_SOCKBUF_OPT_READ_FN, (void *)sb_fn);
+      ber_sockbuf_set_option(sb, LBER_SOCKBUF_OPT_READ_FN, (void*)sb_fn);
     }
     if (ber_sockbuf_get_option(ld->ld_sbp, LBER_SOCKBUF_OPT_WRITE_FN,
-                               (void *)&sb_fn) == 0 &&
+                               (void*)&sb_fn) == 0 &&
         sb_fn != NULL) {
-      ber_sockbuf_set_option(sb, LBER_SOCKBUF_OPT_WRITE_FN, (void *)sb_fn);
+      ber_sockbuf_set_option(sb, LBER_SOCKBUF_OPT_WRITE_FN, (void*)sb_fn);
     }
   }
 
@@ -620,9 +620,9 @@ LDAPConn *nsldapi_new_connection(LDAP *ld, LDAPServer **srvlistp, int use_ldsb,
 
     if (srv == NULL) {
       if (!use_ldsb) {
-        NSLDAPI_FREE((char *)lc->lconn_sb);
+        NSLDAPI_FREE((char*)lc->lconn_sb);
       }
-      NSLDAPI_FREE((char *)lc);
+      NSLDAPI_FREE((char*)lc);
       /* nsldapi_open_ldap_connection has already set ld_errno */
       return (NULL);
     }
@@ -657,7 +657,7 @@ LDAPConn *nsldapi_new_connection(LDAP *ld, LDAPServer **srvlistp, int use_ldsb,
   if (bind) {
     int err, lderr, freepasswd, authmethod;
     char *binddn, *passwd;
-    LDAPConn *savedefconn;
+    LDAPConn* savedefconn;
 
     freepasswd = err = 0;
 
@@ -720,14 +720,14 @@ LDAPConn *nsldapi_new_connection(LDAP *ld, LDAPServer **srvlistp, int use_ldsb,
   (((h1) == NULL && (h2) == NULL) || \
    ((h1) != NULL && (h2) != NULL && strcasecmp((h1), (h2)) == 0))
 
-static LDAPConn *find_connection(LDAP *ld, LDAPServer *srv, int any)
+static LDAPConn* find_connection(LDAP* ld, LDAPServer* srv, int any)
 /*
  * return an existing connection (if any) to the server srv
  * if "any" is non-zero, check for any server in the "srv" chain
  */
 {
-  LDAPConn *lc;
-  LDAPServer *ls;
+  LDAPConn* lc;
+  LDAPServer* ls;
 
   for (lc = ld->ld_conns; lc != NULL; lc = lc->lconn_next) {
     for (ls = srv; ls != NULL; ls = ls->lsrv_next) {
@@ -745,8 +745,8 @@ static LDAPConn *find_connection(LDAP *ld, LDAPServer *srv, int any)
   return (NULL);
 }
 
-void nsldapi_free_connection(LDAP *ld, LDAPConn *lc, LDAPControl **serverctrls,
-                             LDAPControl **clientctrls, int force, int unbind) {
+void nsldapi_free_connection(LDAP* ld, LDAPConn* lc, LDAPControl** serverctrls,
+                             LDAPControl** clientctrls, int force, int unbind) {
   LDAPConn *tmplc, *prevlc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_free_connection\n", 0, 0, 0);
@@ -807,8 +807,8 @@ void nsldapi_free_connection(LDAP *ld, LDAPConn *lc, LDAPControl **serverctrls,
 }
 
 #ifdef LDAP_DEBUG
-void nsldapi_dump_connection(LDAP *ld, LDAPConn *lconns, int all) {
-  LDAPConn *lc;
+void nsldapi_dump_connection(LDAP* ld, LDAPConn* lconns, int all) {
+  LDAPConn* lc;
   char msg[256];
 /* CTIME for this platform doesn't use this. */
 #  if !defined(SUNOS4) && !defined(_WIN32) && !defined(LINUX) && \
@@ -837,7 +837,7 @@ void nsldapi_dump_connection(LDAP *ld, LDAPConn *lconns, int all) {
             : (lc->lconn_status == LDAP_CONNST_DEAD) ? "Dead" : "Connected");
     ber_err_print(msg);
     sprintf(msg, "  last used: %s",
-            NSLDAPI_CTIME((time_t *)&lc->lconn_lastused, buf, sizeof(buf)));
+            NSLDAPI_CTIME((time_t*)&lc->lconn_lastused, buf, sizeof(buf)));
     ber_err_print(msg);
     if (lc->lconn_ber != NULLBER) {
       ber_err_print("  partial response has been received:\n");
@@ -851,8 +851,8 @@ void nsldapi_dump_connection(LDAP *ld, LDAPConn *lconns, int all) {
   }
 }
 
-void nsldapi_dump_requests_and_responses(LDAP *ld) {
-  LDAPRequest *lr;
+void nsldapi_dump_requests_and_responses(LDAP* ld) {
+  LDAPRequest* lr;
   LDAPMessage *lm, *l;
   char msg[256];
 
@@ -903,11 +903,11 @@ void nsldapi_dump_requests_and_responses(LDAP *ld) {
 }
 #endif /* LDAP_DEBUG */
 
-LDAPRequest *nsldapi_new_request(LDAPConn *lc, BerElement *ber, int msgid,
+LDAPRequest* nsldapi_new_request(LDAPConn* lc, BerElement* ber, int msgid,
                                  int expect_resp) {
-  LDAPRequest *lr;
+  LDAPRequest* lr;
 
-  lr = (LDAPRequest *)NSLDAPI_CALLOC(1, sizeof(LDAPRequest));
+  lr = (LDAPRequest*)NSLDAPI_CALLOC(1, sizeof(LDAPRequest));
 
   if (lr != NULL) {
     lr->lr_conn = lc;
@@ -926,7 +926,7 @@ LDAPRequest *nsldapi_new_request(LDAPConn *lc, BerElement *ber, int msgid,
   return (lr);
 }
 
-void nsldapi_free_request(LDAP *ld, LDAPRequest *lr, int free_conn) {
+void nsldapi_free_request(LDAP* ld, LDAPRequest* lr, int free_conn) {
   LDAPRequest *tmplr, *nextlr;
 
   LDAPDebug(LDAP_DEBUG_TRACE,
@@ -992,11 +992,11 @@ void nsldapi_free_request(LDAP *ld, LDAPRequest *lr, int free_conn) {
  * LDAP_CONN_LOCK
  * LDAP_REQ_LOCK
  */
-void nsldapi_queue_request_nolock(LDAP *ld, LDAPRequest *lr) {
+void nsldapi_queue_request_nolock(LDAP* ld, LDAPRequest* lr) {
   if (NULL == ld->ld_requests) {
     ld->ld_requests = lr;
   } else {
-    LDAPRequest *tmplr;
+    LDAPRequest* tmplr;
 
     for (tmplr = ld->ld_requests; tmplr->lr_next != NULL;
          tmplr = tmplr->lr_next) {
@@ -1007,8 +1007,8 @@ void nsldapi_queue_request_nolock(LDAP *ld, LDAPRequest *lr) {
   }
 }
 
-static void free_servers(LDAPServer *srvlist) {
-  LDAPServer *nextsrv;
+static void free_servers(LDAPServer* srvlist) {
+  LDAPServer* nextsrv;
 
   while (srvlist != NULL) {
     nextsrv = srvlist->lsrv_next;
@@ -1033,10 +1033,10 @@ static void free_servers(LDAPServer *srvlist) {
  *
  * XXX merging of errors in this routine needs to be improved.
  */
-int nsldapi_chase_v2_referrals(LDAP *ld, LDAPRequest *lr, char **errstrp,
-                               int *totalcountp, int *chasingcountp) {
+int nsldapi_chase_v2_referrals(LDAP* ld, LDAPRequest* lr, char** errstrp,
+                               int* totalcountp, int* chasingcountp) {
   char *p, *ref, *unfollowed;
-  LDAPRequest *origreq;
+  LDAPRequest* origreq;
   int rc, tmprc, len, unknown;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_chase_v2_referrals\n", 0, 0, 0);
@@ -1105,12 +1105,12 @@ int nsldapi_chase_v2_referrals(LDAP *ld, LDAPRequest *lr, char **errstrp,
 }
 
 /* returns an LDAP error code */
-int nsldapi_chase_v3_refs(LDAP *ld, LDAPRequest *lr, char **v3refs,
-                          int is_reference, int *totalcountp,
-                          int *chasingcountp) {
+int nsldapi_chase_v3_refs(LDAP* ld, LDAPRequest* lr, char** v3refs,
+                          int is_reference, int* totalcountp,
+                          int* chasingcountp) {
   int rc = LDAP_SUCCESS;
   int i, unknown;
-  LDAPRequest *origreq;
+  LDAPRequest* origreq;
 
   *totalcountp = *chasingcountp = 0;
 
@@ -1159,13 +1159,13 @@ int nsldapi_chase_v3_refs(LDAP *ld, LDAPRequest *lr, char **v3refs,
  * removed it when I improved the parsing (we don't define LDAP_DNS
  * here at Netscape).
  */
-static int chase_one_referral(LDAP *ld, LDAPRequest *lr, LDAPRequest *origreq,
-                              char *refurl, char *desc, int *unknownp,
+static int chase_one_referral(LDAP* ld, LDAPRequest* lr, LDAPRequest* origreq,
+                              char* refurl, char* desc, int* unknownp,
                               int is_reference) {
   int rc, tmprc, secure, msgid;
-  LDAPServer *srv;
-  BerElement *ber;
-  LDAPURLDesc *ludp;
+  LDAPServer* srv;
+  BerElement* ber;
+  LDAPURLDesc* ludp;
 
   *unknownp = 0;
   ludp = NULLLDAPURLDESC;
@@ -1200,7 +1200,7 @@ static int chase_one_referral(LDAP *ld, LDAPRequest *lr, LDAPRequest *origreq,
     goto cleanup_and_return;
   }
 
-  if ((srv = (LDAPServer *)NSLDAPI_CALLOC(1, sizeof(LDAPServer))) == NULL) {
+  if ((srv = (LDAPServer*)NSLDAPI_CALLOC(1, sizeof(LDAPServer))) == NULL) {
     ber_free(ber, 1);
     rc = LDAP_NO_MEMORY;
     goto cleanup_and_return;
@@ -1225,7 +1225,7 @@ static int chase_one_referral(LDAP *ld, LDAPRequest *lr, LDAPRequest *origreq,
     }
 
     if (srv->lsrv_host == NULL) {
-      NSLDAPI_FREE((char *)srv);
+      NSLDAPI_FREE((char*)srv);
       ber_free(ber, 1);
       rc = LDAP_NO_MEMORY;
       goto cleanup_and_return;
@@ -1271,16 +1271,16 @@ cleanup_and_return:
 }
 
 /* returns an LDAP error code */
-int nsldapi_append_referral(LDAP *ld, char **referralsp, char *s) {
+int nsldapi_append_referral(LDAP* ld, char** referralsp, char* s) {
   int first;
 
   if (*referralsp == NULL) {
     first = 1;
-    *referralsp = (char *)NSLDAPI_MALLOC(strlen(s) + LDAP_REF_STR_LEN + 1);
+    *referralsp = (char*)NSLDAPI_MALLOC(strlen(s) + LDAP_REF_STR_LEN + 1);
   } else {
     first = 0;
-    *referralsp = (char *)NSLDAPI_REALLOC(*referralsp,
-                                          strlen(*referralsp) + strlen(s) + 2);
+    *referralsp = (char*)NSLDAPI_REALLOC(*referralsp,
+                                         strlen(*referralsp) + strlen(s) + 2);
   }
 
   if (*referralsp == NULL) {
@@ -1298,8 +1298,8 @@ int nsldapi_append_referral(LDAP *ld, char **referralsp, char *s) {
 }
 
 /* returns an LDAP error code */
-static int re_encode_request(LDAP *ld, BerElement *origber, int msgid,
-                             LDAPURLDesc *ludp, BerElement **berp,
+static int re_encode_request(LDAP* ld, BerElement* origber, int msgid,
+                             LDAPURLDesc* ludp, BerElement** berp,
                              int is_reference) {
   /*
    * XXX this routine knows way too much about how the lber library works!
@@ -1308,7 +1308,7 @@ static int re_encode_request(LDAP *ld, BerElement *origber, int msgid,
   ber_tag_t tag;
   ber_int_t ver;
   int rc;
-  BerElement *ber;
+  BerElement* ber;
   struct berelement tmpber;
   char *dn, *orig_dn;
   /* extra stuff for search request */
@@ -1437,8 +1437,8 @@ static int re_encode_request(LDAP *ld, BerElement *origber, int msgid,
   return (LDAP_SUCCESS);
 }
 
-LDAPRequest *nsldapi_find_request_by_msgid(LDAP *ld, int msgid) {
-  LDAPRequest *lr;
+LDAPRequest* nsldapi_find_request_by_msgid(LDAP* ld, int msgid) {
+  LDAPRequest* lr;
 
   for (lr = ld->ld_requests; lr != NULL; lr = lr->lr_next) {
     if (msgid == lr->lr_msgid) {
@@ -1455,8 +1455,8 @@ LDAPRequest *nsldapi_find_request_by_msgid(LDAP *ld, int msgid) {
  * Sockbuf "sb."  sb == NULL means we don't know specifically where
  * the problem was so we assume all connections are bad.
  */
-void nsldapi_connection_lost_nolock(LDAP *ld, Sockbuf *sb) {
-  LDAPRequest *lr;
+void nsldapi_connection_lost_nolock(LDAP* ld, Sockbuf* sb) {
+  LDAPRequest* lr;
 
   /*
    * change status of all pending requests that are associated with "sb
@@ -1476,8 +1476,8 @@ void nsldapi_connection_lost_nolock(LDAP *ld, Sockbuf *sb) {
 }
 
 #ifdef LDAP_DNS
-static LDAPServer *dn2servers(LDAP *ld,
-                              char *dn) /* dn can also be a domain.... */
+static LDAPServer* dn2servers(LDAP* ld,
+                              char* dn) /* dn can also be a domain.... */
 {
   char *p, *domain, *host, *server_dn, **dxs;
   int i, port;
@@ -1520,7 +1520,7 @@ static LDAPServer *dn2servers(LDAP *ld,
     }
 
     if (host != NULL) { /* found a server we can use */
-      if ((srv = (LDAPServer *)NSLDAPI_CALLOC(1, sizeof(LDAPServer))) == NULL) {
+      if ((srv = (LDAPServer*)NSLDAPI_CALLOC(1, sizeof(LDAPServer))) == NULL) {
         free_servers(srvlist);
         srvlist = NULL;
         break; /* exit loop & return */

@@ -79,14 +79,14 @@ XXX not MT - safe XXX
 
 #  ifdef NEEDPROTOS
                  static char *
-                 *decode_answer(unsigned char *answer, int len);
+                 *decode_answer(unsigned char* answer, int len);
 #  else  /* NEEDPROTOS */
                  static char *
                  *decode_answer();
 #  endif /* NEEDPROTOS */
 
 extern int h_errno;
-extern char *h_errlist[];
+extern char* h_errlist[];
 
 #  define MAX_TO_SORT 32
 
@@ -94,9 +94,9 @@ extern char *h_errlist[];
  * nsldapi_getdxbyname - lookup DNS DX records for domain and return an ordered
  * array.
  */
-char **nsldapi_getdxbyname(char *domain) {
+char** nsldapi_getdxbyname(char* domain) {
   unsigned char buf[PACKETSZ];
-  char **dxs;
+  char** dxs;
   int rc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_getdxbyname( %s )\n", domain, 0, 0);
@@ -109,7 +109,7 @@ char **nsldapi_getdxbyname(char *domain) {
     /*
      * punt:  return list consisting of the original domain name only
      */
-    if ((dxs = (char **)NSLDAPI_MALLOC(2 * sizeof(char *))) == NULL ||
+    if ((dxs = (char**)NSLDAPI_MALLOC(2 * sizeof(char*))) == NULL ||
         (dxs[0] = nsldapi_strdup(domain)) == NULL) {
       if (dxs != NULL) {
         NSLDAPI_FREE(dxs);
@@ -123,8 +123,8 @@ char **nsldapi_getdxbyname(char *domain) {
   return (dxs);
 }
 
-static char **decode_answer(unsigned char *answer, int len) {
-  HEADER *hp;
+static char** decode_answer(unsigned char* answer, int len) {
+  HEADER* hp;
   char buf[256], **dxs;
   unsigned char *eom, *p;
   int ancount, err, rc, type, class, dx_count, rr_len;
@@ -137,7 +137,7 @@ static char **decode_answer(unsigned char *answer, int len) {
 #  endif /* LDAP_DEBUG */
 
   dxs = NULL;
-  hp = (HEADER *)answer;
+  hp = (HEADER*)answer;
   eom = answer + len;
 
   if (len < sizeof(*hp)) {
@@ -195,8 +195,8 @@ static char **decode_answer(unsigned char *answer, int len) {
       int i, n, pref, txt_len;
       char *q, *r;
 
-      q = (char *)p;
-      while (q < (char *)p + rr_len && err == 0) {
+      q = (char*)p;
+      while (q < (char*)p + rr_len && err == 0) {
         if (*q >= 3 && strncasecmp(q + 1, "dx:", 3) == 0) {
           txt_len = *q - 3;
           r = q + 4;
@@ -219,13 +219,12 @@ static char **decode_answer(unsigned char *answer, int len) {
             --txt_len;
           }
           if (dx_count == 0) {
-            dxs = (char **)NSLDAPI_MALLOC(2 * sizeof(char *));
+            dxs = (char**)NSLDAPI_MALLOC(2 * sizeof(char*));
           } else {
-            dxs =
-                (char **)NSLDAPI_REALLOC(dxs, (dx_count + 2) * sizeof(char *));
+            dxs = (char**)NSLDAPI_REALLOC(dxs, (dx_count + 2) * sizeof(char*));
           }
-          if (dxs == NULL || (dxs[dx_count] = (char *)NSLDAPI_CALLOC(
-                                  1, txt_len + 1)) == NULL) {
+          if (dxs == NULL ||
+              (dxs[dx_count] = (char*)NSLDAPI_CALLOC(1, txt_len + 1)) == NULL) {
             err = NO_RECOVERY;
             continue;
           }
@@ -246,7 +245,7 @@ static char **decode_answer(unsigned char *answer, int len) {
        * sort records based on associated preference value
        */
       int i, j, sort_count, tmp_pref;
-      char *tmp_dx;
+      char* tmp_dx;
 
       sort_count = (dx_count < MAX_TO_SORT) ? dx_count : MAX_TO_SORT;
       for (i = 0; i < sort_count; ++i) {

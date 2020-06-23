@@ -90,21 +90,21 @@ extern "C" {
 #define LDIF_OPT_VALUE_IS_URL 0x02UL
 #define LDIF_OPT_MINIMAL_ENCODING 0x04UL
 
-int ldif_parse_line(char *line, char **type, char **value, int *vlen);
-char *ldif_getline(char **next);
-void ldif_put_type_and_value(char **out, char *t, char *val, int vlen);
-void ldif_put_type_and_value_nowrap(char **out, char *t, char *val, int vlen);
-void ldif_put_type_and_value_with_options(char **out, char *t, char *val,
+int ldif_parse_line(char* line, char** type, char** value, int* vlen);
+char* ldif_getline(char** next);
+void ldif_put_type_and_value(char** out, char* t, char* val, int vlen);
+void ldif_put_type_and_value_nowrap(char** out, char* t, char* val, int vlen);
+void ldif_put_type_and_value_with_options(char** out, char* t, char* val,
                                           int vlen, unsigned long options);
-char *ldif_type_and_value(char *type, char *val, int vlen);
-char *ldif_type_and_value_nowrap(char *type, char *val, int vlen);
-char *ldif_type_and_value_with_options(char *type, char *val, int vlen,
+char* ldif_type_and_value(char* type, char* val, int vlen);
+char* ldif_type_and_value_nowrap(char* type, char* val, int vlen);
+char* ldif_type_and_value_with_options(char* type, char* val, int vlen,
                                        unsigned long options);
-int ldif_base64_decode(char *src, unsigned char *dst);
-int ldif_base64_encode(unsigned char *src, char *dst, int srclen, int lenused);
-int ldif_base64_encode_nowrap(unsigned char *src, char *dst, int srclen,
+int ldif_base64_decode(char* src, unsigned char* dst);
+int ldif_base64_encode(unsigned char* src, char* dst, int srclen, int lenused);
+int ldif_base64_encode_nowrap(unsigned char* src, char* dst, int srclen,
                               int lenused);
-char *ldif_get_entry(FILE *fp, int *lineno);
+char* ldif_get_entry(FILE* fp, int* lineno);
 
 #ifdef __cplusplus
 }

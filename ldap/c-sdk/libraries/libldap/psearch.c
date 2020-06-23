@@ -39,12 +39,12 @@
  */
 #include "ldap-int.h"
 
-int LDAP_CALL ldap_create_persistentsearch_control(LDAP *ld, int changetypes,
+int LDAP_CALL ldap_create_persistentsearch_control(LDAP* ld, int changetypes,
                                                    int changesonly,
                                                    int return_echg_ctls,
                                                    char ctl_iscritical,
-                                                   LDAPControl **ctrlp) {
-  BerElement *ber;
+                                                   LDAPControl** ctrlp) {
+  BerElement* ber;
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -89,17 +89,17 @@ report_error_and_return:
   return (rc);
 }
 
-int LDAP_CALL ldap_parse_entrychange_control(LDAP *ld, LDAPControl **ctrls,
-                                             ber_int_t *chgtypep,
-                                             char **prevdnp,
-                                             int *chgnumpresentp,
-                                             ber_int_t *chgnump) {
-  BerElement *ber;
+int LDAP_CALL ldap_parse_entrychange_control(LDAP* ld, LDAPControl** ctrls,
+                                             ber_int_t* chgtypep,
+                                             char** prevdnp,
+                                             int* chgnumpresentp,
+                                             ber_int_t* chgnump) {
+  BerElement* ber;
   int rc, i;
   ber_int_t changetype;
   ber_len_t len;
   ber_int_t along;
-  char *previousdn;
+  char* previousdn;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);

@@ -264,11 +264,11 @@ static void chset(REGEXCHAR c) {
 #  define badpat(x) (*nfa = END, x)
 #  define store(x) *mp++ = x
 
-char *LDAP_CALL re_comp(const char *pat) {
-  register REGEXCHAR *p;        /* pattern pointer   */
-  register REGEXCHAR *mp = nfa; /* nfa pointer       */
-  register REGEXCHAR *lp;       /* saved pointer..   */
-  register REGEXCHAR *sp = nfa; /* another one..     */
+char* LDAP_CALL re_comp(const char* pat) {
+  register REGEXCHAR* p;        /* pattern pointer   */
+  register REGEXCHAR* mp = nfa; /* nfa pointer       */
+  register REGEXCHAR* lp;       /* saved pointer..   */
+  register REGEXCHAR* sp = nfa; /* another one..     */
 
   register int tagi = 0; /* tag stack index   */
   register int tagc = 1; /* actual tag count  */
@@ -286,7 +286,7 @@ char *LDAP_CALL re_comp(const char *pat) {
   }
   sta = NOP;
 
-  for (p = (REGEXCHAR *)pat; *p; p++) {
+  for (p = (REGEXCHAR*)pat; *p; p++) {
     lp = mp;
     switch (*p) {
       case '.': /* match any char..  */
@@ -294,7 +294,7 @@ char *LDAP_CALL re_comp(const char *pat) {
         break;
 
       case '^': /* match beginning.. */
-        if (p == (REGEXCHAR *)pat)
+        if (p == (REGEXCHAR*)pat)
           store(BOL);
         else {
           store(CHR);
@@ -349,7 +349,7 @@ char *LDAP_CALL re_comp(const char *pat) {
 
       case '*': /* match 0 or more.. */
       case '+': /* match 1 or more.. */
-        if (p == (REGEXCHAR *)pat) return badpat("Empty closure");
+        if (p == (REGEXCHAR*)pat) return badpat("Empty closure");
         lp = sp;        /* previous opcode */
         if (*lp == CLO) /* equivalence..   */
           break;
@@ -460,13 +460,13 @@ char *LDAP_CALL re_comp(const char *pat) {
   return 0;
 }
 
-static REGEXCHAR *bol;
-static REGEXCHAR *bopat[MAXTAG];
-static REGEXCHAR *eopat[MAXTAG];
+static REGEXCHAR* bol;
+static REGEXCHAR* bopat[MAXTAG];
+static REGEXCHAR* eopat[MAXTAG];
 #  ifdef NEEDPROTOS
-static REGEXCHAR *pmatch(REGEXCHAR *lp, REGEXCHAR *ap);
+static REGEXCHAR* pmatch(REGEXCHAR* lp, REGEXCHAR* ap);
 #  else  /* NEEDPROTOS */
-static REGEXCHAR *pmatch();
+static REGEXCHAR* pmatch();
 #  endif /* NEEDPROTOS */
 
 /*
@@ -491,12 +491,12 @@ static REGEXCHAR *pmatch();
  *
  */
 
-int LDAP_CALL re_exec(const char *lp) {
+int LDAP_CALL re_exec(const char* lp) {
   register REGEXCHAR c;
-  register REGEXCHAR *ep = 0;
-  register REGEXCHAR *ap = nfa;
+  register REGEXCHAR* ep = 0;
+  register REGEXCHAR* ap = nfa;
 
-  bol = (REGEXCHAR *)lp;
+  bol = (REGEXCHAR*)lp;
 
   bopat[0] = 0;
   bopat[1] = 0;
@@ -511,16 +511,16 @@ int LDAP_CALL re_exec(const char *lp) {
 
   switch (*ap) {
     case BOL: /* anchored: match from BOL only */
-      ep = pmatch((REGEXCHAR *)lp, ap);
+      ep = pmatch((REGEXCHAR*)lp, ap);
       break;
     case CHR: /* ordinary char: locate it fast */
       c = *(ap + 1);
-      while (*lp && *(REGEXCHAR *)lp != c) lp++;
+      while (*lp && *(REGEXCHAR*)lp != c) lp++;
       if (!*lp) /* if EOS, fail, else fall through. */
         return 0;
     default: /* regular matching all the way. */
       do {
-        if ((ep = pmatch((REGEXCHAR *)lp, ap))) break;
+        if ((ep = pmatch((REGEXCHAR*)lp, ap))) break;
         lp++;
       } while (*lp);
 
@@ -530,7 +530,7 @@ int LDAP_CALL re_exec(const char *lp) {
   }
   if (!ep) return 0;
 
-  bopat[0] = (REGEXCHAR *)lp;
+  bopat[0] = (REGEXCHAR*)lp;
   eopat[0] = ep;
   return 1;
 }
@@ -600,12 +600,12 @@ static char chrtyp[MAXCHR] = {
 #  define CHRSKIP 3  /* [CLO] CHR chr END ...     */
 #  define CCLSKIP 18 /* [CLO] CCL 16bytes END ... */
 
-static REGEXCHAR *pmatch(REGEXCHAR *lp, REGEXCHAR *ap) {
+static REGEXCHAR* pmatch(REGEXCHAR* lp, REGEXCHAR* ap) {
   register int op, c, n;
-  register REGEXCHAR *e;  /* extra pointer for CLO */
-  register REGEXCHAR *bp; /* beginning of subpat.. */
-  register REGEXCHAR *ep; /* ending of subpat..   */
-  REGEXCHAR *are;         /* to save the line ptr. */
+  register REGEXCHAR* e;  /* extra pointer for CLO */
+  register REGEXCHAR* bp; /* beginning of subpat.. */
+  register REGEXCHAR* ep; /* ending of subpat..   */
+  REGEXCHAR* are;         /* to save the line ptr. */
 
   while ((op = *ap++) != END) switch (op) {
       case CHR:
@@ -693,7 +693,7 @@ static REGEXCHAR *pmatch(REGEXCHAR *lp, REGEXCHAR *ap) {
 static REGEXCHAR deftab[16] = {0,    0,    0,    0,    0,    0,    0377, 003,
                                0376, 0377, 0377, 0207, 0376, 0377, 0377, 007};
 
-void LDAP_CALL re_modw(char *s) {
+void LDAP_CALL re_modw(char* s) {
   register int i;
 
   if (!s || !*s) {
@@ -713,11 +713,11 @@ void LDAP_CALL re_modw(char *s) {
  *   Tags are numbered from 1 to 9. If the particular
  *   tagged subpattern does not exist, null is substituted.
  */
-int LDAP_CALL re_subs(char *src, char *dst) {
+int LDAP_CALL re_subs(char* src, char* dst) {
   register char c;
   register int pin;
-  register REGEXCHAR *bp;
-  register REGEXCHAR *ep;
+  register REGEXCHAR* bp;
+  register REGEXCHAR* ep;
 
   if (!*src || !bopat[0]) return 0;
 
@@ -740,7 +740,7 @@ int LDAP_CALL re_subs(char *src, char *dst) {
     }
 
     if ((bp = bopat[pin]) && (ep = eopat[pin])) {
-      while (*bp && bp < ep) *dst++ = *(char *)bp++;
+      while (*bp && bp < ep) *dst++ = *(char*)bp++;
       if (bp < ep) return 0;
     }
   }
@@ -752,7 +752,7 @@ int LDAP_CALL re_subs(char *src, char *dst) {
 
 /* No printf or exit in 16-bit Windows */
 #    if defined(_WINDOWS) && !defined(_WIN32)
-static int LDAP_C printf(const char *pszFormat, ...) {
+static int LDAP_C printf(const char* pszFormat, ...) {
   char buf[1024];
   va_list arglist;
   va_start(arglist, pszFormat);
@@ -766,18 +766,18 @@ static int LDAP_C printf(const char *pszFormat, ...) {
 
 #    ifdef REGEX_DEBUG
 
-static void nfadump(REGEXCHAR *ap);
+static void nfadump(REGEXCHAR* ap);
 
 /*
  * symbolic - produce a symbolic dump of the nfa
  */
-void symbolic(char *s) {
+void symbolic(char* s) {
   printf("pattern: %s\n", s);
   printf("nfacode:\n");
   nfadump(nfa);
 }
 
-static void nfadump(REGEXCHAR *ap) {
+static void nfadump(REGEXCHAR* ap) {
   register int n;
 
   while (*ap != END) switch (*ap++) {

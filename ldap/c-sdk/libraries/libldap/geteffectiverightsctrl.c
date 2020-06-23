@@ -60,12 +60,12 @@
    ctrlp           the address of a place to put the constructed control
 */
 
-int LDAP_CALL ldap_create_geteffectiveRights_control(LDAP *ld,
-                                                     const char *authzid,
-                                                     const char **attrlist,
+int LDAP_CALL ldap_create_geteffectiveRights_control(LDAP* ld,
+                                                     const char* authzid,
+                                                     const char** attrlist,
                                                      const char ctl_iscritical,
-                                                     LDAPControl **ctrlp) {
-  BerElement *ber;
+                                                     LDAPControl** ctrlp) {
+  BerElement* ber;
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {

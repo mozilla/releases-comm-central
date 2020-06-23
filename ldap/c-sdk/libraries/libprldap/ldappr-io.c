@@ -53,38 +53,38 @@
  * Local function prototypes:
  */
 static PRIntervalTime prldap_timeout2it(int ms_timeout, int ms_maxtimeout);
-static int LDAP_CALLBACK prldap_read(int s, void *buf, int bufsize,
-                                     struct lextiof_socket_private *socketarg);
-static int LDAP_CALLBACK prldap_write(int s, const void *buf, int len,
-                                      struct lextiof_socket_private *socketarg);
+static int LDAP_CALLBACK prldap_read(int s, void* buf, int bufsize,
+                                     struct lextiof_socket_private* socketarg);
+static int LDAP_CALLBACK prldap_write(int s, const void* buf, int len,
+                                      struct lextiof_socket_private* socketarg);
 static int LDAP_CALLBACK
 prldap_poll(LDAP_X_PollFD fds[], int nfds, int timeout,
-            struct lextiof_session_private *sessionarg);
+            struct lextiof_session_private* sessionarg);
 static int LDAP_CALLBACK prldap_connect(
-    const char *hostlist, int defport, int timeout, unsigned long options,
-    struct lextiof_session_private *sessionarg,
-    struct lextiof_socket_private **socketargp);
+    const char* hostlist, int defport, int timeout, unsigned long options,
+    struct lextiof_session_private* sessionarg,
+    struct lextiof_socket_private** socketargp);
 static int LDAP_CALLBACK prldap_close(int s,
-                                      struct lextiof_socket_private *socketarg);
+                                      struct lextiof_socket_private* socketarg);
 static int LDAP_CALLBACK
-prldap_newhandle(LDAP *ld, struct lextiof_session_private *sessionarg);
+prldap_newhandle(LDAP* ld, struct lextiof_session_private* sessionarg);
 static void LDAP_CALLBACK
-prldap_disposehandle(LDAP *ld, struct lextiof_session_private *sessionarg);
+prldap_disposehandle(LDAP* ld, struct lextiof_session_private* sessionarg);
 static int LDAP_CALLBACK
-prldap_shared_newhandle(LDAP *ld, struct lextiof_session_private *sessionarg);
+prldap_shared_newhandle(LDAP* ld, struct lextiof_session_private* sessionarg);
 static void LDAP_CALLBACK prldap_shared_disposehandle(
-    LDAP *ld, struct lextiof_session_private *sessionarg);
-static PRLDAPIOSessionArg *prldap_session_arg_alloc(void);
-static void prldap_session_arg_free(PRLDAPIOSessionArg **prsesspp);
-static void prldap_socket_arg_free(PRLDAPIOSocketArg **prsockpp);
-static void *prldap_safe_realloc(void *ptr, PRUint32 size);
+    LDAP* ld, struct lextiof_session_private* sessionarg);
+static PRLDAPIOSessionArg* prldap_session_arg_alloc(void);
+static void prldap_session_arg_free(PRLDAPIOSessionArg** prsesspp);
+static void prldap_socket_arg_free(PRLDAPIOSocketArg** prsockpp);
+static void* prldap_safe_realloc(void* ptr, PRUint32 size);
 
 /*
  * Local macros:
  */
 /* given a socket-specific arg, return the corresponding PRFileDesc * */
 #define PRLDAP_GET_PRFD(socketarg) \
-  (((PRLDAPIOSocketArg *)(socketarg))->prsock_prfd)
+  (((PRLDAPIOSocketArg*)(socketarg))->prsock_prfd)
 
 /*
  * Static variables.
@@ -97,7 +97,7 @@ static int prldap_default_io_max_timeout = LDAP_X_IO_TIMEOUT_NO_TIMEOUT;
  *
  * Returns 0 if all goes well and -1 if not.
  */
-int prldap_install_io_functions(LDAP *ld, int shared) {
+int prldap_install_io_functions(LDAP* ld, int shared) {
   struct ldap_x_ext_io_fns iofns;
 
   memset(&iofns, 0, sizeof(iofns));
@@ -129,7 +129,7 @@ int prldap_install_io_functions(LDAP *ld, int shared) {
   }
 
   if (ldap_set_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, &iofns) != 0) {
-    prldap_session_arg_free((PRLDAPIOSessionArg **)&iofns.lextiof_session_arg);
+    prldap_session_arg_free((PRLDAPIOSessionArg**)&iofns.lextiof_session_arg);
     return (-1);
   }
 
@@ -171,8 +171,8 @@ static PRIntervalTime prldap_timeout2it(int ms_timeout, int ms_maxtimeout) {
   return (prit);
 }
 
-static int LDAP_CALLBACK prldap_read(int s, void *buf, int bufsize,
-                                     struct lextiof_socket_private *socketarg) {
+static int LDAP_CALLBACK prldap_read(int s, void* buf, int bufsize,
+                                     struct lextiof_socket_private* socketarg) {
   PRIntervalTime prit;
 
   prit = prldap_timeout2it(LDAP_X_IO_TIMEOUT_NO_TIMEOUT,
@@ -181,9 +181,9 @@ static int LDAP_CALLBACK prldap_read(int s, void *buf, int bufsize,
 }
 
 static int LDAP_CALLBACK prldap_write(
-    int s, const void *buf, int len, struct lextiof_socket_private *socketarg) {
+    int s, const void* buf, int len, struct lextiof_socket_private* socketarg) {
   PRIntervalTime prit;
-  char *ptr = (char *)buf;
+  char* ptr = (char*)buf;
   int rest = len;
 
   prit = prldap_timeout2it(LDAP_X_IO_TIMEOUT_NO_TIMEOUT,
@@ -213,7 +213,7 @@ static int LDAP_CALLBACK prldap_write(
     rest -= rval;
   }
 
-  return (int)(ptr - (char *)buf);
+  return (int)(ptr - (char*)buf);
 }
 
 struct prldap_eventmap_entry {
@@ -232,9 +232,9 @@ static struct prldap_eventmap_entry prldap_eventmap[] = {
 
 static int LDAP_CALLBACK
 prldap_poll(LDAP_X_PollFD fds[], int nfds, int timeout,
-            struct lextiof_session_private *sessionarg) {
-  PRLDAPIOSessionArg *prsessp = sessionarg;
-  PRPollDesc *pds;
+            struct lextiof_session_private* sessionarg) {
+  PRLDAPIOSessionArg* prsessp = sessionarg;
+  PRPollDesc* pds;
   int i, j, rc;
 
   if (NULL == prsessp) {
@@ -297,8 +297,8 @@ prldap_poll(LDAP_X_PollFD fds[], int nfds, int timeout,
  * Utility function to try one TCP connect()
  * Returns 1 if successful and -1 if not.  Sets the NSPR fd inside prsockp.
  */
-static int prldap_try_one_address(struct lextiof_socket_private *prsockp,
-                                  PRNetAddr *addrp, int timeout,
+static int prldap_try_one_address(struct lextiof_socket_private* prsockp,
+                                  PRNetAddr* addrp, int timeout,
                                   unsigned long options) {
   /*
    * Open a TCP socket:
@@ -367,15 +367,15 @@ static int prldap_try_one_address(struct lextiof_socket_private *prsockp,
  * XXXmcs: At present, this code ignores the timeout when doing DNS lookups.
  */
 static int LDAP_CALLBACK prldap_connect(
-    const char *hostlist, int defport, int timeout, unsigned long options,
-    struct lextiof_session_private *sessionarg,
-    struct lextiof_socket_private **socketargp) {
+    const char* hostlist, int defport, int timeout, unsigned long options,
+    struct lextiof_session_private* sessionarg,
+    struct lextiof_socket_private** socketargp) {
   int rc, parse_err, port;
-  char *host;
-  struct ldap_x_hostlist_status *status;
-  struct lextiof_socket_private *prsockp;
+  char* host;
+  struct ldap_x_hostlist_status* status;
+  struct lextiof_socket_private* prsockp;
   PRNetAddr addr;
-  PRAddrInfo *infop = NULL;
+  PRAddrInfo* infop = NULL;
 
   if (0 != (options & LDAP_X_EXTIOF_OPT_SECURE)) {
     // Make sure prldap_get_errno() returns an error.
@@ -403,7 +403,7 @@ static int LDAP_CALLBACK prldap_connect(
     if (NULL !=
         (infop = PR_GetAddrInfoByName(
              host, PR_AF_UNSPEC, (PR_AI_ADDRCONFIG | PR_AI_NOCANONNAME)))) {
-      void *enump = NULL;
+      void* enump = NULL;
       do {
         memset(&addr, 0, sizeof(addr));
         enump = PR_EnumerateAddrInfo(enump, infop, port, &addr);
@@ -435,7 +435,7 @@ static int LDAP_CALLBACK prldap_connect(
 }
 
 static int LDAP_CALLBACK
-prldap_close(int s, struct lextiof_socket_private *socketarg) {
+prldap_close(int s, struct lextiof_socket_private* socketarg) {
   int rc;
 
   rc = 0;
@@ -454,19 +454,19 @@ prldap_close(int s, struct lextiof_socket_private *socketarg) {
  * thread's new handle function.
  */
 static int LDAP_CALLBACK
-prldap_newhandle(LDAP *ld, struct lextiof_session_private *sessionarg) {
+prldap_newhandle(LDAP* ld, struct lextiof_session_private* sessionarg) {
   if (NULL == sessionarg) {
     struct ldap_x_ext_io_fns iofns;
 
     memset(&iofns, 0, sizeof(iofns));
     iofns.lextiof_size = LDAP_X_EXTIO_FNS_SIZE;
-    if (ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, (void *)&iofns) < 0) {
+    if (ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, (void*)&iofns) < 0) {
       return (ldap_get_lderrno(ld, NULL, NULL));
     }
     if (NULL == (iofns.lextiof_session_arg = prldap_session_arg_alloc())) {
       return (LDAP_NO_MEMORY);
     }
-    if (ldap_set_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, (void *)&iofns) < 0) {
+    if (ldap_set_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, (void*)&iofns) < 0) {
       return (ldap_get_lderrno(ld, NULL, NULL));
     }
   }
@@ -476,7 +476,7 @@ prldap_newhandle(LDAP *ld, struct lextiof_session_private *sessionarg) {
 
 /* only called/installed if shared is non-zero. */
 static int LDAP_CALLBACK
-prldap_shared_newhandle(LDAP *ld, struct lextiof_session_private *sessionarg) {
+prldap_shared_newhandle(LDAP* ld, struct lextiof_session_private* sessionarg) {
   int rc;
 
   if ((rc = prldap_newhandle(ld, sessionarg)) == LDAP_SUCCESS) {
@@ -487,13 +487,13 @@ prldap_shared_newhandle(LDAP *ld, struct lextiof_session_private *sessionarg) {
 }
 
 static void LDAP_CALLBACK
-prldap_disposehandle(LDAP *ld, struct lextiof_session_private *sessionarg) {
+prldap_disposehandle(LDAP* ld, struct lextiof_session_private* sessionarg) {
   prldap_session_arg_free(&sessionarg);
 }
 
 /* only called/installed if shared is non-zero */
 static void LDAP_CALLBACK prldap_shared_disposehandle(
-    LDAP *ld, struct lextiof_session_private *sessionarg) {
+    LDAP* ld, struct lextiof_session_private* sessionarg) {
   prldap_thread_dispose_handle(ld, sessionarg);
   prldap_disposehandle(ld, sessionarg);
 }
@@ -501,8 +501,8 @@ static void LDAP_CALLBACK prldap_shared_disposehandle(
 /*
  * Allocate a session argument.
  */
-static PRLDAPIOSessionArg *prldap_session_arg_alloc(void) {
-  PRLDAPIOSessionArg *prsessp;
+static PRLDAPIOSessionArg* prldap_session_arg_alloc(void) {
+  PRLDAPIOSessionArg* prsessp;
 
   prsessp = PR_Calloc(1, sizeof(PRLDAPIOSessionArg));
 
@@ -514,7 +514,7 @@ static PRLDAPIOSessionArg *prldap_session_arg_alloc(void) {
   return (prsessp);
 }
 
-static void prldap_session_arg_free(PRLDAPIOSessionArg **prsesspp) {
+static void prldap_session_arg_free(PRLDAPIOSessionArg** prsesspp) {
   if (NULL != prsesspp && NULL != *prsesspp) {
     if (NULL != (*prsesspp)->prsess_pollds) {
       PR_Free((*prsesspp)->prsess_pollds);
@@ -529,7 +529,7 @@ static void prldap_session_arg_free(PRLDAPIOSessionArg **prsesspp) {
  * Given an LDAP session handle, retrieve a session argument.
  * Returns an LDAP error code.
  */
-int prldap_session_arg_from_ld(LDAP *ld, PRLDAPIOSessionArg **sessargpp) {
+int prldap_session_arg_from_ld(LDAP* ld, PRLDAPIOSessionArg** sessargpp) {
   struct ldap_x_ext_io_fns iofns;
 
   if (NULL == ld || NULL == sessargpp) {
@@ -540,7 +540,7 @@ int prldap_session_arg_from_ld(LDAP *ld, PRLDAPIOSessionArg **sessargpp) {
 
   memset(&iofns, 0, sizeof(iofns));
   iofns.lextiof_size = LDAP_X_EXTIO_FNS_SIZE;
-  if (ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, (void *)&iofns) < 0) {
+  if (ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, (void*)&iofns) < 0) {
     return (ldap_get_lderrno(ld, NULL, NULL));
   }
 
@@ -557,8 +557,8 @@ int prldap_session_arg_from_ld(LDAP *ld, PRLDAPIOSessionArg **sessargpp) {
  * Given an LDAP session handle, retrieve a socket argument.
  * Returns an LDAP error code.
  */
-int prldap_socket_arg_from_ld(LDAP *ld, PRLDAPIOSocketArg **sockargpp) {
-  Sockbuf *sbp;
+int prldap_socket_arg_from_ld(LDAP* ld, PRLDAPIOSocketArg** sockargpp) {
+  Sockbuf* sbp;
   struct lber_x_ext_io_fns extiofns;
 
   if (NULL == ld || NULL == sockargpp) {
@@ -567,14 +567,14 @@ int prldap_socket_arg_from_ld(LDAP *ld, PRLDAPIOSocketArg **sockargpp) {
     return (LDAP_PARAM_ERROR);
   }
 
-  if (ldap_get_option(ld, LDAP_X_OPT_SOCKBUF, (void *)&sbp) < 0) {
+  if (ldap_get_option(ld, LDAP_X_OPT_SOCKBUF, (void*)&sbp) < 0) {
     return (ldap_get_lderrno(ld, NULL, NULL));
   }
 
   memset(&extiofns, 0, sizeof(extiofns));
   extiofns.lbextiofn_size = LBER_X_EXTIO_FNS_SIZE;
   if (ber_sockbuf_get_option(sbp, LBER_SOCKBUF_OPT_EXT_IO_FNS,
-                             (void *)&extiofns) < 0) {
+                             (void*)&extiofns) < 0) {
     return (ldap_get_lderrno(ld, NULL, NULL));
   }
 
@@ -590,8 +590,8 @@ int prldap_socket_arg_from_ld(LDAP *ld, PRLDAPIOSocketArg **sockargpp) {
 /*
  * Allocate a socket argument.
  */
-PRLDAPIOSocketArg *prldap_socket_arg_alloc(PRLDAPIOSessionArg *sessionarg) {
-  PRLDAPIOSocketArg *prsockp;
+PRLDAPIOSocketArg* prldap_socket_arg_alloc(PRLDAPIOSessionArg* sessionarg) {
+  PRLDAPIOSocketArg* prsockp;
 
   prsockp = PR_Calloc(1, sizeof(PRLDAPIOSocketArg));
 
@@ -603,15 +603,15 @@ PRLDAPIOSocketArg *prldap_socket_arg_alloc(PRLDAPIOSessionArg *sessionarg) {
   return (prsockp);
 }
 
-static void prldap_socket_arg_free(PRLDAPIOSocketArg **prsockpp) {
+static void prldap_socket_arg_free(PRLDAPIOSocketArg** prsockpp) {
   if (NULL != prsockpp && NULL != *prsockpp) {
     PR_Free(*prsockpp);
     *prsockpp = NULL;
   }
 }
 
-static void *prldap_safe_realloc(void *ptr, PRUint32 size) {
-  void *p;
+static void* prldap_safe_realloc(void* ptr, PRUint32 size) {
+  void* p;
 
   if (NULL == ptr) {
     p = PR_Malloc(size);
@@ -623,7 +623,7 @@ static void *prldap_safe_realloc(void *ptr, PRUint32 size) {
 }
 
 /* returns an LDAP result code */
-int prldap_set_io_max_timeout(PRLDAPIOSessionArg *prsessp, int io_max_timeout) {
+int prldap_set_io_max_timeout(PRLDAPIOSessionArg* prsessp, int io_max_timeout) {
   int rc = LDAP_SUCCESS; /* optimistic */
 
   if (NULL == prsessp) {
@@ -636,8 +636,8 @@ int prldap_set_io_max_timeout(PRLDAPIOSessionArg *prsessp, int io_max_timeout) {
 }
 
 /* returns an LDAP result code */
-int prldap_get_io_max_timeout(PRLDAPIOSessionArg *prsessp,
-                              int *io_max_timeoutp) {
+int prldap_get_io_max_timeout(PRLDAPIOSessionArg* prsessp,
+                              int* io_max_timeoutp) {
   int rc = LDAP_SUCCESS; /* optimistic */
 
   if (NULL == io_max_timeoutp) {
@@ -654,14 +654,14 @@ int prldap_get_io_max_timeout(PRLDAPIOSessionArg *prsessp,
 /* Check if NSPR layer has been installed for a LDAP session.
  * Simply check whether prldap_connect() I/O function is installed
  */
-PRBool prldap_is_installed(LDAP *ld) {
+PRBool prldap_is_installed(LDAP* ld) {
   struct ldap_x_ext_io_fns iofns;
 
   /* Retrieve current I/O functions */
   memset(&iofns, 0, sizeof(iofns));
   iofns.lextiof_size = LDAP_X_EXTIO_FNS_SIZE;
   if (ld == NULL ||
-      ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, (void *)&iofns) != 0 ||
+      ldap_get_option(ld, LDAP_X_OPT_EXTIO_FN_PTRS, (void*)&iofns) != 0 ||
       iofns.lextiof_connect != prldap_connect) {
     return (PR_FALSE);
   }

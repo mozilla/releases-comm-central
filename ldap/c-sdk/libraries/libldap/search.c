@@ -50,28 +50,28 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 
 #include "ldap-int.h"
 
-static int nsldapi_timeval2ldaplimit(struct timeval *timeoutp,
+static int nsldapi_timeval2ldaplimit(struct timeval* timeoutp,
                                      int defaultvalue);
-static int nsldapi_search(LDAP *ld, const char *base, int scope,
-                          const char *filter, char **attrs, int attrsonly,
-                          LDAPControl **serverctrls, LDAPControl **clientctrls,
-                          int timelimit, int sizelimit, int *msgidp);
-static char *find_right_paren(char *s);
-static char *put_complex_filter(BerElement *ber, char *str, unsigned long tag,
-                                int not);
-static int put_filter(BerElement *ber, char *str);
-static int unescape_filterval(char *str);
+static int nsldapi_search(LDAP* ld, const char* base, int scope,
+                          const char* filter, char** attrs, int attrsonly,
+                          LDAPControl** serverctrls, LDAPControl** clientctrls,
+                          int timelimit, int sizelimit, int* msgidp);
+static char* find_right_paren(char* s);
+static char* put_complex_filter(BerElement* ber, char* str, unsigned long tag,
+                                int not );
+static int put_filter(BerElement* ber, char* str);
+static int unescape_filterval(char* str);
 static int hexchar2int(char c);
-static int is_valid_attr(char *a);
-static int put_simple_filter(BerElement *ber, char *str);
-static int put_substring_filter(BerElement *ber, char *type, char *str);
-static int put_filter_list(BerElement *ber, char *str);
-static int nsldapi_search_s(LDAP *ld, const char *base, int scope,
-                            const char *filter, char **attrs, int attrsonly,
-                            LDAPControl **serverctrls,
-                            LDAPControl **clientctrls,
-                            struct timeval *localtimeoutp, int timelimit,
-                            int sizelimit, LDAPMessage **res);
+static int is_valid_attr(char* a);
+static int put_simple_filter(BerElement* ber, char* str);
+static int put_substring_filter(BerElement* ber, char* type, char* str);
+static int put_filter_list(BerElement* ber, char* str);
+static int nsldapi_search_s(LDAP* ld, const char* base, int scope,
+                            const char* filter, char** attrs, int attrsonly,
+                            LDAPControl** serverctrls,
+                            LDAPControl** clientctrls,
+                            struct timeval* localtimeoutp, int timelimit,
+                            int sizelimit, LDAPMessage** res);
 
 /*
  * ldap_search - initiate an ldap search operation.  Parameters:
@@ -90,8 +90,8 @@ static int nsldapi_search_s(LDAP *ld, const char *base, int scope,
  * msgid = ldap_search(ld, "c=us@o=UM", LDAP_SCOPE_SUBTREE, "cn~=bob",
  *                     attrs, attrsonly);
  */
-int LDAP_CALL ldap_search(LDAP *ld, const char *base, int scope,
-                          const char *filter, char **attrs, int attrsonly) {
+int LDAP_CALL ldap_search(LDAP* ld, const char* base, int scope,
+                          const char* filter, char** attrs, int attrsonly) {
   int msgid;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_search\n", 0, 0, 0);
@@ -109,10 +109,10 @@ int LDAP_CALL ldap_search(LDAP *ld, const char *base, int scope,
  * Returns an LDAP error code.
  */
 int LDAP_CALL ldap_search_ext(
-    LDAP *ld, const char *base, int scope, const char *filter, char **attrs,
-    int attrsonly, LDAPControl **serverctrls, LDAPControl **clientctrls,
-    struct timeval *timeoutp, /* NULL means use ld->ld_timelimit */
-    int sizelimit, int *msgidp) {
+    LDAP* ld, const char* base, int scope, const char* filter, char** attrs,
+    int attrsonly, LDAPControl** serverctrls, LDAPControl** clientctrls,
+    struct timeval* timeoutp, /* NULL means use ld->ld_timelimit */
+    int sizelimit, int* msgidp) {
   /*
    * It is an error to pass in a zero'd timeval.
    */
@@ -132,13 +132,13 @@ int LDAP_CALL ldap_search_ext(
  * Like ldap_search_ext() except an integer timelimit is passed instead of
  * using the overloaded struct timeval *timeoutp.
  */
-static int nsldapi_search(LDAP *ld, const char *base, int scope,
-                          const char *filter, char **attrs, int attrsonly,
-                          LDAPControl **serverctrls, LDAPControl **clientctrls,
+static int nsldapi_search(LDAP* ld, const char* base, int scope,
+                          const char* filter, char** attrs, int attrsonly,
+                          LDAPControl** serverctrls, LDAPControl** clientctrls,
                           int timelimit, /* -1 means use ld->ld_timelimit */
                           int sizelimit, /* -1 means use ld->ld_sizelimit */
-                          int *msgidp) {
-  BerElement *ber;
+                          int* msgidp) {
+  BerElement* ber;
   int rc, rc_key;
   unsigned long key; /* XXXmcs: memcache */
 
@@ -199,7 +199,7 @@ static int nsldapi_search(LDAP *ld, const char *base, int scope,
   }
 
   /* send the message */
-  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_SEARCH, (char *)base,
+  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_SEARCH, (char*)base,
                                     ber);
 
   /*
@@ -217,7 +217,7 @@ static int nsldapi_search(LDAP *ld, const char *base, int scope,
  * Convert a non-NULL timeoutp to a value in seconds that is appropriate to
  * send in an LDAP search request.  If timeoutp is NULL, return defaultvalue.
  */
-static int nsldapi_timeval2ldaplimit(struct timeval *timeoutp,
+static int nsldapi_timeval2ldaplimit(struct timeval* timeoutp,
                                      int defaultvalue) {
   int timelimit;
 
@@ -241,15 +241,15 @@ static int nsldapi_timeval2ldaplimit(struct timeval *timeoutp,
 
 /* returns an LDAP error code and also sets it in ld */
 int nsldapi_build_search_req(
-    LDAP *ld, const char *base, int scope, const char *filter, char **attrs,
-    int attrsonly, LDAPControl **serverctrls,
-    LDAPControl **clientctrls, /* not used for anything yet */
+    LDAP* ld, const char* base, int scope, const char* filter, char** attrs,
+    int attrsonly, LDAPControl** serverctrls,
+    LDAPControl** clientctrls, /* not used for anything yet */
     int timelimit,             /* if -1, ld->ld_timelimit is used */
     int sizelimit,             /* if -1, ld->ld_sizelimit is used */
-    int msgid, BerElement **berp) {
-  BerElement *ber;
+    int msgid, BerElement** berp) {
+  BerElement* ber;
   int err;
-  char *fdup;
+  char* fdup;
 
   /*
    * Create the search request.  It looks like this:
@@ -336,7 +336,7 @@ int nsldapi_build_search_req(
   return (LDAP_SUCCESS);
 }
 
-static char *find_right_paren(char *s) {
+static char* find_right_paren(char* s) {
   int balance, escape;
 
   balance = 1;
@@ -358,9 +358,9 @@ static char *find_right_paren(char *s) {
   return (*s ? s : NULL);
 }
 
-static char *put_complex_filter(BerElement *ber, char *str, unsigned long tag,
-                                int not) {
-  char *next;
+static char* put_complex_filter(BerElement* ber, char* str, unsigned long tag,
+                                int not ) {
+  char* next;
 
   /*
    * We have (x(filter)...) with str sitting on
@@ -385,8 +385,8 @@ static char *put_complex_filter(BerElement *ber, char *str, unsigned long tag,
   return (next);
 }
 
-static int put_filter(BerElement *ber, char *str) {
-  char *next;
+static int put_filter(BerElement* ber, char* str) {
+  char* next;
   int parens, balance, escape;
 
   /*
@@ -513,8 +513,8 @@ static int put_filter(BerElement *ber, char *str) {
  * Put a list of filters like this "(filter1)(filter2)..."
  */
 
-static int put_filter_list(BerElement *ber, char *str) {
-  char *next;
+static int put_filter_list(BerElement* ber, char* str) {
+  char* next;
   char save;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "put_filter_list \"%s\"\n", str, 0, 0);
@@ -550,7 +550,7 @@ static int put_filter_list(BerElement *ber, char *str) {
  * For compatibility with older servers, we also allow underscores in
  * attribute types, even through they are not allowed by the LDAPv3 RFCs.
  */
-static int is_valid_attr(char *a) {
+static int is_valid_attr(char* a) {
   for (; *a; a++) {
     if (!isascii(*a)) {
       return (0);
@@ -571,7 +571,7 @@ static int is_valid_attr(char *a) {
   return (1);
 }
 
-static char *find_star(char *s) {
+static char* find_star(char* s) {
   for (; *s; ++s) {
     switch (*s) {
       case '*':
@@ -586,12 +586,12 @@ static char *find_star(char *s) {
   return NULL;
 }
 
-static int put_simple_filter(BerElement *ber, char *str) {
+static int put_simple_filter(BerElement* ber, char* str) {
   char *s, *s2, *s3, filterop;
-  char *value;
+  char* value;
   unsigned long ftype;
   int rc, len;
-  char *oid;  /* for v3 extended filter */
+  char* oid;  /* for v3 extended filter */
   int dnattr; /* for v3 extended filter */
 
   LDAPDebug(LDAP_DEBUG_TRACE, "put_simple_filter \"%s\"\n", str, 0, 0);
@@ -713,7 +713,7 @@ free_and_return:
  * If 'val' contains invalid escape sequences we return -1.
  * Otherwise the length of the unescaped value is returned.
  */
-static int unescape_filterval(char *val) {
+static int unescape_filterval(char* val) {
   int escape, firstdigit, ival;
   char *s, *d;
 
@@ -773,7 +773,7 @@ static int hexchar2int(char c) {
   return (-1);
 }
 
-static int put_substring_filter(BerElement *ber, char *type, char *val) {
+static int put_substring_filter(BerElement* ber, char* type, char* val) {
   char *nextstar, gotstar = 0;
   unsigned long ftype;
   int len;
@@ -813,39 +813,39 @@ static int put_substring_filter(BerElement *ber, char *type, char *val) {
   return (0);
 }
 
-int LDAP_CALL ldap_search_st(LDAP *ld, const char *base, int scope,
-                             const char *filter, char **attrs, int attrsonly,
-                             struct timeval *timeout, LDAPMessage **res) {
+int LDAP_CALL ldap_search_st(LDAP* ld, const char* base, int scope,
+                             const char* filter, char** attrs, int attrsonly,
+                             struct timeval* timeout, LDAPMessage** res) {
   return (nsldapi_search_s(ld, base, scope, filter, attrs, attrsonly, NULL,
                            NULL, timeout, -1, -1, res));
 }
 
-int LDAP_CALL ldap_search_s(LDAP *ld, const char *base, int scope,
-                            const char *filter, char **attrs, int attrsonly,
-                            LDAPMessage **res) {
+int LDAP_CALL ldap_search_s(LDAP* ld, const char* base, int scope,
+                            const char* filter, char** attrs, int attrsonly,
+                            LDAPMessage** res) {
   return (nsldapi_search_s(ld, base, scope, filter, attrs, attrsonly, NULL,
                            NULL, NULL, -1, -1, res));
 }
 
-int LDAP_CALL ldap_search_ext_s(LDAP *ld, const char *base, int scope,
-                                const char *filter, char **attrs, int attrsonly,
-                                LDAPControl **serverctrls,
-                                LDAPControl **clientctrls,
-                                struct timeval *timeoutp, int sizelimit,
-                                LDAPMessage **res) {
+int LDAP_CALL ldap_search_ext_s(LDAP* ld, const char* base, int scope,
+                                const char* filter, char** attrs, int attrsonly,
+                                LDAPControl** serverctrls,
+                                LDAPControl** clientctrls,
+                                struct timeval* timeoutp, int sizelimit,
+                                LDAPMessage** res) {
   return (nsldapi_search_s(
       ld, base, scope, filter, attrs, attrsonly, serverctrls, clientctrls,
       timeoutp, nsldapi_timeval2ldaplimit(timeoutp, -1), sizelimit, res));
 }
 
-static int nsldapi_search_s(LDAP *ld, const char *base, int scope,
-                            const char *filter, char **attrs, int attrsonly,
-                            LDAPControl **serverctrls,
-                            LDAPControl **clientctrls,
-                            struct timeval *localtimeoutp,
+static int nsldapi_search_s(LDAP* ld, const char* base, int scope,
+                            const char* filter, char** attrs, int attrsonly,
+                            LDAPControl** serverctrls,
+                            LDAPControl** clientctrls,
+                            struct timeval* localtimeoutp,
                             int timelimit, /* -1 means use ld->ld_timelimit */
                             int sizelimit, /* -1 means use ld->ld_sizelimit */
-                            LDAPMessage **res) {
+                            LDAPMessage** res) {
   int err, msgid;
 
   /*

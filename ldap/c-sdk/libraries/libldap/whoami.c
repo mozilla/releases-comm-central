@@ -37,10 +37,10 @@
 #include "ldap-int.h"
 
 /* ldap_whoami */
-int LDAP_CALL ldap_whoami(LDAP *ld, LDAPControl **serverctrls,
-                          LDAPControl **clientctrls, int *msgidp) {
+int LDAP_CALL ldap_whoami(LDAP* ld, LDAPControl** serverctrls,
+                          LDAPControl** clientctrls, int* msgidp) {
   int rc;
-  struct berval *requestdata = NULL;
+  struct berval* requestdata = NULL;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
@@ -54,10 +54,10 @@ int LDAP_CALL ldap_whoami(LDAP *ld, LDAPControl **serverctrls,
 }
 
 /* ldap_parse_whoami */
-int LDAP_CALL ldap_parse_whoami(LDAP *ld, LDAPMessage *result,
-                                struct berval **authzid) {
+int LDAP_CALL ldap_parse_whoami(LDAP* ld, LDAPMessage* result,
+                                struct berval** authzid) {
   int rc;
-  char *retoidp = NULL;
+  char* retoidp = NULL;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
@@ -81,12 +81,12 @@ int LDAP_CALL ldap_parse_whoami(LDAP *ld, LDAPMessage *result,
 }
 
 /* ldap_whoami_s */
-int LDAP_CALL ldap_whoami_s(LDAP *ld, struct berval **authzid,
-                            LDAPControl **serverctrls,
-                            LDAPControl **clientctrls) {
+int LDAP_CALL ldap_whoami_s(LDAP* ld, struct berval** authzid,
+                            LDAPControl** serverctrls,
+                            LDAPControl** clientctrls) {
   int rc;
   int msgid;
-  LDAPMessage *result = NULL;
+  LDAPMessage* result = NULL;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);

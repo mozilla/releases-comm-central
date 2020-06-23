@@ -103,7 +103,7 @@ enum SockProc {
 // Array of function names used in GetProcAddress to fill in our
 // proc array when needed.
 // This array must match the enumerations exactly.
-char *spName[(int)sp_MaxProcs] = {"WSAAsyncGetHostByName",
+char* spName[(int)sp_MaxProcs] = {"WSAAsyncGetHostByName",
                                   "WSAAsyncSelect",
                                   "WSACleanup",
                                   "WSAGetLastError",
@@ -147,49 +147,48 @@ FARPROC spArray[(int)sp_MaxProcs];
 // Prefix is always sp.
 // Retval is next, spelled out.
 // Parameters in their order are next, spelled out.
-typedef int(PASCAL FAR *sp_int_WORD_LPWSADATA)(WORD, LPWSADATA);
-typedef int(PASCAL FAR *sp_int_void)(void);
-typedef HANDLE(PASCAL FAR *sp_HANDLE_HWND_uint_ccharFARp_charFARp_int)(
-    HWND, unsigned int, const char FAR *, char FAR *, int);
-typedef int(PASCAL FAR *sp_int_SOCKET_HWND_uint_long)(SOCKET, HWND,
+typedef int(PASCAL FAR* sp_int_WORD_LPWSADATA)(WORD, LPWSADATA);
+typedef int(PASCAL FAR* sp_int_void)(void);
+typedef HANDLE(PASCAL FAR* sp_HANDLE_HWND_uint_ccharFARp_charFARp_int)(
+    HWND, unsigned int, const char FAR*, char FAR*, int);
+typedef int(PASCAL FAR* sp_int_SOCKET_HWND_uint_long)(SOCKET, HWND,
                                                       unsigned int, long);
-typedef void(PASCAL FAR *sp_void_int)(int);
-typedef int(PASCAL FAR *sp_int_SOCKET_fdsetFARp)(SOCKET, fd_set FAR *);
-typedef SOCKET(PASCAL FAR *sp_SOCKET_SOCKET_sockaddrFARp_intFARp)(
-    SOCKET, struct sockaddr FAR *, int FAR *);
-typedef int(PASCAL FAR *sp_int_SOCKET_csockaddrFARp_int)(
-    SOCKET, const struct sockaddr FAR *, int);
-typedef int(PASCAL FAR *sp_int_SOCKET)(SOCKET);
-typedef struct hostent FAR *(PASCAL FAR *sp_hostentFARp_ccharFARp)(
-    const char FAR *);
-typedef struct hostent FAR *(PASCAL FAR *sp_hostentFARp_ccharFARp_int_int)(
-    const char FAR *, int, int);
-typedef int(PASCAL FAR *sp_int_charFARp_int)(char FAR *, int);
-typedef int(PASCAL FAR *sp_int_SOCKET_sockaddrFARp_intFARp)(
-    SOCKET, struct sockaddr FAR *, int FAR *);
-typedef int(PASCAL FAR *sp_int_SOCKET_int_int_charFARp_intFARp)(SOCKET, int,
-                                                                int, char FAR *,
-                                                                int FAR *);
-typedef u_long(PASCAL FAR *sp_ulong_ulong)(u_long);
-typedef u_short(PASCAL FAR *sp_ushort_ushort)(u_short);
-typedef unsigned long(PASCAL FAR *sp_ulong_ccharFARp)(const char FAR *);
-typedef int(PASCAL FAR *sp_int_SOCKET_long_ulongFARp)(SOCKET, long,
-                                                      u_long FAR *);
-typedef int(PASCAL FAR *sp_int_SOCKET_int)(SOCKET, int);
-typedef int(PASCAL FAR *sp_int_SOCKET_charFARp_int_int)(SOCKET, char FAR *, int,
+typedef void(PASCAL FAR* sp_void_int)(int);
+typedef int(PASCAL FAR* sp_int_SOCKET_fdsetFARp)(SOCKET, fd_set FAR*);
+typedef SOCKET(PASCAL FAR* sp_SOCKET_SOCKET_sockaddrFARp_intFARp)(
+    SOCKET, struct sockaddr FAR*, int FAR*);
+typedef int(PASCAL FAR* sp_int_SOCKET_csockaddrFARp_int)(
+    SOCKET, const struct sockaddr FAR*, int);
+typedef int(PASCAL FAR* sp_int_SOCKET)(SOCKET);
+typedef struct hostent FAR*(PASCAL FAR* sp_hostentFARp_ccharFARp)(
+    const char FAR*);
+typedef struct hostent FAR*(PASCAL FAR* sp_hostentFARp_ccharFARp_int_int)(
+    const char FAR*, int, int);
+typedef int(PASCAL FAR* sp_int_charFARp_int)(char FAR*, int);
+typedef int(PASCAL FAR* sp_int_SOCKET_sockaddrFARp_intFARp)(
+    SOCKET, struct sockaddr FAR*, int FAR*);
+typedef int(PASCAL FAR* sp_int_SOCKET_int_int_charFARp_intFARp)(SOCKET, int,
+                                                                int, char FAR*,
+                                                                int FAR*);
+typedef u_long(PASCAL FAR* sp_ulong_ulong)(u_long);
+typedef u_short(PASCAL FAR* sp_ushort_ushort)(u_short);
+typedef unsigned long(PASCAL FAR* sp_ulong_ccharFARp)(const char FAR*);
+typedef int(PASCAL FAR* sp_int_SOCKET_long_ulongFARp)(SOCKET, long,
+                                                      u_long FAR*);
+typedef int(PASCAL FAR* sp_int_SOCKET_int)(SOCKET, int);
+typedef int(PASCAL FAR* sp_int_SOCKET_charFARp_int_int)(SOCKET, char FAR*, int,
                                                         int);
-typedef int(PASCAL FAR *sp_int_int_fdsetFARp_fdsetFARp_fdsetFARp_ctimevalFARp)(
-    int, fd_set FAR *, fd_set FAR *, fd_set FAR *, const struct timeval FAR *);
-typedef int(PASCAL FAR *sp_int_SOCKET_ccharFARp_int_int)(SOCKET,
-                                                         const char FAR *, int,
+typedef int(PASCAL FAR* sp_int_int_fdsetFARp_fdsetFARp_fdsetFARp_ctimevalFARp)(
+    int, fd_set FAR*, fd_set FAR*, fd_set FAR*, const struct timeval FAR*);
+typedef int(PASCAL FAR* sp_int_SOCKET_ccharFARp_int_int)(SOCKET,
+                                                         const char FAR*, int,
                                                          int);
-typedef int(PASCAL FAR *sp_int_SOCKET_int_int_ccharFARp_int)(SOCKET, int, int,
-                                                             const char FAR *,
+typedef int(PASCAL FAR* sp_int_SOCKET_int_int_ccharFARp_int)(SOCKET, int, int,
+                                                             const char FAR*,
                                                              int);
-typedef SOCKET(PASCAL FAR *sp_SOCKET_int_int_int)(int, int, int);
-typedef char FAR *(PASCAL FAR *sp_charFARp_in_addr)(struct in_addr in);
-typedef struct protoent FAR *(PASCAL FAR *sp_protoentFARcchar)(
-    const char FAR *);
+typedef SOCKET(PASCAL FAR* sp_SOCKET_int_int_int)(int, int, int);
+typedef char FAR*(PASCAL FAR* sp_charFARp_in_addr)(struct in_addr in);
+typedef struct protoent FAR*(PASCAL FAR* sp_protoentFARcchar)(const char FAR*);
 
 // Handle to the winsock, if loaded.
 HINSTANCE hWinsock = NULL;
@@ -381,7 +380,7 @@ int PASCAL FAR WSACleanup(void) {
 }
 
 HANDLE PASCAL FAR WSAAsyncGetHostByName(HWND hWnd, unsigned int wMsg,
-                                        const char FAR *name, char FAR *buf,
+                                        const char FAR* name, char FAR* buf,
                                         int buflen) {
   // Normal or shim.
   if (IsWinsockLoaded(sp_WSAAsyncGetHostByName)) {
@@ -446,7 +445,7 @@ void PASCAL FAR WSASetLastError(int iError) {
 #endif
 }
 
-int PASCAL FAR __WSAFDIsSet(SOCKET fd, fd_set FAR *set) {
+int PASCAL FAR __WSAFDIsSet(SOCKET fd, fd_set FAR* set) {
   int i;
 
   // See if someone else will handle.
@@ -464,8 +463,8 @@ int PASCAL FAR __WSAFDIsSet(SOCKET fd, fd_set FAR *set) {
   return 0;
 }
 
-SOCKET PASCAL FAR accept(SOCKET s, struct sockaddr FAR *addr,
-                         int FAR *addrlen) {
+SOCKET PASCAL FAR accept(SOCKET s, struct sockaddr FAR* addr,
+                         int FAR* addrlen) {
   // Internally or shim
   NON_BLOCKING((((sp_SOCKET_SOCKET_sockaddrFARp_intFARp)spArray[sp_accept])(
                    s, addr, addrlen)),
@@ -476,7 +475,7 @@ SOCKET PASCAL FAR accept(SOCKET s, struct sockaddr FAR *addr,
   return (INVALID_SOCKET);
 }
 
-int PASCAL FAR bind(SOCKET s, const struct sockaddr FAR *name, int namelen) {
+int PASCAL FAR bind(SOCKET s, const struct sockaddr FAR* name, int namelen) {
   // Internally or shim
   if (IsWinsockLoaded(sp_bind)) {
     return (
@@ -498,7 +497,7 @@ int PASCAL FAR closesocket(SOCKET s) {
   return (SOCKET_ERROR);
 }
 
-int PASCAL FAR connect(SOCKET s, const struct sockaddr FAR *name, int namelen) {
+int PASCAL FAR connect(SOCKET s, const struct sockaddr FAR* name, int namelen) {
   // Internally or shim.
   if (IsWinsockLoaded(sp_connect)) {
     /* This could block and so it would seem that the NON_BLOCK
@@ -514,7 +513,7 @@ int PASCAL FAR connect(SOCKET s, const struct sockaddr FAR *name, int namelen) {
   return (SOCKET_ERROR);
 }
 
-struct hostent FAR *PASCAL FAR gethostbyname(const char FAR *name) {
+struct hostent FAR* PASCAL FAR gethostbyname(const char FAR* name) {
   if (IsWinsockLoaded(sp_gethostbyname)) {
     return (((sp_hostentFARp_ccharFARp)spArray[sp_gethostbyname])(name));
   }
@@ -523,7 +522,7 @@ struct hostent FAR *PASCAL FAR gethostbyname(const char FAR *name) {
   return (NULL);
 }
 
-struct hostent FAR *PASCAL FAR gethostbyaddr(const char FAR *addr, int len,
+struct hostent FAR* PASCAL FAR gethostbyaddr(const char FAR* addr, int len,
                                              int type) {
   if (IsWinsockLoaded(sp_gethostbyaddr)) {
     return (((sp_hostentFARp_ccharFARp_int_int)spArray[sp_gethostbyaddr])(
@@ -534,7 +533,7 @@ struct hostent FAR *PASCAL FAR gethostbyaddr(const char FAR *addr, int len,
   return (NULL);
 }
 
-int PASCAL FAR gethostname(char FAR *name, int namelen) {
+int PASCAL FAR gethostname(char FAR* name, int namelen) {
   if (IsWinsockLoaded(sp_gethostname)) {
     return (((sp_int_charFARp_int)spArray[sp_gethostname])(name, namelen));
   }
@@ -543,8 +542,8 @@ int PASCAL FAR gethostname(char FAR *name, int namelen) {
   return (SOCKET_ERROR);
 }
 
-int PASCAL FAR getpeername(SOCKET s, struct sockaddr FAR *name,
-                           int FAR *namelen) {
+int PASCAL FAR getpeername(SOCKET s, struct sockaddr FAR* name,
+                           int FAR* namelen) {
   if (IsWinsockLoaded(sp_getpeername)) {
     return (((sp_int_SOCKET_sockaddrFARp_intFARp)spArray[sp_getpeername])(
         s, name, namelen));
@@ -554,8 +553,8 @@ int PASCAL FAR getpeername(SOCKET s, struct sockaddr FAR *name,
   return (SOCKET_ERROR);
 }
 
-int PASCAL FAR getsockname(SOCKET s, struct sockaddr FAR *name,
-                           int FAR *namelen) {
+int PASCAL FAR getsockname(SOCKET s, struct sockaddr FAR* name,
+                           int FAR* namelen) {
   if (IsWinsockLoaded(sp_getsockname)) {
     return (((sp_int_SOCKET_sockaddrFARp_intFARp)spArray[sp_getsockname])(
         s, name, namelen));
@@ -565,8 +564,8 @@ int PASCAL FAR getsockname(SOCKET s, struct sockaddr FAR *name,
   return (SOCKET_ERROR);
 }
 
-int PASCAL FAR getsockopt(SOCKET s, int level, int optname, char FAR *optval,
-                          int FAR *optlen) {
+int PASCAL FAR getsockopt(SOCKET s, int level, int optname, char FAR* optval,
+                          int FAR* optlen) {
   if (IsWinsockLoaded(sp_getsockopt)) {
     return (((sp_int_SOCKET_int_int_charFARp_intFARp)spArray[sp_getsockopt])(
         s, level, optname, optval, optlen));
@@ -576,7 +575,7 @@ int PASCAL FAR getsockopt(SOCKET s, int level, int optname, char FAR *optval,
   return (SOCKET_ERROR);
 }
 
-struct protoent FAR *PASCAL getprotobyname(const char FAR *name) {
+struct protoent FAR* PASCAL getprotobyname(const char FAR* name) {
   if (IsWinsockLoaded(sp_getprotobyname)) {
     return (((sp_protoentFARcchar)spArray[sp_getprotobyname])(name));
   }
@@ -643,7 +642,7 @@ u_short PASCAL FAR ntohs(u_short hostshort) {
 #endif
 }
 
-unsigned long PASCAL FAR inet_addr(const char FAR *cp) {
+unsigned long PASCAL FAR inet_addr(const char FAR* cp) {
   if (IsWinsockLoaded(sp_inet_addr)) {
     return (((sp_ulong_ccharFARp)spArray[sp_inet_addr])(cp));
   }
@@ -651,7 +650,7 @@ unsigned long PASCAL FAR inet_addr(const char FAR *cp) {
   return (INADDR_NONE);
 }
 
-int PASCAL FAR ioctlsocket(SOCKET s, long cmd, u_long FAR *argp) {
+int PASCAL FAR ioctlsocket(SOCKET s, long cmd, u_long FAR* argp) {
   if (IsWinsockLoaded(sp_ioctlsocket)) {
     return (
         ((sp_int_SOCKET_long_ulongFARp)spArray[sp_ioctlsocket])(s, cmd, argp));
@@ -670,7 +669,7 @@ int PASCAL FAR listen(SOCKET s, int backlog) {
   return (SOCKET_ERROR);
 }
 
-int PASCAL FAR recv(SOCKET s, char FAR *buf, int len, int flags) {
+int PASCAL FAR recv(SOCKET s, char FAR* buf, int len, int flags) {
   NON_BLOCKING(
       (((sp_int_SOCKET_charFARp_int_int)spArray[sp_recv])(s, buf, len, flags)),
       FD_READ, sp_recv, int);
@@ -679,9 +678,9 @@ int PASCAL FAR recv(SOCKET s, char FAR *buf, int len, int flags) {
   return (SOCKET_ERROR);
 }
 
-int PASCAL FAR select(int nfds, fd_set FAR *readfds, fd_set FAR *writefds,
-                      fd_set FAR *exceptfds,
-                      const struct timeval FAR *timeout) {
+int PASCAL FAR select(int nfds, fd_set FAR* readfds, fd_set FAR* writefds,
+                      fd_set FAR* exceptfds,
+                      const struct timeval FAR* timeout) {
   // If there's nothing to do, stop now before we go off into dll land.
   // Optimization, boyz.
   if ((readfds && readfds->fd_count) || (writefds && writefds->fd_count) ||
@@ -700,7 +699,7 @@ int PASCAL FAR select(int nfds, fd_set FAR *readfds, fd_set FAR *writefds,
   return (0);
 }
 
-int PASCAL FAR send(SOCKET s, const char FAR *buf, int len, int flags) {
+int PASCAL FAR send(SOCKET s, const char FAR* buf, int len, int flags) {
   NON_BLOCKING(
 
       (((sp_int_SOCKET_ccharFARp_int_int)spArray[sp_send])(s, buf, len, flags)),
@@ -711,7 +710,7 @@ int PASCAL FAR send(SOCKET s, const char FAR *buf, int len, int flags) {
 }
 
 int PASCAL FAR setsockopt(SOCKET s, int level, int optname,
-                          const char FAR *optval, int optlen) {
+                          const char FAR* optval, int optlen) {
   if (IsWinsockLoaded(sp_setsockopt)) {
     return (((sp_int_SOCKET_int_int_ccharFARp_int)spArray[sp_setsockopt])(
         s, level, optname, optval, optlen));
@@ -739,7 +738,7 @@ SOCKET PASCAL FAR socket(int af, int type, int protocol) {
   return (INVALID_SOCKET);
 }
 
-char FAR *PASCAL FAR inet_ntoa(struct in_addr in) {
+char FAR* PASCAL FAR inet_ntoa(struct in_addr in) {
   if (IsWinsockLoaded(sp_inet_ntoa)) {
     return ((sp_charFARp_in_addr)spArray[sp_inet_ntoa])(in);
   }

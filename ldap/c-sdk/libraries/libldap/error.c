@@ -38,7 +38,7 @@
 
 struct ldaperror {
   int e_code;
-  char *e_reason;
+  char* e_reason;
 };
 
 static struct ldaperror ldap_errlist[] = {
@@ -111,7 +111,7 @@ static struct ldaperror ldap_errlist[] = {
     {LDAP_REFERRAL_LIMIT_EXCEEDED, "Referral hop limit exceeded"},
     {-1, 0}};
 
-char *LDAP_CALL ldap_err2string(int err) {
+char* LDAP_CALL ldap_err2string(int err) {
   int i;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_err2string\n", 0, 0, 0);
@@ -123,8 +123,8 @@ char *LDAP_CALL ldap_err2string(int err) {
   return ("Unknown error");
 }
 
-static char *nsldapi_safe_strerror(int e) {
-  char *s;
+static char* nsldapi_safe_strerror(int e) {
+  char* s;
 
   if ((s = strerror(e)) == NULL) {
     s = "unknown error";
@@ -133,11 +133,11 @@ static char *nsldapi_safe_strerror(int e) {
   return (s);
 }
 
-void LDAP_CALL ldap_perror(LDAP *ld, const char *s) {
+void LDAP_CALL ldap_perror(LDAP* ld, const char* s) {
   int i, err;
-  char *matched = NULL;
-  char *errmsg = NULL;
-  char *separator;
+  char* matched = NULL;
+  char* errmsg = NULL;
+  char* separator;
   char msg[1024];
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_perror\n", 0, 0, 0);
@@ -185,7 +185,7 @@ void LDAP_CALL ldap_perror(LDAP *ld, const char *s) {
   LDAP_MUTEX_UNLOCK(ld, LDAP_ERR_LOCK);
 }
 
-int LDAP_CALL ldap_result2error(LDAP *ld, LDAPMessage *r, int freeit) {
+int LDAP_CALL ldap_result2error(LDAP* ld, LDAPMessage* r, int freeit) {
   int lderr_parse, lderr;
 
   lderr_parse =
@@ -198,7 +198,7 @@ int LDAP_CALL ldap_result2error(LDAP *ld, LDAPMessage *r, int freeit) {
   return (lderr);
 }
 
-int LDAP_CALL ldap_get_lderrno(LDAP *ld, char **m, char **s) {
+int LDAP_CALL ldap_get_lderrno(LDAP* ld, char** m, char** s) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR); /* punt */
   }
@@ -224,7 +224,7 @@ int LDAP_CALL ldap_get_lderrno(LDAP *ld, char **m, char **s) {
  * function.
  *
  */
-int LDAP_CALL ldap_set_lderrno(LDAP *ld, int e, char *m, char *s) {
+int LDAP_CALL ldap_set_lderrno(LDAP* ld, int e, char* m, char* s) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
   }
@@ -254,11 +254,11 @@ int LDAP_CALL ldap_set_lderrno(LDAP *ld, int e, char *m, char *s) {
  * If any of the result params. (errcodep, matchednp, errmsgp, referralsp,
  * or serverctrlsp) are NULL we don't return that info.
  */
-int LDAP_CALL ldap_parse_result(LDAP *ld, LDAPMessage *res, int *errcodep,
-                                char **matchednp, char **errmsgp,
-                                char ***referralsp, LDAPControl ***serverctrlsp,
+int LDAP_CALL ldap_parse_result(LDAP* ld, LDAPMessage* res, int* errcodep,
+                                char** matchednp, char** errmsgp,
+                                char*** referralsp, LDAPControl*** serverctrlsp,
                                 int freeit) {
-  LDAPMessage *lm;
+  LDAPMessage* lm;
   int err, errcode;
   char *m, *e;
   m = e = NULL;
@@ -338,9 +338,9 @@ int LDAP_CALL ldap_parse_result(LDAP *ld, LDAPMessage *res, int *errcodep,
  * returns an LDAP error code indicating success or failure of parsing
  * does NOT set any error information inside "ld"
  */
-int nsldapi_parse_result(LDAP *ld, int msgtype, BerElement *rber, int *errcodep,
-                         char **matchednp, char **errmsgp, char ***referralsp,
-                         LDAPControl ***serverctrlsp) {
+int nsldapi_parse_result(LDAP* ld, int msgtype, BerElement* rber, int* errcodep,
+                         char** matchednp, char** errmsgp, char*** referralsp,
+                         LDAPControl*** serverctrlsp) {
   BerElement ber;
   ber_len_t len;
   ber_int_t errcode;

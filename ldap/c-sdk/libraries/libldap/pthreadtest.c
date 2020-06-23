@@ -52,18 +52,18 @@
 #define BASE "dc=example,dc=com"
 #define SCOPE LDAP_SCOPE_SUBTREE
 
-static void *modify_thread();
-static void *add_thread();
-static void *delete_thread();
-static void *bind_thread();
-static void *compare_thread();
-static void *search_thread();
-static void *my_mutex_alloc();
+static void* modify_thread();
+static void* add_thread();
+static void* delete_thread();
+static void* bind_thread();
+static void* compare_thread();
+static void* search_thread();
+static void* my_mutex_alloc();
 static void my_mutex_free();
-void *my_sema_alloc(void);
-void my_sema_free(void *);
-int my_sema_wait(void *);
-int my_sema_post(void *);
+void* my_sema_alloc(void);
+void my_sema_free(void*);
+int my_sema_wait(void*);
+int my_sema_post(void*);
 static void set_ld_error();
 static int get_ld_error();
 static void set_errno();
@@ -71,26 +71,26 @@ static int get_errno();
 static void tsd_setup();
 static void tsd_cleanup();
 static int get_random_id(void);
-static char *get_id_str(int id);
+static char* get_id_str(int id);
 
 /* Linked list of LDAPMessage structs for search results. */
 typedef struct ldapmsgwrapper {
-  LDAPMessage *lmw_messagep;
-  struct ldapmsgwrapper *lmw_next;
+  LDAPMessage* lmw_messagep;
+  struct ldapmsgwrapper* lmw_next;
 } ldapmsgwrapper;
 
-LDAP *ld;
+LDAP* ld;
 pthread_key_t key;
 int maxid = MAXINT;
 int maxops = 0;        /* zero means no limit */
 int range_filters = 0; /* if non-zero use >= and >= filters */
 
-main(int argc, char **argv)
+main(int argc, char** argv)
 
 {
   pthread_attr_t attr;
-  pthread_t *threadids;
-  void *status;
+  pthread_t* threadids;
+  void* status;
   struct ldap_thread_fns tfns;
   struct ldap_extra_thread_fns extrafns;
   int rc, c, errflg, i, inited_attr;
@@ -98,7 +98,7 @@ main(int argc, char **argv)
   int option_extthreads, option_restart;
   int each_thread_count, thread_count;
   extern int optind;
-  extern char *optarg;
+  extern char* optarg;
 
   doadd = dodelete = domodify = docompare = dobind = dosearch = 0;
   option_extthreads = option_restart = 0;
@@ -153,7 +153,7 @@ main(int argc, char **argv)
         break;
       case 'S': /* random number seed */
         if (*optarg == 'r') {
-          int seed = (int)time((time_t *)0);
+          int seed = (int)time((time_t*)0);
           srandom(seed);
           printf("Random seed: %d\n", seed);
         } else {
@@ -216,7 +216,7 @@ main(int argc, char **argv)
   tsd_setup();
 
   /* Allocate space for thread ids */
-  if ((threadids = (pthread_t *)calloc(thread_count, sizeof(pthread_t))) ==
+  if ((threadids = (pthread_t*)calloc(thread_count, sizeof(pthread_t))) ==
       NULL) {
     rc = LDAP_LOCAL_ERROR;
     goto clean_up_and_return;
@@ -232,10 +232,10 @@ main(int argc, char **argv)
   /* Set the function pointers for dealing with mutexes
      and error information. */
   memset(&tfns, '\0', sizeof(struct ldap_thread_fns));
-  tfns.ltf_mutex_alloc = (void *(*)(void))my_mutex_alloc;
-  tfns.ltf_mutex_free = (void (*)(void *))my_mutex_free;
-  tfns.ltf_mutex_lock = (int (*)(void *))pthread_mutex_lock;
-  tfns.ltf_mutex_unlock = (int (*)(void *))pthread_mutex_unlock;
+  tfns.ltf_mutex_alloc = (void* (*)(void))my_mutex_alloc;
+  tfns.ltf_mutex_free = (void (*)(void*))my_mutex_free;
+  tfns.ltf_mutex_lock = (int (*)(void*))pthread_mutex_lock;
+  tfns.ltf_mutex_unlock = (int (*)(void*))pthread_mutex_unlock;
   tfns.ltf_get_errno = get_errno;
   tfns.ltf_set_errno = set_errno;
   tfns.ltf_get_lderrno = get_ld_error;
@@ -244,7 +244,7 @@ main(int argc, char **argv)
 
   /* Set up this session to use those function pointers. */
 
-  rc = ldap_set_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void *)&tfns);
+  rc = ldap_set_option(ld, LDAP_OPT_THREAD_FN_PTRS, (void*)&tfns);
   if (rc < 0) {
     rc = ldap_get_lderrno(ld, NULL, NULL);
     fprintf(stderr, "ldap_set_option (LDAP_OPT_THREAD_FN_PTRS): %s\n",
@@ -256,15 +256,15 @@ main(int argc, char **argv)
     /* Set the function pointers for working with semaphores. */
 
     memset(&extrafns, '\0', sizeof(struct ldap_extra_thread_fns));
-    extrafns.ltf_mutex_trylock = (int (*)(void *))pthread_mutex_trylock;
-    extrafns.ltf_sema_alloc = (void *(*)(void))my_sema_alloc;
-    extrafns.ltf_sema_free = (void (*)(void *))my_sema_free;
-    extrafns.ltf_sema_wait = (int (*)(void *))my_sema_wait;
-    extrafns.ltf_sema_post = (int (*)(void *))my_sema_post;
+    extrafns.ltf_mutex_trylock = (int (*)(void*))pthread_mutex_trylock;
+    extrafns.ltf_sema_alloc = (void* (*)(void))my_sema_alloc;
+    extrafns.ltf_sema_free = (void (*)(void*))my_sema_free;
+    extrafns.ltf_sema_wait = (int (*)(void*))my_sema_wait;
+    extrafns.ltf_sema_post = (int (*)(void*))my_sema_post;
 
     /* Set up this session to use those function pointers. */
 
-    if (ldap_set_option(ld, LDAP_OPT_EXTRA_THREAD_FN_PTRS, (void *)&extrafns) !=
+    if (ldap_set_option(ld, LDAP_OPT_EXTRA_THREAD_FN_PTRS, (void*)&extrafns) !=
         0) {
       rc = ldap_get_lderrno(ld, NULL, NULL);
       ldap_perror(ld,
@@ -394,18 +394,18 @@ clean_up_and_return:
   return (rc);
 }
 
-static void *modify_thread(char *id) {
-  LDAPMessage *res;
-  LDAPMessage *e;
+static void* modify_thread(char* id) {
+  LDAPMessage* res;
+  LDAPMessage* e;
   int i, modentry, num_entries, msgid, parse_rc, finished;
   int rc, opcount;
   LDAPMod mod;
-  LDAPMod *mods[2];
-  char *vals[2];
-  char *dn;
+  LDAPMod* mods[2];
+  char* vals[2];
+  char* dn;
   ldapmsgwrapper *list, *lmwp, *lastlmwp;
   struct timeval zerotime;
-  void *voidrc = (void *)0;
+  void* voidrc = (void*)0;
 
   zerotime.tv_sec = zerotime.tv_usec = 0L;
 
@@ -438,7 +438,7 @@ static void *modify_thread(char *id) {
       /* Keep track of the number of entries found. */
       case LDAP_RES_SEARCH_ENTRY:
         num_entries++;
-        if ((lmwp = (ldapmsgwrapper *)malloc(sizeof(ldapmsgwrapper))) == NULL) {
+        if ((lmwp = (ldapmsgwrapper*)malloc(sizeof(ldapmsgwrapper))) == NULL) {
           fprintf(stderr, "Thread %s: Modify thread: Cannot malloc\n", id);
           exit(1);
         }
@@ -507,7 +507,7 @@ static void *modify_thread(char *id) {
       fprintf(stderr, "ldap_modify_ext_s: %s\n", ldap_err2string(rc));
       if (rc == LDAP_SERVER_DOWN) {
         perror("ldap_modify_ext_s");
-        voidrc = (void *)1;
+        voidrc = (void*)1;
         goto modify_cleanup_and_return;
       }
     }
@@ -527,13 +527,13 @@ modify_cleanup_and_return:
   return voidrc;
 }
 
-static void *add_thread(char *id) {
+static void* add_thread(char* id) {
   LDAPMod mod[4];
-  LDAPMod *mods[5];
+  LDAPMod* mods[5];
   char dn[BUFSIZ], name[40];
   char *cnvals[2], *snvals[2], *pwdvals[2], *ocvals[3];
   int i, rc, opcount;
-  void *voidrc = (void *)0;
+  void* voidrc = (void*)0;
 
   printf("Starting add_thread %s.\n", id);
   opcount = 0;
@@ -578,7 +578,7 @@ static void *add_thread(char *id) {
       fprintf(stderr, "ldap_add_ext_s: %s\n", ldap_err2string(rc));
       if (rc == LDAP_SERVER_DOWN) {
         perror("ldap_add_ext_s");
-        voidrc = (void *)1;
+        voidrc = (void*)1;
         goto add_cleanup_and_return;
       }
     }
@@ -597,12 +597,12 @@ add_cleanup_and_return:
   return voidrc;
 }
 
-static void *delete_thread(char *id) {
-  LDAPMessage *res;
+static void* delete_thread(char* id) {
+  LDAPMessage* res;
   char dn[BUFSIZ], name[40];
   int num_entries, msgid, rc, parse_rc, finished, opcount;
   struct timeval zerotime;
-  void *voidrc = (void *)0;
+  void* voidrc = (void*)0;
 
   zerotime.tv_sec = zerotime.tv_usec = 0L;
 
@@ -667,7 +667,7 @@ static void *delete_thread(char *id) {
       ldap_perror(ld, "ldap_delete_ext_s");
       if (rc == LDAP_SERVER_DOWN) {
         perror("ldap_delete_ext_s");
-        voidrc = (void *)1;
+        voidrc = (void*)1;
         goto delete_cleanup_and_return;
       }
     }
@@ -686,10 +686,10 @@ delete_cleanup_and_return:
   return voidrc;
 }
 
-static void *bind_thread(char *id) {
+static void* bind_thread(char* id) {
   char dn[BUFSIZ], name[40];
   int rc, opcount;
-  void *voidrc = (void *)0;
+  void* voidrc = (void*)0;
 
   printf("Starting bind_thread %s.\n", id);
   opcount = 0;
@@ -704,7 +704,7 @@ static void *bind_thread(char *id) {
       ldap_perror(ld, "ldap_simple_bind_s");
       if (rc == LDAP_SERVER_DOWN) {
         perror("ldap_simple_bind_s");
-        voidrc = (void *)1;
+        voidrc = (void*)1;
         goto bind_cleanup_and_return;
       }
     } else {
@@ -725,11 +725,11 @@ bind_cleanup_and_return:
   return voidrc;
 }
 
-static void *compare_thread(char *id) {
+static void* compare_thread(char* id) {
   char dn[BUFSIZ], name[40], cmpval[40];
   int rc, randval, opcount;
   struct berval bv;
-  void *voidrc = (void *)0;
+  void* voidrc = (void*)0;
 
   printf("Starting compare_thread %s.\n", id);
   opcount = 0;
@@ -757,7 +757,7 @@ static void *compare_thread(char *id) {
         ldap_perror(ld, "ldap_compare_ext_s");
         if (rc == LDAP_SERVER_DOWN) {
           perror("ldap_compare_ext_s");
-          voidrc = (void *)1;
+          voidrc = (void*)1;
           goto compare_cleanup_and_return;
         }
     }
@@ -776,11 +776,11 @@ compare_cleanup_and_return:
   return voidrc;
 }
 
-static void *search_thread(char *id) {
+static void* search_thread(char* id) {
   LDAPMessage *res, *entry;
   char *dn, filter[40];
   int rc, opcount;
-  void *voidrc = (void *)0;
+  void* voidrc = (void*)0;
 
   printf("Starting search_thread %s.\n", id);
   opcount = 0;
@@ -812,7 +812,7 @@ static void *search_thread(char *id) {
       ldap_perror(ld, "ldap_search_ext_s");
       if (rc == LDAP_SERVER_DOWN) {
         perror("ldap_search_ext_s");
-        voidrc = (void *)1;
+        voidrc = (void*)1;
         goto search_cleanup_and_return;
       }
     }
@@ -843,8 +843,8 @@ search_cleanup_and_return:
   return voidrc;
 }
 
-static void *my_mutex_alloc(void) {
-  pthread_mutex_t *mutexp;
+static void* my_mutex_alloc(void) {
+  pthread_mutex_t* mutexp;
 
   if ((mutexp = malloc(sizeof(pthread_mutex_t))) != NULL) {
     pthread_mutex_init(mutexp, NULL);
@@ -852,8 +852,8 @@ static void *my_mutex_alloc(void) {
   return (mutexp);
 }
 
-void *my_sema_alloc(void) {
-  sema_t *semptr;
+void* my_sema_alloc(void) {
+  sema_t* semptr;
 
   if ((semptr = malloc(sizeof(sema_t))) != NULL) {
     sema_init(semptr, 0, USYNC_THREAD, NULL);
@@ -861,50 +861,50 @@ void *my_sema_alloc(void) {
   return (semptr);
 }
 
-static void my_mutex_free(void *mutexp) {
-  pthread_mutex_destroy((pthread_mutex_t *)mutexp);
+static void my_mutex_free(void* mutexp) {
+  pthread_mutex_destroy((pthread_mutex_t*)mutexp);
   free(mutexp);
 }
 
-void my_sema_free(void *semptr) {
-  sema_destroy((sema_t *)semptr);
+void my_sema_free(void* semptr) {
+  sema_destroy((sema_t*)semptr);
   free(semptr);
 }
 
-int my_sema_wait(void *semptr) {
+int my_sema_wait(void* semptr) {
   if (semptr != NULL)
-    return (sema_wait((sema_t *)semptr));
+    return (sema_wait((sema_t*)semptr));
   else
     return (-1);
 }
 
-int my_sema_post(void *semptr) {
+int my_sema_post(void* semptr) {
   if (semptr != NULL)
-    return (sema_post((sema_t *)semptr));
+    return (sema_post((sema_t*)semptr));
   else
     return (-1);
 }
 
 struct ldap_error {
   int le_errno;
-  char *le_matched;
-  char *le_errmsg;
+  char* le_matched;
+  char* le_errmsg;
 };
 
 static void tsd_setup() {
-  void *tsd;
+  void* tsd;
   tsd = pthread_getspecific(key);
   if (tsd != NULL) {
     fprintf(stderr, "tsd non-null!\n");
     pthread_exit(NULL);
   }
 
-  tsd = (void *)calloc(1, sizeof(struct ldap_error));
+  tsd = (void*)calloc(1, sizeof(struct ldap_error));
   pthread_setspecific(key, tsd);
 }
 
 static void tsd_cleanup() {
-  void *tsd;
+  void* tsd;
 
   if ((tsd = pthread_getspecific(key)) != NULL) {
     pthread_setspecific(key, NULL);
@@ -912,8 +912,8 @@ static void tsd_cleanup() {
   }
 }
 
-static void set_ld_error(int err, char *matched, char *errmsg, void *dummy) {
-  struct ldap_error *le;
+static void set_ld_error(int err, char* matched, char* errmsg, void* dummy) {
+  struct ldap_error* le;
 
   le = pthread_getspecific(key);
 
@@ -930,8 +930,8 @@ static void set_ld_error(int err, char *matched, char *errmsg, void *dummy) {
   le->le_errmsg = errmsg;
 }
 
-static int get_ld_error(char **matchedp, char **errmsgp, void *dummy) {
-  struct ldap_error *le;
+static int get_ld_error(char** matchedp, char** errmsgp, void* dummy) {
+  struct ldap_error* le;
 
   le = pthread_getspecific(key);
   if (matchedp != NULL) {
@@ -949,7 +949,7 @@ static int get_errno(void) { return (errno); }
 
 static int get_random_id() { return (random() % maxid); }
 
-static char *get_id_str(int id) {
+static char* get_id_str(int id) {
   char idstr[10];
 
   sprintf(idstr, "%d", id);

@@ -70,7 +70,7 @@ extern "C" {
 /* SLAPD_LOGGING should not be on for WINSOCK (16-bit Windows) */
 #  if defined(SLAPD_LOGGING)
 #    ifdef _WIN32
-extern int *module_ldap_debug;
+extern int* module_ldap_debug;
 #      define LDAPDebug(level, fmt, arg1, arg2, arg3)          \
         {                                                      \
           if (*module_ldap_debug & level) {                    \

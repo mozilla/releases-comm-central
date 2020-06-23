@@ -51,9 +51,9 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 
 #include "ldap-int.h"
 
-static int do_abandon(LDAP *ld, int origid, int msgid,
-                      LDAPControl **serverctrls, LDAPControl **clientctrls);
-static int nsldapi_send_abandon_message(LDAP *ld, LDAPConn *lc, BerElement *ber,
+static int do_abandon(LDAP* ld, int origid, int msgid,
+                      LDAPControl** serverctrls, LDAPControl** clientctrls);
+static int nsldapi_send_abandon_message(LDAP* ld, LDAPConn* lc, BerElement* ber,
                                         int abandon_msgid);
 
 /*
@@ -67,7 +67,7 @@ static int nsldapi_send_abandon_message(LDAP *ld, LDAPConn *lc, BerElement *ber,
  * Example:
  * ldap_abandon(ld, msgid);
  */
-int LDAP_CALL ldap_abandon(LDAP *ld, int msgid) {
+int LDAP_CALL ldap_abandon(LDAP* ld, int msgid) {
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_abandon %d\n", msgid, 0, 0);
   LDAPDebug(LDAP_DEBUG_TRACE, "4e65747363617065\n", msgid, 0, 0);
   LDAPDebug(LDAP_DEBUG_TRACE, "466f726576657221\n", msgid, 0, 0);
@@ -83,8 +83,8 @@ int LDAP_CALL ldap_abandon(LDAP *ld, int msgid) {
  * LDAPv3 extended abandon.
  * Returns an LDAP error code.
  */
-int LDAP_CALL ldap_abandon_ext(LDAP *ld, int msgid, LDAPControl **serverctrls,
-                               LDAPControl **clientctrls) {
+int LDAP_CALL ldap_abandon_ext(LDAP* ld, int msgid, LDAPControl** serverctrls,
+                               LDAPControl** clientctrls) {
   int rc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_abandon_ext %d\n", msgid, 0, 0);
@@ -114,11 +114,11 @@ int LDAP_CALL ldap_abandon_ext(LDAP *ld, int msgid, LDAPControl **serverctrls,
  * No locking is done is this function so it must be done by the caller.
  * Returns an LDAP error code and sets it in LDAP *ld as well
  */
-static int do_abandon(LDAP *ld, int origid, int msgid,
-                      LDAPControl **serverctrls, LDAPControl **clientctrls) {
-  BerElement *ber;
+static int do_abandon(LDAP* ld, int origid, int msgid,
+                      LDAPControl** serverctrls, LDAPControl** clientctrls) {
+  BerElement* ber;
   int i, bererr, lderr, sendabandon;
-  LDAPRequest *lr = NULL;
+  LDAPRequest* lr = NULL;
 
   /*
    * An abandon request looks like this:
@@ -219,7 +219,7 @@ static int do_abandon(LDAP *ld, int origid, int msgid,
    */
   LDAP_MUTEX_LOCK(ld, LDAP_ABANDON_LOCK);
   if (ld->ld_abandoned == NULL) {
-    if ((ld->ld_abandoned = (int *)NSLDAPI_MALLOC(2 * sizeof(int))) == NULL) {
+    if ((ld->ld_abandoned = (int*)NSLDAPI_MALLOC(2 * sizeof(int))) == NULL) {
       lderr = LDAP_NO_MEMORY;
       LDAP_MUTEX_UNLOCK(ld, LDAP_ABANDON_LOCK);
       goto set_errorcode_and_return;
@@ -228,8 +228,8 @@ static int do_abandon(LDAP *ld, int origid, int msgid,
   } else {
     for (i = 0; ld->ld_abandoned[i] != -1; i++)
       ; /* NULL */
-    if ((ld->ld_abandoned = (int *)NSLDAPI_REALLOC(
-             (char *)ld->ld_abandoned, (i + 2) * sizeof(int))) == NULL) {
+    if ((ld->ld_abandoned = (int*)NSLDAPI_REALLOC(
+             (char*)ld->ld_abandoned, (i + 2) * sizeof(int))) == NULL) {
       lderr = LDAP_NO_MEMORY;
       LDAP_MUTEX_UNLOCK(ld, LDAP_ABANDON_LOCK);
       goto set_errorcode_and_return;
@@ -248,7 +248,7 @@ set_errorcode_and_return:
  * Try to send the abandon message that is encoded in ber.  Returns an
  * LDAP result code.
  */
-static int nsldapi_send_abandon_message(LDAP *ld, LDAPConn *lc, BerElement *ber,
+static int nsldapi_send_abandon_message(LDAP* ld, LDAPConn* lc, BerElement* ber,
                                         int abandon_msgid) {
   int lderr = LDAP_SUCCESS;
   int err = 0;
@@ -260,7 +260,7 @@ static int nsldapi_send_abandon_message(LDAP *ld, LDAPConn *lc, BerElement *ber,
      * "Would block" error.  Queue the abandon as
      * a pending request.
      */
-    LDAPRequest *lr;
+    LDAPRequest* lr;
 
     lr = nsldapi_new_request(lc, ber, abandon_msgid,
                              0 /* no response expected */);

@@ -59,7 +59,7 @@ extern int SlapdGetRegSZ(LPTSTR lpszRegKey, LPSTR lpszValueName,
  * getopt.c
  *
  */
-extern int getopt(int argc, char *const *argv, const char *optstring);
+extern int getopt(int argc, char* const* argv, const char* optstring);
 
 /*
  *
@@ -72,14 +72,14 @@ extern void InitializeSlapdLogging(LPTSTR lpszRegLocation,
                                    LPTSTR lpszEventLogName,
                                    LPTSTR lpszMessageFile);
 extern void ReportSlapdEvent(WORD wEventType, DWORD dwIdEvent,
-                             WORD wNumInsertStrings, char *pszStrings);
-extern BOOL ReportSlapdStatusToSCMgr(SERVICE_STATUS *serviceStatus,
+                             WORD wNumInsertStrings, char* pszStrings);
+extern BOOL ReportSlapdStatusToSCMgr(SERVICE_STATUS* serviceStatus,
                                      SERVICE_STATUS_HANDLE serviceStatusHandle,
                                      HANDLE Event, DWORD dwCurrentState,
                                      DWORD dwWin32ExitCode, DWORD dwCheckPoint,
                                      DWORD dwWaitHint);
 extern void WINAPI SlapdServiceCtrlHandler(DWORD dwOpcode);
-extern BOOL SlapdGetServerNameFromCmdline(char *szServerName, char *szCmdLine);
+extern BOOL SlapdGetServerNameFromCmdline(char* szServerName, char* szCmdLine);
 
 /*
  *
@@ -87,9 +87,9 @@ extern BOOL SlapdGetServerNameFromCmdline(char *szServerName, char *szCmdLine);
  *
  */
 #    ifdef NET_SSL
-extern char *Slapd_GetPassword();
+extern char* Slapd_GetPassword();
 #      ifdef FORTEZZA
-extern char *Slapd_GetFortezzaPIN();
+extern char* Slapd_GetFortezzaPIN();
 #      endif
 extern void CenterDialog(HWND hwndParent, HWND hwndDialog);
 #    endif /* NET_SSL */

@@ -53,9 +53,9 @@
 #include <psap.h>
 #include <quipu/attr.h>
 
-static usage(char *name) { fprintf(stderr, "usage: %s\n", name); }
+static usage(char* name) { fprintf(stderr, "usage: %s\n", name); }
 
-main(int argc, char **argv) {
+main(int argc, char** argv) {
   PE pe;
   PS psin, psout, pserr;
 

@@ -49,7 +49,7 @@
  * ldap error code (LDAP_SUCCESS, LDAP_NO_SUCH_OBJECT, etc.).
  */
 
-int LDAP_CALL ldap_cache_flush(LDAP *ld, const char *dn, const char *filter) {
+int LDAP_CALL ldap_cache_flush(LDAP* ld, const char* dn, const char* filter) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
   }
@@ -68,15 +68,15 @@ int LDAP_CALL ldap_cache_flush(LDAP *ld, const char *dn, const char *filter) {
  * cache add routine to actually add the entry.
  */
 
-void nsldapi_add_result_to_cache(LDAP *ld, LDAPMessage *m) {
-  char *dn;
-  LDAPMod **mods;
+void nsldapi_add_result_to_cache(LDAP* ld, LDAPMessage* m) {
+  char* dn;
+  LDAPMod** mods;
   int i, max, rc;
-  char *a;
-  BerElement *ber;
+  char* a;
+  BerElement* ber;
   char buf[50];
   struct berval bv;
-  struct berval *bvp[2];
+  struct berval* bvp[2];
 
   LDAPDebug(LDAP_DEBUG_TRACE, "=> nsldapi_add_result_to_cache id %d type %d\n",
             m->lm_msgid, m->lm_msgtype, 0);
@@ -89,16 +89,16 @@ void nsldapi_add_result_to_cache(LDAP *ld, LDAPMessage *m) {
 #define GRABSIZE 5
 
   dn = ldap_get_dn(ld, m);
-  mods = (LDAPMod **)NSLDAPI_MALLOC(GRABSIZE * sizeof(LDAPMod *));
+  mods = (LDAPMod**)NSLDAPI_MALLOC(GRABSIZE * sizeof(LDAPMod*));
   max = GRABSIZE;
   for (i = 0, a = ldap_first_attribute(ld, m, &ber); a != NULL;
        a = ldap_next_attribute(ld, m, ber), i++) {
     if (i == (max - 1)) {
       max += GRABSIZE;
-      mods = (LDAPMod **)NSLDAPI_REALLOC(mods, sizeof(LDAPMod *) * max);
+      mods = (LDAPMod**)NSLDAPI_REALLOC(mods, sizeof(LDAPMod*) * max);
     }
 
-    mods[i] = (LDAPMod *)NSLDAPI_CALLOC(1, sizeof(LDAPMod));
+    mods[i] = (LDAPMod*)NSLDAPI_CALLOC(1, sizeof(LDAPMod));
     mods[i]->mod_op = LDAP_MOD_BVALUES;
     mods[i]->mod_type = a;
     mods[i]->mod_bvalues = ldap_get_values_len(ld, m, a);
@@ -118,9 +118,9 @@ void nsldapi_add_result_to_cache(LDAP *ld, LDAPMessage *m) {
   /* update special cachedtime attribute */
   if (i == (max - 1)) {
     max++;
-    mods = (LDAPMod **)NSLDAPI_REALLOC(mods, sizeof(LDAPMod *) * max);
+    mods = (LDAPMod**)NSLDAPI_REALLOC(mods, sizeof(LDAPMod*) * max);
   }
-  mods[i] = (LDAPMod *)NSLDAPI_CALLOC(1, sizeof(LDAPMod));
+  mods[i] = (LDAPMod*)NSLDAPI_CALLOC(1, sizeof(LDAPMod));
   mods[i]->mod_op = LDAP_MOD_BVALUES;
   mods[i]->mod_type = "cachedtime";
   sprintf(buf, "%ld", time(NULL));

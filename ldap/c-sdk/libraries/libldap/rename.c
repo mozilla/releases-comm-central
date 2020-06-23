@@ -71,11 +71,11 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
  *                  clientctrls, &msgid);
  */
 int LDAP_CALL
-ldap_rename(LDAP *ld, const char *dn, const char *newrdn, const char *newparent,
-            int deleteoldrdn, LDAPControl **serverctrls,
-            LDAPControl **clientctrls, /* not used for anything yet */
-            int *msgidp) {
-  BerElement *ber;
+ldap_rename(LDAP* ld, const char* dn, const char* newrdn, const char* newparent,
+            int deleteoldrdn, LDAPControl** serverctrls,
+            LDAPControl** clientctrls, /* not used for anything yet */
+            int* msgidp) {
+  BerElement* ber;
   int rc, err;
 
   /*
@@ -175,13 +175,13 @@ ldap_rename(LDAP *ld, const char *dn, const char *newrdn, const char *newparent,
   }
 
   /* send the message */
-  rc = nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_MODDN, (char *)dn,
-                                    ber);
+  rc =
+      nsldapi_send_initial_request(ld, *msgidp, LDAP_REQ_MODDN, (char*)dn, ber);
   *msgidp = rc;
   return (rc < 0 ? LDAP_GET_LDERRNO(ld, NULL, NULL) : LDAP_SUCCESS);
 }
 
-int LDAP_CALL ldap_modrdn2(LDAP *ld, const char *dn, const char *newrdn,
+int LDAP_CALL ldap_modrdn2(LDAP* ld, const char* dn, const char* newrdn,
                            int deleteoldrdn) {
   int msgid;
 
@@ -193,17 +193,17 @@ int LDAP_CALL ldap_modrdn2(LDAP *ld, const char *dn, const char *newrdn,
   }
 }
 
-int LDAP_CALL ldap_modrdn(LDAP *ld, const char *dn, const char *newrdn) {
+int LDAP_CALL ldap_modrdn(LDAP* ld, const char* dn, const char* newrdn) {
   return (ldap_modrdn2(ld, dn, newrdn, 1));
 }
 
 int LDAP_CALL ldap_rename_s(
-    LDAP *ld, const char *dn, const char *newrdn, const char *newparent,
-    int deleteoldrdn, LDAPControl **serverctrls,
-    LDAPControl **clientctrls /* not used for anything yet */
+    LDAP* ld, const char* dn, const char* newrdn, const char* newparent,
+    int deleteoldrdn, LDAPControl** serverctrls,
+    LDAPControl** clientctrls /* not used for anything yet */
 ) {
   int msgid;
-  LDAPMessage *res;
+  LDAPMessage* res;
 
   if (ldap_rename(ld, dn, newrdn, newparent, deleteoldrdn, serverctrls,
                   clientctrls, &msgid) != LDAP_SUCCESS) {
@@ -212,26 +212,26 @@ int LDAP_CALL ldap_rename_s(
 
   if (msgid == -1) return (LDAP_GET_LDERRNO(ld, NULL, NULL));
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)NULL, &res) == -1)
+  if (ldap_result(ld, msgid, 1, (struct timeval*)NULL, &res) == -1)
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
 
   return (ldap_result2error(ld, res, 1));
 }
 
-int LDAP_CALL ldap_modrdn2_s(LDAP *ld, const char *dn, const char *newrdn,
+int LDAP_CALL ldap_modrdn2_s(LDAP* ld, const char* dn, const char* newrdn,
                              int deleteoldrdn) {
   int msgid;
-  LDAPMessage *res;
+  LDAPMessage* res;
 
   if ((msgid = ldap_modrdn2(ld, dn, newrdn, deleteoldrdn)) == -1)
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
 
-  if (ldap_result(ld, msgid, 1, (struct timeval *)NULL, &res) == -1)
+  if (ldap_result(ld, msgid, 1, (struct timeval*)NULL, &res) == -1)
     return (LDAP_GET_LDERRNO(ld, NULL, NULL));
 
   return (ldap_result2error(ld, res, 1));
 }
 
-int LDAP_CALL ldap_modrdn_s(LDAP *ld, const char *dn, const char *newrdn) {
+int LDAP_CALL ldap_modrdn_s(LDAP* ld, const char* dn, const char* newrdn) {
   return (ldap_modrdn2_s(ld, dn, newrdn, 1));
 }

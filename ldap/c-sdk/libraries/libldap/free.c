@@ -51,7 +51,7 @@ static char copyright[] = "@(#) Copyright (c) 1994 The Regents of the University
 
 #include "ldap-int.h"
 
-void LDAP_CALL ldap_getfilter_free(LDAPFiltDesc *lfdp) {
+void LDAP_CALL ldap_getfilter_free(LDAPFiltDesc* lfdp) {
   LDAPFiltList *flp, *nextflp;
   LDAPFiltInfo *fip, *nextfip;
 
@@ -97,7 +97,7 @@ void LDAP_CALL ldap_getfilter_free(LDAPFiltDesc *lfdp) {
  * structures are freed, not the array itself, unless the freemods
  * flag is set.
  */
-void LDAP_CALL ldap_mods_free(LDAPMod **mods, int freemods) {
+void LDAP_CALL ldap_mods_free(LDAPMod** mods, int freemods) {
   int i;
 
   if (!NSLDAPI_VALID_LDAPMOD_ARRAY(mods)) {
@@ -115,17 +115,17 @@ void LDAP_CALL ldap_mods_free(LDAPMod **mods, int freemods) {
     if (mods[i]->mod_type != NULL) {
       NSLDAPI_FREE(mods[i]->mod_type);
     }
-    NSLDAPI_FREE((char *)mods[i]);
+    NSLDAPI_FREE((char*)mods[i]);
   }
 
-  if (freemods) NSLDAPI_FREE((char *)mods);
+  if (freemods) NSLDAPI_FREE((char*)mods);
 }
 
 /*
  * ldap_memfree() is needed to ensure that memory allocated by the C runtime
  * associated with libldap is freed by the same runtime code.
  */
-void LDAP_CALL ldap_memfree(void *s) {
+void LDAP_CALL ldap_memfree(void* s) {
   if (s != NULL) {
     NSLDAPI_FREE(s);
   }
@@ -135,6 +135,6 @@ void LDAP_CALL ldap_memfree(void *s) {
  * ldap_ber_free() is just a cover for ber_free()
  * ber_free() checks for ber == NULL, so we don't bother.
  */
-void LDAP_CALL ldap_ber_free(BerElement *ber, int freebuf) {
+void LDAP_CALL ldap_ber_free(BerElement* ber, int freebuf) {
   ber_free(ber, freebuf);
 }

@@ -50,8 +50,8 @@ ctl_iscritical  Indicates whether the control is critical of not.
 ctrlp           the address of a place to put the constructed control
 */
 
-int LDAP_CALL ldap_create_authzid_control(LDAP *ld, const char ctl_iscritical,
-                                          LDAPControl **ctrlp) {
+int LDAP_CALL ldap_create_authzid_control(LDAP* ld, const char ctl_iscritical,
+                                          LDAPControl** ctrlp) {
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -84,11 +84,11 @@ authzid         authorization identity, as defined in
                 RFC 2829, section 9.
 */
 
-int LDAP_CALL ldap_parse_authzid_control(LDAP *ld, LDAPControl **ctrlp,
-                                         char **authzid) {
+int LDAP_CALL ldap_parse_authzid_control(LDAP* ld, LDAPControl** ctrlp,
+                                         char** authzid) {
   int i, foundAUTHZIDControl;
-  char *authzidp = NULL;
-  LDAPControl *AUTHZIDCtrlp = NULL;
+  char* authzidp = NULL;
+  LDAPControl* AUTHZIDCtrlp = NULL;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (LDAP_PARAM_ERROR);
@@ -128,7 +128,7 @@ int LDAP_CALL ldap_parse_authzid_control(LDAP *ld, LDAPControl **ctrlp,
    */
   if (AUTHZIDCtrlp && AUTHZIDCtrlp->ldctl_value.bv_val &&
       AUTHZIDCtrlp->ldctl_value.bv_len) {
-    authzidp = ((char *)NSLDAPI_MALLOC((AUTHZIDCtrlp->ldctl_value.bv_len + 1)));
+    authzidp = ((char*)NSLDAPI_MALLOC((AUTHZIDCtrlp->ldctl_value.bv_len + 1)));
     if (authzidp == NULL) {
       LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
       return (LDAP_NO_MEMORY);

@@ -46,7 +46,7 @@
 
 #  define BPLEN 48
 
-void lber_bprint(char *data, int len) {
+void lber_bprint(char* data, int len) {
   static char hexdig[] = "0123456789abcdef";
   char out[BPLEN];
   int i = 0;
@@ -89,7 +89,7 @@ void lber_bprint(char *data, int len) {
 
 #endif
 
-void ber_err_print(char *data) {
+void ber_err_print(char* data) {
 #ifdef USE_DEBUG_WIN
   OutputDebugString(data);
 #else

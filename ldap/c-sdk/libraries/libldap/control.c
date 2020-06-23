@@ -38,9 +38,9 @@
 
 #include "ldap-int.h"
 
-static LDAPControl *ldap_control_dup(LDAPControl *ctrl);
-static int ldap_control_copy_contents(LDAPControl *ctrl_dst,
-                                      LDAPControl *ctrl_src);
+static LDAPControl* ldap_control_dup(LDAPControl* ctrl);
+static int ldap_control_copy_contents(LDAPControl* ctrl_dst,
+                                      LDAPControl* ctrl_src);
 
 /*
  * Append a list of LDAPv3 controls to ber.  If ctrls is NULL, use default
@@ -48,9 +48,9 @@ static int ldap_control_copy_contents(LDAPControl *ctrl_dst,
  * Return an LDAP error code (LDAP_SUCCESS if all goes well).
  * If closeseq is non-zero, we do an extra ber_put_seq() as well.
  */
-int nsldapi_put_controls(LDAP *ld, LDAPControl **ctrls, int closeseq,
-                         BerElement *ber) {
-  LDAPControl *c;
+int nsldapi_put_controls(LDAP* ld, LDAPControl** ctrls, int closeseq,
+                         BerElement* ber) {
+  LDAPControl* c;
   int rc, i;
 
   rc = LDAP_ENCODING_ERROR; /* the most popular error */
@@ -136,12 +136,12 @@ error_exit:
  * Pull controls out of "ber" (if any present) and return them in "controlsp."
  * Returns an LDAP error code.
  */
-int nsldapi_get_controls(BerElement *ber, LDAPControl ***controlsp) {
-  LDAPControl *newctrl;
+int nsldapi_get_controls(BerElement* ber, LDAPControl*** controlsp) {
+  LDAPControl* newctrl;
   ber_tag_t tag;
   ber_len_t len;
   int rc, maxcontrols, curcontrols;
-  char *last;
+  char* last;
 
   /*
    * Each LDAPMessage can have a set of controls appended
@@ -197,14 +197,14 @@ int nsldapi_get_controls(BerElement *ber, LDAPControl ***controlsp) {
     if (curcontrols >= maxcontrols - 1) {
 #define CONTROL_GRABSIZE 5
       maxcontrols += CONTROL_GRABSIZE;
-      *controlsp = (struct ldapcontrol **)NSLDAPI_REALLOC(
-          (char *)*controlsp, maxcontrols * sizeof(struct ldapcontrol *));
+      *controlsp = (struct ldapcontrol**)NSLDAPI_REALLOC(
+          (char*)*controlsp, maxcontrols * sizeof(struct ldapcontrol*));
       if (*controlsp == NULL) {
         rc = LDAP_NO_MEMORY;
         goto free_and_return;
       }
     }
-    if ((newctrl = (struct ldapcontrol *)NSLDAPI_CALLOC(
+    if ((newctrl = (struct ldapcontrol*)NSLDAPI_CALLOC(
              1, sizeof(LDAPControl))) == NULL) {
       rc = LDAP_NO_MEMORY;
       goto free_and_return;
@@ -265,7 +265,7 @@ free_and_return:;
  * nsldapi_get_controls() to parse them into an LDAPControl list.
  * Returns an LDAP error code.
  */
-int nsldapi_find_controls(BerElement *ber, LDAPControl ***controlsp) {
+int nsldapi_find_controls(BerElement* ber, LDAPControl*** controlsp) {
   ber_tag_t tag;
   ber_len_t len;
 
@@ -285,7 +285,7 @@ int nsldapi_find_controls(BerElement *ber, LDAPControl ***controlsp) {
   return (nsldapi_get_controls(ber, controlsp));
 }
 
-void LDAP_CALL ldap_control_free(LDAPControl *ctrl) {
+void LDAP_CALL ldap_control_free(LDAPControl* ctrl) {
   if (ctrl != NULL) {
     if (ctrl->ldctl_oid != NULL) {
       NSLDAPI_FREE(ctrl->ldctl_oid);
@@ -293,24 +293,24 @@ void LDAP_CALL ldap_control_free(LDAPControl *ctrl) {
     if (ctrl->ldctl_value.bv_val != NULL) {
       NSLDAPI_FREE(ctrl->ldctl_value.bv_val);
     }
-    NSLDAPI_FREE((char *)ctrl);
+    NSLDAPI_FREE((char*)ctrl);
   }
 }
 
-void LDAP_CALL ldap_controls_free(LDAPControl **ctrls) {
+void LDAP_CALL ldap_controls_free(LDAPControl** ctrls) {
   int i;
 
   if (ctrls != NULL) {
     for (i = 0; ctrls[i] != NULL; i++) {
       ldap_control_free(ctrls[i]);
     }
-    NSLDAPI_FREE((char *)ctrls);
+    NSLDAPI_FREE((char*)ctrls);
   }
 }
 
-LDAPControl *LDAP_CALL ldap_find_control(const char *oid, LDAPControl **ctrls) {
+LDAPControl* LDAP_CALL ldap_find_control(const char* oid, LDAPControl** ctrls) {
   int i, foundControl;
-  LDAPControl *Ctrlp = NULL;
+  LDAPControl* Ctrlp = NULL;
 
   /* find the control in the list of controls if it exists */
   if (ctrls == NULL) {
@@ -376,8 +376,8 @@ ldap_control_append( LDAPControl **ctrl_src, LDAPControl *ctrl )
  * returns 0 if successful.
  * return -1 if not and set error code inside LDAP *ld.
  */
-int nsldapi_dup_controls(LDAP *ld, LDAPControl ***ldctrls,
-                         LDAPControl **newctrls) {
+int nsldapi_dup_controls(LDAP* ld, LDAPControl*** ldctrls,
+                         LDAPControl** newctrls) {
   int count;
 
   if (*ldctrls != NULL) {
@@ -393,8 +393,8 @@ int nsldapi_dup_controls(LDAP *ld, LDAPControl ***ldctrls,
     ;
   }
 
-  if ((*ldctrls = (LDAPControl **)NSLDAPI_MALLOC(
-           (count + 1) * sizeof(LDAPControl *))) == NULL) {
+  if ((*ldctrls = (LDAPControl**)NSLDAPI_MALLOC(
+           (count + 1) * sizeof(LDAPControl*))) == NULL) {
     LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
     return (-1);
   }
@@ -415,12 +415,12 @@ int nsldapi_dup_controls(LDAP *ld, LDAPControl ***ldctrls,
 /*
  * return a malloc'd copy of "ctrl" (NULL if memory allocation fails)
  */
-static LDAPControl *
+static LDAPControl*
 /* LDAP_CALL */ /* keep this routine internal for now */
-ldap_control_dup(LDAPControl *ctrl) {
-  LDAPControl *rctrl;
+ldap_control_dup(LDAPControl* ctrl) {
+  LDAPControl* rctrl;
 
-  if ((rctrl = (LDAPControl *)NSLDAPI_MALLOC(sizeof(LDAPControl))) == NULL) {
+  if ((rctrl = (LDAPControl*)NSLDAPI_MALLOC(sizeof(LDAPControl))) == NULL) {
     return (NULL);
   }
 
@@ -437,7 +437,7 @@ ldap_control_dup(LDAPControl *ctrl) {
  */
 static int
 /* LDAP_CALL */ /* keep this routine internal for now */
-ldap_control_copy_contents(LDAPControl *ctrl_dst, LDAPControl *ctrl_src) {
+ldap_control_copy_contents(LDAPControl* ctrl_dst, LDAPControl* ctrl_src) {
   size_t len;
 
   if (NULL == ctrl_dst || NULL == ctrl_src) {
@@ -470,10 +470,10 @@ ldap_control_copy_contents(LDAPControl *ctrl_dst, LDAPControl *ctrl_src) {
 /*
  * build an allocated LDAPv3 control.  Returns an LDAP error code.
  */
-int nsldapi_build_control(char *oid, BerElement *ber, int freeber,
-                          char iscritical, LDAPControl **ctrlp) {
+int nsldapi_build_control(char* oid, BerElement* ber, int freeber,
+                          char iscritical, LDAPControl** ctrlp) {
   int rc;
-  struct berval *bvp;
+  struct berval* bvp;
 
   if (ber == NULL) {
     bvp = NULL;
@@ -489,7 +489,7 @@ int nsldapi_build_control(char *oid, BerElement *ber, int freeber,
   }
 
   /* allocate the new control structure */
-  if ((*ctrlp = (LDAPControl *)NSLDAPI_MALLOC(sizeof(LDAPControl))) == NULL) {
+  if ((*ctrlp = (LDAPControl*)NSLDAPI_MALLOC(sizeof(LDAPControl))) == NULL) {
     if (bvp != NULL) {
       ber_bvfree(bvp);
     }

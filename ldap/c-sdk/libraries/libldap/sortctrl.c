@@ -52,10 +52,10 @@
    ctrlp           the address of a place to put the constructed control
 */
 
-int LDAP_CALL ldap_create_sort_control(LDAP *ld, LDAPsortkey **sortKeyList,
+int LDAP_CALL ldap_create_sort_control(LDAP* ld, LDAPsortkey** sortKeyList,
                                        const char ctl_iscritical,
-                                       LDAPControl **ctrlp) {
-  BerElement *ber;
+                                       LDAPControl** ctrlp) {
+  BerElement* ber;
   int i, rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -142,14 +142,14 @@ encoding_error_exit:
                    attribute which cause the operation to fail, optionally
                    returned by the server */
 
-int LDAP_CALL ldap_parse_sort_control(LDAP *ld, LDAPControl **ctrlp,
-                                      ber_int_t *result, char **attribute) {
-  BerElement *ber;
+int LDAP_CALL ldap_parse_sort_control(LDAP* ld, LDAPControl** ctrlp,
+                                      ber_int_t* result, char** attribute) {
+  BerElement* ber;
   int i, foundSortControl;
-  LDAPControl *sortCtrlp;
+  LDAPControl* sortCtrlp;
   ber_len_t len;
   ber_tag_t tag;
-  char *attr;
+  char* attr;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || result == NULL || attribute == NULL) {
     return (LDAP_PARAM_ERROR);
@@ -213,9 +213,9 @@ int LDAP_CALL ldap_parse_sort_control(LDAP *ld, LDAPControl **ctrlp,
 /* Routines for the manipulation of string-representations of sort control
  * keylists */
 
-static int count_tokens(const char *s) {
+static int count_tokens(const char* s) {
   int count = 0;
-  const char *p = s;
+  const char* p = s;
   int whitespace = 1;
   /* Loop along the string counting the number of times we see the
    * beginning of non-whitespace. This tells us
@@ -237,15 +237,15 @@ static int count_tokens(const char *s) {
   return count;
 }
 
-static int read_next_token(const char **s, LDAPsortkey **key) {
+static int read_next_token(const char** s, LDAPsortkey** key) {
   char c = 0;
-  const char *pos = *s;
+  const char* pos = *s;
   int retval = 0;
-  LDAPsortkey *new_key = NULL;
+  LDAPsortkey* new_key = NULL;
 
-  const char *matchrule_source = NULL;
+  const char* matchrule_source = NULL;
   int matchrule_size = 0;
-  const char *attrdesc_source = NULL;
+  const char* attrdesc_source = NULL;
   int attrdesc_size = 0;
   int reverse = 0;
 
@@ -319,15 +319,15 @@ static int read_next_token(const char **s, LDAPsortkey **key) {
     return -1;
   }
 
-  new_key = (LDAPsortkey *)NSLDAPI_MALLOC(sizeof(LDAPsortkey));
+  new_key = (LDAPsortkey*)NSLDAPI_MALLOC(sizeof(LDAPsortkey));
   if (0 == new_key) {
     return LDAP_NO_MEMORY;
   }
 
   /* Allocate the strings */
-  new_key->sk_attrtype = (char *)NSLDAPI_MALLOC(attrdesc_size + 1);
+  new_key->sk_attrtype = (char*)NSLDAPI_MALLOC(attrdesc_size + 1);
   if (NULL != matchrule_source) {
-    new_key->sk_matchruleoid = (char *)NSLDAPI_MALLOC(matchrule_size + 1);
+    new_key->sk_matchruleoid = (char*)NSLDAPI_MALLOC(matchrule_size + 1);
   } else {
     new_key->sk_matchruleoid = NULL;
   }
@@ -346,11 +346,11 @@ static int read_next_token(const char **s, LDAPsortkey **key) {
   return retval;
 }
 
-int LDAP_CALL ldap_create_sort_keylist(LDAPsortkey ***sortKeyList,
-                                       const char *string_rep) {
+int LDAP_CALL ldap_create_sort_keylist(LDAPsortkey*** sortKeyList,
+                                       const char* string_rep) {
   int count = 0;
-  LDAPsortkey **pointer_array = NULL;
-  const char *current_position = NULL;
+  LDAPsortkey** pointer_array = NULL;
+  const char* current_position = NULL;
   int retval = 0;
   int i = 0;
 
@@ -368,7 +368,7 @@ int LDAP_CALL ldap_create_sort_keylist(LDAPsortkey ***sortKeyList,
   }
   /* Allocate enough memory for the pointers */
   pointer_array =
-      (LDAPsortkey **)NSLDAPI_MALLOC(sizeof(LDAPsortkey *) * (count + 1));
+      (LDAPsortkey**)NSLDAPI_MALLOC(sizeof(LDAPsortkey*) * (count + 1));
   if (NULL == pointer_array) {
     return LDAP_NO_MEMORY;
   }
@@ -390,8 +390,8 @@ int LDAP_CALL ldap_create_sort_keylist(LDAPsortkey ***sortKeyList,
   return LDAP_SUCCESS;
 }
 
-void LDAP_CALL ldap_free_sort_keylist(LDAPsortkey **sortKeyList) {
-  LDAPsortkey *this_one = NULL;
+void LDAP_CALL ldap_free_sort_keylist(LDAPsortkey** sortKeyList) {
+  LDAPsortkey* this_one = NULL;
   int i = 0;
 
   if (NULL == sortKeyList) {

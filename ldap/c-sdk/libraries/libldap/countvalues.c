@@ -44,7 +44,7 @@
 
 #include "ldap-int.h"
 
-int LDAP_CALL ldap_count_values(char **vals) {
+int LDAP_CALL ldap_count_values(char** vals) {
   int i;
 
   if (vals == NULL) return (0);
@@ -55,6 +55,6 @@ int LDAP_CALL ldap_count_values(char **vals) {
   return (i);
 }
 
-int LDAP_CALL ldap_count_values_len(struct berval **vals) {
-  return (ldap_count_values((char **)vals));
+int LDAP_CALL ldap_count_values_len(struct berval** vals) {
+  return (ldap_count_values((char**)vals));
 }

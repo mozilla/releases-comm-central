@@ -50,7 +50,7 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 
 #include "ldap-int.h"
 
-LDAPMessage *LDAP_CALL ldap_first_entry(LDAP *ld, LDAPMessage *chain) {
+LDAPMessage* LDAP_CALL ldap_first_entry(LDAP* ld, LDAPMessage* chain) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || chain == NULLMSG) {
     return (NULLMSG);
   }
@@ -62,7 +62,7 @@ LDAPMessage *LDAP_CALL ldap_first_entry(LDAP *ld, LDAPMessage *chain) {
   return (ldap_next_entry(ld, chain));
 }
 
-LDAPMessage *LDAP_CALL ldap_next_entry(LDAP *ld, LDAPMessage *entry) {
+LDAPMessage* LDAP_CALL ldap_next_entry(LDAP* ld, LDAPMessage* entry) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || entry == NULLMSG) {
     return (NULLMSG);
   }
@@ -76,7 +76,7 @@ LDAPMessage *LDAP_CALL ldap_next_entry(LDAP *ld, LDAPMessage *entry) {
   return (NULLMSG);
 }
 
-int LDAP_CALL ldap_count_entries(LDAP *ld, LDAPMessage *chain) {
+int LDAP_CALL ldap_count_entries(LDAP* ld, LDAPMessage* chain) {
   int i;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -92,8 +92,8 @@ int LDAP_CALL ldap_count_entries(LDAP *ld, LDAPMessage *chain) {
   return (i);
 }
 
-int LDAP_CALL ldap_get_entry_controls(LDAP *ld, LDAPMessage *entry,
-                                      LDAPControl ***serverctrlsp) {
+int LDAP_CALL ldap_get_entry_controls(LDAP* ld, LDAPMessage* entry,
+                                      LDAPControl*** serverctrlsp) {
   int rc;
   BerElement tmpber;
 

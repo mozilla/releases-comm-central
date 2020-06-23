@@ -52,32 +52,32 @@
 #include "ldap-int.h"
 
 typedef struct keycmp {
-  void *kc_arg;
-  LDAP_KEYCMP_CALLBACK *kc_cmp;
+  void* kc_arg;
+  LDAP_KEYCMP_CALLBACK* kc_cmp;
 } keycmp_t;
 
 typedef struct keything {
-  keycmp_t *kt_cmp;
-  const struct berval *kt_key;
-  LDAPMessage *kt_msg;
+  keycmp_t* kt_cmp;
+  const struct berval* kt_key;
+  LDAPMessage* kt_msg;
 } keything_t;
 
-static int LDAP_C LDAP_CALLBACK ldapi_keycmp(const void *Lv, const void *Rv) {
-  auto keything_t **L = (keything_t **)Lv;
-  auto keything_t **R = (keything_t **)Rv;
-  auto keycmp_t *cmp = (*L)->kt_cmp;
+static int LDAP_C LDAP_CALLBACK ldapi_keycmp(const void* Lv, const void* Rv) {
+  auto keything_t** L = (keything_t**)Lv;
+  auto keything_t** R = (keything_t**)Rv;
+  auto keycmp_t* cmp = (*L)->kt_cmp;
   return cmp->kc_cmp(cmp->kc_arg, (*L)->kt_key, (*R)->kt_key);
 }
 
-int LDAP_CALL ldap_keysort_entries(LDAP *ld, LDAPMessage **chain, void *arg,
-                                   LDAP_KEYGEN_CALLBACK *gen,
-                                   LDAP_KEYCMP_CALLBACK *cmp,
-                                   LDAP_KEYFREE_CALLBACK *fre) {
+int LDAP_CALL ldap_keysort_entries(LDAP* ld, LDAPMessage** chain, void* arg,
+                                   LDAP_KEYGEN_CALLBACK* gen,
+                                   LDAP_KEYCMP_CALLBACK* cmp,
+                                   LDAP_KEYFREE_CALLBACK* fre) {
   size_t count, i;
   keycmp_t kc = {0};
-  keything_t **kt;
+  keything_t** kt;
   LDAPMessage *e, *last;
-  LDAPMessage **ep;
+  LDAPMessage** ep;
   int scount;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || chain == NULL || cmp == NULL) {
@@ -96,14 +96,14 @@ int LDAP_CALL ldap_keysort_entries(LDAP *ld, LDAPMessage **chain, void *arg,
     return (0);
   }
 
-  kt = (keything_t **)NSLDAPI_MALLOC(
-      count * (sizeof(keything_t *) + sizeof(keything_t)));
+  kt = (keything_t**)NSLDAPI_MALLOC(count *
+                                    (sizeof(keything_t*) + sizeof(keything_t)));
   if (kt == NULL) {
     LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
     return (-1);
   }
   for (i = 0; i < count; i++) {
-    kt[i] = i + (keything_t *)(kt + count);
+    kt[i] = i + (keything_t*)(kt + count);
   }
   kc.kc_arg = arg;
   kc.kc_cmp = cmp;
@@ -115,14 +115,14 @@ int LDAP_CALL ldap_keysort_entries(LDAP *ld, LDAPMessage **chain, void *arg,
     if (kt[i]->kt_key == NULL) {
       if (fre)
         while (i-- > 0) fre(arg, kt[i]->kt_key);
-      NSLDAPI_FREE((char *)kt);
+      NSLDAPI_FREE((char*)kt);
       LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
       return (-1);
     }
   }
   last = e;
 
-  qsort((void *)kt, count, (size_t)sizeof(keything_t *), ldapi_keycmp);
+  qsort((void*)kt, count, (size_t)sizeof(keything_t*), ldapi_keycmp);
 
   ep = chain;
   for (i = 0; i < count; i++) {
@@ -131,35 +131,35 @@ int LDAP_CALL ldap_keysort_entries(LDAP *ld, LDAPMessage **chain, void *arg,
     if (fre) fre(arg, kt[i]->kt_key);
   }
   *ep = last;
-  NSLDAPI_FREE((char *)kt);
+  NSLDAPI_FREE((char*)kt);
   return (0);
 }
 
 struct entrything {
-  char **et_vals;
-  LDAPMessage *et_msg;
+  char** et_vals;
+  LDAPMessage* et_msg;
 };
 
-typedef int(LDAP_C LDAP_CALLBACK LDAP_CHARCMP_CALLBACK)(char *, char *);
-typedef int(LDAP_C LDAP_CALLBACK LDAP_VOIDCMP_CALLBACK)(const void *,
-                                                        const void *);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_CHARCMP_CALLBACK)(char*, char*);
+typedef int(LDAP_C LDAP_CALLBACK LDAP_VOIDCMP_CALLBACK)(const void*,
+                                                        const void*);
 
-static LDAP_CHARCMP_CALLBACK *et_cmp_fn;
+static LDAP_CHARCMP_CALLBACK* et_cmp_fn;
 static LDAP_VOIDCMP_CALLBACK et_cmp;
 
-int LDAP_C LDAP_CALLBACK ldap_sort_strcasecmp(const char **a, const char **b) {
+int LDAP_C LDAP_CALLBACK ldap_sort_strcasecmp(const char** a, const char** b) {
   /* XXXceb
    * I am not 100% sure this is the way this should be handled.
    * For now we will return a 0 on invalid.
    */
   if (NULL == a || NULL == b) return (0);
-  return (strcasecmp((char *)*a, (char *)*b));
+  return (strcasecmp((char*)*a, (char*)*b));
 }
 
-static int LDAP_C LDAP_CALLBACK et_cmp(const void *aa, const void *bb) {
+static int LDAP_C LDAP_CALLBACK et_cmp(const void* aa, const void* bb) {
   int i, rc;
-  struct entrything *a = (struct entrything *)aa;
-  struct entrything *b = (struct entrything *)bb;
+  struct entrything* a = (struct entrything*)aa;
+  struct entrything* b = (struct entrything*)bb;
 
   if (a->et_vals == NULL && b->et_vals == NULL) return (0);
   if (a->et_vals == NULL) return (-1);
@@ -176,13 +176,13 @@ static int LDAP_C LDAP_CALLBACK et_cmp(const void *aa, const void *bb) {
   return (1);
 }
 
-int LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain,
-                                     char **attr, /* NULL => sort by DN */
-                                     LDAP_CMP_CALLBACK *cmp) {
+int LDAP_CALL ldap_multisort_entries(LDAP* ld, LDAPMessage** chain,
+                                     char** attr, /* NULL => sort by DN */
+                                     LDAP_CMP_CALLBACK* cmp) {
   int i, count;
-  struct entrything *et;
+  struct entrything* et;
   LDAPMessage *e, *last;
-  LDAPMessage **ep;
+  LDAPMessage** ep;
   int scount;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || chain == NULL || cmp == NULL) {
@@ -201,7 +201,7 @@ int LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain,
     return (0);
   }
 
-  if ((et = (struct entrything *)NSLDAPI_MALLOC(
+  if ((et = (struct entrything*)NSLDAPI_MALLOC(
            count * sizeof(struct entrything))) == NULL) {
     LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
     return (-1);
@@ -212,14 +212,14 @@ int LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain,
     et[i].et_msg = e;
     et[i].et_vals = NULL;
     if (attr == NULL) {
-      char *dn;
+      char* dn;
 
       dn = ldap_get_dn(ld, e);
       et[i].et_vals = ldap_explode_dn(dn, 1);
       NSLDAPI_FREE(dn);
     } else {
       int attrcnt;
-      char **vals;
+      char** vals;
 
       for (attrcnt = 0; attr[attrcnt] != NULL; attrcnt++) {
         vals = ldap_get_values(ld, e, attr[attrcnt]);
@@ -228,12 +228,12 @@ int LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain,
 
           /* XXX risky: ldap_value_free( vals ); */
           for (j = 0; j <= i; j++) ldap_value_free(et[j].et_vals);
-          NSLDAPI_FREE((char *)et);
+          NSLDAPI_FREE((char*)et);
           LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
           return (-1);
         }
         if (vals != NULL) {
-          NSLDAPI_FREE((char *)vals);
+          NSLDAPI_FREE((char*)vals);
         }
       }
     }
@@ -242,8 +242,8 @@ int LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain,
   }
   last = e;
 
-  et_cmp_fn = (LDAP_CHARCMP_CALLBACK *)cmp;
-  qsort((void *)et, (size_t)count, (size_t)sizeof(struct entrything), et_cmp);
+  et_cmp_fn = (LDAP_CHARCMP_CALLBACK*)cmp;
+  qsort((void*)et, (size_t)count, (size_t)sizeof(struct entrything), et_cmp);
 
   ep = chain;
   for (i = 0; i < count; i++) {
@@ -253,23 +253,23 @@ int LDAP_CALL ldap_multisort_entries(LDAP *ld, LDAPMessage **chain,
     ldap_value_free(et[i].et_vals);
   }
   *ep = last;
-  NSLDAPI_FREE((char *)et);
+  NSLDAPI_FREE((char*)et);
 
   return (0);
 }
 
-int LDAP_CALL ldap_sort_entries(LDAP *ld, LDAPMessage **chain,
-                                char *attr, /* NULL => sort by DN */
-                                LDAP_CMP_CALLBACK *cmp) {
-  char *attrs[2];
+int LDAP_CALL ldap_sort_entries(LDAP* ld, LDAPMessage** chain,
+                                char* attr, /* NULL => sort by DN */
+                                LDAP_CMP_CALLBACK* cmp) {
+  char* attrs[2];
 
   attrs[0] = attr;
   attrs[1] = NULL;
   return (ldap_multisort_entries(ld, chain, attr ? attrs : NULL, cmp));
 }
 
-int LDAP_CALL ldap_sort_values(LDAP *ld, char **vals,
-                               LDAP_VALCMP_CALLBACK *cmp) {
+int LDAP_CALL ldap_sort_values(LDAP* ld, char** vals,
+                               LDAP_VALCMP_CALLBACK* cmp) {
   int nel;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || cmp == NULL) {
@@ -283,7 +283,7 @@ int LDAP_CALL ldap_sort_values(LDAP *ld, char **vals,
   for (nel = 0; vals[nel] != NULL; nel++)
     ; /* NULL */
 
-  qsort(vals, nel, sizeof(char *), (LDAP_VOIDCMP_CALLBACK *)cmp);
+  qsort(vals, nel, sizeof(char*), (LDAP_VOIDCMP_CALLBACK*)cmp);
 
   return (LDAP_SUCCESS);
 }

@@ -86,7 +86,7 @@ static char copyright[] = "@(#) Copyright (c) 1995 Regents of the University of 
  */
 #ifdef NSLDAPI_HAVE_POLL
 struct nsldapi_os_statusinfo { /* used with native OS poll() */
-  struct pollfd *ossi_pollfds;
+  struct pollfd* ossi_pollfds;
   int ossi_pollfds_size;
 };
 #else  /* NSLDAPI_HAVE_POLL */
@@ -99,7 +99,7 @@ struct nsldapi_os_statusinfo { /* used with native OS select() */
 #endif /* else NSLDAPI_HAVE_POLL */
 
 struct nsldapi_cb_statusinfo { /* used with ext. I/O poll() callback */
-  LDAP_X_PollFD *cbsi_pollfds;
+  LDAP_X_PollFD* cbsi_pollfds;
   int cbsi_pollfds_size;
 };
 
@@ -130,25 +130,25 @@ struct nsldapi_iostatus_info {
 
 #ifndef NSLDAPI_AVOID_OS_SOCKETS
 #  ifdef NSLDAPI_HAVE_POLL
-static int nsldapi_add_to_os_pollfds(int fd, struct nsldapi_os_statusinfo *pip,
+static int nsldapi_add_to_os_pollfds(int fd, struct nsldapi_os_statusinfo* pip,
                                      short events);
 static int nsldapi_clear_from_os_pollfds(int fd,
-                                         struct nsldapi_os_statusinfo *pip,
+                                         struct nsldapi_os_statusinfo* pip,
                                          short events);
-static int nsldapi_find_in_os_pollfds(int fd, struct nsldapi_os_statusinfo *pip,
+static int nsldapi_find_in_os_pollfds(int fd, struct nsldapi_os_statusinfo* pip,
                                       short revents);
 #  endif /* NSLDAPI_HAVE_POLL */
 #endif   /* NSLDAPI_AVOID_OS_SOCKETS */
 
-static int nsldapi_iostatus_init_nolock(LDAP *ld);
-static int nsldapi_add_to_cb_pollfds(Sockbuf *sb,
-                                     struct nsldapi_cb_statusinfo *pip,
+static int nsldapi_iostatus_init_nolock(LDAP* ld);
+static int nsldapi_add_to_cb_pollfds(Sockbuf* sb,
+                                     struct nsldapi_cb_statusinfo* pip,
                                      short events);
-static int nsldapi_clear_from_cb_pollfds(Sockbuf *sb,
-                                         struct nsldapi_cb_statusinfo *pip,
+static int nsldapi_clear_from_cb_pollfds(Sockbuf* sb,
+                                         struct nsldapi_cb_statusinfo* pip,
                                          short events);
-static int nsldapi_find_in_cb_pollfds(Sockbuf *sb,
-                                      struct nsldapi_cb_statusinfo *pip,
+static int nsldapi_find_in_cb_pollfds(Sockbuf* sb,
+                                      struct nsldapi_cb_statusinfo* pip,
                                       short revents);
 
 #ifdef irix
@@ -160,9 +160,9 @@ static int nsldapi_find_in_cb_pollfds(Sockbuf *sb,
  */
 #    define NSLDAPI_POLL _poll
 #    define NSLDAPI_SELECT _select
-extern int _poll(struct pollfd *fds, unsigned long nfds, int timeout);
-extern int _select(int nfds, fd_set *readfds, fd_set *writefds,
-                   fd_set *exceptfds, struct timeval *timeout);
+extern int _poll(struct pollfd* fds, unsigned long nfds, int timeout);
+extern int _select(int nfds, fd_set* readfds, fd_set* writefds,
+                   fd_set* exceptfds, struct timeval* timeout);
 #  else /* _PR_THREADS */
 #    define NSLDAPI_POLL poll
 #    define NSLDAPI_SELECT select
@@ -172,33 +172,33 @@ extern int _select(int nfds, fd_set *readfds, fd_set *writefds,
 #  define NSLDAPI_SELECT select
 #endif /* else irix */
 
-static LBER_SOCKET nsldapi_os_socket(LDAP *ld, int secure, int domain, int type,
+static LBER_SOCKET nsldapi_os_socket(LDAP* ld, int secure, int domain, int type,
                                      int protocol);
-static int nsldapi_os_ioctl(LBER_SOCKET s, int option, int *statusp);
-static int nsldapi_os_connect_with_to(LBER_SOCKET s, struct sockaddr *name,
+static int nsldapi_os_ioctl(LBER_SOCKET s, int option, int* statusp);
+static int nsldapi_os_connect_with_to(LBER_SOCKET s, struct sockaddr* name,
                                       int namelen, int msec_timeout);
 #if defined(KERBEROS)
-char *nsldapi_host_connected_to(LDAP *ld, Sockbuf *sb);
+char* nsldapi_host_connected_to(LDAP* ld, Sockbuf* sb);
 #endif
 
 /*
  * Function typedefs used by nsldapi_try_each_host()
  */
-typedef LBER_SOCKET(NSLDAPI_SOCKET_FN)(LDAP *ld, int secure, int domain,
+typedef LBER_SOCKET(NSLDAPI_SOCKET_FN)(LDAP* ld, int secure, int domain,
                                        int type, int protocol);
-typedef int(NSLDAPI_IOCTL_FN)(LBER_SOCKET s, int option, int *statusp);
-typedef int(NSLDAPI_CONNECT_WITH_TO_FN)(LBER_SOCKET s, struct sockaddr *name,
+typedef int(NSLDAPI_IOCTL_FN)(LBER_SOCKET s, int option, int* statusp);
+typedef int(NSLDAPI_CONNECT_WITH_TO_FN)(LBER_SOCKET s, struct sockaddr* name,
                                         int namelen, int msec_timeout);
-typedef int(NSLDAPI_CONNECT_FN)(LBER_SOCKET s, struct sockaddr *name,
+typedef int(NSLDAPI_CONNECT_FN)(LBER_SOCKET s, struct sockaddr* name,
                                 int namelen);
 typedef int(NSLDAPI_CLOSE_FN)(LBER_SOCKET s);
 
-static int nsldapi_try_each_host(LDAP *ld, const char *hostlist, int defport,
-                                 int secure, NSLDAPI_SOCKET_FN *socketfn,
-                                 NSLDAPI_IOCTL_FN *ioctlfn,
-                                 NSLDAPI_CONNECT_WITH_TO_FN *connectwithtofn,
-                                 NSLDAPI_CONNECT_FN *connectfn,
-                                 NSLDAPI_CLOSE_FN *closefn);
+static int nsldapi_try_each_host(LDAP* ld, const char* hostlist, int defport,
+                                 int secure, NSLDAPI_SOCKET_FN* socketfn,
+                                 NSLDAPI_IOCTL_FN* ioctlfn,
+                                 NSLDAPI_CONNECT_WITH_TO_FN* connectwithtofn,
+                                 NSLDAPI_CONNECT_FN* connectfn,
+                                 NSLDAPI_CLOSE_FN* closefn);
 
 static int nsldapi_os_closesocket(LBER_SOCKET s) {
   int rc;
@@ -215,13 +215,13 @@ static int nsldapi_os_closesocket(LBER_SOCKET s) {
   return (rc);
 }
 
-static LBER_SOCKET nsldapi_os_socket(LDAP *ld, int secure, int domain, int type,
+static LBER_SOCKET nsldapi_os_socket(LDAP* ld, int secure, int domain, int type,
                                      int protocol) {
 #ifdef NSLDAPI_AVOID_OS_SOCKETS
   return -1;
 #else /* NSLDAPI_AVOID_OS_SOCKETS */
   int s, invalid_socket;
-  char *errmsg = NULL;
+  char* errmsg = NULL;
 
   if (secure) {
     LDAP_SET_LDERRNO(ld, LDAP_LOCAL_ERROR, NULL,
@@ -265,7 +265,7 @@ static LBER_SOCKET nsldapi_os_socket(LDAP *ld, int secure, int domain, int type,
  * Non-blocking connect call function
  */
 static int nsldapi_os_connect_with_to(LBER_SOCKET sockfd,
-                                      struct sockaddr *saptr, int salen,
+                                      struct sockaddr* saptr, int salen,
                                       int msec) {
 #ifdef NSLDAPI_AVOID_OS_SOCKETS
   return -1;
@@ -358,7 +358,7 @@ static int nsldapi_os_connect_with_to(LBER_SOCKET sockfd,
   }
   if (pfd.revents & (POLLOUT | POLLERR | POLLHUP | POLLNVAL)) {
     len = sizeof(error);
-    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char *)&error, &len) < 0)
+    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char*)&error, &len) < 0)
       return (-1);
 #    ifdef LDAP_DEBUG
   } else if (ldap_debug & LDAP_DEBUG_TRACE) {
@@ -385,7 +385,7 @@ static int nsldapi_os_connect_with_to(LBER_SOCKET sockfd,
   /* if wset is set, the connect worked */
   if (FD_ISSET(sockfd, &wset) || FD_ISSET(sockfd, &rset)) {
     len = sizeof(error);
-    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char *)&error, &len) < 0)
+    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char*)&error, &len) < 0)
       return (-1);
     goto done;
   }
@@ -409,7 +409,7 @@ static int nsldapi_os_connect_with_to(LBER_SOCKET sockfd,
   }
   if (FD_ISSET(sockfd, &rset) || FD_ISSET(sockfd, &wset)) {
     len = sizeof(error);
-    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char *)&error, &len) < 0)
+    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, (char*)&error, &len) < 0)
       return (-1);
 #      ifdef LDAP_DEBUG
   } else if (ldap_debug & LDAP_DEBUG_TRACE) {
@@ -437,7 +437,7 @@ done:
 #endif   /* NSLDAPI_AVOID_OS_SOCKETS */
 }
 
-static int nsldapi_os_ioctl(LBER_SOCKET s, int option, int *statusp) {
+static int nsldapi_os_ioctl(LBER_SOCKET s, int option, int* statusp) {
 #ifdef NSLDAPI_AVOID_OS_SOCKETS
   return -1;
 #else /* NSLDAPI_AVOID_OS_SOCKETS */
@@ -451,7 +451,7 @@ static int nsldapi_os_ioctl(LBER_SOCKET s, int option, int *statusp) {
   }
 
 #  ifdef _WINDOWS
-  iostatus = *(u_long *)statusp;
+  iostatus = *(u_long*)statusp;
   err = ioctlsocket(s, FIONBIO, &iostatus);
 #  else
 #    ifdef XP_OS2
@@ -465,8 +465,8 @@ static int nsldapi_os_ioctl(LBER_SOCKET s, int option, int *statusp) {
 #endif /* NSLDAPI_AVOID_OS_SOCKETS */
 }
 
-int nsldapi_connect_to_host(LDAP *ld, Sockbuf *sb, const char *hostlist,
-                            int defport, int secure, char **krbinstancep)
+int nsldapi_connect_to_host(LDAP* ld, Sockbuf* sb, const char* hostlist,
+                            int defport, int secure, char** krbinstancep)
 /*
  * "defport" must be in host byte order
  * zero is returned upon success, -1 if fatal error, -2 EINPROGRESS
@@ -515,7 +515,7 @@ int nsldapi_connect_to_host(LDAP *ld, Sockbuf *sb, const char *hostlist,
    * Set krbinstancep (canonical name of host for use by Kerberos).
    */
 #ifdef KERBEROS
-  char *p;
+  char* p;
 
   if ((*krbinstancep = nsldapi_host_connected_to(sb)) != NULL &&
       (p = strchr(*krbinstancep, '.')) != NULL) {
@@ -531,12 +531,12 @@ int nsldapi_connect_to_host(LDAP *ld, Sockbuf *sb, const char *hostlist,
 /*
  * Returns a socket number if successful and -1 if an error occurs.
  */
-static int nsldapi_try_each_host(LDAP *ld, const char *hostlist, int defport,
-                                 int secure, NSLDAPI_SOCKET_FN *socketfn,
-                                 NSLDAPI_IOCTL_FN *ioctlfn,
-                                 NSLDAPI_CONNECT_WITH_TO_FN *connectwithtofn,
-                                 NSLDAPI_CONNECT_FN *connectfn,
-                                 NSLDAPI_CLOSE_FN *closefn) {
+static int nsldapi_try_each_host(LDAP* ld, const char* hostlist, int defport,
+                                 int secure, NSLDAPI_SOCKET_FN* socketfn,
+                                 NSLDAPI_IOCTL_FN* ioctlfn,
+                                 NSLDAPI_CONNECT_WITH_TO_FN* connectwithtofn,
+                                 NSLDAPI_CONNECT_FN* connectfn,
+                                 NSLDAPI_CLOSE_FN* closefn) {
 #ifdef NSLDAPI_AVOID_OS_SOCKETS
   return -1;
 #else /* NSLDAPI_AVOID_OS_SOCKETS */
@@ -547,10 +547,10 @@ static int nsldapi_try_each_host(LDAP *ld, const char *hostlist, int defport,
   struct sockaddr_in sin;
   nsldapi_in_addr_t address;
   char **addrlist, *ldhpbuf, *ldhpbuf_allocd = NULL;
-  char *host;
+  char* host;
   LDAPHostEnt ldhent, *ldhp;
-  struct hostent *hp;
-  struct ldap_x_hostlist_status *status;
+  struct hostent* hp;
+  struct ldap_x_hostlist_status* status;
 #  ifdef GETHOSTBYNAME_BUF_T
   GETHOSTBYNAME_BUF_T hbuf;
   struct hostent hent;
@@ -585,7 +585,7 @@ static int nsldapi_try_each_host(LDAP *ld, const char *hostlist, int defport,
         if (sizeof(hbuf) < ld->ld_dns_bufsize) {
           ldhpbuf = ldhpbuf_allocd = NSLDAPI_MALLOC(ld->ld_dns_bufsize);
         } else {
-          ldhpbuf = (char *)hbuf;
+          ldhpbuf = (char*)hbuf;
         }
 #  else  /* GETHOSTBYNAME_buf_t */
         ldhpbuf = ldhpbuf_allocd = NSLDAPI_MALLOC(ld->ld_dns_bufsize);
@@ -638,12 +638,12 @@ static int nsldapi_try_each_host(LDAP *ld, const char *hostlist, int defport,
         }
       }
 
-      (void)memset((char *)&sin, 0, sizeof(struct sockaddr_in));
+      (void)memset((char*)&sin, 0, sizeof(struct sockaddr_in));
       sin.sin_family = AF_INET;
       sin.sin_port = htons((unsigned short)port);
 
-      SAFEMEMCPY((char *)&sin.sin_addr.s_addr,
-                 (use_hp ? (char *)addrlist[i] : (char *)&address),
+      SAFEMEMCPY((char*)&sin.sin_addr.s_addr,
+                 (use_hp ? (char*)addrlist[i] : (char*)&address),
                  sizeof(sin.sin_addr.s_addr));
 
       {
@@ -665,11 +665,11 @@ static int nsldapi_try_each_host(LDAP *ld, const char *hostlist, int defport,
 #  endif /* NSLDAPI_CONNECT_MUST_NOT_BE_INTERRUPTED */
 
         if (NULL != connectwithtofn) {
-          err = (*connectwithtofn)(s, (struct sockaddr *)&sin,
+          err = (*connectwithtofn)(s, (struct sockaddr*)&sin,
                                    sizeof(struct sockaddr_in),
                                    ld->ld_connect_timeout);
         } else {
-          err = (*connectfn)(s, (struct sockaddr *)&sin,
+          err = (*connectfn)(s, (struct sockaddr*)&sin,
                              sizeof(struct sockaddr_in));
         }
 #  ifdef NSLDAPI_CONNECT_MUST_NOT_BE_INTERRUPTED
@@ -699,7 +699,7 @@ static int nsldapi_try_each_host(LDAP *ld, const char *hostlist, int defport,
 
 #  ifdef LDAP_DEBUG
         if (ldap_debug & LDAP_DEBUG_TRACE) {
-          perror((char *)inet_ntoa(sin.sin_addr));
+          perror((char*)inet_ntoa(sin.sin_addr));
         }
 #  endif
         (*closefn)(s);
@@ -728,7 +728,7 @@ static int nsldapi_try_each_host(LDAP *ld, const char *hostlist, int defport,
 #endif /* NSLDAPI_AVOID_OS_SOCKETS */
 }
 
-void nsldapi_close_connection(LDAP *ld, Sockbuf *sb) {
+void nsldapi_close_connection(LDAP* ld, Sockbuf* sb) {
   if (ld->ld_extclose_fn == NULL) {
 #ifndef NSLDAPI_AVOID_OS_SOCKETS
     nsldapi_os_closesocket(sb->sb_sd);
@@ -739,15 +739,15 @@ void nsldapi_close_connection(LDAP *ld, Sockbuf *sb) {
 }
 
 #ifdef KERBEROS
-char *nsldapi_host_connected_to(LDAP *ld, Sockbuf *sb) {
-  struct hostent *hp;
-  char *p;
+char* nsldapi_host_connected_to(LDAP* ld, Sockbuf* sb) {
+  struct hostent* hp;
+  char* p;
   int len;
   struct sockaddr_in sin;
 
-  (void)memset((char *)&sin, 0, sizeof(struct sockaddr_in));
+  (void)memset((char*)&sin, 0, sizeof(struct sockaddr_in));
   len = sizeof(sin);
-  if (getpeername(sb->sb_sd, (struct sockaddr *)&sin, &len) == -1) {
+  if (getpeername(sb->sb_sd, (struct sockaddr*)&sin, &len) == -1) {
     return (NULL);
   }
 
@@ -757,8 +757,8 @@ char *nsldapi_host_connected_to(LDAP *ld, Sockbuf *sb) {
    * hostname is used as the kerberos instance.
    */
 #  error XXXmcs: need to use DNS callbacks here
-  if ((hp = (struct hostent *)gethostbyaddr(
-           (char *)&sin.sin_addr, sizeof(sin.sin_addr), AF_INET)) != NULL) {
+  if ((hp = (struct hostent*)gethostbyaddr(
+           (char*)&sin.sin_addr, sizeof(sin.sin_addr), AF_INET)) != NULL) {
     if (hp->h_name != NULL) {
       return (nsldapi_strdup(hp->h_name));
     }
@@ -772,9 +772,9 @@ char *nsldapi_host_connected_to(LDAP *ld, Sockbuf *sb) {
  * Returns 0 if all goes well and -1 if an error occurs (error code set in ld)
  * Also allocates initializes ld->ld_iostatus if needed..
  */
-int nsldapi_iostatus_interest_write(LDAP *ld, Sockbuf *sb) {
+int nsldapi_iostatus_interest_write(LDAP* ld, Sockbuf* sb) {
   int rc = 0;
-  NSLDAPIIOStatus *iosp;
+  NSLDAPIIOStatus* iosp;
 
   LDAP_MUTEX_LOCK(ld, LDAP_IOSTATUS_LOCK);
 
@@ -824,9 +824,9 @@ unlock_and_return:
  * Returns 0 if all goes well and -1 if an error occurs (error code set in ld)
  * Also allocates initializes ld->ld_iostatus if needed..
  */
-int nsldapi_iostatus_interest_read(LDAP *ld, Sockbuf *sb) {
+int nsldapi_iostatus_interest_read(LDAP* ld, Sockbuf* sb) {
   int rc = 0;
-  NSLDAPIIOStatus *iosp;
+  NSLDAPIIOStatus* iosp;
 
   LDAP_MUTEX_LOCK(ld, LDAP_IOSTATUS_LOCK);
 
@@ -875,9 +875,9 @@ unlock_and_return:
  * Returns 0 if all goes well and -1 if an error occurs (error code set in ld)
  * Also allocates initializes ld->ld_iostatus if needed..
  */
-int nsldapi_iostatus_interest_clear(LDAP *ld, Sockbuf *sb) {
+int nsldapi_iostatus_interest_clear(LDAP* ld, Sockbuf* sb) {
   int rc = 0;
-  NSLDAPIIOStatus *iosp;
+  NSLDAPIIOStatus* iosp;
 
   LDAP_MUTEX_LOCK(ld, LDAP_IOSTATUS_LOCK);
 
@@ -937,9 +937,9 @@ unlock_and_return:
 /*
  * Return a non-zero value if sb is ready for write.
  */
-int nsldapi_iostatus_is_write_ready(LDAP *ld, Sockbuf *sb) {
+int nsldapi_iostatus_is_write_ready(LDAP* ld, Sockbuf* sb) {
   int rc = 0;
-  NSLDAPIIOStatus *iosp;
+  NSLDAPIIOStatus* iosp;
 
   LDAP_MUTEX_LOCK(ld, LDAP_IOSTATUS_LOCK);
   iosp = ld->ld_iostatus;
@@ -987,9 +987,9 @@ unlock_and_return:
 /*
  * Return a non-zero value if sb is ready for read.
  */
-int nsldapi_iostatus_is_read_ready(LDAP *ld, Sockbuf *sb) {
+int nsldapi_iostatus_is_read_ready(LDAP* ld, Sockbuf* sb) {
   int rc = 0;
-  NSLDAPIIOStatus *iosp;
+  NSLDAPIIOStatus* iosp;
 
   LDAP_MUTEX_LOCK(ld, LDAP_IOSTATUS_LOCK);
   iosp = ld->ld_iostatus;
@@ -1039,14 +1039,14 @@ unlock_and_return:
  * Should be called with LDAP_IOSTATUS_LOCK locked.
  * Returns 0 if all goes well and -1 if not (sets error in ld)
  */
-static int nsldapi_iostatus_init_nolock(LDAP *ld) {
-  NSLDAPIIOStatus *iosp;
+static int nsldapi_iostatus_init_nolock(LDAP* ld) {
+  NSLDAPIIOStatus* iosp;
 
   if (ld->ld_iostatus != NULL) {
     return (0);
   }
 
-  if ((iosp = (NSLDAPIIOStatus *)NSLDAPI_CALLOC(1, sizeof(NSLDAPIIOStatus))) ==
+  if ((iosp = (NSLDAPIIOStatus*)NSLDAPI_CALLOC(1, sizeof(NSLDAPIIOStatus))) ==
       NULL) {
     LDAP_SET_LDERRNO(ld, LDAP_NO_MEMORY, NULL, NULL);
     return (-1);
@@ -1071,7 +1071,7 @@ static int nsldapi_iostatus_init_nolock(LDAP *ld) {
   return (0);
 }
 
-void nsldapi_iostatus_free(LDAP *ld) {
+void nsldapi_iostatus_free(LDAP* ld) {
   if (ld == NULL) {
     return;
   }
@@ -1086,7 +1086,7 @@ void nsldapi_iostatus_free(LDAP *ld) {
 
   /* clean up I/O status tracking info. */
   if (ld->ld_iostatus != NULL) {
-    NSLDAPIIOStatus *iosp = ld->ld_iostatus;
+    NSLDAPIIOStatus* iosp = ld->ld_iostatus;
 
     if (iosp->ios_type == NSLDAPI_IOSTATUS_TYPE_OSNATIVE) {
 #ifdef NSLDAPI_HAVE_POLL
@@ -1135,7 +1135,7 @@ static int nsldapi_get_select_table_size(void) {
 }
 #endif /* !defined(NSLDAPI_HAVE_POLL) && !defined(NSLDAPI_AVOID_OS_SOCKETS) */
 
-static int nsldapi_tv2ms(struct timeval *tv) {
+static int nsldapi_tv2ms(struct timeval* tv) {
   if (tv == NULL) {
     return (-1); /* infinite timeout for poll() */
   }
@@ -1143,9 +1143,9 @@ static int nsldapi_tv2ms(struct timeval *tv) {
   return (tv->tv_sec * 1000 + tv->tv_usec / 1000);
 }
 
-int nsldapi_iostatus_poll(LDAP *ld, struct timeval *timeout) {
+int nsldapi_iostatus_poll(LDAP* ld, struct timeval* timeout) {
   int rc;
-  NSLDAPIIOStatus *iosp;
+  NSLDAPIIOStatus* iosp;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "nsldapi_iostatus_poll\n", 0, 0, 0);
 
@@ -1175,7 +1175,7 @@ int nsldapi_iostatus_poll(LDAP *ld, struct timeval *timeout) {
 #    ifdef HPUX9
     rc = NSLDAPI_SELECT(
         nsldapi_get_select_table_size(),
-        (int *)&iosp->ios_status.ios_osinfo.ossi_use_readfds(int *) &
+        (int*)&iosp->ios_status.ios_osinfo.ossi_use_readfds(int*) &
             iosp->ios_status.ios_osinfo.ossi_use_writefds,
         NULL, timeout);
 #    else
@@ -1212,7 +1212,7 @@ int nsldapi_iostatus_poll(LDAP *ld, struct timeval *timeout) {
  * returns 1 if some of the bits in "events" were added to pollfds.
  * returns 0 if no changes were made.
  */
-static int nsldapi_add_to_os_pollfds(int fd, struct nsldapi_os_statusinfo *pip,
+static int nsldapi_add_to_os_pollfds(int fd, struct nsldapi_os_statusinfo* pip,
                                      short events) {
   int i, openslot;
 
@@ -1238,13 +1238,13 @@ static int nsldapi_add_to_os_pollfds(int fd, struct nsldapi_os_statusinfo *pip,
    * NSLDAPI_POLL_ARRAY_GROWTH (#define near the top of this file).
    */
   if (openslot == -1) {
-    struct pollfd *newpollfds;
+    struct pollfd* newpollfds;
 
     if (pip->ossi_pollfds_size == 0) {
-      newpollfds = (struct pollfd *)NSLDAPI_MALLOC(NSLDAPI_POLL_ARRAY_GROWTH *
-                                                   sizeof(struct pollfd));
+      newpollfds = (struct pollfd*)NSLDAPI_MALLOC(NSLDAPI_POLL_ARRAY_GROWTH *
+                                                  sizeof(struct pollfd));
     } else {
-      newpollfds = (struct pollfd *)NSLDAPI_REALLOC(
+      newpollfds = (struct pollfd*)NSLDAPI_REALLOC(
           pip->ossi_pollfds,
           (NSLDAPI_POLL_ARRAY_GROWTH + pip->ossi_pollfds_size) *
               sizeof(struct pollfd));
@@ -1271,7 +1271,7 @@ static int nsldapi_add_to_os_pollfds(int fd, struct nsldapi_os_statusinfo *pip,
  * returns 0 of "fd" wasn't in pollfds or if events did not overlap.
  */
 static int nsldapi_clear_from_os_pollfds(int fd,
-                                         struct nsldapi_os_statusinfo *pip,
+                                         struct nsldapi_os_statusinfo* pip,
                                          short events) {
   int i;
 
@@ -1296,7 +1296,7 @@ static int nsldapi_clear_from_os_pollfds(int fd,
  * returns 1 if any "revents" from "fd" were set in pollfds revents field.
  * returns 0 if not.
  */
-static int nsldapi_find_in_os_pollfds(int fd, struct nsldapi_os_statusinfo *pip,
+static int nsldapi_find_in_os_pollfds(int fd, struct nsldapi_os_statusinfo* pip,
                                       short revents) {
   int i;
 
@@ -1319,8 +1319,8 @@ static int nsldapi_find_in_os_pollfds(int fd, struct nsldapi_os_statusinfo *pip,
  * returns 1 if some of the bits in "events" were added to pollfds.
  * returns 0 if no changes were made.
  */
-static int nsldapi_add_to_cb_pollfds(Sockbuf *sb,
-                                     struct nsldapi_cb_statusinfo *pip,
+static int nsldapi_add_to_cb_pollfds(Sockbuf* sb,
+                                     struct nsldapi_cb_statusinfo* pip,
                                      short events) {
   int i, openslot;
 
@@ -1346,13 +1346,13 @@ static int nsldapi_add_to_cb_pollfds(Sockbuf *sb,
    * NSLDAPI_POLL_ARRAY_GROWTH (#define near the top of this file).
    */
   if (openslot == -1) {
-    LDAP_X_PollFD *newpollfds;
+    LDAP_X_PollFD* newpollfds;
 
     if (pip->cbsi_pollfds_size == 0) {
-      newpollfds = (LDAP_X_PollFD *)NSLDAPI_MALLOC(NSLDAPI_POLL_ARRAY_GROWTH *
-                                                   sizeof(LDAP_X_PollFD));
+      newpollfds = (LDAP_X_PollFD*)NSLDAPI_MALLOC(NSLDAPI_POLL_ARRAY_GROWTH *
+                                                  sizeof(LDAP_X_PollFD));
     } else {
-      newpollfds = (LDAP_X_PollFD *)NSLDAPI_REALLOC(
+      newpollfds = (LDAP_X_PollFD*)NSLDAPI_REALLOC(
           pip->cbsi_pollfds,
           (NSLDAPI_POLL_ARRAY_GROWTH + pip->cbsi_pollfds_size) *
               sizeof(LDAP_X_PollFD));
@@ -1382,8 +1382,8 @@ static int nsldapi_add_to_cb_pollfds(Sockbuf *sb,
  * returns 1 if any "events" from "sb" were removed from pollfds
  * returns 0 of "sb" wasn't in pollfds or if events did not overlap.
  */
-static int nsldapi_clear_from_cb_pollfds(Sockbuf *sb,
-                                         struct nsldapi_cb_statusinfo *pip,
+static int nsldapi_clear_from_cb_pollfds(Sockbuf* sb,
+                                         struct nsldapi_cb_statusinfo* pip,
                                          short events) {
   int i;
 
@@ -1408,8 +1408,8 @@ static int nsldapi_clear_from_cb_pollfds(Sockbuf *sb,
  * returns 1 if any "revents" from "sb" were set in pollfds revents field.
  * returns 0 if not.
  */
-static int nsldapi_find_in_cb_pollfds(Sockbuf *sb,
-                                      struct nsldapi_cb_statusinfo *pip,
+static int nsldapi_find_in_cb_pollfds(Sockbuf* sb,
+                                      struct nsldapi_cb_statusinfo* pip,
                                       short revents) {
   int i;
 
@@ -1429,7 +1429,7 @@ static int nsldapi_find_in_cb_pollfds(Sockbuf *sb,
 /*
  * Install read and write functions into lber layer / sb
  */
-int nsldapi_install_lber_extiofns(LDAP *ld, Sockbuf *sb) {
+int nsldapi_install_lber_extiofns(LDAP* ld, Sockbuf* sb) {
   struct lber_x_ext_io_fns lberiofns;
 
   if (NULL != sb) {
@@ -1463,30 +1463,30 @@ int nsldapi_install_lber_extiofns(LDAP *ld, Sockbuf *sb) {
  */
 typedef struct nsldapi_compat_socket_info {
   LBER_SOCKET csi_socket;
-  LDAP *csi_ld;
+  LDAP* csi_ld;
 } NSLDAPICompatSocketInfo;
 
 static int LDAP_CALLBACK nsldapi_ext_compat_read(
-    int s, void *buf, int len, struct lextiof_socket_private *arg) {
-  NSLDAPICompatSocketInfo *csip = (NSLDAPICompatSocketInfo *)arg;
-  struct ldap_io_fns *iofns = csip->csi_ld->ld_io_fns_ptr;
+    int s, void* buf, int len, struct lextiof_socket_private* arg) {
+  NSLDAPICompatSocketInfo* csip = (NSLDAPICompatSocketInfo*)arg;
+  struct ldap_io_fns* iofns = csip->csi_ld->ld_io_fns_ptr;
 
   return (iofns->liof_read(csip->csi_socket, buf, len));
 }
 
 static int LDAP_CALLBACK nsldapi_ext_compat_write(
-    int s, const void *buf, int len, struct lextiof_socket_private *arg) {
-  NSLDAPICompatSocketInfo *csip = (NSLDAPICompatSocketInfo *)arg;
-  struct ldap_io_fns *iofns = csip->csi_ld->ld_io_fns_ptr;
+    int s, const void* buf, int len, struct lextiof_socket_private* arg) {
+  NSLDAPICompatSocketInfo* csip = (NSLDAPICompatSocketInfo*)arg;
+  struct ldap_io_fns* iofns = csip->csi_ld->ld_io_fns_ptr;
 
   return (iofns->liof_write(csip->csi_socket, buf, len));
 }
 
 static int LDAP_CALLBACK
 nsldapi_ext_compat_poll(LDAP_X_PollFD fds[], int nfds, int timeout,
-                        struct lextiof_session_private *arg) {
-  NSLDAPICompatSocketInfo *csip = (NSLDAPICompatSocketInfo *)arg;
-  struct ldap_io_fns *iofns = csip->csi_ld->ld_io_fns_ptr;
+                        struct lextiof_session_private* arg) {
+  NSLDAPICompatSocketInfo* csip = (NSLDAPICompatSocketInfo*)arg;
+  struct ldap_io_fns* iofns = csip->csi_ld->ld_io_fns_ptr;
   fd_set readfds, writefds;
   int i, rc, maxfd = 0;
   struct timeval tv, *tvp;
@@ -1561,14 +1561,14 @@ nsldapi_ext_compat_poll(LDAP_X_PollFD fds[], int nfds, int timeout,
   return (rc);
 }
 
-static LBER_SOCKET nsldapi_compat_socket(LDAP *ld, int secure, int domain,
+static LBER_SOCKET nsldapi_compat_socket(LDAP* ld, int secure, int domain,
                                          int type, int protocol) {
   int s;
 
   s = ld->ld_io_fns_ptr->liof_socket(domain, type, protocol);
 
   if (s >= 0) {
-    char *errmsg = NULL;
+    char* errmsg = NULL;
 
 #ifdef NSLDAPI_HAVE_POLL
     if (ld->ld_io_fns_ptr->liof_select != NULL && s >= FD_SETSIZE) {
@@ -1603,19 +1603,19 @@ static LBER_SOCKET nsldapi_compat_socket(LDAP *ld, int secure, int domain,
  * the old I/O callback interface.
  */
 static int LDAP_CALLBACK nsldapi_ext_compat_connect(
-    const char *hostlist, int defport, int timeout, unsigned long options,
-    struct lextiof_session_private *sessionarg,
-    struct lextiof_socket_private **socketargp) {
-  NSLDAPICompatSocketInfo *defcsip;
-  struct ldap_io_fns *iofns;
+    const char* hostlist, int defport, int timeout, unsigned long options,
+    struct lextiof_session_private* sessionarg,
+    struct lextiof_socket_private** socketargp) {
+  NSLDAPICompatSocketInfo* defcsip;
+  struct ldap_io_fns* iofns;
   int s, secure;
-  NSLDAPI_SOCKET_FN *socketfn;
-  NSLDAPI_IOCTL_FN *ioctlfn;
-  NSLDAPI_CONNECT_WITH_TO_FN *connectwithtofn;
-  NSLDAPI_CONNECT_FN *connectfn;
-  NSLDAPI_CLOSE_FN *closefn;
+  NSLDAPI_SOCKET_FN* socketfn;
+  NSLDAPI_IOCTL_FN* ioctlfn;
+  NSLDAPI_CONNECT_WITH_TO_FN* connectwithtofn;
+  NSLDAPI_CONNECT_FN* connectfn;
+  NSLDAPI_CLOSE_FN* closefn;
 
-  defcsip = (NSLDAPICompatSocketInfo *)sessionarg;
+  defcsip = (NSLDAPICompatSocketInfo*)sessionarg;
   iofns = defcsip->csi_ld->ld_io_fns_ptr;
 
   if (0 != (options & LDAP_X_EXTIOF_OPT_SECURE)) {
@@ -1632,7 +1632,7 @@ static int LDAP_CALLBACK nsldapi_ext_compat_connect(
       (iofns->liof_socket == NULL) ? nsldapi_os_socket : nsldapi_compat_socket;
   ioctlfn = (iofns->liof_ioctl == NULL)
                 ? nsldapi_os_ioctl
-                : (NSLDAPI_IOCTL_FN *)(iofns->liof_ioctl);
+                : (NSLDAPI_IOCTL_FN*)(iofns->liof_ioctl);
   if (NULL == iofns->liof_connect) {
     connectwithtofn = nsldapi_os_connect_with_to;
     connectfn = NULL;
@@ -1648,9 +1648,9 @@ static int LDAP_CALLBACK nsldapi_ext_compat_connect(
                             closefn);
 
   if (s >= 0) {
-    NSLDAPICompatSocketInfo *csip;
+    NSLDAPICompatSocketInfo* csip;
 
-    if ((csip = (NSLDAPICompatSocketInfo *)NSLDAPI_CALLOC(
+    if ((csip = (NSLDAPICompatSocketInfo*)NSLDAPI_CALLOC(
              1, sizeof(NSLDAPICompatSocketInfo))) == NULL) {
       (*closefn)(s);
       LDAP_SET_LDERRNO(defcsip->csi_ld, LDAP_NO_MEMORY, NULL, NULL);
@@ -1659,7 +1659,7 @@ static int LDAP_CALLBACK nsldapi_ext_compat_connect(
 
     csip->csi_socket = s;
     csip->csi_ld = defcsip->csi_ld;
-    *socketargp = (void *)csip;
+    *socketargp = (void*)csip;
 
     /*
      * We always return 1, which is a valid but not unique socket
@@ -1676,9 +1676,9 @@ static int LDAP_CALLBACK nsldapi_ext_compat_connect(
 }
 
 static int LDAP_CALLBACK
-nsldapi_ext_compat_close(int s, struct lextiof_socket_private *arg) {
-  NSLDAPICompatSocketInfo *csip = (NSLDAPICompatSocketInfo *)arg;
-  struct ldap_io_fns *iofns = csip->csi_ld->ld_io_fns_ptr;
+nsldapi_ext_compat_close(int s, struct lextiof_socket_private* arg) {
+  NSLDAPICompatSocketInfo* csip = (NSLDAPICompatSocketInfo*)arg;
+  struct ldap_io_fns* iofns = csip->csi_ld->ld_io_fns_ptr;
   int rc;
 
   rc = iofns->liof_close(csip->csi_socket);
@@ -1692,10 +1692,10 @@ nsldapi_ext_compat_close(int s, struct lextiof_socket_private *arg) {
  * Install the I/O functions.
  * Return an LDAP error code (LDAP_SUCCESS if all goes well).
  */
-int nsldapi_install_compat_io_fns(LDAP *ld, struct ldap_io_fns *iofns) {
-  NSLDAPICompatSocketInfo *defcsip;
+int nsldapi_install_compat_io_fns(LDAP* ld, struct ldap_io_fns* iofns) {
+  NSLDAPICompatSocketInfo* defcsip;
 
-  if ((defcsip = (NSLDAPICompatSocketInfo *)NSLDAPI_CALLOC(
+  if ((defcsip = (NSLDAPICompatSocketInfo*)NSLDAPI_CALLOC(
            1, sizeof(NSLDAPICompatSocketInfo))) == NULL) {
     return (LDAP_NO_MEMORY);
   }
@@ -1704,8 +1704,8 @@ int nsldapi_install_compat_io_fns(LDAP *ld, struct ldap_io_fns *iofns) {
   defcsip->csi_ld = ld;
 
   if (ld->ld_io_fns_ptr != NULL) {
-    (void)memset((char *)ld->ld_io_fns_ptr, 0, sizeof(struct ldap_io_fns));
-  } else if ((ld->ld_io_fns_ptr = (struct ldap_io_fns *)NSLDAPI_CALLOC(
+    (void)memset((char*)ld->ld_io_fns_ptr, 0, sizeof(struct ldap_io_fns));
+  } else if ((ld->ld_io_fns_ptr = (struct ldap_io_fns*)NSLDAPI_CALLOC(
                   1, sizeof(struct ldap_io_fns))) == NULL) {
     NSLDAPI_FREE(defcsip);
     return (LDAP_NO_MEMORY);

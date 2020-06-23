@@ -50,8 +50,8 @@ static char copyright[] = "@(#) Copyright (c) 1990 Regents of the University of 
 
 #include "ldap-int.h"
 
-char *LDAP_CALL ldap_get_dn(LDAP *ld, LDAPMessage *entry) {
-  char *dn;
+char* LDAP_CALL ldap_get_dn(LDAP* ld, LDAPMessage* entry) {
+  char* dn;
   struct berelement tmp;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_get_dn\n", 0, 0, 0);
@@ -74,7 +74,7 @@ char *LDAP_CALL ldap_get_dn(LDAP *ld, LDAPMessage *entry) {
   return (dn);
 }
 
-char *LDAP_CALL ldap_dn2ufn(const char *dn) {
+char* LDAP_CALL ldap_dn2ufn(const char* dn) {
   char *p, *ufn, *r;
   size_t plen;
   int state;
@@ -86,7 +86,7 @@ char *LDAP_CALL ldap_dn2ufn(const char *dn) {
   }
 
   if (ldap_is_dns_dn(dn) || (p = strchr(dn, '=')) == NULL)
-    return (nsldapi_strdup((char *)dn));
+    return (nsldapi_strdup((char*)dn));
 
   ufn = nsldapi_strdup(++p);
 
@@ -122,7 +122,7 @@ char *LDAP_CALL ldap_dn2ufn(const char *dn) {
         if (state == INQUOTE)
           *r++ = *p;
         else {
-          char *rsave = r;
+          char* rsave = r;
           LDAP_UTF8DEC(r);
           *rsave = '\0';
           while (!ldap_utf8isspace(r) && *r != ';' && *r != ',' && r > ufn)
@@ -148,30 +148,30 @@ char *LDAP_CALL ldap_dn2ufn(const char *dn) {
   return (ufn);
 }
 
-char **LDAP_CALL ldap_explode_dns(const char *dn) {
+char** LDAP_CALL ldap_explode_dns(const char* dn) {
   int ncomps, maxcomps;
   char *s, *cpydn;
-  char **rdns;
+  char** rdns;
 #ifdef HAVE_STRTOK_R /* defined in portable.h */
-  char *lasts;
+  char* lasts;
 #endif
 
   if (dn == NULL) {
     dn = "";
   }
 
-  if ((rdns = (char **)NSLDAPI_MALLOC(8 * sizeof(char *))) == NULL) {
+  if ((rdns = (char**)NSLDAPI_MALLOC(8 * sizeof(char*))) == NULL) {
     return (NULL);
   }
 
   maxcomps = 8;
   ncomps = 0;
-  cpydn = nsldapi_strdup((char *)dn);
+  cpydn = nsldapi_strdup((char*)dn);
   for (s = STRTOK(cpydn, "@.", &lasts); s != NULL;
        s = STRTOK(NULL, "@.", &lasts)) {
     if (ncomps == maxcomps) {
       maxcomps *= 2;
-      if ((rdns = (char **)NSLDAPI_REALLOC(rdns, maxcomps * sizeof(char *))) ==
+      if ((rdns = (char**)NSLDAPI_REALLOC(rdns, maxcomps * sizeof(char*))) ==
           NULL) {
         NSLDAPI_FREE(cpydn);
         return (NULL);
@@ -188,7 +188,7 @@ char **LDAP_CALL ldap_explode_dns(const char *dn) {
 #define LDAP_DN 1
 #define LDAP_RDN 2
 
-static char **ldap_explode(const char *dn, const int notypes,
+static char** ldap_explode(const char* dn, const int notypes,
                            const int nametype) {
   char *p, *q, *rdnstart, **rdns = NULL;
   size_t plen = 0;
@@ -211,11 +211,11 @@ static char **ldap_explode(const char *dn, const int notypes,
   }
 #endif
 
-  while (ldap_utf8isspace((char *)dn)) { /* ignore leading spaces */
+  while (ldap_utf8isspace((char*)dn)) { /* ignore leading spaces */
     ++dn;
   }
 
-  p = rdnstart = (char *)dn;
+  p = rdnstart = (char*)dn;
   state = OUTQUOTE;
 
   do {
@@ -258,11 +258,11 @@ static char **ldap_explode(const char *dn, const int notypes,
           goteq = 0;
           ++count;
           if (rdns == NULL) {
-            if ((rdns = (char **)NSLDAPI_MALLOC(8 * sizeof(char *))) == NULL)
+            if ((rdns = (char**)NSLDAPI_MALLOC(8 * sizeof(char*))) == NULL)
               return (NULL);
           } else if (count >= 8) {
-            if ((rdns = (char **)NSLDAPI_REALLOC(
-                     rdns, (count + 1) * sizeof(char *))) == NULL)
+            if ((rdns = (char**)NSLDAPI_REALLOC(
+                     rdns, (count + 1) * sizeof(char*))) == NULL)
               return (NULL);
           }
           rdns[count] = NULL;
@@ -286,7 +286,7 @@ static char **ldap_explode(const char *dn, const int notypes,
           }
 
           len = p - rdnstart;
-          if ((rdns[count - 1] = (char *)NSLDAPI_CALLOC(1, len + 1)) != NULL) {
+          if ((rdns[count - 1] = (char*)NSLDAPI_CALLOC(1, len + 1)) != NULL) {
             SAFEMEMCPY(rdns[count - 1], rdnstart, len);
             if (!endquote) {
               /* trim trailing spaces unless
@@ -324,15 +324,15 @@ static char **ldap_explode(const char *dn, const int notypes,
   return (rdns);
 }
 
-char **LDAP_CALL ldap_explode_dn(const char *dn, const int notypes) {
+char** LDAP_CALL ldap_explode_dn(const char* dn, const int notypes) {
   return (ldap_explode(dn, notypes, LDAP_DN));
 }
 
-char **LDAP_CALL ldap_explode_rdn(const char *rdn, const int notypes) {
+char** LDAP_CALL ldap_explode_rdn(const char* rdn, const int notypes) {
   return (ldap_explode(rdn, notypes, LDAP_RDN));
 }
 
-int LDAP_CALL ldap_is_dns_dn(const char *dn) {
+int LDAP_CALL ldap_is_dns_dn(const char* dn) {
   return (dn != NULL && dn[0] != '\0' && strchr(dn, '=') == NULL &&
           strchr(dn, ',') == NULL);
 }

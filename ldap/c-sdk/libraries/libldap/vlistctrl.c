@@ -75,10 +75,10 @@
 
  */
 
-int LDAP_CALL ldap_create_virtuallist_control(LDAP *ld,
-                                              LDAPVirtualList *ldvlistp,
-                                              LDAPControl **ctrlp) {
-  BerElement *ber;
+int LDAP_CALL ldap_create_virtuallist_control(LDAP* ld,
+                                              LDAPVirtualList* ldvlistp,
+                                              LDAPControl** ctrlp) {
+  BerElement* ber;
   int rc;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -156,14 +156,14 @@ int LDAP_CALL ldap_create_virtuallist_control(LDAP *ld,
                        other (80) }  }
 
  */
-int LDAP_CALL ldap_parse_virtuallist_control(LDAP *ld, LDAPControl **ctrls,
-                                             ber_int_t *target_posp,
-                                             ber_int_t *list_sizep,
-                                             int *errcodep) {
-  BerElement *ber;
+int LDAP_CALL ldap_parse_virtuallist_control(LDAP* ld, LDAPControl** ctrls,
+                                             ber_int_t* target_posp,
+                                             ber_int_t* list_sizep,
+                                             int* errcodep) {
+  BerElement* ber;
   int i, foundListControl;
   ber_int_t errcode;
-  LDAPControl *listCtrlp;
+  LDAPControl* listCtrlp;
   ber_int_t target_pos, list_size;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {

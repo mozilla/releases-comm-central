@@ -59,10 +59,10 @@
 /*
  * MacTCP/OpenTransport
  */
-#  define read(s, b, l) tcpread(s, 0, (unsigned char *)b, l, NULL)
+#  define read(s, b, l) tcpread(s, 0, (unsigned char*)b, l, NULL)
 #  define MAX_WRITE 65535
 #  define BerWrite(sb, b, l) \
-    tcpwrite(sb->sb_sd, (unsigned char *)(b), (l < MAX_WRITE) ? l : MAX_WRITE)
+    tcpwrite(sb->sb_sd, (unsigned char*)(b), (l < MAX_WRITE) ? l : MAX_WRITE)
 #else /* macintosh */
 #  if defined(_WIN32) || defined(_WINDOWS) || defined(XP_OS2)
 /*
@@ -75,11 +75,11 @@
  * everything else (Unix/BSD 4.3 socket API)
  */
 #    define BerWrite(sb, b, l) write(sb->sb_sd, b, l)
-#    define udp_read(sb, b, l, al)                                             \
-      recvfrom(sb->sb_sd, (char *)b, l, 0, (struct sockaddr *)sb->sb_fromaddr, \
+#    define udp_read(sb, b, l, al)                                           \
+      recvfrom(sb->sb_sd, (char*)b, l, 0, (struct sockaddr*)sb->sb_fromaddr, \
                (al = sizeof(struct sockaddr), &al))
-#    define udp_write(sb, b, l)                                               \
-      sendto(sb->sb_sd, (char *)(b), l, 0, (struct sockaddr *)sb->sb_useaddr, \
+#    define udp_write(sb, b, l)                                             \
+      sendto(sb->sb_sd, (char*)(b), l, 0, (struct sockaddr*)sb->sb_useaddr, \
              sizeof(struct sockaddr))
 #  endif /* _WIN32 */
 #endif   /* macintosh */
@@ -99,14 +99,14 @@ int lber_debug;
 /*
  * function prototypes
  */
-static void nslberi_install_compat_io_fns(Sockbuf *sb);
-static int nslberi_extread_compat(int s, void *buf, int len,
-                                  struct lextiof_socket_private *arg);
-static int nslberi_extwrite_compat(int s, const void *buf, int len,
-                                   struct lextiof_socket_private *arg);
-static ber_tag_t get_tag(Sockbuf *sb, BerElement *ber);
-static ber_len_t get_ber_len(BerElement *ber);
-static ber_len_t read_len_in_ber(Sockbuf *sb, BerElement *ber);
+static void nslberi_install_compat_io_fns(Sockbuf* sb);
+static int nslberi_extread_compat(int s, void* buf, int len,
+                                  struct lextiof_socket_private* arg);
+static int nslberi_extwrite_compat(int s, const void* buf, int len,
+                                   struct lextiof_socket_private* arg);
+static ber_tag_t get_tag(Sockbuf* sb, BerElement* ber);
+static ber_len_t get_ber_len(BerElement* ber);
+static ber_len_t read_len_in_ber(Sockbuf* sb, BerElement* ber);
 
 /*
  * internal global structure for memory allocation callback functions
@@ -117,14 +117,14 @@ static struct lber_memalloc_fns nslberi_memalloc_fns;
  * buffered read from "sb".
  * returns value of first character read on success and -1 on error.
  */
-static int ber_filbuf(Sockbuf *sb, ber_slen_t len) {
+static int ber_filbuf(Sockbuf* sb, ber_slen_t len) {
   ssize_t rc;
 #ifdef CLDAP
   int addrlen;
 #endif /* CLDAP */
 
   if (sb->sb_ber.ber_buf == NULL) {
-    if ((sb->sb_ber.ber_buf = (char *)NSLBERI_MALLOC(READBUFSIZ)) == NULL) {
+    if ((sb->sb_ber.ber_buf = (char*)NSLBERI_MALLOC(READBUFSIZ)) == NULL) {
       return (-1);
     }
     sb->sb_ber.ber_flags &= ~LBER_FLAG_NO_FREE_BUFFER;
@@ -177,7 +177,7 @@ static int ber_filbuf(Sockbuf *sb, ber_slen_t len) {
   return (-1);
 }
 
-static ber_int_t BerRead(Sockbuf *sb, char *buf, ber_slen_t len) {
+static ber_int_t BerRead(Sockbuf* sb, char* buf, ber_slen_t len) {
   int c;
   ber_int_t nread = 0;
 
@@ -212,7 +212,7 @@ static ber_int_t BerRead(Sockbuf *sb, char *buf, ber_slen_t len) {
  * that fact, so if this code is changed to use any additional elements of
  * the ber structure, those functions will need to be changed as well.
  */
-ber_int_t LDAP_CALL ber_read(BerElement *ber, char *buf, ber_len_t len) {
+ber_int_t LDAP_CALL ber_read(BerElement* ber, char* buf, ber_len_t len) {
   ber_len_t actuallen;
   ber_uint_t nleft;
 
@@ -230,12 +230,12 @@ ber_int_t LDAP_CALL ber_read(BerElement *ber, char *buf, ber_len_t len) {
  * enlarge the ber buffer.
  * return 0 on success, -1 on error.
  */
-int nslberi_ber_realloc(BerElement *ber, ber_len_t len) {
+int nslberi_ber_realloc(BerElement* ber, ber_len_t len) {
   ber_uint_t need, have, total;
   size_t have_bytes;
-  Seqorset *s;
+  Seqorset* s;
   ber_int_t off;
-  char *oldbuf;
+  char* oldbuf;
   int freeoldbuf = 0;
 
   ber->ber_buf_reallocs++;
@@ -248,7 +248,7 @@ int nslberi_ber_realloc(BerElement *ber, ber_len_t len) {
   oldbuf = ber->ber_buf;
 
   if (ber->ber_buf == NULL) {
-    if ((ber->ber_buf = (char *)NSLBERI_MALLOC((size_t)total)) == NULL) {
+    if ((ber->ber_buf = (char*)NSLBERI_MALLOC((size_t)total)) == NULL) {
       return (-1);
     }
     ber->ber_flags &= ~LBER_FLAG_NO_FREE_BUFFER;
@@ -257,7 +257,7 @@ int nslberi_ber_realloc(BerElement *ber, ber_len_t len) {
       freeoldbuf = 1;
     }
     /* transition to malloc'd buffer */
-    if ((ber->ber_buf = (char *)NSLBERI_MALLOC((size_t)total)) == NULL) {
+    if ((ber->ber_buf = (char*)NSLBERI_MALLOC((size_t)total)) == NULL) {
       return (-1);
     }
     ber->ber_flags &= ~LBER_FLAG_NO_FREE_BUFFER;
@@ -295,7 +295,7 @@ int nslberi_ber_realloc(BerElement *ber, ber_len_t len) {
 /*
  * returns "len" on success and -1 on failure.
  */
-ber_int_t LDAP_CALL ber_write(BerElement *ber, char *buf, ber_len_t len,
+ber_int_t LDAP_CALL ber_write(BerElement* ber, char* buf, ber_len_t len,
                               int nosos) {
   if (nosos || ber->ber_sos == NULL) {
     if (ber->ber_ptr + len > ber->ber_end) {
@@ -315,19 +315,19 @@ ber_int_t LDAP_CALL ber_write(BerElement *ber, char *buf, ber_len_t len,
   }
 }
 
-void LDAP_CALL ber_free(BerElement *ber, int freebuf) {
+void LDAP_CALL ber_free(BerElement* ber, int freebuf) {
   if (ber != NULL) {
     if (freebuf && !(ber->ber_flags & LBER_FLAG_NO_FREE_BUFFER)) {
       NSLBERI_FREE(ber->ber_buf);
     }
-    NSLBERI_FREE((char *)ber);
+    NSLBERI_FREE((char*)ber);
   }
 }
 
 /*
  * return >= 0 on success, -1 on failure.
  */
-int LDAP_CALL ber_flush(Sockbuf *sb, BerElement *ber, int freeit) {
+int LDAP_CALL ber_flush(Sockbuf* sb, BerElement* ber, int freeit) {
   ssize_t nwritten = 0, towrite, rc;
   int i = 0;
 
@@ -429,10 +429,10 @@ int LDAP_CALL ber_flush(Sockbuf *sb, BerElement *ber, int freeit) {
 }
 
 /* we pre-allocate a buffer to save the extra malloc later */
-BerElement *LDAP_CALL ber_alloc_t(int options) {
-  BerElement *ber;
+BerElement* LDAP_CALL ber_alloc_t(int options) {
+  BerElement* ber;
 
-  if ((ber = (BerElement *)NSLBERI_CALLOC(
+  if ((ber = (BerElement*)NSLBERI_CALLOC(
            1, sizeof(struct berelement) + lber_bufsize)) == NULL) {
     return (NULL);
   }
@@ -448,7 +448,7 @@ BerElement *LDAP_CALL ber_alloc_t(int options) {
 
   ber->ber_tag = LBER_DEFAULT;
   ber->ber_options = options;
-  ber->ber_buf = (char *)ber + sizeof(struct berelement);
+  ber->ber_buf = (char*)ber + sizeof(struct berelement);
   ber->ber_ptr = ber->ber_buf;
   ber->ber_end = ber->ber_buf + lber_bufsize;
   ber->ber_flags = LBER_FLAG_NO_FREE_BUFFER;
@@ -456,12 +456,12 @@ BerElement *LDAP_CALL ber_alloc_t(int options) {
   return (ber);
 }
 
-BerElement *LDAP_CALL ber_alloc() { return (ber_alloc_t(0)); }
+BerElement* LDAP_CALL ber_alloc() { return (ber_alloc_t(0)); }
 
-BerElement *LDAP_CALL der_alloc() { return (ber_alloc_t(LBER_OPT_USE_DER)); }
+BerElement* LDAP_CALL der_alloc() { return (ber_alloc_t(LBER_OPT_USE_DER)); }
 
-BerElement *LDAP_CALL ber_dup(BerElement *ber) {
-  BerElement *new;
+BerElement* LDAP_CALL ber_dup(BerElement* ber) {
+  BerElement* new;
 
   if ((new = ber_alloc()) == NULL) return (NULL);
 
@@ -470,8 +470,8 @@ BerElement *LDAP_CALL ber_dup(BerElement *ber) {
   return (new);
 }
 
-void LDAP_CALL ber_init_w_nullchar(BerElement *ber, int options) {
-  (void)memset((char *)ber, '\0', sizeof(struct berelement));
+void LDAP_CALL ber_init_w_nullchar(BerElement* ber, int options) {
+  (void)memset((char*)ber, '\0', sizeof(struct berelement));
   ber->ber_tag = LBER_DEFAULT;
 
   /*
@@ -486,7 +486,7 @@ void LDAP_CALL ber_init_w_nullchar(BerElement *ber, int options) {
   ber->ber_options = options;
 }
 
-void LDAP_CALL ber_reset(BerElement *ber, int was_writing) {
+void LDAP_CALL ber_reset(BerElement* ber, int was_writing) {
   if (was_writing) {
     ber->ber_end = ber->ber_ptr;
     ber->ber_ptr = ber->ber_buf;
@@ -505,7 +505,7 @@ void LDAP_CALL ber_reset(BerElement *ber, int was_writing) {
    CAUTION: Returns 0 on null buffers as well
    as 0 on empty buffers!
 */
-size_t LDAP_CALL ber_get_buf_datalen(BerElement *ber) {
+size_t LDAP_CALL ber_get_buf_datalen(BerElement* ber) {
   size_t datalen;
 
   if ((ber == NULL) || (ber->ber_buf == NULL) || (ber->ber_ptr == NULL)) {
@@ -528,7 +528,7 @@ size_t LDAP_CALL ber_get_buf_datalen(BerElement *ber) {
   if buf is 0 then malloc a buffer of length size
   returns > 0 on success, 0 otherwise
 */
-int LDAP_CALL ber_stack_init(BerElement *ber, int options, char *buf,
+int LDAP_CALL ber_stack_init(BerElement* ber, int options, char* buf,
                              size_t size) {
   if (NULL == ber) return 0;
 
@@ -555,7 +555,7 @@ int LDAP_CALL ber_stack_init(BerElement *ber, int options, char *buf,
     ber->ber_buf = ber->ber_ptr = buf;
     ber->ber_flags = LBER_FLAG_NO_FREE_BUFFER;
   } else {
-    ber->ber_buf = ber->ber_ptr = (char *)NSLBERI_MALLOC(size);
+    ber->ber_buf = ber->ber_ptr = (char*)NSLBERI_MALLOC(size);
   }
 
   ber->ber_end = ber->ber_buf + size;
@@ -568,7 +568,7 @@ int LDAP_CALL ber_stack_init(BerElement *ber, int options, char *buf,
  * the target Sockbuf.
  * Other info of this Sockbuf are kept unchanged.
  */
-void LDAP_CALL ber_sockbuf_free_data(Sockbuf *p) {
+void LDAP_CALL ber_sockbuf_free_data(Sockbuf* p) {
   if (p != NULL) {
     if (p->sb_ber.ber_buf != NULL &&
         !(p->sb_ber.ber_flags & LBER_FLAG_NO_FREE_BUFFER)) {
@@ -581,7 +581,7 @@ void LDAP_CALL ber_sockbuf_free_data(Sockbuf *p) {
 /* simply returns ber_buf in the ber ...
    explicitly for DS MMR only...
 */
-char *LDAP_CALL ber_get_buf_databegin(BerElement *ber) {
+char* LDAP_CALL ber_get_buf_databegin(BerElement* ber) {
   if (NULL != ber) {
     return ber->ber_buf;
   } else {
@@ -591,7 +591,7 @@ char *LDAP_CALL ber_get_buf_databegin(BerElement *ber) {
 
 #ifdef LDAP_DEBUG
 
-void ber_dump(BerElement *ber, int inout) {
+void ber_dump(BerElement* ber, int inout) {
   char msg[128];
   sprintf(msg, "ber_dump: buf 0x%p, ptr 0x%p, rwptr 0x%p, end 0x%p\n",
           ber->ber_buf, ber->ber_ptr, ber->ber_rwptr, ber->ber_end);
@@ -609,7 +609,7 @@ void ber_dump(BerElement *ber, int inout) {
   }
 }
 
-void ber_sos_dump(Seqorset *sos) {
+void ber_sos_dump(Seqorset* sos) {
   char msg[80];
   ber_err_print("*** sos dump ***\n");
   while (sos != NULLSEQORSET) {
@@ -630,10 +630,10 @@ void ber_sos_dump(Seqorset *sos) {
 
 /* return the tag - LBER_DEFAULT returned means trouble
  * assumes the tag is only one byte! */
-static ber_tag_t get_tag(Sockbuf *sb, BerElement *ber) {
+static ber_tag_t get_tag(Sockbuf* sb, BerElement* ber) {
   unsigned char xbyte;
 
-  if ((BerRead(sb, (char *)&xbyte, 1)) != 1) {
+  if ((BerRead(sb, (char*)&xbyte, 1)) != 1) {
     return (LBER_DEFAULT);
   }
 
@@ -649,7 +649,7 @@ static ber_tag_t get_tag(Sockbuf *sb, BerElement *ber) {
 
 /* Error checking? */
 /* Takes a ber and returns the actual length */
-static ber_len_t get_ber_len(BerElement *ber) {
+static ber_len_t get_ber_len(BerElement* ber) {
   int noctets;
   ber_len_t len = 0;
   char xbyte;
@@ -662,7 +662,7 @@ static ber_len_t get_ber_len(BerElement *ber) {
     if (noctets >= MAX_LEN_SIZE) {
       return (LBER_DEFAULT);
     }
-    SAFEMEMCPY((char *)&len + sizeof(ber_len_t) - noctets,
+    SAFEMEMCPY((char*)&len + sizeof(ber_len_t) - noctets,
                &ber->ber_len_contents[1], noctets);
     len = LBER_NTOHL(len);
     return (len);
@@ -673,7 +673,7 @@ static ber_len_t get_ber_len(BerElement *ber) {
 
 /* LBER_DEFAULT means trouble
    reads in the length, stores it in ber->ber_struct, and returns get_ber_len */
-static ber_len_t read_len_in_ber(Sockbuf *sb, BerElement *ber) {
+static ber_len_t read_len_in_ber(Sockbuf* sb, BerElement* ber) {
   unsigned char xbyte;
   int noctets;
   int rc = 0, read_result = 0;
@@ -686,7 +686,7 @@ static ber_len_t read_len_in_ber(Sockbuf *sb, BerElement *ber) {
    */
   if (ber->ber_tag_len_read == 1) {
     /* the length of the length hasn't been read yet */
-    if (BerRead(sb, (char *)&xbyte, 1) != 1) {
+    if (BerRead(sb, (char*)&xbyte, 1) != 1) {
       return (LBER_DEFAULT);
     }
     ber->ber_tag_len_read = 2;
@@ -717,12 +717,12 @@ static ber_len_t read_len_in_ber(Sockbuf *sb, BerElement *ber) {
   return (get_ber_len(ber));
 }
 
-ber_tag_t LDAP_CALL ber_get_next(Sockbuf *sb, ber_len_t *len, BerElement *ber) {
+ber_tag_t LDAP_CALL ber_get_next(Sockbuf* sb, ber_len_t* len, BerElement* ber) {
   ber_len_t newlen;
   ber_len_t toread;
   ber_int_t rc;
   ber_len_t orig_taglen_read = 0;
-  char *orig_rwptr = ber->ber_rwptr ? ber->ber_rwptr : ber->ber_buf;
+  char* orig_rwptr = ber->ber_rwptr ? ber->ber_rwptr : ber->ber_buf;
 
 #ifdef LDAP_DEBUG
   if (lber_debug) ber_err_print("ber_get_next\n");
@@ -785,7 +785,7 @@ ber_tag_t LDAP_CALL ber_get_next(Sockbuf *sb, ber_len_t *len, BerElement *ber) {
       if (ber->ber_buf && !(ber->ber_flags & LBER_FLAG_NO_FREE_BUFFER)) {
         NSLBERI_FREE(ber->ber_buf);
       }
-      if ((ber->ber_buf = (char *)NSLBERI_CALLOC(1, (size_t)newlen)) == NULL) {
+      if ((ber->ber_buf = (char*)NSLBERI_CALLOC(1, (size_t)newlen)) == NULL) {
         return (LBER_DEFAULT);
       }
       ber->ber_flags &= ~LBER_FLAG_NO_FREE_BUFFER;
@@ -827,11 +827,11 @@ ber_tag_t LDAP_CALL ber_get_next(Sockbuf *sb, ber_len_t *len, BerElement *ber) {
   return (ber->ber_tag);
 }
 
-Sockbuf *LDAP_CALL ber_sockbuf_alloc() {
-  return ((Sockbuf *)NSLBERI_CALLOC(1, sizeof(struct sockbuf)));
+Sockbuf* LDAP_CALL ber_sockbuf_alloc() {
+  return ((Sockbuf*)NSLBERI_CALLOC(1, sizeof(struct sockbuf)));
 }
 
-void LDAP_CALL ber_sockbuf_free(Sockbuf *p) {
+void LDAP_CALL ber_sockbuf_free(Sockbuf* p) {
   if (p != NULL) {
     if (p->sb_ber.ber_buf != NULL &&
         !(p->sb_ber.ber_flags & LBER_FLAG_NO_FREE_BUFFER)) {
@@ -844,14 +844,14 @@ void LDAP_CALL ber_sockbuf_free(Sockbuf *p) {
 /*
  * return 0 on success and -1 on error
  */
-int LDAP_CALL ber_set_option(struct berelement *ber, int option, void *value) {
+int LDAP_CALL ber_set_option(struct berelement* ber, int option, void* value) {
   /*
    * memory allocation callbacks are global, so it is OK to pass
    * NULL for ber.  Handle this as a special case.
    */
   if (option == LBER_OPT_MEMALLOC_FN_PTRS) {
     /* struct copy */
-    nslberi_memalloc_fns = *((struct lber_memalloc_fns *)value);
+    nslberi_memalloc_fns = *((struct lber_memalloc_fns*)value);
     return (0);
   }
 
@@ -861,7 +861,7 @@ int LDAP_CALL ber_set_option(struct berelement *ber, int option, void *value) {
    */
   if (option == LBER_OPT_DEBUG_LEVEL) {
 #ifdef LDAP_DEBUG
-    lber_debug = *(int *)value;
+    lber_debug = *(int*)value;
 #endif
     return (0);
   }
@@ -871,8 +871,8 @@ int LDAP_CALL ber_set_option(struct berelement *ber, int option, void *value) {
    * NULL for ber. Handle this as a special case.
    */
   if (option == LBER_OPT_BUFSIZE) {
-    if (*(size_t *)value > EXBUFSIZ) {
-      lber_bufsize = *(size_t *)value;
+    if (*(size_t*)value > EXBUFSIZ) {
+      lber_bufsize = *(size_t*)value;
     }
     return (0);
   }
@@ -894,13 +894,13 @@ int LDAP_CALL ber_set_option(struct berelement *ber, int option, void *value) {
       }
       break;
     case LBER_OPT_REMAINING_BYTES:
-      ber->ber_end = ber->ber_ptr + *((ber_len_t *)value);
+      ber->ber_end = ber->ber_ptr + *((ber_len_t*)value);
       break;
     case LBER_OPT_TOTAL_BYTES:
-      ber->ber_end = ber->ber_buf + *((ber_len_t *)value);
+      ber->ber_end = ber->ber_buf + *((ber_len_t*)value);
       break;
     case LBER_OPT_BYTES_TO_WRITE:
-      ber->ber_ptr = ber->ber_buf + *((ber_len_t *)value);
+      ber->ber_ptr = ber->ber_buf + *((ber_len_t*)value);
       break;
     default:
       return (-1);
@@ -912,14 +912,14 @@ int LDAP_CALL ber_set_option(struct berelement *ber, int option, void *value) {
 /*
  * return 0 on success and -1 on error
  */
-int LDAP_CALL ber_get_option(struct berelement *ber, int option, void *value) {
+int LDAP_CALL ber_get_option(struct berelement* ber, int option, void* value) {
   /*
    * memory callocation callbacks are global, so it is OK to pass
    * NULL for ber.  Handle this as a special case
    */
   if (option == LBER_OPT_MEMALLOC_FN_PTRS) {
     /* struct copy */
-    *((struct lber_memalloc_fns *)value) = nslberi_memalloc_fns;
+    *((struct lber_memalloc_fns*)value) = nslberi_memalloc_fns;
     return (0);
   }
 
@@ -929,7 +929,7 @@ int LDAP_CALL ber_get_option(struct berelement *ber, int option, void *value) {
    */
   if (option == LBER_OPT_DEBUG_LEVEL) {
 #ifdef LDAP_DEBUG
-    *(int *)value = lber_debug;
+    *(int*)value = lber_debug;
 #endif
     return (0);
   }
@@ -939,7 +939,7 @@ int LDAP_CALL ber_get_option(struct berelement *ber, int option, void *value) {
    * NULL for ber. Handle this as a special case.
    */
   if (option == LBER_OPT_BUFSIZE) {
-    *(size_t *)value = lber_bufsize;
+    *(size_t*)value = lber_bufsize;
     return (0);
   }
 
@@ -953,16 +953,16 @@ int LDAP_CALL ber_get_option(struct berelement *ber, int option, void *value) {
   switch (option) {
     case LBER_OPT_USE_DER:
     case LBER_OPT_TRANSLATE_STRINGS:
-      *((int *)value) = (ber->ber_options & option);
+      *((int*)value) = (ber->ber_options & option);
       break;
     case LBER_OPT_REMAINING_BYTES:
-      *((ber_len_t *)value) = ber->ber_end - ber->ber_ptr;
+      *((ber_len_t*)value) = ber->ber_end - ber->ber_ptr;
       break;
     case LBER_OPT_TOTAL_BYTES:
-      *((ber_len_t *)value) = ber->ber_end - ber->ber_buf;
+      *((ber_len_t*)value) = ber->ber_end - ber->ber_buf;
       break;
     case LBER_OPT_BYTES_TO_WRITE:
-      *((ber_len_t *)value) = ber->ber_ptr - ber->ber_buf;
+      *((ber_len_t*)value) = ber->ber_ptr - ber->ber_buf;
       break;
     default:
       return (-1);
@@ -974,8 +974,8 @@ int LDAP_CALL ber_get_option(struct berelement *ber, int option, void *value) {
 /*
  * return 0 on success and -1 on error
  */
-int LDAP_CALL ber_sockbuf_set_option(Sockbuf *sb, int option, void *value) {
-  struct lber_x_ext_io_fns *extiofns;
+int LDAP_CALL ber_sockbuf_set_option(Sockbuf* sb, int option, void* value) {
+  struct lber_x_ext_io_fns* extiofns;
 
   if (!NSLBERI_VALID_SOCKBUF_POINTER(sb)) {
     return (-1);
@@ -1000,7 +1000,7 @@ int LDAP_CALL ber_sockbuf_set_option(Sockbuf *sb, int option, void *value) {
 
   switch (option) {
     case LBER_SOCKBUF_OPT_VALID_TAG:
-      sb->sb_valid_tag = *((ber_tag_t *)value);
+      sb->sb_valid_tag = *((ber_tag_t*)value);
       /* use NULL to reset */
       if (value != NULL) {
         sb->sb_options |= option;
@@ -1010,7 +1010,7 @@ int LDAP_CALL ber_sockbuf_set_option(Sockbuf *sb, int option, void *value) {
       break;
     case LBER_SOCKBUF_OPT_MAX_INCOMING_SIZE:
       if (value != NULL) {
-        sb->sb_max_incoming = *((ber_len_t *)value);
+        sb->sb_max_incoming = *((ber_len_t*)value);
         sb->sb_options |= option;
       } else {
         /* setting the max incoming to 0 seems to be the only
@@ -1030,23 +1030,23 @@ int LDAP_CALL ber_sockbuf_set_option(Sockbuf *sb, int option, void *value) {
       }
       break;
     case LBER_SOCKBUF_OPT_DESC:
-      sb->sb_sd = *((LBER_SOCKET *)value);
+      sb->sb_sd = *((LBER_SOCKET*)value);
       break;
     case LBER_SOCKBUF_OPT_COPYDESC:
-      sb->sb_copyfd = *((LBER_SOCKET *)value);
+      sb->sb_copyfd = *((LBER_SOCKET*)value);
       break;
     case LBER_SOCKBUF_OPT_READ_FN:
-      sb->sb_io_fns.lbiof_read = (LDAP_IOF_READ_CALLBACK *)value;
+      sb->sb_io_fns.lbiof_read = (LDAP_IOF_READ_CALLBACK*)value;
       nslberi_install_compat_io_fns(sb);
       break;
     case LBER_SOCKBUF_OPT_WRITE_FN:
-      sb->sb_io_fns.lbiof_write = (LDAP_IOF_WRITE_CALLBACK *)value;
+      sb->sb_io_fns.lbiof_write = (LDAP_IOF_WRITE_CALLBACK*)value;
       nslberi_install_compat_io_fns(sb);
       break;
     case LBER_SOCKBUF_OPT_EXT_IO_FNS:
-      extiofns = (struct lber_x_ext_io_fns *)value;
+      extiofns = (struct lber_x_ext_io_fns*)value;
       if (extiofns == NULL) { /* remove */
-        (void)memset((char *)&sb->sb_ext_io_fns, '\0',
+        (void)memset((char*)&sb->sb_ext_io_fns, '\0',
                      sizeof(sb->sb_ext_io_fns));
       } else if (extiofns->lbextiofn_size == LBER_X_EXTIO_FNS_SIZE) {
         /* struct copy */
@@ -1064,7 +1064,7 @@ int LDAP_CALL ber_sockbuf_set_option(Sockbuf *sb, int option, void *value) {
       break;
     case LBER_SOCKBUF_OPT_SOCK_ARG:
       sb->sb_ext_io_fns.lbextiofn_socket_arg =
-          (struct lextiof_socket_private *)value;
+          (struct lextiof_socket_private*)value;
       break;
     default:
       return (-1);
@@ -1076,8 +1076,8 @@ int LDAP_CALL ber_sockbuf_set_option(Sockbuf *sb, int option, void *value) {
 /*
  * return 0 on success and -1 on error
  */
-int LDAP_CALL ber_sockbuf_get_option(Sockbuf *sb, int option, void *value) {
-  struct lber_x_ext_io_fns *extiofns;
+int LDAP_CALL ber_sockbuf_get_option(Sockbuf* sb, int option, void* value) {
+  struct lber_x_ext_io_fns* extiofns;
 
   if (!NSLBERI_VALID_SOCKBUF_POINTER(sb) || (NULL == value)) {
     return (-1);
@@ -1085,30 +1085,30 @@ int LDAP_CALL ber_sockbuf_get_option(Sockbuf *sb, int option, void *value) {
 
   switch (option) {
     case LBER_SOCKBUF_OPT_VALID_TAG:
-      *((ber_tag_t *)value) = sb->sb_valid_tag;
+      *((ber_tag_t*)value) = sb->sb_valid_tag;
       break;
     case LBER_SOCKBUF_OPT_MAX_INCOMING_SIZE:
-      *((ber_len_t *)value) = sb->sb_max_incoming;
+      *((ber_len_t*)value) = sb->sb_max_incoming;
       break;
     case LBER_SOCKBUF_OPT_TO_FILE:
     case LBER_SOCKBUF_OPT_TO_FILE_ONLY:
     case LBER_SOCKBUF_OPT_NO_READ_AHEAD:
-      *((int *)value) = (sb->sb_options & option);
+      *((int*)value) = (sb->sb_options & option);
       break;
     case LBER_SOCKBUF_OPT_DESC:
-      *((LBER_SOCKET *)value) = sb->sb_sd;
+      *((LBER_SOCKET*)value) = sb->sb_sd;
       break;
     case LBER_SOCKBUF_OPT_COPYDESC:
-      *((LBER_SOCKET *)value) = sb->sb_copyfd;
+      *((LBER_SOCKET*)value) = sb->sb_copyfd;
       break;
     case LBER_SOCKBUF_OPT_READ_FN:
-      *((LDAP_IOF_READ_CALLBACK **)value) = sb->sb_io_fns.lbiof_read;
+      *((LDAP_IOF_READ_CALLBACK**)value) = sb->sb_io_fns.lbiof_read;
       break;
     case LBER_SOCKBUF_OPT_WRITE_FN:
-      *((LDAP_IOF_WRITE_CALLBACK **)value) = sb->sb_io_fns.lbiof_write;
+      *((LDAP_IOF_WRITE_CALLBACK**)value) = sb->sb_io_fns.lbiof_write;
       break;
     case LBER_SOCKBUF_OPT_EXT_IO_FNS:
-      extiofns = (struct lber_x_ext_io_fns *)value;
+      extiofns = (struct lber_x_ext_io_fns*)value;
       if (extiofns == NULL) {
         return (-1);
       } else if (extiofns->lbextiofn_size == LBER_X_EXTIO_FNS_SIZE) {
@@ -1124,7 +1124,7 @@ int LDAP_CALL ber_sockbuf_get_option(Sockbuf *sb, int option, void *value) {
       }
       break;
     case LBER_SOCKBUF_OPT_SOCK_ARG:
-      *((struct lextiof_socket_private **)value) =
+      *((struct lextiof_socket_private**)value) =
           sb->sb_ext_io_fns.lbextiofn_socket_arg;
       break;
     default:
@@ -1137,7 +1137,7 @@ int LDAP_CALL ber_sockbuf_get_option(Sockbuf *sb, int option, void *value) {
 /* new dboreham code below: */
 
 struct byte_buffer {
-  unsigned char *p;
+  unsigned char* p;
   int offset;
   int length;
 };
@@ -1148,8 +1148,8 @@ typedef struct byte_buffer byte_buffer;
  * This routine also allocates a ber data buffer within the same block, thus
  * saving a call to calloc later when we read data.
  */
-void *LDAP_CALL ber_special_alloc(size_t size, BerElement **ppBer) {
-  char *mem = NULL;
+void* LDAP_CALL ber_special_alloc(size_t size, BerElement** ppBer) {
+  char* mem = NULL;
 
   /* Make sure mem size requested is aligned */
   if (0 != (size & 0x03)) {
@@ -1160,17 +1160,17 @@ void *LDAP_CALL ber_special_alloc(size_t size, BerElement **ppBer) {
   if (NULL == mem) {
     return NULL;
   }
-  *ppBer = (BerElement *)(mem + size);
+  *ppBer = (BerElement*)(mem + size);
   memset(*ppBer, 0, sizeof(struct berelement));
   (*ppBer)->ber_tag = LBER_DEFAULT;
   (*ppBer)->ber_buf = mem + size + sizeof(struct berelement);
   (*ppBer)->ber_ptr = (*ppBer)->ber_buf;
   (*ppBer)->ber_end = (*ppBer)->ber_buf + lber_bufsize;
   (*ppBer)->ber_flags = LBER_FLAG_NO_FREE_BUFFER;
-  return (void *)mem;
+  return (void*)mem;
 }
 
-void LDAP_CALL ber_special_free(void *buf, BerElement *ber) {
+void LDAP_CALL ber_special_free(void* buf, BerElement* ber) {
   if (!(ber->ber_flags & LBER_FLAG_NO_FREE_BUFFER)) {
     NSLBERI_FREE(ber->ber_buf);
   }
@@ -1180,7 +1180,7 @@ void LDAP_CALL ber_special_free(void *buf, BerElement *ber) {
 /* Copy up to bytes_to_read bytes from b into return_buffer.
  * Returns a count of bytes copied (always >= 0).
  */
-static int read_bytes(byte_buffer *b, unsigned char *return_buffer,
+static int read_bytes(byte_buffer* b, unsigned char* return_buffer,
                       int bytes_to_read) {
   /* copy up to bytes_to_read bytes into the caller's buffer, return the number
    * of bytes copied */
@@ -1203,10 +1203,10 @@ static int read_bytes(byte_buffer *b, unsigned char *return_buffer,
 }
 
 /* return the tag - LBER_DEFAULT returned means trouble */
-static ber_tag_t get_buffer_tag(byte_buffer *sb) {
+static ber_tag_t get_buffer_tag(byte_buffer* sb) {
   unsigned char xbyte;
   ber_tag_t tag;
-  char *tagp;
+  char* tagp;
   int i;
 
   if ((i = read_bytes(sb, &xbyte, 1)) != 1) {
@@ -1217,7 +1217,7 @@ static ber_tag_t get_buffer_tag(byte_buffer *sb) {
     return ((ber_uint_t)xbyte);
   }
 
-  tagp = (char *)&tag;
+  tagp = (char*)&tag;
   tagp[0] = xbyte;
   for (i = 1; i < sizeof(ber_int_t); i++) {
     if (read_bytes(sb, &xbyte, 1) != 1) return (LBER_DEFAULT);
@@ -1242,9 +1242,9 @@ static ber_tag_t get_buffer_tag(byte_buffer *sb) {
  */
 /* the Sockbuf structure along */
 
-ber_uint_t LDAP_CALL ber_get_next_buffer(void *buffer, size_t buffer_size,
-                                         ber_len_t *len, BerElement *ber,
-                                         ber_uint_t *Bytes_Scanned) {
+ber_uint_t LDAP_CALL ber_get_next_buffer(void* buffer, size_t buffer_size,
+                                         ber_len_t* len, BerElement* ber,
+                                         ber_uint_t* Bytes_Scanned) {
   return (ber_get_next_buffer_ext(buffer, buffer_size, len, ber, Bytes_Scanned,
                                   NULL));
 }
@@ -1265,10 +1265,10 @@ ber_uint_t LDAP_CALL ber_get_next_buffer(void *buffer, size_t buffer_size,
  * EINVAL   - LBER_SOCKBUF_OPT_VALID_TAG option set but tag doesn't match.
  * EMSGSIZE - an overflow condition as described above for LBER_OVERFLOW.
  */
-ber_uint_t LDAP_CALL ber_get_next_buffer_ext(void *buffer, size_t buffer_size,
-                                             ber_len_t *len, BerElement *ber,
-                                             ber_uint_t *Bytes_Scanned,
-                                             Sockbuf *sock) {
+ber_uint_t LDAP_CALL ber_get_next_buffer_ext(void* buffer, size_t buffer_size,
+                                             ber_len_t* len, BerElement* ber,
+                                             ber_uint_t* Bytes_Scanned,
+                                             Sockbuf* sock) {
   ber_tag_t tag = 0;
   ber_len_t netlen;
   ber_len_t toread;
@@ -1334,7 +1334,7 @@ ber_uint_t LDAP_CALL ber_get_next_buffer_ext(void *buffer, size_t buffer_size,
       diff = noctets + 1 /* tag */ - ber->ber_tag_len_read;
 
       if ((nbytes = read_bytes(&sb,
-                               (unsigned char *)&ber->ber_len_contents[0] +
+                               (unsigned char*)&ber->ber_len_contents[0] +
                                    ber->ber_tag_len_read,
                                diff)) != diff) {
         if (nbytes > 0) ber->ber_tag_len_read += nbytes;
@@ -1368,7 +1368,7 @@ ber_uint_t LDAP_CALL ber_get_next_buffer_ext(void *buffer, size_t buffer_size,
           return (LBER_OVERFLOW);
         }
         diff = sizeof(ber_uint_t) - noctets;
-        if ((nbytes = read_bytes(&sb, (unsigned char *)&netlen + diff,
+        if ((nbytes = read_bytes(&sb, (unsigned char*)&netlen + diff,
                                  noctets)) != noctets) {
           /*
            * The length is in long form and we don't get it in one
@@ -1380,7 +1380,7 @@ ber_uint_t LDAP_CALL ber_get_next_buffer_ext(void *buffer, size_t buffer_size,
           ber->ber_len_contents[0] = lc;
           memset(&(ber->ber_len_contents[1]), 0, sizeof(ber_uint_t));
           SAFEMEMCPY(&(ber->ber_len_contents[1]),
-                     (unsigned char *)&netlen + diff, nbytes);
+                     (unsigned char*)&netlen + diff, nbytes);
 
           goto premature_exit;
         }
@@ -1425,7 +1425,7 @@ ber_uint_t LDAP_CALL ber_get_next_buffer_ext(void *buffer, size_t buffer_size,
 
   toread = (ber_len_t)ber->ber_end - (ber_len_t)ber->ber_rwptr;
   do {
-    if ((rc = read_bytes(&sb, (unsigned char *)ber->ber_rwptr,
+    if ((rc = read_bytes(&sb, (unsigned char*)ber->ber_rwptr,
                          (ber_int_t)toread)) <= 0) {
       goto premature_exit;
     }
@@ -1460,12 +1460,12 @@ error_exit:
  * berval whose contents are not a valid BER encoding.
  * Note that the ber_ptr is not modified.
  */
-int LDAP_CALL ber_flatten(BerElement *ber, struct berval **bvPtr) {
-  struct berval *new;
+int LDAP_CALL ber_flatten(BerElement* ber, struct berval** bvPtr) {
+  struct berval* new;
   ber_len_t len;
 
   /* allocate a struct berval */
-  if ((new = (struct berval *)NSLBERI_MALLOC(sizeof(struct berval))) == NULL) {
+  if ((new = (struct berval*)NSLBERI_MALLOC(sizeof(struct berval))) == NULL) {
     return (-1);
   }
 
@@ -1478,7 +1478,7 @@ int LDAP_CALL ber_flatten(BerElement *ber, struct berval **bvPtr) {
     new->bv_len = 0;
   } else {
     len = ber->ber_ptr - ber->ber_buf;
-    if ((new->bv_val = (char *)NSLBERI_MALLOC(len + 1)) == NULL) {
+    if ((new->bv_val = (char*)NSLBERI_MALLOC(len + 1)) == NULL) {
       ber_bvfree(new);
       return (-1);
     }
@@ -1498,8 +1498,8 @@ int LDAP_CALL ber_flatten(BerElement *ber, struct berval **bvPtr) {
  * containing a copy of the data in the bv argument.  ber_init
  * returns the null pointer on error.
  */
-BerElement *LDAP_CALL ber_init(const struct berval *bv) {
-  BerElement *ber;
+BerElement* LDAP_CALL ber_init(const struct berval* bv) {
+  BerElement* ber;
 
   /* construct BerElement */
   if ((ber = ber_alloc_t(0)) != NULLBER) {
@@ -1527,25 +1527,25 @@ BerElement *LDAP_CALL ber_init(const struct berval *bv) {
 /*
  * memory allocation functions.
  */
-void *nslberi_malloc(size_t size) {
+void* nslberi_malloc(size_t size) {
   return (nslberi_memalloc_fns.lbermem_malloc == NULL
               ? malloc(size)
               : nslberi_memalloc_fns.lbermem_malloc(size));
 }
 
-void *nslberi_calloc(size_t nelem, size_t elsize) {
+void* nslberi_calloc(size_t nelem, size_t elsize) {
   return (nslberi_memalloc_fns.lbermem_calloc == NULL
               ? calloc(nelem, elsize)
               : nslberi_memalloc_fns.lbermem_calloc(nelem, elsize));
 }
 
-void *nslberi_realloc(void *ptr, size_t size) {
+void* nslberi_realloc(void* ptr, size_t size) {
   return (nslberi_memalloc_fns.lbermem_realloc == NULL
               ? realloc(ptr, size)
               : nslberi_memalloc_fns.lbermem_realloc(ptr, size));
 }
 
-void nslberi_free(void *ptr) {
+void nslberi_free(void* ptr) {
   if (nslberi_memalloc_fns.lbermem_free == NULL) {
     free(ptr);
   } else {
@@ -1564,16 +1564,16 @@ void nslberi_free(void *ptr) {
  * note that the integer socket s passed in is not used.  we use the sb_sd
  *    from the Sockbuf itself because it is the correct type.
  */
-static int nslberi_extread_compat(int s, void *buf, int len,
-                                  struct lextiof_socket_private *arg) {
-  Sockbuf *sb = (Sockbuf *)arg;
+static int nslberi_extread_compat(int s, void* buf, int len,
+                                  struct lextiof_socket_private* arg) {
+  Sockbuf* sb = (Sockbuf*)arg;
 
   return (sb->sb_io_fns.lbiof_read(sb->sb_sd, buf, len));
 }
 
-static int nslberi_extwrite_compat(int s, const void *buf, int len,
-                                   struct lextiof_socket_private *arg) {
-  Sockbuf *sb = (Sockbuf *)arg;
+static int nslberi_extwrite_compat(int s, const void* buf, int len,
+                                   struct lextiof_socket_private* arg) {
+  Sockbuf* sb = (Sockbuf*)arg;
 
   return (sb->sb_io_fns.lbiof_write(sb->sb_sd, buf, len));
 }
@@ -1581,12 +1581,12 @@ static int nslberi_extwrite_compat(int s, const void *buf, int len,
 /*
  * Install I/O compatibility functions.  This can't fail.
  */
-static void nslberi_install_compat_io_fns(Sockbuf *sb) {
+static void nslberi_install_compat_io_fns(Sockbuf* sb) {
   sb->sb_ext_io_fns.lbextiofn_size = LBER_X_EXTIO_FNS_SIZE;
   sb->sb_ext_io_fns.lbextiofn_read = nslberi_extread_compat;
   sb->sb_ext_io_fns.lbextiofn_write = nslberi_extwrite_compat;
   sb->sb_ext_io_fns.lbextiofn_writev = NULL;
-  sb->sb_ext_io_fns.lbextiofn_socket_arg = (void *)sb;
+  sb->sb_ext_io_fns.lbextiofn_socket_arg = (void*)sb;
 }
 /*
  * end of compat I/O functions

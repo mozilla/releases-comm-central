@@ -38,10 +38,10 @@
 
 #define LDAP_GET_BITOPT(ld, bit) ((ld)->ld_options & bit) != 0 ? 1 : 0
 
-static int nsldapi_get_api_info(LDAPAPIInfo *aip);
-static int nsldapi_get_feature_info(LDAPAPIFeatureInfo *fip);
+static int nsldapi_get_api_info(LDAPAPIInfo* aip);
+static int nsldapi_get_feature_info(LDAPAPIFeatureInfo* fip);
 
-int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
+int LDAP_CALL ldap_get_option(LDAP* ld, int option, void* optdata) {
   int rc = 0;
 
   if (!nsldapi_initialized) {
@@ -59,12 +59,12 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
    */
   if (option == LDAP_OPT_MEMALLOC_FN_PTRS) {
     /* struct copy */
-    *((struct ldap_memalloc_fns *)optdata) = nsldapi_memalloc_fns;
+    *((struct ldap_memalloc_fns*)optdata) = nsldapi_memalloc_fns;
     return (0);
   }
 
   if (option == LDAP_OPT_API_INFO) {
-    rc = nsldapi_get_api_info((LDAPAPIInfo *)optdata);
+    rc = nsldapi_get_api_info((LDAPAPIInfo*)optdata);
     if (rc != LDAP_SUCCESS) {
       if (ld != NULL) {
         LDAP_SET_LDERRNO(ld, rc, NULL, NULL);
@@ -78,7 +78,7 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
    */
   if (LDAP_OPT_DEBUG_LEVEL == option) {
 #ifdef LDAP_DEBUG
-    *((int *)optdata) = ldap_debug;
+    *((int*)optdata) = ldap_debug;
 #endif /* LDAP_DEBUG */
     return (0);
   }
@@ -98,39 +98,39 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
   switch (option) {
 #ifdef LDAP_DNS
     case LDAP_OPT_DNS:
-      *((int *)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_DNS);
+      *((int*)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_DNS);
       break;
 #endif
 
     case LDAP_OPT_REFERRALS:
-      *((int *)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_REFERRALS);
+      *((int*)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_REFERRALS);
       break;
 
     case LDAP_OPT_SSL:
-      *((int *)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_SSL);
+      *((int*)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_SSL);
       break;
 
     case LDAP_OPT_RESTART:
-      *((int *)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_RESTART);
+      *((int*)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_RESTART);
       break;
 
     case LDAP_OPT_RECONNECT:
-      *((int *)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_RECONNECT);
+      *((int*)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_RECONNECT);
       break;
 
     case LDAP_OPT_NOREBIND:
-      *((int *)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_NOREBIND);
+      *((int*)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_NOREBIND);
       break;
 
 #ifdef LDAP_ASYNC_IO
     case LDAP_OPT_ASYNC_CONNECT:
-      *((int *)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_ASYNC);
+      *((int*)optdata) = LDAP_GET_BITOPT(ld, LDAP_BITOPT_ASYNC);
       break;
 #endif /* LDAP_ASYNC_IO */
 
     /* stuff in the sockbuf */
     case LDAP_X_OPT_SOCKBUF:
-      *((Sockbuf **)optdata) = ld->ld_sbp;
+      *((Sockbuf**)optdata) = ld->ld_sbp;
       break;
 
     case LDAP_OPT_DESC:
@@ -143,26 +143,26 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
 
     /* fields in the LDAP structure */
     case LDAP_OPT_DEREF:
-      *((int *)optdata) = ld->ld_deref;
+      *((int*)optdata) = ld->ld_deref;
       break;
     case LDAP_OPT_SIZELIMIT:
-      *((int *)optdata) = ld->ld_sizelimit;
+      *((int*)optdata) = ld->ld_sizelimit;
       break;
     case LDAP_OPT_TIMELIMIT:
-      *((int *)optdata) = ld->ld_timelimit;
+      *((int*)optdata) = ld->ld_timelimit;
       break;
     case LDAP_OPT_REFERRAL_HOP_LIMIT:
-      *((int *)optdata) = ld->ld_refhoplimit;
+      *((int*)optdata) = ld->ld_refhoplimit;
       break;
     case LDAP_OPT_PROTOCOL_VERSION:
-      *((int *)optdata) = ld->ld_version;
+      *((int*)optdata) = ld->ld_version;
       break;
     case LDAP_OPT_SERVER_CONTROLS:
       /* fall through */
     case LDAP_OPT_CLIENT_CONTROLS:
-      *((LDAPControl ***)optdata) = NULL;
+      *((LDAPControl***)optdata) = NULL;
       /* nsldapi_dup_controls returns -1 and sets lderrno on error */
-      rc = nsldapi_dup_controls(ld, (LDAPControl ***)optdata,
+      rc = nsldapi_dup_controls(ld, (LDAPControl***)optdata,
                                 (option == LDAP_OPT_SERVER_CONTROLS)
                                     ? ld->ld_servercontrols
                                     : ld->ld_clientcontrols);
@@ -170,10 +170,10 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
 
     /* rebind proc */
     case LDAP_OPT_REBIND_FN:
-      *((LDAP_REBINDPROC_CALLBACK **)optdata) = ld->ld_rebind_fn;
+      *((LDAP_REBINDPROC_CALLBACK**)optdata) = ld->ld_rebind_fn;
       break;
     case LDAP_OPT_REBIND_ARG:
-      *((void **)optdata) = ld->ld_rebind_arg;
+      *((void**)optdata) = ld->ld_rebind_arg;
       break;
 
     /* i/o function pointers */
@@ -182,34 +182,34 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
         memset(optdata, 0, sizeof(struct ldap_io_fns));
       } else {
         /* struct copy */
-        *((struct ldap_io_fns *)optdata) = *(ld->ld_io_fns_ptr);
+        *((struct ldap_io_fns*)optdata) = *(ld->ld_io_fns_ptr);
       }
       break;
 
     /* extended i/o function pointers */
     case LDAP_X_OPT_EXTIO_FN_PTRS:
-      if (((struct ldap_x_ext_io_fns *)optdata)->lextiof_size ==
+      if (((struct ldap_x_ext_io_fns*)optdata)->lextiof_size ==
           LDAP_X_EXTIO_FNS_SIZE_REV0) {
-        ((struct ldap_x_ext_io_fns_rev0 *)optdata)->lextiof_close =
+        ((struct ldap_x_ext_io_fns_rev0*)optdata)->lextiof_close =
             ld->ld_extclose_fn;
-        ((struct ldap_x_ext_io_fns_rev0 *)optdata)->lextiof_connect =
+        ((struct ldap_x_ext_io_fns_rev0*)optdata)->lextiof_connect =
             ld->ld_extconnect_fn;
-        ((struct ldap_x_ext_io_fns_rev0 *)optdata)->lextiof_read =
+        ((struct ldap_x_ext_io_fns_rev0*)optdata)->lextiof_read =
             ld->ld_extread_fn;
-        ((struct ldap_x_ext_io_fns_rev0 *)optdata)->lextiof_write =
+        ((struct ldap_x_ext_io_fns_rev0*)optdata)->lextiof_write =
             ld->ld_extwrite_fn;
-        ((struct ldap_x_ext_io_fns_rev0 *)optdata)->lextiof_poll =
+        ((struct ldap_x_ext_io_fns_rev0*)optdata)->lextiof_poll =
             ld->ld_extpoll_fn;
-        ((struct ldap_x_ext_io_fns_rev0 *)optdata)->lextiof_newhandle =
+        ((struct ldap_x_ext_io_fns_rev0*)optdata)->lextiof_newhandle =
             ld->ld_extnewhandle_fn;
-        ((struct ldap_x_ext_io_fns_rev0 *)optdata)->lextiof_disposehandle =
+        ((struct ldap_x_ext_io_fns_rev0*)optdata)->lextiof_disposehandle =
             ld->ld_extdisposehandle_fn;
-        ((struct ldap_x_ext_io_fns_rev0 *)optdata)->lextiof_session_arg =
+        ((struct ldap_x_ext_io_fns_rev0*)optdata)->lextiof_session_arg =
             ld->ld_ext_session_arg;
-      } else if (((struct ldap_x_ext_io_fns *)optdata)->lextiof_size ==
+      } else if (((struct ldap_x_ext_io_fns*)optdata)->lextiof_size ==
                  LDAP_X_EXTIO_FNS_SIZE) {
         /* struct copy */
-        *((struct ldap_x_ext_io_fns *)optdata) = ld->ld_ext_io_fns;
+        *((struct ldap_x_ext_io_fns*)optdata) = ld->ld_ext_io_fns;
       } else {
         LDAP_SET_LDERRNO(ld, LDAP_PARAM_ERROR, NULL, NULL);
         rc = -1;
@@ -228,57 +228,57 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
     /* thread function pointers */
     case LDAP_OPT_THREAD_FN_PTRS:
       /* struct copy */
-      *((struct ldap_thread_fns *)optdata) = ld->ld_thread;
+      *((struct ldap_thread_fns*)optdata) = ld->ld_thread;
       break;
 
     /* extra thread function pointers */
     case LDAP_OPT_EXTRA_THREAD_FN_PTRS:
       /* struct copy */
-      *((struct ldap_extra_thread_fns *)optdata) = ld->ld_thread2;
+      *((struct ldap_extra_thread_fns*)optdata) = ld->ld_thread2;
       break;
 
     /* DNS function pointers */
     case LDAP_OPT_DNS_FN_PTRS:
       /* struct copy */
-      *((struct ldap_dns_fns *)optdata) = ld->ld_dnsfn;
+      *((struct ldap_dns_fns*)optdata) = ld->ld_dnsfn;
       break;
 
     /* cache function pointers */
     case LDAP_OPT_CACHE_FN_PTRS:
       /* struct copy */
-      *((struct ldap_cache_fns *)optdata) = ld->ld_cache;
+      *((struct ldap_cache_fns*)optdata) = ld->ld_cache;
       break;
     case LDAP_OPT_CACHE_STRATEGY:
-      *((int *)optdata) = ld->ld_cache_strategy;
+      *((int*)optdata) = ld->ld_cache_strategy;
       break;
     case LDAP_OPT_CACHE_ENABLE:
-      *((int *)optdata) = ld->ld_cache_on;
+      *((int*)optdata) = ld->ld_cache_on;
       break;
 
     case LDAP_OPT_ERROR_NUMBER:
-      *((int *)optdata) = LDAP_GET_LDERRNO(ld, NULL, NULL);
+      *((int*)optdata) = LDAP_GET_LDERRNO(ld, NULL, NULL);
       break;
 
     case LDAP_OPT_ERROR_STRING:
-      (void)LDAP_GET_LDERRNO(ld, NULL, (char **)optdata);
-      *((char **)optdata) = nsldapi_strdup(*((char **)optdata));
+      (void)LDAP_GET_LDERRNO(ld, NULL, (char**)optdata);
+      *((char**)optdata) = nsldapi_strdup(*((char**)optdata));
       break;
 
     case LDAP_OPT_MATCHED_DN:
-      (void)LDAP_GET_LDERRNO(ld, (char **)optdata, NULL);
-      *((char **)optdata) = nsldapi_strdup(*((char **)optdata));
+      (void)LDAP_GET_LDERRNO(ld, (char**)optdata, NULL);
+      *((char**)optdata) = nsldapi_strdup(*((char**)optdata));
       break;
 
     case LDAP_OPT_PREFERRED_LANGUAGE:
       if (NULL != ld->ld_preferred_language) {
-        *((char **)optdata) = nsldapi_strdup(ld->ld_preferred_language);
+        *((char**)optdata) = nsldapi_strdup(ld->ld_preferred_language);
       } else {
-        *((char **)optdata) = NULL;
+        *((char**)optdata) = NULL;
       }
       break;
 
     case LDAP_OPT_API_FEATURE_INFO:
-      rc = nsldapi_get_feature_info((LDAPAPIFeatureInfo *)optdata);
+      rc = nsldapi_get_feature_info((LDAPAPIFeatureInfo*)optdata);
       if (rc != LDAP_SUCCESS) {
         LDAP_SET_LDERRNO(ld, rc, NULL, NULL);
         rc = -1;
@@ -286,52 +286,52 @@ int LDAP_CALL ldap_get_option(LDAP *ld, int option, void *optdata) {
       break;
 
     case LDAP_OPT_HOST_NAME:
-      *((char **)optdata) = nsldapi_strdup(ld->ld_defhost);
+      *((char**)optdata) = nsldapi_strdup(ld->ld_defhost);
       break;
 
     case LDAP_X_OPT_CONNECT_TIMEOUT:
-      *((int *)optdata) = ld->ld_connect_timeout;
+      *((int*)optdata) = ld->ld_connect_timeout;
       break;
 
 #ifdef LDAP_SASLIO_HOOKS
     /* SASL options */
     case LDAP_OPT_X_SASL_MECH:
-      *((char **)optdata) = nsldapi_strdup(ld->ld_def_sasl_mech);
+      *((char**)optdata) = nsldapi_strdup(ld->ld_def_sasl_mech);
       break;
     case LDAP_OPT_X_SASL_REALM:
-      *((char **)optdata) = nsldapi_strdup(ld->ld_def_sasl_realm);
+      *((char**)optdata) = nsldapi_strdup(ld->ld_def_sasl_realm);
       break;
     case LDAP_OPT_X_SASL_AUTHCID:
-      *((char **)optdata) = nsldapi_strdup(ld->ld_def_sasl_authcid);
+      *((char**)optdata) = nsldapi_strdup(ld->ld_def_sasl_authcid);
       break;
     case LDAP_OPT_X_SASL_AUTHZID:
-      *((char **)optdata) = nsldapi_strdup(ld->ld_def_sasl_authzid);
+      *((char**)optdata) = nsldapi_strdup(ld->ld_def_sasl_authzid);
       break;
     case LDAP_OPT_X_SASL_SSF: {
       int sc;
-      sasl_ssf_t *ssf;
-      sasl_conn_t *ctx;
+      sasl_ssf_t* ssf;
+      sasl_conn_t* ctx;
       if (ld->ld_defconn == NULL) {
         return -1;
       }
-      ctx = (sasl_conn_t *)(ld->ld_defconn->lconn_sasl_ctx);
+      ctx = (sasl_conn_t*)(ld->ld_defconn->lconn_sasl_ctx);
       if (ctx == NULL) {
         return -1;
       }
-      sc = sasl_getprop(ctx, SASL_SSF, (const void **)&ssf);
+      sc = sasl_getprop(ctx, SASL_SSF, (const void**)&ssf);
       if (sc != SASL_OK) {
         return -1;
       }
-      *((sasl_ssf_t *)optdata) = *ssf;
+      *((sasl_ssf_t*)optdata) = *ssf;
     } break;
     case LDAP_OPT_X_SASL_SSF_MIN:
-      *((sasl_ssf_t *)optdata) = ld->ld_sasl_secprops.min_ssf;
+      *((sasl_ssf_t*)optdata) = ld->ld_sasl_secprops.min_ssf;
       break;
     case LDAP_OPT_X_SASL_SSF_MAX:
-      *((sasl_ssf_t *)optdata) = ld->ld_sasl_secprops.max_ssf;
+      *((sasl_ssf_t*)optdata) = ld->ld_sasl_secprops.max_ssf;
       break;
     case LDAP_OPT_X_SASL_MAXBUFSIZE:
-      *((sasl_ssf_t *)optdata) = ld->ld_sasl_secprops.maxbufsize;
+      *((sasl_ssf_t*)optdata) = ld->ld_sasl_secprops.maxbufsize;
       break;
     case LDAP_OPT_X_SASL_SSF_EXTERNAL:
     case LDAP_OPT_X_SASL_SECPROPS:
@@ -385,7 +385,7 @@ static LDAPAPIFeatureInfo nsldapi_extensions[] = {
  * Retrieve information about this implementation of the LDAP API.
  * Returns an LDAP error code.
  */
-static int nsldapi_get_api_info(LDAPAPIInfo *aip) {
+static int nsldapi_get_api_info(LDAPAPIInfo* aip) {
   int i;
 
   if (aip == NULL) {
@@ -410,7 +410,7 @@ static int nsldapi_get_api_info(LDAPAPIInfo *aip) {
     aip->ldapai_extensions = NULL;
   } else {
     if ((aip->ldapai_extensions = NSLDAPI_CALLOC(NSLDAPI_EXTENSIONS_COUNT + 1,
-                                                 sizeof(char *))) == NULL) {
+                                                 sizeof(char*))) == NULL) {
       NSLDAPI_FREE(aip->ldapai_vendor_name);
       aip->ldapai_vendor_name = NULL;
       return (LDAP_NO_MEMORY);
@@ -435,7 +435,7 @@ static int nsldapi_get_api_info(LDAPAPIInfo *aip) {
  * Retrieves information about a specific extended feature of the LDAP API/
  * Returns an LDAP error code.
  */
-static int nsldapi_get_feature_info(LDAPAPIFeatureInfo *fip) {
+static int nsldapi_get_feature_info(LDAPAPIFeatureInfo* fip) {
   int i;
 
   if (fip == NULL || fip->ldapaif_name == NULL) {

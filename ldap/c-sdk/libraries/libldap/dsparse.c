@@ -53,10 +53,10 @@
 
 #include "ldap-int.h"
 
-static int next_line(char **bufp, long *blenp, char **linep);
-static char *next_token(char **sp);
+static int next_line(char** bufp, long* blenp, char** linep);
+static char* next_token(char** sp);
 
-int nsldapi_next_line_tokens(char **bufp, long *blenp, char ***toksp) {
+int nsldapi_next_line_tokens(char** bufp, long* blenp, char*** toksp) {
   char *p, *line, *token, **toks;
   int rc, tokcnt;
 
@@ -66,7 +66,7 @@ int nsldapi_next_line_tokens(char **bufp, long *blenp, char ***toksp) {
     return (rc);
   }
 
-  if ((toks = (char **)NSLDAPI_CALLOC(1, sizeof(char *))) == NULL) {
+  if ((toks = (char**)NSLDAPI_CALLOC(1, sizeof(char*))) == NULL) {
     NSLDAPI_FREE(line);
     return (-1);
   }
@@ -74,9 +74,9 @@ int nsldapi_next_line_tokens(char **bufp, long *blenp, char ***toksp) {
 
   p = line;
   while ((token = next_token(&p)) != NULL) {
-    if ((toks = (char **)NSLDAPI_REALLOC(
-             toks, (tokcnt + 2) * sizeof(char *))) == NULL) {
-      NSLDAPI_FREE((char *)toks);
+    if ((toks = (char**)NSLDAPI_REALLOC(toks, (tokcnt + 2) * sizeof(char*))) ==
+        NULL) {
+      NSLDAPI_FREE((char*)toks);
       NSLDAPI_FREE(line);
       return (-1);
     }
@@ -94,7 +94,7 @@ int nsldapi_next_line_tokens(char **bufp, long *blenp, char ***toksp) {
 
   if (tokcnt == 0) {
     if (toks != NULL) {
-      NSLDAPI_FREE((char *)toks);
+      NSLDAPI_FREE((char*)toks);
     }
   } else {
     *toksp = toks;
@@ -103,7 +103,7 @@ int nsldapi_next_line_tokens(char **bufp, long *blenp, char ***toksp) {
   return (tokcnt);
 }
 
-static int next_line(char **bufp, long *blenp, char **linep) {
+static int next_line(char** bufp, long* blenp, char** linep) {
   char *linestart, *line, *p;
   long plen;
 
@@ -152,7 +152,7 @@ static int next_line(char **bufp, long *blenp, char **linep) {
   return (strlen(line));
 }
 
-static char *next_token(char **sp) {
+static char* next_token(char** sp) {
   int in_quote = 0;
   char *p, *tokstart, *t;
 
@@ -202,13 +202,13 @@ static char *next_token(char **sp) {
   return (nsldapi_strdup(tokstart));
 }
 
-void nsldapi_free_strarray(char **sap) {
+void nsldapi_free_strarray(char** sap) {
   int i;
 
   if (sap != NULL) {
     for (i = 0; sap[i] != NULL; ++i) {
       NSLDAPI_FREE(sap[i]);
     }
-    NSLDAPI_FREE((char *)sap);
+    NSLDAPI_FREE((char*)sap);
   }
 }

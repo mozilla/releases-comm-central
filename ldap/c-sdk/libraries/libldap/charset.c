@@ -46,7 +46,7 @@
 
 #ifdef STR_TRANSLATION
 
-void ldap_set_string_translators(LDAP *ld, BERTranslateProc encode_proc,
+void ldap_set_string_translators(LDAP* ld, BERTranslateProc encode_proc,
                                  BERTranslateProc decode_proc) {
   if (ld == NULL) {
     if (!nsldapi_initialized) {
@@ -61,8 +61,8 @@ void ldap_set_string_translators(LDAP *ld, BERTranslateProc encode_proc,
   }
 }
 
-void ldap_enable_translation(LDAP *ld, LDAPMessage *entry, int enable) {
-  char *optionsp;
+void ldap_enable_translation(LDAP* ld, LDAPMessage* entry, int enable) {
+  char* optionsp;
 
   if (ld == NULL) {
     if (!nsldapi_initialized) {
@@ -81,7 +81,7 @@ void ldap_enable_translation(LDAP *ld, LDAPMessage *entry, int enable) {
   }
 }
 
-int ldap_translate_from_t61(LDAP *ld, char **bufp, unsigned long *lenp,
+int ldap_translate_from_t61(LDAP* ld, char** bufp, unsigned long* lenp,
                             int free_input) {
   if (ld->ld_lber_decode_translate_proc == NULL) {
     return (LDAP_SUCCESS);
@@ -90,7 +90,7 @@ int ldap_translate_from_t61(LDAP *ld, char **bufp, unsigned long *lenp,
   return ((*ld->ld_lber_decode_translate_proc)(bufp, lenp, free_input));
 }
 
-int ldap_translate_to_t61(LDAP *ld, char **bufp, unsigned long *lenp,
+int ldap_translate_to_t61(LDAP* ld, char** bufp, unsigned long* lenp,
                           int free_input) {
   if (ld->ld_lber_encode_translate_proc == NULL) {
     return (LDAP_SUCCESS);
@@ -184,15 +184,15 @@ typedef struct {
 } Couple;
 
 #    ifdef NEEDPROTOS
-static Byte *c_to_hh(Byte *o, Byte c);
-static Byte *c_to_cc(Byte *o, Couple *cc, Byte c);
-static int hh_to_c(Byte *h);
-static Byte *cc_to_t61(Byte *o, Byte *s);
+static Byte* c_to_hh(Byte* o, Byte c);
+static Byte* c_to_cc(Byte* o, Couple* cc, Byte c);
+static int hh_to_c(Byte* h);
+static Byte* cc_to_t61(Byte* o, Byte* s);
 #    else  /* NEEDPROTOS */
-static Byte *c_to_hh();
-static Byte *c_to_cc();
+static Byte* c_to_hh();
+static Byte* c_to_cc();
 static int hh_to_c();
-static Byte *cc_to_t61();
+static Byte* cc_to_t61();
 #    endif /* NEEDPROTOS */
 
 /*
@@ -848,7 +848,7 @@ static Couple trans_iso8859_t61[96] = {
     {0xf0, 0}};
 #    endif
 
-static Byte *c_to_hh(Byte *o, Byte c) {
+static Byte* c_to_hh(Byte* o, Byte c) {
   Byte n;
 
   *o++ = '{';
@@ -861,7 +861,7 @@ static Byte *c_to_hh(Byte *o, Byte c) {
   return o;
 }
 
-static Byte *c_to_cc(Byte *o, Couple *cc, Byte c) {
+static Byte* c_to_cc(Byte* o, Couple* cc, Byte c) {
   if ((*cc).a != 0) {
     if ((*cc).b == 0)
       *o++ = (*cc).a;
@@ -878,24 +878,24 @@ static Byte *c_to_cc(Byte *o, Couple *cc, Byte c) {
 
 /* --- routine to convert from T.61 to ISO 8859-n --- */
 
-int ldap_t61_to_8859(char **bufp, unsigned long *buflenp, int free_input) {
+int ldap_t61_to_8859(char** bufp, unsigned long* buflenp, int free_input) {
   Byte *s, *oo, *o;
   unsigned int n;
   int c;
   unsigned long len;
-  Couple *cc;
+  Couple* cc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_t61_to_8859 input length: %ld\n", *buflenp,
             0, 0);
 
   len = *buflenp;
-  s = (Byte *)*bufp;
+  s = (Byte*)*bufp;
 
-  if ((o = oo = (Byte *)NSLDAPI_MALLOC(2 * len + 64)) == NULL) {
+  if ((o = oo = (Byte*)NSLDAPI_MALLOC(2 * len + 64)) == NULL) {
     return (1);
   }
 
-  while ((char *)s - *(char **)bufp < len) {
+  while ((char*)s - *(char**)bufp < len) {
     switch (*s >> 4) {
       case 0xA:
       case 0xB:
@@ -1074,7 +1074,7 @@ int ldap_t61_to_8859(char **bufp, unsigned long *buflenp, int free_input) {
   len = o - oo;
   o = oo;
 
-  if ((oo = (Byte *)NSLDAPI_REALLOC(o, len)) == NULL) {
+  if ((oo = (Byte*)NSLDAPI_REALLOC(o, len)) == NULL) {
     NSLDAPI_FREE(o);
     return (1);
   }
@@ -1082,12 +1082,12 @@ int ldap_t61_to_8859(char **bufp, unsigned long *buflenp, int free_input) {
   if (free_input) {
     NSLDAPI_FREE(*bufp);
   }
-  *bufp = (char *)oo;
+  *bufp = (char*)oo;
   *buflenp = len;
   return (0);
 }
 
-static int hh_to_c(Byte *h) {
+static int hh_to_c(Byte* h) {
   Byte c;
 
   if ((*h >= '0') && (*h <= '9'))
@@ -1113,7 +1113,7 @@ static int hh_to_c(Byte *h) {
   return c;
 }
 
-static Byte *cc_to_t61(Byte *o, Byte *s) {
+static Byte* cc_to_t61(Byte* o, Byte* s) {
   int n, c = 0;
 
   switch (*(s + 1)) {
@@ -1734,23 +1734,23 @@ static Byte *cc_to_t61(Byte *o, Byte *s) {
 
 /* --- routine to convert from ISO 8859-n to T.61 --- */
 
-int ldap_8859_to_t61(char **bufp, unsigned long *buflenp, int free_input) {
+int ldap_8859_to_t61(char** bufp, unsigned long* buflenp, int free_input) {
   Byte *s, *oo, *o, *aux;
   int c;
   unsigned long len;
-  Couple *cc;
+  Couple* cc;
 
   LDAPDebug(LDAP_DEBUG_TRACE, "ldap_8859_to_t61 input length: %ld\n", *buflenp,
             0, 0);
 
   len = *buflenp;
-  s = (Byte *)*bufp;
+  s = (Byte*)*bufp;
 
-  if ((o = oo = (Byte *)NSLDAPI_MALLOC(2 * len + 64)) == NULL) {
+  if ((o = oo = (Byte*)NSLDAPI_MALLOC(2 * len + 64)) == NULL) {
     return (1);
   }
 
-  while ((char *)s - *(char **)bufp < len) {
+  while ((char*)s - *(char**)bufp < len) {
     switch (*s >> 5) {
       case 2:
         switch (*s) {
@@ -1840,7 +1840,7 @@ int ldap_8859_to_t61(char **bufp, unsigned long *buflenp, int free_input) {
   len = o - oo;
   o = oo;
 
-  if ((oo = (Byte *)NSLDAPI_REALLOC(o, len)) == NULL) {
+  if ((oo = (Byte*)NSLDAPI_REALLOC(o, len)) == NULL) {
     NSLDAPI_FREE(o);
     return (1);
   }
@@ -1848,7 +1848,7 @@ int ldap_8859_to_t61(char **bufp, unsigned long *buflenp, int free_input) {
   if (free_input) {
     NSLDAPI_FREE(*bufp);
   }
-  *bufp = (char *)oo;
+  *bufp = (char*)oo;
   *buflenp = len;
   return (0);
 }
@@ -1856,9 +1856,9 @@ int ldap_8859_to_t61(char **bufp, unsigned long *buflenp, int free_input) {
 #    ifdef NOT_NEEDED_IN_LIBLDAP /* mcs@umich.edu 12 Oct 1995 */
 /* --- routine to convert "escaped" (\hh) characters to 8bits --- */
 
-void convert_escaped_to_8bit(s) char *s;
+void convert_escaped_to_8bit(s) char* s;
 {
-  char *o = s;
+  char* o = s;
   int c;
 
   while (*s) {
@@ -1876,12 +1876,12 @@ void convert_escaped_to_8bit(s) char *s;
 
 /* --- routine to convert 8bits characters to the "escaped" (\hh) form --- */
 
-char *convert_8bit_to_escaped(s) Byte *s;
+char* convert_8bit_to_escaped(s) Byte* s;
 {
   Byte *o, *oo;
   Byte n;
 
-  if ((o = oo = (Byte *)NSLDAPI_MALLOC(2 * strlen(s) + 64)) == NULL) {
+  if ((o = oo = (Byte*)NSLDAPI_MALLOC(2 * strlen(s) + 64)) == NULL) {
     return (NULL);
   }
 
@@ -1900,12 +1900,12 @@ char *convert_8bit_to_escaped(s) Byte *s;
 
   o = oo;
 
-  if ((oo = (Byte *)NSLDAPI_REALLOC(o, strlen(o) + 1)) == NULL) {
+  if ((oo = (Byte*)NSLDAPI_REALLOC(o, strlen(o) + 1)) == NULL) {
     NSLDAPI_FREE(o);
     return (NULL);
   }
 
-  return ((char *)oo);
+  return ((char*)oo);
 }
 
 /* --- routine to convert from T.61 to printable characters --- */
@@ -1925,13 +1925,13 @@ static Couple last_t61_printabled[32] = {
     {'l', 0},   {'o', 0},   {'o', 'e'}, {'s', 's'}, {'t', 'h'}, {'t', 0},
     {'n', 'g'}, {0, 0}};
 
-char *t61_printable(s) Byte *s;
+char* t61_printable(s) Byte* s;
 {
   Byte *o, *oo;
   Byte n;
-  Couple *cc;
+  Couple* cc;
 
-  if ((o = oo = (Byte *)NSLDAPI_MALLOC(2 * strlen(s) + 64)) == NULL) {
+  if ((o = oo = (Byte*)NSLDAPI_MALLOC(2 * strlen(s) + 64)) == NULL) {
     return (NULL);
   }
 
@@ -1986,12 +1986,12 @@ char *t61_printable(s) Byte *s;
 
   o = oo;
 
-  if ((oo = (Byte *)NSLDAPI_REALLOC(o, strlen(o) + 1)) == NULL) {
+  if ((oo = (Byte*)NSLDAPI_REALLOC(o, strlen(o) + 1)) == NULL) {
     NSLDAPI_FREE(o);
     return (NULL);
   }
 
-  return ((char *)oo);
+  return ((char*)oo);
 }
 #    endif /* NOT_NEEDED_IN_LIBLDAP */ /* mcs@umich.edu 12 Oct 1995 */
 

@@ -40,7 +40,7 @@
 
 #include "ldap-int.h"
 
-LDAPMessage *LDAP_CALL ldap_first_reference(LDAP *ld, LDAPMessage *res) {
+LDAPMessage* LDAP_CALL ldap_first_reference(LDAP* ld, LDAPMessage* res) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || res == NULLMSG) {
     return (NULLMSG);
   }
@@ -52,7 +52,7 @@ LDAPMessage *LDAP_CALL ldap_first_reference(LDAP *ld, LDAPMessage *res) {
   return (ldap_next_reference(ld, res));
 }
 
-LDAPMessage *LDAP_CALL ldap_next_reference(LDAP *ld, LDAPMessage *ref) {
+LDAPMessage* LDAP_CALL ldap_next_reference(LDAP* ld, LDAPMessage* ref) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) || ref == NULLMSG) {
     return (NULLMSG); /* punt */
   }
@@ -66,7 +66,7 @@ LDAPMessage *LDAP_CALL ldap_next_reference(LDAP *ld, LDAPMessage *ref) {
   return (NULLMSG);
 }
 
-int LDAP_CALL ldap_count_references(LDAP *ld, LDAPMessage *res) {
+int LDAP_CALL ldap_count_references(LDAP* ld, LDAPMessage* res) {
   int i;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
@@ -85,9 +85,9 @@ int LDAP_CALL ldap_count_references(LDAP *ld, LDAPMessage *res) {
 /*
  * returns an LDAP error code.
  */
-int LDAP_CALL ldap_parse_reference(LDAP *ld, LDAPMessage *ref,
-                                   char ***referralsp,
-                                   LDAPControl ***serverctrlsp, int freeit) {
+int LDAP_CALL ldap_parse_reference(LDAP* ld, LDAPMessage* ref,
+                                   char*** referralsp,
+                                   LDAPControl*** serverctrlsp, int freeit) {
   int err;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld) ||
@@ -110,11 +110,11 @@ int LDAP_CALL ldap_parse_reference(LDAP *ld, LDAPMessage *ref,
  * returns an LDAP error code indicating success or failure of parsing
  * does NOT set any error information inside "ld"
  */
-int nsldapi_parse_reference(LDAP *ld, BerElement *rber, char ***referralsp,
-                            LDAPControl ***serverctrlsp) {
+int nsldapi_parse_reference(LDAP* ld, BerElement* rber, char*** referralsp,
+                            LDAPControl*** serverctrlsp) {
   int err;
   BerElement ber;
-  char **refs;
+  char** refs;
 
   /*
    * Parse a searchResultReference message.  These are used in LDAPv3

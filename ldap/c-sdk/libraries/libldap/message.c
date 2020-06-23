@@ -36,7 +36,7 @@
  * ***** END LICENSE BLOCK ***** */
 #include "ldap-int.h"
 
-int LDAP_CALL ldap_msgid(LDAPMessage *lm) {
+int LDAP_CALL ldap_msgid(LDAPMessage* lm) {
   if (!NSLDAPI_VALID_LDAPMESSAGE_POINTER(lm)) {
     return (-1);
   }
@@ -44,7 +44,7 @@ int LDAP_CALL ldap_msgid(LDAPMessage *lm) {
   return (lm->lm_msgid);
 }
 
-int LDAP_CALL ldap_msgtype(LDAPMessage *lm) {
+int LDAP_CALL ldap_msgtype(LDAPMessage* lm) {
   if (!NSLDAPI_VALID_LDAPMESSAGE_POINTER(lm)) {
     return (-1);
   }
@@ -52,7 +52,7 @@ int LDAP_CALL ldap_msgtype(LDAPMessage *lm) {
   return (lm->lm_msgtype);
 }
 
-LDAPMessage *LDAP_CALL ldap_first_message(LDAP *ld, LDAPMessage *chain) {
+LDAPMessage* LDAP_CALL ldap_first_message(LDAP* ld, LDAPMessage* chain) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (NULLMSG); /* punt */
   }
@@ -60,7 +60,7 @@ LDAPMessage *LDAP_CALL ldap_first_message(LDAP *ld, LDAPMessage *chain) {
   return (chain);
 }
 
-LDAPMessage *LDAP_CALL ldap_next_message(LDAP *ld, LDAPMessage *msg) {
+LDAPMessage* LDAP_CALL ldap_next_message(LDAP* ld, LDAPMessage* msg) {
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
     return (NULLMSG); /* punt */
   }
@@ -72,7 +72,7 @@ LDAPMessage *LDAP_CALL ldap_next_message(LDAP *ld, LDAPMessage *msg) {
   return (msg->lm_chain);
 }
 
-int LDAP_CALL ldap_count_messages(LDAP *ld, LDAPMessage *chain) {
+int LDAP_CALL ldap_count_messages(LDAP* ld, LDAPMessage* chain) {
   int i;
 
   if (!NSLDAPI_VALID_LDAP_POINTER(ld)) {
