@@ -523,7 +523,7 @@ class LegacySAXResponse extends CalDavResponseBase {
 
       this._listener = new Proxy(this.request._handler, {
         get(aTarget, aProp, aReceiver) {
-          if (aProp == "OnStartRequest") {
+          if (aProp == "onStartRequest") {
             return function(...args) {
               try {
                 let result = aTarget[aProp].apply(this, args);
@@ -534,7 +534,7 @@ class LegacySAXResponse extends CalDavResponseBase {
                 return null;
               }
             };
-          } else if (aProp == "OnStopRequest") {
+          } else if (aProp == "onStopRequest") {
             return function(...args) {
               try {
                 let result = aTarget[aProp].apply(this, args);
