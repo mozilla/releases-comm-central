@@ -5,7 +5,6 @@
 
 # Specific modules to exclude.
 calendar/libical/.*
-ldap/c-sdk/.*
 suite/.*
 third_party/.*
 
