@@ -40,6 +40,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <algorithm>
+#include <stdexcept>
 
 #include <rnp/rnp_sdk.h>
 #include <rekey/rnp_key_store.h>
@@ -676,15 +677,40 @@ rnp_key_store_import_signature(rnp_key_store_t *        keyring,
 }
 
 bool
-rnp_key_store_remove_key(rnp_key_store_t *keyring, const pgp_key_t *key)
+rnp_key_store_remove_key(rnp_key_store_t *keyring, const pgp_key_t *key, bool subkeys)
 {
-    keyring->keybygrip.erase(pgp_key_get_grip(key));
-    size_t oldsize = keyring->keys.size();
-    keyring->keys.erase(std::remove_if(keyring->keys.begin(),
-                                       keyring->keys.end(),
-                                       [key](pgp_key_t &_key) { return key == &_key; }));
+    auto it = keyring->keybygrip.find(pgp_key_get_grip(key));
+    if (it == keyring->keybygrip.end()) {
+        return false;
+    }
 
-    return oldsize != keyring->keys.size();
+    /* cleanup primary_grip (or subkey)/subkey_grips */
+    if (pgp_key_is_primary_key(key) && pgp_key_get_subkey_count(key)) {
+        for (size_t i = 0; i < pgp_key_get_subkey_count(key); i++) {
+            auto it = keyring->keybygrip.find(pgp_key_get_subkey_grip(key, i));
+            if (it == keyring->keybygrip.end()) {
+                continue;
+            }
+            /* if subkeys are deleted then no need to update grips */
+            if (subkeys) {
+                keyring->keys.erase(it->second);
+                keyring->keybygrip.erase(it);
+                continue;
+            }
+            it->second->primary_grip = {};
+            it->second->primary_grip_set = false;
+        }
+    }
+    if (pgp_key_is_subkey(key) && pgp_key_has_primary_grip(key)) {
+        pgp_key_t *primary = rnp_key_store_get_primary_key(keyring, key);
+        if (primary) {
+            pgp_key_remove_subkey_grip(primary, pgp_key_get_grip(key));
+        }
+    }
+
+    keyring->keys.erase(it->second);
+    keyring->keybygrip.erase(it);
+    return true;
 }
 
 /**
@@ -731,12 +757,11 @@ rnp_key_store_get_key_by_id(rnp_key_store_t *keyring, const uint8_t *keyid, pgp_
 const pgp_key_t *
 rnp_key_store_get_key_by_grip(const rnp_key_store_t *keyring, const pgp_key_grip_t &grip)
 {
-    try {
-        return &*keyring->keybygrip.at(grip);
-    } catch (const std::exception &e) {
-        RNP_LOG("%s", e.what());
+    auto it = keyring->keybygrip.find(grip);
+    if (it == keyring->keybygrip.end()) {
         return NULL;
     }
+    return &*it->second;
 }
 
 pgp_key_t *

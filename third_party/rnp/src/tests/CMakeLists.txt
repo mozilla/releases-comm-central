@@ -94,6 +94,7 @@ add_executable(rnp_tests
   utils-rnpcfg.cpp
   issues/1030.cpp
   issues/1115.cpp
+  issues/1171.cpp
 )
 
 target_include_directories(rnp_tests
@@ -108,7 +109,9 @@ target_link_libraries(rnp_tests
     JSON-C::JSON-C
     gtest_main
 )
-
+if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_link_libraries(rnp_tests PRIVATE regex)
+endif()
 target_compile_definitions(rnp_tests
   PRIVATE
     RNP_RUN_TESTS

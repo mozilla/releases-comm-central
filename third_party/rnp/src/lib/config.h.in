@@ -24,7 +24,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define PACKAGE_STRING    "rnp 0.13.1+git20200609.b9335cee.MZLA"
+#define PACKAGE_STRING    "rnp 0.13.1+git20200619.ac070578.MZLA"
 #define PACKAGE_BUGREPORT "https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"
 
 #undef HAVE_BZLIB_H
@@ -47,4 +47,11 @@
 #undef HAVE_O_BINARY
 #undef HAVE__O_BINARY
 #undef HAVE__TEMPNAM
+
+/* Macro _GLIBCXX_USE_CXX11_ABI was first introduced with GCC 5.0, which
+ * we assume to be bundled with a sane implementation of std::regex. */
+#if !defined(__GNUC__) || defined(_GLIBCXX_USE_CXX11_ABI)
+#define RNP_USE_STD_REGEX 1
+#endif
+
 

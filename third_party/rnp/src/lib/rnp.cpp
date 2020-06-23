@@ -197,6 +197,11 @@ static const pgp_map_t hash_alg_map[] = {{PGP_HASH_MD5, RNP_ALGNAME_MD5},
                                          {PGP_HASH_SM3, RNP_ALGNAME_SM3},
                                          {PGP_HASH_CRC24, RNP_ALGNAME_CRC24}};
 
+static const pgp_map_t s2k_type_map[] = {
+  {PGP_S2KS_SIMPLE, "Simple"},
+  {PGP_S2KS_SALTED, "Salted"},
+  {PGP_S2KS_ITERATED_AND_SALTED, "Iterated and salted"}};
+
 static const pgp_bit_map_t key_usage_map[] = {{PGP_KF_SIGN, "sign"},
                                               {PGP_KF_CERTIFY, "certify"},
                                               {PGP_KF_ENCRYPT, "encrypt"},
@@ -369,6 +374,43 @@ parse_ks_format(pgp_key_store_format_t *key_store_format, const char *format)
         return false;
     }
     return true;
+}
+
+static rnp_result_t
+hex_encode_value(const uint8_t *value, size_t len, char **res, rnp_hex_format_t format)
+{
+    size_t hex_len = len * 2 + 1;
+    *res = (char *) malloc(hex_len);
+    if (!*res) {
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
+    if (!rnp_hex_encode(value, len, *res, hex_len, format)) {
+        free(*res);
+        *res = NULL;
+        return RNP_ERROR_GENERIC;
+    }
+    return RNP_SUCCESS;
+}
+
+static rnp_result_t
+get_map_value(const pgp_map_t *map, size_t msize, int val, char **res)
+{
+    const char *str = NULL;
+    for (size_t i = 0; i < msize; i++) {
+        if (map[i].type == val) {
+            str = map[i].string;
+            break;
+        }
+    }
+    if (!str) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    char *strcp = strdup(str);
+    if (!strcp) {
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
+    *res = strcp;
+    return RNP_SUCCESS;
 }
 
 rnp_result_t
@@ -2665,6 +2707,102 @@ rnp_verify_dest_provider(pgp_parse_handler_t *handler,
     return true;
 }
 
+static void
+recipient_handle_from_pk_sesskey(rnp_recipient_handle_t  handle,
+                                 const pgp_pk_sesskey_t &sesskey)
+{
+    memcpy(handle->keyid, sesskey.key_id, PGP_KEY_ID_SIZE);
+    handle->palg = sesskey.alg;
+}
+
+static void
+symenc_handle_from_sk_sesskey(rnp_symenc_handle_t handle, const pgp_sk_sesskey_t &sesskey)
+{
+    handle->alg = sesskey.alg;
+    handle->halg = sesskey.s2k.hash_alg;
+    handle->s2k_type = sesskey.s2k.specifier;
+    if (sesskey.s2k.specifier == PGP_S2KS_ITERATED_AND_SALTED) {
+        handle->iterations = pgp_s2k_decode_iterations(sesskey.s2k.iterations);
+    } else {
+        handle->iterations = 1;
+    }
+    handle->aalg = sesskey.aalg;
+}
+
+static void
+rnp_verify_on_recipients(const std::vector<pgp_pk_sesskey_t> &recipients,
+                         const std::vector<pgp_sk_sesskey_t> &passwords,
+                         void *                               param)
+{
+    rnp_op_verify_t op = (rnp_op_verify_t) param;
+    if (!recipients.empty()) {
+        op->recipients =
+          (rnp_recipient_handle_t) calloc(recipients.size(), sizeof(*op->recipients));
+        if (!op->recipients) {
+            FFI_LOG(op->ffi, "allocation failed");
+            return;
+        }
+        for (size_t i = 0; i < recipients.size(); i++) {
+            recipient_handle_from_pk_sesskey(&op->recipients[i], recipients[i]);
+        }
+    }
+    op->recipient_count = recipients.size();
+
+    if (!passwords.empty()) {
+        op->symencs = (rnp_symenc_handle_t) calloc(passwords.size(), sizeof(*op->symencs));
+        if (!op->symencs) {
+            FFI_LOG(op->ffi, "allocation failed");
+            return;
+        }
+        for (size_t i = 0; i < passwords.size(); i++) {
+            symenc_handle_from_sk_sesskey(&op->symencs[i], passwords[i]);
+        }
+    }
+    op->symenc_count = passwords.size();
+}
+
+static void
+rnp_verify_on_decryption_start(pgp_pk_sesskey_t *pubenc, pgp_sk_sesskey_t *symenc, void *param)
+{
+    rnp_op_verify_t op = (rnp_op_verify_t) param;
+    if (pubenc) {
+        op->used_recipient = (rnp_recipient_handle_t) calloc(1, sizeof(*op->used_recipient));
+        if (!op->used_recipient) {
+            FFI_LOG(op->ffi, "allocation failed");
+            return;
+        }
+        recipient_handle_from_pk_sesskey(op->used_recipient, *pubenc);
+        return;
+    }
+    if (symenc) {
+        op->used_symenc = (rnp_symenc_handle_t) calloc(1, sizeof(*op->used_symenc));
+        if (!op->used_symenc) {
+            FFI_LOG(op->ffi, "allocation failed");
+            return;
+        }
+        symenc_handle_from_sk_sesskey(op->used_symenc, *symenc);
+        return;
+    }
+    FFI_LOG(op->ffi, "Warning! Both pubenc and symenc are NULL.");
+}
+
+static void
+rnp_verify_on_decryption_info(bool mdc, pgp_aead_alg_t aead, pgp_symm_alg_t salg, void *param)
+{
+    rnp_op_verify_t op = (rnp_op_verify_t) param;
+    op->mdc = mdc;
+    op->aead = aead;
+    op->salg = salg;
+    op->encrypted = true;
+}
+
+static void
+rnp_verify_on_decryption_done(bool validated, void *param)
+{
+    rnp_op_verify_t op = (rnp_op_verify_t) param;
+    op->validated = validated;
+}
+
 rnp_result_t
 rnp_op_verify_create(rnp_op_verify_t *op,
                      rnp_ffi_t        ffi,
@@ -2721,6 +2859,10 @@ rnp_op_verify_execute(rnp_op_verify_t op)
     handler.on_signatures = rnp_op_verify_on_signatures;
     handler.src_provider = rnp_verify_src_provider;
     handler.dest_provider = rnp_verify_dest_provider;
+    handler.on_recipients = rnp_verify_on_recipients;
+    handler.on_decryption_start = rnp_verify_on_decryption_start;
+    handler.on_decryption_info = rnp_verify_on_decryption_info;
+    handler.on_decryption_done = rnp_verify_on_decryption_done;
     handler.param = op;
     handler.ctx = &op->rnpctx;
 
@@ -2773,6 +2915,196 @@ rnp_op_verify_get_file_info(rnp_op_verify_t op, char **filename, uint32_t *mtime
     return RNP_SUCCESS;
 }
 
+static const char *
+get_protection_mode(rnp_op_verify_t op)
+{
+    if (!op->encrypted) {
+        return "none";
+    }
+    if (op->mdc) {
+        return "cfb-mdc";
+    }
+    if (op->aead == PGP_AEAD_NONE) {
+        return "cfb";
+    }
+    switch (op->aead) {
+    case PGP_AEAD_EAX:
+        return "aead-eax";
+    case PGP_AEAD_OCB:
+        return "aead-ocb";
+    default:
+        return "aead-unknown";
+    }
+}
+
+static const char *
+get_protection_cipher(rnp_op_verify_t op)
+{
+    if (!op->encrypted) {
+        return "none";
+    }
+    const char *str = "unknown";
+    ARRAY_LOOKUP_BY_ID(symm_alg_map, type, string, op->salg, str);
+    return str;
+}
+
+rnp_result_t
+rnp_op_verify_get_protection_info(rnp_op_verify_t op, char **mode, char **cipher, bool *valid)
+{
+    if (!op || (!mode && !cipher && !valid)) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+
+    if (mode) {
+        *mode = strdup(get_protection_mode(op));
+        if (!*mode) {
+            return RNP_ERROR_OUT_OF_MEMORY;
+        }
+    }
+    if (cipher) {
+        *cipher = strdup(get_protection_cipher(op));
+        if (!*cipher) {
+            return RNP_ERROR_OUT_OF_MEMORY;
+        }
+    }
+    if (valid) {
+        *valid = op->validated;
+    }
+    return RNP_SUCCESS;
+}
+
+rnp_result_t
+rnp_op_verify_get_recipient_count(rnp_op_verify_t op, size_t *count)
+{
+    if (!op || !count) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    *count = op->recipient_count;
+    return RNP_SUCCESS;
+}
+
+rnp_result_t
+rnp_op_verify_get_used_recipient(rnp_op_verify_t op, rnp_recipient_handle_t *recipient)
+{
+    if (!op || !recipient) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    *recipient = op->used_recipient;
+    return RNP_SUCCESS;
+}
+
+rnp_result_t
+rnp_op_verify_get_recipient_at(rnp_op_verify_t         op,
+                               size_t                  idx,
+                               rnp_recipient_handle_t *recipient)
+{
+    if (!op || !recipient) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (idx >= op->recipient_count) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    *recipient = &op->recipients[idx];
+    return RNP_SUCCESS;
+}
+
+rnp_result_t
+rnp_recipient_get_keyid(rnp_recipient_handle_t recipient, char **keyid)
+{
+    if (!recipient || !keyid) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    return hex_encode_value(recipient->keyid, PGP_KEY_ID_SIZE, keyid, RNP_HEX_UPPERCASE);
+}
+
+rnp_result_t
+rnp_recipient_get_alg(rnp_recipient_handle_t recipient, char **alg)
+{
+    if (!recipient || !alg) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    return get_map_value(pubkey_alg_map, ARRAY_SIZE(pubkey_alg_map), recipient->palg, alg);
+}
+
+rnp_result_t
+rnp_op_verify_get_symenc_count(rnp_op_verify_t op, size_t *count)
+{
+    if (!op || !count) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    *count = op->symenc_count;
+    return RNP_SUCCESS;
+}
+
+rnp_result_t
+rnp_op_verify_get_used_symenc(rnp_op_verify_t op, rnp_symenc_handle_t *symenc)
+{
+    if (!op || !symenc) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    *symenc = op->used_symenc;
+    return RNP_SUCCESS;
+}
+
+rnp_result_t
+rnp_op_verify_get_symenc_at(rnp_op_verify_t op, size_t idx, rnp_symenc_handle_t *symenc)
+{
+    if (!op || !symenc) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (idx >= op->symenc_count) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    *symenc = &op->symencs[idx];
+    return RNP_SUCCESS;
+}
+
+rnp_result_t
+rnp_symenc_get_cipher(rnp_symenc_handle_t symenc, char **cipher)
+{
+    if (!symenc || !cipher) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    return get_map_value(symm_alg_map, ARRAY_SIZE(symm_alg_map), symenc->alg, cipher);
+}
+
+rnp_result_t
+rnp_symenc_get_aead_alg(rnp_symenc_handle_t symenc, char **alg)
+{
+    if (!symenc || !alg) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    return get_map_value(aead_alg_map, ARRAY_SIZE(aead_alg_map), symenc->aalg, alg);
+}
+
+rnp_result_t
+rnp_symenc_get_hash_alg(rnp_symenc_handle_t symenc, char **alg)
+{
+    if (!symenc || !alg) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    return get_map_value(hash_alg_map, ARRAY_SIZE(hash_alg_map), symenc->halg, alg);
+}
+
+rnp_result_t
+rnp_symenc_get_s2k_type(rnp_symenc_handle_t symenc, char **type)
+{
+    if (!symenc || !type) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    return get_map_value(s2k_type_map, ARRAY_SIZE(s2k_type_map), symenc->s2k_type, type);
+}
+
+rnp_result_t
+rnp_symenc_get_s2k_iterations(rnp_symenc_handle_t symenc, uint32_t *iterations)
+{
+    if (!symenc || !iterations) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    *iterations = symenc->iterations;
+    return RNP_SUCCESS;
+}
+
 rnp_result_t
 rnp_op_verify_destroy(rnp_op_verify_t op)
 {
@@ -2783,6 +3115,10 @@ rnp_op_verify_destroy(rnp_op_verify_t op)
         }
         free(op->signatures);
         free(op->filename);
+        free(op->recipients);
+        free(op->used_recipient);
+        free(op->symencs);
+        free(op->used_symenc);
         free(op);
     }
     return RNP_SUCCESS;
@@ -2837,14 +3173,7 @@ rnp_op_verify_signature_get_hash(rnp_op_verify_signature_t sig, char **hash)
     if (!sig || !hash) {
         return RNP_ERROR_NULL_POINTER;
     }
-
-    const char *hname = NULL;
-    ARRAY_LOOKUP_BY_ID(hash_alg_map, type, string, sig->sig_pkt.halg, hname);
-    if (hname) {
-        *hash = strdup(hname);
-        return RNP_SUCCESS;
-    }
-    return RNP_ERROR_BAD_STATE;
+    return get_map_value(hash_alg_map, ARRAY_SIZE(hash_alg_map), sig->sig_pkt.halg, hash);
 }
 
 rnp_result_t
@@ -3335,28 +3664,50 @@ rnp_key_remove(rnp_key_handle_t key, uint32_t flags)
     if (!key || !key->ffi) {
         return RNP_ERROR_NULL_POINTER;
     }
-    if (flags == 0) {
+    bool pub = false;
+    if (flags & RNP_KEY_REMOVE_PUBLIC) {
+        pub = true;
+        flags &= ~RNP_KEY_REMOVE_PUBLIC;
+    }
+    bool sec = false;
+    if (flags & RNP_KEY_REMOVE_SECRET) {
+        sec = true;
+        flags &= ~RNP_KEY_REMOVE_SECRET;
+    }
+    bool sub = false;
+    if (flags & RNP_KEY_REMOVE_SUBKEYS) {
+        sub = true;
+        flags &= ~RNP_KEY_REMOVE_SUBKEYS;
+    }
+    if (flags) {
+        FFI_LOG(key->ffi, "Unknown flags: %" PRIu32, flags);
         return RNP_ERROR_BAD_PARAMETERS;
     }
-    if (flags & RNP_KEY_REMOVE_PUBLIC) {
+    if (!pub && !sec) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    if (sub && pgp_key_is_subkey(get_key_prefer_public(key))) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    if (pub) {
         if (!key->ffi->pubring || !key->pub) {
             return RNP_ERROR_BAD_PARAMETERS;
         }
-        if (!rnp_key_store_remove_key(key->ffi->pubring, key->pub)) {
+        if (!rnp_key_store_remove_key(key->ffi->pubring, key->pub, sub)) {
             return RNP_ERROR_KEY_NOT_FOUND;
         }
         key->pub = NULL;
     }
-    if (flags & RNP_KEY_REMOVE_SECRET) {
+    if (sec) {
         if (!key->ffi->secring || !key->sec) {
             return RNP_ERROR_BAD_PARAMETERS;
         }
-        if (!rnp_key_store_remove_key(key->ffi->secring, key->sec)) {
+        if (!rnp_key_store_remove_key(key->ffi->secring, key->sec, sub)) {
             return RNP_ERROR_KEY_NOT_FOUND;
         }
         key->sec = NULL;
     }
-
     return RNP_SUCCESS;
 }
 
@@ -4688,11 +5039,11 @@ done:
         op->password = NULL;
     }
     if (ret && op->gen_pub) {
-        rnp_key_store_remove_key(op->ffi->pubring, op->gen_pub);
+        rnp_key_store_remove_key(op->ffi->pubring, op->gen_pub, false);
         op->gen_pub = NULL;
     }
     if (ret && op->gen_sec) {
-        rnp_key_store_remove_key(op->ffi->secring, op->gen_sec);
+        rnp_key_store_remove_key(op->ffi->secring, op->gen_sec, false);
         op->gen_sec = NULL;
     }
     return ret;
@@ -5048,18 +5399,8 @@ rnp_signature_get_alg(rnp_signature_handle_t handle, char **alg)
     if (!handle->sig) {
         return RNP_ERROR_BAD_PARAMETERS;
     }
-    const char *str = NULL;
-    ARRAY_LOOKUP_BY_ID(pubkey_alg_map, type, string, handle->sig->sig.palg, str);
-    if (!str) {
-        return RNP_ERROR_BAD_PARAMETERS;
-    }
-    char *algcp = strdup(str);
-    if (!algcp) {
-        return RNP_ERROR_OUT_OF_MEMORY;
-    }
-
-    *alg = algcp;
-    return RNP_SUCCESS;
+    return get_map_value(
+      pubkey_alg_map, ARRAY_SIZE(pubkey_alg_map), handle->sig->sig.palg, alg);
 }
 
 rnp_result_t
@@ -5071,18 +5412,7 @@ rnp_signature_get_hash_alg(rnp_signature_handle_t handle, char **alg)
     if (!handle->sig) {
         return RNP_ERROR_BAD_PARAMETERS;
     }
-    const char *str = NULL;
-    ARRAY_LOOKUP_BY_ID(hash_alg_map, type, string, handle->sig->sig.halg, str);
-    if (!str) {
-        return RNP_ERROR_BAD_PARAMETERS;
-    }
-    char *algcp = strdup(str);
-    if (!algcp) {
-        return RNP_ERROR_OUT_OF_MEMORY;
-    }
-
-    *alg = algcp;
-    return RNP_SUCCESS;
+    return get_map_value(hash_alg_map, ARRAY_SIZE(hash_alg_map), handle->sig->sig.halg, alg);
 }
 
 rnp_result_t
@@ -5113,18 +5443,7 @@ rnp_signature_get_keyid(rnp_signature_handle_t handle, char **result)
         return RNP_SUCCESS;
     }
 
-    size_t hex_len = PGP_KEY_ID_SIZE * 2 + 1;
-    *result = (char *) malloc(hex_len);
-    if (!*result) {
-        return RNP_ERROR_OUT_OF_MEMORY;
-    }
-
-    if (!rnp_hex_encode(keyid, PGP_KEY_ID_SIZE, *result, hex_len, RNP_HEX_UPPERCASE)) {
-        free(*result);
-        *result = NULL;
-        return RNP_ERROR_GENERIC;
-    }
-    return RNP_SUCCESS;
+    return hex_encode_value(keyid, PGP_KEY_ID_SIZE, result, RNP_HEX_UPPERCASE);
 }
 
 rnp_result_t
@@ -5243,21 +5562,9 @@ rnp_key_get_alg(rnp_key_handle_t handle, char **alg)
     if (!handle || !alg) {
         return RNP_ERROR_NULL_POINTER;
     }
-    pgp_key_t * key = get_key_prefer_public(handle);
-    const char *str = NULL;
-
-    ARRAY_LOOKUP_BY_ID(pubkey_alg_map, type, string, pgp_key_get_alg(key), str);
-    if (!str) {
-        return RNP_ERROR_BAD_PARAMETERS;
-    }
-
-    char *algcp = strdup(str);
-    if (!algcp) {
-        return RNP_ERROR_OUT_OF_MEMORY;
-    }
-
-    *alg = algcp;
-    return RNP_SUCCESS;
+    pgp_key_t *key = get_key_prefer_public(handle);
+    return get_map_value(
+      pubkey_alg_map, ARRAY_SIZE(pubkey_alg_map), pgp_key_get_alg(key), alg);
 }
 
 rnp_result_t
@@ -5316,70 +5623,40 @@ rnp_key_get_curve(rnp_key_handle_t handle, char **curve)
 rnp_result_t
 rnp_key_get_fprint(rnp_key_handle_t handle, char **fprint)
 {
-    if (handle == NULL || fprint == NULL)
+    if (!handle || !fprint) {
         return RNP_ERROR_NULL_POINTER;
-
-    size_t hex_len = PGP_FINGERPRINT_HEX_SIZE + 1;
-    *fprint = (char *) malloc(hex_len);
-    if (*fprint == NULL)
-        return RNP_ERROR_OUT_OF_MEMORY;
-
-    pgp_key_t *key = get_key_prefer_public(handle);
-    if (!rnp_hex_encode(pgp_key_get_fp(key)->fingerprint,
-                        pgp_key_get_fp(key)->length,
-                        *fprint,
-                        hex_len,
-                        RNP_HEX_UPPERCASE)) {
-        return RNP_ERROR_GENERIC;
     }
-    return RNP_SUCCESS;
+
+    const pgp_fingerprint_t *fp = pgp_key_get_fp(get_key_prefer_public(handle));
+    return hex_encode_value(fp->fingerprint, fp->length, fprint, RNP_HEX_UPPERCASE);
 }
 
 rnp_result_t
 rnp_key_get_keyid(rnp_key_handle_t handle, char **keyid)
 {
-    if (handle == NULL || keyid == NULL)
+    if (!handle || !keyid) {
         return RNP_ERROR_NULL_POINTER;
-
-    size_t hex_len = PGP_KEY_ID_SIZE * 2 + 1;
-    *keyid = (char *) malloc(hex_len);
-    if (*keyid == NULL)
-        return RNP_ERROR_OUT_OF_MEMORY;
+    }
 
     pgp_key_t *key = get_key_prefer_public(handle);
-    if (!rnp_hex_encode(
-          pgp_key_get_keyid(key), PGP_KEY_ID_SIZE, *keyid, hex_len, RNP_HEX_UPPERCASE)) {
-        return RNP_ERROR_GENERIC;
-    }
-    return RNP_SUCCESS;
+    return hex_encode_value(pgp_key_get_keyid(key), PGP_KEY_ID_SIZE, keyid, RNP_HEX_UPPERCASE);
 }
 
 rnp_result_t
 rnp_key_get_grip(rnp_key_handle_t handle, char **grip)
 {
-    if (handle == NULL || grip == NULL)
+    if (!handle || !grip) {
         return RNP_ERROR_NULL_POINTER;
-
-    size_t hex_len = PGP_KEY_GRIP_SIZE * 2 + 1;
-    *grip = (char *) malloc(hex_len);
-    if (*grip == NULL)
-        return RNP_ERROR_OUT_OF_MEMORY;
-
-    pgp_key_t *key = get_key_prefer_public(handle);
-    if (!rnp_hex_encode(pgp_key_get_grip(key).data(),
-                        pgp_key_get_grip(key).size(),
-                        *grip,
-                        hex_len,
-                        RNP_HEX_UPPERCASE)) {
-        return RNP_ERROR_GENERIC;
     }
-    return RNP_SUCCESS;
+
+    const pgp_key_grip_t &kgrip = pgp_key_get_grip(get_key_prefer_public(handle));
+    return hex_encode_value(kgrip.data(), kgrip.size(), grip, RNP_HEX_UPPERCASE);
 }
 
 rnp_result_t
 rnp_key_get_primary_grip(rnp_key_handle_t handle, char **grip)
 {
-    if (handle == NULL || grip == NULL) {
+    if (!handle || !grip) {
         return RNP_ERROR_NULL_POINTER;
     }
 
@@ -5391,20 +5668,8 @@ rnp_key_get_primary_grip(rnp_key_handle_t handle, char **grip)
         *grip = NULL;
         return RNP_SUCCESS;
     }
-    size_t hex_len = PGP_KEY_GRIP_SIZE * 2 + 1;
-    *grip = (char *) malloc(hex_len);
-    if (*grip == NULL) {
-        return RNP_ERROR_OUT_OF_MEMORY;
-    }
-    if (!rnp_hex_encode(pgp_key_get_primary_grip(key).data(),
-                        pgp_key_get_primary_grip(key).size(),
-                        *grip,
-                        hex_len,
-                        RNP_HEX_UPPERCASE)) {
-        free(*grip);
-        return RNP_ERROR_GENERIC;
-    }
-    return RNP_SUCCESS;
+    const pgp_key_grip_t &pgrip = pgp_key_get_primary_grip(key);
+    return hex_encode_value(pgrip.data(), pgrip.size(), grip, RNP_HEX_UPPERCASE);
 }
 
 rnp_result_t

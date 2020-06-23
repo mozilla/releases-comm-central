@@ -277,6 +277,10 @@ void test_ffi_detached_verify_input(void **state);
 
 void test_ffi_op_verify_sig_count(void **state);
 
+void test_ffi_op_verify_get_protection_info(void **state);
+
+void test_ffi_op_verify_recipients_info(void **state);
+
 void test_ffi_import_signatures(void **state);
 
 void test_ffi_export_revocation(void **state);
@@ -294,6 +298,8 @@ void test_ffi_mdc_8k_boundary(void **state);
 void test_ffi_decrypt_wrong_mpi_bits(void **state);
 
 void test_ffi_key_import_edge_cases(void **state);
+
+void test_ffi_key_remove(void **state);
 
 void test_dsa_roundtrip(void **state);
 
@@ -368,6 +374,10 @@ void test_partial_length_first_packet_length(void **state);
 void test_kbx_nsigs(void **state);
 
 void test_issue_1115(void **state);
+
+void issue_1030_rnpkeys_secret_keys_unprotected(void **state);
+
+void test_issue_1171_key_import_and_remove(void **state);
 
 void test_log_switch(void **state);
 
