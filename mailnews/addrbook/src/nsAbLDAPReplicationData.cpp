@@ -348,12 +348,12 @@ void nsAbLDAPProcessReplicationData::Done(bool aSuccess) {
       // Close mReplicationFile.
       promise =
           this->PromiseDatabaseClosed(mReplicationFile)
-              ->Then(GetCurrentThreadSerialEventTarget(), __func__,
+              ->Then(GetCurrentSerialEventTarget(), __func__,
                      [&] {
                        // Close mOldReplicationFile.
                        return this->PromiseDatabaseClosed(mOldReplicationFile);
                      })
-              ->Then(GetCurrentThreadSerialEventTarget(), __func__, [&] {
+              ->Then(GetCurrentSerialEventTarget(), __func__, [&] {
                 // Remove mOldReplicationFile.
                 mOldReplicationFile->Remove(false);
                 // Move mReplicationFile to the right place.
@@ -374,7 +374,7 @@ void nsAbLDAPProcessReplicationData::Done(bool aSuccess) {
     promise = this->PromiseDatabaseClosed(mReplicationFile);
   }
 
-  promise->Then(GetCurrentThreadSerialEventTarget(), __func__, [&] {
+  promise->Then(GetCurrentSerialEventTarget(), __func__, [&] {
     nsCOMPtr<nsIObserverService> observerService =
         mozilla::services::GetObserverService();
     observerService->RemoveObserver(this, "addrbook-close-ab-complete");
