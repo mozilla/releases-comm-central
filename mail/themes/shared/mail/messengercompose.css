@@ -100,7 +100,7 @@
 :root[lwt-tree] #msgIdentityPopup {
   -moz-appearance: none;
   border: 1px solid var(--arrowpanel-border-color);
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   background-color: var(--arrowpanel-background);
 }
 
@@ -522,7 +522,7 @@ menulist::part(description) {
   font: inherit;
   margin-inline-end: 10px;
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   background-color: transparent;
   background-repeat: no-repeat;
   background-position: calc(100% - 5px);
@@ -561,7 +561,7 @@ menulist::part(description) {
   margin-inline: 4px 8px;
   background-color: -moz-field;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   padding-block: 0;
   padding-inline: 4px 2px;
   transition: border .2s, box-shadow .2s;
@@ -605,7 +605,7 @@ menulist::part(description) {
   margin-inline-start: 4px;
   margin-inline-end: 0;
   border: solid 1px var(--toolbarbutton-hover-bordercolor);
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   background-color: -moz-field;
   transition: border .2s, box-shadow .2s;
   cursor: text;
@@ -630,7 +630,7 @@ menulist::part(description) {
 .address-pill {
   display: flex;
   align-items: center;
-  border-radius: 4px;
+  border-radius: var(--toolbarbutton-border-radius);
   margin-inline-end: 3px;
   margin-block: 2px;
   padding-inline: 7px;
@@ -719,7 +719,7 @@ menulist::part(description) {
 }
 
 .address-extra-recipients label {
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   padding: 2px 4px;
   margin-block: 0;
   margin-inline: 12px 6px;

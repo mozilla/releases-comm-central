@@ -173,14 +173,6 @@
   padding-inline-start: 5px;
 }
 
-@media (-moz-windows-default-theme) {
-  #msgSubject,
-  #msgIdentity,
-  .address-container {
-    border-radius: 0;
-  }
-}
-
 /* ::::: format toolbar ::::: */
 
 #FormatToolbox {
