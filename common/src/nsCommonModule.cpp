@@ -6,16 +6,12 @@
 #include "mozilla/TransactionManager.h"
 #include "nsBaseCommandController.h"
 #include "nsCommonBaseCID.h"
-#include "nsComponentManagerExtra.h"
 #include "nsSyncStreamListener.h"
 #include "nsSAXXMLReader.h"  // Sax parser.
 #include "nsUserInfo.h"
 #include "nsXULAppAPI.h"
 
 using mozilla::TransactionManager;
-
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsComponentManagerExtra)
-NS_DEFINE_NAMED_CID(NS_COMPONENTMANAGEREXTRA_CID);
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsBaseCommandController)
 NS_DEFINE_NAMED_CID(NS_BASECOMMANDCONTROLLER_CID);
@@ -47,8 +43,6 @@ static nsresult CreateNewSyncStreamListener(nsISupports* aOuter, REFNSIID aIID,
 }
 
 const mozilla::Module::CIDEntry kCommonCIDs[] = {
-    {&kNS_COMPONENTMANAGEREXTRA_CID, false, nullptr,
-     nsComponentManagerExtraConstructor},
     {&kNS_BASECOMMANDCONTROLLER_CID, false, nullptr,
      nsBaseCommandControllerConstructor},
     {&kNS_TRANSACTIONMANAGER_CID, false, nullptr,
@@ -59,7 +53,6 @@ const mozilla::Module::CIDEntry kCommonCIDs[] = {
     {nullptr}};
 
 const mozilla::Module::ContractIDEntry kCommonContracts[] = {
-    {NS_COMPONENTMANAGEREXTRA_CONTRACTID, &kNS_COMPONENTMANAGEREXTRA_CID},
     {NS_BASECOMMANDCONTROLLER_CONTRACTID, &kNS_BASECOMMANDCONTROLLER_CID},
     {NS_TRANSACTIONMANAGER_CONTRACTID, &kNS_TRANSACTIONMANAGER_CID},
     {NS_SYNCSTREAMLISTENER_CONTRACTID, &kNS_SYNCSTREAMLISTENER_CID},
