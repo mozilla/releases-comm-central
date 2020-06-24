@@ -37,11 +37,11 @@
 /* Today pane button in status bar */
 #calendar-status-todaypane-button,
 #calendar-status-todaypane-button[checked="true"] {
-  padding: 1px 2px 0 !important;
+  padding: 0 2px !important;
 }
 
 #calendar-status-todaypane-button[hideLabel] > stack {
-  margin-top: -1px;
+  margin-top: -2px;
   margin-inline-start: 5px;
 }
 

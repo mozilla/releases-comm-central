@@ -379,6 +379,10 @@ toolbarpaletteitem toolbarbutton {
   padding: 0 4px;
 }
 
+label.statusbarpanel {
+  margin-block: 3px;
+}
+
 .statusbarpanel-progress {
   -moz-box-align: center;
 }
