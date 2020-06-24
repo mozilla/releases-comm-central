@@ -31,13 +31,13 @@ add_task(async function testEventDialog() {
     checkLargeEnough(event, iframe);
 
     // Much larger than necessary.
-    event.window.resizeTo(640, 690);
-    checkWithinTolerance(event.window.outerWidth, 640);
+    event.window.resizeTo(650, 690);
+    checkWithinTolerance(event.window.outerWidth, 650);
     checkWithinTolerance(event.window.outerHeight, 690);
     event.keypress(null, "VK_ESCAPE", {});
   });
 
-  checkWithinTolerance(getPersistedValue("width"), 640, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
   info("#calendar-new-event-menuitem click");
@@ -45,23 +45,23 @@ add_task(async function testEventDialog() {
   await invokeEventDialog(controller, null, (event, iframe) => {
     let eventDocEl = event.window.document.documentElement;
 
-    checkWithinTolerance(event.window.outerWidth, 640, LARGE_TOLERANCE);
+    checkWithinTolerance(event.window.outerWidth, 650, LARGE_TOLERANCE);
     checkWithinTolerance(event.window.outerHeight, 690, LARGE_TOLERANCE);
     checkLargeEnough(event, iframe);
 
     // Much smaller than necessary.
     event.window.resizeTo(350, 400);
     checkLargeEnough(event, iframe);
-    ok(event.window.outerWidth < 640, "dialog shrank");
-    ok(event.window.outerHeight < 690, "dialog shrank");
-    ok(event.window.outerWidth > 350, "requested size not reached");
-    ok(event.window.outerHeight > 400, "requested size not reached");
-    is(
+    Assert.less(event.window.outerWidth, 650, "dialog shrank");
+    Assert.less(event.window.outerHeight, 690, "dialog shrank");
+    Assert.greater(event.window.outerWidth, 350, "requested size not reached");
+    Assert.greater(event.window.outerHeight, 400, "requested size not reached");
+    Assert.equal(
       eventDocEl.getAttribute("minwidth"),
       eventDocEl.getAttribute("width"),
       "minimum width attribute set"
     );
-    is(
+    Assert.equal(
       eventDocEl.getAttribute("minheight"),
       eventDocEl.getAttribute("height"),
       "minimum height attribute set"
@@ -75,13 +75,13 @@ add_task(async function testEventDialog() {
     checkLargeEnough(event, iframe);
 
     // Much larger than necessary.
-    event.window.resizeTo(640, 690);
-    checkWithinTolerance(event.window.outerWidth, 640);
+    event.window.resizeTo(650, 690);
+    checkWithinTolerance(event.window.outerWidth, 650);
     checkWithinTolerance(event.window.outerHeight, 690);
     event.keypress(null, "VK_ESCAPE", {});
   });
 
-  checkWithinTolerance(getPersistedValue("width"), 640, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 });
 
@@ -89,19 +89,19 @@ add_task(async function testTaskDialog() {
   info("#calendar-new-task-menuitem click");
   controller.mainMenu.click("#calendar-new-task-menuitem");
   await invokeEventDialog(controller, null, (task, iframe) => {
-    checkWithinTolerance(getPersistedValue("width"), 640, LARGE_TOLERANCE);
+    checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
     checkWithinTolerance(getPersistedValue("height"), 690, LARGE_TOLERANCE);
 
     checkLargeEnough(task, iframe);
 
     // Much larger than necessary.
-    task.window.resizeTo(650, 700);
-    checkWithinTolerance(task.window.outerWidth, 650);
+    task.window.resizeTo(680, 700);
+    checkWithinTolerance(task.window.outerWidth, 680);
     checkWithinTolerance(task.window.outerHeight, 700);
     task.keypress(null, "VK_ESCAPE", {});
   });
 
-  checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
+  checkWithinTolerance(getPersistedValue("width"), 680, LARGE_TOLERANCE);
   checkWithinTolerance(getPersistedValue("height"), 700, LARGE_TOLERANCE);
 
   info("#calendar-new-task-menuitem click");
@@ -109,23 +109,23 @@ add_task(async function testTaskDialog() {
   await invokeEventDialog(controller, null, (task, iframe) => {
     let taskDocEl = task.window.document.documentElement;
 
-    checkWithinTolerance(task.window.outerWidth, 650, LARGE_TOLERANCE);
+    checkWithinTolerance(task.window.outerWidth, 680, LARGE_TOLERANCE);
     checkWithinTolerance(task.window.outerHeight, 700, LARGE_TOLERANCE);
     checkLargeEnough(task, iframe);
 
     // Much smaller than necessary.
     task.window.resizeTo(350, 400);
     checkLargeEnough(task, iframe);
-    ok(task.window.outerWidth < 650, "dialog shrank");
-    ok(task.window.outerHeight < 700, "dialog shrank");
-    ok(task.window.outerWidth > 350, "minimum size not reached");
-    ok(task.window.outerHeight > 400, "minimum size not reached");
-    is(
+    Assert.less(task.window.outerWidth, 680, "dialog shrank");
+    Assert.less(task.window.outerHeight, 700, "dialog shrank");
+    Assert.greater(task.window.outerWidth, 350, "minimum size not reached");
+    Assert.greater(task.window.outerHeight, 400, "minimum size not reached");
+    Assert.equal(
       taskDocEl.getAttribute("minwidth"),
       taskDocEl.getAttribute("width"),
       "minimum width attribute set"
     );
-    is(
+    Assert.equal(
       taskDocEl.getAttribute("minheight"),
       taskDocEl.getAttribute("height"),
       "minimum height attribute set"
@@ -139,8 +139,8 @@ add_task(async function testTaskDialog() {
     checkLargeEnough(task, iframe);
 
     // Much larger than necessary.
-    task.window.resizeTo(650, 700);
-    checkWithinTolerance(task.window.outerWidth, 650);
+    task.window.resizeTo(680, 700);
+    checkWithinTolerance(task.window.outerWidth, 680);
     checkWithinTolerance(task.window.outerHeight, 700);
     task.keypress(null, "VK_ESCAPE", {});
   });
@@ -176,12 +176,12 @@ function getPersistedValue(which) {
 
 function checkWithinTolerance(value, expected, tolerance = 1) {
   if (controller.window.devicePixelRatio == 1) {
-    ok(value == expected);
+    Assert.equal(value, expected);
     return;
   }
   // In an environment where the display is scaled, rounding errors can cause
   // problems with exact tests. The mechanism for persisting and restoring
   // window sizes also appears to be buggy, so we account for that by
   // increasing the tolerance.
-  ok(Math.abs(value - expected) <= tolerance);
+  Assert.lessOrEqual(Math.abs(value - expected), tolerance);
 }

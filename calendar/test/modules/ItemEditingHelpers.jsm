@@ -600,6 +600,7 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
       let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
       let timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
 
+      await sleep(timezoneWindow);
       synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
       await BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
       timezoneMenuitem.scrollIntoView();
