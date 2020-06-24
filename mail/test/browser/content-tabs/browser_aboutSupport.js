@@ -63,7 +63,7 @@ function teardownTest(module) {
 const ABOUT_SUPPORT_STRINGS = [
   "Application Basics",
   "Mail and News Accounts",
-  "Extensions",
+  "Add-ons",
   "Important Modified Preferences",
   "Graphics",
   "Accessibility",
