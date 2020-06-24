@@ -7020,183 +7020,185 @@ function LoadIdentity(startup) {
   let identityElement = document.getElementById("msgIdentity");
   let prevIdentity = gCurrentIdentity;
 
-  if (identityElement) {
-    let idKey = null;
-    let accountKey = null;
-    let prevKey = getCurrentAccountKey();
-    if (identityElement.selectedItem) {
-      // Set the identity key value on the menu list.
-      idKey = identityElement.selectedItem.getAttribute("identitykey");
-      identityElement.setAttribute("identitykey", idKey);
-      gCurrentIdentity = MailServices.accounts.getIdentity(idKey);
+  let idKey = null;
+  let accountKey = null;
+  let prevKey = getCurrentAccountKey();
+  if (identityElement.selectedItem) {
+    // Set the identity key value on the menu list.
+    idKey = identityElement.selectedItem.getAttribute("identitykey");
+    identityElement.setAttribute("identitykey", idKey);
+    gCurrentIdentity = MailServices.accounts.getIdentity(idKey);
 
-      // Set the account key value on the menu list.
-      accountKey = identityElement.selectedItem.getAttribute("accountkey");
-      identityElement.setAttribute("accountkey", accountKey);
+    // Set the account key value on the menu list.
+    accountKey = identityElement.selectedItem.getAttribute("accountkey");
+    identityElement.setAttribute("accountkey", accountKey);
 
-      // Update the addressing options only if a new account was selected.
-      if (prevKey != getCurrentAccountKey()) {
-        hideIrrelevantAddressingOptions(accountKey, prevKey);
-      }
-    }
-
-    for (let input of document.querySelectorAll(".mail-input,.news-input")) {
-      let params = JSON.parse(input.searchParam);
-      params.idKey = idKey;
-      params.accountKey = accountKey;
-      input.searchParam = JSON.stringify(params);
-    }
-
-    if (!startup && prevIdentity && idKey != prevIdentity.key) {
-      let prevReplyTo = prevIdentity.replyTo;
-      let prevCc = "";
-      let prevBcc = "";
-      let prevReceipt = prevIdentity.requestReturnReceipt;
-      let prevDSN = prevIdentity.DSN;
-      let prevAttachVCard = prevIdentity.attachVCard;
-
-      if (prevIdentity.doCc && prevIdentity.doCcList) {
-        prevCc += prevIdentity.doCcList;
-      }
-
-      if (prevIdentity.doBcc && prevIdentity.doBccList) {
-        prevBcc += prevIdentity.doBccList;
-      }
-
-      let newReplyTo = gCurrentIdentity.replyTo;
-      let newCc = "";
-      let newBcc = "";
-      let newReceipt = gCurrentIdentity.requestReturnReceipt;
-      let newDSN = gCurrentIdentity.DSN;
-      let newAttachVCard = gCurrentIdentity.attachVCard;
-
-      if (gCurrentIdentity.doCc && gCurrentIdentity.doCcList) {
-        newCc += gCurrentIdentity.doCcList;
-      }
-
-      if (gCurrentIdentity.doBcc && gCurrentIdentity.doBccList) {
-        newBcc += gCurrentIdentity.doBccList;
-      }
-
-      let msgCompFields = gMsgCompose.compFields;
-      // Update recipients in msgCompFields to match pills currently in the UI.
-      Recipients2CompFields(msgCompFields);
-
-      if (
-        !gReceiptOptionChanged &&
-        prevReceipt == msgCompFields.returnReceipt &&
-        prevReceipt != newReceipt
-      ) {
-        msgCompFields.returnReceipt = newReceipt;
-        ToggleReturnReceipt(msgCompFields.returnReceipt);
-      }
-
-      if (
-        !gDSNOptionChanged &&
-        prevDSN == msgCompFields.DSN &&
-        prevDSN != newDSN
-      ) {
-        msgCompFields.DSN = newDSN;
-        document
-          .getElementById("dsnMenu")
-          .setAttribute("checked", msgCompFields.DSN);
-      }
-
-      if (
-        !gAttachVCardOptionChanged &&
-        prevAttachVCard == msgCompFields.attachVCard &&
-        prevAttachVCard != newAttachVCard
-      ) {
-        msgCompFields.attachVCard = newAttachVCard;
-        document
-          .getElementById("cmd_attachVCard")
-          .setAttribute("checked", msgCompFields.attachVCard);
-      }
-
-      if (newReplyTo != prevReplyTo) {
-        if (prevReplyTo != "") {
-          awRemoveRecipients(msgCompFields, "addr_reply", prevReplyTo);
-        }
-        if (newReplyTo != "") {
-          awAddRecipients(msgCompFields, "addr_reply", newReplyTo);
-        }
-      }
-
-      let toCcAddrs = new Set([
-        ...msgCompFields.splitRecipients(msgCompFields.to, true),
-        ...msgCompFields.splitRecipients(msgCompFields.cc, true),
-      ]);
-
-      if (newCc != prevCc) {
-        if (prevCc) {
-          awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
-        }
-        if (newCc) {
-          // Add only Auto-Cc recipients whose email is not already in To or CC.
-          newCc = msgCompFields
-            .splitRecipients(newCc, false)
-            .filter(
-              x => !toCcAddrs.has(...msgCompFields.splitRecipients(x, true))
-            )
-            .join(", ");
-          awAddRecipients(msgCompFields, "addr_cc", newCc);
-        }
-      }
-
-      if (newBcc != prevBcc) {
-        let toCcBccAddrs = new Set([
-          ...toCcAddrs,
-          ...msgCompFields.splitRecipients(newCc, true),
-          ...msgCompFields.splitRecipients(msgCompFields.bcc, true),
-        ]);
-
-        if (prevBcc) {
-          awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
-        }
-        if (newBcc) {
-          // Add only Auto-Bcc recipients whose email is not already in To, Cc,
-          // Bcc, or added as Auto-CC from newCc declared above.
-          newBcc = msgCompFields
-            .splitRecipients(newBcc, false)
-            .filter(
-              x => !toCcBccAddrs.has(...msgCompFields.splitRecipients(x, true))
-            )
-            .join(", ");
-          awAddRecipients(msgCompFields, "addr_bcc", newBcc);
-        }
-      }
-
-      adjustSignEncryptAfterIdentityChanged(prevIdentity, gCurrentIdentity);
-
-      try {
-        gMsgCompose.identity = gCurrentIdentity;
-      } catch (ex) {
-        dump("### Cannot change the identity: " + ex + "\n");
-      }
-
-      window.dispatchEvent(new CustomEvent("compose-from-changed"));
-
-      gComposeNotificationBar.clearIdentityWarning();
-    }
-
-    if (!startup) {
-      // Only do this if we aren't starting up...
-      // It gets done as part of startup already.
-      addRecipientsToIgnoreList(gCurrentIdentity.fullAddress);
-
-      // If the From field is editable, reset the address from the identity.
-      if (identityElement.editable) {
-        identityElement.value = identityElement.selectedItem.value;
-        identityElement.placeholder = getComposeBundle().getFormattedString(
-          "msgIdentityPlaceholder",
-          [identityElement.selectedItem.value]
-        );
-      }
-
-      SetMsgToRecipientElementFocus();
-      onRecipientsChanged(true);
+    // Update the addressing options only if a new account was selected.
+    if (prevKey != getCurrentAccountKey()) {
+      hideIrrelevantAddressingOptions(accountKey, prevKey);
     }
   }
+
+  for (let input of document.querySelectorAll(".mail-input,.news-input")) {
+    let params = JSON.parse(input.searchParam);
+    params.idKey = idKey;
+    params.accountKey = accountKey;
+    input.searchParam = JSON.stringify(params);
+  }
+
+  if (startup) {
+    // During compose startup, bail out here.
+    return;
+  }
+
+  // Handle non-startup changing of identity.
+  if (prevIdentity && idKey != prevIdentity.key) {
+    let prevReplyTo = prevIdentity.replyTo;
+    let prevCc = "";
+    let prevBcc = "";
+    let prevReceipt = prevIdentity.requestReturnReceipt;
+    let prevDSN = prevIdentity.DSN;
+    let prevAttachVCard = prevIdentity.attachVCard;
+
+    if (prevIdentity.doCc && prevIdentity.doCcList) {
+      prevCc += prevIdentity.doCcList;
+    }
+
+    if (prevIdentity.doBcc && prevIdentity.doBccList) {
+      prevBcc += prevIdentity.doBccList;
+    }
+
+    let newReplyTo = gCurrentIdentity.replyTo;
+    let newCc = "";
+    let newBcc = "";
+    let newReceipt = gCurrentIdentity.requestReturnReceipt;
+    let newDSN = gCurrentIdentity.DSN;
+    let newAttachVCard = gCurrentIdentity.attachVCard;
+
+    if (gCurrentIdentity.doCc && gCurrentIdentity.doCcList) {
+      newCc += gCurrentIdentity.doCcList;
+    }
+
+    if (gCurrentIdentity.doBcc && gCurrentIdentity.doBccList) {
+      newBcc += gCurrentIdentity.doBccList;
+    }
+
+    let msgCompFields = gMsgCompose.compFields;
+    // Update recipients in msgCompFields to match pills currently in the UI.
+    Recipients2CompFields(msgCompFields);
+
+    if (
+      !gReceiptOptionChanged &&
+      prevReceipt == msgCompFields.returnReceipt &&
+      prevReceipt != newReceipt
+    ) {
+      msgCompFields.returnReceipt = newReceipt;
+      ToggleReturnReceipt(msgCompFields.returnReceipt);
+    }
+
+    if (
+      !gDSNOptionChanged &&
+      prevDSN == msgCompFields.DSN &&
+      prevDSN != newDSN
+    ) {
+      msgCompFields.DSN = newDSN;
+      document
+        .getElementById("dsnMenu")
+        .setAttribute("checked", msgCompFields.DSN);
+    }
+
+    if (
+      !gAttachVCardOptionChanged &&
+      prevAttachVCard == msgCompFields.attachVCard &&
+      prevAttachVCard != newAttachVCard
+    ) {
+      msgCompFields.attachVCard = newAttachVCard;
+      document
+        .getElementById("cmd_attachVCard")
+        .setAttribute("checked", msgCompFields.attachVCard);
+    }
+
+    if (newReplyTo != prevReplyTo) {
+      if (prevReplyTo != "") {
+        awRemoveRecipients(msgCompFields, "addr_reply", prevReplyTo);
+      }
+      if (newReplyTo != "") {
+        awAddRecipients(msgCompFields, "addr_reply", newReplyTo);
+      }
+    }
+
+    let toCcAddrs = new Set([
+      ...msgCompFields.splitRecipients(msgCompFields.to, true),
+      ...msgCompFields.splitRecipients(msgCompFields.cc, true),
+    ]);
+
+    if (newCc != prevCc) {
+      if (prevCc) {
+        awRemoveRecipients(msgCompFields, "addr_cc", prevCc);
+      }
+      if (newCc) {
+        // Add only Auto-Cc recipients whose email is not already in To or CC.
+        newCc = msgCompFields
+          .splitRecipients(newCc, false)
+          .filter(
+            x => !toCcAddrs.has(...msgCompFields.splitRecipients(x, true))
+          )
+          .join(", ");
+        awAddRecipients(msgCompFields, "addr_cc", newCc);
+      }
+    }
+
+    if (newBcc != prevBcc) {
+      let toCcBccAddrs = new Set([
+        ...toCcAddrs,
+        ...msgCompFields.splitRecipients(newCc, true),
+        ...msgCompFields.splitRecipients(msgCompFields.bcc, true),
+      ]);
+
+      if (prevBcc) {
+        awRemoveRecipients(msgCompFields, "addr_bcc", prevBcc);
+      }
+      if (newBcc) {
+        // Add only Auto-Bcc recipients whose email is not already in To, Cc,
+        // Bcc, or added as Auto-CC from newCc declared above.
+        newBcc = msgCompFields
+          .splitRecipients(newBcc, false)
+          .filter(
+            x => !toCcBccAddrs.has(...msgCompFields.splitRecipients(x, true))
+          )
+          .join(", ");
+        awAddRecipients(msgCompFields, "addr_bcc", newBcc);
+      }
+    }
+
+    adjustSignEncryptAfterIdentityChanged(prevIdentity, gCurrentIdentity);
+
+    try {
+      gMsgCompose.identity = gCurrentIdentity;
+    } catch (ex) {
+      dump("### Cannot change the identity: " + ex + "\n");
+    }
+
+    window.dispatchEvent(new CustomEvent("compose-from-changed"));
+
+    gComposeNotificationBar.clearIdentityWarning();
+  }
+
+  // Only do this if we aren't starting up...
+  // It gets done as part of startup already.
+  addRecipientsToIgnoreList(gCurrentIdentity.fullAddress);
+
+  // If the From field is editable, reset the address from the identity.
+  if (identityElement.editable) {
+    identityElement.value = identityElement.selectedItem.value;
+    identityElement.placeholder = getComposeBundle().getFormattedString(
+      "msgIdentityPlaceholder",
+      [identityElement.selectedItem.value]
+    );
+  }
+
+  SetMsgToRecipientElementFocus();
+  onRecipientsChanged(true);
 }
 
 function MakeFromFieldEditable(ignoreWarning) {
