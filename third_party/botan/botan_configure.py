@@ -57,17 +57,16 @@ def _run_configure(argv):
 
 
 def main(output, *args):
-    real_output = os.path.join(os.getcwd(), 'build', 'build.h')
     rv = _run_configure(args)
     if rv[0] == 0:
         # GENERATED_FILES expects this script to write something back to output
-        if os.path.isfile(real_output):
-            with open(real_output, 'r') as fp:
+        if os.path.isfile(output.name):
+            with open(output.name, 'r') as fp:
                 data = fp.read()
                 output.write(data)
         else:
             # Probably an error
-            raise Exception('Unable to locate real output at {}'.format(real_output))
+            raise Exception('Unable to locate real output at {}'.format(output.name))
     else:
         return rv
 
