@@ -545,7 +545,7 @@ var FacetContext = {
     this._activeConstraints = {};
     if (this.searcher) {
       let sortByPref = Services.prefs.getIntPref("gloda.facetview.sortby");
-      this._sortBy = (sortByPref == 0 || sortByPref == 2) ? "-dascore" : "-date";
+      this._sortBy = sortByPref == 0 || sortByPref == 2 ? "-dascore" : "-date";
     } else {
       this._sortBy = "-date";
     }

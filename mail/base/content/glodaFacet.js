@@ -134,7 +134,8 @@
       );
       relevanceItem.setAttribute("value", "-dascore");
       relevanceItem.toggleAttribute(
-        "selected", sortByPref <= 0 || sortByPref == 2 || sortByPref > 3
+        "selected",
+        sortByPref <= 0 || sortByPref == 2 || sortByPref > 3
       );
       this.sortSelect.appendChild(relevanceItem);
 
@@ -195,7 +196,6 @@
 
       let sortByPref = Services.prefs.getIntPref("gloda.facetview.sortby");
       this.sortSelect.addEventListener("change", () => {
-
         if (sortByPref >= 2) {
           Services.prefs.setIntPref(
             "gloda.facetview.sortby",
