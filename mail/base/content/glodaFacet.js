@@ -126,20 +126,24 @@
       sortDiv.classList.add("results-message-sort-bar");
 
       this.sortSelect = document.createElement("select");
+      let sortByPref = Services.prefs.getIntPref("gloda.facetview.sortby");
 
-      let revelanceItem = document.createElement("option");
-      revelanceItem.textContent = glodaFacetStrings.GetStringFromName(
+      let relevanceItem = document.createElement("option");
+      relevanceItem.textContent = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.message.sort.relevance2"
       );
-      revelanceItem.setAttribute("value", "-dascore");
-      revelanceItem.setAttribute("selected", true);
-      this.sortSelect.appendChild(revelanceItem);
+      relevanceItem.setAttribute("value", "-dascore");
+      relevanceItem.toggleAttribute(
+        "selected", sortByPref <= 0 || sortByPref == 2 || sortByPref > 3
+      );
+      this.sortSelect.appendChild(relevanceItem);
 
       let dateItem = document.createElement("option");
       dateItem.textContent = glodaFacetStrings.GetStringFromName(
         "glodaFacetView.results.message.sort.date2"
       );
       dateItem.setAttribute("value", "-date");
+      dateItem.toggleAttribute("selected", sortByPref == 1 || sortByPref == 3);
       this.sortSelect.appendChild(dateItem);
 
       this.messagesNode = document.createElement("div");
@@ -189,7 +193,16 @@
         "glodaFacetView.results.message.timeline.label"
       );
 
+      let sortByPref = Services.prefs.getIntPref("gloda.facetview.sortby");
       this.sortSelect.addEventListener("change", () => {
+
+        if (sortByPref >= 2) {
+          Services.prefs.setIntPref(
+            "gloda.facetview.sortby",
+            this.sortSelect.value == "-dascore" ? 2 : 3
+          );
+        }
+
         FacetContext.sortBy = this.sortSelect.value;
       });
 

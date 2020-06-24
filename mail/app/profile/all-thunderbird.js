@@ -551,6 +551,13 @@ pref("media.autoplay.enabled", false);
 // whether to hide the timeline view by default in the faceted search display
 pref("gloda.facetview.hidetimeline", true);
 
+// Behavior of sort-by setting in search results:
+// 0 - default to "relevance", and don't remember user setting when it is changed (== old behavior)
+// 1 - default to "date", but don't remember user setting when it is changed
+// 2 - default to "relevance", but remember user preference when it is changed
+// 3 - default to "date", but remember user preference when it is changed
+pref("gloda.facetview.sortby", 2);
+
 // Enable gloda by default!
 pref("mailnews.database.global.indexer.enabled", true);
 // Show gloda errors in the error console
