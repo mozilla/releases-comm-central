@@ -120,16 +120,18 @@ async function onLoad() {
   await setListEntries(params.keys);
 }
 
-async function reload() {
+async function reloadAndSelect(selIndex = -1) {
   while (true) {
-    let child = gListBox.firstChild;
-    if (!child) {
+    let child = gListBox.lastChild;
+    // keep first child, which is the header
+    if (child == gListBox.firstChild) {
       break;
     }
     gListBox.removeChild(child);
   }
   gRowToKey = [];
-  setListEntries();
+  await setListEntries();
+  gListBox.selectedIndex = selIndex;
 }
 
 function onSelectionChange(event) {
@@ -138,17 +140,14 @@ function onSelectionChange(event) {
 }
 
 function viewSelectedKey() {
-  if (gViewButton.disabled) {
+  let selIndex = gListBox.selectedIndex;
+  if (gViewButton.disabled || selIndex == -1) {
     return;
   }
-  EnigmailWindows.openKeyDetails(
-    window,
-    gRowToKey[gListBox.selectedIndex],
-    false
-  );
-  reload();
+  EnigmailWindows.openKeyDetails(window, gRowToKey[selIndex], false);
+  reloadAndSelect(selIndex);
 }
 
 async function discoverKey() {
-  KeyLookupHelper.lookupAndImportByEmail(window, gAddr, true, reload);
+  KeyLookupHelper.lookupAndImportByEmail(window, gAddr, true, reloadAndSelect);
 }

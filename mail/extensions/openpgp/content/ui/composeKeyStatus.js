@@ -131,16 +131,18 @@ async function onLoad() {
   await setListEntries();
 }
 
-async function reload() {
+async function reloadAndReselect(selIndex = -1) {
   while (true) {
-    let child = gListBox.firstChild;
-    if (!child) {
+    let child = gListBox.lastChild;
+    // keep first child, which is the header
+    if (child == gListBox.firstChild) {
       break;
     }
     gListBox.removeChild(child);
   }
   gRowToEmail = [];
-  setListEntries();
+  await setListEntries();
+  gListBox.selectedIndex = selIndex;
 }
 
 function onSelectionChange(event) {
@@ -148,10 +150,11 @@ function onSelectionChange(event) {
 }
 
 function viewSelectedEmail() {
-  if (gViewButton.disabled) {
+  let selIndex = gListBox.selectedIndex;
+  if (gViewButton.disabled || selIndex == -1) {
     return;
   }
-  let email = gRowToEmail[gListBox.selectedIndex];
+  let email = gRowToEmail[selIndex];
   window.openDialog(
     "chrome://openpgp/content/ui/oneRecipientStatus.xhtml",
     "",
@@ -161,5 +164,5 @@ function viewSelectedEmail() {
       keys: gMapAddressToKeyObjs.get(email),
     }
   );
-  reload();
+  reloadAndReselect(selIndex);
 }
