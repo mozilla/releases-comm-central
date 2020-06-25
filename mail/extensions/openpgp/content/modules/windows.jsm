@@ -419,7 +419,7 @@ var EnigmailWindows = {
    * @return  Boolean - true:  keylist needs to be refreshed
    *                  - false: no need to refresh keylist
    */
-  openKeyDetails(win, keyId, refresh) {
+  async openKeyDetails(win, keyId, refresh) {
     if (!win) {
       win = this.getBestParentWin();
     }

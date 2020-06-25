@@ -17,7 +17,7 @@
 <window data-l10n-id="openpgp-key-details-title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width:60em;"
+        style="min-width:60em; max-width:90em; min-height:40em"
         persist="width height"
         onload="onLoad();">
 <dialog id="enigmailKeyDetailsDlg"
@@ -92,10 +92,10 @@
 
     <tabpanels flex="1" id="mainTabPanel">
        <!-- Acceptance Tab -->
-      <vbox id="acceptancePanel">
-        <description id="acceptanceIntro"/>
+      <vbox id="acceptancePanel" flex="1">
+        <description id="acceptanceIntro1"/>
         <separator class="thin"/>
-        <description id="acceptanceExplanation"/>
+        <description id="acceptanceIntro2"/>
         <separator class="thin"/>
         <radiogroup id="acceptanceRadio" hidden="true">
           <radio id="acceptRejected" value="rejected"
@@ -106,6 +106,12 @@
                  data-l10n-id="openpgp-acceptance-unverified-label"/>
           <radio id="acceptVerified" value="verified"
                  data-l10n-id="openpgp-acceptance-verified-label"/>
+        </radiogroup>
+        <radiogroup id="personalRadio" hidden="true">
+          <radio id="notPersonal" value="not_personal"
+                 data-l10n-id="openpgp-personal-no-label"/>
+          <radio id="yesPersonal" value="personal"
+                 data-l10n-id="openpgp-personal-yes-label"/>
         </radiogroup>
       </vbox>
 

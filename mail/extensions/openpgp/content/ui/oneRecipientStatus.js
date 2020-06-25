@@ -18,6 +18,9 @@ var { EnigmailKey } = ChromeUtils.import(
 var KeyLookupHelper = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyLookupHelper.jsm"
 ).KeyLookupHelper;
+const { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
 
 var gListBox;
 var gViewButton;
@@ -43,7 +46,11 @@ async function setListEntries(keys = null) {
 
     let acceptanceText;
     if (keyObj.secretAvailable) {
-      acceptanceText = "openpgp-key-own";
+      if (await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr)) {
+        acceptanceText = "openpgp-key-own";
+      } else {
+        acceptanceText = "openpgp-key-secret-not-personal";
+      }
     } else {
       if (!("acceptance" in keyObj)) {
         throw new Error(

@@ -170,19 +170,21 @@ var PgpSqliteDb2 = {
         let insertObj = {
           fpr: fingerprint,
         };
-        for (let email of emailArray) {
-          if (!email) {
-            continue;
+        if (emailArray) {
+          for (let email of emailArray) {
+            if (!email) {
+              continue;
+            }
+            insertObj.email = email.toLowerCase();
+            if (alreadyAdded.has(insertObj.email)) {
+              continue;
+            }
+            alreadyAdded.add(insertObj.email);
+            await conn.execute(
+              "insert into acceptance_email values (:fpr, :email)",
+              insertObj
+            );
           }
-          insertObj.email = email.toLowerCase();
-          if (alreadyAdded.has(insertObj.email)) {
-            continue;
-          }
-          alreadyAdded.add(insertObj.email);
-          await conn.execute(
-            "insert into acceptance_email values (:fpr, :email)",
-            insertObj
-          );
         }
       }
       await conn.execute("commit transaction");
@@ -193,6 +195,20 @@ var PgpSqliteDb2 = {
         await conn.close();
       }
     }
+  },
+
+  async acceptAsPersonalKey(fingerprint) {
+    this.updateAcceptance(fingerprint, null, "personal");
+  },
+
+  async deletePersonalKeyAcceptance(fingerprint) {
+    this.deleteAcceptance(fingerprint);
+  },
+
+  async isAcceptedAsPersonalKey(fingerprint) {
+    let result = { fingerprintAcceptance: "" };
+    await this.getFingerprintAcceptance(null, fingerprint, result);
+    return result.fingerprintAcceptance === "personal";
   },
 };
 

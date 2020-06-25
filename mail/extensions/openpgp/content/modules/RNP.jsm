@@ -73,20 +73,13 @@ var RNP = {
   },
 
   addKeyAttributes(handle, meta, keyObj, is_subkey, forListing) {
-    let have_secret = new ctypes.bool();
-    let key_id = new ctypes.char.ptr();
-    let fingerprint = new ctypes.char.ptr();
     let algo = new ctypes.char.ptr();
     let bits = new ctypes.uint32_t();
     let key_creation = new ctypes.uint32_t();
     let key_expiration = new ctypes.uint32_t();
     let allowed = new ctypes.bool();
 
-    if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
-      throw new Error("rnp_key_have_secret failed");
-    }
-
-    keyObj.secretAvailable = have_secret.value;
+    keyObj.secretAvailable = this.getSecretAvailableFromHandle(handle);
 
     if (is_subkey) {
       keyObj.type = "sub";
@@ -94,20 +87,12 @@ var RNP = {
       keyObj.type = "pub";
     }
 
-    if (RNPLib.rnp_key_get_keyid(handle, key_id.address())) {
-      throw new Error("rnp_key_get_keyid failed");
-    }
-    keyObj.keyId = key_id.readString();
+    keyObj.keyId = this.getKeyIDFromHandle(handle);
     if (forListing) {
       keyObj.id = keyObj.keyId;
     }
-    RNPLib.rnp_buffer_destroy(key_id);
 
-    if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
-      throw new Error("rnp_key_get_fprint failed");
-    }
-    keyObj.fpr = fingerprint.readString();
-    RNPLib.rnp_buffer_destroy(fingerprint);
+    keyObj.fpr = this.getFingerprintFromHandle(handle);
 
     if (RNPLib.rnp_key_get_alg(handle, algo.address())) {
       throw new Error("rnp_key_get_alg failed");
@@ -170,7 +155,11 @@ var RNP = {
   },
 
   async getKeys(onlyKeys = null) {
-    return this.getKeysFromFFI(RNPLib.ffi, false, onlyKeys);
+    return this.getKeysFromFFI(RNPLib.ffi, false, onlyKeys, false);
+  },
+
+  async getSecretKeys(onlyKeys = null) {
+    return this.getKeysFromFFI(RNPLib.ffi, false, onlyKeys, true);
   },
 
   /* Some consumers want a different listing of keys, and expect
@@ -178,7 +167,13 @@ var RNP = {
    * If forListing is true, we'll set those additional attributes
    * If onlyKeys is given: only returns keys in that array
    */
-  async getKeysFromFFI(ffi, forListing, onlyKeys = null) {
+  async getKeysFromFFI(ffi, forListing, onlyKeys = null, onlySecret = false) {
+    if (!!onlyKeys && onlySecret) {
+      throw new Error(
+        "filtering by both white list and only secret keys isn't supported"
+      );
+    }
+
     let keys = [];
 
     if (onlyKeys) {
@@ -187,13 +182,14 @@ var RNP = {
 
         let keyObj = {};
         try {
-          // Parameter false: skip if this is a primary key, it will be processed together with primary key later.
+          // Skip if it is a primary key, it will be processed together with primary key later.
           let ok = this.getKeyInfoFromHandle(
             ffi,
             handle,
             keyObj,
             false,
-            forListing
+            forListing,
+            false
           );
           if (!ok) {
             continue;
@@ -234,13 +230,14 @@ var RNP = {
 
         let keyObj = {};
         try {
-          // Parameter false: skip if this is a primary key, it will be processed together with primary key later.
+          // Skip if it is a primary key, it will be processed together with primary key later.
           let ok = this.getKeyInfoFromHandle(
             ffi,
             handle,
             keyObj,
             false,
-            forListing
+            forListing,
+            onlySecret
           );
           if (!ok) {
             continue;
@@ -264,8 +261,43 @@ var RNP = {
     return keys;
   },
 
+  getFingerprintFromHandle(handle) {
+    let fingerprint = new ctypes.char.ptr();
+    if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
+      throw new Error("rnp_key_get_fprint failed");
+    }
+    let result = fingerprint.readString();
+    RNPLib.rnp_buffer_destroy(fingerprint);
+    return result;
+  },
+
+  getKeyIDFromHandle(handle) {
+    let ctypes_key_id = new ctypes.char.ptr();
+    if (RNPLib.rnp_key_get_keyid(handle, ctypes_key_id.address())) {
+      throw new Error("rnp_key_get_keyid failed");
+    }
+    let result = ctypes_key_id.readString();
+    RNPLib.rnp_buffer_destroy(ctypes_key_id);
+    return result;
+  },
+
+  getSecretAvailableFromHandle(handle) {
+    let have_secret = new ctypes.bool();
+    if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
+      throw new Error("rnp_key_have_secret failed");
+    }
+    return have_secret.value;
+  },
+
   // return false if handle refers to subkey and should be ignored
-  getKeyInfoFromHandle(ffi, handle, keyObj, usePrimaryIfSubkey, forListing) {
+  getKeyInfoFromHandle(
+    ffi,
+    handle,
+    keyObj,
+    usePrimaryIfSubkey,
+    forListing,
+    onlyIfSecret
+  ) {
     keyObj.ownerTrust = null;
     keyObj.userId = null;
     keyObj.userIds = [];
@@ -304,12 +336,23 @@ var RNP = {
             newHandle,
             keyObj,
             false,
-            forListing
+            forListing,
+            onlyIfSecret
           );
           RNPLib.rnp_key_handle_destroy(newHandle);
         }
         RNPLib.rnp_buffer_destroy(primary_grip);
         return rv;
+      }
+    }
+
+    if (onlyIfSecret) {
+      let have_secret = new ctypes.bool();
+      if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
+        throw new Error("rnp_key_have_secret failed");
+      }
+      if (!have_secret.value) {
+        return false;
       }
     }
 
@@ -441,7 +484,14 @@ var RNP = {
       "0x" + keyId
     );
     let mainKeyObj = {};
-    this.getKeyInfoFromHandle(RNPLib.ffi, handle, mainKeyObj, false, true);
+    this.getKeyInfoFromHandle(
+      RNPLib.ffi,
+      handle,
+      mainKeyObj,
+      false,
+      true,
+      false
+    );
 
     let rList = {};
 
@@ -816,7 +866,7 @@ var RNP = {
       }
 
       let keyInfo = {};
-      let ok = this.getKeyInfoFromHandle(ffi, key, keyInfo, true, false);
+      let ok = this.getKeyInfoFromHandle(ffi, key, keyInfo, true, false, false);
       if (!ok) {
         throw new Error("getKeyInfoFromHandle failed");
       }
@@ -841,7 +891,10 @@ var RNP = {
       let useUndecided = true;
 
       if (keyInfo.secretAvailable) {
-        if (fromMatchesAnyUid) {
+        let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(
+          keyInfo.fpr
+        );
+        if (isPersonal && fromMatchesAnyUid) {
           result.extStatusFlags |= EnigmailConstants.EXT_SELF_IDENTITY;
           useUndecided = false;
         } else {
@@ -973,8 +1026,9 @@ var RNP = {
     return result;
   },
 
-  genKey(userId, keyType, keyBits, expiryDays, passphrase) {
+  async genKey(userId, keyType, keyBits, expiryDays, passphrase) {
     let newKeyId = "";
+    let newKeyFingerprint = "";
 
     let primaryKeyType;
     let primaryKeyBits = 0;
@@ -1045,12 +1099,8 @@ var RNP = {
 
     RNPLib.rnp_op_generate_destroy(genOp);
 
-    let ctypes_key_id = new ctypes.char.ptr();
-    if (RNPLib.rnp_key_get_keyid(primaryKey, ctypes_key_id.address())) {
-      throw new Error("rnp_key_get_keyid failed");
-    }
-    newKeyId = ctypes_key_id.readString();
-    RNPLib.rnp_buffer_destroy(ctypes_key_id);
+    newKeyFingerprint = this.getFingerprintFromHandle(primaryKey);
+    newKeyId = this.getKeyIDFromHandle(primaryKey);
 
     if (
       RNPLib.rnp_op_generate_subkey_create(
@@ -1108,6 +1158,9 @@ var RNP = {
     }
 
     RNPLib.rnp_op_generate_destroy(genOp);
+    RNPLib.rnp_key_handle_destroy(primaryKey);
+
+    await PgpSqliteDb2.acceptAsPersonalKey(newKeyFingerprint);
 
     return newKeyId;
   },
@@ -1663,6 +1716,21 @@ var RNP = {
       senderKey = await this.getKeyHandleByIdentifier(RNPLib.ffi, args.sender);
       if (!senderKey || senderKey.isNull()) {
         return null;
+      }
+      let isPersonal = false;
+      let senderKeySecretAvailable = this.getSecretAvailableFromHandle(
+        senderKey
+      );
+      if (senderKeySecretAvailable) {
+        let senderFpr = this.getFingerprintFromHandle(senderKey);
+        isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(senderFpr);
+      }
+      if (!isPersonal) {
+        throw new Error(
+          "configured sender key " +
+            args.sender +
+            " isn't accepted as a personal key"
+        );
       }
       if (args.encryptToSender) {
         this.addSuitableEncryptKey(senderKey, op);

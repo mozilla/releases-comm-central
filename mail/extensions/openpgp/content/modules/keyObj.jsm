@@ -206,31 +206,13 @@ class EnigmailKeyObj {
   }
 
   /**
-   * Is the function to set owner trust available for the key?
-   * Requirements: The key is signed with at least medium validity level,
-   * or the secret key is available.
-   *
-   * @return Boolean true if yes
-   */
-  isOwnerTrustUseful() {
-    if (this.secretAvailable) {
-      return true;
-    }
-    if (this.keyTrust.search(/^[fu]/) === 0) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
    * Determine if the public key is valid. If not, return a description why it's not
    *
    * @return Object:
    *   - keyValid: Boolean (true if key is valid)
    *   - reason: String (explanation of invalidity)
    */
-  getPubKeyValidity() {
+  getPubKeyValidity(exceptionReason = null) {
     let retVal = {
       keyValid: false,
       reason: "",
@@ -241,7 +223,10 @@ class EnigmailKeyObj {
         userId: this.userId,
         keyId: "0x" + this.keyId,
       });
-    } else if (this.keyTrust.search(/e/i) >= 0) {
+    } else if (
+      exceptionReason != "ignoreExpired" &&
+      this.keyTrust.search(/e/i) >= 0
+    ) {
       // public key expired
       retVal.reason = l10n.formatValueSync("key-ring-pub-key-expired", {
         userId: this.userId,
@@ -276,8 +261,8 @@ class EnigmailKeyObj {
    *   - keyValid: Boolean (true if key is valid)
    *   - reason: String (explanation of invalidity)
    */
-  getSigningValidity() {
-    let retVal = this.getPubKeyValidity();
+  getSigningValidity(exceptionReason = null) {
+    let retVal = this.getPubKeyValidity(exceptionReason);
 
     if (!retVal.keyValid) {
       return retVal;
@@ -322,7 +307,7 @@ class EnigmailKeyObj {
         }
 
         if (!found) {
-          if (expired) {
+          if (exceptionReason != "ignoreExpired" && expired) {
             retVal.reason = l10n.formatValueSync(
               "key-ring-sign-sub-keys-expired",
               {
@@ -372,8 +357,8 @@ class EnigmailKeyObj {
    *   - keyValid: Boolean (true if key is valid)
    *   - reason: String (explanation of invalidity)
    */
-  getEncryptionValidity() {
-    let retVal = this.getPubKeyValidity();
+  getEncryptionValidity(exceptionReason = null) {
+    let retVal = this.getPubKeyValidity(exceptionReason);
     if (!retVal.keyValid) {
       return retVal;
     }
@@ -413,7 +398,7 @@ class EnigmailKeyObj {
         }
 
         if (!found) {
-          if (expired) {
+          if (exceptionReason != "ignoreExpired" && expired) {
             retVal.reason = l10n.formatValueSync(
               "key-ring-enc-sub-keys-expired",
               {

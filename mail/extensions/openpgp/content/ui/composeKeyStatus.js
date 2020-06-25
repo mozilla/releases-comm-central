@@ -15,6 +15,9 @@ var { EnigmailWindows } = ChromeUtils.import(
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
+const { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
 
 var gListBox;
 var gViewButton;
@@ -50,8 +53,12 @@ async function setListEntries() {
       emailStatus = "openpgp-recip-missing";
     } else {
       for (let keyObj of foundKeys) {
+        let goodPersonal = false;
+        if (keyObj.secretAvailable) {
+          goodPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
+        }
         if (
-          keyObj.secretAvailable ||
+          goodPersonal ||
           keyObj.acceptance == "verified" ||
           keyObj.acceptance == "unverified"
         ) {

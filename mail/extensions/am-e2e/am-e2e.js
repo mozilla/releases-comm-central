@@ -220,7 +220,7 @@ async function initOpenPgpSettings() {
   }
 
   let result = {};
-  EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result);
+  await EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result, true);
 
   document.l10n.setAttributes(
     document.getElementById("openPgpgDescription"),
@@ -602,7 +602,7 @@ function closeNotification() {
  */
 async function reloadOpenPgpUI() {
   let result = {};
-  EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result);
+  await EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result, true);
 
   // Show the radiogroup only if the current identity has keys.
   document.getElementById("openPgpKeyList").collapsed = !result.all.length;
@@ -757,7 +757,7 @@ async function reloadOpenPgpUI() {
     typeValue.setAttribute("type", "text");
     typeValue.classList.add("plain");
     typeValue.setAttribute("readonly", "readonly");
-    typeValue.value = await document.l10n.formatValue("key-type-pair-2");
+    typeValue.value = await document.l10n.formatValue("key-type-pair");
 
     typeValueContainer.appendChild(typeValue);
 

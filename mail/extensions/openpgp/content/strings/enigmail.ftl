@@ -187,6 +187,14 @@ openpgp-acceptance-unverified-label =
     .label = Yes, but I have not verified that it is the correct key.
 openpgp-acceptance-verified-label =
     .label = Yes, I've verified in person this key has the correct fingerprint.
+key-accept-personal =
+    For this key, you have both the public and the secret part. You may use it as a personal key.
+    If this key was given to you by someone else, then don't use it as a personal key.
+key-personal-warning = Did you create this key yourself, and the displayed key ownership refers to yourself?
+openpgp-personal-no-label =
+    .label = No, don't use it as my personal key.
+openpgp-personal-yes-label =
+    .label = Yes, treat this key as a personal key.
 
 openpgp-copy-cmd-label =
     .label = Copy
@@ -248,7 +256,7 @@ openpgp-key-edit-date-title = Extend Expiration Date
 key-type-public = public key
 key-type-primary = primary key
 key-type-subkey = subkey
-key-type-pair-2 = personal key (secret key and public key)
+key-type-pair = key pair (secret key and public key)
 key-expiry-never = never
 key-usage-encrypt = Encrypt
 key-usage-sign = Sign
@@ -256,8 +264,8 @@ key-usage-certify = Certify
 key-usage-authentication = Authentication
 key-does-not-expire = Key does not expire
 key-expired = Key expired on { $keyExpiry }
+key-expired-simple = Key has expired
 key-revoked = Key was revoked
-key-auto-accept-personal = You accept this key for all uses, because it is one of your personal keys. You have the secret key.
 key-do-you-accept = Do you accept this key for verifying digital signatures and for encrypting messages?
 key-accept-warning = Avoid accepting a rogue key. Use a communication channel other than email to verify the fingerprint of your correspondent's key.
 

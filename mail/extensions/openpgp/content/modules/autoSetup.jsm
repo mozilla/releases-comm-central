@@ -416,27 +416,6 @@ var EnigmailAutoSetup = {
       }
     });
   },
-
-  /**
-   * Configure Enigmail to use existing keys
-   */
-  applyExistingKeys() {
-    for (let id of MailServices.accounts.allIdentities) {
-      if (id.email) {
-        let keyObj = EnigmailKeyRing.getSecretKeyByEmail(id.email);
-        if (keyObj) {
-          EnigmailLog.DEBUG(
-            `autoSetup.jsm: applyExistingKeys: found key ${keyObj.keyId}\n`
-          );
-          id.setBoolAttribute("enablePgp", true);
-          id.setCharAttribute("pgpkeyId", "0x" + keyObj.fpr);
-          id.setIntAttribute("pgpKeyMode", 1);
-          id.setBoolAttribute("pgpMimeMode", true);
-          id.setBoolAttribute("pgpSignEncrypted", true);
-        }
-      }
-    }
-  },
 };
 
 /**

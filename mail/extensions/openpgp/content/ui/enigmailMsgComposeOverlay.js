@@ -2228,7 +2228,7 @@ Enigmail.msg = {
     }
 
     if (senderKeyId) {
-      let senderKeyUsable = EnigmailEncryption.determineOwnKeyUsability(
+      let senderKeyUsable = await EnigmailEncryption.determineOwnKeyUsability(
         sendFlags,
         senderKeyId
       );

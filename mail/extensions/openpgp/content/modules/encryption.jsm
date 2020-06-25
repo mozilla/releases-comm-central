@@ -50,6 +50,9 @@ const { EnigmailConstants } = ChromeUtils.import(
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+var { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
 
 const gMimeHashAlgorithms = [
   null,
@@ -339,81 +342,68 @@ var EnigmailEncryption = {
    * Determine if the sender key ID or user ID can be used for signing and/or encryption
    *
    * @param sendFlags:    Number  - the send Flags; need to contain SEND_SIGNED and/or SEND_ENCRYPTED
-   * @param fromMailAddr: String  - the sender email address or key ID
+   * @param fromKeyId:    String  - the sender key ID
    *
    * @return Object:
    *         - keyId:    String - the found key ID, or null if fromMailAddr is not valid
    *         - errorMsg: String - the erorr message if key not valid, or null if key is valid
    */
-  determineOwnKeyUsability(sendFlags, fromMailAddr) {
+  async determineOwnKeyUsability(sendFlags, fromKeyId) {
     EnigmailLog.DEBUG(
       "encryption.jsm: determineOwnKeyUsability: sendFlags=" +
         sendFlags +
         ", sender=" +
-        fromMailAddr +
+        fromKeyId +
         "\n"
     );
 
-    let keyList = [];
+    let foundKey = null;
     let ret = {
-      keyId: null,
       errorMsg: null,
     };
 
-    if (!fromMailAddr) {
+    if (!fromKeyId) {
       return ret;
     }
 
     let sign = !!(sendFlags & EnigmailConstants.SEND_SIGNED);
     let encrypt = !!(sendFlags & EnigmailConstants.SEND_ENCRYPTED);
 
-    if (fromMailAddr.search(/^(0x)?[A-Z0-9]+$/) === 0) {
+    if (fromKeyId.search(/^(0x)?[A-Z0-9]+$/) === 0) {
       // key ID specified
-      let key = EnigmailKeyRing.getKeyById(fromMailAddr);
-      keyList.push(key);
-    } else {
-      // email address specified
-      keyList = EnigmailKeyRing.getKeysByUserId(fromMailAddr);
+      foundKey = EnigmailKeyRing.getKeyById(fromKeyId);
     }
 
-    if (keyList.length === 0) {
-      ret.errorMsg = EnigmailLocale.getString(
-        "errorOwnKeyUnusable",
-        fromMailAddr
+    let isPersonalAndHasSecret = false;
+    if (foundKey && foundKey.secretAvailable) {
+      isPersonalAndHasSecret = await PgpSqliteDb2.isAcceptedAsPersonalKey(
+        foundKey.fpr
       );
+    }
+
+    if (!foundKey || !isPersonalAndHasSecret) {
+      ret.errorMsg = "key " + fromKeyId + " isn't usable as a personal key";
       return ret;
     }
 
+    let canSign = false;
+    let canEncrypt = false;
     if (sign) {
-      keyList = keyList.reduce(function(p, keyObj) {
-        if (keyObj && keyObj.getSigningValidity().keyValid) {
-          p.push(keyObj);
-        }
-        return p;
-      }, []);
+      if (foundKey && foundKey.getSigningValidity().keyValid) {
+        canSign = true;
+      }
     }
 
     if (encrypt) {
-      keyList = keyList.reduce(function(p, keyObj) {
-        if (keyObj && keyObj.getEncryptionValidity().keyValid) {
-          p.push(keyObj);
-        }
-        return p;
-      }, []);
+      if (foundKey && foundKey.getEncryptionValidity().keyValid) {
+        canEncrypt = true;
+      }
     }
 
-    if (keyList.length === 0) {
-      if (sign) {
-        ret.errorMsg = EnigmailErrorHandling.determineInvSignReason(
-          fromMailAddr
-        );
-      } else {
-        ret.errorMsg = EnigmailErrorHandling.determineInvRcptReason(
-          fromMailAddr
-        );
-      }
-    } else {
-      ret.keyId = keyList[0].fpr;
+    if (sign && !canSign) {
+      ret.errorMsg = EnigmailErrorHandling.determineInvSignReason(fromKeyId);
+    } else if (encrypt && !canEncrypt) {
+      ret.errorMsg = EnigmailErrorHandling.determineInvRcptReason(fromKeyId);
     }
 
     return ret;
@@ -445,20 +435,10 @@ var EnigmailEncryption = {
         ")\n"
     );
 
-    let keyUseability = this.determineOwnKeyUsability(sendFlags, fromMailAddr);
-
-    if (!keyUseability.keyId) {
-      EnigmailLog.DEBUG(
-        "encryption.jsm: encryptMessageStart: own key invalid\n"
-      );
-      errorMsgObj.value = keyUseability.errorMsg;
-      statusFlagsObj.value =
-        EnigmailConstants.INVALID_RECIPIENT |
-        EnigmailConstants.NO_SECKEY |
-        EnigmailConstants.DISPLAY_MESSAGE;
-
-      return null;
-    }
+    // This code used to call determineOwnKeyUsability, and return on
+    // failure. But now determineOwnKeyUsability is an async function,
+    // and calling it from here with await results in a deadlock.
+    // Instead we perform this check in Enigmail.msg.prepareSendMsg.
 
     var hashAlgo =
       gMimeHashAlgorithms[EnigmailPrefs.getPref("mimeHashAlgorithm")];

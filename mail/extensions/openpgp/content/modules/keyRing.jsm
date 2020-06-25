@@ -105,52 +105,6 @@ var EnigmailKeyRing = {
   },
 
   /**
-   * get a list of all (valid, usable) keys that have a secret key
-   *
-   * @param Boolean onlyValidKeys: if true, only filter valid usable keys
-   *
-   * @return Array of KeyObjects containing the found keys (sorted by userId)
-   **/
-
-  getAllSecretKeys(onlyValidKeys = false) {
-    EnigmailLog.DEBUG("keyRing.jsm: getAllSecretKeys()\n");
-
-    let res = [];
-
-    this.getAllKeys(); // ensure keylist is loaded;
-
-    if (!onlyValidKeys) {
-      for (let key of gKeyListObj.keyList) {
-        if (key.secretAvailable) {
-          res.push(key);
-        }
-      }
-    } else {
-      for (let key of gKeyListObj.keyList) {
-        if (key.secretAvailable && key.keyUseFor.search(/D/) < 0) {
-          // key is not disabled and _usable_ for encryption signing and certification
-          if (
-            key.keyUseFor.search(/E/) >= 0 &&
-            key.keyUseFor.search(/S/) >= 0 &&
-            key.keyUseFor.search(/C/) >= 0
-          ) {
-            res.push(key);
-          }
-        }
-      }
-    }
-
-    res.sort(function(a, b) {
-      if (a.userId == b.userId) {
-        return a.keyId < b.keyId ? -1 : 1;
-      }
-      return a.userId.toLowerCase() < b.userId.toLowerCase() ? -1 : 1;
-    });
-
-    return res;
-  },
-
-  /**
    * get 1st key object that matches a given key ID or subkey ID
    *
    * @param keyId      - String: key Id with 16 characters (preferred) or 8 characters),
@@ -194,7 +148,7 @@ var EnigmailKeyRing = {
    *
    * @return Array of KeyObjects with the found keys (array length is 0 if no key found)
    */
-  getKeysByUserId(searchTerm, onlyValidUid = true) {
+  getKeysByUserId(searchTerm, onlyValidUid = true, allowExpired = false) {
     EnigmailLog.DEBUG("keyRing.jsm: getKeysByUserId: '" + searchTerm + "'\n");
     let s = new RegExp(searchTerm, "i");
 
@@ -212,10 +166,11 @@ var EnigmailKeyRing = {
         if (k.userIds[j].type === "uid" && k.userIds[j].userId.search(s) >= 0) {
           if (
             !onlyValidUid ||
-            !EnigmailTrust.isInvalid(k.userIds[j].keyTrust)
+            !EnigmailTrust.isInvalid(k.userIds[j].keyTrust) ||
+            (allowExpired && k.userIds[j].keyTrust == "e")
           ) {
             res.push(k);
-            continue;
+            break;
           }
         }
       }
@@ -224,7 +179,7 @@ var EnigmailKeyRing = {
   },
 
   /**
-   * Specialized function for getSecretKeyByUserId() that takes into account
+   * Specialized function that takes into account
    * the specifics of email addresses in UIDs.
    *
    * @param emailAddr: String - email address to search for without any angulars
@@ -232,20 +187,10 @@ var EnigmailKeyRing = {
    *
    * @return KeyObject with the found key, or null if no key found
    */
-  getSecretKeyByEmail(emailAddr) {
+  async getSecretKeyByEmail(emailAddr) {
     let result = {};
-    this.getSecretKeysByEmail(emailAddr, result);
+    await this.getAllSecretKeysByEmail(emailAddr, result, true);
     return result.best;
-  },
-
-  getSecretKeysByEmail(emailAddr, result) {
-    // sanitize email address
-    emailAddr = emailAddr.replace(/([\.\[\]\-\\])/g, "\\$1");
-
-    let searchTerm =
-      "(<" + emailAddr + ">| " + emailAddr + "$|^" + emailAddr + "$)";
-
-    this.getAllSecretKeysByUserId(searchTerm, result);
   },
 
   /**
@@ -257,53 +202,50 @@ var EnigmailKeyRing = {
    *
    * @return {Object | null} - Object with the found keys, or null.
    */
-  getAllSecretKeysByEmail(emailAddr, result) {
-    // Sanitize email address.
+  async getAllSecretKeysByEmail(emailAddr, result, allowExpired) {
+    // sanitize email address
     emailAddr = emailAddr.replace(/([\.\[\]\-\\])/g, "\\$1");
 
     let searchTerm =
       "(<" + emailAddr + ">| " + emailAddr + "$|^" + emailAddr + "$)";
 
-    result.all = this.getKeysByUserId(searchTerm, false);
+    await this.getAllSecretKeysByUserId(searchTerm, result, allowExpired);
   },
 
-  /**
-   * get the "best" possible secret key for a given user ID
-   *
-   * @param searchTerm   - String: a regular expression to match against all UIDs of the keys.
-   *                               The search is always performed case-insensitively
-   * @return KeyObject with the found key, or null if no key found
-   */
-  getSecretKeyByUserId(searchTerm) {
-    let result = {};
-    this.getAllSecretKeysByUserId(searchTerm, result);
-    return result.best;
-  },
-
-  getAllSecretKeysByUserId(searchTerm, result) {
+  async getAllSecretKeysByUserId(searchTerm, result, allowExpired) {
     EnigmailLog.DEBUG(
-      "keyRing.jsm: getSecretKeyByUserId: '" + searchTerm + "'\n"
+      "keyRing.jsm: getAllSecretKeysByUserId: '" + searchTerm + "'\n"
     );
-    let keyList = this.getKeysByUserId(searchTerm, true);
+    let keyList = this.getKeysByUserId(searchTerm, true, true);
 
     result.all = [];
     result.best = null;
 
     var nowDate = new Date();
     var nowSecondsSinceEpoch = nowDate.valueOf() / 1000;
+    let bestIsExpired = false;
 
     for (let key of keyList) {
+      if (!key.secretAvailable) {
+        continue;
+      }
+      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(key.fpr);
+      if (!isPersonal) {
+        continue;
+      }
       if (
-        key.secretAvailable &&
-        key.getEncryptionValidity().keyValid &&
-        key.getSigningValidity().keyValid
+        key.getEncryptionValidity("ignoreExpired").keyValid &&
+        key.getSigningValidity("ignoreExpired").keyValid
       ) {
-        if (key.expiryTime != 0 && key.expiryTime < nowSecondsSinceEpoch) {
+        let thisIsExpired =
+          key.expiryTime != 0 && key.expiryTime < nowSecondsSinceEpoch;
+        if (!allowExpired && thisIsExpired) {
           continue;
         }
         result.all.push(key);
         if (!result.best) {
           result.best = key;
+          bestIsExpired = thisIsExpired;
         } else if (
           result.best.algoSym === key.algoSym &&
           result.best.keySize === key.keySize
@@ -311,14 +253,20 @@ var EnigmailKeyRing = {
           if (!key.expiryTime || key.expiryTime > result.best.expiryTime) {
             result.best = key;
           }
-        } else if (
-          result.best.algoSym.search(/^(DSA|RSA)$/) < 0 &&
-          key.algoSym.search(/^(DSA|RSA)$/) === 0
-        ) {
-          // prefer RSA or DSA over ECC (long-term: change this once ECC keys are widely supported)
-          result.best = key;
-        } else if (key.getVirtualKeySize() > result.best.getVirtualKeySize()) {
-          result.best = key;
+        } else if (bestIsExpired && !thisIsExpired) {
+          if (
+            result.best.algoSym.search(/^(DSA|RSA)$/) < 0 &&
+            key.algoSym.search(/^(DSA|RSA)$/) === 0
+          ) {
+            // prefer RSA or DSA over ECC (long-term: change this once ECC keys are widely supported)
+            result.best = key;
+            bestIsExpired = thisIsExpired;
+          } else if (
+            key.getVirtualKeySize() > result.best.getVirtualKeySize()
+          ) {
+            result.best = key;
+            bestIsExpired = thisIsExpired;
+          }
         }
       }
     }
@@ -857,7 +805,12 @@ var EnigmailKeyRing = {
 
       let acceptanceLevel;
       if (keyObj.secretAvailable) {
-        acceptanceLevel = 3;
+        let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
+        if (isPersonal) {
+          acceptanceLevel = 3;
+        } else {
+          acceptanceLevel = -1; // rejected
+        }
       } else {
         acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
           keyObj,
@@ -937,6 +890,7 @@ var EnigmailKeyRing = {
 
   async getKeyAcceptanceForEmail(keyObj, email) {
     let acceptanceResult = {};
+
     try {
       await PgpSqliteDb2.getAcceptance(keyObj.fpr, email, acceptanceResult);
     } catch (ex) {
@@ -1021,7 +975,7 @@ var EnigmailKeyRing = {
           details.errArray.push(detailsElem);
         }
         EnigmailLog.DEBUG(
-          'keyRing.jsm: doValidKeysForAllRecipients(): return null (no single valid key found for="' +
+          'keyRing.jsm: getValidKeysForAllRecipients(): return null (no single valid key found for="' +
             addr +
             '")\n'
         );

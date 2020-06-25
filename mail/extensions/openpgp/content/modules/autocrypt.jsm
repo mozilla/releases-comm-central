@@ -30,20 +30,20 @@ const { EnigmailSqliteDb } = ChromeUtils.import(
 const { PromiseUtils } = ChromeUtils.import(
   "resource://gre/modules/PromiseUtils.jsm"
 );
-*/
 const { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 );
+*/
 const { EnigmailStreams } = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
 );
 const { EnigmailArmor } = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 );
+/*
 const { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
 );
-/*
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
@@ -829,53 +829,6 @@ var EnigmailAutocrypt = {
    */
   isSelfCreatedSetupMessage(messageId) {
     return gCreatedSetupIds.includes(messageId);
-  },
-
-  /**
-   * Check if an account is set up with OpenPGP and if the configured key is valid
-   *
-   * @param emailAddr: String - email address identifying the account
-   *
-   * @return Boolean: true: account is valid / false: OpenPGP not configured or key not valid
-   */
-  isAccountSetupForPgp(emailAddr) {
-    let id = EnigmailStdlib.getIdentityForEmail(
-      EnigmailFuncs.stripEmail(emailAddr).toLowerCase()
-    );
-    let keyObj = null;
-
-    if (!(id && id.identity)) {
-      return false;
-    }
-    if (!id.identity.getBoolAttribute("enablePgp")) {
-      return false;
-    }
-
-    if (id.identity.getIntAttribute("pgpKeyMode") === 1) {
-      keyObj = EnigmailKeyRing.getKeyById(
-        id.identity.getCharAttribute("pgpkeyId")
-      );
-    } else {
-      keyObj = EnigmailKeyRing.getSecretKeyByUserId(emailAddr);
-    }
-
-    if (!keyObj) {
-      return false;
-    }
-    if (!keyObj.secretAvailable) {
-      return false;
-    }
-
-    let o = keyObj.getEncryptionValidity();
-    if (!o.keyValid) {
-      return false;
-    }
-    o = keyObj.getSigningValidity();
-    if (!o.keyValid) {
-      return false;
-    }
-
-    return true;
   },
 
   /**

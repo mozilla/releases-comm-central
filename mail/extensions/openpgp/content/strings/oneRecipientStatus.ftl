@@ -21,6 +21,7 @@ openpgp-one-recipient-status-instruction1 = To send an end-to-end encrypted mess
 openpgp-one-recipient-status-instruction2 = To obtain their public key, import them from email they have sent to you and that includes it. Alternatively, you can try to discover their public key on a directory.
 
 openpgp-key-own = Accepted (personal key)
+openpgp-key-secret-not-personal = Not usable
 openpgp-key-verified = Accepted (verified)
 openpgp-key-unverified = Accepted (unverifed)
 openpgp-key-undecided = Not accepted (undecided)

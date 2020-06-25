@@ -26,6 +26,8 @@ var { uidHelper } = ChromeUtils.import(
 
 var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
+var gModePersonal = false;
+
 var gKeyId = null;
 var gUserId = null;
 var gKeyList = null;
@@ -35,7 +37,10 @@ var gAllEmails = [];
 var gFingerprint = "";
 
 var gAcceptanceRadio = null;
+var gPersonalRadio = null;
+
 var gOriginalAcceptance;
+var gOriginalPersonal;
 var gUpdateAllowed = false;
 
 async function onLoad() {
@@ -44,6 +49,7 @@ async function onLoad() {
   }
 
   gAcceptanceRadio = document.getElementById("acceptanceRadio");
+  gPersonalRadio = document.getElementById("personalRadio");
 
   gKeyId = window.arguments[0].keyId;
 
@@ -52,7 +58,7 @@ async function onLoad() {
     .getButton("accept");
   accept.focus();
 
-  await reloadData();
+  await reloadData(true);
 }
 
 /***
@@ -63,7 +69,11 @@ function setLabel(elementId, label) {
   node.setAttribute("value", label);
 }
 
-async function reloadData() {
+async function reloadData(firstLoad) {
+  // TODO: once we support firstLoad==false, be sure to change the
+  // code below, and don't update the "original" variables on
+  // subsequent calls.
+
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
     throw new Error("GetEnigmailSvc failed");
@@ -79,123 +89,134 @@ async function reloadData() {
   EnigCleanGuiList(uidList);
 
   let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
-  if (keyObj) {
-    let keyIsExpired =
-      keyObj.expiryTime && keyObj.expiryTime < Math.floor(Date.now() / 1000);
+  if (!keyObj) {
+    return;
+  }
 
-    let acceptanceIntroText = "";
-    let acceptanceWarningText = "";
-    if (keyObj.secretAvailable) {
-      document.getElementById("ownKeyCommands").removeAttribute("hidden");
-      acceptanceIntroText = "key-auto-accept-personal";
-      let value = await document.l10n.formatValue("key-type-pair-2");
-      setLabel("keyType", value);
-    } else {
-      document.getElementById("ownKeyCommands").setAttribute("hidden", "true");
-      let value = await document.l10n.formatValue("key-type-public");
-      setLabel("keyType", value);
+  let acceptanceIntro1Text = "";
+  let acceptanceIntro2Text = "";
 
-      let isStillValid = !(
-        keyObj.keyTrust == "r" ||
-        keyObj.keyTrust == "e" ||
-        keyIsExpired
-      );
-      if (isStillValid) {
-        document
-          .getElementById("acceptanceRadio")
-          .setAttribute("hidden", "false");
-        acceptanceIntroText = "key-do-you-accept";
-        acceptanceWarningText = "key-accept-warning";
-        gUpdateAllowed = true;
+  if (keyObj.fpr) {
+    gFingerprint = keyObj.fpr;
+    setLabel("fingerprint", EnigmailKey.formatFpr(keyObj.fpr));
+  }
 
-        let acceptanceResult = {};
-        await PgpSqliteDb2.getFingerprintAcceptance(
-          null,
-          keyObj.fpr,
-          acceptanceResult
-        );
+  if (keyObj.hasSubUserIds()) {
+    document.getElementById("alsoknown").removeAttribute("collapsed");
+    createUidData(uidList, keyObj);
+  } else {
+    document.getElementById("alsoknown").setAttribute("collapsed", "true");
+  }
 
-        if (
-          "fingerprintAcceptance" in acceptanceResult &&
-          acceptanceResult.fingerprintAcceptance != "undecided"
-        ) {
-          gOriginalAcceptance = acceptanceResult.fingerprintAcceptance;
-        } else {
-          gOriginalAcceptance = "undecided";
-        }
-        gAcceptanceRadio.value = gOriginalAcceptance;
+  if (keyObj.signatures) {
+    let sigListViewObj = new SigListView(keyObj);
+    let tree = document.getElementById("signatures_tree");
+    tree.view = sigListViewObj;
+    gTreeFuncs = EnigmailCompat.getTreeCompatibleFuncs(tree, sigListViewObj);
+  }
+
+  let subkeyListViewObj = new SubkeyListView(keyObj);
+  document.getElementById("subkeyList").view = subkeyListViewObj;
+
+  gUserId = keyObj.userId;
+
+  let splitUid = {};
+  uidHelper.getPartsFromUidStr(keyObj.userId, splitUid);
+  if (splitUid.email) {
+    gAllEmails.push(splitUid.email);
+  }
+
+  setLabel("userId", gUserId);
+  setLabel("keyCreated", keyObj.created);
+
+  let keyIsExpired =
+    keyObj.expiryTime && keyObj.expiryTime < Math.floor(Date.now() / 1000);
+
+  let expiryInfo;
+  let expireArgument = null;
+  let expiryInfoKey = "";
+  if (keyObj.keyTrust == "r") {
+    expiryInfoKey = "key-revoked";
+  } else if (keyObj.keyTrust == "e" || keyIsExpired) {
+    expiryInfoKey = "key-expired";
+    expireArgument = keyObj.expiry;
+  } else if (keyObj.expiry.length === 0) {
+    expiryInfoKey = "key-does-not-expire";
+  } else {
+    expiryInfo = keyObj.expiry;
+  }
+  if (expiryInfoKey) {
+    expiryInfo = l10n.formatValueSync(expiryInfoKey, {
+      keyExpiry: expireArgument,
+    });
+  }
+  setLabel("keyExpiry", expiryInfo);
+
+  gModePersonal = keyObj.secretAvailable;
+  if (gModePersonal) {
+    gPersonalRadio.removeAttribute("hidden");
+    gAcceptanceRadio.setAttribute("hidden", "true");
+    document.getElementById("ownKeyCommands").removeAttribute("hidden");
+    acceptanceIntro1Text = "key-accept-personal";
+    acceptanceIntro2Text = "key-personal-warning";
+    let value = l10n.formatValueSync("key-type-pair");
+    setLabel("keyType", value);
+
+    gUpdateAllowed = true;
+    gOriginalPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
+    gPersonalRadio.value = gOriginalPersonal ? "personal" : "not_personal";
+  } else {
+    gPersonalRadio.setAttribute("hidden", "true");
+    document.getElementById("ownKeyCommands").setAttribute("hidden", "true");
+    let value = l10n.formatValueSync("key-type-public");
+    setLabel("keyType", value);
+
+    let isStillValid = !(
+      keyObj.keyTrust == "r" ||
+      keyObj.keyTrust == "e" ||
+      keyIsExpired
+    );
+    if (!isStillValid) {
+      gAcceptanceRadio.setAttribute("hidden", "true");
+      if (keyObj.keyTrust == "r") {
+        acceptanceIntro1Text = "key-revoked";
+      } else if (keyObj.keyTrust == "e" || keyIsExpired) {
+        acceptanceIntro1Text = "key-expired-simple";
       }
-    }
-
-    if (keyObj.hasSubUserIds()) {
-      document.getElementById("alsoknown").removeAttribute("collapsed");
-      createUidData(uidList, keyObj);
     } else {
-      document.getElementById("alsoknown").setAttribute("collapsed", "true");
-    }
+      gAcceptanceRadio.removeAttribute("hidden");
+      acceptanceIntro1Text = "key-do-you-accept";
+      acceptanceIntro2Text = "key-accept-warning";
+      gUpdateAllowed = true;
 
-    if (keyObj.signatures) {
-      let sigListViewObj = new SigListView(keyObj);
-      let tree = document.getElementById("signatures_tree");
-      tree.view = sigListViewObj;
-      gTreeFuncs = EnigmailCompat.getTreeCompatibleFuncs(tree, sigListViewObj);
-    }
+      //await RNP.calculateAcceptance(keyObj.keyId, null);
 
-    let subkeyListViewObj = new SubkeyListView(keyObj);
-    document.getElementById("subkeyList").view = subkeyListViewObj;
-
-    gUserId = keyObj.userId;
-
-    let splitUid = {};
-    uidHelper.getPartsFromUidStr(keyObj.userId, splitUid);
-    if (splitUid.email) {
-      gAllEmails.push(splitUid.email);
-    }
-
-    setLabel("userId", gUserId);
-    setLabel("keyCreated", keyObj.created);
-
-    let expiryInfo;
-    let expireArgument = null;
-    let l10nUse = true;
-    if (keyObj.keyTrust == "r") {
-      expiryInfo = "key-revoked";
-      acceptanceIntroText = expiryInfo;
-    } else if (keyObj.keyTrust == "e" || keyIsExpired) {
-      expiryInfo = "key-expired";
-      expireArgument = keyObj.expiry;
-      acceptanceIntroText = expiryInfo;
-    } else if (keyObj.expiry.length === 0) {
-      expiryInfo = "key-does-not-expire";
-    } else {
-      expiryInfo = keyObj.expiry;
-      l10nUse = false;
-    }
-
-    if (acceptanceIntroText) {
-      let acceptanceIntro = document.getElementById("acceptanceIntro");
-      document.l10n.setAttributes(acceptanceIntro, acceptanceIntroText);
-    }
-
-    if (acceptanceWarningText) {
-      let acceptanceExplanation = document.getElementById(
-        "acceptanceExplanation"
+      let acceptanceResult = {};
+      await PgpSqliteDb2.getFingerprintAcceptance(
+        null,
+        keyObj.fpr,
+        acceptanceResult
       );
-      document.l10n.setAttributes(acceptanceExplanation, acceptanceWarningText);
-    }
 
-    if (l10nUse) {
-      let keyExpiryNode = document.getElementById("keyExpiry");
-      document.l10n.setAttributes(keyExpiryNode, expiryInfo, {
-        keyExpiry: expireArgument,
-      });
-    } else {
-      setLabel("keyExpiry", expiryInfo);
+      if (
+        "fingerprintAcceptance" in acceptanceResult &&
+        acceptanceResult.fingerprintAcceptance != "undecided"
+      ) {
+        gOriginalAcceptance = acceptanceResult.fingerprintAcceptance;
+      } else {
+        gOriginalAcceptance = "undecided";
+      }
+      gAcceptanceRadio.value = gOriginalAcceptance;
     }
-    if (keyObj.fpr) {
-      gFingerprint = keyObj.fpr;
-      setLabel("fingerprint", EnigmailKey.formatFpr(keyObj.fpr));
-    }
+  }
+  if (acceptanceIntro1Text) {
+    let acceptanceIntro1 = document.getElementById("acceptanceIntro1");
+    document.l10n.setAttributes(acceptanceIntro1, acceptanceIntro1Text);
+  }
+
+  if (acceptanceIntro2Text) {
+    let acceptanceIntro2 = document.getElementById("acceptanceIntro2");
+    document.l10n.setAttributes(acceptanceIntro2, acceptanceIntro2Text);
   }
 }
 
@@ -217,6 +238,7 @@ function createUidData(listNode, keyDetails) {
   }
 }
 
+/*
 function getTrustLabel(trustCode) {
   var trustTxt = EnigGetTrustLabel(trustCode);
   if (trustTxt == "-" || trustTxt.length === 0) {
@@ -224,6 +246,7 @@ function getTrustLabel(trustCode) {
   }
   return trustTxt;
 }
+*/
 
 function setAttr(attribute, value) {
   var elem = document.getElementById(attribute);
@@ -242,14 +265,14 @@ function enableRefresh() {
 function signKey() {
   if (EnigSignKey(gUserId, gKeyId, null)) {
     enableRefresh();
-    reloadData();
+    reloadData(false);
   }
 }
 
 function changeExpirationDate() {
   if (EnigEditKeyExpiry([gUserId], [gKeyId])) {
     enableRefresh();
-    reloadData();
+    reloadData(false);
   }
 }
 */
@@ -275,7 +298,7 @@ function manageUids() {
   );
   if (resultObj.refresh) {
     enableRefresh();
-    reloadData();
+    reloadData(false);
   }
 }
 */
@@ -291,7 +314,7 @@ async function revokeKey() {
   EnigRevokeKey(gKeyId, gUserId, function(success) {
     if (success) {
       enableRefresh();
-      await reloadData();
+      await reloadData(false);
     }
   });
   */
@@ -634,17 +657,26 @@ SubkeyListView.prototype = {
 function sigHandleDblClick(event) {}
 
 async function onAccept() {
-  if (gUpdateAllowed && gAcceptanceRadio.value != gOriginalAcceptance) {
-    enableRefresh();
+  if (gModePersonal) {
+    if (gUpdateAllowed && gPersonalRadio.value != gOriginalPersonal) {
+      enableRefresh();
 
-    const cApi = EnigmailCryptoAPI();
-    cApi.sync(
-      PgpSqliteDb2.updateAcceptance(
+      if (gPersonalRadio.value == "personal") {
+        await PgpSqliteDb2.acceptAsPersonalKey(gFingerprint);
+      } else {
+        await PgpSqliteDb2.deletePersonalKeyAcceptance(gFingerprint);
+      }
+    }
+  } else if (gUpdateAllowed) {
+    if (gAcceptanceRadio.value != gOriginalAcceptance) {
+      enableRefresh();
+
+      await PgpSqliteDb2.updateAcceptance(
         gFingerprint,
         gAllEmails,
         gAcceptanceRadio.value
-      )
-    );
+      );
+    }
   }
   return true;
 }
