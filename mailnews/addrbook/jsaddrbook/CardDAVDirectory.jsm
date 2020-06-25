@@ -9,6 +9,11 @@ const { AddrBookDirectory } = ChromeUtils.import(
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "fixIterator",
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 /**
  * @extends AddrBookDirectory
@@ -21,9 +26,39 @@ class CardDAVDirectory extends AddrBookDirectory {
     return false;
   }
 
-  modifyCard(card) {
+  async modifyCard(card) {
+    let oldProperties = this._loadCardProperties(card.UID);
+
+    let newProperties = new Map();
+    for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
+      newProperties.set(name, value);
+    }
+
+    let sendSucceeded = await this._sendCardToServer(card);
+    if (!sendSucceeded) {
+      // _etag and _vCard properties have now been updated. Work out what
+      // properties changed on the server, and copy them to `card`, but only
+      // if they haven't also changed on the client.
+      let serverCard = VCardUtils.vCardToAbCard(card.getProperty("_vCard", ""));
+      for (let { name, value } of fixIterator(
+        serverCard.properties,
+        Ci.nsIProperty
+      )) {
+        if (
+          value != newProperties.get(name) &&
+          newProperties.get(name) == oldProperties.get(name)
+        ) {
+          card.setProperty(name, value);
+        }
+      }
+
+      // Send the card back to the server. This time, the ETag matches what's
+      // on the server, so this should succeed.
+      await this._sendCardToServer(card);
+    }
+
+    // Store in the database.
     super.modifyCard(card);
-    this._sendCardToServer(card);
   }
   deleteCards(cards) {
     super.deleteCards(cards);
@@ -32,8 +67,10 @@ class CardDAVDirectory extends AddrBookDirectory {
     }
   }
   dropCard(card, needToCopyCard) {
+    // Ideally, we'd not add the card until it was on the server, but we have
+    // to return newCard synchronously.
     let newCard = super.dropCard(card, needToCopyCard);
-    this._sendCardToServer(newCard);
+    this._sendCardToServer(newCard).then(() => super.modifyCard(newCard));
     return newCard;
   }
   addMailList() {
@@ -124,23 +161,37 @@ class CardDAVDirectory extends AddrBookDirectory {
    * matches the server copy.
    *
    * @param {nsIAbCard} card
+   * @returns {boolean} true if the PUT request succeeded without conflict,
+   *     false if there was a conflict.
+   * @throws if the server responded with anything other than a success or
+   *     conflict status code.
    */
   async _sendCardToServer(card) {
     let href = this._getCardHref(card);
+    let requestDetails = {
+      method: "PUT",
+      contentType: "text/vcard",
+    };
 
-    let existing = card.getProperty("_vCard", "");
-    let data;
-    if (existing) {
-      data = VCardUtils.modifyVCard(existing, card);
+    let existingVCard = card.getProperty("_vCard", "");
+    if (existingVCard) {
+      requestDetails.body = VCardUtils.modifyVCard(existingVCard, card);
+      let existingETag = card.getProperty("_etag", "");
+      if (existingETag) {
+        requestDetails.headers = { "If-Match": existingETag };
+      }
     } else {
       // TODO 3.0 is the default, should we be able to use other versions?
-      data = VCardUtils.abCardToVCard(card, "3.0");
+      requestDetails.body = VCardUtils.abCardToVCard(card, "3.0");
     }
-    let response = await this._makeRequest(href, {
-      method: "PUT",
-      body: data,
-      contentType: "text/vcard",
-    });
+    let response = await this._makeRequest(href, requestDetails);
+    let conflictResponse = [409, 412].includes(response.status);
+    if (response.status >= 400 && !conflictResponse) {
+      throw Components.Exception(
+        `Sending card to the server failed, response was ${response.status} ${response.statusText}`,
+        Cr.NS_ERROR_FAILURE
+      );
+    }
 
     // At this point we *should* be able to make a simple GET request and
     // store the response. But Google moves the data (fair enough) without
@@ -161,7 +212,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       card.setProperty("_vCard", vCard);
     }
 
-    super.modifyCard(card);
+    return !conflictResponse;
   }
 
   /**

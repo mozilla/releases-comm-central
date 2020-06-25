@@ -17,34 +17,7 @@ add_task(async () => {
     "BEGIN:VCARD\r\nUID:delete-me\r\nFN:I'm going to be deleted.\r\nEND:VCARD\r\n"
   );
 
-  // Set up a new directory and get the cards from the server. Do this by
-  // creating an instance of CardDAVDirectory rather than through the address
-  // book manager, so that we can access the internals of the directory.
-
-  Services.prefs.setStringPref(
-    "ldap_2.servers.carddav.description",
-    "CardDAV Test"
-  );
-  Services.prefs.setStringPref(
-    "ldap_2.servers.carddav.carddav.url",
-    CardDAVServer.url
-  );
-  Services.prefs.setIntPref("ldap_2.servers.carddav.dirType", 102);
-  Services.prefs.setStringPref(
-    "ldap_2.servers.carddav.filename",
-    "carddav.sqlite"
-  );
-
-  // Save a username and password to the login manager.
-  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-    Ci.nsILoginInfo
-  );
-  loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
-  Services.logins.addLogin(loginInfo);
-  CardDAVServer.setUsernameAndPassword("bob", "bob");
-
-  let directory = new CardDAVDirectory();
-  directory.init("jscarddav://carddav.sqlite");
+  let directory = initDirectory();
 
   info("Getting sync token.");
 
@@ -201,11 +174,6 @@ add_task(async () => {
   let changeMeCard = cardMap.get("change-me");
   changeMeCard.displayName = "I've been changed again!";
   directory.modifyCard(changeMeCard);
-  observer.checkAndClearNotifications({
-    "addrbook-contact-created": [],
-    "addrbook-contact-updated": ["change-me"],
-    "addrbook-contact-deleted": [],
-  });
 
   Assert.equal(await observer.waitFor("addrbook-contact-updated"), "change-me");
 

@@ -414,6 +414,14 @@ var CardDAVServer = {
   },
 
   putCard(request, response) {
+    if (request.hasHeader("If-Match")) {
+      let card = this.cards.get(request.path);
+      if (!card || card.etag != request.getHeader("If-Match")) {
+        response.setStatusLine("1.1", 412, "Precondition Failed");
+        return;
+      }
+    }
+
     let vCard = CommonUtils.readBytesFromInputStream(request.bodyInputStream);
     this.putCardInternal(request.path, vCard);
     response.setStatusLine("1.1", 204, "No Content");

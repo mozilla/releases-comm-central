@@ -17,6 +17,38 @@ registerCleanupFunction(function() {
   load("../../../resources/mailShutdown.js");
 });
 
+function initDirectory() {
+  // Set up a new directory and get the cards from the server. Do this by
+  // creating an instance of CardDAVDirectory rather than through the address
+  // book manager, so that we can access the internals of the directory.
+
+  Services.prefs.setStringPref(
+    "ldap_2.servers.carddav.description",
+    "CardDAV Test"
+  );
+  Services.prefs.setStringPref(
+    "ldap_2.servers.carddav.carddav.url",
+    CardDAVServer.url
+  );
+  Services.prefs.setIntPref("ldap_2.servers.carddav.dirType", 102);
+  Services.prefs.setStringPref(
+    "ldap_2.servers.carddav.filename",
+    "carddav.sqlite"
+  );
+
+  // Save a username and password to the login manager.
+  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+    Ci.nsILoginInfo
+  );
+  loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
+  Services.logins.addLogin(loginInfo);
+  CardDAVServer.setUsernameAndPassword("bob", "bob");
+
+  let directory = new CardDAVDirectory();
+  directory.init("jscarddav://carddav.sqlite");
+  return directory;
+}
+
 async function checkCardsOnServer(expectedCards) {
   // Send a request to the server. When the server responds, we know it has
   // completed all earlier requests.
