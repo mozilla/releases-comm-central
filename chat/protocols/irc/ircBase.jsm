@@ -33,26 +33,34 @@ var {
 
 function privmsg(aAccount, aMessage, aIsNotification) {
   let params = { tags: aMessage.tags };
-  // If the echo-message capability is enabled and the message is from our nick,
-  // mark it as outgoing. Otherwise, the message is incoming.
+  // If the the message is from our nick, it is outgoing to the conversation it
+  // is targeting. Otherwise, the message is incoming, but could be for a
+  // private message or a channel.
+  //
+  // Note that the only time it is expected to receive a message from us is if
+  // the echo-message capability is enabled.
+  let convName;
   if (
-    aAccount._activeCAPs.has("echo-message") &&
     aAccount.normalizeNick(aMessage.origin) ==
-      aAccount.normalizeNick(aAccount._nickname)
+    aAccount.normalizeNick(aAccount._nickname)
   ) {
     params.outgoing = true;
+    // The conversation name is who it is being sent to.
+    convName = aMessage.params[0];
   } else {
     params.incoming = true;
+    // If the target is a MUC name, use the target as the conversation name.
+    // Otherwise, this is a private message: use the sender as the conversation
+    // name.
+    convName = aAccount.isMUCName(aMessage.params[0])
+      ? aMessage.params[0]
+      : aMessage.origin;
   }
   if (aIsNotification) {
     params.notification = true;
   }
   aAccount
-    .getConversation(
-      aAccount.isMUCName(aMessage.params[0])
-        ? aMessage.params[0]
-        : aMessage.origin
-    )
+    .getConversation(convName)
     .writeMessage(aMessage.origin, aMessage.params[1], params);
   return true;
 }
