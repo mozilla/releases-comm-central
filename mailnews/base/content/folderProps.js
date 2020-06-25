@@ -215,7 +215,9 @@ function folderPropsOKButton(event) {
 
 function folderCancelButton(event) {
   // Restore the icon to the previous color and discard edits.
-  window.arguments[0].previewSelectedColorCallback(gMsgFolder, kCurrentColor);
+  if (gMsgFolder && window.arguments[0].previewSelectedColorCallback) {
+    window.arguments[0].previewSelectedColorCallback(gMsgFolder, kCurrentColor);
+  }
 }
 
 function folderPropsOnLoad() {

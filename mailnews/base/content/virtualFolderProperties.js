@@ -282,7 +282,10 @@ function onOK(event) {
 }
 
 function onCancel(event) {
-  if (window.arguments[0].folder) {
+  if (
+    window.arguments[0].folder &&
+    window.arguments[0].previewSelectedColorCallback
+  ) {
     // Restore the icon to the previous color and discard edits.
     window.arguments[0].previewSelectedColorCallback(
       window.arguments[0].folder,
