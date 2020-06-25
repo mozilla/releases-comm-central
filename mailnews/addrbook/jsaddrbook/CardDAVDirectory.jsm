@@ -36,6 +36,24 @@ class CardDAVDirectory extends AddrBookDirectory {
     this._sendCardToServer(newCard);
     return newCard;
   }
+  addMailList() {
+    throw Components.Exception(
+      "CardDAVDirectory does not implement addMailList",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
+  editMailListToDatabase() {
+    throw Components.Exception(
+      "CardDAVDirectory does not implement editMailListToDatabase",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
+  copyMailList() {
+    throw Components.Exception(
+      "CardDAVDirectory does not implement copyMailList",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
+  }
 
   get _serverURL() {
     return this.getStringValue("carddav.url", "");
@@ -108,9 +126,6 @@ class CardDAVDirectory extends AddrBookDirectory {
    * @param {nsIAbCard} card
    */
   async _sendCardToServer(card) {
-    if (this._syncInProgress) {
-      return;
-    }
     let href = this._getCardHref(card);
 
     let existing = card.getProperty("_vCard", "");
@@ -146,9 +161,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       card.setProperty("_vCard", vCard);
     }
 
-    this._syncInProgress = true;
-    this.modifyCard(card);
-    this._syncInProgress = false;
+    super.modifyCard(card);
   }
 
   /**
@@ -157,9 +170,6 @@ class CardDAVDirectory extends AddrBookDirectory {
    * @param {nsIAbCard} card
    */
   _deleteCardFromServer(card) {
-    if (this._syncInProgress) {
-      return Promise.resolve();
-    }
     let href = card.getProperty("_href", "");
     if (!href) {
       return Promise.resolve();
@@ -288,9 +298,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     }
 
     if (cardsToDelete.length > 0) {
-      this._syncInProgress = true;
-      this.deleteCards(cardsToDelete);
-      this._syncInProgress = false;
+      super.deleteCards(cardsToDelete);
     }
 
     if (hrefsToFetch.length == 0) {
@@ -299,7 +307,6 @@ class CardDAVDirectory extends AddrBookDirectory {
 
     response = await this._multigetRequest(hrefsToFetch);
 
-    this._syncInProgress = true;
     for (let r of response.dom.querySelectorAll("response")) {
       let etag = r.querySelector("getetag").textContent;
       let href = r.querySelector("href").textContent;
@@ -313,12 +320,11 @@ class CardDAVDirectory extends AddrBookDirectory {
       abCard.setProperty("_vCard", vCard);
 
       if (cardsToAdd.includes(href)) {
-        this.addCard(abCard);
+        super.dropCard(abCard, false);
       } else {
-        this.modifyCard(abCard);
+        super.modifyCard(abCard);
       }
     }
-    this._syncInProgress = false;
   }
 
   /**
@@ -393,21 +399,17 @@ class CardDAVDirectory extends AddrBookDirectory {
       abCard.setProperty("_href", href);
       abCard.setProperty("_vCard", vCard);
 
-      this._syncInProgress = true;
       if (card) {
         if (card.getProperty("_etag", "") != etag) {
-          this.modifyCard(abCard);
+          super.modifyCard(abCard);
         }
       } else {
-        this.addCard(abCard);
+        super.dropCard(abCard, false);
       }
-      this._syncInProgress = false;
     }
 
     if (cardsToDelete.length > 0) {
-      this._syncInProgress = true;
-      this.deleteCards(cardsToDelete);
-      this._syncInProgress = false;
+      super.deleteCards(cardsToDelete);
     }
   }
 
