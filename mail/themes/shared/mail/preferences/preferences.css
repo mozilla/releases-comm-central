@@ -474,7 +474,9 @@ html|input.indent {
 }
 
 #defaultFontSize,
-#directoriesList {
+#directoriesList,
+#localDirectoriesList,
+#defaultStartupDirList {
   margin-inline-end: 4px;
 }
 
