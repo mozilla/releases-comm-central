@@ -188,7 +188,14 @@
 
         <aside class="row-container">
           <p data-l10n-id="about-paragraph"></p>
-          <p id="donationParagraph" data-l10n-id="about-paragraph-2"></p>
+          <p id="donationParagraph" data-l10n-id="about-paragraph-consider-donation">
+            <a href="https://give.thunderbird.net/en-US/?utm_source=start_page_tb_release&amp;utm_medium=referral&amp;utm_content=paragraph_text"
+               class="donation-link"
+               data-l10n-name="donation-link"
+               onclick="openLink(event);"
+               onkeypress="if (event.key == 'Enter') { openLink(event); }"
+               tabindex="0"></a>
+          </p>
         </aside>
       </section>
 

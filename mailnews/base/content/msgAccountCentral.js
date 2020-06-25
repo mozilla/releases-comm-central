@@ -48,36 +48,6 @@ function OnInit() {
 
     document.getElementById("accountFeaturesSection").hidden = true;
   }
-
-  addDonationLink();
-}
-
-/**
- * Append the donation link at the end of the second paragraph.
- */
-function addDonationLink() {
-  let donationLink = document.createElement("a");
-  donationLink.setAttribute(
-    "href",
-    "https://give.thunderbird.net/en-US/?utm_source=start_page_tb_release&utm_medium=referral&utm_content=paragraph_text"
-  );
-  donationLink.classList.add("donation-link");
-  donationLink.setAttribute("tabindex", 0);
-  donationLink.addEventListener("click", event => {
-    openLink(event);
-  });
-  donationLink.addEventListener("keypress", event => {
-    if (event.key == "Enter") {
-      openLink(event);
-    }
-  });
-
-  let donationParagraph = document.getElementById("donationParagraph");
-  donationParagraph.append(" ");
-  donationParagraph.appendChild(donationLink);
-  donationParagraph.append(".");
-
-  document.l10n.setAttributes(donationLink, "about-donation");
 }
 
 /**
