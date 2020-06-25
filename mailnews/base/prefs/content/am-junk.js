@@ -15,12 +15,8 @@ var gDeferredToAccount = "";
 
 function onInit(aPageId, aServerId) {
   // manually adjust several pref UI elements
-  document
-    .getElementById("server.spamLevel.visible")
-    .setAttribute(
-      "checked",
-      document.getElementById("server.spamLevel").value > 0
-    );
+  document.getElementById("server.spamLevel.visible").checked =
+    document.getElementById("server.spamLevel").value > 0;
 
   let deferredToURI = null;
   if (gDeferredToAccount) {
@@ -100,7 +96,7 @@ function onInit(aPageId, aServerId) {
   for (let abItem of abItems) {
     let checkbox = document.createXULElement("checkbox");
     checkbox.setAttribute("label", abItem.label);
-    checkbox.setAttribute("checked", currentArray.includes(abItem.URI));
+    checkbox.checked = currentArray.includes(abItem.URI);
 
     let item = document.createXULElement("richlistitem");
     item.appendChild(checkbox);
