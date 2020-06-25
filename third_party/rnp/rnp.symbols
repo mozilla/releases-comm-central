@@ -145,8 +145,15 @@ rnp_op_verify_destroy
 rnp_op_verify_detached_create
 rnp_op_verify_execute
 rnp_op_verify_get_file_info
+rnp_op_verify_get_protection_info
+rnp_op_verify_get_recipient_at
+rnp_op_verify_get_recipient_count
 rnp_op_verify_get_signature_at
 rnp_op_verify_get_signature_count
+rnp_op_verify_get_symenc_at
+rnp_op_verify_get_symenc_count
+rnp_op_verify_get_used_recipient
+rnp_op_verify_get_used_symenc
 rnp_op_verify_signature_get_handle
 rnp_op_verify_signature_get_hash
 rnp_op_verify_signature_get_key
@@ -162,6 +169,8 @@ rnp_output_to_memory
 rnp_output_to_null
 rnp_output_to_path
 rnp_output_write
+rnp_recipient_get_alg
+rnp_recipient_get_keyid
 rnp_request_password
 rnp_result_to_string
 rnp_save_keys
@@ -174,6 +183,11 @@ rnp_signature_handle_destroy
 rnp_signature_packet_to_json
 rnp_supported_features
 rnp_supports_feature
+rnp_symenc_get_aead_alg
+rnp_symenc_get_cipher
+rnp_symenc_get_hash_alg
+rnp_symenc_get_s2k_iterations
+rnp_symenc_get_s2k_type
 rnp_uid_get_signature_at
 rnp_uid_get_signature_count
 rnp_uid_handle_destroy
