@@ -16,6 +16,8 @@ interface nsIFolderListener;
 [scriptable, uuid(d5ab0eea-49c5-42f2-b2e6-8ad306606d8b)]
 interface nsIMsgAccountManager : nsISupports {
 
+  ACString getUniqueAccountKey();
+
   nsIMsgAccount createAccount();
   /*
    * Return the account with the provided key, or null if none found.
@@ -34,6 +36,11 @@ interface nsIMsgAccountManager : nsISupports {
    * creates a new identity and assigns it a new, unique "key"
    */
   nsIMsgIdentity createIdentity();
+
+  /**
+   * Scan the preferences to find a unique server key.
+   */
+  ACString getUniqueServerKey();
 
   /*
    * creates a new server and assigns it a new, unique "key"

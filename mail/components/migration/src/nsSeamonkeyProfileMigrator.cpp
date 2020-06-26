@@ -3,12 +3,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "nsDataHashtable.h"
 #include "nsMailProfileMigratorUtils.h"
 #include "nsDirectoryServiceDefs.h"
+#include "nsIMsgAccountManager.h"
+#include "nsISmtpServer.h"
+#include "nsISmtpService.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsIPrefService.h"
 #include "nsArrayUtils.h"
 #include "nsISupportsPrimitives.h"
+#include "nsMsgBaseCID.h"
+#include "nsMsgCompCID.h"
 #include "nsNetCID.h"
 #include "nsNetUtil.h"
 #include "nsSeamonkeyProfileMigrator.h"
@@ -120,7 +126,7 @@ nsSeamonkeyProfileMigrator::GetMigrateData(const char16_t* aProfile,
   }
 
   MigrationData data[] = {
-      {ToNewUnicode(FILE_NAME_PREFS), nsIMailProfileMigrator::SETTINGS, true},
+      {ToNewUnicode(FILE_NAME_PREFS), nsIMailProfileMigrator::SETTINGS, false},
       {ToNewUnicode(FILE_NAME_JUNKTRAINING),
        nsIMailProfileMigrator::JUNKTRAINING, true},
   };
@@ -288,6 +294,10 @@ static nsSeamonkeyProfileMigrator::PrefTransform gTransforms[] = {
     MAKEPREFTRANSFORM("mail.pane_config", "mail.pane_config.dynamic", Int,
                       Int)};
 
+/**
+ * Use the current Seamonkey's prefs.js as base, and transform some branches.
+ * Thunderbird's prefs.js is thrown away.
+ */
 nsresult nsSeamonkeyProfileMigrator::TransformPreferences(
     const nsAString& aSourcePrefFileName,
     const nsAString& aTargetPrefFileName) {
@@ -437,7 +447,7 @@ nsresult nsSeamonkeyProfileMigrator::CopyMailFolders(
 
   nsresult rv;
   uint32_t count = aMailServers.Length();
-  for (uint32_t i = 0; i < count; ++i) {
+  for (uint32_t i = 0; i < count; i++) {
     PrefBranchStruct* pref = aMailServers.ElementAt(i);
     nsDependentCString prefName(pref->prefName);
 
@@ -478,7 +488,8 @@ nsresult nsSeamonkeyProfileMigrator::CopyMailFolders(
       if (serverType.Equals("imap")) {
         mTargetProfile->Clone(getter_AddRefs(targetMailFolder));
         targetMailFolder->Append(IMAP_MAIL_DIR_50_NAME);
-      } else if (serverType.Equals("none") || serverType.Equals("pop3")) {
+      } else if (serverType.Equals("none") || serverType.Equals("pop3") ||
+                 serverType.Equals("rss")) {
         // local folders and POP3 servers go under <profile>\Mail
         mTargetProfile->Clone(getter_AddRefs(targetMailFolder));
         targetMailFolder->Append(MAIL_DIR_50_NAME);
@@ -552,9 +563,14 @@ nsresult nsSeamonkeyProfileMigrator::CopyMailFolders(
 
 nsresult nsSeamonkeyProfileMigrator::CopyPreferences(bool aReplace) {
   nsresult rv = NS_OK;
-  if (!aReplace) return rv;
+  nsresult tmp;
 
-  nsresult tmp = TransformPreferences(FILE_NAME_PREFS, FILE_NAME_PREFS);
+  if (aReplace) {
+    tmp = TransformPreferences(FILE_NAME_PREFS, FILE_NAME_PREFS);
+  } else {
+    tmp = ImportPreferences(FILE_NAME_PREFS, FILE_NAME_PREFS);
+  }
+
   if (NS_FAILED(tmp)) {
     rv = tmp;
   }
@@ -586,6 +602,305 @@ nsresult nsSeamonkeyProfileMigrator::CopyPreferences(bool aReplace) {
     rv = tmp;
   }
   return rv;
+}
+
+/**
+ * Use the current Thunderbird's prefs.js as base, transform branches of
+ * Seamonkey's prefs.js so that those branches can be imported without conflicts
+ * or overwriting.
+ */
+nsresult nsSeamonkeyProfileMigrator::ImportPreferences(
+    const nsAString& aSourcePrefFileName,
+    const nsAString& aTargetPrefFileName) {
+  nsresult rv;
+  nsCOMPtr<nsIPrefService> psvc(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Because all operations on nsIPrefService or nsIPrefBranch will update
+  // prefs.js directly, we need to backup the current pref file to be used as a
+  // base later.
+  nsCOMPtr<nsIFile> targetPrefsFile;
+  mTargetProfile->Clone(getter_AddRefs(targetPrefsFile));
+  targetPrefsFile->Append(aTargetPrefFileName + NS_LITERAL_STRING(".orig"));
+  rv = psvc->SavePrefFile(targetPrefsFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Load the source pref file.
+  rv = psvc->ResetPrefs();
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIFile> sourcePrefsFile;
+  mSourceProfile->Clone(getter_AddRefs(sourcePrefsFile));
+  sourcePrefsFile->Append(aSourcePrefFileName);
+  rv = psvc->ReadUserPrefsFromFile(sourcePrefsFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  // Read in the various pref branch trees for accounts, identities, servers,
+  // etc.
+  static const char* branchNames[] = {
+      "mail.identity.",   "mail.server.",     "ldap_2.",       "mail.account.",
+      "mail.smtpserver.", "mailnews.labels.", "mailnews.tags."};
+  PBStructArray sourceBranches[MOZ_ARRAY_LENGTH(branchNames)];
+  for (uint32_t i = 0; i < MOZ_ARRAY_LENGTH(branchNames); i++) {
+    ReadBranch(branchNames[i], psvc, sourceBranches[i]);
+  }
+
+  // Read back the original prefs.
+  rv = psvc->ResetPrefs();
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = psvc->ReadUserPrefsFromFile(targetPrefsFile);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIMsgAccountManager> accountManager(
+      do_GetService(NS_MSGACCOUNTMANAGER_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+  PrefKeyHashTable smtpServerKeyHashTable;
+  PrefKeyHashTable identityKeyHashTable;
+  PrefKeyHashTable serverKeyHashTable;
+
+  // Transforming order is important here.
+  TransformSmtpServersForImport(sourceBranches[4], smtpServerKeyHashTable);
+
+  // mail.identity.idN.smtpServer depends on previous step.
+  TransformIdentitiesForImport(sourceBranches[0], accountManager,
+                               smtpServerKeyHashTable, identityKeyHashTable);
+
+  TransformMailServersForImport(branchNames[1], psvc, sourceBranches[1],
+                                accountManager, serverKeyHashTable);
+
+  // mail.accountN.{identities,server} depends on previous steps.
+  TransformMailAccountsForImport(psvc, sourceBranches[3], accountManager,
+                                 identityKeyHashTable, serverKeyHashTable);
+
+  // CopyMailFolders requires mail.server.serverN branch exists.
+  WriteBranch(branchNames[1], psvc, sourceBranches[1], false);
+  CopyMailFolders(sourceBranches[1], psvc);
+
+  for (uint32_t i = 0; i < MOZ_ARRAY_LENGTH(branchNames); i++)
+    WriteBranch(branchNames[i], psvc, sourceBranches[i]);
+
+  targetPrefsFile->Remove(false);
+  return rv;
+}
+
+/**
+ * Transform mail.identity branch.
+ */
+nsresult nsSeamonkeyProfileMigrator::TransformIdentitiesForImport(
+    PBStructArray& aIdentities, nsIMsgAccountManager* accountManager,
+    PrefKeyHashTable& smtpServerKeyHashTable, PrefKeyHashTable& keyHashTable) {
+  nsresult rv;
+  nsTArray<nsCString> newKeys;
+
+  for (auto pref : aIdentities) {
+    nsDependentCString prefName(pref->prefName);
+    nsTArray<nsCString> keys;
+    ParseString(prefName, '.', keys);
+    auto key = keys[0];
+    if (key == "default") {
+      continue;
+    } else if (StringEndsWith(prefName, nsDependentCString(".smtpServer"))) {
+      nsDependentCString serverKey(pref->stringValue);
+      nsCString newServerKey;
+      if (smtpServerKeyHashTable.Get(serverKey, &newServerKey)) {
+        pref->stringValue = moz_xstrdup(newServerKey.get());
+      }
+    }
+
+    // For every seamonkey identity, create a new one to avoid conflicts.
+    nsCString newKey;
+    if (!keyHashTable.Get(key, &newKey)) {
+      nsCOMPtr<nsIMsgIdentity> identity;
+      rv = accountManager->CreateIdentity(getter_AddRefs(identity));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      identity->GetKey(newKey);
+      keyHashTable.Put(key, newKey);
+    }
+
+    // Replace the prefName with the new key.
+    prefName.Assign(moz_xstrdup(newKey.get()));
+    for (uint32_t j = 1; j < keys.Length(); j++) {
+      prefName.Append('.');
+      prefName.Append(keys[j]);
+    }
+    pref->prefName = moz_xstrdup(prefName.get());
+  }
+  return NS_OK;
+}
+
+/**
+ * Transform mail.account branch. Also update mail.accountmanager.accounts at
+ * the end.
+ */
+nsresult nsSeamonkeyProfileMigrator::TransformMailAccountsForImport(
+    nsIPrefService* aPrefService, PBStructArray& aAccounts,
+    nsIMsgAccountManager* accountManager,
+    PrefKeyHashTable& identityKeyHashTable,
+    PrefKeyHashTable& serverKeyHashTable) {
+  nsDataHashtable<nsCStringHashKey, nsCString> keyHashTable;
+  nsTArray<nsCString> newKeys;
+
+  for (auto pref : aAccounts) {
+    nsDependentCString prefName(pref->prefName);
+    nsTArray<nsCString> keys;
+    ParseString(prefName, '.', keys);
+    auto key = keys[0];
+    if (key == "default") {
+      continue;
+    } else if (StringEndsWith(prefName, nsDependentCString(".identities"))) {
+      nsDependentCString identityKey(pref->stringValue);
+      nsCString newIdentityKey;
+      if (identityKeyHashTable.Get(identityKey, &newIdentityKey)) {
+        pref->stringValue = moz_xstrdup(newIdentityKey.get());
+      }
+    } else if (StringEndsWith(prefName, nsDependentCString(".server"))) {
+      nsDependentCString serverKey(pref->stringValue);
+      nsCString newServerKey;
+      if (serverKeyHashTable.Get(serverKey, &newServerKey)) {
+        pref->stringValue = moz_xstrdup(newServerKey.get());
+      }
+    }
+
+    // For every seamonkey account, create a new one to avoid conflicts.
+    nsCString newKey;
+    if (!keyHashTable.Get(key, &newKey)) {
+      accountManager->GetUniqueAccountKey(newKey);
+      newKeys.AppendElement(newKey);
+      keyHashTable.Put(key, newKey);
+    }
+
+    // Replace the prefName with the new key.
+    prefName.Assign(moz_xstrdup(newKey.get()));
+    for (uint32_t j = 1; j < keys.Length(); j++) {
+      prefName.Append('.');
+      prefName.Append(keys[j]);
+    }
+    pref->prefName = moz_xstrdup(prefName.get());
+  }
+
+  // Append newly create accounts to mail.accountmanager.accounts.
+  nsCOMPtr<nsIPrefBranch> branch;
+  nsCString newAccounts;
+  uint32_t count = newKeys.Length();
+  if (count) {
+    nsresult rv =
+        aPrefService->GetBranch("mail.accountmanager.", getter_AddRefs(branch));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv = branch->GetCharPref("accounts", newAccounts);
+    NS_ENSURE_SUCCESS(rv, rv);
+  }
+  for (uint32_t i = 0; i < count; i++) {
+    newAccounts.Append(',');
+    newAccounts.Append(newKeys[i]);
+  }
+  if (count) {
+    (void)branch->SetCharPref("accounts", newAccounts);
+  }
+
+  return NS_OK;
+}
+
+/**
+ * Transform mail.server branch.
+ */
+nsresult nsSeamonkeyProfileMigrator::TransformMailServersForImport(
+    const char* branchName, nsIPrefService* aPrefService,
+    PBStructArray& aMailServers, nsIMsgAccountManager* accountManager,
+    PrefKeyHashTable& keyHashTable) {
+  nsTArray<nsCString> newKeys;
+
+  for (auto pref : aMailServers) {
+    nsDependentCString prefName(pref->prefName);
+    nsTArray<nsCString> keys;
+    ParseString(prefName, '.', keys);
+    auto key = keys[0];
+    if (key == "default") {
+      continue;
+    }
+    nsCString newKey;
+    bool exists = keyHashTable.Get(key, &newKey);
+    if (!exists) {
+      do {
+        // Since updating prefs.js is batched, GetUniqueServerKey may return the
+        // previous key. Sleep 500ms and check if the returned key already
+        // exists to workaround it.
+        PR_Sleep(PR_MillisecondsToInterval(500));
+        accountManager->GetUniqueServerKey(newKey);
+      } while (newKeys.Contains(newKey));
+      newKeys.AppendElement(newKey);
+      keyHashTable.Put(key, newKey);
+    }
+
+    prefName.Assign(moz_xstrdup(newKey.get()));
+    for (uint32_t j = 1; j < keys.Length(); j++) {
+      prefName.Append('.');
+      prefName.Append(keys[j]);
+    }
+
+    pref->prefName = moz_xstrdup(prefName.get());
+
+    // Set `mail.server.serverN.type` so that GetUniqueServerKey next time will
+    // get a new key.
+    if (!exists) {
+      nsCOMPtr<nsIPrefBranch> branch;
+      nsAutoCString serverTypeKey;
+      serverTypeKey.Assign(newKey.get());
+      serverTypeKey.AppendLiteral(".type");
+      nsresult rv = aPrefService->GetBranch(branchName, getter_AddRefs(branch));
+      NS_ENSURE_SUCCESS(rv, rv);
+      (void)branch->SetCharPref(serverTypeKey.get(),
+                                nsDependentCString("placeholder"));
+    }
+  }
+  return NS_OK;
+}
+
+/**
+ * Transform mail.smtpserver branch.
+ * CreateServer will update mail.smtpservers for us.
+ */
+nsresult nsSeamonkeyProfileMigrator::TransformSmtpServersForImport(
+    PBStructArray& aServers, PrefKeyHashTable& keyHashTable) {
+  nsresult rv;
+  nsCOMPtr<nsISmtpService> smtpService(
+      do_GetService(NS_SMTPSERVICE_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsTArray<nsCString> newKeys;
+
+  for (auto pref : aServers) {
+    nsDependentCString prefName(pref->prefName);
+    nsTArray<nsCString> keys;
+    ParseString(prefName, '.', keys);
+    auto key = keys[0];
+    if (key == "default") {
+      continue;
+    }
+
+    // For every seamonkey smtp server, create a new one to avoid conflicts.
+    nsCString newKey;
+    if (!keyHashTable.Get(key, &newKey)) {
+      nsCOMPtr<nsISmtpServer> server;
+      rv = smtpService->CreateServer(getter_AddRefs(server));
+      NS_ENSURE_SUCCESS(rv, rv);
+
+      char* str;
+      server->GetKey(&str);
+      newKey.Assign(str);
+      newKeys.AppendElement(newKey);
+      keyHashTable.Put(key, newKey);
+    }
+
+    // Replace the prefName with the new key.
+    prefName.Assign(moz_xstrdup(newKey.get()));
+    for (uint32_t j = 1; j < keys.Length(); j++) {
+      prefName.Append('.');
+      prefName.Append(keys[j]);
+    }
+    pref->prefName = moz_xstrdup(prefName.get());
+  }
+
+  return NS_OK;
 }
 
 void nsSeamonkeyProfileMigrator::ReadBranch(const char* branchName,
@@ -633,20 +948,23 @@ void nsSeamonkeyProfileMigrator::ReadBranch(const char* branchName,
 
 void nsSeamonkeyProfileMigrator::WriteBranch(const char* branchName,
                                              nsIPrefService* aPrefService,
-                                             PBStructArray& aPrefs) {
+                                             PBStructArray& aPrefs,
+                                             bool deallocate) {
   // Enumerate the branch
   nsCOMPtr<nsIPrefBranch> branch;
   aPrefService->GetBranch(branchName, getter_AddRefs(branch));
 
   uint32_t count = aPrefs.Length();
-  for (uint32_t i = 0; i < count; ++i) {
+  for (uint32_t i = 0; i < count; i++) {
     PrefBranchStruct* pref = aPrefs.ElementAt(i);
     switch (pref->type) {
       case nsIPrefBranch::PREF_STRING:
         (void)branch->SetCharPref(pref->prefName,
                                   nsDependentCString(pref->stringValue));
-        free(pref->stringValue);
-        pref->stringValue = nullptr;
+        if (deallocate) {
+          free(pref->stringValue);
+          pref->stringValue = nullptr;
+        }
         break;
       case nsIPrefBranch::PREF_BOOL:
         (void)branch->SetBoolPref(pref->prefName, pref->boolValue);
@@ -660,12 +978,16 @@ void nsSeamonkeyProfileMigrator::WriteBranch(const char* branchName,
             "nsNetscapeProfileMigratorBase::WriteBranch");
         break;
     }
-    free(pref->prefName);
-    pref->prefName = nullptr;
-    delete pref;
+    if (deallocate) {
+      free(pref->prefName);
+      pref->prefName = nullptr;
+      delete pref;
+    }
     pref = nullptr;
   }
-  aPrefs.Clear();
+  if (deallocate) {
+    aPrefs.Clear();
+  }
 }
 
 nsresult nsSeamonkeyProfileMigrator::DummyCopyRoutine(bool aReplace) {

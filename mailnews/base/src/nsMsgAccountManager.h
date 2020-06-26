@@ -188,11 +188,6 @@ class nsMsgAccountManager : public nsIMsgAccountManager,
   nsresult RemoveVFListenerForVF(nsIMsgFolder* virtualFolder,
                                  nsIMsgFolder* folder);
 
-  void getUniqueAccountKey(nsCString& aResult);
-
-  // Scan the preferences to find a unique server key
-  void GetUniqueServerKey(nsACString& aResult);
-
   nsresult RemoveFolderFromSmartFolder(nsIMsgFolder* aFolder,
                                        uint32_t flagsChanged);
 

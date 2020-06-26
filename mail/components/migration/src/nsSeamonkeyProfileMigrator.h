@@ -6,7 +6,9 @@
 #ifndef seamonkeyprofilemigrator___h___
 #define seamonkeyprofilemigrator___h___
 
+#include "nsDataHashtable.h"
 #include "nsIMailProfileMigrator.h"
+#include "nsIMsgAccountManager.h"
 #include "nsIMutableArray.h"
 #include "nsNetscapeProfileMigratorBase.h"
 
@@ -32,6 +34,8 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
   nsresult GetSourceProfile(const char16_t* aProfile);
 
   nsresult CopyPreferences(bool aReplace);
+  nsresult ImportPreferences(const nsAString& aSourcePrefFileName,
+                             const nsAString& aTargetPrefFileName);
   nsresult TransformPreferences(const nsAString& aSourcePrefFileName,
                                 const nsAString& aTargetPrefFileName);
 
@@ -45,10 +49,28 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
   nsresult CopySignatureFiles(PBStructArray& aIdentities,
                               nsIPrefService* aPrefBranch);
 
+  typedef nsDataHashtable<nsCStringHashKey, nsCString> PrefKeyHashTable;
+
+  nsresult TransformIdentitiesForImport(
+      PBStructArray& aIdentities, nsIMsgAccountManager* accountManager,
+      PrefKeyHashTable& smtpServerKeyHashTable, PrefKeyHashTable& keyHashTable);
+  nsresult TransformMailAccountsForImport(
+      nsIPrefService* aPrefService, PBStructArray& aAccounts,
+      nsIMsgAccountManager* accountManager,
+      PrefKeyHashTable& identityKeyHashTable,
+      PrefKeyHashTable& serverKeyHashTable);
+  nsresult TransformMailServersForImport(const char* branchName,
+                                         nsIPrefService* aPrefService,
+                                         PBStructArray& aMailServers,
+                                         nsIMsgAccountManager* accountManager,
+                                         PrefKeyHashTable& keyHashTable);
+  nsresult TransformSmtpServersForImport(PBStructArray& aServers,
+                                         PrefKeyHashTable& keyHashTable);
+
   void ReadBranch(const char* branchName, nsIPrefService* aPrefService,
                   PBStructArray& aPrefs);
   void WriteBranch(const char* branchName, nsIPrefService* aPrefService,
-                   PBStructArray& aPrefs);
+                   PBStructArray& aPrefs, bool deallocate = true);
 
  private:
   nsCOMPtr<nsIMutableArray> mProfileNames;

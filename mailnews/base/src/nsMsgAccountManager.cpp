@@ -238,7 +238,8 @@ NS_IMETHODIMP nsMsgAccountManager::Observe(nsISupports* aSubject,
   return NS_OK;
 }
 
-void nsMsgAccountManager::getUniqueAccountKey(nsCString& aResult) {
+NS_IMETHODIMP
+nsMsgAccountManager::GetUniqueAccountKey(nsACString& aResult) {
   int32_t lastKey = 0;
   nsresult rv;
   nsCOMPtr<nsIPrefService> prefservice(
@@ -292,9 +293,11 @@ void nsMsgAccountManager::getUniqueAccountKey(nsCString& aResult) {
       GetAccount(aResult, getter_AddRefs(account));
     } while (account);
   }
+  return NS_OK;
 }
 
-void nsMsgAccountManager::GetUniqueServerKey(nsACString& aResult) {
+NS_IMETHODIMP
+nsMsgAccountManager::GetUniqueServerKey(nsACString& aResult) {
   nsAutoCString prefResult;
   bool usePrefsScan = true;
   nsresult rv;
@@ -320,7 +323,7 @@ void nsMsgAccountManager::GetUniqueServerKey(nsACString& aResult) {
       typeKey.AppendLiteral(".type");
       prefBranchServer->GetCharPref(typeKey.get(), type);
       if (type.IsEmpty())  // a server slot with no type is considered empty
-        return;
+        return NS_OK;
     }
   } else {
     // If pref service fails, try to find a free serverX key
@@ -333,7 +336,7 @@ void nsMsgAccountManager::GetUniqueServerKey(nsACString& aResult) {
       aResult.AppendInt(i++);
       m_incomingServers.Get(aResult, getter_AddRefs(server));
     } while (server);
-    return;
+    return NS_OK;
   }
 }
 
@@ -1544,7 +1547,7 @@ nsMsgAccountManager::CreateAccount(nsIMsgAccount** _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
 
   nsAutoCString key;
-  getUniqueAccountKey(key);
+  GetUniqueAccountKey(key);
 
   return createKeyedAccount(key, _retval);
 }

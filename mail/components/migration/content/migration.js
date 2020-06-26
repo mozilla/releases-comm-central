@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { BrowserUtils } = ChromeUtils.import(
+  "resource://gre/modules/BrowserUtils.jsm"
+);
 
 var kIMig = Ci.nsIMailProfileMigrator;
 var kIPStartup = Ci.nsIProfileStartup;
@@ -115,6 +118,11 @@ var MigrationWizard = {
     Services.obs.removeObserver(this, "Migration:ItemAfterMigrate");
     Services.obs.removeObserver(this, "Migration:Ended");
     Services.obs.removeObserver(this, "Migration:Progress");
+
+    // Imported accounts don't show up without restarting.
+    if (this._wiz.onLastPage) {
+      BrowserUtils.restartApplication();
+    }
   },
 
   // 1 - Import Source
