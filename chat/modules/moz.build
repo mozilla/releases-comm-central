@@ -7,7 +7,6 @@ XPCSHELL_TESTS_MANIFESTS += ['test/xpcshell.ini']
 
 EXTRA_JS_MODULES += [
     'ArrayBufferUtils.jsm',
-    'BigInteger.jsm',
     'CLib.jsm',
     'hiddenWindow.jsm',
     'imContentSink.jsm',

@@ -15,7 +15,6 @@ DIRS += [
     'protocols/irc',
     'protocols/matrix',
     'protocols/odnoklassniki',
-    'protocols/skype',
     'protocols/twitter',
     'protocols/xmpp',
     'protocols/yahoo',

@@ -82,8 +82,6 @@ pref("chat.irc.defaultQuitMessage", "");
 pref("chat.irc.automaticList", true);
 // Whether to enable or disable message carbons protocol (XEP-0280).
 pref("chat.xmpp.messageCarbons", true);
-// Disable Skype until it can be tested further.
-pref("chat.prpls.prpl-skype.disable", true);
 // Disable Facebook as the XMPP gateway no longer exists.
 pref("chat.prpls.prpl-facebook.disable", true);
 // Disable experimental Matrix support.
