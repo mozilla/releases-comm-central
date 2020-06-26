@@ -16,6 +16,9 @@ const gModel = {
 
   /** @type {nsIFile | null} */
   file: null,
+
+  /** @type {CalendarItemSummary[]} */
+  itemSummaries: [],
 };
 
 /**
@@ -53,6 +56,14 @@ async function onWindowLoad() {
   setUpItemSummaries(gModel.itemsToImport, gModel.file.path);
 
   document.addEventListener("dialogaccept", importRemainingItems);
+
+  window.addEventListener("resize", () => {
+    for (let summary of gModel.itemSummaries) {
+      if (summary) {
+        summary.onWindowResize();
+      }
+    }
+  });
   window.sizeToContent();
 }
 window.addEventListener("load", onWindowLoad);
@@ -133,6 +144,7 @@ function setUpItemSummaries(items, filePath) {
     summary.item = item;
 
     summary.updateItemDetails();
+    gModel.itemSummaries.push(summary);
   });
 }
 
@@ -159,6 +171,7 @@ function getCurrentlySelectedCalendar() {
 async function importSingleItem(item, itemIndex, filePath, event) {
   event.target.closest(".calendar-ics-file-dialog-item-frame").remove();
   delete gModel.itemsToImport[itemIndex];
+  delete gModel.itemSummaries[itemIndex];
 
   let calendar = getCurrentlySelectedCalendar();
 

@@ -571,14 +571,17 @@
      * Handle window resize event. Rearrange attendees.
      */
     onWindowResize() {
-      let { attendeesInRow, maxLabelWidth } = rearrangeAttendees(
-        this.mItem.getAttendees(),
-        this.querySelector(".item-summary-box"),
-        this.mAttendeesInRow,
-        this.mMaxLabelWidth
-      );
-      this.mAttendeesInRow = attendeesInRow;
-      this.mMaxLabelWidth = maxLabelWidth;
+      let attendees = this.mItem.getAttendees();
+      if (attendees.length) {
+        let { attendeesInRow, maxLabelWidth } = rearrangeAttendees(
+          attendees,
+          this.querySelector(".item-summary-box"),
+          this.mAttendeesInRow,
+          this.mMaxLabelWidth
+        );
+        this.mAttendeesInRow = attendeesInRow;
+        this.mMaxLabelWidth = maxLabelWidth;
+      }
     }
 
     /**
