@@ -65,6 +65,9 @@ add_task(async () => {
       }
       return task.title;
     }
+    tree.height; // Try and trigger a reflow...
+    tree.invalidate();
+    await new Promise(r => setTimeout(r));
 
     let actualTasks = [];
     for (let i = 0; i < tree.view.rowCount; i++) {
