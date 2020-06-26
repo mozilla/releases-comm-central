@@ -98,7 +98,12 @@ function verifyConfig(
   try {
     // Lookup OAuth2 issuer if needed.
     // -- Incoming.
-    if (config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2) {
+    if (
+      config.incoming.auth == Ci.nsMsgAuthMethod.OAuth2 &&
+      (!config.incoming.oauthSettings ||
+        !config.incoming.oauthSettings.issuer ||
+        !config.incoming.oauthSettings.scope)
+    ) {
       let details = OAuth2Providers.getHostnameDetails(
         config.incoming.hostname
       );
@@ -110,7 +115,12 @@ function verifyConfig(
       config.incoming.oauthSettings = { issuer: details[0], scope: details[1] };
     }
     // -- Outgoing.
-    if (config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2) {
+    if (
+      config.outgoing.auth == Ci.nsMsgAuthMethod.OAuth2 &&
+      (!config.outgoing.oauthSettings ||
+        !config.outgoing.oauthSettings.issuer ||
+        !config.outgoing.oauthSettings.scope)
+    ) {
       let details = OAuth2Providers.getHostnameDetails(
         config.outgoing.hostname
       );
