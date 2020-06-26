@@ -60,7 +60,7 @@ jobs:
       job:
           type: decision-task
           treeherder-symbol: Searchfox
-          target-tasks-method: searchfox_index
+          target-tasks-method: comm_searchfox_index
       run-on-projects:
           - comm-central
       when:
