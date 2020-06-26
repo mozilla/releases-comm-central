@@ -905,6 +905,7 @@ calendar-event-box[gripBars="both"]:not([readonly="true"]):hover .calendar-event
 
 .tooltipHeaderLabel {
     text-align: end;
+    padding-inline-end: 0.5em;
 }
 
 .tooltipBodySeparator {
