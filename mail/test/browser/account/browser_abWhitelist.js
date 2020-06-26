@@ -107,8 +107,8 @@ function subtest_check_whitelist_load_and_clear(tab) {
   for (let i = 0; i < list.getRowCount(); i++) {
     let abNode = list.getItemAtIndex(i);
     Assert.equal(
-      "true",
-      abNode.firstElementChild.getAttribute("checked"),
+      true,
+      abNode.firstElementChild.checked,
       "Should have been checked"
     );
     // Also ensure that the address book URI was properly saved in the
@@ -145,8 +145,8 @@ function subtest_check_whitelist_load_cleared(tab) {
   for (let i = 0; i < list.getRowCount(); i++) {
     let abNode = list.getItemAtIndex(i);
     Assert.equal(
-      "false",
-      abNode.firstElementChild.getAttribute("checked"),
+      false,
+      abNode.firstElementChild.checked,
       "Should not have been checked"
     );
     // Also ensure that the address book URI was properly cleared in the
