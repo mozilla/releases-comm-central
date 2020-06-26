@@ -213,6 +213,10 @@ add_task(function test_bad_password_uses_old_settings() {
       );
       awc.e("create_button").click();
 
+      // The waitFor here is to allow onClick handler of create_button to
+      // finish. Otherwise, clicking manual-edit_button will enable
+      // create_button, and clicking create_button again immediately will mess
+      // up internal state.
       awc.waitFor(
         function() {
           return !this.disabled;
@@ -222,8 +226,8 @@ add_task(function test_bad_password_uses_old_settings() {
         600,
         awc.e("create_button")
       );
-      awc.e("create_button").click();
       awc.e("manual-edit_button").click();
+      awc.e("create_button").click();
 
       // Make sure all the values are the same as in the user object.
       awc.sleep(1000);
@@ -240,9 +244,9 @@ add_task(function test_bad_password_uses_old_settings() {
 
       let scalars = TelemetryTestUtils.getProcessScalars("parent", true);
       Assert.equal(
-        scalars["tb.account.failed_email_account_setup"].ispdb,
+        scalars["tb.account.failed_email_account_setup"]["xml-from-db"],
         1,
-        "Count of failed email account setup with ispdb config must be correct"
+        "Count of failed email account setup with xml config must be correct"
       );
       Assert.equal(
         scalars["tb.account.failed_email_account_setup"].user,

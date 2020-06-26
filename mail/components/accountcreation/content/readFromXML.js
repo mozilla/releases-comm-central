@@ -26,9 +26,10 @@ var {
  * <https://wiki.mozilla.org/Thunderbird:Autoconfiguration:ConfigFileFormat>
  *
  * @param clientConfigXML {JXON}  The <clientConfig> node.
+ * @param source {String}  Used for the subSource field of AccountConfig.
  * @return AccountConfig   object filled with the data from XML
  */
-function readFromXML(clientConfigXML) {
+function readFromXML(clientConfigXML, subSource) {
   function array_or_undef(value) {
     return value === undefined ? [] : value;
   }
@@ -50,6 +51,7 @@ function readFromXML(clientConfigXML) {
 
   var d = new AccountConfig();
   d.source = AccountConfig.kSourceXML;
+  d.subSource = `xml-from-${subSource}`;
 
   d.id = sanitize.hostname(xml["@id"]);
   d.displayName = d.id;

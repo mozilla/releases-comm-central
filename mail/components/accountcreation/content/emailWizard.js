@@ -2053,6 +2053,11 @@ EmailConfigWizard.prototype = {
     // no stop button: backend has no ability to stop :-(
     var self = this;
     this.startSpinner("checking_password");
+    let telemetryKey =
+      this._currentConfig.source == AccountConfig.kSourceXML ||
+      this._currentConfig.source == AccountConfig.kSourceExchange
+        ? this._currentConfig.subSource
+        : this._currentConfig.source;
     // logic function defined in verifyConfig.js
     verifyConfig(
       configFilledIn,
@@ -2092,7 +2097,7 @@ EmailConfigWizard.prototype = {
 
         Services.telemetry.keyedScalarAdd(
           "tb.account.successful_email_account_setup",
-          self._currentConfig.source,
+          telemetryKey,
           1
         );
       },
@@ -2121,7 +2126,7 @@ EmailConfigWizard.prototype = {
 
         Services.telemetry.keyedScalarAdd(
           "tb.account.failed_email_account_setup",
-          self._currentConfig.source,
+          telemetryKey,
           1
         );
       }

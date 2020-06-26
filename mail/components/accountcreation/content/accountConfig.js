@@ -54,6 +54,12 @@ AccountConfig.prototype = {
   // who created the config.
   // { one of kSource* }
   source: null,
+  /**
+   * Used for telemetry purposes.
+   * - for kSourceXML, subSource is one of xml-from-{disk, db, isp-https, isp-http}.
+   * - for kSourceExchange, subSource is one of exchange-from-urlN[-guess].
+   */
+  subSource: null,
   displayName: null,
   // { Array of { varname (value without %), displayName, exampleValue } }
   inputFields: null,
@@ -340,9 +346,9 @@ AccountConfig.prototype = {
 
 // .source
 AccountConfig.kSourceUser = "user"; // user manually entered the config
-AccountConfig.kSourceXML = "ispdb"; // config from XML from ISP or Mozilla DB
+AccountConfig.kSourceXML = "xml"; // config from XML from ISP or Mozilla DB
 AccountConfig.kSourceGuess = "guess"; // guessConfig()
-AccountConfig.kSourceExchange = "autodiscover"; // from Microsoft Exchange AutoDiscover
+AccountConfig.kSourceExchange = "exchange"; // from Microsoft Exchange AutoDiscover
 
 /**
  * Some fields on the account config accept placeholders (when coming from XML).

@@ -101,12 +101,16 @@ function fetchConfigFromExchange(
       successive,
       username,
       password,
-      config => detectStandardProtocols(config, domain, successCallback),
+      config => {
+        config.subSource = `exchange-from-${call.foundMsg}`;
+        return detectStandardProtocols(config, domain, successCallback);
+      },
       errorCallback
     );
   }, errorCallback); // all failed
 
   call = priority.addCall();
+  call.foundMsg = "url1";
   fetch = new FetchHTTP(
     url1,
     callArgs,
@@ -117,6 +121,7 @@ function fetchConfigFromExchange(
   call.setAbortable(fetch);
 
   call = priority.addCall();
+  call.foundMsg = "url2";
   fetch = new FetchHTTP(
     url2,
     callArgs,
@@ -127,6 +132,7 @@ function fetchConfigFromExchange(
   call.setAbortable(fetch);
 
   call = priority.addCall();
+  call.foundMsg = "url3";
   let call3ErrorCallback = call.errorCallback();
   // url3 is HTTP (not HTTPS), so suppress password. Even MS spec demands so.
   let call3Args = deepCopy(callArgs);
@@ -635,6 +641,7 @@ function detectStandardProtocols(config, domain, successCallback) {
     function(e, probedConfig) {
       // Probing didn't find any open protocols.
       // Let's use the exchange (only) config that was listed then.
+      config.subSource += "-guess";
       successCallback(config);
     },
     config2,

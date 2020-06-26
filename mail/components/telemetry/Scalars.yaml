@@ -70,6 +70,7 @@ tb.account:
   successful_email_account_setup:
     bug_numbers:
       - 1615987
+      - 1644311
     description: How many times email accounts setup succeeded, keyed by account config source.
     release_channel_collection: opt-out
     expires: never
@@ -85,6 +86,7 @@ tb.account:
   failed_email_account_setup:
     bug_numbers:
       - 1615987
+      - 1644311
     description: How many times email accounts setup failed, keyed by account config source.
     release_channel_collection: opt-out
     expires: never

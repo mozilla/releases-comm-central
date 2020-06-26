@@ -34,7 +34,7 @@ function fetchConfigFromDisk(domain, successCallback, errorCallback) {
         let domParser = new DOMParser();
         successCallback(
           readFromXML(
-            JXON.build(domParser.parseFromString(contents, "text/xml"))
+            JXON.build(domParser.parseFromString(contents, "text/xml"), "disk")
           )
         );
       } catch (e) {
@@ -105,11 +105,12 @@ function fetchConfigFromISP(
   let fetch;
 
   let priority = new PriorityOrderAbortable(
-    xml => successCallback(readFromXML(xml)),
+    (xml, call) => successCallback(readFromXML(xml, `isp-${call.foundMsg}`)),
     errorCallback
   );
   for (let url of urls) {
     call = priority.addCall();
+    call.foundMsg = url.startsWith("https") ? "https" : "http";
     fetch = new FetchHTTP(
       url,
       callArgs,
@@ -147,7 +148,7 @@ function fetchConfigFromDB(domain, successCallback, errorCallback) {
     url,
     { timeout: 10000 }, // 10 seconds
     function(result) {
-      successCallback(readFromXML(result));
+      successCallback(readFromXML(result, "db"));
     },
     errorCallback
   );
