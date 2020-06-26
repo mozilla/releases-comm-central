@@ -225,7 +225,7 @@ function InitMsgWindow() {
   msgWindow.rootDocShell.allowAuth = true;
   msgWindow.rootDocShell.appType = Ci.nsIDocShell.APP_TYPE_MAIL;
   // Ensure we don't load xul error pages into the main window
-  msgWindow.rootDocShell.useErrorPages = false;
+  // msgWindow.rootDocShell.useErrorPages = false;
 
   document.addEventListener("copy", onCopyOrDragStart, true);
   document.addEventListener("dragstart", onCopyOrDragStart, true);

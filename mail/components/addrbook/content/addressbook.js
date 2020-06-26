@@ -241,7 +241,7 @@ function delayedOnLoadAddressBook() {
   };
 
   // Ensure we don't load xul error pages into the main window
-  window.docShell.useErrorPages = false;
+  // window.docShell.useErrorPages = false;
 
   MailServices.mailSession.AddMsgWindow(msgWindow);
 
