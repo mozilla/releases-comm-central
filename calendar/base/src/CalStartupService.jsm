@@ -72,7 +72,7 @@ CalStartupService.prototype = {
           packaged,
           "resource:///chrome/{locale}/locale/{locale}/calendar/"
         );
-        L10nRegistry.registerSource(fileSrc);
+        L10nRegistry.registerSources([fileSrc]);
         aCompleteListener.onResult(null, Cr.NS_OK);
       },
       shutdown(aCompleteListener) {
