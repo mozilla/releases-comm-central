@@ -564,7 +564,7 @@ function SubkeyListView(keyObj) {
   this.subkeys.push(createSubkeyItem(keyObj));
 
   for (let i = 0; i < keyObj.subKeys.length; i++) {
-    this.subkeys.push(createSubkeyItem(keyObj));
+    this.subkeys.push(createSubkeyItem(keyObj.subKeys[i]));
   }
 }
 
