@@ -31,6 +31,11 @@ XPCOMUtils.defineLazyGetter(this, "_", () =>
   l10nHelper("chrome://chat/locale/conversations.properties")
 );
 
+XPCOMUtils.defineLazyGetter(this, "TXTToHTML", function() {
+  let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
+  return aTXT => cs.scanTXT(aTXT, cs.kEntities);
+});
+
 var GenericAccountPrototype = {
   __proto__: ClassInfo("prplIAccount", "generic account object"),
   get wrappedJSObject() {
@@ -764,6 +769,15 @@ var GenericConvChatPrototype = {
   get topicSetter() {
     return this._topicSetter;
   },
+  /**
+   * Set the topic of a conversation.
+   *
+   * @param {string} aTopic - The new topic. If an update message is sent to
+   *   the conversation, this will be HTML escaped before being sent.
+   * @param {string} aTopicSetter - The user who last modified the topic.
+   * @param {string} aQuiet - If false, a message notifying about the topic
+   *   change will be sent to the conversation.
+   */
   setTopic(aTopic, aTopicSetter, aQuiet) {
     // Only change the topic if the topic and/or topic setter has changed.
     if (
@@ -786,14 +800,14 @@ var GenericConvChatPrototype = {
     let message;
     if (aTopicSetter) {
       if (aTopic) {
-        message = _("topicChanged", aTopicSetter, aTopic);
+        message = _("topicChanged", aTopicSetter, TXTToHTML(aTopic));
       } else {
         message = _("topicCleared", aTopicSetter);
       }
     } else {
       aTopicSetter = null;
       if (aTopic) {
-        message = _("topicSet", this.name, aTopic);
+        message = _("topicSet", this.name, TXTToHTML(aTopic));
       } else {
         message = _("topicNotSet", this.name);
       }
