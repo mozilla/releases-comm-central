@@ -289,6 +289,43 @@ var RNP = {
     return have_secret.value;
   },
 
+  // We already know sub_handle is a subkey
+  getPrimaryKeyHandleFromSub(ffi, sub_handle) {
+    let newHandle = new RNPLib.rnp_key_handle_t();
+    // test my expectation is correct
+    if (!newHandle.isNull()) {
+      throw new Error("unexpected, new handle isn't null");
+    }
+    let primary_grip = new ctypes.char.ptr();
+    if (RNPLib.rnp_key_get_primary_grip(sub_handle, primary_grip.address())) {
+      throw new Error("rnp_key_get_primary_grip failed");
+    }
+    if (primary_grip.isNull()) {
+      return newHandle;
+    }
+    if (RNPLib.rnp_locate_key(ffi, "grip", primary_grip, newHandle.address())) {
+      throw new Error("rnp_locate_key failed");
+    }
+    return newHandle;
+  },
+
+  // We don't know if handle is a subkey. If it's not, return null handle
+  getPrimaryKeyHandleIfSub(ffi, handle) {
+    let is_subkey = new ctypes.bool();
+    if (RNPLib.rnp_key_is_sub(handle, is_subkey.address())) {
+      throw new Error("rnp_key_is_sub failed");
+    }
+    if (!is_subkey.value) {
+      let nullHandle = new RNPLib.rnp_key_handle_t();
+      // test my expectation is correct
+      if (!nullHandle.isNull()) {
+        throw new Error("unexpected, new handle isn't null");
+      }
+      return nullHandle;
+    }
+    return this.getPrimaryKeyHandleFromSub(ffi, handle);
+  },
+
   // return false if handle refers to subkey and should be ignored
   getKeyInfoFromHandle(
     ffi,
@@ -312,38 +349,24 @@ var RNP = {
       throw new Error("rnp_key_is_sub failed");
     }
     if (is_subkey.value) {
-      let primary_grip = new ctypes.char.ptr();
-      if (RNPLib.rnp_key_get_primary_grip(handle, primary_grip.address())) {
-        throw new Error("rnp_key_get_primary_grip failed");
+      if (!usePrimaryIfSubkey) {
+        return false;
       }
-      if (!primary_grip.isNull()) {
-        let rv = false;
-        if (usePrimaryIfSubkey) {
-          let newHandle = new RNPLib.rnp_key_handle_t();
-          if (
-            RNPLib.rnp_locate_key(
-              ffi,
-              "grip",
-              primary_grip,
-              newHandle.address()
-            )
-          ) {
-            throw new Error("rnp_locate_key failed");
-          }
-          // recursively call ourselves to get primary key info
-          rv = this.getKeyInfoFromHandle(
-            ffi,
-            newHandle,
-            keyObj,
-            false,
-            forListing,
-            onlyIfSecret
-          );
-          RNPLib.rnp_key_handle_destroy(newHandle);
-        }
-        RNPLib.rnp_buffer_destroy(primary_grip);
-        return rv;
+      let rv = false;
+      let newHandle = this.getPrimaryKeyHandleFromSub(ffi, handle);
+      if (!newHandle.isNull()) {
+        // recursively call ourselves to get primary key info
+        rv = this.getKeyInfoFromHandle(
+          ffi,
+          newHandle,
+          keyObj,
+          false,
+          forListing,
+          onlyIfSecret
+        );
+        RNPLib.rnp_key_handle_destroy(newHandle);
       }
+      return rv;
     }
 
     if (onlyIfSecret) {
@@ -634,6 +657,12 @@ var RNP = {
     return rList;
   },
 
+  policyForbidsAlg(alg) {
+    // TODO: implement policy
+    // Currently, all algorithms are allowed
+    return false;
+  },
+
   async decrypt(encrypted, options) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
@@ -672,43 +701,41 @@ var RNP = {
       output_to_memory
     );
 
-    RNPLib.password_cb_collected_info = {};
     result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
-    let rnplib_context = RNPLib.password_cb_collected_info;
-    if (rnplib_context.context == "decrypt") {
-      result.encToDetails = rnplib_context.keyId;
-    }
 
-    let useDecryptedData;
+    let isEncrypted = false;
+    let rejectedDecryption = false;
+
+    let useDecodedData;
     let processSignature;
     switch (result.exitCode) {
       case RNPLib.RNP_SUCCESS:
-        useDecryptedData = true;
+        useDecodedData = true;
         processSignature = true;
         break;
       case RNPLib.RNP_ERROR_SIGNATURE_INVALID:
         result.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
-        useDecryptedData = true;
+        useDecodedData = true;
         processSignature = false;
         break;
       case RNPLib.RNP_ERROR_SIGNATURE_EXPIRED:
-        useDecryptedData = true;
+        useDecodedData = true;
         processSignature = false;
         result.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
         break;
       case RNPLib.RNP_ERROR_DECRYPT_FAILED:
-        useDecryptedData = false;
+        useDecodedData = false;
         processSignature = false;
         result.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
         break;
       case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
-        useDecryptedData = false;
+        useDecodedData = false;
         processSignature = false;
         result.statusFlags |=
           EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NO_SECKEY;
         break;
       default:
-        useDecryptedData = false;
+        useDecodedData = false;
         processSignature = false;
         console.debug(
           "rnp_op_verify_execute returned unexpected: " + result.exitCode
@@ -716,7 +743,89 @@ var RNP = {
         break;
     }
 
-    if (useDecryptedData) {
+    if (useDecodedData) {
+      let prot_mode_str = new ctypes.char.ptr();
+      let prot_cipher_str = new ctypes.char.ptr();
+      let prot_is_valid = new ctypes.bool();
+
+      if (
+        RNPLib.rnp_op_verify_get_protection_info(
+          verify_op,
+          prot_mode_str.address(),
+          prot_cipher_str.address(),
+          prot_is_valid.address()
+        )
+      ) {
+        throw new Error("rnp_op_verify_get_protection_info failed");
+      }
+      let mode = prot_mode_str.readString();
+      let cipher = prot_cipher_str.readString();
+      let validIntegrityProtection = prot_is_valid.value;
+
+      if (mode != "none") {
+        isEncrypted = true;
+
+        if (!validIntegrityProtection) {
+          useDecodedData = false;
+          rejectedDecryption = true;
+          result.statusFlags |=
+            EnigmailConstants.MISSING_MDC | EnigmailConstants.DECRYPTION_FAILED;
+        } else if (mode == "null" || this.policyForbidsAlg(cipher)) {
+          // don't indicate decryption, because a non-protecting or insecure cipher was used
+          rejectedDecryption = true;
+          result.statusFlags |= EnigmailConstants.UNKNOWN_ALGO;
+        } else {
+          let recip_handle = new RNPLib.rnp_recipient_handle_t();
+          let rv = RNPLib.rnp_op_verify_get_used_recipient(
+            verify_op,
+            recip_handle.address()
+          );
+          if (rv) {
+            throw new Error("rnp_op_verify_get_used_recipient failed");
+          }
+
+          let c_alg = new ctypes.char.ptr();
+          rv = RNPLib.rnp_recipient_get_alg(recip_handle, c_alg.address());
+          if (rv) {
+            throw new Error("rnp_recipient_get_alg failed");
+          }
+
+          if (this.policyForbidsAlg(c_alg.readString())) {
+            rejectedDecryption = true;
+            result.statusFlags |= EnigmailConstants.UNKNOWN_ALGO;
+          } else {
+            let c_key_id = new ctypes.char.ptr();
+            rv = RNPLib.rnp_recipient_get_keyid(
+              recip_handle,
+              c_key_id.address()
+            );
+            if (rv) {
+              throw new Error("rnp_recipient_get_keyid failed");
+            }
+            let recip_key_id = c_key_id.readString();
+
+            let recip_key_handle = this.getKeyHandleByKeyIdOrFingerprint(
+              RNPLib.ffi,
+              "0x" + recip_key_id
+            );
+            let primary_signer_handle = this.getPrimaryKeyHandleIfSub(
+              RNPLib.ffi,
+              recip_key_handle
+            );
+            if (!primary_signer_handle.isNull()) {
+              recip_key_id = this.getKeyIDFromHandle(primary_signer_handle);
+              RNPLib.rnp_key_handle_destroy(primary_signer_handle);
+            }
+            RNPLib.rnp_key_handle_destroy(recip_key_handle);
+
+            result.encToDetails = recip_key_id;
+            result.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
+          }
+        }
+      }
+    }
+
+    if (useDecodedData) {
       let result_buf = new ctypes.uint8_t.ptr();
       let result_len = new ctypes.size_t();
       let rv = RNPLib.rnp_output_memory_get_buf(
@@ -751,6 +860,8 @@ var RNP = {
     RNPLib.rnp_op_verify_destroy(verify_op);
 
     if (
+      isEncrypted &&
+      !rejectedDecryption &&
       result.exitCode &&
       !("alreadyUsedGPGME" in options) &&
       Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&

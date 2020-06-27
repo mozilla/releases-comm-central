@@ -106,6 +106,8 @@ const rnp_op_sign_signature_t = ctypes.void_t.ptr;
 const rnp_op_verify_t = ctypes.void_t.ptr;
 const rnp_op_verify_signature_t = ctypes.void_t.ptr;
 const rnp_signature_handle_t = ctypes.void_t.ptr;
+const rnp_recipient_handle_t = ctypes.void_t.ptr;
+const rnp_symenc_handle_t = ctypes.void_t.ptr;
 
 const rnp_password_cb_t = ctypes.FunctionType(abi, ctypes.bool, [
   rnp_ffi_t,
@@ -242,67 +244,7 @@ function enableRNPLibJS() {
 
     keep_password_cb_alive: null,
 
-    password_cb_collected_info: {},
-
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
-      // Before we fullfil the request, we collect context information.
-
-      RNPLib.password_cb_collected_info.context = pgp_context.readString();
-
-      if (RNPLib.password_cb_collected_info.context == "decrypt") {
-        // Get the key ID of the key used to decrypt. If it's a subkey,
-        // we use the ID of the primary key.
-
-        let usePrimaryHandle = false;
-        let primaryHandle = null;
-
-        let is_subkey = new ctypes.bool();
-        if (RNPLib.rnp_key_is_sub(key, is_subkey.address())) {
-          throw new Error("rnp_key_is_sub failed");
-        }
-        if (is_subkey.value) {
-          let primary_grip = new ctypes.char.ptr();
-          if (RNPLib.rnp_key_get_primary_grip(key, primary_grip.address())) {
-            throw new Error("rnp_key_get_primary_grip failed");
-          }
-          if (!primary_grip.isNull()) {
-            primaryHandle = new RNPLib.rnp_key_handle_t();
-            if (
-              RNPLib.rnp_locate_key(
-                ffi,
-                "grip",
-                primary_grip,
-                primaryHandle.address()
-              )
-            ) {
-              throw new Error("rnp_locate_key failed");
-            }
-            if (!primaryHandle.isNull()) {
-              usePrimaryHandle = true;
-            }
-            RNPLib.rnp_buffer_destroy(primary_grip);
-          }
-        }
-
-        let key_id = new ctypes.char.ptr();
-        if (
-          RNPLib.rnp_key_get_keyid(
-            usePrimaryHandle ? primaryHandle : key,
-            key_id.address()
-          )
-        ) {
-          throw new Error("rnp_key_get_keyid failed");
-        }
-        RNPLib.password_cb_collected_info.keyId = key_id.readString();
-        RNPLib.rnp_buffer_destroy(key_id);
-
-        if (primaryHandle) {
-          RNPLib.rnp_key_handle_destroy(primaryHandle);
-        }
-      }
-
-      // Now do what we've been asked to do.
-
       let pass = OpenPGPMasterpass.retrieveOpenPGPPassword();
       var passCTypes = ctypes.char.array()(pass); // UTF-8
       let passLen = passCTypes.length;
@@ -1137,6 +1079,113 @@ function enableRNPLibJS() {
       ctypes.char.ptr
     ),
 
+    rnp_op_verify_get_protection_info: librnp.declare(
+      "rnp_op_verify_get_protection_info",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      ctypes.char.ptr.ptr,
+      ctypes.char.ptr.ptr,
+      ctypes.bool.ptr
+    ),
+
+    rnp_op_verify_get_recipient_count: librnp.declare(
+      "rnp_op_verify_get_recipient_count",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      ctypes.size_t.ptr
+    ),
+
+    rnp_op_verify_get_used_recipient: librnp.declare(
+      "rnp_op_verify_get_used_recipient",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      rnp_recipient_handle_t.ptr
+    ),
+
+    rnp_recipient_get_keyid: librnp.declare(
+      "rnp_recipient_get_keyid",
+      abi,
+      rnp_result_t,
+      rnp_recipient_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_recipient_get_alg: librnp.declare(
+      "rnp_recipient_get_alg",
+      abi,
+      rnp_result_t,
+      rnp_recipient_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_op_verify_get_symenc_count: librnp.declare(
+      "rnp_op_verify_get_symenc_count",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      ctypes.size_t.ptr
+    ),
+
+    rnp_op_verify_get_used_symenc: librnp.declare(
+      "rnp_op_verify_get_used_symenc",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      rnp_symenc_handle_t.ptr
+    ),
+
+    rnp_op_verify_get_symenc_at: librnp.declare(
+      "rnp_op_verify_get_symenc_at",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      ctypes.size_t,
+      rnp_symenc_handle_t.ptr
+    ),
+
+    rnp_symenc_get_cipher: librnp.declare(
+      "rnp_symenc_get_cipher",
+      abi,
+      rnp_result_t,
+      rnp_symenc_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_symenc_get_aead_alg: librnp.declare(
+      "rnp_symenc_get_aead_alg",
+      abi,
+      rnp_result_t,
+      rnp_symenc_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_symenc_get_hash_alg: librnp.declare(
+      "rnp_symenc_get_hash_alg",
+      abi,
+      rnp_result_t,
+      rnp_symenc_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_symenc_get_s2k_type: librnp.declare(
+      "rnp_symenc_get_s2k_type",
+      abi,
+      rnp_result_t,
+      rnp_symenc_handle_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_symenc_get_s2k_iterations: librnp.declare(
+      "rnp_symenc_get_s2k_iterations",
+      abi,
+      rnp_result_t,
+      rnp_symenc_handle_t,
+      ctypes.uint32_t.ptr
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
@@ -1152,6 +1201,8 @@ function enableRNPLibJS() {
     rnp_op_verify_t,
     rnp_op_verify_signature_t,
     rnp_signature_handle_t,
+    rnp_recipient_handle_t,
+    rnp_symenc_handle_t,
 
     RNP_LOAD_SAVE_PUBLIC_KEYS: 1,
     RNP_LOAD_SAVE_SECRET_KEYS: 2,

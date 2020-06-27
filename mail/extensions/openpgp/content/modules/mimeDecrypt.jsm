@@ -577,7 +577,9 @@ MimeDecryptHandler.prototype = {
         };
       }
 
-      this.returnStatus.statusFlags |= EnigmailConstants.PGP_MIME_ENCRYPTED;
+      if (this.returnStatus.statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
+        this.returnStatus.statusFlags |= EnigmailConstants.PGP_MIME_ENCRYPTED;
+      }
 
       if (this.returnStatus.exitCode) {
         // Failure
@@ -601,10 +603,6 @@ MimeDecryptHandler.prototype = {
           // no data
           this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
         }
-      } else if (
-        !(this.returnStatus.statusFlags & EnigmailConstants.DECRYPTION_FAILED)
-      ) {
-        this.returnStatus.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
       }
 
       this.decryptedData = this.returnStatus.decryptedData;
