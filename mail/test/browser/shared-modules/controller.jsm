@@ -1552,35 +1552,3 @@ var controllerAdditions = {
   "navigator:browser": browserAdditions,
 };
 
-var MozMillAsyncTest = function(timeout) {
-  if (timeout == undefined) {
-    this.timeout = 6000;
-  } else {
-    this.timeout = timeout;
-  }
-  this._done = false;
-  this._mozmillasynctest = true;
-};
-
-MozMillAsyncTest.prototype.run = function() {
-  for (var i in this) {
-    if (i.startsWith("test") && typeof this[i] == "function") {
-      this[i]();
-    }
-  }
-
-  utils.waitFor(
-    function() {
-      return this._done;
-    },
-    () => "MozMillAsyncTest timed out. Done is " + this._done,
-    500,
-    100
-  );
-
-  return true;
-};
-
-MozMillAsyncTest.prototype.finish = function() {
-  this._done = true;
-};
