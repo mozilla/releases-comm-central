@@ -1551,4 +1551,3 @@ function browserAdditions(controller) {
 var controllerAdditions = {
   "navigator:browser": browserAdditions,
 };
-
