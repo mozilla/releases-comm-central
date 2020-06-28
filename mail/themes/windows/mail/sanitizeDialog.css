@@ -54,18 +54,22 @@
   padding: 0;
 }
 
-.expander-up {
-  list-style-image: url("chrome://global/skin/icons/collapse.png");
+.expander-up,
+.expander-down {
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-16.svg");
+  -moz-context-properties: fill, fill-opacity;
+  fill: currentColor;
+  fill-opacity: 0.8;
+  color: unset;
 }
 
-.expander-down {
-  list-style-image: url("chrome://global/skin/icons/expand.png");
+.expander-up {
+  transform: scaleY(-1);
 }
 
 /* Make the item list the same width as the warning box */
 #itemList {
-  margin-inline-start: 0;
-  margin-inline-end: 0;
+  margin-inline: 0;
   border: 1px solid ThreeDShadow;
   background-color: -moz-Field;
   color: -moz-FieldText;
