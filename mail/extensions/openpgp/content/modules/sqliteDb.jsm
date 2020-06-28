@@ -52,7 +52,17 @@ var PgpSqliteDb2 = {
     }
   },
 
+  accCacheFingerprint: "",
+  accCacheValue: "",
+  accCacheEmails: null,
+
   async getFingerprintAcceptance(conn, fingerprint, rv) {
+    fingerprint = fingerprint.toLowerCase();
+    if (fingerprint == this.accCacheFingerprint) {
+      rv.fingerprintAcceptance = this.accCacheValue;
+      return;
+    }
+
     let myConn = false;
 
     try {
@@ -61,7 +71,7 @@ var PgpSqliteDb2 = {
         conn = await this.openDatabase();
       }
 
-      let qObj = { fpr: fingerprint.toLowerCase() };
+      let qObj = { fpr: fingerprint };
       await conn
         .execute(
           "select decision from acceptance_decision where fpr = :fpr",
@@ -82,6 +92,19 @@ var PgpSqliteDb2 = {
   },
 
   async getAcceptance(fingerprint, email, rv) {
+    fingerprint = fingerprint.toLowerCase();
+    email = email.toLowerCase();
+
+    if (
+      fingerprint == this.accCacheFingerprint &&
+      this.accCacheEmails &&
+      this.accCacheEmails.has(email)
+    ) {
+      rv.emailDecided = true;
+      rv.fingerprintAcceptance = this.accCacheValue;
+      return;
+    }
+
     rv.emailDecided = false;
     rv.fingerprintAcceptance = "";
 
@@ -93,8 +116,8 @@ var PgpSqliteDb2 = {
 
       if (rv.fingerprintAcceptance) {
         let qObj = {
-          fpr: fingerprint.toLowerCase(),
-          email: email.toLowerCase(),
+          fpr: fingerprint,
+          email,
         };
         await conn
           .execute(
@@ -128,11 +151,14 @@ var PgpSqliteDb2 = {
   },
 
   async deleteAcceptance(fingerprint) {
+    fingerprint = fingerprint.toLowerCase();
+    this.accCacheFingerprint = fingerprint;
+    this.accCacheValue = "";
+    this.accCacheEmails = null;
     let conn;
     try {
       conn = await this.openDatabase();
       await conn.execute("begin transaction");
-      fingerprint = fingerprint.toLowerCase();
       await this.internalDeleteAcceptanceNoTransaction(conn, fingerprint);
       await conn.execute("commit transaction");
       await conn.close();
@@ -145,13 +171,31 @@ var PgpSqliteDb2 = {
   },
 
   async updateAcceptance(fingerprint, emailArray, decision) {
+    fingerprint = fingerprint.toLowerCase();
     let conn;
     try {
+      let uniqueEmails = new Set();
+      if (decision !== "undecided") {
+        if (emailArray) {
+          for (let email of emailArray) {
+            if (!email) {
+              continue;
+            }
+            email = email.toLowerCase();
+            if (uniqueEmails.has(email)) {
+              continue;
+            }
+            uniqueEmails.add(email);
+          }
+        }
+      }
+
+      this.accCacheFingerprint = fingerprint;
+      this.accCacheValue = decision;
+      this.accCacheEmails = uniqueEmails;
+
       conn = await this.openDatabase();
-
       await conn.execute("begin transaction");
-
-      fingerprint = fingerprint.toLowerCase();
       await this.internalDeleteAcceptanceNoTransaction(conn, fingerprint);
 
       if (decision !== "undecided") {
@@ -166,25 +210,15 @@ var PgpSqliteDb2 = {
 
         /* A key might contain multiple user IDs with the same email
          * address. We add each email only once. */
-        let alreadyAdded = new Set();
         let insertObj = {
           fpr: fingerprint,
         };
-        if (emailArray) {
-          for (let email of emailArray) {
-            if (!email) {
-              continue;
-            }
-            insertObj.email = email.toLowerCase();
-            if (alreadyAdded.has(insertObj.email)) {
-              continue;
-            }
-            alreadyAdded.add(insertObj.email);
-            await conn.execute(
-              "insert into acceptance_email values (:fpr, :email)",
-              insertObj
-            );
-          }
+        for (let email of uniqueEmails) {
+          insertObj.email = email;
+          await conn.execute(
+            "insert into acceptance_email values (:fpr, :email)",
+            insertObj
+          );
         }
       }
       await conn.execute("commit transaction");
