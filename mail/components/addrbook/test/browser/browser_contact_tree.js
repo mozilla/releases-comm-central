@@ -279,7 +279,9 @@ add_task(async () => {
   openDirectory(bookA);
   checkRows();
   let contactA2 = bookA.addCard(createContact("contact", "A2"));
+  checkRows(contactA2);
   let contactA1 = bookA.addCard(createContact("contact", "A1")); // Add first.
+  checkRows(contactA1, contactA2);
   let contactA5 = bookA.addCard(createContact("contact", "A5")); // Add last.
   checkRows(contactA1, contactA2, contactA5);
   let contactA3 = bookA.addCard(createContact("contact", "A3")); // Add in the middle.

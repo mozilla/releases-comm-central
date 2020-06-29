@@ -171,27 +171,21 @@ ABView.prototype = {
         let viewCard = new abViewCard(subject);
         let sortText = viewCard.getText(this.sortColumn);
         let added = false;
-        for (let i = this._rowMap.length - 1; !added && i >= 0; i--) {
+        for (let i = 0; !added && i < this._rowMap.length; i++) {
+          let comparison = this.collator.compare(
+            sortText,
+            this._rowMap[i].getText(this.sortColumn)
+          );
           if (
-            this.collator.compare(
-              sortText,
-              this._rowMap[i].getText(this.sortColumn)
-            ) < 0
+            (comparison < 0 && this.sortDirection == "ascending") ||
+            (comparison >= 0 && this.sortDirection == "descending")
           ) {
-            this._rowMap.splice(
-              this.sortDirection == "ascending" ? i : i + 1,
-              0,
-              viewCard
-            );
+            this._rowMap.splice(i, 0, viewCard);
             added = true;
           }
         }
         if (!added) {
-          if (this.sortDirection == "ascending") {
-            this._rowMap.push(viewCard);
-          } else {
-            this._rowMap.unshift(viewCard);
-          }
+          this._rowMap.push(viewCard);
         }
         if (this.listener) {
           this.listener.onCountChanged(this.rowCount);
