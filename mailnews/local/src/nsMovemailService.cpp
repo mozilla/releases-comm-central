@@ -196,8 +196,7 @@ bool SpoolLock::ObtainSpoolLock(
       LOG(("Attempt %d of %d to lock file", retry_count, aSeconds));
       if (aSeconds > 0 && lock_result == PR_FAILURE) {
         // pause 1sec, waiting for .lock to go away
-        PRIntervalTime sleepTime = 1000;  // 1 second
-        PR_Sleep(sleepTime);
+        PR_Sleep(PR_SecondsToInterval(1));
       }
     } while (lock_result == PR_FAILURE && retry_count < aSeconds);
     LOG(("Lock result: %d", lock_result));
@@ -252,8 +251,7 @@ bool SpoolLock::ObtainSpoolLock(
 
     if (aSeconds > 0 && link_result == -1) {
       // pause 1sec, waiting for .lock to go away
-      PRIntervalTime sleepTime = 1000;  // 1 second
-      PR_Sleep(sleepTime);
+      PR_Sleep(PR_SecondsToInterval(1));
     }
   } while (link_result == -1 && retry_count < aSeconds);
   LOG(("Link result: %d", link_result));
