@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/changeExpiryDlg.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+
+<window data-l10n-id="openpgp-change-key-expiry-title"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        style="width: 50em; height: 22em"
+        persist="width height"
+        onload="onLoad();">
+<dialog id="changeExpiryDlg"
+        buttons="cancel,accept">
+  <script src="chrome://openpgp/content/ui/changeExpiryDlg.js"/>
+  <linkset>
+    <html:link rel="localization" href="messenger/openpgp/changeExpiryDlg.ftl"/>
+    <html:link rel="localization" href="messenger/openpgp/enigmail.ftl"/>
+  </linkset>
+
+  <description id="info-current-expiry"/>
+  <separator class="thin"/>
+
+  <hbox class="inline-notification-container info-container self-center">
+    <hbox class="inline-notification-wrapper">
+      <image class="notification-image notification-image-info"/>
+      <description data-l10n-id="info-explanation-1"/>
+    </hbox>
+  </hbox>
+
+  <separator class="thin"/>
+  <description data-l10n-id="info-explanation-2"/>
+  <separator class="thin"/>
+
+  <radiogroup id="radio-expire-or-not" value="keep-existing"
+              onselect="enableExpiryInput()">
+      <radio id="radio-expire-keep" value="keep-existing"
+             data-l10n-id="expire-dont-change"/>
+      <hbox align="center">
+        <radio id="radio-expire-yes" value="expire"
+               data-l10n-id="expire-in-label"/>
+        <menulist id="expire-months" sizetopopup="always"
+                  value="24"
+                  disabled="true">
+          <menupopup id="monthsPopup">
+          </menupopup>
+        </menulist>
+        <label id="expire-months-label"
+               data-l10n-id="expire-in-months"
+               disabled="true"/>
+      </hbox>
+      <radio id="radio-expire-no" value="do-not-expire"
+             data-l10n-id="expire-never-label"/>
+  </radiogroup>
+
+</dialog>
+</window>

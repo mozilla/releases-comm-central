@@ -625,4 +625,40 @@ class EnigmailKeyObj {
     const cApi = EnigmailCryptoAPI();
     return cApi.sync(cApi.extractSecretKey(this.fpr, minimalKey));
   }
+
+  iSimpleOneSubkeySameExpiry(result = null) {
+    if (result) {
+      result.fingerprints = [];
+    }
+
+    if (this.subKeys.length == 0) {
+      return true;
+    }
+
+    if (this.subKeys.length > 1) {
+      return false;
+    }
+
+    let subKey = this.subKeys[0];
+
+    if (!this.expiryTime && !subKey.expiryTime) {
+      return true;
+    }
+
+    let deltaSeconds = this.expiryTime - subKey.expiryTime;
+    if (deltaSeconds < 0) {
+      deltaSeconds *= -1;
+    }
+
+    // If expiry dates differ by less than a half day, then we
+    // treat it as having roughly the same expiry date.
+    let rv = deltaSeconds < 12 * 60 * 60;
+
+    if (rv && result) {
+      result.fingerprints.push(this.fpr);
+      result.fingerprints.push(subKey.fpr);
+    }
+
+    return rv;
+  }
 }

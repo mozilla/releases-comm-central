@@ -38,6 +38,8 @@ openpgp-key-expiry-label =
 openpgp-key-id-label =
     .label = Key ID
 
+openpgp-cannot-change-expiry = This is a key with a complex structure, changing its expiry date isn't supported.
+
 openpgp-key-man-title =
     .title = OpenPGP Key Management
 openpgp-key-man-generate =

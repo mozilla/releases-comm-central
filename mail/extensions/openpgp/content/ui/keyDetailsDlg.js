@@ -11,7 +11,7 @@
 /* global EnigCleanGuiList: false, EnigGetTrustLabel: false, EnigShowPhoto: false, EnigSignKey: false */
 /* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false, EnigRevokeKey: false */
 /* global EnigCreateRevokeCert: false, EnigmailTimer: false, EnigmailCryptoAPI: false */
-/* global PgpSqliteDb2: false */
+/* global PgpSqliteDb2: false, EnigmailDialog: false */
 
 // from enigmailKeyManager.js:
 /* global keyMgrAddPhoto: false, EnigmailCompat: false */
@@ -69,11 +69,38 @@ function setLabel(elementId, label) {
   node.setAttribute("value", label);
 }
 
-async function reloadData(firstLoad) {
-  // TODO: once we support firstLoad==false, be sure to change the
-  // code below, and don't update the "original" variables on
-  // subsequent calls.
+function changeExpiry() {
+  let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
+  if (!keyObj || !keyObj.secretAvailable) {
+    return;
+  }
 
+  if (!keyObj.iSimpleOneSubkeySameExpiry()) {
+    let msg = l10n.formatValueSync("openpgp-cannot-change-expiry");
+    EnigmailDialog.alert(window, msg);
+    return;
+  }
+
+  let params = {
+    keyId: gKeyId,
+    modified: false,
+  };
+
+  window.openDialog(
+    "chrome://openpgp/content/ui/changeExpiryDlg.xhtml",
+    "",
+    "dialog,modal,centerscreen,resizable",
+    params
+  );
+
+  if (params.modified) {
+    EnigmailKeyRing.clearCache();
+    enableRefresh();
+    reloadData(false);
+  }
+}
+
+async function reloadData(firstLoad) {
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
     throw new Error("GetEnigmailSvc failed");
@@ -146,7 +173,7 @@ async function reloadData(firstLoad) {
     expiryInfo = keyObj.expiry;
   }
   if (expiryInfoKey) {
-    expiryInfo = await document.l10n.formatValue(expiryInfoKey, {
+    expiryInfo = l10n.formatValueSync(expiryInfoKey, {
       keyExpiry: expireArgument,
     });
   }
@@ -163,8 +190,16 @@ async function reloadData(firstLoad) {
     setLabel("keyType", value);
 
     gUpdateAllowed = true;
-    gOriginalPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
-    gPersonalRadio.value = gOriginalPersonal ? "personal" : "not_personal";
+    if (firstLoad) {
+      gOriginalPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(
+        keyObj.fpr
+      );
+      gPersonalRadio.value = gOriginalPersonal ? "personal" : "not_personal";
+    }
+
+    if (keyObj.keyTrust != "r") {
+      document.getElementById("changeExpiryButton").removeAttribute("hidden");
+    }
   } else {
     gPersonalRadio.setAttribute("hidden", "true");
     document.getElementById("ownKeyCommands").setAttribute("hidden", "true");
@@ -198,15 +233,17 @@ async function reloadData(firstLoad) {
         acceptanceResult
       );
 
-      if (
-        "fingerprintAcceptance" in acceptanceResult &&
-        acceptanceResult.fingerprintAcceptance != "undecided"
-      ) {
-        gOriginalAcceptance = acceptanceResult.fingerprintAcceptance;
-      } else {
-        gOriginalAcceptance = "undecided";
+      if (firstLoad) {
+        if (
+          "fingerprintAcceptance" in acceptanceResult &&
+          acceptanceResult.fingerprintAcceptance != "undecided"
+        ) {
+          gOriginalAcceptance = acceptanceResult.fingerprintAcceptance;
+        } else {
+          gOriginalAcceptance = "undecided";
+        }
+        gAcceptanceRadio.value = gOriginalAcceptance;
       }
-      gAcceptanceRadio.value = gOriginalAcceptance;
     }
   }
   if (acceptanceIntro1Text) {

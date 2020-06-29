@@ -2333,4 +2333,55 @@ var RNP = {
 
     return result;
   },
+
+  // Will change the expiration date of all given keys to newExpiry.
+  // fingerprintArray is an array, containing fingerprints, both
+  // primary key fingerprints and subkey fingerprints are allowed.
+  // Currently, this function assumes that for any subkey that is
+  // being changeed, the respective primary key is contained in the
+  // array, too. If it isn't, the function will fail, because the
+  // primary key must be unlocked, before changing a subkey works.
+  changeExpirationDate(fingerprintArray, newExpiry) {
+    let handles = [];
+
+    for (let fingerprint of fingerprintArray) {
+      let handle = this.getKeyHandleByKeyIdOrFingerprint(
+        RNPLib.ffi,
+        "0x" + fingerprint
+      );
+
+      if (handle.isNull()) {
+        return false;
+      }
+      handles.push(handle);
+    }
+
+    for (let handle of handles) {
+      if (
+        RNPLib.rnp_key_unlock(
+          handle,
+          OpenPGPMasterpass.retrieveOpenPGPPassword()
+        )
+      ) {
+        throw new Error("rnp_key_unlock failed");
+      }
+    }
+
+    for (let handle of handles) {
+      if (RNPLib.rnp_key_set_expiration(handle, newExpiry)) {
+        throw new Error("rnp_key_set_expiration failed");
+      }
+    }
+
+    for (let handle of handles) {
+      if (RNPLib.rnp_key_lock(handle)) {
+        throw new Error("rnp_key_lock failed");
+      }
+
+      RNPLib.rnp_key_handle_destroy(handle);
+    }
+
+    this.saveKeyRings();
+    return true;
+  },
 };

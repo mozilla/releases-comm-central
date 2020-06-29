@@ -40,41 +40,57 @@
   <vbox>
     <html:table>
       <html:tr>
-        <html:th data-l10n-id="openpgp-key-details-user-id2-label"/>
-        <html:td class="input-container">
-          <html:input id="userId" type="text" class="plain"
-                      readonly="readonly" value="?" size="60"/>
+        <html:td>
+
+          <html:table>
+            <html:tr>
+              <html:th data-l10n-id="openpgp-key-details-user-id2-label"/>
+              <html:td class="input-container">
+                <html:input id="userId" type="text" class="plain"
+                            readonly="readonly" value="?" size="60"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th data-l10n-id="openpgp-key-details-key-type-label"/>
+              <html:td class="input-container">
+                <html:input id="keyType" type="text" class="plain"
+                            readonly="readonly" value="?" size="60"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th data-l10n-id="openpgp-key-details-fingerprint-label"/>
+              <html:td class="input-container">
+                <html:input id="fingerprint" type="text" class="plain"
+                            readonly="readonly" value="?" size="60"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th data-l10n-id="openpgp-key-details-created-header"/>
+              <html:td class="input-container">
+                <html:input id="keyCreated" type="text" class="plain"
+                            readonly="readonly" value="?" size="60"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th data-l10n-id="openpgp-key-details-expiry-header" valign="top"/>
+              <html:td class="input-container" valign="top">
+                <html:input id="keyExpiry" type="text" class="plain"
+                            readonly="readonly" value="?" size="60"/>
+              </html:td>
+            </html:tr>
+          </html:table>
+
         </html:td>
-      </html:tr>
-      <html:tr>
-        <html:th data-l10n-id="openpgp-key-details-key-type-label"/>
-        <html:td class="input-container">
-          <html:input id="keyType" type="text" class="plain"
-                      readonly="readonly" value="?" size="60"/>
-        </html:td>
-      </html:tr>
-      <html:tr>
-        <html:th data-l10n-id="openpgp-key-details-fingerprint-label"/>
-        <html:td class="input-container">
-          <html:input id="fingerprint" type="text" class="plain"
-                      readonly="readonly" value="?" size="60"/>
-        </html:td>
-      </html:tr>
-      <html:tr>
-        <html:th data-l10n-id="openpgp-key-details-created-header"/>
-        <html:td class="input-container">
-          <html:input id="keyCreated" type="text" class="plain"
-                      readonly="readonly" value="?" size="60"/>
-        </html:td>
-      </html:tr>
-      <html:tr>
-        <html:th data-l10n-id="openpgp-key-details-expiry-header"/>
-        <html:td class="input-container">
-          <html:input id="keyExpiry" type="text" class="plain"
-                      readonly="readonly" value="?" size="60"/>
+        <html:td valign="bottom">
+
+          <button id="changeExpiryButton"
+                  data-l10n-id="openpgp-key-man-change-expiry"
+                  oncommand="changeExpiry()" hidden="true"/>
+
         </html:td>
       </html:tr>
     </html:table>
+
     <vbox class="enigmailCaptionbox" id="alsoknown" flex="1">
       <html:h1 data-l10n-id="openpgp-key-details-also-known-label"/>
       <richlistbox id="additionalUid" style="height: 4em;" flex="1"/>

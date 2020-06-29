@@ -285,3 +285,4 @@
   skin/classic/messenger/openpgp/composeKeyStatus.css         (../shared/openpgp/composeKeyStatus.css)
   skin/classic/messenger/openpgp/oneRecipientStatus.css       (../shared/openpgp/oneRecipientStatus.css)
   skin/classic/messenger/openpgp/msgReadStatus.css            (../shared/openpgp/msgReadStatus.css)
+  skin/classic/messenger/openpgp/changeExpiryDlg.css       (../shared/openpgp/changeExpiryDlg.css)
