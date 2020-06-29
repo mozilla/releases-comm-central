@@ -23,9 +23,6 @@ const { EnigmailPrefs } = ChromeUtils.import(
 const { EnigmailApp } = ChromeUtils.import(
   "chrome://openpgp/content/modules/app.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 );
@@ -53,6 +50,7 @@ const { EnigmailCryptoAPI } = ChromeUtils.import(
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 const gMimeHashAlgorithms = [
   null,
@@ -92,7 +90,7 @@ var EnigmailEncryption = {
       toMailAddr = EnigmailFuncs.stripEmail(toMailAddr);
       bccMailAddr = EnigmailFuncs.stripEmail(bccMailAddr);
     } catch (ex) {
-      errorMsgObj.value = EnigmailLocale.getString("invalidEmail");
+      errorMsgObj.value = l10n.formatValueSync("invalid-email");
       return null;
     }
 
@@ -256,7 +254,7 @@ var EnigmailEncryption = {
       toMailAddr = EnigmailFuncs.stripEmail(toMailAddr);
       bccMailAddr = EnigmailFuncs.stripEmail(bccMailAddr);
     } catch (ex) {
-      errorMsgObj.value = EnigmailLocale.getString("invalidEmail");
+      errorMsgObj.value = l10n.formatValueSync("invalid-email");
       return null;
     }
 
@@ -453,7 +451,7 @@ var EnigmailEncryption = {
       EnigmailLog.DEBUG(
         "encryption.jsm: encryptMessageStart: NO ENCRYPTION!\n"
       );
-      errorMsgObj.value = EnigmailLocale.getString("notRequired");
+      errorMsgObj.value = l10n.formatValueSync("not-required");
       return null;
     }
 

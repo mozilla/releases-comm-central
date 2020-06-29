@@ -23,7 +23,7 @@ const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
 
-const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 const {
   obtainKeyList,

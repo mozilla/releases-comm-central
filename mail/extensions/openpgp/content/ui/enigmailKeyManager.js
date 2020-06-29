@@ -771,21 +771,21 @@ function enigmailImportFromClipbrd() {
     if (preview.length == 1) {
       exitStatus = EnigmailDialog.confirmDlg(
         window,
-        EnigmailLocale.getString("doImportOne", [
-          preview[0].name,
-          preview[0].id,
-        ])
+        l10n.formatValueSync("do-import-one", {
+          name: preview[0].name,
+          id: preview[0].id,
+        })
       );
     } else {
       exitStatus = EnigmailDialog.confirmDlg(
         window,
-        EnigmailLocale.getString("doImportMultiple", [
-          preview
+        l10n.formatValueSync("do-import-multiple", {
+          key: preview
             .map(function(a) {
               return "\t" + a.name + " (" + a.id + ")";
             })
             .join("\n"),
-        ])
+        })
       );
     }
 
@@ -806,7 +806,9 @@ function enigmailImportFromClipbrd() {
       refreshKeys();
     }
   } else {
-    EnigmailDialog.alert(window, EnigmailLocale.getString("previewFailed"));
+    document.l10n.formatValue("preview-failed").then(value => {
+      EnigmailDialog.alert(window, value);
+    });
   }
 }
 
@@ -1113,21 +1115,21 @@ function enigmailImportKeysFromUrl() {
           if (preview.length == 1) {
             exitStatus = EnigmailDialog.confirmDlg(
               window,
-              EnigmailLocale.getString("doImportOne", [
-                preview[0].name,
-                preview[0].id,
-              ])
+              l10n.formatValueSync("do-import-one", {
+                name: preview[0].name,
+                id: preview[0].id,
+              })
             );
           } else {
             exitStatus = EnigmailDialog.confirmDlg(
               window,
-              EnigmailLocale.getString("doImportMultiple", [
-                preview
+              l10n.formatValueSync("do-import-multiple", {
+                key: preview
                   .map(function(a) {
                     return "\t" + a.name + " (" + a.id + ")";
                   })
                   .join("\n"),
-              ])
+              })
             );
           }
 
@@ -1144,10 +1146,9 @@ function enigmailImportKeysFromUrl() {
             resolve(errorMsgObj);
           }
         } else {
-          EnigmailDialog.alert(
-            window,
-            EnigmailLocale.getString("previewFailed")
-          );
+          document.l10n.formatValue("preview-failed").then(value => {
+            EnigmailDialog.alert(window, value);
+          });
         }
       };
 

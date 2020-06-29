@@ -352,6 +352,7 @@ save-keys-failed = Saving the keys failed
 default-pub-key-filename = Exported-public-keys
 default-pub-sec-key-filename = Exported-public-and-secret-keys
 refresh-key-warn = Warning: depending on the number of keys and the connection speed, refreshing all keys could be quite a lengthy process!
+preview-failed = Can't read public key file.
 
 # Strings in keyObj.jsm
 key-ring-pub-key-revoked = The key { $userId } (key ID { $keyId }) is revoked.
@@ -407,6 +408,7 @@ not-first-block = Error - First OpenPGP block not public key block
 import-key-confirm = Import public key(s) embedded in message?
 fail-key-import = Error - key importing failed
 file-write-failed = Failed to write to file { $output }
+no-pgp-block = Error - No valid armored OpenPGP data block found
 
 # Strings used in trust.jsm
 key-valid-unknown = unknown
@@ -424,8 +426,49 @@ key-trust-group = (group)
 import-key-file = Import OpenPGP Key File
 gnupg-file = GnuPG Files
 import-keys-failed=Importing the keys failed
+passphrase-prompt = Please enter the passphrase that unlocks the following key: { $key }
 
 # Strings used in enigmailKeygen.js
 save-revoke-cert-as = Create & Save Revocation Certificate
 revoke-cert-ok = The revocation certificate has been successfully created. You can use it to invalidate your public key, e.g. in case you would lose your secret key.
 revoke-cert-failed = The revocation certificate could not be created.
+
+# Strings used in enigmailMessengerOverlay.js
+failed-decrypt = Error - decryption failed
+
+# Strings used in enigmailMsgComposeOverlay.js
+msg-compose-button-send = &Send Message
+msg-compose-details-button-label = Details…
+msg-compose-details-button-access-key = D
+send-aborted = Send operation aborted.\n\n
+key-not-trusted = Not enough trust for key '{ $key }'
+key-not-found = Key '{ $key }' not found
+key-revoked = Key '{ $key }' revoked
+key-expired = Key '{ $key }' expired
+msg-compose-internal-error = An internal error has occurred.
+keys-to-export = Select OpenPGP Keys to Insert
+msg-compose-partially-encrypted-inlinePGP = The message you are replying to contained both unencrypted and encrypted parts. If the sender was not able to decrypt some message parts originally, you may be leaking confidential information that the sender was not able to originally decrypt themselves.\n\nPlease consider removing all quoted text from your reply to this sender.
+msg-compose-cannot-save-draft = Error while saving draft
+msg-compose-partially-encrypted-short = Beware of leaking sensitive information - partially encrypted email.
+quoted-printable-warn = You have enabled 'quoted-printable' encoding for sending messages. This may result in incorrect decryption and/or verification of your message.\nDo you wish to turn off sending 'quoted-printable' messages now?
+minimal-line-wrapping = You have set line wrapping to { $width } characters. For correct encryption and/or signing, this value needs to be at least 68.\nDo you wish to change line wrapping to 68 characters now?
+sending-hidden-rcpt = This message has BCC (blind copy) recipients. If this message is encrypted, it is possible to hide the BCC recipients but users of some products (e.g. PGP Corp.) will not be able to decrypt the message. Given this, we recommend to avoid BCC-emails with encrypted messages.
+send-with-hidden-bcc = Hide BCC recipients
+send-with-shown-bcc = Encrypt normally
+sending-news = Encrypted send operation aborted.\n\nThis message cannot be encrypted because there are newsgroup recipients. Please re-send the message without encryption.
+send-to-news-warning = Warning: you are about to send an encrypted email to a newsgroup.\n\nThis is discouraged because it only makes sense if all members of the group can decrypt the message, i.e. the message needs to be encrypted with the keys of all group participants. Please send this message only if you know exactly what you are doing.\n\nContinue?
+
+# Strings used in decryption.jsm
+do-import-multiple = Import the following keys?\n\n{ $key }
+do-import-one = Import { $name } ({ $id })?
+cant-import = Error importing public key\n\n
+unverified-reply = Indented message part (reply) was probably modified
+key-in-message-body = A key was found in the message body. Click 'Import Key' to import the key
+sig-mismatch = Error - Signature mismatch
+invalid-email = Error - invalid email address(es)
+
+# Strings used in enigmailMsgHdrViewOverlay.js
+decrypted-msg-with-format-error = Decrypted message (restored broken PGP email format probably caused by an old Exchange server, so that the result might not be perfect to read)
+
+# Strings used in encryption.jsm
+not-required = Error - no encryption required

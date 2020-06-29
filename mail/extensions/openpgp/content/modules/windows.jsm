@@ -26,7 +26,7 @@ const { EnigmailStdlib } = ChromeUtils.import(
   "chrome://openpgp/content/modules/stdlib.jsm"
 );
 
-const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 var EnigmailWindows = {
   /**

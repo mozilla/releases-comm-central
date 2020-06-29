@@ -23,14 +23,11 @@ var EnigmailKeyServer = ChromeUtils.import(
 var { EnigmailKeyserverURIs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyserverUris.jsm"
 );
-var EnigmailLocale = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
 var EnigmailWkdLookup = ChromeUtils.import(
   "chrome://openpgp/content/modules/wkdLookup.jsm"
 ).EnigmailWkdLookup;
 
-const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 var KeyLookupHelper = {
   async lookupAndImportOnKeyserver(
@@ -62,7 +59,7 @@ var KeyLookupHelper = {
           true
         );
       } else {
-        EnigmailDialog.alert(window, EnigmailLocale.getString("previewFailed"));
+        EnigmailDialog.alert(window, await l10n.formatValue("preview-failed"));
       }
     } else {
       console.debug("searchKeysOnInternet no data in keys.openpgp.org");
@@ -94,7 +91,7 @@ var KeyLookupHelper = {
         false
       );
       if (!keyList) {
-        EnigmailDialog.alert(window, EnigmailLocale.getString("previewFailed"));
+        EnigmailDialog.alert(window, await l10n.formatValue("preview-failed"));
       } else {
         somethingWasImported = EnigmailKeyRing.importKeyDataWithConfirmation(
           window,

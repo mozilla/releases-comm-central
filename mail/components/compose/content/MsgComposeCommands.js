@@ -56,7 +56,7 @@ var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
 );
 
-var l10n = new Localization(
+var l10nCompose = new Localization(
   ["messenger/messengercompose/messengercompose.ftl"],
   true
 );
@@ -4128,7 +4128,7 @@ function udpateAddressingInputAriaLabel(row) {
   );
   input.setAttribute(
     "aria-label",
-    l10n.formatValueSync("address-input-type-aria-label", {
+    l10nCompose.formatValueSync("address-input-type-aria-label", {
       type,
       count: pills.length,
     })
@@ -4137,7 +4137,7 @@ function udpateAddressingInputAriaLabel(row) {
   for (let pill of pills) {
     pill.setAttribute(
       "aria-label",
-      l10n.formatValueSync("pill-aria-label", {
+      l10nCompose.formatValueSync("pill-aria-label", {
         email: pill.fullAddress,
         count: pills.length,
       })

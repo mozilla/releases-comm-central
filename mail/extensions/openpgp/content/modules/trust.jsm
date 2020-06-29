@@ -8,7 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailTrust"];
 
-const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 // trust flags according to GPG documentation:
 // - https://www.gnupg.org/documentation/manuals/gnupg.pdf

@@ -519,7 +519,7 @@ Enigmail.hdrView = {
   },
   */
 
-  displayStatusBar() {
+  async displayStatusBar() {
     let secInfo = Enigmail.msg.securityInfo;
     let statusFlags = secInfo.statusFlags;
     let extStatusFlags =
@@ -552,7 +552,9 @@ Enigmail.hdrView = {
       encryptedUINode.setAttribute("encrypted", "ok");
       this.msgEncryptionState = EnigmailConstants.MSG_ENC_OK;
       if (secInfo.xtraStatus && secInfo.xtraStatus == "buggyMailFormat") {
-        console.log(EnigmailLocale.getString("decryptedMsgWithFormatError"));
+        console.log(
+          await document.l10n.formatValue("decrypted-msg-with-format-error")
+        );
       }
     }
 

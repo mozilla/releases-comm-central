@@ -253,7 +253,7 @@ var EnigmailDecryption = {
     if (publicKey) {
       // TODO: import key into our scratch area for new, unknown keys
       if (!allowImport) {
-        errorMsgObj.value = EnigmailLocale.getString("keyInMessageBody");
+        errorMsgObj.value = l10n.formatValueSync("key-in-message-body");
         statusFlagsObj.value |= EnigmailConstants.DISPLAY_MESSAGE;
         statusFlagsObj.value |= EnigmailConstants.INLINE_KEY;
 
@@ -288,7 +288,7 @@ var EnigmailDecryption = {
             newSignature +
             "\n"
         );
-        errorMsgObj.value = EnigmailLocale.getString("sigMismatch");
+        errorMsgObj.value = l10n.formatValueSync("sig-mismatch");
         statusFlagsObj.value |= EnigmailConstants.DISPLAY_MESSAGE;
 
         return "";
@@ -400,9 +400,7 @@ var EnigmailDecryption = {
       if (verifyOnly && indentStrObj.value) {
         // Probably replied message that could not be verified
         errorMsgObj.value =
-          EnigmailLocale.getString("unverifiedReply") +
-          "\n\n" +
-          errorMsgObj.value;
+          l10n.formatValueSync("unverified-reply") + "\n\n" + errorMsgObj.value;
         return "";
       }
 
@@ -456,10 +454,12 @@ var EnigmailDecryption = {
         importedKey = exitStatus === 0;
 
         if (exitStatus > 0) {
-          EnigmailDialog.alert(
-            parent,
-            EnigmailLocale.getString("cantImport") + importErrorMsgObj.value
-          );
+          l10n.formatValue("cant-import").then(value => {
+            EnigmailDialog.alert(
+              parent,
+              value + importErrorMsgObj.value
+            );
+          });
         }
       }
 
@@ -575,21 +575,21 @@ var EnigmailDecryption = {
             if (preview.length == 1) {
               exitStatus = EnigmailDialog.confirmDlg(
                 parent,
-                EnigmailLocale.getString("doImportOne", [
-                  preview[0].name,
-                  preview[0].id,
-                ])
+                l10n.formatValueSync("do-import-one", {
+                  name: preview[0].name,
+                  id: preview[0].id,
+                })
               );
             } else {
               exitStatus = EnigmailDialog.confirmDlg(
                 parent,
-                EnigmailLocale.getString("doImportMultiple", [
-                  preview
+                l10n.formatValueSync("do-import-multiple", {
+                  key: preview
                     .map(function(a) {
                       return "\t" + a.name + " (" + a.id + ")";
                     })
                     .join("\n"),
-                ])
+                })
               );
             }
 
