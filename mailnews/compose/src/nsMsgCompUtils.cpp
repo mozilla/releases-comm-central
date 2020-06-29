@@ -1307,19 +1307,6 @@ nsresult nsMsgNewURL(nsIURI** aInstancePtrResult, const nsCString& aSpec) {
   return rv;
 }
 
-bool nsMsgIsLocalFile(const char* url) {
-  // A url is considered as a local file if it's start with file://
-  // But on Window, we need to filter UNC file url because there
-  // are not really local file. Those start with file:////
-  if (PL_strncasecmp(url, "file://", 7) == 0) {
-#ifdef XP_WIN
-    if (PL_strncasecmp(url, "file:////", 9) == 0) return false;
-#endif
-    return true;
-  } else
-    return false;
-}
-
 char* nsMsgGetLocalFileFromURL(const char* url) {
   char* finalPath;
   NS_ASSERTION(PL_strncasecmp(url, "file://", 7) == 0, "invalid url");

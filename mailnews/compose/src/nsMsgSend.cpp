@@ -1692,7 +1692,7 @@ nsresult nsMsgComposeAndSend::CountCompFieldAttachments() {
       if (!url.IsEmpty()) {
         // Check to see if this is a file URL, if so, don't retrieve
         // like a remote URL...
-        if (nsMsgIsLocalFile(url.get()))
+        if (PL_strncasecmp(url.get(), "file://", 7) == 0)
           mCompFieldLocalAttachments++;
         else  // This is a remote URL...
           mCompFieldRemoteAttachments++;
@@ -1748,7 +1748,7 @@ nsresult nsMsgComposeAndSend::AddCompFieldLocalAttachments() {
           attachment->GetContentLocation(m_attachments[newLoc]->mCloudUrl);
         }
         // Just look for local file:// attachments and do the right thing.
-        if (nsMsgIsLocalFile(url.get())) {
+        if (PL_strncasecmp(url.get(), "file://", 7) == 0) {
           //
           // Now we have to setup the m_attachments entry for the file://
           // URL that is passed in...
@@ -1918,7 +1918,7 @@ nsresult nsMsgComposeAndSend::AddCompFieldRemoteAttachments(
       if (!url.IsEmpty()) {
         // Just look for files that are NOT local file attachments and do
         // the right thing.
-        if (!nsMsgIsLocalFile(url.get())) {
+        if (PL_strncasecmp(url.get(), "file://", 7) != 0) {
           // Check for message attachment, see
           // nsMsgMailNewsUrl::GetIsMessageUri.
           nsCOMPtr<nsIURI> nsiuri;

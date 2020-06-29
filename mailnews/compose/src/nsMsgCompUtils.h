@@ -107,7 +107,6 @@ bool nsMsgMIMEGetConformToStandard(void);
 // network service type calls...
 //
 nsresult nsMsgNewURL(nsIURI** aInstancePtrResult, const nsCString& aSpec);
-bool nsMsgIsLocalFile(const char* url);
 char* nsMsgGetLocalFileFromURL(const char* url);
 
 char* nsMsgParseURLHost(const char* url);
