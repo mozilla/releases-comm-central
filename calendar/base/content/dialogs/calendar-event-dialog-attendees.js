@@ -141,7 +141,7 @@ var eventBar = {
   handleEvent(event) {
     switch (event.type) {
       case "dragstart": {
-        this.dragStartX = event.clientX;
+        this.dragStartX = event.clientX + freebusyGrid.scrollLeft;
         let img = document.createElement("img");
         img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
         event.dataTransfer.setDragImage(img, 0, 0);
@@ -150,7 +150,7 @@ var eventBar = {
       }
       case "dragover": {
         // Snap dragging movements to half of a minor column width.
-        this.dragDistance = Math.round((event.clientX - this.dragStartX) / 15) * 15;
+        this.dragDistance = Math.round((event.clientX + freebusyGrid.scrollLeft - this.dragStartX) / 15) * 15;
         this.eventBarTop.style.transform = this.eventBarBottom.style.transform = `translateX(${this.dragDistance}px)`;
         break;
       }
