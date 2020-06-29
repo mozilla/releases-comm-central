@@ -96,8 +96,10 @@ var zoom = {
 
     for (let gridClass of ["twoMinorColumns", "threeMinorColumns"]) {
       if (this.levels[newZoomLevel].gridClass == gridClass) {
+        dayHeaderInner.classList.add(gridClass);
         freebusyGridInner.classList.add(gridClass);
       } else {
+        dayHeaderInner.classList.remove(gridClass);
         freebusyGridInner.classList.remove(gridClass);
       }
     }
