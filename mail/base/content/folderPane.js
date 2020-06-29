@@ -1278,6 +1278,11 @@ var gFolderTreeView = {
           folder.performExpand(msgWindow);
         }
       }
+
+      // Restore the custom color of the folder icon for the available children.
+      for (let child of Array.from(this._rowMap[aIndex].children)) {
+        this.setFolderCustomColor(child._folder);
+      }
     }
   },
 
@@ -1569,19 +1574,13 @@ var gFolderTreeView = {
           continue;
         }
 
-        // Restore the custom color of the fodler icon.
+        // Restore the custom color of the folder icon.
         tree.setFolderCustomColor(row._folder);
 
         // The initial state of all rows is closed, so toggle those we want open.
         if (!map || map.includes(row.id)) {
           tree._toggleRow(i, false);
           goOn = true;
-        } else {
-          // Loop through the children of this closed folder to check for
-          // custom colors. Bug 1641950
-          for (let child of Array.from(row.children)) {
-            tree.setFolderCustomColor(child._folder);
-          }
         }
       }
 
@@ -2627,6 +2626,11 @@ var gFolderTreeView = {
     // Get the previously stored color from the Folder Database.
     let iconColor = msgDatabase.dBFolderInfo.getCharProperty("folderIconColor");
 
+    // Interrupt if no custom color was defined.
+    if (!iconColor) {
+      return;
+    }
+
     // Store the color in the cache property so we can use this for
     // properties changes and updates.
     gFolderTreeView.setFolderCacheProperty(
@@ -2656,13 +2660,10 @@ var gFolderTreeView = {
     }
 
     // Append the new CSS styling.
-    this.folderColorStyle.sheet.insertRule(
-      `treechildren::-moz-tree-image(folderNameCol, customColor-${iconColor.replace(
-        "#",
-        ""
-      )}) {fill: ${iconColor};}`,
-      this.folderColorStyle.sheet.cssRules.length
-    );
+    this.folderColorStyle.textContent += `treechildren::-moz-tree-image(folderNameCol, customColor-${iconColor.replace(
+      "#",
+      ""
+    )}) {fill: ${iconColor};}`;
   },
 };
 
