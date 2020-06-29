@@ -312,7 +312,7 @@ function enigmailDeleteKey() {
           l10n.formatValueSync("delete-secret-key", {
             userId,
           }),
-          EnigGetString("dlg.button.delete")
+          l10n.formatValueSync("dlg-button-delete")
         )
       ) {
         return;
@@ -323,7 +323,7 @@ function enigmailDeleteKey() {
         l10n.formatValueSync("delete-pub-key", {
           userId,
         }),
-        EnigGetString("dlg.button.delete")
+        l10n.formatValueSync("dlg-button-delete")
       )
     ) {
       return;
@@ -340,15 +340,15 @@ function enigmailDeleteKey() {
       if (
         !EnigConfirm(
           l10n.formatValueSync("delete-mix"),
-          EnigGetString("dlg.button.delete")
+          l10n.formatValueSync("dlg-button-delete")
         )
       ) {
         return;
       }
     } else if (
       !EnigConfirm(
-        l10n.formatValueSync("deleteSelectedPubKey"),
-        EnigGetString("dlg.button.delete")
+        l10n.formatValueSync("delete-selected-pub-key"),
+        l10n.formatValueSync("dlg-button-delete")
       )
     ) {
       return;
@@ -386,7 +386,9 @@ function enigCreateKeyMsg() {
     );
     tmpFile.initWithPath(tmpDir);
     if (!(tmpFile.isDirectory() && tmpFile.isWritable())) {
-      EnigAlert(EnigGetString("noTempDir"));
+      document.l10n.formatValue("no-temp-dir").then(value => {
+        EnigAlert(value);
+      });
       return;
     }
   } catch (ex) {}
@@ -605,7 +607,7 @@ async function enigmailExportKeys() {
     // double check that also the pivate keys shall be exported
     var r = EnigmailDialog.msgBox(window, {
       msgtext: await document.l10n.formatValue("export-secret-key"),
-      dialogTitle: EnigGetString("enigConfirm2"),
+      dialogTitle: await document.l10n.formatValue("enig-confirm"),
       button1: await document.l10n.formatValue("key-man-button-export-pub-key"),
       button2: await document.l10n.formatValue("key-man-button-export-sec-key"),
       cancelButton: ":cancel",
@@ -940,11 +942,11 @@ function userAcceptsWarning(warningMessage) {
       window,
       {
         msgtext: warningMessage,
-        checkboxLabel: EnigGetString("dlgNoPrompt"),
-        button1: EnigGetString("dlg.button.continue"),
+        checkboxLabel: l10n.formatValueSync("dlg-no-prompt"),
+        button1: l10n.formatValueSync("dlg-button-continue"),
         cancelButton: ":cancel",
         iconType: EnigmailConstants.ICONTYPE_QUESTION,
-        dialogTitle: EnigmailLocale.getString("enigConfirm2"),
+        dialogTitle: l10n.formatValueSync("enig-confirm"),
       },
       checkedObj
     ) === 0;
@@ -1097,7 +1099,7 @@ function enigmailImportKeysFromUrl() {
     )
   ) {
     var p = new Promise(function(resolve, reject) {
-      var cbFunc = function(data) {
+      var cbFunc = async function(data) {
         EnigmailLog.DEBUG("enigmailImportKeysFromUrl: _cbFunc()\n");
         var errorMsgObj = {};
 
@@ -1115,7 +1117,7 @@ function enigmailImportKeysFromUrl() {
           if (preview.length == 1) {
             exitStatus = EnigmailDialog.confirmDlg(
               window,
-              l10n.formatValueSync("do-import-one", {
+              await document.l10n.formatValue("do-import-one", {
                 name: preview[0].name,
                 id: preview[0].id,
               })
@@ -1123,7 +1125,7 @@ function enigmailImportKeysFromUrl() {
           } else {
             exitStatus = EnigmailDialog.confirmDlg(
               window,
-              l10n.formatValueSync("do-import-multiple", {
+              await document.l10n.formatValue("do-import-multiple", {
                 key: preview
                   .map(function(a) {
                     return "\t" + a.name + " (" + a.id + ")";
@@ -1146,9 +1148,10 @@ function enigmailImportKeysFromUrl() {
             resolve(errorMsgObj);
           }
         } else {
-          document.l10n.formatValue("preview-failed").then(value => {
-            EnigmailDialog.alert(window, value);
-          });
+          EnigmailDialog.alert(
+            window,
+            await document.l10n.formatValue("preview-failed")
+          );
         }
       };
 
@@ -1173,10 +1176,12 @@ function enigmailImportKeysFromUrl() {
       });
       EnigmailDialog.keyImportDlg(window, keyList);
       refreshKeys();
-    }).catch(function(reason) {
+    }).catch(async function(reason) {
       EnigmailDialog.alert(
         window,
-        EnigGetString("generalError", [reason.value])
+        await document.l10n.formatValue("general-error", {
+          reason: reason.value,
+        })
       );
     });
   }

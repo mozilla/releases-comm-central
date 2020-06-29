@@ -106,9 +106,9 @@ function enigmailOnClose() {
   var closeWin = true;
   if (gKeygenRequest) {
     closeWin = EnigConfirm(
-      EnigGetString("keyAbort"),
-      EnigGetString("keyMan.button.generateKeyAbort"),
-      EnigGetString("keyMan.button.generateKeyContinue")
+      l10n.formatValueSync("key-abort"),
+      l10n.formatValueSync("key-man-button-generate-key-abort"),
+      l10n.formatValueSync("key-man-button-generate-key-continue")
     );
   }
   if (closeWin) {
@@ -170,13 +170,13 @@ function enigmailKeygenCloseRequest() {
   }
 }
 
-function enigmailKeygenStart() {
+async function enigmailKeygenStart() {
   EnigmailLog.DEBUG("enigmailKeygen.js: Start\n");
 
   if (gKeygenRequest) {
     let req = gKeygenRequest.QueryInterface(Ci.nsIRequest);
     if (req.isPending()) {
-      EnigmailDialog.info(window, EnigGetString("genGoing"));
+      EnigmailDialog.info(window, await document.l10n.formatValue("gen-going"));
       return;
     }
   }
@@ -197,11 +197,17 @@ function enigmailKeygenStart() {
   if (!noExpiry.checked) {
     expiryTime = Number(expireInput.value) * Number(timeScale.value);
     if (expiryTime > 36500) {
-      EnigmailDialog.info(window, EnigGetString("expiryTooLong"));
+      EnigmailDialog.info(
+        window,
+        await document.l10n.formatValue("expiry-too-long")
+      );
       return;
     }
     if (expiryTime <= 0) {
-      EnigmailDialog.info(window, EnigGetString("expiryTooShort"));
+      EnigmailDialog.info(
+        window,
+        await document.l10n.formatValue("expiry-too-short")
+      );
       return;
     }
   }
@@ -215,7 +221,10 @@ function enigmailKeygenStart() {
   var userEmail = curId.email;
 
   if (!userName) {
-    EnigmailDialog.info(window, EnigGetString("keygen.missingUserName"));
+    EnigmailDialog.info(
+      window,
+      await document.l10n.formatValue("keygen-missing-user-name")
+    );
     return;
   }
 
@@ -223,9 +232,16 @@ function enigmailKeygenStart() {
 
   idString += " <" + userEmail + ">";
 
-  var confirmMsg = EnigGetString("keyConfirm", idString);
+  var confirmMsg = await document.l10n.formatValue("key-confirm", {
+    id: idString,
+  });
 
-  if (!EnigConfirm(confirmMsg, EnigGetString("keyMan.button.generateKey"))) {
+  if (
+    !EnigConfirm(
+      confirmMsg,
+      await document.l10n.formatValue("key-man-button-generate-key")
+    )
+  ) {
     return;
   }
 
@@ -296,9 +312,9 @@ function enigmailKeygenCancel() {
 
   if (gKeygenRequest) {
     closeWin = EnigConfirm(
-      EnigGetString("keyAbort"),
-      EnigGetString("keyMan.button.generateKeyAbort"),
-      EnigGetString("keyMan.button.generateKeyContinue")
+      l10n.formatValueSync("key-abort"),
+      l10n.formatValueSync("key-man-button-generate-key-abort"),
+      l10n.formatValueSync("key-man-button-generate-key-continue")
     );
     if (closeWin) {
       abortKeyGeneration();

@@ -136,9 +136,9 @@ async function reloadData(firstLoad) {
   let expireArgument = null;
   let expiryInfoKey = "";
   if (keyObj.keyTrust == "r") {
-    expiryInfoKey = "key-revoked";
+    expiryInfoKey = "key-revoked-date";
   } else if (keyObj.keyTrust == "e" || keyIsExpired) {
-    expiryInfoKey = "key-expired";
+    expiryInfoKey = "key-expired-date";
     expireArgument = keyObj.expiry;
   } else if (keyObj.expiry.length === 0) {
     expiryInfoKey = "key-does-not-expire";
@@ -146,7 +146,7 @@ async function reloadData(firstLoad) {
     expiryInfo = keyObj.expiry;
   }
   if (expiryInfoKey) {
-    expiryInfo = l10n.formatValueSync(expiryInfoKey, {
+    expiryInfo = await document.l10n.formatValue(expiryInfoKey, {
       keyExpiry: expireArgument,
     });
   }
@@ -493,7 +493,7 @@ function createSubkeyItem(subkey) {
   // Get expiry state of this subkey
   let expire;
   if (subkey.keyTrust === "r") {
-    expire = EnigmailLocale.getString("keyValid.revoked");
+    expire = l10n.formatValueSync("key-valid-revoked");
   } else if (subkey.expiryTime === 0) {
     expire = l10n.formatValueSync("key-expiry-never");
   } else {

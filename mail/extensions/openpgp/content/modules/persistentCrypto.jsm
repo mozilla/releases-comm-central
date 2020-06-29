@@ -19,9 +19,6 @@ const { EnigmailLog } = ChromeUtils.import(
 const { EnigmailArmor } = ChromeUtils.import(
   "chrome://openpgp/content/modules/armor.jsm"
 );
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
 const { GlodaUtils } = ChromeUtils.import(
   "chrome://openpgp/content/modules/glodaUtils.jsm"
 );
@@ -668,8 +665,8 @@ CryptMessageIntoFolder.prototype = {
                 !getDialog().confirmDlg(
                   null,
                   msg,
-                  EnigmailLocale.getString("dlg.button.retry"),
-                  EnigmailLocale.getString("dlg.button.skip")
+                  l10n.formatValueSync("dlg-button-retry"),
+                  l10n.formatValueSync("dlg-button-skip")
                 )
               ) {
                 this.messageDecrypted = false;

@@ -20,16 +20,19 @@ openpgp-ctx-verify-att =
     .accesskey = V
 
 openpgp-has-sender-key = This message claims to contain the sender's OpenPGP public key.
-openpgp-import-sender-key = Import…
+openpgp-import-sender-key =
+    .label = Import…
 
 openpgp-search-keys-openpgp =
     .label = Discover OpenPGP Key
 
 openpgp-missing-signature-key = This message was signed with a key that you don't yet have.
 
-openpgp-search-signature-key = Discover…
+openpgp-search-signature-key =
+    .label = Discover…
 
 # Don't translate the terms "OpenPGP" and "MS-Exchange"
 openpgp-broken-exchange-info = This is an OpenPGP message that was apparently corrupted by MS-Exchange. If the message contents isn't shown as expected, you can try an automatic repair.
-openpgp-broken-exchange-repair = Repair message
+openpgp-broken-exchange-repair =
+    .label = Repair message
 openpgp-broken-exchange-wait = Please wait ...
