@@ -228,6 +228,11 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   min-width: 200px;
 }
 
+.option-description {
+  margin-inline-start: 30px;
+  margin-block-start: 3px;
+}
+
 #defaultPort,
 #servertypeVerbose,
 #identity\.htmlSigFormat {

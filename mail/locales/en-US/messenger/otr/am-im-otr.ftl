@@ -17,6 +17,10 @@ otr-log =
     .label = Include OTR encrypted messages in conversation logs
 otr-requireEncryption =
     .label = Require end-to-end encryption for one-to-one conversations
+otr-require-encryption-info =
+    When requiring end-to-end encryption, messages in one-to-one conversations
+    will not be sent unless they can be encrypted. Received unencrypted messages
+    will not be shown as part of the regular conversation, and not logged either.
 otr-verifyNudge =
     .label = Always remind me to verify an unverified contact
 
