@@ -150,7 +150,8 @@ var eventBar = {
       }
       case "dragover": {
         // Snap dragging movements to half of a minor column width.
-        this.dragDistance = Math.round((event.clientX + freebusyGrid.scrollLeft - this.dragStartX) / 15) * 15;
+        this.dragDistance =
+          Math.round((event.clientX + freebusyGrid.scrollLeft - this.dragStartX) / 15) * 15;
         this.eventBarTop.style.transform = this.eventBarBottom.style.transform = `translateX(${this.dragDistance}px)`;
         break;
       }
