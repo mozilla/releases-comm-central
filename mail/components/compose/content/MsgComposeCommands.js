@@ -6544,7 +6544,7 @@ function toggleAttachmentPane(aAction = "toggle", event) {
   if (aAction == "toggle") {
     let shown = !attachmentsBox.collapsed;
 
-    if (shown && !bucketHasFocus && event && event.altKey) {
+    if (shown && !bucketHasFocus && event && (event.altKey || event.ctrlKey)) {
       // If attachment pane is shown but not focused, and we're here via
       // key_toggleAttachmentPane, handle access key here: Focus bucket.
       bucket.focus();
