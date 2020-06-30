@@ -252,6 +252,45 @@ add_task(async function testExecuteScriptNoPermissions() {
   await extension.unload();
 });
 
+/** Tests the messenger alias is available. */
+add_task(async function testExecuteScript() {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        let tab = await browser.compose.beginNew();
+        await this.sendMessageGetReply();
+
+        await browser.tabs.executeScript(tab.id, {
+          code: `document.body.textContent = messenger.runtime.getManifest().applications.gecko.id;`,
+        });
+        await this.sendMessageGetReply();
+
+        await browser.tabs.remove(tab.id);
+        browser.test.notifyPass("finished");
+      },
+      "utils.js": utilityFunctions,
+    },
+    manifest: {
+      applications: { gecko: { id: "alias@mochitest" } },
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose"],
+    },
+  });
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ textContent: "" });
+  extension.sendMessage();
+
+  await extension.awaitMessage();
+  await checkComposeBody({ textContent: "alias@mochitest" });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await extension.unload();
+});
+
 /**
  * Tests browser.composeScripts.register correctly adds CSS and JavaScript to
  * message composition windows opened after it was called. Also tests calling

@@ -37,22 +37,22 @@ const COMPOSE_WINDOW_URI =
 // Schemas.exportLazyGetter where it does the injections, add |messenger| alias to those files until
 // the test passes again, and then find out why the monkeypatching is not catching it.
 (function() {
-  let loadContentScript = ExtensionProcessScript.loadContentScript;
+  let getContext = ExtensionContent.getContext;
   let initExtensionContext = ExtensionContent.initExtensionContext;
   let handleExtensionExecute = ExtensionContent.handleExtensionExecute;
   let initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
 
   // This patches constructor of ContentScriptContextChild adding the object to the sandbox
-  ExtensionProcessScript.loadContentScript = function(contentScript, window) {
-    let script = ExtensionContent.contentScripts.get(contentScript);
-    let context = script.extension.getContext(window);
-    Schemas.exportLazyGetter(
-      context.sandbox,
-      "messenger",
-      () => context.chromeObj
-    );
-
-    return loadContentScript.apply(ExtensionProcessScript, arguments);
+  ExtensionContent.getContext = function(extension, window) {
+    let context = getContext.apply(ExtensionContent, arguments);
+    if (!("messenger" in context.sandbox)) {
+      Schemas.exportLazyGetter(
+        context.sandbox,
+        "messenger",
+        () => context.chromeObj
+      );
+    }
+    return context;
   };
 
   // This patches extension content within unprivileged pages, so an iframe on a web page that
