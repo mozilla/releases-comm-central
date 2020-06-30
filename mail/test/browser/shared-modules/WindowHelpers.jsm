@@ -1735,12 +1735,6 @@ function __popup_hidden(event) {
   return true;
 }
 
-/**
- * controller.js in mozmill actually has its own extension mechanism,
- *  controllerAdditions.  Unfortunately, it does not make its stuff public at
- *  this time.  In the future we can change ourselves to just use that
- *  mechanism.
- */
 function augment_controller(aController, aWindowType) {
   if (aWindowType === undefined) {
     aWindowType = getWindowTypeOrId(

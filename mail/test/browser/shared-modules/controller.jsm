@@ -356,20 +356,6 @@ var MozMillController = function(window) {
     undefined,
     this
   );
-
-  if (
-    controllerAdditions[
-      window.document.documentElement.getAttribute("windowtype")
-    ] != undefined
-  ) {
-    this.prototype = new utils.Copy(this.prototype);
-    controllerAdditions[
-      window.document.documentElement.getAttribute("windowtype")
-    ](this);
-    this.windowtype = window.document.documentElement.getAttribute(
-      "windowtype"
-    );
-  }
 };
 
 MozMillController.prototype.sleep = utils.sleep;
@@ -1505,49 +1491,4 @@ Tabs.prototype.__defineGetter__("activeTabIndex", function() {
 });
 Tabs.prototype.selectTabIndex = function(i) {
   this.controller.window.gBrowser.selectTabAtIndex(i);
-};
-
-function browserAdditions(controller) {
-  controller.tabs = new Tabs(controller);
-
-  controller.waitForPageLoad = function(aDocument, aTimeout, aInterval) {
-    var timeout = aTimeout || 30000;
-    var win = null;
-
-    // If a user tries to do waitForPageLoad(2000), this will assign the
-    // interval the first arg which is most likely what they were expecting
-    if (typeof aDocument === "number") {
-      timeout = aDocument;
-    }
-
-    // If we have a real document use its default view
-    if (
-      aDocument &&
-      typeof aDocument === "object" &&
-      "defaultView" in aDocument
-    ) {
-      win = aDocument.defaultView;
-    }
-
-    // If no document has been specified, fallback to the default view of the
-    // currently selected tab browser
-    win = win || this.window.gBrowser.selectedBrowser.contentWindow;
-
-    // Wait until the content in the tab has been loaded
-    this.waitFor(
-      function() {
-        return this.isLoaded(win);
-      },
-      "controller.waitForPageLoad(): Timeout waiting for page loaded.",
-      timeout,
-      aInterval,
-      this
-    );
-
-    frame.events.pass({ function: "controller.waitForPageLoad()" });
-  };
-}
-
-var controllerAdditions = {
-  "navigator:browser": browserAdditions,
 };
