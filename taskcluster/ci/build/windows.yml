@@ -414,3 +414,42 @@ win64-plain/opt:
             - win64-nasm
             - win64-rust
             - win64-winchecksec
+
+win64-asan/opt:
+    description: "Win64 Opt ASAN"
+    index:
+        product: thunderbird
+        job-name: win64-asan-opt
+    treeherder:
+        platform: windows2012-64/asan
+        symbol: Bo
+        tier: 1
+    worker-type: b-win2012
+    worker:
+        max-run-time: 7200
+        env:
+            TOOLTOOL_MANIFEST: "comm/mail/config/tooltool-manifests/win64/releng.manifest"
+            PERFHERDER_EXTRA_OPTIONS: "opt asan"
+            MOZ_AUTOMATION_PACKAGE_TESTS: "0"
+    run:
+        actions: [build]
+        options: [append-env-variables-from-configs]
+        script: mozharness/scripts/fx_desktop_build.py
+        config:
+            - builds/taskcluster_base_thunderbird.py
+            - builds/taskcluster_base_windows.py
+            - builds/taskcluster_base_win64.py
+        extra-config:
+            stage_platform: win64-asan
+        mozconfig-variant: nightly-asan
+    fetches:
+        toolchain:
+            - win64-cbindgen
+            - win64-clang-cl
+            - win64-libotr
+            - win64-nasm
+            - win64-node
+            - win64-rust
+            - win64-rust-size
+            - win64-sccache
+            - win64-winchecksec

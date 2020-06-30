@@ -1,0 +1,18 @@
+. "$topsrcdir/comm/build/mozconfig.comm-sccache"
+. "$topsrcdir/build/mozconfig.win-common"
+. "$topsrcdir/build/mozconfig.common"
+. "$topsrcdir/build/mozconfig.stylo"
+. "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
+
+ac_add_options --disable-debug
+ac_add_options --enable-optimize="-O2 -gline-tables-only"
+
+. "$topsrcdir/build/win64/mozconfig.asan"
+
+export MOZ_PACKAGE_JSSHELL=1
+export MOZ_PKG_SPECIAL=asan
+
+# Disable telemetry
+ac_add_options MOZ_TELEMETRY_REPORTING=
+
+. "$topsrcdir/comm/mail/config/mozconfigs/common"
