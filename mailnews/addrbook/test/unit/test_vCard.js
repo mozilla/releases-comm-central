@@ -42,30 +42,48 @@ add_task(function testVCardToAbCard() {
   check("N:Last;First;Middle;Prefix;Suffix", {
     FirstName: "First",
     LastName: "Last",
+    AdditionalNames: "Middle",
+    NamePrefix: "Prefix",
+    NameSuffix: "Suffix",
   });
 
   // Address
-  check("ADR:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.", {
-    WorkAddress: "123 Main Street",
-    WorkCity: "Any Town",
-    WorkState: "CA",
-    WorkZipCode: "91921-1234",
-    WorkCountry: "U.S.A.",
-  });
-  check("ADR;TYPE=work:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.", {
-    WorkAddress: "123 Main Street",
-    WorkCity: "Any Town",
-    WorkState: "CA",
-    WorkZipCode: "91921-1234",
-    WorkCountry: "U.S.A.",
-  });
-  check("ADR;TYPE=home:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.", {
-    HomeAddress: "123 Main Street",
-    HomeCity: "Any Town",
-    HomeState: "CA",
-    HomeZipCode: "91921-1234",
-    HomeCountry: "U.S.A.",
-  });
+  check(
+    "ADR:PO Box 3.14;Apartment 4;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
+    {
+      WorkPOBox: "PO Box 3.14",
+      WorkAddress2: "Apartment 4",
+      WorkAddress: "123 Main Street",
+      WorkCity: "Any Town",
+      WorkState: "CA",
+      WorkZipCode: "91921-1234",
+      WorkCountry: "U.S.A.",
+    }
+  );
+  check(
+    "ADR;TYPE=work:PO Box 3.14;Apartment 4;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
+    {
+      WorkPOBox: "PO Box 3.14",
+      WorkAddress2: "Apartment 4",
+      WorkAddress: "123 Main Street",
+      WorkCity: "Any Town",
+      WorkState: "CA",
+      WorkZipCode: "91921-1234",
+      WorkCountry: "U.S.A.",
+    }
+  );
+  check(
+    "ADR;TYPE=home:PO Box 3.14;Apartment 4;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
+    {
+      HomePOBox: "PO Box 3.14",
+      HomeAddress2: "Apartment 4",
+      HomeAddress: "123 Main Street",
+      HomeCity: "Any Town",
+      HomeState: "CA",
+      HomeZipCode: "91921-1234",
+      HomeCountry: "U.S.A.",
+    }
+  );
 
   // Phone
   check("TEL:11-2358-13-21", { WorkPhone: "11-2358-13-21" });
@@ -296,49 +314,55 @@ add_task(function testModifyVCard() {
 
   // Last name changed.
   check(
-    "N:Last;First;;;",
+    "N:Last;First;;Mr;",
     {
       LastName: "Changed",
     },
-    ["N:Changed;First;;;", ANY_UID]
+    ["N:Changed;First;;Mr;", ANY_UID]
   );
   // First and last name changed.
   check(
-    "N:Last;First;;;",
+    "N:Last;First;;;Ph.D.",
     {
       LastName: "Changed",
       FirstName: "New",
     },
-    ["N:Changed;New;;;", ANY_UID]
+    ["N:Changed;New;;;Ph.D.", ANY_UID]
   );
 
   // Work address changed. Other address types should not appear.
   check(
-    "ADR;TYPE=work:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
+    "ADR;TYPE=work:Box 42;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
     {
       WorkAddress: "345 Main Street",
     },
-    ["ADR;TYPE=work:;;345 Main Street;Any Town;CA;91921-1234;U.S.A.", ANY_UID],
+    [
+      "ADR;TYPE=work:Box 42;;345 Main Street;Any Town;CA;91921-1234;U.S.A.",
+      ANY_UID,
+    ],
     ["ADR", "ADR;TYPE=home"]
   );
 
   // Home address changed. Other address types should not appear.
   check(
-    "ADR;TYPE=home:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
+    "ADR;TYPE=home:Box 42;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
     {
       HomeAddress: "345 Main Street",
     },
-    ["ADR;TYPE=home:;;345 Main Street;Any Town;CA;91921-1234;U.S.A.", ANY_UID],
+    [
+      "ADR;TYPE=home:Box 42;;345 Main Street;Any Town;CA;91921-1234;U.S.A.",
+      ANY_UID,
+    ],
     ["ADR", "ADR;TYPE=work"]
   );
 
   // Address changed. Other address types should not appear.
   check(
-    "ADR:;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
+    "ADR:Box 42;;123 Main Street;Any Town;CA;91921-1234;U.S.A.",
     {
       WorkAddress: "345 Main Street",
     },
-    ["ADR:;;345 Main Street;Any Town;CA;91921-1234;U.S.A.", ANY_UID],
+    ["ADR:Box 42;;345 Main Street;Any Town;CA;91921-1234;U.S.A.", ANY_UID],
     ["ADR;TYPE=work", "ADR;TYPE=home"]
   );
 
@@ -473,6 +497,26 @@ add_task(function testAbCardToVCard() {
       LastName: "Last",
     },
     "N:Last;First;;;",
+    ANY_UID
+  );
+  check(
+    {
+      FirstName: "First",
+      LastName: "Last",
+      AdditionalNames: "Middle",
+      NamePrefix: "Prefix",
+      NameSuffix: "Suffix",
+    },
+    "N:Last;First;Middle;Prefix;Suffix",
+    ANY_UID
+  );
+  check(
+    {
+      FirstName: "First",
+      LastName: "Last",
+      NameSuffix: "Suffix",
+    },
+    "N:Last;First;;;Suffix",
     ANY_UID
   );
 

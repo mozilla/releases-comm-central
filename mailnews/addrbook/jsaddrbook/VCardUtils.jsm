@@ -428,10 +428,13 @@ var typeMap = {
   title: singleTextProperty("JobTitle", "title"),
   bday: dateProperty("Birth", "bday"),
   anniversary: dateProperty("Anniversary", "anniversary"),
-  n: multiTextProperty(["LastName", "FirstName", null, null, null], "n"),
+  n: multiTextProperty(
+    ["LastName", "FirstName", "AdditionalNames", "NamePrefix", "NameSuffix"],
+    "n"
+  ),
   "adr.home": multiTextProperty(
     [
-      null,
+      "HomePOBox",
       "HomeAddress2",
       "HomeAddress",
       "HomeCity",
@@ -444,7 +447,7 @@ var typeMap = {
   ),
   "adr.work": multiTextProperty(
     [
-      null,
+      "WorkPOBox",
       "WorkAddress2",
       "WorkAddress",
       "WorkCity",
