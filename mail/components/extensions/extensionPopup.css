@@ -8,3 +8,7 @@
   pointer-events: none;
   position: absolute;
 }
+
+:root[chromehidden~="location"] #header {
+  display: none
+}

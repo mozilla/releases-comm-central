@@ -21,10 +21,6 @@
   background-position: 4px 2px;
 }
 
-:root[chromehidden~="location"] #header {
-  display: none
-}
-
 #header {
   overflow: hidden;
   border-bottom: 1px solid black;
