@@ -9,6 +9,8 @@
 /* import-globals-from privacy.js */
 /* import-globals-from chat.js */
 /* import-globals-from subdialogs.js */
+/* import-globals-from findInPage.js */
+/* import-globals-from ../../../calendar/lightning/content/messenger-overlay-preferences.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(
@@ -35,15 +37,59 @@ ChromeUtils.defineModuleGetter(
 
 document.addEventListener("DOMContentLoaded", init, { once: true });
 
+var gCategoryInits = new Map();
+var gLastCategory = { category: undefined, subcategory: undefined };
+
+function init_category_if_required(category) {
+  let categoryInfo = gCategoryInits.get(category);
+  if (!categoryInfo) {
+    throw new Error(
+      "Unknown in-content prefs category! Can't init " + category
+    );
+  }
+  if (categoryInfo.inited) {
+    return null;
+  }
+  return categoryInfo.init();
+}
+
+function register_module(categoryName, categoryObject) {
+  gCategoryInits.set(categoryName, {
+    inited: false,
+    async init() {
+      let template = document.getElementById(categoryName);
+      if (template) {
+        // Replace the template element with the nodes inside of it.
+        let frag = template.content;
+        await document.l10n.translateFragment(frag);
+
+        // Actually insert them into the DOM.
+        document.l10n.pauseObserving();
+        template.replaceWith(frag);
+        document.l10n.resumeObserving();
+
+        // Asks Preferences to update the attribute value of the entire
+        // document again (this can be simplified if we could seperate the
+        // preferences of each pane.)
+        Preferences.updateAllElements();
+      }
+      categoryObject.init();
+      this.inited = true;
+    },
+  });
+}
+
 function init() {
   Preferences.forceEnableInstantApply();
 
   gSubDialog.init();
-  gGeneralPane.init();
-  gComposePane.init();
-  gPrivacyPane.init();
+  register_module("paneGeneral", gGeneralPane);
+  register_module("paneCompose", gComposePane);
+  register_module("panePrivacy", gPrivacyPane);
+  register_module("paneCalendar", gLightningPane);
+  register_module("paneSearchResults", gSearchResultsPane);
   if (Services.prefs.getBoolPref("mail.chat.enabled")) {
-    gChatPane.init();
+    register_module("paneChat", gChatPane);
   } else {
     // Remove the pane from the DOM so it doesn't get incorrectly included in
     // the search results.
@@ -53,19 +99,13 @@ function init() {
   // If no calendar is currently enabled remove it from the DOM so it doesn't
   // get incorrectly included in the search results.
   if (!calendarDeactivator.isCalendarActivated) {
-    document.getElementById("paneLightning").remove();
+    document.getElementById("paneCalendar").remove();
     document.getElementById("category-calendar").remove();
   }
-
-  Preferences.addSyncFromPrefListener(
-    document.getElementById("saveWhere"),
-    () => gDownloadDirSection.onReadUseDownloadDir()
-  );
+  gSearchResultsPane.init();
 
   let categories = document.getElementById("categories");
-  categories.addEventListener("select", event => {
-    showPane(event.target.value);
-  });
+  categories.addEventListener("select", event => gotoPref(event.target.value));
 
   document.documentElement.addEventListener("keydown", event => {
     if (event.keyCode == KeyEvent.DOM_VK_TAB) {
@@ -76,48 +116,226 @@ function init() {
     this.removeAttribute("keyboard-navigation");
   });
 
-  let lastSelected = document.documentElement.getAttribute("lastSelected");
-  if (
-    lastSelected &&
-    lastSelected != defaultPane &&
-    document.getElementById(lastSelected)
-  ) {
-    categories.selectedItem = categories.querySelector(
-      ".category[value=" + lastSelected + "]"
-    );
-  } else {
-    showPane(defaultPane);
-  }
+  window.addEventListener("hashchange", onHashChange);
+  let lastSelected = Services.xulStore.getValue(
+    "about:preferences",
+    "MailPreferences",
+    "lastSelected"
+  );
+  gotoPref(lastSelected);
 }
 
-/**
- * Actually switches to the specified pane, fires events, and remembers the pane.
- *
- * @param paneID ID of the prefpane to select
- */
-function showPane(paneID) {
-  let pane = document.getElementById(paneID);
-  if (!pane) {
+function onHashChange() {
+  gotoPref();
+}
+
+async function gotoPref(aCategory) {
+  let categories = document.getElementById("categories");
+  const kDefaultCategoryInternalName = "paneGeneral";
+  const kDefaultCategory = "general";
+  let hash = document.location.hash;
+
+  let category = aCategory || hash.substr(1) || kDefaultCategoryInternalName;
+  let breakIndex = category.indexOf("-");
+  // Subcategories allow for selecting smaller sections of the preferences
+  // until proper search support is enabled (bug 1353954).
+  let subcategory = breakIndex != -1 && category.substring(breakIndex + 1);
+  if (subcategory) {
+    category = category.substring(0, breakIndex);
+  }
+  category = friendlyPrefCategoryNameToInternalName(category);
+  if (category != "paneSearchResults") {
+    gSearchResultsPane.query = null;
+    gSearchResultsPane.searchInput.value = "";
+    gSearchResultsPane.getFindSelection(window).removeAllRanges();
+    gSearchResultsPane.removeAllSearchTooltips();
+    gSearchResultsPane.removeAllSearchMenuitemIndicators();
+  } else if (!gSearchResultsPane.searchInput.value) {
+    // Something tried to send us to the search results pane without
+    // a query string. Default to the General pane instead.
+    category = kDefaultCategoryInternalName;
+    document.location.hash = kDefaultCategory;
+    gSearchResultsPane.query = null;
+  }
+
+  // Updating the hash (below) or changing the selected category
+  // will re-enter gotoPref.
+  if (gLastCategory.category == category && !subcategory) {
     return;
   }
 
-  let currentlySelected = paneDeck.querySelector(
-    "#paneDeck > prefpane[selected]"
-  );
-
-  if (currentlySelected) {
-    if (currentlySelected == pane) {
-      return;
+  let item;
+  if (category != "paneSearchResults") {
+    // Hide second level headers in normal view
+    for (let element of document.querySelectorAll(".search-header")) {
+      element.hidden = true;
     }
-    currentlySelected.removeAttribute("selected");
+
+    item = categories.querySelector(".category[value=" + category + "]");
+    if (!item) {
+      category = kDefaultCategoryInternalName;
+      item = categories.querySelector(".category[value=" + category + "]");
+    }
   }
 
-  pane.setAttribute("selected", "true");
-  pane.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
-  document.getElementById("preferencesContainer").scrollTo(0, 0);
+  if (
+    gLastCategory.category ||
+    category != kDefaultCategoryInternalName ||
+    subcategory
+  ) {
+    let friendlyName = internalPrefCategoryNameToFriendlyName(category);
+    document.location.hash = friendlyName;
+  }
+  // Need to set the gLastCategory before setting categories.selectedItem since
+  // the categories 'select' event will re-enter the gotoPref codepath.
+  gLastCategory.category = category;
+  gLastCategory.subcategory = subcategory;
+  if (item) {
+    categories.selectedItem = item;
+  } else {
+    categories.clearSelection();
+  }
+  window.history.replaceState(category, document.title);
 
-  document.documentElement.setAttribute("lastSelected", paneID);
-  Services.xulStore.persist(document.documentElement, "lastSelected");
+  try {
+    await init_category_if_required(category);
+  } catch (ex) {
+    Cu.reportError(
+      new Error(
+        "Error initializing preference category " + category + ": " + ex
+      )
+    );
+    throw ex;
+  }
+
+  // Bail out of this goToPref if the category
+  // or subcategory changed during async operation.
+  if (
+    gLastCategory.category !== category ||
+    gLastCategory.subcategory !== subcategory
+  ) {
+    return;
+  }
+
+  search(category, "data-category");
+
+  let mainContent = document.querySelector(".main-content");
+  mainContent.scrollTop = 0;
+
+  spotlight(subcategory, category);
+
+  document.dispatchEvent(new CustomEvent("paneSelected", { bubbles: true }));
+  document.getElementById("preferencesContainer").scrollTo(0, 0);
+  document.documentElement.setAttribute("lastSelected", category);
+  Services.xulStore.setValue(
+    "about:preferences",
+    "MailPreferences",
+    "lastSelected",
+    category
+  );
+}
+
+function friendlyPrefCategoryNameToInternalName(aName) {
+  if (aName.startsWith("pane")) {
+    return aName;
+  }
+  return "pane" + aName.substring(0, 1).toUpperCase() + aName.substr(1);
+}
+
+// This function is duplicated inside of utilityOverlay.js's openPreferences.
+function internalPrefCategoryNameToFriendlyName(aName) {
+  return (aName || "").replace(/^pane./, function(toReplace) {
+    return toReplace[4].toLowerCase();
+  });
+}
+
+function search(aQuery, aAttribute) {
+  let paneDeck = document.getElementById("paneDeck");
+  let elements = paneDeck.children;
+  for (let element of elements) {
+    // If the "data-hidden-from-search" is "true", the
+    // element will not get considered during search.
+    if (
+      element.getAttribute("data-hidden-from-search") != "true" ||
+      element.getAttribute("data-subpanel") == "true"
+    ) {
+      let attributeValue = element.getAttribute(aAttribute);
+      if (attributeValue == aQuery) {
+        element.hidden = false;
+      } else {
+        element.hidden = true;
+      }
+    } else if (
+      element.getAttribute("data-hidden-from-search") == "true" &&
+      !element.hidden
+    ) {
+      element.hidden = true;
+    }
+    element.classList.remove("visually-hidden");
+  }
+
+  let keysets = paneDeck.getElementsByTagName("keyset");
+  for (let element of keysets) {
+    let attributeValue = element.getAttribute(aAttribute);
+    if (attributeValue == aQuery) {
+      element.removeAttribute("disabled");
+    } else {
+      element.setAttribute("disabled", true);
+    }
+  }
+}
+
+async function spotlight(subcategory, category) {
+  let highlightedElements = document.querySelectorAll(".spotlight");
+  if (highlightedElements.length) {
+    for (let element of highlightedElements) {
+      element.classList.remove("spotlight");
+    }
+  }
+  if (subcategory) {
+    scrollAndHighlight(subcategory, category);
+  }
+}
+
+async function scrollAndHighlight(subcategory, category) {
+  let element = document.querySelector(`[data-subcategory="${subcategory}"]`);
+  if (!element) {
+    return;
+  }
+  let header = getClosestDisplayedHeader(element);
+
+  scrollContentTo(header);
+  element.classList.add("spotlight");
+}
+
+/**
+ * If there is no visible second level header it will return first level header,
+ * otherwise return second level header.
+ *
+ * @returns {Element}  The closest displayed header.
+ */
+function getClosestDisplayedHeader(element) {
+  let header = element.closest("groupbox");
+  let searchHeader = header.querySelector(".search-header");
+  if (
+    searchHeader &&
+    searchHeader.hidden &&
+    header.previousElementSibling.classList.contains("subcategory")
+  ) {
+    header = header.previousElementSibling;
+  }
+  return header;
+}
+
+function scrollContentTo(element) {
+  const STICKY_CONTAINER_HEIGHT = document.querySelector(".sticky-container")
+    .clientHeight;
+  let mainContent = document.querySelector(".main-content");
+  let top = element.getBoundingClientRect().top - STICKY_CONTAINER_HEIGHT;
+  mainContent.scroll({
+    top,
+    behavior: "smooth",
+  });
 }
 
 /**
@@ -129,16 +347,11 @@ function showPane(paneID) {
  */
 function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
   if (paneID) {
-    let prefPane = document.getElementById(paneID);
     if (getCurrentPaneID() != paneID) {
-      showPane(paneID);
+      gotoPref(paneID);
     }
     if (scrollPaneTo) {
-      showTab(
-        prefPane,
-        scrollPaneTo,
-        otherArgs ? otherArgs.subdialog : undefined
-      );
+      showTab(scrollPaneTo, otherArgs ? otherArgs.subdialog : undefined);
     }
   }
 }
@@ -146,11 +359,10 @@ function selectPrefPane(paneID, scrollPaneTo, otherArgs) {
 /**
  * Select the specified tab
  *
- * @param pane         prefpane to operate on
  * @param scrollPaneTo ID of the element to scroll into view
  * @param subdialogID  ID of button to activate, opening a subdialog
  */
-function showTab(pane, scrollPaneTo, subdialogID) {
+function showTab(scrollPaneTo, subdialogID) {
   setTimeout(function() {
     let scrollTarget = document.getElementById(scrollPaneTo);
     if (scrollTarget.closest("groupbox")) {
@@ -168,10 +380,10 @@ function showTab(pane, scrollPaneTo, subdialogID) {
  */
 function getCurrentPaneID() {
   let currentlySelected = paneDeck.querySelector(
-    "#paneDeck > prefpane[selected]"
+    "#paneDeck > div:not([hidden])"
   );
   if (currentlySelected) {
-    return currentlySelected.id;
+    return currentlySelected.getAttribute("data-category");
   }
   return null;
 }

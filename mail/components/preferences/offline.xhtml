@@ -13,10 +13,8 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="gOfflineDialog.dialogSetup();"
         data-l10n-id="offline-dialog-window">
-<dialog id="OfflineSettingsDialog"
-        dlgbuttons="accept,cancel">
-
-  <prefpane id="OfflineSettingsDialogPane">
+  <dialog id="OfflineSettingsDialog"
+          dlgbuttons="accept,cancel">
     <script src="chrome://global/content/preferencesBindings.js"/>
     <script src="chrome://messenger/content/preferences/offline.js"/>
 
@@ -58,6 +56,5 @@
       <radio value="0" data-l10n-id="going-offline-ask"/>
     </radiogroup>
     <separator/>
-  </prefpane>
-</dialog>
+  </dialog>
 </window>

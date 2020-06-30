@@ -50,13 +50,6 @@ async function test_app_update_auto(expectedEnabled, expectedLocked) {
     window.openPreferencesTab("paneGeneral", "updateApp");
   });
 
-  let prefsWindow = prefsDocument.ownerGlobal;
-  if (prefsWindow.getCurrentPaneID() != "paneGeneral") {
-    let pane = prefsDocument.getElementById("paneGeneral");
-    await new Promise(resolve => {
-      pane.addEventListener("paneSelected", resolve, { once: true });
-    });
-  }
   await new Promise(resolve => setTimeout(resolve));
 
   is(

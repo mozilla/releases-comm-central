@@ -228,6 +228,7 @@ pref("browser.preferences.animateFadeIn", true);
 #else
 pref("browser.preferences.animateFadeIn", false);
 #endif
+pref("browser.preferences.search", true);
 
 pref("accessibility.typeaheadfind", false);
 pref("accessibility.typeaheadfind.timeout", 5000);

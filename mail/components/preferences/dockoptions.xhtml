@@ -13,14 +13,12 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         data-l10n-id="dock-options-window-dialog"
         data-l10n-attrs="style">
-<dialog id="DockOptionsDialog"
-        dlgbuttons="accept,cancel">
+  <dialog id="DockOptionsDialog"
+          dlgbuttons="accept,cancel">
 
-  <linkset>
-    <html:link rel="localization" href="messenger/preferences/dock-options.ftl"/>
-  </linkset>
-
-  <prefpane id="DockOptionsDialogPane">
+    <linkset>
+      <html:link rel="localization" href="messenger/preferences/dock-options.ftl"/>
+    </linkset>
     <hbox orient="vertical">
       <checkbox id="newMailNotificationBounce"
                 data-l10n-id="bounce-system-dock-icon"
@@ -46,9 +44,8 @@
       <separator/>
       <description class="bold" data-l10n-id="notification-settings-info"/>
     </hbox>
-  </prefpane>
 
-  <script src="chrome://global/content/preferencesBindings.js"/>
-  <script src="chrome://messenger/content/preferences/dockoptions.js"/>
-</dialog>
+    <script src="chrome://global/content/preferencesBindings.js"/>
+    <script src="chrome://messenger/content/preferences/dockoptions.js"/>
+  </dialog>
 </window>

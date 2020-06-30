@@ -31,10 +31,7 @@ add_task(async function testDefaultAlarms() {
   let expectedTaskReminder = alarmString("reminderCustomTitle", [unitString, originStringTask]);
 
   // Configure the lightning preferences.
-  let { prefsWindow, prefsDocument } = await openNewPrefsTab(
-    "paneLightning",
-    "defaultsnoozelength"
-  );
+  let { prefsWindow, prefsDocument } = await openNewPrefsTab("paneCalendar", "defaultsnoozelength");
   await handlePrefTab(prefsWindow, prefsDocument);
 
   // Create New Event.

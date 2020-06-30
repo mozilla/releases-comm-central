@@ -1,8 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-
-    <html:div>
+    <html:div data-category="paneCalendar">
     <html:fieldset data-category="paneCalendar">
         <separator/>
         <box id="datePrefsBox">
@@ -111,7 +110,7 @@
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneCalendar">
     <html:fieldset data-category="paneCalendar">
         <html:legend data-l10n-id="dayweek-legend"></html:legend>
         <html:table id="dayAndWeekViewsTable">
@@ -122,35 +121,37 @@
                 </html:th>
                 <html:td>
                     <hbox align="center">
-                    <menulist id="visiblehours"
-                              preference="calendar.view.visiblehours">
-                        <menupopup id="visiblehourspopup">
-                            <menuitem label="1" value="1"/>
-                            <menuitem label="2" value="2"/>
-                            <menuitem label="3" value="3"/>
-                            <menuitem label="4" value="4"/>
-                            <menuitem label="5" value="5"/>
-                            <menuitem label="6" value="6"/>
-                            <menuitem label="7" value="7"/>
-                            <menuitem label="8" value="8"/>
-                            <menuitem label="9" value="9"/>
-                            <menuitem label="10" value="10"/>
-                            <menuitem label="11" value="11"/>
-                            <menuitem label="12" value="12"/>
-                            <menuitem label="13" value="13"/>
-                            <menuitem label="14" value="14"/>
-                            <menuitem label="15" value="15"/>
-                            <menuitem label="16" value="16"/>
-                            <menuitem label="17" value="17"/>
-                            <menuitem label="18" value="18"/>
-                            <menuitem label="19" value="19"/>
-                            <menuitem label="20" value="20"/>
-                            <menuitem label="21" value="21"/>
-                            <menuitem label="22" value="22"/>
-                            <menuitem label="23" value="23"/>
-                            <menuitem label="24" value="24"/>
-                        </menupopup>
-                    </menulist>
+                    <hbox>
+                        <menulist id="visiblehours"
+                                  preference="calendar.view.visiblehours">
+                            <menupopup id="visiblehourspopup">
+                                <menuitem label="1" value="1"/>
+                                <menuitem label="2" value="2"/>
+                                <menuitem label="3" value="3"/>
+                                <menuitem label="4" value="4"/>
+                                <menuitem label="5" value="5"/>
+                                <menuitem label="6" value="6"/>
+                                <menuitem label="7" value="7"/>
+                                <menuitem label="8" value="8"/>
+                                <menuitem label="9" value="9"/>
+                                <menuitem label="10" value="10"/>
+                                <menuitem label="11" value="11"/>
+                                <menuitem label="12" value="12"/>
+                                <menuitem label="13" value="13"/>
+                                <menuitem label="14" value="14"/>
+                                <menuitem label="15" value="15"/>
+                                <menuitem label="16" value="16"/>
+                                <menuitem label="17" value="17"/>
+                                <menuitem label="18" value="18"/>
+                                <menuitem label="19" value="19"/>
+                                <menuitem label="20" value="20"/>
+                                <menuitem label="21" value="21"/>
+                                <menuitem label="22" value="22"/>
+                                <menuitem label="23" value="23"/>
+                                <menuitem label="24" value="24"/>
+                            </menupopup>
+                        </menulist>
+                    </hbox>
                     <label data-l10n-id="visible-hours-end-label"/>
                     </hbox>
                 </html:td>
@@ -161,36 +162,38 @@
                            control="daystarthour"/>
                 </html:th>
                 <html:td>
-                    <menulist id="daystarthour"
-                              oncommand="gViewsPane.updateViewEndMenu(this.value);"
-                              preference="calendar.view.daystarthour">
-                        <menupopup id="daystarthourpopup">
-                            <menuitem id="timeStart0" value="0" data-l10n-id="midnight-label"/>
-                            <menuitem id="timeStart1" value="1"/>
-                            <menuitem id="timeStart2" value="2"/>
-                            <menuitem id="timeStart3" value="3"/>
-                            <menuitem id="timeStart4" value="4"/>
-                            <menuitem id="timeStart5" value="5"/>
-                            <menuitem id="timeStart6" value="6"/>
-                            <menuitem id="timeStart7" value="7"/>
-                            <menuitem id="timeStart8" value="8"/>
-                            <menuitem id="timeStart9" value="9"/>
-                            <menuitem id="timeStart10" value="10"/>
-                            <menuitem id="timeStart11" value="11"/>
-                            <menuitem id="timeStart12" value="12" data-l10n-id="noon-label"/>
-                            <menuitem id="timeStart13" value="13"/>
-                            <menuitem id="timeStart14" value="14"/>
-                            <menuitem id="timeStart15" value="15"/>
-                            <menuitem id="timeStart16" value="16"/>
-                            <menuitem id="timeStart17" value="17"/>
-                            <menuitem id="timeStart18" value="18"/>
-                            <menuitem id="timeStart19" value="19"/>
-                            <menuitem id="timeStart20" value="20"/>
-                            <menuitem id="timeStart21" value="21"/>
-                            <menuitem id="timeStart22" value="22"/>
-                            <menuitem id="timeStart23" value="23"/>
-                        </menupopup>
-                    </menulist>
+                    <hbox>
+                        <menulist id="daystarthour"
+                                  oncommand="gViewsPane.updateViewEndMenu(this.value);"
+                                  preference="calendar.view.daystarthour">
+                            <menupopup id="daystarthourpopup">
+                                <menuitem id="timeStart0" value="0" data-l10n-id="midnight-label"/>
+                                <menuitem id="timeStart1" value="1"/>
+                                <menuitem id="timeStart2" value="2"/>
+                                <menuitem id="timeStart3" value="3"/>
+                                <menuitem id="timeStart4" value="4"/>
+                                <menuitem id="timeStart5" value="5"/>
+                                <menuitem id="timeStart6" value="6"/>
+                                <menuitem id="timeStart7" value="7"/>
+                                <menuitem id="timeStart8" value="8"/>
+                                <menuitem id="timeStart9" value="9"/>
+                                <menuitem id="timeStart10" value="10"/>
+                                <menuitem id="timeStart11" value="11"/>
+                                <menuitem id="timeStart12" value="12" data-l10n-id="noon-label"/>
+                                <menuitem id="timeStart13" value="13"/>
+                                <menuitem id="timeStart14" value="14"/>
+                                <menuitem id="timeStart15" value="15"/>
+                                <menuitem id="timeStart16" value="16"/>
+                                <menuitem id="timeStart17" value="17"/>
+                                <menuitem id="timeStart18" value="18"/>
+                                <menuitem id="timeStart19" value="19"/>
+                                <menuitem id="timeStart20" value="20"/>
+                                <menuitem id="timeStart21" value="21"/>
+                                <menuitem id="timeStart22" value="22"/>
+                                <menuitem id="timeStart23" value="23"/>
+                            </menupopup>
+                        </menulist>
+                    </hbox>
                 </html:td>
             </html:tr>
             <html:tr>
@@ -199,36 +202,38 @@
                            control="dayendhour"/>
                 </html:th>
                 <html:td>
-                    <menulist id="dayendhour"
-                              oncommand="gViewsPane.updateViewStartMenu(this.value);"
-                              preference="calendar.view.dayendhour">
-                        <menupopup id="dayendhourpopup">
-                            <menuitem id="timeEnd1" value="1"/>
-                            <menuitem id="timeEnd2" value="2"/>
-                            <menuitem id="timeEnd3" value="3"/>
-                            <menuitem id="timeEnd4" value="4"/>
-                            <menuitem id="timeEnd5" value="5"/>
-                            <menuitem id="timeEnd6" value="6"/>
-                            <menuitem id="timeEnd7" value="7"/>
-                            <menuitem id="timeEnd8" value="8"/>
-                            <menuitem id="timeEnd9" value="9"/>
-                            <menuitem id="timeEnd10" value="10"/>
-                            <menuitem id="timeEnd11" value="11"/>
-                            <menuitem id="timeEnd12" value="12" data-l10n-id="noon-label"/>
-                            <menuitem id="timeEnd13" value="13"/>
-                            <menuitem id="timeEnd14" value="14"/>
-                            <menuitem id="timeEnd15" value="15"/>
-                            <menuitem id="timeEnd16" value="16"/>
-                            <menuitem id="timeEnd17" value="17"/>
-                            <menuitem id="timeEnd18" value="18"/>
-                            <menuitem id="timeEnd19" value="19"/>
-                            <menuitem id="timeEnd20" value="20"/>
-                            <menuitem id="timeEnd21" value="21"/>
-                            <menuitem id="timeEnd22" value="22"/>
-                            <menuitem id="timeEnd23" value="23"/>
-                            <menuitem id="timeEnd24" value="24" data-l10n-id="midnight-label"/>
-                        </menupopup>
-                    </menulist>
+                    <hbox>
+                        <menulist id="dayendhour"
+                                  oncommand="gViewsPane.updateViewStartMenu(this.value);"
+                                  preference="calendar.view.dayendhour">
+                            <menupopup id="dayendhourpopup">
+                                <menuitem id="timeEnd1" value="1"/>
+                                <menuitem id="timeEnd2" value="2"/>
+                                <menuitem id="timeEnd3" value="3"/>
+                                <menuitem id="timeEnd4" value="4"/>
+                                <menuitem id="timeEnd5" value="5"/>
+                                <menuitem id="timeEnd6" value="6"/>
+                                <menuitem id="timeEnd7" value="7"/>
+                                <menuitem id="timeEnd8" value="8"/>
+                                <menuitem id="timeEnd9" value="9"/>
+                                <menuitem id="timeEnd10" value="10"/>
+                                <menuitem id="timeEnd11" value="11"/>
+                                <menuitem id="timeEnd12" value="12" data-l10n-id="noon-label"/>
+                                <menuitem id="timeEnd13" value="13"/>
+                                <menuitem id="timeEnd14" value="14"/>
+                                <menuitem id="timeEnd15" value="15"/>
+                                <menuitem id="timeEnd16" value="16"/>
+                                <menuitem id="timeEnd17" value="17"/>
+                                <menuitem id="timeEnd18" value="18"/>
+                                <menuitem id="timeEnd19" value="19"/>
+                                <menuitem id="timeEnd20" value="20"/>
+                                <menuitem id="timeEnd21" value="21"/>
+                                <menuitem id="timeEnd22" value="22"/>
+                                <menuitem id="timeEnd23" value="23"/>
+                                <menuitem id="timeEnd24" value="24" data-l10n-id="midnight-label"/>
+                            </menupopup>
+                        </menulist>
+                    </hbox>
                 </html:td>
             </html:tr>
         </html:table>
@@ -239,35 +244,39 @@
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneCalendar">
     <html:fieldset id="viewsMultiweekGroupbox" data-category="paneCalendar">
         <html:legend data-l10n-id="multiweek-legend"></html:legend>
         <hbox align="center">
             <label data-l10n-id="number-of-weeks-label"
                    control="viewsMultiweekTotalWeeks"/>
-            <menulist id="viewsMultiweekTotalWeeks"
-                      preference="calendar.weeks.inview">
-                <menupopup>
-                    <menuitem data-l10n-id="week-1-label" value="1"/>
-                    <menuitem data-l10n-id="week-2-label" value="2"/>
-                    <menuitem data-l10n-id="week-3-label" value="3"/>
-                    <menuitem data-l10n-id="week-4-label" value="4"/>
-                    <menuitem data-l10n-id="week-5-label" value="5"/>
-                    <menuitem data-l10n-id="week-6-label" value="6"/>
-                </menupopup>
-            </menulist>
+            <hbox>
+                <menulist id="viewsMultiweekTotalWeeks"
+                          preference="calendar.weeks.inview">
+                    <menupopup>
+                        <menuitem data-l10n-id="week-1-label" value="1"/>
+                        <menuitem data-l10n-id="week-2-label" value="2"/>
+                        <menuitem data-l10n-id="week-3-label" value="3"/>
+                        <menuitem data-l10n-id="week-4-label" value="4"/>
+                        <menuitem data-l10n-id="week-5-label" value="5"/>
+                        <menuitem data-l10n-id="week-6-label" value="6"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
         </hbox>
         <hbox align="center" id="previousWeeksBox">
             <label data-l10n-id="previous-weeks-label"
                    control="viewsMultiweekPreviousWeeks"/>
-            <menulist id="viewsMultiweekPreviousWeeks"
-                      preference="calendar.previousweeks.inview">
-                <menupopup>
-                    <menuitem data-l10n-id="week-0-label" value="0"/>
-                    <menuitem data-l10n-id="week-1-label" value="1"/>
-                    <menuitem data-l10n-id="week-2-label" value="2"/>
-                </menupopup>
-            </menulist>
+            <hbox>
+                <menulist id="viewsMultiweekPreviousWeeks"
+                          preference="calendar.previousweeks.inview">
+                    <menupopup>
+                        <menuitem data-l10n-id="week-0-label" value="0"/>
+                        <menuitem data-l10n-id="week-1-label" value="1"/>
+                        <menuitem data-l10n-id="week-2-label" value="2"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
         </hbox>
     </html:fieldset>
     </html:div>

@@ -1,20 +1,19 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <prefpane id="paneChat">
-    <script src="chrome://messenger/content/preferences/chat.js"/>
-    <script src="chrome://messenger/content/preferences/messagestyle.js"/>
+  <script src="chrome://messenger/content/preferences/chat.js"/>
+  <script src="chrome://messenger/content/preferences/messagestyle.js"/>
 
-    <stringbundle id="themesBundle"
-                  src="chrome://messenger/locale/preferences/messagestyle.properties"/>
-
+  <stringbundle id="themesBundle"
+                src="chrome://messenger/locale/preferences/messagestyle.properties"/>
+  <html:template id="paneChat">
     <hbox id="chatPaneCategory"
           class="subcategory"
           data-category="paneChat">
       <html:h1 data-l10n-id="chat-pane-header"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="paneChat">
     <html:fieldset data-category="paneChat">
       <html:legend data-l10n-id="chat-status-title"></html:legend>
         <!-- Startup -->
@@ -22,12 +21,14 @@
           <label id="chatStartupAction"
                  data-l10n-id="startup-label"
                  control="messengerStartupAction"/>
-          <menulist id="messengerStartupAction" preference="messenger.startup.action">
-            <menupopup>
-              <menuitem data-l10n-id="offline-label" value="0"/>
-              <menuitem data-l10n-id="auto-connect-label" value="1"/>
-            </menupopup>
-          </menulist>
+          <hbox>
+            <menulist id="messengerStartupAction" preference="messenger.startup.action">
+              <menupopup>
+                <menuitem data-l10n-id="offline-label" value="0"/>
+                <menuitem data-l10n-id="auto-connect-label" value="1"/>
+              </menupopup>
+            </menulist>
+          </hbox>
         </hbox>
         <separator/>
 
@@ -57,7 +58,7 @@
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneChat">
     <html:fieldset data-category="paneChat">
       <html:legend data-l10n-id="chat-notifications-title"></html:legend>
       <hbox>
@@ -76,13 +77,15 @@
         <checkbox id="desktopChatNotifications"
                   data-l10n-id="show-notification-label"
                   preference="mail.chat.show_desktop_notifications"/>
-        <menulist id="chatNotificationInfo" preference="mail.chat.notification_info">
-          <menupopup>
-            <menuitem data-l10n-id="notification-all" value="0"/>
-            <menuitem data-l10n-id="notification-name" value="1"/>
-            <menuitem data-l10n-id="notification-empty" value="2"/>
-          </menupopup>
-        </menulist>
+        <hbox>
+          <menulist id="chatNotificationInfo" preference="mail.chat.notification_info">
+            <menupopup>
+              <menuitem data-l10n-id="notification-all" value="0"/>
+              <menuitem data-l10n-id="notification-name" value="1"/>
+              <menuitem data-l10n-id="notification-empty" value="2"/>
+            </menupopup>
+          </menulist>
+        </hbox>
       </hbox>
       <checkbox id="getAttention"
                 preference="messenger.options.getAttentionOnNewMessages"
@@ -92,7 +95,8 @@
                   data-l10n-id="chat-play-sound-label"
                   preference="mail.chat.play_sound"/>
         <spacer flex="1"/>
-        <button id="playChatSound" data-l10n-id="chat-play-button"
+        <button is="highlightable-button" id="playChatSound"
+                data-l10n-id="chat-play-button"
                 oncommand="gChatPane.previewSound();"/>
       </hbox>
       <radiogroup id="chatSoundType"
@@ -120,7 +124,7 @@
                       preference="mail.chat.play_sound.url"
                       preference-editable="true"
                       aria-labelledby="chatSoundCustom"/>
-          <button id="browseForChatSound"
+          <button is="highlightable-button" id="browseForChatSound"
                   data-l10n-id="chat-browse-sound-button"
                   oncommand="gChatPane.browseForSoundFile();"/>
         </hbox>
@@ -134,33 +138,35 @@
       <html:h1 data-l10n-id="chat-pane-styling-header"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="paneChat">
     <html:fieldset data-category="paneChat">
       <separator/>
       <hbox align="center">
         <label data-l10n-id="theme-label" control="messagestyle-themename"/>
-        <menulist id="messagestyle-themename"
-                  flex="1" crop="end"
-                  preference="messenger.options.messagesStyle.theme"
-                  onselect="previewObserver.currentThemeChanged();">
-          <menupopup id="theme-menupopup">
-            <menuitem id="mail-menuitem"
-                      data-l10n-id="style-thunderbird"
-                      value="mail"/>
-            <menuitem id="bubbles-menuitem"
-                      data-l10n-id="style-bubbles"
-                      value="bubbles"/>
-            <menuitem id="dark-menuitem"
-                      data-l10n-id="style-dark"
-                      value="dark"/>
-            <menuitem id="papersheets-menuitem"
-                      data-l10n-id="style-paper"
-                      value="papersheets"/>
-            <menuitem id="simple-menuitem"
-                      data-l10n-id="style-simple"
-                      value="simple"/>
-          </menupopup>
-        </menulist>
+        <hbox flex="1">
+          <menulist id="messagestyle-themename"
+                    flex="1" crop="end"
+                    preference="messenger.options.messagesStyle.theme"
+                    onselect="previewObserver.currentThemeChanged();">
+            <menupopup id="theme-menupopup">
+              <menuitem id="mail-menuitem"
+                        data-l10n-id="style-thunderbird"
+                        value="mail"/>
+              <menuitem id="bubbles-menuitem"
+                        data-l10n-id="style-bubbles"
+                        value="bubbles"/>
+              <menuitem id="dark-menuitem"
+                        data-l10n-id="style-dark"
+                        value="dark"/>
+              <menuitem id="papersheets-menuitem"
+                        data-l10n-id="style-paper"
+                        value="papersheets"/>
+              <menuitem id="simple-menuitem"
+                        data-l10n-id="style-simple"
+                        value="simple"/>
+            </menupopup>
+          </menulist>
+        </hbox>
       </hbox>
       <separator class="thin"/>
       <hbox align="start">
@@ -180,13 +186,15 @@
       </hbox>
       <hbox align="center">
         <label data-l10n-id="chat-variant-label" control="themevariant"/>
-        <menulist id="themevariant"
-                  preference="messenger.options.messagesStyle.variant"
-                  onselect="previewObserver.currentVariantChanged();"/>
+        <hbox>
+          <menulist id="themevariant"
+                    preference="messenger.options.messagesStyle.variant"
+                    onselect="previewObserver.currentVariantChanged();"/>
+        </hbox>
       </hbox>
       <checkbox id="showHeaderCheckbox" data-l10n-id="chat-header-label"
                 preference="messenger.options.messagesStyle.showHeader"/>
     </html:fieldset>
     </html:div>
 
-  </prefpane>
+  </html:template>

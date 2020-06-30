@@ -1,11 +1,10 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <prefpane id="panePrivacy">
-    <script src="chrome://messenger/content/preferences/privacy.js"/>
+  <script src="chrome://messenger/content/preferences/privacy.js"/>
 
-    <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
-
+  <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+  <html:template id="panePrivacy">
     <hbox id="privacyCategory"
           class="subcategory"
           data-category="panePrivacy">
@@ -13,7 +12,7 @@
     </hbox>
 
     <!-- Mail Content -->
-    <html:div>
+    <html:div data-category="panePrivacy">
     <html:fieldset id="mailContentGroup" data-category="panePrivacy">
       <html:legend data-l10n-id="mail-content"></html:legend>
       <hbox id="remoteContentBox">
@@ -21,9 +20,29 @@
                   preference="mailnews.message_display.disable_remote_image"
                   data-l10n-id="remote-content-label"/>
         <spacer flex="1"/>
-        <button id="remoteContentExceptions"
-                oncommand="gPrivacyPane.showRemoteContentExceptions();"
-                data-l10n-id="exceptions-button"/>
+        <hbox>
+          <button is="highlightable-button" id="remoteContentExceptions"
+                  oncommand="gPrivacyPane.showRemoteContentExceptions();"
+                  data-l10n-id="exceptions-button"
+                  search-l10n-ids="
+                    permissions-reminder-window.title,
+                    website-address-label.value,
+                    block-button.label,
+                    allow-session-button.label,
+                    allow-button.label,
+                    treehead-sitename-label.label,
+                    treehead-status-label.label,
+                    remove-site-button.label,
+                    remove-all-site-button.label,
+                    cancel-button.label,
+                    save-button.label,
+                    permission-can-label,
+                    permission-can-access-first-party-label,
+                    permission-can-session-label,
+                    permission-cannot-label,
+                    invalid-uri-message,
+                    invalid-uri-title"/>
+        </hbox>
       </hbox>
       <hbox>
         <label is="text-link" id="acceptRemoteContentInfo"
@@ -34,7 +53,7 @@
     </html:div>
 
     <!-- Web Content -->
-    <html:div>
+    <html:div data-category="panePrivacy">
     <html:fieldset id="webContentGroup" data-category="panePrivacy">
       <html:legend data-l10n-id="web-content"></html:legend>
       <checkbox id="keepHistory"
@@ -45,22 +64,44 @@
                   preference="network.cookie.cookieBehavior"
                   data-l10n-id="cookies-label"/>
         <spacer flex="1"/>
-        <button id="cookieExceptions"
-                oncommand="gPrivacyPane.showCookieExceptions();"
-                data-l10n-id="exceptions-button"
-                preference="pref.privacy.disable_button.cookie_exceptions"/>
+        <hbox>
+          <button is="highlightable-button" id="cookieExceptions"
+                  oncommand="gPrivacyPane.showCookieExceptions();"
+                  data-l10n-id="exceptions-button"
+                  preference="pref.privacy.disable_button.cookie_exceptions"
+                  search-l10n-ids="
+                    permissions-reminder-window.title,
+                    website-address-label.value,
+                    block-button.label,
+                    allow-session-button.label,
+                    allow-button.label,
+                    treehead-sitename-label.label,
+                    treehead-status-label.label,
+                    remove-site-button.label,
+                    remove-all-site-button.label,
+                    cancel-button.label,
+                    save-button.label,
+                    permission-can-label,
+                    permission-can-access-first-party-label,
+                    permission-can-session-label,
+                    permission-cannot-label,
+                    invalid-uri-message,
+                    invalid-uri-title"/>
+        </hbox>
       </hbox>
       <hbox id="acceptThirdPartyRow" class="indent">
         <hbox id="acceptThirdPartyBox" align="center">
           <label id="acceptThirdPartyLabel" control="acceptThirdPartyMenu"
                  data-l10n-id="third-party-label"/>
-          <menulist id="acceptThirdPartyMenu" preference="network.cookie.cookieBehavior">
-            <menupopup>
-              <menuitem data-l10n-id="third-party-always" value="always"/>
-              <menuitem data-l10n-id="third-party-visited" value="visited"/>
-              <menuitem data-l10n-id="third-party-never" value="never"/>
-            </menupopup>
-          </menulist>
+          <hbox>
+            <menulist id="acceptThirdPartyMenu" preference="network.cookie.cookieBehavior">
+              <menupopup>
+                <menuitem data-l10n-id="third-party-always" value="always"/>
+                <menuitem data-l10n-id="third-party-visited" value="visited"/>
+                <menuitem data-l10n-id="third-party-never" value="never"/>
+              </menupopup>
+            </menulist>
+          </hbox>
         </hbox>
       </hbox>
       <hbox id="keepRow" class="indent">
@@ -68,19 +109,40 @@
           <label id="keepUntil"
                  control="keepCookiesUntil"
                  data-l10n-id="keep-label"/>
-          <menulist id="keepCookiesUntil"
-                    preference="network.cookie.lifetimePolicy">
-            <menupopup>
-              <menuitem data-l10n-id="keep-expire" value="0"/>
-              <menuitem data-l10n-id="keep-close" value="2"/>
-              <menuitem data-l10n-id="keep-ask" value="1"/>
-            </menupopup>
-          </menulist>
+          <hbox>
+            <menulist id="keepCookiesUntil"
+                      preference="network.cookie.lifetimePolicy">
+              <menupopup>
+                <menuitem data-l10n-id="keep-expire" value="0"/>
+                <menuitem data-l10n-id="keep-close" value="2"/>
+                <menuitem data-l10n-id="keep-ask" value="1"/>
+              </menupopup>
+            </menulist>
+          </hbox>
         </hbox>
         <hbox flex="1"/>
-        <button id="showCookiesButton" data-l10n-id="cookies-button"
-                oncommand="gPrivacyPane.showCookies();"
-                preference="pref.privacy.disable_button.view_cookies"/>
+        <hbox>
+          <button is="highlightable-button" id="showCookiesButton"
+                  data-l10n-id="cookies-button"
+                  oncommand="gPrivacyPane.showCookies();"
+                  preference="pref.privacy.disable_button.view_cookies"
+                  search-l10n-ids="
+                    cookies-window-dialog.title,
+                    filter-search-label.value,
+                    cookies-on-system-label,
+                    treecol-site-header.label,
+                    treecol-name-header.label,
+                    props-name-label.value,
+                    props-value-label.value,
+                    props-domain-label.value,
+                    props-path-label.value,
+                    props-secure-label.value,
+                    props-expires-label.value,
+                    props-container-label.value,
+                    remove-cookie-button.label,
+                    remove-all-cookies-button.label,
+                    cookie-close-button.label"/>
+        </hbox>
       </hbox>
 
       <separator class="thin"/>
@@ -105,15 +167,46 @@
 
     <separator data-category="panePrivacy"/>
 
-    <html:div>
+    <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
       <hbox align="center">
         <description data-l10n-id="passwords-description"/>
         <spacer flex="1"/>
-        <button id="showPasswords"
-                data-l10n-id="passwords-button"
-                oncommand="gPrivacyPane.showPasswords();"
-                preference="pref.privacy.disable_button.view_passwords"/>
+        <hbox>
+          <button is="highlightable-button" id="showPasswords"
+                  data-l10n-id="passwords-button"
+                  oncommand="gPrivacyPane.showPasswords();"
+                  preference="pref.privacy.disable_button.view_passwords"
+                  search-l10n-ids="
+                    saved-logins.title,
+                    copy-provider-url-cmd.label,
+                    copy-username-cmd.label,
+                    edit-username-cmd.label,
+                    copy-password-cmd.label,
+                    edit-password-cmd.label,
+                    search-filter.placeholder,
+                    column-heading-provider.label,
+                    column-heading-username.label,
+                    column-heading-password.label,
+                    column-heading-time-created.label,
+                    column-heading-time-last-used.label,
+                    column-heading-time-password-changed.label,
+                    column-heading-times-used.label,
+                    remove.label,
+                    import.label,
+                    show-passwords.label,
+                    hide-passwords.label,
+                    logins-description-all,
+                    logins-description-filtered,
+                    remove-all.label,
+                    remove-all-shown.label,
+                    remove-all-passwords-prompt,
+                    remove-all-passwords-title,
+                    no-master-password-prompt,
+                    password-os-auth-dialog-message,
+                    password-os-auth-dialog-message-macosx,
+                    password-os-auth-dialog-caption"/>
+        </hbox>
       </hbox>
       <!-- XXX button to do a showExceptions()? -->
 
@@ -125,7 +218,7 @@
                   data-l10n-id="master-password-label"
                   oncommand="gPrivacyPane.updateMasterPasswordButton();"/>
         <spacer flex="1"/>
-        <button id="changeMasterPassword"
+        <button is="highlightable-button" id="changeMasterPassword"
                 data-l10n-id="master-password-button"
                 oncommand="gPrivacyPane.changeMasterPassword();"/>
       </hbox>
@@ -140,7 +233,7 @@
 
     <separator data-category="panePrivacy"/>
 
-    <html:div>
+    <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
       <description data-l10n-id="junk-description"/>
       <separator class="thin"/>
@@ -179,12 +272,14 @@
                   oncommand="gPrivacyPane.updateJunkLogButton(this.checked);"
                   preference="mail.spam.logging.enabled"/>
         <spacer flex="1"/>
-        <button id="openJunkLogButton" data-l10n-id="junk-log-button"
+        <button is="highlightable-button" id="openJunkLogButton"
+                data-l10n-id="junk-log-button"
                 oncommand="gPrivacyPane.openJunkLog();"/>
       </hbox>
       <hbox align="start">
         <spacer flex="1"/>
-        <button data-l10n-id="reset-junk-button"
+        <button is="highlightable-button"
+                data-l10n-id="reset-junk-button"
                 oncommand="gPrivacyPane.resetTrainingData()"/>
       </hbox>
     </html:fieldset>
@@ -197,7 +292,7 @@
       <html:h1 data-l10n-id="collection-header"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
       <description>
         <label class="tail-with-learn-more" data-l10n-id="collection-description"/>
@@ -215,8 +310,8 @@
           </hbox>
           <hbox>
               <button id="telemetryDataDeletionLearnMore"
-                     class="learnMore" is="text-link"
-                     data-l10n-id="collection-health-report-telemetry-disabled-link"/>
+                      class="learnMore" is="text-link"
+                      data-l10n-id="collection-health-report-telemetry-disabled-link"/>
           </hbox>
         </hbox>
       </description>
@@ -256,7 +351,7 @@
       <html:h1 data-l10n-id="privacy-security-header"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-scam-detection-title"></html:legend>
       <description data-l10n-id="phishing-description"/>
@@ -271,7 +366,7 @@
     </html:div>
 
     <!-- Anti Virus -->
-    <html:div>
+    <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-anti-virus-title"></html:legend>
       <description data-l10n-id="antivirus-description"/>
@@ -285,7 +380,7 @@
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="panePrivacy">
     <html:fieldset data-category="panePrivacy">
       <html:legend data-l10n-id="privacy-certificates-title"></html:legend>
       <description id="CertSelectionDesc" control="certSelection"
@@ -317,17 +412,153 @@
                   flex="1"/>
         <spacer flex="1"/>
         <vbox>
-          <button id="manageCertificatesButton"
-                  data-l10n-id="certificate-button"
-                  oncommand="gPrivacyPane.showCertificates();"
-                  preference="security.disable_button.openCertManager"/>
-          <button id="viewSecurityDevicesButton"
-                  data-l10n-id="security-devices-button"
-                  oncommand="gPrivacyPane.showSecurityDevices();"
-                  preference="security.disable_button.openDeviceManager"/>
+          <hbox flex="1">
+            <button is="highlightable-button" id="manageCertificatesButton"
+                    data-l10n-id="certificate-button"
+                    flex="1"
+                    oncommand="gPrivacyPane.showCertificates();"
+                    preference="security.disable_button.openCertManager"
+                    search-l10n-ids="
+                      certmgr-title.title,
+                      certmgr-tab-mine.label,
+                      certmgr-tab-remembered.label,
+                      certmgr-tab-people.label,
+                      certmgr-tab-servers.label,
+                      certmgr-tab-ca.label,
+                      certmgr-mine,
+                      certmgr-remembered,
+                      certmgr-people,
+                      certmgr-servers,
+                      certmgr-ca,
+                      certmgr-edit-ca-cert.title,
+                      certmgr-edit-cert-edit-trust,
+                      certmgr-edit-cert-trust-ssl.label,
+                      certmgr-edit-cert-trust-email.label,
+                      certmgr-delete-cert.title,
+                      certmgr-cert-host.label,
+                      certmgr-cert-name.label,
+                      certmgr-cert-server.label,
+                      certmgr-override-lifetime.label,
+                      certmgr-token-name.label,
+                      certmgr-begins-label.label,
+                      certmgr-expires-label.label,
+                      certmgr-email.label,
+                      certmgr-serial.label,
+                      certmgr-view.label,
+                      certmgr-edit.label,
+                      certmgr-export.label,
+                      certmgr-delete.label,
+                      certmgr-delete-builtin.label,
+                      certmgr-backup.label,
+                      certmgr-backup-all.label,
+                      certmgr-restore.label,
+                      certmgr-add-exception.label,
+                      exception-mgr.title,
+                      exception-mgr-extra-button.label,
+                      exception-mgr-supplemental-warning,
+                      exception-mgr-cert-location-url.value,
+                      exception-mgr-cert-location-download.label,
+                      exception-mgr-cert-status-view-cert.label,
+                      exception-mgr-permanent.label,
+                      pk11-bad-password,
+                      pkcs12-decode-err,
+                      pkcs12-unknown-err-restore,
+                      pkcs12-unknown-err-backup,
+                      pkcs12-unknown-err,
+                      pkcs12-info-no-smartcard-backup,
+                      pkcs12-dup-data,
+                      choose-p12-backup-file-dialog,
+                      file-browse-pkcs12-spec,
+                      choose-p12-restore-file-dialog,
+                      file-browse-certificate-spec,
+                      import-ca-certs-prompt,
+                      import-email-cert-prompt,
+                      delete-user-cert-title.title,
+                      delete-user-cert-confirm,
+                      delete-user-cert-impact,
+                      delete-ssl-cert-title.title,
+                      delete-ssl-cert-confirm,
+                      delete-ssl-cert-impact,
+                      delete-ca-cert-title.title,
+                      delete-ca-cert-confirm,
+                      delete-ca-cert-impact,
+                      delete-email-cert-title.title,
+                      delete-email-cert-confirm,
+                      delete-email-cert-impact,
+                      add-exception-branded-warning,
+                      add-exception-invalid-header,
+                      add-exception-domain-mismatch-short,
+                      add-exception-domain-mismatch-long,
+                      add-exception-expired-short,
+                      add-exception-expired-long,
+                      add-exception-unverified-or-bad-signature-short,
+                      add-exception-unverified-or-bad-signature-long,
+                      add-exception-valid-short,
+                      add-exception-valid-long,
+                      add-exception-checking-short,
+                      add-exception-checking-long,
+                      add-exception-no-cert-short,
+                      add-exception-no-cert-long,
+                      save-cert-as,
+                      cert-format-base64,
+                      cert-format-base64-chain,
+                      write-file-failure,
+                      cert-format-der,
+                      cert-format-pkcs7,
+                      cert-format-pkcs7-chain"/>
+          </hbox>
+          <hbox flex="1">
+            <button is="highlightable-button" id="viewSecurityDevicesButton"
+                    data-l10n-id="security-devices-button"
+                    flex="1"
+                    oncommand="gPrivacyPane.showSecurityDevices();"
+                    preference="security.disable_button.openDeviceManager"
+                    search-l10n-ids="
+                      devmgr.title,
+                      devmgr-devlist.label,
+                      devmgr-header-details.label,
+                      devmgr-header-value.label,
+                      devmgr-button-login.label,
+                      devmgr-button-logout.label,
+                      devmgr-button-changepw.label,
+                      devmgr-button-load.label,
+                      devmgr-button-unload.label,
+                      devmgr-button-enable-fips.label,
+                      devmgr-button-disable-fips.label,
+                      load-device.title,
+                      load-device-info,
+                      load-device-modname.value,
+                      load-device-modname-default.value,
+                      load-device-filename.value,
+                      load-device-browse.label,
+                      devinfo-status.label,
+                      devinfo-status-disabled.label,
+                      devinfo-status-not-present.label,
+                      devinfo-status-uninitialized.label,
+                      devinfo-status-not-logged-in.label,
+                      devinfo-status-logged-in.label,
+                      devinfo-status-ready.label,
+                      devinfo-desc.label,
+                      fips-nonempty-password-required,
+                      unable-to-toggle-fips,
+                      load-pk11-module-file-picker-title,
+                      load-module-help-root-certs-module-name.value,
+                      add-module-failure,
+                      del-module-warning,
+                      del-module-error,
+                      devinfo-man-id.label,
+                      devinfo-hwversion.label,
+                      load-module-help-empty-module-name.value,
+                      devinfo-fwversion.label,
+                      devinfo-modname.label,
+                      devinfo-modpath.label,
+                      login-failed,
+                      devinfo-label.label,
+                      devinfo-serialnum"/>
+          </hbox>
         </vbox>
       </hbox>
     </html:fieldset>
     </html:div>
 
-  </prefpane>
+  </html:template>

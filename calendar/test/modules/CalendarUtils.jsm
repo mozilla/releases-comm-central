@@ -626,10 +626,10 @@ function openLightningPrefs(aCallback, aParentController) {
   // Cheat instead.
   let tab = open_pref_tab("paneGeneral");
   let categoryBox = tab.browser.contentDocument.getElementById("pref-category-box");
-  categoryBox.querySelector('radio[pane="paneLightning"]').click();
+  categoryBox.querySelector('radio[pane="paneCalendar"]').click();
   utils.waitFor(
-    () => tab.browser.contentWindow.getCurrentPaneID() == "paneLightning",
-    "Timed out waiting for prefpane paneLightning to load."
+    () => tab.browser.contentWindow.getCurrentPaneID() == "paneCalendar",
+    "Timed out waiting for paneCalendar to load."
   );
   aCallback(tab);
 }

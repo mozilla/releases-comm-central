@@ -14,7 +14,7 @@ add_task(async function testCategoryColors() {
     manager.unregisterCalendar(calendar);
   });
 
-  let { prefsWindow, prefsDocument } = await openNewPrefsTab("paneLightning", "categorieslist");
+  let { prefsWindow, prefsDocument } = await openNewPrefsTab("paneCalendar", "categorieslist");
 
   let listBox = prefsDocument.getElementById("categorieslist");
   Assert.equal(listBox.itemChildren.length, 22);
@@ -25,7 +25,6 @@ add_task(async function testCategoryColors() {
   }
 
   // Edit the name and colour of a built-in category.
-
   EventUtils.synthesizeMouse(listBox, 5, 5, {}, prefsWindow);
   Assert.equal(listBox.selectedIndex, 0);
   EventUtils.synthesizeMouseAtCenter(prefsDocument.getElementById("editCButton"), {}, prefsWindow);

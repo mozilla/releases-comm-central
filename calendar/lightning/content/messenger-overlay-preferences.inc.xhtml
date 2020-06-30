@@ -6,14 +6,13 @@
 # chrome://lightning/locale/lightning.dtd
 # chrome://calendar/locale/global.dtd
 # chrome://calendar/locale/calendar-event-dialog.dtd
-
-  <prefpane id="paneLightning"
-            flex="1"
-            insertbefore="paneAdvanced">
-
-    <linkset>
-      <html:link rel="localization" href="calendar/preferences.ftl"/>
-    </linkset>
+  <linkset>
+    <html:link rel="localization" href="calendar/preferences.ftl"/>
+    <html:link rel="localization" href="calendar/category-dialog.ftl"/>
+  </linkset>
+  <html:template id="paneCalendar"
+                 flex="1"
+                 insertbefore="paneChat">
 
     <hbox id="calendarPaneCategory"
           class="subcategory"
@@ -39,4 +38,4 @@
     </hbox>
 
 #include ../../base/content/preferences/categories.inc.xhtml
-  </prefpane>
+  </html:template>

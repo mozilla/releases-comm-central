@@ -12,24 +12,20 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
 
   let prefsDocument = await new Promise(resolve => {
     Services.obs.addObserver(function documentLoaded(subject) {
-      if (subject.URL == "about:preferences") {
+      if (subject.URL.startsWith("about:preferences")) {
         Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
         subject.ownerGlobal.setTimeout(() => resolve(subject));
       }
     }, "chrome-document-loaded");
     openPreferencesTab(paneID, scrollPaneTo, otherArgs);
   });
-  ok(prefsDocument.URL == "about:preferences", "Prefs tab is open");
+  ok(prefsDocument.URL.startsWith("about:preferences"), "Prefs tab is open");
 
+  prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
   let prefsWindow = prefsDocument.ownerGlobal;
-  if (paneID) {
-    if (prefsWindow.getCurrentPaneID() != paneID) {
-      let pane = prefsDocument.getElementById(paneID);
-      await new Promise(resolve => {
-        pane.addEventListener("paneSelected", resolve, { once: true });
-      });
-    }
+  prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
 
+  if (paneID) {
     await new Promise(resolve => prefsWindow.setTimeout(resolve));
     is(prefsWindow.getCurrentPaneID(), paneID, `Selected pane is ${paneID}`);
   } else {
@@ -59,13 +55,9 @@ async function openExistingPrefsTab(paneID, scrollPaneTo, otherArgs) {
 
   let prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
   let prefsWindow = prefsDocument.ownerGlobal;
+  prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
 
   if (paneID && prefsWindow.getCurrentPaneID() != paneID) {
-    await new Promise(resolve => {
-      prefsDocument.addEventListener("paneSelected", resolve, { once: true });
-      openPreferencesTab(paneID, scrollPaneTo, otherArgs);
-    });
-  } else {
     openPreferencesTab(paneID, scrollPaneTo, otherArgs);
   }
 
@@ -81,7 +73,6 @@ async function openExistingPrefsTab(paneID, scrollPaneTo, otherArgs) {
   }
 
   registerCleanupOnce();
-
   return { prefsDocument, prefsWindow };
 }
 
@@ -145,6 +136,7 @@ async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
       is(
         checkbox.checked,
         checked,
+        wantedValue,
         "Checkbox " + (checked ? "is" : "isn't") + " checked"
       );
       if (typeof wantedValue == "number") {
@@ -187,6 +179,7 @@ async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
       info(`Checking ${test.checkboxID}`);
 
       let checkbox = prefsDocument.getElementById(test.checkboxID);
+      checkbox.scrollIntoView(false);
       testUIState(test, initiallyChecked);
 
       EventUtils.synthesizeMouseAtCenter(checkbox, {}, prefsWindow);
@@ -284,11 +277,13 @@ async function testRadioButtons(paneID, scrollPaneTo, ...tests) {
           continue;
         }
         let radio = prefsDocument.getElementById(state.id);
+        radio.scrollIntoView(false);
         EventUtils.synthesizeMouseAtCenter(radio, {}, prefsWindow);
         testUIState(state);
       }
       // Go back to the initial value.
       let initialRadio = prefsDocument.getElementById(initialState.id);
+      initialRadio.scrollIntoView(false);
       EventUtils.synthesizeMouseAtCenter(initialRadio, {}, prefsWindow);
       testUIState(initialState);
 

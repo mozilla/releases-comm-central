@@ -36,8 +36,6 @@ var gChatPane = {
     this.updatePlaySound();
     this.initPreview();
 
-    window.addEventListener("paneSelected", this.paneSelectionChanged);
-
     let element = document.getElementById("timeBeforeAway");
     Preferences.addSyncFromPrefListener(
       element,
@@ -52,21 +50,12 @@ var gChatPane = {
     );
   },
 
-  paneSelectionChanged() {
-    gChatPane.initPreview(); // Can't use "this", as it's probably not gChatPane.
-  },
-
   initPreview() {
     // We add this browser only when really necessary.
     let previewDeck = document.getElementById("previewDeck");
     if (previewDeck.querySelector("browser")) {
       return;
     }
-    if (!("getCurrentPaneID" in window) || getCurrentPaneID() != "paneChat") {
-      return;
-    }
-
-    window.removeEventListener("paneSelected", this.paneSelectionChanged);
 
     let browser = document.createXULElement("browser", {
       is: "conversation-browser",

@@ -15,14 +15,13 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         data-l10n-id="colors-dialog-window"
         data-l10n-attrs="style">
-<dialog id="ColorsDialog"
-        dlgbuttons="accept,cancel">
+  <dialog id="ColorsDialog"
+          dlgbuttons="accept,cancel">
 
-  <linkset>
-    <html:link rel="localization" href="messenger/preferences/colors.ftl"/>
-  </linkset>
+    <linkset>
+      <html:link rel="localization" href="messenger/preferences/colors.ftl"/>
+    </linkset>
 
-  <prefpane id="ColorsDialogPane">
     <hbox>
       <hbox flex="1">
       <html:div>
@@ -88,9 +87,8 @@
         </menupopup>
       </menulist>
     </vbox>
-  </prefpane>
 
-  <script src="chrome://global/content/preferencesBindings.js"/>
-  <script src="chrome://messenger/content/preferences/colors.js"/>
-</dialog>
+    <script src="chrome://global/content/preferencesBindings.js"/>
+    <script src="chrome://messenger/content/preferences/colors.js"/>
+  </dialog>
 </window>

@@ -34,13 +34,6 @@ add_task(async function test_update_preferences_ui() {
     window.openPreferencesTab("paneGeneral", "updateApp");
   });
 
-  let prefsWindow = prefsDocument.ownerGlobal;
-  if (prefsWindow.getCurrentPaneID() != "paneGeneral") {
-    let pane = prefsDocument.getElementById("paneGeneral");
-    await new Promise(resolve => {
-      pane.addEventListener("paneSelected", resolve, { once: true });
-    });
-  }
   await new Promise(resolve => setTimeout(resolve));
 
   let setting = prefsDocument.getElementById("updateSettingsContainer");

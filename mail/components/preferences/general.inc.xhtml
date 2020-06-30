@@ -1,45 +1,44 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-  <prefpane id="paneGeneral">
-    <script src="chrome://communicator/content/utilityOverlay.js"/>
-    <script src="chrome://messenger/content/preferences/general.js"/>
-    <script src="chrome://mozapps/content/preferences/fontbuilder.js"/>
+  <script src="chrome://communicator/content/utilityOverlay.js" />
+  <script src="chrome://messenger/content/preferences/general.js"/>
+  <script src="chrome://mozapps/content/preferences/fontbuilder.js"/>
 
-    <commandset id="appPaneCommandSet">
-      <command id="cmd_delete"
-               oncommand="gGeneralPane.onDelete();"/>
-    </commandset>
+  <commandset id="appPaneCommandSet">
+    <command id="cmd_delete"
+             oncommand="gGeneralPane.onDelete();"/>
+  </commandset>
 
-    <keyset id="appPaneKeyset">
-      <key keycode="VK_BACK" modifiers="any" command="cmd_delete"/>
-      <key keycode="VK_DELETE" modifiers="any" command="cmd_delete"/>
-    </keyset>
+  <keyset id="appPaneKeyset">
+    <key keycode="VK_BACK" modifiers="any" command="cmd_delete"/>
+    <key keycode="VK_DELETE" modifiers="any" command="cmd_delete"/>
+  </keyset>
 
-    <keyset>
-      <key data-l10n-id="focus-search-shortcut" modifiers="accel"
-           oncommand="gGeneralPane.focusFilterBox();"/>
-      <key data-l10n-id="focus-search-shortcut-alt" modifiers="accel"
-           oncommand="gGeneralPane.focusFilterBox();"/>
-    </keyset>
+  <keyset>
+    <key data-l10n-id="focus-search-shortcut" modifiers="accel"
+         oncommand="gGeneralPane.focusFilterBox();"/>
+    <key data-l10n-id="focus-search-shortcut-alt" modifiers="accel"
+         oncommand="gGeneralPane.focusFilterBox();"/>
+  </keyset>
 
-    <linkset>
-      <html:link rel="localization" href="branding/brand.ftl"/>
-      <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
-    </linkset>
+  <linkset>
+    <html:link rel="localization" href="branding/brand.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
+  </linkset>
 
-    <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
+  <stringbundle id="bundlePreferences" src="chrome://messenger/locale/preferences/preferences.properties"/>
 #ifdef HAVE_SHELL_SERVICE
-    <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
+  <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
 #endif
-
+  <html:template id="paneGeneral">
     <hbox id="generalCategory"
           class="subcategory"
           data-category="paneGeneral">
       <html:h1 data-l10n-id="pane-general-title"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="general-legend"></html:legend>
       <vbox>
@@ -53,7 +52,7 @@
           <html:input id="mailnewsStartPageUrl"
                       type="text"
                       preference="mailnews.start_page.url"/>
-          <button id="browseForStartPageUrl"
+          <button is="highlightable-button" id="browseForStartPageUrl"
                   data-l10n-id="restore-default-label"
                   oncommand="gGeneralPane.restoreDefaultStartPage();">
           </button>
@@ -62,17 +61,19 @@
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="default-search-engine"></html:legend>
       <hbox align="center">
-        <menulist id="defaultWebSearch">
-          <menupopup id="defaultWebSearchPopup"/>
-        </menulist>
-        <button id="addSearchEngine"
+        <hbox>
+          <menulist id="defaultWebSearch">
+            <menupopup id="defaultWebSearchPopup"/>
+          </menulist>
+        </hbox>
+        <button is="highlightable-button" id="addSearchEngine"
                 data-l10n-id="add-search-engine"
                 oncommand="gGeneralPane.addSearchEngine();"/>
-        <button id="removeSearchEngine"
+        <button is="highlightable-button" id="removeSearchEngine"
                 data-l10n-id="remove-search-engine"
                 oncommand="gGeneralPane.removeSearchEngine();"/>
       </hbox>
@@ -80,7 +81,7 @@
     </html:div>
 
 #ifdef HAVE_SHELL_SERVICE
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset id="systemDefaultsGroup" data-category="paneGeneral">
       <html:legend data-l10n-id="system-integration-legend"></html:legend>
       <vbox>
@@ -89,10 +90,24 @@
                   preference="mail.shell.checkDefaultClient"
                   data-l10n-id="always-check-default"/>
         <spacer flex="1"/>
-        <button id="checkDefaultButton"
-                data-l10n-id="check-default-button"
-                oncommand="gGeneralPane.checkDefaultNow();"
-                preference="pref.general.disable_button.default_mail"/>
+        <hbox>
+          <button is="highlightable-button" id="checkDefaultButton"
+                  data-l10n-id="check-default-button"
+                  oncommand="gGeneralPane.checkDefaultNow();"
+                  preference="pref.general.disable_button.default_mail"
+                  search-l10n-ids="
+                    system-integration-title.title,
+                    system-integration-dialog.buttonlabelaccept,
+                    system-integration-dialog.buttonlabelcancel,
+                    system-integration-dialog.buttonlabelcancel2,
+                    default-client-intro,
+                    unset-default-tooltip,
+                    checkbox-email-label.label,
+                    checkbox-newsgroups-label.label,
+                    checkbox-feeds-label.label,
+                    system-search-integration-label.label,
+                    check-on-startup-label.label"/>
+        </hbox>
       </hbox>
 #ifdef XP_WIN
       <hbox align="start">
@@ -117,7 +132,7 @@
     </hbox>
 
     <!-- Fonts and Colors -->
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset id="fontsGroup" data-category="paneGeneral">
       <html:legend data-l10n-id="fonts-legend"></html:legend>
 
@@ -125,50 +140,123 @@
         <vbox id="fontRow" flex="1">
           <hbox align="center">
             <label data-l10n-id="default-font-label" control="defaultFont"/>
-            <menulist id="defaultFont" flex="1" sizetopopup="pref" crop="center">
-              <menupopup crop="center"/>
-            </menulist>
+            <hbox flex="1">
+              <menulist id="defaultFont" flex="1" sizetopopup="pref" crop="center">
+                <menupopup crop="center"/>
+              </menulist>
+            </hbox>
             <label data-l10n-id="default-size-label" control="defaultFontSize"/>
-            <menulist id="defaultFontSize" flex="1">
-              <menupopup crop="center">
-                <menuitem value="9" label="9"/>
-                <menuitem value="10" label="10"/>
-                <menuitem value="11" label="11"/>
-                <menuitem value="12" label="12"/>
-                <menuitem value="13" label="13"/>
-                <menuitem value="14" label="14"/>
-                <menuitem value="15" label="15"/>
-                <menuitem value="16" label="16"/>
-                <menuitem value="17" label="17"/>
-                <menuitem value="18" label="18"/>
-                <menuitem value="20" label="20"/>
-                <menuitem value="22" label="22"/>
-                <menuitem value="24" label="24"/>
-                <menuitem value="26" label="26"/>
-                <menuitem value="28" label="28"/>
-                <menuitem value="30" label="30"/>
-                <menuitem value="32" label="32"/>
-                <menuitem value="34" label="34"/>
-                <menuitem value="36" label="36"/>
-                <menuitem value="40" label="40"/>
-                <menuitem value="44" label="44"/>
-                <menuitem value="48" label="48"/>
-                <menuitem value="56" label="56"/>
-                <menuitem value="64" label="64"/>
-                <menuitem value="72" label="72"/>
-              </menupopup>
-            </menulist>
+            <hbox flex="1">
+              <menulist id="defaultFontSize" flex="1">
+                <menupopup crop="center">
+                  <menuitem value="9" label="9"/>
+                  <menuitem value="10" label="10"/>
+                  <menuitem value="11" label="11"/>
+                  <menuitem value="12" label="12"/>
+                  <menuitem value="13" label="13"/>
+                  <menuitem value="14" label="14"/>
+                  <menuitem value="15" label="15"/>
+                  <menuitem value="16" label="16"/>
+                  <menuitem value="17" label="17"/>
+                  <menuitem value="18" label="18"/>
+                  <menuitem value="20" label="20"/>
+                  <menuitem value="22" label="22"/>
+                  <menuitem value="24" label="24"/>
+                  <menuitem value="26" label="26"/>
+                  <menuitem value="28" label="28"/>
+                  <menuitem value="30" label="30"/>
+                  <menuitem value="32" label="32"/>
+                  <menuitem value="34" label="34"/>
+                  <menuitem value="36" label="36"/>
+                  <menuitem value="40" label="40"/>
+                  <menuitem value="44" label="44"/>
+                  <menuitem value="48" label="48"/>
+                  <menuitem value="56" label="56"/>
+                  <menuitem value="64" label="64"/>
+                  <menuitem value="72" label="72"/>
+                </menupopup>
+              </menulist>
+            </hbox>
           </hbox>
         </vbox>
         <vbox id="colorsRow">
-          <button id="advancedFonts"
-                  data-l10n-id="font-options-button"
-                  oncommand="gGeneralPane.configureFonts();"
-                  flex="1"/>
-          <button id="colors"
-                  data-l10n-id="color-options-button"
-                  oncommand="gGeneralPane.configureColors();"
-                  flex="1"/>
+          <hbox flex="1">
+            <button is="highlightable-button" id="advancedFonts"
+                    data-l10n-id="font-options-button"
+                    oncommand="gGeneralPane.configureFonts();"
+                    flex="1"
+                    search-l10n-ids="
+                      fonts-label-default-unnamed.label,
+                      fonts-encoding-dialog-title.title,
+                      fonts-language-legend.value,
+                      fonts-proportional-label.value,
+                      font-language-group-latin.label,
+                      font-language-group-japanese.label,
+                      font-language-group-trad-chinese.label,
+                      font-language-group-simpl-chinese.label,
+                      font-language-group-trad-chinese-hk.label,
+                      font-language-group-korean.label,
+                      font-language-group-cyrillic.label,
+                      font-language-group-el.label,
+                      font-language-group-other.label,
+                      font-language-group-thai.label,
+                      font-language-group-hebrew.label,
+                      font-language-group-arabic.label,
+                      font-language-group-devanagari.label,
+                      font-language-group-tamil.label,
+                      font-language-group-armenian.label,
+                      font-language-group-bengali.label,
+                      font-language-group-canadian.label,
+                      font-language-group-ethiopic.label,
+                      font-language-group-georgian.label,
+                      font-language-group-gujarati.label,
+                      font-language-group-gurmukhi.label,
+                      font-language-group-khmer.label,
+                      font-language-group-malayalam.label,
+                      font-language-group-math.label,
+                      font-language-group-odia.label,
+                      font-language-group-telugu.label,
+                      font-language-group-kannada.label,
+                      font-language-group-sinhala.label,
+                      font-language-group-tibetan.label,
+                      default-font-serif.label,
+                      default-font-sans-serif.label,
+                      font-size-label.value,
+                      font-size-monospace-label.value,
+                      font-serif-label.value,
+                      font-sans-serif-label.value,
+                      font-monospace-label.value,
+                      font-min-size-label.value,
+                      min-size-none.label,
+                      font-control-legend,
+                      use-document-fonts-checkbox.label,
+                      use-fixed-width-plain-checkbox.label,
+                      text-encoding-legend,
+                      text-encoding-description,
+                      font-outgoing-email-label.value,
+                      font-incoming-email-label.value,
+                      default-font-reply-checkbox.label"/>
+          </hbox>
+          <hbox flex="1">
+            <button is="highlightable-button" id="colors"
+                    data-l10n-id="color-options-button"
+                    oncommand="gGeneralPane.configureColors();"
+                    flex="1"
+                    search-l10n-ids="
+                      colors-dialog-window.title,
+                      colors-dialog-legend,
+                      text-color-label.value,
+                      background-color-label.value,
+                      use-system-colors.label,
+                      colors-link-legend,
+                      link-color-label.value,
+                      visited-link-color-label.value,
+                      underline-link-checkbox.label,
+                      override-color-label.value,
+                      override-color-always.label,
+                      override-color-auto.label,
+                      override-color-never.label"/>
+          </hbox>
         </vbox>
       </hbox>
       <hbox>
@@ -186,22 +274,26 @@
       <label control="displayText" data-l10n-id="display-text-label"/>
       <hbox id="displayText" class="indent" align="center" role="group">
         <label data-l10n-id="style-label" control="mailQuotedStyle"/>
-        <menulist id="mailQuotedStyle" preference="mail.quoted_style">
-          <menupopup>
-            <menuitem value="0" data-l10n-id="regular-style-item"/>
-            <menuitem value="1" data-l10n-id="bold-style-item"/>
-            <menuitem value="2" data-l10n-id="italic-style-item"/>
-            <menuitem value="3" data-l10n-id="bold-italic-style-item"/>
-          </menupopup>
-        </menulist>
+        <hbox>
+          <menulist id="mailQuotedStyle" preference="mail.quoted_style">
+            <menupopup>
+              <menuitem value="0" data-l10n-id="regular-style-item"/>
+              <menuitem value="1" data-l10n-id="bold-style-item"/>
+              <menuitem value="2" data-l10n-id="italic-style-item"/>
+              <menuitem value="3" data-l10n-id="bold-italic-style-item"/>
+            </menupopup>
+          </menulist>
+        </hbox>
         <label data-l10n-id="size-label" control="mailQuotedSize"/>
-        <menulist id="mailQuotedSize" preference="mail.quoted_size">
-          <menupopup>
-            <menuitem value="0" data-l10n-id="regular-size-item"/>
-            <menuitem value="1" data-l10n-id="bigger-size-item"/>
-            <menuitem value="2" data-l10n-id="smaller-size-item"/>
-          </menupopup>
-        </menulist>
+        <hbox>
+          <menulist id="mailQuotedSize" preference="mail.quoted_size">
+            <menupopup>
+              <menuitem value="0" data-l10n-id="regular-size-item"/>
+              <menuitem value="1" data-l10n-id="bigger-size-item"/>
+              <menuitem value="2" data-l10n-id="smaller-size-item"/>
+            </menupopup>
+          </menulist>
+        </hbox>
         <label data-l10n-id="quoted-text-color" control="citationmenu"/>
         <html:input type="color" id="citationmenu" preference="mail.citation_color"/>
       </hbox>
@@ -209,7 +301,7 @@
     </html:div>
 
     <!-- Date and time formatting -->
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="datetime-formatting-legend"></html:legend>
       <radiogroup id="formatLocale" align="start"
@@ -225,7 +317,7 @@
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset id="messengerLanguagesBox" data-category="paneGeneral" hidden="hidden">
       <html:legend data-l10n-id="language-selector-legend"></html:legend>
         <vbox align="start">
@@ -233,14 +325,33 @@
                      controls="chooseMessengerLanguage"
                      data-l10n-id="choose-messenger-language-description"/>
         <hbox>
-          <menulist id="defaultMessengerLanguage"
-                    oncommand="gGeneralPane.onMessengerLanguageChange(event)">
-            <menupopup/>
-          </menulist>
-          <button id="manageMessengerLanguagesButton"
-                  class="accessory-button"
-                  data-l10n-id="manage-messenger-languages-button"
-                  oncommand="gGeneralPane.showMessengerLanguages({search: false})"/>
+          <hbox>
+            <menulist id="defaultMessengerLanguage"
+                      oncommand="gGeneralPane.onMessengerLanguageChange(event)">
+              <menupopup/>
+            </menulist>
+          </hbox>
+          <hbox>
+            <button is="highlightable-button" id="manageMessengerLanguagesButton"
+                    class="accessory-button"
+                    data-l10n-id="manage-messenger-languages-button"
+                    oncommand="gGeneralPane.showMessengerLanguages({search: false})"
+                    search-l10n-ids="
+                      languages-customize-moveup.label,
+                      languages-customize-movedown.label,
+                      languages-customize-remove.label,
+                      languages-customize-select-language.placeholder,
+                      languages-customize-add.label,
+                      messenger-languages-window.title,
+                      messenger-languages-description,
+                      messenger-languages-search,
+                      messenger-languages-searching.label,
+                      messenger-languages-downloading.label,
+                      messenger-languages-select-language.label,
+                      messenger-languages-installed-label,
+                      messenger-languages-available-label,
+                      messenger-languages-error"/>
+          </hbox>
         </hbox>
       </vbox>
       <hbox id="confirmMessengerLanguage"
@@ -254,7 +365,7 @@
     </html:div>
 
     <!-- Scrolling -->
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset id="scrollingGroup" data-category="paneGeneral">
       <html:legend data-l10n-id="scrolling-legend"></html:legend>
       <hbox>
@@ -272,22 +383,31 @@
     </html:fieldset>
     </html:div>
 
-
     <hbox id="incomingMailCategory"
           class="subcategory"
           data-category="paneGeneral">
       <html:h1 data-l10n-id="general-incoming-mail-header"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="new-message-arrival"></html:legend>
 #ifdef XP_MACOSX
       <hbox align="center">
         <description flex="1" data-l10n-id="change-dock-icon"/>
-        <button id="dockOptions"
-                oncommand="gGeneralPane.configureDockOptions();"
-                data-l10n-id="app-icon-options"/>
+        <hbox>
+          <button is="highlightable-button" id="dockOptions"
+                  oncommand="gGeneralPane.configureDockOptions();"
+                  data-l10n-id="app-icon-options"
+                  search-l10n-ids="
+                    dock-options-window-dialog.title,
+                    bounce-system-dock-icon.label,
+                    dock-icon-legend,
+                    dock-icon-show-label.value,
+                    count-unread-messages-radio.label,
+                    count-new-messages-radio.label,
+                    notification-settings-info"/>
+        </hbox>
       </hbox>
       <description class="bold" data-l10n-id="notification-settings"/>
 #else
@@ -296,9 +416,19 @@
                   data-l10n-id="animated-alert-label"
                   preference="mail.biff.show_alert"/>
         <spacer flex="1"/>
-        <button id="customizeMailAlert"
-                oncommand="gGeneralPane.customizeMailAlert();"
-                data-l10n-id="customize-alert-label"/>
+        <hbox>
+          <button is="highlightable-button" id="customizeMailAlert"
+                  oncommand="gGeneralPane.customizeMailAlert();"
+                  data-l10n-id="customize-alert-label"
+                  search-l10n-ids="
+                    notifications-dialog-window.title,
+                    customize-alert-description,
+                    preview-text-checkbox.label,
+                    subject-checkbox.label,
+                    sender-checkbox.label,
+                    open-time-label-before.value,
+                    open-time-label-after.value"/>
+        </hbox>
       </hbox>
       <hbox>
         <checkbox id="newMailNotificationTrayIcon"
@@ -316,7 +446,7 @@
                   data-l10n-id="mail-play-sound-label"
                   oncommand="gGeneralPane.updatePlaySound();"/>
         <spacer flex="1"/>
-        <button id="playSound"
+        <button is="highlightable-button" id="playSound"
                 data-l10n-id="mail-play-button"
                 oncommand="gGeneralPane.previewSound();"/>
       </hbox>
@@ -350,7 +480,7 @@
                     preference="mail.biff.play_sound.url"
                     preference-editable="true"
                     aria-labelledby="custom"/>
-        <button id="browseForSound"
+        <button is="highlightable-button" id="browseForSound"
                 data-l10n-id="mail-browse-sound-button"
                 oncommand="gGeneralPane.browseForSoundFile();"/>
       </hbox>
@@ -363,7 +493,7 @@
       <html:h1 data-l10n-id="general-files-and-attachment-header"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <hbox>
         <search-textbox id="filter"
@@ -406,7 +536,7 @@
                         type="text"
                         readonly="readonly"
                         aria-labelledby="saveTo"/>
-            <button id="chooseFolder"
+            <button is="highlightable-button" id="chooseFolder"
                     oncommand="gDownloadDirSection.chooseFolder();"
                     data-l10n-id="choose-folder-label"/>
           </hbox>
@@ -426,7 +556,7 @@
       <html:h1 data-l10n-id="general-tags-header"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <label control="tagList" data-l10n-id="display-tags-text"/>
       <hbox>
@@ -436,12 +566,25 @@
                      ondblclick="gGeneralPane.editTag();"
                      onselect="gGeneralPane.onSelectTag();"/>
         <vbox id="tagButtons">
-          <button data-l10n-id="new-tag-button"
-                  oncommand="gGeneralPane.addTag();"/>
-          <button id="editTagButton" disabled="true"
-                  data-l10n-id="edit-tag-button"
-                  oncommand="gGeneralPane.editTag();"/>
-          <button id="removeTagButton" disabled="true"
+          <hbox>
+            <button is="highlightable-button"
+                    data-l10n-id="new-tag-button"
+                    oncommand="gGeneralPane.addTag();"
+                    search-l10n-ids="
+                      tag-dialog-window.title,
+                      tag-name-label.value"/>
+          </hbox>
+          <hbox>
+            <button is="highlightable-button" id="editTagButton"
+                    disabled="true"
+                    data-l10n-id="edit-tag-button"
+                    oncommand="gGeneralPane.editTag();"
+                    search-l10n-ids="
+                      tag-dialog-window.title,
+                      tag-name-label.value"/>
+          </hbox>
+          <button is="highlightable-button" id="removeTagButton"
+                  disabled="true"
                   data-l10n-id="delete-tag-button"
                   oncommand="gGeneralPane.removeTag();"/>
         </vbox>
@@ -449,14 +592,13 @@
     </html:fieldset>
     </html:div>
 
-
     <hbox id="readingAndDisplayCategory"
           class="subcategory"
           data-category="paneGeneral">
       <html:h1 data-l10n-id="general-reading-and-display-header"/>
     </hbox>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <vbox>
         <hbox>
@@ -523,9 +665,26 @@
 
       <hbox align="center">
         <description flex="1" data-l10n-id="return-receipts-description"/>
-        <button id="showReturnReceipts"
-                data-l10n-id="return-receipts-button"
-                oncommand="gGeneralPane.showReturnReceipts();"/>
+        <hbox>
+          <button is="highlightable-button" id="showReturnReceipts"
+                  data-l10n-id="return-receipts-button"
+                  oncommand="gGeneralPane.showReturnReceipts();"
+                  search-l10n-ids="
+                    receipts-dialog-window.title,
+                    return-receipt-checkbox.label,
+                    receipt-arrive-label,
+                    receipt-leave-radio.label,
+                    receipt-move-radio.label,
+                    receipt-request-label,
+                    receipt-return-never-radio.label,
+                    receipt-return-some-radio.label,
+                    receipt-not-to-cc.value,
+                    receipt-send-never-label.label,
+                    receipt-send-always-label.label,
+                    receipt-send-ask-label.label,
+                    sender-outside-domain.value,
+                    other-cases-label.value"/>
+        </hbox>
       </hbox>
     </html:fieldset>
     </html:div>
@@ -538,7 +697,7 @@
     </hbox>
 
     <!-- Update -->
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset id="updateApp" data-category="paneGeneral">
       <html:legend data-l10n-id="update-app-legend"></html:legend>
       <hbox align="center">
@@ -552,30 +711,43 @@
         </vbox>
         <spacer flex="1"/>
         <vbox>
-          <button id="showUpdateHistory"
-                  data-l10n-id="update-history-button"
-                  preference="app.update.disable_button.showUpdateHistory"
-                  oncommand="gGeneralPane.showUpdates();"/>
+          <hbox>
+            <button is="highlightable-button" id="showUpdateHistory"
+                    data-l10n-id="update-history-button"
+                    preference="app.update.disable_button.showUpdateHistory"
+                    oncommand="gGeneralPane.showUpdates();"
+                    search-l10n-ids="
+                      history-title,
+                      history-intro,
+                      close-button-label.buttonlabelcancel,
+                      close-button-label.title,
+                      no-updates-label,
+                      name-header,
+                      date-header,
+                      type-header,
+                      state-header"/>
+          </hbox>
         </vbox>
       </hbox>
       <vbox id="updateBox">
         <deck id="updateDeck" orient="vertical">
           <hbox id="checkForUpdates" align="center">
             <spacer flex="1"/>
-            <button id="checkForUpdatesButton" align="start"
+            <button is="highlightable-button" id="checkForUpdatesButton"
+                    align="start"
                     label="&update.checkForUpdatesButton.label;"
                     accesskey="&update.checkForUpdatesButton.accesskey;"
                     oncommand="gAppUpdater.checkForUpdates();"/>
           </hbox>
           <hbox id="downloadAndInstall" align="center">
             <spacer flex="1"/>
-            <button id="downloadAndInstallButton"
+            <button is="highlightable-button" id="downloadAndInstallButton"
                     oncommand="gAppUpdater.startDownload();"/>
                     <!-- label and accesskey will be filled by JS -->
           </hbox>
           <hbox id="apply" align="center">
             <spacer flex="1"/>
-            <button id="updateButton"
+            <button is="highlightable-button" id="updateButton"
                     label="&update.updateButton.label3;"
                     accesskey="&update.updateButton.accesskey;"
                     oncommand="gAppUpdater.buttonRestartAfterDownload();"/>
@@ -583,7 +755,8 @@
           <hbox id="checkingForUpdates" align="center">
             <image class="update-throbber"/><label>&update.checkingForUpdates;</label>
             <spacer flex="1"/>
-            <button label="&update.checkForUpdatesButton.label;"
+            <button is="highlightable-button"
+                    label="&update.checkForUpdatesButton.label;"
                     accesskey="&update.checkForUpdatesButton.accesskey;"
                     disabled="true"/>
           </hbox>
@@ -599,7 +772,8 @@
             <label is="text-link" id="failedLink">&update.failed.linkText;</label>
             <label>&update.failed.end;</label>
             <spacer flex="1"/>
-            <button label="&update.checkForUpdatesButton.label;"
+            <button is="highlightable-button"
+                    label="&update.checkForUpdatesButton.label;"
                     accesskey="&update.checkForUpdatesButton.accesskey;"
                     oncommand="gAppUpdater.checkForUpdates();"/>
           </hbox>
@@ -609,7 +783,8 @@
           <hbox id="noUpdatesFound" align="center">
             <label>&update.noUpdatesFound;</label>
             <spacer flex="1"/>
-            <button label="&update.checkForUpdatesButton.label;"
+            <button is="highlightable-button"
+                    label="&update.checkForUpdatesButton.label;"
                     accesskey="&update.checkForUpdatesButton.accesskey;"
                     oncommand="gAppUpdater.checkForUpdates();"/>
           </hbox>
@@ -622,7 +797,8 @@
             </label>
             <label>&update.manual.end;</label>
             <spacer flex="1"/>
-            <button label="&update.checkForUpdatesButton.label;"
+            <button is="highlightable-button"
+                    label="&update.checkForUpdatesButton.label;"
                     accesskey="&update.checkForUpdatesButton.accesskey;"
                     disabled="true"/>
           </hbox>
@@ -670,40 +846,86 @@
     </hbox>
 
     <!-- Networking & Disk Space -->
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="networking-legend"></html:legend>
       <hbox align="center">
         <description control="catProxiesButton"
                      data-l10n-id="proxy-config-description"
                      flex="1"/>
-        <button id="catProxiesButton"
-                data-l10n-id="network-settings-button"
-                oncommand="gGeneralPane.showConnections();"/>
+        <hbox>
+          <button is="highlightable-button" id="catProxiesButton"
+                  data-l10n-id="network-settings-button"
+                  oncommand="gGeneralPane.showConnections();"
+                  search-l10n-ids="
+                    connection-dns-over-https-url-resolver,
+                    connection-dns-over-https-url-custom.label,
+                    connection-dns-over-https-custom-label,
+                    connection-proxy-legend,
+                    proxy-type-no.label,
+                    proxy-type-wpad.label,
+                    proxy-type-system.label,
+                    proxy-type-manual.label,
+                    proxy-http-label.value,
+                    http-port-label.value,
+                    proxy-http-sharing.label,
+                    proxy-https-label.value,
+                    ssl-port-label.value,
+                    proxy-socks-label.value,
+                    socks-port-label.value,
+                    proxy-socks4-label.label,
+                    proxy-socks5-label.label,
+                    proxy-type-auto.label,
+                    proxy-reload-label.label,
+                    no-proxy-label.value,
+                    no-proxy-example,
+                    no-proxy-localhost-label,
+                    proxy-password-prompt.label,
+                    proxy-remote-dns.label,
+                    proxy-enable-doh.label"/>
+        </hbox>
       </hbox>
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="offline-legend"></html:legend>
       <hbox align="center">
         <description data-l10n-id="offline-settings"
                      control="offlineSettingsButton"
                      flex="1"/>
-        <button id="offlineSettingsButton"
-                data-l10n-id="offline-settings-button"
-                oncommand="gGeneralPane.showOffline();"/>
+        <hbox>
+          <button is="highlightable-button" id="offlineSettingsButton"
+                  data-l10n-id="offline-settings-button"
+                  oncommand="gGeneralPane.showOffline();"
+                  search-l10n-ids="
+                    offline-dialog-window.title,
+                    autodetect-online-label.label,
+                    startup-label,
+                    status-radio-remember.label,
+                    status-radio-ask.label,
+                    status-radio-always-online.label,
+                    status-radio-always-offline.label,
+                    going-online-label,
+                    going-online-auto.label,
+                    going-online-not.label,
+                    going-online-ask.label,
+                    going-offline-label,
+                    going-offline-auto.label,
+                    going-offline-not.label,
+                    going-offline-ask.label"/>
+        </hbox>
       </hbox>
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="diskspace-legend"></html:legend>
       <hbox align="center">
         <label id="actualDiskCacheSize" flex="1"/>
-        <button id="clearCacheButton"
+        <button is="highlightable-button" id="clearCacheButton"
                 data-l10n-id="clear-cache-button"
                 oncommand="gGeneralPane.clearCache();"/>
       </hbox>
@@ -735,7 +957,7 @@
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <html:legend data-l10n-id="general-indexing-label"></html:legend>
       <vbox>
@@ -746,17 +968,19 @@
         </hbox>
         <hbox align="center">
           <label control="storeTypeMenulist" data-l10n-id="store-type-label"/>
-          <menulist id="storeTypeMenulist"
-                    oncommand="gGeneralPane.updateDefaultStore(this.selectedItem.value)">
-            <menupopup id="storeTypeMenupopup">
-              <menuitem id="mboxStore"
-                        data-l10n-id="mbox-store-label"
-                        value="@mozilla.org/msgstore/berkeleystore;1"/>
-              <menuitem id="maildirStore"
-                        data-l10n-id="maildir-store-label"
-                        value="@mozilla.org/msgstore/maildirstore;1"/>
-            </menupopup>
-          </menulist>
+          <hbox>
+            <menulist id="storeTypeMenulist"
+                      oncommand="gGeneralPane.updateDefaultStore(this.selectedItem.value)">
+              <menupopup id="storeTypeMenupopup">
+                <menuitem id="mboxStore"
+                          data-l10n-id="mbox-store-label"
+                          value="@mozilla.org/msgstore/berkeleystore;1"/>
+                <menuitem id="maildirStore"
+                          data-l10n-id="maildir-store-label"
+                          value="@mozilla.org/msgstore/maildirstore;1"/>
+              </menupopup>
+            </menulist>
+          </hbox>
         </hbox>
         <hbox>
           <checkbox id="allowHWAccel"
@@ -771,14 +995,36 @@
 
     <separator class="thin" data-category="paneGeneral"/>
 
-    <html:div>
+    <html:div data-category="paneGeneral">
     <html:fieldset data-category="paneGeneral">
       <hbox pack="end">
-        <button id="configEditor"
-                data-l10n-id="config-editor-button"
-                oncommand="gGeneralPane.showConfigEdit();"/>
+        <hbox>
+          <button is="highlightable-button" id="configEditor"
+                  data-l10n-id="config-editor-button"
+                  oncommand="gGeneralPane.showConfigEdit();"
+                  search-l10n-ids="
+                    config-window.title,
+                    config-about-warning-title.value,
+                    config-about-warning-text,
+                    config-about-warning-button.label,
+                    config-about-warning-checkbox.label,
+                    config-search-prefs.value,
+                    config-pref-column.label,
+                    config-lock-column.label,
+                    config-type-column.label,
+                    config-value-column.label,
+                    config-default,
+                    config-modified,
+                    config-locked,
+                    config-property-string,
+                    config-property-int,
+                    config-property-bool,
+                    config-new-prompt,
+                    config-nan-title,
+                    config-nan-text"/>
+        </hbox>
       </hbox>
     </html:fieldset>
     </html:div>
 
-  </prefpane>
+  </html:template>

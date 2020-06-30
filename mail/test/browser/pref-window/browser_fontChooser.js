@@ -155,6 +155,9 @@ function assert_fonts_equal(aDescription, aExpected, aActual, aPrefix = false) {
 function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
   // Bring up the preferences window.
   let prefTab = open_pref_tab("paneGeneral");
+  let contentDoc = prefTab.browser.contentDocument;
+  let prefsWindow = contentDoc.ownerGlobal;
+  prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
 
   let isSansDefault =
     Services.prefs.getCharPref("font.default." + kLanguage) == "sans-serif";
@@ -170,8 +173,10 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
     displayPaneActual.value
   );
 
+  let advancedFonts = contentDoc.getElementById("advancedFonts");
+  advancedFonts.scrollIntoView(false);
   // Now open the advanced dialog.
-  mc.click(content_tab_eid(prefTab, "advancedFonts"));
+  EventUtils.synthesizeMouseAtCenter(advancedFonts, {}, prefsWindow);
   let fontc = wait_for_frame_load(
     prefTab.browser.contentDocument
       .getElementById("dialogOverlay-0")

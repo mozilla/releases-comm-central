@@ -51,6 +51,25 @@
     <html:link rel="localization" href="messenger/preferences/preferences.ftl"/>
     <html:link rel="localization" href="messenger/preferences/fonts.ftl"/>
     <html:link rel="localization" href="messenger/preferences/languages.ftl"/>
+
+    <!-- Links below are only used for search-l10n-ids into subdialogs -->
+    <html:link rel="localization" href="messenger/preferences/sendoptions.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/receipts.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/permissions.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/cookies.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/system-integration.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/colors.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/dock-options.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/notifications.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/new-tag.ftl"/>
+    <html:link rel="localization" href="toolkit/updates/history.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/connection.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/offline.ftl"/>
+    <html:link rel="localization" href="toolkit/about/aboutConfig.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/attachment-reminder.ftl"/>
+    <html:link rel="localization" href="messenger/preferences/passwordManager.ftl"/>
+    <html:link rel="localization" href="security/certificates/certManager.ftl"/>
+    <html:link rel="localization" href="security/certificates/deviceManager.ftl"/>
   </linkset>
 
   <stack id="preferences-stack" flex="1">
@@ -98,7 +117,7 @@
 
           <richlistitem id="category-calendar"
                         class="category"
-                        value="paneLightning"
+                        value="paneCalendar"
                         data-l10n-id="category-calendar"
                         align="center">
             <image class="category-icon"/>
@@ -121,17 +140,24 @@
 
       </vbox>
 
-      <hbox id="preferencesContainer" flex="1">
-        <hbox class="paneDeckContainer" flex="1">
-          <hbox id="paneDeck" flex="1">
+      <vbox id="preferencesContainer" flex="1" align="start">
+        <vbox class="paneDeckContainer">
+          <hbox class="sticky-container" pack="end" align="top" flex="1">
+            <search-textbox id="searchInput"
+                            data-l10n-id="search-input-box"
+                            data-l10n-attrs="placeholder, style"
+                            hidden="true"/>
+          </hbox>
+          <vbox id="paneDeck">
+#include searchResults.inc.xhtml
 #include general.inc.xhtml
 #include compose.inc.xhtml
 #include privacy.inc.xhtml
 #include chat.inc.xhtml
 #include ../../../calendar/lightning/content/messenger-overlay-preferences.inc.xhtml
-          </hbox>
-        </hbox>
-      </hbox>
+          </vbox>
+        </vbox>
+      </vbox>
     </hbox>
     <stack id="dialogStack" hidden="true"/>
     <vbox id="dialogTemplate"
@@ -158,6 +184,7 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://communicator/content/contentAreaClick.js"/>
   <script src="chrome://messenger/content/preferences/preferences.js"/>
+  <script src="chrome://messenger/content/preferences/findInPage.js"/>
   <script src="chrome://messenger/content/preferences/subdialogs.js"/>
 
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>

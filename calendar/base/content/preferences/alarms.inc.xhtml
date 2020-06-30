@@ -1,7 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, you can obtain one at http://mozilla.org/MPL/2.0/.
-    <html:div>
+    <html:div data-category="paneCalendar">
     <html:fieldset data-category="paneCalendar">
         <html:legend data-l10n-id="reminder-legend"></html:legend>
         <vbox id="alarm-sound-box">
@@ -10,7 +10,7 @@
                           preference="calendar.alarms.playsound"
                           data-l10n-id="reminder-play-checkbox"/>
                 <spacer flex="1"/>
-                <button id="calendar.prefs.alarm.sound.play"
+                <button is="highlightable-button" id="calendar.prefs.alarm.sound.play"
                         data-l10n-id="reminder-play-alarm-button"
                         oncommand="gAlarmsPane.previewAlarm()"/>
             </hbox>
@@ -38,7 +38,7 @@
                             preference="calendar.alarms.soundURL"
                             preference-editable="true"
                             aria-labelledby="alarmSoundCustom"/>
-                <button id="calendar.prefs.alarm.sound.browse"
+                <button is="highlightable-button" id="calendar.prefs.alarm.sound.browse"
                         data-l10n-id="reminder-browse-sound-label"
                         oncommand="gAlarmsPane.browseAlarm()"/>
             </hbox>
@@ -56,7 +56,7 @@
     </html:fieldset>
     </html:div>
 
-    <html:div>
+    <html:div data-category="paneCalendar">
     <html:fieldset data-category="paneCalendar">
         <html:legend data-l10n-id="reminder-default-legend"></html:legend>
         <hbox align="center">
@@ -77,19 +77,21 @@
                                control="eventdefalarm"/>
                     </html:td>
                     <html:td>
-                        <menulist id="eventdefalarm"
-                                  crop="none"
-                                  preference="calendar.alarms.onforevents">
-                            <menupopup id="eventdefalarmpopup">
-                                <menuitem id="eventdefalarmon"
-                                          data-l10n-id="alarm-on-label"
-                                          value="1"/>
-                                <menuitem id="eventdefalarmoff"
-                                          data-l10n-id="alarm-off-label"
-                                          value="0"
-                                          selected="true"/>
-                            </menupopup>
-                        </menulist>
+                        <hbox>
+                            <menulist id="eventdefalarm"
+                                      crop="none"
+                                      preference="calendar.alarms.onforevents">
+                                <menupopup id="eventdefalarmpopup">
+                                    <menuitem id="eventdefalarmon"
+                                              data-l10n-id="alarm-on-label"
+                                              value="1"/>
+                                    <menuitem id="eventdefalarmoff"
+                                              data-l10n-id="alarm-off-label"
+                                              value="0"
+                                              selected="true"/>
+                                </menupopup>
+                            </menulist>
+                        </hbox>
                     </html:td>
                 </html:tr>
                 <html:tr>
@@ -98,19 +100,21 @@
                                control="tododefalarm"/>
                     </html:td>
                     <html:td>
-                        <menulist id="tododefalarm"
-                                  crop="none"
-                                  preference="calendar.alarms.onfortodos">
-                            <menupopup id="tododefalarmpopup">
-                                <menuitem id="tododefalarmon"
-                                          data-l10n-id="alarm-on-label"
-                                          value="1"/>
-                                <menuitem id="tododefalarmoff"
-                                          data-l10n-id="alarm-off-label"
-                                          value="0"
-                                          selected="true"/>
-                            </menupopup>
-                        </menulist>
+                        <hbox>
+                            <menulist id="tododefalarm"
+                                      crop="none"
+                                      preference="calendar.alarms.onfortodos">
+                                <menupopup id="tododefalarmpopup">
+                                    <menuitem id="tododefalarmon"
+                                              data-l10n-id="alarm-on-label"
+                                              value="1"/>
+                                    <menuitem id="tododefalarmoff"
+                                              data-l10n-id="alarm-off-label"
+                                              value="0"
+                                              selected="true"/>
+                                </menupopup>
+                            </menulist>
+                        </hbox>
                     </html:td>
                 </html:tr>
                 <html:tr>
@@ -126,20 +130,22 @@
                                         preference="calendar.alarms.eventalarmlen"
                                         onselect="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"
                                         oninput="updateMenuLabelsPlural('eventdefalarmlen', 'eventdefalarmunit')"/>
-                            <menulist id="eventdefalarmunit"
-                                      flex="1"
-                                      crop="none"
-                                      preference="calendar.alarms.eventalarmunit">
-                                <menupopup id="eventdefalarmunitpopup">
-                                    <menuitem id="eventdefalarmunitmin"
-                                              value="minutes"
-                                              selected="true"/>
-                                    <menuitem id="eventdefalarmunithour"
-                                              value="hours"/>
-                                    <menuitem id="eventdefalarmunitday"
-                                              value="days"/>
-                                </menupopup>
-                            </menulist>
+                            <hbox>
+                                <menulist id="eventdefalarmunit"
+                                          flex="1"
+                                          crop="none"
+                                          preference="calendar.alarms.eventalarmunit">
+                                    <menupopup id="eventdefalarmunitpopup">
+                                        <menuitem id="eventdefalarmunitmin"
+                                                  value="minutes"
+                                                  selected="true"/>
+                                        <menuitem id="eventdefalarmunithour"
+                                                  value="hours"/>
+                                        <menuitem id="eventdefalarmunitday"
+                                                  value="days"/>
+                                    </menupopup>
+                                </menulist>
+                            </hbox>
                         </hbox>
                     </html:td>
                 </html:tr>
@@ -156,20 +162,22 @@
                                         preference="calendar.alarms.todoalarmlen"
                                         onselect="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"
                                         oninput="updateMenuLabelsPlural('tododefalarmlen', 'tododefalarmunit')"/>
-                            <menulist id="tododefalarmunit"
-                                      flex="1"
-                                      crop="none"
-                                      preference="calendar.alarms.todoalarmunit">
-                                <menupopup id="tododefalarmunitpopup">
-                                    <menuitem id="tododefalarmunitmin"
-                                              value="minutes"
-                                              selected="true"/>
-                                    <menuitem id="tododefalarmunithour"
-                                              value="hours"/>
-                                    <menuitem id="tododefalarmunitday"
-                                              value="days"/>
-                                </menupopup>
-                            </menulist>
+                            <hbox>
+                                <menulist id="tododefalarmunit"
+                                          flex="1"
+                                          crop="none"
+                                          preference="calendar.alarms.todoalarmunit">
+                                    <menupopup id="tododefalarmunitpopup">
+                                        <menuitem id="tododefalarmunitmin"
+                                                  value="minutes"
+                                                  selected="true"/>
+                                        <menuitem id="tododefalarmunithour"
+                                                  value="hours"/>
+                                        <menuitem id="tododefalarmunitday"
+                                                  value="days"/>
+                                    </menupopup>
+                                </menulist>
+                            </hbox>
                         </hbox>
                     </html:td>
                 </html:tr>

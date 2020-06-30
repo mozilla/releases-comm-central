@@ -16,15 +16,13 @@ Preferences.add({ id: "calendar.preferences.lightning.selectedTabIndex", type: "
 
 var gLightningPane = {
   init() {
-    let elements = document.querySelectorAll("#paneLightning preference");
+    let elements = document.querySelectorAll("#paneCalendar preference");
     for (let element of elements) {
       element.updateElements();
     }
+    gCalendarGeneralPane.init();
+    gAlarmsPane.init();
+    gCategoriesPane.init();
+    gViewsPane.init();
   },
 };
-
-gCalendarGeneralPane.init();
-gAlarmsPane.init();
-gCategoriesPane.init();
-gViewsPane.init();
-gLightningPane.init();

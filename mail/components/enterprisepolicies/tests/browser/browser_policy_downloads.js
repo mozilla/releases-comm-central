@@ -17,7 +17,7 @@ add_task(async function test_defaultdownload() {
     },
   });
 
-  window.openPreferencesTab("panePrivacy");
+  window.openPreferencesTab("paneGeneral");
   await BrowserTestUtils.browserLoaded(window.gPrefTab.browser);
   is(
     window.gPrefTab.browser.contentDocument.getElementById("alwaysAsk")
@@ -63,7 +63,7 @@ add_task(async function test_download() {
     },
   });
 
-  window.openPreferencesTab("panePrivacy");
+  window.openPreferencesTab("paneGeneral");
   await BrowserTestUtils.browserLoaded(window.gPrefTab.browser);
   await new Promise(resolve =>
     window.gPrefTab.browser.contentWindow.setTimeout(resolve)

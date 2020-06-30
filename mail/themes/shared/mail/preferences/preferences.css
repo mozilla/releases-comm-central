@@ -89,19 +89,80 @@ label {
 }
 
 #preferencesContainer {
-  padding: 40px 28px;
+  padding: 0 28px 40px;
   overflow: auto;
 }
 
-#MailPreferences prefpane {
-  max-width: 800px;
-  padding: 0;
-  -moz-box-flex: 1;
-  -moz-box-orient: vertical;
+.paneDeckContainer {
+  display: block;
+  width: 800px;
 }
 
-#MailPreferences prefpane:not([selected]) {
-  display: none;
+.sticky-container {
+  width: 100%;
+  position: sticky;
+  background-color: var(--in-content-page-background);
+  top: 0;
+  z-index: 1;
+  padding-inline: 4px;
+}
+
+#searchInput {
+  min-height: 32px;
+  margin: 20px 0 30px;
+}
+
+#paneDeck {
+  width: 100%;
+}
+
+.search-tooltip {
+  max-width: 150px;
+  font-size: 1.25rem;
+  position: absolute;
+  padding: 0 10px;
+  background-color: #ffe900;
+  color: #000;
+  border: 1px solid #d7b600;
+  bottom: 36px;
+  opacity: 0.85;
+}
+
+.search-tooltip:hover {
+  opacity: 0.1;
+}
+
+.search-tooltip::before {
+  position: absolute;
+  content: "";
+  border: 7px solid transparent;
+  border-top-color: #d7b600;
+  top: 100%;
+  inset-inline-start: calc(50% - 7px);
+}
+
+.search-tooltip::after {
+  position: absolute;
+  content: "";
+  border: 6px solid transparent;
+  border-top-color: #ffe900;
+  top: 100%;
+  inset-inline-start: calc(50% - 6px);
+}
+
+.search-tooltip-parent {
+  position: relative;
+}
+
+.search-tooltip > span {
+  -moz-user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.visually-hidden {
+  visibility: collapse;
 }
 
 tabpanel > label,

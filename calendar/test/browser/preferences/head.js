@@ -12,24 +12,19 @@ async function openNewPrefsTab(paneID, scrollPaneTo, otherArgs) {
 
   let prefsDocument = await new Promise(resolve => {
     Services.obs.addObserver(function documentLoaded(subject) {
-      if (subject.URL == "about:preferences") {
+      if (subject.URL.startsWith("about:preferences")) {
         Services.obs.removeObserver(documentLoaded, "chrome-document-loaded");
         resolve(subject);
       }
     }, "chrome-document-loaded");
     openPreferencesTab(paneID, scrollPaneTo, otherArgs);
   });
-  Assert.ok(prefsDocument.URL == "about:preferences", "Prefs tab is open");
+  Assert.ok(prefsDocument.URL.startsWith("about:preferences"), "Prefs tab is open");
 
+  prefsDocument = prefsTabMode.tabs[0].browser.contentDocument;
   let prefsWindow = prefsDocument.ownerGlobal;
+  prefsWindow.resizeTo(screen.availWidth, screen.availHeight);
   if (paneID) {
-    if (prefsWindow.getCurrentPaneID() != paneID) {
-      let pane = prefsDocument.getElementById(paneID);
-      await new Promise(resolve => {
-        pane.addEventListener("paneSelected", resolve, { once: true });
-      });
-    }
-
     await new Promise(resolve => prefsWindow.setTimeout(resolve));
     Assert.equal(prefsWindow.getCurrentPaneID(), paneID, `Selected pane is ${paneID}`);
   } else {

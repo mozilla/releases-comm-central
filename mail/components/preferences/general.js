@@ -161,6 +161,11 @@ var gGeneralPane = {
         .addEventListener(aEventType, aCallback.bind(gGeneralPane));
     }
 
+    Preferences.addSyncFromPrefListener(
+      document.getElementById("saveWhere"),
+      () => gDownloadDirSection.onReadUseDownloadDir()
+    );
+
     this.mPane = document.getElementById("paneGeneral");
     this._prefsBundle = document.getElementById("bundlePreferences");
     this._brandShortName = document
