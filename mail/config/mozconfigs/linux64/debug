@@ -1,20 +1,16 @@
-MOZ_AUTOMATION_L10N_CHECK=0
-
 . "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/build/unix/mozconfig.linux"
 . "$topsrcdir/build/mozconfig.stylo"
-. "$topsrcdir/comm/mail/config/mozconfigs/common"
 
 ac_add_options --enable-debug
-
-# Needed to enable breakpad in application.ini
-export MOZILLA_OFFICIAL=1
 
 # For NSS symbols
 export MOZ_DEBUG_SYMBOLS=1
 
-# Disable enforcing that add-ons are signed by the trusted root
-MOZ_REQUIRE_ADDON_SIGNING=0
+# Needed to enable breakpad in application.ini
+export MOZILLA_OFFICIAL=1
 
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
+
+. "$topsrcdir/comm/mail/config/mozconfigs/common"

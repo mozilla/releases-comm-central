@@ -1,10 +1,8 @@
 . "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/build/macosx/mozconfig.common"
 . "$topsrcdir/build/mozconfig.stylo"
-. "$topsrcdir/comm/mail/config/mozconfigs/common"
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"
-ac_add_options --disable-install-strip
 ac_add_options --enable-profiling
 
 # For NSS symbols
@@ -18,5 +16,4 @@ export MOZ_TELEMETRY_REPORTING=1
 # Package js shell
 export MOZ_PACKAGE_JSSHELL=1
 
-# Disable enforcing that add-ons are signed by the trusted root
-MOZ_REQUIRE_ADDON_SIGNING=0
+. "$topsrcdir/comm/mail/config/mozconfigs/common"

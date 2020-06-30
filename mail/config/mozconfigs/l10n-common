@@ -8,6 +8,3 @@ ac_add_options --disable-nodejs
 
 # Needed to enable breakpad in application.ini
 export MOZILLA_OFFICIAL=1
-
-# Disable enforcing that add-ons are signed by the trusted root
-MOZ_REQUIRE_ADDON_SIGNING=0
