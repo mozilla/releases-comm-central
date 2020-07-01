@@ -1097,7 +1097,7 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
       // GMail gives us a localized name for the inbox but doesn't let
       // us select that localized name.
       if (boxFlags & kImapInbox)
-        imapFolder->SetOnlineName(NS_LITERAL_CSTRING("INBOX"));
+        imapFolder->SetOnlineName("INBOX"_ns);
       else if (onlineName.IsEmpty() || !onlineName.Equals(dupFolderPath))
         imapFolder->SetOnlineName(dupFolderPath);
 
@@ -1322,13 +1322,13 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
       if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::SentMail,
                              existingUri)) {
         identity->SetFccFolder(existingUri);
-        identity->SetFccFolderPickerMode(NS_LITERAL_CSTRING("1"));
+        identity->SetFccFolderPickerMode("1"_ns);
       }
       identity->GetDraftFolder(folderUri);
       if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::Drafts,
                              existingUri)) {
         identity->SetDraftFolder(existingUri);
-        identity->SetDraftsFolderPickerMode(NS_LITERAL_CSTRING("1"));
+        identity->SetDraftsFolderPickerMode("1"_ns);
       }
       bool archiveEnabled;
       identity->GetArchiveEnabled(&archiveEnabled);
@@ -1337,7 +1337,7 @@ NS_IMETHODIMP nsImapIncomingServer::DiscoveryDone() {
         if (CheckSpecialFolder(folderUri, nsMsgFolderFlags::Archive,
                                existingUri)) {
           identity->SetArchiveFolder(existingUri);
-          identity->SetArchivesFolderPickerMode(NS_LITERAL_CSTRING("1"));
+          identity->SetArchivesFolderPickerMode("1"_ns);
         }
       }
       identity->GetStationeryFolder(folderUri);
@@ -1684,7 +1684,7 @@ nsImapIncomingServer::FEAlert(const nsAString& aAlertString,
       rv = m_stringBundle->FormatStringFromName("imapServerAlert", params,
                                                 message);
       if (NS_SUCCEEDED(rv)) {
-        aUrl->SetErrorCode(NS_LITERAL_CSTRING("imap-server-alert"));
+        aUrl->SetErrorCode("imap-server-alert"_ns);
         aUrl->SetErrorMessage(message);
 
         return AlertUser(message, aUrl);
@@ -1774,7 +1774,7 @@ NS_IMETHODIMP nsImapIncomingServer::FEAlertFromServer(
 
   NS_ConvertUTF8toUTF16 unicodeMsg(message);
 
-  aUrl->SetErrorCode(NS_LITERAL_CSTRING("imap-server-error"));
+  aUrl->SetErrorCode("imap-server-error"_ns);
   aUrl->SetErrorMessage(unicodeMsg);
 
   nsCOMPtr<nsIMsgFolder> folder;

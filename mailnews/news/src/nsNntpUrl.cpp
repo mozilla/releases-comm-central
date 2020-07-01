@@ -192,12 +192,11 @@ nsresult nsNntpUrl::DetermineNewsAction() {
     m_newsAction = nsINntpUrl::ActionListNewGroups;
     return NS_OK;
   }
-  if (StringBeginsWith(query, NS_LITERAL_CSTRING("search"))) {
+  if (StringBeginsWith(query, "search"_ns)) {
     m_newsAction = nsINntpUrl::ActionSearch;
     return NS_OK;
   }
-  if (StringBeginsWith(query, NS_LITERAL_CSTRING("part=")) ||
-      query.Find("&part=") > 0) {
+  if (StringBeginsWith(query, "part="_ns) || query.Find("&part=") > 0) {
     // news://news.mozilla.org:119/3B98D201.3020100%40cs.com?part=1
     // news://news.mozilla.org:119/b58dme%24aia2%40ripley.netscape.com?header=print&part=1.2&type=image/jpeg&filename=Pole.jpg
     m_newsAction = nsINntpUrl::ActionFetchPart;
@@ -409,18 +408,15 @@ nsNntpUrl::GetServer(nsIMsgIncomingServer** aServer) {
   // in this case.
   *aServer = nullptr;
   if (tryReal)
-    accountManager->FindRealServer(user, host, NS_LITERAL_CSTRING("nntp"), 0,
-                                   aServer);
+    accountManager->FindRealServer(user, host, "nntp"_ns, 0, aServer);
   else
-    accountManager->FindServer(user, host, NS_LITERAL_CSTRING("nntp"), aServer);
+    accountManager->FindServer(user, host, "nntp"_ns, aServer);
   if (!*aServer && (isNews || isNntp)) {
     // Didn't find it, try the other option
     if (tryReal)
-      accountManager->FindServer(user, host, NS_LITERAL_CSTRING("nntp"),
-                                 aServer);
+      accountManager->FindServer(user, host, "nntp"_ns, aServer);
     else
-      accountManager->FindRealServer(user, host, NS_LITERAL_CSTRING("nntp"), 0,
-                                     aServer);
+      accountManager->FindRealServer(user, host, "nntp"_ns, 0, aServer);
   }
   return NS_OK;
 }

@@ -65,7 +65,7 @@ nsresult nsBeckyAddressBooks::FindAddressBookDirectory(
   nsresult rv = nsBeckyUtils::FindUserDirectory(getter_AddRefs(userDirectory));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = userDirectory->Append(NS_LITERAL_STRING("AddrBook"));
+  rv = userDirectory->Append(u"AddrBook"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool exists = false;
@@ -121,7 +121,7 @@ bool nsBeckyAddressBooks::IsAddressBookFile(nsIFile* aFile) {
 
   nsAutoString name;
   rv = aFile->GetLeafName(name);
-  return StringEndsWith(name, NS_LITERAL_STRING(".bab"));
+  return StringEndsWith(name, u".bab"_ns);
 }
 
 bool nsBeckyAddressBooks::HasAddressBookFile(nsIFile* aDirectory) {

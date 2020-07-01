@@ -162,7 +162,6 @@ nsAbContentHandler::OnStreamComplete(nsIStreamLoader* aLoader,
   return parentWindow->OpenDialog(
       NS_LITERAL_STRING(
           "chrome://messenger/content/addressbook/abNewCardDialog.xhtml"),
-      EmptyString(),
-      NS_LITERAL_STRING("chrome,resizable=no,titlebar,modal,centerscreen"),
+      EmptyString(), u"chrome,resizable=no,titlebar,modal,centerscreen"_ns,
       cardFromVCard, getter_AddRefs(dialogWindow));
 }

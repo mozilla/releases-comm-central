@@ -158,7 +158,7 @@ nsresult nsMailboxService::FetchMessage(
     rv = fileUrl->GetFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
     file->GetFileSize(&fileSize);
-    uriString.Replace(0, 5, NS_LITERAL_CSTRING("mailbox:"));
+    uriString.Replace(0, 5, "mailbox:"_ns);
     uriString.AppendLiteral("&number=0");
     rv = NS_NewURI(getter_AddRefs(url), uriString);
     NS_ENSURE_SUCCESS(rv, rv);

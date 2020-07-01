@@ -38,7 +38,7 @@ char16_t* nsImportStringBundle::GetStringByID(int32_t aStringID,
     if (NS_SUCCEEDED(rv)) return ToNewUnicode(str);
   }
 
-  nsString resultString(NS_LITERAL_STRING("[StringID "));
+  nsString resultString(u"[StringID "_ns);
   resultString.AppendInt(aStringID);
   resultString.AppendLiteral("?]");
 
@@ -59,7 +59,7 @@ char16_t* nsImportStringBundle::GetStringByName(const char* aName,
     if (NS_SUCCEEDED(rv)) return ToNewUnicode(str);
   }
 
-  nsString resultString(NS_LITERAL_STRING("[StringName "));
+  nsString resultString(u"[StringName "_ns);
   resultString.Append(NS_ConvertUTF8toUTF16(aName).get());
   resultString.AppendLiteral("?]");
 

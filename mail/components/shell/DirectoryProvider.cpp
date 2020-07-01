@@ -58,7 +58,7 @@ static void AppendDistroSearchDirs(nsIProperties* aDirSvc,
   nsresult rv = aDirSvc->Get(XRE_APP_DISTRIBUTION_DIR, NS_GET_IID(nsIFile),
                              getter_AddRefs(searchPlugins));
   if (NS_FAILED(rv)) return;
-  searchPlugins->AppendNative(NS_LITERAL_CSTRING("searchplugins"));
+  searchPlugins->AppendNative("searchplugins"_ns);
 
   bool exists;
   rv = searchPlugins->Exists(&exists);
@@ -67,7 +67,7 @@ static void AppendDistroSearchDirs(nsIProperties* aDirSvc,
   nsCOMPtr<nsIFile> commonPlugins;
   rv = searchPlugins->Clone(getter_AddRefs(commonPlugins));
   if (NS_SUCCEEDED(rv)) {
-    commonPlugins->AppendNative(NS_LITERAL_CSTRING("common"));
+    commonPlugins->AppendNative("common"_ns);
     rv = commonPlugins->Exists(&exists);
     if (NS_SUCCEEDED(rv) && exists) {
       array.AppendObject(commonPlugins);
@@ -80,7 +80,7 @@ static void AppendDistroSearchDirs(nsIProperties* aDirSvc,
     rv = searchPlugins->Clone(getter_AddRefs(localePlugins));
     if (NS_FAILED(rv)) return;
 
-    localePlugins->AppendNative(NS_LITERAL_CSTRING("locale"));
+    localePlugins->AppendNative("locale"_ns);
 
     AutoTArray<nsCString, 10> requestedLocales;
     mozilla::intl::LocaleService::GetInstance()->GetRequestedLocales(

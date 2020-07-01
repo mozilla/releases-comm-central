@@ -2940,10 +2940,8 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
 
       if (notifier)
         notifier->NotifyItemEvent(
-            messageArray, NS_LITERAL_CSTRING("JunkStatusChanged"), nullptr,
-            (command == nsMsgViewCommandType::junk)
-                ? NS_LITERAL_CSTRING("junk")
-                : NS_LITERAL_CSTRING("notjunk"));
+            messageArray, "JunkStatusChanged"_ns, nullptr,
+            (command == nsMsgViewCommandType::junk) ? "junk"_ns : "notjunk"_ns);
     }
   }
 
@@ -2963,9 +2961,8 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
         addFlags = false;
         break;
       case nsMsgViewCommandType::junk:
-        return imapFolder->StoreCustomKeywords(
-            msgWindow, NS_LITERAL_CSTRING("Junk"),
-            NS_LITERAL_CSTRING("NonJunk"), imapUids, nullptr);
+        return imapFolder->StoreCustomKeywords(msgWindow, "Junk"_ns,
+                                               "NonJunk"_ns, imapUids, nullptr);
       case nsMsgViewCommandType::unjunk: {
         nsCOMPtr<nsIMsgDBHdr> msgHdr;
         GetHdrForFirstSelectedMessage(getter_AddRefs(msgHdr));
@@ -2976,9 +2973,8 @@ nsresult nsMsgDBView::ApplyCommandToIndices(nsMsgViewCommandTypeValue command,
           imapFolder->StoreImapFlags(kImapMsgDeletedFlag, false, imapUids,
                                      nullptr);
 
-        return imapFolder->StoreCustomKeywords(
-            msgWindow, NS_LITERAL_CSTRING("NonJunk"),
-            NS_LITERAL_CSTRING("Junk"), imapUids, nullptr);
+        return imapFolder->StoreCustomKeywords(msgWindow, "NonJunk"_ns,
+                                               "Junk"_ns, imapUids, nullptr);
       }
       default:
         break;

@@ -46,7 +46,7 @@ nsresult nsParseImapMessageURI(const char* uri, nsCString& folderURI,
   // e.g., when opening/saving attachments. We don't want to look for '#'
   // in that part of the uri, if the attachment name contains '#',
   // so check for that here.
-  if (StringBeginsWith(uriStr, NS_LITERAL_CSTRING("imap-message")))
+  if (StringBeginsWith(uriStr, "imap-message"_ns))
     folderEnd = uriStr.Find("imap://");
 
   int32_t keySeparator = uriStr.RFindChar('#', folderEnd);

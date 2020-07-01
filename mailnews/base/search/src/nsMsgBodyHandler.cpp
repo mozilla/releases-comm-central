@@ -315,8 +315,7 @@ int32_t nsMsgBodyHandler::ApplyTransformations(const nsCString& line,
   if (m_base64part || m_partIsHtml) {
     if (m_partIsHtml && !m_base64part) {
       size_t bufLength = buf.Length();
-      if (!m_partIsQP || bufLength == 0 ||
-          !StringEndsWith(buf, NS_LITERAL_CSTRING("="))) {
+      if (!m_partIsQP || bufLength == 0 || !StringEndsWith(buf, "="_ns)) {
         // Replace newline in HTML with a space.
         buf.Append(' ');
       } else {
@@ -374,12 +373,11 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString& line) {
   nsCString lowerCaseLine(line);
   ToLowerCase(lowerCaseLine);
 
-  if (StringBeginsWith(lowerCaseLine,
-                       NS_LITERAL_CSTRING("content-transfer-encoding:")))
+  if (StringBeginsWith(lowerCaseLine, "content-transfer-encoding:"_ns))
     m_partIsQP =
         lowerCaseLine.Find("quoted-printable", /* ignoreCase = */ true) != -1;
 
-  if (StringBeginsWith(lowerCaseLine, NS_LITERAL_CSTRING("content-type:"))) {
+  if (StringBeginsWith(lowerCaseLine, "content-type:"_ns)) {
     if (lowerCaseLine.Find("text/html", /* ignoreCase = */ true) != -1) {
       m_partIsText = true;
       m_partIsHtml = true;
@@ -441,8 +439,7 @@ void nsMsgBodyHandler::SniffPossibleMIMEHeader(const nsCString& line) {
     m_partCharset.Assign(Substring(line, start, end - start));
   }
 
-  if (StringBeginsWith(lowerCaseLine,
-                       NS_LITERAL_CSTRING("content-transfer-encoding:")) &&
+  if (StringBeginsWith(lowerCaseLine, "content-transfer-encoding:"_ns) &&
       lowerCaseLine.Find(ENCODING_BASE64, /* ignoreCase = */ true) != kNotFound)
     m_base64part = true;
 }

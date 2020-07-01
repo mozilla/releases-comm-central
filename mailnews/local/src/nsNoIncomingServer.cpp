@@ -133,18 +133,18 @@ NS_IMETHODIMP nsNoIncomingServer::CreateDefaultMailboxes() {
   // notice, no Inbox, unless we're deferred to...
   bool isDeferredTo;
   if (NS_SUCCEEDED(GetIsDeferredTo(&isDeferredTo)) && isDeferredTo) {
-    rv = CreateLocalFolder(NS_LITERAL_STRING("Inbox"));
+    rv = CreateLocalFolder(u"Inbox"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  rv = CreateLocalFolder(NS_LITERAL_STRING("Trash"));
+  rv = CreateLocalFolder(u"Trash"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // copy the default templates into the Templates folder
   rv = CopyDefaultMessages("Templates");
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return CreateLocalFolder(NS_LITERAL_STRING("Unsent Messages"));
+  return CreateLocalFolder(u"Unsent Messages"_ns);
 }
 
 NS_IMETHODIMP

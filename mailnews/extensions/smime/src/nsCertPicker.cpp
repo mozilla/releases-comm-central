@@ -365,8 +365,8 @@ NS_IMETHODIMP nsCertPicker::PickByUsage(nsIInterfaceRequestor* ctx,
         }
       } else {
         // Placeholder, to keep the indexes valid.
-        certNicknameList.AppendElement(NS_LITERAL_STRING(""));
-        certDetailsList.AppendElement(NS_LITERAL_STRING(""));
+        certNicknameList.AppendElement(u""_ns);
+        certDetailsList.AppendElement(u""_ns);
       }
 
       ++CertsToUse;

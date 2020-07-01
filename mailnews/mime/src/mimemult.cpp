@@ -224,30 +224,30 @@ static int MimeMultipart_parse_line(const char* line, int32_t length,
               char *contentType =
                   MimeHeaders_get(mult->hdrs, "Content-Type", false, false);
               if (contentType) {
-                MimeWriteAString(obj, NS_LITERAL_CSTRING("Content-Type: "));
+                MimeWriteAString(obj, "Content-Type: "_ns);
                 MimeWriteAString(obj, nsDependentCString(contentType));
                 PR_Free(contentType);
               }
               MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK));
-              MimeWriteAString(obj, NS_LITERAL_CSTRING("Content-Disposition: attachment; filename=\""));
+              MimeWriteAString(obj, "Content-Disposition: attachment; filename=\""_ns);
               MimeWriteAString(obj, fileName);
-              MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK));
-              MimeWriteAString(obj, NS_LITERAL_CSTRING("X-Mozilla-External-Attachment-URL: "));
+              MimeWriteAString(obj, "\""_ns MSG_LINEBREAK);
+              MimeWriteAString(obj, "X-Mozilla-External-Attachment-URL: "_ns);
               MimeWriteAString(obj, obj->options->state->detachedFilePath);
               MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK));
-              MimeWriteAString(obj, NS_LITERAL_CSTRING("X-Mozilla-Altered: AttachmentDetached; date=\""));
+              MimeWriteAString(obj, "X-Mozilla-Altered: AttachmentDetached; date=\""_ns);
             } else {
               nsAutoCString header("Content-Type: text/x-moz-deleted; name=\"Deleted: ");
               header.Append(fileName);
               status = MimeWriteAString(obj, header);
               if (status < 0) return status;
-              status = MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK
-                                                 "Content-Transfer-Encoding: 8bit" MSG_LINEBREAK));
+              status = MimeWriteAString(obj, "\""_ns MSG_LINEBREAK
+                                                 "Content-Transfer-Encoding: 8bit"_ns MSG_LINEBREAK);
               MimeWriteAString(obj, NS_LITERAL_CSTRING(
                                         "Content-Disposition: inline; filename=\"Deleted: "));
               MimeWriteAString(obj, fileName);
-              MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK
-                                        "X-Mozilla-Altered: AttachmentDeleted; date=\""));
+              MimeWriteAString(obj, "\""_ns MSG_LINEBREAK
+                                        "X-Mozilla-Altered: AttachmentDeleted; date=\""_ns);
             }
             nsCString result;
             char timeBuffer[128];
@@ -256,10 +256,10 @@ static int MimeMultipart_parse_line(const char* line, int32_t length,
             PR_FormatTimeUSEnglish(timeBuffer, sizeof(timeBuffer),
                                    "%a %b %d %H:%M:%S %Y", &now);
             MimeWriteAString(obj, nsDependentCString(timeBuffer));
-            MimeWriteAString(obj, NS_LITERAL_CSTRING("\"" MSG_LINEBREAK));
-            MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK
-                                      "You deleted an attachment from this message. The original "
-                                      "MIME headers for the attachment were:" MSG_LINEBREAK));
+            MimeWriteAString(obj, "\""_ns MSG_LINEBREAK);
+            MimeWriteAString(obj, MSG_LINEBREAK
+                                      "You deleted an attachment from this message. The original "_ns
+                                      "MIME headers for the attachment were:"_ns MSG_LINEBREAK);
             MimeHeaders_write_raw_headers(mult->hdrs, obj->options, false);
             // clang-format on
           }

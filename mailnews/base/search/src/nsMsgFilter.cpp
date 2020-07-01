@@ -550,7 +550,7 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   } else {
     nsString actionValue;
     nsAutoCString filterActionID;
-    filterActionID = NS_LITERAL_CSTRING("filterAction");
+    filterActionID = "filterAction"_ns;
     filterActionID.AppendInt(actionType);
     rv = bundle->GetStringFromName(filterActionID.get(), actionValue);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -649,7 +649,7 @@ nsresult nsMsgFilter::ConvertMoveOrCopyToFolderValue(
       rootFolder->GetURI(folderUri);
       // if the root folder is not imap, than the local mail root is the server
       // root. otherwise, it's the migrated local folders.
-      if (!StringBeginsWith(folderUri, NS_LITERAL_CSTRING("imap:")))
+      if (!StringBeginsWith(folderUri, "imap:"_ns))
         localMailRoot = rootFolder;
       else {
         nsCOMPtr<nsIMsgAccountManager> accountManager =

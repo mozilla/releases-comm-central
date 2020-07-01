@@ -597,7 +597,7 @@ nsSmtpServer::GetServerURI(nsACString& aResult) {
 }
 
 nsCString nsSmtpServer::GetServerURIInternal(const bool aIncludeUsername) {
-  nsCString uri(NS_LITERAL_CSTRING("smtp://"));
+  nsCString uri("smtp://"_ns);
   nsresult rv;
 
   if (aIncludeUsername) {

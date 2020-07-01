@@ -1816,7 +1816,7 @@ nsresult nsNNTPProtocol::SendFirstNNTPCommandResponse() {
     if (m_runningURL) FinishMemCacheEntry(false);  // cleanup mem cache entry
 
     if (NS_SUCCEEDED(rv) && !group_name.IsEmpty() && !savingArticleOffline) {
-      nsCString uri(NS_LITERAL_CSTRING("about:newserror?r="));
+      nsCString uri("about:newserror?r="_ns);
       nsCString escapedResponse;
       MsgEscapeURL(nsDependentCString(m_responseText),
                    nsINetUtil::ESCAPE_URL_QUERY, escapedResponse);
@@ -3146,7 +3146,7 @@ nsresult nsNNTPProtocol::ReadNewsgroupBody(nsIInputStream* inputStream,
 nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID,
                                            char16_t** aString) {
   nsresult rv;
-  nsAutoString resultString(NS_LITERAL_STRING("???"));
+  nsAutoString resultString(u"???"_ns);
 
   if (!m_stringBundle) {
     nsCOMPtr<nsIStringBundleService> bundleService =
@@ -3180,7 +3180,7 @@ nsresult nsNNTPProtocol::GetNewsStringByID(int32_t stringID,
 nsresult nsNNTPProtocol::GetNewsStringByName(const char* aName,
                                              char16_t** aString) {
   nsresult rv;
-  nsAutoString resultString(NS_LITERAL_STRING("???"));
+  nsAutoString resultString(u"???"_ns);
   if (!m_stringBundle) {
     nsCOMPtr<nsIStringBundleService> bundleService =
         mozilla::services::GetStringBundleService();

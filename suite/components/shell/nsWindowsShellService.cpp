@@ -317,10 +317,10 @@ GetHelperPath(nsString& aPath)
                              getter_AddRefs(appHelper));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = appHelper->SetNativeLeafName(NS_LITERAL_CSTRING("uninstall"));
+  rv = appHelper->SetNativeLeafName("uninstall"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = appHelper->AppendNative(NS_LITERAL_CSTRING("helper.exe"));
+  rv = appHelper->AppendNative("helper.exe"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = appHelper->GetPath(aPath);
@@ -656,7 +656,7 @@ nsWindowsShellService::SetDesktopBackground(dom::Element* aElement,
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = key->Create(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                     NS_LITERAL_STRING("Control Panel\\Desktop"),
+                     u"Control Panel\\Desktop"_ns,
                      nsIWindowsRegKey::ACCESS_SET_VALUE);
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -675,11 +675,11 @@ nsWindowsShellService::SetDesktopBackground(dom::Element* aElement,
 
     nsString value;
     value.AppendInt(style);
-    rv = key->WriteStringValue(NS_LITERAL_STRING("WallpaperStyle"), value);
+    rv = key->WriteStringValue(u"WallpaperStyle"_ns, value);
     NS_ENSURE_SUCCESS(rv, rv);
 
     value.Assign(aPosition == BACKGROUND_TILE ? '1' : '0');
-    rv = key->WriteStringValue(NS_LITERAL_STRING("TileWallpaper"), value);
+    rv = key->WriteStringValue(u"TileWallpaper"_ns, value);
     NS_ENSURE_SUCCESS(rv, rv);
 
     rv = key->Close();
@@ -715,13 +715,13 @@ nsWindowsShellService::SetDesktopBackgroundColor(uint32_t aColor)
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = key->Create(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                   NS_LITERAL_STRING("Control Panel\\Colors"),
+                   u"Control Panel\\Colors"_ns,
                    nsIWindowsRegKey::ACCESS_SET_VALUE);
   NS_ENSURE_SUCCESS(rv, rv);
 
   wchar_t rgb[12];
   _snwprintf(rgb, 12, L"%u %u %u", r, g, b);
-  rv = key->WriteStringValue(NS_LITERAL_STRING("Background"),
+  rv = key->WriteStringValue(u"Background"_ns,
                              nsDependentString(rgb));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -757,7 +757,7 @@ nsWindowsShellService::GetDefaultFeedReader(nsIFile** _retval)
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CLASSES_ROOT,
-                 NS_LITERAL_STRING("feed\\shell\\open\\command"),
+                 u"feed\\shell\\open\\command"_ns,
                  nsIWindowsRegKey::ACCESS_READ);
   NS_ENSURE_SUCCESS(rv, rv);
 

@@ -61,7 +61,7 @@ static unsigned int kMaxLengthForToken =
     12;  // upper bound on the number of characters in a word to be declared as
          // a token
 
-#define FORGED_RECEIVED_HEADER_HINT NS_LITERAL_CSTRING("may be forged")
+#define FORGED_RECEIVED_HEADER_HINT "may be forged"_ns
 
 #ifndef M_LN2
 #  define M_LN2 0.69314718055994530942
@@ -500,8 +500,7 @@ void Tokenizer::tokenizeHeaders(nsIUTF8StringEnumerator* aHeaderNames,
                  // just fold the case and any leading/trailing white space
         // all headers beginning with x-mozilla are being changed by us, so
         // ignore
-        if (StringBeginsWith(headerName, NS_LITERAL_CSTRING("x-mozilla")))
-          break;
+        if (StringBeginsWith(headerName, "x-mozilla"_ns)) break;
         // fall through
         [[fallthrough]];
       case 'u':
@@ -742,10 +741,8 @@ void Tokenizer::tokenize(const char* aText) {
   // to RSS
 
   if (mIframeToDiv) {
-    text.ReplaceSubstring(NS_LITERAL_STRING("<iframe"),
-                          NS_LITERAL_STRING("<div"));
-    text.ReplaceSubstring(NS_LITERAL_STRING("/iframe>"),
-                          NS_LITERAL_STRING("/div>"));
+    text.ReplaceSubstring(u"<iframe"_ns, u"<div"_ns);
+    text.ReplaceSubstring(u"/iframe>"_ns, u"/div>"_ns);
   }
 
   stripHTML(text, strippedUCS2);
@@ -1283,10 +1280,9 @@ nsresult nsBayesianFilter::tokenizeMessage(const char* aMessageURI,
 
   aAnalyzer->setSource(aMessageURI);
   nsCOMPtr<nsIURI> dummyNull;
-  return msgService->StreamMessage(aMessageURI, aAnalyzer->mTokenListener,
-                                   aMsgWindow, nullptr, true /* convert data */,
-                                   NS_LITERAL_CSTRING("filter"), false,
-                                   getter_AddRefs(dummyNull));
+  return msgService->StreamMessage(
+      aMessageURI, aAnalyzer->mTokenListener, aMsgWindow, nullptr,
+      true /* convert data */, "filter"_ns, false, getter_AddRefs(dummyNull));
 }
 
 // a TraitAnalysis is the per-token representation of the statistical
@@ -2168,7 +2164,7 @@ nsresult CorpusStore::getTrainingFile(nsIFile** aTrainingFile) {
   nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,
                                        getter_AddRefs(profileDir));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = profileDir->Append(NS_LITERAL_STRING("training.dat"));
+  rv = profileDir->Append(u"training.dat"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return profileDir->QueryInterface(NS_GET_IID(nsIFile), (void**)aTrainingFile);
@@ -2182,7 +2178,7 @@ nsresult CorpusStore::getTraitFile(nsIFile** aTraitFile) {
                                        getter_AddRefs(profileDir));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = profileDir->Append(NS_LITERAL_STRING("traits.dat"));
+  rv = profileDir->Append(u"traits.dat"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return profileDir->QueryInterface(NS_GET_IID(nsIFile), (void**)aTraitFile);

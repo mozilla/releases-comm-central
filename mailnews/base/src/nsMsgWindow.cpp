@@ -74,8 +74,7 @@ NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell** aDocShell) {
       }
 
       RefPtr<mozilla::dom::Element> el =
-          rootShell->GetDocument()->GetElementById(
-              NS_LITERAL_STRING("messagepane"));
+          rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
       RefPtr<mozilla::dom::XULFrameElement> frame =
           mozilla::dom::XULFrameElement::FromNodeOrNull(el);
       NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);

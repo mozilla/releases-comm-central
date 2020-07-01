@@ -220,8 +220,7 @@ NS_IMETHODIMP nsPop3IncomingServer::SetDeferredToAccount(
                   rv = server->GetRootFolder(getter_AddRefs(rootFolder));
                   NS_ENSURE_SUCCESS(rv, rv);
                   // this will fail if it already exists, which is fine.
-                  rootFolder->CreateSubfolder(NS_LITERAL_STRING("Inbox"),
-                                              nullptr);
+                  rootFolder->CreateSubfolder(u"Inbox"_ns, nullptr);
                 }
               }
             }
@@ -384,10 +383,10 @@ nsPop3IncomingServer::SetFlagsOnDefaultMailboxes() {
 }
 
 NS_IMETHODIMP nsPop3IncomingServer::CreateDefaultMailboxes() {
-  nsresult rv = CreateLocalFolder(NS_LITERAL_STRING("Inbox"));
+  nsresult rv = CreateLocalFolder(u"Inbox"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return CreateLocalFolder(NS_LITERAL_STRING("Trash"));
+  return CreateLocalFolder(u"Trash"_ns);
 }
 
 // override this so we can say that deferred accounts can't have messages

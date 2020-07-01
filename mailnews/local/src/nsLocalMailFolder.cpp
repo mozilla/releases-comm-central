@@ -566,7 +566,7 @@ NS_IMETHODIMP nsMsgLocalMailFolder::EmptyTrash(nsIMsgWindow* msgWindow,
       trashFolder->GetDBTransferInfo(getter_AddRefs(transferInfo));
       trashFolder->SetParent(nullptr);
       parentFolder->PropagateDelete(trashFolder, true, msgWindow);
-      parentFolder->CreateSubfolder(NS_LITERAL_STRING("Trash"), nullptr);
+      parentFolder->CreateSubfolder(u"Trash"_ns, nullptr);
       nsCOMPtr<nsIMsgFolder> newTrashFolder;
       rv = GetTrashFolder(getter_AddRefs(newTrashFolder));
       if (NS_SUCCEEDED(rv) && newTrashFolder) {
@@ -2047,7 +2047,7 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
   NS_ENSURE_SUCCESS_VOID(rv);
 
   // We'll add spaces at beginning and end so we can search for space-name-space
-  nsCString dontPreserveEx(NS_LITERAL_CSTRING(" "));
+  nsCString dontPreserveEx(" "_ns);
   dontPreserveEx.Append(skipList);
   dontPreserveEx.Append(' ');
 
@@ -2056,7 +2056,7 @@ void nsMsgLocalMailFolder::CopyHdrPropertiesWithSkipList(
   bool hasMore;
   while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
     propertyEnumerator->GetNext(property);
-    nsAutoCString propertyEx(NS_LITERAL_CSTRING(" "));
+    nsAutoCString propertyEx(" "_ns);
     propertyEx.Append(property);
     propertyEx.Append(' ');
     if (dontPreserveEx.Find(propertyEx) != -1)  // -1 is not found
@@ -2143,9 +2143,8 @@ nsMsgLocalMailFolder::EndCopy(bool aCopySucceeded) {
       if (mCopyState->m_destDB) {
         if (mCopyState->m_newHdr) {
           newHdr = mCopyState->m_newHdr;
-          CopyHdrPropertiesWithSkipList(
-              newHdr, mCopyState->m_message,
-              NS_LITERAL_CSTRING("storeToken msgOffset"));
+          CopyHdrPropertiesWithSkipList(newHdr, mCopyState->m_message,
+                                        "storeToken msgOffset"_ns);
           //          UpdateNewMsgHdr(mCopyState->m_message, newHdr);
           // We need to copy more than just what UpdateNewMsgHdr does. In fact,
           // I think we want to copy almost every property other than
@@ -2832,24 +2831,21 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType) {
 
     nsCOMPtr<nsIMsgIncomingServer> server;
     // try "none" first
-    rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("none")).Finalize(url);
+    rv = NS_MutateURI(url).SetScheme("none"_ns).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
     if (NS_SUCCEEDED(rv) && server)
       mType.AssignLiteral("none");
     else {
       // next try "pop3"
-      rv =
-          NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("pop3")).Finalize(url);
+      rv = NS_MutateURI(url).SetScheme("pop3"_ns).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
       rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
       if (NS_SUCCEEDED(rv) && server)
         mType.AssignLiteral("pop3");
       else {
         // next try "rss"
-        rv = NS_MutateURI(url)
-                 .SetScheme(NS_LITERAL_CSTRING("rss"))
-                 .Finalize(url);
+        rv = NS_MutateURI(url).SetScheme("rss"_ns).Finalize(url);
         NS_ENSURE_SUCCESS(rv, rv);
         rv =
             accountManager->FindServerByURI(url, false, getter_AddRefs(server));
@@ -2858,9 +2854,7 @@ nsMsgLocalMailFolder::GetIncomingServerType(nsACString& aServerType) {
         else {
 #ifdef HAVE_MOVEMAIL
           // next try "movemail"
-          rv = NS_MutateURI(url)
-                   .SetScheme(NS_LITERAL_CSTRING("movemail"))
-                   .Finalize(url);
+          rv = NS_MutateURI(url).SetScheme("movemail"_ns).Finalize(url);
           NS_ENSURE_SUCCESS(rv, rv);
           rv = accountManager->FindServerByURI(url, false,
                                                getter_AddRefs(server));
@@ -3058,30 +3052,28 @@ nsresult nsMsgLocalMailFolder::DisplayMoveCopyStatusMsg() {
 NS_IMETHODIMP
 nsMsgLocalMailFolder::SetFlagsOnDefaultMailboxes(uint32_t flags) {
   if (flags & nsMsgFolderFlags::Inbox)
-    setSubfolderFlag(NS_LITERAL_STRING("Inbox"), nsMsgFolderFlags::Inbox);
+    setSubfolderFlag(u"Inbox"_ns, nsMsgFolderFlags::Inbox);
 
   if (flags & nsMsgFolderFlags::SentMail)
-    setSubfolderFlag(NS_LITERAL_STRING("Sent"), nsMsgFolderFlags::SentMail);
+    setSubfolderFlag(u"Sent"_ns, nsMsgFolderFlags::SentMail);
 
   if (flags & nsMsgFolderFlags::Drafts)
-    setSubfolderFlag(NS_LITERAL_STRING("Drafts"), nsMsgFolderFlags::Drafts);
+    setSubfolderFlag(u"Drafts"_ns, nsMsgFolderFlags::Drafts);
 
   if (flags & nsMsgFolderFlags::Templates)
-    setSubfolderFlag(NS_LITERAL_STRING("Templates"),
-                     nsMsgFolderFlags::Templates);
+    setSubfolderFlag(u"Templates"_ns, nsMsgFolderFlags::Templates);
 
   if (flags & nsMsgFolderFlags::Trash)
-    setSubfolderFlag(NS_LITERAL_STRING("Trash"), nsMsgFolderFlags::Trash);
+    setSubfolderFlag(u"Trash"_ns, nsMsgFolderFlags::Trash);
 
   if (flags & nsMsgFolderFlags::Queue)
-    setSubfolderFlag(NS_LITERAL_STRING("Unsent Messages"),
-                     nsMsgFolderFlags::Queue);
+    setSubfolderFlag(u"Unsent Messages"_ns, nsMsgFolderFlags::Queue);
 
   if (flags & nsMsgFolderFlags::Junk)
-    setSubfolderFlag(NS_LITERAL_STRING("Junk"), nsMsgFolderFlags::Junk);
+    setSubfolderFlag(u"Junk"_ns, nsMsgFolderFlags::Junk);
 
   if (flags & nsMsgFolderFlags::Archive)
-    setSubfolderFlag(NS_LITERAL_STRING("Archives"), nsMsgFolderFlags::Archive);
+    setSubfolderFlag(u"Archives"_ns, nsMsgFolderFlags::Archive);
 
   return NS_OK;
 }

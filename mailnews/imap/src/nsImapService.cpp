@@ -221,8 +221,7 @@ NS_IMETHODIMP nsImapService::GetUrlForUri(const char* aMessageURI,
                                           nsIMsgWindow* aMsgWindow) {
   nsAutoCString messageURI(aMessageURI);
 
-  if (messageURI.Find(NS_LITERAL_CSTRING(
-          "&type=application/x-message-display")) != kNotFound)
+  if (messageURI.Find("&type=application/x-message-display"_ns) != kNotFound)
     return NS_NewURI(aURL, aMessageURI);
 
   nsCOMPtr<nsIMsgFolder> folder;
@@ -526,9 +525,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char* aMessageURI,
                                   : nsIImapUrl::nsImapMsgFetch,
                         folder, imapMessageSink, aMsgWindow, aDisplayConsumer,
                         msgKey, false,
-                        (mPrintingOperation) ? NS_LITERAL_CSTRING("print")
-                                             : NS_LITERAL_CSTRING(""),
-                        aURL);
+                        (mPrintingOperation) ? "print"_ns : ""_ns, aURL);
     }
   }
   return rv;

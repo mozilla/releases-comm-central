@@ -217,10 +217,9 @@ static nsresult openWindow(nsIMsgWindow* aMsgWindow, const char* chromeURL,
   ifptr->SetDataIID(&NS_GET_IID(nsINewsDownloadDialogArgs));
 
   RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
-  rv = parentWindow->OpenDialog(
-      NS_ConvertASCIItoUTF16(chromeURL), NS_LITERAL_STRING("_blank"),
-      NS_LITERAL_STRING("centerscreen,chrome,modal,titlebar"), ifptr,
-      getter_AddRefs(dialogWindow));
+  rv = parentWindow->OpenDialog(NS_ConvertASCIItoUTF16(chromeURL), u"_blank"_ns,
+                                u"centerscreen,chrome,modal,titlebar"_ns, ifptr,
+                                getter_AddRefs(dialogWindow));
 
   return rv;
 }
@@ -702,7 +701,7 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter* aFilter,
                static_cast<uint32_t>(rv)));
       if (loggingEnabled) {
         (void)aFilter->LogRuleHitFail(filterAction, m_newMsgHdr, rv,
-                                      NS_LITERAL_CSTRING("filterActionFailed"));
+                                      "filterActionFailed"_ns);
       }
     } else {
       MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,

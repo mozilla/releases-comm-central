@@ -211,7 +211,7 @@ nsresult nsMsgFilterList::GetLogFile(nsIFile** aFile) {
     rv = server->GetLocalPath(aFile);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    rv = (*aFile)->AppendNative(NS_LITERAL_CSTRING("filterlog.html"));
+    rv = (*aFile)->AppendNative("filterlog.html"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
   }
   return EnsureLogFile(*aFile);
@@ -354,8 +354,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
           if (NS_FAILED(rv)) {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
                     ("(Auto) Applying filter actions failed"));
-            LogFilterMessage(
-                NS_LITERAL_STRING("Applying filter actions failed"), filter);
+            LogFilterMessage(u"Applying filter actions failed"_ns, filter);
           } else {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
                     ("(Auto) Applying filter actions succeeded"));
@@ -370,8 +369,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
           if (NS_FAILED(matchTermStatus)) {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
                     ("(Auto) Filter evaluation failed"));
-            LogFilterMessage(NS_LITERAL_STRING("Filter evaluation failed"),
-                             filter);
+            LogFilterMessage(u"Filter evaluation failed"_ns, filter);
           }
           if (!result)
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
@@ -390,7 +388,7 @@ nsMsgFilterList::ApplyFiltersToHdr(nsMsgFilterTypeType filterType,
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
             ("(Auto) Filter run failed (%" PRIx32 ")", static_cast<uint32_t>(rv)));
     // clang-format on
-    LogFilterMessage(NS_LITERAL_STRING("Filter run failed"), nullptr);
+    LogFilterMessage(u"Filter run failed"_ns, nullptr);
   }
   return rv;
 }

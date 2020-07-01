@@ -1067,7 +1067,7 @@ nsresult nsParseMailMessageState::ParseHeaders() {
         }
         // Someone might want the received header saved.
         if (m_customDBHeaders.Length()) {
-          if (m_customDBHeaders.Contains(NS_LITERAL_CSTRING("received"))) {
+          if (m_customDBHeaders.Contains("received"_ns)) {
             if (!m_receivedValue.IsEmpty()) m_receivedValue.Append(' ');
             m_receivedValue.Append(header->value, header->length);
           }
@@ -1926,8 +1926,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
             // has a pending copy action, use the imap coalescer so that
             // we won't truncate the inbox before the copy fires.
             if (m_msgCopiedByFilter ||
-                StringBeginsWith(actionTargetFolderUri,
-                                 NS_LITERAL_CSTRING("imap:"))) {
+                StringBeginsWith(actionTargetFolderUri, "imap:"_ns)) {
               if (!m_moveCoalescer)
                 m_moveCoalescer =
                     new nsImapMoveCoalescer(m_downloadFolder, m_msgWindow);
@@ -1948,9 +1947,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
               if (!m_msgMovedByFilter /* == NS_FAILED(err) */) {
                 // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
                 if (loggingEnabled) {
-                  (void)filter->LogRuleHitFail(
-                      filterAction, msgHdr, rv,
-                      NS_LITERAL_CSTRING("filterFailureMoveFailed"));
+                  (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                               "filterFailureMoveFailed"_ns);
                 }
               }
             }
@@ -1993,9 +1991,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
             if (NS_FAILED(rv)) {
               // XXX: Invoke MSG_LOG_TO_CONSOLE once bug 1135265 lands.
               if (loggingEnabled) {
-                (void)filter->LogRuleHitFail(
-                    filterAction, msgHdr, rv,
-                    NS_LITERAL_CSTRING("filterFailureCopyFailed"));
+                (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                             "filterFailureCopyFailed"_ns);
               }
             } else
               m_msgCopiedByFilter = true;
@@ -2157,7 +2154,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
                static_cast<uint32_t>(rv)));
       if (loggingEnabled) {
         (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
-                                     NS_LITERAL_CSTRING("filterFailureAction"));
+                                     "filterFailureAction"_ns);
       }
     } else {
       MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
@@ -2243,11 +2240,11 @@ nsresult nsParseNewMailState::ApplyForwardAndReplyFilter(
             if (rv == NS_ERROR_ABORT) {
               (void)m_filter->LogRuleHitFail(
                   m_ruleAction, m_msgToForwardOrReply, rv,
-                  NS_LITERAL_CSTRING("filterFailureSendingReplyAborted"));
+                  "filterFailureSendingReplyAborted"_ns);
             } else {
               (void)m_filter->LogRuleHitFail(
                   m_ruleAction, m_msgToForwardOrReply, rv,
-                  NS_LITERAL_CSTRING("filterFailureSendingReplyError"));
+                  "filterFailureSendingReplyError"_ns);
             }
           }
         }
@@ -2481,9 +2478,8 @@ nsresult nsParseNewMailState::MoveIncorporatedMessage(nsIMsgDBHdr* mailHdr,
     nsCOMPtr<nsIMsgFolder> folder;
     nsresult rv = mailHdr->GetFolder(getter_AddRefs(folder));
     if (NS_SUCCEEDED(rv)) {
-      notifier->NotifyItemEvent(
-          folder, NS_LITERAL_CSTRING("UnincorporatedMessageMoved"), newHdr,
-          EmptyCString());
+      notifier->NotifyItemEvent(folder, "UnincorporatedMessageMoved"_ns, newHdr,
+                                EmptyCString());
     } else {
       NS_WARNING("Can't get folder for message that was moved.");
     }

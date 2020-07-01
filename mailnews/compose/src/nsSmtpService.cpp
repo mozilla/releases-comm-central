@@ -323,9 +323,9 @@ NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   pipeOut->Close();
 
   if (aLoadInfo) {
-    return NS_NewInputStreamChannelInternal(
-        _retval, aURI, pipeIn.forget(),
-        NS_LITERAL_CSTRING("application/x-mailto"), EmptyCString(), aLoadInfo);
+    return NS_NewInputStreamChannelInternal(_retval, aURI, pipeIn.forget(),
+                                            "application/x-mailto"_ns,
+                                            EmptyCString(), aLoadInfo);
   }
 
   nsCOMPtr<nsIPrincipal> nullPrincipal =
@@ -336,7 +336,7 @@ NS_IMETHODIMP nsSmtpService::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
   return NS_NewInputStreamChannel(
       _retval, aURI, pipeIn.forget(), nullPrincipal,
       nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-      nsIContentPolicy::TYPE_OTHER, NS_LITERAL_CSTRING("application/x-mailto"));
+      nsIContentPolicy::TYPE_OTHER, "application/x-mailto"_ns);
 }
 
 NS_IMETHODIMP

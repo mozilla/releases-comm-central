@@ -86,7 +86,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::GetFoldersInCrawlScope(bool* aResult) {
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Form a URL as required by the crawl scope manager
-    nsString subdirURL(NS_LITERAL_STRING("file:///"));
+    nsString subdirURL(u"file:///"_ns);
     subdirURL.Append(subdirPath);
     subdirURL.Append('\\');
 
@@ -206,7 +206,7 @@ NS_IMETHODIMP nsMailWinSearchHelper::RunSetup(bool aEnable) {
   if (!mCurProcD) {
     rv = NS_GetSpecialDirectory("CurProcD", getter_AddRefs(mCurProcD));
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = mCurProcD->Append(NS_LITERAL_STRING("WSEnable.exe"));
+    rv = mCurProcD->Append(u"WSEnable.exe"_ns);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
@@ -216,13 +216,12 @@ NS_IMETHODIMP nsMailWinSearchHelper::RunSetup(bool aEnable) {
 
   // The parameters are of the format "1 <path>" for enabling and "0 <path>" for
   // disabling
-  nsAutoString params(aEnable ? NS_LITERAL_STRING("1 \"")
-                              : NS_LITERAL_STRING("0 \""));
+  nsAutoString params(aEnable ? u"1 \""_ns : u"0 \""_ns);
   nsAutoString profDPath;
   rv = mProfD->GetPath(profDPath);
   NS_ENSURE_SUCCESS(rv, rv);
   params.Append(profDPath);
-  params.Append(NS_LITERAL_STRING("\""));
+  params.Append(u"\""_ns);
 
   // We need an hWnd to cause UAC to pop up immediately
   // If GetForegroundWindow returns NULL, then the UAC prompt will still appear,

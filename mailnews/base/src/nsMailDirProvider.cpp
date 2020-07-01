@@ -139,7 +139,7 @@ nsMailDirProvider::AppendingEnumerator::GetNext(nsISupports** aResult) {
     nextbase->Clone(getter_AddRefs(mNext));
     if (!mNext) continue;
 
-    mNext->AppendNative(NS_LITERAL_CSTRING("isp"));
+    mNext->AppendNative("isp"_ns);
     bool exists;
     nsresult rv = mNext->Exists(&exists);
     if (NS_SUCCEEDED(rv) && exists) {

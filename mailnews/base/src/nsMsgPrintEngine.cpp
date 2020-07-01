@@ -220,7 +220,7 @@ nsMsgPrintEngine::SetWindow(mozIDOMWindowProxy* aWin) {
 
   nsIDocShell* rootShell = window->GetDocShell();
   RefPtr<mozilla::dom::Element> el =
-      rootShell->GetDocument()->GetElementById(NS_LITERAL_STRING("content"));
+      rootShell->GetDocument()->GetElementById(u"content"_ns);
   RefPtr<mozilla::dom::XULFrameElement> frame =
       mozilla::dom::XULFrameElement::FromNodeOrNull(el);
   NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
@@ -438,8 +438,7 @@ nsresult nsMsgPrintEngine::FireThatLoadOperation(const nsString& uri) {
   if (!StringBeginsWith(uriCStr, NS_LITERAL_CSTRING(DATA_URL_PREFIX)) &&
       !StringBeginsWith(uriCStr, NS_LITERAL_CSTRING(ADDBOOK_URL_PREFIX)) &&
       !uriCStr.EqualsLiteral("about:blank") &&
-      uriCStr.Find(NS_LITERAL_CSTRING("type=application/x-message-display")) ==
-          -1) {
+      uriCStr.Find("type=application/x-message-display"_ns) == -1) {
     rv = GetMessageServiceFromURI(uriCStr, getter_AddRefs(messageService));
   }
 
@@ -535,7 +534,7 @@ void nsMsgPrintEngine::PrintMsgWindow() {
       // cards. for mail, it can review the salt.  for addrbook, it's a data://
       // url, which means nothing to the end user. needs to be " " and not "" or
       // nullptr, otherwise, we'll still print the url
-      mPrintSettings->SetDocURL(NS_LITERAL_STRING(" "));
+      mPrintSettings->SetDocURL(u" "_ns);
 
       nsresult rv = NS_ERROR_FAILURE;
       if (mIsDoingPrintPreview) {

@@ -66,16 +66,16 @@ nsresult nsRssIncomingServer::FillInDataSourcePath(
 
 // nsIRSSIncomingServer methods
 NS_IMETHODIMP nsRssIncomingServer::GetSubscriptionsPath(nsIFile** aLocation) {
-  return FillInDataSourcePath(NS_LITERAL_STRING("feeds.json"), aLocation);
+  return FillInDataSourcePath(u"feeds.json"_ns, aLocation);
 }
 
 NS_IMETHODIMP nsRssIncomingServer::GetFeedItemsPath(nsIFile** aLocation) {
-  return FillInDataSourcePath(NS_LITERAL_STRING("feeditems.json"), aLocation);
+  return FillInDataSourcePath(u"feeditems.json"_ns, aLocation);
 }
 
 NS_IMETHODIMP nsRssIncomingServer::CreateDefaultMailboxes() {
   // For Feeds, all we have is Trash.
-  return CreateLocalFolder(NS_LITERAL_STRING("Trash"));
+  return CreateLocalFolder(u"Trash"_ns);
 }
 
 NS_IMETHODIMP nsRssIncomingServer::SetFlagsOnDefaultMailboxes() {

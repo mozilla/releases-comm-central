@@ -364,7 +364,7 @@ NS_IMETHODIMP nsAbLDAPDirectoryQuery::DoQuery(
 
   // Also require the objectClass attribute, it is used by
   // nsAbLDAPCard::SetMetaProperties
-  rv = url->AddAttribute(NS_LITERAL_CSTRING("objectClass"));
+  rv = url->AddAttribute("objectClass"_ns);
 
   nsAutoCString filter;
 

@@ -262,7 +262,7 @@ nsresult nsMsgMailSession::GetTopmostMsgWindow(nsIMsgWindow** aMsgWindow) {
       mozilla::dom::Element* domElement = domDocument->GetDocumentElement();
       NS_ENSURE_TRUE(domElement, NS_ERROR_FAILURE);
 
-      domElement->GetAttribute(NS_LITERAL_STRING("windowtype"), windowType);
+      domElement->GetAttribute(u"windowtype"_ns, windowType);
       if (windowType.EqualsLiteral("mail:3pane") ||
           windowType.EqualsLiteral("mail:messageWindow"))
         break;

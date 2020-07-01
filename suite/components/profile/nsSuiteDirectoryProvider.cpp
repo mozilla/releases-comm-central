@@ -93,7 +93,7 @@ nsSuiteDirectoryProvider::EnsureProfileFile(const nsACString& aLeafName,
   if (!defaultsDir)
     return;
 
-  nsresult rv = defaultsDir->AppendNative(NS_LITERAL_CSTRING("profile"));
+  nsresult rv = defaultsDir->AppendNative("profile"_ns);
   NS_ENSURE_SUCCESS_VOID(rv);
 
   defaultsDir->AppendNative(aLeafName);
@@ -187,8 +187,8 @@ nsSuiteDirectoryProvider::AppendDistroSearchDirs(nsIProperties* aDirSvc,
                              getter_AddRefs(searchPlugins));
   if (NS_FAILED(rv))
     return;
-  searchPlugins->AppendNative(NS_LITERAL_CSTRING("distribution"));
-  searchPlugins->AppendNative(NS_LITERAL_CSTRING("searchplugins"));
+  searchPlugins->AppendNative("distribution"_ns);
+  searchPlugins->AppendNative("searchplugins"_ns);
 
   bool exists;
   rv = searchPlugins->Exists(&exists);
@@ -198,7 +198,7 @@ nsSuiteDirectoryProvider::AppendDistroSearchDirs(nsIProperties* aDirSvc,
   nsCOMPtr<nsIFile> commonPlugins;
   rv = searchPlugins->Clone(getter_AddRefs(commonPlugins));
   if (NS_SUCCEEDED(rv)) {
-    commonPlugins->AppendNative(NS_LITERAL_CSTRING("common"));
+    commonPlugins->AppendNative("common"_ns);
     rv = commonPlugins->Exists(&exists);
     if (NS_SUCCEEDED(rv) && exists)
         array.AppendObject(commonPlugins);
@@ -211,7 +211,7 @@ nsSuiteDirectoryProvider::AppendDistroSearchDirs(nsIProperties* aDirSvc,
     if (NS_FAILED(rv))
       return;
 
-    localePlugins->AppendNative(NS_LITERAL_CSTRING("locale"));
+    localePlugins->AppendNative("locale"_ns);
 
     // we didn't append the locale dir - try the default one
     nsCString defLocale;

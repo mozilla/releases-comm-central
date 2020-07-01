@@ -60,9 +60,9 @@ nsresult nsBeckyFilters::GetFilterFile(bool aIncoming, nsIFile* aLocation,
   nsCOMPtr<nsIFile> filter;
   aLocation->Clone(getter_AddRefs(filter));
   if (aIncoming)
-    rv = filter->Append(NS_LITERAL_STRING("IFilter.def"));
+    rv = filter->Append(u"IFilter.def"_ns);
   else
-    rv = filter->Append(NS_LITERAL_STRING("OFilter.def"));
+    rv = filter->Append(u"OFilter.def"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool exists = false;
@@ -229,7 +229,7 @@ nsresult nsBeckyFilters::SetSearchTerm(const nsCString& aLine,
   if (!searchKeyword.IsEmpty())
     rv = aFilter->SetFilterName(searchKeyword);
   else
-    rv = aFilter->SetFilterName(NS_LITERAL_STRING("No name"));
+    rv = aFilter->SetFilterName(u"No name"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return aFilter->AppendTerm(term);
@@ -499,7 +499,7 @@ nsresult nsBeckyFilters::ParseFilterFile(nsIFile* aFile, bool aIncoming) {
         SetSearchTerm(line, filter);
         break;
       case '$':  // $X: disabled
-        if (StringBeginsWith(line, NS_LITERAL_CSTRING("$X")) && filter) {
+        if (StringBeginsWith(line, "$X"_ns) && filter) {
           filter->SetEnabled(false);
         }
         break;

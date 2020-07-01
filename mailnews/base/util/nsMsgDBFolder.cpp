@@ -2045,8 +2045,7 @@ NS_IMETHODIMP
 nsMsgDBFolder::SetForcePropertyEmpty(const char* aPropertyName, bool aValue) {
   nsAutoCString nameEmpty(aPropertyName);
   nameEmpty.AppendLiteral(".empty");
-  return SetStringProperty(nameEmpty.get(), aValue ? NS_LITERAL_CSTRING("true")
-                                                   : NS_LITERAL_CSTRING(""));
+  return SetStringProperty(nameEmpty.get(), aValue ? "true"_ns : ""_ns);
 }
 
 NS_IMETHODIMP
@@ -3074,10 +3073,9 @@ static bool nonEnglishApp() {
   if (isEnglish == -1) {
     nsAutoCString locale;
     mozilla::intl::LocaleService::GetInstance()->GetAppLocaleAsBCP47(locale);
-    isEnglish = (locale.EqualsLiteral("en") ||
-                 StringBeginsWith(locale, NS_LITERAL_CSTRING("en-")))
-                    ? 1
-                    : 0;
+    isEnglish =
+        (locale.EqualsLiteral("en") || StringBeginsWith(locale, "en-"_ns)) ? 1
+                                                                           : 0;
   }
   return isEnglish ? false : true;
 }
@@ -3593,7 +3591,7 @@ nsresult nsMsgDBFolder::CreateBackupDirectory(nsIFile** resultFile) {
   nsresult rv = NS_GetSpecialDirectory(NS_OS_TEMP_DIR, getter_AddRefs(path));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = path->Append(NS_LITERAL_STRING("MozillaMailnews"));
+  rv = path->Append(u"MozillaMailnews"_ns);
   bool pathIsDirectory;
   path->IsDirectory(&pathIsDirectory);
 
@@ -4938,13 +4936,13 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
     justPassedEndBoundary = false;
 
     // If we are multipart, then we need to get the boundary
-    if (StringBeginsWith(contentType, NS_LITERAL_STRING("multipart/"),
+    if (StringBeginsWith(contentType, u"multipart/"_ns,
                          nsCaseInsensitiveStringComparator)) {
       nsAutoString boundaryParam;
       mimeHdrParam->GetParameter(contentTypeHdr, "boundary", EmptyCString(),
                                  false, nullptr, boundaryParam);
       if (!boundaryParam.IsEmpty()) {
-        nsAutoCString boundary(NS_LITERAL_CSTRING("--"));
+        nsAutoCString boundary("--"_ns);
         boundary.Append(NS_ConvertUTF16toUTF8(boundaryParam));
         boundaryStack.AppendElement(boundary);
       }
@@ -4955,7 +4953,7 @@ NS_IMETHODIMP nsMsgDBFolder::GetMsgTextFromStream(
       continue;
 
     // If we are a text part, then we want it
-    else if (StringBeginsWith(contentType, NS_LITERAL_STRING("text/"),
+    else if (StringBeginsWith(contentType, u"text/"_ns,
                               nsCaseInsensitiveStringComparator)) {
       inMsgBody = true;
 
@@ -5103,14 +5101,14 @@ void nsMsgDBFolder::compressQuotesInMsgSnippet(const nsString& aMsgSnippet,
       // over aggressive and require tweaking later. Try to strip the citation.
       // If the current line ends with a ':' and the next line looks like a
       // quoted reply (starts with a ">") skip the current line
-      if (StringBeginsWith(currentLine, NS_LITERAL_STRING(">")) ||
+      if (StringBeginsWith(currentLine, u">"_ns) ||
           (lineFeedPos + 1 < msgBodyStrLen && lineFeedPos &&
            aMsgSnippet[lineFeedPos - 1] == char16_t(':') &&
            aMsgSnippet[lineFeedPos + 1] == char16_t('>'))) {
         lastLineWasAQuote = true;
       } else if (!currentLine.IsEmpty()) {
         if (lastLineWasAQuote) {
-          aCompressedQuotes += NS_LITERAL_STRING(" ... ");
+          aCompressedQuotes += u" ... "_ns;
           lastLineWasAQuote = false;
         }
 
@@ -5242,10 +5240,9 @@ NS_IMETHODIMP nsMsgDBFolder::RemoveKeywordsFromMessages(
       rv = message->GetStringProperty("keywords", getter_Copies(keywords));
       uint32_t removeCount = 0;
       for (uint32_t j = 0; j < keywordArray.Length(); j++) {
-        bool keywordIsLabel =
-            (StringBeginsWith(keywordArray[j], NS_LITERAL_CSTRING("$label")) &&
-             keywordArray[j].CharAt(6) >= '1' &&
-             keywordArray[j].CharAt(6) <= '5');
+        bool keywordIsLabel = (StringBeginsWith(keywordArray[j], "$label"_ns) &&
+                               keywordArray[j].CharAt(6) >= '1' &&
+                               keywordArray[j].CharAt(6) <= '5');
         if (keywordIsLabel) {
           nsMsgLabelValue labelValue;
           message->GetLabel(&labelValue);

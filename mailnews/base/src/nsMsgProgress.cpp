@@ -65,12 +65,11 @@ NS_IMETHODIMP nsMsgProgress::OpenProgressDialog(
   // Open the dialog.
   RefPtr<mozilla::dom::BrowsingContext> newWindow;
 
-  nsString chromeOptions(NS_LITERAL_STRING("chrome,dependent,centerscreen"));
+  nsString chromeOptions(u"chrome,dependent,centerscreen"_ns);
   if (inDisplayModal) chromeOptions.AppendLiteral(",modal");
 
-  return parent->OpenDialog(NS_ConvertASCIItoUTF16(dialogURL),
-                            NS_LITERAL_STRING("_blank"), chromeOptions, array,
-                            getter_AddRefs(newWindow));
+  return parent->OpenDialog(NS_ConvertASCIItoUTF16(dialogURL), u"_blank"_ns,
+                            chromeOptions, array, getter_AddRefs(newWindow));
 }
 
 NS_IMETHODIMP nsMsgProgress::CloseProgressDialog(bool forceClose) {

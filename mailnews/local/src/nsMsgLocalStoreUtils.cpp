@@ -38,12 +38,12 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name, nsIFile* path) {
 
   // don't add summary files to the list of folders;
   // don't add popstate files to the list either, or rules (sort.dat).
-  if (StringEndsWith(name, NS_LITERAL_STRING(".snm")) ||
+  if (StringEndsWith(name, u".snm"_ns) ||
       name.LowerCaseEqualsLiteral("popstate.dat") ||
       name.LowerCaseEqualsLiteral("sort.dat") ||
       name.LowerCaseEqualsLiteral("mailfilt.log") ||
       name.LowerCaseEqualsLiteral("filters.js") ||
-      StringEndsWith(name, NS_LITERAL_STRING(".toc")))
+      StringEndsWith(name, u".toc"_ns))
     return true;
 
   // ignore RSS data source files (see FeedUtils.jsm)
@@ -51,7 +51,7 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name, nsIFile* path) {
       name.LowerCaseEqualsLiteral("feeditems.json") ||
       name.LowerCaseEqualsLiteral("feeds.rdf") ||
       name.LowerCaseEqualsLiteral("feeditems.rdf") ||
-      StringBeginsWith(name, NS_LITERAL_STRING("feeditems_error")))
+      StringBeginsWith(name, u"feeditems_error"_ns))
     return true;
 
   // Ignore hidden and other special system files.
@@ -63,7 +63,7 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name, nsIFile* path) {
   if (specialFile) return true;
 
   // The .mozmsgs dir is for spotlight support
-  return (StringEndsWith(name, NS_LITERAL_STRING(".mozmsgs")) ||
+  return (StringEndsWith(name, u".mozmsgs"_ns) ||
           StringEndsWith(name, NS_LITERAL_STRING(FOLDER_SUFFIX)) ||
           StringEndsWith(name, NS_LITERAL_STRING(SUMMARY_SUFFIX)));
 }

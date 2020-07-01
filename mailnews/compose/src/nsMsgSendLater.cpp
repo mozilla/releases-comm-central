@@ -1393,6 +1393,6 @@ NS_IMETHODIMP
 nsMsgSendLater::GetCurrentTaskName(nsAString& aResult) {
   // XXX Bug 440794 will localize this, left as non-localized whilst we decide
   // on the actual strings and try out the UI.
-  aResult = NS_LITERAL_STRING("Sending Messages");
+  aResult = u"Sending Messages"_ns;
   return NS_OK;
 }

@@ -239,8 +239,8 @@ NS_IMETHODIMP nsMessenger::SetWindow(mozIDOMWindowProxy* aWin,
     NS_ENSURE_TRUE(aWin, NS_ERROR_FAILURE);
     nsCOMPtr<nsPIDOMWindowOuter> win = nsPIDOMWindowOuter::From(aWin);
     nsIDocShell* rootShell = win->GetDocShell();
-    RefPtr<mozilla::dom::Element> el = rootShell->GetDocument()->GetElementById(
-        NS_LITERAL_STRING("messagepane"));
+    RefPtr<mozilla::dom::Element> el =
+        rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
     RefPtr<mozilla::dom::XULFrameElement> frame =
         mozilla::dom::XULFrameElement::FromNodeOrNull(el);
     mDocShell = nullptr;
@@ -361,7 +361,7 @@ nsresult nsMessenger::PromptIfFileExists(nsIFile* file) {
       do_CreateInstance("@mozilla.org/filepicker;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsString saveAttachmentStr;
-  GetString(NS_LITERAL_STRING("SaveAttachment"), saveAttachmentStr);
+  GetString(u"SaveAttachment"_ns, saveAttachmentStr);
   filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeSave);
   filePicker->SetDefaultString(path);
   filePicker->AppendFilters(nsIFilePicker::filterAll);
@@ -423,7 +423,7 @@ nsMessenger::AddMsgUrlToNavigateHistory(const nsACString& aURL) {
 NS_IMETHODIMP
 nsMessenger::OpenURL(const nsACString& aURL) {
   // This is to setup the display DocShell as UTF-8 capable...
-  SetDisplayCharset(NS_LITERAL_CSTRING("UTF-8"));
+  SetDisplayCharset("UTF-8"_ns);
 
   nsCOMPtr<nsIMsgMessageService> messageService;
   nsresult rv = GetMessageServiceFromURI(aURL, getter_AddRefs(messageService));
@@ -464,7 +464,7 @@ NS_IMETHODIMP
 nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
   nsresult rv;
 
-  SetDisplayCharset(NS_LITERAL_CSTRING("UTF-8"));
+  SetDisplayCharset("UTF-8"_ns);
 
   NS_ConvertASCIItoUTF16 uriString(aURL);
   // Cleanup the empty spaces that might be on each end.
@@ -477,7 +477,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
   bool getDummyMsgHdr = false;
   int64_t fileSize;
 
-  if (StringBeginsWith(uriString, NS_LITERAL_STRING("file:"))) {
+  if (StringBeginsWith(uriString, u"file:"_ns)) {
     nsCOMPtr<nsIURI> fileUri;
     rv = NS_NewURI(getter_AddRefs(fileUri), uriString);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -487,16 +487,15 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
     rv = fileUrl->GetFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
     file->GetFileSize(&fileSize);
-    uriString.Replace(0, 5, NS_LITERAL_STRING("mailbox:"));
+    uriString.Replace(0, 5, u"mailbox:"_ns);
     uriString.AppendLiteral(u"&number=0");
     loadingFromFile = true;
     getDummyMsgHdr = true;
-  } else if (StringBeginsWith(uriString, NS_LITERAL_STRING("mailbox:")) &&
-             (CaseInsensitiveFindInReadable(NS_LITERAL_STRING(".eml?"),
-                                            uriString))) {
+  } else if (StringBeginsWith(uriString, u"mailbox:"_ns) &&
+             (CaseInsensitiveFindInReadable(u".eml?"_ns, uriString))) {
     // if we have a mailbox:// url that points to an .eml file, we have to read
     // the file size as well
-    uriString.Replace(0, 8, NS_LITERAL_STRING("file:"));
+    uriString.Replace(0, 8, u"file:"_ns);
     nsCOMPtr<nsIURI> fileUri;
     rv = NS_NewURI(getter_AddRefs(fileUri), uriString);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -506,7 +505,7 @@ nsMessenger::LoadURL(mozIDOMWindowProxy* aWin, const nsACString& aURL) {
     rv = fileUrl->GetFile(getter_AddRefs(file));
     NS_ENSURE_SUCCESS(rv, rv);
     file->GetFileSize(&fileSize);
-    uriString.Replace(0, 5, NS_LITERAL_STRING("mailbox:"));
+    uriString.Replace(0, 5, u"mailbox:"_ns);
     loadingFromFile = true;
     getDummyMsgHdr = true;
   } else if (uriString.Find("type=application/x-message-display") >= 0)
@@ -761,9 +760,9 @@ nsresult nsMessenger::SaveOneAttachment(const nsACString& aContentType,
   ConvertAndSanitizeFileName(aDisplayName, defaultDisplayString);
 
   if (detaching) {
-    GetString(NS_LITERAL_STRING("DetachAttachment"), saveAttachmentStr);
+    GetString(u"DetachAttachment"_ns, saveAttachmentStr);
   } else {
-    GetString(NS_LITERAL_STRING("SaveAttachment"), saveAttachmentStr);
+    GetString(u"SaveAttachment"_ns, saveAttachmentStr);
   }
   filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeSave);
   filePicker->SetDefaultString(defaultDisplayString);
@@ -849,9 +848,9 @@ nsresult nsMessenger::SaveAllAttachments(
 
   NS_ENSURE_SUCCESS(rv, rv);
   if (detaching) {
-    GetString(NS_LITERAL_STRING("DetachAllAttachments"), saveAttachmentStr);
+    GetString(u"DetachAllAttachments"_ns, saveAttachmentStr);
   } else {
-    GetString(NS_LITERAL_STRING("SaveAllAttachments"), saveAttachmentStr);
+    GetString(u"SaveAllAttachments"_ns, saveAttachmentStr);
   }
   filePicker->Init(mWindow, saveAttachmentStr, nsIFilePicker::modeGetFolder);
 
@@ -1069,10 +1068,10 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       rv = aIdentity->GetStationeryFolder(saveListener->m_templateUri);
     if (NS_FAILED(rv)) goto done;
 
-    bool needDummyHeader = StringBeginsWith(saveListener->m_templateUri,
-                                            NS_LITERAL_CSTRING("mailbox://"));
-    bool canonicalLineEnding = StringBeginsWith(saveListener->m_templateUri,
-                                                NS_LITERAL_CSTRING("imap://"));
+    bool needDummyHeader =
+        StringBeginsWith(saveListener->m_templateUri, "mailbox://"_ns);
+    bool canonicalLineEnding =
+        StringBeginsWith(saveListener->m_templateUri, "imap://"_ns);
 
     rv = saveListener->QueryInterface(NS_GET_IID(nsIUrlListener),
                                       getter_AddRefs(urlListener));
@@ -1099,14 +1098,14 @@ nsresult nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename,
       do_CreateInstance("@mozilla.org/filepicker;1", &rv);
   NS_ENSURE_SUCCESS(rv, rv);
   nsString saveMailAsStr;
-  GetString(NS_LITERAL_STRING("SaveMailAs"), saveMailAsStr);
+  GetString(u"SaveMailAs"_ns, saveMailAsStr);
   filePicker->Init(mWindow, saveMailAsStr, nsIFilePicker::modeSave);
 
   // if we have a non-null filename use it, otherwise use default save message
   // one
   if (aMsgFilename.IsEmpty()) {
     nsString saveMsgStr;
-    GetString(NS_LITERAL_STRING("defaultSaveMessageAsFileName"), saveMsgStr);
+    GetString(u"defaultSaveMessageAsFileName"_ns, saveMsgStr);
     filePicker->SetDefaultString(saveMsgStr);
   } else {
     filePicker->SetDefaultString(aMsgFilename);
@@ -1116,8 +1115,8 @@ nsresult nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename,
   // we must call AppendFilters() one at a time,
   // in MESSENGER_SAVEAS_FILE_TYPE order
   nsString emlFilesStr;
-  GetString(NS_LITERAL_STRING("EMLFiles"), emlFilesStr);
-  filePicker->AppendFilter(emlFilesStr, NS_LITERAL_STRING("*.eml"));
+  GetString(u"EMLFiles"_ns, emlFilesStr);
+  filePicker->AppendFilter(emlFilesStr, u"*.eml"_ns);
   filePicker->AppendFilters(nsIFilePicker::filterHTML);
   filePicker->AppendFilters(nsIFilePicker::filterText);
   filePicker->AppendFilters(nsIFilePicker::filterAll);
@@ -1130,7 +1129,7 @@ nsresult nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename,
   // this actually is a boolean telling the file picker to automatically add
   // the correct extension depending on the filter. On Mac or Linux this is a
   // no-op.
-  filePicker->SetDefaultExtension(NS_LITERAL_STRING("eml"));
+  filePicker->SetDefaultExtension(u"eml"_ns);
 
   int16_t dialogResult;
 
@@ -1209,7 +1208,7 @@ nsresult nsMessenger::GetSaveToDir(nsIFile** aSaveDir) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString chooseFolderStr;
-  GetString(NS_LITERAL_STRING("ChooseFolder"), chooseFolderStr);
+  GetString(u"ChooseFolder"_ns, chooseFolderStr);
   filePicker->Init(mWindow, chooseFolderStr, nsIFilePicker::modeGetFolder);
 
   nsCOMPtr<nsIFile> lastSaveDir;
@@ -1327,7 +1326,7 @@ nsMessenger::MsgHdrFromURI(const nsACString& aUri, nsIMsgDBHdr** aMsgHdr) {
   nsCOMPtr<nsIMsgMessageService> msgService;
   nsresult rv;
 
-  if (mMsgWindow && (StringBeginsWith(aUri, NS_LITERAL_CSTRING("file:")) ||
+  if (mMsgWindow && (StringBeginsWith(aUri, "file:"_ns) ||
                      PromiseFlatCString(aUri).Find(
                          "type=application/x-message-display") >= 0)) {
     nsCOMPtr<nsIMsgHeaderSink> headerSink;
@@ -1357,7 +1356,7 @@ NS_IMETHODIMP nsMessenger::GetUndoTransactionType(uint32_t* txnType) {
   if (NS_SUCCEEDED(rv) && txn) {
     nsCOMPtr<nsIPropertyBag2> propertyBag = do_QueryInterface(txn, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    return propertyBag->GetPropertyAsUint32(NS_LITERAL_STRING("type"), txnType);
+    return propertyBag->GetPropertyAsUint32(u"type"_ns, txnType);
   }
   return rv;
 }
@@ -1383,7 +1382,7 @@ NS_IMETHODIMP nsMessenger::GetRedoTransactionType(uint32_t* txnType) {
   if (NS_SUCCEEDED(rv) && txn) {
     nsCOMPtr<nsIPropertyBag2> propertyBag = do_QueryInterface(txn, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
-    return propertyBag->GetPropertyAsUint32(NS_LITERAL_STRING("type"), txnType);
+    return propertyBag->GetPropertyAsUint32(u"type"_ns, txnType);
   }
   return rv;
 }
@@ -1450,7 +1449,7 @@ NS_IMETHODIMP nsMessenger::SetDocumentCharset(const nsACString& aCharacterSet) {
   // We want to redisplay the currently selected message (if any) but forcing
   // the redisplay to use characterSet
   if (!mLastDisplayURI.IsEmpty()) {
-    SetDisplayCharset(NS_LITERAL_CSTRING("UTF-8"));
+    SetDisplayCharset("UTF-8"_ns);
 
     nsCOMPtr<nsIMsgMessageService> messageService;
     nsresult rv = GetMessageServiceFromURI(mLastDisplayURI,

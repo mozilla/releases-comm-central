@@ -386,7 +386,7 @@ nsresult nsMapiHook::HandleAttachments(nsIMsgCompFields* aCompFields,
 
       // create a new sub directory called moz_mapi underneath the temp
       // directory
-      pTempDir->AppendRelativePath(NS_LITERAL_STRING("moz_mapi"));
+      pTempDir->AppendRelativePath(u"moz_mapi"_ns);
       pTempDir->Exists(&bExist);
       if (!bExist) {
         rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 777);
@@ -501,7 +501,7 @@ nsresult nsMapiHook::HandleAttachmentsW(nsIMsgCompFields* aCompFields,
 
       // Create a new sub directory called moz_mapi underneath the temp
       // directory.
-      pTempDir->AppendRelativePath(NS_LITERAL_STRING("moz_mapi"));
+      pTempDir->AppendRelativePath(u"moz_mapi"_ns);
       pTempDir->Exists(&bExist);
       if (!bExist) {
         rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 777);
@@ -810,7 +810,7 @@ nsresult nsMapiHook::PopulateCompFieldsForSendDocs(
 
       // if not already existing, create another temp dir for mapi within Win
       // temp dir this is windows only so we can do "\\"
-      pTempDir->AppendRelativePath(NS_LITERAL_STRING("moz_mapi"));
+      pTempDir->AppendRelativePath(u"moz_mapi"_ns);
       pTempDir->Exists(&bExist);
       if (!bExist) {
         rv = pTempDir->Create(nsIFile::DIRECTORY_TYPE, 777);

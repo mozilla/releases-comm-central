@@ -201,7 +201,7 @@ nsresult nsBeckyMail::CollectMailboxesInDirectory(nsIFile* aDirectory,
     rv = file->GetLeafName(name);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    if (StringEndsWith(name, NS_LITERAL_STRING(".bmf"))) {
+    if (StringEndsWith(name, u".bmf"_ns)) {
       AppendMailboxDescriptor(file, mailboxName, aDepth, aCollected);
     }
 
@@ -209,8 +209,7 @@ nsresult nsBeckyMail::CollectMailboxesInDirectory(nsIFile* aDirectory,
     // so we need to find the sub folder by our hands.
     // The folder name does not begin with # or ! maybe. Yes, maybe...
     if (!folderListExists) {
-      if (StringBeginsWith(name, NS_LITERAL_STRING("#")) ||
-          StringBeginsWith(name, NS_LITERAL_STRING("!")))
+      if (StringBeginsWith(name, u"#"_ns) || StringBeginsWith(name, u"!"_ns))
         continue;
 
       bool isDirectory = false;
@@ -392,7 +391,7 @@ nsresult ImportMessageRunnable::GetAttachmentFile(nsIFile* aMailboxFile,
   rv = aMailboxFile->Clone(getter_AddRefs(attachmentFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = attachmentFile->Append(NS_LITERAL_STRING("#Attach"));
+  rv = attachmentFile->Append(u"#Attach"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsAutoCString nativeAttachmentPath;
@@ -484,7 +483,7 @@ NS_IMETHODIMP ImportMessageRunnable::Run() {
       mResult = WriteAttachmentFile(mMessageFile, line, outputStream);
     } else {
       uint32_t writtenBytes = 0;
-      if (StringBeginsWith(line, NS_LITERAL_CSTRING("..")))
+      if (StringBeginsWith(line, ".."_ns))
         line.Cut(0, 1);
       else if (CheckHeaderKey(line, "From"))
         line.Insert('>', 0);

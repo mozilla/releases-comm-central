@@ -140,7 +140,7 @@ static Pop3UidlHost* net_pop3_load_state(const char* searchhost,
   nsCOMPtr<nsIFile> popState;
   mailDirectory->Clone(getter_AddRefs(popState));
   if (!popState) return nullptr;
-  popState->AppendNative(NS_LITERAL_CSTRING("popstate.dat"));
+  popState->AppendNative("popstate.dat"_ns);
 
   nsCOMPtr<nsIInputStream> fileStream;
   nsresult rv =
@@ -281,7 +281,7 @@ static void net_pop3_write_state(Pop3UidlHost* host, nsIFile* mailDirectory) {
 
   mailDirectory->Clone(getter_AddRefs(popState));
   if (!popState) return;
-  popState->AppendNative(NS_LITERAL_CSTRING("popstate.dat"));
+  popState->AppendNative("popstate.dat"_ns);
 
   nsCOMPtr<nsIOutputStream> fileOutputStream;
   nsresult rv = MsgNewSafeBufferedFileOutputStream(
@@ -2177,7 +2177,7 @@ int32_t nsPop3Protocol::SendPassword() {
     // this server goes into LOGIN mode even if we send "AUTH PLAIN"
     // "VXNlc" is the beginning of the base64 encoded prompt ("Username:") for
     // LOGIN
-    if (StringBeginsWith(m_commandResponse, NS_LITERAL_CSTRING("VXNlc"))) {
+    if (StringBeginsWith(m_commandResponse, "VXNlc"_ns)) {
       // disable PLAIN and enable LOGIN (in case it's not already enabled)
       ClearCapFlag(POP3_HAS_AUTH_PLAIN);
       SetCapFlag(POP3_HAS_AUTH_LOGIN);
@@ -3034,10 +3034,9 @@ int32_t nsPop3Protocol::SendRetr() {
       m_pop3ConData->graph_progress_bytes_p = true;
     } else {
       nsString finalString;
-      mozilla::DebugOnly<nsresult> rv =
-          FormatCounterString(NS_LITERAL_STRING("receivingMessages"),
-                              m_pop3ConData->real_new_counter,
-                              m_pop3ConData->really_new_messages, finalString);
+      mozilla::DebugOnly<nsresult> rv = FormatCounterString(
+          u"receivingMessages"_ns, m_pop3ConData->real_new_counter,
+          m_pop3ConData->really_new_messages, finalString);
       NS_ASSERTION(NS_SUCCEEDED(rv), "couldn't format string");
       if (mProgressEventSink) {
         rv = mProgressEventSink->OnStatus(this, NS_OK, finalString.get());
@@ -3776,8 +3775,7 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI* url,
             } else {
               nsString statusString;
               nsresult rv = FormatCounterString(
-                  NS_LITERAL_STRING("receivedMsgs"),
-                  m_pop3ConData->real_new_counter - 1,
+                  u"receivedMsgs"_ns, m_pop3ConData->real_new_counter - 1,
                   m_pop3ConData->really_new_messages, statusString);
               if (NS_SUCCEEDED(rv)) UpdateStatusWithString(statusString.get());
             }
@@ -3825,10 +3823,9 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI* url,
 
         if (m_pop3ConData->msg_del_started) {
           nsString statusString;
-          nsresult rv = FormatCounterString(NS_LITERAL_STRING("receivedMsgs"),
-                                            m_pop3ConData->real_new_counter - 1,
-                                            m_pop3ConData->really_new_messages,
-                                            statusString);
+          nsresult rv = FormatCounterString(
+              u"receivedMsgs"_ns, m_pop3ConData->real_new_counter - 1,
+              m_pop3ConData->really_new_messages, statusString);
           if (NS_SUCCEEDED(rv)) UpdateStatusWithString(statusString.get());
 
           NS_ASSERTION(!TestFlag(POP3_PASSWORD_FAILED),

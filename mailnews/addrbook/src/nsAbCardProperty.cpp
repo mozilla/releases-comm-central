@@ -625,19 +625,19 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString& aXMLSubstr) {
 
   rv = AppendSection(PHONE_ATTRS_ARRAY,
                      sizeof(PHONE_ATTRS_ARRAY) / sizeof(AppendItem),
-                     NS_LITERAL_STRING("headingPhone"), bundle, conv, xmlStr);
+                     u"headingPhone"_ns, bundle, conv, xmlStr);
 
   if (!m_IsMailList) {
     rv = AppendSection(CUSTOM_ATTRS_ARRAY,
                        sizeof(CUSTOM_ATTRS_ARRAY) / sizeof(AppendItem),
-                       NS_LITERAL_STRING("headingOther"), bundle, conv, xmlStr);
+                       u"headingOther"_ns, bundle, conv, xmlStr);
     rv = AppendSection(CHAT_ATTRS_ARRAY,
                        sizeof(CHAT_ATTRS_ARRAY) / sizeof(AppendItem),
-                       NS_LITERAL_STRING("headingChat"), bundle, conv, xmlStr);
+                       u"headingChat"_ns, bundle, conv, xmlStr);
   } else {
-    rv = AppendSection(
-        CUSTOM_ATTRS_ARRAY, sizeof(CUSTOM_ATTRS_ARRAY) / sizeof(AppendItem),
-        NS_LITERAL_STRING("headingDescription"), bundle, conv, xmlStr);
+    rv = AppendSection(CUSTOM_ATTRS_ARRAY,
+                       sizeof(CUSTOM_ATTRS_ARRAY) / sizeof(AppendItem),
+                       u"headingDescription"_ns, bundle, conv, xmlStr);
 
     xmlStr.AppendLiteral("<section><sectiontitle>");
 
@@ -701,10 +701,10 @@ nsresult nsAbCardProperty::ConvertToXMLPrintData(nsAString& aXMLSubstr) {
 
   rv = AppendSection(HOME_ATTRS_ARRAY,
                      sizeof(HOME_ATTRS_ARRAY) / sizeof(AppendItem),
-                     NS_LITERAL_STRING("headingHome"), bundle, conv, xmlStr);
+                     u"headingHome"_ns, bundle, conv, xmlStr);
   rv = AppendSection(WORK_ATTRS_ARRAY,
                      sizeof(WORK_ATTRS_ARRAY) / sizeof(AppendItem),
-                     NS_LITERAL_STRING("headingWork"), bundle, conv, xmlStr);
+                     u"headingWork"_ns, bundle, conv, xmlStr);
 
   xmlStr.AppendLiteral("</td></tr></table>");
 

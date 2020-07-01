@@ -48,7 +48,7 @@ nsSpamSettings::nsSpamSettings() {
 
   nsresult rv = NS_GetSpecialDirectory(NS_APP_USER_PROFILE_50_DIR,
                                        getter_AddRefs(mLogFile));
-  if (NS_SUCCEEDED(rv)) mLogFile->Append(NS_LITERAL_STRING("junklog.html"));
+  if (NS_SUCCEEDED(rv)) mLogFile->Append(u"junklog.html"_ns);
 }
 
 nsSpamSettings::~nsSpamSettings() {}

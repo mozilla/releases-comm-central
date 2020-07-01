@@ -1131,8 +1131,8 @@ void nsImapServerResponseParser::msg_fetch() {
         if (fCurrentResponseUID == 0)
           fFlagState->GetUidOfMessage(fFetchResponseIndex - 1,
                                       &fCurrentResponseUID);
-        fFlagState->SetCustomAttribute(
-            fCurrentResponseUID, NS_LITERAL_CSTRING("X-GM-MSGID"), msgIDValue);
+        fFlagState->SetCustomAttribute(fCurrentResponseUID, "X-GM-MSGID"_ns,
+                                       msgIDValue);
         PR_FREEIF(fMsgID);
       }
     } else if (!PL_strcasecmp(fNextToken, "X-GM-THRID")) {
@@ -1147,8 +1147,7 @@ void nsImapServerResponseParser::msg_fetch() {
         if (fCurrentResponseUID == 0)
           fFlagState->GetUidOfMessage(fFetchResponseIndex - 1,
                                       &fCurrentResponseUID);
-        fFlagState->SetCustomAttribute(fCurrentResponseUID,
-                                       NS_LITERAL_CSTRING("X-GM-THRID"),
+        fFlagState->SetCustomAttribute(fCurrentResponseUID, "X-GM-THRID"_ns,
                                        threadIDValue);
         PR_FREEIF(fThreadID);
       }
@@ -1165,8 +1164,7 @@ void nsImapServerResponseParser::msg_fetch() {
         if (fCurrentResponseUID == 0)
           fFlagState->GetUidOfMessage(fFetchResponseIndex - 1,
                                       &fCurrentResponseUID);
-        fFlagState->SetCustomAttribute(fCurrentResponseUID,
-                                       NS_LITERAL_CSTRING("X-GM-LABELS"),
+        fFlagState->SetCustomAttribute(fCurrentResponseUID, "X-GM-LABELS"_ns,
                                        labelsValue);
         PR_FREEIF(fLabels);
       }
@@ -1353,7 +1351,7 @@ void nsImapServerResponseParser::xaolenvelope_data() {
           // xaol envelope switches the From with the To, so we switch them back
           // and create a fake from line From: user@aol.com
           fromLine.AppendLiteral("To: ");
-          nsAutoCString fakeFromLine(NS_LITERAL_CSTRING("From: "));
+          nsAutoCString fakeFromLine("From: "_ns);
           fakeFromLine.Append(fServerConnection.GetImapUserName());
           fakeFromLine.AppendLiteral("@aol.com");
           fServerConnection.HandleMessageDownLoadLine(fakeFromLine.get(),

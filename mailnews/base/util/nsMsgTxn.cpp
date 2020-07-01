@@ -216,7 +216,7 @@ nsresult nsMsgTxn::SetMsgWindow(nsIMsgWindow* msgWindow) {
 }
 
 nsresult nsMsgTxn::SetTransactionType(uint32_t txnType) {
-  return SetPropertyAsUint32(NS_LITERAL_STRING("type"), txnType);
+  return SetPropertyAsUint32(u"type"_ns, txnType);
 }
 
 /*none of the callers pass null aFolder,

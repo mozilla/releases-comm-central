@@ -36,7 +36,7 @@ nsresult nsBeckyUtils::FindUserDirectoryOnWindows7(nsIFile** aLocation) {
   nsCOMPtr<nsIFile> directory;
   rv = GetSpecialSystemDirectory(Win_Documents, getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = directory->AppendNative(NS_LITERAL_CSTRING("Becky"));
+  rv = directory->AppendNative("Becky"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool exists = false;
@@ -61,7 +61,7 @@ nsresult nsBeckyUtils::FindUserDirectoryOnWindowsXP(nsIFile** aLocation) {
       do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = directory->InitWithPath(NS_LITERAL_STRING("C:\\Becky!"));
+  rv = directory->InitWithPath(u"C:\\Becky!"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool exists = false;
@@ -135,7 +135,7 @@ nsresult nsBeckyUtils::GetFolderListFile(nsIFile* aLocation,
   rv = aLocation->Clone(getter_AddRefs(folderListFile));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = folderListFile->Append(NS_LITERAL_STRING("Folder.lst"));
+  rv = folderListFile->Append(u"Folder.lst"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   bool exists;
@@ -208,7 +208,7 @@ nsresult nsBeckyUtils::GetMailboxINIFile(nsIFile* aDirectory,
   rv = aDirectory->Clone(getter_AddRefs(target));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = target->Append(NS_LITERAL_STRING("Mailbox.ini"));
+  rv = target->Append(u"Mailbox.ini"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
   bool exists;
   rv = target->Exists(&exists);
@@ -235,8 +235,7 @@ nsresult nsBeckyUtils::GetMailboxNameFromINIFile(nsIFile* aFile,
   rv = CreateINIParserForFile(aFile, getter_AddRefs(parser));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return parser->GetString(NS_LITERAL_CSTRING("Account"),
-                           NS_LITERAL_CSTRING("Name"), aName);
+  return parser->GetString("Account"_ns, "Name"_ns, aName);
 }
 
 nsresult nsBeckyUtils::ConvertToUTF8File(nsIFile* aSourceFile,

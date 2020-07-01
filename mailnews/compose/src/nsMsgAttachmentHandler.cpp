@@ -352,9 +352,9 @@ nsresult nsMsgAttachmentHandler::PickEncoding(const char* charset,
     }
 
     // MIME requires a special case that these types never be encoded.
-    if (StringBeginsWith(m_type, NS_LITERAL_CSTRING("message"),
+    if (StringBeginsWith(m_type, "message"_ns,
                          nsCaseInsensitiveCStringComparator) ||
-        StringBeginsWith(m_type, NS_LITERAL_CSTRING("multipart"),
+        StringBeginsWith(m_type, "multipart"_ns,
                          nsCaseInsensitiveCStringComparator)) {
       encode_p = false;
       if (m_desiredType.LowerCaseEqualsLiteral(TEXT_PLAIN))
@@ -453,8 +453,7 @@ DONE:
 
 nsresult nsMsgAttachmentHandler::PickCharset() {
   if (!m_charset.IsEmpty() ||
-      !StringBeginsWith(m_type, NS_LITERAL_CSTRING("text/"),
-                        nsCaseInsensitiveCStringComparator))
+      !StringBeginsWith(m_type, "text/"_ns, nsCaseInsensitiveCStringComparator))
     return NS_OK;
 
   if (!mTmpFile) return NS_OK;
@@ -648,8 +647,7 @@ nsresult nsMsgAttachmentHandler::SnarfAttachment(nsMsgCompFields* compFields) {
   rv = mURL->GetSpec(sourceURISpec);
   NS_ENSURE_SUCCESS(rv, rv);
 #ifdef XP_MACOSX
-  if (!m_bogus_attachment &&
-      StringBeginsWith(sourceURISpec, NS_LITERAL_CSTRING("file://"))) {
+  if (!m_bogus_attachment && StringBeginsWith(sourceURISpec, "file://"_ns)) {
     // Unescape the path (i.e. un-URLify it) before making a FSSpec
     nsAutoCString filePath;
     filePath.Adopt(nsMsgGetLocalFileFromURL(sourceURISpec.get()));

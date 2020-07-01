@@ -137,7 +137,7 @@ nsresult ProcessBodyAsAttachment(MimeObject* obj, nsMsgAttachmentData** data) {
   tmp->m_hasFilename = !tmp->m_realName.IsEmpty();
 
   if (tmp->m_realName.IsEmpty() &&
-      StringBeginsWith(tmp->m_realType, NS_LITERAL_CSTRING("text"),
+      StringBeginsWith(tmp->m_realType, "text"_ns,
                        nsCaseInsensitiveCStringComparator))
     ValidateRealName(tmp, child->headers);
 
@@ -217,7 +217,7 @@ void ValidateRealName(nsMsgAttachmentData* aAttach, MimeHeaders* aHdrs) {
 
   // Internal MIME structures need not be named!
   if (aAttach->m_realType.IsEmpty() ||
-      StringBeginsWith(aAttach->m_realType, NS_LITERAL_CSTRING("multipart"),
+      StringBeginsWith(aAttach->m_realType, "multipart"_ns,
                        nsCaseInsensitiveCStringComparator))
     return;
 
@@ -300,7 +300,7 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
   tmp->m_isExternalAttachment = isExternalAttachment;
   tmp->m_isExternalLinkAttachment =
       (isExternalAttachment &&
-       StringBeginsWith(urlString, NS_LITERAL_CSTRING("http"),
+       StringBeginsWith(urlString, "http"_ns,
                         nsCaseInsensitiveCStringComparator));
   tmp->m_size = attSize;
   tmp->m_sizeExternalStr = "-1";
@@ -428,7 +428,7 @@ nsresult GenerateAttachmentData(MimeObject* object, const char* aMessageURL,
     else
       urlString.Append(tmp->m_realName);
     if (tmp->m_realType.EqualsLiteral("message/rfc822") &&
-        !StringEndsWith(urlString, NS_LITERAL_CSTRING(".eml"),
+        !StringEndsWith(urlString, ".eml"_ns,
                         nsCaseInsensitiveCStringComparator))
       urlString.AppendLiteral(".eml");
   } else if (tmp->m_isExternalAttachment) {
@@ -708,8 +708,7 @@ extern "C" nsresult SetMailCharacterSetToMsgWindow(MimeObject* obj,
             if (msgWindow)
               rv = msgWindow->SetMailCharacterSet(
                   !PL_strcasecmp(aCharacterSet, "us-ascii")
-                      ? static_cast<const nsCString&>(
-                            NS_LITERAL_CSTRING("ISO-8859-1"))
+                      ? static_cast<const nsCString&>("ISO-8859-1"_ns)
                       : static_cast<const nsCString&>(
                             nsDependentCString(aCharacterSet)));
           }

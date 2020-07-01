@@ -100,7 +100,7 @@ nsresult nsMsgQuote::QuoteMessage(
       PL_strstr(msgURI, "&realtype=message/rfc822") != nullptr;
   nsCOMPtr<nsIURI> newURI;
   if (fileUrl) {
-    msgUri.Replace(0, 5, NS_LITERAL_CSTRING("mailbox:"));
+    msgUri.Replace(0, 5, "mailbox:"_ns);
     msgUri.AppendLiteral("?number=0");
     rv = NS_NewURI(getter_AddRefs(newURI), msgUri);
     nsCOMPtr<nsIMsgMessageUrl> mailUrl(do_QueryInterface(newURI));

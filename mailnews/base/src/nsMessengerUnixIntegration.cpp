@@ -309,8 +309,7 @@ nsresult nsMessengerUnixIntegration::ShowAlertMessage(
       rv = alertsService->ShowAlertNotification(
           NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON), aAlertTitle, aAlertText,
           false, NS_ConvertASCIItoUTF16(aFolderURI), this, EmptyString(),
-          NS_LITERAL_STRING("auto"), EmptyString(), EmptyString(), nullptr,
-          false, false);
+          u"auto"_ns, EmptyString(), EmptyString(), nullptr, false, false);
       if (NS_SUCCEEDED(rv)) return rv;
     }
   }

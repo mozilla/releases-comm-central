@@ -125,8 +125,7 @@ nsCharsetConverterManager::GetCharsetTitle(const char* aCharset,
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  return GetBundleValue(sTitleBundle, aCharset, NS_LITERAL_STRING(".title"),
-                        aResult);
+  return GetBundleValue(sTitleBundle, aCharset, u".title"_ns, aResult);
 }
 
 NS_IMETHODIMP

@@ -778,8 +778,8 @@ nsresult nsNntpService::GetNntpServerByAccount(
 
   // if we don't have a news host, find the first news server and use it
   if (NS_FAILED(rv) || !*aNntpServer)
-    rv = accountManager->FindServer(EmptyCString(), EmptyCString(),
-                                    NS_LITERAL_CSTRING("nntp"), aNntpServer);
+    rv = accountManager->FindServer(EmptyCString(), EmptyCString(), "nntp"_ns,
+                                    aNntpServer);
 
   return rv;
 }
@@ -882,8 +882,7 @@ nsresult nsNntpService::CreateNewsAccount(const char* aHostname, bool aUseSSL,
 
   // for news, username is always null
   rv = accountManager->CreateIncomingServer(
-      EmptyCString(), nsDependentCString(aHostname), NS_LITERAL_CSTRING("nntp"),
-      aServer);
+      EmptyCString(), nsDependentCString(aHostname), "nntp"_ns, aServer);
   if (NS_FAILED(rv)) return rv;
 
   if (aUseSSL) {
@@ -1519,7 +1518,7 @@ nsNntpService::Handle(nsICommandLine* aCmdLine) {
   nsresult rv;
   bool found;
 
-  rv = aCmdLine->HandleFlag(NS_LITERAL_STRING("news"), false, &found);
+  rv = aCmdLine->HandleFlag(u"news"_ns, false, &found);
   if (NS_SUCCEEDED(rv) && found) {
     nsCOMPtr<nsIWindowWatcher> wwatch(
         do_GetService(NS_WINDOWWATCHER_CONTRACTID));

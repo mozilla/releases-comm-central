@@ -336,8 +336,7 @@ nsresult nsSAXXMLReader::SplitExpatName(const char16_t* aExpatName,
       aQName = aLocalName;
     } else {  // namespace with prefix
       aLocalName = Substring(expatStr, break1 + 1, break2 - break1 - 1);
-      aQName =
-          Substring(expatStr, break2 + 1) + NS_LITERAL_STRING(":") + aLocalName;
+      aQName = Substring(expatStr, break2 + 1) + u":"_ns + aLocalName;
     }
   }
 

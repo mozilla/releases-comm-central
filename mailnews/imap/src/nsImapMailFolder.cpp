@@ -554,8 +554,8 @@ NS_IMETHODIMP nsImapMailFolder::GetSubFolders(nsISimpleEnumerator** aResult) {
       GetFolderWithFlags(nsMsgFolderFlags::Inbox, getter_AddRefs(inboxFolder));
       if (!inboxFolder) {
         // create an inbox if we don't have one.
-        CreateClientSubfolderInfo(NS_LITERAL_CSTRING("INBOX"),
-                                  kOnlineHierarchySeparatorUnknown, 0, true);
+        CreateClientSubfolderInfo("INBOX"_ns, kOnlineHierarchySeparatorUnknown,
+                                  0, true);
       }
     }
 
@@ -745,9 +745,8 @@ NS_IMETHODIMP nsImapMailFolder::UpdateFolderWithListener(
       bool hasSubFolders = false;
       GetHasSubFolders(&hasSubFolders);
       if (!hasSubFolders) {
-        rv = CreateClientSubfolderInfo(NS_LITERAL_CSTRING("Inbox"),
-                                       kOnlineHierarchySeparatorUnknown, 0,
-                                       false);
+        rv = CreateClientSubfolderInfo(
+            "Inbox"_ns, kOnlineHierarchySeparatorUnknown, 0, false);
         NS_ENSURE_SUCCESS(rv, rv);
       }
       m_haveDiscoveredAllFolders = true;
@@ -2964,12 +2963,9 @@ nsresult nsImapMailFolder::NormalEndHeaderParseStream(
     nsCString msgIDValue;
     nsCString threadIDValue;
     nsCString labelsValue;
-    flagState->GetCustomAttribute(m_curMsgUid, NS_LITERAL_CSTRING("X-GM-MSGID"),
-                                  msgIDValue);
-    flagState->GetCustomAttribute(m_curMsgUid, NS_LITERAL_CSTRING("X-GM-THRID"),
-                                  threadIDValue);
-    flagState->GetCustomAttribute(
-        m_curMsgUid, NS_LITERAL_CSTRING("X-GM-LABELS"), labelsValue);
+    flagState->GetCustomAttribute(m_curMsgUid, "X-GM-MSGID"_ns, msgIDValue);
+    flagState->GetCustomAttribute(m_curMsgUid, "X-GM-THRID"_ns, threadIDValue);
+    flagState->GetCustomAttribute(m_curMsgUid, "X-GM-LABELS"_ns, labelsValue);
     newMsgHdr->SetStringProperty("X-GM-MSGID", msgIDValue.get());
     newMsgHdr->SetStringProperty("X-GM-THRID", threadIDValue.get());
     newMsgHdr->SetStringProperty("X-GM-LABELS", labelsValue.get());
@@ -3314,9 +3310,8 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
               m_msgMovedByFilter = true;
             } else {
               if (loggingEnabled) {
-                (void)filter->LogRuleHitFail(
-                    filterAction, msgHdr, rv,
-                    NS_LITERAL_CSTRING("filterFailureMoveFailed"));
+                (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                             "filterFailureMoveFailed"_ns);
               }
             }
           }
@@ -3356,9 +3351,8 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
                                            nullptr, msgWindow, false);
             if (NS_FAILED(rv)) {
               if (loggingEnabled) {
-                (void)filter->LogRuleHitFail(
-                    filterAction, msgHdr, rv,
-                    NS_LITERAL_CSTRING("filterFailureCopyFailed"));
+                (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
+                                             "filterFailureCopyFailed"_ns);
               }
             }
           }
@@ -3503,11 +3497,11 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
                 if (rv == NS_ERROR_ABORT) {
                   (void)filter->LogRuleHitFail(
                       filterAction, msgHdr, rv,
-                      NS_LITERAL_CSTRING("filterFailureSendingReplyAborted"));
+                      "filterFailureSendingReplyAborted"_ns);
                 } else {
                   (void)filter->LogRuleHitFail(
                       filterAction, msgHdr, rv,
-                      NS_LITERAL_CSTRING("filterFailureSendingReplyError"));
+                      "filterFailureSendingReplyError"_ns);
                 }
               }
             }
@@ -3555,7 +3549,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
                static_cast<uint32_t>(rv)));
       if (loggingEnabled) {
         (void)filter->LogRuleHitFail(filterAction, msgHdr, rv,
-                                     NS_LITERAL_CSTRING("filterFailureAction"));
+                                     "filterFailureAction"_ns);
       }
     } else {
       MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
@@ -4843,17 +4837,15 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
                                                     getter_Copies(keywords));
         int32_t start;
         int32_t length;
-        bool hasJunk = MsgFindKeyword(NS_LITERAL_CSTRING("junk"), keywords,
-                                      &start, &length);
+        bool hasJunk = MsgFindKeyword("junk"_ns, keywords, &start, &length);
         if (hasJunk && !isJunk)
           keywords.Cut(start, length);
         else if (!hasJunk && isJunk)
           keywords.AppendLiteral(" Junk");
-        bool hasNonJunk = MsgFindKeyword(NS_LITERAL_CSTRING("nonjunk"),
-                                         keywords, &start, &length);
+        bool hasNonJunk =
+            MsgFindKeyword("nonjunk"_ns, keywords, &start, &length);
         if (!hasNonJunk)
-          hasNonJunk = MsgFindKeyword(NS_LITERAL_CSTRING("notjunk"), keywords,
-                                      &start, &length);
+          hasNonJunk = MsgFindKeyword("notjunk"_ns, keywords, &start, &length);
         if (hasNonJunk && !isNotJunk)
           keywords.Cut(start, length);
         else if (!hasNonJunk && isNotJunk)
@@ -4864,8 +4856,7 @@ nsImapMailFolder::GetCurMoveCopyMessageInfo(nsIImapUrl* runningUrl,
           keywords.Cut(0, 1);
         while (!keywords.IsEmpty() && keywords.Last() == ' ')
           keywords.Cut(keywords.Length() - 1, 1);
-        while (!keywords.IsEmpty() &&
-               (start = keywords.Find(NS_LITERAL_CSTRING("  "))) >= 0)
+        while (!keywords.IsEmpty() && (start = keywords.Find("  "_ns)) >= 0)
           keywords.Cut(start, 1);
         aKeywords.Assign(keywords);
       }
@@ -6879,7 +6870,7 @@ void nsImapMailFolder::SetPendingAttributes(
                             dontPreserve);
 
   // We'll add spaces at beginning and end so we can search for space-name-space
-  nsCString dontPreserveEx(NS_LITERAL_CSTRING(" "));
+  nsCString dontPreserveEx(" "_ns);
   dontPreserveEx.Append(dontPreserve);
   dontPreserveEx.Append(' ');
 
@@ -6921,7 +6912,7 @@ void nsImapMailFolder::SetPendingAttributes(
     bool hasMore;
     while (NS_SUCCEEDED(propertyEnumerator->HasMore(&hasMore)) && hasMore) {
       propertyEnumerator->GetNext(property);
-      nsAutoCString propertyEx(NS_LITERAL_CSTRING(" "));
+      nsAutoCString propertyEx(" "_ns);
       propertyEx.Append(property);
       propertyEx.Append(' ');
       if (dontPreserveEx.Find(propertyEx) != kNotFound) continue;
@@ -8389,16 +8380,14 @@ nsresult nsImapMailFolder::PlaybackCoalescedOperations() {
   if (m_moveCoalescer) {
     nsTArray<nsMsgKey>* junkKeysToClassify = m_moveCoalescer->GetKeyBucket(0);
     if (junkKeysToClassify && !junkKeysToClassify->IsEmpty())
-      StoreCustomKeywords(m_moveCoalescer->GetMsgWindow(),
-                          NS_LITERAL_CSTRING("Junk"), EmptyCString(),
-                          *junkKeysToClassify, nullptr);
+      StoreCustomKeywords(m_moveCoalescer->GetMsgWindow(), "Junk"_ns,
+                          EmptyCString(), *junkKeysToClassify, nullptr);
     junkKeysToClassify->Clear();
     nsTArray<nsMsgKey>* nonJunkKeysToClassify =
         m_moveCoalescer->GetKeyBucket(1);
     if (nonJunkKeysToClassify && !nonJunkKeysToClassify->IsEmpty())
-      StoreCustomKeywords(m_moveCoalescer->GetMsgWindow(),
-                          NS_LITERAL_CSTRING("NonJunk"), EmptyCString(),
-                          *nonJunkKeysToClassify, nullptr);
+      StoreCustomKeywords(m_moveCoalescer->GetMsgWindow(), "NonJunk"_ns,
+                          EmptyCString(), *nonJunkKeysToClassify, nullptr);
     nonJunkKeysToClassify->Clear();
     return m_moveCoalescer->PlaybackMoves(ShowPreviewText());
   }
@@ -8416,12 +8405,9 @@ nsImapMailFolder::SetJunkScoreForMessages(
     nsresult rv = BuildIdsAndKeyArray2(aMessages, messageIds, keys);
     NS_ENSURE_SUCCESS(rv, rv);
     StoreCustomKeywords(
-        nullptr,
-        aJunkScore.EqualsLiteral("0") ? NS_LITERAL_CSTRING("NonJunk")
-                                      : NS_LITERAL_CSTRING("Junk"),
-        aJunkScore.EqualsLiteral("0") ? NS_LITERAL_CSTRING("Junk")
-                                      : NS_LITERAL_CSTRING("NonJunk"),
-        keys, nullptr);
+        nullptr, aJunkScore.EqualsLiteral("0") ? "NonJunk"_ns : "Junk"_ns,
+        aJunkScore.EqualsLiteral("0") ? "Junk"_ns : "NonJunk"_ns, keys,
+        nullptr);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
   }
   return rv;

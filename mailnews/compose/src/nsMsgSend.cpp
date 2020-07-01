@@ -1547,8 +1547,7 @@ nsresult nsMsgComposeAndSend::ProcessMultipartRelated(int32_t* aMailboxCount,
           // registered for this scheme, we'll consider it a mailbox
           // attachment.
           nsAutoCString contractID;
-          contractID.Assign(
-              NS_LITERAL_CSTRING("@mozilla.org/messenger/protocol/info;1"));
+          contractID.Assign("@mozilla.org/messenger/protocol/info;1"_ns);
           nsAutoCString scheme;
           uri->GetScheme(scheme);
           contractID.Append(scheme);
@@ -1570,7 +1569,7 @@ nsresult nsMsgComposeAndSend::ProcessMultipartRelated(int32_t* aMailboxCount,
     if (domSaveArray[j].element &&
         !m_attachments[duplicateOf == -1 ? i : duplicateOf]
              ->m_contentId.IsEmpty()) {
-      nsString newSpec(NS_LITERAL_STRING("cid:"));
+      nsString newSpec(u"cid:"_ns);
       newSpec.AppendASCII(m_attachments[duplicateOf == -1 ? i : duplicateOf]
                               ->m_contentId.get());
 
@@ -1929,8 +1928,7 @@ nsresult nsMsgComposeAndSend::AddCompFieldRemoteAttachments(
 
           nsAutoCString scheme;
           nsiuri->GetScheme(scheme);
-          bool isAMessageAttachment =
-              StringEndsWith(scheme, NS_LITERAL_CSTRING("-message"));
+          bool isAMessageAttachment = StringEndsWith(scheme, "-message"_ns);
 
           m_attachments[newLoc]->mDeleteFile = true;
           m_attachments[newLoc]->m_done = false;
@@ -2165,8 +2163,7 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
           // registered for this scheme, we'll consider it a mailbox
           // attachment.
           nsAutoCString contractID;
-          contractID.Assign(
-              NS_LITERAL_CSTRING("@mozilla.org/messenger/protocol/info;1"));
+          contractID.Assign("@mozilla.org/messenger/protocol/info;1"_ns);
           nsAutoCString scheme;
           uri->GetScheme(scheme);
           contractID.Append(scheme);

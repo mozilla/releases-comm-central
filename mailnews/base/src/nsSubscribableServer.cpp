@@ -802,8 +802,7 @@ nsSubscribableServer::GetCellValue(int32_t aRow, nsTreeColumn* aCol,
   if (colId.EqualsLiteral("nameColumn"))
     retval = NS_ConvertUTF8toUTF16(mRowMap[aRow]->path);
   if (colId.EqualsLiteral("subscribedColumn")) {
-    retval = mRowMap[aRow]->isSubscribed ? NS_LITERAL_STRING("true")
-                                         : NS_LITERAL_STRING("false");
+    retval = mRowMap[aRow]->isSubscribed ? u"true"_ns : u"false"_ns;
   }
   return NS_OK;
 }

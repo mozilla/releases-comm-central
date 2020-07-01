@@ -114,8 +114,8 @@ bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
   mozilla::OriginAttributes attrs;
   RefPtr<mozilla::BasePrincipal> principal =
       mozilla::BasePrincipal::CreateContentPrincipal(mailURI, attrs);
-  rv = mPermissionManager->TestPermissionFromPrincipal(
-      principal, NS_LITERAL_CSTRING("image"), &permission);
+  rv = mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
+                                                       &permission);
   NS_ENSURE_SUCCESS(rv, false);
 
   // Only return true if the permission manager has an explicit allow
@@ -365,8 +365,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
   mozilla::OriginAttributes attrs;
   RefPtr<mozilla::BasePrincipal> principal =
       mozilla::BasePrincipal::CreateContentPrincipal(aContentLocation, attrs);
-  mPermissionManager->TestPermissionFromPrincipal(
-      principal, NS_LITERAL_CSTRING("image"), &permission);
+  mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
+                                                  &permission);
   switch (permission) {
     case nsIPermissionManager::UNKNOWN_ACTION: {
       // No exception was found for this location.
@@ -745,8 +745,8 @@ void nsMsgContentPolicy::ComposeShouldLoad(nsIMsgCompose* aMsgCompose,
         RefPtr<mozilla::BasePrincipal> principal =
             mozilla::BasePrincipal::CreateContentPrincipal(aContentLocation,
                                                            attrs);
-        mPermissionManager->TestPermissionFromPrincipal(
-            principal, NS_LITERAL_CSTRING("image"), &permission);
+        mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
+                                                        &permission);
         if (permission == nsIPermissionManager::ALLOW_ACTION)
           *aDecision = nsIContentPolicy::ACCEPT;
       }

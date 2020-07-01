@@ -57,7 +57,7 @@ nsFeedSniffer::ConvertEncodedData(nsIRequest* request,
 
   nsAutoCString contentEncoding;
 
-  mozilla::Unused << httpChannel->GetResponseHeader(NS_LITERAL_CSTRING("Content-Encoding"),
+  mozilla::Unused << httpChannel->GetResponseHeader("Content-Encoding"_ns,
                                       contentEncoding);
   if (!contentEncoding.IsEmpty()) {
     nsCOMPtr<nsIStreamConverterService> converterService(do_GetService(NS_STREAMCONVERTERSERVICE_CONTRACTID));
@@ -252,8 +252,8 @@ nsFeedSniffer::GetMIMETypeFromContent(nsIRequest* request,
     // set the feed header as a response header, since we have good metadata
     // telling us that the feed is supposed to be RSS or Atom
     mozilla::DebugOnly<nsresult> rv = 
-      channel->SetResponseHeader(NS_LITERAL_CSTRING("X-Moz-Is-Feed"),
-                                 NS_LITERAL_CSTRING("1"), false);
+      channel->SetResponseHeader("X-Moz-Is-Feed"_ns,
+                                 "1"_ns, false);
     MOZ_ASSERT(NS_SUCCEEDED(rv));
     sniffedType.AssignLiteral(TYPE_MAYBE_FEED);
     return NS_OK;

@@ -209,10 +209,9 @@ nsresult nsMsgSearchAdapter::GetSearchCharsets(nsAString& srcCharset,
       prefs->GetBoolPref("mailnews.force_ascii_search", &forceAsciiSearch);
     }
   }
-  srcCharset =
-      m_defaultCharset.IsEmpty()
-          ? static_cast<const nsAString&>(NS_LITERAL_STRING("ISO-8859-1"))
-          : m_defaultCharset;
+  srcCharset = m_defaultCharset.IsEmpty()
+                   ? static_cast<const nsAString&>(u"ISO-8859-1"_ns)
+                   : m_defaultCharset;
 
   if (m_scope) {
     // ### DMB is there a way to get the charset for the "window"?

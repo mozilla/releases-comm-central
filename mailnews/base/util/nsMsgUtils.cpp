@@ -841,7 +841,7 @@ nsresult GetOrCreateJunkFolder(const nsACString& aURI,
 
       // force the junk folder name to be Junk so it gets created on disk
       // correctly...
-      msgFolder->SetName(NS_LITERAL_STRING("Junk"));
+      msgFolder->SetName(u"Junk"_ns);
       msgFolder->SetFlag(nsMsgFolderFlags::Junk);
       rv = msgFolder->CreateStorageIfMissing(aListener);
       NS_ENSURE_SUCCESS(rv, rv);

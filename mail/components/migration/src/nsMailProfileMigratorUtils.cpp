@@ -41,10 +41,10 @@ void ParseOverrideServers(const char* aServers, nsIPrefBranch* aBranch) {
     const nsACString& host = Substring(
         override, left, (right < 0 ? override.Length() : right) - left);
     if (host.Equals("<local>"))
-      override.Replace(left, 7, NS_LITERAL_CSTRING("localhost,127.0.0.1"));
+      override.Replace(left, 7, "localhost,127.0.0.1"_ns);
     if (right < 0) break;
     left = right + 1;
-    override.Replace(right, 1, NS_LITERAL_CSTRING(","));
+    override.Replace(right, 1, ","_ns);
   }
   aBranch->SetCharPref("network.proxy.no_proxies_on", override);
 }

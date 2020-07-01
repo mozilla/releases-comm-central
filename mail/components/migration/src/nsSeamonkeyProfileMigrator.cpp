@@ -24,21 +24,21 @@
 #include "nsIFile.h"
 
 // Mail specific folder paths
-#define MAIL_DIR_50_NAME NS_LITERAL_STRING("Mail")
-#define IMAP_MAIL_DIR_50_NAME NS_LITERAL_STRING("ImapMail")
-#define NEWS_DIR_50_NAME NS_LITERAL_STRING("News")
+#define MAIL_DIR_50_NAME u"Mail"_ns
+#define IMAP_MAIL_DIR_50_NAME u"ImapMail"_ns
+#define NEWS_DIR_50_NAME u"News"_ns
 
 ///////////////////////////////////////////////////////////////////////////////
 // nsSeamonkeyProfileMigrator
-#define FILE_NAME_JUNKTRAINING NS_LITERAL_STRING("training.dat")
-#define FILE_NAME_PERSONALDICTIONARY NS_LITERAL_STRING("persdict.dat")
-#define FILE_NAME_PERSONAL_ADDRESSBOOK NS_LITERAL_STRING("abook.mab")
-#define FILE_NAME_MAILVIEWS NS_LITERAL_STRING("mailviews.dat")
-#define FILE_NAME_CERT9DB NS_LITERAL_STRING("cert9.db")
-#define FILE_NAME_KEY4DB NS_LITERAL_STRING("key4.db")
-#define FILE_NAME_SECMODDB NS_LITERAL_STRING("secmod.db")
-#define FILE_NAME_PREFS NS_LITERAL_STRING("prefs.js")
-#define FILE_NAME_USER_PREFS NS_LITERAL_STRING("user.js")
+#define FILE_NAME_JUNKTRAINING u"training.dat"_ns
+#define FILE_NAME_PERSONALDICTIONARY u"persdict.dat"_ns
+#define FILE_NAME_PERSONAL_ADDRESSBOOK u"abook.mab"_ns
+#define FILE_NAME_MAILVIEWS u"mailviews.dat"_ns
+#define FILE_NAME_CERT9DB u"cert9.db"_ns
+#define FILE_NAME_KEY4DB u"key4.db"_ns
+#define FILE_NAME_SECMODDB u"secmod.db"_ns
+#define FILE_NAME_PREFS u"prefs.js"_ns
+#define FILE_NAME_USER_PREFS u"user.js"_ns
 
 struct PrefBranchStruct {
   char* prefName;
@@ -451,7 +451,7 @@ nsresult nsSeamonkeyProfileMigrator::CopyMailFolders(
     PrefBranchStruct* pref = aMailServers.ElementAt(i);
     nsDependentCString prefName(pref->prefName);
 
-    if (StringEndsWith(prefName, NS_LITERAL_CSTRING(".directory-rel"))) {
+    if (StringEndsWith(prefName, ".directory-rel"_ns)) {
       // When the directories are modified below, we may change the .directory
       // pref. As we don't have a pref branch to modify at this stage and set
       // up the relative folders properly, we'll just remove all the
@@ -621,7 +621,7 @@ nsresult nsSeamonkeyProfileMigrator::ImportPreferences(
   // base later.
   nsCOMPtr<nsIFile> targetPrefsFile;
   mTargetProfile->Clone(getter_AddRefs(targetPrefsFile));
-  targetPrefsFile->Append(aTargetPrefFileName + NS_LITERAL_STRING(".orig"));
+  targetPrefsFile->Append(aTargetPrefFileName + u".orig"_ns);
   rv = psvc->SavePrefFile(targetPrefsFile);
   NS_ENSURE_SUCCESS(rv, rv);
 

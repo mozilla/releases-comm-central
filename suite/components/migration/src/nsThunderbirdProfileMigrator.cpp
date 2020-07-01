@@ -181,19 +181,19 @@ nsThunderbirdProfileMigrator::FillProfileDataFromRegistry()
   fileLocator->Get(NS_WIN_APPDATA_DIR, NS_GET_IID(nsIFile),
                    getter_AddRefs(thunderbirdData));
 
-  thunderbirdData->Append(NS_LITERAL_STRING("Thunderbird"));
+  thunderbirdData->Append(u"Thunderbird"_ns);
 
 #elif defined(XP_MACOSX)
   fileLocator->Get(NS_MAC_USER_LIB_DIR, NS_GET_IID(nsIFile),
                    getter_AddRefs(thunderbirdData));
 
-  thunderbirdData->Append(NS_LITERAL_STRING("Thunderbird"));
+  thunderbirdData->Append(u"Thunderbird"_ns);
 
 #elif defined(XP_UNIX)
   fileLocator->Get(NS_UNIX_HOME_DIR, NS_GET_IID(nsIFile),
                    getter_AddRefs(thunderbirdData));
 
-  thunderbirdData->Append(NS_LITERAL_STRING(".thunderbird"));
+  thunderbirdData->Append(u".thunderbird"_ns);
 
 #else
   // On other OS just abort

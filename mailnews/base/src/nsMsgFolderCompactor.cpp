@@ -328,7 +328,7 @@ nsresult nsFolderCompactState::Init(nsIMsgFolder* folder,
   NS_ENSURE_SUCCESS(rv, rv);
   m_file->InitWithFile(path);
 
-  m_file->SetNativeLeafName(NS_LITERAL_CSTRING("nstmp"));
+  m_file->SetNativeLeafName("nstmp"_ns);
   // Make sure we are not crunching existing nstmp file.
   rv = m_file->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 00600);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -406,8 +406,7 @@ nsresult nsFolderCompactState::StartCompacting() {
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
       do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
   if (notifier)
-    notifier->NotifyItemEvent(m_folder,
-                              NS_LITERAL_CSTRING("FolderCompactStart"), nullptr,
+    notifier->NotifyItemEvent(m_folder, "FolderCompactStart"_ns, nullptr,
                               EmptyCString());
 
   // TODO: test whether sorting the messages (m_keyArray) by messageOffset
@@ -582,9 +581,8 @@ nsresult nsFolderCompactState::FinishCompact() {
   nsCOMPtr<nsIMsgFolderNotificationService> notifier(
       do_GetService(NS_MSGNOTIFICATIONSERVICE_CONTRACTID));
   if (notifier)
-    notifier->NotifyItemEvent(m_folder,
-                              NS_LITERAL_CSTRING("FolderCompactFinish"),
-                              nullptr, EmptyCString());
+    notifier->NotifyItemEvent(m_folder, "FolderCompactFinish"_ns, nullptr,
+                              EmptyCString());
   m_folder->NotifyCompactCompleted();
 
   if (m_compactAll)

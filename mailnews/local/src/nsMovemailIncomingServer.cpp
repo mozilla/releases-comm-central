@@ -88,10 +88,10 @@ nsMovemailIncomingServer::SetFlagsOnDefaultMailboxes() {
 }
 
 NS_IMETHODIMP nsMovemailIncomingServer::CreateDefaultMailboxes() {
-  nsresult rv = CreateLocalFolder(NS_LITERAL_STRING("Inbox"));
+  nsresult rv = CreateLocalFolder(u"Inbox"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return CreateLocalFolder(NS_LITERAL_STRING("Trash"));
+  return CreateLocalFolder(u"Trash"_ns);
 }
 
 NS_IMETHODIMP

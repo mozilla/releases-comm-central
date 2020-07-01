@@ -394,8 +394,7 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
     // Maildir doesn't care about quaranting, but other stores besides berkeley
     // mailbox might. We should probably make this an attribute on the pluggable
     // store, though.
-    if (plugStoreContract.Equals(
-            NS_LITERAL_CSTRING("@mozilla.org/msgstore/berkeleystore;1")))
+    if (plugStoreContract.Equals("@mozilla.org/msgstore/berkeleystore;1"_ns))
       pPrefBranch->GetBoolPref("mailnews.downloadToTempFile",
                                &m_downloadingToTempFile);
   }
@@ -524,8 +523,7 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
   PR_smprintf_free(statusLine);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = WriteLineToMailbox(
-      NS_LITERAL_CSTRING("X-Mozilla-Status2: 00000000" MSG_LINEBREAK));
+  rv = WriteLineToMailbox("X-Mozilla-Status2: 00000000"_ns MSG_LINEBREAK);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // leave space for 60 bytes worth of keys/tags
@@ -640,9 +638,8 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
         if (m_folder) m_folder->GetPrettyName(folderName);
         // This merits a console message, it's poor man's telemetry.
         MsgLogToConsole4(
-            NS_LITERAL_STRING("Unexpected file position change detected") +
-                (folderName.IsEmpty() ? EmptyString()
-                                      : NS_LITERAL_STRING(" in folder ")) +
+            u"Unexpected file position change detected"_ns +
+                (folderName.IsEmpty() ? EmptyString() : u" in folder "_ns) +
                 (folderName.IsEmpty() ? EmptyString() : folderName) +
                 NS_LITERAL_STRING(
                     ". "

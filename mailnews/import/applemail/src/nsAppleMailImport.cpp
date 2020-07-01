@@ -205,7 +205,7 @@ NS_IMETHODIMP nsAppleMailImportMail::FindMailboxes(nsIFile* aMailboxFile,
         do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv));
     if (NS_SUCCEEDED(rv)) {
       mailboxesDir->InitWithFile(aMailboxFile);
-      rv = mailboxesDir->Append(NS_LITERAL_STRING("Mailboxes"));
+      rv = mailboxesDir->Append(u"Mailboxes"_ns);
       if (NS_SUCCEEDED(rv)) {
         IMPORT_LOG0("Looking for global Apple mailboxes");
 
@@ -249,11 +249,11 @@ void nsAppleMailImportMail::FindAccountMailDirs(
       currentEntry->GetLeafName(folderName);
       bool isAccountFolder = false;
 
-      if (StringBeginsWith(folderName, NS_LITERAL_STRING("POP-"))) {
+      if (StringBeginsWith(folderName, u"POP-"_ns)) {
         // cut off "POP-" prefix so we get a nice folder name
         folderName.Cut(0, 4);
         isAccountFolder = true;
-      } else if (StringBeginsWith(folderName, NS_LITERAL_STRING("IMAP-"))) {
+      } else if (StringBeginsWith(folderName, u"IMAP-"_ns)) {
         // cut off "IMAP-" prefix so we get a nice folder name
         folderName.Cut(0, 5);
         isAccountFolder = true;
@@ -303,9 +303,9 @@ nsresult nsAppleMailImportMail::AddMboxDir(nsIFile* aFolder,
     folderName.SetLength(folderName.Length() - 5);
   else if (StringEndsWith(folderName, NS_LITERAL_STRING(IMAP_MBOX_SUFFIX)))
     folderName.SetLength(folderName.Length() - 9);
-  else if (StringBeginsWith(folderName, NS_LITERAL_STRING("POP-")))
+  else if (StringBeginsWith(folderName, u"POP-"_ns))
     folderName.Cut(4, folderName.Length());
-  else if (StringBeginsWith(folderName, NS_LITERAL_STRING("IMAP-")))
+  else if (StringBeginsWith(folderName, u"IMAP-"_ns))
     folderName.Cut(5, folderName.Length());
 
   nsCOMPtr<nsIImportMailboxDescriptor> desc;
@@ -318,7 +318,7 @@ nsresult nsAppleMailImportMail::AddMboxDir(nsIFile* aFolder,
       // move to the .mbox's Messages folder
       nsCOMPtr<nsIFile> messagesFolder;
       aFolder->Clone(getter_AddRefs(messagesFolder));
-      nsresult rv = messagesFolder->Append(NS_LITERAL_STRING("Messages"));
+      nsresult rv = messagesFolder->Append(u"Messages"_ns);
       NS_ENSURE_SUCCESS(rv, rv);
 
       // count the number of messages in this folder. it sucks that we have to
@@ -490,7 +490,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor* aMailbox,
     // move to the .mbox's Messages folder
     nsCOMPtr<nsIFile> messagesFolder;
     mboxFolder->Clone(getter_AddRefs(messagesFolder));
-    rv = messagesFolder->Append(NS_LITERAL_STRING("Messages"));
+    rv = messagesFolder->Append(u"Messages"_ns);
     if (NS_FAILED(rv)) {
       // even if there are no messages, it might still be a valid mailbox, or
       // even a parent for other mailboxes.
@@ -545,7 +545,7 @@ nsAppleMailImportMail::ImportMailbox(nsIImportMailboxDescriptor* aMailbox,
 
       nsAutoString leafName;
       currentEntry->GetLeafName(leafName);
-      if (!StringEndsWith(leafName, NS_LITERAL_STRING(".emlx"))) continue;
+      if (!StringEndsWith(leafName, u".emlx"_ns)) continue;
 
       nsCOMPtr<nsIMsgDBHdr> msgHdr;
       bool reusable;

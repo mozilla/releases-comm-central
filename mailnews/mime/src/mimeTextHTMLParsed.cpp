@@ -93,7 +93,7 @@ static int MimeInlineTextHTMLParsed_parse_eof(MimeObject* obj, bool abort_p) {
   NS_ENSURE_TRUE(encoder, -1);
   uint32_t aFlags = nsIDocumentEncoder::OutputRaw |
                     nsIDocumentEncoder::OutputDisallowLineBreaking;
-  rv = encoder->Init(document, NS_LITERAL_STRING("text/html"), aFlags);
+  rv = encoder->Init(document, u"text/html"_ns, aFlags);
   NS_ENSURE_SUCCESS(rv, -1);
   rv = encoder->EncodeToString(parsed);
   NS_ENSURE_SUCCESS(rv, -1);

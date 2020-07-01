@@ -188,7 +188,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL** aResult) {
      */
     URI = mURINoQuery;
     if (StringBeginsWith(URI, NS_LITERAL_CSTRING(kLDAPDirectoryRoot)))
-      URI.Replace(0, kLDAPDirectoryRootLen, NS_LITERAL_CSTRING("ldap://"));
+      URI.Replace(0, kLDAPDirectoryRootLen, "ldap://"_ns);
   }
 
   nsCOMPtr<nsIIOService> ioService = mozilla::services::GetIOService();
@@ -221,11 +221,10 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetLDAPURL(nsILDAPURL* aUrl) {
   // listeners get updated correctly.
 
   // See if they both start with ldaps: or ldap:
-  bool newIsNotSecure =
-      StringBeginsWith(tempLDAPURL, NS_LITERAL_CSTRING("ldap:"));
+  bool newIsNotSecure = StringBeginsWith(tempLDAPURL, "ldap:"_ns);
 
   if (oldUrl.IsEmpty() ||
-      StringBeginsWith(oldUrl, NS_LITERAL_CSTRING("ldap:")) != newIsNotSecure) {
+      StringBeginsWith(oldUrl, "ldap:"_ns) != newIsNotSecure) {
     // They don't so its time to send round an update.
     nsCOMPtr<nsIAbManager> abManager =
         do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
@@ -488,8 +487,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetProtocolVersion(
     uint32_t* aProtocolVersion) {
   nsAutoCString versionString;
 
-  nsresult rv =
-      GetStringValue("protocolVersion", NS_LITERAL_CSTRING("3"), versionString);
+  nsresult rv = GetStringValue("protocolVersion", "3"_ns, versionString);
   NS_ENSURE_SUCCESS(rv, rv);
 
   *aProtocolVersion = versionString.EqualsLiteral("3")
@@ -502,10 +500,9 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetProtocolVersion(
 NS_IMETHODIMP nsAbLDAPDirectory::SetProtocolVersion(uint32_t aProtocolVersion) {
   // XXX We should cancel any existing LDAP connections here and
   // be ready to re-initialise them with the new auth details.
-  return SetStringValue("protocolVersion",
-                        aProtocolVersion == nsILDAPConnection::VERSION3
-                            ? NS_LITERAL_CSTRING("3")
-                            : NS_LITERAL_CSTRING("2"));
+  return SetStringValue(
+      "protocolVersion",
+      aProtocolVersion == nsILDAPConnection::VERSION3 ? "3"_ns : "2"_ns);
 }
 
 NS_IMETHODIMP nsAbLDAPDirectory::GetMaxHits(int32_t* aMaxHits) {
@@ -613,8 +610,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::ModifyCard(nsIAbCard* aUpdatedCard) {
 }
 
 NS_IMETHODIMP nsAbLDAPDirectory::GetRdnAttributes(nsACString& aRdnAttributes) {
-  return GetStringValue("rdnAttributes", NS_LITERAL_CSTRING("cn"),
-                        aRdnAttributes);
+  return GetStringValue("rdnAttributes", "cn"_ns, aRdnAttributes);
 }
 
 NS_IMETHODIMP nsAbLDAPDirectory::SetRdnAttributes(

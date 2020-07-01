@@ -114,10 +114,10 @@ nsresult GetHelperPath(nsAutoString& aPath) {
                              getter_AddRefs(appHelper));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = appHelper->Append(NS_LITERAL_STRING("uninstall"));
+  rv = appHelper->Append(u"uninstall"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  rv = appHelper->Append(NS_LITERAL_STRING("helper.exe"));
+  rv = appHelper->Append(u"helper.exe"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
 
   return appHelper->GetPath(aPath);

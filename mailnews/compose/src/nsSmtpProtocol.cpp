@@ -124,7 +124,7 @@ nsresult nsExplainErrorDetails(nsISmtpUrl* aSmtpUrl, nsresult aCode,
         // Some error strings contain %s. We're supplying 16-bit strings,
         // so replace those with %S. It's a bit hacky. but it saves
         // us tweaking some pretty old message strings.
-        eMsg.ReplaceSubstring(NS_LITERAL_STRING("%s"), NS_LITERAL_STRING("%S"));
+        eMsg.ReplaceSubstring(u"%s"_ns, u"%S"_ns);
         nsTextFormatter::ssprintf(
             msg, eMsg.get(), NS_ConvertUTF8toUTF16(arg1).get(),
             arg2 ? NS_ConvertUTF8toUTF16(arg2).get() : nullptr);
@@ -864,47 +864,47 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream* inputStream,
       SetFlag(SMTP_EHLO_CLIENTID_ENABLED);
       // If we have "clientid" in the ehlo response, then TLS must be present.
       if (m_prefSocketType == nsMsgSocketType::SSL) m_tlsEnabled = true;
-    } else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("AUTH"),
+    } else if (StringBeginsWith(responseLine, "AUTH"_ns,
                                 nsCaseInsensitiveCStringComparator)) {
       SetFlag(SMTP_AUTH);
 
-      if (responseLine.Find(NS_LITERAL_CSTRING("GSSAPI"),
+      if (responseLine.Find("GSSAPI"_ns,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_GSSAPI_ENABLED);
 
-      if (responseLine.Find(NS_LITERAL_CSTRING("CRAM-MD5"),
+      if (responseLine.Find("CRAM-MD5"_ns,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_CRAM_MD5_ENABLED);
 
-      if (responseLine.Find(NS_LITERAL_CSTRING("NTLM"),
+      if (responseLine.Find("NTLM"_ns,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_NTLM_ENABLED);
 
-      if (responseLine.Find(NS_LITERAL_CSTRING("MSN"),
+      if (responseLine.Find("MSN"_ns,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_MSN_ENABLED);
 
-      if (responseLine.Find(NS_LITERAL_CSTRING("PLAIN"),
+      if (responseLine.Find("PLAIN"_ns,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_PLAIN_ENABLED);
 
-      if (responseLine.Find(NS_LITERAL_CSTRING("LOGIN"),
+      if (responseLine.Find("LOGIN"_ns,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_LOGIN_ENABLED);
 
-      if (responseLine.Find(NS_LITERAL_CSTRING("EXTERNAL"),
+      if (responseLine.Find("EXTERNAL"_ns,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_EXTERNAL_ENABLED);
 
-      if (responseLine.Find(NS_LITERAL_CSTRING("XOAUTH2"),
+      if (responseLine.Find("XOAUTH2"_ns,
                             /* ignoreCase = */ true) >= 0)
         SetFlag(SMTP_AUTH_OAUTH2_ENABLED);
-    } else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("SIZE"),
+    } else if (StringBeginsWith(responseLine, "SIZE"_ns,
                                 nsCaseInsensitiveCStringComparator)) {
       SetFlag(SMTP_EHLO_SIZE_ENABLED);
 
       m_sizelimit = atol((responseLine.get()) + 4);
-    } else if (StringBeginsWith(responseLine, NS_LITERAL_CSTRING("8BITMIME"),
+    } else if (StringBeginsWith(responseLine, "8BITMIME"_ns,
                                 nsCaseInsensitiveCStringComparator)) {
       SetFlag(SMTP_EHLO_8BIT_ENABLED);
     }

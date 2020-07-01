@@ -24,10 +24,10 @@
 #include "nsINIParser.h"
 #include "nsArrayUtils.h"
 
-#define MAIL_DIR_50_NAME             NS_LITERAL_STRING("Mail")
-#define IMAP_MAIL_DIR_50_NAME        NS_LITERAL_STRING("ImapMail")
-#define NEWS_DIR_50_NAME             NS_LITERAL_STRING("News")
-#define DIR_NAME_CHROME              NS_LITERAL_STRING("chrome")
+#define MAIL_DIR_50_NAME             u"Mail"_ns
+#define IMAP_MAIL_DIR_50_NAME        u"ImapMail"_ns
+#define NEWS_DIR_50_NAME             u"News"_ns
+#define DIR_NAME_CHROME              u"chrome"_ns
 
 NS_IMPL_ISUPPORTS(nsSuiteProfileMigratorBase, nsISuiteProfileMigrator,
                   nsITimerCallback)
@@ -259,7 +259,7 @@ nsSuiteProfileMigratorBase::GetProfileDataFromProfilesIni(nsIFile* aDataDir,
   rv = aDataDir->Clone(getter_AddRefs(profileIni));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  profileIni->Append(NS_LITERAL_STRING("profiles.ini"));
+  profileIni->Append(u"profiles.ini"_ns);
 
   // Does it exist?
   bool profileFileExists = false;
@@ -523,7 +523,7 @@ nsSuiteProfileMigratorBase::GetFileValue(nsIPrefBranch* aPrefBranch,
   nsresult rv = aPrefBranch->GetCharPref(aRelPrefName, prefValue);
   if (NS_SUCCEEDED(rv)) {
     // The pref has the format: [ProfD]a/b/c
-    if (!StringBeginsWith(prefValue, NS_LITERAL_CSTRING("[ProfD]")))
+    if (!StringBeginsWith(prefValue, "[ProfD]"_ns))
       return NS_ERROR_FILE_NOT_FOUND;
 
     rv = NS_NewNativeLocalFile(EmptyCString(), true, getter_AddRefs(theFile));
@@ -560,7 +560,7 @@ nsSuiteProfileMigratorBase::CopyAddressBookDirectories(PBStructArray &aLdapServe
     PrefBranchStruct* pref = aLdapServers.ElementAt(i);
     nsDependentCString prefName(pref->prefName);
 
-    if (StringEndsWith(prefName, NS_LITERAL_CSTRING(".filename"))) {
+    if (StringEndsWith(prefName, ".filename"_ns)) {
       CopyFile(pref->stringValue, pref->stringValue);
     }
 
@@ -588,7 +588,7 @@ nsSuiteProfileMigratorBase::CopySignatureFiles(PBStructArray &aIdentities,
     // old profile root, we'll copy it over to the new profile root and
     // then set the pref to the new value. Note, this doesn't work for
     // multiple signatures that live below the seamonkey profile root
-    if (StringEndsWith(prefName, NS_LITERAL_CSTRING(".sig_file")))
+    if (StringEndsWith(prefName, ".sig_file"_ns))
     {
       // turn the pref into a nsIFile
       nsCOMPtr<nsIFile> srcSigFile =
@@ -646,7 +646,7 @@ nsSuiteProfileMigratorBase::CopyMailFolderPrefs(PBStructArray &aMailServers,
     PrefBranchStruct* pref = aMailServers.ElementAt(i);
     nsDependentCString prefName(pref->prefName);
 
-    if (StringEndsWith(prefName, NS_LITERAL_CSTRING(".directory"))) {
+    if (StringEndsWith(prefName, ".directory"_ns)) {
       // let's try to get a branch for this particular server to simplify things
       prefName.Cut(prefName.Length() - strlen("directory"),
                    strlen("directory"));
@@ -709,7 +709,7 @@ nsSuiteProfileMigratorBase::CopyMailFolderPrefs(PBStructArray &aMailServers,
         pref->stringValue = ToNewCString(descriptorString);
       }
     }
-    else if (StringEndsWith(prefName, NS_LITERAL_CSTRING(".newsrc.file"))) {
+    else if (StringEndsWith(prefName, ".newsrc.file"_ns)) {
       // copy the news RC file into \News. this won't work if the user has
       // different newsrc files for each account I don't know what to do in
       // that situation.
@@ -751,7 +751,7 @@ nsSuiteProfileMigratorBase::CopyMailFolderPrefs(PBStructArray &aMailServers,
     PrefBranchStruct* pref = aMailServers.ElementAt(i);
     nsDependentCString prefName(pref->prefName);
 
-    if (StringEndsWith(prefName, NS_LITERAL_CSTRING(".directory-rel"))) {
+    if (StringEndsWith(prefName, ".directory-rel"_ns)) {
       if (pref->type == nsIPrefBranch::PREF_STRING)
         free(pref->stringValue);
 

@@ -1038,7 +1038,7 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetIsMessageUri(bool* aIsMessageUri) {
   NS_ENSURE_ARG(aIsMessageUri);
   nsAutoCString scheme;
   m_baseURL->GetScheme(scheme);
-  *aIsMessageUri = StringEndsWith(scheme, NS_LITERAL_CSTRING("-message"));
+  *aIsMessageUri = StringEndsWith(scheme, "-message"_ns);
   return NS_OK;
 }
 

@@ -850,7 +850,7 @@ nsresult nsMsgSearchTerm::MatchBody(nsIMsgSearchScopeTerm* scope,
       bool softLineBreak = false;
       // Do in-place decoding of quoted printable
       if (bodyHan->IsQP()) {
-        softLineBreak = StringEndsWith(buf, NS_LITERAL_CSTRING("="));
+        softLineBreak = StringEndsWith(buf, "="_ns);
         MsgStripQuotedPrintable(buf);
         // If soft line break, chop off the last char as well.
         size_t bufLength = buf.Length();

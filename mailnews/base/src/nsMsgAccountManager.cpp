@@ -221,7 +221,7 @@ NS_IMETHODIMP nsMsgAccountManager::Observe(nsISupports* aSubject,
     return NS_OK;
   }
   if (!strcmp(aTopic, ABOUT_TO_GO_OFFLINE_TOPIC)) {
-    nsAutoString dataString(NS_LITERAL_STRING("offline"));
+    nsAutoString dataString(u"offline"_ns);
     if (someData) {
       nsAutoString someDataString(someData);
       if (dataString.Equals(someDataString)) CloseCachedConnections();
@@ -1976,18 +1976,13 @@ NS_IMETHODIMP nsMsgAccountManager::GetLocalFoldersServer(
   }
 
   // try ("nobody","Local Folders","none"), and work down to any "none" server.
-  rv = FindServer(NS_LITERAL_CSTRING("nobody"),
-                  NS_LITERAL_CSTRING("Local Folders"),
-                  NS_LITERAL_CSTRING("none"), aServer);
+  rv = FindServer("nobody"_ns, "Local Folders"_ns, "none"_ns, aServer);
   if (NS_FAILED(rv) || !*aServer) {
-    rv = FindServer(NS_LITERAL_CSTRING("nobody"), EmptyCString(),
-                    NS_LITERAL_CSTRING("none"), aServer);
+    rv = FindServer("nobody"_ns, EmptyCString(), "none"_ns, aServer);
     if (NS_FAILED(rv) || !*aServer) {
-      rv = FindServer(EmptyCString(), NS_LITERAL_CSTRING("Local Folders"),
-                      NS_LITERAL_CSTRING("none"), aServer);
+      rv = FindServer(EmptyCString(), "Local Folders"_ns, "none"_ns, aServer);
       if (NS_FAILED(rv) || !*aServer)
-        rv = FindServer(EmptyCString(), EmptyCString(),
-                        NS_LITERAL_CSTRING("none"), aServer);
+        rv = FindServer(EmptyCString(), EmptyCString(), "none"_ns, aServer);
     }
   }
 
@@ -2024,9 +2019,8 @@ NS_IMETHODIMP
 nsMsgAccountManager::CreateLocalMailAccount() {
   // create the server
   nsCOMPtr<nsIMsgIncomingServer> server;
-  nsresult rv = CreateIncomingServer(
-      NS_LITERAL_CSTRING("nobody"), NS_LITERAL_CSTRING("Local Folders"),
-      NS_LITERAL_CSTRING("none"), getter_AddRefs(server));
+  nsresult rv = CreateIncomingServer("nobody"_ns, "Local Folders"_ns, "none"_ns,
+                                     getter_AddRefs(server));
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsString localFoldersName;
@@ -2244,8 +2238,7 @@ nsresult VirtualFolderChangeListener::Init() {
                                           getter_AddRefs(filterList));
     NS_ENSURE_SUCCESS(rv, rv);
     nsCOMPtr<nsIMsgFilter> tempFilter;
-    filterList->CreateFilter(NS_LITERAL_STRING("temp"),
-                             getter_AddRefs(tempFilter));
+    filterList->CreateFilter(u"temp"_ns, getter_AddRefs(tempFilter));
     NS_ENSURE_SUCCESS(rv, rv);
     filterList->ParseCondition(tempFilter, searchTermString.get());
     NS_ENSURE_SUCCESS(rv, rv);
@@ -2624,7 +2617,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
           version = buffer.ToInteger(&irv);
           continue;
         }
-        if (StringBeginsWith(buffer, NS_LITERAL_CSTRING("uri="))) {
+        if (StringBeginsWith(buffer, "uri="_ns)) {
           buffer.Cut(0, 4);
           dbFolderInfo = nullptr;
 
@@ -2681,8 +2674,7 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
             parentFolder->GetIsServer(&isServer);
             buffer.SetLength(lastSlash);
           } while (!grandParent && !isServer);
-        } else if (dbFolderInfo &&
-                   StringBeginsWith(buffer, NS_LITERAL_CSTRING("scope="))) {
+        } else if (dbFolderInfo && StringBeginsWith(buffer, "scope="_ns)) {
           buffer.Cut(0, 6);
           // if this is a cross folder virtual folder, we have a list of folders
           // uris, and we have to add a pending listener for each of them.
@@ -2691,13 +2683,11 @@ NS_IMETHODIMP nsMsgAccountManager::LoadVirtualFolders() {
             dbFolderInfo->SetCharProperty(kSearchFolderUriProp, buffer);
             AddVFListenersForVF(virtualFolder, buffer, msgDBService);
           }
-        } else if (dbFolderInfo &&
-                   StringBeginsWith(buffer, NS_LITERAL_CSTRING("terms="))) {
+        } else if (dbFolderInfo && StringBeginsWith(buffer, "terms="_ns)) {
           buffer.Cut(0, 6);
           dbFolderInfo->SetCharProperty("searchStr", buffer);
         } else if (dbFolderInfo &&
-                   StringBeginsWith(buffer,
-                                    NS_LITERAL_CSTRING("searchOnline="))) {
+                   StringBeginsWith(buffer, "searchOnline="_ns)) {
           buffer.Cut(0, 13);
           dbFolderInfo->SetBooleanProperty("searchOnline",
                                            buffer.EqualsLiteral("true"));

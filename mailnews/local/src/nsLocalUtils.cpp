@@ -39,7 +39,7 @@ static nsresult nsGetMailboxServer(const char* uriStr,
 
   // find all local mail "no servers" matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> none_server;
-  rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("none")).Finalize(url);
+  rv = NS_MutateURI(url).SetScheme("none"_ns).Finalize(url);
   NS_ENSURE_SUCCESS(rv, rv);
   // No unescaping of username or hostname done here.
   // The unescaping is done inside of FindServerByURI
@@ -51,7 +51,7 @@ static nsresult nsGetMailboxServer(const char* uriStr,
 
   // if that fails, look for the rss hosts matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> rss_server;
-  rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("rss")).Finalize(url);
+  rv = NS_MutateURI(url).SetScheme("rss"_ns).Finalize(url);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = accountManager->FindServerByURI(url, false, getter_AddRefs(rss_server));
   if (NS_SUCCEEDED(rv)) {
@@ -61,8 +61,7 @@ static nsresult nsGetMailboxServer(const char* uriStr,
 #ifdef HAVE_MOVEMAIL
   // find all movemail "servers" matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> movemail_server;
-  rv =
-      NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("movemail")).Finalize(url);
+  rv = NS_MutateURI(url).SetScheme("movemail"_ns).Finalize(url);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = accountManager->FindServerByURI(url, false,
                                        getter_AddRefs(movemail_server));
@@ -75,15 +74,14 @@ static nsresult nsGetMailboxServer(const char* uriStr,
   // if that fails, look for the pop hosts matching the given hostname
   nsCOMPtr<nsIMsgIncomingServer> server;
   if (NS_FAILED(rv)) {
-    rv = NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("pop3")).Finalize(url);
+    rv = NS_MutateURI(url).SetScheme("pop3"_ns).Finalize(url);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
 
     // if we can't find a pop server, maybe it's a local message
     // in an imap hierarchy. look for an imap server.
     if (NS_FAILED(rv)) {
-      rv =
-          NS_MutateURI(url).SetScheme(NS_LITERAL_CSTRING("imap")).Finalize(url);
+      rv = NS_MutateURI(url).SetScheme("imap"_ns).Finalize(url);
       NS_ENSURE_SUCCESS(rv, rv);
       rv = accountManager->FindServerByURI(url, false, getter_AddRefs(server));
     }
@@ -155,10 +153,9 @@ nsresult nsLocalURI2Path(const char* rootURI, const char* uriStr,
       nsCString unescapedStr;
       MsgUnescapeString(nsDependentCString(curPos), 0, unescapedStr);
       NS_MsgCreatePathStringFromFolderURI(unescapedStr.get(), newPath,
-                                          NS_LITERAL_CSTRING("none"));
+                                          "none"_ns);
     } else
-      NS_MsgCreatePathStringFromFolderURI(curPos, newPath,
-                                          NS_LITERAL_CSTRING("none"));
+      NS_MsgCreatePathStringFromFolderURI(curPos, newPath, "none"_ns);
 
     pathResult.Append('/');
     pathResult.Append(newPath);

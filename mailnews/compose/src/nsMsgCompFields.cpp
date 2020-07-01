@@ -81,8 +81,7 @@ nsMsgCompFields::nsMsgCompFields()
   // Get the default charset from pref, use this as a mail charset.
   nsString charset;
   NS_GetLocalizedUnicharPreferenceWithDefault(
-      nullptr, "mailnews.send_default_charset", NS_LITERAL_STRING("UTF-8"),
-      charset);
+      nullptr, "mailnews.send_default_charset", u"UTF-8"_ns, charset);
 
   LossyCopyUTF16toASCII(charset,
                         m_DefaultCharacterSet);  // Charsets better be ASCII

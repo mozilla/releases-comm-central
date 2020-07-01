@@ -110,7 +110,7 @@ NS_IMETHODIMP JaBaseCppUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
   // Strip any query part beginning with ? or /;
   MsgRemoveQueryPart(spec);
 
-  if (!queryPart.IsEmpty()) spec += NS_LITERAL_CSTRING("?") + queryPart;
+  if (!queryPart.IsEmpty()) spec += "?"_ns + queryPart;
 
   aPrincipalSpec.Assign(spec);
   return NS_OK;

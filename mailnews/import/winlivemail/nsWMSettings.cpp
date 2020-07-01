@@ -125,11 +125,11 @@ bool WMSettings::DoImport(nsIMsgAccount** ppAccount) {
 
   nsresult rv;
   nsCOMPtr<nsIWindowsRegKey> subKey;
-  if (NS_SUCCEEDED(key->OpenChild(NS_LITERAL_STRING("mail"),
+  if (NS_SUCCEEDED(key->OpenChild(u"mail"_ns,
                                   nsIWindowsRegKey::ACCESS_QUERY_VALUE,
                                   getter_AddRefs(subKey)))) {
     uint32_t dwordResult = -1;
-    rv = subKey->ReadIntValue(NS_LITERAL_STRING("Poll For Mail"),
+    rv = subKey->ReadIntValue(u"Poll For Mail"_ns,
                               &dwordResult);  // reg_dword
     subKey->Close();
     if (NS_SUCCEEDED(rv) && dwordResult != -1) {
@@ -141,9 +141,9 @@ bool WMSettings::DoImport(nsIMsgAccount** ppAccount) {
   // (less than 64 chars) e.g.
   // account{4A18B81E-83CA-472A-8D7F-5301C0B97B8D}.oeaccount
   nsAutoString defMailAcct, defNewsAcct;
-  key->ReadStringValue(NS_LITERAL_STRING("Default Mail Account"),
+  key->ReadStringValue(u"Default Mail Account"_ns,
                        defMailAcct);  // ref_sz
-  key->ReadStringValue(NS_LITERAL_STRING("Default News Account"),
+  key->ReadStringValue(u"Default News Account"_ns,
                        defNewsAcct);  // ref_sz
 
   nsCOMPtr<nsIMsgAccountManager> accMgr =
@@ -210,14 +210,14 @@ bool WMSettings::DoIMAPServer(nsIMsgAccountManager* pMgr,
   bool result = false;
   // I now have a user name/server name pair, find out if it already exists?
   nsCOMPtr<nsIMsgIncomingServer> in;
-  nsresult rv = pMgr->FindServer(
-      NS_ConvertUTF16toUTF8(userName), NS_ConvertUTF16toUTF8(serverName),
-      NS_LITERAL_CSTRING("imap"), getter_AddRefs(in));
+  nsresult rv = pMgr->FindServer(NS_ConvertUTF16toUTF8(userName),
+                                 NS_ConvertUTF16toUTF8(serverName), "imap"_ns,
+                                 getter_AddRefs(in));
   if (NS_FAILED(rv) || (in == nullptr)) {
     // Create the incoming server and an account for it?
-    rv = pMgr->CreateIncomingServer(
-        NS_ConvertUTF16toUTF8(userName), NS_ConvertUTF16toUTF8(serverName),
-        NS_LITERAL_CSTRING("imap"), getter_AddRefs(in));
+    rv = pMgr->CreateIncomingServer(NS_ConvertUTF16toUTF8(userName),
+                                    NS_ConvertUTF16toUTF8(serverName),
+                                    "imap"_ns, getter_AddRefs(in));
     if (NS_SUCCEEDED(rv) && in) {
       nsCOMPtr<nsIImapIncomingServer> imapServer = do_QueryInterface(in);
       if (!imapServer) {
@@ -305,14 +305,14 @@ bool WMSettings::DoPOP3Server(nsIMsgAccountManager* pMgr,
   bool result = false;
   // I now have a user name/server name pair, find out if it already exists?
   nsCOMPtr<nsIMsgIncomingServer> in;
-  nsresult rv = pMgr->FindServer(
-      NS_ConvertUTF16toUTF8(userName), NS_ConvertUTF16toUTF8(serverName),
-      NS_LITERAL_CSTRING("pop3"), getter_AddRefs(in));
+  nsresult rv = pMgr->FindServer(NS_ConvertUTF16toUTF8(userName),
+                                 NS_ConvertUTF16toUTF8(serverName), "pop3"_ns,
+                                 getter_AddRefs(in));
   if (NS_FAILED(rv) || (in == nullptr)) {
     // Create the incoming server and an account for it?
-    rv = pMgr->CreateIncomingServer(
-        NS_ConvertUTF16toUTF8(userName), NS_ConvertUTF16toUTF8(serverName),
-        NS_LITERAL_CSTRING("pop3"), getter_AddRefs(in));
+    rv = pMgr->CreateIncomingServer(NS_ConvertUTF16toUTF8(userName),
+                                    NS_ConvertUTF16toUTF8(serverName),
+                                    "pop3"_ns, getter_AddRefs(in));
     if (NS_SUCCEEDED(rv) && in) {
       nsCOMPtr<nsIPop3IncomingServer> pop3Server = do_QueryInterface(in);
       if (!pop3Server) {
@@ -456,12 +456,12 @@ bool WMSettings::DoNNTPServer(nsIMsgAccountManager* pMgr,
   nsCOMPtr<nsIMsgIncomingServer> in;
   nsresult rv =
       pMgr->FindServer(EmptyCString(), NS_ConvertUTF16toUTF8(serverName),
-                       NS_LITERAL_CSTRING("nntp"), getter_AddRefs(in));
+                       "nntp"_ns, getter_AddRefs(in));
   if (NS_FAILED(rv) || (in == nullptr)) {
     // Create the incoming server and an account for it?
-    rv = pMgr->CreateIncomingServer(
-        nsDependentCString(""), NS_ConvertUTF16toUTF8(serverName),
-        NS_LITERAL_CSTRING("nntp"), getter_AddRefs(in));
+    rv = pMgr->CreateIncomingServer(nsDependentCString(""),
+                                    NS_ConvertUTF16toUTF8(serverName),
+                                    "nntp"_ns, getter_AddRefs(in));
     if (NS_SUCCEEDED(rv) && in) {
       nsCOMPtr<nsINntpIncomingServer> nntpServer = do_QueryInterface(in);
       if (!nntpServer) {

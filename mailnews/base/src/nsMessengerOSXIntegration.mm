@@ -329,10 +329,9 @@ nsresult nsMessengerOSXIntegration::ShowAlertMessage(const nsAString& aAlertTitl
   nsresult rv = alertsService ? NS_OK : NS_ERROR_UNEXPECTED;
   // If we have an nsIAlertsService implementation, use it:
   if (NS_SUCCEEDED(rv)) {
-    alertsService->ShowAlertNotification(EmptyString(), aAlertTitle, aAlertText, true,
-                                         NS_ConvertASCIItoUTF16(aFolderURI), this, EmptyString(),
-                                         NS_LITERAL_STRING("auto"), EmptyString(), EmptyString(),
-                                         nullptr, false, false);
+    alertsService->ShowAlertNotification(
+        EmptyString(), aAlertTitle, aAlertText, true, NS_ConvertASCIItoUTF16(aFolderURI), this,
+        EmptyString(), u"auto"_ns, EmptyString(), EmptyString(), nullptr, false, false);
   }
 
   BounceDockIcon();

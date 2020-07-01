@@ -251,8 +251,8 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIDocShell> messagePaneDocShell;
-  RefPtr<mozilla::dom::Element> el = rootShell->GetDocument()->GetElementById(
-      NS_LITERAL_STRING("messagepane"));
+  RefPtr<mozilla::dom::Element> el =
+      rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
   RefPtr<mozilla::dom::XULFrameElement> frame =
       mozilla::dom::XULFrameElement::FromNodeOrNull(el);
   NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
@@ -318,7 +318,7 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
 
   nsCOMPtr<nsIDocumentEncoder> docEncoder = do_createHTMLCopyEncoder();
 
-  rv = docEncoder->Init(domDocument, NS_LITERAL_STRING("text/html"), 0);
+  rv = docEncoder->Init(domDocument, u"text/html"_ns, 0);
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = docEncoder->SetSelection(sel);
@@ -696,7 +696,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
 
   mHdrToReplyTo->GetMime2DecodedSubject(replySubject);
   mTemplateHdr->GetMime2DecodedSubject(templateSubject);
-  nsString subject(NS_LITERAL_STRING("Auto: "));  // RFC 3834 3.1.5.
+  nsString subject(u"Auto: "_ns);  // RFC 3834 3.1.5.
   subject.Append(templateSubject);
   if (!replySubject.IsEmpty()) {
     subject.AppendLiteral(u" (was: ");
@@ -705,8 +705,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
   }
 
   compFields->SetSubject(subject);
-  compFields->SetRawHeader("Auto-Submitted", NS_LITERAL_CSTRING("auto-replied"),
-                           nullptr);
+  compFields->SetRawHeader("Auto-Submitted", "auto-replied"_ns, nullptr);
 
   nsCString charset;
   rv = mTemplateHdr->GetCharset(getter_Copies(charset));
@@ -1246,11 +1245,11 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
   mimeConverter->SetOrigMsgHdr(aOrigMsgHdr);
 
   nsCOMPtr<nsIURI> url;
-  bool fileUrl = StringBeginsWith(aMsgURI, NS_LITERAL_CSTRING("file:"));
+  bool fileUrl = StringBeginsWith(aMsgURI, "file:"_ns);
   nsCString mailboxUri(aMsgURI);
   if (fileUrl) {
     // We loaded a .eml file from a file: url. Construct equivalent mailbox url.
-    mailboxUri.Replace(0, 5, NS_LITERAL_CSTRING("mailbox:"));
+    mailboxUri.Replace(0, 5, "mailbox:"_ns);
     mailboxUri.AppendLiteral("&number=0");
     // Need this to prevent nsMsgCompose::TagEmbeddedObjects from setting
     // inline images as moz-do-not-send.
@@ -1325,14 +1324,14 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
   nsAutoString uristr;
   bool composeShouldHandle = true;
 
-  rv = aCmdLine->FindFlag(NS_LITERAL_STRING("compose"), false, &found);
+  rv = aCmdLine->FindFlag(u"compose"_ns, false, &found);
   NS_ENSURE_SUCCESS(rv, rv);
 
 #ifndef MOZ_SUITE
   // MAC OS X passes in -url mailto:mscott@mozilla.org into the command line
   // instead of -compose.
   if (found == -1) {
-    rv = aCmdLine->FindFlag(NS_LITERAL_STRING("url"), false, &found);
+    rv = aCmdLine->FindFlag(u"url"_ns, false, &found);
     // we don't want to consume the argument for -url unless we're sure it is a
     // mailto url and we'll figure that out shortly.
     composeShouldHandle = false;
@@ -1348,18 +1347,18 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
 
   if (count > found + 1) {
     aCmdLine->GetArgument(found + 1, uristr);
-    if (StringBeginsWith(uristr, NS_LITERAL_STRING("mailto:")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("preselectid=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("to=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("cc=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("bcc=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("newsgroups=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("subject=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("format=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("body=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("attachment=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("message=")) ||
-        StringBeginsWith(uristr, NS_LITERAL_STRING("from="))) {
+    if (StringBeginsWith(uristr, u"mailto:"_ns) ||
+        StringBeginsWith(uristr, u"preselectid="_ns) ||
+        StringBeginsWith(uristr, u"to="_ns) ||
+        StringBeginsWith(uristr, u"cc="_ns) ||
+        StringBeginsWith(uristr, u"bcc="_ns) ||
+        StringBeginsWith(uristr, u"newsgroups="_ns) ||
+        StringBeginsWith(uristr, u"subject="_ns) ||
+        StringBeginsWith(uristr, u"format="_ns) ||
+        StringBeginsWith(uristr, u"body="_ns) ||
+        StringBeginsWith(uristr, u"attachment="_ns) ||
+        StringBeginsWith(uristr, u"message="_ns) ||
+        StringBeginsWith(uristr, u"from="_ns)) {
       composeShouldHandle = true;  // the -url argument looks like mailto
       end++;
       // mailto: URIs are frequently passed with spaces in them. They should be

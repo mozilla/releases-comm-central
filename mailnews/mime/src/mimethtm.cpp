@@ -182,15 +182,14 @@ void MimeInlineTextHTML_insert_lang_div(MimeObject* obj, nsCString& message) {
   nsAutoCString fontLang;      // langgroup of the font.
   if (NS_SUCCEEDED(GetMailNewsFont(obj, false, &fontSize, &fontSizePercentage,
                                    fontLang))) {
-    message.Insert(NS_LITERAL_CSTRING("<div class=\"moz-text-html\" lang=\"") +
-                       fontLang + NS_LITERAL_CSTRING("\">"),
-                   index);
+    message.Insert(
+        "<div class=\"moz-text-html\" lang=\""_ns + fontLang + "\">"_ns, index);
   } else {
-    message.Insert(NS_LITERAL_CSTRING("<div class=\"moz-text-html\">"), index);
+    message.Insert("<div class=\"moz-text-html\">"_ns, index);
   }
 
   index = message.RFind("</body>", /* ignoreCase = */ true);
-  if (index != kNotFound) message.Insert(NS_LITERAL_CSTRING("</div>"), index);
+  if (index != kNotFound) message.Insert("</div>"_ns, index);
 }
 
 /*

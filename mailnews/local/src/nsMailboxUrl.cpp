@@ -138,12 +138,12 @@ NS_IMETHODIMP nsMailboxUrl::GetNormalizedSpec(nsACString& aPrincipalSpec) {
           folderPath,
           nsINetUtil::ESCAPE_URL_DIRECTORY | nsINetUtil::ESCAPE_URL_FORCED,
           buf);
-      spec = NS_LITERAL_CSTRING("mailbox://") + buf;
+      spec = "mailbox://"_ns + buf;
     }
   }
 
   if (messageKey) {
-    spec += NS_LITERAL_CSTRING("?number=");
+    spec += "?number="_ns;
     spec.Append(messageKey);
     PR_Free(messageKey);
   }

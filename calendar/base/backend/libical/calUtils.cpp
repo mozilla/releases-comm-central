@@ -64,9 +64,9 @@ nsCOMPtr<calITimezone> detectTimezone(icaltimetype const& icalt,
 
 void logMissingTimezone(char const* tzid) {
   // xxx todo: needs l10n
-  nsString msg(NS_LITERAL_STRING("Timezone \""));
+  nsString msg(u"Timezone \""_ns);
   msg += NS_ConvertUTF8toUTF16(tzid);
-  msg += NS_LITERAL_STRING("\" not found, falling back to floating!");
+  msg += u"\" not found, falling back to floating!"_ns;
   logError(msg);
 }
 

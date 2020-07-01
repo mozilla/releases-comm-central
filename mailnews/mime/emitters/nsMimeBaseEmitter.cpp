@@ -520,7 +520,7 @@ nsMimeBaseEmitter::UpdateCharacterSet(const char* aCharset) {
       // have to set content-type since it could have an embedded null byte
       mChannel->SetContentType(nsDependentCString(cBegin));
       if (PL_strcasecmp(aCharset, "US-ASCII") == 0) {
-        mChannel->SetContentCharset(NS_LITERAL_CSTRING("ISO-8859-1"));
+        mChannel->SetContentCharset("ISO-8859-1"_ns);
       } else {
         mChannel->SetContentCharset(nsDependentCString(aCharset));
       }

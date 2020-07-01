@@ -270,8 +270,8 @@ nsNntpIncomingServer::GetCharset(nsACString& aCharset) {
   if (aCharset.IsEmpty()) {
     nsString defaultCharset;
     rv = NS_GetLocalizedUnicharPreferenceWithDefault(
-        nullptr, PREF_MAILNEWS_VIEW_DEFAULT_CHARSET,
-        NS_LITERAL_STRING("ISO-8859-1"), defaultCharset);
+        nullptr, PREF_MAILNEWS_VIEW_DEFAULT_CHARSET, u"ISO-8859-1"_ns,
+        defaultCharset);
     NS_ENSURE_SUCCESS(rv, rv);
     LossyCopyUTF16toASCII(defaultCharset, aCharset);
     SetCharset(aCharset);
@@ -1737,7 +1737,7 @@ nsNntpIncomingServer::SetTree(mozilla::dom::XULTreeElement* tree) {
   if (!element) return NS_OK;
 
   nsAutoString dir;
-  element->GetAttribute(NS_LITERAL_STRING("sortDirection"), dir);
+  element->GetAttribute(u"sortDirection"_ns, dir);
   mSearchResultSortDescending = dir.EqualsLiteral("descending");
   return NS_OK;
 }
@@ -1757,11 +1757,9 @@ nsNntpIncomingServer::CycleHeader(nsTreeColumn* col) {
     RefPtr<mozilla::dom::Element> element = col->Element();
     mSearchResultSortDescending = !mSearchResultSortDescending;
     mozilla::IgnoredErrorResult rv2;
-    element->SetAttribute(dir,
-                          mSearchResultSortDescending
-                              ? NS_LITERAL_STRING("descending")
-                              : NS_LITERAL_STRING("ascending"),
-                          rv2);
+    element->SetAttribute(
+        dir, mSearchResultSortDescending ? u"descending"_ns : u"ascending"_ns,
+        rv2);
     mTree->Invalidate();
   }
   return NS_OK;

@@ -26,7 +26,7 @@
 #define MIGRATION_BUNDLE \
   "chrome://messenger/locale/migration/migration.properties"
 
-#define FILE_NAME_PREFS_5X NS_LITERAL_STRING("prefs.js")
+#define FILE_NAME_PREFS_5X u"prefs.js"_ns
 
 ///////////////////////////////////////////////////////////////////////////////
 // nsNetscapeProfileMigratorBase
@@ -47,7 +47,7 @@ nsresult nsNetscapeProfileMigratorBase::GetProfileDataFromProfilesIni(
   nsresult rv = aDataDir->Clone(getter_AddRefs(profileIni));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  profileIni->Append(NS_LITERAL_STRING("profiles.ini"));
+  profileIni->Append(u"profiles.ini"_ns);
 
   // Does it exist?
   bool profileFileExists = false;

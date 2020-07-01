@@ -27,7 +27,7 @@ nsresult nsWMUtils::FindWMKey(nsIWindowsRegKey** aKey) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                 NS_LITERAL_STRING("Software\\Microsoft\\Windows Live Mail"),
+                 u"Software\\Microsoft\\Windows Live Mail"_ns),
                  nsIWindowsRegKey::ACCESS_QUERY_VALUE);
   if (NS_SUCCEEDED(rv)) {
     key.forget(aKey);
@@ -35,7 +35,7 @@ nsresult nsWMUtils::FindWMKey(nsIWindowsRegKey** aKey) {
   }
 
   rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                 NS_LITERAL_STRING("Software\\Microsoft\\Windows Mail"),
+                 u"Software\\Microsoft\\Windows Mail"_ns,
                  nsIWindowsRegKey::ACCESS_QUERY_VALUE);
   key.forget(aKey);
   return rv;
@@ -51,8 +51,7 @@ nsresult nsWMUtils::GetRootFolder(nsIFile** aRootFolder) {
   // account files; it is in reg_expand_sz so it will need expanding to absolute
   // path.
   nsString storeRoot;
-  nsresult rv =
-      key->ReadStringValue(NS_LITERAL_STRING("Store Root"), storeRoot);
+  nsresult rv = key->ReadStringValue(u"Store Root"_ns, storeRoot);
   key->Close();  // Finished with windows registry key. We do not want to return
                  // before this closing
   if (NS_FAILED(rv) || storeRoot.IsEmpty()) {
@@ -112,8 +111,7 @@ nsresult nsWMUtils::GetOEAccountFilesInFolder(nsIFile* aFolder,
       nsString name;
       rv = file->GetLeafName(name);
       NS_ENSURE_SUCCESS(rv, rv);
-      if (StringEndsWith(name, NS_LITERAL_STRING(".oeaccount")))
-        aFileArray.AppendObject(file);
+      if (StringEndsWith(name, u".oeaccount"_ns)) aFileArray.AppendObject(file);
     }
   }
   return NS_OK;

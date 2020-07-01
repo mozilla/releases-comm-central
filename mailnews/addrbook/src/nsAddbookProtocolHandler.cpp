@@ -85,8 +85,8 @@ nsresult nsAddbookProtocolHandler::GenerateXMLOutputChannel(
 
   if (aLoadInfo) {
     return NS_NewInputStreamChannelInternal(_retval, aURI, inStr.forget(),
-                                            NS_LITERAL_CSTRING("text/xml"),
-                                            EmptyCString(), aLoadInfo);
+                                            "text/xml"_ns, EmptyCString(),
+                                            aLoadInfo);
   }
 
   nsCOMPtr<nsIPrincipal> nullPrincipal =
@@ -97,7 +97,7 @@ nsresult nsAddbookProtocolHandler::GenerateXMLOutputChannel(
   return NS_NewInputStreamChannel(
       _retval, aURI, inStr.forget(), nullPrincipal,
       nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-      nsIContentPolicy::TYPE_OTHER, NS_LITERAL_CSTRING("text/xml"));
+      nsIContentPolicy::TYPE_OTHER, "text/xml"_ns);
 }
 
 NS_IMETHODIMP
@@ -139,10 +139,9 @@ nsAddbookProtocolHandler::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
 
     pipeOut->Close();
     if (aLoadInfo) {
-      return NS_NewInputStreamChannelInternal(
-          _retval, aURI, pipeIn.forget(),
-          NS_LITERAL_CSTRING("application/x-addvcard"), EmptyCString(),
-          aLoadInfo);
+      return NS_NewInputStreamChannelInternal(_retval, aURI, pipeIn.forget(),
+                                              "application/x-addvcard"_ns,
+                                              EmptyCString(), aLoadInfo);
     }
 
     nsCOMPtr<nsIPrincipal> nullPrincipal =
@@ -153,8 +152,7 @@ nsAddbookProtocolHandler::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     return NS_NewInputStreamChannel(
         _retval, aURI, pipeIn.forget(), nullPrincipal,
         nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
-        nsIContentPolicy::TYPE_OTHER,
-        NS_LITERAL_CSTRING("application/x-addvcard"));
+        nsIContentPolicy::TYPE_OTHER, "application/x-addvcard"_ns);
   }
 
   nsString output;
@@ -350,7 +348,7 @@ nsresult nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory* aDirectory,
 
     nsCString xmlSubstr;
 
-    rv = enclosure.card->TranslateTo(NS_LITERAL_CSTRING("xml"), xmlSubstr);
+    rv = enclosure.card->TranslateTo("xml"_ns, xmlSubstr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     aOutput.AppendLiteral("<separator/>");

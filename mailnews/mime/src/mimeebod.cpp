@@ -155,7 +155,7 @@ char* MimeExternalBody_make_url(const char* ct, const char* at,
       nsCOMPtr<nsIFile> fs = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
       bool exists = false;
       if (fs) {
-        fs->InitWithNativePath(NS_LITERAL_CSTRING("/afs/."));
+        fs->InitWithNativePath("/afs/."_ns);
         fs->Exists(&exists);
       }
       if (!exists) return 0;
@@ -426,7 +426,7 @@ static bool MimeExternalBody_displayable_inline_p(MimeObjectClass* clazz,
     nsCOMPtr<nsIFile> fs = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID);
     bool exists = false;
     if (fs) {
-      fs->InitWithNativePath(NS_LITERAL_CSTRING("/afs/."));
+      fs->InitWithNativePath("/afs/."_ns);
       fs->Exists(&exists);
     }
     if (!exists) return 0;

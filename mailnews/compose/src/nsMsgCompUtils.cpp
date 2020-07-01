@@ -295,7 +295,7 @@ nsresult mime_generate_headers(nsIMsgCompFields* fields,
           "User-Agent", NS_ConvertUTF8toUTF16(userAgentString));
   }
 
-  finalHeaders->SetUnstructuredHeader("MIME-Version", NS_LITERAL_STRING("1.0"));
+  finalHeaders->SetUnstructuredHeader("MIME-Version", u"1.0"_ns);
 
   nsAutoCString newsgroups;
   finalHeaders->GetRawHeader("Newsgroups", newsgroups);
@@ -508,9 +508,8 @@ char* mime_generate_attachment_headers(
       PR_FREEIF(encodedRealName);
       parmFolding = 0;
       // Not RFC 2231 style encoding (it's not standard-compliant)
-      encodedRealName =
-          LegacyParmFolding(NS_LITERAL_CSTRING("UTF-8"),
-                            nsDependentCString(real_name), parmFolding);
+      encodedRealName = LegacyParmFolding(
+          "UTF-8"_ns, nsDependentCString(real_name), parmFolding);
     }
   }
 
@@ -606,9 +605,8 @@ char* mime_generate_attachment_headers(
     // RFC 2231. If the MUA knows the RFC 2231, it should know the RFC 2183 too.
     if (parmFolding != 2) {
       // The underlying JS MIME code will only handle UTF-8 here.
-      char* nameValue =
-          LegacyParmFolding(NS_LITERAL_CSTRING("UTF-8"),
-                            nsDependentCString(real_name), parmFolding);
+      char* nameValue = LegacyParmFolding(
+          "UTF-8"_ns, nsDependentCString(real_name), parmFolding);
       if (!nameValue || !*nameValue) {
         PR_FREEIF(nameValue);
         nameValue = encodedRealName;
@@ -1182,18 +1180,15 @@ void msg_pick_real_name(nsMsgAttachmentHandler* attachment,
     if (s2) s = s2 + 1;
     // If we know the URL doesn't have a sensible file name in it,
     // don't bother emitting a content-disposition.
-    if (StringBeginsWith(url, NS_LITERAL_CSTRING("news:"),
+    if (StringBeginsWith(url, "news:"_ns, nsCaseInsensitiveCStringComparator) ||
+        StringBeginsWith(url, "snews:"_ns,
                          nsCaseInsensitiveCStringComparator) ||
-        StringBeginsWith(url, NS_LITERAL_CSTRING("snews:"),
-                         nsCaseInsensitiveCStringComparator) ||
-        StringBeginsWith(url, NS_LITERAL_CSTRING("IMAP:"),
-                         nsCaseInsensitiveCStringComparator) ||
-        StringBeginsWith(url, NS_LITERAL_CSTRING("mailbox:"),
+        StringBeginsWith(url, "IMAP:"_ns, nsCaseInsensitiveCStringComparator) ||
+        StringBeginsWith(url, "mailbox:"_ns,
                          nsCaseInsensitiveCStringComparator))
       return;
 
-    if (StringBeginsWith(url, NS_LITERAL_CSTRING("data:"),
-                         nsCaseInsensitiveCStringComparator)) {
+    if (StringBeginsWith(url, "data:"_ns, nsCaseInsensitiveCStringComparator)) {
       int32_t endNonData = url.FindChar(',');
       if (endNonData == -1) return;
       nsCString nonDataPart(Substring(url, 5, endNonData - 5));
@@ -1280,10 +1275,9 @@ void msg_pick_real_name(nsMsgAttachmentHandler* attachment,
         attachment->m_encoding.LowerCaseEqualsLiteral(ENCODING_UUENCODE2) ||
         attachment->m_encoding.LowerCaseEqualsLiteral(ENCODING_UUENCODE3) ||
         attachment->m_encoding.LowerCaseEqualsLiteral(ENCODING_UUENCODE4)) {
-      if (StringEndsWith(attachment->m_realName, NS_LITERAL_CSTRING(".uu")))
+      if (StringEndsWith(attachment->m_realName, ".uu"_ns))
         attachment->m_realName.Cut(attachment->m_realName.Length() - 3, 3);
-      else if (StringEndsWith(attachment->m_realName,
-                              NS_LITERAL_CSTRING(".uue")))
+      else if (StringEndsWith(attachment->m_realName, ".uue"_ns))
         attachment->m_realName.Cut(attachment->m_realName.Length() - 4, 4);
     }
   }
@@ -1295,11 +1289,10 @@ nsresult nsMsgNewURL(nsIURI** aInstancePtrResult, const nsCString& aSpec) {
   if (nullptr == aInstancePtrResult) return NS_ERROR_NULL_POINTER;
   nsCOMPtr<nsIIOService> pNetService = mozilla::services::GetIOService();
   NS_ENSURE_TRUE(pNetService, NS_ERROR_UNEXPECTED);
-  if (aSpec.Find("://") == kNotFound &&
-      !StringBeginsWith(aSpec, NS_LITERAL_CSTRING("data:"))) {
+  if (aSpec.Find("://") == kNotFound && !StringBeginsWith(aSpec, "data:"_ns)) {
     // XXXjag Temporary fix for bug 139362 until the real problem(bug 70083) get
     // fixed
-    nsAutoCString uri(NS_LITERAL_CSTRING("http://"));
+    nsAutoCString uri("http://"_ns);
     uri.Append(aSpec);
     rv = pNetService->NewURI(uri, nullptr, nullptr, aInstancePtrResult);
   } else

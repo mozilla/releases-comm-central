@@ -436,7 +436,7 @@ nsresult nsMovemailService::GetNewMail(
 
     buffer.AppendLiteral(MSG_LINEBREAK);
 
-    if (isMore && StringBeginsWith(buffer, NS_LITERAL_CSTRING("From "))) {
+    if (isMore && StringBeginsWith(buffer, "From "_ns)) {
       // Finish previous header and message, if any.
       if (newHdr) {
         outputStream->Flush();
@@ -469,7 +469,7 @@ nsresult nsMovemailService::GetNewMail(
                    NS_ERROR_FAILURE);
 
     // "From " lines delimit messages, start a new one here.
-    if (isMore && StringBeginsWith(buffer, NS_LITERAL_CSTRING("From "))) {
+    if (isMore && StringBeginsWith(buffer, "From "_ns)) {
       buffer.AssignLiteral("X-Mozilla-Status: 8000" MSG_LINEBREAK);
       newMailParser->HandleLine(buffer.BeginWriting(), buffer.Length());
       rv = outputStream->Write(buffer.get(), buffer.Length(), &bytesWritten);

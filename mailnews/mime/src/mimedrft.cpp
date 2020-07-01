@@ -184,8 +184,8 @@ nsresult CreateComposeParams(nsCOMPtr<nsIMsgComposeParams>& pMsgComposeParams,
             do_CreateInstance(NS_MSGATTACHMENT_CONTRACTID, &rv);
         if (NS_SUCCEEDED(rv) && attachment) {
           nsAutoString nameStr;
-          rv = nsMsgI18NConvertToUnicode(NS_LITERAL_CSTRING("UTF-8"),
-                                         curAttachment->m_realName, nameStr);
+          rv = nsMsgI18NConvertToUnicode("UTF-8"_ns, curAttachment->m_realName,
+                                         nameStr);
           if (NS_FAILED(rv))
             CopyASCIItoUTF16(curAttachment->m_realName, nameStr);
           attachment->SetName(nameStr);

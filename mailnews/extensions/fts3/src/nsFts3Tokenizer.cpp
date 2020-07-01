@@ -30,17 +30,15 @@ nsFts3Tokenizer::RegisterTokenizer(mozIStorageConnection* connection) {
   nsCOMPtr<mozIStorageStatement> selectStatement;
 
   // -- register the tokenizer
-  rv = connection->CreateStatement(
-      NS_LITERAL_CSTRING("SELECT fts3_tokenizer(?1, ?2)"),
-      getter_AddRefs(selectStatement));
+  rv = connection->CreateStatement("SELECT fts3_tokenizer(?1, ?2)"_ns,
+                                   getter_AddRefs(selectStatement));
   NS_ENSURE_SUCCESS(rv, rv);
 
   const sqlite3_tokenizer_module* module = nullptr;
   sqlite3Fts3PorterTokenizerModule(&module);
   if (!module) return NS_ERROR_FAILURE;
 
-  rv = selectStatement->BindUTF8StringByIndex(0,
-                                              NS_LITERAL_CSTRING("mozporter"));
+  rv = selectStatement->BindUTF8StringByIndex(0, "mozporter"_ns);
   NS_ENSURE_SUCCESS(rv, rv);
   rv = selectStatement->BindBlobByIndex(1, (uint8_t*)&module, sizeof(module));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -52,7 +50,7 @@ nsFts3Tokenizer::RegisterTokenizer(mozIStorageConnection* connection) {
   // -- register the ranking function
   nsCOMPtr<mozIStorageFunction> func = new nsGlodaRankerFunction();
   NS_ENSURE_TRUE(func, NS_ERROR_OUT_OF_MEMORY);
-  rv = connection->CreateFunction(NS_LITERAL_CSTRING("glodaRank"),
+  rv = connection->CreateFunction("glodaRank"_ns,
                                   -1,  // variable argument support
                                   func);
   NS_ENSURE_SUCCESS(rv, rv);

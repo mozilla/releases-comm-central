@@ -2939,7 +2939,7 @@ void nsImapProtocol::ProcessSelectedStateURL() {
         case nsIImapUrl::nsImapDeleteAllMsgs: {
           uint32_t numberOfMessages = GetServerStateParser().NumberOfMessages();
           if (numberOfMessages) {
-            Store(NS_LITERAL_CSTRING("1:*"), "+FLAGS.SILENT (\\Deleted)",
+            Store("1:*"_ns, "+FLAGS.SILENT (\\Deleted)",
                   false);  // use sequence #'s
 
             if (GetServerStateParser().LastCommandSuccessful())
@@ -4180,7 +4180,7 @@ void nsImapProtocol::ProcessMailboxUpdate(bool handlePossibleUndo) {
                      "expunged msgs"));
             m_flagState->Reset();
             m_flagState->SetPartialUIDFetch(false);
-            FetchMessage(NS_LITERAL_CSTRING("1:*"), kFlags);
+            FetchMessage("1:*"_ns, kFlags);
           } else if (numNewUIDs == 0) {
             // Nothing has been expunged and no new UIDs, so if just a flag
             // change on existing message(s), avoid unneeded fetch of flags for
@@ -4900,7 +4900,7 @@ void nsImapProtocol::DiscoverMailboxSpec(nsImapMailboxSpec* adoptedBoxSpec) {
             adoptedBoxSpec->mAllocatedPathName.Find(
                 m_trashFolderPath, /* ignoreCase = */ true) != -1) {
           bool trashExists = false;
-          if (StringBeginsWith(m_trashFolderPath, NS_LITERAL_CSTRING("INBOX/"),
+          if (StringBeginsWith(m_trashFolderPath, "INBOX/"_ns,
                                nsCaseInsensitiveCStringComparator)) {
             nsAutoCString pathName(adoptedBoxSpec->mAllocatedPathName.get() +
                                    6);
@@ -6849,7 +6849,7 @@ void nsImapProtocol::RemoveMsgsAndExpunge() {
   uint32_t numberOfMessages = GetServerStateParser().NumberOfMessages();
   if (numberOfMessages) {
     // Remove all msgs and expunge the folder (ie, compact it).
-    Store(NS_LITERAL_CSTRING("1:*"), "+FLAGS.SILENT (\\Deleted)",
+    Store("1:*"_ns, "+FLAGS.SILENT (\\Deleted)",
           false);  // use sequence #'s
     if (GetServerStateParser().LastCommandSuccessful()) Expunge();
   }

@@ -86,7 +86,7 @@ nsresult nsEmlxHelperUtils::ConvertToMboxRD(const char* aMessageBufferStart,
     const char* chunkStart = aMessageBufferStart;
     for (unsigned i = 0; i < foundFromLines.Length(); ++i) {
       aOutBuffer.Append(chunkStart, (foundFromLines[i] - chunkStart));
-      aOutBuffer.Append(NS_LITERAL_CSTRING(">"));
+      aOutBuffer.Append(">"_ns);
 
       chunkStart = foundFromLines[i];
     }

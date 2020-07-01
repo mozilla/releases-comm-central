@@ -253,13 +253,12 @@ nsresult nsMsgFilterService::BackUpFilterFile(nsIFile* aFilterFile,
   nsCOMPtr<nsIFile> backupFile;
   rv = localParentDir->Clone(getter_AddRefs(backupFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  backupFile->AppendNative(NS_LITERAL_CSTRING("rulesbackup.dat"));
+  backupFile->AppendNative("rulesbackup.dat"_ns);
   bool exists;
   backupFile->Exists(&exists);
   if (exists) backupFile->Remove(false);
 
-  return aFilterFile->CopyToNative(localParentDir,
-                                   NS_LITERAL_CSTRING("rulesbackup.dat"));
+  return aFilterFile->CopyToNative(localParentDir, "rulesbackup.dat"_ns);
 }
 
 nsresult nsMsgFilterService::AlertBackingUpFilterFile(
@@ -488,8 +487,7 @@ nsresult nsMsgFilterAfterTheFact::RunNextFilter() {
   if (NS_FAILED(rv)) {
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,
             ("(Post) Filter evaluation failed"));
-    m_filters->LogFilterMessage(NS_LITERAL_STRING("Filter evaluation failed"),
-                                m_curFilter);
+    m_filters->LogFilterMessage(u"Filter evaluation failed"_ns, m_curFilter);
   }
 
   m_curFilter = nullptr;
@@ -899,11 +897,11 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
               if (rv == NS_ERROR_ABORT) {
                 (void)m_curFilter->LogRuleHitFail(
                     filterAction, msgHdr, rv,
-                    NS_LITERAL_CSTRING("filterFailureSendingReplyAborted"));
+                    "filterFailureSendingReplyAborted"_ns);
               } else {
                 (void)m_curFilter->LogRuleHitFail(
                     filterAction, msgHdr, rv,
-                    NS_LITERAL_CSTRING("filterFailureSendingReplyError"));
+                    "filterFailureSendingReplyError"_ns);
               }
             }
             BREAK_ACTION_IF_FAILURE(rv, "ReplyWithTemplate failed");
@@ -1007,9 +1005,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                  static_cast<uint32_t>(mFinalResult)));
         if (loggingEnabled) {
           nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, 0);
-          (void)m_curFilter->LogRuleHitFail(
-              filterAction, msgHdr, mFinalResult,
-              NS_LITERAL_CSTRING("filterActionFailed"));
+          (void)m_curFilter->LogRuleHitFail(filterAction, msgHdr, mFinalResult,
+                                            "filterActionFailed"_ns);
         }
       } else {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
@@ -1266,8 +1263,7 @@ nsresult nsMsgApplyFiltersToMessages::RunNextFilter() {
             ("(Post) Filter run failed (%" PRIx32 ")",
              static_cast<uint32_t>(rv)));
     // clang-format on
-    m_filters->LogFilterMessage(NS_LITERAL_STRING("Filter run failed"),
-                                m_curFilter);
+    m_filters->LogFilterMessage(u"Filter run failed"_ns, m_curFilter);
     NS_WARNING_ASSERTION(false, "Failed to run filters");
   } else {
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,

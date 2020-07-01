@@ -925,11 +925,10 @@ class MsgDBReporter final : public nsIMemoryReporter {
     nsCOMPtr<nsIMsgDatabase> database = do_QueryReferent(mDatabase);
     nsMsgDatabase* db =
         database ? static_cast<nsMsgDatabase*>(database.get()) : nullptr;
-    return aCb->Callback(
-        EmptyCString(), path, nsIMemoryReporter::KIND_HEAP,
-        nsIMemoryReporter::UNITS_BYTES,
-        db ? db->SizeOfIncludingThis(GetMallocSize) : 0,
-        NS_LITERAL_CSTRING("Memory used for the folder database."), aClosure);
+    return aCb->Callback(EmptyCString(), path, nsIMemoryReporter::KIND_HEAP,
+                         nsIMemoryReporter::UNITS_BYTES,
+                         db ? db->SizeOfIncludingThis(GetMallocSize) : 0,
+                         "Memory used for the folder database."_ns, aClosure);
   }
 
   void GetPath(nsACString& memoryPath, bool aAnonymize) {

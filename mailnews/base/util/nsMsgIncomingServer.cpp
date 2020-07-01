@@ -993,7 +993,7 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
     rv = mFilterFile->InitWithFile(thisFolder);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    mFilterFile->AppendNative(NS_LITERAL_CSTRING("msgFilterRules.dat"));
+    mFilterFile->AppendNative("msgFilterRules.dat"_ns);
 
     bool fileExists;
     mFilterFile->Exists(&fileExists);
@@ -1003,13 +1003,12 @@ nsMsgIncomingServer::GetFilterList(nsIMsgWindow* aMsgWindow,
       NS_ENSURE_SUCCESS(rv, rv);
       rv = oldFilterFile->InitWithFile(thisFolder);
       NS_ENSURE_SUCCESS(rv, rv);
-      oldFilterFile->AppendNative(NS_LITERAL_CSTRING("rules.dat"));
+      oldFilterFile->AppendNative("rules.dat"_ns);
 
       oldFilterFile->Exists(&fileExists);
       if (fileExists)  // copy rules.dat --> msgFilterRules.dat
       {
-        rv = oldFilterFile->CopyToNative(
-            thisFolder, NS_LITERAL_CSTRING("msgFilterRules.dat"));
+        rv = oldFilterFile->CopyToNative(thisFolder, "msgFilterRules.dat"_ns);
         NS_ENSURE_SUCCESS(rv, rv);
       }
     }
@@ -1763,7 +1762,7 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryServerSpamFilters(
     searchTerm->GetValue(getter_AddRefs(searchValue));
     NS_ENSURE_SUCCESS(rv, rv);
     searchValue->SetAttrib(nsMsgSearchAttrib::JunkScoreOrigin);
-    searchValue->SetStr(NS_LITERAL_STRING("user"));
+    searchValue->SetStr(u"user"_ns);
     searchTerm->SetValue(searchValue);
 
     searchTerms->InsertElementAt(searchTerm, count);
@@ -1864,11 +1863,11 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryReturnReceiptsFilter(
             // we need to use OtherHeader + 1 so nsMsgFilter::GetTerm will
             // return our custom header.
             value->SetAttrib(nsMsgSearchAttrib::OtherHeader + 1);
-            value->SetStr(NS_LITERAL_STRING("multipart/report"));
+            value->SetStr(u"multipart/report"_ns);
             term->SetAttrib(nsMsgSearchAttrib::OtherHeader + 1);
             term->SetOp(nsMsgSearchOp::Contains);
             term->SetBooleanAnd(true);
-            term->SetArbitraryHeader(NS_LITERAL_CSTRING("Content-Type"));
+            term->SetArbitraryHeader("Content-Type"_ns);
             term->SetValue(value);
             newFilter->AppendTerm(term);
           }
@@ -1881,11 +1880,11 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryReturnReceiptsFilter(
             // determine if ::OtherHeader is the best way to do this.
             // see nsMsgSearchOfflineMail::MatchTerms()
             value->SetAttrib(nsMsgSearchAttrib::OtherHeader + 1);
-            value->SetStr(NS_LITERAL_STRING("disposition-notification"));
+            value->SetStr(u"disposition-notification"_ns);
             term->SetAttrib(nsMsgSearchAttrib::OtherHeader + 1);
             term->SetOp(nsMsgSearchOp::Contains);
             term->SetBooleanAnd(true);
-            term->SetArbitraryHeader(NS_LITERAL_CSTRING("Content-Type"));
+            term->SetArbitraryHeader("Content-Type"_ns);
             term->SetValue(value);
             newFilter->AppendTerm(term);
           }
@@ -1909,7 +1908,7 @@ nsMsgIncomingServer::ClearTemporaryReturnReceiptsFilter() {
   if (mFilterList) {
     nsCOMPtr<nsIMsgFilter> mdnFilter;
     nsresult rv = mFilterList->GetFilterNamed(
-        NS_LITERAL_STRING("mozilla-temporary-internal-MDN-receipt-filter"),
+        u"mozilla-temporary-internal-MDN-receipt-filter"_ns,
         getter_AddRefs(mdnFilter));
     if (NS_SUCCEEDED(rv) && mdnFilter)
       return mFilterList->RemoveFilter(mdnFilter);
@@ -2096,8 +2095,7 @@ nsMsgIncomingServer::SetForcePropertyEmpty(const char* aPropertyName,
                                            bool aValue) {
   nsAutoCString nameEmpty(aPropertyName);
   nameEmpty.AppendLiteral(".empty");
-  return SetCharValue(nameEmpty.get(), aValue ? NS_LITERAL_CSTRING("true")
-                                              : NS_LITERAL_CSTRING(""));
+  return SetCharValue(nameEmpty.get(), aValue ? "true"_ns : ""_ns);
 }
 
 NS_IMETHODIMP

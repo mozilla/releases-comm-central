@@ -410,9 +410,8 @@ nsresult nsMessengerWinIntegration::ShowAlertMessage(
     if (alertsService) {
       rv = alertsService->ShowAlertNotification(
           NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON), aAlertTitle, aAlertText, true,
-          NS_ConvertASCIItoUTF16(aFolderURI), this, EmptyString(),
-          NS_LITERAL_STRING("auto"), EmptyString(), EmptyString(), nullptr,
-          false, false);
+          NS_ConvertASCIItoUTF16(aFolderURI), this, EmptyString(), u"auto"_ns,
+          EmptyString(), EmptyString(), nullptr, false, false);
       mAlertInProgress = true;
     }
   }
@@ -601,7 +600,7 @@ static void EscapeAmpersands(nsString& aToolTip) {
   // Windows tooltip code removes one ampersand from each run,
   // then collapses pairs of amperands. This means that in the easy case,
   // we need to replace each ampersand with three.
-  aToolTip.ReplaceSubstring(NS_LITERAL_STRING("&"), NS_LITERAL_STRING("&&&"));
+  aToolTip.ReplaceSubstring(u"&"_ns, u"&&&"_ns);
   if (pos == kNotFound) return;
 
   // We inserted too many ampersands. Remove some.

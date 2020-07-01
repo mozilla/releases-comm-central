@@ -466,10 +466,10 @@ NS_IMETHODIMP ImportAddressImpl::GetNeedsFieldMap(nsIFile* aLocation,
 
 void ImportAddressImpl::SanitizeSampleData(nsString& val) {
   // remove any line-feeds...
-  int32_t offset = val.Find(NS_LITERAL_STRING("\x0D\x0A"));
+  int32_t offset = val.Find(u"\x0D\x0A"_ns);
   while (offset != -1) {
-    val.Replace(offset, 2, NS_LITERAL_STRING(", "));
-    offset = val.Find(NS_LITERAL_STRING("\x0D\x0A"), offset + 2);
+    val.Replace(offset, 2, u", "_ns);
+    offset = val.Find(u"\x0D\x0A"_ns, offset + 2);
   }
   offset = val.FindChar(13);
   while (offset != -1) {

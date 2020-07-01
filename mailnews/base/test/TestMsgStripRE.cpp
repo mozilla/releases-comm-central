@@ -51,9 +51,8 @@ TEST(TestMsgStripRE, TestMsgStripREMain)
 
   // set localizedRe pref, value "SV,ÆØÅ",
   // \xC3\x86, \xC3\x98 and \xC3\x85 are the UTF-8 encodings of Æ, Ø and Å.
-  rv = prefBranch->SetStringPref(
-      "mailnews.localizedRe",
-      NS_LITERAL_CSTRING("SV,\xC3\x86\xC3\x98\xC3\x85"));
+  rv = prefBranch->SetStringPref("mailnews.localizedRe",
+                                 "SV,\xC3\x86\xC3\x98\xC3\x85"_ns);
   EXPECT_TRUE(NS_SUCCEEDED(rv));
 
   // run our tests
