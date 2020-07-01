@@ -2676,8 +2676,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
           // Get senders address from composeField or from identity,
           nsAutoCString sender(_compFields->GetFrom());
           ExtractEmail(EncodedHeader(sender), myEmail);
-          if (myEmail.IsEmpty())
-            mIdentity->GetEmail(myEmail);
+          if (myEmail.IsEmpty()) mIdentity->GetEmail(myEmail);
 
           // Remove my own address from To, unless it's a reply to self.
           if (!isReplyToSelf) {
