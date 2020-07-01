@@ -516,25 +516,8 @@ function AbDelete() {
     return;
   }
 
-  if (selectedDir === null) {
-    // Delete cards from "All Address Books" view.
-    let cards = GetSelectedAbCards();
-    for (let i = 0; i < cards.length; i++) {
-      let dirId = cards[i].directoryId.substring(
-        0,
-        cards[i].directoryId.indexOf("&")
-      );
-
-      let directory = MailServices.ab.getDirectoryFromId(dirId);
-      if (directory) {
-        directory.deleteCards([cards[i]]);
-      }
-    }
-    SetAbView();
-  } else {
-    // Delete cards from address books or mailing lists.
-    gAbView.deleteSelectedCards();
-  }
+  // Delete cards from address books or mailing lists.
+  gAbView.deleteSelectedCards();
 }
 
 function AbNewCard() {
