@@ -64,10 +64,10 @@ add_task(async () => {
 
   replicationService.startReplication(book, progressListener);
 
-  await LDAPServer.read(); // BindRequest
+  await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
 
-  await LDAPServer.read(); // SearchRequest
+  await LDAPServer.read(LDAPServer.SearchRequest);
   for (let contact of Object.values(ldapContacts)) {
     LDAPServer.writeSearchResultEntry(contact);
   }
@@ -117,10 +117,10 @@ add_task(async () => {
   progressPromise = new Promise(resolve => (progressResolve = resolve));
   replicationService.startReplication(book, progressListener);
 
-  await LDAPServer.read(); // BindRequest
+  await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
 
-  await LDAPServer.read(); // SearchRequest
+  await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.eurus);
   LDAPServer.writeSearchResultEntry(ldapContacts.mary);
   LDAPServer.writeSearchResultEntry(ldapContacts.molly);
@@ -141,10 +141,10 @@ add_task(async () => {
   progressPromise = new Promise(resolve => (progressResolve = resolve));
   replicationService.startReplication(book, progressListener);
 
-  await LDAPServer.read(); // BindRequest
+  await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
 
-  await LDAPServer.read(); // SearchRequest
+  await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.john);
   LDAPServer.writeSearchResultEntry(ldapContacts.sherlock);
   LDAPServer.writeSearchResultEntry(ldapContacts.mrs_hudson);

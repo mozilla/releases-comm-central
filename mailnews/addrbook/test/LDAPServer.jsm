@@ -5,6 +5,7 @@
 const EXPORTED_SYMBOLS = ["LDAPServer"];
 const PRINT_DEBUG = false;
 
+const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /**
@@ -18,6 +19,10 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * @implements nsIServerSocketListener
  */
 var LDAPServer = {
+  BindRequest: 0x60,
+  UnbindRequest: 0x42,
+  SearchRequest: 0x63,
+
   serverSocket: null,
 
   QueryInterface: ChromeUtils.generateQI([
@@ -59,14 +64,48 @@ var LDAPServer = {
    * @returns {Promise} Resolves when data is received by the server, with the
    *                    data as a byte array.
    */
-  read() {
-    return new Promise(resolve => {
-      if (this._data) {
-        resolve(this._data);
-        delete this._data;
+  async read(expectedOperation) {
+    let data;
+    if (this._data) {
+      data = this._data;
+      delete this._data;
+    } else {
+      data = await new Promise(resolve => {
+        this._inputStreamReadyResolve = resolve;
+      });
+    }
+
+    // Simplified parsing to get the message ID and operation code.
+
+    let index = 4;
+    // The value at [1] may be more than one byte. If it is, skip more bytes.
+    if (data[1] & 0x80) {
+      index += data[1] & 0x7f;
+    }
+
+    // Assumes the ID is not greater than 127.
+    this._lastMessageID = data[index];
+
+    if (expectedOperation) {
+      let actualOperation = data[index + 1];
+
+      // Unbind requests can happen at any point, when an nsLDAPConnection is
+      // destroyed. This is unpredictable, and irrelevant for testing. Ignore.
+      if (actualOperation == LDAPServer.UnbindRequest) {
+        if (PRINT_DEBUG) {
+          console.log("Ignoring unbind request");
+        }
+        return this.read(expectedOperation);
       }
-      this._inputStreamReadyResolve = resolve;
-    });
+
+      Assert.equal(
+        actualOperation.toString(16),
+        expectedOperation.toString(16),
+        "LDAP Operation type"
+      );
+    }
+
+    return data;
   },
   /**
    * Sends raw data to the application. Generally this shouldn't be used
@@ -197,7 +236,6 @@ var LDAPServer = {
         "<<< " + data.map(b => b.toString(16).padStart(2, 0)).join(" ")
       );
     }
-    this._lastMessageID = data[4];
 
     if (this._inputStreamReadyResolve) {
       this._inputStreamReadyResolve(data);
