@@ -1572,15 +1572,10 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCompose::InitEditor(
   nsIDocShell* docShell = window->GetDocShell();
   NS_ENSURE_TRUE(docShell, NS_ERROR_UNEXPECTED);
 
-  nsCOMPtr<nsIContentViewer> childCV;
-  NS_ENSURE_SUCCESS(docShell->GetContentViewer(getter_AddRefs(childCV)),
-                    NS_ERROR_FAILURE);
-  if (childCV) {
-    // SetForceCharacterSet will complain about "UTF-7" or "x-mac-croatian"
-    // (see test-charset-edit.js), but we deal with this elsewhere.
-    rv = childCV->SetForceCharacterSet(msgCharSet);
-    NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "SetForceCharacterSet() failed");
-  }
+  // SetCharset will complain about "UTF-7" or "x-mac-croatian"
+  // (see test-charset-edit.js), but we deal with this elsewhere.
+  rv = docShell->SetCharset(msgCharSet);
+  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "SetCharset() failed");
 
   bool quotingToFollow = false;
   GetQuotingToFollow(&quotingToFollow);

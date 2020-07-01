@@ -465,11 +465,7 @@ nsresult nsMsgPrintEngine::FireThatLoadOperation(const nsString& uri) {
 void nsMsgPrintEngine::InitializeDisplayCharset() {
   // libmime always converts to UTF-8 (both HTML and XML)
   if (mDocShell) {
-    nsCOMPtr<nsIContentViewer> cv;
-    mDocShell->GetContentViewer(getter_AddRefs(cv));
-    if (cv) {
-      cv->SetForceCharacterSet(NS_LITERAL_CSTRING("UTF-8"));
-    }
+    mDocShell->SetCharset("UTF-8"_ns);
   }
 }
 

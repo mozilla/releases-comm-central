@@ -180,12 +180,10 @@ function EditorStartup(aUrl, aCharset)
   gReturnInParagraphPrefListener = new nsPrefListener(kCRInParagraphsPref);
   Services.obs.addObserver(EditorCanClose, "quit-application-requested");
 
+  root.charset = aCharset;
+
   // Get url for editor content and load it. The editor gets instantiated by
   // the editingSession when the URL has finished loading.
-  try {
-    var contentViewer = GetCurrentEditorElement().markupDocumentViewer;
-    contentViewer.forceCharacterSet = aCharset;
-  } catch (e) {}
   EditorLoadUrl(aUrl);
 
   // Before and after callbacks for the customizeToolbar code.
