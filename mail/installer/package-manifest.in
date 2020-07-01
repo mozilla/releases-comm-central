@@ -63,6 +63,10 @@
 @RESPATH@/updater.ini
 #endif
 
+#ifdef MOZ_CLANG_RT_ASAN_LIB
+@BINPATH@/@MOZ_CLANG_RT_ASAN_LIB@
+#endif
+
 #ifdef MOZ_DMD
 ; DMD
 @RESPATH@/dmd.py
