@@ -133,14 +133,10 @@ ABView.prototype = {
   // nsIAbDirSearchListener
 
   onSearchFoundCard(card) {
-    this._rowMap.push(new abViewCard(card));
+    // Instead of duplicating the insertion code below, just call it.
+    this.observe(card, "addrbook-contact-created", this.directory?.UID);
   },
-  onSearchFinished(result, errorMsg) {
-    this.sortBy(this.sortColumn, this.sortDirection, true);
-    if (this.listener) {
-      this.listener.onCountChanged(this.rowCount);
-    }
-  },
+  onSearchFinished(result, errorMsg) {},
 
   // nsIObserver
 
@@ -170,8 +166,8 @@ ABView.prototype = {
       case "addrbook-contact-created":
         let viewCard = new abViewCard(subject);
         let sortText = viewCard.getText(this.sortColumn);
-        let added = false;
-        for (let i = 0; !added && i < this._rowMap.length; i++) {
+        let addIndex = null;
+        for (let i = 0; addIndex === null && i < this._rowMap.length; i++) {
           let comparison = this.collator.compare(
             sortText,
             this._rowMap[i].getText(this.sortColumn)
@@ -180,12 +176,15 @@ ABView.prototype = {
             (comparison < 0 && this.sortDirection == "ascending") ||
             (comparison >= 0 && this.sortDirection == "descending")
           ) {
-            this._rowMap.splice(i, 0, viewCard);
-            added = true;
+            addIndex = i;
           }
         }
-        if (!added) {
-          this._rowMap.push(viewCard);
+        if (addIndex === null) {
+          addIndex = this._rowMap.length;
+        }
+        this._rowMap.splice(addIndex, 0, viewCard);
+        if (this.tree) {
+          this.tree.rowCountChanged(addIndex, 1);
         }
         if (this.listener) {
           this.listener.onCountChanged(this.rowCount);
@@ -220,6 +219,9 @@ ABView.prototype = {
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
           if (this._rowMap[i].card.equals(subject)) {
             this._rowMap.splice(i, 1);
+            if (this.tree) {
+              this.tree.rowCountChanged(i, -1);
+            }
           }
         }
         if (this.listener) {
