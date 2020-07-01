@@ -138,8 +138,8 @@ nsresult nsEmlxHelperUtils::AddEmlxMessageToStream(nsIFile* aMessage, nsIOutputS
          *startOfMessageData == '\t')
     ++startOfMessageData;
 
-  NS_NAMED_LITERAL_CSTRING(kBogusFromLine, "From \n");
-  NS_NAMED_LITERAL_CSTRING(kEndOfMessage, "\n\n");
+  constexpr auto kBogusFromLine = "From \n"_ns;
+  constexpr auto kEndOfMessage = "\n\n"_ns;
 
   // write the bogus "From " line which is a magic separator in the mbox format
   rv = aOut->Write(kBogusFromLine.get(), kBogusFromLine.Length(), &actualBytesWritten);

@@ -590,7 +590,7 @@ nsresult nsMapiHook::PopulateCompFieldsWithConversion(
   nsAutoString To;
   nsAutoString Cc;
   nsAutoString Bcc;
-  NS_NAMED_LITERAL_STRING(Comma, ",");
+  constexpr auto Comma = u","_ns;
   if (aMessage->lpRecips) {
     for (int i = 0; i < (int)aMessage->nRecipCount; i++) {
       if (aMessage->lpRecips[i].lpszAddress || aMessage->lpRecips[i].lpszName) {
@@ -700,7 +700,7 @@ nsresult nsMapiHook::PopulateCompFieldsW(lpnsMapiMessageW aMessage,
   nsAutoString Cc;
   nsAutoString Bcc;
 
-  NS_NAMED_LITERAL_STRING(Comma, ",");
+  constexpr auto Comma = u","_ns;
 
   if (aMessage->lpRecips) {
     for (int i = 0; i < (int)aMessage->nRecipCount; i++) {

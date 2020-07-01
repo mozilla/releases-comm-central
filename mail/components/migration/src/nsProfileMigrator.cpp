@@ -85,12 +85,10 @@ nsresult nsProfileMigrator::GetDefaultMailMigratorKey(
 
   // if we are being forced to migrate to a particular migration type, then
   // create an instance of that migrator and return it.
-  NS_NAMED_LITERAL_CSTRING(migratorPrefix,
-                           NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX);
   nsAutoCString migratorID;
   if (!forceMigrationType.IsEmpty()) {
     bool exists = false;
-    migratorID = migratorPrefix;
+    migratorID.AppendLiteral(NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX);
     migratorID.Append(forceMigrationType);
     mailMigrator = do_CreateInstance(migratorID.get());
     if (!mailMigrator) return NS_ERROR_NOT_AVAILABLE;
@@ -107,7 +105,7 @@ nsresult nsProfileMigrator::GetDefaultMailMigratorKey(
 #define MAX_SOURCE_LENGTH 10
   const char sources[][MAX_SOURCE_LENGTH] = {"seamonkey", "outlook", ""};
   for (uint32_t i = 0; sources[i][0]; ++i) {
-    migratorID = migratorPrefix;
+    migratorID.AssignLiteral(NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX);
     migratorID.Append(sources[i]);
     mailMigrator = do_CreateInstance(migratorID.get());
     if (!mailMigrator) continue;

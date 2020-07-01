@@ -75,7 +75,7 @@ nsSAXXMLReader::HandleStartElement(const char16_t* aName,
   for (; *aAtts; aAtts += 2) {
     SplitExpatName(aAtts[0], uri, localName, qName);
     // XXX don't have attr type information
-    NS_NAMED_LITERAL_STRING(cdataType, "CDATA");
+    constexpr auto cdataType = u"CDATA"_ns;
     // could support xmlns reporting, it's a standard SAX feature
     if (!uri.EqualsLiteral(XMLNS_URI)) {
       NS_ASSERTION(aAtts[1], "null passed to handler");

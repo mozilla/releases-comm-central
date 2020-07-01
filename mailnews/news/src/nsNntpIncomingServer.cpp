@@ -1753,7 +1753,7 @@ nsNntpIncomingServer::CycleHeader(nsTreeColumn* col) {
 
   bool cycler = col->Cycler();
   if (!cycler) {
-    NS_NAMED_LITERAL_STRING(dir, "sortDirection");
+    constexpr auto dir = u"sortDirection"_ns;
     RefPtr<mozilla::dom::Element> element = col->Element();
     mSearchResultSortDescending = !mSearchResultSortDescending;
     mozilla::IgnoredErrorResult rv2;

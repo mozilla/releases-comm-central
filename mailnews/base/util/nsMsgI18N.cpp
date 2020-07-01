@@ -369,7 +369,7 @@ void nsMsgI18NConvertRawBytesToUTF8(const nsCString& inString,
   }
 
   // EF BF BD (UTF-8 encoding of U+FFFD)
-  NS_NAMED_LITERAL_CSTRING(utf8ReplacementChar, "\357\277\275");
+  constexpr auto utf8ReplacementChar = "\357\277\275"_ns;
   const char* cur = inString.BeginReading();
   const char* end = inString.EndReading();
   outString.Truncate();

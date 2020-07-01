@@ -122,39 +122,39 @@ bool nsMsgDBFolder::gInitializeStringsDone = false;
 
 // We define strings for folder properties and events.
 // Properties:
-NS_NAMED_LITERAL_CSTRING(kBiffState, "BiffState");
-NS_NAMED_LITERAL_CSTRING(kCanFileMessages, "CanFileMessages");
-NS_NAMED_LITERAL_CSTRING(kDefaultServer, "DefaultServer");
-NS_NAMED_LITERAL_CSTRING(kFlagged, "Flagged");
-NS_NAMED_LITERAL_CSTRING(kFolderFlag, "FolderFlag");
-NS_NAMED_LITERAL_CSTRING(kFolderSize, "FolderSize");
-NS_NAMED_LITERAL_CSTRING(kIsDeferred, "isDeferred");
-NS_NAMED_LITERAL_CSTRING(kIsSecure, "isSecure");
-NS_NAMED_LITERAL_CSTRING(kJunkStatusChanged, "JunkStatusChanged");
-NS_NAMED_LITERAL_CSTRING(kKeywords, "Keywords");
-NS_NAMED_LITERAL_CSTRING(kMRMTimeChanged, "MRMTimeChanged");
-NS_NAMED_LITERAL_CSTRING(kMsgLoaded, "msgLoaded");
-NS_NAMED_LITERAL_CSTRING(kName, "Name");
-NS_NAMED_LITERAL_CSTRING(kNewMailReceived, "NewMailReceived");
-NS_NAMED_LITERAL_CSTRING(kNewMessages, "NewMessages");
-NS_NAMED_LITERAL_CSTRING(kOpen, "open");
-NS_NAMED_LITERAL_CSTRING(kSortOrder, "SortOrder");
-NS_NAMED_LITERAL_CSTRING(kStatus, "Status");
-NS_NAMED_LITERAL_CSTRING(kSynchronize, "Synchronize");
-NS_NAMED_LITERAL_CSTRING(kTotalMessages, "TotalMessages");
-NS_NAMED_LITERAL_CSTRING(kTotalUnreadMessages, "TotalUnreadMessages");
+constexpr auto kBiffState = "BiffState"_ns;
+constexpr auto kCanFileMessages = "CanFileMessages"_ns;
+constexpr auto kDefaultServer = "DefaultServer"_ns;
+constexpr auto kFlagged = "Flagged"_ns;
+constexpr auto kFolderFlag = "FolderFlag"_ns;
+constexpr auto kFolderSize = "FolderSize"_ns;
+constexpr auto kIsDeferred = "isDeferred"_ns;
+constexpr auto kIsSecure = "isSecure"_ns;
+constexpr auto kJunkStatusChanged = "JunkStatusChanged"_ns;
+constexpr auto kKeywords = "Keywords"_ns;
+constexpr auto kMRMTimeChanged = "MRMTimeChanged"_ns;
+constexpr auto kMsgLoaded = "msgLoaded"_ns;
+constexpr auto kName = "Name"_ns;
+constexpr auto kNewMailReceived = "NewMailReceived"_ns;
+constexpr auto kNewMessages = "NewMessages"_ns;
+constexpr auto kOpen = "open"_ns;
+constexpr auto kSortOrder = "SortOrder"_ns;
+constexpr auto kStatus = "Status"_ns;
+constexpr auto kSynchronize = "Synchronize"_ns;
+constexpr auto kTotalMessages = "TotalMessages"_ns;
+constexpr auto kTotalUnreadMessages = "TotalUnreadMessages"_ns;
 
 // Events:
-NS_NAMED_LITERAL_CSTRING(kAboutToCompact, "AboutToCompact");
-NS_NAMED_LITERAL_CSTRING(kCompactCompleted, "CompactCompleted");
-NS_NAMED_LITERAL_CSTRING(kDeleteOrMoveMsgCompleted, "DeleteOrMoveMsgCompleted");
-NS_NAMED_LITERAL_CSTRING(kDeleteOrMoveMsgFailed, "DeleteOrMoveMsgFailed");
-NS_NAMED_LITERAL_CSTRING(kFiltersApplied, "FiltersApplied");
-NS_NAMED_LITERAL_CSTRING(kFolderCreateCompleted, "FolderCreateCompleted");
-NS_NAMED_LITERAL_CSTRING(kFolderCreateFailed, "FolderCreateFailed");
-NS_NAMED_LITERAL_CSTRING(kFolderLoaded, "FolderLoaded");
-NS_NAMED_LITERAL_CSTRING(kNumNewBiffMessages, "NumNewBiffMessages");
-NS_NAMED_LITERAL_CSTRING(kRenameCompleted, "RenameCompleted");
+constexpr auto kAboutToCompact = "AboutToCompact"_ns;
+constexpr auto kCompactCompleted = "CompactCompleted"_ns;
+constexpr auto kDeleteOrMoveMsgCompleted = "DeleteOrMoveMsgCompleted"_ns;
+constexpr auto kDeleteOrMoveMsgFailed = "DeleteOrMoveMsgFailed"_ns;
+constexpr auto kFiltersApplied = "FiltersApplied"_ns;
+constexpr auto kFolderCreateCompleted = "FolderCreateCompleted"_ns;
+constexpr auto kFolderCreateFailed = "FolderCreateFailed"_ns;
+constexpr auto kFolderLoaded = "FolderLoaded"_ns;
+constexpr auto kNumNewBiffMessages = "NumNewBiffMessages"_ns;
+constexpr auto kRenameCompleted = "RenameCompleted"_ns;
 
 NS_IMPL_ISUPPORTS(nsMsgDBFolder, nsISupportsWeakReference, nsIMsgFolder,
                   nsIDBChangeListener, nsIUrlListener,
@@ -1557,13 +1557,12 @@ nsresult nsMsgDBFolder::WriteStartOfNewLocalMessage() {
 
   m_tempMessageStream->Write(result.get(), result.Length(), &writeCount);
 
-  NS_NAMED_LITERAL_CSTRING(MozillaStatus,
-                           "X-Mozilla-Status: 0001" MSG_LINEBREAK);
+  constexpr auto MozillaStatus = "X-Mozilla-Status: 0001"_ns MSG_LINEBREAK;
   m_tempMessageStream->Write(MozillaStatus.get(), MozillaStatus.Length(),
                              &writeCount);
   m_bytesAddedToLocalMsg += writeCount;
-  NS_NAMED_LITERAL_CSTRING(MozillaStatus2,
-                           "X-Mozilla-Status2: 00000000" MSG_LINEBREAK);
+  constexpr auto MozillaStatus2 =
+      "X-Mozilla-Status2: 00000000"_ns MSG_LINEBREAK;
   m_bytesAddedToLocalMsg += MozillaStatus2.Length();
   return m_tempMessageStream->Write(MozillaStatus2.get(),
                                     MozillaStatus2.Length(), &writeCount);

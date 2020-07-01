@@ -1834,8 +1834,8 @@ nsresult nsMsgIncomingServer::ConfigureTemporaryReturnReceiptsFilter(
 
   // this is a temporary, internal mozilla filter
   // it will not show up in the UI, it will not be written to disk
-  NS_NAMED_LITERAL_STRING(internalReturnReceiptFilterName,
-                          "mozilla-temporary-internal-MDN-receipt-filter");
+  constexpr auto internalReturnReceiptFilterName =
+      u"mozilla-temporary-internal-MDN-receipt-filter"_ns;
 
   nsCOMPtr<nsIMsgFilter> newFilter;
   rv = filterList->GetFilterNamed(internalReturnReceiptFilterName,

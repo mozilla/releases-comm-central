@@ -17,8 +17,8 @@
 
 // The two schemes we support, LDAP and LDAPS
 //
-NS_NAMED_LITERAL_CSTRING(LDAP_SCHEME, "ldap");
-NS_NAMED_LITERAL_CSTRING(LDAP_SSL_SCHEME, "ldaps");
+constexpr auto LDAP_SCHEME = "ldap"_ns;
+constexpr auto LDAP_SSL_SCHEME = "ldaps"_ns;
 
 NS_IMPL_ISUPPORTS(nsLDAPURL, nsILDAPURL, nsIURI)
 
