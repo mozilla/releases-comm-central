@@ -66,6 +66,8 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
                                          PrefKeyHashTable& keyHashTable);
   nsresult TransformSmtpServersForImport(PBStructArray& aServers,
                                          PrefKeyHashTable& keyHashTable);
+  nsresult TransformAddressbooksForImport(nsIPrefService* aPrefService,
+                                          PBStructArray& aAddressbooks);
 
   void ReadBranch(const char* branchName, nsIPrefService* aPrefService,
                   PBStructArray& aPrefs);
