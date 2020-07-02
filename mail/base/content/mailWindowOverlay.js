@@ -3511,7 +3511,7 @@ function allowRemoteContentForAll(aListNode) {
  * Displays fine-grained, per-site preferences for remote content.
  */
 function editRemoteContentSettings() {
-  openOptionsDialog("panePrivacy", "privacySecurityCategory");
+  openOptionsDialog("panePrivacy", "privacyCategory");
 }
 
 /**
