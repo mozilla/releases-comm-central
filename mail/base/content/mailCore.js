@@ -949,6 +949,10 @@ nsFlavorDataProvider.prototype = {
         );
         aData.value = destFilePath.QueryInterface(Ci.nsISupports);
       }
+      if (AppConstants.platform == "macosx") {
+        // Workaround dnd of multiple attachments creating duplicates. See bug 1494588.
+        aTransferable.removeDataFlavor("application/x-moz-file-promise");
+      }
     }
   },
 };
