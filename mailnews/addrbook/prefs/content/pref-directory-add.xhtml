@@ -6,6 +6,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/pref-directory-add.dtd">
 
@@ -14,12 +15,14 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="Startup();"
+        lightweightthemes="true"
         onunload="onUnload();">
 <dialog id="addDirectory"
         buttons="accept,cancel">
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/addressbook/pref-directory-add.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
   <stringbundle id="bundle_addressBook" src="chrome://messenger/locale/addressbook/addressBook.properties"/>
   <stringbundle id="bundle_replication" src="chrome://messenger/locale/addressbook/replicationProgress.properties"/>
 

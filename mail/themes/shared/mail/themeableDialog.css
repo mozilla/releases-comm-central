@@ -8,6 +8,7 @@
   --button-background: rgba(128, 128, 128, .15);
   --button-background-hover: rgba(128, 128, 128, .25);
   --button-background-active: rgba(128, 128, 128, .35);
+  --button-border-color: rgba(128, 128, 128, .4);
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
@@ -21,6 +22,8 @@
   --popup-item-selected: Highlight;
   --popup-selected-text: HighlightText;
   --richlist-button-background: -moz-Dialog;
+  --tab-hover-background: hsla(0, 0%, 50%, 0.15);
+  --tab-selected-background: hsla(0, 0%, 50%, 0.25);
 }
 
 :root:-moz-lwtheme {
@@ -32,8 +35,8 @@
   --box-border-color: #adadae;
   --field-text-color: #181920;
   --field-background-color: #fff;
-  --field-border-color: rgba(0, 0, 0, .3);
-  --field-border-hover-color: rgba(0, 0, 0, .4);
+  --field-border-color: rgba(0, 0, 0, 0.3);
+  --field-border-hover-color: rgba(0, 0, 0, 0.4);
   --highlight-color: Highlight;
   --popup-item-hover: rgba(69, 161, 255, 0.2);
   --popup-item-hover-text: var(--box-text-color);
@@ -45,6 +48,7 @@
   --button-background: #4c4c4e;
   --button-background-hover: #575758;
   --button-background-active: #626263;
+  --button-border-color: #626263;
   --box-text-color: rgb(249, 249, 250);
   --box-background-color: #202023;
   --box-border-color: rgba(249, 249, 250, 0.2);
@@ -54,13 +58,42 @@
   --field-border-hover-color: hsla(0, 0%, 70%, 0.5);
   --highlight-color: #0a84ff;
   --highlight-background: #fff;
+  --tab-hover-background: hsla(0, 0%, 50%, 0.3);
+  --tab-selected-background: hsla(0, 0%, 50%, 0.5);
 }
 
 :root[lwt-tree] {
   --richlist-button-background: var(--sidebar-background-color);
 }
 
-html|input {
+:root:not([lwt-tree]):-moz-lwtheme dialog {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+  text-shadow: none !important;
+
+  --button-background: rgba(128, 128, 128, .15);
+  --button-background-hover: rgba(128, 128, 128, .25);
+  --button-background-active: rgba(128, 128, 128, .35);
+  --button-border-color: rgba(128, 128, 128, .4);
+  --box-text-color: MenuText;
+  --box-background-color: Menu;
+  --box-border-color: ThreeDShadow;
+  --field-text-color: -moz-FieldText;
+  --field-background-color: -moz-Field;
+  --field-border-color: rgba(128, 128, 128, .6);
+  --field-border-hover-color: rgba(128, 128, 128, .8);
+  --highlight-color: Highlight;
+  --popup-item-hover: rgba(128, 128, 128, .2);
+  --popup-item-hover-text: MenuText;
+  --popup-item-selected: Highlight;
+  --popup-selected-text: HighlightText;
+  --richlist-button-background: -moz-Dialog;
+  --tab-hover-background: hsla(0, 0%, 50%, 0.15);
+  --tab-selected-background: hsla(0, 0%, 50%, 0.25);
+}
+
+html|input,
+html|textarea {
   -moz-appearance: none;
   background-color: var(--field-background-color);
   border: 1px solid var(--field-border-color);
@@ -69,19 +102,42 @@ html|input {
   margin: 2px 4px;
 }
 
-html|input:not(:focus):hover {
+html|input:not(:focus):hover,
+html|textarea:not(:focus):hover {
   border-color: var(--field-border-hover-color);
 }
 
-html|input:focus {
+html|input:focus,
+html|textarea:focus {
   border-color: var(--highlight-color);
   outline: none;
 }
 
 :root[lwt-tree-brighttext] html|input::selection,
-:root[lwt-default-theme-in-dark-mode] html|input::selection {
+:root[lwt-tree-brighttext] html|textarea::selection,
+:root[lwt-default-theme-in-dark-mode] html|input::selection,
+:root[lwt-default-theme-in-dark-mode] html|textarea::selection {
   background-color: var(--highlight-background);
   color: var(--highlight-color);
+}
+
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  -moz-appearance: none;
+  background-position: center;
+  background-color: var(--button-background);
+  border: 1px solid var(--field-border-color);
+  border-radius: 2px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+html|input[type="number"]::-moz-number-spin-up {
+  background-image: url("chrome://global/skin/icons/arrow-up-12.svg");
+  border-bottom-style: none;
+}
+html|input[type="number"]::-moz-number-spin-down {
+  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
 }
 
 button,
@@ -89,7 +145,7 @@ menulist {
   -moz-appearance: none;
   /* !important overrides button.css for disabled and default XUL buttons: */
   color: inherit !important;
-  border: 1px solid transparent; /* needed for high-contrast mode, where it'll show up */
+  border: 1px solid var(--button-border-color); /* needed for high-contrast mode, where it'll show up */
   border-radius: var(--toolbarbutton-border-radius);
   background-color: var(--button-background);
   padding: 0 8px;
@@ -123,6 +179,10 @@ button[open],
 button[open]:hover,
 button:not([disabled="true"]):hover:active {
   background-color: var(--button-background-active);
+}
+
+button[default="true"] {
+  border-color: var(--highlight-color);
 }
 
 button[disabled="true"],
@@ -353,4 +413,45 @@ richlistitem button:not([disabled="true"]):hover:active {
 
 :root[lwt-tree] tree {
   border: 1px solid var(--sidebar-border-color);
+}
+
+tabbox {
+  color: inherit;
+  text-shadow: none;
+}
+
+tabs {
+  margin-block: 8px 10px;
+  margin-inline: 4px;
+  border-block: 1px solid var(--box-border-color);
+}
+
+tab {
+  -moz-appearance: none;
+  margin-top: 0;
+  padding: 6px 10px !important;
+  border-bottom: 2px solid transparent;
+  color: inherit !important;
+}
+
+tab:hover {
+  background-color: var(--tab-hover-background);
+}
+
+tab[visuallyselected="true"] {
+  margin-block: 0;
+  background-color: var(--tab-selected-background);
+  border-bottom-color: var(--tab-line-color, currentColor);
+}
+
+tabpanels {
+  -moz-appearance: none;
+  border: none;
+  padding: 0;
+  background-color: transparent;
+  color: inherit;
+}
+
+.dialog-button-box {
+  padding-top: 6px;
 }

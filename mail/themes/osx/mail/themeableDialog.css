@@ -26,6 +26,16 @@ html|input {
   padding: 4px;
 }
 
+html|input[type="number"]::-moz-number-spin-box {
+  margin-inline-end: 1px;
+}
+
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  width: 16px;
+  min-height: 0.7em;
+}
+
 menulist[is="menulist-editable"][editable="true"] {
   padding: 0;
 }
@@ -54,4 +64,8 @@ menulist > menupopup:not([position]) {
 
 .menu-right:-moz-locale-dir(ltr) {
   transform: scaleX(-1);
+}
+
+.tab-middle {
+  padding: 0;
 }

@@ -149,10 +149,6 @@ treechildren::-moz-tree-image(GeneratedName, MailList) {
   cursor: pointer;
 }
 
-#blankResultsPaneMessageBox {
-  background-color: -moz-field;
-}
-
 #blankResultsPaneMessage {
   font-style: italic;
 }

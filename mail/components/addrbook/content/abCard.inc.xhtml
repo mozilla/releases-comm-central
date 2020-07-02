@@ -230,7 +230,7 @@
                  value="&PreferMailFormat.label;"
                  accesskey="&PreferMailFormat.accesskey;"/>
 
-          <menulist id="PreferMailFormatPopup">
+          <menulist id="PreferMailFormatPopup" sizetopopup="always">
             <menupopup>
               <!-- 0,1,2 come from nsIAbPreferMailFormat in nsIAbCard.idl -->
               <menuitem value="0" label="&Unknown.label;"/>
@@ -336,12 +336,12 @@
           <label control="Birthday" value="&Birthday.label;"
                  accesskey="&Birthday.accesskey;"/>
           <hbox class="AddressCardEditWidth input-container" align="center">
-            <menulist id="BirthMonth">
+            <menulist id="BirthMonth" sizetopopup="always">
               <menupopup>
                 <menuitem label="&Month.placeholder;" value="-1" class="placeholderOption"/>
               </menupopup>
             </menulist>
-            <menulist id="BirthDay">
+            <menulist id="BirthDay" sizetopopup="always">
               <menupopup>
                 <menuitem label="&Day.placeholder;" value="-1" class="placeholderOption"/>
               </menupopup>

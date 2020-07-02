@@ -29,6 +29,16 @@ html|input {
   padding: 4px;
 }
 
+html|input[type="number"]::-moz-number-spin-box {
+  margin-inline-end: -3px;
+}
+
+html|input[type="number"]::-moz-number-spin-up,
+html|input[type="number"]::-moz-number-spin-down {
+  width: 16px;
+  min-height: 0.7em;
+}
+
 menulist[is="menulist-editable"][editable="true"] {
   -moz-appearance: none;
   margin-inline-end: 4px;
@@ -63,4 +73,8 @@ button menupopup menuitem {
 
 .menu-right:-moz-locale-dir(ltr) {
   transform: scaleX(-1);
+}
+
+tab + tab {
+  margin-inline-start: 0;
 }

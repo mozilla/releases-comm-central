@@ -66,6 +66,7 @@
   -moz-appearance: none;
   background-color: transparent !important;
   color: var(--primary-color) !important;
+  border-style: none;
   outline-width: 1px !important;
   padding: 0;
   font-size: 0.95rem;
