@@ -16,6 +16,19 @@ function GetAbViewListener() {
 }
 
 /**
+ * Handle the command event on abContextMenuButton (click, Enter, spacebar).
+ */
+function abContextMenuButtonOnCommand(event) {
+  showContextMenu("sidebarAbContextMenu", event, [
+    event.target,
+    "after_end",
+    0,
+    0,
+    true,
+  ]);
+}
+
+/**
  * Handle the context menu event of results tree (right-click, context menu key
  * press, etc.). Show the respective context menu for selected contact(s) or
  * results tree blank space (work around for XUL tree bug 1331377).

@@ -106,7 +106,7 @@
       <spacer flex="1"/>
       <button id="abContextMenuButton"
               tooltiptext="&abContextMenuButton.tooltip;"
-              onclick="showContextMenu('sidebarAbContextMenu', event, [this, 'after_end', 0, 0, true]);"/>
+              oncommand="abContextMenuButtonOnCommand(event);"/>
     </hbox>
     <hbox id="panel-bar" class="toolbar" align="center">
       <menulist is="menulist-addrbooks" id="addressbookList"
