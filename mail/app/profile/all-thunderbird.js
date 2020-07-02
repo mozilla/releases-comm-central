@@ -796,12 +796,11 @@ pref("browser.zoom.full", true);
 pref("toolkit.osKeyStore.loglevel", "Warn");
 
 // Developer Tools related preferences
-pref("devtools.debugger.log", false);
 pref("devtools.chrome.enabled", true);
 pref("devtools.debugger.remote-enabled", true);
 pref("devtools.selfxss.count", 5);
-// Disable extensionStorage storage actor by default
-pref("devtools.storage.extensionStorage.enabled", false);
+// Enable extensionStorage storage actor by default
+pref("devtools.storage.extensionStorage.enabled", true);
 
 // Toolbox preferences
 pref("devtools.toolbox.footer.height", 250);
@@ -973,18 +972,8 @@ pref("devtools.serviceWorkers.testing.enabled", false);
 // Enable the Network Monitor
 pref("devtools.netmonitor.enabled", true);
 
-// Enable Network Search in Nightly builds.
-#if defined(NIGHTLY_BUILD) || defined(MOZ_DEV_EDITION)
-  pref("devtools.netmonitor.features.search", true);
-#else
-  pref("devtools.netmonitor.features.search", false);
-#endif
-
-#if defined(NIGHTLY_BUILD) || defined(MOZ_DEV_EDITION)
-  pref("devtools.netmonitor.features.requestBlocking", true);
-#else
-  pref("devtools.netmonitor.features.requestBlocking", false);
-#endif
+pref("devtools.netmonitor.features.search", true);
+pref("devtools.netmonitor.features.requestBlocking", true);
 
 // Enable the Application panel
 pref("devtools.application.enabled", false);
@@ -996,15 +985,15 @@ pref("devtools.netmonitor.panes-search-width", 550);
 pref("devtools.netmonitor.panes-search-height", 450);
 pref("devtools.netmonitor.filters", "[\"all\"]");
 pref("devtools.netmonitor.visibleColumns",
-  "[\"status\",\"method\",\"domain\",\"file\",\"cause\",\"type\",\"transferred\",\"contentSize\",\"waterfall\"]"
+  "[\"status\",\"method\",\"domain\",\"file\",\"initiator\",\"type\",\"transferred\",\"contentSize\",\"waterfall\"]"
 );
 pref("devtools.netmonitor.columnsData",
-  '[{"name":"status","minWidth":30,"width":5}, {"name":"method","minWidth":30,"width":5}, {"name":"domain","minWidth":30,"width":10}, {"name":"file","minWidth":30,"width":25}, {"name":"url","minWidth":30,"width":25}, {"name":"cause","minWidth":30,"width":10},{"name":"type","minWidth":30,"width":5},{"name":"transferred","minWidth":30,"width":10},{"name":"contentSize","minWidth":30,"width":5},{"name":"waterfall","minWidth":150,"width":25}]');
-pref("devtools.netmonitor.ws.payload-preview-height", 128);
-pref("devtools.netmonitor.ws.visibleColumns",
+  '[{"name":"status","minWidth":30,"width":5}, {"name":"method","minWidth":30,"width":5}, {"name":"domain","minWidth":30,"width":10}, {"name":"file","minWidth":30,"width":25}, {"name":"url","minWidth":30,"width":25},{"name":"initiator","minWidth":30,"width":10},{"name":"type","minWidth":30,"width":5},{"name":"transferred","minWidth":30,"width":10},{"name":"contentSize","minWidth":30,"width":5},{"name":"waterfall","minWidth":150,"width":15}]');
+pref("devtools.netmonitor.msg.payload-preview-height", 128);
+pref("devtools.netmonitor.msg.visibleColumns",
   '["data", "time"]'
 );
-pref("devtools.netmonitor.ws.displayed-frames.limit", 500);
+pref("devtools.netmonitor.msg.displayed-messages.limit", 500);
 
 pref("devtools.netmonitor.response.ui.limit", 10240);
 
@@ -1022,12 +1011,35 @@ pref("devtools.netmonitor.har.forceExport", false);
 pref("devtools.netmonitor.har.pageLoadedTimeout", 1500);
 pref("devtools.netmonitor.har.enableAutoExportToFile", false);
 
-// Enable WebSocket monitoring in Nightly and DevEdition/Beta builds.
-#if defined(NIGHTLY_BUILD) || defined(MOZ_DEV_EDITION)
-  pref("devtools.netmonitor.features.webSockets", true);
-#else
-  pref("devtools.netmonitor.features.webSockets", false);
-#endif
+pref("devtools.netmonitor.features.webSockets", true);
+
+// netmonitor audit
+pref("devtools.netmonitor.audits.slow", 500);
+
+// Disable the EventSource Inspector.
+pref("devtools.netmonitor.features.serverSentEvents", false);
+
+// Save request/response bodies yes/no.
+pref("devtools.netmonitor.saveRequestAndResponseBodies", true);
+
+// The default Network monitor HAR export setting
+pref("devtools.netmonitor.har.defaultLogDir", "");
+pref("devtools.netmonitor.har.defaultFileName", "%hostname_Archive [%date]");
+pref("devtools.netmonitor.har.jsonp", false);
+pref("devtools.netmonitor.har.jsonpCallback", "");
+pref("devtools.netmonitor.har.includeResponseBodies", true);
+pref("devtools.netmonitor.har.compress", false);
+pref("devtools.netmonitor.har.forceExport", false);
+pref("devtools.netmonitor.har.pageLoadedTimeout", 1500);
+pref("devtools.netmonitor.har.enableAutoExportToFile", false);
+
+pref("devtools.netmonitor.features.webSockets", true);
+
+// netmonitor audit
+pref("devtools.netmonitor.audits.slow", 500);
+
+// Disable the EventSource Inspector.
+pref("devtools.netmonitor.features.serverSentEvents", false);
 
 // Enable the Storage Inspector
 pref("devtools.storage.enabled", true);
@@ -1203,13 +1215,9 @@ pref("devtools.aboutdebugging.collapsibilities.temporaryExtension", false);
 // Map top-level await expressions in the console
 pref("devtools.debugger.features.map-await-expression", true);
 
-#if defined(NIGHTLY_BUILD)
+// This relies on javascript.options.asyncstack as well or it has no effect.
 pref("devtools.debugger.features.async-captured-stacks", true);
 pref("devtools.debugger.features.async-live-stacks", false);
-#else
-pref("devtools.debugger.features.async-live-stacks", true);
-pref("devtools.debugger.features.async-captured-stacks", false);
-#endif
 
 // Disable autohide for DevTools popups and tooltips.
 // This is currently not exposed by any UI to avoid making
