@@ -79,6 +79,23 @@ openpgp-key-man-export-to-file =
 openpgp-key-man-send-keys =
     .label = Send Public Keys by Email
     .accesskey = S
+
+openpgp-key-copy-key =
+    .label = Copy Public Key
+    .accesskey = C
+
+openpgp-key-export-key =
+    .label = Export Public Key To File
+    .accesskey = E
+
+openpgp-key-backup-key =
+    .label = Backup Secret Key To File
+    .accesskey = B
+
+openpgp-key-send-key =
+    .label = Send Public Key Via Email
+    .accesskey = S
+
 openpgp-key-man-create-mail =
     .label = Compose Email to Selected Keys
     .accesskey = C
@@ -105,6 +122,9 @@ openpgp-key-man-revoke-key =
 openpgp-key-man-key-props =
     .label = Key Properties
     .accesskey = K
+openpgp-key-man-key-more =
+    .label = More
+    .accesskey = M
 openpgp-key-man-show-all-keys =
     .label = Display All Keys by Default
     .accesskey = D
@@ -215,6 +235,9 @@ openpgp-selection-status = { $count ->
     [0]     Select a valid key to enable the OpenPGP protocol.
    *[other] Your current configuration uses key ID <b>{ $key }</b>
 }
+
+#   $key (String) - the currently selected OpenPGP key
+openpgp-selection-status-error = Your current configuration uses the key <b>{ $key }</b>, which has expired.
 
 openpgp-add-key-button =
     .label = Add Key…
@@ -356,7 +379,9 @@ copy-to-clipbrd-failed = Could not copy the selected key(s) to the clipboard.
 copy-to-clipbrd-ok = Key(s) copied to clipboard
 delete-secret-key =
     WARNING: You are about to delete a secret key!
+
     If you delete your secret key, you will no longer be able to decrypt any messages encrypted for that key, nor will you be able to revoke it.
+
     Do you really want to delete BOTH, the secret key and the public key
     '{ $userId }'?
 delete-mix =

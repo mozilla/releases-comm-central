@@ -256,7 +256,9 @@ function setAttr(attribute, value) {
 }
 
 function enableRefresh() {
-  window.arguments[1].refresh = true;
+  if (window.arguments[1]) {
+    window.arguments[1].refresh = true;
+  }
 }
 
 // ------------------ onCommand Functions  -----------------

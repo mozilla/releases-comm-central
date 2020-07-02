@@ -330,14 +330,22 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   margin-block: 0 6px;
 }
 
-.status-success:not([hidden="true"]) {
+.openpgp-status:not([hidden="true"]) {
   vertical-align: text-top;
   display: inline-block;
-  list-style-image: url("chrome://global/skin/icons/check.svg");
   -moz-context-properties: fill;
-  fill: #12bc00;
   margin-inline-end: 2px;
   width: 16px;
+}
+
+.status-success {
+  list-style-image: url("chrome://global/skin/icons/check.svg");
+  fill: #12bc00;
+}
+
+.status-error {
+  list-style-image: url("chrome://messenger/skin/icons/stop.svg");
+  fill: #d70022;
 }
 
 /* ::::: OpenPGP key selection ::::: */
@@ -434,7 +442,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 
 .extra-information-label {
   display: inline-grid;
-  grid-template-columns: auto max-content 2fr;
+  grid-template-columns: auto max-content 1fr;
   row-gap: 10px;
   align-items: center;
   margin-block: 18px;
@@ -501,10 +509,19 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   fill: #FF9400;
 }
 
-.expiration-date-button {
+.first-element {
+  margin-inline-start: 0;
+}
+
+.last-element {
+  margin-inline-end: 0;
+}
+
+.button-small {
   margin-inline-start: 8px;
   font-size: 0.9em;
   min-height: 28px;
+  margin-block: 0;
 }
 
 .extra-information-label-type {
@@ -513,12 +530,8 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 /* Key info icons */
-.extra-information-label image {
+.extra-information-label image:not(.button-icon) {
   margin-inline-end: 5px;
-}
-
-.content-blocking-openpgp-type {
-  list-style-image: url("chrome://messenger/skin/icons/mark.svg");
 }
 
 .content-blocking-openpgp-fingerprint {
@@ -543,4 +556,16 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 
 .openpgp-key-details tabpanels {
   padding: 0 10px 18px;
+}
+
+.openpgp-image-btn .button-icon {
+  margin-inline-end: 4px;
+}
+
+.openpgp-props-btn {
+  list-style-image: url("chrome://messenger/skin/icons/developer.svg");
+}
+
+.openpgp-more-btn .button-menu-dropmarker {
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
 }

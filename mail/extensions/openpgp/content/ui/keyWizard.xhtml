@@ -19,7 +19,6 @@
         data-l10n-attrs="buttonlabelaccept, buttonlabelhelp"
         buttons="accept,cancel">
 
-  <prefpane id="openPgpKeyWizardDialogPane">
     <script src="chrome://openpgp/content/ui/enigmailCommon.js"/>
     <script src="chrome://openpgp/content/ui/keyWizard.js"/>
 
@@ -74,99 +73,105 @@
         </hbox>
       </hbox>
 
-      <html:fieldset>
-        <radiogroup id="openPgpKeyChoices" class="indent">
-          <radio id="createOpenPgp" value="0"
-                 data-l10n-id="radio-create-key"/>
-          <radio id="importOpenPgp" value="1"
-                 data-l10n-id="radio-import-key"/>
-          <radio id="externalOpenPgp" value="2"
-                 data-l10n-id="radio-gnupg-key"
-                 hidden="true"/>
-        </radiogroup>
-      </html:fieldset>
+      <html:div>
+        <html:fieldset>
+          <radiogroup id="openPgpKeyChoices" class="indent">
+            <radio id="createOpenPgp" value="0"
+                   data-l10n-id="radio-create-key"/>
+            <radio id="importOpenPgp" value="1"
+                   data-l10n-id="radio-import-key"/>
+            <radio id="externalOpenPgp" value="2"
+                   data-l10n-id="radio-gnupg-key"
+                   hidden="true"/>
+          </radiogroup>
+        </html:fieldset>
+      </html:div>
     </vbox>
 
     <vbox id="wizardCreateKey" class="wizard-section hide-reverse" hidden="true">
       <label data-l10n-id="openpgp-generate-key-title"
              class="dialogheader-title"/>
 
-      <html:fieldset>
-        <html:legend data-l10n-id="openpgp-keygen-expiry-title"></html:legend>
-        <description data-l10n-id="openpgp-keygen-expiry-description"/>
+      <html:div>
+        <html:fieldset>
+          <html:legend data-l10n-id="openpgp-keygen-expiry-title"></html:legend>
+          <description data-l10n-id="openpgp-keygen-expiry-description"/>
 
-        <radiogroup id="openPgpKeygeExpiry" class="indent">
-          <hbox flex="1" align="center">
-            <radio id="keygenExpiration" value="0"
-                   data-l10n-id="radio-keygen-expiry"
+          <radiogroup id="openPgpKeygeExpiry" class="indent">
+            <hbox flex="1" align="center">
+              <radio id="keygenExpiration" value="0"
+                     data-l10n-id="radio-keygen-expiry"
+                     oncommand="onExpirationChange(event);"/>
+              <html:input id="expireInput" type="number"
+                          class="size4 input-inline autosync"
+                          maxlength="5" value="1"
+                          aria-labelledby="keygenExpiration"
+                          oninput="validateExpiration();"/>
+              <menulist id="timeScale">
+                <menupopup>
+                  <menuitem id="years" value="365"
+                            data-l10n-id="openpgp-keygen-years-label"
+                            oncommand="validateExpiration();"/>
+                  <menuitem id="months" value="30"
+                            data-l10n-id="openpgp-keygen-months-label"
+                            selected="true"
+                            oncommand="validateExpiration();"/>
+                  <menuitem id="days" value="1"
+                            data-l10n-id="openpgp-keygen-days-label"
+                            oncommand="validateExpiration();"/>
+                </menupopup>
+              </menulist>
+            </hbox>
+            <radio value="1"
+                   data-l10n-id="radio-keygen-no-expiry"
                    oncommand="onExpirationChange(event);"/>
-            <html:input id="expireInput" type="number"
-                        class="size4 input-inline autosync"
-                        maxlength="5" value="1"
-                        aria-labelledby="keygenExpiration"
-                        oninput="validateExpiration();"/>
-            <menulist id="timeScale">
-              <menupopup>
-                <menuitem id="years" value="365"
-                          data-l10n-id="openpgp-keygen-years-label"
-                          oncommand="validateExpiration();"/>
-                <menuitem id="months" value="30"
-                          data-l10n-id="openpgp-keygen-months-label"
-                          selected="true"
-                          oncommand="validateExpiration();"/>
-                <menuitem id="days" value="1"
-                          data-l10n-id="openpgp-keygen-days-label"
-                          oncommand="validateExpiration();"/>
-              </menupopup>
-            </menulist>
-          </hbox>
-          <radio value="1"
-                 data-l10n-id="radio-keygen-no-expiry"
-                 oncommand="onExpirationChange(event);"/>
-        </radiogroup>
-      </html:fieldset>
+          </radiogroup>
+        </html:fieldset>
+      </html:div>
 
       <separator/>
 
-      <html:fieldset>
-        <html:legend data-l10n-id="openpgp-keygen-advanced-title"></html:legend>
-        <description data-l10n-id="openpgp-keygen-advanced-description"/>
+      <html:div>
+        <html:fieldset>
+          <html:legend data-l10n-id="openpgp-keygen-advanced-title"></html:legend>
+          <description data-l10n-id="openpgp-keygen-advanced-description"/>
 
-        <vbox class="indent grid-size">
-          <hbox align="center">
-            <label for="keyType" data-l10n-id="openpgp-keygen-keytype"/>
-          </hbox>
-          <hbox align="center">
-            <menulist id="keyType">
-              <menupopup>
-                <menuitem id="keySize_rsa" value="RSA"
-                          data-l10n-id="openpgp-keygen-type-rsa"
-                          selected="true"
-                          oncommand="onKeyTypeChange(event);"/>
-                <menuitem id="keyType_ecc" value="ECC"
-                          data-l10n-id="openpgp-keygen-type-ecc"
-                          oncommand="onKeyTypeChange(event);"/>
-              </menupopup>
-            </menulist>
-          </hbox>
-          <spacer/>
+          <vbox class="indent grid-size">
+            <hbox align="center">
+              <label for="keyType" data-l10n-id="openpgp-keygen-keytype"/>
+            </hbox>
+            <hbox align="center">
+              <menulist id="keyType">
+                <menupopup>
+                  <menuitem id="keySize_rsa" value="RSA"
+                            data-l10n-id="openpgp-keygen-type-rsa"
+                            selected="true"
+                            oncommand="onKeyTypeChange(event);"/>
+                  <menuitem id="keyType_ecc" value="ECC"
+                            data-l10n-id="openpgp-keygen-type-ecc"
+                            oncommand="onKeyTypeChange(event);"/>
+                </menupopup>
+              </menulist>
+            </hbox>
+            <spacer/>
 
-          <hbox align="center">
-            <label for="keySize" data-l10n-id="openpgp-keygen-keysize"/>
-          </hbox>
-          <hbox align="center">
-            <menulist id="keySize">
-              <menupopup>
-                <menuitem id="keySize_3072" value="3072" label="3072"
-                          selected="true"/>
-                <menuitem id="keySize_4096" value="4096" label="4096"/>
-              </menupopup>
-            </menulist>
-          </hbox>
-          <spacer/>
+            <hbox align="center">
+              <label for="keySize" data-l10n-id="openpgp-keygen-keysize"/>
+            </hbox>
+            <hbox align="center">
+              <menulist id="keySize">
+                <menupopup>
+                  <menuitem id="keySize_3072" value="3072" label="3072"
+                            selected="true"/>
+                  <menuitem id="keySize_4096" value="4096" label="4096"/>
+                </menupopup>
+              </menulist>
+            </hbox>
+            <spacer/>
 
-        </vbox>
-      </html:fieldset>
+          </vbox>
+        </html:fieldset>
+      </html:div>
 
       <separator/>
 
@@ -202,6 +207,5 @@
 
       <separator/>
     </vbox>
-  </prefpane>
 </dialog>
 </window>

@@ -39,7 +39,7 @@
               <vbox flex="1">
                 <description class="description-with-side-element openpgp-description">
                   <html:p id="openPgpgDescription"></html:p>
-                  <image id="openPgpStatusImage" class="status-success"
+                  <image id="openPgpStatusImage" class="openpgp-status"
                          hidden="true"/>
                   <html:span id="openPgpgSelectionStatus"
                              class="tail-with-learn-more"
@@ -95,6 +95,7 @@
 
           <hbox>
             <button id="openOpenPGPKeyManagerButton"
+                    class="first-element"
                     oncommand="BondOpenPGP.openKeyManager(window);"
                     label="&manageKeys.label;"/>
           </hbox>

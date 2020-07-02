@@ -6,26 +6,34 @@
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 
 // Modules
-/* global GetEnigmailSvc: false, PgpSqliteDb2: false */
+/* global GetEnigmailSvc: false, PgpSqliteDb2: false, EnigGetTempDir: false,
+          EnigGetLocalFileApi: false, ENIG_LOCAL_FILE_CONTRACTID: false,
+          EnigFilePicker: false*/
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailConstants } = ChromeUtils.import(
   "resource:///modules/MailConstants.jsm"
 );
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { BondOpenPGP } = ChromeUtils.import(
   "chrome://openpgp/content/BondOpenPGP.jsm"
 );
-var { EnigmailKey } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/key.jsm"
-);
 
 if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+  var { EnigmailKey } = ChromeUtils.import(
+    "chrome://openpgp/content/modules/key.jsm"
+  );
   var { EnigmailKeyRing } = ChromeUtils.import(
     "chrome://openpgp/content/modules/keyRing.jsm"
   );
   var EnigmailCryptoAPI = ChromeUtils.import(
     "chrome://openpgp/content/modules/cryptoAPI.jsm"
   ).EnigmailCryptoAPI;
+  var { EnigmailClipboard } = ChromeUtils.import(
+    "chrome://openpgp/content/modules/clipboard.jsm"
+  );
 }
 
 var nsIX509CertDB = Ci.nsIX509CertDB;
@@ -238,7 +246,7 @@ async function initOpenPgpSettings() {
     document.getElementById("openPgpKeyListRadio").selectedIndex = -1;
   }
 
-  // Load all the available keys.
+  // Load the available keys.
   reloadOpenPgpUI();
 
   // Listen for the preference changes.
@@ -604,7 +612,7 @@ async function reloadOpenPgpUI() {
   let result = {};
   await EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result, true);
 
-  // Show the radiogroup only if the current identity has keys.
+  // Show the radiogroup container only if the current identity has keys.
   document.getElementById("openPgpKeyList").collapsed = !result.all.length;
 
   // Interrupt and udpate the UI accordingly if no Key is associated with the
@@ -690,7 +698,7 @@ async function reloadOpenPgpUI() {
     document.l10n.setAttributes(dateButton, "openpgp-key-man-change-expiry");
     dateButton.addEventListener("command", enigmailEditKeyDate);
     dateButton.setAttribute("hidden", "true");
-    dateButton.classList.add("expiration-date-button");
+    dateButton.classList.add("button-small");
 
     let today = new Date();
     today.setMonth(today.getMonth() + 6);
@@ -712,6 +720,9 @@ async function reloadOpenPgpUI() {
       fluentExpireKey = "openpgp-radio-key-expired";
       document.l10n.setAttributes(dateIcon, "openpgp-key-expired-image");
       dateButton.removeAttribute("hidden");
+
+      // This key is expired, so make it unselectable.
+      radio.setAttribute("disabled", "true");
     }
 
     let description = document.createXULElement("description");
@@ -734,36 +745,8 @@ async function reloadOpenPgpUI() {
     );
 
     // Start key info section.
-
-    // Key type.
     let grid = document.createXULElement("hbox");
     grid.classList.add("extra-information-label");
-
-    let typeImage = document.createXULElement("image");
-    typeImage.classList.add("content-blocking-openpgp-type");
-
-    let typeLabel = document.createXULElement("label");
-    document.l10n.setAttributes(
-      typeLabel,
-      "openpgp-key-details-key-type-label"
-    );
-    typeLabel.classList.add("extra-information-label-type");
-
-    let typeValueContainer = document.createXULElement("hbox");
-    typeValueContainer.classList.add("input-container");
-    typeValueContainer.setAttribute("flex", "1");
-
-    let typeValue = document.createElement("input");
-    typeValue.setAttribute("type", "text");
-    typeValue.classList.add("plain");
-    typeValue.setAttribute("readonly", "readonly");
-    typeValue.value = await document.l10n.formatValue("key-type-pair");
-
-    typeValueContainer.appendChild(typeValue);
-
-    grid.appendChild(typeImage);
-    grid.appendChild(typeLabel);
-    grid.appendChild(typeValueContainer);
 
     // Key fingerprint.
     let fingerprintImage = document.createXULElement("image");
@@ -824,35 +807,69 @@ async function reloadOpenPgpUI() {
 
     // Action buttons.
     let btnContainer = document.createXULElement("hbox");
-
-    let remove = document.createXULElement("button");
-    document.l10n.setAttributes(remove, "openpgp-key-man-del-key");
-    remove.addEventListener("command", () => {
-      enigmailDeleteKey(key);
-    });
-
-    let edit = document.createXULElement("button");
-    document.l10n.setAttributes(edit, "openpgp-key-man-edit-menu");
-    edit.addEventListener("command", enigmailEditKey);
-
-    let revoke = document.createXULElement("button");
-    document.l10n.setAttributes(revoke, "openpgp-key-man-revoke-key");
-    revoke.addEventListener("command", enigmailRevokeKey);
+    btnContainer.setAttribute("pack", "end");
 
     let info = document.createXULElement("button");
+    info.classList.add("openpgp-image-btn", "openpgp-props-btn");
     document.l10n.setAttributes(info, "openpgp-key-man-key-props");
     info.addEventListener("command", () => {
       enigmailKeyDetails(key.keyId);
     });
 
-    let btnSeparator = document.createXULElement("separator");
-    btnSeparator.setAttribute("flex", "1");
+    let more = document.createXULElement("button");
+    more.setAttribute("type", "menu");
+    more.classList.add("openpgp-more-btn", "last-element");
+    document.l10n.setAttributes(more, "openpgp-key-man-key-more");
+
+    let menupopup = document.createXULElement("menupopup");
+
+    let copyItem = document.createXULElement("menuitem");
+    document.l10n.setAttributes(copyItem, "openpgp-key-copy-key");
+    copyItem.addEventListener("command", () => {
+      openPgpCopyToClipboard(`0x${key.keyId}`);
+    });
+
+    let sendItem = document.createXULElement("menuitem");
+    document.l10n.setAttributes(sendItem, "openpgp-key-send-key");
+    sendItem.addEventListener("command", () => {
+      openPgpSendKeyEmail(`0x${key.keyId}`);
+    });
+
+    let exportItem = document.createXULElement("menuitem");
+    document.l10n.setAttributes(exportItem, "openpgp-key-export-key");
+    exportItem.addEventListener("command", () => {
+      openPgpExportKey(`0x${key.keyId}`);
+    });
+
+    let backupItem = document.createXULElement("menuitem");
+    document.l10n.setAttributes(backupItem, "openpgp-key-backup-key");
+    backupItem.addEventListener("command", () => {
+      openPgpExportKey(`0x${key.keyId}`, true);
+    });
+
+    let revokeItem = document.createXULElement("menuitem");
+    document.l10n.setAttributes(revokeItem, "openpgp-key-man-revoke-key");
+    revokeItem.addEventListener("command", enigmailRevokeKey);
+
+    let deleteItem = document.createXULElement("menuitem");
+    document.l10n.setAttributes(deleteItem, "openpgp-key-man-del-key");
+    deleteItem.addEventListener("command", () => {
+      enigmailDeleteKey(key);
+    });
+
+    menupopup.appendChild(copyItem);
+    menupopup.appendChild(sendItem);
+    menupopup.appendChild(exportItem);
+    menupopup.appendChild(document.createXULElement("menuseparator"));
+    menupopup.appendChild(backupItem);
+    menupopup.appendChild(document.createXULElement("menuseparator"));
+    menupopup.appendChild(revokeItem);
+    menupopup.appendChild(deleteItem);
+
+    more.appendChild(menupopup);
 
     btnContainer.appendChild(info);
-    btnContainer.appendChild(btnSeparator);
-    btnContainer.appendChild(edit);
-    btnContainer.appendChild(revoke);
-    btnContainer.appendChild(remove);
+    btnContainer.appendChild(more);
 
     hiddenContainer.appendChild(btnContainer);
 
@@ -923,22 +940,6 @@ async function enigmailDeleteKey(key) {
 
   EnigmailKeyRing.clearCache();
   reloadOpenPgpUI();
-}
-
-/**
- * Open the subdialog to enable the user to edit the the selected OpenPGP Key.
- *
- * @param {Event} event - The DOM event.
- */
-async function enigmailEditKey(event) {
-  // TODO: Not yet implemented. Alert the user of the WIP status.
-  let title = await document.l10n.formatValue("openpgp-key-edit-title");
-
-  Services.prompt.alert(
-    window,
-    title,
-    "Work in Progress: Key editing not yet implemented"
-  );
 }
 
 /**
@@ -1043,12 +1044,15 @@ function highlightOpenPgpKey() {
 
   // Highlight the parent container of the currently selected radio button.
   // The condition needs to be sure the key is not null as a selection of "None"
-  // results with a value of "".
+  // returns a value of "".
   if (gKeyId !== null) {
-    document
-      .querySelector(`radio[value="${gKeyId}"]`)
-      .closest(".content-blocking-category")
-      .classList.add("selected");
+    let radio = document.querySelector(`radio[value="${gKeyId}"]`);
+
+    // If the currently used key was deleted, we might not have the
+    // corresponding radio element.
+    if (radio) {
+      radio.closest(".content-blocking-category").classList.add("selected");
+    }
   }
 
   document.l10n.setAttributes(
@@ -1060,13 +1064,192 @@ function highlightOpenPgpKey() {
     }
   );
 
-  // Show a green checkmark if a key is currently being used.
-  // TODO: This needs further iterations in order to show a proper flag in case
-  // the selected Key is expired or revoked.
+  // Reset the image in case of async reload of the list.
   let image = document.getElementById("openPgpStatusImage");
-  if (gKeyId) {
-    image.removeAttribute("hidden");
-  } else {
-    image.setAttribute("hidden", "true");
+  image.classList.remove("status-success", "status-error");
+  image.setAttribute("hidden", "true");
+
+  // Interrupt if no key is currently selected.
+  if (!gKeyId) {
+    return;
   }
+
+  let key = EnigmailKeyRing.getKeyById(gKeyId, true);
+
+  // Check if the currently selected key has expired.
+  if (key.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime) {
+    image.classList.add("status-error");
+    document.l10n.setAttributes(
+      document.getElementById("openPgpgSelectionStatus"),
+      "openpgp-selection-status-error",
+      {
+        key: `0x${gKeyId}`,
+      }
+    );
+  } else {
+    image.classList.add("status-success");
+  }
+
+  // Show the image.
+  image.removeAttribute("hidden");
+}
+
+/**
+ * Clear the key cache and reload the UI.
+ */
+function clearKeyCache() {
+  EnigmailKeyRing.clearCache();
+  reloadOpenPgpUI();
+}
+
+/**
+ * Generic method to copy a string in the user's clipboard.
+ *
+ * @param {string} val - The formatted string to be copied in the clipboard.
+ */
+function openPgpCopyToClipboard(val) {
+  let exitCodeObj = {};
+  let valArray = [val];
+
+  let keyData = EnigmailKeyRing.extractKey(0, valArray, null, exitCodeObj, {});
+
+  // Alert the user if the copy failed.
+  if (
+    exitCodeObj.value !== 0 ||
+    !EnigmailClipboard.setClipboardContent(keyData)
+  ) {
+    document.l10n.formatValue("copy-to-clipbrd-failed").then(value => {
+      alertUser(value);
+    });
+    return;
+  }
+
+  // Let the user know that the copy was successful.
+  document.l10n.formatValue("copy-to-clipbrd-ok").then(value => {
+    alertUser(value);
+  });
+}
+
+/**
+ * Create an attachment with the currently selected OpenPgp public Key and open
+ * a new message compose window.
+ *
+ * @param {string} keyId - The formatted OpenPgp Key ID.
+ */
+function openPgpSendKeyEmail(keyId) {
+  let tmpDir = EnigGetTempDir();
+  let tmpFile;
+
+  try {
+    tmpFile = Cc[ENIG_LOCAL_FILE_CONTRACTID].createInstance(
+      EnigGetLocalFileApi()
+    );
+    tmpFile.initWithPath(tmpDir);
+  } catch (ex) {
+    Cu.reportError(ex);
+    return;
+  }
+
+  tmpFile.append("key.asc");
+  tmpFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
+
+  let exitCodeObj = {};
+  let errorMsgObj = {};
+  let keyIdArray = [keyId];
+
+  EnigmailKeyRing.extractKey(
+    false,
+    keyIdArray,
+    tmpFile,
+    exitCodeObj,
+    errorMsgObj
+  );
+
+  if (exitCodeObj.value !== 0) {
+    alertUser(errorMsgObj.value);
+    return;
+  }
+
+  // Create the key attachment.
+  let tmpFileURI = Services.io.newFileURI(tmpFile);
+  let keyAttachment = Cc[
+    "@mozilla.org/messengercompose/attachment;1"
+  ].createInstance(Ci.nsIMsgAttachment);
+
+  keyAttachment.url = tmpFileURI.spec;
+  keyAttachment.name = `${keyId}.asc`;
+  keyAttachment.temporary = true;
+  keyAttachment.contentType = "application/pgp-keys";
+
+  // Create the new message.
+  let msgCompFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+  msgCompFields.addAttachment(keyAttachment);
+
+  let msgCompParam = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  msgCompParam.composeFields = msgCompFields;
+  msgCompParam.identity = gIdentity;
+  msgCompParam.type = Ci.nsIMsgCompType.New;
+  msgCompParam.format = Ci.nsIMsgCompFormat.Default;
+  msgCompParam.originalMsgURI = "";
+
+  MailServices.compose.OpenComposeWindowWithParams("", msgCompParam);
+}
+
+/**
+ * Export the selected OpenPGP key to a file.
+ *
+ * @param {string} keyId - The ID of the selected OpenPGP Key.
+ * @param {boolean} exportSecret - If the secret key should be included in the
+ *   exported file.
+ */
+async function openPgpExportKey(keyId, exportSecret = false) {
+  // Backup of Secret key not yet implemented.
+  if (exportSecret) {
+    alertUser("Work in Progress: this feature is not yet implemented");
+    return;
+  }
+
+  let ext = exportSecret ? "pub-sec.asc" : "pub.asc";
+  let filename = `${gIdentity.fullName}_${gIdentity.email}-${keyId}-${ext}`;
+
+  let filePicker = exportSecret
+    ? await document.l10n.formatValue("export-keypair-to-file")
+    : await document.l10n.formatValue("export-to-file");
+
+  let outFile = EnigFilePicker(filePicker, "", true, "*.asc", filename, [
+    await document.l10n.formatValue("ascii-armor-file"),
+    "*.asc",
+  ]);
+  if (!outFile) {
+    return;
+  }
+
+  let exitCodeObj = {};
+  let errorMsgObj = {};
+  let keyIdArray = [keyId];
+
+  EnigmailKeyRing.extractKey(
+    exportSecret,
+    keyIdArray,
+    outFile,
+    exitCodeObj,
+    errorMsgObj
+  );
+
+  // Alert the user if the save failed.
+  if (exitCodeObj.value !== 0) {
+    document.l10n.formatValue("save-keys-failed").then(value => {
+      alertUser(value);
+    });
+    return;
+  }
+
+  // Let the user know that the save was successful.
+  document.l10n.formatValue("save-keys-ok").then(value => {
+    alertUser(value);
+  });
 }
