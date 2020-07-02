@@ -40,7 +40,6 @@ job-template:
             default: [ja-JP-mac]
     run-time: 36000
     secrets: false
-    docker-image: null
     fetches:
         toolchain:
             by-build-platform:
