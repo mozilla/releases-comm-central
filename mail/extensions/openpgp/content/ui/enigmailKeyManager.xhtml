@@ -73,12 +73,15 @@
     <menubar id="main-menubar">
       <menu id="menu_File" data-l10n-id="openpgp-key-man-file-menu">
         <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu();">
-          <menuitem id="importFromFile"
+          <menuitem id="importPubFromFile"
                     data-l10n-id="openpgp-key-man-import-public-from-file"
-                    oncommand="EnigmailCommon_importKeysFromFile(false);"/>
-          <menuitem id="importFromFile"
+                    oncommand="EnigmailCommon_importObjectFromFile('pub');"/>
+          <menuitem id="importSecFromFile"
                     data-l10n-id="openpgp-key-man-import-secret-from-file"
-                    oncommand="EnigmailCommon_importKeysFromFile(true);"/>
+                    oncommand="EnigmailCommon_importObjectFromFile('sec');"/>
+          <menuitem id="importSigFromFile"
+                    data-l10n-id="openpgp-key-man-import-sig-from-file"
+                    oncommand="EnigmailCommon_importObjectFromFile('rev');"/>
           <menuitem id="exportKey"
                     observes="bcNoKey"
                     data-l10n-id="openpgp-key-man-export-to-file"

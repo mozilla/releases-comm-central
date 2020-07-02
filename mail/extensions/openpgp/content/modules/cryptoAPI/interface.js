@@ -131,6 +131,11 @@ class CryptoAPI {
     return null;
   }
 
+  // return bool success
+  async importRevBlockAPI(data) {
+    return null;
+  }
+
   /**
    * Export secret key(s) to a file
    *
@@ -288,6 +293,14 @@ class CryptoAPI {
   }
 
   async getNewRevocation(id) {
+    return null;
+  }
+
+  async getPublicKey(id) {
+    return null;
+  }
+
+  async getMultiplePublicKeys(idArray) {
     return null;
   }
 }

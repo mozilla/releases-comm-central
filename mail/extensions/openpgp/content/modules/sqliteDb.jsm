@@ -91,6 +91,38 @@ var PgpSqliteDb2 = {
     }
   },
 
+  async hasAnyPositivelyAcceptedKeyForEmail(email) {
+    email = email.toLowerCase();
+    let count = 0;
+
+    let conn;
+    try {
+      conn = await this.openDatabase();
+
+      await conn
+        .execute(
+          "select count(decision) as hits from acceptance_email" +
+            " inner join acceptance_decision on" +
+            " acceptance_decision.fpr = acceptance_email.fpr" +
+            " where (decision = 'verified' or decision = 'unverified')" +
+            " and lower(email) = :email",
+          { email }
+        )
+        .then(result => {
+          if (result.length) {
+            count = result[0].getResultByName("hits");
+          }
+        });
+      await conn.close();
+    } catch (ex) {
+      console.debug(ex);
+      if (conn) {
+        await conn.close();
+      }
+    }
+    return count > 0;
+  },
+
   async getAcceptance(fingerprint, email, rv) {
     fingerprint = fingerprint.toLowerCase();
     email = email.toLowerCase();

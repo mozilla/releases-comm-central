@@ -89,7 +89,13 @@ class RNPCryptoAPI extends CryptoAPI {
     throw new Error("Not implemented");
   }
 
-  async importKeyBlockAPI(keyBlock, pubkey, seckey, permissive) {
+  async importKeyBlockAPI(
+    keyBlock,
+    pubkey,
+    seckey,
+    permissive,
+    limitedFPRs = []
+  ) {
     // TODO: get status results
     let res = await RNP.importKeyBlockImpl(
       null,
@@ -97,7 +103,8 @@ class RNPCryptoAPI extends CryptoAPI {
       keyBlock,
       pubkey,
       seckey,
-      permissive
+      permissive,
+      limitedFPRs
     );
     RNP.saveKeyRings();
     return res;
@@ -130,6 +137,10 @@ class RNPCryptoAPI extends CryptoAPI {
       seckey,
       permissive
     );
+  }
+
+  async importRevBlockAPI(data) {
+    return RNP.importRevImpl(data);
   }
 
   /**
@@ -288,6 +299,10 @@ class RNPCryptoAPI extends CryptoAPI {
 
   async getPublicKey(id) {
     return RNP.getPublicKey(id);
+  }
+
+  async getMultiplePublicKeys(idArray) {
+    return RNP.getMultiplePublicKeys(idArray);
   }
 }
 

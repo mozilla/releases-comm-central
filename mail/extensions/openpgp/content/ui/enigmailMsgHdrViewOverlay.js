@@ -591,9 +591,7 @@ Enigmail.hdrView = {
       } else if (statusFlags & EnigmailConstants.NO_PUBKEY) {
         this.msgSignatureState =
           EnigmailConstants.MSG_SIG_UNCERTAIN_KEY_UNAVAILABLE;
-        let b = document.getElementById("signatureKeyBox");
-        b.setAttribute("hidden", false);
-        b.setAttribute("keyid", secInfo.keyId);
+        Enigmail.msg.notifySigKeyMissing(secInfo.keyId);
       } else {
         this.msgSignatureState =
           EnigmailConstants.MSG_SIG_UNCERTAIN_KEY_NOT_ACCEPTED;

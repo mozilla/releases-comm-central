@@ -760,6 +760,24 @@ function enableRNPLibJS() {
       rnp_op_generate_t
     ),
 
+    rnp_guess_contents: librnp.declare(
+      "rnp_guess_contents",
+      abi,
+      rnp_result_t,
+      rnp_input_t,
+      ctypes.char.ptr.ptr
+    ),
+
+    rnp_import_signatures: librnp.declare(
+      "rnp_import_signatures",
+      abi,
+      rnp_result_t,
+      rnp_ffi_t,
+      rnp_input_t,
+      ctypes.uint32_t,
+      ctypes.char.ptr.ptr
+    ),
+
     rnp_import_keys: librnp.declare(
       "rnp_import_keys",
       abi,

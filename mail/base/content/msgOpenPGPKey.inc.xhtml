@@ -3,13 +3,16 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
   <hbox id="openpgpKeyBox" hidden="true">
-    <label id="hasKeyOpenPGP" data-l10n-id="openpgp-has-sender-key"/>
-      <toolbarbutton id="openpgpImportButton"
-                     data-l10n-id="openpgp-import-sender-key"
-                     oncommand="Enigmail.msg.importAutocryptKeydata();"/>
+    <vbox flex="1">
+      <description id="hasKeyOpenPGP" data-l10n-id="openpgp-has-sender-key"/>
+      <description id="hasConflictingKeyOpenPGP" hidden="true"/>
+    </vbox>
+    <toolbarbutton id="openpgpImportButton"
+                   data-l10n-id="openpgp-import-sender-key"
+                   oncommand="Enigmail.msg.importAttachedSenderKey();"/>
   </hbox>
   <hbox id="signatureKeyBox" hidden="true">
-    <label id="missingSignatureKey" data-l10n-id="openpgp-missing-signature-key"/>
+    <description id="missingSignatureKey" data-l10n-id="openpgp-missing-signature-key"/>
     <toolbarbutton id="searchSignatureKeyButton"
                    data-l10n-id="openpgp-search-signature-key"
                    oncommand="Enigmail.msg.searchSignatureKey();"/>

@@ -147,6 +147,9 @@ var EnigmailKeyRing = {
    */
   getKeysByUserId(searchTerm, onlyValidUid = true, allowExpired = false) {
     EnigmailLog.DEBUG("keyRing.jsm: getKeysByUserId: '" + searchTerm + "'\n");
+
+    // TODO: this might return substring matches.
+    // Try to do better and check for exact matches.
     let s = new RegExp(searchTerm, "i");
 
     let res = [];
@@ -293,6 +296,46 @@ var EnigmailKeyRing = {
     }
 
     return ret;
+  },
+
+  importRevFromFile(inputFile) {
+    var contents = EnigmailFiles.readFile(inputFile);
+    if (!contents) {
+      return false;
+    }
+
+    const beginIndexObj = {};
+    const endIndexObj = {};
+    const blockType = EnigmailArmor.locateArmoredBlock(
+      contents,
+      0,
+      "",
+      beginIndexObj,
+      endIndexObj,
+      {}
+    );
+    if (!blockType) {
+      return false;
+    }
+
+    if (blockType.search(/^(PUBLIC|PRIVATE) KEY BLOCK$/) !== 0) {
+      return false;
+    }
+
+    let pgpBlock = contents.substr(
+      beginIndexObj.value,
+      endIndexObj.value - beginIndexObj.value + 1
+    );
+
+    const cApi = EnigmailCryptoAPI();
+    let res = cApi.sync(cApi.importRevBlockAPI(pgpBlock));
+    if (res.exitCode) {
+      return false;
+    }
+
+    EnigmailKeyRing.clearCache();
+    getWindows().keyManReloadKeys();
+    return true;
   },
 
   /**
@@ -461,14 +504,10 @@ var EnigmailKeyRing = {
       throw new Error("invalid parameter given to EnigmailKeyRing.extractKey");
     }
 
-    if (idArray.length > 1) {
-      throw new Error(
-        "keyRing.jsm: EnigmailKeyRing.extractKey: multiple IDs not yet implemented"
-      );
-    }
-
     const cApi = EnigmailCryptoAPI();
-    let keyBlock = cApi.sync(cApi.getPublicKey(idArray[0]));
+    let keyBlock;
+
+    keyBlock = cApi.sync(cApi.getMultiplePublicKeys(idArray));
     if (!keyBlock) {
       errorMsgObj.value = l10n.formatValueSync("fail-key-extract");
       return "";
@@ -610,12 +649,6 @@ var EnigmailKeyRing = {
       }
     }
 
-    if (limitedUids.length > 0) {
-      throw new Error(
-        "importKeyAsync with limitedUids: not implemented " + limitedUids
-      );
-    }
-
     if (minimizeKey) {
       throw new Error("importKeyAsync with minimizeKey: not implemented");
     }
@@ -628,16 +661,17 @@ var EnigmailKeyRing = {
       // strict on first attempt, permissive on optional second attempt
       if (isBinary) {
         result = cApi.sync(
-          cApi.importKeyBlockAPI(keyBlock, true, false, permissive)
+          cApi.importKeyBlockAPI(keyBlock, true, false, permissive, limitedUids)
         ); // public only
       } else {
         result = cApi.sync(
-          cApi.importKeyBlockAPI(pgpBlock, true, false, permissive)
+          cApi.importKeyBlockAPI(pgpBlock, true, false, permissive, limitedUids)
         ); // public only
       }
 
       tryAgain = false;
-      let failed = result.exitCode || !result.importedKeys.length;
+      let failed =
+        result.exitCode || !result.importedKeys || !result.importedKeys.length;
       if (failed && isInteractive && !permissive) {
         let agreed = getDialog().confirmDlg(
           parent,
@@ -658,7 +692,13 @@ var EnigmailKeyRing = {
     return result.exitCode;
   },
 
-  importKeyDataWithConfirmation(window, preview, keyData, isBinary) {
+  importKeyDataWithConfirmation(
+    window,
+    preview,
+    keyData,
+    isBinary,
+    limitedUids = []
+  ) {
     let somethingWasImported = false;
     if (preview.length > 0) {
       let exitStatus;
@@ -692,7 +732,10 @@ var EnigmailKeyRing = {
             keyData,
             isBinary,
             "",
-            errorMsgObj
+            errorMsgObj,
+            null,
+            false,
+            limitedUids
           );
         } catch (ex) {
           console.debug(ex);
@@ -714,6 +757,27 @@ var EnigmailKeyRing = {
       });
     }
     return somethingWasImported;
+  },
+
+  importKeyDataSilent(window, keyData, isBinary, onlyFingerprint = "") {
+    let errorMsgObj = {};
+    let exitStatus = -1;
+    try {
+      exitStatus = EnigmailKeyRing.importKey(
+        window,
+        false,
+        keyData,
+        isBinary,
+        "",
+        errorMsgObj,
+        undefined,
+        false,
+        onlyFingerprint ? [onlyFingerprint] : []
+      );
+    } catch (ex) {
+      console.debug(ex);
+    }
+    return exitStatus === 0;
   },
 
   /**
@@ -1112,6 +1176,30 @@ var EnigmailKeyRing = {
     }
 
     getWindows().keyManReloadKeys();
+  },
+
+  findRevokedPersonalKeysByEmail(email) {
+    // TODO: this might return substring matches.
+    // Try to do better and check for exact matches.
+    let s = new RegExp(email, "i");
+    let res = [];
+    this.getAllKeys(); // ensure keylist is loaded;
+    if (email === "") {
+      return res;
+    }
+    for (let k of gKeyListObj.keyList) {
+      if (k.keyTrust != "r") {
+        continue;
+      }
+
+      for (let userId of k.userIds) {
+        if (userId.type === "uid" && userId.userId.search(s) >= 0) {
+          res.push("0x" + k.fpr);
+          break;
+        }
+      }
+    }
+    return res;
   },
 }; //  EnigmailKeyRing
 

@@ -14,6 +14,7 @@
 /* global gFolderDisplay: false, messenger: false, currentAttachments: false, msgWindow: false, PanelUI: false */
 /* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
 /* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView */
+/* global MailServices: false, gMessageDisplay: false */
 
 /* import-globals-from ../BondOpenPGP.jsm */
 
@@ -131,6 +132,12 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var KeyLookupHelper = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyLookupHelper.jsm"
 ).KeyLookupHelper;
+var { uidHelper } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/uidHelper.jsm"
+);
+var { PgpSqliteDb2 } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/sqliteDb.jsm"
+);
 
 var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
@@ -164,6 +171,8 @@ Enigmail.msg = {
   buggyMailType: null,
   changedAttributes: [],
   lastSMimeReloadURI: "",
+  allAttachmentsDone: false,
+  messageDecryptDone: false,
 
   messengerStartup() {
     if (!BondOpenPGP.allDependenciesLoaded()) {
@@ -387,7 +396,10 @@ Enigmail.msg = {
     let b = document.getElementById("openpgpKeyBox");
     if (b) {
       b.setAttribute("hidden", true);
-      b.removeAttribute("keydata");
+    }
+    let bc = document.getElementById("hasConflictingKeyOpenPGP");
+    if (bc) {
+      bc.setAttribute("hidden", true);
     }
 
     let b2 = document.getElementById("signatureKeyBox");
@@ -414,6 +426,20 @@ Enigmail.msg = {
 
     Enigmail.msg.decryptedMessage = null;
     Enigmail.msg.securityInfo = null;
+
+    Enigmail.msg.allAttachmentsDone = false;
+    Enigmail.msg.messageDecryptDone = false;
+
+    Enigmail.msg.authorEmailFetched = false;
+    Enigmail.msg.authorEmail = "";
+    Enigmail.msg.attachedKeys = [];
+    Enigmail.msg.attachedSenderEmailKeysIndex = [];
+
+    Enigmail.msg.autoProcessPgpKeyAttachmentTransactionID++;
+    Enigmail.msg.autoProcessPgpKeyAttachmentCount = 0;
+    Enigmail.msg.autoProcessPgpKeyAttachmentProcessed = 0;
+    Enigmail.msg.unhideMissingSigKeyBoxIsTODO = false;
+    Enigmail.msg.missingSigKey = null;
   },
 
   messageFrameUnload() {
@@ -640,6 +666,11 @@ Enigmail.msg = {
     Enigmail.msg.messageDecrypt(null, true);
   },
 
+  notifyMessageDecryptDone() {
+    Enigmail.msg.messageDecryptDone = true;
+    Enigmail.msg.processAfterAttachmentsAndDecrypt();
+  },
+
   // analyse message header and decrypt/verify message
   messageDecrypt(event, isAuto) {
     EnigmailLog.DEBUG(
@@ -666,6 +697,7 @@ Enigmail.msg = {
     ) {
       this.movePEPsubject();
       this.messageDecryptCb(event, isAuto, null);
+      this.notifyMessageDecryptDone();
       return;
     } else if (
       contentType.search(/^multipart\/signed(;|$)/i) === 0 &&
@@ -673,6 +705,7 @@ Enigmail.msg = {
     ) {
       this.movePEPsubject();
       this.messageDecryptCb(event, isAuto, null);
+      this.notifyMessageDecryptDone();
       return;
     }
 
@@ -682,6 +715,7 @@ Enigmail.msg = {
         false,
         function(mimeMsg) {
           Enigmail.msg.messageDecryptCb(event, isAuto, mimeMsg);
+          Enigmail.msg.notifyMessageDecryptDone();
         }
       );
     } catch (ex) {
@@ -691,6 +725,7 @@ Enigmail.msg = {
           "\n"
       );
       this.messageDecryptCb(event, isAuto, null);
+      this.notifyMessageDecryptDone();
     }
   },
 
@@ -807,39 +842,6 @@ Enigmail.msg = {
             headerValue +
             "'\n"
         );
-      }
-
-      let senderAutocryptKey = null;
-      if (
-        "autocrypt" in Enigmail.msg.savedHeaders &&
-        Enigmail.msg.savedHeaders.autocrypt.length > 0 &&
-        "from" in currentHeaderData
-      ) {
-        /*
-        let dateValue = "";
-        if ("date" in currentHeaderData) {
-          dateValue = currentHeaderData.date.headerValue;
-        }
-
-        EnigmailAutocrypt.processAutocryptHeader(
-          currentHeaderData.from.headerValue,
-          Enigmail.msg.savedHeaders.autocrypt,
-          dateValue,
-          Enigmail.msg.isAutocryptEnabled()
-        );
-        */
-
-        senderAutocryptKey = EnigmailAutocrypt.getKeyFromHeader(
-          currentHeaderData.from.headerValue,
-          Enigmail.msg.savedHeaders.autocrypt
-        );
-        if (senderAutocryptKey) {
-          let b = document.getElementById("openpgpKeyBox");
-          b.setAttribute("hidden", false);
-          b.setAttribute("keydata", senderAutocryptKey);
-        }
-      } else {
-        //Enigmail.msg.createArtificialAutocryptHeader();
       }
 
       var msgSigned =
@@ -1770,33 +1772,15 @@ Enigmail.msg = {
     );
   },
 
-  importAutocryptKeydata() {
-    let keyDataB64 = document
-      .getElementById("openpgpKeyBox")
-      .getAttribute("keydata");
-    if (!keyDataB64) {
-      return;
-    }
-    let keyData = EnigmailData.decodeBase64(keyDataB64);
-    let errorMsgObj = {};
-    let preview = EnigmailKey.getKeyListFromKeyBlock(
-      keyData,
-      errorMsgObj,
-      true,
-      true,
-      false
-    );
-    if (preview && errorMsgObj.value === "") {
+  importAttachedSenderKey() {
+    for (let info of Enigmail.msg.attachedSenderEmailKeysIndex) {
       EnigmailKeyRing.importKeyDataWithConfirmation(
         window,
-        preview,
-        keyData,
-        true
+        [info.keyInfo],
+        Enigmail.msg.attachedKeys[info.idx],
+        true,
+        ["0x" + info.keyInfo.fpr]
       );
-    } else {
-      document.l10n.formatValue("preview-failed").then(value => {
-        EnigmailDialog.alert(window, value + "\n" + errorMsgObj.value);
-      });
     }
   },
 
@@ -1808,6 +1792,35 @@ Enigmail.msg = {
       return;
     }
     KeyLookupHelper.lookupAndImportByKeyID(window, keyId, true, null);
+  },
+
+  notifySigKeyMissing(keyId) {
+    Enigmail.msg.missingSigKey = keyId;
+    if (
+      Enigmail.msg.allAttachmentsDone &&
+      Enigmail.msg.messageDecryptDone &&
+      Enigmail.msg.autoProcessPgpKeyAttachmentProcessed ==
+        Enigmail.msg.autoProcessPgpKeyAttachmentCount
+    ) {
+      Enigmail.msg.unhideMissingSigKeyBox();
+    } else {
+      Enigmail.msg.unhideMissingSigKeyBoxIsTODO = true;
+    }
+  },
+
+  unhideMissingSigKeyBox() {
+    let sigKeyIsAttached = false;
+    for (let info of Enigmail.msg.attachedSenderEmailKeysIndex) {
+      if (info.keyInfo.keyId == Enigmail.msg.missingSigKey) {
+        sigKeyIsAttached = true;
+        break;
+      }
+    }
+    if (!sigKeyIsAttached) {
+      let b = document.getElementById("signatureKeyBox");
+      b.setAttribute("hidden", false);
+      b.setAttribute("keyid", Enigmail.msg.missingSigKey);
+    }
   },
 
   importKeyFromMsgBody(msgData) {
@@ -3008,28 +3021,6 @@ Enigmail.msg = {
     );
   },
 
-  importAttachedKeys() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: importAttachedKeys\n");
-
-    let keyFound = false;
-
-    for (let i in currentAttachments) {
-      if (
-        currentAttachments[i].contentType.search(/application\/pgp-keys/i) >=
-          0 ||
-        EnigmailMsgRead.getAttachmentName(currentAttachments[i]).match(
-          /\.asc\.(gpg|pgp)$/i
-        )
-      ) {
-        // found attached key
-        this.handleAttachment("importKey", currentAttachments[i]);
-        keyFound = true;
-      }
-    }
-
-    return keyFound;
-  },
-
   async searchKeysOnInternet(aHeaderNode) {
     let address = aHeaderNode
       .closest("mail-emailaddress")
@@ -3054,28 +3045,6 @@ Enigmail.msg = {
     }
 
     return false;
-  },
-
-  // download or import keys
-  handleUnknownKey() {
-    let imported = false;
-    // handline keys embedded in message body
-
-    if (Enigmail.msg.securityInfo.statusFlags & EnigmailConstants.INLINE_KEY) {
-      //return Enigmail.msg.messageDecrypt(true, false);
-      return Enigmail.msg.messageImport();
-    }
-
-    imported = this.importAttachedKeys();
-    if (!imported) {
-      imported = this.importKeyFromKeyserver();
-    }
-
-    if (imported) {
-      this.messageReload(false);
-    }
-
-    return null;
   },
 
   /**
@@ -3261,6 +3230,248 @@ Enigmail.msg = {
     }
 
     Enigmail = undefined;
+  },
+
+  commonProcessAttachedKey(keyData, isBinaryAutocrypt) {
+    let errorMsgObj = {};
+    let preview = EnigmailKey.getKeyListFromKeyBlock(
+      keyData,
+      errorMsgObj,
+      true,
+      true,
+      false
+    );
+
+    if (!preview || !preview.length || errorMsgObj.value) {
+      return;
+    }
+
+    this.fetchAuthorEmail();
+
+    let addedToIndex = false;
+    let nextIndex = Enigmail.msg.attachedKeys.length;
+
+    for (let newKey of preview) {
+      let oldKey = EnigmailKeyRing.getKeyById(newKey.fpr);
+      if (!oldKey) {
+        if (newKey.keyTrust == "r" || newKey.keyTrust == "e") {
+          continue;
+        }
+
+        if (!this.hasUserIdForEmail(newKey.userIds, this.authorEmail)) {
+          continue;
+        }
+
+        let info = {
+          fpr: "0x" + newKey.fpr,
+          idx: nextIndex,
+          keyInfo: newKey,
+          binary: isBinaryAutocrypt,
+        };
+        Enigmail.msg.attachedSenderEmailKeysIndex.push(info);
+        addedToIndex = true;
+        continue;
+      }
+
+      if (oldKey.keyCreated != newKey.keyCreated) {
+        continue;
+      }
+
+      let newHasNewValidity =
+        oldKey.expiryTime < newKey.expiryTime ||
+        (oldKey.keyTrust != "r" && newKey.keyTrust == "r");
+
+      if (!newHasNewValidity) {
+        continue;
+      }
+
+      if (
+        !EnigmailKeyRing.importKeyDataSilent(
+          window,
+          keyData,
+          isBinaryAutocrypt,
+          "0x" + newKey.fpr
+        )
+      ) {
+        console.debug(
+          "EnigmailKeyRing.importKeyDataSilent failed 0x" + newKey.fpr
+        );
+      }
+    }
+
+    if (addedToIndex) {
+      Enigmail.msg.attachedKeys.push(keyData);
+    }
+  },
+
+  async unhideImportKeyBox() {
+    let b = document.getElementById("openpgpKeyBox");
+    b.setAttribute("hidden", false);
+
+    let hasAreadyAcceptedOther = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
+      Enigmail.msg.authorEmail
+    );
+    if (hasAreadyAcceptedOther) {
+      let bc = document.getElementById("hasConflictingKeyOpenPGP");
+      if (bc) {
+        document.l10n.setAttributes(bc, "openpgp-be-careful-new-key", {
+          email: Enigmail.msg.authorEmail,
+          newFingerprint:
+            Enigmail.msg.attachedSenderEmailKeysIndex[0].keyInfo.fpr,
+        });
+        bc.setAttribute("hidden", false);
+      }
+    }
+  },
+
+  async processAfterAttachmentsAndDecrypt() {
+    if (!Enigmail.msg.allAttachmentsDone || !Enigmail.msg.messageDecryptDone) {
+      return;
+    }
+
+    if (
+      Enigmail.msg.autoProcessPgpKeyAttachmentProcessed <
+      Enigmail.msg.autoProcessPgpKeyAttachmentCount
+    ) {
+      return;
+    }
+
+    if (Enigmail.msg.unhideMissingSigKeyBoxIsTODO) {
+      Enigmail.msg.unhideMissingSigKeyBox();
+    }
+
+    // We have already processed all attached pgp-keys, we're ready
+    // to make final decisions on how to notify the user about
+    // available or missing keys.
+
+    if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
+      this.unhideImportKeyBox();
+      // If we already found a good key for the sender's email
+      // in attachments, then ignore the autocrypt header.
+      return;
+    }
+
+    let senderAutocryptKey = null;
+    if (
+      Enigmail.msg.savedHeaders &&
+      "autocrypt" in Enigmail.msg.savedHeaders &&
+      Enigmail.msg.savedHeaders.autocrypt.length > 0 &&
+      "from" in currentHeaderData
+    ) {
+      senderAutocryptKey = EnigmailAutocrypt.getKeyFromHeader(
+        currentHeaderData.from.headerValue,
+        Enigmail.msg.savedHeaders.autocrypt
+      );
+    }
+
+    if (!senderAutocryptKey) {
+      return;
+    }
+
+    let keyData = EnigmailData.decodeBase64(senderAutocryptKey);
+    this.commonProcessAttachedKey(keyData, true);
+
+    if (Enigmail.msg.attachedSenderEmailKeysIndex.length) {
+      this.unhideImportKeyBox();
+    }
+  },
+
+  async notifyEndAllAttachments() {
+    Enigmail.msg.allAttachmentsDone = true;
+
+    if (!Enigmail.msg.autoProcessPgpKeyAttachmentCount) {
+      Enigmail.msg.processAfterAttachmentsAndDecrypt();
+    }
+  },
+
+  authorEmailFetched: false,
+  authorEmail: "",
+  attachedKeys: [],
+  attachedSenderEmailKeysIndex: [], // each: {idx (to-attachedKeys), keyInfo, binary}
+
+  fetchAuthorEmail() {
+    if (this.authorEmailFetched) {
+      return;
+    }
+
+    this.authorEmailFetched = true;
+
+    let addresses = MailServices.headerParser.parseEncodedHeader(
+      gMessageDisplay.displayedMessage.author
+    );
+    if (!addresses.length) {
+      return;
+    }
+
+    this.authorEmail = addresses[0].email;
+  },
+
+  hasUserIdForEmail(userIds, authorEmail) {
+    authorEmail = authorEmail.toLowerCase();
+
+    for (let id of userIds) {
+      if (id.type !== "uid") {
+        continue;
+      }
+
+      let splitUid = {};
+      uidHelper.getPartsFromUidStr(id.userId, splitUid);
+      splitUid.email = splitUid.email.toLowerCase();
+
+      if (splitUid.email == authorEmail) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  async autoProcessPgpKeyCallback(callbackArg) {
+    if (
+      callbackArg.transaction !=
+      Enigmail.msg.autoProcessPgpKeyAttachmentTransactionID
+    ) {
+      return;
+    }
+
+    this.commonProcessAttachedKey(callbackArg.data, false);
+
+    Enigmail.msg.autoProcessPgpKeyAttachmentProcessed++;
+
+    if (
+      Enigmail.msg.autoProcessPgpKeyAttachmentProcessed ==
+      Enigmail.msg.autoProcessPgpKeyAttachmentCount
+    ) {
+      Enigmail.msg.processAfterAttachmentsAndDecrypt();
+    }
+  },
+
+  autoProcessPgpKeyAttachmentTransactionID: 0,
+  autoProcessPgpKeyAttachmentCount: 0,
+  autoProcessPgpKeyAttachmentProcessed: 0,
+  unhideMissingSigKeyBoxIsTODO: false,
+  unhideMissingSigKey: null,
+
+  autoProcessPgpKeyAttachment(attachment) {
+    if (attachment.contentType != "application/pgp-keys") {
+      return;
+    }
+
+    Enigmail.msg.autoProcessPgpKeyAttachmentCount++;
+
+    var argumentsObj = {
+      attachment,
+      data: "",
+      transaction: Enigmail.msg.autoProcessPgpKeyAttachmentTransactionID,
+    };
+
+    var bufferListener = EnigmailStreams.newStringStreamListener(data => {
+      argumentsObj.data = data;
+      Enigmail.msg.autoProcessPgpKeyCallback(argumentsObj);
+    });
+    var msgUri = Services.io.newURI(argumentsObj.attachment.url);
+
+    var channel = EnigmailStreams.createChannel(msgUri);
+    channel.asyncOpen(bufferListener, msgUri);
   },
 };
 

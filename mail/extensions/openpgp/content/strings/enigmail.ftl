@@ -65,21 +65,23 @@ openpgp-key-man-generate-menu =
     .accesskey = G
 
 openpgp-key-man-import-public-from-file =
-    .label = Import Public Key(s) from File
+    .label = Import Public Key(s) From File
     .accesskey = I
 openpgp-key-man-import-secret-from-file =
-    .label = Import Secret Key(s) from File
+    .label = Import Secret Key(s) From File
+openpgp-key-man-import-sig-from-file =
+    .label = Import Revocation(s) From File
 openpgp-key-man-import-from-clipbrd =
-    .label = Import Keys from Clipboard
+    .label = Import Keys From Clipboard
     .accesskey = I
 openpgp-key-man-import-from-url =
-    .label = Import Keys from URL
+    .label = Import Keys From URL
     .accesskey = U
 openpgp-key-man-export-to-file =
-    .label = Export Keys to File
+    .label = Export Keys To File
     .accesskey = E
 openpgp-key-man-send-keys =
-    .label = Send Public Keys by Email
+    .label = Send Public Keys By Email
     .accesskey = S
 
 openpgp-key-copy-key =
@@ -99,15 +101,15 @@ openpgp-key-send-key =
     .accesskey = S
 
 openpgp-key-man-create-mail =
-    .label = Compose Email to Selected Keys
+    .label = Compose Email To Selected Keys
     .accesskey = C
 openpgp-key-man-copy-to-clipbrd =
-    .label = Copy Public Keys to Clipboard
+    .label = Copy Public Keys To Clipboard
     .accesskey = C
 openpgp-key-man-ctx-expor-to-file-label =
-    .label = Export Keys to File
+    .label = Export Keys To File
 openpgp-key-man-ctx-copy-to-clipbrd-label =
-    .label = Copy Public Keys to Clipboard
+    .label = Copy Public Keys To Clipboard
 
 openpgp-key-man-reload =
     .label = Reload Key Cache
@@ -287,10 +289,10 @@ key-usage-encrypt = Encrypt
 key-usage-sign = Sign
 key-usage-certify = Certify
 key-usage-authentication = Authentication
-key-does-not-expire = Key does not expire
-key-expired-date = Key expired on { $keyExpiry }
-key-expired-simple = Key has expired
-key-revoked-date = Key was revoked
+key-does-not-expire = The key does not expire
+key-expired-date = The key expired on { $keyExpiry }
+key-expired-simple = The key has expired
+key-revoked-simple = The key was revoked
 key-do-you-accept = Do you accept this key for verifying digital signatures and for encrypting messages?
 key-accept-warning = Avoid accepting a rogue key. Use a communication channel other than email to verify the fingerprint of your correspondent's key.
 
@@ -489,6 +491,7 @@ key-trust-group = (group)
 
 # Strings used in commonWorkflows.js
 import-key-file = Import OpenPGP Key File
+import-rev-file = Import OpenPGP Revocation File
 gnupg-file = GnuPG Files
 import-keys-failed=Importing the keys failed
 passphrase-prompt = Please enter the passphrase that unlocks the following key: { $key }

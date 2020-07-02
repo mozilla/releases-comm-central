@@ -651,16 +651,21 @@ var messageHeaderSink = {
       }
     }
 
-    currentAttachments.push(
-      new AttachmentInfo(
-        contentType,
-        url,
-        displayName,
-        uri,
-        isExternalAttachment
-      )
+    let newAttachment = new AttachmentInfo(
+      contentType,
+      url,
+      displayName,
+      uri,
+      isExternalAttachment
     );
+    currentAttachments.push(newAttachment);
     this.skipAttachment = false;
+
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+      if (newAttachment.contentType == "application/pgp-keys") {
+        Enigmail.msg.autoProcessPgpKeyAttachment(newAttachment);
+      }
+    }
 
     // If we have an attachment, set the nsMsgMessageFlags.Attachment flag
     // on the hdr to cause the "message with attachment" icon to show up
@@ -735,6 +740,10 @@ var messageHeaderSink = {
   },
 
   onEndAllAttachments() {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+      Enigmail.msg.notifyEndAllAttachments();
+    }
+
     displayAttachmentsForExpandedView();
 
     for (let listener of gMessageListeners) {
@@ -2311,7 +2320,7 @@ function onShowAttachmentItemContextMenu() {
   openFolderMenu.hidden = !allSelectedFile;
   openFolderMenu.disabled = allSelectedDeleted;
 
-  if (MailConstants.MOZ_OPENPGP) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     Enigmail.hdrView.onShowAttachmentContextMenu();
   }
 }

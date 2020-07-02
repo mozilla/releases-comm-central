@@ -938,7 +938,6 @@ Enigmail.msg = {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.attachOwnKey: " + id + "\n"
     );
-    console.debug("Enigmail.msg.attachOwnKey " + id);
 
     if (
       this.attachOwnKeyObj.attachedKey &&
@@ -947,13 +946,19 @@ Enigmail.msg = {
       // remove attached key if user ID changed
       this.removeAttachedKey();
     }
+    let revokedIDs = EnigmailKeyRing.findRevokedPersonalKeysByEmail(
+      gCurrentIdentity.email
+    );
 
     if (!this.attachOwnKeyObj.attachedKey) {
       let hex = "0x" + id;
+      let myID = [hex];
+      let allIds = myID.concat(revokedIDs);
       var attachedObj = this.extractAndAttachKey(
-        [hex],
+        allIds,
         gCurrentIdentity.email,
-        true
+        true,
+        true // one key plus revocations
       );
       if (attachedObj) {
         this.attachOwnKeyObj.attachedObj = attachedObj;
@@ -985,13 +990,18 @@ Enigmail.msg = {
       if (resultObj.cancelled) {
         return;
       }
-      this.extractAndAttachKey(resultObj.userList, null, true);
+      this.extractAndAttachKey(resultObj.userList, null, true, false);
     } catch (ex) {
       // cancel pressed -> do nothing
     }
   },
 
-  extractAndAttachKey(uidArray, emailForFilename, warnOnError) {
+  extractAndAttachKey(
+    uidArray,
+    emailForFilename,
+    warnOnError,
+    additionalKeysAreRevocations
+  ) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.extractAndAttachKey: \n"
     );
@@ -1046,16 +1056,21 @@ Enigmail.msg = {
     ].createInstance(Ci.nsIMsgAttachment);
     keyAttachment.url = tmpFileURI.spec;
     if (
-      uidArray.length == 1 &&
+      (uidArray.length == 1 || additionalKeysAreRevocations) &&
       uidArray[0].search(/^(0x)?[a-fA-F0-9]+$/) === 0
     ) {
-      keyAttachment.name = uidArray[0].substr(-16, 16) + ".asc";
+      keyAttachment.name = uidArray[0].substr(-16, 16);
       if (keyAttachment.name.search(/^0x/) < 0) {
         keyAttachment.name = "0x" + keyAttachment.name;
       }
+      let withRevSuffix = "";
+      if (uidArray.length > 1 && additionalKeysAreRevocations) {
+        withRevSuffix = "_and_old_rev";
+      }
       // let normalizedEmail = emailForFilename.replace(" ", "_");
       // emailForFilename is currently unused
-      keyAttachment.name = "OpenPGP_" + keyAttachment.name;
+      keyAttachment.name =
+        "OpenPGP_" + keyAttachment.name + withRevSuffix + ".asc";
     } else {
       keyAttachment.name = "pgpkeys.asc";
     }
@@ -2835,7 +2850,6 @@ Enigmail.msg = {
    * Handle the 'compose-send-message' event from TB
    */
   sendMessageListener(event) {
-    console.debug("in Enigmail.msg.sendMessageListener");
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.sendMessageListener\n"
     );

@@ -1369,13 +1369,57 @@ var RNP = {
     return keyList;
   },
 
+  async importRevImpl(data) {
+    if (!data || typeof data != "string") {
+      throw new Error("invalid data parameter");
+    }
+
+    let arr = data.split("").map(e => e.charCodeAt());
+    var key_array = ctypes.uint8_t.array()(arr);
+
+    let input_from_memory = new RNPLib.rnp_input_t();
+    if (
+      RNPLib.rnp_input_from_memory(
+        input_from_memory.address(),
+        key_array,
+        key_array.length,
+        false
+      )
+    ) {
+      throw new Error("rnp_input_from_memory failed");
+    }
+
+    let jsonInfo = new ctypes.char.ptr();
+
+    let flags = 0;
+    let rv = RNPLib.rnp_import_signatures(
+      RNPLib.ffi,
+      input_from_memory,
+      flags,
+      jsonInfo.address()
+    );
+
+    // TODO: parse jsonInfo
+
+    if (rv) {
+      console.debug("rnp_import_signatures failed with rv: " + rv);
+    }
+
+    RNPLib.rnp_buffer_destroy(jsonInfo);
+    RNPLib.rnp_input_destroy(input_from_memory);
+    this.saveKeyRings();
+
+    return rv;
+  },
+
   async importKeyBlockImpl(
     win,
     passCB,
     keyBlockStr,
     pubkey,
     seckey,
-    permissive = false
+    permissive = false,
+    limitedFPRs = []
   ) {
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
       throw new Error("rejecting big keyblock");
@@ -1414,9 +1458,13 @@ var RNP = {
     let recentPass = "";
 
     // Prior to importing, ensure we can unprotect all keys
-    for (let ki = 0; ki < keys.length; ki++) {
-      let k = keys[ki];
-      let impKey = await this.getKeyHandleByIdentifier(tempFFI, "0x" + k.fpr);
+    for (let k of keys) {
+      let fprStr = "0x" + k.fpr;
+      if (limitedFPRs.length && !limitedFPRs.includes(fprStr)) {
+        continue;
+      }
+
+      let impKey = await this.getKeyHandleByIdentifier(tempFFI, fprStr);
       if (impKey.isNull()) {
         throw new Error("cannot get key handle for imported key: " + k.fpr);
       }
@@ -1460,8 +1508,11 @@ var RNP = {
     }
 
     if (!userFlags.canceled) {
-      for (let ki = 0; ki < keys.length; ki++) {
-        let k = keys[ki];
+      for (let k of keys) {
+        let fprStr = "0x" + k.fpr;
+        if (limitedFPRs.length && !limitedFPRs.includes(fprStr)) {
+          continue;
+        }
 
         // We allow importing, if any of the following is true
         // - it contains a secret key
@@ -1482,7 +1533,7 @@ var RNP = {
           */
         }
 
-        let impKey = await this.getKeyHandleByIdentifier(tempFFI, "0x" + k.fpr);
+        let impKey = await this.getKeyHandleByIdentifier(tempFFI, fprStr);
 
         let exportFlags =
           RNPLib.RNP_KEY_EXPORT_ARMORED | RNPLib.RNP_KEY_EXPORT_SUBKEYS;
@@ -1598,8 +1649,6 @@ var RNP = {
   },
 
   deleteKey(keyFingerprint, deleteSecret) {
-    console.debug("deleting key with fingerprint: " + keyFingerprint);
-
     let handle = new RNPLib.rnp_key_handle_t();
     if (
       RNPLib.rnp_locate_key(
@@ -1650,7 +1699,6 @@ var RNP = {
   },
 
   async getKeyHandleByIdentifier(ffi, id) {
-    console.debug("getKeyHandleByIdentifier searching for: " + id);
     let key = null;
 
     if (id.startsWith("<")) {
@@ -1690,13 +1738,11 @@ var RNP = {
       if (!skip) {
         let key_revoked = new ctypes.bool();
         if (RNPLib.rnp_key_is_revoked(sub_handle, key_revoked.address())) {
-          console.debug("skipping revoked subkey");
           skip = true;
         }
       }
       if (!skip) {
         if (!this.isKeyUsableFor(sub_handle, usage)) {
-          console.debug("skipping subkey not usable for request");
           skip = true;
         }
       }
@@ -1709,9 +1755,6 @@ var RNP = {
         if (RNPLib.rnp_key_get_fprint(found_handle, fingerprint.address())) {
           throw new Error("rnp_key_get_fprint failed");
         }
-        console.debug(
-          "found suitable subkey, fingerprint: " + fingerprint.readString()
-        );
         RNPLib.rnp_buffer_destroy(fingerprint);
         break;
       }
@@ -1722,17 +1765,13 @@ var RNP = {
 
   addSuitableEncryptKey(key, op) {
     let use_sub = null;
-    console.debug("addSuitableEncryptKey");
 
     // looks like this will be unnecessary ???
 
     if (!this.isKeyUsableFor(key, str_encrypt)) {
-      console.debug("addSuitableEncryptKey primary not usable");
       use_sub = this.getSuitableSubkey(key, str_encrypt);
       if (!use_sub) {
         throw new Error("no suitable subkey found for " + str_encrypt);
-      } else {
-        console.debug("addSuitableEncryptKey using subkey");
       }
     }
 
@@ -1751,10 +1790,6 @@ var RNP = {
     resultStatus.statusFlags = 0;
     resultStatus.statusMsg = "";
     resultStatus.errorMsg = "";
-
-    console.debug(
-      `encryptAndOrSign, plaintext (length=${plaintext.length}): ${plaintext}`
-    );
 
     var tmp_array = ctypes.char.array()(plaintext);
     var plaintext_array = ctypes.cast(
@@ -1902,15 +1937,12 @@ var RNP = {
           "mail.openpgp.debug.extra_encryption_key"
         );
         if (debugKey) {
-          console.debug("searching for " + debugKey);
           let handle = this.getKeyHandleByKeyIdOrFingerprint(
             RNPLib.ffi,
             debugKey
           );
-          if (handle.isNull()) {
-            console.debug("cannot get handle for debug key " + debugKey);
-          } else {
-            console.debug("FOUND get handle for debug key " + debugKey);
+          if (!handle.isNull()) {
+            console.debug("encrypting to debug key " + debugKey);
             this.addSuitableEncryptKey(handle, op);
             RNPLib.rnp_key_handle_destroy(handle);
           }
@@ -1963,8 +1995,6 @@ var RNP = {
         false
       )
     ) {
-      console.debug("encrypt result len: " + result_len.value);
-
       let char_array = ctypes.cast(
         result_buf,
         ctypes.char.array(result_len.value).ptr
@@ -2218,6 +2248,65 @@ var RNP = {
 
     RNPLib.rnp_output_destroy(output_to_memory);
     RNPLib.rnp_key_handle_destroy(key);
+    return result;
+  },
+
+  async getMultiplePublicKeys(idArray) {
+    let out_final = new RNPLib.rnp_output_t();
+    RNPLib.rnp_output_to_memory(out_final.address(), 0);
+
+    let out_binary = new RNPLib.rnp_output_t();
+    let rv;
+    if (
+      (rv = RNPLib.rnp_output_to_armor(
+        out_final,
+        out_binary.address(),
+        "public key"
+      ))
+    ) {
+      throw new Error("rnp_output_to_armor failed:" + rv);
+    }
+
+    let flags = RNPLib.RNP_KEY_EXPORT_PUBLIC | RNPLib.RNP_KEY_EXPORT_SUBKEYS;
+
+    for (let id of idArray) {
+      let key = await this.getKeyHandleByIdentifier(RNPLib.ffi, id);
+      if (key.isNull()) {
+        continue;
+      }
+
+      if (RNPLib.rnp_key_export(key, out_binary, flags)) {
+        throw new Error("rnp_key_export failed");
+      }
+
+      RNPLib.rnp_key_handle_destroy(key);
+    }
+
+    if ((rv = RNPLib.rnp_output_finish(out_binary))) {
+      throw new Error("rnp_output_finish failed: " + rv);
+    }
+
+    let result_buf = new ctypes.uint8_t.ptr();
+    let result_len = new ctypes.size_t();
+    let exitCode = RNPLib.rnp_output_memory_get_buf(
+      out_final,
+      result_buf.address(),
+      result_len.address(),
+      false
+    );
+
+    let result = "";
+    if (!exitCode) {
+      let char_array = ctypes.cast(
+        result_buf,
+        ctypes.char.array(result_len.value).ptr
+      ).contents;
+      result = char_array.readString();
+    }
+
+    RNPLib.rnp_output_destroy(out_binary);
+    RNPLib.rnp_output_destroy(out_final);
+
     return result;
   },
 

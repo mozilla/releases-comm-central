@@ -53,11 +53,15 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
 
 /**
  * import OpenPGP keys from file
+ * @param {string} what - "rev" for revocation, "pub" for public keys, "sec" for secret keys.
  */
-function EnigmailCommon_importKeysFromFile(secret) {
+function EnigmailCommon_importObjectFromFile(what) {
+  let importingRevocation = what == "rev";
+  let promptStr = importingRevocation ? "import-rev-file" : "import-key-file";
+
   let inFile = EnigmailDialog.filePicker(
     window,
-    l10n.formatValueSync("import-key-file"),
+    l10n.formatValueSync(promptStr),
     "",
     false,
     "*.asc",
@@ -77,12 +81,19 @@ function EnigmailCommon_importKeysFromFile(secret) {
     return false;
   }
   let errorMsgObj = {};
+
+  if (importingRevocation) {
+    return EnigmailKeyRing.importRevFromFile(inFile);
+  }
+
+  let isSecret = what == "sec";
+
   // preview
   let preview = EnigmailKey.getKeyListFromKeyFile(
     inFile,
     errorMsgObj,
-    !secret,
-    secret
+    !isSecret,
+    isSecret
   );
 
   if (!preview || !preview.length || errorMsgObj.value) {
@@ -124,15 +135,14 @@ function EnigmailCommon_importKeysFromFile(secret) {
         inFile,
         errorMsgObj,
         resultKeys,
-        !secret,
-        secret
+        !isSecret,
+        isSecret
       );
       if (exitCode !== 0) {
         document.l10n.formatValue("import-keys-failed").then(value => {
           EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
         });
       } else {
-        console.debug("import final resultKeys: %o", resultKeys.keys);
         EnigmailDialog.keyImportDlg(window, resultKeys.keys);
         return true;
       }

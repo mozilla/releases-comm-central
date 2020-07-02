@@ -163,7 +163,7 @@ async function reloadData(firstLoad) {
   let expireArgument = null;
   let expiryInfoKey = "";
   if (keyObj.keyTrust == "r") {
-    expiryInfoKey = "key-revoked-date";
+    expiryInfoKey = "key-revoked-simple";
   } else if (keyObj.keyTrust == "e" || keyIsExpired) {
     expiryInfoKey = "key-expired-date";
     expireArgument = keyObj.expiry;
@@ -214,7 +214,7 @@ async function reloadData(firstLoad) {
     if (!isStillValid) {
       gAcceptanceRadio.setAttribute("hidden", "true");
       if (keyObj.keyTrust == "r") {
-        acceptanceIntro1Text = "key-revoked";
+        acceptanceIntro1Text = "key-revoked-simple";
       } else if (keyObj.keyTrust == "e" || keyIsExpired) {
         acceptanceIntro1Text = "key-expired-simple";
       }
