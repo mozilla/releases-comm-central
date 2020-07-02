@@ -27,7 +27,7 @@ nsresult nsWMUtils::FindWMKey(nsIWindowsRegKey** aKey) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                 u"Software\\Microsoft\\Windows Live Mail"_ns),
+                 u"Software\\Microsoft\\Windows Live Mail"_ns,
                  nsIWindowsRegKey::ACCESS_QUERY_VALUE);
   if (NS_SUCCEEDED(rv)) {
     key.forget(aKey);
