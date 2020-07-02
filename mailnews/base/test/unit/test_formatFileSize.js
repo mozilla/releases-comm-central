@@ -27,6 +27,8 @@ function test_formatFileSize(aArgs) {
     kb: "kiloByteAbbreviation2",
     mb: "megaByteAbbreviation2",
     gb: "gigaByteAbbreviation2",
+    tb: "teraByteAbbreviation2",
+    pb: "petaByteAbbreviation2",
   };
 
   let actual = gMessenger.formatFileSize(aArgs.bytes, aArgs.useKB);
@@ -78,8 +80,62 @@ var test_data = [
   {
     bytes: 1000 * 1024 * 1024 * 1024,
     useKB: false,
+    mantissa: "1.0",
+    units: "tb",
+  },
+  {
+    bytes: 1024 * 1024 * 1024 * 1024,
+    useKB: false,
+    mantissa: "1.0",
+    units: "tb",
+  },
+  {
+    bytes: 10 * 1024 * 1024 * 1024 * 1024,
+    useKB: false,
+    mantissa: "10.0",
+    units: "tb",
+  },
+  {
+    bytes: 999 * 1024 * 1024 * 1024 * 1024,
+    useKB: false,
+    mantissa: "999",
+    units: "tb",
+  },
+  {
+    bytes: 1000 * 1024 * 1024 * 1024 * 1024,
+    useKB: false,
+    mantissa: "1.0",
+    units: "pb",
+  },
+  {
+    bytes: 1000 * 1024 * 1024 * 1024 * 1024,
+    useKB: false,
+    mantissa: "1.0",
+    units: "pb",
+  },
+  {
+    bytes: 1024 * 1024 * 1024 * 1024 * 1024,
+    useKB: false,
+    mantissa: "1.0",
+    units: "pb",
+  },
+  {
+    bytes: 10 * 1024 * 1024 * 1024 * 1024 * 1024,
+    useKB: false,
+    mantissa: "10.0",
+    units: "pb",
+  },
+  {
+    bytes: 999 * 1024 * 1024 * 1024 * 1024 * 1024,
+    useKB: false,
+    mantissa: "999",
+    units: "pb",
+  },
+  {
+    bytes: 1000 * 1024 * 1024 * 1024 * 1024 * 1024,
+    useKB: false,
     mantissa: "1000",
-    units: "gb",
+    units: "pb",
   },
 
   { bytes: 0, useKB: true, mantissa: "0", units: "kb" },

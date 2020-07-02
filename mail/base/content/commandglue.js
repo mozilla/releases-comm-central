@@ -10,6 +10,7 @@
 /* import-globals-from folderPane.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from msgMail3PaneWindow.js */
+/* global BigInt */
 
 var { MailViewConstants } = ChromeUtils.import(
   "resource:///modules/MailViewManager.jsm"
@@ -140,14 +141,17 @@ function UpdateStatusQuota(folder) {
     return;
   }
 
+  let quotaUsagePercentage = q =>
+    Number((100n * BigInt(q.usage)) / BigInt(q.limit));
+
   let folderQuota = folder.getQuota();
   // If folderQuota not empty, find the index of the element with highest
   //  percent usage and determine if it is above the panel display threshold.
   if (folderQuota.length > 0) {
     let highest = folderQuota.reduce((acc, current) =>
-      acc.usage / acc.limit > current.usage / current.limit ? acc : current
+      quotaUsagePercentage(acc) > quotaUsagePercentage(current) ? acc : current
     );
-    let percent = Math.round((100 * highest.usage) / highest.limit);
+    let percent = quotaUsagePercentage(highest);
     if (
       percent <
       Services.prefs.getIntPref("mail.quota.mainwindow_threshold.show")

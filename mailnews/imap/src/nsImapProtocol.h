@@ -369,7 +369,7 @@ class nsImapProtocol : public nsIImapProtocol,
 
   // Quota support
   void UpdateFolderQuotaData(nsImapQuotaAction aAction, nsCString& aQuotaRoot,
-                             uint32_t aUsed, uint32_t aMax);
+                             uint64_t aUsed, uint64_t aMax);
 
   bool GetPreferPlainText() { return m_preferPlainText; }
 

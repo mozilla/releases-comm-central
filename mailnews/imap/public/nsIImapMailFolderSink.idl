@@ -67,7 +67,7 @@ interface nsIImapMailFolderSink : nsISupports {
    **/
   void setFolderQuotaData(
       in unsigned long aAction, in ACString aFolderQuotaRoot,
-      in unsigned long aFolderQuotaUsed, in unsigned long aFolderQuotaLimit);
+      in unsigned long long aFolderQuotaUsed, in unsigned long long aFolderQuotaLimit);
 
   /// Should we download all the rfc822 headers of messages, instead of subset.
   readonly attribute boolean shouldDownloadAllHeaders;

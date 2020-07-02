@@ -200,14 +200,14 @@ class nsMsgQuota final : public nsIMsgQuota {
   NS_DECL_ISUPPORTS
   NS_DECL_NSIMSGQUOTA
 
-  nsMsgQuota(const nsACString& aName, const uint32_t& aUsage,
-             const uint32_t& aLimit);
+  nsMsgQuota(const nsACString& aName, const uint64_t& aUsage,
+             const uint64_t& aLimit);
 
  protected:
   ~nsMsgQuota();
 
   nsCString mName;
-  uint32_t mUsage, mLimit;
+  uint64_t mUsage, mLimit;
 };
 
 class nsImapMailFolder : public nsMsgDBFolder,

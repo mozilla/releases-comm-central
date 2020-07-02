@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from retention.js */
+/* global BigInt */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/Gloda.jsm");
@@ -90,7 +91,7 @@ var gFolderPropsSink = {
 
       let percentage = document.createElement("span");
       percentage.textContent = bundle.getFormattedString("quotaPercentUsed", [
-        Math.round((100 * quota.usage) / quota.limit),
+        Number((100n * BigInt(quota.usage)) / BigInt(quota.limit)),
       ]);
       li.appendChild(percentage);
 

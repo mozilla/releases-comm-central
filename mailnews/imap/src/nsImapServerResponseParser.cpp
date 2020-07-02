@@ -2589,7 +2589,7 @@ void nsImapServerResponseParser::quota_data() {
     fServerConnection.UpdateFolderQuotaData(kInvalidateQuota, quotaroot, 0, 0);
   } else if (!PL_strcasecmp(fNextToken, "QUOTA")) {
     // Should have one QUOTA response per QUOTAROOT.
-    uint32_t usage, limit;
+    uint64_t usage, limit;
     AdvanceToNextToken();
     if (ContinueParse()) {
       nsCString quotaroot;
@@ -2607,12 +2607,12 @@ void nsImapServerResponseParser::quota_data() {
         while (ContinueParse() && !fAtEndOfLine) {
           resource.Adopt(CreateAstring());
           AdvanceToNextToken();
-          usage = atoi(fNextToken);
+          usage = atoll(fNextToken);
           AdvanceToNextToken();
           nsAutoCString limitToken(fNextToken);
           if (fNextToken[strlen(fNextToken) - 1] == ')')
             limitToken.SetLength(strlen(fNextToken) - 1);
-          limit = atoi(limitToken.get());
+          limit = atoll(limitToken.get());
           // Some servers don't define a quotaroot name which we displays as
           // blank.
           nsCString quotaRootResource(quotaroot);

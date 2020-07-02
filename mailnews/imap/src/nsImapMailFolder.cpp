@@ -159,8 +159,8 @@ static nsresult RecursiveCopy(nsIFile* srcDir, nsIFile* destDir) {
 //
 NS_IMPL_ISUPPORTS(nsMsgQuota, nsIMsgQuota)
 
-nsMsgQuota::nsMsgQuota(const nsACString& aName, const uint32_t& aUsage,
-                       const uint32_t& aLimit)
+nsMsgQuota::nsMsgQuota(const nsACString& aName, const uint64_t& aUsage,
+                       const uint64_t& aLimit)
     : mName(aName), mUsage(aUsage), mLimit(aLimit) {}
 
 nsMsgQuota::~nsMsgQuota() {}
@@ -179,22 +179,22 @@ NS_IMETHODIMP nsMsgQuota::SetName(const nsACString& aName) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgQuota::GetUsage(uint32_t* aUsage) {
+NS_IMETHODIMP nsMsgQuota::GetUsage(uint64_t* aUsage) {
   *aUsage = mUsage;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgQuota::SetUsage(uint32_t aUsage) {
+NS_IMETHODIMP nsMsgQuota::SetUsage(uint64_t aUsage) {
   mUsage = aUsage;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgQuota::GetLimit(uint32_t* aLimit) {
+NS_IMETHODIMP nsMsgQuota::GetLimit(uint64_t* aLimit) {
   *aLimit = mLimit;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgQuota::SetLimit(uint32_t aLimit) {
+NS_IMETHODIMP nsMsgQuota::SetLimit(uint64_t aLimit) {
   mLimit = aLimit;
   return NS_OK;
 }
@@ -8007,7 +8007,7 @@ NS_IMETHODIMP nsImapMailFolder::SetFolderQuotaCommandIssued(bool aCmdIssued) {
 
 NS_IMETHODIMP nsImapMailFolder::SetFolderQuotaData(
     uint32_t aAction, const nsACString& aFolderQuotaRoot,
-    uint32_t aFolderQuotaUsage, uint32_t aFolderQuotaLimit) {
+    uint64_t aFolderQuotaUsage, uint64_t aFolderQuotaLimit) {
   switch (aAction) {
     case kInvalidateQuota:
       // Reset to initialize evaluation of a new quotaroot imap response. This

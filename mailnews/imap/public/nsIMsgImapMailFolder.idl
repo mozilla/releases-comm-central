@@ -35,12 +35,12 @@ interface nsIMsgQuota : nsISupports {
    * or storage in KB (1024 octets).
    */
 
-  attribute unsigned long usage;
+  attribute unsigned long long usage;
   /**
    * Maximum amount of usage permitted by the server for this quota root
    * resource.
    */
-  attribute unsigned long limit;
+  attribute unsigned long long limit;
 };
 
 /**

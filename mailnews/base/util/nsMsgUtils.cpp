@@ -407,6 +407,8 @@ nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize) {
       "kiloByteAbbreviation2",
       "megaByteAbbreviation2",
       "gigaByteAbbreviation2",
+      "teraByteAbbreviation2",
+      "petaByteAbbreviation2",
   };
 
   nsresult rv;

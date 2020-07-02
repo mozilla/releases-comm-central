@@ -8365,7 +8365,7 @@ bool nsImapProtocol::TryToLogon() {
 
 void nsImapProtocol::UpdateFolderQuotaData(nsImapQuotaAction aAction,
                                            nsCString& aQuotaRoot,
-                                           uint32_t aUsed, uint32_t aMax) {
+                                           uint64_t aUsed, uint64_t aMax) {
   NS_ASSERTION(m_imapMailFolderSink, "m_imapMailFolderSink is null!");
 
   m_imapMailFolderSink->SetFolderQuotaData(aAction, aQuotaRoot, aUsed, aMax);
