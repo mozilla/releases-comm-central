@@ -617,6 +617,7 @@ menulist::part(description) {
 
 .address-input {
   color: inherit;
+  outline: none;
 }
 
 .address-container > .address-input {
