@@ -663,7 +663,7 @@ var RNP = {
     return false;
   },
 
-  async decrypt(encrypted, options) {
+  async decrypt(encrypted, options, alreadyDecrypted = false) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
     var tmp_array = ctypes.char.array()(encrypted);
@@ -703,8 +703,7 @@ var RNP = {
 
     result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
 
-    let isEncrypted = false;
-    let rejectedDecryption = false;
+    let rnpCannotDecrypt = false;
 
     let useDecodedData;
     let processSignature;
@@ -724,11 +723,13 @@ var RNP = {
         result.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
         break;
       case RNPLib.RNP_ERROR_DECRYPT_FAILED:
+        rnpCannotDecrypt = true;
         useDecodedData = false;
         processSignature = false;
         result.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
         break;
       case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
+        rnpCannotDecrypt = true;
         useDecodedData = false;
         processSignature = false;
         result.statusFlags |=
@@ -743,7 +744,9 @@ var RNP = {
         break;
     }
 
-    if (useDecodedData) {
+    if (useDecodedData && alreadyDecrypted) {
+      result.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
+    } else if (useDecodedData && !alreadyDecrypted) {
       let prot_mode_str = new ctypes.char.ptr();
       let prot_cipher_str = new ctypes.char.ptr();
       let prot_is_valid = new ctypes.bool();
@@ -763,16 +766,12 @@ var RNP = {
       let validIntegrityProtection = prot_is_valid.value;
 
       if (mode != "none") {
-        isEncrypted = true;
-
         if (!validIntegrityProtection) {
           useDecodedData = false;
-          rejectedDecryption = true;
           result.statusFlags |=
             EnigmailConstants.MISSING_MDC | EnigmailConstants.DECRYPTION_FAILED;
         } else if (mode == "null" || this.policyForbidsAlg(cipher)) {
           // don't indicate decryption, because a non-protecting or insecure cipher was used
-          rejectedDecryption = true;
           result.statusFlags |= EnigmailConstants.UNKNOWN_ALGO;
         } else {
           let recip_handle = new RNPLib.rnp_recipient_handle_t();
@@ -791,7 +790,6 @@ var RNP = {
           }
 
           if (this.policyForbidsAlg(c_alg.readString())) {
-            rejectedDecryption = true;
             result.statusFlags |= EnigmailConstants.UNKNOWN_ALGO;
           } else {
             let c_key_id = new ctypes.char.ptr();
@@ -860,10 +858,8 @@ var RNP = {
     RNPLib.rnp_op_verify_destroy(verify_op);
 
     if (
-      isEncrypted &&
-      !rejectedDecryption &&
-      result.exitCode &&
-      !("alreadyUsedGPGME" in options) &&
+      rnpCannotDecrypt &&
+      !alreadyDecrypted &&
       Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&
       GPGME.allDependenciesLoaded()
     ) {
@@ -875,11 +871,11 @@ var RNP = {
         //       It isn't obvious how to do that with GPGME, because
         //       gpgme_op_decrypt_result provides the list of all the
         //       encryption keys, only.
-        options.alreadyUsedGPGME = true;
+
         // The result may still contain wrapping like compression,
         // and optional signature data. Recursively call ourselves
         // to perform the remaining processing.
-        return RNP.decrypt(r2.decryptedData, options);
+        return RNP.decrypt(r2.decryptedData, options, true);
       }
     }
 
