@@ -494,7 +494,6 @@ class CardDAVDirectory extends AddrBookDirectory {
   ) {
     uri = Services.io.newURI(uri);
 
-    let firstAuthAttempt = true;
     return new Promise((resolve, reject) => {
       let principal = Services.scriptSecurityManager.createContentPrincipal(
         uri,
@@ -512,107 +511,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       for (let [name, value] of Object.entries(headers)) {
         channel.setRequestHeader(name, value, false);
       }
-      channel.notificationCallbacks = {
-        getInterface(iid) {
-          if (iid.equals(Ci.nsIAuthPrompt2)) {
-            return {
-              promptAuth(channel, level, authInfo) {
-                if (!firstAuthAttempt) {
-                  return false;
-                }
-                firstAuthAttempt = false;
-                let logins = Services.logins.findLogins(
-                  channel.URI.prePath,
-                  null,
-                  ""
-                );
-                for (let l of logins) {
-                  authInfo.username = l.username;
-                  authInfo.password = l.password;
-                  return true;
-                }
-
-                let savePasswordLabel = null;
-                if (
-                  Services.prefs.getBoolPref("signon.rememberSignons", true)
-                ) {
-                  savePasswordLabel = Services.strings
-                    .createBundle(
-                      "chrome://passwordmgr/locale/passwordmgr.properties"
-                    )
-                    .GetStringFromName("rememberPassword");
-                }
-                let savePassword = {};
-                let returnValue = Services.prompt.promptAuth(
-                  null,
-                  channel,
-                  level,
-                  authInfo,
-                  savePasswordLabel,
-                  savePassword
-                );
-                if (savePassword.value) {
-                  let newLoginInfo = Cc[
-                    "@mozilla.org/login-manager/loginInfo;1"
-                  ].createInstance(Ci.nsILoginInfo);
-                  newLoginInfo.init(
-                    channel.URI.prePath,
-                    null,
-                    authInfo.realm,
-                    authInfo.username,
-                    authInfo.password,
-                    "",
-                    ""
-                  );
-                  Services.logins.addLogin(newLoginInfo);
-                }
-                return returnValue;
-              },
-            };
-          } else if (iid.equals(Ci.nsIChannelEventSink)) {
-            return {
-              asyncOnChannelRedirect(oldChannel, newChannel, flags, callback) {
-                /**
-                 * Copy the given header from the old channel to the new one, ignoring missing headers
-                 *
-                 * @param {String} aHdr         The header to copy
-                 */
-                function copyHeader(aHdr) {
-                  try {
-                    let hdrValue = oldChannel.getRequestHeader(aHdr);
-                    if (hdrValue) {
-                      newChannel.setRequestHeader(aHdr, hdrValue, false);
-                    }
-                  } catch (e) {
-                    if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
-                      // The header could possibly not be available, ignore that
-                      // case but throw otherwise
-                      throw e;
-                    }
-                  }
-                }
-
-                // Make sure we can get/set headers on both channels.
-                newChannel.QueryInterface(Ci.nsIHttpChannel);
-                oldChannel.QueryInterface(Ci.nsIHttpChannel);
-
-                // If any other header is used, it should be added here. We might want
-                // to just copy all headers over to the new channel.
-                copyHeader("Authorization");
-                copyHeader("Depth");
-                copyHeader("Originator");
-                copyHeader("Recipient");
-                copyHeader("If-None-Match");
-                copyHeader("If-Match");
-
-                newChannel.requestMethod = oldChannel.requestMethod;
-                callback.onRedirectVerifyCallback(Cr.NS_OK);
-              },
-            };
-          }
-          return null;
-        },
-      };
+      channel.notificationCallbacks = notificationCallbacks;
       if (body !== null) {
         let converter = Cc[
           "@mozilla.org/intl/scriptableunicodeconverter"
@@ -700,3 +599,95 @@ function xmlEncode(string) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 }
+
+let notificationCallbacks = {
+  QueryInterface: ChromeUtils.generateQI([
+    Ci.nsIInterfaceRequestor,
+    Ci.nsIAuthPrompt2,
+    Ci.nsIChannelEventSink,
+  ]),
+  getInterface: ChromeUtils.generateQI([
+    Ci.nsIAuthPrompt2,
+    Ci.nsIChannelEventSink,
+  ]),
+  promptAuth(channel, level, authInfo) {
+    if (authInfo.flags & Ci.nsIAuthInformation.PREVIOUS_FAILED) {
+      return false;
+    }
+    let logins = Services.logins.findLogins(channel.URI.prePath, null, "");
+    for (let l of logins) {
+      authInfo.username = l.username;
+      authInfo.password = l.password;
+      return true;
+    }
+
+    let savePasswordLabel = null;
+    if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
+      savePasswordLabel = Services.strings
+        .createBundle("chrome://passwordmgr/locale/passwordmgr.properties")
+        .GetStringFromName("rememberPassword");
+    }
+    let savePassword = {};
+    let returnValue = Services.prompt.promptAuth(
+      null,
+      channel,
+      level,
+      authInfo,
+      savePasswordLabel,
+      savePassword
+    );
+    if (savePassword.value) {
+      let newLoginInfo = Cc[
+        "@mozilla.org/login-manager/loginInfo;1"
+      ].createInstance(Ci.nsILoginInfo);
+      newLoginInfo.init(
+        channel.URI.prePath,
+        null,
+        authInfo.realm,
+        authInfo.username,
+        authInfo.password,
+        "",
+        ""
+      );
+      Services.logins.addLogin(newLoginInfo);
+    }
+    return returnValue;
+  },
+  asyncOnChannelRedirect(oldChannel, newChannel, flags, callback) {
+    /**
+     * Copy the given header from the old channel to the new one, ignoring missing headers
+     *
+     * @param {String} header - The header to copy
+     */
+    function copyHeader(header) {
+      try {
+        let headerValue = oldChannel.getRequestHeader(header);
+        if (headerValue) {
+          newChannel.setRequestHeader(header, headerValue, false);
+        }
+      } catch (e) {
+        if (e.result != Cr.NS_ERROR_NOT_AVAILABLE) {
+          // The header could possibly not be available, ignore that
+          // case but throw otherwise
+          throw e;
+        }
+      }
+    }
+
+    // Make sure we can get/set headers on both channels.
+    newChannel.QueryInterface(Ci.nsIHttpChannel);
+    oldChannel.QueryInterface(Ci.nsIHttpChannel);
+
+    // If any other header is used, it should be added here. We might want
+    // to just copy all headers over to the new channel.
+    copyHeader("Authorization");
+    copyHeader("Depth");
+    copyHeader("Originator");
+    copyHeader("Recipient");
+    copyHeader("If-None-Match");
+    copyHeader("If-Match");
+
+    newChannel.requestMethod = oldChannel.requestMethod;
+    callback.onRedirectVerifyCallback(Cr.NS_OK);
+  },
+};
