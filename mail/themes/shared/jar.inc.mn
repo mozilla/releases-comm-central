@@ -7,6 +7,9 @@
 # be specified once. As a result, the source file paths are relative
 # to the location of the actual manifest.
 
+% override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css
+% override chrome://browser/skin/developer.svg chrome://messenger/skin/icons/developer.svg
+
   skin/classic/messenger/aboutNetError.css                    (../shared/mail/aboutNetError.css)
   skin/classic/messenger/aboutSupport.css                     (../shared/mail/aboutSupport.css)
   skin/classic/messenger/folderProps.css                      (../shared/mail/folderProps.css)

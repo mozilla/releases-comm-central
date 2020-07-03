@@ -147,5 +147,3 @@ classic.jar:
   skin/classic/editor/icons/img-align-middle.gif                 (editor/img-align-middle.gif)
   skin/classic/editor/icons/img-align-right.gif                  (editor/img-align-right.gif)
   skin/classic/editor/icons/img-align-top.gif                    (editor/img-align-top.gif)
-
-% override chrome://global/skin/netError.css chrome://messenger/skin/aboutNetError.css
