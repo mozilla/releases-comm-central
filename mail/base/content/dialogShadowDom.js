@@ -9,9 +9,6 @@
 window.addEventListener("load", () => {
   let link = document.createElement("link");
   link.setAttribute("rel", "stylesheet");
-  link.setAttribute(
-    "href",
-    "chrome://messenger/skin/themeableDialog.css"
-  );
+  link.setAttribute("href", "chrome://messenger/skin/themeableDialog.css");
   document.querySelector("dialog").shadowRoot.appendChild(link);
 });

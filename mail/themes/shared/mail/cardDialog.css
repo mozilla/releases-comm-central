@@ -94,7 +94,7 @@ window {
 }
 
 #PhotoDropTarget:hover {
-  border: 1px dashed hsla(0, 0%; 50%, 0.5);
+  border: 1px dashed hsla(0, 0%, 50%, 0.5);
 }
 
 #PhotoFile {
