@@ -2938,7 +2938,8 @@ NS_IMETHODIMP nsImapIncomingServer::GetTrashFolderName(nsAString& retval) {
   // Despite its name, this returns a path, for example INBOX/Trash.
   nsresult rv = GetUnicharValue(PREF_TRASH_FOLDER_PATH, retval);
   if (NS_FAILED(rv)) return rv;
-  if (retval.IsEmpty()) retval = NS_LITERAL_STRING(DEFAULT_TRASH_FOLDER_PATH);
+  if (retval.IsEmpty())
+    retval = NS_LITERAL_STRING_FROM_CSTRING(DEFAULT_TRASH_FOLDER_PATH);
   return NS_OK;
 }
 

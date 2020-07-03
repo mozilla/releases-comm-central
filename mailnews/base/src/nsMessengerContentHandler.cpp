@@ -62,8 +62,7 @@ NS_IMETHODIMP nsMessengerContentHandler::HandleContent(
           if (scheme.Equals("file")) {
             // Add a special bit like in MsgOpenFromFile().
             rv = NS_MutateURI(aUri)
-                     .SetQuery(NS_LITERAL_CSTRING(
-                         "type=application/x-message-display"))
+                     .SetQuery("type=application/x-message-display"_ns)
                      .Finalize(aUri);
             NS_ENSURE_SUCCESS(rv, rv);
           }

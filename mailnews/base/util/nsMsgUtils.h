@@ -412,9 +412,9 @@ void MsgLogToConsole4(const nsAString& aErrorText, const nsAString& aFilename,
 void MsgHdrsToTArray(nsIArray* messages, nsTArray<RefPtr<nsIMsgDBHdr>>& out);
 
 // Macro with filename and line number
-#define MSG_LOG_TO_CONSOLE(_text, _flag)                                  \
-  MsgLogToConsole4(NS_LITERAL_STRING(_text), NS_LITERAL_STRING(__FILE__), \
-                   __LINE__, _flag)
+#define MSG_LOG_TO_CONSOLE(_text, _flag)                  \
+  MsgLogToConsole4(NS_LITERAL_STRING_FROM_CSTRING(_text), \
+                   NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__, _flag)
 #define MSG_LOG_ERR_TO_CONSOLE(_text) \
   MSG_LOG_TO_CONSOLE(_text, nsIScriptError::errorFlag)
 #define MSG_LOG_WARN_TO_CONSOLE(_text) \

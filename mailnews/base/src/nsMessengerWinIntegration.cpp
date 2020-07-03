@@ -409,9 +409,10 @@ nsresult nsMessengerWinIntegration::ShowAlertMessage(
         mozilla::components::Alerts::Service();
     if (alertsService) {
       rv = alertsService->ShowAlertNotification(
-          NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON), aAlertTitle, aAlertText, true,
-          NS_ConvertASCIItoUTF16(aFolderURI), this, EmptyString(), u"auto"_ns,
-          EmptyString(), EmptyString(), nullptr, false, false);
+          NS_LITERAL_STRING_FROM_CSTRING(NEW_MAIL_ALERT_ICON), aAlertTitle,
+          aAlertText, true, NS_ConvertASCIItoUTF16(aFolderURI), this,
+          EmptyString(), u"auto"_ns, EmptyString(), EmptyString(), nullptr,
+          false, false);
       mAlertInProgress = true;
     }
   }

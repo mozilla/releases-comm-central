@@ -159,7 +159,7 @@ NS_IMETHODIMP nsAppleMailImportMail::GetDefaultLocation(nsIFile** aLocation,
   nsCOMPtr<nsIFile> mailFolder(do_CreateInstance(NS_LOCAL_FILE_CONTRACTID));
   if (mailFolder) {
     nsresult rv =
-        mailFolder->InitWithNativePath(NS_LITERAL_CSTRING(DEFAULT_MAIL_FOLDER));
+        mailFolder->InitWithNativePath(nsLiteralCString(DEFAULT_MAIL_FOLDER));
     if (NS_SUCCEEDED(rv)) {
       *aFound = true;
       *aUserVerify = false;
@@ -299,9 +299,11 @@ nsresult nsAppleMailImportMail::AddMboxDir(nsIFile* aFolder,
   aFolder->GetLeafName(folderName);
 
   // cut off the suffix, if any, or prefix if this is an account folder.
-  if (StringEndsWith(folderName, NS_LITERAL_STRING(POP_MBOX_SUFFIX)))
+  if (StringEndsWith(folderName,
+                     NS_LITERAL_STRING_FROM_CSTRING(POP_MBOX_SUFFIX)))
     folderName.SetLength(folderName.Length() - 5);
-  else if (StringEndsWith(folderName, NS_LITERAL_STRING(IMAP_MBOX_SUFFIX)))
+  else if (StringEndsWith(folderName,
+                          NS_LITERAL_STRING_FROM_CSTRING(IMAP_MBOX_SUFFIX)))
     folderName.SetLength(folderName.Length() - 9);
   else if (StringBeginsWith(folderName, u"POP-"_ns))
     folderName.Cut(4, folderName.Length());
@@ -408,9 +410,9 @@ nsresult nsAppleMailImportMail::FindMboxDirs(nsIFile* aFolder,
     nsAutoString currentFolderName;
     if (NS_SUCCEEDED(currentEntry->GetLeafName(currentFolderName)) &&
         (StringEndsWith(currentFolderName,
-                        NS_LITERAL_STRING(POP_MBOX_SUFFIX)) ||
+                        NS_LITERAL_STRING_FROM_CSTRING(POP_MBOX_SUFFIX)) ||
          StringEndsWith(currentFolderName,
-                        NS_LITERAL_STRING(IMAP_MBOX_SUFFIX)))) {
+                        NS_LITERAL_STRING_FROM_CSTRING(IMAP_MBOX_SUFFIX)))) {
       IMPORT_LOG1("Adding .mbox dir: %s",
                   NS_ConvertUTF16toUTF8(currentFolderName).get());
 
@@ -428,10 +430,10 @@ nsresult nsAppleMailImportMail::FindMboxDirs(nsIFile* aFolder,
 
       // cut off suffix
       if (StringEndsWith(siblingMailboxDirPath,
-                         NS_LITERAL_STRING(IMAP_MBOX_SUFFIX)))
+                         NS_LITERAL_STRING_FROM_CSTRING(IMAP_MBOX_SUFFIX)))
         siblingMailboxDirPath.SetLength(siblingMailboxDirPath.Length() - 9);
       else if (StringEndsWith(siblingMailboxDirPath,
-                              NS_LITERAL_STRING(POP_MBOX_SUFFIX)))
+                              NS_LITERAL_STRING_FROM_CSTRING(POP_MBOX_SUFFIX)))
         siblingMailboxDirPath.SetLength(siblingMailboxDirPath.Length() - 5);
 
       IMPORT_LOG1("trying to locate a '%s'",

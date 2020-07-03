@@ -64,8 +64,8 @@ bool nsMsgLocalStoreUtils::nsShouldIgnoreFile(nsAString& name, nsIFile* path) {
 
   // The .mozmsgs dir is for spotlight support
   return (StringEndsWith(name, u".mozmsgs"_ns) ||
-          StringEndsWith(name, NS_LITERAL_STRING(FOLDER_SUFFIX)) ||
-          StringEndsWith(name, NS_LITERAL_STRING(SUMMARY_SUFFIX)));
+          StringEndsWith(name, NS_LITERAL_STRING_FROM_CSTRING(FOLDER_SUFFIX)) ||
+          StringEndsWith(name, NS_LITERAL_STRING_FROM_CSTRING(SUMMARY_SUFFIX)));
 }
 
 /**
@@ -120,7 +120,7 @@ void nsMsgLocalStoreUtils::ChangeKeywordsHelper(
         if (keywordHeaders.IsEmpty())
           break;  // passed headers; no x-mozilla-keywords header; give up.
         if (StringBeginsWith(keywordHeaders,
-                             NS_LITERAL_CSTRING(HEADER_X_MOZILLA_KEYWORDS)))
+                             nsLiteralCString(HEADER_X_MOZILLA_KEYWORDS)))
           inKeywordHeader = true;
         else if (inKeywordHeader && (keywordHeaders.CharAt(0) == ' ' ||
                                      keywordHeaders.CharAt(0) == '\t'))

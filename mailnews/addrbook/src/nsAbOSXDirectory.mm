@@ -113,7 +113,7 @@ static nsresult Sync(NSString* aUid) {
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(NS_LITERAL_CSTRING(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+    rv = abManager->GetDirectory(nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
                                  getter_AddRefs(directory));
     NS_ENSURE_SUCCESS(rv, rv);
 
@@ -147,7 +147,7 @@ static nsresult Sync(NSString* aUid) {
     NS_ENSURE_SUCCESS_VOID(rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(NS_LITERAL_CSTRING(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+    rv = abManager->GetDirectory(nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
                                  getter_AddRefs(directory));
     NS_ENSURE_SUCCESS_VOID(rv);
 
@@ -190,7 +190,7 @@ static nsresult Sync(NSString* aUid) {
     NS_ENSURE_SUCCESS_VOID(rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(NS_LITERAL_CSTRING(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+    rv = abManager->GetDirectory(nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
                                  getter_AddRefs(directory));
     NS_ENSURE_SUCCESS_VOID(rv);
 
@@ -382,7 +382,7 @@ nsresult nsAbOSXDirectory::GetRootOSXDirectory(nsIAbOSXDirectory** aResult) {
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsCOMPtr<nsIAbDirectory> directory;
-    rv = abManager->GetDirectory(NS_LITERAL_CSTRING(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
+    rv = abManager->GetDirectory(nsLiteralCString(NS_ABOSXDIRECTORY_URI_PREFIX "/"),
                                  getter_AddRefs(directory));
     NS_ENSURE_SUCCESS(rv, rv);
 

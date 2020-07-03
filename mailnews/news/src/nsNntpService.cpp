@@ -703,7 +703,7 @@ nsNntpService::GenerateNewsHeaderValsForPosting(
       nsAutoCString currentHost;
       nsAutoCString theRest;
       // does list[index] start with "news:/"?
-      if (StringBeginsWith(list[index], NS_LITERAL_CSTRING(kNewsRootURI))) {
+      if (StringBeginsWith(list[index], nsLiteralCString(kNewsRootURI))) {
         // we have news://group or news://host/group
         // set theRest to what's after news://
         theRest = Substring(list[index], kNewsRootURILen /* for news:/ */ +

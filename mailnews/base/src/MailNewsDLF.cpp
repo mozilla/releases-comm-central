@@ -35,7 +35,7 @@ MailNewsDLF::CreateInstance(const char* aCommand, nsIChannel* aChannel,
   bool viewSource =
       (PL_strstr(PromiseFlatCString(aContentType).get(), "view-source") != 0);
 
-  aChannel->SetContentType(NS_LITERAL_CSTRING(TEXT_HTML));
+  aChannel->SetContentType(nsLiteralCString(TEXT_HTML));
 
   // Get the HTML category
   nsCOMPtr<nsICategoryManager> catMan(
@@ -55,11 +55,11 @@ MailNewsDLF::CreateInstance(const char* aCommand, nsIChannel* aChannel,
   if (viewSource) {
     rv = factory->CreateInstance(
         "view-source", aChannel, aLoadGroup,
-        NS_LITERAL_CSTRING(TEXT_HTML "; x-view-type=view-source"), aContainer,
+        nsLiteralCString(TEXT_HTML "; x-view-type=view-source"), aContainer,
         aExtraInfo, getter_AddRefs(listener), aDocViewer);
   } else {
     rv = factory->CreateInstance(
-        "view", aChannel, aLoadGroup, NS_LITERAL_CSTRING(TEXT_HTML), aContainer,
+        "view", aChannel, aLoadGroup, nsLiteralCString(TEXT_HTML), aContainer,
         aExtraInfo, getter_AddRefs(listener), aDocViewer);
   }
   NS_ENSURE_SUCCESS(rv, rv);

@@ -322,10 +322,10 @@ nsresult NS_MsgHashIfNecessary(nsAutoCString& name) {
   // Need to check the first ('.') and last ('.', '~' and ' ') char
   if (illegalCharacterIndex == -1) {
     int32_t lastIndex = str.Length() - 1;
-    if (NS_LITERAL_CSTRING(ILLEGAL_FOLDER_CHARS_AS_FIRST_LETTER)
+    if (nsLiteralCString(ILLEGAL_FOLDER_CHARS_AS_FIRST_LETTER)
             .FindChar(str[0]) != -1)
       illegalCharacterIndex = 0;
-    else if (NS_LITERAL_CSTRING(ILLEGAL_FOLDER_CHARS_AS_LAST_LETTER)
+    else if (nsLiteralCString(ILLEGAL_FOLDER_CHARS_AS_LAST_LETTER)
                  .FindChar(str[lastIndex]) != -1)
       illegalCharacterIndex = lastIndex;
     else
@@ -370,10 +370,10 @@ nsresult NS_MsgHashIfNecessary(nsAutoString& name) {
   // Need to check the first ('.') and last ('.', '~' and ' ') char
   if (illegalCharacterIndex == -1) {
     int32_t lastIndex = name.Length() - 1;
-    if (NS_LITERAL_STRING(ILLEGAL_FOLDER_CHARS_AS_FIRST_LETTER)
+    if (NS_LITERAL_STRING_FROM_CSTRING(ILLEGAL_FOLDER_CHARS_AS_FIRST_LETTER)
             .FindChar(name[0]) != -1)
       illegalCharacterIndex = 0;
-    else if (NS_LITERAL_STRING(ILLEGAL_FOLDER_CHARS_AS_LAST_LETTER)
+    else if (NS_LITERAL_STRING_FROM_CSTRING(ILLEGAL_FOLDER_CHARS_AS_LAST_LETTER)
                  .FindChar(name[lastIndex]) != -1)
       illegalCharacterIndex = lastIndex;
     else
@@ -403,12 +403,8 @@ nsresult NS_MsgHashIfNecessary(nsAutoString& name) {
 
 nsresult FormatFileSize(int64_t size, bool useKB, nsAString& formattedSize) {
   const char* sizeAbbrNames[] = {
-      "byteAbbreviation2",
-      "kiloByteAbbreviation2",
-      "megaByteAbbreviation2",
-      "gigaByteAbbreviation2",
-      "teraByteAbbreviation2",
-      "petaByteAbbreviation2",
+      "byteAbbreviation2",     "kiloByteAbbreviation2", "megaByteAbbreviation2",
+      "gigaByteAbbreviation2", "teraByteAbbreviation2", "petaByteAbbreviation2",
   };
 
   nsresult rv;
@@ -1120,7 +1116,7 @@ NS_MSG_BASE nsresult NS_SetPersistentFile(const char* relPrefName,
   nsCOMPtr<nsIRelativeFilePref> relFilePref = new nsRelativeFilePref();
   mozilla::Unused << relFilePref->SetFile(aFile);
   mozilla::Unused << relFilePref->SetRelativeToKey(
-      NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
+      nsLiteralCString(NS_APP_USER_PROFILE_50_DIR));
 
   nsresult rv2 = prefBranch->SetComplexValue(
       relPrefName, NS_GET_IID(nsIRelativeFilePref), relFilePref);

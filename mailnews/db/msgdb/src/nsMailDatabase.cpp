@@ -41,7 +41,7 @@ nsresult nsMailDatabase::Open(nsMsgDBService* aDBService, nsIFile* aSummaryFile,
 #ifdef DEBUG
   nsString leafName;
   aSummaryFile->GetLeafName(leafName);
-  if (!StringEndsWith(leafName, NS_LITERAL_STRING(SUMMARY_SUFFIX),
+  if (!StringEndsWith(leafName, NS_LITERAL_STRING_FROM_CSTRING(SUMMARY_SUFFIX),
                       nsCaseInsensitiveStringComparator))
     NS_ERROR("non summary file passed into open");
 #endif

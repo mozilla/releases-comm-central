@@ -4655,7 +4655,7 @@ nsresult nsMsgCompose::LookupAddressBook(RecipientsArray& recipientsList) {
   nsTArray<nsMsgMailList> mailListProcessed;
 
   nsCOMArray<nsIAbDirectory> addrbookDirArray;
-  rv = GetABDirAndMailLists(NS_LITERAL_CSTRING(kAllDirectoryRoot),
+  rv = GetABDirAndMailLists(nsLiteralCString(kAllDirectoryRoot),
                             addrbookDirArray, mailListArray);
   if (NS_FAILED(rv)) return rv;
 

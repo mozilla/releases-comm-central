@@ -402,11 +402,11 @@ NS_IMETHODIMP ImportOutlookMailImpl::GetImportProgress(uint32_t* pDoneSoFar) {
 NS_IMETHODIMP ImportOutlookMailImpl::TranslateFolderName(
     const nsAString& aFolderName, nsAString& _retval) {
   if (aFolderName.LowerCaseEqualsLiteral("deleted items"))
-    _retval = NS_LITERAL_STRING(kDestTrashFolderName);
+    _retval = NS_LITERAL_STRING_FROM_CSTRING(kDestTrashFolderName);
   else if (aFolderName.LowerCaseEqualsLiteral("sent items"))
-    _retval = NS_LITERAL_STRING(kDestSentFolderName);
+    _retval = NS_LITERAL_STRING_FROM_CSTRING(kDestSentFolderName);
   else if (aFolderName.LowerCaseEqualsLiteral("outbox"))
-    _retval = NS_LITERAL_STRING(kDestUnsentMessagesFolderName);
+    _retval = NS_LITERAL_STRING_FROM_CSTRING(kDestUnsentMessagesFolderName);
   else
     _retval = aFolderName;
   return NS_OK;

@@ -807,7 +807,7 @@ nsresult nsNntpIncomingServer::LoadHostInfoFile() {
   if (NS_FAILED(rv)) return rv;
   if (!mHostInfoFile) return NS_ERROR_FAILURE;
 
-  rv = mHostInfoFile->AppendNative(NS_LITERAL_CSTRING(HOSTINFO_FILE_NAME));
+  rv = mHostInfoFile->AppendNative(nsLiteralCString(HOSTINFO_FILE_NAME));
   if (NS_FAILED(rv)) return rv;
 
   bool exists;
@@ -1887,7 +1887,7 @@ nsNntpIncomingServer::OnUserOrHostNameChanged(const nsACString& oldName,
   nsCOMPtr<nsIFile> hostInfoFile;
   rv = GetLocalPath(getter_AddRefs(hostInfoFile));
   NS_ENSURE_SUCCESS(rv, rv);
-  rv = hostInfoFile->AppendNative(NS_LITERAL_CSTRING(HOSTINFO_FILE_NAME));
+  rv = hostInfoFile->AppendNative(nsLiteralCString(HOSTINFO_FILE_NAME));
   NS_ENSURE_SUCCESS(rv, rv);
   hostInfoFile->Remove(false);
 

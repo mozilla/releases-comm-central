@@ -113,8 +113,8 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result) {
     if (fileName.IsEmpty()) return NS_OK;
 
     // perform the same query, but on the local directory
-    nsAutoCString localDirectoryURI(NS_LITERAL_CSTRING(kJSDirectoryRoot));
-    localDirectoryURI.Append(fileName);
+    nsAutoCString localDirectoryURI =
+        nsLiteralCString(kJSDirectoryRoot) + fileName;
     if (mIsQueryURI) {
       localDirectoryURI.Append('?');
       localDirectoryURI.Append(mQueryString);
@@ -187,7 +187,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetLDAPURL(nsILDAPURL** aResult) {
      * "moz-abldapdirectory".
      */
     URI = mURINoQuery;
-    if (StringBeginsWith(URI, NS_LITERAL_CSTRING(kLDAPDirectoryRoot)))
+    if (StringBeginsWith(URI, nsLiteralCString(kLDAPDirectoryRoot)))
       URI.Replace(0, kLDAPDirectoryRootLen, "ldap://"_ns);
   }
 
@@ -263,7 +263,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
     }
 
     // Get the local directory.
-    nsAutoCString localDirectoryURI(NS_LITERAL_CSTRING(kJSDirectoryRoot));
+    nsAutoCString localDirectoryURI(nsLiteralCString(kJSDirectoryRoot));
     localDirectoryURI.Append(fileName);
 
     nsCOMPtr<nsIAbDirectory> directory =
@@ -621,8 +621,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::SetRdnAttributes(
 NS_IMETHODIMP nsAbLDAPDirectory::GetObjectClasses(nsACString& aObjectClasses) {
   return GetStringValue(
       "objectClasses",
-      NS_LITERAL_CSTRING(
-          "top,person,organizationalPerson,inetOrgPerson,mozillaAbPersonAlpha"),
+      "top,person,organizationalPerson,inetOrgPerson,mozillaAbPersonAlpha"_ns,
       aObjectClasses);
 }
 

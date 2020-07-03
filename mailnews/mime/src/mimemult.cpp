@@ -182,7 +182,7 @@ static int MimeMultipart_parse_line(const char* line, int32_t length,
       // Because MimeMultipart_parse_child_line strips out the
       // the CRLF of the last line before the end of a part, we need to add that
       // back in here.
-      if (endOfPart) MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK));
+      if (endOfPart) MimeWriteAString(obj, nsLiteralCString(MSG_LINEBREAK));
 
       status = MimeObject_write(obj, line, length, true);
     }
@@ -228,13 +228,13 @@ static int MimeMultipart_parse_line(const char* line, int32_t length,
                 MimeWriteAString(obj, nsDependentCString(contentType));
                 PR_Free(contentType);
               }
-              MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK));
+              MimeWriteAString(obj, nsLiteralCString(MSG_LINEBREAK));
               MimeWriteAString(obj, "Content-Disposition: attachment; filename=\""_ns);
               MimeWriteAString(obj, fileName);
               MimeWriteAString(obj, "\""_ns MSG_LINEBREAK);
               MimeWriteAString(obj, "X-Mozilla-External-Attachment-URL: "_ns);
               MimeWriteAString(obj, obj->options->state->detachedFilePath);
-              MimeWriteAString(obj, NS_LITERAL_CSTRING(MSG_LINEBREAK));
+              MimeWriteAString(obj, nsLiteralCString(MSG_LINEBREAK));
               MimeWriteAString(obj, "X-Mozilla-Altered: AttachmentDetached; date=\""_ns);
             } else {
               nsAutoCString header("Content-Type: text/x-moz-deleted; name=\"Deleted: ");
@@ -243,8 +243,7 @@ static int MimeMultipart_parse_line(const char* line, int32_t length,
               if (status < 0) return status;
               status = MimeWriteAString(obj, "\""_ns MSG_LINEBREAK
                                                  "Content-Transfer-Encoding: 8bit"_ns MSG_LINEBREAK);
-              MimeWriteAString(obj, NS_LITERAL_CSTRING(
-                                        "Content-Disposition: inline; filename=\"Deleted: "));
+              MimeWriteAString(obj, "Content-Disposition: inline; filename=\"Deleted: "_ns);
               MimeWriteAString(obj, fileName);
               MimeWriteAString(obj, "\""_ns MSG_LINEBREAK
                                         "X-Mozilla-Altered: AttachmentDeleted; date=\""_ns);
@@ -462,8 +461,7 @@ static int MimeMultipart_create_child(MimeObject* obj) {
       if (!body->options->write_html_p && body->content_type &&
           !PL_strcasecmp(body->content_type, APPLICATION_APPLEFILE)) {
         if (msd && msd->channel)
-          msd->channel->SetContentType(
-              NS_LITERAL_CSTRING(APPLICATION_APPLEFILE));
+          msd->channel->SetContentType(nsLiteralCString(APPLICATION_APPLEFILE));
       }
     }
 #endif

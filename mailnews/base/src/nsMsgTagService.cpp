@@ -137,7 +137,7 @@ NS_IMETHODIMP nsMsgTagService::GetKeyForTag(const nsAString& aTag,
   for (auto& prefName : mozilla::Reversed(prefList)) {
     // We are returned the tag prefs in the form "<key>.<tag_data_type>", but
     // since we only want the tags, just check that the string ends with "tag".
-    if (StringEndsWith(prefName, NS_LITERAL_CSTRING(TAG_PREF_SUFFIX_TAG))) {
+    if (StringEndsWith(prefName, nsLiteralCString(TAG_PREF_SUFFIX_TAG))) {
       nsAutoString curTag;
       GetUnicharPref(prefName.get(), curTag);
       if (aTag.Equals(curTag)) {

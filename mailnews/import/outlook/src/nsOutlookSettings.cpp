@@ -118,13 +118,13 @@ nsresult OutlookSettings::FindAccountsKey(nsIWindowsRegKey** aKey) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                 NS_LITERAL_STRING(OUTLOOK2003_REGISTRY_KEY),
+                 NS_LITERAL_STRING_FROM_CSTRING(OUTLOOK2003_REGISTRY_KEY),
                  nsIWindowsRegKey::ACCESS_QUERY_VALUE |
                      nsIWindowsRegKey::ACCESS_ENUMERATE_SUB_KEYS);
 
   if (NS_FAILED(rv)) {
     rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                   NS_LITERAL_STRING(OUTLOOK98_REGISTRY_KEY),
+                   NS_LITERAL_STRING_FROM_CSTRING(OUTLOOK98_REGISTRY_KEY),
                    nsIWindowsRegKey::ACCESS_QUERY_VALUE |
                        nsIWindowsRegKey::ACCESS_ENUMERATE_SUB_KEYS);
   }
@@ -141,7 +141,7 @@ nsresult OutlookSettings::QueryAccountSubKey(nsIWindowsRegKey** aKey) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                 NS_LITERAL_STRING(OUTLOOK2003_REGISTRY_KEY),
+                 NS_LITERAL_STRING_FROM_CSTRING(OUTLOOK2003_REGISTRY_KEY),
                  nsIWindowsRegKey::ACCESS_QUERY_VALUE |
                      nsIWindowsRegKey::ACCESS_ENUMERATE_SUB_KEYS);
   if (NS_SUCCEEDED(rv)) {
@@ -150,7 +150,7 @@ nsresult OutlookSettings::QueryAccountSubKey(nsIWindowsRegKey** aKey) {
   }
 
   rv = key->Open(nsIWindowsRegKey::ROOT_KEY_CURRENT_USER,
-                 NS_LITERAL_STRING(OUTLOOK98_REGISTRY_KEY),
+                 NS_LITERAL_STRING_FROM_CSTRING(OUTLOOK98_REGISTRY_KEY),
                  nsIWindowsRegKey::ACCESS_QUERY_VALUE |
                      nsIWindowsRegKey::ACCESS_ENUMERATE_SUB_KEYS);
   if (NS_SUCCEEDED(rv)) {

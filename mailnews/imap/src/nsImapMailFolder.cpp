@@ -270,7 +270,7 @@ nsresult nsImapMailFolder::AddDirectorySeparator(nsIFile* path) {
 }
 
 static bool nsShouldIgnoreFile(nsString& name) {
-  if (StringEndsWith(name, NS_LITERAL_STRING(SUMMARY_SUFFIX),
+  if (StringEndsWith(name, NS_LITERAL_STRING_FROM_CSTRING(SUMMARY_SUFFIX),
                      nsCaseInsensitiveStringComparator)) {
     name.SetLength(name.Length() -
                    SUMMARY_SUFFIX_LENGTH);  // truncate the string
@@ -5976,7 +5976,7 @@ bool nsMsgIMAPFolderACL::GetFlagSetInRightsForUser(const nsACString& userName,
   NS_ENSURE_SUCCESS(rv, defaultIfNotFound);
   if (flags.IsEmpty()) {
     nsCString anyoneFlags;
-    GetRightsStringForUser(NS_LITERAL_CSTRING(IMAP_ACL_ANYONE_STRING),
+    GetRightsStringForUser(nsLiteralCString(IMAP_ACL_ANYONE_STRING),
                            anyoneFlags);
     if (anyoneFlags.IsEmpty()) return defaultIfNotFound;
     return (anyoneFlags.FindChar(flag) != kNotFound);
@@ -6076,7 +6076,7 @@ bool nsMsgIMAPFolderACL::GetIsFolderShared() {
 
   // Or, if "anyone" has rights to it, it is shared.
   nsCString anyonesRights;
-  m_rightsHash.Get(NS_LITERAL_CSTRING(IMAP_ACL_ANYONE_STRING), &anyonesRights);
+  m_rightsHash.Get(nsLiteralCString(IMAP_ACL_ANYONE_STRING), &anyonesRights);
   return (!anyonesRights.IsEmpty());
 }
 

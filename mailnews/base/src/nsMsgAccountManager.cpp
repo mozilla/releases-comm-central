@@ -262,8 +262,7 @@ nsMsgAccountManager::GetUniqueAccountKey(nsACString& aResult) {
           // Pref names are of the format accountX.
           // Find the maximum value of 'X' used so far.
           for (auto& prefName : prefList) {
-            if (StringBeginsWith(prefName,
-                                 NS_LITERAL_CSTRING(ACCOUNT_PREFIX))) {
+            if (StringBeginsWith(prefName, nsLiteralCString(ACCOUNT_PREFIX))) {
               int32_t dotPos = prefName.FindChar('.');
               if (dotPos != kNotFound) {
                 nsCString keyString(Substring(prefName, strlen(ACCOUNT_PREFIX),

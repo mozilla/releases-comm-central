@@ -956,15 +956,18 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       saveAsFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
       rv = saveAsFile->InitWithPath(aMsgFilename);
       if (NS_FAILED(rv)) goto done;
-      if (StringEndsWith(aMsgFilename, NS_LITERAL_STRING(TEXT_FILE_EXTENSION),
+      if (StringEndsWith(aMsgFilename,
+                         NS_LITERAL_STRING_FROM_CSTRING(TEXT_FILE_EXTENSION),
                          nsCaseInsensitiveStringComparator))
         saveAsFileType = TEXT_FILE_TYPE;
-      else if ((StringEndsWith(aMsgFilename,
-                               NS_LITERAL_STRING(HTML_FILE_EXTENSION),
-                               nsCaseInsensitiveStringComparator)) ||
-               (StringEndsWith(aMsgFilename,
-                               NS_LITERAL_STRING(HTML_FILE_EXTENSION2),
-                               nsCaseInsensitiveStringComparator)))
+      else if ((StringEndsWith(
+                   aMsgFilename,
+                   NS_LITERAL_STRING_FROM_CSTRING(HTML_FILE_EXTENSION),
+                   nsCaseInsensitiveStringComparator)) ||
+               (StringEndsWith(
+                   aMsgFilename,
+                   NS_LITERAL_STRING_FROM_CSTRING(HTML_FILE_EXTENSION2),
+                   nsCaseInsensitiveStringComparator)))
         saveAsFileType = HTML_FILE_TYPE;
       else
         saveAsFileType = EML_FILE_TYPE;
@@ -1163,12 +1166,15 @@ nsresult nsMessenger::GetSaveAsFile(const nsAString& aMsgFilename,
     rv = localFile->GetLeafName(fileName);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    if (StringEndsWith(fileName, NS_LITERAL_STRING(HTML_FILE_EXTENSION),
+    if (StringEndsWith(fileName,
+                       NS_LITERAL_STRING_FROM_CSTRING(HTML_FILE_EXTENSION),
                        nsCaseInsensitiveStringComparator) ||
-        StringEndsWith(fileName, NS_LITERAL_STRING(HTML_FILE_EXTENSION2),
+        StringEndsWith(fileName,
+                       NS_LITERAL_STRING_FROM_CSTRING(HTML_FILE_EXTENSION2),
                        nsCaseInsensitiveStringComparator))
       *aSaveAsFileType = HTML_FILE_TYPE;
-    else if (StringEndsWith(fileName, NS_LITERAL_STRING(TEXT_FILE_EXTENSION),
+    else if (StringEndsWith(fileName,
+                            NS_LITERAL_STRING_FROM_CSTRING(TEXT_FILE_EXTENSION),
                             nsCaseInsensitiveStringComparator))
       *aSaveAsFileType = TEXT_FILE_TYPE;
     else

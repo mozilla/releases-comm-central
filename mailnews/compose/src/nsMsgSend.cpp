@@ -1120,7 +1120,7 @@ nsresult nsMsgComposeAndSend::GetEmbeddedObjectInfo(
 
   bool isImage = false;
   nsAutoString mozDoNotSendAttr;
-  domElement->GetAttribute(NS_LITERAL_STRING(ATTR_MOZ_DO_NOT_SEND),
+  domElement->GetAttribute(NS_LITERAL_STRING_FROM_CSTRING(ATTR_MOZ_DO_NOT_SEND),
                            mozDoNotSendAttr);
 
   // Only empty or moz-do-not-send="false" may be accepted later.
@@ -1314,7 +1314,8 @@ nsresult nsMsgComposeAndSend::GetBodyFromEditor() {
   // Ok, get the body...the DOM should have been whacked with
   // Content ID's already
   if (mEditor)
-    mEditor->OutputToString(NS_LITERAL_STRING(TEXT_HTML), flags, bodyStr);
+    mEditor->OutputToString(NS_LITERAL_STRING_FROM_CSTRING(TEXT_HTML), flags,
+                            bodyStr);
   else
     bodyStr = NS_ConvertASCIItoUTF16(m_attachment1_body);
 

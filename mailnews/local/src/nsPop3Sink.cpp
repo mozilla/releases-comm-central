@@ -527,7 +527,7 @@ nsPop3Sink::IncorporateBegin(const char* uidlString, nsIURI* aURL,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // leave space for 60 bytes worth of keys/tags
-  rv = WriteLineToMailbox(NS_LITERAL_CSTRING(X_MOZILLA_KEYWORDS));
+  rv = WriteLineToMailbox(nsLiteralCString(X_MOZILLA_KEYWORDS));
   return NS_OK;
 }
 
@@ -641,14 +641,14 @@ nsresult nsPop3Sink::WriteLineToMailbox(const nsACString& buffer) {
             u"Unexpected file position change detected"_ns +
                 (folderName.IsEmpty() ? EmptyString() : u" in folder "_ns) +
                 (folderName.IsEmpty() ? EmptyString() : folderName) +
-                NS_LITERAL_STRING(
-                    ". "
-                    "If you can reliably reproduce this, please report the "
-                    "steps you used to dev-apps-thunderbird@lists.mozilla.org "
-                    "or to bug 1308335 at bugzilla.mozilla.org. "
-                    "Resolving this problem will allow speeding up message "
-                    "downloads."),
-            NS_LITERAL_STRING(__FILE__), __LINE__, nsIScriptError::errorFlag);
+                u". "
+                "If you can reliably reproduce this, please report the "
+                "steps you used to dev-apps-thunderbird@lists.mozilla.org "
+                "or to bug 1308335 at bugzilla.mozilla.org. "
+                "Resolving this problem will allow speeding up message "
+                "downloads."_ns,
+            NS_LITERAL_STRING_FROM_CSTRING(__FILE__), __LINE__,
+            nsIScriptError::errorFlag);
 #  ifdef DEBUG
         // Debugging, see bug 1116055.
         if (!folderName.IsEmpty()) {
@@ -725,7 +725,7 @@ nsPop3Sink::IncorporateComplete(nsIMsgWindow* aMsgWindow, int32_t aSize) {
     nsBuildLocalMessageURI(m_baseMessageUri.get(), msgKey, m_messageUri);
   }
 
-  nsresult rv = WriteLineToMailbox(NS_LITERAL_CSTRING(MSG_LINEBREAK));
+  nsresult rv = WriteLineToMailbox(nsLiteralCString(MSG_LINEBREAK));
   NS_ENSURE_SUCCESS(rv, rv);
   bool leaveOnServer = false;
   m_popServer->GetLeaveMessagesOnServer(&leaveOnServer);

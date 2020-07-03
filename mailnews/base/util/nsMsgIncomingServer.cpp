@@ -424,7 +424,7 @@ nsMsgIncomingServer::GetFileValue(const char* aRelPrefName,
         new mozilla::nsRelativeFilePref();
     mozilla::Unused << relFilePref->SetFile(*aLocalFile);
     mozilla::Unused << relFilePref->SetRelativeToKey(
-        NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
+        nsLiteralCString(NS_APP_USER_PROFILE_50_DIR));
 
     rv = mPrefBranch->SetComplexValue(
         aRelPrefName, NS_GET_IID(nsIRelativeFilePref), relFilePref);
@@ -443,7 +443,7 @@ nsMsgIncomingServer::SetFileValue(const char* aRelPrefName,
   nsCOMPtr<nsIRelativeFilePref> relFilePref = new mozilla::nsRelativeFilePref();
   mozilla::Unused << relFilePref->SetFile(aLocalFile);
   mozilla::Unused << relFilePref->SetRelativeToKey(
-      NS_LITERAL_CSTRING(NS_APP_USER_PROFILE_50_DIR));
+      nsLiteralCString(NS_APP_USER_PROFILE_50_DIR));
 
   nsresult rv = mPrefBranch->SetComplexValue(
       aRelPrefName, NS_GET_IID(nsIRelativeFilePref), relFilePref);

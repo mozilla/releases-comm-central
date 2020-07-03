@@ -435,8 +435,8 @@ nsresult nsMsgPrintEngine::FireThatLoadOperation(const nsString& uri) {
   // we want to print the part.
   // example:
   // imap://sspitzer@nsmail-1:143/fetch%3EUID%3E/INBOX%3E180958?part=1.1.2&type=application/x-message-display&filename=test"
-  if (!StringBeginsWith(uriCStr, NS_LITERAL_CSTRING(DATA_URL_PREFIX)) &&
-      !StringBeginsWith(uriCStr, NS_LITERAL_CSTRING(ADDBOOK_URL_PREFIX)) &&
+  if (!StringBeginsWith(uriCStr, nsLiteralCString(DATA_URL_PREFIX)) &&
+      !StringBeginsWith(uriCStr, nsLiteralCString(ADDBOOK_URL_PREFIX)) &&
       !uriCStr.EqualsLiteral("about:blank") &&
       uriCStr.Find("type=application/x-message-display"_ns) == -1) {
     rv = GetMessageServiceFromURI(uriCStr, getter_AddRefs(messageService));

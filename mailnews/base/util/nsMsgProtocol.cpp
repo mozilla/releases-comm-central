@@ -793,7 +793,7 @@ nsresult nsMsgProtocol::PostMessage(nsIURI* url, nsIFile* postFile) {
     /* escape starting periods
      */
     if (line.CharAt(0) == '.') line.Insert('.', 0);
-    line.Append(NS_LITERAL_CSTRING(CRLF));
+    line.AppendLiteral(CRLF);
     outputBuffer.Append(line);
     // test hack by mscott. If our buffer is almost full, then
     // send it off & reset ourselves

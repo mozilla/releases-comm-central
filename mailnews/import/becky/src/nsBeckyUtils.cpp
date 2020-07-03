@@ -288,13 +288,13 @@ nsresult nsBeckyUtils::ConvertToUTF8File(nsIFile* aSourceFile,
 nsresult nsBeckyUtils::TranslateFolderName(const nsAString& aFolderName,
                                            nsAString& _retval) {
   if (aFolderName.LowerCaseEqualsLiteral("!trash"))
-    _retval = NS_LITERAL_STRING(kDestTrashFolderName);
+    _retval = NS_LITERAL_STRING_FROM_CSTRING(kDestTrashFolderName);
   else if (aFolderName.LowerCaseEqualsLiteral("!!!!inbox"))
-    _retval = NS_LITERAL_STRING(kDestInboxFolderName);
+    _retval = NS_LITERAL_STRING_FROM_CSTRING(kDestInboxFolderName);
   else if (aFolderName.LowerCaseEqualsLiteral("!!!!outbox"))
-    _retval = NS_LITERAL_STRING(kDestSentFolderName);
+    _retval = NS_LITERAL_STRING_FROM_CSTRING(kDestSentFolderName);
   else if (aFolderName.LowerCaseEqualsLiteral("!!!!unsent"))
-    _retval = NS_LITERAL_STRING(kDestUnsentMessagesFolderName);
+    _retval = NS_LITERAL_STRING_FROM_CSTRING(kDestUnsentMessagesFolderName);
   else
     _retval = aFolderName;
 

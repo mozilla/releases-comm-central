@@ -307,9 +307,10 @@ nsresult nsMessengerUnixIntegration::ShowAlertMessage(
         do_GetService(NS_SYSTEMALERTSERVICE_CONTRACTID, &rv));
     if (NS_SUCCEEDED(rv)) {
       rv = alertsService->ShowAlertNotification(
-          NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON), aAlertTitle, aAlertText,
-          false, NS_ConvertASCIItoUTF16(aFolderURI), this, EmptyString(),
-          u"auto"_ns, EmptyString(), EmptyString(), nullptr, false, false);
+          NS_LITERAL_STRING_FROM_CSTRING(NEW_MAIL_ALERT_ICON), aAlertTitle,
+          aAlertText, false, NS_ConvertASCIItoUTF16(aFolderURI), this,
+          EmptyString(), u"auto"_ns, EmptyString(), EmptyString(), nullptr,
+          false, false);
       if (NS_SUCCEEDED(rv)) return rv;
     }
   }

@@ -356,7 +356,7 @@ nsMimeBaseEmitter::UtilityWriteCRLF(const char* buf) {
 
   uint32_t written;
   Write(nsDependentCString(buf), &written);
-  Write(NS_LITERAL_CSTRING(CRLF), &written);
+  Write(nsLiteralCString(CRLF), &written);
   return NS_OK;
 }
 

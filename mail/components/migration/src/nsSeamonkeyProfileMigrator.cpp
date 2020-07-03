@@ -237,9 +237,9 @@ nsresult nsSeamonkeyProfileMigrator::FillProfileDataFromSeamonkeyRegistry() {
   NS_ENSURE_TRUE(newSeamonkeyData, NS_ERROR_FAILURE);
 
 #ifdef EXTRA_PREPEND
-  newSeamonkeyData->Append(NS_LITERAL_STRING(EXTRA_PREPEND));
+  newSeamonkeyData->Append(NS_LITERAL_STRING_FROM_CSTRING(EXTRA_PREPEND));
 #endif
-  newSeamonkeyData->Append(NS_LITERAL_STRING(NEW_FOLDER));
+  newSeamonkeyData->Append(NS_LITERAL_STRING_FROM_CSTRING(NEW_FOLDER));
 
   nsresult rv = GetProfileDataFromProfilesIni(newSeamonkeyData, mProfileNames,
                                               mProfileLocations);

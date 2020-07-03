@@ -52,42 +52,46 @@ using namespace mozilla;
 
 LazyLogModule FILTERLOGMODULE("Filters");
 
-#define BREAK_IF_FAILURE(_rv, _text)                                    \
-  if (NS_FAILED(_rv)) {                                                 \
-    MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,                           \
-            ("(Post) Filter error: %s", _text));                        \
-    m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter); \
-    NS_WARNING(_text);                                                  \
-    mFinalResult = _rv;                                                 \
-    break;                                                              \
+#define BREAK_IF_FAILURE(_rv, _text)                                   \
+  if (NS_FAILED(_rv)) {                                                \
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,                          \
+            ("(Post) Filter error: %s", _text));                       \
+    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text), \
+                                m_curFilter);                          \
+    NS_WARNING(_text);                                                 \
+    mFinalResult = _rv;                                                \
+    break;                                                             \
   }
 
 #define CONTINUE_IF_FAILURE(_rv, _text)                                     \
   if (NS_FAILED(_rv)) {                                                     \
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,                             \
             ("(Post) Filter problem: %s", _text));                          \
-    m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter);     \
+    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text),      \
+                                m_curFilter);                               \
     NS_WARNING(_text);                                                      \
     mFinalResult = _rv;                                                     \
     if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution(); \
     continue;                                                               \
   }
 
-#define BREAK_IF_FALSE(_assertTrue, _text)                              \
-  if (MOZ_UNLIKELY(!(_assertTrue))) {                                   \
-    MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,                           \
-            ("(Post) Filter error: %s", _text));                        \
-    m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter); \
-    NS_WARNING(_text);                                                  \
-    mFinalResult = NS_ERROR_FAILURE;                                    \
-    break;                                                              \
+#define BREAK_IF_FALSE(_assertTrue, _text)                             \
+  if (MOZ_UNLIKELY(!(_assertTrue))) {                                  \
+    MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,                          \
+            ("(Post) Filter error: %s", _text));                       \
+    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text), \
+                                m_curFilter);                          \
+    NS_WARNING(_text);                                                 \
+    mFinalResult = NS_ERROR_FAILURE;                                   \
+    break;                                                             \
   }
 
 #define CONTINUE_IF_FALSE(_assertTrue, _text)                               \
   if (MOZ_UNLIKELY(!(_assertTrue))) {                                       \
     MOZ_LOG(FILTERLOGMODULE, LogLevel::Warning,                             \
             ("(Post) Filter problem: %s", _text));                          \
-    m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter);     \
+    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text),      \
+                                m_curFilter);                               \
     NS_WARNING(_text);                                                      \
     mFinalResult = NS_ERROR_FAILURE;                                        \
     if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution(); \
@@ -98,7 +102,8 @@ LazyLogModule FILTERLOGMODULE("Filters");
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,                               \
           ("(Post) Filter Error: %s", _text));                            \
   if (loggingEnabled)                                                     \
-    m_filters->LogFilterMessage(NS_LITERAL_STRING(_text), m_curFilter);   \
+    m_filters->LogFilterMessage(NS_LITERAL_STRING_FROM_CSTRING(_text),    \
+                                m_curFilter);                             \
   NS_WARNING(_text);                                                      \
   if (m_msgWindow && !ContinueExecutionPrompt()) return OnEndExecution(); \
   break;

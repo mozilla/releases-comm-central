@@ -306,8 +306,8 @@ nsFeedSniffer::GetMIMETypeFromContent(nsIRequest* request,
 
   // RSS 1.0
   if (!isFeed) {
-    bool foundNS_RDF = FindInReadable(NS_LITERAL_CSTRING(NS_RDF), dataString);
-    bool foundNS_RSS = FindInReadable(NS_LITERAL_CSTRING(NS_RSS), dataString);
+    bool foundNS_RDF = FindInReadable(nsLiteralCString(NS_RDF), dataString);
+    bool foundNS_RSS = FindInReadable(nsLiteralCString(NS_RSS), dataString);
     isFeed = ContainsTopLevelSubstring(dataString, "<rdf:RDF") &&
       foundNS_RDF && foundNS_RSS;
   }
