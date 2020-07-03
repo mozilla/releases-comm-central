@@ -8,9 +8,6 @@
 /* globals MsgGetMessage */ // From mailWindowOverlay.js.
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -522,7 +519,7 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
   let existingWindow = Services.wm.getMostRecentWindow("mail:autoconfig");
   if (existingWindow) {
     existingWindow.focus();
-  } else if (AppConstants.MOZ_APP_NAME == "thunderbird") {
+  } else {
     // disabling modal for the time being, see 688273 REMOVEME
     window.browsingContext.topChromeWindow.openDialog(
       "chrome://messenger/content/accountcreation/emailWizard.xhtml",
