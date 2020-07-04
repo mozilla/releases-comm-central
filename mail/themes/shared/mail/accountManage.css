@@ -58,27 +58,34 @@ fieldset:last-of-type {
 }
 
 #accountActionsDropdown {
-  -moz-appearance: none;
   min-width: 32ch;
+}
+
+#accountActionsDropdown,
+.openpgp-more-btn > menupopup {
+  -moz-appearance: none;
   font-size: 1em;
   border: 1px solid var(--in-content-box-border-color);
   border-radius: 2px;
   background-color: var(--in-content-box-background);
 }
 
-#accountActionsDropdown menuitem {
+#accountActionsDropdown > menuitem,
+.openpgp-more-btn > menupopup > menuitem {
   -moz-appearance: none;
   color: var(--in-content-text-color);
   padding-block: 0.2em;
   padding-inline: 10px 30px;
 }
 
-#accountActionsDropdown > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
+#accountActionsDropdown > menuitem:not([disabled="true"])[_moz-menuactive="true"],
+.openpgp-more-btn > menupopup > menuitem[_moz-menuactive="true"] {
   color: var(--in-content-text-color);
   background-color: var(--in-content-item-hover);
 }
 
-#accountActionsDropdown > menuitem:not([disabled="true"])[selected="true"] {
+#accountActionsDropdown > menuitem:not([disabled="true"])[selected="true"],
+.openpgp-more-btn > menupopup > menuitem[selected="true"] {
   color: var(--in-content-selected-text);
   background-color: var(--in-content-item-selected);
 }
@@ -90,7 +97,8 @@ fieldset:last-of-type {
   background-color: transparent;
 }
 
-#accountActionsDropdown menuseparator {
+#accountActionsDropdown > menuseparator,
+.openpgp-more-btn > menupopup > menuseparator {
   -moz-appearance: none;
   margin: 0;
   padding: 0;
@@ -560,6 +568,8 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 
 .openpgp-image-btn .button-icon {
   margin-inline-end: 4px;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 .openpgp-props-btn {
