@@ -9,12 +9,6 @@ include $(topsrcdir)/config/config.mk
 
 MERGE_FILES = $(foreach f,$(1),$(call MERGE_FILE,$(f)))
 
-# These macros are similar to MERGE_FILE, but no merging, and en-US first.
-# They're used for searchplugins, for example.
-EN_US_OR_L10N_FILE = $(firstword \
-	$(wildcard $(srcdir)/en-US/$(1)) \
-	$(LOCALE_SRCDIR)/$(1) )
-
 SUBMAKEFILES += \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales/Makefile \
