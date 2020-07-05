@@ -7,12 +7,6 @@ LOCALE_RELATIVEDIR=mail/locales
 
 include $(moztopsrcdir)/config/config.mk
 
-# This macro is similar to MERGE_FILE, but no merging, and en-US first.
-# It is used for searchplugins, for example.
-EN_US_OR_L10N_FILE = $(firstword \
-	$(wildcard $(srcdir)/en-US/$(1)) \
-	$(LOCALE_SRCDIR)/$(1) )
-
 SUBMAKEFILES += \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/Makefile \
 	$(DEPTH)/$(MOZ_BRANDING_DIRECTORY)/locales/Makefile \
