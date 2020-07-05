@@ -296,7 +296,7 @@ this.windows = class extends ExtensionAPI {
 
           let win = windowManager.get(windowId, context);
           if (updateInfo.focused) {
-            Services.focus.activeWindow = win.window;
+            win.window.focus();
           }
 
           if (updateInfo.state) {
