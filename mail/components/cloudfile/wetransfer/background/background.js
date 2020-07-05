@@ -82,7 +82,7 @@ class WeTransferSession {
     let transfer = await this._request("/v2/transfers", {
       body: JSON.stringify({
         message: name,
-        files: [{ name, size: data.byteLength }],
+        files: [{ name, size: data.size }],
       }),
       signal,
     });

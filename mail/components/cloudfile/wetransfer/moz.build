@@ -5,7 +5,6 @@
 DIST_SUBDIR = 'features/wetransfer@extensions.thunderbird.net'
 
 FINAL_TARGET_FILES += [
-    'install.rdf',
     'manifest.json',
 ]
 FINAL_TARGET_FILES.background += [
@@ -193,6 +192,3 @@ FINAL_TARGET_FILES._locales.zh_CN += [
 FINAL_TARGET_FILES._locales.zh_TW += [
     '_locales/zh_TW/messages.json',
 ]
-
-USE_EXTENSION_MANIFEST = True
-export('USE_EXTENSION_MANIFEST')
