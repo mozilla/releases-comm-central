@@ -907,7 +907,12 @@ class AddrBookDirectory {
         );
       }
     }
-    Services.obs.notifyObservers(card, "addrbook-contact-updated", this.UID);
+    // Send the card as it is in this directory, not as passed to this function.
+    Services.obs.notifyObservers(
+      this._getCard({ uid: card.UID }),
+      "addrbook-contact-updated",
+      this.UID
+    );
   }
   deleteCards(cards) {
     if (cards === null) {

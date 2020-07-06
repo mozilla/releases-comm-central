@@ -147,6 +147,7 @@ ABView.prototype = {
 
     switch (topic) {
       case "addrbook-directory-invalidated":
+        subject.QueryInterface(Ci.nsIAbDirectory);
         if (subject == this.directory) {
           this._rowMap.length = 0;
           for (let card of this.directory.childCards) {
@@ -164,6 +165,7 @@ ABView.prototype = {
         }
       // Falls through.
       case "addrbook-contact-created":
+        subject.QueryInterface(Ci.nsIAbCard);
         let viewCard = new abViewCard(subject);
         let sortText = viewCard.getText(this.sortColumn);
         let addIndex = null;
@@ -191,16 +193,27 @@ ABView.prototype = {
         }
         break;
 
-      case "addrbook-list-updated":
-        if (!this.directory) {
-          break;
+      case "addrbook-list-updated": {
+        let parentDir = this.directory;
+        if (!parentDir) {
+          parentDir = MailServices.ab.getDirectoryFromUID(data);
         }
+        // `subject` is an nsIAbDirectory, make it the matching card instead.
+        subject.QueryInterface(Ci.nsIAbDirectory);
+        for (let card of parentDir.childCards) {
+          if (card.UID == subject.UID) {
+            subject = card;
+            break;
+          }
+        }
+      }
       // Falls through.
       case "addrbook-contact-updated": {
+        subject.QueryInterface(Ci.nsIAbCard);
         let needsSort = false;
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
           if (this._rowMap[i].card.equals(subject)) {
-            this._rowMap[i]._getTextCache = {};
+            this._rowMap.splice(i, 1, new abViewCard(subject));
             needsSort = true;
           }
         }
@@ -216,6 +229,7 @@ ABView.prototype = {
         }
       // Falls through.
       case "addrbook-contact-deleted":
+        subject.QueryInterface(Ci.nsIAbCard);
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
           if (this._rowMap[i].card.equals(subject)) {
             this._rowMap.splice(i, 1);
