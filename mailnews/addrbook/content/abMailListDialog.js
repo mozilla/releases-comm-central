@@ -289,7 +289,7 @@ function OnLoadEditList() {
     [gOldListName]
   );
 
-  if (gEditList.childCards) {
+  if (gEditList.childCards.hasMoreElements()) {
     let listbox = document.getElementById("addressingWidget");
     let newListBoxNode = listbox.cloneNode(false);
     let templateNode = listbox.querySelector("richlistitem");
