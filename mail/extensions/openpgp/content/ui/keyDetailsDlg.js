@@ -236,6 +236,7 @@ async function reloadData(firstLoad) {
       if (firstLoad) {
         if (
           "fingerprintAcceptance" in acceptanceResult &&
+          acceptanceResult.fingerprintAcceptance.length &&
           acceptanceResult.fingerprintAcceptance != "undecided"
         ) {
           gOriginalAcceptance = acceptanceResult.fingerprintAcceptance;

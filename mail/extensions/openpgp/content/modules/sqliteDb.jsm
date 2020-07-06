@@ -127,18 +127,21 @@ var PgpSqliteDb2 = {
     fingerprint = fingerprint.toLowerCase();
     email = email.toLowerCase();
 
-    if (
-      fingerprint == this.accCacheFingerprint &&
-      this.accCacheEmails &&
-      this.accCacheEmails.has(email)
-    ) {
-      rv.emailDecided = true;
-      rv.fingerprintAcceptance = this.accCacheValue;
-      return;
-    }
-
     rv.emailDecided = false;
     rv.fingerprintAcceptance = "";
+
+    if (fingerprint == this.accCacheFingerprint) {
+      if (
+        this.accCacheValue.length &&
+        this.accCacheValue != "undecided" &&
+        this.accCacheEmails &&
+        this.accCacheEmails.has(email)
+      ) {
+        rv.emailDecided = true;
+        rv.fingerprintAcceptance = this.accCacheValue;
+      }
+      return;
+    }
 
     let conn;
     try {

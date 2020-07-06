@@ -1042,6 +1042,7 @@ var RNP = {
             "emailDecided" in acceptanceResult &&
             acceptanceResult.emailDecided &&
             "fingerprintAcceptance" in acceptanceResult &&
+            acceptanceResult.fingerprintAcceptance.length &&
             acceptanceResult.fingerprintAcceptance != "undecided"
           ) {
             if (acceptanceResult.fingerprintAcceptance == "rejected") {
