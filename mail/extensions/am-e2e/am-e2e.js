@@ -5,7 +5,6 @@
 
 /* import-globals-from ../../../../toolkit/content/preferencesBindings.js */
 
-// Modules
 /* global GetEnigmailSvc: false, PgpSqliteDb2: false, EnigGetTempDir: false,
           EnigGetLocalFileApi: false, ENIG_LOCAL_FILE_CONTRACTID: false,
           EnigFilePicker: false*/
@@ -618,16 +617,8 @@ async function reloadOpenPgpUI() {
   // Interrupt and udpate the UI accordingly if no Key is associated with the
   // current identity.
   if (!result.all.length) {
-    // Hide the selection status.
-    document
-      .getElementById("openPgpgSelectionStatus")
-      .setAttribute("hidden", "hidden");
-
-    // Hide the learn more link.
-    document.getElementById("openPgpLearnMore").setAttribute("hidden", "true");
-
     gKeyId = null;
-    highlightOpenPgpKey();
+    updateUIForSelectedOpenPgpKey();
     return;
   }
 
@@ -639,16 +630,6 @@ async function reloadOpenPgpUI() {
       identity: gIdentity.email,
     }
   );
-
-  let status = document.getElementById("openPgpgSelectionStatus");
-  status.removeAttribute("hidden");
-
-  document.l10n.setAttributes(status, "openpgp-selection-status", {
-    count: gKeyId ? 1 : 0,
-    key: `0x${gKeyId}`,
-  });
-
-  document.getElementById("openPgpLearnMore").removeAttribute("hidden");
 
   let radiogroup = document.getElementById("openPgpKeyListRadio");
 
@@ -882,7 +863,7 @@ async function reloadOpenPgpUI() {
     radiogroup.appendChild(container);
   }
 
-  highlightOpenPgpKey();
+  updateUIForSelectedOpenPgpKey();
 }
 
 /**
@@ -1027,14 +1008,15 @@ function updateOpenPgpSettings() {
   enableSelectButtons();
   onSave();
 
-  highlightOpenPgpKey();
+  updateUIForSelectedOpenPgpKey();
 }
 
 /**
  * Apply a .selected class to the radio container of the currently selected
  * OpenPGP Key.
+ * Also update UI strings describing the status of current selection.
  */
-function highlightOpenPgpKey() {
+function updateUIForSelectedOpenPgpKey() {
   // Remove a previously selected container, if any.
   let current = document.querySelector(".content-blocking-category.selected");
 
@@ -1055,32 +1037,20 @@ function highlightOpenPgpKey() {
     }
   }
 
-  document.l10n.setAttributes(
-    document.getElementById("openPgpgSelectionStatus"),
-    "openpgp-selection-status",
-    {
-      count: gKeyId ? 1 : 0,
-      key: `0x${gKeyId}`,
-    }
-  );
+  document.getElementById("openPgpSelectionStatus").hidden = gKeyId === null;
+  document.getElementById("openPgpLearnMore").hidden = gKeyId === null;
 
   // Reset the image in case of async reload of the list.
   let image = document.getElementById("openPgpStatusImage");
   image.classList.remove("status-success", "status-error");
-  image.setAttribute("hidden", "true");
-
-  // Interrupt if no key is currently selected.
-  if (!gKeyId) {
-    return;
-  }
 
   let key = EnigmailKeyRing.getKeyById(gKeyId, true);
 
   // Check if the currently selected key has expired.
-  if (key.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime) {
+  if (key && key.expiryTime && Math.round(Date.now() / 1000) > key.expiryTime) {
     image.classList.add("status-error");
     document.l10n.setAttributes(
-      document.getElementById("openPgpgSelectionStatus"),
+      document.getElementById("openPgpSelectionStatus"),
       "openpgp-selection-status-error",
       {
         key: `0x${gKeyId}`,
@@ -1088,10 +1058,21 @@ function highlightOpenPgpKey() {
     );
   } else {
     image.classList.add("status-success");
+    document.l10n.setAttributes(
+      document.getElementById("openPgpSelectionStatus"),
+      "openpgp-selection-status",
+      {
+        count: gKeyId ? 1 : 0,
+        key: `0x${gKeyId}`,
+      }
+    );
   }
 
-  // Show the image.
-  image.removeAttribute("hidden");
+  if (gKeyId) {
+    image.removeAttribute("hidden");
+  } else {
+    image.setAttribute("hidden", "true");
+  }
 }
 
 /**
