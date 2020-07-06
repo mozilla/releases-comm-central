@@ -90,6 +90,8 @@ var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
 
+var l10nCommon = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+
 var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 
 // The compatible Enigmime version
@@ -321,7 +323,7 @@ function EnigConfirm(mesg, okLabel, cancelLabel) {
 async function EnigError(mesg) {
   return gEnigPromptSvc.alert(
     window,
-    await document.l10n.formatValue("enig-error"),
+    l10nCommon.formatValueSync("enig-error"),
     mesg
   );
 }
@@ -563,32 +565,30 @@ function EnigChangeKeyPwd(keyId, userId) {
   throw new Error("Not implemented");
 }
 
-function EnigRevokeKey(keyId, userId, callbackFunc) {
-  throw new Error("Not implemented");
-
-  /*
+function EnigRevokeKey(keyObj, callbackFunc) {
   var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc)
-    return false;
+  if (!enigmailSvc) {
+    return;
+  }
 
-  var userDesc = "0x" + keyId + " - " + userId;
-  if (!EnigConfirm(EnigGetString("revokeKeyQuestion", userDesc), EnigGetString("keyMan.button.revokeKey")))
-    return false;
+  if (keyObj.keyTrust == "r") {
+    EnigAlert(l10nCommon.formatValueSync("already-revoked"));
+    return;
+  }
 
-  var tmpDir = EnigGetTempDir();
-  var revFile;
-  try {
-    revFile = Cc[ENIG_LOCAL_FILE_CONTRACTID].createInstance(EnigGetLocalFileApi());
-    revFile.initWithPath(tmpDir);
-    if (!(revFile.isDirectory() && revFile.isWritable())) {
-      EnigAlert(EnigGetString("noTempDir"));
-      return false;
-    }
-  } catch (ex) {}
-  revFile.append("revkey.asc");
+  let msg = l10nCommon.formatValueSync("revoke-key-question", {
+    userId: "0x" + keyObj.keyId + " - " + keyObj.userId,
+  });
+  let buttonText = l10nCommon.formatValueSync("key-man-button-revoke-key");
 
-  return true;
-  */
+  if (!EnigConfirm(msg, buttonText)) {
+    return;
+  }
+
+  RNP.revokeKey(keyObj.fpr);
+  callbackFunc(true);
+
+  EnigAlert(l10nCommon.formatValueSync("after-revoke-info"));
 }
 
 function EnigGetLocalFileApi() {

@@ -36,6 +36,7 @@ const { PgpSqliteDb2 } = ChromeUtils.import(
 const { uidHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/uidHelper.jsm"
 );
+var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 const getWindows = EnigmailLazy.loader(
@@ -530,6 +531,104 @@ var EnigmailKeyRing = {
       return "";
     }
     return keyBlock;
+  },
+
+  promptKeyExport2AsciiFilename(window, label, defaultFilename) {
+    return getDialog().filePicker(
+      window,
+      label,
+      "",
+      true,
+      "*.asc",
+      defaultFilename,
+      [l10n.formatValueSync("ascii-armor-file"), "*.asc"]
+    );
+  },
+
+  exportPublicKeysInteractive(window, defaultFileName, keyIdArray) {
+    let label = l10n.formatValueSync("export-to-file");
+    let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+      window,
+      label,
+      defaultFileName
+    );
+    if (!outFile) {
+      return;
+    }
+
+    var exitCodeObj = {};
+    var errorMsgObj = {};
+
+    EnigmailKeyRing.extractKey(
+      false, // public
+      keyIdArray,
+      outFile,
+      exitCodeObj,
+      errorMsgObj
+    );
+    if (exitCodeObj.value !== 0) {
+      getDialog().alert(window, l10n.formatValueSync("save-keys-failed"));
+      return;
+    }
+    getDialog().info(window, l10n.formatValueSync("save-keys-ok"));
+  },
+
+  async backupSecretKeysInteractive(
+    window,
+    defaultFileName,
+    fprArray,
+    dlgOpenCallback
+  ) {
+    let label = l10n.formatValueSync("export-keypair-to-file");
+    let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+      window,
+      label,
+      defaultFileName
+    );
+    if (!outFile) {
+      return;
+    }
+
+    let dlgParams = {
+      confirmedPassword: false,
+      password: "",
+    };
+
+    dlgOpenCallback(
+      "chrome://openpgp/content/ui/backupKeyPassword.xhtml",
+      dlgParams
+    );
+
+    if (!dlgParams.confirmedPassword) {
+      return;
+    }
+
+    let backupKeyBlock = await RNP.backupSecretKeys(
+      fprArray,
+      dlgParams.password
+    );
+    if (!backupKeyBlock) {
+      getDialog().alert(window, l10n.formatValueSync("save-keys-failed"));
+      return;
+    }
+
+    if (
+      !EnigmailFiles.writeFileContents(
+        outFile,
+        backupKeyBlock,
+        DEFAULT_FILE_PERMS
+      )
+    ) {
+      getDialog().alert(
+        window,
+        l10n.formatValueSync("file-write-failed", {
+          output: outFile,
+        })
+      );
+      return;
+    }
+
+    getDialog().info(window, l10n.formatValueSync("save-keys-ok"));
   },
 
   /**

@@ -1633,6 +1633,7 @@ var RNP = {
             RNPLib.rnp_key_handle_destroy(sub_handle);
           }
         }
+        RNPLib.rnp_key_handle_destroy(impKey2);
 
         result.importedKeys.push("0x" + k.id);
 
@@ -1669,6 +1670,29 @@ var RNP = {
 
     if (RNPLib.rnp_key_remove(handle, flags)) {
       throw new Error("rnp_key_remove failed");
+    }
+
+    RNPLib.rnp_key_handle_destroy(handle);
+    this.saveKeyRings();
+  },
+
+  revokeKey(keyFingerprint) {
+    let handle = new RNPLib.rnp_key_handle_t();
+    if (
+      RNPLib.rnp_locate_key(
+        RNPLib.ffi,
+        "fingerprint",
+        keyFingerprint,
+        handle.address()
+      )
+    ) {
+      throw new Error("rnp_locate_key failed");
+    }
+
+    let flags = 0;
+
+    if (RNPLib.rnp_key_revoke(handle, flags, null, null, null)) {
+      throw new Error("rnp_key_revoke failed");
     }
 
     RNPLib.rnp_key_handle_destroy(handle);
@@ -2282,6 +2306,179 @@ var RNP = {
 
       RNPLib.rnp_key_handle_destroy(key);
     }
+
+    if ((rv = RNPLib.rnp_output_finish(out_binary))) {
+      throw new Error("rnp_output_finish failed: " + rv);
+    }
+
+    let result_buf = new ctypes.uint8_t.ptr();
+    let result_len = new ctypes.size_t();
+    let exitCode = RNPLib.rnp_output_memory_get_buf(
+      out_final,
+      result_buf.address(),
+      result_len.address(),
+      false
+    );
+
+    let result = "";
+    if (!exitCode) {
+      let char_array = ctypes.cast(
+        result_buf,
+        ctypes.char.array(result_len.value).ptr
+      ).contents;
+      result = char_array.readString();
+    }
+
+    RNPLib.rnp_output_destroy(out_binary);
+    RNPLib.rnp_output_destroy(out_final);
+
+    return result;
+  },
+
+  async backupSecretKeys(fprs, backupPassword) {
+    if (!fprs.length) {
+      throw new Error("invalid fprs parameter");
+    }
+
+    /*
+     * Strategy:
+     * - copy keys to a temporary space, in-memory only (ffi)
+     * - if we failed to decrypt the secret keys, return null
+     * - change the password of all secret keys in the temporary space
+     * - export from the temporary space
+     */
+
+    let out_final = new RNPLib.rnp_output_t();
+    RNPLib.rnp_output_to_memory(out_final.address(), 0);
+
+    let out_binary = new RNPLib.rnp_output_t();
+    let rv;
+    if (
+      (rv = RNPLib.rnp_output_to_armor(
+        out_final,
+        out_binary.address(),
+        "secret key"
+      ))
+    ) {
+      throw new Error("rnp_output_to_armor failed:" + rv);
+    }
+
+    let tempFFI = new RNPLib.rnp_ffi_t();
+    if (RNPLib.rnp_ffi_create(tempFFI.address(), "GPG", "GPG")) {
+      throw new Error("Couldn't initialize librnp.");
+    }
+
+    let internalPassword = OpenPGPMasterpass.retrieveOpenPGPPassword();
+
+    let exportFlags =
+      RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_SECRET;
+    let importFlags =
+      RNPLib.RNP_LOAD_SAVE_PUBLIC_KEYS | RNPLib.RNP_LOAD_SAVE_SECRET_KEYS;
+
+    for (let fpr of fprs) {
+      let fprStr = fpr;
+      let expKey = await this.getKeyHandleByIdentifier(RNPLib.ffi, fprStr);
+
+      let output_to_memory = new RNPLib.rnp_output_t();
+      if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
+        throw new Error("rnp_output_to_memory failed");
+      }
+
+      if (RNPLib.rnp_key_unlock(expKey, internalPassword)) {
+        throw new Error("rnp_key_unlock failed");
+      }
+
+      if (RNPLib.rnp_key_export(expKey, output_to_memory, exportFlags)) {
+        throw new Error("rnp_key_export failed");
+      }
+
+      if (RNPLib.rnp_key_lock(expKey)) {
+        throw new Error("rnp_key_unlock failed");
+      }
+
+      let result_buf = new ctypes.uint8_t.ptr();
+      let result_len = new ctypes.size_t();
+      if (
+        RNPLib.rnp_output_memory_get_buf(
+          output_to_memory,
+          result_buf.address(),
+          result_len.address(),
+          false
+        )
+      ) {
+        throw new Error("rnp_output_memory_get_buf failed");
+      }
+
+      let input_from_memory = new RNPLib.rnp_input_t();
+
+      if (
+        RNPLib.rnp_input_from_memory(
+          input_from_memory.address(),
+          result_buf,
+          result_len,
+          false
+        )
+      ) {
+        throw new Error("rnp_input_from_memory failed");
+      }
+
+      if (
+        RNPLib.rnp_import_keys(tempFFI, input_from_memory, importFlags, null)
+      ) {
+        throw new Error("rnp_import_keys failed");
+      }
+
+      let tempKey = await this.getKeyHandleByIdentifier(tempFFI, fprStr);
+
+      if (RNPLib.rnp_key_unlock(tempKey, internalPassword)) {
+        throw new Error("rnp_key_unlock failed");
+      }
+
+      if (
+        RNPLib.rnp_key_protect(tempKey, backupPassword, null, null, null, 0)
+      ) {
+        throw new Error("rnp_key_protect failed");
+      }
+
+      let sub_count = new ctypes.size_t();
+      if (RNPLib.rnp_key_get_subkey_count(tempKey, sub_count.address())) {
+        throw new Error("rnp_key_get_subkey_count failed");
+      }
+      for (let i = 0; i < sub_count.value; i++) {
+        let sub_handle = new RNPLib.rnp_key_handle_t();
+        if (RNPLib.rnp_key_get_subkey_at(tempKey, i, sub_handle.address())) {
+          throw new Error("rnp_key_get_subkey_at failed");
+        }
+
+        if (RNPLib.rnp_key_unlock(sub_handle, internalPassword)) {
+          throw new Error("rnp_key_unlock failed");
+        }
+
+        if (
+          RNPLib.rnp_key_protect(
+            sub_handle,
+            backupPassword,
+            null,
+            null,
+            null,
+            0
+          )
+        ) {
+          throw new Error("rnp_key_protect failed");
+        }
+        RNPLib.rnp_key_handle_destroy(sub_handle);
+      }
+
+      if (RNPLib.rnp_key_export(tempKey, out_binary, exportFlags)) {
+        throw new Error("rnp_key_export failed");
+      }
+      RNPLib.rnp_key_handle_destroy(tempKey);
+
+      RNPLib.rnp_input_destroy(input_from_memory);
+      RNPLib.rnp_output_destroy(output_to_memory);
+      RNPLib.rnp_key_handle_destroy(expKey);
+    }
+    RNPLib.rnp_ffi_destroy(tempFFI);
 
     if ((rv = RNPLib.rnp_output_finish(out_binary))) {
       throw new Error("rnp_output_finish failed: " + rv);

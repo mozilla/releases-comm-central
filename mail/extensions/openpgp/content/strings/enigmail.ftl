@@ -72,17 +72,20 @@ openpgp-key-man-import-secret-from-file =
 openpgp-key-man-import-sig-from-file =
     .label = Import Revocation(s) From File
 openpgp-key-man-import-from-clipbrd =
-    .label = Import Keys From Clipboard
+    .label = Import Key(s) From Clipboard
     .accesskey = I
 openpgp-key-man-import-from-url =
-    .label = Import Keys From URL
+    .label = Import Key(s) From URL
     .accesskey = U
 openpgp-key-man-export-to-file =
-    .label = Export Keys To File
+    .label = Export Public Key(s) To File
     .accesskey = E
 openpgp-key-man-send-keys =
-    .label = Send Public Keys By Email
+    .label = Send Public Key(s) By Email
     .accesskey = S
+openpgp-key-man-backup-secret-keys =
+    .label = Backup Secret Key(s) To File
+    .accesskey = B
 
 openpgp-key-copy-key =
     .label = Copy Public Key
@@ -100,17 +103,16 @@ openpgp-key-send-key =
     .label = Send Public Key Via Email
     .accesskey = S
 
-openpgp-key-man-create-mail =
-    .label = Compose Email To Selected Keys
-    .accesskey = C
 openpgp-key-man-copy-to-clipbrd =
-    .label = Copy Public Keys To Clipboard
+    .label = Copy Public Key(s) To Clipboard
     .accesskey = C
 openpgp-key-man-ctx-expor-to-file-label =
     .label = Export Keys To File
 openpgp-key-man-ctx-copy-to-clipbrd-label =
     .label = Copy Public Keys To Clipboard
 
+openpgp-key-man-close =
+    .label = Close
 openpgp-key-man-reload =
     .label = Reload Key Cache
     .accesskey = R
@@ -118,7 +120,7 @@ openpgp-key-man-change-expiry =
     .label = Change Expiration Date
     .accesskey = E
 openpgp-key-man-del-key =
-    .label = Delete Key
+    .label = Delete Key(s)
     .accesskey = D
 openpgp-key-man-revoke-key =
     .label = Revoke Key
@@ -409,7 +411,7 @@ export-secret-key = Do you want to include the secret key in the saved OpenPGP k
 save-keys-ok = The keys were successfully saved
 save-keys-failed = Saving the keys failed
 default-pub-key-filename = Exported-public-keys
-default-pub-sec-key-filename = Exported-public-and-secret-keys
+default-pub-sec-key-filename = Backup-of-secret-keys
 refresh-key-warn = Warning: depending on the number of keys and the connection speed, refreshing all keys could be quite a lengthy process!
 preview-failed = Can't read public key file.
 general-error = Error: { $reason }
@@ -436,6 +438,7 @@ keyring-photo = Photo
 user-att-photo = User attribute (JPEG image)
 
 # Strings in key.jsm
+already-revoked = This key has already been revoked.
 revoke-key-question =
     You are about to revoke the key '{ $userId }'.
     You will no longer be able to sign with this key, and once distributed, others will no longer be able to encrypt with that key. You can still use the key to decrypt old messages.
@@ -445,6 +448,10 @@ revoke-key-not-present =
     If you have lost your key, you must import it (e.g. from a keyserver) before importing the revocation certificate!
 revoke-key-already-revoked = The key 0x{ $keyId } has already been revoked.
 key-man-button-revoke-key = &Revoke Key
+after-revoke-info =
+    The key has been revoked. Share this public key again, by sending it by email, or by uploading it to keyservers, to let others know that you revoked your key.
+    As soon as the software used by other people learns about the revocation, it will stop using your old key.
+    If you are using a new key for the same email address, and you attach the new public key to emails you send, then information about your revoked old key will be automatically included.
 
 # Strings in keyRing.jsm & decryption.jsm
 key-man-button-import = &Import

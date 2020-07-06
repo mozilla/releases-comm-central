@@ -9,9 +9,9 @@
 // from enigmailCommon.js:
 /* global GetEnigmailSvc: false, EnigAlert: false, EnigConvertGpgToUnicode: false */
 /* global EnigCleanGuiList: false, EnigGetTrustLabel: false, EnigShowPhoto: false, EnigSignKey: false */
-/* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false, EnigRevokeKey: false */
+/* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false */
 /* global EnigCreateRevokeCert: false, EnigmailTimer: false, EnigmailCryptoAPI: false */
-/* global PgpSqliteDb2: false, EnigmailDialog: false */
+/* global PgpSqliteDb2: false, l10n: false, EnigmailDialog: false */
 
 // from enigmailKeyManager.js:
 /* global keyMgrAddPhoto: false, EnigmailCompat: false */
@@ -23,8 +23,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { uidHelper } = ChromeUtils.import(
   "chrome://openpgp/content/modules/uidHelper.jsm"
 );
-
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 var gModePersonal = false;
 
@@ -348,17 +346,6 @@ function changePassword() {
   EnigChangeKeyPwd(gKeyId, gUserId);
 }
 */
-
-async function revokeKey() {
-  /*
-  EnigRevokeKey(gKeyId, gUserId, function(success) {
-    if (success) {
-      enableRefresh();
-      await reloadData(false);
-    }
-  });
-  */
-}
 
 function genRevocationCert() {
   EnigCreateRevokeCert(gKeyId, gUserId);
