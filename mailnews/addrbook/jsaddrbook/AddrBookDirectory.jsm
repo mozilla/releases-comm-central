@@ -591,8 +591,8 @@ class AddrBookDirectory {
         if (card.isMailList) {
           properties = new Map([
             ["DisplayName", card.displayName],
-            ["NickName", card.getProperty("NickName")],
-            ["Notes", card.getProperty("Notes")],
+            ["NickName", card.getProperty("NickName", "")],
+            ["Notes", card.getProperty("Notes", "")],
           ]);
         } else {
           properties = this._loadCardProperties(card.UID);
@@ -725,8 +725,8 @@ class AddrBookDirectory {
       if (card.isMailList) {
         properties = new Map([
           ["DisplayName", card.displayName],
-          ["NickName", card.getProperty("NickName")],
-          ["Notes", card.getProperty("Notes")],
+          ["NickName", card.getProperty("NickName", "")],
+          ["Notes", card.getProperty("Notes", "")],
         ]);
       } else {
         properties = this._loadCardProperties(card.UID);

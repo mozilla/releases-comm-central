@@ -60,7 +60,7 @@ add_task(async () => {
     info(card.getProperty("_etag", ""));
 
     cardMap.set(card.UID, card);
-    oldETags.set(card.UID, card.getProperty("_etag"));
+    oldETags.set(card.UID, card.getProperty("_etag", ""));
   }
 
   Assert.equal(cardMap.size, 3);
@@ -112,19 +112,19 @@ add_task(async () => {
   Assert.deepEqual([...cardMap.keys()].sort(), ["change-me", "keep-me", "new"]);
 
   Assert.equal(
-    cardMap.get("keep-me").getProperty("_etag"),
+    cardMap.get("keep-me").getProperty("_etag", ""),
     oldETags.get("keep-me")
   );
 
   Assert.equal(cardMap.get("change-me").displayName, "I've been changed.");
   Assert.notEqual(
-    cardMap.get("change-me").getProperty("_etag"),
+    cardMap.get("change-me").getProperty("_etag", ""),
     oldETags.get("change-me")
   );
-  oldETags.set("change-me", cardMap.get("change-me").getProperty("_etag"));
+  oldETags.set("change-me", cardMap.get("change-me").getProperty("_etag", ""));
 
   Assert.equal(cardMap.get("new").displayName, "I'm new!");
-  oldETags.set("new", cardMap.get("new").getProperty("_etag"));
+  oldETags.set("new", cardMap.get("new").getProperty("_etag", ""));
 
   oldETags.delete("delete-me");
 
@@ -132,19 +132,19 @@ add_task(async () => {
 
   await checkCardsOnServer({
     "change-me": {
-      etag: cardMap.get("change-me").getProperty("_etag"),
-      href: cardMap.get("change-me").getProperty("_href"),
-      vCard: cardMap.get("change-me").getProperty("_vCard"),
+      etag: cardMap.get("change-me").getProperty("_etag", ""),
+      href: cardMap.get("change-me").getProperty("_href", ""),
+      vCard: cardMap.get("change-me").getProperty("_vCard", ""),
     },
     "keep-me": {
-      etag: cardMap.get("keep-me").getProperty("_etag"),
-      href: cardMap.get("keep-me").getProperty("_href"),
-      vCard: cardMap.get("keep-me").getProperty("_vCard"),
+      etag: cardMap.get("keep-me").getProperty("_etag", ""),
+      href: cardMap.get("keep-me").getProperty("_href", ""),
+      vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
     },
     new: {
-      etag: cardMap.get("new").getProperty("_etag"),
-      href: cardMap.get("new").getProperty("_href"),
-      vCard: cardMap.get("new").getProperty("_vCard"),
+      etag: cardMap.get("new").getProperty("_etag", ""),
+      href: cardMap.get("new").getProperty("_href", ""),
+      vCard: cardMap.get("new").getProperty("_vCard", ""),
     },
   });
 
@@ -171,14 +171,14 @@ add_task(async () => {
 
   await checkCardsOnServer({
     "change-me": {
-      etag: cardMap.get("change-me").getProperty("_etag"),
-      href: cardMap.get("change-me").getProperty("_href"),
-      vCard: cardMap.get("change-me").getProperty("_vCard"),
+      etag: cardMap.get("change-me").getProperty("_etag", ""),
+      href: cardMap.get("change-me").getProperty("_href", ""),
+      vCard: cardMap.get("change-me").getProperty("_vCard", ""),
     },
     "keep-me": {
-      etag: cardMap.get("keep-me").getProperty("_etag"),
-      href: cardMap.get("keep-me").getProperty("_href"),
-      vCard: cardMap.get("keep-me").getProperty("_vCard"),
+      etag: cardMap.get("keep-me").getProperty("_etag", ""),
+      href: cardMap.get("keep-me").getProperty("_href", ""),
+      vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
     },
   });
 
@@ -199,14 +199,14 @@ add_task(async () => {
 
   await checkCardsOnServer({
     "change-me": {
-      etag: changeMeCard.getProperty("_etag"),
-      href: changeMeCard.getProperty("_href"),
-      vCard: changeMeCard.getProperty("_vCard"),
+      etag: changeMeCard.getProperty("_etag", ""),
+      href: changeMeCard.getProperty("_href", ""),
+      vCard: changeMeCard.getProperty("_vCard", ""),
     },
     "keep-me": {
-      etag: cardMap.get("keep-me").getProperty("_etag"),
-      href: cardMap.get("keep-me").getProperty("_href"),
-      vCard: cardMap.get("keep-me").getProperty("_vCard"),
+      etag: cardMap.get("keep-me").getProperty("_etag", ""),
+      href: cardMap.get("keep-me").getProperty("_href", ""),
+      vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
     },
   });
 
@@ -233,19 +233,19 @@ add_task(async () => {
 
   await checkCardsOnServer({
     "another-new": {
-      etag: newCard.getProperty("_etag"),
-      href: newCard.getProperty("_href"),
-      vCard: newCard.getProperty("_vCard"),
+      etag: newCard.getProperty("_etag", ""),
+      href: newCard.getProperty("_href", ""),
+      vCard: newCard.getProperty("_vCard", ""),
     },
     "change-me": {
-      etag: cardMap.get("change-me").getProperty("_etag"),
-      href: cardMap.get("change-me").getProperty("_href"),
-      vCard: cardMap.get("change-me").getProperty("_vCard"),
+      etag: cardMap.get("change-me").getProperty("_etag", ""),
+      href: cardMap.get("change-me").getProperty("_href", ""),
+      vCard: cardMap.get("change-me").getProperty("_vCard", ""),
     },
     "keep-me": {
-      etag: cardMap.get("keep-me").getProperty("_etag"),
-      href: cardMap.get("keep-me").getProperty("_href"),
-      vCard: cardMap.get("keep-me").getProperty("_vCard"),
+      etag: cardMap.get("keep-me").getProperty("_etag", ""),
+      href: cardMap.get("keep-me").getProperty("_href", ""),
+      vCard: cardMap.get("keep-me").getProperty("_vCard", ""),
     },
   });
 

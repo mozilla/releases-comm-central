@@ -259,8 +259,8 @@ class CardDAVDirectory extends AddrBookDirectory {
     let cardsToModify = [];
     let cardsToDelete = [];
     for (let card of this.childCards) {
-      let href = card.getProperty("_href");
-      let etag = card.getProperty("_etag");
+      let href = card.getProperty("_href", "");
+      let etag = card.getProperty("_etag", "");
 
       if (!href || !etag) {
         // Not sure how we got here. Ignore it.
@@ -395,7 +395,7 @@ class CardDAVDirectory extends AddrBookDirectory {
 
       this._syncInProgress = true;
       if (card) {
-        if (card.getProperty("_etag") != etag) {
+        if (card.getProperty("_etag", "") != etag) {
           this.modifyCard(abCard);
         }
       } else {

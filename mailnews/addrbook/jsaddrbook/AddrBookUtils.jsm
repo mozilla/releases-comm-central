@@ -215,16 +215,16 @@ function exportDirectoryToLDIF(directory) {
         attrMap.getFirstAttribute("DisplayName"),
         card.displayName
       );
-      if (card.getProperty("NickName")) {
+      if (card.getProperty("NickName", "")) {
         appendProperty(
           attrMap.getFirstAttribute("NickName"),
-          card.getProperty("NickName")
+          card.getProperty("NickName", "")
         );
       }
-      if (card.getProperty("Notes")) {
+      if (card.getProperty("Notes", "")) {
         appendProperty(
           attrMap.getFirstAttribute("Notes"),
-          card.getProperty("Notes")
+          card.getProperty("Notes", "")
         );
       }
       let listAsDirectory = MailServices.ab.getDirectory(card.mailListURI);
