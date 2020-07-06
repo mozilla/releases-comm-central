@@ -137,6 +137,73 @@ description.error {
   padding-inline-start: 4px;
 }
 
+/* Buttons */
+
+button {
+  -moz-appearance: none;
+  height: 24px;
+  min-width: 5.5em;
+  color: inherit !important;
+  border: 1px solid var(--toolbarbutton-header-bordercolor);
+  border-radius: var(--toolbarbutton-border-radius);
+  background: var(--toolbarbutton-hover-background);
+  margin: 1px 5px;
+  padding: 0 4px;
+  box-shadow: none;
+}
+
+button:hover {
+  border-color: var(--toolbarbutton-active-bordercolor);
+  background-color: var(--toolbarbutton-active-background);
+}
+
+button[open="true"],
+button:hover:active {
+  border-color: var(--toolbarbutton-active-bordercolor);
+  background-color: var(--toolbarbutton-active-background);
+}
+
+button > .button-box {
+  padding: 0;
+}
+
+button[type="menu-button"] {
+  -moz-appearance: none;
+}
+
+.button-menu-list > .button-box {
+  -moz-appearance: none;
+  padding-inline-end: 14px;
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: 12px;
+  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+button.button-menu-list:-moz-locale-dir(rtl) > .button-box {
+  background-position: left;
+}
+
+button[type="menu-button"] > .button-box > button {
+  -moz-appearance: none;
+  min-width: 5.5em;
+  background: transparent;
+  border-color: transparent;
+  border-inline-end-color: var(--toolbarbutton-active-bordercolor);
+  margin-block: -1px;
+  margin-inline: -4px 5px;
+  padding: 0 4px;
+}
+
+button > .button-box > dropmarker {
+  -moz-appearance: none;
+  list-style-image: url(chrome://global/skin/icons/arrow-dropdown-12.svg);
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 #notification-popup-box > image.notification-anchor-icon {
   width: 16px;
   height: 16px;
@@ -337,7 +404,7 @@ toolbarpaletteitem toolbarbutton {
   pointer-events: none;
 }
 
-/* :::::: throbber :::::::::: */
+/* throbber */
 
 #throbber-box {
   width: 16px;
@@ -361,7 +428,7 @@ toolbarpaletteitem toolbarbutton {
   border-color: var(--lwt-toolbar-field-border-color);
 }
 
-/* ::::: Status bar ::::: */
+/* Status bar */
 
 #status-bar:-moz-lwtheme {
   border-top: 1px solid var(--tabs-border-color);
@@ -387,7 +454,7 @@ label.statusbarpanel {
   -moz-box-align: center;
 }
 
-/* ::::: online/offline icons ::::: */
+/* online/offline icons */
 
 #offline-status {
   padding: 0 2px;
@@ -401,7 +468,7 @@ label.statusbarpanel {
   list-style-image: url("chrome://messenger/skin/icons/offline.svg");
 }
 
-/* ..... status bar adjustments ..... */
+/* status bar adjustments */
 
 #quotaMeter {
   min-width: 8em;
@@ -435,7 +502,7 @@ label.statusbarpanel {
   color: black;
 }
 
-/* ::::: searchTermOverlay ::::: */
+/* searchTermOverlay */
 
 #searchTermList > richlistitem[highlight = "true"] {
   animation: highlight .4s ease-in;
@@ -450,7 +517,7 @@ label.statusbarpanel {
   height: 16px;
 }
 
-/* ::::: Address Book menuitem icons ::::: */
+/* Address Book menuitem icons */
 
 .abMenuItem[AddrBook="true"] {
   list-style-image: url("chrome://messenger/skin/icons/address.svg");
@@ -468,7 +535,7 @@ label.statusbarpanel {
   list-style-image: url("chrome://messenger/skin/icons/globe-secure.svg");
 }
 
-/* ::::: Panel toolbarbuttons ::::: */
+/* Panel toolbarbuttons */
 
 .panelTitle {
   margin-top: 8px;
@@ -516,13 +583,13 @@ toolbarpaletteitem toolbarspring {
   -moz-window-dragging: no-drag;
 }
 
-/* ::::: MailExtension panels ::::: */
+/* MailExtension panels */
 
 .mail-extension-panel {
   font: menu;
 }
 
-/* :::: autocomplete labels :::: */
+/* autocomplete labels */
 
 html|span.ac-emphasize-text {
   font-weight: bold;
@@ -579,7 +646,7 @@ html|input[type="number"].size5 {
   max-height: 2.5em;
 }
 
-/* ::::: Toolbar customization ::::: */
+/* Toolbar customization */
 
 toolbarpaletteitem[type="spacer"] toolbarspacer,
 toolbarpaletteitem[type="spring"] toolbarspring {

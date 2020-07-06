@@ -598,22 +598,6 @@ treechildren::-moz-tree-cell-text {
   margin-left: 1em;
 }
 
-/* menu-button */
-
-button[type="menu-button"] {
-  -moz-appearance: dualbutton;
-}
-
-.button-menubutton-button {
-  margin: 0;
-}
-
-.button-menubutton-dropmarker {
-  -moz-appearance: toolbarbutton-dropdown;
-  margin-left: 3px;
-  margin-right: 3px;
-}
-
 .contentTabInstance {
   background-color: -moz-dialog;
 }

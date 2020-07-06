@@ -13,35 +13,13 @@
   background-color: -moz-Dialog;
 }
 
-/* ::::: results pane ::::: */
+/* results pane */
 
 #GeneratedName {
   padding-inline-start: 30px;
 }
 
-/* ::::: card view pane ::::: */
-
-#CardViewInnerBox {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  padding: 0 8px;
-}
-
-#CardTitle {
-  font-size: 150%;
-  font-weight: bold;
-  border-bottom: 2px solid currentColor;
-  min-width: 120px;
-  margin: 0;
-}
-
-.cardViewGroup {
-  margin-top: 8px;
-  padding-bottom: 5px;
-  min-width: 50px;
-}
-
-/* :::: Toolbar :::: */
+/* Toolbar */
 
 #ab-toolbox {
   -moz-appearance: none;
@@ -101,7 +79,7 @@ toolbox > toolbar:last-of-type {
   }
 }
 
-/* ::::: Search Textbox ::::: */
+/* Search Textbox */
 
 #peopleSearchInput {
   width: 20em;
@@ -110,7 +88,7 @@ toolbox > toolbar:last-of-type {
   padding-inline-start: 5px;
 }
 
-/* ::::: directory pane adjustments ::::: */
+/* directory pane adjustments */
 
 @media (-moz-windows-default-theme) {
   :root:not([lwt-tree]) #dirTree {
@@ -131,7 +109,7 @@ toolbox > toolbar:last-of-type {
   border-inline-end: 1px solid transparent;
 }
 
-/* ::::: splitters ::::: */
+/* splitters */
 
 #dirTree-splitter {
   border-width: 0;
@@ -155,7 +133,7 @@ toolbox > toolbar:last-of-type {
   z-index: 10;
 }
 
-/* ::::: card view pane ::::: */
+/* card view pane */
 
 #CardViewOuterBox {
   border: none;

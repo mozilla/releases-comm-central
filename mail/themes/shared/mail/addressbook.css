@@ -35,7 +35,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   text-align: start;
 }
 
-/* ::::: primary toolbar buttons ::::: */
+/* primary toolbar buttons */
 
 #button-newcard {
   list-style-image: url("chrome://messenger/skin/icons/addcontact.svg");
@@ -73,7 +73,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
   list-style-image: none;
 }
 
-/* ::::: directory pane icons ::::: */
+/* directory pane icons */
 
 treechildren::-moz-tree-image(DirCol) {
   margin-inline-end: 2px;
@@ -93,7 +93,7 @@ treechildren::-moz-tree-image(DirCol, IsRemote-true, IsSecure-true) {
   list-style-image: url("chrome://messenger/skin/icons/globe-secure.svg");
 }
 
-/* ::::: results pane ::::: */
+/* results pane */
 
 :root[lwt-tree] #abResultsBox {
   background-color: var(--sidebar-background-color);
@@ -112,7 +112,7 @@ treechildren::-moz-tree-image(GeneratedName, MailList) {
   list-style-image: url("chrome://messenger/skin/icons/ablist.svg");
 }
 
-/* ::::: card view pane ::::: */
+/* card view pane */
 
 #CardViewBox {
   -moz-user-focus: ignore;
@@ -120,9 +120,22 @@ treechildren::-moz-tree-image(GeneratedName, MailList) {
   min-width: 150px;
 }
 
+#CardViewInnerBox {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 0 8px;
+}
+
+.cardViewGroup {
+  margin: 0;
+  padding: 6px;
+  min-width: 50px;
+}
+
 #cvPhoto {
+  margin-top: 6px;
   list-style-image: url("chrome://messenger/skin/addressbook/icons/contact-generic.svg");
-  box-shadow: 0 0 5px rgba(127, 127, 127, 0.7);
+  box-shadow: 0 0 5px hsla(0, 0%, 50%, 0.7);
 }
 
 #cvBuddyIcon {
@@ -135,6 +148,18 @@ treechildren::-moz-tree-image(GeneratedName, MailList) {
 .CardViewText,
 .CardViewLink {
   -moz-user-select: text;
+}
+
+#CardTitle {
+  font-size: 150%;
+  font-weight: bold;
+  border-bottom: 2px solid currentColor;
+  min-width: 120px;
+  margin: 0;
+}
+
+.CardViewHeading {
+  font-weight: 600;
 }
 
 .CardViewText,

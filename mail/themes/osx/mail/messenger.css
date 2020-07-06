@@ -598,12 +598,10 @@ button[type="menu-button"] > .button-box > button {
 }
 
 button dropmarker::part(icon) {
-  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
+  margin-inline-start: 3px;
 }
 
-button[is="button-menu-button"] > .button-box > dropmarker {
+button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   margin-inline-end: -5px;
 }
 

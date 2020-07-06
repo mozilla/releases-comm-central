@@ -65,63 +65,22 @@ button.button-menu-list {
 }
 
 button.notification-button {
-  -moz-appearance: none;
-  height: 24px;
-  min-width: 5.5em;
   color: var(--notification-button-color) !important;
   border: 1px solid var(--notification-button-border);
-  border-radius: 2px;
+  border-radius: var(--toolbarbutton-border-radius);
   background: var(--notification-button-background);
-  margin: 1px 5px;
-  padding: 0 4px;
-  box-shadow: none;
 }
 
 button.notification-button:hover {
   background-color: var(--notification-button-hover-background);
 }
 
+button[open="true"],
 button.notification-button:hover:active {
   background-color: var(--notification-button-active-background);
   border-color: var(--notification-button-active-border);
 }
 
-button.notification-button > .button-box {
-  padding: 0;
-}
-
-button.notification-button[type="menu-button"] {
-  -moz-appearance: none;
-}
-
-.notification-button.button-menu-list > .button-box {
-  -moz-appearance: none;
-  padding-inline-end: 14px;
-  background-repeat: no-repeat;
-  background-position: right;
-  background-size: 12px;
-  background-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-button.button-menu-list:-moz-locale-dir(rtl) > .button-box {
-  background-position: left;
-}
-
 button.notification-button[type="menu-button"] > .button-box > button {
-  -moz-appearance: none;
-  height: 22px;
-  min-width: 5.5em;
-  border-inline-end: 1px solid var(--notification-button-active-border);
-  margin-block: -6px;
-  margin-inline: -4px 5px;
-  padding: 0 4px;
-}
-
-button.notification-button > .button-box > dropmarker {
-  -moz-appearance: none;
-  list-style-image: url(chrome://global/skin/icons/arrow-dropdown-12.svg);
-  -moz-context-properties: fill;
-  fill: currentColor;
+  border-inline-end-color: var(--notification-button-active-border);
 }

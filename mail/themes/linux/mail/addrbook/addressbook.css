@@ -24,13 +24,13 @@
   background-color: -moz-Dialog;
 }
 
-/* ::::: directory pane adjustments ::::: */
+/* directory pane adjustments */
 
 #dirTree:not(:-moz-lwtheme) {
   border-bottom: 1px solid ThreeDShadow;
 }
 
-/* ::::: splitters ::::: */
+/* splitters */
 
 #dirTree-splitter {
   -moz-appearance: none;
@@ -56,7 +56,7 @@
   z-index: 10;
 }
 
-/* ::::: results pane ::::: */
+/* results pane */
 
 #blankResultsPaneMessageBox {
   border-bottom: 1px solid ThreeDShadow;
@@ -66,39 +66,10 @@
   padding-inline-start: 26px;
 }
 
-/* ::::: card view pane ::::: */
+/* card view pane */
 
 #CardViewOuterBox {
   border-bottom: 1px solid ThreeDShadow;
-}
-
-#CardViewInnerBox {
-  margin-top: 2px;
-  margin-bottom: 2px;
-  padding: 0 8px;
-}
-
-#CardTitle {
-  font-size: 150%;
-  font-weight: bold;
-  border-bottom: 2px solid currentColor;
-  min-width: 120px;
-  margin: 0px;
-}
-
-.cardViewGroup {
-  margin-top: 8px;
-  padding-bottom: 5px;
-  min-width: 50px;
-}
-
-.CardViewHeading {
-  padding: 1px;
-  padding-inline-start: 5px;
-  background-color: Highlight;
-  color: HighlightText;
-  font-weight: bold;
-  min-width: 30px;
 }
 
 #cvHomeMapIt,

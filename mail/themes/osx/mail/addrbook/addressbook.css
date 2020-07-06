@@ -38,7 +38,7 @@
   background-color: -moz-OddTreeRow;
 }
 
-/* ::::: directory pane icons ::::: */
+/* directory pane icons */
 
 :root:not([lwt-tree]) #dirTree {
   -moz-appearance: -moz-mac-source-list;
@@ -83,7 +83,7 @@
   }
 }
 
-/* ::::: splitters ::::: */
+/* splitters */
 
 #dirTree-splitter {
   border-width: 0;
@@ -107,62 +107,24 @@
   z-index: 10;
 }
 
-/* ::::: results pane ::::: */
+/* results pane */
 
 #GeneratedName {
   padding-inline-start: 42px;
 }
 
-/* ::::: card view pane ::::: */
-
-#blankResultsPaneMessageBox {
-  border-inline-start: 1px solid #bebebe;
-}
-
-#CardViewOuterBox {
-  color: -moz-DialogText;
-  margin: 0;
-  padding: 0;
-}
-
-#CardViewInnerBox {
-  background-color: #fff;
-}
-
-#CardViewInnerBox > hbox {
-  background-color: #fff;
-}
-
-#CardTitle {
-  margin: 6px;
-  padding: 4px;
-  -moz-box-pack: center;
-  font-size: 150%;
-  font-weight: bold;
-}
-
-.cardViewGroup {
-  margin: 0;
-  padding: 6px;
-  min-width: 50px;
-}
+/* card view pane */
 
 .CardViewHeading {
   padding: 3px 5px;
   font: icon;
   font-weight: bold;
   min-width: 30px;
-  color: #505050;
-}
-
-#cvbPhone,
-#cvbWork {
-  border-left: 1px solid #D1D1D1;
 }
 
 #cvHomeMapIt,
 #cvWorkMapIt {
-  margin-bottom: 0px;
+  margin-bottom: 0;
   min-height: 19px; /* aqua size for small buttons */
 }
 

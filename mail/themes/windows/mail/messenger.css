@@ -138,6 +138,7 @@ toolbar[brighttext] {
 #compose-toolbox > toolbar[brighttext],
 #navigation-toolbox > toolbar[brighttext],
 :root[lwt-tree-brighttext] .otr-container,
+:root[lwt-tree-brighttext] #CardViewBox,
 :root[lwt-tree-brighttext] #searchTerms {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
@@ -545,35 +546,6 @@ menulist.folderMenuItem::part(label) {
   margin-inline-start: 2px !important;
 }
 
-button[type="menu-button"] > .button-box > button {
-  margin: -5px -7px -6px;
-  margin-inline-end: 6px;
-}
-
-@media (-moz-windows-default-theme: 0) {
-  button[type="menu-button"] > .button-box {
-    padding: 0;
-  }
-
-  button[type="menu-button"] > .button-box > button {
-    margin: -2px;
-  }
-
-  .button-menubutton-dropmarker {
-   -moz-appearance: none;
-   margin: 1px;
-   padding-inline-start: 5px;
-  }
-
-  .button-menubutton-dropmarker::part(icon) {
-    list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
-    width: 9px;
-    height: 7px;
-    -moz-context-properties: fill;
-    fill: currentColor;
-  }
-}
-
 button.notification-button {
   margin-bottom: 1px;
 }
@@ -817,6 +789,11 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 @media (-moz-windows-classic) {
   .statusbarpanel:not(:-moz-lwtheme) {
     -moz-appearance: statusbarpanel;
+  }
+
+  label.statusbarpanel {
+    margin: 1px;
+    padding-block: 2px;
   }
 }
 
