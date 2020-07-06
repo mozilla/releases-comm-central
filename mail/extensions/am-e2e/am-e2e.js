@@ -638,6 +638,11 @@ async function reloadOpenPgpUI() {
     radiogroup.removeChild(radiogroup.lastChild);
   }
 
+  // Sort keys by create date from newest to oldest.
+  result.all.sort((a, b) => {
+    return b.keyCreated - a.keyCreated;
+  });
+
   // List all the available keys.
   for (let key of result.all) {
     let container = document.createXULElement("vbox");
@@ -707,6 +712,7 @@ async function reloadOpenPgpUI() {
     }
 
     let description = document.createXULElement("description");
+    // If the expiryTime == 0 it means the key doesn't expire.
     if (key.expiryTime) {
       document.l10n.setAttributes(description, fluentExpireKey, {
         date: key.expiry,
