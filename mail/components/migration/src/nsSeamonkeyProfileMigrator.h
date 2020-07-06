@@ -34,8 +34,7 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
   nsresult GetSourceProfile(const char16_t* aProfile);
 
   nsresult CopyPreferences(bool aReplace);
-  nsresult ImportPreferences(const nsAString& aSourcePrefFileName,
-                             const nsAString& aTargetPrefFileName);
+  nsresult ImportPreferences(uint16_t aItems);
   nsresult TransformPreferences(const nsAString& aSourcePrefFileName,
                                 const nsAString& aTargetPrefFileName);
 

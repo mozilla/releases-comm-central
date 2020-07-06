@@ -79,7 +79,12 @@ nsSeamonkeyProfileMigrator::Migrate(uint16_t aItems,
 
   NOTIFY_OBSERVERS(MIGRATION_STARTED, nullptr);
 
-  COPY_DATA(CopyPreferences, aReplace, nsIMailProfileMigrator::SETTINGS);
+  if (aItems & nsIMailProfileMigrator::ADDRESSBOOK_DATA &&
+      aItems & nsIMailProfileMigrator::SETTINGS) {
+    CopyPreferences(aReplace);
+  } else {
+    ImportPreferences(aItems);
+  }
 
   // fake notifications for things we've already imported as part of
   // CopyPreferences
@@ -629,11 +634,7 @@ nsresult nsSeamonkeyProfileMigrator::CopyPreferences(bool aReplace) {
   nsresult rv = NS_OK;
   nsresult tmp;
 
-  if (aReplace) {
-    tmp = TransformPreferences(FILE_NAME_PREFS, FILE_NAME_PREFS);
-  } else {
-    tmp = ImportPreferences(FILE_NAME_PREFS, FILE_NAME_PREFS);
-  }
+  tmp = TransformPreferences(FILE_NAME_PREFS, FILE_NAME_PREFS);
 
   if (NS_FAILED(tmp)) {
     rv = tmp;
@@ -673,9 +674,7 @@ nsresult nsSeamonkeyProfileMigrator::CopyPreferences(bool aReplace) {
  * Seamonkey's prefs.js so that those branches can be imported without conflicts
  * or overwriting.
  */
-nsresult nsSeamonkeyProfileMigrator::ImportPreferences(
-    const nsAString& aSourcePrefFileName,
-    const nsAString& aTargetPrefFileName) {
+nsresult nsSeamonkeyProfileMigrator::ImportPreferences(uint16_t aItems) {
   nsresult rv;
   nsCOMPtr<nsIPrefService> psvc(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -685,7 +684,7 @@ nsresult nsSeamonkeyProfileMigrator::ImportPreferences(
   // base later.
   nsCOMPtr<nsIFile> targetPrefsFile;
   mTargetProfile->Clone(getter_AddRefs(targetPrefsFile));
-  targetPrefsFile->Append(aTargetPrefFileName + u".orig"_ns);
+  targetPrefsFile->Append(FILE_NAME_PREFS + u".orig"_ns);
   rv = psvc->SavePrefFile(targetPrefsFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -694,18 +693,22 @@ nsresult nsSeamonkeyProfileMigrator::ImportPreferences(
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIFile> sourcePrefsFile;
   mSourceProfile->Clone(getter_AddRefs(sourcePrefsFile));
-  sourcePrefsFile->Append(aSourcePrefFileName);
+  sourcePrefsFile->Append(FILE_NAME_PREFS);
   rv = psvc->ReadUserPrefsFromFile(sourcePrefsFile);
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Read in the various pref branch trees for accounts, identities, servers,
   // etc.
   static const char* branchNames[] = {"mail.identity.",   "mail.server.",
-                                      "ldap_2.servers.",  "mail.account.",
-                                      "mail.smtpserver.", "mailnews.labels.",
-                                      "mailnews.tags."};
+                                      "mail.account.",    "mail.smtpserver.",
+                                      "mailnews.labels.", "mailnews.tags.",
+                                      "ldap_2.servers."};
   PBStructArray sourceBranches[MOZ_ARRAY_LENGTH(branchNames)];
   for (uint32_t i = 0; i < MOZ_ARRAY_LENGTH(branchNames); i++) {
+    if ((!(aItems & nsIMailProfileMigrator::SETTINGS) && i <= 5) ||
+        (!(aItems & nsIMailProfileMigrator::ADDRESSBOOK_DATA) && i == 6)) {
+      continue;
+    }
     ReadBranch(branchNames[i], psvc, sourceBranches[i]);
   }
 
@@ -723,7 +726,7 @@ nsresult nsSeamonkeyProfileMigrator::ImportPreferences(
   PrefKeyHashTable serverKeyHashTable;
 
   // Transforming order is important here.
-  TransformSmtpServersForImport(sourceBranches[4], smtpServerKeyHashTable);
+  TransformSmtpServersForImport(sourceBranches[3], smtpServerKeyHashTable);
 
   // mail.identity.idN.smtpServer depends on previous step.
   TransformIdentitiesForImport(sourceBranches[0], accountManager,
@@ -733,17 +736,17 @@ nsresult nsSeamonkeyProfileMigrator::ImportPreferences(
                                 accountManager, serverKeyHashTable);
 
   // mail.accountN.{identities,server} depends on previous steps.
-  TransformMailAccountsForImport(psvc, sourceBranches[3], accountManager,
+  TransformMailAccountsForImport(psvc, sourceBranches[2], accountManager,
                                  identityKeyHashTable, serverKeyHashTable);
 
   // CopyMailFolders requires mail.server.serverN branch exists.
   WriteBranch(branchNames[1], psvc, sourceBranches[1], false);
   CopyMailFolders(sourceBranches[1], psvc);
 
-  TransformAddressbooksForImport(psvc, sourceBranches[2]);
+  TransformAddressbooksForImport(psvc, sourceBranches[6]);
   // CopyAddressBookDirectories requires ldap_2.servers.newName branch exists.
-  WriteBranch(branchNames[2], psvc, sourceBranches[2], false);
-  CopyAddressBookDirectories(sourceBranches[2], psvc);
+  WriteBranch(branchNames[6], psvc, sourceBranches[6], false);
+  CopyAddressBookDirectories(sourceBranches[6], psvc);
 
   for (uint32_t i = 0; i < MOZ_ARRAY_LENGTH(branchNames); i++)
     WriteBranch(branchNames[i], psvc, sourceBranches[i]);

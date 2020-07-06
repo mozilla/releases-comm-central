@@ -12,6 +12,9 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { BrowserUtils } = ChromeUtils.import(
+  "resource://gre/modules/BrowserUtils.jsm"
+);
 
 var gImportType = null;
 var gImportMsgsBundle;
@@ -75,6 +78,20 @@ function OnLoadImportDialog() {
   // if we used the wizardOverlay, we would get this for free.
   // see bug #101874
   document.getElementById("importFields").focus();
+}
+
+/**
+ * After importing, need to restart so that imported address books and mail
+ * accounts can show up.
+ */
+function OnUnloadImportDialog() {
+  let nextButton = document.getElementById("forward");
+  if (
+    !gErrorStr.data &&
+    nextButton.label == nextButton.getAttribute("finishedval")
+  ) {
+    BrowserUtils.restartApplication();
+  }
 }
 
 function SetUpImportType() {
@@ -171,7 +188,7 @@ async function ImportDialogOKButton() {
       let error = {};
       switch (gImportType) {
         case "mail":
-          if (ImportMail(module, gSuccessStr, gErrorStr)) {
+          if (await ImportMail(module, gSuccessStr, gErrorStr)) {
             // We think it was a success, either, we need to
             // wait for the import to finish
             // or we are done!

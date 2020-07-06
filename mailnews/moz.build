@@ -24,6 +24,11 @@ DIRS += [
     'news',
 ]
 
+if not CONFIG['MOZ_SUITE']:
+    DIRS += [
+        'import/seamonkey/src',
+    ]
+
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     DIRS += [
         'import/applemail/src',
