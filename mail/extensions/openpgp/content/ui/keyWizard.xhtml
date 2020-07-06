@@ -104,17 +104,18 @@
                      oncommand="onExpirationChange(event);"/>
               <html:input id="expireInput" type="number"
                           class="size4 input-inline autosync"
-                          maxlength="5" value="1"
+                          maxlength="5" value="3"
+                          min="1" max="100"
                           aria-labelledby="keygenExpiration"
                           oninput="validateExpiration();"/>
               <menulist id="timeScale">
                 <menupopup>
                   <menuitem id="years" value="365"
                             data-l10n-id="openpgp-keygen-years-label"
+                            selected="true"
                             oncommand="validateExpiration();"/>
                   <menuitem id="months" value="30"
                             data-l10n-id="openpgp-keygen-months-label"
-                            selected="true"
                             oncommand="validateExpiration();"/>
                   <menuitem id="days" value="1"
                             data-l10n-id="openpgp-keygen-days-label"
@@ -143,7 +144,7 @@
             <hbox align="center">
               <menulist id="keyType">
                 <menupopup>
-                  <menuitem id="keySize_rsa" value="RSA"
+                <menuitem id="keyType_rsa" value="RSA"
                             data-l10n-id="openpgp-keygen-type-rsa"
                             selected="true"
                             oncommand="onKeyTypeChange(event);"/>

@@ -71,11 +71,7 @@ function enigmailKeygenLoad() {
   gUserIdentityList = document.getElementById("userIdentity");
   gUserIdentityListPopup = document.getElementById("userIdentityPopup");
 
-  //if (EnigmailGpg.getGpgFeature("supports-ecc-keys"))
-  let eccElem = document.getElementById("keyType_ecc");
-  eccElem.removeAttribute("hidden");
-  updateKeySizeSel(eccElem);
-  //document.getElementById("keyType").selectedItem = eccElem;
+  updateKeySizeSel();
 
   if (gUserIdentityListPopup) {
     fillIdentityListPopup();
@@ -94,8 +90,8 @@ function enigmailKeygenLoad() {
   }
 }
 
-function updateKeySizeSel(selectedObj) {
-  if (selectedObj.id === "keyType_ecc") {
+function updateKeySizeSel() {
+  if (document.getElementById("keyType").value == "ECC") {
     document.getElementById("keySize").setAttribute("disabled", "true");
   } else {
     document.getElementById("keySize").removeAttribute("disabled");

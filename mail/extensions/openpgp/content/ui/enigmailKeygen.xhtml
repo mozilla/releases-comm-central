@@ -56,11 +56,11 @@
         <label data-l10n-id="openpgp-key-gen-expire-label" control="expireInput"/>
       </hbox>
       <hbox align="center">
-        <html:input id="expireInput" size="5" maxlength="5" value="1"/>
-        <menulist id="timeScale" data-l10n-id="openpgp-key-gen-months-label" value="30">
+        <html:input id="expireInput" size="5" maxlength="5" value="3"/>
+        <menulist id="timeScale" data-l10n-id="openpgp-key-gen-days-label" value="365">
           <menupopup id="timeScalePopup">
-            <menuitem id="years" value="365" data-l10n-id="openpgp-key-gen-years-label"/>
-            <menuitem id="months" value="30" data-l10n-id="openpgp-key-gen-months-label" selected="true"/>
+            <menuitem id="years" value="365" data-l10n-id="openpgp-key-gen-years-label" selected="true"/>
+            <menuitem id="months" value="30" data-l10n-id="openpgp-key-gen-months-label"/>
             <menuitem id="days" value="1" data-l10n-id="openpgp-key-gen-days-label"/>
           </menupopup>
         </menulist>
@@ -77,8 +77,8 @@
         <html:div>
           <menulist id="keyType" data-l10n-id="openpgp-key-gen-key-type-rsa" value="RSA">
             <menupopup id="keyTypePopup">
-              <menuitem id="keySize_rsa" value="RSA" data-l10n-id="openpgp-key-gen-key-type-rsa" selected="true" oncommand="updateKeySizeSel(this)"/>
-              <menuitem id="keyType_ecc" value="ECC" data-l10n-id="openpgp-key-gen-key-type-ecc" oncommand="updateKeySizeSel(this)" hidden="true"/>
+              <menuitem id="keyType_rsa" value="RSA" data-l10n-id="openpgp-key-gen-key-type-rsa" selected="true" oncommand="updateKeySizeSel()"/>
+              <menuitem id="keyType_ecc" value="ECC" data-l10n-id="openpgp-key-gen-key-type-ecc" oncommand="updateKeySizeSel()"/>
             </menupopup>
           </menulist>
         </html:div>
