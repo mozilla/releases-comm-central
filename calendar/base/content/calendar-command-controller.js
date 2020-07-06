@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../resources/content/publish.js */
 /* import-globals-from agenda-listbox-utils.js */
-/* import-globals-from calendar-chrome-startup.js */
 /* import-globals-from calendar-clipboard.js */
 /* import-globals-from calendar-management.js */
 /* import-globals-from calendar-modes.js */
@@ -15,7 +15,7 @@
 /* import-globals-from calendar-views-utils.js */
 /* import-globals-from import-export.js */
 
-/* globals switchCalendarView */
+/* globals goSetMenuValue, switchCalendarView */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");

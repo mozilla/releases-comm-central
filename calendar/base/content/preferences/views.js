@@ -4,7 +4,7 @@
 
 /* exported gViewsPane */
 
-/* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
+/* globals Preferences */
 
 Preferences.addAll([
   { id: "calendar.week.start", type: "int" },

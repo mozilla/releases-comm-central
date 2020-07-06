@@ -4,7 +4,8 @@
 
 /* exported gCalendarGeneralPane */
 
-/* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
+/* import-globals-from ../calendar-ui-utils.js */
+/* globals Preferences */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 

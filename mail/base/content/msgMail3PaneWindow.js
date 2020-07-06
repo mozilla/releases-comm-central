@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/modules/PageMenu.jsm */
-/* import-globals-from ../../../calendar/base/content/calendar-chrome-startup.js */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
 /* import-globals-from ../../../mailnews/base/util/MailnewsMigrator.jsm */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
@@ -23,6 +22,8 @@
 /* import-globals-from searchBar.js */
 /* import-globals-from specialTabs.js */
 /* import-globals-from toolbarIconColor.js */
+
+/* globals loadCalendarComponent */
 
 ChromeUtils.import("resource:///modules/activity/activityModules.jsm");
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");

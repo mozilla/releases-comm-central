@@ -6,6 +6,8 @@
  *          initViewCalendarPaneMenu, loadCalendarComponent,
  */
 
+/* import-globals-from ../../../mail/base/content/mailCore.js */
+/* import-globals-from ../../../mail/base/content/mailWindowOverlay.js */
 /* import-globals-from ../../lightning/content/lightning-item-panel.js */
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-invitations-manager.js */

@@ -9,7 +9,6 @@
  *          editSelectedEvents, selectAllEvents, calendarNavigationBar
  */
 
-/* import-globals-from calendar-chrome-startup.js */
 /* import-globals-from calendar-item-editing.js */
 /* global gCurrentMode */
 

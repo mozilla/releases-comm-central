@@ -4,8 +4,8 @@
 
 /* import-globals-from ../../../mail/base/content/msgHdrView.js */
 /* import-globals-from ../../base/content/calendar-item-editing.js */
-/* import-globals-from ../../base/content/calendar-ui-utils.js */
-/* globals msgWindow */
+
+/* globals gMessageDisplay, msgWindow */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");

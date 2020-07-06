@@ -10,7 +10,7 @@
 /* import-globals-from chat.js */
 /* import-globals-from subdialogs.js */
 /* import-globals-from findInPage.js */
-/* import-globals-from ../../../calendar/lightning/content/messenger-overlay-preferences.js */
+/* globals gLightningPane */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(

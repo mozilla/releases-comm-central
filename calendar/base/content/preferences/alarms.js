@@ -4,7 +4,8 @@
 
 /* exported gAlarmsPane */
 
-/* import-globals-from ../../../lightning/content/messenger-overlay-preferences.js */
+/* import-globals-from ../calendar-ui-utils.js */
+/* globals Preferences */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
