@@ -305,6 +305,13 @@ add_task(async () => {
 
   // Confirm that the mailing list and addresses were saved in the backend.
 
+  is(
+    global.dirTree.view.getCellText(3, global.dirTree.columns[0]),
+    inputs.mlName + inputs.modification,
+    `mailing list ("${inputs.mlName +
+      inputs.modification}") is displayed in the address book list`
+  );
+
   ok(
     DisplayNameUtils.getCardForEmail(inputs.addresses[2]).card,
     "address two was saved"
@@ -448,8 +455,9 @@ add_task(async () => {
 
   is(
     global.dirTree.view.getCellText(3, global.dirTree.columns[0]),
-    inputs.mlName,
-    `mailing list ("${inputs.mlName}") is displayed in the address book list`
+    inputs.mlName + inputs.modification,
+    `mailing list ("${inputs.mlName +
+      inputs.modification}") is still displayed in the address book list`
   );
 
   // Open the mailing list dialog, the callback above interacts with it.

@@ -404,8 +404,9 @@ directoryTreeView.prototype = {
       return;
     }
 
-    for (let i in this._rowMap) {
-      if (this._rowMap[i]._directory == aItem) {
+    for (let i = 0; i < this._rowMap.length; i++) {
+      if (this._rowMap[i]._directory.URI == aItem.URI) {
+        this._rowMap[i]._directory = aItem;
         this._tree.invalidateRow(i);
         break;
       }

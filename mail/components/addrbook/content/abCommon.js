@@ -718,6 +718,7 @@ function DirPaneDoubleClick(event) {
     gDirTree.view.selection.count == 1 &&
     getSelectedDirectory().isMailList
   ) {
+    gDirTree.stopEditing();
     AbEditSelectedDirectory();
   }
 }
