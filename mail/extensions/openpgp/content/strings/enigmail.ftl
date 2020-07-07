@@ -458,6 +458,7 @@ delete-key-in-use-description = Unable to proceed! The Key you selected for dele
 # Strings used in errorHandling.jsm
 key-error-key-spec-not-found = The email address '{ $keySpec }' cannot be matched to a key on your keyring.
 key-error-key-id-not-found = The configured key ID '{ $keySpec }' cannot be found on your keyring.
+key-error-not-accepted-as-personal = You have not confirmed that the key with ID '{ $keySpec }' is your personal key.
 
 # Strings used in enigmailKeyManager.js & windows.jsm
 need-online = The function you have selected is not available in offline mode. Please go online and try again.

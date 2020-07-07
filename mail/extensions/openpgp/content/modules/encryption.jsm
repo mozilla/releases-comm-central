@@ -372,16 +372,22 @@ var EnigmailEncryption = {
       foundKey = EnigmailKeyRing.getKeyById(fromKeyId);
     }
 
-    let isPersonalAndHasSecret = false;
-    if (foundKey && foundKey.secretAvailable) {
-      isPersonalAndHasSecret = await PgpSqliteDb2.isAcceptedAsPersonalKey(
-        foundKey.fpr
-      );
+    if (!foundKey) {
+      ret.errorMsg = EnigmailErrorHandling.determineInvSignReason(fromKeyId);
+      return ret;
     }
 
-    if (!foundKey || !isPersonalAndHasSecret) {
-      ret.errorMsg = "key " + fromKeyId + " isn't usable as a personal key";
-      return ret;
+    if (foundKey.secretAvailable) {
+      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(foundKey.fpr);
+      if (!isPersonal) {
+        ret.errorMsg = l10n.formatValueSync(
+          "key-error-not-accepted-as-personal",
+          {
+            keySpec: fromKeyId,
+          }
+        );
+        return ret;
+      }
     }
 
     let canSign = false;

@@ -2256,7 +2256,7 @@ Enigmail.msg = {
       return false;
     }
 
-    if (senderKeyId) {
+    if ((gSendEncrypted || gSendSigned) && senderKeyId) {
       let senderKeyUsable = await EnigmailEncryption.determineOwnKeyUsability(
         sendFlags,
         senderKeyId
