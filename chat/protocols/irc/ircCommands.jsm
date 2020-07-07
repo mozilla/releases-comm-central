@@ -135,8 +135,15 @@ function actionCommand(aMsg, aConv) {
     return true;
   }
 
-  // Show the action on our conversation.
-  conv.writeMessage(account._nickname, "/me " + om.message, { outgoing: true });
+  // By default the server doesn't send the message back, but this can be
+  // enabled with the echo-message capability. If this is not enabled, just
+  // assume the message was received and immediately show it.
+  if (!this._account._activeCAPs.has("echo-message")) {
+    // Show the action on our conversation.
+    conv.writeMessage(account._nickname, "/me " + om.message, {
+      outgoing: true,
+    });
+  }
   return true;
 }
 

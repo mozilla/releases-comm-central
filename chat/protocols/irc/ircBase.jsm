@@ -28,42 +28,9 @@ var {
   _,
   ctcpFormatToText,
   conversationErrorMessage,
+  displayMessage,
   kListRefreshInterval,
 } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
-
-function privmsg(aAccount, aMessage, aIsNotification) {
-  let params = { tags: aMessage.tags };
-  // If the the message is from our nick, it is outgoing to the conversation it
-  // is targeting. Otherwise, the message is incoming, but could be for a
-  // private message or a channel.
-  //
-  // Note that the only time it is expected to receive a message from us is if
-  // the echo-message capability is enabled.
-  let convName;
-  if (
-    aAccount.normalizeNick(aMessage.origin) ==
-    aAccount.normalizeNick(aAccount._nickname)
-  ) {
-    params.outgoing = true;
-    // The conversation name is who it is being sent to.
-    convName = aMessage.params[0];
-  } else {
-    params.incoming = true;
-    // If the target is a MUC name, use the target as the conversation name.
-    // Otherwise, this is a private message: use the sender as the conversation
-    // name.
-    convName = aAccount.isMUCName(aMessage.params[0])
-      ? aMessage.params[0]
-      : aMessage.origin;
-  }
-  if (aIsNotification) {
-    params.notification = true;
-  }
-  aAccount
-    .getConversation(convName)
-    .writeMessage(aMessage.origin, aMessage.params[1], params);
-  return true;
-}
 
 // Display the message and remove them from the rooms they're in.
 function leftRoom(aAccount, aNicks, aChannels, aSource, aReason, aKicked) {
@@ -336,7 +303,7 @@ var ircBase = {
       if (!this.connected || aMessage.origin == this._currentServerName) {
         return serverMessage(this, aMessage);
       }
-      return privmsg(this, aMessage, true);
+      return displayMessage(this, aMessage, true);
     },
     PART(aMessage) {
       // PART <channel> *( "," <channel> ) [ <Part Message> ]
@@ -369,7 +336,7 @@ var ircBase = {
     PRIVMSG(aMessage) {
       // PRIVMSG <msgtarget> <text to be sent>
       // Display message in conversation
-      return privmsg(this, aMessage);
+      return displayMessage(this, aMessage);
     },
     QUIT(aMessage) {
       // QUIT [ < Quit Message> ]

@@ -14,7 +14,9 @@ const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 const { ircHandlers } = ChromeUtils.import(
   "resource:///modules/ircHandlers.jsm"
 );
-var { _ } = ChromeUtils.import("resource:///modules/ircUtils.jsm");
+var { _, displayMessage } = ChromeUtils.import(
+  "resource:///modules/ircUtils.jsm"
+);
 
 // Split into a CTCP message which is a single command and a single parameter:
 //   <command> " " <parameter>
@@ -136,15 +138,12 @@ var ctcpBase = {
     ACTION(aMessage) {
       // ACTION <text>
       // Display message in conversation
-      this.getConversation(
-        this.isMUCName(aMessage.params[0])
-          ? aMessage.params[0]
-          : aMessage.origin
-      ).writeMessage(aMessage.origin, "/me " + aMessage.ctcp.param, {
-        incoming: true,
-        tags: aMessage.tags,
-      });
-      return true;
+      return displayMessage(
+        this,
+        aMessage,
+        false,
+        "/me " + aMessage.ctcp.param
+      );
     },
 
     // Used when an error needs to be replied with.

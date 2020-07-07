@@ -7,6 +7,7 @@ const EXPORTED_SYMBOLS = [
   "ctcpFormatToText",
   "ctcpFormatToHTML",
   "conversationErrorMessage",
+  "displayMessage",
   "kListRefreshInterval",
 ];
 
@@ -261,5 +262,42 @@ function conversationErrorMessage(
     }
   }
 
+  return true;
+}
+
+/**
+ * Display a PRIVMSG or NOTICE in a conversation.
+ */
+function displayMessage(aAccount, aMessage, aIsNotification, aText) {
+  let params = { tags: aMessage.tags };
+  if (aIsNotification) {
+    params.notification = true;
+  }
+  // If the the message is from our nick, it is outgoing to the conversation it
+  // is targeting. Otherwise, the message is incoming, but could be for a
+  // private message or a channel.
+  //
+  // Note that the only time it is expected to receive a message from us is if
+  // the echo-message capability is enabled.
+  let convName;
+  if (
+    aAccount.normalizeNick(aMessage.origin) ==
+    aAccount.normalizeNick(aAccount._nickname)
+  ) {
+    params.outgoing = true;
+    // The conversation name is who it is being sent to.
+    convName = aMessage.params[0];
+  } else {
+    params.incoming = true;
+    // If the target is a MUC name, use the target as the conversation name.
+    // Otherwise, this is a private message: use the sender as the conversation
+    // name.
+    convName = aAccount.isMUCName(aMessage.params[0])
+      ? aMessage.params[0]
+      : aMessage.origin;
+  }
+  aAccount
+    .getConversation(convName)
+    .writeMessage(aMessage.origin, aText || aMessage.params[1], params);
   return true;
 }
