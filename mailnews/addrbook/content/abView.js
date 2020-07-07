@@ -89,6 +89,16 @@ ABView.prototype = {
     return this._rowMap[row] ? this._rowMap[row].card : null;
   },
   sortBy(sortColumn, sortDirection, resort) {
+    // Remember what was selected.
+    let selection = this.selection;
+    if (selection) {
+      for (let i = 0; i < this._rowMap.length; i++) {
+        this._rowMap[i].wasSelected = selection.isSelected(i);
+        this._rowMap[i].wasCurrent = selection.currentIndex == i;
+      }
+    }
+
+    // Do the sort.
     if (sortColumn == this.sortColumn && !resort) {
       if (sortDirection == this.sortDirection) {
         return;
@@ -103,6 +113,25 @@ ABView.prototype = {
         }
         return this.collator.compare(aText, bText);
       });
+    }
+
+    // Restore what was selected.
+    if (selection) {
+      selection.selectEventsSuppressed = true;
+      for (let i = 0; i < this._rowMap.length; i++) {
+        if (this._rowMap[i].wasSelected != selection.isSelected(i)) {
+          selection.toggleSelect(i);
+        }
+      }
+      // Can't do this until updating the selection is finished.
+      for (let i = 0; i < this._rowMap.length; i++) {
+        if (this._rowMap[i].wasCurrent) {
+          selection.currentIndex = i;
+          break;
+        }
+      }
+      this.selectionChanged();
+      selection.selectEventsSuppressed = false;
     }
 
     if (this.tree) {

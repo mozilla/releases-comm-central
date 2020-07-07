@@ -143,6 +143,9 @@ function OnUnloadAddressBook() {
 var gAddressBookAbViewListener = {
   onSelectionChanged() {
     ResultsPaneSelectionChanged();
+    gAbResultsTree.ensureRowIsVisible(
+      gAbResultsTree.view.selection.currentIndex
+    );
   },
   onCountChanged(total) {
     // For some unknown reason the tree needs this before the changes show up.
