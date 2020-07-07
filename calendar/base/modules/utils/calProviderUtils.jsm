@@ -46,7 +46,17 @@ var calprovider = {
     // different containers. It is therefore sufficient to add individual
     // userContextIds per username.
 
-    let calendar = aNotificationCallbacks.getInterface(Ci.calICalendar);
+    let calendar;
+    try {
+      // Use a try/catch because there may not be a calICalendar interface.
+      // For example, when there is no calendar associated with a request,
+      // as in calendar detection.
+      calendar = aNotificationCallbacks.getInterface(Ci.calICalendar);
+    } catch (e) {
+      if (e.result != Cr.NS_ERROR_NO_INTERFACE) {
+        throw e;
+      }
+    }
     if (calendar && calendar.getProperty("capabilities.username.supported") === true) {
       originAttributes.userContextId = cal.auth.containerMap.getUserContextIdForUsername(
         calendar.getProperty("username")
@@ -139,8 +149,6 @@ var calprovider = {
    */
   InterfaceRequestor_getInterface(aIID) {
     try {
-      // Try to query the this object for the requested interface but don't
-      // throw if it fails since that borks the network code.
       return this.QueryInterface(aIID);
     } catch (e) {
       // Support Auth Prompt Interfaces
@@ -152,9 +160,8 @@ var calprovider = {
       } else if (aIID.equals(Ci.nsIAuthPromptProvider) || aIID.equals(Ci.nsIPrompt)) {
         return Services.ww.getNewPrompter(null);
       }
-      Components.returnCode = e;
+      throw e;
     }
-    return null;
   },
 
   // TODO: Add new error handling that uses this code. See bug 1547096.

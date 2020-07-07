@@ -170,7 +170,11 @@ class CalDavRequestBase {
     // First check if the session has what we need. It may have an auth prompt implementation
     // that should go first. Ideally we should move the auth prompt to the session anyway, but
     // this is a task for another day (tm).
-    return tryGetInterface(this.session) || tryGetInterface(this.calendar);
+    let iface = tryGetInterface(this.session) || tryGetInterface(this.calendar);
+    if (iface) {
+      return iface;
+    }
+    throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
   }
 
   /** Implement nsIChannelEventSink */
