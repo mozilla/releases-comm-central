@@ -60,6 +60,7 @@ LOCAL_INCLUDES = [
     '../zlib',
     'include',
     'src',
+    'src/common',
 ]
 if CONFIG['CC_TYPE'] == 'clang-cl':
     ForceInclude('{}/../niwcompat/niw_compat.h'.format(SRCDIR))
@@ -79,6 +80,8 @@ SYMBOLS_FILE = 'rnp.symbols'
 
 
 SOURCES += [
+    'src/common/file-utils.cpp',
+    'src/common/list.cpp',
     'src/lib/crypto.cpp',
     'src/lib/crypto/bn.cpp',
     'src/lib/crypto/dsa.cpp',
@@ -98,7 +101,6 @@ SOURCES += [
     'src/lib/fingerprint.cpp',
     'src/lib/generate-key.cpp',
     'src/lib/key-provider.cpp',
-    'src/lib/list.cpp',
     'src/lib/misc.cpp',
     'src/lib/pass-provider.cpp',
     'src/lib/pgp-key.cpp',

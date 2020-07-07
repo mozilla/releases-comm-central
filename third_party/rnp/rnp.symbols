@@ -159,9 +159,11 @@ rnp_op_verify_signature_get_hash
 rnp_op_verify_signature_get_key
 rnp_op_verify_signature_get_status
 rnp_op_verify_signature_get_times
+rnp_output_armor_set_line_length
 rnp_output_destroy
 rnp_output_finish
 rnp_output_memory_get_buf
+rnp_output_pipe
 rnp_output_to_armor
 rnp_output_to_callback
 rnp_output_to_file
