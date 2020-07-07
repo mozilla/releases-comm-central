@@ -41,7 +41,8 @@ typedef struct pgp_signature_info_t {
     bool             unknown;   /* signature is unknown - parsing error, wrong version, etc */
     bool             no_signer; /* no signer's public key available */
     bool             expired;   /* signature is expired */
-    bool             signer_valid; /* assume that signing key is valid */
+    bool             signer_valid;  /* assume that signing key is valid */
+    bool             ignore_expiry; /* ignore signer's key expiration time */
 } pgp_signature_info_t;
 
 /**
@@ -98,12 +99,10 @@ bool signature_has_keyfp(const pgp_signature_t *sig);
 /**
  * @brief Get signing key's fingerprint if it is available
  * @param sig loaded or populated v4 signature, could not be NULL
- * @param fp pointer to the buffer of at least PGP_FINGERPRINT_SIZE bytes
- * @param len number of bytes in buffer
- * @param outlen pointer to the number of bytes written to fp (if succeeded). Could not be 0.
+ * @param fp reference to the fingerprint structure
  * @return true if fingerprint is available and returned or false otherwise
  */
-bool signature_get_keyfp(const pgp_signature_t *sig, pgp_fingerprint_t *fp);
+bool signature_get_keyfp(const pgp_signature_t *sig, pgp_fingerprint_t &fp);
 
 /**
  * @brief Set signing key fingerprint
@@ -111,7 +110,7 @@ bool signature_get_keyfp(const pgp_signature_t *sig, pgp_fingerprint_t *fp);
  * @param fp fingerprint structure
  * @return true on success or false otherwise;
  */
-bool signature_set_keyfp(pgp_signature_t *sig, const pgp_fingerprint_t *fp);
+bool signature_set_keyfp(pgp_signature_t *sig, const pgp_fingerprint_t &fp);
 
 /**
  * @brief Check whether signature has signing key id
@@ -123,18 +122,18 @@ bool signature_has_keyid(const pgp_signature_t *sig);
 /**
  * @brief Get signature's signing key id
  * @param sig populated or loaded signature
- * @param id buffer to return key identifier, must be capable of storing PGP_KEY_ID_SIZE bytes
+ * @param id reference to return key identifier
  * @return true on success or false otherwise
  */
-bool signature_get_keyid(const pgp_signature_t *sig, uint8_t *id);
+bool signature_get_keyid(const pgp_signature_t *sig, pgp_key_id_t &id);
 
 /**
  * @brief Set the signature's key id
  * @param sig signature being populated. Version should be set prior of setting key id.
- * @param id pointer to buffer with PGP_KEY_ID_SIZE bytes of key id.
+ * @param id reference to key identifier
  * @return true on success or false otherwise
  */
-bool signature_set_keyid(pgp_signature_t *sig, const uint8_t *id);
+bool signature_set_keyid(pgp_signature_t *sig, const pgp_key_id_t &id);
 
 /**
  * @brief Get signature's creation time

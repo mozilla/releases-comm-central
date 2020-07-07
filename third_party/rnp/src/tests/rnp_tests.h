@@ -223,9 +223,13 @@ void test_ffi_signatures_detached_memory_g10(void **state);
 
 void test_ffi_enarmor_dearmor(void **state);
 
+void test_ffi_customized_enarmor(void **state);
+
 void test_ffi_version(void **state);
 
 void test_ffi_key_export(void **state);
+
+void test_ffi_key_export_customized_enarmor(void **state);
 
 void test_ffi_key_dump(void **state);
 
@@ -260,6 +264,8 @@ void test_ffi_supported_features(void **state);
 void test_ffi_enable_debug(void **state);
 
 void test_ffi_rnp_key_get_primary_grip(void **state);
+
+void test_ffi_rnp_key_get_primary_fprint(void **state);
 
 void test_ffi_output_to_armor(void **state);
 
@@ -300,6 +306,8 @@ void test_ffi_decrypt_wrong_mpi_bits(void **state);
 void test_ffi_key_import_edge_cases(void **state);
 
 void test_ffi_key_remove(void **state);
+
+void test_ffi_literal_packet(void **state);
 
 void test_dsa_roundtrip(void **state);
 
@@ -370,6 +378,12 @@ void test_partial_length_zero_last_chunk(void **state);
 void test_partial_length_largest(void **state);
 
 void test_partial_length_first_packet_length(void **state);
+
+void test_pipe(void **state);
+
+void test_pipe_source_error(void **state);
+
+void test_pipe_dest_error(void **state);
 
 void test_kbx_nsigs(void **state);
 

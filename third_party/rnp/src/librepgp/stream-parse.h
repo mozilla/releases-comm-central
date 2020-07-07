@@ -41,7 +41,7 @@ typedef bool                        pgp_destination_func_t(pgp_parse_handler_t *
                                                            bool *               closedst,
                                                            const char *         filename);
 typedef bool pgp_source_func_t(pgp_parse_handler_t *handler, pgp_source_t *src);
-typedef void pgp_signatures_func_t(pgp_signature_info_t *sigs, int count, void *param);
+typedef void pgp_signatures_func_t(const std::vector<pgp_signature_info_t> &sigs, void *param);
 
 typedef void pgp_on_recipients_func_t(const std::vector<pgp_pk_sesskey_t> &recipients,
                                       const std::vector<pgp_sk_sesskey_t> &passwords,
@@ -81,7 +81,7 @@ typedef struct pgp_parse_handler_t {
  * @param src initialized source with cache
  * @return RNP_SUCCESS on success or error code otherwise
  **/
-rnp_result_t process_pgp_source(pgp_parse_handler_t *handler, pgp_source_t *src);
+rnp_result_t process_pgp_source(pgp_parse_handler_t *handler, pgp_source_t &src);
 
 /* @brief Init source with OpenPGP compressed data packet
  * @param src allocated pgp_source_t structure

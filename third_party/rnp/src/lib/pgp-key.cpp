@@ -176,8 +176,7 @@ pgp_key_init_with_pkt(pgp_key_t *key, const pgp_key_pkt_t *pkt)
     assert(!key->pkt.version);
     assert(is_key_pkt(pkt->tag));
     assert(pkt->material.alg);
-    if (pgp_keyid(key->keyid, PGP_KEY_ID_SIZE, pkt) ||
-        pgp_fingerprint(&key->fingerprint, pkt) ||
+    if (pgp_keyid(key->keyid, pkt) || pgp_fingerprint(key->fingerprint, pkt) ||
         !rnp_key_store_get_key_grip(&pkt->material, key->grip)) {
         return false;
     }
@@ -378,15 +377,15 @@ pgp_key_copy_fields(pgp_key_t *dst, const pgp_key_t *src)
 
     /* subkey grips */
     try {
-        dst->subkey_grips = src->subkey_grips;
+        dst->subkey_fps = src->subkey_fps;
     } catch (const std::exception &e) {
         RNP_LOG("%s", e.what());
         return RNP_ERROR_OUT_OF_MEMORY;
     }
 
     /* primary grip */
-    dst->primary_grip_set = src->primary_grip_set;
-    dst->primary_grip = src->primary_grip;
+    dst->primary_fp_set = src->primary_fp_set;
+    dst->primary_fp = src->primary_fp;
 
     /* expiration */
     dst->expiration = src->expiration;
@@ -395,8 +394,8 @@ pgp_key_copy_fields(pgp_key_t *dst, const pgp_key_t *src)
     dst->key_flags = src->key_flags;
 
     /* key id / fingerprint / grip */
-    memcpy(dst->keyid, src->keyid, sizeof(dst->keyid));
-    memcpy(&dst->fingerprint, &src->fingerprint, sizeof(dst->fingerprint));
+    dst->keyid = src->keyid;
+    dst->fingerprint = src->fingerprint;
     dst->grip = src->grip;
 
     /* primary uid */
@@ -645,16 +644,16 @@ pgp_decrypt_seckey(const pgp_key_t *              key,
     return decrypted_seckey;
 }
 
-const uint8_t *
+const pgp_key_id_t &
 pgp_key_get_keyid(const pgp_key_t *key)
 {
     return key->keyid;
 }
 
-const pgp_fingerprint_t *
+const pgp_fingerprint_t &
 pgp_key_get_fp(const pgp_key_t *key)
 {
-    return &key->fingerprint;
+    return key->fingerprint;
 }
 
 const pgp_key_grip_t &
@@ -663,30 +662,30 @@ pgp_key_get_grip(const pgp_key_t *key)
     return key->grip;
 }
 
-const pgp_key_grip_t &
-pgp_key_get_primary_grip(const pgp_key_t *key)
+const pgp_fingerprint_t &
+pgp_key_get_primary_fp(const pgp_key_t *key)
 {
-    return key->primary_grip;
+    return key->primary_fp;
 }
 
 bool
-pgp_key_has_primary_grip(const pgp_key_t *key)
+pgp_key_has_primary_fp(const pgp_key_t *key)
 {
-    return key->primary_grip_set;
+    return key->primary_fp_set;
 }
 
 void
-pgp_key_set_primary_grip(pgp_key_t *key, const pgp_key_grip_t &grip)
+pgp_key_set_primary_fp(pgp_key_t *key, const pgp_fingerprint_t &fp)
 {
-    key->primary_grip = grip;
-    key->primary_grip_set = true;
+    key->primary_fp = fp;
+    key->primary_fp_set = true;
 }
 
 bool
-pgp_key_link_subkey_grip(pgp_key_t *key, pgp_key_t *subkey)
+pgp_key_link_subkey_fp(pgp_key_t *key, pgp_key_t *subkey)
 {
-    pgp_key_set_primary_grip(subkey, pgp_key_get_grip(key));
-    if (!pgp_key_add_subkey_grip(key, pgp_key_get_grip(subkey))) {
+    pgp_key_set_primary_fp(subkey, pgp_key_get_fp(key));
+    if (!pgp_key_add_subkey_fp(key, pgp_key_get_fp(subkey))) {
         RNP_LOG("failed to add subkey grip");
         return false;
     }
@@ -934,18 +933,18 @@ pgp_sig_self_signed(const pgp_key_t *key, const pgp_subsig_t *sig)
     /* if we have fingerprint let's check it */
     if (signature_has_keyfp(&sig->sig)) {
         pgp_fingerprint_t sigfp = {};
-        if (signature_get_keyfp(&sig->sig, &sigfp)) {
-            return fingerprint_equal(pgp_key_get_fp(key), &sigfp);
+        if (signature_get_keyfp(&sig->sig, sigfp)) {
+            return pgp_key_get_fp(key) == sigfp;
         }
     }
     if (!signature_has_keyid(&sig->sig)) {
         return false;
     }
-    uint8_t sigid[PGP_KEY_ID_SIZE] = {0};
+    pgp_key_id_t sigid = {};
     if (!signature_get_keyid(&sig->sig, sigid)) {
         return false;
     }
-    return !memcmp(pgp_key_get_keyid(key), sigid, PGP_KEY_ID_SIZE);
+    return pgp_key_get_keyid(key) == sigid;
 }
 
 static bool
@@ -1053,12 +1052,13 @@ pgp_key_validate_self_signatures(pgp_key_t *key)
         if (sig->validated) {
             continue;
         }
+        pgp_signature_info_t sinfo = {};
+        sinfo.sig = &sig->sig;
+        sinfo.signer = key;
+        sinfo.signer_valid = true;
 
         if (pgp_sig_is_self_signature(key, sig)) {
-            pgp_signature_info_t sinfo = {};
-            sinfo.sig = &sig->sig;
-            sinfo.signer = key;
-            sinfo.signer_valid = true;
+            sinfo.ignore_expiry = true;
             pgp_userid_t *uid = pgp_key_get_userid(key, sig->uid);
             if (uid) {
                 signature_check_certification(&sinfo, pgp_key_get_pkt(key), &uid->pkt);
@@ -1069,10 +1069,6 @@ pgp_key_validate_self_signatures(pgp_key_t *key)
         }
 
         if (pgp_sig_is_userid_revocation(key, sig)) {
-            pgp_signature_info_t sinfo = {};
-            sinfo.sig = &sig->sig;
-            sinfo.signer = key;
-            sinfo.signer_valid = true;
             pgp_userid_t *uid = pgp_key_get_userid(key, sig->uid);
             if (uid) {
                 signature_check_certification(&sinfo, pgp_key_get_pkt(key), &uid->pkt);
@@ -1083,10 +1079,6 @@ pgp_key_validate_self_signatures(pgp_key_t *key)
         }
 
         if (pgp_sig_is_key_revocation(key, sig)) {
-            pgp_signature_info_t sinfo = {};
-            sinfo.sig = &sig->sig;
-            sinfo.signer = key;
-            sinfo.signer_valid = true;
             signature_check_direct(&sinfo, pgp_key_get_pkt(key));
             sig->validated = true;
             sig->valid = sinfo.valid;
@@ -1103,12 +1095,12 @@ pgp_subkey_validate_self_signatures(pgp_key_t *sub, pgp_key_t *key)
         if (sig->validated) {
             continue;
         }
-
+        pgp_signature_info_t sinfo = {};
+        sinfo.sig = &sig->sig;
+        sinfo.signer = key;
+        sinfo.signer_valid = true;
         if (pgp_sig_is_subkey_binding(sub, sig)) {
-            pgp_signature_info_t sinfo = {};
-            sinfo.sig = &sig->sig;
-            sinfo.signer = key;
-            sinfo.signer_valid = true;
+            sinfo.ignore_expiry = true;
             signature_check_binding(&sinfo, pgp_key_get_pkt(key), pgp_key_get_pkt(sub));
             sig->validated = true;
             sig->valid = sinfo.valid && !sinfo.expired;
@@ -1116,10 +1108,6 @@ pgp_subkey_validate_self_signatures(pgp_key_t *sub, pgp_key_t *key)
         }
 
         if (pgp_sig_is_subkey_revocation(sub, sig)) {
-            pgp_signature_info_t sinfo = {};
-            sinfo.sig = &sig->sig;
-            sinfo.signer = key;
-            sinfo.signer_valid = true;
             signature_check_subkey_revocation(
               &sinfo, pgp_key_get_pkt(key), pgp_key_get_pkt(sub));
             sig->validated = true;
@@ -1290,19 +1278,19 @@ pgp_key_get_rawpacket(const pgp_key_t *key)
 size_t
 pgp_key_get_subkey_count(const pgp_key_t *key)
 {
-    return key->subkey_grips.size();
+    return key->subkey_fps.size();
 }
 
 bool
-pgp_key_add_subkey_grip(pgp_key_t *key, const pgp_key_grip_t &grip)
+pgp_key_add_subkey_fp(pgp_key_t *key, const pgp_fingerprint_t &fp)
 {
-    if (std::find(key->subkey_grips.begin(), key->subkey_grips.end(), grip) !=
-        key->subkey_grips.end()) {
+    if (std::find(key->subkey_fps.begin(), key->subkey_fps.end(), fp) !=
+        key->subkey_fps.end()) {
         return true;
     }
 
     try {
-        key->subkey_grips.push_back(grip);
+        key->subkey_fps.push_back(fp);
         return true;
     } catch (const std::exception &e) {
         RNP_LOG("%s", e.what());
@@ -1311,26 +1299,26 @@ pgp_key_add_subkey_grip(pgp_key_t *key, const pgp_key_grip_t &grip)
 }
 
 void
-pgp_key_remove_subkey_grip(pgp_key_t *key, const pgp_key_grip_t &grip)
+pgp_key_remove_subkey_fp(pgp_key_t *key, const pgp_fingerprint_t &fp)
 {
-    auto it = std::find(key->subkey_grips.begin(), key->subkey_grips.end(), grip);
-    if (it != key->subkey_grips.end()) {
-        key->subkey_grips.erase(it);
+    auto it = std::find(key->subkey_fps.begin(), key->subkey_fps.end(), fp);
+    if (it != key->subkey_fps.end()) {
+        key->subkey_fps.erase(it);
     }
 }
 
-const pgp_key_grip_t &
-pgp_key_get_subkey_grip(const pgp_key_t *key, size_t idx)
+const pgp_fingerprint_t &
+pgp_key_get_subkey_fp(const pgp_key_t *key, size_t idx)
 {
-    return key->subkey_grips[idx];
+    return key->subkey_fps[idx];
 }
 
 pgp_key_t *
 pgp_key_get_subkey(const pgp_key_t *key, rnp_key_store_t *store, size_t idx)
 {
     try {
-        const pgp_key_grip_t &grip = pgp_key_get_subkey_grip(key, idx);
-        return rnp_key_store_get_key_by_grip(store, grip);
+        const pgp_fingerprint_t &fp = pgp_key_get_subkey_fp(key, idx);
+        return rnp_key_store_get_key_by_fpr(store, fp);
     } catch (const std::exception &e) {
         RNP_LOG("%s", e.what());
         return NULL;
@@ -1743,7 +1731,10 @@ update_sig_expiration(pgp_signature_t *dst, const pgp_signature_t *src, uint32_t
 }
 
 bool
-pgp_key_set_expiration(pgp_key_t *key, pgp_key_t *seckey, uint32_t expiry)
+pgp_key_set_expiration(pgp_key_t *                    key,
+                       pgp_key_t *                    seckey,
+                       uint32_t                       expiry,
+                       const pgp_password_provider_t *prov)
 {
     if (!pgp_key_is_primary_key(key)) {
         RNP_LOG("Not a primary key");
@@ -1761,12 +1752,17 @@ pgp_key_set_expiration(pgp_key_t *key, pgp_key_t *seckey, uint32_t expiry)
     if (!expiry && !signature_has_key_expiration(&subsig->sig)) {
         return true;
     }
-    pgp_signature_t newsig = {};
-    if (!update_sig_expiration(&newsig, &subsig->sig, expiry)) {
+
+    bool locked = pgp_key_is_locked(seckey);
+    if (locked && !pgp_key_unlock(seckey, prov)) {
+        RNP_LOG("Failed to unlock secret key");
         return false;
     }
-
-    bool res = false;
+    pgp_signature_t newsig = {};
+    bool            res = false;
+    if (!update_sig_expiration(&newsig, &subsig->sig, expiry)) {
+        goto done;
+    }
     if (pgp_sig_is_certification(subsig)) {
         pgp_userid_t *uid = pgp_key_get_userid(key, subsig->uid);
         if (!uid) {
@@ -1795,15 +1791,19 @@ pgp_key_set_expiration(pgp_key_t *key, pgp_key_t *seckey, uint32_t expiry)
     res = res && pgp_key_replace_signature(key, &subsig->sig, &newsig) &&
           pgp_key_refresh_data(key);
 done:
+    if (locked) {
+        pgp_key_lock(seckey);
+    }
     free_signature(&newsig);
     return res;
 }
 
 bool
-pgp_subkey_set_expiration(pgp_key_t *sub,
-                          pgp_key_t *primsec,
-                          pgp_key_t *secsub,
-                          uint32_t   expiry)
+pgp_subkey_set_expiration(pgp_key_t *                    sub,
+                          pgp_key_t *                    primsec,
+                          pgp_key_t *                    secsub,
+                          uint32_t                       expiry,
+                          const pgp_password_provider_t *prov)
 {
     if (!pgp_key_is_subkey(sub)) {
         RNP_LOG("Not a subkey");
@@ -1811,8 +1811,7 @@ pgp_subkey_set_expiration(pgp_key_t *sub,
     }
 
     /* find the latest valid subkey binding */
-    pgp_subsig_t *subsig = NULL;
-    subsig = pgp_key_latest_binding(sub, true);
+    pgp_subsig_t *subsig = pgp_key_latest_binding(sub, true);
     if (!subsig) {
         RNP_LOG("No valid subkey binding");
         return false;
@@ -1820,17 +1819,30 @@ pgp_subkey_set_expiration(pgp_key_t *sub,
     if (!expiry && !signature_has_key_expiration(&subsig->sig)) {
         return true;
     }
-    /* update signature and re-sign */
-    pgp_signature_t newsig = {};
-    if (!update_sig_expiration(&newsig, &subsig->sig, expiry)) {
-        return false;
-    }
 
     bool res = false;
-    if (!signature_calculate_binding(pgp_key_get_pkt(primsec),
-                                     pgp_key_get_pkt(secsub),
-                                     &newsig,
-                                     pgp_key_get_flags(secsub) & PGP_KF_SIGN)) {
+    bool subsign = pgp_key_get_flags(secsub) & PGP_KF_SIGN;
+    bool locked = pgp_key_is_locked(primsec);
+    if (locked && !pgp_key_unlock(primsec, prov)) {
+        RNP_LOG("Failed to unlock primary key");
+        return false;
+    }
+    pgp_signature_t newsig = {};
+    bool            sublocked = false;
+    if (subsign && pgp_key_is_locked(secsub)) {
+        if (!pgp_key_unlock(secsub, prov)) {
+            RNP_LOG("Failed to unlock subkey");
+            goto done;
+        }
+        sublocked = true;
+    }
+
+    /* update signature and re-sign */
+    if (!update_sig_expiration(&newsig, &subsig->sig, expiry)) {
+        goto done;
+    }
+    if (!signature_calculate_binding(
+          pgp_key_get_pkt(primsec), pgp_key_get_pkt(secsub), &newsig, subsign)) {
         RNP_LOG("failed to calculate signature");
         goto done;
     }
@@ -1843,6 +1855,12 @@ pgp_subkey_set_expiration(pgp_key_t *sub,
     res = res && pgp_key_replace_signature(sub, &subsig->sig, &newsig) &&
           pgp_subkey_refresh_data(sub, primsec);
 done:
+    if (locked) {
+        pgp_key_lock(primsec);
+    }
+    if (sublocked) {
+        pgp_key_lock(secsub);
+    }
     free_signature(&newsig);
     return res;
 }
@@ -1899,13 +1917,12 @@ pgp_key_write_xfer(pgp_dest_t *dst, const pgp_key_t *key, const rnp_key_store_t 
     }
 
     // Export subkeys
-    for (auto &grip : key->subkey_grips) {
-        const pgp_key_t *subkey = rnp_key_store_get_key_by_grip(keyring, grip);
+    for (auto &fp : key->subkey_fps) {
+        const pgp_key_t *subkey = rnp_key_store_get_key_by_fpr(keyring, fp);
         if (!subkey) {
-            char griphex[PGP_KEY_GRIP_SIZE * 2 + 1] = {0};
-            rnp_hex_encode(
-              grip.data(), grip.size(), griphex, sizeof(griphex), RNP_HEX_LOWERCASE);
-            RNP_LOG("Warning! Subkey %s not found.", griphex);
+            char fphex[PGP_FINGERPRINT_SIZE * 2 + 1] = {0};
+            rnp_hex_encode(fp.fingerprint, fp.length, fphex, sizeof(fphex), RNP_HEX_LOWERCASE);
+            RNP_LOG("Warning! Subkey %s not found.", fphex);
             continue;
         }
         if (!pgp_key_write_packets(subkey, dst)) {
@@ -1930,10 +1947,10 @@ find_suitable_key(pgp_op_t            op,
         return key;
     }
     pgp_key_request_ctx_t ctx{.op = op, .secret = pgp_key_is_secret(key)};
-    ctx.search.type = PGP_KEY_SEARCH_GRIP;
+    ctx.search.type = PGP_KEY_SEARCH_FINGERPRINT;
 
-    for (auto &grip : key->subkey_grips) {
-        ctx.search.by.grip = grip;
+    for (auto &fp : key->subkey_fps) {
+        ctx.search.by.fingerprint = fp;
         pgp_key_t *subkey = pgp_request_key(key_provider, &ctx);
         if (subkey && (pgp_key_get_flags(subkey) & desired_usage)) {
             return subkey;
@@ -2075,7 +2092,7 @@ pgp_key_validate(pgp_key_t *key, rnp_key_store_t *keyring)
         pgp_key_validate_primary(key, keyring);
     } else {
         pgp_key_validate_subkey(
-          key, rnp_key_store_get_key_by_grip(keyring, pgp_key_get_primary_grip(key)));
+          key, rnp_key_store_get_key_by_fpr(keyring, pgp_key_get_primary_fp(key)));
     }
 }
 
@@ -2092,8 +2109,8 @@ pgp_key_revalidate_updated(pgp_key_t *key, rnp_key_store_t *keyring)
 
     pgp_key_validate(key, keyring);
     /* validate/re-validate all subkeys as well */
-    for (auto &grip : key->subkey_grips) {
-        pgp_key_t *subkey = rnp_key_store_get_key_by_grip(keyring, grip);
+    for (auto &fp : key->subkey_fps) {
+        pgp_key_t *subkey = rnp_key_store_get_key_by_fpr(keyring, fp);
         if (subkey) {
             pgp_key_validate_subkey(subkey, key);
             pgp_subkey_refresh_data(subkey, key);
@@ -2289,16 +2306,16 @@ pgp_key_t::operator=(pgp_key_t &&src)
     pgp_key_clear_revokes(this);
     revokes = std::move(src.revokes);
 
-    subkey_grips = std::move(src.subkey_grips);
-    primary_grip = std::move(src.primary_grip);
-    primary_grip_set = src.primary_grip_set;
+    subkey_fps = std::move(src.subkey_fps);
+    primary_fp = std::move(src.primary_fp);
+    primary_fp_set = src.primary_fp_set;
     expiration = src.expiration;
     free_key_pkt(&pkt);
     pkt = src.pkt;
     src.pkt = {};
     rawpkt = std::move(src.rawpkt);
     key_flags = src.key_flags;
-    memcpy(keyid, src.keyid, sizeof(keyid));
+    keyid = src.keyid;
     fingerprint = src.fingerprint;
     grip = std::move(src.grip);
     uid0 = src.uid0;

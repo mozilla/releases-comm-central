@@ -38,6 +38,8 @@
 #include "types.h"
 
 #define ARMORED_BLOCK_SIZE (4096)
+#define ARMORED_MIN_LINE_LENGTH (16)
+#define ARMORED_MAX_LINE_LENGTH (76)
 
 typedef struct pgp_source_armored_param_t {
     pgp_source_t *    readsrc;         /* source to read from */
@@ -789,10 +791,12 @@ armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
         }
     }
 
+    /* this version prints whole chunks, so rounding down to the closest 4 */
+    auto adjusted_llen = param->llen & ~3;
     /* number of input bytes to form a whole line of output, param->llen / 4 * 3 */
-    inllen = (param->llen >> 2) + (param->llen >> 1);
+    inllen = (adjusted_llen >> 2) + (adjusted_llen >> 1);
     /* pointer to the last full line space in encbuf */
-    enclast = encbuf + sizeof(encbuf) - param->llen - 2;
+    enclast = encbuf + sizeof(encbuf) - adjusted_llen - 2;
 
     /* processing line chunks, this is the main performance-hitting cycle */
     while (bufptr + 3 <= bufend) {
@@ -802,8 +806,8 @@ armored_dst_write(pgp_dest_t *dst, const void *buf, size_t len)
             encptr = encbuf;
         }
         /* setup length of the input to process in this iteration */
-        inlend =
-          param->lout == 0 ? bufptr + inllen : bufptr + ((param->llen - param->lout) >> 2) * 3;
+        inlend = param->lout == 0 ? bufptr + inllen :
+                                    bufptr + ((adjusted_llen - param->lout) >> 2) * 3;
         if (inlend > bufend) {
             /* no enough input for the full line */
             inlend = bufptr + (bufend - bufptr) / 3 * 3;
@@ -949,6 +953,24 @@ finish:
 }
 
 bool
+is_armored_dest(pgp_dest_t *dst)
+{
+    return dst->type == PGP_STREAM_ARMORED;
+}
+
+rnp_result_t
+armored_dst_set_line_length(pgp_dest_t *dst, size_t llen)
+{
+    if (!dst || (llen < ARMORED_MIN_LINE_LENGTH) || (llen > ARMORED_MAX_LINE_LENGTH) ||
+        !dst->param || !is_armored_dest(dst)) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    auto param = (pgp_dest_armored_param_t *) dst->param;
+    param->llen = llen;
+    return RNP_SUCCESS;
+}
+
+bool
 is_armored_source(pgp_source_t *src)
 {
     uint8_t buf[128];
@@ -979,17 +1001,17 @@ rnp_dearmor_source(pgp_source_t *src, pgp_dest_t *dst)
 {
     rnp_result_t res = RNP_ERROR_BAD_FORMAT;
     pgp_source_t armorsrc = {0};
-    uint8_t      readbuf[PGP_INPUT_CACHE_SIZE];
+    uint8_t      readbuf[strlen(ST_CLEAR_BEGIN) + 1];
     size_t       read;
 
-    if (!src_peek(src, readbuf, strlen(ST_CLEAR_BEGIN) + 1, &read) ||
+    if (!src_peek(src, readbuf, strlen(ST_CLEAR_BEGIN), &read) ||
         (read < strlen(ST_ARMOR_BEGIN))) {
         RNP_LOG("can't read enough data from source");
         return RNP_ERROR_READ;
     }
 
     /* Trying armored or cleartext data */
-    readbuf[read - 1] = 0;
+    readbuf[read] = 0;
     if (strstr((char *) readbuf, ST_ARMOR_BEGIN)) {
         /* checking whether it is cleartext */
         if (strstr((char *) readbuf, ST_CLEAR_BEGIN)) {
@@ -1000,30 +1022,18 @@ rnp_dearmor_source(pgp_source_t *src, pgp_dest_t *dst)
         /* initializing armored message */
         res = init_armored_src(&armorsrc, src);
         if (res) {
-            goto finish;
+            return res;
         }
     } else {
         RNP_LOG("source is not armored data");
         return RNP_ERROR_BAD_FORMAT;
     }
-
     /* Reading data from armored source and writing it to the output */
-    while (!armorsrc.eof) {
-        if (!src_read(&armorsrc, readbuf, PGP_INPUT_CACHE_SIZE, &read)) {
-            res = RNP_ERROR_GENERIC;
-            break;
-        }
-        if (!read) {
-            continue;
-        }
-        dst_write(dst, readbuf, read);
-        if (dst->werr) {
-            RNP_LOG("failed to output data");
-            res = RNP_ERROR_WRITE;
-            break;
-        }
+    res = dst_write_src(&armorsrc, dst);
+    if (res) {
+        RNP_LOG("dearmoring failed");
     }
-finish:
+
     src_close(&armorsrc);
     return res;
 }
@@ -1032,31 +1042,16 @@ rnp_result_t
 rnp_armor_source(pgp_source_t *src, pgp_dest_t *dst, pgp_armored_msg_t msgtype)
 {
     pgp_dest_t   armordst = {0};
-    rnp_result_t res = RNP_ERROR_GENERIC;
-    uint8_t      readbuf[PGP_INPUT_CACHE_SIZE];
-    size_t       read;
-
-    res = init_armored_dst(&armordst, dst, msgtype);
+    rnp_result_t res = init_armored_dst(&armordst, dst, msgtype);
     if (res) {
-        goto finish;
+        return res;
     }
 
-    while (!src->eof) {
-        if (!src_read(src, readbuf, PGP_INPUT_CACHE_SIZE, &read)) {
-            res = RNP_ERROR_READ;
-            break;
-        }
-        if (!read) {
-            continue;
-        }
-        dst_write(&armordst, readbuf, read);
-        if (armordst.werr) {
-            RNP_LOG("failed to output data");
-            res = RNP_ERROR_WRITE;
-            break;
-        }
+    res = dst_write_src(src, &armordst);
+    if (res) {
+        RNP_LOG("armoring failed");
     }
-finish:
+
     dst_close(&armordst, res != RNP_SUCCESS);
     return res;
 }

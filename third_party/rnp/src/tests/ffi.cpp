@@ -37,6 +37,10 @@
 #include <json.h>
 #include <vector>
 #include <string>
+#include "file-utils.h"
+#include <librepgp/stream-ctx.h>
+#include "pgp-key.h"
+#include "ffi-priv-types.h"
 
 TEST_F(rnp_tests, test_ffi_homedir)
 {
@@ -770,6 +774,30 @@ check_key_properties(rnp_key_handle_t key,
     bool have_secret = !have_secret_expected;
     assert_int_equal(RNP_SUCCESS, rnp_key_have_secret(key, &have_secret));
     assert_true(have_secret == have_secret_expected);
+}
+
+static size_t
+get_longest_line_length(const std::string &str, const std::set<std::string> lines_to_skip)
+{
+    // eol could be \n or \r\n
+    size_t index = 0;
+    size_t max_len = 0;
+    for (;;) {
+        auto new_index = str.find('\n', index);
+        if (new_index == std::string::npos) {
+            break;
+        }
+        size_t line_length = new_index - index;
+        if (str[new_index - 1] == '\r') {
+            line_length--;
+        }
+        if (line_length > max_len &&
+            lines_to_skip.find(str.substr(index, line_length)) == lines_to_skip.end()) {
+            max_len = line_length;
+        }
+        index = new_index + 1;
+    }
+    return max_len;
 }
 
 TEST_F(rnp_tests, test_ffi_keygen_json_pair)
@@ -4500,6 +4528,71 @@ TEST_F(rnp_tests, test_ffi_enarmor_dearmor)
     }
 }
 
+TEST_F(rnp_tests, test_ffi_customized_enarmor)
+{
+    rnp_input_t           input = NULL;
+    rnp_output_t          output = NULL;
+    rnp_output_t          armor_layer = NULL;
+    const std::string     msg("this is a test long enough to have more than 76 characters in "
+                          "enarmored representation");
+    std::set<std::string> lines_to_skip{"-----BEGIN PGP MESSAGE-----",
+                                        "-----END PGP MESSAGE-----"};
+
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_output_to_armor(output, &armor_layer, "message"));
+    // should fail when trying to set line length on non-armor output
+    assert_rnp_failure(rnp_output_armor_set_line_length(output, 64));
+    // should fail when trying to set zero line length
+    assert_rnp_failure(rnp_output_armor_set_line_length(armor_layer, 0));
+    // should fail when trying to set line length less than the minimum allowed 16
+    assert_rnp_failure(rnp_output_armor_set_line_length(armor_layer, 15));
+    assert_rnp_success(rnp_output_armor_set_line_length(armor_layer, 16));
+    assert_rnp_success(rnp_output_armor_set_line_length(armor_layer, 76));
+    // should fail when trying to set line length greater than the maximum allowed 76
+    assert_rnp_failure(rnp_output_armor_set_line_length(armor_layer, 77));
+    assert_rnp_success(rnp_output_destroy(armor_layer));
+    assert_rnp_success(rnp_output_destroy(output));
+
+    for (size_t llen = 16; llen <= 76; llen++) {
+        std::string data;
+        uint8_t *   buf = NULL;
+        size_t      buf_size = 0;
+
+        input = NULL;
+        output = NULL;
+        armor_layer = NULL;
+        assert_rnp_success(
+          rnp_input_from_memory(&input, (const uint8_t *) msg.data(), msg.size(), true));
+        assert_rnp_success(rnp_output_to_memory(&output, 0));
+        assert_rnp_success(rnp_output_to_armor(output, &armor_layer, "message"));
+        assert_rnp_success(rnp_output_armor_set_line_length(armor_layer, llen));
+        assert_rnp_success(rnp_output_pipe(input, armor_layer));
+        assert_rnp_success(rnp_output_finish(armor_layer));
+        assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &buf_size, false));
+        data = std::string(buf, buf + buf_size);
+        auto effective_llen = get_longest_line_length(data, lines_to_skip);
+        assert_int_equal(llen / 4, effective_llen / 4);
+        assert_true(llen >= effective_llen);
+        assert_rnp_success(rnp_input_destroy(input));
+        assert_rnp_success(rnp_output_destroy(armor_layer));
+        assert_rnp_success(rnp_output_destroy(output));
+
+        // test that the dearmored message is correct
+        assert_rnp_success(
+          rnp_input_from_memory(&input, (const uint8_t *) data.data(), data.size(), true));
+        assert_rnp_success(rnp_output_to_memory(&output, 0));
+
+        assert_rnp_success(rnp_dearmor(input, output));
+
+        assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &buf_size, false));
+        std::string dearmored(buf, buf + buf_size);
+        assert_true(msg == dearmored);
+
+        assert_rnp_success(rnp_input_destroy(input));
+        assert_rnp_success(rnp_output_destroy(output));
+    }
+}
+
 TEST_F(rnp_tests, test_ffi_version)
 {
     const uint32_t version = rnp_version();
@@ -4798,6 +4891,196 @@ TEST_F(rnp_tests, test_ffi_key_export)
         rnp_key_handle_destroy(key);
     }
 
+    // cleanup
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_ffi_key_export_customized_enarmor)
+{
+    rnp_ffi_t             ffi = NULL;
+    rnp_input_t           input = NULL;
+    rnp_output_t          output = NULL;
+    rnp_output_t          armor_layer = NULL;
+    rnp_key_handle_t      key = NULL;
+    uint8_t *             buf = NULL;
+    size_t                buf_len = 0;
+    std::set<std::string> lines_to_skip{"-----BEGIN PGP PUBLIC KEY BLOCK-----",
+                                        "-----END PGP PUBLIC KEY BLOCK-----",
+                                        "-----BEGIN PGP PRIVATE KEY BLOCK-----",
+                                        "-----END PGP PRIVATE KEY BLOCK-----"};
+    // setup FFI
+    assert_int_equal(RNP_SUCCESS, rnp_ffi_create(&ffi, "GPG", "GPG"));
+
+    // load our keyrings
+    assert_int_equal(RNP_SUCCESS, rnp_input_from_path(&input, "data/keyrings/1/pubring.gpg"));
+    assert_int_equal(RNP_SUCCESS, rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    rnp_input_destroy(input);
+    input = NULL;
+    assert_int_equal(RNP_SUCCESS, rnp_input_from_path(&input, "data/keyrings/1/secring.gpg"));
+    assert_int_equal(RNP_SUCCESS, rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_SECRET_KEYS));
+    rnp_input_destroy(input);
+    input = NULL;
+
+    for (size_t llen = 16; llen <= 76; llen++) {
+        // primary pub only
+        {
+            // locate key
+            key = NULL;
+            assert_rnp_success(rnp_locate_key(ffi, "keyid", "2FCADF05FFA501BB", &key));
+            assert_non_null(key);
+
+            // create output
+            output = NULL;
+            assert_rnp_success(rnp_output_to_memory(&output, 0));
+            assert_non_null(output);
+            assert_rnp_success(rnp_output_to_armor(output, &armor_layer, "public key"));
+            assert_non_null(armor_layer);
+            assert_rnp_success(rnp_output_armor_set_line_length(armor_layer, llen));
+
+            // export
+            assert_rnp_success(rnp_key_export(key, armor_layer, RNP_KEY_EXPORT_PUBLIC));
+            assert_rnp_success(rnp_output_finish(armor_layer));
+            // get output
+            buf = NULL;
+            assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &buf_len, false));
+            assert_non_null(buf);
+            std::string data = std::string(buf, buf + buf_len);
+            auto        effective_llen = get_longest_line_length(data, lines_to_skip);
+            assert_int_equal(llen / 4, effective_llen / 4);
+            assert_true(llen >= effective_llen);
+
+            // check results
+            check_loaded_keys("GPG", true, buf, buf_len, "keyid", {"2FCADF05FFA501BB"}, false);
+
+            // cleanup
+            rnp_output_destroy(armor_layer);
+            rnp_output_destroy(output);
+            rnp_key_handle_destroy(key);
+        }
+
+        // primary sec only
+        {
+            // locate key
+            key = NULL;
+            assert_rnp_success(rnp_locate_key(ffi, "keyid", "2FCADF05FFA501BB", &key));
+            assert_non_null(key);
+
+            // create output
+            output = NULL;
+            assert_rnp_success(rnp_output_to_memory(&output, 0));
+            assert_non_null(output);
+            assert_rnp_success(rnp_output_to_armor(output, &armor_layer, "secret key"));
+            assert_non_null(armor_layer);
+            assert_rnp_success(rnp_output_armor_set_line_length(armor_layer, llen));
+
+            // export
+            assert_rnp_success(rnp_key_export(key, armor_layer, RNP_KEY_EXPORT_SECRET));
+            assert_rnp_success(rnp_output_finish(armor_layer));
+
+            // get output
+            buf = NULL;
+            assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &buf_len, false));
+            assert_non_null(buf);
+            std::string data = std::string(buf, buf + buf_len);
+            auto        effective_llen = get_longest_line_length(data, lines_to_skip);
+            assert_int_equal(llen / 4, effective_llen / 4);
+            assert_true(llen >= effective_llen);
+
+            // check results
+            check_loaded_keys("GPG", true, buf, buf_len, "keyid", {"2FCADF05FFA501BB"}, true);
+
+            // cleanup
+            rnp_output_destroy(armor_layer);
+            rnp_output_destroy(output);
+            rnp_key_handle_destroy(key);
+        }
+
+        // sub pub
+        {
+            // locate key
+            key = NULL;
+            assert_rnp_success(rnp_locate_key(ffi, "keyid", "54505A936A4A970E", &key));
+            assert_non_null(key);
+
+            // create output
+            output = NULL;
+            assert_rnp_success(rnp_output_to_memory(&output, 0));
+            assert_non_null(output);
+            assert_rnp_success(rnp_output_to_armor(output, &armor_layer, "public key"));
+            assert_non_null(armor_layer);
+            assert_rnp_success(rnp_output_armor_set_line_length(armor_layer, llen));
+
+            // export
+            assert_rnp_success(rnp_key_export(key, armor_layer, RNP_KEY_EXPORT_PUBLIC));
+            assert_rnp_success(rnp_output_finish(armor_layer));
+
+            // get output
+            buf = NULL;
+            assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &buf_len, false));
+            assert_non_null(buf);
+            std::string data = std::string(buf, buf + buf_len);
+            auto        effective_llen = get_longest_line_length(data, lines_to_skip);
+            assert_int_equal(llen / 4, effective_llen / 4);
+            assert_true(llen >= effective_llen);
+
+            // check results
+            check_loaded_keys("GPG",
+                              true,
+                              buf,
+                              buf_len,
+                              "keyid",
+                              {"2FCADF05FFA501BB", "54505A936A4A970E"},
+                              false);
+
+            // cleanup
+            rnp_output_destroy(armor_layer);
+            rnp_output_destroy(output);
+            rnp_key_handle_destroy(key);
+        }
+
+        // sub sec
+        {
+            // locate key
+            key = NULL;
+            assert_rnp_success(rnp_locate_key(ffi, "keyid", "54505A936A4A970E", &key));
+            assert_non_null(key);
+
+            // create output
+            output = NULL;
+            assert_rnp_success(rnp_output_to_memory(&output, 0));
+            assert_non_null(output);
+            assert_rnp_success(rnp_output_to_armor(output, &armor_layer, "secret key"));
+            assert_non_null(armor_layer);
+            assert_rnp_success(rnp_output_armor_set_line_length(armor_layer, llen));
+
+            // export
+            assert_rnp_success(rnp_key_export(key, armor_layer, RNP_KEY_EXPORT_SECRET));
+            assert_rnp_success(rnp_output_finish(armor_layer));
+
+            // get output
+            buf = NULL;
+            assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &buf_len, false));
+            assert_non_null(buf);
+            std::string data = std::string(buf, buf + buf_len);
+            auto        effective_llen = get_longest_line_length(data, lines_to_skip);
+            assert_int_equal(llen / 4, effective_llen / 4);
+            assert_true(llen >= effective_llen);
+
+            // check results
+            check_loaded_keys("GPG",
+                              true,
+                              buf,
+                              buf_len,
+                              "keyid",
+                              {"2FCADF05FFA501BB", "54505A936A4A970E"},
+                              true);
+
+            // cleanup
+            rnp_output_destroy(armor_layer);
+            rnp_output_destroy(output);
+            rnp_key_handle_destroy(key);
+        }
+    }
     // cleanup
     rnp_ffi_destroy(ffi);
 }
@@ -6200,11 +6483,11 @@ TEST_F(rnp_tests, test_ffi_rnp_key_get_primary_grip)
     char *           grip = NULL;
 
     // setup FFI
-    assert_int_equal(RNP_SUCCESS, rnp_ffi_create(&ffi, "GPG", "GPG"));
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
 
     // load our keyrings
-    assert_int_equal(RNP_SUCCESS, rnp_input_from_path(&input, "data/keyrings/1/pubring.gpg"));
-    assert_int_equal(RNP_SUCCESS, rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    assert_rnp_success(rnp_input_from_path(&input, "data/keyrings/1/pubring.gpg"));
+    assert_rnp_success(rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_PUBLIC_KEYS));
     rnp_input_destroy(input);
 
     // locate primary key
@@ -6251,6 +6534,93 @@ TEST_F(rnp_tests, test_ffi_rnp_key_get_primary_grip)
     assert_int_equal(strcmp(grip, "66D6A0800A3FACDE0C0EB60B16B3669ED380FDFA"), 0);
     rnp_buffer_destroy(grip);
     grip = NULL;
+    rnp_key_handle_destroy(key);
+
+    // cleanup
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_ffi_rnp_key_get_primary_fprint)
+{
+    rnp_ffi_t        ffi = NULL;
+    rnp_input_t      input = NULL;
+    rnp_key_handle_t key = NULL;
+    char *           fp = NULL;
+
+    // setup FFI
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+
+    // load our keyrings
+    assert_rnp_success(rnp_input_from_path(&input, "data/keyrings/1/pubring.gpg"));
+    assert_rnp_success(rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    rnp_input_destroy(input);
+
+    // locate primary key
+    key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "7BC6709B15C23A4A", &key));
+    assert_non_null(key);
+
+    // some edge cases
+    assert_rnp_failure(rnp_key_get_primary_fprint(NULL, NULL));
+    assert_rnp_failure(rnp_key_get_primary_fprint(NULL, &fp));
+    assert_rnp_failure(rnp_key_get_primary_fprint(key, NULL));
+    assert_rnp_failure(rnp_key_get_primary_fprint(key, &fp));
+    assert_null(fp);
+    rnp_key_handle_destroy(key);
+
+    // locate subkey 1
+    key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "1ED63EE56FADC34D", &key));
+    assert_non_null(key);
+    assert_rnp_success(rnp_key_get_primary_fprint(key, &fp));
+    assert_non_null(fp);
+    assert_string_equal(fp, "E95A3CBF583AA80A2CCC53AA7BC6709B15C23A4A");
+    rnp_buffer_destroy(fp);
+    fp = NULL;
+    rnp_key_handle_destroy(key);
+
+    // locate subkey 2
+    key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "1D7E8A5393C997A8", &key));
+    assert_non_null(key);
+    assert_rnp_success(rnp_key_get_primary_fprint(key, &fp));
+    assert_non_null(fp);
+    assert_string_equal(fp, "E95A3CBF583AA80A2CCC53AA7BC6709B15C23A4A");
+    rnp_buffer_destroy(fp);
+    fp = NULL;
+    rnp_key_handle_destroy(key);
+
+    // locate subkey 3
+    key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "8A05B89FAD5ADED1", &key));
+    assert_non_null(key);
+    assert_rnp_success(rnp_key_get_primary_fprint(key, &fp));
+    assert_non_null(fp);
+    assert_string_equal(fp, "E95A3CBF583AA80A2CCC53AA7BC6709B15C23A4A");
+    rnp_buffer_destroy(fp);
+    fp = NULL;
+    rnp_key_handle_destroy(key);
+
+    // locate key 1 - subkey 0
+    key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "54505A936A4A970E", &key));
+    assert_non_null(key);
+    assert_rnp_success(rnp_key_get_primary_fprint(key, &fp));
+    assert_non_null(fp);
+    assert_string_equal(fp, "BE1C4AB951F4C2F6B604C7F82FCADF05FFA501BB");
+    rnp_buffer_destroy(fp);
+    fp = NULL;
+    rnp_key_handle_destroy(key);
+
+    // locate key 2 - subkey 1
+    key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "326EF111425D14A5", &key));
+    assert_non_null(key);
+    assert_rnp_success(rnp_key_get_primary_fprint(key, &fp));
+    assert_non_null(fp);
+    assert_string_equal(fp, "BE1C4AB951F4C2F6B604C7F82FCADF05FFA501BB");
+    rnp_buffer_destroy(fp);
+    fp = NULL;
     rnp_key_handle_destroy(key);
 
     // cleanup
@@ -7991,6 +8361,7 @@ TEST_F(rnp_tests, test_ffi_key_set_expiry)
     uint32_t       expiry = 0;
     const uint32_t new_expiry = 10 * 365 * 24 * 60 * 60;
     assert_rnp_success(rnp_locate_key(ffi, "userid", "Alice <alice@rnp>", &key));
+    expiry = 255;
     assert_rnp_success(rnp_key_get_expiration(key, &expiry));
     assert_int_equal(expiry, 0);
     assert_rnp_success(rnp_key_set_expiration(key, 0));
@@ -8141,15 +8512,228 @@ TEST_F(rnp_tests, test_ffi_key_set_expiry)
     assert_rnp_success(rnp_key_set_expiration(key, 1));
     assert_rnp_success(rnp_key_get_expiration(key, &expiry));
     assert_int_equal(expiry, 1);
+    /* key is invalid since it is expired */
+    assert_false(key->pub->valid);
     assert_rnp_success(rnp_key_set_expiration(sub, 1));
     assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
     assert_int_equal(expiry, 1);
+    assert_false(sub->pub->valid);
     assert_rnp_success(rnp_key_set_expiration(key, 0));
     assert_rnp_success(rnp_key_get_expiration(key, &expiry));
     assert_int_equal(expiry, 0);
+    assert_true(key->pub->valid);
     assert_rnp_success(rnp_key_set_expiration(sub, 0));
     assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
     assert_int_equal(expiry, 0);
+    assert_true(sub->pub->valid);
+    assert_rnp_success(rnp_key_handle_destroy(key));
+    assert_rnp_success(rnp_key_handle_destroy(sub));
+
+    /* check whether we can change expiration with password provider/locked key */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/alice-sign-sub-pub.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    assert_rnp_success(rnp_input_destroy(input));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/alice-sign-sub-sec.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_SECRET_KEYS, NULL));
+    assert_rnp_success(rnp_input_destroy(input));
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "Alice <alice@rnp>", &key));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "22F3A217C0E439CB", &sub));
+
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "wrong"));
+    assert_rnp_failure(rnp_key_set_expiration(key, 1));
+    expiry = 255;
+    assert_rnp_success(rnp_key_get_expiration(key, &expiry));
+    assert_int_equal(expiry, 0);
+    assert_rnp_failure(rnp_key_set_expiration(sub, 1));
+    expiry = 255;
+    assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
+    assert_int_equal(expiry, 0);
+
+    bool locked = true;
+    assert_rnp_success(rnp_key_is_locked(key, &locked));
+    assert_true(locked);
+    locked = false;
+    assert_rnp_success(rnp_key_is_locked(sub, &locked));
+    assert_true(locked);
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "password"));
+    uint32_t creation = 0;
+    assert_rnp_success(rnp_key_get_creation(key, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(key, creation + 2));
+    assert_rnp_success(rnp_key_get_expiration(key, &expiry));
+    assert_int_equal(expiry, creation + 2);
+    locked = false;
+    assert_rnp_success(rnp_key_is_locked(key, &locked));
+    assert_true(locked);
+    assert_rnp_success(rnp_key_get_creation(sub, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(sub, creation + 3));
+    assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
+    assert_int_equal(expiry, creation + 3);
+    locked = false;
+    assert_rnp_success(rnp_key_is_locked(sub, &locked));
+    assert_true(locked);
+    locked = false;
+    assert_rnp_success(rnp_key_is_locked(key, &locked));
+    assert_true(locked);
+
+    /* now change just subkey's expiration - should also work */
+    assert_rnp_success(rnp_key_set_expiration(sub, 4));
+    assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
+    assert_int_equal(expiry, 4);
+    locked = false;
+    assert_rnp_success(rnp_key_is_locked(sub, &locked));
+    assert_true(locked);
+    locked = false;
+    assert_rnp_success(rnp_key_is_locked(key, &locked));
+    assert_true(locked);
+
+    assert_rnp_success(rnp_key_handle_destroy(key));
+    assert_rnp_success(rnp_key_handle_destroy(sub));
+
+    /* now try to update already expired key and subkey */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/alice-sign-sub-exp-pub.asc"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    assert_rnp_success(rnp_input_destroy(input));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/alice-sign-sub-exp-sec.asc"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_SECRET_KEYS, NULL));
+    assert_rnp_success(rnp_input_destroy(input));
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "Alice <alice@rnp>", &key));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "22F3A217C0E439CB", &sub));
+    assert_false(key->pub->valid);
+    assert_true(key->sec->valid);
+    assert_false(sub->pub->valid);
+    assert_true(sub->sec->valid);
+    creation = 0;
+    uint32_t validity = 2 * 30 * 24 * 60 * 60; // 2 monthes
+    assert_rnp_success(rnp_key_get_creation(key, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(key, creation + validity));
+    assert_rnp_success(rnp_key_get_expiration(key, &expiry));
+    assert_int_equal(expiry, creation + validity);
+    assert_rnp_success(rnp_key_get_creation(sub, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(sub, creation + validity));
+    assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
+    assert_int_equal(expiry, creation + validity);
+    assert_true(key->pub->valid);
+    assert_true(key->sec->valid);
+    assert_true(sub->pub->valid);
+    assert_true(sub->sec->valid);
+    assert_rnp_success(rnp_key_handle_destroy(key));
+    assert_rnp_success(rnp_key_handle_destroy(sub));
+
+    /* update expiration time when only secret key is available */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC));
+    assert_rnp_success(rnp_locate_key(ffi, "userid", "Alice <alice@rnp>", &key));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "22F3A217C0E439CB", &sub));
+    validity = 30 * 24 * 60 * 60; // 1 month
+    assert_rnp_success(rnp_key_get_creation(key, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(key, creation + validity));
+    assert_rnp_success(rnp_key_get_expiration(key, &expiry));
+    assert_int_equal(expiry, creation + validity);
+    assert_rnp_success(rnp_key_get_creation(sub, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(sub, creation + validity));
+    assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
+    assert_int_equal(expiry, creation + validity);
+    assert_null(key->pub);
+    assert_true(key->sec->valid);
+    assert_null(sub->pub);
+    assert_true(sub->sec->valid);
+    assert_rnp_success(rnp_key_handle_destroy(key));
+    assert_rnp_success(rnp_key_handle_destroy(sub));
+    assert_rnp_success(rnp_ffi_destroy(ffi));
+
+    /* check whether things work for G10 keyring */
+    assert_rnp_success(rnp_ffi_create(&ffi, "KBX", "G10"));
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "password"));
+    assert_rnp_success(rnp_input_from_path(&input, "data/keyrings/3/pubring.kbx"));
+    assert_rnp_success(rnp_load_keys(ffi, "KBX", input, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_input_from_path(&input, "data/keyrings/3/private-keys-v1.d"));
+    assert_rnp_success(rnp_load_keys(ffi, "G10", input, RNP_LOAD_SAVE_SECRET_KEYS));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "4BE147BB22DF1E60", &key));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "A49BAE05C16E8BC8", &sub));
+    assert_rnp_success(rnp_key_get_creation(key, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(key, creation + validity));
+    expiry = 255;
+    assert_rnp_success(rnp_key_get_expiration(key, &expiry));
+    assert_int_equal(expiry, creation + validity);
+    size_t key_expiry = expiry;
+    assert_rnp_success(rnp_key_get_creation(sub, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(sub, creation + validity));
+    expiry = 255;
+    assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
+    assert_int_equal(expiry, creation + validity);
+    size_t sub_expiry = expiry;
+    assert_true(key->pub->valid);
+    assert_true(key->sec->valid);
+    assert_true(sub->pub->valid);
+    assert_true(sub->sec->valid);
+    assert_rnp_success(rnp_key_handle_destroy(key));
+    assert_rnp_success(rnp_key_handle_destroy(sub));
+
+    /* save keyring to KBX and reload it: fails now */
+    rnp_output_t output = NULL;
+    assert_rnp_success(rnp_output_to_path(&output, "pubring.kbx"));
+    assert_rnp_success(rnp_save_keys(ffi, "KBX", output, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    assert_rnp_success(rnp_output_destroy(output));
+    assert_rnp_success(rnp_ffi_destroy(ffi));
+    assert_rnp_success(rnp_ffi_create(&ffi, "KBX", "G10"));
+    assert_rnp_success(rnp_input_from_path(&input, "pubring.kbx"));
+    /* Saving to KBX doesn't work well, or was broken at some point. */
+    assert_rnp_failure(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    assert_rnp_success(rnp_input_destroy(input));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "4BE147BB22DF1E60", &key));
+    assert_null(key);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "A49BAE05C16E8BC8", &sub));
+    assert_null(sub);
+    expiry = 255;
+    assert_rnp_failure(rnp_key_get_expiration(key, &expiry));
+    assert_int_not_equal(expiry, key_expiry);
+    expiry = 255;
+    assert_rnp_failure(rnp_key_get_expiration(sub, &expiry));
+    assert_int_not_equal(expiry, sub_expiry);
+    assert_rnp_success(rnp_key_handle_destroy(key));
+    assert_rnp_success(rnp_key_handle_destroy(sub));
+    assert_int_equal(unlink("pubring.kbx"), 0);
+    assert_rnp_success(rnp_ffi_destroy(ffi));
+
+    /* load G10/KBX and unload public keys - must succeed */
+    assert_rnp_success(rnp_ffi_create(&ffi, "KBX", "G10"));
+    assert_rnp_success(rnp_ffi_set_pass_provider(ffi, getpasscb, (void *) "password"));
+    assert_rnp_success(rnp_input_from_path(&input, "data/keyrings/3/pubring.kbx"));
+    assert_rnp_success(rnp_load_keys(ffi, "KBX", input, RNP_LOAD_SAVE_PUBLIC_KEYS));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_input_from_path(&input, "data/keyrings/3/private-keys-v1.d"));
+    assert_rnp_success(rnp_load_keys(ffi, "G10", input, RNP_LOAD_SAVE_SECRET_KEYS));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "4BE147BB22DF1E60", &key));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "A49BAE05C16E8BC8", &sub));
+    assert_rnp_success(rnp_key_get_creation(key, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(key, creation + validity));
+    assert_rnp_success(rnp_key_get_expiration(key, &expiry));
+    assert_int_equal(expiry, creation + validity);
+    key_expiry = expiry;
+    assert_rnp_success(rnp_key_get_creation(sub, &creation));
+    creation = time(NULL) - creation;
+    assert_rnp_success(rnp_key_set_expiration(sub, creation + validity));
+    assert_rnp_success(rnp_key_get_expiration(sub, &expiry));
+    assert_int_equal(expiry, creation + validity);
+    sub_expiry = expiry;
     assert_rnp_success(rnp_key_handle_destroy(key));
     assert_rnp_success(rnp_key_handle_destroy(sub));
 
@@ -8391,6 +8975,83 @@ TEST_F(rnp_tests, test_ffi_key_import_edge_cases)
     assert_true(revoked);
     rnp_key_handle_destroy(key);
 
+    /* key with two subkeys with same material but different creation time */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_edge_cases/alice-2-subs-same-grip.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, &results));
+    rnp_input_destroy(input);
+    assert_non_null(results);
+    rnp_buffer_destroy(results);
+    count = 0;
+    assert_rnp_success(rnp_get_public_key_count(ffi, &count));
+    assert_int_equal(count, 3);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669FFDE3C", &key));
+    assert_rnp_success(rnp_key_get_subkey_count(key, &count));
+    assert_int_equal(count, 2);
+    rnp_key_handle_t sub = NULL;
+    assert_rnp_success(rnp_key_get_subkey_at(key, 0, &sub));
+    char *keyid = NULL;
+    assert_rnp_success(rnp_key_get_keyid(sub, &keyid));
+    assert_string_equal(keyid, "DD23CEB7FEBEFF17");
+    rnp_buffer_destroy(keyid);
+    char *fp = NULL;
+    assert_rnp_success(rnp_key_get_primary_fprint(sub, &fp));
+    assert_string_equal(fp, "73EDCC9119AFC8E2DBBDCDE50451409669FFDE3C");
+    rnp_buffer_destroy(fp);
+    rnp_key_handle_destroy(sub);
+    assert_rnp_success(rnp_key_get_subkey_at(key, 1, &sub));
+    assert_rnp_success(rnp_key_get_keyid(sub, &keyid));
+    assert_string_equal(keyid, "C2E7FDCC9CD59FB5");
+    rnp_buffer_destroy(keyid);
+    assert_rnp_success(rnp_key_get_primary_fprint(sub, &fp));
+    assert_string_equal(fp, "73EDCC9119AFC8E2DBBDCDE50451409669FFDE3C");
+    rnp_buffer_destroy(fp);
+    rnp_key_handle_destroy(sub);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "DD23CEB7FEBEFF17", &sub));
+    assert_rnp_success(rnp_key_get_primary_fprint(sub, &fp));
+    assert_string_equal(fp, "73EDCC9119AFC8E2DBBDCDE50451409669FFDE3C");
+    rnp_buffer_destroy(fp);
+    rnp_key_handle_destroy(sub);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "C2E7FDCC9CD59FB5", &sub));
+    assert_rnp_success(rnp_key_get_primary_fprint(sub, &fp));
+    assert_string_equal(fp, "73EDCC9119AFC8E2DBBDCDE50451409669FFDE3C");
+    rnp_buffer_destroy(fp);
+    rnp_key_handle_destroy(sub);
+    rnp_key_handle_destroy(key);
+
+    /* two keys with subkeys with same material but different creation time */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_edge_cases/alice-2-keys-same-grip.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_get_public_key_count(ffi, &count));
+    assert_int_equal(count, 4);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669FFDE3C", &key));
+    assert_rnp_success(rnp_key_get_subkey_count(key, &count));
+    assert_int_equal(count, 2);
+    assert_rnp_success(rnp_key_get_subkey_at(key, 0, &sub));
+    assert_rnp_success(rnp_key_get_keyid(sub, &keyid));
+    assert_string_equal(keyid, "DD23CEB7FEBEFF17");
+    rnp_buffer_destroy(keyid);
+    assert_rnp_success(rnp_key_get_primary_fprint(sub, &fp));
+    assert_string_equal(fp, "73EDCC9119AFC8E2DBBDCDE50451409669FFDE3C");
+    rnp_buffer_destroy(fp);
+    rnp_key_handle_destroy(sub);
+    assert_rnp_success(rnp_key_get_subkey_at(key, 1, &sub));
+    assert_rnp_success(rnp_key_get_keyid(sub, &keyid));
+    assert_string_equal(keyid, "C2E7FDCC9CD59FB5");
+    rnp_buffer_destroy(keyid);
+    assert_rnp_success(rnp_key_get_primary_fprint(sub, &fp));
+    assert_string_equal(fp, "73EDCC9119AFC8E2DBBDCDE50451409669FFDE3C");
+    rnp_buffer_destroy(fp);
+    rnp_key_handle_destroy(sub);
+    rnp_key_handle_destroy(key);
+    /* subkey should belong to original key */
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "467A2DE826ABA0DB", &key));
+    assert_rnp_success(rnp_key_get_subkey_count(key, &count));
+    assert_int_equal(count, 0);
+    rnp_key_handle_destroy(key);
+
     rnp_ffi_destroy(ffi);
 }
 
@@ -8554,6 +9215,62 @@ TEST_F(rnp_tests, test_ffi_key_remove)
     assert_rnp_success(rnp_get_secret_key_count(ffi, &count));
     assert_int_equal(count, 0);
     rnp_key_handle_destroy(key0);
+
+    rnp_ffi_destroy(ffi);
+}
+
+TEST_F(rnp_tests, test_ffi_literal_packet)
+{
+    rnp_ffi_t    ffi = NULL;
+    rnp_input_t  input = NULL;
+    rnp_output_t output = NULL;
+
+    // init ffi
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+
+    /* try rnp_decrypt() */
+    assert_rnp_success(rnp_input_from_path(&input, "data/test_messages/message.txt.literal"));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_decrypt(ffi, input, output));
+    uint8_t *buf = NULL;
+    size_t   len = 0;
+    rnp_output_memory_get_buf(output, &buf, &len, false);
+    std::string out;
+    out.assign((char *) buf, len);
+    assert_true(out == file_to_str("data/test_messages/message.txt"));
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    /* try rnp_op_verify() */
+    assert_rnp_success(rnp_input_from_path(&input, "data/test_messages/message.txt.literal"));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    rnp_op_verify_t verify = NULL;
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, input, output));
+    assert_rnp_success(rnp_op_verify_execute(verify));
+    rnp_output_memory_get_buf(output, &buf, &len, false);
+    out.assign((char *) buf, len);
+    assert_true(out == file_to_str("data/test_messages/message.txt"));
+    char *mode = NULL;
+    char *cipher = NULL;
+    bool  valid = true;
+    assert_rnp_success(rnp_op_verify_get_protection_info(verify, &mode, &cipher, &valid));
+    assert_string_equal(mode, "none");
+    assert_string_equal(cipher, "none");
+    assert_false(valid);
+    rnp_buffer_destroy(mode);
+    rnp_buffer_destroy(cipher);
+    size_t count = 255;
+    assert_rnp_success(rnp_op_verify_get_signature_count(verify, &count));
+    assert_int_equal(count, 0);
+    count = 255;
+    assert_rnp_success(rnp_op_verify_get_recipient_count(verify, &count));
+    assert_int_equal(count, 0);
+    count = 255;
+    assert_rnp_success(rnp_op_verify_get_symenc_count(verify, &count));
+    assert_int_equal(count, 0);
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
 
     rnp_ffi_destroy(ffi);
 }

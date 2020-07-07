@@ -389,7 +389,7 @@ hex_encode(const uint8_t v[], size_t len)
 }
 
 bool
-bin_eq_hex(uint8_t *data, size_t len, const char *val)
+bin_eq_hex(const uint8_t *data, size_t len, const char *val)
 {
     uint8_t *dec;
     size_t   stlen = strlen(val);
@@ -405,15 +405,15 @@ bin_eq_hex(uint8_t *data, size_t len, const char *val)
 }
 
 bool
-cmp_keyid(uint8_t *id, const char *val)
+cmp_keyid(const pgp_key_id_t &id, const char *val)
 {
-    return bin_eq_hex(id, PGP_KEY_ID_SIZE, val);
+    return bin_eq_hex(id.data(), id.size(), val);
 }
 
 bool
-cmp_keyfp(pgp_fingerprint_t *fp, const char *val)
+cmp_keyfp(const pgp_fingerprint_t &fp, const char *val)
 {
-    return bin_eq_hex(fp->fingerprint, fp->length, val);
+    return bin_eq_hex(fp.fingerprint, fp.length, val);
 }
 
 int
@@ -783,9 +783,9 @@ ishex(const std::string &hexid)
 pgp_key_t *
 rnp_tests_get_key_by_id(rnp_key_store_t *keyring, const std::string &keyid, pgp_key_t *after)
 {
-    pgp_key_t *          key = NULL;
-    std::vector<uint8_t> keyid_bin(PGP_KEY_ID_SIZE, 0);
-    size_t               binlen = 0;
+    pgp_key_t *  key = NULL;
+    pgp_key_id_t keyid_bin = {};
+    size_t       binlen = 0;
 
     if (!keyring || keyid.empty()) {
         return NULL;
@@ -793,7 +793,7 @@ rnp_tests_get_key_by_id(rnp_key_store_t *keyring, const std::string &keyid, pgp_
     if (ishex(keyid) &&
         hex2bin(keyid.c_str(), keyid.size(), keyid_bin.data(), keyid_bin.size(), &binlen)) {
         if (binlen <= PGP_KEY_ID_SIZE) {
-            key = rnp_key_store_get_key_by_id(keyring, keyid_bin.data(), after);
+            key = rnp_key_store_get_key_by_id(keyring, keyid_bin, after);
         }
     }
     return key;
@@ -815,7 +815,7 @@ rnp_tests_get_key_by_fpr(rnp_key_store_t *keyring, const std::string &keyid)
         if (binlen <= PGP_FINGERPRINT_SIZE) {
             pgp_fingerprint_t fp = {{}, static_cast<unsigned>(binlen)};
             memcpy(fp.fingerprint, keyid_bin.data(), binlen);
-            key = rnp_key_store_get_key_by_fpr(keyring, &fp);
+            key = rnp_key_store_get_key_by_fpr(keyring, fp);
         }
     }
     return key;

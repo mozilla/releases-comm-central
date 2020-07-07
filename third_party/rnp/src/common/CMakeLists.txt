@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Ribose Inc.
+# Copyright (c) 2020 Ribose Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -22,38 +22,24 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# for the headers
-find_package(JSON-C 0.11 REQUIRED)
-
-add_executable(rnp
-  rnp.cpp
-  fficli.cpp
-  ../rnpkeys/tui.cpp
-  rnpcfg.cpp
-  $<TARGET_OBJECTS:rnp-common>
+add_library(rnp-common OBJECT
+  list.cpp
+  str-utils.cpp
+  file-utils.cpp
 )
 
-target_include_directories(rnp
+target_include_directories(rnp-common
+  PUBLIC
+    "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/src/lib>"
+    "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:include>"
   PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/src"
-    "${PROJECT_SOURCE_DIR}/src/lib"
-    "${JSON-C_INCLUDE_DIRS}"
 )
 
-target_link_libraries(rnp
-  PRIVATE
-    librnp
-    JSON-C::JSON-C
-)
-
-if (WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_link_libraries(rnp PRIVATE regex)
-endif()
-
-include(GNUInstallDirs)
-install(TARGETS rnp
-  RUNTIME
-    DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    COMPONENT cli
+set_target_properties(rnp-common PROPERTIES
+  POSITION_INDEPENDENT_CODE ON
+  CXX_VISIBILITY_PRESET hidden
 )
 

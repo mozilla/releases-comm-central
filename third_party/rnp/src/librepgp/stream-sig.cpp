@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <type_traits>
 #include <rnp/rnp_def.h>
 #include "types.h"
 #include "stream-sig.h"
@@ -42,17 +43,16 @@
 bool
 signature_matches_onepass(pgp_signature_t *sig, pgp_one_pass_sig_t *onepass)
 {
-    uint8_t keyid[PGP_KEY_ID_SIZE];
-
     if (!sig || !onepass) {
         return false;
     }
 
+    pgp_key_id_t keyid = {};
     if (!signature_get_keyid(sig, keyid)) {
         return false;
     }
 
-    return !memcmp(keyid, onepass->keyid, PGP_KEY_ID_SIZE) && (sig->halg == onepass->halg) &&
+    return (keyid == onepass->keyid) && (sig->halg == onepass->halg) &&
            (sig->palg == onepass->palg) && (sig->type == onepass->type);
 }
 
@@ -135,21 +135,21 @@ signature_has_keyfp(const pgp_signature_t *sig)
 }
 
 bool
-signature_get_keyfp(const pgp_signature_t *sig, pgp_fingerprint_t *fp)
+signature_get_keyfp(const pgp_signature_t *sig, pgp_fingerprint_t &fp)
 {
     pgp_sig_subpkt_t *subpkt;
 
-    if (!sig || !fp || (sig->version < PGP_V4)) {
+    if (!sig || (sig->version < PGP_V4)) {
         return false;
     }
 
-    fp->length = 0;
+    fp.length = 0;
     if (!(subpkt = signature_get_subpkt(sig, PGP_SIG_SUBPKT_ISSUER_FPR))) {
         return false;
     }
-    fp->length = subpkt->fields.issuer_fp.len;
-    if (subpkt->fields.issuer_fp.len <= sizeof(fp->fingerprint)) {
-        memcpy(fp->fingerprint, subpkt->fields.issuer_fp.fp, subpkt->fields.issuer_fp.len);
+    fp.length = subpkt->fields.issuer_fp.len;
+    if (subpkt->fields.issuer_fp.len <= sizeof(fp.fingerprint)) {
+        memcpy(fp.fingerprint, subpkt->fields.issuer_fp.fp, subpkt->fields.issuer_fp.len);
         return true;
     }
 
@@ -157,15 +157,15 @@ signature_get_keyfp(const pgp_signature_t *sig, pgp_fingerprint_t *fp)
 }
 
 bool
-signature_set_keyfp(pgp_signature_t *sig, const pgp_fingerprint_t *fp)
+signature_set_keyfp(pgp_signature_t *sig, const pgp_fingerprint_t &fp)
 {
     pgp_sig_subpkt_t *subpkt = NULL;
 
-    if (!sig || !fp) {
+    if (!sig) {
         return false;
     }
 
-    subpkt = signature_add_subpkt(sig, PGP_SIG_SUBPKT_ISSUER_FPR, 1 + fp->length, true);
+    subpkt = signature_add_subpkt(sig, PGP_SIG_SUBPKT_ISSUER_FPR, 1 + fp.length, true);
     if (!subpkt) {
         return false;
     }
@@ -173,8 +173,8 @@ signature_set_keyfp(pgp_signature_t *sig, const pgp_fingerprint_t *fp)
     subpkt->parsed = 1;
     subpkt->hashed = 1;
     subpkt->data[0] = 4;
-    memcpy(subpkt->data + 1, fp->fingerprint, fp->length);
-    subpkt->fields.issuer_fp.len = fp->length;
+    memcpy(subpkt->data + 1, fp.fingerprint, fp.length);
+    subpkt->fields.issuer_fp.len = fp.length;
     subpkt->fields.issuer_fp.version = subpkt->data[0];
     subpkt->fields.issuer_fp.fp = subpkt->data + 1;
     return true;
@@ -193,27 +193,29 @@ signature_has_keyid(const pgp_signature_t *sig)
 }
 
 bool
-signature_get_keyid(const pgp_signature_t *sig, uint8_t *id)
+signature_get_keyid(const pgp_signature_t *sig, pgp_key_id_t &id)
 {
-    pgp_sig_subpkt_t *subpkt;
-
-    if (!sig || !id) {
+    if (!sig) {
         return false;
     }
 
     /* version 3 uses signature field */
     if (sig->version < PGP_V4) {
-        memcpy(id, sig->signer, PGP_KEY_ID_SIZE);
+        id = sig->signer;
         return true;
     }
 
     /* version 4 and up use subpackets */
+    pgp_sig_subpkt_t *subpkt;
+    static_assert(std::tuple_size<std::remove_reference<decltype(id)>::type>::value ==
+                    PGP_KEY_ID_SIZE,
+                  "pgp_key_id_t size mismatch");
     if ((subpkt = signature_get_subpkt(sig, PGP_SIG_SUBPKT_ISSUER_KEY_ID))) {
-        memcpy(id, subpkt->fields.issuer, PGP_KEY_ID_SIZE);
+        memcpy(id.data(), subpkt->fields.issuer, PGP_KEY_ID_SIZE);
         return true;
     }
     if ((subpkt = signature_get_subpkt(sig, PGP_SIG_SUBPKT_ISSUER_FPR))) {
-        memcpy(id,
+        memcpy(id.data(),
                subpkt->fields.issuer_fp.fp + subpkt->fields.issuer_fp.len - PGP_KEY_ID_SIZE,
                PGP_KEY_ID_SIZE);
         return true;
@@ -223,27 +225,29 @@ signature_get_keyid(const pgp_signature_t *sig, uint8_t *id)
 }
 
 bool
-signature_set_keyid(pgp_signature_t *sig, const uint8_t *id)
+signature_set_keyid(pgp_signature_t *sig, const pgp_key_id_t &id)
 {
-    pgp_sig_subpkt_t *subpkt;
-
-    if (!sig || !id) {
+    if (!sig) {
         return false;
     }
 
     if (sig->version < PGP_V4) {
-        memcpy(sig->signer, id, PGP_KEY_ID_SIZE);
+        sig->signer = id;
         return true;
     }
 
-    subpkt = signature_add_subpkt(sig, PGP_SIG_SUBPKT_ISSUER_KEY_ID, PGP_KEY_ID_SIZE, true);
+    static_assert(std::tuple_size<std::remove_reference<decltype(id)>::type>::value ==
+                    PGP_KEY_ID_SIZE,
+                  "pgp_key_id_t size mismatch");
+    pgp_sig_subpkt_t *subpkt =
+      signature_add_subpkt(sig, PGP_SIG_SUBPKT_ISSUER_KEY_ID, PGP_KEY_ID_SIZE, true);
     if (!subpkt) {
         return false;
     }
 
     subpkt->parsed = 1;
     subpkt->hashed = 0;
-    memcpy(subpkt->data, id, PGP_KEY_ID_SIZE);
+    memcpy(subpkt->data, id.data(), PGP_KEY_ID_SIZE);
     subpkt->fields.issuer = subpkt->data;
     return true;
 }
@@ -1070,15 +1074,14 @@ signature_check(pgp_signature_info_t *sinfo, pgp_hash_t *hash)
     }
 
     /* check whether key was not expired when sig created */
-    if (pgp_key_get_expiration(sinfo->signer) &&
+    if (!sinfo->ignore_expiry && pgp_key_get_expiration(sinfo->signer) &&
         (kcreate + pgp_key_get_expiration(sinfo->signer) < create)) {
         RNP_LOG("signature made after key expiration");
         sinfo->valid = false;
     }
 
     /* Check signer's fingerprint */
-    if (signature_get_keyfp(sinfo->sig, &fp) &&
-        !fingerprint_equal(&fp, pgp_key_get_fp(sinfo->signer))) {
+    if (signature_get_keyfp(sinfo->sig, fp) && (fp != pgp_key_get_fp(sinfo->signer))) {
         RNP_LOG("issuer fingerprint doesn't match signer's one");
         sinfo->valid = false;
     }

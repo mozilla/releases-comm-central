@@ -55,6 +55,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <cstring>
 
 #include <rnp/rnp_def.h>
 #include "list.h"
@@ -90,9 +91,26 @@ typedef uint8_t pgp_ss_rr_code_t;
 typedef struct pgp_fingerprint_t {
     uint8_t  fingerprint[PGP_FINGERPRINT_SIZE];
     unsigned length;
+    bool     operator==(const pgp_fingerprint_t &src) const;
+    bool     operator!=(const pgp_fingerprint_t &src) const;
 } pgp_fingerprint_t;
 
+namespace std {
+template <> struct hash<pgp_fingerprint_t> {
+    std::size_t
+    operator()(pgp_fingerprint_t const &fp) const noexcept
+    {
+        /* since fingerprint value is hash itself, we may use it's low bytes */
+        size_t res = 0;
+        std::memcpy(&res, fp.fingerprint, sizeof(res));
+        return res;
+    }
+};
+} // namespace std
+
 typedef std::array<uint8_t, PGP_KEY_GRIP_SIZE> pgp_key_grip_t;
+
+typedef std::array<uint8_t, PGP_KEY_ID_SIZE> pgp_key_id_t;
 
 /**
  * Type to keep public/secret key mpis without any openpgp-dependent data.
@@ -193,8 +211,8 @@ typedef struct pgp_signature_t {
     pgp_signature_material_t material;
 
     /* v3 - only fields */
-    uint32_t creation_time;
-    uint8_t  signer[PGP_KEY_ID_SIZE];
+    uint32_t     creation_time;
+    pgp_key_id_t signer;
 
     /* v4 - only fields */
     list subpkts;
@@ -309,7 +327,7 @@ typedef struct pgp_one_pass_sig_t {
     pgp_sig_type_t   type;
     pgp_hash_alg_t   halg;
     pgp_pubkey_alg_t palg;
-    uint8_t          keyid[PGP_KEY_ID_SIZE];
+    pgp_key_id_t     keyid;
     unsigned         nested;
 } pgp_one_pass_sig_t;
 
@@ -341,7 +359,7 @@ typedef enum {
 /** public-key encrypted session key packet */
 typedef struct pgp_pk_sesskey_t {
     unsigned         version;
-    uint8_t          key_id[PGP_KEY_ID_SIZE];
+    pgp_key_id_t     key_id;
     pgp_pubkey_alg_t alg;
 
     pgp_encrypted_material_t material;

@@ -47,6 +47,8 @@
 #include "config.h"
 #include "fficli.h"
 #include "utils.h"
+#include "str-utils.h"
+#include "file-utils.h"
 
 // must be placed after include "utils.h"
 #ifndef RNP_USE_STD_REGEX
@@ -1260,18 +1262,18 @@ cli_rnp_keys_matching_string(cli_rnp_t *                    rnp,
     bool                      res = false;
     rnp_identifier_iterator_t it = NULL;
     rnp_key_handle_t          handle = NULL;
-    const char *              grip = NULL;
+    const char *              fp = NULL;
 
     /* iterate through the keys */
-    if (rnp_identifier_iterator_create(rnp->ffi, &it, "grip")) {
+    if (rnp_identifier_iterator_create(rnp->ffi, &it, "fingerprint")) {
         return false;
     }
 
-    while (!rnp_identifier_iterator_next(it, &grip)) {
-        if (!grip) {
+    while (!rnp_identifier_iterator_next(it, &fp)) {
+        if (!fp) {
             break;
         }
-        if (rnp_locate_key(rnp->ffi, "grip", grip, &handle) || !handle) {
+        if (rnp_locate_key(rnp->ffi, "fingerprint", fp, &handle) || !handle) {
             goto done;
         }
         if (!key_matches_flags(handle, flags) || !key_matches_string(handle, str.c_str())) {

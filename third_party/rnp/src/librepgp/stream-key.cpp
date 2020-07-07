@@ -412,7 +412,7 @@ transferable_userid_certify(const pgp_key_pkt_t *          key,
 {
     pgp_signature_t         sig = {};
     pgp_signature_t *       res = NULL;
-    uint8_t                 keyid[PGP_KEY_ID_SIZE];
+    pgp_key_id_t            keyid = {};
     pgp_fingerprint_t       keyfp;
     const pgp_user_prefs_t *prefs = NULL;
 
@@ -421,12 +421,12 @@ transferable_userid_certify(const pgp_key_pkt_t *          key,
         return NULL;
     }
 
-    if (pgp_keyid(keyid, sizeof(keyid), signer)) {
+    if (pgp_keyid(keyid, signer)) {
         RNP_LOG("failed to calculate keyid");
         goto end;
     }
 
-    if (pgp_fingerprint(&keyfp, signer)) {
+    if (pgp_fingerprint(keyfp, signer)) {
         RNP_LOG("failed to calculate keyfp");
         goto end;
     }
@@ -436,7 +436,7 @@ transferable_userid_certify(const pgp_key_pkt_t *          key,
     sig.palg = signer->alg;
     sig.type = PGP_CERT_POSITIVE;
 
-    if (!signature_set_keyfp(&sig, &keyfp)) {
+    if (!signature_set_keyfp(&sig, keyfp)) {
         RNP_LOG("failed to set issuer fingerprint");
         goto end;
     }
@@ -509,8 +509,8 @@ signature_calculate_primary_binding(const pgp_key_pkt_t *key,
                                     pgp_hash_t *         hash,
                                     rng_t *              rng)
 {
-    uint8_t keyid[PGP_KEY_ID_SIZE];
-    bool    res = false;
+    pgp_key_id_t keyid = {};
+    bool         res = false;
 
     memset(sig, 0, sizeof(*sig));
     sig->version = PGP_V4;
@@ -518,7 +518,7 @@ signature_calculate_primary_binding(const pgp_key_pkt_t *key,
     sig->palg = subkey->alg;
     sig->type = PGP_SIG_PRIMARY;
 
-    if (pgp_keyid(keyid, sizeof(keyid), subkey)) {
+    if (pgp_keyid(keyid, subkey)) {
         RNP_LOG("failed to calculate keyid");
         goto end;
     }
@@ -552,12 +552,12 @@ signature_calculate_binding(const pgp_key_pkt_t *key,
                             pgp_signature_t *    sig,
                             bool                 subsign)
 {
-    pgp_hash_t hash = {};
-    pgp_hash_t hashcp = {};
-    rng_t      rng = {};
-    uint8_t    keyid[PGP_KEY_ID_SIZE];
+    pgp_hash_t   hash = {};
+    pgp_hash_t   hashcp = {};
+    rng_t        rng = {};
+    pgp_key_id_t keyid;
 
-    if (pgp_keyid(keyid, sizeof(keyid), key)) {
+    if (pgp_keyid(keyid, key)) {
         RNP_LOG("failed to calculate keyid");
         return false;
     }
@@ -622,7 +622,7 @@ transferable_subkey_bind(const pgp_key_pkt_t *             key,
     }
 
     pgp_fingerprint_t keyfp;
-    if (pgp_fingerprint(&keyfp, key)) {
+    if (pgp_fingerprint(keyfp, key)) {
         RNP_LOG("failed to calculate keyfp");
         return NULL;
     }
@@ -636,7 +636,7 @@ transferable_subkey_bind(const pgp_key_pkt_t *             key,
     sig.palg = key->alg;
     sig.type = PGP_SIG_SUBKEY;
 
-    if (!signature_set_keyfp(&sig, &keyfp)) {
+    if (!signature_set_keyfp(&sig, keyfp)) {
         RNP_LOG("failed to set issuer fingerprint");
         goto end;
     }
@@ -679,7 +679,7 @@ transferable_key_revoke(const pgp_key_pkt_t *key,
 {
     pgp_signature_t * sig = NULL;
     bool              res = false;
-    uint8_t           keyid[PGP_KEY_ID_SIZE];
+    pgp_key_id_t      keyid;
     pgp_fingerprint_t keyfp;
 
     if (!key || !signer || !revoke) {
@@ -691,11 +691,11 @@ transferable_key_revoke(const pgp_key_pkt_t *key,
         RNP_LOG("allocation failed");
         goto end;
     }
-    if (pgp_keyid(keyid, sizeof(keyid), signer)) {
+    if (pgp_keyid(keyid, signer)) {
         RNP_LOG("failed to calculate keyid");
         goto end;
     }
-    if (pgp_fingerprint(&keyfp, signer)) {
+    if (pgp_fingerprint(keyfp, signer)) {
         RNP_LOG("failed to calculate keyfp");
         goto end;
     }
@@ -705,7 +705,7 @@ transferable_key_revoke(const pgp_key_pkt_t *key,
     sig->palg = signer->alg;
     sig->type = is_primary_key_pkt(key->tag) ? PGP_SIG_REV_KEY : PGP_SIG_REV_SUBKEY;
 
-    if (!signature_set_keyfp(sig, &keyfp)) {
+    if (!signature_set_keyfp(sig, keyfp)) {
         RNP_LOG("failed to set issuer fingerprint");
         goto end;
     }
