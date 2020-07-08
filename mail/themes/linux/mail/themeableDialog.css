@@ -57,10 +57,7 @@ menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
 }
 
 menulist menupopup menu,
-menulist menupopup menuitem {
-  padding-block: 5px;
-}
-
+menulist menupopup menuitem,
 button menupopup menu,
 button menupopup menuitem {
   padding: 5px;

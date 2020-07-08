@@ -492,6 +492,10 @@ toolbar[mode="full"] .toolbarbutton-1 {
   margin-bottom: 3px;
 }
 
+button[type="menu-button"] > .button-box > button {
+  margin-block: -5px;
+}
+
 /* message column icons */
 
 .treecol-sortdirection {

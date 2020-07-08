@@ -21,8 +21,6 @@
   --field-border-color: rgba(128, 128, 128, .6);
   --popup-item-hover: rgba(128, 128, 128, .2);
   --popup-item-hover-text: MenuText;
-  --popup-item-selected: Highlight;
-  --popup-selected-text: HighlightText;
 }
 
 #abContactsPanel {
@@ -47,6 +45,7 @@
 
 #abContextMenuButton:not(:hover) {
   background: transparent;
+  border-color: transparent;
 }
 
 #abContextMenuButton:-moz-focusring {

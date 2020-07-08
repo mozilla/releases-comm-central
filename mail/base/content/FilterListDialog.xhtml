@@ -6,6 +6,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/filterDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % filtersDTD SYSTEM "chrome://messenger/locale/FilterListDialog.dtd">%filtersDTD;
@@ -20,6 +21,7 @@
   onunload="onFilterUnload();"
   onclose="return onFilterClose();"
   persist="width height screenX screenY"
+  lightweightthemes="true"
   title="&window.title;">
 
   <script src="chrome://global/content/globalOverlay.js"/>
@@ -27,6 +29,7 @@
   <script src="chrome://messenger/content/button-menu-button.js"/>
   <script src="chrome://messenger/content/searchWidgets.js"/>
   <script src="chrome://messenger/content/FilterListDialog.js"/>
+
   <stringbundle id="bundle_filter" src="chrome://messenger/locale/filter.properties"/>
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
 
@@ -67,7 +70,7 @@
       </hbox>
       <box flex="1">
         <richlistbox id="filterList" flex="1" onselect="updateButtons();"
-                     class="theme-listbox" seltype="multiple"
+                     seltype="multiple"
                      onkeypress="onFilterListKeyPress(event);">
               <treecols>
                 <treecol id="nameColumn" label="&nameColumn.label;" flex="1"/>
@@ -155,9 +158,9 @@
 
   <separator class="thin"/>
 
-  <hbox id="status-bar" class="statusbar chromeclass-status" role="status">
-    <label id="statusText" class="statusbarpanel" flex="1" crop="end"/>
-    <hbox id="statusbar-progresspanel" class="statusbarpanel statusbarpanel-progress" collapsed="true">
+  <hbox id="statusbar" role="status">
+    <label id="statusText" flex="1" crop="end"/>
+    <hbox id="statusbar-progresspanel" class="statusbarpanel-progress" collapsed="true">
       <html:progress class="progressmeter-statusbar" id="statusbar-icon" value="0" max="100"/>
     </hbox>
   </hbox>

@@ -582,15 +582,13 @@ treecol.treecol-image:hover:active {
   display: none;
 }
 
-button[type="menu-button"] {
+button.notification-button[type="menu-button"] {
   margin: 0 6px;
 }
 
 button[type="menu-button"] > .button-box > button {
-  margin-top: -1px;
-  margin-bottom: -3px;
-  margin-inline-start: -7px;
-  margin-inline-end: 2px;
+  margin-block: -4px;
+  margin-inline: -7px 2px;
 }
 
 .button-menubutton-dropmarker {

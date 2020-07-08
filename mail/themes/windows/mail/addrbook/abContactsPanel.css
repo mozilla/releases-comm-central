@@ -16,7 +16,7 @@
 
 #abContextMenuButton {
   margin-top: 0;
-  padding-inline: 0;
+  padding-inline: 5px;
 }
 
 #abContextMenuButton > .toolbarbutton-icon {

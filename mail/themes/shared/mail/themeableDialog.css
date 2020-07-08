@@ -19,8 +19,6 @@
   --highlight-color: Highlight;
   --popup-item-hover: rgba(128, 128, 128, .2);
   --popup-item-hover-text: MenuText;
-  --popup-item-selected: Highlight;
-  --popup-selected-text: HighlightText;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
   --tab-selected-background: hsla(0, 0%, 50%, 0.25);
@@ -40,8 +38,6 @@
   --highlight-color: Highlight;
   --popup-item-hover: rgba(69, 161, 255, 0.2);
   --popup-item-hover-text: var(--box-text-color);
-  --popup-item-selected: #0a84ff;
-  --popup-selected-text: #fff;
 }
 
 :root:-moz-lwtheme-brighttext {
@@ -83,10 +79,9 @@
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
   --highlight-color: Highlight;
+  --lwt-accent-color: -moz-Dialog;
   --popup-item-hover: rgba(128, 128, 128, .2);
   --popup-item-hover-text: MenuText;
-  --popup-item-selected: Highlight;
-  --popup-selected-text: HighlightText;
   --richlist-button-background: -moz-Dialog;
   --tab-hover-background: hsla(0, 0%, 50%, 0.15);
   --tab-selected-background: hsla(0, 0%, 50%, 0.25);
@@ -185,6 +180,14 @@ button[default="true"] {
   border-color: var(--highlight-color);
 }
 
+button[type="menu-button"] > .button-box > button {
+  border-inline-end-color: var(--button-border-color);
+}
+
+button > .button-box > dropmarker {
+  padding-inline-start: 3px;
+}
+
 button[disabled="true"],
 menulist[disabled="true"] {
   opacity: 0.4;
@@ -233,6 +236,7 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
 }
 
 menulist menupopup,
+button[type="menu-button"] menupopup,
 menupopup[is="folder-menupopup"] {
   -moz-appearance: none;
   border: 1px solid var(--box-border-color);
@@ -254,14 +258,6 @@ menulist menupopup > menu:not([disabled="true"])[_moz-menuactive="true"],
 menulist menupopup > menuitem:not([disabled="true"])[_moz-menuactive="true"] {
   color: var(--popup-item-hover-text);
   background-color: var(--popup-item-hover);
-}
-
-button menupopup > menu:not([disabled="true"])[selected="true"],
-button menupopup > menuitem:not([disabled="true"])[selected="true"],
-menulist menupopup > menu:not([disabled="true"])[selected="true"],
-menulist menupopup > menuitem:not([disabled="true"])[selected="true"] {
-  color: var(--popup-selected-text);
-  background-color: var(--popup-item-selected);
 }
 
 button menupopup > menu[disabled="true"],
@@ -454,4 +450,12 @@ tabpanels {
 
 .dialog-button-box {
   padding-top: 6px;
+}
+
+fieldset:-moz-lwtheme {
+  border: 1px solid var(--field-border-color);
+}
+
+legend:-moz-lwtheme {
+  background-color: var(--lwt-accent-color);
 }
