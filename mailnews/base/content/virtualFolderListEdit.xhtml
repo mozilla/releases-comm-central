@@ -4,7 +4,9 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
    -->
 
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/mailWindow1.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/virtualFolderListDialog.dtd">
 
@@ -13,10 +15,12 @@
         windowtype="mailnews:virtualFolderList"
         style="width: 27em; height: 25em;"
         persist="width height screenX screenY"
+        lightweightthemes="true"
         onload="gSelectVirtual.load();">
 <dialog id="searchFolderWindow">
   <script src="chrome://messenger/content/virtualFolderListEdit.js"/>
   <script src="chrome://messenger/content/folderPane.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <html:style id="folderColorsStyle" type="text/css"></html:style>
 

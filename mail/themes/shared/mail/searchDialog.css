@@ -9,8 +9,8 @@
   margin-top: 8px;
 }
 
-#booleanAndGroup,
-#searchTermBox,
+#searchTermListBox > #booleanAndGroup,
+#searchTermListBox > #searchTermBox,
 #searchTerms > vbox > hbox {
   padding-left: 6px;
   padding-right: 6px;
@@ -45,7 +45,8 @@ radio[value="and"] {
   min-height: 50px;
 }
 
-#searchTermListBox {
+#searchTermListBox,
+#virtualFolderSearchTermListBox {
   height: 100px;
 }
 
@@ -108,20 +109,4 @@ treechildren::-moz-tree-cell-text(container, closed, hasUnread, read) {
 :root[lwt-tree] #gray_horizontal_splitter {
   background-color: var(--toolbar-bgcolor);
   border-color: hsla(0, 0%, 50%, .3);
-}
-
-:root:not([lwt-tree]) richlistbox > richlistitem button,
- richlistbox > richlistitem menulist {
-  border: 1px solid var(--toolbarbutton-hover-bordercolor);
-}
-
-:root:not([lwt-tree]) richlistbox > richlistitem button:hover,
-:root:not([lwt-tree]) richlistbox > richlistitem menulist:hover,
-:root:not([lwt-tree]) richlistbox > richlistitem menulist[open="true"] {
-  border: 1px solid var(--toolbarbutton-active-bordercolor);
-}
-
-:root:not([lwt-tree]) richlistbox > richlistitem button:hover:active,
-:root:not([lwt-tree]) richlistbox > richlistitem menulist[open="true"] {
-  box-shadow: var(--toolbarbutton-active-boxshadow);
 }

@@ -10,6 +10,10 @@ button > .button-box {
   padding-block: 3px;
 }
 
+#resetColor > .button-box {
+  padding-block: 0;
+}
+
 .button-menu-dropmarker {
   display: -moz-box;
 }
@@ -64,6 +68,10 @@ menulist > menupopup:not([position]) {
 
 .menu-right:-moz-locale-dir(ltr) {
   transform: scaleX(-1);
+}
+
+tabbox {
+  margin-inline: 0;
 }
 
 .tab-middle {

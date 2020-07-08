@@ -35,7 +35,6 @@
   --field-background-color: #fff;
   --field-border-color: rgba(0, 0, 0, 0.3);
   --field-border-hover-color: rgba(0, 0, 0, 0.4);
-  --highlight-color: Highlight;
   --popup-item-hover: rgba(69, 161, 255, 0.2);
   --popup-item-hover-text: var(--box-text-color);
 }
@@ -136,7 +135,8 @@ html|input[type="number"]::-moz-number-spin-down {
 }
 
 button,
-menulist {
+menulist,
+html|input[type="color"] {
   -moz-appearance: none;
   /* !important overrides button.css for disabled and default XUL buttons: */
   color: inherit !important;
@@ -154,8 +154,35 @@ menulist {
   padding-inline: 4px;
 }
 
+html|input[type="color"] {
+  padding: 4px;
+}
+
+#resetColor {
+  list-style-image: url("chrome://messenger/skin/icons/forget.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 2px !important;
+  margin-inline-end: 4px;
+  --toolbarbutton-hover-background: var(--button-background-hover);
+  --toolbarbutton-hover-bordercolor: var(--button-border-color);
+  --toolbarbutton-active-background: var(--button-background-active);
+  --toolbarbutton-active-bordercolor: var(--button-border-color);
+}
+
+#resetColor:not(:hover) {
+  background-color: transparent;
+}
+
+#resetColor .button-icon {
+  margin-inline-end: 0;
+}
+
 button:-moz-focusring,
-menulist:-moz-focusring {
+menulist:-moz-focusring,
+html|input[type="color"]:focus {
   outline: 1px solid var(--highlight-color);
   /* offset outline to align with 1px border-width set for buttons/menulists above. */
   outline-offset: -1px;
@@ -166,13 +193,15 @@ menulist:-moz-focusring {
 
 button:not([disabled="true"]):hover,
 menulist:not([disabled="true"]):not([open="true"]):hover,
-menulist[open="true"]:not([disabled="true"]) {
+menulist[open="true"]:not([disabled="true"]),
+html|input[type="color"]:not([disabled="true"]):hover {
   background-color: var(--button-background-hover);
 }
 
 button[open],
 button[open]:hover,
-button:not([disabled="true"]):hover:active {
+button:not([disabled="true"]):hover:active,
+html|input[type="color"]:not([disabled="true"]):hover:active {
   background-color: var(--button-background-active);
 }
 
@@ -291,6 +320,10 @@ menulist menupopup menuseparator {
   border-bottom: none;
 }
 
+label {
+  margin-inline-start: 4px;
+}
+
 radio,
 checkbox {
   -moz-appearance: none;
@@ -391,23 +424,8 @@ richlistitem button:not([disabled="true"]):hover:active {
                                     var(--button-background-active));
 }
 
-:root[lwt-tree] richlistbox > richlistitem button,
-:root[lwt-tree] richlistbox > richlistitem menulist {
-  border: 1px solid var(--toolbarbutton-hover-bordercolor);
-}
-
-:root[lwt-tree] richlistbox > richlistitem button:hover,
-:root[lwt-tree] richlistbox > richlistitem menulist:hover,
-:root[lwt-tree] richlistbox > richlistitem menulist[open="true"] {
-  border: 1px solid var(--toolbarbutton-active-bordercolor);
-}
-
-:root[lwt-tree] richlistbox > richlistitem button:hover:active,
-:root[lwt-tree] richlistbox > richlistitem menulist[open="true"] {
-  box-shadow: var(--toolbarbutton-active-boxshadow);
-}
-
 :root[lwt-tree] tree {
+  -moz-appearance: none;
   border: 1px solid var(--sidebar-border-color);
 }
 
@@ -437,7 +455,7 @@ tab:hover {
 tab[visuallyselected="true"] {
   margin-block: 0;
   background-color: var(--tab-selected-background);
-  border-bottom-color: var(--tab-line-color, currentColor);
+  border-bottom-color: var(--tab-line-color, var(--highlight-color));
 }
 
 tabpanels {

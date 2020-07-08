@@ -11,6 +11,10 @@ button > .button-box {
   padding-block: 4px;
 }
 
+#resetColor > .button-box {
+  padding-block: 0;
+}
+
 .button-menu-dropmarker {
   -moz-appearance: none;
   padding: 0;

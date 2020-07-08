@@ -8,7 +8,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderPane.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger-newsblog/skin/feed-subscriptions.css" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % feedDTD SYSTEM "chrome://messenger-newsblog/locale/feed-subscriptions.dtd">
@@ -27,12 +28,14 @@
         onload="FeedSubscriptions.onLoad();"
         onclose="return FeedSubscriptions.onClose();"
         onkeypress="FeedSubscriptions.onKeyPress(event);"
+        lightweightthemes="true"
         onmousedown="FeedSubscriptions.onMouseDown(event);">
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/specialTabs.js"/>
   <script src="chrome://messenger-newsblog/content/feed-subscriptions.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <linkset>
     <html:link rel="localization" href="security/certificates/certManager.ftl"/>
@@ -147,7 +150,7 @@
                     label="&biffStart.label;"
                     accesskey="&biffStart.accesskey;"
                     oncommand="FeedSubscriptions.setPrefs(this);"/>
-          <html:input id="updateValue" type="number" class="size3" min="1"
+          <html:input id="updateValue" type="number" class="size3 input-inline" min="1"
                       aria-labelledby="updateEnabled updateValue biffMinutes biffDays recommendedUnits recommendedUnitsVal"
                       oninput="FeedSubscriptions.setPrefs(this);"
                       onchange="FeedSubscriptions.setPrefs(this);"/>

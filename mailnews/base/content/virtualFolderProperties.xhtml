@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % folderDTD SYSTEM "chrome://messenger/locale/virtualFolderProperties.dtd">
@@ -22,6 +23,7 @@
         title="&virtualFolderProperties.title;"
         onload="onLoad();"
         style="width: 50em; height: 28em;"
+        lightweightthemes="true"
         windowtype="mailnews:virtualFolderProperties">
 <dialog id="virtualFolderPropertiesDialog"
         buttons="accept,cancel"
@@ -41,6 +43,7 @@
   <script src="chrome://messenger/content/virtualFolderProperties.js"/>
   <script src="chrome://messenger/content/searchTerm.js"/>
   <script src="chrome://messenger/content/dateFormat.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <hbox>
     <vbox>
@@ -108,7 +111,7 @@
   <vbox flex="2">
     <label value="&searchTermCaption.label;"/>
     <hbox flex="1">
-      <vbox id="searchTermListBox" flex="2">
+      <vbox id="virtualFolderSearchTermListBox" flex="2">
 #include ../search/content/searchTerm.inc.xhtml
     </hbox>
   </vbox>

@@ -5,7 +5,9 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/subscribe.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/subscribe.dtd">
 
@@ -16,6 +18,7 @@
         persist="width height screenX screenY"
         onload="SubscribeOnLoad()"
         onunload="SubscribeOnUnload()"
+        lightweightthemes="true"
         windowtype="mailnews:subscribe">
 <dialog id="subscribeWindow">
   <stringbundle id="bundle_subscribe" src="chrome://messenger/locale/subscribe.properties"/>
@@ -24,6 +27,7 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://messenger/content/mailWindow.js"/>
   <script src="chrome://messenger/content/subscribe.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <vbox flex="1" style="width: 40em; height: 25em;">
     <hbox>
@@ -34,9 +38,9 @@
                  control="serverMenu"/>
         </hbox>
         <hbox flex="1" align="center">
-          <label value="&namefield.label;"
+          <label id="namefieldlabel"
                  accesskey="&namefield.accesskey;"
-                 id="namefieldlabel"
+                 value="&namefield.label;"
                  control="namefield"/>
         </hbox>
       </vbox>
@@ -48,6 +52,7 @@
                      oncommand="onServerClick(event.target._folder);"/>
         </menulist>
         <search-textbox id="namefield"
+                        class="themeableSearchBox"
                         flex="1"
                         timeout="300"
                         aria-controls="subscribeTree"
