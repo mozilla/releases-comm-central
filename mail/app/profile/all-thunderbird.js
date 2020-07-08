@@ -402,6 +402,8 @@ pref("browser.download.manager.addToRecentDocs", true);
 pref("browser.helperApps.deleteTempFileOnExit", true);
 #endif
 
+// Not used in Thunderbird.
+pref("browser.startup.homepage.abouthome_cache.enabled", false);
 // Whether to start the private browsing mode at application startup. Not used in Thunderbird.
 pref("browser.privatebrowsing.autostart", false);
 
