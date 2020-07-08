@@ -129,6 +129,8 @@ function run_test() {
 }
 
 add_task(async function convert() {
+  logHelperAllowedErrors.push("DEPRECATION");
+
   await downloadForOffline();
 
   let mailstoreContractId = Services.prefs.getCharPref(
