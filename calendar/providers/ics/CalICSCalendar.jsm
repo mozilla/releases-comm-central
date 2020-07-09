@@ -216,6 +216,9 @@ CalICSCalendar.prototype = {
       // Failure may be due to temporary connection issue, keep old data to
       // prevent potential data loss if it becomes available again.
       cal.LOG("[calICSCalendar] Unable to load stream - status: " + status);
+
+      // Check for bad server certificates on SSL/TLS connections.
+      cal.provider.checkBadCertStatus(loader.request, status, this);
     }
 
     if (!cont) {

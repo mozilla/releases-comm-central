@@ -438,6 +438,11 @@ class CalDavSimpleResponse extends CalDavResponseBase {
     if (Components.isSuccessCode(aStatus)) {
       this._onresponded(this);
     } else {
+      // Check for bad server certificates on SSL/TLS connections.
+      // this.request is CalDavRequestBase instance and it contains calICalendar property
+      // which is needed for checkBadCertStatus. CalDavRequestBase.calendar can be null,
+      // this possibility is handled in BadCertHandler.
+      cal.provider.checkBadCertStatus(aLoader.request, aStatus, this.request.calendar);
       this._onrespondederror(this);
     }
   }

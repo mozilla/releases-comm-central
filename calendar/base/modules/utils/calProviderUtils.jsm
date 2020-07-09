@@ -164,14 +164,16 @@ var calprovider = {
     }
   },
 
-  // TODO: Add new error handling that uses this code. See bug 1547096.
   /**
    * Bad Certificate Handler for Network Requests. Shows the Network Exception
    * Dialog if a certificate Problem occurs.
    */
   BadCertHandler: class {
-    constructor(thisProvider) {
-      this.thisProvider = thisProvider;
+    /**
+     * @param {calICalendar} [calendar]  A calendar associated with the request, may be null.
+     */
+    constructor(calendar) {
+      this.calendar = calendar;
       this.timer = null;
     }
 
@@ -183,7 +185,7 @@ var calprovider = {
       let calWindow = cal.window.getCalendarWindow();
 
       let timerCallback = {
-        thisProvider: this.thisProvider,
+        calendar: this.calendar,
         notify(timer) {
           let params = {
             exceptionAdded: false,
@@ -197,16 +199,43 @@ var calprovider = {
             "chrome,centerscreen,modal",
             params
           );
-          if (this.thisProvider.canRefresh && params.exceptionAdded) {
-            // Refresh the provider if the
-            // exception certificate was added
-            this.thisProvider.refresh();
+          if (this.calendar && this.calendar.canRefresh && params.exceptionAdded) {
+            // Refresh the calendar if the exception certificate was added
+            this.calendar.refresh();
           }
         },
       };
       this.timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
       this.timer.initWithCallback(timerCallback, 0, Ci.nsITimer.TYPE_ONE_SHOT);
       return true;
+    }
+  },
+
+  /**
+   * Check for bad server certificates on SSL/TLS connections.
+   *
+   * @param {nsIRequest} request       request from the Stream loader.
+   * @param {Number} status            A Components.results result.
+   * @param {calICalendar} [calendar]  A calendar associated with the request, may be null.
+   */
+  checkBadCertStatus(request, status, calendar) {
+    let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+      Ci.nsINSSErrorsService
+    );
+    let isCertError = false;
+    try {
+      let errorType = nssErrorsService.getErrorClass(status);
+      if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
+        isCertError = true;
+      }
+    } catch (e) {
+      // nsINSSErrorsService.getErrorClass throws if given a non-TLS, non-cert error, so ignore this.
+    }
+
+    if (isCertError && request.securityInfo) {
+      let secInfo = request.securityInfo.QueryInterface(Ci.nsITransportSecurityInfo);
+      let badCertHandler = new calprovider.BadCertHandler(calendar);
+      badCertHandler.notifyCertProblem(null, secInfo, request.originalURI.displayHost);
     }
   },
 
@@ -363,7 +392,7 @@ var calprovider = {
   },
 
   /**
-   * Base prototype to be used implementing a provider.
+   * Base prototype to be used implementing a calICalendar.
    */
   BaseClass: class {
     /**
