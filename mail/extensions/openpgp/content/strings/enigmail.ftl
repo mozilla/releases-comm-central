@@ -358,7 +358,7 @@ filter-warn-key-not-secret =
     Warning - the filter action "Encrypt to key" replaces the recipients.
     If you do not have the secret key for '{ $desc }' you will no longer be able to read the emails.
 
-#Strings filtersWrapper.jsm
+# Strings filtersWrapper.jsm
 filter-decrypt-move-label = Decrypt permanently (OpenPGP)
 filter-decrypt-copy-label = Create decrypted Copy (OpenPGP)
 filter-encrypt-label = Encrypt to key (OpenPGP)
