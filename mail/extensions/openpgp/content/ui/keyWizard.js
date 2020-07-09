@@ -516,10 +516,10 @@ async function openPgpKeygenConfirm() {
  * Cancel the keygen process, ask for confirmation before proceeding.
  */
 async function openPgpKeygenCancel() {
-  let abortTitle = await document.l10n.formatValue(
-    "openpgp-keygen-abort-title"
-  );
-  let abortText = await document.l10n.formatValue("openpgp-keygen-abort");
+  let [abortTitle, abortText] = await document.l10n.formatValues([
+    { id: "openpgp-keygen-abort-title" },
+    { id: "openpgp-keygen-abort" },
+  ]);
 
   if (
     kGenerating &&

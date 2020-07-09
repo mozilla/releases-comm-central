@@ -899,22 +899,20 @@ async function enigmailDeleteKey(key) {
 
   // Interrupt if the selected key is currently being used.
   if (key.keyId == gIdentity.getUnicharAttribute("openpgp_key_id")) {
-    let alertTitle = await document.l10n.formatValue("delete-key-in-use-title");
-    let alertDescription = await document.l10n.formatValue(
-      "delete-key-in-use-description"
-    );
+    let [alertTitle, alertDescription] = await document.l10n.formatValues([
+      { id: "delete-key-in-use-title" },
+      { id: "delete-key-in-use-description" },
+    ]);
 
     Services.prompt.alert(null, alertTitle, alertDescription);
     return;
   }
 
   let l10nKey = key.secretAvailable ? "delete-secret-key" : "delete-pub-key";
-  let title = await document.l10n.formatValue("delete-key-title", {
-    userId: key.userId,
-  });
-  let description = await document.l10n.formatValue(l10nKey, {
-    userId: key.userId,
-  });
+  let [title, description] = await document.l10n.formatValues([
+    { id: "delete-key-title", args: { userId: key.userId } },
+    { id: l10nKey, args: { userId: key.userId } },
+  ]);
 
   // Ask for confirmation before proceeding.
   if (!Services.prompt.confirm(null, title, description)) {
@@ -1203,12 +1201,22 @@ async function openPgpExportKey(keyId, exportSecret = false) {
   let ext = exportSecret ? "pub-sec.asc" : "pub.asc";
   let filename = `${gIdentity.fullName}_${gIdentity.email}-${keyId}-${ext}`;
 
-  let filePicker = exportSecret
-    ? await document.l10n.formatValue("export-keypair-to-file")
-    : await document.l10n.formatValue("export-to-file");
+  let [
+    exportKeyPair,
+    exportKey,
+    fileType,
+    saveOk,
+  ] = await document.l10n.formatValues([
+    { id: "export-keypair-to-file" },
+    { id: "export-to-file" },
+    { id: "ascii-armor-file" },
+    { id: "save-keys-ok" },
+  ]);
+
+  let filePicker = exportSecret ? exportKeyPair : exportKey;
 
   let outFile = EnigFilePicker(filePicker, "", true, "*.asc", filename, [
-    await document.l10n.formatValue("ascii-armor-file"),
+    fileType,
     "*.asc",
   ]);
   if (!outFile) {
@@ -1236,7 +1244,5 @@ async function openPgpExportKey(keyId, exportSecret = false) {
   }
 
   // Let the user know that the save was successful.
-  document.l10n.formatValue("save-keys-ok").then(value => {
-    alertUser(value);
-  });
+  alertUser(saveOk);
 }

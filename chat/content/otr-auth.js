@@ -37,17 +37,13 @@ async function populateFingers(context, theirs, trust) {
     throw new Error("Fingerprint should already be generated.");
   }
 
-  document.getElementById(
-    "yourFPLabel"
-  ).value = await document.l10n.formatValue("auth-your-fp-value", {
-    own_name: context.account,
-  });
+  let [yourFPLabel, theirFPLabel] = await document.l10n.formatValues([
+    { id: "auth-your-fp-value", args: { own_name: context.account } },
+    { id: "auth-their-fp-value", args: { their_name: context.username } },
+  ]);
 
-  document.getElementById(
-    "theirFPLabel"
-  ).value = await document.l10n.formatValue("auth-their-fp-value", {
-    their_name: context.username,
-  });
+  document.getElementById("yourFPLabel").value = yourFPLabel;
+  document.getElementById("theirFPLabel").value = theirFPLabel;
 
   document.getElementById("yourFPValue").value = yours;
   document.getElementById("theirFPValue").value = theirs;
@@ -202,8 +198,11 @@ var otrAuth = {
   },
 
   async help() {
-    let helpTitle = await document.l10n.formatValue("auth-helpTitle");
-    let helpText = await document.l10n.formatValue("auth-help");
+    let [helpTitle, helpText] = await document.l10n.formatValues([
+      { id: "auth-helpTitle" },
+      { id: "auth-help" },
+    ]);
+
     Services.prompt.alert(window, helpTitle, helpText);
   },
 };

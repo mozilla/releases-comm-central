@@ -13,15 +13,12 @@ var otrAddFinger = {
     this.fingerError = document.getElementById("fingerError");
     this.keyCount = document.getElementById("keyCount");
 
-    let description = await document.l10n.formatValue(
-      "otr-add-finger-description",
-      { name: args.screenname }
-    );
-    document.getElementById("otrDescription").textContent = description;
+    let [description, warningTooltip] = await document.l10n.formatValues([
+      { id: "otr-add-finger-description", args: { name: args.screenname } },
+      { id: "otr-add-finger-tooltip-error" },
+    ]);
 
-    let warningTooltip = await document.l10n.formatValue(
-      "otr-add-finger-tooltip-error"
-    );
+    document.getElementById("otrDescription").textContent = description;
     this.fingerWarning.setAttribute("tooltiptext", warningTooltip);
 
     document.addEventListener("dialogaccept", event => {

@@ -223,10 +223,15 @@ async function importRemainingItems(event) {
     ? "calendar-ics-file-import-success"
     : "calendar-ics-file-import-error";
 
-  let messageElement = document.getElementById("calendar-ics-file-dialog-message");
-  messageElement.value = await document.l10n.formatValue(messageIdentifier);
+  let [msgValue, btnLabel] = await document.l10n.formatValues([
+    { id: messageIdentifier },
+    { id: "calendar-ics-file-accept-button-ok-label" },
+  ]);
 
-  acceptButton.label = await document.l10n.formatValue("calendar-ics-file-accept-button-ok-label");
+  let messageElement = document.getElementById("calendar-ics-file-dialog-message");
+  messageElement.value = msgValue;
+
+  acceptButton.label = btnLabel;
   acceptButton.disabled = false;
 }
 

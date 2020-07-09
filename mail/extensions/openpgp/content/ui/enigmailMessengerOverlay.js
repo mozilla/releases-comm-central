@@ -2854,11 +2854,12 @@ Enigmail.msg = {
         statusFlagsObj.value & EnigmailConstants.UNCERTAIN_SIGNATURE
       ) {
         if (callbackArg.actionType == "openAttachment") {
-          exitStatus = EnigmailDialog.confirmDlg(
-            window,
-            await document.l10n.formatValue("decrypt-ok-no-sig"),
-            await document.l10n.formatValue("msg-ovl-button-cont-anyway")
-          );
+          let [title, button] = await document.l10n.formatValues([
+            { id: "decrypt-ok-no-sig" },
+            { id: "msg-ovl-button-cont-anyway" },
+          ]);
+
+          exitStatus = EnigmailDialog.confirmDlg(window, title, button);
         } else {
           EnigmailDialog.info(
             window,

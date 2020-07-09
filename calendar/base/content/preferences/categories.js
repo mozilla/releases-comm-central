@@ -187,8 +187,11 @@ var gCategoriesPane = {
       }
 
       if (categoryName.toLowerCase() == gCategoryList[i].toLowerCase()) {
-        let title = await document.l10n.formatValue("category-overwrite-title");
-        let description = await document.l10n.formatValue("category-overwrite");
+        let [title, description] = await document.l10n.formatValues([
+          { id: "category-overwrite-title" },
+          { id: "category-overwrite" },
+        ]);
+
         if (Services.prompt.confirm(null, title, description)) {
           if (list.selectedIndex != -1) {
             // Don't delete the old category yet. It will mess up indices.

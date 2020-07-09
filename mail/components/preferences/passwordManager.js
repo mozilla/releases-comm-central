@@ -422,11 +422,15 @@ function DeleteSignon() {
 async function DeleteAllSignons() {
   // Confirm the user wants to remove all passwords
   let dummy = { value: false };
+  let [title, message] = await document.l10n.formatValues([
+    { id: "remove-all-passwords-title" },
+    { id: "remove-all-passwords-prompt" },
+  ]);
   if (
     Services.prompt.confirmEx(
       window,
-      await document.l10n.formatValue("remove-all-passwords-title"),
-      await document.l10n.formatValue("remove-all-passwords-prompt"),
+      title,
+      message,
       Services.prompt.STD_YES_NO_BUTTONS + Services.prompt.BUTTON_POS_1_DEFAULT,
       null,
       null,

@@ -130,14 +130,15 @@ async function saveRevCert(inputKeyFile, keyId, uid, resolve, reject) {
   let defaultFileName = uid.replace(/[\\/<>]/g, "");
   defaultFileName += " (0x" + keyId + ") rev.asc";
 
-  let outFile = EnigFilePicker(
-    await document.l10n.formatValue("save-revoke-cert-as"),
-    "",
-    true,
+  let [title, fileType] = await document.l10n.formatValues([
+    { id: "save-revoke-cert-as" },
+    { id: "ascii-armor-file" },
+  ]);
+
+  let outFile = EnigFilePicker(title, "", true, "*.asc", defaultFileName, [
+    fileType,
     "*.asc",
-    defaultFileName,
-    [await document.l10n.formatValue("ascii-armor-file"), "*.asc"]
-  );
+  ]);
 
   if (outFile) {
     try {
@@ -232,16 +233,12 @@ async function enigmailKeygenStart() {
 
   idString += " <" + userEmail + ">";
 
-  var confirmMsg = await document.l10n.formatValue("key-confirm", {
-    id: idString,
-  });
+  let [confirmMsg, confirmBtn] = await document.l10n.formatValues([
+    { id: "key-confirm", args: { id: idString } },
+    { id: "key-man-button-generate-key" },
+  ]);
 
-  if (
-    !EnigConfirm(
-      confirmMsg,
-      await document.l10n.formatValue("key-man-button-generate-key")
-    )
-  ) {
+  if (!EnigConfirm(confirmMsg, confirmBtn)) {
     return;
   }
 

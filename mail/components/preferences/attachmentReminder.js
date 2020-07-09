@@ -35,14 +35,15 @@ var gAttachmentReminderOptionsDialog = {
 
   async addKeyword() {
     var input = { value: "" }; // Default to empty.
-    var ok = Services.prompt.prompt(
-      window,
-      await document.l10n.formatValue("new-keyword-title"),
-      await document.l10n.formatValue("new-keyword-label"),
-      input,
-      null,
-      { value: 0 }
-    );
+
+    let [title, message] = await document.l10n.formatValues([
+      { id: "new-keyword-title" },
+      { id: "new-keyword-label" },
+    ]);
+
+    var ok = Services.prompt.prompt(window, title, message, input, null, {
+      value: 0,
+    });
     if (ok && input.value) {
       let newKey = this.keywordListBox.appendItem(input.value, input.value);
       this.keywordListBox.ensureElementIsVisible(newKey);
@@ -56,14 +57,15 @@ var gAttachmentReminderOptionsDialog = {
     }
     var keywordToEdit = this.keywordListBox.selectedItem;
     var input = { value: keywordToEdit.getAttribute("value") };
-    var ok = Services.prompt.prompt(
-      window,
-      await document.l10n.formatValue("edit-keyword-title"),
-      await document.l10n.formatValue("edit-keyword-label"),
-      input,
-      null,
-      { value: 0 }
-    );
+
+    let [title, message] = await document.l10n.formatValues([
+      { id: "edit-keyword-title" },
+      { id: "edit-keyword-label" },
+    ]);
+
+    var ok = Services.prompt.prompt(window, title, message, input, null, {
+      value: 0,
+    });
     if (ok && input.value) {
       this.keywordListBox.selectedItem.value = input.value;
       this.keywordListBox.selectedItem.label = input.value;

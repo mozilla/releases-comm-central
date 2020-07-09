@@ -137,8 +137,10 @@ var gPermissionManager = {
         principal.origin;
       }
     } catch (ex) {
-      var message = await document.l10n.formatValue("invalid-uri-message");
-      var title = await document.l10n.formatValue("invalid-uri-title");
+      let [title, message] = await document.l10n.formatValues([
+        { id: "invalid-uri-title" },
+        { id: "invalid-uri-message" },
+      ]);
       Services.prompt.alert(window, title, message);
       return;
     }

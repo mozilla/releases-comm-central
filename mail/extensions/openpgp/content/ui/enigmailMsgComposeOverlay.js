@@ -1493,9 +1493,9 @@ Enigmail.msg = {
     // 4: attach own key
     // 5: subject encrypted
 
-    var draftStatus = "N" + 
-      (gSendEncrypted && !gOptionalEncryption) + 
-      (gSendSigned) + 
+    var draftStatus = "N" +
+      (gSendEncrypted && !gOptionalEncryption) +
+      (gSendSigned) +
       (gAttachMyPublicPGPKey ? "1" : "0") + (doEncrypt && this.protectHeaders ? "1" : "0");
 
     this.setAdditionalHeader("X-Enigmail-Draft-Status", draftStatus);
@@ -2685,12 +2685,11 @@ Enigmail.msg = {
         (await document.l10n.formatValue("send-aborted")) + "\n" + txt
       );
     } else {
-      EnigmailDialog.info(
-        window,
-        (await document.l10n.formatValue("send-aborted")) +
-          "\n" +
-          (await document.l10n.formatValue("msg-compose-internal-error"))
-      );
+      let [title, message] = await document.l10n.formatValues([
+        { id: "send-aborted" },
+        { id: "msg-compose-internal-error" },
+      ]);
+      EnigmailDialog.info(window, title + "\n" + message);
     }
   },
 
@@ -3357,13 +3356,14 @@ Enigmail.msg = {
     let buttonArr = [];
 
     if (detailsText && detailsText.length > 0) {
+      let [accessKey, label] = await document.l10n.formatValues([
+        { id: "msg-compose-details-button-access-key" },
+        { id: "msg-compose-details-button-label" },
+      ]);
+
       buttonArr.push({
-        accessKey: await document.l10n.formatValue(
-          "msg-compose-details-button-access-key"
-        ),
-        label: await document.l10n.formatValue(
-          "msg-compose-details-button-label"
-        ),
+        accessKey,
+        label,
         callback(aNotificationBar, aButton) {
           EnigmailDialog.info(window, detailsText);
         },
@@ -3377,16 +3377,12 @@ Enigmail.msg = {
    * a partially decrypted inline-PGP email
    */
   async displayPartialEncryptedWarning() {
-    let msgLong = await document.l10n.formatValue(
-      "msg-compose-partially-encrypted-inlinePGP"
-    );
+    let [msgLong, msgShort] = await document.l10n.formatValues([
+      { id: "msg-compose-partially-encrypted-inlinePGP" },
+      { id: "msg-compose-partially-encrypted-short" },
+    ]);
 
-    this.notifyUser(
-      1,
-      await document.l10n.formatValue("msg-compose-partially-encrypted-short"),
-      "notifyPartialDecrypt",
-      msgLong
-    );
+    this.notifyUser(1, msgShort, "notifyPartialDecrypt", msgLong);
   },
 
   editorSelectAll() {

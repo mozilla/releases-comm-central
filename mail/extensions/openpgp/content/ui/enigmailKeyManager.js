@@ -604,12 +604,23 @@ async function enigmailExportKeys() {
 
   var exportSecretKey = false;
   if (secretFound) {
+    let [
+      msgtext,
+      dialogTitle,
+      button1,
+      button2,
+    ] = await document.l10n.formatValues([
+      { id: "export-secret-key" },
+      { id: "enig-confirm" },
+      { id: "key-man-button-export-pub-key" },
+      { id: "key-man-button-export-sec-key" },
+    ]);
     // double check that also the pivate keys shall be exported
     var r = EnigmailDialog.msgBox(window, {
-      msgtext: await document.l10n.formatValue("export-secret-key"),
-      dialogTitle: await document.l10n.formatValue("enig-confirm"),
-      button1: await document.l10n.formatValue("key-man-button-export-pub-key"),
-      button2: await document.l10n.formatValue("key-man-button-export-sec-key"),
+      msgtext,
+      dialogTitle,
+      button1,
+      button2,
       cancelButton: ":cancel",
       iconType: EnigmailConstants.ICONTYPE_QUESTION,
     });
