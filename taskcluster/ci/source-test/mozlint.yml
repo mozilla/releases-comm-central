@@ -100,15 +100,21 @@ file-perm:
             - 'comm/**/*.cpp'
             - 'comm/**/*.h'
             - 'comm/**/*.html'
+            - 'comm/**/*.idl'
             - 'comm/**/*.js'
             - 'comm/**/*.jsm'
             - 'comm/**/*.jsx'
             - 'comm/**/*.m'
             - 'comm/**/*.mm'
+            - 'comm/**/*.png'
+            - 'comm/**/*.py'
             - 'comm/**/*.rs'
+            - 'comm/**/*.sh'
+            - 'comm/**/*.svg'
             - 'comm/**/*.xhtml'
             - 'comm/**/*.xml'
             - 'comm/**/*.xul'
+            - 'comm/**/*.yml'
 
 file-whitespace:
     description: Check for trailing whitespaces and Windows CR

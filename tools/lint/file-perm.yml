@@ -15,11 +15,14 @@ file-perm:
         - .jsx
         - .m
         - .mm
+        - .png
         - .py
         - .rs
+        - .svg
         - .xhtml
         - .xml
         - .xul
+        - .yml
     support-files:
         - 'tools/lint/file-perm/**'
     type: external
