@@ -2,10 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-key-picker-button-cancel =
-    .label = Cancel
-    .accesskey = C
-
 key-picker-intro =
     .value = Select the personal OpenPGP key that you want to use for this identity
 
