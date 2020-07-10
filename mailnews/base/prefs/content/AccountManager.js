@@ -28,8 +28,10 @@
 /* import-globals-from accountUtils.js */
 /* import-globals-from am-prefs.js */
 /* import-globals-from amUtils.js */
-/* globals gSubDialog */
 
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { BrowserUtils } = ChromeUtils.import(
   "resource://gre/modules/BrowserUtils.jsm"
@@ -47,6 +49,22 @@ var { allAccountsSorted } = ChromeUtils.import(
 var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.import(
   "resource:///modules/hostnameUtils.jsm"
 );
+
+XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
+  const { SubDialogManager } = ChromeUtils.import(
+    "resource://gre/modules/SubDialog.jsm"
+  );
+  return new SubDialogManager({
+    dialogStack: document.getElementById("dialogStack"),
+    dialogTemplate: document.getElementById("dialogTemplate"),
+    dialogOptions: {
+      styleSheets: [
+        "chrome://messenger/skin/preferences/dialog.css",
+        "chrome://messenger/skin/preferences/preferences.css",
+      ],
+    },
+  });
+});
 
 document.addEventListener("prefchange", event => {
   onAccept(true);

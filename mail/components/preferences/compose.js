@@ -6,7 +6,6 @@
 "use strict";
 
 /* import-globals-from preferences.js */
-/* import-globals-from subdialogs.js */
 
 var { InlineSpellChecker } = ChromeUtils.import(
   "resource://gre/modules/InlineSpellChecker.jsm"

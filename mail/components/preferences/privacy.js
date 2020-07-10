@@ -6,7 +6,6 @@
 "use strict";
 
 /* import-globals-from preferences.js */
-/* import-globals-from subdialogs.js */
 
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"

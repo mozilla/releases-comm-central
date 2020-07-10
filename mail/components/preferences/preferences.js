@@ -8,7 +8,6 @@
 /* import-globals-from downloads.js */
 /* import-globals-from privacy.js */
 /* import-globals-from chat.js */
-/* import-globals-from subdialogs.js */
 /* import-globals-from findInPage.js */
 /* globals gLightningPane */
 
@@ -34,6 +33,42 @@ ChromeUtils.defineModuleGetter(
   "AddonManager",
   "resource://gre/modules/AddonManager.jsm"
 );
+
+XPCOMUtils.defineLazyGetter(this, "gSubDialog", function() {
+  const { SubDialogManager } = ChromeUtils.import(
+    "resource://gre/modules/SubDialog.jsm"
+  );
+  return new SubDialogManager({
+    dialogStack: document.getElementById("dialogStack"),
+    dialogTemplate: document.getElementById("dialogTemplate"),
+    dialogOptions: {
+      styleSheets: [
+        "chrome://messenger/skin/preferences/dialog.css",
+        "chrome://messenger/skin/preferences/preferences.css",
+      ],
+      resizeCallback: ({ title, frame }) => {
+        // Search within main document and highlight matched keyword.
+        gSearchResultsPane.searchWithinNode(title, gSearchResultsPane.query);
+
+        // Search within sub-dialog document and highlight matched keyword.
+        gSearchResultsPane.searchWithinNode(
+          frame.contentDocument.firstElementChild,
+          gSearchResultsPane.query
+        );
+
+        // Creating tooltips for all the instances found
+        for (let node of gSearchResultsPane.listSearchTooltips) {
+          if (!node.tooltipNode) {
+            gSearchResultsPane.createSearchTooltip(
+              node,
+              gSearchResultsPane.query
+            );
+          }
+        }
+      },
+    },
+  });
+});
 
 document.addEventListener("DOMContentLoaded", init, { once: true });
 
@@ -82,7 +117,6 @@ function register_module(categoryName, categoryObject) {
 function init() {
   Preferences.forceEnableInstantApply();
 
-  gSubDialog.init();
   register_module("paneGeneral", gGeneralPane);
   register_module("paneCompose", gComposePane);
   register_module("panePrivacy", gPrivacyPane);
