@@ -10,19 +10,32 @@ file-perm:
         - .h
         - .html
         - .idl
-        - .js
         - .jsm
         - .jsx
         - .m
         - .mm
         - .png
-        - .py
         - .rs
         - .svg
         - .xhtml
         - .xml
         - .xul
         - .yml
+    support-files:
+        - 'tools/lint/file-perm/**'
+    type: external
+    payload: commlint:lint_wrapper
+    wraps: file-perm:lint
+
+maybe-shebang-file-perm:
+    description: "File permission check for files that might have `#!` header."
+    include:
+        - .
+    allow-shebang: true
+    extensions:
+        - .js
+        - .py
+        - .sh
     support-files:
         - 'tools/lint/file-perm/**'
     type: external
