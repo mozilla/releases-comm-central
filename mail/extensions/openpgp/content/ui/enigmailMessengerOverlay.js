@@ -156,7 +156,6 @@ Enigmail.msg = {
   securityInfo: null,
   lastSaveDir: "",
   messagePane: null,
-  noShowReload: false,
   decryptButton: null,
   savedHeaders: null,
   removeListener: false,
@@ -361,7 +360,6 @@ Enigmail.msg = {
       "enigmailMessengerOverlay.js: messageReload: " + noShowReload + "\n"
     );
 
-    Enigmail.msg.noShowReload = noShowReload;
     this.clearLastMessage();
     ReloadMessage();
   },
@@ -393,20 +391,16 @@ Enigmail.msg = {
       exchBox.setAttribute("hidden", "true");
     }
 
-    let b = document.getElementById("openpgpKeyBox");
-    if (b) {
-      b.setAttribute("hidden", true);
-    }
-    let bc = document.getElementById("hasConflictingKeyOpenPGP");
-    if (bc) {
-      bc.setAttribute("hidden", true);
-    }
-
-    let b2 = document.getElementById("signatureKeyBox");
-    if (b2) {
-      b2.setAttribute("hidden", true);
-      b2.removeAttribute("keyid");
-    }
+    document.getElementById("openpgpKeyBox").setAttribute("hidden", true);
+    document
+      .getElementById("hasConflictingKeyOpenPGP")
+      .setAttribute("hidden", true);
+    let sigKeyBox = document.getElementById("signatureKeyBox");
+    sigKeyBox.setAttribute("hidden", true);
+    sigKeyBox.removeAttribute("keyid");
+    document.getElementById("cannotDecryptBox").setAttribute("hidden", true);
+    document.getElementById("partialOpenPGPBox").setAttribute("hidden", true);
+    document.getElementById("openpgpProcessPartial").removeAttribute("hidden");
 
     this.setAttachmentReveal(null);
 
@@ -444,14 +438,8 @@ Enigmail.msg = {
 
   messageFrameUnload() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageFrameUnload\n");
-
-    if (Enigmail.msg.noShowReload) {
-      Enigmail.msg.noShowReload = false;
-    } else {
-      Enigmail.msg.savedHeaders = null;
-
-      Enigmail.msg.messageCleanup();
-    }
+    Enigmail.msg.savedHeaders = null;
+    Enigmail.msg.messageCleanup();
   },
 
   getCurrentMsgUriSpec() {
@@ -1002,7 +990,7 @@ Enigmail.msg = {
               "",
               "", // keyId, userId
               "", // sigDetails
-              await document.l10n.formatValue("possibly-pgp-mime"), // infoMsg
+              await l10n.formatValue("possibly-pgp-mime"), // infoMsg
               null, // blockSeparation
               "", // encToDetails
               null
@@ -1223,20 +1211,27 @@ Enigmail.msg = {
     if (isAuto) {
       let ht = this.hasHeadOrTailBesidesInlinePGP(msgText);
       if (ht) {
-        /*
-        Enigmail.hdrView.updateHdrIcons(
-          0,
-          ht,
-          0,
-          "",
-          "",
-          "",
-          "",
-          null,
-          "",
-          "process-manually"
+        let infoId;
+        let buttonId;
+        if (ht & EnigmailConstants.UNCERTAIN_SIGNATURE) {
+          infoId = "openpgp-partially-signed";
+          buttonId = "openpgp-partial-verify-button";
+        } else {
+          infoId = "openpgp-partially-encrypted";
+          buttonId = "openpgp-partial-decrypt-button";
+        }
+
+        document.getElementById("partialOpenPGPBox").removeAttribute("hidden");
+        let descElement = document.getElementById(
+          "preventedPartialExplanation"
         );
-        */
+        if (descElement) {
+          document.l10n.setAttributes(descElement, infoId);
+        }
+        let buttonElement = document.getElementById("openpgpProcessPartial");
+        if (buttonElement) {
+          document.l10n.setAttributes(buttonElement, buttonId);
+        }
         return;
       }
     }
@@ -1256,16 +1251,7 @@ Enigmail.msg = {
       }
     }
 
-    // extract text following armored block
-    var head = "";
-    var tail = "";
-    if (findStr) {
-      var endStart = msgText.indexOf("-----END PGP");
-      var nextLine = msgText.substring(endStart).search(/[\n\r]/);
-      if (nextLine > 0) {
-        tail = msgText.substring(endStart + nextLine).replace(/^[\n\r\s]*/, "");
-      }
-    }
+    // ignoring text following armored block
 
     //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: msgText='"+msgText+"'\n");
 
@@ -1284,8 +1270,8 @@ Enigmail.msg = {
       urlSpec,
       "",
       retry,
-      head,
-      tail,
+      "", // head
+      "", // tail
       msgUriSpec,
       isAuto,
       pbMessageIndex
@@ -1330,6 +1316,18 @@ Enigmail.msg = {
     }
 
     return 0;
+  },
+
+  processOpenPGPSubset() {
+    let descElement = document.getElementById("preventedPartialExplanation");
+    document.l10n.setAttributes(
+      descElement,
+      "openpgp-reminder-partial-display"
+    );
+    document
+      .getElementById("openpgpProcessPartial")
+      .setAttribute("hidden", true);
+    this.messageDecrypt(null, false);
   },
 
   getBodyElement(pbMessageIndex = "0") {
@@ -1471,9 +1469,6 @@ Enigmail.msg = {
 
     var displayedUriSpec = Enigmail.msg.getCurrentMsgUriSpec();
     if (!msgUriSpec || displayedUriSpec == msgUriSpec) {
-      if (tail.length > 0) {
-        statusFlags |= EnigmailConstants.PARTIALLY_PGP;
-      }
       Enigmail.hdrView.updateHdrIcons(
         exitCode,
         statusFlags,
@@ -1650,26 +1645,6 @@ Enigmail.msg = {
       }
     }
 
-    var msgRfc822Text = "";
-    if (tail) {
-      msgRfc822Text +=
-        EnigmailData.convertFromUnicode(
-          await document.l10n.formatValue("begin-pgp-part"),
-          charset
-        ) + "\n\n";
-    }
-    msgRfc822Text += plainText;
-    if (tail) {
-      msgRfc822Text +=
-        "\n\n" +
-        EnigmailData.convertFromUnicode(
-          await document.l10n.formatValue("end-pgp-part"),
-          charset
-        ) +
-        "\n\n" +
-        tail;
-    }
-
     Enigmail.msg.decryptedMessage = {
       url: messageUrl,
       uri: msgUriSpec,
@@ -1677,7 +1652,7 @@ Enigmail.msg = {
       hasAttachments,
       attachmentsEncrypted,
       charset,
-      plainText: msgRfc822Text,
+      plainText,
     };
 
     // don't display decrypted message if message selection has changed
@@ -1692,7 +1667,6 @@ Enigmail.msg = {
       false
     );
 
-    Enigmail.msg.noShowReload = true;
     var node;
     var bodyElement = Enigmail.msg.getBodyElement(pbMessageIndex);
 
@@ -1951,7 +1925,7 @@ Enigmail.msg = {
     p.catch(async function() {
       EnigmailDialog.alert(
         window,
-        await document.l10n.formatValue("fix-broken-exchange-msg-failed")
+        l10n.formatValueSync("fix-broken-exchange-msg-failed")
       );
       hideBrokenExchangePane();
     });
@@ -2602,7 +2576,7 @@ Enigmail.msg = {
     if (!signatureAtt) {
       EnigmailDialog.alert(
         window,
-        await document.l10n.formatValue("attachment-no-match-to-signature", {
+        l10n.formatValueSync("attachment-no-match-to-signature", {
           attachment: EnigmailMsgRead.getAttachmentName(origAtt),
         })
       );
@@ -2611,7 +2585,7 @@ Enigmail.msg = {
     if (!origAtt) {
       EnigmailDialog.alert(
         window,
-        await document.l10n.formatValue("attachment-no-match-from-signature", {
+        l10n.formatValueSync("attachment-no-match-from-signature", {
           attachment: EnigmailMsgRead.getAttachmentName(signatureAtt),
         })
       );
@@ -2624,10 +2598,7 @@ Enigmail.msg = {
     outFile1 = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     outFile1.initWithPath(tmpDir);
     if (!(outFile1.isDirectory() && outFile1.isWritable())) {
-      EnigmailDialog.alert(
-        window,
-        await document.l10n.formatValue("no-temp-dir")
-      );
+      EnigmailDialog.alert(window, l10n.formatValueSync("no-temp-dir"));
       return;
     }
     outFile1.append(EnigmailMsgRead.getAttachmentName(origAtt));
@@ -2657,9 +2628,9 @@ Enigmail.msg = {
     promise.then(async function(message) {
       EnigmailDialog.info(
         window,
-        (await document.l10n.formatValue("signature-verified-ok", {
+        l10n.formatValueSync("signature-verified-ok", {
           attachment: EnigmailMsgRead.getAttachmentName(origAtt),
-        })) +
+        }) +
           "\n\n" +
           message
       );
@@ -2667,9 +2638,9 @@ Enigmail.msg = {
     promise.catch(async function(err) {
       EnigmailDialog.alert(
         window,
-        (await document.l10n.formatValue("signature-verify-failed", {
+        l10n.formatValueSync("signature-verify-failed", {
           attachment: EnigmailMsgRead.getAttachmentName(origAtt),
-        })) +
+        }) +
           "\n\n" +
           err
       );
@@ -2763,7 +2734,7 @@ Enigmail.msg = {
     if (callbackArg.actionType == "saveAttachment") {
       outFile = EnigmailDialog.filePicker(
         window,
-        await document.l10n.formatValue("save-attachment-header"),
+        l10n.formatValueSync("save-attachment-header"),
         Enigmail.msg.lastSaveDir,
         true,
         "",
@@ -2790,13 +2761,13 @@ Enigmail.msg = {
         outFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
         outFile.initWithPath(tmpDir);
         if (!(outFile.isDirectory() && outFile.isWritable())) {
-          errorMsgObj.value = await document.l10n.formatValue("no-temp-dir");
+          errorMsgObj.value = l10n.formatValueSync("no-temp-dir");
           return;
         }
         outFile.append(rawFileName);
         outFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
       } catch (ex) {
-        errorMsgObj.value = await document.l10n.formatValue("no-temp-dir");
+        errorMsgObj.value = l10n.formatValueSync("no-temp-dir");
         return;
       }
     }

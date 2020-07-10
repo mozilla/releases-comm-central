@@ -39,3 +39,26 @@ openpgp-broken-exchange-info = This is an OpenPGP message that was apparently co
 openpgp-broken-exchange-repair =
     .label = Repair message
 openpgp-broken-exchange-wait = Please wait ...
+
+openpgp-cannot-decrypt-because-mdc =
+    This is an encrypted message that uses an old and vulnerable mechanism.
+    It could have been modified while in transit, with the intention to steal its contents.
+    To prevent this risk, the contents are not shown.
+
+openpgp-cannot-decrypt-because-missing-key =
+    The secret key that is required to decrypt this message is not available.
+
+openpgp-partially-signed =
+    Only a subset of this message was digitally signed using OpenPGP.
+    If you click the verify button, the unprotected parts will be hidden, and the status of the digital signature will be shown.
+
+openpgp-partially-encrypted =
+    Only a subset of this message was encrypted using OpenPGP.
+    The readable parts of the message that are already shown were not encrypted.
+    If you click the decrypt button, the contents of the encrypted parts will be shown.
+
+openpgp-reminder-partial-display = Reminder: The message shown below is only a subset of the original message.
+
+openpgp-partial-verify-button = Verify
+openpgp-partial-decrypt-button = Decrypt
+

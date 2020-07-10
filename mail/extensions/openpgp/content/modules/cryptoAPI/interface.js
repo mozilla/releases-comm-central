@@ -30,8 +30,6 @@ class CryptoAPI {
    * @return {Variant} whatever the promise returns
    */
   sync(promise) {
-    console.log("CryptoAPI.sync() starting");
-
     if (!inspector) {
       inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(
         Ci.nsIJSInspector
@@ -51,8 +49,6 @@ class CryptoAPI {
       });
 
     inspector.enterNestedEventLoop(0);
-
-    console.log("CryptoAPI.sync() leaving");
     return res;
   }
 

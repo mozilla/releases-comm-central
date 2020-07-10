@@ -359,34 +359,6 @@ Enigmail.hdrView = {
     this.msgSignatureKeyId = keyId;
     this.msgEncryptionKeyId = encToDetails;
 
-    if (statusFlags & EnigmailConstants.PARTIALLY_PGP) {
-      console.debug("unhandled PARTIALLY_PGP => statusFlags = 0");
-      statusFlags = 0;
-    }
-
-    /*
-    if (xtraStatus === "process-manually") {
-      let buttonLabel = "";
-      if (statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) {
-        statusLine = EnigmailLocale.getString("msgPart", [
-          EnigmailLocale.getString("msgSigned"),
-        ]);
-        statusLine += EnigmailLocale.getString("verifyManually");
-        buttonLabel = EnigmailLocale.getString("headerView.button.verify");
-      } else {
-        statusLine = EnigmailLocale.getString("msgPart", [
-          EnigmailLocale.getString("msgEncrypted"),
-        ]);
-        statusLine += EnigmailLocale.getString("decryptManually");
-        buttonLabel = EnigmailLocale.getString("headerView.button.decrypt");
-      }
-
-      Enigmail.msg.securityInfo = {};
-      this.displayFlexAction(statusLine, buttonLabel, xtraStatus);
-      return;
-    }
-    */
-
     let tmp = {
       statusFlags,
       extStatusFlags,
@@ -541,10 +513,26 @@ Enigmail.hdrView = {
         EnigmailConstants.DECRYPTION_INCOMPLETE)
     ) {
       encryptedUINode.setAttribute("encrypted", "notok");
+      let unhideBar = false;
+      let infoId;
       if (statusFlags & EnigmailConstants.NO_SECKEY) {
         this.msgEncryptionState = EnigmailConstants.MSG_ENC_NO_SECRET_KEY;
+
+        unhideBar = true;
+        infoId = "openpgp-cannot-decrypt-because-missing-key";
       } else {
         this.msgEncryptionState = EnigmailConstants.MSG_ENC_FAILURE;
+        if (statusFlags & EnigmailConstants.MISSING_MDC) {
+          unhideBar = true;
+          infoId = "openpgp-cannot-decrypt-because-mdc";
+        }
+      }
+      if (unhideBar) {
+        document.getElementById("cannotDecryptBox").removeAttribute("hidden");
+        let descElement = document.getElementById("cannot-decrypt-explanation");
+        if (descElement) {
+          document.l10n.setAttributes(descElement, infoId);
+        }
       }
       this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
     } else if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {

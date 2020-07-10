@@ -530,8 +530,6 @@ decrypt-ok-no-sig =
     Warning
     Decryption was successful, but the signature could not be verified correctly
 msg-ovl-button-cont-anyway = &Continue Anyway
-begin-pgp-part = ********* *BEGIN ENCRYPTED or SIGNED PART* *********
-end-pgp-part = ********** *END ENCRYPTED or SIGNED PART* **********
 enig-content-note = *Attachments to this message have not been signed nor encrypted*
 
 # Strings used in enigmailMsgComposeOverlay.js
