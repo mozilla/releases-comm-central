@@ -499,11 +499,15 @@
           }
 
           for (let tabMonitor of this.tabMonitors) {
-            if ("supportsCommand" in tabMonitor) {
-              let result = tabMonitor.supportsCommand(aCommand, tab);
-              if (result !== null) {
-                return result;
+            try {
+              if ("supportsCommand" in tabMonitor) {
+                let result = tabMonitor.supportsCommand(aCommand, tab);
+                if (result !== null) {
+                  return result;
+                }
               }
+            } catch (ex) {
+              console.error(ex);
             }
           }
 
@@ -525,11 +529,15 @@
           }
 
           for (let tabMonitor of this.tabMonitors) {
-            if ("isCommandEnabled" in tabMonitor) {
-              let result = tabMonitor.isCommandEnabled(aCommand, tab);
-              if (result !== null) {
-                return result;
+            try {
+              if ("isCommandEnabled" in tabMonitor) {
+                let result = tabMonitor.isCommandEnabled(aCommand, tab);
+                if (result !== null) {
+                  return result;
+                }
               }
+            } catch (ex) {
+              console.error(ex);
             }
           }
 
@@ -551,11 +559,15 @@
           }
 
           for (let tabMonitor of this.tabMonitors) {
-            if ("doCommand" in tabMonitor) {
-              let result = tabMonitor.doCommand(aCommand, tab);
-              if (result === true) {
-                return;
+            try {
+              if ("doCommand" in tabMonitor) {
+                let result = tabMonitor.doCommand(aCommand, tab);
+                if (result === true) {
+                  return;
+                }
               }
+            } catch (ex) {
+              console.error(ex);
             }
           }
 
@@ -798,10 +810,14 @@
         firstTab.browser._progressListenerAdded = true;
 
         for (let tabMonitor of this.tabMonitors) {
-          if ("onTabOpened" in tabMonitor) {
-            tabMonitor.onTabOpened(firstTab, true);
+          try {
+            if ("onTabOpened" in tabMonitor) {
+              tabMonitor.onTabOpened(firstTab, true);
+            }
+            tabMonitor.onTabSwitched(firstTab, null);
+          } catch (ex) {
+            console.error(ex);
           }
-          tabMonitor.onTabSwitched(firstTab, null);
         }
 
         // Dispatch tab opening event
@@ -965,21 +981,25 @@
 
         let restoreState = this._restoringTabState;
         for (let tabMonitor of this.tabMonitors) {
-          if (
-            "onTabRestored" in tabMonitor &&
-            restoreState &&
-            tabMonitor.monitorName in restoreState.ext
-          ) {
-            tabMonitor.onTabRestored(
-              tab,
-              restoreState.ext[tabMonitor.monitorName],
-              false
-            );
-          } else if ("onTabOpened" in tabMonitor) {
-            tabMonitor.onTabOpened(tab, false, oldTab);
-          }
-          if (!background) {
-            tabMonitor.onTabSwitched(tab, oldTab);
+          try {
+            if (
+              "onTabRestored" in tabMonitor &&
+              restoreState &&
+              tabMonitor.monitorName in restoreState.ext
+            ) {
+              tabMonitor.onTabRestored(
+                tab,
+                restoreState.ext[tabMonitor.monitorName],
+                false
+              );
+            } else if ("onTabOpened" in tabMonitor) {
+              tabMonitor.onTabOpened(tab, false, oldTab);
+            }
+            if (!background) {
+              tabMonitor.onTabSwitched(tab, oldTab);
+            }
+          } catch (ex) {
+            console.error(ex);
           }
         }
 
@@ -1134,8 +1154,12 @@
 
       tabNode.dispatchEvent(evt);
       for (let tabMonitor of this.tabMonitors) {
-        if ("onTabClosing" in tabMonitor) {
-          tabMonitor.onTabClosing(tab);
+        try {
+          if ("onTabClosing" in tabMonitor) {
+            tabMonitor.onTabClosing(tab);
+          }
+        } catch (ex) {
+          console.error(ex);
         }
       }
 
@@ -1368,11 +1392,15 @@
 
       let ext = {};
       for (let tabMonitor of this.tabMonitors) {
-        if ("onTabPersist" in tabMonitor) {
-          let monState = tabMonitor.onTabPersist(tab);
-          if (monState !== null) {
-            ext[tabMonitor.monitorName] = monState;
+        try {
+          if ("onTabPersist" in tabMonitor) {
+            let monState = tabMonitor.onTabPersist(tab);
+            if (monState !== null) {
+              ext[tabMonitor.monitorName] = monState;
+            }
           }
+        } catch (ex) {
+          console.error(ex);
         }
       }
 
@@ -1632,7 +1660,11 @@
         }
 
         for (let tabMonitor of this.tabMonitors) {
-          tabMonitor.onTabSwitched(tab, oldTab);
+          try {
+            tabMonitor.onTabSwitched(tab, oldTab);
+          } catch (ex) {
+            console.error(ex);
+          }
         }
 
         // always update the cursor status when we switch tabs
@@ -1701,7 +1733,11 @@
         }
 
         for (let tabMonitor of this.tabMonitors) {
-          tabMonitor.onTabTitleChanged(tab);
+          try {
+            tabMonitor.onTabTitleChanged(tab);
+          } catch (ex) {
+            console.error(ex);
+          }
         }
 
         // If the displayed tab is the one at the moment of creation
