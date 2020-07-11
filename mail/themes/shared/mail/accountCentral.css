@@ -386,7 +386,6 @@ aside.settings-btn-container {
   -moz-appearance: none;
   display: flex;
   background-color: transparent;
-  color: var(--text-color);
   -moz-context-properties: fill;
   fill: currentColor;
   border: none;
@@ -425,7 +424,8 @@ aside.settings-btn-container {
 
 .btn-link:hover,
 .resource-link:hover {
-  color: var(--primary-color-hover);
+  color: var(--primary-color-hover) !important;
+  background-color: transparent;
 }
 
 .resource-link:focus:not(:hover) {
