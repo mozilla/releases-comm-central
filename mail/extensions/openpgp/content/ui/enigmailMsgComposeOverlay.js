@@ -1866,6 +1866,10 @@ Enigmail.msg = {
       f &= ~EnigmailConstants.SEND_SIGNED;
     }
 
+    if (gSendEncrypted && gSendSigned) {
+      f |= EnigmailConstants.SEND_TWO_MIME_LAYERS;
+    }
+
     return f;
   },
 
@@ -2200,10 +2204,18 @@ Enigmail.msg = {
       return false;
     }
 
+    let senderKeyIsGnuPG =
+      Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&
+      this.identity.getBoolAttribute("is_gnupg_key_id");
+    if (senderKeyIsGnuPG) {
+      sendFlags |= EnigmailConstants.SEND_SENDER_KEY_EXTERNAL;
+    }
+
     if ((gSendEncrypted || gSendSigned) && senderKeyId) {
       let senderKeyUsable = await EnigmailEncryption.determineOwnKeyUsability(
         sendFlags,
-        senderKeyId
+        senderKeyId,
+        senderKeyIsGnuPG
       );
       if (senderKeyUsable.errorMsg) {
         let fullAlert = await document.l10n.formatValue(

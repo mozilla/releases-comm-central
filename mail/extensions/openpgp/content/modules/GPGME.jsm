@@ -8,6 +8,9 @@ var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var { GPGMELibLoader } = ChromeUtils.import(
   "chrome://openpgp/content/modules/GPGMELib.jsm"
 );
+var { EnigmailConstants } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+);
 
 var GPGMELib;
 
@@ -108,6 +111,75 @@ var GPGME = {
 
     GPGMELib.gpgme_release(c1);
 
+    return result;
+  },
+
+  async signDetached(plaintext, args, resultStatus) {
+    resultStatus.exitCode = -1;
+    resultStatus.statusFlags = 0;
+    resultStatus.statusMsg = "";
+    resultStatus.errorMsg = "";
+
+    if (args.encrypt || !args.sign || !args.sigTypeDetached) {
+      throw new Error("invalid parameters, neither encrypt nor sign");
+    }
+
+    let result = null;
+    //args.sender must be keyId
+    let keyId = args.sender.replace(/^0x/, "").toUpperCase();
+
+    let ctx = new GPGMELib.gpgme_ctx_t();
+    if (GPGMELib.gpgme_new(ctx.address())) {
+      throw new Error("gpgme_new failed");
+    }
+    GPGMELib.gpgme_set_armor(ctx, 1);
+    GPGMELib.gpgme_set_textmode(ctx, 1);
+    let keyHandle = new GPGMELib.gpgme_key_t();
+    if (!GPGMELib.gpgme_get_key(ctx, keyId, keyHandle.address(), 1)) {
+      if (!GPGMELib.gpgme_signers_add(ctx, keyHandle)) {
+        var tmp_array = ctypes.char.array()(plaintext);
+        let data_plaintext = new GPGMELib.gpgme_data_t();
+        if (
+          !GPGMELib.gpgme_data_new_from_mem(
+            data_plaintext.address(),
+            tmp_array,
+            tmp_array.length,
+            0
+          )
+        ) {
+          let data_signed = new GPGMELib.gpgme_data_t();
+          if (!GPGMELib.gpgme_data_new(data_signed.address())) {
+            let exitCode = GPGMELib.gpgme_op_sign(
+              ctx,
+              data_plaintext,
+              data_signed,
+              GPGMELib.GPGME_SIG_MODE_DETACH
+            );
+            if (exitCode != GPGMELib.GPG_ERR_NO_ERROR) {
+              GPGMELib.gpgme_data_release(data_signed);
+            } else {
+              let result_len = new ctypes.size_t();
+              let result_buf = GPGMELib.gpgme_data_release_and_get_mem(
+                data_signed,
+                result_len.address()
+              );
+              if (!result_buf.isNull()) {
+                let unwrapped = ctypes.cast(
+                  result_buf,
+                  ctypes.char.array(result_len.value).ptr
+                ).contents;
+                result = unwrapped.readString();
+                resultStatus.exitCode = 0;
+                resultStatus.statusFlags |= EnigmailConstants.SIG_CREATED;
+                GPGMELib.gpgme_free(result_buf);
+              }
+            }
+          }
+        }
+      }
+      GPGMELib.gpgme_key_release(keyHandle);
+    }
+    GPGMELib.gpgme_release(ctx);
     return result;
   },
 };

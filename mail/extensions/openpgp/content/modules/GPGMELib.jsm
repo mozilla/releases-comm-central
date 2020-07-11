@@ -6,6 +6,7 @@ const EXPORTED_SYMBOLS = ["GPGMELibLoader"];
 
 var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var systemOS = Services.appinfo.OS.toLowerCase();
 var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var abi = ctypes.default_abi;
 
@@ -38,7 +39,7 @@ function tryLoadGPGME(name, suffix) {
     } catch (e) {}
   }
 
-  if (!libgpgme && Services.appinfo.OS !== "WINNT") {
+  if (!libgpgme && systemOS !== "winnt") {
     // try specific additional directories
 
     for (let tryPath of ADDITIONAL_LIB_PATHS) {
@@ -56,7 +57,7 @@ function tryLoadGPGME(name, suffix) {
 
   if (libgpgme) {
     console.debug(
-      "Successfully loaded OpenPGP library " +
+      "Successfully loaded optional OpenPGP library " +
         filename +
         " from " +
         loadFromInfo
@@ -66,14 +67,25 @@ function tryLoadGPGME(name, suffix) {
 
 function loadExternalGPGMELib() {
   if (!libgpgme) {
-    // Try loading libgpgme.so, libgpgme.dylib, or gpgme.dll first
+    if (systemOS === "winnt") {
+      tryLoadGPGME("libgpgme-11", "");
 
-    let gpgmeLibName = "gpgme";
-
-    if (Services.appinfo.OS === "WINNT") {
-      gpgmeLibName = "libgpgme-11";
+      if (!libgpgme) {
+        tryLoadGPGME("gpgme-11", "");
+      }
     }
-    tryLoadGPGME(gpgmeLibName, "");
+
+    if (!libgpgme) {
+      tryLoadGPGME("gpgme", "");
+    }
+
+    if (!libgpgme) {
+      tryLoadGPGME("gpgme", ".11");
+    }
+
+    if (!libgpgme) {
+      tryLoadGPGME("gpgme.11");
+    }
   }
 
   return !!libgpgme;
@@ -102,8 +114,7 @@ const gpgme_sig_notation_flags_t = ctypes.unsigned_int;
 const gpgme_export_mode_t = ctypes.unsigned_int;
 const gpgme_decrypt_flags_t = ctypes.unsigned_int;
 const gpgme_data_encoding_t = ctypes.unsigned_int;
-
-gpgme_data_t;
+const gpgme_sig_mode_t = ctypes.int; // it's an enum, risk of wrong type.
 
 let _gpgme_subkey = ctypes.StructType("_gpgme_subkey");
 _gpgme_subkey.define([
@@ -474,6 +485,42 @@ function enableGPGMELibJS() {
       gpgme_data_encoding_t
     ),
 
+    gpgme_op_sign: libgpgme.declare(
+      "gpgme_op_sign",
+      abi,
+      gpgme_error_t,
+      gpgme_ctx_t,
+      gpgme_data_t,
+      gpgme_data_t,
+      gpgme_sig_mode_t
+    ),
+
+    gpgme_signers_add: libgpgme.declare(
+      "gpgme_signers_add",
+      abi,
+      gpgme_error_t,
+      gpgme_ctx_t,
+      gpgme_key_t
+    ),
+
+    gpgme_get_key: libgpgme.declare(
+      "gpgme_get_key",
+      abi,
+      gpgme_error_t,
+      gpgme_ctx_t,
+      ctypes.char.ptr,
+      gpgme_key_t.ptr,
+      ctypes.int
+    ),
+
+    gpgme_set_textmode: libgpgme.declare(
+      "gpgme_set_textmode",
+      abi,
+      ctypes.void_t,
+      gpgme_ctx_t,
+      ctypes.int
+    ),
+
     gpgme_error_t,
     gpgme_ctx_t,
     gpgme_data_t,
@@ -499,5 +546,6 @@ function enableGPGMELibJS() {
     GPGME_EXPORT_MODE_SECRET: 16,
     GPGME_DECRYPT_UNWRAP: 128,
     GPGME_DATA_ENCODING_ARMOR: 3,
+    GPGME_SIG_MODE_DETACH: 1,
   };
 }

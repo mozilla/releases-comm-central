@@ -32,6 +32,8 @@ pref("mail.openpgp.allow_external_gnupg", false);
 pref("mail.openpgp.alternative_gpg_path", "");
 // The hexadecimal OpenPGP key ID used for an identity.
 pref("mail.identity.default.openpgp_key_id", "");
+// If true, then openpgp_key_id is managed externally by GnuPG
+pref("mail.identity.default.is_gnupg_key_id", false);
 
 // When sending, encrypt to this additional key. Not available in release channel builds.
 pref("mail.openpgp.debug.extra_encryption_key", "");

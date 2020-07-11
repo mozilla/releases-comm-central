@@ -1822,6 +1822,25 @@ var RNP = {
   },
 
   async encryptAndOrSign(plaintext, args, resultStatus) {
+    if (args.sign && args.senderKeyIsExternal) {
+      if (!GPGME.allDependenciesLoaded()) {
+        throw new Error(
+          "invalid configuration, request to use external GnuPG key, but GPGME isn't working"
+        );
+      }
+      if (args.encrypt) {
+        throw new Error(
+          "internal error, unexpected request to sign and encrypt in a single step with external GnuPG key configuration"
+        );
+      }
+      if (!args.sigTypeDetached || args.sigTypeClear) {
+        throw new Error(
+          "unexpected signing request with external GnuPG key configuration"
+        );
+      }
+      return GPGME.signDetached(plaintext, args, resultStatus);
+    }
+
     resultStatus.exitCode = -1;
     resultStatus.statusFlags = 0;
     resultStatus.statusMsg = "";
@@ -1895,21 +1914,26 @@ var RNP = {
       if (!senderKey || senderKey.isNull()) {
         return null;
       }
-      let isPersonal = false;
-      let senderKeySecretAvailable = this.getSecretAvailableFromHandle(
-        senderKey
-      );
-      if (senderKeySecretAvailable) {
-        let senderFpr = this.getFingerprintFromHandle(senderKey);
-        isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(senderFpr);
-      }
-      if (!isPersonal) {
-        throw new Error(
-          "configured sender key " +
-            args.sender +
-            " isn't accepted as a personal key"
+      // Manually configured external key overrides the check for
+      // a valid personal key.
+      if (!args.senderKeyIsExternal) {
+        let isPersonal = false;
+        let senderKeySecretAvailable = this.getSecretAvailableFromHandle(
+          senderKey
         );
+        if (senderKeySecretAvailable) {
+          let senderFpr = this.getFingerprintFromHandle(senderKey);
+          isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(senderFpr);
+        }
+        if (!isPersonal) {
+          throw new Error(
+            "configured sender key " +
+              args.sender +
+              " isn't accepted as a personal key"
+          );
+        }
       }
+
       if (args.encryptToSender) {
         this.addSuitableEncryptKey(senderKey, op);
       }
