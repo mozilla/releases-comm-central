@@ -231,10 +231,7 @@ ActivityProcess.prototype = {
     }
   },
 
-  QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIActivityProcess,
-    Ci.nsIActivity,
-  ]),
+  QueryInterface: ChromeUtils.generateQI(["nsIActivityProcess", "nsIActivity"]),
 };
 
 function ActivityEvent() {
@@ -278,7 +275,7 @@ ActivityEvent.prototype = {
     }
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityEvent, Ci.nsIActivity]),
+  QueryInterface: ChromeUtils.generateQI(["nsIActivityEvent", "nsIActivity"]),
 };
 
 function ActivityWarning() {
@@ -319,8 +316,5 @@ ActivityWarning.prototype = {
     return this._time;
   },
 
-  QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIActivityWarning,
-    Ci.nsIActivity,
-  ]),
+  QueryInterface: ChromeUtils.generateQI(["nsIActivityWarning", "nsIActivity"]),
 };

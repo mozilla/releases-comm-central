@@ -29,10 +29,10 @@ function ABView(directory, searchQuery, listener, sortColumn, sortDirection) {
 }
 ABView.prototype = {
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsITreeView,
-    Ci.nsIAbDirSearchListener,
-    Ci.nsIObserver,
-    Ci.nsISupportsWeakReference,
+    "nsITreeView",
+    "nsIAbDirSearchListener",
+    "nsIObserver",
+    "nsISupportsWeakReference",
   ]),
 
   directory: null,

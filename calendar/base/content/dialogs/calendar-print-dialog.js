@@ -148,7 +148,7 @@ function getPrintSettings(receiverFunc) {
   // then fetch the items here.
   if (requiresFetch) {
     let listener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDateTime) {
         receiverFunc(settings);
       },

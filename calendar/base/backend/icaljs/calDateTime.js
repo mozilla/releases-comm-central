@@ -14,7 +14,7 @@ function calDateTime(innerObject) {
 }
 
 calDateTime.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIDateTime]),
+  QueryInterface: ChromeUtils.generateQI(["calIDateTime"]),
   classID: Components.ID("{36783242-ec94-4d8a-9248-d2679edd55b9}"),
 
   isMutable: true,

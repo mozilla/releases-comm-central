@@ -75,7 +75,7 @@ function CalProtocolHandlerWebcal() {
 CalProtocolHandlerWebcal.prototype = {
   __proto__: calProtocolHandler.prototype,
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
+  QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
   classID: Components.ID("{1153c73a-39be-46aa-9ba9-656d188865ca}"),
 };
 
@@ -86,6 +86,6 @@ function CalProtocolHandlerWebcals() {
 CalProtocolHandlerWebcals.prototype = {
   __proto__: calProtocolHandler.prototype,
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
+  QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
   classID: Components.ID("{bdf71224-365d-4493-856a-a7e74026f766}"),
 };

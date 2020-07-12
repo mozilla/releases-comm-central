@@ -14,7 +14,7 @@ function CalListFormatter() {
 }
 
 CalListFormatter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIPrintFormatter]),
+  QueryInterface: ChromeUtils.generateQI(["calIPrintFormatter"]),
   classID: Components.ID("{9ae04413-fee3-45b9-8bbb-1eb39a4cbd1b}"),
 
   get name() {

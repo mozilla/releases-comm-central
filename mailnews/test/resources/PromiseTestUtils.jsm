@@ -31,7 +31,7 @@ PromiseTestUtils.PromiseUrlListener = function(aWrapped) {
 };
 
 PromiseTestUtils.PromiseUrlListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIUrlListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIUrlListener"]),
 
   OnStartRunningUrl(aUrl) {
     if (this.wrapped && this.wrapped.OnStartRunningUrl) {
@@ -69,7 +69,7 @@ PromiseTestUtils.PromiseCopyListener = function(aWrapped) {
 };
 
 PromiseTestUtils.PromiseCopyListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
   OnStartCopy() {
     if (this.wrapped && this.wrapped.OnStartCopy) {
       this.wrapped.OnStartCopy();
@@ -127,7 +127,7 @@ PromiseTestUtils.PromiseStreamListener = function(aWrapped) {
 };
 
 PromiseTestUtils.PromiseStreamListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
   onStartRequest(aRequest) {
     if (this.wrapped && this.wrapped.onStartRequest) {
@@ -177,7 +177,7 @@ PromiseTestUtils.PromiseStreamListener.prototype = {
 PromiseTestUtils.promiseFolderEvent = function(folder, event) {
   return new Promise((resolve, reject) => {
     let folderListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
+      QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
       OnItemEvent(aEventFolder, aEvent) {
         if (folder === aEventFolder && event == aEvent) {
           MailServices.mailSession.RemoveFolderListener(folderListener);
@@ -288,7 +288,7 @@ PromiseTestUtils.PromiseSearchNotify = function(aSearchSession, aWrapped) {
 };
 
 PromiseTestUtils.PromiseSearchNotify.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSearchNotify]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSearchNotify"]),
   onSearchHit(aHeader, aFolder) {
     if (this.wrapped && this.wrapped.onSearchHit) {
       this.wrapped.onSearchHit(aHeader, aFolder);

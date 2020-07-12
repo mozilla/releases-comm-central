@@ -326,7 +326,7 @@ function saveEventsToFile(calendarEventArray, aDefaultFileName) {
 function exportEntireCalendar(aCalendar) {
   let itemArray = [];
   let getListener = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
     onOperationComplete(aOpCalendar, aStatus, aOperationType, aId, aDetail) {
       saveEventsToFile(itemArray, aOpCalendar.name);
     },

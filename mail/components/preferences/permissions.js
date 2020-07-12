@@ -37,7 +37,7 @@ var gPermissionManager = {
   _observerRemoved: false,
 
   _view: {
-    QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
+    QueryInterface: ChromeUtils.generateQI(["nsITreeView"]),
     _rowCount: 0,
     get rowCount() {
       return this._rowCount;

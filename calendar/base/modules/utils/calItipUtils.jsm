@@ -1528,7 +1528,7 @@ function ItipOpListener(aOpListener, aOldItem, aExtResponse = null) {
   this.mExtResponse = aExtResponse;
 }
 ItipOpListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+  QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
 
   mOpListener: null,
   mOldItem: null,
@@ -1610,7 +1610,7 @@ function ItipItemFinder(aId, itipItem, optionsFunc) {
 }
 
 ItipItemFinder.prototype = {
-  QueryInterface: cal.generateQI([Ci.calIObserver, Ci.calIOperationListener]),
+  QueryInterface: cal.generateQI(["calIObserver", "calIOperationListener"]),
 
   mSearchId: null,
   mItipItem: null,

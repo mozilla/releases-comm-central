@@ -77,7 +77,16 @@ var calDavCalendarInterfaces = [
 CalDavCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
   classID: calDavCalendarClassID,
-  QueryInterface: cal.generateQI(calDavCalendarInterfaces),
+  QueryInterface: cal.generateQI([
+    "calICalendarProvider",
+    "nsIInterfaceRequestor",
+    "calIFreeBusyProvider",
+    "calIItipTransport",
+    "calISchedulingSupport",
+    "calICalendar",
+    "calIChangeLog",
+    "calICalDavCalendar",
+  ]),
   classInfo: cal.generateCI({
     classID: calDavCalendarClassID,
     contractID: "@mozilla.org/calendar/calendar;1?type=caldav",
@@ -256,7 +265,7 @@ CalDavCalendar.prototype = {
     let self = this;
     let refreshNeeded = false;
     let getMetaListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
         for (let item of aItems) {
           if (!(item.id in self.mItemInfoCache)) {
@@ -1178,7 +1187,7 @@ CalDavCalendar.prototype = {
     if (!this.mACLEntry) {
       let self = this;
       let opListener = {
-        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+        QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
         onGetResult(calendar, status, itemType, detail, items) {
           cal.ASSERT(false, "unexpected!");
         },
@@ -2124,7 +2133,7 @@ CalDavCalendar.prototype = {
     let self = this;
 
     let getItemListener = {};
-    getItemListener.QueryInterface = ChromeUtils.generateQI([Ci.calIOperationListener]);
+    getItemListener.QueryInterface = ChromeUtils.generateQI(["calIOperationListener"]);
     getItemListener.onOperationComplete = function(
       aCalendar,
       aStatus,
@@ -2157,7 +2166,7 @@ CalDavCalendar.prototype = {
     };
 
     let modListener = {};
-    modListener.QueryInterface = ChromeUtils.generateQI([Ci.calIOperationListener]);
+    modListener.QueryInterface = ChromeUtils.generateQI(["calIOperationListener"]);
     modListener.onOperationComplete = function(
       aCalendar,
       aStatus,

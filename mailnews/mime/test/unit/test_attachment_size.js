@@ -244,7 +244,7 @@ var messages = [
 ];
 
 var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
   // nsIRequestObserver part
   onStartRequest(aRequest) {

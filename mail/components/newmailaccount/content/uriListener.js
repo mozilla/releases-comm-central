@@ -113,7 +113,7 @@ httpRequestObserver.prototype = {
     return null;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 };
 
 /**
@@ -269,7 +269,7 @@ TracingListener.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIStreamListener,
-    Ci.nsIRequestObserver,
+    "nsIStreamListener",
+    "nsIRequestObserver",
   ]),
 };

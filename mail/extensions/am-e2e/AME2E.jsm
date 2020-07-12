@@ -20,5 +20,5 @@ E2EService.prototype = {
     );
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgAccountManagerExtension]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgAccountManagerExtension"]),
 };

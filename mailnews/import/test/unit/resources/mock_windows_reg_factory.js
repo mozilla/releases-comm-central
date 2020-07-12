@@ -9,7 +9,7 @@ function MockWindowsRegKey(registryData) {
 }
 
 MockWindowsRegKey.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowsRegKey]),
+  QueryInterface: ChromeUtils.generateQI(["nsIWindowsRegKey"]),
 
   open(aRootKey, aRelPath, aMode) {
     if (!this._registryData[aRelPath]) {

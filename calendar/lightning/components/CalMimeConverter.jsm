@@ -13,7 +13,7 @@ function CalMimeConverter() {
 }
 
 CalMimeConverter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleMimeConverter]),
+  QueryInterface: ChromeUtils.generateQI(["nsISimpleMimeConverter"]),
   classID: Components.ID("{c70acb08-464e-4e55-899d-b2c84c5409fa}"),
 
   uri: null,

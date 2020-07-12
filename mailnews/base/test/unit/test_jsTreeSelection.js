@@ -9,7 +9,7 @@ const { JSTreeSelection } = ChromeUtils.import(
 var fakeView = {
   rowCount: 101,
   selectionChanged() {},
-  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
+  QueryInterface: ChromeUtils.generateQI(["nsITreeView"]),
 };
 
 var sel = new JSTreeSelection(null);

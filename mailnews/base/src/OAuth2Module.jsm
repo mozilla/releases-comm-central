@@ -22,7 +22,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 function OAuth2Module() {}
 OAuth2Module.prototype = {
   // XPCOM registration stuff
-  QueryInterface: ChromeUtils.generateQI([Ci.msgIOAuth2Module]),
+  QueryInterface: ChromeUtils.generateQI(["msgIOAuth2Module"]),
 
   initFromSmtp(aServer) {
     return this._initPrefs(

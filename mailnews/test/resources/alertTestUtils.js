@@ -169,7 +169,7 @@ var alertUtilsPrompts = {
     return false;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIPrompt]),
+  QueryInterface: ChromeUtils.generateQI(["nsIPrompt"]),
 };
 
 var alertUtilsPromptService = {
@@ -343,8 +343,8 @@ var alertUtilsPromptService = {
   },
 
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIPromptService,
-    Ci.nsIPromptService2,
+    "nsIPromptService",
+    "nsIPromptService2",
   ]),
 };
 
@@ -359,7 +359,7 @@ var alertUtilsWindowWatcher = {
     );
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowWatcher]),
+  QueryInterface: ChromeUtils.generateQI(["nsIWindowWatcher"]),
 };
 
 function registerAlertTestUtils() {

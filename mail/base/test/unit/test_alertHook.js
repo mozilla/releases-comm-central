@@ -21,7 +21,7 @@ alertHook.init();
 var gAlertShown = false;
 
 var mockAlertsService = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAlertsService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
 
   showAlertNotification(
     imageUrl,

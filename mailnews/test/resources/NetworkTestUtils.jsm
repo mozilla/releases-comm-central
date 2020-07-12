@@ -52,7 +52,7 @@ function SocksClient(client_in, client_out) {
 }
 SocksClient.prototype = {
   // ... implement nsIInputStreamCallback ...
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIInputStreamCallback]),
+  QueryInterface: ChromeUtils.generateQI(["nsIInputStreamCallback"]),
   onInputStreamReady(input) {
     var len = input.available();
     var bin = new BinaryInputStream(input);
@@ -196,7 +196,7 @@ function SocksTestServer() {
   this.client_connections = [];
 }
 SocksTestServer.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIServerSocketListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIServerSocketListener"]),
 
   onSocketAccepted(socket, trans) {
     var input = trans.openInputStream(0, 0, 0);
@@ -258,7 +258,7 @@ var NetworkTestUtils = {
         Ci.nsIProtocolProxyService
       );
       let filter = {
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolProxyFilter]),
+        QueryInterface: ChromeUtils.generateQI(["nsIProtocolProxyFilter"]),
         applyFilter(aURI, aProxyInfo, aCallback) {
           if (aURI.host != "localhost" && aURI.host != "127.0.0.1") {
             aCallback.onProxyFilterResult(

@@ -7,8 +7,8 @@
   a mailnews URL extended for a hypthetical account type "foo".
 **/
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+var { ComponentUtils } = ChromeUtils.import(
+  "resource://gre/modules/ComponentUtils.jsm"
 );
 const { JSAccountUtils } = ChromeUtils.import(
   "resource:///modules/jsaccount/JSAccountUtils.jsm"
@@ -96,4 +96,4 @@ FooUrl.prototype = {
   },
 };
 
-this.NSGetFactory = XPCOMUtils.generateNSGetFactory([FooUrlConstructor]);
+this.NSGetFactory = ComponentUtils.generateNSGetFactory([FooUrlConstructor]);

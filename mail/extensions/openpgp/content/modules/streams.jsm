@@ -60,8 +60,8 @@ var EnigmailStreams = {
       ),
       _onStopCallback: onStopCallback,
       QueryInterface: EnigmailCompat.generateQI([
-        Ci.nsIStreamListener,
-        Ci.nsIRequestObserver,
+        "nsIStreamListener",
+        "nsIRequestObserver",
       ]),
 
       onStartRequest(channel) {

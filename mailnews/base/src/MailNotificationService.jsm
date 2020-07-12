@@ -57,9 +57,9 @@ function NewMailNotificationService() {
 
 NewMailNotificationService.prototype = {
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIObserver,
-    Ci.nsIFolderListener,
-    Ci.mozINewMailNotificationService,
+    "nsIObserver",
+    "nsIFolderListener",
+    "mozINewMailNotificationService",
   ]),
 
   _mUnreadCount: 0,

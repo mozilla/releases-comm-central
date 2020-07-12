@@ -12,7 +12,7 @@ var cICL = Ci.calIChangeLog;
 var cIOL = Ci.calIOperationListener;
 
 var gNoOpListener = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+  QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
   onGetResult(calendar, status, itemType, detail, items) {},
 
   onOperationComplete(calendar, status, opType, id, detail) {},
@@ -53,7 +53,7 @@ function calCachedCalendarObserverHelper(home, isCachedObserver) {
   this.isCachedObserver = isCachedObserver;
 }
 calCachedCalendarObserverHelper.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
   isCachedObserver: false,
 
   onStartBatch() {
@@ -229,7 +229,7 @@ calCachedCalendar.prototype = {
     let self = this;
     self.offlineCachedItems = {};
     let getListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
         for (let item of aItems) {
           self.offlineCachedItems[item.hashId] = item;
@@ -253,7 +253,7 @@ calCachedCalendar.prototype = {
   getOfflineModifiedItems(callbackFunc) {
     let self = this;
     let getListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
         for (let item of aItems) {
           self.offlineCachedItems[item.hashId] = item;
@@ -277,7 +277,7 @@ calCachedCalendar.prototype = {
   getOfflineDeletedItems(callbackFunc) {
     let self = this;
     let getListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onGetResult(aCalendar, aStatus, aItemType, aDetail, aItems) {
         for (let item of aItems) {
           self.offlineCachedItems[item.hashId] = item;
@@ -365,7 +365,7 @@ calCachedCalendar.prototype = {
 
     cal.LOG("[calCachedCalendar] Doing full sync for calendar " + this.uri.spec);
     let completeListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       modifiedTimes: {},
       hasRenewedCalendar: false,
       getsCompleted: 0,

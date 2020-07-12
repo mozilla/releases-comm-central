@@ -32,7 +32,7 @@ function CalStartupService() {
 }
 
 CalStartupService.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
   classID: Components.ID("{2547331f-34c0-4a4b-b93c-b503538ba6d6}"),
 
   // Startup Service Methods

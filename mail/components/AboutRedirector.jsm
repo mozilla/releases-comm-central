@@ -8,7 +8,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function AboutRedirector() {}
 AboutRedirector.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAboutModule]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAboutModule"]),
 
   // Each entry in the map has the key as the part after the "about:" and the
   // value as a record with url and flags entries. Note that each addition here

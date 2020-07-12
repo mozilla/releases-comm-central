@@ -602,13 +602,13 @@ function xmlEncode(string) {
 
 let notificationCallbacks = {
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIInterfaceRequestor,
-    Ci.nsIAuthPrompt2,
-    Ci.nsIChannelEventSink,
+    "nsIInterfaceRequestor",
+    "nsIAuthPrompt2",
+    "nsIChannelEventSink",
   ]),
   getInterface: ChromeUtils.generateQI([
-    Ci.nsIAuthPrompt2,
-    Ci.nsIChannelEventSink,
+    "nsIAuthPrompt2",
+    "nsIChannelEventSink",
   ]),
   promptAuth(channel, level, authInfo) {
     if (authInfo.flags & Ci.nsIAuthInformation.PREVIOUS_FAILED) {

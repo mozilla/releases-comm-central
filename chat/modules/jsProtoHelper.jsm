@@ -221,7 +221,7 @@ var GenericAccountPrototype = {
       _remove() {
         this._account.removeBuddyRequest(this);
       },
-      QueryInterface: ChromeUtils.generateQI([Ci.prplIBuddyRequest]),
+      QueryInterface: ChromeUtils.generateQI(["prplIBuddyRequest"]),
     };
     this._pendingBuddyRequests.push(buddyRequest);
     Services.obs.notifyObservers(buddyRequest, "buddy-authorization-request");
@@ -1193,7 +1193,7 @@ var GenericProtocolPrototype = {
         throw new Error("Every command must have a name and a run function.");
       }
       if (!("QueryInterface" in command)) {
-        command.QueryInterface = ChromeUtils.generateQI([Ci.imICommand]);
+        command.QueryInterface = ChromeUtils.generateQI(["imICommand"]);
       }
       if (!command.hasOwnProperty("usageContext")) {
         command.usageContext = Ci.imICommand.CMD_CONTEXT_ALL;

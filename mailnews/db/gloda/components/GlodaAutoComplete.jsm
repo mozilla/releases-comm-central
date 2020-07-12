@@ -544,7 +544,7 @@ function GlodaAutoComplete() {
 }
 
 GlodaAutoComplete.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAutoCompleteSearch"]),
 
   startSearch(aString, aParam, aResult, aListener) {
     try {

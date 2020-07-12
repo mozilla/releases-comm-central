@@ -328,7 +328,7 @@ function loadCalendarManager() {
   });
 
   calendarList._calendarObserver = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
+    QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 
     onStartBatch() {},
     onEndBatch() {},
@@ -379,7 +379,7 @@ function loadCalendarManager() {
   calendarManager.addCalendarObserver(calendarList._calendarObserver);
 
   calendarList._calendarManagerObserver = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
+    QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver"]),
 
     onCalendarRegistered(calendar) {
       let inComposite = calendar.getProperty("calendar-main-in-composite");
@@ -640,7 +640,7 @@ function showOnlyCalendar(aCalendar) {
 }
 
 var compositeObserver = {
-  QueryInterface: cal.generateQI([Ci.calIObserver, Ci.calICompositeObserver]),
+  QueryInterface: cal.generateQI(["calIObserver", "calICompositeObserver"]),
 
   onStartBatch() {},
   onEndBatch() {},
@@ -704,7 +704,7 @@ function openCalendarSubscriptionsDialog() {
  * Calendar Offline Manager
  */
 var calendarOfflineManager = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
   init() {
     if (this.initialized) {

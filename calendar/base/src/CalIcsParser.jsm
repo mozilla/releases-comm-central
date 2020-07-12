@@ -16,7 +16,7 @@ function CalIcsParser() {
   this.mProperties = [];
 }
 CalIcsParser.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIIcsParser]),
+  QueryInterface: ChromeUtils.generateQI(["calIIcsParser"]),
   classID: Components.ID("{6fe88047-75b6-4874-80e8-5f5800f14984}"),
 
   processIcalComponent(rootComp, aAsyncParsing) {

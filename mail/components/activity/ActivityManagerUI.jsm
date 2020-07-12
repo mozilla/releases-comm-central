@@ -45,5 +45,5 @@ ActivityManagerUI.prototype = {
     return Services.wm.getMostRecentWindow("Activity:Manager");
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityManagerUI]),
+  QueryInterface: ChromeUtils.generateQI(["nsIActivityManagerUI"]),
 };

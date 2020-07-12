@@ -1690,7 +1690,7 @@ function ThreadPaneOnDragStart(aEvent) {
 function messageFlavorDataProvider() {}
 
 messageFlavorDataProvider.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
+  QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
   getFlavorData(aTransferable, aFlavor, aData) {
     if (aFlavor !== "application/x-moz-file-promise") {

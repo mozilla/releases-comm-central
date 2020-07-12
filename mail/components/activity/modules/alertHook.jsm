@@ -40,7 +40,7 @@ var alertHook = {
       .GetStringFromName("brandShortName"));
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgUserFeedbackListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgUserFeedbackListener"]),
 
   onAlert(aMessage, aUrl) {
     // Create a new warning.

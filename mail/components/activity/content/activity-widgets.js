@@ -134,7 +134,7 @@
           // update handler button's visibility
           this.setVisibility(".undo", this.canUndo);
         },
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityListener]),
+        QueryInterface: ChromeUtils.generateQI(["nsIActivityListener"]),
       };
 
       this._activity.addListener(this.activityListener);
@@ -474,7 +474,7 @@
             this.setVisibility(".resume", !this.paused);
           }
         },
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityListener]),
+        QueryInterface: ChromeUtils.generateQI(["nsIActivityListener"]),
       };
 
       this._activity.addListener(this.activityListener);
@@ -594,7 +594,7 @@
           // update handler button's visibility
           this.setVisibility(".recover", this.canRecover);
         },
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityListener]),
+        QueryInterface: ChromeUtils.generateQI(["nsIActivityListener"]),
       };
 
       this._activity.addListener(this.activityListener);

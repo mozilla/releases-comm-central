@@ -102,8 +102,8 @@ function openURI(uri) {
     },
 
     QueryInterface: ChromeUtils.generateQI([
-      Ci.nsIRequestObserver,
-      Ci.nsISupportsWeakReference,
+      "nsIRequestObserver",
+      "nsISupportsWeakReference",
     ]),
   };
 
@@ -147,9 +147,9 @@ function MailDefaultHandler() {}
 
 MailDefaultHandler.prototype = {
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsICommandLineHandler,
-    Ci.nsICommandLineValidator,
-    Ci.nsIFactory,
+    "nsICommandLineHandler",
+    "nsICommandLineValidator",
+    "nsIFactory",
   ]),
 
   /* nsICommandLineHandler */
@@ -585,7 +585,7 @@ function MessengerContentHandler() {
 }
 
 MessengerContentHandler.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIModule, Ci.nsIContentHandler]),
+  QueryInterface: ChromeUtils.generateQI(["nsIModule", "nsIContentHandler"]),
 };
 
 var gMessengerContentHandler = new MailDefaultHandler();

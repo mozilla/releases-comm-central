@@ -56,7 +56,7 @@ function streamNextMessage() {
 }
 
 var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   _stream: null,
   _data: null,
   onStartRequest(aRequest) {

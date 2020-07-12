@@ -54,7 +54,7 @@ function streamMsg(msgHdr) {
 }
 
 var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
   _stream: null,
   // nsIRequestObserver part
   onStartRequest(aRequest) {},

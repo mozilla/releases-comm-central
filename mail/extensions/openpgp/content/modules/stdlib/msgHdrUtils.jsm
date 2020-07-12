@@ -374,8 +374,8 @@ function createStreamListener(k) {
     _stream: null,
 
     QueryInterface: ChromeUtils.generateQI([
-      Ci.nsIStreamListener,
-      Ci.nsIRequestObserver,
+      "nsIStreamListener",
+      "nsIRequestObserver",
     ]),
 
     // nsIRequestObserver
@@ -487,7 +487,7 @@ function msgHdrsModifyRaw(aMsgHdrs, aTransformer) {
       msgHdr.flags,
       msgHdr.getStringProperty("keywords"),
       {
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
+        QueryInterface: ChromeUtils.generateQI(["nsIMsgCopyServiceListener"]),
 
         OnStartCopy() {},
         OnProgress(aProgress, aProgressMax) {},

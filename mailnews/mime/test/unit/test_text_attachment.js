@@ -40,7 +40,7 @@ var messages = [
 ];
 
 var gStreamListener = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
   _str: "",
   // nsIRequestObserver part

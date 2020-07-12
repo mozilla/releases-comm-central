@@ -227,7 +227,7 @@ var cal = {
       classDescription: classInfo.classDescription,
       classID: classInfo.classID,
       flags: classInfo.flags,
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIClassInfo]),
+      QueryInterface: ChromeUtils.generateQI(["nsIClassInfo"]),
     };
   },
 

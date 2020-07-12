@@ -94,7 +94,7 @@ function MsgAsyncPrompter() {
 }
 
 MsgAsyncPrompter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgAsyncPrompter]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgAsyncPrompter"]),
 
   _pendingPrompts: null,
   _asyncPromptInProgress: 0,

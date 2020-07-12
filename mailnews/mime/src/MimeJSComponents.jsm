@@ -25,7 +25,7 @@ function StringEnumerator(iterator) {
   this._next = undefined;
 }
 StringEnumerator.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIUTF8StringEnumerator]),
+  QueryInterface: ChromeUtils.generateQI(["nsIUTF8StringEnumerator"]),
   [Symbol.iterator]() {
     return this._iterator;
   },
@@ -149,8 +149,8 @@ MimeHeaders.prototype = {
   __proto__: MimeStructuredHeaders.prototype,
   classDescription: "Mime headers implementation",
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIMimeHeaders,
-    Ci.msgIStructuredHeaders,
+    "nsIMimeHeaders",
+    "msgIStructuredHeaders",
   ]),
 
   initialize(allHeaders) {
@@ -184,8 +184,8 @@ function MimeWritableStructuredHeaders() {
 MimeWritableStructuredHeaders.prototype = {
   __proto__: MimeStructuredHeaders.prototype,
   QueryInterface: ChromeUtils.generateQI([
-    Ci.msgIStructuredHeaders,
-    Ci.msgIWritableStructuredHeaders,
+    "msgIStructuredHeaders",
+    "msgIWritableStructuredHeaders",
   ]),
 
   setHeader(aHeaderName, aValue) {
@@ -281,7 +281,7 @@ function fixArray(addresses, preserveGroups, count) {
 
 function MimeAddressParser() {}
 MimeAddressParser.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderParser]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderParser"]),
 
   parseEncodedHeader(aHeader, aCharset, aPreserveGroups) {
     aHeader = aHeader || "";
@@ -466,7 +466,7 @@ MimeAddressParser.prototype = {
 
 function MimeConverter() {}
 MimeConverter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMimeConverter]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMimeConverter"]),
 
   encodeMimePartIIStr_UTF8(aHeader, aStructured, aFieldNameLen, aLineLength) {
     // Compute the encoding options. The way our API is structured in this

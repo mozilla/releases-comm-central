@@ -201,7 +201,7 @@ TagsService.prototype = {
     return otherContactsTag;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.imITagsService]),
+  QueryInterface: ChromeUtils.generateQI(["imITagsService"]),
   classDescription: "Tags",
 };
 
@@ -1798,6 +1798,6 @@ ContactsService.prototype = {
     }
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.imIContactsService]),
+  QueryInterface: ChromeUtils.generateQI(["imIContactsService"]),
   classDescription: "Contacts",
 };

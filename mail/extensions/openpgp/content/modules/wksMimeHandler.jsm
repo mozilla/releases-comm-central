@@ -75,7 +75,7 @@ PgpWkdHandler.prototype = {
   uri: null,
   backgroundJob: false,
 
-  QueryInterface: EnigmailCompat.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: EnigmailCompat.generateQI(["nsIStreamListener"]),
 
   onStartRequest(request, ctxt) {
     EnigmailLog.DEBUG("wksMimeHandler.jsm: onStartRequest\n"); // always log this one

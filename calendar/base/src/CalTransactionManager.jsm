@@ -16,7 +16,7 @@ function CalTransactionManager() {
 }
 
 CalTransactionManager.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calITransactionManager]),
+  QueryInterface: ChromeUtils.generateQI(["calITransactionManager"]),
   classID: Components.ID("{1d529847-d292-4222-b066-b8b17a794d62}"),
 
   transactionManager: null,
@@ -81,7 +81,7 @@ function CalTransaction(aAction, aItem, aCalendar, aOldItem, aListener, aExtResp
 }
 
 var calTransactionClassID = Components.ID("{fcb54c82-2fb9-42cb-bf44-1e197a55e520}");
-var calTransactionInterfaces = [Ci.nsITransaction, Ci.calIOperationListener];
+var calTransactionInterfaces = ["nsITransaction", "calIOperationListener"];
 CalTransaction.prototype = {
   classID: calTransactionClassID,
   QueryInterface: ChromeUtils.generateQI(calTransactionInterfaces),

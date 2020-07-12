@@ -11,7 +11,6 @@ var { MailServices } = ChromeUtils.import(
 );
 
 var ACR = Ci.nsIAutoCompleteResult;
-var nsIAbAutoCompleteResult = Ci.nsIAbAutoCompleteResult;
 var nsIAbDirectoryQueryResultListener = Ci.nsIAbDirectoryQueryResultListener;
 
 // nsAbLDAPAutoCompleteResult
@@ -76,7 +75,10 @@ nsAbLDAPAutoCompleteResult.prototype = {
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIAutoCompleteResult",
+    "nsIAbAutoCompleteResult",
+  ]),
 };
 
 function AbLDAPAutoCompleteSearch() {
@@ -350,8 +352,8 @@ AbLDAPAutoCompleteSearch.prototype = {
   // nsISupports
 
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIObserver,
-    Ci.nsIAutoCompleteSearch,
-    Ci.nsIAbDirSearchListener,
+    "nsIObserver",
+    "nsIAutoCompleteSearch",
+    "nsIAbDirSearchListener",
   ]),
 };

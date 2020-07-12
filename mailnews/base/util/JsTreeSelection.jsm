@@ -670,7 +670,7 @@ JSTreeSelection.prototype = {
     return this._shiftSelectPivot != null ? this._shiftSelectPivot : -1;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeSelection]),
+  QueryInterface: ChromeUtils.generateQI(["nsITreeSelection"]),
 
   /*
    * Functions after this aren't part of the nsITreeSelection interface.

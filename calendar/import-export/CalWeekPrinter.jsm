@@ -15,7 +15,7 @@ function CalWeekPrinter() {
 }
 
 CalWeekPrinter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIPrintFormatter]),
+  QueryInterface: ChromeUtils.generateQI(["calIPrintFormatter"]),
   classID: Components.ID("{2d6ec97b-9109-4b92-89c5-d4b4806619ce}"),
 
   get name() {

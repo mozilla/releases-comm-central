@@ -11,7 +11,7 @@ function CalDefaultACLManager() {
 }
 
 CalDefaultACLManager.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calICalendarACLManager]),
+  QueryInterface: ChromeUtils.generateQI(["calICalendarACLManager"]),
   classID: Components.ID("{7463258c-6ef3-40a2-89a9-bb349596e927}"),
 
   mCalendarEntries: null,
@@ -41,7 +41,7 @@ function calDefaultCalendarACLEntry(aMgr, aCalendar) {
 }
 
 calDefaultCalendarACLEntry.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calICalendarACLEntry]),
+  QueryInterface: ChromeUtils.generateQI(["calICalendarACLEntry"]),
 
   mACLManager: null,
 
@@ -86,7 +86,7 @@ function calDefaultItemACLEntry(aCalendarEntry) {
 }
 
 calDefaultItemACLEntry.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIItemACLEntry]),
+  QueryInterface: ChromeUtils.generateQI(["calIItemACLEntry"]),
 
   /* calIItemACLEntry */
   calendarEntry: null,

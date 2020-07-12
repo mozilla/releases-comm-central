@@ -19,7 +19,7 @@ function calCompositeCalendarObserverHelper(compCalendar) {
 calCompositeCalendarObserverHelper.prototype = {
   pendingLoads: null,
 
-  QueryInterface: ChromeUtils.generateQI([Ci.calIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["calIObserver"]),
 
   onStartBatch() {
     this.compCalendar.mObservers.notify("onStartBatch");
@@ -80,9 +80,9 @@ function CalCompositeCalendar() {
 
 var calCompositeCalendarClassID = Components.ID("{aeff788d-63b0-4996-91fb-40a7654c6224}");
 var calCompositeCalendarInterfaces = [
-  Ci.calICalendarProvider,
-  Ci.calICalendar,
-  Ci.calICompositeCalendar,
+  "calICalendarProvider",
+  "calICalendar",
+  "calICompositeCalendar",
 ];
 CalCompositeCalendar.prototype = {
   classID: calCompositeCalendarClassID,
@@ -431,7 +431,7 @@ function calCompositeGetListenerHelper(aCompositeCalendar, aRealListener, aMaxIt
 }
 
 calCompositeGetListenerHelper.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+  QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
 
   mNumQueries: 0,
   mRealListener: null,

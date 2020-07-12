@@ -243,7 +243,7 @@ var VCardUtils = {
 
 function VCardService() {}
 VCardService.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgVCardService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgVCardService"]),
   classID: Components.ID("{e2e0f615-bc5a-4441-a16b-a26e75949376}"),
 
   escapedVCardToAbCard(vCard) {
@@ -256,7 +256,7 @@ VCardService.prototype = {
 
 function VCardMimeConverter() {}
 VCardMimeConverter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleMimeConverter]),
+  QueryInterface: ChromeUtils.generateQI(["nsISimpleMimeConverter"]),
   classID: Components.ID("{dafab386-bd4c-4238-bb48-228fbc98ba29}"),
 
   uri: null,

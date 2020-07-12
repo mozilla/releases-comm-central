@@ -10,7 +10,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 function getIcsFileTypes() {
   return [
     {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIFileType]),
+      QueryInterface: ChromeUtils.generateQI(["calIFileType"]),
       defaultExtension: "ics",
       extensionFilter: "*.ics",
       description: cal.l10n.getCalString("filterIcs", ["*.ics"]),
@@ -23,7 +23,7 @@ function CalIcsImporter() {
 }
 
 CalIcsImporter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIImporter]),
+  QueryInterface: ChromeUtils.generateQI(["calIImporter"]),
   classID: Components.ID("{1e3e33dc-445a-49de-b2b6-15b2a050bb9d}"),
 
   getFileTypes: getIcsFileTypes,
@@ -40,7 +40,7 @@ function CalIcsExporter() {
 }
 
 CalIcsExporter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIExporter]),
+  QueryInterface: ChromeUtils.generateQI(["calIExporter"]),
   classID: Components.ID("{a6a524ce-adff-4a0f-bb7d-d1aaad4adc60}"),
 
   getFileTypes: getIcsFileTypes,

@@ -241,8 +241,8 @@ var articleTextListener = {
   finished: false,
 
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIStreamListener,
-    Ci.nsIRequestObserver,
+    "nsIStreamListener",
+    "nsIRequestObserver",
   ]),
 
   // nsIRequestObserver

@@ -54,7 +54,7 @@ calItemBase.prototype = {
   /**
    * @see nsISupports
    */
-  QueryInterface: ChromeUtils.generateQI([Ci.calIItemBase]),
+  QueryInterface: ChromeUtils.generateQI(["calIItemBase"]),
 
   /**
    * @see calIItemBase
@@ -462,7 +462,7 @@ calItemBase.prototype = {
     let parameters = this.mPropertyParams[propName];
     return {
       // nsISimpleEnumerator
-      QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+      QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
 
       mParamNames: Object.keys(parameters),
       hasMoreElements() {
@@ -473,7 +473,7 @@ calItemBase.prototype = {
         let paramName = this.mParamNames.pop();
         return {
           // nsIProperty
-          QueryInterface: ChromeUtils.generateQI([Ci.nsIProperty]),
+          QueryInterface: ChromeUtils.generateQI(["nsIProperty"]),
           name: paramName,
           value: parameters[paramName],
         };

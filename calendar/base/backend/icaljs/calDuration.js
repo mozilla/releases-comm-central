@@ -10,7 +10,7 @@ function calDuration(innerObject) {
 }
 
 calDuration.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIDuration]),
+  QueryInterface: ChromeUtils.generateQI(["calIDuration"]),
   classID: Components.ID("{7436f480-c6fc-4085-9655-330b1ee22288}"),
 
   get icalDuration() {

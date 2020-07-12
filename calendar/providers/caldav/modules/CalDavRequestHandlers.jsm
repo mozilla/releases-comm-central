@@ -54,10 +54,10 @@ CalDavEtagsHandler.prototype = {
   itemsNeedFetching: null,
 
   QueryInterface: cal.generateQI([
-    Ci.nsISAXContentHandler,
-    Ci.nsISAXErrorHandler,
-    Ci.nsIRequestObserver,
-    Ci.nsIStreamListener,
+    "nsISAXContentHandler",
+    "nsISAXErrorHandler",
+    "nsIRequestObserver",
+    "nsIStreamListener",
   ]),
 
   /**
@@ -316,10 +316,10 @@ CalDavWebDavSyncHandler.prototype = {
   additionalSyncNeeded: false,
 
   QueryInterface: cal.generateQI([
-    Ci.nsISAXContentHandler,
-    Ci.nsISAXErrorHandler,
-    Ci.nsIRequestObserver,
-    Ci.nsIStreamListener,
+    "nsISAXContentHandler",
+    "nsISAXErrorHandler",
+    "nsIRequestObserver",
+    "nsIStreamListener",
   ]),
 
   doWebDAVSync() {
@@ -722,10 +722,10 @@ CalDavMultigetSyncHandler.prototype = {
   timer: null,
 
   QueryInterface: cal.generateQI([
-    Ci.nsISAXContentHandler,
-    Ci.nsISAXErrorHandler,
-    Ci.nsIRequestObserver,
-    Ci.nsIStreamListener,
+    "nsISAXContentHandler",
+    "nsISAXErrorHandler",
+    "nsIRequestObserver",
+    "nsIStreamListener",
   ]),
 
   doMultiGet() {

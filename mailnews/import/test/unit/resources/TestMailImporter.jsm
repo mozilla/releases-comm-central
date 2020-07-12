@@ -5,10 +5,7 @@ function TestMailImpoter() {}
 TestMailImpoter.prototype = {
   classID: Components.ID("{a81438ef-aca1-41a5-9b3a-3ccfbbe4f5e1}"),
 
-  QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIImportModule,
-    Ci.nsIImportMail,
-  ]),
+  QueryInterface: ChromeUtils.generateQI(["nsIImportModule", "nsIImportMail"]),
 
   contractID: "@mozilla.org/import/test;1",
 

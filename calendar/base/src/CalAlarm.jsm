@@ -20,7 +20,7 @@ function CalAlarm() {
 }
 
 CalAlarm.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIAlarm]),
+  QueryInterface: ChromeUtils.generateQI(["calIAlarm"]),
   classID: Components.ID("{b8db7c7f-c168-4e11-becb-f26c1c4f5f8f}"),
 
   mProperties: null,

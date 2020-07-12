@@ -33,7 +33,7 @@ function MockAuthPromptFactoryConstructor() {
 }
 
 var gMockAuthPromptFactory = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptFactory]),
+  QueryInterface: ChromeUtils.generateQI(["nsIPromptFactory"]),
   getPrompt(aParent, aIID, aResult) {
     return gMockAuthPrompt.QueryInterface(aIID);
   },
@@ -42,7 +42,7 @@ var gMockAuthPromptFactory = {
 var gMockAuthPrompt = {
   password: "",
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAuthPrompt]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAuthPrompt"]),
 
   prompt(aTitle, aText, aRealm, aSave, aDefaultText) {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
@@ -60,7 +60,7 @@ var gMockAuthPrompt = {
 
 var gMockPromptService = {
   _registered: false,
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
   _will_return: null,
   _inout_value: null,
   _promptState: null,

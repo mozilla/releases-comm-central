@@ -11,7 +11,7 @@ var { MailServices } = ChromeUtils.import(
 function AbAutoCompleteMyDomain() {}
 
 AbAutoCompleteMyDomain.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAutoCompleteSearch"]),
 
   cachedIdKey: "",
   cachedIdentity: null,

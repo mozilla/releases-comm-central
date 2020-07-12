@@ -93,7 +93,7 @@ function CalOutlookCSVImporter() {
   this.wrappedJSObject = this;
 }
 CalOutlookCSVImporter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIImporter]),
+  QueryInterface: ChromeUtils.generateQI(["calIImporter"]),
   classID: Components.ID("{64a5d17a-0497-48c5-b54f-72b15c9e9a14}"),
 
   getFileTypes: getOutlookCsvFileTypes,
@@ -448,7 +448,7 @@ CalOutlookCSVImporter.prototype = {
 // Exporter
 function CalOutlookCSVExporter() {}
 CalOutlookCSVExporter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIExporter]),
+  QueryInterface: ChromeUtils.generateQI(["calIExporter"]),
   classID: Components.ID("{48e6d3a6-b41b-4052-9ed2-40b27800bd4b}"),
 
   getFileTypes: getOutlookCsvFileTypes,

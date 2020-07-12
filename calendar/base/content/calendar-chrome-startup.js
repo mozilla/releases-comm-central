@@ -203,7 +203,7 @@ function calObserveDisplayDeckChange(event) {
  */
 var calendarWindowPrefs = {
   /** nsISupports QueryInterface */
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
   /** Initialize the preference observers */
   init() {

@@ -14,7 +14,7 @@ function CalItipEmailTransport() {
   this._initEmailTransport();
 }
 CalItipEmailTransport.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIItipTransport]),
+  QueryInterface: ChromeUtils.generateQI(["calIItipTransport"]),
   classID: Components.ID("{d4d7b59e-c9e0-4a7a-b5e8-5958f85515f0}"),
 
   mHasXpcomMail: false,

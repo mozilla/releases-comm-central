@@ -14,7 +14,7 @@ function calPeriod(innerObject) {
 }
 
 calPeriod.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIPeriod]),
+  QueryInterface: ChromeUtils.generateQI(["calIPeriod"]),
   classID: Components.ID("{394a281f-7299-45f7-8b1f-cce21258972f}"),
 
   isMutable: true,

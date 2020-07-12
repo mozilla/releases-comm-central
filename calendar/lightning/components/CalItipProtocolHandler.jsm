@@ -20,7 +20,7 @@ function ItipChannel(URI, aLoadInfo) {
   this.loadInfo = aLoadInfo;
 }
 ItipChannel.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIChannel, Ci.nsIRequest]),
+  QueryInterface: ChromeUtils.generateQI(["nsIChannel", "nsIRequest"]),
   classID: Components.ID("{643e0328-36f6-411d-a107-16238dff9cd7}"),
 
   contentType: ITIP_HANDLER_MIMETYPE,
@@ -54,7 +54,7 @@ function ItipProtocolHandler() {
   this.wrappedJSObject = this;
 }
 ItipProtocolHandler.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
+  QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
   classID: Components.ID("{6e957006-b4ce-11d9-b053-001124736B74}"),
 
   protocolFlags: Ci.nsIProtocolHandler.URI_NORELATIVE | Ci.nsIProtocolHandler.URI_DANGEROUS_TO_LOAD,
@@ -70,7 +70,7 @@ function ItipContentHandler() {
   this.wrappedJSObject = this;
 }
 ItipContentHandler.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIContentHandler]),
+  QueryInterface: ChromeUtils.generateQI(["nsIContentHandler"]),
   classID: Components.ID("{47c31f2b-b4de-11d9-bfe6-001124736B74}"),
 
   handleContent(contentType, windowTarget, request) {

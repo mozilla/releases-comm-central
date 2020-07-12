@@ -17,7 +17,7 @@ function CalRelation() {
   this.mProperties = new Map();
 }
 CalRelation.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIRelation]),
+  QueryInterface: ChromeUtils.generateQI(["calIRelation"]),
   classID: Components.ID("{76810fae-abad-4019-917a-08e95d5bbd68}"),
 
   mType: null,

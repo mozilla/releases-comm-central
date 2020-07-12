@@ -29,7 +29,7 @@ CalTodo.prototype = {
   __proto__: calItemBase.prototype,
 
   classID: calTodoClassID,
-  QueryInterface: cal.generateQI(calTodoInterfaces),
+  QueryInterface: cal.generateQI(["calIItemBase", "calITodo", "calIInternalShallowCopy"]),
   classInfo: cal.generateCI({
     classID: calTodoClassID,
     contractID: "@mozilla.org/calendar/todo;1",

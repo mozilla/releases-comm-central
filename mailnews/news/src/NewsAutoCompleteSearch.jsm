@@ -61,7 +61,7 @@ NewsAutoCompleteResult.prototype = {
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([kACR]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAutoCompleteResult"]),
 };
 
 function NewsAutoCompleteSearch() {}
@@ -130,5 +130,5 @@ NewsAutoCompleteSearch.prototype = {
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAutoCompleteSearch"]),
 };

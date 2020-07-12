@@ -17,7 +17,7 @@ function calRecurrenceRule(innerObject) {
 var calRecurrenceRuleInterfaces = [Ci.calIRecurrenceRule, Ci.calIRecurrenceItem];
 var calRecurrenceRuleClassID = Components.ID("{df19281a-5389-4146-b941-798cb93a7f0d}");
 calRecurrenceRule.prototype = {
-  QueryInterface: cal.generateQI(calRecurrenceRuleInterfaces),
+  QueryInterface: cal.generateQI(["calIRecurrenceRule", "calIRecurrenceItem"]),
   classID: calRecurrenceRuleClassID,
   classInfo: cal.generateCI({
     contractID: "@mozilla.org/calendar/recurrence-rule;1",

@@ -1296,6 +1296,6 @@ AccountsService.prototype = {
       .join(",");
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.imIAccountsService]),
+  QueryInterface: ChromeUtils.generateQI(["imIAccountsService"]),
   classDescription: "Accounts",
 };

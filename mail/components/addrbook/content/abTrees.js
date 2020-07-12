@@ -174,7 +174,7 @@ abDirTreeItem.prototype = {
 function directoryTreeView() {}
 directoryTreeView.prototype = {
   __proto__: new PROTO_TREE_VIEW(),
-  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView, Ci.nsIAbListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsITreeView", "nsIAbListener"]),
 
   hasRemoteAB: false,
 
@@ -304,7 +304,7 @@ directoryTreeView.prototype = {
 
     // Make an entry for All Address Books.
     let rootAB = {
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirectory]),
+      QueryInterface: ChromeUtils.generateQI(["nsIAbDirectory"]),
 
       dirName: gAddressBookBundle.getString("allAddressBooks"),
       isMailList: false,

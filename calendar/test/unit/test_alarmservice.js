@@ -13,7 +13,7 @@ function do_check_xor(a, b, aMessage) {
 }
 
 var alarmObserver = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIAlarmServiceObserver]),
+  QueryInterface: ChromeUtils.generateQI(["calIAlarmServiceObserver"]),
 
   service: null,
   firedMap: {},

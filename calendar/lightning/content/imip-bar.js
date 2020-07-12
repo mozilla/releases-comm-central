@@ -357,7 +357,7 @@ var ltnImipBar = {
         }
 
         let opListener = {
-          QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+          QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
           onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
             if (Components.isSuccessCode(aStatus) && isDeclineCounter) {
               // TODO: move the DECLINECOUNTER stuff to actionFunc

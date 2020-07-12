@@ -26,7 +26,7 @@ var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c5
 var calCalendarManagerInterfaces = [Ci.calICalendarManager, Ci.calIStartupService, Ci.nsIObserver];
 CalCalendarManager.prototype = {
   classID: calCalendarManagerClassID,
-  QueryInterface: cal.generateQI(calCalendarManagerInterfaces),
+  QueryInterface: cal.generateQI(["calICalendarManager", "calIStartupService", "nsIObserver"]),
   classInfo: cal.generateCI({
     classID: calCalendarManagerClassID,
     contractID: "@mozilla.org/calendar/manager;1",
@@ -509,7 +509,7 @@ calMgrCalendarObserver.prototype = {
   storedReadOnly: null,
   calMgr: null,
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIWindowMediatorListener, Ci.calIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["nsIWindowMediatorListener", "calIObserver"]),
 
   // calIObserver:
   onStartBatch() {

@@ -411,6 +411,6 @@ CoreService.prototype = {
     return proto;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.imICoreService]),
+  QueryInterface: ChromeUtils.generateQI(["imICoreService"]),
   classDescription: "Core",
 };

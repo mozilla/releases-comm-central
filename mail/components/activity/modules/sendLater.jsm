@@ -33,8 +33,8 @@ const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
  */
 var sendMsgProgressListener = {
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIMsgStatusFeedback,
-    Ci.nsISupportsWeakReference,
+    "nsIMsgStatusFeedback",
+    "nsISupportsWeakReference",
   ]),
 
   showStatusString(aStatusText) {
@@ -77,7 +77,7 @@ var sendLaterModule = {
     ));
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSendLaterListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSendLaterListener"]),
 
   _displayTextForHeader(aLocaleStringBase, aSubject) {
     return aSubject

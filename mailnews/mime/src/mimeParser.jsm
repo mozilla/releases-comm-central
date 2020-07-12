@@ -122,8 +122,8 @@ var MimeParser = {
         this._parser.deliverData(scriptIn.readBytes(aCount));
       },
       QueryInterface: ChromeUtils.generateQI([
-        Ci.nsIStreamListener,
-        Ci.nsIRequestObserver,
+        "nsIStreamListener",
+        "nsIRequestObserver",
       ]),
     };
     setDefaultParserOptions(opts);

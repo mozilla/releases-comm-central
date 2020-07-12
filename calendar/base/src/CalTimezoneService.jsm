@@ -54,7 +54,11 @@ CalTimezoneService.prototype = {
   mZones: null,
 
   classID: calTimezoneServiceClassID,
-  QueryInterface: cal.generateQI(calTimezoneServiceInterfaces),
+  QueryInterface: cal.generateQI([
+    "calITimezoneService",
+    "calITimezoneProvider",
+    "calIStartupService",
+  ]),
   classInfo: cal.generateCI({
     classID: calTimezoneServiceClassID,
     contractID: "@mozilla.org/calendar/timezone-service;1",

@@ -566,7 +566,7 @@ LogConversation.prototype = {
       getNext() {
         return new LogMessage(this._messages[this._index++], this._conv);
       },
-      QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+      QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
       *[Symbol.iterator]() {
         while (this.hasMoreElements()) {
           yield this.getNext();
@@ -778,7 +778,7 @@ DailyLogEnumerator.prototype = {
     let dayID = this._days[this._index++];
     return new Log(this._entries[dayID]);
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
   *[Symbol.iterator]() {
     while (this.hasMoreElements()) {
       yield this.getNext();
@@ -799,7 +799,7 @@ LogEnumerator.prototype = {
     // Create and return a log from the first entry.
     return new Log(this._entries.shift().path);
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
   *[Symbol.iterator]() {
     while (this.hasMoreElements()) {
       yield this.getNext();
@@ -1129,6 +1129,6 @@ Logger.prototype = {
     }
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver, Ci.imILogger]),
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver", "imILogger"]),
   classDescription: "Logger",
 };

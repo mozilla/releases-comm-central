@@ -3260,7 +3260,7 @@ function onCommandSave(aIsClosing) {
   // before the call is complete. In that case, we do need a progress bar and
   // the ability to cancel the operation though.
   let listener = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
     onOperationComplete(aCalendar, aStatus, aOpType, aId, aItem) {
       // Check if the current window has a calendarItem first, because in case of undo
       // window refers to the main window and we would get a 'calendarItem is undefined' warning.

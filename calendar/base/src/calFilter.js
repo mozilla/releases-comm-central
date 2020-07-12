@@ -884,7 +884,7 @@ calFilter.prototype = {
     // the listener passed in the aListener argument.
     let self = this;
     let listener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onOperationComplete: aListener.onOperationComplete.bind(aListener),
 
       onGetResult(aOpCalendar, aStatus, aOpItemType, aDetail, aItems) {

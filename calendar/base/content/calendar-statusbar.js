@@ -23,7 +23,7 @@ var gCalendarStatusFeedback = {
   mInitialized: false,
   mCalendars: {},
 
-  QueryInterface: ChromeUtils.generateQI([Ci.calIStatusObserver]),
+  QueryInterface: ChromeUtils.generateQI(["calIStatusObserver"]),
 
   initialize(aWindow) {
     if (!this.mInitialized) {

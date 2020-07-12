@@ -7,7 +7,7 @@
 function DevToolsStartup() {}
 
 DevToolsStartup.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsICommandLineHandler]),
+  QueryInterface: ChromeUtils.generateQI(["nsICommandLineHandler"]),
 
   helpInfo: "",
   handle(cmdLine) {

@@ -150,7 +150,7 @@ MimeVerify.prototype = {
   sigData: "",
   mimePartNumber: "",
 
-  QueryInterface: EnigmailCompat.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: EnigmailCompat.generateQI(["nsIStreamListener"]),
 
   startStreaming(window, msgWindow, msgUriSpec) {
     LOCAL_DEBUG("mimeVerify.jsm: startStreaming\n");

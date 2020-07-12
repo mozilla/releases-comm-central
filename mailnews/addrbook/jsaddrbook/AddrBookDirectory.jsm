@@ -1102,7 +1102,7 @@ class AddrBookDirectory {
   }
 }
 AddrBookDirectory.prototype.QueryInterface = ChromeUtils.generateQI([
-  Ci.nsIAbDirectory,
+  "nsIAbDirectory",
 ]);
 AddrBookDirectory.prototype.classID = Components.ID(
   "{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"

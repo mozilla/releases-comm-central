@@ -285,6 +285,6 @@ CommandsService.prototype = {
     return true;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.imICommandsService]),
+  QueryInterface: ChromeUtils.generateQI(["imICommandsService"]),
   classDescription: "Commands",
 };

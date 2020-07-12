@@ -281,7 +281,7 @@ IMIncomingServer.prototype = {
     return {
       level: 0,
       initialize(aServer) {},
-      QueryInterface: ChromeUtils.generateQI([Ci.nsISpamSettings]),
+      QueryInterface: ChromeUtils.generateQI(["nsISpamSettings"]),
     };
   },
 
@@ -330,7 +330,7 @@ IMIncomingServer.prototype = {
       getStringProperty: aPropertyName => "",
       getNumUnread: aDeep => 0,
       Shutdown() {},
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgFolder]),
+      QueryInterface: ChromeUtils.generateQI(["nsIMsgFolder"]),
     });
   },
 
@@ -344,5 +344,5 @@ IMIncomingServer.prototype = {
     );
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgIncomingServer]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgIncomingServer"]),
 };

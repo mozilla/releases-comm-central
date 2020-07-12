@@ -8,7 +8,7 @@ var nsIProtocolHandler = Ci.nsIProtocolHandler;
 
 function makeProtocolHandler(aProtocol, aDefaultPort, aClassID) {
   return {
-    QueryInterface: ChromeUtils.generateQI([nsIProtocolHandler]),
+    QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
 
     scheme: aProtocol,
     defaultPort: aDefaultPort,

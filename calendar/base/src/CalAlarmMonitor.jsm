@@ -40,7 +40,7 @@ CalAlarmMonitor.prototype = {
   mSound: null,
 
   classID: calAlarmMonitorClassID,
-  QueryInterface: cal.generateQI(calAlarmMonitorInterfaces),
+  QueryInterface: cal.generateQI(["nsIObserver", "calIAlarmServiceObserver"]),
   classInfo: cal.generateCI({
     contractID: "@mozilla.org/calendar/alarm-monitor;1",
     classDescription: "Calendar Alarm Monitor",

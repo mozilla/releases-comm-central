@@ -19,7 +19,7 @@ CalRecurrenceDate.prototype = {
   mDate: null,
 
   classID: calRecurrenceDateClassID,
-  QueryInterface: cal.generateQI(calRecurrenceDateInterfaces),
+  QueryInterface: cal.generateQI(["calIRecurrenceItem", "calIRecurrenceDate"]),
   classInfo: cal.generateCI({
     classID: calRecurrenceDateClassID,
     contractID: "@mozilla.org/calendar/recurrence-date;1",

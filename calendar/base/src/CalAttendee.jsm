@@ -15,7 +15,7 @@ function CalAttendee() {
 }
 
 CalAttendee.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIAttendee]),
+  QueryInterface: ChromeUtils.generateQI(["calIAttendee"]),
   classID: Components.ID("{5c8dcaa3-170c-4a73-8142-d531156f664d}"),
 
   mImmutable: false,

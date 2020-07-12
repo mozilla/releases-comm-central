@@ -99,7 +99,7 @@
 
       // @implements {nsIObserver}
       this.observer = {
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+        QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
         observe: function(subject, topic, data) {
           if (
             topic == "target-prpl-conversation-changed" ||

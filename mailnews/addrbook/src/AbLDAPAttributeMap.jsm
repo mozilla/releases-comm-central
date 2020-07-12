@@ -179,7 +179,7 @@ AbLDAPAttributeMap.prototype = {
     }
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbLDAPAttributeMap]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAbLDAPAttributeMap"]),
 };
 
 function AbLDAPAttributeMapService() {}
@@ -205,5 +205,5 @@ AbLDAPAttributeMapService.prototype = {
     return attrMap;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbLDAPAttributeMapService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAbLDAPAttributeMapService"]),
 };

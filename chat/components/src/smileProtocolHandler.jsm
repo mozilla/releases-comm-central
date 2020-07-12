@@ -32,6 +32,6 @@ smileProtocolHandler.prototype = {
     return false;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIProtocolHandler]),
+  QueryInterface: ChromeUtils.generateQI(["nsIProtocolHandler"]),
   classDescription: "Smile Protocol Handler",
 };

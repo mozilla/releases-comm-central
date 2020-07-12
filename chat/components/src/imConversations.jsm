@@ -860,6 +860,6 @@ ConversationsService.prototype = {
     return null;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.imIConversationsService]),
+  QueryInterface: ChromeUtils.generateQI(["imIConversationsService"]),
   classDescription: "Conversations",
 };

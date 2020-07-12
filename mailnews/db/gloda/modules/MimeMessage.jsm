@@ -72,7 +72,7 @@ function CallbackStreamListener(aMsgHdr, aCallbackThis, aCallback) {
 }
 
 CallbackStreamListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
 
   // nsIRequestObserver part
   onStartRequest(aRequest) {

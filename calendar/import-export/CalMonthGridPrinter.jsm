@@ -15,7 +15,7 @@ function CalMonthPrinter() {
 }
 
 CalMonthPrinter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIPrintFormatter]),
+  QueryInterface: ChromeUtils.generateQI(["calIPrintFormatter"]),
   classID: Components.ID("{f42d5132-92c4-487b-b5c8-38bf292d74c1}"),
 
   get name() {

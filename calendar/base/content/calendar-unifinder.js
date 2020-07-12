@@ -65,7 +65,7 @@ function getCurrentUnifinderFilter() {
  * @see calICompositeObserver
  */
 var unifinderObserver = {
-  QueryInterface: cal.generateQI([Ci.calICompositeObserver, Ci.nsIObserver, Ci.calIObserver]),
+  QueryInterface: cal.generateQI(["calICompositeObserver", "nsIObserver", "calIObserver"]),
 
   // calIObserver:
   onStartBatch() {
@@ -385,7 +385,7 @@ function unifinderKeyPress(aEvent) {
  * Tree controller for unifinder search results
  */
 var unifinderTreeView = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
+  QueryInterface: ChromeUtils.generateQI(["nsITreeView"]),
 
   // Provide a default tree that holds all the functions used here to avoid
   // cludgy if (this.tree) { this.tree.rowCountChanged(...); } constructs.
@@ -908,7 +908,7 @@ function addItemsFromCalendar(aCalendar, aAddItemsInternalFunc) {
     return;
   }
   let refreshListener = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
     mEventArray: [],
 
     onOperationComplete(aOpCalendar, aStatus, aOperationType, aId, aDateTime) {

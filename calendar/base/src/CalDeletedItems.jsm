@@ -29,7 +29,7 @@ var calDeletedItemsClassID = Components.ID("{8e6799af-e7e9-4e6c-9a82-a2413e86d8c
 var calDeletedItemsInterfaces = [Ci.calIDeletedItems, Ci.nsIObserver, Ci.calIObserver];
 CalDeletedItems.prototype = {
   classID: calDeletedItemsClassID,
-  QueryInterface: cal.generateQI(calDeletedItemsInterfaces),
+  QueryInterface: cal.generateQI(["calIDeletedItems", "nsIObserver", "calIObserver"]),
   classInfo: cal.generateCI({
     classID: calDeletedItemsClassID,
     contractID: "@mozilla.org/calendar/deleted-items-manager;1",

@@ -14,7 +14,7 @@ function CalHtmlExporter() {
 }
 
 CalHtmlExporter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIExporter]),
+  QueryInterface: ChromeUtils.generateQI(["calIExporter"]),
   classID: Components.ID("{72d9ab35-9b1b-442a-8cd0-ae49f00b159b}"),
 
   getFileTypes() {
@@ -22,7 +22,7 @@ CalHtmlExporter.prototype = {
     let label = cal.l10n.getCalString("filterHtml", [wildmat]);
     return [
       {
-        QueryInterface: ChromeUtils.generateQI([Ci.calIFileType]),
+        QueryInterface: ChromeUtils.generateQI(["calIFileType"]),
         defaultExtension: "html",
         extensionFilter: wildmat,
         description: label,

@@ -106,7 +106,7 @@ function publishEntireCalendarDialogResponse(CalendarPublishObject, aProgressDia
 
   let itemArray = [];
   let getListener = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
     onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
       publishItemArray(itemArray, CalendarPublishObject.remotePath, aProgressDialog);
     },

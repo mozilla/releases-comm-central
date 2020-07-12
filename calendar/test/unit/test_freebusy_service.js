@@ -137,7 +137,7 @@ function test_cancel() {
   _clearProviders();
 
   let provider = {
-    QueryInterface: cal.generateQI([Ci.calIFreeBusyProvider, Ci.calIOperation]),
+    QueryInterface: cal.generateQI(["calIFreeBusyProvider", "calIOperation"]),
     getFreeBusyIntervals(aCalId, aStart, aEnd, aTypes, aListener) {
       Services.tm.currentThread.dispatch(
         {

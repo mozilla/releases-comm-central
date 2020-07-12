@@ -607,7 +607,7 @@ agendaListbox.setupContextMenu = function(popup) {
  */
 agendaListbox.refreshCalendarQuery = function(aStart, aEnd, aCalendar) {
   let refreshJob = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
     agendaListbox: this,
     calendar: null,
     calId: null,
@@ -864,8 +864,8 @@ agendaListbox.calendarOpListener = { agendaListbox };
 agendaListbox.calendarObserver = { agendaListbox };
 
 agendaListbox.calendarObserver.QueryInterface = cal.generateQI([
-  Ci.calIObserver,
-  Ci.calICompositeObserver,
+  "calIObserver",
+  "calICompositeObserver",
 ]);
 
 // calIObserver:

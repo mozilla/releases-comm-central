@@ -1170,8 +1170,8 @@ Account.prototype = {
 
         this._listener = {
           QueryInterface: ChromeUtils.generateQI([
-            Ci.nsIWebProgressListener,
-            Ci.nsISupportsWeakReference,
+            "nsIWebProgressListener",
+            "nsISupportsWeakReference",
           ]),
           _cleanUp() {
             this.webProgress.removeProgressListener(this);
@@ -1208,7 +1208,7 @@ Account.prototype = {
           Ci.nsIWebProgress.NOTIFY_ALL
         );
       },
-      QueryInterface: ChromeUtils.generateQI([Ci.prplIRequestBrowser]),
+      QueryInterface: ChromeUtils.generateQI(["prplIRequestBrowser"]),
     };
     Services.obs.notifyObservers(this._browserRequest, "browser-request");
   },

@@ -15,7 +15,7 @@ function calIcalProperty(innerObject) {
 }
 
 calIcalProperty.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIIcalProperty]),
+  QueryInterface: ChromeUtils.generateQI(["calIIcalProperty"]),
   classID: Components.ID("{423ac3f0-f612-48b3-953f-47f7f8fd705b}"),
 
   get icalString() {
@@ -231,7 +231,7 @@ function calIcalComponent(innerObject) {
 }
 
 calIcalComponent.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIIcalComponent]),
+  QueryInterface: ChromeUtils.generateQI(["calIIcalComponent"]),
   classID: Components.ID("{51ac96fd-1279-4439-a85b-6947b37f4cea}"),
 
   clone() {
@@ -555,7 +555,7 @@ function calICSService() {
 }
 
 calICSService.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIICSService]),
+  QueryInterface: ChromeUtils.generateQI(["calIICSService"]),
   classID: Components.ID("{c61cb903-4408-41b3-bc22-da0b27efdfe1}"),
 
   parseICS(serialized, tzProvider) {

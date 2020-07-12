@@ -58,7 +58,7 @@ EnigmailProtocolHandler.prototype = {
     nsIProtocolHandler.URI_NOAUTH |
     nsIProtocolHandler.URI_OPENING_EXECUTES_SCRIPT,
 
-  QueryInterface: EnigmailCompat.generateQI([nsIProtocolHandler]),
+  QueryInterface: EnigmailCompat.generateQI(["nsIProtocolHandler"]),
 
   newURI(aSpec, originCharset, aBaseURI) {
     EnigmailLog.DEBUG(

@@ -9,7 +9,7 @@
 /* import-globals-from calPeriod.js */
 /* import-globals-from calRecurrenceRule.js */
 
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { ComponentUtils } = ChromeUtils.import("resource://gre/modules/ComponentUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 this.NSGetFactory = cid => {
@@ -36,6 +36,6 @@ this.NSGetFactory = cid => {
     calRecurrenceRule,
   ];
 
-  this.NSGetFactory = XPCOMUtils.generateNSGetFactory(components);
+  this.NSGetFactory = ComponentUtils.generateNSGetFactory(components);
   return this.NSGetFactory(cid);
 };

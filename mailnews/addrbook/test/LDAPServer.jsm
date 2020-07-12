@@ -26,8 +26,8 @@ var LDAPServer = {
   serverSocket: null,
 
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIInputStreamCallback,
-    Ci.nsIServerSocketListener,
+    "nsIInputStreamCallback",
+    "nsIServerSocketListener",
   ]),
 
   /**

@@ -11,7 +11,7 @@ function CalItipItem() {
   this.mCurrentItemIndex = 0;
 }
 CalItipItem.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIItipItem]),
+  QueryInterface: ChromeUtils.generateQI(["calIItipItem"]),
   classID: Components.ID("{f41392ab-dcad-4bad-818f-b3d1631c4d93}"),
 
   mIsInitialized: false,

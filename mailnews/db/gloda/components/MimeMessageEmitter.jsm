@@ -68,7 +68,7 @@ function MimeMessageEmitter() {
 var deathToNewlines = /\n/g;
 
 MimeMessageEmitter.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMimeEmitter]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMimeEmitter"]),
 
   initialize(aUrl, aChannel, aFormat) {
     this._url = aUrl;

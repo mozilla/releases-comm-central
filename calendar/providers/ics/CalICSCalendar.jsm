@@ -48,7 +48,15 @@ var calICSCalendarInterfaces = [
 CalICSCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
   classID: calICSCalendarClassID,
-  QueryInterface: cal.generateQI(calICSCalendarInterfaces),
+  QueryInterface: cal.generateQI([
+    "calICalendarProvider",
+    "calICalendar",
+    "calISchedulingSupport",
+    "nsIStreamListener",
+    "nsIStreamLoaderObserver",
+    "nsIChannelEventSink",
+    "nsIInterfaceRequestor",
+  ]),
   classInfo: cal.generateCI({
     classID: calICSCalendarClassID,
     contractID: "@mozilla.org/calendar/calendar;1?type=ics",

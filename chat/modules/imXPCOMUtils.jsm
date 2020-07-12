@@ -267,7 +267,7 @@ nsSimpleEnumerator.prototype = {
 
     return this._items[this._nextIndex++];
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
   [Symbol.iterator]() {
     return this._items.values();
   },
@@ -278,6 +278,6 @@ var EmptyEnumerator = {
   getNext() {
     throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
   *[Symbol.iterator]() {},
 };

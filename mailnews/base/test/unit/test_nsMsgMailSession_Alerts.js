@@ -34,7 +34,7 @@ var msgWindow = {
     return alertUtilsPrompts;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgWindow]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgWindow"]),
 };
 
 var msgUrl = {
@@ -44,7 +44,7 @@ var msgUrl = {
     return this._msgWindow;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgMailNewsUrl]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgMailNewsUrl"]),
 };
 
 function alertListener() {}

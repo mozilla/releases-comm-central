@@ -19,7 +19,7 @@ FeedDownloader.prototype = {
     FeedUtils.updateSubscriptionsDS(aFolder, aOrigFolder, aAction);
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsINewsBlogFeedDownloader]),
+  QueryInterface: ChromeUtils.generateQI(["nsINewsBlogFeedDownloader"]),
 };
 
 function FeedAcctMgrExtension() {}
@@ -28,5 +28,5 @@ FeedAcctMgrExtension.prototype = {
   chromePackageName: "messenger-newsblog",
   showPanel: server => false,
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgAccountManagerExtension]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgAccountManagerExtension"]),
 };

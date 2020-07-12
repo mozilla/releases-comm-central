@@ -24,7 +24,7 @@ function CalRecurrenceInfo() {
 }
 
 CalRecurrenceInfo.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIRecurrenceInfo]),
+  QueryInterface: ChromeUtils.generateQI(["calIRecurrenceInfo"]),
   classID: Components.ID("{04027036-5884-4a30-b4af-f2cad79f6edf}"),
 
   mImmutable: false,

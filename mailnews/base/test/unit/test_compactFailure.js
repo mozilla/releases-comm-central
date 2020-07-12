@@ -27,7 +27,7 @@ logHelperAllowedErrors.push("NS_ERROR_FILE_TARGET_DOES_NOT_EXIST");
 function LockedFileOutputStream() {}
 
 LockedFileOutputStream.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIFileOutputStream]),
+  QueryInterface: ChromeUtils.generateQI(["nsIFileOutputStream"]),
 
   init(file, ioFlags, perm, behaviorFlags) {
     throw Components.Exception("", Cr.NS_ERROR_FILE_IS_LOCKED);
@@ -35,7 +35,7 @@ LockedFileOutputStream.prototype = {
 };
 
 var MsgDBServiceFailure = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgDBService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgDBService"]),
 
   openMailDBFromFile(file, folder, create, leaveInvalidDB) {
     if (folder.name == "ShouldFail") {

@@ -161,7 +161,7 @@ PgpMimeHandler.prototype = {
   classDescription: "Enigmail JS Decryption Handler",
   classID: PGPMIME_JS_DECRYPTOR_CID,
   contractID: PGPMIME_JS_DECRYPTOR_CONTRACTID,
-  QueryInterface: EnigmailCompat.generateQI([Ci.nsIStreamListener]),
+  QueryInterface: EnigmailCompat.generateQI(["nsIStreamListener"]),
   inStream: Cc["@mozilla.org/scriptableinputstream;1"].createInstance(
     Ci.nsIScriptableInputStream
   ),

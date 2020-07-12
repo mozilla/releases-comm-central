@@ -13,7 +13,7 @@ function CalAttachment() {
 }
 
 CalAttachment.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIAttachment]),
+  QueryInterface: ChromeUtils.generateQI(["calIAttachment"]),
   classID: Components.ID("{5f76b352-ab75-4c2b-82c9-9206dbbf8571}"),
 
   mData: null,

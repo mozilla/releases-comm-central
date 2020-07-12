@@ -186,7 +186,7 @@ let smimeHeaderSink = {
       this._deferred.resolve(this._results);
     }
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSMIMEHeaderSink]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSMIMEHeaderSink"]),
 };
 
 /**

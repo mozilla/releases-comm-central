@@ -70,7 +70,7 @@ async function searchTest() {
 // nsIMsgSearchNotify implementation
 var searchListener = {
   numTotalMessages: 0,
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgSearchNotify]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgSearchNotify"]),
   onNewSearch() {
     this.numTotalMessages = 0;
   },

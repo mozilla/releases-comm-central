@@ -155,8 +155,8 @@ MailNewsCommandLineHandler.prototype = {
   },
 
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsICommandLineHandler,
-    Ci.nsIFactory,
-    Ci.nsIModule,
+    "nsICommandLineHandler",
+    "nsIFactory",
+    "nsIModule",
   ]),
 };

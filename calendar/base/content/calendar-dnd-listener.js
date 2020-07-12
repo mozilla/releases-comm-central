@@ -606,7 +606,7 @@ function invokeEventDragSession(aItem, aXULBox) {
   transfer.addDataFlavor("text/calendar");
 
   let flavourProvider = {
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIFlavorDataProvider]),
+    QueryInterface: ChromeUtils.generateQI(["nsIFlavorDataProvider"]),
 
     item: aItem,
     getFlavorData(aInTransferable, aInFlavor, aOutData) {

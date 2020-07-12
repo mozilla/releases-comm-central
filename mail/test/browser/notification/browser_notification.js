@@ -42,7 +42,7 @@ var gMsgMinutes = 9000;
 var gMockAlertsService = {
   _doFail: false,
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAlertsService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAlertsService"]),
 
   showAlertNotification(
     imageUrl,

@@ -27,8 +27,8 @@ var dummyMsgWindow = {
     return alertUtilsPrompts;
   },
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIMsgWindow,
-    Ci.nsISupportsWeakReference,
+    "nsIMsgWindow",
+    "nsISupportsWeakReference",
   ]),
 };
 var daemon, localserver, server;
@@ -112,8 +112,8 @@ function* test_fetchMessage() {
       statuscode = aStatus;
     },
     QueryInterface: ChromeUtils.generateQI([
-      Ci.nsIStreamListener,
-      Ci.nsIRequestObserver,
+      "nsIStreamListener",
+      "nsIRequestObserver",
     ]),
   };
   let folder = localserver.rootFolder.getChildNamed("test.filter");
@@ -256,8 +256,8 @@ function* test_escapedName() {
       statuscode = aStatus;
     },
     QueryInterface: ChromeUtils.generateQI([
-      Ci.nsIStreamListener,
-      Ci.nsIRequestObserver,
+      "nsIStreamListener",
+      "nsIRequestObserver",
     ]),
   };
   MailServices.nntp.fetchMessage(

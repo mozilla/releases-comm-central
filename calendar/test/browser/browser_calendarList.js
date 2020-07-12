@@ -45,7 +45,7 @@ async function withModalDialog(trigger, callback, whichButton) {
 async function withMockPromptService(response, callback) {
   let realPrompt = Services.prompt;
   Services.prompt = {
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptService]),
+    QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
     confirmEx: (unused1, unused2, text) => {
       info(text);
       return response;

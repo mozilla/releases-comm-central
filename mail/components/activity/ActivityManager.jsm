@@ -151,5 +151,5 @@ ActivityManager.prototype = {
     }
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIActivityManager]),
+  QueryInterface: ChromeUtils.generateQI(["nsIActivityManager"]),
 };

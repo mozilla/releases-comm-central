@@ -17,7 +17,7 @@ let { MockRegistrar } = ChromeUtils.import(
 /** @implements {nsIExternalProtocolService} */
 let mockExternalProtocolService = {
   loadURI(aURI, aWindowContext) {},
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIExternalProtocolService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
 let mockExternalProtocolServiceCID = MockRegistrar.register(

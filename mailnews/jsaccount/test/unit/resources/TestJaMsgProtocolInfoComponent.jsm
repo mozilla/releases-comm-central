@@ -73,5 +73,5 @@ TestJaMsgProtocolInfo.prototype = {
     return false;
   },
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgProtocolInfo]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgProtocolInfo"]),
 };

@@ -15,7 +15,7 @@ function CalFreeBusyListener(numOperations, finalListener) {
   });
 }
 CalFreeBusyListener.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIGenericOperationListener]),
+  QueryInterface: ChromeUtils.generateQI(["calIGenericOperationListener"]),
 
   mFinalListener: null,
   mNumOperations: 0,
@@ -55,7 +55,7 @@ function CalFreeBusyService() {
   this.mProviders = new Set();
 }
 CalFreeBusyService.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIFreeBusyProvider, Ci.calIFreeBusyService]),
+  QueryInterface: ChromeUtils.generateQI(["calIFreeBusyProvider", "calIFreeBusyService"]),
   classID: Components.ID("{29c56cd5-d36e-453a-acde-0083bd4fe6d3}"),
 
   mProviders: null,

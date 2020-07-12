@@ -424,7 +424,7 @@ function OnAddressBookDataChanged(aAction, aParentDir, aItem) {
  * as we display the message through our mime converter.
  */
 var messageHeaderSink = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderSink]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
   onStartHeaders() {
     this.mSaveHdr = null;
     // Every time we start to redisplay a message, check the view all headers

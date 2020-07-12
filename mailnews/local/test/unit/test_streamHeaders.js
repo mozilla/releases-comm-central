@@ -109,8 +109,8 @@ function createStreamListener(k) {
     _stream: null,
 
     QueryInterface: ChromeUtils.generateQI([
-      Ci.nsIStreamListener,
-      Ci.nsIRequestObserver,
+      "nsIStreamListener",
+      "nsIRequestObserver",
     ]),
 
     // nsIRequestObserver

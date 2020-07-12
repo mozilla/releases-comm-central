@@ -28,7 +28,7 @@ const gCertDialogs = {
   viewCert: (ctx, cert) => {
     throw new Error("Not implemented");
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsICertificateDialogs]),
+  QueryInterface: ChromeUtils.generateQI(["nsICertificateDialogs"]),
 };
 
 var SmimeUtils = {

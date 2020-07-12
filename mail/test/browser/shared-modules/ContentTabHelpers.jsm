@@ -66,7 +66,7 @@ var gMockExtProtSvcReg = new MockObjectReplacer(
  */
 var gMockExtProtSvc = {
   _loadedURLs: [],
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIExternalProtocolService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 
   externalProtocolHandlerExists(aProtocolScheme) {},
 

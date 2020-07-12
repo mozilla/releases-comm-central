@@ -167,7 +167,7 @@ Services.obs.addObserver(() => {
 /** @implements nsIAbManager */
 function AddrBookManager() {}
 AddrBookManager.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbManager]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAbManager"]),
   classID: Components.ID("{224d3ef9-d81c-4d94-8826-a79a5835af93}"),
 
   get directories() {

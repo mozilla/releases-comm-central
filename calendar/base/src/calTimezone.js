@@ -11,7 +11,7 @@ function calICALJSTimezone(innerObject) {
 }
 
 calICALJSTimezone.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calITimezone]),
+  QueryInterface: ChromeUtils.generateQI(["calITimezone"]),
   classID: Components.ID("{6702eb17-a968-4b43-b562-0d0c5f8e9eb5}"),
 
   innerObject: null,
@@ -73,7 +73,7 @@ function calLibicalTimezone(tzid, component, latitude, longitude) {
   this.longitude = longitude;
 }
 calLibicalTimezone.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calITimezone]),
+  QueryInterface: ChromeUtils.generateQI(["calITimezone"]),
   classID: Components.ID("{6702eb17-a968-4b43-b562-0d0c5f8e9eb5}"),
 
   toString() {

@@ -10,7 +10,7 @@ function CalWeekInfoService() {
   this.wrappedJSObject = this;
 }
 CalWeekInfoService.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIWeekInfoService]),
+  QueryInterface: ChromeUtils.generateQI(["calIWeekInfoService"]),
   classID: Components.ID("{6877bbdd-f336-46f5-98ce-fe86d0285cc1}"),
 
   // calIWeekInfoService:

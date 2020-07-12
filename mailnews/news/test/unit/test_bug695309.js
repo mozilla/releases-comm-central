@@ -81,7 +81,7 @@ add_task(async function trigger_bug() {
   let promiseFolderEvent = function(folder, event) {
     return new Promise((resolve, reject) => {
       let folderListener = {
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderListener]),
+        QueryInterface: ChromeUtils.generateQI(["nsIFolderListener"]),
         OnItemEvent(aEventFolder, aEvent) {
           if (
             aEvent == "FolderLoaded" &&

@@ -59,7 +59,7 @@ var MockFactory = {
 
         return wrappedMock.QueryInterface(iid);
       },
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIFactory]),
+      QueryInterface: ChromeUtils.generateQI(["nsIFactory"]),
     };
 
     Components.manager

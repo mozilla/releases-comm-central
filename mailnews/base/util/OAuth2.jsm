@@ -134,8 +134,8 @@ OAuth2.prototype = {
           _parent: this.account,
 
           QueryInterface: ChromeUtils.generateQI([
-            Ci.nsIWebProgressListener,
-            Ci.nsISupportsWeakReference,
+            "nsIWebProgressListener",
+            "nsISupportsWeakReference",
           ]),
 
           _cleanUp() {

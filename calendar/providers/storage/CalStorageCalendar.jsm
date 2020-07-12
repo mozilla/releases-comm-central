@@ -33,7 +33,13 @@ var calStorageCalendarInterfaces = [
 CalStorageCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
   classID: calStorageCalendarClassID,
-  QueryInterface: cal.generateQI(calStorageCalendarInterfaces),
+  QueryInterface: cal.generateQI([
+    "calICalendar",
+    "calICalendarProvider",
+    "calIOfflineStorage",
+    "calISchedulingSupport",
+    "calISyncWriteCalendar",
+  ]),
   classInfo: cal.generateCI({
     classID: calStorageCalendarClassID,
     contractID: "@mozilla.org/calendar/calendar;1?type=storage",
@@ -910,7 +916,7 @@ CalStorageCalendar.prototype = {
   modifyOfflineItem(aItem, aListener) {
     let self = this;
     let opListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onGetResult(calendar, status, itemType, detail, items) {},
       async onOperationComplete(calendar, status, opType, id, oldOfflineJournalFlag) {
         let newOfflineJournalFlag = cICL.OFFLINE_FLAG_MODIFIED_RECORD;
@@ -937,7 +943,7 @@ CalStorageCalendar.prototype = {
   deleteOfflineItem(aItem, aListener) {
     let self = this;
     let opListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onGetResult(calendar, status, itemType, detail, items) {},
       async onOperationComplete(calendar, status, opType, id, oldOfflineJournalFlag) {
         if (oldOfflineJournalFlag) {

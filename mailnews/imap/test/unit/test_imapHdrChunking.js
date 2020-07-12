@@ -27,8 +27,8 @@ setupIMAPPump();
 var dummyMsgWindow = {
   openFolder: IMAPPump.inbox,
   QueryInterface: ChromeUtils.generateQI([
-    Ci.nsIMsgWindow,
-    Ci.nsISupportsWeakReference,
+    "nsIMsgWindow",
+    "nsISupportsWeakReference",
   ]),
 };
 

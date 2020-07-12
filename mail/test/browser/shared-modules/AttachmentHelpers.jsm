@@ -30,7 +30,7 @@ function MockFilePickerConstructor() {
 }
 
 var gMockFilePicker = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIFilePicker]),
+  QueryInterface: ChromeUtils.generateQI(["nsIFilePicker"]),
   defaultExtension: "",
   filterIndex: null,
   displayDirectory: null,
@@ -56,7 +56,7 @@ var gMockFilePicker = {
     let self = this;
     return {
       index: 0,
-      QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+      QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
       hasMoreElements() {
         return this.index < self.returnFiles.length;
       },

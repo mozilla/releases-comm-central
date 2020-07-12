@@ -86,7 +86,10 @@ nsAbAutoCompleteResult.prototype = {
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([ACR, nsIAbAutoCompleteResult]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIAutoCompleteResult",
+    "nsIAbAutoCompleteResult",
+  ]),
 };
 
 function AbAutoCompleteSearch() {}
@@ -498,5 +501,5 @@ AbAutoCompleteSearch.prototype = {
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAutoCompleteSearch]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAutoCompleteSearch"]),
 };

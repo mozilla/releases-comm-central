@@ -26,7 +26,7 @@ function MsgTraitService() {}
 
 MsgTraitService.prototype = {
   // Component setup
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgTraitService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIMsgTraitService"]),
 
   // nsIMsgTraitService implementation
 

@@ -31,7 +31,7 @@ function AddrBookCard() {
 }
 
 AddrBookCard.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIAbCard]),
+  QueryInterface: ChromeUtils.generateQI(["nsIAbCard"]),
   classID: Components.ID("{1143991d-31cd-4ea6-9c97-c587d990d724}"),
 
   /* nsIAbCard */
@@ -113,7 +113,7 @@ AddrBookCard.prototype = {
           get value() {
             return value;
           },
-          QueryInterface: ChromeUtils.generateQI([Ci.nsIProperty]),
+          QueryInterface: ChromeUtils.generateQI(["nsIProperty"]),
         };
       },
       *[Symbol.iterator]() {
@@ -121,7 +121,7 @@ AddrBookCard.prototype = {
           yield this.getNext();
         }
       },
-      QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+      QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
     };
     return enumerator;
   },

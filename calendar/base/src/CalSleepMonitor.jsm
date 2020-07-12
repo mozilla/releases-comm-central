@@ -12,7 +12,7 @@ function CalSleepMonitor() {
 }
 
 CalSleepMonitor.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
   classID: Components.ID("9b987a8d-c2ef-4cb9-9602-1261b4b2f6fa"),
 
   interval: 60000,

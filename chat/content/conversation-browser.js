@@ -112,8 +112,8 @@
         onSecurityChange(progress, request, state) {},
         onContentBlockingEvent(progress, request, event) {},
         QueryInterface: ChromeUtils.generateQI([
-          Ci.nsIWebProgressListener,
-          Ci.nsISupportsWeakReference,
+          "nsIWebProgressListener",
+          "nsISupportsWeakReference",
         ]),
       };
 
@@ -261,7 +261,7 @@
             .copyString(serializeSelection(selection));
         },
         onEvent(command) {},
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIController]),
+        QueryInterface: ChromeUtils.generateQI(["nsIController"]),
       };
 
       // @implements {nsISelectionListener}
@@ -285,7 +285,7 @@
               Ci.nsIClipboard.kSelectionClipboard
             );
         },
-        QueryInterface: ChromeUtils.generateQI([Ci.nsISelectionListener]),
+        QueryInterface: ChromeUtils.generateQI(["nsISelectionListener"]),
       };
     }
 

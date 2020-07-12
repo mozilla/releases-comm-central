@@ -190,7 +190,7 @@ var gCookiesWindow = {
   },
 
   _view: {
-    QueryInterface: ChromeUtils.generateQI([Ci.nsITreeView]),
+    QueryInterface: ChromeUtils.generateQI(["nsITreeView"]),
     _filtered: false,
     _filterSet: [],
     _filterValue: "",

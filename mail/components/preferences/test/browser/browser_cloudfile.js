@@ -64,7 +64,7 @@ let mockPromptService = {
     this.confirmCount++;
     return true;
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIPromptService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIPromptService"]),
 };
 /** @implements {nsIExternalProtocolService} */
 let mockExternalProtocolService = {
@@ -81,7 +81,7 @@ let mockExternalProtocolService = {
   urlLoaded(aURL) {
     return this._loadedURLs.includes(aURL);
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIExternalProtocolService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
 let mockPromptServiceCID = MockRegistrar.register(

@@ -1324,8 +1324,8 @@ var gGeneralPane = {
       },
 
       QueryInterface: ChromeUtils.generateQI([
-        Ci.nsICacheStorageConsumptionObserver,
-        Ci.nsISupportsWeakReference,
+        "nsICacheStorageConsumptionObserver",
+        "nsISupportsWeakReference",
       ]),
     };
 
@@ -2231,7 +2231,7 @@ var gGeneralPane = {
 
   // nsISupports
 
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
   // nsIObserver
 

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { ComponentUtils } = ChromeUtils.import("resource://gre/modules/ComponentUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function calBackendLoader() {
@@ -16,7 +16,7 @@ function calBackendLoader() {
 
 calBackendLoader.prototype = {
   classID: Components.ID("{0314c271-7168-40fa-802e-83c8c46a557e}"),
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIObserver]),
+  QueryInterface: ChromeUtils.generateQI(["nsIObserver"]),
 
   loaded: false,
 
@@ -77,4 +77,4 @@ function lazyFactoryFor(backendScope, classID) {
   };
 }
 
-this.NSGetFactory = XPCOMUtils.generateNSGetFactory([calBackendLoader]);
+this.NSGetFactory = ComponentUtils.generateNSGetFactory([calBackendLoader]);

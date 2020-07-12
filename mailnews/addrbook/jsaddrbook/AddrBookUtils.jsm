@@ -43,7 +43,7 @@ SimpleEnumerator.prototype = {
     }
     throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
   },
-  QueryInterface: ChromeUtils.generateQI([Ci.nsISimpleEnumerator]),
+  QueryInterface: ChromeUtils.generateQI(["nsISimpleEnumerator"]),
   *[Symbol.iterator]() {
     while (this.hasMoreElements()) {
       yield this.getNext();

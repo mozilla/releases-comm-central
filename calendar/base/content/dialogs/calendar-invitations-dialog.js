@@ -207,7 +207,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  */
 function onLoad() {
   let operationListener = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
     onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
       let updatingBox = document.getElementById("updating-box");
       updatingBox.setAttribute("hidden", "true");

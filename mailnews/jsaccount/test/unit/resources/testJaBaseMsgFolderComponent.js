@@ -6,8 +6,8 @@
 // This file is the component definition for a demo base implementation of a
 // javascript msgFolder.
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+var { ComponentUtils } = ChromeUtils.import(
+  "resource://gre/modules/ComponentUtils.jsm"
 );
 const { JSAccountUtils } = ChromeUtils.import(
   "resource:///modules/jsaccount/JSAccountUtils.jsm"
@@ -28,6 +28,6 @@ JaBaseMsgFolderConstructor.prototype = {
   ),
 };
 
-this.NSGetFactory = XPCOMUtils.generateNSGetFactory([
+this.NSGetFactory = ComponentUtils.generateNSGetFactory([
   JaBaseMsgFolderConstructor,
 ]);

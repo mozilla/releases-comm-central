@@ -581,7 +581,7 @@
           return false;
         },
 
-        QueryInterface: ChromeUtils.generateQI([Ci.nsIController]),
+        QueryInterface: ChromeUtils.generateQI(["nsIController"]),
       };
 
       window.controllers.insertControllerAt(0, this.tabController);

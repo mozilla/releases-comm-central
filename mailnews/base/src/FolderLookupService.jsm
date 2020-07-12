@@ -27,7 +27,7 @@ function FolderLookupService() {
 }
 
 FolderLookupService.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIFolderLookupService]),
+  QueryInterface: ChromeUtils.generateQI(["nsIFolderLookupService"]),
 
   /**
    * Fetch the folder corresponding to the given URI.

@@ -23,7 +23,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
  * @see calIcalendarViewController
  */
 var calendarViewController = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calICalendarViewController]),
+  QueryInterface: ChromeUtils.generateQI(["calICalendarViewController"]),
 
   /**
    * Creates a new event
@@ -571,7 +571,7 @@ function editSelectedEvents() {
 function selectAllEvents() {
   let items = [];
   let listener = {
-    QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+    QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
     onOperationComplete(calendar, status, operationType, id, detail) {
       currentView().setSelectedItems(items, false);
     },

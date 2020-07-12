@@ -250,7 +250,7 @@ var calprovider = {
    */
   FreeBusyInterval: class {
     QueryInterface() {
-      return ChromeUtils.generateQI([Ci.calIFreeBusyInterval]);
+      return ChromeUtils.generateQI(["calIFreeBusyInterval"]);
     }
 
     constructor(aCalId, aFreeBusyType, aStart, aEnd) {

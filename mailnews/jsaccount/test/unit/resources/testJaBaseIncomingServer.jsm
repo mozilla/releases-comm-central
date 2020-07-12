@@ -25,7 +25,7 @@ const JaBaseIncomingServerProperties = {
     Ci.msgIOverride,
     Ci.nsISupportsWeakReference,
   ],
-  delegateInterfaces: [Ci.nsIMsgIncomingServer],
+  delegateInterfaces: ["nsIMsgIncomingServer"],
   contractID: "@mozilla.org/messenger/server;1?type=testja",
   classID: Components.ID("{0eec03cd-da67-4949-ab2d-5fa4bdc68135}"),
 };

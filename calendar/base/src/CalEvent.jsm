@@ -26,7 +26,7 @@ CalEvent.prototype = {
   __proto__: calItemBase.prototype,
 
   classID: calEventClassID,
-  QueryInterface: cal.generateQI(calEventInterfaces),
+  QueryInterface: cal.generateQI(["calIItemBase", "calIEvent", "calIInternalShallowCopy"]),
   classInfo: cal.generateCI({
     classID: calEventClassID,
     contractID: "@mozilla.org/calendar/event;1",

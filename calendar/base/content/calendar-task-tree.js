@@ -23,7 +23,7 @@
      */
     constructor(taskTree) {
       this.tree = taskTree;
-      this.QueryInterface = cal.generateQI([Ci.calICompositeObserver, Ci.calIObserver]);
+      this.QueryInterface = cal.generateQI(["calICompositeObserver", "calIObserver"]);
     }
 
     // calIObserver Methods
@@ -451,7 +451,7 @@
 
     refreshFromCalendar(calendar) {
       let refreshJob = {
-        QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+        QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
         tree: this,
         calendar: null,
         items: null,

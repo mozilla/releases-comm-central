@@ -44,7 +44,7 @@ AddrBookMailingList.prototype = {
   get asDirectory() {
     let self = this;
     return {
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIAbDirectory]),
+      QueryInterface: ChromeUtils.generateQI(["nsIAbDirectory"]),
       classID: Components.ID("{e96ee804-0bd3-472f-81a6-8a9d65277ad3}"),
 
       get propertiesChromeURI() {
@@ -210,7 +210,7 @@ AddrBookMailingList.prototype = {
   get asCard() {
     let self = this;
     return {
-      QueryInterface: ChromeUtils.generateQI([Ci.nsIAbCard]),
+      QueryInterface: ChromeUtils.generateQI(["nsIAbCard"]),
       classID: Components.ID("{1143991d-31cd-4ea6-9c97-c587d990d724}"),
 
       get UID() {

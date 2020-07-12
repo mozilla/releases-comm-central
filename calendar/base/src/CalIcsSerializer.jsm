@@ -13,7 +13,7 @@ function CalIcsSerializer() {
   this.mComponents = [];
 }
 CalIcsSerializer.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.calIIcsSerializer]),
+  QueryInterface: ChromeUtils.generateQI(["calIIcsSerializer"]),
   classID: Components.ID("{207a6682-8ff1-4203-9160-729ec28c8766}"),
 
   addItems(aItems) {

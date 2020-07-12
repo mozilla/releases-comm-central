@@ -83,7 +83,7 @@ function apply_mime_conversion(msgUri, headerSink = {}) {
       return null;
     },
     resetProperties() {},
-    QueryInterface: ChromeUtils.generateQI([Ci.nsIMsgHeaderSink]),
+    QueryInterface: ChromeUtils.generateQI(["nsIMsgHeaderSink"]),
   };
 
   // Copy the descriptors from headerSink to stubHeaderSink.

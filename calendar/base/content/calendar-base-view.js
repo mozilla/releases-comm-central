@@ -26,9 +26,9 @@
      */
     constructor(calendarView) {
       this.QueryInterface = cal.generateQI([
-        Ci.calIObserver,
-        Ci.calIAlarmServiceObserver,
-        Ci.calICompositeObserver,
+        "calIObserver",
+        "calIAlarmServiceObserver",
+        "calICompositeObserver",
       ]);
 
       this.calView = calendarView.calICalendarView;
@@ -203,7 +203,7 @@
      * @param {calICalendar|calICompositeCalendar} calendar     A calendar object.
      */
     constructor(calendarView, calendar) {
-      this.QueryInterface = ChromeUtils.generateQI([Ci.calIOperationListener]);
+      this.QueryInterface = ChromeUtils.generateQI(["calIOperationListener"]);
       this.calView = calendarView;
       this.calendar = calendar;
       this.calId = null;

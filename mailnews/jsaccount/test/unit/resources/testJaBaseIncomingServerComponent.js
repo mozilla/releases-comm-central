@@ -6,8 +6,8 @@
 // This file is the component definition for a demo base implementation of a
 // javascript IncomingServer.
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
+var { ComponentUtils } = ChromeUtils.import(
+  "resource://gre/modules/ComponentUtils.jsm"
 );
 const { JSAccountUtils } = ChromeUtils.import(
   "resource:///modules/jsaccount/JSAccountUtils.jsm"
@@ -34,6 +34,6 @@ JaBaseIncomingServerConstructor.prototype = {
   ),
 };
 
-this.NSGetFactory = XPCOMUtils.generateNSGetFactory([
+this.NSGetFactory = ComponentUtils.generateNSGetFactory([
   JaBaseIncomingServerConstructor,
 ]);

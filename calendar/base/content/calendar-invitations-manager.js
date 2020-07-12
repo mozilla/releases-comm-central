@@ -68,7 +68,7 @@ const FIRST_DELAY_UNREGISTER = 0;
 
 var gInvitationsOperationListener = {
   mCount: 0,
-  QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+  QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
 
   onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
     let invitationsBox = document.getElementById("calendar-invitations-panel");
@@ -91,7 +91,7 @@ var gInvitationsOperationListener = {
 
 var gInvitationsCalendarManagerObserver = {
   mStoredThis: this,
-  QueryInterface: ChromeUtils.generateQI([Ci.calICalendarManagerObserver]),
+  QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver"]),
 
   onCalendarRegistered(aCalendar) {
     this.mStoredThis.rescheduleInvitationsUpdate(FIRST_DELAY_REGISTER);
@@ -206,7 +206,7 @@ InvitationsManager.prototype = {
     let cals = cal.getCalendarManager().getCalendars();
 
     let opListener = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       mCount: cals.length,
       mRequestManager: gInvitationsRequestManager,
       mInvitationsManager: this,
@@ -343,7 +343,7 @@ InvitationsManager.prototype = {
       this.mOldItem = oldItem_;
     }
     operationListener.prototype = {
-      QueryInterface: ChromeUtils.generateQI([Ci.calIOperationListener]),
+      QueryInterface: ChromeUtils.generateQI(["calIOperationListener"]),
       onOperationComplete(aCalendar, aStatus, aOperationType, aId, aDetail) {
         if (
           Components.isSuccessCode(aStatus) &&
