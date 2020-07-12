@@ -597,6 +597,7 @@ function loadStartPage(aForce) {
     return;
   }
 
+  gMessageDisplay.singleMessageDisplay = true;
   gMessageNotificationBar.clearMsgNotifications();
   let startpage = Services.urlFormatter.formatURLPref(
     "mailnews.start_page.url"
