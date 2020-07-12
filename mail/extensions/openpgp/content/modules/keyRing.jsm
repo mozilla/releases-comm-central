@@ -137,40 +137,52 @@ var EnigmailKeyRing = {
   },
 
   /**
-   * get all key objects that match a given user ID
+   * get all key objects that match a given email address
    *
-   * @param searchTerm   - String: a regular expression to match against all UIDs of the keys.
-   *                               The search is always performed case-insensitively
+   * @param searchTerm   - String: an email address to match against all UIDs of the keys.
    *                               An empty string will return no result
    * @param onlyValidUid - Boolean: if true (default), invalid (e.g. revoked) UIDs are not matched
    *
+   * @param allowExpired - Boolean: if true, expired keys are matched.
+   *
    * @return Array of KeyObjects with the found keys (array length is 0 if no key found)
    */
-  getKeysByUserId(searchTerm, onlyValidUid = true, allowExpired = false) {
-    EnigmailLog.DEBUG("keyRing.jsm: getKeysByUserId: '" + searchTerm + "'\n");
-
-    // TODO: this might return substring matches.
-    // Try to do better and check for exact matches.
-    let s = new RegExp(searchTerm, "i");
+  getKeysByEmail(email, onlyValidUid = true, allowExpired = false) {
+    EnigmailLog.DEBUG("keyRing.jsm: getKeysByEmail: '" + email + "'\n");
 
     let res = [];
-
-    this.getAllKeys(); // ensure keylist is loaded;
-
-    if (searchTerm === "") {
+    if (!email) {
       return res;
     }
-    for (let i in gKeyListObj.keyList) {
-      let k = gKeyListObj.keyList[i];
 
-      for (let j in k.userIds) {
-        if (k.userIds[j].type === "uid" && k.userIds[j].userId.search(s) >= 0) {
-          if (
-            !onlyValidUid ||
-            !EnigmailTrust.isInvalid(k.userIds[j].keyTrust) ||
-            (allowExpired && k.userIds[j].keyTrust == "e")
-          ) {
-            res.push(k);
+    this.getAllKeys(); // ensure keylist is loaded;
+    email = email.toLowerCase();
+
+    for (let key of gKeyListObj.keyList) {
+      if (!allowExpired && key.keyTrust == "e") {
+        continue;
+      }
+
+      for (let userId of key.userIds) {
+        if (userId.type !== "uid") {
+          continue;
+        }
+
+        // Skip test if it's expired. If expired isn't allowed, we
+        // already skipped it above.
+        if (
+          onlyValidUid &&
+          userId.keyTrust != "e" &&
+          EnigmailTrust.isInvalid(userId.keyTrust)
+        ) {
+          continue;
+        }
+
+        let split = {};
+        if (uidHelper.getPartsFromUidStr(userId.userId, split)) {
+          let uidEmail = split.email.toLowerCase();
+          if (uidEmail === email) {
+            res.push(key);
             break;
           }
         }
@@ -194,30 +206,11 @@ var EnigmailKeyRing = {
     return result.best;
   },
 
-  /**
-   * Return the full unfiltered list of keys that are specifics of email
-   * addresses in UIDs.
-   *
-   * @param {String} emailAddr - email address to search for without any
-   *   angulars or names.
-   *
-   * @return {Object | null} - Object with the found keys, or null.
-   */
   async getAllSecretKeysByEmail(emailAddr, result, allowExpired) {
-    // sanitize email address
-    emailAddr = emailAddr.replace(/([\.\[\]\-\\])/g, "\\$1");
-
-    let searchTerm =
-      "(<" + emailAddr + ">| " + emailAddr + "$|^" + emailAddr + "$)";
-
-    await this.getAllSecretKeysByUserId(searchTerm, result, allowExpired);
-  },
-
-  async getAllSecretKeysByUserId(searchTerm, result, allowExpired) {
     EnigmailLog.DEBUG(
-      "keyRing.jsm: getAllSecretKeysByUserId: '" + searchTerm + "'\n"
+      "keyRing.jsm: getAllSecretKeysByEmail: '" + emailAddr + "'\n"
     );
-    let keyList = this.getKeysByUserId(searchTerm, true, true);
+    let keyList = this.getKeysByEmail(emailAddr, true, true);
 
     result.all = [];
     result.best = null;

@@ -470,7 +470,7 @@ Enigmail.hdrView = {
       console.debug(ex);
     }
 
-    let keys = EnigmailKeyRing.getKeysByUserId(fromEmail, true);
+    let keys = EnigmailKeyRing.getKeysByEmail(fromEmail, true);
     if (keys.length > 0) {
       return;
     }
