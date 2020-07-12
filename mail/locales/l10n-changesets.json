@@ -199,16 +199,6 @@
         ],
         "revision": "default"
     },
-    "fa": {
-        "platforms": [
-            "linux",
-            "linux64",
-            "macosx64",
-            "win32",
-            "win64"
-        ],
-        "revision": "default"
-    },
     "fi": {
         "platforms": [
             "linux",
@@ -515,16 +505,6 @@
         "revision": "default"
     },
     "ru": {
-        "platforms": [
-            "linux",
-            "linux64",
-            "macosx64",
-            "win32",
-            "win64"
-        ],
-        "revision": "default"
-    },
-    "si": {
         "platforms": [
             "linux",
             "linux64",
