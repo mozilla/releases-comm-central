@@ -184,6 +184,8 @@ function MailListOKButton(event) {
       mailList = parentDirectory.addMailList(mailList);
       updateMailListMembers(mailList, parentDirectory);
       NotifySaveListeners(mailList);
+
+      window.arguments[0].newListURI = mailList.URI;
     } else {
       event.preventDefault();
     }
@@ -246,6 +248,8 @@ function OnLoadNewMailList() {
   input.popup.addEventListener("click", () => {
     awReturnHit(input);
   });
+
+  document.addEventListener("dialogaccept", MailListOKButton);
 }
 
 function EditListOKButton(event) {

@@ -91,8 +91,13 @@ add_task(async () => {
   }
 
   function checkInDirectory(directory) {
-    Assert.equal(abWindow.gAbView.directory?.URI, directory?.URI);
-    Assert.equal(abWindow.getSelectedDirectoryURI(), directory?.URI);
+    if (directory) {
+      Assert.equal(abWindow.gAbView.directory.URI, directory.URI);
+      Assert.equal(abWindow.getSelectedDirectoryURI(), directory.URI);
+    } else {
+      Assert.ok(!abWindow.gAbView.directory);
+      Assert.equal(abWindow.getSelectedDirectoryURI(), "moz-abdirectory://?");
+    }
   }
 
   function deleteRowWithPrompt(row) {

@@ -82,7 +82,13 @@ function abNameOKButton(event) {
   if (gDirectory) {
     gDirectory.dirName = newDirName;
   } else {
-    MailServices.ab.newAddressBook(newDirName, "", kJSDirectory);
+    let dirPrefId = MailServices.ab.newAddressBook(
+      newDirName,
+      "",
+      kJSDirectory
+    );
+    let directory = MailServices.ab.getDirectoryFromId(dirPrefId);
+    window.arguments[0].newDirectoryURI = directory.URI;
   }
 }
 

@@ -4,20 +4,63 @@
 
 add_task(async () => {
   function checkBooksOrder(...expected) {
-    is(dirTree.view.rowCount, expected.length + 1);
-
-    is(dirTree.view.getCellText(0, dirTree.columns[0]), "All Address Books");
-    is(
-      abWindow.gDirectoryTreeView.getDirectoryAtIndex(0).URI,
-      "moz-abdirectory://?"
-    );
-
-    for (var i = 0; i < expected.length; i++) {
-      is(abWindow.gDirectoryTreeView.getDirectoryAtIndex(i + 1), expected[i]);
-      is(
-        dirTree.view.getCellText(i + 1, dirTree.columns[0]),
-        expected[i].dirName
+    function checkRow(index, { level, open, properties, text, uri }) {
+      info(`Row ${index}`);
+      Assert.equal(dirTree.view.getLevel(index), level);
+      if (open === undefined) {
+        Assert.ok(dirTree.view.isContainerEmpty(index));
+      } else {
+        Assert.equal(dirTree.view.isContainerOpen(index), open);
+      }
+      Assert.equal(dirTree.view.getRowProperties(index), properties);
+      Assert.equal(
+        dirTree.view.getCellText(index, dirTree.columns.DirCol),
+        text
       );
+      Assert.equal(dirView.getDirectoryAtIndex(index).URI, uri);
+    }
+
+    info("Checking books");
+    Assert.equal(dirTree.view.rowCount, expected.length + 1, "row count");
+    checkRow(0, {
+      text: "All Address Books",
+      level: 0,
+      open: true,
+      properties: "",
+      uri: "moz-abdirectory://?",
+    });
+    for (let i = 0; i < expected.length; i++) {
+      let dir = expected[i].directory;
+      checkRow(i + 1, {
+        ...expected[i],
+        properties: dir.isMailList ? "IsMailList-true" : "",
+        text: dir.dirName,
+        uri: dir.URI,
+      });
+    }
+  }
+
+  function createBook(dirName) {
+    let prefName = MailServices.ab.newAddressBook(dirName, null, 101);
+    return MailServices.ab.getDirectoryFromId(prefName);
+  }
+
+  function createMailingList(name) {
+    let list = Cc[
+      "@mozilla.org/addressbook/directoryproperty;1"
+    ].createInstance(Ci.nsIAbDirectory);
+    list.isMailList = true;
+    list.dirName = name;
+    return list;
+  }
+
+  function checkInDirectory(directory) {
+    if (directory) {
+      Assert.equal(abWindow.gAbView.directory.URI, directory.URI);
+      Assert.equal(abWindow.getSelectedDirectoryURI(), directory.URI);
+    } else {
+      Assert.ok(!abWindow.gAbView.directory);
+      Assert.equal(abWindow.getSelectedDirectoryURI(), "moz-abdirectory://?");
     }
   }
 
@@ -32,33 +75,175 @@ add_task(async () => {
     abWindow.close();
   });
 
+  // Check the initial order.
+
   let abDocument = abWindow.document;
   let dirTree = abDocument.getElementById("dirTree");
-  checkBooksOrder(personalBook, historyBook);
-
-  let newBook1PrefName = MailServices.ab.newAddressBook(
-    "New Book 1",
-    null,
-    101
+  let dirView = abWindow.gDirectoryTreeView;
+  checkInDirectory(null);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: historyBook }
   );
-  let newBook1 = MailServices.ab.getDirectoryFromId(newBook1PrefName);
-  checkBooksOrder(personalBook, newBook1, historyBook);
 
-  let newBook2PrefName = MailServices.ab.newAddressBook(
-    "New Book 2",
-    null,
-    101
+  // Add one book, *not* using the UI, and check that we don't move to it.
+
+  let newBook1 = createBook("New Book 1");
+  checkInDirectory(null);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1 },
+    { level: 1, directory: historyBook }
   );
-  let newBook2 = MailServices.ab.getDirectoryFromId(newBook2PrefName);
-  checkBooksOrder(personalBook, newBook1, newBook2, historyBook);
+
+  // Add another book, using the UI, and check that we move to the new book.
+
+  let newBook2 = await createNewAddressBook(abWindow, "New Book 2");
+  checkInDirectory(newBook2);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1 },
+    { level: 1, directory: newBook2 },
+    { level: 1, directory: historyBook }
+  );
+
+  // Add some lists, *not* using the UI, and check that we don't move to them.
+
+  let list1 = newBook1.addMailList(createMailingList("New Book 1 - List 1"));
+  checkInDirectory(newBook2);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list1 },
+    { level: 1, directory: newBook2 },
+    { level: 1, directory: historyBook }
+  );
+
+  let list3 = newBook1.addMailList(createMailingList("New Book 1 - List 3"));
+  checkInDirectory(newBook2);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list3 },
+    { level: 1, directory: newBook2 },
+    { level: 1, directory: historyBook }
+  );
+
+  let list0 = newBook1.addMailList(createMailingList("New Book 1 - List 0"));
+  checkInDirectory(newBook2);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list3 },
+    { level: 1, directory: newBook2 },
+    { level: 1, directory: historyBook }
+  );
+
+  let list2 = newBook1.addMailList(createMailingList("New Book 1 - List 2"));
+  checkInDirectory(newBook2);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 2, directory: list3 },
+    { level: 1, directory: newBook2 },
+    { level: 1, directory: historyBook }
+  );
+
+  let list4 = newBook2.addMailList(createMailingList("New Book 2 - List 4"));
+  checkInDirectory(newBook2);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 2, directory: list3 },
+    { level: 1, directory: newBook2, open: true },
+    { level: 2, directory: list4 },
+    { level: 1, directory: historyBook }
+  );
+
+  // Add a new list, using the UI, and check that we move to it.
+
+  let list5 = await createNewMailingList(
+    abWindow,
+    newBook2,
+    "New Book 2 - List 5"
+  );
+  checkInDirectory(list5);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 2, directory: list3 },
+    { level: 1, directory: newBook2, open: true },
+    { level: 2, directory: list4 },
+    { level: 2, directory: list5 },
+    { level: 1, directory: historyBook }
+  );
+
+  // Delete a list that isn't displayed, and check that we don't move.
+
+  newBook1.deleteDirectory(list3);
+  checkInDirectory(list5);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 1, directory: newBook2, open: true },
+    { level: 2, directory: list4 },
+    { level: 2, directory: list5 },
+    { level: 1, directory: historyBook }
+  );
+
+  // Delete the displayed list, and check that we return to the parent book.
+
+  newBook2.deleteDirectory(list5);
+  checkInDirectory(newBook2);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 1, directory: newBook2, open: true },
+    { level: 2, directory: list4 },
+    { level: 1, directory: historyBook }
+  );
+
+  // Delete the displayed book, and check that we return to "All Address Books".
 
   let directoryRemoved = promiseDirectoryRemoved();
-  MailServices.ab.deleteAddressBook(newBook1.URI);
-  await directoryRemoved;
-  checkBooksOrder(personalBook, newBook2, historyBook);
-
-  directoryRemoved = promiseDirectoryRemoved();
   MailServices.ab.deleteAddressBook(newBook2.URI);
   await directoryRemoved;
-  checkBooksOrder(personalBook, historyBook);
+  checkInDirectory(null);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: newBook1, open: true },
+    { level: 2, directory: list0 },
+    { level: 2, directory: list1 },
+    { level: 2, directory: list2 },
+    { level: 1, directory: historyBook }
+  );
+
+  // Remove the first book.
+
+  directoryRemoved = promiseDirectoryRemoved();
+  MailServices.ab.deleteAddressBook(newBook1.URI);
+  await directoryRemoved;
+  checkInDirectory(null);
+  checkBooksOrder(
+    { level: 1, directory: personalBook },
+    { level: 1, directory: historyBook }
+  );
 });

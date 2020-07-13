@@ -226,30 +226,36 @@ function SendCommandToResultsPane(command) {
   gAbResultsTree.focus();
 }
 
-function AbNewLDAPDirectory() {
+function AbShowNewDirectoryDialog(url) {
+  let params = {};
   window.browsingContext.topChromeWindow.openDialog(
-    "chrome://messenger/content/addressbook/pref-directory-add.xhtml",
+    url,
     "",
     "chrome,modal,resizable=no,centerscreen",
-    null
+    params
+  );
+  if (params.newDirectoryURI) {
+    gDirectoryTreeView.selection.select(
+      gDirectoryTreeView.getIndexForId(params.newDirectoryURI)
+    );
+  }
+}
+
+function AbNewLDAPDirectory() {
+  AbShowNewDirectoryDialog(
+    "chrome://messenger/content/addressbook/pref-directory-add.xhtml"
   );
 }
 
 function AbNewAddressBook() {
-  window.openDialog(
-    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml",
-    "",
-    "chrome,modal,resizable=no,centerscreen",
-    null
+  AbShowNewDirectoryDialog(
+    "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml"
   );
 }
 
 function AbNewCardDAVBook() {
-  window.openDialog(
-    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
-    "",
-    "chrome,modal,resizable=no,centerscreen",
-    null
+  AbShowNewDirectoryDialog(
+    "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml"
   );
 }
 
@@ -771,12 +777,18 @@ function AbRenameDirectory() {
 }
 
 function goNewListDialog(selectedAB) {
+  let params = { selectedAB };
   window.openDialog(
     "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
     "",
     "chrome,modal,resizable=no,centerscreen",
-    { selectedAB }
+    params
   );
+  if (params.newListURI) {
+    gDirectoryTreeView.selection.select(
+      gDirectoryTreeView.getIndexForId(params.newListURI)
+    );
+  }
 }
 
 function goEditListDialog(abCard, listURI) {

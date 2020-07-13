@@ -60,7 +60,7 @@ function getDirectoryValue(aDir, aKey) {
 }
 
 function abNameCompare(a, b) {
-  return a.localeCompare(b);
+  return new Intl.Collator(undefined, { numeric: true }).compare(a, b);
 }
 
 function abTypeCompare(a, b) {
@@ -349,19 +349,45 @@ directoryTreeView.prototype = {
     } catch (ex) {
       return;
     }
-    // XXX we can optimize this later
-    this._rebuild();
 
-    if (!this._tree) {
-      return;
+    let parentIndex = 0;
+    if (!this.isContainerOpen(0)) {
+      this.toggleOpenState(0);
+    }
+    if (aParent) {
+      parentIndex = this.getIndexForId(aParent.URI);
+      if (!parentIndex) {
+        // This should never happen, but just in case, return.
+        return;
+      }
+      if (!this.isContainerOpen(parentIndex)) {
+        this.toggleOpenState(parentIndex);
+      }
+    }
+    let parentItem = this._rowMap[parentIndex];
+
+    let newItem = new abDirTreeItem(aItem);
+    newItem._level = parentItem.level + 1;
+
+    let newIndex = null;
+    for (let childItem of parentItem.children.reverse()) {
+      if (abSort(newItem, childItem) < 0) {
+        newIndex = this.getIndexForId(childItem.id);
+      }
+    }
+    if (newIndex === null) {
+      newIndex = this._rowMap.findIndex(
+        (row, index) => index > parentIndex && row.level == parentItem.level
+      );
+      if (newIndex < 0) {
+        newIndex = this._rowMap.length;
+      }
     }
 
-    // Now select this new item
-    for (var [i, row] of this._rowMap.entries()) {
-      if (row.id == gAbView.directory?.URI) {
-        this.selection.select(i);
-        break;
-      }
+    this._rowMap.splice(newIndex, 0, newItem);
+    delete parentItem._children;
+    if (this._tree) {
+      this._tree.rowCountChanged(newIndex, 1);
     }
   },
 
@@ -371,29 +397,33 @@ directoryTreeView.prototype = {
     } catch (ex) {
       return;
     }
-    // XXX we can optimize this later
-    this._rebuild();
 
-    if (!this._tree) {
+    let parentIndex = 0;
+    if (aParent) {
+      parentIndex = this.getIndexForId(aParent.URI);
+      if (!parentIndex) {
+        // An ancestor is probably closed.
+        return;
+      }
+    }
+    let parentItem = this._rowMap[parentIndex];
+
+    let removedIndex = this.getIndexForId(aItem.URI);
+    if (!removedIndex) {
+      // An ancestor is probably closed.
       return;
     }
-
-    // If we're deleting a top-level address-book, just select the first book
-    // if (
-    //   !aParent ||
-    //   aParent.URI == kAllDirectoryRoot ||
-    //   aParent.URI == kAllDirectoryRoot + "?"
-    // ) {
-    //   this.selection.select(0);
-    //   return;
-    // }
-
-    // Now select this parent item
-    for (var [i, row] of this._rowMap.entries()) {
-      if (row.id == gAbView.directory?.URI) {
-        this.selection.select(i);
-        break;
-      }
+    let removedItem = this._rowMap[removedIndex];
+    if (this.selection && this.selection.isSelected(removedIndex)) {
+      this.selection.select(parentIndex);
+    }
+    this._rowMap.splice(removedIndex, 1 + removedItem.children.length);
+    delete parentItem._children;
+    if (this._tree) {
+      this._tree.rowCountChanged(
+        removedIndex,
+        -1 - removedItem.children.length
+      );
     }
   },
 

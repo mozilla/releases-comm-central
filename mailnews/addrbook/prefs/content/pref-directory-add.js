@@ -48,7 +48,11 @@ function Startup() {
     "downloadButton.accesskey"
   );
 
-  if ("arguments" in window && window.arguments[0]) {
+  if (
+    "arguments" in window &&
+    window.arguments[0] &&
+    window.arguments[0].selectedDirectory
+  ) {
     gCurrentDirectory = window.arguments[0].selectedDirectory;
     try {
       fillSettings();
@@ -93,6 +97,7 @@ function onUnload() {
   if (
     "arguments" in window &&
     window.arguments[0] &&
+    window.arguments[0].selectedDirectory &&
     !Services.prefs.prefIsLocked(
       gCurrentDirectory.dirPrefId + ".disable_button_download"
     )
@@ -417,6 +422,7 @@ function onAccept(event) {
       // set window.opener.gUpdate to true so that LDAP Directory Servers
       // dialog gets updated
       window.opener.gUpdate = true;
+      window.arguments[0].newDirectoryURI = theDirectory.URI;
     } else {
       let addressBookBundle = document.getElementById("bundle_addressBook");
 

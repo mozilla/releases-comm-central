@@ -67,6 +67,33 @@ async function createNewAddressBook(abWindow, abName) {
   return addressBook;
 }
 
+async function createNewMailingList(abWindow, mlParent, mlName) {
+  let newAddressBookPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://messenger/content/addressbook/abMailListDialog.xhtml",
+    async abListDialog => {
+      let abListDocument = abListDialog.document;
+      await new Promise(resolve => abListDialog.setTimeout(resolve));
+
+      abListDocument.getElementById("abPopup").value = mlParent.URI;
+      abListDocument.getElementById("ListName").value = mlName;
+      abListDocument
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
+    }
+  );
+  abWindow.AbNewList();
+  await newAddressBookPromise;
+
+  for (let list of mlParent.childNodes) {
+    if (list.dirName == mlName) {
+      return list;
+    }
+  }
+  return null;
+}
+
 function promiseDirectoryRemoved() {
   return new Promise(resolve => {
     let observer = {

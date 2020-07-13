@@ -247,6 +247,7 @@ window.addEventListener("dialogaccept", event => {
       );
       book = MailServices.ab.getDirectoryFromId(dirPrefId);
       book.setStringValue("carddav.url", checkbox.value);
+      window.arguments[0].newDirectoryURI = book.URI;
 
       let dir = CardDAVDirectory.forFile(book.fileName);
       dir.fetchAllFromServer();

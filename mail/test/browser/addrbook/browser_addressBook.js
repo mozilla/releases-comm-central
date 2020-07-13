@@ -62,6 +62,8 @@ add_task(function setupModule(module) {
   addrBook4 = create_address_book("AB 4");
   addrBook2 = create_address_book("AB 2");
 
+  abController.sleep();
+
   mListA = create_mailing_list("ML A");
   addrBook1.addMailList(mListA);
 
@@ -74,15 +76,17 @@ add_task(function setupModule(module) {
   mListD = create_mailing_list("ML D");
   addrBook3.addMailList(mListD);
 
-  // There are 8 address book lists (All, Personal, AB 1, AB 2, AB 3, AB 4, LDAP Book
-  // and Collected Address Book.  So let's ensure that those address books
-  // exist in the tree view before executing our tests.
+  // There are 8 address books (All, Personal, AB 1, AB 2, AB 3, AB 4, LDAP Book
+  // and Collected Address Book) and 4 mailing lists.  So let's ensure that
+  // those address books exist in the tree view before executing our tests.
   abController.waitFor(
-    () => abController.window.gDirectoryTreeView.rowCount == 8,
-    "Timeout waiting for all 8 rows in address books list to show up in the tree view",
+    () => abController.window.gDirectoryTreeView.rowCount == 12,
+    "Timeout waiting for all 12 rows in address books list to show up in the tree view",
     1000,
     10
   );
+
+  set_address_books_collapsed([addrBook1, addrBook2, addrBook3]);
 });
 
 registerCleanupFunction(function teardownModule(module) {
