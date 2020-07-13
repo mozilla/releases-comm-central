@@ -33,12 +33,10 @@
  * do_throw().
  */
 
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
-);
 var { MockRegistrar } = ChromeUtils.import(
   "resource://testing-common/MockRegistrar.jsm"
 );
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 // Wrapper to the nsIPrompt interface.
 // This allows the send code to attempt to display errors to the user without
@@ -367,10 +365,7 @@ function registerAlertTestUtils() {
     "@mozilla.org/embedcomp/window-watcher;1",
     alertUtilsWindowWatcher
   );
-  MockRegistrar.register(
-    "@mozilla.org/embedcomp/prompt-service;1",
-    alertUtilsPromptService
-  );
+  Services.prompt = alertUtilsPromptService;
 }
 
 // Dummy message window that ensures we get prompted for logins.

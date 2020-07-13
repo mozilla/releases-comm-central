@@ -84,17 +84,16 @@ let mockExternalProtocolService = {
   QueryInterface: ChromeUtils.generateQI(["nsIExternalProtocolService"]),
 };
 
-let mockPromptServiceCID = MockRegistrar.register(
-  "@mozilla.org/embedcomp/prompt-service;1",
-  mockPromptService
-);
+let originalPromptService = Services.prompt;
+Services.prompt = mockPromptService;
+
 let mockExternalProtocolServiceCID = MockRegistrar.register(
   "@mozilla.org/uriloader/external-protocol-service;1",
   mockExternalProtocolService
 );
 
 registerCleanupFunction(() => {
-  MockRegistrar.unregister(mockPromptServiceCID);
+  Services.prompt = originalPromptService;
   MockRegistrar.unregister(mockExternalProtocolServiceCID);
 });
 
