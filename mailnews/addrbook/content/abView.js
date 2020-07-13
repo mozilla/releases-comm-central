@@ -40,9 +40,11 @@ ABView.prototype = {
   _notifications: [
     "addrbook-directory-invalidated",
     "addrbook-contact-created",
-    "addrbook-contact-deleted",
     "addrbook-contact-updated",
+    "addrbook-contact-deleted",
+    "addrbook-list-created",
     "addrbook-list-updated",
+    "addrbook-list-deleted",
     "addrbook-list-member-added",
     "addrbook-list-member-removed",
   ],
@@ -177,6 +179,8 @@ ABView.prototype = {
       return;
     }
 
+    // If we make it here, we're in the root directory, or the right directory.
+
     switch (topic) {
       case "addrbook-directory-invalidated":
         subject.QueryInterface(Ci.nsIAbDirectory);
@@ -191,12 +195,24 @@ ABView.prototype = {
           }
         }
         break;
+      case "addrbook-list-created": {
+        let parentDir = MailServices.ab.getDirectoryFromUID(data);
+        // `subject` is an nsIAbDirectory, make it the matching card instead.
+        subject.QueryInterface(Ci.nsIAbDirectory);
+        for (let card of parentDir.childCards) {
+          if (card.UID == subject.UID) {
+            subject = card;
+            break;
+          }
+        }
+      }
+      // Falls through.
       case "addrbook-list-member-added":
-        if (!this.directory) {
+      case "addrbook-contact-created":
+        if (topic == "addrbook-list-member-added" && !this.directory) {
           break;
         }
-      // Falls through.
-      case "addrbook-contact-created":
+
         subject.QueryInterface(Ci.nsIAbCard);
         let viewCard = new abViewCard(subject);
         let sortText = viewCard.getText(this.sortColumn);
@@ -255,6 +271,20 @@ ABView.prototype = {
         break;
       }
 
+      case "addrbook-list-deleted":
+        subject.QueryInterface(Ci.nsIAbDirectory);
+        for (let i = this._rowMap.length - 1; i >= 0; i--) {
+          if (this._rowMap[i].card.UID == subject.UID) {
+            this._rowMap.splice(i, 1);
+            if (this.tree) {
+              this.tree.rowCountChanged(i, -1);
+            }
+          }
+        }
+        if (this.listener) {
+          this.listener.onCountChanged(this.rowCount);
+        }
+        break;
       case "addrbook-list-member-removed":
         if (!this.directory) {
           break;

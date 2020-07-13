@@ -90,6 +90,11 @@ add_task(async () => {
     mailTestUtils.treeClick(EventUtils, abWindow, abDirTree, row, 0, {});
   }
 
+  function checkInDirectory(directory) {
+    Assert.equal(abWindow.gAbView.directory?.URI, directory?.URI);
+    Assert.equal(abWindow.getSelectedDirectoryURI(), directory?.URI);
+  }
+
   function deleteRowWithPrompt(row) {
     let promptPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
     mailTestUtils.treeClick(EventUtils, abWindow, abContactTree, row, 0, {});
@@ -138,8 +143,7 @@ add_task(async () => {
   let contactA2 = bookA.addCard(createContact("contact", "A2")); // Add A2.
   checkRows(contactA1, contactA2);
   let listC = bookA.addMailList(createMailingList("list C")); // Add C.
-  // Adding a mailing list changes the view. Go back to where we were.
-  openDirectory(bookA);
+  checkInDirectory(bookA);
   checkRows(contactA1, contactA2, listC);
   listC.addCard(contactA1);
   checkRows(contactA1, contactA2, listC);
@@ -168,8 +172,7 @@ add_task(async () => {
   let contactB2 = bookB.addCard(createContact("contact", "B2")); // Add B2.
   checkRows(contactA2, listC);
   let listD = bookB.addMailList(createMailingList("list D")); // Add D.
-  // Adding a mailing list changes the view. Go back to where we were.
-  openDirectory(bookA);
+  checkInDirectory(bookA);
   checkRows(contactA2, listC);
   listD.addCard(contactB1);
   checkRows(contactA2, listC);
@@ -196,8 +199,7 @@ add_task(async () => {
   openDirectory(bookA);
   checkRows(contactA2, listC);
   bookB.deleteDirectory(listD); // Delete D.
-  // Removing a mailing list changes the view. Go back to where we were.
-  openDirectory(bookA);
+  checkInDirectory(bookA);
   checkRows(contactA2, listC);
   await deleteRowWithPrompt(1); // Delete C.
   checkRows(contactA2);
@@ -207,16 +209,14 @@ add_task(async () => {
   openRootDirectory();
   checkRows(contactA2, contactB2);
   let listE = bookB.addMailList(createMailingList("list E")); // Add E.
-  // Adding a mailing list changes the view. Go back to where we were.
-  openRootDirectory();
+  checkInDirectory(null);
   checkRows(contactA2, contactB2, listE);
   listE.addCard(contactB2);
   checkRows(contactA2, contactB2, listE);
   listE.deleteCards([contactB2]);
   checkRows(contactA2, contactB2, listE);
   bookB.deleteDirectory(listE); // Delete E.
-  // Removing a mailing list changes the view. Go back to where we were.
-  openRootDirectory();
+  checkInDirectory(null);
   checkRows(contactA2, contactB2);
   await deleteRowWithPrompt(1);
   checkRows(contactA2);

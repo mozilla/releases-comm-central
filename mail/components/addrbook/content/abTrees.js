@@ -358,7 +358,7 @@ directoryTreeView.prototype = {
 
     // Now select this new item
     for (var [i, row] of this._rowMap.entries()) {
-      if (row.id == aItem.URI) {
+      if (row.id == gAbView.directory?.URI) {
         this.selection.select(i);
         break;
       }
@@ -379,18 +379,18 @@ directoryTreeView.prototype = {
     }
 
     // If we're deleting a top-level address-book, just select the first book
-    if (
-      !aParent ||
-      aParent.URI == kAllDirectoryRoot ||
-      aParent.URI == kAllDirectoryRoot + "?"
-    ) {
-      this.selection.select(0);
-      return;
-    }
+    // if (
+    //   !aParent ||
+    //   aParent.URI == kAllDirectoryRoot ||
+    //   aParent.URI == kAllDirectoryRoot + "?"
+    // ) {
+    //   this.selection.select(0);
+    //   return;
+    // }
 
     // Now select this parent item
     for (var [i, row] of this._rowMap.entries()) {
-      if (row.id == aParent.URI) {
+      if (row.id == gAbView.directory?.URI) {
         this.selection.select(i);
         break;
       }
