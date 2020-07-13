@@ -27,6 +27,7 @@ linux64/opt:
             - builds/releng_base_linux_64_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -110,6 +111,7 @@ linux64/debug:
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
         need-xvfb: true
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -152,6 +154,7 @@ linux64-asan/opt:
         mozconfig-variant: nightly-asan
         tooltool-downloads: public
         need-xvfb: true
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -187,6 +190,7 @@ linux/opt:
             - builds/releng_base_linux_32_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         need-xvfb: true
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -270,6 +274,7 @@ linux/debug:
         custom-build-variant-cfg: debug
         mozconfig-variant: debug
         need-xvfb: true
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils

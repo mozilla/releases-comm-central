@@ -136,6 +136,7 @@ jobs:
                 env:
                     LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                     LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+        use-sccache: true
         fetches:
             toolchain:
                 - linux64-binutils
@@ -147,6 +148,7 @@ jobs:
                 - linux64-node
                 - linux64-rust-cross
                 - linux64-rust-size
+                - linux64-sccache
                 - linux64-winchecksec
                 - linux64-wine
                 - win64-libotr

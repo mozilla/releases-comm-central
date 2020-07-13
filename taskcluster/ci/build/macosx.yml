@@ -32,6 +32,7 @@ macosx64/debug:
         custom-build-variant-cfg: cross-debug
         mozconfig-variant: debug
         tooltool-downloads: internal
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -76,6 +77,7 @@ macosx64/opt:
             - builds/releng_base_mac_64_cross_builds.py
         script: "mozharness/scripts/fx_desktop_build.py"
         tooltool-downloads: internal
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils

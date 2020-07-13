@@ -47,6 +47,7 @@ win32/opt:
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -157,6 +158,7 @@ win32/debug:
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -209,6 +211,7 @@ win64/opt:
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -319,6 +322,7 @@ win64/debug:
             env:
                 LD_PRELOAD: "/builds/worker/fetches/liblowercase/liblowercase.so"
                 LOWERCASE_DIRS: "/builds/worker/checkouts/gecko/vs2017_15.8.4:/builds/worker/checkouts/gecko/mapiheader"
+    use-sccache: true
     fetches:
         toolchain:
             - linux64-binutils
@@ -442,6 +446,7 @@ win64-asan/opt:
         extra-config:
             stage_platform: win64-asan
         mozconfig-variant: nightly-asan
+    use-sccache: true
     fetches:
         toolchain:
             - win64-cbindgen
