@@ -578,7 +578,7 @@ function folderPickerChange(aEvent) {
     Ci.nsICharsetConverterManager
   );
   var trashUnicode = manager.mutf7ToUnicode(
-    Services.netUtils.unescapeString(folderPath, Ci.nsINetUtil.ESCAPE_URL_PATH)
+    Services.io.unescapeString(folderPath, Ci.nsINetUtil.ESCAPE_URL_PATH)
   );
 
   // Set the value to be persisted.

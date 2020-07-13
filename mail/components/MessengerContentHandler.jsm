@@ -249,10 +249,7 @@ MailDefaultHandler.prototype = {
         let _uri = resolveURIInternal(cmdLine, chromeParam);
         // only load URIs which do not inherit chrome privs
         if (
-          !Services.netUtils.URIChainHasFlags(
-            _uri,
-            URI_INHERITS_SECURITY_CONTEXT
-          )
+          !Services.io.URIChainHasFlags(_uri, URI_INHERITS_SECURITY_CONTEXT)
         ) {
           Services.ww.openWindow(
             null,
