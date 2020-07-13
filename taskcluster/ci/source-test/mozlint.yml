@@ -166,6 +166,30 @@ license:
             - 'comm/**/*.xml'
             - 'comm/**/*.xul'
 
+localization:
+    description: l10n tests for strings with errors
+    treeherder:
+        symbol: text(l1nt)
+    run:
+        mach: >
+            lint -v -l l10n -f treeherder
+            --config-path=comm/tools/lint
+            comm/*
+    attributes:
+        code-review: false
+    when:
+        files-changed:
+            - 'comm/calendar/locales/l10n.toml'
+            - 'comm/calendar/locales/en-US/**'
+            - 'comm/chat/locales/en-US/**'
+            - 'comm/mail/extensions/openpgp/content/**/*.ftl'
+            - 'comm/mail/locales/l10n.toml'
+            - 'comm/mail/locales/en-US/**'
+            - 'comm/mail/branding/thunderbird/locales/en-US/**'
+            - 'comm/tools/lint/l10n.yml'
+            - 'third_party/python/compare-locales/**'
+            - 'third_party/python/fluent/**'
+
 lintpref:
     description: Check for duplicates between all.js and StaticPrefList.yaml.
     treeherder:

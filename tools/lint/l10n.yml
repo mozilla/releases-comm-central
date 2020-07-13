@@ -1,0 +1,41 @@
+---
+l10n:
+    description: Localization linter
+    # list of include directories of both
+    # comm/mail and comm/calendar l10n.tomls
+    # Paths that are not part of Thunderbird (editor/browser/devtools/etc)
+    # are included to
+    include:
+        - browser/locales/en-US/pdfviewer
+        - comm/calendar/locales/en-US
+        - comm/chat/locales/en-US
+        - comm/editor/ui/locales/en-US
+        - comm/mail/branding/thunderbird/locales/en-US
+        - comm/mail/extensions/openpgp
+        - comm/mail/locales/en-US
+        - comm/tools/lint/l10n.yml
+        - devtools/client/locales/en-US
+        - devtools/shared/locales/en-US
+        - devtools/startup/locales/en-US
+        - dom/locales/en-US
+        - netwerk/locales/en-US
+        - security/manager/locales/en-US
+        - toolkit/locales/en-US
+    # files not supported by compare-locales,
+    # and also not relevant to this linter
+    exclude:
+        - comm/mail/locales/en-US/all-l10n.js
+    l10n_configs:
+        - comm/mail/locales/l10n.toml
+        - comm/calendar/locales/l10n.toml
+    type: external
+    payload: commlint:lint_wrapper
+    wraps: python.l10n_lint:lint
+    setup: python.l10n_lint:gecko_strings_setup
+    support-files:
+        - 'comm/calendar/locales/l10n.toml'
+        - 'comm/mail/locales/l10n.toml'
+        - 'comm/tools/lint/l10n.yml'
+        - 'third_party/python/compare-locales/**'
+        - 'third_party/python/fluent/**'
+        - 'tools/lint/python/l10n_lint.py'
