@@ -18,14 +18,15 @@ CalRecurrenceDate.prototype = {
   mIsNegative: false,
   mDate: null,
 
+  QueryInterface: ChromeUtils.generateQI([
+    "calIRecurrenceItem",
+    "calIRecurrenceDate",
+    "nsIClassInfo",
+  ]),
   classID: calRecurrenceDateClassID,
-  QueryInterface: cal.generateQI(["calIRecurrenceItem", "calIRecurrenceDate"]),
-  classInfo: cal.generateCI({
-    classID: calRecurrenceDateClassID,
-    contractID: "@mozilla.org/calendar/recurrence-date;1",
-    classDescription: "The date of an occurrence of a recurring item",
-    interfaces: calRecurrenceDateInterfaces,
-  }),
+  contractID: "@mozilla.org/calendar/recurrence-date;1",
+  classDescription: "The date of an occurrence of a recurring item",
+  interfaces: calRecurrenceDateInterfaces,
 
   makeImmutable() {
     this.isMutable = false;

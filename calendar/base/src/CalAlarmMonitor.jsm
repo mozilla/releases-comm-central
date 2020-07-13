@@ -39,15 +39,16 @@ CalAlarmMonitor.prototype = {
   // nsISound instance used for playing all sounds
   mSound: null,
 
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIObserver",
+    "calIAlarmServiceObserver",
+    "nsIClassInfo",
+  ]),
   classID: calAlarmMonitorClassID,
-  QueryInterface: cal.generateQI(["nsIObserver", "calIAlarmServiceObserver"]),
-  classInfo: cal.generateCI({
-    contractID: "@mozilla.org/calendar/alarm-monitor;1",
-    classDescription: "Calendar Alarm Monitor",
-    classID: calAlarmMonitorClassID,
-    interfaces: calAlarmMonitorInterfaces,
-    flags: Ci.nsIClassInfo.SINGLETON,
-  }),
+  contractID: "@mozilla.org/calendar/alarm-monitor;1",
+  classDescription: "Calendar Alarm Monitor",
+  interfaces: calAlarmMonitorInterfaces,
+  flags: Ci.nsIClassInfo.SINGLETON,
 
   /**
    * nsIObserver

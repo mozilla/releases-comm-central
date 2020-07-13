@@ -25,14 +25,16 @@ var calEventInterfaces = [Ci.calIItemBase, Ci.calIEvent, Ci.calIInternalShallowC
 CalEvent.prototype = {
   __proto__: calItemBase.prototype,
 
+  QueryInterface: ChromeUtils.generateQI([
+    "calIItemBase",
+    "calIEvent",
+    "calIInternalShallowCopy",
+    "nsIClassInfo",
+  ]),
   classID: calEventClassID,
-  QueryInterface: cal.generateQI(["calIItemBase", "calIEvent", "calIInternalShallowCopy"]),
-  classInfo: cal.generateCI({
-    classID: calEventClassID,
-    contractID: "@mozilla.org/calendar/event;1",
-    classDescription: "Calendar Event",
-    interfaces: calEventInterfaces,
-  }),
+  contractID: "@mozilla.org/calendar/event;1",
+  classDescription: "Calendar Event",
+  interfaces: calEventInterfaces,
 
   cloneShallow(aNewParent) {
     let cloned = new CalEvent();
