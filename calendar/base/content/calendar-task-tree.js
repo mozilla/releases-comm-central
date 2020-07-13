@@ -23,7 +23,7 @@
      */
     constructor(taskTree) {
       this.tree = taskTree;
-      this.QueryInterface = cal.generateQI(["calICompositeObserver", "calIObserver"]);
+      this.QueryInterface = ChromeUtils.generateQI(["calICompositeObserver", "calIObserver"]);
     }
 
     // calIObserver Methods

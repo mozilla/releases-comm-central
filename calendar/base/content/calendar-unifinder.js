@@ -65,7 +65,7 @@ function getCurrentUnifinderFilter() {
  * @see calICompositeObserver
  */
 var unifinderObserver = {
-  QueryInterface: cal.generateQI(["calICompositeObserver", "nsIObserver", "calIObserver"]),
+  QueryInterface: ChromeUtils.generateQI(["calICompositeObserver", "nsIObserver", "calIObserver"]),
 
   // calIObserver:
   onStartBatch() {

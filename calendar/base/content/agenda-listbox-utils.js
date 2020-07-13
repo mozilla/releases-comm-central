@@ -863,7 +863,7 @@ agendaListbox.calendarOpListener = { agendaListbox };
  */
 agendaListbox.calendarObserver = { agendaListbox };
 
-agendaListbox.calendarObserver.QueryInterface = cal.generateQI([
+agendaListbox.calendarObserver.QueryInterface = ChromeUtils.generateQI([
   "calIObserver",
   "calICompositeObserver",
 ]);

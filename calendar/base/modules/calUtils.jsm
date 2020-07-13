@@ -142,30 +142,6 @@ var cal = {
   },
 
   /**
-   * Generates a QueryInterface method on the given global. To be used as follows:
-   *
-   *     class calThing {
-   *       QueryInterface(aIID) { return cal.generateClassQI(this, aIID, [Ci.calIThing]); }
-   *
-   *       ...
-   *     }
-   *
-   * The function is cached, once this is called QueryInterface is replaced with
-   * cal.generateQI()'s result.
-   *
-   * @param {Object} aGlobal          The object to define the method on
-   * @param {nsIIDRef} aIID           The IID to query for
-   * @param {nsIIDRef[]} aInterfaces  The interfaces that this object implements
-   * @return {nsQIResult}             The object queried for aIID
-   */
-  generateClassQI(aGlobal, aIID, aInterfaces) {
-    const generatedQI =
-      aInterfaces.length > 1 ? cal.generateQI(aInterfaces) : ChromeUtils.generateQI(aInterfaces);
-    Object.defineProperty(aGlobal, "QueryInterface", { value: generatedQI });
-    return aGlobal.QueryInterface(aIID);
-  },
-
-  /**
    * Generates the QueryInterface function. This is a replacement for XPCOMUtils.generateQI, which
    * is being replaced. Unfortunately Lightning's code depends on some of its classes providing
    * nsIClassInfo, which causes xpconnect/xpcom to make all methods available, e.g. for an event

@@ -353,7 +353,7 @@ calview.colorTracker = {
   calendars: null,
   categoryBranch: null,
   windows: new Set(),
-  QueryInterface: cal.generateQI(["calICalendarManagerObserver", "calIObserver"]),
+  QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver", "calIObserver"]),
 
   // Deregistration is not required.
   registerWindow(aWindow) {

@@ -643,7 +643,7 @@ function showOnlyCalendar(aCalendar) {
 }
 
 var compositeObserver = {
-  QueryInterface: cal.generateQI(["calIObserver", "calICompositeObserver"]),
+  QueryInterface: ChromeUtils.generateQI(["calIObserver", "calICompositeObserver"]),
 
   onStartBatch() {},
   onEndBatch() {},

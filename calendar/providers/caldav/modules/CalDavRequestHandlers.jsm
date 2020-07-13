@@ -53,7 +53,7 @@ CalDavEtagsHandler.prototype = {
   itemsReported: null,
   itemsNeedFetching: null,
 
-  QueryInterface: cal.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     "nsISAXContentHandler",
     "nsISAXErrorHandler",
     "nsIRequestObserver",
@@ -315,7 +315,7 @@ CalDavWebDavSyncHandler.prototype = {
   itemsNeedFetching: null,
   additionalSyncNeeded: false,
 
-  QueryInterface: cal.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     "nsISAXContentHandler",
     "nsISAXErrorHandler",
     "nsIRequestObserver",
@@ -721,7 +721,7 @@ CalDavMultigetSyncHandler.prototype = {
   additionalSyncNeeded: false,
   timer: null,
 
-  QueryInterface: cal.generateQI([
+  QueryInterface: ChromeUtils.generateQI([
     "nsISAXContentHandler",
     "nsISAXErrorHandler",
     "nsIRequestObserver",

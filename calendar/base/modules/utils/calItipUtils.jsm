@@ -1610,7 +1610,7 @@ function ItipItemFinder(aId, itipItem, optionsFunc) {
 }
 
 ItipItemFinder.prototype = {
-  QueryInterface: cal.generateQI(["calIObserver", "calIOperationListener"]),
+  QueryInterface: ChromeUtils.generateQI(["calIObserver", "calIOperationListener"]),
 
   mSearchId: null,
   mItipItem: null,

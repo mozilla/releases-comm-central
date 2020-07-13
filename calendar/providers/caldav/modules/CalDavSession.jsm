@@ -228,9 +228,7 @@ class CalDavGoogleOAuth extends OAuth2 {
  * same auth credentials.
  */
 class CalDavSession {
-  QueryInterface(aIID) {
-    return cal.generateClassQI(this, aIID, [Ci.nsIInterfaceRequestor]);
-  }
+  QueryInterface = ChromeUtils.generateQI(["nsIInterfaceRequestor"]);
 
   /**
    * Constant returned by |completeRequest| when the request should be restarted

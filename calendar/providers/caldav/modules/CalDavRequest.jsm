@@ -37,9 +37,7 @@ const MIME_TEXT_XML = "text/xml; charset=utf-8";
  * @implements {nsIInterfaceRequestor}
  */
 class CalDavRequestBase {
-  QueryInterface(aIID) {
-    return cal.generateClassQI(this, aIID, [Ci.nsIChannelEventSink, Ci.nsIInterfaceRequestor]);
-  }
+  QueryInterface = ChromeUtils.generateQI(["nsIChannelEventSink", "nsIInterfaceRequestor"]);
 
   /**
    * Creates a new base response, this should mainly be done using the subclass constructor
@@ -409,9 +407,7 @@ class HttpServerError extends Error {
  * A simple caldav response using nsIStreamLoader
  */
 class CalDavSimpleResponse extends CalDavResponseBase {
-  QueryInterface(aIID) {
-    return cal.generateClassQI(this, aIID, [Ci.nsIStreamLoaderObserver]);
-  }
+  QueryInterface = ChromeUtils.generateQI(["nsIStreamLoaderObserver"]);
 
   get listener() {
     if (!this._listener) {

@@ -21,9 +21,7 @@ class CalendarTaskTreeView {
     this.sortDirection = null;
   }
 
-  QueryInterface(IID) {
-    return cal.generateClassQI(this, IID, [Ci.nsITreeView]);
-  }
+  QueryInterface = ChromeUtils.generateQI(["nsITreeView"]);
 
   /**
    * Get the selected column.

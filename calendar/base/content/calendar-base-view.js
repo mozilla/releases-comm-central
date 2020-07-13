@@ -25,14 +25,14 @@
      * @param {CalendarBaseView} calendarView    A calendar view.
      */
     constructor(calendarView) {
-      this.QueryInterface = cal.generateQI([
-        "calIObserver",
-        "calIAlarmServiceObserver",
-        "calICompositeObserver",
-      ]);
-
       this.calView = calendarView.calICalendarView;
     }
+
+    QueryInterface = ChromeUtils.generateQI([
+      "calIObserver",
+      "calIAlarmServiceObserver",
+      "calICompositeObserver",
+    ]);
 
     // calIObserver
 

@@ -220,9 +220,7 @@ class PublishingListener {
     this.progressDialog = progressDialog;
   }
 
-  QueryInterface(aIID) {
-    return cal.generateClassQI(this, aIID, [Ci.PublishingListener]);
-  }
+  QueryInterface = ChromeUtils.generateQI(["nsIStreamListener"]);
 
   onStartRequest(request) {}
 

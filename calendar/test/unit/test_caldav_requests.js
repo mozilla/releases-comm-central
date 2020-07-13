@@ -54,9 +54,7 @@ var MockConflictPrompt = {
 };
 
 class MockAlertsService {
-  QueryInterface(aIID) {
-    return cal.generateClassQI(this, aIID, [Ci.nsIAlertsService]);
-  }
+  QueryInterface = ChromeUtils.generateQI(["nsIAlertsService"]);
   showAlertNotification() {}
 }
 

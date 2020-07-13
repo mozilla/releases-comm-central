@@ -411,9 +411,7 @@ var calprovider = {
       };
     }
 
-    QueryInterface(iid) {
-      return cal.generateClassQI(this, iid, [Ci.calICalendar, Ci.calISchedulingSupport]);
-    }
+    QueryInterface = ChromeUtils.generateQI(["calICalendar", "calISchedulingSupport"]);
 
     /**
      * Initialize the base class, this should be migrated to an ES6 constructor once all

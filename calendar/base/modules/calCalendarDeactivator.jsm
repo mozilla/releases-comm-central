@@ -27,7 +27,7 @@ var calendarDeactivator = {
   windows: new Set(),
   calendars: null,
   isCalendarActivated: null,
-  QueryInterface: cal.generateQI(["calICalendarManagerObserver", "calIObserver"]),
+  QueryInterface: ChromeUtils.generateQI(["calICalendarManagerObserver", "calIObserver"]),
 
   initializeDeactivator() {
     let manager = cal.getCalendarManager();
