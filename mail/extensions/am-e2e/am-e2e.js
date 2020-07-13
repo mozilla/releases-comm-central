@@ -230,7 +230,7 @@ async function initOpenPgpSettings() {
   await EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result, true);
 
   document.l10n.setAttributes(
-    document.getElementById("openPgpgDescription"),
+    document.getElementById("openPgpDescription"),
     "openpgp-description",
     {
       count: result.all.length,
@@ -569,7 +569,10 @@ function openKeyWizard() {
   let args = {
     identity: gIdentity,
     gSubDialog: parent.gSubDialog,
+    cancelCallback: reloadOpenPgpUI,
     okCallback: keyWizardSuccess,
+    okImportCallback: keyImportSuccess,
+    keyDetailsDialog: enigmailKeyDetails,
   };
   parent.gSubDialog.open(
     "chrome://openpgp/content/ui/keyWizard.xhtml",
@@ -593,6 +596,21 @@ async function keyWizardSuccess() {
   // Update the global key with the recently generated key that was assigned to
   // this identity from the Key generation wizard.
   gKeyId = gIdentity.getUnicharAttribute("openpgp_key_id");
+
+  reloadOpenPgpUI();
+}
+
+/**
+ * Show a succesfull notification after a the import of keys, and trigger the
+ * reload of the key listing UI.
+ */
+async function keyImportSuccess() {
+  document.l10n.setAttributes(
+    document.getElementById("openPgpNotificationDescription"),
+    "openpgp-keygen-import-success"
+  );
+  document.getElementById("openPgpNotification").collapsed = false;
+  document.getElementById("openPgpKeyList").collapsed = false;
 
   reloadOpenPgpUI();
 }
@@ -623,7 +641,7 @@ async function reloadOpenPgpUI() {
   }
 
   document.l10n.setAttributes(
-    document.getElementById("openPgpgDescription"),
+    document.getElementById("openPgpDescription"),
     "openpgp-description",
     {
       count: result.all.length,

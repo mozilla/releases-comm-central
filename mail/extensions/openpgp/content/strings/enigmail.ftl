@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+e2e-intro-description = To send encrypted or digitally signed messages, you need to configure an encryption technology, either OpenPGP or S/MIME.
+
+e2e-intro-description-more = Select your personal key to enable the use of OpenPGP, or your personal certificate to enable the use of S/MIME. For a personal key or certificate you own the corresponding secret key.
+
 openpgp-key-user-id-label = Account / User ID
 openpgp-keygen-title-label =
     .title = Generate OpenPGP Key
@@ -253,6 +257,8 @@ e2e-learn-more = Learn more
 
 openpgp-keygen-success = OpenPGP Key created successfully!
 
+openpgp-keygen-import-success = OpenPGP Keys imported successfully!
+
 ## OpenPGP Key selection area
 
 openpgp-radio-none =
@@ -280,6 +286,14 @@ openpgp-key-revoke-title = Revoke Key
 openpgp-key-edit-title = Change OpenPGP Key
 
 openpgp-key-edit-date-title = Extend Expiration Date
+
+openpgp-manager-legend = Manage OpenPGP Keys
+
+openpgp-manager-description = Use the Key Management dialog to view and manage public keys of your correspondents and all other keys not listed above.
+
+openpgp-manager-button =
+    .label = OpenPGP Key Management
+    .accesskey = K
 
 # Strings in keyDetailsDlg.xhtml
 key-type-public = public key

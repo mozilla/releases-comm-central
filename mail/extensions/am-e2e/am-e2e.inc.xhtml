@@ -20,7 +20,10 @@
 
       <vbox>
         <description flex="1">
-          <html:span class="tail-with-learn-more">&e2eIntro.description;</html:span>
+          <html:p class="intro-paragraph"
+                  data-l10n-id="e2e-intro-description"></html:p>
+          <html:span class="tail-with-learn-more"
+                     data-l10n-id="e2e-intro-description-more"></html:span>
           <label is="text-link" id="acceptLearnMoreE2E"
                  href="https://support.mozilla.org/kb/introduction-to-e2e-encryption"
                  value="&e2eLearnMore.label;"/>
@@ -30,7 +33,7 @@
 #ifdef MOZ_OPENPGP
       <html:div>
         <html:fieldset id="openpgpOptions" class="openpgp-item"
-                       aria-describedby="openPgpgDescription">
+                       aria-describedby="openPgpDescription">
           <html:legend>&openpgpKeys.label;</html:legend>
 
           <vbox data-subcategory="openpgp" class="openpgp-container">
@@ -38,7 +41,7 @@
               <image id="openPgpKey"/>
               <vbox flex="1">
                 <description class="description-with-side-element openpgp-description">
-                  <html:p id="openPgpgDescription"></html:p>
+                  <html:p id="openPgpDescription"></html:p>
                   <image id="openPgpStatusImage" class="openpgp-status"
                          hidden="true"/>
                   <html:span id="openPgpSelectionStatus"
@@ -57,7 +60,7 @@
                   <button id="addOpenPgpButton"
                           data-l10n-id="openpgp-add-key-button"
                           oncommand="openKeyWizard();"
-                          class="accessory-button"
+                          class="accessory-button openpgp-add-key-button openpgp-image-btn"
                           flex="1"/>
                 </hbox>
               </vbox>
@@ -91,13 +94,19 @@
             </vbox>
           </vbox>
 
+          <separator/>
+
+          <html:legend data-l10n-id="openpgp-manager-legend"></html:legend>
+
+          <description flex="1" data-l10n-id="openpgp-manager-description"/>
+
           <separator class="thin"/>
 
           <hbox>
             <button id="openOpenPGPKeyManagerButton"
+                    data-l10n-id="openpgp-manager-button"
                     class="first-element"
-                    oncommand="BondOpenPGP.openKeyManager(window);"
-                    label="&manageKeys.label;"/>
+                    oncommand="BondOpenPGP.openKeyManager(window);"/>
           </hbox>
         </html:fieldset>
       </html:div>
@@ -190,9 +199,11 @@
                  accesskey="&requireEncryptMessage.accesskey;"/>
         </radiogroup>
 
-        <description flex="1" class="indent">
-          &e2eeReqWarning.description;
-        </description>
+        <hbox class="indent">
+          <description flex="1" class="option-description tip-caption">
+            &e2eeReqWarning.description;
+          </description>
+        </hbox>
 
         <separator/>
 

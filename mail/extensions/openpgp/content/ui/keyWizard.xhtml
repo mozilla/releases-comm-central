@@ -28,7 +28,7 @@
     </linkset>
 
     <html:div id="wizardOverlay" class="wizard-section overlay hide" hidden="hidden">
-      <hbox class="inline-notification-container info-container self-center">
+      <hbox class="inline-notification-container info-container">
         <hbox class="inline-notification-wrapper">
           <image class="notification-image notification-image-info"/>
           <description data-l10n-id="openpgp-generate-key-info"/>
@@ -55,6 +55,35 @@
                 oncommand="openPgpKeygenCancel();"/>
       </vbox>
 
+    </html:div>
+
+    <html:div id="wizardImportOverlay" class="wizard-section overlay hide"
+              hidden="hidden">
+      <vbox id="importLoading" class="self-center" align="center">
+        <html:legend data-l10n-id="openpgp-keygen-import-progress-title"></html:legend>
+        <image class="loading-status"/>
+      </vbox>
+
+      <vbox id="importSuccess" align="center" collapsed="true">
+        <hbox class="inline-notification-container success-container">
+          <hbox class="inline-notification-wrapper align-center">
+            <image class="notification-image notification-image-success"/>
+            <description data-l10n-id="openpgp-import-success"/>
+          </hbox>
+        </hbox>
+
+        <description data-l10n-id="openpgp-import-success-description"/>
+
+        <separator/>
+
+        <vbox id="importKeyListRecap"/>
+
+        <separator class="thin"/>
+
+        <button data-l10n-id="openpgp-keygen-import-complete"
+                class="self-center primary"
+                oncommand="openPgpImportComplete();"/>
+      </vbox>
     </html:div>
 
     <vbox id="wizardStart" class="wizard-section">
@@ -177,7 +206,7 @@
       <separator/>
 
       <hbox id="openPgpWarning"
-            class="inline-notification-container error-container self-center"
+            class="inline-notification-container error-container"
             collapsed="true">
         <hbox class="inline-notification-wrapper">
           <image class="notification-image notification-image-error"/>
@@ -191,11 +220,47 @@
       <label data-l10n-id="openpgp-import-key-title"
              class="dialogheader-title"/>
 
-      <description>
-        Work in Progress: Please use the OpenPGP Key Manager to import existing keys
-      </description>
+      <vbox id="importKeyIntro" align="start">
+        <html:div>
+          <html:fieldset>
+            <html:legend data-l10n-id="openpgp-import-key-legend"></html:legend>
+            <description data-l10n-id="openpgp-import-key-description"/>
+            <description data-l10n-id="openpgp-import-key-info"
+                        class="tip-caption"/>
 
-      <separator/>
+            <separator/>
+
+            <button data-l10n-id="openpgp-import-key-button"
+                    oncommand="importSecretKey();"/>
+
+            <hbox id="openPgpImportWarning"
+                  class="inline-notification-container error-container"
+                  collapsed="true">
+              <hbox class="inline-notification-wrapper align-center">
+                <image class="notification-image notification-image-error"/>
+                <description id="openPgpImportWarningDescription"/>
+              </hbox>
+            </hbox>
+
+            <separator class="thin"/>
+          </html:fieldset>
+        </html:div>
+      </vbox>
+
+      <vbox id="importKeyListContainer" collapsed="true">
+        <hbox class="inline-notification-container success-container">
+          <hbox class="inline-notification-wrapper align-center">
+            <image class="notification-image notification-image-success"/>
+            <description id="keyListCount"/>
+          </hbox>
+        </hbox>
+
+        <description id="keyListDescription"
+                     data-l10n-id="openpgp-import-key-list-description"/>
+
+        <vbox id="importKeyList"/>
+
+      </vbox>
     </vbox>
 
     <vbox id="wizardExternalKey" class="wizard-section hide-reverse" hidden="true">

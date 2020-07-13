@@ -4,8 +4,6 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
-/* ::::: Warnings and inline notifications ::::: */
-
 .dialogheader-title {
   margin-block: 0 8px;
   margin-inline-start: 0;
@@ -38,10 +36,18 @@
   display: flex;
   position: fixed;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
   background-color: var(--in-content-page-background);
   inset: 0;
   z-index: 1;
+}
+
+#importLoading {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
 }
 
 .self-center {
@@ -55,4 +61,75 @@
   height: 16px;
   background: url("chrome://global/skin/icons/loading.png") no-repeat;
   background-size: 16px 16px;
+}
+
+/* Import key list */
+
+#keyListCount {
+  font-weight: bold;
+}
+
+#importKeyList {
+  display: grid;
+  row-gap: 6px;
+  margin: 18px 6px 24px;
+}
+
+.key-import-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 2px;
+  align-items: end;
+  border-radius: 4px;
+  padding: 6px;
+  border: 1px solid var(--in-content-border-color);
+  background-color: rgba(215, 215, 219, 0.2);
+  margin-bottom: 6px;
+}
+
+.key-import-row.selected {
+  border: 1px solid #45A1FF;
+  background-color: rgba(69, 161, 255, 0.2);
+  margin-bottom: 0;
+}
+
+.openpgp-key-id {
+  font-weight: bold;
+}
+
+.openpgp-key-name {
+  font-size: 0.9em;
+}
+
+.openpgp-image-btn .button-icon {
+  margin-inline-end: 4px;
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+.openpgp-props-btn {
+  list-style-image: url("chrome://messenger/skin/icons/developer.svg");
+}
+
+.extra-information-label {
+  display: grid;
+  grid-template-columns: auto max-content;
+  row-gap: 5px;
+  align-items: center;
+  margin-inline-end: 10px;
+}
+
+.extra-information-label-type {
+  font-weight: 600;
+  margin-inline-end: 4px;
+}
+
+.tip-caption {
+  color: var(--in-content-deemphasized-text);
+  font-size: .9em;
+}
+
+#importKeyListRecap {
+  max-height: 32em;
+  overflow-y: auto;
 }

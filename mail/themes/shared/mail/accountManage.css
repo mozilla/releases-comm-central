@@ -449,7 +449,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 .extra-information-label {
-  display: inline-grid;
+  display: grid;
   grid-template-columns: auto max-content 1fr;
   row-gap: 10px;
   align-items: center;
@@ -572,10 +572,23 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   fill: currentColor;
 }
 
+.openpgp-add-key-button {
+  list-style-image: url("chrome://messenger/skin/icons/new-key.svg");
+}
+
 .openpgp-props-btn {
   list-style-image: url("chrome://messenger/skin/icons/developer.svg");
 }
 
 .openpgp-more-btn .button-menu-dropmarker {
   list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+}
+
+.intro-paragraph {
+  margin-block: 0 6px;
+}
+
+.tip-caption {
+  color: var(--in-content-deemphasized-text);
+  font-size: .9em;
 }

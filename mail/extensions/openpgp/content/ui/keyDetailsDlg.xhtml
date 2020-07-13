@@ -113,22 +113,27 @@
         <separator class="thin"/>
         <description id="acceptanceIntro2"/>
         <separator class="thin"/>
-        <radiogroup id="acceptanceRadio" hidden="true">
-          <radio id="acceptRejected" value="rejected"
-                 data-l10n-id="openpgp-acceptance-rejected-label"/>
-          <radio id="acceptUndecided" value="undecided"
-                 data-l10n-id="openpgp-acceptance-undecided-label"/>
-          <radio id="acceptUnverified" value="unverified"
-                 data-l10n-id="openpgp-acceptance-unverified-label"/>
-          <radio id="acceptVerified" value="verified"
-                 data-l10n-id="openpgp-acceptance-verified-label"/>
-        </radiogroup>
-        <radiogroup id="personalRadio" hidden="true">
-          <radio id="notPersonal" value="not_personal"
-                 data-l10n-id="openpgp-personal-no-label"/>
-          <radio id="yesPersonal" value="personal"
-                 data-l10n-id="openpgp-personal-yes-label"/>
-        </radiogroup>
+
+        <html:div>
+          <html:fieldset>
+            <radiogroup id="acceptanceRadio" hidden="true" class="indent">
+              <radio id="acceptRejected" value="rejected"
+                     data-l10n-id="openpgp-acceptance-rejected-label"/>
+              <radio id="acceptUndecided" value="undecided"
+                     data-l10n-id="openpgp-acceptance-undecided-label"/>
+              <radio id="acceptUnverified" value="unverified"
+                     data-l10n-id="openpgp-acceptance-unverified-label"/>
+              <radio id="acceptVerified" value="verified"
+                     data-l10n-id="openpgp-acceptance-verified-label"/>
+            </radiogroup>
+            <radiogroup id="personalRadio" class="indent" hidden="true">
+              <radio id="notPersonal" value="not_personal"
+                     data-l10n-id="openpgp-personal-no-label"/>
+              <radio id="yesPersonal" value="personal"
+                     data-l10n-id="openpgp-personal-yes-label"/>
+            </radiogroup>
+          </html:fieldset>
+        </html:div>
       </vbox>
 
       <!-- certifications tab -->
