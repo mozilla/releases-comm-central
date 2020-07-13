@@ -40,30 +40,6 @@ add_task(async () => {
     }
   }
 
-  function createBook(dirName) {
-    let prefName = MailServices.ab.newAddressBook(dirName, null, 101);
-    return MailServices.ab.getDirectoryFromId(prefName);
-  }
-
-  function createMailingList(name) {
-    let list = Cc[
-      "@mozilla.org/addressbook/directoryproperty;1"
-    ].createInstance(Ci.nsIAbDirectory);
-    list.isMailList = true;
-    list.dirName = name;
-    return list;
-  }
-
-  function checkInDirectory(directory) {
-    if (directory) {
-      Assert.equal(abWindow.gAbView.directory.URI, directory.URI);
-      Assert.equal(abWindow.getSelectedDirectoryURI(), directory.URI);
-    } else {
-      Assert.ok(!abWindow.gAbView.directory);
-      Assert.equal(abWindow.getSelectedDirectoryURI(), "moz-abdirectory://?");
-    }
-  }
-
   let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
   let historyBook = MailServices.ab.getDirectoryFromId(
     "ldap_2.servers.history"
@@ -80,7 +56,7 @@ add_task(async () => {
   let abDocument = abWindow.document;
   let dirTree = abDocument.getElementById("dirTree");
   let dirView = abWindow.gDirectoryTreeView;
-  checkInDirectory(null);
+  checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: historyBook }
@@ -88,8 +64,8 @@ add_task(async () => {
 
   // Add one book, *not* using the UI, and check that we don't move to it.
 
-  let newBook1 = createBook("New Book 1");
-  checkInDirectory(null);
+  let newBook1 = createAddressBook("New Book 1");
+  checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1 },
@@ -98,8 +74,8 @@ add_task(async () => {
 
   // Add another book, using the UI, and check that we move to the new book.
 
-  let newBook2 = await createNewAddressBook(abWindow, "New Book 2");
-  checkInDirectory(newBook2);
+  let newBook2 = await createAddressBookWithUI("New Book 2");
+  checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1 },
@@ -110,7 +86,7 @@ add_task(async () => {
   // Add some lists, *not* using the UI, and check that we don't move to them.
 
   let list1 = newBook1.addMailList(createMailingList("New Book 1 - List 1"));
-  checkInDirectory(newBook2);
+  checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -120,7 +96,7 @@ add_task(async () => {
   );
 
   let list3 = newBook1.addMailList(createMailingList("New Book 1 - List 3"));
-  checkInDirectory(newBook2);
+  checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -131,7 +107,7 @@ add_task(async () => {
   );
 
   let list0 = newBook1.addMailList(createMailingList("New Book 1 - List 0"));
-  checkInDirectory(newBook2);
+  checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -143,7 +119,7 @@ add_task(async () => {
   );
 
   let list2 = newBook1.addMailList(createMailingList("New Book 1 - List 2"));
-  checkInDirectory(newBook2);
+  checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -156,7 +132,7 @@ add_task(async () => {
   );
 
   let list4 = newBook2.addMailList(createMailingList("New Book 2 - List 4"));
-  checkInDirectory(newBook2);
+  checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -171,12 +147,8 @@ add_task(async () => {
 
   // Add a new list, using the UI, and check that we move to it.
 
-  let list5 = await createNewMailingList(
-    abWindow,
-    newBook2,
-    "New Book 2 - List 5"
-  );
-  checkInDirectory(list5);
+  let list5 = await createMailingListWithUI(newBook2, "New Book 2 - List 5");
+  checkDirectoryDisplayed(list5);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -193,7 +165,7 @@ add_task(async () => {
   // Delete a list that isn't displayed, and check that we don't move.
 
   newBook1.deleteDirectory(list3);
-  checkInDirectory(list5);
+  checkDirectoryDisplayed(list5);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -209,7 +181,7 @@ add_task(async () => {
   // Delete the displayed list, and check that we return to the parent book.
 
   newBook2.deleteDirectory(list5);
-  checkInDirectory(newBook2);
+  checkDirectoryDisplayed(newBook2);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -226,7 +198,7 @@ add_task(async () => {
   let directoryRemoved = promiseDirectoryRemoved();
   MailServices.ab.deleteAddressBook(newBook2.URI);
   await directoryRemoved;
-  checkInDirectory(null);
+  checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: newBook1, open: true },
@@ -241,7 +213,7 @@ add_task(async () => {
   directoryRemoved = promiseDirectoryRemoved();
   MailServices.ab.deleteAddressBook(newBook1.URI);
   await directoryRemoved;
-  checkInDirectory(null);
+  checkDirectoryDisplayed(null);
   checkBooksOrder(
     { level: 1, directory: personalBook },
     { level: 1, directory: historyBook }

@@ -6,31 +6,6 @@ var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
-function createAddressBook(name) {
-  let dirPrefId = MailServices.ab.newAddressBook(name, "", 101);
-  return MailServices.ab.getDirectoryFromId(dirPrefId);
-}
-
-function createContact(firstName, lastName) {
-  let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(
-    Ci.nsIAbCard
-  );
-  contact.displayName = `${firstName} ${lastName}`;
-  contact.firstName = firstName;
-  contact.lastName = lastName;
-  contact.primaryEmail = `${firstName}.${lastName}@invalid`;
-  return contact;
-}
-
-function createMailingList(name) {
-  let list = Cc["@mozilla.org/addressbook/directoryproperty;1"].createInstance(
-    Ci.nsIAbDirectory
-  );
-  list.isMailList = true;
-  list.dirName = name;
-  return list;
-}
-
 var observer = {
   topics: [
     "addrbook-directory-created",
@@ -77,55 +52,11 @@ var observer = {
 };
 
 add_task(async () => {
-  function openRootDirectory() {
-    mailTestUtils.treeClick(EventUtils, abWindow, abDirTree, 0, 0, {});
-  }
-
-  function openDirectory(directory) {
-    for (let i = 0; i < abDirTree.view.rowCount; i++) {
-      abDirTree.changeOpenState(i, true);
-    }
-
-    let row = abWindow.gDirectoryTreeView.getIndexForId(directory.URI);
-    mailTestUtils.treeClick(EventUtils, abWindow, abDirTree, row, 0, {});
-  }
-
-  function checkInDirectory(directory) {
-    if (directory) {
-      Assert.equal(abWindow.gAbView.directory.URI, directory.URI);
-      Assert.equal(abWindow.getSelectedDirectoryURI(), directory.URI);
-    } else {
-      Assert.ok(!abWindow.gAbView.directory);
-      Assert.equal(abWindow.getSelectedDirectoryURI(), "moz-abdirectory://?");
-    }
-  }
-
   function deleteRowWithPrompt(row) {
     let promptPromise = BrowserTestUtils.promiseAlertDialogOpen("accept");
     mailTestUtils.treeClick(EventUtils, abWindow, abContactTree, row, 0, {});
     EventUtils.synthesizeKey("VK_DELETE", {}, abWindow);
     return promptPromise;
-  }
-
-  function checkRows(...expectedCards) {
-    Assert.equal(
-      abWindow.gAbView.rowCount,
-      expectedCards.length,
-      "rowCount correct"
-    );
-    for (let i = 0; i < expectedCards.length; i++) {
-      if (expectedCards[i].isMailList) {
-        Assert.equal(
-          abWindow.gAbView.getCardFromRow(i).displayName,
-          expectedCards[i].dirName
-        );
-      } else {
-        Assert.equal(
-          abWindow.gAbView.getCardFromRow(i).displayName,
-          expectedCards[i].displayName
-        );
-      }
-    }
   }
 
   let bookA = createAddressBook("book A");
@@ -134,99 +65,98 @@ add_task(async () => {
   let contactB1 = bookB.addCard(createContact("contact", "B1"));
 
   let abWindow = await openAddressBookWindow();
-  let abDirTree = abWindow.GetDirTree();
   let abContactTree = abWindow.document.getElementById("abResultsTree");
 
   observer.setUp();
 
   openRootDirectory();
-  checkRows(contactA1, contactB1);
+  checkCardsListed(contactA1, contactB1);
 
   // While in bookA, add a contact and list. Check that they show up.
   openDirectory(bookA);
-  checkRows(contactA1);
+  checkCardsListed(contactA1);
   let contactA2 = bookA.addCard(createContact("contact", "A2")); // Add A2.
-  checkRows(contactA1, contactA2);
+  checkCardsListed(contactA1, contactA2);
   let listC = bookA.addMailList(createMailingList("list C")); // Add C.
-  checkInDirectory(bookA);
-  checkRows(contactA1, contactA2, listC);
+  checkDirectoryDisplayed(bookA);
+  checkCardsListed(contactA1, contactA2, listC);
   listC.addCard(contactA1);
-  checkRows(contactA1, contactA2, listC);
+  checkCardsListed(contactA1, contactA2, listC);
 
   openRootDirectory();
-  checkRows(contactA1, contactA2, contactB1, listC);
+  checkCardsListed(contactA1, contactA2, contactB1, listC);
 
   // While in listC, add a member and remove a member. Check that they show up
   // or disappear as appropriate.
   openDirectory(listC);
-  checkRows(contactA1);
+  checkCardsListed(contactA1);
   listC.addCard(contactA2);
-  checkRows(contactA1, contactA2);
+  checkCardsListed(contactA1, contactA2);
   await deleteRowWithPrompt(0);
-  checkRows(contactA2);
+  checkCardsListed(contactA2);
 
   openRootDirectory();
-  checkRows(contactA1, contactA2, contactB1, listC);
+  checkCardsListed(contactA1, contactA2, contactB1, listC);
 
   // While in bookA, delete a contact. Check it disappears.
   openDirectory(bookA);
-  checkRows(contactA1, contactA2, listC);
+  checkCardsListed(contactA1, contactA2, listC);
   await deleteRowWithPrompt(0); // Delete A1.
-  checkRows(contactA2, listC);
+  checkCardsListed(contactA2, listC);
   // Now do some things in an unrelated book. Check nothing changes here.
   let contactB2 = bookB.addCard(createContact("contact", "B2")); // Add B2.
-  checkRows(contactA2, listC);
+  checkCardsListed(contactA2, listC);
   let listD = bookB.addMailList(createMailingList("list D")); // Add D.
-  checkInDirectory(bookA);
-  checkRows(contactA2, listC);
+  checkDirectoryDisplayed(bookA);
+  checkCardsListed(contactA2, listC);
   listD.addCard(contactB1);
-  checkRows(contactA2, listC);
+  checkCardsListed(contactA2, listC);
 
   openRootDirectory();
-  checkRows(contactA2, contactB1, contactB2, listC, listD);
+  checkCardsListed(contactA2, contactB1, contactB2, listC, listD);
 
   // While in listC, do some things in an unrelated list. Check nothing
   // changes here.
   openDirectory(listC);
-  checkRows(contactA2);
+  checkCardsListed(contactA2);
   listD.addCard(contactB2);
-  checkRows(contactA2);
+  checkCardsListed(contactA2);
   listD.deleteCards([contactB1]);
-  checkRows(contactA2);
+  checkCardsListed(contactA2);
   bookB.deleteCards([contactB1]);
-  checkRows(contactA2);
+  checkCardsListed(contactA2);
 
   openRootDirectory();
-  checkRows(contactA2, contactB2, listC, listD);
+  checkCardsListed(contactA2, contactB2, listC, listD);
 
   // While in bookA, do some things in an unrelated book. Check nothing
   // changes here.
   openDirectory(bookA);
-  checkRows(contactA2, listC);
+  checkCardsListed(contactA2, listC);
   bookB.deleteDirectory(listD); // Delete D.
-  checkInDirectory(bookA);
-  checkRows(contactA2, listC);
+  checkDirectoryDisplayed(bookA);
+  checkCardsListed(contactA2, listC);
   await deleteRowWithPrompt(1); // Delete C.
-  checkRows(contactA2);
+  checkCardsListed(contactA2);
 
   // While in "All Address Books", make some changes and check that things
   // appear or disappear as appropriate.
   openRootDirectory();
-  checkRows(contactA2, contactB2);
+  checkCardsListed(contactA2, contactB2);
   let listE = bookB.addMailList(createMailingList("list E")); // Add E.
-  checkInDirectory(null);
-  checkRows(contactA2, contactB2, listE);
+  checkDirectoryDisplayed(null);
+  checkCardsListed(contactA2, contactB2, listE);
   listE.addCard(contactB2);
-  checkRows(contactA2, contactB2, listE);
+  checkCardsListed(contactA2, contactB2, listE);
   listE.deleteCards([contactB2]);
-  checkRows(contactA2, contactB2, listE);
+  checkCardsListed(contactA2, contactB2, listE);
   bookB.deleteDirectory(listE); // Delete E.
-  checkInDirectory(null);
-  checkRows(contactA2, contactB2);
+  checkDirectoryDisplayed(null);
+  checkCardsListed(contactA2, contactB2);
   await deleteRowWithPrompt(1);
-  checkRows(contactA2);
+  checkCardsListed(contactA2);
   bookA.deleteCards([contactA2]);
-  checkRows();
+  checkCardsListed();
 
   abWindow.close();
 
@@ -241,31 +171,7 @@ add_task(async () => {
 });
 
 add_task(async () => {
-  function openDirectory(directory) {
-    for (let i = 0; i < abDirTree.view.rowCount; i++) {
-      abDirTree.changeOpenState(i, true);
-    }
-
-    let row = abWindow.gDirectoryTreeView.getIndexForId(directory.URI);
-    mailTestUtils.treeClick(EventUtils, abWindow, abDirTree, row, 0, {});
-  }
-
-  function checkRows(...expectedCards) {
-    Assert.equal(
-      abWindow.gAbView.rowCount,
-      expectedCards.length,
-      "rowCount correct"
-    );
-    for (let i = 0; i < expectedCards.length; i++) {
-      Assert.equal(
-        abWindow.gAbView.getCardFromRow(i).displayName,
-        expectedCards[i].displayName
-      );
-    }
-  }
-
   let abWindow = await openAddressBookWindow();
-  let abDirTree = abWindow.GetDirTree();
   let abContactTree = abWindow.document.getElementById("abResultsTree");
 
   Assert.equal(abContactTree.columns[0].element.id, "GeneratedName");
@@ -282,15 +188,15 @@ add_task(async () => {
 
   let bookA = createAddressBook("book A");
   openDirectory(bookA);
-  checkRows();
+  checkCardsListed();
   let contactA2 = bookA.addCard(createContact("contact", "A2"));
-  checkRows(contactA2);
+  checkCardsListed(contactA2);
   let contactA1 = bookA.addCard(createContact("contact", "A1")); // Add first.
-  checkRows(contactA1, contactA2);
+  checkCardsListed(contactA1, contactA2);
   let contactA5 = bookA.addCard(createContact("contact", "A5")); // Add last.
-  checkRows(contactA1, contactA2, contactA5);
+  checkCardsListed(contactA1, contactA2, contactA5);
   let contactA3 = bookA.addCard(createContact("contact", "A3")); // Add in the middle.
-  checkRows(contactA1, contactA2, contactA3, contactA5);
+  checkCardsListed(contactA1, contactA2, contactA3, contactA5);
 
   // Flip sort direction.
   EventUtils.synthesizeMouseAtCenter(
@@ -302,13 +208,20 @@ add_task(async () => {
     abContactTree.columns[0].element.getAttribute("sortDirection"),
     "descending"
   );
-  checkRows(contactA5, contactA3, contactA2, contactA1);
+  checkCardsListed(contactA5, contactA3, contactA2, contactA1);
   let contactA4 = bookA.addCard(createContact("contact", "A4")); // Add in the middle.
-  checkRows(contactA5, contactA4, contactA3, contactA2, contactA1);
+  checkCardsListed(contactA5, contactA4, contactA3, contactA2, contactA1);
   let contactA7 = bookA.addCard(createContact("contact", "A7")); // Add first.
-  checkRows(contactA7, contactA5, contactA4, contactA3, contactA2, contactA1);
+  checkCardsListed(
+    contactA7,
+    contactA5,
+    contactA4,
+    contactA3,
+    contactA2,
+    contactA1
+  );
   let contactA0 = bookA.addCard(createContact("contact", "A0")); // Add last.
-  checkRows(
+  checkCardsListed(
     contactA7,
     contactA5,
     contactA4,
@@ -322,7 +235,7 @@ add_task(async () => {
   contactA3.lastName = "contact A3";
   contactA3.primaryEmail = "contact.A6@invalid";
   bookA.modifyCard(contactA3); // Rename, should change position.
-  checkRows(
+  checkCardsListed(
     contactA7,
     contactA3, // Actually A6.
     contactA5,
@@ -338,7 +251,7 @@ add_task(async () => {
     {},
     abWindow
   );
-  await closeAddressBookWindow(abWindow);
+  await closeAddressBookWindow();
 
   let deletePromise = promiseDirectoryRemoved();
   MailServices.ab.deleteAddressBook(bookA.URI);

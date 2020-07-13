@@ -5,7 +5,7 @@
 const { LDAPServer } = ChromeUtils.import(
   "resource://testing-common/LDAPServer.jsm"
 );
-const { mailTestUtils } = ChromeUtils.import(
+var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
@@ -22,45 +22,6 @@ add_task(async () => {
         }
       });
     });
-  }
-
-  function checkResultsDisplay(...expectedNames) {
-    let expectedCount = expectedNames.length;
-    let treeTop = resultsTree.lastElementChild.getBoundingClientRect().top;
-
-    // Checking how many rows the tree *actually has* is difficult. It may be
-    // different from the view's row count, which is *bad*. We'll work it out
-    // using the coordinates of the expected number of rows. This will fail if
-    // there's more rows than can be displayed at once.
-
-    Assert.equal(
-      resultsTree.getRowAt(0, treeTop + resultsTree.rowHeight * expectedCount),
-      -1,
-      "Tree does not have too many rows"
-    );
-    if (expectedCount > 0) {
-      Assert.equal(
-        resultsTree.getRowAt(
-          0,
-          treeTop + resultsTree.rowHeight * expectedCount - 1
-        ),
-        expectedCount - 1,
-        "Tree does not have too few rows"
-      );
-    }
-
-    Assert.equal(
-      resultsTree.view.rowCount,
-      expectedCount,
-      "Tree view has the right number of rows"
-    );
-
-    for (let i = 0; i < expectedCount; i++) {
-      Assert.equal(
-        resultsTree.view.getCellText(i, resultsTree.columns.GeneratedName),
-        expectedNames[i]
-      );
-    }
   }
 
   // Set up some local people.
@@ -116,7 +77,7 @@ add_task(async () => {
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkResultsDisplay();
+  checkNamesListed();
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.mycroft);
@@ -124,7 +85,7 @@ add_task(async () => {
   LDAPServer.writeSearchResultDone();
 
   await waitForCountChange(2);
-  checkResultsDisplay("Mycroft Holmes", "Sherlock Holmes");
+  checkNamesListed("Mycroft Holmes", "Sherlock Holmes");
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -132,19 +93,19 @@ add_task(async () => {
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkResultsDisplay();
+  checkNamesListed();
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.john);
   LDAPServer.writeSearchResultDone();
 
   await waitForCountChange(1);
-  checkResultsDisplay("John Watson");
+  checkNamesListed("John Watson");
 
   // Now move back to the "All Address Books" view and search again.
 
   mailTestUtils.treeClick(EventUtils, abWindow, dirTree, 0, 0, {});
-  checkResultsDisplay("daniel", "jonathan", "nathan");
+  checkNamesListed("daniel", "jonathan", "nathan");
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -152,14 +113,14 @@ add_task(async () => {
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkResultsDisplay();
+  checkNamesListed();
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.irene);
   LDAPServer.writeSearchResultDone();
 
   await waitForCountChange(1);
-  checkResultsDisplay("Irene Adler");
+  checkNamesListed("Irene Adler");
 
   EventUtils.synthesizeMouseAtCenter(searchBox, {}, abWindow);
   EventUtils.synthesizeKey("a", { accelKey: true }, abWindow);
@@ -167,12 +128,12 @@ add_task(async () => {
 
   await LDAPServer.read(LDAPServer.BindRequest);
   LDAPServer.writeBindResponse();
-  checkResultsDisplay("jonathan");
+  checkNamesListed("jonathan");
 
   await LDAPServer.read(LDAPServer.SearchRequest);
   LDAPServer.writeSearchResultEntry(ldapContacts.john);
   LDAPServer.writeSearchResultDone();
 
   await waitForCountChange(2);
-  checkResultsDisplay("John Watson", "jonathan");
+  checkNamesListed("John Watson", "jonathan");
 });

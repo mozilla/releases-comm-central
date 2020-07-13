@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { mailTestUtils } = ChromeUtils.import(
+var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
@@ -12,7 +12,7 @@ add_task(async () => {
       abWindow.addEventListener(
         "viewchange",
         function onCountChange() {
-          checkRows(...expectedCards);
+          checkCardsListed(...expectedCards);
           resolve();
         },
         { once: true }
@@ -26,17 +26,6 @@ add_task(async () => {
         EventUtils.synthesizeKey("VK_ESCAPE", {}, abWindow);
       }
     });
-  }
-
-  function checkRows(...expectedCards) {
-    is(resultsTree.view.rowCount, expectedCards.length, "rowCount correct");
-    for (let i = 0; i < expectedCards.length; i++) {
-      is(
-        abWindow.gAbView.getCardFromRow(i).displayName,
-        expectedCards[i].displayName,
-        `row ${i} has the right contact`
-      );
-    }
   }
 
   let personalBook = MailServices.ab.getDirectoryFromId("ldap_2.servers.pab");
@@ -80,12 +69,11 @@ add_task(async () => {
 
   let abDocument = abWindow.document;
   let dirTree = abDocument.getElementById("dirTree");
-  let resultsTree = abDocument.getElementById("abResultsTree");
   let searchBox = abDocument.getElementById("peopleSearchInput");
 
   // All address books.
 
-  checkRows(
+  checkCardsListed(
     cards.daniel,
     cards.danielle,
     cards.jonathan,
@@ -99,7 +87,7 @@ add_task(async () => {
 
   is(dirTree.view.getCellText(1, dirTree.columns[0]), "Personal Address Book");
   mailTestUtils.treeClick(EventUtils, abWindow, dirTree, 1, 0, {});
-  checkRows(cards.daniel, cards.jonathan, cards.nathan);
+  checkCardsListed(cards.daniel, cards.jonathan, cards.nathan);
 
   await doSearch("daniel", cards.daniel);
   await doSearch("nathan", cards.jonathan, cards.nathan);
@@ -108,7 +96,12 @@ add_task(async () => {
 
   is(dirTree.view.getCellText(2, dirTree.columns[0]), "Collected Addresses");
   mailTestUtils.treeClick(EventUtils, abWindow, dirTree, 2, 0, {});
-  checkRows(cards.danielle, cards.katherine, cards.natalie, cards.susanah);
+  checkCardsListed(
+    cards.danielle,
+    cards.katherine,
+    cards.natalie,
+    cards.susanah
+  );
 
   await doSearch("daniel", cards.danielle);
   await doSearch("nathan");
@@ -116,7 +109,7 @@ add_task(async () => {
   // All address books.
 
   mailTestUtils.treeClick(EventUtils, abWindow, dirTree, 0, 0, {});
-  checkRows(
+  checkCardsListed(
     cards.daniel,
     cards.danielle,
     cards.jonathan,

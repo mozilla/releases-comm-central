@@ -4,7 +4,7 @@
 
 /* globals DisplayNameUtils, fixIterator, MailServices, MailUtils */
 
-const { mailTestUtils } = ChromeUtils.import(
+var { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
 );
 
@@ -36,7 +36,7 @@ add_task(async () => {
   let abWindow = await openAddressBookWindow();
 
   let dirTree = abWindow.document.getElementById("dirTree");
-  is(
+  Assert.equal(
     dirTree.view.getCellText(2, dirTree.columns[0]),
     inputs.abName,
     `address book ("${inputs.abName}") is displayed in the address book list`
@@ -89,22 +89,34 @@ add_task(async () => {
         .getElementById("addressingWidget")
         .querySelectorAll("input").length;
 
-      is(
+      Assert.equal(
         abPopup.label,
         global.addressBook.dirName,
         "the correct address book is selected in the menu"
       );
-      is(
+      Assert.equal(
         abPopup.value,
         global.addressBook.URI,
         "the address book selected in the menu has the correct address book URI"
       );
-      is(listNameFocusEvent.type, "focus", "list name field is focused");
-      is(listName.value, "", "no text in the list name field");
-      is(listNickName.value, "", "no text in the list nickname field");
-      is(listDescription.value, "", "no text in the description field");
-      is(addressInput1.value, "", "no text in the addresses list");
-      is(addressInputsCount, 1, "only one address list input exists");
+      Assert.equal(
+        listNameFocusEvent.type,
+        "focus",
+        "list name field is focused"
+      );
+      Assert.equal(listName.value, "", "no text in the list name field");
+      Assert.equal(
+        listNickName.value,
+        "",
+        "no text in the list nickname field"
+      );
+      Assert.equal(
+        listDescription.value,
+        "",
+        "no text in the description field"
+      );
+      Assert.equal(addressInput1.value, "", "no text in the addresses list");
+      Assert.equal(addressInputsCount, 1, "only one address list input exists");
 
       EventUtils.sendString(inputs.mlName, mlWindow);
 
@@ -139,22 +151,22 @@ add_task(async () => {
 
   // Confirm that the mailing list and addresses were saved in the backend.
 
-  ok(
+  Assert.ok(
     DisplayNameUtils.getCardForEmail(inputs.addresses[0]).card,
     "address zero was saved"
   );
-  ok(
+  Assert.ok(
     DisplayNameUtils.getCardForEmail(inputs.addresses[1]).card,
     "address one was saved"
   );
 
   let childCards = [...global.addressBook.childCards];
 
-  ok(
+  Assert.ok(
     childCards.find(card => card.primaryEmail == inputs.addresses[0]),
     "address zero was saved in the correct address book"
   );
-  ok(
+  Assert.ok(
     childCards.find(card => card.primaryEmail == inputs.addresses[1]),
     "address one was saved in the correct address book"
   );
@@ -164,18 +176,18 @@ add_task(async () => {
   // Save the mailing list UID so we can confirm it is the same later.
   global.mailListUID = mailList.UID;
 
-  ok(mailList, "mailing list was created");
-  ok(
+  Assert.ok(mailList, "mailing list was created");
+  Assert.ok(
     global.addressBook.hasMailListWithName(inputs.mlName),
     "mailing list was created in the correct address book"
   );
-  is(mailList.dirName, inputs.mlName, "mailing list name was saved");
-  is(
+  Assert.equal(mailList.dirName, inputs.mlName, "mailing list name was saved");
+  Assert.equal(
     mailList.listNickName,
     inputs.nickName,
     "mailing list nick name was saved"
   );
-  is(
+  Assert.equal(
     mailList.description,
     inputs.description,
     "mailing list description was saved"
@@ -183,15 +195,15 @@ add_task(async () => {
 
   let listCards = [...fixIterator(mailList.childCards, Ci.nsIAbCard)];
 
-  ok(
+  Assert.ok(
     listCards[0].hasEmailAddress(inputs.addresses[0]),
     "address zero was saved in the mailing list"
   );
-  ok(
+  Assert.ok(
     listCards[1].hasEmailAddress(inputs.addresses[1]),
     "address one was saved in the mailing list"
   );
-  is(listCards.length, 2, "two cards exist in the mailing list");
+  Assert.equal(listCards.length, 2, "two cards exist in the mailing list");
 });
 
 /**
@@ -226,30 +238,38 @@ add_task(async () => {
       let addressInput1 = mlDocument.getElementById("addressCol1#1");
       let addressInput2 = mlDocument.getElementById("addressCol1#2");
 
-      is(listName.value, inputs.mlName, "list name is displayed correctly");
-      is(
+      Assert.equal(
+        listName.value,
+        inputs.mlName,
+        "list name is displayed correctly"
+      );
+      Assert.equal(
         listNickName.value,
         inputs.nickName,
         "list nickname is displayed correctly"
       );
-      is(
+      Assert.equal(
         listDescription.value,
         inputs.description,
         "list description is displayed correctly"
       );
-      is(
+      Assert.equal(
         addressInput1 && addressInput1.value,
         getDisplayedAddress(inputs.addresses[0]),
         "address zero is displayed correctly"
       );
-      is(
+      Assert.equal(
         addressInput2 && addressInput2.value,
         getDisplayedAddress(inputs.addresses[1]),
         "address one is displayed correctly"
       );
 
       let textInputs = mlDocument.querySelectorAll(".textbox-addressingWidget");
-      is(textInputs.length, 3, "no extraneous addresses are displayed");
+      Assert.equal(
+        textInputs.length,
+        3,
+        "no extraneous addresses are displayed"
+      );
 
       // Add addresses two and three.
       EventUtils.sendString(inputs.addresses.slice(2, 4).join(", "), mlWindow);
@@ -279,7 +299,7 @@ add_task(async () => {
     }
   );
 
-  is(
+  Assert.equal(
     global.dirTree.view.getCellText(2, global.dirTree.columns[0]),
     inputs.abName,
     `address book ("${inputs.abName}") is displayed in the address book list`
@@ -292,7 +312,7 @@ add_task(async () => {
     EventUtils.sendKey("RETURN", global.abWindow);
   }
 
-  is(
+  Assert.equal(
     global.dirTree.view.getCellText(3, global.dirTree.columns[0]),
     inputs.mlName,
     `mailing list ("${inputs.mlName}") is displayed in the address book list`
@@ -305,29 +325,29 @@ add_task(async () => {
 
   // Confirm that the mailing list and addresses were saved in the backend.
 
-  is(
+  Assert.equal(
     global.dirTree.view.getCellText(3, global.dirTree.columns[0]),
     inputs.mlName + inputs.modification,
     `mailing list ("${inputs.mlName +
       inputs.modification}") is displayed in the address book list`
   );
 
-  ok(
+  Assert.ok(
     DisplayNameUtils.getCardForEmail(inputs.addresses[2]).card,
     "address two was saved"
   );
-  ok(
+  Assert.ok(
     DisplayNameUtils.getCardForEmail(inputs.addresses[3]).card,
     "address three was saved"
   );
 
   let childCards = [...global.addressBook.childCards];
 
-  ok(
+  Assert.ok(
     childCards.find(card => card.primaryEmail == inputs.addresses[2]),
     "address two was saved in the correct address book"
   );
-  ok(
+  Assert.ok(
     childCards.find(card => card.primaryEmail == inputs.addresses[3]),
     "address three was saved in the correct address book"
   );
@@ -336,23 +356,27 @@ add_task(async () => {
     inputs.mlName + inputs.modification
   );
 
-  is(mailList && mailList.UID, global.mailListUID, "mailing list still exists");
+  Assert.equal(
+    mailList && mailList.UID,
+    global.mailListUID,
+    "mailing list still exists"
+  );
 
-  ok(
+  Assert.ok(
     global.addressBook.hasMailListWithName(inputs.mlName + inputs.modification),
     "mailing list is still in the correct address book"
   );
-  is(
+  Assert.equal(
     mailList.dirName,
     inputs.mlName + inputs.modification,
     "modified mailing list name was saved"
   );
-  is(
+  Assert.equal(
     mailList.listNickName,
     inputs.nickName + inputs.modification,
     "modified mailing list nick name was saved"
   );
-  is(
+  Assert.equal(
     mailList.description,
     inputs.description + inputs.modification,
     "modified mailing list description was saved"
@@ -360,15 +384,15 @@ add_task(async () => {
 
   let listCards = [...fixIterator(mailList.childCards, Ci.nsIAbCard)];
 
-  ok(
+  Assert.ok(
     listCards[0].hasEmailAddress(inputs.addresses[0]),
     "address zero was saved in the mailing list (is still there)"
   );
-  ok(
+  Assert.ok(
     listCards[1].hasEmailAddress(inputs.addresses[2]),
     "address two was saved in the mailing list"
   );
-  ok(
+  Assert.ok(
     listCards[2].hasEmailAddress(inputs.addresses[3]),
     "address three was saved in the mailing list"
   );
@@ -377,9 +401,9 @@ add_task(async () => {
     card.hasEmailAddress(inputs.addresses[1])
   );
 
-  ok(!hasAddressOne, "address one was deleted from the mailing list");
+  Assert.ok(!hasAddressOne, "address one was deleted from the mailing list");
 
-  is(listCards.length, 3, "three cards exist in the mailing list");
+  Assert.equal(listCards.length, 3, "three cards exist in the mailing list");
 });
 
 /**
@@ -415,45 +439,49 @@ add_task(async () => {
       let addressInput2 = mlDocument.getElementById("addressCol1#2");
       let addressInput3 = mlDocument.getElementById("addressCol1#3");
 
-      is(
+      Assert.equal(
         listName.value,
         inputs.mlName + inputs.modification,
         "modified list name is displayed correctly"
       );
-      is(
+      Assert.equal(
         listNickName.value,
         inputs.nickName + inputs.modification,
         "modified list nickname is displayed correctly"
       );
-      is(
+      Assert.equal(
         listDescription.value,
         inputs.description + inputs.modification,
         "modified list description is displayed correctly"
       );
-      is(
+      Assert.equal(
         addressInput1 && addressInput1.value,
         getDisplayedAddress(inputs.addresses[0]),
         "address zero is displayed correctly (is still there)"
       );
-      is(
+      Assert.equal(
         addressInput2 && addressInput2.value,
         getDisplayedAddress(inputs.addresses[2]),
         "address two is displayed correctly"
       );
-      is(
+      Assert.equal(
         addressInput3 && addressInput3.value,
         getDisplayedAddress(inputs.addresses[3]),
         "address three is displayed correctly"
       );
 
       let textInputs = mlDocument.querySelectorAll(".textbox-addressingWidget");
-      is(textInputs.length, 4, "no extraneous addresses are displayed");
+      Assert.equal(
+        textInputs.length,
+        4,
+        "no extraneous addresses are displayed"
+      );
 
       mlDocElement.getButton("cancel").click();
     }
   );
 
-  is(
+  Assert.equal(
     global.dirTree.view.getCellText(3, global.dirTree.columns[0]),
     inputs.mlName + inputs.modification,
     `mailing list ("${inputs.mlName +
@@ -476,7 +504,7 @@ add_task(async () => {
   );
   let deletePromise = promiseDirectoryRemoved();
 
-  is(
+  Assert.equal(
     global.dirTree.view.getCellText(2, global.dirTree.columns[0]),
     inputs.abName,
     `address book ("${inputs.abName}") is displayed in the address book list`
@@ -491,7 +519,7 @@ add_task(async () => {
     directory => directory.dirName == inputs.abName
   );
 
-  ok(!addressBook, "address book was deleted");
+  Assert.ok(!addressBook, "address book was deleted");
 
   global.abWindow.close();
 });
