@@ -41,6 +41,7 @@
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/XULFrameElement.h"
 #include "nsFrameLoader.h"
+#include "nsIPrintSettingsService.h"
 
 static const char* kPrintingPromptService =
     "@mozilla.org/embedcomp/printingprompt-service;1";
@@ -526,7 +527,10 @@ void nsMsgPrintEngine::PrintMsgWindow() {
         do_QueryInterface(mContentViewer);
     if (webBrowserPrint) {
       if (!mPrintSettings) {
-        webBrowserPrint->GetGlobalPrintSettings(getter_AddRefs(mPrintSettings));
+        nsresult rv;
+        nsCOMPtr<nsIPrintSettingsService> printSettingsService =
+            do_GetService("@mozilla.org/gfx/printsettings-service;1", &rv);
+        printSettingsService->GetGlobalPrintSettings(getter_AddRefs(mPrintSettings));
       }
 
       // fix for bug #118887 and bug #176016
