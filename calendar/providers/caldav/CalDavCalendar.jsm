@@ -1527,7 +1527,7 @@ CalDavCalendar.prototype = {
 
         // check for webdav-sync capability
         // http://tools.ietf.org/html/draft-daboo-webdav-sync
-        if (response.firstProps["D:supported-report-set"].has("D:sync-collection")) {
+        if (response.firstProps["D:supported-report-set"]?.has("D:sync-collection")) {
           cal.LOG("CalDAV: Collection has webdav sync support");
           this.mHasWebdavSyncSupport = true;
         }
