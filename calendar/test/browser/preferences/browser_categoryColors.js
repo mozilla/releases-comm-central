@@ -25,15 +25,19 @@ add_task(async function testCategoryColors() {
   }
 
   // Edit the name and colour of a built-in category.
+
+  let subDialogPromise = BrowserTestUtils.waitForEvent(
+    prefsWindow.gSubDialog._dialogStack,
+    "dialogopen"
+  );
+
   EventUtils.synthesizeMouse(listBox, 5, 5, {}, prefsWindow);
   Assert.equal(listBox.selectedIndex, 0);
   EventUtils.synthesizeMouseAtCenter(prefsDocument.getElementById("editCButton"), {}, prefsWindow);
 
+  await subDialogPromise;
+
   let subDialogBrowser = prefsDocument.getElementById("dialogOverlay-0").querySelector("browser");
-  await BrowserTestUtils.waitForEvent(subDialogBrowser, "load");
-  if (subDialogBrowser.contentWindow.location.href == "about:blank") {
-    await BrowserTestUtils.waitForEvent(subDialogBrowser, "load");
-  }
   await new Promise(subDialogBrowser.contentWindow.setTimeout);
   let subDialogDocument = subDialogBrowser.contentDocument;
   subDialogDocument.getElementById("categoryName").value = "ZZZ Mochitest";
@@ -48,17 +52,20 @@ add_task(async function testCategoryColors() {
 
   // Remove the colour of a built-in category.
 
+  subDialogPromise = BrowserTestUtils.waitForEvent(
+    prefsWindow.gSubDialog._dialogStack,
+    "dialogopen"
+  );
+
   EventUtils.synthesizeMouse(listBox, 5, 5, {}, prefsWindow);
   EventUtils.synthesizeKey("VK_HOME", {}, prefsWindow);
   Assert.equal(listBox.selectedIndex, 0);
   let itemName = listBox.itemChildren[0].firstElementChild.value;
   EventUtils.synthesizeMouseAtCenter(prefsDocument.getElementById("editCButton"), {}, prefsWindow);
 
+  await subDialogPromise;
+
   subDialogBrowser = prefsDocument.getElementById("dialogOverlay-0").querySelector("browser");
-  await BrowserTestUtils.waitForEvent(subDialogBrowser, "load");
-  if (subDialogBrowser.contentWindow.location.href == "about:blank") {
-    await BrowserTestUtils.waitForEvent(subDialogBrowser, "load");
-  }
   await new Promise(subDialogBrowser.contentWindow.setTimeout);
   subDialogDocument = subDialogBrowser.contentDocument;
   subDialogDocument.getElementById("useColor").checked = false;
