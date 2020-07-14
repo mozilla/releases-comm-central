@@ -138,8 +138,9 @@ var EnigmailURIs = {
     let msgFolder = "";
 
     let pathQueryRef = "path" in url ? url.path : url.pathQueryRef;
+    pathQueryRef = pathQueryRef.replace(/&number=0$/, "");
 
-    if (url.schemeIs("mailbox")) {
+    if (url.schemeIs("mailbox") || url.schemeIs("file")) {
       msgNum = pathQueryRef.replace(/(.*[?&]number=)([0-9]+)([^0-9].*)?/, "$2");
       msgFolder = pathQueryRef.replace(/\?.*/, "");
     } else if (url.schemeIs("imap")) {

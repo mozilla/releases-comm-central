@@ -495,9 +495,10 @@ MimeDecryptHandler.prototype = {
           this.uri.spec.search(/[&?]examineEncryptedParts=true/) < 0
         ) {
           if (this.uri && url && url.value) {
+            let fixedQueryRef = this.uri.pathQueryRef.replace(/&number=0$/, "");
             if (
               url.value.host !== this.uri.host ||
-              url.value.pathQueryRef !== this.uri.pathQueryRef
+              url.value.pathQueryRef !== fixedQueryRef
             ) {
               return;
             }
