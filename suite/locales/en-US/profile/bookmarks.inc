@@ -40,14 +40,6 @@
 # link title for https://addons.thunderbird.net/en-US/seamonkey/plugins
 #define seamonkey_plugins Plugins for SeaMonkey
 
-# LOCALIZATION NOTE (mozdev):
-# link title for http://www.mozdev.org/
-#define mozdev mozdev.org
-
-# LOCALIZATION NOTE (mozdev_seamonkey):
-# link title for http://www.mozdev.org/projects/applications/SeaMonkey.html
-#define mozdev_seamonkey SeaMonkey Extensions from mozdev.org
-
 #define community_support Community &amp; Support
 
 # LOCALIZATION NOTE (seamonkey_community):

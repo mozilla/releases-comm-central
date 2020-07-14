@@ -18,7 +18,6 @@ Do Not Edit! -->
         <DT><A HREF="https://www.seamonkey-project.org/">@seamonkey@</a>
         @seamonkey_l10n@
         <DT><A HREF="http://www.mozillazine.org/">@mozillazine@</A>
-        <DT><A HREF="http://www.mozdev.org/">@mozdev@</A>
     </DL><p>
     <DT><H3>@seamonkey_and_mozilla@</H3>
     <DL><p>
@@ -31,8 +30,6 @@ Do Not Edit! -->
             <DT><A HREF="https://addons.thunderbird.net/@AB_CD@/seamonkey/themes">@seamonkey_themes@</a>
             <DT><A HREF="https://addons.thunderbird.net/@AB_CD@/seamonkey/dictionaries">@seamonkey_dictionaries@</a>
             <DT><A HREF="https://addons.thunderbird.net/@AB_CD@/seamonkey/plugins">@seamonkey_plugins@</a>
-            <DT><A HREF="http://www.mozdev.org/">@mozdev@</A>
-            <DT><A HREF="http://www.mozdev.org/projects/applications/SeaMonkey.html">@mozdev_seamonkey@</A>
         </DL><p>
         <DT><H3>@community_support@</H3>
         <DL><p>
