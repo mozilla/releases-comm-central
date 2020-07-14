@@ -167,60 +167,70 @@
           </vbox> <!-- End of Name/Email -->
           <!-- Phone Number section -->
           <vbox id="PhoneNumbers">
-            <hbox id="WorkPhoneContainer input-container" align="center">
+            <hbox id="WorkPhoneContainer" align="center">
               <spacer flex="1"/>
               <label id="WorkPhoneLabel"
                      control="WorkPhone"
                      value="&WorkPhone.label;"
                      accesskey="&WorkPhone.accesskey;" />
-              <html:input id="WorkPhone"
-                          type="tel"
-                          aria-labelledby="WorkPhoneLabel"
-                          class="PhoneEditWidth input-inline"/>
+              <hbox class="input-container">
+                <html:input id="WorkPhone"
+                            type="tel"
+                            aria-labelledby="WorkPhoneLabel"
+                            class="PhoneEditWidth input-inline"/>
+              </hbox>
             </hbox>
-            <hbox id="HomePhoneContainer input-container" align="center">
+            <hbox id="HomePhoneContainer" align="center">
               <spacer flex="1"/>
               <label id="HomePhoneLabel"
                      control="HomePhone"
                      value="&HomePhone.label;"
                      accesskey="&HomePhone.accesskey;"/>
-              <html:input id="HomePhone"
-                          type="tel"
-                          aria-labelledby="HomePhoneLabel"
-                          class="PhoneEditWidth input-inline"/>
+              <hbox class="input-container">
+                <html:input id="HomePhone"
+                            type="tel"
+                            aria-labelledby="HomePhoneLabel"
+                            class="PhoneEditWidth input-inline"/>
+              </hbox>
             </hbox>
-            <hbox id="FaxNumberContainer input-container" align="center">
+            <hbox id="FaxNumberContainer" align="center">
               <spacer flex="1"/>
               <label id="FaxNumberLabel"
                      control="FaxNumber"
                      value="&FaxNumber.label;"
                      accesskey="&FaxNumber.accesskey;"/>
-              <html:input id="FaxNumber"
-                          type="tel"
-                          aria-labelledby="FaxNumberLabel"
-                          class="PhoneEditWidth input-inline"/>
+              <hbox class="input-container">
+                <html:input id="FaxNumber"
+                            type="tel"
+                            aria-labelledby="FaxNumberLabel"
+                            class="PhoneEditWidth input-inline"/>
+              </hbox>
             </hbox>
-            <hbox id="PagerNumberContainer input-container" align="center">
+            <hbox id="PagerNumberContainer" align="center">
               <spacer flex="1"/>
               <label id="PagerNumberLabel"
                      control="PagerNumber"
                      value="&PagerNumber.label;"
                      accesskey="&PagerNumber.accesskey;"/>
-              <html:input id="PagerNumber"
-                          type="tel"
-                          aria-labelledby="PagerNumberLabel"
-                          class="PhoneEditWidth input-inline"/>
+              <hbox class="input-container">
+                <html:input id="PagerNumber"
+                            type="tel"
+                            aria-labelledby="PagerNumberLabel"
+                            class="PhoneEditWidth input-inline"/>
+              </hbox>
             </hbox>
-            <hbox id="CellularNumberContainer input-container" align="center">
+            <hbox id="CellularNumberContainer" align="center">
               <spacer flex="1"/>
               <label id="CellularNumberLabel"
                      control="CellularNumber"
                      value="&CellularNumber.label;"
                      accesskey="&CellularNumber.accesskey;"/>
-              <html:input id="CellularNumber"
-                          type="tel"
-                          aria-labelledby="CellularNumberLabel"
-                          class="PhoneEditWidth input-inline"/>
+              <hbox class="input-container">
+                <html:input id="CellularNumber"
+                            type="tel"
+                            aria-labelledby="CellularNumberLabel"
+                            class="PhoneEditWidth input-inline"/>
+              </hbox>
             </hbox>
           </vbox> <!-- End of Phonenumbers -->
         </hbox> <!-- End of Name/Email/Phonenumbers -->
