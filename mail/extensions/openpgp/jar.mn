@@ -13,6 +13,3 @@ openpgp.jar:
   content/openpgp/ui                           (content/ui/*.js)
   content/openpgp/ui                           (content/ui/*.xhtml)
   content/openpgp/ui                           (content/ui/*.css)
-
-[localization] @AB_CD@.jar:
-  openpgp/content/ui/keyPicker.ftl             (content/ui/keyPicker.ftl)
