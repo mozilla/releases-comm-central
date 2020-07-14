@@ -6,6 +6,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % identityEditDTD SYSTEM "chrome://messenger/locale/am-identity-edit.dtd" >
@@ -23,7 +24,7 @@
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="onLoadIdentityProperties();"
-        style="width: 75ch; height: 56em;">
+        style="width: 105ch; height: 56em;">
 <dialog id="identityDialog">
   <stringbundle id="bundle_prefs"
                 src="chrome://messenger/locale/prefs.properties"/>
@@ -32,6 +33,7 @@
 
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://global/content/preferencesBindings.js"/>
   <script src="chrome://messenger/content/am-prefs.js"/>
   <script src="chrome://messenger/content/am-identity-edit.js"/>
   <script src="chrome://messenger/content/amUtils.js"/>
