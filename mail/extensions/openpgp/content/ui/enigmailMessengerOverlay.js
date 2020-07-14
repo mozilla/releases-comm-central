@@ -386,21 +386,35 @@ Enigmail.msg = {
   messageCleanup() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageCleanup\n");
 
-    let exchBox = document.getElementById("brokenExchangeBox");
-    if (exchBox) {
-      exchBox.setAttribute("hidden", "true");
+    let element = document.getElementById("brokenExchangeBox");
+    if (element) {
+      element.setAttribute("hidden", "true");
     }
-
-    document.getElementById("openpgpKeyBox").setAttribute("hidden", true);
-    document
-      .getElementById("hasConflictingKeyOpenPGP")
-      .setAttribute("hidden", true);
-    let sigKeyBox = document.getElementById("signatureKeyBox");
-    sigKeyBox.setAttribute("hidden", true);
-    sigKeyBox.removeAttribute("keyid");
-    document.getElementById("cannotDecryptBox").setAttribute("hidden", true);
-    document.getElementById("partialOpenPGPBox").setAttribute("hidden", true);
-    document.getElementById("openpgpProcessPartial").removeAttribute("hidden");
+    element = document.getElementById("openpgpKeyBox");
+    if (element) {
+      element.setAttribute("hidden", true);
+    }
+    element = document.getElementById("hasConflictingKeyOpenPGP");
+    if (element) {
+      element.setAttribute("hidden", true);
+    }
+    element = document.getElementById("signatureKeyBox");
+    if (element) {
+      element.setAttribute("hidden", true);
+      element.removeAttribute("keyid");
+    }
+    element = document.getElementById("cannotDecryptBox");
+    if (element) {
+      element.setAttribute("hidden", true);
+    }
+    element = document.getElementById("partialOpenPGPBox");
+    if (element) {
+      element.setAttribute("hidden", true);
+    }
+    element = document.getElementById("openpgpProcessPartial");
+    if (element) {
+      element.removeAttribute("hidden");
+    }
 
     this.setAttachmentReveal(null);
 
