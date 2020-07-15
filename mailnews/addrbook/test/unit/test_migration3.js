@@ -34,7 +34,15 @@ add_task(async function() {
   );
   Services.prefs.setStringPref(
     "mail.server.default.whiteListAbURI",
-    "moz-abmdbdirectory://test.mab"
+    "moz-abmdbdirectory://test.mab moz-abmdbdirectory://abook.mab"
+  );
+  Services.prefs.setStringPref(
+    "mail.server.server1.whiteListAbURI",
+    "moz-abmdbdirectory://abook.mab"
+  );
+  Services.prefs.setStringPref(
+    "mail.server.server99.whiteListAbURI",
+    " moz-abmdbdirectory://history.mab   moz-abmdbdirectory://test-1.mab not://a.real.uri"
   );
 
   // Do the migration.
@@ -94,7 +102,18 @@ add_task(async function() {
   );
   equal(
     Services.prefs.getStringPref("mail.server.default.whiteListAbURI"),
-    "jsaddrbook://test.sqlite"
+    "jsaddrbook://test.sqlite jsaddrbook://abook.sqlite",
+    "multiple values are migrated"
+  );
+  equal(
+    Services.prefs.getStringPref("mail.server.server1.whiteListAbURI"),
+    "jsaddrbook://abook.sqlite",
+    "per-server settings are migrated"
+  );
+  equal(
+    Services.prefs.getStringPref("mail.server.server99.whiteListAbURI"),
+    " jsaddrbook://history.sqlite   jsaddrbook://test-1.sqlite not://a.real.uri",
+    "edge-case values are migrated"
   );
 
   // Check the new address books.

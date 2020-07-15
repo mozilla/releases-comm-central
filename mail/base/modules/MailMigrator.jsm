@@ -896,13 +896,15 @@ var MailMigrator = {
 
     for (let prefName of [
       "mail.collect_addressbook",
-      "mail.server.default.whiteListAbURI",
+      ...Services.prefs
+        .getChildList("mail.server.")
+        .filter(n => n.endsWith(".whiteListAbURI")),
     ]) {
       try {
         if (Services.prefs.prefHasUserValue(prefName)) {
           let uri = Services.prefs.getStringPref(prefName);
           uri = uri.replace(
-            /^moz-abmdbdirectory:\/\/(.*).mab$/,
+            /\bmoz-abmdbdirectory:\/\/([\w\.-]*).mab\b/g,
             "jsaddrbook://$1.sqlite"
           );
           Services.prefs.setStringPref(prefName, uri);
