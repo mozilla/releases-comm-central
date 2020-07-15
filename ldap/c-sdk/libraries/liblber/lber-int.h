@@ -88,7 +88,7 @@ extern "C" {
 /* #  include <sys/varargs.h> */
 #    include <sys/socket.h>
 #    include <netinet/in.h>
-#    if !defined(XP_OS2) && !defined(DARWIN)
+#    if !defined(XP_OS2)
 #      include <unistd.h>
 #    endif
 #  endif /* defined( _WINDOWS ) */
