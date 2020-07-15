@@ -65,7 +65,14 @@ add_task(async () => {
     exportDirectoryToDelimitedText(book, "\t")
   );
   await compareAgainstFile("export.vcf", exportDirectoryToVCard(book));
-  await compareAgainstFile("export.ldif", exportDirectoryToLDIF(book));
+  // modifytimestamp is always changing, replace it with a fixed value.
+  await compareAgainstFile(
+    "export.ldif",
+    exportDirectoryToLDIF(book).replace(
+      /modifytimestamp: \d+/g,
+      "modifytimestamp: 12345"
+    )
+  );
 });
 
 async function compareAgainstFile(fileName, actual) {

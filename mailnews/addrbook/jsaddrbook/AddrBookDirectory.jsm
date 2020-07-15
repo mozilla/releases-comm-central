@@ -316,19 +316,33 @@ class AddrBookDirectory {
     let insertStatement = this._dbConnection.createStatement(
       "INSERT INTO properties VALUES (:card, :name, :value)"
     );
-    for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
-      if (value !== null && value !== undefined && value !== "") {
-        insertStatement.params.card = card.UID;
-        insertStatement.params.name = name;
-        insertStatement.params.value = value;
-        insertStatement.execute();
-        insertStatement.reset();
+    let saveProp = function(name, value) {
+      insertStatement.params.card = card.UID;
+      insertStatement.params.name = name;
+      insertStatement.params.value = value;
+      insertStatement.execute();
+      insertStatement.reset();
 
-        if (cachedCard) {
-          cachedCard.properties.set(name, value);
-        }
+      if (cachedCard) {
+        cachedCard.properties.set(name, value);
+      }
+    };
+
+    for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
+      if (
+        name != "LastModifiedDate" &&
+        value !== null &&
+        value !== undefined &&
+        value !== ""
+      ) {
+        saveProp(name, value);
       }
     }
+    // Always set the last modified date.
+    let now = "" + Math.floor(Date.now() / 1000);
+    card.setProperty("LastModifiedDate", now);
+    saveProp("LastModifiedDate", now);
+
     this._dbConnection.commitTransaction();
     deleteStatement.finalize();
     insertStatement.finalize();
@@ -889,11 +903,14 @@ class AddrBookDirectory {
     }
     this._saveCardProperties(card);
     for (let [name, oldValue] of oldProperties.entries()) {
-      if (!newProperties.has(name)) {
+      if (name != "LastModifiedDate" && !newProperties.has(name)) {
         MailServices.ab.notifyItemPropertyChanged(card, name, oldValue, null);
       }
     }
     for (let [name, newValue] of newProperties.entries()) {
+      if (name == "LastModifiedDate") {
+        continue;
+      }
       let oldValue = oldProperties.get(name);
       if (oldValue == null && newValue == "") {
         continue;

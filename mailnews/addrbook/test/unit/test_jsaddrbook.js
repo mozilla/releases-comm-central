@@ -225,6 +225,9 @@ add_task(async function createContact() {
   equal(contact.displayName, "a new contact");
   equal(contact.primaryEmail, "test@invalid");
   equal(contact.isMailList, false);
+  let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
+  Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
+  Assert.greater(modifiedDate, Date.now() / 1000 - 10);
 
   // Check nsIAbCard methods.
   equal(
@@ -244,6 +247,7 @@ add_task(async function createContact() {
 add_task(async function editContact() {
   contact.firstName = "updated";
   contact.lastName = "contact";
+  contact.setProperty("LastModifiedDate", 0);
   book.modifyCard(contact);
   observer.checkEvents(
     ["onItemPropertyChanged", contact, "FirstName", "new", "updated"],
@@ -251,6 +255,9 @@ add_task(async function editContact() {
   );
   equal(contact.firstName, "updated");
   equal(contact.lastName, "contact");
+  let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
+  Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
+  Assert.greater(modifiedDate, Date.now() / 1000 - 10);
 });
 
 add_task(async function createMailingList() {
