@@ -104,6 +104,14 @@ function onInit(aPageId, aServerId) {
     wList.appendChild(item);
   }
 
+  wList.addEventListener("keypress", event => {
+    if ([" ", "Enter"].includes(event.key)) {
+      let checkbox = wList.currentItem.firstElementChild;
+      checkbox.checked = !checkbox.checked;
+      wList.dispatchEvent(new CustomEvent("command"));
+    }
+  });
+
   // enable or disable the whitelist
   onAdaptiveJunkToggle();
 
