@@ -105,7 +105,7 @@ function registerPlayPreview(mimeType, targetUrl) {
                                               .getSystemPrincipal(),
                                       null,
                                       Ci.nsILoadInfo
-                                        .SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                                        .SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
                                       Ci.nsIContentPolicy.TYPE_OTHER);
       channel.asyncOpen2(this.listener);
     },

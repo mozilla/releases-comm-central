@@ -556,7 +556,7 @@ nsNntpIncomingServer::LoadNewsUrl(nsIURI* aURI, nsIMsgWindow* aMsgWindow,
 
   nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
       nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
-      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       nsIContentPolicy::TYPE_OTHER);
 
   if (protocol) {

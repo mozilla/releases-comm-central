@@ -96,7 +96,7 @@ nsresult nsAddbookProtocolHandler::GenerateXMLOutputChannel(
 
   return NS_NewInputStreamChannel(
       _retval, aURI, inStr.forget(), nullPrincipal,
-      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       nsIContentPolicy::TYPE_OTHER, "text/xml"_ns);
 }
 
@@ -151,7 +151,7 @@ nsAddbookProtocolHandler::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
 
     return NS_NewInputStreamChannel(
         _retval, aURI, pipeIn.forget(), nullPrincipal,
-        nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+        nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
         nsIContentPolicy::TYPE_OTHER, "application/x-addvcard"_ns);
   }
 

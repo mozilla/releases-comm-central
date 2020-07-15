@@ -122,7 +122,7 @@ nsAbContentHandler::HandleContent(const char* aContentType,
     nsCOMPtr<nsIStreamLoader> streamLoader;
     rv = NS_NewStreamLoader(getter_AddRefs(streamLoader), uri, this,
                             nullPrincipal,
-                            nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+                            nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
                             nsIContentPolicy::TYPE_OTHER);
     NS_ENSURE_SUCCESS(rv, rv);
 

@@ -415,7 +415,7 @@ NS_IMETHODIMP nsImapService::DisplayMessage(const char* aMessageURI,
 
       nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
           nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
-          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
           nsIContentPolicy::TYPE_OTHER);
       rv = NewChannel(uri, loadInfo, getter_AddRefs(aChannel));
       NS_ENSURE_SUCCESS(rv, rv);
@@ -618,7 +618,7 @@ nsresult nsImapService::FetchMimePart(
 
         nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
             nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
-            nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+            nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
             nsIContentPolicy::TYPE_OTHER);
         rv = NewChannel(url, loadInfo, getter_AddRefs(aChannel));
         NS_ENSURE_SUCCESS(rv, rv);
@@ -1023,7 +1023,7 @@ nsresult nsImapService::GetMessageFromUrl(
 
       nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
           nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
-          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
           nsIContentPolicy::TYPE_OTHER);
       rv = NewChannel(url, loadInfo, getter_AddRefs(channel));
       NS_ENSURE_SUCCESS(rv, rv);

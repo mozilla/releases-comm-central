@@ -1026,7 +1026,7 @@ nsMessenger::SaveAs(const nsACString& aURI, bool aAsFile,
       saveListener->m_channel = nullptr;
       rv = NS_NewInputStreamChannel(
           getter_AddRefs(saveListener->m_channel), url, nullptr, nullPrincipal,
-          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
           nsIContentPolicy::TYPE_OTHER);
       NS_ASSERTION(NS_SUCCEEDED(rv), "NS_NewChannel failed");
       if (NS_FAILED(rv)) goto done;

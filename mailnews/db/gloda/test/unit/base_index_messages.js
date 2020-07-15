@@ -515,7 +515,8 @@ function verify_attributes_fundamental(smsg, gmsg) {
       let channel = NetUtil.newChannel({
         uri: attInfos.url,
         loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-        securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+        securityFlags:
+          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
         contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
       });
 
@@ -567,7 +568,8 @@ function* test_moved_message_attributes() {
         let channel = NetUtil.newChannel({
           uri: attInfos.url,
           loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-          securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          securityFlags:
+            Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
           contentPolicyType: Ci.nsIContentPolicy.TYPE_OTHER,
         });
         try {

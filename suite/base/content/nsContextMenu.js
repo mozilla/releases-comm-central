@@ -1304,7 +1304,7 @@ nsContextMenu.prototype = {
     var channel = NetUtil.newChannel({
                     uri: makeURI(linkURL),
                     loadUsingSystemPrincipal: true,
-                    securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL
+                    securityFlags: Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL
                   });
 
     channel.notificationCallbacks = new Callbacks();

@@ -3172,7 +3172,8 @@ var XMPPAccountPrototype = {
     let channel = NetUtil.newChannel({
       uri: userIcon,
       loadingPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-      securityFlags: Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS,
+      securityFlags:
+        Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_INHERITS_SEC_CONTEXT,
       contentPolicyType: Ci.nsIContentPolicy.TYPE_IMAGE,
     });
     NetUtil.asyncFetch(channel, (inputStream, resultCode) => {

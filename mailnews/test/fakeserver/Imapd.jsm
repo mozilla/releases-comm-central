@@ -411,7 +411,7 @@ imapMessage.prototype = {
       null,
       Services.scriptSecurityManager.getSystemPrincipal(),
       null,
-      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
   },

@@ -571,7 +571,7 @@ nsresult nsMsgAttachmentHandler::SnarfMsgAttachment(
 
       rv = NS_NewInputStreamChannel(
           getter_AddRefs(m_converter_channel), aURL, nullptr, nullPrincipal,
-          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
           nsIContentPolicy::TYPE_OTHER);
       if (NS_FAILED(rv)) goto done;
 

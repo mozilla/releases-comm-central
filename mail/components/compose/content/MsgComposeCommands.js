@@ -6878,7 +6878,7 @@ function OpenSelectedAttachment() {
           null,
           Services.scriptSecurityManager.getSystemPrincipal(),
           null,
-          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
           Ci.nsIContentPolicy.TYPE_OTHER
         );
         if (channel) {
@@ -8919,7 +8919,7 @@ function loadBlockedImage(aURL, aReturnDataURL = false) {
     null,
     Services.scriptSecurityManager.getSystemPrincipal(),
     null,
-    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+    Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
     Ci.nsIContentPolicy.TYPE_OTHER
   );
   let inputStream = channel.open();

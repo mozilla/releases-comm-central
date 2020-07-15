@@ -89,7 +89,7 @@ CalTimezoneService.prototype = {
           null,
           Services.scriptSecurityManager.getSystemPrincipal(),
           null,
-          Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_DATA_INHERITS,
+          Ci.nsILoadInfo.SEC_REQUIRE_SAME_ORIGIN_INHERITS_SEC_CONTEXT,
           Ci.nsIContentPolicy.TYPE_OTHER
         );
 

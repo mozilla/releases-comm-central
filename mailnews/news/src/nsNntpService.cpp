@@ -320,7 +320,7 @@ nsresult nsNntpService::GetMessageFromUrl(nsIURI* aUrl,
       }
       nsCOMPtr<nsILoadInfo> loadInfo = new mozilla::net::LoadInfo(
           nsContentUtils::GetSystemPrincipal(), nullptr, nullptr,
-          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+          nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
           nsIContentPolicy::TYPE_OTHER);
       rv = NewChannel(aUrl, loadInfo, getter_AddRefs(aChannel));
       if (NS_FAILED(rv)) return rv;

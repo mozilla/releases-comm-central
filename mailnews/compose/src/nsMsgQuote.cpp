@@ -153,7 +153,7 @@ nsresult nsMsgQuote::QuoteMessage(
   NS_ENSURE_TRUE(netService, NS_ERROR_UNEXPECTED);
   rv = netService->NewChannelFromURI(
       newURI, nullptr, nsContentUtils::GetSystemPrincipal(), nullptr,
-      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       nsIContentPolicy::TYPE_OTHER, getter_AddRefs(mQuoteChannel));
 
   if (NS_FAILED(rv)) return rv;

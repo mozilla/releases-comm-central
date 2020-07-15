@@ -121,7 +121,7 @@ CalICSCalendar.prototype = {
       null,
       Services.scriptSecurityManager.getSystemPrincipal(),
       null,
-      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
     let wHttpChannel = cal.wrapInstance(channel, Ci.nsIHttpChannel);
@@ -182,7 +182,7 @@ CalICSCalendar.prototype = {
       null,
       Services.scriptSecurityManager.getSystemPrincipal(),
       null,
-      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
     this.prepareChannel(channel, aForce);
@@ -330,7 +330,7 @@ CalICSCalendar.prototype = {
             null,
             Services.scriptSecurityManager.getSystemPrincipal(),
             null,
-            Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+            Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
             Ci.nsIContentPolicy.TYPE_OTHER
           );
 
@@ -808,7 +808,7 @@ CalICSCalendar.prototype = {
       null,
       Services.scriptSecurityManager.getSystemPrincipal(),
       null,
-      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_DATA_IS_NULL,
+      Ci.nsILoadInfo.SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
       Ci.nsIContentPolicy.TYPE_OTHER
     );
     channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
