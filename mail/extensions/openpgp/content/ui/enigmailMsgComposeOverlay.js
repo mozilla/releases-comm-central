@@ -199,10 +199,6 @@ Enigmail.msg = {
         this.setIdentityDefaults();
       });
 
-    document.getElementById("msgSubject").addEventListener("focus", () => {
-      this.fireSendFlags();
-    });
-
     this.setIdentityDefaults();
 
     /*
@@ -227,7 +223,6 @@ Enigmail.msg = {
 
     Enigmail.msg.composeOpen();
     //Enigmail.msg.processFinalState();
-    await Enigmail.msg.initialSendFlags();
 
     //Enigmail.msg.setFinalSendMode('final-pgpmimeYes');
   },
@@ -692,31 +687,6 @@ Enigmail.msg = {
     bc.removeAttribute("overlay_source");
     */
 
-    // Thunderbird
-    var adrCol = document.getElementById("addressCol2#1"); // recipients field
-    if (adrCol) {
-      let attr = adrCol.getAttribute("oninput");
-      adrCol.setAttribute(
-        "oninput",
-        attr + "; Enigmail.msg.addressOnChange();"
-      );
-      attr = adrCol.getAttribute("onchange");
-      adrCol.setAttribute(
-        "onchange",
-        attr + "; Enigmail.msg.addressOnChange();"
-      );
-      //adrCol.setAttribute("observes", "enigmail-bc-sendprocess");
-    }
-    adrCol = document.getElementById("addressCol1#1"); // to/cc/bcc/... field
-    if (adrCol) {
-      let attr = adrCol.getAttribute("oncommand");
-      adrCol.setAttribute(
-        "oncommand",
-        attr + "; Enigmail.msg.addressOnChange();"
-      );
-      //adrCol.setAttribute("observes", "enigmail-bc-sendprocess");
-    }
-
     var draftId = gMsgCompose.compFields.draftId;
     let selectedElement = document.activeElement;
 
@@ -814,32 +784,6 @@ Enigmail.msg = {
       relatedNode = relatedNode.nextSibling;
     }
     return baseAttachment;
-  },
-
-  async initialSendFlags() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.initialSendFlags\n"
-    );
-    this.fireSendFlags();
-
-    EnigmailTimer.setTimeout(
-      async function() {
-        EnigmailLog.DEBUG(
-          "enigmailMsgComposeOverlay: re-determine send flags\n"
-        );
-        try {
-          await this.determineSendFlags();
-          //this.processFinalState();
-        } catch (ex) {
-          EnigmailLog.DEBUG(
-            "enigmailMsgComposeOverlay: re-determine send flags - ERROR: " +
-              ex.toString() +
-              "\n"
-          );
-        }
-      }.bind(Enigmail.msg),
-      1500
-    );
   },
 
   initRadioMenu(prefName, optionIds) {
@@ -3423,20 +3367,6 @@ Enigmail.msg = {
     return null;
   },
 
-  addrOnChangeTimer: null,
-
-  addressOnChange() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.addressOnChange\n"
-    );
-    if (!this.addrOnChangeTimer) {
-      this.addrOnChangeTimer = EnigmailTimer.setTimeout(async () => {
-        await this.fireSendFlags();
-        this.addrOnChangeTimer = null;
-      }, Enigmail.msg.addrOnChangeTimeout);
-    }
-  },
-
   async focusChange() {
     // call original TB function
     CommandUpdate_MsgCompose();
@@ -3450,24 +3380,6 @@ Enigmail.msg = {
     }
 
     Enigmail.msg.lastFocusedWindow = focusedWindow;
-
-    await Enigmail.msg.fireSendFlags();
-  },
-
-  fireSendFlags() {
-    try {
-      EnigmailLog.DEBUG(
-        "enigmailMsgComposeOverlay.js: Enigmail.msg.fireSendFlags\n"
-      );
-      if (!this.determineSendFlagId) {
-        this.determineSendFlagId = EnigmailTimer.setTimeout(async () => {
-          try {
-            await this.determineSendFlags();
-          } catch (x) {}
-          this.determineSendFlagId = null;
-        }, 0);
-      }
-    } catch (ex) {}
   },
 
   /**
