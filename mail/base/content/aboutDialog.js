@@ -85,7 +85,7 @@ function init(aEvent) {
   }
 
   if (AppConstants.MOZ_UPDATER) {
-    gAppUpdater = new appUpdater();
+    gAppUpdater = new appUpdater({ buttonAutoFocus: true });
 
     let defaults = Services.prefs.getDefaultBranch("");
     let channelLabel = document.getElementById("currentChannel");
