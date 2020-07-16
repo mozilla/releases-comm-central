@@ -325,21 +325,17 @@ var EnigmailDecryption = {
       return "";
     }
 
-    var plainText = EnigmailData.getUnicodeData(result.decryptedData);
+    let plainText = "";
     exitCodeObj.value = result.exitCode;
     statusFlagsObj.value = result.statusFlags;
     errorMsgObj.value = result.errorMsg;
 
-    // do not return anything if gpg signales DECRYPTION_FAILED
-    // (which could be possible in case of MDC errors)
-    if (
-      uiFlags & EnigmailConstants.UI_IGNORE_MDC_ERROR &&
-      result.statusFlags & EnigmailConstants.MISSING_MDC
-    ) {
-      EnigmailLog.DEBUG("decryption.jsm: decryptMessage: ignoring MDC error\n");
+    if (result.statusFlags & EnigmailConstants.MISSING_MDC) {
+      console.log("bad message, missing MDC");
     } else if (result.statusFlags & EnigmailConstants.DECRYPTION_FAILED) {
-      EnigmailLog.DEBUG("decryption.jsm: decryptMessage: failed\n");
-      plainText = "";
+      console.log("cannot decrypt message");
+    } else if (result.decryptedData) {
+      plainText = EnigmailData.getUnicodeData(result.decryptedData);
     }
 
     userIdObj.value = result.userId;

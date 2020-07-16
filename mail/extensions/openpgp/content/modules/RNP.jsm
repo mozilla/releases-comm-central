@@ -833,13 +833,24 @@ var RNP = {
         false
       );
 
+      // result_len is of type UInt64, I don't know of a better way
+      // to convert it to an integer.
+      let b_len = parseInt(result_len.value.toString());
+
       if (!rv) {
-        let char_array = ctypes.cast(
+        // type casting the pointer type to an array type allows us to
+        // access the elements by index.
+        let uint8_array = ctypes.cast(
           result_buf,
-          ctypes.char.array(result_len.value).ptr
+          ctypes.uint8_t.array(result_len.value).ptr
         ).contents;
 
-        result.decryptedData = char_array.readString();
+        let str = "";
+        for (let i = 0; i < b_len; i++) {
+          str += String.fromCharCode(uint8_array[i]);
+        }
+
+        result.decryptedData = str;
       }
 
       if (processSignature) {
