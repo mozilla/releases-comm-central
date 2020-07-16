@@ -46,7 +46,7 @@ var EnigmailErrorHandling = {
     let key = getEnigmailKeyRing().getKeyById(keyId);
     if (!key) {
       return l10n.formatValueSync("key-error-key-id-not-found", {
-        keyId,
+        keySpec: keyId,
       });
     }
     let r = key.getSigningValidity();
@@ -75,7 +75,7 @@ var EnigmailErrorHandling = {
     let key = getEnigmailKeyRing().getKeyById(keyId);
     if (!key) {
       return l10n.formatValueSync("key-error-key-id-not-found", {
-        keyId,
+        keySpec: keyId,
       });
     }
     let r = key.getEncryptionValidity();
