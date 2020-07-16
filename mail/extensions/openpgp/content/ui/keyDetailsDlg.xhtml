@@ -8,11 +8,9 @@
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/enigmail.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/accountManage.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/keyDetails.css" type="text/css"?>
 
-<!DOCTYPE window [
-<!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
-%brandDTD;
-]>
+<!DOCTYPE window>
 
 <window data-l10n-id="openpgp-key-details-title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -38,58 +36,50 @@
   </broadcasterset>
 
   <vbox>
-    <html:table>
-      <html:tr>
-        <html:td>
+    <html:div class="key-details-container">
+      <html:aside class="key-details-grid">
+        <label class="key-detail-label"
+               data-l10n-id="openpgp-key-details-user-id2-label"/>
+        <hbox class="input-container">
+          <html:input id="userId" type="text" class="plain"
+                      readonly="readonly" value="?"/>
+        </hbox>
 
-          <html:table>
-            <html:tr>
-              <html:th data-l10n-id="openpgp-key-details-user-id2-label"/>
-              <html:td class="input-container">
-                <html:input id="userId" type="text" class="plain"
-                            readonly="readonly" value="?" size="60"/>
-              </html:td>
-            </html:tr>
-            <html:tr>
-              <html:th data-l10n-id="openpgp-key-details-key-type-label"/>
-              <html:td class="input-container">
-                <html:input id="keyType" type="text" class="plain"
-                            readonly="readonly" value="?" size="60"/>
-              </html:td>
-            </html:tr>
-            <html:tr>
-              <html:th data-l10n-id="openpgp-key-details-fingerprint-label"/>
-              <html:td class="input-container">
-                <html:input id="fingerprint" type="text" class="plain"
-                            readonly="readonly" value="?" size="60"/>
-              </html:td>
-            </html:tr>
-            <html:tr>
-              <html:th data-l10n-id="openpgp-key-details-created-header"/>
-              <html:td class="input-container">
-                <html:input id="keyCreated" type="text" class="plain"
-                            readonly="readonly" value="?" size="60"/>
-              </html:td>
-            </html:tr>
-            <html:tr>
-              <html:th data-l10n-id="openpgp-key-details-expiry-header" valign="top"/>
-              <html:td class="input-container" valign="top">
-                <html:input id="keyExpiry" type="text" class="plain"
-                            readonly="readonly" value="?" size="60"/>
-              </html:td>
-            </html:tr>
-          </html:table>
+        <label class="key-detail-label"
+               data-l10n-id="openpgp-key-details-key-type-label"/>
+        <hbox class="input-container">
+          <html:input id="keyType" type="text" class="plain"
+                      readonly="readonly" value="?"/>
+        </hbox>
 
-        </html:td>
-        <html:td valign="bottom">
+        <label class="key-detail-label"
+               data-l10n-id="openpgp-key-details-fingerprint-label"/>
+        <hbox class="input-container">
+          <html:input id="fingerprint" type="text" class="plain"
+                      readonly="readonly" value="?"/>
+        </hbox>
 
-          <button id="changeExpiryButton"
-                  data-l10n-id="openpgp-key-man-change-expiry"
-                  oncommand="changeExpiry()" hidden="true"/>
+        <label class="key-detail-label"
+               data-l10n-id="openpgp-key-details-created-header"/>
+        <hbox class="input-container">
+          <html:input id="keyCreated" type="text" class="plain"
+                      readonly="readonly" value="?"/>
+        </hbox>
 
-        </html:td>
-      </html:tr>
-    </html:table>
+        <label class="key-detail-label"
+               data-l10n-id="openpgp-key-details-expiry-header"/>
+        <hbox class="input-container">
+          <html:input id="keyExpiry" type="text" class="plain"
+                      readonly="readonly" value="?"/>
+        </hbox>
+      </html:aside>
+
+      <html:aside>
+        <button id="changeExpiryButton"
+                data-l10n-id="openpgp-key-man-change-expiry"
+                oncommand="changeExpiry()" hidden="true"/>
+      </html:aside>
+    </html:div>
 
     <vbox class="enigmailCaptionbox" id="alsoknown" flex="1">
       <html:h1 data-l10n-id="openpgp-key-details-also-known-label"/>

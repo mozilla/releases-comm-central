@@ -67,35 +67,50 @@ function setLabel(elementId, label) {
   node.setAttribute("value", label);
 }
 
-function changeExpiry() {
+async function changeExpiry() {
   let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
   if (!keyObj || !keyObj.secretAvailable) {
     return;
   }
 
   if (!keyObj.iSimpleOneSubkeySameExpiry()) {
-    let msg = l10n.formatValueSync("openpgp-cannot-change-expiry");
-    EnigmailDialog.alert(window, msg);
+    Services.prompt.alert(
+      null,
+      document.title,
+      await document.l10n.formatValue("openpgp-cannot-change-expiry")
+    );
     return;
   }
 
-  let params = {
+  let args = {
     keyId: gKeyId,
-    modified: false,
+    modified: onDataModified,
   };
+
+  // The keyDetailsDlg can be opened from different locations, some of which
+  // don't belong to the Account Settings, therefore they won't have access to
+  // the gSubDialog object.
+  if (parent.gSubDialog) {
+    parent.gSubDialog.open(
+      "chrome://openpgp/content/ui/changeExpiryDlg.xhtml",
+      null,
+      args
+    );
+    return;
+  }
 
   window.openDialog(
     "chrome://openpgp/content/ui/changeExpiryDlg.xhtml",
     "",
     "dialog,modal,centerscreen,resizable",
-    params
+    args
   );
+}
 
-  if (params.modified) {
-    EnigmailKeyRing.clearCache();
-    enableRefresh();
-    reloadData(false);
-  }
+function onDataModified() {
+  EnigmailKeyRing.clearCache();
+  enableRefresh();
+  reloadData(false);
 }
 
 async function reloadData(firstLoad) {
@@ -295,6 +310,8 @@ function enableRefresh() {
   if (window.arguments[1]) {
     window.arguments[1].refresh = true;
   }
+
+  window.arguments[0].modified();
 }
 
 // ------------------ onCommand Functions  -----------------
@@ -302,13 +319,6 @@ function enableRefresh() {
 /*
 function signKey() {
   if (EnigSignKey(gUserId, gKeyId, null)) {
-    enableRefresh();
-    reloadData(false);
-  }
-}
-
-function changeExpirationDate() {
-  if (EnigEditKeyExpiry([gUserId], [gKeyId])) {
     enableRefresh();
     reloadData(false);
   }

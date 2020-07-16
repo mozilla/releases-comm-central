@@ -420,9 +420,6 @@ var EnigmailWindows = {
       EnigmailKeyRing.clearCache();
     }
 
-    const inputObj = {
-      keyId,
-    };
     const resultObj = {
       refresh: false,
     };
@@ -430,12 +427,9 @@ var EnigmailWindows = {
       "chrome://openpgp/content/ui/keyDetailsDlg.xhtml",
       "",
       "dialog,modal,centerscreen,resizable",
-      inputObj,
+      { keyId, modified: EnigmailKeyRing.clearCache },
       resultObj
     );
-    if (resultObj.refresh) {
-      EnigmailKeyRing.clearCache();
-    }
 
     return resultObj.refresh;
   },

@@ -7,7 +7,7 @@
 
 /* global GetEnigmailSvc: false, PgpSqliteDb2: false, EnigGetTempDir: false,
           EnigGetLocalFileApi: false, ENIG_LOCAL_FILE_CONTRACTID: false,
-          EnigFilePicker: false*/
+          EnigFilePicker: false, EnigRevokeKey: false*/
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailConstants } = ChromeUtils.import(
@@ -21,6 +21,7 @@ var { BondOpenPGP } = ChromeUtils.import(
 );
 
 if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+  var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
   var { EnigmailKey } = ChromeUtils.import(
     "chrome://openpgp/content/modules/key.jsm"
   );
@@ -700,7 +701,9 @@ async function reloadOpenPgpUI() {
 
     let dateButton = document.createXULElement("button");
     document.l10n.setAttributes(dateButton, "openpgp-key-man-change-expiry");
-    dateButton.addEventListener("command", enigmailEditKeyDate);
+    dateButton.addEventListener("command", () => {
+      enigmailEditKeyDate(key);
+    });
     dateButton.setAttribute("hidden", "true");
     dateButton.classList.add("button-small");
 
@@ -843,21 +846,23 @@ async function reloadOpenPgpUI() {
     let exportItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(exportItem, "openpgp-key-export-key");
     exportItem.addEventListener("command", () => {
-      openPgpExportKey(`0x${key.keyId}`);
+      openPgpExportPublicKey(`0x${key.keyId}`);
     });
 
     let backupItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(backupItem, "openpgp-key-backup-key");
     backupItem.addEventListener("command", () => {
-      openPgpExportKey(`0x${key.keyId}`, true);
+      openPgpExportSecretKey(`0x${key.keyId}`, `0x${key.fpr}`);
     });
 
     let revokeItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(revokeItem, "openpgp-key-man-revoke-key");
-    revokeItem.addEventListener("command", enigmailRevokeKey);
+    revokeItem.addEventListener("command", () => {
+      enigmailRevokeKey(key);
+    });
 
     let deleteItem = document.createXULElement("menuitem");
-    document.l10n.setAttributes(deleteItem, "openpgp-key-man-del-key");
+    document.l10n.setAttributes(deleteItem, "openpgp-delete-key");
     deleteItem.addEventListener("command", () => {
       enigmailDeleteKey(key);
     });
@@ -901,7 +906,7 @@ function enigmailKeyDetails(keyId) {
   parent.gSubDialog.open(
     "chrome://openpgp/content/ui/keyDetailsDlg.xhtml",
     null,
-    { keyId }
+    { keyId, modified: onDataModified }
   );
 }
 
@@ -918,7 +923,7 @@ async function enigmailDeleteKey(key) {
   // Interrupt if the selected key is currently being used.
   if (key.keyId == gIdentity.getUnicharAttribute("openpgp_key_id")) {
     let [alertTitle, alertDescription] = await document.l10n.formatValues([
-      { id: "delete-key-in-use-title" },
+      { id: "key-in-use-title" },
       { id: "delete-key-in-use-description" },
     ]);
 
@@ -946,36 +951,67 @@ async function enigmailDeleteKey(key) {
 }
 
 /**
- * Open the subdialog to enable the user to revoke the selected OpenPGP Key.
+ * Revoke the selected OpenPGP Key.
  *
- * @param {Event} event - The DOM event.
+ * @param {Object} key - The selected OpenPGP Key.
  */
-async function enigmailRevokeKey(event) {
-  // TODO: Not yet implemented. Alert the user of the WIP status.
-  let title = await document.l10n.formatValue("openpgp-key-revoke-title");
+async function enigmailRevokeKey(key) {
+  // Interrupt if the selected key is currently being used.
+  if (key.keyId == gIdentity.getUnicharAttribute("openpgp_key_id")) {
+    let [alertTitle, alertDescription] = await document.l10n.formatValues([
+      { id: "key-in-use-title" },
+      { id: "revoke-key-in-use-description" },
+    ]);
 
-  Services.prompt.alert(
-    window,
-    title,
-    "Work in Progress: Key revocation not yet implemented"
-  );
+    Services.prompt.alert(null, alertTitle, alertDescription);
+    return;
+  }
+
+  EnigRevokeKey(key, function(success) {
+    if (success) {
+      document.l10n.setAttributes(
+        document.getElementById("openPgpNotificationDescription"),
+        "openpgp-key-revoke-success"
+      );
+      document.getElementById("openPgpNotification").collapsed = false;
+
+      EnigmailKeyRing.clearCache();
+      reloadOpenPgpUI();
+    }
+  });
 }
 
 /**
  * Open the subdialog to enable the user to edit the expiration date of the
  * selected OpenPGP Key.
  *
- * @param {Event} event - The DOM event.
+ * @param {Object} key - The selected OpenPGP Key.
  */
-async function enigmailEditKeyDate(event) {
-  // TODO: Not yet implemented. Alert the user of the WIP status.
-  let title = await document.l10n.formatValue("openpgp-key-edit-date-title");
+async function enigmailEditKeyDate(key) {
+  if (!key.iSimpleOneSubkeySameExpiry()) {
+    Services.prompt.alert(
+      null,
+      document.title,
+      await document.l10n.formatValue("openpgp-cannot-change-expiry")
+    );
+    return;
+  }
 
-  Services.prompt.alert(
-    window,
-    title,
-    "Work in Progress: Key date extention not yet implemented"
+  let args = {
+    keyId: key.keyId,
+    modified: onDataModified,
+  };
+
+  parent.gSubDialog.open(
+    "chrome://openpgp/content/ui/changeExpiryDlg.xhtml",
+    null,
+    args
   );
+}
+
+function onDataModified() {
+  EnigmailKeyRing.clearCache();
+  reloadOpenPgpUI();
 }
 
 /**
@@ -1098,14 +1134,6 @@ function updateUIForSelectedOpenPgpKey() {
 }
 
 /**
- * Clear the key cache and reload the UI.
- */
-function clearKeyCache() {
-  EnigmailKeyRing.clearCache();
-  reloadOpenPgpUI();
-}
-
-/**
  * Generic method to copy a string in the user's clipboard.
  *
  * @param {string} val - The formatted string to be copied in the clipboard.
@@ -1203,64 +1231,115 @@ function openPgpSendKeyEmail(keyId) {
 }
 
 /**
- * Export the selected OpenPGP key to a file.
+ * Export the selected OpenPGP public key to a file.
  *
  * @param {string} keyId - The ID of the selected OpenPGP Key.
- * @param {boolean} exportSecret - If the secret key should be included in the
- *   exported file.
  */
-async function openPgpExportKey(keyId, exportSecret = false) {
-  // Backup of Secret key not yet implemented.
-  if (exportSecret) {
-    alertUser("Work in Progress: this feature is not yet implemented");
-    return;
-  }
+async function openPgpExportPublicKey(keyId) {
+  let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+    window,
+    await document.l10n.formatValue("export-to-file"),
+    `${gIdentity.fullName}_${gIdentity.email}-${keyId}-pub.asc`
+  );
 
-  let ext = exportSecret ? "pub-sec.asc" : "pub.asc";
-  let filename = `${gIdentity.fullName}_${gIdentity.email}-${keyId}-${ext}`;
-
-  let [
-    exportKeyPair,
-    exportKey,
-    fileType,
-    saveOk,
-  ] = await document.l10n.formatValues([
-    { id: "export-keypair-to-file" },
-    { id: "export-to-file" },
-    { id: "ascii-armor-file" },
-    { id: "save-keys-ok" },
-  ]);
-
-  let filePicker = exportSecret ? exportKeyPair : exportKey;
-
-  let outFile = EnigFilePicker(filePicker, "", true, "*.asc", filename, [
-    fileType,
-    "*.asc",
-  ]);
   if (!outFile) {
     return;
   }
 
   let exitCodeObj = {};
   let errorMsgObj = {};
-  let keyIdArray = [keyId];
+  EnigmailKeyRing.extractKey(false, [keyId], outFile, exitCodeObj, errorMsgObj);
 
-  EnigmailKeyRing.extractKey(
-    exportSecret,
-    keyIdArray,
-    outFile,
-    exitCodeObj,
-    errorMsgObj
-  );
-
-  // Alert the user if the save failed.
+  // Alert the user if the save process failed.
   if (exitCodeObj.value !== 0) {
-    document.l10n.formatValue("save-keys-failed").then(value => {
+    document.l10n.formatValue("openpgp-export-public-fail").then(value => {
       alertUser(value);
     });
     return;
   }
 
-  // Let the user know that the save was successful.
-  alertUser(saveOk);
+  document.l10n.setAttributes(
+    document.getElementById("openPgpNotificationDescription"),
+    "openpgp-export-public-success"
+  );
+  document.getElementById("openPgpNotification").collapsed = false;
+}
+
+/**
+ * Ask the user to pick a file location and choose a password before proceeding
+ * with the backup of a secret key.
+ *
+ * @param {string} keyId - The ID of the selected OpenPGP Key.
+ * @param {string} keyFpr - The fingerprint of the selected OpenPGP Key.
+ */
+async function openPgpExportSecretKey(keyId, keyFpr) {
+  let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
+    window,
+    await document.l10n.formatValue("export-keypair-to-file"),
+    `${gIdentity.fullName}_${gIdentity.email}-${keyId}-secret.asc`,
+  );
+
+  if (!outFile) {
+    return;
+  }
+
+  let args = {
+    okCallback: exportSecretKey,
+    file: outFile,
+    fprArray: [keyFpr],
+  };
+
+  let w;
+  if ("browsingContext" in window) {
+    // 79+
+    w = window.browsingContext.topChromeWindow;
+  } else {
+    // 78
+    w = window.docShell.rootTreeItem.domWindow;
+  }
+
+  w.openDialog(
+    "chrome://openpgp/content/ui/backupKeyPassword.xhtml",
+    "",
+    "dialog,modal,centerscreen,resizable",
+    args
+  );
+}
+
+/**
+ * Export the secret key after a successful password setup.
+ *
+ * @param {string} password - The declared password to protect the keys.
+ * @param {Array} fprArray - The array of fingerprint of the selected keys.
+ * @param {Object} file - The file where the keys should be saved.
+ * @param {boolean} confirmed - If the password was properly typed in the prompt.
+ */
+async function exportSecretKey(password, fprArray, file, confirmed = false) {
+  // Interrupt in case this method has been called directly without confirming
+  // the input password through the password prompt.
+  if (!confirmed) {
+    return;
+  }
+
+  let backupKeyBlock = await RNP.backupSecretKeys(fprArray, password);
+
+  if (
+    !backupKeyBlock ||
+    !EnigmailFiles.writeFileContents(
+      file,
+      backupKeyBlock,
+      EnigmailKeyRing.DEFAULT_FILE_PERMS
+    )
+  ) {
+    document.l10n.formatValue("openpgp-export-secret-fail").then(value => {
+      alertUser(value);
+    });
+    return;
+  }
+
+  document.l10n.setAttributes(
+    document.getElementById("openPgpNotificationDescription"),
+    "openpgp-export-secret-success"
+  );
+  document.getElementById("openPgpNotification").collapsed = false;
 }

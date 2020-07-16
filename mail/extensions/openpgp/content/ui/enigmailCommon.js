@@ -572,23 +572,44 @@ function EnigRevokeKey(keyObj, callbackFunc) {
   }
 
   if (keyObj.keyTrust == "r") {
-    EnigAlert(l10nCommon.formatValueSync("already-revoked"));
+    Services.prompt.alert(
+      null,
+      document.title,
+      l10nCommon.formatValueSync("already-revoked")
+    );
     return;
   }
 
-  let msg = l10nCommon.formatValueSync("revoke-key-question", {
-    userId: "0x" + keyObj.keyId + " - " + keyObj.userId,
-  });
-  let buttonText = l10nCommon.formatValueSync("key-man-button-revoke-key");
+  let promptFlags =
+    Services.prompt.BUTTON_POS_0 * Services.prompt.BUTTON_TITLE_IS_STRING +
+    Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL;
 
-  if (!EnigConfirm(msg, buttonText)) {
+  let confirm = Services.prompt.confirmEx(
+    window,
+    l10nCommon.formatValueSync("openpgp-key-revoke-title"),
+    l10nCommon.formatValueSync("revoke-key-question", {
+      identity: `0x${keyObj.keyId} - ${keyObj.userId}`,
+    }),
+    promptFlags,
+    l10nCommon.formatValueSync("key-man-button-revoke-key"),
+    null,
+    null,
+    null,
+    {}
+  );
+
+  if (confirm != 0) {
     return;
   }
 
   RNP.revokeKey(keyObj.fpr);
   callbackFunc(true);
 
-  EnigAlert(l10nCommon.formatValueSync("after-revoke-info"));
+  Services.prompt.alert(
+    null,
+    l10nCommon.formatValueSync("openpgp-key-revoke-success"),
+    l10nCommon.formatValueSync("after-revoke-info")
+  );
 }
 
 function EnigGetLocalFileApi() {

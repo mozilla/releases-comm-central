@@ -39,6 +39,7 @@ openpgp-keygen-desc = <a data-l10n-name="openpgp-keygen-desc-link">NOTE: Key gen
 
 openpgp-key-expiry-label =
     .label = Expiry
+
 openpgp-key-id-label =
     .label = Key ID
 
@@ -125,6 +126,9 @@ openpgp-key-man-change-expiry =
     .accesskey = E
 openpgp-key-man-del-key =
     .label = Delete Key(s)
+    .accesskey = D
+openpgp-delete-key =
+    .label = Delete Key
     .accesskey = D
 openpgp-key-man-revoke-key =
     .label = Revoke Key
@@ -431,6 +435,14 @@ preview-failed = Can't read public key file.
 general-error = Error: { $reason }
 dlg-button-delete = &Delete
 
+## Account settings export output
+
+openpgp-export-public-success = <b>Public Key successfully exported!</b>
+openpgp-export-public-fail = <b>Unable to export the selected public key!</b>
+
+openpgp-export-secret-success = <b>Secret Key successfully exported!</b>
+openpgp-export-secret-fail = <b>Unable to export the selected secret key!</b>
+
 # Strings in keyObj.jsm
 key-ring-pub-key-revoked = The key { $userId } (key ID { $keyId }) is revoked.
 key-ring-pub-key-expired = The key { $userId } (key ID { $keyId }) has expired.
@@ -453,17 +465,28 @@ user-att-photo = User attribute (JPEG image)
 
 # Strings in key.jsm
 already-revoked = This key has already been revoked.
+
+#   $identity (String) - the id and associated user identity of the key being revoked
 revoke-key-question =
-    You are about to revoke the key '{ $userId }'.
+    You are about to revoke the key '{ $identity }'.
     You will no longer be able to sign with this key, and once distributed, others will no longer be able to encrypt with that key. You can still use the key to decrypt old messages.
     Do you want to proceed?
+
+#   $keyId (String) - the id of the key being revoked
 revoke-key-not-present =
     You have no key (0x{ $keyId }) which matches this revocation certificate!
     If you have lost your key, you must import it (e.g. from a keyserver) before importing the revocation certificate!
+
+#   $keyId (String) - the id of the key being revoked
 revoke-key-already-revoked = The key 0x{ $keyId } has already been revoked.
+
 key-man-button-revoke-key = &Revoke Key
+
+openpgp-key-revoke-success = Key successfully revoked.
+
 after-revoke-info =
-    The key has been revoked. Share this public key again, by sending it by email, or by uploading it to keyservers, to let others know that you revoked your key.
+    The key has been revoked.
+    Share this public key again, by sending it by email, or by uploading it to keyservers, to let others know that you revoked your key.
     As soon as the software used by other people learns about the revocation, it will stop using your old key.
     If you are using a new key for the same email address, and you attach the new public key to emails you send, then information about your revoked old key will be automatically included.
 
@@ -472,9 +495,11 @@ key-man-button-import = &Import
 
 delete-key-title = Delete OpenPGP Key
 
-delete-key-in-use-title = OpenPGP Key currently in use
+key-in-use-title = OpenPGP Key currently in use
 
-delete-key-in-use-description = Unable to proceed! The Key you selected for deletion is currently being used by this identity.
+delete-key-in-use-description = Unable to proceed! The Key you selected for deletion is currently being used by this identity. Select a different key, or select none, and try again.
+
+revoke-key-in-use-description = Unable to proceed! The Key you selected for revocation is currently being used by this identity. Select a different key, or select none, and try again.
 
 # Strings used in errorHandling.jsm
 key-error-key-spec-not-found = The email address '{ $keySpec }' cannot be matched to a key on your keyring.

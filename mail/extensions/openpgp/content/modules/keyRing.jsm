@@ -578,50 +578,58 @@ var EnigmailKeyRing = {
       label,
       defaultFileName
     );
+
     if (!outFile) {
       return;
     }
 
-    let dlgParams = {
-      confirmedPassword: false,
-      password: "",
+    let args = {
+      okCallback: EnigmailKeyRing.exportSecretKey,
+      file: outFile,
+      fprArray,
     };
 
     dlgOpenCallback(
       "chrome://openpgp/content/ui/backupKeyPassword.xhtml",
-      dlgParams
+      args
     );
+  },
 
-    if (!dlgParams.confirmedPassword) {
+  /**
+   * Export the secret key after a successful password setup.
+   *
+   * @param {string} password - The declared password to protect the keys.
+   * @param {Array} fprArray - The array of fingerprint of the selected keys.
+   * @param {Object} file - The file where the keys should be saved.
+   * @param {boolean} confirmed - If the password was properly typed in the
+   *   prompt.
+   */
+  async exportSecretKey(password, fprArray, file, confirmed = false) {
+    // Interrupt in case this method has been called directly without confirming
+    // the input password through the password prompt.
+    if (!confirmed) {
       return;
     }
 
-    let backupKeyBlock = await RNP.backupSecretKeys(
-      fprArray,
-      dlgParams.password
-    );
+    let backupKeyBlock = await RNP.backupSecretKeys(fprArray, password);
     if (!backupKeyBlock) {
-      getDialog().alert(window, l10n.formatValueSync("save-keys-failed"));
+      Services.prompt.alert(null, l10n.formatValueSync("save-keys-failed"));
       return;
     }
 
     if (
-      !EnigmailFiles.writeFileContents(
-        outFile,
-        backupKeyBlock,
-        DEFAULT_FILE_PERMS
-      )
+      !EnigmailFiles.writeFileContents(file, backupKeyBlock, DEFAULT_FILE_PERMS)
     ) {
-      getDialog().alert(
-        window,
+      Services.prompt.alert(
+        null,
         l10n.formatValueSync("file-write-failed", {
-          output: outFile,
+          output: file,
         })
       );
       return;
     }
 
-    getDialog().info(window, l10n.formatValueSync("save-keys-ok"));
+    getDialog().info(null, l10n.formatValueSync("save-keys-ok"));
   },
 
   /**

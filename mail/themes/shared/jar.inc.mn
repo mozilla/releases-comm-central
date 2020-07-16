@@ -272,6 +272,7 @@
   skin/classic/messenger/openpgp/headerProtected-18.svg       (../shared/openpgp/headerProtected-18.svg)
   skin/classic/messenger/openpgp/headerUnprotected-18.svg     (../shared/openpgp/headerUnprotected-18.svg)
   skin/classic/messenger/openpgp/importSuccess.png            (../shared/openpgp/importSuccess.png)
+  skin/classic/messenger/openpgp/keyDetails.css               (../shared/openpgp/keyDetails.css)
   skin/classic/messenger/openpgp/keyWizard.css                (../shared/openpgp/keyWizard.css)
   skin/classic/messenger/openpgp/inlineNotification.css       (../shared/openpgp/inlineNotification.css)
   skin/classic/messenger/openpgp/ok-sign.svg                  (../shared/openpgp/ok-sign.svg)
@@ -286,4 +287,3 @@
   skin/classic/messenger/openpgp/composeKeyStatus.css         (../shared/openpgp/composeKeyStatus.css)
   skin/classic/messenger/openpgp/oneRecipientStatus.css       (../shared/openpgp/oneRecipientStatus.css)
   skin/classic/messenger/openpgp/msgReadStatus.css            (../shared/openpgp/msgReadStatus.css)
-  skin/classic/messenger/openpgp/changeExpiryDlg.css       (../shared/openpgp/changeExpiryDlg.css)

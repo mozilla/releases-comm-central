@@ -81,8 +81,8 @@ function onLoad() {
       }
     }
   }
-  let infoExpiryElement = document.getElementById("info-current-expiry");
-  infoExpiryElement.setAttribute("value", infoExpiryText);
+
+  document.getElementById("info-current-expiry").textContent = infoExpiryText;
 
   let popup = document.getElementById("monthsPopup");
   let selectLater = null;
@@ -117,8 +117,6 @@ function onAccept() {
     return true;
   }
 
-  window.arguments[0].modified = true;
-
   let nowSeconds = Math.floor(Date.now() / 1000);
   let secondsSinceKeyCreation = nowSeconds - gKeyCreated;
 
@@ -136,4 +134,6 @@ document.addEventListener("dialogaccept", function(event) {
   if (!result) {
     event.preventDefault();
   } // Prevent the dialog closing.
+
+  window.arguments[0].modified();
 });

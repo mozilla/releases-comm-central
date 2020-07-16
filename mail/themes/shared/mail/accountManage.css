@@ -125,6 +125,10 @@ fieldset:last-of-type {
   display: flex;
 }
 
+.input-container.container-column:not([hidden="true"]) {
+  flex-direction: column;
+}
+
 .input-container:not([hidden="true"]) > .input-inline {
   flex: 1;
 }

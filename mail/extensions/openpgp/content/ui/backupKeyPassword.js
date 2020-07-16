@@ -28,7 +28,6 @@ function onLoad() {
   // Ensure the first password textbox has focus.
   document.getElementById("pw1").focus();
   document.addEventListener("dialogaccept", onDialogAccept);
-  document.addEventListener("dialogcancel", onDialogCancel);
   gAcceptButton = document
     .getElementById("backupKeyPassword")
     .getButton("accept");
@@ -39,17 +38,12 @@ function onLoad() {
  * ondialogaccept() handler.
  */
 function onDialogAccept() {
-  let retVals = window.arguments[0];
-  retVals.confirmedPassword = true;
-  retVals.password = document.getElementById("pw1").value;
-}
-
-/**
- * ondialogcancel() handler.
- */
-function onDialogCancel() {
-  let retVals = window.arguments[0];
-  retVals.confirmedPassword = false;
+  window.arguments[0].okCallback(
+    document.getElementById("pw1").value,
+    window.arguments[0].fprArray,
+    window.arguments[0].file,
+    true
+  );
 }
 
 /**
