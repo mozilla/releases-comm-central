@@ -1281,7 +1281,7 @@
       if (image) {
         aItem.firstElementChild.setAttribute(
           "src",
-          "chrome://messenger/skin/messenger.css" + image + ".png"
+          "chrome://messenger/skin/" + image + ".png"
         );
       } else {
         aItem.firstElementChild.removeAttribute("src");
