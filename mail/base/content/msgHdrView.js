@@ -1228,6 +1228,8 @@ function UpdateExpandedMessageHeaders() {
         // message isn't a newsgroup posting.
         headerEntry.valid = false;
       } else {
+        // Set the row element visible before populating the field with addresses.
+        headerEntry.enclosingRow.toggleAttribute("hidden", false);
         headerEntry.outputFunction(headerEntry, headerField.headerValue);
         headerEntry.valid = true;
       }

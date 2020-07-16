@@ -1095,12 +1095,12 @@
 
         if (line >= this.maxLinesBeforeMore) {
           // Hide the last node spanning into the additional line (n>1)
-          // also hide it if <30px left after sliding the address (n=1)
+          // also hide it if <50px left after sliding the address (n=1)
           // or if the last address would be truncated without "more"
           if (
             this.maxLinesBeforeMore > 1 ||
-            (i + 1 == this.addresses.length && overLineWidth > 30) ||
-            newLineWidth - overLineWidth < 30
+            (i + 1 == this.addresses.length && overLineWidth > 50) ||
+            newLineWidth - overLineWidth < 50
           ) {
             this.emailAddresses.lastElementChild.remove(); // last addr
             this.emailAddresses.lastElementChild.remove(); // last comma
