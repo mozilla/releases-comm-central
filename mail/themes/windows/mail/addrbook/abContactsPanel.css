@@ -14,8 +14,12 @@
   min-height: 24px;
 }
 
+#AbPickerHeader > label {
+  margin-block: 3px 0;
+}
+
 #abContextMenuButton {
-  margin-top: 0;
+  margin-block: -4px 2px;
   padding-inline: 5px;
 }
 

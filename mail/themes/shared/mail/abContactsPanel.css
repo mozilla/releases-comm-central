@@ -48,9 +48,9 @@
   border-color: transparent;
 }
 
-#abContextMenuButton:-moz-focusring {
-  outline-style: dashed;
-  outline-width: 2px;
+#abContextMenuButton:not(:hover):-moz-focusring {
+  outline: 2px dashed Highlight;
+  outline-offset: -2px;
 }
 
 #abContextMenuButton > .toolbarbutton-icon {

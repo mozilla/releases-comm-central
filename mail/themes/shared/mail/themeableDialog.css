@@ -183,12 +183,8 @@ html|input[type="color"] {
 button:-moz-focusring,
 menulist:-moz-focusring,
 html|input[type="color"]:focus {
-  outline: 1px solid var(--highlight-color);
-  /* offset outline to align with 1px border-width set for buttons/menulists above. */
-  outline-offset: -1px;
-  /* Make outline-radius slightly bigger than the border-radius set above,
-   * to make the thicker outline corners look smooth */
-  -moz-outline-radius: calc(var(--toolbarbutton-border-radius) + 1px);
+  border-color: var(--highlight-color);
+  outline: none;
 }
 
 button:not([disabled="true"]):hover,

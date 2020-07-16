@@ -10,7 +10,11 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+#AbPickerHeader > label {
+  margin-block: 6px 0;
+}
+
 #abContextMenuButton {
-  margin-top: -4px;
+  margin-block: -3px -1px;
   padding-inline: 4px 0;
 }
