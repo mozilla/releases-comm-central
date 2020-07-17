@@ -165,7 +165,8 @@ h1, h2, h3 {
 }
 
 .gloda-timeline-button {
-  -moz-appearance: button !important;
+  appearance: auto;
+  -moz-default-appearance: button !important;
   margin-inline-start: 8px;
   -moz-context-properties: fill;
   fill: currentColor;
@@ -303,7 +304,8 @@ facet-boolean-filtered:not([checked]) > .facet-filter-list {
 
 .facet-more {
   display: none;
-  -moz-appearance: button;
+  appearance: auto;
+  -moz-default-appearance: button;
   margin: 1px;
   margin-top: 0.5em;
   padding: 0.2em 1em;
@@ -404,7 +406,7 @@ html[dir="rtl"] .bar-link {
 }
 
 .results-message-showall-button {
-  -moz-appearance: none !important;
+  appearance: none !important;
   color: -moz-NativehyperlinkText;
   cursor: pointer;
   padding: 4px;
@@ -624,7 +626,8 @@ html[dir="rtl"] .message-attachment-icon {
 
 .show-more {
   display: none; /* $('.show-more').show() is run if there are results */
-  -moz-appearance: button;
+  appearance: auto;
+  -moz-default-appearance: button;
   float: inline-end;
   padding: 0.2em 1em;
   font-size: small;

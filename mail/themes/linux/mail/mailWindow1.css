@@ -28,7 +28,8 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 }
 
 #mailContent {
-  -moz-appearance: toolbox;
+  appearance: auto;
+  -moz-default-appearance: toolbox;
   background-color: -moz-Dialog;
 }
 
@@ -43,7 +44,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 
 #folderpane_splitter,
 #threadpane-splitter:not([orient="vertical"]) {
-  -moz-appearance: none;
+  appearance: none;
   /* splitter grip area */
   width: 5px;
   margin-top: 0;
@@ -82,7 +83,7 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 
 #threadpane-splitter,
 #attachment-splitter {
-  -moz-appearance: none;
+  appearance: none;
   /* splitter grip area */
   height: 5px;
   /* make only the splitter border visible */
@@ -143,13 +144,13 @@ menu > #folderLocationPopup > menuitem > .menu-iconic-left {
 /* ..... tabs ..... */
 
 #tabpanelcontainer {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 /* ..... menulists on main toolbar ..... */
 
 menulist {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 24px;
   color: inherit !important;
   margin: 1px 4px;
@@ -177,7 +178,7 @@ menulist[disabled="true"] {
 }
 
 menulist::part(label-box) {
-  -moz-appearance: none;
+  appearance: none;
   padding-inline-end: 12px;
   background-repeat: no-repeat;
   background-position: right;

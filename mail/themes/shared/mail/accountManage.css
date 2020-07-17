@@ -63,7 +63,7 @@ fieldset:last-of-type {
 
 #accountActionsDropdown,
 .openpgp-more-btn > menupopup {
-  -moz-appearance: none;
+  appearance: none;
   font-size: 1em;
   border: 1px solid var(--in-content-box-border-color);
   border-radius: 2px;
@@ -72,7 +72,7 @@ fieldset:last-of-type {
 
 #accountActionsDropdown > menuitem,
 .openpgp-more-btn > menupopup > menuitem {
-  -moz-appearance: none;
+  appearance: none;
   color: var(--in-content-text-color);
   padding-block: 0.2em;
   padding-inline: 10px 30px;
@@ -99,7 +99,7 @@ fieldset:last-of-type {
 
 #accountActionsDropdown > menuseparator,
 .openpgp-more-btn > menupopup > menuseparator {
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--in-content-box-border-color);
@@ -142,7 +142,7 @@ menulist.input-inline {
 }
 
 menupopup[is="folder-menupopup"] {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 menulist > menupopup menu,
@@ -152,7 +152,7 @@ menulist > menupopup menuitem {
 
 /* Needed for additional menupopup levels */
 menulist > menupopup menupopup {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid var(--in-content-box-border-color);
   border-radius: 2px;
   background-color: var(--in-content-box-background);
@@ -179,7 +179,7 @@ menulist > menupopup menupopup > menuitem[disabled="true"] {
 }
 
 menulist > menupopup .menu-right {
-  -moz-appearance: none;
+  appearance: none;
   -moz-context-properties: fill;
   list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
   -moz-image-region: auto;
@@ -191,7 +191,7 @@ menulist > menupopup .menu-right:-moz-locale-dir(ltr) {
 }
 
 menulist > menupopup menupopup menuseparator {
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--in-content-box-border-color);
@@ -405,7 +405,7 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
 }
 
 .arrowhead {
-  -moz-appearance: none;
+  appearance: none;
   border: none;
   border-radius: 2px;
   min-height: 20px;

@@ -33,14 +33,14 @@
 }
 
 menulist[disabled="true"] {
-  -moz-appearance: none;
+  appearance: none;
   border: none;
   background-color: #fff;
   color: -moz-DialogText;
 }
 
 menulist[disabled="true"]::part(dropmarker) {
-  -moz-appearance: none;
+  appearance: none;
   color: -moz-DialogText;
 }
 

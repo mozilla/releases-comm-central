@@ -14,5 +14,6 @@
 
 #displayNameInput[editing],
 #statusMessageInput[editing] {
-  -moz-appearance: textfield;
+  appearance: auto;
+  -moz-default-appearance: textfield;
 }

@@ -94,7 +94,7 @@
   white-space: normal;
   color: WindowText;
   line-height: 1.4em;
-  -moz-appearance: none;
+  appearance: none;
   padding: .1em 0;
   margin: 0;
   margin-bottom: 3px !important;
@@ -195,7 +195,8 @@ mail-headerfield.headerValue:focus {
   .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
   .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-    -moz-appearance: button;
+    appearance: auto;
+    -moz-default-appearance: button;
     padding-block: 1px !important;
     box-shadow: none !important;
   }
@@ -301,7 +302,7 @@ mail-headerfield.headerValue:focus {
 }
 
 .msgHeaderView-button {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .headerName {

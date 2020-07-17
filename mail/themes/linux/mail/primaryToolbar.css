@@ -17,7 +17,7 @@
 
 .mail-toolbox,
 .contentTabToolbox {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--toolbar-bgcolor);
   background-image: var(--toolbar-bgimage);
 }
@@ -41,7 +41,7 @@
 }
 
 #folderPane-toolbox {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 /* remove the small icons checkbox in Customize window */

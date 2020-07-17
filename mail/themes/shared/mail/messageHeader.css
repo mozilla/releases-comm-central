@@ -47,7 +47,7 @@
 
 #attachmentToggle {
   /* Override button appearance */
-  -moz-appearance: none;
+  appearance: none;
   min-width: 20px;
   margin-block: 0;
   margin-inline: 1px 0;

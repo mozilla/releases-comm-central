@@ -162,7 +162,7 @@ toolbar[brighttext] {
 }
 
 .inline-toolbar {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .inline-toolbar toolbarpaletteitem toolbarseparator,
@@ -268,7 +268,7 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
 /* .......... dropmarker .......... */
 
 .toolbarbutton-menubutton-dropmarker {
-  -moz-appearance: none;
+  appearance: none;
   padding: 3px 7px;
   width: auto;
 }
@@ -528,7 +528,8 @@ treechildren::-moz-tree-indentation {
 
 /* Give menupopup[is="folder-menupopup"] a menu look */
 menupopup[is="folder-menupopup"] {
-  -moz-appearance: menupopup;
+  appearance: auto;
+  -moz-default-appearance: menupopup;
 }
 
 menupopup[is="folder-menupopup"] menu[_moz-menuactive="true"],
@@ -539,7 +540,8 @@ menupopup[is="folder-menupopup"] menuitem[_moz-menuactive="true"] {
 
 menupopup[is="folder-menupopup"] > menu,
 menupopup[is="folder-menupopup"] > menuitem {
-  -moz-appearance: menuitem !important;
+  appearance: auto;
+  -moz-default-appearance: menuitem !important;
 }
 
 menulist.folderMenuItem::part(label) {
@@ -574,7 +576,8 @@ button.notification-button {
 
 @media (-moz-windows-compositor: 0) {
   #print-preview-toolbar:not(:-moz-lwtheme) {
-    -moz-appearance: -moz-win-browsertabbar-toolbox;
+    appearance: auto;
+    -moz-default-appearance: -moz-win-browsertabbar-toolbox;
   }
 }
 
@@ -645,7 +648,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 }
 
 .toolbarbutton-1[type="menu-button"] {
-  -moz-appearance: none;
+  appearance: none;
   border: none;
   padding: 0 !important;
   background: none !important;
@@ -685,7 +688,7 @@ toolbar[mode="icons"] .toolbarbutton-1:not([type="menu-button"]) {
 .toolbarbutton-1:not([type="menu-button"]),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  -moz-appearance: none;
+  appearance: none;
   background: hsla(210, 32%, 93%, 0) padding-box;
   border: 1px solid;
   border-radius: var(--toolbarbutton-border-radius);
@@ -726,7 +729,7 @@ toolbar[mode="icons"] .toolbarbutton-1:not([type="menu-button"]) {
 }
 
 menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
-  -moz-appearance: none;
+  appearance: none;
   margin-top: 3px;
   margin-bottom: 3px;
   padding-top: 0;
@@ -759,12 +762,13 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 /* Status bar */
 
 .statusbar {
-  -moz-appearance: statusbar;
+  appearance: auto;
+  -moz-default-appearance: statusbar;
   min-height: 22px;
 }
 
 .statusbar:-moz-lwtheme {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .statusbar:-moz-lwtheme-brighttext {
@@ -772,7 +776,7 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 }
 
 .statusbarpanel {
-  -moz-appearance: none;
+  appearance: none;
   border-inline-end: 1px solid ThreeDLightShadow;
 }
 
@@ -783,7 +787,7 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 @media (-moz-os-version: windows-win7) and (-moz-windows-default-theme),
        (-moz-os-version: windows-win8) and (-moz-windows-default-theme) {
   #status-bar:not(:-moz-lwtheme) {
-    -moz-appearance: none;
+    appearance: none;
     border-style: none;
     border-top: 1px solid ThreeDShadow;
     background-color: var(--toolbar-bgcolor);
@@ -792,7 +796,8 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
 
 @media (-moz-windows-classic) {
   .statusbarpanel:not(:-moz-lwtheme) {
-    -moz-appearance: statusbarpanel;
+    appearance: auto;
+    -moz-default-appearance: statusbarpanel;
   }
 
   label.statusbarpanel {

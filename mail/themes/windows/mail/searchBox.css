@@ -43,7 +43,7 @@
 
 .searchBox,
 .themeableSearchBox {
-  -moz-appearance: none;
+  appearance: none;
   background-clip: padding-box;
   border: 1px solid hsla(240,5%,5%,.25);
   border-radius: 2px;

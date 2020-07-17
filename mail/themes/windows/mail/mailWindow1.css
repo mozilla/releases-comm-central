@@ -49,17 +49,19 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 /* ..... tabs ..... */
 
 #tabpanelcontainer {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 /* ..... Draw in titlebar ..... */
 
 #messengerWindow[sizemode="normal"] > #titlebar {
-  -moz-appearance: -moz-window-titlebar;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-titlebar;
 }
 
 #messengerWindow[sizemode="maximized"] > #titlebar {
-  -moz-appearance: -moz-window-titlebar-maximized;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-titlebar-maximized;
 }
 
 @media (-moz-windows-classic) {
@@ -93,16 +95,19 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 #titlebar-buttonbox {
-  -moz-appearance: -moz-window-button-box;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-button-box;
   position: relative;
 }
 
 #messengerWindow[sizemode="maximized"] #titlebar-buttonbox {
-  -moz-appearance: -moz-window-button-box-maximized;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-button-box-maximized;
 }
 
 #titlebar-min {
-  -moz-appearance: -moz-window-button-minimize;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-button-minimize;
 }
 
 @media (-moz-windows-classic: 0) {
@@ -112,15 +117,18 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 #titlebar-max {
-  -moz-appearance: -moz-window-button-maximize;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-button-maximize;
 }
 
 #messengerWindow[sizemode="maximized"] #titlebar-max {
-  -moz-appearance: -moz-window-button-restore;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-button-restore;
 }
 
 #titlebar-close {
-  -moz-appearance: -moz-window-button-close;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-button-close;
 }
 
 #messengerWindow[tabsintitlebar] .titlebar-placeholder[type="caption-buttons"] {
@@ -148,7 +156,8 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   @media (-moz-os-version: windows-win7),
          (-moz-os-version: windows-win8) {
     :root {
-      -moz-appearance: -moz-win-borderless-glass;
+      appearance: auto;
+      -moz-default-appearance: -moz-win-borderless-glass;
       background-color: transparent;
     }
 
@@ -250,18 +259,20 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
     @media (-moz-windows-default-theme: 0) {
       :root {
-        -moz-appearance: -moz-win-glass;
+        appearance: auto;
+        -moz-default-appearance: -moz-win-glass;
         background-color: transparent;
       }
 
       #tabmail-container {
-        -moz-appearance: -moz-win-exclude-glass;
+        appearance: auto;
+        -moz-default-appearance: -moz-win-exclude-glass;
       }
     }
 
     #titlebar-buttonbox,
     .titlebar-button {
-      -moz-appearance: none !important;
+      appearance: none !important;
     }
 
     .titlebar-button {
@@ -499,13 +510,13 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 
 #viewPickerPopup menu,
 #viewPickerPopup menuitem {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 @media (-moz-windows-default-theme) {
   menulist,
   menulist[disabled="true"] {
-    -moz-appearance: none;
+    appearance: none;
     min-height: 24px;
     color: inherit;
     margin-top: 4px;
@@ -538,7 +549,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 
   menulist::part(dropmarker) {
-    -moz-appearance: none;
+    appearance: none;
     -moz-box-align: center;
     -moz-box-pack: center;
     list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
@@ -713,7 +724,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
 }
 
 #viewPickerPopup > menu > .menu-text {
-  -moz-appearance: none;
+  appearance: none;
   margin-inline-start: 0 !important;
   padding-inline-start: 0 !important;
 }

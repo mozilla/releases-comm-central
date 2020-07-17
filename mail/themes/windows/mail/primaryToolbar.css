@@ -35,12 +35,12 @@
 #navigation-toolbox,
 #folderPane-toolbox,
 #mail-toolbar-menubar2 {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu {
-    -moz-appearance: none;
+    appearance: none;
     border-style: none;
   }
 
@@ -109,7 +109,7 @@
 
 .mail-toolbox,
 .contentTabToolbox {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--toolbar-bgcolor);
   background-image: var(--toolbar-bgimage);
   box-shadow: 0 1px 0 rgba(253, 253, 253, 0.45) inset;
@@ -178,7 +178,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 /* AppMenu styling */
 
 .appmenu-edit-button {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid transparent;
   padding: 2px;
   background: transparent;
@@ -517,7 +517,8 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 
   #print-preview-toolbar:not(:-moz-lwtheme) {
-    -moz-appearance: -moz-win-browsertabbar-toolbox;
+    appearance: auto;
+    -moz-default-appearance: -moz-win-browsertabbar-toolbox;
   }
 
   @media (-moz-windows-default-theme) {
@@ -557,7 +558,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
 
 @media (-moz-windows-default-theme: 0) {
   #messengerWindow[tabsintitlebar] #mail-menubar > menu {
-    -moz-appearance: none;
+    appearance: none;
     color: inherit;
   }
 }
@@ -615,7 +616,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
   }
 
   #navigation-toolbox > #mail-toolbar-menubar2:not(:-moz-lwtheme) {
-    -moz-appearance: none;
+    appearance: none;
     border-bottom: 1px solid #aabccf;
   }
 
@@ -676,7 +677,7 @@ toolbar:not([mode="text"]) > toolbarpaletteitem > #button-chat > stack {
     }
 
     #messengerWindow:not([tabsintitlebar]) #mail-menubar > menu {
-      -moz-appearance: none;
+      appearance: none;
     }
   }
 }

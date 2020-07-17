@@ -39,7 +39,7 @@
 /* ::::: expanded header pane ::::: */
 
 .inline-toolbox {
-  -moz-appearance: none;
+  appearance: none;
   padding-inline-end: 2px;
 }
 
@@ -177,7 +177,7 @@
   white-space: normal;
   color: WindowText;
   line-height: 1.4em;
-  -moz-appearance: none !important;
+  appearance: none !important;
   padding: .1em 0 !important;
   margin: 0 !important;
   margin-bottom: 3px !important;

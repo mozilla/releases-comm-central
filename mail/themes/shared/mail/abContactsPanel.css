@@ -24,7 +24,7 @@
 }
 
 #abContactsPanel {
-  -moz-appearance: none;
+  appearance: none;
   background-color: -moz-Dialog;
   background-image: none !important;
   color: -moz-dialogText;

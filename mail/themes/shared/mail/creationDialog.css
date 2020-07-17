@@ -57,13 +57,13 @@
   text-align: center;
 }
 
-/* Footer style =================================== */
+/* Footer style */
 .hub-footer {
   padding: 20px;
 }
 
 .btn-link {
-  -moz-appearance: none;
+  appearance: none;
   background-color: transparent !important;
   color: var(--primary-color) !important;
   border-style: none;
@@ -78,7 +78,7 @@
   text-decoration: underline;
 }
 
-/* Form Fields style =================================== */
+/* Form Fields style */
 .form-control {
   position: relative;
   margin-bottom: 10px;
@@ -135,7 +135,7 @@
   color: var(--warning-color);
   fill-opacity: 1;
 }
-/* END Form Fields style =================================== */
+/* END Form Fields style */
 
 .config-area {
   background-color: var(--config-bg);

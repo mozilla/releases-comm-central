@@ -37,7 +37,7 @@ menu.push[disabled="true"]:hover:active {
 
 textbox[readonly="true"],
 textbox[readonly="true"][focused="true"] {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid ThreeDShadow;
 }
 

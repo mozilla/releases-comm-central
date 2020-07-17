@@ -55,7 +55,7 @@
 }
 
 #editContactAddressBookList::part(dropmarker) {
-  -moz-appearance: none;
+  appearance: none;
   display: -moz-box;
 }
 
@@ -68,7 +68,7 @@
 }
 
 html|input.editContactTextbox {
-  -moz-appearance: none;
+  appearance: none;
   cursor: text;
   margin: 2px 6px;
   background-color: #fff;
@@ -97,7 +97,7 @@ html|input.editContactTextbox[readonly] {
 
 #editContactPanel button,
 #editContactPanel menulist {
-  -moz-appearance: none;
+  appearance: none;
   margin-inline-end: 6px;
   min-height: 22px;
   background-color: var(--arrowpanel-dimmed);

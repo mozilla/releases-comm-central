@@ -90,7 +90,7 @@
 }
 
 tabmail > tabbox > tabpanels {
-  -moz-appearance: none !important;
+  appearance: none !important;
 }
 
 /**

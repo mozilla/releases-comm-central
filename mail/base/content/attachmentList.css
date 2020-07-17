@@ -9,7 +9,7 @@
 }
 
 .attachmentList {
-  -moz-appearance: none;
+  appearance: none;
   -moz-user-focus: normal;
   margin: 0;
   padding: 3px;

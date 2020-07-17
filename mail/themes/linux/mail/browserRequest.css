@@ -30,7 +30,8 @@
 #addressbox {
   font-weight: bold;
   font-size: medium;
-  -moz-appearance: textfield;
+  appearance: auto;
+  -moz-default-appearance: textfield;
   overflow: hidden;
   margin: 0px 5px;
   font-weight: normal;

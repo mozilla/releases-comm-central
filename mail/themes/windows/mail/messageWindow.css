@@ -12,7 +12,8 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #messengerWindow {
-  -moz-appearance: window;
+  appearance: auto;
+  -moz-default-appearance: window;
   background-color: -moz-Dialog;
 }
 
@@ -65,6 +66,7 @@
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu {
-    -moz-appearance: menuitem;
+    appearance: auto;
+    -moz-default-appearance: menuitem;
   }
 }

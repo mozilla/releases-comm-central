@@ -10,7 +10,7 @@ html|input.plain {
 }
 
 html|input.input-filefield {
-  -moz-appearance: none;
+  appearance: none;
   padding-inline-start: 20px !important;
   background-position-x: left 8px;
   background-color: var(--in-content-box-background);

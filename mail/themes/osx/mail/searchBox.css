@@ -8,7 +8,7 @@
 .themeableSearchBox {
   margin-top: 3px;
   margin-bottom: 2px;
-  -moz-appearance: none !important;
+  appearance: none !important;
   border: 1px solid hsla(240,5%,5%,.25);
   border-radius: 3px;
   box-shadow: 0 1px 4px rgba(0,0,0,.05);

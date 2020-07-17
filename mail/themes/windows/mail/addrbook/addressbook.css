@@ -22,7 +22,7 @@
 /* Toolbar */
 
 #ab-toolbox {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
@@ -37,7 +37,7 @@
 }
 
 toolbar:not(:-moz-lwtheme) {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 #ab-toolbox > toolbar {
@@ -60,7 +60,7 @@ toolbox > toolbar:last-of-type {
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu {
-    -moz-appearance: none;
+    appearance: none;
     border-style: none;
   }
 
@@ -96,7 +96,7 @@ toolbox > toolbar:last-of-type {
   }
 
   .sidebar-header {
-    -moz-appearance: none;
+    appearance: none;
     background-color: #f8f8f8;
     border-top: 0;
     border-bottom: 1px solid #a9b1b8;

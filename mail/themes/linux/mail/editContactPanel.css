@@ -51,7 +51,7 @@
 }
 
 html|input.editContactTextbox {
-  -moz-appearance: none;
+  appearance: none;
   cursor: text;
   margin: 1px 4px;
   background-color: -moz-Field;
@@ -75,7 +75,7 @@ html|input.editContactTextbox[readonly] {
 #editContactPanel menulist {
   margin-inline-end: 4px;
   min-height: 24px;
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--arrowpanel-dimmed);
   background-image: none;
   border: 1px solid;

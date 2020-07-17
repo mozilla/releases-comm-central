@@ -59,7 +59,7 @@
 }
 
 toolbar[nowindowdrag="true"] {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 /* Findbar */
@@ -119,12 +119,14 @@ toolbar[nowindowdrag="true"] {
 }
 
 #msgIdentity[is="menulist-editable"][editable="true"] > menupopup {
-  -moz-appearance: menupopup;
+  appearance: auto;
+  -moz-default-appearance: menupopup;
   margin-inline-start: 0;
 }
 
 #msgIdentity[is="menulist-editable"][editable="true"] > menupopup > menuitem {
-  -moz-appearance: menuitem;
+  appearance: auto;
+  -moz-default-appearance: menuitem;
 }
 
 #msgIdentityPopup {
@@ -161,7 +163,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 .notification-button[type="menu-button"] > button {
-  -moz-appearance: none;
+  appearance: none;
   margin-bottom: -1px;
   margin-inline-start: -3px;
   margin-inline-end: 3px;
@@ -246,7 +248,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 #FormatToolbar menulist {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 24px;
   color: inherit;
   margin: 0 4px !important;
@@ -274,7 +276,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 #FormatToolbar menulist::part(label-box) {
-  -moz-appearance: none;
+  appearance: none;
   padding-inline-end: 12px;
   background-repeat: no-repeat;
   background-position: right;
@@ -293,7 +295,7 @@ toolbar[nowindowdrag="true"] {
 }
 
 toolbarbutton.formatting-button {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
   margin-inline: 1px;
@@ -369,7 +371,8 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 }
 
 #sidebar-box {
-  -moz-appearance: -moz-mac-source-list;
+  appearance: auto;
+  -moz-default-appearance: -moz-mac-source-list;
   -moz-font-smoothing-background-color: -moz-mac-source-list;
 }
 
@@ -410,7 +413,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 /* Styles for the default system dark theme */
 
 :root[lwt-tree] #headers-box {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 :root[lwt-tree] #FormatToolbar {

@@ -23,7 +23,8 @@
 }
 
 .mail-toolbox > toolbar:not(:-moz-lwtheme) {
-  -moz-appearance: toolbar;
+  appearance: auto;
+  -moz-default-appearance: toolbar;
 }
 
 /* Set position: relative to let the LW-background-box be behind them. */

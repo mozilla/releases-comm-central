@@ -8,14 +8,14 @@
 
 /* Adaptation from #folderTree */
 :root:not([lwt-tree]) #listPaneBox {
-  -moz-appearance:  none;
+  appearance: none;
   background-color: -moz-Field;
   color: -moz-FieldText;
 }
 
 #listPaneBox > * {
   background: transparent !important;
-  -moz-appearance: none !important;
+  appearance: none !important;
   border: none;
 }
 
@@ -44,14 +44,14 @@
 
 #logTree,
 .conv-nicklist {
-  -moz-appearance: none;
+  appearance: none;
   border: none;
   margin: 0;
 }
 
 .conv-nicklist-header,
 .conv-logs-header-label {
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   padding-top: 2px;
   padding-bottom: 2px;
@@ -108,7 +108,7 @@
   }
 
   #chat-status-selector > vbox > .statusMessageToolbarItem[editing] {
-    -moz-appearance: none;
+    appearance: none;
     padding-inline-start: 2px;
     padding-inline-end: 2px;
   }

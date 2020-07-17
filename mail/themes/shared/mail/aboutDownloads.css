@@ -46,7 +46,7 @@
 
 #msgDownloadsRichListBox {
   /** The default listbox appearance comes with an unwanted margin. **/
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   border: 1px solid hsla(0, 0%, 50%, .3);
   color: -moz-DialogText
@@ -106,7 +106,7 @@
 }
 
 .downloadButton {
-  -moz-appearance: none;
+  appearance: none;
   -moz-box-align: center;
   background: transparent !important;
   min-width: 0;
@@ -119,7 +119,7 @@
 }
 
 .downloadButton > .button-box {
-  -moz-appearance: none;
+  appearance: none;
   padding: 2px !important;
 }
 

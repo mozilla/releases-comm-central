@@ -88,7 +88,7 @@
 
 html|input,
 html|textarea {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--field-background-color);
   border: 1px solid var(--field-border-color);
   border-radius: 2px;
@@ -117,7 +117,7 @@ html|textarea:focus {
 
 html|input[type="number"]::-moz-number-spin-up,
 html|input[type="number"]::-moz-number-spin-down {
-  -moz-appearance: none;
+  appearance: none;
   background-position: center;
   background-color: var(--button-background);
   border: 1px solid var(--field-border-color);
@@ -137,7 +137,7 @@ html|input[type="number"]::-moz-number-spin-down {
 button,
 menulist,
 html|input[type="color"] {
-  -moz-appearance: none;
+  appearance: none;
   /* !important overrides button.css for disabled and default XUL buttons: */
   color: inherit !important;
   border: 1px solid var(--button-border-color); /* needed for high-contrast mode, where it'll show up */
@@ -228,7 +228,7 @@ menulist:-moz-focusring:not([open="true"])::part(label-box) {
 }
 
 menulist::part(dropmarker) {
-  -moz-appearance: none;
+  appearance: none;
   padding: 0;
   border: none;
   background-color: transparent;
@@ -263,7 +263,7 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input):focus {
 menulist menupopup,
 button[type="menu-button"] menupopup,
 menupopup[is="folder-menupopup"] {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid var(--box-border-color);
   border-radius: var(--toolbarbutton-border-radius);
   background-color: var(--box-background-color);
@@ -273,7 +273,7 @@ button menupopup menu,
 button menupopup menuitem,
 menulist menupopup menu,
 menulist menupopup menuitem {
-  -moz-appearance: none;
+  appearance: none;
   color: var(--box-text-color);
 }
 
@@ -301,7 +301,7 @@ menulist menupopup > menuitem[disabled="true"] {
 }
 
 .menu-right {
-  -moz-appearance: none;
+  appearance: none;
   -moz-context-properties: fill;
   list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
   fill: currentColor;
@@ -309,7 +309,7 @@ menulist menupopup > menuitem[disabled="true"] {
 
 button menupopup menuseparator,
 menulist menupopup menuseparator {
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   padding: 0;
   border-top: 1px solid var(--box-border-color);
@@ -322,12 +322,12 @@ label {
 
 radio,
 checkbox {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .radio-check,
 .checkbox-check {
-  -moz-appearance: none;
+  appearance: none;
   width: 16px;
   height: 16px;
   padding: 1px;
@@ -362,7 +362,7 @@ checkbox[checked] > .checkbox-check {
 }
 
 :root[lwt-tree] richlistbox {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--sidebar-background-color);
   color: var(--sidebar-text-color);
   border: 1px solid var(--sidebar-border-color);
@@ -421,7 +421,7 @@ richlistitem button:not([disabled="true"]):hover:active {
 }
 
 :root[lwt-tree] tree {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid var(--sidebar-border-color);
 }
 
@@ -437,7 +437,7 @@ tabs {
 }
 
 tab {
-  -moz-appearance: none;
+  appearance: none;
   margin-top: 0;
   padding: 6px 10px !important;
   border-bottom: 2px solid transparent;
@@ -455,7 +455,7 @@ tab[visuallyselected="true"] {
 }
 
 tabpanels {
-  -moz-appearance: none;
+  appearance: none;
   border: none;
   padding: 0;
   background-color: transparent;

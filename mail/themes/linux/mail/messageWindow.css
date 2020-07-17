@@ -36,7 +36,7 @@
 /* ..... splitter adjustments ..... */
 
 #attachment-splitter {
-  -moz-appearance: none;
+  appearance: none;
   border-bottom: 1px solid ThreeDShadow;
   /* splitter grip area */
   height: 5px;

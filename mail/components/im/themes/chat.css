@@ -73,7 +73,7 @@
 }
 
 .im-placeholder-button-box > button {
-  -moz-appearance: none;
+  appearance: none;
   /* override forms.css */
   font: inherit;
   min-height: 30px;
@@ -111,7 +111,7 @@
 }
 
 :root[lwt-tree] #listPaneBox {
-  -moz-appearance:  none;
+  appearance: none;
   background-color: var(--sidebar-background-color);
   border-inline-end-color: var(--sidebar-border-color, hsla(0,0%,60%,.4));
   color: var(--sidebar-text-color);
@@ -281,7 +281,7 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   padding: 0;
   border: none;
   background: transparent;
-  -moz-appearance: none;
+  appearance: none;
   width: 16px;
   height: 16px;
   min-height: 16px;
@@ -322,7 +322,7 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
 .conv-top-info {
   margin: 0;
   border-style: none;
-  -moz-appearance: none;
+  appearance: none;
   -moz-window-dragging: no-drag;
   border-bottom: 1px solid var(--splitter-color);
 }
@@ -373,7 +373,7 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
   max-height: 16px;
   min-height: 16px;
   min-width: 16px;
-  -moz-appearance: none;
+  appearance: none;
   background-color: transparent;
   border: none;
 }
@@ -556,7 +556,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 .conv-textbox {
-  -moz-appearance: none;
+  appearance: none;
 %ifdef XP_MACOSX
   margin: 0;
   padding: 3px;
@@ -726,14 +726,16 @@ richlistitem[state="disconnected"] .accountStateIcon {
 }
 
 .conv-logs-header-label {
-  -moz-appearance: treeheadercell;
+  appearance: auto;
+  -moz-default-appearance: treeheadercell;
   margin: 0 -1px 0 0;
   padding-left: 3px;
 }
 
 %ifdef XP_MACOSX
 .conv-nicklist-header {
-  -moz-appearance: treeheadercell;
+  appearance: auto;
+  -moz-default-appearance: treeheadercell;
   margin-right: -1px;
 }
 
@@ -752,7 +754,7 @@ richlistitem[state="disconnected"] .accountStateIcon {
 
 %ifdef XP_MACOSX
 .conv-nicklist, #logTree {
-  -moz-appearance: none;
+  appearance: none;
   width: 250px;
   border: 0px;
 }
@@ -859,7 +861,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 }
 
 #chat-status-selector > vbox > .statusMessageToolbarItem[editing] {
-  -moz-appearance: none;
+  appearance: none;
   padding-inline-start: 4px;
   padding-inline-end: 4px;
   border-color: ThreeDShadow;
@@ -904,7 +906,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 :root[lwt-tree] #nicklist,
 :root[lwt-tree] .conv-nicklist-header,
 :root[lwt-tree] .conv-logs-header-label {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--sidebar-background-color);
   border-bottom: 1px solid var(--sidebar-border-color, hsla(0,0%,60%,.4));
   color: var(--sidebar-text-color);
@@ -960,11 +962,11 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
 }
 
 :root[lwt-tree] #logTree {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 #goToConversation {
-  -moz-appearance: none !important;
+  appearance: none !important;
   margin: 4px;
   padding: 1px !important;
   color: inherit !important;

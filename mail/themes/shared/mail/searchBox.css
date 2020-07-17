@@ -75,7 +75,7 @@
 }
 
 #PopupGlodaAutocomplete {
-  -moz-appearance: none;
+  appearance: none;
   margin-top: -1px;
   background: var(--autocomplete-popup-background);
   color: var(--autocomplete-popup-color);

@@ -5,7 +5,7 @@
 @import url("chrome://messenger/skin/shared/tabmail.css");
 
 #tabs-toolbar {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 :root[tabsintitlebar][sizemode=normal] #mail-toolbar-menubar2[autohide=true] ~
@@ -26,7 +26,7 @@
  */
 
 tabpanels {
-  -moz-appearance: none;
+  appearance: none;
   background-color: transparent;
 }
 
@@ -64,7 +64,7 @@ tabpanels {
 
 #tabmail-arrowscrollbox::part(scrollbutton-up),
 #tabmail-arrowscrollbox::part(scrollbutton-down) {
-  -moz-appearance: none;
+  appearance: none;
   border-style: none !important;
   padding: 0 3px !important;
   margin: 0 !important;

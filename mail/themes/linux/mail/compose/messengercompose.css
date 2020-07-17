@@ -39,7 +39,7 @@
 /* ::::: menulists on toolbar ::::: */
 
 menulist {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 24px;
   color: inherit;
   margin: 1px 4px;
@@ -82,7 +82,7 @@ menulist[disabled="true"] {
 }
 
 menulist::part(label-box) {
-  -moz-appearance: none;
+  appearance: none;
   padding-inline-end: 12px;
   background-repeat: no-repeat;
   background-position: right;
@@ -99,7 +99,7 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 /* ::::: special toolbar colors ::::: */
 
 #attachmentbucket-sizer {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 #attachments-header-box {
@@ -137,7 +137,7 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 }
 
 #composeContentBox splitter[orient="vertical"] {
-  -moz-appearance: none;
+  appearance: none;
   height: 5px;
   margin-top: -5px;
   position: relative;
@@ -149,7 +149,7 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 }
 
 #MsgHeadersToolbar {
-  -moz-appearance: none !important;
+  appearance: none !important;
   color: WindowText;
   text-shadow: none;
   padding-top: 3px;
@@ -200,7 +200,7 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 }
 
 #msgIdentity::part(text-input) {
-  -moz-appearance: none;
+  appearance: none;
   padding-block: 1px 2px;
   padding-inline: 3px 12px;
   background-color: transparent;
@@ -230,14 +230,14 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 /* ::::: format toolbar ::::: */
 
 #FormatToolbar {
-  -moz-appearance: none;
+  appearance: none;
   color: WindowText;
   margin-inline: 3px;
   padding-block: 4px;
 }
 
 toolbarbutton.formatting-button {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
   margin: 1px;
@@ -261,7 +261,7 @@ toolbarbutton.formatting-button:not([disabled="true"]):-moz-any([open="true"],[c
 }
 
 .formatting-button > .toolbarbutton-menu-dropmarker {
-  -moz-appearance: none !important;
+  appearance: none !important;
   list-style-image: url("chrome://messenger/skin/messengercompose/format-dropmarker.svg");
   -moz-context-properties: fill;
   fill: currentColor;
@@ -317,7 +317,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 }
 
 #sidebar-splitter {
-  -moz-appearance: none;
+  appearance: none;
   border-inline-start: 1px solid ThreeDShadow;
   /* splitter grip area */
   width: 5px;
@@ -342,7 +342,7 @@ menu[command="cmd_convertCloud"] .menu-iconic-left {
 }
 
 :root[lwt-tree] #headers-box {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 :root[lwt-tree] #FormatToolbar {

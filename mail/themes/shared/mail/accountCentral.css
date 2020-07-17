@@ -239,12 +239,12 @@ aside.settings-btn-container {
   margin-inline: 10px 20px;
 }
 
-/* Custom buttons style =================================== */
+/* Custom buttons style */
 .btn-hub {
   transition: background-color 280ms ease,
               color 280ms ease,
               box-shadow 280ms ease;
-  -moz-appearance: none;
+  appearance: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -365,7 +365,7 @@ aside.settings-btn-container {
   opacity: 1;
 }
 
-/* Custom link style =================================== */
+/* Custom link style */
 .donation-link {
   color: var(--primary-color);
   font-style: italic;
@@ -383,7 +383,7 @@ aside.settings-btn-container {
 }
 
 .btn-link {
-  -moz-appearance: none;
+  appearance: none;
   display: flex;
   background-color: transparent;
   -moz-context-properties: fill;

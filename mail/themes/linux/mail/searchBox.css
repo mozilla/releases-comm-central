@@ -30,7 +30,7 @@
 
 .searchBox,
 .themeableSearchBox {
-  -moz-appearance: none;
+  appearance: none;
   background-clip: padding-box;
   background-color: -moz-field;
   border: 1px solid ThreeDShadow;

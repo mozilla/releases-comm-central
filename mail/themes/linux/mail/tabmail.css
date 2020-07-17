@@ -9,11 +9,12 @@
  */
 
 :root:not([tabsintitlebar]) > #navigation-toolbox:not(:-moz-lwtheme) {
-  -moz-appearance: menubar;
+  appearance: auto;
+  -moz-default-appearance: menubar;
 }
 
 #tabs-toolbar {
-  -moz-appearance: none;
+  appearance: none;
   padding: 0;
 }
 
@@ -22,7 +23,8 @@
 }
 
 #tabs-toolbar:not(:-moz-lwtheme) {
-  -moz-appearance: menubar;
+  appearance: auto;
+  -moz-default-appearance: menubar;
   color: -moz-menubartext;
 }
 
@@ -36,7 +38,7 @@
 }
 
 tabpanels {
-  -moz-appearance: none;
+  appearance: none;
   background-color: transparent;
 }
 

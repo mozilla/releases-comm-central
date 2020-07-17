@@ -47,7 +47,7 @@
 
 @media (-moz-os-version: windows-win10) and (-moz-windows-default-theme) {
   #menubar-items > #mail-menubar > menu {
-    -moz-appearance: none;
+    appearance: none;
     border-style: none;
   }
 
@@ -67,7 +67,7 @@
 }
 
 #composeContentBox {
-  -moz-appearance: none;
+  appearance: none;
   color: -moz-dialogtext;
   background-color: -moz-Dialog;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) inset;
@@ -79,7 +79,7 @@
 }
 
 #headers-box {
-  -moz-appearance: none;
+  appearance: none;
   padding-bottom: 2px;
 }
 
@@ -176,7 +176,7 @@
 /* ::::: format toolbar ::::: */
 
 #FormatToolbox {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 #FontFaceSelect {
@@ -184,7 +184,7 @@
 }
 
 toolbarbutton.formatting-button {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid transparent;
   margin: 1px;
   -moz-context-properties: fill;
@@ -259,7 +259,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 }
 
 #compose-toolbox {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
@@ -274,7 +274,7 @@ toolbarbutton.formatting-button[disabled="true"] > .toolbarbutton-icon,
 }
 
 toolbar:not(:-moz-lwtheme) {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 #compose-toolbox > toolbar:not([type="menubar"]) {
@@ -289,7 +289,7 @@ toolbar:not(:-moz-lwtheme) {
 
 @media (-moz-windows-default-theme) {
   menulist {
-    -moz-appearance: none;
+    appearance: none;
     margin: 1px 4px;
     padding: 1px 2px;
   }
@@ -341,7 +341,7 @@ menulist[disabled="true"] {
 }
 
 #FormatToolbar menulist {
-  -moz-appearance: none;
+  appearance: none;
   background: transparent
 }
 
@@ -366,7 +366,7 @@ menulist[disabled="true"] {
 }
 
 menulist::part(dropmarker) {
-  -moz-appearance: none;
+  appearance: none;
   list-style-image: url("chrome://messenger/skin/icons/toolbarbutton-arrow.svg");
   -moz-context-properties: fill;
   fill: currentColor;

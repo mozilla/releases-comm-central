@@ -142,7 +142,7 @@ checkbox.acknowledge_checkbox {
   padding-top: 0;
   padding-bottom: 0;
   background-color: transparent !important;
-  -moz-appearance: none;
+  appearance: none;
   color: var(--text-color) !important;
 }
 

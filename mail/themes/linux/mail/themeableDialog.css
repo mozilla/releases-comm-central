@@ -7,7 +7,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 button > .button-box {
-  -moz-appearance: none;
+  appearance: none;
   padding-block: 4px;
 }
 
@@ -16,7 +16,7 @@ button > .button-box {
 }
 
 .button-menu-dropmarker {
-  -moz-appearance: none;
+  appearance: none;
   padding: 0;
   border: none;
   background-color: transparent;
@@ -44,7 +44,7 @@ html|input[type="number"]::-moz-number-spin-down {
 }
 
 menulist[is="menulist-editable"][editable="true"] {
-  -moz-appearance: none;
+  appearance: none;
   margin-inline-end: 4px;
   padding: 0;
 }

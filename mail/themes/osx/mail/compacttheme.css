@@ -10,7 +10,8 @@
 }
 
 #tabs-toolbar:-moz-lwtheme-brighttext {
-  -moz-appearance: -moz-mac-vibrant-titlebar-dark;
+  appearance: auto;
+  -moz-default-appearance: -moz-mac-vibrant-titlebar-dark;
   -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-dark;
   background-color: #232323;
   color: hsl(240, 9%, 98%);
@@ -18,7 +19,8 @@
 }
 
 #tabs-toolbar:-moz-lwtheme-darktext {
-  -moz-appearance: -moz-mac-vibrant-titlebar-light;
+  appearance: auto;
+  -moz-default-appearance: -moz-mac-vibrant-titlebar-light;
   -moz-font-smoothing-background-color: -moz-mac-vibrant-titlebar-light;
 }
 

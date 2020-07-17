@@ -143,7 +143,7 @@ toolbar[brighttext] {
 
 .inline-toolbar,
 .contentTabToolbar {
-  -moz-appearance: none;
+  appearance: none;
   min-width: 50px;
   min-height: 14px;
 }
@@ -170,7 +170,7 @@ toolbar[brighttext] {
 }
 
 #titlebar:-moz-lwtheme {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 /* ::::: toolbarbutton menu-button ::::: */
@@ -200,7 +200,7 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
 /* .......... dropmarker .......... */
 
 .toolbarbutton-menubutton-dropmarker {
-  -moz-appearance: none;
+  appearance: none;
   border: none;
   background-color: transparent !important;
   width: auto;
@@ -480,7 +480,7 @@ treechildren::-moz-tree-cell-text {
 /* message column icons */
 
 .treecol-sortdirection {
-  -moz-appearance: none;
+  appearance: none;
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -535,7 +535,8 @@ treecol.treecol-image:hover:active {
 }
 
 #messengerWindow[tabsintitlebar="true"]:not(:-moz-lwtheme) > #titlebar {
-  -moz-appearance: -moz-window-titlebar;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-titlebar;
 }
 
 #messengerWindow:not([tabsintitlebar]) .titlebar-placeholder {
@@ -555,11 +556,13 @@ treecol.treecol-image:hover:active {
 }
 
 #titlebar-fullscreen-button {
-  -moz-appearance: -moz-mac-fullscreen-button;
+  appearance: auto;
+  -moz-default-appearance: -moz-mac-fullscreen-button;
 }
 
 #titlebar-buttonbox {
-  -moz-appearance: -moz-window-button-box;
+  appearance: auto;
+  -moz-default-appearance: -moz-window-button-box;
 }
 
 /* Fullscreen and caption buttons don't move with RTL on OS X so override the automatic ordering. */
@@ -592,7 +595,7 @@ button[type="menu-button"] > .button-box > button {
 }
 
 .button-menubutton-dropmarker {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 button dropmarker::part(icon) {
@@ -616,12 +619,13 @@ button.notification-button[is="button-menu-button"] > .button-box > dropmarker {
   margin: 0 !important;
   /* need to use padding-inline-end when/if bug 631729 gets fixed: */
   padding: 0 16px 1px 1px;
-  -moz-appearance: statusbar;
+  appearance: auto;
+  -moz-default-appearance: statusbar;
   text-shadow: rgba(255, 255, 255, 0.4) 0 1px;
 }
 
 .statusbar:-moz-lwtheme {
-  -moz-appearance: none;
+  appearance: none;
   background: none;
   border-style: none;
   text-shadow: inherit;

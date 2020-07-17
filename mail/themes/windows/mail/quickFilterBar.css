@@ -100,7 +100,7 @@
 
 @media (-moz-os-version: windows-win7) {
   #quick-filter-bar toolbarbutton {
-    -moz-appearance: none;
+    appearance: none;
     border-radius: 2px;
   }
 

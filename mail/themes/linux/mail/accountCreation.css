@@ -22,12 +22,13 @@
 }
 
 menulist[disabled="true"] {
-  -moz-appearance: menulist;
+  appearance: auto;
+  -moz-default-appearance: menulist;
   color: -moz-DialogText;
 }
 
 menulist[disabled="true"]::part(dropmarker) {
-  -moz-appearance: none;
+  appearance: none;
   color: -moz-DialogText;
 }
 

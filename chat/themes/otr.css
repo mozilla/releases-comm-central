@@ -29,7 +29,7 @@
 }
 
 .otr-button {
-  -moz-appearance: none !important;
+  appearance: none !important;
   padding: 1px !important;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--toolbarbutton-border-radius);
@@ -58,7 +58,7 @@
 }
 
 .otr-button .toolbarbutton-menu-dropmarker {
-  -moz-appearance: none !important;
+  appearance: none !important;
   list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
   margin-left: 0;
   margin-right: 0;

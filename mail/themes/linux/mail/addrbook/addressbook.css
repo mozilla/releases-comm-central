@@ -10,7 +10,7 @@
 @import url("chrome://messenger/skin/shared/addressbook.css");
 
 #ab-toolbox {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--toolbar-bgcolor);
   border-bottom: 1px solid var(--chrome-content-separator-color);
 }
@@ -33,7 +33,7 @@
 /* splitters */
 
 #dirTree-splitter {
-  -moz-appearance: none;
+  appearance: none;
   border-inline-end: 1px solid var(--splitter-color);
   /* splitter grip area */
   width: 4px;
@@ -45,7 +45,7 @@
 }
 
 #results-splitter {
-  -moz-appearance: none;
+  appearance: none;
   border-top: 1px solid var(--splitter-color);
   /* splitter grip area */
   height: 4px;

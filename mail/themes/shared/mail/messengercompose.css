@@ -15,7 +15,7 @@
 }
 
 #sidebar-box .sidebar-header {
-  -moz-appearance: none;
+  appearance: none;
   height: 30px;
   text-shadow: none;
   background-color: -moz-Dialog;
@@ -98,14 +98,14 @@
 }
 
 :root[lwt-tree] #msgIdentityPopup {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid var(--arrowpanel-border-color);
   border-radius: var(--toolbarbutton-border-radius);
   background-color: var(--arrowpanel-background);
 }
 
 :root[lwt-tree] #msgIdentityPopup > menuitem {
-  -moz-appearance: none;
+  appearance: none;
   color: var(--arrowpanel-color);
 }
 
@@ -119,7 +119,7 @@
 }
 
 :root[lwt-tree] #msgIdentityPopup > menuseparator {
-  -moz-appearance: none;
+  appearance: none;
   border-top: 1px solid var(--arrowpanel-color);
   opacity: 0.5;
 }
@@ -208,7 +208,7 @@
 }
 
 #attachmentBucket {
-  -moz-appearance: none;
+  appearance: none;
   border-top: 1px solid var(--splitter-color); /* The same color as the splitters */
   border-bottom: 1px solid var(--splitter-color);
   width: 15em;
@@ -279,7 +279,7 @@
 }
 
 #compose-toolbox:-moz-lwtheme {
-  -moz-appearance: none;
+  appearance: none;
   position: relative;
   color: var(--toolbar-color, inherit);
 }
@@ -517,7 +517,7 @@ menulist::part(description) {
 }
 
 #msgIdentity {
-  -moz-appearance: none;
+  appearance: none;
   -moz-box-align: center;
   font: inherit;
   margin-inline-end: 10px;
@@ -556,7 +556,7 @@ menulist::part(description) {
 }
 
 #msgSubject {
-  -moz-appearance: none;
+  appearance: none;
   margin-top: 0;
   margin-inline: 4px 8px;
   background-color: -moz-field;
@@ -733,7 +733,7 @@ menulist::part(description) {
 }
 
 .overflow-icon {
-  -moz-appearance: none;
+  appearance: none;
   -moz-context-properties: fill, fill-opacity;
   list-style-image: url(chrome://messenger/skin/icons/overflow.svg);
   color: inherit !important;

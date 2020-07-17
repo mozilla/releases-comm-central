@@ -16,8 +16,8 @@
   }
 
   /*
-  -moz-appearance: menuitem is almost right, but the hover effect is not
-  transparent and is lighter than desired.
+  -moz-default-appearance: menuitem is almost right, but the hover effect is
+  not transparent and is lighter than desired.
 
   Copied from the autocomplete richlistbox styling in
   toolkit/themes/windows/global/autocomplete.css

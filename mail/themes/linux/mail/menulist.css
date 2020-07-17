@@ -10,7 +10,8 @@ menulist::part(text-input) {
 }
 
 menulist[is="menulist-editable"][editable="true"] {
-  -moz-appearance: textfield;
+  appearance: auto;
+  -moz-default-appearance: textfield;
   margin-inline-end: 2.4em;
 }
 

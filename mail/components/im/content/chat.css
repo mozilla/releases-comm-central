@@ -51,7 +51,8 @@ richlistitem[is="chat-imconv-richlistitem"] {
 }
 
 #statusMessageInput[editing], .statusMessageInput[editing] {
-  -moz-appearance: textfield;
+  appearance: auto;
+  -moz-default-appearance: textfield;
 }
 
 #statusMessageInput.status-message-input {

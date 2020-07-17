@@ -36,11 +36,9 @@
   white-space: normal;
   color: black !important;
   line-height: 1.4em !important;
-
-  -moz-appearance: none !important;
-
-  padding: 0px !important;
-  margin: 0px !important;
+  appearance: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
   -moz-margin-start: 3px !important;
   border: none !important;
   background-color: transparent !important;
@@ -155,7 +153,7 @@
 
 .enigMsgHdrView-flat-button {
   min-width: 1px !important;
-  -moz-appearance: none !important;
+  appearance: none !important;
   color: black !important;
   background-color: #DDDDDD !important;
 
@@ -173,7 +171,7 @@
 }
 
 .enigmailToolbar {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .enigmailTitle {

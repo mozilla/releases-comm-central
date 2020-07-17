@@ -22,7 +22,8 @@
 }
 
 :root:not([lwt-tree]) #searchResultListBox {
-  -moz-appearance: listbox;
+  appearance: auto;
+  -moz-default-appearance: listbox;
 }
 
 menulist {

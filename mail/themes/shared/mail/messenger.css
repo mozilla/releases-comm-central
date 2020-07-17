@@ -154,7 +154,7 @@ description.error {
 /* Buttons */
 
 button {
-  -moz-appearance: none;
+  appearance: none;
   height: 24px;
   min-width: 5.5em;
   color: inherit !important;
@@ -182,11 +182,11 @@ button > .button-box {
 }
 
 button[type="menu-button"] {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .button-menu-list > .button-box {
-  -moz-appearance: none;
+  appearance: none;
   padding-inline-end: 14px;
   background-repeat: no-repeat;
   background-position: right;
@@ -201,7 +201,7 @@ button.button-menu-list:-moz-locale-dir(rtl) > .button-box {
 }
 
 button[type="menu-button"] > .button-box > button {
-  -moz-appearance: none;
+  appearance: none;
   min-width: 5.5em;
   background: transparent;
   border-color: transparent;
@@ -211,7 +211,7 @@ button[type="menu-button"] > .button-box > button {
 }
 
 button > .button-box > dropmarker {
-  -moz-appearance: none;
+  appearance: none;
   list-style-image: url(chrome://global/skin/icons/arrow-dropdown-12.svg);
   -moz-context-properties: fill;
   fill: currentColor;
@@ -294,7 +294,7 @@ html|ul.addon-webext-perm-list:empty {
 }
 
 #tabbar-toolbar {
-  -moz-appearance: none;
+  appearance: none;
   padding: 0;
 }
 
@@ -304,7 +304,7 @@ html|ul.addon-webext-perm-list:empty {
 }
 
 .chromeclass-toolbar toolbarseparator:-moz-lwtheme {
-  -moz-appearance: none;
+  appearance: none;
   min-width: 1px;
   background-image: linear-gradient(
                     transparent 4px,
@@ -379,7 +379,7 @@ html|ul.addon-webext-perm-list:empty {
 
 :root[lwt-tree] treecol:not([hideheader="true"]),
 :root[lwt-tree] treecolpicker:not([hideheader="true"]) {
-  -moz-appearance: none;
+  appearance: none;
   color: inherit;
   background-color: transparent;
   padding-top: 2px;
@@ -476,7 +476,7 @@ label.statusbarpanel {
 #offline-status {
   padding: 0 2px;
   list-style-image: url("chrome://messenger/skin/icons/online.svg");
-  -moz-appearance: none;
+  appearance: none;
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -498,7 +498,7 @@ label.statusbarpanel {
 }
 
 #quotaPanel ::-moz-progress-bar {
-  -moz-appearance: none;
+  appearance: none;
   background-color: #45a1ff;
   opacity: .75;
 }
@@ -561,7 +561,7 @@ label.statusbarpanel {
 }
 
 .panelButton {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 24px;
   padding: 4px 6px;
   background-color: transparent;
@@ -677,7 +677,7 @@ toolbarpaletteitem[type="spring"][place="toolbar"] toolbarspring {
 }
 
 toolbarpaletteitem[type="separator"][place="palette"] toolbarseparator {
-  -moz-appearance: none;
+  appearance: none;
   width: 1px;
   height: 50px;
   background-color: currentColor;

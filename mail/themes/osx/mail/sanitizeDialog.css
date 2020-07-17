@@ -47,11 +47,13 @@
 }
 
 .expander-up {
-  -moz-appearance: -moz-mac-disclosure-button-open;
+  appearance: auto;
+  -moz-default-appearance: -moz-mac-disclosure-button-open;
 }
 
 .expander-down {
-  -moz-appearance: -moz-mac-disclosure-button-closed;
+  appearance: auto;
+  -moz-default-appearance: -moz-mac-disclosure-button-closed;
 }
 
 /* Make the item list the same width as the warning box */

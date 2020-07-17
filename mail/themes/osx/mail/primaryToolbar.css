@@ -17,7 +17,7 @@
 
 .mail-toolbox,
 .contentTabToolbox {
-  -moz-appearance: none;
+  appearance: none;
   background: var(--toolbar-bgcolor);
 }
 
@@ -28,14 +28,15 @@
 
 /*
   This is a workaround for Bug 1482157
-  -moz-appearance: toolbox; makes the macOS sheets attached to the element's
-  bottom border. We cannot put this property on the toolbox itself as it
-  cancels all backgrounds that are there, so we set it on the toolbox bottom
+  -moz-default-appearance: toolbox; makes the macOS sheets attached to the
+  element's bottom border. We cannot put this property on the toolbox itself as
+  it cancels all backgrounds that are there, so we set it on the toolbox bottom
   border.
 */
 .mail-toolbox::after,
 .contentTabToolbox::after {
-  -moz-appearance: toolbox;
+  appearance: auto;
+  -moz-default-appearance: toolbox;
   content: "";
   display: -moz-box;
   margin-top: -1px;
@@ -50,17 +51,17 @@
 
 .mail-toolbox > toolbar
 .contentTabToolbox > toolbar {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .mail-toolbox > toolbar {
-  -moz-appearance: none;
+  appearance: none;
   /* force iconsize="small" on these toolbars */
   counter-reset: smallicons;
 }
 
 #folderPane-toolbox {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 /* remove the small icons checkbox in Customize window */
@@ -241,7 +242,7 @@ toolbar[mode="text"] .button-appmenu .toolbarbutton-icon {
 /* AppMenu styling */
 
 .appmenu-edit-button {
-  -moz-appearance: none;
+  appearance: none;
   border-width: 0;
   padding: 0 2px;
 }

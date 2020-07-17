@@ -151,7 +151,7 @@ toolbar[brighttext] {
     :root[tabsintitlebar]:not(:-moz-lwtheme) {
       background-color: transparent;
       background-image: linear-gradient(transparent 25px, -moz-dialog 25px);
-      -moz-appearance: none;
+      appearance: none;
     }
   }
 
@@ -163,10 +163,12 @@ toolbar[brighttext] {
   }
 
   :root[tabsintitlebar] > #titlebar {
-    -moz-appearance: -moz-window-titlebar-maximized;
+    appearance: auto;
+    -moz-default-appearance: -moz-window-titlebar-maximized;
   }
   :root[tabsintitlebar][sizemode="normal"]:not([gtktiledwindow="true"]) > #titlebar {
-    -moz-appearance: -moz-window-titlebar;
+    appearance: auto;
+    -moz-default-appearance: -moz-window-titlebar;
   }
 
   /* Add extra space to titlebar for dragging */
@@ -179,7 +181,7 @@ toolbar[brighttext] {
       */
   :root[tabsintitlebar] #tabs-toolbar,
   :root[tabsintitlebar] #mail-toolbar-menubar2 {
-    -moz-appearance: none;
+    appearance: none;
   }
 
   /* The button box must appear on top of the navigator-toolbox in order for
@@ -198,7 +200,8 @@ toolbar[brighttext] {
    */
   @media (-moz-gtk-csd-minimize-button) {
     #titlebar-min {
-      -moz-appearance: -moz-window-button-minimize;
+      appearance: auto;
+      -moz-default-appearance: -moz-window-button-minimize;
     }
   }
   @media (-moz-gtk-csd-minimize-button: 0) {
@@ -209,10 +212,12 @@ toolbar[brighttext] {
 
   @media (-moz-gtk-csd-maximize-button) {
     #titlebar-max {
-      -moz-appearance: -moz-window-button-maximize;
+      appearance: auto;
+      -moz-default-appearance: -moz-window-button-maximize;
     }
     :root[sizemode="maximized"] #titlebar-max {
-      -moz-appearance: -moz-window-button-restore;
+      appearance: auto;
+      -moz-default-appearance: -moz-window-button-restore;
     }
   }
   @media (-moz-gtk-csd-maximize-button: 0) {
@@ -223,7 +228,8 @@ toolbar[brighttext] {
 
   @media (-moz-gtk-csd-close-button) {
     #titlebar-close {
-      -moz-appearance: -moz-window-button-close;
+      appearance: auto;
+      -moz-default-appearance: -moz-window-button-close;
     }
   }
   @media (-moz-gtk-csd-close-button: 0) {
@@ -256,13 +262,14 @@ toolbar[brighttext] {
 }
 
 toolbar:not(.inline-toolbar):not(.contentTabToolbar):not(:-moz-lwtheme) {
-  -moz-appearance: menubar;
+  appearance: auto;
+  -moz-default-appearance: menubar;
   color: -moz-menubartext;
 }
 
 .inline-toolbar,
 .contentTabToolbar {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 15px;
   padding: 0;
 }
@@ -300,7 +307,8 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
 
 toolbarbutton[type="menu-button"] {
   -moz-box-align: stretch;
-  -moz-appearance: dualbutton;
+  appearance: auto;
+  -moz-default-appearance: dualbutton;
   -moz-box-orient: horizontal !important;
   padding: 0 !important;
 }
@@ -315,7 +323,8 @@ toolbarbutton[type="menu-button"] {
 
 .toolbarbutton-menubutton-dropmarker {
   margin: 0 3px;
-  -moz-appearance: toolbarbutton-dropdown !important;
+  appearance: auto;
+  -moz-default-appearance: toolbarbutton-dropdown !important;
   list-style-image: none;
   -moz-image-region: auto;
 }
@@ -337,7 +346,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 24px;
   min-width: 32px;
   margin: 4px 1px;
@@ -345,11 +354,11 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 }
 
 .toolbarbutton-1[type="menu-button"] {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .findbar-button {
-  -moz-appearance: none;
+  appearance: none;
   color: inherit;
   padding: 5px;
 }
@@ -412,7 +421,7 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
-  -moz-appearance: none !important;
+  appearance: none !important;
   list-style-image: none;
   margin-left: 0;
   margin-right: 0;
@@ -499,7 +508,7 @@ button[type="menu-button"] > .button-box > button {
 /* message column icons */
 
 .treecol-sortdirection {
-  -moz-appearance: none;
+  appearance: none;
   -moz-context-properties: fill;
   fill: currentColor;
 }
@@ -556,12 +565,13 @@ treechildren::-moz-tree-cell-text {
 /* Status bar */
 
 .statusbar {
-  -moz-appearance: statusbar;
+  appearance: auto;
+  -moz-default-appearance: statusbar;
   min-height: 22px;
 }
 
 .statusbar:-moz-lwtheme {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .statusbar:-moz-lwtheme-brighttext {
@@ -569,7 +579,7 @@ treechildren::-moz-tree-cell-text {
 }
 
 .statusbarpanel {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 .statusbarpanel-iconic {

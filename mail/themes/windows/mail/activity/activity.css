@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 .activityview {
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   border-bottom: 1px solid ThreeDLightShadow;
 }
@@ -20,7 +20,8 @@
 
 @media (-moz-windows-glass) {
   #activityManager {
-    -moz-appearance: -moz-win-glass;
+    appearance: auto;
+    -moz-default-appearance: -moz-win-glass;
     background: transparent;
   }
 
@@ -95,7 +96,7 @@ richlistitem[is="activity-process-richlistitem"]:not([selected="true"]) button {
 }
 
 richlistitem[is="activity-process-richlistitem"] button {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 16px;
   min-width: 16px;
   max-height: 16px;
@@ -118,7 +119,7 @@ richlistitem[is="activity-event-richlistitem"] button {
 }
 
 richlistitem[is="activity-event-richlistitem"] button {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 16px;
   min-width: 16px;
   max-height: 16px;
@@ -141,7 +142,7 @@ richlistitem[is="activity-warning-richlistitem"] button {
 }
 
 richlistitem[is="activity-warning-richlistitem"] button {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 16px;
   min-width: 16px;
   max-height: 16px;
@@ -161,7 +162,7 @@ richlistitem[is="activity-group-richlistitem"] button {
 }
 
 richlistitem[is="activity-group-richlistitem"] button {
-  -moz-appearance: none;
+  appearance: none;
   min-height: 16px;
   min-width: 16px;
   max-height: 16px;

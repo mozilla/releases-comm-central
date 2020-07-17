@@ -57,7 +57,8 @@ notification[value="draftMsgContent"] > hbox > .messageImage {
 }
 
 button.button-menu-list {
-  -moz-appearance: menulist-button;
+  appearance: auto;
+  -moz-default-appearance: menulist-button;
 }
 
 .messageText > .text-link {
