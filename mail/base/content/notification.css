@@ -56,11 +56,6 @@ notification[value="draftMsgContent"] > hbox > .messageImage {
   border-radius: 2px;
 }
 
-button.button-menu-list {
-  appearance: auto;
-  -moz-default-appearance: menulist-button;
-}
-
 .messageText > .text-link {
   margin-inline-start: 6px;
 }
