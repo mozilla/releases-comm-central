@@ -61,7 +61,8 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-ca
 
 .snooze-popup-button {
     min-width: 0;
-    -moz-appearance: toolbarbutton;
+    appearance: auto;
+    -moz-default-appearance: toolbarbutton;
     -moz-context-properties: fill;
     fill: currentColor;
 }

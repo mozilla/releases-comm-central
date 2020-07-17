@@ -122,7 +122,7 @@ calendar-minimonth[readonly="true"] .minimonth-readonly-header {
 }
 
 .minimonth-nav-btns {
-  -moz-appearance: none;
+  appearance: none;
   padding: 4px;
   list-style-image: url("chrome://calendar/skin/shared/widgets/nav-arrow.svg");
   -moz-user-focus: normal;

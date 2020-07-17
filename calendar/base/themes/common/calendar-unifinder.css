@@ -14,7 +14,7 @@
 
 /* workaround to avoid Window Flick */
 #unifinder-search-results-tree {
-    -moz-appearance: none;
+    appearance: none;
     min-height: 92px;
     margin: 0;
 }

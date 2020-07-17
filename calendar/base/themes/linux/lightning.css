@@ -20,7 +20,7 @@
 
 #calsidebar_splitter,
 #today-splitter {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 #calsidebar_splitter {
@@ -101,7 +101,7 @@
 
 menupopup[anonid="years-popup"] .scrollbutton-up,
 menupopup[anonid="years-popup"] .scrollbutton-down {
-  -moz-appearance: none;
+  appearance: none;
   border: 1px solid ThreeDShadow;
   padding: 0;
 }

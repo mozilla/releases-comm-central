@@ -159,7 +159,7 @@
 }
 
 :root[lwt-tree] #calendar-add-task-button {
-    -moz-appearance: none;
+    appearance: none;
     -moz-user-focus: normal;
     border: 1px solid transparent;
     border-radius: var(--toolbarbutton-border-radius);

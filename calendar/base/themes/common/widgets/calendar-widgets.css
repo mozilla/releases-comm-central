@@ -11,7 +11,7 @@ checkbox.treenode-checkbox {
 }
 
 checkbox.treenode-checkbox > .checkbox-check {
-  -moz-appearance: none;
+  appearance: none;
   -moz-box-align: center;
   border: none;
   width: 10px;
@@ -55,7 +55,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 :root[lwt-tree] .view-navigation-button {
-  -moz-appearance: none;
+  appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
@@ -118,7 +118,8 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 .categories-textbox {
-  -moz-appearance: textfield;
+  appearance: auto;
+  -moz-default-appearance: textfield;
 }
 
 /*
@@ -132,7 +133,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
  */
 
 #calendar-list-inner-pane > #calendar-list {
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   border-style: none;
   background-color: transparent;
@@ -174,7 +175,7 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
 }
 
 #calendar-list > richlistitem > checkbox > .checkbox-check {
-  -moz-appearance: none;
+  appearance: none;
   list-style-image: url("chrome://messenger/skin/icons/hidden.svg");
   -moz-context-properties: fill;
   fill: currentColor;

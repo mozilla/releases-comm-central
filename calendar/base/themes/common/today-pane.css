@@ -54,7 +54,7 @@
 }
 
 #today-pane-panel > .sidebar-header {
-  -moz-appearance: none;
+  appearance: none;
   background-color: var(--toolbar-bgcolor, -moz-Dialog);
   background-image: var(--toolbar-bgimage, none);
   border-bottom: 1px solid var(--chrome-content-separator-color, ThreeDShadow);
@@ -65,7 +65,7 @@
 }
 
 .today-pane-cycler {
-  -moz-appearance: none;
+  appearance: none;
   border-radius: 2px;
   padding-left: 5px;
   padding-right: 5px;
@@ -168,7 +168,7 @@
 
 .miniday-nav-buttons,
 #miniday-dropdown-button {
-  -moz-appearance: none;
+  appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
@@ -245,7 +245,7 @@
 }
 
 :root[lwt-tree] #todaypane-new-event-button {
-  -moz-appearance: none;
+  appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);
@@ -286,7 +286,7 @@
 }
 
 #show-completed-checkbox > .checkbox-check {
-  -moz-appearance: none;
+  appearance: none;
   width: 14px;
   height: 14px;
   list-style-image: url("chrome://messenger/skin/icons/checkbox.svg");
@@ -307,7 +307,7 @@
 }
 
 #agenda-listbox {
-  -moz-appearance: none;
+  appearance: none;
   -moz-user-focus: normal;
   margin: 0;
   border-top: 1px solid ThreeDShadow;

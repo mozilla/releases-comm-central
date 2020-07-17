@@ -1018,7 +1018,7 @@ radiogroup#view-tabs{
 }
 
 radio.calview {
-    -moz-appearance: none;
+    appearance: none;
     min-width: unset;
     border-left: 1px solid var(--calview-border-color);
     border-right: 1px solid var(--calview-border-color);
@@ -1094,13 +1094,15 @@ radio.calview:not([selected=true]):hover {
 
 .view-navigation-button {
     -moz-user-focus: normal;
-    -moz-appearance: toolbarbutton;
+    appearance: auto;
+    -moz-default-appearance: toolbarbutton;
     min-width: 22px;
 }
 
 .today-navigation-button {
     -moz-user-focus: normal;
-    -moz-appearance: toolbarbutton;
+    appearance: auto;
+    -moz-default-appearance: toolbarbutton;
     margin-inline-start: 2px;
     margin-inline-end: 2px;
     color: inherit;
@@ -1108,7 +1110,7 @@ radio.calview:not([selected=true]):hover {
 }
 
 :root[lwt-tree] .today-navigation-button {
-  -moz-appearance: none;
+  appearance: none;
   -moz-user-focus: normal;
   border: 1px solid transparent;
   border-radius: var(--toolbarbutton-border-radius);

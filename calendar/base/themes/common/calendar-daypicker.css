@@ -4,7 +4,7 @@
 
 button.calendar-daypicker {
   display: -moz-box;
-  -moz-appearance: none;
+  appearance: none;
   margin: 0;
   background-image: linear-gradient(rgba(0, 0, 0, .0) 5%, rgba(0, 0, 0, .20));
   background-color: -moz-Field;

@@ -5,7 +5,7 @@
 @import url(chrome://calendar/skin/shared/today-pane.css);
 
 #today-pane-splitter {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 #today-pane-panel > .sidebar-header {
@@ -29,7 +29,7 @@
 }
 
 #miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
-  -moz-appearance: none;
+  appearance: none;
 }
 
 #todaypane-new-event-button[disabled="true"] > .toolbarbutton-icon {

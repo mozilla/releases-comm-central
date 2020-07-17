@@ -16,7 +16,7 @@
 
 /* restyle splitter-border to match Thunderbird's layout */
 #calendar-view-splitter {
-   -moz-appearance: none;
+   appearance: none;
    border-bottom: 1px solid var(--splitter-color);
    /* splitter grip area */
    height: 5px;

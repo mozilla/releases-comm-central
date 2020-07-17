@@ -60,5 +60,5 @@
 }
 
 #miniday-dropdown-button > .toolbarbutton-menu-dropmarker {
-  -moz-appearance: none;
+  appearance: none;
 }

@@ -12,7 +12,8 @@
 html,
 body,
 #container {
-    -moz-appearance: window;
+    appearance: auto;
+    -moz-default-appearance: window;
     background-color: -moz-Dialog;
     color: -moz-DialogText;
     font: message-box;

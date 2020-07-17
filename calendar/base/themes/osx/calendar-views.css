@@ -83,7 +83,8 @@ radio.calview[selected="true"] {
 
 .view-navigation-button {
     -moz-user-focus: normal;
-    -moz-appearance: toolbarbutton;
+    appearance: auto;
+    -moz-default-appearance: toolbarbutton;
     margin-top: 2px;
     margin-inline-start: 3px;
     margin-inline-end: 3px;
