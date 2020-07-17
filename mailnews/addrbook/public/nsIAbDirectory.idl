@@ -159,8 +159,6 @@ interface nsIAbDirectory : nsISupports {
   // XXX This should really be replaced by a QI or something better
   readonly attribute long dirType;
 
-  // eliminated a bit more.
-
   // The filename for address books within this directory.
   readonly attribute ACString fileName;
 
