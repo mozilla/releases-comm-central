@@ -2590,7 +2590,7 @@
 
       // Remove all the selected pills.
       let pill = element.closest("mail-address-pill");
-      this.removeSelectedPills(pill);
+      this.removeSelectedPills(pill, "next", false, true);
 
       // Create new addressing pills inside the target recipient row and maintain
       // the current selection.
@@ -2610,8 +2610,15 @@
      *   or one of the previous siblings (for BACKSPACE).
      * @param {boolean} [select=false] - After deletion, whether to select the
      *   focused pill where applicable.
+     * @param {boolean} [moved=false] - Whether the method was originally called
+     *   from the moveSelectedPills.
      */
-    removeSelectedPills(pill, focusType = "next", select = false) {
+    removeSelectedPills(
+      pill,
+      focusType = "next",
+      select = false,
+      moved = false
+    ) {
       // We'll look hard for an appropriate element to focus after the removal.
       let focusElement = null;
       // Get addressContainer and rowInput now as pill might be deleted later.
@@ -2659,9 +2666,14 @@
       }
       focusElement.focus();
 
-      onRecipientsChanged();
       calculateHeaderHeight();
       udpateAddressingInputAriaLabel(rowInput.closest(".address-row"));
+
+      // Don't call onRecipientsChanged() if the pills were removed
+      // automatically during the move to another addressing widget.
+      if (!moved) {
+        onRecipientsChanged();
+      }
     }
 
     /**

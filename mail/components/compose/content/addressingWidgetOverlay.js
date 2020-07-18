@@ -206,6 +206,9 @@ function CompFields2Recipients(msgCompFields) {
     if (gCurrentIdentity) {
       addRecipientsToIgnoreList(gCurrentIdentity.fullAddress);
     }
+
+    // Trigger this method only after all the pills have been created.
+    onRecipientsChanged(true);
   }
 }
 
@@ -413,10 +416,6 @@ function awAddRecipientsArray(aRecipientType, aAddressArray, select = false) {
     }
   }
 
-  if (element.id != "replyAddrInput") {
-    onRecipientsChanged();
-  }
-
   element
     .closest(".address-container")
     .classList.add("addressing-field-edited");
@@ -425,6 +424,10 @@ function awAddRecipientsArray(aRecipientType, aAddressArray, select = false) {
   addRecipientsToIgnoreList(aAddressArray.join(", "));
   calculateHeaderHeight();
   udpateAddressingInputAriaLabel(element.closest(".address-row"));
+
+  if (element.id != "replyAddrInput") {
+    onRecipientsChanged();
+  }
 }
 
 function DragOverAddressingWidget(event) {
@@ -686,9 +689,9 @@ function recipientAddPill(element, automatic = false) {
     element
       .closest(".address-container")
       .classList.add("addressing-field-edited");
+    onRecipientsChanged();
   }
 
-  onRecipientsChanged(automatic);
   calculateHeaderHeight();
   udpateAddressingInputAriaLabel(element.closest(".address-row"));
 }
@@ -1041,8 +1044,10 @@ function hideAddressRow(element, focusType = "next") {
   addressRow.classList.add("hidden");
   document.getElementById(labelID).removeAttribute("collapsed");
 
-  // Update the sender button only if the content was previously changed.
-  onRecipientsChanged(!isEdited);
+  // Update the Send button only if the content was previously changed.
+  if (isEdited) {
+    onRecipientsChanged(true);
+  }
   updateRecipientsPanelVisibility();
   udpateAddressingInputAriaLabel(addressRow);
 
