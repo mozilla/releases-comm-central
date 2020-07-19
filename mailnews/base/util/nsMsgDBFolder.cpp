@@ -122,39 +122,39 @@ bool nsMsgDBFolder::gInitializeStringsDone = false;
 
 // We define strings for folder properties and events.
 // Properties:
-constexpr auto kBiffState = "BiffState"_ns;
-constexpr auto kCanFileMessages = "CanFileMessages"_ns;
-constexpr auto kDefaultServer = "DefaultServer"_ns;
-constexpr auto kFlagged = "Flagged"_ns;
-constexpr auto kFolderFlag = "FolderFlag"_ns;
-constexpr auto kFolderSize = "FolderSize"_ns;
-constexpr auto kIsDeferred = "isDeferred"_ns;
-constexpr auto kIsSecure = "isSecure"_ns;
-constexpr auto kJunkStatusChanged = "JunkStatusChanged"_ns;
-constexpr auto kKeywords = "Keywords"_ns;
-constexpr auto kMRMTimeChanged = "MRMTimeChanged"_ns;
-constexpr auto kMsgLoaded = "msgLoaded"_ns;
-constexpr auto kName = "Name"_ns;
-constexpr auto kNewMailReceived = "NewMailReceived"_ns;
-constexpr auto kNewMessages = "NewMessages"_ns;
-constexpr auto kOpen = "open"_ns;
-constexpr auto kSortOrder = "SortOrder"_ns;
-constexpr auto kStatus = "Status"_ns;
-constexpr auto kSynchronize = "Synchronize"_ns;
-constexpr auto kTotalMessages = "TotalMessages"_ns;
-constexpr auto kTotalUnreadMessages = "TotalUnreadMessages"_ns;
+constexpr nsLiteralCString kBiffState = "BiffState"_ns;
+constexpr nsLiteralCString kCanFileMessages = "CanFileMessages"_ns;
+constexpr nsLiteralCString kDefaultServer = "DefaultServer"_ns;
+constexpr nsLiteralCString kFlagged = "Flagged"_ns;
+constexpr nsLiteralCString kFolderFlag = "FolderFlag"_ns;
+constexpr nsLiteralCString kFolderSize = "FolderSize"_ns;
+constexpr nsLiteralCString kIsDeferred = "isDeferred"_ns;
+constexpr nsLiteralCString kIsSecure = "isSecure"_ns;
+constexpr nsLiteralCString kJunkStatusChanged = "JunkStatusChanged"_ns;
+constexpr nsLiteralCString kKeywords = "Keywords"_ns;
+constexpr nsLiteralCString kMRMTimeChanged = "MRMTimeChanged"_ns;
+constexpr nsLiteralCString kMsgLoaded = "msgLoaded"_ns;
+constexpr nsLiteralCString kName = "Name"_ns;
+constexpr nsLiteralCString kNewMailReceived = "NewMailReceived"_ns;
+constexpr nsLiteralCString kNewMessages = "NewMessages"_ns;
+constexpr nsLiteralCString kOpen = "open"_ns;
+constexpr nsLiteralCString kSortOrder = "SortOrder"_ns;
+constexpr nsLiteralCString kStatus = "Status"_ns;
+constexpr nsLiteralCString kSynchronize = "Synchronize"_ns;
+constexpr nsLiteralCString kTotalMessages = "TotalMessages"_ns;
+constexpr nsLiteralCString kTotalUnreadMessages = "TotalUnreadMessages"_ns;
 
 // Events:
-constexpr auto kAboutToCompact = "AboutToCompact"_ns;
-constexpr auto kCompactCompleted = "CompactCompleted"_ns;
-constexpr auto kDeleteOrMoveMsgCompleted = "DeleteOrMoveMsgCompleted"_ns;
-constexpr auto kDeleteOrMoveMsgFailed = "DeleteOrMoveMsgFailed"_ns;
-constexpr auto kFiltersApplied = "FiltersApplied"_ns;
-constexpr auto kFolderCreateCompleted = "FolderCreateCompleted"_ns;
-constexpr auto kFolderCreateFailed = "FolderCreateFailed"_ns;
-constexpr auto kFolderLoaded = "FolderLoaded"_ns;
-constexpr auto kNumNewBiffMessages = "NumNewBiffMessages"_ns;
-constexpr auto kRenameCompleted = "RenameCompleted"_ns;
+constexpr nsLiteralCString kAboutToCompact = "AboutToCompact"_ns;
+constexpr nsLiteralCString kCompactCompleted = "CompactCompleted"_ns;
+constexpr nsLiteralCString kDeleteOrMoveMsgCompleted = "DeleteOrMoveMsgCompleted"_ns;
+constexpr nsLiteralCString kDeleteOrMoveMsgFailed = "DeleteOrMoveMsgFailed"_ns;
+constexpr nsLiteralCString kFiltersApplied = "FiltersApplied"_ns;
+constexpr nsLiteralCString kFolderCreateCompleted = "FolderCreateCompleted"_ns;
+constexpr nsLiteralCString kFolderCreateFailed = "FolderCreateFailed"_ns;
+constexpr nsLiteralCString kFolderLoaded = "FolderLoaded"_ns;
+constexpr nsLiteralCString kNumNewBiffMessages = "NumNewBiffMessages"_ns;
+constexpr nsLiteralCString kRenameCompleted = "RenameCompleted"_ns;
 
 NS_IMPL_ISUPPORTS(nsMsgDBFolder, nsISupportsWeakReference, nsIMsgFolder,
                   nsIDBChangeListener, nsIUrlListener,
