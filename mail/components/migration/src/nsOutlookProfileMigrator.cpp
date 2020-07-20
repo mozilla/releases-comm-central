@@ -115,7 +115,12 @@ nsOutlookProfileMigrator::GetSourceHasMultipleProfiles(bool* aResult) {
 }
 
 NS_IMETHODIMP
-nsOutlookProfileMigrator::GetSourceProfiles(nsIArray** aResult) {
-  *aResult = nullptr;
+nsOutlookProfileMigrator::GetSourceProfiles(nsTArray<nsString>& aResult) {
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsOutlookProfileMigrator::GetSourceProfileLocations(
+    nsTArray<RefPtr<nsIFile>>& aResult) {
   return NS_OK;
 }

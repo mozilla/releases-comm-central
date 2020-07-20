@@ -20,33 +20,27 @@ function SeamonkeyImportAddressbook() {
   this.migrator = Cc[
     "@mozilla.org/profile/migrator;1?app=mail&type=seamonkey"
   ].createInstance(Ci.nsIMailProfileMigrator);
-  this.sourceProfile = null;
+  this.sourceProfileName = null;
+  this.sourceProfileLocation = null;
 }
 
 SeamonkeyImportAddressbook.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIImportGeneric]),
+  QueryInterface: ChromeUtils.generateQI(["nsIImportGeneric"]),
 
   /**
-   * Return the location of addressbook/mail.
+   * Return the location of addressbook.
    */
   GetData() {
-    if (!this.sourceProfile) {
+    if (!this.sourceProfileName || !this.sourceProfileLocation) {
       try {
-        this.sourceProfile = this.migrator.sourceProfiles.queryElementAt(
-          0,
-          Ci.nsISupportsString
-        ).data;
+        this.sourceProfileName = this.migrator.sourceProfiles[0];
+        this.sourceProfileLocation = this.migrator.sourceProfileLocations[0];
       } catch (e) {
         return null;
       }
     }
 
-    // nsIMailProfileMigrator only provides profile names, not profile
-    // locations. On the other hand, the frontend only cares if a Seamonkey
-    // profile exists, but doesn't use the actual location. So we cheated by
-    // returning Thunderbird profile location.
-    let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    return profileDir;
+    return this.sourceProfileLocation;
   },
 
   SetData() {
@@ -77,12 +71,95 @@ SeamonkeyImportAddressbook.prototype = {
     this.migrator.migrate(
       Ci.nsIMailProfileMigrator.ADDRESSBOOK_DATA,
       null,
-      this.sourceProfile
+      this.sourceProfileName
     );
     successLog.data = seamonkeyImportMsgs.GetStringFromName(
       "SeamonkeyImportAddressSuccess"
     );
     return true;
+  },
+};
+
+/**
+ * Implements nsIImportMail. The importing process is managed by nsImportMail.
+ */
+function SeamonkeyImportMail() {}
+
+SeamonkeyImportMail.prototype = {
+  QueryInterface: ChromeUtils.generateQI(["nsIImportMail"]),
+
+  GetDefaultLocation(location, found, userVerify) {
+    let migrator = Cc[
+      "@mozilla.org/profile/migrator;1?app=mail&type=seamonkey"
+    ].createInstance(Ci.nsIMailProfileMigrator);
+
+    try {
+      let sourceProfile = migrator.sourceProfileLocations[0];
+      location.value = sourceProfile;
+      found.value = true;
+    } catch (e) {
+      found.value = false;
+    }
+    userVerify.value = false;
+  },
+
+  _createMailboxDescriptor(path, name, depth) {
+    let importService = Cc[
+      "@mozilla.org/import/import-service;1"
+    ].createInstance(Ci.nsIImportService);
+    let descriptor = importService.CreateNewMailboxDescriptor();
+    descriptor.size = 100;
+    descriptor.depth = depth;
+    descriptor.SetDisplayName(name);
+    descriptor.file.initWithPath(path);
+
+    return descriptor;
+  },
+
+  _collectMailboxesInDirectory(directory, depth, result) {
+    let name = directory.leafName;
+    if (depth > 0 && !name.endsWith(".msf") && !name.endsWith(".dat")) {
+      if (name.endsWith(".sbd")) {
+        name = name.slice(0, name.lastIndexOf("."));
+      }
+      let descriptor = this._createMailboxDescriptor(
+        directory.path,
+        name,
+        depth
+      );
+      result.appendElement(descriptor);
+    }
+    if (directory.isDirectory()) {
+      for (let entry of directory.directoryEntries) {
+        if (
+          (depth == 0 &&
+            entry.leafName != "ImapMail" &&
+            entry.leafName != "Mail") ||
+          (depth == 1 && entry.leafName == "Feeds")
+        ) {
+          continue;
+        }
+        this._collectMailboxesInDirectory(entry, depth + 1, result);
+      }
+    }
+  },
+
+  // Collect mailboxes in a Seamonkey profile.
+  FindMailboxes(location) {
+    let result = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+    this._collectMailboxesInDirectory(location, 0, result);
+    return result;
+  },
+
+  // Copy mailboxes a Seamonkey profile to Thunderbird profile.
+  ImportMailbox(source, dstFolder, errorLog, successLog, fatalError) {
+    if (source.file.isFile()) {
+      source.file.copyTo(
+        dstFolder.filePath.parent,
+        dstFolder.filePath.leafName
+      );
+      successLog.value = `Import ${source.file.leafName} succeeded.\n`;
+    }
   },
 };
 
@@ -94,30 +171,23 @@ function SeamonkeyImportSettings() {
   this.migrator = Cc[
     "@mozilla.org/profile/migrator;1?app=mail&type=seamonkey"
   ].createInstance(Ci.nsIMailProfileMigrator);
-  this.sourceProfile = null;
+  this.sourceProfileName = null;
+  this.sourceProfileLocation = null;
 }
 
 SeamonkeyImportSettings.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIImportSettings]),
+  QueryInterface: ChromeUtils.generateQI(["nsIImportSettings"]),
 
   AutoLocate(desc, loc) {
-    if (!this.sourceProfile) {
+    if (!this.sourceProfileName || !this.sourceProfileLocation) {
       try {
-        this.sourceProfile = this.migrator.sourceProfiles.queryElementAt(
-          0,
-          Ci.nsISupportsString
-        ).data;
+        this.sourceProfileName = this.migrator.sourceProfiles[0];
+        this.sourceProfileLocation = this.migrator.sourceProfileLocations[0];
       } catch (e) {
         return false;
       }
     }
-
-    // nsIMailProfileMigrator only provides profile names, not profile
-    // locations. On the other hand, the frontend only cares if a Seamonkey
-    // profile exists, but doesn't use the actual location. So we cheated by
-    // returning Thunderbird profile location.
-    let profileDir = Services.dirsvc.get("ProfD", Ci.nsIFile);
-    loc = profileDir;
+    loc = this.sourceProfileLocation;
     return true;
   },
 
@@ -125,7 +195,7 @@ SeamonkeyImportSettings.prototype = {
     this.migrator.migrate(
       Ci.nsIMailProfileMigrator.SETTINGS,
       null,
-      this.sourceProfile
+      this.sourceProfileName
     );
 
     // Reload accounts so that `CheckIfLocalFolderExists` in importDialog works
@@ -143,7 +213,7 @@ SeamonkeyImportSettings.prototype = {
 function SeamonkeyImport() {}
 
 SeamonkeyImport.prototype = {
-  QueryInterface: ChromeUtils.generateQI([Ci.nsIImportModule]),
+  QueryInterface: ChromeUtils.generateQI(["nsIImportModule"]),
 
   get name() {
     return seamonkeyImportMsgs.GetStringFromName("SeamonkeyImportName");
@@ -154,7 +224,7 @@ SeamonkeyImport.prototype = {
   },
 
   get supports() {
-    return "mail,addressbook";
+    return "addressbook,mail,settings";
   },
 
   get supportsUpgrade() {
@@ -164,6 +234,18 @@ SeamonkeyImport.prototype = {
   GetImportInterface(type) {
     if (type == "addressbook") {
       return new SeamonkeyImportAddressbook();
+    } else if (type == "mail") {
+      let importService = Cc[
+        "@mozilla.org/import/import-service;1"
+      ].createInstance(Ci.nsIImportService);
+      let genericInterface = importService.CreateNewGenericMail();
+      genericInterface.SetData("mailInterface", new SeamonkeyImportMail());
+      let name = Cc["@mozilla.org/supports-string;1"].createInstance(
+        Ci.nsISupportsString
+      );
+      name.data = "SeaMonkey";
+      genericInterface.SetData("name", name);
+      return genericInterface;
     } else if (type == "settings") {
       return new SeamonkeyImportSettings();
     }

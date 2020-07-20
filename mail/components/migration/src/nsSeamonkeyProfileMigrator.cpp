@@ -79,8 +79,7 @@ nsSeamonkeyProfileMigrator::Migrate(uint16_t aItems,
 
   NOTIFY_OBSERVERS(MIGRATION_STARTED, nullptr);
 
-  if (aItems & nsIMailProfileMigrator::ADDRESSBOOK_DATA &&
-      aItems & nsIMailProfileMigrator::SETTINGS) {
+  if (aReplace) {
     CopyPreferences(aReplace);
   } else {
     ImportPreferences(aItems);
@@ -166,20 +165,25 @@ nsSeamonkeyProfileMigrator::GetMigrateData(const char16_t* aProfile,
 }
 
 NS_IMETHODIMP
-nsSeamonkeyProfileMigrator::GetSourceProfiles(nsIArray** aResult) {
-  if (!mProfileNames && !mProfileLocations) {
-    nsresult rv;
-    mProfileNames = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) return rv;
-
-    mProfileLocations = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
-    if (NS_FAILED(rv)) return rv;
-
+nsSeamonkeyProfileMigrator::GetSourceProfiles(nsTArray<nsString>& aResult) {
+  if (mProfileNames.IsEmpty() && mProfileLocations.IsEmpty()) {
     // Fills mProfileNames and mProfileLocations
     FillProfileDataFromSeamonkeyRegistry();
   }
 
-  NS_IF_ADDREF(*aResult = mProfileNames);
+  aResult = mProfileNames.Clone();
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsSeamonkeyProfileMigrator::GetSourceProfileLocations(
+    nsTArray<RefPtr<nsIFile>>& aResult) {
+  if (mProfileNames.IsEmpty() && mProfileLocations.IsEmpty()) {
+    // Fills mProfileNames and mProfileLocations
+    FillProfileDataFromSeamonkeyRegistry();
+  }
+
+  aResult = mProfileLocations.Clone();
   return NS_OK;
 }
 
@@ -188,14 +192,11 @@ nsSeamonkeyProfileMigrator::GetSourceProfiles(nsIArray** aResult) {
 
 nsresult nsSeamonkeyProfileMigrator::GetSourceProfile(
     const char16_t* aProfile) {
-  uint32_t count;
-  mProfileNames->GetLength(&count);
+  uint32_t count = mProfileNames.Length();
   for (uint32_t i = 0; i < count; ++i) {
-    nsCOMPtr<nsISupportsString> str(do_QueryElementAt(mProfileNames, i));
-    nsString profileName;
-    str->GetData(profileName);
+    nsString profileName = mProfileNames[i];
     if (profileName.Equals(aProfile)) {
-      mSourceProfile = do_QueryElementAt(mProfileLocations, i);
+      mSourceProfile = mProfileLocations[i];
       break;
     }
   }
