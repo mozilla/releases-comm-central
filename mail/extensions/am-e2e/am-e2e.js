@@ -19,6 +19,9 @@ var { MailServices } = ChromeUtils.import(
 var { BondOpenPGP } = ChromeUtils.import(
   "chrome://openpgp/content/BondOpenPGP.jsm"
 );
+var { EnigmailFiles } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+);
 
 if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
   var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
@@ -1276,7 +1279,7 @@ async function openPgpExportSecretKey(keyId, keyFpr) {
   let outFile = EnigmailKeyRing.promptKeyExport2AsciiFilename(
     window,
     await document.l10n.formatValue("export-keypair-to-file"),
-    `${gIdentity.fullName}_${gIdentity.email}-${keyId}-secret.asc`,
+    `${gIdentity.fullName}_${gIdentity.email}-${keyId}-secret.asc`
   );
 
   if (!outFile) {
