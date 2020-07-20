@@ -24,10 +24,7 @@ async function run_test() {
   createMessages(subFolders[1], 1); // Unsent messages
   createMessages(subFolders[2], 5); // test1
 
-  let messageArray = toXPCOMArray(
-    [[...subFolders[1].messages][0]],
-    Ci.nsIMutableArray
-  );
+  let messageArray = [[...subFolders[1].messages][0]];
   subFolders[1].addKeywordsToMessages(messageArray, "testKeyword");
 
   run_next_test();

@@ -1251,11 +1251,8 @@ nsMsgLocalMailFolder::OnCopyCompleted(nsISupports* srcSupport,
 
   if (mCopyState && !mCopyState->m_newMsgKeywords.IsEmpty() &&
       mCopyState->m_newHdr) {
-    nsCOMPtr<nsIMutableArray> messageArray(
-        do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-    NS_ENSURE_TRUE(messageArray, rv);
-    messageArray->AppendElement(mCopyState->m_newHdr);
-    AddKeywordsToMessages(messageArray, mCopyState->m_newMsgKeywords);
+    AddKeywordsToMessages({&*mCopyState->m_newHdr},
+                          mCopyState->m_newMsgKeywords);
   }
   if (moveCopySucceeded && mDatabase) {
     mDatabase->SetSummaryValid(true);
@@ -3471,27 +3468,25 @@ NS_IMETHODIMP nsMsgLocalMailFolder::FetchMsgPreviewText(
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::AddKeywordsToMessages(
-    nsIArray* aMessages, const nsACString& aKeywords) {
-  return ChangeKeywordForMessages(aMessages, aKeywords, true /* add */);
-}
-nsresult nsMsgLocalMailFolder::ChangeKeywordForMessages(
-    nsIArray* aMessages, const nsACString& aKeywords, bool add) {
-  nsresult rv =
-      (add) ? nsMsgDBFolder::AddKeywordsToMessages(aMessages, aKeywords)
-            : nsMsgDBFolder::RemoveKeywordsFromMessages(aMessages, aKeywords);
-
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
+    const nsACString& aKeywords) {
+  nsresult rv = nsMsgDBFolder::AddKeywordsToMessages(aMessages, aKeywords);
   NS_ENSURE_SUCCESS(rv, rv);
   nsCOMPtr<nsIMsgPluggableStore> msgStore;
-  GetMsgStore(getter_AddRefs(msgStore));
+  rv = GetMsgStore(getter_AddRefs(msgStore));
   NS_ENSURE_SUCCESS(rv, rv);
-  nsTArray<RefPtr<nsIMsgDBHdr>> tmpHdrs;
-  MsgHdrsToTArray(aMessages, tmpHdrs);
-  return msgStore->ChangeKeywords(tmpHdrs, aKeywords, add);
+  return msgStore->ChangeKeywords(aMessages, aKeywords, true /* add */);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::RemoveKeywordsFromMessages(
-    nsIArray* aMessages, const nsACString& aKeywords) {
-  return ChangeKeywordForMessages(aMessages, aKeywords, false /* remove */);
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
+    const nsACString& aKeywords) {
+  nsresult rv = nsMsgDBFolder::RemoveKeywordsFromMessages(aMessages, aKeywords);
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIMsgPluggableStore> msgStore;
+  rv = GetMsgStore(getter_AddRefs(msgStore));
+  NS_ENSURE_SUCCESS(rv, rv);
+  return msgStore->ChangeKeywords(aMessages, aKeywords, false /* remove */);
 }
 
 NS_IMETHODIMP nsMsgLocalMailFolder::UpdateNewMsgHdr(nsIMsgDBHdr* aOldHdr,

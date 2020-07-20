@@ -342,11 +342,6 @@ this.messages = class extends ExtensionAPI {
           if (!msgHdr) {
             return;
           }
-          // Stopgap for nsIArray removal (Bug 1612239).
-          const msgsArray = Cc["@mozilla.org/array;1"].createInstance(
-            Ci.nsIMutableArray
-          );
-          msgsArray.appendElement(msgHdr);
           let msgs = [msgHdr];
 
           if (newProperties.read !== null) {
@@ -367,10 +362,10 @@ this.messages = class extends ExtensionAPI {
             for (let { key: tagKey } of MailServices.tags.getAllTags()) {
               if (newProperties.tags.includes(tagKey)) {
                 if (!currentTags.includes(tagKey)) {
-                  msgHdr.folder.addKeywordsToMessages(msgsArray, tagKey);
+                  msgHdr.folder.addKeywordsToMessages(msgs, tagKey);
                 }
               } else if (currentTags.includes(tagKey)) {
-                msgHdr.folder.removeKeywordsFromMessages(msgsArray, tagKey);
+                msgHdr.folder.removeKeywordsFromMessages(msgs, tagKey);
               }
             }
           }

@@ -645,12 +645,9 @@ NS_IMETHODIMP nsNNTPNewsgroupList::ApplyFilterHit(nsIMsgFilter* aFilter,
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
-          nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID));
-          messageArray->AppendElement(m_newMsgHdr);
           nsCOMPtr<nsIMsgFolder> folder = do_QueryInterface(m_newsFolder, &rv);
           if (NS_SUCCEEDED(rv) && folder) {
-            rv = folder->AddKeywordsToMessages(messageArray, keyword);
+            rv = folder->AddKeywordsToMessages({&*m_newMsgHdr}, keyword);
           } else {
             rv = NS_MSG_FOLDER_UNREADABLE;
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Error,

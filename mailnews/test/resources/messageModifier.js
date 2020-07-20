@@ -200,13 +200,13 @@ SyntheticMessageSet.prototype = {
     }
   },
   addTag(aTagName) {
-    for (let [folder, xpcomHdrArray] of this.foldersWithXpcomHdrArrays()) {
-      folder.addKeywordsToMessages(xpcomHdrArray, aTagName);
+    for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
+      folder.addKeywordsToMessages(msgHdrs, aTagName);
     }
   },
   removeTag(aTagName) {
-    for (let [folder, xpcomHdrArray] of this.foldersWithXpcomHdrArrays()) {
-      folder.removeKeywordsFromMessages(xpcomHdrArray, aTagName);
+    for (let [folder, msgHdrs] of this.foldersWithMsgHdrs) {
+      folder.removeKeywordsFromMessages(msgHdrs, aTagName);
     }
   },
   /**

@@ -853,7 +853,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
-          rv = curFolder->AddKeywordsToMessages(m_searchHitHdrs, keyword);
+          rv = curFolder->AddKeywordsToMessages(hitHdrs, keyword);
           BREAK_ACTION_IF_FAILURE(rv, "Setting message flags failed");
         } break;
         case nsMsgFilterAction::JunkScore: {

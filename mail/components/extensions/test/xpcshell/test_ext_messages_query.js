@@ -39,18 +39,9 @@ add_task(async function setup() {
   messages[1].markFlagged(true);
   messages[6].markFlagged(true);
 
-  subFolders.test1.addKeywordsToMessages(
-    toXPCOMArray(messages.slice(0, 1), Ci.nsIMutableArray),
-    "notATag"
-  );
-  subFolders.test1.addKeywordsToMessages(
-    toXPCOMArray(messages.slice(2, 4), Ci.nsIMutableArray),
-    "$label2"
-  );
-  subFolders.test1.addKeywordsToMessages(
-    toXPCOMArray(messages.slice(3, 6), Ci.nsIMutableArray),
-    "$label3"
-  );
+  subFolders.test1.addKeywordsToMessages(messages.slice(0, 1), "notATag");
+  subFolders.test1.addKeywordsToMessages(messages.slice(2, 4), "$label2");
+  subFolders.test1.addKeywordsToMessages(messages.slice(3, 6), "$label3");
 
   addIdentity(account, messages[5].author.replace(/.*<(.*)>/, "$1"));
   addIdentity(account, messages[2].recipients.replace(/.*<(.*)>/, "$1"));

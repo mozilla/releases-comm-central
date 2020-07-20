@@ -483,8 +483,7 @@ function RemoveAllMessageTags()
   if (!selectedMessages.length)
     return;
 
-  var messages = Cc["@mozilla.org/array;1"]
-                   .createInstance(Ci.nsIMutableArray);
+  var messages = [];
   var tagService = Cc["@mozilla.org/messenger/tagservice;1"]
                      .getService(Ci.nsIMsgTagService);
   var tagArray = tagService.getAllTags();
@@ -513,10 +512,10 @@ function RemoveAllMessageTags()
     {
       if (prevHdrFolder)
         prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
-      messages.clear();
+      messages = [];
       prevHdrFolder = msgHdr.folder;
     }
-    messages.appendElement(msgHdr);
+    messages.push(msgHdr);
   }
   if (prevHdrFolder)
     prevHdrFolder.removeKeywordsFromMessages(messages, allKeys);
@@ -608,10 +607,7 @@ function ToggleMessageTagMenu(target)
 
 function ToggleMessageTag(key, addKey)
 {
-  var messages = Cc["@mozilla.org/array;1"]
-                   .createInstance(Ci.nsIMutableArray);
-  var msg = Cc["@mozilla.org/array;1"]
-                          .createInstance(Ci.nsIMutableArray);
+  var messages = [];
   var selectedMessages = gFolderDisplay.selectedMessages;
   var toggler = addKey ? "addKeywordsToMessages" : "removeKeywordsFromMessages";
   var prevHdrFolder = null;
@@ -628,19 +624,17 @@ function ToggleMessageTag(key, addKey)
       // Since we touch all these messages anyway, migrate the label now.
       // If we don't, the thread tree won't always show the correct tag state,
       // because resetting a label doesn't update the tree anymore...
-      msg.clear();
-      msg.appendElement(msgHdr);
-      msgHdr.folder.addKeywordsToMessages(msg, "$label" + msgHdr.label);
+      msgHdr.folder.addKeywordsToMessages([msgHdr], "$label" + msgHdr.label);
       msgHdr.label = 0; // remove legacy label
     }
     if (prevHdrFolder != msgHdr.folder)
     {
       if (prevHdrFolder)
         prevHdrFolder[toggler](messages, key);
-      messages.clear();
+      messages = [];
       prevHdrFolder = msgHdr.folder;
     }
-    messages.appendElement(msgHdr);
+    messages.push(msgHdr);
   }
   if (prevHdrFolder)
     prevHdrFolder[toggler](messages, key);

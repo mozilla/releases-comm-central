@@ -81,12 +81,7 @@ function setupVirtualFolder() {
   MailServices.tags.addTagForKey(tag1, tag1, null, null);
 
   // add tag1 to 4 messages
-  var messages0to3 = Cc["@mozilla.org/array;1"].createInstance(
-    Ci.nsIMutableArray
-  );
-  for (var i = 0; i <= 3; i++) {
-    messages0to3.appendElement(hdrs[i]);
-  }
+  let messages0to3 = [hdrs[0], hdrs[1], hdrs[2], hdrs[3]];
   localAccountUtils.inboxFolder.addKeywordsToMessages(messages0to3, tag1);
 
   // set 3 messages unread, 2 messages read
@@ -175,9 +170,7 @@ function testVirtualFolder() {
   // failures fixed in this bug
 
   // remove tag from one item to decrease count
-  var message1 = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  message1.appendElement(hdrs[1]);
-
+  var message1 = [hdrs[1]];
   localAccountUtils.inboxFolder.removeKeywordsFromMessages(message1, tag1);
   virtualFolder.updateSummaryTotals(true);
   Assert.equal(3, virtualFolder.getTotalMessages(false));

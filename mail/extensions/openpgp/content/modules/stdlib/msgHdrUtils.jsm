@@ -52,9 +52,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 const { MsgHdrToMimeMessage, MimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
-const { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
@@ -234,9 +231,8 @@ function msgHdrSetTags(aMsgHdr, aTags) {
   let toRemove = oldTagList.filter(x => !(x.key in newTags)).map(x => x.key);
 
   let folder = aMsgHdr.folder;
-  let msgHdr = toXPCOMArray([aMsgHdr], Ci.nsIMutableArray);
-  folder.addKeywordsToMessages(msgHdr, toAdd.join(" "));
-  folder.removeKeywordsFromMessages(msgHdr, toRemove.join(" "));
+  folder.addKeywordsToMessages([aMsgHdr], toAdd.join(" "));
+  folder.removeKeywordsFromMessages([aMsgHdr], toRemove.join(" "));
   aMsgHdr.folder.msgDatabase = null;
 }
 

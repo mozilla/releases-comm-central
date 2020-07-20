@@ -147,7 +147,8 @@ constexpr nsLiteralCString kTotalUnreadMessages = "TotalUnreadMessages"_ns;
 // Events:
 constexpr nsLiteralCString kAboutToCompact = "AboutToCompact"_ns;
 constexpr nsLiteralCString kCompactCompleted = "CompactCompleted"_ns;
-constexpr nsLiteralCString kDeleteOrMoveMsgCompleted = "DeleteOrMoveMsgCompleted"_ns;
+constexpr nsLiteralCString kDeleteOrMoveMsgCompleted =
+    "DeleteOrMoveMsgCompleted"_ns;
 constexpr nsLiteralCString kDeleteOrMoveMsgFailed = "DeleteOrMoveMsgFailed"_ns;
 constexpr nsLiteralCString kFiltersApplied = "FiltersApplied"_ns;
 constexpr nsLiteralCString kFolderCreateCompleted = "FolderCreateCompleted"_ns;
@@ -5183,20 +5184,14 @@ void nsMsgDBFolder::SetMRMTime() {
 }
 
 NS_IMETHODIMP nsMsgDBFolder::AddKeywordsToMessages(
-    nsIArray* aMessages, const nsACString& aKeywords) {
-  NS_ENSURE_ARG(aMessages);
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
+    const nsACString& aKeywords) {
   nsresult rv = NS_OK;
   GetDatabase();
   if (mDatabase) {
-    uint32_t count;
-    nsresult rv = aMessages->GetLength(&count);
-    NS_ENSURE_SUCCESS(rv, rv);
     nsCString keywords;
 
-    for (uint32_t i = 0; i < count; i++) {
-      nsCOMPtr<nsIMsgDBHdr> message = do_QueryElementAt(aMessages, i, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
-
+    for (auto message : aMessages) {
       message->GetStringProperty("keywords", getter_Copies(keywords));
       nsTArray<nsCString> keywordArray;
       ParseString(aKeywords, ' ', keywordArray);
@@ -5221,22 +5216,18 @@ NS_IMETHODIMP nsMsgDBFolder::AddKeywordsToMessages(
 }
 
 NS_IMETHODIMP nsMsgDBFolder::RemoveKeywordsFromMessages(
-    nsIArray* aMessages, const nsACString& aKeywords) {
-  NS_ENSURE_ARG(aMessages);
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
+    const nsACString& aKeywords) {
   nsresult rv = NS_OK;
   GetDatabase();
   if (mDatabase) {
-    uint32_t count;
-    nsresult rv = aMessages->GetLength(&count);
     NS_ENSURE_SUCCESS(rv, rv);
     nsTArray<nsCString> keywordArray;
     ParseString(aKeywords, ' ', keywordArray);
     nsCString keywords;
     // If the tag is also a label, we should remove the label too...
 
-    for (uint32_t i = 0; i < count; i++) {
-      nsCOMPtr<nsIMsgDBHdr> message = do_QueryElementAt(aMessages, i, &rv);
-      NS_ENSURE_SUCCESS(rv, rv);
+    for (auto message : aMessages) {
       rv = message->GetStringProperty("keywords", getter_Copies(keywords));
       uint32_t removeCount = 0;
       for (uint32_t j = 0; j < keywordArray.Length(); j++) {

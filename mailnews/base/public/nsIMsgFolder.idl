@@ -760,8 +760,8 @@ interface nsIMsgFolder : nsISupports {
   // used to set/clear tags - we could have a single method to setKeywords which
   // would figure out the diffs, but these methods might be more convenient.
   // keywords are space delimited, in the case of multiple keywords
-  void addKeywordsToMessages(in nsIArray aMessages, in ACString aKeywords);
-  void removeKeywordsFromMessages(in nsIArray aMessages, in ACString aKeywords);
+  void addKeywordsToMessages(in Array<nsIMsgDBHdr> aMessages, in ACString aKeywords);
+  void removeKeywordsFromMessages(in Array<nsIMsgDBHdr> aMessages, in ACString aKeywords);
   /**
    * Extract the message text from aStream.
    *

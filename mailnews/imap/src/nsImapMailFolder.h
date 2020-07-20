@@ -323,10 +323,12 @@ class nsImapMailFolder : public nsMsgDBFolder,
                                  bool aLocalOnly, nsIUrlListener* aUrlListener,
                                  bool* aAsyncResults) override;
 
-  NS_IMETHOD AddKeywordsToMessages(nsIArray* aMessages,
-                                   const nsACString& aKeywords) override;
-  NS_IMETHOD RemoveKeywordsFromMessages(nsIArray* aMessages,
-                                        const nsACString& aKeywords) override;
+  NS_IMETHOD AddKeywordsToMessages(
+      const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
+      const nsACString& aKeywords) override;
+  NS_IMETHOD RemoveKeywordsFromMessages(
+      const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
+      const nsACString& aKeywords) override;
 
   NS_IMETHOD NotifyCompactCompleted() override;
 

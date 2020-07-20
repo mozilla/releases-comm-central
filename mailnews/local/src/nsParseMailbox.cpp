@@ -2033,11 +2033,7 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
-          nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          if (NS_FAILED(rv) || !messageArray) break;
-          messageArray->AppendElement(msgHdr);
-          rv = m_downloadFolder->AddKeywordsToMessages(messageArray, keyword);
+          rv = m_downloadFolder->AddKeywordsToMessages({&*msgHdr}, keyword);
           break;
         }
         case nsMsgFilterAction::Label: {

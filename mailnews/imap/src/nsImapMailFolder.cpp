@@ -3421,11 +3421,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
         case nsMsgFilterAction::AddTag: {
           nsCString keyword;
           filterAction->GetStrValue(keyword);
-          nsCOMPtr<nsIMutableArray> messageArray(
-              do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-          if (NS_FAILED(rv) || !messageArray) break;
-          messageArray->AppendElement(msgHdr);
-          rv = AddKeywordsToMessages(messageArray, keyword);
+          rv = AddKeywordsToMessages({&*msgHdr}, keyword);
         } break;
         case nsMsgFilterAction::JunkScore: {
           nsAutoCString junkScoreStr;
@@ -8649,12 +8645,13 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
 }
 
 NS_IMETHODIMP nsImapMailFolder::AddKeywordsToMessages(
-    nsIArray* aMessages, const nsACString& aKeywords) {
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
+    const nsACString& aKeywords) {
   nsresult rv = nsMsgDBFolder::AddKeywordsToMessages(aMessages, aKeywords);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString messageIds;
     nsTArray<nsMsgKey> keys;
-    rv = BuildIdsAndKeyArray(aMessages, messageIds, keys);
+    rv = BuildIdsAndKeyArray2(aMessages, messageIds, keys);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = StoreCustomKeywords(nullptr, aKeywords, EmptyCString(), keys, nullptr);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);
@@ -8663,12 +8660,13 @@ NS_IMETHODIMP nsImapMailFolder::AddKeywordsToMessages(
 }
 
 NS_IMETHODIMP nsImapMailFolder::RemoveKeywordsFromMessages(
-    nsIArray* aMessages, const nsACString& aKeywords) {
+    const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
+    const nsACString& aKeywords) {
   nsresult rv = nsMsgDBFolder::RemoveKeywordsFromMessages(aMessages, aKeywords);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString messageIds;
     nsTArray<nsMsgKey> keys;
-    nsresult rv = BuildIdsAndKeyArray(aMessages, messageIds, keys);
+    nsresult rv = BuildIdsAndKeyArray2(aMessages, messageIds, keys);
     NS_ENSURE_SUCCESS(rv, rv);
     rv = StoreCustomKeywords(nullptr, EmptyCString(), aKeywords, keys, nullptr);
     if (mDatabase) mDatabase->Commit(nsMsgDBCommitType::kLargeCommit);

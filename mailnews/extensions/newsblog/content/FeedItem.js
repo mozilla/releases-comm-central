@@ -387,11 +387,6 @@ FeedItem.prototype = {
       return;
     }
 
-    let msgArray = Cc["@mozilla.org/array;1"].createInstance(
-      Ci.nsIMutableArray
-    );
-    msgArray.appendElement(aMsgDBHdr);
-
     let prefix = category.prefixEnabled ? category.prefix : "";
     let rtl = Services.prefs.getIntPref("bidi.direction") == 2;
 
@@ -411,7 +406,7 @@ FeedItem.prototype = {
 
     if (keys.length) {
       // Add the keys to the message.
-      aMsgDBHdr.folder.addKeywordsToMessages(msgArray, keys.join(" "));
+      aMsgDBHdr.folder.addKeywordsToMessages([aMsgDBHdr], keys.join(" "));
     }
   },
 
