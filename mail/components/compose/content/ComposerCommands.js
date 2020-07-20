@@ -482,6 +482,8 @@ function doStatefulCommand(commandID, newState, updateUI) {
     top.document
       .querySelector("editor")
       .contentDocument.execCommand(command, false, null);
+  } else if (commandID == "cmd_fontFace" && newState == "tt") {
+    goDoCommandParams(commandID, newState);
   } else {
     top.document
       .querySelector("editor")
