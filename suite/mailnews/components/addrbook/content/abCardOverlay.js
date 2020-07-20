@@ -842,6 +842,7 @@ function modifyDatepicker(aDatepicker) {
       var dt = new Date(this.year, currentMonth, aValue);
       return dt.getMonth() != currentMonth ? 1 : aValue;
     }
+    var min = (aField == this.monthField) ? 0 : 1;
     var max = (aField == this.monthField) ? 11 : kMaxYear;
     // make sure the value isn't too high
     if (aValue > max)
