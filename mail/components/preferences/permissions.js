@@ -308,9 +308,7 @@ var gPermissionManager = {
     );
     Services.obs.addObserver(this, "perm-changed");
 
-    this._loadPermissions();
-
-    urlField.focus();
+    this._loadPermissions().then(() => urlField.focus());
   },
 
   uninit() {
@@ -446,12 +444,12 @@ var gPermissionManager = {
     window.close();
   },
 
-  _loadPermissions() {
+  async _loadPermissions() {
     this._tree = document.getElementById("permissionsTree");
     this._permissions = [];
 
     for (let perm of Services.perms.all) {
-      this._addPermissionToList(perm);
+      await this._addPermissionToList(perm);
     }
 
     this._view._rowCount = this._permissions.length;
