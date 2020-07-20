@@ -593,6 +593,7 @@ nsImapProtocol::nsImapProtocol()
   Configure(gTooFastTime, gIdealTime, gChunkAddSize, gChunkSize,
             gChunkThreshold, gFetchByChunks);
   m_forceSelect = false;
+  m_capabilityResponseOccurred = true;
 }
 
 nsresult nsImapProtocol::Configure(int32_t TooFastTime, int32_t IdealTime,
@@ -7763,6 +7764,11 @@ void nsImapProtocol::ProcessAfterAuthenticated() {
   // if we're a netscape server, and we haven't got the admin url, get it
   bool hasAdminUrl = true;
 
+  // If a capability response didn't occur during authentication, request
+  // the capabilities again to ensure the full capability set is known.
+  if (!m_capabilityResponseOccurred)
+    Capability();
+
   if (NS_SUCCEEDED(m_hostSessionList->GetHostHasAdminURL(GetImapServerKey(),
                                                          hasAdminUrl)) &&
       !hasAdminUrl) {
@@ -8104,6 +8110,11 @@ nsImapProtocol::OnPromptCanceled() {
   return NS_OK;
 }
 
+// Called when capability response is parsed.
+void nsImapProtocol::SetCapabilityResponseOccurred() {
+  m_capabilityResponseOccurred = true;
+}
+
 bool nsImapProtocol::TryToLogon() {
   MOZ_LOG(IMAP, LogLevel::Debug, ("Try to log in"));
   NS_ENSURE_TRUE(m_imapServerSink, false);
@@ -8111,6 +8122,11 @@ bool nsImapProtocol::TryToLogon() {
   bool skipLoop = false;
   nsAutoString password;
   nsAutoCString userName;
+
+  // If remains false when authentication is complete it means that a
+  // capability response didn't occur within the authentication response so
+  // capabilities will be requested explicitly.
+  m_capabilityResponseOccurred = false;
 
   nsresult rv = ChooseAuthMethod();
   if (NS_FAILED(rv))  // all methods failed

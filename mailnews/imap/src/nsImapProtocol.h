@@ -376,6 +376,7 @@ class nsImapProtocol : public nsIImapProtocol,
   int32_t GetCurFetchSize() { return m_curFetchSize; }
 
   const nsString& GetEmptyMimePartString() { return m_emptyMimePartString; }
+  void SetCapabilityResponseOccurred();
 
  private:
   virtual ~nsImapProtocol();
@@ -765,6 +766,7 @@ class nsImapProtocol : public nsIImapProtocol,
   nsString m_emptyMimePartString;
 
   RefPtr<mozilla::mailnews::OAuth2ThreadHelper> mOAuth2Support;
+  bool m_capabilityResponseOccurred;
 };
 
 // This small class is a "mock" channel because it is a mockery of the imap
