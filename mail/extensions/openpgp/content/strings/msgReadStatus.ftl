@@ -5,7 +5,7 @@
 openpgp-view-signer-key =
     .label = View signer key
 openpgp-view-your-encryption-key =
-    .label = View your recipient key
+    .label = View your decryption key
 openpgp-openpgp = OpenPGP
 
 openpgp-no-sig = No Digital Signature
@@ -23,4 +23,12 @@ openpgp-sig-valid-verified = This message includes a valid digital signature fro
 openpgp-sig-valid-own-key = This message includes a valid digital signature from your personal key.
 
 openpgp-sig-key-id = Signer key ID: { $key }
-openpgp-enc-key-id = Recipient key ID: { $key }
+openpgp-sig-key-id-with-subkey-id = Signer key ID: { $key } (Sub key ID: { $subkey })
+
+openpgp-enc-key-id = Your decryption key ID: { $key }
+openpgp-enc-key-with-subkey-id = Your decryption key ID: { $key } (Sub key ID: { $subkey })
+
+openpgp-unknown-key-id = Unknown key
+
+openpgp-other-enc-additional-key-ids = In addition, the message was encrypted to the owners of the following keys:
+openpgp-other-enc-all-key-ids = The message was encrypted to the owners of the following keys:

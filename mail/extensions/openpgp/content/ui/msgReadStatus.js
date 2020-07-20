@@ -17,6 +17,8 @@ var { EnigmailKeyRing } = ChromeUtils.import(
 let gSigKeyId;
 let gEncKeyId;
 
+let myl10n = new Localization(["messenger/openpgp/msgReadStatus.ftl"], true);
+
 function setText(id, value) {
   var element = document.getElementById(id);
   if (!element) {
@@ -152,30 +154,106 @@ function onLoad() {
   setText("encryptionExplanation", encInfo);
 
   if (params.msgSignatureKeyId) {
+    let sigKeyInfo = EnigmailKeyRing.getKeyById(params.msgSignatureKeyId);
+    let signedBySubkey =
+      sigKeyInfo && sigKeyInfo.keyId != params.msgSignatureKeyId;
+
     let idElement = document.getElementById("signatureKeyId");
     idElement.collapsed = false;
-    document.l10n.setAttributes(idElement, "openpgp-sig-key-id", {
-      key: "0x" + params.msgSignatureKeyId,
-    });
 
-    if (EnigmailKeyRing.getKeyById(params.msgSignatureKeyId)) {
+    if (signedBySubkey) {
+      document.l10n.setAttributes(
+        idElement,
+        "openpgp-sig-key-id-with-subkey-id",
+        {
+          key: "0x" + sigKeyInfo.keyId,
+          subkey: "0x" + params.msgSignatureKeyId,
+        }
+      );
+    } else {
+      document.l10n.setAttributes(idElement, "openpgp-sig-key-id", {
+        key: "0x" + params.msgSignatureKeyId,
+      });
+    }
+
+    if (sigKeyInfo) {
       document.getElementById("viewSignatureKey").collapsed = false;
       gSigKeyId = params.msgSignatureKeyId;
     }
   }
 
-  if (params.msgEncryptionKeyId) {
+  let myIdToSkipInList = "";
+  if (params.msgEncryptionKeyId && params.msgEncryptionKeyId.keyId) {
+    myIdToSkipInList = params.msgEncryptionKeyId.keyId;
+
+    // If we were given a separate primaryKeyId, it means that
+    // keyId is a subkey.
+    let havePrimaryId = !!params.msgEncryptionKeyId.primaryKeyId;
     let idElement = document.getElementById("encryptionKeyId");
     idElement.collapsed = false;
-    document.l10n.setAttributes(idElement, "openpgp-enc-key-id", {
-      key: "0x" + params.msgEncryptionKeyId,
-    });
 
-    if (EnigmailKeyRing.getKeyById(params.msgEncryptionKeyId)) {
+    if (havePrimaryId) {
+      document.l10n.setAttributes(idElement, "openpgp-enc-key-with-subkey-id", {
+        key: "0x" + params.msgEncryptionKeyId.primaryKeyId,
+        subkey: "0x" + params.msgEncryptionKeyId.keyId,
+      });
+    } else {
+      document.l10n.setAttributes(idElement, "openpgp-enc-key-id", {
+        key: "0x" + params.msgEncryptionKeyId.keyId,
+      });
+    }
+
+    if (EnigmailKeyRing.getKeyById(params.msgEncryptionKeyId.keyId)) {
       document.getElementById("viewEncryptionKey").collapsed = false;
-      gEncKeyId = params.msgEncryptionKeyId;
+      gEncKeyId = params.msgEncryptionKeyId.keyId;
     }
   }
+
+  let otherKeysLabel = "openpgp-other-enc-all-key-ids";
+
+  if (params.msgEncryptionAllKeyIds) {
+    let list = "";
+    for (let key of params.msgEncryptionAllKeyIds) {
+      if (key.keyId == myIdToSkipInList) {
+        continue;
+      }
+
+      let idStr = "";
+
+      let havePrimaryId2 = !!key.primaryKeyId;
+      let idForSearching = havePrimaryId2 ? key.primaryKeyId : key.keyId;
+
+      let keyInfo = EnigmailKeyRing.getKeyById(idForSearching);
+      if (keyInfo) {
+        idStr += keyInfo.userId;
+      } else {
+        idStr += myl10n.formatValueSync("openpgp-unknown-key-id");
+      }
+
+      if (havePrimaryId2) {
+        idStr += " 0x" + key.primaryKeyId + " (0x" + key.keyId + ")";
+      } else {
+        idStr += " 0x" + key.keyId;
+      }
+
+      if (list) {
+        list += ", ";
+      }
+      list += idStr;
+      list += "\n";
+    }
+
+    if (list) {
+      document.getElementById("otherEncryptionKeys").collapsed = false;
+      setText("otherEncryptionKeysList", list);
+    }
+
+    if (myIdToSkipInList) {
+      otherKeysLabel = "openpgp-other-enc-additional-key-ids";
+    }
+  }
+
+  setText("otherLabel", myl10n.formatValueSync(otherKeysLabel));
 }
 /* eslint-enable complexity */
 

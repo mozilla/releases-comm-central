@@ -1006,7 +1006,7 @@ Enigmail.msg = {
               "", // sigDetails
               await l10n.formatValue("possibly-pgp-mime"), // infoMsg
               null, // blockSeparation
-              "", // encToDetails
+              null, // encToDetails
               null
             ); // xtraStatus
           }

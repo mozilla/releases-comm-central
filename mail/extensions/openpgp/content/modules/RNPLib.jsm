@@ -1123,6 +1123,15 @@ function enableRNPLibJS() {
       rnp_recipient_handle_t.ptr
     ),
 
+    rnp_op_verify_get_recipient_at: librnp.declare(
+      "rnp_op_verify_get_recipient_at",
+      abi,
+      rnp_result_t,
+      rnp_op_verify_t,
+      ctypes.size_t,
+      rnp_recipient_handle_t.ptr
+    ),
+
     rnp_recipient_get_keyid: librnp.declare(
       "rnp_recipient_get_keyid",
       abi,

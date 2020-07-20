@@ -605,25 +605,7 @@ MimeVerify.prototype = {
       }
     }
 
-    if ("outputDecryptedData" in this.mimeSvc) {
-      // TB >= 57
-      this.mimeSvc.outputDecryptedData(data, data.length);
-    } else {
-      let gConv = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(
-        Ci.nsIStringInputStream
-      );
-      gConv.setData(data, data.length);
-      try {
-        this.mimeSvc.onStartRequest(null, null);
-        this.mimeSvc.onDataAvailable(null, null, gConv, 0, data.length);
-        this.mimeSvc.onStopRequest(null, null, 0);
-      } catch (ex) {
-        EnigmailLog.ERROR(
-          "mimeVerify.jsm: returnData(): mimeSvc.onDataAvailable failed:\n" +
-            ex.toString()
-        );
-      }
-    }
+    this.mimeSvc.outputDecryptedData(data, data.length);
   },
 
   setMsgWindow(msgWindow, msgUriSpec) {

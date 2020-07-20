@@ -663,6 +663,37 @@ var RNP = {
     return false;
   },
 
+  getKeyIdsFromRecipHandle(recip_handle, resultRecipAndPrimary) {
+    resultRecipAndPrimary.keyId = "";
+    resultRecipAndPrimary.primaryKeyId = "";
+
+    let c_key_id = new ctypes.char.ptr();
+    if (RNPLib.rnp_recipient_get_keyid(recip_handle, c_key_id.address())) {
+      throw new Error("rnp_recipient_get_keyid failed");
+    }
+    let recip_key_id = c_key_id.readString();
+    resultRecipAndPrimary.keyId = recip_key_id;
+    RNPLib.rnp_buffer_destroy(c_key_id);
+
+    let recip_key_handle = this.getKeyHandleByKeyIdOrFingerprint(
+      RNPLib.ffi,
+      "0x" + recip_key_id
+    );
+    if (!recip_key_handle.isNull()) {
+      let primary_signer_handle = this.getPrimaryKeyHandleIfSub(
+        RNPLib.ffi,
+        recip_key_handle
+      );
+      if (!primary_signer_handle.isNull()) {
+        resultRecipAndPrimary.primaryKeyId = this.getKeyIDFromHandle(
+          primary_signer_handle
+        );
+        RNPLib.rnp_key_handle_destroy(primary_signer_handle);
+      }
+      RNPLib.rnp_key_handle_destroy(recip_key_handle);
+    }
+  },
+
   async decrypt(encrypted, options, alreadyDecrypted = false) {
     let input_from_memory = new RNPLib.rnp_input_t();
 
@@ -691,7 +722,13 @@ var RNP = {
 
     result.userId = "";
     result.keyId = "";
-    result.encToDetails = "";
+    result.encToDetails = {};
+    result.encToDetails.myRecipKey = {};
+    result.encToDetails.allRecipKeys = [];
+
+    if (alreadyDecrypted) {
+      result.encToDetails = options.encToDetails;
+    }
 
     let verify_op = new RNPLib.rnp_op_verify_t();
     result.exitCode = RNPLib.rnp_op_verify_create(
@@ -704,6 +741,7 @@ var RNP = {
     result.exitCode = RNPLib.rnp_op_verify_execute(verify_op);
 
     let rnpCannotDecrypt = false;
+    let queryAllEncryptionRecipients = false;
 
     let useDecodedData;
     let processSignature;
@@ -726,12 +764,14 @@ var RNP = {
         rnpCannotDecrypt = true;
         useDecodedData = false;
         processSignature = false;
+        queryAllEncryptionRecipients = true;
         result.statusFlags |= EnigmailConstants.DECRYPTION_FAILED;
         break;
       case RNPLib.RNP_ERROR_NO_SUITABLE_KEY:
         rnpCannotDecrypt = true;
         useDecodedData = false;
         processSignature = false;
+        queryAllEncryptionRecipients = true;
         result.statusFlags |=
           EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NO_SECKEY;
         break;
@@ -774,6 +814,8 @@ var RNP = {
           // don't indicate decryption, because a non-protecting or insecure cipher was used
           result.statusFlags |= EnigmailConstants.UNKNOWN_ALGO;
         } else {
+          queryAllEncryptionRecipients = true;
+
           let recip_handle = new RNPLib.rnp_recipient_handle_t();
           let rv = RNPLib.rnp_op_verify_get_used_recipient(
             verify_op,
@@ -792,33 +834,41 @@ var RNP = {
           if (this.policyForbidsAlg(c_alg.readString())) {
             result.statusFlags |= EnigmailConstants.UNKNOWN_ALGO;
           } else {
-            let c_key_id = new ctypes.char.ptr();
-            rv = RNPLib.rnp_recipient_get_keyid(
+            this.getKeyIdsFromRecipHandle(
               recip_handle,
-              c_key_id.address()
+              result.encToDetails.myRecipKey
             );
-            if (rv) {
-              throw new Error("rnp_recipient_get_keyid failed");
-            }
-            let recip_key_id = c_key_id.readString();
-
-            let recip_key_handle = this.getKeyHandleByKeyIdOrFingerprint(
-              RNPLib.ffi,
-              "0x" + recip_key_id
-            );
-            let primary_signer_handle = this.getPrimaryKeyHandleIfSub(
-              RNPLib.ffi,
-              recip_key_handle
-            );
-            if (!primary_signer_handle.isNull()) {
-              recip_key_id = this.getKeyIDFromHandle(primary_signer_handle);
-              RNPLib.rnp_key_handle_destroy(primary_signer_handle);
-            }
-            RNPLib.rnp_key_handle_destroy(recip_key_handle);
-
-            result.encToDetails = recip_key_id;
             result.statusFlags |= EnigmailConstants.DECRYPTION_OKAY;
           }
+        }
+      }
+    }
+
+    if (queryAllEncryptionRecipients) {
+      let all_recip_count = new ctypes.size_t();
+      if (
+        RNPLib.rnp_op_verify_get_recipient_count(
+          verify_op,
+          all_recip_count.address()
+        )
+      ) {
+        throw new Error("rnp_op_verify_get_recipient_count failed");
+      }
+      if (all_recip_count.value > 1) {
+        for (let recip_i = 0; recip_i < all_recip_count.value; recip_i++) {
+          let other_recip_handle = new RNPLib.rnp_recipient_handle_t();
+          if (
+            RNPLib.rnp_op_verify_get_recipient_at(
+              verify_op,
+              recip_i,
+              other_recip_handle.address()
+            )
+          ) {
+            throw new Error("rnp_op_verify_get_recipient_at failed");
+          }
+          let encTo = {};
+          this.getKeyIdsFromRecipHandle(other_recip_handle, encTo);
+          result.encToDetails.allRecipKeys.push(encTo);
         }
       }
     }
@@ -886,6 +936,7 @@ var RNP = {
         // The result may still contain wrapping like compression,
         // and optional signature data. Recursively call ourselves
         // to perform the remaining processing.
+        options.encToDetails = result.encToDetails;
         return RNP.decrypt(r2.decryptedData, options, true);
       }
     }

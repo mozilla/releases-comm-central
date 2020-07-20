@@ -12,7 +12,7 @@
 
 <window title="&status.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
-        style="width: 40em; height: 22em;"
+        style="width: 50em; height: 30em;"
         onload="onLoad();">
 <dialog id="msgReadStatus"
         buttons="accept">
@@ -47,6 +47,10 @@
         <button id="viewEncryptionKey" data-l10n-id="openpgp-view-your-encryption-key"
                 oncommand="viewEncryptionKey()" collapsed="true"/>
       </hbox>
+    </vbox>
+    <vbox id="otherEncryptionKeys" flex="1" collapsed="true">
+      <description id="otherLabel"/>
+      <description id="otherEncryptionKeysList"/>
     </vbox>
   </vbox>
 </dialog>

@@ -100,13 +100,15 @@ Enigmail.hdrView = {
   msgSignatureState: EnigmailConstants.MSG_SIG_NONE,
   msgEncryptionState: EnigmailConstants.MSG_ENC_NONE,
   msgSignatureKeyId: "",
-  msgEncryptionKeyId: "",
+  msgEncryptionKeyId: null,
+  msgEncryptionAllKeyIds: null,
 
   reset() {
     this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
     this.msgEncryptionState = EnigmailConstants.MSG_ENC_NONE;
     this.msgSignatureKeyId = "";
-    this.msgEncryptionKeyId = "";
+    this.msgEncryptionKeyId = null;
+    this.msgEncryptionAllKeyIds = null;
   },
 
   hdrViewLoad() {
@@ -190,6 +192,7 @@ Enigmail.hdrView = {
     params.msgEncryptionState = this.msgEncryptionState;
     params.msgSignatureKeyId = this.msgSignatureKeyId;
     params.msgEncryptionKeyId = this.msgEncryptionKeyId;
+    params.msgEncryptionAllKeyIds = this.msgEncryptionAllKeyIds;
     params.from = "";
 
     if ("from" in currentHeaderData) {
@@ -357,7 +360,11 @@ Enigmail.hdrView = {
     // - signing and hash alg
 
     this.msgSignatureKeyId = keyId;
-    this.msgEncryptionKeyId = encToDetails;
+
+    if (encToDetails) {
+      this.msgEncryptionKeyId = encToDetails.myRecipKey;
+      this.msgEncryptionAllKeyIds = encToDetails.allRecipKeys;
+    }
 
     let tmp = {
       statusFlags,
@@ -1148,7 +1155,8 @@ Enigmail.hdrView = {
           statusFlags |= EnigmailConstants.PARTIALLY_PGP;
         }
 
-        let encToDetails = "";
+        let encToDetails = null;
+
         if (extraDetails && extraDetails.length > 0) {
           try {
             let o = JSON.parse(extraDetails);
