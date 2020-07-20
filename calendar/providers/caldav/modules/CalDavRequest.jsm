@@ -494,9 +494,12 @@ class CalDavLegacySAXRequest extends CalDavRequestBase {
    * @param {CalDavSession} aSession                  The session to use for this request
    * @param {calICalendar} aCalendar                  The calendar this request belongs to
    * @param {nsIURI} aUri                             The uri to request
-   * @param {?String} aUploadData                     Optional data to upload
-   * @param {?String} aUploadType                     Content type for upload data
-   * @param {?Object} aHandler                        The external request handler
+   * @param {?string} aUploadData                     Optional data to upload
+   * @param {?string} aUploadType                     Content type for upload data
+   * @param {?Object} aHandler                        The external request handler, e.g.
+   *                                                    CalDavEtagsHandler,
+   *                                                    CalDavMultigetSyncHandler,
+   *                                                    CalDavWebDavSyncHandler.
    * @param {?Function<nsIChannel>} aOnSetupChannel   The function to call to set up the channel
    */
   constructor(
@@ -521,36 +524,38 @@ class CalDavLegacySAXRequest extends CalDavRequestBase {
 }
 
 /**
- * Response class for legacy requests. Contains a listener that proxies the external handler to run
- * the promises we use.
+ * Response class for legacy requests. Contains a listener that proxies the
+ * external request handler object (e.g. CalDavMultigetSyncHandler,
+ * CalDavWebDavSyncHandler, CalDavEtagsHandler) in order to resolve or reject
+ * the promises for the response's "responded" and "completed" status.
  */
 class LegacySAXResponse extends CalDavResponseBase {
   /** @return {nsIStreamListener} The listener passed to the channel's asyncOpen */
   get listener() {
     if (!this._listener) {
-      let self = this;
+      let legacySAXResponse = this;
 
-      this._listener = new Proxy(this.request._handler, {
-        get(aTarget, aProp, aReceiver) {
+      legacySAXResponse._listener = new Proxy(legacySAXResponse.request._handler, {
+        get(aRequestHandler, aProp) {
           if (aProp == "onStartRequest") {
             return function(...args) {
               try {
-                let result = aTarget[aProp].apply(this, args);
-                self._onresponded();
+                let result = aRequestHandler.onStartRequest.apply(this, args);
+                legacySAXResponse._onresponded();
                 return result;
               } catch (e) {
-                self._onrespondederror(e);
+                legacySAXResponse._onrespondederror(e);
                 return null;
               }
             };
           } else if (aProp == "onStopRequest") {
             return function(...args) {
               try {
-                let result = aTarget[aProp].apply(this, args);
-                self._oncompleted();
+                let result = aRequestHandler.onStopRequest.apply(this, args);
+                legacySAXResponse._oncompleted();
                 return result;
               } catch (e) {
-                self._oncompletederror(e);
+                legacySAXResponse._oncompletederror(e);
                 return null;
               }
             };
