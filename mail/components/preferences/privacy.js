@@ -302,7 +302,7 @@ var gPrivacyPane = {
   },
 
   /**
-   * Initializes master password UI: the "use master password" checkbox, selects
+   * Initializes master password UI: the "use primary password" checkbox, selects
    * the master password button to show, and enables/disables it as necessary.
    * The master password is controlled by various bits of NSS functionality,
    * so the UI for it can't be controlled by the normal preference bindings.
@@ -349,12 +349,10 @@ var gPrivacyPane = {
       Ci.nsIPKCS11ModuleDB
     );
     if (secmodDB.isFIPSEnabled) {
-      let bundle = document.getElementById("bundlePreferences");
-      Services.prompt.alert(
-        window,
-        bundle.getString("pw_change_failed_title"),
-        bundle.getString("pw_change2empty_in_fips_mode")
-      );
+      let title = document.getElementById("fips-title").textContent;
+      let desc = document.getElementById("fips-desc").textContent;
+      Services.prompt.alert(window, title, desc);
+      this._initMasterPasswordUI();
     } else {
       gSubDialog.open(
         "chrome://mozapps/content/preferences/removemp.xhtml",
@@ -376,7 +374,7 @@ var gPrivacyPane = {
       AppConstants.platform != "linux"
     ) {
       let messageId =
-        "master-password-os-auth-dialog-message-" + AppConstants.platform;
+        "primary-password-os-auth-dialog-message-" + AppConstants.platform;
       let [messageText, captionText] = await L10n.formatMessages([
         {
           id: messageId,
