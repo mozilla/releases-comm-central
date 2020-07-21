@@ -1002,7 +1002,6 @@ function protocolToString(type) {
 // ----------------------
 // SSL cert error handler
 
-// TODO: Add new error handling that uses this code. See bug 1547096.
 /**
  * @param thisTry {HostTry}
  * @param logger {Log4Moz logger}
@@ -1080,7 +1079,6 @@ SSLErrorHandler.prototype = {
      * get another cert exception, this time with dialog to the user
      * so that he gets informed about this and can make a choice.
      */
-
     this._try.targetSite = targetSite;
     Cc["@mozilla.org/security/certoverride;1"]
       .getService(Ci.nsICertOverrideService)
@@ -1203,7 +1201,32 @@ function SocketUtil(
       try {
         instream.close();
         outstream.close();
-        resultCallback(this.data.length ? this.data : null);
+        // Did it fail because of a bad certificate?
+        let isCertError = false;
+        if (status != Cr.NS_OK) {
+          let nssErrorsService = Cc[
+            "@mozilla.org/nss_errors_service;1"
+          ].getService(Ci.nsINSSErrorsService);
+          try {
+            let errorType = nssErrorsService.getErrorClass(status);
+            if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
+              isCertError = true;
+            }
+          } catch (e) {
+            // nsINSSErrorsService.getErrorClass throws if given a non-TLS,
+            // non-cert error, so ignore this.
+          }
+        }
+        if (isCertError) {
+          let socket = transport.QueryInterface(Ci.nsISocketTransport);
+          let secInfo = socket.securityInfo.QueryInterface(
+            Ci.nsITransportSecurityInfo
+          );
+          sslErrorHandler.processCertError(secInfo, hostname + ":" + port);
+          resultCallback(this.data.length ? this.data : null);
+        } else {
+          resultCallback(this.data.length ? this.data : null);
+        }
       } catch (e) {
         _error(e);
       }
