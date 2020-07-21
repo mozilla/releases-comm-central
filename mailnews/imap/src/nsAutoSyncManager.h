@@ -14,7 +14,7 @@
 #  include "nsIAutoSyncManager.h"
 #  include "nsIAutoSyncMsgStrategy.h"
 #  include "nsIAutoSyncFolderStrategy.h"
-#  include "nsIIdleService.h"
+#  include "nsIUserIdleService.h"
 #  include "prtime.h"
 
 // clang-format off
@@ -203,7 +203,7 @@ class nsAutoSyncManager final : public nsIObserver,
   uint32_t mGroupSize;
   IdleState mIdleState;
   int32_t mDownloadModel;
-  nsCOMPtr<nsIIdleService> mIdleService;
+  nsCOMPtr<nsIUserIdleService> mIdleService;
   nsCOMPtr<nsITimer> mTimer;
   nsTObserverArray<nsCOMPtr<nsIAutoSyncMgrListener> > mListeners;
 };

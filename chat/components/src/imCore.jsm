@@ -61,8 +61,8 @@ UserStatus.prototype = {
   _observingIdleness: false,
   _addIdleObserver() {
     this._observingIdleness = true;
-    this._idleService = Cc["@mozilla.org/widget/idleservice;1"].getService(
-      Ci.nsIIdleService
+    this._idleService = Cc["@mozilla.org/widget/useridleservice;1"].getService(
+      Ci.nsIUserIdleService
     );
     Services.obs.addObserver(this, "im-sent");
 

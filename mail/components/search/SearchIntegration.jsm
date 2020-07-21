@@ -207,8 +207,8 @@ var SearchSupport = {
       );
       // itemEvent intentionally omitted
       Services.obs.addObserver(this, "MsgMsgDisplayed");
-      let idleService = Cc["@mozilla.org/widget/idleservice;1"].getService(
-        Ci.nsIIdleService
+      let idleService = Cc["@mozilla.org/widget/useridleservice;1"].getService(
+        Ci.nsIUserIdleService
       );
       idleService.addIdleObserver(this, this._idleThresholdSecs);
     } else {
@@ -243,8 +243,8 @@ var SearchSupport = {
 
     if (this.enabled) {
       Services.obs.removeObserver(this, "MsgMsgDisplayed");
-      let idleService = Cc["@mozilla.org/widget/idleservice;1"].getService(
-        Ci.nsIIdleService
+      let idleService = Cc["@mozilla.org/widget/useridleservice;1"].getService(
+        Ci.nsIUserIdleService
       );
       idleService.removeIdleObserver(this, this._idleThresholdSecs);
 

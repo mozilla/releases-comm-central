@@ -322,8 +322,8 @@ var GlodaIndexer = {
     // create the timer for larger offsets independent of indexing
     this._longTimer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
 
-    this._idleService = Cc["@mozilla.org/widget/idleservice;1"].getService(
-      Ci.nsIIdleService
+    this._idleService = Cc["@mozilla.org/widget/useridleservice;1"].getService(
+      Ci.nsIUserIdleService
     );
 
     // create our performance stopwatches

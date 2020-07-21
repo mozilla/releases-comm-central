@@ -207,7 +207,7 @@ nsAutoSyncManager::nsAutoSyncManager() {
   mPaused = false;
 
   nsresult rv;
-  mIdleService = do_GetService("@mozilla.org/widget/idleservice;1", &rv);
+  mIdleService = do_GetService("@mozilla.org/widget/useridleservice;1", &rv);
   if (mIdleService) mIdleService->AddIdleObserver(this, kIdleTimeInSec);
 
   // Observe xpcom-shutdown event and app-idle changes
