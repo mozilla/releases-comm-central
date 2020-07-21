@@ -72,16 +72,15 @@
 #importKeyList {
   display: grid;
   row-gap: 6px;
-  margin: 18px 6px 24px;
+  margin: 18px 6px 9px;
 }
 
 .key-import-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  row-gap: 2px;
   align-items: end;
   border-radius: 4px;
-  padding: 6px;
+  padding: 3px 6px;
   border: 1px solid var(--in-content-border-color);
   background-color: rgba(215, 215, 219, 0.2);
   margin-bottom: 6px;
@@ -129,7 +128,7 @@
   font-size: .9em;
 }
 
-#importKeyListRecap {
-  max-height: 32em;
-  overflow-y: auto;
+.description-centered {
+  text-align: center;
+  margin-inline: 20px;
 }

@@ -77,7 +77,9 @@ openpgp-keygen-import-progress-title = Importing your OpenPGP Keys…
 
 openpgp-import-success = OpenPGP Keys successfully imported!
 
-openpgp-import-success-description = This is a recap of the recently imported keys. Close the dialog to complete the process.
+openpgp-import-success-title = Complete the import process
+
+openpgp-import-success-description = To start using your imported OpenPGP key for email encryption, close this dialog and access your Account Settings to select it.
 
 openpgp-keygen-confirm =
     .label = Confirm
@@ -128,6 +130,8 @@ openpgp-import-key-list-amount = { $count ->
 }
 
 openpgp-import-key-list-description = Confirm which keys may be treated as your personal keys. Only keys that you created yourself and that show your own identity should be used as personal keys. You can change this option later in the Key Properties dialog.
+
+openpgp-import-key-list-caption = Keys marked to be treated as Personal Keys will be listed in the End-To-End Encryption section. The others will be available inside the Key Manager.
 
 openpgp-passphrase-prompt-title = Passphrase required
 

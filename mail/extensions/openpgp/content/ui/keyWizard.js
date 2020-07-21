@@ -181,6 +181,10 @@ async function wizardNextStep() {
       await openPgpImportStart();
       break;
 
+    case "importComplete":
+      openPgpImportComplete();
+      break;
+
     case "external":
       break;
   }
@@ -680,10 +684,11 @@ async function importSecretKey() {
     titleContainer.appendChild(id);
     titleContainer.appendChild(name);
 
-    // Allow users to treat key as "Personal".
+    // Allow users to treat imported keys as "Personal".
     let checkbox = document.createXULElement("checkbox");
     checkbox.setAttribute("id", `${key.id}-set-personal`);
     document.l10n.setAttributes(checkbox, "import-key-personal-checkbox");
+    checkbox.checked = true;
 
     container.appendChild(titleContainer);
     container.appendChild(checkbox);
@@ -830,11 +835,29 @@ async function openPgpImportStart() {
     }
   }
 
-  resizeDialog();
+  // Hide the previous key list container and title.
+  document.getElementById("importKeyListContainer").collapsed = true;
+  document.getElementById("importKeyTitle").hidden = true;
+
+  // Update the dialog buttons for the final stage.
+  kDialog.getButton("help").setAttribute("hidden", true);
+  kDialog.getButton("cancel").setAttribute("hidden", true);
+
+  // Update the `Continue` button.
+  document.l10n.setAttributes(
+    kDialog.getButton("accept"),
+    "openpgp-keygen-import-complete"
+  );
+  kCurrentSection = "importComplete";
 
   // Show the recently built key list.
-  document.getElementById("importLoading").collapsed = true;
-  document.getElementById("importSuccess").collapsed = false;
+  document.getElementById("importKeyListSuccess").collapsed = false;
+
+  // Hide the loading overlay.
+  overlay.addEventListener("transitionend", hideOverlay);
+  overlay.classList.add("hide");
+
+  resizeDialog();
 
   kGenerating = false;
 }
