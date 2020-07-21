@@ -581,6 +581,11 @@ html|input.indent {
   font-size: .8em;
 }
 
+.menu-iconic-icon {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
 #datePrefsBox {
   display: grid;
   grid-template-columns: auto 1fr 1fr;
