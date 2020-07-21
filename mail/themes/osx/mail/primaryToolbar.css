@@ -41,7 +41,7 @@
   display: -moz-box;
   margin-top: -1px;
   height: 1px;
-  /* use inset box-shadow instead of border because -moz-appearance hides the border */
+  /* use inset box-shadow instead of border because -moz-default-appearance hides the border */
   box-shadow: inset 0 -1px var(--chrome-content-separator-color);
 }
 

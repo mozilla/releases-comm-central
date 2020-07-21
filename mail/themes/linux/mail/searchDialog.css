@@ -36,5 +36,5 @@ treechildren::-moz-tree-cell-text(subjectCol) {
 }
 
 #gray_horizontal_splitter {
-  -moz-appearance: none;
+  appearance: none;
 }
