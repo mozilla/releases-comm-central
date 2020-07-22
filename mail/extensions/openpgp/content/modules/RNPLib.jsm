@@ -136,8 +136,8 @@ function enableRNPLibJS() {
       let pubFile = EnigmailApp.getProfileDirectory();
       pubFile.append("pubring.gpg");
 
-      names.secring = secFile.path;
-      names.pubring = pubFile.path;
+      names.secring = secFile.clone();
+      names.pubring = pubFile.clone();
 
       return names;
     },
@@ -164,7 +164,10 @@ function enableRNPLibJS() {
       let filenames = this.getFilenames();
 
       let input_from_path = new rnp_input_t();
-      this.rnp_input_from_path(input_from_path.address(), filenames.pubring);
+      this.rnp_input_from_path(
+        input_from_path.address(),
+        filenames.pubring.path
+      );
       this.rnp_load_keys(
         this.ffi,
         "GPG",
@@ -175,7 +178,7 @@ function enableRNPLibJS() {
 
       let in2 = new rnp_input_t();
 
-      this.rnp_input_from_path(in2.address(), filenames.secring);
+      this.rnp_input_from_path(in2.address(), filenames.secring.path);
       this.rnp_load_keys(this.ffi, "GPG", in2, this.RNP_LOAD_SAVE_SECRET_KEYS);
       this.rnp_input_destroy(in2);
 
@@ -203,10 +206,17 @@ function enableRNPLibJS() {
     saveKeys() {
       let filenames = this.getFilenames();
 
+      // Start by writing to new, temporary files. This avoids the
+      // risk that we crash during saving and destroy the good files.
+
+      let tmpNewSuffix = ".tmp-new";
+      let pubNew = filenames.pubring.clone();
+      pubNew.leafName += tmpNewSuffix;
+      let secNew = filenames.secring.clone();
+      secNew.leafName += tmpNewSuffix;
+
       let output_to_path = new rnp_output_t();
-      if (
-        this.rnp_output_to_path(output_to_path.address(), filenames.pubring)
-      ) {
+      if (this.rnp_output_to_path(output_to_path.address(), pubNew.path)) {
         throw new Error("rnp_output_to_path failed");
       }
       if (
@@ -223,7 +233,7 @@ function enableRNPLibJS() {
 
       let out2 = new rnp_output_t();
 
-      if (this.rnp_output_to_path(out2.address(), filenames.secring)) {
+      if (this.rnp_output_to_path(out2.address(), secNew.path)) {
         throw new Error("rnp_output_to_path failed");
       }
       if (
@@ -240,6 +250,36 @@ function enableRNPLibJS() {
 
       output_to_path = null;
       out2 = null;
+
+      // Now that saving to new filenames has finished, rename.
+
+      let oldSuffix = ".old";
+      let pubOld = filenames.pubring.leafName + oldSuffix;
+      let secOld = filenames.secring.leafName + oldSuffix;
+
+      let pubFinal = filenames.pubring.leafName;
+      let secFinal = filenames.secring.leafName;
+
+      // this may fail if we're saving for the first time
+      try {
+        filenames.pubring.renameTo(null, pubOld);
+        filenames.secring.renameTo(null, secOld);
+      } catch (ex) {}
+
+      pubNew.renameTo(null, pubFinal);
+      secNew.renameTo(null, secFinal);
+
+      // Renaming succeeded, remove the old files.
+
+      try {
+        let oldPubFile = filenames.pubring.clone();
+        oldPubFile.leafName = pubOld;
+        oldPubFile.remove(false);
+
+        let oldSecFile = filenames.secring.clone();
+        oldSecFile.leafName = secOld;
+        oldSecFile.remove(false);
+      } catch (ex) {}
     },
 
     keep_password_cb_alive: null,
