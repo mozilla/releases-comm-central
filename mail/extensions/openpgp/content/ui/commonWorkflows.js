@@ -7,18 +7,24 @@
 "use strict";
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var EnigmailDialog = ChromeUtils.import(
+var { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
-).EnigmailDialog;
-var EnigmailLocale = ChromeUtils.import(
+);
+var { EnigmailLocale } = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
-).EnigmailLocale;
+);
 var { EnigmailKey } = ChromeUtils.import(
   "chrome://openpgp/content/modules/key.jsm"
 );
-var EnigmailKeyRing = ChromeUtils.import(
+var { EnigmailKeyRing } = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
+);
+var { EnigmailArmor } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/armor.jsm"
+);
+var { EnigmailFiles } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/files.jsm"
+);
 
 var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
@@ -49,6 +55,46 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
 
   resultFlags.canceled = false;
   return p.value;
+}
+
+// Return the first block of the wanted type (skip blocks of wrong type)
+function getKeyBlockFromFile(path, wantSecret) {
+  var contents = EnigmailFiles.readFile(path);
+  if (!contents) {
+    return "";
+  }
+
+  let searchOffset = 0;
+
+  while (searchOffset < contents.length) {
+    const beginIndexObj = {};
+    const endIndexObj = {};
+    const blockType = EnigmailArmor.locateArmoredBlock(
+      contents,
+      searchOffset,
+      "",
+      beginIndexObj,
+      endIndexObj,
+      {}
+    );
+    if (!blockType) {
+      return "";
+    }
+
+    if (
+      (wantSecret && blockType.search(/^PRIVATE KEY BLOCK$/) !== 0) ||
+      (!wantSecret && blockType.search(/^PUBLIC KEY BLOCK$/) !== 0)
+    ) {
+      searchOffset = endIndexObj.value;
+      continue;
+    }
+
+    return contents.substr(
+      beginIndexObj.value,
+      endIndexObj.value - beginIndexObj.value + 1
+    );
+  }
+  return "";
 }
 
 /**
@@ -88,10 +134,20 @@ function EnigmailCommon_importObjectFromFile(what) {
 
   let isSecret = what == "sec";
 
+  let importBinary = false;
+  let keyBlock = getKeyBlockFromFile(inFile, isSecret);
+
+  if (!keyBlock) {
+    // if we don't find an ASCII block, try to import as binary
+    importBinary = true;
+    keyBlock = EnigmailFiles.readFile(inFile);
+  }
+
   // preview
-  let preview = EnigmailKey.getKeyListFromKeyFile(
-    inFile,
+  let preview = EnigmailKey.getKeyListFromKeyBlock(
+    keyBlock,
     errorMsgObj,
+    true, // interactive
     !isSecret,
     isSecret
   );
@@ -129,21 +185,27 @@ function EnigmailCommon_importObjectFromFile(what) {
     if (exitStatus) {
       // import
       let resultKeys = {};
-      let exitCode = EnigmailKeyRing.importKeyFromFile(
+
+      let exitCode = EnigmailKeyRing.importKey(
         window,
-        passphrasePromptCallback,
-        inFile,
+        false, // interactive, we already asked for confirmation
+        keyBlock,
+        importBinary,
+        null, // expected keyId, ignored
         errorMsgObj,
         resultKeys,
-        !isSecret,
-        isSecret
+        false, // minimize
+        [], // filter
+        isSecret,
+        passphrasePromptCallback
       );
+
       if (exitCode !== 0) {
         document.l10n.formatValue("import-keys-failed").then(value => {
           EnigmailDialog.alert(window, value + "\n\n" + errorMsgObj.value);
         });
       } else {
-        EnigmailDialog.keyImportDlg(window, resultKeys.keys);
+        EnigmailDialog.keyImportDlg(window, resultKeys.value);
         return true;
       }
     }

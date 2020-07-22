@@ -94,6 +94,9 @@ var EnigmailKey = {
         }
 
         let errorMsgObj = {};
+        // TODO this will certainly not work yet, because RNP requires
+        // calling a different function for importing revocation
+        // signatures, see RNP.importRevImpl
         if (
           getKeyRing().importKey(
             null,

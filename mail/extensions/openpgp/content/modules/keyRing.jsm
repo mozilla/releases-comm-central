@@ -643,6 +643,9 @@ var EnigmailKeyRing = {
    * @param importedKeysObj Object   - [OPTIONAL] o.value will contain an array of the FPRs imported
    * @param minimizeKey     Boolean  - [OPTIONAL] minimize key for importing
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
+   * @param importSecret    Boolean  - By default and traditionally, function imports public, only.
+   *                                   If true, will import secret, only.
+   * @param passCB          Function - Password callback function
    *
    * @return Integer -  exit code:
    *      ExitCode == 0  => success
@@ -658,7 +661,9 @@ var EnigmailKeyRing = {
     errorMsgObj,
     importedKeysObj,
     minimizeKey = false,
-    limitedUids = []
+    limitedUids = [],
+    importSecret = false, // by default and traditionally, function imports public, only
+    passCB = null // password callback function
   ) {
     const cApi = EnigmailCryptoAPI();
     return cApi.sync(
@@ -671,7 +676,9 @@ var EnigmailKeyRing = {
         errorMsgObj,
         importedKeysObj,
         minimizeKey,
-        limitedUids
+        limitedUids,
+        importSecret,
+        passCB
       )
     );
   },
@@ -687,6 +694,9 @@ var EnigmailKeyRing = {
    * @param importedKeysObj Object   - [OPTIONAL] o.value will contain an array of the FPRs imported
    * @param minimizeKey     Boolean  - [OPTIONAL] minimize key for importing
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
+   * @param importSecret    Boolean  - By default and traditionally, function imports public, only.
+   *                                   If true, will import secret, only.
+   * @param passCB          Function - Password callback function
    *
    * @return Integer -  exit code:
    *      ExitCode == 0  => success
@@ -698,11 +708,13 @@ var EnigmailKeyRing = {
     isInteractive,
     keyBlock,
     isBinary,
-    keyId,
+    keyId, // ignored
     errorMsgObj,
     importedKeysObj,
     minimizeKey = false,
-    limitedUids = []
+    limitedUids = [],
+    importSecret = false,
+    passCB = null
   ) {
     EnigmailLog.DEBUG(
       `keyRing.jsm: EnigmailKeyRing.importKeyAsync('${keyId}', ${isInteractive}, ${minimizeKey})\n`
@@ -761,11 +773,27 @@ var EnigmailKeyRing = {
       // strict on first attempt, permissive on optional second attempt
       if (isBinary) {
         result = cApi.sync(
-          cApi.importKeyBlockAPI(keyBlock, true, false, permissive, limitedUids)
+          cApi.importKeyBlockAPI(
+            parent,
+            passCB,
+            keyBlock,
+            !importSecret,
+            importSecret,
+            permissive,
+            limitedUids
+          )
         ); // public only
       } else {
         result = cApi.sync(
-          cApi.importKeyBlockAPI(pgpBlock, true, false, permissive, limitedUids)
+          cApi.importKeyBlockAPI(
+            parent,
+            passCB,
+            pgpBlock,
+            !importSecret,
+            importSecret,
+            permissive,
+            limitedUids
+          )
         ); // public only
       }
 
@@ -786,6 +814,10 @@ var EnigmailKeyRing = {
 
     if (importedKeysObj) {
       importedKeysObj.value = result.importedKeys;
+    }
+
+    if (result.importedKeys.length > 0) {
+      EnigmailKeyRing.updateKeys(result.importedKeys);
     }
 
     EnigmailKeyRing.clearCache();

@@ -90,6 +90,8 @@ class RNPCryptoAPI extends CryptoAPI {
   }
 
   async importKeyBlockAPI(
+    win,
+    passCB,
     keyBlock,
     pubkey,
     seckey,
@@ -98,15 +100,14 @@ class RNPCryptoAPI extends CryptoAPI {
   ) {
     // TODO: get status results
     let res = await RNP.importKeyBlockImpl(
-      null,
-      null,
+      win,
+      passCB,
       keyBlock,
       pubkey,
       seckey,
       permissive,
       limitedFPRs
     );
-    RNP.saveKeyRings();
     return res;
   }
 
