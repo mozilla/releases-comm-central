@@ -223,12 +223,13 @@
             label="&printSetupCmd.label;"
             accesskey="&printSetupCmd.accesskey;"
             command="cmd_printSetup"/>
-#ifndef XP_MACOSX
   <menuitem id="menu_printPreview"
             label="&printPreviewCmd.label;"
             accesskey="&printPreviewCmd.accesskey;"
-            command="cmd_printpreview"/>
+#ifdef XP_MACOSX
+            hidden="true"
 #endif
+            command="cmd_printpreview"/>
   <menuitem id="menu_print"
             label="&printCmd.label;"
             accesskey="&printCmd.accesskey;"
