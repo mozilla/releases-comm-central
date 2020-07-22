@@ -22,6 +22,7 @@ var gTests = [
       "capability",
       "CLIENTID",
       "authenticate PLAIN",
+      "capability",
       "list",
       "lsub",
     ],
