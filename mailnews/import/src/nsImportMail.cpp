@@ -353,21 +353,11 @@ NS_IMETHODIMP nsImportGenericMail::BeginImport(nsISupportsString* successLog,
 
   m_pThreadData->stringBundle = m_stringBundle;
 
-  PRThread* pThread = PR_CreateThread(PR_USER_THREAD, &ImportMailThread,
-                                      m_pThreadData, PR_PRIORITY_NORMAL,
-                                      PR_LOCAL_THREAD, PR_UNJOINABLE_THREAD, 0);
-  if (!pThread) {
-    m_pThreadData->ThreadDelete();
-    m_pThreadData->abort = true;
-    m_pThreadData->DriverAbort();
-    m_pThreadData = nullptr;
-    *_retval = false;
-    nsImportStringBundle::GetStringByID(IMPORT_ERROR_MB_NOTHREAD,
-                                        m_stringBundle, error);
-    SetLogs(success, error, successLog, errorLog);
-  } else
-    *_retval = true;
-
+  // Previously this was run in a sub-thread, after introducing
+  // SeamonkeyImport.jsm and because JS XPCOM can only run in the main thread,
+  // this has been changed to run in the main thread.
+  ImportMailThread(m_pThreadData);
+  *_retval = true;
   return NS_OK;
 }
 
