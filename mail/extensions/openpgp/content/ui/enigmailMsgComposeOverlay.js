@@ -2736,7 +2736,7 @@ Enigmail.msg = {
           );
         }
 
-        //this.setAutocryptHeader();
+        this.setAutocryptHeader();
       }
     } catch (ex) {
       EnigmailLog.writeException(
@@ -2751,6 +2751,34 @@ Enigmail.msg = {
     let account = MailServices.accounts.getAccount(currentAccountKey);
 
     return account.incomingServer; /* returns nsIMsgIncomingServer */
+  },
+
+  setAutocryptHeader() {
+    if (!gAttachMyPublicPGPKey) {
+      return;
+    }
+
+    this.identity = getCurrentIdentity();
+    let senderKeyId = this.identity.getUnicharAttribute("openpgp_key_id");
+    if (!senderKeyId) {
+      return;
+    }
+
+    let fromMail = this.identity.email;
+    try {
+      fromMail = EnigmailFuncs.stripEmail(gMsgCompose.compFields.from);
+    } catch (ex) {}
+
+    let keyData = EnigmailKeyRing.getAutocryptKey("0x" + senderKeyId, fromMail);
+
+    if (keyData) {
+      keyData =
+        " " + keyData.replace(/(.{72})/g, "$1\r\n ").replace(/\r\n $/, "");
+      this.setAdditionalHeader(
+        "Autocrypt",
+        "addr=" + fromMail + "; keydata=\r\n" + keyData
+      );
+    }
   },
 
   /**

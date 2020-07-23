@@ -432,9 +432,15 @@ var EnigmailKeyRing = {
    * @return Array of String: list of UserIds
    */
   getValidUids(keyId) {
-    let r = [];
     let keyObj = this.getKeyById(keyId);
+    if (keyObj) {
+      return this.getValidUidsFromKeyObj(keyObj);
+    }
+    return [];
+  },
 
+  getValidUidsFromKeyObj(keyObj) {
+    let r = [];
     if (keyObj) {
       const TRUSTLEVELS_SORTED = EnigmailTrust.trustLevelsSorted();
       let hideInvalidUid = true;
@@ -1332,6 +1338,47 @@ var EnigmailKeyRing = {
       }
     }
     return res;
+  },
+
+  // Only use an Autocrypt header if our key has a very simple structure.
+  // This avoids the scenario that we send a simpler structure, that
+  // misses some userIDs or subKeys, and the user imports an incomplete
+  // key. A correspondent might eventually require additional attributes
+  // of a more complex key. However, when receicing a newer version of
+  // a key, which has the same key ID, we wouldn't notify the user about
+  // an updated key, if only structural details changed, such as
+  // added/removed userIds or added subKeys.
+  getAutocryptKey(keyId, email) {
+    let keyObj = this.getKeyById(keyId);
+    if (!keyObj) {
+      return null;
+    }
+    if (keyObj.subKeys.length == 0 || !keyObj.iSimpleOneSubkeySameExpiry()) {
+      return null;
+    }
+    if (keyObj.userIds.length != 1) {
+      return null;
+    }
+    if (!keyObj.keyUseFor.includes("s")) {
+      return null;
+    }
+    let subKey = keyObj.subKeys[0];
+    if (!subKey.keyUseFor.includes("e")) {
+      return null;
+    }
+    switch (subKey.keyTrust) {
+      case "e":
+      case "r":
+        return null;
+    }
+    let split = {};
+    if (uidHelper.getPartsFromUidStr(keyObj.userId, split)) {
+      let uidEmail = split.email.toLowerCase();
+      if (uidEmail !== email) {
+        return null;
+      }
+    }
+    return RNP.getAutocryptKeyB64(keyId, "0x" + subKey.keyId, keyObj.userId);
   },
 }; //  EnigmailKeyRing
 

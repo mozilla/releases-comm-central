@@ -2753,4 +2753,72 @@ var RNP = {
     this.saveKeyRings();
     return true;
   },
+
+  getAutocryptKeyB64(primaryKeyId, subKeyId, uidString) {
+    let primHandle = this.getKeyHandleByKeyIdOrFingerprint(
+      RNPLib.ffi,
+      primaryKeyId
+    );
+    let subHandle = this.getKeyHandleByKeyIdOrFingerprint(RNPLib.ffi, subKeyId);
+
+    let output_to_memory = new RNPLib.rnp_output_t();
+    if (RNPLib.rnp_output_to_memory(output_to_memory.address(), 0)) {
+      throw new Error("rnp_output_to_memory failed");
+    }
+
+    let result = "";
+
+    if (!primHandle.isNull() && !subHandle.isNull()) {
+      if (
+        RNPLib.rnp_key_export_autocrypt(
+          primHandle,
+          subHandle,
+          uidString,
+          output_to_memory,
+          0
+        )
+      ) {
+        console.debug("rnp_key_export_autocrypt failed");
+      } else {
+        let result_buf = new ctypes.uint8_t.ptr();
+        let result_len = new ctypes.size_t();
+        let rv = RNPLib.rnp_output_memory_get_buf(
+          output_to_memory,
+          result_buf.address(),
+          result_len.address(),
+          false
+        );
+
+        if (!rv) {
+          // result_len is of type UInt64, I don't know of a better way
+          // to convert it to an integer.
+          let b_len = parseInt(result_len.value.toString());
+
+          // type casting the pointer type to an array type allows us to
+          // access the elements by index.
+          let uint8_array = ctypes.cast(
+            result_buf,
+            ctypes.uint8_t.array(result_len.value).ptr
+          ).contents;
+
+          let str = "";
+          for (let i = 0; i < b_len; i++) {
+            str += String.fromCharCode(uint8_array[i]);
+          }
+
+          result = btoa(str);
+        }
+      }
+    }
+
+    RNPLib.rnp_output_destroy(output_to_memory);
+
+    if (!primHandle.isNull()) {
+      RNPLib.rnp_key_handle_destroy(primHandle);
+    }
+    if (!subHandle.isNull()) {
+      RNPLib.rnp_key_handle_destroy(subHandle);
+    }
+    return result;
+  },
 };

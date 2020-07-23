@@ -1272,6 +1272,17 @@ function enableRNPLibJS() {
       ctypes.char.ptr
     ),
 
+    rnp_key_export_autocrypt: librnp.declare(
+      "rnp_key_export_autocrypt",
+      abi,
+      rnp_result_t,
+      rnp_key_handle_t,
+      rnp_key_handle_t,
+      ctypes.char.ptr,
+      rnp_output_t,
+      ctypes.uint32_t
+    ),
+
     rnp_result_t,
     rnp_ffi_t,
     rnp_password_cb_t,
