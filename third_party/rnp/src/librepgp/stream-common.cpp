@@ -306,23 +306,21 @@ bool
 src_peek_line(pgp_source_t *src, char *buf, size_t len, size_t *readres)
 {
     size_t scan_pos = 0;
-    size_t can_read_max = len -1; /* we need some place for \0 */
+    size_t inc = 64;
+    len = len - 1;
 
     do {
-        size_t want_to_read;
-        size_t bytes_obtained;
-        size_t can_read_max_remaining = can_read_max - scan_pos;
-
-        want_to_read = scan_pos + (can_read_max_remaining > 64 ? 64 : can_read_max_remaining);
+        size_t to_peek = scan_pos + inc;
+        to_peek = to_peek > len ? len : to_peek;
+        inc = inc * 2;
 
         /* inefficient, each time we again read from the beginning */
-        if (!src_peek(src, buf, want_to_read, &bytes_obtained) ||
-            !bytes_obtained) {
+        if (!src_peek(src, buf, to_peek, readres)) {
             return false;
         }
 
         /* we continue scanning where we stopped previously */
-        for (; scan_pos < bytes_obtained; scan_pos++) {
+        for (; scan_pos < *readres; scan_pos++) {
             if (buf[scan_pos] == '\n') {
                 if ((scan_pos > 0) && (buf[scan_pos - 1] == '\r')) {
                     scan_pos--;
@@ -332,11 +330,10 @@ src_peek_line(pgp_source_t *src, char *buf, size_t len, size_t *readres)
                 return true;
             }
         }
-
-        if (bytes_obtained < want_to_read) {
-          return false;
+        if (*readres < to_peek) {
+            return false;
         }
-    } while (scan_pos < can_read_max);
+    } while (scan_pos < len);
     return false;
 }
 

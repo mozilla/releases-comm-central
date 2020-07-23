@@ -4528,6 +4528,67 @@ TEST_F(rnp_tests, test_ffi_enarmor_dearmor)
     }
 }
 
+TEST_F(rnp_tests, test_ffi_dearmor_edge_cases)
+{
+    rnp_input_t  input = NULL;
+    rnp_output_t output = NULL;
+
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_stream_armor/long_header_line.asc"));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_dearmor(input, output));
+    uint8_t *buf = NULL;
+    size_t   len = 0;
+    assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &len, false));
+    assert_int_equal(len, 2226);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_stream_armor/empty_header_line.asc"));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_dearmor(input, output));
+    buf = NULL;
+    len = 0;
+    assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &len, false));
+    assert_int_equal(len, 2226);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_stream_armor/duplicate_header_line.asc"));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_dearmor(input, output));
+    buf = NULL;
+    len = 0;
+    assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &len, false));
+    assert_int_equal(len, 2226);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_stream_armor/long_header_line_1024.asc"));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_dearmor(input, output));
+    buf = NULL;
+    len = 0;
+    assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &len, false));
+    assert_int_equal(len, 2226);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_stream_armor/wrong_header_line.asc"));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_dearmor(input, output));
+    buf = NULL;
+    len = 0;
+    assert_rnp_success(rnp_output_memory_get_buf(output, &buf, &len, false));
+    assert_int_equal(len, 2226);
+    rnp_input_destroy(input);
+    rnp_output_destroy(output);
+}
+
 TEST_F(rnp_tests, test_ffi_customized_enarmor)
 {
     rnp_input_t           input = NULL;
@@ -7005,6 +7066,44 @@ TEST_F(rnp_tests, test_ffi_detached_verify_input)
     rnp_ffi_destroy(ffi);
 }
 
+TEST_F(rnp_tests, test_ffi_detached_cleartext_signed_input)
+{
+    rnp_ffi_t ffi = NULL;
+    test_ffi_init(&ffi);
+    /* verify detached signature with cleartext input - must fail */
+    rnp_input_t inputmsg = NULL;
+    assert_rnp_success(rnp_input_from_path(&inputmsg, "data/test_messages/message.txt"));
+    rnp_input_t inputsig = NULL;
+    assert_rnp_success(
+      rnp_input_from_path(&inputsig, "data/test_messages/message.txt.cleartext-signed"));
+    rnp_op_verify_t verify = NULL;
+    assert_rnp_success(rnp_op_verify_detached_create(&verify, ffi, inputmsg, inputsig));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(inputmsg);
+    rnp_input_destroy(inputsig);
+    /* verify detached signature with signed/embedded input - must fail */
+    assert_rnp_success(rnp_input_from_path(&inputmsg, "data/test_messages/message.txt"));
+    assert_rnp_success(
+      rnp_input_from_path(&inputsig, "data/test_messages/message.txt.empty.sig"));
+    assert_rnp_success(rnp_op_verify_detached_create(&verify, ffi, inputmsg, inputsig));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    rnp_op_verify_destroy(verify);
+    rnp_input_destroy(inputmsg);
+    rnp_input_destroy(inputsig);
+    /* verify detached signature as a whole message - must fail */
+    assert_rnp_success(rnp_input_from_path(&inputmsg, "data/test_messages/message.txt.sig"));
+    rnp_output_t output = NULL;
+    assert_rnp_success(rnp_output_to_null(&output));
+    assert_rnp_success(rnp_op_verify_create(&verify, ffi, inputmsg, output));
+    assert_rnp_failure(rnp_op_verify_execute(verify));
+    rnp_op_verify_destroy(verify);
+    rnp_output_destroy(output);
+    rnp_input_destroy(inputmsg);
+
+    rnp_ffi_destroy(ffi);
+}
+
 static bool
 check_signature(rnp_op_verify_t op, size_t idx, rnp_result_t status)
 {
@@ -9273,4 +9372,248 @@ TEST_F(rnp_tests, test_ffi_literal_packet)
     rnp_output_destroy(output);
 
     rnp_ffi_destroy(ffi);
+}
+
+static bool
+check_key_autocrypt(rnp_output_t       memout,
+                    const std::string &keyid,
+                    const std::string &subid,
+                    const std::string &uid)
+{
+    rnp_ffi_t ffi = NULL;
+    assert_rnp_success(rnp_ffi_create(&ffi, "GPG", "GPG"));
+
+    uint8_t *buf = NULL;
+    size_t   len = 0;
+    if (rnp_output_memory_get_buf(memout, &buf, &len, false) || !buf || !len) {
+        return false;
+    }
+    rnp_input_t input = NULL;
+    rnp_input_from_memory(&input, buf, len, false);
+    if (rnp_import_keys(
+          ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS, NULL)) {
+        return false;
+    }
+    rnp_input_destroy(input);
+    size_t count = 0;
+    rnp_get_public_key_count(ffi, &count);
+    if (count != 2) {
+        return false;
+    }
+    rnp_get_secret_key_count(ffi, &count);
+    if (count != 0) {
+        return false;
+    }
+    rnp_key_handle_t key = NULL;
+    if (rnp_locate_key(ffi, "keyid", keyid.c_str(), &key) || !key) {
+        return false;
+    }
+    rnp_key_handle_t sub = NULL;
+    if (rnp_locate_key(ffi, "keyid", subid.c_str(), &sub) || !sub) {
+        return false;
+    }
+    if (!key->pub->valid || !sub->pub->valid) {
+        return false;
+    }
+    if ((key->pub->subsigs.size() != 1) || (sub->pub->subsigs.size() != 1)) {
+        return false;
+    }
+    if (!pgp_key_can_sign(key->pub) || !pgp_key_can_encrypt(sub->pub)) {
+        return false;
+    }
+    if ((key->pub->uids.size() != 1) || (key->pub->uids[0].str != uid)) {
+        return false;
+    }
+    rnp_key_handle_destroy(key);
+    rnp_key_handle_destroy(sub);
+    rnp_ffi_destroy(ffi);
+    return true;
+}
+
+TEST_F(rnp_tests, test_ffi_key_export_autocrypt)
+{
+    rnp_ffi_t ffi = NULL;
+    test_ffi_init(&ffi);
+
+    rnp_key_handle_t key = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "7bc6709b15c23a4a", &key));
+    rnp_key_handle_t sub = NULL;
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "8a05b89fad5aded1", &sub));
+
+    /* edge cases */
+    assert_rnp_failure(rnp_key_export_autocrypt(key, NULL, NULL, NULL, 0));
+    rnp_output_t output = NULL;
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(key, sub, NULL, output, 17));
+    assert_rnp_failure(rnp_key_export_autocrypt(NULL, sub, "key0-uid0", output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(key, sub, NULL, output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(key, key, NULL, output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(key, key, "key0-uid0", output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(sub, sub, "key0-uid0", output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(sub, key, "key0-uid0", output, 0));
+    assert_int_equal(output->dst.writeb, 0);
+
+    /* export key + uid1 + sub2 */
+    assert_rnp_success(rnp_key_export_autocrypt(key, sub, "key0-uid1", output, 0));
+    assert_true(
+      check_key_autocrypt(output, "7bc6709b15c23a4a", "8a05b89fad5aded1", "key0-uid1"));
+    rnp_output_destroy(output);
+
+    /* export key + uid0 + sub1 (fail) */
+    rnp_key_handle_destroy(sub);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "1d7e8a5393c997a8", &sub));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(key, sub, "key0-uid0", output, 0));
+    assert_int_equal(output->dst.writeb, 0);
+    rnp_key_handle_destroy(sub);
+
+    /* export key without specifying subkey */
+    assert_rnp_success(rnp_key_export_autocrypt(key, NULL, "key0-uid2", output, 0));
+    assert_true(
+      check_key_autocrypt(output, "7bc6709b15c23a4a", "1ed63ee56fadc34d", "key0-uid2"));
+    rnp_output_destroy(output);
+
+    /* remove first subkey and export again */
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "1ed63ee56fadc34d", &sub));
+    assert_rnp_success(rnp_key_remove(sub, RNP_KEY_REMOVE_PUBLIC));
+    rnp_key_handle_destroy(sub);
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_key_export_autocrypt(key, NULL, "key0-uid0", output, 0));
+    assert_true(
+      check_key_autocrypt(output, "7bc6709b15c23a4a", "8a05b89fad5aded1", "key0-uid0"));
+    rnp_output_destroy(output);
+    rnp_key_handle_destroy(key);
+
+    /* export key with single uid and subkey */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    rnp_input_t input = NULL;
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/alice-sub-pub.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669ffde3c", &key));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_key_export_autocrypt(key, NULL, NULL, output, 0));
+    assert_true(check_key_autocrypt(
+      output, "0451409669ffde3c", "dd23ceb7febeff17", "Alice <alice@rnp>"));
+    rnp_output_destroy(output);
+    rnp_key_handle_destroy(key);
+
+    /* export key with sign-only subkey: fail */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/alice-sign-sub-pub.pgp"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669ffde3c", &key));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "22f3a217c0e439cb", &sub));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(key, sub, NULL, output, 0));
+    assert_int_equal(output->dst.writeb, 0);
+    assert_rnp_failure(rnp_key_export_autocrypt(key, NULL, NULL, output, 0));
+    assert_int_equal(output->dst.writeb, 0);
+    rnp_output_destroy(output);
+    rnp_key_handle_destroy(key);
+    rnp_key_handle_destroy(sub);
+
+    /* export key without subkey: fail */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_rnp_success(rnp_input_from_path(&input, "data/test_key_validity/alice-pub.asc"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669ffde3c", &key));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_failure(rnp_key_export_autocrypt(key, NULL, NULL, output, 0));
+    assert_int_equal(output->dst.writeb, 0);
+    rnp_output_destroy(output);
+    rnp_key_handle_destroy(key);
+
+    /* export secret key: make sure public is exported */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/alice-sub-sec.pgp"));
+    assert_rnp_success(rnp_import_keys(
+      ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS, NULL));
+    rnp_input_destroy(input);
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC));
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669ffde3c", &key));
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_key_export_autocrypt(key, NULL, NULL, output, 0));
+    assert_true(check_key_autocrypt(
+      output, "0451409669ffde3c", "dd23ceb7febeff17", "Alice <alice@rnp>"));
+    rnp_output_destroy(output);
+    rnp_key_handle_destroy(key);
+
+    /* make sure that only self-certification is exported */
+    assert_rnp_success(rnp_unload_keys(ffi, RNP_KEY_UNLOAD_PUBLIC | RNP_KEY_UNLOAD_SECRET));
+    /* load key alice with 2 self-sigs, one of those is expired */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/case9/pubring.gpg"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    rnp_input_destroy(input);
+    /* add one corrupted alice's signature and one valid from Basil */
+    assert_rnp_success(
+      rnp_input_from_path(&input, "data/test_key_validity/case2/pubring.gpg"));
+    assert_rnp_success(rnp_import_keys(ffi, input, RNP_LOAD_SAVE_PUBLIC_KEYS, NULL));
+    rnp_input_destroy(input);
+
+    assert_rnp_success(rnp_locate_key(ffi, "keyid", "0451409669ffde3c", &key));
+    assert_int_equal(key->pub->subsigs.size(), 4);
+    assert_rnp_success(rnp_output_to_memory(&output, 0));
+    assert_rnp_success(rnp_key_export_autocrypt(key, NULL, NULL, output, 0));
+    assert_true(check_key_autocrypt(
+      output, "0451409669ffde3c", "dd23ceb7febeff17", "Alice <alice@rnp>"));
+    rnp_output_destroy(output);
+    rnp_key_handle_destroy(key);
+
+    rnp_ffi_destroy(ffi);
+}
+
+/* This test checks that any exceptions thrown by the internal library
+ * will not propagate beyond the FFI boundary.
+ * In this case we (ab)use a callback to mimic this scenario.
+ */
+TEST_F(rnp_tests, test_ffi_exception)
+{
+    rnp_input_t  input = NULL;
+    rnp_output_t output = NULL;
+
+    // bad_alloc -> RNP_ERROR_OUT_OF_MEMORY
+    {
+        auto reader = [](void *app_ctx, void *buf, size_t len, size_t *read) {
+            throw std::bad_alloc();
+            return true;
+        };
+        assert_rnp_success(rnp_input_from_callback(&input, reader, NULL, NULL));
+        assert_rnp_success(rnp_output_to_memory(&output, 0));
+        assert_int_equal(RNP_ERROR_OUT_OF_MEMORY, rnp_output_pipe(input, output));
+        rnp_input_destroy(input);
+        rnp_output_destroy(output);
+    }
+
+    // runtime_error -> RNP_ERROR_GENERIC
+    {
+        auto reader = [](void *app_ctx, void *buf, size_t len, size_t *read) {
+            throw std::runtime_error("");
+            return true;
+        };
+        assert_rnp_success(rnp_input_from_callback(&input, reader, NULL, NULL));
+        assert_rnp_success(rnp_output_to_memory(&output, 0));
+        assert_int_equal(RNP_ERROR_GENERIC, rnp_output_pipe(input, output));
+        rnp_input_destroy(input);
+        rnp_output_destroy(output);
+    }
+
+    // everything else -> RNP_ERROR_GENERIC
+    {
+        auto reader = [](void *app_ctx, void *buf, size_t len, size_t *read) {
+            throw 5;
+            return true;
+        };
+        assert_rnp_success(rnp_input_from_callback(&input, reader, NULL, NULL));
+        assert_rnp_success(rnp_output_to_memory(&output, 0));
+        assert_int_equal(RNP_ERROR_GENERIC, rnp_output_pipe(input, output));
+        rnp_input_destroy(input);
+        rnp_output_destroy(output);
+    }
 }
