@@ -12,6 +12,7 @@
 #include "nsIPrefService.h"
 #include "nsIServiceManager.h"
 #include "nsIMutableArray.h"
+#include "nsISupportsPrimitives.h"
 #include "nsIURL.h"
 #include "nsNetscapeProfileMigratorBase.h"
 #include "nsNetUtil.h"
@@ -40,8 +41,8 @@ NS_IMPL_ISUPPORTS(nsNetscapeProfileMigratorBase, nsIMailProfileMigrator,
                   nsITimerCallback)
 
 nsresult nsNetscapeProfileMigratorBase::GetProfileDataFromProfilesIni(
-    nsIFile* aDataDir, nsTArray<nsString>& aProfileNames,
-    nsTArray<RefPtr<nsIFile>>& aProfileLocations) {
+    nsIFile* aDataDir, nsIMutableArray* aProfileNames,
+    nsIMutableArray* aProfileLocations) {
   nsCOMPtr<nsIFile> profileIni;
   nsresult rv = aDataDir->Clone(getter_AddRefs(profileIni));
   NS_ENSURE_SUCCESS(rv, rv);
@@ -97,8 +98,13 @@ nsresult nsNetscapeProfileMigratorBase::GetProfileDataFromProfilesIni(
     rootDir->Exists(&exists);
 
     if (exists) {
-      aProfileLocations.AppendElement(rootDir);
-      aProfileNames.AppendElement(NS_ConvertUTF8toUTF16(buffer));
+      aProfileLocations->AppendElement(rootDir);
+
+      nsCOMPtr<nsISupportsString> profileNameString(
+          do_CreateInstance("@mozilla.org/supports-string;1"));
+
+      profileNameString->SetData(NS_ConvertUTF8toUTF16(buffer));
+      aProfileNames->AppendElement(profileNameString);
     }
   }
   return NS_OK;
@@ -346,18 +352,30 @@ void nsNetscapeProfileMigratorBase::EndCopyFolders() {
 
 NS_IMETHODIMP
 nsNetscapeProfileMigratorBase::GetSourceHasMultipleProfiles(bool* aResult) {
-  nsTArray<nsString> profiles;
-  GetSourceProfiles(profiles);
+  nsCOMPtr<nsIArray> profiles;
+  GetSourceProfiles(getter_AddRefs(profiles));
 
-  *aResult = profiles.Length() > 1;
+  if (profiles) {
+    uint32_t count;
+    profiles->GetLength(&count);
+    *aResult = count > 1;
+  } else
+    *aResult = false;
+
   return NS_OK;
 }
 
 NS_IMETHODIMP
 nsNetscapeProfileMigratorBase::GetSourceExists(bool* aResult) {
-  nsTArray<nsString> profiles;
-  GetSourceProfiles(profiles);
+  nsCOMPtr<nsIArray> profiles;
+  GetSourceProfiles(getter_AddRefs(profiles));
 
-  *aResult = profiles.Length() > 0;
+  if (profiles) {
+    uint32_t count;
+    profiles->GetLength(&count);
+    *aResult = count > 0;
+  } else
+    *aResult = false;
+
   return NS_OK;
 }

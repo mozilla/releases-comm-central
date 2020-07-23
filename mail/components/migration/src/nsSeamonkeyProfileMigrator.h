@@ -26,9 +26,7 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
                      const char16_t* aProfile) override;
   NS_IMETHOD GetMigrateData(const char16_t* aProfile, bool aReplace,
                             uint16_t* aResult) override;
-  NS_IMETHOD GetSourceProfiles(nsTArray<nsString>& aResult) override;
-  NS_IMETHOD GetSourceProfileLocations(
-      nsTArray<RefPtr<nsIFile>>& aResult) override;
+  NS_IMETHOD GetSourceProfiles(nsIArray** aResult) override;
 
  protected:
   virtual ~nsSeamonkeyProfileMigrator();
@@ -76,8 +74,8 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
                    PBStructArray& aPrefs, bool deallocate = true);
 
  private:
-  nsTArray<nsString> mProfileNames;
-  nsTArray<RefPtr<nsIFile>> mProfileLocations;
+  nsCOMPtr<nsIMutableArray> mProfileNames;
+  nsCOMPtr<nsIMutableArray> mProfileLocations;
 };
 
 #endif

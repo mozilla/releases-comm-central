@@ -87,7 +87,6 @@ function OnLoadImportDialog() {
 function OnUnloadImportDialog() {
   let nextButton = document.getElementById("forward");
   if (
-    ["addressbook", "settings"].includes(gImportType) &&
     !gErrorStr.data &&
     nextButton.label == nextButton.getAttribute("finishedval")
   ) {

@@ -91,9 +91,9 @@ class nsNetscapeProfileMigratorBase : public nsIMailProfileMigrator,
   void CopyNextFolder();
   void EndCopyFolders();
 
-  nsresult GetProfileDataFromProfilesIni(
-      nsIFile* aDataDir, nsTArray<nsString>& aProfileNames,
-      nsTArray<RefPtr<nsIFile>>& aProfileLocations);
+  nsresult GetProfileDataFromProfilesIni(nsIFile* aDataDir,
+                                         nsIMutableArray* aProfileNames,
+                                         nsIMutableArray* aProfileLocations);
 
   nsresult CopyFile(const nsAString& aSourceFileName,
                     const nsAString& aTargetFileName);

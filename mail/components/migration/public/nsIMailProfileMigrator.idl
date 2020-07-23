@@ -5,7 +5,7 @@
 
 #include "nsISupports.idl"
 
-interface nsIFile;
+interface nsIArray;
 interface nsIProfileStartup;
 
 [scriptable, uuid(fca38a7a-c43f-4b28-adbd-61e5cc942508)]
@@ -57,14 +57,9 @@ interface nsIMailProfileMigrator : nsISupports
   readonly attribute boolean sourceHasMultipleProfiles;
 
   /**
-   * An array of available profile names. If the import source does not support
-   * profiles, this attribute is empty.
+   * An enumeration of available profiles. If the import source does
+   * not support profiles, this attribute is null.
    */
-  readonly attribute Array<AString> sourceProfiles;
-
-  /**
-   * An array of available profile locations. If the import source does not
-   * support profiles, this attribute is empty.
-   */
-  readonly attribute Array<nsIFile> sourceProfileLocations;
+  readonly attribute nsIArray sourceProfiles;
 };
+

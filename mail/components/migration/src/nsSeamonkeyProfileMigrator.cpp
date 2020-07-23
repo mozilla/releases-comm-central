@@ -79,7 +79,8 @@ nsSeamonkeyProfileMigrator::Migrate(uint16_t aItems,
 
   NOTIFY_OBSERVERS(MIGRATION_STARTED, nullptr);
 
-  if (aReplace) {
+  if (aItems & nsIMailProfileMigrator::ADDRESSBOOK_DATA &&
+      aItems & nsIMailProfileMigrator::SETTINGS) {
     CopyPreferences(aReplace);
   } else {
     ImportPreferences(aItems);
@@ -165,25 +166,20 @@ nsSeamonkeyProfileMigrator::GetMigrateData(const char16_t* aProfile,
 }
 
 NS_IMETHODIMP
-nsSeamonkeyProfileMigrator::GetSourceProfiles(nsTArray<nsString>& aResult) {
-  if (mProfileNames.IsEmpty() && mProfileLocations.IsEmpty()) {
+nsSeamonkeyProfileMigrator::GetSourceProfiles(nsIArray** aResult) {
+  if (!mProfileNames && !mProfileLocations) {
+    nsresult rv;
+    mProfileNames = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+    if (NS_FAILED(rv)) return rv;
+
+    mProfileLocations = do_CreateInstance(NS_ARRAY_CONTRACTID, &rv);
+    if (NS_FAILED(rv)) return rv;
+
     // Fills mProfileNames and mProfileLocations
     FillProfileDataFromSeamonkeyRegistry();
   }
 
-  aResult = mProfileNames.Clone();
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsSeamonkeyProfileMigrator::GetSourceProfileLocations(
-    nsTArray<RefPtr<nsIFile>>& aResult) {
-  if (mProfileNames.IsEmpty() && mProfileLocations.IsEmpty()) {
-    // Fills mProfileNames and mProfileLocations
-    FillProfileDataFromSeamonkeyRegistry();
-  }
-
-  aResult = mProfileLocations.Clone();
+  NS_IF_ADDREF(*aResult = mProfileNames);
   return NS_OK;
 }
 
@@ -192,11 +188,14 @@ nsSeamonkeyProfileMigrator::GetSourceProfileLocations(
 
 nsresult nsSeamonkeyProfileMigrator::GetSourceProfile(
     const char16_t* aProfile) {
-  uint32_t count = mProfileNames.Length();
+  uint32_t count;
+  mProfileNames->GetLength(&count);
   for (uint32_t i = 0; i < count; ++i) {
-    nsString profileName = mProfileNames[i];
+    nsCOMPtr<nsISupportsString> str(do_QueryElementAt(mProfileNames, i));
+    nsString profileName;
+    str->GetData(profileName);
     if (profileName.Equals(aProfile)) {
-      mSourceProfile = mProfileLocations[i];
+      mSourceProfile = do_QueryElementAt(mProfileLocations, i);
       break;
     }
   }

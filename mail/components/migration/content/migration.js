@@ -11,6 +11,7 @@ var kIMig = Ci.nsIMailProfileMigrator;
 var kIPStartup = Ci.nsIProfileStartup;
 var kProfileMigratorContractIDPrefix =
   "@mozilla.org/profile/migrator;1?app=mail&type=";
+var nsISupportsString = Ci.nsISupportsString;
 
 var MigrationWizard = {
   _source: "", // Source Profile Migrator ContractID suffix
@@ -102,7 +103,10 @@ var MigrationWizard = {
         this._wiz.goTo("selectProfile");
       } else {
         var sourceProfiles = this._migrator.sourceProfiles;
-        this._selectedProfile = sourceProfiles[0];
+        this._selectedProfile = sourceProfiles.queryElementAt(
+          0,
+          nsISupportsString
+        ).data;
         this._wiz.goTo("migrating");
       }
     }
@@ -191,7 +195,10 @@ var MigrationWizard = {
       this._wiz.currentPage.next = "migrating";
       var sourceProfiles = this._migrator.sourceProfiles;
       if (sourceProfiles && sourceProfiles.length == 1) {
-        this._selectedProfile = sourceProfiles[0];
+        this._selectedProfile = sourceProfiles.queryElementAt(
+          0,
+          nsISupportsString
+        ).data;
       } else {
         this._selectedProfile = "";
       }
@@ -217,7 +224,7 @@ var MigrationWizard = {
     var count = sourceProfiles.length;
     for (var i = 0; i < count; ++i) {
       var item = document.createXULElement("radio");
-      item.id = sourceProfiles[i];
+      item.id = sourceProfiles.queryElementAt(i, nsISupportsString).data;
       item.setAttribute("label", item.id);
       profiles.appendChild(item);
     }
