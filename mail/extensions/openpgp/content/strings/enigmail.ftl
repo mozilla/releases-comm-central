@@ -46,7 +46,7 @@ openpgp-key-id-label =
 openpgp-cannot-change-expiry = This is a key with a complex structure, changing its expiry date isn't supported.
 
 openpgp-key-man-title =
-    .title = OpenPGP Key Management
+    .title = OpenPGP Key Manager
 openpgp-key-man-generate =
     .label = New Key Pair
     .accesskey = K
@@ -139,9 +139,6 @@ openpgp-key-man-key-props =
 openpgp-key-man-key-more =
     .label = More
     .accesskey = M
-openpgp-key-man-show-all-keys =
-    .label = Display All Keys by Default
-    .accesskey = D
 openpgp-key-man-view-photo =
     .label = Photo ID
     .accesskey = P
@@ -150,9 +147,6 @@ openpgp-key-man-ctx-view-photo-label =
 openpgp-key-man-show-invalid-keys =
     .label = Display invalid keys
     .accesskey = D
-openpgp-key-man-show-untrusted-keys =
-    .label = Display Untrusted Keys
-    .accesskey = U
 openpgp-key-man-show-others-keys =
     .label = Display Keys From Other People
     .accesskey = O
@@ -291,12 +285,10 @@ openpgp-key-edit-title = Change OpenPGP Key
 
 openpgp-key-edit-date-title = Extend Expiration Date
 
-openpgp-manager-legend = Manage OpenPGP Keys
-
-openpgp-manager-description = Use the Key Management dialog to view and manage public keys of your correspondents and all other keys not listed above.
+openpgp-manager-description = Use the OpenPGP Key Manager to view and manage public keys of your correspondents and all other keys not listed above.
 
 openpgp-manager-button =
-    .label = OpenPGP Key Management
+    .label = OpenPGP Key Manager
     .accesskey = K
 
 # Strings in keyDetailsDlg.xhtml
@@ -367,7 +359,7 @@ expiry-keys-missing-owner-trust =
     The following of your secret keys have missing trust.
     { $desc }.
     We recommend that you set "You rely on certifications" to "ultimate" in key properties.
-expiry-open-key-manager = Open OpenPGP Key Management
+expiry-open-key-manager = Open OpenPGP Key Manager
 expiry-open-key-properties = Open Key Properties
 
 # Strings filters.jsm

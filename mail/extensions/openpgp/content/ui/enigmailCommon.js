@@ -486,10 +486,6 @@ function EngmailCardDetails() {
   EnigmailWindows.openCardDetails();
 }
 
-function EnigKeygen() {
-  EnigmailWindows.openKeyGen();
-}
-
 // retrieves a localized string from the enigmail.properties stringbundle
 function EnigGetString(aStr) {
   var argList = [];

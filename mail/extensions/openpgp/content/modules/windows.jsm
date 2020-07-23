@@ -185,17 +185,9 @@ var EnigmailWindows = {
    * If the Key Manager is open, dispatch an event to tell the key
    * manager to refresh the displayed keys
    */
-
   keyManReloadKeys() {
-    let windowManager = Services.wm;
-    const winName = "enigmail:KeyManager";
-    const spec = "chrome://openpgp/content/ui/enigmailKeygen.xhtml";
-
-    for (let thisWin of windowManager.getEnumerator(null)) {
-      if (thisWin.location.href == spec) {
-        break;
-      }
-      if (thisWin.name && thisWin.name == winName) {
+    for (let thisWin of Services.wm.getEnumerator(null)) {
+      if (thisWin.name && thisWin.name == "enigmail:KeyManager") {
         let evt = new thisWin.Event("reload-keycache", {
           bubbles: true,
           cancelable: false,
@@ -204,19 +196,6 @@ var EnigmailWindows = {
         break;
       }
     }
-  },
-
-  /**
-   * Display the key creation window
-   *
-   * no return value
-   */
-  openKeyGen() {
-    EnigmailWindows.openWin(
-      "enigmail:generateKey",
-      "chrome://openpgp/content/ui/enigmailKeygen.xhtml",
-      "chrome,resizable=yes"
-    );
   },
 
   /**

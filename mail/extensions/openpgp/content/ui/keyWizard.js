@@ -106,9 +106,25 @@ async function init() {
   // point and prevent the accidental dismiss of the dialog during important
   // processes, like the generation or importing of a key.
   setTimeout(() => {
-    gSubDialog._topDialog._removeDialogEventListeners();
-    gSubDialog._topDialog._closeButton.remove();
+    // Check if the attribute is not null. This can be removed after the full
+    // conversion of the Key Manager into a SubDialog in Bug 1652537.
+    if (gSubDialog) {
+      gSubDialog._topDialog._removeDialogEventListeners();
+      gSubDialog._topDialog._closeButton.remove();
+    }
   }, 150);
+
+  // Switch directly to the create screen if requested by the user.
+  if (window.arguments[0].isCreate) {
+    document.getElementById("openPgpKeyChoices").value = 0;
+    switchSection();
+  }
+
+  // Switch directly to the import screen if requested by the user.
+  if (window.arguments[0].isImport) {
+    document.getElementById("openPgpKeyChoices").value = 1;
+    switchSection();
+  }
 }
 
 /**
@@ -379,7 +395,13 @@ async function validateExpiration() {
 function resizeDialog() {
   // Timeout to trigger the dialog resize after the reveal animation completed.
   setTimeout(() => {
-    gSubDialog._topDialog.resizeVertically();
+    // Check if the attribute is not null. This can be removed after the full
+    // conversion of the Key Manager into a SubDialog in Bug 1652537.
+    if (gSubDialog) {
+      gSubDialog._topDialog.resizeVertically();
+    } else {
+      sizeToContent();
+    }
   }, 230);
 }
 

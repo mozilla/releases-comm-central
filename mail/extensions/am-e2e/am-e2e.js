@@ -563,6 +563,31 @@ function e2eOnLoadEditor() {
 }
 
 /**
+ * Open the OpenPGP Key Manager.
+ */
+function openKeyManager() {
+  // Bug 1638153: The rootTreeItem object has been removed after 78. We need to
+  // the availability of "browsingContext" to use the right DOM window in 79+.
+  let w =
+    "browsingContext" in window
+      ? window.browsingContext.topChromeWindow
+      : window.docShell.rootTreeItem.domWindow;
+
+  let args = {
+    identity: gIdentity,
+    cancelCallback: reloadOpenPgpUI,
+    okCallback: reloadOpenPgpUI,
+  };
+
+  w.openDialog(
+    "chrome://openpgp/content/ui/enigmailKeyManager.xhtml",
+    "enigmail:KeyManager",
+    "dialog,centerscreen,resizable",
+    args
+  );
+}
+
+/**
  * Open the subdialog to create or import an OpenPGP key.
  */
 function openKeyWizard() {
@@ -578,6 +603,7 @@ function openKeyWizard() {
     okImportCallback: keyImportSuccess,
     keyDetailsDialog: enigmailKeyDetails,
   };
+
   parent.gSubDialog.open(
     "chrome://openpgp/content/ui/keyWizard.xhtml",
     null,

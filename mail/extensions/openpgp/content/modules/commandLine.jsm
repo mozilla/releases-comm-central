@@ -21,7 +21,7 @@ const NS_CLINE_SERVICE_CONTRACTID = "@mozilla.org/enigmail/cline-handler;1";
 function Handler() {}
 
 Handler.prototype = {
-  classDescription: "Enigmail Key Management CommandLine Service",
+  classDescription: "OpenPGP Key Manager CommandLine Service",
   classID: NS_ENIGCLINE_SERVICE_CID,
   contractID: NS_CLINE_SERVICE_CONTRACTID,
   QueryInterface: EnigmailCompat.generateQI([
@@ -44,7 +44,7 @@ Handler.prototype = {
     }
   },
 
-  helpInfo: "  -pgpkeyman         Open the OpenPGP key management.\n",
+  helpInfo: "  -pgpkeyman         Open the OpenPGP key manager.\n",
 
   lockFactory(lock) {},
 };

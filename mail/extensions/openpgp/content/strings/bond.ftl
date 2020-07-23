@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 openpgp-manage-keys-openpgp-cmd =
-    .label = OpenPGP Key Management
+    .label = OpenPGP Key Manager
     .accesskey = O
 
 openpgp-ctx-decrypt-open =

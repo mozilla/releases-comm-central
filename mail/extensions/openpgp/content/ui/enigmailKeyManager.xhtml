@@ -1,23 +1,13 @@
 <?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/enigmail.css" type="text/css"?>
 
-<!--
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
--->
-
-<?xul-overlay href="chrome://global/content/globalOverlay.xhtml"?>
-<?xul-overlay href="chrome://communicator/content/utilityOverlay.xhtml"?>
-
-<!DOCTYPE window [
-  <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
-   %brandDTD;
-  <!ENTITY % utilDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
-   %utilDTD;
-]>
+<!DOCTYPE window>
 
 <window id="enigmailKeyManager"
         data-l10n-id="openpgp-key-man-title"
@@ -25,11 +15,12 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="enigmailKeyManagerLoad();"
         height="450"
-        width="700"
-        windowtype="enigmail:KeyManager"
-        persist="screenX screenY width height">
+        width="700">
+<dialog id="openPgpKeyManagerDialog"
+        data-l10n-id="openpgp-card-details-close-window-label"
+        data-l10n-attrs="buttonlabelaccept"
+        buttons="accept">
 
-  <script type="application/x-javascript" src="chrome://global/content/globalOverlay.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyManager.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/commonWorkflows.js" />
@@ -69,7 +60,7 @@
     <broadcaster id="bcClipbrd" disabled="false"/>
   </broadcasterset>
 
-  <toolbar type="menubar">
+  <toolbar type="menubar" style="margin-inline: -8px -10px;margin-top: -8px;">
     <menubar id="main-menubar">
       <menu id="menu_File" data-l10n-id="openpgp-key-man-file-menu">
         <menupopup id="menu_FilePopup" onpopupshowing="enigmailKeyMenu();">
@@ -78,7 +69,7 @@
                     oncommand="EnigmailCommon_importObjectFromFile('pub');"/>
           <menuitem id="importSecFromFile"
                     data-l10n-id="openpgp-key-man-import-secret-from-file"
-                    oncommand="EnigmailCommon_importObjectFromFile('sec');"/>
+                    oncommand="openKeyWizard(true)"/>
           <menuitem id="importSigFromFile"
                     data-l10n-id="openpgp-key-man-import-sig-from-file"
                     oncommand="EnigmailCommon_importObjectFromFile('rev');"/>
@@ -103,7 +94,7 @@
           <!-- add Close and Exit menu items -->
           <menuitem id="menu_close"
                     data-l10n-id="openpgp-key-man-close"
-                    oncommand="window.close()"/>
+                    oncommand="onDialogClose()"/>
         </menupopup>
       </menu>
 
@@ -165,12 +156,6 @@
                     checked="true"
                     persist="checked"
                     oncommand="applyFilter();"/>
-          <menuitem id="showUntrustedKeys"
-                    data-l10n-id="openpgp-key-man-show-untrusted-keys"
-                    type="checkbox"
-                    checked="true"
-                    persist="checked"
-                    oncommand="applyFilter();"/>
           <menuitem id="showOthersKeys"
                     data-l10n-id="openpgp-key-man-show-others-keys"
                     type="checkbox"
@@ -185,7 +170,7 @@
         <menupopup onpopupshowing="enigmailKeyMenu();"> <!-- generate menu -->
           <menuitem id="genKey"
                     data-l10n-id="openpgp-key-man-generate"
-                    oncommand="EnigKeygen();"/>
+                    oncommand="openKeyWizard()"/>
           <!--
           <menuitem id="revokationCertificate"
                     data-l10n-id="openpgp-key-man-gen-revoke"
@@ -228,72 +213,67 @@
     </menupopup>
   </popupset>
 
+  <separator class="thin"/>
+
   <hbox flex="0" align="center">
     <html:input id="filterKey" size="35" data-l10n-id="openpgp-key-man-filter-label"/>
-    <separator orient="vertical"/>
-    <checkbox data-l10n-id="openpgp-key-man-show-all-keys"
-              checked="true"
-              id="showAllKeys"
-              oncommand="enigmailToggleShowAll(this)"/>
-
   </hbox>
 
-  <tooltip id="emptyTree" data-l10n-id="openpgp-key-man-empty-tree-tooltip" noautohide="true"/>
   <tooltip id="nothingFound" data-l10n-id="openpgp-key-man-nothing-found-tooltip" noautohide="true"/>
   <tooltip id="pleaseWait" data-l10n-id="openpgp-key-man-please-wait-tooltip" noautohide="true"/>
 
-  <vbox flex="1" class="enigmailGroupbox">
-    <hbox flex="1">
-      <tree id="pgpKeyList" flex="1"
-            enableColumnDrag="true"
-            seltype="multiple"
-            persist="sortDirection sortResource"
-            sortDirection="ascending"
-            sortResource="enigUserNameCol"
-            hidecolumnpicker="false">
+  <separator class="thin"/>
 
-        <treecols>
-          <treecol id="enigUserNameCol" primary="true"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   data-l10n-id="openpgp-key-man-user-id-label"
-                   style="width: 400px"
-                   persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="keyCol" style="width:100px"
-                   data-l10n-id="openpgp-key-id-label"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="expCol" style="width:70px"
-                   data-l10n-id="openpgp-key-expiry-label"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   hidden="true"
-                   persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="fprCol" style="width:70px"
-                   data-l10n-id="openpgp-key-man-fingerprint-label"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   hidden="true"
-                   persist="width ordinal hidden"/>
-        </treecols>
+  <hbox flex="1">
+    <tree id="pgpKeyList" flex="1"
+          enableColumnDrag="true"
+          seltype="multiple"
+          persist="sortDirection sortResource"
+          sortDirection="ascending"
+          sortResource="enigUserNameCol"
+          hidecolumnpicker="false">
 
-        <treechildren id="pgpKeyListChildren" properties=""
-                      context="ctxmenu"/>
+      <treecols>
+        <treecol id="enigUserNameCol" primary="true"
+                  flex="1"
+                  class="sortDirectionIndicator"
+                  onclick="sortTree(this)"
+                  data-l10n-id="openpgp-key-man-user-id-label"
+                  style="width: 400px"
+                  persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="keyCol" style="width:100px"
+                  data-l10n-id="openpgp-key-id-label"
+                  flex="1"
+                  class="sortDirectionIndicator"
+                  onclick="sortTree(this)"
+                  persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="expCol" style="width:70px"
+                  data-l10n-id="openpgp-key-expiry-label"
+                  flex="1"
+                  class="sortDirectionIndicator"
+                  onclick="sortTree(this)"
+                  persist="width ordinal hidden"/>
+        <splitter class="tree-splitter"/>
+        <treecol id="fprCol" style="width:70px"
+                  data-l10n-id="openpgp-key-man-fingerprint-label"
+                  flex="1"
+                  class="sortDirectionIndicator"
+                  onclick="sortTree(this)"
+                  hidden="true"
+                  persist="width ordinal hidden"/>
+      </treecols>
 
-      </tree>
-    </hbox>
-  </vbox>
+      <treechildren id="pgpKeyListChildren" properties=""
+                    context="ctxmenu"/>
+
+    </tree>
+  </hbox>
 
   <hbox id="statusLine">
-    <label id="statusText" value=" "/>
-    <html:progress id="progressBar" style=":indeterminate; visibility:collapsed"/>
+    <label id="statusText" value=""/>
+    <html:progress id="progressBar" style="visibility:collapsed"/>
   </hbox>
+</dialog>
 </window>

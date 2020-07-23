@@ -96,10 +96,6 @@ pref("temp.openpgp.inlineSigAttachExt", ".sig");
 // debug log directory (if set, also enabled debugging)
 pref("temp.openpgp.logDirectory", "");
 
-// display all or no keys by default in the key manager
-pref("temp.openpgp.keyManShowAllKeys", true);
-
-
 // list of keyservers to use (comma separated list)
 pref("temp.openpgp.keyserver", "vks://keys.openpgp.org");
 

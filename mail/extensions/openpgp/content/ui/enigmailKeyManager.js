@@ -64,15 +64,14 @@ var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 const INPUT = 0;
 const RESULT = 1;
 
+var gIdentity;
 var gUserList;
 var gKeyList;
 var gEnigLastSelectedKeys = null;
 var gKeySortList = null;
 var gSearchInput = null;
-var gShowAllKeysElement = null;
 var gTreeChildren = null;
 var gShowInvalidKeys = null;
-var gShowUntrustedKeys = null;
 var gShowOthersKeys = null;
 var gTimeoutId = {};
 var gTreeFuncs = null;
@@ -86,24 +85,20 @@ function enigmailKeyManagerLoad() {
     return;
   }
 
+  if (window.arguments[0]) {
+    gIdentity = window.arguments[0].identity;
+  }
+
   gUserList = document.getElementById("pgpKeyList");
   gSearchInput = document.getElementById("filterKey");
-  gShowAllKeysElement = document.getElementById("showAllKeys");
-  gTreeChildren = document.getElementById("pgpKeyListChildren");
   gShowInvalidKeys = document.getElementById("showInvalidKeys");
-  gShowUntrustedKeys = document.getElementById("showUntrustedKeys");
   gShowOthersKeys = document.getElementById("showOthersKeys");
   gTreeFuncs = EnigmailCompat.getTreeCompatibleFuncs(gUserList, gKeyListView);
 
   window.addEventListener("reload-keycache", reloadKeys);
   EnigmailSearchCallback.setup(gSearchInput, gTimeoutId, applyFilter, 200);
 
-  if (EnigGetPref("keyManShowAllKeys")) {
-    gShowAllKeysElement.setAttribute("checked", "true");
-  }
-
   gUserList.addEventListener("click", onListClick, true);
-  //document.getElementById("pleaseWait").showPopup(gSearchInput, -1, -1, "tooltip", "after_end", "");
   document.l10n.setAttributes(
     document.getElementById("statusText"),
     "key-man-loading-keys"
@@ -113,10 +108,24 @@ function enigmailKeyManagerLoad() {
 
   gUserList.view = gKeyListView;
   gSearchInput.focus();
+
+  // Dialog event listeners.
+  document.addEventListener("dialogaccept", onDialogAccept);
+  document.addEventListener("dialogcancel", onDialogClose);
 }
 
-function displayFullList() {
-  return gShowAllKeysElement.getAttribute("checked") == "true";
+function onDialogAccept() {
+  if (window.arguments[0].okCallback) {
+    window.arguments[0].okCallback();
+  }
+  window.close();
+}
+
+function onDialogClose() {
+  if (window.arguments[0].cancelCallback) {
+    window.arguments[0].cancelCallback();
+  }
+  window.close();
 }
 
 function loadkeyList() {
@@ -1090,31 +1099,15 @@ function applyFilter() {
   gKeyListView.applyFilter(0);
 }
 
-function enigmailToggleShowAll() {
-  EnigSetPref("keyManShowAllKeys", displayFullList());
-
-  if (!gSearchInput.value || gSearchInput.value.length === 0) {
-    gKeyListView.applyFilter(0);
-  }
-}
-
-function determineHiddenKeys(
-  keyObj,
-  showInvalidKeys,
-  showUntrustedKeys,
-  showOthersKeys
-) {
+function determineHiddenKeys(keyObj, showInvalidKeys, showOthersKeys) {
   var show = true;
 
   const INVALID_KEYS = "ierdD";
-  const UNTRUSTED_KEYS = "n-";
 
   if (!showInvalidKeys && INVALID_KEYS.includes(EnigGetTrustCode(keyObj))) {
     show = false;
   }
-  if (!showUntrustedKeys && UNTRUSTED_KEYS.includes(keyObj.ownerTrust)) {
-    show = false;
-  }
+
   if (!showOthersKeys && !keyObj.secretAvailable) {
     show = false;
   }
@@ -1289,6 +1282,39 @@ function getSortColumn() {
     default:
       return "?";
   }
+}
+
+/**
+ * Open the OpenPGP Key Wizard to generate a new key or import secret keys.
+ *
+ * @param {boolean} isImport - If the keyWizard should automatically switch to
+ *   the import or create screen as requested by the user.
+ */
+function openKeyWizard(isImport = false) {
+  // Bug 1638153: The rootTreeItem object has been removed after 78. We need to
+  // the availability of "browsingContext" to use the right DOM window in 79+.
+  let w =
+    "browsingContext" in window
+      ? window.browsingContext.topChromeWindow
+      : window.docShell.rootTreeItem.domWindow;
+
+  let args = {
+    identity: gIdentity,
+    gSubDialog: null,
+    cancelCallback: clearKeyCache,
+    okCallback: clearKeyCache,
+    okImportCallback: clearKeyCache,
+    keyDetailsDialog: enigmailKeyDetails,
+    isCreate: !isImport,
+    isImport,
+  };
+
+  w.openDialog(
+    "chrome://openpgp/content/ui/keyWizard.xhtml",
+    "enigmail:KeyWizard",
+    "dialog,modal,centerscreen,resizable",
+    args
+  );
 }
 
 /***************************** TreeView for user list ***********************************/
@@ -1606,34 +1632,18 @@ var gKeyListView = {
    * @return array of keyNums (= display some keys) or null (= display ALL keys)
    */
   showOrHideAllKeys() {
-    var hideNode = !displayFullList();
-    var initHint = document.getElementById("emptyTree");
     var showInvalidKeys = gShowInvalidKeys.getAttribute("checked") == "true";
-    var showUntrustedKeys =
-      gShowUntrustedKeys.getAttribute("checked") == "true";
     var showOthersKeys = gShowOthersKeys.getAttribute("checked") == "true";
 
     document.getElementById("nothingFound").hidePopup();
-    if (hideNode) {
-      initHint.showPopup(gTreeChildren, -1, -1, "tooltip", "after_end", "");
-      return [];
-    }
-    initHint.hidePopup();
 
-    if (showInvalidKeys && showUntrustedKeys && showOthersKeys) {
+    if (showInvalidKeys && showOthersKeys) {
       return null;
     }
 
     let keyShowList = [];
     for (let i = 0; i < gKeyList.length; i++) {
-      if (
-        determineHiddenKeys(
-          gKeyList[i],
-          showInvalidKeys,
-          showUntrustedKeys,
-          showOthersKeys
-        )
-      ) {
+      if (determineHiddenKeys(gKeyList[i], showInvalidKeys, showOthersKeys)) {
         keyShowList.push(i);
       }
     }
@@ -1657,8 +1667,6 @@ var gKeyListView = {
       return [];
     }
     let showInvalidKeys = gShowInvalidKeys.getAttribute("checked") == "true";
-    let showUntrustedKeys =
-      gShowUntrustedKeys.getAttribute("checked") == "true";
     let showOthersKeys = gShowOthersKeys.getAttribute("checked") == "true";
 
     document.getElementById("emptyTree").hidePopup();
@@ -1736,12 +1744,7 @@ var gKeyListView = {
       // take option to show invalid/untrusted... keys into account
       if (
         showKey &&
-        determineHiddenKeys(
-          keyObj,
-          showInvalidKeys,
-          showUntrustedKeys,
-          showOthersKeys
-        )
+        determineHiddenKeys(keyObj, showInvalidKeys, showOthersKeys)
       ) {
         keyShowList.push(i);
       }

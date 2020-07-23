@@ -37,7 +37,7 @@
   position: fixed;
   flex-direction: column;
   justify-content: start;
-  background-color: var(--in-content-page-background);
+  background-color: var(--in-content-page-background, -moz-dialog);
   inset: 0;
   z-index: 1;
 }
