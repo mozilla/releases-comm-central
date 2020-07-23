@@ -236,26 +236,7 @@ urlListener.prototype = {
     if (Components.isSuccessCode(aExitCode)) {
       this._cleanup();
       this.mSuccessCallback(this.mConfig);
-    }
-    let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
-      Ci.nsINSSErrorsService
-    );
-    let errorClass = nssErrorsService.getErrorClass(aExitCode);
-    if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
-      this.isCertError = true;
-    }
-
-    if (this.isCertError) {
-      this._log.error("cert error");
-      setTimeout(() => {
-        try {
-          this.informUserOfCertError(aExitCode, aUrl.asciiHostPort);
-        } catch (e) {
-          logException(e);
-        }
-      }, 0);
-    }
-    if (!this.mAlter) {
+    } else if (!this.mAlter) {
       // Logon failed, and we aren't supposed to try other variations.
       this._failed(aUrl);
     } else if (!this.mCertError) {
@@ -398,7 +379,8 @@ urlListener.prototype = {
     this.mErrorCallback(ex);
   },
 
-  informUserOfCertError(secInfo, targetSite) {
+  // TODO: Add new error handling that uses this code. See bug 1547096.
+  informUserOfCertError(socketInfo, secInfo, targetSite) {
     var params = {
       exceptionAdded: false,
       securityInfo: secInfo,
