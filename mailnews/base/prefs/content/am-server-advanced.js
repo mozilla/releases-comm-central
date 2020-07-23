@@ -142,7 +142,6 @@ function onOk(event) {
       }
     }
   }
-  window.dispatchEvent(new CustomEvent("prefchange"));
 }
 
 // Set radio element choices and picker states

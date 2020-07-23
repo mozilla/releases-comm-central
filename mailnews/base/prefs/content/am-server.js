@@ -385,6 +385,7 @@ function onAdvanced() {
         }
       }
     }
+    document.dispatchEvent(new CustomEvent("prefchange"));
   };
 
   parent.gSubDialog.open(

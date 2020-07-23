@@ -207,5 +207,4 @@ function onDelete(event) {
 
 function onOk() {
   window.arguments[0].result = true;
-  window.dispatchEvent(new CustomEvent("prefchange"));
 }

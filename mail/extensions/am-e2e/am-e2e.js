@@ -265,7 +265,7 @@ function onPreInit(account, accountValues) {
 
 function onSave() {
   e2eSave();
-  window.dispatchEvent(new CustomEvent("prefchange"));
+  document.dispatchEvent(new CustomEvent("prefchange"));
 }
 
 function e2eSave() {

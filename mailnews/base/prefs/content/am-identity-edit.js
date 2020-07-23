@@ -206,7 +206,6 @@ function onOk(event) {
   saveAddressingAndCompositionSettings(gIdentity);
 
   window.arguments[0].result = true;
-  window.dispatchEvent(new CustomEvent("prefchange"));
 }
 
 // returns false and prompts the user if
