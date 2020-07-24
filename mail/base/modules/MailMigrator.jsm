@@ -402,7 +402,7 @@ var MailMigrator = {
           "chrome://calendar/content/calendar-event-dialog-attendees.xul",
           "chrome://calendar/content/calendar-event-dialog.xul",
           "chrome://messenger/content/addressbook/addressbook.xul",
-          "chrome://messenger/content/messageWindow.xhtml",
+          "chrome://messenger/content/messageWindow.xul",
           "chrome://messenger/content/messenger.xul",
           "chrome://messenger/content/messengercompose/messengercompose.xul",
         ]) {
@@ -411,6 +411,33 @@ var MailMigrator = {
             url.replace(/\.xul$/, ".xhtml")
           );
         }
+        // See bug 1653168. messagepanebox is the problematic one, but ensure
+        // messagepaneboxwrapper doesn't cause problems as well.
+        Services.xulStore.setValue(
+          "chrome://messenger/content/messenger.xhtml",
+          "messagepanebox",
+          "collapsed",
+          "false"
+        );
+        Services.xulStore.setValue(
+          "chrome://messenger/content/messenger.xhtml",
+          "messagepaneboxwrapper",
+          "collapsed",
+          "false"
+        );
+
+        Services.xulStore.setValue(
+          "chrome://messenger/content/messageWindow.xhtml",
+          "messagepanebox",
+          "collapsed",
+          "false"
+        );
+        Services.xulStore.setValue(
+          "chrome://messenger/content/messageWindow.xhtml",
+          "messagepaneboxwrapper",
+          "collapsed",
+          "false"
+        );
       }
 
       if (currentUIVersion < 19) {
