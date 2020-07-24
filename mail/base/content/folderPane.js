@@ -177,11 +177,15 @@ var gFolderTreeView = {
     }
 
     if (aJSONFile) {
-      // Parse our persistent-open-state json file
+      // Parse our persistent-state json file
       let data = IOUtils.loadFileToString(aJSONFile);
       if (data) {
         try {
-          this._persistOpenMap = JSON.parse(data);
+          let parsedData = JSON.parse(data);
+          // Migrate all the data from the old stored object if the "open"
+          // object doesn't exist.
+          this._persistOpenMap = parsedData.open || parsedData;
+          this._persistColorMap = parsedData.colors;
         } catch (x) {
           Cu.reportError(
             gFolderTreeView.messengerBundle.getFormattedString(
@@ -208,8 +212,8 @@ var gFolderTreeView = {
   },
 
   /**
-   * Called when the window is being torn down.  Here we undo everything we did
-   * onload.  That means removing our listener and serializing our JSON.
+   * Called when the window is being torn down. Here we undo everything we did
+   * onload. That means removing our listener and serializing our JSON.
    */
   unload(aJSONFile) {
     // Remove our listener
@@ -217,7 +221,10 @@ var gFolderTreeView = {
 
     if (aJSONFile) {
       // Write out our json file...
-      let data = JSON.stringify(this._persistOpenMap);
+      let data = JSON.stringify({
+        open: this._persistOpenMap,
+        colors: this._persistColorMap,
+      });
       IOUtils.saveStringToFile(aJSONFile, data);
     }
   },
@@ -1278,11 +1285,6 @@ var gFolderTreeView = {
           folder.performExpand(msgWindow);
         }
       }
-
-      // Restore the custom color of the folder icon for the available children.
-      for (let child of Array.from(this._rowMap[aIndex].children)) {
-        this.setFolderCustomColor(child._folder);
-      }
     }
   },
 
@@ -1537,8 +1539,8 @@ var gFolderTreeView = {
   _modeDisplayNames: {},
 
   /**
-   * This is a javascript map of which folders we had open, so that we can
-   * persist their state over-time.  It is designed to be used as a JSON object.
+   * This is a JavaScript map of which folders we had open, so that we can
+   * persist their state over-time. It is designed to be used as a JSON object.
    */
   _persistOpenMap: {},
   _notPersistedModes: [
@@ -1548,6 +1550,13 @@ var gFolderTreeView = {
     "favorite_compact",
     "recent_compact",
   ],
+
+  /**
+   * This is a JavaScript map of which folders have a custom color so that we
+   * can persist the customization state over-time. It is designed to be used
+   * as a JSON object.
+   */
+  _persistColorMap: {},
 
   /**
    * Iterate over the persistent list and open the items (folders) stored in it.
@@ -1574,9 +1583,6 @@ var gFolderTreeView = {
           continue;
         }
 
-        // Restore the custom color of the folder icon.
-        tree.setFolderCustomColor(row._folder);
-
         // The initial state of all rows is closed, so toggle those we want open.
         if (!map || map.includes(row.id)) {
           tree._toggleRow(i, false);
@@ -1591,6 +1597,82 @@ var gFolderTreeView = {
       }
     }
     openLevel();
+  },
+
+  /**
+   * Iterate over the custom color list and apply the CSS style stored in it.
+   */
+  _restoreCustomColors() {
+    // Interrupt if the user never defined any custom color.
+    if (!this._persistColorMap) {
+      return;
+    }
+
+    // Loop through all the saved folders and restore their colors.
+    for (const [key, value] of Object.entries(this._persistColorMap)) {
+      // Store the color in the cache property so we can use this for
+      // properties changes and updates.
+      gFolderTreeView.setFolderCacheProperty(
+        {
+          URI: key,
+        },
+        "folderIconColor",
+        value
+      );
+
+      // Append the color to the inline CSS.
+      this.appendColor(value);
+    }
+  },
+
+  /**
+   * Remove the item from the persisted list of custom colored folder.
+   *
+   * @param {string} folderId - The URI of the folder item.
+   */
+  _removeCustomColor(folderId) {
+    // Interrupt if the map hasn't been defined.
+    if (!this._persistColorMap) {
+      return;
+    }
+
+    delete this._persistColorMap[folderId];
+  },
+
+  /**
+   * Add the item to the persisted list of custom colored folder.
+   *
+   * @param {string} folderId - The URI of the folder item.
+   * @param {string} color - The selected custom color.
+   */
+  _addCustomColor(folderId, color) {
+    // Always remove the previous color if it exists.
+    this._removeCustomColor(folderId);
+
+    // Interrupt if no custom color was defined.
+    if (!color) {
+      return;
+    }
+
+    // Create the map if it is undefined.
+    if (!this._persistColorMap) {
+      this._persistColorMap = {};
+    }
+
+    this._persistColorMap[folderId] = color;
+
+    // Store the color in the cache property so we can use this for
+    // properties changes and updates.
+    gFolderTreeView.setFolderCacheProperty(
+      {
+        URI: folderId,
+      },
+      "folderIconColor",
+      color
+    );
+
+    // Append the color to the inline CSS.
+    this.appendColor(color);
   },
 
   /**
@@ -1683,6 +1765,8 @@ var gFolderTreeView = {
       this._tree.invalidate();
     }
     this._restoreOpenStates();
+    this._restoreCustomColors();
+
     // restore selection.
     for (let folder of selectedFolders) {
       if (folder) {
@@ -2601,55 +2685,6 @@ var gFolderTreeView = {
   },
 
   /**
-   * Apply custom icon colors if a cached property is not already present.
-   *
-   * @param {ftvItem} folder - The folder attached to this row in the tree.
-   */
-  setFolderCustomColor(folder) {
-    // Interrupt if the folder already has an icon color cached property.
-    if (gFolderTreeView.getFolderCacheProperty(folder, "folderIconColor")) {
-      return;
-    }
-
-    let msgDatabase;
-    try {
-      // This will throw an exception if the .msf file is missing,
-      // out of date (e.g., the local folder has changed), or corrupted.
-      msgDatabase = folder.msgDatabase;
-    } catch (e) {}
-
-    // Interrupt if no folder database is available.
-    if (!msgDatabase) {
-      return;
-    }
-
-    // Get the previously stored color from the Folder Database.
-    let iconColor = msgDatabase.dBFolderInfo.getCharProperty("folderIconColor");
-
-    // Interrupt if no custom color was defined.
-    if (!iconColor) {
-      return;
-    }
-
-    // Store the color in the cache property so we can use this for
-    // properties changes and updates.
-    gFolderTreeView.setFolderCacheProperty(
-      folder,
-      "folderIconColor",
-      iconColor
-    );
-    this.appendColor(iconColor);
-
-    // Null out to avoid memory bloat.
-    if (
-      !MailServices.mailSession.IsFolderOpenInWindow(folder) &&
-      !(folder.flags & (Ci.nsMsgFolderFlags.Trash | Ci.nsMsgFolderFlags.Inbox))
-    ) {
-      folder.msgDatabase = null;
-    }
-  },
-
-  /**
    * Append inline CSS style for those icons where a custom color was defined.
    *
    * @param {string} iconColor - The hash color.
@@ -3426,6 +3461,9 @@ var gFolderTreeController = {
       // Clear the preview CSS.
       gFolderTreeView.folderColorPreview.textContent = "";
 
+      // Remove the stored value from the json map if present.
+      gFolderTreeView._removeCustomColor(folder.URI);
+
       // Force the folder update to see the new color.
       gFolderTreeView._tree.invalidateRow(
         gFolderTreeView.getIndexOfFolder(folder)
@@ -3461,14 +3499,8 @@ var gFolderTreeController = {
       "folderIconColor"
     );
 
-    // Append new inline color if defined.
-    gFolderTreeView.appendColor(newColor);
-
-    // Store the new color in the Folder database.
-    folder.msgDatabase.dBFolderInfo.setCharProperty(
-      "folderIconColor",
-      newColor
-    );
+    // Store the new color in the json map.
+    gFolderTreeView._addCustomColor(folder.URI, newColor);
 
     // Force the folder update to set the new color.
     gFolderTreeView._tree.invalidateRow(
