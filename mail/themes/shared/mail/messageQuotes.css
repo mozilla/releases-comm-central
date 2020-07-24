@@ -53,6 +53,7 @@ blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[typ
 }
 
 /* Styles for the dark mode */
+/* Disabled in bug 1639249. See also EditorContent.css.
 @media (prefers-color-scheme: dark) {
   html {
     scrollbar-color: rgba(249, 249, 250, .4) rgba(20, 20, 25, .3);
@@ -66,5 +67,5 @@ blockquote[type=cite] blockquote[type=cite] blockquote[type=cite] blockquote[typ
   span[_moz_quote="true"] {
     color: #009fff;
   }
-}
+} */
 
