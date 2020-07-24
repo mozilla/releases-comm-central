@@ -25,7 +25,7 @@
   z-index: -1;
   padding: 1ex 1em;
   margin: 0;
-  font-size: small;
+  font-size: initial;
 }
 
 #message_list {
