@@ -30,12 +30,7 @@ var EnigmailWkdLookup = ChromeUtils.import(
 var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
 
 var KeyLookupHelper = {
-  async lookupAndImportOnKeyserver(
-    window,
-    identifier,
-    giveFeedbackToUser,
-    whenDoneCB
-  ) {
+  async lookupAndImportOnKeyserver(window, identifier, giveFeedbackToUser) {
     let defKs = EnigmailKeyserverURIs.getDefaultKeyServer();
     if (!defKs) {
       return false;
@@ -69,16 +64,22 @@ var KeyLookupHelper = {
   },
 
   async lookupAndImportByKeyID(window, keyId, giveFeedbackToUser, whenDoneCB) {
-    return this.lookupAndImportOnKeyserver(
+    let somethingWasImported = await this.lookupAndImportOnKeyserver(
       window,
       "0x" + keyId,
-      giveFeedbackToUser,
-      whenDoneCB
+      giveFeedbackToUser
     );
+    if (somethingWasImported && whenDoneCB) {
+      whenDoneCB(somethingWasImported);
+    }
+    if (!somethingWasImported) {
+      let value = await l10n.formatValue("no-key-found");
+      EnigmailDialog.alert(window, value);
+    }
+    return somethingWasImported;
   },
 
   async lookupAndImportByEmail(window, email, giveFeedbackToUser, whenDoneCB) {
-    let somethingWasImported = false;
     let wkdKeys = await EnigmailWkdLookup.downloadKey(email);
     if (!wkdKeys) {
       console.debug("searchKeysOnInternet no wkd data for " + email);
@@ -93,32 +94,26 @@ var KeyLookupHelper = {
       if (!keyList) {
         EnigmailDialog.alert(window, await l10n.formatValue("preview-failed"));
       } else {
-        somethingWasImported = EnigmailKeyRing.importKeyDataWithConfirmation(
+        let somethingWasImported = EnigmailKeyRing.importKeyDataWithConfirmation(
           window,
           keyList,
           wkdKeys.keyData,
           true
         );
-        if (somethingWasImported && whenDoneCB) {
-          whenDoneCB();
+        if (somethingWasImported) {
+          if (whenDoneCB) {
+            whenDoneCB(somethingWasImported);
+          }
+          return somethingWasImported;
         }
-        return;
       }
     }
 
-    if (!somethingWasImported) {
-      somethingWasImported = await this.lookupAndImportByKeyID(
-        window,
-        email,
-        giveFeedbackToUser,
-        whenDoneCB
-      );
-    }
-
-    if (!somethingWasImported) {
-      l10n.formatValue("no-key-found").then(value => {
-        EnigmailDialog.alert(window, value);
-      });
-    }
+    return this.lookupAndImportByKeyID(
+      window,
+      email,
+      giveFeedbackToUser,
+      whenDoneCB
+    );
   },
 };

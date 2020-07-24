@@ -165,6 +165,15 @@
         </menupopup>
       </menu>
 
+      <menu id="keyserverMenu"
+            data-l10n-id="openpgp-key-man-keyserver-menu">
+        <menupopup>
+          <menuitem id="importFromServer"
+                    data-l10n-id="openpgp-key-man-discover-cmd"
+                    oncommand="enigmailSearchKey()"/>
+        </menupopup>
+      </menu>
+
       <menu id="generateMenu"
             data-l10n-id="openpgp-key-man-generate-menu">
         <menupopup onpopupshowing="enigmailKeyMenu();"> <!-- generate menu -->

@@ -193,16 +193,6 @@ function EnigGetFrame(win, frameName) {
   return EnigmailWindows.getFrame(win, frameName);
 }
 
-// Initializes enigmailCommon
-function EnigInitCommon(id) {
-  EnigmailLog.DEBUG("enigmailCommon.js: EnigInitCommon: id=" + id + "\n");
-
-  gEnigPromptSvc = enigGetService(
-    "@mozilla.org/embedcomp/prompt-service;1",
-    "nsIPromptService"
-  );
-}
-
 function GetEnigmailSvc() {
   if (!gEnigmailSvc) {
     gEnigmailSvc = EnigmailCore.getService(window);

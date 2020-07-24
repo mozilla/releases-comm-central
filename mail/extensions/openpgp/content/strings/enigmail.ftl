@@ -68,6 +68,9 @@ openpgp-key-man-view-menu =
 openpgp-key-man-generate-menu =
     .label = Generate
     .accesskey = G
+openpgp-key-man-keyserver-menu =
+    .label = Keyserver
+    .accesskey = K
 
 openpgp-key-man-import-public-from-file =
     .label = Import Public Key(s) From File
@@ -91,6 +94,12 @@ openpgp-key-man-send-keys =
 openpgp-key-man-backup-secret-keys =
     .label = Backup Secret Key(s) To File
     .accesskey = B
+
+openpgp-key-man-discover-cmd =
+    .label = Discover Keys Online
+    .accesskey = D
+openpgp-key-man-discover-prompt = To discover OpenPGP keys online, on keyservers or using the WKD protocol, enter either an email address or a key ID.
+openpgp-key-man-discover-progress = Searching, please wait...
 
 openpgp-key-copy-key =
     .label = Copy Public Key

@@ -1,4 +1,4 @@
-/*global EnigInitCommon: false, EnigmailDialog: false */
+/*global EnigmailDialog: false */
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -21,9 +21,6 @@
 /* global EnigmailKey: false, EnigmailLocale: false, EnigmailPrefs: false, EnigmailConstants: false */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-// Initialize enigmailCommon
-EnigInitCommon("enigmailKeyManager");
 
 var { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
@@ -57,6 +54,12 @@ var { EnigmailCompat } = ChromeUtils.import(
 );
 var { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
+);
+var { KeyLookupHelper } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/keyLookupHelper.jsm"
+);
+var { uidHelper } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/uidHelper.jsm"
 );
 
 var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
@@ -762,20 +765,46 @@ function enigmailCopyToClipbrd() {
   }
 }
 
-/*
 function enigmailSearchKey() {
-  var inputObj = {
-    searchList: null,
+  var result = {
+    value: "",
   };
-  var resultObj = {};
+  if (
+    !EnigmailDialog.promptValue(
+      window,
+      l10n.formatValueSync("openpgp-key-man-discover-prompt"),
+      result
+    )
+  ) {
+    return;
+  }
 
-  EnigDownloadKeys(inputObj, resultObj);
+  result.value = result.value.trim();
+  let isEmail = uidHelper.looksLikeEmail(result.value);
 
-  if (resultObj.importedKeys > 0) {
+  let imported = false;
+  if (isEmail) {
+    imported = KeyLookupHelper.lookupAndImportByEmail(
+      window,
+      result.value,
+      true,
+      null
+    );
+  } else {
+    imported = KeyLookupHelper.lookupAndImportByKeyID(
+      window,
+      result.value,
+      true,
+      null
+    );
+  }
+
+  if (imported) {
     refreshKeys();
   }
 }
 
+/*
 function enigmailUploadKeys() {
   accessKeyServer(EnigmailConstants.UPLOAD_KEY, enigmailUploadKeysCb);
 }

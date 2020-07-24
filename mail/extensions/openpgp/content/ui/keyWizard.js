@@ -8,11 +8,8 @@
 
 // Modules
 /* global EnigmailApp: false, EnigmailKeyRing: false, GetEnigmailSvc: false,
-   EnigInitCommon: false, EnigSavePrefs: false, EnigFilePicker: false,
+   EnigSavePrefs: false, EnigFilePicker: false,
    EnigGetFilePath: false, EnigmailWindows: false, PgpSqliteDb2: false */
-
-// Initialize enigmailCommon.
-EnigInitCommon("enigmailKeygen");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import(

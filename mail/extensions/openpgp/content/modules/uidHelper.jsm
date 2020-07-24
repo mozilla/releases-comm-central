@@ -15,6 +15,16 @@ var EXPORTED_SYMBOLS = ["uidHelper"];
  */
 
 var uidHelper = {
+  // Does the whole name look roughly like an email address?
+  // Domain part after @ must not contain space.
+  // Local part in front of @ must either be quoted (allows space),
+  // or must not contain space.
+  // If that condition is true, then conclude it's probably an
+  // email address that wasn't enclosed in <>.
+  looksLikeEmail(str) {
+    return str.match(/^(".+"|[^ ]+)@[^ @]+$/);
+  },
+
   getPartsFromUidStr(uid, resultObj) {
     resultObj.name = "";
     resultObj.comment = "";
@@ -40,14 +50,7 @@ var uidHelper = {
     }
 
     if (result[1] && !result[2] && !result[3]) {
-      // Does the whole name look roughly like an email address?
-      // Domain part after @ must not contain space.
-      // Local part in front of @ must either be quoted (allows space),
-      // or must not contain space.
-      // If that condition is true, then conclude it's probably an
-      // email address that wasn't enclosed in <>.
-      let looksLikeEmail = resultObj.name.match(/^(".+"|[^ ]+)@[^ @]+$/);
-      if (looksLikeEmail) {
+      if (this.looksLikeEmail(resultObj.name)) {
         resultObj.email = resultObj.name;
         resultObj.name = "";
       }

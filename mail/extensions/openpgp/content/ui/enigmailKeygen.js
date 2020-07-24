@@ -15,12 +15,9 @@
 
 // from enigmailCommon.js:
 /* global EnigGetWindowOptions: false, EnigConfirm: false, EnigGetString: false, GetEnigmailSvc: false */
-/* global EnigLongAlert: false, EnigAlert: false, EnigInitCommon: false */
+/* global EnigLongAlert: false, EnigAlert: false */
 /* global EnigGetPref: false, EnigSetPref: false, EnigSavePrefs: false, EnigFilePicker: false, EnigGetFilePath: false */
 /* global EnigmailWindows: false, EnigCreateRevokeCert: false */
-
-// Initialize enigmailCommon
-EnigInitCommon("enigmailKeygen");
 
 var EnigmailCryptoAPI = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
