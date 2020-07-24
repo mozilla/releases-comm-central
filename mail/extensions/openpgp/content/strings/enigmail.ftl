@@ -585,9 +585,7 @@ quoted-printable-warn =
 minimal-line-wrapping =
     You have set line wrapping to { $width } characters. For correct encryption and/or signing, this value needs to be at least 68.
     Do you wish to change line wrapping to 68 characters now?
-sending-hidden-rcpt = This message has BCC (blind copy) recipients. If this message is encrypted, it is possible to hide the BCC recipients but users of some products (e.g. PGP Corp.) will not be able to decrypt the message. Given this, we recommend to avoid BCC-emails with encrypted messages.
-send-with-hidden-bcc = Hide BCC recipients
-send-with-shown-bcc = Encrypt normally
+sending-hidden-rcpt = BCC (blind copy) recipients cannot be used when sending an encrypted message. To send this encrypted message, either remove the BCC recipients or move them to the CC field.
 sending-news =
     Encrypted send operation aborted.
     This message cannot be encrypted because there are newsgroup recipients. Please re-send the message without encryption.

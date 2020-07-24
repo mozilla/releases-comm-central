@@ -139,7 +139,6 @@ Enigmail.msg = {
   modifiedAttach: null,
   lastFocusedWindow: null,
   determineSendFlagId: null,
-  trustAllKeys: false,
   protectHeaders: false,
   draftSubjectEncrypted: false,
   attachOwnKeyObj: {
@@ -805,10 +804,6 @@ Enigmail.msg = {
     }
   },
 
-  tempTrustAllKeys() {
-    this.trustAllKeys = !this.trustAllKeys;
-  },
-
   /*
   toggleAttachOwnKey: function() {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.toggleAttachOwnKey\n");
@@ -920,9 +915,6 @@ Enigmail.msg = {
     var inputObj = {};
     inputObj.dialogHeader = await document.l10n.formatValue("keys-to-export");
     inputObj.options = "multisel,allowexpired,nosending";
-    if (this.trustAllKeys) {
-      inputObj.options += ",trustallkeys";
-    }
     window.openDialog(
       "chrome://openpgp/content/ui/enigmailKeySelection.xhtml",
       "",
@@ -1361,8 +1353,6 @@ Enigmail.msg = {
     // gMsgCompose.expandMailingLists();
 
     if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
-      // TODO: use a mechanism that hides the bcc recipients in the
-      //       OpenPGG recipient info.
       var toAddrList = [];
       var arrLen = {};
       var recList;
@@ -1672,8 +1662,7 @@ Enigmail.msg = {
     let sendFlags =
       EnigmailConstants.SEND_PGP_MIME |
       EnigmailConstants.SEND_ENCRYPTED |
-      EnigmailConstants.SAVE_MESSAGE |
-      EnigmailConstants.SEND_ALWAYS_TRUST;
+      EnigmailConstants.SAVE_MESSAGE;
 
     if (this.protectHeaders) {
       sendFlags |= EnigmailConstants.ENCRYPT_HEADERS;
@@ -1915,7 +1904,6 @@ Enigmail.msg = {
         "\n"
     );
 
-    let promptSvc = EnigmailDialog.getPromptSvc();
     let fromAddr = this.identity.email;
     let toAddrList = [];
     let recList;
@@ -1930,27 +1918,6 @@ Enigmail.msg = {
     let optSendFlags = 0;
     let msgCompFields = gMsgCompose.compFields;
     let newsgroups = msgCompFields.newsgroups;
-
-    // request or preference to always accept (even non-authenticated) keys?
-    if (this.trustAllKeys) {
-      optSendFlags |= EnigmailConstants.SEND_ALWAYS_TRUST;
-    } else {
-      let acceptedKeys = EnigmailPrefs.getPref("acceptedKeys");
-      switch (acceptedKeys) {
-        case 0: // accept valid/authenticated keys only
-          break;
-        case 1: // accept all but revoked/disabled/expired keys
-          optSendFlags |= EnigmailConstants.SEND_ALWAYS_TRUST;
-          break;
-        default:
-          EnigmailLog.DEBUG(
-            'enigmailMsgComposeOverlay.js: Enigmail.msg.determineMsgRecipients: INVALID VALUE for acceptedKeys: "' +
-              acceptedKeys +
-              '"\n'
-          );
-          break;
-      }
-    }
 
     if (EnigmailPrefs.getPref("encryptToSelf")) {
       optSendFlags |= EnigmailConstants.SEND_ENCRYPT_TO_SELF;
@@ -1997,6 +1964,7 @@ Enigmail.msg = {
           "\n"
       );
 
+      // It's equal, if self's email address is the only entry in BCC.
       var selfBCC =
         this.identity.email && this.identity.email.toLowerCase() == bccLC;
 
@@ -2006,36 +1974,11 @@ Enigmail.msg = {
         );
         this.addRecipients(toAddrList, recList);
       } else if (sendFlags & EnigmailConstants.SEND_ENCRYPTED) {
-        // BCC and encryption
-
-        var dummy = {
-          value: null,
-        };
-
-        var hideBccUsers = promptSvc.confirmEx(
+        EnigmailDialog.alert(
           window,
-          l10n.formatValueSync("enig-confirm"),
-          l10n.formatValueSync("sending-hidden-rcpt"),
-          promptSvc.BUTTON_TITLE_IS_STRING * promptSvc.BUTTON_POS_0 +
-            promptSvc.BUTTON_TITLE_CANCEL * promptSvc.BUTTON_POS_1 +
-            promptSvc.BUTTON_TITLE_IS_STRING * promptSvc.BUTTON_POS_2,
-          l10n.formatValueSync("send-with-shown-bcc"),
-          null,
-          l10n.formatValueSync("send-with-hidden-bcc"),
-          null,
-          dummy
+          l10n.formatValueSync("sending-hidden-rcpt")
         );
-        switch (hideBccUsers) {
-          case 2:
-            this.addRecipients(bccAddrList, recList);
-            this.addRecipients(toAddrList, recList);
-            break;
-          case 0:
-            this.addRecipients(toAddrList, recList);
-            break;
-          case 1:
-            return false;
-        }
+        return false;
       }
     }
 
@@ -2229,6 +2172,7 @@ Enigmail.msg = {
       }
     }
 
+    let cannotEncryptMissingInfo = "";
     if (gSendEncrypted) {
       let canEncryptDetails = await this.determineSendFlags();
       if (canEncryptDetails.errArray.length != 0) {
@@ -2243,16 +2187,17 @@ Enigmail.msg = {
           allProblems += obj.addr;
         }
 
-        let fullAlert = await document.l10n.formatValue(
+        cannotEncryptMissingInfo = l10n.formatValueSync(
           "cannot-encrypt-because-missing",
           {
             problem: allProblems,
           }
         );
 
-        EnigmailDialog.alert(window, fullAlert);
-        showMessageComposeSecurityStatus();
-        return false;
+        // Delay showing the alert until after determineMsgRecipients()
+        // has checked that BCC recipients aren't an issue.
+        // A BCC problem should be notified first. Only afterwards we
+        // should tell the user to get missing keys.
       }
     }
 
@@ -2276,6 +2221,12 @@ Enigmail.msg = {
         return rcpt;
       }
       sendFlags = rcpt.sendFlags;
+
+      if (cannotEncryptMissingInfo) {
+        EnigmailDialog.alert(window, cannotEncryptMissingInfo);
+        showMessageComposeSecurityStatus();
+        return false;
+      }
 
       if (this.sendPgpMime) {
         // Use PGP/MIME

@@ -139,11 +139,6 @@ pref("temp.openpgp.warnKeyExpiryNumDays", 30);
 pref("temp.openpgp.keyCheckResult", "");
 
 
-// selection for which keys to accept
-// 0: accept valid/authenticated keys
-// 1: accept all keys (except disabled, ...) DEFAULT
-pref("temp.openpgp.acceptedKeys", 1);
-
 // selection for automatic send encrypted if all keys valid
 // 0: never
 // 1: if all keys found and accepted DEFAULT
