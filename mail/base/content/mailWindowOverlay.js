@@ -1284,7 +1284,7 @@ function AddTag() {
   window.openDialog(
     "chrome://messenger/content/newTagDialog.xhtml",
     "",
-    "chrome,titlebar,modal",
+    "chrome,titlebar,modal,centerscreen",
     args
   );
 }

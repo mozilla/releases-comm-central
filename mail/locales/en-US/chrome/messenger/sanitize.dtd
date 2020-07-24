@@ -18,11 +18,8 @@
 that require it.  -->
 <!ENTITY clearTimeDuration.suffix         "">
 
-<!-- LOCALIZATION NOTE (detailsProgressiveDisclosure.*): Labels and accesskeys
-     of the "Details" progressive disclosure button.  See UI mockup at bug
-     480169 -->
-<!ENTITY detailsProgressiveDisclosure.label     "Details">
-<!ENTITY detailsProgressiveDisclosure.accesskey "e">
+
+<!ENTITY historyGroup.label                "History">
 
 <!ENTITY itemHistory.label                 "Browsing History">
 <!ENTITY itemHistory.accesskey             "B">

@@ -5,13 +5,16 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
-<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window>
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         data-l10n-id="tag-dialog-window"
+        lightweightthemes="true"
+        style="min-width: 25em;"
         onload="onLoad();">
 <dialog>
 
@@ -20,22 +23,30 @@
   <script src="chrome://global/content/globalOverlay.js"/>
   <script src="chrome://global/content/editMenuOverlay.js"/>
   <script src="chrome://messenger/content/newTagDialog.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <linkset>
     <html:link rel="localization" href="messenger/preferences/new-tag.ftl"/>
   </linkset>
 
-  <label id="nameLabel"
-         data-l10n-id="tag-name-label"
-         control="name"/>
-  <hbox class="input-container">
-    <html:input id="name"
-                type="text"
-                oninput="doEnabling();"
-                class="input-inline"
-                aria-labelledby="nameLabel"/>
+  <box style="display: grid; grid-template-columns: auto 1fr; align-items: center;">
+    <label id="nameLabel"
+           data-l10n-id="tag-name-label"
+           control="name"/>
+    <hbox class="input-container">
+      <html:input id="name"
+                  type="text"
+                  oninput="doEnabling();"
+                  class="input-inline"
+                  aria-labelledby="nameLabel"/>
+    </hbox>
+    <hbox align="center">
+      <label id="colorLabel"
+             data-l10n-id="tag-color-label"
+             control="tagColorPicker"/>
+    </hbox>
     <html:input type="color" id="tagColorPicker"/>
-  </hbox>
+  </box>
   <separator/>
 </dialog>
 </window>

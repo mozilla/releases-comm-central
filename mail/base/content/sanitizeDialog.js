@@ -206,49 +206,6 @@ var gSanitizePromptDialog = {
     }
     return false;
   },
-
-  /**
-   * Show the history items list.
-   */
-  showItemList() {
-    var itemList = document.getElementById("itemList");
-    var expanderButton = document.getElementById("detailsExpander");
-
-    if (itemList.collapsed) {
-      expanderButton.className = "expander-up";
-      itemList.setAttribute("collapsed", "false");
-      if (document.documentElement.getBoundingClientRect().height) {
-        window.resizeBy(0, itemList.getBoundingClientRect().height);
-      }
-    }
-  },
-
-  /**
-   * Hide the history items list.
-   */
-  hideItemList() {
-    var itemList = document.getElementById("itemList");
-    var expanderButton = document.getElementById("detailsExpander");
-
-    if (!itemList.collapsed) {
-      expanderButton.className = "expander-down";
-      window.resizeBy(0, -itemList.getBoundingClientRect().height);
-      itemList.setAttribute("collapsed", "true");
-    }
-  },
-
-  /**
-   * Called by the item list expander button to toggle the list's visibility.
-   */
-  toggleItemList() {
-    var itemList = document.getElementById("itemList");
-
-    if (itemList.collapsed) {
-      this.showItemList();
-    } else {
-      this.hideItemList();
-    }
-  },
 };
 
 document.addEventListener("dialogaccept", () =>

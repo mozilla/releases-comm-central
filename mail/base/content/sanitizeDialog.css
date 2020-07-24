@@ -2,9 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Hide the duration dropdown suffix label if it's empty.  Otherwise it
+   takes up a little space, causing the end of the dropdown to not be aligned
+   with the warning box. */
+#sanitizeDurationSuffixLabel[value=""] {
+  display: none;
+}
+
 /* Sanitize everything warnings */
 
 #sanitizeEverythingWarning,
 #sanitizeEverythingUndoWarning {
   white-space: pre-wrap;
+}
+
+#sanitizeEverythingWarningBox {
+  background-color: hsla(0, 0%, 0%, 0.2);
+  border: 1px solid hsla(0, 0%, 0%, 0.6);
+  border-radius: 4px;
+  margin-top: 8px;
+  margin-inline: 4px;
+  padding: 16px;
+}
+
+:root[lwt-tree-brighttext] #sanitizeEverythingWarningBox {
+  background-color: hsla(0, 0%, 100%, 0.2);
+  border: 1px solid hsla(0, 0%, 100%, 0.6);
+}
+
+#sanitizeEverythingWarningDescBox {
+  padding: 0 16px;
+  margin: 0;
+}
+
+#historyGroupLabel {
+  margin-block: 16px 4px;
+  margin-inline-start: 4px;
+  font-size: 1.14em;
+  font-weight: 600;
+}
+
+checkbox {
+  margin-block: 4px;
+  margin-inline-start: 10px;
 }
