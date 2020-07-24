@@ -136,7 +136,10 @@ class AddrBookDirectory {
   init(uri) {
     let uriParts = /^([\w-]+):\/\/([\w-]+\.sqlite)$/.exec(uri);
     if (!uriParts) {
-      throw new Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+      throw new Components.Exception(
+        `Unexpected uri: ${uri}`,
+        Cr.NS_ERROR_UNEXPECTED
+      );
     }
 
     this._uri = uri;
@@ -155,7 +158,10 @@ class AddrBookDirectory {
       }
     }
     if (!this.dirPrefId) {
-      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+      throw Components.Exception(
+        `Couldn't grab dirPrefId for uri=${uri}, fileName=${fileName}`,
+        Cr.NS_ERROR_UNEXPECTED
+      );
     }
 
     // Make sure we always have a file. If a file is not created, the
@@ -171,7 +177,7 @@ class AddrBookDirectory {
 
   get _prefBranch() {
     if (!this.dirPrefId) {
-      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
+      throw Components.Exception("No dirPrefId!", Cr.NS_ERROR_NOT_AVAILABLE);
     }
     return Services.prefs.getBranch(`${this.dirPrefId}.`);
   }
@@ -1021,13 +1027,16 @@ class AddrBookDirectory {
   }
   addMailList(list) {
     if (!list.isMailList) {
-      throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+      throw Components.Exception(
+        "Can't add; not a mail list",
+        Cr.NS_ERROR_UNEXPECTED
+      );
     }
 
     // Check if the new name is empty.
     if (!list.dirName) {
       throw new Components.Exception(
-        "Invalid mailing list name",
+        `Mail list name must be set; list.dirName=${list.dirName}`,
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
@@ -1035,7 +1044,7 @@ class AddrBookDirectory {
     // Check if the new name contains 2 spaces.
     if (list.dirName.match("  ")) {
       throw new Components.Exception(
-        "Invalid mailing list name",
+        `Invalid mail list name: ${list.dirName}`,
         Cr.NS_ERROR_ILLEGAL_VALUE
       );
     }
@@ -1044,7 +1053,7 @@ class AddrBookDirectory {
     for (let char of ',;"<>') {
       if (list.dirName.includes(char)) {
         throw new Components.Exception(
-          "Invalid mailing list name",
+          `Invalid mail list name: ${list.dirName}`,
           Cr.NS_ERROR_ILLEGAL_VALUE
         );
       }
@@ -1075,18 +1084,30 @@ class AddrBookDirectory {
     throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
   }
   copyMailList(srcList) {
-    throw Components.Exception("", Cr.NS_ERROR_NOT_IMPLEMENTED);
+    throw Components.Exception(
+      "copyMailList not implemented",
+      Cr.NS_ERROR_NOT_IMPLEMENTED
+    );
   }
   getIntValue(name, defaultValue) {
-    return this._prefBranch.getIntPref(name, defaultValue);
+    return this._prefBranch
+      ? this._prefBranch.getIntPref(name, defaultValue)
+      : defaultValue;
   }
   getBoolValue(name, defaultValue) {
-    return this._prefBranch.getBoolPref(name, defaultValue);
+    return this._prefBranch
+      ? this._prefBranch.getBoolPref(name, defaultValue)
+      : defaultValue;
   }
   getStringValue(name, defaultValue) {
-    return this._prefBranch.getStringPref(name, defaultValue);
+    return this._prefBranch
+      ? this._prefBranch.getStringPref(name, defaultValue)
+      : defaultValue;
   }
   getLocalizedStringValue(name, defaultValue) {
+    if (!this._prefBranch) {
+      return defaultValue;
+    }
     if (this._prefBranch.getPrefType(name) == Ci.nsIPrefBranch.PREF_INVALID) {
       return defaultValue;
     }

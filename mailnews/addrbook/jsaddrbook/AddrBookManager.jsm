@@ -75,17 +75,22 @@ if (AppConstants.platform == "macosx") {
 function createDirectoryObject(uri, shouldStore = false) {
   let uriParts = URI_REGEXP.exec(uri);
   if (!uriParts) {
-    throw Components.Exception("", Cr.NS_ERROR_MALFORMED_URI);
+    throw Components.Exception(
+      `Unexpected uri: ${uri}`,
+      Cr.NS_ERROR_MALFORMED_URI
+    );
   }
 
   let [, scheme] = uriParts;
   let dir = Cc[
     `@mozilla.org/addressbook/directory;1?type=${scheme}`
   ].createInstance(Ci.nsIAbDirectory);
+  // Before storing, call init to make sure we can properly create using the
+  // given uri.
+  dir.init(uri);
   if (shouldStore) {
     store.set(uri, dir);
   }
-  dir.init(uri);
   return dir;
 }
 
@@ -198,7 +203,10 @@ AddrBookManager.prototype = {
 
     let uriParts = URI_REGEXP.exec(uri);
     if (!uriParts) {
-      throw Components.Exception("", Cr.NS_ERROR_MALFORMED_URI);
+      throw Components.Exception(
+        `Unexpected uri: ${uri}`,
+        Cr.NS_ERROR_MALFORMED_URI
+      );
     }
     let [, scheme, fileName, tail] = uriParts;
     if (tail && types.includes(scheme)) {
@@ -210,15 +218,24 @@ AddrBookManager.prototype = {
             return list;
           }
         }
-        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+        throw Components.Exception(
+          `No ${scheme} directory for uri=${uri}`,
+          Cr.NS_ERROR_UNEXPECTED
+        );
       } else if (scheme == "jscarddav") {
-        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+        throw Components.Exception(
+          `No ${scheme} directory for uri=${uri}`,
+          Cr.NS_ERROR_UNEXPECTED
+        );
       }
       // `tail` could either point to a mailing list or a query.
       // Both of these will be handled differently in future.
       return createDirectoryObject(uri);
     }
-    throw Components.Exception("", Cr.NS_ERROR_FAILURE);
+    throw Components.Exception(
+      `No directory for uri=${uri}`,
+      Cr.NS_ERROR_FAILURE
+    );
   },
   getDirectoryFromId(dirPrefId) {
     ensureInitialized();
@@ -283,7 +300,10 @@ AddrBookManager.prototype = {
         if (AppConstants.platform == "macosx") {
           uri = "moz-abosxdirectory:///";
           if (store.has(uri)) {
-            throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+            throw Components.Exception(
+              `Can't create new ab of type=${type} - already exists`,
+              Cr.NS_ERROR_UNEXPECTED
+            );
           }
           prefName = "ldap_2.servers.osx";
         } else if (AppConstants.platform == "win") {
@@ -293,14 +313,23 @@ AddrBookManager.prototype = {
               "moz-aboutlookdirectory://op/",
             ].includes(uri)
           ) {
-            throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+            throw Components.Exception(
+              `Can't create new ab of type=${type} for uri=${uri}`,
+              Cr.NS_ERROR_UNEXPECTED
+            );
           }
           if (store.has(uri)) {
-            throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+            throw Components.Exception(
+              `Can't create new ab of type=${type} - already exists`,
+              Cr.NS_ERROR_UNEXPECTED
+            );
           }
           prefName = "ldap_2.servers.oe";
         } else {
-          throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+          throw Components.Exception(
+            "Can't create new ab of type=MAPI_DIRECTORY_TYPE",
+            Cr.NS_ERROR_UNEXPECTED
+          );
         }
 
         Services.prefs.setIntPref(`${prefName}.dirType`, MAPI_DIRECTORY_TYPE);
