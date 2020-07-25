@@ -1143,8 +1143,9 @@ function updateOpenPgpSettings() {
   // internal or external.
   gIdentity.setBoolAttribute(
     "is_gnupg_key_id",
-    newKey ==
-      gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id")
+    newKey &&
+      newKey ==
+        gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id")
   );
 
   gKeyId = newKey;
