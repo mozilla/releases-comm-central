@@ -1333,6 +1333,7 @@ function openKeyWizard(isImport = false) {
     cancelCallback: clearKeyCache,
     okCallback: clearKeyCache,
     okImportCallback: clearKeyCache,
+    okExternalCallback: clearKeyCache,
     keyDetailsDialog: enigmailKeyDetails,
     isCreate: !isImport,
     isImport,

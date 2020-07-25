@@ -271,11 +271,41 @@
       <label data-l10n-id="openpgp-external-key-title"
              class="dialogheader-title"/>
 
-      <description>
-        Work in Progress: this feature is not yet implemented
-      </description>
+      <html:div>
+        <html:fieldset>
+          <html:legend data-l10n-id="openpgp-external-key-description">
+          </html:legend>
 
-      <separator/>
+          <description data-l10n-id="openpgp-external-key-info"/>
+
+          <separator/>
+
+          <hbox align="center">
+            <label for="externalKey"
+                   data-l10n-id="openpgp-external-key-label"></label>
+            <hbox class="input-container" flex="1">
+              <html:input id="externalKey" type="text"
+                          class="input-inline"
+                          data-l10n-id="openpgp-external-key-input"
+                          oninput="toggleSaveButton(event)">
+              </html:input>
+            </hbox>
+          </hbox>
+
+          <separator/>
+
+          <hbox id="openPgpExternalWarning"
+                class="inline-notification-container info-container"
+                collapsed="true">
+            <hbox class="inline-notification-wrapper">
+              <image class="notification-image notification-image-info"/>
+              <description data-l10n-id="openpgp-external-key-warning"/>
+            </hbox>
+          </hbox>
+        </html:fieldset>
+      </html:div>
+
+      <separator class="thin"/>
     </vbox>
 </dialog>
 </window>

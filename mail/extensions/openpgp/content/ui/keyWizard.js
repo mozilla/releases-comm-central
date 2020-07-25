@@ -199,6 +199,7 @@ async function wizardNextStep() {
       break;
 
     case "external":
+      openPgpExternalComplete();
       break;
   }
 }
@@ -276,9 +277,31 @@ function wizardImportKey() {
 /**
  * Show the Key Setup via external smartcard section.
  */
-function wizardExternalKey() {
+async function wizardExternalKey() {
   kCurrentSection = "external";
   revealSection("wizardExternalKey");
+
+  let createLabel = await document.l10n.formatValue(
+    "openpgp-save-external-button"
+  );
+
+  kDialog.getButton("accept").label = createLabel;
+  kDialog.getButton("accept").classList.add("primary");
+
+  // If the user is already using an external GnuPG key, populate the input,
+  // show the warning description, and enable the primary button.
+  if (gIdentity.getBoolAttribute("is_gnupg_key_id")) {
+    document.getElementById(
+      "externalKey"
+    ).value = gIdentity.getUnicharAttribute(
+      "last_entered_external_gnupg_key_id"
+    );
+    document.getElementById("openPgpExternalWarning").collapsed = false;
+    kDialog.getButton("accept").removeAttribute("disabled");
+  } else {
+    document.getElementById("openPgpExternalWarning").collapsed = true;
+    kDialog.getButton("accept").setAttribute("disabled", true);
+  }
 }
 
 /**
@@ -923,4 +946,27 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
 
   resultFlags.canceled = !prompt;
   return !prompt ? "" : passphrase.value;
+}
+
+function toggleSaveButton(event) {
+  kDialog
+    .getButton("accept")
+    .toggleAttribute("disabled", !event.target.value.trim());
+}
+
+/**
+ * Save the GnuPG Key for the current identity and trigger a callback.
+ */
+function openPgpExternalComplete() {
+  gIdentity.setBoolAttribute("is_gnupg_key_id", true);
+
+  let externalKey = document.getElementById("externalKey").value;
+  gIdentity.setUnicharAttribute(
+    "last_entered_external_gnupg_key_id",
+    externalKey
+  );
+  gIdentity.setUnicharAttribute("openpgp_key_id", externalKey);
+
+  window.arguments[0].okExternalCallback();
+  window.close();
 }

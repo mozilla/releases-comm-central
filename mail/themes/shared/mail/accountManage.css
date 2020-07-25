@@ -600,3 +600,12 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   color: var(--in-content-deemphasized-text);
   font-size: .9em;
 }
+
+.external-pill {
+  background-color: #4576B6;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9em;
+  padding: 1px 6px;
+  border-radius: 12px;
+}

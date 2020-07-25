@@ -172,3 +172,16 @@ openpgp-import-key-props =
 ## External Key section
 
 openpgp-external-key-title = External GnuPG Key
+
+openpgp-external-key-description = Configure an external GnuPG key by entering the Key ID
+
+openpgp-external-key-info = In addition, you must use Key Manager to import and accept the corresponding Public Key.
+
+openpgp-external-key-warning = <b>You may configure only one external GnuPG Key.</b> Your previous entry will be replaced.
+
+openpgp-save-external-button = Save key ID
+
+openpgp-external-key-label = Secret Key ID:
+
+openpgp-external-key-input =
+    .placeholder = 123456789341298340

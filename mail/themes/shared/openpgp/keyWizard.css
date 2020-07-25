@@ -132,3 +132,13 @@
   text-align: center;
   margin-inline: 20px;
 }
+
+.input-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.input-container input:not([type="number"]):not([type="color"]) {
+  flex: 1;
+}

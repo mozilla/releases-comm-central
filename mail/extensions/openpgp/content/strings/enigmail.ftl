@@ -266,6 +266,8 @@ openpgp-keygen-success = OpenPGP Key created successfully!
 
 openpgp-keygen-import-success = OpenPGP Keys imported successfully!
 
+openpgp-keygen-external-success = External GnuPG Key ID saved!
+
 ## OpenPGP Key selection area
 
 openpgp-radio-none =
@@ -299,6 +301,12 @@ openpgp-manager-description = Use the OpenPGP Key Manager to view and manage pub
 openpgp-manager-button =
     .label = OpenPGP Key Manager
     .accesskey = K
+
+openpgp-key-remove-external =
+    .label = Remove External Key ID
+    .accesskey = E
+
+key-external-label = External GnuPG Key
 
 # Strings in keyDetailsDlg.xhtml
 key-type-public = public key
@@ -495,6 +503,10 @@ after-revoke-info =
 key-man-button-import = &Import
 
 delete-key-title = Delete OpenPGP Key
+
+delete-external-key-title = Remove the External GnuPG Key
+
+delete-external-key-description = Do you want to remove this External GnuPG key ID?
 
 key-in-use-title = OpenPGP Key currently in use
 

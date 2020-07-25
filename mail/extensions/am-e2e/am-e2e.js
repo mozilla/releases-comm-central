@@ -601,6 +601,7 @@ function openKeyWizard() {
     cancelCallback: reloadOpenPgpUI,
     okCallback: keyWizardSuccess,
     okImportCallback: keyImportSuccess,
+    okExternalCallback: keyExternalSuccess,
     keyDetailsDialog: enigmailKeyDetails,
   };
 
@@ -631,13 +632,28 @@ async function keyWizardSuccess() {
 }
 
 /**
- * Show a succesfull notification after a the import of keys, and trigger the
+ * Show a succesfull notification after an import of keys, and trigger the
  * reload of the key listing UI.
  */
 async function keyImportSuccess() {
   document.l10n.setAttributes(
     document.getElementById("openPgpNotificationDescription"),
     "openpgp-keygen-import-success"
+  );
+  document.getElementById("openPgpNotification").collapsed = false;
+  document.getElementById("openPgpKeyList").collapsed = false;
+
+  reloadOpenPgpUI();
+}
+
+/**
+ * Show a succesfull notification after an external key was saved, and trigger
+ * the reload of the key listing UI.
+ */
+async function keyExternalSuccess() {
+  document.l10n.setAttributes(
+    document.getElementById("openPgpNotificationDescription"),
+    "openpgp-keygen-external-success"
   );
   document.getElementById("openPgpNotification").collapsed = false;
   document.getElementById("openPgpKeyList").collapsed = false;
@@ -662,9 +678,13 @@ async function reloadOpenPgpUI() {
   // Show the radiogroup container only if the current identity has keys.
   document.getElementById("openPgpKeyList").collapsed = !result.all.length;
 
+  let externalKey = gIdentity.getUnicharAttribute(
+    "last_entered_external_gnupg_key_id"
+  );
+
   // Interrupt and udpate the UI accordingly if no Key is associated with the
   // current identity.
-  if (!result.all.length) {
+  if (!result.all.length && !externalKey) {
     gKeyId = null;
     updateUIForSelectedOpenPgpKey();
     return;
@@ -690,6 +710,52 @@ async function reloadOpenPgpUI() {
   result.all.sort((a, b) => {
     return b.keyCreated - a.keyCreated;
   });
+
+  // If the user has an external Key saved, we show it on top of the list.
+  if (externalKey) {
+    let container = document.createXULElement("vbox");
+    container.id = `openPgpOption${externalKey}`;
+    container.classList.add("content-blocking-category");
+
+    let box = document.createXULElement("hbox");
+
+    let radio = document.createXULElement("radio");
+    radio.setAttribute("flex", "1");
+    radio.id = `openPgp${externalKey}`;
+    radio.value = externalKey;
+    radio.label = `0x${externalKey}`;
+
+    if (externalKey == gIdentity.getUnicharAttribute("openpgp_key_id")) {
+      radio.setAttribute("selected", "true");
+    }
+
+    let remove = document.createXULElement("button");
+    document.l10n.setAttributes(remove, "openpgp-key-remove-external");
+    remove.addEventListener("command", removeExternalKey);
+    remove.classList.add("button-small");
+
+    box.appendChild(radio);
+    box.appendChild(remove);
+
+    let indent = document.createXULElement("vbox");
+    indent.classList.add("indent");
+
+    let dateContainer = document.createXULElement("hbox");
+    dateContainer.classList.add("expiration-date-container");
+    dateContainer.setAttribute("align", "center");
+
+    let external = document.createXULElement("description");
+    external.classList.add("external-pill");
+    document.l10n.setAttributes(external, "key-external-label");
+
+    dateContainer.appendChild(external);
+    indent.appendChild(dateContainer);
+
+    container.appendChild(box);
+    container.appendChild(indent);
+
+    radiogroup.appendChild(container);
+  }
 
   // List all the available keys.
   for (let key of result.all) {
@@ -962,7 +1028,7 @@ async function enigmailDeleteKey(key) {
 
   let l10nKey = key.secretAvailable ? "delete-secret-key" : "delete-pub-key";
   let [title, description] = await document.l10n.formatValues([
-    { id: "delete-key-title", args: { userId: key.userId } },
+    { id: "delete-key-title" },
     { id: l10nKey, args: { userId: key.userId } },
   ]);
 
@@ -1072,6 +1138,14 @@ function updateOpenPgpSettings() {
   if (gKeyId == newKey) {
     return;
   }
+
+  // Always update the GnuPG boolean pref to be sure the currently used key is
+  // internal or external.
+  gIdentity.setBoolAttribute(
+    "is_gnupg_key_id",
+    newKey ==
+      gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id")
+  );
 
   gKeyId = newKey;
 
@@ -1371,4 +1445,42 @@ async function exportSecretKey(password, fprArray, file, confirmed = false) {
     "openpgp-export-secret-success"
   );
   document.getElementById("openPgpNotification").collapsed = false;
+}
+
+/**
+ * Remove the saved external GnuPG Key.
+ */
+async function removeExternalKey() {
+  if (!GetEnigmailSvc()) {
+    return;
+  }
+
+  // Interrupt if the external key is currently being used.
+  if (
+    gIdentity.getUnicharAttribute("last_entered_external_gnupg_key_id") ==
+    gIdentity.getUnicharAttribute("openpgp_key_id")
+  ) {
+    let [alertTitle, alertDescription] = await document.l10n.formatValues([
+      { id: "key-in-use-title" },
+      { id: "delete-key-in-use-description" },
+    ]);
+
+    Services.prompt.alert(null, alertTitle, alertDescription);
+    return;
+  }
+
+  let [title, description] = await document.l10n.formatValues([
+    { id: "delete-external-key-title" },
+    { id: "delete-external-key-description" },
+  ]);
+
+  // Ask for confirmation before proceeding.
+  if (!Services.prompt.confirm(null, title, description)) {
+    return;
+  }
+
+  gIdentity.setBoolAttribute("is_gnupg_key_id", false);
+  gIdentity.setUnicharAttribute("last_entered_external_gnupg_key_id", "");
+
+  reloadOpenPgpUI();
 }
