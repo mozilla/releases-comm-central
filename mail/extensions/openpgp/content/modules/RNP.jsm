@@ -2157,7 +2157,7 @@ var RNP = {
     return this.isExpiredTime(expirationSeconds);
   },
 
-  async findKeyByEmail(id, onlyAcceptableAsPublic = false) {
+  async findKeyByEmail(id, onlyIfAcceptableAsRecipientKey = false) {
     if (!id.startsWith("<") || !id.endsWith(">") || id.includes(" ")) {
       throw new Error("invalid parameter given to findKeyByEmail");
     }
@@ -2245,17 +2245,16 @@ var RNP = {
             if (userId.includes(id)) {
               foundUid = true;
 
-              let haveSecret;
-              if (onlyAcceptableAsPublic) {
-                // if secret key is available, any usage is allowed
+              if (onlyIfAcceptableAsRecipientKey) {
+                // a key is acceptable, either:
+                // - without secret key, it's accepted verified or unverified
+                // - with secret key, must be marked as personal
+
                 let have_secret = new ctypes.bool();
                 if (RNPLib.rnp_key_have_secret(handle, have_secret.address())) {
                   throw new Error("rnp_key_have_secret failed");
                 }
-                haveSecret = have_secret.value;
-              }
 
-              if (onlyAcceptableAsPublic && !haveSecret) {
                 let fingerprint = new ctypes.char.ptr();
                 if (RNPLib.rnp_key_get_fprint(handle, fingerprint.address())) {
                   throw new Error("rnp_key_get_fprint failed");
@@ -2263,34 +2262,48 @@ var RNP = {
                 let fpr = fingerprint.readString();
                 RNPLib.rnp_buffer_destroy(fingerprint);
 
-                let acceptanceResult = {};
-                try {
-                  await PgpSqliteDb2.getAcceptance(
-                    fpr,
-                    emailWithoutBrackets,
-                    acceptanceResult
+                if (have_secret.value) {
+                  let isAccepted = await PgpSqliteDb2.isAcceptedAsPersonalKey(
+                    fpr
                   );
-                } catch (ex) {
-                  console.debug("getAcceptance failed: " + ex);
-                }
-
-                if (!acceptanceResult.emailDecided) {
-                  continue;
-                }
-                if (acceptanceResult.fingerprintAcceptance == "unverified") {
-                  /* keep searching for a better, verified key */
-                  if (!tentativeUnverifiedHandle) {
-                    tentativeUnverifiedHandle = handle;
+                  if (isAccepted) {
+                    foundHandle = handle;
                     have_handle = false;
+                    if (tentativeUnverifiedHandle) {
+                      RNPLib.rnp_key_handle_destroy(tentativeUnverifiedHandle);
+                      tentativeUnverifiedHandle = null;
+                    }
                   }
-                } else if (
-                  acceptanceResult.fingerprintAcceptance == "verified"
-                ) {
-                  foundHandle = handle;
-                  have_handle = false;
-                  if (tentativeUnverifiedHandle) {
-                    RNPLib.rnp_key_handle_destroy(tentativeUnverifiedHandle);
-                    tentativeUnverifiedHandle = null;
+                } else {
+                  let acceptanceResult = {};
+                  try {
+                    await PgpSqliteDb2.getAcceptance(
+                      fpr,
+                      emailWithoutBrackets,
+                      acceptanceResult
+                    );
+                  } catch (ex) {
+                    console.debug("getAcceptance failed: " + ex);
+                  }
+
+                  if (!acceptanceResult.emailDecided) {
+                    continue;
+                  }
+                  if (acceptanceResult.fingerprintAcceptance == "unverified") {
+                    /* keep searching for a better, verified key */
+                    if (!tentativeUnverifiedHandle) {
+                      tentativeUnverifiedHandle = handle;
+                      have_handle = false;
+                    }
+                  } else if (
+                    acceptanceResult.fingerprintAcceptance == "verified"
+                  ) {
+                    foundHandle = handle;
+                    have_handle = false;
+                    if (tentativeUnverifiedHandle) {
+                      RNPLib.rnp_key_handle_destroy(tentativeUnverifiedHandle);
+                      tentativeUnverifiedHandle = null;
+                    }
                   }
                 }
               } else {
