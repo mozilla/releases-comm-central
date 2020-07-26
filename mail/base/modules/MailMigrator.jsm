@@ -413,30 +413,26 @@ var MailMigrator = {
         }
         // See bug 1653168. messagepanebox is the problematic one, but ensure
         // messagepaneboxwrapper doesn't cause problems as well.
-        Services.xulStore.setValue(
+        Services.xulStore.removeValue(
           "chrome://messenger/content/messenger.xhtml",
           "messagepanebox",
-          "collapsed",
-          "false"
+          "collapsed"
         );
-        Services.xulStore.setValue(
+        Services.xulStore.removeValue(
           "chrome://messenger/content/messenger.xhtml",
           "messagepaneboxwrapper",
-          "collapsed",
-          "false"
+          "collapsed"
         );
 
-        Services.xulStore.setValue(
+        Services.xulStore.removeValue(
           "chrome://messenger/content/messageWindow.xhtml",
           "messagepanebox",
-          "collapsed",
-          "false"
+          "collapsed"
         );
-        Services.xulStore.setValue(
+        Services.xulStore.removeValue(
           "chrome://messenger/content/messageWindow.xhtml",
           "messagepaneboxwrapper",
-          "collapsed",
-          "false"
+          "collapsed"
         );
       }
 
