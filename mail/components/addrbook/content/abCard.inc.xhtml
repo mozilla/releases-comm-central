@@ -23,8 +23,9 @@
       <vbox id="abNameTab" >
         <!-- This hbox contains two vboxes
              left: Name/Email, right: Phonenumbers -->
-        <hbox>
-          <vbox id="namesAndEmailAddresses"> <!-- This box contains the Names and Emailnames -->
+        <box id="contactGrid">
+          <!-- This box contains the Names and Emailnames -->
+          <vbox id="namesAndEmailAddresses" class="inputGrid">
 
             <!-- LOCALIZATION NOTE:
                  NameField1, NameField2, PhoneticField1, PhoneticField2
@@ -32,208 +33,182 @@
                  They are configurable in the .dtd file.
               -->
 
-            <hbox id="NameField1Container" align="center">
-              <spacer flex="1"/>
-              <label id="nameFieldLabel"
-                     control="&NameField1.id;"
-                     value="&NameField1.label;"
-                     accesskey="&NameField1.accesskey;"/>
-              <hbox class="CardEditWidth input-container" align="center">
-                <html:input id="&NameField1.id;"
-                            type="text"
-                            aria-labelledby="nameFieldLabel"
-                            class="input-inline"
-                            oninput="GenerateDisplayName()"/>
+            <label id="nameFieldLabel"
+                   class="align-end"
+                   control="&NameField1.id;"
+                   value="&NameField1.label;"
+                   accesskey="&NameField1.accesskey;"/>
+            <hbox id="NameField1Container"
+                  class="input-container"
+                  align="center">
+              <html:input id="&NameField1.id;"
+                          type="text"
+                          aria-labelledby="nameFieldLabel"
+                          class="input-inline"
+                          oninput="GenerateDisplayName()"/>
 
-                <!-- LOCALIZATION NOTE:
-                     Fields for phonetic are disabled as default and can be
-                     enabled by editing "mail.addr_book.show_phonetic_fields"
-                  -->
+              <!-- LOCALIZATION NOTE:
+                    Fields for phonetic are disabled as default and can be
+                    enabled by editing "mail.addr_book.show_phonetic_fields"
+                -->
 
-                <spacer id="PhoneticSpacer1" flex="1" hidden="true"/>
-                <label id="PhoneticLabel1" control="&PhoneticField1.id;"
-                       value="&PhoneticField1.label;" hidden="true"/>
-                <html:input id="&PhoneticField1.id;"
-                            type="text"
-                            aria-labelledby="PhoneticLabel1"
-                            class="input-inline"
-                            hidden="hidden"/>
-              </hbox>
+              <label id="PhoneticLabel1" control="&PhoneticField1.id;"
+                      value="&PhoneticField1.label;" hidden="true"/>
+              <html:input id="&PhoneticField1.id;"
+                          type="text"
+                          aria-labelledby="PhoneticLabel1"
+                          class="phoneticField input-inline"
+                          hidden="hidden"/>
             </hbox>
-            <hbox id="NameField2Container" align="center">
-              <spacer flex="1"/>
-              <label id="nameField2Label"
-                     control="&NameField2.id;"
-                     value="&NameField2.label;"
-                     accesskey="&NameField2.accesskey;"/>
-              <hbox class="CardEditWidth input-container" align="center">
-                <html:input id="&NameField2.id;"
-                            type="text"
-                            aria-labelledby="nameField2Label"
-                            class="input-inline"
-                            oninput="GenerateDisplayName()"/>
+            <label id="nameField2Label"
+                   class="align-end"
+                   control="&NameField2.id;"
+                   value="&NameField2.label;"
+                   accesskey="&NameField2.accesskey;"/>
+            <hbox id="NameField2Container"
+                  class="input-container"
+                  align="center">
+              <html:input id="&NameField2.id;"
+                          type="text"
+                          aria-labelledby="nameField2Label"
+                          class="input-inline"
+                          oninput="GenerateDisplayName()"/>
 
-                <!-- LOCALIZATION NOTE:
-                     Fields for phonetic are disabled as default and can be
-                     enabled by editing "mail.addr_book.show_phonetic_fields"
-                  -->
+              <!-- LOCALIZATION NOTE:
+                    Fields for phonetic are disabled as default and can be
+                    enabled by editing "mail.addr_book.show_phonetic_fields"
+                -->
 
-                <spacer id="PhoneticSpacer2" flex="1" hidden="true"/>
-                <label id="PhoneticLabel2" control="&PhoneticField2.id;"
-                       value="&PhoneticField2.label;" hidden="true"/>
-                <html:input id="&PhoneticField2.id;"
-                            type="text"
-                            aria-labelledby="PhoneticLabel2"
-                            class="input-inline"
-                            hidden="hidden"/>
-              </hbox>
+              <label id="PhoneticLabel2" control="&PhoneticField2.id;"
+                      value="&PhoneticField2.label;" hidden="true"/>
+              <html:input id="&PhoneticField2.id;"
+                          type="text"
+                          aria-labelledby="PhoneticLabel2"
+                          class="phoneticField input-inline"
+                          hidden="hidden"/>
             </hbox>
-            <hbox id="DisplayNameContainer" align="center">
-              <spacer flex="1"/>
-              <label id="DisplayNameLabel"
-                     control="DisplayName"
-                     value="&DisplayName.label;"
-                     accesskey="&DisplayName.accesskey;" />
-              <hbox class="CardEditWidth input-container">
-                <html:input id="DisplayName"
-                            type="text"
-                            aria-labelledby="DisplayNameLabel"
-                            class="input-inline"
-                            oninput="DisplayNameChanged()"/>
-              </hbox>
+            <label id="DisplayNameLabel"
+                   class="align-end"
+                   control="DisplayName"
+                   value="&DisplayName.label;"
+                   accesskey="&DisplayName.accesskey;" />
+            <hbox class="input-container">
+              <html:input id="DisplayName"
+                          type="text"
+                          aria-labelledby="DisplayNameLabel"
+                          class="input-inline"
+                          oninput="DisplayNameChanged()"/>
             </hbox>
-            <hbox id="PreferDisplayNameContainer" align="center">
-              <spacer flex="1"/>
-              <hbox class="CardEditWidth">
-                <checkbox id="preferDisplayName"
-                          label="&preferDisplayName.label;"
-                          accesskey="&preferDisplayName.accesskey;"/>
-              </hbox>
-            </hbox>
+            <spacer/>
+            <checkbox id="preferDisplayName"
+                      label="&preferDisplayName.label;"
+                      accesskey="&preferDisplayName.accesskey;"/>
 
-            <hbox id="NickNameContainer" align="center">
-              <spacer flex="1"/>
-              <label id="NickNameLabel"
-                     control="NickName"
-                     value="&NickName.label;"
-                     accesskey="&NickName.accesskey;"/>
-              <hbox class="CardEditWidth input-container">
-                <html:input id="NickName"
-                            type="text"
-                            aria-labelledby="NickNameLabel"
-                            class="input-inline"/>
-              </hbox>
+            <label id="NickNameLabel"
+                   class="align-end"
+                   control="NickName"
+                   value="&NickName.label;"
+                   accesskey="&NickName.accesskey;"/>
+            <hbox class="input-container">
+              <html:input id="NickName"
+                          type="text"
+                          aria-labelledby="NickNameLabel"
+                          class="input-inline"/>
             </hbox>
-            <hbox id="PrimaryEmailContainer" align="center">
-              <spacer flex="1"/>
-              <label id="PrimaryEmailLabel"
-                     control="PrimaryEmail"
-                     value="&PrimaryEmail.label;"
-                     accesskey="&PrimaryEmail.accesskey;"/>
-              <hbox class="CardEditWidth input-container">
-                <html:input id="PrimaryEmail"
-                            type="email"
-                            aria-labelledby="PrimaryEmailLabel"
-                            class="input-inline"/>
-              </hbox>
+            <label id="PrimaryEmailLabel"
+                   class="align-end"
+                   control="PrimaryEmail"
+                   value="&PrimaryEmail.label;"
+                   accesskey="&PrimaryEmail.accesskey;"/>
+            <hbox class="input-container">
+              <html:input id="PrimaryEmail"
+                          type="email"
+                          aria-labelledby="PrimaryEmailLabel"
+                          class="input-inline"/>
             </hbox>
-            <hbox id="SecondaryEmailContainer" align="center">
-              <spacer flex="1"/>
-              <label id="SecondEmailLabel"
-                     control="SecondEmail"
-                     value="&SecondEmail.label;"
-                     accesskey="&SecondEmail.accesskey;"/>
-              <hbox class="CardEditWidth input-container">
-                <html:input id="SecondEmail"
-                            type="email"
-                            aria-labelledby="SecondEmailLabel"
-                            class="input-inline"/>
-              </hbox>
+            <label id="SecondEmailLabel"
+                   class="align-end"
+                   control="SecondEmail"
+                   value="&SecondEmail.label;"
+                   accesskey="&SecondEmail.accesskey;"/>
+            <hbox class="input-container">
+              <html:input id="SecondEmail"
+                          type="email"
+                          aria-labelledby="SecondEmailLabel"
+                          class="input-inline"/>
             </hbox>
-            <hbox id="ScreenNameContainer" align="center">
-              <spacer flex="1"/>
-              <label id="ChatNameLabel"
-                     class="text-link" value="&chatName.label;"
-                     onclick="showChat();"/>
-              <hbox class="CardEditWidth input-container">
-                <html:input id="ChatName"
-                            type="text"
-                            aria-labelledby="ChatNameLabel"
-                            readonly="readonly"
-                            class="input-inline"
-                            onclick="showChat();"/>
-              </hbox>
+            <label id="ChatNameLabel"
+                   class="align-end text-link"
+                   value="&chatName.label;"
+                   onclick="showChat();"/>
+            <hbox class="input-container">
+              <html:input id="ChatName"
+                          type="text"
+                          aria-labelledby="ChatNameLabel"
+                          readonly="readonly"
+                          class="input-inline"
+                          onclick="showChat();"/>
             </hbox>
           </vbox> <!-- End of Name/Email -->
           <!-- Phone Number section -->
-          <vbox id="PhoneNumbers">
-            <hbox id="WorkPhoneContainer" align="center">
-              <spacer flex="1"/>
-              <label id="WorkPhoneLabel"
-                     control="WorkPhone"
-                     value="&WorkPhone.label;"
-                     accesskey="&WorkPhone.accesskey;" />
-              <hbox class="input-container">
-                <html:input id="WorkPhone"
-                            type="tel"
-                            aria-labelledby="WorkPhoneLabel"
-                            class="PhoneEditWidth input-inline"/>
-              </hbox>
+          <vbox id="PhoneNumbers" class="inputGrid">
+            <label id="WorkPhoneLabel"
+                   class="align-end"
+                   control="WorkPhone"
+                   value="&WorkPhone.label;"
+                   accesskey="&WorkPhone.accesskey;" />
+            <hbox class="input-container">
+              <html:input id="WorkPhone"
+                          type="tel"
+                          aria-labelledby="WorkPhoneLabel"
+                          class="input-inline"/>
             </hbox>
-            <hbox id="HomePhoneContainer" align="center">
-              <spacer flex="1"/>
-              <label id="HomePhoneLabel"
-                     control="HomePhone"
-                     value="&HomePhone.label;"
-                     accesskey="&HomePhone.accesskey;"/>
-              <hbox class="input-container">
-                <html:input id="HomePhone"
-                            type="tel"
-                            aria-labelledby="HomePhoneLabel"
-                            class="PhoneEditWidth input-inline"/>
-              </hbox>
+            <label id="HomePhoneLabel"
+                   class="align-end"
+                   control="HomePhone"
+                   value="&HomePhone.label;"
+                   accesskey="&HomePhone.accesskey;"/>
+            <hbox class="input-container">
+              <html:input id="HomePhone"
+                          type="tel"
+                          aria-labelledby="HomePhoneLabel"
+                          class="input-inline"/>
             </hbox>
-            <hbox id="FaxNumberContainer" align="center">
-              <spacer flex="1"/>
-              <label id="FaxNumberLabel"
-                     control="FaxNumber"
-                     value="&FaxNumber.label;"
-                     accesskey="&FaxNumber.accesskey;"/>
-              <hbox class="input-container">
-                <html:input id="FaxNumber"
-                            type="tel"
-                            aria-labelledby="FaxNumberLabel"
-                            class="PhoneEditWidth input-inline"/>
-              </hbox>
+            <label id="FaxNumberLabel"
+                   class="align-end"
+                   control="FaxNumber"
+                   value="&FaxNumber.label;"
+                   accesskey="&FaxNumber.accesskey;"/>
+            <hbox class="input-container">
+              <html:input id="FaxNumber"
+                          type="tel"
+                          aria-labelledby="FaxNumberLabel"
+                          class="input-inline"/>
             </hbox>
-            <hbox id="PagerNumberContainer" align="center">
-              <spacer flex="1"/>
-              <label id="PagerNumberLabel"
-                     control="PagerNumber"
-                     value="&PagerNumber.label;"
-                     accesskey="&PagerNumber.accesskey;"/>
-              <hbox class="input-container">
-                <html:input id="PagerNumber"
-                            type="tel"
-                            aria-labelledby="PagerNumberLabel"
-                            class="PhoneEditWidth input-inline"/>
-              </hbox>
+            <label id="PagerNumberLabel"
+                   class="align-end"
+                   control="PagerNumber"
+                   value="&PagerNumber.label;"
+                   accesskey="&PagerNumber.accesskey;"/>
+            <hbox class="input-container">
+              <html:input id="PagerNumber"
+                          type="tel"
+                          aria-labelledby="PagerNumberLabel"
+                          class="input-inline"/>
             </hbox>
-            <hbox id="CellularNumberContainer" align="center">
-              <spacer flex="1"/>
-              <label id="CellularNumberLabel"
-                     control="CellularNumber"
-                     value="&CellularNumber.label;"
-                     accesskey="&CellularNumber.accesskey;"/>
-              <hbox class="input-container">
-                <html:input id="CellularNumber"
-                            type="tel"
-                            aria-labelledby="CellularNumberLabel"
-                            class="PhoneEditWidth input-inline"/>
-              </hbox>
+            <label id="CellularNumberLabel"
+                   class="align-end"
+                   control="CellularNumber"
+                   value="&CellularNumber.label;"
+                   accesskey="&CellularNumber.accesskey;"/>
+            <hbox class="input-container">
+              <html:input id="CellularNumber"
+                          type="tel"
+                          aria-labelledby="CellularNumberLabel"
+                          class="input-inline"/>
             </hbox>
           </vbox> <!-- End of Phonenumbers -->
-        </hbox> <!-- End of Name/Email/Phonenumbers -->
+        </box> <!-- End of Name/Email/Phonenumbers -->
         <!-- Email Preferences -->
         <hbox align="center">
           <label control="PreferMailFormatPopup"
@@ -253,54 +228,48 @@
 
       <!-- ** Home Address Tab ** -->
       <vbox id="abHomeTab" >
-        <hbox align="center">
-          <spacer flex="1"/>
+        <hbox class="inputGrid">
           <label id="HomeAddressLabel"
+                 class="align-end"
                  control="HomeAddress"
                  value="&HomeAddress.label;"
                  accesskey="&HomeAddress.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="HomeAddress"
                         type="text"
                         aria-labelledby="HomeAddressLabel"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox align="center">
-          <spacer flex="1"/>
           <label id="HomeAddress2Label"
+                 class="align-end"
                  control="HomeAddress2"
                  value="&HomeAddress2.label;"
                  accesskey="&HomeAddress2.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="HomeAddress2"
                         type="text"
                         aria-labelledby="HomeAddress2Label"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox id="HomeCityContainer" align="center">
-          <spacer flex="1"/>
           <label id="HomeCityLabel"
+                 class="align-end"
                  control="HomeCity"
                  value="&HomeCity.label;"
                  accesskey="&HomeCity.accesskey;"/>
           <hbox id="HomeCityFieldContainer"
                 align="center"
-                class="AddressCardEditWidth input-container">
+                class="input-container">
             <html:input id="HomeCity"
                         type="text"
                         aria-labelledby="HomeCityLabel"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox align="center">
-          <spacer flex="1"/>
           <label id="HomeStateLabel"
+                 class="align-end"
                  control="HomeState"
                  value="&HomeState.label;"
                  accesskey="&HomeState.accesskey;"/>
-          <hbox align="center" class="AddressCardEditWidth input-container">
+          <hbox align="center" class="input-container">
             <html:input id="HomeState"
                         type="text"
                         aria-labelledby="HomeStateLabel"
@@ -314,38 +283,33 @@
                         aria-labelledby="HomeZipCodeLabel"
                         class="ZipWidth input-inline"/>
           </hbox>
-        </hbox>
-        <hbox align="center">
-          <spacer flex="1"/>
           <label id="HomeCountryLabel"
+                 class="align-end"
                  control="HomeCountry"
                  value="&HomeCountry.label;"
                  accesskey="&HomeCountry.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="HomeCountry"
                         type="text"
                         aria-labelledby="HomeCountryLabel"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox id="WebPage2Container" align="center">
-          <spacer flex="1"/>
           <label id="WebPage2Label"
+                 class="align-end"
                  control="WebPage2"
                  value="&HomeWebPage.label;"
                  accesskey="&HomeWebPage.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="WebPage2"
                         type="url"
                         aria-labelledby="WebPage2Label"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox id="birthdayField" align="center">
-          <spacer flex="1"/>
-          <label control="Birthday" value="&Birthday.label;"
+          <label control="Birthday"
+                 class="align-end"
+                 value="&Birthday.label;"
                  accesskey="&Birthday.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container" align="center">
+          <hbox class="input-container" align="center">
             <menulist id="BirthMonth" sizetopopup="always">
               <menupopup>
                 <menuitem label="&Month.placeholder;" value="-1" class="placeholderOption"/>
@@ -375,13 +339,13 @@
 
       <!-- ** Business Address Tab ** -->
       <vbox id="abBusinessTab" >
-        <hbox id="JobTitleDepartmentContainer" align="center">
-          <spacer flex="1"/>
+        <hbox class="inputGrid">
           <label id="JobTitleLabel"
+                 class="align-end"
                  control="JobTitle"
                  value="&JobTitle.label;"
                  accesskey="&JobTitle.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container" align="center">
+          <hbox class="input-container" align="center">
             <html:input id="JobTitle"
                         type="text"
                         aria-labelledby="JobTitleLabel"
@@ -395,68 +359,58 @@
                         aria-labelledby="DepartmentLabel"
                         class="input-inline DepartmentWidth"/>
           </hbox>
-        </hbox>
-        <hbox id="CompanyContainer" align="center">
-          <spacer flex="1"/>
           <label id="CompanyLabel"
+                 class="align-end"
                  control="Company"
                  value="&Company.label;"
                  accesskey="&Company.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="Company"
                         type="text"
                         aria-labelledby="CompanyLabel"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox id="WorkAddressContainer" align="center">
-          <spacer flex="1"/>
           <label id="WorkAddressLabel"
+                 class="align-end"
                  control="WorkAddress"
                  value="&WorkAddress.label;"
                  accesskey="&WorkAddress.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="WorkAddress"
                         type="text"
                         aria-labelledby="WorkAddressLabel"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox id="WorkAddress2Container" align="center">
-          <spacer flex="1"/>
           <label id="WorkAddress2Label"
+                 class="align-end"
                  control="WorkAddress2"
                  value="&WorkAddress2.label;"
                  accesskey="&WorkAddress2.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="WorkAddress2"
                         type="text"
                         aria-labelledby="WorkAddress2Label"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox id="WorkCityContainer" align="center">
-          <spacer flex="1"/>
           <label id="WorkCityLabel"
+                 class="align-end"
                  control="WorkCity"
                  value="&WorkCity.label;"
                  accesskey="&WorkCity.accesskey;"/>
           <hbox id="WorkCityFieldContainer"
-                class="AddressCardEditWidth input-container"
+                class="input-container"
                 align="center">
             <html:input id="WorkCity"
                         type="text"
                         aria-labelledby="WorkCityLabel"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox id="WorkStateZipContainer" align="center">
-          <spacer flex="1"/>
           <label id="WorkStateLabel"
+                 class="align-end"
                  control="WorkState"
                  value="&WorkState.label;"
                  accesskey="&WorkState.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container" align="center">
+          <hbox class="input-container" align="center">
             <html:input id="WorkState"
                         type="text"
                         aria-labelledby="WorkStateLabel"
@@ -470,27 +424,23 @@
                         aria-labelledby="WorkZipCodeLabel"
                         class="input-inline ZipWidth"/>
           </hbox>
-        </hbox>
-        <hbox id="WorkCountryContainer" align="center">
-          <spacer flex="1"/>
           <label id="WorkCountryLabel"
+                 class="align-end"
                  control="WorkCountry"
                  value="&WorkCountry.label;"
                  accesskey="&WorkCountry.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="WorkCountry"
                         type="text"
                         aria-labelledby="WorkCountryLabel"
                         class="input-inline"/>
           </hbox>
-        </hbox>
-        <hbox id="WebPage1Container" align="center">
-          <spacer flex="1"/>
           <label id="WebPage1Label"
+                 class="align-end"
                  control="WebPage1"
                  value="&WorkWebPage.label;"
                  accesskey="&WorkWebPage.accesskey;"/>
-          <hbox class="AddressCardEditWidth input-container">
+          <hbox class="input-container">
             <html:input id="WebPage1"
                         type="url"
                         aria-labelledby="WebPage1Label"
@@ -549,126 +499,118 @@
       </vbox>
 
       <!-- ** Chat Tab ** -->
-      <hbox id="abChatTab">
-        <vbox>
-          <hbox id="GtalkContainer" align="center">
-            <spacer flex="1"/>
-            <label id="GtalkLabel"
-                   control="Gtalk"
-                   value="&Gtalk.label;"
-                   accesskey="&Gtalk.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="Gtalk"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="GtalkLabel"
-                          class="input-inline"/>
-            </hbox>
+      <vbox id="abChatTab">
+        <hbox class="inputGrid">
+          <label id="GtalkLabel"
+                 class="align-end"
+                 control="Gtalk"
+                 value="&Gtalk.label;"
+                 accesskey="&Gtalk.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="Gtalk"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="GtalkLabel"
+                        class="input-inline"/>
           </hbox>
-          <hbox id="AIMContainer" align="center">
-            <spacer flex="1"/>
-            <label id="AIMLabel"
-                   control="AIM"
-                   value="&AIM.label;"
-                   accesskey="&AIM2.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="AIM"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="AIMLabel"
-                          class="input-inline"/>
-            </hbox>
+          <label id="AIMLabel"
+                 class="align-end"
+                 control="AIM"
+                 value="&AIM.label;"
+                 accesskey="&AIM2.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="AIM"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="AIMLabel"
+                        class="input-inline"/>
           </hbox>
-          <hbox id="YahooContainer" align="center">
-            <spacer flex="1"/>
-            <label id="YahooLabel"
-                   control="Yahoo"
-                   value="&Yahoo.label;"
-                   accesskey="&Yahoo.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="Yahoo"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="YahooLabel"
-                          class="input-inline"/>
-            </hbox>
+          <label id="YahooLabel"
+                 class="align-end"
+                 control="Yahoo"
+                 value="&Yahoo.label;"
+                 accesskey="&Yahoo.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="Yahoo"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="YahooLabel"
+                        class="input-inline"/>
           </hbox>
-          <hbox id="SkypeContainer" align="center">
-            <spacer flex="1"/>
-            <label id="SkypeLabel"
-                   control="Skype"
-                   value="&Skype.label;"
-                   accesskey="&Skype.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="Skype"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="SkypeLabel"
-                          class="input-inline"/>
-            </hbox>
+          <label id="SkypeLabel"
+                 class="align-end"
+                 control="Skype"
+                 value="&Skype.label;"
+                 accesskey="&Skype.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="Skype"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="SkypeLabel"
+                        class="input-inline"/>
           </hbox>
-          <hbox id="QQContainer" align="center">
-            <spacer flex="1"/>
-            <label id="QQLabel" control="QQ" value="&QQ.label;"
-                   accesskey="&QQ.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="QQ"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="QQLabel"
-                          class="input-inline"/>
-            </hbox>
+          <label id="QQLabel"
+                 class="align-end"
+                 control="QQ"
+                 value="&QQ.label;"
+                 accesskey="&QQ.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="QQ"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="QQLabel"
+                        class="input-inline"/>
           </hbox>
-          <hbox id="MSNContainer" align="center">
-            <spacer flex="1"/>
-            <label id="MSNlabel" control="MSN" value="&MSN.label;"
-                   accesskey="&MSN2.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="MSN"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="MSNLabel"
-                          class="input-inline"/>
-            </hbox>
+          <label id="MSNlabel"
+                 class="align-end"
+                 control="MSN"
+                 value="&MSN.label;"
+                 accesskey="&MSN2.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="MSN"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="MSNLabel"
+                        class="input-inline"/>
           </hbox>
-          <hbox id="ICQContainer" align="center">
-            <spacer flex="1"/>
-            <label id="ICQLabel" control="ICQ" value="&ICQ.label;"
-                   accesskey="&ICQ.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="ICQ"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="ICQLabel"
-                          class="input-inline"/>
-            </hbox>
+          <label id="ICQLabel"
+                 class="align-end"
+                 control="ICQ"
+                 value="&ICQ.label;"
+                 accesskey="&ICQ.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="ICQ"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="ICQLabel"
+                        class="input-inline"/>
           </hbox>
-          <hbox id="XMPPContainer" align="center">
-            <spacer flex="1"/>
-            <label id="XMPPLabel" control="XMPP" value="&XMPP.label;"
-                   accesskey="&XMPP.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="XMPP"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="XMPPLabel"
-                          class="input-inline"/>
-            </hbox>
+          <label id="XMPPLabel"
+                 class="align-end"
+                 control="XMPP"
+                 value="&XMPP.label;"
+                 accesskey="&XMPP.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="XMPP"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="XMPPLabel"
+                        class="input-inline"/>
           </hbox>
-          <hbox id="IRCContainer" align="center">
-            <spacer flex="1"/>
-            <label id="IRCLabel" control="IRC" value="&IRC.label;"
-                   accesskey="&IRC.accesskey;"/>
-            <hbox class="CardEditWidth input-container">
-              <html:input id="IRC"
-                          onchange="updateChatName();"
-                          type="text"
-                          aria-labelledby="IRCLabel"
-                          class="input-inline"/>
-            </hbox>
+          <label id="IRCLabel"
+                 class="align-end"
+                 control="IRC"
+                 value="&IRC.label;"
+                 accesskey="&IRC.accesskey;"/>
+          <hbox class="input-container">
+            <html:input id="IRC"
+                        onchange="updateChatName();"
+                        type="text"
+                        aria-labelledby="IRCLabel"
+                        class="input-inline"/>
           </hbox>
-        </vbox>
-      </hbox>
+        </hbox>
+      </vbox>
 
       <!-- ** Photo Tab ** -->
       <hbox id="abPhotoTab">

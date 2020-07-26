@@ -16,16 +16,24 @@ window {
 
 /* ::::: Card Edit dialog ::::: */
 
-.CardEditWidth {
-  width: 42ch;
+#contactGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
 }
 
-.PhoneEditWidth {
-  width: 24ch;
+.inputGrid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-content: start;
+  align-items: center;
 }
 
-.AddressCardEditWidth {
-  width: 72ch;
+.align-end {
+  text-align: end;
+}
+
+.phoneticField {
+  max-width: 18ch;
 }
 
 #BirthMonth[value="-1"],

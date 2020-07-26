@@ -21,10 +21,8 @@ var kNonVcardFields = [
 var kPhoneticFields = [
   "PhoneticLastName",
   "PhoneticLabel1",
-  "PhoneticSpacer1",
   "PhoneticFirstName",
   "PhoneticLabel2",
-  "PhoneticSpacer2",
 ];
 
 // Item is |[dialogField, cardProperty]|.
