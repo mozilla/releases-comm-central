@@ -1767,7 +1767,9 @@ bool nsImapProtocol::ProcessCurrentURL() {
         m_imapServerSink->UpdateTrySTARTTLSPref(false);
         m_socketType = nsMsgSocketType::plain;
       }
-      logonFailed = !TryToLogon();
+      if (!DeathSignalReceived() && (NS_SUCCEEDED(GetConnectionStatus()))) {
+        logonFailed = !TryToLogon();
+      }
       if (m_retryUrlOnError) return RetryUrl();
     }
   }  // if death signal not received
