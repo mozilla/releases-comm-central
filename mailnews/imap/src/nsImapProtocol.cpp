@@ -3663,9 +3663,13 @@ void nsImapProtocol::FetchTryChunking(const nsCString& messageIds,
     while (!DeathSignalReceived() && !GetPseudoInterrupted() &&
            !GetServerStateParser().GetLastFetchChunkReceived() &&
            GetServerStateParser().ContinueParse()) {
-      FetchMessage(messageIds, whatToFetch, nullptr, startByte, m_chunkSize,
+      // This chunk is a fetch of m_chunkSize bytes. But m_chunkSize can be
+      // changed inside FetchMessage(). Save the original value of m_chunkSize
+      // to set the correct offset (startByte) for the next chunk.
+      int32_t bytesFetched = m_chunkSize;
+      FetchMessage(messageIds, whatToFetch, nullptr, startByte, bytesFetched,
                    part);
-      startByte += m_chunkSize;
+      startByte += bytesFetched;
     }
 
     // Only abort the stream if this is a normal message download
