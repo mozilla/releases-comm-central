@@ -49,15 +49,17 @@
 <p>When you choose Page Info from the View menu, the General tab displays basic
   information about the page that you are viewing in the browser.</p>
 
-<p>The top portion displays the name of the page (if it has one) and the
-  following information:</p>
+<p>The top portion displays the following information:</p>
 
 <ul>
-  <li><strong>URL</strong>: The
+  <li><strong>Title</strong>: The name of the page (if it has one).</li>
+  <li><strong>Address</strong>: The
     <a href="glossary.xhtml#url">Uniform Resource Locator</a> for the
     page&mdash;that is, the standardized address that appears in the Location
     Bar near the top of the browser window.</li>
-  <li><strong>Render mode</strong>: Indicates whether the browser is using
+  <li><strong>Type</strong>: The document type of the page (usually text/html
+    for web pages).</li>
+  <li><strong>Render Mode</strong>: Indicates whether the browser is using
     <strong>quirks mode</strong> or <strong>standards compliance mode</strong>
     to lay out the page. Quirks mode takes account of nonstandard behavior that
     may be used by some older web pages designed for older versions of web
@@ -65,21 +67,23 @@
     adheres strictly to standards specifications. Your browser chooses the
     render mode automatically according to information contained in the web
     page itself.</li>
-  <li><strong>Source</strong>: Indicates whether the source code for this page
-    has been cached.</li>
   <li><strong>Text Encoding</strong>: The text encoding used for this HTML
     document.</li>
   <li><strong>Size</strong>: The size of the file, if available.</li>
+  <li><strong>Referring URL</strong>: The address from where the current page
+    has been reached, if available.</li>
   <li><strong>Modified</strong>: The date the page was last modified, if
     available.</li>
-  <li><strong>Expires</strong>: The date on which the information displayed by
-    the page expires.</li>
 </ul>
 
-<p>The bottom portion displays the metatags specified by the page. Metatags
+<p>The <i>Meta</i> portion displays the metatags specified by the page. Metatags
   provide information about the type of content displayed by a page, such as a
   general description of the page, keywords for search engines, copyright
   information, and so on.</p>
+
+<p>The <i>Security information for this page</i> portion contains security
+  information concerning ownership and encryption. More details are available in
+  the <a href="#security_tab">Security tab</a>.</p>
 
 <h2 id="forms_tab">Forms (Page Info Tab)</h2>
 
