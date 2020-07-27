@@ -330,7 +330,6 @@ add_task(async function addMailingListMember() {
   observer.checkEvents(
     ["onItemPropertyChanged", contact, null, null, null],
     ["onItemPropertyChanged", contact, null, null, null],
-    ["onItemAdded", book, contact],
     ["onItemAdded", list, contact],
     ["addrbook-list-member-added", contact, list.UID]
   );

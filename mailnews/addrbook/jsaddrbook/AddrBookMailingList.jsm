@@ -130,7 +130,6 @@ AddrBookMailingList.prototype = {
         insertStatement.execute();
         MailServices.ab.notifyItemPropertyChanged(card, null, null, null);
         MailServices.ab.notifyItemPropertyChanged(card, null, null, null);
-        MailServices.ab.notifyDirectoryItemAdded(self._parent, card);
         MailServices.ab.notifyDirectoryItemAdded(this, card);
         Services.obs.notifyObservers(
           card,
