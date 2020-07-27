@@ -145,14 +145,16 @@ function SelectDirectory(aURI) {
 }
 
 function GetScopeForDirectoryURI(aURI) {
-  var directory = MailServices.ab.getDirectory(aURI);
   var booleanAnd = gSearchBooleanRadiogroup.selectedItem.value == "and";
 
-  if (directory.isRemote) {
-    if (booleanAnd) {
-      return nsMsgSearchScope.LDAPAnd;
+  if (aURI != "moz-abdirectory://?") {
+    let directory = MailServices.ab.getDirectory(aURI);
+    if (directory.isRemote) {
+      if (booleanAnd) {
+        return nsMsgSearchScope.LDAPAnd;
+      }
+      return nsMsgSearchScope.LDAP;
     }
-    return nsMsgSearchScope.LDAP;
   }
 
   if (booleanAnd) {
@@ -187,7 +189,7 @@ function onSearch() {
   gSearchSession.addDirectoryScopeTerm(GetScopeForDirectoryURI(currentAbURI));
   saveSearchTerms(gSearchSession.searchTerms, gSearchSession);
 
-  var searchUri = currentAbURI + "?(";
+  var searchUri = "(";
   for (let i = 0; i < gSearchSession.searchTerms.length; i++) {
     let searchTerm = gSearchSession.searchTerms.queryElementAt(
       i,
@@ -334,7 +336,7 @@ function onSearch() {
   }
 
   searchUri += ")";
-  SetAbView(searchUri);
+  SetAbView(currentAbURI, searchUri);
 }
 
 // used to toggle functionality for Search/Stop button.
