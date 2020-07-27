@@ -448,12 +448,16 @@
     // calICompositeObserver methods.
 
     onCalendarAdded(aCalendar) {
-      this.getItems(aCalendar);
+      if (!aCalendar.getProperty("disabled")) {
+        this.getItems(aCalendar);
+      }
     }
 
     onCalendarRemoved(aCalendar) {
-      for (let day in this.mDayMap) {
-        this.removeCalendarFromBoxBusy(this.mDayMap[day], aCalendar);
+      if (!aCalendar.getProperty("disabled")) {
+        for (let day in this.mDayMap) {
+          this.removeCalendarFromBoxBusy(this.mDayMap[day], aCalendar);
+        }
       }
     }
 
