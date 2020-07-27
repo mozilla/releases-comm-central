@@ -169,11 +169,19 @@ Services.obs.addObserver(() => {
   store = null;
 }, "addrbook-reload");
 
-/** @implements nsIAbManager */
+/**
+ * @implements nsIAbManager
+ * @implements nsICommandLineHandler
+ */
 function AddrBookManager() {}
 AddrBookManager.prototype = {
-  QueryInterface: ChromeUtils.generateQI(["nsIAbManager"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIAbManager",
+    "nsICommandLineHandler",
+  ]),
   classID: Components.ID("{224d3ef9-d81c-4d94-8826-a79a5835af93}"),
+
+  /* nsIAbManager */
 
   get directories() {
     ensureInitialized();
@@ -513,7 +521,6 @@ AddrBookManager.prototype = {
     }
     return false;
   },
-
   /**
    * Finds out if the directory name already exists.
    * @param {string} name - The name of a directory to check for.
@@ -527,8 +534,28 @@ AddrBookManager.prototype = {
     }
     return false;
   },
-
   generateUUID(directoryId, localId) {
     return `${directoryId}#${localId}`;
+  },
+
+  /* nsICommandLineHandler */
+
+  get helpInfo() {
+    return "  -addressbook       Open the address book at startup.\n";
+  },
+  handle(commandLine) {
+    let found = commandLine.handleFlag("addressbook", false);
+    if (!found) {
+      return;
+    }
+
+    Services.ww.openWindow(
+      null,
+      "chrome://messenger/content/addressbook/addressbook.xhtml",
+      "_blank",
+      "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
+      null
+    );
+    commandLine.preventDefault = true;
   },
 };
