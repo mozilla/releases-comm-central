@@ -733,7 +733,7 @@ function onAdvancedAbSearch() {
     existingSearchWindow.focus();
   } else {
     window.openDialog(
-      "chrome://messenger/content/ABSearchDialog.xhtml",
+      "chrome://messenger/content/addressbook/abSearchDialog.xhtml",
       "",
       "chrome,resizable,status,centerscreen,dialog=no",
       { directory: selectedDirURI }

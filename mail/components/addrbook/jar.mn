@@ -14,5 +14,7 @@ messenger.jar:
 *   content/messenger/addressbook/abNewCardDialog.xhtml         (content/abNewCardDialog.xhtml)
     content/messenger/addressbook/abContactsPanel.xhtml         (content/abContactsPanel.xhtml)
     content/messenger/addressbook/abContactsPanel.js            (content/abContactsPanel.js)
+*   content/messenger/addressbook/abSearchDialog.xhtml          (content/abSearchDialog.xhtml)
+    content/messenger/addressbook/abSearchDialog.js             (content/abSearchDialog.js)
     content/messenger/addressbook/abTrees.js                    (content/abTrees.js)
     content/messenger/addressbook/menulist-addrbooks.js         (content/menulist-addrbooks.js)

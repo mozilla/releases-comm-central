@@ -25,7 +25,7 @@
 <!ENTITY saveAsVFButton.label        "Save as Search Folder">
 <!ENTITY saveAsVFButton.accesskey    "v">
 
-<!-- for ABSearchDialog.xhtml -->
+<!-- for abSearchDialog.xhtml -->
 <!ENTITY abSearchHeading.label       "Search in:">
 <!ENTITY abSearchHeading.accesskey   "h">
 <!ENTITY propertiesButton.label      "Properties">

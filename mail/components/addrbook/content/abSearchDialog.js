@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../../mailnews/base/content/dateFormat.js */
-/* import-globals-from ../../../mailnews/base/search/content/searchTerm.js */
-/* import-globals-from ../../components/addrbook/content/abCommon.js */
-/* import-globals-from commandglue.js */
-/* import-globals-from mailWindow.js */
-/* import-globals-from msgMail3PaneWindow.js */
+/* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../../mailnews/base/content/dateFormat.js */
+/* import-globals-from ../../../../mailnews/base/search/content/searchTerm.js */
+/* import-globals-from ../../../base/content/commandglue.js */
+/* import-globals-from ../../../base/content/mailWindow.js */
+/* import-globals-from ../../../base/content/msgMail3PaneWindow.js */
+/* import-globals-from abCommon.js */
 
 var { encodeABTermValue } = ChromeUtils.import(
   "resource:///modules/ABQueryUtils.jsm"

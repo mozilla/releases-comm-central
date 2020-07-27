@@ -833,7 +833,7 @@ pref("mailnews.ui.select_addresses_results.version", 1);
 // for manual upgrades of certain UI features.
 // 1 -> 2 is for the ab results pane
 // to hide the non default columns in the advanced directory search dialog
-// see abCommon.js and ABSearchDialog.js
+// see abCommon.js and abSearchDialog.js
 pref("mailnews.ui.advanced_directory_search_results.version", 1);
 
 // default description and color prefs for tags

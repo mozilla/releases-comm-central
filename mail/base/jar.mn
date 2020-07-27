@@ -42,8 +42,6 @@ messenger.jar:
     content/messenger/commandglue.js                (content/commandglue.js)
 *   content/messenger/SearchDialog.xhtml            (content/SearchDialog.xhtml)
     content/messenger/SearchDialog.js               (content/SearchDialog.js)
-*   content/messenger/ABSearchDialog.xhtml          (content/ABSearchDialog.xhtml)
-    content/messenger/ABSearchDialog.js             (content/ABSearchDialog.js)
     content/messenger/FilterListDialog.xhtml        (content/FilterListDialog.xhtml)
     content/messenger/FilterListDialog.js           (content/FilterListDialog.js)
     content/messenger/specialTabs.js                (content/specialTabs.js)
