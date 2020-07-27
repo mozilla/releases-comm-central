@@ -23,7 +23,7 @@ const { EnigmailConstants } = ChromeUtils.import(
   "chrome://openpgp/content/modules/constants.jsm"
 );
 
-const l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+const l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 const LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";
 

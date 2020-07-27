@@ -12,7 +12,7 @@ const { EnigmailVersioning } = ChromeUtils.import(
   "chrome://openpgp/content/modules/versioning.jsm"
 );
 
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 const MINIMUM_GPG_VERSION = "2.0.14";
 

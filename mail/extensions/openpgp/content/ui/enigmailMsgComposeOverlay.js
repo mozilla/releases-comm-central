@@ -100,7 +100,7 @@ const { EnigmailCryptoAPI } = ChromeUtils.import(
 );
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 // Account encryption policy values:
 // const kEncryptionPolicy_Never = 0;

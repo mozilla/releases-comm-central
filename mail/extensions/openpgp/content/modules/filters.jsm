@@ -51,7 +51,7 @@ const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 var gNewMailListenerInitiated = false;
 
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 /**
  * filter action for creating a decrypted version of the mail and

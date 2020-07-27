@@ -41,7 +41,7 @@ const { EnigmailCryptoAPI } = ChromeUtils.import(
 var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 const gMimeHashAlgorithms = [
   null,

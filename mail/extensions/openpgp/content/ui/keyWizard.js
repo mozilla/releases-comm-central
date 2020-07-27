@@ -67,7 +67,7 @@ before importing and publishing this revocation certificate.
 
 :`;
 
-var syncl10n = new Localization(["messenger/openpgp/key-wizard.ftl"], true);
+var syncl10n = new Localization(["messenger/openpgp/keyWizard.ftl"], true);
 
 // Dialog event listeners.
 document.addEventListener("dialogaccept", wizardContinue);

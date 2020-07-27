@@ -26,7 +26,7 @@ var { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 );
 
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 /**
  * opens a prompt, asking the user to enter passphrase for given key id

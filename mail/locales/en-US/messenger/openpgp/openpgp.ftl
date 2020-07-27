@@ -99,7 +99,7 @@ openpgp-key-man-discover-cmd =
     .label = Discover Keys Online
     .accesskey = D
 openpgp-key-man-discover-prompt = To discover OpenPGP keys online, on keyservers or using the WKD protocol, enter either an email address or a key ID.
-openpgp-key-man-discover-progress = Searching, please wait...
+openpgp-key-man-discover-progress = Searching…
 
 openpgp-key-copy-key =
     .label = Copy Public Key
@@ -398,7 +398,7 @@ filter-encrypt-label = Encrypt to key (OpenPGP)
 
 # Strings in enigmailKeyImportInfo.js
 import-info-title =
-    .title = SUCCESS! Keys imported
+    .title = Success! Keys imported
 import-info-bits = Bits
 import-info-created = Created
 import-info-fpr = Fingerprint

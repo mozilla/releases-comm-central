@@ -90,7 +90,7 @@ var { PgpSqliteDb2 } = ChromeUtils.import(
   "chrome://openpgp/content/modules/sqliteDb.jsm"
 );
 
-var l10nCommon = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10nCommon = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 

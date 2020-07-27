@@ -9,16 +9,7 @@
 #filter substitution
 
 [localization] @AB_CD@.jar:
-  messenger/openpgp/bond.ftl                                            (../extensions/openpgp/content/strings/bond.ftl)
-  messenger/openpgp/backupKeyPassword.ftl                               (../extensions/openpgp/content/strings/backupKeyPassword.ftl)
-  messenger/openpgp/composeKeyStatus.ftl                                (../extensions/openpgp/content/strings/composeKeyStatus.ftl)
-  messenger/openpgp/msgReadStatus.ftl                                   (../extensions/openpgp/content/strings/msgReadStatus.ftl)
-  messenger/openpgp/oneRecipientStatus.ftl                              (../extensions/openpgp/content/strings/oneRecipientStatus.ftl)
-  messenger/openpgp/changeExpiryDlg.ftl                                 (../extensions/openpgp/content/strings/changeExpiryDlg.ftl)
-  messenger/openpgp/enigmail.ftl                                        (../extensions/openpgp/content/strings/enigmail.ftl)
-  messenger/openpgp/key-wizard.ftl                                      (../extensions/openpgp/content/strings/key-wizard.ftl)
   messenger                                                             (%messenger/**/*.ftl)
-
 
 @AB_CD@.jar:
 % locale messenger @AB_CD@ %locale/@AB_CD@/messenger/

@@ -38,7 +38,7 @@ openpgp-search-signature-key =
 openpgp-broken-exchange-info = This is an OpenPGP message that was apparently corrupted by MS-Exchange. If the message contents isn't shown as expected, you can try an automatic repair.
 openpgp-broken-exchange-repair =
     .label = Repair message
-openpgp-broken-exchange-wait = Please wait ...
+openpgp-broken-exchange-wait = Please wait…
 
 openpgp-cannot-decrypt-because-mdc =
     This is an encrypted message that uses an old and vulnerable mechanism.

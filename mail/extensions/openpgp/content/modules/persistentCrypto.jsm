@@ -48,7 +48,7 @@ const { EnigmailEncryption } = ChromeUtils.import(
   "chrome://openpgp/content/modules/encryption.jsm"
 );
 
-var l10n = new Localization(["messenger/openpgp/enigmail.ftl"], true);
+var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 const getFixExchangeMsg = EnigmailLazy.loader(
   "enigmail/fixExchangeMsg.jsm",
