@@ -127,6 +127,18 @@
                 label="&enableAutomaticImageResizing.label;"
                 accesskey="&enableAutomaticImageResizing.accesskey;"
                 preference="browser.enable_automatic_image_resizing"/>
+
+      <hbox align="center">
+        <label value="&defaultZoom.label;"
+               accesskey="&defaultZoom.accesskey;"
+               control="defaultZoom"/>
+        <textbox id="defaultZoom"
+                 type="number"
+                 size="3"
+                 increment="10"
+                 onchange="SetDefaultZoom();"/>
+        <label value="&percent.label;"/>
+      </hbox>
     </groupbox>
 
     <vbox class="box-padded" align="start">

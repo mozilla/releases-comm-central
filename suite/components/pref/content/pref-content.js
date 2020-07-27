@@ -33,6 +33,30 @@ function Startup()
   maxMinValue     = firstValue < maxMinLimit ? maxMinLimit : firstValue;
   maxElement.min  = maxMinValue;
   maxElement.max  = lastValue;
+
+  /*   defaultZoom  stuff   */
+
+  let defaultElement = document.getElementById("defaultZoom");
+
+  defaultElement.min = Services.prefs.getIntPref("zoom.minPercent");
+  defaultElement.max = Services.prefs.getIntPref("zoom.maxPercent");
+
+  let cps2 = Cc["@mozilla.org/content-pref/service;1"]
+               .getService(Ci.nsIContentPrefService2);
+
+  var zoomValue = cps2.getCachedGlobal("browser.content.full-zoom", null);
+  if (zoomValue && zoomValue.value) {
+    defaultElement.value = Math.round(zoomValue.value * 100);
+    return;
+  }
+
+  defaultElement.value = 100;
+  cps2.getGlobal("browser.content.full-zoom", null, {
+    handleResult(pref) {
+      defaultElement.value = Math.round(pref.value * 100);
+    },
+    handleCompletion(reason) {}
+  });
 }
 
 /**
@@ -56,6 +80,13 @@ function AdjustMaxZoom()
     maxPref.value = minElement.value;
 
   minElement.min  = minMinValue;
+
+  let defaultElement  = document.getElementById("defaultZoom");
+  if (defaultElement.valueNumber < minElement.valueNumber) {
+    defaultElement.valueNumber = minElement.valueNumber;
+    SetDefaultZoom();
+  }
+  defaultElement.min = minElement.valueNumber;
 }
 
 /**
@@ -74,6 +105,31 @@ function AdjustMinZoom()
     minPref.value = maxValue;
 
   maxElement.min  = maxMinValue;
+
+  let defaultElement  = document.getElementById("defaultZoom");
+  if (defaultElement.valueNumber > maxElement.valueNumber) {
+    defaultElement.valueNumber = maxElement.valueNumber;
+    SetDefaultZoom();
+  }
+  defaultElement.max = maxElement.valueNumber;
+}
+
+/**
+ * Set default zoom.
+ */
+function SetDefaultZoom()
+{
+  let defaultElement  = document.getElementById("defaultZoom");
+  let cps2 = Cc["@mozilla.org/content-pref/service;1"]
+               .getService(Ci.nsIContentPrefService2);
+
+  if (defaultElement.valueNumber == 100) {
+    cps2.removeGlobal("browser.content.full-zoom", null);
+    return;
+  }
+
+  let new_value = defaultElement.valueNumber / 100.;
+  cps2.setGlobal("browser.content.full-zoom", new_value, null);
 }
 
 /**
