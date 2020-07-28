@@ -544,7 +544,7 @@
     }
 
     set rotated(rotated) {
-      return this.setAttribute("orient", rotated ? "horizontal" : "vertical");
+      this.setAttribute("orient", rotated ? "horizontal" : "vertical");
     }
 
     get rotated() {
@@ -556,7 +556,7 @@
     }
 
     set displayDaysOff(displayDaysOff) {
-      return (this.mDisplayDaysOff = displayDaysOff);
+      this.mDisplayDaysOff = displayDaysOff;
     }
 
     get displayDaysOff() {
@@ -564,7 +564,7 @@
     }
 
     set controller(controller) {
-      return (this.mController = controller);
+      this.mController = controller;
     }
 
     get controller() {
@@ -572,7 +572,7 @@
     }
 
     set daysOffArray(daysOffArray) {
-      return (this.mDaysOffArray = daysOffArray);
+      this.mDaysOffArray = daysOffArray;
     }
 
     get daysOffArray() {
@@ -580,7 +580,7 @@
     }
 
     set tasksInView(tasksInView) {
-      return (this.mTasksInView = tasksInView);
+      this.mTasksInView = tasksInView;
     }
 
     get tasksInView() {
@@ -588,7 +588,7 @@
     }
 
     set showCompleted(showCompleted) {
-      return (this.mShowCompleted = showCompleted);
+      this.mShowCompleted = showCompleted;
     }
 
     get showCompleted() {
@@ -596,7 +596,7 @@
     }
 
     set timezone(timezone) {
-      return (this.mTimezone = timezone);
+      this.mTimezone = timezone;
     }
 
     get timezone() {
@@ -604,7 +604,7 @@
     }
 
     set workdaysOnly(workdaysOnly) {
-      return (this.mWorkdaysOnly = workdaysOnly);
+      this.mWorkdaysOnly = workdaysOnly;
     }
 
     get workdaysOnly() {
@@ -640,7 +640,7 @@
     }
 
     set rangeStartDate(startDate) {
-      return (this.mRangeStartDate = startDate);
+      this.mRangeStartDate = startDate;
     }
 
     get rangeStartDate() {
@@ -648,7 +648,7 @@
     }
 
     set rangeEndDate(endDate) {
-      return (this.mRangeEndDate = endDate);
+      this.mRangeEndDate = endDate;
     }
 
     get rangeEndDate() {
@@ -661,7 +661,6 @@
 
     set weekStartOffset(offset) {
       this.mWeekStartOffset = offset;
-      return offset;
     }
 
     get weekStartOffset() {
@@ -675,7 +674,6 @@
       this.mCalendar = calendar;
       this.mCalendar.addObserver(this.mObserver);
       this.refresh();
-      return calendar;
     }
 
     get displayCalendar() {

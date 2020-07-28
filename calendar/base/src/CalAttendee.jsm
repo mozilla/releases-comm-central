@@ -148,7 +148,6 @@ CalAttendee.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     this.icalProperty = prop;
-    return val;
   },
 
   get properties() {
@@ -180,7 +179,7 @@ CalAttendee.prototype = {
     this.modify();
     // RFC 1738 para 2.1 says we should be using lowercase mailto: urls
     // we enforce prepending the mailto prefix for email type ids as migration code bug 1199942
-    return (this.mId = aId ? cal.email.prependMailTo(aId) : null);
+    this.mId = aId ? cal.email.prependMailTo(aId) : null;
   },
 
   toString() {

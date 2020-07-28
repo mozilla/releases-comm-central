@@ -70,7 +70,6 @@
       this.mWeekday = val % 7;
       this.longWeekdayName.value = cal.dtz.formatter.dayName(val);
       this.shortWeekdayName.value = cal.dtz.formatter.shortDayName(val);
-      return this.mWeekday;
     }
 
     get weekDay() {
@@ -90,7 +89,6 @@
         dateFormatter.formatDateWithoutYear(val),
       ]);
       this.longWeekdayName.setAttribute("value", label);
-      return val;
     }
 
     get date() {
@@ -102,7 +100,6 @@
       this.getLongWeekdayPixels();
       setBooleanAttribute(this.longWeekdayName, "hidden", val);
       setBooleanAttribute(this.shortWeekdayName, "hidden", !val);
-      return val;
     }
 
     getLongWeekdayPixels() {

@@ -306,7 +306,7 @@
     set searchScope(val) {
       // if scope isn't changing this is a noop
       if (this.internalScope == val) {
-        return val;
+        return;
       }
       this.internalScope = val;
       this.refreshList();
@@ -316,7 +316,6 @@
           target.searchScope = val;
         });
       }
-      return val;
     }
 
     get searchScope() {
@@ -359,7 +358,7 @@
 
     set value(val) {
       if (this.internalValue == val) {
-        return val;
+        return;
       }
       this.internalValue = val;
       this.menulist.selectedItem = this.validMenuitem;
@@ -377,7 +376,6 @@
           optarget.opParentValue = val;
         });
       }
-      return val;
     }
 
     get value() {
@@ -645,7 +643,7 @@
         this.searchAttribute == val &&
         val != Ci.nsMsgSearchAttrib.OtherHeader
       ) {
-        return val;
+        return;
       }
       this.searchAttribute = val;
       this.refreshList(true); // don't restore the selection, since searchvalue nulls it
@@ -653,7 +651,6 @@
         // We want "Age in Days" to default to "is less than".
         this.value = Ci.nsMsgSearchOp.IsLessThan;
       }
-      return val;
     }
 
     get parentValue() {
@@ -883,7 +880,7 @@
     set opParentValue(val) {
       // Noop if we're not changing it.
       if (this.internalOperator == val) {
-        return val;
+        return;
       }
 
       // Keywords has the null field IsEmpty.
@@ -919,7 +916,7 @@
         this.searchAttribute != Ci.nsMsgSearchAttrib.CC
       ) {
         this.internalOperator = val;
-        return val;
+        return;
       }
 
       const children = this.children;
@@ -951,7 +948,6 @@
       }
 
       this.internalOperator = val;
-      return val;
     }
 
     get opParentValue() {
@@ -959,7 +955,7 @@
     }
 
     set parentValue(val) {
-      return (this.searchAttribute = val);
+      this.searchAttribute = val;
     }
 
     get parentValue() {
@@ -969,7 +965,7 @@
     set searchAttribute(val) {
       // noop if we're not changing it.
       if (this.internalAttribute == val) {
-        return val;
+        return;
       }
       this.internalAttribute = val;
 
@@ -1025,7 +1021,6 @@
         // a normal text field
         this.setAttribute("selectedIndex", "0");
       }
-      return val;
     }
 
     get searchAttribute() {
@@ -1042,7 +1037,7 @@
         // a custom term
         let customHbox = this.children[10];
         customHbox.setAttribute("value", val.str);
-        return val;
+        return;
       }
       if (attrib == Ci.nsMsgSearchAttrib.Priority) {
         const matchingPriority = children[1].querySelector(
@@ -1114,7 +1109,6 @@
       } else {
         children[0].value = val.str;
       }
-      return val;
     }
 
     get value() {

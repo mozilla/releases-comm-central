@@ -213,7 +213,6 @@
         this.mSelected = false;
         this.removeAttribute("selected");
       }
-      return val;
     }
 
     get selected() {
@@ -222,7 +221,6 @@
 
     set calendarView(val) {
       this.mCalendarView = val;
-      return val;
     }
 
     get calendarView() {
@@ -234,7 +232,6 @@
       this.setEditableLabel();
       this.setLocationLabel();
       this.setCSSClasses();
-      return val;
     }
 
     get occurrence() {

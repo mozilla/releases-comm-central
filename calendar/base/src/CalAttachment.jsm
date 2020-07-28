@@ -60,7 +60,6 @@ CalAttachment.prototype = {
     // An uri is the default format, remove any value type parameters
     this.deleteParameter("VALUE");
     this.setData(aUri.spec);
-    return aUri;
   },
 
   get rawData() {
@@ -70,21 +69,21 @@ CalAttachment.prototype = {
     // Setting the raw data lets us assume this is binary data. Make sure
     // the value parameter is set
     this.setParameter("VALUE", "BINARY");
-    return this.setData(aData);
+    this.setData(aData);
   },
 
   get formatType() {
     return this.getParameter("FMTTYPE");
   },
   set formatType(aType) {
-    return this.setParameter("FMTTYPE", aType);
+    this.setParameter("FMTTYPE", aType);
   },
 
   get encoding() {
     return this.getParameter("ENCODING");
   },
   set encoding(aValue) {
-    return this.setParameter("ENCODING", aValue);
+    this.setParameter("ENCODING", aValue);
   },
 
   get icalProperty() {
@@ -131,7 +130,6 @@ CalAttachment.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     this.icalProperty = prop;
-    return val;
   },
 
   getParameter(aName) {

@@ -174,7 +174,7 @@ CalEvent.prototype = {
       }
     }
 
-    return this.setProperty("DTSTART", value);
+    this.setProperty("DTSTART", value);
   },
 
   get startDate() {
@@ -207,6 +207,6 @@ CalEvent.prototype = {
   set endDate(value) {
     this.deleteProperty("DURATION"); // setting endDate once removes DURATION
     this.setProperty("DTEND", value);
-    return (this.mEndDate = value);
+    this.mEndDate = value;
   },
 };

@@ -39,7 +39,6 @@ var taskEdit = {
     if (this.mObservedCalendar) {
       this.mObservedCalendar.addObserver(this.calendarObserver);
     }
-    return this.mObservedCalendar;
   },
 
   /**

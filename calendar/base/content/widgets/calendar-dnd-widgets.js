@@ -45,7 +45,7 @@
     }
 
     set calendarView(val) {
-      return (this.mCalendarView = val);
+      this.mCalendarView = val;
     }
 
     /**

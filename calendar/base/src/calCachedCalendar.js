@@ -672,7 +672,7 @@ calCachedCalendar.prototype = {
     return (this.mSuperCalendar && this.mSuperCalendar.superCalendar) || this;
   },
   set superCalendar(val) {
-    return (this.mSuperCalendar = val);
+    this.mSuperCalendar = val;
   },
 
   get offline() {

@@ -351,8 +351,6 @@
               cal.acl.userCanRespondToInvitation(item)))
         );
       }
-
-      return item;
     }
 
     get item() {

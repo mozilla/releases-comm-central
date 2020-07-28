@@ -459,8 +459,6 @@ var calprovider = {
           }
         }
       }
-
-      return aValue;
     }
 
     // attribute AUTF8String name;
@@ -468,7 +466,7 @@ var calprovider = {
       return this.getProperty("name");
     }
     set name(aValue) {
-      return this.setProperty("name", aValue);
+      this.setProperty("name", aValue);
     }
 
     // readonly attribute calICalendarACLManager aclManager;
@@ -493,7 +491,7 @@ var calprovider = {
       return this.mSuperCalendar ? this.mSuperCalendar.superCalendar : this;
     }
     set superCalendar(val) {
-      return (this.mSuperCalendar = val);
+      this.mSuperCalendar = val;
     }
 
     // attribute nsIURI uri;
@@ -501,7 +499,7 @@ var calprovider = {
       return this.mUri;
     }
     set uri(aValue) {
-      return (this.mUri = aValue);
+      this.mUri = aValue;
     }
 
     // attribute boolean readOnly;
@@ -509,7 +507,7 @@ var calprovider = {
       return this.getProperty("readOnly");
     }
     set readOnly(aValue) {
-      return this.setProperty("readOnly", aValue);
+      this.setProperty("readOnly", aValue);
     }
 
     // readonly attribute boolean canRefresh;

@@ -139,13 +139,12 @@ CalStorageCalendar.prototype = {
     return this.__proto__.__proto__.__lookupGetter__("id").call(this);
   },
   set id(val) {
-    let id = this.__proto__.__proto__.__lookupSetter__("id").call(this, val);
+    this.__proto__.__proto__.__lookupSetter__("id").call(this, val);
 
     if (!this.mDB && this.uri && this.id) {
       // Prepare the database as soon as we have an id and an uri.
       this.prepareInitDB();
     }
-    return id;
   },
 
   // attribute nsIURI uri;
@@ -158,14 +157,12 @@ CalStorageCalendar.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
 
-    let uri = this.__proto__.__proto__.__lookupSetter__("uri").call(this, aUri);
+    this.__proto__.__proto__.__lookupSetter__("uri").call(this, aUri);
 
     if (!this.mDB && this.uri && this.id) {
       // Prepare the database as soon as we have an id and an uri.
       this.prepareInitDB();
     }
-
-    return uri;
   },
 
   // attribute mozIStorageAsyncConnection db;

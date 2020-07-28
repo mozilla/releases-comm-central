@@ -38,7 +38,6 @@
 
     set calendar(val) {
       this.setCalendar(val);
-      return val;
     }
 
     get calendar() {
@@ -48,7 +47,6 @@
     set subscribed(val) {
       this.mSubscribed = val;
       this.checked = val;
-      return val;
     }
 
     get subscribed() {
@@ -62,7 +60,6 @@
       } else {
         checkbox.removeAttribute("checked");
       }
-      return val;
     }
 
     get checked() {
@@ -77,7 +74,6 @@
       } else {
         checkbox.removeAttribute("disabled");
       }
-      return val;
     }
 
     get disabled() {

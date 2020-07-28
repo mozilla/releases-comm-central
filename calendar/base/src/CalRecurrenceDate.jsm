@@ -49,7 +49,7 @@ CalRecurrenceDate.prototype = {
   },
   set isNegative(val) {
     this.ensureMutable();
-    return (this.mIsNegative = val);
+    this.mIsNegative = val;
   },
 
   get isFinite() {
@@ -61,7 +61,7 @@ CalRecurrenceDate.prototype = {
   },
   set date(val) {
     this.ensureMutable();
-    return (this.mDate = val);
+    this.mDate = val;
   },
 
   getNextOccurrence(aStartTime, aOccurrenceTime) {
@@ -94,7 +94,6 @@ CalRecurrenceDate.prototype = {
     }
 
     this.icalProperty = prop;
-    return val;
   },
 
   get icalProperty() {
@@ -116,6 +115,5 @@ CalRecurrenceDate.prototype = {
       this.mIsNegative = true;
       this.mDate = prop.valueAsDatetime;
     }
-    return prop;
   },
 };

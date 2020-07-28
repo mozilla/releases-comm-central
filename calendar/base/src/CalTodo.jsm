@@ -209,7 +209,7 @@ CalTodo.prototype = {
       }
     }
 
-    return this.setProperty("DTSTART", value);
+    this.setProperty("DTSTART", value);
   },
 
   get entryDate() {
@@ -238,7 +238,7 @@ CalTodo.prototype = {
   set dueDate(value) {
     this.deleteProperty("DURATION"); // setting dueDate once removes DURATION
     this.setProperty("DUE", value);
-    return (this.mDueDate = value);
+    this.mDueDate = value;
   },
 };
 

@@ -1346,7 +1346,7 @@ Serializer.prototype = {
   },
 
   set _currentLine(val) {
-    return (this._lines[this._lines.length - 1] = val);
+    this._lines[this._lines.length - 1] = val;
   },
 
   _serializeElement(elem) {

@@ -249,6 +249,7 @@ function searchOnLoad() {
   );
 
   gMessageDisplay = new NeverVisibleMessageDisplayWidget();
+  // eslint-disable-next-line no-global-assign
   gFolderDisplay = new SearchFolderDisplayWidget(gMessageDisplay);
   gFolderDisplay.messenger = messenger;
   gFolderDisplay.msgWindow = msgWindow;

@@ -136,7 +136,6 @@ CalDavCalendar.prototype = {
     if (this.id) {
       this.session = new CalDavSession(this.id, this.name);
     }
-    return val;
   },
 
   //
@@ -209,7 +208,7 @@ CalDavCalendar.prototype = {
   },
 
   set checkedServerInfo(val) {
-    return (this.mCheckedServerInfo = val);
+    this.mCheckedServerInfo = val;
   },
 
   saveCalendarProperties() {
@@ -380,8 +379,6 @@ CalDavCalendar.prototype = {
 
   set uri(aUri) {
     this.mUri = aUri;
-
-    return aUri;
   },
 
   get calendarUri() {
@@ -429,8 +426,8 @@ CalDavCalendar.prototype = {
     return this.mHaveScheduling;
   },
   set hasScheduling(value) {
-    return (this.mHaveScheduling =
-      Services.prefs.getBoolPref("calendar.caldav.sched.enabled", false) && value);
+    this.mHaveScheduling =
+      Services.prefs.getBoolPref("calendar.caldav.sched.enabled", false) && value;
   },
   mHasAutoScheduling: false, // Whether server automatically takes care of scheduling
   get hasAutoScheduling() {
@@ -2230,7 +2227,7 @@ CalDavCalendar.prototype = {
     return this.mSenderAddress || this.calendarUserAddress;
   },
   set senderAddress(aString) {
-    return (this.mSenderAddress = aString);
+    this.mSenderAddress = aString;
   },
 
   sendItems(aRecipients, aItipItem) {

@@ -57,7 +57,6 @@ searchTermContainer.prototype = {
 
     this.booleanAnd = val.booleanAnd;
     this.matchAll = val.matchAll;
-    return val;
   },
 
   // searchscope - just forward to the searchattribute
@@ -72,7 +71,6 @@ searchTermContainer.prototype = {
     if (searchAttribute) {
       searchAttribute.searchScope = val;
     }
-    return val;
   },
 
   saveId(element, slot) {
@@ -93,21 +91,18 @@ searchTermContainer.prototype = {
   },
   set searchattribute(val) {
     this.saveId(val, "internalSearchAttributeId");
-    return val;
   },
   get searchoperator() {
     return this.getElement("internalSearchOperatorId");
   },
   set searchoperator(val) {
     this.saveId(val, "internalSearchOperatorId");
-    return val;
   },
   get searchvalue() {
     return this.getElement("internalSearchValueId");
   },
   set searchvalue(val) {
     this.saveId(val, "internalSearchValueId");
-    return val;
   },
 
   booleanNodes: null,
@@ -116,7 +111,6 @@ searchTermContainer.prototype = {
   },
   set booleanAnd(val) {
     this.internalBooleanAnd = val;
-    return val;
   },
 
   save() {

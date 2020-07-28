@@ -145,7 +145,7 @@ CalAlarmService.prototype = {
   },
 
   set timezone(aTimezone) {
-    return (this.mTimezone = aTimezone);
+    this.mTimezone = aTimezone;
   },
 
   snoozeAlarm(aItem, aAlarm, aDuration) {

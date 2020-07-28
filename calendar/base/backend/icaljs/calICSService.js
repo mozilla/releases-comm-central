@@ -46,10 +46,9 @@ calIcalProperty.prototype = {
     // Unescaped value for properties of TEXT, escaped otherwise.
     if (this.innerObject.type == "text") {
       this.innerObject.setValue(val);
-      return val;
+      return;
     }
     this.valueAsIcalString = val;
-    return val;
   },
 
   get valueAsIcalString() {
@@ -77,7 +76,6 @@ calIcalProperty.prototype = {
     } else {
       this.innerObject.setValue(prop.getFirstValue());
     }
-    return val;
   },
 
   get valueAsDatetime() {

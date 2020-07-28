@@ -182,8 +182,6 @@ function TestSearchx(aFolder, aValue, aAttrib, aOp, aHitCount, onDone) {
     value.size = aValue;
   } else if (aAttrib == Ci.nsMsgSearchAttrib.AgeInDays) {
     value.age = aValue;
-  } else if (aAttrib == Ci.nsMsgSearchAttrib.Size) {
-    value.size = aValue;
   } else if (aAttrib == Ci.nsMsgSearchAttrib.Label) {
     value.label = aValue;
   } else if (aAttrib == Ci.nsMsgSearchAttrib.JunkStatus) {

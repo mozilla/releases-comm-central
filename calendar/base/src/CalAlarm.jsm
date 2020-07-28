@@ -141,7 +141,7 @@ CalAlarm.prototype = {
         break;
     }
 
-    return (this.mRelated = aValue);
+    this.mRelated = aValue;
   },
 
   get action() {
@@ -149,7 +149,7 @@ CalAlarm.prototype = {
   },
   set action(aValue) {
     this.ensureMutable();
-    return (this.mAction = aValue);
+    this.mAction = aValue;
   },
 
   get description() {
@@ -160,7 +160,7 @@ CalAlarm.prototype = {
   },
   set description(aValue) {
     this.ensureMutable();
-    return (this.mDescription = aValue);
+    this.mDescription = aValue;
   },
 
   get summary() {
@@ -171,7 +171,7 @@ CalAlarm.prototype = {
   },
   set summary(aValue) {
     this.ensureMutable();
-    return (this.mSummary = aValue);
+    this.mSummary = aValue;
   },
 
   get offset() {
@@ -185,7 +185,7 @@ CalAlarm.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this.ensureMutable();
-    return (this.mOffset = aValue);
+    this.mOffset = aValue;
   },
 
   get alarmDate() {
@@ -199,7 +199,7 @@ CalAlarm.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
     this.ensureMutable();
-    return (this.mAbsoluteDate = aValue);
+    this.mAbsoluteDate = aValue;
   },
 
   get repeat() {
@@ -218,7 +218,6 @@ CalAlarm.prototype = {
         throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
       }
     }
-    return aValue;
   },
 
   get repeatOffset() {
@@ -232,7 +231,7 @@ CalAlarm.prototype = {
     if (aValue !== null && !(aValue instanceof Ci.calIDuration)) {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_ARG);
     }
-    return (this.mDuration = aValue);
+    this.mDuration = aValue;
   },
 
   get repeatDate() {
@@ -337,7 +336,7 @@ CalAlarm.prototype = {
   },
   set icalString(val) {
     this.ensureMutable();
-    return (this.icalComponent = cal.getIcsService().parseICS(val, null));
+    this.icalComponent = cal.getIcsService().parseICS(val, null);
   },
 
   promotedProps: {
@@ -552,7 +551,6 @@ CalAlarm.prototype = {
         }
       }
     }
-    return aComp;
   },
 
   hasProperty(aName) {

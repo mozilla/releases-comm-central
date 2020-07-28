@@ -95,7 +95,7 @@ class CalDavGoogleOAuth extends OAuth2 {
         throw e;
       }
     }
-    return (this._refreshToken = aVal);
+    this._refreshToken = aVal;
   }
 
   /**

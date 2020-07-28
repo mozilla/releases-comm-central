@@ -73,7 +73,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
     set calendarItem(val) {
       this.setCalendarItem(val);
-      return val;
     }
 
     get calendarItem() {
@@ -82,7 +81,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
     set initialParticipationStatus(val) {
       this.mInitialParticipationStatus = val;
-      return val;
     }
 
     get initialParticipationStatus() {
@@ -93,7 +91,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
       this.mParticipationStatus = val;
       let icon = this.querySelector(".calendar-invitations-richlistitem-icon");
       icon.setAttribute("status", val);
-      return val;
     }
 
     get participationStatus() {

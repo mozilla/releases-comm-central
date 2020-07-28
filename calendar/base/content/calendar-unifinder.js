@@ -426,7 +426,7 @@ var unifinderTreeView = {
         col.setAttribute("sortDirection", this.sortDirection);
       }
     }
-    return (this.mSelectedColumn = aCol);
+    this.mSelectedColumn = aCol;
   },
 
   /**

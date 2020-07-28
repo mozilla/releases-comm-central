@@ -196,7 +196,6 @@
           this.richlistbox.selectedItem || this.richlistbox.firstElementChild
         );
       }
-      return val;
     }
 
     get selectedIndex() {
@@ -223,9 +222,7 @@
       return Number(this.getAttribute("overflowpadding"));
     }
 
-    set view(val) {
-      return val;
-    }
+    set view(val) {}
 
     get view() {
       return this.mInput.controller;

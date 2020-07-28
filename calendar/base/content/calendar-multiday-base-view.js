@@ -65,7 +65,6 @@
         this.mPixPerMin = ppm;
         this.relayout();
       }
-      return ppm;
     }
 
     get pixelsPerMinute() {
@@ -415,7 +414,7 @@
       // Ignore if just 1 visible, it's always selected, but we don't indicate it.
       if (this.numVisibleDates == 1) {
         this.fireEvent("dayselect", day);
-        return day;
+        return;
       }
 
       if (this.mSelectedDayCol) {
@@ -434,7 +433,6 @@
         }
       }
       this.fireEvent("dayselect", day);
-      return day;
     }
 
     get selectedDay() {
@@ -472,12 +470,11 @@
       this.timebar.pixelsPerMinute = ppm;
 
       if (!this.mDateColumns) {
-        return ppm;
+        return;
       }
       for (const col of this.mDateColumns) {
         col.column.pixelsPerMinute = ppm;
       }
-      return ppm;
     }
 
     get pixelsPerMinute() {

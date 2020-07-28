@@ -56,7 +56,7 @@
         this.setAttribute("aria-label", `${this._ariaBaseLabel.value}: ${val}`);
       }
 
-      return (this.textContent = val);
+      this.textContent = val;
     }
   }
   customElements.define("mail-headerfield", MozMailHeaderfield);
@@ -91,7 +91,7 @@
     }
 
     set headerValue(val) {
-      return this.buildTags(val);
+      this.buildTags(val);
     }
 
     buildTags(tags) {
@@ -240,8 +240,6 @@
       } else {
         this.setAttribute("label", val);
       }
-
-      return val;
     }
 
     get label() {
@@ -833,7 +831,7 @@
 
       set editable(val) {
         if (val == this.editable) {
-          return val;
+          return;
         }
 
         if (!val) {
@@ -845,7 +843,6 @@
         }
 
         this.setAttribute("editable", val);
-        return val;
       }
 
       get editable() {
@@ -856,7 +853,6 @@
         this._inputField.value = val;
         this.setAttribute("value", val);
         this.setAttribute("label", val);
-        return val;
       }
 
       get value() {
@@ -977,7 +973,7 @@
     }
 
     set maxAddressesInMoreTooltipValue(val) {
-      return (this.tooltipLength = val);
+      this.tooltipLength = val;
     }
 
     get maxAddressesInMoreTooltipValue() {
@@ -1411,7 +1407,6 @@
     set view(val) {
       this.setAttribute("view", val);
       this._setImageSize();
-      return val;
     }
 
     get view() {
@@ -1425,7 +1420,6 @@
 
       this.setAttribute("orient", val);
       this.currentItem = curr;
-      return val;
     }
 
     get orient() {

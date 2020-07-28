@@ -101,7 +101,6 @@ calItemBase.prototype = {
     if (this.mRecurrenceInfo) {
       this.mRecurrenceInfo.onIdChange(uid);
     }
-    return uid;
   },
 
   // attribute calIDateTime recurrenceId;
@@ -110,7 +109,7 @@ calItemBase.prototype = {
   },
   set recurrenceId(rid) {
     this.mHashId = null; // recompute hashId
-    return this.setProperty("RECURRENCE-ID", rid);
+    this.setProperty("RECURRENCE-ID", rid);
   },
 
   // attribute calIRecurrenceInfo recurrenceInfo;
@@ -119,7 +118,7 @@ calItemBase.prototype = {
   },
   set recurrenceInfo(value) {
     this.modify();
-    return (this.mRecurrenceInfo = cal.unwrapInstance(value));
+    this.mRecurrenceInfo = cal.unwrapInstance(value);
   },
 
   // attribute calIItemBase parentItem;
@@ -130,7 +129,7 @@ calItemBase.prototype = {
     if (this.mImmutable) {
       throw Components.Exception("", Cr.NS_ERROR_OBJECT_IS_IMMUTABLE);
     }
-    return (this.mParentItem = cal.unwrapInstance(value));
+    this.mParentItem = cal.unwrapInstance(value);
   },
 
   /**
@@ -335,7 +334,7 @@ calItemBase.prototype = {
     if (aValue && !aValue.timezone.isUTC) {
       aValue = aValue.getInTimezone(cal.dtz.UTC);
     }
-    return (this.mAlarmLastAck = aValue);
+    this.mAlarmLastAck = aValue;
   },
 
   // readonly attribute calIDateTime lastModifiedTime;
@@ -931,7 +930,7 @@ calItemBase.prototype = {
     return gen ? parseInt(gen, 10) : 0;
   },
   set generation(aValue) {
-    return this.setProperty("X-MOZ-GENERATION", String(aValue));
+    this.setProperty("X-MOZ-GENERATION", String(aValue));
   },
 
   /**

@@ -86,7 +86,6 @@
 
     set date(val) {
       this.setDate(val);
-      return val;
     }
 
     get selected() {
@@ -106,7 +105,6 @@
         this.removeAttribute("selected");
         this.parentNode.removeAttribute("selected");
       }
-      return val;
     }
 
     get showMonthLabel() {
@@ -115,19 +113,18 @@
 
     set showMonthLabel(val) {
       if (this.mShowMonthLabel == val) {
-        return val;
+        return;
       }
       this.mShowMonthLabel = val;
 
       if (!this.mDate) {
-        return val;
+        return;
       }
       if (val) {
         this.setAttribute("value", cal.dtz.formatter.formatDateWithoutYear(this.mDate));
       } else {
         this.setAttribute("value", this.mDate.day);
       }
-      return val;
     }
 
     setDate(aDate) {
@@ -388,7 +385,6 @@
 
       this.setEditableLabel();
       this.setCSSClasses();
-      return val;
     }
 
     get occurrence() {

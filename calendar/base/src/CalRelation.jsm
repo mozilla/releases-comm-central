@@ -31,14 +31,14 @@ CalRelation.prototype = {
     return this.mType;
   },
   set relType(aType) {
-    return (this.mType = aType);
+    this.mType = aType;
   },
 
   get relId() {
     return this.mId;
   },
   set relId(aRelId) {
-    return (this.mId = aRelId);
+    this.mId = aRelId;
   },
 
   get icalProperty() {
@@ -96,7 +96,6 @@ CalRelation.prototype = {
       throw Components.Exception("", Cr.NS_ERROR_ILLEGAL_VALUE);
     }
     this.icalProperty = prop;
-    return val;
   },
 
   getParameter(aName) {

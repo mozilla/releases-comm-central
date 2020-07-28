@@ -34,7 +34,7 @@ CalItipEmailTransport.prototype = {
     return this.mSenderAddress;
   },
   set senderAddress(aValue) {
-    return (this.mSenderAddress = aValue);
+    this.mSenderAddress = aValue;
   },
 
   sendItems(aRecipients, aItipItem) {

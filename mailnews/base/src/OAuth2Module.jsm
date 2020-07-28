@@ -97,7 +97,9 @@ OAuth2Module.prototype = {
     // This stores the refresh token in the login manager.
     Object.defineProperty(this._oauth, "refreshToken", {
       get: () => this.refreshToken,
-      set: token => (this.refreshToken = token),
+      set: token => {
+        this.refreshToken = token;
+      },
     });
 
     return true;
@@ -135,7 +137,7 @@ OAuth2Module.prototype = {
         } else {
           Services.logins.removeLogin(login);
         }
-        return token;
+        return;
       }
     }
 
@@ -155,7 +157,6 @@ OAuth2Module.prototype = {
       );
       Services.logins.addLogin(login);
     }
-    return token;
   },
 
   connect(aWithUI, aListener) {

@@ -229,7 +229,7 @@
 
     set buddy(val) {
       if (val == this._buddy) {
-        return val;
+        return;
       }
 
       if (!val) {
@@ -238,7 +238,7 @@
         val.buddy.addObserver(this.observer);
       }
 
-      return (this._buddy = val);
+      this._buddy = val;
     }
 
     get buddy() {

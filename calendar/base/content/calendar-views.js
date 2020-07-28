@@ -121,7 +121,6 @@
       this.mWeeksInView = weeks;
       Services.prefs.setIntPref("calendar.weeks.inview", Number(weeks));
       this.refreshView();
-      return weeks;
     }
 
     get weeksInView() {

@@ -21,7 +21,7 @@ CalItipItem.prototype = {
     return this.mSender;
   },
   set sender(aValue) {
-    return (this.mSender = aValue);
+    this.mSender = aValue;
   },
 
   mIsSend: false,
@@ -29,7 +29,7 @@ CalItipItem.prototype = {
     return this.mIsSend;
   },
   set isSend(aValue) {
-    return (this.mIsSend = aValue);
+    this.mIsSend = aValue;
   },
 
   mReceivedMethod: "REQUEST",
@@ -37,7 +37,7 @@ CalItipItem.prototype = {
     return this.mReceivedMethod;
   },
   set receivedMethod(aMethod) {
-    return (this.mReceivedMethod = aMethod.toUpperCase());
+    this.mReceivedMethod = aMethod.toUpperCase();
   },
 
   mResponseMethod: "REPLY",
@@ -48,7 +48,7 @@ CalItipItem.prototype = {
     return this.mResponseMethod;
   },
   set responseMethod(aMethod) {
-    return (this.mResponseMethod = aMethod.toUpperCase());
+    this.mResponseMethod = aMethod.toUpperCase();
   },
 
   mAutoResponse: null,
@@ -56,7 +56,7 @@ CalItipItem.prototype = {
     return this.mAutoResponse;
   },
   set autoResponse(aValue) {
-    return (this.mAutoResponse = aValue);
+    this.mAutoResponse = aValue;
   },
 
   mTargetCalendar: null,
@@ -64,7 +64,7 @@ CalItipItem.prototype = {
     return this.mTargetCalendar;
   },
   set targetCalendar(aValue) {
-    return (this.mTargetCalendar = aValue);
+    this.mTargetCalendar = aValue;
   },
 
   mIdentity: null,
@@ -72,7 +72,7 @@ CalItipItem.prototype = {
     return this.mIdentity;
   },
   set identity(aValue) {
-    return (this.mIdentity = aValue);
+    this.mIdentity = aValue;
   },
 
   mLocalStatus: null,
@@ -80,7 +80,7 @@ CalItipItem.prototype = {
     return this.mLocalStatus;
   },
   set localStatus(aValue) {
-    return (this.mLocalStatus = aValue);
+    this.mLocalStatus = aValue;
   },
 
   mItemList: {},

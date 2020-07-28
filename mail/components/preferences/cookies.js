@@ -339,7 +339,6 @@ var gCookiesWindow = {
     },
     set selection(val) {
       this._selection = val;
-      return val;
     },
     getRowProperties(aRow) {
       return "";

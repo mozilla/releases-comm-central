@@ -75,7 +75,6 @@ calPeriod.prototype = {
   set icalString(val) {
     let dates = ICAL.parse._parseValue(val, "period", ICAL.design.icalendar);
     this.innerObject = ICAL.Period.fromString(dates.join("/"));
-    return val;
   },
 
   toString() {

@@ -75,13 +75,13 @@ AddrBookCard.prototype = {
     return this._directoryId;
   },
   set directoryId(value) {
-    return (this._directoryId = value);
+    this._directoryId = value;
   },
   get localId() {
     return this._localId;
   },
   set localId(value) {
-    return (this._localId = value);
+    this._localId = value;
   },
   get UID() {
     if (!this._uid) {
@@ -93,7 +93,6 @@ AddrBookCard.prototype = {
     if (value != this._uid) {
       throw Components.Exception("", Cr.NS_ERROR_FAILURE);
     }
-    return value;
   },
   get properties() {
     let entries = [...this._properties.entries()];

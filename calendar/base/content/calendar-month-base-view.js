@@ -158,7 +158,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
         this.mSelectedDayBox = box;
       }
       this.fireEvent("dayselect", realDay);
-      return day;
     }
 
     get selectedDay() {
@@ -181,7 +180,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
     set showFullMonth(showFullMonth) {
       this.mShowFullMonth = showFullMonth;
-      return showFullMonth;
     }
 
     get showFullMonth() {
@@ -189,9 +187,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
     }
 
     // This property may be overridden by subclasses if needed.
-    set weeksInView(weeksInView) {
-      return weeksInView;
-    }
+    set weeksInView(weeksInView) {}
 
     get weeksInView() {
       return 0;
@@ -203,7 +199,6 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
         this.mShowDaysOutsideMonth = showDays;
         this.refresh();
       }
-      return showDays;
     }
 
     get showDaysOutsideMonth() {

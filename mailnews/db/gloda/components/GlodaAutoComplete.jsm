@@ -15,7 +15,6 @@ var EXPORTED_SYMBOLS = ["GlodaAutoComplete"];
 var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
 
 var Gloda = null;
-var GlodaUtils = null; // eslint-disable-line no-unused-vars
 var MultiSuffixTree = null;
 var TagNoun = null;
 var FreeTagNoun = null;
@@ -506,8 +505,6 @@ FullTextCompleter.prototype = {
   },
 };
 
-var LOG; // eslint-disable-line no-unused-vars
-
 function GlodaAutoComplete() {
   this.wrappedJSObject = this;
   try {
@@ -519,7 +516,6 @@ function GlodaAutoComplete() {
       Gloda = loadNS.Gloda;
 
       loadNS = ChromeUtils.import("resource:///modules/gloda/GlodaUtils.jsm");
-      GlodaUtils = loadNS.GlodaUtils;
       loadNS = ChromeUtils.import("resource:///modules/gloda/SuffixTree.jsm");
       MultiSuffixTree = loadNS.MultiSuffixTree;
       loadNS = ChromeUtils.import("resource:///modules/gloda/NounTag.jsm");
@@ -528,7 +524,7 @@ function GlodaAutoComplete() {
       FreeTagNoun = loadNS.FreeTagNoun;
 
       loadNS = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
-      LOG = loadNS.Log4Moz.repository.getLogger("gloda.autocomp");
+      loadNS.Log4Moz.repository.getLogger("gloda.autocomp");
     }
 
     this.completers = [];

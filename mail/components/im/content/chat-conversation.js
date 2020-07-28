@@ -1763,13 +1763,12 @@
         // tab. Forget the prplConversation so that it isn't
         // closed when destroying this binding.
         this._forgetConv();
-        return val;
+        return;
       }
       this._conv = val;
       this._conv.addObserver(this.observer);
       this.convBrowser.init(this._conv);
       this.initConversationUI();
-      return val;
     }
 
     get contentWindow() {

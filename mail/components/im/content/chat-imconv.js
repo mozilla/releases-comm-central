@@ -142,7 +142,6 @@
       } else {
         this.removeAttribute("selected");
       }
-      return val;
     }
 
     get selected() {

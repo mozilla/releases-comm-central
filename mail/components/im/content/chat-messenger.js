@@ -751,7 +751,7 @@ var chatHandler = {
   },
   set observedContact(aContact) {
     if (aContact == this._observedContact) {
-      return aContact;
+      return;
     }
     if (this._observedContact) {
       this._observedContact.removeObserver(this._contactObserver);
@@ -761,7 +761,6 @@ var chatHandler = {
     if (aContact) {
       aContact.addObserver(this._contactObserver);
     }
-    return aContact;
   },
   showCurrentConversation() {
     let item = document.getElementById("contactlistbox").selectedItem;

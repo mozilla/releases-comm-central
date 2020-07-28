@@ -100,7 +100,7 @@
      */
     set currentSet(val) {
       if (val == this.currentSet) {
-        return val;
+        return;
       }
 
       // Build a cache of items in the toolbarpalette.
@@ -168,8 +168,6 @@
           }
         }
       }
-
-      return val;
     }
 
     /**

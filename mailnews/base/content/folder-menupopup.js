@@ -380,7 +380,7 @@
       }
 
       set parentFolder(val) {
-        return (this._parentFolder = val);
+        this._parentFolder = val;
       }
 
       get parentFolder() {

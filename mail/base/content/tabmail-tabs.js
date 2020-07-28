@@ -702,7 +702,6 @@
         }
         this._mAutoHide = val;
       }
-      return val;
     }
 
     get mAutoHide() {
@@ -723,8 +722,6 @@
         event.initEvent("select", true, true);
         this.dispatchEvent(event);
       }
-
-      return val;
     }
 
     get selectedIndex() {

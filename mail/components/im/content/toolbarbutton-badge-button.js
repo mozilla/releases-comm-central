@@ -48,7 +48,7 @@
     }
 
     set badgeCount(val) {
-      return this._setBadgeCount(val);
+      this._setBadgeCount(val);
     }
 
     get badgeCount() {

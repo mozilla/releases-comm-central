@@ -30,7 +30,6 @@ var ZoomManager = {
 
   set useFullZoom(aVal) {
     Services.prefs.setBoolPref("browser.zoom.full", aVal);
-    return aVal;
   },
 
   get zoom() {
@@ -48,7 +47,6 @@ var ZoomManager = {
 
   set zoom(aVal) {
     this.setZoomForBrowser(getBrowser(), aVal);
-    return aVal;
   },
 
   setZoomForBrowser(aBrowser, aVal) {

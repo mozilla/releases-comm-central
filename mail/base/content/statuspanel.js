@@ -39,7 +39,6 @@
         this.removeAttribute("mirror");
       }
       this.setAttribute("label", val);
-      return val;
     }
 
     get label() {

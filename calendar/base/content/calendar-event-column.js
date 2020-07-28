@@ -201,7 +201,6 @@
         this.mPixPerMin = val;
         this.relayout();
       }
-      return val;
     }
 
     get pixelsPerMinute() {
@@ -221,7 +220,6 @@
           child = child.nextElementSibling;
         }
       }
-      return val;
     }
 
     get selected() {
@@ -237,8 +235,6 @@
           this.recalculateStartEndMinutes();
         }
       }
-
-      return val;
     }
 
     get date() {
@@ -246,7 +242,7 @@
     }
 
     set calendarView(val) {
-      return (this.mCalendarView = val);
+      this.mCalendarView = val;
     }
 
     get calendarView() {
@@ -284,7 +280,6 @@
 
     set dayOff(val) {
       this.mDayOff = val;
-      return val;
     }
 
     get dayOff() {

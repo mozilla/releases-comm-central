@@ -50,7 +50,6 @@
 
     set date(val) {
       this.mDate = val;
-      return val;
     }
 
     findBoxForItem(aItem) {
@@ -337,7 +336,6 @@
 
     set parentColumn(val) {
       this.mParentColumn = val;
-      return val;
     }
 
     get parentColumn() {

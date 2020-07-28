@@ -591,7 +591,7 @@ calFilter.prototype = {
    * calculated from the filter properties by the getDatesForFilter function.
    */
   set startDate(aStartDate) {
-    return (this.mStartDate = aStartDate);
+    this.mStartDate = aStartDate;
   },
 
   /**
@@ -609,7 +609,7 @@ calFilter.prototype = {
    * calculated from the filter properties by the getDatesForFilter function.
    */
   set endDate(aEndDate) {
-    return (this.mEndDate = aEndDate);
+    this.mEndDate = aEndDate;
   },
 
   /**
@@ -625,7 +625,7 @@ calFilter.prototype = {
    * @param aValue              The string value to use for the text filter.
    */
   set filterText(aValue) {
-    return (this.mFilterText = aValue);
+    this.mFilterText = aValue;
   },
 
   /**
@@ -641,7 +641,7 @@ calFilter.prototype = {
    * that are relative to the selected date.
    */
   set selectedDate(aSelectedDate) {
-    return (this.mSelectedDate = aSelectedDate);
+    this.mSelectedDate = aSelectedDate;
   },
 
   /**

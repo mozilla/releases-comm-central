@@ -61,7 +61,6 @@
       this.setAttribute("parentorient", val);
       let otherOrient = val == "horizontal" ? "vertical" : "horizontal";
       this._image.setAttribute("orient", otherOrient);
-      return val;
     }
 
     get parentorient() {

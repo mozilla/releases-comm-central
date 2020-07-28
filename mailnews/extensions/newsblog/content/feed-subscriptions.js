@@ -174,7 +174,7 @@ var FeedSubscriptions = {
       return this._selection;
     },
     set selection(val) {
-      return (this._selection = val);
+      this._selection = val;
     },
 
     setTree(aTree) {

@@ -104,7 +104,6 @@
       if (this._account.autoLogin != val) {
         this._account.autoLogin = val;
       }
-      return val;
     }
 
     get autoLogin() {

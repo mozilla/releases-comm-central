@@ -65,7 +65,6 @@
     set item(val) {
       this.mItem = val;
       this.updateLabels();
-      return val;
     }
 
     get item() {
@@ -75,7 +74,6 @@
     set alarm(val) {
       this.mAlarm = val;
       this.updateLabels();
-      return val;
     }
 
     get alarm() {

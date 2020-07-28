@@ -44,7 +44,6 @@ const RecurrencePreview = {
    */
   set dateTime(val) {
     this.mDateTime = val.clone();
-    return this.mDateTime;
   },
   /**
    * Getter for mDateTime property.
@@ -278,7 +277,6 @@ const DaypickerWeekday = {
       }
       mainbox.children[index].setAttribute("checked", "true");
     }
-    return val;
   },
 };
 
@@ -320,7 +318,6 @@ const DaypickerMonthday = {
       let index = val[i] < 0 ? val[i] + days.length + lastDayOffset : val[i] - 1;
       days[index].setAttribute("checked", "true");
     }
-    return val;
   },
   /**
    * Getter for days property.

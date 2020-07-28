@@ -238,7 +238,6 @@ Tag.prototype = {
     }
 
     // FIXME move the account buddies if some use this tag as their group
-    return aNewName;
   },
   getContacts() {
     return this._contacts.filter(c => !c._empty);
@@ -457,7 +456,6 @@ Contact.prototype = {
         accountBuddy.serverAlias = aNewAlias;
       }
     }
-    return aNewAlias;
   },
   _ensureNotDummy() {
     if (this._id >= 0) {
@@ -1130,7 +1128,6 @@ Buddy.prototype = {
     executeAsyncThenFinalize(statement);
 
     this._notifyObservers("moved-into-contact");
-    return aContact;
   },
   _hasAccountBuddy(aAccountId, aTagId) {
     for (let ab of this._accounts) {
