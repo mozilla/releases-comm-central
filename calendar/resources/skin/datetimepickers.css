@@ -8,42 +8,43 @@
 
 @import url("chrome://messenger/skin/menulist.css");
 
+timepicker-grids {
+  --tpMainColor: #000;
+  --tpMainBackground: #fff;
+  --tpBorderColor: ThreeDShadow;
+  --tpSubColor: -moz-DialogText;
+  --tpSubBackground: -moz-Dialog;
+  --tpFiveminColor: WindowText;
+  --tpFiveminBackground: Window;
+  --tpItemHoverColor: InactiveCaptionText;
+  --tpItemHoverBackground: InactiveCaption;
+  --tbHighlightColor: HighlightText;
+  --tbHighlightBackground: Highlight;
+}
+
+:root[lwt-tree] timepicker-grids {
+  --tpMainColor: var(--sidebar-text-color);
+  --tpMainBackground: var(--sidebar-background-color);
+  --tpBorderColor: rgba(0, 0, 0, 0.5);
+  --tpSubColor: var(--tpMainColor);
+  --tpSubBackground: rgba(0, 0, 0, 0.1);
+  --tpFiveminColor: var(--tpMainColor);
+  --tpFiveminBackground: transparent;
+  --tpItemHoverColor: var(--tpMainColor);
+  --tpItemHoverBackground: rgba(0, 0, 0, 0.3);
+}
+
+:root[lwt-tree-brighttext] timepicker-grids {
+  --tpBorderColor: rgba(255, 255, 255, 0.5);
+  --tpSubBackground: rgba(255, 255, 255, 0.15);
+  --tpItemHoverBackground: rgba(255, 255, 255, 0.3);
+  --tbHighlightColor: #fff;
+  --tbHighlightBackground: #0a84ff;
+}
+
 /* menulist */
 datepicker > menulist {
   width: 11em;
-}
-
-/*--------------------------------------------------------------------
- *   Datepicker-forever (style for the "forever" option)
- *-------------------------------------------------------------------*/
-
-.datepicker-text-menuItem-class {
-  margin: 2px 4px 4px;
-  color: #2E4E73;
-  background-color: transparent;
-  border: 1px solid transparent;
-}
-
-.datepicker-text-menuItem-class[highlight="true"] {
-  color: #2E4E73;
-  background-color: #FFFABC;
-  border: 1px solid #D9C585;
-}
-
-.datepicker-text-menuItem-class:hover {
-  cursor: pointer;
-  border: 1px solid Highlight;
-}
-
-.datepicker-text-menuItem-class:hover[highlight="true"] {
-  color: #2E4E73;
-  background-color: #FFFABC;
-}
-
-.datepicker-text-menuItem-class:active,
-.datepicker-text-menuItem-class:active[highlight="true"] {
-  color: HighlightText;
-  background-color: Highlight;
 }
 
 /*-------------------------------------------------------------------
@@ -61,218 +62,197 @@ timepicker > menulist {
 /* Box that occupies whole window */
 
 .time-picker-grids {
-  background-color : #ffffff;
-  font-size        : 8pt;
-  margin           : 1px 1px 2px 1px;
+  background-color: var(--tpMainBackground);
+  font-size: 8pt;
+  margin: 1px 1px 2px;
 }
 
 /* Grid for hours */
 
 .time-picker-hour-grid {
-  background-color : -moz-Dialog;
-  color            : -moz-DialogText;
-  border-top       : 1px solid ThreeDShadow;
-  border-right     : 1px solid ThreeDShadow;
-  border-bottom    : 1px solid ThreeDShadow;
-  margin           : 1px;
+  border-block: 1px solid var(--tpBorderColor);
+  border-inline-end: 1px solid var(--tpBorderColor);
+  margin: 1px;
 }
 
 /* Boxes with AM/PM labels */
 
 .timepicker-amLabelBox-class,
 .timepicker-pmLabelBox-class {
-  border-left      : 1px solid ThreeDShadow;
-  border-left-style: double;
-  border-left-width: 3px;
-  background-color : Window;
+  border-inline-start: 3px double var(--tpBorderColor);
+  background-color: var(--tpFiveminBackground);
+  color: var(--tpFiveminColor);
 }
 
 /* Box in each cell of the grid for hours */
 
+.time-picker-hour-box-class {
+  background-color: var(--tpSubBackground);
+  color: var(--tpMainColor);
+}
+
 .time-picker-hour-grid[format12hours="false"] .time-picker-hour-box-class {
-  min-width      : 28px;
-  -moz-box-align : center;
-  border-left    : 1px solid ThreeDShadow;
+  min-width: 28px;
+  -moz-box-align: center;
+  border-inline-start: 1px solid var(--tpBorderColor);
 }
 
 .time-picker-hour-grid[format12hours="true"] .time-picker-hour-box-class {
-  min-width      : 24px;
-  -moz-box-align : center;
-  border-left    : 1px solid ThreeDShadow;
+  min-width: 24px;
+  -moz-box-align: center;
+  border-inline-start: 1px solid var(--tpBorderColor);
 }
 
 .timepicker-topRow-hour-class {
-  border-bottom  : 1px solid ThreeDShadow;
+  border-bottom: 1px solid var(--tpBorderColor);
 }
 
 .time-picker-hour-grid[format12hours="true"] .timepicker-topRow-hour-class {
-  border-bottom  : 2px solid ThreeDShadow;
+  border-bottom: 3px double var(--tpBorderColor);
 }
 
 .time-picker-hour-box-class:hover {
-  background-color : InactiveCaption;
-  color            : InactiveCaptionText;
-  cursor           : pointer;
+  background-color: var(--tpItemHoverBackground);
+  color: var(--tpItemHoverColor);
+  cursor: pointer;
 }
 
 /* selected hour box */
 
-.time-picker-hour-box-class[selected="true"] {
-  background-color : Highlight;
-  color            : HighlightText;
-}
-
+.time-picker-hour-box-class[selected="true"],
 .time-picker-hour-box-class[selected="true"]:hover {
-  background-color : Highlight;
-  color            : HighlightText;
+  background-color: var(--tbHighlightBackground);
+  color: var(--tbHighlightColor);
 }
 
 /* label inside each minute/hour */
 
-.time-picker-minute-label {
-  text-align : center;
-}
-
+.time-picker-minute-label,
 .time-picker-hour-label {
-  text-align : center;
+  text-align: center;
 }
 
-.time-picker-minute-label:hover {
-  cursor : pointer !important;
-}
-
+.time-picker-minute-label:hover,
 .time-picker-hour-label:hover {
-  cursor : pointer !important;
+  cursor: pointer !important;
 }
 
 
 .time-picker-minute-box-class {
-  -moz-box-align : center;
-  border-right   : 1px solid ThreeDShadow; 
-  border-bottom  : 1px solid ThreeDShadow; 
+  -moz-box-align: center;
+  border-inline-end: 1px solid var(--tpBorderColor);
+  border-bottom: 1px solid var(--tpBorderColor);
 }
 
 .time-picker-minute-box-class:hover {
-  cursor           : pointer;
-  background-color : -moz-Dialog;
-  color            : -moz-DialogText;
+  cursor: pointer;
+  background-color: var(--tpSubBackground);
+  color: var(--tpSubColor);
 }
 
 /* box around five minute grid */
 
 .time-picker-five-minute-grid-box {
-  min-width   : 195px;
-  margin-inline-start : 1px;
+  min-width: 195px;
+  margin-inline-start: 1px;
 }
 
 /* five minute grid */
 
 .time-picker-five-minute-grid {
-  margin-top       : 2px;
-  margin-inline-end     : 1px;
-  border-top       : 1px solid ThreeDShadow; 
-  border-left      : 1px solid ThreeDShadow; 
-  border-right     : 1px solid ThreeDShadow; 
-  background-color : Window;
-  color            : WindowText;
+  margin-top: 2px;
+  margin-inline-end: 1px;
+  border-top: 1px solid var(--tpBorderColor);
+  border-inline: 1px solid var(--tpBorderColor);
+  background-color: var(--tpFiveminBackground);
+  color: var(--tpFiveminColor);
 }
 
 
 /* box in five-minute grid elements */
 
 .time-picker-five-minute-class:hover {
-  background-color : InactiveCaption;
-  color            : InactiveCaptionText;
-  cursor           : pointer;
+  background-color: var(--tpItemHoverBackground);
+  color: var(--tpItemHoverColor);
+  cursor: pointer;
 }
 
 .time-picker-minute-label[selected="true"]:hover {
-  background-color : Highlight;
-  color            : HighlightText;
-  cursor           : pointer;
+  background-color: var(--tbHighlightBackground);
+  color: var(--tbHighlightColor);
+  cursor: pointer;
 }
 
 
 /* selected five-minute grid element box */
 
 .time-picker-five-minute-class[selected="true"] {
-  background-color : Highlight;
-  color            : HighlightText;
+  background-color: var(--tbHighlightBackground);
+  color: var(--tbHighlightColor);
 }
 
 /* box around one minute grid */
 .time-picker-one-minute-grid-box {
-  min-width   : 195px;
-  margin-inline-start : 1px;
+  min-width: 195px;
+  margin-inline-start: 1px;
 }
 
 /* one minute grid */
 
 .time-picker-one-minute-grid {
-  margin-top       : 2px;
-  margin-inline-end     : 1px;
-  border-top       : 1px solid ThreeDShadow;
-  border-left      : 1px solid ThreeDShadow;
-  border-right     : 1px solid ThreeDShadow;
-  background-color : Window;
-  color            : WindowText;
+  margin-top: 2px;
+  margin-inline-end: 1px;
+  border-top: 1px solid var(--tpBorderColor);
+  border-inline: 1px solid var(--tpBorderColor);
+  background-color: var(--tpFiveminBackground);
+  color: var(--tpFiveminColor);
 }
 
 /* box in one-minute grid elements */
 
 .time-picker-one-minute-class {
-  -moz-box-align : center;
+  -moz-box-align: center;
 }
 
 .time-picker-one-minute-class:hover {
-  background-color : InactiveCaption;
-  color            : InactiveCaptionText;
-  cursor           : pointer;
+  background-color: var(--tpItemHoverBackground);
+  color: var(--tpItemHoverColor);
+  cursor: pointer;
 }
 
 .time-picker-one-minute-class[selected="true"]>label:hover {
-  background-color : Highlight !important;
-  color            : HighlightText !important;
-  cursor           : pointer;
+  background-color: var(--tbHighlightBackground) !important;
+  color: var(--tbHighlightColor) !important;
+  cursor: pointer;
 }
 
 /* selected one-minute grid element box */
 
 .time-picker-one-minute-class[selected="true"]{
-  background-color : Highlight;
-  color            : HighlightText;
+  background-color: var(--tbHighlightBackground);
+  color: var(--tbHighlightColor);
 }
 
 .time-picker-more-control-label {
-  background-color : Highlight;
-  color            : HighlightText;
-  font-size        : 12pt;
-  height           : 12px;
-  min-width        : 40px;
-  margin           : 0px;
-  border           : 1px solid -moz-Dialog; 
-  text-align       : center;
+  background-color: var(--tbHighlightBackground);
+  color: var(--tbHighlightColor);
+  font-size: 12pt;
+  height: 12px;
+  min-width: 40px;
+  margin: 0;
+  border: 1px solid var(--tpSubBackground);
+  text-align: center;
 }
 
 .time-picker-more-control-label:hover {
-  border-top: 1px solid ThreeDHighlight;
-  border-left: 1px solid ThreeDHighlight;
-  border-right: 1px solid ThreeDShadow;
-  border-bottom: 1px solid ThreeDShadow;
-}
-
-.time-picker-more-control-label:hover:active {
-  border-top: 1px solid ThreeDShadow;
-  border-left: 1px solid ThreeDShadow;
-  border-right: 1px solid ThreeDHighlight;
-  border-bottom: 1px solid ThreeDHighlight;
+  border-color: var(--tpBorderColor);
 }
 
 /* line across the bottom of the minute boxes, made to line up with more & less tabs */
 
 .time-picker-minutes-bottom {
-  background-color : -moz-Dialog;
-  color            : -moz-DialogText;
-  border           : 1px solid ThreeDShadow;
-  margin-inline-end     : 1px;
+  background-color: var(--tpSubBackground);
+  color: var(--tpSubColor);
+  border: 1px solid var(--tpBorderColor);
+  margin-inline-end: 1px;
 }

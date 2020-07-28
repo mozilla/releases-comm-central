@@ -30,6 +30,7 @@
 .alarm-icons-box > .reminder-icon {
     width: 12px;
     height: 12px;
+    margin-inline-start: 3px;
 }
 
 /**

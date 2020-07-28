@@ -61,7 +61,9 @@
   --richlist-button-background: var(--sidebar-background-color);
 }
 
-:root:not([lwt-tree]):-moz-lwtheme dialog {
+:root:not([lwt-tree]):-moz-lwtheme dialog,
+#calendar-event-dialog-inner:not([lwt-tree]):-moz-lwtheme,
+#calendar-task-dialog-inner:not([lwt-tree]):-moz-lwtheme {
   background-color: -moz-Dialog;
   color: -moz-DialogText;
   text-shadow: none !important;
@@ -363,9 +365,9 @@ checkbox[checked] > .checkbox-check {
 
 :root[lwt-tree] richlistbox {
   appearance: none;
-  background-color: var(--sidebar-background-color);
-  color: var(--sidebar-text-color);
-  border: 1px solid var(--sidebar-border-color);
+  background-color: var(--field-background-color);
+  color: var(--field-text-color);
+  border: 1px solid var(--field-border-color);
   scrollbar-color: rgba(204,204,204,.5) rgba(230,230,235,.5);
 }
 

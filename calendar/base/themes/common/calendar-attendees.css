@@ -24,6 +24,18 @@ html|input.textbox-addressingWidget:disabled {
     min-height: 54px; /*at least two rows - otherwise a scrollbar (if required) wouldn't appear*/
 }
 
+:root[lwt-tree] .item-attendees-box {
+    appearance: none;
+    background-color: var(--field-background-color);
+    color: var(--field-text-color);
+    border: 1px solid var(--field-border-color);
+    scrollbar-color: rgba(204, 204, 204, 0.5) rgba(230, 230, 235, 0.5);
+}
+
+:root[lwt-tree-brighttext] .item-attendees-box {
+    scrollbar-color: rgba(249, 249, 250, 0.4) rgba(20, 20, 25, 0.3);
+}
+
 #calendar-summary-dialog .item-attendees,
 #calendar-event-summary-dialog .item-attendees,
 #calendar-task-summary-dialog .item-attendees {
@@ -46,13 +58,13 @@ html|input.textbox-addressingWidget:disabled {
 }
 
 .item-attendees-cell-label {
-    border: 0px;
-    margin: 0px 3px;
-    padding: 0px;
+    border: 0;
+    margin: 0 3px;
+    padding: 0;
 }
 
 .item-organizer-cell {
-    padding: 0px;
+    padding: 0;
     margin-left: 6px;
 }
 
@@ -235,7 +247,7 @@ html|span.ac-emphasize-text {
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win7),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win8),
        (-moz-windows-default-theme) and (-moz-os-version: windows-win10) {
-    #calendar-event-dialog-inner .item-attendees-cell {
+    :root:not([lwt-tree]) #calendar-event-dialog-inner .item-attendees-cell {
         background-repeat: no-repeat;
         background-size: 100% 100%;
         padding: 1px;
@@ -243,7 +255,7 @@ html|span.ac-emphasize-text {
         --attendees-currentColor: rgb(125, 162, 206);
     }
 
-    #calendar-event-dialog-inner .item-attendees-cell:focus {
+    :root:not([lwt-tree]) #calendar-event-dialog-inner .item-attendees-cell:focus {
         color: -moz-FieldText;
         background-color: transparent;
         border-color: var(--attendees-focusBorder);
@@ -253,7 +265,7 @@ html|span.ac-emphasize-text {
 }
 
 @media (-moz-windows-default-theme) and (-moz-os-version: windows-win7) {
-    .item-attendees-cell {
+    :root:not([lwt-tree]) .item-attendees-cell {
         border-radius: 3px;
         --attendees-focusBorder: var(--attendees-currentColor);
         --attendees-focusImage: linear-gradient(rgba(131, 183, 249, .28),
