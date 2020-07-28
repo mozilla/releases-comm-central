@@ -85,12 +85,21 @@ function createDirectoryObject(uri, shouldStore = false) {
   let dir = Cc[
     `@mozilla.org/addressbook/directory;1?type=${scheme}`
   ].createInstance(Ci.nsIAbDirectory);
-  // Before storing, call init to make sure we can properly create using the
-  // given uri.
-  dir.init(uri);
-  if (shouldStore) {
-    store.set(uri, dir);
+
+  try {
+    if (shouldStore) {
+      // This must happen before .init is called, or the OS X provider breaks
+      // in some circumstances. If .init fails, we'll remove it again.
+      store.set(uri, dir);
+    }
+    dir.init(uri);
+  } catch (ex) {
+    if (shouldStore) {
+      store.delete(uri);
+    }
+    throw ex;
   }
+
   return dir;
 }
 
