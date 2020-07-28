@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 var EXPORTED_SYMBOLS = ["ThemeVariableMap", "ThemeContentPropertyList"];
 
 function _isTextColorDark(r, g, b) {
@@ -162,16 +164,42 @@ const ThemeVariableMap = [
       processColor(rgbaChannels, element) {
         if (!rgbaChannels) {
           element.removeAttribute("lwt-tree");
+
+          // We use the #tabmail element to determine the color contrast.
+          // If the element is not present, it means a dialog or an unkown tab
+          // is currently opened, and we shouldn't do anything.
+          let tabmail = element.ownerDocument.getElementById("tabmail");
+          if (!tabmail) {
+            return null;
+          }
+
+          let rgb = tabmail.ownerGlobal
+            .getComputedStyle(tabmail)
+            .color.match(/^rgba?\((\d+), (\d+), (\d+)/);
+          rgb.shift();
+          let [r, g, b] = rgb.map(x => parseInt(x));
+
+          if (!_isTextColorDark(r, g, b)) {
+            element.setAttribute("lwt-tree-brighttext", "true");
+            Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
+
+            return `rgba(${r}, ${g}, ${b}, 1)`;
+          }
+
           element.removeAttribute("lwt-tree-brighttext");
+          Services.prefs.setIntPref("ui.systemUsesDarkTheme", 0);
+
           return null;
         }
 
         element.setAttribute("lwt-tree", "true");
-        const { r, g, b, a } = rgbaChannels;
+        let { r, g, b, a } = rgbaChannels;
         if (!_isTextColorDark(r, g, b)) {
           element.setAttribute("lwt-tree-brighttext", "true");
+          Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
         } else {
           element.removeAttribute("lwt-tree-brighttext");
+          Services.prefs.setIntPref("ui.systemUsesDarkTheme", 0);
         }
 
         return `rgba(${r}, ${g}, ${b}, ${a})`;

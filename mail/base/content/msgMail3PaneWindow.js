@@ -2000,8 +2000,6 @@ var TabsInTitlebar = {
     }
 
     this._layOutTitlebar(allowed);
-
-    ToolbarIconColor.inferFromText();
   },
 
   _layOutTitlebar(drawInTitlebar) {

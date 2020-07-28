@@ -9,6 +9,8 @@ var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
 
+var kCurrentColor = null;
+
 var ToolbarIconColor = {
   init() {
     this._initialized = true;
@@ -58,6 +60,21 @@ var ToolbarIconColor = {
     if (!this._initialized) {
       return;
     }
+
+    // Interrupt if the main tabmail is not present.
+    let tabmail = document.getElementById("tabmail");
+    if (!tabmail) {
+      return;
+    }
+
+    // Interrupt if the tabmail color didn't change from the previous iteration.
+    let color = getComputedStyle(tabmail).color;
+    if (kCurrentColor && kCurrentColor == color) {
+      return;
+    }
+
+    // Store the current color variable for future reference.
+    kCurrentColor = color;
 
     function parseRGB(aColorString) {
       let rgb = aColorString.match(/^rgba?\((\d+), (\d+), (\d+)/);
