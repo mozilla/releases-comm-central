@@ -283,7 +283,7 @@ aside.settings-btn-container {
 }
 
 .btn-hub:focus:not(:hover) {
-  color: var(--primary-color);
+  color: var(--primary-color) !important;
 }
 
 .btn-hub::before {
@@ -360,8 +360,7 @@ aside.settings-btn-container {
   box-shadow: 0 2px 5px -4px rgba(0, 0, 0, 0.8);
 }
 
-.btn-hub:hover + .account-description,
-.btn-hub:focus + .account-description {
+.btn-hub:hover + .account-description {
   opacity: 1;
 }
 

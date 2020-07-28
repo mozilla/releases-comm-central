@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 /*
@@ -26,11 +25,7 @@ var calwindow = {
     window.openDialog(
       "chrome://calendar/content/calendarCreation.xhtml",
       "caEditServer",
-      // Workaround for Bug 1151440 - the HTML color picker won't work
-      // in linux when opened from modal dialog
-      AppConstants.platform == "linux"
-        ? "chrome,titlebar,resizable"
-        : "modal,chrome,titlebar,resizable",
+      "modal,chrome,titlebar,resizable,centerscreen",
       aCallback
     );
   },
