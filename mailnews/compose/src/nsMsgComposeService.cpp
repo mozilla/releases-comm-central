@@ -72,7 +72,7 @@
 #endif
 
 #define DEFAULT_CHROME \
-  "chrome://messenger/content/messengercompose/messengercompose.xhtml"
+  "chrome://messenger/content/messengercompose/messengercompose.xhtml"_ns
 
 #define PREF_MAILNEWS_REPLY_QUOTING_SELECTION "mailnews.reply_quoting_selection"
 #define PREF_MAILNEWS_REPLY_QUOTING_SELECTION_MULTI_WORD \
@@ -177,8 +177,14 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char* chrome,
   msgParamsWrapper->SetDataIID(&NS_GET_IID(nsIMsgComposeParams));
 
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
-  rv = wwatch->OpenWindow(0, chrome && *chrome ? chrome : DEFAULT_CHROME,
-                          "_blank", "all,chrome,dialog=no,status,toolbar",
+  nsAutoCString chromeURL;
+  if (chrome && *chrome) {
+    chromeURL = nsDependentCString(chrome);
+  } else {
+    chromeURL = DEFAULT_CHROME;
+  }
+  rv = wwatch->OpenWindow(0, chromeURL, "_blank"_ns,
+                          "all,chrome,dialog=no,status,toolbar"_ns,
                           msgParamsWrapper, getter_AddRefs(newWindow));
 
   return rv;
@@ -1388,8 +1394,8 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine) {
     if (arg) arg->SetData(uristr);
 
     nsCOMPtr<mozIDOMWindowProxy> opened;
-    wwatch->OpenWindow(nullptr, DEFAULT_CHROME, "_blank",
-                       "chrome,dialog=no,all", arg, getter_AddRefs(opened));
+    wwatch->OpenWindow(nullptr, DEFAULT_CHROME, "_blank"_ns,
+                       "chrome,dialog=no,all"_ns, arg, getter_AddRefs(opened));
 
     aCmdLine->SetPreventDefault(true);
   }

@@ -50,7 +50,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 
-#define ALERT_CHROME_URL "chrome://messenger/content/newmailalert.xhtml"
+#define ALERT_CHROME_URL "chrome://messenger/content/newmailalert.xhtml"_ns
 #define NEW_MAIL_ALERT_ICON "chrome://messenger/skin/icons/new-mail-alert.png"
 #define SHOW_ALERT_PREF "mail.biff.show_alert"
 #define SHOW_ALERT_PREVIEW_LENGTH "mail.biff.alert.preview_length"
@@ -366,9 +366,9 @@ nsresult nsMessengerUnixIntegration::ShowNewAlertNotification(
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
 
   mAlertInProgress = true;
-  rv = wwatch->OpenWindow(0, ALERT_CHROME_URL, "_blank",
-                          "chrome,dialog=yes,titlebar=no,popup=yes", argsArray,
-                          getter_AddRefs(newWindow));
+  rv = wwatch->OpenWindow(0, ALERT_CHROME_URL, "_blank"_ns,
+                          "chrome,dialog=yes,titlebar=no,popup=yes"_ns,
+                          argsArray, getter_AddRefs(newWindow));
 
   if (NS_FAILED(rv)) AlertFinished();
 

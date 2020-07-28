@@ -60,7 +60,7 @@
 #define MAIL_COMMANDLINE_ARG u" -mail"
 #define IDI_MAILBIFF 32576
 #define UNREAD_UPDATE_INTERVAL (20 * 1000)  // 20 seconds
-#define ALERT_CHROME_URL "chrome://messenger/content/newmailalert.xhtml"
+#define ALERT_CHROME_URL "chrome://messenger/content/newmailalert.xhtml"_ns
 #define NEW_MAIL_ALERT_ICON "chrome://messenger/skin/icons/new-mail-alert.png"
 #define SHOW_ALERT_PREF "mail.biff.show_alert"
 #define SHOW_TRAY_ICON_PREF "mail.biff.show_tray_icon"
@@ -510,8 +510,8 @@ nsresult nsMessengerWinIntegration::ShowNewAlertNotification(
     nsCOMPtr<nsIWindowWatcher> wwatch(
         do_GetService(NS_WINDOWWATCHER_CONTRACTID));
     nsCOMPtr<mozIDOMWindowProxy> newWindow;
-    rv = wwatch->OpenWindow(0, ALERT_CHROME_URL, "_blank",
-                            "chrome,dialog=yes,titlebar=no,popup=yes",
+    rv = wwatch->OpenWindow(0, ALERT_CHROME_URL, "_blank"_ns,
+                            "chrome,dialog=yes,titlebar=no,popup=yes"_ns,
                             argsArray, getter_AddRefs(newWindow));
 
     mAlertInProgress = true;

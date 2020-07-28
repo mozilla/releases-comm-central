@@ -1526,8 +1526,8 @@ nsNntpService::Handle(nsICommandLine* aCmdLine) {
 
     nsCOMPtr<mozIDOMWindowProxy> opened;
     wwatch->OpenWindow(
-        nullptr, "chrome://messenger/content/messenger.xhtml", "_blank",
-        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
+        nullptr, "chrome://messenger/content/messenger.xhtml"_ns, "_blank"_ns,
+        "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar"_ns,
         nullptr, getter_AddRefs(opened));
     aCmdLine->SetPreventDefault(true);
   }
@@ -1596,8 +1596,9 @@ nsNntpService::HandleContent(const char* aContentType,
 
           nsCOMPtr<mozIDOMWindowProxy> newWindow;
           rv = wwatcher->OpenWindow(
-              nullptr, "chrome://messenger/content/messenger.xhtml", "_blank",
-              "chome,all,dialog=no", arg, getter_AddRefs(newWindow));
+              nullptr, "chrome://messenger/content/messenger.xhtml"_ns,
+              "_blank"_ns, "chome,all,dialog=no"_ns, arg,
+              getter_AddRefs(newWindow));
           NS_ENSURE_SUCCESS(rv, rv);
         }
       }

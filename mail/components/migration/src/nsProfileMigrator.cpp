@@ -29,8 +29,8 @@
 NS_IMPL_ISUPPORTS(nsProfileMigrator, nsIProfileMigrator)
 
 #define MIGRATION_WIZARD_FE_URL \
-  "chrome://messenger/content/migration/migration.xhtml"
-#define MIGRATION_WIZARD_FE_FEATURES "chrome,dialog,modal,centerscreen"
+  "chrome://messenger/content/migration/migration.xhtml"_ns
+#define MIGRATION_WIZARD_FE_FEATURES "chrome,dialog,modal,centerscreen"_ns
 
 NS_IMETHODIMP
 nsProfileMigrator::Migrate(nsIProfileStartup* aStartup, const nsACString& aKey,
@@ -57,7 +57,7 @@ nsProfileMigrator::Migrate(nsIProfileStartup* aStartup, const nsACString& aKey,
   params->AppendElement(aStartup);
 
   nsCOMPtr<mozIDOMWindowProxy> migrateWizard;
-  return ww->OpenWindow(nullptr, MIGRATION_WIZARD_FE_URL, "_blank",
+  return ww->OpenWindow(nullptr, MIGRATION_WIZARD_FE_URL, "_blank"_ns,
                         MIGRATION_WIZARD_FE_FEATURES, params,
                         getter_AddRefs(migrateWizard));
 }
