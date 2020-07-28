@@ -1828,7 +1828,7 @@ bool nsImapProtocol::ProcessCurrentURL() {
     }
     if (NS_FAILED(rv)) {
       MOZ_LOG(IMAP, LogLevel::Debug,
-              ("URL failed with code 0x%x (%s)", rv,
+              ("URL failed with code 0x%" PRIx32 " (%s)", static_cast<uint32_t>(rv),
                mailnewsurl->GetSpecOrDefault().get()));
     }
     // Inform any nsIUrlListeners that the URL has finished. This will invoke
@@ -4743,8 +4743,9 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
     newLine = m_inputStreamBuffer->ReadNextLine(m_inputStream, numBytesInLine,
                                                 needMoreData, &rv);
     MOZ_LOG(IMAP, LogLevel::Debug,
-            ("ReadNextLine [rv=0x%x stream=%p nb=%u needmore=%u]", rv,
-             m_inputStream.get(), numBytesInLine, needMoreData));
+            ("ReadNextLine [rv=0x%" PRIx32 " stream=%p nb=%u needmore=%u]",
+             static_cast<uint32_t>(rv), m_inputStream.get(), numBytesInLine,
+             needMoreData));
 
   } while (!newLine && NS_SUCCEEDED(rv) &&
            !DeathSignalReceived());  // until we get the next line and haven't
@@ -4817,7 +4818,8 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
 nsresult nsImapProtocol::GetConnectionStatus() { return m_connectionStatus; }
 
 void nsImapProtocol::SetConnectionStatus(nsresult status) {
-  MOZ_LOG(IMAP, LogLevel::Debug, ("SetConnectionStatus(0x%x)", status));
+  MOZ_LOG(IMAP, LogLevel::Debug, ("SetConnectionStatus(0x%" PRIx32 ")",
+                                  static_cast<uint32_t>(status)));
   m_connectionStatus = status;
 }
 
