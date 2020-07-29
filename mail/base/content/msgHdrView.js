@@ -9,6 +9,7 @@
 
 /* import-globals-from editContactPanel.js */
 /* import-globals-from folderDisplay.js */
+/* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from messageDisplay.js */
 /* global Enigmail */

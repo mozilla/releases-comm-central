@@ -2,19 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global MozElements */
-
+/* import-globals-from ../../../../../toolkit/components/printing/content/printUtils.js */
+/* import-globals-from ../../../../common/src/viewZoomOverlay.js */
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
+/* import-globals-from ../../../base/content/contentAreaClick.js */
 /* import-globals-from ../../../base/content/mailCore.js */
+/* import-globals-from ../../../base/content/messenger-customization.js */
+/* import-globals-from ../../../base/content/nsContextMenu.js */
+/* import-globals-from ../../../base/content/toolbarIconColor.js */
 /* import-globals-from ../../../base/content/utilityOverlay.js */
 /* import-globals-from addressingWidgetOverlay.js */
 /* import-globals-from ComposerCommands.js */
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */
 
-/* global updateRecipientsPanelVisibility, updateUIforNNTPAccount
-          updateUIforIMAPAccount */
+/* globals BondOpenPGP, MozElements */
 
 /**
  * Commands for the message composition window.
@@ -54,6 +57,10 @@ var { MailConstants } = ChromeUtils.import(
 );
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
+);
+var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 var l10nCompose = new Localization(
@@ -100,6 +107,7 @@ var gSaveOperationInProgress;
 var gCloseWindowAfterSave;
 var gSavedSendNowKey;
 var gSendFormat;
+var gContextMenu;
 
 var gMsgAttachmentElement;
 var gMsgHeadersToolbarElement;

@@ -13,6 +13,7 @@
 /* import-globals-from mail3PaneWindowCommands.js */
 /* import-globals-from mailCommands.js */
 /* import-globals-from mailContextMenus.js */
+/* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from phishingDetector.js */
 /* import-globals-from utilityOverlay.js */

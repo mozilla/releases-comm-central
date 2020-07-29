@@ -12,6 +12,7 @@
 /* import-globals-from ../../components/im/content/chat-messenger.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
+/* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from msgViewNavigation.js */
 /* import-globals-from threadPane.js */
