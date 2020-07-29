@@ -109,6 +109,13 @@ with only_when('--enable-compile-environment'):
         set_config('MZLA_BZIP2_LIBS', bzip2_flags.ldflags)
 
 
+    # BOTAN --with-system-botan
+    option('--with-system-botan', help='Use system Botan for librnp (located with pkgconfig)')
+
+    botan_pkg = pkg_check_modules('MZLA_BOTAN', 'botan-2 >= 2.8.0', when='--with-system-botan')
+    set_config('MZLA_SYSTEM_BOTAN', depends_if(botan_pkg)(lambda _: True))
+
+
     # Checks for building librnp itself
     # =================================
     have_fcntl_h = check_header('fcntl.h')

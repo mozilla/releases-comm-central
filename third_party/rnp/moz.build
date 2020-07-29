@@ -36,9 +36,6 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
         '-fcxx-exceptions',
     ]
 
-IQuote('{}/src/lib'.format(OBJDIR),
-       '{}/src/lib'.format(SRCDIR),)
-
 DEFINES['_GNU_SOURCE'] = True
 
 DEFINES['HAVE_BZLIB_H'] = True
@@ -50,12 +47,19 @@ CONFIGURE_DEFINE_FILES += [
 ]
 
 LOCAL_INCLUDES = [
-    '!../botan/build/include',
     'include',
     'src',
     'src/common',
     'src/lib',
 ]
+
+IQuote('{}/src/lib'.format(OBJDIR),
+       '{}/src/lib'.format(SRCDIR),)
+
+if CONFIG['MZLA_SYSTEM_BOTAN']:
+    CXXFLAGS += CONFIG['MZLA_BOTAN_CFLAGS']
+else:
+    LOCAL_INCLUDES += ['!../botan/build/include']
 
 if CONFIG['MOZ_SYSTEM_ZLIB']:
     CXXFLAGS += CONFIG['MOZ_ZLIB_CFLAGS']
