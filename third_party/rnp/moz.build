@@ -10,14 +10,12 @@ include('../rnpdefs.mozbuild')
 @template
 def IQuote(*paths):
     """Add a set of paths to the include path via -iquote"""
-    flags = []
+    if CONFIG['CC_TYPE'] == 'clang-cl':
+        flags = ['-Xclang', '-iquote', '-Xclang']
+    else:
+        flags = ['-iquote']
     for p in paths:
-        if CONFIG['CC_TYPE'] == 'clang-cl':
-            flags += ['-Xclang', '-iquote', '-Xclang']
-        else:
-            flags += ['-iquote']
-        flags += [p]
-    COMPILE_FLAGS['OS_CXXFLAGS'] = flags
+        CXXFLAGS += flags + [p]
 
 
 COMPILE_FLAGS['WARNINGS_CFLAGS'] += [
