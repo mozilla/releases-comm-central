@@ -233,11 +233,17 @@ async function initOpenPgpSettings() {
   let result = {};
   await EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result, true);
 
+  let externalKey = gIdentity.getUnicharAttribute(
+    "last_entered_external_gnupg_key_id"
+  );
+
+  let allKeys = result.all.length + (externalKey ? 1 : 0);
+
   document.l10n.setAttributes(
     document.getElementById("openPgpDescription"),
     "openpgp-description",
     {
-      count: result.all.length,
+      count: allKeys,
       identity: gIdentity.email,
     }
   );
@@ -674,16 +680,18 @@ async function reloadOpenPgpUI() {
   let result = {};
   await EnigmailKeyRing.getAllSecretKeysByEmail(gIdentity.email, result, true);
 
-  // Show the radiogroup container only if the current identity has keys.
-  document.getElementById("openPgpKeyList").collapsed = !result.all.length;
-
   let externalKey = gIdentity.getUnicharAttribute(
     "last_entered_external_gnupg_key_id"
   );
 
+  let allKeys = result.all.length + (externalKey ? 1 : 0);
+
+  // Show the radiogroup container only if the current identity has keys.
+  document.getElementById("openPgpKeyList").collapsed = !allKeys;
+
   // Interrupt and udpate the UI accordingly if no Key is associated with the
   // current identity.
-  if (!result.all.length && !externalKey) {
+  if (!allKeys) {
     gKeyId = null;
     updateUIForSelectedOpenPgpKey();
     return;
@@ -693,7 +701,7 @@ async function reloadOpenPgpUI() {
     document.getElementById("openPgpDescription"),
     "openpgp-description",
     {
-      count: result.all.length,
+      count: allKeys,
       identity: gIdentity.email,
     }
   );
