@@ -39,7 +39,6 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
 IQuote('{}/src/lib'.format(OBJDIR),
        '{}/src/lib'.format(SRCDIR),)
 
-
 DEFINES['_GNU_SOURCE'] = True
 
 DEFINES['HAVE_BZLIB_H'] = True
@@ -52,12 +51,16 @@ CONFIGURE_DEFINE_FILES += [
 
 LOCAL_INCLUDES = [
     '!../botan/build/include',
-    '../zlib',
     'include',
     'src',
     'src/common',
     'src/lib',
 ]
+
+if CONFIG['MOZ_SYSTEM_ZLIB']:
+    CXXFLAGS += CONFIG['MOZ_ZLIB_CFLAGS']
+else:
+    LOCAL_INCLUDES += ['../zlib']
 
 if CONFIG['MZLA_SYSTEM_JSONC']:
     CXXFLAGS += CONFIG['MZLA_JSONC_CFLAGS']
