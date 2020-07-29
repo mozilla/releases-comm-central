@@ -8,6 +8,7 @@
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css" ?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css" ?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % edTableProperties SYSTEM "chrome://messenger/locale/messengercompose/EditorTableProperties.dtd">
@@ -17,7 +18,9 @@
 ]>
 
 <window title="&tableWindow.title;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        lightweightthemes="true"
         onload="Startup()">
 <dialog id="tableDlg"
         buttons="accept,extra1,cancel"
@@ -31,6 +34,7 @@
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
   <script src="chrome://messenger/content/messengercompose/EdTableProps.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
@@ -86,7 +90,7 @@
                   <label id="TableWidthLabel" value="&tableWidth.label;"
                          accesskey="&tableWidth.accessKey;" control="TableWidthInput"/>
                 </html:div>
-                <html:div>
+                <html:div class="flex-items-center">
                   <html:input id="TableWidthInput" type="number"
                               class="narrow input-inline"
                               aria-labelledby="TableWidthLabel"/>
@@ -207,22 +211,13 @@
             </menulist>
             <hbox>
               <button id="PreviousButton"
-                      oncommand="MoveSelection(0)"
-                      align="center">
-                <image/>
-                <label value="&cellSelectPrevious.label;"
-                       accesskey="&cellSelectPrevious.accessKey;"
-                       control="PreviousButton"/>
-              </button>
+                      label="&cellSelectPrevious.label;"
+                      accesskey="&cellSelectPrevious.accessKey;"
+                      oncommand="MoveSelection(0)"/>
               <button id="NextButton"
-                      oncommand="MoveSelection(1)"
-                      class="align-right"
-                      align="center">
-                <image/>
-                <label value="&cellSelectNext.label;"
-                       accesskey="&cellSelectNext.accessKey;"
-                       control="NextButton"/>
-              </button>
+                      label="&cellSelectNext.label;"
+                      accesskey="&cellSelectNext.accessKey;"
+                      oncommand="MoveSelection(1)"/>
             </hbox>
             <hbox flex="1">
               &applyBeforeChange.label;
@@ -245,14 +240,18 @@
                 </hbox>
               </vbox>
               <vbox flex="1">
-                <html:input id="CellHeightInput" type="number"
-                            class="narrow input-inline"
-                            onchange="ChangeIntTextbox('CellHeightCheckbox');"
-                            aria-labelledby="CellHeightCheckbox"/>
-                <html:input id="CellWidthInput" type="number"
-                            class="narrow input-inline"
-                            onchange="ChangeIntTextbox('CellWidthCheckbox');"
-                            aria-labelledby="CellWidthCheckbox"/>
+                <hbox flex="1" align="center">
+                  <html:input id="CellHeightInput" type="number"
+                              class="narrow input-inline"
+                              onchange="ChangeIntTextbox('CellHeightCheckbox');"
+                              aria-labelledby="CellHeightCheckbox"/>
+                </hbox>
+                <hbox flex="1" align="center">
+                  <html:input id="CellWidthInput" type="number"
+                              class="narrow input-inline"
+                              onchange="ChangeIntTextbox('CellWidthCheckbox');"
+                              aria-labelledby="CellWidthCheckbox"/>
+                </hbox>
               </vbox>
               <vbox>
                 <hbox flex="1" align="center">
@@ -304,7 +303,7 @@
               <menuitem label="&cellHeader.label;" value="th"/>
             </menupopup>
           </menulist>
-          <spacer class="bigspacer"/>
+          <spacer flex="1"/>
           <checkbox id="TextWrapCheckbox" label="&cellTextWrap.label;" accesskey="&cellTextWrap.accessKey;"/>
           <menulist id="TextWrapList" oncommand="SetCheckbox('TextWrapCheckbox');">
             <menupopup>

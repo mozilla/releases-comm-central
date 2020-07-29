@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorPersonalDictionary.dtd">
 <window title="&windowTitle.label;"
@@ -14,6 +15,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         persist="screenX screenY"
+        lightweightthemes="true"
         onload="Startup()">
 <dialog buttonlabelaccept="&CloseButton.label;"
         buttonaccesskeyaccept="&CloseButton.accessKey;"
@@ -25,6 +27,7 @@
   <script src="chrome://messenger/content/messengercompose/editorUtilities.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDialogCommon.js"/>
   <script src="chrome://messenger/content/messengercompose/EdDictionary.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <hbox flex="1">
     <div xmlns="http://www.w3.org/1999/xhtml" class="grid-two-column">

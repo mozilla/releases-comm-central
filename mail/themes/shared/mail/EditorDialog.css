@@ -5,6 +5,11 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
+:root:-moz-lwtheme {
+  background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
+}
+
 .MinWidth5em {
   min-width: 5em;
 }
@@ -50,7 +55,7 @@
 }
 
 .color-well {
-  width: 20px;
+  width: 30px;
   height: 12px;
   border: 1px inset #CCCCCC;
   margin: 1px 0;
@@ -61,8 +66,12 @@
   background-color: inherit;
 }
 
+.color-well + .button-box {
+  display: none;
+}
+
 .color-button {
-  min-width : 0;
+  min-width: 0;
   margin: 2px;
 }
 
@@ -70,48 +79,41 @@ button.color-button .button-text {
   margin-inline: 0;
 }
 
-.menu-list[focused="true"] {
-  color: white;
-}
-
-*|*#ColorPicker {
-  -moz-user-focus: normal;
-  margin: 1px 5px 2px;
-  padding: 3px;
-  height: 28px;
-}
-
 #ColorPickerSwatch {
-  border: 2px outset #CCCCCC;
-  width: 25px;
-  height: 20px;
-  margin-block: 0;
-  margin-inline: 0 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-inline: -21px 10px;
+  border: 1px solid var(--field-border-color);
 }
 
-#ColorPickerSwatch[default="true"] {
-  border : 2px solid transparent;
-  background-color: inherit;
+#ColorInput {
+  padding-inline-end: 21px;
+}
+
+#LastPickedButton {
+  -moz-box-align: center;
 }
 
 #LastPickedColor {
-  width: 17px;
-  height: 13px;
-  border: 1px inset #CCCCCC;
-  margin-block: 1px 2px;
-  margin-inline: 4px 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-inline-start: 2px;
+  border: 1px solid var(--field-border-color);
+  -moz-box-ordinal-group: 2;
 }
 
 /* temporary -- we need a simple box-based list defined in XBL */
 tree.list {
-  border: 1px inset #CCCCCC;
+  border: 1px inset #ccc;
   /* same as in menulist.css */
   margin: 1px 5px 2px;
   /* use rows="#" in XUL to define height */
 }
 
 #ColorPreview {
-  border: 1px inset #CCCCCC;
+  border: 1px inset #ccc;
   margin-inline-start: 10px;
   padding: 0 5px;
   min-width: 100px;
@@ -124,35 +126,28 @@ tree.list {
 
 /* ::::: table properties dialog ::::: */
 
-#MoreFewerButton[more="0"] {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down.png");
-  min-width: 12em;
-}
-
-#MoreFewerButton[more="1"] {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
-  min-width: 12em;
-}
-
+#NextButton,
 #PreviousButton {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-left.png");
-}
-
-#NextButton {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-right.png");
+  list-style-image: url("chrome://messenger/skin/icons/back-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #PreviousButton[type="row"] {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-up.png");
+  list-style-image: url("chrome://global/skin/icons/arrow-up-12.svg");
 }
 
 #NextButton[type="row"] {
-  list-style-image: url("chrome://messenger/skin/icons/arrow/arrow-down.png");
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
 }
 
-#PreviousButton > image,
-#NextButton > image {
-  margin-inline-start: 3px;
+#NextButton > .button-box > .button-icon,
+#PreviousButton > .button-box > .button-icon {
+  margin-inline-end: 2px;
+}
+
+#NextButton:not([type="row"]) > .button-box > .button-icon {
+  transform: scaleX(-1);
 }
 
 /* ::::: spelling dialog ::::: */

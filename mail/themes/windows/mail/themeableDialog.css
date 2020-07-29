@@ -6,6 +6,16 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+:root {
+  --button-border-radius: 0;
+}
+
+@media (-moz-os-version: windows-win7) {
+  :root {
+    --button-border-radius: 2px;
+  }
+}
+
 html|input {
   padding: 2px 4px;
 }

@@ -6,6 +6,10 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+:root {
+  --button-border-radius: 3px;
+}
+
 button > .button-box {
   padding-block: 3px;
 }

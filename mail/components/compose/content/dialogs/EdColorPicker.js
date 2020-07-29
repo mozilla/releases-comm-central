@@ -221,15 +221,10 @@ function SetCurrentColor(color) {
 }
 
 function SetColorSwatch() {
-  // TODO: DON'T ALLOW SPACES?
-  var color = TrimString(gDialog.ColorInput.value);
-  if (color) {
-    gDialog.ColorSwatch.setAttribute("style", "background-color:" + color);
-    gDialog.ColorSwatch.removeAttribute("default");
-  } else {
-    gDialog.ColorSwatch.setAttribute("style", "background-color:inherit");
-    gDialog.ColorSwatch.setAttribute("default", "true");
-  }
+  gDialog.ColorSwatch.setAttribute(
+    "style",
+    `background-color: ${TrimString(gDialog.ColorInput.value) || "inherit"}`
+  );
 }
 
 function SetDefaultToOk() {

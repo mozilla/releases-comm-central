@@ -143,7 +143,7 @@ html|input[type="color"] {
   /* !important overrides button.css for disabled and default XUL buttons: */
   color: inherit !important;
   border: 1px solid var(--button-border-color); /* needed for high-contrast mode, where it'll show up */
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background-color: var(--button-background);
   padding: 0 8px;
   text-decoration: none;
@@ -267,7 +267,7 @@ button[type="menu-button"] menupopup,
 menupopup[is="folder-menupopup"] {
   appearance: none;
   border: 1px solid var(--box-border-color);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   background-color: var(--box-background-color);
 }
 
@@ -334,7 +334,7 @@ checkbox {
   height: 16px;
   padding: 1px;
   border: 1px solid var(--field-border-color);
-  border-radius: var(--toolbarbutton-border-radius);
+  border-radius: var(--button-border-radius);
   margin: 0;
   margin-inline-end: 6px;
   background-color: var(--field-background-color);
@@ -474,4 +474,14 @@ fieldset:-moz-lwtheme {
 
 legend:-moz-lwtheme {
   background-color: var(--lwt-accent-color);
+}
+
+separator.groove:not([orient="vertical"]) {
+  border-top-color: var(--field-border-color);
+  border-bottom-style: none;
+}
+
+.tip-caption {
+  opacity: 0.7;
+  font-size: .9em;
 }

@@ -8,12 +8,16 @@
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/shared/grid-layout.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
+
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EditorSpellCheck.dtd">
 
 <!-- dialog containing a control requiring initial setup -->
 <window title="&windowTitle.label;"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         persist="screenX screenY"
+        lightweightthemes="true"
         onload="Startup()">
 <dialog id="spellCheckDlg"
         buttons="cancel">
@@ -25,6 +29,7 @@
   <script src="chrome://communicator/content/utilityOverlay.js"/>
   <script src="chrome://messenger/content/messengercompose/EdSpellCheck.js"/>
   <script src="chrome://global/content/contentAreaUtils.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
   <stringbundle id="regionBundle" src="chrome://global/locale/regionNames.properties"/>

@@ -7,15 +7,19 @@
 <!-- Ben Goodger, 12:50AM, 01/00/00 NZST  -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/EditorDialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger/locale/messengercompose/EdAdvancedEdit.dtd">
 
-<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 40em;"
         title="&WindowTitle.label;"
+        lightweightthemes="true"
         onload="Startup()">
 <dialog id="advancedEditDlg">
 
@@ -32,6 +36,9 @@
 
   <!-- global dialog functions -->
   <script src="chrome://messenger/content/messengercompose/EdAdvancedEdit.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+
+  <spacer id="location" offsetY="50" persist="offsetX offsetY"/>
 
   <hbox>
     <label value="&currentattributesfor.label;"/>
@@ -74,7 +81,6 @@
             <menulist is="menulist-editable" id="AddHTMLAttributeNameInput"
                       class="editorAdvancedEditableMenulist"
                       editable="true" flex="1"
-                      style="margin:5px 2px 3px;"
                       oninput="onInputHTMLAttributeName();"
                       oncommand="onInputHTMLAttributeName();"/>
           </vbox>
@@ -91,7 +97,6 @@
               <hbox flex="1">
                 <menulist is="menulist-editable" id="AddHTMLAttributeValueMenulist"
                           editable="true" flex="1"
-                          style="margin:5px 2px 3px;"
                           oninput="onInputHTMLAttributeValue();"
                           oncommand="onInputHTMLAttributeValue();"/>
               </hbox>
@@ -166,10 +171,12 @@
           </vbox>
           <vbox flex="1">
             <label id="AddJSEAttributeValueLabel" value="&AttValue.label;"/>
-            <html:input id="AddJSEAttributeValueInput" type="text"
-                        class="input-inline"
-                        onchange="onInputJSEAttributeValue();"
-                        aria-labelledby="AddJSEAttributeValueLabel"/>
+            <hbox flex="1" class="input-container">
+              <html:input id="AddJSEAttributeValueInput" type="text"
+                          class="input-inline"
+                          onchange="onInputJSEAttributeValue();"
+                          aria-labelledby="AddJSEAttributeValueLabel"/>
+            </hbox>
           </vbox>
         </hbox>
       </vbox>

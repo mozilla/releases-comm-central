@@ -24,9 +24,6 @@ const gMaxRows = 1000;
 const gMaxColumns = 1000;
 const gMaxTableSize = 1000000; // Width or height of table or cells
 
-// For dialogs that expand in size. Default is smaller size see "onMoreFewer()" below
-var SeeMore = false;
-
 // A XUL element with id="location" for managing
 // dialog location relative to parent window
 var gLocation;
@@ -63,8 +60,7 @@ function ValidateNumber(
   maxVal,
   element,
   attName,
-  mustHaveValue,
-  mustShowMoreSection
+  mustHaveValue
 ) {
   if (!inputWidget) {
     gValidationError = true;
@@ -90,18 +86,6 @@ function ValidateNumber(
     if (!numString) {
       // Switch to appropriate panel for error reporting
       SwitchToValidatePanel();
-
-      // or expand dialog for users of "More / Fewer" button
-      if (
-        "dialog" in window &&
-        window.dialog &&
-        "MoreSection" in gDialog &&
-        gDialog.MoreSection
-      ) {
-        if (!SeeMore) {
-          onMoreFewer();
-        }
-      }
 
       // Error - shift to offending input widget
       SetTextboxFocus(inputWidget);
@@ -359,21 +343,6 @@ function setColorWell(ColorWellID, color) {
       colorWell.setAttribute("style", "background-color:" + color);
     }
   }
-}
-
-function onMoreFewer() {
-  if (SeeMore) {
-    gDialog.MoreSection.collapsed = true;
-    gDialog.MoreFewerButton.setAttribute("more", "0");
-    gDialog.MoreFewerButton.setAttribute("label", GetString("MoreProperties"));
-    SeeMore = false;
-  } else {
-    gDialog.MoreSection.collapsed = false;
-    gDialog.MoreFewerButton.setAttribute("more", "1");
-    gDialog.MoreFewerButton.setAttribute("label", GetString("FewerProperties"));
-    SeeMore = true;
-  }
-  window.sizeToContent();
 }
 
 function SwitchToValidatePanel() {
