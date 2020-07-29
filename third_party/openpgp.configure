@@ -44,55 +44,82 @@ def check_symbol_exists(symbol, header, language='C', flags=None, includes=None,
 
 
 with only_when('--enable-compile-environment'):
-    have_fcntl_h = check_header('fcntl.h')
-    have_stdlib_h = check_header('stdlib.h')
-    have_locale_h = check_header('locale.h')
-    have_string_h = check_header('string.h')
-    have_strings_h = check_header('strings.h')
+    # Use system libraries when building librnp
+    # ZLIB honors --with-system-zlib
 
+    # JSON-C --with-system-json
+    option('--with-system-jsonc',
+           help='Use system JSON-C for librnp (located with pkgconfig)')
+
+    jsonc_pkg = pkg_check_modules('MZLA_JSONC', 'json-c >= 0.11', when='--with-system-jsonc')
+    set_config('MZLA_SYSTEM_JSONC', depends_if(jsonc_pkg)(lambda _: True))
+
+
+    @depends('--with-system-jsonc')
+    def in_tree_jsonc(system_jsonc):
+        if not system_jsonc:
+            return True
+
+    # Checks for building librnp itself
+    # =================================
+    have_fcntl_h = check_header('fcntl.h')
+    have_string_h = check_header('string.h')
     check_headers(
-        'stdarg.h',
-        'dlfcn.h',
-        'endian.h',
         'limits.h',
-        'memory.h',
         'sys/auxv.h',
         'sys/cdefs.h',
         'sys/resource.h',
         'sys/param.h',
         'sys/stat.h',
         'sys/wait.h',
-        'xlocale.h'
     )
-
-    set_define('JSON_C_HAVE_INTTYPES_H', noset_check_header('inttypes.h'))
-
-    set_define('HAVE_DECL__ISNAN', check_symbol_exists('_isnan', 'float.h'))
-
-    set_define('HAVE_DECL__FINITE', check_symbol_exists('_finite', 'float.h'))
-    set_define('HAVE_DECL_INFINITY', check_symbol_exists('INFINITY', 'math.h'))
-    set_define('HAVE_DECL_ISINF', check_symbol_exists('isinf', 'math.h'))
-    set_define('HAVE_DECL_ISNAN', check_symbol_exists('isnan', 'math.h'))
-    set_define('HAVE_DECL_NAN', check_symbol_exists('nan', 'math.h'))
-
-    set_define('HAVE_DOPRNT', check_symbol_exists('_doprnt', 'stdio.h'))
-    set_define('HAVE_SNPRINTF', check_symbol_exists('snprintf', 'stdio.h'))
-    set_define('HAVE_VASPRINTF', check_symbol_exists('vasprintf', 'stdio.h', flags=['-D_GNU_SOURCE']))
-    set_define('HAVE_VSNPRINTF', check_symbol_exists('vsnprintf', 'stdio.h'))
-    set_define('HAVE_VPRINTF', check_symbol_exists('vprintf', 'stdio.h'))
-
-    set_define('HAVE_OPEN', check_symbol_exists('open', 'fcntl.h', when=have_fcntl_h))
-    set_define('HAVE_REALLOC', check_symbol_exists('realloc', 'stdlib.h', when=have_stdlib_h))
-    set_define('HAVE_SETLOCALE', check_symbol_exists('setlocale', 'locale.h', when=have_locale_h))
-    set_define('HAVE_USELOCALE', check_symbol_exists('uselocale', 'locale.h', when=have_locale_h))
-    set_define('HAVE_STRCASECMP', check_symbol_exists('strcasecmp', 'strings.h', when=have_strings_h))
-    set_define('HAVE_STRNCASECMP', check_symbol_exists('strncasecmp', 'strings.h', when=have_strings_h))
-    set_define('HAVE_STRDUP', check_symbol_exists('strdup', 'string.h', when=have_string_h))
 
     set_define('HAVE_MKDTEMP', check_symbol_exists('mkdtemp', ['stdlib.h','unistd.h']))
     set_define('HAVE_REALPATH', check_symbol_exists('realpath', 'stdlib.h'))
     set_define('HAVE_O_BINARY', check_symbol_exists('O_BINARY', 'fcntl.h'))
     set_define('HAVE__O_BINARY', check_symbol_exists('_O_BINARY', 'fcntl.h'))
+
+    # Checks when building JSON-C from tree sources
+    # =============================================
+    with only_when(in_tree_jsonc):
+        have_stdlib_h = check_header('stdlib.h')
+        have_locale_h = check_header('locale.h')
+        have_strings_h = check_header('strings.h')
+
+        check_headers(
+            'stdarg.h',
+            'dlfcn.h',
+            'endian.h',
+            'memory.h',
+            'xlocale.h'
+        )
+
+        set_define('JSON_C_HAVE_INTTYPES_H', noset_check_header('inttypes.h'))
+
+        set_define('HAVE_DECL__ISNAN', check_symbol_exists('_isnan', 'float.h'))
+
+        set_define('HAVE_DECL__FINITE', check_symbol_exists('_finite', 'float.h'))
+        set_define('HAVE_DECL_INFINITY', check_symbol_exists('INFINITY', 'math.h'))
+        set_define('HAVE_DECL_ISINF', check_symbol_exists('isinf', 'math.h'))
+        set_define('HAVE_DECL_ISNAN', check_symbol_exists('isnan', 'math.h'))
+        set_define('HAVE_DECL_NAN', check_symbol_exists('nan', 'math.h'))
+
+        set_define('HAVE_DOPRNT', check_symbol_exists('_doprnt', 'stdio.h'))
+        set_define('HAVE_SNPRINTF', check_symbol_exists('snprintf', 'stdio.h'))
+        set_define('HAVE_VASPRINTF',
+                   check_symbol_exists('vasprintf', 'stdio.h', flags=['-D_GNU_SOURCE']))
+        set_define('HAVE_VSNPRINTF', check_symbol_exists('vsnprintf', 'stdio.h'))
+        set_define('HAVE_VPRINTF', check_symbol_exists('vprintf', 'stdio.h'))
+
+        set_define('HAVE_OPEN', check_symbol_exists('open', 'fcntl.h', when=have_fcntl_h))
+        set_define('HAVE_REALLOC', check_symbol_exists('realloc', 'stdlib.h', when=have_stdlib_h))
+        set_define('HAVE_SETLOCALE', check_symbol_exists('setlocale', 'locale.h', when=have_locale_h))
+        set_define('HAVE_USELOCALE', check_symbol_exists('uselocale', 'locale.h', when=have_locale_h))
+        set_define('HAVE_STRCASECMP',
+                   check_symbol_exists('strcasecmp', 'strings.h', when=have_strings_h))
+        set_define('HAVE_STRNCASECMP',
+                   check_symbol_exists('strncasecmp', 'strings.h', when=have_strings_h))
+        set_define('HAVE_STRDUP', check_symbol_exists('strdup', 'string.h', when=have_string_h))
 
 
 @depends(c_compiler, target, when=compile_environment)
