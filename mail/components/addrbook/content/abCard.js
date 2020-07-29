@@ -394,6 +394,12 @@ function InitPhoneticFields() {
     for (var i = kPhoneticFields.length - 1; i >= 0; i--) {
       document.getElementById(kPhoneticFields[i]).hidden = false;
     }
+    document
+      .getElementById("NameField1Container")
+      .classList.add("showingPhonetic");
+    document
+      .getElementById("NameField2Container")
+      .classList.add("showingPhonetic");
   }
 }
 

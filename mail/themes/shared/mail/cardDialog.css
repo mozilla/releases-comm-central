@@ -18,7 +18,7 @@ window {
 
 #contactGrid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-auto-flow: column;
 }
 
 .inputGrid {
@@ -32,8 +32,8 @@ window {
   text-align: end;
 }
 
-.phoneticField {
-  max-width: 18ch;
+.showingPhonetic .input-inline {
+  max-width: 16ch;
 }
 
 #BirthMonth[value="-1"],
