@@ -587,10 +587,9 @@ function GetCardValues(cardproperty, doc) {
   var preferDisplayNameEl = document.getElementById("preferDisplayName");
   if (preferDisplayNameEl) {
     // getProperty may return a "1" or "0" string, we want a boolean
-    preferDisplayNameEl.checked = !!cardproperty.getProperty(
-      "PreferDisplayName",
-      true
-    );
+    preferDisplayNameEl.checked =
+      // eslint-disable-next-line mozilla/no-compare-against-boolean-literals
+      cardproperty.getProperty("PreferDisplayName", true) == true;
   }
 
   // get phonetic fields if exist
