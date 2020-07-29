@@ -168,7 +168,4 @@ add_task(async () => {
   messageWindow.close();
   tabmail.closeTab(mainWindowTabs[1]);
   is(tabmail.tabInfo.length, 1);
-
-  document.getElementById("folderTree").focus();
-  await new Promise(resolve => executeSoon(resolve));
 });

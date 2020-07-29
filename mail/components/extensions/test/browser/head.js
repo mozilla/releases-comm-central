@@ -33,6 +33,10 @@ registerCleanupFunction(() => {
   while (tabmail.tabInfo.length > 1) {
     tabmail.closeTab(tabmail.tabInfo[1]);
   }
+
+  // Some tests that open new windows don't return focus to the main window
+  // in a way that satisfies mochitest, and the test times out.
+  Services.focus.focusedWindow = window;
 });
 
 function createAccount() {

@@ -10,11 +10,6 @@ rootFolder.createSubfolder("test", null);
 let folder = rootFolder.getChildNamed("test");
 createMessages(folder, 3);
 
-add_task(async () => {
-  window.gFolderTreeView.selectFolder(folder);
-  await new Promise(resolve => executeSoon(resolve));
-});
-
 add_task(async function testIdentity() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {

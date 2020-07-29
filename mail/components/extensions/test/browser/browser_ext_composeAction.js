@@ -119,13 +119,7 @@ async function test_it(extensionDetails, toolbarId) {
 add_task(async function setup() {
   gAccount = createAccount();
   addIdentity(gAccount);
-  let rootFolder = gAccount.incomingServer.rootFolder;
 
-  window.gFolderTreeView.selectFolder(rootFolder);
-  await new Promise(resolve => executeSoon(resolve));
-});
-
-add_task(async function the_test() {
   async function background_nopopup() {
     browser.test.log("nopopup background script ran");
     browser.composeAction.onClicked.addListener(async (tab, info) => {

@@ -103,9 +103,6 @@ add_task(async () => {
 
   gFolderTreeView.selectFolder(subFolders.test1);
   gFolderDisplay.selectViewIndex(0);
-  // For some unknown reason, this test doesn't like switching to the main
-  // window if the thread tree has focus. Make sure it doesn't have focus.
-  document.getElementById("folderTree").focus();
 
   await extension.startup();
 

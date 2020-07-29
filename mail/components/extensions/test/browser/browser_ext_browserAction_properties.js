@@ -7,9 +7,6 @@ add_task(async () => {
   addIdentity(account);
   let rootFolder = account.incomingServer.rootFolder;
 
-  window.gFolderTreeView.selectFolder(rootFolder);
-  await new Promise(resolve => executeSoon(resolve));
-
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       async function checkProperty(property, expectedDefault, ...expected) {
