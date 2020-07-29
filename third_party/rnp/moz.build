@@ -61,6 +61,7 @@ LOCAL_INCLUDES = [
     'include',
     'src',
     'src/common',
+    'src/lib',
 ]
 if CONFIG['CC_TYPE'] == 'clang-cl':
     ForceInclude('{}/../niwcompat/niw_compat.h'.format(SRCDIR))
