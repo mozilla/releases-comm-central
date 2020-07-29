@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include "types.h"
 #include <limits.h>
-#include "rnp/rnp_export.h"
+#include <rnp/rnp_export.h>
 
 #define RNP_MSG(msg) (void) fprintf(stdout, msg);
 

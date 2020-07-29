@@ -25,7 +25,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rnp/rnp_export.h"
+#include <rnp/rnp_export.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
