@@ -507,7 +507,7 @@ InitMessageMenu = calInitMessageMenu;
 /**
  * Get the toolbox id for the current tab type.
  *
- * @return {string}  A toolbox id or null
+ * @return {string}  A toolbox id.
  */
 function getToolboxIdForCurrentTabType() {
   // A mapping from calendar tab types to toolbox ids.
@@ -518,6 +518,9 @@ function getToolboxIdForCurrentTabType() {
     calendarTask: "event-toolbox",
   };
   let tabmail = document.getElementById("tabmail");
+  if (!tabmail) {
+    return "mail-toolbox"; // Standalone message window.
+  }
   let tabType = tabmail.currentTabInfo.mode.type;
 
   return calendarToolboxIds[tabType] || "mail-toolbox";
