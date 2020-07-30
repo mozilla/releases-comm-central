@@ -462,6 +462,10 @@ function onFontFaceChange() {
   var commandNode = document.getElementById("cmd_fontFace");
   var editorFont = commandNode.getAttribute("state");
 
+  if (editorFont == "tt_initial") {
+    editorFont = "tt";
+  }
+
   // Strip quotes in font names. Experiments have shown that we only
   // ever get double quotes around the font name, never single quotes,
   // even if they were in the HTML source. Also single or double
