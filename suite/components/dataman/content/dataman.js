@@ -472,15 +472,21 @@ var gDomains = {
     return gDomains.displayedDomains[aIdx].title;
   },
 
-  getDomainFromHostWithCheck: function domain_getDomainFromHostWithCheck(aHost)  {
-    let host = gDomains.getDomainFromHost(aHost).trim();
-    // Host couldn't be found and 2 static references for internal pages and data.
-    if (host.trim().length == 0 ||
+  getDomainFromHostWithCheck: function domain_getDomainFromHostWithCheck(aHost) {
+    // Global content pref changes and others might not have a host.
+    if (!aHost) {
+      return '*';
+    }
+
+    let host = gDomains.getDomainFromHost(aHost);
+    // Host couldn't be found or is an internal page or data.
+    if (!host ||
+        host.trim().length == 0 ||
         aHost.startsWith("about:") ||
         aHost.startsWith("jar:"))
       return '*';
 
-    return host;
+    return host.trim();
   },
 
   getDomainFromHost: function domain_getDomainFromHost(aHostname) {
@@ -1726,7 +1732,8 @@ var gPrefs = {
       let enumerator = Services.contentPrefs.getPrefs(null, null).enumerator;
       while (enumerator.hasMoreElements()) {
         let pref = enumerator.getNext().QueryInterface(Ci.nsIProperty);
-        this.prefs.push({host: null, name: pref.name, value: pref.value});
+        this.prefs.push({host: null, displayHost: "", name: pref.name,
+                         value: pref.value});
       }
     }
 
