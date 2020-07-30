@@ -524,7 +524,7 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
     window.openDialog(
       "chrome://messenger/content/accountcreation/emailWizard.xhtml",
       "AccountSetup",
-      "modal,chrome,titlebar,resizable,centerscreen",
+      "chrome,titlebar,resizable,centerscreen",
       { msgWindow, okCallback, extraData }
     );
   }
