@@ -287,7 +287,7 @@ add_task(async () => {
 
       // Modify the list's name, nick name, and description fields.
       let modifyField = id => {
-        EventUtils.synthesizeMouseAtCenter(id, { clickCount: 1 }, mlWindow);
+        id.focus();
         EventUtils.sendKey("END", mlWindow);
         EventUtils.sendString(inputs.modification, mlWindow);
       };
