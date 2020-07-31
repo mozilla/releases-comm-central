@@ -54,11 +54,60 @@ with only_when('--enable-compile-environment'):
     jsonc_pkg = pkg_check_modules('MZLA_JSONC', 'json-c >= 0.11', when='--with-system-jsonc')
     set_config('MZLA_SYSTEM_JSONC', depends_if(jsonc_pkg)(lambda _: True))
 
-
     @depends('--with-system-jsonc')
     def in_tree_jsonc(system_jsonc):
         if not system_jsonc:
             return True
+
+
+    # Bzip2 --with-system-bz2
+    option('--with-system-bz2', nargs='?',
+           help='Use system Bzip2 for librnp (pkgconfig/given prefix)')
+    set_config('MZLA_SYSTEM_BZIP2', True, when='--with-system-bz2')
+
+    # Bzip2 does not include a pkgconfig file, but some Linux distributions add one
+    bzip2_pkg = pkg_check_modules('MZLA_BZIP2', 'bzip2 >= 1.0.6', when='--with-system-bz2',
+                                  allow_missing=True, config=False)
+
+    @depends_if('--with-system-bz2', bzip2_pkg)
+    def bzip2_flags(value, bzip2_pkg):
+        if len(value):
+            # A path (eg. /usr/local was given)
+            return namespace(
+                cflags=('-I%s/include' % value[0],),
+                ldflags=('-L%s/lib' % value[0], '-lbz2'),
+            )
+        if bzip2_pkg:
+            cflags = list(bzip2_pkg.cflags)
+            libs = bzip2_pkg.libs
+            return namespace(cflags=cflags, libs=libs, path=(value[0]), )
+        # Fallback
+        return namespace(
+            ldflags=['-lbz2'],
+        )
+
+    with only_when('--with-system-bz2'):
+        check_symbol('BZ2_bzread', flags=bzip2_flags.ldflags,
+                     onerror=lambda: die('--with-system-bz2 requested but symbol '
+                                         'BZ2_bzread not found.'))
+        c_compiler.try_compile(
+            includes=[
+                'stdio.h',
+                'sys/types.h',
+                'bzlib.h',
+            ],
+            body='''
+                #ifndef _BZLIB_H
+                #error _BZLIB_H bzlib.h not found
+                #endif
+            ''',
+            flags=bzip2_flags.cflags,
+            check_msg='for bzlib.h',
+            onerror=lambda: die('bzlib.h header not found')
+        )
+        set_config('MZLA_BZIP2_CFLAGS', bzip2_flags.cflags)
+        set_config('MZLA_BZIP2_LIBS', bzip2_flags.ldflags)
+
 
     # Checks for building librnp itself
     # =================================

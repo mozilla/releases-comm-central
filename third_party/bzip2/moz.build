@@ -7,14 +7,18 @@
 Library('bz2')
 FINAL_LIBRARY = 'rnp'
 
-include('../rnpdefs.mozbuild')
+# Honor --with-system-bz2
+if CONFIG['MZLA_SYSTEM_BZIP2']:
+    OS_LIBS += CONFIG['MZLA_BZIP2_LIBS']
+else:
+    include('../rnpdefs.mozbuild')
 
-SOURCES += [
-    'blocksort.c',
-    'bzlib.c',
-    'compress.c',
-    'crctable.c',
-    'decompress.c',
-    'huffman.c',
-    'randtable.c',
-]
+    SOURCES += [
+        'blocksort.c',
+        'bzlib.c',
+        'compress.c',
+        'crctable.c',
+        'decompress.c',
+        'huffman.c',
+        'randtable.c',
+    ]
