@@ -20,6 +20,8 @@ function CalCalendarManager() {
   this.wrappedJSObject = this;
   this.mObservers = new cal.data.ListenerSet(Ci.calICalendarManagerObserver);
   this.mCalendarObservers = new cal.data.ListenerSet(Ci.calIObserver);
+
+  this.providerImplementations = {};
 }
 
 var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
@@ -98,9 +100,7 @@ CalCalendarManager.prototype = {
       case "timer-callback": {
         // Refresh all the calendars that can be refreshed.
         for (let calendar of this.getCalendars()) {
-          if (!calendar.getProperty("disabled") && calendar.canRefresh) {
-            calendar.refresh();
-          }
+          maybeRefreshCalendar(calendar);
         }
         break;
       }
@@ -117,15 +117,13 @@ CalCalendarManager.prototype = {
         try {
           let channel = aSubject.QueryInterface(Ci.nsIHttpChannel);
           if (channel.notificationCallbacks) {
-            // We use the notification callbacks to get the calendar interface,
-            // which likely works for our requests since getInterface is called
-            // from the calendar provider context.
+            // We use the notification callbacks to get the calendar interface, which likely works
+            // for our requests since getInterface is called from the calendar provider context.
             let authHeader = channel.getResponseHeader("WWW-Authenticate");
             let calendar = channel.notificationCallbacks.getInterface(Ci.calICalendar);
             if (calendar && !calendar.getProperty("capabilities.realmrewrite.disabled")) {
-              // The provider may choose to explicitly disable the
-              // rewriting, for example if all calendars on a
-              // domain have the same credentials
+              // The provider may choose to explicitly disable the rewriting, for example if all
+              // calendars on a domain have the same credentials
               let escapedName = calendar.name.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
               authHeader = appendToRealm(authHeader, "(" + escapedName + ")");
               channel.setResponseHeader("WWW-Authenticate", authHeader, false);
@@ -150,14 +148,22 @@ CalCalendarManager.prototype = {
    */
   createCalendar(type, uri) {
     try {
-      if (!Cc["@mozilla.org/calendar/calendar;1?type=" + type]) {
-        // Don't notify the user with an extra dialog if the provider
-        // interface is missing.
+      let calendar;
+      if (Cc["@mozilla.org/calendar/calendar;1?type=" + type]) {
+        calendar = Cc["@mozilla.org/calendar/calendar;1?type=" + type].createInstance(
+          Ci.calICalendar
+        );
+      } else if (this.providerImplementations[type]) {
+        let CalendarProvider = this.providerImplementations[type];
+        calendar = new CalendarProvider();
+        if (calendar.QueryInterface) {
+          calendar = calendar.QueryInterface(Ci.calICalendar);
+        }
+      } else {
+        // Don't notify the user with an extra dialog if the provider interface is missing.
         return null;
       }
-      let calendar = Cc["@mozilla.org/calendar/calendar;1?type=" + type].createInstance(
-        Ci.calICalendar
-      );
+
       calendar.uri = uri;
       return calendar;
     } catch (ex) {
@@ -190,6 +196,147 @@ CalCalendarManager.prototype = {
     }
   },
 
+  /**
+   * Creates a calendar and takes care of initial setup, including enabled/disabled properties and
+   * cached calendars. If the provider doesn't exist, returns a dummy calendar that is
+   * force-disabled.
+   *
+   * @param {string} id     The calendar id.
+   * @param {string} ctype  The calendar type. See {@link calICalendar#type}.
+   * @param {string} uri    The calendar uri.
+   * @return {calICalendar} The initialized calendar or dummy calendar.
+   */
+  initializeCalendar(id, ctype, uri) {
+    let calendar = this.createCalendar(ctype, uri);
+    if (calendar) {
+      calendar.id = id;
+      if (calendar.getProperty("auto-enabled")) {
+        calendar.deleteProperty("disabled");
+        calendar.deleteProperty("auto-enabled");
+      }
+
+      calendar = maybeWrapCachedCalendar(calendar);
+    } else {
+      // Create dummy calendar that stays disabled for this run.
+      calendar = new calDummyCalendar(ctype);
+      calendar.id = id;
+      calendar.uri = uri;
+      // Try to enable on next startup if calendar has been enabled.
+      if (!calendar.getProperty("disabled")) {
+        calendar.setProperty("auto-enabled", true);
+      }
+      calendar.setProperty("disabled", true);
+    }
+
+    return calendar;
+  },
+
+  /**
+   * Update calendar registrations for the given type. If the provider is missing then the calendars
+   * are replaced with a dummy calendar, and vice versa.
+   *
+   * @param {string} type                 The calendar type to update. See {@link calICalendar#type}.
+   * @param {boolean} [clearCache=false]  If true, the calendar cache is also cleared.
+   */
+  updateDummyCalendarRegistration(type, clearCache = false) {
+    let hasImplementation = !!this.providerImplementations[type];
+
+    let calendars = Object.values(this.mCache).filter(calendar => {
+      // Calendars backed by providers despite missing provider implementation, or dummy calendars
+      // despite having a provider implementation.
+      let isDummyCalendar = calendar instanceof calDummyCalendar;
+      return calendar.type == type && hasImplementation == isDummyCalendar;
+    });
+    this.updateCalendarRegistration(calendars, clearCache);
+  },
+
+  /**
+   * Update the calendar registrations for the given set of calendars. This essentially unregisters
+   * the calendar, then sets it up again using id, type and uri. This is similar to what happens on
+   * startup.
+   *
+   * @param {calICalendar[]} calendars    The calendars to update.
+   * @param {boolean} [clearCache=false]  If true, the calendar cache is also cleared.
+   */
+  updateCalendarRegistration(calendars, clearCache = false) {
+    let sortOrderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "").split(" ");
+    let sortOrder = {};
+    for (let i = 0; i < sortOrderPref.length; i++) {
+      sortOrder[sortOrderPref[i]] = i;
+    }
+
+    let needsRefresh = [];
+    for (let calendar of calendars) {
+      try {
+        this.notifyObservers("onCalendarUnregistering", [calendar]);
+        this.unsetupCalendar(calendar, clearCache);
+
+        let replacement = this.initializeCalendar(calendar.id, calendar.type, calendar.uri);
+        replacement.setProperty("initialSortOrderPos", sortOrder[calendar.id]);
+
+        this.setupCalendar(replacement);
+        needsRefresh.push(replacement);
+      } catch (e) {
+        cal.ERROR(
+          `Can't create calendar for ${calendar.id} (${calendar.type}, ${calendar.uri.spec}): ${e}`
+        );
+      }
+    }
+
+    // Do this in a second pass so that all provider calendars are available.
+    for (let calendar of needsRefresh) {
+      maybeRefreshCalendar(calendar);
+      this.notifyObservers("onCalendarRegistered", [calendar]);
+    }
+  },
+
+  /**
+   * Register a calendar provider with the given JavaScript implementation.
+   *
+   * @param {string} type         The calendar type string, see {@link calICalendar#type}.
+   * @param {Object} impl         The class that implements calICalendar.
+   */
+  registerCalendarProvider(type, impl) {
+    this.assureCache();
+
+    cal.ASSERT(
+      !this.providerImplementations.hasOwnProperty(type),
+      "[CalCalendarManager::registerCalendarProvider] provider already exists",
+      true
+    );
+
+    this.providerImplementations[type] = impl;
+    this.updateDummyCalendarRegistration(type);
+  },
+
+  /**
+   * Unregister a calendar provider by type. Already registered calendars will be replaced by a
+   * dummy calendar that is force-disabled.
+   *
+   * @param {string} type         The calendar type string, see {@link calICalendar#type}.
+   * @param {boolean} temporary   If true, cached calendars will not be cleared.
+   */
+  unregisterCalendarProvider(type, temporary = false) {
+    cal.ASSERT(
+      this.providerImplementations.hasOwnProperty(type),
+      "[CalCalendarManager::unregisterCalendarProvider] provider doesn't exist or is builtin",
+      true
+    );
+    delete this.providerImplementations[type];
+    this.updateDummyCalendarRegistration(type, !temporary);
+  },
+
+  /**
+   * Checks if a calendar provider has been dynamically registered with the given type. This does
+   * not check for the built-in XPCOM providers.
+   *
+   * @param {string} type         The calendar type string, see {@link calICalendar#type}.
+   * @return {boolean}            True, if the calendar provider type is registered.
+   */
+  hasCalendarProvider(type) {
+    return !!this.providerImplementations[type];
+  },
+
   registerCalendar(calendar) {
     this.assureCache();
 
@@ -207,23 +354,21 @@ CalCalendarManager.prototype = {
     Services.prefs.setStringPref(getPrefBranchFor(calendar.id) + "type", calendar.type);
     Services.prefs.setStringPref(getPrefBranchFor(calendar.id) + "uri", calendar.uri.spec);
 
-    if (
-      calendar.getProperty("cache.supported") !== false &&
-      (calendar.getProperty("cache.enabled") || calendar.getProperty("cache.always"))
-    ) {
-      calendar = new calCachedCalendar(calendar);
-    }
+    calendar = maybeWrapCachedCalendar(calendar);
 
     this.setupCalendar(calendar);
     flushPrefs();
 
-    if (!calendar.getProperty("disabled") && calendar.canRefresh) {
-      calendar.refresh();
-    }
-
+    maybeRefreshCalendar(calendar);
     this.notifyObservers("onCalendarRegistered", [calendar]);
   },
 
+  /**
+   * Sets up a calendar, this is the initialization required during calendar registration. See
+   * {@link #unsetupCalendar} to revert these steps.
+   *
+   * @param {calICalendar} calendar   The calendar to set up.
+   */
   setupCalendar(calendar) {
     this.mCache[calendar.id] = calendar;
 
@@ -243,6 +388,35 @@ CalCalendarManager.prototype = {
 
     // Set up the refresh timer
     this.setupRefreshTimer(calendar);
+  },
+
+  /**
+   * Reverts the calendar registration setup steps from {@link #setupCalendar}.
+   *
+   * @param {calICalendar} calendar         The calendar to undo setup for.
+   * @param {boolean} [clearCache=false]    If true, the cache is cleared for this calendar.
+   */
+  unsetupCalendar(calendar, clearCache = false) {
+    if (this.mCache) {
+      delete this.mCache[calendar.id];
+    }
+
+    if (clearCache && calendar.wrappedJSObject instanceof calCachedCalendar) {
+      calendar.wrappedJSObject.onCalendarUnregistering();
+    }
+
+    calendar.removeObserver(this.mCalObservers[calendar.id]);
+
+    if (calendar.readOnly) {
+      this.mReadonlyCalendarCount--;
+    }
+
+    if (calendar.getProperty("requiresNetwork") !== false) {
+      this.mNetworkCalendarCount--;
+    }
+    this.mCalendarCount--;
+
+    this.clearRefreshTimer(calendar);
   },
 
   setupRefreshTimer(aCalendar) {
@@ -275,30 +449,10 @@ CalCalendarManager.prototype = {
 
   unregisterCalendar(calendar) {
     this.notifyObservers("onCalendarUnregistering", [calendar]);
+    this.unsetupCalendar(calendar, true);
 
-    // calendar may be a calICalendar wrapper:
-    if (calendar.wrappedJSObject instanceof calCachedCalendar) {
-      calendar.wrappedJSObject.onCalendarUnregistering();
-    }
-
-    calendar.removeObserver(this.mCalObservers[calendar.id]);
     Services.prefs.deleteBranch(getPrefBranchFor(calendar.id));
     flushPrefs();
-
-    if (this.mCache) {
-      delete this.mCache[calendar.id];
-    }
-
-    if (calendar.readOnly) {
-      this.mReadonlyCalendarCount--;
-    }
-
-    if (calendar.getProperty("requiresNetwork") !== false) {
-      this.mNetworkCalendarCount--;
-    }
-    this.mCalendarCount--;
-
-    this.clearRefreshTimer(calendar);
   },
 
   removeCalendar(calendar, mode = 0) {
@@ -348,70 +502,48 @@ CalCalendarManager.prototype = {
     return calendars;
   },
 
+  /**
+   * Load calendars from the pref branch, if they haven't already been loaded. The calendar
+   * instances will end up in mCache and are refreshed when complete.
+   */
   assureCache() {
-    if (!this.mCache) {
-      this.mCache = {};
-      this.mCalObservers = {};
+    if (this.mCache) {
+      return;
+    }
 
-      let allCals = {};
-      for (let key of Services.prefs.getChildList(REGISTRY_BRANCH)) {
-        // merge down all keys
-        allCals[key.substring(0, key.indexOf(".", REGISTRY_BRANCH.length))] = true;
-      }
+    this.mCache = {};
+    this.mCalObservers = {};
 
-      for (let calBranch in allCals) {
-        let id = calBranch.substring(REGISTRY_BRANCH.length);
-        let ctype = Services.prefs.getStringPref(calBranch + ".type", null);
-        let curi = Services.prefs.getStringPref(calBranch + ".uri", null);
+    let allCals = {};
+    for (let key of Services.prefs.getChildList(REGISTRY_BRANCH)) {
+      // merge down all keys
+      allCals[key.substring(0, key.indexOf(".", REGISTRY_BRANCH.length))] = true;
+    }
 
-        try {
-          if (!ctype || !curi) {
-            // sanity check
-            Services.prefs.deleteBranch(calBranch + ".");
-            continue;
-          }
+    for (let calBranch in allCals) {
+      let id = calBranch.substring(REGISTRY_BRANCH.length);
+      let ctype = Services.prefs.getStringPref(calBranch + ".type", null);
+      let curi = Services.prefs.getStringPref(calBranch + ".uri", null);
 
-          let uri = Services.io.newURI(curi);
-          let calendar = this.createCalendar(ctype, uri);
-          if (calendar) {
-            calendar.id = id;
-            if (calendar.getProperty("auto-enabled")) {
-              calendar.deleteProperty("disabled");
-              calendar.deleteProperty("auto-enabled");
-            }
-
-            if (
-              calendar.getProperty("cache.supported") !== false &&
-              (calendar.getProperty("cache.enabled") || calendar.getProperty("cache.always"))
-            ) {
-              calendar = new calCachedCalendar(calendar);
-            }
-          } else {
-            // create dummy calendar that stays disabled for this run:
-            calendar = new calDummyCalendar(ctype);
-            calendar.id = id;
-            calendar.uri = uri;
-            // try to enable on next startup if calendar has been enabled:
-            if (!calendar.getProperty("disabled")) {
-              calendar.setProperty("auto-enabled", true);
-            }
-            calendar.setProperty("disabled", true);
-          }
-
-          this.setupCalendar(calendar);
-        } catch (exc) {
-          cal.ERROR("Can't create calendar for " + id + " (" + ctype + ", " + curi + "): " + exc);
+      try {
+        if (!ctype || !curi) {
+          // sanity check
+          Services.prefs.deleteBranch(calBranch + ".");
+          continue;
         }
-      }
 
-      // do refreshing in a second step, when *all* calendars are already available
-      // via getCalendars():
-      for (let id in this.mCache) {
-        let calendar = this.mCache[id];
-        if (!calendar.getProperty("disabled") && calendar.canRefresh) {
-          calendar.refresh();
-        }
+        let uri = Services.io.newURI(curi);
+        let calendar = this.initializeCalendar(id, ctype, uri);
+        this.setupCalendar(calendar);
+      } catch (exc) {
+        cal.ERROR(`Can't create calendar for ${id} (${ctype}, ${curi}): ${exc}`);
       }
+    }
+
+    // do refreshing in a second step, when *all* calendars are already available
+    // via getCalendars():
+    for (let calendar of Object.values(this.mCache)) {
+      maybeRefreshCalendar(calendar);
     }
   },
 
@@ -752,6 +884,34 @@ calDummyCalendar.prototype = {
 
 function getPrefBranchFor(id) {
   return REGISTRY_BRANCH + id + ".";
+}
+
+/**
+ * Helper to refresh a calendar, if it can be refreshed and isn't disabled.
+ *
+ * @param {calICalendar} calendar     The calendar to refresh.
+ */
+function maybeRefreshCalendar(calendar) {
+  if (!calendar.getProperty("disabled") && calendar.canRefresh) {
+    calendar.refresh();
+  }
+}
+
+/**
+ * Wrap a calendar using {@link calCachedCalendar}, if the cache is supported and enabled.
+ * Otherwise just return the passed in calendar.
+ *
+ * @param {calICalendar} calendar     The calendar to potentially wrap.
+ * @return {calICalendar}             The potentially wrapped calendar.
+ */
+function maybeWrapCachedCalendar(calendar) {
+  if (
+    calendar.getProperty("cache.supported") !== false &&
+    (calendar.getProperty("cache.enabled") || calendar.getProperty("cache.always"))
+  ) {
+    calendar = new calCachedCalendar(calendar);
+  }
+  return calendar;
 }
 
 /**

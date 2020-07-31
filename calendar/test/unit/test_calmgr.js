@@ -12,105 +12,202 @@ function run_test() {
   do_calendar_startup(run_next_test);
 }
 
-add_test(function test_registration() {
+class CalendarManagerObserver {
+  QueryInterface = ChromeUtils.generateQI(["calICalendarManager"]);
+
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.registered = [];
+    this.unregistering = [];
+    this.deleting = [];
+  }
+
+  check({ unregistering, registered, deleting }) {
+    equal(this.unregistering[0], unregistering);
+    equal(this.registered[0], registered);
+    equal(this.deleting[0], deleting);
+
+    this.reset();
+  }
+
+  onCalendarRegistered(calendar) {
+    this.registered.push(calendar.id);
+  }
+
+  onCalendarUnregistering(calendar) {
+    this.unregistering.push(calendar.id);
+  }
+
+  onCalendarDeleting(calendar) {
+    this.deleting.push(calendar.id);
+  }
+}
+
+add_test(function test_builtin_registration() {
   function checkCalendarCount(net, rdonly, all) {
     equal(calmgr.networkCalendarCount, net);
     equal(calmgr.readOnlyCalendarCount, rdonly);
     equal(calmgr.calendarCount, all);
   }
-  function checkRegistration(reg, unreg, del) {
-    equal(registered, reg);
-    equal(unregistered, unreg);
-    equal(deleted, del);
-    registered = false;
-    unregistered = false;
-    deleted = false;
-  }
 
-  // Initially there should be no calendars
+  // Initially there should be no calendars.
   let calmgr = cal.getCalendarManager();
   checkCalendarCount(0, 0, 0);
 
-  // Create a local memory calendar, this shouldn't register any calendars
+  // Create a local memory calendar, this shouldn't register any calendars.
   let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-memory-calendar://"));
   checkCalendarCount(0, 0, 0);
 
   // Register an observer to test it.
-  let registered = false,
-    unregistered = false,
-    deleted = false,
-    readOnly = false;
-  let mgrobs = cal.createAdapter(Ci.calICalendarManagerObserver, {
-    onCalendarRegistered(aCalendar) {
-      if (aCalendar.id == memory.id) {
-        registered = true;
-      }
-    },
-    onCalendarUnregistering(aCalendar) {
-      if (aCalendar.id == memory.id) {
-        unregistered = true;
-      }
-    },
-    onCalendarDeleting(aCalendar) {
-      if (aCalendar.id == memory.id) {
-        deleted = true;
-      }
-    },
-  });
-  let calobs = cal.createAdapter(Ci.calIObserver, {
+  let calmgrObserver = new CalendarManagerObserver();
+
+  let readOnly = false;
+  let calendarObserver = cal.createAdapter(Ci.calIObserver, {
     onPropertyChanged(aCalendar, aName, aValue, aOldValue) {
       equal(aCalendar.id, memory.id);
       equal(aName, "readOnly");
       readOnly = aValue;
     },
   });
-  memory.addObserver(calobs);
-  calmgr.addObserver(mgrobs);
 
-  // Register the calendar and check if its counted and observed
+  memory.addObserver(calendarObserver);
+  calmgr.addObserver(calmgrObserver);
+
+  // Register the calendar and check if its counted and observed.
   calmgr.registerCalendar(memory);
-  checkRegistration(true, false, false);
+  calmgrObserver.check({ registered: memory.id });
   checkCalendarCount(0, 0, 1);
 
-  // The calendar should now have an id
+  // The calendar should now have an id.
   notEqual(memory.id, null);
 
-  // And be in the list of calendars
+  // And be in the list of calendars.
   equal(memory, calmgr.getCalendarById(memory.id));
   ok(calmgr.getCalendars().some(x => x.id == memory.id));
 
-  // Make it readonly and check if the observer caught it
+  // Make it readonly and check if the observer caught it.
   memory.setProperty("readOnly", true);
   equal(readOnly, true);
 
-  // Now unregister it
+  // Now unregister it.
   calmgr.unregisterCalendar(memory);
-  checkRegistration(false, true, false);
+  calmgrObserver.check({ unregistering: memory.id });
   checkCalendarCount(0, 0, 0);
 
-  // The calendar shouldn't be in the list of ids
+  // The calendar shouldn't be in the list of ids.
   equal(calmgr.getCalendarById(memory.id), null);
   ok(calmgr.getCalendars().every(x => x.id != memory.id));
 
-  // And finally delete it
+  // And finally delete it.
   calmgr.removeCalendar(memory, Ci.calICalendarManager.REMOVE_NO_UNREGISTER);
-  checkRegistration(false, false, true);
+  calmgrObserver.check({ deleting: memory.id });
   checkCalendarCount(0, 0, 0);
 
-  // Now remove the observer again
-  calmgr.removeObserver(mgrobs);
-  memory.removeObserver(calobs);
+  // Now remove the observer again.
+  calmgr.removeObserver(calmgrObserver);
+  memory.removeObserver(calendarObserver);
 
-  // Check if removing it actually worked
+  // Check if removing it actually worked.
   calmgr.registerCalendar(memory);
   calmgr.removeCalendar(memory);
   memory.setProperty("readOnly", false);
-  checkRegistration(false, false, false);
+  calmgrObserver.check({});
   equal(readOnly, true);
   checkCalendarCount(0, 0, 0);
 
-  // We are done now, start the next test
+  // We are done now, start the next test.
   run_next_test();
+});
+
+add_task(async function test_dynamic_registration() {
+  class CalendarProvider extends cal.provider.BaseClass {
+    QueryInterface = ChromeUtils.generateQI(["calICalendar"]);
+    type = "blm";
+
+    constructor() {
+      super();
+      this.initProviderBase();
+    }
+
+    getItems(itemFilter, count, rangeStart, rangeEnd, listener) {
+      this.notifyOperationComplete(listener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
+    }
+  }
+
+  function checkCalendar(expectedCount = 1) {
+    let calendars = calmgr.getCalendars();
+    equal(calendars.length, expectedCount);
+    let calendar = calendars[0];
+
+    if (expectedCount > 0) {
+      notEqual(calendar, null);
+    }
+    return calendar;
+  }
+
+  let calmgr = cal.getCalendarManager();
+  let calmgrObserver = new CalendarManagerObserver();
+  calmgr.addObserver(calmgrObserver);
+  equal(calmgr.calendarCount, 0);
+
+  // No provider registered.
+  let calendar = calmgr.createCalendar("blm", Services.io.newURI("black-lives-matter://"));
+  equal(calendar, null);
+  ok(!calmgr.hasCalendarProvider("blm"));
+
+  // Register dynamic provider.
+  calmgr.registerCalendarProvider("blm", CalendarProvider);
+  calendar = calmgr.createCalendar("blm", Services.io.newURI("black-lives-matter://"));
+  notEqual(calendar, null);
+  ok(calendar.wrappedJSObject instanceof CalendarProvider);
+  ok(calmgr.hasCalendarProvider("blm"));
+
+  // Register a calendar using it.
+  calmgr.registerCalendar(calendar);
+  calendar = checkCalendar();
+
+  let originalId = calendar.id;
+  calmgrObserver.check({ registered: originalId });
+
+  // Unregister the provider from under its feet.
+  calmgr.unregisterCalendarProvider("blm");
+  calendar = checkCalendar();
+  calmgrObserver.check({ unregistering: originalId, registered: originalId });
+
+  equal(calendar.type, "blm");
+  equal(calendar.getProperty("force-disabled"), true);
+  equal(calendar.id, originalId);
+
+  // Re-register the provider should reactive it.
+  calmgr.registerCalendarProvider("blm", CalendarProvider);
+  calendar = checkCalendar();
+  calmgrObserver.check({ unregistering: originalId, registered: originalId });
+
+  equal(calendar.type, "blm");
+  notEqual(calendar.getProperty("force-disabled"), true);
+  equal(calendar.id, originalId);
+
+  // Make sure calendar is loaded from prefs.
+  calmgr.unregisterCalendarProvider("blm");
+  calmgrObserver.check({ unregistering: originalId, registered: originalId });
+
+  await new Promise(resolve => calmgr.shutdown({ onResult: resolve }));
+  calmgr.wrappedJSObject.mCache = null;
+  await new Promise(resolve => calmgr.startup({ onResult: resolve }));
+  calmgrObserver.check({});
+
+  calendar = checkCalendar();
+  equal(calendar.type, "blm");
+  equal(calendar.getProperty("force-disabled"), true);
+  equal(calendar.id, originalId);
+
+  // Unregister the calendar for cleanup.
+  calmgr.unregisterCalendar(calendar);
+  checkCalendar(0);
+  calmgrObserver.check({ unregistering: originalId });
 });
 
 add_test(function test_calobserver() {
