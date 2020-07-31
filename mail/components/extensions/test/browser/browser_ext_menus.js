@@ -137,7 +137,7 @@ add_task(async function test_thread_pane() {
   );
   is(info.displayedFolder.accountId, gAccount.key);
   is(info.displayedFolder.path, "/Trash");
-  is(info.selectedMessages.cursor, null);
+  is(info.selectedMessages.cursor, undefined);
   ok(!info.selectedFolder);
 
   await extension.unload();
