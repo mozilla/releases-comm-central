@@ -300,6 +300,7 @@ nsContextMenu.prototype = {
     // Hide Block and Unblock menuitems.
     this.showItem("context-blockimage", false);
     this.showItem("context-unblockimage", false);
+    this.showItem("context-sep-blockimage", false);
 
     // Block image depends on whether an image was clicked on.
     if (this.onImage) {
@@ -324,6 +325,7 @@ nsContextMenu.prototype = {
         this.setItemAttr(id, "accesskey",
                          bundle.getString(attr + ".accesskey"));
         this.showItem(id, true);
+        this.showItem("context-sep-blockimage", true);
       }
     }
   },
@@ -1666,13 +1668,17 @@ nsContextMenu.prototype = {
     return aNode instanceof HTMLTextAreaElement && this.isTextBoxEnabled(aNode);
   },
 
-  // Determines whether or not the separator with the specified ID should be
-  // shown or not by determining if there are any non-hidden items between it
-  // and the previous separator.
+  /**
+   * Determine whether a separator should be shown based on whether
+   * there are any non-hidden items between it and the previous separator.
+   * @param  aSeparatorID
+   *         The id of the separator element
+   * @return true if the separator should be shown, false if not
+   */
   shouldShowSeparator: function(aSeparatorID) {
-    var separator = document.getElementById(aSeparatorID);
+    let separator = document.getElementById(aSeparatorID);
     if (separator) {
-      var sibling = separator.previousSibling;
+      let sibling = separator.previousSibling;
       while (sibling && sibling.localName != "menuseparator") {
         if (sibling.getAttribute("hidden") != "true")
           return true;

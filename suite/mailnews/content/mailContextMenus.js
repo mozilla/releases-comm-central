@@ -185,21 +185,64 @@ function FillMailContextMenu(aTarget, aEvent)
   ShowMenuItem("context-createfilterfrom", gContextMenu.onMailtoLink);
 
   // Figure out separators.
-  ShowSeparator("mailContext-sep-open");
-  ShowSeparator("mailContext-sep-edit");
-  ShowSeparator("mailContext-sep-link");
-  ShowSeparator("mailContext-sep-image");
-  ShowSeparator("mailContext-sep-copy");
-  ShowSeparator("mailContext-sep-print");
-  ShowSeparator("mailContext-sep-tags");
-  ShowSeparator("mailContext-sep-mark");
-  ShowSeparator("mailContext-sep-move");
-
-  // If we are on a link, go ahead and hide this separator.
-  if (gContextMenu.onLink)
-    ShowMenuItem("mailContext-sep-copy", false);
+  initSeparators();
 
   return true;
+}
+
+/**
+ * Hide separators with no active menu items.
+ *
+ */
+function initSeparators() {
+  const mailContextSeparators = [
+    "mailContext-sep-link", "mailContext-sep-open",
+    "mailContext-sep-tags", "mailContext-sep-mark",
+    "mailContext-sep-move", "mailContext-sep-print",
+    "mailContext-sep-edit", "mailContext-sep-image",
+    "mailContext-sep-blockimage", "mailContext-sep-copy",
+  ];
+
+  mailContextSeparators.forEach(hideIfAppropriate);
+
+  // If we are on a link, go ahead and hide this separator.
+  if (gContextMenu.onLink) {
+    ShowMenuItem("mailContext-sep-copy", false);
+  }
+
+  checkLastSeparator(document.getElementById("mailContext"));
+}
+
+/**
+ * Hide a separator based on whether there are any non-hidden items between
+ * it and the previous separator.
+ *
+ * @param aSeparatorID  The id of the separator element.
+ */
+function hideIfAppropriate(aSeparatorID) {
+  ShowMenuItem(aSeparatorID, gContextMenu.shouldShowSeparator(aSeparatorID));
+}
+
+/**
+ * Ensures that there isn't a separator shown at the bottom of the menu.
+ *
+ * @param aPopup  The menu to check.
+ */
+function checkLastSeparator(aPopup) {
+  let sibling = aPopup.lastChild;
+  while (sibling) {
+    if (sibling.getAttribute("hidden") != "true") {
+      if (sibling.localName == "menuseparator") {
+        // If we got here then the item is a menuseparator and everything
+        // below it hidden.
+        sibling.setAttribute("hidden", true);
+        return;
+      }
+      else
+        return;
+    }
+    sibling = sibling.previousSibling;
+  }
 }
 
 function FolderPaneOnPopupHiding()
@@ -405,34 +448,6 @@ function SetMenuItemAccessKey(id, accessKey)
   var item = document.getElementById(id);
   if(item)
     item.setAttribute('accesskey', accessKey);
-}
-
-function SiblingHidden(aSibling, aNext)
-{
-  var siblingID;
-  while (aSibling)
-  {
-    siblingID = aSibling.id;
-    // For some reason, context-blockimage and context-unblockimage are not
-    // hidden on the very first time the context menu is invoked. They are only
-    // hidden on subsequent triggers of the context menu. Since we're not
-    // using these two menuitems in mailnews, we can ignore them if encountered.
-    if (!aSibling.hidden && (siblingID != "context-blockimage") &&
-        (siblingID != "context-unblockimage"))
-      return aSibling.localName == "menuseparator";
-    aSibling = aNext ? aSibling.nextSibling : aSibling.previousSibling;
-  }
-  return true;
-}
-
-function ShowSeparator(aSeparatorID)
-{
-  var separator = document.getElementById(aSeparatorID);
-  // Check to see if there are visible siblings before the next and
-  // previous separators.
-  var hidden = SiblingHidden(separator.nextSibling, true) ||
-               SiblingHidden(separator.previousSibling, false);
-  ShowMenuItem(aSeparatorID, !hidden);
 }
 
 // message pane context menu helper methods
