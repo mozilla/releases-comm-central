@@ -61,7 +61,7 @@ $THIRDROC rnp_source_update rnp/ \
   "${BUGREPORT}"
 
 # Restore moz.build
-hg revert rnp/moz.build rnp/Makefile.in rnp/module.ver rnp/rnp.symbols
+hg revert rnp/moz.build rnp/module.ver rnp/rnp.symbols rnp/src/lib/rnp/rnp_export.h
 
 rm -rf "${MY_TEMP_DIR}"
 hg addremove rnp
