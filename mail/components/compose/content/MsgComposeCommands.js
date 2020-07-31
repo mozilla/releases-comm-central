@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../../toolkit/components/printing/content/printUtils.js */
+/* import-globals-from ../../../../../toolkit/content/contentAreaUtils.js */
 /* import-globals-from ../../../../common/src/viewZoomOverlay.js */
 /* import-globals-from ../../../../mailnews/addrbook/content/abDragDrop.js */
 /* import-globals-from ../../../../mailnews/base/prefs/content/accountUtils.js */
@@ -57,10 +58,6 @@ var { MailConstants } = ChromeUtils.import(
 );
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
-);
-var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
-var { XPCOMUtils } = ChromeUtils.import(
-  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
 var l10nCompose = new Localization(
