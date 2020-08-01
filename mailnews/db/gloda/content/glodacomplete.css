@@ -47,5 +47,5 @@ span.ac-emphasize-text {
  * and gloda-multi.
  */
 .autocomplete-richlistitem[type^="gloda"] {
-  overflow: -moz-hidden-unscrollable;
+  overflow: clip;
 }

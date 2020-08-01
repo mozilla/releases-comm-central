@@ -252,7 +252,7 @@ tree.list {
   max-height: 52px;
   min-height: 52px;
   margin: 6px 5px;
-  overflow: -moz-hidden-unscrollable;
+  overflow: clip;
 }
 
 #preview-image-holder {
