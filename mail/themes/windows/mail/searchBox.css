@@ -17,10 +17,6 @@
   font-style: normal !important;
 }
 
-.quick-search-textbox {
-  padding-top: 1px;
-}
-
 .gloda-search {
   background-image: url(chrome://messenger/skin/icons/search-glass.svg);
   background-position: calc( 100% - 4px);
@@ -37,8 +33,7 @@
 }
 
 .remote-gloda-search-container {
-  padding-top: 1px;
-  padding-bottom: 1px;
+  padding-block: 1px;
 }
 
 .searchBox,
@@ -49,11 +44,9 @@
   border-radius: 2px;
   box-shadow: 0 1px 4px rgba(0,0,0,.05);
   outline: none;
-  padding-inline-end: 2px;
-  padding-inline-start: 2px;
+  padding-inline: 4px 2px;
   min-height: 24px;
-  margin-top: 1px;
-  margin-bottom: 1px;
+  margin-block: 1px;
   width: 25em;
 }
 
@@ -67,8 +60,7 @@
 /* Add margins to show the hover box-shadow */
 .gloda-search,
 #peopleSearchInput {
-  margin-top: 3px;
-  margin-bottom: 3px;
+  margin-block: 3px;
 }
 
 .gloda-search:focus,

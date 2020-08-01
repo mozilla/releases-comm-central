@@ -6,8 +6,7 @@
 
 .searchBox,
 .themeableSearchBox {
-  margin-top: 3px;
-  margin-bottom: 2px;
+  margin-block: 3px 2px;
   appearance: none !important;
   border: 1px solid hsla(240,5%,5%,.25);
   border-radius: 3px;
@@ -15,8 +14,8 @@
   outline: none;
   font: icon !important;
   height: 24px;
-  padding: 1px 4px !important;
-  padding-inline-start: 19px !important;
+  padding-block: 1px !important;
+  padding-inline: 19px 4px !important;
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: 0.8;
@@ -42,13 +41,11 @@
 
 .gloda-search,
 #peopleSearchInput {
-  margin-top: 2px;
-  margin-bottom: 3px;
+  margin-block: 2px 3px;
 }
 
 .remote-gloda-search-container {
-  padding-top: 1px;
-  padding-bottom: 1px;
+  padding-block: 1px;
 }
 
 .autocomplete-richlistitem[type^="gloda-"] {

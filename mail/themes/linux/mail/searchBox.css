@@ -4,10 +4,6 @@
 
 @import url("chrome://messenger/skin/shared/searchBox.css");
 
-.quick-search-textbox {
-  padding-top: 1px;
-}
-
 .gloda-search {
   background-image: url(chrome://messenger/skin/icons/search-glass.svg);
   background-position: calc( 100% - 4px);
@@ -24,8 +20,7 @@
 }
 
 .remote-gloda-search-container {
-  padding-top: 3px;
-  padding-bottom: 2px;
+  padding-block: 3px 2px;
 }
 
 .searchBox,
@@ -37,7 +32,8 @@
   border-radius: 2px;
   outline: none;
   box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  padding: 3px;
+  padding-block: 3px;
+  padding-inline: 4px 2px;
   margin: 0 3px;
 }
 
