@@ -16,7 +16,7 @@
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   windowtype="mailnews:filterlist"
-  style="width: 45em; height: 31em;"
+  style="min-width: 45em; height: 31em;"
   onload="onLoad();"
   onunload="onFilterUnload();"
   onclose="return onFilterClose();"
@@ -54,7 +54,6 @@
     </menulist>
     <search-textbox id="searchBox"
                     class="searchBox"
-                    flex="1"
                     oncommand="rebuildFilterList();"
                     placeholder="&searchBox.emptyText;"
                     isempty="true"/>
