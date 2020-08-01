@@ -838,8 +838,9 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
 
     RefPtr<mozilla::dom::BrowsingContext> browsingContext =
         docShell->GetBrowsingContext();
-    browsingContext->SetSandboxFlags(browsingContext->GetSandboxFlags() |
-                                     SANDBOXED_FORMS);
+    rv = browsingContext->SetSandboxFlags(browsingContext->GetSandboxFlags() |
+                                          SANDBOXED_FORMS);
+    NS_ENSURE_SUCCESS(rv, rv);
   } else {
     // JavaScript is allowed on non-message URLs.
     rv = docShell->SetAllowJavascript(true);
