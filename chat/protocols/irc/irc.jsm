@@ -685,9 +685,9 @@ ircChannel.prototype = {
     // everyone can.
     return !this._modes.has("t") || participant.op || participant.halfOp;
   },
-  writeMessage(aMsg, aWho, aObject) {
-    const messageProps = this.handleTags(aMsg, aWho, aObject);
-    GenericConvChatPrototype.writeMessage.call(this, aMsg, aWho, messageProps);
+  writeMessage(aWho, aMsg, aObject) {
+    const messageProps = this.handleTags(aWho, aMsg, aObject);
+    GenericConvChatPrototype.writeMessage.call(this, aWho, aMsg, messageProps);
   },
 };
 Object.assign(ircChannel.prototype, GenericIRCConversation);
@@ -775,9 +775,9 @@ ircConversation.prototype = {
     this._name = aNewNick;
     this.notifyObservers(null, "update-conv-title");
   },
-  writeMessage(aMsg, aWho, aObject) {
-    const messageProps = this.handleTags(aMsg, aWho, aObject);
-    GenericConvIMPrototype.writeMessage.call(this, aMsg, aWho, messageProps);
+  writeMessage(aWho, aMsg, aObject) {
+    const messageProps = this.handleTags(aWho, aMsg, aObject);
+    GenericConvIMPrototype.writeMessage.call(this, aWho, aMsg, messageProps);
   },
 };
 Object.assign(ircConversation.prototype, GenericIRCConversation);
