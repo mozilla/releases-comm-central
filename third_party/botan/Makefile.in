@@ -5,6 +5,8 @@
 include $(moztopsrcdir)/config/config.mk
 include $(topsrcdir)/config/rules.mk
 
+ifdef COMPILE_ENVIRONMENT
 ifndef MZLA_SYSTEM_BOTAN
 export:: build/build.h
+endif
 endif
