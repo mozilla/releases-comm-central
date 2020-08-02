@@ -26,7 +26,6 @@ Preferences.addAll([
   { id: "messenger.options.getAttentionOnNewMessages", type: "bool" },
   { id: "messenger.options.messagesStyle.theme", type: "string" },
   { id: "messenger.options.messagesStyle.variant", type: "string" },
-  { id: "messenger.options.messagesStyle.showHeader", type: "bool" },
 ]);
 
 var gChatPane = {

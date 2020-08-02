@@ -25,7 +25,6 @@ const { XPCOMUtils } = ChromeUtils.import(
 var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
 var kThemePref = "theme";
 var kVariantPref = "variant";
-var kShowHeaderPref = "showHeader";
 var kCombineConsecutivePref = "combineConsecutive";
 var kCombineConsecutiveIntervalPref = "combineConsecutiveInterval";
 
@@ -259,7 +258,6 @@ function getThemeByName(aName) {
     baseURI,
     metadata,
     html: new HTMLTheme(baseURI),
-    showHeader: gPrefBranch.getBoolPref(kShowHeaderPref),
     combineConsecutive: gPrefBranch.getBoolPref(kCombineConsecutivePref),
     combineConsecutiveInterval: gPrefBranch.getIntPref(
       kCombineConsecutiveIntervalPref
@@ -392,7 +390,7 @@ function getStatusIconFromBuddy(aBuddy) {
   return "chrome://chat/skin/" + status + "-16.png";
 }
 
-var headerFooterReplacements = {
+var footerReplacements = {
   chatName: aConv => TXTToHTML(aConv.title),
   sourceName: aConv => TXTToHTML(aConv.account.alias || aConv.account.name),
   destinationName: aConv => TXTToHTML(aConv.name),
@@ -723,18 +721,11 @@ function initHTMLDocument(aConv, aTheme, aDoc) {
 
   HTML += '</head><body id="ibcontent">';
 
-  // We insert the whole content of body: header, chat div, footer
-  if (aTheme.showHeader) {
-    HTML += replaceKeywordsInHTML(
-      aTheme.html.header,
-      headerFooterReplacements,
-      aConv
-    );
-  }
+  // We insert the whole content of body: chat div, footer
   HTML += '<div id="Chat" aria-live="polite"></div>';
   HTML += replaceKeywordsInHTML(
     aTheme.html.footer,
-    headerFooterReplacements,
+    footerReplacements,
     aConv
   );
   aDoc.open();

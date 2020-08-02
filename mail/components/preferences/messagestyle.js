@@ -98,12 +98,6 @@ var previewObserver = {
 
     let themeName = document.getElementById("messagestyle-themename");
     previewObserver.browser = document.getElementById("previewbrowser");
-    document
-      .getElementById("showHeaderCheckbox")
-      .addEventListener(
-        "CheckboxStateChange",
-        previewObserver.showHeaderChanged
-      );
 
     // If the preferences tab is opened straight to the message styles,
     // loading the preview fails. Pushing this to back of the event queue
@@ -112,15 +106,6 @@ var previewObserver = {
       previewObserver.displayTheme(themeName.value);
       this._loaded = true;
     });
-  },
-
-  showHeaderChanged() {
-    if (!previewObserver._loaded) {
-      return;
-    }
-
-    previewObserver.theme.showHeader = this.checked;
-    previewObserver.reloadPreview();
   },
 
   currentThemeChanged() {
@@ -213,10 +198,6 @@ var previewObserver = {
     // which is the default
     menulist.disabled =
       variants.length == 0 || (variants.length == 1 && defaultVariant);
-
-    document.getElementById(
-      "showHeaderCheckbox"
-    ).disabled = !this.theme.html.hasOwnProperty("header");
 
     this.reloadPreview();
     document.getElementById("previewDeck").selectedIndex = 1;
