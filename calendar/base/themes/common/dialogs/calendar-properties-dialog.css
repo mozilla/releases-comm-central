@@ -4,6 +4,11 @@
 
 @namespace html url("http://www.w3.org/1999/xhtml");
 
+:root:-moz-lwtheme {
+  background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
+}
+
 #calendar-properties-table {
   margin-inline-start: 20px;
 }
@@ -30,5 +35,4 @@
 #calendar-refreshInterval-menulist,
 #email-identity-menulist {
   flex: 1;
-  margin-inline-end: 7px;
 }

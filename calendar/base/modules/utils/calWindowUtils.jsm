@@ -41,7 +41,7 @@ var calwindow = {
     window.openDialog(
       "chrome://calendar/content/calendar-properties-dialog.xhtml",
       "CalendarPropertiesDialog",
-      "modal,chrome,titlebar,resizable",
+      "modal,chrome,titlebar,resizable,centerscreen",
       { calendar: aCalendar }
     );
   },

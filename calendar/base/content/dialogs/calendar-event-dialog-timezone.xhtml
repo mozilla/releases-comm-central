@@ -4,10 +4,12 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-timezone-highlighter.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/datetimepickers.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
 <!DOCTYPE window [
   <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/global.dtd" > %dtd1;
@@ -20,7 +22,9 @@
         windowtype="Calendar:EventDialog:Timezone"
         onload="onLoad()"
         persist="screenX screenY width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        lightweightthemes="true"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
 <dialog id="calendar-event-dialog-timezone">
 
@@ -30,6 +34,7 @@
   <script src="chrome://calendar/content/calendar-dialog-utils.js"/>
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <hbox align="center">
     <spacer flex="1"/>

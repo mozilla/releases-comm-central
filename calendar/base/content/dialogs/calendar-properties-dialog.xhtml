@@ -7,6 +7,7 @@
 <?xml-stylesheet href="chrome://calendar/skin/shared/calendar-properties-dialog.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/content/notification.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window
 [
@@ -19,9 +20,9 @@
 <window windowtype="Calendar:PropertiesDialog"
         title="&calendar.server.dialog.title.edit;"
         onload="onLoad()"
-        persist="screenX screenY"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
+        lightweightthemes="true"
         width="500">
 
 <dialog id="calendar-properties-dialog-2"
@@ -37,6 +38,7 @@
   <script src="chrome://lightning/content/lightning-calendar-properties.js"/>
   <script src="chrome://lightning/content/caldav-lightning-utils.js"/>
   <script src="chrome://lightning/content/caldav-lightning-calendar-properties.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <description id="force-disabled-description" hidden="true">&calendarproperties.forceDisabled.label;</description>
 

@@ -4,11 +4,14 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/content/notification.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-alarms.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/widgets/minimonth.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/datetimepickers.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/themeableDialog.css"?>
 
 <!DOCTYPE window SYSTEM "chrome://calendar/locale/dialogs/calendar-event-dialog-reminder.dtd" >
 
@@ -16,7 +19,9 @@
         windowtype="Calendar:EventDialog:Reminder"
         onload="onLoad()"
         persist="screenX screenY width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        lightweightthemes="true"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
 <dialog id="calendar-event-dialog-reminder">
 
@@ -25,6 +30,7 @@
   <script src="chrome://calendar/content/calendar-ui-utils.js"/>
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <hbox id="reminder-notifications" class="notification-inline" flex="1">
     <!-- notificationbox will be added here lazily. -->
@@ -60,8 +66,8 @@
              value="relative"
              aria-labelledby="reminder-length reminder-unit reminder-relation-origin"/>
       <vbox id="reminder-relative-box" flex="1">
-        <hbox id="reminder-relative-length-unit-relation" flex="1">
-          <html:input id="reminder-length" type="number" min="0"
+        <hbox id="reminder-relative-length-unit-relation" align="center" flex="1">
+          <html:input id="reminder-length" class="input-inline" type="number" min="0"
                       oninput="updateReminder(event)"/>
           <menulist id="reminder-unit" oncommand="updateReminder(event)" flex="1">
             <menupopup id="reminder-unit-menupopup">

@@ -171,7 +171,7 @@ function editReminder(
   openDialog(
     "chrome://calendar/content/calendar-event-dialog-reminder.xhtml",
     "_blank",
-    "chrome,titlebar,modal,resizable",
+    "chrome,titlebar,modal,resizable,centerscreen",
     args
   );
 }

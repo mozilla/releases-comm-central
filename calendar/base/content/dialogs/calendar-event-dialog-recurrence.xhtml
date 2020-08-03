@@ -10,6 +10,8 @@
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-event-dialog.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/datetimepickers.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % dialogDTD SYSTEM "chrome://calendar/locale/calendar-event-dialog.dtd">
@@ -20,7 +22,9 @@
         windowtype="Calendar:EventDialog:Recurrence"
         onload="onLoad()"
         persist="screenX screenY width height"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+        lightweightthemes="true"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml">
 
 <dialog id="calendar-event-dialog-recurrence">
 
@@ -32,6 +36,7 @@
 
   <script src="chrome://calendar/content/widgets/calendar-minimonth.js"/>
   <script src="chrome://calendar/content/datetimepickers/datetimepickers.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <!-- recurrence pattern -->
   <html:fieldset id="recurrence-pattern-groupbox">
@@ -77,7 +82,7 @@
                        disable-on-occurrence="true"
                        selected="true"/>
                 <html:input id="daily-days" type="number"
-                            class="size3"
+                            class="size3 input-inline"
                             min="1" max="32767" value="1"
                             oninput="updateRecurrenceControls();"
                             disable-on-readonly="true"
@@ -103,7 +108,7 @@
                      disable-on-occurrence="true"
                      control="weekly-weeks"/>
               <html:input id="weekly-weeks" type="number"
-                          class="size3"
+                          class="size3 input-inline"
                           min="1" max="32767" value="1"
                           oninput="updateRecurrenceControls();"
                           disable-on-readonly="true"
@@ -113,6 +118,7 @@
                      disable-on-readonly="true"
                      disable-on-occurrence="true"/>
             </hbox>
+            <separator class="thin"/>
             <hbox align="center">
               <label id="weekly-period-on-label"
                      value="&event.recurrence.on.label;"
@@ -178,7 +184,7 @@
                      disable-on-occurrence="true"
                      control="monthly-interval"/>
               <html:input id="monthly-interval" type="number"
-                          class="size3"
+                          class="size3 input-inline"
                           min="1" max="32767" value="1"
                           oninput="updateRecurrenceControls();"
                           disable-on-readonly="true"
@@ -253,6 +259,7 @@
                   </menupopup>
                 </menulist>
               </box>
+              <separator class="thin"/>
               <box id="monthly-period-specific-date-box"
                    orient="horizontal"
                    align="center">
@@ -512,7 +519,7 @@
                      value="&event.recurrence.every.label;"
                      control="yearly-interval"/>
               <html:input id="yearly-interval" type="number"
-                          class="size3"
+                          class="size3 input-inline"
                           min="1" max="32767" value="1"
                           oninput="updateRecurrenceControls();"
                           disable-on-readonly="true"
@@ -531,7 +538,7 @@
                        orient="horizontal"
                        align="center">
                     <html:input id="yearly-days" type="number"
-                                class="size3"
+                                class="size3 input-inline"
                                 min="1" value="1"
                                 oninput="updateRecurrenceControls();"
                                 disable-on-readonly="true"
@@ -730,7 +737,7 @@
                  disable-on-readonly="true"
                  disable-on-occurrence="true"/>
           <html:input id="repeat-ntimes-count" type="number"
-                      class="size3"
+                      class="size3 input-inline"
                       min="1" max="32767" value="5"
                       oninput="updateRecurrenceControls();"
                       disable-on-readonly="true"

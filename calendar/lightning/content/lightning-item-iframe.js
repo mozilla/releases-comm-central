@@ -2787,7 +2787,7 @@ function editRepeat() {
   openDialog(
     "chrome://calendar/content/calendar-event-dialog-recurrence.xhtml",
     "_blank",
-    "chrome,titlebar,modal,resizable",
+    "chrome,titlebar,modal,resizable,centerscreen",
     args
   );
 }
@@ -3526,7 +3526,7 @@ function editTimezone(aElementId, aDateTime, aCallback) {
   openDialog(
     "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     "_blank",
-    "chrome,titlebar,modal,resizable",
+    "chrome,titlebar,modal,resizable,centerscreen",
     args
   );
 }
