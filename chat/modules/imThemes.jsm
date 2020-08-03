@@ -723,11 +723,7 @@ function initHTMLDocument(aConv, aTheme, aDoc) {
 
   // We insert the whole content of body: chat div, footer
   HTML += '<div id="Chat" aria-live="polite"></div>';
-  HTML += replaceKeywordsInHTML(
-    aTheme.html.footer,
-    footerReplacements,
-    aConv
-  );
+  HTML += replaceKeywordsInHTML(aTheme.html.footer, footerReplacements, aConv);
   aDoc.open();
   aDoc.write(HTML + "</body></html>");
   aDoc.close();
