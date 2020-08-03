@@ -46,7 +46,7 @@ interface calICalendarManager : nsISupports
    * @param {string} aType              The calendar type string, see calICalendar::type.
    * @param {boolean} aTemporary        If true, cached calendars will not be cleared.
    */
-  void unregisterCalendarProvider(in AUTF8String aType, in boolean aTemporary);
+  void unregisterCalendarProvider(in AUTF8String aType, [optional] in boolean aTemporary);
 
   /**
    * Checks if a calendar provider has been dynamically registered with the given type. This does
