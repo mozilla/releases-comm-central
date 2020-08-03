@@ -75,10 +75,10 @@ add_task(async () => {
       });
       browser.test.assertEq("messageDisplay", windowDetail.type);
       browser.test.assertEq(1, windowDetail.tabs.length);
-      // These three properties should not be present, but not fail either.
+      browser.test.assertEq("about:blank", windowDetail.tabs[0].url);
+      // These properties should not be present, but not fail either.
       browser.test.assertEq(undefined, windowDetail.tabs[0].favIconUrl);
       browser.test.assertEq(undefined, windowDetail.tabs[0].title);
-      browser.test.assertEq(undefined, windowDetail.tabs[0].url);
 
       removedWindowPromise = waitForEvent("onRemoved");
       browser.test.sendMessage("closeMessage");

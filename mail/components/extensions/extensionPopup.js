@@ -72,6 +72,9 @@ var gBrowser = {
   },
 };
 
+function getBrowser() {
+  return gBrowser.selectedBrowser;
+}
 function mailContextOnContextMenu(event) {
   document.getElementById("mailContext").target =
     event.composedTarget || event.originalTarget;
