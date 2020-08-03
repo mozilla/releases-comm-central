@@ -134,7 +134,7 @@ class AddrBookDirectory {
   }
 
   init(uri) {
-    let uriParts = /^([\w-]+):\/\/([\w-]+\.sqlite)$/.exec(uri);
+    let uriParts = /^([\w-]+):\/\/([\w\.-]+\.sqlite)$/.exec(uri);
     if (!uriParts) {
       throw new Components.Exception(
         `Unexpected uri: ${uri}`,

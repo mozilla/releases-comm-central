@@ -771,9 +771,38 @@ var MailMigrator = {
    * are renamed with the extension ".mab.bak" to avoid confusion.
    */
   async _migrateAddressBooks() {
-    async function migrateBook(fileName, notFoundThrows = true) {
+    async function migratePrefsAndBook(prefName, replaceURI = true) {
+      let oldFileName = Services.prefs.getStringPref(`${prefName}.filename`);
+      if (!oldFileName.endsWith(".mab")) {
+        return;
+      }
+
+      let newFileName = oldFileName.replace(/.mab$/, ".sqlite");
+
+      Services.prefs.setStringPref(`${prefName}.filename`, newFileName);
+      if (
+        Services.prefs.getPrefType(`${prefName}.dirType`) ==
+        Services.prefs.PREF_INT
+      ) {
+        Services.prefs.setIntPref(`${prefName}.dirType`, 101);
+      }
+      if (replaceURI && Services.prefs.prefHasUserValue(`${prefName}.uri`)) {
+        Services.prefs.setStringPref(
+          `${prefName}.uri`,
+          `jsaddrbook://${newFileName}`
+        );
+      }
+
+      await migrateBook(oldFileName, newFileName);
+    }
+
+    async function migrateBook(
+      oldFileName,
+      newFileName,
+      notFoundThrows = true
+    ) {
       let oldFile = profileDir.clone();
-      oldFile.append(`${fileName}.mab`);
+      oldFile.append(oldFileName);
       if (!oldFile.exists()) {
         if (notFoundThrows) {
           throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
@@ -781,9 +810,9 @@ var MailMigrator = {
         return;
       }
 
-      console.log(`Creating new ${fileName}.sqlite`);
+      console.log(`Creating new ${newFileName}`);
       let newBook = new AddrBookDirectory();
-      newBook.init(`jsaddrbook://${fileName}.sqlite`);
+      newBook.init(`jsaddrbook://${newFileName}`);
 
       let database = Cc[
         "@mozilla.org/addressbook/carddatabase;1"
@@ -853,9 +882,9 @@ var MailMigrator = {
       database.forceClosed();
 
       let backupFile = profileDir.clone();
-      backupFile.append(`${fileName}.mab.bak`);
+      backupFile.append(`${oldFileName}.bak`);
       backupFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
-      console.log(`Renaming ${fileName}.mab to ${backupFile.leafName}`);
+      console.log(`Renaming ${oldFileName} to ${backupFile.leafName}`);
       oldFile.renameTo(profileDir, backupFile.leafName);
     }
 
@@ -866,40 +895,16 @@ var MailMigrator = {
         if (name.endsWith(".uri")) {
           let uri = Services.prefs.getStringPref(name);
           if (uri.startsWith("ldap://") || uri.startsWith("ldaps://")) {
-            let prefName = name.substring(0, name.length - 4);
-            let fileName = Services.prefs.getStringPref(
-              `${prefName}.filename`,
-              ""
+            await migratePrefsAndBook(
+              name.substring(0, name.length - 4),
+              false
             );
-            if (fileName.endsWith(".mab")) {
-              fileName = fileName.replace(/\.mab$/, "");
-              Services.prefs.setStringPref(
-                `${prefName}.filename`,
-                `${fileName}.sqlite`
-              );
-              await migrateBook(fileName);
-            }
           }
         } else if (
           name.endsWith(".dirType") &&
           Services.prefs.getIntPref(name) == 2
         ) {
-          let prefName = name.substring(0, name.length - 8);
-          let fileName = Services.prefs.getStringPref(`${prefName}.filename`);
-          fileName = fileName.replace(/\.mab$/, "");
-
-          Services.prefs.setIntPref(`${prefName}.dirType`, 101);
-          Services.prefs.setStringPref(
-            `${prefName}.filename`,
-            `${fileName}.sqlite`
-          );
-          if (Services.prefs.prefHasUserValue(`${prefName}.uri`)) {
-            Services.prefs.setStringPref(
-              `${prefName}.uri`,
-              `jsaddrbook://${fileName}.sqlite`
-            );
-          }
-          await migrateBook(fileName);
+          await migratePrefsAndBook(name.substring(0, name.length - 8));
         }
       } catch (ex) {
         Cu.reportError(ex);
@@ -907,12 +912,26 @@ var MailMigrator = {
     }
 
     try {
-      await migrateBook("abook", false);
+      if (Services.prefs.prefHasUserValue("ldap_2.servers.pab.filename")) {
+        await migratePrefsAndBook("ldap_2.servers.pab");
+      }
     } catch (ex) {
       Cu.reportError(ex);
     }
     try {
-      await migrateBook("history", false);
+      if (Services.prefs.prefHasUserValue("ldap_2.servers.history.filename")) {
+        await migratePrefsAndBook("ldap_2.servers.history");
+      }
+    } catch (ex) {
+      Cu.reportError(ex);
+    }
+    try {
+      await migrateBook("abook.mab", "abook.sqlite", false);
+    } catch (ex) {
+      Cu.reportError(ex);
+    }
+    try {
+      await migrateBook("history.mab", "history.sqlite", false);
     } catch (ex) {
       Cu.reportError(ex);
     }

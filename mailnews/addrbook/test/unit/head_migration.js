@@ -37,5 +37,5 @@ function copyABFile(path, leafName) {
 function checkFileExists(leafName, shouldExist) {
   let file = profileDir.clone();
   file.append(leafName);
-  equal(file.exists(), shouldExist);
+  equal(file.exists(), shouldExist, `${leafName} exists`);
 }
