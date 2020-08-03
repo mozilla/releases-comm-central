@@ -28,6 +28,7 @@ reference-jobs:
     - linux64-libdmg
     - linux64-liblowercase
     - linux64-llvm-dsymutil
+    - linux64-makecab
     - linux64-mar-tools
     - linux64-minidump-stackwalk
     - linux64-nasm
