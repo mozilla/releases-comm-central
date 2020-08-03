@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
+/* import-globals-from ../../../../../toolkit/content/viewZoomOverlay.js */
 /* import-globals-from ComposerCommands.js */
 /* import-globals-from editorUtilities.js */
 
@@ -261,6 +262,22 @@ function EditorSharedStartup() {
   // Disable DNS Prefetching on the docshell - we don't need it for composer
   // type windows.
   GetCurrentEditorElement().docShell.allowDNSPrefetch = false;
+
+  let messageEditorBrowser = GetCurrentEditorElement();
+  messageEditorBrowser.addEventListener(
+    "DoZoomEnlargeBy10",
+    () => {
+      ZoomManager.scrollZoomEnlarge(messageEditorBrowser);
+    },
+    true
+  );
+  messageEditorBrowser.addEventListener(
+    "DoZoomReduceBy10",
+    () => {
+      ZoomManager.scrollReduceEnlarge(messageEditorBrowser);
+    },
+    true
+  );
 
   // Set up the mime type and register the commands.
   if (IsHTMLEditor()) {

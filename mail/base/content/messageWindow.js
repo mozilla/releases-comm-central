@@ -407,6 +407,22 @@ function OnLoadMessageWindow() {
       item.hidden = true;
     }
   }
+
+  let messagePaneBrowser = document.getElementById("messagepane");
+  messagePaneBrowser.addEventListener(
+    "DoZoomEnlargeBy10",
+    () => {
+      ZoomManager.scrollZoomEnlarge(messagePaneBrowser);
+    },
+    true
+  );
+  messagePaneBrowser.addEventListener(
+    "DoZoomReduceBy10",
+    () => {
+      ZoomManager.scrollReduceEnlarge(messagePaneBrowser);
+    },
+    true
+  );
 }
 
 function delayedOnLoadMessageWindow() {

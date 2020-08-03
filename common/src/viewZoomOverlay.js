@@ -119,4 +119,24 @@ var ZoomManager = {
     }
     return values[i - 1];
   },
+
+  scrollZoomEnlarge(messagePaneBrowser) {
+    let zoom = messagePaneBrowser.fullZoom;
+    zoom += 0.1;
+    let zoomMax = Services.prefs.getIntPref("zoom.maxPercent") / 100;
+    if (zoom > zoomMax) {
+      zoom = zoomMax;
+    }
+    messagePaneBrowser.fullZoom = zoom;
+  },
+
+  scrollReduceEnlarge(messagePaneBrowser) {
+    let zoom = messagePaneBrowser.fullZoom;
+    zoom -= 0.1;
+    let zoomMin = Services.prefs.getIntPref("zoom.minPercent") / 100;
+    if (zoom < zoomMin) {
+      zoom = zoomMin;
+    }
+    messagePaneBrowser.fullZoom = zoom;
+  },
 };
