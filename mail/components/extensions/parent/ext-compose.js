@@ -59,7 +59,13 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       function observer(subject, topic, data) {
         if (subject.location.href == COMPOSE_WINDOW_URI) {
           Services.obs.removeObserver(observer, "chrome-document-loaded");
-          resolve(subject.ownerGlobal);
+          subject.ownerGlobal.addEventListener(
+            "compose-editor-ready",
+            () => {
+              resolve(subject.ownerGlobal);
+            },
+            { once: true }
+          );
         }
       }
       Services.obs.addObserver(observer, "chrome-document-loaded");

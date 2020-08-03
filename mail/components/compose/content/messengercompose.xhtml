@@ -2525,12 +2525,16 @@
 
   <splitter id="compose-toolbar-sizer" onmousedown="awSizerListen()" orient="vertical"/>
 
-  <!-- The mail message body frame -->
+  <!--
+    The mail message body frame. The src does not exactly match "about:blank"
+    so that WebExtension content scripts are not loaded here in the moments
+    before navigation to about:blank?compose occurs.
+  -->
   <vbox id="appcontent" flex="1">
     <editor id="content-frame"
             type="content"
             primary="true"
-            src="about:blank"
+            src="about:blank?"
             name="browser.message.body"
             aria-label="&aria.message.bodyName;"
             style="min-height:100px;"

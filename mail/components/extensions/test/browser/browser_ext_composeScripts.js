@@ -114,6 +114,15 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
           "insertCSS without permission should throw"
         );
 
+        await browser.test.assertRejects(
+          browser.tabs.insertCSS(tab.id, {
+            file: "test.css",
+            matchAboutBlank: true,
+          }),
+          /Missing host permission for the tab/,
+          "insertCSS without permission should throw"
+        );
+
         await window.sendMessage();
 
         await browser.tabs.remove(tab.id);
@@ -213,6 +222,15 @@ add_task(async function testExecuteScriptNoPermissions() {
           "executeScript without permission should throw"
         );
 
+        await browser.test.assertRejects(
+          browser.tabs.executeScript(tab.id, {
+            file: "test.js",
+            matchAboutBlank: true,
+          }),
+          /Missing host permission for the tab/,
+          "executeScript without permission should throw"
+        );
+
         await window.sendMessage();
 
         await browser.tabs.remove(tab.id);
@@ -240,7 +258,7 @@ add_task(async function testExecuteScriptNoPermissions() {
 });
 
 /** Tests the messenger alias is available. */
-add_task(async function testExecuteScript() {
+add_task(async function testExecuteScriptAlias() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
@@ -415,4 +433,111 @@ add_task(async function testRegisterDuringCompose() {
 
   await extension.awaitFinish("finished");
   await extension.unload();
+});
+
+/** Tests content_scripts in the manifest do not affect compose windows. */
+async function subtestContentScriptManifest(...permissions) {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        let tab = await browser.compose.beginNew();
+
+        await window.sendMessage();
+
+        await browser.tabs.remove(tab.id);
+        browser.test.notifyPass("finished");
+      },
+      "test.css": "body { background-color: red; }",
+      "test.js": () => {
+        document.body.textContent = "Hey look, the script ran!";
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions,
+      content_scripts: [
+        {
+          matches: ["<all_urls>"],
+          css: ["test.css"],
+          js: ["test.js"],
+          match_about_blank: true,
+          match_origin_as_fallback: true,
+        },
+      ],
+    },
+  });
+
+  // match_origin_as_fallback is not implemented yet. Bug 1475831.
+  ExtensionTestUtils.failOnSchemaWarnings(false);
+  await extension.startup();
+  ExtensionTestUtils.failOnSchemaWarnings(true);
+
+  await extension.awaitMessage();
+  await checkComposeBody({
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    textContent: "",
+  });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await extension.unload();
+}
+
+add_task(async function testContentScriptManifestNoPermission() {
+  await subtestContentScriptManifest();
+});
+add_task(async function testContentScriptManifest() {
+  await subtestContentScriptManifest("compose");
+});
+
+/** Tests registered content scripts do not affect compose windows. */
+async function subtestContentScriptRegister(...permissions) {
+  let extension = ExtensionTestUtils.loadExtension({
+    files: {
+      "background.js": async () => {
+        await browser.contentScripts.register({
+          matches: ["<all_urls>"],
+          css: [{ file: "test.css" }],
+          js: [{ file: "test.js" }],
+          matchAboutBlank: true,
+        });
+
+        let tab = await browser.compose.beginNew();
+
+        await window.sendMessage();
+
+        await browser.tabs.remove(tab.id);
+        browser.test.notifyPass("finished");
+      },
+      "test.css": "body { background-color: red; }",
+      "test.js": () => {
+        document.body.textContent = "Hey look, the script ran!";
+      },
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions,
+    },
+  });
+
+  await extension.startup();
+
+  await extension.awaitMessage();
+  await checkComposeBody({
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    textContent: "",
+  });
+  extension.sendMessage();
+
+  await extension.awaitFinish("finished");
+  await extension.unload();
+}
+
+add_task(async function testContentScriptRegisterNoPermission() {
+  await subtestContentScriptRegister("<all_urls>");
+});
+add_task(async function testContentScriptRegister() {
+  await subtestContentScriptRegister("<all_urls>", "compose");
 });

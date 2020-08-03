@@ -48,7 +48,6 @@ const COMPOSE_WINDOW_URI =
 (function() {
   let getContext = ExtensionContent.getContext;
   let initExtensionContext = ExtensionContent.initExtensionContext;
-  let handleExtensionExecute = ExtensionContent.handleExtensionExecute;
   let initPageChildExtensionContext = ExtensionPageChild.initExtensionContext;
 
   // This patches constructor of ContentScriptContextChild adding the object to the sandbox
@@ -73,29 +72,26 @@ const COMPOSE_WINDOW_URI =
     return initExtensionContext.apply(ExtensionContent, arguments);
   };
 
-  ExtensionContent.handleExtensionExecute = function(
-    global,
-    target,
-    options,
-    script
-  ) {
-    if (
-      script.extension.hasPermission("compose") &&
-      target.chromeOuterWindowID
-    ) {
-      let outerWindow = Services.wm.getOuterWindowWithId(
-        target.chromeOuterWindowID
-      );
-      if (outerWindow && outerWindow.location.href == COMPOSE_WINDOW_URI) {
-        script.matchesWindow = () => true;
+  // This allows scripts to run in the compose document only if the extension has permission.
+  let { defaultConstructor } = ExtensionContent.contentScripts;
+  ExtensionContent.contentScripts.defaultConstructor = function(matcher) {
+    let script = defaultConstructor.call(this, matcher);
+
+    let { matchesWindowGlobal } = script;
+    script.matchesWindowGlobal = function(windowGlobal) {
+      let { browsingContext, windowContext } = windowGlobal;
+      if (
+        browsingContext.topChromeWindow?.location.href == COMPOSE_WINDOW_URI &&
+        windowContext.documentPrincipal.isNullPrincipal &&
+        windowContext.documentURI.spec == "about:blank?compose"
+      ) {
+        return script.extension.hasPermission("compose");
       }
-    }
-    return handleExtensionExecute.apply(ExtensionContent, [
-      global,
-      target,
-      options,
-      script,
-    ]);
+
+      return matchesWindowGlobal.apply(script, arguments);
+    };
+
+    return script;
   };
 
   // This patches privileged pages such as the background script

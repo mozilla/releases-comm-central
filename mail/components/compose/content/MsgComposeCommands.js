@@ -3650,11 +3650,14 @@ function ComposeStartup(aParams) {
       "obs_documentCreated"
     );
 
-    // Load empty page to create the editor.
+    // Load empty page to create the editor. The "?compose" is there so this
+    // URL does not exactly match "about:blank", which has some drawbacks. In
+    // particular it prevents WebExtension content scripts from running in
+    // this document.
     let loadURIOptions = {
       triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
     };
-    editorElement.webNavigation.loadURI("about:blank", loadURIOptions);
+    editorElement.webNavigation.loadURI("about:blank?compose", loadURIOptions);
   } catch (e) {
     Cu.reportError(e);
   }

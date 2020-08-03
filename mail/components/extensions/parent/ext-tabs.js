@@ -67,7 +67,10 @@ let tabListener = {
       let browser = getTabBrowser(nativeTabInfo);
       if (
         !this.initializingTabs.has(nativeTabInfo) &&
-        (browser.innerWindowID || browser.currentURI.spec === "about:blank")
+        (browser.innerWindowID ||
+          ["about:blank", "about:blank?compose"].includes(
+            browser.currentURI.spec
+          ))
       ) {
         deferred.resolve(nativeTabInfo);
       } else {
@@ -534,23 +537,17 @@ this.tabs = class extends ExtensionAPI {
         },
 
         async executeScript(tabId, details) {
-          // TODO make this work
           let tab = await promiseTabWhenReady(tabId);
-
           return tab.executeScript(context, details);
         },
 
         async insertCSS(tabId, details) {
-          // TODO make this work
           let tab = await promiseTabWhenReady(tabId);
-
           return tab.insertCSS(context, details);
         },
 
         async removeCSS(tabId, details) {
-          // TODO make this work
           let tab = await promiseTabWhenReady(tabId);
-
           return tab.removeCSS(context, details);
         },
 
