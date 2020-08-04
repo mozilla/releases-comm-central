@@ -38,6 +38,9 @@
 
 #editContactContent {
   padding: 20px 10px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
 }
 
 #editContactEmail {

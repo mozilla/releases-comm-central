@@ -44,7 +44,7 @@ var editContactInlineUI = {
       elt.removeAttribute("wasDisabled");
     }
     document.getElementById("editContactAddressBookList").disabled = false;
-    document.getElementById("contactMoveDisabledText").collapsed = true;
+    document.getElementById("contactMoveDisabledText").hidden = true;
   },
 
   onPopupHidden(aEvent) {
@@ -173,7 +173,7 @@ var editContactInlineUI = {
     }
 
     if (inMailList) {
-      document.getElementById("contactMoveDisabledText").collapsed = false;
+      document.getElementById("contactMoveDisabledText").hidden = false;
     }
 
     this.panel.openPopup(aAnchorElement, aPosition, -1, -1);

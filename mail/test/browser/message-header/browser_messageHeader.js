@@ -603,7 +603,7 @@ add_task(
     // Ensure that the address book dropdown is not disabled
     Assert.ok(!abDrop.disabled);
     // We should not be displaying any warning
-    Assert.ok(warningMsg.collapsed);
+    Assert.ok(warningMsg.hidden);
 
     // Now close the popup
     contactPanel.hidePopup();
@@ -650,7 +650,7 @@ add_task(
     // The dropdown should be disabled now
     Assert.ok(abDrop.disabled);
     // We should be displaying a warning
-    Assert.ok(!warningMsg.collapsed);
+    Assert.ok(!warningMsg.hidden);
 
     contactPanel.hidePopup();
 
@@ -671,7 +671,7 @@ add_task(
     // Ensure that the address book dropdown is not disabled
     Assert.ok(!abDrop.disabled);
     // We should not be displaying any warning
-    Assert.ok(warningMsg.collapsed);
+    Assert.ok(warningMsg.hidden);
 
     contactPanel.hidePopup();
   }

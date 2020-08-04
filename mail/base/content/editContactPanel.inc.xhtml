@@ -28,44 +28,43 @@
     <label id="editContactPanelTitle" flex="1"/>
   </hbox>
 
-  <hbox id="editContactContent">
-    <vbox flex="1">
-      <hbox flex="1" align="center" pack="end">
-        <label value="&editContactName.label;"
-               class="editContactPanel_rowLabel"
-               accesskey="&editContactName.accesskey;"
-               control="editContactName"/>
-      </hbox>
-      <hbox flex="1" align="center" pack="end">
-        <label value="&editContactEmail.label;"
-               class="editContactPanel_rowLabel"
-               accesskey="&editContactEmail.accesskey;"
-               control="editContactEmail"/>
-      </hbox>
-      <hbox flex="1" align="center" pack="end">
-        <label id="editContactAddressBook"
-               class="editContactPanel_rowLabel"
-               value="&editContactAddressBook.label;"
-               accesskey="&editContactAddressBook.accesskey;"
-               control="editContactAddressBookList"/>
-      </hbox>
-      <hbox flex="1" align="center" pack="end" collapsed="true">
-        <label value=""/>
-      </hbox>
-    </vbox>
-    <vbox>
-      <html:input id="editContactName" class="editContactTextbox" type="text"
-                  onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
-      <html:input id="editContactEmail" readonly="readonly"
-                  class="editContactTextbox" type="email"
-                  onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
-      <menulist is="menulist-addrbooks" id="editContactAddressBookList"
-                flex="1" />
-      <description id="contactMoveDisabledText" collapsed="true">
-        &contactMoveDisabledWarning.description;
-      </description>
-    </vbox>
-  </hbox>
+  <box id="editContactContent">
+    <hbox pack="end">
+      <label value="&editContactName.label;"
+             class="editContactPanel_rowLabel"
+             accesskey="&editContactName.accesskey;"
+             control="editContactName"/>
+    </hbox>
+    <html:input id="editContactName" class="editContactTextbox" type="text"
+                onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
+    <hbox pack="end">
+      <label value="&editContactEmail.label;"
+             class="editContactPanel_rowLabel"
+             accesskey="&editContactEmail.accesskey;"
+             control="editContactEmail"/>
+    </hbox>
+    <html:input id="editContactEmail" readonly="readonly"
+                class="editContactTextbox" type="email"
+                onkeypress="editContactInlineUI.onKeyPress(event, true);"/>
+    <hbox pack="end">
+      <label id="editContactAddressBook"
+             class="editContactPanel_rowLabel"
+             value="&editContactAddressBook.label;"
+             accesskey="&editContactAddressBook.accesskey;"
+             control="editContactAddressBookList"/>
+    </hbox>
+    <hbox>
+      <menulist is="menulist-addrbooks"
+                id="editContactAddressBookList"
+                flex="1"/>
+    </hbox>
+    <hbox pack="end" collapsed="true">
+      <label value=""/>
+    </hbox>
+    <description id="contactMoveDisabledText" hidden="true">
+      &contactMoveDisabledWarning.description;
+    </description>
+  </box>
 
   <hbox flex="1"
         id="editContactPanelBottomButtons">
