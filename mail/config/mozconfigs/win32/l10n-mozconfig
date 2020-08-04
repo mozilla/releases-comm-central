@@ -1,4 +1,2 @@
+. "$topsrcdir/comm/mail/config/mozconfigs/win32/common-win32"
 . "$topsrcdir/comm/mail/config/mozconfigs/l10n-common"
-
-# Build a 32-bit installer on win32
-ac_add_options --target=i686-pc-mingw32
