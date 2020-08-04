@@ -33,7 +33,6 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
 
 LOCAL_INCLUDES += [
     '../addrbook/src',
-    '../base/search/src',
     '../base/src',
     '../base/util',
     '../compose/src',
@@ -48,4 +47,5 @@ LOCAL_INCLUDES += [
     '../mime/emitters',
     '../mime/src',
     '../news/src',
+    '../search/src',
 ]

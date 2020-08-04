@@ -4,7 +4,7 @@
 
 /* import-globals-from ../../../../../toolkit/content/globalOverlay.js */
 /* import-globals-from ../../../../mailnews/base/content/dateFormat.js */
-/* import-globals-from ../../../../mailnews/base/search/content/searchTerm.js */
+/* import-globals-from ../../../../mailnews/search/content/searchTerm.js */
 /* import-globals-from ../../../base/content/commandglue.js */
 /* import-globals-from ../../../base/content/mailWindow.js */
 /* import-globals-from ../../../base/content/msgMail3PaneWindow.js */
@@ -145,16 +145,14 @@ function SelectDirectory(aURI) {
 }
 
 function GetScopeForDirectoryURI(aURI) {
+  var directory = MailServices.ab.getDirectory(aURI);
   var booleanAnd = gSearchBooleanRadiogroup.selectedItem.value == "and";
 
-  if (aURI != "moz-abdirectory://?") {
-    let directory = MailServices.ab.getDirectory(aURI);
-    if (directory.isRemote) {
-      if (booleanAnd) {
-        return nsMsgSearchScope.LDAPAnd;
-      }
-      return nsMsgSearchScope.LDAP;
+  if (directory.isRemote) {
+    if (booleanAnd) {
+      return nsMsgSearchScope.LDAPAnd;
     }
+    return nsMsgSearchScope.LDAP;
   }
 
   if (booleanAnd) {
@@ -189,7 +187,7 @@ function onSearch() {
   gSearchSession.addDirectoryScopeTerm(GetScopeForDirectoryURI(currentAbURI));
   saveSearchTerms(gSearchSession.searchTerms, gSearchSession);
 
-  var searchUri = "(";
+  var searchUri = currentAbURI + "?(";
   for (let i = 0; i < gSearchSession.searchTerms.length; i++) {
     let searchTerm = gSearchSession.searchTerms.queryElementAt(
       i,
@@ -336,7 +334,7 @@ function onSearch() {
   }
 
   searchUri += ")";
-  SetAbView(currentAbURI, searchUri);
+  SetAbView(searchUri);
 }
 
 // used to toggle functionality for Search/Stop button.

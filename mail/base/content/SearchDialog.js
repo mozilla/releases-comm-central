@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* import-globals-from ../../../../toolkit/content/globalOverlay.js */
-/* import-globals-from ../../../mailnews/base/search/content/searchTerm.js */
+/* import-globals-from ../../../mailnews/search/content/searchTerm.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from mailWindow.js */
 /* import-globals-from mailWindowOverlay.js */

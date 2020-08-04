@@ -23,6 +23,8 @@ DIRS += [
     'local/src',
     'mime',
     'news',
+    'search/public',
+    'search/src',
 ]
 
 if not CONFIG['MOZ_SUITE']:
@@ -50,6 +52,7 @@ TEST_DIRS += [
     'imap/test',
     'import/test',
     'local/test',
+    'search/test',
 ]
 
 if CONFIG['MOZ_MAPI_SUPPORT']:
