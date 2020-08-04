@@ -58,36 +58,34 @@ nsresult nsMsgWindow::Init() {
 
 NS_IMETHODIMP nsMsgWindow::GetMessageWindowDocShell(nsIDocShell** aDocShell) {
   *aDocShell = nullptr;
+
   nsCOMPtr<nsIDocShell> docShell(do_QueryReferent(mMessageWindowDocShellWeak));
-  if (!docShell) {
-    // if we don't have a docshell, then we need to look up the message pane
-    // docshell
-    nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
-    if (rootShell) {
-      // There seem to be some issues with shutdown (see Bug 1610406).
-      // This workaround should prevent the GetElementById() call dying horribly
-      // but really, we shouldn't even get here in such cases.
-      bool doomed;
-      rootShell->IsBeingDestroyed(&doomed);
-      if (doomed) {
-        return NS_ERROR_ILLEGAL_DURING_SHUTDOWN;
-      }
-
-      RefPtr<mozilla::dom::Element> el =
-          rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
-      RefPtr<mozilla::dom::XULFrameElement> frame =
-          mozilla::dom::XULFrameElement::FromNodeOrNull(el);
-      NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
-      RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
-      NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
-      docShell = doc->GetDocShell();
-      NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
-
-      // we don't own mMessageWindowDocShell so don't try to keep a reference to
-      // it!
-      mMessageWindowDocShellWeak = do_GetWeakReference(docShell);
+  nsCOMPtr<nsIDocShell> rootShell(do_QueryReferent(mRootDocShellWeak));
+  if (rootShell) {
+    // There seem to be some issues with shutdown (see Bug 1610406).
+    // This workaround should prevent the GetElementById() call dying horribly
+    // but really, we shouldn't even get here in such cases.
+    bool doomed;
+    rootShell->IsBeingDestroyed(&doomed);
+    if (doomed) {
+      return NS_ERROR_ILLEGAL_DURING_SHUTDOWN;
     }
+
+    RefPtr<mozilla::dom::Element> el =
+        rootShell->GetDocument()->GetElementById(u"messagepane"_ns);
+    RefPtr<mozilla::dom::XULFrameElement> frame =
+        mozilla::dom::XULFrameElement::FromNodeOrNull(el);
+    NS_ENSURE_TRUE(frame, NS_ERROR_FAILURE);
+    RefPtr<mozilla::dom::Document> doc = frame->GetContentDocument();
+    NS_ENSURE_TRUE(doc, NS_ERROR_FAILURE);
+    docShell = doc->GetDocShell();
+    NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
+
+    // we don't own mMessageWindowDocShell so don't try to keep a reference to
+    // it!
+    mMessageWindowDocShellWeak = do_GetWeakReference(docShell);
   }
+
   NS_ENSURE_TRUE(docShell, NS_ERROR_FAILURE);
   docShell.forget(aDocShell);
   return NS_OK;
