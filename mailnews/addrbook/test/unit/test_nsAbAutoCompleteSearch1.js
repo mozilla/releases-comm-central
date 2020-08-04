@@ -27,9 +27,10 @@ var results = [
   { email: "tes <li>", dirName: kPABData.dirName }, // 8
   // this contact has a nickname of "abcdef"
   { email: "test <l>", dirName: kPABData.dirName }, // 9
+  { email: "doh, james <DohJames@foo.invalid>", dirName: kPABData.dirName }, // 10
 ];
 var firstNames = [
-  { search: "f", expected: [0, 1, 2, 3, 4, 5, 9] },
+  { search: "f", expected: [0, 1, 2, 3, 4, 5, 10, 9] },
   { search: "fi", expected: [0, 1, 3, 4, 5] },
   { search: "fir", expected: [0, 1, 4, 5] },
   { search: "firs", expected: [0, 1, 5] },
@@ -38,7 +39,7 @@ var firstNames = [
 ];
 
 var lastNames = [
-  { search: "l", expected: [6, 7, 8, 9, 0, 1, 2, 3, 4, 5] },
+  { search: "l", expected: [6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 10] },
   { search: "la", expected: [0, 2, 3, 4, 5] },
   { search: "las", expected: [0, 3, 4, 5] },
   { search: "last", expected: [0, 4, 5] },
@@ -47,16 +48,17 @@ var lastNames = [
 ];
 
 var displayNames = [
-  { search: "d", expected: [0, 1, 2, 3, 4, 5, 9] },
+  { search: "d", expected: [0, 1, 2, 3, 4, 5, 10, 9] },
   { search: "di", expected: [1, 2, 3, 4, 5] },
   { search: "dis", expected: [2, 3, 4, 5] },
   { search: "disp", expected: [3, 4, 5] },
   { search: "displ", expected: [4, 5] },
   { search: "displa", expected: [5] },
+  { search: "doh,", expected: [10] },
 ];
 
 var nickNames = [
-  { search: "n", expected: [4, 0, 1, 2, 3, 5] },
+  { search: "n", expected: [4, 0, 1, 2, 3, 5, 10] },
   { search: "ni", expected: [0, 1, 2, 3, 5] },
   { search: "nic", expected: [1, 2, 3, 5] },
   { search: "nick", expected: [2, 3, 5] },
@@ -65,7 +67,7 @@ var nickNames = [
 ];
 
 var emails = [
-  { search: "e", expected: [0, 1, 2, 3, 4, 5, 7, 8, 9] },
+  { search: "e", expected: [0, 1, 2, 3, 4, 5, 10, 7, 8, 9] },
   { search: "em", expected: [0, 1, 2, 4, 5] },
   { search: "ema", expected: [0, 1, 2, 5] },
   { search: "emai", expected: [1, 2, 5] },
@@ -74,7 +76,7 @@ var emails = [
 
 // "l" case tested above
 var lists = [
-  { search: "li", expected: [6, 7, 8, 0, 1, 2, 3, 4, 5] },
+  { search: "li", expected: [6, 7, 8, 0, 1, 2, 3, 4, 5, 10] },
   { search: "lis", expected: [6, 7] },
   { search: "list", expected: [6] },
   { search: "t", expected: [6, 7, 8, 9, 0, 1, 4, 5] },
@@ -85,8 +87,8 @@ var lists = [
 ];
 
 var bothNames = [
-  { search: "f l", expected: [0, 1, 2, 3, 4, 5, 9] },
-  { search: "l f", expected: [0, 1, 2, 3, 4, 5, 9] },
+  { search: "f l", expected: [0, 1, 2, 3, 4, 5, 10, 9] },
+  { search: "l f", expected: [0, 1, 2, 3, 4, 5, 10, 9] },
   { search: "firstn lastna", expected: [5] },
   { search: "lastna firstna", expected: [5] },
 ];
@@ -144,6 +146,15 @@ var PAB_CARD_DATA = [
     DisplayName: "displ",
     NickName: "n",
     PrimaryEmail: "em@foo.invalid",
+    PreferDisplayName: true,
+    PopularityIndex: 0,
+  },
+  {
+    FirstName: "Doh",
+    LastName: "James",
+    DisplayName: "doh, james",
+    NickName: "j",
+    PrimaryEmail: "DohJames@foo.invalid",
     PreferDisplayName: true,
     PopularityIndex: 0,
   },
@@ -270,19 +281,6 @@ add_task(async () => {
 
   Assert.equal(obs._search, acs);
   Assert.equal(obs._result.searchString, null);
-  Assert.equal(obs._result.searchResult, ACR.RESULT_IGNORED);
-  Assert.equal(obs._result.errorDescription, null);
-  Assert.equal(obs._result.matchCount, 0);
-  Assert.equal(obs._result.defaultIndex, -1);
-
-  // Test - Check ignoring result with comma
-
-  resultPromise = obs.waitForResult();
-  acs.startSearch("a,b", param, null, obs);
-  await resultPromise;
-
-  Assert.equal(obs._search, acs);
-  Assert.equal(obs._result.searchString, "a,b");
   Assert.equal(obs._result.searchResult, ACR.RESULT_IGNORED);
   Assert.equal(obs._result.errorDescription, null);
   Assert.equal(obs._result.matchCount, 0);
@@ -456,7 +454,7 @@ add_task(async () => {
   }
 
   const popularitySearch = [
-    { search: "d", expected: [1, 4, 2, 3, 0, 5, 9] },
+    { search: "d", expected: [1, 4, 2, 3, 0, 5, 10, 9] },
     { search: "di", expected: [1, 4, 2, 3, 5] },
     { search: "dis", expected: [4, 2, 3, 5] },
     { search: "disp", expected: [4, 3, 5] },
