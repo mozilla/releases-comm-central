@@ -12,6 +12,7 @@ const EXPORTED_SYMBOLS = [
   "initHTMLDocument",
   "getMessagesForRange",
   "serializeSelection",
+  "getDocumentFragmentFromHTML",
 ];
 
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
@@ -20,6 +21,9 @@ const { DownloadUtils } = ChromeUtils.import(
 );
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
+);
+const ParserUtils = Cc["@mozilla.org/parserutils;1"].getService(
+  Ci.nsIParserUtils
 );
 
 var kMessagesStylePrefBranch = "messenger.options.messagesStyle.";
@@ -624,11 +628,10 @@ function insertHTMLForMessage(aMsg, aHTML, aDoc, aIsNext) {
 
   let range = aDoc.createRange();
   let parent = insert ? insert.parentNode : aDoc.getElementById("Chat");
+  let documentFragment = getDocumentFragmentFromHTML(aDoc, aHTML);
   range.selectNode(parent);
-  // eslint-disable-next-line no-unsanitized/method
-  let documentFragment = range.createContextualFragment(aHTML);
-  let result = documentFragment.firstElementChild;
 
+  let result = documentFragment.firstElementChild;
   // store the prplIMessage object in each of the "root" node that
   // will be inserted into the document, so that selection code can
   // retrieve the message by just looking at the parent node until it
@@ -684,14 +687,20 @@ function getMetadata(aTheme, aKey) {
 }
 
 function initHTMLDocument(aConv, aTheme, aDoc) {
-  let HTML = '<html><head><base href="' + aTheme.baseURI + '"/>';
+  let base = aDoc.createElement("base");
+  base.href = aTheme.baseURI;
+  aDoc.head.appendChild(base);
 
   // Screen readers may read the title of the document, so provide one
   // to avoid an ugly fallback to the URL (see bug 1165).
-  HTML += "<title>" + aConv.title + "</title>";
+  aDoc.title = aConv.title;
 
   function addCSS(aHref) {
-    HTML += '<link rel="stylesheet" href="' + aHref + '" type="text/css"/>';
+    let link = aDoc.createElement("link");
+    link.setAttribute("rel", "stylesheet");
+    link.setAttribute("href", aHref);
+    link.setAttribute("type", "text/css");
+    aDoc.head.appendChild(link);
   }
   addCSS("chrome://chat/skin/conv.css");
 
@@ -718,15 +727,14 @@ function initHTMLDocument(aConv, aTheme, aDoc) {
   } else if ("DefaultVariant" in aTheme.metadata) {
     addCSS("Variants/" + aTheme.metadata.DefaultVariant + ".css");
   }
-
-  HTML += '</head><body id="ibcontent">';
+  aDoc.body.id = "ibcontent";
 
   // We insert the whole content of body: chat div, footer
-  HTML += '<div id="Chat" aria-live="polite"></div>';
-  HTML += replaceKeywordsInHTML(aTheme.html.footer, footerReplacements, aConv);
-  aDoc.open();
-  aDoc.write(HTML + "</body></html>");
-  aDoc.close();
+  let html = '<div id="Chat" aria-live="polite"></div>';
+  html += replaceKeywordsInHTML(aTheme.html.footer, footerReplacements, aConv);
+
+  let frag = getDocumentFragmentFromHTML(aDoc, html);
+  aDoc.body.appendChild(frag);
   aDoc.defaultView.convertTimeUnits = DownloadUtils.convertTimeUnits;
 }
 
@@ -1016,10 +1024,11 @@ SelectedMessage.prototype = {
         (this._cutEnd ? " " + getEllipsis() : "");
     } else {
       let div = this._rootNodes[0].ownerDocument.createElement("div");
-      // eslint-disable-next-line no-unsanitized/property
-      div.innerHTML = msg.autoResponse
-        ? formatAutoResponce(msg.message)
-        : msg.message;
+      let divChildren = getDocumentFragmentFromHTML(
+        div.ownerDocument,
+        msg.autoResponse ? formatAutoResponce(msg.message) : msg.message
+      );
+      div.appendChild(divChildren);
       text = serializeNode(div);
     }
 
@@ -1171,4 +1180,20 @@ function getMessagesForRange(aRange) {
   }
 
   return result;
+}
+
+/**
+ * Turns a raw HTML string into a DocumentFragment usable in the provided
+ * document.
+ *
+ * @param {Document} doc - The Document the fragment will belong to.
+ * @param {string} html  - The target HTML to be parsed.
+ *
+ * @returns {DocumentFragment}
+ */
+function getDocumentFragmentFromHTML(doc, html) {
+  let uri = Services.io.newURI(doc.baseURI);
+  let flags = 0;
+  let context = doc.createElement("div");
+  return ParserUtils.parseFragment(html, flags, false, uri, context);
 }

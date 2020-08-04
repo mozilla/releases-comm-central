@@ -18,6 +18,7 @@
     isNextMessage,
     getHTMLForMessage,
     insertHTMLForMessage,
+    getDocumentFragmentFromHTML,
   } = ChromeUtils.import("resource:///modules/imThemes.jsm");
   const { smileTextNode } = ChromeUtils.import(
     "resource:///modules/imSmileys.jsm"
@@ -45,6 +46,7 @@
       super();
 
       this._conv = null;
+      this._initializingHTMLDocument = false;
 
       // @implements {nsIWebProgressListener}
       this.progressListener = {
@@ -58,17 +60,28 @@
           ) {
             return;
           }
+
+          if (!this._loadState) {
+            this._loadState = 1;
+            return;
+          }
+
           if (this.currentURI.spec != "chrome://chat/content/conv.html") {
             return;
           }
-          if (!this._loadState) {
-            initHTMLDocument(this._conv, this.theme, this.contentDocument);
-            this._loadState = 1;
-            this._exposeMethodsToContent();
+
+          if (this._initializingHTMLDocument) {
             return;
           }
-          this.removeProgressListener(this.progressListener);
 
+          // This will fire onStateChange multiple times so we add a flag to
+          // avoid breaking the call stack.
+          this._initializingHTMLDocument = true;
+          initHTMLDocument(this._conv, this.theme, this.contentDocument);
+          this._initializingHTMLDocument = false;
+
+          this._exposeMethodsToContent();
+          this.removeProgressListener(this.progressListener);
           this.initMagicCopy();
 
           // We need to reset these variables here to avoid a race
@@ -698,7 +711,8 @@
         let moveToParent = moveTo.parentNode;
         range.selectNode(moveToParent);
         // eslint-disable-next-line no-unsanitized/method
-        let documentFragment = range.createContextualFragment(
+        let documentFragment = getDocumentFragmentFromHTML(
+          doc,
           ruler.nextMsgHtml
         );
         for (
