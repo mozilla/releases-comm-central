@@ -15,6 +15,7 @@ add_task(async function() {
   copyABFile("data/cardForEmail.mab", "abook.na2.mab");
   copyABFile("data/collect.mab", "history.na2.mab");
   copyABFile("../../../data/abLists1.mab", "test.na2.mab");
+  copyABFile("../../../data/abLists1.mab", "str.an-ge_.mab");
 
   Services.prefs.setStringPref("ldap_2.servers.pab.filename", "abook.na2.mab");
   Services.prefs.setStringPref(
@@ -23,9 +24,14 @@ add_task(async function() {
   );
   Services.prefs.setIntPref("ldap_2.servers.test.dirType", 2);
   Services.prefs.setStringPref("ldap_2.servers.test.filename", "test.na2.mab");
+  Services.prefs.setIntPref("ldap_2.servers.strange.dirType", 2);
+  Services.prefs.setStringPref(
+    "ldap_2.servers.strange.filename",
+    "str.an-ge_.mab"
+  );
   Services.prefs.setStringPref(
     "mail.server.default.whiteListAbURI",
-    "moz-abmdbdirectory://test.na2.mab moz-abmdbdirectory://abook.na2.mab"
+    "moz-abmdbdirectory://test.na2.mab moz-abmdbdirectory://abook.na2.mab moz-abmdbdirectory://str.an-ge_.mab"
   );
 
   // Do the migration.
@@ -34,51 +40,60 @@ add_task(async function() {
 
   // Check new files have been created, and old ones renamed.
 
-  checkFileExists("abook.na2.sqlite", true);
+  checkFileExists("abook.sqlite", true);
   checkFileExists("abook.na2.mab", false);
   checkFileExists("abook.na2.mab.bak", true);
-  checkFileExists("history.na2.sqlite", true);
+  checkFileExists("history.sqlite", true);
   checkFileExists("history.na2.mab", false);
   checkFileExists("history.na2.mab.bak", true);
-  checkFileExists("test.na2.sqlite", true);
+  checkFileExists("test.sqlite", true);
   checkFileExists("test.na2.mab", false);
   checkFileExists("test.na2.mab.bak", true);
+  checkFileExists("str.an-ge_.sqlite", true);
+  checkFileExists("str.an-ge_.mab", false);
+  checkFileExists("str.an-ge_.mab.bak", true);
 
   // Check that the default preferences are untouched.
 
   equal(Services.prefs.getIntPref("ldap_2.servers.pab.dirType"), 101);
   equal(
     Services.prefs.getStringPref("ldap_2.servers.pab.filename"),
-    "abook.na2.sqlite"
+    "abook.sqlite"
   );
   equal(Services.prefs.getIntPref("ldap_2.servers.history.dirType"), 101);
   equal(
     Services.prefs.getStringPref("ldap_2.servers.history.filename"),
-    "history.na2.sqlite"
+    "history.sqlite"
   );
   equal(Services.prefs.getIntPref("ldap_2.servers.test.dirType"), 101);
   equal(
     Services.prefs.getStringPref("ldap_2.servers.test.filename"),
-    "test.na2.sqlite"
+    "test.sqlite"
+  );
+  equal(Services.prefs.getIntPref("ldap_2.servers.strange.dirType"), 101);
+  equal(
+    Services.prefs.getStringPref("ldap_2.servers.strange.filename"),
+    "str.an-ge_.sqlite"
   );
 
   // Check that references to the book are updated.
 
   equal(
     Services.prefs.getStringPref("mail.server.default.whiteListAbURI"),
-    "jsaddrbook://test.na2.sqlite jsaddrbook://abook.na2.sqlite",
+    "jsaddrbook://test.sqlite jsaddrbook://abook.sqlite jsaddrbook://str.an-ge_.sqlite",
     "multiple values are migrated"
   );
 
   // Check the new address books.
 
   let directories = [...MailServices.ab.directories];
-  equal(directories.length, 3);
+  equal(directories.length, 4);
   equal(directories[0].dirType, 101);
   equal(directories[1].dirType, 101);
   equal(directories[2].dirType, 101);
+  equal(directories[3].dirType, 101);
 
-  let [, personalBook, historyBook] = directories;
+  let [, , personalBook, historyBook] = directories;
 
   // For this directory, just check we have all the right cards.
 
