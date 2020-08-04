@@ -15,8 +15,6 @@ DIRS += [
     'imap/src',
     'import/public',
     'import/src',
-    'import/text/src',
-    'import/vcard/src',
     'intl',
     'jsaccount',
     'local/public',
@@ -26,27 +24,6 @@ DIRS += [
     'search/public',
     'search/src',
 ]
-
-if not CONFIG['MOZ_SUITE']:
-    DIRS += [
-        'import/seamonkey/src',
-    ]
-
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
-    DIRS += [
-        'import/applemail/src',
-    ]
-
-if CONFIG['OS_ARCH'] == 'WINNT':
-    DIRS += [ 'import/becky/src' ]
-
-    if CONFIG['MOZ_MAPI_SUPPORT']:
-        DIRS += ['import/outlook/src']
-
-    if CONFIG['CC_TYPE'] in ('msvc', 'clang-cl'):
-        DIRS += [
-            'import/winlivemail',
-        ]
 
 TEST_DIRS += [
     'imap/test',

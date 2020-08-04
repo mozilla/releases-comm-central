@@ -18,10 +18,69 @@ SOURCES += [
     'nsImportService.cpp',
     'nsImportStringBundle.cpp',
     'nsImportTranslator.cpp',
+    'nsTextAddress.cpp',
+    'nsTextImport.cpp',
+    'nsVCardAddress.cpp',
+    'nsVCardImport.cpp',
 ]
+
+if not CONFIG['MOZ_SUITE']:
+    EXTRA_COMPONENTS += [
+        'SeamonkeyImport.manifest',
+    ]
+
+    EXTRA_JS_MODULES += [
+        'SeamonkeyImport.jsm',
+    ]
+
+    XPCOM_MANIFESTS += [
+        'components.conf',
+    ]
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
+    SOURCES += [
+        'nsAppleMailImport.cpp',
+        'nsEmlxHelperUtils.mm',
+    ]
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+    UNIFIED_SOURCES += [
+        'nsBeckyAddressBooks.cpp',
+        'nsBeckyFilters.cpp',
+        'nsBeckyImport.cpp',
+        'nsBeckyMail.cpp',
+        'nsBeckySettings.cpp',
+        'nsBeckyStringBundle.cpp',
+        'nsBeckyUtils.cpp',
+    ]
+
+    if CONFIG['MOZ_MAPI_SUPPORT']:
+        SOURCES += [
+            'MapiApi.cpp',
+            'MapiMessage.cpp',
+            'MapiMimeTypes.cpp',
+            'nsOutlookCompose.cpp',
+            'nsOutlookImport.cpp',
+            'nsOutlookMail.cpp',
+            'nsOutlookSettings.cpp',
+            'nsOutlookStringBundle.cpp',
+            'rtfDecoder.cpp',
+            'rtfMailDecoder.cpp',
+        ]
+
+        SOURCES['rtfDecoder.cpp'].flags += ['-Wno-switch']
+
+    if CONFIG['CC_TYPE'] in ('msvc', 'clang-cl'):
+        SOURCES += [
+            'nsWMImport.cpp',
+            'nsWMSettings.cpp',
+            'nsWMStringBundle.cpp',
+            'nsWMUtils.cpp',
+        ]
 
 EXPORTS += [
     'ImportDebug.h',
+    'nsVCardAddress.h',
 ]
 
 FINAL_LIBRARY = 'import'
