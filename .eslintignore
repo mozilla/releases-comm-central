@@ -42,8 +42,8 @@ chat/content/imtooltip.xml
 
 # mailnews exclusions
 mailnews/mailnews.js
-mailnews/extensions/dsn/content/dsn.js
-mailnews/extensions/mdn/content/mdn.js
+mailnews/extensions/dsn/dsn.js
+mailnews/extensions/mdn/mdn.js
 
 # mail exclusions
 mail/app/profile/all-thunderbird.js

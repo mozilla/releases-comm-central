@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* import-globals-from ../../../../mailnews/extensions/smime/content/msgReadSMIMEOverlay.js */
+/* import-globals-from ../../../../mailnews/extensions/smime/msgReadSMIMEOverlay.js */
 /* import-globals-from ../../../base/content/folderDisplay.js */
 /* import-globals-from ../../../base/content/mailWindow.js */
 /* import-globals-from ../../../base/content/msgHdrView.js */

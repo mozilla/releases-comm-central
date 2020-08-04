@@ -6,7 +6,7 @@
 /* global MozElements */
 
 /* import-globals-from ../../../mailnews/base/content/junkCommands.js */
-/* import-globals-from ../../../mailnews/extensions/newsblog/content/newsblogOverlay.js */
+/* import-globals-from ../../../mailnews/extensions/newsblog/newsblogOverlay.js */
 /* import-globals-from commandglue.js */
 /* import-globals-from contentAreaClick.js */
 /* import-globals-from folderDisplay.js */

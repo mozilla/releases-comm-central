@@ -4,15 +4,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'src/DSNService.jsm',
+    'DSNService.jsm',
 ]
 
 XPCOM_MANIFESTS += [
-    'src/components.conf',
+    'components.conf',
 ]
 
 JAR_MANIFESTS += ['jar.mn']
 
 JS_PREFERENCE_FILES += [
-    'content/dsn.js',
+    'dsn.js',
 ]

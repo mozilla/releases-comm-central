@@ -3,5 +3,5 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 messenger.jar:
-    content/messenger/am-mdn.xhtml                                   (content/am-mdn.xhtml)
-    content/messenger/am-mdn.js                                      (content/am-mdn.js)
+    content/messenger/am-mdn.xhtml                                   (am-mdn.xhtml)
+    content/messenger/am-mdn.js                                      (am-mdn.js)

@@ -6,14 +6,11 @@
 # These extensions are not optional.
 DIRS += [
     'mdn',
-    'mailviews/public',
-    'mailviews/src',
-    'mailviews/content',
+    'mailviews',
     'bayesian-spam-filter',
     'offline-startup',
     'newsblog',
-    'fts3/public',
-    'fts3/src',
+    'fts3',
     'smime',
 ]
 

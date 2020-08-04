@@ -4,13 +4,13 @@
 
 newsblog.jar:
 % content messenger-newsblog %content/messenger-newsblog/
-   content/messenger-newsblog/newsblogOverlay.js                (content/newsblogOverlay.js)
-   content/messenger-newsblog/Feed.js                           (content/Feed.js)
-   content/messenger-newsblog/FeedItem.js                       (content/FeedItem.js)
-   content/messenger-newsblog/feed-parser.js                    (content/feed-parser.js)
-   content/messenger-newsblog/feed-subscriptions.js             (content/feed-subscriptions.js)
-   content/messenger-newsblog/feed-subscriptions.xhtml          (content/feed-subscriptions.xhtml)
-   content/messenger-newsblog/am-newsblog.js                    (content/am-newsblog.js)
-   content/messenger-newsblog/am-newsblog.xhtml                 (content/am-newsblog.xhtml)
-   content/messenger-newsblog/feedAccountWizard.js              (content/feedAccountWizard.js)
-   content/messenger-newsblog/feedAccountWizard.xhtml           (content/feedAccountWizard.xhtml)
+   content/messenger-newsblog/newsblogOverlay.js                (newsblogOverlay.js)
+   content/messenger-newsblog/Feed.js                           (Feed.js)
+   content/messenger-newsblog/FeedItem.js                       (FeedItem.js)
+   content/messenger-newsblog/feed-parser.js                    (feed-parser.js)
+   content/messenger-newsblog/feed-subscriptions.js             (feed-subscriptions.js)
+   content/messenger-newsblog/feed-subscriptions.xhtml          (feed-subscriptions.xhtml)
+   content/messenger-newsblog/am-newsblog.js                    (am-newsblog.js)
+   content/messenger-newsblog/am-newsblog.xhtml                 (am-newsblog.xhtml)
+   content/messenger-newsblog/feedAccountWizard.js              (feedAccountWizard.js)
+   content/messenger-newsblog/feedAccountWizard.xhtml           (feedAccountWizard.xhtml)
