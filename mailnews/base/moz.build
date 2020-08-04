@@ -6,7 +6,6 @@
 DIRS += [
     'public',
     'src',
-    'util',
 ]
 
 TEST_DIRS += ['test']

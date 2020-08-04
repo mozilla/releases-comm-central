@@ -14,7 +14,7 @@
 
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
-#include "../base/util/nsMsgI18N.h"
+#include "../base/src/nsMsgI18N.h"
 
 // just for CONTRACTIDs
 #include "nsCharsetConverterManager.h"

@@ -4,7 +4,28 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXPORTS += [
+    'nsImapMoveCoalescer.h',
     'nsMailDirServiceDefs.h',
+    'nsMsgCompressIStream.h',
+    'nsMsgCompressOStream.h',
+    'nsMsgDBFolder.h',
+    'nsMsgI18N.h',
+    'nsMsgIdentity.h',
+    'nsMsgIncomingServer.h',
+    'nsMsgKeyArray.h',
+    'nsMsgKeySet.h',
+    'nsMsgLineBuffer.h',
+    'nsMsgMailNewsUrl.h',
+    'nsMsgProtocol.h',
+    'nsMsgReadStateTxn.h',
+    'nsMsgTxn.h',
+    'nsMsgUtils.h',
+    'nsNewMailnewsURI.h',
+]
+
+EXPORTS.mozilla.mailnews += [
+    'ServiceList.h',
+    'Services.h',
 ]
 
 SOURCES += [
@@ -12,6 +33,7 @@ SOURCES += [
     'MailnewsLoadContextInfo.cpp',
     'nsCidProtocolHandler.cpp',
     'nsCopyMessageStreamListener.cpp',
+    'nsImapMoveCoalescer.cpp',
     'nsMailDirProvider.cpp',
     'nsMessenger.cpp',
     'nsMessengerBootstrap.cpp',
@@ -19,31 +41,49 @@ SOURCES += [
     'nsMsgAccount.cpp',
     'nsMsgAccountManager.cpp',
     'nsMsgBiffManager.cpp',
+    'nsMsgCompressIStream.cpp',
+    'nsMsgCompressOStream.cpp',
     'nsMsgContentPolicy.cpp',
     'nsMsgCopyService.cpp',
+    'nsMsgDBFolder.cpp',
     'nsMsgDBView.cpp',
+    'nsMsgFileStream.cpp',
     'nsMsgFolderCache.cpp',
     'nsMsgFolderCacheElement.cpp',
     'nsMsgFolderCompactor.cpp',
     'nsMsgFolderNotificationService.cpp',
     'nsMsgGroupThread.cpp',
     'nsMsgGroupView.cpp',
+    'nsMsgI18N.cpp',
+    'nsMsgIdentity.cpp',
+    'nsMsgIncomingServer.cpp',
+    'nsMsgKeyArray.cpp',
+    'nsMsgKeySet.cpp',
+    'nsMsgLineBuffer.cpp',
+    'nsMsgMailNewsUrl.cpp',
     'nsMsgMailSession.cpp',
     'nsMsgOfflineManager.cpp',
     'nsMsgProgress.cpp',
+    'nsMsgProtocol.cpp',
     'nsMsgPurgeService.cpp',
     'nsMsgQuickSearchDBView.cpp',
+    'nsMsgReadStateTxn.cpp',
     'nsMsgSearchDBView.cpp',
     'nsMsgSpecialViews.cpp',
     'nsMsgStatusFeedback.cpp',
     'nsMsgTagService.cpp',
     'nsMsgThreadedDBView.cpp',
+    'nsMsgTxn.cpp',
+    'nsMsgUtils.cpp',
     'nsMsgWindow.cpp',
     'nsMsgXFViewThread.cpp',
     'nsMsgXFVirtualFolderDBView.cpp',
+    'nsNewMailnewsURI.cpp',
     'nsSpamSettings.cpp',
     'nsStatusBarBiffManager.cpp',
-    'nsSubscribableServer.cpp'
+    'nsStopwatch.cpp',
+    'nsSubscribableServer.cpp',
+    'Services.cpp',
 ]
 
 if CONFIG['NS_PRINTING']:
@@ -58,15 +98,33 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':
     SOURCES += ['nsMessengerOSXIntegration.mm']
 
 EXTRA_JS_MODULES += [
+    'ABQueryUtils.jsm',
+    'converterWorker.js',
+    'ErrUtils.jsm',
     'FolderLookupService.jsm',
+    'folderUtils.jsm',
+    'hostnameUtils.jsm',
+    'IOUtils.jsm',
+    'iteratorUtils.jsm',
+    'JsTreeSelection.jsm',
+    'JXON.jsm',
     'MailNewsCommandLineHandler.jsm',
+    'MailnewsMigrator.jsm',
     'MailNotificationService.jsm',
+    'MailServices.jsm',
+    'mailstoreConverter.jsm',
     'MsgAsyncPrompter.jsm',
+    'MsgDBCacheManager.jsm',
+    'OAuth2.jsm',
     'OAuth2Module.jsm',
+    'OAuth2Providers.jsm',
+    'TemplateUtils.jsm',
+    'TraceHelper.jsm',
     'VirtualFolderWrapper.jsm',
 ]
 LOCAL_INCLUDES += [
   '/%s/dom/base' % CONFIG['mozreltopsrcdir'],
+  '/%s/netwerk/base' % CONFIG['mozreltopsrcdir']
 ]
 
 include('/ipc/chromium/chromium-config.mozbuild')

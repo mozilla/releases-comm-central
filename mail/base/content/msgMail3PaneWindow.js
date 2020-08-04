@@ -5,7 +5,7 @@
 
 /* import-globals-from ../../../../toolkit/modules/PageMenu.jsm */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
-/* import-globals-from ../../../mailnews/base/util/MailnewsMigrator.jsm */
+/* import-globals-from ../../../mailnews/base/src/MailnewsMigrator.jsm */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */

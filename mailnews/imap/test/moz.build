@@ -6,7 +6,7 @@
 XPCSHELL_TESTS_MANIFESTS += ['unit/xpcshell.ini']
 
 LOCAL_INCLUDES += [
-   '../../base/util',
+   '../../base/src',
    '../src',
    '/%s/xpcom/tests' % CONFIG['mozreltopsrcdir'],
 ]
