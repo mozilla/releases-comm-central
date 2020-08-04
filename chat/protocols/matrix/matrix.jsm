@@ -9,6 +9,8 @@ var {
   EmptyEnumerator,
   nsSimpleEnumerator,
   l10nHelper,
+  setTimeout,
+  clearTimeout,
 } = ChromeUtils.import("resource:///modules/imXPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
@@ -245,6 +247,50 @@ MatrixDirectConversation.prototype = {
 
   get room() {
     return this._account._client.getRoom(this._roomId);
+  },
+
+  _typingTimer: null,
+  _typingState: false,
+  get shouldSendTypingNotifications() {
+    return Services.prefs.getBoolPref("purple.conversations.im.send_typing");
+  },
+
+  sendTyping(string) {
+    if (!this.shouldSendTypingNotifications) {
+      return Ci.prplIConversation.NO_TYPING_LIMIT;
+    }
+
+    this._cancelTypingTimer();
+    if (string.length) {
+      this._typingTimer = setTimeout(this.finishedComposing.bind(this), 10000);
+    }
+
+    this._setTypingState(!!string.length);
+
+    return Ci.prplIConversation.NO_TYPING_LIMIT;
+  },
+
+  finishedComposing() {
+    if (!this.shouldSendTypingNotifications) {
+      return;
+    }
+
+    this._setTypingState(false);
+  },
+
+  _setTypingState(isTyping) {
+    if (this._typingState == isTyping) {
+      return;
+    }
+
+    this._account._client.sendTyping(this._roomId, isTyping);
+    this._typingState = isTyping;
+  },
+  _cancelTypingTimer() {
+    if (this._typingTimer) {
+      clearTimeout(this._typingTimer);
+      delete this._typingTimer;
+    }
   },
 };
 Object.assign(MatrixDirectConversation.prototype, GenericMatrixConversation);
@@ -498,6 +544,19 @@ MatrixAccount.prototype = {
           this.getDirectConversation(interlocutorId);
         } else {
           this.getGroupConversation(room.roomId);
+        }
+      }
+    });
+
+    this._client.on("RoomMember.typing", (event, member) => {
+      if (member.userId != this.userId) {
+        let conv = this.roomList.get(member.roomId);
+        if (!conv.isChat) {
+          let typingState = Ci.prplIConvIM.NOT_TYPING;
+          if (member.typing) {
+            typingState = Ci.prplIConvIM.TYPING;
+          }
+          conv.updateTyping(typingState, member.name);
         }
       }
     });
