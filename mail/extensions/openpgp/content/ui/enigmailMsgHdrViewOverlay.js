@@ -323,19 +323,6 @@ Enigmail.hdrView = {
       encMimePartNumber = "";
     }
 
-    if (
-      statusFlags & EnigmailConstants.PARTIALLY_PGP &&
-      statusFlags & EnigmailConstants.BAD_SIGNATURE
-    ) {
-      statusFlags &= ~(
-        EnigmailConstants.PARTIALLY_PGP | EnigmailConstants.BAD_SIGNATURE
-      );
-      if (statusFlags === 0) {
-        errorMsg = "";
-      }
-      throw new Error("unhandled partial PGP message with bad signature");
-    }
-
     var msgSigned =
       statusFlags &
       (EnigmailConstants.BAD_SIGNATURE |
