@@ -3008,6 +3008,7 @@ Enigmail.msg = {
       //this.setSendMode('encrypt');
       gIsRelatedToEncryptedOriginal = true;
       gSendEncrypted = true;
+      setEncSigStatusUI();
     }
     //}
 
