@@ -3,6 +3,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+EXPORTS += [
+    'mdb.h',
+    'nsIMdbFactoryFactory.h',
+    'nsMorkCID.h',
+]
+
 SOURCES += [
     'morkArray.cpp',
     'morkAtom.cpp',
@@ -45,14 +51,15 @@ SOURCES += [
     'morkWriter.cpp',
     'morkYarn.cpp',
     'morkZone.cpp',
+    'nsMorkFactory.cpp',
     'orkinHeap.cpp',
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     SOURCES += ['morkSearchRowCursor.cpp']
 
-FINAL_LIBRARY = 'mork'
-
+Library('mork')
+FINAL_LIBRARY = 'mail'
 # clang-cl complains about this.
 if CONFIG['CC_TYPE'] == 'clang-cl':
     CXXFLAGS += ['-Wno-overloaded-virtual']

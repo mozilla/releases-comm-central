@@ -8,6 +8,7 @@ DIRS += [
     'base',
     'compose',
     'db/gloda',
+    'db/mork',
     'db/msgdb',
     'extensions',
     'imap/public',
