@@ -9200,7 +9200,7 @@ nsresult nsImapMockChannel::ReadFromMemCache(nsICacheEntry* entry) {
     RefPtr<nsImapCacheStreamListener> cacheListener =
         new nsImapCacheStreamListener();
     cacheListener->Init(m_channelListener, this);
-    rv = pump->AsyncRead(cacheListener, nullptr);
+    rv = pump->AsyncRead(cacheListener);
 
     if (NS_SUCCEEDED(rv))  // ONLY if we succeeded in actually starting the read
                            // should we return
@@ -9348,7 +9348,7 @@ bool nsImapMockChannel::ReadFromLocalCache() {
             fileStream.forget(), uint64_t(offset), uint64_t(size));
         nsCOMPtr<nsIInputStreamPump> pump;
         rv = NS_NewInputStreamPump(getter_AddRefs(pump), slicedStream.forget());
-        if (NS_SUCCEEDED(rv)) rv = pump->AsyncRead(cacheListener, nullptr);
+        if (NS_SUCCEEDED(rv)) rv = pump->AsyncRead(cacheListener);
 
         if (NS_SUCCEEDED(rv))  // ONLY if we succeeded in actually starting the
                                // read should we return

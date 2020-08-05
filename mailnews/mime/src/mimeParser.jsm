@@ -61,7 +61,7 @@ var MimeParser = {
     // Make a stream listener with the given emitter and use it to read from
     // the pump.
     var parserListener = MimeParser.makeStreamListenerParser(emitter, opts);
-    pump.asyncRead(parserListener, null);
+    pump.asyncRead(parserListener);
   },
 
   /**

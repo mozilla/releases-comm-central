@@ -1231,7 +1231,7 @@ function SocketUtil(
     );
 
     pump.init(stream, 0, 0, false);
-    pump.asyncRead(dataListener, null);
+    pump.asyncRead(dataListener);
     return new SocketAbortable(transport);
   } catch (e) {
     _error(e);

@@ -671,7 +671,7 @@ var Socket = {
       0, // Use default segment length
       false
     ); // Do not close when done
-    this.pump.asyncRead(this, null);
+    this.pump.asyncRead(this);
   },
 
   _pingTimer: null,

@@ -1740,7 +1740,7 @@ NS_MSG_BASE nsresult MsgStreamMsgHeaders(nsIInputStream* aInputStream,
   rv = NS_NewInputStreamPump(getter_AddRefs(pump), hdrsStream.forget());
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return pump->AsyncRead(aConsumer, nullptr);
+  return pump->AsyncRead(aConsumer);
 }
 
 NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile* aFile,

@@ -336,7 +336,7 @@ NS_IMETHODIMP nsMailboxProtocol::OnStopRequest(nsIRequest* request,
                     rv = NS_NewInputStreamPump(getter_AddRefs(pump),
                                                stream.forget());
                     if (NS_SUCCEEDED(rv)) {
-                      rv = pump->AsyncRead(this, nullptr);
+                      rv = pump->AsyncRead(this);
                       if (NS_SUCCEEDED(rv)) m_request = pump;
                     }
                   }

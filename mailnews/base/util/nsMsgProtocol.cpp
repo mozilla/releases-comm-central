@@ -475,7 +475,7 @@ nsresult nsMsgProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
         m_request = pump;  // keep a reference to the pump so we can cancel it
 
         // put us in a state where we are always notified of incoming data
-        rv = pump->AsyncRead(this, nullptr);
+        rv = pump->AsyncRead(this);
         NS_ASSERTION(NS_SUCCEEDED(rv), "AsyncRead failed");
         m_socketIsOpen = true;  // mark the channel as open
       }
@@ -1078,7 +1078,7 @@ nsresult nsMsgFilePostHelper::Init(nsIOutputStream* aOutStream,
   rv = NS_NewInputStreamPump(getter_AddRefs(pump), stream.forget());
   if (NS_FAILED(rv)) return rv;
 
-  rv = pump->AsyncRead(this, nullptr);
+  rv = pump->AsyncRead(this);
   if (NS_FAILED(rv)) return rv;
 
   mPostFileRequest = pump;
