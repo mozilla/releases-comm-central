@@ -2244,8 +2244,10 @@ var RNP = {
             RNPLib.rnp_buffer_destroy(uid_str);
 
             let split = {};
-            if (uidHelper.getPartsFromUidStr(userId, split) &&
-                split.email.toLowerCase() == emailWithoutBrackets) {
+            if (
+              uidHelper.getPartsFromUidStr(userId, split) &&
+              split.email.toLowerCase() == emailWithoutBrackets
+            ) {
               foundUid = true;
 
               if (onlyIfAcceptableAsRecipientKey) {
