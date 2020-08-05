@@ -372,7 +372,6 @@ function fillIdentityListPopup() {
       EnigmailLog.DEBUG("enigmailKeygen.js: email=" + identity.email + "\n");
 
       let item = document.createXULElement("menuitem");
-      //      item.setAttribute('label', identity.identityName);
       item.setAttribute("label", identity.identityName + accountName);
       item.setAttribute("class", "identity-popup-item");
       item.setAttribute("accountname", accountName);

@@ -4,6 +4,14 @@
 
 @import url("chrome://messenger/skin/messenger.css");
 
+description {
+  padding-inline: 2px;
+}
+
+.identity-legend {
+  margin-block: 0;
+}
+
 .dialogheader-title {
   margin-block: 0 8px;
   margin-inline-start: 0;

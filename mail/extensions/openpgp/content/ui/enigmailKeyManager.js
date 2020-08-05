@@ -89,7 +89,7 @@ function enigmailKeyManagerLoad() {
   }
 
   if (window.arguments[0]) {
-    gIdentity = window.arguments[0].identity;
+    gIdentity = window.arguments[0].identity || null;
   }
 
   gUserList = document.getElementById("pgpKeyList");

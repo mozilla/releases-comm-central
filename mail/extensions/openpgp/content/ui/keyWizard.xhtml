@@ -102,6 +102,19 @@
 
       <html:div>
         <html:fieldset>
+          <hbox align="center">
+            <html:legend class="identity-legend"
+                         data-l10n-id="openpgp-import-identity-label">
+            </html:legend>
+            <menulist id="userIdentity" flex="1" oncommand="setIdentity();">
+              <menupopup id="userIdentityPopup"/>
+            </menulist>
+          </hbox>
+        </html:fieldset>
+      </html:div>
+
+      <html:div>
+        <html:fieldset>
           <html:legend data-l10n-id="openpgp-keygen-expiry-title"></html:legend>
           <description data-l10n-id="openpgp-keygen-expiry-description"/>
 

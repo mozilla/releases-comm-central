@@ -12,6 +12,9 @@
    EnigGetFilePath: false, EnigmailWindows: false, PgpSqliteDb2: false */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 var { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
@@ -34,6 +37,7 @@ var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
 
 // UI variables.
 var gIdentity;
+var gIdentityList;
 var gSubDialog;
 var kStartSection;
 var kDialog;
@@ -78,19 +82,14 @@ document.addEventListener("dialogcancel", onClose);
  * Initialize the keyWizard dialog.
  */
 async function init() {
-  gIdentity = window.arguments[0].identity;
   gSubDialog = window.arguments[0].gSubDialog;
+  gIdentity = window.arguments[0].identity;
+  gIdentityList = document.getElementById("userIdentity");
 
   kStartSection = document.getElementById("wizardStart");
   kDialog = document.querySelector("dialog");
 
-  document.l10n.setAttributes(
-    document.documentElement,
-    "key-wizard-dialog-window",
-    {
-      identity: gIdentity.email,
-    }
-  );
+  await initIdentity();
 
   // Show the GnuPG radio selection if the pref is enabled.
   if (Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")) {
@@ -122,6 +121,71 @@ async function init() {
     document.getElementById("openPgpKeyChoices").value = 1;
     switchSection();
   }
+}
+
+/**
+ * Populate the identity menulist with all the valid and available identities
+ * and autoselect the current identity if available.
+ */
+async function initIdentity() {
+  let identityListPopup = document.getElementById("userIdentityPopup");
+
+  for (let identity of MailServices.accounts.allIdentities) {
+    // Skip invalid and non-email identities.
+    if (!identity.valid || !identity.email) {
+      continue;
+    }
+
+    // Interrupt if no server was defined for this identity.
+    let servers = MailServices.accounts.getServersForIdentity(identity);
+    if (servers.length == 0) {
+      continue;
+    }
+
+    let item = document.createXULElement("menuitem");
+    item.setAttribute(
+      "label",
+      `${identity.identityName} - ${servers[0].prettyName}`
+    );
+    item.setAttribute("class", "identity-popup-item");
+    item.setAttribute("accountname", servers[0].prettyName);
+    item.setAttribute("identitykey", identity.key);
+    item.setAttribute("email", identity.email);
+
+    identityListPopup.appendChild(item);
+
+    if (gIdentity && gIdentity.key == identity.key) {
+      gIdentityList.selectedItem = item;
+    }
+  }
+
+  // If not identity was originally passed during the creation of this dialog,
+  // select the first available value.
+  if (!gIdentity) {
+    gIdentityList.selectedIndex = 0;
+  }
+
+  await setIdentity();
+}
+
+/**
+ * Update the currently used identity to reflect the user selection from the
+ * identity menulist.
+ */
+async function setIdentity() {
+  if (gIdentityList.selectedItem) {
+    gIdentity = MailServices.accounts.getIdentity(
+      gIdentityList.selectedItem.getAttribute("identitykey")
+    );
+  }
+
+  document.l10n.setAttributes(
+    document.documentElement,
+    "key-wizard-dialog-window",
+    {
+      identity: gIdentity.email,
+    }
+  );
 }
 
 /**
