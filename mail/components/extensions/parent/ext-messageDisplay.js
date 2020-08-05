@@ -2,6 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+function getDisplayedMessages(tab, extension) {
+  let displayedMessages;
+
+  if (tab instanceof TabmailTab) {
+    if (
+      tab.active &&
+      ["folder", "glodaList", "message"].includes(tab.nativeTab.mode.name)
+    ) {
+      displayedMessages = tab.nativeTab.folderDisplay.selectedMessages;
+    }
+  } else if (tab.nativeTab.gMessageDisplay) {
+    displayedMessages = [tab.nativeTab.gMessageDisplay.displayedMessage];
+  }
+
+  if (!displayedMessages) {
+    return [];
+  }
+
+  let result = [];
+  for (let msg of displayedMessages) {
+    let hdr = convertMessage(msg, extension);
+    if (hdr) {
+      result.push(hdr);
+    }
+  }
+  return result;
+}
+
 this.messageDisplay = class extends ExtensionAPI {
   getAPI(context) {
     let { extension } = context;
@@ -28,6 +56,25 @@ this.messageDisplay = class extends ExtensionAPI {
             };
           },
         }).api(),
+        onMessagesDisplayed: new EventManager({
+          context,
+          name: "messageDisplay.onMessageDisplayed",
+          register: fire => {
+            let listener = {
+              handleEvent(event) {
+                let win = windowManager.wrapWindow(event.target);
+                let tab = tabManager.convert(win.activeTab.nativeTab);
+                let msgs = getDisplayedMessages(win.activeTab, extension);
+                fire.async(tab, msgs);
+              },
+            };
+
+            windowTracker.addListener("MsgsLoaded", listener);
+            return () => {
+              windowTracker.removeListener("MsgsLoaded", listener);
+            };
+          },
+        }).api(),
         async getDisplayedMessage(tabId) {
           let tab = tabManager.get(tabId);
           let displayedMessage = null;
@@ -46,6 +93,9 @@ this.messageDisplay = class extends ExtensionAPI {
           }
 
           return convertMessage(displayedMessage, extension);
+        },
+        async getDisplayedMessages(tabId) {
+          return getDisplayedMessages(tabManager.get(tabId), extension);
         },
       },
     };

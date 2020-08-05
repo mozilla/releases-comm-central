@@ -19,6 +19,21 @@
             "$ref": "messages.MessageHeader"
           }
         ]
+      },
+      {
+        "name": "onMessagesDisplayed",
+        "type": "function",
+        "description": "Fired when either a single message is displayed or when multiple messages are displayed, whether in a 3-pane tab, a message tab, or a message window.",
+        "parameters": [
+          {
+            "name": "tab",
+            "$ref": "tabs.Tab"
+          },
+          {
+            "name": "message",
+            "$ref": "messages.MessageHeader"
+          }
+        ]
       }
     ],
     "functions": [
@@ -26,6 +41,19 @@
         "name": "getDisplayedMessage",
         "type": "function",
         "description": "Gets the currently displayed message in the specified tab, or null if no message is displayed.",
+        "async": true,
+        "parameters": [
+          {
+            "name": "tabId",
+            "type": "integer",
+            "minimum": 1
+          }
+        ]
+      },
+      {
+        "name": "getDisplayedMessages",
+        "type": "function",
+        "description": "Gets an array of the currently displayed messages in the specified tab. The array is empty if no messages are displayed.",
         "async": true,
         "parameters": [
           {

@@ -149,6 +149,7 @@ MessageDisplayWidget.prototype = {
    * completed.
    */
   onLoadCompleted() {
+    window.dispatchEvent(new CustomEvent("MsgsLoaded"));
     this.messageLoading = false;
     this.messageLoaded = true;
   },

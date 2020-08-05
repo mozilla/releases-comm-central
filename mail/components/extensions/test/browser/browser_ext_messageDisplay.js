@@ -23,9 +23,19 @@ add_task(async () => {
           browser.messageDisplay.onMessageDisplayed.addListener(listener);
         });
       }
+      function waitForMessages() {
+        return new Promise(resolve => {
+          let listener = (...args) => {
+            browser.messageDisplay.onMessagesDisplayed.removeListener(listener);
+            resolve(args);
+          };
+          browser.messageDisplay.onMessagesDisplayed.addListener(listener);
+        });
+      }
 
       async function checkResults(action, expectedMessages, sameTab) {
         let msgListener = waitForMessage();
+        let msgsListener = waitForMessages();
 
         if (typeof action == "string") {
           browser.test.sendMessage(action);
@@ -33,26 +43,57 @@ add_task(async () => {
           action();
         }
 
-        let [tab, message] = await msgListener;
+        let tab;
+        let message;
         if (expectedMessages.length == 1) {
+          [tab, message] = await msgListener;
+          let [msgsTab, msgs] = await msgsListener;
+          // Check listener results.
           if (sameTab) {
             browser.test.assertEq(firstTabId, tab.id);
+            browser.test.assertEq(firstTabId, msgsTab.id);
           } else {
             browser.test.assertTrue(firstTabId != tab.id);
+            browser.test.assertTrue(firstTabId != msgsTab.id);
           }
           browser.test.assertEq(
             messages[expectedMessages[0]].subject,
             message.subject
           );
+          browser.test.assertEq(
+            messages[expectedMessages[0]].subject,
+            msgs[0].subject
+          );
 
+          // Check displayed message result.
           message = await browser.messageDisplay.getDisplayedMessage(tab.id);
           browser.test.assertEq(
             messages[expectedMessages[0]].subject,
             message.subject
           );
         } else {
-          // Figure this out
-          browser.test.assertEq(false, true);
+          // onMessageDisplayed doesn't fire for the multi-message case.
+          let msgs;
+          [tab, msgs] = await msgsListener;
+
+          for (let [i, expected] of expectedMessages.entries()) {
+            browser.test.assertEq(messages[expected].subject, msgs[i].subject);
+          }
+
+          // More than one selected, so getDisplayMessage returns null.
+          message = await browser.messageDisplay.getDisplayedMessage(tab.id);
+          browser.test.assertEq(null, message);
+        }
+
+        let displayMsgs = await browser.messageDisplay.getDisplayedMessages(
+          tab.id
+        );
+        browser.test.assertEq(expectedMessages.length, displayMsgs.length);
+        for (let [i, expected] of expectedMessages.entries()) {
+          browser.test.assertEq(
+            messages[expected].subject,
+            displayMsgs[i].subject
+          );
         }
         return tab;
       }
@@ -72,6 +113,14 @@ add_task(async () => {
       );
       browser.test.assertEq(null, message);
 
+      // The first tab still saves the selected messages, even if it isn't
+      // showing the tab.
+      let displayMsgs = await browser.messageDisplay.getDisplayedMessages(
+        tab.id
+      );
+      browser.test.assertEq(1, displayMsgs.length);
+      browser.test.assertEq(messages[2].subject, displayMsgs[0].subject);
+
       // Closing the tab should return us to the first tab, and fires the
       // event. It doesn't have to be this way, it just is.
       await checkResults(() => browser.tabs.remove(tab.id), [2], true);
@@ -81,6 +130,9 @@ add_task(async () => {
 
       // Close the window.
       browser.tabs.remove(tab.id);
+
+      // Test that selecting a multiple messages fires the event.
+      await checkResults("show messages 1 and 2", [1, 2], true);
 
       browser.test.notifyPass("finished");
     },
@@ -114,6 +166,9 @@ add_task(async () => {
 
   await extension.awaitMessage("open message window");
   MsgOpenNewWindowForMessage();
+
+  await extension.awaitMessage("show messages 1 and 2");
+  gFolderDisplay.selectMessages([...subFolders.test1.messages].slice(1, 3));
 
   await extension.awaitFinish("finished");
   await extension.unload();
