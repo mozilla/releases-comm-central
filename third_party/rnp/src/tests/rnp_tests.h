@@ -235,6 +235,8 @@ void test_ffi_key_export_customized_enarmor(void **state);
 
 void test_ffi_key_dump(void **state);
 
+void test_ffi_key_dump_edge_cases(void **state);
+
 void test_ffi_key_userid_dump_has_no_special_chars(void **state);
 
 void test_ffi_pkt_dump(void **state);
@@ -307,6 +309,8 @@ void test_ffi_decrypt_wrong_mpi_bits(void **state);
 
 void test_ffi_key_import_edge_cases(void **state);
 
+void test_ffi_key_import_gpg_s2k(void **state);
+
 void test_ffi_key_remove(void **state);
 
 void test_ffi_literal_packet(void **state);
@@ -314,6 +318,8 @@ void test_ffi_literal_packet(void **state);
 void test_ffi_detached_cleartext_signed_input(void **state);
 
 void test_ffi_key_export_autocrypt(void **state);
+
+void test_ffi_decrypt_edge_cases(void **state);
 
 void test_dsa_roundtrip(void **state);
 

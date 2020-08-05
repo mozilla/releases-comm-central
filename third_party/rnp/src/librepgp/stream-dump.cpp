@@ -434,6 +434,15 @@ static void
 dst_print_s2k(pgp_dest_t *dst, pgp_s2k_t *s2k)
 {
     dst_printf(dst, "s2k specifier: %d\n", (int) s2k->specifier);
+    if ((s2k->specifier == PGP_S2KS_EXPERIMENTAL) && s2k->gpg_ext_num) {
+        dst_printf(dst, "GPG extension num: %d\n", (int) s2k->gpg_ext_num);
+        if (s2k->gpg_ext_num == PGP_S2K_GPG_SMARTCARD) {
+            static_assert(sizeof(s2k->gpg_serial) == 16, "invalid s2k->gpg_serial size");
+            size_t slen = s2k->gpg_serial_len > 16 ? 16 : s2k->gpg_serial_len;
+            dst_print_hex(dst, "card serial number", s2k->gpg_serial, slen, true);
+        }
+        return;
+    }
     dst_print_halg(dst, "s2k hash algorithm", s2k->hash_alg);
     if ((s2k->specifier == PGP_S2KS_SALTED) ||
         (s2k->specifier == PGP_S2KS_ITERATED_AND_SALTED)) {
@@ -509,85 +518,85 @@ static void         stream_dump_signature_pkt(rnp_dump_ctx_t * ctx,
                                               pgp_dest_t *     dst);
 
 static void
-signature_dump_subpacket(rnp_dump_ctx_t *ctx, pgp_dest_t *dst, pgp_sig_subpkt_t *subpkt)
+signature_dump_subpacket(rnp_dump_ctx_t *ctx, pgp_dest_t *dst, const pgp_sig_subpkt_t &subpkt)
 {
-    const char *sname = pgp_str_from_map(subpkt->type, sig_subpkt_type_map);
+    const char *sname = pgp_str_from_map(subpkt.type, sig_subpkt_type_map);
 
-    switch (subpkt->type) {
+    switch (subpkt.type) {
     case PGP_SIG_SUBPKT_CREATION_TIME:
-        dst_print_time(dst, sname, subpkt->fields.create);
+        dst_print_time(dst, sname, subpkt.fields.create);
         break;
     case PGP_SIG_SUBPKT_EXPIRATION_TIME:
-        dst_print_expiration(dst, sname, subpkt->fields.expiry);
+        dst_print_expiration(dst, sname, subpkt.fields.expiry);
         break;
     case PGP_SIG_SUBPKT_EXPORT_CERT:
-        dst_printf(dst, "%s: %d\n", sname, (int) subpkt->fields.exportable);
+        dst_printf(dst, "%s: %d\n", sname, (int) subpkt.fields.exportable);
         break;
     case PGP_SIG_SUBPKT_TRUST:
         dst_printf(dst,
                    "%s: amount %d, level %d\n",
                    sname,
-                   (int) subpkt->fields.trust.amount,
-                   (int) subpkt->fields.trust.level);
+                   (int) subpkt.fields.trust.amount,
+                   (int) subpkt.fields.trust.level);
         break;
     case PGP_SIG_SUBPKT_REGEXP:
-        dst_print_raw(dst, sname, subpkt->fields.regexp.str, subpkt->fields.regexp.len);
+        dst_print_raw(dst, sname, subpkt.fields.regexp.str, subpkt.fields.regexp.len);
         break;
     case PGP_SIG_SUBPKT_REVOCABLE:
-        dst_printf(dst, "%s: %d\n", sname, (int) subpkt->fields.revocable);
+        dst_printf(dst, "%s: %d\n", sname, (int) subpkt.fields.revocable);
         break;
     case PGP_SIG_SUBPKT_KEY_EXPIRY:
-        dst_print_expiration(dst, sname, subpkt->fields.expiry);
+        dst_print_expiration(dst, sname, subpkt.fields.expiry);
         break;
     case PGP_SIG_SUBPKT_PREFERRED_SKA:
         dst_print_algs(dst,
                        "preferred symmetric algorithms",
-                       subpkt->fields.preferred.arr,
-                       subpkt->fields.preferred.len,
+                       subpkt.fields.preferred.arr,
+                       subpkt.fields.preferred.len,
                        symm_alg_map);
         break;
     case PGP_SIG_SUBPKT_REVOCATION_KEY:
         dst_printf(dst, "%s\n", sname);
-        dst_printf(dst, "class: %d\n", (int) subpkt->fields.revocation_key.klass);
-        dst_print_palg(dst, NULL, subpkt->fields.revocation_key.pkalg);
+        dst_printf(dst, "class: %d\n", (int) subpkt.fields.revocation_key.klass);
+        dst_print_palg(dst, NULL, subpkt.fields.revocation_key.pkalg);
         dst_print_hex(
-          dst, "fingerprint", subpkt->fields.revocation_key.fp, PGP_FINGERPRINT_SIZE, true);
+          dst, "fingerprint", subpkt.fields.revocation_key.fp, PGP_FINGERPRINT_SIZE, true);
         break;
     case PGP_SIG_SUBPKT_ISSUER_KEY_ID:
-        dst_print_hex(dst, sname, subpkt->fields.issuer, PGP_KEY_ID_SIZE, false);
+        dst_print_hex(dst, sname, subpkt.fields.issuer, PGP_KEY_ID_SIZE, false);
         break;
     case PGP_SIG_SUBPKT_NOTATION_DATA:
         break;
     case PGP_SIG_SUBPKT_PREFERRED_HASH:
         dst_print_algs(dst,
                        "preferred hash algorithms",
-                       subpkt->fields.preferred.arr,
-                       subpkt->fields.preferred.len,
+                       subpkt.fields.preferred.arr,
+                       subpkt.fields.preferred.len,
                        hash_alg_map);
         break;
     case PGP_SIG_SUBPKT_PREF_COMPRESS:
         dst_print_algs(dst,
                        "preferred compression algorithms",
-                       subpkt->fields.preferred.arr,
-                       subpkt->fields.preferred.len,
+                       subpkt.fields.preferred.arr,
+                       subpkt.fields.preferred.len,
                        z_alg_map);
         break;
     case PGP_SIG_SUBPKT_KEYSERV_PREFS:
         dst_printf(dst, "%s\n", sname);
-        dst_printf(dst, "no-modify: %d\n", (int) subpkt->fields.ks_prefs.no_modify);
+        dst_printf(dst, "no-modify: %d\n", (int) subpkt.fields.ks_prefs.no_modify);
         break;
     case PGP_SIG_SUBPKT_PREF_KEYSERV:
         dst_print_raw(
-          dst, sname, subpkt->fields.preferred_ks.uri, subpkt->fields.preferred_ks.len);
+          dst, sname, subpkt.fields.preferred_ks.uri, subpkt.fields.preferred_ks.len);
         break;
     case PGP_SIG_SUBPKT_PRIMARY_USER_ID:
-        dst_printf(dst, "%s: %d\n", sname, (int) subpkt->fields.primary_uid);
+        dst_printf(dst, "%s: %d\n", sname, (int) subpkt.fields.primary_uid);
         break;
     case PGP_SIG_SUBPKT_POLICY_URI:
-        dst_print_raw(dst, sname, subpkt->fields.policy.uri, subpkt->fields.policy.len);
+        dst_print_raw(dst, sname, subpkt.fields.policy.uri, subpkt.fields.policy.len);
         break;
     case PGP_SIG_SUBPKT_KEY_FLAGS: {
-        uint8_t flg = subpkt->fields.key_flags;
+        uint8_t flg = subpkt.fields.key_flags;
         dst_printf(dst, "%s: 0x%02x ( ", sname, flg);
         dst_printf(dst, "%s", flg ? "" : "none");
         dst_printf(dst, "%s", flg & PGP_KF_CERTIFY ? "certify " : "");
@@ -601,44 +610,44 @@ signature_dump_subpacket(rnp_dump_ctx_t *ctx, pgp_dest_t *dst, pgp_sig_subpkt_t 
         break;
     }
     case PGP_SIG_SUBPKT_SIGNERS_USER_ID:
-        dst_print_raw(dst, sname, subpkt->fields.signer.uid, subpkt->fields.signer.len);
+        dst_print_raw(dst, sname, subpkt.fields.signer.uid, subpkt.fields.signer.len);
         break;
     case PGP_SIG_SUBPKT_REVOCATION_REASON: {
-        int         code = subpkt->fields.revocation_reason.code;
+        int         code = subpkt.fields.revocation_reason.code;
         const char *reason = pgp_str_from_map(code, revoc_reason_map);
         dst_printf(dst, "%s: %d (%s)\n", sname, code, reason);
         dst_print_raw(dst,
                       "message",
-                      subpkt->fields.revocation_reason.str,
-                      subpkt->fields.revocation_reason.len);
+                      subpkt.fields.revocation_reason.str,
+                      subpkt.fields.revocation_reason.len);
         break;
     }
     case PGP_SIG_SUBPKT_FEATURES:
-        dst_printf(dst, "%s: 0x%02x ( ", sname, subpkt->data[0]);
-        dst_printf(dst, "%s", subpkt->fields.features.mdc ? "mdc " : "");
-        dst_printf(dst, "%s", subpkt->fields.features.aead ? "aead " : "");
-        dst_printf(dst, "%s", subpkt->fields.features.key_v5 ? "v5 keys " : "");
+        dst_printf(dst, "%s: 0x%02x ( ", sname, subpkt.data[0]);
+        dst_printf(dst, "%s", subpkt.fields.features.mdc ? "mdc " : "");
+        dst_printf(dst, "%s", subpkt.fields.features.aead ? "aead " : "");
+        dst_printf(dst, "%s", subpkt.fields.features.key_v5 ? "v5 keys " : "");
         dst_printf(dst, ")\n");
         break;
     case PGP_SIG_SUBPKT_EMBEDDED_SIGNATURE:
         dst_printf(dst, "%s:\n", sname);
-        stream_dump_signature_pkt(ctx, &subpkt->fields.sig, dst);
+        stream_dump_signature_pkt(ctx, subpkt.fields.sig, dst);
         break;
     case PGP_SIG_SUBPKT_ISSUER_FPR:
         dst_print_hex(
-          dst, sname, subpkt->fields.issuer_fp.fp, subpkt->fields.issuer_fp.len, true);
+          dst, sname, subpkt.fields.issuer_fp.fp, subpkt.fields.issuer_fp.len, true);
         break;
     case PGP_SIG_SUBPKT_PREFERRED_AEAD:
         dst_print_algs(dst,
                        "preferred aead algorithms",
-                       subpkt->fields.preferred.arr,
-                       subpkt->fields.preferred.len,
+                       subpkt.fields.preferred.arr,
+                       subpkt.fields.preferred.len,
                        aead_alg_map);
         break;
     default:
         if (!ctx->dump_packets) {
             indent_dest_increase(dst);
-            dst_hexdump(dst, subpkt->data, subpkt->len);
+            dst_hexdump(dst, subpkt.data, subpkt.len);
             indent_dest_decrease(dst);
         }
     }
@@ -652,21 +661,19 @@ signature_dump_subpackets(rnp_dump_ctx_t * ctx,
 {
     bool empty = true;
 
-    for (list_item *li = list_front(sig->subpkts); li; li = list_next(li)) {
-        pgp_sig_subpkt_t *subpkt = (pgp_sig_subpkt_t *) li;
-        if (subpkt->hashed != hashed) {
+    for (auto &subpkt : sig->subpkts) {
+        if (subpkt.hashed != hashed) {
             continue;
         }
         empty = false;
-        dst_printf(dst, ":type %d, len %d", (int) subpkt->type, (int) subpkt->len);
-        dst_printf(dst, "%s\n", subpkt->critical ? ", critical" : "");
+        dst_printf(dst, ":type %d, len %d", (int) subpkt.type, (int) subpkt.len);
+        dst_printf(dst, "%s\n", subpkt.critical ? ", critical" : "");
         if (ctx->dump_packets) {
             dst_printf(dst, ":subpacket contents:\n");
             indent_dest_increase(dst);
-            dst_hexdump(dst, subpkt->data, subpkt->len);
+            dst_hexdump(dst, subpkt.data, subpkt.len);
             indent_dest_decrease(dst);
         }
-
         signature_dump_subpacket(ctx, dst, subpkt);
     }
 
@@ -705,27 +712,30 @@ stream_dump_signature_pkt(rnp_dump_ctx_t *ctx, pgp_signature_t *sig, pgp_dest_t 
     dst_printf(dst, "signature material:\n");
     indent_dest_increase(dst);
 
+    pgp_signature_material_t material = {};
+    parse_signature_material(*sig, material);
+
     switch (sig->palg) {
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY:
     case PGP_PKA_RSA_SIGN_ONLY:
-        dst_print_mpi(dst, "rsa s", &sig->material.rsa.s, ctx->dump_mpi);
+        dst_print_mpi(dst, "rsa s", &material.rsa.s, ctx->dump_mpi);
         break;
     case PGP_PKA_DSA:
-        dst_print_mpi(dst, "dsa r", &sig->material.dsa.r, ctx->dump_mpi);
-        dst_print_mpi(dst, "dsa s", &sig->material.dsa.s, ctx->dump_mpi);
+        dst_print_mpi(dst, "dsa r", &material.dsa.r, ctx->dump_mpi);
+        dst_print_mpi(dst, "dsa s", &material.dsa.s, ctx->dump_mpi);
         break;
     case PGP_PKA_EDDSA:
     case PGP_PKA_ECDSA:
     case PGP_PKA_SM2:
     case PGP_PKA_ECDH:
-        dst_print_mpi(dst, "ecc r", &sig->material.ecc.r, ctx->dump_mpi);
-        dst_print_mpi(dst, "ecc s", &sig->material.ecc.s, ctx->dump_mpi);
+        dst_print_mpi(dst, "ecc r", &material.ecc.r, ctx->dump_mpi);
+        dst_print_mpi(dst, "ecc s", &material.ecc.s, ctx->dump_mpi);
         break;
     case PGP_PKA_ELGAMAL:
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
-        dst_print_mpi(dst, "eg r", &sig->material.eg.r, ctx->dump_mpi);
-        dst_print_mpi(dst, "eg s", &sig->material.eg.s, ctx->dump_mpi);
+        dst_print_mpi(dst, "eg r", &material.eg.r, ctx->dump_mpi);
+        dst_print_mpi(dst, "eg s", &material.eg.s, ctx->dump_mpi);
         break;
     default:
         dst_printf(dst, "unknown algorithm\n");
@@ -748,7 +758,6 @@ stream_dump_signature(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
     }
 
     stream_dump_signature_pkt(ctx, &sig, dst);
-    free_signature(&sig);
 }
 
 static rnp_result_t
@@ -823,11 +832,13 @@ stream_dump_key(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
             (key.sec_protection.s2k.usage == PGP_S2KU_ENCRYPTED_AND_HASHED)) {
             dst_print_salg(dst, NULL, key.sec_protection.symm_alg);
             dst_print_s2k(dst, &key.sec_protection.s2k);
-            size_t bl_size = pgp_block_size(key.sec_protection.symm_alg);
-            if (bl_size) {
-                dst_print_hex(dst, "cipher iv", key.sec_protection.iv, bl_size, true);
-            } else {
-                dst_printf(dst, "cipher iv: unknown algorithm\n");
+            if (key.sec_protection.s2k.specifier != PGP_S2KS_EXPERIMENTAL) {
+                size_t bl_size = pgp_block_size(key.sec_protection.symm_alg);
+                if (bl_size) {
+                    dst_print_hex(dst, "cipher iv", key.sec_protection.iv, bl_size, true);
+                } else {
+                    dst_printf(dst, "cipher iv: unknown algorithm\n");
+                }
             }
             dst_printf(dst, "encrypted secret key data: %d bytes\n", (int) key.sec_len);
         }
@@ -1405,6 +1416,18 @@ obj_add_s2k_json(json_object *obj, pgp_s2k_t *s2k)
     if (!obj_add_field_json(s2k_obj, "specifier", json_object_new_int(s2k->specifier))) {
         return false;
     }
+    if ((s2k->specifier == PGP_S2KS_EXPERIMENTAL) && s2k->gpg_ext_num) {
+        if (!obj_add_field_json(
+              s2k_obj, "gpg extension", json_object_new_int(s2k->gpg_ext_num))) {
+            return false;
+        }
+        if (s2k->gpg_ext_num == PGP_S2K_GPG_SMARTCARD) {
+            size_t slen = s2k->gpg_serial_len > 16 ? 16 : s2k->gpg_serial_len;
+            if (!obj_add_hex_json(s2k_obj, "card serial number", s2k->gpg_serial, slen)) {
+                return false;
+            }
+        }
+    }
     if (!obj_add_intstr_json(s2k_obj, "hash algorithm", s2k->hash_alg, hash_alg_map)) {
         return false;
     }
@@ -1427,85 +1450,87 @@ static rnp_result_t stream_dump_signature_pkt_json(rnp_dump_ctx_t *       ctx,
                                                    json_object *          pkt);
 
 static bool
-signature_dump_subpacket_json(rnp_dump_ctx_t *ctx, pgp_sig_subpkt_t *subpkt, json_object *obj)
+signature_dump_subpacket_json(rnp_dump_ctx_t *        ctx,
+                              const pgp_sig_subpkt_t &subpkt,
+                              json_object *           obj)
 {
-    switch (subpkt->type) {
+    switch (subpkt.type) {
     case PGP_SIG_SUBPKT_CREATION_TIME:
         return obj_add_field_json(
-          obj, "creation time", json_object_new_int64(subpkt->fields.create));
+          obj, "creation time", json_object_new_int64(subpkt.fields.create));
     case PGP_SIG_SUBPKT_EXPIRATION_TIME:
         return obj_add_field_json(
-          obj, "expiration time", json_object_new_int64(subpkt->fields.expiry));
+          obj, "expiration time", json_object_new_int64(subpkt.fields.expiry));
     case PGP_SIG_SUBPKT_EXPORT_CERT:
         return obj_add_field_json(
-          obj, "exportable", json_object_new_boolean(subpkt->fields.exportable));
+          obj, "exportable", json_object_new_boolean(subpkt.fields.exportable));
     case PGP_SIG_SUBPKT_TRUST:
         return obj_add_field_json(
-                 obj, "amount", json_object_new_int(subpkt->fields.trust.amount)) &&
+                 obj, "amount", json_object_new_int(subpkt.fields.trust.amount)) &&
                obj_add_field_json(
-                 obj, "level", json_object_new_int(subpkt->fields.trust.level));
+                 obj, "level", json_object_new_int(subpkt.fields.trust.level));
     case PGP_SIG_SUBPKT_REGEXP:
         return obj_add_field_json(
           obj,
           "regexp",
-          json_object_new_string_len(subpkt->fields.regexp.str, subpkt->fields.regexp.len));
+          json_object_new_string_len(subpkt.fields.regexp.str, subpkt.fields.regexp.len));
     case PGP_SIG_SUBPKT_REVOCABLE:
         return obj_add_field_json(
-          obj, "revocable", json_object_new_boolean(subpkt->fields.revocable));
+          obj, "revocable", json_object_new_boolean(subpkt.fields.revocable));
     case PGP_SIG_SUBPKT_KEY_EXPIRY:
         return obj_add_field_json(
-          obj, "key expiration", json_object_new_int64(subpkt->fields.expiry));
+          obj, "key expiration", json_object_new_int64(subpkt.fields.expiry));
     case PGP_SIG_SUBPKT_PREFERRED_SKA:
         return subpacket_obj_add_algs(obj,
                                       "algorithms",
-                                      subpkt->fields.preferred.arr,
-                                      subpkt->fields.preferred.len,
+                                      subpkt.fields.preferred.arr,
+                                      subpkt.fields.preferred.len,
                                       symm_alg_map);
     case PGP_SIG_SUBPKT_PREFERRED_HASH:
         return subpacket_obj_add_algs(obj,
                                       "algorithms",
-                                      subpkt->fields.preferred.arr,
-                                      subpkt->fields.preferred.len,
+                                      subpkt.fields.preferred.arr,
+                                      subpkt.fields.preferred.len,
                                       hash_alg_map);
     case PGP_SIG_SUBPKT_PREF_COMPRESS:
         return subpacket_obj_add_algs(obj,
                                       "algorithms",
-                                      subpkt->fields.preferred.arr,
-                                      subpkt->fields.preferred.len,
+                                      subpkt.fields.preferred.arr,
+                                      subpkt.fields.preferred.len,
                                       z_alg_map);
     case PGP_SIG_SUBPKT_PREFERRED_AEAD:
         return subpacket_obj_add_algs(obj,
                                       "algorithms",
-                                      subpkt->fields.preferred.arr,
-                                      subpkt->fields.preferred.len,
+                                      subpkt.fields.preferred.arr,
+                                      subpkt.fields.preferred.len,
                                       aead_alg_map);
     case PGP_SIG_SUBPKT_REVOCATION_KEY:
         return obj_add_field_json(
-                 obj, "class", json_object_new_int(subpkt->fields.revocation_key.klass)) &&
+                 obj, "class", json_object_new_int(subpkt.fields.revocation_key.klass)) &&
                obj_add_field_json(
-                 obj, "algorithm", json_object_new_int(subpkt->fields.revocation_key.pkalg)) &&
+                 obj, "algorithm", json_object_new_int(subpkt.fields.revocation_key.pkalg)) &&
                obj_add_hex_json(
-                 obj, "fingerprint", subpkt->fields.revocation_key.fp, PGP_FINGERPRINT_SIZE);
+                 obj, "fingerprint", subpkt.fields.revocation_key.fp, PGP_FINGERPRINT_SIZE);
     case PGP_SIG_SUBPKT_ISSUER_KEY_ID:
-        return obj_add_hex_json(obj, "issuer keyid", subpkt->fields.issuer, PGP_KEY_ID_SIZE);
+        return obj_add_hex_json(obj, "issuer keyid", subpkt.fields.issuer, PGP_KEY_ID_SIZE);
     case PGP_SIG_SUBPKT_KEYSERV_PREFS:
         return obj_add_field_json(
-          obj, "no-modify", json_object_new_boolean(subpkt->fields.ks_prefs.no_modify));
+          obj, "no-modify", json_object_new_boolean(subpkt.fields.ks_prefs.no_modify));
     case PGP_SIG_SUBPKT_PREF_KEYSERV:
         return obj_add_field_json(obj,
                                   "uri",
-                                  json_object_new_string_len(subpkt->fields.preferred_ks.uri,
-                                                             subpkt->fields.preferred_ks.len));
+                                  json_object_new_string_len(subpkt.fields.preferred_ks.uri,
+                                                             subpkt.fields.preferred_ks.len));
     case PGP_SIG_SUBPKT_PRIMARY_USER_ID:
         return obj_add_field_json(
-          obj, "primary", json_object_new_boolean(subpkt->fields.primary_uid));
+          obj, "primary", json_object_new_boolean(subpkt.fields.primary_uid));
     case PGP_SIG_SUBPKT_POLICY_URI:
         return obj_add_field_json(
           obj,
           "uri",
-          json_object_new_string_len(subpkt->fields.policy.uri, subpkt->fields.policy.len));
+          json_object_new_string_len(subpkt.fields.policy.uri, subpkt.fields.policy.len));
     case PGP_SIG_SUBPKT_KEY_FLAGS: {
-        uint8_t flg = subpkt->fields.key_flags;
+        uint8_t flg = subpkt.fields.key_flags;
         if (!obj_add_field_json(obj, "flags", json_object_new_int(flg))) {
             return false;
         }
@@ -1547,43 +1572,42 @@ signature_dump_subpacket_json(rnp_dump_ctx_t *ctx, pgp_sig_subpkt_t *subpkt, jso
         return obj_add_field_json(
           obj,
           "uid",
-          json_object_new_string_len(subpkt->fields.signer.uid, subpkt->fields.signer.len));
+          json_object_new_string_len(subpkt.fields.signer.uid, subpkt.fields.signer.len));
     case PGP_SIG_SUBPKT_REVOCATION_REASON: {
         if (!obj_add_intstr_json(
-              obj, "code", subpkt->fields.revocation_reason.code, revoc_reason_map)) {
+              obj, "code", subpkt.fields.revocation_reason.code, revoc_reason_map)) {
             return false;
         }
         return obj_add_field_json(
           obj,
           "message",
-          json_object_new_string_len(subpkt->fields.revocation_reason.str,
-                                     subpkt->fields.revocation_reason.len));
+          json_object_new_string_len(subpkt.fields.revocation_reason.str,
+                                     subpkt.fields.revocation_reason.len));
     }
     case PGP_SIG_SUBPKT_FEATURES:
         return obj_add_field_json(
-                 obj, "mdc", json_object_new_boolean(subpkt->fields.features.mdc)) &&
+                 obj, "mdc", json_object_new_boolean(subpkt.fields.features.mdc)) &&
                obj_add_field_json(
-                 obj, "aead", json_object_new_boolean(subpkt->fields.features.aead)) &&
+                 obj, "aead", json_object_new_boolean(subpkt.fields.features.aead)) &&
                obj_add_field_json(
-                 obj, "v5 keys", json_object_new_boolean(subpkt->fields.features.key_v5));
+                 obj, "v5 keys", json_object_new_boolean(subpkt.fields.features.key_v5));
     case PGP_SIG_SUBPKT_EMBEDDED_SIGNATURE: {
         json_object *sig = json_object_new_object();
         if (!sig || !obj_add_field_json(obj, "signature", sig)) {
             return false;
         }
-        return !stream_dump_signature_pkt_json(ctx, &subpkt->fields.sig, sig);
+        return !stream_dump_signature_pkt_json(ctx, subpkt.fields.sig, sig);
     }
     case PGP_SIG_SUBPKT_ISSUER_FPR:
         return obj_add_hex_json(
-          obj, "fingerprint", subpkt->fields.issuer_fp.fp, subpkt->fields.issuer_fp.len);
+          obj, "fingerprint", subpkt.fields.issuer_fp.fp, subpkt.fields.issuer_fp.len);
     case PGP_SIG_SUBPKT_NOTATION_DATA:
     default:
         if (!ctx->dump_packets) {
-            return obj_add_hex_json(obj, "raw", subpkt->data, subpkt->len);
+            return obj_add_hex_json(obj, "raw", subpkt.data, subpkt.len);
         }
         return true;
     }
-
     return true;
 }
 
@@ -1592,31 +1616,30 @@ signature_dump_subpackets_json(rnp_dump_ctx_t *ctx, const pgp_signature_t *sig)
 {
     json_object *res = json_object_new_array();
 
-    for (list_item *li = list_front(sig->subpkts); li; li = list_next(li)) {
-        pgp_sig_subpkt_t *subpkt = (pgp_sig_subpkt_t *) li;
-        json_object *     jso_subpkt = json_object_new_object();
+    for (auto &subpkt : sig->subpkts) {
+        json_object *jso_subpkt = json_object_new_object();
         if (json_object_array_add(res, jso_subpkt)) {
             json_object_put(jso_subpkt);
             goto error;
         }
 
-        if (!obj_add_intstr_json(jso_subpkt, "type", subpkt->type, sig_subpkt_type_map)) {
+        if (!obj_add_intstr_json(jso_subpkt, "type", subpkt.type, sig_subpkt_type_map)) {
             goto error;
         }
-        if (!obj_add_field_json(jso_subpkt, "length", json_object_new_int(subpkt->len))) {
-            goto error;
-        }
-        if (!obj_add_field_json(
-              jso_subpkt, "hashed", json_object_new_boolean(subpkt->hashed))) {
+        if (!obj_add_field_json(jso_subpkt, "length", json_object_new_int(subpkt.len))) {
             goto error;
         }
         if (!obj_add_field_json(
-              jso_subpkt, "critical", json_object_new_boolean(subpkt->critical))) {
+              jso_subpkt, "hashed", json_object_new_boolean(subpkt.hashed))) {
+            goto error;
+        }
+        if (!obj_add_field_json(
+              jso_subpkt, "critical", json_object_new_boolean(subpkt.critical))) {
             goto error;
         }
 
         if (ctx->dump_packets &&
-            !obj_add_hex_json(jso_subpkt, "raw", subpkt->data, subpkt->len)) {
+            !obj_add_hex_json(jso_subpkt, "raw", subpkt.data, subpkt.len)) {
             goto error;
         }
 
@@ -1636,8 +1659,9 @@ stream_dump_signature_pkt_json(rnp_dump_ctx_t *       ctx,
                                const pgp_signature_t *sig,
                                json_object *          pkt)
 {
-    json_object *material = NULL;
-    rnp_result_t ret = RNP_ERROR_OUT_OF_MEMORY;
+    json_object *            material = NULL;
+    pgp_signature_material_t sigmaterial = {};
+    rnp_result_t             ret = RNP_ERROR_OUT_OF_MEMORY;
 
     if (!obj_add_field_json(pkt, "version", json_object_new_int(sig->version))) {
         goto done;
@@ -1681,17 +1705,18 @@ stream_dump_signature_pkt_json(rnp_dump_ctx_t *       ctx,
         goto done;
     }
 
+    parse_signature_material(*sig, sigmaterial);
     switch (sig->palg) {
     case PGP_PKA_RSA:
     case PGP_PKA_RSA_ENCRYPT_ONLY:
     case PGP_PKA_RSA_SIGN_ONLY:
-        if (!obj_add_mpi_json(material, "s", &sig->material.rsa.s, ctx->dump_mpi)) {
+        if (!obj_add_mpi_json(material, "s", &sigmaterial.rsa.s, ctx->dump_mpi)) {
             goto done;
         }
         break;
     case PGP_PKA_DSA:
-        if (!obj_add_mpi_json(material, "r", &sig->material.dsa.r, ctx->dump_mpi) ||
-            !obj_add_mpi_json(material, "s", &sig->material.dsa.s, ctx->dump_mpi)) {
+        if (!obj_add_mpi_json(material, "r", &sigmaterial.dsa.r, ctx->dump_mpi) ||
+            !obj_add_mpi_json(material, "s", &sigmaterial.dsa.s, ctx->dump_mpi)) {
             goto done;
         }
         break;
@@ -1699,15 +1724,15 @@ stream_dump_signature_pkt_json(rnp_dump_ctx_t *       ctx,
     case PGP_PKA_ECDSA:
     case PGP_PKA_SM2:
     case PGP_PKA_ECDH:
-        if (!obj_add_mpi_json(material, "r", &sig->material.ecc.r, ctx->dump_mpi) ||
-            !obj_add_mpi_json(material, "s", &sig->material.ecc.s, ctx->dump_mpi)) {
+        if (!obj_add_mpi_json(material, "r", &sigmaterial.ecc.r, ctx->dump_mpi) ||
+            !obj_add_mpi_json(material, "s", &sigmaterial.ecc.s, ctx->dump_mpi)) {
             goto done;
         }
         break;
     case PGP_PKA_ELGAMAL:
     case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
-        if (!obj_add_mpi_json(material, "r", &sig->material.eg.r, ctx->dump_mpi) ||
-            !obj_add_mpi_json(material, "s", &sig->material.eg.s, ctx->dump_mpi)) {
+        if (!obj_add_mpi_json(material, "r", &sigmaterial.eg.r, ctx->dump_mpi) ||
+            !obj_add_mpi_json(material, "s", &sigmaterial.eg.s, ctx->dump_mpi)) {
             goto done;
         }
         break;
@@ -1726,10 +1751,7 @@ stream_dump_signature_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *
     if (stream_parse_signature(src, &sig)) {
         return RNP_SUCCESS;
     }
-
-    rnp_result_t ret = stream_dump_signature_pkt_json(ctx, &sig, pkt);
-    free_signature(&sig);
-    return ret;
+    return stream_dump_signature_pkt_json(ctx, &sig, pkt);
 }
 
 static rnp_result_t

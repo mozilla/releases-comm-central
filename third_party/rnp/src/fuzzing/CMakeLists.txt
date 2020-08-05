@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Ribose Inc.
+# Copyright (c) 2020 Ribose Inc.
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -22,8 +22,17 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-add_compile_options(-fsanitize=fuzzer-no-link)
-add_link_options(-fsanitize=fuzzer)
+
+if(NOT DEFINED ENV{LIB_FUZZING_ENGINE})
+  add_compile_options(-fsanitize=fuzzer-no-link)
+  add_link_options(-fsanitize=fuzzer)
+else()
+  # This section is used by OSS-Fuzz
+  add_link_options($ENV{LIB_FUZZING_ENGINE})
+  if($ENV{FUZZING_ENGINE} STREQUAL "afl")
+    link_libraries(-stdlib=libc++)
+  endif()
+endif()
 
 add_executable(fuzz_dump dump.c)
 
@@ -56,4 +65,3 @@ if (ENABLE_SANITIZERS)
     set_target_properties(${tgt} PROPERTIES LINKER_LANGUAGE CXX)
   endforeach()
 endif()
-

@@ -243,21 +243,19 @@ rnp_key_store_merge_subkey(pgp_key_t *dst, const pgp_key_t *src, pgp_key_t *prim
     pgp_transferable_subkey_t dstkey = {};
     pgp_transferable_subkey_t srckey = {};
     pgp_key_t                 tmpkey = {};
-    bool                      res = false;
 
     if (!pgp_key_is_subkey(dst) || !pgp_key_is_subkey(src)) {
         RNP_LOG("wrong subkey merge call");
         return false;
     }
 
-    if (transferable_subkey_from_key(&dstkey, dst)) {
+    if (transferable_subkey_from_key(dstkey, *dst)) {
         RNP_LOG("failed to get transferable key from dstkey");
         return false;
     }
 
-    if (transferable_subkey_from_key(&srckey, src)) {
+    if (transferable_subkey_from_key(srckey, *src)) {
         RNP_LOG("failed to get transferable key from srckey");
-        transferable_subkey_destroy(&dstkey);
         return false;
     }
 
@@ -268,14 +266,14 @@ rnp_key_store_merge_subkey(pgp_key_t *dst, const pgp_key_t *src, pgp_key_t *prim
         srckey.subkey = tmp;
     }
 
-    if (transferable_subkey_merge(&dstkey, &srckey)) {
+    if (transferable_subkey_merge(dstkey, srckey)) {
         RNP_LOG("failed to merge transferable subkeys");
-        goto done;
+        return false;
     }
 
     if (!rnp_key_from_transferable_subkey(&tmpkey, &dstkey, primary)) {
         RNP_LOG("failed to process subkey");
-        goto done;
+        return false;
     }
 
     /* check whether key was unlocked and assign secret key data */
@@ -294,11 +292,7 @@ rnp_key_store_merge_subkey(pgp_key_t *dst, const pgp_key_t *src, pgp_key_t *prim
     tmpkey.validated = dst->validated && src->validated && tmpkey.valid;
 
     *dst = std::move(tmpkey);
-    res = true;
-done:
-    transferable_subkey_destroy(&dstkey);
-    transferable_subkey_destroy(&srckey);
-    return res;
+    return true;
 }
 
 static bool
@@ -307,21 +301,19 @@ rnp_key_store_merge_key(pgp_key_t *dst, const pgp_key_t *src)
     pgp_transferable_key_t dstkey = {};
     pgp_transferable_key_t srckey = {};
     pgp_key_t              tmpkey = {};
-    bool                   res = false;
 
     if (pgp_key_is_subkey(dst) || pgp_key_is_subkey(src)) {
         RNP_LOG("wrong key merge call");
         return false;
     }
 
-    if (transferable_key_from_key(&dstkey, dst)) {
+    if (transferable_key_from_key(dstkey, *dst)) {
         RNP_LOG("failed to get transferable key from dstkey");
         return false;
     }
 
-    if (transferable_key_from_key(&srckey, src)) {
+    if (transferable_key_from_key(srckey, *src)) {
         RNP_LOG("failed to get transferable key from srckey");
-        transferable_key_destroy(&dstkey);
         return false;
     }
 
@@ -333,14 +325,14 @@ rnp_key_store_merge_key(pgp_key_t *dst, const pgp_key_t *src)
         /* no subkey processing here - they are separated from the main key */
     }
 
-    if (transferable_key_merge(&dstkey, &srckey)) {
+    if (transferable_key_merge(dstkey, srckey)) {
         RNP_LOG("failed to merge transferable keys");
-        goto done;
+        return false;
     }
 
     if (!rnp_key_from_transferable_key(&tmpkey, &dstkey)) {
         RNP_LOG("failed to process key");
-        goto done;
+        return false;
     }
 
     /* move existing subkey grips since they are not present in transferable key */
@@ -366,11 +358,7 @@ rnp_key_store_merge_key(pgp_key_t *dst, const pgp_key_t *src)
     tmpkey.validated = dst->validated && src->validated && tmpkey.valid;
 
     *dst = std::move(tmpkey);
-    res = true;
-done:
-    transferable_key_destroy(&dstkey);
-    transferable_key_destroy(&srckey);
-    return res;
+    return true;
 }
 
 static bool
@@ -456,7 +444,7 @@ rnp_key_store_add_subkey(rnp_key_store_t *keyring, pgp_key_t *srckey, pgp_key_t 
             RNP_LOG("%s", e.what());
             return NULL;
         }
-        if (pgp_key_copy(oldkey, srckey, false)) {
+        if (pgp_key_copy(*oldkey, *srckey, false)) {
             RNP_LOG_KEY("key %s copying failed", srckey);
             RNP_LOG_KEY("primary key is %s", primary);
             keyring->keys.pop_back();
@@ -510,7 +498,7 @@ rnp_key_store_add_key(rnp_key_store_t *keyring, pgp_key_t *srckey)
             RNP_LOG("%s", e.what());
             return NULL;
         }
-        if (pgp_key_copy(added_key, srckey, false)) {
+        if (pgp_key_copy(*added_key, *srckey, false)) {
             RNP_LOG_KEY("key %s copying failed", srckey);
             keyring->keys.pop_back();
             keyring->keybyfp.erase(pgp_key_get_fp(srckey));
@@ -544,7 +532,7 @@ rnp_key_store_import_key(rnp_key_store_t *        keyring,
     bool       changed = false;
 
     /* add public key */
-    if (pgp_key_copy(&keycp, srckey, pubkey)) {
+    if (pgp_key_copy(keycp, *srckey, pubkey)) {
         RNP_LOG_KEY("failed to create key %s copy", srckey);
         return NULL;
     }

@@ -84,10 +84,10 @@ rnp_key_add_signature(pgp_key_t *key, const pgp_signature_t *sig)
 }
 
 static bool
-rnp_key_add_signatures(pgp_key_t *key, list signatures)
+rnp_key_add_signatures(pgp_key_t *key, pgp_signature_list_t &signatures)
 {
-    for (list_item *sig = list_front(signatures); sig; sig = list_next(sig)) {
-        if (!rnp_key_add_signature(key, (pgp_signature_t *) sig)) {
+    for (auto &sig : signatures) {
+        if (!rnp_key_add_signature(key, &sig)) {
             return false;
         }
     }
@@ -174,9 +174,8 @@ rnp_key_store_add_transferable_key(rnp_key_store_t *keyring, pgp_transferable_ke
     }
 
     /* add subkeys */
-    for (list_item *skey = list_front(tkey->subkeys); skey; skey = list_next(skey)) {
-        pgp_transferable_subkey_t *subkey = (pgp_transferable_subkey_t *) skey;
-        if (!rnp_key_store_add_transferable_subkey(keyring, subkey, addkey)) {
+    for (auto &subkey : tkey->subkeys) {
+        if (!rnp_key_store_add_transferable_subkey(keyring, &subkey, addkey)) {
             RNP_LOG("Failed to add subkey to key store.");
             goto error;
         }
@@ -207,9 +206,8 @@ rnp_key_from_transferable_key(pgp_key_t *key, pgp_transferable_key_t *tkey)
     }
 
     /* add userids and their signatures */
-    for (list_item *uid = list_front(tkey->userids); uid; uid = list_next(uid)) {
-        pgp_transferable_userid_t *tuid = (pgp_transferable_userid_t *) uid;
-        if (!rnp_key_add_transferable_userid(key, tuid)) {
+    for (auto &uid : tkey->userids) {
+        if (!rnp_key_add_transferable_userid(key, &uid)) {
             return false;
         }
     }
@@ -246,38 +244,32 @@ rnp_key_from_transferable_subkey(pgp_key_t *                subkey,
 rnp_result_t
 rnp_key_store_pgp_read_from_src(rnp_key_store_t *keyring, pgp_source_t *src)
 {
-    pgp_key_sequence_t        keys = {};
-    pgp_transferable_subkey_t tskey = {};
-    rnp_result_t              ret = RNP_ERROR_GENERIC;
+    rnp_result_t ret = RNP_ERROR_GENERIC;
 
     /* check whether we have transferable subkey in source */
     if (is_subkey_pkt(stream_pkt_type(src))) {
-        if ((ret = process_pgp_subkey(src, &tskey, keyring->skip_parsing_errors))) {
+        pgp_transferable_subkey_t tskey = {};
+        ret = process_pgp_subkey(*src, tskey, keyring->skip_parsing_errors);
+        if (ret) {
             return ret;
         }
-        ret = rnp_key_store_add_transferable_subkey(keyring, &tskey, NULL) ?
-                RNP_SUCCESS :
-                RNP_ERROR_BAD_STATE;
-        transferable_subkey_destroy(&tskey);
-        return ret;
+        return rnp_key_store_add_transferable_subkey(keyring, &tskey, NULL) ?
+                 RNP_SUCCESS :
+                 RNP_ERROR_BAD_STATE;
     }
 
     /* process armored or raw transferable key packets sequence(s) */
-    if ((ret = process_pgp_keys(src, &keys, keyring->skip_parsing_errors))) {
+    pgp_key_sequence_t keys;
+    if ((ret = process_pgp_keys(src, keys, keyring->skip_parsing_errors))) {
         return ret;
     }
 
-    for (list_item *key = list_front(keys.keys); key; key = list_next(key)) {
-        if (!rnp_key_store_add_transferable_key(keyring, (pgp_transferable_key_t *) key)) {
-            ret = RNP_ERROR_BAD_STATE;
-            goto done;
+    for (auto &key : keys.keys) {
+        if (!rnp_key_store_add_transferable_key(keyring, &key)) {
+            return RNP_ERROR_BAD_STATE;
         }
     }
-
-    ret = RNP_SUCCESS;
-done:
-    key_sequence_destroy(&keys);
-    return ret;
+    return RNP_SUCCESS;
 }
 
 bool

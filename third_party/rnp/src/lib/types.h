@@ -159,6 +159,11 @@ typedef struct pgp_s2k_t {
     pgp_hash_alg_t      hash_alg;
     uint8_t             salt[PGP_SALT_SIZE];
     unsigned            iterations;
+
+    /* GnuPG custom s2k data */
+    pgp_s2k_gpg_extension_t gpg_ext_num;
+    uint8_t                 gpg_serial_len;
+    uint8_t                 gpg_serial[16];
 } pgp_s2k_t;
 
 typedef struct pgp_key_protection_t {
@@ -198,25 +203,7 @@ typedef struct pgp_userid_pkt_t {
     size_t         uid_len;
 } pgp_userid_pkt_t;
 
-typedef struct pgp_signature_t {
-    pgp_version_t version;
-    /* common v3 and v4 fields */
-    pgp_sig_type_t   type;
-    pgp_pubkey_alg_t palg;
-    pgp_hash_alg_t   halg;
-    uint8_t          lbits[2];
-    uint8_t *        hashed_data;
-    size_t           hashed_len;
-
-    pgp_signature_material_t material;
-
-    /* v3 - only fields */
-    uint32_t     creation_time;
-    pgp_key_id_t signer;
-
-    /* v4 - only fields */
-    list subpkts;
-} pgp_signature_t;
+typedef struct pgp_signature_t pgp_signature_t;
 
 /* Signature subpacket, see 5.2.3.1 in RFC 4880 and RFC 4880 bis 02 */
 typedef struct pgp_sig_subpkt_t {
@@ -291,15 +278,51 @@ typedef struct pgp_sig_subpkt_t {
             pgp_hash_alg_t   halg;
             uint8_t *        hash;
             unsigned         hlen;
-        } sig_target;        /* 5.2.3.25.  Signature Target */
-        pgp_signature_t sig; /* 5.2.3.27. Embedded Signature */
+        } sig_target;         /* 5.2.3.25.  Signature Target */
+        pgp_signature_t *sig; /* 5.2.3.27. Embedded Signature */
         struct {
             uint8_t  version;
             uint8_t *fp;
             unsigned len;
         } issuer_fp; /* 5.2.3.28.  Issuer Fingerprint, RFC 4880 bis 04 */
     } fields;        /* parsed contents of the subpacket */
+
+    pgp_sig_subpkt_t();
+    pgp_sig_subpkt_t(const pgp_sig_subpkt_t &src);
+    pgp_sig_subpkt_t(pgp_sig_subpkt_t &&src);
+    pgp_sig_subpkt_t &operator=(pgp_sig_subpkt_t &&src);
+    pgp_sig_subpkt_t &operator=(const pgp_sig_subpkt_t &src);
+    ~pgp_sig_subpkt_t();
 } pgp_sig_subpkt_t;
+
+typedef struct pgp_signature_t {
+    pgp_version_t version;
+    /* common v3 and v4 fields */
+    pgp_sig_type_t   type;
+    pgp_pubkey_alg_t palg;
+    pgp_hash_alg_t   halg;
+    uint8_t          lbits[2];
+    uint8_t *        hashed_data;
+    size_t           hashed_len;
+    uint8_t *        material_buf; /* raw signature material */
+    size_t           material_len; /* raw signature material length */
+
+    /* v3 - only fields */
+    uint32_t     creation_time;
+    pgp_key_id_t signer;
+
+    /* v4 - only fields */
+    std::vector<pgp_sig_subpkt_t> subpkts;
+
+    pgp_signature_t() : hashed_data(NULL), material_buf(NULL){};
+    pgp_signature_t(const pgp_signature_t &src);
+    pgp_signature_t(pgp_signature_t &&src);
+    pgp_signature_t &operator=(pgp_signature_t &&src);
+    pgp_signature_t &operator=(const pgp_signature_t &src);
+    bool             operator==(const pgp_signature_t &src) const;
+    bool             operator!=(const pgp_signature_t &src) const;
+    ~pgp_signature_t();
+} pgp_signature_t;
 
 /** pgp_rawpacket_t */
 typedef struct pgp_rawpacket_t {
@@ -415,13 +438,11 @@ typedef struct pgp_subsig_t {
     bool             valid;       /* signature was validated and is valid */
 
     pgp_subsig_t() = default;
+    pgp_subsig_t(const pgp_subsig_t &src);
     pgp_subsig_t(pgp_subsig_t &&src);
     pgp_subsig_t &operator=(pgp_subsig_t &&src);
     pgp_subsig_t &operator=(const pgp_subsig_t &src);
     ~pgp_subsig_t();
-
-    /* make sure we use only explicitly defined constructors/operators */
-    pgp_subsig_t(const pgp_subsig_t &) = delete;
 } pgp_subsig_t;
 
 typedef struct pgp_userid_t {
@@ -430,12 +451,12 @@ typedef struct pgp_userid_t {
     std::string      str;    /* Human-readable representation of the userid */
 
     pgp_userid_t() = default;
+    pgp_userid_t(const pgp_userid_t &src);
     pgp_userid_t(pgp_userid_t &&src);
     pgp_userid_t &operator=(const pgp_userid_t &src);
     ~pgp_userid_t();
 
     /* make sure we use only explicitly defined constructors/operators */
-    pgp_userid_t(const pgp_userid_t &) = delete;
     pgp_userid_t &operator=(pgp_userid_t &&) = delete;
 } pgp_userid_t;
 

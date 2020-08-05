@@ -133,7 +133,7 @@ load_generated_g10_key(pgp_key_t *    dst,
     // if a primary key is provided, it should match the sub with regards to type
     assert(!primary_key ||
            (pgp_key_is_secret(primary_key) == pgp_key_is_secret(&key_store->keys.front())));
-    ok = !pgp_key_copy(dst, &key_store->keys.front(), false);
+    ok = !pgp_key_copy(*dst, key_store->keys.front(), false);
 end:
     delete key_store;
     src_close(&memsrc);
@@ -378,19 +378,19 @@ pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
         goto end;
     }
 
-    uid = transferable_key_add_userid(&tkeysec, (char *) desc->cert.userid);
+    uid = transferable_key_add_userid(tkeysec, (char *) desc->cert.userid);
     if (!uid) {
         RNP_LOG("failed to add userid");
         goto end;
     }
 
     if (!transferable_userid_certify(
-          &tkeysec.key, uid, &tkeysec.key, desc->crypto.hash_alg, &desc->cert)) {
+          tkeysec.key, *uid, tkeysec.key, desc->crypto.hash_alg, desc->cert)) {
         RNP_LOG("failed to certify key");
         goto end;
     }
 
-    if (!transferable_key_copy(&tkeypub, &tkeysec, true)) {
+    if (!transferable_key_copy(tkeypub, tkeysec, true)) {
         RNP_LOG("failed to copy public key part");
         goto end;
     }
@@ -426,9 +426,6 @@ pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
 end:
     // free any user preferences
     pgp_free_user_prefs(&desc->cert.prefs);
-    // we don't need this as we have loaded the encrypted key into primary_sec
-    transferable_key_destroy(&tkeysec);
-    transferable_key_destroy(&tkeypub);
     return ok;
 }
 
@@ -517,12 +514,12 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
     }
 
     if (!transferable_subkey_bind(
-          primary_seckey, &tskeysec, desc->crypto.hash_alg, &desc->binding)) {
+          *primary_seckey, tskeysec, desc->crypto.hash_alg, desc->binding)) {
         RNP_LOG("failed to add subkey binding signature");
         goto end;
     }
 
-    if (!transferable_subkey_copy(&tskeypub, &tskeysec, true)) {
+    if (!transferable_subkey_copy(tskeypub, tskeysec, true)) {
         RNP_LOG("failed to copy public subkey part");
         goto end;
     }
@@ -555,8 +552,6 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
     ok = pgp_subkey_refresh_data(subkey_pub, primary_pub) &&
          pgp_subkey_refresh_data(subkey_sec, primary_sec);
 end:
-    transferable_subkey_destroy(&tskeysec);
-    transferable_subkey_destroy(&tskeypub);
     if (decrypted_primary_seckey) {
         free_key_pkt(decrypted_primary_seckey);
         free(decrypted_primary_seckey);

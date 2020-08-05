@@ -131,7 +131,8 @@ RNP_TO_GPG_CIPHERS = {'AES' : 'aes128', 'AES192' : 'aes192', 'AES256' : 'aes256'
                       'BLOWFISH' : 'blowfish'}
 
 def check_packets(fname, regexp):
-    ret, output, err = run_proc(GPG, ['--list-packets', path_for_gpg(fname)])
+    ret, output, err = run_proc(GPG, ['--homedir', '.',
+                                      '--list-packets', path_for_gpg(fname)])
     if ret != 0:
         logging.error(err)
         return None
@@ -736,6 +737,7 @@ def setup(loglvl):
     RNPDIR = path.join(WORKDIR, '.rnp')
     RNP = os.getenv('RNP_TESTS_RNP_PATH') or 'rnp'
     RNPK = os.getenv('RNP_TESTS_RNPKEYS_PATH') or 'rnpkeys'
+    shutil.rmtree(RNPDIR, ignore_errors=True)
     os.mkdir(RNPDIR, 0o700)
 
     os.environ["RNP_LOG_CONSOLE"] = "1"
@@ -744,6 +746,7 @@ def setup(loglvl):
     GPGHOME = path_for_gpg(GPGDIR) if is_windows() else GPGDIR
     GPG = os.getenv('RNP_TESTS_GPG_PATH') or find_utility('gpg')
     GPGCONF = os.getenv('RNP_TESTS_GPGCONF_PATH') or find_utility('gpgconf')
+    shutil.rmtree(GPGDIR, ignore_errors=True)
     os.mkdir(GPGDIR, 0o700)
 
 def data_path(subpath):
@@ -1531,6 +1534,29 @@ class Misc(unittest.TestCase):
         ret, _, err = run_proc(GPG, ['--homedir', GPGHOME, '--keyring', kpath, '--verify', mpath])
         if ret != 0:
             raise_err('message having largest possible partial packet verification failed', err)
+        return
+
+    def test_rnp_single_export(self):
+        # Import key with subkeys, then export it, test that it is exported once.
+        # See issue #1153
+        clear_keyrings()
+        # Import Alice's secret key and subkey
+        ret, _, _ = run_proc(RNPK, ['--homedir', RNPDIR, '--import', data_path('test_key_validity/alice-sub-sec.pgp')])
+        if ret != 0:
+            raise_err('Alice secret key import failed')
+        # Export key
+        ret, out, err = run_proc(RNPK, ['--homedir', RNPDIR, '--export', 'Alice'])
+        if ret != 0: raise_err('key export failed', err)
+        pubpath = path.join(RNPDIR, 'Alice-export-test.asc')
+        with open(pubpath, 'w+') as f:
+            f.write(out)
+        # List exported key packets
+        params = ['--list-packets', pubpath]
+        ret, out, err = run_proc(RNP, params)
+        if ret != 0:
+            raise_err('packet listing failed', err)
+        compare_file_ex(data_path('test_single_export_subkeys/list_key_export_single.txt'), out,
+                        'exported packets mismatch')
         return
 
     def test_rnp_list_packets(self):
