@@ -2169,25 +2169,27 @@
             <hbox class="addressingWidgetItem" flex="1">
               <hbox id="addressingWidgetLabels" class="address-extra-recipients"
                     flex="1" align="center">
-                <label id="addr_to" value="&toAddr2.label;" role="button"
-                       disableonsend="true"
-                       class="mail-primary-label mail-label recipient-label"
-                       onclick="showAddressRow(this, 'addressRowTo')"
-                       onkeypress="showAddressRowKeyPress(event, 'addressRowTo')"
-                       control="toAddrInput"
-                       collapsed="true"/>
-                <label id="addr_cc" value="&ccAddr2.label;" role="button"
-                       disableonsend="true"
-                       class="mail-label recipient-label"
-                       onclick="showAddressRow(this, 'addressRowCc')"
-                       onkeypress="showAddressRowKeyPress(event, 'addressRowCc')"
-                       control="ccAddrInput"/>
-                <label id="addr_bcc" value="&bccAddr2.label;" role="button"
-                       disableonsend="true"
-                       class="mail-label recipient-label"
-                       onclick="showAddressRow(this, 'addressRowBcc')"
-                       onkeypress="showAddressRowKeyPress(event, 'addressRowBcc')"
-                       control="bccAddrInput"/>
+                <hbox id="addressingWidgetSwappableLabels">
+                  <label id="addr_to" value="&toAddr2.label;" role="button"
+                         disableonsend="true"
+                         class="mail-primary-label mail-label recipient-label"
+                         onclick="showAddressRow(this, 'addressRowTo')"
+                         onkeypress="showAddressRowKeyPress(event, 'addressRowTo')"
+                         control="toAddrInput"
+                         collapsed="true"/>
+                  <label id="addr_cc" value="&ccAddr2.label;" role="button"
+                         disableonsend="true"
+                         class="mail-label recipient-label"
+                         onclick="showAddressRow(this, 'addressRowCc')"
+                         onkeypress="showAddressRowKeyPress(event, 'addressRowCc')"
+                         control="ccAddrInput"/>
+                  <label id="addr_bcc" value="&bccAddr2.label;" role="button"
+                         disableonsend="true"
+                         class="mail-label recipient-label"
+                         onclick="showAddressRow(this, 'addressRowBcc')"
+                         onkeypress="showAddressRowKeyPress(event, 'addressRowBcc')"
+                         control="bccAddrInput"/>
+                </hbox>
                 <label id="extraRecipientsLabel" role="button"
                        disableonsend="true"
                        class="extra-recipients-label recipient-label"

@@ -269,7 +269,7 @@ function updateUIforNNTPAccount() {
  * News related fields. This method is called only if the UI was previously
  * updated to accommodate a News account type.
  */
-function updateUIforIMAPAccount() {
+function updateUIforMailAccount() {
   // Show the `mail-primary-input` field row if not already visible.
   let mailContainer = document
     .querySelector(".mail-primary-input")
@@ -303,9 +303,11 @@ function updateUIforIMAPAccount() {
   }
 
   // Reorder `news-label` menu items.
-  let extraRecipients = document.querySelector(".address-extra-recipients");
+  let extraRecipients = document.getElementById(
+    "addressingWidgetSwappableLabels"
+  );
   for (let label of document.querySelectorAll(".mail-label")) {
-    extraRecipients.prepend(label);
+    extraRecipients.appendChild(label);
   }
 }
 

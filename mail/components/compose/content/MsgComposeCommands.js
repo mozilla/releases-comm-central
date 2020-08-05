@@ -7015,7 +7015,7 @@ function hideIrrelevantAddressingOptions(accountKey, prevKey) {
 
   // If the new account is a Mail account and a previous account was selected.
   if (accountType != "nntp" && prevKey != "") {
-    updateUIforIMAPAccount();
+    updateUIforMailAccount();
   }
 
   updateRecipientsPanelVisibility();
