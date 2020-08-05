@@ -388,9 +388,12 @@ AbAutoCompleteSearch.prototype = {
 
     let fullString = aSearchString && aSearchString.trim().toLocaleLowerCase();
 
-    // If the search string is empty, or the user hasn't enabled autocomplete,
-    // then just return no matches or the result ignored.
-    if (!fullString) {
+    // If the search string is empty, or contains a comma, or the user
+    // hasn't enabled autocomplete, then just return no matches or the
+    // result ignored.
+    // The comma check is so that we don't autocomplete against the user
+    // entering multiple addresses.
+    if (!fullString || aSearchString.includes(",")) {
       result.searchResult = ACR.RESULT_IGNORED;
       aListener.onSearchResult(this, result);
       return;

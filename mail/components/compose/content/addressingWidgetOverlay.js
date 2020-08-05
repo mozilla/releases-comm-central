@@ -559,19 +559,8 @@ function addressInputOnBeforeHandleKeyDown(event) {
       break;
 
     case ",":
-      let selection = input.value.substring(
-        input.selectionStart,
-        input.selectionEnd
-      );
-
-      // Don't trigger autocomplete if a comma is present as a first character
-      // to prevent early pill creation when the autocomplete suggests contacts
-      // with commas in the display name, or if the typed value is not a valid
-      // address, after the comma or semicolon has been stripped.
-      if (
-        selection[0] == "," ||
-        !isValidAddress(input.value.substring(0, input.selectionEnd))
-      ) {
+      // Don't trigger autocomplete if the typed value is not a valid address.
+      if (!isValidAddress(input.value)) {
         break;
       }
       event.preventDefault();
