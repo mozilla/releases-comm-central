@@ -1262,11 +1262,7 @@ var OTR = {
       // which the OTR protocol uses to signal that the sender is willing
       // to start an OTR session. Don't do that for offline messages.
       // See: https://bugs.otr.im/lib/libotr/issues/102
-      if (
-        isOnline(conv) === 0 ||
-        // Twitter trims tweets.
-        conv.account.protocol.normalizedName === "twitter"
-      ) {
+      if (isOnline(conv) === 0) {
         let ind = msg.indexOf(OTRLib.OTRL_MESSAGE_TAG_BASE);
         if (ind > -1) {
           msg = msg.substring(0, ind);

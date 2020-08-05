@@ -21,15 +21,6 @@ var dummyAccount = {
   },
 };
 
-var dummyTwitterAccount = {
-  name: "dummy-twitter",
-  normalizedName: "dummytwitter",
-  protocol: {
-    normalizedName: "twitter",
-    id: "prpl-twitter",
-  },
-};
-
 var dummyConv = {
   account: dummyAccount,
   id: 0,
@@ -64,18 +55,6 @@ var dummyMUC = {
   id: 1,
   title: "Dummy MUC",
   normalizedName: "dummymuc",
-  get name() {
-    return this.normalizedName;
-  },
-  startDate: new Date(2011, 5, 28).valueOf() * 1000,
-  isChat: true,
-};
-
-var dummyTwitterConv = {
-  account: dummyTwitterAccount,
-  id: 2,
-  title: "Dummy Twitter Conv",
-  normalizedName: "dummytwitterconv",
   get name() {
     return this.normalizedName;
   },
@@ -262,24 +241,6 @@ var test_getLogFilePathForMUC = async function() {
   expectedPath = OS.Path.join(
     expectedPath,
     gLogger.getNewLogFileName("format", dummyMUC.startDate / 1000)
-  );
-  equal(path, expectedPath);
-};
-
-var test_getLogFilePathForTwitterConv = async function() {
-  let path = gLogger.getLogFilePathForConversation(dummyTwitterConv, "format");
-  let expectedPath = OS.Path.join(
-    logDirPath,
-    dummyTwitterAccount.protocol.normalizedName,
-    gLogger.encodeName(dummyTwitterAccount.normalizedName)
-  );
-  expectedPath = OS.Path.join(
-    expectedPath,
-    gLogger.encodeName(dummyTwitterConv.normalizedName)
-  );
-  expectedPath = OS.Path.join(
-    expectedPath,
-    gLogger.getNewLogFileName("format", dummyTwitterConv.startDate / 1000)
   );
   equal(path, expectedPath);
 };
@@ -570,18 +531,11 @@ function run_test() {
     equal(gLogger.encodeName(encodeName_input[i]), encodeName_output[i]);
   }
 
-  // Test convIsRealMUC().
-  ok(!gLogger.convIsRealMUC(dummyConv));
-  ok(!gLogger.convIsRealMUC(dummyTwitterConv));
-  ok(gLogger.convIsRealMUC(dummyMUC));
-
   add_task(test_getLogFolderPathForAccount);
 
   add_task(test_getLogFilePathForConversation);
 
   add_task(test_getLogFilePathForMUC);
-
-  add_task(test_getLogFilePathForTwitterConv);
 
   add_task(test_queueFileOperation);
 

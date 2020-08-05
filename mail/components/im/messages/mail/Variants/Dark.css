@@ -47,8 +47,3 @@ body {
 .eventToggle {
   fill: #fff;
 }
-
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) {
-  background-color: rgba(69, 161, 255, 0.2);
-  border: 1px solid #45a1ff;
-}

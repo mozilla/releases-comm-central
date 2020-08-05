@@ -25,7 +25,7 @@ YahooAccount.prototype = {
     this.WARN(
       "The legacy versions of Yahoo Messenger was disabled on August " +
         "5, 2016. It is currently not possible to connect to Yahoo " +
-        "Messenger. See bug 1316000"
+        "Messenger. See bug 1316000."
     );
     this.reportDisconnecting(
       Ci.prplIAccount.ERROR_OTHER_ERROR,

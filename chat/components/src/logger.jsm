@@ -137,7 +137,7 @@ function getLogFilePathForConversation(aConv, aFormat, aStartTime) {
   }
   let path = getLogFolderPathForAccount(aConv.account);
   let name = aConv.normalizedName;
-  if (convIsRealMUC(aConv)) {
+  if (aConv.isChat) {
     name += ".chat";
   }
   return OS.Path.join(
@@ -494,16 +494,6 @@ function getDateFromFilename(aFilename) {
 
   // We ignore the timezone offset for now (FIXME)
   return [new Date(r[1], r[2] - 1, r[3], r[4], r[5], r[6]), r[10]];
-}
-
-/**
- * Returns true if a Conversation is both a chat conversation, and not
- * a Twitter conversation.
- */
-function convIsRealMUC(aConversation) {
-  return (
-    aConversation.isChat && aConversation.account.protocol.id != "prpl-twitter"
-  );
 }
 
 function LogMessage(aData, aConversation) {
@@ -938,7 +928,7 @@ Logger.prototype = {
   },
   getLogsForConversation(aConversation, aGroupByDay) {
     let name = aConversation.normalizedName;
-    if (convIsRealMUC(aConversation)) {
+    if (aConversation.isChat) {
       name += ".chat";
     }
     return this.getLogsForAccountAndName(

@@ -145,23 +145,3 @@ p *:any-link img {
 .hide-children > :-moz-any(p.event.row, hr):not(:first-of-type):not(:last-of-type):not(.no-collapse) {
   display: none;
 }
-
-/* We style Twitter differently from other types of chat */
-
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) {
-  margin-bottom: 10px;
-}
-
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) .next {
-  visibility: visible;
-}
-
-.message:-moz-any([data-prpl="Twitter"], [data-prpl="twitter"]) .usericon {
-  display: block;
-  max-width: 42px;
-  max-height: 42px;
-  border-radius: 9999px;
-  margin-block-end: 8px;
-  -moz-context-properties: fill;
-  fill: currentColor;
-}

@@ -85,7 +85,7 @@ pref("chat.xmpp.messageCarbons", true);
 pref("chat.prpls.prpl-facebook.disable", true);
 // Disable experimental Matrix support.
 pref("chat.prpls.prpl-matrix.disable", true);
-// Disable Twitter until support for the updated API is complete. See bug 1445778.
+// Disable Twitter as the streaming API was shut down.
 pref("chat.prpls.prpl-twitter.disable", true);
 // Disable Yahoo Messenger as legacy Yahoo was shut down.
 pref("chat.prpls.prpl-yahoo.disable", true);
