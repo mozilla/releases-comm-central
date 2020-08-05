@@ -15,6 +15,7 @@
 /*global Sendlater3Composing: false, gCurrentIdentity: false, showMessageComposeSecurityStatus: false */
 /*global gSendEncrypted: true, gOptionalEncryption: true, gSendSigned: true, gSelectedTechnologyIsPGP: true */
 /*global gIsRelatedToEncryptedOriginal: true, gIsRelatedToSignedOriginal: true, gAttachMyPublicPGPKey: true */
+/*global setEncSigStatusUI: false */
 
 /* import-globals-from ../BondOpenPGP.jsm */
 
