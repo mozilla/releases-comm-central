@@ -48,6 +48,7 @@ async function setListEntries() {
   for (let addr of gEmailAddresses) {
     let emailStatus = null;
 
+    addr = addr.toLowerCase();
     let foundKeys = gMapAddressToKeyObjs.get(addr);
     if (!foundKeys || !foundKeys.length) {
       emailStatus = "openpgp-recip-missing";
