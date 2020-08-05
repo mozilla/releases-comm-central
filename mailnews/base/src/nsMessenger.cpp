@@ -829,6 +829,9 @@ nsMessenger::SaveAllAttachments(const nsTArray<nsCString>& contentTypeArray,
   NS_ENSURE_TRUE(urlArray.Length() == len, NS_ERROR_INVALID_ARG);
   NS_ENSURE_TRUE(displayNameArray.Length() == len, NS_ERROR_INVALID_ARG);
   NS_ENSURE_TRUE(messageUriArray.Length() == len, NS_ERROR_INVALID_ARG);
+  if (len == 0) {
+    return NS_OK;
+  }
   return SaveAllAttachments(contentTypeArray, urlArray, displayNameArray,
                             messageUriArray, false);
 }
