@@ -372,6 +372,9 @@ function selectFile() {
       return;
     }
     document.getElementById("identity.signature").value = fp.file.path;
+    document
+      .getElementById("identity.signature")
+      .dispatchEvent(new CustomEvent("change"));
   });
 }
 

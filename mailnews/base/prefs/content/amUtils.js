@@ -52,6 +52,7 @@ function BrowseForLocalFolders() {
     }
 
     currentFolderTextBox.value = selectedFolder.path;
+    currentFolderTextBox.dispatchEvent(new CustomEvent("change"));
   });
 }
 

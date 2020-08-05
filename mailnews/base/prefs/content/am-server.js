@@ -500,6 +500,7 @@ function BrowseForNewsrc() {
       return;
     }
     newsrcTextBox.value = fp.file.path;
+    newsrcTextBox.dispatchEvent(new CustomEvent("change"));
   });
 }
 
