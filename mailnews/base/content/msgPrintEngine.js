@@ -8,7 +8,9 @@
 /* import-globals-from ../../../../toolkit/components/printing/content/printUtils.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
 /* globals for a particular window */
 var printEngineContractID = "@mozilla.org/messenger/msgPrintEngine;1";
