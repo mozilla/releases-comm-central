@@ -17,6 +17,7 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
  * Helper function for filling the form,
