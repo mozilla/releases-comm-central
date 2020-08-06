@@ -95,14 +95,6 @@ pref("toolkit.crashreporter.infoURL",
 pref("datareporting.healthreport.uploadEnabled", true); // Required to enable telemetry pings.
 pref("datareporting.healthreport.infoURL", "https://www.mozilla.org/thunderbird/legal/privacy/#health-report");
 
-#ifdef MOZ_DATA_REPORTING
-pref("datareporting.policy.dataSubmissionEnabled", true);
-pref("datareporting.policy.dataSubmissionPolicyAcceptedVersion", 0);
-pref("datareporting.policy.dataSubmissionPolicyBypassNotification", false);
-pref("datareporting.policy.currentPolicyVersion", 1);
-pref("datareporting.policy.firstRunURL", "https://www.mozilla.org/thunderbird/legal/privacy/");
-#endif
-
 // Base URL for web-based support pages.
 pref("app.support.baseURL", "https://support.thunderbird.net/%LOCALE%/%APP%/%APPBUILDID%/");
 

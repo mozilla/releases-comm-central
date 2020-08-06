@@ -366,6 +366,13 @@ var DOMLinkHandler = {
   },
 };
 
+var kTelemetryPrompted = "toolkit.telemetry.prompted";
+var kTelemetryEnabled = "toolkit.telemetry.enabled";
+var kTelemetryRejected = "toolkit.telemetry.rejected";
+var kTelemetryServerOwner = "toolkit.telemetry.server_owner";
+// This is used to reprompt/renotify users when privacy message changes
+var kTelemetryPromptRev = 2;
+
 var contentTabBaseType = {
   // List of URLs that will receive special treatment when opened in a tab.
   // Note that about:preferences is loaded via a different mechanism.
@@ -815,10 +822,8 @@ var specialTabs = {
     // Show the about rights notification if we need to.
     if (this.shouldShowAboutRightsNotification()) {
       this.showAboutRightsNotification();
-    }
-    if (this.shouldShowPolicyNotification()) {
-      // Do it on a timeout to workaround that open in background do not work when called too early.
-      setTimeout(this.showPolicyNotification, 10000);
+    } else if (this.shouldShowTelemetryNotification()) {
+      this.showTelemetryNotification();
     }
   },
 
@@ -1124,82 +1129,76 @@ var specialTabs = {
   },
 
   /**
-   * Looks at the existing prefs and determines if we should show the policy or not.
+   * Looks at the existing prefs and determines if we should suggest the user
+   * enables telemetry or not.
+   *
+   * This is controlled by the pref toolkit.telemetry.prompted
    */
-  shouldShowPolicyNotification() {
-    let dataSubmissionEnabled = Services.prefs.getBoolPref(
-      "datareporting.policy.dataSubmissionEnabled",
-      true
-    );
-    let dataSubmissionPolicyAcceptedVersion = Services.prefs.getIntPref(
-      "datareporting.policy.dataSubmissionPolicyAcceptedVersion",
-      0
-    );
-    let currentPolicyVersion = Services.prefs.getIntPref(
-      "datareporting.policy.currentPolicyVersion",
-      1
-    );
-    if (!AppConstants.MOZ_DATA_REPORTING || !dataSubmissionEnabled) {
+  shouldShowTelemetryNotification() {
+    // Toolkit has decided that the pref should have no default value, so this
+    // throws if not yet initialized.
+    let telemetryPrompted =
+      Services.prefs.getIntPref(kTelemetryPrompted, 0) >= kTelemetryPromptRev;
+    let telemetryEnabled = Services.prefs.getBoolPref(kTelemetryEnabled, false);
+    // In case user already allowed telemetry, do not bother him with any updated
+    // prompt. Clear the pref first, in case it was not Int (from older versions).
+    if (telemetryEnabled && !telemetryPrompted) {
+      Services.prefs.clearUserPref(kTelemetryPrompted);
+      Services.prefs.setIntPref(kTelemetryPrompted, kTelemetryPromptRev);
+    }
+
+    if (telemetryEnabled || telemetryPrompted) {
       return false;
     }
-    if (dataSubmissionPolicyAcceptedVersion >= currentPolicyVersion) {
-      return false;
-    }
+
     return true;
   },
 
-  showPolicyNotification() {
-    try {
-      let firstRunURL = Services.prefs.getStringPref(
-        "datareporting.policy.firstRunURL"
-      );
-      document.getElementById("tabmail").openTab("contentTab", {
-        contentPage: firstRunURL,
-        clickHandler: "specialTabs.aboutClickHandler(event);",
-        background: true,
-      });
-    } catch (e) {
-      // Show the infobar if it fails to show the privacy policy in the new tab.
-      this.showTelemetryNotification();
-    }
-    let currentPolicyVersion = Services.prefs.getIntPref(
-      "datareporting.policy.currentPolicyVersion",
-      1
-    );
-    Services.prefs.setIntPref(
-      "datareporting.policy.dataSubmissionPolicyAcceptedVersion",
-      currentPolicyVersion
-    );
-  },
-
   showTelemetryNotification() {
-    let brandBundle = Services.strings.createBundle(
+    var brandBundle = Services.strings.createBundle(
       "chrome://branding/locale/brand.properties"
     );
-    let telemetryBundle = Services.strings.createBundle(
+    var telemetryBundle = Services.strings.createBundle(
       "chrome://messenger/locale/telemetry.properties"
     );
 
-    let productName = brandBundle.GetStringFromName("brandFullName");
-    let serverOwner = Services.prefs.getCharPref(
-      "toolkit.telemetry.server_owner"
-    );
-    let telemetryText = telemetryBundle.formatStringFromName("telemetryText", [
+    var productName = brandBundle.GetStringFromName("brandFullName");
+    var serverOwner = Services.prefs.getCharPref(kTelemetryServerOwner);
+    var telemetryText = telemetryBundle.formatStringFromName("telemetryText", [
       productName,
       serverOwner,
     ]);
 
-    // TODO: sync up this bar with Firefox:
-    // https://searchfox.org/mozilla-central/rev/227f22acef5c4865503bde9f835452bf38332c8e/browser/locales/en-US/chrome/browser/browser.properties#697-698
-    let buttons = [
+    // Clear all the prefs as we will set them as needed after answering the prompt.
+    Services.prefs.clearUserPref(kTelemetryPrompted);
+    Services.prefs.clearUserPref(kTelemetryEnabled);
+    Services.prefs.clearUserPref(kTelemetryRejected);
+
+    var buttons = [
       {
-        label: telemetryBundle.GetStringFromName("telemetryLinkLabel"),
+        label: telemetryBundle.GetStringFromName("telemetryYesButtonLabel"),
+        accessKey: telemetryBundle.GetStringFromName(
+          "telemetryYesButtonAccessKey"
+        ),
         popup: null,
-        callback: () => {
-          openOptionsDialog("panePrivacy", "privacyDataCollectionCategory");
+        callback(aNotificationBar, aButton) {
+          Services.prefs.setBoolPref(kTelemetryEnabled, true);
+        },
+      },
+      {
+        label: telemetryBundle.GetStringFromName("telemetryNoButtonLabel"),
+        accessKey: telemetryBundle.GetStringFromName(
+          "telemetryNoButtonAccessKey"
+        ),
+        popup: null,
+        callback(aNotificationBar, aButton) {
+          Services.prefs.setBoolPref(kTelemetryRejected, true);
         },
       },
     ];
+
+    // Set pref to indicate we've shown the notification.
+    Services.prefs.setIntPref(kTelemetryPrompted, kTelemetryPromptRev);
 
     let notification = this.msgNotificationBar.appendNotification(
       telemetryText,
@@ -1209,8 +1208,31 @@ var specialTabs = {
       buttons
     );
     notification.persistence = 3; // arbitrary number, just so bar sticks around for a bit
-  },
 
+    let link = notification.ownerDocument.createXULElement("label", {
+      is: "text-link",
+    });
+    link.className = "telemetry-text-link";
+    link.setAttribute(
+      "value",
+      telemetryBundle.GetStringFromName("telemetryLinkLabel")
+    );
+    link.addEventListener("click", function() {
+      openPrivacyPolicy("tab");
+      // Remove the notification on which the user clicked
+      notification.parentNode.removeNotification(notification, true);
+      // Add a new notification to that tab, with no "Learn more" link
+      this.msgNotificationBar.appendNotification(
+        telemetryText,
+        "telemetry",
+        null,
+        this.msgNotificationBar.PRIORITY_INFO_LOW,
+        buttons
+      );
+    });
+
+    notification.messageText.appendChild(link);
+  },
   /**
    * Looks at the existing prefs and determines if we should show about:rights
    * or not.
