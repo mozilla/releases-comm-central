@@ -894,16 +894,36 @@ Enigmail.hdrView = {
       gFolderDisplay.selectedMessages.length === 1 &&
       gFolderDisplay.selectedMessage
     ) {
-      let subj = EnigmailData.convertFromUnicode(subject, "utf-8");
-      if (gFolderDisplay.selectedMessage.flags & Ci.nsMsgMessageFlags.HasRe) {
-        subj = subj.replace(/^(Re: )+(.*)/, "$2");
+      // Strip multiple localised Re: prefixes. This emulates NS_MsgStripRE().
+      let newSubject = subject;
+      let prefixes = Services.prefs.getStringPref("mailnews.localizedRe", "Re");
+      prefixes = prefixes.split(",");
+      if (!prefixes.includes("Re")) {
+        prefixes.push("Re");
       }
-      gFolderDisplay.selectedMessage.subject = subj;
-      this.updateHdrBox("subject", subject); // this needs to be the unmodified subject
+      // Construct a regular expression like this: ^(Re: |Aw: )+
+      let regEx = new RegExp(`^(${prefixes.join(": |")}: )+`, "i");
+      newSubject = newSubject.replace(regEx, "");
+      let hadRe = newSubject != subject;
 
-      let tt = document.getElementById("threadTree");
-      if (tt && "invalidate" in tt) {
-        tt.invalidate();
+      // Update the header pane.
+      this.updateHdrBox("subject", hadRe ? "Re: " + newSubject : newSubject);
+
+      // Update the thread pane.
+      let tree = gFolderDisplay.tree;
+      let msgHdr = gFolderDisplay.selectedMessage;
+      msgHdr.subject = EnigmailData.convertFromUnicode(newSubject, "utf-8");
+
+      // Set the corred HasRe flag and refresh the row.
+      let oldFlags = msgHdr.flags;
+      if (hadRe && !(oldFlags & Ci.nsMsgMessageFlags.HasRe)) {
+        let newFlags = oldFlags | Ci.nsMsgMessageFlags.HasRe;
+        msgHdr.flags = newFlags;
+        if (tree && tree.view) {
+          tree.view.db.NotifyHdrChangeAll(msgHdr, oldFlags, newFlags, {});
+        }
+      } else if (tree && tree.view && tree.view.selection) {
+        tree.invalidateRow(tree.view.selection.currentIndex);
       }
     }
   },
