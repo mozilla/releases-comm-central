@@ -3,3 +3,16 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url(chrome://calendar/skin/shared/dialogs/calendar-alarm-dialog.css);
+
+.snooze-value-textbox {
+  padding-inline-end: 0;
+}
+
+.button-menu-dropmarker {
+  appearance: none;
+  list-style-image: url("chrome://global/skin/icons/arrow-dropdown-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+  width: 12px;
+  height: 12px;
+}

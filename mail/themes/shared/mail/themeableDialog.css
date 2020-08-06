@@ -485,3 +485,7 @@ separator.groove:not([orient="vertical"]) {
   opacity: 0.7;
   font-size: .9em;
 }
+
+:root[lwt-tree-brighttext] .text-link {
+  color: #0aa5ff;
+}

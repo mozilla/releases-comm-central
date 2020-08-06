@@ -4,10 +4,11 @@
 
 @import url(chrome://calendar/skin/shared/dialogs/calendar-alarm-dialog.css);
 
-.snooze-popup-ok-button:hover {
-    background-color: -moz-menuhover;
+.snooze-value-textbox {
+  padding: 0;
 }
 
-.snooze-popup-cancel-button:hover {
-    background-color: -moz-menuhover;
+#alarm-snooze-all-popup > menuitem,
+menupopup[is="calendar-snooze-popup"] > menuitem {
+  padding: 2px 5px;
 }

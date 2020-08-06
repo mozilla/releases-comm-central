@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#calendar-alarm-dialog[lwt-tree]  {
+  background-color: var(--lwt-accent-color);
+  color: var(--lwt-text-color);
+}
+
 /* Alarm dialog styles */
 #alarm-richlist {
     margin: 10px;
@@ -19,8 +24,6 @@ richlistitem[is="calendar-alarm-widget-richlistitem"] {
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] {
-    background-color: Highlight;
-    color: HighlightText;
     padding: 0 5px;
 }
 
@@ -30,6 +33,7 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-ti
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-action-buttons {
     display: -moz-box;
+    color: var(--field-text-color);
 }
 
 richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] > hbox {
@@ -48,7 +52,6 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-b
 }
 
 .alarm-details-label {
-    color: HighlightText;
     text-decoration: underline;
 }
 
@@ -61,10 +64,13 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-ca
 
 .snooze-popup-button {
     min-width: 0;
-    appearance: auto;
-    -moz-default-appearance: toolbarbutton;
+    appearance: none;
     -moz-context-properties: fill;
     fill: currentColor;
+}
+
+.snooze-popup-button:hover {
+    background-color: var(--button-background-hover);
 }
 
 .snooze-popup-ok-button {
@@ -90,3 +96,13 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .alarm-ca
     border: 1px dotted ThreeDDarkShadow;
     padding: 0;
 }
+
+:root[lwt-tree] #alarm-snooze-all-popup,
+:root[lwt-tree] menupopup[is="calendar-snooze-popup"] {
+  appearance: none;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--button-border-radius);
+  background-color: var(--box-background-color);
+  color: var(--box-text-color);
+}
+
