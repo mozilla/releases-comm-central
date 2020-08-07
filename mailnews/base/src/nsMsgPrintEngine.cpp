@@ -530,7 +530,8 @@ void nsMsgPrintEngine::PrintMsgWindow() {
         nsresult rv;
         nsCOMPtr<nsIPrintSettingsService> printSettingsService =
             do_GetService("@mozilla.org/gfx/printsettings-service;1", &rv);
-        printSettingsService->GetGlobalPrintSettings(getter_AddRefs(mPrintSettings));
+        printSettingsService->GetGlobalPrintSettings(
+            getter_AddRefs(mPrintSettings));
       }
 
       // fix for bug #118887 and bug #176016

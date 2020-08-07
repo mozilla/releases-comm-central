@@ -120,10 +120,10 @@ nsAbContentHandler::HandleContent(const char* aContentType,
 
     // create a stream loader to handle the v-card data
     nsCOMPtr<nsIStreamLoader> streamLoader;
-    rv = NS_NewStreamLoader(getter_AddRefs(streamLoader), uri, this,
-                            nullPrincipal,
-                            nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-                            nsIContentPolicy::TYPE_OTHER);
+    rv = NS_NewStreamLoader(
+        getter_AddRefs(streamLoader), uri, this, nullPrincipal,
+        nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
+        nsIContentPolicy::TYPE_OTHER);
     NS_ENSURE_SUCCESS(rv, rv);
 
   } else  // The content-type was not application/x-addvcard...
