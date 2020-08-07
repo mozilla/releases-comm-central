@@ -16,7 +16,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         style="width:60em; max-width:90em; min-height:40em"
-        persist="width height"
+        persist="width"
         onload="onLoad();">
 <dialog id="enigmailKeyDetailsDlg"
         buttons="accept"
@@ -81,9 +81,10 @@
       </html:aside>
     </html:div>
 
-    <vbox class="enigmailCaptionbox" id="alsoknown" flex="1">
-      <html:h1 data-l10n-id="openpgp-key-details-also-known-label"/>
-      <richlistbox id="additionalUid" style="height: 4em;" flex="1"/>
+    <vbox id="alsoknown" flex="1">
+      <label class="key-detail-label"
+             data-l10n-id="openpgp-key-details-also-known-label"/>
+      <richlistbox id="additionalUid" class="additional-key-identity" flex="1"/>
     </vbox>
   </vbox>
 

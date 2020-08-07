@@ -28,3 +28,16 @@
 .input-padding {
   margin: 2px 4px;
 }
+
+#alsoknown {
+  margin-top: 9px;
+  margin-inline: 6px;
+}
+
+.additional-key-identity {
+  max-height: 5em;
+}
+
+.additional-key-identity > richlistitem {
+  padding: 2px 4px;
+}

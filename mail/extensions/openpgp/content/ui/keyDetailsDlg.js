@@ -57,6 +57,8 @@ async function onLoad() {
   accept.focus();
 
   await reloadData(true);
+
+  resizeDialog();
 }
 
 /***
@@ -268,6 +270,11 @@ async function reloadData(firstLoad) {
   if (acceptanceIntro2Text) {
     let acceptanceIntro2 = document.getElementById("acceptanceIntro2");
     document.l10n.setAttributes(acceptanceIntro2, acceptanceIntro2Text);
+  }
+
+  // Resize the dialog only if the data was changed since the first load.
+  if (!firstLoad) {
+    resizeDialog();
   }
 }
 
@@ -716,6 +723,22 @@ async function onAccept() {
     }
   }
   return true;
+}
+
+/**
+ * Resize the dialog to account for the newly visible sections.
+ */
+function resizeDialog() {
+  // Timeout to trigger the dialog resize after all the data have been loaded on
+  // first run.
+  setTimeout(() => {
+    // Check if the dialog was opened as a SubDialog.
+    if (parent.gSubDialog) {
+      parent.gSubDialog._topDialog.resizeVertically();
+    } else {
+      sizeToContent();
+    }
+  }, 230);
 }
 
 document.addEventListener("dialogaccept", async function(event) {
