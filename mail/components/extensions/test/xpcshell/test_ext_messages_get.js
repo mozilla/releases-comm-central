@@ -7,74 +7,17 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-ExtensionTestUtils.init(this);
-
-var imapd = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
-var { mailTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MailTestUtils.jsm"
-);
-var { MessageGenerator } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MessageGenerator.jsm"
-);
-var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
-);
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
-);
 
 /**
- * Create a local mail account and add a message.
+ * Create a mail account and add a message.
  */
 add_task(async function setup() {
-  let localAccount = createAccount();
-  let rootFolder = localAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
-  createMessages(rootFolder.getChildNamed("test1"), 1);
-});
-
-/**
- * Create an IMAP account and add a message.
- */
-add_task(async function() {
-  let daemon = new imapd.imapDaemon();
-  let server = new nsMailServer(function createHandler(d) {
-    return new imapd.IMAP_RFC3501_handler(d);
-  }, daemon);
-  server.start();
-
-  let imapAccount = MailServices.accounts.createAccount();
-  addIdentity(imapAccount);
-  let iServer = MailServices.accounts.createIncomingServer(
-    "user",
-    "localhost",
-    "imap"
+  let account = createAccount();
+  let folder = await createSubfolder(
+    account.incomingServer.rootFolder,
+    "test1"
   );
-  iServer.port = server.port;
-  iServer.username = "user";
-  iServer.password = "password";
-  imapAccount.incomingServer = iServer;
-
-  let rootFolder = imapAccount.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
-  await PromiseTestUtils.promiseFolderAdded("test1");
-
-  let [synMsg] = new MessageGenerator().makeMessages({
-    count: 1,
-    age_incr: { days: 2 },
-  });
-
-  let fakeFolder = daemon.getMailbox("test1");
-  let msgURI = Services.io.newURI(
-    "data:text/plain;base64," + btoa(synMsg.toMessageString())
-  );
-  let imapMsg = new imapd.imapMessage(msgURI.spec, fakeFolder.uidnext++, []);
-  fakeFolder.addMessage(imapMsg);
-
-  let realFolder = rootFolder.getChildNamed("test1");
-  await new Promise(resolve => {
-    mailTestUtils.updateFolderAndNotify(realFolder, resolve);
-  });
+  await createMessages(folder, 1);
 });
 
 /**
@@ -86,6 +29,7 @@ add_task(async function() {
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       let accounts = await browser.accounts.list();
+      browser.test.assertEq(1, accounts.length);
 
       for (let account of accounts) {
         let folder = account.folders.find(f => f.name == "test1");

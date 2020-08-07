@@ -7,26 +7,17 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-ExtensionTestUtils.init(this);
-
-var imapd = ChromeUtils.import("resource://testing-common/mailnews/Imapd.jsm");
-var { nsMailServer } = ChromeUtils.import(
-  "resource://testing-common/mailnews/Maild.jsm"
-);
-var { PromiseTestUtils } = ChromeUtils.import(
-  "resource://testing-common/mailnews/PromiseTestUtils.jsm"
-);
 
 add_task(async function test_accounts() {
   let files = {
     "background.js": async () => {
-      let [account1Id] = await window.waitForMessage();
+      let [account1Id, account1Name] = await window.waitForMessage();
       let result1 = await browser.accounts.list();
       browser.test.assertEq(1, result1.length);
       window.assertDeepEqual(
         {
           id: account1Id,
-          name: "Local Folders",
+          name: account1Name,
           type: "none",
           folders: [
             {
@@ -46,14 +37,16 @@ add_task(async function test_accounts() {
         result1[0]
       );
 
-      let [account2Id] = await window.sendMessage("create account 2");
+      let [account2Id, account2Name] = await window.sendMessage(
+        "create account 2"
+      );
       let result2 = await browser.accounts.list();
       browser.test.assertEq(2, result2.length);
       window.assertDeepEqual(result1[0], result2[0]);
       window.assertDeepEqual(
         {
           id: account2Id,
-          name: "Mail for xpcshell@localhost",
+          name: account2Name,
           type: "imap",
           folders: [
             {
@@ -162,31 +155,17 @@ add_task(async function test_accounts() {
     },
   });
 
-  let daemon = new imapd.imapDaemon();
-  let server = new nsMailServer(function createHandler(d) {
-    return new imapd.IMAP_RFC3501_handler(d);
-  }, daemon);
-  server.start();
-
-  let account1 = createAccount();
-
   await extension.startup();
-  extension.sendMessage(account1.key);
+  let account1 = createAccount();
+  extension.sendMessage(account1.key, account1.incomingServer.prettyName);
 
   await extension.awaitMessage("create account 2");
-  let account2 = MailServices.accounts.createAccount();
-  addIdentity(account2);
-  let iServer = MailServices.accounts.createIncomingServer(
-    "user",
-    "localhost",
-    "imap"
-  );
-  iServer.port = server.port;
-  iServer.username = "user";
-  iServer.password = "password";
-  account2.incomingServer = iServer;
-
-  extension.sendMessage(account2.key);
+  let account2 = createAccount("imap");
+  IMAPServer.open();
+  account2.incomingServer.port = IMAPServer.port;
+  account2.incomingServer.username = "user";
+  account2.incomingServer.password = "password";
+  extension.sendMessage(account2.key, account2.incomingServer.prettyName);
 
   await extension.awaitMessage("create folders");
   let inbox1 = [...account1.incomingServer.rootFolder.subFolders][0];

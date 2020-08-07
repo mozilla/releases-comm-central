@@ -5,14 +5,11 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-ExtensionTestUtils.init(this);
-
-let localAccount = createAccount();
-let rootFolder = localAccount.incomingServer.rootFolder;
-rootFolder.createSubfolder("test1", null);
-let inbox = rootFolder.getChildNamed("test1");
 
 add_task(async function() {
+  let account = createAccount();
+  let inbox = await createSubfolder(account.incomingServer.rootFolder, "test1");
+
   let extension = ExtensionTestUtils.loadExtension({
     background: async () => {
       browser.messages.onNewMailReceived.addListener((folder, messageList) => {
@@ -24,14 +21,14 @@ add_task(async function() {
 
   await extension.startup();
 
-  createMessages(inbox, 1);
+  await createMessages(inbox, 1);
   let inboxMessages = [...inbox.messages];
 
   let newMessages = await extension.awaitMessage("newMessages");
   equal(newMessages.length, 1);
   equal(newMessages[0].subject, inboxMessages[0].subject);
 
-  createMessages(inbox, 2);
+  await createMessages(inbox, 2);
   inboxMessages = [...inbox.messages];
   newMessages = await extension.awaitMessage("newMessages");
   equal(newMessages.length, 2);

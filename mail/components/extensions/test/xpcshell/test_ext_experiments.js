@@ -7,19 +7,15 @@
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-ExtensionTestUtils.init(this);
-
-async function run_test() {
-  let account = createAccount();
-  let rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
-  let subFolders = [...rootFolder.subFolders];
-  createMessages(subFolders[2], 5); // test1
-
-  run_next_test();
-}
 
 add_task(async function test_managers() {
+  let account = createAccount();
+  let folder = await createSubfolder(
+    account.incomingServer.rootFolder,
+    "test1"
+  );
+  await createMessages(folder, 5);
+
   let files = {
     "background.js": async () => {
       let [testAccount] = await browser.accounts.list();

@@ -11,8 +11,6 @@ var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
 
-ExtensionTestUtils.init(this);
-
 add_task(async () => {
   async function background() {
     function createCloudfileAccount() {

@@ -4,40 +4,33 @@
 
 "use strict";
 
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-ExtensionTestUtils.init(this);
-
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 var { GlodaIndexer } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaIndexer.jsm"
 );
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 // Create some folders and populate them.
-let account, rootFolder;
-let subFolders = {};
 add_task(async function setup() {
   GlodaIndexer._INDEX_INTERVAL = 0;
 
-  account = createAccount();
-  rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
-  rootFolder.createSubfolder("test2", null);
-  for (let folder of rootFolder.subFolders) {
-    subFolders[folder.name] = folder;
-  }
-  createMessages(subFolders.test1, 9);
-  createMessages(subFolders.test2, 9);
+  let account = createAccount();
+  let subFolders = {
+    test1: await createSubfolder(account.incomingServer.rootFolder, "test1"),
+    test2: await createSubfolder(account.incomingServer.rootFolder, "test2"),
+  };
+  await createMessages(subFolders.test1, 9);
 
   let messages = [...subFolders.test1.messages];
   // NB: Here, the messages are zero-indexed. In the test they're one-indexed.
-  messages[0].markRead(true);
-  messages[1].markFlagged(true);
-  messages[6].markFlagged(true);
+  subFolders.test1.markMessagesRead([messages[0]], true);
+  subFolders.test1.markMessagesFlagged([messages[1]], true);
+  subFolders.test1.markMessagesFlagged([messages[6]], true);
 
   subFolders.test1.addKeywordsToMessages(messages.slice(0, 1), "notATag");
   subFolders.test1.addKeywordsToMessages(messages.slice(2, 4), "$label2");
@@ -59,17 +52,40 @@ add_task(async function setup() {
     waiting = true;
   });
 
-  registerCleanupFunction(() => GlodaIndexer._shutdown());
-});
+  await createMessages(subFolders.test2, 7);
 
-add_task(async function() {
+  // Wait for Gloda to re-index the added messages.
+  await new Promise(resolve => {
+    let waiting = false;
+    GlodaIndexer.addListener(function indexListener(status) {
+      if (status == Gloda.kIndexerIdle && !GlodaIndexer.indexing && waiting) {
+        GlodaIndexer.removeListener(indexListener);
+        resolve();
+      }
+    });
+    waiting = true;
+  });
+
+  registerCleanupFunction(() => GlodaIndexer._shutdown());
+
   let files = {
     "background.js": async () => {
       let [accountId] = await window.waitForMessage();
 
+      let messages1 = await browser.messages.list({
+        accountId,
+        path: "/test1",
+      });
+      browser.test.assertEq(9, messages1.messages.length);
+      let messages2 = await browser.messages.list({
+        accountId,
+        path: "/test2",
+      });
+      browser.test.assertEq(7, messages2.messages.length);
+
       // Check all messages are returned.
-      let { messages } = await browser.messages.query({});
-      browser.test.assertEq(18, messages.length);
+      let { messages: allMessages } = await browser.messages.query({});
+      browser.test.assertEq(16, allMessages.length);
 
       let folder = { accountId, path: "/test1" };
 

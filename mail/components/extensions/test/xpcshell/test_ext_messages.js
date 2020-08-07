@@ -4,31 +4,33 @@
 
 "use strict";
 
-var { toXPCOMArray } = ChromeUtils.import(
-  "resource:///modules/iteratorUtils.jsm"
-);
 var { ExtensionTestUtils } = ChromeUtils.import(
   "resource://testing-common/ExtensionXPCShellUtils.jsm"
 );
-ExtensionTestUtils.init(this);
+var { toXPCOMArray } = ChromeUtils.import(
+  "resource:///modules/iteratorUtils.jsm"
+);
 
 let account, rootFolder, subFolders;
-async function run_test() {
+add_task(async function setup() {
   account = createAccount();
   rootFolder = account.incomingServer.rootFolder;
-  rootFolder.createSubfolder("test1", null);
-  rootFolder.createSubfolder("test2", null);
-  rootFolder.createSubfolder("test3", null);
-  subFolders = [...rootFolder.subFolders];
-  createMessages(subFolders[0], 99); // Trash
-  createMessages(subFolders[1], 1); // Unsent messages
-  createMessages(subFolders[2], 5); // test1
-
-  let messageArray = [[...subFolders[1].messages][0]];
-  subFolders[1].addKeywordsToMessages(messageArray, "testKeyword");
-
-  run_next_test();
-}
+  subFolders = {
+    test0: await createSubfolder(rootFolder, "test0"),
+    test1: await createSubfolder(rootFolder, "test1"),
+    test2: await createSubfolder(rootFolder, "test2"),
+    test3: await createSubfolder(rootFolder, "test3"),
+    trash: rootFolder.getChildNamed("Trash"),
+  };
+  await createMessages(subFolders.trash, 99);
+  await createMessages(subFolders.test0, 1);
+  // 100 messages must be created before this line or test_move_copy_delete will break.
+  await createMessages(subFolders.test1, 5);
+  subFolders.test0.addKeywordsToMessages(
+    [[...subFolders.test0.messages][0]],
+    "testkeyword"
+  );
+});
 
 add_task(async function test_pagination() {
   let files = {
@@ -170,13 +172,13 @@ add_task(async function test_update() {
     },
   });
 
-  let message = [...subFolders[1].messages][0];
+  let message = [...subFolders.test0.messages][0];
   ok(!message.isFlagged);
   ok(!message.isRead);
-  equal(message.getProperty("keywords"), "testKeyword");
+  equal(message.getProperty("keywords"), "testkeyword");
 
   await extension.startup();
-  extension.sendMessage({ accountId: account.key, path: "/Unsent Messages" });
+  extension.sendMessage({ accountId: account.key, path: "/test0" });
 
   await extension.awaitMessage("flagged");
   ok(message.isFlagged);
@@ -191,24 +193,45 @@ add_task(async function test_update() {
   extension.sendMessage();
 
   await extension.awaitMessage("tags1");
-  equal(message.getProperty("keywords"), "testKeyword $label1");
+  await PromiseTestUtils.promiseDelay(100);
+  if (IS_IMAP) {
+    // Only IMAP sets the junk/nonjunk keyword.
+    equal(message.getProperty("keywords"), "testkeyword junk $label1");
+  } else {
+    equal(message.getProperty("keywords"), "testkeyword $label1");
+  }
   extension.sendMessage();
 
   await extension.awaitMessage("tags2");
-  equal(message.getProperty("keywords"), "testKeyword $label2 $label3");
+  await PromiseTestUtils.promiseDelay(100);
+  if (IS_IMAP) {
+    equal(message.getProperty("keywords"), "testkeyword junk $label2 $label3");
+  } else {
+    equal(message.getProperty("keywords"), "testkeyword $label2 $label3");
+  }
   extension.sendMessage();
 
   await extension.awaitMessage("empty");
+  await PromiseTestUtils.promiseDelay(100);
   ok(message.isFlagged);
   ok(message.isRead);
-  equal(message.getProperty("keywords"), "testKeyword $label2 $label3");
+  if (IS_IMAP) {
+    equal(message.getProperty("keywords"), "testkeyword junk $label2 $label3");
+  } else {
+    equal(message.getProperty("keywords"), "testkeyword $label2 $label3");
+  }
   extension.sendMessage();
 
   await extension.awaitMessage("clear");
+  await PromiseTestUtils.promiseDelay(100);
   ok(!message.isFlagged);
   ok(!message.isRead);
   equal(message.getStringProperty("junkscore"), 0);
-  equal(message.getProperty("keywords"), "testKeyword");
+  if (IS_IMAP) {
+    equal(message.getProperty("keywords"), "testkeyword nonjunk");
+  } else {
+    equal(message.getProperty("keywords"), "testkeyword");
+  }
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
@@ -218,15 +241,19 @@ add_task(async function test_update() {
 add_task(async function test_move_copy_delete() {
   let files = {
     "background.js": async () => {
-      async function checkMessagesInFolder(expectedIndices, folder) {
-        let expectedSubjects = expectedIndices.map(i => subjects[i]);
+      async function checkMessagesInFolder(expectedKeys, folder) {
+        let expectedSubjects = expectedKeys.map(k => messages[k].subject);
+        browser.test.log("expected: " + expectedSubjects);
         let { messages: actualMessages } = await browser.messages.list(folder);
+        browser.test.log("actual: " + actualMessages.map(m => m.subject));
 
         browser.test.assertEq(expectedSubjects.length, actualMessages.length);
         for (let m of actualMessages) {
-          browser.test.assertTrue(expectedSubjects.includes(m.subject));
-          let index = subjects.indexOf(m.subject);
-          ids[index] = m.id;
+          browser.test.assertTrue(
+            expectedSubjects.includes(m.subject),
+            `${m.subject} at ${m.id}`
+          );
+          messages[m.subject.split(" ")[0]].id = m.id;
         }
 
         // Return the messages for convenience.
@@ -243,95 +270,129 @@ add_task(async function test_move_copy_delete() {
       let { messages: folder1Messages } = await browser.messages.list(
         testFolder1
       );
+
       // Since the ID of a message changes when it is moved, track by subject.
-      let ids = folder1Messages.map(m => m.id);
-      let subjects = folder1Messages.map(m => m.subject);
+      let messages = {};
+      for (let m of folder1Messages) {
+        messages[m.subject.split(" ")[0]] = { id: m.id, subject: m.subject };
+      }
 
       // To help with debugging, output the IDs of our five messages.
       // Conveniently at this point we know the messages should be numbered 101-105,
       // (since we used 100 messages in the previous two tests) so I've put the
       // expected values in comments.
-      browser.test.log(ids.join(", ")); // 101, 102, 103, 104, 105
+      browser.test.log(JSON.stringify(messages));
 
       // Move one message to another folder.
-      await browser.messages.move([ids[0]], testFolder2);
-      await checkMessagesInFolder([1, 2, 3, 4], testFolder1);
-      await checkMessagesInFolder([0], testFolder2);
-      browser.test.log(ids.join(", ")); // 106, 102, 103, 104, 105
+      await browser.messages.move([messages.Red.id], testFolder2);
+      await checkMessagesInFolder(
+        ["Green", "Blue", "My", "Happy"],
+        testFolder1
+      );
+      await checkMessagesInFolder(["Red"], testFolder2);
+      browser.test.log(JSON.stringify(messages)); // 106, 102, 103, 104, 105
 
       // And back again.
-      await browser.messages.move([ids[0]], testFolder1);
-      await checkMessagesInFolder([0, 1, 2, 3, 4], testFolder1);
+      await browser.messages.move([messages.Red.id], testFolder1);
+      await checkMessagesInFolder(
+        ["Red", "Green", "Blue", "My", "Happy"],
+        testFolder1
+      );
       await checkMessagesInFolder([], testFolder2);
-      browser.test.log(ids.join(", ")); // 101, 102, 103, 103, 105
+      browser.test.log(JSON.stringify(messages)); // 101, 102, 103, 103, 105
 
       // Move two messages to another folder.
-      await browser.messages.move([ids[1], ids[3]], testFolder2);
-      await checkMessagesInFolder([0, 2, 4], testFolder1);
-      await checkMessagesInFolder([1, 3], testFolder2);
-      browser.test.log(ids.join(", ")); // 101, 107, 103, 108, 105
+      await browser.messages.move(
+        [messages.Green.id, messages.My.id],
+        testFolder2
+      );
+      await checkMessagesInFolder(["Red", "Blue", "Happy"], testFolder1);
+      await checkMessagesInFolder(["Green", "My"], testFolder2);
+      browser.test.log(JSON.stringify(messages)); // 101, 107, 103, 108, 105
 
       // Move one back again.
-      await browser.messages.move([ids[3]], testFolder1);
-      await checkMessagesInFolder([0, 2, 3, 4], testFolder1);
-      await checkMessagesInFolder([1], testFolder2);
-      browser.test.log(ids.join(", ")); // 101, 107, 103, 104, 105
+      await browser.messages.move([messages.My.id], testFolder1);
+      await checkMessagesInFolder(["Red", "Blue", "My", "Happy"], testFolder1);
+      await checkMessagesInFolder(["Green"], testFolder2);
+      browser.test.log(JSON.stringify(messages)); // 101, 107, 103, 104, 105
 
       // Move messages from different folders to a third folder.
-      await browser.messages.move([ids[1], ids[3]], testFolder3);
-      await checkMessagesInFolder([0, 2, 4], testFolder1);
+      await browser.messages.move(
+        [messages.Green.id, messages.My.id],
+        testFolder3
+      );
+      await checkMessagesInFolder(["Red", "Blue", "Happy"], testFolder1);
       await checkMessagesInFolder([], testFolder2);
-      await checkMessagesInFolder([1, 3], testFolder3);
-      browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
+      await checkMessagesInFolder(["Green", "My"], testFolder3);
+      browser.test.log(JSON.stringify(messages)); // 101, 109, 103, 110, 105
 
       // Move a message to the folder it's already in.
-      await browser.messages.move([ids[1]], testFolder3);
-      await checkMessagesInFolder([1, 3], testFolder3);
-      browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
+      await browser.messages.move([messages.Green.id], testFolder3);
+      await checkMessagesInFolder(["Green", "My"], testFolder3);
+      browser.test.log(JSON.stringify(messages)); // 101, 109, 103, 110, 105
 
       // Move no messages.
       await browser.messages.move([], testFolder3);
-      await checkMessagesInFolder([0, 2, 4], testFolder1);
+      await checkMessagesInFolder(["Red", "Blue", "Happy"], testFolder1);
       await checkMessagesInFolder([], testFolder2);
-      await checkMessagesInFolder([1, 3], testFolder3);
-      browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
+      await checkMessagesInFolder(["Green", "My"], testFolder3);
+      browser.test.log(JSON.stringify(messages)); // 101, 109, 103, 110, 105
 
       // Move a non-existent message.
       await browser.messages.move([9999], testFolder1);
-      await checkMessagesInFolder([0, 2, 4], testFolder1);
-      browser.test.log(ids.join(", ")); // 101, 109, 103, 110, 105
+      await checkMessagesInFolder(["Red", "Blue", "Happy"], testFolder1);
+      browser.test.log(JSON.stringify(messages)); // 101, 109, 103, 110, 105
 
       // Move to a non-existent folder.
-      browser.test.assertRejects(
-        browser.messages.move([ids[0]], { accountId, path: "/missing" })
+      await browser.test.assertRejects(
+        browser.messages.move([messages.Red.id], {
+          accountId,
+          path: "/missing",
+        }),
+        /Unexpected error moving messages/,
+        "something should happen"
       );
 
       // Put everything back where it was at the start of the test.
-      await browser.messages.move(ids, testFolder1);
+      await browser.messages.move(
+        Object.values(messages).map(m => m.id),
+        testFolder1
+      );
+      await checkMessagesInFolder(
+        ["Red", "Green", "Blue", "My", "Happy"],
+        testFolder1
+      );
+      await checkMessagesInFolder([], testFolder2);
+      await checkMessagesInFolder([], testFolder3);
 
       // Copy one message to another folder.
-      await browser.messages.copy([ids[4]], testFolder2);
-      await checkMessagesInFolder([0, 1, 2, 3, 4], testFolder1);
+      await browser.messages.copy([messages.Happy.id], testFolder2);
+      await checkMessagesInFolder(
+        ["Red", "Green", "Blue", "My", "Happy"],
+        testFolder1
+      );
       let { messages: folder2Messages } = await browser.messages.list(
         testFolder2
       );
       browser.test.assertEq(1, folder2Messages.length);
-      browser.test.assertEq(subjects[4], folder2Messages[0].subject);
-      browser.test.assertTrue(folder2Messages[0].id != ids[4]);
-      ids.push(folder2Messages[0].id);
-      browser.test.log(ids.join(", ")); // 101, 102, 103, 104, 105, 111
+      browser.test.assertEq(messages.Happy.subject, folder2Messages[0].subject);
+      browser.test.assertTrue(folder2Messages[0].id != messages.Happy.id);
+      browser.test.log(JSON.stringify(messages)); // 101, 102, 103, 104, 105, 111
 
       // Delete the copied message.
-      await browser.messages.delete([ids.pop()], true);
-      await checkMessagesInFolder([0, 1, 2, 3, 4], testFolder1);
+      await browser.messages.delete([folder2Messages[0].id], true);
+      await checkMessagesInFolder(
+        ["Red", "Green", "Blue", "My", "Happy"],
+        testFolder1
+      );
       await checkMessagesInFolder([], testFolder2);
       await checkMessagesInFolder([], testFolder3);
-      browser.test.log(ids.join(", ")); // 101, 102, 103, 104, 105
+      browser.test.log(JSON.stringify(messages)); // 101, 102, 103, 104, 105
 
       // Move a message to the trash.
-      let trashedMessage = await browser.messages.get(ids.pop());
-      await browser.messages.delete([trashedMessage.id], false);
-      await checkMessagesInFolder([0, 1, 2, 3], testFolder1);
+      browser.test.log("this is the other failing bit");
+      await browser.messages.move([messages.Green.id], trashFolder);
+      await checkMessagesInFolder(["Red", "Blue", "My", "Happy"], testFolder1);
       await checkMessagesInFolder([], testFolder2);
       await checkMessagesInFolder([], testFolder3);
 
@@ -339,9 +400,9 @@ add_task(async function test_move_copy_delete() {
         trashFolder
       );
       browser.test.assertTrue(
-        trashFolderMessages.find(m => m.subject == trashedMessage.subject)
+        trashFolderMessages.find(m => m.subject == messages.Green.subject)
       );
-      browser.test.log(ids.join(", ")); // 101, 102, 103, 104
+      browser.test.log(JSON.stringify(messages)); // 101, 102, 103, 104
 
       browser.test.notifyPass("finished");
     },
@@ -366,14 +427,15 @@ add_task(async function test_move_copy_delete() {
   cleanUpAccount(account);
 });
 
-add_task(async function test_archive() {
+// The IMAP fakeserver just can't handle this.
+add_task({ skip_if: () => IS_IMAP }, async function test_archive() {
   let account2 = createAccount();
   account2.addIdentity(MailServices.accounts.createIdentity());
-
-  let rootFolder2 = account2.incomingServer.rootFolder;
-  rootFolder2.createSubfolder("test", null);
-  let inbox2 = [...rootFolder2.subFolders][2];
-  createMessages(inbox2, 15);
+  let inbox2 = await createSubfolder(
+    account2.incomingServer.rootFolder,
+    "test"
+  );
+  await createMessages(inbox2, 15);
 
   let month = 10;
   for (let message of inbox2.messages) {
@@ -391,6 +453,7 @@ add_task(async function test_archive() {
       let messagesBefore = await browser.messages.list(
         accountBefore.folders[2]
       );
+      browser.test.assertEq(15, messagesBefore.messages.length);
       await browser.messages.archive(messagesBefore.messages.map(m => m.id));
 
       let accountAfter = await browser.accounts.get(accountId);
