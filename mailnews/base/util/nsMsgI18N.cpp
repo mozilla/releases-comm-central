@@ -216,7 +216,7 @@ bool nsMsgI18Ncheck_data_in_charset_range(const char* charset,
 
   uint8_t buffer[512];
   auto src = mozilla::MakeStringSpan(inString);
-  auto dst = mozilla::MakeSpan(buffer);
+  auto dst = mozilla::Span(buffer);
   while (true) {
     uint32_t result;
     size_t read;

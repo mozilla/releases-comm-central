@@ -1786,7 +1786,7 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile* aFile,
   numRead = 0;
   while (NS_SUCCEEDED(inputStream->Read(buffer, sizeof(buffer), &numRead))) {
     mozilla::Span<const uint8_t> src =
-        mozilla::AsBytes(mozilla::MakeSpan(buffer, numRead));
+        mozilla::AsBytes(mozilla::Span(buffer, numRead));
     Unused << detector->Feed(src, false);
     if (numRead == 0) {
       break;

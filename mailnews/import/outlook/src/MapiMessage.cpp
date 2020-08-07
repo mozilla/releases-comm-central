@@ -567,8 +567,8 @@ bool CMapiMessage::CheckBodyInCharsetRange(const char* charset) {
   auto encoder = encoding->NewEncoder();
 
   uint8_t buffer[512];
-  auto src = mozilla::MakeSpan(m_body);
-  auto dst = mozilla::MakeSpan(buffer);
+  auto src = mozilla::Span(m_body);
+  auto dst = mozilla::Span(buffer);
   while (true) {
     uint32_t result;
     size_t read;
