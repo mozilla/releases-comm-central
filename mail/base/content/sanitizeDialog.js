@@ -34,7 +34,7 @@ var gSanitizePromptDialog = {
     ).value = Services.prefs.getIntPref("privacy.sanitize.timeSpan");
 
     let sanitizeItemList = document.querySelectorAll(
-      "#itemList > [preference]"
+      "#historyGroup > [preference]"
     );
     for (let prefItem of sanitizeItemList) {
       let name = s.getNameFromPreference(prefItem.getAttribute("preference"));
@@ -152,7 +152,7 @@ var gSanitizePromptDialog = {
 
     // Find any other pref that's checked and enabled.
     let sanitizeItemList = document.querySelectorAll(
-      "#itemList > [preference]"
+      "#historyGroup > [preference]"
     );
     for (let prefItem of sanitizeItemList) {
       found = !prefItem.disabled && prefItem.checked;
@@ -184,7 +184,7 @@ var gSanitizePromptDialog = {
 
     // Now manually set the prefs from their corresponding preference elements.
     let sanitizeItemList = document.querySelectorAll(
-      "#itemList > [preference]"
+      "#historyGroup > [preference]"
     );
     for (let prefItem of sanitizeItemList) {
       let prefName = prefItem.getAttribute("preference");
@@ -197,7 +197,7 @@ var gSanitizePromptDialog = {
    */
   hasNonSelectedItems() {
     let sanitizeItemList = document.querySelectorAll(
-      "#itemList > [preference]"
+      "#historyGroup > [preference]"
     );
     for (let prefItem of sanitizeItemList) {
       if (!prefItem.checked) {
