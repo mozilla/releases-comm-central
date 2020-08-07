@@ -32,6 +32,7 @@ addEventListener("load", () => {
     ...window.arguments[0],
     viewSourceBrowser: gBrowser,
   });
+  gBrowser.contentWindow.focus();
 });
 
 var viewSourceChrome = {
