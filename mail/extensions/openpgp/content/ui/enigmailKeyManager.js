@@ -1699,8 +1699,6 @@ var gKeyListView = {
     let showInvalidKeys = gShowInvalidKeys.getAttribute("checked") == "true";
     let showOthersKeys = gShowOthersKeys.getAttribute("checked") == "true";
 
-    document.getElementById("emptyTree").hidePopup();
-
     // skip leading 0x in case we search for a key:
     if (searchTxt.length > 2 && searchTxt.substr(0, 2).toLowerCase() == "0x") {
       searchTxt = searchTxt.substr(2);
