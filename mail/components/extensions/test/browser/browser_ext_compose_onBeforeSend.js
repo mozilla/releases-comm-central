@@ -12,59 +12,31 @@ let nonDefaultIdentity = addIdentity(account, "nondefault@invalid");
 let outbox = account.incomingServer.rootFolder.getChildNamed("outbox");
 
 add_task(async function testCancel() {
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
-      function waitForEvent(eventName) {
-        return new Promise(resolve => {
-          let listener = window => {
-            browser.windows[eventName].removeListener(listener);
-            resolve(window);
-          };
-          browser.windows[eventName].addListener(listener);
-        });
-      }
-
+  let files = {
+    "background.js": async () => {
       async function beginSend(sendExpected, lockExpected) {
-        await new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-          browser.test.sendMessage("beginSend");
-        });
+        await window.sendMessage("beginSend");
         return checkIfSent(sendExpected, lockExpected);
       }
 
       function checkIfSent(sendExpected, lockExpected = null) {
-        return new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-          browser.test.sendMessage("checkIfSent", sendExpected, lockExpected);
-        });
+        return window.sendMessage("checkIfSent", sendExpected, lockExpected);
       }
 
       function checkWindow(expected) {
-        return new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-          browser.test.sendMessage("checkWindow", expected);
-        });
+        return window.sendMessage("checkWindow", expected);
       }
 
       // Open a compose window with a message. The message will never send
       // because we removed the sending function, so we can attempt to send
       // it over and over.
 
-      let createdWindowPromise = waitForEvent("onCreated");
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: ["test@test.invalid"],
         subject: "Test",
       });
-      let createdWindow = await createdWindowPromise;
+      let [createdWindow] = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
       await checkWindow({ to: ["test@test.invalid"], subject: "Test" });
@@ -137,7 +109,7 @@ add_task(async function testCancel() {
 
       // Clean up.
 
-      let removedWindowPromise = waitForEvent("onRemoved");
+      let removedWindowPromise = window.waitForEvent("windows.onRemoved");
       browser.windows.remove(createdWindow.id);
       await removedWindowPromise;
 
@@ -160,7 +132,14 @@ add_task(async function testCancel() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["compose"] },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["compose"],
+    },
   });
 
   // We can't allow sending to actually happen, this is a test. For every
@@ -219,36 +198,14 @@ add_task(async function testCancel() {
 });
 
 add_task(async function testChangeDetails() {
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
-      function waitForEvent(eventName) {
-        return new Promise(resolve => {
-          let listener = window => {
-            browser.windows[eventName].removeListener(listener);
-            resolve(window);
-          };
-          browser.windows[eventName].addListener(listener);
-        });
-      }
-
-      async function beginSend() {
-        await new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-          browser.test.sendMessage("beginSend");
-        });
+  let files = {
+    "background.js": async () => {
+      function beginSend() {
+        return window.sendMessage("beginSend");
       }
 
       function checkWindow(expected) {
-        return new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-          browser.test.sendMessage("checkWindow", expected);
-        });
+        return window.sendMessage("checkWindow", expected);
       }
 
       let [account] = await browser.accounts.list();
@@ -259,13 +216,13 @@ add_task(async function testChangeDetails() {
       // as tested in browser_ext_compose_details.js, so just test that the
       // changes happen.
 
-      let createdWindowPromise = waitForEvent("onCreated");
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: ["test@test.invalid"],
         subject: "Test",
         body: "Original body.",
       });
-      let createdWindow = await createdWindowPromise;
+      let [createdWindow] = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
       await checkWindow({
@@ -309,13 +266,13 @@ add_task(async function testChangeDetails() {
 
       // Do the same thing, but this time with a Promise.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: ["test@test.invalid"],
         subject: "Test",
         body: "Original body.",
       });
-      createdWindow = await createdWindowPromise;
+      [createdWindow] = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
       await checkWindow({
@@ -371,7 +328,14 @@ add_task(async function testChangeDetails() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "compose"] },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose"],
+    },
   });
 
   extension.onMessage("beginSend", async () => {
@@ -448,36 +412,14 @@ add_task(async function testChangeDetails() {
 });
 
 add_task(async function testListExpansion() {
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
-      function waitForEvent(eventName) {
-        return new Promise(resolve => {
-          let listener = window => {
-            browser.windows[eventName].removeListener(listener);
-            resolve(window);
-          };
-          browser.windows[eventName].addListener(listener);
-        });
-      }
-
-      async function beginSend() {
-        await new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-          browser.test.sendMessage("beginSend");
-        });
+  let files = {
+    "background.js": async () => {
+      function beginSend() {
+        return window.sendMessage("beginSend");
       }
 
       function checkWindow(expected) {
-        return new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-          browser.test.sendMessage("checkWindow", expected);
-        });
+        return window.sendMessage("checkWindow", expected);
       }
 
       let addressBook = await browser.addressBooks.create({
@@ -504,12 +446,12 @@ add_task(async function testListExpansion() {
       // the headers should change. The mailing list should be expanded in both
       // the To: and Bcc: headers.
 
-      let createdWindowPromise = waitForEvent("onCreated");
+      let createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: [{ id: list, type: "mailingList" }],
         subject: "Test",
       });
-      let createdWindow = await createdWindowPromise;
+      let [createdWindow] = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
       await checkWindow({
@@ -547,12 +489,12 @@ add_task(async function testListExpansion() {
 
       // Return nothing from the listener. The mailing list should be expanded.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: [{ id: list, type: "mailingList" }],
         subject: "Test",
       });
-      createdWindow = await createdWindowPromise;
+      [createdWindow] = await createdWindowPromise;
       browser.test.assertEq("messageCompose", createdWindow.type);
 
       await checkWindow({
@@ -585,7 +527,14 @@ add_task(async function testListExpansion() {
       await browser.addressBooks.delete(addressBook);
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["addressBooks", "compose"] },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["addressBooks", "compose"],
+    },
   });
 
   extension.onMessage("beginSend", async () => {

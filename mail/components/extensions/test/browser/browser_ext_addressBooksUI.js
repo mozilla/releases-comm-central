@@ -4,35 +4,28 @@
 
 add_task(async () => {
   async function background() {
-    let awaitMessage = function(messageToSend, ...sendArgs) {
-      return new Promise(resolve => {
-        browser.test.onMessage.addListener(function listener(...args) {
-          browser.test.onMessage.removeListener(listener);
-          resolve(args);
-        });
-        if (messageToSend) {
-          browser.test.sendMessage(messageToSend, ...sendArgs);
-        }
-      });
-    };
-
-    await awaitMessage("checkNumberOfAddressBookWindows", 0);
+    await window.sendMessage("checkNumberOfAddressBookWindows", 0);
 
     await browser.addressBooks.openUI();
-    await awaitMessage("checkNumberOfAddressBookWindows", 1);
+    await window.sendMessage("checkNumberOfAddressBookWindows", 1);
 
     await browser.addressBooks.openUI();
-    await awaitMessage("checkNumberOfAddressBookWindows", 1);
+    await window.sendMessage("checkNumberOfAddressBookWindows", 1);
 
     await browser.addressBooks.closeUI();
-    await awaitMessage("checkNumberOfAddressBookWindows", 0);
+    await window.sendMessage("checkNumberOfAddressBookWindows", 0);
 
     browser.test.notifyPass("addressBooks");
   }
-
   let extension = ExtensionTestUtils.loadExtension({
-    background,
-    manifest: { permissions: ["addressBooks"] },
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["addressBooks"],
+    },
   });
 
   extension.onMessage("checkNumberOfAddressBookWindows", count => {

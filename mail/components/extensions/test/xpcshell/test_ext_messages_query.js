@@ -63,14 +63,9 @@ add_task(async function setup() {
 });
 
 add_task(async function() {
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
-      let [accountId] = await new Promise(resolve => {
-        browser.test.onMessage.addListener(function listener(...args) {
-          browser.test.onMessage.removeListener(listener);
-          resolve(args);
-        });
-      });
+  let files = {
+    "background.js": async () => {
+      let [accountId] = await window.waitForMessage();
 
       // Check all messages are returned.
       let { messages } = await browser.messages.query({});
@@ -198,7 +193,14 @@ add_task(async function() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   await extension.startup();

@@ -92,18 +92,6 @@ add_task(async function test_addressBooks() {
       return null;
     };
 
-    let awaitMessage = function(messageToSend, ...sendArgs) {
-      return new Promise(resolve => {
-        browser.test.onMessage.addListener(function listener(...args) {
-          browser.test.onMessage.removeListener(listener);
-          resolve(args);
-        });
-        if (messageToSend) {
-          browser.test.sendMessage(messageToSend, ...sendArgs);
-        }
-      });
-    };
-
     async function addressBookTest() {
       browser.test.log("Starting addressBookTest");
       let list = await browser.addressBooks.list();
@@ -538,7 +526,7 @@ add_task(async function test_addressBooks() {
     async function outsideEventsTest() {
       browser.test.log("Starting outsideEventsTest");
 
-      let [bookId, newBookPrefId] = await awaitMessage(
+      let [bookId, newBookPrefId] = await window.sendMessage(
         "outsideEventsTest",
         "createAddressBook"
       );
@@ -549,7 +537,7 @@ add_task(async function test_addressBooks() {
       ]);
       browser.test.assertEq("external add", newBook.name);
 
-      await awaitMessage(
+      await window.sendMessage(
         "outsideEventsTest",
         "updateAddressBook",
         newBookPrefId
@@ -564,7 +552,7 @@ add_task(async function test_addressBooks() {
       let eventPromise = new Promise(resolve => {
         eventPromiseResolve = resolve;
       });
-      await awaitMessage(
+      await window.sendMessage(
         "outsideEventsTest",
         "deleteAddressBook",
         newBookPrefId
@@ -572,7 +560,7 @@ add_task(async function test_addressBooks() {
       await eventPromise;
       checkEvents(["addressBooks", "onDeleted", bookId]);
 
-      let [parentId1, contactId] = await awaitMessage(
+      let [parentId1, contactId] = await window.sendMessage(
         "outsideEventsTest",
         "createContact"
       );
@@ -584,7 +572,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("external", newContact.properties.FirstName);
       browser.test.assertEq("add", newContact.properties.LastName);
 
-      await awaitMessage("outsideEventsTest", "updateContact", contactId);
+      await window.sendMessage("outsideEventsTest", "updateContact", contactId);
       let [updatedContact] = checkEvents([
         "contacts",
         "onUpdated",
@@ -593,7 +581,7 @@ add_task(async function test_addressBooks() {
       browser.test.assertEq("external", updatedContact.properties.FirstName);
       browser.test.assertEq("edit", updatedContact.properties.LastName);
 
-      let [parentId2, listId] = await awaitMessage(
+      let [parentId2, listId] = await window.sendMessage(
         "outsideEventsTest",
         "createMailingList"
       );
@@ -604,7 +592,11 @@ add_task(async function test_addressBooks() {
       ]);
       browser.test.assertEq("external add", newList.name);
 
-      await awaitMessage("outsideEventsTest", "updateMailingList", listId);
+      await window.sendMessage(
+        "outsideEventsTest",
+        "updateMailingList",
+        listId
+      );
       let [updatedList] = checkEvents([
         "mailingLists",
         "onUpdated",
@@ -612,7 +604,7 @@ add_task(async function test_addressBooks() {
       ]);
       browser.test.assertEq("external edit", updatedList.name);
 
-      await awaitMessage(
+      await window.sendMessage(
         "outsideEventsTest",
         "addMailingListMember",
         listId,
@@ -626,7 +618,7 @@ add_task(async function test_addressBooks() {
       let listMembers = await browser.mailingLists.listMembers(listId);
       browser.test.assertEq(1, listMembers.length);
 
-      await awaitMessage(
+      await window.sendMessage(
         "outsideEventsTest",
         "removeMailingListMember",
         listId,
@@ -634,10 +626,14 @@ add_task(async function test_addressBooks() {
       );
       checkEvents(["mailingLists", "onMemberRemoved", listId, contactId]);
 
-      await awaitMessage("outsideEventsTest", "deleteMailingList", listId);
+      await window.sendMessage(
+        "outsideEventsTest",
+        "deleteMailingList",
+        listId
+      );
       checkEvents(["mailingLists", "onDeleted", parentId2, listId]);
 
-      await awaitMessage("outsideEventsTest", "deleteContact", contactId);
+      await window.sendMessage("outsideEventsTest", "deleteContact", contactId);
       checkEvents(["contacts", "onDeleted", parentId1, contactId]);
 
       browser.test.log("Completed outsideEventsTest");
@@ -653,8 +649,14 @@ add_task(async function test_addressBooks() {
   }
 
   let extension = ExtensionTestUtils.loadExtension({
-    background,
-    manifest: { permissions: ["addressBooks"] },
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["addressBooks"],
+    },
   });
 
   extension.onMessage("outsideEventsTest", (action, ...args) => {

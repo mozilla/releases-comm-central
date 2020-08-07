@@ -7,8 +7,8 @@ add_task(async () => {
   addIdentity(account);
   let rootFolder = account.incomingServer.rootFolder;
 
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
+  let files = {
+    "background.js": async () => {
       async function checkProperty(property, expectedDefault, ...expected) {
         browser.test.log(
           `${property}: ${expectedDefault}, ${expected.join(", ")}`
@@ -25,13 +25,7 @@ add_task(async () => {
           );
         }
 
-        await new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-          browser.test.sendMessage(whichTest, property, expected);
-        });
+        await window.sendMessage(whichTest, property, expected);
       }
 
       let tabs = await browser.mailTabs.query({});
@@ -133,12 +127,17 @@ add_task(async () => {
       await browser.tabs.remove(tabIDs[2]);
       browser.test.notifyPass("finished");
     },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
     manifest: {
       applications: {
         gecko: {
           id: "test1@mochi.test",
         },
       },
+      background: { scripts: ["utils.js", "background.js"] },
       browser_action: {
         default_title: "default",
       },

@@ -11,8 +11,8 @@ let folder = rootFolder.getChildNamed("test");
 createMessages(folder, 3);
 
 add_task(async function testIdentity() {
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
+  let files = {
+    "background.js": async () => {
       let [account] = await browser.accounts.list();
       let [defaultIdentity, nonDefaultIdentity] = account.identities;
       let folder = account.folders.find(f => f.name == "test");
@@ -48,18 +48,20 @@ add_task(async function testIdentity() {
           browser.test.assertEq("object", typeof tab);
           browser.test.assertEq("number", typeof tab.id);
           browser.test.sendMessage("checkIdentity", test.isDefault);
-          await new Promise(resolve => {
-            browser.test.onMessage.addListener(function listener() {
-              browser.test.onMessage.removeListener(listener);
-              resolve();
-            });
-          });
+          await window.waitForMessage();
         }
       }
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   extension.onMessage("checkIdentity", async isDefault => {
@@ -81,29 +83,14 @@ add_task(async function testIdentity() {
 });
 
 add_task(async function testHeaders() {
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
-      function waitForEvent(eventName) {
-        return new Promise(resolve => {
-          let listener = window => {
-            browser.windows[eventName].removeListener(listener);
-            resolve(window);
-          };
-          browser.windows[eventName].addListener(listener);
-        });
-      }
-
+  let files = {
+    "background.js": async () => {
       async function checkHeaders(expected) {
-        let createdWindow = await createdWindowPromise;
+        let [createdWindow] = await createdWindowPromise;
         browser.test.assertEq("messageCompose", createdWindow.type);
         browser.test.sendMessage("checkHeaders", expected);
-        await new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-        });
-        let removedWindowPromise = waitForEvent("onRemoved");
+        await window.waitForMessage();
+        let removedWindowPromise = window.waitForEvent("windows.onRemoved");
         browser.windows.remove(createdWindow.id);
         await removedWindowPromise;
       }
@@ -138,13 +125,13 @@ add_task(async function testHeaders() {
 
       // Start a new message.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew();
       await checkHeaders({});
 
       // Start a new message, with a subject and recipients as strings.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: "Sherlock Holmes <sherlock@bakerstreet.invalid>",
         cc: "John Watson <john@bakerstreet.invalid>",
@@ -158,7 +145,7 @@ add_task(async function testHeaders() {
 
       // Start a new message, with a subject and recipients as string arrays.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: ["Sherlock Holmes <sherlock@bakerstreet.invalid>"],
         cc: ["John Watson <john@bakerstreet.invalid>"],
@@ -172,7 +159,7 @@ add_task(async function testHeaders() {
 
       // Start a new message, with a subject and recipients as contacts.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: [{ id: contacts.sherlock, type: "contact" }],
         cc: [{ id: contacts.john, type: "contact" }],
@@ -186,7 +173,7 @@ add_task(async function testHeaders() {
 
       // Start a new message, with a subject and recipients as a mailing list.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginNew({
         to: [{ id: list, type: "mailingList" }],
         subject: "Did you miss me?",
@@ -198,7 +185,7 @@ add_task(async function testHeaders() {
 
       // Reply to a message.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginReply(messages[0].id);
       await checkHeaders({
         to: [messages[0].author.replace(/"/g, "")],
@@ -207,7 +194,7 @@ add_task(async function testHeaders() {
 
       // Forward a message.
 
-      createdWindowPromise = waitForEvent("onCreated");
+      createdWindowPromise = window.waitForEvent("windows.onCreated");
       await browser.compose.beginForward(
         messages[1].id,
         "forwardAsAttachment",
@@ -223,7 +210,14 @@ add_task(async function testHeaders() {
       await browser.addressBooks.delete(addressBook);
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "addressBooks", "messagesRead"] },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "addressBooks", "messagesRead"],
+    },
   });
 
   extension.onMessage("checkHeaders", async expected => {
@@ -237,18 +231,8 @@ add_task(async function testHeaders() {
 });
 
 add_task(async function testBody() {
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
-      function waitForEvent(eventName) {
-        return new Promise(resolve => {
-          let listener = window => {
-            browser.windows[eventName].removeListener(listener);
-            resolve(window);
-          };
-          browser.windows[eventName].addListener(listener);
-        });
-      }
-
+  let files = {
+    "background.js": async () => {
       let emptyHTML = "<body>\n<p><br>\n</p>\n";
       let plainTextBodyTag =
         '<body style="font-family: -moz-fixed; white-space: pre-wrap; width: 72ch;">';
@@ -337,7 +321,7 @@ add_task(async function testBody() {
 
       for (let test of tests) {
         browser.test.log(JSON.stringify(test));
-        let createdWindowPromise = waitForEvent("onCreated");
+        let createdWindowPromise = window.waitForEvent("windows.onCreated");
         try {
           await browser.compose.beginNew(test.arguments);
           if (test.throws) {
@@ -354,24 +338,25 @@ add_task(async function testBody() {
           continue;
         }
 
-        let createdWindow = await createdWindowPromise;
+        let [createdWindow] = await createdWindowPromise;
         browser.test.assertEq("messageCompose", createdWindow.type);
         browser.test.sendMessage("checkBody", test.expected);
-        await new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener() {
-            browser.test.onMessage.removeListener(listener);
-            resolve();
-          });
-        });
-        let removedWindowPromise = waitForEvent("onRemoved");
+        await window.waitForMessage();
+        let removedWindowPromise = window.waitForEvent("windows.onRemoved");
         browser.windows.remove(createdWindow.id);
         await removedWindowPromise;
       }
 
       browser.test.notifyPass("finished");
     },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+    },
   });
-
   extension.onMessage("checkBody", async expected => {
     let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);

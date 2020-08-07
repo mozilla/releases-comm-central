@@ -26,56 +26,15 @@ add_task(async function setup() {
 
 add_task(async function test_update() {
   async function background() {
-    function awaitMessage(messageToSend, ...sendArgs) {
-      return new Promise(resolve => {
-        browser.test.onMessage.addListener(function listener(...args) {
-          browser.test.onMessage.removeListener(listener);
-          resolve(args);
-        });
-        if (messageToSend) {
-          browser.test.sendMessage(messageToSend, ...sendArgs);
-        }
-      });
-    }
-
-    function assertDeepEqual(expected, actual) {
-      if (Array.isArray(expected)) {
-        browser.test.assertTrue(Array.isArray(actual));
-        browser.test.assertEq(expected.length, actual.length);
-        for (let i = 0; i < expected.length; i++) {
-          assertDeepEqual(expected[i], actual[i]);
-        }
-        return;
-      }
-
-      let expectedKeys = Object.keys(expected);
-      let actualKeys = Object.keys(actual);
-      // Ignore any extra keys on the actual object.
-      browser.test.assertTrue(expectedKeys.length <= actualKeys.length);
-
-      for (let key of expectedKeys) {
-        browser.test.assertTrue(actualKeys.includes(key), `Key ${key} exists`);
-        if (expected[key] === null) {
-          browser.test.assertTrue(actual[key] === null);
-          continue;
-        }
-        if (["array", "object"].includes(typeof expected[key])) {
-          assertDeepEqual(expected[key], actual[key]);
-          continue;
-        }
-        browser.test.assertEq(expected[key], actual[key]);
-      }
-    }
-
     async function checkCurrent(expected) {
       let [current] = await browser.mailTabs.query({
         active: true,
         currentWindow: true,
       });
-      assertDeepEqual(expected, current);
+      window.assertDeepEqual(expected, current);
     }
 
-    let [accountId] = await awaitMessage();
+    let [accountId] = await window.waitForMessage();
     let { folders } = await browser.accounts.get(accountId);
     let state = {
       sortType: null,
@@ -90,7 +49,7 @@ add_task(async function test_update() {
       },
     };
     await checkCurrent(state);
-    await awaitMessage("checkRealLayout", state);
+    await window.sendMessage("checkRealLayout", state);
 
     browser.mailTabs.update({ displayedFolder: folders[0] });
     state.sortType = "date";
@@ -100,8 +59,8 @@ add_task(async function test_update() {
     state.displayedFolder = folders[0];
     delete state.displayedFolder.subFolders;
     await checkCurrent(state);
-    await awaitMessage("checkRealLayout", state);
-    await awaitMessage("checkRealSort", state);
+    await window.sendMessage("checkRealLayout", state);
+    await window.sendMessage("checkRealSort", state);
 
     state.sortOrder = "descending";
     for (let value of ["date", "subject", "author"]) {
@@ -110,7 +69,7 @@ add_task(async function test_update() {
         sortOrder: "descending",
       });
       state.sortType = value;
-      await awaitMessage("checkRealSort", state);
+      await window.sendMessage("checkRealSort", state);
     }
     state.sortOrder = "ascending";
     for (let value of ["author", "subject", "date"]) {
@@ -119,7 +78,7 @@ add_task(async function test_update() {
         sortOrder: "ascending",
       });
       state.sortType = value;
-      await awaitMessage("checkRealSort", state);
+      await window.sendMessage("checkRealSort", state);
     }
 
     for (let key of ["folderPaneVisible", "messagePaneVisible"]) {
@@ -127,14 +86,14 @@ add_task(async function test_update() {
         await browser.mailTabs.update({ [key]: value });
         state[key] = value;
         await checkCurrent(state);
-        await awaitMessage("checkRealLayout", state);
+        await window.sendMessage("checkRealLayout", state);
       }
     }
     for (let value of ["wide", "vertical", "standard"]) {
       await browser.mailTabs.update({ layout: value });
       state.layout = value;
       await checkCurrent(state);
-      await awaitMessage("checkRealLayout", state);
+      await window.sendMessage("checkRealLayout", state);
     }
 
     let selectedMessages = await browser.mailTabs.getSelectedMessages();
@@ -145,8 +104,14 @@ add_task(async function test_update() {
   }
 
   let extension = ExtensionTestUtils.loadExtension({
-    background,
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   extension.onMessage("checkRealLayout", expected => {
@@ -190,16 +155,7 @@ add_task(async function test_update() {
 
 add_task(async function test_displayedFolderChanged() {
   async function background() {
-    function awaitMessage() {
-      return new Promise(resolve => {
-        browser.test.onMessage.addListener(function listener(...args) {
-          browser.test.onMessage.removeListener(listener);
-          resolve(args);
-        });
-      });
-    }
-
-    let [accountId] = await awaitMessage();
+    let [accountId] = await window.waitForMessage();
 
     let [current] = await browser.mailTabs.query({
       active: true,
@@ -209,40 +165,30 @@ add_task(async function test_displayedFolderChanged() {
     browser.test.assertEq("/", current.displayedFolder.path);
 
     async function selectFolder(newFolderPath) {
-      return new Promise(resolve => {
-        browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(
-          tab,
-          folder
-        ) {
-          browser.mailTabs.onDisplayedFolderChanged.removeListener(listener);
-          browser.test.assertEq(current.id, tab.id);
-          browser.test.assertEq(accountId, folder.accountId);
-          browser.test.assertEq(newFolderPath, folder.path);
-          resolve();
-        });
-        browser.test.sendMessage("selectFolder", newFolderPath);
-      });
+      let changeListener = window.waitForEvent(
+        "mailTabs.onDisplayedFolderChanged"
+      );
+      browser.test.sendMessage("selectFolder", newFolderPath);
+      let [tab, folder] = await changeListener;
+      browser.test.assertEq(current.id, tab.id);
+      browser.test.assertEq(accountId, folder.accountId);
+      browser.test.assertEq(newFolderPath, folder.path);
     }
     await selectFolder("/test1");
     await selectFolder("/test2");
     await selectFolder("/");
 
     async function selectFolderByUpdate(newFolderPath) {
-      return new Promise(resolve => {
-        browser.mailTabs.onDisplayedFolderChanged.addListener(function listener(
-          tab,
-          folder
-        ) {
-          browser.mailTabs.onDisplayedFolderChanged.removeListener(listener);
-          browser.test.assertEq(current.id, tab.id);
-          browser.test.assertEq(accountId, folder.accountId);
-          browser.test.assertEq(newFolderPath, folder.path);
-          resolve();
-        });
-        browser.mailTabs.update({
-          displayedFolder: { accountId, path: newFolderPath },
-        });
+      let changeListener = window.waitForEvent(
+        "mailTabs.onDisplayedFolderChanged"
+      );
+      browser.mailTabs.update({
+        displayedFolder: { accountId, path: newFolderPath },
       });
+      let [tab, folder] = await changeListener;
+      browser.test.assertEq(current.id, tab.id);
+      browser.test.assertEq(accountId, folder.accountId);
+      browser.test.assertEq(newFolderPath, folder.path);
     }
     await selectFolderByUpdate("/test1");
     await selectFolderByUpdate("/test2");
@@ -260,8 +206,14 @@ add_task(async function test_displayedFolderChanged() {
   ]);
 
   let extension = ExtensionTestUtils.loadExtension({
-    background,
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   extension.onMessage("selectFolder", async newFolderPath => {
@@ -295,15 +247,12 @@ add_task(async function test_selectedMessagesChanged() {
     await browser.mailTabs.query({});
 
     async function selectMessages(...newMessages) {
-      return new Promise(resolve => {
-        browser.mailTabs.onSelectedMessagesChanged.addListener(
-          function listener(tab, messageList) {
-            browser.mailTabs.onSelectedMessagesChanged.removeListener(listener);
-            resolve(messageList);
-          }
-        );
-        browser.test.sendMessage("selectMessage", newMessages);
-      });
+      let selectPromise = window.waitForEvent(
+        "mailTabs.onSelectedMessagesChanged"
+      );
+      browser.test.sendMessage("selectMessage", newMessages);
+      let [, messageList] = await selectPromise;
+      return messageList;
     }
 
     let messageList;
@@ -342,8 +291,14 @@ add_task(async function test_selectedMessagesChanged() {
   }
 
   let extension = ExtensionTestUtils.loadExtension({
-    background,
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   window.gFolderTreeView.selectFolder(subFolders.test2);
@@ -367,19 +322,7 @@ add_task(async function test_selectedMessagesChanged() {
 
 add_task(async function test_background_tab() {
   async function background() {
-    function awaitMessage(messageToSend, ...sendArgs) {
-      return new Promise(resolve => {
-        browser.test.onMessage.addListener(function listener(...args) {
-          browser.test.onMessage.removeListener(listener);
-          resolve(args);
-        });
-        if (messageToSend) {
-          browser.test.sendMessage(messageToSend, ...sendArgs);
-        }
-      });
-    }
-
-    let [accountId] = await awaitMessage();
+    let [accountId] = await window.waitForMessage();
     let { folders } = await browser.accounts.get(accountId);
     let allTabs = await browser.tabs.query({});
     let queryTabs = await browser.tabs.query({ mailTab: true });
@@ -397,7 +340,7 @@ add_task(async function test_background_tab() {
     browser.test.assertTrue(allMailTabs[1].active);
 
     // Check the initial state.
-    await awaitMessage("checkRealLayout", {
+    await window.sendMessage("checkRealLayout", {
       messagePaneVisible: true,
       folderPaneVisible: true,
       displayedFolder: "/test1",
@@ -410,7 +353,7 @@ add_task(async function test_background_tab() {
     });
 
     // Should be in the same state, since we're updating a background tab.
-    await awaitMessage("checkRealLayout", {
+    await window.sendMessage("checkRealLayout", {
       messagePaneVisible: true,
       folderPaneVisible: true,
       displayedFolder: "/test1",
@@ -430,7 +373,7 @@ add_task(async function test_background_tab() {
     await browser.tabs.update(allMailTabs[0].id, { active: true });
 
     // Should have changed to the updated state.
-    await awaitMessage("checkRealLayout", {
+    await window.sendMessage("checkRealLayout", {
       messagePaneVisible: false,
       folderPaneVisible: false,
       displayedFolder: "/test2",
@@ -440,7 +383,7 @@ add_task(async function test_background_tab() {
       folderPaneVisible: true,
       messagePaneVisible: true,
     });
-    await awaitMessage("checkRealLayout", {
+    await window.sendMessage("checkRealLayout", {
       messagePaneVisible: true,
       folderPaneVisible: true,
       displayedFolder: "/test2",
@@ -450,7 +393,7 @@ add_task(async function test_background_tab() {
     await browser.tabs.update(allMailTabs[1].id, { active: true });
 
     // Should be in the same state it was in.
-    await awaitMessage("checkRealLayout", {
+    await window.sendMessage("checkRealLayout", {
       messagePaneVisible: true,
       folderPaneVisible: true,
       displayedFolder: "/test1",
@@ -460,8 +403,14 @@ add_task(async function test_background_tab() {
   }
 
   let extension = ExtensionTestUtils.loadExtension({
-    background,
-    manifest: { permissions: ["accountsRead"] },
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead"],
+    },
   });
 
   extension.onMessage("checkRealLayout", async expected => {
@@ -509,15 +458,9 @@ add_task(async function test_glodaList_tab() {
       messagePaneVisible: false,
     });
 
-    await new Promise(resolve => {
-      browser.test.onMessage.addListener(function listener(...args) {
-        browser.test.onMessage.removeListener(listener);
-        resolve(args);
-      });
-      browser.test.sendMessage("checkRealLayout", {
-        folderPaneVisible: false,
-        messagePaneVisible: true,
-      });
+    await window.sendMessage("checkRealLayout", {
+      folderPaneVisible: false,
+      messagePaneVisible: true,
     });
 
     [tab] = await browser.mailTabs.query({ active: true });
@@ -532,8 +475,14 @@ add_task(async function test_glodaList_tab() {
   tabmail.openTab("glodaList", { collection: { items: [] } });
 
   let extension = ExtensionTestUtils.loadExtension({
-    background,
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   extension.onMessage("checkRealLayout", expected => {

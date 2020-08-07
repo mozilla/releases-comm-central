@@ -307,3 +307,8 @@ async function closeContextMenu(contextMenu) {
   contentAreaContextMenu.hidePopup();
   await popupHiddenPromise;
 }
+
+async function getUtilsJS() {
+  let response = await fetch(getRootDirectory(gTestPath) + "utils.js");
+  return response.text();
+}

@@ -2,20 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
-);
-
 var { AddonTestUtils } = ChromeUtils.import(
   "resource://testing-common/AddonTestUtils.jsm"
 );
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var createHttpServer = (...args) => {
   AddonTestUtils.maybeInit(this);
@@ -66,4 +60,9 @@ function createMessages(folder, count) {
   folder.QueryInterface(Ci.nsIMsgLocalMailFolder);
   folder.addMessageBatch(messageStrings);
   folder.callFilterPlugins(null);
+}
+
+async function getUtilsJS() {
+  let contents = await OS.File.read(do_get_file("data/utils.js").path);
+  return new TextDecoder().decode(contents);
 }

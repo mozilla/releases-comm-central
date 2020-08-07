@@ -5,8 +5,8 @@
 /* globals gFolderDisplay, gFolderTreeView, MsgOpenNewWindowForMessage, MsgOpenSelectedMessages  */
 
 add_task(async () => {
-  let extension = ExtensionTestUtils.loadExtension({
-    async background() {
+  let files = {
+    "background.js": async () => {
       let [{ id: firstTabId, displayedFolder }] = await browser.mailTabs.query({
         active: true,
         currentWindow: true,
@@ -14,28 +14,13 @@ add_task(async () => {
 
       let { messages } = await browser.messages.list(displayedFolder);
 
-      function waitForMessage() {
-        return new Promise(resolve => {
-          let listener = (...args) => {
-            browser.messageDisplay.onMessageDisplayed.removeListener(listener);
-            resolve(args);
-          };
-          browser.messageDisplay.onMessageDisplayed.addListener(listener);
-        });
-      }
-      function waitForMessages() {
-        return new Promise(resolve => {
-          let listener = (...args) => {
-            browser.messageDisplay.onMessagesDisplayed.removeListener(listener);
-            resolve(args);
-          };
-          browser.messageDisplay.onMessagesDisplayed.addListener(listener);
-        });
-      }
-
       async function checkResults(action, expectedMessages, sameTab) {
-        let msgListener = waitForMessage();
-        let msgsListener = waitForMessages();
+        let msgListener = window.waitForEvent(
+          "messageDisplay.onMessageDisplayed"
+        );
+        let msgsListener = window.waitForEvent(
+          "messageDisplay.onMessagesDisplayed"
+        );
 
         if (typeof action == "string") {
           browser.test.sendMessage(action);
@@ -136,7 +121,12 @@ add_task(async () => {
 
       browser.test.notifyPass("finished");
     },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
     manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
   });

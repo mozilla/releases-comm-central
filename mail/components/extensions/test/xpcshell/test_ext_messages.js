@@ -31,22 +31,10 @@ async function run_test() {
 }
 
 add_task(async function test_pagination() {
-  let extension = ExtensionTestUtils.loadExtension({
-    background: async () => {
-      function awaitMessage(messageToSend) {
-        return new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener(...args) {
-            browser.test.onMessage.removeListener(listener);
-            resolve(args);
-          });
-          if (messageToSend) {
-            browser.test.sendMessage(messageToSend);
-          }
-        });
-      }
-
+  let files = {
+    "background.js": async () => {
       // Test a response of 99 messages at 10 messages per page.
-      let [folder] = await awaitMessage();
+      let [folder] = await window.waitForMessage();
       let page = await browser.messages.list(folder);
       browser.test.assertEq(36, page.id.length);
       browser.test.assertEq(10, page.messages.length);
@@ -73,7 +61,7 @@ add_task(async function test_pagination() {
         null
       );
 
-      await awaitMessage("setPref");
+      await window.sendMessage("setPref");
 
       // Do the same test, but with the default 100 messages per page.
       page = await browser.messages.list(folder);
@@ -82,7 +70,14 @@ add_task(async function test_pagination() {
 
       browser.test.notifyPass("finished");
     },
-    manifest: { permissions: ["accountsRead", "messagesRead"] },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "messagesRead"],
+    },
   });
 
   Services.prefs.setIntPref("extensions.webextensions.messagesPerPage", 10);
@@ -99,22 +94,10 @@ add_task(async function test_pagination() {
 });
 
 add_task(async function test_update() {
-  let extension = ExtensionTestUtils.loadExtension({
-    async background() {
-      function awaitMessage(messageToSend) {
-        return new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener(...args) {
-            browser.test.onMessage.removeListener(listener);
-            resolve(args);
-          });
-          if (messageToSend) {
-            browser.test.sendMessage(messageToSend);
-          }
-        });
-      }
-
+  let files = {
+    "background.js": async () => {
       let tags = await browser.messages.listTags();
-      let [folder] = await awaitMessage();
+      let [folder] = await window.waitForMessage();
       let messageList = await browser.messages.list(folder);
       browser.test.assertEq(1, messageList.messages.length);
       let message = messageList.messages[0];
@@ -126,29 +109,29 @@ add_task(async function test_update() {
 
       // Test that setting flagged works.
       await browser.messages.update(message.id, { flagged: true });
-      await awaitMessage("flagged");
+      await window.sendMessage("flagged");
 
       // Test that setting read works.
       await browser.messages.update(message.id, { read: true });
-      await awaitMessage("read");
+      await window.sendMessage("read");
 
       // Test that setting junk works.
       await browser.messages.update(message.id, { junk: true });
-      await awaitMessage("junk");
+      await window.sendMessage("junk");
 
       // Test that setting one tag works.
       await browser.messages.update(message.id, { tags: [tags[0].key] });
-      await awaitMessage("tags1");
+      await window.sendMessage("tags1");
 
       // Test that setting two tags works.
       await browser.messages.update(message.id, {
         tags: [tags[1].key, tags[2].key],
       });
-      await awaitMessage("tags2");
+      await window.sendMessage("tags2");
 
       // Test that unspecified properties aren't changed.
       await browser.messages.update(message.id, {});
-      await awaitMessage("empty");
+      await window.sendMessage("empty");
 
       message = await browser.messages.get(message.id);
       browser.test.assertTrue(message.flagged);
@@ -166,7 +149,7 @@ add_task(async function test_update() {
         junk: false,
         tags: [],
       });
-      await awaitMessage("clear");
+      await window.sendMessage("clear");
 
       message = await browser.messages.get(message.id);
       browser.test.assertFalse(message.flagged);
@@ -177,7 +160,12 @@ add_task(async function test_update() {
 
       browser.test.notifyPass("finished");
     },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
     manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesRead"],
     },
   });
@@ -228,17 +216,8 @@ add_task(async function test_update() {
 });
 
 add_task(async function test_move_copy_delete() {
-  let extension = ExtensionTestUtils.loadExtension({
-    async background() {
-      function awaitMessage() {
-        return new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener(...args) {
-            browser.test.onMessage.removeListener(listener);
-            resolve(args);
-          });
-        });
-      }
-
+  let files = {
+    "background.js": async () => {
       async function checkMessagesInFolder(expectedIndices, folder) {
         let expectedSubjects = expectedIndices.map(i => subjects[i]);
         let { messages: actualMessages } = await browser.messages.list(folder);
@@ -254,7 +233,7 @@ add_task(async function test_move_copy_delete() {
         return actualMessages;
       }
 
-      let [accountId] = await awaitMessage();
+      let [accountId] = await window.waitForMessage();
       let { folders } = await browser.accounts.get(accountId);
       let testFolder1 = folders.find(f => f.name == "test1");
       let testFolder2 = folders.find(f => f.name == "test2");
@@ -366,7 +345,12 @@ add_task(async function test_move_copy_delete() {
 
       browser.test.notifyPass("finished");
     },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
     manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesMove", "messagesRead"],
     },
   });
@@ -396,18 +380,9 @@ add_task(async function test_archive() {
     message.date = new Date(2018, month++, 15) * 1000;
   }
 
-  let extension = ExtensionTestUtils.loadExtension({
-    async background() {
-      function awaitMessage() {
-        return new Promise(resolve => {
-          browser.test.onMessage.addListener(function listener(...args) {
-            browser.test.onMessage.removeListener(listener);
-            resolve(args);
-          });
-        });
-      }
-
-      let [accountId] = await awaitMessage();
+  let files = {
+    "background.js": async () => {
+      let [accountId] = await window.waitForMessage();
 
       let accountBefore = await browser.accounts.get(accountId);
       browser.test.assertEq(3, accountBefore.folders.length);
@@ -456,7 +431,12 @@ add_task(async function test_archive() {
 
       browser.test.notifyPass("finished");
     },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
     manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "messagesMove", "messagesRead"],
     },
   });

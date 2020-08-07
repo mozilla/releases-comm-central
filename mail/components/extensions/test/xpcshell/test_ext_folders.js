@@ -10,14 +10,9 @@ var { ExtensionTestUtils } = ChromeUtils.import(
 ExtensionTestUtils.init(this);
 
 add_task(async function test_folders() {
-  let extension = ExtensionTestUtils.loadExtension({
-    async background() {
-      let accountId = await new Promise(resolve => {
-        browser.test.onMessage.addListener(function listener(acctId) {
-          browser.test.onMessage.removeListener(listener);
-          resolve(acctId);
-        });
-      });
+  let files = {
+    "background.js": async () => {
+      let [accountId] = await window.waitForMessage();
 
       let account = await browser.accounts.get(accountId);
       browser.test.assertEq(2, account.folders.length);
@@ -89,7 +84,12 @@ add_task(async function test_folders() {
 
       browser.test.notifyPass("finished");
     },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
     manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
       permissions: ["accountsRead", "accountsFolders"],
     },
   });

@@ -16,72 +16,66 @@ add_task(async () => {
 
 add_task(async () => {
   async function background() {
-    function awaitMessage(messageToSend, ...sendArgs) {
-      return new Promise(resolve => {
-        browser.test.onMessage.addListener(function listener(...args) {
-          browser.test.onMessage.removeListener(listener);
-          resolve(args);
-        });
-        if (messageToSend) {
-          browser.test.sendMessage(messageToSend, ...sendArgs);
-        }
-      });
-    }
-
     browser.mailTabs.setQuickFilter({ unread: true });
-    await awaitMessage("checkVisible", 1, 3, 5, 7, 9);
+    await window.sendMessage("checkVisible", 1, 3, 5, 7, 9);
 
     browser.mailTabs.setQuickFilter({ flagged: true });
-    await awaitMessage("checkVisible", 1, 6);
+    await window.sendMessage("checkVisible", 1, 6);
 
     browser.mailTabs.setQuickFilter({ flagged: true, unread: true });
-    await awaitMessage("checkVisible", 1);
+    await window.sendMessage("checkVisible", 1);
 
     browser.mailTabs.setQuickFilter({ tags: true });
-    await awaitMessage("checkVisible", 0, 1, 3, 5, 6, 7, 8, 9);
+    await window.sendMessage("checkVisible", 0, 1, 3, 5, 6, 7, 8, 9);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label1: true } },
     });
-    await awaitMessage("checkVisible", 0, 3, 6, 9);
+    await window.sendMessage("checkVisible", 0, 3, 6, 9);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label2: true } },
     });
-    await awaitMessage("checkVisible", 1, 3, 5, 7, 9);
+    await window.sendMessage("checkVisible", 1, 3, 5, 7, 9);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "any", tags: { $label1: true, $label2: true } },
     });
-    await awaitMessage("checkVisible", 0, 1, 3, 5, 6, 7, 9);
+    await window.sendMessage("checkVisible", 0, 1, 3, 5, 6, 7, 9);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "all", tags: { $label1: true, $label2: true } },
     });
-    await awaitMessage("checkVisible", 3, 9);
+    await window.sendMessage("checkVisible", 3, 9);
 
     browser.mailTabs.setQuickFilter({
       tags: { mode: "all", tags: { $label1: true, $label2: false } },
     });
-    await awaitMessage("checkVisible", 0, 6);
+    await window.sendMessage("checkVisible", 0, 6);
 
     browser.mailTabs.setQuickFilter({ attachment: true });
-    await awaitMessage("checkVisible", 9);
+    await window.sendMessage("checkVisible", 9);
 
     browser.mailTabs.setQuickFilter({ attachment: false });
-    await awaitMessage("checkVisible", 0, 1, 2, 3, 4, 5, 6, 7, 8);
+    await window.sendMessage("checkVisible", 0, 1, 2, 3, 4, 5, 6, 7, 8);
 
     browser.mailTabs.setQuickFilter({ contact: true });
-    await awaitMessage("checkVisible", 7);
+    await window.sendMessage("checkVisible", 7);
 
     browser.mailTabs.setQuickFilter({ contact: false });
-    await awaitMessage("checkVisible", 0, 1, 2, 3, 4, 5, 6, 8, 9);
+    await window.sendMessage("checkVisible", 0, 1, 2, 3, 4, 5, 6, 8, 9);
 
     browser.test.notifyPass("quickFilter");
   }
 
   let extension = ExtensionTestUtils.loadExtension({
-    background,
+    files: {
+      "background.js": background,
+      "utils.js": await getUtilsJS(),
+    },
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+    },
   });
 
   extension.onMessage("checkVisible", async (...expected) => {
