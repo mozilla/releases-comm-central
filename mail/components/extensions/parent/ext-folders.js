@@ -20,6 +20,47 @@ ChromeUtils.defineModuleGetter(
 
 this.folders = class extends ExtensionAPI {
   getAPI(context) {
+    function waitForOperation(flags, uri) {
+      return new Promise(resolve => {
+        MailServices.mfn.addListener(
+          {
+            folderAdded(childFolder) {
+              if (childFolder.parent.URI != uri) {
+                return;
+              }
+
+              MailServices.mfn.removeListener(this);
+              resolve(childFolder);
+            },
+            folderDeleted(oldFolder) {
+              if (oldFolder.URI != uri) {
+                return;
+              }
+
+              MailServices.mfn.removeListener(this);
+              resolve();
+            },
+            folderMoveCopyCompleted(move, srcFolder, destFolder) {
+              if (srcFolder.URI != uri) {
+                return;
+              }
+
+              MailServices.mfn.removeListener(this);
+              resolve(destFolder);
+            },
+            folderRenamed(oldFolder, newFolder) {
+              if (oldFolder.URI != uri) {
+                return;
+              }
+
+              MailServices.mfn.removeListener(this);
+              resolve(newFolder);
+            },
+          },
+          flags
+        );
+      });
+    }
     return {
       folders: {
         async create({ accountId, path: parentPath }, childName) {
@@ -29,24 +70,13 @@ this.folders = class extends ExtensionAPI {
             throw new ExtensionError(`Folder not found: ${parentPath}`);
           }
 
-          let childFolder = await new Promise(resolve => {
-            MailServices.mfn.addListener(
-              {
-                folderAdded(childFolder) {
-                  if (childFolder.parent.URI != uri) {
-                    return;
-                  }
+          let childFolderPromise = waitForOperation(
+            MailServices.mfn.folderAdded,
+            uri
+          );
+          parentFolder.createSubfolder(childName, null);
 
-                  MailServices.mfn.removeListener(this);
-                  resolve(childFolder);
-                },
-              },
-              MailServices.mfn.folderAdded
-            );
-
-            parentFolder.createSubfolder(childName, null);
-          });
-
+          let childFolder = await childFolderPromise;
           return convertFolder(childFolder);
         },
         async rename({ accountId, path }, newName) {
@@ -56,24 +86,13 @@ this.folders = class extends ExtensionAPI {
             throw new ExtensionError(`Folder not found: ${path}`);
           }
 
-          let newFolder = await new Promise(resolve => {
-            MailServices.mfn.addListener(
-              {
-                folderRenamed(oldFolder, newFolder) {
-                  if (oldFolder.URI != uri) {
-                    return;
-                  }
+          let newFolderPromise = waitForOperation(
+            MailServices.mfn.folderRenamed,
+            uri
+          );
+          folder.rename(newName, null);
 
-                  MailServices.mfn.removeListener(this);
-                  resolve(newFolder);
-                },
-              },
-              MailServices.mfn.folderRenamed
-            );
-
-            folder.rename(newName, null);
-          });
-
+          let newFolder = await newFolderPromise;
           return convertFolder(newFolder);
         },
         async delete({ accountId, path }) {
@@ -83,35 +102,49 @@ this.folders = class extends ExtensionAPI {
             throw new ExtensionError(`Folder not found: ${path}`);
           }
 
-          await new Promise(resolve => {
-            MailServices.mfn.addListener(
-              {
-                folderDeleted(oldFolder) {
-                  if (oldFolder.URI != uri) {
-                    return;
-                  }
-
-                  MailServices.mfn.removeListener(this);
-                  resolve();
-                },
-                folderMoveCopyCompleted(move, srcFolder, destFolder) {
-                  if (srcFolder.URI != uri) {
-                    return;
-                  }
-
-                  MailServices.mfn.removeListener(this);
-                  resolve();
-                },
-              },
+          let deletedPromise;
+          if (folder.server.type == "imap") {
+            let inTrash = false;
+            let parent = folder.parent;
+            while (!inTrash && parent) {
+              inTrash = parent.flags & Ci.nsMsgFolderFlags.Trash;
+              parent = parent.parent;
+            }
+            if (inTrash) {
+              deletedPromise = new Promise(resolve => {
+                MailServices.imap.deleteFolder(
+                  folder,
+                  {
+                    OnStartRunningUrl() {},
+                    OnStopRunningUrl: resolve,
+                  },
+                  null
+                );
+              });
+            } else {
+              let trash = folder.server.rootFolder.getFolderWithFlags(
+                Ci.nsMsgFolderFlags.Trash
+              );
+              deletedPromise = waitForOperation(
+                MailServices.mfn.folderRenamed,
+                uri
+              );
+              MailServices.imap.moveFolder(folder, trash, null, null);
+            }
+          } else {
+            deletedPromise = waitForOperation(
               MailServices.mfn.folderDeleted |
-                MailServices.mfn.folderMoveCopyCompleted
+                MailServices.mfn.folderMoveCopyCompleted,
+              uri
             );
-
             folder.parent.deleteSubFolders(
               toXPCOMArray([folder], Ci.nsIMutableArray),
               null
             );
-          });
+          }
+
+          // This may return a folder but we don't want the caller to get it.
+          await deletedPromise;
         },
       },
     };
