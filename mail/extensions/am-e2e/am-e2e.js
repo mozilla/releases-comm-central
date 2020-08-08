@@ -579,7 +579,6 @@ function openKeyManager() {
       : window.docShell.rootTreeItem.domWindow;
 
   let args = {
-    identity: gIdentity,
     cancelCallback: reloadOpenPgpUI,
     okCallback: reloadOpenPgpUI,
   };

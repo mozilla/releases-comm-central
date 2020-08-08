@@ -11,7 +11,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var gAnyValidIdentity = false; // If there are no valid identities for any account
 // returns the first account with an invalid server or identity
@@ -550,23 +549,6 @@ function updateMailPaneUI() {
  * Open the OpenPGP Key Manager from outside the Account Settings.
  */
 function openKeyManager() {
-  // Try to get the current identity based on the currently selected folder.
-  // This is necessary in case the user wants to generate a new key from within
-  // the Key Manager.
-  let identity;
-  if (typeof window.GetSelectedMsgFolders === "function") {
-    let folders = window.GetSelectedMsgFolders();
-    if (folders.length > 0) {
-      identity = MailUtils.getIdentityForServer(folders[0].server);
-    }
-  }
-  if (!identity && typeof window.GetDefaultAccountRootFolder === "function") {
-    let folder = window.GetDefaultAccountRootFolder();
-    if (folder instanceof Ci.nsIMsgFolder) {
-      identity = MailUtils.getIdentityForServer(folder.server);
-    }
-  }
-
   // Bug 1638153: The rootTreeItem object has been removed after 78. We need to
   // the availability of "browsingContext" to use the right DOM window in 79+.
   let w =
@@ -575,7 +557,6 @@ function openKeyManager() {
       : window.docShell.rootTreeItem.domWindow;
 
   let args = {
-    identity: identity[0],
     cancelCallback: null,
     okCallback: null,
   };

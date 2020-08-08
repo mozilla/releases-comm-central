@@ -21,6 +21,9 @@
 /* global EnigmailKey: false, EnigmailLocale: false, EnigmailPrefs: false, EnigmailConstants: false */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 
 var { EnigmailCore } = ChromeUtils.import(
   "chrome://openpgp/content/modules/core.jsm"
@@ -67,7 +70,6 @@ var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 const INPUT = 0;
 const RESULT = 1;
 
-var gIdentity;
 var gUserList;
 var gKeyList;
 var gEnigLastSelectedKeys = null;
@@ -86,10 +88,6 @@ function enigmailKeyManagerLoad() {
   if (!EnigmailCore.getService(window)) {
     window.close();
     return;
-  }
-
-  if (window.arguments[0]) {
-    gIdentity = window.arguments[0].identity || null;
   }
 
   gUserList = document.getElementById("pgpKeyList");
@@ -279,6 +277,11 @@ function enigmailKeyMenu() {
     document.getElementById("bcOneKey").setAttribute("disabled", "true");
     document.getElementById("bcDeleteKey").setAttribute("disabled", "true");
   }
+
+  // Disable the "Generate key" menu item if no mail account is available.
+  document
+    .getElementById("genKey")
+    .setAttribute("disabled", MailServices.accounts.defaultAccount == null);
 }
 
 function onListClick(event) {
@@ -1328,7 +1331,6 @@ function openKeyWizard(isImport = false) {
       : window.docShell.rootTreeItem.domWindow;
 
   let args = {
-    identity: gIdentity,
     gSubDialog: null,
     cancelCallback: clearKeyCache,
     okCallback: clearKeyCache,

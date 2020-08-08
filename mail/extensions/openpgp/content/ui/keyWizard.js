@@ -83,7 +83,7 @@ document.addEventListener("dialogcancel", onClose);
  */
 async function init() {
   gSubDialog = window.arguments[0].gSubDialog;
-  gIdentity = window.arguments[0].identity;
+  gIdentity = window.arguments[0].identity || null;
   gIdentityList = document.getElementById("userIdentity");
 
   kStartSection = document.getElementById("wizardStart");
