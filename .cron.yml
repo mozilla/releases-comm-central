@@ -64,4 +64,4 @@ jobs:
       run-on-projects:
           - comm-central
       when:
-          - []  # disabled due to bug 1657609, was: {hour: 11, minute: 0}
+          - {hour: 11, minute: 0}
