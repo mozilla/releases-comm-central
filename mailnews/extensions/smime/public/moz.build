@@ -5,6 +5,11 @@
 
 XPIDL_SOURCES += [
     'nsICertPickDialogs.idl',
+    'nsICMSDecoder.idl',
+    'nsICMSEncoder.idl',
+    'nsICMSMessage.idl',
+    'nsICMSMessageErrors.idl',
+    'nsICMSSecureMessage.idl',
     'nsIEncryptedSMIMEURIsSrvc.idl',
     'nsIMsgSMIMEHeaderSink.idl',
     'nsISMimeJSHelper.idl',

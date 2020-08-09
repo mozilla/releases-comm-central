@@ -63,16 +63,9 @@ SOURCES += [
     'mimetpla.cpp',
     'mimetric.cpp',
     'mimeunty.cpp',
-    'nsCMS.cpp',
-    'nsCMSSecureMessage.cpp',
     'nsMimeObjectClassAccess.cpp',
     'nsSimpleMimeConverterStub.cpp',
     'nsStreamConverter.cpp',
-]
-
-LOCAL_INCLUDES += [
-    '/%s/security/certverifier' % CONFIG['mozreltopsrcdir'],
-    '/%s/security/manager/ssl' % CONFIG['mozreltopsrcdir']
 ]
 
 EXTRA_COMPONENTS += [

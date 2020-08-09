@@ -5,6 +5,8 @@
 
 SOURCES += [
     'nsCertPicker.cpp',
+    'nsCMS.cpp',
+    'nsCMSSecureMessage.cpp',
     'nsEncryptedSMIMEURIsService.cpp',
     'nsMsgComposeSecure.cpp',
     'nsSMimeJSHelper.cpp',
@@ -13,6 +15,8 @@ SOURCES += [
 FINAL_LIBRARY = 'mail'
 
 LOCAL_INCLUDES += [
+    '/%s/security/certverifier' % CONFIG['mozreltopsrcdir'],
     '/%s/security/manager/pki' % CONFIG['mozreltopsrcdir'],
     '/%s/security/manager/ssl' % CONFIG['mozreltopsrcdir']
 ]
+
