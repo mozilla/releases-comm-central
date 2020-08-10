@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
-);
 var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -26,8 +21,22 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionPageChild: "resource://gre/modules/ExtensionPageChild.jsm",
   ExtensionProcessScript: "resource://gre/modules/ExtensionProcessScript.jsm",
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
   Schemas: "resource://gre/modules/Schemas.jsm",
 });
+
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "gJunkThreshold",
+  "mail.adaptivefilters.junk_threshold",
+  90
+);
+XPCOMUtils.defineLazyPreferenceGetter(
+  this,
+  "gMessagesPerPage",
+  "extensions.webextensions.messagesPerPage",
+  100
+);
 
 const COMPOSE_WINDOW_URI =
   "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -1555,9 +1564,6 @@ function convertMessage(msgHdr, extension) {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
   let junkScore = parseInt(msgHdr.getProperty("junkscore"), 10) || 0;
-  let junkThreshold = Services.prefs.getIntPref(
-    "mail.adaptivefilters.junk_threshold"
-  );
 
   let messageObject = {
     id: messageTracker.getId(msgHdr),
@@ -1572,7 +1578,7 @@ function convertMessage(msgHdr, extension) {
     subject: msgHdr.mime2DecodedSubject,
     read: msgHdr.isRead,
     flagged: msgHdr.isFlagged,
-    junk: junkScore >= junkThreshold,
+    junk: junkScore >= gJunkThreshold,
     junkScore,
   };
   if (extension.hasPermission("accountsRead")) {
@@ -1712,13 +1718,9 @@ var messageListTracker = {
   },
 
   _getNextPage(messageList) {
-    let messageCount = Services.prefs.getIntPref(
-      "extensions.webextensions.messagesPerPage",
-      100
-    );
     let page = [];
     let i = 0;
-    while (i < messageCount && messageList.hasMoreElements()) {
+    while (i < gMessagesPerPage && messageList.hasMoreElements()) {
       let next = messageList.getNext();
       if (next) {
         page.push(next.QueryInterface(Ci.nsIMsgDBHdr));

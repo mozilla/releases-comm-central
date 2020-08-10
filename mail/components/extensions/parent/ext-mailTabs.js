@@ -2,20 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-ChromeUtils.defineModuleGetter(
-  this,
-  "Services",
-  "resource://gre/modules/Services.jsm"
+var { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-ChromeUtils.defineModuleGetter(
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  QuickFilterManager: "resource:///modules/QuickFilterManager.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
+
+XPCOMUtils.defineLazyPreferenceGetter(
   this,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "QuickFilterManager",
-  "resource:///modules/QuickFilterManager.jsm"
+  "gDynamicPaneConfig",
+  "mail.pane_config.dynamic",
+  0
 );
 
 const LAYOUTS = ["standard", "wide", "vertical"];
@@ -45,7 +46,7 @@ function convertMailTab(tab, context) {
     active: tab.active,
     sortType: null,
     sortOrder: null,
-    layout: LAYOUTS[Services.prefs.getIntPref("mail.pane_config.dynamic")],
+    layout: LAYOUTS[gDynamicPaneConfig],
     folderPaneVisible: null,
     messagePaneVisible: null,
   };
