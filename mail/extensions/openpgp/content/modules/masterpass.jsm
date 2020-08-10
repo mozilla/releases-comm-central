@@ -42,22 +42,24 @@ var OpenPGPMasterpass = {
     return path;
   },
 
-  getOpenPGPSecretRingAlreadyExists() {
+  getSecretKeyRingFile() {
     let path = EnigmailApp.getProfileDirectory();
     path.append("secring.gpg");
-    return path.exists();
+    return path;
+  },
+
+  getOpenPGPSecretRingAlreadyExists() {
+    return this.getSecretKeyRingFile().exists();
+  },
+
+  haveMasterPassword() {
+    let password = this.retrieveOpenPGPPassword();
+    return password != null;
   },
 
   ensureMasterPassword() {
-    let password = this.retrieveOpenPGPPassword();
-    if (password) {
+    if (this.haveMasterPassword()) {
       return;
-    }
-
-    if (this.getOpenPGPSecretRingAlreadyExists()) {
-      throw new Error(
-        "Error, secring.gpg exists, but cannot obtain password from encrypted-openpgp-passphrase.txt"
-      );
     }
 
     EnigmailLog.DEBUG("masterpass.jsm: ensureMasterPassword()\n");

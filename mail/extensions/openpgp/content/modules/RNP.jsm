@@ -162,6 +162,86 @@ var RNP = {
     return this.getKeysFromFFI(RNPLib.ffi, false, onlyKeys, true);
   },
 
+  getProtectedKeysCount() {
+    let prot = 0;
+    let unprot = 0;
+
+    let iter = new RNPLib.rnp_identifier_iterator_t();
+    let grip = new ctypes.char.ptr();
+
+    if (
+      RNPLib.rnp_identifier_iterator_create(RNPLib.ffi, iter.address(), "grip")
+    ) {
+      throw new Error("rnp_identifier_iterator_create failed");
+    }
+
+    while (!RNPLib.rnp_identifier_iterator_next(iter, grip.address())) {
+      if (grip.isNull()) {
+        break;
+      }
+
+      let handle = new RNPLib.rnp_key_handle_t();
+      if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
+        throw new Error("rnp_locate_key failed");
+      }
+
+      if (this.getSecretAvailableFromHandle(handle)) {
+        let is_protected = new ctypes.bool();
+        if (RNPLib.rnp_key_is_protected(handle, is_protected.address())) {
+          throw new Error("rnp_key_is_protected failed");
+        }
+        if (is_protected.value) {
+          prot++;
+        } else {
+          unprot++;
+        }
+      }
+
+      RNPLib.rnp_key_handle_destroy(handle);
+    }
+
+    RNPLib.rnp_identifier_iterator_destroy(iter);
+    return [prot, unprot];
+  },
+
+  protectUnprotectedKeys() {
+    let iter = new RNPLib.rnp_identifier_iterator_t();
+    let grip = new ctypes.char.ptr();
+
+    let newPass = OpenPGPMasterpass.retrieveOpenPGPPassword();
+
+    if (
+      RNPLib.rnp_identifier_iterator_create(RNPLib.ffi, iter.address(), "grip")
+    ) {
+      throw new Error("rnp_identifier_iterator_create failed");
+    }
+
+    while (!RNPLib.rnp_identifier_iterator_next(iter, grip.address())) {
+      if (grip.isNull()) {
+        break;
+      }
+
+      let handle = new RNPLib.rnp_key_handle_t();
+      if (RNPLib.rnp_locate_key(RNPLib.ffi, "grip", grip, handle.address())) {
+        throw new Error("rnp_locate_key failed");
+      }
+
+      if (this.getSecretAvailableFromHandle(handle)) {
+        let is_protected = new ctypes.bool();
+        if (RNPLib.rnp_key_is_protected(handle, is_protected.address())) {
+          throw new Error("rnp_key_is_protected failed");
+        }
+        if (!is_protected.value) {
+          this.protectKeyWithSubKeys(handle, newPass);
+        }
+      }
+
+      RNPLib.rnp_key_handle_destroy(handle);
+    }
+
+    RNPLib.rnp_identifier_iterator_destroy(iter);
+  },
+
   /* Some consumers want a different listing of keys, and expect
    * slightly different attribute names...
    * If forListing is true, we'll set those additional attributes
@@ -1475,6 +1555,28 @@ var RNP = {
     return rv;
   },
 
+  protectKeyWithSubKeys(handle, newPass) {
+    if (RNPLib.rnp_key_protect(handle, newPass, null, null, null, 0)) {
+      throw new Error("rnp_key_protect failed");
+    }
+
+    let sub_count = new ctypes.size_t();
+    if (RNPLib.rnp_key_get_subkey_count(handle, sub_count.address())) {
+      throw new Error("rnp_key_get_subkey_count failed");
+    }
+
+    for (let i = 0; i < sub_count.value; i++) {
+      let sub_handle = new RNPLib.rnp_key_handle_t();
+      if (RNPLib.rnp_key_get_subkey_at(handle, i, sub_handle.address())) {
+        throw new Error("rnp_key_get_subkey_at failed");
+      }
+      if (RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)) {
+        throw new Error("rnp_key_protect failed");
+      }
+      RNPLib.rnp_key_handle_destroy(sub_handle);
+    }
+  },
+
   async importKeyBlockImpl(
     win,
     passCB,
@@ -1486,6 +1588,13 @@ var RNP = {
   ) {
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
       throw new Error("rejecting big keyblock");
+    }
+
+    let newPass = OpenPGPMasterpass.retrieveOpenPGPPassword();
+    /* Explicit comparison, because empty string might potentially
+     * be allowed. */
+    if (newPass == null || newPass == undefined) {
+      throw new Error("unexpected null/undefined OpenPGP password");
     }
 
     /*
@@ -1521,6 +1630,7 @@ var RNP = {
     let recentPass = "";
 
     // Prior to importing, ensure we can unprotect all keys
+
     for (let k of keys) {
       let fprStr = "0x" + k.fpr;
       if (limitedFPRs.length && !limitedFPRs.includes(fprStr)) {
@@ -1669,31 +1779,8 @@ var RNP = {
           RNPLib.ffi,
           "0x" + k.fpr
         );
-
         if (k.secretAvailable) {
-          let newPass = OpenPGPMasterpass.retrieveOpenPGPPassword();
-          if (RNPLib.rnp_key_protect(impKey2, newPass, null, null, null, 0)) {
-            throw new Error("rnp_key_protect failed");
-          }
-
-          let sub_count = new ctypes.size_t();
-          if (RNPLib.rnp_key_get_subkey_count(impKey2, sub_count.address())) {
-            throw new Error("rnp_key_get_subkey_count failed");
-          }
-          for (let i = 0; i < sub_count.value; i++) {
-            let sub_handle = new RNPLib.rnp_key_handle_t();
-            if (
-              RNPLib.rnp_key_get_subkey_at(impKey2, i, sub_handle.address())
-            ) {
-              throw new Error("rnp_key_get_subkey_at failed");
-            }
-            if (
-              RNPLib.rnp_key_protect(sub_handle, newPass, null, null, null, 0)
-            ) {
-              throw new Error("rnp_key_protect failed");
-            }
-            RNPLib.rnp_key_handle_destroy(sub_handle);
-          }
+          this.protectKeyWithSubKeys(impKey2, newPass);
         }
         RNPLib.rnp_key_handle_destroy(impKey2);
 
