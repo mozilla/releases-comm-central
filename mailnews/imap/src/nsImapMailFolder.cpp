@@ -7596,13 +7596,6 @@ nsImapMailCopyState::nsImapMailCopyState()
 
 nsImapMailCopyState::~nsImapMailCopyState() {
   PR_Free(m_dataBuffer);
-  if (m_msgService && m_message) {
-    nsCOMPtr<nsIMsgFolder> srcFolder = do_QueryInterface(m_srcSupport);
-    if (srcFolder) {
-      nsCString uri;
-      srcFolder->GetUriForMsg(m_message, uri);
-    }
-  }
   if (m_tmpFile) m_tmpFile->Remove(false);
 }
 
