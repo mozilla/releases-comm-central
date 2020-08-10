@@ -77,12 +77,6 @@ function run_test() {
   );
   charset.data = "VISCII";
   Services.prefs.setComplexValue(
-    "mailnews.send_default_charset",
-    Ci.nsIPrefLocalizedString,
-    charset
-  );
-  Assert.ok(Services.prefs.prefHasUserValue("mailnews.send_default_charset"));
-  Services.prefs.setComplexValue(
     "mailnews.view_default_charset",
     Ci.nsIPrefLocalizedString,
     charset
@@ -155,7 +149,6 @@ function run_test() {
 
   // Migration should have cleared the charset user pref values.
   Assert.ok(Services.prefs.getIntPref("mail.default_charsets.migrated") > 0);
-  Assert.ok(!Services.prefs.prefHasUserValue("mailnews.send_default_charset"));
   Assert.ok(!Services.prefs.prefHasUserValue("mailnews.view_default_charset"));
 
   // Now migrate the prefs

@@ -25,9 +25,7 @@ Preferences.addAll([
   { id: "font.language.group", type: "wstring" },
   { id: "browser.display.use_document_fonts", type: "int" },
   { id: "mail.fixed_width_messages", type: "bool" },
-  { id: "mailnews.send_default_charset", type: "wstring" },
   { id: "mailnews.view_default_charset", type: "wstring" },
-  { id: "mailnews.reply_in_default_charset", type: "bool" },
 ]);
 
 var gFontsDialog = {
@@ -198,16 +196,10 @@ var gFontsDialog = {
   },
 
   /**
-   * Both mailnews.send_default_charset and mailnews.view_default_charset
-   * are nsIPrefLocalizedString. Its default value is different depending
-   * on the user locale (see bug 48842).
+   * mailnews.view_default_charset is nsIPrefLocalizedString. Its default value
+   * is different depending on the user locale (see bug 48842).
    */
   ondialogaccept() {
-    var sendCharsetStr = Services.prefs.getComplexValue(
-      "mailnews.send_default_charset",
-      Ci.nsIPrefLocalizedString
-    ).data;
-
     var viewCharsetStr = Services.prefs.getComplexValue(
       "mailnews.view_default_charset",
       Ci.nsIPrefLocalizedString
@@ -217,16 +209,6 @@ var gFontsDialog = {
 
     // Here we compare preference's stored value with default one and,
     // if needed, show it as "default" on Config Editor instead of "user set".
-    if (
-      sendCharsetStr ===
-      defaultPrefs.getComplexValue(
-        "send_default_charset",
-        Ci.nsIPrefLocalizedString
-      ).data
-    ) {
-      Services.prefs.clearUserPref("mailnews.send_default_charset");
-    }
-
     if (
       viewCharsetStr ===
       defaultPrefs.getComplexValue(

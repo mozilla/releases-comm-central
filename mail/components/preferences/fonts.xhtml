@@ -263,27 +263,15 @@
       <hbox>
         <vbox pack="end">
           <hbox align="center" flex="1" class="indent">
-            <label control="sendDefaultCharsetList"
-                   data-l10n-id="font-outgoing-email-label"/>
-          </hbox>
-          <hbox align="center" flex="1" class="indent">
             <label control="viewDefaultCharsetList"
                    data-l10n-id="font-incoming-email-label"/>
           </hbox>
         </vbox>
         <vbox>
-          <menulist is="menulist-charsetpicker-sending" id="sendDefaultCharsetList"
-                    preference="mailnews.send_default_charset"/>
           <menulist is="menulist-charsetpicker-viewing" id="viewDefaultCharsetList"
                     preference="mailnews.view_default_charset"/>
         </vbox>
       </hbox>
-
-      <separator class="thin"/>
-
-      <checkbox id="replyInDefaultCharset"
-                data-l10n-id="default-font-reply-checkbox"
-                preference="mailnews.reply_in_default_charset"/>
     </html:fieldset>
     </html:div>
     <separator/>

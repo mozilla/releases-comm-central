@@ -108,9 +108,6 @@ interface nsIMsgCompose : nsIMsgSendListener {
                   [optional] in nsIDocShell aDocShell);
 
   /* ... */
-  void SetDocumentCharset(in string charset);
-
-  /* ... */
   void RegisterStateListener(in nsIMsgComposeStateListener stateListener);
 
   /* ... */

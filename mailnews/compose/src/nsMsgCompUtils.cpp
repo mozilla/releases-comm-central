@@ -490,8 +490,7 @@ char* mime_generate_attachment_headers(
     const char* description, const char* x_mac_type, const char* x_mac_creator,
     const char* real_name, const char* base_url, bool /*digest_p*/,
     nsMsgAttachmentHandler* /*ma*/, const char* attachmentCharset,
-    const char* bodyCharset, bool bodyIsAsciiOnly, const char* content_id,
-    bool aBodyDocument) {
+    bool bodyIsAsciiOnly, const char* content_id, bool aBodyDocument) {
   NS_ASSERTION(encoding, "null encoding");
 
   int32_t parmFolding = 2;  // RFC 2231-compliant
@@ -573,8 +572,7 @@ char* mime_generate_attachment_headers(
     // Add format=flowed as in RFC 2646 if we are using that
     if (type && !PL_strcasecmp(type, "text/plain")) {
       bool flowed, delsp, formatted, disallowBreaks;
-      GetSerialiserFlags(bodyCharset, &flowed, &delsp, &formatted,
-                         &disallowBreaks);
+      GetSerialiserFlags("UTF-8", &flowed, &delsp, &formatted, &disallowBreaks);
       if (flowed) buf.AppendLiteral("; format=flowed");
       if (delsp) buf.AppendLiteral("; delsp=yes");
       // else
@@ -1162,7 +1160,7 @@ char* msg_make_filename_qtext(const char* srcText, bool stripCRLFs) {
 
 // Rip apart the URL and extract a reasonable value for the `real_name' slot.
 void msg_pick_real_name(nsMsgAttachmentHandler* attachment,
-                        const char16_t* proposedName, const char* charset) {
+                        const char16_t* proposedName) {
   const char *s, *s2;
 
   if (!attachment->m_realName.IsEmpty()) return;

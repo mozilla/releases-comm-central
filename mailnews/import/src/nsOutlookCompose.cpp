@@ -252,7 +252,6 @@ nsresult nsOutlookCompose::ComposeTheMessage(nsMsgDeliverMode mode,
   headers->UnfoldValue(CMapiMessageHeaders::hdrSubject, unival,
                        msg.GetBodyCharset());
   m_pMsgFields->SetSubject(unival);
-  m_pMsgFields->SetCharacterSet(msg.GetBodyCharset());
   headers->UnfoldValue(CMapiMessageHeaders::hdrCc, unival,
                        msg.GetBodyCharset());
   m_pMsgFields->SetCc(unival);

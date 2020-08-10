@@ -121,7 +121,6 @@ async function testBodyWithLongLine() {
   fields.from = "Nobody <nobody@tinderbox.invalid>";
   fields.to = "Nobody <nobody@tinderbox.invalid>";
   fields.subject = "Message with 1200 byte line in body";
-  fields.characterSet = "UTF-8";
   let htmlMessage =
     "<html><head>" +
     '<meta http-equiv="content-type" content="text/html; charset=utf-8">' +
@@ -182,9 +181,7 @@ async function testBodyWithLongLine() {
     longMultibyteLineCJK + " " + newline + newline // Expected body: The message without the tags.
   );
 
-  // Now a special test for ISO-2022-JP.
-  fields.characterSet = "ISO-2022-JP";
-
+  // Now a test for ISO-2022-JP.
   fields.forcePlainText = false;
   htmlMessage =
     "<html><head>" +
@@ -196,11 +193,10 @@ async function testBodyWithLongLine() {
   await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
     {
-      "Content-Type": "text/html; charset=ISO-2022-JP",
+      "Content-Type": "text/html; charset=UTF-8",
       "Content-Transfer-Encoding": "base64",
     },
-    htmlMessage,
-    "ISO-2022-JP"
+    htmlMessage
   );
 
   // Again, but this time as plain text.
@@ -209,25 +205,14 @@ async function testBodyWithLongLine() {
   fields.useMultipartAlternative = false;
   await richCreateMessage(fields, [], identity);
 
-  // Expected body: The message without the tags and chopped up in
-  // chunks of 36 characters with a space appended to each line.
-  let expectedBody = "";
-  let lastIndex = 0;
-  for (let i = 0; i + 36 < longMultibyteLineJapanese.length; i = i + 36) {
-    expectedBody =
-      expectedBody + longMultibyteLineJapanese.substr(i, 36) + " \r\n";
-    lastIndex = i + 36;
-  }
-  expectedBody += longMultibyteLineJapanese.substr(lastIndex) + "\r\n";
+  let expectedBody = longMultibyteLineJapanese + " \n\n";
 
   checkDraftHeadersAndBody(
     {
-      "Content-Type":
-        "text/plain; charset=ISO-2022-JP; format=flowed; delsp=yes",
-      "Content-Transfer-Encoding": "7bit",
+      "Content-Type": "text/plain; charset=UTF-8; format=flowed",
+      "Content-Transfer-Encoding": "base64",
     },
-    expectedBody,
-    "ISO-2022-JP"
+    expectedBody
   );
 
   // Again, but this time not flowed.
@@ -237,11 +222,10 @@ async function testBodyWithLongLine() {
   await richCreateMessage(fields, [], identity);
   checkDraftHeadersAndBody(
     {
-      "Content-Type": "text/plain; charset=ISO-2022-JP",
-      "Content-Transfer-Encoding": "7bit",
+      "Content-Type": "text/plain; charset=UTF-8",
+      "Content-Transfer-Encoding": "base64",
     },
-    expectedBody.replace(/ /g, ""), // No spaces expected this time.
-    "ISO-2022-JP"
+    expectedBody.replace(/ /g, "") // No spaces expected this time.
   );
 }
 

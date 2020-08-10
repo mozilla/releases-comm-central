@@ -147,7 +147,6 @@ var gEncryptedURIService = Cc[
 ].getService(Ci.nsIEncryptedSMIMEURIsService);
 
 // i18n globals
-var gCharsetConvertManager;
 var _gComposeBundle;
 function getComposeBundle() {
   // That one has to be lazy. Getting a reference to an element with a XBL
@@ -219,9 +218,6 @@ function InitializeGlobalVariables() {
   gCloseWindowAfterSave = false;
   gSavedSendNowKey = null;
   gSendFormat = Ci.nsIMsgCompSendFormat.AskUser;
-  gCharsetConvertManager = Cc[
-    "@mozilla.org/charset-converter-manager;1"
-  ].getService(Ci.nsICharsetConverterManager);
   gManualAttachmentReminder = false;
   gDisableAttachmentReminder = false;
   gLanguageObserver = null;
@@ -245,7 +241,6 @@ InitializeGlobalVariables();
 
 function ReleaseGlobalVariables() {
   gCurrentIdentity = null;
-  gCharsetConvertManager = null;
   gMsgCompose = null;
   gOriginalMsgURI = null;
   gMessenger = null;
@@ -2660,17 +2655,6 @@ function GetArgs(originalData) {
 }
 
 function ComposeFieldsReady() {
-  // Limit the charsets to those we think are safe to encode (i.e., they are in
-  // the charset menu). Easiest way to normalize this is to use the TextDecoder
-  // to get the canonical alias and default if it isn't valid.
-  let charset;
-  try {
-    charset = new TextDecoder(gMsgCompose.compFields.characterSet).encoding;
-  } catch (e) {
-    charset = gMsgCompose.compFields.defaultCharacterSet;
-  }
-  SetDocumentCharacterSet(charset);
-
   // If we are in plain text, we need to set the wrap column
   if (!gMsgCompose.composeHTML) {
     try {
@@ -4111,19 +4095,6 @@ var SecurityController = {
   },
 };
 
-function SetDocumentCharacterSet(aCharset) {
-  if (gMsgCompose) {
-    // Replace generic Japanese with ISO-2022-JP.
-    if (aCharset == "Japanese") {
-      aCharset = "ISO-2022-JP";
-    }
-    gMsgCompose.SetDocumentCharset(aCharset);
-    updateEncodingInStatusBar();
-  } else {
-    dump("Compose has not been created!\n");
-  }
-}
-
 /**
  * Update the translatable string of every recipient row
  * with the properly formatted values.
@@ -4205,37 +4176,6 @@ function createRecipientLabel(labelID) {
   label.setAttribute("tabindex", 0);
 
   return label;
-}
-
-/**
- * Return the full display string for any non-default text encoding of the
- * current composition (friendly name plus official character set name).
- * For the default text encoding, return empty string (""), to reduce
- * ux-complexity, e.g. for the default Status Bar display.
- * Note: The default is retrieved from mailnews.send_default_charset.
- *
- * @return string representation of non-default charset, otherwise "".
- */
-function GetCharsetUIString() {
-  // The charset here is already the canonical charset (not an alias).
-  let charset = gMsgCompose.compFields.characterSet;
-  if (!charset) {
-    return "";
-  }
-
-  if (
-    charset.toLowerCase() !=
-    gMsgCompose.compFields.defaultCharacterSet.toLowerCase()
-  ) {
-    try {
-      return gCharsetConvertManager.getCharsetTitle(charset);
-    } catch (e) {
-      // Not a canonical charset after all...
-      Cu.reportError("No charset title for charset=" + charset);
-      return charset;
-    }
-  }
-  return "";
 }
 
 function onSendSMIME() {
@@ -4594,43 +4534,6 @@ function CompleteGenericSendMessage(msgType) {
   // hook for extra compose pre-processing
   Services.obs.notifyObservers(window, "mail:composeOnSend");
 
-  var originalCharset = gMsgCompose.compFields.characterSet;
-  // Check if the headers of composing mail can be converted to a mail charset.
-  if (
-    msgType == Ci.nsIMsgCompDeliverMode.Now ||
-    msgType == Ci.nsIMsgCompDeliverMode.Later ||
-    msgType == Ci.nsIMsgCompDeliverMode.Background ||
-    msgType == Ci.nsIMsgCompDeliverMode.Save ||
-    msgType == Ci.nsIMsgCompDeliverMode.SaveAsDraft ||
-    msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft ||
-    msgType == Ci.nsIMsgCompDeliverMode.SaveAsTemplate
-  ) {
-    var fallbackCharset = {};
-    // Check encoding, switch to UTF-8 if the default encoding doesn't fit
-    // and disable_fallback_to_utf8 isn't set for this encoding.
-    if (
-      !gMsgCompose.checkCharsetConversion(getCurrentIdentity(), fallbackCharset)
-    ) {
-      let disableFallback = Services.prefs.getBoolPref(
-        "mailnews.disable_fallback_to_utf8." + originalCharset,
-        false
-      );
-      if (disableFallback) {
-        gMsgCompose.compFields.needToCheckCharset = false;
-      } else {
-        fallbackCharset.value = "UTF-8";
-      }
-    }
-
-    if (
-      fallbackCharset &&
-      fallbackCharset.value &&
-      fallbackCharset.value != ""
-    ) {
-      gMsgCompose.SetDocumentCharset(fallbackCharset.value);
-    }
-  }
-
   if (!gSelectedTechnologyIsPGP) {
     gMsgCompose.compFields.composeSecure.requireEncryptMessage = gSendEncrypted;
     gMsgCompose.compFields.composeSecure.signMessage = gSendSigned;
@@ -4690,9 +4593,6 @@ function CompleteGenericSendMessage(msgType) {
   } catch (ex) {
     Cu.reportError("GenericSendMessage FAILED: " + ex);
     ToggleWindowLock(false);
-  }
-  if (gMsgCompose && originalCharset != gMsgCompose.compFields.characterSet) {
-    SetDocumentCharacterSet(gMsgCompose.compFields.characterSet);
   }
 
   if (
@@ -5369,17 +5269,6 @@ function updateLanguageInStatusBar() {
     }
     item = item.nextElementSibling;
   }
-}
-
-function updateEncodingInStatusBar() {
-  let encodingUIString = GetCharsetUIString();
-  let encodingStatusPanel = document.getElementById("encodingStatusPanel");
-  if (!encodingStatusPanel) {
-    return;
-  }
-
-  // Update status display; no status display for default text encoding.
-  encodingStatusPanel.collapsed = !(encodingStatusPanel.value = encodingUIString);
 }
 
 /**

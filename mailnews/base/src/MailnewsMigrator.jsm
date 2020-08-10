@@ -336,17 +336,6 @@ function MigrateDefaultCharsets() {
     "@mozilla.org/charset-converter-manager;1"
   ].getService(Ci.nsICharsetConverterManager);
 
-  let sendCharsetStr = Services.prefs.getComplexValue(
-    "mailnews.send_default_charset",
-    Ci.nsIPrefLocalizedString
-  ).data;
-
-  try {
-    charsetConvertManager.getCharsetTitle(sendCharsetStr);
-  } catch (e) {
-    Services.prefs.clearUserPref("mailnews.send_default_charset");
-  }
-
   let viewCharsetStr = Services.prefs.getComplexValue(
     "mailnews.view_default_charset",
     Ci.nsIPrefLocalizedString

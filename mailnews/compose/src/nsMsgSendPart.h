@@ -24,7 +24,7 @@ class nsMsgSendPart {
   typedef mozilla::mailnews::MimeEncoder MimeEncoder;
 
  public:
-  explicit nsMsgSendPart(nsIMsgSend* state, const char* part_charset = NULL);
+  explicit nsMsgSendPart(nsIMsgSend* state);
   virtual ~nsMsgSendPart();  // Note that the destructor also destroys
                              // any children that were added.
 
@@ -38,8 +38,6 @@ class nsMsgSendPart {
 
   virtual nsresult SetType(const char* type);
   const char* GetType() { return m_type; }
-
-  const char* GetCharsetName() { return m_charset_name; }
 
   virtual nsresult SetOtherHeaders(const char* other);
   const char* SetOtherHeaders() { return m_other; }
@@ -78,7 +76,6 @@ class nsMsgSendPart {
   char* m_buffer;
   char* m_type;
   char* m_other;
-  char m_charset_name[64 + 1];  // charset name associated with this part
   bool m_strip_sensitive_headers;
   mozilla::UniquePtr<MimeEncoder> m_encoder;
 

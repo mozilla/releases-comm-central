@@ -689,7 +689,6 @@ var EnigmailAutocrypt = {
     return new Promise((resolve, reject) => {
       self.createSetupMessage(identity).then(res => {
         let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(Ci.nsIMsgCompFields);
-        composeFields.characterSet = "UTF-8";
         composeFields.messageId = EnigmailRNG.generateRandomString(27) + "-enigmail";
         composeFields.from = identity.email;
         composeFields.to = identity.email;

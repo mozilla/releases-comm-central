@@ -51,18 +51,6 @@ var gDrafts;
 
 add_task(function setupModule(module) {
   gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
-
-  // Ensure reply charset isn't UTF-8, otherwise there's no need to upgrade,
-  // which is what this test tests.
-  let str = Cc["@mozilla.org/pref-localizedstring;1"].createInstance(
-    Ci.nsIPrefLocalizedString
-  );
-  str.data = "windows-1252";
-  Services.prefs.setComplexValue(
-    "mailnews.send_default_charset",
-    Ci.nsIPrefLocalizedString,
-    str
-  );
 });
 
 /**
@@ -106,8 +94,7 @@ function getMsgHeaders(aMsgHdr, aGetText = false) {
 
 /**
  * Test that if we reply to a message in an invalid charset, we don't try to compose
- * in that charset. Instead, we should be using the default charset (set to
- * not be UTF-8 in this test).
+ * in that charset. Instead, we should be using UTF-8.
  */
 add_task(function test_wrong_reply_charset() {
   let folder = gDrafts;
@@ -128,10 +115,10 @@ add_task(function test_wrong_reply_charset() {
   close_compose_window(rwc);
 
   let draftMsg = select_click_row(1);
-  Assert.equal(getMsgHeaders(draftMsg).get("").charset, "windows-1252");
+  Assert.equal(getMsgHeaders(draftMsg).get("").charset, "UTF-8");
   press_delete(mc); // Delete message
 
-  // Edit the original message. Charset should be windows-1252 now.
+  // Edit the original message. Charset should be UTF-8 now.
   msg = select_click_row(0);
 
   // Wait for the notification with the Edit button.
@@ -145,7 +132,7 @@ add_task(function test_wrong_reply_charset() {
   rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
   close_compose_window(rwc);
   msg = select_click_row(0);
-  Assert.equal(getMsgHeaders(msg).get("").charset, "windows-1252");
+  Assert.equal(getMsgHeaders(msg).get("").charset, "UTF-8");
   press_delete(mc); // Delete message
 });
 
@@ -217,8 +204,4 @@ add_task(function test_no_mojibake() {
     nonASCII
   );
   press_delete(mc); // Delete message
-});
-
-registerCleanupFunction(function teardownModule(module) {
-  Services.prefs.clearUserPref("mailnews.send_default_charset");
 });

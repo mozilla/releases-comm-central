@@ -1,0 +1,12 @@
+To: test1@test.invalid
+From: test2@test.invalid
+Subject: test quote ISO-2022-JP encoded message
+Date: Mon, 17 Aug 2020 10:10:47 +0900
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-2022-JP; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+
+hello
+
+世界

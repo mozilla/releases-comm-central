@@ -1057,24 +1057,6 @@ nsMsgCompose::Initialize(nsIMsgComposeParams* aParams,
   return CreateMessage(originalMsgURI.get(), type, composeFields);
 }
 
-MOZ_CAN_RUN_SCRIPT_BOUNDARY nsresult
-nsMsgCompose::SetDocumentCharset(const char* aCharset) {
-  NS_ENSURE_TRUE(m_compFields && m_editor, NS_ERROR_NOT_INITIALIZED);
-
-  // Set charset, this will be used for the MIME charset labeling.
-  m_compFields->SetCharacterSet(aCharset);
-
-  // notify the change to editor
-  nsCString charset;
-  if (aCharset) charset = nsDependentCString(aCharset);
-  if (m_editor) {
-    nsCOMPtr<nsIEditor> editor(m_editor);  // Strong reference.
-    editor->SetDocumentCharacterSet(charset);
-  }
-
-  return NS_OK;
-}
-
 NS_IMETHODIMP
 nsMsgCompose::RegisterStateListener(
     nsIMsgComposeStateListener* aStateListener) {
@@ -1236,7 +1218,6 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
   // Set content type based on which type of compose window we had.
   nsString contentType = (m_composeHTML) ? u"text/html"_ns : u"text/plain"_ns;
   nsString msgBody;
-  const char* charset = m_compFields->GetCharacterSet();
   if (m_editor) {
     // Reset message body previously stored in the compose fields
     // There is 2 nsIMsgCompFields::SetBody() functions using a pointer as
@@ -1251,7 +1232,7 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
                nsIDocumentEncoder::OutputDisallowLineBreaking;
     } else {
       bool flowed, delsp, formatted, disallowBreaks;
-      GetSerialiserFlags(charset, &flowed, &delsp, &formatted, &disallowBreaks);
+      GetSerialiserFlags("UTF-8", &flowed, &delsp, &formatted, &disallowBreaks);
       if (flowed) flags |= nsIDocumentEncoder::OutputFormatFlowed;
       if (delsp) flags |= nsIDocumentEncoder::OutputFormatDelSp;
       if (formatted) flags |= nsIDocumentEncoder::OutputFormatted;
@@ -1270,41 +1251,15 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
     if (!StringEndsWith(msgBody, u"\r\n"_ns)) msgBody.AppendLiteral("\r\n");
     bool isAsciiOnly = mozilla::IsAsciiNullTerminated(
         static_cast<const char16_t*>(msgBody.get()));
-    // Convert body to mail charset
+    // Convert body to UTF-8
     nsCString outCString;
-    rv = nsMsgI18NConvertFromUnicode(
-        charset ? nsDependentCString(charset) : EmptyCString(), msgBody,
-        outCString, true);
+    outCString.Assign(NS_ConvertUTF16toUTF8(msgBody));
     if (m_compFields->GetForceMsgEncoding()) isAsciiOnly = false;
     if (NS_SUCCEEDED(rv) && !outCString.IsEmpty()) {
-      // If the body contains characters outside the repertoire of the current
-      // charset, just convert to UTF-8 and be done with it
-      // unless disable_fallback_to_utf8 is set for this charset.
-      if (NS_ERROR_UENC_NOMAPPING == rv) {
-        bool needToCheckCharset;
-        m_compFields->GetNeedToCheckCharset(&needToCheckCharset);
-        if (needToCheckCharset) {
-          bool disableFallback = false;
-          nsCOMPtr<nsIPrefBranch> prefBranch(
-              do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-          if (prefBranch && charset) {
-            nsCString prefName("mailnews.disable_fallback_to_utf8.");
-            prefName.Append(charset);
-            prefBranch->GetBoolPref(prefName.get(), &disableFallback);
-          }
-          if (!disableFallback) {
-            CopyUTF16toUTF8(msgBody, outCString);
-            m_compFields->SetCharacterSet("UTF-8");
-            SetDocumentCharset("UTF-8");
-          }
-        }
-      }
       m_compFields->SetBodyIsAsciiOnly(isAsciiOnly);
       m_compFields->SetBody(outCString.get());
     } else {
       m_compFields->SetBody(NS_ConvertUTF16toUTF8(msgBody).get());
-      m_compFields->SetCharacterSet("UTF-8");
-      SetDocumentCharset("UTF-8");
     }
   }
 
@@ -1509,37 +1464,6 @@ NS_IMETHODIMP nsMsgCompose::SetEditor(nsIEditor* aEditor) {
   return NS_OK;
 }
 
-static nsresult fixCharset(nsCString& aCharset) {
-  // Convert to a canonical charset name.
-  nsresult rv;
-  nsCOMPtr<nsICharsetConverterManager> ccm =
-      do_GetService(NS_CHARSETCONVERTERMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsCString charset(aCharset);
-  rv = ccm->GetCharsetAlias(charset.get(), aCharset);
-
-  // Replace an unrecognized charset with the default.
-  if (NS_FAILED(rv)) {
-    nsCOMPtr<nsIPrefBranch> prefs(
-        do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-    NS_ENSURE_SUCCESS(rv, rv);
-    nsString defaultCharset;
-    NS_GetLocalizedUnicharPreferenceWithDefault(
-        prefs, "mailnews.send_default_charset", u"UTF-8"_ns, defaultCharset);
-    LossyCopyUTF16toASCII(defaultCharset, aCharset);
-    return NS_OK;
-  }
-
-  // Don't accept UTF-16 ever. UTF-16 should never be selected as an
-  // outgoing encoding for e-mail. MIME can't handle those messages
-  // encoded in ASCII-incompatible encodings.
-  if (StringBeginsWith(aCharset, "UTF-16"_ns)) {
-    aCharset.AssignLiteral("UTF-8");
-  }
-  return NS_OK;
-}
-
 // This used to be called BEFORE editor was created
 //  (it did the loadURI that triggered editor creation)
 // It is called from JS after editor creation
@@ -1552,11 +1476,7 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCompose::InitEditor(
 
   m_editor = aEditor;
 
-  nsAutoCString msgCharSet(m_compFields->GetCharacterSet());
-  rv = fixCharset(msgCharSet);
-  NS_ENSURE_SUCCESS(rv, rv);
-  m_compFields->SetCharacterSet(msgCharSet.get());
-  aEditor->SetDocumentCharacterSet(msgCharSet);
+  aEditor->SetDocumentCharacterSet("UTF-8"_ns);
 
   nsCOMPtr<nsPIDOMWindowOuter> window =
       nsPIDOMWindowOuter::From(aContentWindow);
@@ -1564,10 +1484,8 @@ MOZ_CAN_RUN_SCRIPT_BOUNDARY NS_IMETHODIMP nsMsgCompose::InitEditor(
   nsIDocShell* docShell = window->GetDocShell();
   NS_ENSURE_TRUE(docShell, NS_ERROR_UNEXPECTED);
 
-  // SetCharset will complain about "UTF-7" or "x-mac-croatian"
-  // (see test-charset-edit.js), but we deal with this elsewhere.
-  rv = docShell->SetCharset(msgCharSet);
-  NS_WARNING_ASSERTION(NS_SUCCEEDED(rv), "SetCharset() failed");
+  rv = docShell->SetCharset("UTF-8"_ns);
+  NS_ENSURE_SUCCESS(rv, rv);
 
   bool quotingToFollow = false;
   GetQuotingToFollow(&quotingToFollow);
@@ -1779,23 +1697,6 @@ nsresult nsMsgCompose::CreateMessage(const char* originalMsgURI,
   // Note the early return at the end of the block.
   if (type == nsIMsgCompType::ForwardInline ||
       type == nsIMsgCompType::ReplyWithTemplate) {
-    // Use charset set up in the compose fields by MIME unless we should
-    // use the default charset.
-    bool replyInDefault = false;
-    prefs->GetBoolPref("mailnews.reply_in_default_charset", &replyInDefault);
-    // Use send_default_charset if reply_in_default_charset is on.
-    if (replyInDefault) {
-      nsString str;
-      nsCString charset;
-      NS_GetLocalizedUnicharPreferenceWithDefault(
-          prefs, "mailnews.send_default_charset", EmptyString(), str);
-      if (!str.IsEmpty()) {
-        LossyCopyUTF16toASCII(str, charset);
-        m_compFields->SetCharacterSet(charset.get());
-        mAnswerDefaultCharset = true;
-      }
-    }
-
     // We want to treat this message as a reference too
     nsCOMPtr<nsIMsgDBHdr> msgHdr;
     rv = GetMsgDBHdrFromURI(originalMsgURI, getter_AddRefs(msgHdr));
@@ -1890,26 +1791,6 @@ nsresult nsMsgCompose::CreateMessage(const char* originalMsgURI,
     }
     if (msgHdr) {
       nsCString decodedCString;
-
-      bool replyInDefault = false;
-      prefs->GetBoolPref("mailnews.reply_in_default_charset", &replyInDefault);
-      // Use send_default_charset if reply_in_default_charset is on.
-      if (replyInDefault) {
-        nsString str;
-        NS_GetLocalizedUnicharPreferenceWithDefault(
-            prefs, "mailnews.send_default_charset", EmptyString(), str);
-        if (!str.IsEmpty()) {
-          LossyCopyUTF16toASCII(str, charset);
-          mAnswerDefaultCharset = true;
-        }
-      }
-
-      // Set the charset we determined, if any, in the comp fields.
-      // For replies, the charset will be set after processing the message
-      // through MIME in QuotingOutputStreamListener::OnStopRequest().
-      if (isFirstPass && !charset.IsEmpty())
-        m_compFields->SetCharacterSet(charset.get());
-
       nsString subject;
       rv = msgHdr->GetMime2DecodedSubject(subject);
       if (NS_FAILED(rv)) return rv;
@@ -2337,24 +2218,7 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
         mMimeConverter = do_GetService(NS_MIME_CONVERTER_CONTRACTID, &rv);
         NS_ENSURE_SUCCESS(rv, rv);
       }
-      nsCString charset;
-      compFields->GetCharacterSet(getter_Copies(charset));
-
-      if (!mCharsetFixed) {
-        // Get the charset from the channel where MIME left it.
-        if (mQuote) {
-          nsCOMPtr<nsIChannel> quoteChannel;
-          mQuote->GetQuoteChannel(getter_AddRefs(quoteChannel));
-          if (quoteChannel) {
-            quoteChannel->GetContentCharset(charset);
-            if (!charset.IsEmpty()) {
-              rv = fixCharset(charset);
-              NS_ENSURE_SUCCESS(rv, rv);
-              compFields->SetCharacterSet(charset.get());
-            }
-          }
-        }
-      }
+      nsCString charset("UTF-8");
 
       mHeaders->ExtractHeader(HEADER_FROM, true, outCString);
       nsMsgI18NConvertRawBytesToUTF16(outCString, charset, from);
@@ -2977,9 +2841,8 @@ nsMsgCompose::QuoteMessage(const char* msgURI) {
 
   mQuoteStreamListener->SetComposeObj(this);
 
-  rv = mQuote->QuoteMessage(
-      msgURI, false, mQuoteStreamListener,
-      mCharsetOverride ? m_compFields->GetCharacterSet() : "", false, msgHdr);
+  rv = mQuote->QuoteMessage(msgURI, false, mQuoteStreamListener,
+                            mCharsetOverride ? "UTF-8" : "", false, msgHdr);
   return rv;
 }
 

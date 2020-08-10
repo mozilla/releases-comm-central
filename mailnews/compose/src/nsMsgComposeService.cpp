@@ -716,7 +716,6 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
   nsCString charset;
   rv = mTemplateHdr->GetCharset(getter_Copies(charset));
   NS_ENSURE_SUCCESS(rv, rv);
-  compFields->SetCharacterSet(charset.get());
   rv = nsMsgI18NConvertToUnicode(charset, mTemplateBody, body);
   NS_WARNING_ASSERTION(NS_SUCCEEDED(rv),
                        "couldn't convert templ body to unicode");

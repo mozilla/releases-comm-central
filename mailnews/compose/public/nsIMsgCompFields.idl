@@ -35,8 +35,6 @@ interface nsIMsgCompFields : msgIWritableStructuredHeaders {
   attribute string  references;
   attribute string  priority;
   attribute string  messageId;
-  attribute string  characterSet;
-  readonly attribute string defaultCharacterSet;
 
   attribute AString templateName;
   attribute string  draftId;

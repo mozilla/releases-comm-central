@@ -314,10 +314,6 @@ nsresult CreateCompositionFields(
   NS_ENSURE_SUCCESS(rv, rv);
   NS_ENSURE_TRUE(cFields, NS_ERROR_OUT_OF_MEMORY);
 
-  // Now set all of the passed in stuff...
-  cFields->SetCharacterSet(!PL_strcasecmp("us-ascii", charset) ? "ISO-8859-1"
-                                                               : charset);
-
   nsAutoCString val;
   nsAutoString outString;
 

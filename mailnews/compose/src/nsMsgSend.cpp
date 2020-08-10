@@ -503,7 +503,6 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
     }
 
     m_plaintext->m_type = TEXT_HTML;
-    m_plaintext->m_charset = mCompFields->GetCharacterSet();
     m_plaintext->m_desiredType = TEXT_PLAIN;
     m_attachment_pending_count++;
     status = m_plaintext->SnarfAttachment(mCompFields);
@@ -542,7 +541,7 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
   // generate a message id, if necessary
   GenerateMessageId();
 
-  mainbody = new nsMsgSendPart(this, mCompFields->GetCharacterSet());
+  mainbody = new nsMsgSendPart(this);
   if (!mainbody) goto FAILMEM;
 
   mainbody->SetMainPart(true);
@@ -556,9 +555,7 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
   PR_FREEIF(m_attachment1_encoding);
   if (m_attachment1_body) mCompFields->GetBodyIsAsciiOnly(&body_is_us_ascii);
 
-  if (!mCompFields->GetForceMsgEncoding() &&
-      (body_is_us_ascii ||
-       nsMsgI18Nstateful_charset(mCompFields->GetCharacterSet()))) {
+  if (!mCompFields->GetForceMsgEncoding() && body_is_us_ascii) {
     m_attachment1_encoding = PL_strdup(ENCODING_7BIT);
   } else if (mime_use_quoted_printable_p) {
     m_attachment1_encoding = PL_strdup(ENCODING_QUOTED_PRINTABLE);
@@ -612,7 +609,7 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
     // OK.  We have a plaintext version of the main body that we want to
     // send instead of or with the text/html.  Shove it in.
     //
-    plainpart = new nsMsgSendPart(this, mCompFields->GetCharacterSet());
+    plainpart = new nsMsgSendPart(this);
     if (!plainpart) goto FAILMEM;
     status = plainpart->SetType(TEXT_PLAIN);
     if (NS_FAILED(status)) goto FAIL;
@@ -622,13 +619,12 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
     m_plaintext->mMainBody = true;
 
     // Determine Content-Transfer-Encoding for the attachments.
-    m_plaintext->PickEncoding(mCompFields->GetCharacterSet(), this);
-    const char* charset = mCompFields->GetCharacterSet();
+    m_plaintext->PickEncoding(this);
     hdrs = mime_generate_attachment_headers(
         m_plaintext->m_type.get(), nullptr, m_plaintext->m_encoding.get(),
         m_plaintext->m_description.get(), m_plaintext->m_xMacType.get(),
         m_plaintext->m_xMacCreator.get(), nullptr, 0, m_digest_p, m_plaintext,
-        charset, charset, body_is_us_ascii, nullptr, true);
+        "UTF-8", body_is_us_ascii, nullptr, true);
     if (!hdrs) goto FAILMEM;
     status = plainpart->SetOtherHeaders(hdrs);
     PR_Free(hdrs);
@@ -763,11 +759,10 @@ nsMsgComposeAndSend::GatherMimeAttachments() {
   // so that we need not worry about duplicate header lines.
   //
   if ((!plainpart) || (plainpart != mainbody)) {
-    const char* charset = mCompFields->GetCharacterSet();
     hdrs = mime_generate_attachment_headers(
         m_attachment1_type, nullptr, m_attachment1_encoding, 0, 0, 0, 0, 0,
         m_digest_p, nullptr, /* no "ma"! */
-        charset, charset, mCompFields->GetBodyIsAsciiOnly(), nullptr, true);
+        "UTF-8", mCompFields->GetBodyIsAsciiOnly(), nullptr, true);
     if (!hdrs) goto FAILMEM;
     status = mainbody->AppendOtherHeaders(hdrs);
     if (NS_FAILED(status)) goto FAIL;
@@ -928,7 +923,7 @@ int32_t nsMsgComposeAndSend::PreProcessPart(
   // we're never going to get one.
   if (ma->m_type.IsEmpty()) ma->m_type = UNKNOWN_CONTENT_TYPE;
 
-  ma->PickEncoding(mCompFields->GetCharacterSet(), this);
+  ma->PickEncoding(this);
   ma->PickCharset();
 
   part = new nsMsgSendPart(this);
@@ -969,9 +964,8 @@ int32_t nsMsgComposeAndSend::PreProcessPart(
                             // we determine from
                             // the file or none
                             // at all!
-      mCompFields->GetCharacterSet(),
-      false,  // bodyIsAsciiOnly to false
-              // for attachments
+      false,                // bodyIsAsciiOnly to false
+                            // for attachments
       ma->m_contentId.get(), false);
   if (!hdrs) return 0;
 
@@ -1356,59 +1350,21 @@ nsresult nsMsgComposeAndSend::GetBodyFromEditor() {
   }
 
   nsCString attachment1_body;
+  attachment1_body.Assign(NS_ConvertUTF16toUTF8(bodyText));
 
-  // Convert body to mail charset
-  nsCString outCString;
-  const char* aCharset = mCompFields->GetCharacterSet();
+  bool isAsciiOnly = mozilla::IsAsciiNullTerminated(
+      static_cast<const char16_t*>(bodyText.get()));
+  if (mCompFields->GetForceMsgEncoding()) isAsciiOnly = false;
+  mCompFields->SetBodyIsAsciiOnly(isAsciiOnly);
 
-  if (aCharset && *aCharset) {
-    bool isAsciiOnly = mozilla::IsAsciiNullTerminated(
-        static_cast<const char16_t*>(bodyText.get()));
-    rv = nsMsgI18NConvertFromUnicode(nsDependentCString(aCharset), bodyText,
-                                     outCString, true);
-    if (mCompFields->GetForceMsgEncoding()) isAsciiOnly = false;
-    mCompFields->SetBodyIsAsciiOnly(isAsciiOnly);
-
-    // If the body contains characters outside the current mail charset,
-    // convert to UTF-8.
-    if (NS_ERROR_UENC_NOMAPPING == rv) {
-      bool needToCheckCharset;
-      mCompFields->GetNeedToCheckCharset(&needToCheckCharset);
-      if (needToCheckCharset) {
-        // Just use UTF-8 and be done with it
-        // unless disable_fallback_to_utf8 is set for this charset.
-        bool disableFallback = false;
-        nsCOMPtr<nsIPrefBranch> prefBranch(
-            do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-        if (prefBranch) {
-          nsCString prefName("mailnews.disable_fallback_to_utf8.");
-          prefName.Append(aCharset);
-          prefBranch->GetBoolPref(prefName.get(), &disableFallback);
-        }
-        if (!disableFallback) {
-          CopyUTF16toUTF8(bodyText, outCString);
-          mCompFields->SetCharacterSet("UTF-8");
-        }
-      }
-    }
-
-    if (NS_SUCCEEDED(rv)) attachment1_body = outCString;
-
-    // If we have an origHTMLBody that is not null, this means that it is
-    // different than the bodyText because of formatting conversions. Because of
-    // this we need to do the charset conversion on this part separately
-    if (!origHTMLBody.IsEmpty()) {
-      nsCString newBody;
-      rv = nsMsgI18NConvertFromUnicode(nsDependentCString(aCharset),
-                                       origHTMLBody, newBody, true);
-      if (NS_SUCCEEDED(rv)) {
-        mOriginalHTMLBody = ToNewCString(newBody);
-      }
-    } else {
-      mOriginalHTMLBody = ToNewCString(attachment1_body);
-    }
-  } else
-    return NS_ERROR_FAILURE;
+  // If we have an origHTMLBody that is not null, this means that it is
+  // different than the bodyText because of formatting conversions. Because of
+  // this we need to do the charset conversion on this part separately
+  if (!origHTMLBody.IsEmpty()) {
+    mOriginalHTMLBody = ToNewCString(NS_ConvertUTF16toUTF8(origHTMLBody));
+  } else {
+    mOriginalHTMLBody = ToNewCString(attachment1_body);
+  }
 
   rv = SnarfAndCopyBody(attachment1_body, TEXT_HTML);
 
@@ -1512,12 +1468,9 @@ nsresult nsMsgComposeAndSend::ProcessMultipartRelated(int32_t* aMailboxCount,
       m_attachments[i]->m_xMacType = attachment->m_xMacType;
       m_attachments[i]->m_xMacCreator = attachment->m_xMacCreator;
 
-      m_attachments[i]->m_charset = mCompFields->GetCharacterSet();
       m_attachments[i]->m_encoding = ENCODING_7BIT;
 
-      if (m_attachments[i]->mURL)
-        msg_pick_real_name(m_attachments[i], nullptr,
-                           mCompFields->GetCharacterSet());
+      if (m_attachments[i]->mURL) msg_pick_real_name(m_attachments[i], nullptr);
 
       if (m_attachments[i]->m_contentId.IsEmpty()) {
         //
@@ -1777,8 +1730,7 @@ nsresult nsMsgComposeAndSend::AddCompFieldLocalAttachments() {
           if (m_attachments[newLoc]->mURL) {
             nsAutoString proposedName;
             attachment->GetName(proposedName);
-            msg_pick_real_name(m_attachments[newLoc], proposedName.get(),
-                               mCompFields->GetCharacterSet());
+            msg_pick_real_name(m_attachments[newLoc], proposedName.get());
           }
 
           // Now, most importantly, we need to figure out what the content type
@@ -1963,8 +1915,7 @@ nsresult nsMsgComposeAndSend::AddCompFieldRemoteAttachments(
           if (do_add_attachment) {
             nsAutoString proposedName;
             attachment->GetName(proposedName);
-            msg_pick_real_name(m_attachments[newLoc], proposedName.get(),
-                               mCompFields->GetCharacterSet());
+            msg_pick_real_name(m_attachments[newLoc], proposedName.get());
             ++newLoc;
           }
         }
@@ -2039,13 +1990,10 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
 
       attachedFile->GetType(m_attachments[i]->m_type);
 
-      // Set it to the compose fields for a default...
-      m_attachments[i]->m_charset = mCompFields->GetCharacterSet();
-
       // If we still don't have a content type, we should really try sniff one
       // out!
       if (m_attachments[i]->m_type.IsEmpty())
-        m_attachments[i]->PickEncoding(mCompFields->GetCharacterSet(), this);
+        m_attachments[i]->PickEncoding(this);
 
       // For local files, if they are HTML docs and we don't have a charset, we
       // should sniff the file and see if we can figure it out.
@@ -2087,9 +2035,7 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
           !m_attachments[i]->m_encoding.LowerCaseEqualsLiteral(ENCODING_BINARY))
         m_attachments[i]->m_already_encoded_p = true;
 
-      if (m_attachments[i]->mURL)
-        msg_pick_real_name(m_attachments[i], nullptr,
-                           mCompFields->GetCharacterSet());
+      if (m_attachments[i]->mURL) msg_pick_real_name(m_attachments[i], nullptr);
     }
   }
 
@@ -2135,7 +2081,6 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
       attachment->GetUrl(getter_AddRefs(m_attachments[i]->mURL));
 
       attachment->GetRealType(m_attachments[i]->m_overrideType);
-      m_attachments[i]->m_charset = mCompFields->GetCharacterSet();
       attachment->GetRealEncoding(m_attachments[i]->m_overrideEncoding);
       attachment->GetDesiredType(m_attachments[i]->m_desiredType);
       attachment->GetDescription(m_attachments[i]->m_description);
@@ -2172,9 +2117,7 @@ nsresult nsMsgComposeAndSend::HackAttachments(nsIArray* attachments,
               do_CreateInstance(contractID.get());
           if (msgProtocolInfo) mailbox_count++;
         }
-        if (uri)
-          msg_pick_real_name(m_attachments[i], nullptr,
-                             mCompFields->GetCharacterSet());
+        if (uri) msg_pick_real_name(m_attachments[i], nullptr);
       }
     }
   }
@@ -2272,14 +2215,6 @@ nsresult nsMsgComposeAndSend::InitCompositionFields(
 
   mCompFields = new nsMsgCompFields();
   if (!mCompFields) return NS_ERROR_OUT_OF_MEMORY;
-
-  const char* cset = fields->GetCharacterSet();
-  // Make sure charset is sane...
-  if (!cset || !*cset) {
-    mCompFields->SetCharacterSet("UTF-8");
-  } else {
-    mCompFields->SetCharacterSet(fields->GetCharacterSet());
-  }
 
   // Now, we will look for a URI defined as the default FCC pref. If this is
   // set, then SetFcc will use this value. The FCC field is a URI for the server
@@ -2555,7 +2490,7 @@ nsresult nsMsgComposeAndSend::AddMailFollowupToHeader() {
 
   // Set Mail-Followup-To
   return mCompFields->SetRawHeader(HEADER_MAIL_FOLLOWUP_TO, recipients,
-                                   mCompFields->GetCharacterSet());
+                                   "UTF-8");
 }
 
 // Add Mail-Reply-To header
@@ -2623,8 +2558,7 @@ nsresult nsMsgComposeAndSend::AddMailReplyToHeader() {
   else
     mailReplyTo = replyTo;
 
-  mCompFields->SetRawHeader(HEADER_MAIL_REPLY_TO, mailReplyTo,
-                            mCompFields->GetCharacterSet());
+  mCompFields->SetRawHeader(HEADER_MAIL_REPLY_TO, mailReplyTo, "UTF-8");
   return NS_OK;
 }
 
@@ -2990,9 +2924,8 @@ nsresult nsMsgComposeAndSend::DeliverFileAsMail() {
   NS_ENSURE_SUCCESS(rv, rv);
 
   // Ok, now MIME II encode this to prevent 8bit problems...
-  char* convbuf =
-      nsMsgI18NEncodeMimePartIIStr(buf, true, mCompFields->GetCharacterSet(), 0,
-                                   nsMsgMIMEGetConformToStandard());
+  char* convbuf = nsMsgI18NEncodeMimePartIIStr(buf, true, "UTF-8", 0,
+                                               nsMsgMIMEGetConformToStandard());
   if (convbuf) {
     // MIME-PartII conversion
     PR_FREEIF(buf);
@@ -4163,9 +4096,9 @@ nsresult nsMsgComposeAndSend::MimeDoFCC(nsIFile* input_file,
 #endif
   ) {
     char* convBcc;
-    convBcc = nsMsgI18NEncodeMimePartIIStr(
-        bcc_header, true, mCompFields->GetCharacterSet(), sizeof("BCC: "),
-        nsMsgMIMEGetConformToStandard());
+    convBcc =
+        nsMsgI18NEncodeMimePartIIStr(bcc_header, true, "UTF-8", sizeof("BCC: "),
+                                     nsMsgMIMEGetConformToStandard());
 
     int32_t L = strlen(convBcc ? convBcc : bcc_header) + 20;
     char* buf = (char*)PR_Malloc(L);
@@ -4471,14 +4404,12 @@ nsMsgComposeAndSend::GetSendCompFields(nsIMsgCompFields** aCompFields) {
 
 NS_IMETHODIMP
 nsMsgComposeAndSend::GetSendBody(nsAString& aBody) {
-  nsCString charSet;
-  if (mCompFields) mCompFields->GetCharacterSet(getter_Copies(charSet));
   if (!m_attachment1_body) {
     aBody.Truncate();
     return NS_OK;
   }
   return nsMsgI18NConvertToUnicode(
-      charSet, nsDependentCString(m_attachment1_body), aBody);
+      "UTF-8"_ns, nsDependentCString(m_attachment1_body), aBody);
 }
 
 NS_IMETHODIMP

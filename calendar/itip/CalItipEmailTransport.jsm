@@ -256,7 +256,6 @@ CalItipEmailTransport.prototype = {
           let composeFields = Cc["@mozilla.org/messengercompose/composefields;1"].createInstance(
             Ci.nsIMsgCompFields
           );
-          composeFields.characterSet = "UTF-8";
           composeFields.to = toList;
           let mailfrom = identity.fullName.length
             ? identity.fullName + " <" + identity.email + ">"

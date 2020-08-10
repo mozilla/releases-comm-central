@@ -215,8 +215,8 @@ function testReply(aHrdIdx, aTemplateHdrIdx = 0) {
   // The text gets converted to UTF-8 (regardless of what it is) at some point.
   // Suspect a bug with how BinaryInputStream handles the strings.
   if (templateHdr.Charset == "windows-1252") {
-    // XXX: should really check for "��� åäö"
-    if (!body.includes("åäö xlatin1")) {
+    // XXX: should really check for "åäö xlatin1"
+    if (!body.includes("Ã¥Ã¤Ã¶ xlatin1")) {
       // template-latin1 contains this
       do_throw(
         "latin1 body didn't go through!  hdr msgid=" +

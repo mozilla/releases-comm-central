@@ -52,7 +52,7 @@ var ParamFoldingPref = {
 
 var expectedCTList0 = {
   RFC2047:
-    "Content-Type: text/plain; charset=US-ASCII;\r\n" +
+    "Content-Type: text/plain; charset=UTF-8;\r\n" +
     ' name="=?UTF-8?B?ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJ?=' +
     "=?UTF-8?Q?JKLMNOPQRSTUVWXYZ=5b=5c=5d=5e=5f=60abcdefghijklmnopqrstuvwx?=" +
     "=?UTF-8?B?eXp7fH1+wqDCocKiwqPCpMKlwqbCp8KowqnCqsKrwqzCrcKuwq/CsMKx?=" +
@@ -62,7 +62,7 @@ var expectedCTList0 = {
     '=?UTF-8?B?w7HDssOzw7TDtcO2w7fDuMO5w7rDu8O8w73DvsO/LnR4dA==?="\r\n',
 
   RFC2047WithCRLF:
-    "Content-Type: text/plain; charset=US-ASCII;\r\n" +
+    "Content-Type: text/plain; charset=UTF-8;\r\n" +
     ' name="=?UTF-8?B?ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj9AQUJDREVGR0hJ?=\r\n' +
     " =?UTF-8?Q?JKLMNOPQRSTUVWXYZ=5b=5c=5d=5e=5f=60abcdefghijklmnopqrstuvwx?=\r\n" +
     " =?UTF-8?B?eXp7fH1+wqDCocKiwqPCpMKlwqbCp8KowqnCqsKrwqzCrcKuwq/CsMKx?=\r\n" +
@@ -71,19 +71,19 @@ var expectedCTList0 = {
     " =?UTF-8?B?w5zDncOew5/DoMOhw6LDo8Okw6XDpsOnw6jDqcOqw6vDrMOtw67Dr8Ow?=\r\n" +
     ' =?UTF-8?B?w7HDssOzw7TDtcO2w7fDuMO5w7rDu8O8w73DvsO/LnR4dA==?="\r\n',
 
-  RFC2231: "Content-Type: text/plain; charset=US-ASCII\r\n",
+  RFC2231: "Content-Type: text/plain; charset=UTF-8\r\n",
 };
 
 var expectedCTList1 = {
   RFC2047:
-    "Content-Type: text/plain; charset=US-ASCII;\r\n" +
+    "Content-Type: text/plain; charset=UTF-8;\r\n" +
     ' name="!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 
   RFC2047WithCRLF:
-    "Content-Type: text/plain; charset=US-ASCII;\r\n" +
+    "Content-Type: text/plain; charset=UTF-8;\r\n" +
     ' name="!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 
-  RFC2231: "Content-Type: text/plain; charset=US-ASCII\r\n",
+  RFC2231: "Content-Type: text/plain; charset=UTF-8\r\n",
 };
 
 function checkAttachment(expectedCD, expectedCT) {

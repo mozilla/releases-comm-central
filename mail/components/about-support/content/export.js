@@ -95,7 +95,6 @@ function sendViaEmail() {
   // In general we can have non-ASCII characters, and compose's charset
   // detection doesn't seem to work when the HTML part is pure ASCII but the
   // text isn't. So take the easy way out and force UTF-8.
-  fields.characterSet = "UTF-8";
   fields.bodyIsAsciiOnly = false;
   params.composeFields = fields;
 

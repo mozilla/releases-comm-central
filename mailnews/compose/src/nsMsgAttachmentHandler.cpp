@@ -115,6 +115,7 @@ nsMsgAttachmentHandler::nsMsgAttachmentHandler()
       mCompFields(nullptr),  // Message composition fields for the sender
       m_bogus_attachment(false),
       m_done(false),
+      m_charset("UTF-8"_ns),
       m_already_encoded_p(false),
       mDeleteFile(false),
       mMHTMLPart(false),
@@ -294,8 +295,7 @@ void nsMsgAttachmentHandler::AnalyzeSnarfedFile(void) {
 
 // Given a content-type and some info about the contents of the document,
 // decide what encoding it should have.
-nsresult nsMsgAttachmentHandler::PickEncoding(const char* charset,
-                                              nsIMsgSend* mime_delivery_state) {
+nsresult nsMsgAttachmentHandler::PickEncoding(nsIMsgSend* mime_delivery_state) {
   nsCOMPtr<nsIPrefBranch> pPrefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
 
   bool needsB64 = false;
@@ -361,22 +361,17 @@ nsresult nsMsgAttachmentHandler::PickEncoding(const char* charset,
         m_desiredType.Truncate();
     }
 
-    // If the Mail charset is multibyte, we force it to use Base64 for
-    // attachments.
-    if ((!mMainBody && charset && nsMsgI18Nmultibyte_charset(charset)) &&
-        (m_type.LowerCaseEqualsLiteral(TEXT_HTML) ||
-         m_type.LowerCaseEqualsLiteral(TEXT_MDL) ||
-         m_type.LowerCaseEqualsLiteral(TEXT_PLAIN) ||
-         m_type.LowerCaseEqualsLiteral(TEXT_RICHTEXT) ||
-         m_type.LowerCaseEqualsLiteral(TEXT_ENRICHED) ||
-         m_type.LowerCaseEqualsLiteral(TEXT_VCARD) ||
-         m_type.LowerCaseEqualsLiteral(
-             APPLICATION_DIRECTORY) || /* text/x-vcard synonym */
-         m_type.LowerCaseEqualsLiteral(TEXT_CSS) ||
-         m_type.LowerCaseEqualsLiteral(TEXT_JSSS))) {
+    if (!mMainBody && (m_type.LowerCaseEqualsLiteral(TEXT_HTML) ||
+                       m_type.LowerCaseEqualsLiteral(TEXT_MDL) ||
+                       m_type.LowerCaseEqualsLiteral(TEXT_PLAIN) ||
+                       m_type.LowerCaseEqualsLiteral(TEXT_RICHTEXT) ||
+                       m_type.LowerCaseEqualsLiteral(TEXT_ENRICHED) ||
+                       m_type.LowerCaseEqualsLiteral(TEXT_VCARD) ||
+                       m_type.LowerCaseEqualsLiteral(
+                           APPLICATION_DIRECTORY) || /* text/x-vcard synonym */
+                       m_type.LowerCaseEqualsLiteral(TEXT_CSS) ||
+                       m_type.LowerCaseEqualsLiteral(TEXT_JSSS))) {
       needsB64 = true;
-    } else if (charset && nsMsgI18Nstateful_charset(charset)) {
-      m_encoding = ENCODING_7BIT;
     } else if (encode_p && m_unprintable_count > (m_size / 10)) {
       // If the document contains more than 10% unprintable characters,
       // then that seems like a good candidate for base64 instead of
@@ -452,7 +447,7 @@ DONE:
 }
 
 nsresult nsMsgAttachmentHandler::PickCharset() {
-  if (!m_charset.IsEmpty() ||
+  if (mMainBody ||
       !StringBeginsWith(m_type, "text/"_ns, nsCaseInsensitiveCStringComparator))
     return NS_OK;
 

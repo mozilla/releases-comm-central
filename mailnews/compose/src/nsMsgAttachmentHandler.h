@@ -68,7 +68,7 @@ class nsMsgAttachmentHandler : public nsIMsgAttachmentHandler {
 
  public:
   nsresult SnarfAttachment(nsMsgCompFields* compFields);
-  nsresult PickEncoding(const char* charset, nsIMsgSend* mime_delivery_state);
+  nsresult PickEncoding(nsIMsgSend* mime_delivery_state);
   nsresult PickCharset();
   void AnalyzeSnarfedFile();  // Analyze a previously-snarfed file.
                               // (Currently only used for plaintext

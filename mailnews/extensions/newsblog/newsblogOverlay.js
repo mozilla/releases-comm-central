@@ -381,7 +381,6 @@ function openComposeWindowForRSSArticle(
 
     params.composeFields = composeFields;
     params.composeFields.subject = subject;
-    params.composeFields.characterSet = msgHdr.Charset;
     params.composeFields.body = "";
     params.bodyIsLink = false;
     params.identity = aIdentity;

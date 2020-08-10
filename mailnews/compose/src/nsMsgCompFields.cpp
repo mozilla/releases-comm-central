@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include <iostream>
 #include "nsMsgCompose.h"
 #include "nsMsgCompFields.h"
 #include "nsMsgI18N.h"
@@ -77,15 +78,6 @@ nsMsgCompFields::nsMsgCompFields()
   m_needToCheckCharset = true;
   m_attachmentReminder = false;
   m_deliveryFormat = nsIMsgCompSendFormat::AskUser;
-
-  // Get the default charset from pref, use this as a mail charset.
-  nsString charset;
-  NS_GetLocalizedUnicharPreferenceWithDefault(
-      nullptr, "mailnews.send_default_charset", u"UTF-8"_ns, charset);
-
-  LossyCopyUTF16toASCII(charset,
-                        m_DefaultCharacterSet);  // Charsets better be ASCII
-  SetCharacterSet(m_DefaultCharacterSet.get());
 }
 
 nsMsgCompFields::~nsMsgCompFields() {}
@@ -274,15 +266,6 @@ NS_IMETHODIMP nsMsgCompFields::SetPriority(const char* value) {
 
 NS_IMETHODIMP nsMsgCompFields::GetPriority(char** _retval) {
   *_retval = strdup(GetAsciiHeader(MSG_PRIORITY_HEADER_ID));
-  return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
-}
-
-NS_IMETHODIMP nsMsgCompFields::SetCharacterSet(const char* value) {
-  return SetAsciiHeader(MSG_CHARACTER_SET_HEADER_ID, value);
-}
-
-NS_IMETHODIMP nsMsgCompFields::GetCharacterSet(char** _retval) {
-  *_retval = strdup(GetAsciiHeader(MSG_CHARACTER_SET_HEADER_ID));
   return *_retval ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
@@ -555,8 +538,7 @@ NS_IMETHODIMP nsMsgCompFields::ConvertBodyToPlainText() {
     rv = GetBody(body);
     if (NS_SUCCEEDED(rv)) {
       bool flowed, delsp, formatted, disallowBreaks;
-      GetSerialiserFlags(GetCharacterSet(), &flowed, &delsp, &formatted,
-                         &disallowBreaks);
+      GetSerialiserFlags("UTF-8", &flowed, &delsp, &formatted, &disallowBreaks);
       rv =
           ConvertBufToPlainText(body, flowed, delsp, formatted, disallowBreaks);
       if (NS_SUCCEEDED(rv)) rv = SetBody(body);
@@ -576,13 +558,6 @@ NS_IMETHODIMP nsMsgCompFields::SetComposeSecure(
     nsIMsgComposeSecure* aComposeSecure) {
   mSecureCompFields = aComposeSecure;
   return NS_OK;
-}
-
-NS_IMETHODIMP nsMsgCompFields::GetDefaultCharacterSet(
-    char** aDefaultCharacterSet) {
-  NS_ENSURE_ARG_POINTER(aDefaultCharacterSet);
-  *aDefaultCharacterSet = ToNewCString(m_DefaultCharacterSet);
-  return *aDefaultCharacterSet ? NS_OK : NS_ERROR_OUT_OF_MEMORY;
 }
 
 NS_IMETHODIMP nsMsgCompFields::GetNeedToCheckCharset(bool* _retval) {

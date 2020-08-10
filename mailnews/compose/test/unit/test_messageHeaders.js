@@ -391,15 +391,6 @@ async function testContentHeaders() {
     "Content-Transfer-Encoding": "8bit",
   });
 
-  // What if we change the message charset?
-  fields.characterSet = "ISO-8859-1";
-  fields.body = "Archæologist";
-  await richCreateMessage(fields, [], identity);
-  checkDraftHeaders({
-    "Content-Type": "text/html; charset=ISO-8859-1",
-    "Content-Transfer-Encoding": "8bit",
-  });
-
   // Attachments
   fields.body = "";
   let plainAttachment = makeAttachment({
@@ -414,7 +405,7 @@ async function testContentHeaders() {
   await richCreateMessage(fields, [plainAttachment], identity);
   checkDraftHeaders(
     {
-      "Content-Type": "text/html; charset=ISO-8859-1",
+      "Content-Type": "text/html; charset=UTF-8",
       "Content-Transfer-Encoding": "7bit",
     },
     "1"
@@ -453,7 +444,6 @@ async function testContentHeaders() {
   );
   checkDraftHeaders(httpAttachmentHeaders, "2");
 
-  fields.characterSet = "UTF-8";
   let cloudAttachment = makeAttachment({
     url: Services.io.newFileURI(do_get_file("data/test-UTF-8.txt")).spec,
     sendViaCloud: true,

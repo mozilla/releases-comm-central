@@ -76,7 +76,6 @@ char* mime_generate_attachment_headers(
     const char* real_name, const char* base_url, bool digest_p,
     nsMsgAttachmentHandler* ma,
     const char* attachmentCharset,  // charset of the attachment (can be null)
-    const char* bodyCharset,        // charset of the main body
     bool bodyIsAsciiOnly, const char* content_id, bool aBodyDocument);
 
 char* msg_generate_message_id(nsIMsgIdentity*);
@@ -95,7 +94,7 @@ char* msg_make_filename_qtext(const char* srcText, bool stripCRLFs);
 
 // Rip apart the URL and extract a reasonable value for the `real_name' slot.
 void msg_pick_real_name(nsMsgAttachmentHandler* attachment,
-                        const char16_t* proposedName, const char* charset);
+                        const char16_t* proposedName);
 
 //
 // Informational calls...

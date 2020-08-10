@@ -26,10 +26,7 @@ static char* mime_mailto_stream_read_buffer = 0;
 
 int32_t nsMsgSendPart::M_counter = 0;
 
-nsMsgSendPart::nsMsgSendPart(nsIMsgSend* state, const char* part_charset) {
-  PL_strncpy(m_charset_name, (part_charset ? part_charset : "UTF-8"),
-             sizeof(m_charset_name) - 1);
-  m_charset_name[sizeof(m_charset_name) - 1] = '\0';
+nsMsgSendPart::nsMsgSendPart(nsIMsgSend* state) {
   m_children = nullptr;
   m_numchildren = 0;
   // if we're not added as a child, the default part number will be "1".
@@ -456,8 +453,8 @@ nsresult nsMsgSendPart::Write() {
       bool needsCharset = mime_type_needs_charset(m_type ? m_type : TEXT_PLAIN);
       if (needsCharset) {
         content_type_header =
-            PR_smprintf("Content-Type: %s; charset=%s" CRLF,
-                        (m_type ? m_type : TEXT_PLAIN), m_charset_name);
+            PR_smprintf("Content-Type: %s; charset=UTF-8" CRLF,
+                        (m_type ? m_type : TEXT_PLAIN));
       } else
         content_type_header = PR_smprintf("Content-Type: %s" CRLF,
                                           (m_type ? m_type : TEXT_PLAIN));

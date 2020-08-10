@@ -2808,19 +2808,6 @@ Enigmail.msg = {
     // Encode ciphertext from unicode to charset
     var cipherText = EnigmailData.convertFromUnicode(pgpBlock, charset);
 
-    if (
-      !this.getMailPref("mailnews.reply_in_default_charset") &&
-      blockType == "MESSAGE"
-    ) {
-      // set charset according to PGP block, if available (encrypted messages only)
-      let armorHeaders = EnigmailArmor.getArmorHeaders(cipherText);
-
-      if ("charset" in armorHeaders) {
-        charset = armorHeaders.charset;
-        gMsgCompose.SetDocumentCharset(charset);
-      }
-    }
-
     // Decrypt message
     var signatureObj = {};
     signatureObj.value = "";

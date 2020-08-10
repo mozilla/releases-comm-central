@@ -15,8 +15,6 @@
   %messengercomposeDTD;
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
   %brandDTD;
-  <!ENTITY % charsetDTD SYSTEM "chrome://global/locale/charsetMenu.dtd" >
-  %charsetDTD;
   <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
   %customizeToolbarDTD;
   <!ENTITY % textcontextDTD SYSTEM "chrome://global/locale/textcontext.dtd">
@@ -1716,7 +1714,8 @@
                     accesskey="&enableInlineSpellChecker.accesskey;" checked="false"
                     type="checkbox"
                     oncommand="enableInlineSpellCheck(!gSpellChecker.enabled);"/>
-          <menuitem label="&quoteCmd.label;"
+          <menuitem id="menu_quoteMessage"
+                    label="&quoteCmd.label;"
                     accesskey="&quoteCmd.accesskey;"
                     command="cmd_quoteMessage"/>
           <menuseparator/>
@@ -1727,13 +1726,6 @@
                     command="cmd_toggleReturnReceipt"/>
           <menuitem id="dsnMenu" type="checkbox" label="&dsnMenu.label;" accesskey="&dsnMenu.accesskey;" oncommand="ToggleDSN(event.target)"/>
           <menuseparator/>
-          <menu id="charsetMenu"
-                data-l10n-id="menu-view-charset"
-                oncommand="SetDocumentCharacterSet(event.target.getAttribute('charset'));"
-                onpopupshowing="UpdateCharsetMenu(gMsgCompose.compFields.characterSet, this);">
-            <menupopup id="charsetPopup" detectors="false"
-                       onpopupshowing="CharsetMenu.build(this, true, this.getAttribute('detectors') != 'false');"/>
-          </menu>
           <menu id="outputFormatMenu" label="&deliveryFormatMenu.label;" accesskey="&deliveryFormatMenu.accesskey;" oncommand="OutputFormatMenuSelect(event.target)">
             <menupopup id="outputFormatMenuPopup">
               <menuitem type="radio" name="output_format" label="&autoFormatCmd.label;" accesskey="&autoFormatCmd.accesskey;" id="format_auto"/>
@@ -2578,7 +2570,6 @@
           oncommand="showMessageComposeSecurityStatus();">
       <image/>
     </hbox>
-    <label id="encodingStatusPanel" class="statusbarpanel" tooltiptext="&encodingStatusPanel.tooltip;"/>
     <hbox id="spellCheckStatusPanel" class="statusbarpanel">
       <toolbarbutton id="languageStatusButton"
                      tooltiptext="&languageStatusButton.tooltip;"
