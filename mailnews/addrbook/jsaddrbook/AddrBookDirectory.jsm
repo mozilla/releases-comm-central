@@ -607,7 +607,12 @@ class AddrBookDirectory {
             currentQuery.children.push(child);
             currentQuery = child;
           } else {
-            currentQuery.children.push(match[2]);
+            let [name, condition, value] = match[2].split(",");
+            currentQuery.children.push({
+              name,
+              condition,
+              value: decodeURIComponent(value).toLowerCase(),
+            });
 
             // For each closing bracket except the first, step up a level.
             for (let i = match[3].length - 1; i > 0; i--) {
@@ -627,13 +632,13 @@ class AddrBookDirectory {
             ["Notes", card.getProperty("Notes", "")],
           ]);
         } else {
-          properties = this._loadCardProperties(card.UID);
+          properties = card._properties;
         }
         let matches = b => {
-          if (typeof b == "string") {
-            let [name, condition, value] = b.split(",");
+          if ("condition" in b) {
+            let { name, condition, value } = b;
             if (name == "IsMailList" && condition == "=") {
-              return card.isMailList == (value == "TRUE");
+              return card.isMailList == (value == "true");
             }
 
             if (!properties.has(name)) {
@@ -643,7 +648,6 @@ class AddrBookDirectory {
               return true;
             }
 
-            value = decodeURIComponent(value).toLowerCase();
             let cardValue = properties.get(name).toLowerCase();
             switch (condition) {
               case "=":
@@ -743,7 +747,12 @@ class AddrBookDirectory {
         currentQuery.children.push(child);
         currentQuery = child;
       } else {
-        currentQuery.children.push(match[2]);
+        let [name, condition, value] = match[2].split(",");
+        currentQuery.children.push({
+          name,
+          condition,
+          value: decodeURIComponent(value).toLowerCase(),
+        });
 
         // For each closing bracket except the first, step up a level.
         for (let i = match[3].length - 1; i > 0; i--) {
@@ -761,13 +770,13 @@ class AddrBookDirectory {
           ["Notes", card.getProperty("Notes", "")],
         ]);
       } else {
-        properties = this._loadCardProperties(card.UID);
+        properties = card._properties;
       }
       let matches = b => {
-        if (typeof b == "string") {
-          let [name, condition, value] = b.split(",");
+        if ("condition" in b) {
+          let { name, condition, value } = b;
           if (name == "IsMailList" && condition == "=") {
-            return card.isMailList == (value == "TRUE");
+            return card.isMailList == (value == "true");
           }
 
           if (!properties.has(name)) {
@@ -777,7 +786,6 @@ class AddrBookDirectory {
             return true;
           }
 
-          value = decodeURIComponent(value).toLowerCase();
           let cardValue = properties.get(name).toLowerCase();
           switch (condition) {
             case "=":
