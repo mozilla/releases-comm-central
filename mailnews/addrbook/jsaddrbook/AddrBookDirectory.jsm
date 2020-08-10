@@ -131,6 +131,7 @@ class AddrBookDirectory {
     this._uid = null;
     this._nextCardId = null;
     this._nextListId = null;
+    this._dirName = null;
   }
 
   init(uri) {
@@ -176,10 +177,13 @@ class AddrBookDirectory {
   }
 
   get _prefBranch() {
+    if (this.__prefBranch) {
+      return this.__prefBranch;
+    }
     if (!this.dirPrefId) {
       throw Components.Exception("No dirPrefId!", Cr.NS_ERROR_NOT_AVAILABLE);
     }
-    return Services.prefs.getBranch(`${this.dirPrefId}.`);
+    return (this.__prefBranch = Services.prefs.getBranch(`${this.dirPrefId}.`));
   }
   get _dbConnection() {
     let file = FileUtils.getFile("ProfD", [this.fileName]);
@@ -507,11 +511,16 @@ class AddrBookDirectory {
     return "chrome://messenger/content/addressbook/abAddressBookNameDialog.xhtml";
   }
   get dirName() {
-    return this.getLocalizedStringValue("description", "");
+    if (this._dirName === null) {
+      this._dirName = this.getLocalizedStringValue("description", "");
+    }
+    return this._dirName;
   }
   set dirName(value) {
     let oldValue = this.dirName;
     this.setLocalizedStringValue("description", value);
+    this._dirName = value;
+    this._uuid = null;
     MailServices.ab.notifyItemPropertyChanged(this, "DirName", oldValue, value);
     Services.obs.notifyObservers(this, "addrbook-directory-updated", "DirName");
   }
@@ -539,7 +548,10 @@ class AddrBookDirectory {
     return this._prefBranch.getIntPref("position", 1);
   }
   get uuid() {
-    return `${this.dirPrefId}&${this.dirName}`;
+    if (!this._uuid) {
+      this._uuid = `${this.dirPrefId}&${this.dirName}`;
+    }
+    return this._uuid;
   }
   get childNodes() {
     let lists = Array.from(
