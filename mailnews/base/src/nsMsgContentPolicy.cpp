@@ -826,7 +826,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
 
   RefPtr<mozilla::dom::BrowsingContext> browsingContext =
       loadInfo->GetTargetBrowsingContext();
-  NS_ENSURE_TRUE(browsingContext, NS_ERROR_INVALID_POINTER);
+  NS_ENSURE_TRUE(browsingContext, NS_OK);
 
   nsCOMPtr<nsIDocShell> docShell = browsingContext->GetDocShell();
   NS_ENSURE_TRUE(docShell, NS_ERROR_INVALID_POINTER);
