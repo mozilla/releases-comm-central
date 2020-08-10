@@ -12,6 +12,9 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 var book, contact, list, listCard;
 var observer = {
@@ -115,14 +118,31 @@ var observer = {
   },
 };
 
+var baseAddressBookCount;
+
 add_task(async function setUp() {
   let profileDir = do_get_profile();
   observer.setUp();
 
   let dirs = [...MailServices.ab.directories];
-  equal(dirs.length, 2);
-  equal(dirs[0].fileName, kPABData.fileName);
-  equal(dirs[1].fileName, kCABData.fileName);
+  // On Mac we might be loading the OS X Address Book. If we are, then we
+  // need to take acccount of that here, so that the test still pass on
+  // development machines.
+  if (
+    AppConstants.platform == "macosx" &&
+    dirs[0].URI == "moz-abosxdirectory:///"
+  ) {
+    equal(dirs.length, 3);
+    equal(dirs[1].fileName, kPABData.fileName);
+    equal(dirs[2].fileName, kCABData.fileName);
+  } else {
+    equal(dirs.length, 2);
+    equal(dirs[0].fileName, kPABData.fileName);
+    equal(dirs[1].fileName, kCABData.fileName);
+  }
+  // Also record the address book counts so that we get the expected counts
+  // correct further down in the test.
+  baseAddressBookCount = dirs.length;
 
   // Check the PAB file was created.
   let pabFile = profileDir.clone();
@@ -173,7 +193,7 @@ add_task(async function createAddressBook() {
     FILE_NAME
   );
   equal(Services.prefs.getStringPref("ldap_2.servers.newbook.uid"), book.UID);
-  equal([...MailServices.ab.directories].length, 3);
+  equal([...MailServices.ab.directories].length, baseAddressBookCount + 1);
 
   // Check the file was created.
   let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
@@ -414,7 +434,7 @@ add_task(async function deleteAddressBook() {
   let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   dbFile.append(FILE_NAME);
   ok(!dbFile.exists());
-  equal([...MailServices.ab.directories].length, 2);
+  equal([...MailServices.ab.directories].length, baseAddressBookCount);
   Assert.throws(() => {
     MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`);
   }, /NS_ERROR_FAILURE/);
