@@ -130,10 +130,12 @@ add_task(async () => {
   card.setProperty("LastName", author[1]);
   card.setProperty("DisplayName", `${author[0]} ${author[1]}`);
   card.setProperty("PrimaryEmail", author[2]);
-  MailServices.ab.directories
-    .getNext()
-    .QueryInterface(Ci.nsIAbDirectory)
-    .addCard(card);
+  let ab = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
+  let addedCard = ab.addCard(card);
+
+  registerCleanupFunction(() => {
+    ab.deleteCards([addedCard]);
+  });
 
   await extension.startup();
   await extension.awaitFinish("quickFilter");

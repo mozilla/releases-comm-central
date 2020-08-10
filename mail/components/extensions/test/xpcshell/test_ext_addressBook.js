@@ -675,9 +675,7 @@ add_task(async function test_addressBooks() {
       return null;
     }
 
-    let parent = MailServices.ab.directories
-      .getNext()
-      .QueryInterface(Ci.nsIAbDirectory);
+    let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
     switch (action) {
       case "createAddressBook": {
         const kJSDirectory = 101; // defined in nsDirPrefs.h
