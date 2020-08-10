@@ -31,6 +31,7 @@
 #include "nsILoadInfo.h"
 #include "nsSandboxFlags.h"
 #include "nsQueryObject.h"
+#include "mozilla/dom/WindowGlobalParent.h"
 
 static const char kBlockRemoteImages[] =
     "mailnews.message_display.disable_remote_image";
@@ -149,7 +150,6 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
     aRequestingContext = aLoadInfo->ContextForTopLevelLoad();
   else
     aRequestingContext = aLoadInfo->LoadingNode();
-  nsCOMPtr<nsIPrincipal> aRequestPrincipal = aLoadInfo->TriggeringPrincipal();
   nsCOMPtr<nsIPrincipal> loadingPrincipal = aLoadInfo->GetLoadingPrincipal();
   nsCOMPtr<nsIURI> aRequestingLocation;
   if (loadingPrincipal) {
@@ -174,6 +174,8 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
 #ifdef DEBUG_MsgContentPolicy
   fprintf(stderr, "aContentType: %d\naContentLocation = %s\n", aContentType,
           aContentLocation->GetSpecOrDefault().get());
+  fprintf(stderr, "aRequestingContext is %s\n",
+          aRequestingContext ? "not null" : "null");
 #endif
 
 #ifndef MOZ_THUNDERBIRD
@@ -204,8 +206,7 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
       // OnLocationChange isn't guaranteed to necessarily be called soon enough
       // to disable it in time (though bz says it _should_ be called soon enough
       // "in all sane cases").
-      rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation,
-                                                 aRequestingContext);
+      rv = SetDisableItemsOnMailNewsUrlDocshells(aContentLocation, aLoadInfo);
       // if something went wrong during the tweaking, reject this content
       if (NS_FAILED(rv)) {
         NS_WARNING("Failed to set disable items on docShells");
@@ -302,17 +303,32 @@ nsMsgContentPolicy::ShouldLoad(nsIURI* aContentLocation, nsILoadInfo* aLoadInfo,
 
   // Find out the URI that originally initiated the set of requests for this
   // context.
-  nsCOMPtr<nsIURI> originatorLocation;
-  if (!aRequestingContext && aRequestPrincipal) {
-    // Can get the URI directly from the principal.
-    BasePrincipal::Cast(aRequestPrincipal)
-        ->GetURI(getter_AddRefs(originatorLocation));
-  } else {
-    rv = GetOriginatingURIForContext(aRequestingContext,
-                                     getter_AddRefs(originatorLocation));
-    if (NS_SUCCEEDED(rv) && !originatorLocation) return NS_OK;
-  }
+  RefPtr<mozilla::dom::BrowsingContext> targetContext;
+  rv = aLoadInfo->GetTargetBrowsingContext(getter_AddRefs(targetContext));
   NS_ENSURE_SUCCESS(rv, NS_OK);
+
+  if (!targetContext) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
+  }
+
+  dom::CanonicalBrowsingContext* cbc = targetContext->Canonical();
+  if (!cbc) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
+  }
+
+  dom::WindowGlobalParent* wgp = cbc->GetCurrentWindowGlobal();
+  if (!wgp) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
+  }
+
+  nsCOMPtr<nsIURI> originatorLocation = wgp->GetDocumentURI();
+  if (!originatorLocation) {
+    *aDecision = nsIContentPolicy::ACCEPT;
+    return NS_OK;
+  }
 
 #ifdef DEBUG_MsgContentPolicy
   fprintf(stderr, "originatorLocation = %s\n",
@@ -783,7 +799,7 @@ already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(
 }
 
 nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
-    nsIURI* aContentLocation, nsISupports* aRequestingContext) {
+    nsIURI* aContentLocation, nsISupports* aLoadInfo) {
   // XXX if this class changes so that this method can be called from
   // ShouldProcess, and if it's possible for this to be null when called from
   // ShouldLoad, but not in the corresponding ShouldProcess call,
@@ -791,7 +807,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
 
   // If there's no docshell to get to, there's nowhere for the JavaScript to
   // run, so we're already safe and don't need to disable anything.
-  if (!aRequestingContext) {
+  if (!aLoadInfo) {
     return NS_OK;
   }
 
@@ -805,27 +821,18 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     return NS_OK;
   }
 
-  // since NS_CP_GetDocShellFromContext returns the containing docshell rather
-  // than the contained one we need, we can't use that here, so...
-  RefPtr<nsFrameLoaderOwner> flOwner = do_QueryObject(aRequestingContext);
-  NS_ENSURE_TRUE(flOwner, NS_ERROR_INVALID_POINTER);
+  RefPtr<nsILoadInfo> loadInfo = do_QueryObject(aLoadInfo);
+  NS_ENSURE_TRUE(loadInfo, NS_ERROR_INVALID_POINTER);
 
-  RefPtr<nsFrameLoader> frameLoader = flOwner->GetFrameLoader();
-  NS_ENSURE_TRUE(frameLoader, NS_ERROR_INVALID_POINTER);
+  RefPtr<mozilla::dom::BrowsingContext> browsingContext =
+      loadInfo->GetTargetBrowsingContext();
+  NS_ENSURE_TRUE(browsingContext, NS_ERROR_INVALID_POINTER);
 
-  nsCOMPtr<nsIDocShell> docShell =
-      frameLoader->GetDocShell(mozilla::IgnoreErrors());
+  nsCOMPtr<nsIDocShell> docShell = browsingContext->GetDocShell();
   NS_ENSURE_TRUE(docShell, NS_ERROR_INVALID_POINTER);
 
-  nsCOMPtr<nsIDocShellTreeItem> docshellTreeItem(docShell);
-
-  // what sort of docshell is this?
-  int32_t itemType;
-  rv = docshellTreeItem->GetItemType(&itemType);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  // we're only worried about policy settings in content docshells
-  if (itemType != nsIDocShellTreeItem::typeContent) {
+  // We're only worried about policy settings in content docshells.
+  if (!browsingContext->IsContent()) {
     return NS_OK;
   }
 
@@ -833,11 +840,8 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     // Disable JavaScript on message URLs.
     rv = docShell->SetAllowJavascript(false);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = docShell->SetAllowContentRetargetingOnChildren(false);
+    rv = browsingContext->SetAllowContentRetargetingOnChildren(false);
     NS_ENSURE_SUCCESS(rv, rv);
-
-    RefPtr<mozilla::dom::BrowsingContext> browsingContext =
-        docShell->GetBrowsingContext();
     rv = browsingContext->SetSandboxFlags(browsingContext->GetSandboxFlags() |
                                           SANDBOXED_FORMS);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -845,7 +849,7 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     // JavaScript is allowed on non-message URLs.
     rv = docShell->SetAllowJavascript(true);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = docShell->SetAllowContentRetargetingOnChildren(true);
+    rv = browsingContext->SetAllowContentRetargetingOnChildren(true);
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
