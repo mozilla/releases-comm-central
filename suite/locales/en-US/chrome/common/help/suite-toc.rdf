@@ -129,9 +129,13 @@
     <nc:subheadings>
       <rdf:Seq>
         <rdf:li> <rdf:Description ID="pageinfo_general" nc:name="General Tab" nc:link="page_info_help.xhtml#general_tab"/> </rdf:li>
+        <rdf:li>
+          <rdf:Description ID="pageinfo_media"
+            nc:name="Media Tab"
+            nc:link="page_info_help.xhtml#media_tab"/>
+        </rdf:li>
         <rdf:li> <rdf:Description ID="pageinfo_forms" nc:name="Forms Tab" nc:link="page_info_help.xhtml#forms_tab"/> </rdf:li>
         <rdf:li> <rdf:Description ID="pageinfo_links" nc:name="Links Tab" nc:link="page_info_help.xhtml#links_tab"/> </rdf:li>
-        <rdf:li> <rdf:Description ID="pageinfo_media" nc:name="Media Tab" nc:link="page_info_help.xhtml#media_tab"/> </rdf:li>
         <rdf:li> <rdf:Description ID="pageinfo_security" nc:name="Security Tab" nc:link="page_info_help.xhtml#security_tab"/> </rdf:li>
       </rdf:Seq>
     </nc:subheadings>
