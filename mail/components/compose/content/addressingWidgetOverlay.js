@@ -108,7 +108,7 @@ function CompFields2Recipients(msgCompFields) {
       let input = document.getElementById("replyAddrInput");
       recipientClearPills(input);
 
-      let msgReplyTo = MailServices.headerParser.parseDecodedHeader(
+      let msgReplyTo = MailServices.headerParser.parseEncodedHeader(
         msgCompFields.replyTo
       );
       if (msgReplyTo.length) {
@@ -126,7 +126,7 @@ function CompFields2Recipients(msgCompFields) {
       let input = document.getElementById("toAddrInput");
       recipientClearPills(input);
 
-      let msgTo = MailServices.headerParser.parseDecodedHeader(
+      let msgTo = MailServices.headerParser.parseEncodedHeader(
         msgCompFields.to
       );
       if (msgTo.length) {
@@ -143,7 +143,7 @@ function CompFields2Recipients(msgCompFields) {
       let input = document.getElementById("ccAddrInput");
       recipientClearPills(input);
 
-      let msgCC = MailServices.headerParser.parseDecodedHeader(
+      let msgCC = MailServices.headerParser.parseEncodedHeader(
         msgCompFields.cc
       );
       if (msgCC.length) {
@@ -158,7 +158,7 @@ function CompFields2Recipients(msgCompFields) {
       let input = document.getElementById("bccAddrInput");
       recipientClearPills(input);
 
-      let msgBCC = MailServices.headerParser.parseDecodedHeader(
+      let msgBCC = MailServices.headerParser.parseEncodedHeader(
         msgCompFields.bcc
       );
       if (msgBCC.length) {
@@ -188,7 +188,7 @@ function CompFields2Recipients(msgCompFields) {
       let input = document.getElementById("followupAddrInput");
       recipientClearPills(input);
 
-      let msgFollowupTo = MailServices.headerParser.parseDecodedHeader(
+      let msgFollowupTo = MailServices.headerParser.parseEncodedHeader(
         msgCompFields.followupTo
       );
       if (msgFollowupTo.length) {
