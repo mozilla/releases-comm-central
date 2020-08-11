@@ -2111,7 +2111,8 @@ var RNP = {
 
     if (args.encrypt) {
       for (let id in args.to) {
-        let toKey = await this.findKeyByEmail(args.to[id], true);
+        let toEmail = args.to[id].toLowerCase();
+        let toKey = await this.findKeyByEmail(toEmail, true);
         if (!toKey || toKey.isNull()) {
           resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
           return null;
@@ -2121,7 +2122,8 @@ var RNP = {
       }
 
       for (let id in args.bcc) {
-        let bccKey = await this.findKeyByEmail(args.bcc[id], true);
+        let bccEmail = args.bcc[id].toLowerCase();
+        let bccKey = await this.findKeyByEmail(bccEmail, true);
         if (bccKey.isNull()) {
           resultStatus.statusFlags |= EnigmailConstants.INVALID_RECIPIENT;
           return null;
