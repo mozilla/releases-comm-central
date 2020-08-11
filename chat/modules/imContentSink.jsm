@@ -21,26 +21,6 @@ const EXPORTED_SYMBOLS = [
   "removeGlobalAllowedStyleRule",
 ];
 
-/*
- * Structure of a ruleset:
- * A ruleset is a JS object containing 3 sub-objects: attrs, tags and styles.
- *  - attrs: an object containing a list of attributes allowed for all tags.
- *      example: attrs: { 'style': true }
- *
- *  - tags: an object with the allowed tags. each tag can allow specific attributes.
- *      example: 'a': {'href': true}
- *
- *    each attribute can have a function returning a boolean indicating if
- *    the attribute is accepted.
- *      example: 'href': aValue => aValue == 'about:blank'
- *
- *  - styles: an object with the allowed CSS style rule.
- *      example: 'font-size': true
- *    FIXME: make this accept functions to filter the CSS values too.
- *
- *  See the 3 examples of rulesets below.
- */
-
 var kAllowedURLs = aValue => /^(https?|ftp|mailto):/.test(aValue);
 var kAllowedMozClasses = aClassName =>
   aClassName == "moz-txt-underscore" ||
@@ -54,7 +34,11 @@ var kForbiddenTags = {
   style: true,
 };
 
-// in strict mode, remove all formatings. Keep only links and line breaks.
+/**
+ * In strict mode, remove all formatting. Keep only links and line breaks.
+ *
+ * @type {CleanRules}
+ */
 var kStrictMode = {
   attrs: {},
 
@@ -71,7 +55,11 @@ var kStrictMode = {
   styles: {},
 };
 
-// standard mode allows basic formattings (bold, italic, underlined)
+/**
+ * Standard mode allows basic formattings (bold, italic, underlined).
+ *
+ * @type {CleanRules}
+ */
 var kStandardMode = {
   attrs: {
     style: true,
@@ -109,7 +97,11 @@ var kStandardMode = {
   },
 };
 
-// permissive mode allows about anything that isn't going to mess up the chat window
+/**
+ * Permissive mode allows just about anything that isn't going to mess up the chat window.
+ *
+ * @type {CleanRules}
+ */
 var kPermissiveMode = {
   attrs: {
     style: true,
@@ -238,22 +230,112 @@ function removeGlobalAllowedStyleRule(aStyle) {
   delete gGlobalRuleset.styles[aStyle];
 }
 
+/**
+ * A dynamic rule which decides if an attribute is allowed base on the
+ * attribute's value.
+ *
+ * @callback  ValueRule
+ * @param {string} value - The attribute value.
+ * @return {bool} - True if the attribute should be allowed.
+ *
+ * @example
+ *
+ *    aValue => aValue == 'about:blank'
+ */
+
+/**
+ * An object whose properties are the allowed attributes.
+ *
+ * The value of the property should be true to unconditionally accept the
+ * attribute, or a function which accepts the value of the attribute and
+ * returns a boolean of whether the attribute should be accepted or not.
+ *
+ * @typedef Ruleset
+ * @type {Object.<string, (boolean|ValueRule)>}}
+ */
+
+/**
+ * A set of rules for which tags, attributes, and styles should be allowed when
+ * rendering HTML.
+ *
+ * See kStrictMode, kStandardMode, kPermissiveMode for examples of Rulesets.
+ *
+ * @typedef CleanRules
+ * @type {Object}
+ * @property {Ruleset} attrs
+ *    An object whose properties are the allowed attributes for any tag.
+ * @property {Object<string, (boolean|Ruleset)>} tags
+ *    An object whose properties are the allowed tags.
+ *
+ *    The value can point to a {@link Ruleset} for that tag which augments the
+ *    ones provided by attrs. If either of the {@link Ruleset}s from attrs or
+ *    tags allows an attribute, then it is accepted.
+ * @property {Object<string, boolean>} styles
+ *    An object whose properties are the allowed CSS style rules.
+ *
+ *    The value of each property is unused.
+ *
+ *    FIXME: make styles accept functions to filter the CSS values like Ruleset.
+ *
+ * @example
+ *
+ *    {
+ *        attrs: { 'style': true },
+ *        tags: {
+ *            a: { 'href': true },
+ *        },
+ *        styles: {
+ *            'font-size': true
+ *        }
+ *    }
+ */
+
+/**
+ * A function to modify text nodes.
+ *
+ * @callback TextModifier
+ * @param {Node} - The text node to modify.
+ * @return {int} - The number of nodes added.
+ *
+ *    * -1 if the current textnode was deleted
+ *    * 0 if the node count is unchanged
+ *    * positive value if nodes were added.
+ *
+ *    For instance, adding an <img> tag for a smiley adds 2 nodes:
+ *    * the img tag
+ *    * the new text node after the img tag.
+ */
+
+/**
+ * Removes nodes, attributes and styles that are not allowed according to the
+ * given rules.
+ *
+ * @param {Node} aNode
+ *    A DOM node to inspect recursively against the rules.
+ * @param {CleanRules} aRules
+ *    The rules for what tags, attributes, and styles are allowed.
+ * @param {TextModifier[]} aTextModifiers
+ *    A list of functions to modify text content.
+ */
 function cleanupNode(aNode, aRules, aTextModifiers) {
+  // Iterate each node and apply rules for what content is allowed. This has two
+  // modes: one for element nodes and one for text nodes.
   for (let i = 0; i < aNode.childNodes.length; ++i) {
     let node = aNode.childNodes[i];
     if (
       node.nodeType == node.ELEMENT_NODE &&
       node.namespaceURI == "http://www.w3.org/1999/xhtml"
     ) {
-      // check if node allowed
+      // If the node is an element, check if the node is an allowed tag.
       let nodeName = node.localName;
       if (!(nodeName in aRules.tags)) {
+        // If the node is not allowed, either completely remove it completely (if
+        // it is forbidden) or replace it with its children.
         if (nodeName in kForbiddenTags) {
           Cu.reportError(
             "removing a " + nodeName + " tag from a message before display"
           );
         } else {
-          // this node is not allowed, replace it with its children
           while (node.hasChildNodes()) {
             aNode.insertBefore(node.firstChild, node);
           }
@@ -265,15 +347,15 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
         continue;
       }
 
-      // we are going to keep this child node, clean up its children
+      // This node is being kept, cleanup each child node.
       cleanupNode(node, aRules, aTextModifiers);
 
-      // cleanup attributes
+      // Cleanup the attributes of this node.
       let attrs = node.attributes;
       let acceptFunction = function(aAttrRules, aAttr) {
-        // an attribute is always accepted if its rule is true, or conditionally
-        // accepted if its rule is a function that evaluates to true
-        // if its rule does not exist, it is refused
+        // An attribute is always accepted if its rule is true, or conditionally
+        // accepted if its rule is a function that evaluates to true.
+        // If its rule does not exist, it is removed.
         let localName = aAttr.localName;
         let rule = localName in aAttrRules && aAttrRules[localName];
         return (
@@ -282,8 +364,8 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
       };
       for (let j = 0; j < attrs.length; ++j) {
         let attr = attrs[j];
-        // we check both the list of accepted attributes for all tags
-        // and the list of accepted attributes for this specific tag.
+        // If either the attribute is accepted for all tags or for this specific
+        // tag then it is allowed.
         if (
           !(
             acceptFunction(aRules.attrs, attr) ||
@@ -296,7 +378,7 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
         }
       }
 
-      // cleanup style
+      // Cleanup the style attribute.
       let style = node.style;
       for (let j = 0; j < style.length; ++j) {
         if (!(style[j] in aRules.styles)) {
@@ -304,10 +386,9 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
           --j;
         }
       }
-      // If the removeProperty method wasn't called by the above loop, the
-      // style attribute won't be re-generated, so it may still contain
-      // unsupported or unparsable CSS. Let's drop "style" attributes that
-      // don't contain any supported CSS.
+
+      // If the style attribute is now empty or if it contained unsupported or
+      // unparseable CSS it should be dropped completely.
       if (!style.length) {
         node.removeAttribute("style");
       }

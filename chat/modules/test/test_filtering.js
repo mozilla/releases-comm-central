@@ -1,6 +1,9 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
+// These tests run into issues if there isn't a profile directory, see bug 1542397.
+do_get_profile();
+
 var { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 var {
   cleanupImMarkup,
@@ -105,6 +108,8 @@ function test_allModes() {
   test_links();
   // Remove random classes.
   Assert.equal("<p>foo</p>", cleanupImMarkup('<p class="foobar">foo</p>'));
+  // Test unparsable style.
+  Assert.equal("<p>foo</p>", cleanupImMarkup('<p style="not-valid">foo</p>'));
 }
 
 function test_strictMode() {
@@ -188,7 +193,8 @@ function test_standardMode() {
     let string = '<span style="' + css + '">foo</span>';
     Assert.equal(string, cleanupImMarkup(string));
   }
-  // text-decoration is a shorthand for several text-decoration properties.
+  // text-decoration is a shorthand for several text-decoration properties, but
+  // standard mode only allows text-decoration-line.
   Assert.equal(
     '<span style="text-decoration-line: underline;">foo</span>',
     cleanupImMarkup('<span style="text-decoration: underline">foo</span>')
@@ -263,7 +269,6 @@ function test_permissiveMode() {
   const okCSS = [
     "font-style: italic",
     "font-weight: bold",
-    "text-decoration: underline",
     "color: pink;",
     "font-family: Times",
     "font-size: larger",
@@ -272,6 +277,13 @@ function test_permissiveMode() {
     let string = '<span style="' + css + '">foo</span>';
     Assert.equal(string, cleanupImMarkup(string));
   }
+  // text-decoration is a shorthand for several text-decoration properties, but
+  // permissive mode only allows text-decoration-color, text-decoration-line,
+  // and text-decoration-style.
+  Assert.equal(
+    '<span style="text-decoration-color: currentcolor; text-decoration-line: underline; text-decoration-style: solid;">foo</span>',
+    cleanupImMarkup('<span style="text-decoration: underline;">foo</span>')
+  );
 
   // The shorthand 'font' is decomposed to non-shorthand properties,
   // and not recomposed as some non-shorthand properties are filtered out.
