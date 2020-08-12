@@ -154,8 +154,9 @@ nsLDAPConnection::Init(nsILDAPURL* aUrl, const nsACString& aBindName,
   if (spacePos != kNotFound) mDNSHost.SetLength(spacePos);
 
   mozilla::OriginAttributes attrs;
-  rv = pDNSService->AsyncResolveNative(mDNSHost, 0, this, curThread, attrs,
-                                       getter_AddRefs(mDNSRequest));
+  rv = pDNSService->AsyncResolveNative(
+      mDNSHost, nsIDNSService::RESOLVE_TYPE_DEFAULT, 0, nullptr, this,
+      curThread, attrs, getter_AddRefs(mDNSRequest));
 
   if (NS_FAILED(rv)) {
     switch (rv) {
@@ -452,9 +453,10 @@ nsLDAPConnection::OnLookupComplete(nsICancelable* aRequest,
     int32_t index = 0;
     nsCString addrbuf;
     nsCOMPtr<nsINetAddr> addr;
+    nsCOMPtr<nsIDNSAddrRecord> record = do_QueryInterface(aRecord);
 
     while (
-        NS_SUCCEEDED(aRecord->GetScriptableNextAddr(0, getter_AddRefs(addr)))) {
+        NS_SUCCEEDED(record->GetScriptableNextAddr(0, getter_AddRefs(addr)))) {
       // We can only use v4 addresses
       //
       uint16_t family = 0;
