@@ -139,6 +139,7 @@ var msgBodyStart =
 var msgBodyEnd = "</body>\n</html>\n";
 
 add_task(function setupModule(module) {
+  requestLongerTimeout(2);
   folder = create_folder("generalContentPolicy");
 });
 
