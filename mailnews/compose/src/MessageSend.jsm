@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 let { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+let { MimePart } = ChromeUtils.import("resource:///modules/MimePart.jsm");
 
 const EXPORTED_SYMBOLS = ["MessageSend"];
 
@@ -212,14 +212,22 @@ MessageSend.prototype = {
     let htmlPart = null;
     let plainPart = null;
 
-    // TODO: Add a pickEncoding function for the CTE header. Encode bodyText if
-    // necessary.
     if (bodyType === "text/html") {
-      htmlPart = new MimePart();
+      htmlPart = new MimePart(
+        charset,
+        bodyType,
+        this._compFields.forceMsgEncoding,
+        true
+      );
       htmlPart.setHeader("Content-Type", `text/html${charsetParams}`);
       htmlPart.bodyText = bodyText;
     } else if (bodyType === "text/plain") {
-      plainPart = new MimePart();
+      plainPart = new MimePart(
+        charset,
+        bodyType,
+        this._compFields.forceMsgEncoding,
+        true
+      );
       plainPart.setHeader(
         "Content-Type",
         `text/plain${charsetParams}${formatParams}`
@@ -235,7 +243,12 @@ MessageSend.prototype = {
       plainPart === null &&
       htmlPart !== null
     ) {
-      plainPart = new MimePart();
+      plainPart = new MimePart(
+        charset,
+        "text/plain",
+        this._compFields.forceMsgEncoding,
+        true
+      );
       plainPart.setHeader(
         "Content-Type",
         `text/plain${charsetParams}${formatParams}`
@@ -268,11 +281,11 @@ MessageSend.prototype = {
       this._composeBundle.GetStringFromName("creatingMailMessage")
     );
 
-    let { path } = await OS.File.openUnique(
+    let { path, file: fileWriter } = await OS.File.openUnique(
       OS.Path.join(OS.Constants.Path.tmpDir, "nsemail.eml")
     );
-    let arr = await topPart.toArrayView();
-    await OS.File.writeAtomic(path, arr);
+    await topPart.write(fileWriter);
+    await fileWriter.close();
 
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessageDone")
@@ -416,138 +429,3 @@ MsgDeliveryListener.prototype = {
     this._msgSend.sendDeliveryCallback(url, this._isNewsDelivery, exitCode);
   },
 };
-
-/**
- * Because ACString is 8-bit string, non-ASCII character takes multiple bytes.
- * For example, 世界 is represented as \xE4\xB8\x96\xE7\x95\x8C. This function
- * converts ACString to ArrayBuffer, which can then be passed to a TextDecoder.
- */
-function byteStringToArrayBuffer(str) {
-  let strLen = str.length;
-  let buf = new ArrayBuffer(strLen);
-  let arr = new Uint8Array(buf);
-  for (let i = 0; i < strLen; i++) {
-    arr[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
-
-/**
- * A class to represent a RFC2045 message. MimePart can be nested, each MimePart
- * can contain a list of MimePart. HTML and plain text are parts as well.
- */
-class MimePart {
-  /**
-   * Init private properties, it's best not to access those properties directly
-   * from the outside.
-   */
-  constructor() {
-    this._headers = new Map();
-    // 8-bit string to avoid converting back and forth.
-    this._bodyText = "";
-    this._separator = "";
-    this._parts = [];
-  }
-
-  /**
-   * Set a header.
-   * @param{string} name
-   * @param{string} content
-   */
-  setHeader(name, content) {
-    // _headers will be passed to jsmime, which requires header content to be an
-    // array.
-    this._headers.set(name, [content]);
-  }
-
-  /**
-   * Set headers by an iterable.
-   * @param{Iterable.<string, string>} entries - The header entries.
-   */
-  setHeaders(entries) {
-    for (let [name, content] of entries) {
-      this.setHeader(name, content);
-    }
-  }
-
-  /**
-   * @type {string}
-   */
-  set bodyText(text) {
-    this._bodyText = text;
-  }
-
-  /**
-   * Set the content type to multipart/<subtype>.
-   * @param{string} subtype - usually "alternative" or "mixed".
-   */
-  initMultipart(subtype) {
-    this._separator = this._makePartSeparator();
-    this.setHeader(
-      "Content-Type",
-      `multipart/${subtype}; boundary="${this._separator}"`
-    );
-  }
-
-  /**
-   * Add a child part.
-   * @param{MimePart} part.
-   */
-  addPart(part) {
-    this._parts.push(part);
-  }
-
-  /**
-   * Convert a MimePart and all its parts to 8-bit string.
-   */
-  async toString() {
-    let headerString = jsmime.headeremitter.emitStructuredHeaders(
-      this._headers,
-      {}
-    );
-    let bodyString = this._bodyText;
-    let partString = "";
-
-    if (this._parts.length) {
-      // single part message
-      if (!this._separator && this._parts.length === 1) {
-        partString += await this._parts[0].toString();
-        return `${headerString}${partString}${bodyString}\r\n`;
-      }
-
-      // multipart message
-      for (let part of this._parts) {
-        partString += `--${this._separator}\r\n`;
-        partString += await part.toString();
-      }
-      partString += `--${this._separator}--\r\n`;
-    }
-
-    return `${headerString}\r\n${partString}${bodyString}\r\n`;
-  }
-
-  /**
-   * Convert a MimePart and all its parts to ArrayView, which will then be
-   * suitable to pass to OS.File.
-   */
-  async toArrayView() {
-    let string = await this.toString();
-    // Use TextEncoder.encode would be incorrect here since the argument is not
-    // a UTF-8 string.
-    return byteStringToArrayBuffer(string);
-  }
-
-  /**
-   * Use 12 hyphen characters and 24 random base64 characters as separator.
-   */
-  _makePartSeparator() {
-    return (
-      "------------" +
-      btoa(
-        String.fromCharCode(
-          ...[...Array(18)].map(() => Math.floor(Math.random() * 256))
-        )
-      )
-    );
-  }
-}

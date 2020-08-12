@@ -60,6 +60,8 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
 
 EXTRA_JS_MODULES += [
     'MessageSend.jsm',
+    'MimeEncoder.jsm',
+    'MimePart.jsm',
     'MsgSendModuleLoader.jsm',
     'SMTPProtocolHandler.jsm',
 ]
