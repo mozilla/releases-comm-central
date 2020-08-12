@@ -509,7 +509,7 @@ var RNP = {
           if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
             throw new Error("rnp_key_get_uid_at failed");
           }
-          let userIdStr = uid_str.readString();
+          let userIdStr = uid_str.readStringReplaceMalformed();
           RNPLib.rnp_buffer_destroy(uid_str);
           if (userIdStr !== RNP_PHOTO_USERID_ID) {
             if (!primary_uid_set) {
@@ -542,7 +542,7 @@ var RNP = {
           keyObj.userId = "?";
           console.debug("rnp_key_get_primary_uid failed");
         } else {
-          keyObj.userId = prim_uid_str.readString();
+          keyObj.userId = prim_uid_str.readStringReplaceMalformed();
           RNPLib.rnp_buffer_destroy(prim_uid_str);
         }
       }
@@ -621,7 +621,7 @@ var RNP = {
           if (RNPLib.rnp_key_get_uid_at(handle, i, uid_str.address())) {
             throw new Error("rnp_key_get_uid_at failed");
           }
-          let userIdStr = uid_str.readString();
+          let userIdStr = uid_str.readStringReplaceMalformed();
           RNPLib.rnp_buffer_destroy(uid_str);
 
           if (userIdStr !== RNP_PHOTO_USERID_ID) {
@@ -715,7 +715,7 @@ var RNP = {
                 ) {
                   throw new Error("rnp_key_get_uid_at failed");
                 }
-                sigObj.userId = signer_uid_str.readString();
+                sigObj.userId = signer_uid_str.readStringReplaceMalformed();
                 RNPLib.rnp_buffer_destroy(signer_uid_str);
                 sigObj.sigKnown = true;
                 subList.sigList.push(sigObj);
@@ -2329,7 +2329,7 @@ var RNP = {
               throw new Error("rnp_key_get_uid_at failed");
             }
 
-            let userId = uid_str.readString();
+            let userId = uid_str.readStringReplaceMalformed();
             RNPLib.rnp_buffer_destroy(uid_str);
 
             let split = {};
