@@ -7671,6 +7671,8 @@ var envelopeDragObserver = {
         this._hideDropMarker();
         event.dataTransfer.dropEffect = "none";
       }
+      event.stopPropagation();
+      event.preventDefault();
       return;
     }
 
