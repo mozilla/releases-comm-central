@@ -74,7 +74,7 @@ var kLines = ["This is a line of text", "and here's another!"];
 var gInbox;
 
 add_task(function setupModule(module) {
-  requestLongerTimeout(2);
+  requestLongerTimeout(3);
 
   // These prefs can't be set in the manifest as they contain white-space.
   Services.prefs.setStringPref(
