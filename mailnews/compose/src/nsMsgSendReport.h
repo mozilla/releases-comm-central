@@ -31,8 +31,10 @@ class nsMsgSendReport : public nsIMsgSendReport {
 
   nsMsgSendReport();
 
- private:
+ protected:
   virtual ~nsMsgSendReport();
+
+ private:
 #define SEND_LAST_PROCESS process_FCC
   nsCOMPtr<nsIMsgProcessReport> mProcessReport[SEND_LAST_PROCESS + 1];
   int32_t mDeliveryMode;
