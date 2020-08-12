@@ -455,7 +455,7 @@ function onLoad() {
   gMainWindow.setCursor("auto");
 
   if (!gNewItemUI) {
-    document.getElementById("item-calendar").focus();
+    document.getElementById("item-title").focus();
   }
 
   // This causes the app to ask if the window should be closed when the
