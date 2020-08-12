@@ -142,10 +142,14 @@ function init() {
   categories.addEventListener("select", event => gotoPref(event.target.value));
 
   document.documentElement.addEventListener("keydown", event => {
-    if (event.keyCode == KeyEvent.DOM_VK_TAB) {
+    if (event.key == "Tab") {
       categories.setAttribute("keyboard-navigation", "true");
+    } else if ((event.ctrlKey || event.metaKey) && event.key == "f") {
+      document.getElementById("searchInput").focus();
+      event.preventDefault();
     }
   });
+
   categories.addEventListener("mousedown", function() {
     this.removeAttribute("keyboard-navigation");
   });
