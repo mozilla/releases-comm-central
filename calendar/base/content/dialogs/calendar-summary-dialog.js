@@ -96,7 +96,7 @@ function onLoad() {
   });
 
   updateToolbar();
-  updateAvailableDialogButtons(dialog);
+  updateDialogAcceptButton(dialog);
 
   if (typeof window.ToolbarIconColor !== "undefined") {
     window.ToolbarIconColor.init();
@@ -111,35 +111,6 @@ function onUnload() {
     window.ToolbarIconColor.uninit();
   }
 }
-
-/**
- * Saves any changed information to the item.
- */
-document.addEventListener("dialogaccept", () => {
-  dispose();
-  if (window.readOnly) {
-    return;
-  }
-  // let's make sure we have a response mode defined
-  let resp = window.responseMode || "USER";
-  let respMode = { responseMode: Ci.calIItipItem[resp] };
-
-  let args = window.arguments[0];
-  let oldItem = args.calendarEvent;
-  let newItem = window.calendarItem;
-  let calendar = newItem.calendar;
-  saveReminder(newItem, calendar, document.querySelector(".item-alarm"));
-  adaptScheduleAgent(newItem);
-  args.onOk(newItem, calendar, oldItem, null, respMode);
-  window.calendarItem = newItem;
-});
-
-/**
- * Called when closing the dialog and any changes should be thrown away.
- */
-document.addEventListener("dialogcancel", () => {
-  dispose();
-});
 
 /**
  * Updates the user's participation status (PARTSTAT from see RFC5545), and
@@ -253,27 +224,49 @@ function locationCopyLink(labelNode) {
 }
 
 /**
- * This will show/hide the accept button on various conditions:
+ * This configures the dialog accept button depending on what kind of item we
+ * are showing. It will show/hide on the following conditions:
  * 1) The calendar is read-only              - Hide the button.
  * 2) The item is an invitation              - Hide the button.
  * 3) The item is not an invitation          - Show the button (for editing).
  *
+ * Event listeners are also configured for the "dialogaccept" event to save
+ * changes for invitiations or switch to the edit dialog for editable items.
+ *
  * @param {XULElement} dialog
  */
-function updateAvailableDialogButtons(dialog) {
+function updateDialogAcceptButton(dialog) {
   let acceptButton = dialog.getButton("accept");
   if (window.readOnly === true) {
     acceptButton.focus();
-  }
-  if (window.readOnly === true || window.isInvitation === true) {
+    acceptButton.hidden = true;
+  } else if (window.isInvitation === true) {
+    document.addEventListener("dialogaccept", onInvitationDialogAccept);
     acceptButton.hidden = true;
   } else {
     // Treat the accept button as a trigger for editing.
-    acceptButton.addEventListener("command", event => {
-      event.preventDefault();
+    document.addEventListener("dialogaccept", () => {
       useEditDialog(window.calendarItem);
     });
   }
+}
+
+/**
+ * Saves any changed information to the item.
+ */
+function onInvitationDialogAccept() {
+  // let's make sure we have a response mode defined
+  let resp = window.responseMode || "USER";
+  let respMode = { responseMode: Ci.calIItipItem[resp] };
+
+  let args = window.arguments[0];
+  let oldItem = args.calendarEvent;
+  let newItem = window.calendarItem;
+  let calendar = newItem.calendar;
+  saveReminder(newItem, calendar, document.querySelector(".item-alarm"));
+  adaptScheduleAgent(newItem);
+  args.onOk(newItem, calendar, oldItem, null, respMode);
+  window.calendarItem = newItem;
 }
 
 /**
