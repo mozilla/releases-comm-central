@@ -30,7 +30,9 @@ const EXPORTED_SYMBOLS = [
   "handleOccurrencePrompt",
   "switchToView",
   "goToDate",
-  "invokeEventDialog",
+  "invokeNewEventDialog",
+  "invokeViewingEventDialog",
+  "invokeEditingEventDialog",
   "getEventBoxPath",
   "getEventDetails",
   "checkAlarmIcon",
@@ -64,6 +66,8 @@ var SHORT_SLEEP = 100;
 var MID_SLEEP = 500;
 var TIMEOUT_MODAL_DIALOG = 30000;
 var CALENDARNAME = "Mozmill";
+var EVENT_DIALOG_NAME = "Calendar:EventDialog";
+var EVENT_SUMMARY_DIALOG_NAME = "Calendar:EventSummaryDialog";
 
 // These are used in EventBox lookup.
 var EVENT_BOX = 0; // Use when you need an event box.
@@ -179,20 +183,30 @@ function ensureViewLoaded(controller) {
  */
 function handleOccurrencePrompt(controller, element, mode, selectParent) {
   controller.waitForElement(element);
-  plan_for_modal_dialog("Calendar:OccurrencePrompt", dialog => {
-    let { eid: dlgid } = helpersForController(dialog);
+  let handleOccurrenceDialog = dController => {
+    let { eid: dlgid } = helpersForController(dController);
     if (selectParent) {
-      dialog.waitThenClick(dlgid("accept-parent-button"));
+      dController.waitThenClick(dlgid("accept-parent-button"));
     } else {
-      dialog.waitThenClick(dlgid("accept-occurrence-button"));
+      dController.waitThenClick(dlgid("accept-occurrence-button"));
     }
-  });
+  };
+  let handleSummaryDialog = dController => {
+    let dialog = dController.window.document.querySelector("dialog");
+    let editButton = new elementslib.Elem(dialog.getButton("accept"));
+    plan_for_modal_dialog("Calendar:OccurrencePrompt", handleOccurrenceDialog);
+    dController.waitThenClick(editButton);
+    wait_for_modal_dialog("Calendar:OccurrencePrompt", TIMEOUT_MODAL_DIALOG);
+  };
   if (mode == "delete") {
+    plan_for_modal_dialog("Calendar:OccurrencePrompt", handleOccurrenceDialog);
     controller.keypress(element, "VK_DELETE", {});
+    wait_for_modal_dialog("Calendar:OccurrencePrompt", TIMEOUT_MODAL_DIALOG);
   } else if (mode == "modify") {
+    plan_for_modal_dialog(EVENT_SUMMARY_DIALOG_NAME, handleSummaryDialog);
     controller.doubleClick(element);
+    wait_for_modal_dialog(EVENT_SUMMARY_DIALOG_NAME, TIMEOUT_MODAL_DIALOG);
   }
-  wait_for_modal_dialog("Calendar:OccurrencePrompt", TIMEOUT_MODAL_DIALOG);
 }
 
 /**
@@ -295,47 +309,135 @@ function goToDate(controller, year, month, day) {
 }
 
 /**
- * Opens the event dialog by clicking on the (optional) box and executing the
- * body. The event dialog must be closed in the body function.
+ * Opens a new event dialog by clicking on the (optional) box and executing the
+ * body function. The event dialog must be closed in the body function.
  *
- * @param mainWindowController - Main window controller
- * @param clickBox      The box to click on, or null if no box to click on.
- * @param body          The function to execute while the event dialog is open.
+ * The body is passed a MozMillController and a mockIFrameController object
+ * when executed. NOTE: This function will timeout if the "clickBox" opens an
+ * existing event, use invokeViewingEventDialog() or invokeEditingEventDialog()
+ * instead.
+ *
+ * @param {MozMillController}   mWController - The main window controller.
+ * @param {MozMillElement|null} clickBox     - The optional box to click on.
+ * @param {function}            body         - The function to execute while
+ *                                             the event dialog is open.
  */
-async function invokeEventDialog(mainWindowController, clickBox, body) {
-  if (clickBox) {
-    mainWindowController.waitForElement(clickBox);
-    mainWindowController.doubleClick(clickBox, 1, 1);
-  }
-
-  mainWindowController.waitFor(
-    () => {
-      return utils.getWindows("Calendar:EventDialog").length > 0;
-    },
-    "event-dialog did not load in time",
-    MID_SLEEP
+async function invokeNewEventDialog(mWController, clickBox, body) {
+  doubleClickOptionalEventBox(mWController, clickBox);
+  let eventWindow = waitForEventDialogWindow(
+    mWController,
+    EVENT_DIALOG_NAME,
+    `${EVENT_DIALOG_NAME} did not load in time`
   );
-
-  let eventWindow = utils.getWindows("Calendar:EventDialog")[0];
   let eventController = new controller.MozMillController(eventWindow);
-  let iframe = eventController.window.document.getElementById("lightning-item-panel-iframe");
-
-  eventController.waitFor(
-    () => {
-      return iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded;
-    },
-    "event-dialog did not load in time",
-    10000
-  );
+  let iframe = waitForItemPanelIframe(eventController);
 
   // We can't use a full mozmill controller on an iframe, but we need
   // something for helpersForController.
   let mockIframeController = { window: iframe.contentWindow };
+  await body(eventController, mockIframeController);
+  waitUntilDialogClosed(mWController, EVENT_DIALOG_NAME);
+}
+
+/**
+ * Opens an existing event in the summary dialog by clicking on the (optional)
+ * box and executing the body function. The dialog must be closed in the
+ * body function.
+ *
+ * The body is passed a MozMillController when executed.
+ * NOTE: This function will timeout if the "clickBox" opens a new event
+ * instead of an existing one.
+ *
+ * @param {MozMillController}   mWController - The main window controller.
+ * @param {MozMillElement|null} clickBox     - The optional box to click on.
+ * @param {function}            body         - The function to execute while
+ *                                             the event dialog is open.
+ */
+async function invokeViewingEventDialog(mWController, clickBox, body) {
+  doubleClickOptionalEventBox(mWController, clickBox);
+  let eventWindow = waitForEventDialogWindow(
+    mWController,
+    EVENT_SUMMARY_DIALOG_NAME,
+    `${EVENT_SUMMARY_DIALOG_NAME} did not load in time`
+  );
+  let eventController = new controller.MozMillController(eventWindow);
+  await body(eventController);
+  waitUntilDialogClosed(mWController, EVENT_SUMMARY_DIALOG_NAME);
+}
+
+/**
+ * Opens an event dialog for editing an existing event by clicking on the box
+ * and executing the body function. The event dialog must be closed in
+ * the body function.
+ *
+ * The body is passed a MozMillController and a mockIFrameController object
+ * when executed. NOTE: This function will timeout if the "clickBox" opens a
+ * new event instead of an existing one.
+ *
+ * @param {MozMillController}      mWController - The main window controller.
+ * @param {MozMillElement}         clickBox     - The box to click on.
+ * @param {function}               body         - The function to execute while
+ *                                                the event dialog is open.
+ */
+async function invokeEditingEventDialog(mWController, clickBox, body) {
+  doubleClickOptionalEventBox(mWController, clickBox);
+  let eventSummaryWindow = waitForEventDialogWindow(
+    mWController,
+    EVENT_SUMMARY_DIALOG_NAME,
+    `${EVENT_SUMMARY_DIALOG_NAME} did not load in time`
+  );
+  let summaryController = new controller.MozMillController(eventSummaryWindow);
+  let dialog = summaryController.window.document.querySelector("dialog");
+  let editButton = new elementslib.Elem(dialog.getButton("accept"));
+
+  summaryController.click(editButton);
+
+  let eventWindow = waitForEventDialogWindow(
+    mWController,
+    EVENT_DIALOG_NAME,
+    `${EVENT_SUMMARY_DIALOG_NAME} did not load in time`
+  );
+  let eventController = new controller.MozMillController(eventWindow);
+  let iframe = waitForItemPanelIframe(eventController);
+  let mockIframeController = { window: iframe.contentWindow };
 
   await body(eventController, mockIframeController);
 
-  // Wait for close.
-  mainWindowController.waitFor(() => utils.getWindows("Calendar:EventDialog").length == 0);
+  waitUntilDialogClosed(mWController, EVENT_DIALOG_NAME);
+}
+
+function doubleClickOptionalEventBox(mWController, clickBox) {
+  if (clickBox) {
+    mWController.waitForElement(clickBox);
+    mWController.doubleClick(clickBox, 1, 1);
+  }
+}
+
+function waitForEventDialogWindow(mWController, name, errorMessage) {
+  mWController.waitFor(
+    () => {
+      return utils.getWindows(name).length > 0;
+    },
+    errorMessage,
+    MID_SLEEP
+  );
+  return utils.getWindows(name)[0];
+}
+
+function waitForItemPanelIframe(eventController) {
+  let iframe = eventController.window.document.getElementById("lightning-item-panel-iframe");
+  eventController.waitFor(
+    () => {
+      return iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded;
+    },
+    "lightning-item-panel-iframe did not load in time",
+    10000
+  );
+  return iframe;
+}
+
+function waitUntilDialogClosed(mWController, name) {
+  mWController.waitFor(() => utils.getWindows(name).length == 0);
 }
 
 /**

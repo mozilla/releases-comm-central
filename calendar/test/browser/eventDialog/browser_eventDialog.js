@@ -17,7 +17,7 @@ var {
   goToDate,
   handleOccurrencePrompt,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
   switchToView,
   viewBack,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
@@ -77,7 +77,7 @@ add_task(async function testEventDialog() {
   controller.click(lookupEventBox("month", CANVAS_BOX, 1, 1, null));
   controller.mainMenu.click("#calendar-new-event-menuitem");
 
-  await invokeEventDialog(controller, null, async (event, iframe) => {
+  await invokeNewEventDialog(controller, null, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
     let { eid: iframeId } = helpersForController(iframe);
     let { iframeLookup, getDateTimePicker } = helpersForEditUI(iframe);

@@ -17,7 +17,8 @@ var {
   getEventDetails,
   goToDate,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
+  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { helpersForEditUI, setData } = ChromeUtils.import(
@@ -44,7 +45,7 @@ add_task(async function testDayView() {
 
   // Create event at 8 AM.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
     let { getDateTimePicker } = helpersForEditUI(iframe);
 
@@ -71,7 +72,7 @@ add_task(async function testDayView() {
 
   // If it was created successfully, it can be opened.
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     // Change title and save changes.

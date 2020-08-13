@@ -15,7 +15,7 @@ var {
   goToDate,
   handleOccurrencePrompt,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
   menulistSelect,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
@@ -33,7 +33,7 @@ add_task(async function testAnnualRecurrence() {
 
   // Create yearly recurring all-day event.
   let eventBox = lookupEventBox("day", ALLDAY, null, 1, null);
-  await invokeEventDialog(controller, eventBox, event => {
+  await invokeNewEventDialog(controller, eventBox, event => {
     let { eid: eventid } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "yearly", event);

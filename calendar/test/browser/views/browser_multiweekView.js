@@ -15,7 +15,8 @@ var {
   getEventDetails,
   goToDate,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
+  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { helpersForEditUI, setData } = ChromeUtils.import(
@@ -46,7 +47,7 @@ add_task(async function setupModule(module) {
   // Thursday of 2009-01-01 should be the selected box in the first row with default settings.
   let hour = new Date().getHours(); // Remember time at click.
   let eventBox = lookupEventBox("multiweek", CANVAS_BOX, 1, 5);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
     let { getDateTimePicker } = helpersForEditUI(iframe);
 
@@ -75,7 +76,7 @@ add_task(async function setupModule(module) {
 
   // If it was created successfully, it can be opened.
   eventBox = lookupEventBox("multiweek", CANVAS_BOX, 1, 5, null, EVENTPATH);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     // Change title and save changes.

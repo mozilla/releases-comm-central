@@ -16,7 +16,8 @@ var {
   getEventDetails,
   goToDate,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
+  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { helpersForEditUI, setData } = ChromeUtils.import(
@@ -47,7 +48,7 @@ add_task(async function testWeekView() {
   // Create event at 8 AM.
   // Thursday of 2009-01-01 is 4th with default settings.
   let eventBox = lookupEventBox("week", CANVAS_BOX, null, 5, 8);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
     let { getDateTimePicker } = helpersForEditUI(iframe);
 
@@ -74,7 +75,7 @@ add_task(async function testWeekView() {
 
   // If it was created successfully, it can be opened.
   eventBox = lookupEventBox("week", EVENT_BOX, null, 5, null, EVENTPATH);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     // Change title and save changes.

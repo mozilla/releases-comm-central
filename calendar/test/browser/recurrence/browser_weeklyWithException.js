@@ -18,7 +18,7 @@ var {
   goToDate,
   handleOccurrencePrompt,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
   menulistSelect,
   switchToView,
   viewForward,
@@ -49,7 +49,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeEventDialog(controller, eventBox, event => {
+  await invokeNewEventDialog(controller, eventBox, event => {
     let { eid: eventid } = helpersForController(event);
 
     event.waitForElement(eventid("item-repeat"));
@@ -63,7 +63,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   // Move 5th January occurrence to 6th January.
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
   handleOccurrencePrompt(controller, eventBox, "modify", false);
-  await invokeEventDialog(controller, null, async (event, iframe) => {
+  await invokeNewEventDialog(controller, null, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     await setData(event, iframe, { startdate: STARTDATE, enddate: STARTDATE });
@@ -74,7 +74,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   goToDate(controller, 2009, 1, 7);
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
   handleOccurrencePrompt(controller, eventBox, "modify", true);
-  await invokeEventDialog(controller, null, (event, iframe) => {
+  await invokeNewEventDialog(controller, null, (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
     let { iframeLookup } = helpersForEditUI(iframe);
 

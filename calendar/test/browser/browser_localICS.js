@@ -11,7 +11,7 @@ var {
   deleteCalendars,
   handleNewCalendarWizard,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
@@ -43,7 +43,7 @@ add_task(async function testLocalICS() {
 
   // Create new event.
   let box = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeEventDialog(controller, box, async (event, iframe) => {
+  await invokeNewEventDialog(controller, box, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     await setData(event, iframe, { title: calendarName, calendar: calendarName });

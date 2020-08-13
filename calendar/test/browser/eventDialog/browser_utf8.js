@@ -11,7 +11,8 @@ var {
   createCalendar,
   deleteCalendars,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
+  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
@@ -30,7 +31,7 @@ add_task(async function testUTF8() {
 
   // Create new event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     // Fill in name, location, description.
@@ -48,7 +49,7 @@ add_task(async function testUTF8() {
   // open
   let eventPath = `/{"tooltip":"itemTooltip","calendar":"${UTF8STRING.toLowerCase()}"}`;
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, eventPath);
-  await invokeEventDialog(controller, eventBox, (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventBox, (event, iframe) => {
     let { eid: iframeId } = helpersForController(iframe);
 
     // Check values.

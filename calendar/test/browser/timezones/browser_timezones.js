@@ -13,7 +13,7 @@ var {
   DAY_VIEW,
   deleteCalendars,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
   switchToView,
   goToDate,
   findEventsInNode,
@@ -71,7 +71,7 @@ add_task(async function testTimezones2_CreateEvents() {
   let time = new Date();
   for (let i = 0; i < TIMEZONES.length; i++) {
     let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, i + 11);
-    await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+    await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
       time.setHours(times[i][0]);
       time.setMinutes(times[i][1]);
 

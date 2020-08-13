@@ -16,7 +16,8 @@ var {
   deleteCalendars,
   goToDate,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
+  invokeEditingEventDialog,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
@@ -38,7 +39,7 @@ add_task(async function testEventDialogModificationPrompt() {
   let eventbox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
 
   // Create new event.
-  await invokeEventDialog(controller, createbox, async (event, iframe) => {
+  await invokeNewEventDialog(controller, createbox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     let categories = cal.l10n.getAnyString("calendar", "categories", "categories2").split(",");
@@ -53,7 +54,7 @@ add_task(async function testEventDialogModificationPrompt() {
   });
 
   // Open, but change nothing.
-  await invokeEventDialog(controller, eventbox, (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventbox, (event, iframe) => {
     // Escape the event window, there should be no prompt to save event.
     event.keypress(null, "VK_ESCAPE", {});
     // Wait to see if the prompt appears.
@@ -61,7 +62,7 @@ add_task(async function testEventDialogModificationPrompt() {
   });
 
   // Open, change all values then revert the changes.
-  await invokeEventDialog(controller, eventbox, async (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventbox, async (event, iframe) => {
     // Change all values.
     await setData(event, iframe, data[1]);
 
@@ -86,7 +87,7 @@ add_task(async function testDescriptionWhitespace() {
 
   for (let i = 0; i < newlines.length; i++) {
     // test set i
-    await invokeEventDialog(controller, createbox, async (event, iframe) => {
+    await invokeNewEventDialog(controller, createbox, async (event, iframe) => {
       let { eid: eventid } = helpersForController(event);
 
       await setData(event, iframe, newlines[i]);
@@ -94,7 +95,7 @@ add_task(async function testDescriptionWhitespace() {
     });
 
     // Open and close.
-    await invokeEventDialog(controller, eventbox, async (event, iframe) => {
+    await invokeEditingEventDialog(controller, eventbox, async (event, iframe) => {
       await setData(event, iframe, newlines[i]);
       event.keypress(null, "VK_ESCAPE", {});
       // Wait to see if the prompt appears.

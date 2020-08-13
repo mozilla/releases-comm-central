@@ -12,7 +12,7 @@ var {
   createCalendar,
   deleteCalendars,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
 
@@ -61,7 +61,7 @@ add_task(async function setupModule(module) {
   // Double-click on completion checkbox is ignored as opening action, so don't
   // click at immediate left where the checkbox is located.
   controller.doubleClick(lookup(treeChildren), 50, 0);
-  await invokeEventDialog(controller, null, async (task, iframe) => {
+  await invokeNewEventDialog(controller, null, async (task, iframe) => {
     let { eid: taskid } = helpersForController(task);
     let { eid: iframeId } = helpersForController(iframe);
 

@@ -14,7 +14,8 @@ var {
   deleteCalendars,
   goToDate,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
+  invokeEditingEventDialog,
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
@@ -38,7 +39,7 @@ add_task(async function testAlarmDialog() {
   controller.mainMenu.click("#calendar-new-event-menuitem");
 
   // Create a new all-day event tomorrow.
-  await invokeEventDialog(controller, null, async (event, iframe) => {
+  await invokeNewEventDialog(controller, null, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     await setData(event, iframe, {
@@ -60,7 +61,7 @@ add_task(async function testAlarmDialog() {
 
   // Change the reminder duration, this resets the alarm.
   let eventBox = lookupEventBox("day", ALLDAY, undefined, 1, undefined, EVENTPATH);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeEditingEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     await setData(event, iframe, { reminder: "2days" });

@@ -15,7 +15,7 @@ var {
   goToDate,
   handleOccurrencePrompt,
   helpersForController,
-  invokeEventDialog,
+  invokeNewEventDialog,
   menulistSelect,
   switchToView,
   viewBack,
@@ -35,7 +35,7 @@ add_task(async function testDailyRecurrence() {
 
   // Create daily event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeEventDialog(controller, eventBox, async (event, iframe) => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     await setData(event, iframe, { repeat: "daily", repeatuntil: new Date(2009, 2, 20) });
@@ -116,7 +116,7 @@ add_task(async function testDailyRecurrence() {
 
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
   handleOccurrencePrompt(controller, eventBox, "modify", true);
-  await invokeEventDialog(controller, null, event => {
+  await invokeNewEventDialog(controller, null, event => {
     let { eid: eventid, sleep: eventsleep } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "every.weekday", event);
