@@ -91,7 +91,7 @@
 
         if (this.calendarView && this.calendarView.controller) {
           let item = event.ctrlKey ? this.mOccurrence.parentItem : this.mOccurrence;
-          this.calendarView.controller.modifyOccurrence(item);
+          this.calendarView.controller.viewOccurrence(item);
         }
       });
 

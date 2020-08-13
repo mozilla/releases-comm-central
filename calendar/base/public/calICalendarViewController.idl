@@ -42,6 +42,12 @@ interface calICalendarViewController : nsISupports
 		       in calIDateTime aEndTime);
 
   /**
+   * View an occurrence of an event. This opens the event in a read-only
+   * summary dialog.
+   */
+  void viewOccurrence(in calIItemBase aOccurrence);
+
+  /**
    * Modify aOccurrence.  If aNewStartTime and aNewEndTime are given,
    * update the event to those times.  If aNewTitle is given, modify the title
    * of the item.  If no parameters are given, ask the user to modify.

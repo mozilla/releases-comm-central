@@ -29,6 +29,7 @@ function onLoad() {
   let item = args.calendarEvent;
   item = item.clone(); // use an own copy of the passed item
   window.calendarItem = item;
+  window.isInvitation = args.isInvitation;
   let dialog = document.querySelector("dialog");
 
   document.title = item.title;
@@ -94,21 +95,8 @@ function onLoad() {
     itemSummary.onWindowResize();
   });
 
-  // If this item is read only we remove the 'cancel' button as users
-  // can't modify anything, thus we go ahead with an 'ok' button only.
-  if (window.readOnly) {
-    dialog.getButton("cancel").setAttribute("collapsed", "true");
-    dialog.getButton("accept").focus();
-  }
-
-  // disable default controls
-  let accept = dialog.getButton("accept");
-  let cancel = dialog.getButton("cancel");
-  accept.setAttribute("collapsed", "true");
-  cancel.setAttribute("collapsed", "true");
-  cancel.parentNode.setAttribute("collapsed", "true");
-
   updateToolbar();
+  updateAvailableDialogButtons(dialog);
 
   if (typeof window.ToolbarIconColor !== "undefined") {
     window.ToolbarIconColor.init();
@@ -194,8 +182,8 @@ function saveAndClose(aResponseMode) {
 }
 
 function updateToolbar() {
-  if (window.readOnly) {
-    document.getElementById("summary-toolbar").setAttribute("hidden", "true");
+  if (window.readOnly || window.isInvitation !== true) {
+    document.getElementById("summary-toolbar").hidden = true;
     return;
   }
 
@@ -262,4 +250,39 @@ function browseDocument() {
 function locationCopyLink(labelNode) {
   let clipboard = Cc["@mozilla.org/widget/clipboardhelper;1"].getService(Ci.nsIClipboardHelper);
   clipboard.copyString(labelNode.parentNode.getAttribute("href"));
+}
+
+/**
+ * This will show/hide the accept button on various conditions:
+ * 1) The calendar is read-only              - Hide the button.
+ * 2) The item is an invitation              - Hide the button.
+ * 3) The item is not an invitation          - Show the button (for editing).
+ *
+ * @param {XULElement} dialog
+ */
+function updateAvailableDialogButtons(dialog) {
+  let acceptButton = dialog.getButton("accept");
+  if (window.readOnly === true) {
+    acceptButton.focus();
+  }
+  if (window.readOnly === true || window.isInvitation === true) {
+    acceptButton.hidden = true;
+  } else {
+    // Treat the accept button as a trigger for editing.
+    acceptButton.addEventListener("command", event => {
+      event.preventDefault();
+      useEditDialog(window.calendarItem);
+    });
+  }
+}
+
+/**
+ * Switch to the "modify" mode dialog so the user can make changes to the event.
+ * @param {calIItemBase} item
+ */
+function useEditDialog(item) {
+  window.addEventListener("unload", () => {
+    window.opener.modifyEventWithDialog(item);
+  });
+  window.close();
 }

@@ -329,6 +329,19 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
 }
 
 /**
+ * Opens the passed event item for viewing. This enables the modify callback in
+ * openEventDialog so invitation responses can be edited.
+ *
+ * @param {calIItemBase} item - The calendar item to view.
+ */
+function openEventDialogForViewing(item) {
+  function onDialogComplete(newItem, calendar, originalItem, listener, extresponse) {
+    doTransaction("modify", newItem, calendar, originalItem, listener, extresponse);
+  }
+  openEventDialog(item, item.calendar, "view", onDialogComplete);
+}
+
+/**
  * Modifies the passed event in the event dialog.
  *
  * @param aItem                 The item to modify.
@@ -391,16 +404,30 @@ function modifyEventWithDialog(
 }
 
 /**
- * Opens the event dialog with the given item (task OR event)
+ * @callback onDialogComplete
  *
- * @param calendarItem      The item to open the dialog with
- * @param calendar          The calendar to open the dialog with.
- * @param mode              The operation the dialog should do ("new", "modify")
- * @param callback          The callback to call when the dialog has completed.
- * @param job               (optional) The job object for the modification.
- * @param initialDate       (optional) The initial date for new task datepickers
- * @param counterProposal   (optional) An object representing the counterproposal - see
- *                                     description for modifyEventWithDialog()
+ * @param {calIItemBase} newItem
+ * @param {calICalendar} calendar
+ * @param {calIItemBase} originalItem
+ * @param {?calIOperationListener} listener
+ * @param {?Object} extresponse
+ */
+
+/**
+ * Opens the event dialog with the given item (task OR event).
+ *
+ * @param {calIItemBase} calendarItem    The item to open the dialog with.
+ * @param {calICalendar} calendar        The calendar to open the dialog with.
+ * @param {string} mode                  The operation the dialog should do
+ *                                       ("new", "view", "modify").
+ * @param {onDialogComplete} callback    The callback to call when the dialog
+ *                                       has completed.
+ * @param {?Object} job                  The job object for the modification.
+ * @param {?calIDateTime} initialDate    The initial date for new task
+ *                                       datepickers.
+ * @param {?Object} counterProposal      An object representing the
+ *                                       counterproposal - see description
+ *                                       for modifyEventWithDialog().
  */
 function openEventDialog(
   calendarItem,
@@ -441,8 +468,7 @@ function openEventDialog(
   // Filter out calendar/items that we cannot write to/modify
   if (mode == "new") {
     calendars = calendars.filter(cal.acl.userCanAddItemsToCalendar);
-  } else {
-    /* modify */
+  } else if (mode == "modify") {
     calendars = calendars.filter(aCalendar => {
       /* If the calendar is the item calendar, we check that the item
        * can be modified. If the calendar is NOT the item calendar, we
@@ -492,7 +518,6 @@ function openEventDialog(
   args.counterProposal = counterProposal;
   args.inTab = Services.prefs.getBoolPref("calendar.item.editInTab", false);
   args.useNewItemUI = Services.prefs.getBoolPref("calendar.item.useNewItemUI", false);
-
   // this will be called if file->new has been selected from within the dialog
   args.onNewEvent = function(opcalendar) {
     createEventWithDialog(opcalendar, null, null);
@@ -513,6 +538,7 @@ function openEventDialog(
   // open the dialog modeless
   let url;
   let isEditable = mode == "modify" && !isInvitation && cal.acl.userCanModifyItem(calendarItem);
+
   if (cal.acl.isCalendarWritable(calendar) && (mode == "new" || isEditable)) {
     if (args.inTab) {
       url = args.useNewItemUI
@@ -524,6 +550,7 @@ function openEventDialog(
   } else {
     url = "chrome://calendar/content/calendar-summary-dialog.xhtml";
     args.inTab = false;
+    args.isInvitation = isInvitation;
   }
 
   if (args.inTab) {

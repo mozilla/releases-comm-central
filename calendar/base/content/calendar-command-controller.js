@@ -41,6 +41,7 @@ var calendarController = {
     "calendar_new_event_command",
     "calendar_new_event_context_command",
     "calendar_modify_event_command",
+    "calendar_view_event_command",
     "calendar_delete_event_command",
 
     "calendar_modify_focused_item_command",
@@ -137,6 +138,8 @@ var calendarController = {
       case "calendar_modify_focused_item_command":
         return this.item_selected;
       case "calendar_modify_event_command":
+        return this.item_selected;
+      case "calendar_view_event_command":
         return this.item_selected;
       case "calendar_delete_focused_item_command":
         return CalendarDeleteCommandEnabled && this.selected_items_writable;
@@ -303,6 +306,9 @@ var calendarController = {
       }
       case "calendar_modify_event_command":
         editSelectedEvents();
+        break;
+      case "calendar_view_event_command":
+        viewSelectedEvents();
         break;
       case "calendar_modify_focused_item_command": {
         let focusedElement = document.commandDispatcher.focusedElement;

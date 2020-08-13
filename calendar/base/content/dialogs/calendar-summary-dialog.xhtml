@@ -34,7 +34,12 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-summary-dialog">
+<dialog id="calendar-summary-dialog"
+        buttons="accept"
+        data-l10n-id="calendar-summary-dialog"
+        data-l10n-attrs="buttonlabelaccept">
+
+  <html:link rel="localization" href="calendar/calendar-summary-dialog.ftl"/>
 
   <!-- Javascript includes -->
   <script src="chrome://global/content/globalOverlay.js"/>

@@ -42,6 +42,16 @@ var calendarViewController = {
   },
 
   /**
+   * View the given occurrence.
+   *
+   * @param {calIItemBase} occurrence
+   * @see calICalendarViewController
+   */
+  viewOccurrence(occurrence) {
+    openEventDialogForViewing(occurrence);
+  },
+
+  /**
    * Modifies the given occurrence
    * @see calICalendarViewController
    */
@@ -553,6 +563,16 @@ function deleteSelectedEvents() {
   calendarViewController.deleteOccurrences(selectedItems, false, false);
   // clear selection
   currentView().setSelectedItems([], true);
+}
+
+/**
+ * Open the items currently selected in the view.
+ */
+function viewSelectedEvents() {
+  let items = currentView().getSelectedItems();
+  if (items.length >= 1) {
+    openEventDialog(items[0], items[0].calendar, "view");
+  }
 }
 
 /**
