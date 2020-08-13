@@ -119,8 +119,7 @@ void GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity,
                                nsCString& uri);
 
 // Check if we should use format=flowed
-void GetSerialiserFlags(const char* charset, bool* flowed, bool* delsp,
-                        bool* formatted, bool* disallowBreaks);
+void GetSerialiserFlags(bool* flowed, bool* formatted);
 
 PR_END_EXTERN_C
 

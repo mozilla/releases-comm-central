@@ -1231,13 +1231,11 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
       flags |= nsIDocumentEncoder::OutputFormatted |
                nsIDocumentEncoder::OutputDisallowLineBreaking;
     } else {
-      bool flowed, delsp, formatted, disallowBreaks;
-      GetSerialiserFlags("UTF-8", &flowed, &delsp, &formatted, &disallowBreaks);
+      bool flowed, formatted;
+      GetSerialiserFlags(&flowed, &formatted);
       if (flowed) flags |= nsIDocumentEncoder::OutputFormatFlowed;
-      if (delsp) flags |= nsIDocumentEncoder::OutputFormatDelSp;
       if (formatted) flags |= nsIDocumentEncoder::OutputFormatted;
-      if (disallowBreaks)
-        flags |= nsIDocumentEncoder::OutputDisallowLineBreaking;
+      flags |= nsIDocumentEncoder::OutputDisallowLineBreaking;
       // Don't lose NBSP in the plain text encoder.
       flags |= nsIDocumentEncoder::OutputPersistNBSP;
     }
@@ -2149,13 +2147,12 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(
  * text mail, without disturbing the plain text.
  */
 nsresult QuotingOutputStreamListener::ConvertToPlainText(bool formatflowed,
-                                                         bool delsp,
                                                          bool formatted,
                                                          bool disallowBreaks) {
-  nsresult rv = ConvertBufToPlainText(mMsgBody, formatflowed, delsp, formatted,
-                                      disallowBreaks);
+  nsresult rv =
+      ConvertBufToPlainText(mMsgBody, formatflowed, formatted, disallowBreaks);
   NS_ENSURE_SUCCESS(rv, rv);
-  return ConvertBufToPlainText(mSignature, formatflowed, delsp, formatted,
+  return ConvertBufToPlainText(mSignature, formatflowed, formatted,
                                disallowBreaks);
 }
 
@@ -2636,7 +2633,6 @@ QuotingOutputStreamListener::OnStopRequest(nsIRequest* request,
     }
 
     rv = ConvertToPlainText(flowed,
-                            false,   // delsp makes no sense in this context
                             true,    // formatted
                             false);  // allow line breaks
     NS_ENSURE_SUCCESS(rv, rv);
@@ -3648,7 +3644,7 @@ nsresult nsMsgCompose::ConvertHTMLToText(nsIFile* aSigFile,
   nsresult rv = LoadDataFromFile(aSigFile, origBuf);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  ConvertBufToPlainText(origBuf, false, false, true, true);
+  ConvertBufToPlainText(origBuf, false, true, true);
   aSigData = origBuf;
   return NS_OK;
 }
@@ -4021,7 +4017,7 @@ nsresult nsMsgCompose::ProcessSignature(nsIMsgIdentity* identity, bool aQuoted,
     if (NS_FAILED(rv)) htmlSig = false;
 
     if (!m_composeHTML) {
-      if (htmlSig) ConvertBufToPlainText(prefSigText, false, false, true, true);
+      if (htmlSig) ConvertBufToPlainText(prefSigText, false, true, true);
       sigData.Append(prefSigText);
     } else {
       if (!htmlSig) {

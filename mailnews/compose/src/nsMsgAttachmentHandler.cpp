@@ -1046,12 +1046,11 @@ nsresult nsMsgAttachmentHandler::UrlExit(nsresult status,
     nsAutoString conData;
 
     if (NS_SUCCEEDED(LoadDataFromFile(mTmpFile, conData, true))) {
-      bool flowed, delsp, formatted, disallowBreaks;
-      GetSerialiserFlags(m_charset.get(), &flowed, &delsp, &formatted,
-                         &disallowBreaks);
+      bool flowed, formatted;
+      GetSerialiserFlags(&flowed, &formatted);
 
-      if (NS_SUCCEEDED(ConvertBufToPlainText(conData, flowed, delsp, formatted,
-                                             disallowBreaks))) {
+      if (NS_SUCCEEDED(
+              ConvertBufToPlainText(conData, flowed, formatted, true))) {
         if (mDeleteFile) mTmpFile->Remove(false);
 
         nsCOMPtr<nsIOutputStream> outputStream;

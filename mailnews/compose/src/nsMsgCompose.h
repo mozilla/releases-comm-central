@@ -161,7 +161,7 @@ class QuotingOutputStreamListener : public nsIMsgQuotingOutputStreamListener {
   NS_DECL_NSIMSGQUOTINGOUTPUTSTREAMLISTENER
 
   nsresult SetComposeObj(nsIMsgCompose* obj);
-  nsresult ConvertToPlainText(bool formatflowed, bool delsp, bool formatted,
+  nsresult ConvertToPlainText(bool formatflowed, bool formatted,
                               bool disallowBreaks);
   nsresult InsertToCompose(nsIEditor* aEditor, bool aHTMLEditor);
   nsresult AppendToMsgBody(const nsCString& inStr);

@@ -571,10 +571,9 @@ char* mime_generate_attachment_headers(
   if (aBodyDocument) {
     // Add format=flowed as in RFC 2646 if we are using that
     if (type && !PL_strcasecmp(type, "text/plain")) {
-      bool flowed, delsp, formatted, disallowBreaks;
-      GetSerialiserFlags("UTF-8", &flowed, &delsp, &formatted, &disallowBreaks);
+      bool flowed, formatted;
+      GetSerialiserFlags(&flowed, &formatted);
       if (flowed) buf.AppendLiteral("; format=flowed");
-      if (delsp) buf.AppendLiteral("; delsp=yes");
       // else
       // {
       // Don't add a markup. Could use
@@ -1472,27 +1471,15 @@ void GetFolderURIFromUserPrefs(nsMsgDeliverMode aMode, nsIMsgIdentity* identity,
  * In this function we set all the serialiser flags.
  * 'formatted' is always 'true'.
  */
-void GetSerialiserFlags(const char* charset, bool* flowed, bool* delsp,
-                        bool* formatted, bool* disallowBreaks) {
+void GetSerialiserFlags(bool* flowed, bool* formatted) {
   *flowed = false;
-  *delsp = false;
   *formatted = true;
-  *disallowBreaks = true;
 
   // Set format=flowed as in RFC 2646 according to the preference.
   nsresult rv;
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
   if (NS_SUCCEEDED(rv)) {
     prefs->GetBoolPref("mailnews.send_plaintext_flowed", flowed);
-  }
-
-  // We could test statefulCharset(charset) here, but since ISO-2022-JP is the
-  // only one left we support, we might as well check for it directly.
-  if (PL_strcasecmp(charset, "ISO-2022-JP") == 0) {
-    // Make sure we honour RFC 1468. For encoding in ISO-2022-JP we need to
-    // send short lines to allow 7bit transfer encoding.
-    *disallowBreaks = false;
-    if (*flowed) *delsp = true;
   }
 }
 

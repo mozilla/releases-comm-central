@@ -1674,7 +1674,7 @@ nsSaveMsgListener::OnStopRequest(nsIRequest* request, nsresult status) {
     MOZ_ASSERT(m_outputFormat == ePlainText,
                "For HTML, m_doCharsetConversion shouldn't be set");
     NS_ConvertUTF8toUTF16 utf16Buffer(m_msgBuffer);
-    ConvertBufToPlainText(utf16Buffer, false, false, false, false);
+    ConvertBufToPlainText(utf16Buffer, false, false, false);
 
     nsCString outCString;
     // NS_CopyUnicodeToNative() doesn't return an error, so we have no choice

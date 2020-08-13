@@ -1805,7 +1805,7 @@ NS_MSG_BASE nsresult MsgDetectCharsetFromFile(nsIFile* aFile,
  * unknown or deemed of no importance NULL could be passed.
  */
 NS_MSG_BASE nsresult ConvertBufToPlainText(nsString& aConBuf, bool formatFlowed,
-                                           bool delsp, bool formatOutput,
+                                           bool formatOutput,
                                            bool disallowBreaks) {
   if (aConBuf.IsEmpty()) return NS_OK;
 
@@ -1823,7 +1823,6 @@ NS_MSG_BASE nsresult ConvertBufToPlainText(nsString& aConBuf, bool formatFlowed,
 
   uint32_t converterFlags = nsIDocumentEncoder::OutputPersistNBSP;
   if (formatFlowed) converterFlags |= nsIDocumentEncoder::OutputFormatFlowed;
-  if (delsp) converterFlags |= nsIDocumentEncoder::OutputFormatDelSp;
   if (formatOutput) converterFlags |= nsIDocumentEncoder::OutputFormatted;
   if (disallowBreaks)
     converterFlags |= nsIDocumentEncoder::OutputDisallowLineBreaking;
