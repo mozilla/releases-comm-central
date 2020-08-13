@@ -268,6 +268,8 @@ var EnigmailFixExchangeMsg = {
         boundary +
         "'\n"
     );
+    // Escape regex chars in the boundary.
+    boundary = boundary.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
     let boundRx = new RegExp("^--" + boundary, "gm");
     let match = boundRx.exec(bodyData);
 
@@ -346,6 +348,8 @@ var EnigmailFixExchangeMsg = {
         boundary +
         "'\n"
     );
+    // Escape regex chars.
+    boundary = boundary.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
     let boundRx = new RegExp("^--" + boundary, "gm");
     let match = boundRx.exec(bodyData);
 

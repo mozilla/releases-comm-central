@@ -225,6 +225,11 @@ var EnigmailDecryption = {
     );
 
     if (indentStrObj.value) {
+      // Escape regex chars.
+      indentStrObj.value = indentStrObj.value.replace(
+        /[.*+\-?^${}()|[\]\\]/g,
+        "\\$&"
+      );
       var indentRegexp = new RegExp("^" + indentStrObj.value, "gm");
       pgpBlock = pgpBlock.replace(indentRegexp, "");
       if (indentStrObj.value.substr(-1) == " ") {

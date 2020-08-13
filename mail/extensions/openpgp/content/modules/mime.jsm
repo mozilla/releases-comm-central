@@ -264,6 +264,8 @@ var EnigmailMime = {
         return null;
       }
 
+      // Escape regex chars in the boundary.
+      bound = bound.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
       // search for "outer" MIME delimiter(s)
       let r = new RegExp("^--" + bound, "mg");
 

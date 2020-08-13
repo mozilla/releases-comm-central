@@ -751,8 +751,7 @@ PgpMimeEncrypt.prototype = {
   getHeader(hdrStr, fullHeader) {
     var res = "";
     var hdrLines = this.headerData.split(/[\r\n]+/);
-    var i;
-    for (i = 0; i < hdrLines.length; i++) {
+    for (let i = 0; i < hdrLines.length; i++) {
       if (hdrLines[i].length > 0) {
         if (fullHeader && res !== "") {
           if (hdrLines[i].search(/^\s+/) === 0) {
@@ -764,8 +763,7 @@ PgpMimeEncrypt.prototype = {
           let j = hdrLines[i].indexOf(":");
           if (j > 0) {
             let h = hdrLines[i].substr(0, j).replace(/\s*$/, "");
-            let re = new RegExp("^" + hdrStr + "$", "i");
-            if (h.search(re) === 0) {
+            if (h.toLowerCase() == hdrStr.toLowerCase()) {
               res = hdrLines[i].substr(j + 1).replace(/^\s*/, "");
               if (!fullHeader) {
                 return res;

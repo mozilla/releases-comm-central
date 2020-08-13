@@ -1319,6 +1319,9 @@ var EnigmailKeyRing = {
   findRevokedPersonalKeysByEmail(email) {
     // TODO: this might return substring matches.
     // Try to do better and check for exact matches.
+
+    // Escape regex chars.
+    email = email.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
     let s = new RegExp(email, "i");
     let res = [];
     this.getAllKeys(); // ensure keylist is loaded;

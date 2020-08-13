@@ -461,7 +461,7 @@ function EnigGetWindowOptions() {
   if (window.location.search) {
     var optList = window.location.search.substr(1).split(/&/);
     for (var i = 0; i < optList.length; i++) {
-      var anOption = optList[i].split(new RegExp("="));
+      var anOption = optList[i].split(/=/);
       winOptions[anOption[0]] = unescape(anOption[1]);
     }
   }

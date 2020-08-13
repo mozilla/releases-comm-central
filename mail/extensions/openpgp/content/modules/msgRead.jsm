@@ -43,8 +43,6 @@ var EnigmailMsgRead = {
       if (hdr !== "*") {
         // do nothing if extraAddonHeaders is "*" (all headers)
         for (let h of ExtraHeaders) {
-          // TODO: Was it a bug that variable sr wasn't used?
-          // let sr = new RegExp("\\b" + h + "\\b", "i");
           if (hdr.search(h) < 0) {
             if (hdr.length > 0) {
               hdr += " ";
