@@ -32,6 +32,8 @@
       // Generate IDs to make sure they are unique when there is more than one
       // instance of this element in a given scope.
       let id = this.getAttribute("id");
+      let itemTitleId = id + "-item-title";
+      let itemLocationId = id + "-item-location";
       let itemAttendeesBoxId = id + "-item-attendees-box";
       let itemDescriptionId = id + "-item-description";
       let urlLinkId = id + "-url-link";
@@ -50,7 +52,7 @@
                 <html:th>
                   &read.only.title.label;
                 </html:th>
-                <html:td class="item-title">
+                <html:td id="${itemTitleId}" class="item-title">
                 </html:td>
               </html:tr>
               <html:tr class="calendar-row" hidden="hidden">
@@ -87,7 +89,7 @@
                 <html:th>
                   &read.only.location.label;
                 </html:th>
-                <html:td class="item-location">
+                <html:td id="${itemLocationId}" class="item-location">
                 </html:td>
               </html:tr>
               <html:tr class="category-row" hidden="hidden">

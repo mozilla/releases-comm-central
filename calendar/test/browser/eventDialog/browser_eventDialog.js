@@ -18,6 +18,7 @@ var {
   handleOccurrencePrompt,
   helpersForController,
   invokeNewEventDialog,
+  invokeViewingEventDialog,
   switchToView,
   viewBack,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
@@ -205,6 +206,44 @@ add_task(async function testEventDialog() {
       );
     }
   }
+
+  Assert.ok(true, "Test ran to completion");
+});
+
+add_task(async function testOpenExistingEventDialog() {
+  let now = new Date();
+
+  createCalendar(controller, CALENDARNAME);
+  switchToView(controller, "day");
+  goToDate(controller, now.getFullYear(), now.getMonth() + 1, now.getDate());
+
+  let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+  let eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+
+  // Create a new event.
+  await invokeNewEventDialog(controller, createBox, async (event, iframe) => {
+    let { eid: eventid } = helpersForController(event);
+    await setData(event, iframe, {
+      title: EVENTTITLE,
+      location: EVENTLOCATION,
+      description: EVENTDESCRIPTION,
+    });
+    event.click(eventid("button-saveandclose"));
+  });
+
+  // Open the event in the summary dialog, it will fail if otherwise.
+  await invokeViewingEventDialog(
+    controller,
+    eventBox,
+    async event => {
+      let { eid } = helpersForController(event);
+      event.assertText(eid("calendar-item-summary-item-title"), EVENTTITLE);
+      event.assertText(eid("calendar-item-summary-item-location"), EVENTLOCATION);
+      event.assertValue(eid("calendar-item-summary-item-description"), EVENTDESCRIPTION);
+      event.keypress(null, "VK_ESCAPE", {});
+    },
+    "view"
+  );
 
   Assert.ok(true, "Test ran to completion");
 });
