@@ -4,14 +4,13 @@
 
 /*
  * Combines a lot of the Mozilla networking interfaces into a sane interface for
- * simple(r) use of sockets code.
+ * simple(r) handling of a low-level socket which sends text content.
  *
- * This implements nsIServerSocketListener, nsIStreamListener,
- * nsIRequestObserver, nsITransportEventSink and nsIProtocolProxyCallback.
+ * This implements nsIStreamListener, nsIRequestObserver, nsITransportEventSink
+ * and nsIProtocolProxyCallback.
  *
  * This uses nsIRoutedSocketTransportService, nsIServerSocket, nsIThreadManager,
- * nsIBinaryInputStream, nsIScriptableInputStream, nsIInputStreamPump,
- * nsIProxyService, nsIProxyInfo.
+ * nsIScriptableInputStream, nsIInputStreamPump, nsIProxyService, nsIProxyInfo.
  *
  * High-level methods:
  *   connect(<originHost>, <originPort>[, ("starttls" | "ssl" | "udp")
@@ -19,13 +18,11 @@
  *   disconnect()
  *   sendData(String <data>[, <logged data>])
  *   sendString(String <data>[, <encoding>[, <logged data>]])
- *   sendBinaryData(<arraybuffer data>)
  *   startTLS()
  *   resetPingTimer()
  *   cancelDisconnectTimer()
  *
  * High-level properties:
- *   binaryMode
  *   delimiter
  *   inputSegmentSize
  *   outputSegmentSize
@@ -44,7 +41,6 @@
  *   onBadCertificate(boolean aIsSslError, AString aNSSErrorMessage)
  *   onConnectionClosed()
  *   onDataReceived(String <data>)
- *   <length handled> = onBinaryDataReceived(ArrayBuffer <data>)
  *   onTransportStatus(nsISocketTransport <transport>, nsresult <status>,
  *                     unsigned long <progress>, unsigned long <progress max>)
  *   sendPing()
@@ -76,9 +72,6 @@
 const EXPORTED_SYMBOLS = ["Socket"];
 
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { ArrayBufferToBytes, ArrayBufferToHexString } = ChromeUtils.import(
-  "resource:///modules/ArrayBufferUtils.jsm"
-);
 var { setTimeout, clearTimeout, executeSoon } = ChromeUtils.import(
   "resource:///modules/imXPCOMUtils.jsm"
 );
@@ -91,16 +84,6 @@ var NS_ERROR_MODULE_NETWORK = 2152398848;
 var NS_ERROR_NET_TIMEOUT = NS_ERROR_MODULE_NETWORK + 14;
 var NS_ERROR_NET_RESET = NS_ERROR_MODULE_NETWORK + 20;
 
-var BinaryInputStream = Components.Constructor(
-  "@mozilla.org/binaryinputstream;1",
-  "nsIBinaryInputStream",
-  "setInputStream"
-);
-var BinaryOutputStream = Components.Constructor(
-  "@mozilla.org/binaryoutputstream;1",
-  "nsIBinaryOutputStream",
-  "setOutputStream"
-);
 var ScriptableInputStream = Components.Constructor(
   "@mozilla.org/scriptableinputstream;1",
   "nsIScriptableInputStream",
@@ -117,9 +100,6 @@ var ScriptableUnicodeConverter = Components.Constructor(
 );
 
 var Socket = {
-  // Use this to use binary mode for the
-  binaryMode: false,
-
   // Set this for non-binary mode to automatically parse the stream into chunks
   // separated by delimiter.
   delimiter: "",
@@ -274,21 +254,6 @@ var Socket = {
     }
   },
 
-  sendBinaryData(/* ArrayBuffer */ aData, aLoggedData) {
-    this.LOG(
-      "Sending binary data:\n" +
-        (aLoggedData || "<" + ArrayBufferToHexString(aData) + ">")
-    );
-
-    let byteArray = ArrayBufferToBytes(aData);
-    try {
-      // Send the data as a byte array
-      this._binaryOutputStream.writeByteArray(byteArray, byteArray.length);
-    } catch (e) {
-      Cu.reportError(e);
-    }
-  },
-
   disconnected: true,
 
   startTLS() {
@@ -407,47 +372,25 @@ var Socket = {
       return;
     }
     this._lastAliveTime = Date.now();
-    if (this.binaryMode) {
-      // Load the data from the stream
-      this._incomingDataBuffer = this._incomingDataBuffer.concat(
-        this._binaryInputStream.readByteArray(aCount)
-      );
 
-      let size = this._incomingDataBuffer.length;
+    if (this.delimiter) {
+      // Load the data from the stream.
+      this._incomingDataBuffer += this._scriptableInputStream.read(aCount);
+      let data = this._incomingDataBuffer.split(this.delimiter);
 
-      // Create a new ArrayBuffer.
-      let buffer = new ArrayBuffer(size);
-      let uintArray = new Uint8Array(buffer);
-
-      // Set the data into the array while saving the extra data.
-      uintArray.set(this._incomingDataBuffer);
-
-      // Notify we've received data.
-      // Variable data size, the callee must return how much data was handled.
-      size = this.onBinaryDataReceived(buffer);
-
-      // Remove the handled data.
-      this._incomingDataBuffer.splice(0, size);
-    } else {
-      if (this.delimiter) {
-        // Load the data from the stream.
-        this._incomingDataBuffer += this._scriptableInputStream.read(aCount);
-        let data = this._incomingDataBuffer.split(this.delimiter);
-
-        // Store the (possibly) incomplete part.
-        this._incomingDataBuffer = data.pop();
-        if (!data.length) {
-          return;
-        }
-
-        // Add the strings to the queue.
-        this._pendingData = this._pendingData.concat(data);
-      } else {
-        // Add the whole string to the queue.
-        this._pendingData.push(this._scriptableInputStream.read(aCount));
+      // Store the (possibly) incomplete part.
+      this._incomingDataBuffer = data.pop();
+      if (!data.length) {
+        return;
       }
-      this._activateQueue();
+
+      // Add the strings to the queue.
+      this._pendingData = this._pendingData.concat(data);
+    } else {
+      // Add the whole string to the queue.
+      this._pendingData.push(this._scriptableInputStream.read(aCount));
     }
+    this._activateQueue();
   },
 
   _pendingData: [],
@@ -585,7 +528,7 @@ var Socket = {
    *****************************************************************************
    */
   _resetBuffers() {
-    this._incomingDataBuffer = this.binaryMode ? [] : "";
+    this._incomingDataBuffer = "";
     this._outgoingDataBuffer = [];
   },
 
@@ -654,16 +597,8 @@ var Socket = {
       throw new Error("Error getting input stream.");
     }
 
-    if (this.binaryMode) {
-      // Handle binary mode
-      this._binaryInputStream = new BinaryInputStream(this._inputStream);
-      this._binaryOutputStream = new BinaryOutputStream(this._outputStream);
-    } else {
-      // Handle character mode
-      this._scriptableInputStream = new ScriptableInputStream(
-        this._inputStream
-      );
-    }
+    // Handle character mode
+    this._scriptableInputStream = new ScriptableInputStream(this._inputStream);
 
     this.pump = new InputStreamPump(
       this._inputStream, // Data to read
@@ -707,9 +642,6 @@ var Socket = {
 
   // Called when ASCII data is available.
   onDataReceived(/* string */ aData) {},
-
-  // Called when binary data is available.
-  onBinaryDataReceived(/* ArrayBuffer */ aData) {},
 
   // If using the ping functionality, this is called when a new ping message
   // should be sent on the socket.
