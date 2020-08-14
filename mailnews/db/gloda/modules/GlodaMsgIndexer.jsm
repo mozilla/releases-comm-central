@@ -15,12 +15,15 @@ const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { FreeTagNoun } = ChromeUtils.import(
   "resource:///modules/gloda/NounFreetag.jsm"
 );
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var GlodaABIndexer = {
   _log: null,
+  _notifications: [
+    "addrbook-contact-created",
+    "addrbook-contact-updated",
+    "addrbook-contact-deleted",
+  ],
 
   name: "index_ab",
   enable() {
@@ -28,16 +31,15 @@ var GlodaABIndexer = {
       this._log = Log4Moz.repository.getLogger("gloda.index_ab");
     }
 
-    MailServices.ab.addAddressBookListener(
-      this,
-      Ci.nsIAbListener.itemAdded |
-        Ci.nsIAbListener.itemChanged |
-        Ci.nsIAbListener.directoryItemRemoved
-    );
+    for (let topic of this._notifications) {
+      Services.obs.addObserver(this, topic);
+    }
   },
 
   disable() {
-    MailServices.ab.removeAddressBookListener(this);
+    for (let topic of this._notifications) {
+      Services.obs.removeObserver(this, topic);
+    }
   },
 
   // it's a getter so we can reference 'this'
@@ -88,50 +90,45 @@ var GlodaABIndexer = {
 
   initialSweep() {},
 
-  /* ------ nsIAbListener ------ */
-  /**
-   * When an address book card is added, update the cached GlodaIdentity
-   *  object's cached idea of whether the identity has an ab card.
-   */
-  onItemAdded(aParentDir, aItem) {
-    if (!(aItem instanceof Ci.nsIAbCard)) {
-      return;
-    }
+  observe(subject, topic, data) {
+    subject.QueryInterface(Ci.nsIAbCard);
 
-    this._log.debug("Received Card Add Notification");
-    let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
-      Gloda.NOUN_IDENTITY,
-      "email@" + aItem.primaryEmail.toLowerCase()
-    );
-    if (identity) {
-      identity._hasAddressBookCard = true;
-    }
-  },
-  /**
-   * When an address book card is added, update the cached GlodaIdentity
-   *  object's cached idea of whether the identity has an ab card.
-   */
-  onItemRemoved(aParentDir, aItem) {
-    if (!(aItem instanceof Ci.nsIAbCard)) {
-      return;
-    }
+    switch (topic) {
+      case "addrbook-contact-created": {
+        // When an address book card is added, update the cached GlodaIdentity
+        // object's cached idea of whether the identity has an ab card.
+        this._log.debug("Received Card Add Notification");
 
-    this._log.debug("Received Card Removal Notification");
-    let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
-      Gloda.NOUN_IDENTITY,
-      "email@" + aItem.primaryEmail.toLowerCase()
-    );
-    if (identity) {
-      identity._hasAddressBookCard = false;
-    }
-  },
-  onItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
-    if (aProperty == null && aItem instanceof Ci.nsIAbCard) {
-      this._log.debug("Received Card Change Notification");
+        let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
+          Gloda.NOUN_IDENTITY,
+          "email@" + subject.primaryEmail.toLowerCase()
+        );
+        if (identity) {
+          identity._hasAddressBookCard = true;
+        }
+        break;
+      }
+      case "addrbook-contact-updated": {
+        this._log.debug("Received Card Change Notification");
 
-      let card = aItem; // instanceof already QueryInterface'd for us.
-      let job = new IndexingJob("ab-card", card);
-      GlodaIndexer.indexJob(job);
+        let job = new IndexingJob("ab-card", subject);
+        GlodaIndexer.indexJob(job);
+        break;
+      }
+      case "addrbook-contact-deleted": {
+        // When an address book card is added, update the cached GlodaIdentity
+        // object's cached idea of whether the identity has an ab card.
+        this._log.debug("Received Card Removal Notification");
+
+        let identity = GlodaCollectionManager.cacheLookupOneByUniqueValue(
+          Gloda.NOUN_IDENTITY,
+          "email@" + subject.primaryEmail.toLowerCase()
+        );
+        if (identity) {
+          identity._hasAddressBookCard = false;
+        }
+        break;
+      }
     }
   },
 };
