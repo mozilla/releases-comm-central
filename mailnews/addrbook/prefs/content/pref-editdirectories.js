@@ -14,29 +14,24 @@ var { MailServices } = ChromeUtils.import(
 // cases we just rebuild the list as it is easier than searching/adding in the
 // correct places an would be an infrequent operation.
 var gAddressBookAbListener = {
-  onItemAdded(parentDir, item) {
-    try {
-      item.QueryInterface(Ci.nsIAbDirectory);
-    } catch (ex) {
-      return;
+  QueryInterface: ChromeUtils.generateQI([
+    "nsIObserver",
+    "nsISupportsWeakReference",
+  ]),
+
+  init() {
+    for (let topic of [
+      "addrbook-directory-created",
+      "addrbook-directory-updated",
+      "addrbook-directory-deleted",
+    ]) {
+      Services.obs.addObserver(this, topic, true);
     }
-    fillDirectoryList(item);
   },
-  onItemRemoved(parentDir, item) {
-    try {
-      item.QueryInterface(Ci.nsIAbDirectory);
-    } catch (ex) {
-      return;
-    }
-    fillDirectoryList();
-  },
-  onItemPropertyChanged(item, property, oldValue, newValue) {
-    try {
-      item.QueryInterface(Ci.nsIAbDirectory);
-    } catch (ex) {
-      return;
-    }
-    fillDirectoryList(item);
+
+  observe(subject, topic, data) {
+    subject.QueryInterface(Ci.nsIAbDirectory);
+    fillDirectoryList(subject);
   },
 };
 
@@ -52,18 +47,8 @@ function onInitEditDirectories() {
   // Fill out the directory list
   fillDirectoryList();
 
-  const nsIAbListener = Ci.nsIAbListener;
   // Add a listener so we can update correctly if the list should change
-  MailServices.ab.addAddressBookListener(
-    gAddressBookAbListener,
-    nsIAbListener.itemAdded |
-      nsIAbListener.directoryRemoved |
-      nsIAbListener.itemChanged
-  );
-}
-
-function onUninitEditDirectories() {
-  MailServices.ab.removeAddressBookListener(gAddressBookAbListener);
+  gAddressBookAbListener.init();
 }
 
 function fillDirectoryList(aItem = null) {

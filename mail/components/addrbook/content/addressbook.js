@@ -32,7 +32,6 @@ var { PluralForm } = ChromeUtils.import(
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var nsIAbListener = Ci.nsIAbListener;
 var kPrefMailAddrBookLastNameFirst = "mail.addr_book.lastnamefirst";
 var kPersistCollapseMapStorage = "directoryTree.json";
 

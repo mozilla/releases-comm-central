@@ -13,6 +13,9 @@ if (!customElements.get("menulist")) {
   const { MailServices } = ChromeUtils.import(
     "resource:///modules/MailServices.jsm"
   );
+  const { Services } = ChromeUtils.import(
+    "resource://gre/modules/Services.jsm"
+  );
   /**
    * MozMenulistAddrbooks is a menulist widget that is automatically
    * populated with the complete address book list.
@@ -33,82 +36,74 @@ if (!customElements.get("menulist")) {
 
       this._rebuild();
 
-      // @implements {nsIAbListener}
+      // Store as a member of `this` so there's a strong reference.
       this.addressBookListener = {
-        onItemAdded: (aParentDir, aItem) => {
-          // Are we interested in this new directory?
-          try {
-            aItem.QueryInterface(Ci.nsIAbDirectory);
-          } catch (ex) {
-            return;
-          }
-          if (this._matches(aItem)) {
-            this._rebuild();
-          }
-        },
+        QueryInterface: ChromeUtils.generateQI([
+          "nsIObserver",
+          "nsISupportsWeakReference",
+        ]),
 
-        onItemRemoved: (aParentDir, aItem) => {
-          try {
-            aItem.QueryInterface(Ci.nsIAbDirectory);
-          } catch (ex) {
-            return;
-          }
-          // Find the item in the list to remove.
-          // We can't use indexOf here because we need loose equality.
-          let len = this._directories.length;
-          for (var index = len - 1; index >= 0; index--) {
-            if (this._directories[index] == aItem) {
-              break;
-            }
-          }
-          if (index != -1) {
-            this._directories.splice(index, 1);
-            // Are we removing the selected directory?
-            if (
-              this.selectedItem ==
-              this.menupopup.removeChild(this.menupopup.children[index])
-            ) {
-              // If so, try to select the first directory, if available.
-              if (this.menupopup.hasChildNodes()) {
-                this.menupopup.firstElementChild.doCommand();
-              } else {
-                this.selectedItem = null;
+        observe: (subject, topic, data) => {
+          subject.QueryInterface(Ci.nsIAbDirectory);
+
+          switch (topic) {
+            case "addrbook-directory-created": {
+              if (this._matches(subject)) {
+                this._rebuild();
               }
-            }
-          }
-        },
-
-        onItemPropertyChanged: (aItem, aProperty, aOldValue, aNewValue) => {
-          try {
-            aItem.QueryInterface(Ci.nsIAbDirectory);
-          } catch (ex) {
-            return;
-          }
-          // Find the item in the list to rename.
-          // We can't use indexOf here because we need loose equality.
-          let len = this._directories.length;
-          for (var oldIndex = len - 1; oldIndex >= 0; oldIndex--) {
-            if (this._directories[oldIndex] == aItem) {
               break;
             }
-          }
-          if (oldIndex != -1) {
-            this._rebuild();
+            case "addrbook-directory-updated": {
+              // Find the item in the list to rename.
+              // We can't use indexOf here because we need loose equality.
+              let len = this._directories.length;
+              for (var oldIndex = len - 1; oldIndex >= 0; oldIndex--) {
+                if (this._directories[oldIndex] == subject) {
+                  break;
+                }
+              }
+              if (oldIndex != -1) {
+                this._rebuild();
+              }
+              break;
+            }
+            case "addrbook-directory-deleted": {
+              // Find the item in the list to remove.
+              // We can't use indexOf here because we need loose equality.
+              let len = this._directories.length;
+              for (var index = len - 1; index >= 0; index--) {
+                if (this._directories[index] == subject) {
+                  break;
+                }
+              }
+              if (index != -1) {
+                this._directories.splice(index, 1);
+                // Are we removing the selected directory?
+                if (
+                  this.selectedItem ==
+                  this.menupopup.removeChild(this.menupopup.children[index])
+                ) {
+                  // If so, try to select the first directory, if available.
+                  if (this.menupopup.hasChildNodes()) {
+                    this.menupopup.firstElementChild.doCommand();
+                  } else {
+                    this.selectedItem = null;
+                  }
+                }
+              }
+              break;
+            }
           }
         },
       };
 
-      MailServices.ab.addAddressBookListener(
-        this.addressBookListener,
-        Ci.nsIAbListener.all
-      );
-      window.addEventListener(
-        "unload",
-        () => {
-          MailServices.ab.removeAddressBookListener(this.addressBookListener);
-        },
-        { once: true }
-      );
+      for (let topic of [
+        "addrbook-directory-created",
+        "addrbook-directory-updated",
+        "addrbook-directory-deleted",
+      ]) {
+        Services.obs.addObserver(this.addressBookListener, topic, true);
+      }
     }
 
     /**
@@ -124,8 +119,6 @@ if (!customElements.get("menulist")) {
 
     disconnectedCallback() {
       super.disconnectedCallback();
-
-      MailServices.ab.removeAddressBookListener(this.addressBookListener);
       this._teardown();
     }
 
