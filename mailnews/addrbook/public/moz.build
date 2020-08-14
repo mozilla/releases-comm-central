@@ -18,7 +18,6 @@ XPIDL_SOURCES += [
     'nsIAbLDAPReplicationQuery.idl',
     'nsIAbLDAPReplicationService.idl',
     'nsIAbLDIFService.idl',
-    'nsIAbListener.idl',
     'nsIAbManager.idl',
     'nsIAddbookUrl.idl',
     'nsIAddrDatabase.idl',

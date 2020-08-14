@@ -363,7 +363,6 @@ static bool CheckRedundantCards(nsIAbManager* aManager, nsIAbDirectory* aDirecto
   }
 
   if (i == count) {
-    aManager->NotifyDirectoryItemDeleted(aDirectory, aCard);
     return true;
   }
 
@@ -461,9 +460,6 @@ nsresult nsAbOSXDirectory::Update() {
   if (![stringValue isEqualToString:WrapString(m_ListDirName)]) {
     nsAutoString oldValue(m_ListDirName);
     AssignToString(stringValue, m_ListDirName);
-    nsCOMPtr<nsISupports> supports = do_QueryInterface(static_cast<nsIAbDirectory*>(this), &rv);
-    NS_ENSURE_SUCCESS(rv, rv);
-    abManager->NotifyItemPropertyChanged(supports, "DirName", oldValue, m_ListDirName);
   }
 
   if (groups) {
@@ -562,7 +558,7 @@ nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager* aManager, nsIAbDirector
   rv = m_AddressList->AppendElement(aDirectory);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  return aManager->NotifyDirectoryItemAdded(this, aDirectory);
+  return NS_OK;
 }
 
 nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager, nsIAbCard* aCard) {
@@ -584,7 +580,7 @@ nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager, nsIAbCard* aCard) 
   nsCOMPtr<nsIAbOSXCard> retrievedCard;
   if (!mCardStore.Get(uri, getter_AddRefs(retrievedCard))) mCardStore.Put(uri, osxCard);
 
-  return aManager->NotifyDirectoryItemAdded(this, aCard);
+  return NS_OK;
 }
 
 nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager* aManager, nsIAbCard* aCard,
@@ -594,7 +590,7 @@ nsresult nsAbOSXDirectory::UnassertCard(nsIAbManager* aManager, nsIAbCard* aCard
 
   if (NS_SUCCEEDED(aCardList->IndexOf(0, aCard, &pos))) rv = aCardList->RemoveElementAt(pos);
 
-  return aManager->NotifyDirectoryItemDeleted(this, aCard);
+  return NS_OK;
 }
 
 nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager* aManager, nsIAbDirectory* aDirectory) {
@@ -606,7 +602,7 @@ nsresult nsAbOSXDirectory::UnassertDirectory(nsIAbManager* aManager, nsIAbDirect
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
-  return aManager->NotifyDirectoryItemDeleted(this, aDirectory);
+  return NS_OK;
 }
 
 NS_IMETHODIMP

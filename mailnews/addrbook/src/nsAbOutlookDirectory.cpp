@@ -892,11 +892,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFinished(
 
 NS_IMETHODIMP nsAbOutlookDirectory::OnSearchFoundCard(nsIAbCard* aCard) {
   mCardList.Put(aCard, aCard);
-  nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
-  if (NS_SUCCEEDED(rv)) rv = abManager->NotifyDirectoryItemAdded(this, aCard);
-
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsAbOutlookDirectory::ExecuteQuery(SRestriction& aRestriction,
@@ -1016,21 +1012,11 @@ nsresult nsAbOutlookDirectory::GetChildNodes(nsIMutableArray* aNodes) {
 }
 
 nsresult nsAbOutlookDirectory::NotifyItemDeletion(nsISupports* aItem) {
-  nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
-
-  if (NS_SUCCEEDED(rv)) rv = abManager->NotifyDirectoryItemDeleted(this, aItem);
-
-  return rv;
+  return NS_OK;
 }
 
 nsresult nsAbOutlookDirectory::NotifyItemAddition(nsISupports* aItem) {
-  nsresult rv;
-  nsCOMPtr<nsIAbManager> abManager =
-      do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
-  if (NS_SUCCEEDED(rv)) rv = abManager->NotifyDirectoryItemAdded(this, aItem);
-
-  return rv;
+  return NS_OK;
 }
 
 // This is called from EditMailListToDatabase.

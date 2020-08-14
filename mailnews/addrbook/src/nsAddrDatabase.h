@@ -15,12 +15,6 @@
 #include "nsTObserverArray.h"
 #include "nsIWeakReferenceUtils.h"
 
-typedef enum {
-  AB_NotifyInserted,
-  AB_NotifyDeleted,
-  AB_NotifyPropertyChanged
-} AB_NOTIFY_CODE;
-
 class nsAddrDatabase : public nsIAddrDatabase {
   using PathString = mozilla::PathString;
 

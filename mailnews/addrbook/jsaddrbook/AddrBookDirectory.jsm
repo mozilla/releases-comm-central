@@ -11,11 +11,6 @@ ChromeUtils.defineModuleGetter(
 );
 ChromeUtils.defineModuleGetter(
   this,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "Services",
   "resource://gre/modules/Services.jsm"
 );
@@ -517,11 +512,9 @@ class AddrBookDirectory {
     return this._dirName;
   }
   set dirName(value) {
-    let oldValue = this.dirName;
     this.setLocalizedStringValue("description", value);
     this._dirName = value;
     this._uuid = null;
-    MailServices.ab.notifyItemPropertyChanged(this, "DirName", oldValue, value);
     Services.obs.notifyObservers(this, "addrbook-directory-updated", "DirName");
   }
   get dirType() {
@@ -787,9 +780,6 @@ class AddrBookDirectory {
     this._dbConnection.executeSimpleSQL(
       "DELETE FROM list_cards WHERE list NOT IN (SELECT DISTINCT uid FROM lists)"
     );
-    MailServices.ab.notifyDirectoryItemDeleted(this, list.asCard);
-    MailServices.ab.notifyDirectoryItemDeleted(list.asDirectory, list.asCard);
-    MailServices.ab.notifyDirectoryDeleted(this, directory);
     Services.obs.notifyObservers(
       list.asDirectory,
       "addrbook-list-deleted",
@@ -814,34 +804,11 @@ class AddrBookDirectory {
     return this.dropCard(card, false);
   }
   modifyCard(card) {
-    let oldProperties = this._loadCardProperties(card.UID);
     let newProperties = new Map();
     for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
       newProperties.set(name, value);
     }
     this._saveCardProperties(card);
-    for (let [name, oldValue] of oldProperties.entries()) {
-      if (name != "LastModifiedDate" && !newProperties.has(name)) {
-        MailServices.ab.notifyItemPropertyChanged(card, name, oldValue, null);
-      }
-    }
-    for (let [name, newValue] of newProperties.entries()) {
-      if (name == "LastModifiedDate") {
-        continue;
-      }
-      let oldValue = oldProperties.get(name);
-      if (oldValue == null && newValue == "") {
-        continue;
-      }
-      if (oldValue != newValue) {
-        MailServices.ab.notifyItemPropertyChanged(
-          card,
-          name,
-          oldValue,
-          newValue
-        );
-      }
-    }
     // Send the card as it is in this directory, not as passed to this function.
     Services.obs.notifyObservers(
       this._getCard({ uid: card.UID }),
@@ -870,7 +837,6 @@ class AddrBookDirectory {
       "DELETE FROM properties WHERE card NOT IN (SELECT DISTINCT uid FROM cards)"
     );
     for (let card of cards) {
-      MailServices.ab.notifyDirectoryItemDeleted(this, card);
       Services.obs.notifyObservers(card, "addrbook-contact-deleted", this.UID);
     }
 
@@ -926,7 +892,6 @@ class AddrBookDirectory {
     }
     this._saveCardProperties(newCard);
 
-    MailServices.ab.notifyDirectoryItemAdded(this, newCard);
     Services.obs.notifyObservers(newCard, "addrbook-contact-created", this.UID);
 
     return newCard;
@@ -982,10 +947,8 @@ class AddrBookDirectory {
     this._saveList(newList);
 
     let newListDirectory = newList.asDirectory;
-    MailServices.ab.notifyDirectoryItemAdded(this, newList.asCard);
-    MailServices.ab.notifyDirectoryItemAdded(this, newListDirectory);
     Services.obs.notifyObservers(
-      newList.asDirectory,
+      newListDirectory,
       "addrbook-list-created",
       this.UID
     );

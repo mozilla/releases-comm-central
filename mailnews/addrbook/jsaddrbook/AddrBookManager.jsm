@@ -45,12 +45,6 @@ const CARDDAV_DIRECTORY_TYPE = 102;
 const URI_REGEXP = /^([\w-]+):\/\/([\w\.-]*)([/:].*|$)/;
 
 /**
- * All registered nsIAbListener objects. Keys to this map are the listeners
- * themselves; values are a bitmap of events to notify. See nsIAbListener.idl.
- */
-let listeners = new Map();
-
-/**
  * When initialized, a map of nsIAbDirectory objects. Keys to this map are
  * the directories' URIs.
  */
@@ -307,7 +301,6 @@ AddrBookManager.prototype = {
 
         uri = `moz-abldapdirectory://${prefName}`;
         let dir = createDirectoryObject(uri, true);
-        this.notifyDirectoryItemAdded(null, dir);
         Services.obs.notifyObservers(dir, "addrbook-directory-created");
         break;
       }
@@ -356,7 +349,6 @@ AddrBookManager.prototype = {
 
         if (AppConstants.platform == "macosx") {
           let dir = createDirectoryObject(uri, true);
-          this.notifyDirectoryItemAdded(null, dir);
           Services.obs.notifyObservers(dir, "addrbook-directory-created");
         } else if (AppConstants.platform == "win") {
           let outlookInterface = Cc[
@@ -364,7 +356,6 @@ AddrBookManager.prototype = {
           ].getService(Ci.nsIAbOutlookInterface);
           for (let folderURI of outlookInterface.getFolderURIs(uri)) {
             let dir = createDirectoryObject(folderURI, true);
-            this.notifyDirectoryItemAdded(null, dir);
             Services.obs.notifyObservers(dir, "addrbook-directory-created");
           }
         }
@@ -384,7 +375,6 @@ AddrBookManager.prototype = {
         let scheme = type == JS_DIRECTORY_TYPE ? "jsaddrbook" : "jscarddav";
         uri = `${scheme}://${file.leafName}`;
         let dir = createDirectoryObject(uri, true);
-        this.notifyDirectoryItemAdded(null, dir);
         Services.obs.notifyObservers(dir, "addrbook-directory-created");
         break;
       }
@@ -461,62 +451,10 @@ AddrBookManager.prototype = {
         if (file.exists()) {
           file.remove(false);
         }
-        this.notifyDirectoryDeleted(null, dir);
         Services.obs.notifyObservers(dir, "addrbook-directory-deleted");
       });
     } else {
-      this.notifyDirectoryDeleted(null, dir);
       Services.obs.notifyObservers(dir, "addrbook-directory-deleted");
-    }
-  },
-  addAddressBookListener(listener, notifyFlags) {
-    listeners.set(listener, notifyFlags);
-  },
-  removeAddressBookListener(listener) {
-    listeners.delete(listener);
-  },
-  notifyItemPropertyChanged(item, property, oldValue, newValue) {
-    for (let [listener, notifyFlags] of listeners.entries()) {
-      if (notifyFlags & Ci.nsIAbListener.itemChanged) {
-        try {
-          listener.onItemPropertyChanged(item, property, oldValue, newValue);
-        } catch (ex) {
-          Cu.reportError(ex);
-        }
-      }
-    }
-  },
-  notifyDirectoryItemAdded(parentDirectory, item) {
-    for (let [listener, notifyFlags] of listeners.entries()) {
-      if (notifyFlags & Ci.nsIAbListener.itemAdded) {
-        try {
-          listener.onItemAdded(parentDirectory, item);
-        } catch (ex) {
-          Cu.reportError(ex);
-        }
-      }
-    }
-  },
-  notifyDirectoryItemDeleted(parentDirectory, item) {
-    for (let [listener, notifyFlags] of listeners.entries()) {
-      if (notifyFlags & Ci.nsIAbListener.directoryItemRemoved) {
-        try {
-          listener.onItemRemoved(parentDirectory, item);
-        } catch (ex) {
-          Cu.reportError(ex);
-        }
-      }
-    }
-  },
-  notifyDirectoryDeleted(parentDirectory, directory) {
-    for (let [listener, notifyFlags] of listeners.entries()) {
-      if (notifyFlags & Ci.nsIAbListener.directoryRemoved) {
-        try {
-          listener.onItemRemoved(parentDirectory, directory);
-        } catch (ex) {
-          Cu.reportError(ex);
-        }
-      }
     }
   },
   mailListNameExists(name) {

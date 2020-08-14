@@ -4,7 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "nsISupports.idl"
-#include "nsIAbListener.idl"
 
 interface mozIDOMWindowProxy;
 interface nsIAbDirectory;
@@ -74,70 +73,6 @@ interface nsIAbManager : nsISupports
    *                    type of address book.
    */
   void deleteAddressBook(in ACString aURI);
-
-  /**
-   * Adds a nsIAbListener to receive notifications of address book updates
-   * according to the specified notifyFlags.
-   *
-   * @param  aListener      The listener that is to receive updates.
-   * @param  aNotifyFlags   A bitwise-or of abListenerNotifyFlagValue items
-   *                        specifying which notifications to receive. See
-   *                        nsIAbListener for possible values.
-   */
-  void addAddressBookListener(in nsIAbListener aListener,
-                              in abListenerNotifyFlagValue aNotifyFlags);
-
-  /**
-   * Removes a nsIAbListener from receive notifications of address book
-   * updates.
-   *
-   * @param  aListener     The listener that is to no longer receive updates.
-   */
-  void removeAddressBookListener(in nsIAbListener aListener);
-
-  /**
-   * Call to notify the registered listeners when a property on an item has
-   * changed.
-   *
-   * @param  aItem         The items that has changed (e.g. an nsIAbDirectory)
-   * @param  aProperty     The property that has changed (e.g. DirName)
-   * @param  aOldValue     The old value of the property.
-   * @param  aNewValue     The new value of the property.
-   */
-  void notifyItemPropertyChanged(in nsISupports aItem,
-                                 in string aProperty,
-                                 in AString aOldValue,
-                                 in AString aNewValue);
-
-  /**
-   * Call to notify the registered listeners when a directory item is added.
-   *
-   * @param  aParentDirectory  The parent directory of the item that has been
-   *                           added.
-   * @param  aItem             The item that has been added.
-   */
-  void notifyDirectoryItemAdded(in nsIAbDirectory aParentDirectory,
-                                in nsISupports aItem);
-
-  /**
-   * Call to notify the registered listeners when a directory item is removed.
-   *
-   * @param  aParentDirectory  The parent directory of the item that has been
-   *                           removed.
-   * @param  aItem             The item that has been removed.
-   */
-  void notifyDirectoryItemDeleted(in nsIAbDirectory aParentDirectory,
-                                  in nsISupports aItem);
-
-  /**
-   * Call to notify the registered listeners when a directory is removed.
-   *
-   * @param  aParentDirectory  The parent directory of the directory that has
-   *                           been removed.
-   * @param  aDirectory        The directory that has been removed.
-   */
-  void notifyDirectoryDeleted(in nsIAbDirectory aParentDirectory,
-                              in nsISupports aDirectory);
 
   /**
    * Finds out if the mailing list name exists in any address book.

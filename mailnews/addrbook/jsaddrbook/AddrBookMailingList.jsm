@@ -63,21 +63,7 @@ AddrBookMailingList.prototype = {
         return self._name;
       },
       set dirName(value) {
-        let oldValue = self._name;
         self._name = value;
-        MailServices.ab.notifyItemPropertyChanged(
-          this,
-          "DirName",
-          oldValue,
-          value
-        );
-        // Fired twice for compatibility.
-        MailServices.ab.notifyItemPropertyChanged(
-          this,
-          "DirName",
-          oldValue,
-          value
-        );
       },
       get listNickName() {
         return self._nickName;
@@ -128,9 +114,6 @@ AddrBookMailingList.prototype = {
         insertStatement.params.list = self._uid;
         insertStatement.params.card = card.UID;
         insertStatement.execute();
-        MailServices.ab.notifyItemPropertyChanged(card, null, null, null);
-        MailServices.ab.notifyItemPropertyChanged(card, null, null, null);
-        MailServices.ab.notifyDirectoryItemAdded(this, card);
         Services.obs.notifyObservers(
           card,
           "addrbook-list-member-added",
@@ -148,7 +131,6 @@ AddrBookMailingList.prototype = {
           deleteCardStatement.params.card = card.UID;
           deleteCardStatement.execute();
           if (self._parent._dbConnection.affectedRows) {
-            MailServices.ab.notifyDirectoryItemDeleted(this, card);
             Services.obs.notifyObservers(
               card,
               "addrbook-list-member-removed",

@@ -35,10 +35,6 @@ static void SetStringProperty(nsAbOSXCard* aCard, const nsString& aValue, const 
     aCard->SetPropertyAsAString(aMemberName, aValue);
   } else if (!oldValue.Equals(aValue)) {
     aCard->SetPropertyAsAString(aMemberName, aValue);
-
-    nsISupports* supports = NS_ISUPPORTS_CAST(nsAbCardProperty*, aCard);
-
-    aAbManager->NotifyItemPropertyChanged(supports, aMemberName, oldValue, aValue);
   }
 }
 

@@ -16,6 +16,8 @@
 #include "nsArrayUtils.h"
 #include "nsIUUIDGenerator.h"
 #include "mozilla/Services.h"
+#include "nsIObserverService.h"
+
 using namespace mozilla;
 
 // From nsDirPrefs
@@ -93,10 +95,6 @@ NS_IMETHODIMP nsAbDirProperty::GetDirName(nsAString& aDirName) {
   return NS_OK;
 }
 
-// XXX Although mailing lists could use the NotifyItemPropertyChanged
-// mechanism here, it requires some rework on how we write/save data
-// relating to mailing lists, so we're just using the old method of a
-// local variable to store the mailing list name.
 NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString& aDirName) {
   if (m_DirPrefId.IsEmpty()) {
     m_ListDirName = aDirName;
@@ -115,10 +113,13 @@ NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString& aDirName) {
   nsCOMPtr<nsIAbManager> abManager =
       do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
 
-  if (NS_SUCCEEDED(rv))
+  if (NS_SUCCEEDED(rv)) {
+    nsCOMPtr<nsIObserverService> observerService =
+        mozilla::services::GetObserverService();
     // We inherit from nsIAbDirectory, so this static cast should be safe.
-    abManager->NotifyItemPropertyChanged(static_cast<nsIAbDirectory*>(this),
-                                         "DirName", oldDirName, aDirName);
+    observerService->NotifyObservers(static_cast<nsIAbDirectory*>(this),
+                                     "addrbook-directory-updated", u"DirName");
+  }
 
   return NS_OK;
 }
