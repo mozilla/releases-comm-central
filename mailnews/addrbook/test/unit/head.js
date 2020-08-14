@@ -20,15 +20,12 @@ registerCleanupFunction(function() {
 function promiseDirectoryRemoved() {
   return new Promise(resolve => {
     let observer = {
-      onItemRemoved() {
-        MailServices.ab.removeAddressBookListener(this);
+      observe() {
+        Services.obs.removeObserver(observer, "addrbook-directory-deleted");
         resolve();
       },
     };
-    MailServices.ab.addAddressBookListener(
-      observer,
-      Ci.nsIAbListener.directoryRemoved
-    );
+    Services.obs.addObserver(observer, "addrbook-directory-deleted");
   });
 }
 

@@ -32,49 +32,17 @@ var observer = {
     "addrbook-list-member-removed",
   ],
   setUp() {
-    MailServices.ab.addAddressBookListener(observer, Ci.nsIAbListener.all);
     for (let topic of this.topics) {
       Services.obs.addObserver(observer, topic);
     }
   },
   cleanUp() {
-    MailServices.ab.removeAddressBookListener(observer);
     for (let topic of this.topics) {
       Services.obs.removeObserver(observer, topic);
     }
   },
-  promiseEvent() {
-    return new Promise(resolve => {
-      this.eventPromise = resolve;
-    });
-  },
-  resolveEventPromise() {
-    if (this.eventPromise) {
-      let resolve = this.eventPromise;
-      delete this.eventPromise;
-      resolve();
-    }
-  },
 
   events: [],
-  onItemAdded(parent, item) {
-    this.events.push(["onItemAdded", parent, item]);
-    this.resolveEventPromise();
-  },
-  onItemRemoved(parent, item) {
-    this.events.push(["onItemRemoved", parent, item]);
-    this.resolveEventPromise();
-  },
-  onItemPropertyChanged(item, property, oldValue, newValue) {
-    this.events.push([
-      "onItemPropertyChanged",
-      item,
-      property,
-      oldValue,
-      newValue,
-    ]);
-    this.resolveEventPromise();
-  },
   observe(subject, topic, data) {
     this.events.push([topic, subject, data]);
   },
@@ -158,10 +126,7 @@ add_task(async function setUp() {
 add_task(async function createAddressBook() {
   let dirPrefId = MailServices.ab.newAddressBook("new book", "", DIR_TYPE);
   book = MailServices.ab.getDirectoryFromId(dirPrefId);
-  observer.checkEvents(
-    ["onItemAdded", undefined, book],
-    ["addrbook-directory-created", book]
-  );
+  observer.checkEvents(["addrbook-directory-created", book]);
 
   // Check nsIAbDirectory properties.
   equal(book.uuid, "ldap_2.servers.newbook&new book");
@@ -202,10 +167,7 @@ add_task(async function createAddressBook() {
 
 add_task(async function editAddressBook() {
   book.dirName = "updated book";
-  observer.checkEvents(
-    ["onItemPropertyChanged", book, "DirName", "new book", "updated book"],
-    ["addrbook-directory-updated", book, "DirName"]
-  );
+  observer.checkEvents(["addrbook-directory-updated", book, "DirName"]);
   equal(book.dirName, "updated book");
   equal(
     Services.prefs.getStringPref("ldap_2.servers.newbook.description"),
@@ -222,10 +184,7 @@ add_task(async function createContact() {
   contact.lastName = "contact";
   contact.primaryEmail = "test@invalid";
   contact = book.addCard(contact);
-  observer.checkEvents(
-    ["onItemAdded", book, contact],
-    ["addrbook-contact-created", contact, book.UID]
-  );
+  observer.checkEvents(["addrbook-contact-created", contact, book.UID]);
 
   // Check enumerations.
   let childCards = Array.from(book.childCards, cc =>
@@ -268,10 +227,7 @@ add_task(async function editContact() {
   contact.lastName = "contact";
   contact.setProperty("LastModifiedDate", 0);
   book.modifyCard(contact);
-  observer.checkEvents(
-    ["onItemPropertyChanged", contact, "FirstName", "new", "updated"],
-    ["addrbook-contact-updated", contact, book.UID]
-  );
+  observer.checkEvents(["addrbook-contact-updated", contact, book.UID]);
   equal(contact.firstName, "updated");
   equal(contact.lastName, "contact");
   let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
@@ -307,11 +263,7 @@ add_task(async function createMailingList() {
   }
   equal(listCard.UID, list.UID);
 
-  observer.checkEvents(
-    ["onItemAdded", book, listCard],
-    ["onItemAdded", book, list],
-    ["addrbook-list-created", list, book.UID]
-  );
+  observer.checkEvents(["addrbook-list-created", list, book.UID]);
 
   // Check nsIAbDirectory properties.
   equal(list.uuid, "&new list");
@@ -335,22 +287,13 @@ add_task(async function createMailingList() {
 add_task(async function editMailingList() {
   list.dirName = "updated list";
   list.editMailListToDatabase(null);
-  observer.checkEvents(
-    ["onItemPropertyChanged", list, "DirName", undefined, "updated list"],
-    ["onItemPropertyChanged", list, "DirName", undefined, "updated list"], // Seriously?
-    ["addrbook-list-updated", list, book.UID]
-  );
+  observer.checkEvents(["addrbook-list-updated", list, book.UID]);
   equal("updated list", list.dirName);
 });
 
 add_task(async function addMailingListMember() {
   list.addCard(contact);
-  observer.checkEvents(
-    ["onItemPropertyChanged", contact, null, null, null],
-    ["onItemPropertyChanged", contact, null, null, null],
-    ["onItemAdded", list, contact],
-    ["addrbook-list-member-added", contact, list.UID]
-  );
+  observer.checkEvents(["addrbook-list-member-added", contact, list.UID]);
 
   // Check list enumerations.
   equal(Array.from(list.childNodes).length, 0);
@@ -363,10 +306,7 @@ add_task(async function addMailingListMember() {
 
 add_task(async function removeMailingListMember() {
   list.deleteCards([contact]);
-  observer.checkEvents(
-    ["onItemRemoved", list, contact],
-    ["addrbook-list-member-removed", contact, list.UID]
-  );
+  observer.checkEvents(["addrbook-list-member-removed", contact, list.UID]);
 
   // Check list enumerations.
   equal(Array.from(list.childNodes).length, 0);
@@ -375,20 +315,12 @@ add_task(async function removeMailingListMember() {
 
 add_task(async function deleteMailingList() {
   book.deleteDirectory(list);
-  observer.checkEvents(
-    ["onItemRemoved", book, listCard],
-    ["onItemRemoved", list, listCard],
-    ["onItemRemoved", book, list],
-    ["addrbook-list-deleted", list, book.UID]
-  );
+  observer.checkEvents(["addrbook-list-deleted", list, book.UID]);
 });
 
 add_task(async function deleteContact() {
   book.deleteCards([contact]);
-  observer.checkEvents(
-    ["onItemRemoved", book, contact],
-    ["addrbook-contact-deleted", contact, book.UID]
-  );
+  observer.checkEvents(["addrbook-contact-deleted", contact, book.UID]);
 
   // Check enumerations.
   equal(Array.from(book.childNodes).length, 0);
@@ -417,14 +349,11 @@ add_task(async function createContactWithUID() {
 });
 
 add_task(async function deleteAddressBook() {
-  let deletePromise = observer.promiseEvent();
+  let deletePromise = promiseDirectoryRemoved();
   MailServices.ab.deleteAddressBook(book.URI);
   await deletePromise;
 
-  observer.checkEvents(
-    ["onItemRemoved", undefined, book],
-    ["addrbook-directory-deleted", book, null]
-  );
+  observer.checkEvents(["addrbook-directory-deleted", book, null]);
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.dirType"));
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.description"));
   ok(!Services.prefs.prefHasUserValue("ldap_2.servers.newbook.filename"));

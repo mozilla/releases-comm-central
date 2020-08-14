@@ -252,15 +252,12 @@ add_task(async function test_managers() {
 
   await new Promise(resolve => {
     let observer = {
-      onItemRemoved() {
-        MailServices.ab.removeAddressBookListener(this);
+      observe() {
+        Services.obs.removeObserver(observer, "addrbook-directory-deleted");
         resolve();
       },
     };
-    MailServices.ab.addAddressBookListener(
-      observer,
-      Ci.nsIAbListener.directoryRemoved
-    );
+    Services.obs.addObserver(observer, "addrbook-directory-deleted");
     MailServices.ab.deleteAddressBook(book.URI);
   });
 });
