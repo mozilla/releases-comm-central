@@ -28,7 +28,6 @@ const hiddenProperties = [
 /**
  * Cache of items in the address book "tree".
  *
- * @implements {nsIAbListener}
  * @implements {nsIObserver}
  */
 var addressBookCache = new (class extends EventEmitter {
@@ -224,153 +223,165 @@ var addressBookCache = new (class extends EventEmitter {
     return copy;
   }
 
-  // nsIAbListener
-  onItemAdded(parent, item) {
-    if (parent) {
-      parent.QueryInterface(Ci.nsIAbDirectory);
-    } // Otherwise item is a new address book and we don't use parent.
+  // nsIObserver
+  _notifications = [
+    "addrbook-directory-created",
+    "addrbook-directory-updated",
+    "addrbook-directory-deleted",
+    "addrbook-contact-created",
+    "addrbook-contact-updated",
+    "addrbook-contact-deleted",
+    "addrbook-list-created",
+    "addrbook-list-updated",
+    "addrbook-list-deleted",
+    "addrbook-list-member-added",
+    "addrbook-list-member-removed",
+  ];
 
-    if (item instanceof Ci.nsIAbDirectory) {
-      item.QueryInterface(Ci.nsIAbDirectory);
-      if (item.isMailList) {
-        let newNode = this._makeDirectoryNode(item, parent);
-        if (
-          this._addressBooks &&
-          this._addressBooks.has(parent.UID) &&
-          this._addressBooks.get(parent.UID).mailingLists
-        ) {
-          this._addressBooks
-            .get(parent.UID)
-            .mailingLists.set(newNode.id, newNode);
-          this._mailingLists.set(newNode.id, newNode);
+  observe(subject, topic, data) {
+    switch (topic) {
+      case "addrbook-directory-created": {
+        subject.QueryInterface(Ci.nsIAbDirectory);
+
+        if (subject.readOnly) {
+          break;
         }
-        this.emit("mailing-list-created", newNode);
-      } else if (!item.readOnly) {
-        let newNode = this._makeDirectoryNode(item);
+        let newNode = this._makeDirectoryNode(subject);
         if (this._addressBooks) {
           this._addressBooks.set(newNode.id, newNode);
         }
-        this.emit("address-book-created", newNode);
-      }
-    }
-  }
-  // nsIAbListener
-  onItemRemoved(parent, item) {
-    if (parent) {
-      parent = parent.QueryInterface(Ci.nsIAbDirectory);
-    } // Otherwise item is a removed address book and we don't use parent.
 
-    if (item instanceof Ci.nsIAbDirectory) {
-      item.QueryInterface(Ci.nsIAbDirectory);
-      if (item.isMailList) {
-        this._mailingLists.delete(item.UID);
-        if (
-          this._addressBooks &&
-          this._addressBooks.has(parent.UID) &&
-          this._addressBooks.get(parent.UID).mailingLists
-        ) {
-          this._addressBooks.get(parent.UID).mailingLists.delete(item.UID);
-        }
-        this.emit("mailing-list-deleted", parent, item);
-      } else if (!item.readonly) {
-        if (this._addressBooks && this._addressBooks.has(item.UID)) {
-          if (this._addressBooks.get(item.UID).contacts) {
-            for (let id of this._addressBooks.get(item.UID).contacts.keys()) {
+        this.emit("address-book-created", newNode);
+        break;
+      }
+      case "addrbook-directory-updated": {
+        subject.QueryInterface(Ci.nsIAbDirectory);
+
+        this.emit("address-book-updated", this._makeDirectoryNode(subject));
+        break;
+      }
+      case "addrbook-directory-deleted": {
+        subject.QueryInterface(Ci.nsIAbDirectory);
+
+        let uid = subject.UID;
+        if (this._addressBooks && this._addressBooks.has(uid)) {
+          let parentNode = this._addressBooks.get(uid);
+          if (parentNode.contacts) {
+            for (let id of parentNode.contacts.keys()) {
               this._contacts.delete(id);
             }
           }
-          if (this._addressBooks.get(item.UID).mailingLists) {
-            for (let id of this._addressBooks
-              .get(item.UID)
-              .mailingLists.keys()) {
+          if (parentNode.mailingLists) {
+            for (let id of parentNode.mailingLists.keys()) {
               this._mailingLists.delete(id);
             }
           }
-          this._addressBooks.delete(item.UID);
+          this._addressBooks.delete(uid);
         }
-        this.emit("address-book-deleted", item);
-      }
-    } else if (item instanceof Ci.nsIAbCard) {
-      item.QueryInterface(Ci.nsIAbCard);
-      if (!item.isMailList) {
-        if (parent.isMailList) {
-          if (this._mailingLists.has(parent.UID)) {
-            if (this._mailingLists.get(parent.UID).contacts) {
-              this._mailingLists.get(parent.UID).contacts.delete(item.UID);
-            }
-          }
-          this.emit("mailing-list-member-removed", parent, item);
-        } else {
-          this._contacts.delete(item.UID);
-          if (this._addressBooks && this._addressBooks.has(parent.UID)) {
-            if (this._addressBooks.get(parent.UID).contacts) {
-              this._addressBooks.get(parent.UID).contacts.delete(item.UID);
-            }
-          }
-          this.emit("contact-deleted", parent, item);
-        }
-      }
-    }
-  }
-  // nsIAbListener
-  onItemPropertyChanged(item, property, oldValue, newValue) {
-    if (item instanceof Ci.nsIAbDirectory) {
-      item.QueryInterface(Ci.nsIAbDirectory);
-      if (!item.isMailList) {
-        this.emit("address-book-updated", this._makeDirectoryNode(item));
-      }
-    }
-  }
 
-  // nsIObserver
-  observe(subject, topic, data) {
-    switch (topic) {
+        this.emit("address-book-deleted", uid);
+        break;
+      }
       case "addrbook-contact-created": {
-        let parentNode = this.findAddressBookById(data);
-        let newNode = this._makeContactNode(subject, parentNode.item);
-        if (
-          this._addressBooks.has(data) &&
-          this._addressBooks.get(data).contacts
-        ) {
-          this._addressBooks.get(data).contacts.set(newNode.id, newNode);
+        subject.QueryInterface(Ci.nsIAbCard);
+
+        let parent = MailServices.ab.getDirectoryFromUID(data);
+        let newNode = this._makeContactNode(subject, parent);
+        if (this._addressBooks.has(data)) {
+          let parentNode = this._addressBooks.get(data);
+          if (parentNode.contacts) {
+            parentNode.contacts.set(newNode.id, newNode);
+          }
           this._contacts.set(newNode.id, newNode);
         }
+
         this.emit("contact-created", newNode);
         break;
       }
       case "addrbook-contact-updated": {
-        let parentNode = this.findAddressBookById(data);
-        let newNode = this._makeContactNode(subject, parentNode.item);
-        if (
-          this._addressBooks.has(data) &&
-          this._addressBooks.get(data).contacts
-        ) {
-          this._addressBooks.get(data).contacts.set(newNode.id, newNode);
-          this._contacts.set(newNode.id, newNode);
-        }
-        if (
-          this._addressBooks.has(data) &&
-          this._addressBooks.get(data).mailingLists
-        ) {
-          for (let mailingList of this._addressBooks
-            .get(data)
-            .mailingLists.values()) {
-            if (mailingList.contacts && mailingList.contacts.has(newNode.id)) {
-              mailingList.contacts.get(newNode.id).item = subject;
+        subject.QueryInterface(Ci.nsIAbCard);
+
+        let parent = MailServices.ab.getDirectoryFromUID(data);
+        let newNode = this._makeContactNode(subject, parent);
+        if (this._addressBooks.has(data)) {
+          let parentNode = this._addressBooks.get(data);
+          if (parentNode.contacts) {
+            parentNode.contacts.set(newNode.id, newNode);
+            this._contacts.set(newNode.id, newNode);
+          }
+          if (parentNode.mailingLists) {
+            for (let mailingList of parentNode.mailingLists.values()) {
+              if (
+                mailingList.contacts &&
+                mailingList.contacts.has(newNode.id)
+              ) {
+                mailingList.contacts.get(newNode.id).item = subject;
+              }
             }
           }
         }
+
         this.emit("contact-updated", newNode);
+        break;
+      }
+      case "addrbook-contact-deleted": {
+        subject.QueryInterface(Ci.nsIAbCard);
+
+        let uid = subject.UID;
+        this._contacts.delete(uid);
+        if (this._addressBooks && this._addressBooks.has(data)) {
+          let parentNode = this._addressBooks.get(data);
+          if (parentNode.contacts) {
+            parentNode.contacts.delete(uid);
+          }
+        }
+
+        this.emit("contact-deleted", data, uid);
+        break;
+      }
+      case "addrbook-list-created": {
+        subject.QueryInterface(Ci.nsIAbDirectory);
+
+        let parent = MailServices.ab.getDirectoryFromUID(data);
+        let newNode = this._makeDirectoryNode(subject, parent);
+        if (this._addressBooks && this._addressBooks.has(data)) {
+          let parentNode = this._addressBooks.get(data);
+          if (parentNode.mailingLists) {
+            parentNode.mailingLists.set(newNode.id, newNode);
+          }
+          this._mailingLists.set(newNode.id, newNode);
+        }
+
+        this.emit("mailing-list-created", newNode);
         break;
       }
       case "addrbook-list-updated": {
         subject.QueryInterface(Ci.nsIAbDirectory);
+
         let listNode = this.findMailingListById(subject.UID);
         listNode.item = subject;
+
         this.emit("mailing-list-updated", listNode);
         break;
       }
+      case "addrbook-list-deleted": {
+        subject.QueryInterface(Ci.nsIAbDirectory);
+
+        let uid = subject.UID;
+        this._mailingLists.delete(uid);
+        if (this._addressBooks && this._addressBooks.has(data)) {
+          let parentNode = this._addressBooks.get(data);
+          if (parentNode.mailingLists) {
+            parentNode.mailingLists.delete(uid);
+          }
+        }
+
+        this.emit("mailing-list-deleted", data, uid);
+        break;
+      }
       case "addrbook-list-member-added": {
+        subject.QueryInterface(Ci.nsIAbCard);
+
         let parentNode = this.findMailingListById(data);
         let newNode = this._makeContactNode(subject, parentNode.item);
         if (
@@ -382,27 +393,37 @@ var addressBookCache = new (class extends EventEmitter {
         this.emit("mailing-list-member-added", newNode);
         break;
       }
+      case "addrbook-list-member-removed": {
+        subject.QueryInterface(Ci.nsIAbCard);
+
+        let uid = subject.UID;
+        if (this._mailingLists.has(data)) {
+          let parentNode = this._mailingLists.get(data);
+          if (parentNode.contacts) {
+            parentNode.contacts.delete(uid);
+          }
+        }
+
+        this.emit("mailing-list-member-removed", data, uid);
+        break;
+      }
     }
   }
 
   incrementListeners() {
     this.listenerCount++;
     if (this.listenerCount == 1) {
-      MailServices.ab.addAddressBookListener(this, Ci.nsIAbListener.all);
-      Services.obs.addObserver(this, "addrbook-contact-created");
-      Services.obs.addObserver(this, "addrbook-contact-updated");
-      Services.obs.addObserver(this, "addrbook-list-updated");
-      Services.obs.addObserver(this, "addrbook-list-member-added");
+      for (let topic of this._notifications) {
+        Services.obs.addObserver(this, topic);
+      }
     }
   }
   decrementListeners() {
     this.listenerCount--;
     if (this.listenerCount == 0) {
-      MailServices.ab.removeAddressBookListener(this);
-      Services.obs.removeObserver(this, "addrbook-contact-created");
-      Services.obs.removeObserver(this, "addrbook-contact-updated");
-      Services.obs.removeObserver(this, "addrbook-list-updated");
-      Services.obs.removeObserver(this, "addrbook-list-member-added");
+      for (let topic of this._notifications) {
+        Services.obs.removeObserver(this, topic);
+      }
 
       this.flush();
     }
@@ -509,8 +530,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "addressBooks.onDeleted",
           register: fire => {
-            let listener = (event, item) => {
-              fire.sync(item.UID);
+            let listener = (event, itemUID) => {
+              fire.sync(itemUID);
             };
 
             addressBookCache.on("address-book-deleted", listener);
@@ -656,8 +677,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "contacts.onDeleted",
           register: fire => {
-            let listener = (event, parent, item) => {
-              fire.sync(parent.UID, item.UID);
+            let listener = (event, parentUID, itemUID) => {
+              fire.sync(parentUID, itemUID);
             };
 
             addressBookCache.on("contact-deleted", listener);
@@ -758,8 +779,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "mailingLists.onDeleted",
           register: fire => {
-            let listener = (event, parent, item) => {
-              fire.sync(parent.UID, item.UID);
+            let listener = (event, parentUID, itemUID) => {
+              fire.sync(parentUID, itemUID);
             };
 
             addressBookCache.on("mailing-list-deleted", listener);
@@ -786,8 +807,8 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "mailingLists.onMemberRemoved",
           register: fire => {
-            let listener = (event, parent, item) => {
-              fire.sync(parent.UID, item.UID);
+            let listener = (event, parentUID, itemUID) => {
+              fire.sync(parentUID, itemUID);
             };
 
             addressBookCache.on("mailing-list-member-removed", listener);
