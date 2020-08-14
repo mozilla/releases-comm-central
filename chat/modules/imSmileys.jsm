@@ -18,11 +18,7 @@ ChromeUtils.defineModuleGetter(
 );
 
 const EXPORTED_SYMBOLS = [
-  "smileImMarkup", // used to add smile:// img tags into IM markup.
-  "smileTextNode", // used to add smile:// img tags to the content of a textnode
-  "smileString", // used to add smile:// img tags into a string without parsing it as HTML. Be sure the string doesn't contain HTML tags.
-  "getSmileRealURI", // used to retrieve the chrome URI for a smile:// URI
-  "getSmileyList", // used to display a list of smileys in the UI
+  "smileTextNode", // used to add smileys to the content of a textnode
 ];
 
 var kEmoticonsThemePref = "messenger.options.emoticonsTheme";
@@ -52,31 +48,6 @@ var gPrefObserver = {
     gTheme = getTheme();
   },
 };
-
-function getSmileRealURI(aSmile) {
-  aSmile = Services.textToSubURI.unEscapeURIForUI(aSmile);
-  if (aSmile in gTheme.iconsHash) {
-    return gTheme.baseUri + gTheme.iconsHash[aSmile].filename;
-  }
-
-  throw new Error("Invalid smile!");
-}
-
-function getSmileyList(aThemeName) {
-  let theme = aThemeName == gTheme.name ? gTheme : getTheme(aThemeName);
-  if (!theme.json) {
-    return null;
-  }
-
-  let addAbsoluteUrls = function(aSmiley) {
-    return {
-      filename: aSmiley.filename,
-      src: theme.baseUri + aSmiley.filename,
-      textCodes: aSmiley.textCodes,
-    };
-  };
-  return theme.json.smileys.map(addAbsoluteUrls);
-}
 
 function getTheme(aName) {
   let name = aName || Services.prefs.getCharPref(kEmoticonsThemePref);
@@ -164,15 +135,6 @@ function getRegexp() {
   return gTheme.regExp;
 }
 
-// unused. May be useful later to process a string instead of an HTML node
-function smileString(aString) {
-  const kSmileFormat =
-    '<img class="ib-img-smile" src="smile://$&" alt="$&" title="$&"/>';
-
-  let exp = getRegexp();
-  return exp ? aString.replace(exp, kSmileFormat) : aString;
-}
-
 function smileTextNode(aNode) {
   /*
    * Skip text nodes that contain the href in the child text node.
@@ -208,50 +170,16 @@ function smileTextNode(aNode) {
     // of the smiley and aNode is a text node with the text after
     // the smiley. The text in aNode hasn't been processed yet.
     let smile = smileNode.data;
-    let elt = aNode.ownerDocument.createElement("img");
-    elt.setAttribute("src", "smile://" + smile);
+    let elt = aNode.ownerDocument.createElement("span");
+    elt.appendChild(
+      aNode.ownerDocument.createTextNode(gTheme.iconsHash[smile].glyph)
+    );
+    // Add the title attribute (to show the original text in a tooltip) in case
+    // the replacement was done incorrectly.
     elt.setAttribute("title", smile);
-    elt.setAttribute("alt", smile);
-    elt.setAttribute("class", "ib-img-smile");
     smileNode.parentNode.replaceChild(elt, smileNode);
     result += 2;
     exp.lastIndex = 0;
   }
   return result;
-}
-
-function smileNode(aNode) {
-  for (let i = 0; i < aNode.childNodes.length; ++i) {
-    let node = aNode.childNodes[i];
-    if (
-      node.nodeType == node.ELEMENT_NODE &&
-      node.namespaceURI == "http://www.w3.org/1999/xhtml"
-    ) {
-      // we are on a tag, recurse to process its children
-      smileNode(node);
-    } else if (
-      node.nodeType == node.TEXT_NODE ||
-      node.nodeType == node.CDATA_SECTION_NODE
-    ) {
-      // we are on a text node, process it
-      smileTextNode(node);
-    }
-  }
-}
-
-function smileImMarkup(aDocument, aText) {
-  if (!aDocument) {
-    throw new Error("providing an HTML document is required");
-  }
-
-  // return early if smileys are disabled
-  if (!gTheme.iconsHash) {
-    return aText;
-  }
-
-  let div = aDocument.createElement("div");
-  // eslint-disable-next-line no-unsanitized/property
-  div.innerHTML = aText;
-  smileNode(div);
-  return div.innerHTML;
 }

@@ -7,16 +7,6 @@
   word-wrap: break-word;
 }
 
-.ib-img-smile {
-  vertical-align: middle;
-}
-
-*:any-link .ib-img-smile {
-  border: none;
-  border-bottom: solid 1px;
-  margin-bottom: 1px;
-}
-
 .moz-txt-underscore {
   text-decoration: underline;
 }

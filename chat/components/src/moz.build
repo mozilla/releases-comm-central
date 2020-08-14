@@ -12,7 +12,6 @@ EXTRA_JS_MODULES += [
     'imConversations.jsm',
     'imCore.jsm',
     'logger.jsm',
-    'smileProtocolHandler.jsm'
 ]
 
 XPCOM_MANIFESTS += [
