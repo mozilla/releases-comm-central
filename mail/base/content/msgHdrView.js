@@ -148,10 +148,6 @@ var currentHeaderData = {};
  */
 var currentAttachments = [];
 
-var nsIAbDirectory = Ci.nsIAbDirectory;
-var nsIAbListener = Ci.nsIAbListener;
-var nsIAbCard = Ci.nsIAbCard;
-
 /**
  * Our constructor method which creates a header Entry based on an entry
  * in one of the header lists. A header entry is different from a header list.
@@ -288,10 +284,7 @@ function OnLoadMsgHeaderPane() {
 
   // Add an address book listener so we can update the header view when things
   // change.
-  MailServices.ab.addAddressBookListener(
-    AddressBookListener,
-    Ci.nsIAbListener.all
-  );
+  AddressBookListener.register();
 
   // If an invalid index is selected; reset to 0.  One way this can happen
   // is if a value of 1 was persisted to localStore.rdf by Tb2 (when there were
@@ -347,7 +340,7 @@ function OnUnloadMsgHeaderPane() {
     MsgHdrViewObserver
   );
 
-  MailServices.ab.removeAddressBookListener(AddressBookListener);
+  AddressBookListener.unregister();
 
   // dispatch an event letting any listeners know that we have unloaded
   // the message pane
@@ -389,23 +382,53 @@ var MsgHdrViewObserver = {
 };
 
 var AddressBookListener = {
-  onItemAdded(aParentDir, aItem) {
-    OnAddressBookDataChanged(nsIAbListener.itemAdded, aParentDir, aItem);
+  _notifications: [
+    "addrbook-directory-created",
+    "addrbook-directory-deleted",
+    "addrbook-contact-created",
+    "addrbook-contact-changed",
+    "addrbook-contact-deleted",
+  ],
+  register() {
+    for (let topic of this._notifications) {
+      Services.obs.addObserver(this, topic);
+    }
   },
-  onItemRemoved(aParentDir, aItem) {
-    OnAddressBookDataChanged(
-      aItem instanceof nsIAbCard
-        ? nsIAbListener.directoryItemRemoved
-        : nsIAbListener.directoryRemoved,
-      aParentDir,
-      aItem
-    );
+  unregister() {
+    for (let topic of this._notifications) {
+      Services.obs.removeObserver(this, topic);
+    }
   },
-  onItemPropertyChanged(aItem, aProperty, aOldValue, aNewValue) {
-    // We only need updates for card changes, address book and mailing list
-    // ones don't affect us here.
-    if (aItem instanceof Ci.nsIAbCard) {
-      OnAddressBookDataChanged(nsIAbListener.itemChanged, null, aItem);
+  observe(subject, topic, data) {
+    switch (topic) {
+      case "addrbook-directory-created":
+        subject.QueryInterface(Ci.nsIAbDirectory);
+        OnAddressBookDataChanged("itemAdded", null, subject);
+        break;
+      case "addrbook-directory-deleted":
+        subject.QueryInterface(Ci.nsIAbDirectory);
+        OnAddressBookDataChanged("directoryRemoved", null, subject);
+        break;
+      case "addrbook-contact-created":
+        subject.QueryInterface(Ci.nsIAbCard);
+        OnAddressBookDataChanged(
+          "itemAdded",
+          MailServices.ab.getDirectoryFromUID(data),
+          subject
+        );
+        break;
+      case "addrbook-contact-changed":
+        subject.QueryInterface(Ci.nsIAbCard);
+        OnAddressBookDataChanged("itemChanged", null, subject);
+        break;
+      case "addrbook-contact-deleted":
+        subject.QueryInterface(Ci.nsIAbCard);
+        OnAddressBookDataChanged(
+          "directoryItemRemoved",
+          MailServices.ab.getDirectoryFromUID(data),
+          subject
+        );
+        break;
     }
   },
 };
@@ -1515,7 +1538,7 @@ function UpdateExtraAddressProcessing(
   aItem
 ) {
   switch (aAction) {
-    case nsIAbListener.itemChanged:
+    case "itemChanged":
       if (
         aAddressData &&
         aDocumentNode.cardDetails.card &&
@@ -1540,15 +1563,15 @@ function UpdateExtraAddressProcessing(
         }
       }
       break;
-    case nsIAbListener.itemAdded:
+    case "itemAdded":
       // Is it a new address book?
-      if (aItem instanceof nsIAbDirectory) {
+      if (aItem instanceof Ci.nsIAbDirectory) {
         // If we don't have a match, search again for updates (e.g. a interface
         // to an existing book may just have been added).
         if (!aDocumentNode.cardDetails.card) {
           UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
         }
-      } else if (aItem instanceof nsIAbCard) {
+      } else if (aItem instanceof Ci.nsIAbCard) {
         // If we don't have a card, does this new one match?
         if (
           aDocumentNode.cardDetails &&
@@ -1556,7 +1579,7 @@ function UpdateExtraAddressProcessing(
           aItem.hasEmailAddress(aAddressData.emailAddress)
         ) {
           // Just in case we have a bogus parent directory.
-          if (aParentDir instanceof nsIAbDirectory) {
+          if (aParentDir instanceof Ci.nsIAbDirectory) {
             var cardDetails = { book: aParentDir, card: aItem };
             UpdateEmailNodeDetails(
               aAddressData.emailAddress,
@@ -1569,7 +1592,7 @@ function UpdateExtraAddressProcessing(
         }
       }
       break;
-    case nsIAbListener.directoryItemRemoved:
+    case "directoryItemRemoved":
       // Unfortunately we don't necessarily get the same card object back.
       if (
         aAddressData &&
@@ -1581,7 +1604,7 @@ function UpdateExtraAddressProcessing(
         UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
       }
       break;
-    case nsIAbListener.directoryRemoved:
+    case "directoryRemoved":
       if (aDocumentNode.cardDetails.book == aItem) {
         UpdateEmailNodeDetails(aAddressData.emailAddress, aDocumentNode);
       }
