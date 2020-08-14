@@ -19,6 +19,7 @@ var {
   handleOccurrencePrompt,
   helpersForController,
   invokeNewEventDialog,
+  invokeEditingRepeatEventDialog,
   menulistSelect,
   switchToView,
   viewForward,
@@ -62,8 +63,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Move 5th January occurrence to 6th January.
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  handleOccurrencePrompt(controller, eventBox, "modify", false);
-  await invokeNewEventDialog(controller, null, async (event, iframe) => {
+  await invokeEditingRepeatEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     await setData(event, iframe, { startdate: STARTDATE, enddate: STARTDATE });
@@ -73,18 +73,22 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   // Change recurrence rule.
   goToDate(controller, 2009, 1, 7);
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  handleOccurrencePrompt(controller, eventBox, "modify", true);
-  await invokeNewEventDialog(controller, null, (event, iframe) => {
-    let { eid: eventid } = helpersForController(event);
-    let { iframeLookup } = helpersForEditUI(iframe);
+  await invokeEditingRepeatEventDialog(
+    controller,
+    eventBox,
+    (event, iframe) => {
+      let { eid: eventid } = helpersForController(event);
+      let { iframeLookup } = helpersForEditUI(iframe);
 
-    event.waitForElement(eventid("item-repeat"));
-    plan_for_modal_dialog("Calendar:EventDialog:Recurrence", changeRecurrence);
-    event.click(iframeLookup(REPEAT_DETAILS));
-    wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
+      event.waitForElement(eventid("item-repeat"));
+      plan_for_modal_dialog("Calendar:EventDialog:Recurrence", changeRecurrence);
+      event.click(iframeLookup(REPEAT_DETAILS));
+      wait_for_modal_dialog("Calendar:EventDialog:Recurrence", TIMEOUT_MODAL_DIALOG);
 
-    event.click(eventid("button-saveandclose"));
-  });
+      event.click(eventid("button-saveandclose"));
+    },
+    true
+  );
 
   // Check two weeks.
   // day view

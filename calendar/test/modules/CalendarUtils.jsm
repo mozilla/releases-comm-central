@@ -33,6 +33,7 @@ const EXPORTED_SYMBOLS = [
   "invokeNewEventDialog",
   "invokeViewingEventDialog",
   "invokeEditingEventDialog",
+  "invokeEditingRepeatEventDialog",
   "getEventBoxPath",
   "getEventDetails",
   "checkAlarmIcon",
@@ -309,101 +310,110 @@ function goToDate(controller, year, month, day) {
 }
 
 /**
+ * This callback should close the dialog when finished.
+ * @callback EventDialogCallback
+ * @param {MozMillController} eventController - The controller for the event
+ *                                              window.
+ * @param {Object} mockIframeController       - Used with helpersForControllers.
+ * @returns {Promise}
+ */
+
+/**
  * Opens a new event dialog by clicking on the (optional) box and executing the
- * body function. The event dialog must be closed in the body function.
+ * callback function.
  *
- * The body is passed a MozMillController and a mockIFrameController object
- * when executed. NOTE: This function will timeout if the "clickBox" opens an
- * existing event, use invokeViewingEventDialog() or invokeEditingEventDialog()
- * instead.
+ * NOTE: This function will timeout if the "clickBox" opens an existing event,
+ * use the other invoke*EventDialog() functions for existing events instead.
  *
  * @param {MozMillController}   mWController - The main window controller.
  * @param {MozMillElement|null} clickBox     - The optional box to click on.
- * @param {function}            body         - The function to execute while
+ * @param {EventDialogCallback} callback     - The function to execute while
  *                                             the event dialog is open.
  */
-async function invokeNewEventDialog(mWController, clickBox, body) {
+async function invokeNewEventDialog(mWController, clickBox, callback) {
   doubleClickOptionalEventBox(mWController, clickBox);
-  let eventWindow = waitForEventDialogWindow(
-    mWController,
-    EVENT_DIALOG_NAME,
-    `${EVENT_DIALOG_NAME} did not load in time`
-  );
-  let eventController = new controller.MozMillController(eventWindow);
-  let iframe = waitForItemPanelIframe(eventController);
-
-  // We can't use a full mozmill controller on an iframe, but we need
-  // something for helpersForController.
-  let mockIframeController = { window: iframe.contentWindow };
-  await body(eventController, mockIframeController);
-  waitUntilDialogClosed(mWController, EVENT_DIALOG_NAME);
+  await execEventDialogCallback(mWController, callback);
 }
 
 /**
- * Opens an existing event in the summary dialog by clicking on the (optional)
- * box and executing the body function. The dialog must be closed in the
- * body function.
+ * This callback should close the dialog when finished.
+ * @callback EventSummaryDialogCallback
+ * @param {MozMillController} eventController - The controller for the event
+ *                                              window.
+ * @returns {Promise}
+ */
+
+/**
+ * Opens an existing event in the event summary dialog by clicking on the
+ * (optional) box and executing the callback function.
  *
- * The body is passed a MozMillController when executed.
  * NOTE: This function will timeout if the "clickBox" opens a new event
  * instead of an existing one.
  *
- * @param {MozMillController}   mWController - The main window controller.
- * @param {MozMillElement|null} clickBox     - The optional box to click on.
- * @param {function}            body         - The function to execute while
- *                                             the event dialog is open.
+ * @param {MozMillController} mWController      - The main window controller.
+ * @param {MozMillElement|null} clickBox        - The optional box to click on.
+ * @param {EventSummaryDialogCallback} callback - The function to execute while
+ *                                                the event summary dialog is
+ *                                                open.
  */
-async function invokeViewingEventDialog(mWController, clickBox, body) {
+async function invokeViewingEventDialog(mWController, clickBox, callback) {
   doubleClickOptionalEventBox(mWController, clickBox);
-  let eventWindow = waitForEventDialogWindow(
-    mWController,
-    EVENT_SUMMARY_DIALOG_NAME,
-    `${EVENT_SUMMARY_DIALOG_NAME} did not load in time`
-  );
+  let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
   let eventController = new controller.MozMillController(eventWindow);
-  await body(eventController);
+  await callback(eventController);
   waitUntilDialogClosed(mWController, EVENT_SUMMARY_DIALOG_NAME);
 }
 
 /**
- * Opens an event dialog for editing an existing event by clicking on the box
- * and executing the body function. The event dialog must be closed in
- * the body function.
+ * Opens an existing event for editing in the event dialog by clicking on the
+ * (optional) box and executing the callback function.
  *
- * The body is passed a MozMillController and a mockIFrameController object
- * when executed. NOTE: This function will timeout if the "clickBox" opens a
- * new event instead of an existing one.
+ * NOTE: This function will timeout if the "clickBox" opens a new event instead
+ * of an existing one.
  *
- * @param {MozMillController}      mWController - The main window controller.
- * @param {MozMillElement}         clickBox     - The box to click on.
- * @param {function}               body         - The function to execute while
- *                                                the event dialog is open.
+ * @param {MozMillController} mWController - The main window controller.
+ * @param {MozMillElement|null} clickBox   - The box to click on.
+ * @param {EventDialogCallback} callback   - The function to execute while
+ *                                           the event dialog is open.
  */
-async function invokeEditingEventDialog(mWController, clickBox, body) {
+async function invokeEditingEventDialog(mWController, clickBox, callback) {
   doubleClickOptionalEventBox(mWController, clickBox);
-  let eventSummaryWindow = waitForEventDialogWindow(
-    mWController,
-    EVENT_SUMMARY_DIALOG_NAME,
-    `${EVENT_SUMMARY_DIALOG_NAME} did not load in time`
-  );
-  let summaryController = new controller.MozMillController(eventSummaryWindow);
-  let dialog = summaryController.window.document.querySelector("dialog");
+  let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
+  let eventController = new controller.MozMillController(eventWindow);
+  let dialog = eventController.window.document.querySelector("dialog");
   let editButton = new elementslib.Elem(dialog.getButton("accept"));
 
-  summaryController.click(editButton);
+  eventController.click(editButton);
+  await execEventDialogCallback(mWController, callback);
+}
 
-  let eventWindow = waitForEventDialogWindow(
-    mWController,
-    EVENT_DIALOG_NAME,
-    `${EVENT_SUMMARY_DIALOG_NAME} did not load in time`
-  );
+/**
+ * Opens an existing, repeating event for editing in the event dialog by
+ * clicking on the (optional) box and executing the callback function.
+ *
+ * NOTE: This function will timeout if the "clickBox" opens a new event instead
+ * of an existing one.
+ *
+ * @param {MozMillController} mWController - The main window controller.
+ * @param {MozMillElement|null} clickBox   - The box to click on.
+ * @param {EventDialogCallback} callback   - The function to execute while
+ *                                           the event dialog is open.
+ * @param {boolean} [editAll=false]        - If true, will edit all
+ *                                           occurrences of the event.
+ */
+async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, editAll = false) {
+  doubleClickOptionalEventBox(mWController, clickBox);
+  let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
   let eventController = new controller.MozMillController(eventWindow);
-  let iframe = waitForItemPanelIframe(eventController);
-  let mockIframeController = { window: iframe.contentWindow };
+  let target = editAll
+    ? "edit-button-context-menu-all-occurrences"
+    : "edit-button-context-menu-this-occurrence";
+  let editButton = new elementslib.Elem(
+    eventController.window.document.querySelector(`#${target}`)
+  );
 
-  await body(eventController, mockIframeController);
-
-  waitUntilDialogClosed(mWController, EVENT_DIALOG_NAME);
+  eventController.click(editButton);
+  await execEventDialogCallback(mWController, callback);
 }
 
 function doubleClickOptionalEventBox(mWController, clickBox) {
@@ -413,19 +423,32 @@ function doubleClickOptionalEventBox(mWController, clickBox) {
   }
 }
 
-function waitForEventDialogWindow(mWController, name, errorMessage) {
+async function execEventDialogCallback(mWController, callback) {
+  let eventWindow = waitForEventDialogWindow(mWController, EVENT_DIALOG_NAME);
+  let eventController = new controller.MozMillController(eventWindow);
+  let iframe = waitForItemPanelIframe(eventController);
+
+  // We can't use a full mozmill controller on an iframe, but we need
+  // something for helpersForController.
+  let mockIframeController = { window: iframe.contentWindow };
+  await callback(eventController, mockIframeController);
+  waitUntilDialogClosed(mWController, EVENT_DIALOG_NAME);
+}
+
+function waitForEventDialogWindow(mWController, name) {
   mWController.waitFor(
     () => {
       return utils.getWindows(name).length > 0;
     },
-    errorMessage,
+    `${name} did not load in time`,
     MID_SLEEP
   );
   return utils.getWindows(name)[0];
 }
 
 function waitForItemPanelIframe(eventController) {
-  let iframe = eventController.window.document.getElementById("lightning-item-panel-iframe");
+  let iframeid = "lightning-item-panel-iframe";
+  let iframe = eventController.window.document.getElementById(iframeid);
   eventController.waitFor(
     () => {
       return iframe.contentWindow.onLoad && iframe.contentWindow.onLoad.hasLoaded;

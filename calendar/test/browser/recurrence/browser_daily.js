@@ -16,6 +16,7 @@ var {
   handleOccurrencePrompt,
   helpersForController,
   invokeNewEventDialog,
+  invokeEditingRepeatEventDialog,
   menulistSelect,
   switchToView,
   viewBack,
@@ -115,14 +116,18 @@ add_task(async function testDailyRecurrence() {
   viewBack(controller, 1);
 
   eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
-  handleOccurrencePrompt(controller, eventBox, "modify", true);
-  await invokeNewEventDialog(controller, null, event => {
-    let { eid: eventid, sleep: eventsleep } = helpersForController(event);
+  await invokeEditingRepeatEventDialog(
+    controller,
+    eventBox,
+    event => {
+      let { eid: eventid, sleep: eventsleep } = helpersForController(event);
 
-    menulistSelect(eventid("item-repeat"), "every.weekday", event);
-    eventsleep();
-    event.click(eventid("button-saveandclose"));
-  });
+      menulistSelect(eventid("item-repeat"), "every.weekday", event);
+      eventsleep();
+      event.click(eventid("button-saveandclose"));
+    },
+    true
+  );
 
   // Check day view for 7 days.
   let day = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);

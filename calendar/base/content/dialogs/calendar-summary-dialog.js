@@ -96,7 +96,7 @@ function onLoad() {
   });
 
   updateToolbar();
-  updateDialogAcceptButton(dialog);
+  updateDialogButtons(item);
 
   if (typeof window.ToolbarIconColor !== "undefined") {
     window.ToolbarIconColor.init();
@@ -224,30 +224,38 @@ function locationCopyLink(labelNode) {
 }
 
 /**
- * This configures the dialog accept button depending on what kind of item we
- * are showing. It will show/hide on the following conditions:
- * 1) The calendar is read-only              - Hide the button.
- * 2) The item is an invitation              - Hide the button.
- * 3) The item is not an invitation          - Show the button (for editing).
+ * This configures the dialog buttons depending on the writable status
+ * of the item and whether it recurs or not:
+ * 1) The calendar is read-only - The buttons stay hidden.
+ * 2) The item is an invitation - The buttons stay hidden.
+ * 3) The item is recurring     - Show an edit menu with occurrence options.
+ * 4) Otherwise                 - Show the single edit button.
  *
- * Event listeners are also configured for the "dialogaccept" event to save
- * changes for invitiations or switch to the edit dialog for editable items.
- *
- * @param {XULElement} dialog
+ * @param {calIItemBase} item
  */
-function updateDialogAcceptButton(dialog) {
-  let acceptButton = dialog.getButton("accept");
+function updateDialogButtons(item) {
+  let editButton = document.getElementById("calendar-summary-dialog-edit-button");
+  let isRecurring = item.parentItem !== item;
   if (window.readOnly === true) {
-    acceptButton.focus();
-    acceptButton.hidden = true;
+    // This enables pressing the "enter" key to close the dialog.
+    editButton.focus();
   } else if (window.isInvitation === true) {
     document.addEventListener("dialogaccept", onInvitationDialogAccept);
-    acceptButton.hidden = true;
+  } else if (isRecurring) {
+    // Show the edit button menu for repeating events.
+    let menuButton = document.getElementById("calendar-summary-dialog-edit-menu-button");
+    menuButton.hidden = false;
   } else {
-    // Treat the accept button as a trigger for editing.
+    // Show the single edit button for non-repeating events.
     document.addEventListener("dialogaccept", () => {
-      useEditDialog(window.calendarItem);
+      useEditDialog(item);
     });
+    editButton.hidden = false;
+  }
+  // Show the custom dialog footer when the event is editable.
+  if (window.readOnly !== true && window.isInvitation !== true) {
+    let footer = document.getElementById("calendar-summary-dialog-custom-button-footer");
+    footer.hidden = false;
   }
 }
 
@@ -270,12 +278,26 @@ function onInvitationDialogAccept() {
 }
 
 /**
+ * Invokes the editing dialog for the current item occurrence.
+ */
+function onEditThisOccurrence() {
+  useEditDialog(window.calendarItem);
+}
+
+/**
+ * Invokes the editing dialog for all occurrences of the current item.
+ */
+function onEditAllOccurrences() {
+  useEditDialog(window.calendarItem.parentItem);
+}
+
+/**
  * Switch to the "modify" mode dialog so the user can make changes to the event.
  * @param {calIItemBase} item
  */
 function useEditDialog(item) {
   window.addEventListener("unload", () => {
-    window.opener.modifyEventWithDialog(item);
+    window.opener.modifyEventWithDialog(item, null, false);
   });
   window.close();
 }

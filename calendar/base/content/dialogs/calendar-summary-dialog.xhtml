@@ -13,6 +13,7 @@
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/primaryToolbar.css"?>
 <?xml-stylesheet type="text/css" href="chrome://messenger/skin/messenger.css"?>
 <?xml-stylesheet type="text/css" href="chrome://calendar/content/widgets/calendar-item-summary.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/content/calendar-summary-dialog.css"?>
 
 <!DOCTYPE window [
   <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd" >
@@ -34,10 +35,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
-<dialog id="calendar-summary-dialog"
-        buttons="accept"
-        data-l10n-id="calendar-summary-dialog"
-        data-l10n-attrs="buttonlabelaccept">
+<dialog id="calendar-summary-dialog" buttons=",">
 
   <html:link rel="localization" href="calendar/calendar-summary-dialog.ftl"/>
 
@@ -136,5 +134,29 @@
               accesskey="&calendar.copylink.accesskey;"
               oncommand="locationCopyLink(document.popupNode)"/>
   </menupopup>
+
+  <hbox id="calendar-summary-dialog-custom-button-footer" hidden="true">
+    <spacer class="button-spacer" flex="1"/>
+
+    <button id="calendar-summary-dialog-edit-button"
+            default="true"
+            dlgtype="accept"
+            hidden="true"
+            data-l10n-id="calendar-summary-dialog-edit-button" />
+
+    <button id="calendar-summary-dialog-edit-menu-button"
+            type="menu"
+            hidden="true"
+            data-l10n-id="calendar-summary-dialog-edit-menu-button">
+      <menupopup id="edit-button-context-menu">
+        <menuitem id="edit-button-context-menu-this-occurrence"
+                  data-l10n-id="edit-button-context-menu-this-occurrence"
+                  oncommand="onEditThisOccurrence()"/>
+        <menuitem id="edit-button-context-menu-all-occurrences"
+                  data-l10n-id="edit-button-context-menu-all-occurrences"
+                  oncommand="onEditAllOccurrences()"/>
+      </menupopup>
+    </button>
+  </hbox>
 </dialog>
 </window>

@@ -77,6 +77,7 @@ calendar.jar:
     content/calendar-subscriptions-dialog.js                    (content/dialogs/calendar-subscriptions-dialog.js)
     content/calendar-subscriptions-dialog.xhtml                 (content/dialogs/calendar-subscriptions-dialog.xhtml)
     content/calendar-summary-dialog.js                          (content/dialogs/calendar-summary-dialog.js)
+    content/calendar-summary-dialog.css                         (content/dialogs/calendar-summary-dialog.css)
     content/calendar-summary-dialog.xhtml                       (content/dialogs/calendar-summary-dialog.xhtml)
     content/calendar-uri-redirect-dialog.xhtml                  (content/dialogs/calendar-uri-redirect-dialog.xhtml)
     content/calendar-uri-redirect-dialog.js                     (content/dialogs/calendar-uri-redirect-dialog.js)
