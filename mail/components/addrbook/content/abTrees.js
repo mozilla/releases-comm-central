@@ -112,6 +112,10 @@ abDirTreeItem.prototype = {
     return this._directory.URI;
   },
 
+  get uid() {
+    return this._directory.UID;
+  },
+
   _open: false,
   get open() {
     return this._open;
@@ -174,9 +178,22 @@ abDirTreeItem.prototype = {
 function directoryTreeView() {}
 directoryTreeView.prototype = {
   __proto__: new PROTO_TREE_VIEW(),
-  QueryInterface: ChromeUtils.generateQI(["nsITreeView", "nsIAbListener"]),
+  QueryInterface: ChromeUtils.generateQI([
+    "nsITreeView",
+    "nsIObserver",
+    "nsISupportsWeakReference",
+  ]),
 
   hasRemoteAB: false,
+
+  _notifications: [
+    "addrbook-directory-created",
+    "addrbook-directory-updated",
+    "addrbook-directory-deleted",
+    "addrbook-list-created",
+    "addrbook-list-updated",
+    "addrbook-list-deleted",
+  ],
 
   init(aTree, aJSONFile) {
     if (aJSONFile) {
@@ -189,6 +206,10 @@ directoryTreeView.prototype = {
 
     this._rebuild();
     aTree.view = this;
+
+    for (let topic of this._notifications) {
+      Services.obs.addObserver(this, topic, true);
+    }
   },
 
   shutdown(aJSONFile) {
@@ -332,112 +353,103 @@ directoryTreeView.prototype = {
     this._restoreOpenStates();
   },
 
-  getIndexForId(aId) {
-    for (let i = 0; i < this._rowMap.length; i++) {
-      if (this._rowMap[i].id == aId) {
-        return i;
-      }
-    }
-
-    return -1;
+  getIndexForId(id) {
+    return this._rowMap.findIndex(r => r.id == id);
   },
 
-  // nsIAbListener interfaces
-  onItemAdded(aParent, aItem) {
-    try {
-      aItem.QueryInterface(Ci.nsIAbDirectory);
-    } catch (ex) {
-      return;
-    }
-
-    let parentIndex = 0;
-    if (!this.isContainerOpen(0)) {
-      this.toggleOpenState(0);
-    }
-    if (aParent) {
-      parentIndex = this.getIndexForId(aParent.URI);
-      if (!parentIndex) {
-        // This should never happen, but just in case, return.
-        return;
-      }
-      if (!this.isContainerOpen(parentIndex)) {
-        this.toggleOpenState(parentIndex);
-      }
-    }
-    let parentItem = this._rowMap[parentIndex];
-
-    let newItem = new abDirTreeItem(aItem);
-    newItem._level = parentItem.level + 1;
-
-    let newIndex = null;
-    for (let childItem of parentItem.children.reverse()) {
-      if (abSort(newItem, childItem) < 0) {
-        newIndex = this.getIndexForId(childItem.id);
-      }
-    }
-    if (newIndex === null) {
-      newIndex = this._rowMap.findIndex(
-        (row, index) => index > parentIndex && row.level == parentItem.level
-      );
-      if (newIndex < 0) {
-        newIndex = this._rowMap.length;
-      }
-    }
-
-    this._rowMap.splice(newIndex, 0, newItem);
-    delete parentItem._children;
-    if (this._tree) {
-      this._tree.rowCountChanged(newIndex, 1);
-    }
+  getIndexForUID(uid) {
+    return this._rowMap.findIndex(r => r.uid == uid);
   },
 
-  onItemRemoved(aParent, aItem) {
-    try {
-      aItem.QueryInterface(Ci.nsIAbDirectory);
-    } catch (ex) {
+  observe(subject, topic, data) {
+    if (!this._tree) {
       return;
     }
 
-    let parentIndex = 0;
-    if (aParent) {
-      parentIndex = this.getIndexForId(aParent.URI);
-      if (!parentIndex) {
-        // An ancestor is probably closed.
-        return;
+    subject.QueryInterface(Ci.nsIAbDirectory);
+
+    switch (topic) {
+      case "addrbook-directory-created":
+      case "addrbook-list-created": {
+        let parentIndex = 0;
+        if (!this.isContainerOpen(0)) {
+          this.toggleOpenState(0);
+        }
+        if (data) {
+          parentIndex = this.getIndexForUID(data);
+          if (!parentIndex) {
+            // This should never happen, but just in case, return.
+            break;
+          }
+          if (!this.isContainerOpen(parentIndex)) {
+            this.toggleOpenState(parentIndex);
+          }
+        }
+        let parentItem = this._rowMap[parentIndex];
+
+        let newItem = new abDirTreeItem(subject);
+        newItem._level = parentItem.level + 1;
+
+        let newIndex = null;
+        for (let childItem of parentItem.children.reverse()) {
+          if (abSort(newItem, childItem) < 0) {
+            newIndex = this.getIndexForId(childItem.id);
+          }
+        }
+        if (newIndex === null) {
+          newIndex = this._rowMap.findIndex(
+            (row, index) => index > parentIndex && row.level == parentItem.level
+          );
+          if (newIndex < 0) {
+            newIndex = this._rowMap.length;
+          }
+        }
+
+        this._rowMap.splice(newIndex, 0, newItem);
+        delete parentItem._children;
+        if (this._tree) {
+          this._tree.rowCountChanged(newIndex, 1);
+        }
+        break;
       }
-    }
-    let parentItem = this._rowMap[parentIndex];
+      case "addrbook-directory-updated":
+      case "addrbook-list-updated": {
+        let index = this.getIndexForId(subject.URI);
+        if (index >= 0) {
+          this._rowMap[index]._directory = subject;
+          this._tree.invalidateRow(index);
+        }
+        break;
+      }
+      case "addrbook-directory-deleted":
+      case "addrbook-list-deleted": {
+        let parentIndex = 0;
+        if (data) {
+          parentIndex = this.getIndexForUID(data);
+          if (!parentIndex) {
+            // An ancestor is probably closed.
+            break;
+          }
+        }
+        let parentItem = this._rowMap[parentIndex];
 
-    let removedIndex = this.getIndexForId(aItem.URI);
-    if (!removedIndex) {
-      // An ancestor is probably closed.
-      return;
-    }
-    let removedItem = this._rowMap[removedIndex];
-    if (this.selection && this.selection.isSelected(removedIndex)) {
-      this.selection.select(parentIndex);
-    }
-    this._rowMap.splice(removedIndex, 1 + removedItem.children.length);
-    delete parentItem._children;
-    if (this._tree) {
-      this._tree.rowCountChanged(
-        removedIndex,
-        -1 - removedItem.children.length
-      );
-    }
-  },
-
-  onItemPropertyChanged(aItem, aProp, aOld, aNew) {
-    try {
-      aItem.QueryInterface(Ci.nsIAbDirectory);
-    } catch (ex) {
-      return;
-    }
-
-    for (let i = 0; i < this._rowMap.length; i++) {
-      if (this._rowMap[i]._directory.URI == aItem.URI) {
-        this._rowMap[i]._directory = aItem;
-        this._tree.invalidateRow(i);
+        let removedIndex = this.getIndexForId(subject.URI);
+        if (!removedIndex) {
+          // An ancestor is probably closed.
+          break;
+        }
+        let removedItem = this._rowMap[removedIndex];
+        if (this.selection && this.selection.isSelected(removedIndex)) {
+          this.selection.select(parentIndex);
+        }
+        this._rowMap.splice(removedIndex, 1 + removedItem.children.length);
+        delete parentItem._children;
+        if (this._tree) {
+          this._tree.rowCountChanged(
+            removedIndex,
+            -1 - removedItem.children.length
+          );
+        }
         break;
       }
     }
