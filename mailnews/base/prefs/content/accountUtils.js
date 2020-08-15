@@ -520,7 +520,7 @@ function msgNewMailAccount(msgWindow, okCallback, extraData) {
   if (existingWindow) {
     existingWindow.focus();
   } else {
-    window.openDialog(
+    window.browsingContext.topChromeWindow.openDialog(
       "chrome://messenger/content/accountcreation/emailWizard.xhtml",
       "AccountSetup",
       "chrome,titlebar,resizable,centerscreen",
