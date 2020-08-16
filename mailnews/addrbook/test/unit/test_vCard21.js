@@ -6,6 +6,11 @@ let { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 
 add_task(async () => {
   function check(vCardLines, expectedProps) {
+    checkWithCase(vCardLines, { ...expectedProps }, false);
+    checkWithCase(vCardLines, { ...expectedProps }, true);
+  }
+
+  function checkWithCase(vCardLines, expectedProps, lowerCase) {
     const propWhitelist = [
       "LastModifiedDate",
       "PopularityIndex",
@@ -13,6 +18,9 @@ add_task(async () => {
     ];
 
     let vCard = `BEGIN:VCARD\r\nVERSION:2.1\r\n${vCardLines}\r\nEND:VCARD\r\n`;
+    if (lowerCase) {
+      vCard = vCard.toLowerCase();
+    }
     info(vCard);
     let abCard = VCardUtils.vCardToAbCard(vCard);
     // Check that every property in expectedProps is present in `abCard`.
@@ -100,6 +108,9 @@ add_task(async () => {
   check("EMAIL;HOME;PREF:home@invalid", {
     PrimaryEmail: "home@invalid",
   });
+  check("EMAIL;INTERNET:mail@invalid", {
+    PrimaryEmail: "mail@invalid",
+  });
 
   // Email preference.
   check("EMAIL;PREF:pref@invalid\r\nEMAIL:other@invalid", {
@@ -111,13 +122,13 @@ add_task(async () => {
     SecondEmail: "other@invalid",
   });
 
-  check("FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=54=C3=A9=24=74=20=23=31", {
-    DisplayName: "Té$t #1",
+  check("FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=74=C3=A9=24=74=20=23=31", {
+    DisplayName: "té$t #1",
   });
   check(
-    "FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=54=65=73=74=20=F0=9F=92=A9",
+    "FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=74=65=73=74=20=F0=9F=92=A9",
     {
-      DisplayName: "Test 💩",
+      DisplayName: "test 💩",
     }
   );
 });
