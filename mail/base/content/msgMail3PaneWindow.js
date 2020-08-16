@@ -621,6 +621,9 @@ function OnLoadMessenger() {
   // assumes gBrowser exists.
   gBrowser = tabmail;
   gBrowser.getCachedFindBar = tab => tab.findbar;
+  // Thunderbird doesn't yet support this, but we need it defined for tests
+  // to keep working.
+  gBrowser._insertBrowser = () => {};
 
   // Set up the summary frame manager to handle loading pages in the
   // multi-message pane
