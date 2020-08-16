@@ -49,6 +49,7 @@
 #include "nsICacheEntryOpenCallback.h"
 #include "nsIProtocolProxyCallback.h"
 #include "nsIStringBundle.h"
+#include "nsHashPropertyBag.h"
 
 class nsIMAPMessagePartID;
 class nsIPrefBranch;
@@ -782,11 +783,12 @@ class nsICacheEntry;
 class nsImapMockChannel : public nsIImapMockChannel,
                           public nsICacheEntryOpenCallback,
                           public nsITransportEventSink,
-                          public nsSupportsWeakReference {
+                          public nsSupportsWeakReference,
+                          public nsHashPropertyBag {
  public:
   friend class nsImapProtocol;
 
-  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSIIMAPMOCKCHANNEL
   NS_DECL_NSICHANNEL
   NS_DECL_NSIREQUEST

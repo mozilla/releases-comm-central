@@ -11,12 +11,14 @@
 
 #include "nsCOMPtr.h"
 #include "nsString.h"
+#include "nsHashPropertyBag.h"
 
 class nsNNTPProtocol;
 
-class nsNntpMockChannel : public nsIChannel {
+class nsNntpMockChannel : public nsIChannel,
+                          public nsHashPropertyBag {
  public:
-  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSICHANNEL
   NS_DECL_NSIREQUEST
 

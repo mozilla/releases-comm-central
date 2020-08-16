@@ -43,6 +43,10 @@ XPCOMUtils.defineLazyServiceGetters(this, {
   gMIMEService: ["@mozilla.org/mime;1", "nsIMIMEService"],
 });
 
+const TYPE_PDF = "application/pdf";
+
+const PREF_PDFJS_DISABLED = "pdfjs.disabled";
+
 const AUTO_UPDATE_CHANGED_TOPIC = "auto-update-config-change";
 
 Preferences.addAll([
@@ -1532,7 +1536,17 @@ var gGeneralPane = {
   },
 
   _loadAppHandlerData() {
+    this._loadInternalHandlers();
     this._loadApplicationHandlers();
+  },
+
+  _loadInternalHandlers() {
+    const internalHandlers = [new PDFHandlerInfoWrapper()];
+    for (const internalHandler of internalHandlers) {
+      if (internalHandler.enabled) {
+        this._handledTypes[internalHandler.type] = internalHandler;
+      }
+    }
   },
 
   /**
@@ -1751,6 +1765,23 @@ var gGeneralPane = {
       menuPopup.lastChild.remove();
     }
 
+    let internalMenuItem;
+    // Add the "Preview in Thunderbird" option for optional internal handlers.
+    if (handlerInfo instanceof InternalHandlerInfoWrapper) {
+      internalMenuItem = document.createXULElement("menuitem");
+      internalMenuItem.setAttribute(
+        "action",
+        Ci.nsIHandlerInfo.handleInternally
+      );
+      let label = this._prefsBundle.getFormattedString("previewInApp", [
+        this._brandShortName,
+      ]);
+      internalMenuItem.setAttribute("label", label);
+      internalMenuItem.setAttribute("tooltiptext", label);
+      internalMenuItem.setAttribute(APP_ICON_ATTR_NAME, "ask");
+      menuPopup.appendChild(internalMenuItem);
+    }
+
     var askMenuItem = document.createXULElement("menuitem");
     askMenuItem.setAttribute("alwaysAsk", "true");
     {
@@ -1881,6 +1912,13 @@ var gGeneralPane = {
       menu.selectedItem = askMenuItem;
     } else {
       switch (handlerInfo.preferredAction) {
+        case Ci.nsIHandlerInfo.handleInternally:
+          if (internalMenuItem) {
+            menu.selectedItem = internalMenuItem;
+          } else {
+            Cu.reportError("No menu item defined to set!");
+          }
+          break;
         case Ci.nsIHandlerInfo.useSystemDefault:
           menu.selectedItem = defaultMenuItem;
           break;
@@ -2710,7 +2748,6 @@ class InternalHandlerInfoWrapper extends HandlerInfoWrapper {
   // or unregistration of this handler.
   store() {
     super.store();
-    Services.obs.notifyObservers(null, this._handlerChanged);
   }
 
   get enabled() {
@@ -2719,6 +2756,20 @@ class InternalHandlerInfoWrapper extends HandlerInfoWrapper {
 
   get description() {
     return gGeneralPane._prefsBundle.getString(this._appPrefLabel);
+  }
+}
+
+class PDFHandlerInfoWrapper extends InternalHandlerInfoWrapper {
+  constructor() {
+    super(TYPE_PDF);
+  }
+
+  get _appPrefLabel() {
+    return "applications-type-pdf";
+  }
+
+  get enabled() {
+    return !Services.prefs.getBoolPref(PREF_PDFJS_DISABLED);
   }
 }
 

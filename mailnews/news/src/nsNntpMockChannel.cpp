@@ -12,7 +12,7 @@
 #include "nsIInputStream.h"
 #include "nsContentSecurityManager.h"
 
-NS_IMPL_ISUPPORTS(nsNntpMockChannel, nsIChannel, nsIRequest)
+NS_IMPL_ISUPPORTS_INHERITED(nsNntpMockChannel, nsHashPropertyBag, nsIChannel, nsIRequest)
 
 nsNntpMockChannel::nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow)
     : m_url(aUri),

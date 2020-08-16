@@ -8576,7 +8576,8 @@ nsImapCacheStreamListener::OnDataAvailable(nsIRequest* request,
                                     aCount);
 }
 
-NS_IMPL_ISUPPORTS(nsImapMockChannel, nsIImapMockChannel, nsIChannel, nsIRequest,
+NS_IMPL_ISUPPORTS_INHERITED(nsImapMockChannel, nsHashPropertyBag,
+                  nsIImapMockChannel, nsIChannel, nsIRequest,
                   nsICacheEntryOpenCallback, nsITransportEventSink,
                   nsISupportsWeakReference)
 

@@ -26,6 +26,7 @@ var { AppConstants } = ChromeUtils.import(
 var { RemoteSecuritySettings } = ChromeUtils.import(
   "resource://gre/modules/psm/RemoteSecuritySettings.jsm"
 );
+var { PdfJs } = ChromeUtils.import("resource://pdf.js/PdfJs.jsm");
 
 // lazy module getter
 
@@ -41,7 +42,20 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/ActorManagerParent.jsm"
 );
 
+const PREF_PDFJS_ISDEFAULT_CACHE_STATE = "pdfjs.enabledCache.state";
+
 let JSWINDOWACTORS = {
+  Pdfjs: {
+    parent: {
+      moduleURI: "resource://pdf.js/PdfjsParent.jsm",
+    },
+    child: {
+      moduleURI: "resource://pdf.js/PdfjsChild.jsm",
+    },
+    enablePreference: PREF_PDFJS_ISDEFAULT_CACHE_STATE,
+    allFrames: true,
+  },
+
   Prompt: {
     parent: {
       moduleURI: "resource:///actors/PromptParent.jsm",
@@ -67,6 +81,8 @@ function MailGlue() {
 }
 
 MailGlue.prototype = {
+  _isNewProfile: undefined,
+
   // init (called at app startup)
   _init() {
     Services.obs.addObserver(this, "xpcom-shutdown");
@@ -76,6 +92,7 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "handle-xul-text-link");
     Services.obs.addObserver(this, "chrome-document-global-created");
     Services.obs.addObserver(this, "document-element-inserted");
+    Services.obs.addObserver(this, "handlersvc-store-initialized");
 
     // Inject scripts into some devtools windows.
     function _setupBrowserConsole(domWindow) {
@@ -125,6 +142,7 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "chrome-document-global-created");
     Services.obs.removeObserver(this, "document-element-inserted");
+    Services.obs.removeObserver(this, "handlersvc-store-initialized");
 
     ExtensionSupport.unregisterWindowListener("Thunderbird-internal-Toolbox");
     ExtensionSupport.unregisterWindowListener(
@@ -201,14 +219,32 @@ MailGlue.prototype = {
           );
         }
         break;
+      case "handlersvc-store-initialized": {
+        // Initialize PdfJs when running in-process and remote. This only
+        // happens once since PdfJs registers global hooks. If the PdfJs
+        // extension is installed the init method below will be overridden
+        // leaving initialization to the extension.
+        // parent only: configure default prefs, set up pref observers, register
+        // pdf content handler, and initializes parent side message manager
+        // shim for privileged api access.
+        PdfJs.init(this._isNewProfile);
+        break;
+      }
     }
   },
 
   _onProfileStartup() {
     TBDistCustomizer.applyPrefDefaults();
 
+    const UI_VERSION_PREF = "mail.ui-rdf.version";
+    this._isNewProfile = !Services.prefs.prefHasUserValue(UI_VERSION_PREF);
+
     // handle any migration work that has to happen at profile startup
     MailMigrator.migrateAtProfileStartup();
+
+    if (!Services.prefs.prefHasUserValue(PREF_PDFJS_ISDEFAULT_CACHE_STATE)) {
+      PdfJs.checkIsDefault(this._isNewProfile);
+    }
 
     // check if we're in safe mode
     if (Services.appinfo.inSafeMode) {

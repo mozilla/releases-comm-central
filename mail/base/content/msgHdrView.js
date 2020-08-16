@@ -34,6 +34,13 @@ var { Status: statusUtils } = ChromeUtils.import(
   "resource:///modules/imStatusUtils.jsm"
 );
 
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gMIMEService",
+  "@mozilla.org/mime;1",
+  "nsIMIMEService"
+);
+
 // Warning: It's critical that the code in here for displaying the message
 // headers for a selected message remain as fast as possible. In particular,
 // right now, we only introduce one reflow per message. i.e. if you click on
@@ -2016,6 +2023,23 @@ AttachmentInfo.prototype = {
       );
       msgWindow.promptDialog.alert(null, prompt);
     } else {
+      if (this.contentType == "application/pdf") {
+        let handlerInfo = gMIMEService.getFromTypeAndExtension(
+          this.contentType,
+          null
+        );
+        // Only open a new tab for pdfs if we are handling them internally.
+        if (
+          !handlerInfo.alwaysAskBeforeHandling &&
+          handlerInfo.preferredAction == Ci.nsIHandlerInfo.handleInternally
+        ) {
+          document.getElementById("tabmail").openTab("contentTab", {
+            contentPage: this.url,
+            background: false,
+          });
+          return;
+        }
+      }
       messenger.openAttachment(
         this.contentType,
         this.url,

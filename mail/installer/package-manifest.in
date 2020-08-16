@@ -191,6 +191,8 @@
 @RESPATH@/chrome/browser.manifest
 @RESPATH@/chrome/messenger@JAREXT@
 @RESPATH@/chrome/messenger.manifest
+@RESPATH@/chrome/pdfjs.manifest
+@RESPATH@/chrome/pdfjs/*
 #ifndef XP_UNIX
 @RESPATH@/chrome/icons/default/abcardWindow.ico
 @RESPATH@/chrome/icons/default/addressbookWindow.ico

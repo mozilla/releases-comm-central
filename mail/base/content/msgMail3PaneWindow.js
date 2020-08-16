@@ -64,6 +64,7 @@ var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 var { PeriodicFilterManager } = ChromeUtils.import(
   "resource:///modules/PeriodicFilterManager.jsm"
 );
+var gBrowser;
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
@@ -615,6 +616,11 @@ function OnLoadMessenger() {
   preferencesTabType.initialize();
   // accountProvisionerTabType is defined in accountProvisionerTab.js
   tabmail.registerTabType(accountProvisionerTabType);
+
+  // Hack to allow pdfjs to be able to access the tabmail details when it
+  // assumes gBrowser exists.
+  gBrowser = tabmail;
+  gBrowser.getCachedFindBar = tab => tab.findbar;
 
   // Set up the summary frame manager to handle loading pages in the
   // multi-message pane

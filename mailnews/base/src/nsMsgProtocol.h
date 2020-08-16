@@ -24,6 +24,7 @@
 #include "nsIAuthModule.h"
 #include "nsString.h"
 #include "nsWeakReference.h"
+#include "nsHashPropertyBag.h"
 
 class nsIMsgWindow;
 class nsIPrompt;
@@ -39,11 +40,12 @@ class nsICancelable;
 // this class and not all of the mailnews protocols.
 class NS_MSG_BASE nsMsgProtocol : public nsIStreamListener,
                                   public nsIChannel,
-                                  public nsITransportEventSink {
+                                  public nsITransportEventSink,
+                                  public nsHashPropertyBag {
  public:
   nsMsgProtocol(nsIURI* aURL);
 
-  NS_DECL_THREADSAFE_ISUPPORTS
+  NS_DECL_ISUPPORTS_INHERITED
   // nsIChannel support
   NS_DECL_NSICHANNEL
   NS_DECL_NSIREQUEST
