@@ -427,10 +427,6 @@ function pokeMultiStateUI(uiID, cmdParams) {
 
   let commandNode = document.getElementById(uiID);
   let uiState = commandNode.getAttribute("state");
-  if (uiID == "cmd_fontFace" && uiState == "tt_initial") {
-    desiredAttrib = "tt";
-    goDoCommandParams(uiID, desiredAttrib);
-  }
   if (desiredAttrib != uiState) {
     commandNode.setAttribute("state", desiredAttrib);
     switch (uiID) {
@@ -483,7 +479,7 @@ function doStatefulCommand(commandID, newState, updateUI) {
     top.document
       .querySelector("editor")
       .contentDocument.execCommand(command, false, null);
-  } else if (commandID == "cmd_fontFace" && newState == "tt") {
+  } else if (commandID == "cmd_fontFace" && newState == "") {
     goDoCommandParams(commandID, newState);
   } else {
     top.document

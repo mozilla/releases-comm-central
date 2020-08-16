@@ -5037,6 +5037,14 @@ void nsMsgCompose::TagConvertible(Element* node, int32_t* _retval) {
     return;
   }
 
+  // Treat <font face="monospace"> as converible to plaintext.
+  if (element.LowerCaseEqualsLiteral("font")) {
+    node->GetAttribute(u"face"_ns, attribValue);
+    if (attribValue.LowerCaseEqualsLiteral("monospace")) {
+      *_retval = nsIMsgCompConvertible::Plain;
+    }
+  }
+
   if (  // Considered convertible to plaintext: Some "simple" elements
         // without non-convertible attributes like style, class, id,
         // or align (see above).

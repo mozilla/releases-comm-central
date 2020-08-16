@@ -121,7 +121,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 20;
+    const UI_VERSION = 21;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -497,6 +497,13 @@ var MailMigrator = {
         }
         if (backupPort == socksPort) {
           Services.prefs.clearUserPref("network.proxy.backup.socks_port");
+        }
+      }
+
+      // Make "bad" msgcompose.font_face value "tt" be "monospace" instead.
+      if (currentUIVersion < 21) {
+        if (Services.prefs.getStringPref("msgcompose.font_face") == "tt") {
+          Services.prefs.setStringPref("msgcompose.font_face", "monospace");
         }
       }
 

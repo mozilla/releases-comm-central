@@ -8165,17 +8165,6 @@ function toggleAddressPicker(aFocus = true) {
 function loadHTMLMsgPrefs() {
   let fontFace = Services.prefs.getStringPref("msgcompose.font_face", "");
   if (fontFace) {
-    // editor controller is not defined when execution reaches here so goDoCommandParams()
-    // will not do anything. "tt" requires a special case handling as it is not
-    // executable by document.execCommand(). So when user has set "Fixed width" as a
-    // default font to start with, we will call goDoCommandParams() when user first focuses
-    // the editor part. So when user focuses the editor part, the flow will be:
-    // goUpdateComposerMenuItems() > goUpdateCommandState() > pokeMultiStateUI() >
-    // Detect the "tt_initial" state and change it to "tt" on command node >
-    // goDoCommandParams().
-    if (fontFace == "tt") {
-      fontFace = "tt_initial";
-    }
     doStatefulCommand("cmd_fontFace", fontFace, true);
   }
 

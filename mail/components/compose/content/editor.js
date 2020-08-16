@@ -478,10 +478,6 @@ function onFontFaceChange() {
   var commandNode = document.getElementById("cmd_fontFace");
   var editorFont = commandNode.getAttribute("state");
 
-  if (editorFont == "tt_initial") {
-    editorFont = "tt";
-  }
-
   // Strip quotes in font names. Experiments have shown that we only
   // ever get double quotes around the font name, never single quotes,
   // even if they were in the HTML source. Also single or double
@@ -726,7 +722,7 @@ function initFontFaceMenu(menuPopup) {
         case "tt":
         case "monospace":
           // Generic fixed width.
-          editorFont = "tt";
+          editorFont = "monospace";
           break;
         default:
           editorFont = editorFont.toLowerCase().replace(/, /g, ","); // bug 1139524
