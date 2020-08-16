@@ -12,6 +12,8 @@ add_task(async function test_pwmanagerbutton() {
 
   window.openPreferencesTab("panePrivacy");
   await BrowserTestUtils.browserLoaded(window.gPrefTab.browser);
+  await new Promise(resolve => setTimeout(resolve));
+
   is(
     window.gPrefTab.browser.contentDocument.getElementById("showPasswords")
       .disabled,

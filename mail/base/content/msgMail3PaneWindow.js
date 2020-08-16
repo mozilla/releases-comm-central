@@ -65,6 +65,11 @@ var { PeriodicFilterManager } = ChromeUtils.import(
   "resource:///modules/PeriodicFilterManager.jsm"
 );
 var gBrowser;
+// A stub for tests to avoid test failures caused by the harness expecting
+// this to exist.
+var NewTabPagePreloading = {
+  removePreloadedBrowser() {},
+};
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   LightweightThemeManager: "resource://gre/modules/LightweightThemeManager.jsm",
