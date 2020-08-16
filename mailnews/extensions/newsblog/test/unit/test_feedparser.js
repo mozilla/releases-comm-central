@@ -91,12 +91,21 @@ add_task(async function test_download() {
       url: "http://localhost:" + SERVER_PORT + "/rss_7_1.rdf",
       feedType: "RSS_1.xRDF",
       title: "XML.com",
+      expectedItems: 2,
     },
     {
       // Has Japanese title with leading/trailing whitespace.
       url: "http://localhost:" + SERVER_PORT + "/rss2_example.xml",
       feedType: "RSS_2.0",
       title: "本当に簡単なシンジケーションの例",
+      expectedItems: 1,
+    },
+    {
+      // Has two items with same link but different guid (Bug 1656090).
+      url: "http://localhost:" + SERVER_PORT + "/rss2_guid.xml",
+      feedType: "RSS_2.0",
+      title: "GUID test",
+      expectedItems: 4,
     },
     // TODO: examples for the other feed types!
   ];
@@ -119,6 +128,10 @@ add_task(async function test_download() {
           // Feed has downloaded - make sure the right type was detected.
           Assert.equal(feed.mFeedType, test.feedType, "feed type matching");
           Assert.equal(feed.title, test.title, "title matching");
+          // Make sure we're got the expected number of messages in the folder.
+          let cnt = [...folder.messages].length;
+          Assert.equal(cnt, test.expectedItems, "itemcount matching");
+
           resolve();
         },
         onProgress(f, loaded, total, lengthComputable) {},

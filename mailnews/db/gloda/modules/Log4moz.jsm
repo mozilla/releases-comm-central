@@ -48,7 +48,7 @@ var Log4Moz = {
    * Create a logger and configure it with dump and console appenders as
    * specified by prefs based on the logger name.
    *
-   * E.g., if the loggername is foo, then look for prefs
+   * E.g., if the loggername is "foo" (case sensitive), then look for:
    *   foo.logging.console
    *   foo.logging.dump
    *

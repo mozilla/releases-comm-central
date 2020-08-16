@@ -14,6 +14,10 @@ Data files for unit testing the feeds code.
    Japanese text in the title, with leading/trailing
    whitespace.
 
+- `rss2_guid.xml`
+   RSS2.0 feed where two items have the same link but different guid.
+   (they should both appear in the feed).
+
 - `feeds-*/`
   Test cases for migrating legacy .rdf config files to
   the new json ones. The .rdf files are the old data,

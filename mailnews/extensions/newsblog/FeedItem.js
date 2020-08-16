@@ -113,7 +113,7 @@ FeedItem.prototype = {
         valid: false,
         stored: false,
       };
-      ds.data[this.url] = resource;
+      ds.data[this.id] = resource;
       if (!this.content) {
         FeedUtils.log.trace(
           "FeedItem.store: " +
@@ -161,7 +161,7 @@ FeedItem.prototype = {
     }
 
     let ds = FeedUtils.getItemsDS(server);
-    let item = ds.data[this.url];
+    let item = ds.data[this.id];
     if (!item || !item.stored) {
       FeedUtils.log.trace("FeedItem.findStoredResource: not stored");
       return null;

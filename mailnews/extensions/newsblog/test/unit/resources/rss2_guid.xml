@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+ <title>GUID test</title>
+ <description>This RSS feed has multiple items with the same link, but with different guids. They should be treated as separate items (see Bug 1656090)</description>
+ <link>http://www.example.com/main.html</link>
+ <lastBuildDate>Mon, 06 Sep 2020 00:01:00 +0000 </lastBuildDate>
+ <pubDate>Sun, 06 Sep 2019 16:20:00 +0000</pubDate>
+ <ttl>1800</ttl>
+
+ <item>
+  <title>Entry One</title>
+  <description>Blah blah blah.</description>
+  <link>http://www.example.com/blog/post/1</link>
+  <guid isPermaLink="false">0524a046-df56-11ea-8bc9-47d63411283f</guid>
+  <pubDate>Sun, 06 Sep 2019 16:20:00 +0000</pubDate>
+ </item>
+ <item>
+  <title>Entry One Again(with same link but different guid!)</title>
+  <description>Blah blah blah.</description>
+  <link>http://www.example.com/blog/post/1</link>
+  <guid isPermaLink="false">0524a35c-df56-11ea-8bca-43f820f3bd93</guid>
+  <pubDate>Sun, 06 Sep 2019 16:20:00 +0000</pubDate>
+ </item>
+ <item>
+  <title>Entry Two</title>
+  <description>Blah blah blah.</description>
+  <link>http://www.example.com/blog/post/2</link>
+  <guid isPermaLink="false">0524a442-df56-11ea-8bcb-035a71f5f71a</guid>
+  <pubDate>Sun, 06 Sep 2019 16:20:00 +0000</pubDate>
+ </item>
+ <item>
+  <title>Entry Three</title>
+  <description>Blah blah blah.</description>
+  <link>http://www.example.com/blog/post/3</link>
+  <guid isPermaLink="false">0524a53c-df56-11ea-8bcc-8f0977d58351</guid>
+  <pubDate>Sun, 06 Sep 2019 16:20:00 +0000</pubDate>
+ </item>
+
+</channel>
+</rss>
+
