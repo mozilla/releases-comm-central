@@ -4734,7 +4734,7 @@ nsresult nsMsgCompose::LookupAddressBook(RecipientsArray& recipientsList) {
     }
   }
 
-  return rv;
+  return NS_OK;
 }
 
 NS_IMETHODIMP
