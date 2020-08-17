@@ -18,11 +18,13 @@
           <menuitem accesskey="&messengerCmd.accesskey;"
                     label="&messengerCmd.label;"  key="key_mail"
                     oncommand="toMessengerWindow();" id="tasksMenuMail"/>
+#ifdef COMPOSE_WINDOW
           <menuitem id="tasksMenuAddressBook"
                     label="&addressBookCmd.label;"
                     accesskey="&addressBookCmd.accesskey;"
                     key="key_addressbook"
                     oncommand="toAddressBook();"/>
+#endif
           <menuseparator id="sep-window-list"/>
         </menupopup>
       </menu>
