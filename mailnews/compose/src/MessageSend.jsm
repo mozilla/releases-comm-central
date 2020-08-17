@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const EXPORTED_SYMBOLS = ["MessageSend"];
+
 let { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-let { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
-let { MimePart } = ChromeUtils.import("resource:///modules/MimePart.jsm");
-
-const EXPORTED_SYMBOLS = ["MessageSend"];
+let { MimeMessage } = ChromeUtils.import("resource:///modules/MimeMessage.jsm");
 
 /**
  * A work in progress rewriting of nsMsgSend.cpp.
@@ -39,14 +38,14 @@ MessageSend.prototype = {
     parentWindow,
     progress,
     listener,
-    password,
+    smtpPassword,
     originalMsgURI,
     type
   ) {
     this._compFields = compFields;
     this._userIdentity = userIdentity;
     this._sendProgress = progress;
-    this._smtpPassword = password;
+    this._smtpSmtpPassword = smtpPassword;
     this._sendListener = listener;
 
     this._sendReport = Cc[
@@ -56,7 +55,19 @@ MessageSend.prototype = {
       "chrome://messenger/locale/messengercompose/composeMsgs.properties"
     );
 
-    this._createAndSendMessage(...arguments);
+    // Initialize the error reporting mechanism.
+    this.sendReport.reset();
+    this.sendReport.deliveryMode = mode;
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName("assemblingMailInformation")
+    );
+    this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_BuildMessage;
+
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName("assemblingMessage")
+    );
+    this._message = new MimeMessage(userIdentity, compFields, bodyType, body);
+    this._createAndSendMessage();
   },
 
   sendMessageFile(
@@ -70,7 +81,7 @@ MessageSend.prototype = {
     msgToReplace,
     listener,
     statusFeedback,
-    password
+    smtpPassword
   ) {
     throw Components.Exception(
       "sendMessageFile not implemented",
@@ -144,228 +155,14 @@ MessageSend.prototype = {
   },
 
   /**
-   * Currently, only plain and/or html text without any attachments is
-   * supported. It works like this:
-   * 1. Collect top level MIME headers
-   * 2. Construct a MimePart instance, which can be nested
-   * 3. Write the MimePart to a tmp file, e.g. /tmp/nsemail.eml
-   * 4. Pass the file to this._deliverMessage
+   * Create a local file from MimeMessage, then pass it to _deliverMessage.
    */
-  async _createAndSendMessage(
-    editor,
-    userIdentity,
-    accountKey,
-    compFields,
-    isDigest,
-    dontDeliver,
-    mode,
-    msgToReplace,
-    bodyType,
-    body,
-    attachments,
-    preloadedAttachments,
-    parentWindow,
-    progress,
-    listener,
-    password,
-    originalMsgURI,
-    type
-  ) {
-    // Initialize the error reporting mechanism.
-    this.sendReport.reset();
-    this.sendReport.deliveryMode = mode;
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMailInformation")
-    );
-    this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_BuildMessage;
-
-    let topPart = new MimePart();
-    topPart.setHeaders(this._gatherMimeHeaders());
-
-    let charset = compFields.characterSet;
-    let formatFlowed = Services.prefs.getBoolPref(
-      "mailnews.send_plaintext_flowed"
-    );
-    let delsp = false;
-    let disallowBreaks = true;
-    if (charset.startsWith("ISO-2022-JP")) {
-      // Make sure we honour RFC 1468. For encoding in ISO-2022-JP we need to
-      // send short lines to allow 7bit transfer encoding.
-      disallowBreaks = false;
-      if (formatFlowed) {
-        delsp = true;
-      }
-    }
-    let charsetParams = `; charset=${charset}`;
-    let formatParams = "";
-    if (formatFlowed) {
-      // Set format=flowed as in RFC 2646 according to the preference.
-      formatParams += "; format=flowed";
-    }
-    if (delsp) {
-      formatParams += "; delsp=yes";
-    }
-
-    // body is 8-bit string, save it directly in MimePart to avoid converting
-    // back and forth.
-    let bodyText = body;
-    let htmlPart = null;
-    let plainPart = null;
-
-    if (bodyType === "text/html") {
-      htmlPart = new MimePart(
-        charset,
-        bodyType,
-        this._compFields.forceMsgEncoding,
-        true
-      );
-      htmlPart.setHeader("Content-Type", `text/html${charsetParams}`);
-      htmlPart.bodyText = bodyText;
-    } else if (bodyType === "text/plain") {
-      plainPart = new MimePart(
-        charset,
-        bodyType,
-        this._compFields.forceMsgEncoding,
-        true
-      );
-      plainPart.setHeader(
-        "Content-Type",
-        `text/plain${charsetParams}${formatParams}`
-      );
-      plainPart.bodyText = bodyText;
-      topPart.addPart(plainPart);
-    }
-
-    // Assemble a multipart/alternative message.
-    if (
-      (this._compFields.forcePlainText ||
-        this._compFields.useMultipartAlternative) &&
-      plainPart === null &&
-      htmlPart !== null
-    ) {
-      plainPart = new MimePart(
-        charset,
-        "text/plain",
-        this._compFields.forceMsgEncoding,
-        true
-      );
-      plainPart.setHeader(
-        "Content-Type",
-        `text/plain${charsetParams}${formatParams}`
-      );
-      plainPart.bodyText = this._convertToPlainText(
-        bodyText,
-        formatFlowed,
-        delsp,
-        disallowBreaks
-      );
-
-      topPart.addPart(plainPart);
-    }
-
-    // If useMultipartAlternative is true, send multipart/alternative message.
-    // Otherwise, send the plainPart only.
-    if (htmlPart) {
-      if (plainPart) {
-        if (this._compFields.useMultipartAlternative) {
-          topPart.initMultipart("alternative");
-          topPart.addPart(htmlPart);
-        }
-      } else {
-        topPart.addPart(htmlPart);
-      }
-    }
-
-    // Save a RFC2045 message to a tmp file on disk.
+  async _createAndSendMessage() {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("creatingMailMessage")
     );
-
-    let { path, file: fileWriter } = await OS.File.openUnique(
-      OS.Path.join(OS.Constants.Path.tmpDir, "nsemail.eml")
-    );
-    await topPart.write(fileWriter);
-    await fileWriter.close();
-
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMessageDone")
-    );
-
-    let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    file.initWithPath(path);
-    this._deliverMessage(file);
-  },
-
-  /**
-   * Collect top level headers like From/To/Subject into a Map.
-   */
-  _gatherMimeHeaders() {
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMessage")
-    );
-    let messageId = this._compFields.getHeader("Message-Id");
-    if (!messageId) {
-      messageId = Cc["@mozilla.org/messengercompose/computils;1"]
-        .createInstance(Ci.nsIMsgCompUtils)
-        .msgGenerateMessageId(this._userIdentity);
-    }
-    let headers = new Map([
-      ["Message-Id", messageId],
-      ["Date", new Date()],
-      ["MIME-Version", "1.0"],
-      [
-        "User-Agent",
-        Cc["@mozilla.org/network/protocol;1?name=http"].getService(
-          Ci.nsIHttpProtocolHandler
-        ).userAgent,
-      ],
-    ]);
-
-    for (let headerName of [...this._compFields.headerNames]) {
-      let headerContent = this._compFields.getHeader(headerName);
-      if (headerContent) {
-        headers.set(headerName, headerContent);
-      }
-    }
-
-    return headers;
-  },
-
-  /**
-   * Convert html to text to form a multipart/alternative message. The output
-   * depends on preference and message charset.
-   */
-  _convertToPlainText(
-    input,
-    formatFlowed,
-    delsp,
-    formatOutput,
-    disallowBreaks
-  ) {
-    let wrapWidth = Services.prefs.getIntPref("mailnews.wraplength", 72);
-    if (wrapWidth > 990) {
-      wrapWidth = 990;
-    } else if (wrapWidth < 10) {
-      wrapWidth = 10;
-    }
-
-    let flags =
-      Ci.nsIDocumentEncoder.OutputPersistNBSP |
-      Ci.nsIDocumentEncoder.OutputFormatted;
-    if (formatFlowed) {
-      flags |= Ci.nsIDocumentEncoder.OutputFormatFlowed;
-    }
-    if (delsp) {
-      flags |= Ci.nsIDocumentEncoder.OutputFormatDelSp;
-    }
-    if (disallowBreaks) {
-      flags |= Ci.nsIDocumentEncoder.OutputDisallowLineBreaking;
-    }
-
-    let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
-      Ci.nsIParserUtils
-    );
-    return parserUtils.convertToPlainText(input, flags, wrapWidth);
+    let messageFile = await this._message.createMessageFile();
+    this._deliverMessage(messageFile);
   },
 
   _setStatusMessage(msg) {
@@ -394,7 +191,7 @@ MessageSend.prototype = {
       to,
       this._userIdentity,
       this._compFields.from,
-      this._smtpPassword,
+      this._smtpSmtpPassword,
       deliveryListener,
       null,
       null,

@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const EXPORTED_SYMBOLS = ["MimePart"];
+
 let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
-
-const EXPORTED_SYMBOLS = ["MimePart"];
 
 /**
  * Because ACString is 8-bit string, non-ASCII character takes multiple bytes.
@@ -52,8 +52,8 @@ class MimePart {
 
   /**
    * Set a header.
-   * @param{string} name
-   * @param{string} content
+   * @param {string} name
+   * @param {string} content
    */
   setHeader(name, content) {
     // _headers will be passed to jsmime, which requires header content to be an
@@ -63,7 +63,7 @@ class MimePart {
 
   /**
    * Set headers by an iterable.
-   * @param{Iterable.<string, string>} entries - The header entries.
+   * @param {Iterable.<string, string>} entries - The header entries.
    */
   setHeaders(entries) {
     for (let [name, content] of entries) {
@@ -80,7 +80,7 @@ class MimePart {
 
   /**
    * Set the content type to multipart/<subtype>.
-   * @param{string} subtype - usually "alternative" or "mixed".
+   * @param {string} subtype - usually "alternative" or "mixed".
    */
   initMultipart(subtype) {
     this._separator = this._makePartSeparator();
@@ -92,7 +92,7 @@ class MimePart {
 
   /**
    * Add a child part.
-   * @param{MimePart} part.
+   * @param {MimePart} part.
    */
   addPart(part) {
     this._parts.push(part);
@@ -100,7 +100,7 @@ class MimePart {
 
   /**
    * Recursively write a MimePart and its parts to a file.
-   * @param{OS.File} file
+   * @param {OS.File} file
    */
   async write(file) {
     this._outFile = file;
