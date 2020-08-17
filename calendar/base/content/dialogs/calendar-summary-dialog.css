@@ -5,3 +5,21 @@
 #calendar-summary-dialog-custom-button-footer {
   margin-top: 1em;
 }
+
+#edit-button-context-menu {
+  appearance: none;
+  border: 1px solid var(--box-border-color);
+  border-radius: var(--button-border-radius);
+  background-color: var(--box-background-color);
+}
+
+#edit-button-context-menu > menuitem {
+  appearance: none;
+  color: var(--box-text-color);
+  padding-block: 5px;
+}
+
+#edit-button-context-menu menuitem[_moz-menuactive="true"] {
+  color: var(--popup-item-hover-text);
+  background-color: var(--popup-item-hover);
+}
