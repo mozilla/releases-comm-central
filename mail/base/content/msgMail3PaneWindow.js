@@ -1125,16 +1125,6 @@ async function loadStartFolder(initialUri) {
     loadFolder = true;
   }
 
-  // If we don't show the startpage, load some folder
-  let showStartpagePref = Services.prefs.getBoolPref(
-    "mailnews.start_page.enabled",
-    false
-  );
-
-  if (!showStartpagePref) {
-    loadFolder = true;
-  }
-
   // First get default account
   try {
     if (initialUri) {
@@ -1193,16 +1183,6 @@ async function loadStartFolder(initialUri) {
     if (loadFolder) {
       try {
         gFolderTreeView.selectFolder(startFolder);
-        // If we don't show the startpage, focus the last message (according to sort direction)
-        if (!showStartpagePref) {
-          let sortCol = gFolderDisplay.tree.querySelector("[sortDirection]");
-          if (sortCol.getAttribute("sortDirection") == "descending") {
-            gFolderDisplay.navigate(Ci.nsMsgNavigationType.firstMessage, true);
-          } else {
-            gFolderDisplay.navigate(Ci.nsMsgNavigationType.lastMessage, true);
-          }
-        }
-        gFolderDisplay.tree.focus();
       } catch (ex) {
         // This means we tried to select a folder that isn't in the current
         // view. Just select the first one in the view then.
