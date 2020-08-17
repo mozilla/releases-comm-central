@@ -340,10 +340,10 @@ window.addEventListener(
       }
     });
 
-    freebusyGrid.addEventListener("mouseenter", () => {
+    freebusyGrid.addEventListener("mouseover", () => {
       freebusyGrid._mouseIsOver = true;
     });
-    freebusyGrid.addEventListener("mouseleave", () => {
+    freebusyGrid.addEventListener("mouseout", () => {
       freebusyGrid._mouseIsOver = false;
     });
     freebusyGrid.addEventListener("scroll", () => {
