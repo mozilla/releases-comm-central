@@ -738,7 +738,7 @@ MimeDecryptHandler.prototype = {
 
     try {
       this.extractEncryptedHeaders();
-      this.extractAutocryptGossip();
+      //this.extractAutocryptGossip();
     } catch (ex) {
       console.debug(ex);
     }
@@ -899,6 +899,7 @@ MimeDecryptHandler.prototype = {
     }
   },
 
+  /*
   async extractAutocryptGossip() {
     let m1 = this.decryptedData.search(/^--/m);
     let m2 = this.decryptedData.search(/\r?\n\r?\n/);
@@ -941,6 +942,7 @@ MimeDecryptHandler.prototype = {
       }
     }
   },
+  */
 };
 
 ////////////////////////////////////////////////////////////////////
