@@ -57,98 +57,28 @@ class MimeMessage {
   _initMimePart() {
     let topPart = new MimePart();
     topPart.setHeaders(this._gatherMimeHeaders());
+    let mainParts = this._gatherMainParts();
+    let attachmentParts = this._gatherAttachmentParts();
 
-    let charset = this._compFields.characterSet;
-    let formatFlowed = Services.prefs.getBoolPref(
-      "mailnews.send_plaintext_flowed"
-    );
-    let delsp = false;
-    let disallowBreaks = true;
-    if (charset.startsWith("ISO-2022-JP")) {
-      // Make sure we honour RFC 1468. For encoding in ISO-2022-JP we need to
-      // send short lines to allow 7bit transfer encoding.
-      disallowBreaks = false;
-      if (formatFlowed) {
-        delsp = true;
-      }
-    }
-    let charsetParams = `; charset=${charset}`;
-    let formatParams = "";
-    if (formatFlowed) {
-      // Set format=flowed as in RFC 2646 according to the preference.
-      formatParams += "; format=flowed";
-    }
-    if (delsp) {
-      formatParams += "; delsp=yes";
-    }
-
-    // body is 8-bit string, save it directly in MimePart to avoid converting
-    // back and forth.
-    let htmlPart = null;
-    let plainPart = null;
-
-    if (this._bodyType === "text/html") {
-      htmlPart = new MimePart(
-        charset,
-        this._bodyType,
-        this._compFields.forceMsgEncoding,
-        true
-      );
-      htmlPart.setHeader("Content-Type", `text/html${charsetParams}`);
-      htmlPart.bodyText = this._bodyText;
-    } else if (this._bodyType === "text/plain") {
-      plainPart = new MimePart(
-        charset,
-        this._bodyType,
-        this._compFields.forceMsgEncoding,
-        true
-      );
-      plainPart.setHeader(
-        "Content-Type",
-        `text/plain${charsetParams}${formatParams}`
-      );
-      plainPart.bodyText = this._bodyText;
-      topPart.addPart(plainPart);
-    }
-
-    // Assemble a multipart/alternative message.
-    if (
-      (this._compFields.forcePlainText ||
-        this._compFields.useMultipartAlternative) &&
-      plainPart === null &&
-      htmlPart !== null
-    ) {
-      plainPart = new MimePart(
-        charset,
-        "text/plain",
-        this._compFields.forceMsgEncoding,
-        true
-      );
-      plainPart.setHeader(
-        "Content-Type",
-        `text/plain${charsetParams}${formatParams}`
-      );
-      plainPart.bodyText = this._convertToPlainText(
-        this._bodyText,
-        formatFlowed,
-        delsp,
-        disallowBreaks
-      );
-
-      topPart.addPart(plainPart);
-    }
-
-    // If useMultipartAlternative is true, send multipart/alternative message.
-    // Otherwise, send the plainPart only.
-    if (htmlPart) {
-      if (plainPart) {
-        if (this._compFields.useMultipartAlternative) {
-          topPart.initMultipart("alternative");
-          topPart.addPart(htmlPart);
-        }
+    if (attachmentParts.length > 0) {
+      // Use multipart/mixed as long as there is at least one attachment.
+      topPart.initMultipart("mixed");
+      if (mainParts.length > 1) {
+        // Wrap mainParts inside a multipart/alternative MimePart.
+        let alternativePart = new MimePart();
+        alternativePart.initMultipart("alternative");
+        alternativePart.addParts(mainParts);
+        topPart.addPart(alternativePart);
       } else {
-        topPart.addPart(htmlPart);
+        topPart.addParts(mainParts);
       }
+      topPart.addParts(attachmentParts);
+    } else {
+      if (mainParts.length > 1) {
+        // Mark the topPart as multipart/alternative.
+        topPart.initMultipart("alternative");
+      }
+      topPart.addParts(mainParts);
     }
 
     return topPart;
@@ -184,6 +114,131 @@ class MimeMessage {
     }
 
     return headers;
+  }
+
+  /**
+   * Determine if the message should include an HTML part, a plain part or both.
+   * @returns {MimePart[]}
+   */
+  _gatherMainParts() {
+    let charset = this._compFields.characterSet;
+    let formatFlowed = Services.prefs.getBoolPref(
+      "mailnews.send_plaintext_flowed"
+    );
+    let delsp = false;
+    let disallowBreaks = true;
+    if (charset.startsWith("ISO-2022-JP")) {
+      // Make sure we honour RFC 1468. For encoding in ISO-2022-JP we need to
+      // send short lines to allow 7bit transfer encoding.
+      disallowBreaks = false;
+      if (formatFlowed) {
+        delsp = true;
+      }
+    }
+    let charsetParams = `; charset=${charset}`;
+    let formatParams = "";
+    if (formatFlowed) {
+      // Set format=flowed as in RFC 2646 according to the preference.
+      formatParams += "; format=flowed";
+    }
+    if (delsp) {
+      formatParams += "; delsp=yes";
+    }
+
+    // body is 8-bit string, save it directly in MimePart to avoid converting
+    // back and forth.
+    let htmlPart = null;
+    let plainPart = null;
+    let parts = [];
+
+    if (this._bodyType === "text/html") {
+      htmlPart = new MimePart(
+        charset,
+        this._bodyType,
+        this._compFields.forceMsgEncoding,
+        true
+      );
+      htmlPart.setHeader("Content-Type", `text/html${charsetParams}`);
+      htmlPart.bodyText = this._bodyText;
+    } else if (this._bodyType === "text/plain") {
+      plainPart = new MimePart(
+        charset,
+        this._bodyType,
+        this._compFields.forceMsgEncoding,
+        true
+      );
+      plainPart.setHeader(
+        "Content-Type",
+        `text/plain${charsetParams}${formatParams}`
+      );
+      plainPart.bodyText = this._bodyText;
+      parts.push(plainPart);
+    }
+
+    // Assemble a multipart/alternative message.
+    if (
+      (this._compFields.forcePlainText ||
+        this._compFields.useMultipartAlternative) &&
+      plainPart === null &&
+      htmlPart !== null
+    ) {
+      plainPart = new MimePart(
+        charset,
+        "text/plain",
+        this._compFields.forceMsgEncoding,
+        true
+      );
+      plainPart.setHeader(
+        "Content-Type",
+        `text/plain${charsetParams}${formatParams}`
+      );
+      plainPart.bodyText = this._convertToPlainText(
+        this._bodyText,
+        formatFlowed,
+        delsp,
+        disallowBreaks
+      );
+
+      parts.push(plainPart);
+    }
+
+    // If useMultipartAlternative is true, send multipart/alternative message.
+    // Otherwise, send the plainPart only.
+    if (htmlPart) {
+      if (
+        (plainPart && this._compFields.useMultipartAlternative) ||
+        !plainPart
+      ) {
+        parts.push(htmlPart);
+      }
+    }
+
+    return parts;
+  }
+
+  /**
+   * Collect local attachments.
+   * @returns {Array.<MimePart>}
+   */
+  _gatherAttachmentParts() {
+    let charset = this._compFields.characterSet;
+    let attachments = [...this._compFields.attachments];
+    let parts = [];
+    for (let attachment of attachments) {
+      if (attachment.sendViaCloud) {
+        // TODO: handle cloud attachments.
+        continue;
+      }
+      let part = new MimePart(
+        charset,
+        null,
+        this._compFields.forceMsgEncoding,
+        false
+      );
+      part.bodyAttachment = attachment;
+      parts.push(part);
+    }
+    return parts;
   }
 
   /**
