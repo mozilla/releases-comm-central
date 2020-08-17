@@ -49,6 +49,9 @@ const { EnigmailHttpProxy } = ChromeUtils.import(
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
+const { EnigmailURIs } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/uris.jsm"
+);
 
 const PGPMIME_PROTO = "application/pgp-signature";
 
@@ -513,9 +516,13 @@ MimeVerify.prototype = {
           }
 
           if (this.uri && url) {
+            let otherId = EnigmailURIs.msgIdentificationFromUrl(url);
+            let thisId = EnigmailURIs.msgIdentificationFromUrl(this.uri);
+
             if (
               url.host !== this.uri.host ||
-              url.pathQueryRef !== this.uri.pathQueryRef
+              otherId.folder !== thisId.folder ||
+              otherId.msgNum !== thisId.msgNum
             ) {
               return;
             }
