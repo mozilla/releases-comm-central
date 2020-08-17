@@ -746,8 +746,12 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
         case nsMsgFilterAction::CopyToFolder: {
           nsCString uri;
           curFolder->GetURI(uri);
-          BREAK_ACTION_IF_FALSE(!uri.Equals(actionTargetFolderUri),
-                                "Target folder is the same as source folder");
+
+          if (uri.Equals(actionTargetFolderUri)) {
+            MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
+                    ("(Post) Target folder is the same as source folder, skipping"));
+            break;
+          }
 
           nsCOMPtr<nsIMsgFolder> destIFolder;
           rv = GetOrCreateFolder(actionTargetFolderUri,
