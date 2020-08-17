@@ -178,9 +178,7 @@ function _verify_fonts_displayed(aDefaults, aSerif, aSansSerif, aMonospace) {
   // Now open the advanced dialog.
   EventUtils.synthesizeMouseAtCenter(advancedFonts, {}, prefsWindow);
   let fontc = wait_for_frame_load(
-    prefTab.browser.contentDocument
-      .getElementById("dialogOverlay-0")
-      .querySelector("browser"),
+    prefsWindow.gSubDialog._topDialog._frame,
     "chrome://messenger/content/preferences/fonts.xhtml"
   );
 

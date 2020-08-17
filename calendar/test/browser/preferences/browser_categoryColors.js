@@ -37,7 +37,7 @@ add_task(async function testCategoryColors() {
 
   await subDialogPromise;
 
-  let subDialogBrowser = prefsDocument.getElementById("dialogOverlay-0").querySelector("browser");
+  let subDialogBrowser = prefsWindow.gSubDialog._topDialog._frame;
   await new Promise(subDialogBrowser.contentWindow.setTimeout);
   let subDialogDocument = subDialogBrowser.contentDocument;
   subDialogDocument.getElementById("categoryName").value = "ZZZ Mochitest";
@@ -65,7 +65,7 @@ add_task(async function testCategoryColors() {
 
   await subDialogPromise;
 
-  subDialogBrowser = prefsDocument.getElementById("dialogOverlay-0").querySelector("browser");
+  subDialogBrowser = prefsWindow.gSubDialog._topDialog._frame;
   await new Promise(subDialogBrowser.contentWindow.setTimeout);
   subDialogDocument = subDialogBrowser.contentDocument;
   subDialogDocument.getElementById("useColor").checked = false;

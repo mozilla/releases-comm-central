@@ -182,9 +182,7 @@ function remove_account(
   mc.click(content_tab_eid(tab, "accountActionsDropdownRemove"));
 
   let cdc = wh.wait_for_frame_load(
-    tab.browser.contentDocument
-      .getElementById("dialogOverlay-0")
-      .querySelector("browser"),
+    tab.browser.contentWindow.gSubDialog._topDialog._frame,
     "chrome://messenger/content/removeAccount.xhtml"
   );
 
