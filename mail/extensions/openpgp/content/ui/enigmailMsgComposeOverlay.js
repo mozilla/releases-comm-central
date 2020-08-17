@@ -2909,8 +2909,11 @@ Enigmail.msg = {
         pgpBlock = pgpBlock.replace(/^>>/gm, "> >");
       }
 
+      // Escape regex chars.
+      let escapedIndent1 = indentStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+
       // Delete indentation
-      indentRegexp = new RegExp("^> ", "gm");
+      indentRegexp = new RegExp("^" + escapedIndent1, "gm");
 
       pgpBlock = pgpBlock.replace(indentRegexp, "");
       //tail     =     tail.replace(indentRegexp, "");
@@ -2918,8 +2921,8 @@ Enigmail.msg = {
       if (indentStr.match(/[ \t]*$/)) {
         indentStr = indentStr.replace(/[ \t]*$/gm, "");
         // Escape regex chars.
-        indentStr = indentStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
-        indentRegexp = new RegExp("^" + indentStr + "$", "gm");
+        let escapedIndent2 = indentStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+        indentRegexp = new RegExp("^" + escapedIndent2 + "$", "gm");
 
         pgpBlock = pgpBlock.replace(indentRegexp, "");
       }
