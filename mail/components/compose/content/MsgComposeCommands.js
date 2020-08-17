@@ -3863,6 +3863,7 @@ function adjustSignEncryptAfterIdentityChanged(prevId, newId) {
 
   if (gIsRelatedToEncryptedOriginal) {
     gSendEncrypted = true;
+    gSendSigned = true;
   }
 
   if (gSMFields && !gSelectedTechnologyIsPGP) {

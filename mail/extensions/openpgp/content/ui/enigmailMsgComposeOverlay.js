@@ -3004,8 +3004,14 @@ Enigmail.msg = {
     //if (EnigmailPrefs.getPref("keepSettingsForReply")) {
     if (statusFlagsObj.value & EnigmailConstants.DECRYPTION_OKAY) {
       //this.setSendMode('encrypt');
+
+      // TODO : Check, when is this code reached?
+      // automatic enabling encryption currently depends on
+      // adjustSignEncryptAfterIdentityChanged to be always reached
+
       gIsRelatedToEncryptedOriginal = true;
       gSendEncrypted = true;
+      gSendSigned = true;
       setEncSigStatusUI();
     }
     //}
