@@ -55,9 +55,6 @@ include $(topsrcdir)/config/rules.mk
 
 include $(topsrcdir)/toolkit/locales/l10n.mk
 
-$(DIST)/branding:
-	$(NSINSTALL) -D $@
-
 PROFILE_CHROME = userChrome-example.css userContent-example.css
 
 NO_JA_JP_MAC_AB_CD := $(if $(filter ja-JP-mac, $(AB_CD)),ja,$(AB_CD))
