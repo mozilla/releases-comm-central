@@ -731,11 +731,29 @@ function openFormattedURL(aPrefName) {
  * Opens the Troubleshooting page in a new tab.
  */
 function openAboutSupport() {
-  let tabmail = document.getElementById("tabmail");
-  tabmail.openTab("contentTab", {
-    contentPage: "about:support",
-    clickHandler: "specialTabs.aboutClickHandler(event);",
-  });
+  let mailWindow = Services.wm.getMostRecentWindow("mail:3pane");
+  if (mailWindow) {
+    mailWindow.focus();
+    mailWindow.document.getElementById("tabmail").openTab("contentTab", {
+      contentPage: "about:support",
+      clickHandler: "specialTabs.aboutClickHandler(event);",
+    });
+    return;
+  }
+
+  window.openDialog(
+    "chrome://messenger/content/messenger.xhtml",
+    "_blank",
+    "chrome,dialog=no,all",
+    null,
+    {
+      tabType: "contentTab",
+      tabParams: {
+        contentPage: "about:support",
+        clickHandler: "specialTabs.aboutClickHandler(event);",
+      },
+    }
+  );
 }
 
 /**

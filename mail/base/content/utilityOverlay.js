@@ -196,6 +196,8 @@ function openUILink(url, event) {
         ],
       })
       .catch(Cu.reportError);
+    let messenger = Cc["@mozilla.org/messenger;1"].createInstance();
+    messenger = messenger.QueryInterface(Ci.nsIMessenger);
     messenger.launchExternalURL(url);
   }
 }
@@ -413,10 +415,12 @@ function goOnEvent(aNode, aEvent) {
 }
 
 function buildHelpMenu() {
-  document.getElementById(
-    "helpSafeMode"
-  ).disabled = !Services.policies.isAllowed("safeMode");
-  document.getElementById(
-    "appmenu_safeMode"
-  ).disabled = !Services.policies.isAllowed("safeMode");
+  let helpSafeModeItem = document.getElementById("helpSafeMode");
+  if (helpSafeModeItem) {
+    helpSafeModeItem.disabled = !Services.policies.isAllowed("safeMode");
+  }
+  let appmenu_safeModeItem = document.getElementById("appmenu_safeMode");
+  if (appmenu_safeModeItem) {
+    appmenu_safeModeItem.disabled = !Services.policies.isAllowed("safeMode");
+  }
 }
