@@ -508,11 +508,15 @@ bool nsMsgContentPolicy::ShouldBlockUnexposedProtocol(
   rv = aContentLocation->SchemeIs("wss", &isWss);
   NS_ENSURE_SUCCESS(rv, true);
 
+  bool isBlob;
+  rv = aContentLocation->SchemeIs("blob", &isBlob);
+  NS_ENSURE_SUCCESS(rv, true);
+
   bool isFile;
   rv = aContentLocation->SchemeIs("file", &isFile);
   NS_ENSURE_SUCCESS(rv, true);
 
-  return !isHttp && !isHttps && !isWs && !isWss && !isFile;
+  return !isHttp && !isHttps && !isWs && !isWss && !isBlob && !isFile;
 }
 
 /**
