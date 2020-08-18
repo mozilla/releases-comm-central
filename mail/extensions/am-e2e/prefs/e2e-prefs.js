@@ -200,11 +200,6 @@ pref("temp.openpgp.warnDownloadContactKeys", true);
 // wrap HTML messages before sending inline PGP messages
 pref("temp.openpgp.wrapHtmlBeforeSend", true);
 
-// enable encryption/signing of headers like subject, from, to
-// 1: default: ask user at 1st time use / 0: off /  2: on
-pref("temp.openpgp.protectedHeaders", 2);
-pref("temp.openpgp.protectedSubjectText", "");
-
 // do reset the "references" and "in-reply-to" headers?
 pref("temp.openpgp.protectReferencesHdr", false);
 
@@ -252,7 +247,6 @@ pref("mail.identity.default.defaultEncryptionPolicy", 0);
 pref("mail.identity.default.openPgpUrlName", "");
 pref("mail.identity.default.pgpMimeMode", true);
 pref("mail.identity.default.attachPgpKey", false);
-pref("mail.identity.default.autoEncryptDrafts", false);
 pref("mail.identity.default.protectSubject", true);
 pref("mail.identity.default.warnWeakReply", false);
 

@@ -19,9 +19,6 @@ const { EnigmailLog } = ChromeUtils.import(
 const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
 );
-const { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
-);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -324,13 +321,6 @@ var EnigmailFuncs = {
    * Get the text for the encrypted subject (either configured by user or default)
    */
   getProtectedSubjectText() {
-    if (EnigmailPrefs.getPref("protectedSubjectText").length > 0) {
-      return EnigmailData.convertToUnicode(
-        EnigmailPrefs.getPref("protectedSubjectText"),
-        "utf-8"
-      );
-    }
-
     return "...";
   },
 

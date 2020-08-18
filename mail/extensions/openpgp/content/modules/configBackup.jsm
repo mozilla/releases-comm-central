@@ -28,7 +28,6 @@ const IdentityPref = {
   pgpkeyId: TYPE_CHAR,
   pgpKeyMode: TYPE_INT,
   pgpSignPlain: TYPE_BOOL,
-  pgpSignEncrypted: TYPE_BOOL,
   defaultSigningPolicy: TYPE_INT,
   defaultEncryptionPolicy: TYPE_INT,
   openPgpUrlName: TYPE_CHAR,

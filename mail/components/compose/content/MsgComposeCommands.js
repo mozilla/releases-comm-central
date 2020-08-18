@@ -3856,17 +3856,25 @@ function adjustSignEncryptAfterIdentityChanged(prevId, newId) {
     gAttachMyPublicPGPKey = false;
   }
 
-  // automatic changes after this line
-  if (
-    gEncryptedURIService &&
-    gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
-  ) {
-    gIsRelatedToEncryptedOriginal = true;
-  }
+  // A draft message may be stored encrypted, even if the user hasn't
+  // requested encryption for sending. In that scenario, we'd see that
+  // the related URI is encrypted and do incorrect decisions.
+  // Therefore we skip this automatic processing, and rely on the code
+  // that restores draft flags.
 
-  if (gIsRelatedToEncryptedOriginal) {
-    gSendEncrypted = true;
-    gSendSigned = true;
+  if (!gMsgCompose.compFields.draftId) {
+    // automatic changes after this line
+    if (
+      gEncryptedURIService &&
+      gEncryptedURIService.isEncrypted(gMsgCompose.originalMsgURI)
+    ) {
+      gIsRelatedToEncryptedOriginal = true;
+    }
+
+    if (gIsRelatedToEncryptedOriginal) {
+      gSendEncrypted = true;
+      gSendSigned = true;
+    }
   }
 
   if (gSMFields && !gSelectedTechnologyIsPGP) {
