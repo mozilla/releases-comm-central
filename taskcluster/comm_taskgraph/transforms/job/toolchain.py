@@ -19,7 +19,8 @@ from taskgraph.transforms.job.toolchain import (
 from taskgraph.transforms.job.common import (
     docker_worker_add_artifacts,
 )
-from taskgraph.util.hash import hash_paths
+# from taskgraph.util.hash import hash_paths
+from comm_taskgraph.util.hash import hash_paths_extended as hash_paths
 from taskgraph import GECKO
 import taskgraph
 
