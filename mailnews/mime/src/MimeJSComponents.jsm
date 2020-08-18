@@ -211,7 +211,6 @@ MimeWritableStructuredHeaders.prototype = {
   },
 
   setRawHeader(aHeaderName, aValue, aCharset) {
-    aValue = jsmime.headerparser.convert8BitHeader(aValue, aCharset);
     try {
       this.setHeader(
         aHeaderName,

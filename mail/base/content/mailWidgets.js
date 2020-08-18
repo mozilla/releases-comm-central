@@ -2149,14 +2149,16 @@
     /**
      * Create a new recipient row container with the input autocomplete.
      *
-     * @param {Array} recipient - The unique identifier of the email header.
+     * @param {Object} recipient - An object for various element attributes.
+     * @param {boolean} rawInput - A flag to disable pill and autocompletion.
      * @return {Element} - The newly created recipient row.
      */
-    buildRecipientRows(recipient) {
+    buildRecipientRows(recipient, rawInput = false) {
       let row = document.createXULElement("hbox");
       row.setAttribute("id", recipient.row);
       row.classList.add("addressingWidgetItem", "address-row");
       row.setAttribute("data-labelid", recipient.labelId);
+      row.setAttribute("data-labeltype", recipient.type);
 
       let firstCol = document.createXULElement("hbox");
       firstCol.classList.add("aw-firstColBox");
@@ -2215,13 +2217,21 @@
       );
       inputContainer.addEventListener("click", focusAddressInput);
 
-      let input = document.createElement("input", {
-        is: "autocomplete-input",
-      });
+      let input = document.createElement(
+        "input",
+        rawInput
+          ? undefined
+          : {
+              is: "autocomplete-input",
+            }
+      );
       input.setAttribute("id", recipient.id);
 
       input.setAttribute("type", "text");
-      input.classList.add("plain", "address-input", recipient.class);
+      input.classList.add("plain", "address-input");
+      if (recipient.class) {
+        input.classList.add(recipient.class);
+      }
       input.setAttribute("disableonsend", true);
       input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
       input.setAttribute("autocompletesearchparam", "{}");
@@ -2237,7 +2247,11 @@
         addressInputOnFocus(input);
       });
       input.addEventListener("blur", () => {
-        addressInputOnBlur(input);
+        if (rawInput) {
+          input.closest(".address-container").removeAttribute("focused");
+        } else {
+          addressInputOnBlur(input);
+        }
       });
       input.onBeforeHandleKeyDown = event => {
         addressInputOnBeforeHandleKeyDown(event);
@@ -2251,7 +2265,9 @@
       input.setAttribute("recipienttype", recipient.type);
       input.setAttribute("size", 1);
 
-      setupAutocompleteInput(input, this.highlightNonMatches);
+      if (!rawInput) {
+        setupAutocompleteInput(input, this.highlightNonMatches);
+      }
 
       inputContainer.appendChild(input);
 

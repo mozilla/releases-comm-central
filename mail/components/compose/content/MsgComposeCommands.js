@@ -3762,16 +3762,19 @@ function adjustSignEncryptAfterIdentityChanged(prevId, newId) {
         // availability of recipient keys etc.
       }
     }
-  }
-  // If the new identity has only one technology configured,
-  // which is different than the currently selected technology,
-  // then switch over to that other technology.
+  } else if (
+    gSelectedTechnologyIsPGP &&
+    !configuredOpenPGP &&
+    configuredSMIME
+  ) {
+    // If the new identity has only one technology configured,
+    // which is different than the currently selected technology,
+    // then switch over to that other technology.
 
-  // However, if the new account doesn't have any technology
-  // configured, then it doesn't really matter, so let's keep what's
-  // currently selected for consistency (in case the user switches
-  // the identity again).
-  else if (gSelectedTechnologyIsPGP && !configuredOpenPGP && configuredSMIME) {
+    // However, if the new account doesn't have any technology
+    // configured, then it doesn't really matter, so let's keep what's
+    // currently selected for consistency (in case the user switches
+    // the identity again).
     gSelectedTechnologyIsPGP = false;
   } else if (
     !gSelectedTechnologyIsPGP &&
@@ -3913,13 +3916,13 @@ function ComposeLoad() {
           label: `${header}AddrLabel`,
           labelId: header,
           container: `${header}AddrContainer`,
-          class: "news-input",
+          class: "",
           type: "addr_other",
         };
 
         extraRecipientsPanel.appendChild(createRecipientLabel(header));
         recipientsContainer.appendChild(
-          recipientsContainer.buildRecipientRows(recipient)
+          recipientsContainer.buildRecipientRows(recipient, true)
         );
       }
     }
@@ -4143,13 +4146,16 @@ function udpateAddressingInputAriaLabel(row) {
   let input = row.querySelector(
     `input[is="autocomplete-input"][recipienttype]`
   );
-  input.setAttribute(
-    "aria-label",
-    l10nCompose.formatValueSync("address-input-type-aria-label", {
-      type,
-      count: pills.length,
-    })
-  );
+  // For custom header input, pills are disabled.
+  if (input) {
+    input.setAttribute(
+      "aria-label",
+      l10nCompose.formatValueSync("address-input-type-aria-label", {
+        type,
+        count: pills.length,
+      })
+    );
+  }
 
   for (let pill of pills) {
     pill.setAttribute(
@@ -4729,9 +4735,11 @@ function isValidAddress(aAddress) {
 function focusAddressInput(event) {
   let container = event.originalTarget;
   if (container.classList.contains("address-container")) {
-    container
-      .querySelector(`input[is="autocomplete-input"][recipienttype]`)
-      .focus();
+    let input =
+      container.querySelector(
+        `input[is="autocomplete-input"][recipienttype]`
+      ) || container.querySelector("input");
+    input.focus();
   }
 }
 
