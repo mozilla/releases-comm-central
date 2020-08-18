@@ -303,10 +303,10 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
         // so that they can properly set up the layout they might need.
         // Push to the end of the event queue.
         setTimeout(overflowListener, 0);
+        iframe.contentWindow.addEventListener("resize", overflowListener);
       },
       { once: true }
     );
-    iframe.contentWindow.addEventListener("resize", overflowListener);
   }
 
   // event or task

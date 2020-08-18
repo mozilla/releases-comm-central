@@ -64,7 +64,7 @@ var { close_window, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var SHORT_SLEEP = 100;
-var MID_SLEEP = 500;
+var MID_SLEEP = 1000;
 var TIMEOUT_MODAL_DIALOG = 30000;
 var CALENDARNAME = "Mozmill";
 var EVENT_DIALOG_NAME = "Calendar:EventDialog";
@@ -447,7 +447,11 @@ function waitForEventDialogWindow(mWController, name) {
 }
 
 function waitForItemPanelIframe(eventController) {
+  let { eid } = helpersForController(eventController);
+
   let iframeid = "lightning-item-panel-iframe";
+  eventController.waitForElement(eid(iframeid));
+
   let iframe = eventController.window.document.getElementById(iframeid);
   eventController.waitFor(
     () => {
