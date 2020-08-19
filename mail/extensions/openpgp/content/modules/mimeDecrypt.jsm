@@ -49,9 +49,6 @@ const { EnigmailHttpProxy } = ChromeUtils.import(
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
-const { EnigmailAutocrypt } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/autocrypt.jsm"
-);
 const { EnigmailCompat } = ChromeUtils.import(
   "chrome://openpgp/content/modules/compat.jsm"
 );
