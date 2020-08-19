@@ -771,7 +771,9 @@ function goNewListDialog(selectedAB) {
     "chrome,modal,resizable=no,centerscreen",
     params
   );
-  if (params.newListURI) {
+  // If new mailing list has been created and we're in main AB window where
+  // gDirectoryTreeView.selection exists, select the new list in Directory Pane.
+  if (params.newListURI && gDirectoryTreeView.selection) {
     gDirectoryTreeView.selection.select(
       gDirectoryTreeView.getIndexForId(params.newListURI)
     );
