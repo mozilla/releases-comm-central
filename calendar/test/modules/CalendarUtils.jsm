@@ -64,7 +64,7 @@ var { close_window, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var SHORT_SLEEP = 100;
-var MID_SLEEP = 1000;
+var MID_SLEEP = 500;
 var TIMEOUT_MODAL_DIALOG = 30000;
 var CALENDARNAME = "Mozmill";
 var EVENT_DIALOG_NAME = "Calendar:EventDialog";
@@ -383,6 +383,7 @@ async function invokeEditingEventDialog(mWController, clickBox, callback) {
   let dialog = eventController.window.document.querySelector("dialog");
   let editButton = new elementslib.Elem(dialog.getButton("accept"));
 
+  eventController.sleep(MID_SLEEP);
   eventController.click(editButton);
   await execEventDialogCallback(mWController, callback);
 }
