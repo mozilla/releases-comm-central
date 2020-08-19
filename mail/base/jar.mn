@@ -148,6 +148,8 @@ browser.jar:
 % skin browser classic/1.0 %skin/
     skin/illustrations/error-malformed-url.svg         (../../../browser/themes/shared/illustrations/error-malformed-url.svg)
     skin/controlcenter/trackers.svg                    (../../../browser/themes/shared/controlcenter/trackers.svg)
+    skin/open-in-new.svg                               (../../../browser/themes/shared/icons/open-in-new.svg)
     skin/preferences/no-search-results.svg             (../../../browser/themes/shared/preferences/no-search-results.svg)
+    skin/print.svg                                     (../../../browser/themes/shared/icons/print.svg)
     skin/private-browsing.svg                          (../../../browser/themes/shared/icons/private-browsing.svg)
     skin/warning.svg                                   (../../../browser/themes/shared/warning.svg)
