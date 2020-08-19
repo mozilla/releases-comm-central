@@ -7,7 +7,7 @@
 }
 
 .calendar-summary-table th {
-  -moz-user-select: text;
+  user-select: text;
   font-weight: normal;
   padding-inline-end: 5px;
   text-align: right;
@@ -16,7 +16,7 @@
 }
 
 .calendar-summary-table td {
-  -moz-user-select: text;
+  user-select: text;
   padding-top: 0;
   vertical-align: baseline;
   width: 100%;

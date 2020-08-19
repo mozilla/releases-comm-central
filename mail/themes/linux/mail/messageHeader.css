@@ -82,7 +82,7 @@
   margin: 0;
   padding: .1em 0;
   padding-inline-end: 9px;
-  -moz-user-select: text;
+  user-select: text;
   -moz-user-focus: normal;
   cursor: text;
 }

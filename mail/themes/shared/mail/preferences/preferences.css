@@ -155,7 +155,7 @@ label {
 }
 
 .search-tooltip > span {
-  -moz-user-select: none;
+  user-select: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -247,7 +247,7 @@ radio[pane] > .radio-label-box {
   padding-bottom: 2px;
   padding-inline-start: 9px;
   margin: 0;
-  -moz-user-select: none;
+  user-select: none;
 }
 
 radio[pane][focused="true"] > .radio-label-box {

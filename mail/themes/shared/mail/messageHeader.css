@@ -340,7 +340,7 @@ mail-newsgroups-headerfield {
 
 mail-headerfield {
   -moz-user-focus: normal;
-  -moz-user-select: text;
+  user-select: text;
   word-wrap: break-word;
 }
 

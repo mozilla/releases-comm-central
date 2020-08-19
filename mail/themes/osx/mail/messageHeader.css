@@ -111,7 +111,7 @@
 
 #dateLabel {
   padding-inline-end: 3px;
-  -moz-user-select: text;
+  user-select: text;
   -moz-user-focus: normal;
   cursor: text;
 }

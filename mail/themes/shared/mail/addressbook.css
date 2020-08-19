@@ -147,7 +147,7 @@ treechildren::-moz-tree-image(GeneratedName, MailList) {
 .CardViewHeading,
 .CardViewText,
 .CardViewLink {
-  -moz-user-select: text;
+  user-select: text;
 }
 
 #CardTitle {

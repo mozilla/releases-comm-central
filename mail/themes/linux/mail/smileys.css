@@ -29,7 +29,7 @@
 .moz-smiley-s16 {
   display: inline-block;
   vertical-align: middle;
-  -moz-user-select: all;
+  user-select: all;
 }
 
 .moz-smiley-s1 > span,
