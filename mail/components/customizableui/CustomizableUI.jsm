@@ -205,7 +205,11 @@ var CustomizableUIInternal = {
     this.addListener(this);
     this._defineBuiltInWidgets();
     this.loadSavedState();
-    this._updateForNewVersion();
+    try {
+      this._updateForNewVersion();
+    } catch (e) {
+      Cu.reportError(e);
+    }
     this._markObsoleteBuiltinButtonsSeen();
 
     this.registerArea(
@@ -412,14 +416,6 @@ var CustomizableUIInternal = {
 
       if (!AppConstants.MOZ_DEV_EDITION) {
         defaultPlacements.splice(-1, 0, "developer-button");
-      }
-
-      let showCharacterEncoding = Services.prefs.getComplexValue(
-        "browser.menu.showCharacterEncoding",
-        Ci.nsIPrefLocalizedString
-      ).data;
-      if (showCharacterEncoding == "true") {
-        defaultPlacements.push("characterencoding-button");
       }
 
       savedPanelPlacements = savedPanelPlacements.filter(
