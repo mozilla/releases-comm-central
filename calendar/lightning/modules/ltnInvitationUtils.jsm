@@ -202,10 +202,17 @@ ltn.invitation = {
     field("comment", aEvent.getProperty("COMMENT"), true);
 
     // DESCRIPTION field
-    let eventDescription = (aEvent.getProperty("DESCRIPTION") || "")
-      /* Remove the useless "Outlookism" squiggle. */
-      .replace("*~*~*~*~*~*~*~*~*~*", "");
-    field("description", eventDescription, true);
+    // Remove the useless "Outlookism" squiggle.
+    let description = aEvent.getProperty("DESCRIPTION")?.replace("*~*~*~*~*~*~*~*~*~*", "") || "";
+    // Google calendar puts HTML tags in the description, against the iCalendar
+    // spec, so show it with any HTML tags stripped out.
+    let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(Ci.nsIParserUtils);
+    let descriptionNoHtml = parserUtils.convertToPlainText(
+      description,
+      Ci.nsIDocumentEncoder.OutputForPlainTextClipboardCopy,
+      0
+    );
+    field("description", descriptionNoHtml, true);
 
     // URL
     field("url", aEvent.getProperty("URL"), true);
