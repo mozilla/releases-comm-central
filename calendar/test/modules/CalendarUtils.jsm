@@ -360,6 +360,8 @@ async function invokeViewingEventDialog(mWController, clickBox, callback) {
   doubleClickOptionalEventBox(mWController, clickBox);
   let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
   let eventController = new controller.MozMillController(eventWindow);
+  eventController.sleep(MID_SLEEP);
+
   await callback(eventController);
   waitUntilDialogClosed(mWController, EVENT_SUMMARY_DIALOG_NAME);
 }
@@ -380,10 +382,10 @@ async function invokeEditingEventDialog(mWController, clickBox, callback) {
   doubleClickOptionalEventBox(mWController, clickBox);
   let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
   let eventController = new controller.MozMillController(eventWindow);
+  eventController.sleep(MID_SLEEP);
+
   let dialog = eventController.window.document.querySelector("dialog");
   let editButton = new elementslib.Elem(dialog.getButton("accept"));
-
-  eventController.sleep(MID_SLEEP);
   eventController.click(editButton);
   await execEventDialogCallback(mWController, callback);
 }
@@ -406,6 +408,8 @@ async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, 
   doubleClickOptionalEventBox(mWController, clickBox);
   let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
   let eventController = new controller.MozMillController(eventWindow);
+  eventController.sleep(MID_SLEEP);
+
   let target = editAll
     ? "edit-button-context-menu-all-occurrences"
     : "edit-button-context-menu-this-occurrence";
