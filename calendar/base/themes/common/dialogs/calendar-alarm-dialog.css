@@ -10,6 +10,7 @@
 /* Alarm dialog styles */
 #alarm-richlist {
     margin: 10px;
+    text-shadow: none;
 }
 
 #alarm-actionbar {
@@ -52,6 +53,7 @@ richlistitem[is="calendar-alarm-widget-richlistitem"][selected="true"] .action-b
 }
 
 .alarm-details-label {
+    color: inherit !important;
     text-decoration: underline;
 }
 
