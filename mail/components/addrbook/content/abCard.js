@@ -10,13 +10,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var kNonVcardFields = [
-  "NickNameContainer",
-  "SecondaryEmailContainer",
-  "ScreenNameContainer",
-  "customFields",
-  "preferDisplayName",
-];
+var kNonVcardFields = ["ChatName", "preferDisplayName"];
 
 var kPhoneticFields = [
   "PhoneticLastName",
@@ -155,9 +149,11 @@ function OnLoadNewCard() {
     if ("escapedVCardStr" in window.arguments[0]) {
       // hide non vcard values
       HideNonVcardFields();
-      gEditCard.card = Cc["@mozilla.org/addressbook/msgvcardservice;1"]
-        .getService(Ci.nsIMsgVCardService)
-        .escapedVCardToAbCard(window.arguments[0].escapedVCardStr);
+      if (window.arguments[0].escapedVCardStr) {
+        gEditCard.card = Cc["@mozilla.org/addressbook/msgvcardservice;1"]
+          .getService(Ci.nsIMsgVCardService)
+          .escapedVCardToAbCard(window.arguments[0].escapedVCardStr);
+      }
     }
 
     if ("titleProperty" in window.arguments[0]) {
@@ -182,23 +178,11 @@ function OnLoadNewCard() {
 
   GetCardValues(gEditCard.card, document);
 
-  // FIX ME - looks like we need to focus on both the text field and the tab widget
-  // probably need to do the same in the addressing widget
-
-  // focus on first or last name based on the pref
-  var focus = document.getElementById(
+  // Focus on first or last name based on the pref of which is first.
+  let input = document.getElementById(
     gEditCard.displayLastNameFirst ? "LastName" : "FirstName"
   );
-  if (focus) {
-    // XXX Using the setTimeout hack until bug 103197 is fixed
-    setTimeout(
-      function(firstTextBox) {
-        firstTextBox.focus();
-      },
-      0,
-      focus
-    );
-  }
+  setTimeout(() => input.select());
 }
 
 /**
@@ -612,24 +596,32 @@ function GetCardValues(cardproperty, doc) {
 }
 
 // when the ab card dialog is being loaded to show a vCard,
-// hide the fields which aren't supported
+// hide/disable the fields which aren't supported
 // by vCard so the user does not try to edit them.
 function HideNonVcardFields() {
   document.getElementById("homeTabButton").hidden = true;
   document.getElementById("chatTabButton").hidden = true;
   document.getElementById("photoTabButton").hidden = true;
-  var i;
-  for (i = kNonVcardFields.length - 1; i >= 0; i--) {
-    document.getElementById(kNonVcardFields[i]).collapsed = true;
+  for (let field of kNonVcardFields.map(id => document.getElementById(id))) {
+    field.disabled = true;
   }
-  for (i = kPhoneticFields.length - 1; i >= 0; i--) {
+  // Drop the chat name label so it can't open the hidden chat details tab.
+  let chatNameLabel = document.getElementById("ChatNameLabel");
+  chatNameLabel.removeAttribute("onclick");
+  chatNameLabel.classList.remove("text-link");
+
+  for (let i = kPhoneticFields.length - 1; i >= 0; i--) {
     document.getElementById(kPhoneticFields[i]).collapsed = true;
   }
 }
 
-// Move the data from the dialog to the cardproperty to be stored in the database
-// @Returns false - Some required data are missing (card values were not set);
-//          true - Card values were set, or there is no card to set values on.
+/**
+ * Move the data from the dialog to the cardproperty to be stored in the
+ * database.
+ * @returns {boolean}
+ *   false - Some required data are missing (card values were not set);
+ *   true - Card values were set, or there is no card to set values on.
+ */
 function CheckAndSetCardValues(cardproperty, doc, check) {
   // If requested, check the required data presence.
   if (check && !CheckCardRequiredDataPresence(document)) {

@@ -253,10 +253,10 @@ VCardService.prototype = {
   classID: Components.ID("{e2e0f615-bc5a-4441-a16b-a26e75949376}"),
 
   escapedVCardToAbCard(vCard) {
-    return VCardUtils.vCardToAbCard(decodeURIComponent(vCard));
+    return vCard ? VCardUtils.vCardToAbCard(decodeURIComponent(vCard)) : null;
   },
   abCardToEscapedVCard(abCard) {
-    return encodeURIComponent(VCardUtils.abCardToVCard(abCard));
+    return abCard ? encodeURIComponent(VCardUtils.abCardToVCard(abCard)) : null;
   },
 };
 
