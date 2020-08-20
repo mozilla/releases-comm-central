@@ -5,6 +5,7 @@
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/smime/msgCompSecurityInfo.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window SYSTEM "chrome://messenger-smime/locale/msgCompSecurityInfo.dtd">
 
@@ -12,6 +13,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml"
         style="width: 50em;"
         persist="width height"
+        lightweightthemes="true"
         onload="onLoad();">
 <dialog id="msgCompSecurityInfo"
         buttons="accept">
@@ -28,6 +30,7 @@
       addEventListener("load", resizeColumns, { once: true });
       addEventListener("resize", resizeColumns);
   ]]></script>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <stringbundle id="bundle_smime_comp_info" src="chrome://messenger-smime/locale/msgCompSecurityInfo.properties"/>
 
