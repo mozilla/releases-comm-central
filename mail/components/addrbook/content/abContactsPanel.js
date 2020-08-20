@@ -110,10 +110,8 @@ function addSelectedAddresses(aRecipientType) {
   var cards = GetSelectedAbCards();
 
   // Turn each card into a properly formatted address.
-  var addressArray = cards
-    .map(GenerateAddressFromCard)
-    .filter(addr => addr != "");
-  parent.awAddRecipientsArray(aRecipientType, addressArray);
+  let addresses = cards.map(makeMailboxObjectFromCard).filter(addr => addr);
+  parent.awAddRecipientsArray(aRecipientType, addresses);
 }
 
 function AddressBookMenuListChange(aValue) {

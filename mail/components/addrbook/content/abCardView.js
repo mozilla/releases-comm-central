@@ -220,7 +220,7 @@ function DisplayCardViewPane(realCard) {
         zListName,
         card.displayName,
         data.cvListNameBox,
-        "mailto:" + encodeURIComponent(GenerateAddressFromCard(card))
+        "mailto:" + encodeURIComponent(makeMimeAddressFromCard(card))
       ) || visible;
   } else {
     // listname always hidden if not a mailing list
