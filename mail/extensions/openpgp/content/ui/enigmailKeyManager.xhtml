@@ -6,6 +6,7 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/openpgp/enigmail.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <!DOCTYPE window>
 
@@ -13,6 +14,7 @@
         data-l10n-id="openpgp-key-man-title"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
+        lightweightthemes="true"
         onload="enigmailKeyManagerLoad();"
         height="450"
         width="700">
@@ -24,6 +26,7 @@
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailCommon.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/enigmailKeyManager.js"/>
   <script type="application/x-javascript" src="chrome://openpgp/content/ui/commonWorkflows.js" />
+  <script type="application/x-javascript" src="chrome://messenger/content/dialogShadowDom.js"/>
 
   <linkset>
     <html:link rel="localization" href="messenger/openpgp/openpgp.ftl"/>
