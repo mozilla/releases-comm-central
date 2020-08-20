@@ -122,6 +122,7 @@ add_task(async () => {
     SecondEmail: "other@invalid",
   });
 
+  // Quoted-printable handling.
   check("FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=74=C3=A9=24=74=20=23=31", {
     DisplayName: "té$t #1",
   });
@@ -131,4 +132,8 @@ add_task(async () => {
       DisplayName: "test 💩",
     }
   );
+  check("N;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=C5=82ast;=C6=92irst", {
+    FirstName: "ƒirst",
+    LastName: "łast",
+  });
 });

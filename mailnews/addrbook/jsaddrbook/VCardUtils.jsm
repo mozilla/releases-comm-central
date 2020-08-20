@@ -13,6 +13,18 @@ const { ICAL } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
  */
 
 var VCardUtils = {
+  _decodeQuotedPrintable(value) {
+    let bytes = [];
+    for (let b = 0; b < value.length; b++) {
+      if (value[b] == "=") {
+        bytes.push(parseInt(value.substr(b + 1, 2), 16));
+        b += 2;
+      } else {
+        bytes.push(value.charCodeAt(b));
+      }
+    }
+    return new TextDecoder().decode(new Uint8Array(bytes));
+  },
   _parse(vProps) {
     let vPropMap = new Map();
     for (let index = 0; index < vProps.length; index++) {
@@ -24,16 +36,13 @@ var VCardUtils = {
         params.encoding &&
         params.encoding.toUpperCase() == "QUOTED-PRINTABLE"
       ) {
-        let bytes = [];
-        for (let b = 0; b < value.length; b++) {
-          if (value[b] == "=") {
-            bytes.push(parseInt(value.substr(b + 1, 2), 16));
-            b += 2;
-          } else {
-            bytes.push(value.charCodeAt(b));
+        if (Array.isArray(value)) {
+          for (let i = 0; i < value.length; i++) {
+            value[i] = this._decodeQuotedPrintable(value[i]);
           }
+        } else {
+          value = this._decodeQuotedPrintable(value);
         }
-        value = new TextDecoder().decode(new Uint8Array(bytes));
       }
 
       // Work out which type in typeMap, if any, this property belongs to.
