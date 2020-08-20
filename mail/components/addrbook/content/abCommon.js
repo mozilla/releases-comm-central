@@ -547,40 +547,47 @@ function AbEditCard(card) {
 }
 
 function AbNewMessage() {
+  let msgComposeType = Ci.nsIMsgCompType;
+  let msgComposeFormat = Ci.nsIMsgCompFormat;
+
   let params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
-  params.type = Ci.nsIMsgCompType.New;
-  params.format = Ci.nsIMsgCompFormat.Default;
-  params.composeFields = Cc[
-    "@mozilla.org/messengercompose/composefields;1"
-  ].createInstance(Ci.nsIMsgCompFields);
+  if (params) {
+    params.type = msgComposeType.New;
+    params.format = msgComposeFormat.Default;
+    let composeFields = Cc[
+      "@mozilla.org/messengercompose/composefields;1"
+    ].createInstance(Ci.nsIMsgCompFields);
+    if (composeFields) {
+      if (DirPaneHasFocus()) {
+        let selectedDir = getSelectedDirectory();
+        let hidesRecipients = false;
+        try {
+          // This is a bit of hackery so that extensions can have mailing lists
+          // where recipients are sent messages via BCC.
+          hidesRecipients = selectedDir.getBoolValue("HidesRecipients", false);
+        } catch (e) {
+          // Standard Thunderbird mailing lists do not have preferences
+          // associated with them, so we'll silently eat the error.
+        }
 
-  if (DirPaneHasFocus()) {
-    let selectedDir = getSelectedDirectory();
-    let hidesRecipients = false;
-    try {
-      // This is a bit of hackery so that extensions can have mailing lists
-      // where recipients are sent messages via BCC.
-      hidesRecipients = selectedDir.getBoolValue("HidesRecipients", false);
-    } catch (e) {
-      // Standard Thunderbird mailing lists do not have preferences
-      // associated with them, so we'll silently eat the error.
+        if (selectedDir && selectedDir.isMailList && hidesRecipients) {
+          // Bug 669301 (https://bugzilla.mozilla.org/show_bug.cgi?id=669301)
+          // We're using BCC right now to hide recipients from one another.
+          // We should probably use group syntax, but that's broken
+          // right now, so this will have to do.
+          composeFields.bcc = GetSelectedAddressesFromDirTree();
+        } else {
+          composeFields.to = GetSelectedAddressesFromDirTree();
+        }
+      } else {
+        composeFields.to = GetSelectedAddresses();
+      }
+      params.composeFields = composeFields;
+      MailServices.compose.OpenComposeWindowWithParams(null, params);
     }
-
-    if (selectedDir && selectedDir.isMailList && hidesRecipients) {
-      // Bug 669301 (https://bugzilla.mozilla.org/show_bug.cgi?id=669301)
-      // We're using BCC right now to hide recipients from one another.
-      // We should probably use group syntax, but that's broken
-      // right now, so this will have to do.
-      params.composeFields.bcc = GetSelectedAddressesFromDirTree();
-    } else {
-      params.composeFields.to = GetSelectedAddressesFromDirTree();
-    }
-  } else {
-    params.composeFields.to = GetSelectedAddresses();
   }
-  MailServices.compose.OpenComposeWindowWithParams(null, params);
 }
 
 /**
@@ -623,20 +630,26 @@ function GetSelectedAddressesFromDirTree() {
   );
 }
 
-/**
- * Generate a comma separated list of addresses from the given cards.
- * @param {nsIAbCard[]} cards - The cards to get addresses for.
- * @returns {string} A string of comma separated mailboxes.
- */
+// Generate a comma separated list of addresses from a given
+// set of cards.
 function GetAddressesForCards(cards) {
+  var addresses = "";
+
   if (!cards) {
-    return "";
+    Cu.reportError("GetAddressesForCards: |cards| is null.");
+    return addresses;
   }
 
-  return cards
-    .map(makeMimeAddressFromCard)
-    .filter(addr => addr)
-    .join(",");
+  // We do not handle the case where there is one or more null-ish
+  // element in the Array. Always non-null element is pushed into
+  // cards[] array.
+
+  let generatedAddresses = cards
+    .map(GenerateAddressFromCard)
+    .filter(function(aAddress) {
+      return aAddress;
+    });
+  return generatedAddresses.join(",");
 }
 
 function SelectFirstAddressBook() {
@@ -847,42 +860,15 @@ function InitViewSortByMenu() {
   );
 }
 
-/**
- * Make a MIME encoded string output of the card. This will make a difference
- * e.g. in scenarios where non-ASCII is used in the mailbox, or when then
- * display name include special characters such as comma.
- *
- * @param {nsIAbCard} - The card to use.
- * @returns {string} A MIME encoded mailbox representation of the card.
- */
-function makeMimeAddressFromCard(card) {
+function GenerateAddressFromCard(card) {
   if (!card) {
     return "";
   }
 
-  let email;
-  if (card.isMailList) {
-    let directory = GetDirectoryFromURI(card.mailListURI);
-    email = directory.description || card.displayName;
-  } else {
-    email = card.primaryEmail;
-  }
-  return MailServices.headerParser.makeMimeAddress(card.displayName, email);
-}
+  var email;
 
-/**
- * Make a mailbox string from the card, for use in the UI.
- * @param {nsIAbCard} - The card to use.
- * @returns {string} A mailbox representation of the card.
- */
-function makeMailboxObjectFromCard(card) {
-  if (!card) {
-    return "";
-  }
-
-  let email;
   if (card.isMailList) {
-    let directory = GetDirectoryFromURI(card.mailListURI);
+    var directory = GetDirectoryFromURI(card.mailListURI);
     email = directory.description || card.displayName;
   } else {
     email = card.primaryEmail;
