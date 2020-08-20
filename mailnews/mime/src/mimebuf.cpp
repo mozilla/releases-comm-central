@@ -138,12 +138,13 @@ extern "C" int mime_LineBuffer(
     int32_t (*per_line_fn)(char* line, uint32_t line_length, void* closure),
     void* closure) {
   int status = 0;
-  NS_ASSERTION((uint32_t)*buffer_sizeP > *buffer_fpP, "buffer is full");
-  if ((uint32_t)*buffer_sizeP <= *buffer_fpP) return -1;
   if (*buffer_fpP > 0 && *bufferP && (*bufferP)[*buffer_fpP - 1] == '\r' &&
       net_buffer_size > 0 && net_buffer[0] != '\n') {
     /* The last buffer ended with a CR.  The new buffer does not start
        with a LF.  This old buffer should be shipped out and discarded. */
+    NS_ASSERTION((uint32_t)*buffer_sizeP > *buffer_fpP,
+                 "1.1 <rhp@netscape.com> 19 Mar 1999 12:00");
+    if ((uint32_t)*buffer_sizeP <= *buffer_fpP) return -1;
     status = convert_and_send_buffer(*bufferP, *buffer_fpP, convert_newlines_p,
                                      per_line_fn, closure);
     if (status < 0) return status;
