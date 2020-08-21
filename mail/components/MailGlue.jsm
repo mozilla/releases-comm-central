@@ -98,6 +98,15 @@ MailGlue.prototype = {
 
   // init (called at app startup)
   _init() {
+    // Check if this process is the developer toolbox process, and if it is,
+    // avoid starting up as much as possible.
+    const envService = Cc["@mozilla.org/process/environment;1"].getService(
+      Ci.nsIEnvironment
+    );
+    if (envService.get("MOZ_BROWSER_TOOLBOX_PORT")) {
+      return;
+    }
+
     Services.obs.addObserver(this, "xpcom-shutdown");
     Services.obs.addObserver(this, "final-ui-startup");
     Services.obs.addObserver(this, "intl:app-locales-changed");
