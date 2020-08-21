@@ -84,19 +84,3 @@ jobs:
             platform: linux64/opt
             symbol: l10n-bump(lb)
             tier: 1
-    l10n-bumper-beta:
-        name: l10n_bumper_beta
-        description: l10n changesets bumper (beta merges)
-        run-on-projects: ['comm-beta']
-        worker:
-            dontbuild: false
-            ignore-closed-tree: true
-        treeherder:
-            kind: build
-            platform: linux64/opt
-            symbol: l10n-bump(lb-beta)
-            tier: 1
-        optimization:
-            skip-unless-changed:
-                - comm/mail/config/version.txt
-                - comm/.gecko_rev.yml
