@@ -22,6 +22,11 @@ function initDirectory() {
   // creating an instance of CardDAVDirectory rather than through the address
   // book manager, so that we can access the internals of the directory.
 
+  Services.prefs.setIntPref("ldap_2.servers.carddav.carddav.syncinterval", 0);
+  Services.prefs.setStringPref(
+    "ldap_2.servers.carddav.carddav.url",
+    CardDAVServer.url
+  );
   Services.prefs.setStringPref(
     "ldap_2.servers.carddav.description",
     "CardDAV Test"
@@ -42,7 +47,6 @@ function initDirectory() {
   );
   loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
   Services.logins.addLogin(loginInfo);
-  CardDAVServer.setUsernameAndPassword("bob", "bob");
 
   let directory = new CardDAVDirectory();
   directory.init("jscarddav://carddav.sqlite");
@@ -104,7 +108,7 @@ let observer = {
 };
 
 add_task(async () => {
-  CardDAVServer.open();
+  CardDAVServer.open("bob", "bob");
   registerCleanupFunction(async () => {
     await CardDAVServer.close();
   });

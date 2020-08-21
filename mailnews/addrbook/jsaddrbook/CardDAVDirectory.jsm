@@ -8,6 +8,9 @@ const { AddrBookDirectory } = ChromeUtils.import(
   "resource:///modules/AddrBookDirectory.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { clearInterval, setInterval, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 const { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
 ChromeUtils.defineModuleGetter(
   this,
@@ -22,6 +25,26 @@ ChromeUtils.defineModuleGetter(
 class CardDAVDirectory extends AddrBookDirectory {
   /** nsIAbDirectory */
 
+  init(uri) {
+    super.init(uri);
+
+    // If this directory is configured, start sync'ing with the server in 30s.
+    // Don't do this immediately, as this code runs at start-up and could
+    // impact performance if there are lots of changes to process.
+    if (this._serverURL) {
+      this._syncTimer = setTimeout(() => this.updateAllFromServer(), 30000);
+    }
+  }
+  destroy() {
+    if (this._syncTimer) {
+      clearInterval(this._syncTimer);
+      this._syncTimer = null;
+    }
+  }
+
+  get dirType() {
+    return 102;
+  }
   get supportsMailingLists() {
     return false;
   }
@@ -91,6 +114,10 @@ class CardDAVDirectory extends AddrBookDirectory {
       Cr.NS_ERROR_NOT_IMPLEMENTED
     );
   }
+
+  /** CardDAV specific */
+  _syncInProgress = false;
+  _syncTimer = null;
 
   get _serverURL() {
     return this.getStringValue("carddav.url", "");
@@ -230,10 +257,33 @@ class CardDAVDirectory extends AddrBookDirectory {
   }
 
   /**
+   * Set up a repeating timer for synchronisation with the server. The timer's
+   * interval is defined by pref, set it to 0 to disable sync'ing altogether.
+   */
+  _scheduleNextSync() {
+    if (this._syncTimer) {
+      clearInterval(this._syncTimer);
+      this._syncTimer = null;
+    }
+
+    let interval = this.getIntValue("carddav.syncinterval", 30);
+    if (interval <= 0) {
+      return;
+    }
+
+    this._syncTimer = setInterval(
+      () => this.updateAllFromServer(false),
+      interval * 60000
+    );
+  }
+
+  /**
    * Get all cards on the server and add them to this directory. This should
    * be used for the initial population of a directory.
    */
   async fetchAllFromServer() {
+    this._syncInProgress = true;
+
     let data = `<propfind xmlns="DAV:" xmlns:cs="http://calendarserver.org/ns/">
       <prop>
         <resourcetype/>
@@ -284,14 +334,45 @@ class CardDAVDirectory extends AddrBookDirectory {
     }
 
     await this._bulkAddCards(abCards);
+    await this._getSyncToken();
+
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
+
+    this._scheduleNextSync();
+    this._syncInProgress = false;
+  }
+
+  /**
+   * Begin a sync operation. This function will decide which sync protocol to
+   * use based on the directory's configuration. It will also (re)start the
+   * timer for the next synchronisation unless told not to.
+   *
+   * @param {boolean} shouldResetTimer
+   */
+  async updateAllFromServer(shouldResetTimer = true) {
+    if (this._syncInProgress || !this._serverURL) {
+      return;
+    }
+
+    this._syncInProgress = true;
+
+    if (this._syncToken) {
+      await this.updateAllFromServerV2();
+    } else {
+      await this.updateAllFromServerV1();
+    }
+
+    if (shouldResetTimer) {
+      this._scheduleNextSync();
+    }
+    this._syncInProgress = false;
   }
 
   /**
    * Compares cards in the directory with cards on the server, and updates the
    * directory to match what is on the server.
    */
-  async updateAllFromServer() {
+  async updateAllFromServerV1() {
     let data = `<addressbook-query xmlns="urn:ietf:params:xml:ns:carddav" xmlns:d="DAV:">
       <d:prop>
         <d:getetag/>
@@ -376,6 +457,8 @@ class CardDAVDirectory extends AddrBookDirectory {
         super.modifyCard(abCard);
       }
     }
+
+    Services.obs.notifyObservers(this, "addrbook-directory-synced");
   }
 
   /**
@@ -383,7 +466,7 @@ class CardDAVDirectory extends AddrBookDirectory {
    *
    * @see RFC 6578
    */
-  async getSyncToken() {
+  async _getSyncToken() {
     let data = `<propfind xmlns="DAV:">
       <prop>
          <displayname/>
@@ -394,8 +477,15 @@ class CardDAVDirectory extends AddrBookDirectory {
     let response = await this._makeRequest("", {
       method: "PROPFIND",
       body: data,
+      headers: {
+        Depth: 0,
+      },
     });
-    this._syncToken = response.dom.querySelector("sync-token").textContent;
+    if (response.status == 207) {
+      this._syncToken = response.dom.querySelector("sync-token").textContent;
+    } else {
+      this._syncToken = "";
+    }
   }
 
   /**
@@ -462,6 +552,8 @@ class CardDAVDirectory extends AddrBookDirectory {
     if (cardsToDelete.length > 0) {
       super.deleteCards(cardsToDelete);
     }
+
+    Services.obs.notifyObservers(this, "addrbook-directory-synced");
   }
 
   static forFile(fileName) {

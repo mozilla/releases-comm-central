@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { CardDAVDirectory } = ChromeUtils.import(
+  "resource:///modules/CardDAVDirectory.jsm"
+);
 const { CardDAVServer } = ChromeUtils.import(
   "resource://testing-common/CardDAVServer.jsm"
-);
-Services.scriptloader.loadSubScript(
-  "chrome://mochikit/content/tests/SimpleTest/MockObjects.js",
-  this
 );
 
 // A list of books returned by CardDAVServer unless changed.
@@ -22,11 +21,9 @@ const DEFAULT_BOOKS = [
   },
 ];
 
-CardDAVServer.setUsernameAndPassword("alice", "alice");
-
 /** Check that the menu item is hidden unless the pref is set. */
 add_task(async function testFileMenuItem() {
-  CardDAVServer.open();
+  CardDAVServer.open("alice", "alice");
 
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
@@ -51,7 +48,7 @@ add_task(async function testFileMenuItem() {
 });
 
 async function wrappedTest(testInitCallback, ...attemptArgs) {
-  CardDAVServer.open();
+  CardDAVServer.open("alice", "alice");
   if (testInitCallback) {
     testInitCallback();
   }
@@ -205,7 +202,7 @@ add_task(function testBadPassword() {
  * doing the initial sync.
  */
 add_task(async function testEveryThingOK() {
-  CardDAVServer.open();
+  CardDAVServer.open("alice", "alice");
 
   let abWindow = await openAddressBookWindow();
   let abDocument = abWindow.document;
@@ -248,6 +245,17 @@ add_task(async function testEveryThingOK() {
 
   await dialogPromise;
   let directory = await syncPromise;
+  let davDirectory = CardDAVDirectory.forFile(directory.fileName);
+
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.url`, ""),
+    CardDAVServer.url
+  );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.token`, ""),
+    "http://mochi.test/sync/0"
+  );
+  Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
 
   Assert.equal(dirTree.view.rowCount, 4);
   Assert.equal(dirTree.view.getCellText(2, dirTree.columns[0]), "CardDAV Test");

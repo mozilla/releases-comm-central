@@ -106,7 +106,11 @@ function openConnectionTo(file) {
  * Closes the SQLite connection to `file` and removes it from the cache.
  */
 function closeConnectionTo(file) {
-  directories.delete(file.leafName);
+  let directory = directories.get(file.leafName);
+  if (directory) {
+    directory.destroy();
+    directories.delete(file.leafName);
+  }
   let connection = connections.get(file.path);
   if (connection) {
     return new Promise(resolve => {
@@ -170,6 +174,7 @@ class AddrBookDirectory {
     this._fileName = fileName;
     directories.set(fileName, this);
   }
+  destroy() {}
 
   get _prefBranch() {
     if (this.__prefBranch) {

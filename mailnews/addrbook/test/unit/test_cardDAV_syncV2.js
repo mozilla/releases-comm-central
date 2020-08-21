@@ -19,16 +19,13 @@ add_task(async () => {
 
   let directory = initDirectory();
 
-  info("Getting sync token.");
-
-  await directory.getSyncToken();
-  let lastSyncToken = directory._syncToken;
-  info(`Token is: ${lastSyncToken}`);
-
   // We'll only use this for the initial sync, so I think it's okay to use
   // _bulkAddCards and not get a notification for every contact.
   info("Initial sync with server.");
   await directory.fetchAllFromServer();
+
+  let lastSyncToken = directory._syncToken;
+  info(`Token is: ${lastSyncToken}`);
 
   info("Cards:");
   let cardMap = new Map();

@@ -20,11 +20,17 @@ var CardDAVServer = {
   server: null,
   isOpen: false,
 
-  open() {
+  open(username, password) {
+    this.cards.clear();
+    this.deletedCards.clear();
+    this.changeCount = 0;
+
     this.server = new HttpServer();
     this.server.start(-1);
     this.isOpen = true;
 
+    this.username = username;
+    this.password = password;
     this.server.registerPathHandler("/ping", this.ping);
     this.resetHandlers();
   },
@@ -80,11 +86,6 @@ var CardDAVServer = {
 
   get url() {
     return `${this.origin}${this.path}`;
-  },
-
-  setUsernameAndPassword(username, password) {
-    this.username = username;
-    this.password = password;
   },
 
   checkAuth(request, response) {

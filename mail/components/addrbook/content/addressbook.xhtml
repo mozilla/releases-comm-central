@@ -95,6 +95,7 @@
     <command id="cmd_printcard" oncommand="AbPrintCard();"/>
     <command id="cmd_newMessage" oncommand="AbNewMessage();" disabled="true"/>
     <command id="cmd_properties" oncommand="goDoCommand('cmd_properties');" disabled="true"/>
+    <command id="cmd_syncDirectory" oncommand="goDoCommand('cmd_syncDirectory');"/>
     <command id="cmd_undo" oncommand="goDoCommand('cmd_undo')" disabled="true"/>
     <command id="cmd_redo" oncommand="goDoCommand('cmd_redo')" disabled="true"/>
     <command id="cmd_cut" oncommand="goDoCommand('cmd_cut')" disabled="true"/>
@@ -197,6 +198,10 @@
             valueAddressBookAccessKey="&abPropertiesContext.accesskey;"
             valueMailingList="&editMailingListContext.label;"
             valueMailingListAccessKey="&editMailingListContext.accesskey;"/>
+  <menuitem id="dirTreeContext-sync"
+            command="cmd_syncDirectory"
+            label="&syncContext.label;"
+            accesskey="&syncContext.accesskey;"/>
   <menuseparator/>
   <menuitem id="dirTreeContext-newcard" label="&newContactButton.label;"
             accesskey="&newContactButton.accesskey;" command="cmd_newCard"/>

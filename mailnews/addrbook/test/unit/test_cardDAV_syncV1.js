@@ -64,7 +64,7 @@ add_task(async () => {
   info("Second sync with server.");
 
   observer.init();
-  await directory.updateAllFromServer();
+  await directory.updateAllFromServerV1();
   observer.checkAndClearNotifications({
     "addrbook-contact-created": ["new"],
     "addrbook-contact-updated": ["change-me"],
@@ -123,7 +123,7 @@ add_task(async () => {
 
   info("Third sync with server. No changes expected.");
 
-  await directory.updateAllFromServer();
+  await directory.updateAllFromServerV1();
 
   observer.checkAndClearNotifications({
     "addrbook-contact-created": [],
@@ -219,7 +219,7 @@ add_task(async () => {
 
   info("Fourth sync with server. No changes expected.");
 
-  await directory.updateAllFromServer();
+  await directory.updateAllFromServerV1();
 
   observer.checkAndClearNotifications({
     "addrbook-contact-created": [],

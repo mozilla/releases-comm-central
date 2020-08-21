@@ -18,6 +18,11 @@ var { FileUtils } = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 var { PrivateBrowsingUtils } = ChromeUtils.import(
   "resource://gre/modules/PrivateBrowsingUtils.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "CardDAVDirectory",
+  "resource:///modules/CardDAVDirectory.jsm"
+);
 
 var gDirTree;
 var abList = null;
@@ -54,6 +59,7 @@ var DirPaneController = {
       case "cmd_delete":
       case "button_delete":
       case "cmd_properties":
+      case "cmd_syncDirectory":
       case "cmd_abToggleStartupDir":
       case "cmd_printcard":
       case "cmd_printcardpreview":
@@ -157,6 +163,9 @@ var DirPaneController = {
         });
         return enabled;
       }
+      case "cmd_syncDirectory":
+        let selectedDir = getSelectedDirectory();
+        return selectedDir && selectedDir.dirType == 102;
       case "cmd_abToggleStartupDir":
         return !!getSelectedDirectoryURI();
       case "cmd_rename":
@@ -194,6 +203,9 @@ var DirPaneController = {
         break;
       case "cmd_properties":
         AbEditSelectedDirectory();
+        break;
+      case "cmd_syncDirectory":
+        AbSyncSelectedDirectory();
         break;
       case "cmd_abToggleStartupDir":
         abToggleSelectedDirStartup();
@@ -277,17 +289,29 @@ function AbEditSelectedDirectory() {
   }
 }
 
+function AbSyncSelectedDirectory() {
+  let selectedDir = getSelectedDirectory();
+  if (selectedDir && selectedDir.dirType == 102) {
+    selectedDir = CardDAVDirectory.forFile(selectedDir.fileName);
+    selectedDir.updateAllFromServer();
+  }
+}
+
 function updateDirTreeContext() {
+  let selectedDir = getSelectedDirectory();
   let startupItem = document.getElementById("dirTreeContext-startupDir");
+  let syncItem = document.getElementById("dirTreeContext-sync");
+
   if (Services.prefs.getBoolPref("mail.addr_book.view.startupURIisDefault")) {
     let startupURI = Services.prefs.getCharPref(
       "mail.addr_book.view.startupURI"
     );
-    let selectedDirURI = getSelectedDirectoryURI();
-    startupItem.setAttribute("checked", startupURI == selectedDirURI);
+    startupItem.setAttribute("checked", startupURI == selectedDir.URI);
   } else {
     startupItem.setAttribute("checked", "false");
   }
+
+  syncItem.hidden = selectedDir && selectedDir.dirType != 102;
 }
 
 function abToggleSelectedDirStartup() {
