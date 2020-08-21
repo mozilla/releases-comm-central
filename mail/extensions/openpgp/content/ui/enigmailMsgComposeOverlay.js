@@ -438,14 +438,24 @@ Enigmail.msg = {
   },
 
   getMsgHdr(msgUri) {
-    if (!msgUri) {
-      msgUri = this.getOriginalMsgUri();
-    }
-    if (msgUri) {
-      let messenger = Cc["@mozilla.org/messenger;1"].getService(
-        Ci.nsIMessenger
+    try {
+      if (!msgUri) {
+        msgUri = this.getOriginalMsgUri();
+      }
+      if (msgUri) {
+        let messenger = Cc["@mozilla.org/messenger;1"].getService(
+          Ci.nsIMessenger
+        );
+        return messenger
+          .messageServiceFromURI(msgUri)
+          .messageURIToMsgHdr(msgUri);
+      }
+    } catch (ex) {
+      // See also bug 1635648
+      console.debug("exception in getMsgHdr: " + ex);
+      EnigmailLog.DEBUG(
+        "enigmailMessengerOverlay.js: exception in getMsgHdr: " + ex + "\n"
       );
-      return messenger.messageServiceFromURI(msgUri).messageURIToMsgHdr(msgUri);
     }
     return null;
   },
@@ -633,7 +643,9 @@ Enigmail.msg = {
           });
         } catch (ex) {
           EnigmailLog.DEBUG(
-            "enigmailMessengerOverlay.js: Enigmail.msg.getMsgProperties: exception in getMimeTreeFromUrl\n"
+            "enigmailMessengerOverlay.js: composeOpen: exception in getMimeTreeFromUrl: " +
+              ex +
+              "\n"
           );
           this.continueComposeOpenWithMimeTree(msgUri, msgHdr, null);
         }
