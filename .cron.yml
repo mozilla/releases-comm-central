@@ -65,3 +65,12 @@ jobs:
           - comm-central
       when:
           - {hour: 11, minute: 0}
+
+    - name: l10n-bumper
+      job:
+          type: decision-task
+          treeherder-symbol: l10n-bump
+          target-tasks-method: l10n_bump
+      run-on-projects:
+          - comm-beta
+      when: [{hour: 8, minute: 30}]
