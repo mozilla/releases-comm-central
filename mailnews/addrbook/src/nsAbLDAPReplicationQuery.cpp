@@ -9,7 +9,6 @@
 #include "nsAbLDAPReplicationData.h"
 #include "nsAbBaseCID.h"
 #include "nsAbUtils.h"
-#include "nsDirPrefs.h"
 #include "prmem.h"
 #include "nsComponentManagerUtils.h"
 #include "nsMsgUtils.h"

@@ -523,7 +523,7 @@ class AddrBookDirectory {
     Services.obs.notifyObservers(this, "addrbook-directory-updated", "DirName");
   }
   get dirType() {
-    return 101;
+    return Ci.nsIAbManager.JS_DIRECTORY_TYPE;
   }
   get fileName() {
     return this._fileName;

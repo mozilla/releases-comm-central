@@ -291,7 +291,10 @@ function AbEditSelectedDirectory() {
 
 function AbSyncSelectedDirectory() {
   let selectedDir = getSelectedDirectory();
-  if (selectedDir && selectedDir.dirType == 102) {
+  if (
+    selectedDir &&
+    selectedDir.dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+  ) {
     selectedDir = CardDAVDirectory.forFile(selectedDir.fileName);
     selectedDir.updateAllFromServer();
   }

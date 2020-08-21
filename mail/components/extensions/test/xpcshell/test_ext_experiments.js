@@ -220,7 +220,11 @@ add_task(async function test_managers() {
     },
   });
 
-  let dirPrefId = MailServices.ab.newAddressBook("new book", "", 101);
+  let dirPrefId = MailServices.ab.newAddressBook(
+    "new book",
+    "",
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   let book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
   let contact = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(

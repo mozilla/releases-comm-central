@@ -29,12 +29,18 @@ add_task(async function() {
 
   // Check that the default preferences are untouched.
 
-  equal(Services.prefs.getIntPref("ldap_2.servers.pab.dirType"), 101);
+  equal(
+    Services.prefs.getIntPref("ldap_2.servers.pab.dirType"),
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   equal(
     Services.prefs.getStringPref("ldap_2.servers.pab.filename"),
     "abook.sqlite"
   );
-  equal(Services.prefs.getIntPref("ldap_2.servers.history.dirType"), 101);
+  equal(
+    Services.prefs.getIntPref("ldap_2.servers.history.dirType"),
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   equal(
     Services.prefs.getStringPref("ldap_2.servers.history.filename"),
     "history.sqlite"
@@ -44,8 +50,8 @@ add_task(async function() {
 
   let directories = [...MailServices.ab.directories];
   equal(directories.length, 2);
-  equal(directories[0].dirType, 101);
-  equal(directories[1].dirType, 101);
+  equal(directories[0].dirType, Ci.nsIAbManager.JS_DIRECTORY_TYPE);
+  equal(directories[1].dirType, Ci.nsIAbManager.JS_DIRECTORY_TYPE);
 
   let [personalBook, historyBook] = directories;
 

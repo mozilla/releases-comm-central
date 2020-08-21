@@ -242,7 +242,7 @@ window.addEventListener("dialogaccept", event => {
       let dirPrefId = MailServices.ab.newAddressBook(
         checkbox.getAttribute("label"),
         null,
-        102,
+        Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE,
         null
       );
       book = MailServices.ab.getDirectoryFromId(dirPrefId);

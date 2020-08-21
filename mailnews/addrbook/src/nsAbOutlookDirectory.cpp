@@ -104,7 +104,7 @@ NS_IMETHODIMP nsAbOutlookDirectory::Init(const char* aUri) {
 
 NS_IMETHODIMP nsAbOutlookDirectory::GetDirType(int32_t* aDirType) {
   NS_ENSURE_ARG_POINTER(aDirType);
-  *aDirType = MAPIDirectory;
+  *aDirType = nsIAbManager::MAPI_DIRECTORY_TYPE;
   return NS_OK;
 }
 

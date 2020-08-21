@@ -54,8 +54,6 @@ ChromeUtils.import("resource:///modules/chatHandler.jsm", chatHandler);
 var kDisplayName = 0;
 var kLastNameFirst = 1;
 var kFirstNameFirst = 2;
-var kLDAPDirectory = 0; // defined in nsDirPrefs.h
-var kPABDirectory = 2; // defined in nsDirPrefs.h
 
 // These chat properties are the ones that our IM component supports. If a
 // contact has a value for one of these properties, we can communicate with

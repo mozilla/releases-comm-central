@@ -22,6 +22,11 @@ interface nsIAbBooleanExpression;
 [scriptable, uuid(ea0d8b3d-a549-4874-82d8-3a82cee2a3f1)]
 interface nsIAbManager : nsISupports
 {
+  const unsigned long LDAP_DIRECTORY_TYPE = 0;
+  const unsigned long MAPI_DIRECTORY_TYPE = 3;
+  const unsigned long JS_DIRECTORY_TYPE = 101;
+  const unsigned long CARDDAV_DIRECTORY_TYPE = 102;
+
   /**
    * Returns an enumerator containing all the top-level directories
    * (non-recursive)
@@ -58,7 +63,7 @@ interface nsIAbManager : nsISupports
    * @param  aDirName   The description of the address book.
    * @param  aURI       The URI for the address book. This is specific to each
    *                    type of address book.
-   * @param  aType      The type of the address book (see nsDirPrefs.h)
+   * @param  aType      One of the *_DIRECTORY_TYPE constants.
    * @param  aPrefName  Overrides the default of ldap_2.servers.<aDirName>
    *                    (note that the caller must ensure its uniqueness).
    */

@@ -4,7 +4,6 @@
 
 "use strict";
 
-var DIR_TYPE = 101;
 var FILE_NAME = "abook-1.sqlite";
 var SCHEME = "jsaddrbook";
 
@@ -124,7 +123,11 @@ add_task(async function setUp() {
 });
 
 add_task(async function createAddressBook() {
-  let dirPrefId = MailServices.ab.newAddressBook("new book", "", DIR_TYPE);
+  let dirPrefId = MailServices.ab.newAddressBook(
+    "new book",
+    "",
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   book = MailServices.ab.getDirectoryFromId(dirPrefId);
   observer.checkEvents(["addrbook-directory-created", book]);
 
@@ -134,7 +137,7 @@ add_task(async function createAddressBook() {
   ok(!book.isRemote);
   ok(!book.isSecure);
   equal(book.dirName, "new book");
-  equal(book.dirType, DIR_TYPE);
+  equal(book.dirType, Ci.nsIAbManager.JS_DIRECTORY_TYPE);
   equal(book.fileName, FILE_NAME);
   equal(book.UID.length, 36);
   equal(book.URI, `${SCHEME}://${FILE_NAME}`);
@@ -151,7 +154,10 @@ add_task(async function createAddressBook() {
     Services.prefs.getStringPref("ldap_2.servers.newbook.description"),
     "new book"
   );
-  equal(Services.prefs.getIntPref("ldap_2.servers.newbook.dirType"), DIR_TYPE);
+  equal(
+    Services.prefs.getIntPref("ldap_2.servers.newbook.dirType"),
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   equal(
     Services.prefs.getStringPref("ldap_2.servers.newbook.filename"),
     FILE_NAME

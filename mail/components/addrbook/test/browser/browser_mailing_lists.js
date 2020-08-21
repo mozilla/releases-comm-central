@@ -30,7 +30,11 @@ let global = {};
  * Set up: create a new address book to hold the mailing list.
  */
 add_task(async () => {
-  let bookPrefName = MailServices.ab.newAddressBook(inputs.abName, null, 101);
+  let bookPrefName = MailServices.ab.newAddressBook(
+    inputs.abName,
+    null,
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   let addressBook = MailServices.ab.getDirectoryFromId(bookPrefName);
 
   let abWindow = await openAddressBookWindow();

@@ -14,7 +14,6 @@ var gDirectory = null;
 var kPersonalAddressbookURI = "jsaddrbook://abook.sqlite";
 var kCollectedAddressbookURI = "jsaddrbook://history.sqlite";
 var kAllDirectoryRoot = "moz-abdirectory://";
-var kJSDirectory = 101; // defined in nsDirPrefs.h
 
 function abNameOnLoad() {
   // Get the document elements.
@@ -85,7 +84,7 @@ function abNameOKButton(event) {
     let dirPrefId = MailServices.ab.newAddressBook(
       newDirName,
       "",
-      kJSDirectory
+      Ci.nsIAbManager.JS_DIRECTORY_TYPE
     );
     let directory = MailServices.ab.getDirectoryFromId(dirPrefId);
     window.arguments[0].newDirectoryURI = directory.URI;

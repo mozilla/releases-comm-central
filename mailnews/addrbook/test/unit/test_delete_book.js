@@ -23,7 +23,11 @@ add_task(async function clearPref() {
     "jsaddrbook://history.sqlite"
   );
 
-  let dirPrefId = MailServices.ab.newAddressBook("delete me", "", 101);
+  let dirPrefId = MailServices.ab.newAddressBook(
+    "delete me",
+    "",
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   let book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
   Assert.deepEqual(getExistingDirectories(), [

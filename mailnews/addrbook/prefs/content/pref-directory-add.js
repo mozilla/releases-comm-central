@@ -23,7 +23,6 @@ var gDownloadInProgress = false;
 
 var kDefaultLDAPPort = 389;
 var kDefaultSecureLDAPPort = 636;
-var kLDAPDirectory = 0; // defined in nsDirPrefs.h
 
 document.addEventListener("dialogaccept", onAccept);
 document.addEventListener("dialogcancel", onCancel);
@@ -402,7 +401,7 @@ function onAccept(event) {
         window.opener.gNewServerString = MailServices.ab.newAddressBook(
           description,
           ldapUrl.spec,
-          kLDAPDirectory
+          Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
         );
       }
 

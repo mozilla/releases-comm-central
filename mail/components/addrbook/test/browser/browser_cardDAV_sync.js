@@ -31,7 +31,11 @@ add_task(async () => {
     await CardDAVServer.close();
   });
 
-  let dirPrefId = MailServices.ab.newAddressBook("sync", undefined, 102);
+  let dirPrefId = MailServices.ab.newAddressBook(
+    "sync",
+    undefined,
+    Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+  );
   Assert.equal(dirPrefId, "ldap_2.servers.sync");
   Assert.equal([...MailServices.ab.directories].length, 3);
 
@@ -44,7 +48,7 @@ add_task(async () => {
 
     Assert.equal(davDirectory._syncTimer, null, "sync timer cleaned up");
   });
-  Assert.equal(directory.dirType, 102);
+  Assert.equal(directory.dirType, Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE);
 
   Services.prefs.setStringPref(
     "ldap_2.servers.sync.carddav.token",

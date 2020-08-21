@@ -11,8 +11,6 @@ const AB_WINDOW_TYPE = "mail:addressbook";
 const AB_WINDOW_URI =
   "chrome://messenger/content/addressbook/addressbook.xhtml";
 
-const kJSDirectory = 101; // defined in nsDirPrefs.h
-
 // nsIAbCard.idl contains a list of properties that Thunderbird uses. Extensions are not
 // restricted to using only these properties, but the following properties cannot
 // be modified by an extension.
@@ -477,7 +475,11 @@ this.addressBook = class extends ExtensionAPI {
           );
         },
         create({ name }) {
-          let dirName = MailServices.ab.newAddressBook(name, "", kJSDirectory);
+          let dirName = MailServices.ab.newAddressBook(
+            name,
+            "",
+            Ci.nsIAbManager.JS_DIRECTORY_TYPE
+          );
           let directory = MailServices.ab.getDirectoryFromId(dirName);
           return directory.UID;
         },

@@ -679,11 +679,10 @@ add_task(async function test_addressBooks() {
     let parent = MailServices.ab.getDirectory("jsaddrbook://abook.sqlite");
     switch (action) {
       case "createAddressBook": {
-        const kJSDirectory = 101; // defined in nsDirPrefs.h
         let dirPrefId = MailServices.ab.newAddressBook(
           "external add",
           "",
-          kJSDirectory
+          Ci.nsIAbManager.JS_DIRECTORY_TYPE
         );
         let book = MailServices.ab.getDirectoryFromId(dirPrefId);
         extension.sendMessage(book.UID, dirPrefId);

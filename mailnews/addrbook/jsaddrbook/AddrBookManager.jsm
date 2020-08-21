@@ -35,12 +35,6 @@ XPCOMUtils.defineLazyServiceGetter(
   "nsIEnvironment"
 );
 
-/** Directory type constants, as defined in nsDirPrefs.h. */
-const LDAP_DIRECTORY_TYPE = 0;
-const MAPI_DIRECTORY_TYPE = 3;
-const JS_DIRECTORY_TYPE = 101;
-const CARDDAV_DIRECTORY_TYPE = 102;
-
 /** Test for valid directory URIs. */
 const URI_REGEXP = /^([\w-]+):\/\/([\w\.-]*)([/:].*|$)/;
 
@@ -124,7 +118,7 @@ function ensureInitialized() {
         let uri = Services.prefs.getStringPref(`${prefName}.uri`, "");
 
         switch (dirType) {
-          case MAPI_DIRECTORY_TYPE:
+          case Ci.nsIAbManager.MAPI_DIRECTORY_TYPE:
             if (env.exists("MOZ_AUTOMATION")) {
               break;
             }
@@ -146,13 +140,13 @@ function ensureInitialized() {
               }
             }
             break;
-          case JS_DIRECTORY_TYPE:
+          case Ci.nsIAbManager.JS_DIRECTORY_TYPE:
             if (fileName) {
               let uri = `jsaddrbook://${fileName}`;
               createDirectoryObject(uri, true);
             }
             break;
-          case CARDDAV_DIRECTORY_TYPE:
+          case Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE:
             if (fileName) {
               let uri = `jscarddav://${fileName}`;
               createDirectoryObject(uri, true);
@@ -289,7 +283,7 @@ AddrBookManager.prototype = {
     ensureInitialized();
 
     switch (type) {
-      case LDAP_DIRECTORY_TYPE: {
+      case Ci.nsIAbManager.LDAP_DIRECTORY_TYPE: {
         let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
         file.append("ldap.sqlite");
         file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
@@ -304,7 +298,7 @@ AddrBookManager.prototype = {
         Services.obs.notifyObservers(dir, "addrbook-directory-created");
         break;
       }
-      case MAPI_DIRECTORY_TYPE: {
+      case Ci.nsIAbManager.MAPI_DIRECTORY_TYPE: {
         if (AppConstants.platform == "macosx") {
           uri = "moz-abosxdirectory:///";
           if (store.has(uri)) {
@@ -340,7 +334,10 @@ AddrBookManager.prototype = {
           );
         }
 
-        Services.prefs.setIntPref(`${prefName}.dirType`, MAPI_DIRECTORY_TYPE);
+        Services.prefs.setIntPref(
+          `${prefName}.dirType`,
+          Ci.nsIAbManager.MAPI_DIRECTORY_TYPE
+        );
         Services.prefs.setStringPref(
           `${prefName}.description`,
           "chrome://messenger/locale/addressbook/addressBook.properties"
@@ -361,8 +358,8 @@ AddrBookManager.prototype = {
         }
         break;
       }
-      case JS_DIRECTORY_TYPE:
-      case CARDDAV_DIRECTORY_TYPE: {
+      case Ci.nsIAbManager.JS_DIRECTORY_TYPE:
+      case Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE: {
         let file = Services.dirsvc.get("ProfD", Ci.nsIFile);
         file.append("abook.sqlite");
         file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o644);
@@ -372,14 +369,20 @@ AddrBookManager.prototype = {
         Services.prefs.setIntPref(`${prefName}.dirType`, type);
         Services.prefs.setStringPref(`${prefName}.filename`, file.leafName);
 
-        let scheme = type == JS_DIRECTORY_TYPE ? "jsaddrbook" : "jscarddav";
+        let scheme =
+          type == Ci.nsIAbManager.JS_DIRECTORY_TYPE
+            ? "jsaddrbook"
+            : "jscarddav";
         uri = `${scheme}://${file.leafName}`;
         let dir = createDirectoryObject(uri, true);
         Services.obs.notifyObservers(dir, "addrbook-directory-created");
         break;
       }
       default:
-        throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
+        throw Components.Exception(
+          `Unexpected directory type: ${type}`,
+          Cr.NS_ERROR_UNEXPECTED
+        );
     }
 
     return prefName;
@@ -423,12 +426,12 @@ AddrBookManager.prototype = {
     }
 
     Services.prefs.clearUserPref(`${prefName}.description`);
-    if (dirType == MAPI_DIRECTORY_TYPE) {
+    if (dirType == Ci.nsIAbManager.MAPI_DIRECTORY_TYPE) {
       // The prefs for this directory type are defaults. Setting the dirType
       // to -1 ensures the directory is ignored.
       Services.prefs.setIntPref(`${prefName}.dirType`, -1);
     } else {
-      if (dirType == CARDDAV_DIRECTORY_TYPE) {
+      if (dirType == Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE) {
         Services.prefs.clearUserPref(`${prefName}.carddav.token`);
         Services.prefs.clearUserPref(`${prefName}.carddav.url`);
       }

@@ -12,7 +12,6 @@
 #include "nsAbLDAPListenerBase.h"
 #include "nsIAbDirectory.h"
 #include "nsIFile.h"
-#include "nsDirPrefs.h"
 #include "nsIAbLDAPAttributeMap.h"
 #include "nsIAbLDAPDirectory.h"
 #include "nsString.h"

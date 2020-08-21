@@ -70,7 +70,11 @@ function openDirectory(directory) {
 }
 
 function createAddressBook(dirName) {
-  let prefName = MailServices.ab.newAddressBook(dirName, null, 101);
+  let prefName = MailServices.ab.newAddressBook(
+    dirName,
+    null,
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   return MailServices.ab.getDirectoryFromId(prefName);
 }
 

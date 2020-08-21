@@ -15,7 +15,11 @@ add_task(async () => {
   let contents = await OS.File.read(jsonFile.path);
   let contacts = await JSON.parse(new TextDecoder().decode(contents));
 
-  let dirPrefId = MailServices.ab.newAddressBook("new book", "", 101);
+  let dirPrefId = MailServices.ab.newAddressBook(
+    "new book",
+    "",
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   let book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
   for (let [name, { attributes }] of Object.entries(contacts)) {

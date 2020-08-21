@@ -4,7 +4,6 @@
  * when offline and that we don't crash.
  */
 
-var kLDAPDirectory = 0; // defined in nsDirPrefs.h
 var kLDAPUriPrefix = "moz-abldapdirectory://";
 var kLDAPTestSpec = "ldap://invalidhost//dc=intranet??sub?(objectclass=*)";
 
@@ -21,7 +20,7 @@ function run_test() {
   let abUri = MailServices.ab.newAddressBook(
     "test",
     kLDAPTestSpec,
-    kLDAPDirectory
+    Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
   );
 
   let abDir = MailServices.ab

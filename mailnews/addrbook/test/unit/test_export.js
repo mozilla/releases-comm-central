@@ -19,7 +19,11 @@ var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 add_task(async () => {
-  let dirPrefId = MailServices.ab.newAddressBook("new book", "", 101);
+  let dirPrefId = MailServices.ab.newAddressBook(
+    "new book",
+    "",
+    Ci.nsIAbManager.JS_DIRECTORY_TYPE
+  );
   let book = MailServices.ab.getDirectoryFromId(dirPrefId);
 
   let contact1 = Cc["@mozilla.org/addressbook/cardproperty;1"].createInstance(

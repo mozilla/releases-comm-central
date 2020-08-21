@@ -4,7 +4,6 @@
  * letters doesn't work.
  */
 
-var kLDAPDirectory = 0; // defined in nsDirPrefs.h
 var kLDAPUriPrefix = "moz-abldapdirectory://";
 var kLDAPTestSpec = "ldap://invalidhost//dc=intranet??sub?(objectclass=*)";
 
@@ -21,7 +20,7 @@ function run_test() {
   var abUri = MailServices.ab.newAddressBook(
     "\u041C\u0435\u043B\u0435\u043D\u043A\u0438",
     kLDAPTestSpec,
-    kLDAPDirectory
+    Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
   );
 
   // Test - Check we have the directory.

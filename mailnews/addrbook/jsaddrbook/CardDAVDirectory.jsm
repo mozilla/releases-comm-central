@@ -43,7 +43,7 @@ class CardDAVDirectory extends AddrBookDirectory {
   }
 
   get dirType() {
-    return 102;
+    return Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE;
   }
   get supportsMailingLists() {
     return false;

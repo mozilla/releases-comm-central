@@ -16,7 +16,6 @@
 #include "msgCore.h"
 #include "ImportDebug.h"
 #include "nsArrayUtils.h"
-#include "nsDirPrefs.h"
 
 nsresult NS_NewGenericAddressBooks(nsIImportGeneric** aImportGeneric) {
   NS_ASSERTION(aImportGeneric != nullptr, "null ptr");
@@ -348,7 +347,8 @@ already_AddRefed<nsIAbDirectory> GetAddressBook(nsString name, bool makeNew) {
       do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   if (NS_SUCCEEDED(rv)) {
     nsAutoCString dirPrefId;
-    rv = abManager->NewAddressBook(name, EmptyCString(), JSDirectory,
+    rv = abManager->NewAddressBook(name, EmptyCString(),
+                                   nsIAbManager::JS_DIRECTORY_TYPE,
                                    EmptyCString(), dirPrefId);
     if (NS_SUCCEEDED(rv)) {
       rv = abManager->GetDirectoryFromId(dirPrefId, getter_AddRefs(directory));

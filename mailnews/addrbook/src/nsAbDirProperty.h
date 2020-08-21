@@ -14,7 +14,6 @@
 
 #include "nsIAbDirectory.h" /* include the interface we are going to support */
 #include "nsCOMPtr.h"
-#include "nsDirPrefs.h"
 #include "nsString.h"
 #include "nsIPrefBranch.h"
 #include "nsIMutableArray.h"

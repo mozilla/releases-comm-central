@@ -6,7 +6,6 @@
 #include "nsAbDirProperty.h"
 #include "nsAbBaseCID.h"
 #include "nsIAbCard.h"
-#include "nsDirPrefs.h"
 #include "nsIPrefService.h"
 #include "nsIPrefLocalizedString.h"
 #include "nsServiceManagerUtils.h"
@@ -125,7 +124,7 @@ NS_IMETHODIMP nsAbDirProperty::SetDirName(const nsAString& aDirName) {
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetDirType(int32_t* aDirType) {
-  return GetIntValue("dirType", LDAPDirectory, aDirType);
+  return GetIntValue("dirType", nsIAbManager::LDAP_DIRECTORY_TYPE, aDirType);
 }
 
 NS_IMETHODIMP nsAbDirProperty::GetFileName(nsACString& aFileName) {

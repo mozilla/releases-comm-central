@@ -35,7 +35,10 @@ function initDirectory() {
     "ldap_2.servers.carddav.carddav.url",
     CardDAVServer.url
   );
-  Services.prefs.setIntPref("ldap_2.servers.carddav.dirType", 102);
+  Services.prefs.setIntPref(
+    "ldap_2.servers.carddav.dirType",
+    Ci.nsIAbManager.CARDDAV_DIRECTORY_TYPE
+  );
   Services.prefs.setStringPref(
     "ldap_2.servers.carddav.filename",
     "carddav.sqlite"

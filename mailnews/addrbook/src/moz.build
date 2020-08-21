@@ -5,7 +5,6 @@
 
 EXPORTS += [
     'nsAbDirProperty.h',
-    'nsDirPrefs.h',
 ]
 
 SOURCES += [
