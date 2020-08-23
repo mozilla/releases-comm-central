@@ -177,6 +177,9 @@ var gNumUploadingAttachments;
 
 var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
+// For WebExtensions.
+this.__defineGetter__("browser", GetCurrentEditorElement);
+
 // Observer for the autocomplete input.
 const inputObserver = {
   observe: (subject, topic, data) => {

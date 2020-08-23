@@ -72,6 +72,8 @@ var gBrowser = {
   },
 };
 
+this.__defineGetter__("browser", getBrowser);
+
 function getBrowser() {
   return gBrowser.selectedBrowser;
 }
