@@ -96,6 +96,9 @@ function updateMailList(mailList, isNewList) {
   let canonicalOldListName = gOldListName.toLowerCase();
   if (isNewList || canonicalOldListName != canonicalNewListName) {
     if (mailingListExists(listname)) {
+      // After showing the "Mailing List Already Exists" error alert,
+      // focus ListName input field for user to choose a different name.
+      document.getElementById("ListName").focus();
       return false;
     }
   }
