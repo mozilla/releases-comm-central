@@ -63,6 +63,19 @@ let JSWINDOWACTORS = {
     includeChrome: true,
     allFrames: true,
   },
+
+  VCard: {
+    parent: {
+      moduleURI: "resource:///actors/VCardParent.jsm",
+    },
+    child: {
+      moduleURI: "resource:///actors/VCardChild.jsm",
+      events: {
+        click: {},
+      },
+    },
+    allFrames: true,
+  },
 };
 
 XPCOMUtils.defineLazyModuleGetters(this, {

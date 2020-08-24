@@ -38,69 +38,7 @@ nsAbContentHandler::HandleContent(const char* aContentType,
 
   nsresult rv = NS_OK;
 
-  // First of all, get the content type and make sure it is a content type we
-  // know how to handle!
-  if (PL_strcasecmp(aContentType, "application/x-addvcard") == 0) {
-    nsCOMPtr<nsIURI> uri;
-    nsCOMPtr<nsIChannel> aChannel = do_QueryInterface(request);
-    if (!aChannel) return NS_ERROR_FAILURE;
-
-    rv = aChannel->GetURI(getter_AddRefs(uri));
-    if (uri) {
-      nsAutoCString path;
-      rv = uri->GetPathQueryRef(path);
-      NS_ENSURE_SUCCESS(rv, rv);
-
-      const char* startOfVCard = strstr(path.get(), "add?vcard=");
-      if (startOfVCard) {
-        nsCString unescapedData;
-
-        // XXX todo, explain why we is escaped twice
-        MsgUnescapeString(
-            nsDependentCString(startOfVCard + strlen("add?vcard=")), 0,
-            unescapedData);
-
-        if (!aWindowContext) return NS_ERROR_FAILURE;
-
-        nsCOMPtr<mozIDOMWindowProxy> domWindow =
-            do_GetInterface(aWindowContext);
-        NS_ENSURE_TRUE(domWindow, NS_ERROR_FAILURE);
-        nsCOMPtr<nsPIDOMWindowOuter> parentWindow =
-            nsPIDOMWindowOuter::From(domWindow);
-
-        nsCOMPtr<nsIMsgVCardService> vCardService =
-            do_GetService(NS_MSGVCARDSERVICE_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        nsCOMPtr<nsIAbCard> cardFromVCard;
-        rv = vCardService->EscapedVCardToAbCard(unescapedData.get(),
-                                                getter_AddRefs(cardFromVCard));
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        nsCOMPtr<nsISupportsInterfacePointer> ifptr =
-            do_CreateInstance(NS_SUPPORTS_INTERFACE_POINTER_CONTRACTID, &rv);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        ifptr->SetData(cardFromVCard);
-        ifptr->SetDataIID(&NS_GET_IID(nsIAbCard));
-
-        // Find a privileged chrome window to open the dialog from.
-        nsCOMPtr<nsIDocShell> docShell(parentWindow->GetDocShell());
-        nsCOMPtr<nsIDocShellTreeItem> root;
-        docShell->GetInProcessRootTreeItem(getter_AddRefs(root));
-        nsCOMPtr<nsPIDOMWindowOuter> window(do_GetInterface(root));
-
-        RefPtr<mozilla::dom::BrowsingContext> dialogWindow;
-        rv = window->OpenDialog(
-            u"chrome://messenger/content/addressbook/abNewCardDialog.xhtml"_ns,
-            EmptyString(),
-            u"chrome,resizable=no,titlebar,modal,centerscreen"_ns, ifptr,
-            getter_AddRefs(dialogWindow));
-        NS_ENSURE_SUCCESS(rv, rv);
-      }
-      rv = NS_OK;
-    }
-  } else if (PL_strcasecmp(aContentType, "text/x-vcard") == 0) {
+  if (PL_strcasecmp(aContentType, "text/x-vcard") == 0) {
     // create a vcard stream listener that can parse the data stream
     // and bring up the appropriate UI
 
@@ -126,8 +64,9 @@ nsAbContentHandler::HandleContent(const char* aContentType,
         nsIContentPolicy::TYPE_OTHER);
     NS_ENSURE_SUCCESS(rv, rv);
 
-  } else  // The content-type was not application/x-addvcard...
+  } else {
     return NS_ERROR_WONT_HANDLE_CONTENT;
+  }
 
   return rv;
 }

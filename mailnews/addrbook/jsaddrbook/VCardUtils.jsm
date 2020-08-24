@@ -313,7 +313,7 @@ VCardMimeConverter.prototype = {
       <body>
         <table class="moz-vcard-table">
           <tr>
-            <td valign="top"><a class="moz-vcard-badge" href="addbook:add?action=add?vcard=${escapedVCard}"></a></td>
+            <td valign="top"><a class="moz-vcard-badge" href="addbook:add?action=add&amp;vcard=${escapedVCard}"></a></td>
             <td>
               ${propertiesTable}
             </td>

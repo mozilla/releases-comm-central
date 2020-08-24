@@ -124,37 +124,6 @@ nsAddbookProtocolHandler::NewChannel(nsIURI* aURI, nsILoadInfo* aLoadInfo,
     return NS_OK;
   }
 
-  if (mAddbookOperation == nsIAddbookUrlOperation::AddVCard) {
-    // create an empty pipe for use with the input stream channel.
-    nsCOMPtr<nsIAsyncInputStream> pipeIn;
-    nsCOMPtr<nsIAsyncOutputStream> pipeOut;
-    nsCOMPtr<nsIPipe> pipe = do_CreateInstance("@mozilla.org/pipe;1");
-
-    rv = pipe->Init(false, false, 0, 0);
-    NS_ENSURE_SUCCESS(rv, rv);
-
-    // These always succeed because the pipe is initialized above.
-    MOZ_ALWAYS_SUCCEEDS(pipe->GetInputStream(getter_AddRefs(pipeIn)));
-    MOZ_ALWAYS_SUCCEEDS(pipe->GetOutputStream(getter_AddRefs(pipeOut)));
-
-    pipeOut->Close();
-    if (aLoadInfo) {
-      return NS_NewInputStreamChannelInternal(_retval, aURI, pipeIn.forget(),
-                                              "application/x-addvcard"_ns,
-                                              EmptyCString(), aLoadInfo);
-    }
-
-    nsCOMPtr<nsIPrincipal> nullPrincipal =
-        do_CreateInstance("@mozilla.org/nullprincipal;1", &rv);
-    NS_ASSERTION(NS_SUCCEEDED(rv), "CreateInstance of nullprincipal failed.");
-    if (NS_FAILED(rv)) return rv;
-
-    return NS_NewInputStreamChannel(
-        _retval, aURI, pipeIn.forget(), nullPrincipal,
-        nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_SEC_CONTEXT_IS_NULL,
-        nsIContentPolicy::TYPE_OTHER, "application/x-addvcard"_ns);
-  }
-
   nsString output;
   rv = GeneratePrintOutput(addbookUrl, output);
   if (NS_FAILED(rv)) {

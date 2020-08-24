@@ -38,8 +38,6 @@ nsresult nsAddbookUrl::ParseUrl() {
 
   if (strstr(pathStr.get(), "?action=print"))
     mOperationType = nsIAddbookUrlOperation::PrintAddressBook;
-  else if (strstr(pathStr.get(), "?action=add"))
-    mOperationType = nsIAddbookUrlOperation::AddVCard;
   else
     mOperationType = nsIAddbookUrlOperation::InvalidUrl;
   return NS_OK;

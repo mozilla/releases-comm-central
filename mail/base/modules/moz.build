@@ -23,6 +23,7 @@ EXTRA_JS_MODULES += [
     'SummaryFrameManager.jsm',
     'TagUtils.jsm',
     'TBDistCustomizer.jsm',
+    'ThemeVariableMap.jsm',
     'Windows8WindowFrameColor.jsm',
 ]
 
@@ -34,11 +35,3 @@ if CONFIG['MOZ_UPDATER']:
     EXTRA_JS_MODULES += [
         'AppUpdateUI.jsm',
     ]
-
-FINAL_TARGET_FILES.actors += [
-    'PromptParent.jsm',
-]
-
-FINAL_TARGET_FILES.modules += [
-    'ThemeVariableMap.jsm'
-]
