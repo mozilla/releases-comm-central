@@ -312,3 +312,25 @@ async function getUtilsJS() {
   let response = await fetch(getRootDirectory(gTestPath) + "utils.js");
   return response.text();
 }
+
+async function checkContent(browser, expected) {
+  if (browser.contentDocument.readyState != "complete") {
+    await BrowserTestUtils.browserLoaded(browser);
+  }
+  let body = browser.contentDocument.body;
+  Assert.ok(body);
+  let computedStyle = browser.contentWindow.getComputedStyle(body);
+
+  if ("backgroundColor" in expected) {
+    Assert.equal(computedStyle.backgroundColor, expected.backgroundColor);
+  }
+  if ("color" in expected) {
+    Assert.equal(computedStyle.color, expected.color);
+  }
+  if ("foo" in expected) {
+    Assert.equal(body.getAttribute("foo"), expected.foo);
+  }
+  if ("textContent" in expected) {
+    Assert.equal(body.textContent, expected.textContent);
+  }
+}

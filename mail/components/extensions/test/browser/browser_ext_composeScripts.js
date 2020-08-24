@@ -14,21 +14,8 @@ async function checkComposeBody(expected, waitForEvent) {
   }
 
   let composeEditor = composeWindow.GetCurrentEditorElement();
-  let composeBody = composeEditor.contentDocument.body;
-  let computedStyle = composeEditor.contentWindow.getComputedStyle(composeBody);
 
-  if ("backgroundColor" in expected) {
-    Assert.equal(computedStyle.backgroundColor, expected.backgroundColor);
-  }
-  if ("color" in expected) {
-    Assert.equal(computedStyle.color, expected.color);
-  }
-  if ("foo" in expected) {
-    Assert.equal(composeBody.getAttribute("foo"), expected.foo);
-  }
-  if ("textContent" in expected) {
-    Assert.equal(composeBody.textContent, expected.textContent);
-  }
+  checkContent(composeEditor, expected);
 }
 
 /** Tests browser.tabs.insertCSS and browser.tabs.removeCSS. */
