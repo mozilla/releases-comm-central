@@ -5,6 +5,10 @@
 # Definitions for jobs that run periodically.  For details on the format, see
 # `taskcluster/taskgraph/cron/schema.py`.  For documentation, see
 # `taskcluster/docs/cron.rst`.
+#
+# Thunderbird specific documentation: `comm/taskcluster/docs/cron.rst`
+# To disable Daily builds, set `when: []` on the `nightly-desktop` and
+# `searchfox-index` jobs and push to comm-central.
 
 jobs:
     - name: nightly-desktop
@@ -14,11 +18,8 @@ jobs:
           target-tasks-method: nightly_desktop
       run-on-projects:
           - comm-central
-      when:
-          by-project:
-              # Match buildbot starts for now
-              comm-central: [{hour: 11, minute: 0}]
-              # No default
+      when: [{hour: 11, minute: 0}]
+      # when: []
 
     - name: nightly-linux
       job:
@@ -63,8 +64,8 @@ jobs:
           target-tasks-method: comm_searchfox_index
       run-on-projects:
           - comm-central
-      when:
-          - {hour: 11, minute: 0}
+      when: [{hour: 11, minute: 0}]
+      # when: []
 
     - name: l10n-bumper
       job:
@@ -74,3 +75,4 @@ jobs:
       run-on-projects:
           - comm-beta
       when: [{hour: 8, minute: 30}]
+      # when: []
