@@ -1637,7 +1637,8 @@ nsresult nsSaveMsgListener::InitializeDownload(nsIRequest* aRequest) {
         nsCOMPtr<nsIURI> url;
         channel->GetURI(getter_AddRefs(url));
         rv = tr->Init(url, outputURI, EmptyString(), mimeinfo,
-                      timeDownloadStarted, nullptr, this, false);
+                      timeDownloadStarted, nullptr, this, false,
+                      nsITransfer::DOWNLOAD_ACCEPTABLE);
 
         // now store the web progresslistener
         mTransfer = tr;
