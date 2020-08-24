@@ -13,12 +13,14 @@ notification {
   --notification-button-hover-background: #d2d2d3;
   --notification-button-active-background: #c2c2c3;
   --notification-button-active-border: #a2a2a3;
+  height: auto;
+  font-size: 1em;
 }
 
 :root[lwt-tree-brighttext] notification[type="info"] {
-  background: #49494b;
   color: #fff;
   border-color: var(--splitter-color);
+  --notification-background: #49494b;
   --notification-button-background: #636364;
   --notification-button-color: #f9f9fa;
   --notification-button-border: #828283;
@@ -56,23 +58,34 @@ notification[value="draftMsgContent"] > hbox > .messageImage {
   border-radius: 2px;
 }
 
+.messageText {
+  margin-block: 1px;
+}
+
 .messageText > .text-link {
   margin-inline-start: 6px;
 }
 
+.messageImage {
+  width:16px;
+  height: 16px;
+}
+
 button.notification-button {
+  height: auto;
+  margin: 1px 5px;
   color: var(--notification-button-color) !important;
   border: 1px solid var(--notification-button-border);
   border-radius: var(--toolbarbutton-border-radius);
   background: var(--notification-button-background);
 }
 
-button.notification-button:hover {
+button.notification-button:not([disabled]):hover {
   background-color: var(--notification-button-hover-background);
 }
 
 button[open="true"],
-button.notification-button:hover:active {
+button.notification-button:not([disabled]):hover:active {
   background-color: var(--notification-button-active-background);
   border-color: var(--notification-button-active-border);
 }
