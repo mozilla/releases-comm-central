@@ -393,6 +393,31 @@ function AbPrintPreviewAddressBook() {
 }
 
 /**
+ * Open the import UI, and if a new directory is created, select it.
+ */
+function AbImport() {
+  let createdDirectory;
+  let observer = function(subject) {
+    // It might be possible for more than one directory to be imported, select
+    // the first one.
+    if (!createdDirectory) {
+      createdDirectory = subject.QueryInterface(Ci.nsIAbDirectory);
+    }
+  };
+
+  Services.obs.addObserver(observer, "addrbook-directory-created");
+  toImport();
+  Services.obs.removeObserver(observer, "addrbook-directory-created");
+
+  // Select the directory after the import UI closes, so the user sees the change.
+  if (createdDirectory) {
+    gDirectoryTreeView.selection.select(
+      gDirectoryTreeView.getIndexForUID(createdDirectory.UID)
+    );
+  }
+}
+
+/**
  * Export the currently selected addressbook.
  */
 function AbExportSelection() {
