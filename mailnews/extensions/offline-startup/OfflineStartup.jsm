@@ -115,10 +115,8 @@ OfflineStartup.prototype = {
     if (aTopic == "profile-change-net-teardown") {
       gDebugLog("remembering offline state");
       Services.prefs.setBoolPref("network.online", !Services.io.offline);
-    } else if (aTopic == "app-startup") {
-      Services.obs.addObserver(this, "profile-after-change");
-      Services.obs.addObserver(this, "profile-change-net-teardown");
     } else if (aTopic == "profile-after-change") {
+      Services.obs.addObserver(this, "profile-change-net-teardown");
       this.onProfileStartup();
     }
   },
