@@ -30,8 +30,11 @@
             "$ref": "tabs.Tab"
           },
           {
-            "name": "message",
-            "$ref": "messages.MessageHeader"
+            "name": "messages",
+            "type": "array",
+            "items": {
+              "$ref": "messages.MessageHeader"
+            }
           }
         ]
       }
@@ -40,7 +43,7 @@
       {
         "name": "getDisplayedMessage",
         "type": "function",
-        "description": "Gets the currently displayed message in the specified tab, or null if no message is displayed.",
+        "description": "Gets the currently displayed message in the specified tab. It returns null if no messages are selected, or if multiple messages are selected.",
         "async": true,
         "parameters": [
           {
