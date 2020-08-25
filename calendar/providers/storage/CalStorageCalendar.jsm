@@ -32,19 +32,20 @@ var calStorageCalendarInterfaces = [
 ];
 CalStorageCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
-
-  QueryInterface: ChromeUtils.generateQI([
+  classID: calStorageCalendarClassID,
+  QueryInterface: cal.generateQI([
     "calICalendar",
     "calICalendarProvider",
     "calIOfflineStorage",
     "calISchedulingSupport",
     "calISyncWriteCalendar",
-    "nsIClassInfo",
   ]),
-  classID: calStorageCalendarClassID,
-  contractID: "@mozilla.org/calendar/calendar;1?type=storage",
-  classDescription: "Calendar Storage Provider",
-  interfaces: calStorageCalendarInterfaces,
+  classInfo: cal.generateCI({
+    classID: calStorageCalendarClassID,
+    contractID: "@mozilla.org/calendar/calendar;1?type=storage",
+    classDescription: "Calendar Storage Provider",
+    interfaces: calStorageCalendarInterfaces,
+  }),
 
   //
   // private members

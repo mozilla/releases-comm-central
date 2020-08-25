@@ -27,17 +27,15 @@ function CalCalendarManager() {
 var calCalendarManagerClassID = Components.ID("{f42585e7-e736-4600-985d-9624c1c51992}");
 var calCalendarManagerInterfaces = [Ci.calICalendarManager, Ci.calIStartupService, Ci.nsIObserver];
 CalCalendarManager.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
-    "calICalendarManager",
-    "calIStartupService",
-    "nsIObserver",
-    "nsIClassInfo",
-  ]),
   classID: calCalendarManagerClassID,
-  contractID: "@mozilla.org/calendar/manager;1",
-  classDescription: "Calendar Manager",
-  interfaces: calCalendarManagerInterfaces,
-  flags: Ci.nsIClassInfo.SINGLETON,
+  QueryInterface: cal.generateQI(["calICalendarManager", "calIStartupService", "nsIObserver"]),
+  classInfo: cal.generateCI({
+    classID: calCalendarManagerClassID,
+    contractID: "@mozilla.org/calendar/manager;1",
+    classDescription: "Calendar Manager",
+    interfaces: calCalendarManagerInterfaces,
+    flags: Ci.nsIClassInfo.SINGLETON,
+  }),
 
   get networkCalendarCount() {
     return this.mNetworkCalendarCount;

@@ -28,17 +28,15 @@ function CalDeletedItems() {
 var calDeletedItemsClassID = Components.ID("{8e6799af-e7e9-4e6c-9a82-a2413e86d8c3}");
 var calDeletedItemsInterfaces = [Ci.calIDeletedItems, Ci.nsIObserver, Ci.calIObserver];
 CalDeletedItems.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
-    "calIDeletedItems",
-    "nsIObserver",
-    "calIObserver",
-    "nsIClassInfo",
-  ]),
   classID: calDeletedItemsClassID,
-  contractID: "@mozilla.org/calendar/deleted-items-manager;1",
-  classDescription: "Database containing information about deleted items",
-  interfaces: calDeletedItemsInterfaces,
-  flags: Ci.nsIClassInfo.SINGLETON,
+  QueryInterface: cal.generateQI(["calIDeletedItems", "nsIObserver", "calIObserver"]),
+  classInfo: cal.generateCI({
+    classID: calDeletedItemsClassID,
+    contractID: "@mozilla.org/calendar/deleted-items-manager;1",
+    classDescription: "Database containing information about deleted items",
+    interfaces: calDeletedItemsInterfaces,
+    flags: Ci.nsIClassInfo.SINGLETON,
+  }),
 
   DB_SCHEMA_VERSION: 1,
   STALE_TIME: (30 * 24 * 60 * 60) / 1000 /* 30 days */,

@@ -28,16 +28,14 @@ var calTodoInterfaces = [Ci.calIItemBase, Ci.calITodo, Ci.calIInternalShallowCop
 CalTodo.prototype = {
   __proto__: calItemBase.prototype,
 
-  QueryInterface: ChromeUtils.generateQI([
-    "calIItemBase",
-    "calITodo",
-    "calIInternalShallowCopy",
-    "nsIClassInfo",
-  ]),
   classID: calTodoClassID,
-  contractID: "@mozilla.org/calendar/todo;1",
-  classDescription: "Calendar Todo",
-  interfaces: calTodoInterfaces,
+  QueryInterface: cal.generateQI(["calIItemBase", "calITodo", "calIInternalShallowCopy"]),
+  classInfo: cal.generateCI({
+    classID: calTodoClassID,
+    contractID: "@mozilla.org/calendar/todo;1",
+    classDescription: "Calendar Todo",
+    interfaces: calTodoInterfaces,
+  }),
 
   cloneShallow(aNewParent) {
     let cloned = new CalTodo();

@@ -22,19 +22,20 @@ var calMemoryCalendarInterfaces = [
 ];
 CalMemoryCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
-
-  QueryInterface: ChromeUtils.generateQI([
+  classID: calMemoryCalendarClassID,
+  QueryInterface: cal.generateQI([
     "calICalendar",
     "calISchedulingSupport",
     "calIOfflineStorage",
     "calISyncWriteCalendar",
     "calICalendarProvider",
-    "nsIClassInfo",
   ]),
-  classID: calMemoryCalendarClassID,
-  contractID: "@mozilla.org/calendar/calendar;1?type=memory",
-  classDescription: "Calendar Memory Provider",
-  interfaces: calMemoryCalendarInterfaces,
+  classInfo: cal.generateCI({
+    classID: calMemoryCalendarClassID,
+    contractID: "@mozilla.org/calendar/calendar;1?type=memory",
+    classDescription: "Calendar Memory Provider",
+    interfaces: calMemoryCalendarInterfaces,
+  }),
 
   mItems: null,
   mOfflineFlags: null,

@@ -58,16 +58,15 @@ var calCalendarSearchServiceInterfaces = [
 CalCalendarSearchService.prototype = {
   mProviders: null,
 
-  QueryInterface: ChromeUtils.generateQI([
-    "calICalendarSearchProvider",
-    "calICalendarSearchService",
-    "nsIClassInfo",
-  ]),
   classID: calCalendarSearchServiceClassID,
-  contractID: "@mozilla.org/calendar/calendarsearch-service;1",
-  classDescription: "Calendar Search Service",
-  interfaces: calCalendarSearchServiceInterfaces,
-  flags: Ci.nsIClassInfo.SINGLETON,
+  QueryInterface: cal.generateQI(["calICalendarSearchProvider", "calICalendarSearchService"]),
+  classInfo: cal.generateCI({
+    classID: calCalendarSearchServiceClassID,
+    contractID: "@mozilla.org/calendar/calendarsearch-service;1",
+    classDescription: "Calendar Search Service",
+    interfaces: calCalendarSearchServiceInterfaces,
+    flags: Ci.nsIClassInfo.SINGLETON,
+  }),
 
   // calICalendarSearchProvider:
   searchForCalendars(aString, aHints, aMaxResults, aListener) {

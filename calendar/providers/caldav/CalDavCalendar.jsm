@@ -76,8 +76,8 @@ var calDavCalendarInterfaces = [
 ];
 CalDavCalendar.prototype = {
   __proto__: cal.provider.BaseClass.prototype,
-
-  QueryInterface: ChromeUtils.generateQI([
+  classID: calDavCalendarClassID,
+  QueryInterface: cal.generateQI([
     "calICalendarProvider",
     "nsIInterfaceRequestor",
     "calIFreeBusyProvider",
@@ -86,12 +86,13 @@ CalDavCalendar.prototype = {
     "calICalendar",
     "calIChangeLog",
     "calICalDavCalendar",
-    "nsIClassInfo",
   ]),
-  classID: calDavCalendarClassID,
-  contractID: "@mozilla.org/calendar/calendar;1?type=caldav",
-  classDescription: "Calendar CalDAV back-end",
-  interfaces: calDavCalendarInterfaces,
+  classInfo: cal.generateCI({
+    classID: calDavCalendarClassID,
+    contractID: "@mozilla.org/calendar/calendar;1?type=caldav",
+    classDescription: "Calendar CalDAV back-end",
+    interfaces: calDavCalendarInterfaces,
+  }),
 
   // An array of components that are supported by the server. The default is
   // to support VEVENT and VTODO, if queries for these components return a 4xx

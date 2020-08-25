@@ -53,17 +53,19 @@ CalTimezoneService.prototype = {
   mVersion: null,
   mZones: null,
 
-  QueryInterface: ChromeUtils.generateQI([
+  classID: calTimezoneServiceClassID,
+  QueryInterface: cal.generateQI([
     "calITimezoneService",
     "calITimezoneProvider",
     "calIStartupService",
-    "nsIClassInfo",
   ]),
-  classID: calTimezoneServiceClassID,
-  contractID: "@mozilla.org/calendar/timezone-service;1",
-  classDescription: "Calendar Timezone Service",
-  interfaces: calTimezoneServiceInterfaces,
-  flags: Ci.nsIClassInfo.SINGLETON,
+  classInfo: cal.generateCI({
+    classID: calTimezoneServiceClassID,
+    contractID: "@mozilla.org/calendar/timezone-service;1",
+    classDescription: "Calendar Timezone Service",
+    interfaces: calTimezoneServiceInterfaces,
+    flags: Ci.nsIClassInfo.SINGLETON,
+  }),
 
   // ical.js TimezoneService methods
   has(id) {

@@ -17,15 +17,14 @@ function calRecurrenceRule(innerObject) {
 var calRecurrenceRuleInterfaces = [Ci.calIRecurrenceRule, Ci.calIRecurrenceItem];
 var calRecurrenceRuleClassID = Components.ID("{df19281a-5389-4146-b941-798cb93a7f0d}");
 calRecurrenceRule.prototype = {
-  QueryInterface: ChromeUtils.generateQI([
-    "calIRecurrenceRule",
-    "calIRecurrenceItem",
-    "nsIClassInfo",
-  ]),
+  QueryInterface: cal.generateQI(["calIRecurrenceRule", "calIRecurrenceItem"]),
   classID: calRecurrenceRuleClassID,
-  contractID: "@mozilla.org/calendar/recurrence-rule;1",
-  classDescription: "Calendar Recurrence Rule",
-  interfaces: calRecurrenceRuleInterfaces,
+  classInfo: cal.generateCI({
+    contractID: "@mozilla.org/calendar/recurrence-rule;1",
+    classDescription: "Calendar Recurrence Rule",
+    classID: calRecurrenceRuleClassID,
+    interfaces: calRecurrenceRuleInterfaces,
+  }),
 
   innerObject: null,
 

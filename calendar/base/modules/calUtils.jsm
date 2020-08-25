@@ -142,6 +142,72 @@ var cal = {
   },
 
   /**
+   * Generates the QueryInterface function. This is a replacement for XPCOMUtils.generateQI, which
+   * is being replaced. Unfortunately Lightning's code depends on some of its classes providing
+   * nsIClassInfo, which causes xpconnect/xpcom to make all methods available, e.g. for an event
+   * both calIItemBase and calIEvent.
+   *
+   * @param {Array<String|nsIIDRef>} aInterfaces      The interfaces to generate QI for.
+   * @return {Function}                               The QueryInterface function
+   */
+  generateQI(aInterfaces) {
+    if (aInterfaces.length == 1) {
+      cal.WARN(
+        "When generating QI for one interface, please use ChromeUtils.generateQI",
+        cal.STACK(10)
+      );
+      return ChromeUtils.generateQI(aInterfaces);
+    }
+    /* Note that Ci[Ci.x] == Ci.x for all x */
+    let names = [];
+    if (aInterfaces) {
+      for (let i = 0; i < aInterfaces.length; i++) {
+        let iface = aInterfaces[i];
+        let name = (iface && iface.name) || String(iface);
+        if (name in Ci) {
+          names.push(name);
+        }
+      }
+    }
+    return makeQI(names);
+  },
+
+  /**
+   * Generate a ClassInfo implementation for a component. The returned object
+   * must be assigned to the 'classInfo' property of a JS object. The first and
+   * only argument should be an object that contains a number of optional
+   * properties: "interfaces", "contractID", "classDescription", "classID" and
+   * "flags". The values of the properties will be returned as the values of the
+   * various properties of the nsIClassInfo implementation.
+   */
+  generateCI(classInfo) {
+    if ("QueryInterface" in classInfo) {
+      throw Error("In generateCI, don't use a component for generating classInfo");
+    }
+    /* Note that Ci[Ci.x] == Ci.x for all x */
+    let _interfaces = [];
+    for (let i = 0; i < classInfo.interfaces.length; i++) {
+      let iface = classInfo.interfaces[i];
+      if (Ci[iface]) {
+        _interfaces.push(Ci[iface]);
+      }
+    }
+    return {
+      get interfaces() {
+        return [Ci.nsIClassInfo, Ci.nsISupports].concat(_interfaces);
+      },
+      getScriptableHelper() {
+        return null;
+      },
+      contractID: classInfo.contractID,
+      classDescription: classInfo.classDescription,
+      classID: classInfo.classID,
+      flags: classInfo.flags,
+      QueryInterface: ChromeUtils.generateQI(["nsIClassInfo"]),
+    };
+  },
+
+  /**
    * Schedules execution of the passed function to the current thread's queue.
    */
   postPone(func) {
@@ -507,4 +573,28 @@ function shutdownCleanup(obj, prop) {
     });
   }
   shutdownCleanup.mEntries.push({ mObj: obj, mProp: prop });
+}
+
+/**
+ * This is the makeQI function from XPCOMUtils.jsm, it is separate to avoid leaks
+ *
+ * @param {Array<String|nsIIDRef>} aInterfaces      The interfaces to make QI for.
+ * @return {Function}                               The QueryInterface function.
+ */
+function makeQI(aInterfaces) {
+  return function(iid) {
+    if (iid.equals(Ci.nsISupports)) {
+      return this;
+    }
+    if (iid.equals(Ci.nsIClassInfo) && "classInfo" in this) {
+      return this.classInfo;
+    }
+    for (let i = 0; i < aInterfaces.length; i++) {
+      if (Ci[aInterfaces[i]].equals(iid)) {
+        return this;
+      }
+    }
+
+    throw Components.Exception("", Cr.NS_ERROR_NO_INTERFACE);
+  };
 }

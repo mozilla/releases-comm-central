@@ -110,12 +110,15 @@ CalAlarmService.prototype = {
   mObservers: null,
   mTimezone: null,
 
-  QueryInterface: ChromeUtils.generateQI(["calIAlarmService", "nsIObserver", "nsIClassInfo"]),
   classID: calAlarmServiceClassID,
-  contractID: "@mozilla.org/calendar/alarm-service;1",
-  classDescription: "Calendar Alarm Service",
-  interfaces: calAlarmServiceInterfaces,
-  flags: Ci.nsIClassInfo.SINGLETON,
+  QueryInterface: cal.generateQI(["calIAlarmService", "nsIObserver"]),
+  classInfo: cal.generateCI({
+    classID: calAlarmServiceClassID,
+    contractID: "@mozilla.org/calendar/alarm-service;1",
+    classDescription: "Calendar Alarm Service",
+    interfaces: calAlarmServiceInterfaces,
+    flags: Ci.nsIClassInfo.SINGLETON,
+  }),
 
   /**
    * nsIObserver
