@@ -13,6 +13,7 @@
   --info-text-color: GrayText;
   background-color: var(--body-background-color);
   color: var(--body-text-color);
+  appearance: none;
 }
 
 @media (prefers-color-scheme: dark) {
