@@ -40,6 +40,8 @@ const startupPhases = {
         // Bug 1660898 - ExtensionSupport startup should be delayed until
         // later.
         "resource:///modules/ExtensionSupport.jsm",
+        // Bug 1661257 - This should be able to be loaded later.
+        "resource://pdf.js/PdfJs.jsm",
       ]),
     },
   },

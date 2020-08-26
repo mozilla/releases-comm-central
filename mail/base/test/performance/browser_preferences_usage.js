@@ -108,11 +108,11 @@ add_task(async function startup() {
     // file in Firefox.
     "browser.startup.record": {
       min: 200,
-      max: 350,
+      max: 390,
     },
     "layout.css.dpi": {
       min: 45,
-      max: 190,
+      max: 250,
     },
     "network.loadinfo.skip_type_assertion": {
       // This is accessed in debug only.
@@ -127,16 +127,20 @@ add_task(async function startup() {
     },
     "toolkit.scrollbox.verticalScrollDistance": {
       min: 100,
-      max: 320,
+      max: 355,
     },
     "toolkit.scrollbox.horizontalScrollDistance": {
       min: 40,
-      max: 80,
+      max: 130,
     },
     // Bug 1660692: Most of these (~90) are caused by Calendar's `inTimezone`.
     "intl.regional_prefs.use_os_locales": {
       min: 100,
-      max: 109,
+      max: 120,
+    },
+    "calendar.week.start": {
+      min: 10,
+      max: 54,
     },
   };
 
@@ -162,7 +166,7 @@ add_task(async function startup() {
   for (let pref of prefsUsedInLayout) {
     knownProblematicPrefs[pref] = {
       min: 60,
-      max: 82,
+      max: 175,
     };
   }
 
@@ -187,6 +191,28 @@ add_task(async function startup() {
       knownProblematicPrefs[pref] = {
         min: 900,
         max: 1600,
+      };
+    }
+    for (let pref of [
+      "font.default.x-western",
+      "font.size.cursive.x-western",
+      "font.name.variable.x-western",
+      "font.size-adjust.cursive.x-western",
+      "font.size.fantasy.x-western",
+      "font.size.monospace.x-western",
+      "font.size.sans-serif.x-western",
+      "font.size-adjust.monospace.x-western",
+      "font.size-adjust.serif.x-western",
+      "font.size.variable.x-western",
+      "font.minimum-size.x-western",
+      "font.size-adjust.variable.x-western",
+      "font.size-adjust.fantasy.x-western",
+      "font.size.serif.x-western",
+      "font.size-adjust.sans-serif.x-western",
+    ]) {
+      knownProblematicPrefs[pref] = {
+        min: 0,
+        max: 70,
       };
     }
   }

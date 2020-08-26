@@ -7,21 +7,15 @@
 
 var EXPORTED_SYMBOLS = ["MailGlue"];
 
-var { XPCOMUtils } = ChromeUtils.import(
+const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-XPCOMUtils.defineLazyModuleGetters(this, {
-  AppConstants: "resource://gre/modules/AppConstants.jsm",
-  TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
-  MailMigrator: "resource:///modules/MailMigrator.jsm",
-  LightweightThemeConsumer:
-    "resource://gre/modules/LightweightThemeConsumer.jsm",
-  RemoteSecuritySettings:
-    "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
-  PdfJs: "resource://pdf.js/PdfJs.jsm",
-});
+const { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+const { PdfJs } = ChromeUtils.import("resource://pdf.js/PdfJs.jsm");
 
 // lazy module getter
 
@@ -76,6 +70,12 @@ let JSWINDOWACTORS = {
 XPCOMUtils.defineLazyModuleGetters(this, {
   AddonManager: "resource://gre/modules/AddonManager.jsm",
   ExtensionSupport: "resource:///modules/ExtensionSupport.jsm",
+  MailMigrator: "resource:///modules/MailMigrator.jsm",
+  LightweightThemeConsumer:
+    "resource://gre/modules/LightweightThemeConsumer.jsm",
+  RemoteSecuritySettings:
+    "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
+  TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
 });
 
 /**
