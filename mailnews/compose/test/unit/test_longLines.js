@@ -205,7 +205,7 @@ async function testBodyWithLongLine() {
   fields.useMultipartAlternative = false;
   await richCreateMessage(fields, [], identity);
 
-  let expectedBody = longMultibyteLineJapanese + " \n\n";
+  let expectedBody = longMultibyteLineJapanese + " " + newline + newline;
 
   checkDraftHeadersAndBody(
     {
