@@ -1120,7 +1120,7 @@ nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
                    NS_ERROR_FAILURE);
     sMailIconData.hWnd = sIconWindow;
     sMailIconData.hIcon =
-        ::LoadIcon(::GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APPLICATION));
+        ::LoadIcon(::GetModuleHandle(NULL), IDI_APPLICATION);
 
     nsCOMPtr<nsIStringBundleService> bundleService =
         mozilla::services::GetStringBundleService();
