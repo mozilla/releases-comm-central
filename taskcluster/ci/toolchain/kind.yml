@@ -11,12 +11,14 @@ kind-dependencies:
 reference-jobs:
     - linux64-binutils
     - linux64-cbindgen
-    - linux64-cctools-clang-9-port
+    - linux64-cctools-port-clang-9
     - linux64-cctools-port
     - linux64-clang
     - linux64-clang-7
     - linux64-clang-9
+    - linux64-clang-11
     - linux64-clang-macosx-cross
+    - linux64-clang-9-macosx-cross
     - linux64-clang-mingw-x64
     - linux64-clang-mingw-x86
     - linux64-clang-win-cross
@@ -34,7 +36,6 @@ reference-jobs:
     - linux64-nasm
     - linux64-node
     - linux64-rust
-    - linux64-rust-1.39
     - linux64-rust-1.41
     - linux64-rust-cross
     - linux64-rust-macos
@@ -46,17 +47,19 @@ reference-jobs:
     - linux64-winchecksec
     - linux64-wine
     - macosx64-clang-9
+    - macosx64-clang-11
     - macosx64-fix-stacks
     - macosx64-minidump-stackwalk
     - macosx64-node
     - mingw32-rust-1.41
-    - wasi-sysroot
+    - wasi-sysroot-9
+    - wasi-sysroot-11
     - win32-fix-stacks
     - win32-minidump-stackwalk
     - win32-node
     - win64-cbindgen
     - win64-clang-cl
-    - win64-clang-cl-2stage
+    - win64-clang-cl-11-2stage
     - win64-dump-syms
     - win64-nasm
     - win64-pdbstr
