@@ -379,6 +379,10 @@
 @RESPATH@/components/marionette.js
 #endif
 
+#if defined(MOZ_DEBUG) || defined(NIGHTLY_BUILD)
+@RESPATH@/components/testComponents.manifest
+@RESPATH@/components/startupRecorder.js
+#endif
 
 ; Phishing Protection
 

@@ -5,6 +5,7 @@
 
 BROWSER_CHROME_MANIFESTS += [
     'browser/browser.ini',
+    'performance/browser.ini',
     'webextensions/browser.ini',
 ]
 

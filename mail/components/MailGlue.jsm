@@ -11,22 +11,17 @@ var { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { LightweightThemeConsumer } = ChromeUtils.import(
-  "resource://gre/modules/LightweightThemeConsumer.jsm"
-);
-var { TBDistCustomizer } = ChromeUtils.import(
-  "resource:///modules/TBDistCustomizer.jsm"
-);
-var { MailMigrator } = ChromeUtils.import(
-  "resource:///modules/MailMigrator.jsm"
-);
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
-);
-var { RemoteSecuritySettings } = ChromeUtils.import(
-  "resource://gre/modules/psm/RemoteSecuritySettings.jsm"
-);
-var { PdfJs } = ChromeUtils.import("resource://pdf.js/PdfJs.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
+  TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
+  MailMigrator: "resource:///modules/MailMigrator.jsm",
+  LightweightThemeConsumer:
+    "resource://gre/modules/LightweightThemeConsumer.jsm",
+  RemoteSecuritySettings:
+    "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
+  PdfJs: "resource://pdf.js/PdfJs.jsm",
+});
 
 // lazy module getter
 
@@ -160,7 +155,6 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "xpcom-shutdown");
     Services.obs.removeObserver(this, "final-ui-startup");
     Services.obs.removeObserver(this, "intl:app-locales-changed");
-    Services.obs.removeObserver(this, "mail-startup-done");
     Services.obs.removeObserver(this, "handle-xul-text-link");
     Services.obs.removeObserver(this, "chrome-document-global-created");
     Services.obs.removeObserver(this, "document-element-inserted");
@@ -202,7 +196,8 @@ MailGlue.prototype = {
         this._onProfileStartup();
         break;
       case "mail-startup-done":
-        this._onMailStartupDone();
+        this._onFirstWindowLoaded();
+        Services.obs.removeObserver(this, "mail-startup-done");
         break;
       case "handle-xul-text-link":
         this._handleLink(aSubject, aData);
@@ -298,7 +293,7 @@ MailGlue.prototype = {
     }
   },
 
-  _onMailStartupDone() {
+  _onFirstWindowLoaded() {
     // On Windows 7 and above, initialize the jump list module.
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
     if (
@@ -359,6 +354,13 @@ MailGlue.prototype = {
     // Certificates revocation list, etc.
     Services.tm.idleDispatchToMainThread(() => {
       RemoteSecuritySettings.init();
+    });
+
+    // TODO: Kick off startup idle tasks here, handle this after the tasks are
+    // complete.
+    ChromeUtils.idleDispatch(() => {
+      Services.obs.notifyObservers(null, "mail-startup-idle-tasks-finished");
+      Services.obs.notifyObservers(null, "marionette-startup-requested");
     });
   },
 

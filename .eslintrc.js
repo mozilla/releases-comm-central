@@ -19,7 +19,10 @@ const xpcshellTestPaths = [
   "chat/**/test*/",
 ];
 
-const browserTestPaths = ["**/test*/**/browser/"];
+const browserTestPaths = [
+  "**/test*/**/browser/",
+  "mail/base/test/performance/",
+];
 
 module.exports = {
   parser: "babel-eslint",

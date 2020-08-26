@@ -794,7 +794,6 @@ function LoadPostAccountWizard() {
     }
     // All core modal dialogs are done, the user can now interact with the 3-pane window
     Services.obs.notifyObservers(window, "mail-startup-done");
-    Services.obs.notifyObservers(this, "marionette-startup-requested");
   }
 
   setTimeout(completeStartup, 0);

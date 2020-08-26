@@ -5,3 +5,7 @@
 
 XPCSHELL_TESTS_MANIFESTS += ['unit/xpcshell.ini']
 
+EXTRA_COMPONENTS += [
+    'startupRecorder.js',
+    'testComponents.manifest'
+]
