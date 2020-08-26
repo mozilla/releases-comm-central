@@ -18,8 +18,6 @@
 /* import-globals-from editor.js */
 /* import-globals-from editorUtilities.js */
 
-/* globals BondOpenPGP, MozElements */
-
 /**
  * Commands for the message composition window.
  */
@@ -58,6 +56,9 @@ var { MailConstants } = ChromeUtils.import(
 );
 var { ExtensionParent } = ChromeUtils.import(
   "resource://gre/modules/ExtensionParent.jsm"
+);
+var { BondOpenPGP } = ChromeUtils.import(
+  "chrome://openpgp/content/BondOpenPGP.jsm"
 );
 
 var l10nCompose = new Localization(

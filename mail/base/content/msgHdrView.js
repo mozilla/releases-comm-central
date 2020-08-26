@@ -33,6 +33,9 @@ var { GlodaUtils } = ChromeUtils.import(
 var { Status: statusUtils } = ChromeUtils.import(
   "resource:///modules/imStatusUtils.jsm"
 );
+var { BondOpenPGP } = ChromeUtils.import(
+  "chrome://openpgp/content/BondOpenPGP.jsm"
+);
 
 XPCOMUtils.defineLazyServiceGetter(
   this,

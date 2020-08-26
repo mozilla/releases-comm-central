@@ -64,6 +64,10 @@ var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
 var { PeriodicFilterManager } = ChromeUtils.import(
   "resource:///modules/PeriodicFilterManager.jsm"
 );
+var { BondOpenPGP } = ChromeUtils.import(
+  "chrome://openpgp/content/BondOpenPGP.jsm"
+);
+
 var gBrowser;
 // A stub for tests to avoid test failures caused by the harness expecting
 // this to exist.
