@@ -357,7 +357,7 @@ checkbox:not([disabled="true"]):hover > .checkbox-check {
   fill: var(--highlight-color);
 }
 
-checkbox[checked] > .checkbox-check {
+checkbox[checked="true"] > .checkbox-check {
   list-style-image: url("chrome://global/skin/icons/check.svg");
   -moz-context-properties: fill;
   fill: var(--highlight-color);
