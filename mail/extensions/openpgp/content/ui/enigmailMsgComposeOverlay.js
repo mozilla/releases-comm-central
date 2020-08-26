@@ -7,7 +7,7 @@
 "use strict";
 
 /*globally available Thunderbird variables/object/functions: */
-/*global gMsgCompose: false, getCurrentIdentity: false, gNotification: false */
+/*global gMsgCompose: false, gNotification: false */
 /*global UpdateAttachmentBucket: false, gContentChanged: true */
 /*global AddAttachments: false, AddAttachment: false, ChangeAttachmentBucketVisibility: false, GetResourceFromUri: false */
 /*global Recipients2CompFields: false, Attachments2CompFields: false, DetermineConvertibility: false, gWindowLocked: false */
@@ -136,7 +136,6 @@ Enigmail.msg = {
 
   sendProcess: false,
   composeBodyReady: false,
-  identity: null,
   modifiedAttach: null,
   lastFocusedWindow: null,
   protectHeaders: true,
@@ -190,14 +189,6 @@ Enigmail.msg = {
       }
     }
     */
-
-    document
-      .getElementById("msgIdentityPopup")
-      .addEventListener("command", () => {
-        this.setIdentityDefaults();
-      });
-
-    this.setIdentityDefaults();
 
     /*
     let numCerts = EnigmailFuncs.getNumOfX509Certs();
@@ -334,11 +325,9 @@ Enigmail.msg = {
   */
 
   isSmimeEnabled() {
-    let id = getCurrentIdentity();
-
     return (
-      id.getUnicharAttribute("signing_cert_name") !== "" ||
-      id.getUnicharAttribute("encryption_cert_name") !== ""
+      gCurrentIdentity.getUnicharAttribute("signing_cert_name") !== "" ||
+      gCurrentIdentity.getUnicharAttribute("encryption_cert_name") !== ""
     );
   },
 
@@ -363,27 +352,6 @@ Enigmail.msg = {
     return id.getBoolAttribute("sign_mail");
   },
   */
-
-  setIdentityDefaults() {
-    EnigmailLog.DEBUG(
-      "enigmailMsgComposeOverlay.js: Enigmail.msg.setIdentityDefaults\n"
-    );
-
-    this.identity = getCurrentIdentity();
-
-    // reset default send settings, unless we have changed them already
-
-    // instead of sendModeDirty, use gUserTouched*
-
-    /*
-    if (!this.sendModeDirty) {
-      //this.mimePreferOpenPGP = this.identity.getIntAttribute("mimePreferOpenPGP");
-      //this.processAccountSpecificDefaultOptions();
-      this.determineSendFlags(); // important to use identity specific settings
-      //this.processFinalState();
-    }
-    */
-  },
 
   /*
   // set the current default for sending a message
@@ -710,7 +678,6 @@ Enigmail.msg = {
             useEncryptionUnlessWeHaveDraftInfo = false;
             usePGPUnlessWeKnowOtherwise = false;
             useSMIMEUnlessWeKnowOtherwise = false;
-            //this.identity = getCurrentIdentity();
           }
         }
         this.removeAttachedKey();
@@ -1083,19 +1050,8 @@ Enigmail.msg = {
    * Determine if Enigmail is enabled for the account
    */
 
-  wasEnigmailAddOnInstalled() {
-    return EnigmailPrefs.getPref("configuredVersion") !== "";
-  },
-
-  wasEnigmailEnabledForIdentity() {
-    return this.identity.getBoolAttribute("enablePgp");
-  },
-
-  // TODO: should we use a different flag for "PGP is enabled in TB78+"?
-  //       or check in combination with identityEnigmailPrefsMigrated?
   isEnigmailEnabledForIdentity() {
-    //return this.identity.getBoolAttribute("enablePgp");
-    return true;
+    return !!gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
   },
 
   /**
@@ -1256,11 +1212,6 @@ Enigmail.msg = {
     );
 
     let detailsObj = {};
-
-    if (!this.identity) {
-      this.identity = getCurrentIdentity();
-    }
-
     var compFields = gMsgCompose.compFields;
 
     if (!Enigmail.msg.composeBodyReady) {
@@ -1393,8 +1344,8 @@ Enigmail.msg = {
   },
 
   getSenderUserId() {
-    let keyId = this.identity.getUnicharAttribute("openpgp_key_id");
-    return "0x" + keyId;
+    let keyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
+    return keyId ? "0x" + keyId : null;
   },
 
   /**
@@ -1437,8 +1388,7 @@ Enigmail.msg = {
    * @return: Boolean - true: keys for all recipients are available
    */
   isSmimeEncryptionPossible() {
-    let id = getCurrentIdentity();
-    if (id.getUnicharAttribute("encryption_cert_name") === "") {
+    if (!gCurrentIdentity.getUnicharAttribute("encryption_cert_name")) {
       return false;
     }
 
@@ -1803,13 +1753,13 @@ Enigmail.msg = {
   determineMsgRecipients(sendFlags) {
     EnigmailLog.DEBUG(
       "enigmailMsgComposeOverlay.js: Enigmail.msg.determineMsgRecipients: currentId=" +
-        this.identity +
+        gCurrentIdentity +
         ", " +
-        this.identity.email +
+        gCurrentIdentity.email +
         "\n"
     );
 
-    let fromAddr = this.identity.email;
+    let fromAddr = gCurrentIdentity.email;
     let toAddrList = [];
     let recList;
     let bccAddrList = [];
@@ -1871,7 +1821,7 @@ Enigmail.msg = {
 
       // It's equal, if self's email address is the only entry in BCC.
       var selfBCC =
-        this.identity.email && this.identity.email.toLowerCase() == bccLC;
+        gCurrentIdentity.email && gCurrentIdentity.email.toLowerCase() == bccLC;
 
       if (selfBCC) {
         EnigmailLog.DEBUG(
@@ -2006,7 +1956,7 @@ Enigmail.msg = {
 
     let senderKeyIsGnuPG =
       Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg") &&
-      this.identity.getBoolAttribute("is_gnupg_key_id");
+      gCurrentIdentity.getBoolAttribute("is_gnupg_key_id");
 
     let sendFlags = this.getEncryptionFlags();
 
@@ -2040,15 +1990,14 @@ Enigmail.msg = {
       return false;
     }
 
-    this.identity = getCurrentIdentity();
-    let senderKeyId = this.identity.getUnicharAttribute("openpgp_key_id");
+    let senderKeyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
 
     if ((gSendEncrypted || gSendSigned) && !senderKeyId) {
       let msgId = gSendEncrypted
         ? "cannot-send-enc-because-no-own-key"
         : "cannot-send-sig-because-no-own-key";
       let fullAlert = await document.l10n.formatValue(msgId, {
-        key: this.identity.email,
+        key: gCurrentIdentity.email,
       });
       EnigmailDialog.alert(window, fullAlert);
       return false;
@@ -2571,18 +2520,7 @@ Enigmail.msg = {
   // called just before sending
   modifyCompFields() {
     try {
-      if (!this.identity) {
-        this.identity = getCurrentIdentity();
-      }
-
       if (Enigmail.msg.isEnigmailEnabledForIdentity()) {
-        if (EnigmailPrefs.getPref("addHeaders")) {
-          this.setAdditionalHeader(
-            "X-Enigmail-Version",
-            EnigmailApp.getVersion()
-          );
-        }
-
         this.setAutocryptHeader();
       }
     } catch (ex) {
@@ -2605,13 +2543,12 @@ Enigmail.msg = {
       return;
     }
 
-    this.identity = getCurrentIdentity();
-    let senderKeyId = this.identity.getUnicharAttribute("openpgp_key_id");
+    let senderKeyId = gCurrentIdentity.getUnicharAttribute("openpgp_key_id");
     if (!senderKeyId) {
       return;
     }
 
-    let fromMail = this.identity.email;
+    let fromMail = gCurrentIdentity.email;
     try {
       fromMail = EnigmailFuncs.stripEmail(gMsgCompose.compFields.from);
     } catch (ex) {}
@@ -2695,8 +2632,8 @@ Enigmail.msg = {
         "')\n"
     );
 
-    var oldValue = this.identity.getBoolAttribute(attrName);
-    this.identity.setBoolAttribute(attrName, !oldValue);
+    var oldValue = gCurrentIdentity.getBoolAttribute(attrName);
+    gCurrentIdentity.setBoolAttribute(attrName, !oldValue);
   },
 
   decryptQuote(interactive) {
@@ -2964,10 +2901,7 @@ Enigmail.msg = {
     }
 
     // Position cursor
-    var replyOnTop = 1;
-    try {
-      replyOnTop = this.identity.replyOnTop;
-    } catch (ex) {}
+    var replyOnTop = gCurrentIdentity.replyOnTop;
 
     if (!indentStr || !quoteElement) {
       replyOnTop = 1;
@@ -3034,10 +2968,6 @@ Enigmail.msg = {
 
   checkInlinePgpReply(head, tail) {
     const CT = Ci.nsIMsgCompType;
-    if (!this.identity) {
-      return;
-    }
-
     let hLines = head.search(/[^\s>]/) < 0 ? 0 : 1;
 
     if (hLines > 0) {
@@ -3063,14 +2993,17 @@ Enigmail.msg = {
       }
     }
 
-    if (hLines > 0 && (!this.identity.sigOnReply || this.identity.sigBottom)) {
+    if (
+      hLines > 0 &&
+      (!gCurrentIdentity.sigOnReply || gCurrentIdentity.sigBottom)
+    ) {
       // display warning if no signature on top of message
       this.displayPartialEncryptedWarning();
     } else if (hLines > 10) {
       this.displayPartialEncryptedWarning();
     } else if (
       tail.search(/[^\s>]/) >= 0 &&
-      !(this.identity.sigOnReply && this.identity.sigBottom)
+      !(gCurrentIdentity.sigOnReply && gCurrentIdentity.sigBottom)
     ) {
       // display warning if no signature below message
       this.displayPartialEncryptedWarning();

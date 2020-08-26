@@ -59,9 +59,6 @@ pref("temp.openpgp.autoKeyRetrieve", "");
 // enable automatically decrypt/verify
 pref("temp.openpgp.autoDecrypt", true);
 
-// enable X-Enigmail-xxx headers
-pref("temp.openpgp.addHeaders", false);
-
 // countdown for alerts when composing inline PGP HTML msgs
 pref("temp.openpgp.composeHtmlAlertCount", 3);
 
