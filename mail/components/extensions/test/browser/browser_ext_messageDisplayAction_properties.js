@@ -12,6 +12,7 @@ add_task(async () => {
 
   window.gFolderTreeView.selectFolder(folder);
   window.gFolderDisplay.selectViewIndex(0);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
 
   window.MsgOpenSelectedMessages();
   window.MsgOpenNewWindowForMessage();
