@@ -8,9 +8,12 @@ var EXPORTED_SYMBOLS = ["CalTimezoneService"];
 
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
+
+XPCOMUtils.defineLazyPreferenceGetter(this, "gUseIcaljs", "calendar.icaljs", false);
 
 Services.scriptloader.loadSubScript("resource:///components/calTimezone.js");
 
@@ -155,7 +158,7 @@ CalTimezoneService.prototype = {
   get UTC() {
     if (!this.mZones.has("UTC")) {
       let utc;
-      if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
+      if (gUseIcaljs) {
         utc = new calICALJSTimezone(ICAL.Timezone.utcTimezone);
       } else {
         utc = new calLibicalTimezone("UTC", null, "", "");
@@ -171,7 +174,7 @@ CalTimezoneService.prototype = {
   get floating() {
     if (!this.mZones.has("floating")) {
       let floating;
-      if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
+      if (gUseIcaljs) {
         floating = new calICALJSTimezone(ICAL.Timezone.localTimezone);
       } else {
         floating = new calLibicalTimezone("floating", null, "", "");
@@ -206,7 +209,7 @@ CalTimezoneService.prototype = {
       if (timezone.aliasTo) {
         // This zone is an alias.
         timezone.zone = this.getTimezone(timezone.aliasTo);
-      } else if (Services.prefs.getBoolPref("calendar.icaljs", false)) {
+      } else if (gUseIcaljs) {
         let parsedComp = ICAL.parse(
           "BEGIN:VCALENDAR\r\nBEGIN:VTIMEZONE\r\nTZID:" +
             tzid +
