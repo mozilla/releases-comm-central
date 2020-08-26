@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals gFolderDisplay, gFolderTreeView, MsgOpenNewWindowForMessage, MsgOpenSelectedMessages  */
-
 let account;
 
 add_task(async () => {
@@ -12,8 +10,9 @@ add_task(async () => {
   let subFolders = [...rootFolder.subFolders];
   createMessages(subFolders[0], 10);
 
-  gFolderTreeView.selectFolder(subFolders[0]);
-  gFolderDisplay.selectViewIndex(0);
+  window.gFolderTreeView.selectFolder(subFolders[0]);
+  window.gFolderDisplay.selectViewIndex(0);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
 });
 
 add_task(async () => {
@@ -126,17 +125,29 @@ add_task(async () => {
   info("Message tab, no pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  MsgOpenSelectedMessages();
+  window.MsgOpenSelectedMessages();
   await test_it(extension, window);
   document.getElementById("tabmail").closeTab();
 
   info("Message window, no pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  let messageWindowPromise = BrowserTestUtils.domWindowOpened();
-  MsgOpenNewWindowForMessage();
+  let messageWindowPromise = BrowserTestUtils.domWindowOpened(
+    undefined,
+    async win => {
+      await BrowserTestUtils.waitForEvent(win, "load");
+      if (
+        win.document.documentURI !=
+        "chrome://messenger/content/messageWindow.xhtml"
+      ) {
+        return false;
+      }
+      await awaitBrowserLoaded(win.document.getElementById("messagepane"));
+      return true;
+    }
+  );
+  window.MsgOpenNewWindowForMessage();
   let messageWindow = await messageWindowPromise;
-  await new Promise(resolve => messageWindow.setTimeout(resolve, 100));
   await test_it(extension, messageWindow);
   messageWindow.close();
 
@@ -150,17 +161,29 @@ add_task(async () => {
   info("Message tab, with pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  MsgOpenSelectedMessages();
+  window.MsgOpenSelectedMessages();
   await test_it(extension, window);
   document.getElementById("tabmail").closeTab();
 
   info("Message window, with pop-up");
 
   extension = ExtensionTestUtils.loadExtension(extensionDetails);
-  messageWindowPromise = BrowserTestUtils.domWindowOpened();
-  MsgOpenNewWindowForMessage();
+  messageWindowPromise = BrowserTestUtils.domWindowOpened(
+    undefined,
+    async win => {
+      await BrowserTestUtils.waitForEvent(win, "load");
+      if (
+        win.document.documentURI !=
+        "chrome://messenger/content/messageWindow.xhtml"
+      ) {
+        return false;
+      }
+      await awaitBrowserLoaded(win.document.getElementById("messagepane"));
+      return true;
+    }
+  );
+  window.MsgOpenNewWindowForMessage();
   messageWindow = await messageWindowPromise;
-  await new Promise(resolve => messageWindow.setTimeout(resolve, 100));
   await test_it(extension, messageWindow);
   messageWindow.close();
 });
