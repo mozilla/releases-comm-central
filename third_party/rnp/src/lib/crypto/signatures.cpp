@@ -186,6 +186,60 @@ signature_calculate(pgp_signature_t *         sig,
     return ret;
 }
 
+static bool is_hash_alg_allowed_in_sig(const pgp_hash_alg_t hash_alg)
+{
+    switch (hash_alg) {
+        case PGP_HASH_SHA1:
+        case PGP_HASH_RIPEMD:
+        case PGP_HASH_SHA256:
+        case PGP_HASH_SHA384:
+        case PGP_HASH_SHA512:
+        case PGP_HASH_SHA224:
+        case PGP_HASH_SHA3_256:
+        case PGP_HASH_SHA3_512:
+            return true;
+
+        case PGP_HASH_MD5:
+        case PGP_HASH_SM3:
+        case PGP_HASH_CRC24:
+        case PGP_HASH_UNKNOWN:
+        default:
+            return false;
+    }
+}
+
+static bool is_pubkey_alg_allowed_in_sig(const pgp_pubkey_alg_t pubkey_alg) {
+    switch (pubkey_alg) {
+        case PGP_PKA_RSA:
+        case PGP_PKA_RSA_ENCRYPT_ONLY:
+        case PGP_PKA_RSA_SIGN_ONLY:
+        case PGP_PKA_ELGAMAL:
+        case PGP_PKA_DSA:
+        case PGP_PKA_ECDH:
+        case PGP_PKA_ECDSA:
+        case PGP_PKA_ELGAMAL_ENCRYPT_OR_SIGN:
+        case PGP_PKA_EDDSA:
+            return true;
+
+        case PGP_PKA_RESERVED_DH:
+        case PGP_PKA_NOTHING:
+        case PGP_PKA_SM2:
+        case PGP_PKA_PRIVATE00:
+        case PGP_PKA_PRIVATE01:
+        case PGP_PKA_PRIVATE02:
+        case PGP_PKA_PRIVATE03:
+        case PGP_PKA_PRIVATE04:
+        case PGP_PKA_PRIVATE05:
+        case PGP_PKA_PRIVATE06:
+        case PGP_PKA_PRIVATE07:
+        case PGP_PKA_PRIVATE08:
+        case PGP_PKA_PRIVATE09:
+        case PGP_PKA_PRIVATE10:
+        default:
+            return false;
+    }
+}
+
 rnp_result_t
 signature_validate(const pgp_signature_t *sig, const pgp_key_material_t *key, pgp_hash_t *hash)
 {
@@ -194,9 +248,16 @@ signature_validate(const pgp_signature_t *sig, const pgp_key_material_t *key, pg
     rnp_result_t ret = RNP_ERROR_GENERIC;
 
     const pgp_hash_alg_t hash_alg = pgp_hash_alg_type(hash);
+    if (!is_hash_alg_allowed_in_sig(hash_alg)) {
+        return RNP_ERROR_SIGNATURE_INVALID;
+    }
 
     if (!key) {
         return RNP_ERROR_NULL_POINTER;
+    }
+
+    if (!is_pubkey_alg_allowed_in_sig(sig->palg)) {
+        return RNP_ERROR_SIGNATURE_INVALID;
     }
 
     if (sig->palg != key->alg) {
