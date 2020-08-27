@@ -88,23 +88,21 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  */
 
 function MailGlue() {
-  this._init();
+  Services.obs.addObserver(this, "command-line-startup");
 }
+
+// This should match the constant of the same name in devtools
+// (devtools/client/framework/browser-toolbox/Launcher.jsm). Otherwise the logic
+// in command-line-startup will fail. We have a test to ensure it matches, at
+// mail/base/test/unit/test_devtools_url.js.
+MailGlue.BROWSER_TOOLBOX_WINDOW_URL =
+  "chrome://devtools/content/framework/browser-toolbox/window.html";
 
 MailGlue.prototype = {
   _isNewProfile: undefined,
 
   // init (called at app startup)
   _init() {
-    // Check if this process is the developer toolbox process, and if it is,
-    // avoid starting up as much as possible.
-    const envService = Cc["@mozilla.org/process/environment;1"].getService(
-      Ci.nsIEnvironment
-    );
-    if (envService.get("MOZ_BROWSER_TOOLBOX_PORT")) {
-      return;
-    }
-
     Services.obs.addObserver(this, "xpcom-shutdown");
     Services.obs.addObserver(this, "final-ui-startup");
     Services.obs.addObserver(this, "intl:app-locales-changed");
@@ -138,6 +136,24 @@ MailGlue.prototype = {
   observe(aSubject, aTopic, aData) {
     let fs;
     switch (aTopic) {
+      case "command-line-startup":
+        Services.obs.removeObserver(this, "command-line-startup");
+
+        // Check if this process is the developer toolbox process, and if it
+        // is, avoid starting everything MailGlue starts.
+        let commandLine = aSubject.QueryInterface(Ci.nsICommandLine);
+        let flagIndex = commandLine.findFlag("chrome", true) + 1;
+        if (
+          flagIndex > 0 &&
+          flagIndex < commandLine.length &&
+          commandLine.getArgument(flagIndex) ===
+            MailGlue.BROWSER_TOOLBOX_WINDOW_URL
+        ) {
+          return;
+        }
+
+        this._init();
+        break;
       case "app-startup":
         // Record the previously started version. This is used to check for
         // extensions that were disabled by an application update. We need to
