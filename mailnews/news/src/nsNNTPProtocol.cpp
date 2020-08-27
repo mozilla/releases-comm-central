@@ -1007,7 +1007,9 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
   // load group here, by generating the start request notification.
   // nsMsgProtocol::OnStartRequest ignores the first parameter (which is
   // supposed to be the channel) so we'll pass in null.
-  if (m_fromCache) nsMsgProtocol::OnStartRequest(nullptr);
+  // XXX: After bug 1654922 this will cause a crash, so commented out.
+  //   See bug 1657493. May need a better fix???
+  // if (m_fromCache) nsMsgProtocol::OnStartRequest(nullptr);
 
   /* At this point, we're all done parsing the URL, and know exactly
   what we want to do with it.
