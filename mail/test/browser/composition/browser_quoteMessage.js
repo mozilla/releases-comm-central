@@ -9,22 +9,14 @@
 
 var {
   close_compose_window,
-  open_compose_with_edit_as_new,
-  open_compose_with_forward,
-  open_compose_with_forward_as_attachments,
   open_compose_with_reply,
   get_compose_body,
-  get_msg_source,
 } = ChromeUtils.import("resource://testing-common/mozmill/ComposeHelpers.jsm");
 var {
-  assert_selected_and_displayed,
   be_in_folder,
   create_folder,
-  mc,
   open_message_from_file,
-  press_delete,
   select_click_row,
-  get_special_folder,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -34,8 +26,6 @@ var { close_window } = ChromeUtils.import(
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
-
-var gDrafts = get_special_folder(Ci.nsMsgFolderFlags.Drafts, true);
 
 var folderToStoreMessages;
 
@@ -68,11 +58,17 @@ add_task(async function test_quoteMessage() {
     "Message should be quoted by replying"
   );
 
-  // Click Options > Quote Message.
-  cwc.click(cwc.eid("optionsMenu"));
-  cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
-    { id: "menu_quoteMessage" },
-  ]);
+  if (["linux", "win"].includes(AppConstants.platform)) {
+    // Click Options > Quote Message.
+    cwc.click(cwc.eid("optionsMenu"));
+    cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
+      { id: "menu_quoteMessage" },
+    ]);
+  } else {
+    // Native menubar is used on macOS, didn't find a way to click it.
+    cwc.window.goDoCommand("cmd_quoteMessage");
+    cwc.sleep(1);
+  }
   composeBody = get_compose_body(cwc).textContent;
   Assert.equal(
     composeBody.match(/世界/g).length,
