@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
 
 var EXPORTED_SYMBOLS = ["ThemeVariableMap", "ThemeContentPropertyList"];
 
@@ -162,6 +165,14 @@ const ThemeVariableMap = [
     {
       lwtProperty: "sidebar_text",
       processColor(rgbaChannels, element) {
+        // Enable the ui.systemUsesDarkTheme only if one of these cases is true:
+        // 1. We're on Linux.
+        // 2. The current TB theme is not the default.
+        let forceDarkUI =
+          AppConstants.platform == "linux" ||
+          Services.prefs.getCharPref("extensions.activeThemeID") !=
+            "default-theme@mozilla.org";
+
         if (!rgbaChannels) {
           element.removeAttribute("lwt-tree");
 
@@ -179,7 +190,7 @@ const ThemeVariableMap = [
           rgb.shift();
           let [r, g, b] = rgb.map(x => parseInt(x));
 
-          if (!_isTextColorDark(r, g, b)) {
+          if (!_isTextColorDark(r, g, b) && forceDarkUI) {
             element.setAttribute("lwt-tree-brighttext", "true");
             Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
 
@@ -194,7 +205,7 @@ const ThemeVariableMap = [
 
         element.setAttribute("lwt-tree", "true");
         let { r, g, b, a } = rgbaChannels;
-        if (!_isTextColorDark(r, g, b)) {
+        if (!_isTextColorDark(r, g, b) && forceDarkUI) {
           element.setAttribute("lwt-tree-brighttext", "true");
           Services.prefs.setIntPref("ui.systemUsesDarkTheme", 1);
         } else {
