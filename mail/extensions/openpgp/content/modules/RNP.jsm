@@ -72,6 +72,17 @@ var RNP = {
     return RNP.libLoaded;
   },
 
+  isAllowedPublicKeyAlgo(algo) {
+    // see rnp/src/lib/rnp.cpp pubkey_alg_map
+    switch (algo) {
+      case "SM2":
+        return false;
+
+      default:
+        return true;
+    }
+  },
+
   addKeyAttributes(handle, meta, keyObj, is_subkey, forListing) {
     let algo = new ctypes.char.ptr();
     let bits = new ctypes.uint32_t();
@@ -120,8 +131,12 @@ var RNP = {
       keyObj.expiryTime = 0;
     }
     keyObj.expiry = EnigmailTime.getDateTime(keyObj.expiryTime, true, false);
-
     keyObj.keyUseFor = "";
+
+    if (!this.isAllowedPublicKeyAlgo(keyObj.algoSym)) {
+      return;
+    }
+
     if (RNPLib.rnp_key_allows_usage(handle, str_encrypt, allowed.address())) {
       throw new Error("rnp_key_allows_usage failed");
     }
