@@ -270,10 +270,9 @@ add_task(async function createMailingList() {
   observer.checkEvents(["addrbook-list-created", list, book.UID]);
 
   // Check nsIAbDirectory properties.
-  equal(list.uuid, "&new list");
   equal(list.dirName, "new list");
   equal(list.UID.length, 36);
-  equal(list.URI, `${SCHEME}://${FILE_NAME}/MailList1`);
+  equal(list.URI, `${SCHEME}://${FILE_NAME}/${list.UID}`);
   equal(list.isMailList, true);
   equal(list.supportsMailingLists, false);
 

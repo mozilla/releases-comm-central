@@ -8,26 +8,16 @@
  */
 
 function checkLists(childNodes, number) {
-  var mailListArray = new Array(number);
-
-  for (var i = 0; i < number; ++i) {
-    mailListArray[i] = null;
-  }
-
+  let count = 0;
   // See comment above for matching requirements
   for (let list of childNodes) {
     if (list.isMailList && list.dirName.startsWith("TestList")) {
-      var index = list.dirName.substr(8, list.dirName.length - 8);
-      Assert.equal(mailListArray[index - 1], null);
-      Assert.equal(list.URI, kPABData.URI + "/MailList" + index);
-
-      mailListArray[index - 1] = list;
+      Assert.equal(list.URI, `${kPABData.URI}/${list.UID}`);
+      count++;
     }
   }
 
-  mailListArray.forEach(function(value) {
-    Assert.notEqual(value, null);
-  });
+  Assert.equal(count, number);
 }
 
 function run_test() {
@@ -64,7 +54,9 @@ function run_test() {
 
   // Test - Remove a list.
 
-  mailList = MailServices.ab.getDirectory(kPABData.URI + "/MailList4");
+  mailList = MailServices.ab.getDirectory(
+    kPABData.URI + "/46cf4cbf-5945-43e4-a822-30c2f2969db9"
+  );
 
   AB.deleteDirectory(mailList);
 

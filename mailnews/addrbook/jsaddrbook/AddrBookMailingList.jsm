@@ -6,11 +6,6 @@ const EXPORTED_SYMBOLS = ["AddrBookMailingList"];
 
 ChromeUtils.defineModuleGetter(
   this,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "Services",
   "resource://gre/modules/Services.jsm"
 );
@@ -25,17 +20,9 @@ ChromeUtils.defineModuleGetter(
  * and fulfill each interface on demand. This will make more sense and be
  * a lot neater once we stop using two XPCOM interfaces for one job. */
 
-function AddrBookMailingList(
-  uid,
-  parent,
-  localId,
-  name,
-  nickName,
-  description
-) {
+function AddrBookMailingList(uid, parent, name, nickName, description) {
   this._uid = uid;
   this._parent = parent;
-  this._localId = localId;
   this._name = name;
   this._nickName = nickName;
   this._description = description;
@@ -54,10 +41,7 @@ AddrBookMailingList.prototype = {
         return self._uid;
       },
       get URI() {
-        return `${self._parent.URI}/MailList${self._localId}`;
-      },
-      get uuid() {
-        return `&${self._name}`;
+        return `${self._parent.URI}/${self._uid}`;
       },
       get dirName() {
         return self._name;
@@ -90,9 +74,7 @@ AddrBookMailingList.prototype = {
         selectStatement.params.list = self._uid;
         let results = [];
         while (selectStatement.executeStep()) {
-          results.push(
-            self._parent._getCard(selectStatement.row.card)
-          );
+          results.push(self._parent._getCard(selectStatement.row.card));
         }
         selectStatement.finalize();
         return new SimpleEnumerator(results);
@@ -201,7 +183,7 @@ AddrBookMailingList.prototype = {
         return true;
       },
       get mailListURI() {
-        return `${self._parent.URI}/MailList${self._localId}`;
+        return `${self._parent.URI}/${self._uid}`;
       },
 
       get directoryId() {

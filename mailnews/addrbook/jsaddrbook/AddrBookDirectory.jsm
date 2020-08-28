@@ -199,12 +199,11 @@ class AddrBookDirectory {
   get _lists() {
     let listCache = new Map();
     let selectStatement = this._dbConnection.createStatement(
-      "SELECT uid, localId, name, nickName, description FROM lists"
+      "SELECT uid, name, nickName, description FROM lists"
     );
     while (selectStatement.executeStep()) {
       listCache.set(selectStatement.row.uid, {
         uid: selectStatement.row.uid,
-        localId: selectStatement.row.localId,
         name: selectStatement.row.name,
         nickName: selectStatement.row.nickName,
         description: selectStatement.row.description,
@@ -253,21 +252,6 @@ class AddrBookDirectory {
     return cardCache;
   }
 
-  _getNextListId() {
-    if (this._nextListId === null) {
-      let value = 0;
-      let selectStatement = this._dbConnection.createStatement(
-        "SELECT MAX(localId) AS localId FROM lists"
-      );
-      if (selectStatement.executeStep()) {
-        value = selectStatement.row.localId;
-      }
-      this._nextListId = value;
-      selectStatement.finalize();
-    }
-    this._nextListId++;
-    return this._nextListId.toString();
-  }
   _getCard(uid) {
     let card = new AddrBookCard();
     card.directoryId = this.uuid;
@@ -345,11 +329,10 @@ class AddrBookDirectory {
     this._lists;
 
     let replaceStatement = this._dbConnection.createStatement(
-      "REPLACE INTO lists (uid, localId, name, nickName, description) " +
-        "VALUES (:uid, :localId, :name, :nickName, :description)"
+      "REPLACE INTO lists (uid, name, nickName, description) " +
+        "VALUES (:uid, :name, :nickName, :description)"
     );
     replaceStatement.params.uid = list._uid;
-    replaceStatement.params.localId = list._localId;
     replaceStatement.params.name = list._name;
     replaceStatement.params.nickName = list._nickName;
     replaceStatement.params.description = list._description;
@@ -358,7 +341,6 @@ class AddrBookDirectory {
 
     this._lists.set(list._uid, {
       uid: list._uid,
-      localId: list._localId,
       name: list._name,
       nickName: list._nickName,
       description: list._description,
@@ -538,7 +520,6 @@ class AddrBookDirectory {
         new AddrBookMailingList(
           list.uid,
           this,
-          list.localId,
           list.name,
           list.nickName,
           list.description
@@ -553,7 +534,6 @@ class AddrBookDirectory {
         new AddrBookMailingList(
           list.uid,
           this,
-          list.localId,
           list.name,
           list.nickName,
           list.description
@@ -587,7 +567,6 @@ class AddrBookDirectory {
         new AddrBookMailingList(
           list.uid,
           this,
-          list.localId,
           list.name,
           list.nickName,
           list.description
@@ -745,7 +724,6 @@ class AddrBookDirectory {
     list = new AddrBookMailingList(
       list.uid,
       this,
-      list.localId,
       list.name,
       list.nickName,
       list.description
@@ -921,7 +899,6 @@ class AddrBookDirectory {
     let newList = new AddrBookMailingList(
       newUID(),
       this,
-      this._getNextListId(),
       list.dirName || "",
       list.listNickName || "",
       list.description || ""

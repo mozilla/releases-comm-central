@@ -209,7 +209,7 @@ AddrBookManager.prototype = {
     }
     let [, scheme, fileName, tail] = uriParts;
     if (tail && types.includes(scheme)) {
-      if (scheme == "jsaddrbook" && tail.startsWith("/MailList")) {
+      if (scheme == "jsaddrbook" && tail.startsWith("/")) {
         let parent = this.getDirectory(`${scheme}://${fileName}`);
         for (let list of parent.childNodes) {
           list.QueryInterface(Ci.nsIAbDirectory);
@@ -389,14 +389,12 @@ AddrBookManager.prototype = {
     }
 
     let [, scheme, fileName, tail] = uriParts;
-    if (tail) {
-      if (tail.startsWith("/MailList")) {
-        let dir = store.get(`${scheme}://${fileName}`);
-        let list = this.getDirectory(uri);
-        if (dir && list) {
-          dir.deleteDirectory(list);
-          return;
-        }
+    if (tail && tail.startsWith("/")) {
+      let dir = store.get(`${scheme}://${fileName}`);
+      let list = this.getDirectory(uri);
+      if (dir && list) {
+        dir.deleteDirectory(list);
+        return;
       }
     }
 
