@@ -75,13 +75,10 @@ function openConnectionTo(file) {
       case 0:
         connection.executeSimpleSQL("PRAGMA journal_mode=WAL");
         connection.executeSimpleSQL(
-          "CREATE TABLE cards (uid TEXT PRIMARY KEY, localId INTEGER)"
-        );
-        connection.executeSimpleSQL(
           "CREATE TABLE properties (card TEXT, name TEXT, value TEXT)"
         );
         connection.executeSimpleSQL(
-          "CREATE TABLE lists (uid TEXT PRIMARY KEY, localId INTEGER, name TEXT, nickName TEXT, description TEXT)"
+          "CREATE TABLE lists (uid TEXT PRIMARY KEY, name TEXT, nickName TEXT, description TEXT)"
         );
         connection.executeSimpleSQL(
           "CREATE TABLE list_cards (list TEXT, card TEXT, PRIMARY KEY(list, card))"
@@ -94,7 +91,12 @@ function openConnectionTo(file) {
         connection.executeSimpleSQL(
           "CREATE INDEX properties_name ON properties(name)"
         );
-        connection.schemaVersion = 2;
+      // Falls through.
+      case 2:
+        connection.executeSimpleSQL("DROP TABLE IF EXISTS cards");
+        // The lists table may have a localId column we no longer use, but
+        // since SQLite can't drop columns it's not worth effort to remove it.
+        connection.schemaVersion = 3;
         break;
     }
     connections.set(file.path, connection);
@@ -220,26 +222,17 @@ class AddrBookDirectory {
   }
   get _cards() {
     let cardCache = new Map();
-    let cardStatement = this._dbConnection.createStatement(
-      "SELECT uid FROM cards"
-    );
-    while (cardStatement.executeStep()) {
-      cardCache.set(cardStatement.row.uid, {
-        uid: cardStatement.row.uid,
-        properties: new Map(),
-      });
-    }
-    cardStatement.finalize();
     let propertiesStatement = this._dbConnection.createStatement(
       "SELECT card, name, value FROM properties"
     );
     while (propertiesStatement.executeStep()) {
-      let card = cardCache.get(propertiesStatement.row.card);
+      let uid = propertiesStatement.row.card;
+      if (!cardCache.has(uid)) {
+        cardCache.set(uid, new Map());
+      }
+      let card = cardCache.get(uid);
       if (card) {
-        card.properties.set(
-          propertiesStatement.row.name,
-          propertiesStatement.row.value
-        );
+        card.set(propertiesStatement.row.name, propertiesStatement.row.value);
       }
     }
     propertiesStatement.finalize();
@@ -263,7 +256,7 @@ class AddrBookDirectory {
     if (this.hasOwnProperty("_cards")) {
       let cachedCard = this._cards.get(uid);
       if (cachedCard) {
-        return new Map(cachedCard.properties);
+        return new Map(cachedCard);
       }
     }
     let properties = new Map();
@@ -281,7 +274,7 @@ class AddrBookDirectory {
     let cachedCard;
     if (this.hasOwnProperty("_cards")) {
       cachedCard = this._cards.get(card.UID);
-      cachedCard.properties.clear();
+      cachedCard.clear();
     }
 
     this._dbConnection.beginTransaction();
@@ -301,7 +294,7 @@ class AddrBookDirectory {
       insertStatement.reset();
 
       if (cachedCard) {
-        cachedCard.properties.set(name, value);
+        cachedCard.set(name, value);
       }
     };
 
@@ -352,13 +345,9 @@ class AddrBookDirectory {
     }
 
     let usedUIDs = new Set();
-    let cardStatement = this._dbConnection.createStatement(
-      "INSERT INTO cards (uid) VALUES (:uid)"
-    );
     let propertiesStatement = this._dbConnection.createStatement(
       "INSERT INTO properties VALUES (:card, :name, :value)"
     );
-    let cardArray = cardStatement.newBindingParamsArray();
     let propertiesArray = propertiesStatement.newBindingParamsArray();
     for (let card of cards) {
       let uid = card.UID;
@@ -368,16 +357,10 @@ class AddrBookDirectory {
         uid = newUID();
       }
       usedUIDs.add(uid);
-      let cardParams = cardArray.newBindingParams();
-      cardParams.bindByName("uid", uid);
-      cardArray.addParams(cardParams);
 
       let cachedCard;
       if (this.hasOwnProperty("_cards")) {
-        cachedCard = {
-          uid,
-          properties: new Map(),
-        };
+        cachedCard = new Map();
         this._cards.set(uid, cachedCard);
       }
 
@@ -403,32 +386,12 @@ class AddrBookDirectory {
         propertiesArray.addParams(propertiesParams);
 
         if (cachedCard) {
-          cachedCard.properties.set(name, value);
+          cachedCard.set(name, value);
         }
       }
     }
     try {
       this._dbConnection.beginTransaction();
-      if (cardArray.length > 0) {
-        cardStatement.bindParameters(cardArray);
-        await new Promise((resolve, reject) => {
-          cardStatement.executeAsync({
-            handleError(error) {
-              this._error = error;
-            },
-            handleCompletion(status) {
-              if (status == Ci.mozIStorageStatementCallback.REASON_ERROR) {
-                reject(
-                  Components.Exception(this._error.message, Cr.NS_ERROR_FAILURE)
-                );
-              } else {
-                resolve();
-              }
-            },
-          });
-        });
-        cardStatement.finalize();
-      }
       if (propertiesArray.length > 0) {
         propertiesStatement.bindParameters(propertiesArray);
         await new Promise((resolve, reject) => {
@@ -784,21 +747,18 @@ class AddrBookDirectory {
       throw Components.Exception("", Cr.NS_ERROR_INVALID_POINTER);
     }
 
-    let deleteCardStatement = this._dbConnection.createStatement(
-      "DELETE FROM cards WHERE uid = :uid"
+    let deleteStatement = this._dbConnection.createStatement(
+      "DELETE FROM properties WHERE card = :cardUID"
     );
     for (let card of cards) {
-      deleteCardStatement.params.uid = card.UID;
-      deleteCardStatement.execute();
-      deleteCardStatement.reset();
+      deleteStatement.params.cardUID = card.UID;
+      deleteStatement.execute();
+      deleteStatement.reset();
 
       if (this.hasOwnProperty("_cards")) {
         this._cards.delete(card.UID);
       }
     }
-    this._dbConnection.executeSimpleSQL(
-      "DELETE FROM properties WHERE card NOT IN (SELECT DISTINCT uid FROM cards)"
-    );
     for (let card of cards) {
       Services.obs.notifyObservers(card, "addrbook-contact-deleted", this.UID);
     }
@@ -809,7 +769,7 @@ class AddrBookDirectory {
       list.deleteCards(cards);
     }
 
-    deleteCardStatement.finalize();
+    deleteStatement.finalize();
   }
   dropCard(card, needToCopyCard) {
     if (!card.UID) {
@@ -820,18 +780,8 @@ class AddrBookDirectory {
     newCard.directoryId = this.uuid;
     newCard._uid = needToCopyCard ? newUID() : card.UID;
 
-    let insertStatement = this._dbConnection.createStatement(
-      "INSERT INTO cards (uid) VALUES (:uid)"
-    );
-    insertStatement.params.uid = newCard.UID;
-    insertStatement.execute();
-    insertStatement.finalize();
-
     if (this.hasOwnProperty("_cards")) {
-      this._cards.set(newCard._uid, {
-        uid: newCard._uid,
-        properties: new Map(),
-      });
+      this._cards.set(newCard._uid, new Map());
     }
 
     for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
