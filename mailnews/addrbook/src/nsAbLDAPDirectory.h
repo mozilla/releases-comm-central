@@ -46,16 +46,10 @@ class nsAbLDAPDirectory : public nsAbDirProperty,  // nsIAbDirectory
 
  protected:
   virtual ~nsAbLDAPDirectory();
-  nsresult Initiate();
 
   nsresult StopSearch();
 
-  bool mPerformingQuery;
   int32_t mContext;
-  int32_t mMaxHits;
-
-  nsInterfaceHashtable<nsISupportsHashKey, nsIAbCard> mCache;
-
   nsCOMPtr<nsIAbDirectoryQuery> mDirectoryQuery;
 };
 

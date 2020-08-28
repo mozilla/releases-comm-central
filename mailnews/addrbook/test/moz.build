@@ -11,5 +11,4 @@ TESTING_JS_MODULES += [
 XPCSHELL_TESTS_MANIFESTS += [
     'unit/xpcshell.ini',
     'unit/xpcshell_cardDAV.ini',
-    'unit/xpcshell_migration.ini',
 ]

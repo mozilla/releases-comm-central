@@ -17,7 +17,6 @@
 #include "nsEnumeratorUtils.h"
 #include "nsIAbLDAPAttributeMap.h"
 #include "nsIAbManager.h"
-#include "nsIAddrDatabase.h"
 #include "nsILDAPURL.h"
 #include "nsILDAPConnection.h"
 #include "nsAppDirectoryServiceDefs.h"
@@ -68,8 +67,6 @@ NS_IMETHODIMP nsAbLDAPDirectory::Init(const char* aURI) {
 
   return nsAbDirProperty::Init(aURI);
 }
-
-nsresult nsAbLDAPDirectory::Initiate() { return NS_OK; }
 
 /*
  *
@@ -129,10 +126,7 @@ NS_IMETHODIMP nsAbLDAPDirectory::GetChildCards(nsISimpleEnumerator** result) {
 }
 
 NS_IMETHODIMP nsAbLDAPDirectory::HasCard(nsIAbCard* card, bool* hasCard) {
-  nsresult rv = Initiate();
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  *hasCard = mCache.Get(card, nullptr);
+  *hasCard = false;
   return NS_OK;
 }
 
@@ -245,9 +239,6 @@ NS_IMETHODIMP nsAbLDAPDirectory::Search(const nsAString& query,
     // Perform the query.
     return directory->Search(query, listener);
   }
-
-  rv = Initiate();
-  NS_ENSURE_SUCCESS(rv, rv);
 
   rv = StopSearch();
   NS_ENSURE_SUCCESS(rv, rv);

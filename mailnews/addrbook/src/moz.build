@@ -26,7 +26,6 @@ SOURCES += [
     'nsAbQueryStringToExpression.cpp',
     'nsAddbookProtocolHandler.cpp',
     'nsAddbookUrl.cpp',
-    'nsAddrDatabase.cpp',
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT' and CONFIG['MOZ_MAPI_SUPPORT']:
