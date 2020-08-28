@@ -4,6 +4,7 @@
 
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Autodetect } = ChromeUtils.import("resource:///modules/calendar/calAutodetect.jsm");
 
@@ -41,11 +42,128 @@ var gButtonHandlers = {
       accept: createNetworkCalendars,
       extra2: () => selectPanel("panel-network-calendar-settings"),
     },
+    "panel-addon-calendar-settings": {
+      extra2: () => selectPanel("panel-select-calendar-type"),
+      // This 'accept' is set dynamically when the calendar type is selected.
+      accept: null,
+    },
   },
 };
 
 /** @type {calICalendar | null} */
 var gLocalCalendar = null;
+
+/**
+ * A type of calendar that can be created with this dialog.
+ *
+ * @typedef {CalendarType}
+ * @property {string} id              A unique ID for this type, e.g. "local" or
+ *                                      "network" for built-in types and
+ *                                      "3" or "4" for add-on types.
+ * @property {boolean} builtIn        Whether this is a built in type.
+ * @property {Function} onSelected    The "accept" button handler to call when
+ *                                      the type is selected.
+ * @property {string} [label]         Text to use in calendar type selection UI.
+ * @property {string} [panelSrc]      The "src" property for the <browser> for
+ *                                      this type's settings panel, typically a
+ *                                      path to an html document. Only needed
+ *                                      for types registered by add-ons.
+ * @property {Function} [onCreated]   The "accept" button handler for this
+ *                                      type's settings panel. Only needed for
+ *                                      types registered by add-ons.
+ */
+
+/**
+ * Registry of calendar types. The key should match the type's `id` property.
+ * Add-ons may register additional types.
+ *
+ * @type {Map<string, CalendarType>}
+ */
+var gCalendarTypes = new Map([
+  [
+    "local",
+    {
+      id: "local",
+      builtIn: true,
+      onSelected: () => {
+        // Create a local calendar to use, so we can share code with the calendar
+        // preferences dialog.
+        if (!gLocalCalendar) {
+          gLocalCalendar = cal
+            .getCalendarManager()
+            .createCalendar("storage", Services.io.newURI("moz-storage-calendar://"));
+
+          ltnInitMailIdentitiesRow(gLocalCalendar);
+          ltnNotifyOnIdentitySelection(gLocalCalendar);
+        }
+        selectPanel("panel-local-calendar-settings");
+      },
+    },
+  ],
+  [
+    "network",
+    {
+      id: "network",
+      builtIn: true,
+      onSelected: () => selectPanel("panel-network-calendar-settings"),
+    },
+  ],
+]);
+
+/** @type {CalendarType | null} */
+var gSelectedCalendarType = null;
+
+/**
+ * Register a calendar type to offer in the dialog. For add-ons to use. Add-on
+ * code should store the returned ID and use it for unregistering the type.
+ *
+ * @param {CalendarType} type   The type object to register.
+ * @return {string}             The generated ID for the type.
+ */
+function registerCalendarType(type) {
+  type.id = String(gCalendarTypes.size + 1);
+  type.builtIn = false;
+
+  if (!type.onSelected) {
+    type.onSelected = () => selectPanel("panel-addon-calendar-settings");
+  }
+  gCalendarTypes.set(type.id, type);
+
+  // Add an option for this type to the "select calendar type" panel.
+  let radiogroup = document.getElementById("calendar-type");
+  let radio = document.createXULElement("radio");
+  radio.setAttribute("value", type.id);
+  radio.setAttribute("label", type.label);
+  radiogroup.appendChild(radio);
+
+  return type.id;
+}
+
+/**
+ * Unregister a calendar type. For add-ons to use.
+ *
+ * @param {string} id   The ID of the type to unregister.
+ */
+function unregisterCalendarType(id) {
+  // Don't allow unregistration of built-in types.
+  if (gCalendarTypes.get(id)?.builtIn) {
+    cal.WARN(
+      `calendar creation dialog: unregistering calendar type "${id}"` +
+        " failed because it is a built in type"
+    );
+    return;
+  }
+  // We are using the size of gCalendarTypes to generate unique IDs for
+  // registered types, so don't fully remove the type.
+  gCalendarTypes.set(id, undefined);
+
+  // Remove the option for this type from the "select calendar type" panel.
+  let radiogroup = document.getElementById("calendar-type");
+  let radio = radiogroup.querySelector(`[value="${id}"]`);
+  if (radio) {
+    radiogroup.removeChild(radio);
+  }
+}
 
 /**
  * Tools for managing how providers are used for calendar detection. May be used
@@ -380,22 +498,44 @@ function selectCalendarType(event) {
   event.preventDefault();
   event.stopPropagation();
   let radiogroup = document.getElementById("calendar-type");
+  let calendarType = gCalendarTypes.get(radiogroup.value);
 
-  if (radiogroup.value == "network") {
-    selectPanel("panel-network-calendar-settings");
-  } else if (radiogroup.value == "local") {
-    // Create a local calendar to use, so we can share code with the calendar
-    // preferences dialog.
-    if (!gLocalCalendar) {
-      gLocalCalendar = cal
-        .getCalendarManager()
-        .createCalendar("storage", Services.io.newURI("moz-storage-calendar://"));
-
-      ltnInitMailIdentitiesRow(gLocalCalendar);
-      ltnNotifyOnIdentitySelection(gLocalCalendar);
-    }
-    selectPanel("panel-local-calendar-settings");
+  if (!calendarType.builtIn && calendarType !== gSelectedCalendarType) {
+    setUpAddonCalendarSettingsPanel(calendarType);
   }
+  gSelectedCalendarType = calendarType;
+  calendarType.onSelected();
+}
+
+/**
+ * Set up the settings panel for calendar types registered by addons.
+ *
+ * @param {CalendarType} calendarType   The calendar type.
+ */
+function setUpAddonCalendarSettingsPanel(calendarType) {
+  function setUpBrowser(browser, src) {
+    // Allow keeping dialog background color without jumping through hoops.
+    browser.setAttribute("transparent", "true");
+    browser.setAttribute("flex", "1");
+    browser.setAttribute("type", "content");
+    browser.setAttribute("src", src);
+  }
+  let panel = document.getElementById("panel-addon-calendar-settings");
+  let browser = panel.lastElementChild;
+
+  if (browser) {
+    setUpBrowser(browser, calendarType.panelSrc);
+  } else {
+    browser = document.createXULElement("browser");
+    setUpBrowser(browser, calendarType.panelSrc);
+
+    panel.appendChild(browser);
+    // The following emit is needed for the browser to work with addon content.
+    ExtensionParent.apiManager.emit("extension-browser-inserted", browser);
+  }
+
+  // Set up the accept button handler for the panel.
+  gButtonHandlers.forNodeId["panel-addon-calendar-settings"].accept = calendarType.onCreated;
 }
 
 /**
