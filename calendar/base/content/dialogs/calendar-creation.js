@@ -195,10 +195,15 @@ var gProviderUsage = {
   _preDetectFilters: [],
 
   /**
-   * @type {Map<string, string>}
-   * A mapping from a less preferred provider type to a more preferred provider
-   * type. When there are results from both types, prefer the more preferred
-   * type's results. Used after calendar detection.
+   * A mapping from a less preferred provider type to a set of more preferred
+   * provider types. Used after calendar detection to default to a more
+   * preferred provider when there are results from more than one provider.
+   *
+   * @typedef {Map<string, Set<string>>} ProviderPreferences
+   */
+
+  /**
+   * @type {ProviderPreferences}
    */
   _postDetectPreferences: new Map(),
 
@@ -227,20 +232,60 @@ var gProviderUsage = {
    */
   addPostDetectPreference(preferredType, nonPreferredType) {
     let prefs = this._postDetectPreferences;
-    prefs.set(nonPreferredType, preferredType);
 
-    if (
-      prefs.get(preferredType) == nonPreferredType &&
-      prefs.get(nonPreferredType) == preferredType
-    ) {
-      cal.WARN(`Cyclic preference between ${preferredType} and ${nonPreferredType}, removing both`);
-      prefs.delete(preferredType);
-      prefs.delete(nonPreferredType);
+    if (this.detectPreferenceCycle(prefs, preferredType, nonPreferredType)) {
+      cal.WARN(
+        `Adding a preference for provider type "${preferredType}" over ` +
+          `type "${nonPreferredType}" would cause a preference cycle, ` +
+          `not adding this preference to prevent a cycle`
+      );
+    } else {
+      let current = prefs.get(nonPreferredType);
+      if (current) {
+        current.add(preferredType);
+      } else {
+        prefs.set(nonPreferredType, new Set([preferredType]));
+      }
     }
+  },
+
+  /**
+   * Check whether adding a preference for one provider type over another would
+   * cause a cycle in the order of preferences. We assume that the preferences
+   * do not contain any cycles already.
+   *
+   * @param {ProviderPreferences} prefs        The current preferences.
+   * @param {string} preferred                 Potential preferred provider.
+   * @param {string} nonPreferred              Potential non-preferred provider.
+   * @return {boolean}                         True if it would cause a cycle.
+   */
+  detectPreferenceCycle(prefs, preferred, nonPreferred) {
+    let cycle = false;
+
+    let innerDetect = preferredSet => {
+      if (cycle) {
+        // Bail out, a cycle has already been detected.
+        return;
+      } else if (preferredSet.has(nonPreferred)) {
+        // A cycle! We have arrived back at the nonPreferred provider type.
+        cycle = true;
+        return;
+      }
+      // Recursively check each preferred type.
+      for (let item of preferredSet) {
+        let nextPreferredSet = prefs.get(item);
+        if (nextPreferredSet) {
+          innerDetect(nextPreferredSet);
+        }
+      }
+    };
+
+    innerDetect(new Set([preferred]));
+    return cycle;
   },
 };
 
-// If both ics and caldav results exist, prefer the caldav results.
+// If both ics and caldav results exist, default to the caldav results.
 gProviderUsage.addPostDetectPreference("caldav", "ics");
 
 /**
@@ -399,15 +444,32 @@ function fillProviders(providerTypes) {
 
   // Select a provider menu item based on provider preferences.
   let preferredTypes = new Set(providerTypes);
-  for (let [nonPreferredType, preferredType] of gProviderUsage.postDetectPreferences) {
-    if (preferredTypes.has(nonPreferredType) && preferredTypes.has(preferredType)) {
-      preferredTypes.delete(nonPreferredType);
+
+  for (let [nonPreferred, preferredSet] of gProviderUsage.postDetectPreferences) {
+    if (preferredTypes.has(nonPreferred) && setsIntersect(preferredSet, preferredTypes)) {
+      preferredTypes.delete(nonPreferred);
     }
   }
   let preferredIndex = [...providerTypes].findIndex(type => preferredTypes.has(type));
   menulist.selectedIndex = preferredIndex == -1 ? 0 : preferredIndex;
 
   return menulist.selectedItem;
+}
+
+/**
+ * Return true if the intersection of two sets contains at least one item.
+ *
+ * @param {Set} setA    A set.
+ * @param {Set} setB    A set.
+ * @return {boolean}
+ */
+function setsIntersect(setA, setB) {
+  for (let item of setA) {
+    if (setB.has(item)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
