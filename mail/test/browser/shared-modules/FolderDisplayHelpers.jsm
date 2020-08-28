@@ -418,6 +418,8 @@ function setupAccountStuff() {
  * @param aSpecialFlags An optional list of nsMsgFolderFlags bits to set.
  */
 function create_folder(aFolderName, aSpecialFlags) {
+  wait_for_message_display_completion();
+
   let folder = testHelperModule.make_empty_folder(aFolderName, aSpecialFlags);
   mc.folderTreeView.mode = "all";
   return folder;
