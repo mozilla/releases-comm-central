@@ -19,10 +19,6 @@ interface nsIAbPreferMailFormat : nsISupports {
 /**
  * An interface representing an address book card.
  *
- * The UUID of a card is a composition of a directory ID and a per-directory ID.
- * The per-directory ID is reflected in the localId property. If either of these
- * properties change, the UUID will change correspondingly.
- *
  * None of these IDs will be reflected in the property collection. Neither
  * nsIAbCard::properties, nsIAbCard::deleteProperty, nor any of the property
  * getters and setters are able to interact with these properties.
@@ -102,7 +98,7 @@ interface nsIAbCard : nsISupports {
                        [optional] in nsIStringBundle aBundle);
 
   /**
-   * The UUID for the nsIAbDirectory containing this card.
+   * The UID for the nsIAbDirectory containing this card.
    *
    * The directory considered to contain this card is the directory which
    * produced this card (e.g., through nsIAbDirectory::getCardForProperty) or
@@ -117,7 +113,7 @@ interface nsIAbCard : nsISupports {
    * Consumers of this interface outside of directory implementations SHOULD
    * NOT, in general, modify this property.
    */
-  attribute AUTF8String directoryId;
+  attribute AUTF8String directoryUID;
 
   /**
    * A 128-bit unique identifier for this card. This can only be set if it is not

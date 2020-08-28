@@ -247,7 +247,7 @@ class AddrBookDirectory {
 
   _getCard(uid) {
     let card = new AddrBookCard();
-    card.directoryId = this.uuid;
+    card.directoryUID = this.UID;
     card._uid = uid;
     card._properties = this._loadCardProperties(uid);
     return card.QueryInterface(Ci.nsIAbCard);
@@ -444,7 +444,6 @@ class AddrBookDirectory {
   set dirName(value) {
     this.setLocalizedStringValue("description", value);
     this._dirName = value;
-    this._uuid = null;
     Services.obs.notifyObservers(this, "addrbook-directory-updated", "DirName");
   }
   get dirType() {
@@ -469,12 +468,6 @@ class AddrBookDirectory {
   }
   get position() {
     return this._prefBranch.getIntPref("position", 1);
-  }
-  get uuid() {
-    if (!this._uuid) {
-      this._uuid = `${this.dirPrefId}&${this.dirName}`;
-    }
-    return this._uuid;
   }
   get childNodes() {
     let lists = Array.from(
@@ -777,7 +770,7 @@ class AddrBookDirectory {
     }
 
     let newCard = new AddrBookCard();
-    newCard.directoryId = this.uuid;
+    newCard.directoryUID = this.UID;
     newCard._uid = needToCopyCard ? newUID() : card.UID;
 
     if (this.hasOwnProperty("_cards")) {

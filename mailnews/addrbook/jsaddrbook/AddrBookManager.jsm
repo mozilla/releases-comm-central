@@ -475,9 +475,6 @@ AddrBookManager.prototype = {
     }
     return false;
   },
-  generateUUID(directoryId, localId) {
-    return `${directoryId}#${localId}`;
-  },
 
   /* nsICommandLineHandler */
 

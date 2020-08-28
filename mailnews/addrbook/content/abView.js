@@ -61,23 +61,22 @@ ABView.prototype = {
       this.selection.getRangeAt(i, start, finish);
       for (let j = start.value; j <= finish.value; j++) {
         let card = this.getCardFromRow(j);
-        let directoryId = card.directoryId.split("&")[0];
-        let cardSet = directoryMap.get(directoryId);
+        let cardSet = directoryMap.get(card.directoryUID);
         if (!cardSet) {
           cardSet = new Set();
-          directoryMap.set(directoryId, cardSet);
+          directoryMap.set(card.directoryUID, cardSet);
         }
         cardSet.add(card);
       }
     }
 
-    for (let [directoryId, cardSet] of directoryMap) {
+    for (let [directoryUID, cardSet] of directoryMap) {
       let directory;
       if (this.directory && this.directory.isMailList) {
         // Removes cards from the list instead of deleting them.
         directory = this.directory;
       } else {
-        directory = MailServices.ab.getDirectoryFromId(directoryId);
+        directory = MailServices.ab.getDirectoryFromUID(directoryUID);
       }
 
       cardSet = [...cardSet];
@@ -321,8 +320,9 @@ function abViewCard(card, directoryHint) {
   if (directoryHint) {
     this._directory = directoryHint;
   } else {
-    let directoryId = this.card.directoryId.split("&")[0];
-    this._directory = MailServices.ab.getDirectoryFromId(directoryId);
+    this._directory = MailServices.ab.getDirectoryFromUID(
+      this.card.directoryUID
+    );
   }
 }
 abViewCard.prototype = {

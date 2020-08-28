@@ -193,11 +193,9 @@ function getContainingDirectory() {
   // If the source directory is "All Address Books", find the parent
   // address book of the card being edited and reflect the changes in it.
   if (directory.URI == kAllDirectoryRoot + "?") {
-    let dirId = gEditCard.card.directoryId.substring(
-      0,
-      gEditCard.card.directoryId.indexOf("&")
+    directory = MailServices.ab.getDirectoryFromUID(
+      gEditCard.card.directoryUID
     );
-    directory = MailServices.ab.getDirectoryFromId(dirId);
   }
   return directory;
 }

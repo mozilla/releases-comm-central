@@ -186,8 +186,8 @@ AddrBookMailingList.prototype = {
         return `${self._parent.URI}/${self._uid}`;
       },
 
-      get directoryId() {
-        return self._parent.uuid;
+      get directoryUID() {
+        return self._parent.UID;
       },
       get firstName() {
         return "";

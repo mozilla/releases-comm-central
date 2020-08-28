@@ -31,7 +31,7 @@ class nsAbLDAPDirectoryQuery : public nsIAbDirectoryQuery,
   virtual ~nsAbLDAPDirectoryQuery();
   nsCOMPtr<nsILDAPConnection> mConnection;
   nsCOMPtr<nsILDAPURL> mDirectoryUrl;
-  nsCString mDirectoryId;
+  nsCString mDirectoryUID;
   nsCOMArray<nsIAbDirSearchListener> mListeners;
   nsCString mCurrentLogin;
   nsCString mCurrentMechanism;

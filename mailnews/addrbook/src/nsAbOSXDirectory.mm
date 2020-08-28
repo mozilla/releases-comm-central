@@ -286,9 +286,6 @@ nsAbOSXDirectory::Init(const char* aUri) {
     cardList = m_AddressList;
   }
 
-  nsAutoCString ourUuid;
-  GetUuid(ourUuid);
-
   unsigned int nbCards = [cards count];
   nsCOMPtr<nsIAbCard> card;
   nsCOMPtr<nsIAbManager> abManager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
@@ -562,9 +559,9 @@ nsresult nsAbOSXDirectory::AssertDirectory(nsIAbManager* aManager, nsIAbDirector
 }
 
 nsresult nsAbOSXDirectory::AssertCard(nsIAbManager* aManager, nsIAbCard* aCard) {
-  nsAutoCString ourUuid;
-  GetUuid(ourUuid);
-  aCard->SetDirectoryId(ourUuid);
+  nsAutoCString ourUID;
+  GetUID(ourUID);
+  aCard->SetDirectoryUID(ourUID);
 
   nsresult rv =
       m_IsMailList ? m_AddressList->AppendElement(aCard) : mCardList->AppendElement(aCard);

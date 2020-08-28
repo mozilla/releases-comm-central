@@ -109,13 +109,13 @@ nsAbCardProperty::~nsAbCardProperty(void) {}
 
 NS_IMPL_ISUPPORTS(nsAbCardProperty, nsIAbCard)
 
-NS_IMETHODIMP nsAbCardProperty::GetDirectoryId(nsACString& dirId) {
-  dirId = m_directoryId;
+NS_IMETHODIMP nsAbCardProperty::GetDirectoryUID(nsACString& dirUID) {
+  dirUID = m_directoryUID;
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAbCardProperty::SetDirectoryId(const nsACString& aDirId) {
-  m_directoryId = aDirId;
+NS_IMETHODIMP nsAbCardProperty::SetDirectoryUID(const nsACString& aDirUID) {
+  m_directoryUID = aDirUID;
   return NS_OK;
 }
 
@@ -319,19 +319,19 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString& aUID) {
   rv = SetPropertyAsAString(kUIDProperty, NS_ConvertUTF8toUTF16(aUID));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  if (m_directoryId.IsEmpty()) {
+  if (m_directoryUID.IsEmpty()) {
     return NS_OK;
   }
 
-  int ampIndex = m_directoryId.FindChar('&');
-  const nsACString& directoryId = Substring(m_directoryId, 0, ampIndex);
+  int ampIndex = m_directoryUID.FindChar('&');
+  const nsACString& directoryUID = Substring(m_directoryUID, 0, ampIndex);
 
   nsCOMPtr<nsIAbManager> abManager =
       do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory = nullptr;
-  rv = abManager->GetDirectoryFromId(directoryId, getter_AddRefs(directory));
+  rv = abManager->GetDirectoryFromId(directoryUID, getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!directory) {

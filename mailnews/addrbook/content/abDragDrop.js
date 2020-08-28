@@ -301,11 +301,7 @@ var abDirTreeObserver = {
       } else {
         let srcDirectory = null;
         if (srcURI == kAllDirectoryRoot + "?" && actionIsMoving) {
-          let dirId = card.directoryId.substring(
-            0,
-            card.directoryId.indexOf("&")
-          );
-          srcDirectory = MailServices.ab.getDirectoryFromId(dirId);
+          srcDirectory = MailServices.ab.getDirectoryFromUID(card.directoryUID);
         }
 
         directory.dropCard(card, needToCopyCard);

@@ -16,7 +16,7 @@ ChromeUtils.defineModuleGetter(
  * @implements {nsIAbCard}
  */
 function AddrBookCard() {
-  this._directoryId = "";
+  this._directoryUID = "";
   this._properties = new Map([
     ["PreferMailFormat", Ci.nsIAbPreferMailFormat.unknown],
     ["PopularityIndex", 0],
@@ -62,11 +62,11 @@ AddrBookCard.prototype = {
 
     return result;
   },
-  get directoryId() {
-    return this._directoryId;
+  get directoryUID() {
+    return this._directoryUID;
   },
-  set directoryId(value) {
-    this._directoryId = value;
+  set directoryUID(value) {
+    this._directoryUID = value;
   },
   get UID() {
     if (!this._uid) {

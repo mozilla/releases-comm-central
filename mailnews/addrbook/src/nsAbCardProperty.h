@@ -42,7 +42,7 @@ class nsAbCardProperty : public nsIAbCard {
   // Store most of the properties here
   nsInterfaceHashtable<nsCStringHashKey, nsIVariant> m_properties;
 
-  nsCString m_directoryId;
+  nsCString m_directoryUID;
 
  private:
   nsresult AppendSection(const AppendItem* aArray, int16_t aCount,

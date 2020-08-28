@@ -132,7 +132,6 @@ add_task(async function createAddressBook() {
   observer.checkEvents(["addrbook-directory-created", book]);
 
   // Check nsIAbDirectory properties.
-  equal(book.uuid, "ldap_2.servers.newbook&new book");
   ok(!book.readOnly);
   ok(!book.isRemote);
   ok(!book.isSecure);
@@ -200,7 +199,7 @@ add_task(async function createContact() {
   ok(childCards[0].equals(contact));
 
   // Check nsIAbCard properties.
-  equal(contact.directoryId, book.uuid);
+  equal(contact.directoryUID, book.UID);
   equal(contact.UID.length, 36);
   equal(contact.firstName, "new");
   equal(contact.lastName, "contact");

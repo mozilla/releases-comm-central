@@ -42,29 +42,9 @@ interface nsISimpleEnumerator;
  * the SQLite-based address book type is:
  *
  * @mozilla.org/addressbook/directory;1?type=jsaddrbook
- *
- * The UUID of an nsIAbDirectory is its preference ID and its name, concatenated
- * together.
  */
 [scriptable, uuid(72dc868b-db5b-4daa-b6c6-071be4a05d02)]
 interface nsIAbDirectory : nsISupports {
-  /**
-   * A universally-unique identifier for this item.
-   *
-   * If this item cannot be associated with a UUID for some reason, it MUST
-   * return the empty string. The empty string MUST NOT be a valid UUID for any
-   * item. Under no circumstances may this function throw an error.
-   *
-   * It is STRONGLY RECOMMENDED that implementations guarantee that this UUID
-   * will not change between two different sessions of the application and that,
-   * if this item is deleted, the UUID will not be reused.
-   *
-   * The format of the UUID for a generic nsIAbDirectory is purposefully left
-   * undefined, although any item contained by an nsIAbDirectory SHOULD use
-   * nsIAbManager::generateUUID to generate the UUID.
-   */
-  readonly attribute AUTF8String uuid;
-
   /**
    * Returns true if this collection is read-only.
    */
