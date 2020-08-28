@@ -8,13 +8,10 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
-var { Autodetect } = ChromeUtils.import("resource:///modules/calendar/calAutodetect.jsm");
 
 var { CalDavPropfindRequest } = ChromeUtils.import("resource:///modules/caldav/CalDavRequest.jsm");
 
-var { CalDavAutodetectSession } = ChromeUtils.import(
-  "resource:///modules/caldav/CalDavSession.jsm"
-);
+var { CalDavDetectionSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
 
 // NOTE: This module should not be loaded directly, it is available when
 // including calUtils.jsm under the cal.provider.caldav namespace.
@@ -43,19 +40,19 @@ var CalDavProvider = {
     return cal.getCalendarManager().createCalendar("caldav", aUri);
   },
 
-  async autodetect(
+  async detectCalendars(
     username,
     password,
     location = null,
     savePassword = false,
     extraProperties = {}
   ) {
-    let uri = Autodetect.locationToUri(location);
+    let uri = cal.provider.detection.locationToUri(location);
     if (!uri) {
       throw new Error("Could not infer location from username");
     }
 
-    let detector = new CalDavAutodetector(username, password, savePassword);
+    let detector = new CalDavDetector(username, password, savePassword);
 
     for (let method of [
       "attemptGoogleOauth",
@@ -83,11 +80,11 @@ var CalDavProvider = {
         // A special thing the OAuth2 code throws.
         if (e == '{ "error": "cancelled"}') {
           cal.WARN(message + ` - OAuth2 '${e}'`);
-          throw new Autodetect.CanceledError("OAuth2 prompt cancelled");
+          throw new cal.provider.detection.CanceledError("OAuth2 prompt canceled");
         }
 
         // We want to pass on any autodetect errors that will become results.
-        if (e instanceof Autodetect.Error) {
+        if (e instanceof cal.provider.detection.Error) {
           cal.WARN(message + errorDetails(e));
           throw e;
         }
@@ -95,7 +92,7 @@ var CalDavProvider = {
         // Sometimes e is a CalDavResponseBase that is an auth error, so throw it.
         if (e.authError) {
           cal.WARN(message + responseDetails(e));
-          throw new Autodetect.AuthFailedError();
+          throw new cal.provider.detection.AuthFailedError();
         }
 
         if (e instanceof Error) {
@@ -115,9 +112,9 @@ var CalDavProvider = {
  * Used by the CalDavProvider to detect CalDAV calendars for a given username,
  * password, location, etc.
  */
-class CalDavAutodetector {
+class CalDavDetector {
   /**
-   * Create a new caldav autodetector.
+   * Create a new caldav detector.
    *
    * @param {string} username         A username.
    * @param {string} password         A password.
@@ -125,7 +122,7 @@ class CalDavAutodetector {
    */
   constructor(username, password, savePassword) {
     this.username = username;
-    this.session = new CalDavAutodetectSession(cal.getUUID(), username, password, savePassword);
+    this.session = new CalDavDetectionSession(cal.getUUID(), username, password, savePassword);
   }
 
   /**
@@ -242,7 +239,7 @@ class CalDavAutodetector {
    * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
    */
   async attemptGoogleOauth(location) {
-    let usesGoogleOAuth = Autodetect.googleOAuthDomains.has(location.host);
+    let usesGoogleOAuth = cal.provider.detection.googleOAuthDomains.has(location.host);
 
     if (!usesGoogleOAuth) {
       // Not using Google OAuth that we know of, but we could check the mx entry.
@@ -286,7 +283,7 @@ class CalDavAutodetector {
     let target = response.uri;
 
     if (response.authError) {
-      throw new Autodetect.AuthFailedError();
+      throw new cal.provider.detection.AuthFailedError();
     } else if (!response.ok) {
       cal.LOG(`[CalDavProvider] ${target.spec} did not respond properly to PROPFIND`);
       return null;
@@ -337,7 +334,7 @@ class CalDavAutodetector {
     let target = response.uri;
 
     if (response.authError) {
-      throw new Autodetect.AuthFailedError();
+      throw new cal.provider.detection.AuthFailedError();
     } else if (!response.firstProps["D:resourcetype"].has("D:principal")) {
       cal.LOG(`[CalDavProvider] ${target.spec} is not a principal collection`);
       return null;
@@ -367,7 +364,7 @@ class CalDavAutodetector {
     let target = response.uri;
 
     if (response.authError) {
-      throw new Autodetect.AuthFailedError();
+      throw new cal.provider.detection.AuthFailedError();
     }
 
     let calendars = [];

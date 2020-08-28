@@ -6,7 +6,6 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { ExtensionParent } = ChromeUtils.import("resource://gre/modules/ExtensionParent.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Autodetect } = ChromeUtils.import("resource:///modules/calendar/calAutodetect.jsm");
 
 /* exported checkRequired, fillLocationPlaceholder, selectProvider, updateNoCredentials, */
 
@@ -420,10 +419,10 @@ function setSingleProvider(isSingle) {
 
 /**
  * Fill the providers menulist with the given provider types. The types must
- * correspond to autodetect providers.
+ * correspond to the providers that detected calendars.
  *
  * @param {Iterable<string>} providerTypes   An iterable of provider types.
- * @return {Element}                          The selected menuitem.
+ * @return {Element}                         The selected menuitem.
  */
 function fillProviders(providerTypes) {
   let menulist = document.getElementById("network-selectcalendar-providertype-menulist");
@@ -432,7 +431,7 @@ function fillProviders(providerTypes) {
     popup.removeChild(popup.lastChild);
   }
 
-  let providers = Autodetect.providers;
+  let providers = cal.provider.detection.providers;
 
   for (let type of providerTypes) {
     let provider = providers.get(type);
@@ -639,7 +638,7 @@ function registerLocalCalendar() {
 }
 
 /**
- * Start autodetection and find any calendars using the information from the
+ * Start detection and find any calendars using the information from the
  * network settings panel.
  *
  * @param {string} [password]       The password for this attempt, if any.
@@ -652,25 +651,27 @@ function findCalendars(password, savePassword = false) {
   let location = document.getElementById("network-location-input");
   let locationValue = location.value || username.value.split("@")[1] || "";
 
-  Autodetect.detect(
-    username.value,
-    password,
-    locationValue,
-    savePassword,
-    gProviderUsage.preDetectFilters,
-    {}
-  ).then(onAutodetectSuccess, onAutodetectError.bind(null, password, locationValue));
+  cal.provider.detection
+    .detect(
+      username.value,
+      password,
+      locationValue,
+      savePassword,
+      gProviderUsage.preDetectFilters,
+      {}
+    )
+    .then(onDetectionSuccess, onDetectionError.bind(null, password, locationValue));
 }
 
 /**
- * Called when autodetection successfully finds calendars. Displays the UI for
+ * Called when detection successfully finds calendars. Displays the UI for
  * selecting calendars to subscribe to.
  *
  * @param {Map<string, calICalendar[]>} providerMap   Map from provider type
  *                                                    (e.g. "ics", "caldav")
  *                                                    to an array of calendars.
  */
-function onAutodetectSuccess(providerMap) {
+function onDetectionSuccess(providerMap) {
   // Disable the calendars the user has already subscribed to. In the future
   // we should show a string when all calendars are already subscribed.
   let existing = new Set(
@@ -710,7 +711,7 @@ function onAutodetectSuccess(providerMap) {
 }
 
 /**
- * Called when autodetection fails to find any calendars. Show an appropriate
+ * Called when detection fails to find any calendars. Show an appropriate
  * error message, or if the error is an authentication error and no password
  * was entered for this attempt, prompt the user to enter a password.
  *
@@ -718,21 +719,21 @@ function onAutodetectSuccess(providerMap) {
  * @param {string} [location]   The location input from the dialog.
  * @param {Error} error         An error object.
  */
-function onAutodetectError(password, location, error) {
-  if (error instanceof Autodetect.AuthFailedError) {
+function onDetectionError(password, location, error) {
+  if (error instanceof cal.provider.detection.AuthFailedError) {
     if (password) {
       selectNetworkStatus("authfail");
     } else {
       findCalendarsWithPassword(location);
       return;
     }
-  } else if (error instanceof Autodetect.CanceledError) {
+  } else if (error instanceof cal.provider.detection.CanceledError) {
     selectNetworkStatus("none");
   } else {
     selectNetworkStatus("notfound");
   }
   cal.ERROR(
-    "Error during auto-detection: " +
+    "Error during calendar detection: " +
       `${error.fileName || error.filename}:${error.lineNumber}: ${error}\n${error.stack}`
   );
 }
@@ -763,7 +764,7 @@ function findCalendarsWithPassword(location) {
 }
 
 /**
- * Make preparations on the given calendar, for autodetected calendars. This
+ * Make preparations on the given calendar (a detected calendar). This
  * function can be monkeypatched to make general preparations, e.g. for values
  * from additional form fields.
  *

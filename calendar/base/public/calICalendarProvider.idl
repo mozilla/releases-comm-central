@@ -71,9 +71,9 @@ interface calICalendarProvider : nsISupports
    *                            found, resolved with an empty array. If an
    *                            error occurs, rejected with the error.
    */
-  Promise autodetect(in AUTF8String username, in AUTF8String password,
-                     in AUTF8String location, in boolean savePassword,
-                     [optional] in jsval extraProperties);
+  Promise detectCalendars(in AUTF8String username, in AUTF8String password,
+                          in AUTF8String location, in boolean savePassword,
+                          [optional] in jsval extraProperties);
 };
 
 [scriptable, uuid(0eebe99e-a22d-11d9-87a6-000b7d081f44)]

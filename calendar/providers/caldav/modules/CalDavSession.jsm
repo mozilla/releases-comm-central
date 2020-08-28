@@ -12,8 +12,8 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  * Session and authentication tools for the caldav provider
  */
 
-const EXPORTED_SYMBOLS = ["CalDavAutodetectSession", "CalDavSession"];
-/* exported CalDavAutodetectSession, CalDavSession */
+const EXPORTED_SYMBOLS = ["CalDavDetectionSession", "CalDavSession"];
+/* exported CalDavDetectionSession, CalDavSession */
 
 const OAUTH_GRACE_TIME = 30 * 1000;
 
@@ -327,13 +327,13 @@ class CalDavSession {
 }
 
 /**
- * A session used to autodetect a caldav provider when subscribing to a network calendar.
+ * A session used to detect a caldav provider when subscribing to a network calendar.
  *
  * @implements {nsIAuthPrompt2}
  * @implements {nsIAuthPromptProvider}
  * @implements {nsIInterfaceRequestor}
  */
-class CalDavAutodetectSession extends CalDavSession {
+class CalDavDetectionSession extends CalDavSession {
   QueryInterface = ChromeUtils.generateQI([
     Ci.nsIAuthPrompt2,
     Ci.nsIAuthPromptProvider,
@@ -341,7 +341,7 @@ class CalDavAutodetectSession extends CalDavSession {
   ]);
 
   /**
-   * Create a new caldav autodetect session.
+   * Create a new caldav detection session.
    *
    * @param {string} aSessionId       The session id, used in the password manager.
    * @param {string} aName            The user-readable description of this session.

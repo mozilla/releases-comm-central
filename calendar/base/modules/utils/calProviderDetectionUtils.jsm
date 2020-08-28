@@ -5,25 +5,28 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-this.EXPORTED_SYMBOLS = ["Autodetect"]; /* exported Autodetect */
-
-/*
- * Code to call the calendar provider autodetection mechanism.
- */
+this.EXPORTED_SYMBOLS = ["calproviderdetection"]; /* exported calproviderdetection */
 
 /**
- * The base class marker for autodetect error. Useful in instanceof checks.
+ * Code to call the calendar provider detection mechanism.
  */
-class AutodetectError extends Error {}
+
+// NOTE: This module should not be loaded directly, it is available when
+// including calUtils.jsm under the cal.provider.detection namespace.
 
 /**
- * Creates an error class that extends the base autodetect error.
+ * The base class marker for detection errors. Useful in instanceof checks.
+ */
+class DetectionError extends Error {}
+
+/**
+ * Creates an error class that extends the base detection error.
  *
  * @param {string} aName        The name of the constructor, used for the base error class.
- * @return {AutodetectError}    A class extending AutodetectError.
+ * @return {DetectionError}     A class extending DetectionError.
  */
-function AutodetectErrorClass(aName) {
-  return class extends AutodetectError {
+function DetectionErrorClass(aName) {
+  return class extends DetectionError {
     constructor(message) {
       super(message);
       this.name = aName;
@@ -32,18 +35,18 @@ function AutodetectErrorClass(aName) {
 }
 
 /**
- * The exported Autodetect object.
+ * The exported `calproviderdetection` object.
  */
-var Autodetect = {
+var calproviderdetection = {
   /**
-   * A map of providers that implement autodetection. Maps the type identifier
+   * A map of providers that implement detection. Maps the type identifier
    * (e.g. "ics", "caldav") to the provider object.
    * @type {Map<string, calICalendarProvider>}
    */
   get providers() {
     let providers = new Map();
     for (let [type, provider] of cal.provider.providers) {
-      if (provider.autodetect) {
+      if (provider.detectCalendars) {
         providers.set(type, provider);
       }
     }
@@ -84,20 +87,20 @@ var Autodetect = {
   },
 
   /**
-   * Detect calendars using the given information. The location can be a number of things,
-   * detecting this is up to the autodetect provider. It could be a hostname, a specific URL, the
-   * origin URL, etc.
+   * Detect calendars using the given information. The location can be a number
+   * of things and handling this is up to the provider. It could be a hostname,
+   * a specific URL, the origin URL, etc.
    *
-   * @param {string} aUsername                              The username for logging in.
-   * @param {string} aPassword                              The password for logging in.
-   * @param {string} aLocation                              The location information.
-   * @param {boolean} aSavePassword                         If true, the credentials will be saved
-   *                                                          in the password manager if used.
-   * @param {ProviderFilter[]} aPreDetectFilters            Functions for filtering out providers.
-   * @param {Object} aExtraProperties                       Extra properties to pass on to the
-   *                                                          autodetect providers.
-   * @return {Promise<Map<String, calICalendar[]>>}         A promise resolving with a Map of
-   *                                                          provider type to calendars found.
+   * @param {string} aUsername                          The username for logging in.
+   * @param {string} aPassword                          The password for logging in.
+   * @param {string} aLocation                          The location information.
+   * @param {boolean} aSavePassword                     If true, the credentials will be saved
+   *                                                      in the password manager if used.
+   * @param {ProviderFilter[]} aPreDetectFilters        Functions for filtering out providers.
+   * @param {Object} aExtraProperties                   Extra properties to pass on to the
+   *                                                      providers.
+   * @return {Promise<Map<String, calICalendar[]>>}     A promise resolving with a Map of
+   *                                                      provider type to calendars found.
    */
   async detect(
     aUsername,
@@ -110,7 +113,9 @@ var Autodetect = {
     let providers = this.providers;
 
     if (!providers.size) {
-      throw new Autodetect.NoneFoundError("No autodetect providers available");
+      throw new calproviderdetection.NoneFoundError(
+        "No providers available that implement calendar detection"
+      );
     }
 
     // Filter out the providers that should not be used (for the location, username, etc.).
@@ -121,7 +126,7 @@ var Autodetect = {
 
     let resolutions = await Promise.allSettled(
       [...providers.values()].map(provider => {
-        let detectionResult = provider.autodetect(
+        let detectionResult = provider.detectCalendars(
           aUsername,
           aPassword,
           aLocation,
@@ -145,7 +150,7 @@ var Autodetect = {
           res.push([type, detail]);
         } else {
           failCount++;
-          if (detail instanceof AutodetectError) {
+          if (detail instanceof DetectionError) {
             lastError = detail;
           }
         }
@@ -154,23 +159,23 @@ var Autodetect = {
       }, [])
     );
 
-    // If everything failed due to one of the autodetect errors, then pass that on.
+    // If everything failed due to one of the detection errors, then pass that on.
     if (failCount == resolutions.length) {
-      throw lastError || new Autodetect.NoneFoundError();
+      throw lastError || new calproviderdetection.NoneFoundError();
     }
 
     return results;
   },
 
-  /** The base autodetection error class */
-  Error: AutodetectError,
+  /** The base detection error class */
+  Error: DetectionError,
 
   /** An error that can be thrown if authentication failed */
-  AuthFailedError: AutodetectErrorClass("AuthFailedError"),
+  AuthFailedError: DetectionErrorClass("AuthFailedError"),
 
   /** An error that can be thrown if the location is invalid or has no calendars */
-  NoneFoundError: AutodetectErrorClass("NoneFoundError"),
+  NoneFoundError: DetectionErrorClass("NoneFoundError"),
 
   /** An error that can be thrown if the user canceled the operation */
-  CanceledError: AutodetectErrorClass("CanceledError"),
+  CanceledError: DetectionErrorClass("CanceledError"),
 };

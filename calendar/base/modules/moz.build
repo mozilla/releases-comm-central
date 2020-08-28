@@ -18,6 +18,7 @@ EXTRA_JS_MODULES.calendar.utils += [
     'utils/calItipUtils.jsm',
     'utils/calL10NUtils.jsm',
     'utils/calPrintUtils.jsm',
+    'utils/calProviderDetectionUtils.jsm',
     'utils/calProviderUtils.jsm',
     'utils/calUnifinderUtils.jsm',
     'utils/calViewUtils.jsm',
@@ -26,7 +27,6 @@ EXTRA_JS_MODULES.calendar.utils += [
 ]
 
 EXTRA_JS_MODULES.calendar += [
-    'calAutodetect.jsm',
     'calCalendarDeactivator.jsm',
     'calExtract.jsm',
     'calHashedArray.jsm',

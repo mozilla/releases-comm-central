@@ -848,3 +848,10 @@ XPCOMUtils.defineLazyGetter(calprovider, "providers", () => {
   ]);
 });
 
+// Set up the `cal.provider.detection` module.
+XPCOMUtils.defineLazyModuleGetter(
+  calprovider,
+  "detection",
+  "resource:///modules/calendar/utils/calProviderDetectionUtils.jsm",
+  "calproviderdetection"
+);

@@ -9,7 +9,6 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-var { Autodetect } = ChromeUtils.import("resource:///modules/calendar/calAutodetect.jsm");
 
 var { CalDavGenericRequest, CalDavPropfindRequest } = ChromeUtils.import(
   "resource:///modules/caldav/CalDavRequest.jsm"
@@ -42,19 +41,19 @@ var CalICSProvider = {
     return cal.getCalendarManager().createCalendar("ics", aUri);
   },
 
-  async autodetect(
+  async detectCalendars(
     username,
     password,
     location = null,
     savePassword = false,
     extraProperties = {}
   ) {
-    let uri = Autodetect.locationToUri(location);
+    let uri = cal.provider.detection.locationToUri(location);
     if (!uri) {
       throw new Error("Could not infer location from username");
     }
 
-    let detector = new ICSAutodetector(username, password, savePassword);
+    let detector = new ICSDetector(username, password, savePassword);
 
     for (let method of [
       "attemptDAVLocation",
@@ -78,7 +77,7 @@ var CalICSProvider = {
         let responseDetails = response => ` - HTTP response status ${response.status}`;
 
         // We want to pass on any autodetect errors that will become results.
-        if (e instanceof Autodetect.Error) {
+        if (e instanceof cal.provider.detection.Error) {
           cal.WARN(message + errorDetails(e));
           throw e;
         }
@@ -86,7 +85,7 @@ var CalICSProvider = {
         // Sometimes e is a CalDavResponseBase that is an auth error, so throw it.
         if (e.authError) {
           cal.WARN(message + responseDetails(e));
-          throw new Autodetect.AuthFailedError();
+          throw new cal.provider.detection.AuthFailedError();
         }
 
         if (e instanceof Error) {
@@ -110,7 +109,7 @@ var CalICSProvider = {
  * @implements {nsIAuthPromptProvider}
  * @implements {nsIInterfaceRequestor}
  */
-class ICSAutodetectSession {
+class ICSDetectionSession {
   QueryInterface = ChromeUtils.generateQI([
     Ci.nsIAuthPrompt2,
     Ci.nsIAuthPromptProvider,
@@ -118,7 +117,7 @@ class ICSAutodetectSession {
   ]);
 
   /**
-   * Create a new ICS autodetect session.
+   * Create a new ICS detection session.
    *
    * @param {string} aSessionId       The session id, used in the password manager.
    * @param {string} aName            The user-readable description of this session.
@@ -215,16 +214,16 @@ class ICSAutodetectSession {
  * code is not currently organized to handle pure DAV and CalDAV separately
  * (e.g. CalDavGenericRequest, CalDavPropfindRequest).
  */
-class ICSAutodetector {
+class ICSDetector {
   /**
-   * Create a new caldav autodetector.
+   * Create a new ICS detector.
    *
    * @param {string} username         A username.
    * @param {string} password         A password.
    * @param {boolean} savePassword    Whether to save the password or not.
    */
   constructor(username, password, savePassword) {
-    this.session = new ICSAutodetectSession(cal.getUUID(), username, password, savePassword);
+    this.session = new ICSDetectionSession(cal.getUUID(), username, password, savePassword);
   }
 
   /**
@@ -242,7 +241,7 @@ class ICSAutodetector {
     let target = response.uri;
 
     if (response.authError) {
-      throw new Autodetect.AuthFailedError();
+      throw new cal.provider.detection.AuthFailedError();
     } else if (!response.ok) {
       cal.LOG(`[calICSProvider] ${target.spec} did not respond properly to PROPFIND`);
       return null;
