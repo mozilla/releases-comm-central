@@ -7,11 +7,7 @@
 #include "nsMailMigrationCID.h"
 #include "nsProfileMigrator.h"
 #include "nsSeamonkeyProfileMigrator.h"
-#include "DirectoryProvider.h"
 
-using namespace mozilla::mail;
-
-NS_GENERIC_FACTORY_CONSTRUCTOR(DirectoryProvider)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsProfileMigrator)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsSeamonkeyProfileMigrator)
 
@@ -38,7 +34,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacShellService)
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsMailWinSearchHelper, Init)
 #endif
 
-NS_DEFINE_NAMED_CID(NS_MAILDIRECTORYPROVIDER_CID);
 NS_DEFINE_NAMED_CID(NS_THUNDERBIRD_PROFILEIMPORT_CID);
 NS_DEFINE_NAMED_CID(NS_SEAMONKEYPROFILEMIGRATOR_CID);
 
@@ -57,7 +52,6 @@ NS_DEFINE_NAMED_CID(NS_MAILMACINTEGRATION_CID);
 #endif
 
 const mozilla::Module::CIDEntry kMailCIDs[] = {
-    {&kNS_MAILDIRECTORYPROVIDER_CID, false, NULL, DirectoryProviderConstructor},
     {&kNS_THUNDERBIRD_PROFILEIMPORT_CID, false, NULL,
      nsProfileMigratorConstructor},
     {&kNS_SEAMONKEYPROFILEMIGRATOR_CID, false, NULL,
@@ -80,7 +74,6 @@ const mozilla::Module::CIDEntry kMailCIDs[] = {
     {NULL}};
 
 const mozilla::Module::ContractIDEntry kMailContracts[] = {
-    {NS_MAILDIRECTORYPROVIDER_CONTRACTID, &kNS_MAILDIRECTORYPROVIDER_CID},
     {NS_PROFILEMIGRATOR_CONTRACTID, &kNS_THUNDERBIRD_PROFILEIMPORT_CID},
     {NS_MAILPROFILEMIGRATOR_CONTRACTID_PREFIX "seamonkey",
      &kNS_SEAMONKEYPROFILEMIGRATOR_CID},
@@ -98,10 +91,5 @@ const mozilla::Module::ContractIDEntry kMailContracts[] = {
 #endif
     {NULL}};
 
-static const mozilla::Module::CategoryEntry kMailCategories[] = {
-    {XPCOM_DIRECTORY_PROVIDER_CATEGORY, "mailcomps-directory-provider",
-     NS_MAILDIRECTORYPROVIDER_CONTRACTID},
-    {NULL}};
-
 extern const mozilla::Module kMailCompsModule = {
-    mozilla::Module::kVersion, kMailCIDs, kMailContracts, kMailCategories};
+    mozilla::Module::kVersion, kMailCIDs, kMailContracts};
