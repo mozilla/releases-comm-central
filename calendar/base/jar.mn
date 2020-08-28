@@ -42,7 +42,6 @@ calendar.jar:
     content/calendar-alarm-dialog.js                            (content/dialogs/calendar-alarm-dialog.js)
     content/calendar-alarm-dialog.xhtml                         (content/dialogs/calendar-alarm-dialog.xhtml)
     content/calendar-conflicts-dialog.xhtml                     (content/dialogs/calendar-conflicts-dialog.xhtml)
-    content/calendar-creation.js                                (content/dialogs/calendar-creation.js)
     content/calendar-dialog-utils.js                            (content/dialogs/calendar-dialog-utils.js)
     content/calendar-error-prompt.xhtml                         (content/dialogs/calendar-error-prompt.xhtml)
     content/calendar-error-prompt.js                            (content/dialogs/calendar-error-prompt.js)
