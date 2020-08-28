@@ -222,12 +222,11 @@ class AddrBookDirectory {
   get _cards() {
     let cardCache = new Map();
     let cardStatement = this._dbConnection.createStatement(
-      "SELECT uid, localId FROM cards"
+      "SELECT uid FROM cards"
     );
     while (cardStatement.executeStep()) {
       cardCache.set(cardStatement.row.uid, {
         uid: cardStatement.row.uid,
-        localId: cardStatement.row.localId,
         properties: new Map(),
       });
     }
@@ -254,21 +253,6 @@ class AddrBookDirectory {
     return cardCache;
   }
 
-  _getNextCardId() {
-    if (this._nextCardId === null) {
-      let value = 0;
-      let selectStatement = this._dbConnection.createStatement(
-        "SELECT MAX(localId) AS localId FROM cards"
-      );
-      if (selectStatement.executeStep()) {
-        value = selectStatement.row.localId;
-      }
-      this._nextCardId = value;
-      selectStatement.finalize();
-    }
-    this._nextCardId++;
-    return this._nextCardId.toString();
-  }
   _getNextListId() {
     if (this._nextListId === null) {
       let value = 0;
@@ -284,11 +268,10 @@ class AddrBookDirectory {
     this._nextListId++;
     return this._nextListId.toString();
   }
-  _getCard({ uid, localId = null }) {
+  _getCard(uid) {
     let card = new AddrBookCard();
     card.directoryId = this.uuid;
     card._uid = uid;
-    card.localId = localId;
     card._properties = this._loadCardProperties(uid);
     return card.QueryInterface(Ci.nsIAbCard);
   }
@@ -388,7 +371,7 @@ class AddrBookDirectory {
 
     let usedUIDs = new Set();
     let cardStatement = this._dbConnection.createStatement(
-      "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)"
+      "INSERT INTO cards (uid) VALUES (:uid)"
     );
     let propertiesStatement = this._dbConnection.createStatement(
       "INSERT INTO properties VALUES (:card, :name, :value)"
@@ -403,17 +386,14 @@ class AddrBookDirectory {
         uid = newUID();
       }
       usedUIDs.add(uid);
-      let localId = this._getNextCardId();
       let cardParams = cardArray.newBindingParams();
       cardParams.bindByName("uid", uid);
-      cardParams.bindByName("localId", localId);
       cardArray.addParams(cardParams);
 
       let cachedCard;
       if (this.hasOwnProperty("_cards")) {
         cachedCard = {
           uid,
-          localId,
           properties: new Map(),
         };
         this._cards.set(uid, cachedCard);
@@ -578,7 +558,7 @@ class AddrBookDirectory {
           list.nickName,
           list.description
         ).asCard
-    ).concat(Array.from(this._cards.values(), card => this._getCard(card)));
+    ).concat(Array.from(this._cards.keys(), this._getCard, this));
 
     return new SimpleEnumerator(results);
   }
@@ -612,7 +592,7 @@ class AddrBookDirectory {
           list.nickName,
           list.description
         ).asCard
-    ).concat(Array.from(this._cards.values(), card => this._getCard(card)));
+    ).concat(Array.from(this._cards.keys(), this._getCard, this));
 
     // Process the query string into a tree of conditions to match.
     let lispRegexp = /^\((and|or|not|([^\)]*)(\)+))/;
@@ -741,7 +721,7 @@ class AddrBookDirectory {
     selectStatement.params.value = value;
     let result = null;
     if (selectStatement.executeStep()) {
-      result = this._getCard({ uid: selectStatement.row.card });
+      result = this._getCard(selectStatement.row.card);
     }
     selectStatement.finalize();
     return result;
@@ -755,7 +735,7 @@ class AddrBookDirectory {
     selectStatement.params.value = value;
     let results = [];
     while (selectStatement.executeStep()) {
-      results.push(this._getCard({ uid: selectStatement.row.card }));
+      results.push(this._getCard(selectStatement.row.card));
     }
     selectStatement.finalize();
     return new SimpleEnumerator(results);
@@ -816,7 +796,7 @@ class AddrBookDirectory {
     this._saveCardProperties(card);
     // Send the card as it is in this directory, not as passed to this function.
     Services.obs.notifyObservers(
-      this._getCard({ uid: card.UID }),
+      this._getCard(card.UID),
       "addrbook-contact-updated",
       this.UID
     );
@@ -860,21 +840,18 @@ class AddrBookDirectory {
 
     let newCard = new AddrBookCard();
     newCard.directoryId = this.uuid;
-    newCard.localId = this._getNextCardId();
     newCard._uid = needToCopyCard ? newUID() : card.UID;
 
     let insertStatement = this._dbConnection.createStatement(
-      "INSERT INTO cards (uid, localId) VALUES (:uid, :localId)"
+      "INSERT INTO cards (uid) VALUES (:uid)"
     );
     insertStatement.params.uid = newCard.UID;
-    insertStatement.params.localId = newCard.localId;
     insertStatement.execute();
     insertStatement.finalize();
 
     if (this.hasOwnProperty("_cards")) {
       this._cards.set(newCard._uid, {
         uid: newCard._uid,
-        localId: newCard.localId,
         properties: new Map(),
       });
     }

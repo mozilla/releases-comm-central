@@ -91,7 +91,7 @@ AddrBookMailingList.prototype = {
         let results = [];
         while (selectStatement.executeStep()) {
           results.push(
-            self._parent._getCard({ uid: selectStatement.row.card })
+            self._parent._getCard(selectStatement.row.card)
           );
         }
         selectStatement.finalize();
@@ -197,9 +197,6 @@ AddrBookMailingList.prototype = {
       get UID() {
         return self._uid;
       },
-      get uuid() {
-        return MailServices.ab.generateUUID(self._parent.uuid, self._localId);
-      },
       get isMailList() {
         return true;
       },
@@ -209,9 +206,6 @@ AddrBookMailingList.prototype = {
 
       get directoryId() {
         return self._parent.uuid;
-      },
-      get localId() {
-        return self._localId;
       },
       get firstName() {
         return "";

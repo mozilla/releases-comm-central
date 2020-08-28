@@ -1385,7 +1385,6 @@ nsresult OutlookCardForURI(const nsACString& aUri, nsIAbCard** newCard) {
   NS_ENSURE_SUCCESS(rv, rv);
 
   card->SetPropertyAsAUTF8String("OutlookEntryURI", aUri);
-  card->SetLocalId(aUri);
 
   nsMapiEntry mapiData;
   mapiData.Assign(entry);

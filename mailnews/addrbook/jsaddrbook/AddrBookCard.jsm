@@ -6,11 +6,6 @@ const EXPORTED_SYMBOLS = ["AddrBookCard"];
 
 ChromeUtils.defineModuleGetter(
   this,
-  "MailServices",
-  "resource:///modules/MailServices.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "newUID",
   "resource:///modules/AddrBookUtils.jsm"
 );
@@ -22,7 +17,6 @@ ChromeUtils.defineModuleGetter(
  */
 function AddrBookCard() {
   this._directoryId = "";
-  this._localId = "";
   this._properties = new Map([
     ["PreferMailFormat", Ci.nsIAbPreferMailFormat.unknown],
     ["PopularityIndex", 0],
@@ -36,9 +30,6 @@ AddrBookCard.prototype = {
 
   /* nsIAbCard */
 
-  get uuid() {
-    return MailServices.ab.generateUUID(this._directoryId, this._localId);
-  },
   generateName(generateFormat, bundle) {
     let result = "";
     let format;
@@ -76,12 +67,6 @@ AddrBookCard.prototype = {
   },
   set directoryId(value) {
     this._directoryId = value;
-  },
-  get localId() {
-    return this._localId;
-  },
-  set localId(value) {
-    this._localId = value;
   },
   get UID() {
     if (!this._uid) {

@@ -109,20 +109,6 @@ nsAbCardProperty::~nsAbCardProperty(void) {}
 
 NS_IMPL_ISUPPORTS(nsAbCardProperty, nsIAbCard)
 
-NS_IMETHODIMP nsAbCardProperty::GetUuid(nsACString& uuid) {
-  // If we have indeterminate sub-ids, return an empty uuid.
-  if (m_directoryId.IsEmpty() || m_localId.IsEmpty()) {
-    uuid.Truncate();
-    return NS_OK;
-  }
-
-  nsresult rv;
-  nsCOMPtr<nsIAbManager> manager = do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  return manager->GenerateUUID(m_directoryId, m_localId, uuid);
-}
-
 NS_IMETHODIMP nsAbCardProperty::GetDirectoryId(nsACString& dirId) {
   dirId = m_directoryId;
   return NS_OK;
@@ -130,16 +116,6 @@ NS_IMETHODIMP nsAbCardProperty::GetDirectoryId(nsACString& dirId) {
 
 NS_IMETHODIMP nsAbCardProperty::SetDirectoryId(const nsACString& aDirId) {
   m_directoryId = aDirId;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAbCardProperty::GetLocalId(nsACString& localId) {
-  localId = m_localId;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsAbCardProperty::SetLocalId(const nsACString& aLocalId) {
-  m_localId = aLocalId;
   return NS_OK;
 }
 

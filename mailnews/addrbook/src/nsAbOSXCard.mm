@@ -139,8 +139,6 @@ nsresult nsAbOSXCard::Init(const char* aUri) {
 
   mURI = aUri;
 
-  SetLocalId(nsDependentCString(aUri));
-
   return Update(false);
 }
 

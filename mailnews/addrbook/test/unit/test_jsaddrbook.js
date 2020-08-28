@@ -200,9 +200,7 @@ add_task(async function createContact() {
   ok(childCards[0].equals(contact));
 
   // Check nsIAbCard properties.
-  equal(contact.uuid, "ldap_2.servers.newbook&updated book#1");
   equal(contact.directoryId, book.uuid);
-  equal(contact.localId, 1);
   equal(contact.UID.length, 36);
   equal(contact.firstName, "new");
   equal(contact.lastName, "contact");

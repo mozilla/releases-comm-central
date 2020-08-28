@@ -69,23 +69,6 @@ interface nsIAbPreferMailFormat : nsISupports {
 [scriptable, uuid(9bddf024-5178-4097-894e-d84b4ddde101)]
 interface nsIAbCard : nsISupports {
   /**
-   * A universally-unique identifier for this item.
-   *
-   * If this item cannot be associated with a UUID for some reason, it MUST
-   * return the empty string. The empty string MUST NOT be a valid UUID for any
-   * item. Under no circumstances may this function throw an error.
-   *
-   * It is STRONGLY RECOMMENDED that implementations guarantee that this UUID
-   * will not change between two different sessions of the application and that,
-   * if this item is deleted, the UUID will not be reused.
-   *
-   * The format of the UUID for a generic nsIAbCard is purposefully left
-   * undefined, although any item contained by an nsIAbDirectory SHOULD use
-   * nsIAbManager::generateUUID to generate the UUID.
-   */
-  readonly attribute AUTF8String uuid;
-
-  /**
    * @{
    * These constants reflect the possible values of the
    * mail.addr_book.lastnamefirst preferences. They are intended to be used in
@@ -135,30 +118,6 @@ interface nsIAbCard : nsISupports {
    * NOT, in general, modify this property.
    */
   attribute AUTF8String directoryId;
-
-  /**
-   * The per-directory ID of this card.
-   *
-   * This property is the second part of the tuple logically representing a card
-   * UUID. It shares many requirements with that of nsIAbCard::uuid. In
-   * particular:
-   * - It MUST be unique (within the scope of its directory).
-   * - The empty string MUST only be used to indicate that it has not yet been
-   *   assigned a localId.
-   * - It is STRONGLY RECOMMENDED that this id is consistent across sessions and
-   *   that, should the card be deleted, its ids will not be reused.
-   * - The format of localId is left undefined.
-   *
-   * As long as directoryId is not changed, this property SHOULD NOT be changed.
-   * If directoryId is changed, the new directory MAY choose to reuse the same
-   * localId if reasonable. However, consumers MUST NOT assume that two cards
-   * with different directoryIds but the same localId are logically the same
-   * card.
-   *
-   * Similar to directoryId, consumers of cards outside of directory
-   * implementations SHOULD NOT, in general, modify this property.
-   */
-  attribute AUTF8String localId;
 
   /**
    * A 128-bit unique identifier for this card. This can only be set if it is not
