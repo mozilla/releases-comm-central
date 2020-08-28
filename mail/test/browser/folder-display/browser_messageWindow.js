@@ -101,10 +101,13 @@ add_task(function test_delete_single_message() {
  * a single message, not the messages in the collapsed thread
  */
 add_task(function test_del_collapsed_thread() {
+  plan_for_message_display(msgc);
   press_delete(msgc);
   if (folderA.getTotalMessages(false) != 4) {
     throw new Error("should have only deleted one message");
   }
+  wait_for_message_display_completion(msgc, true);
+  assert_selected_and_displayed(msgc, 1);
 });
 
 /**
@@ -118,6 +121,10 @@ add_task(async function test_next_unread() {
     plan_for_message_display(msgc);
     msgc.keypress(null, "n", {});
     wait_for_message_display_completion(msgc, true);
+  }
+
+  for (let m of folderA.messages) {
+    Assert.ok(m.isRead, `${m.messageId} is read`);
   }
 
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
