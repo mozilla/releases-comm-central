@@ -854,24 +854,37 @@ calendar-event-freebusy-day > box {
 #calendar-event-summary-dialog .item-attachment-cell-label,
 #calendar-task-summary-dialog .item-attachment-cell-label,
 #calendar-ics-file-dialog .item-attachment-cell-label {
-  margin-left: 0px;
-}
-
-#calendar-summary-dialog .item-description-wrapper,
-#calendar-event-summary-dialog .item-description-wrapper,
-#calendar-task-summary-dialog .item-description-wrapper,
-#calendar-ics-file-dialog .item-description-wrapper {
-  display: flex;
+  margin-left: 0;
 }
 
 #calendar-summary-dialog .item-description,
 #calendar-event-summary-dialog .item-description,
 #calendar-task-summary-dialog .item-description,
 #calendar-ics-file-dialog .item-description {
-  width: 100%;
+  background: var(--field-background-color);
+  border: 1px solid var(--field-border-color);
   box-sizing: border-box;
-  min-height: 54px;
   margin: 2px 4px 0;
+  min-height: 10em;
+  min-width: 1px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  user-select: text;
+  width: 100%;
+}
+
+#calendar-summary-dialog .item-description a,
+#calendar-event-summary-dialog .item-description a,
+#calendar-task-summary-dialog .item-description a,
+#calendar-ics-file-dialog .item-description a {
+  color: -moz-nativehyperlinktext;
+}
+
+:root[lwt-tree-brighttext] #calendar-summary-dialog .item-description a,
+:root[lwt-tree-brighttext] #calendar-event-summary-dialog .item-description a,
+:root[lwt-tree-brighttext] #calendar-task-summary-dialog .item-description a,
+:root[lwt-tree-brighttext] #calendar-ics-file-dialog .item-description a {
+  color: #0aa5ff;
 }
 
 #calendar-summary-dialog #item-start-row .headline,

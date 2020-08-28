@@ -79,35 +79,18 @@ ltn.invitation = {
     let doc = cal.xml.parseFile("chrome://lightning/content/lightning-invitation.xhtml");
     let formatter = cal.dtz.formatter;
 
-    let linkConverter = Cc["@mozilla.org/txttohtmlconv;1"].getService(Ci.mozITXTToHTMLConv);
-
     let field = function(aField, aContentText, aConvert) {
       let descr = doc.getElementById("imipHtml-" + aField + "-descr");
       if (descr) {
         let labelText = cal.l10n.getLtnString("imipHtml." + aField);
         descr.textContent = labelText;
       }
-
       if (aContentText) {
         let content = doc.getElementById("imipHtml-" + aField + "-content");
         doc.getElementById("imipHtml-" + aField + "-row").hidden = false;
         if (aConvert) {
-          // we convert special characters first to not mix up html conversion
-          let mode = Ci.mozITXTToHTMLConv.kEntities;
-          let contentText = linkConverter.scanTXT(aContentText, mode);
-          try {
-            // kGlyphSubstitution may lead to unexpected results when used in scanHTML
-            mode =
-              Ci.mozITXTToHTMLConv.kStructPhrase +
-              Ci.mozITXTToHTMLConv.kGlyphSubstitution +
-              Ci.mozITXTToHTMLConv.kURLs;
-            // eslint-disable-next-line no-unsanitized/property
-            content.innerHTML = linkConverter.scanHTML(contentText, mode);
-          } catch (e) {
-            mode = Ci.mozITXTToHTMLConv.kStructPhrase + Ci.mozITXTToHTMLConv.kURLs;
-            // eslint-disable-next-line no-unsanitized/property
-            content.innerHTML = linkConverter.scanHTML(contentText, mode);
-          }
+          let docFragment = cal.view.textToHtmlDocumentFragment(aContentText, doc);
+          content.appendChild(docFragment);
         } else {
           content.textContent = aContentText;
         }

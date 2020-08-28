@@ -34,6 +34,7 @@
         onunload="onUnload()"
         persist="screenX screenY width height"
         lightweightthemes="true"
+        width="600"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml">
 
@@ -127,7 +128,7 @@
   <hbox id="status-notifications">
     <!-- notificationbox will be added here lazily. -->
   </hbox>
-  <calendar-item-summary id="calendar-item-summary"/>
+  <calendar-item-summary id="calendar-item-summary" flex="1"/>
 
   <!-- LOCATION LINK CONTEXT MENU -->
   <menupopup id="location-link-context-menu">

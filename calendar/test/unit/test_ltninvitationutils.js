@@ -204,7 +204,7 @@ add_task(async function createInvitationOverlay_test() {
       input: { description: "DESCRIPTION:Let's see if +/- still can be displayed.\r\n" },
       expected: {
         node: "imipHtml-description-content",
-        value: "Let's see if +/- still can be displayed.",
+        value: "Let's see if ± still can be displayed.",
       },
     },
     {
@@ -243,10 +243,7 @@ add_task(async function createInvitationOverlay_test() {
       },
       expected: {
         node: "imipHtml-description-content",
-        value:
-          'Let\'s see how evil we can be: &lt;script language="JavaScript"&gt;document.' +
-          'getElementById("imipHtml-description-content").write("Script embedded!")&' +
-          "lt;/script&gt;",
+        value: "Let's see how evil we can be: ",
       },
     },
     {
@@ -257,9 +254,7 @@ add_task(async function createInvitationOverlay_test() {
       },
       expected: {
         node: "imipHtml-description-content",
-        value:
-          'Or we can try: &lt;img src="document.getElementById("imipHtml-description-d' +
-          'escr").innerText" &gt;',
+        value: "Or we can try: ",
       },
     },
     {
@@ -301,12 +296,14 @@ add_task(async function createInvitationOverlay_test() {
       expected: {
         node: "imipHtml-attachments-content",
         value:
-          '<a xmlns="http://www.w3.org/1999/xhtml" class="moz-txt-link-freetext" hre' +
-          'f="http://www.example.org/first/">http://www.example.org/first/</a>&lt;br&g' +
-          't;<a xmlns="http://www.w3.org/1999/xhtml" class="moz-txt-link-freetext" h' +
-          'ref="http://www.example.org/second">http://www.example.org/second</a>&lt;br' +
-          '&gt;<a xmlns="http://www.w3.org/1999/xhtml" class="moz-txt-link-freetext"' +
-          ' href="file:///N:/folder/third.file">file:///N:/folder/third.file</a>',
+          '<a xmlns="http://www.w3.org/1999/xhtml" class="moz-txt-link-freetext" ' +
+          'href="http://www.example.org/first/">http://www.example.org/first/</a>' +
+          '<br xmlns="http://www.w3.org/1999/xhtml" />' +
+          '<a xmlns="http://www.w3.org/1999/xhtml" class="moz-txt-link-freetext" ' +
+          'href="http://www.example.org/second">http://www.example.org/second</a>' +
+          '<br xmlns="http://www.w3.org/1999/xhtml" />' +
+          '<a xmlns="http://www.w3.org/1999/xhtml" class="moz-txt-link-freetext">' +
+          "file:///N:/folder/third.file</a>",
       },
     },
     {

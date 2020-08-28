@@ -239,7 +239,11 @@ add_task(async function testOpenExistingEventDialog() {
       let { eid } = helpersForController(event);
       event.assertText(eid("calendar-item-summary-item-title"), EVENTTITLE);
       event.assertText(eid("calendar-item-summary-item-location"), EVENTLOCATION);
-      event.assertValue(eid("calendar-item-summary-item-description"), EVENTDESCRIPTION);
+      controller.assertJSProperty(
+        eid("calendar-item-summary-item-description"),
+        "textContent",
+        EVENTDESCRIPTION
+      );
       event.keypress(null, "VK_ESCAPE", {});
     },
     "view"

@@ -3,8 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
+
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gParserUtils",
+  "@mozilla.org/parserutils;1",
+  "nsIParserUtils"
+);
+
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "gTextToHtmlConverter",
+  "@mozilla.org/txttohtmlconv;1",
+  "mozITXTToHTMLConv"
+);
 
 /*
  * View and DOM related helper functions
@@ -342,6 +357,42 @@ var calview = {
 
     cmp = (a.title > b.title) - (a.title < b.title);
     return cmp;
+  },
+
+  /**
+   * Converts plain text into an HTML document fragment.
+   *
+   * @param {string} text - The text to convert.
+   * @param {Document} doc - The document where the fragment will be appended.
+   * @return {DocumentFragment} An HTML document fragment.
+   */
+  textToHtmlDocumentFragment(text, doc) {
+    // Convert plain text to HTML. The main motivation here is to convert plain
+    // text URLs into <a> tags (to linkify them).
+    let textWithBreaks = text.replace(/\r?\n/g, "<br/>");
+    let mode, html;
+    try {
+      // kGlyphSubstitution may lead to unexpected results when used in scanHTML.
+      mode =
+        Ci.mozITXTToHTMLConv.kStructPhrase |
+        Ci.mozITXTToHTMLConv.kGlyphSubstitution |
+        Ci.mozITXTToHTMLConv.kURLs;
+      html = gTextToHtmlConverter.scanHTML(textWithBreaks, mode);
+    } catch (e) {
+      mode = Ci.mozITXTToHTMLConv.kStructPhrase | Ci.mozITXTToHTMLConv.kURLs;
+      html = gTextToHtmlConverter.scanHTML(textWithBreaks, mode);
+    }
+
+    // Sanitize and convert the HTML into a document fragment.
+    let flags =
+      gParserUtils.SanitizerLogRemovals |
+      gParserUtils.SanitizerDropForms |
+      gParserUtils.SanitizerDropMedia;
+
+    let uri = Services.io.newURI(doc.baseURI);
+    let context = doc.createElement("div");
+    let docFragment = gParserUtils.parseFragment(html, flags, false, uri, context);
+    return docFragment;
   },
 };
 

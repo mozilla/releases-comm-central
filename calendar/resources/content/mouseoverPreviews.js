@@ -297,22 +297,23 @@ function boxAppendBodySeparator(vbox) {
 }
 
 /**
- * PRIVATE: Append description to box for body text.  Text may contain
- * paragraphs; line indent and line breaks will be preserved by CSS.
+ * PRIVATE: Append description to box for body text. Rendered as HTML because
+ * some clients put HTML tags into the DESCRIPTION property. Indentation
+ * and line breaks are preserved.
  *
- * @param box           box to which to append body
- * @param textString    text of body
- * @param aIsTooltip    true for "tooltip" and false for "conflict-dialog" case
+ * @param {Node} box              Box to which to append the body.
+ * @param {string} textString     Text of the body.
+ * @param {boolean} aIsTooltip    True for "tooltip" and false for "conflict-dialog" case.
  */
 function boxAppendBody(box, textString, aIsTooltip) {
   let type = aIsTooltip ? "description" : "vbox";
-  let textNode = document.createTextNode(textString);
   let xulDescription = document.createXULElement(type);
   xulDescription.setAttribute("class", "tooltipBody");
   if (!aIsTooltip) {
     xulDescription.setAttribute("flex", "1");
   }
-  xulDescription.appendChild(textNode);
+  let docFragment = cal.view.textToHtmlDocumentFragment(textString, document);
+  xulDescription.appendChild(docFragment);
   box.appendChild(xulDescription);
 }
 

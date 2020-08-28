@@ -270,12 +270,9 @@
                        class="header"/>
                 <separator class="groove" flex="1"/>
               </hbox>
-              <hbox class="item-description-wrapper" flex="1">
-                <html:textarea id="${itemDescriptionId}"
-                               class="item-description"
-                               rows="6"
-                               flex="1"/>
-              </hbox>
+              <hbox id="${itemDescriptionId}"
+                    class="item-description"
+                    flex="1"/>
             </box>
 
             <!-- URL link -->
@@ -472,14 +469,9 @@
         this.updateStatus(status, isToDoItem);
       }
 
-      if (item.hasProperty("DESCRIPTION")) {
-        let description = item.getProperty("DESCRIPTION");
-        if (description && description.length) {
-          this.querySelector(".item-description-box").removeAttribute("hidden");
-          let textbox = this.querySelector(".item-description");
-          textbox.value = description;
-          textbox.readOnly = true;
-        }
+      let description = item.getProperty("DESCRIPTION");
+      if (description) {
+        this.updateDescription(description);
       }
 
       let attachments = item.getAttachments();
@@ -646,6 +638,26 @@
           break;
         }
       }
+    }
+
+    /**
+     * Update the description part of the UI. Some clients put HTML tags
+     * in the DESCRIPTION property so we render it as HTML. (In the iCalendar
+     * spec DESCRIPTION is plain text.)
+     *
+     * @param {string} description - The value of the DESCRIPTION property.
+     */
+    updateDescription(description) {
+      let docFragment = cal.view.textToHtmlDocumentFragment(description, document);
+
+      // Make any links open in the user's default browser, not in Thunderbird.
+      for (let anchor of docFragment.querySelectorAll("a")) {
+        anchor.setAttribute("onclick", "launchBrowser(this.getAttribute('href'), event)");
+      }
+
+      this.querySelector(".item-description-box").removeAttribute("hidden");
+      let itemDescription = this.querySelector(".item-description");
+      itemDescription.appendChild(docFragment);
     }
 
     /**
