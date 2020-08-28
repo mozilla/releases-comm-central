@@ -12,36 +12,6 @@ async function calendarListContextMenu(target, menuItem) {
   }
 }
 
-async function withModalDialog(trigger, callback, whichButton) {
-  let callbackPromise = new Promise(resolve => {
-    Services.obs.addObserver(
-      {
-        async observe(win) {
-          Services.obs.removeObserver(this, "toplevel-window-ready");
-
-          await BrowserTestUtils.waitForEvent(win, "load");
-          await new Promise(res => win.setTimeout(res));
-
-          info(`New window opened: ${win.location.href}`);
-          if (callback) {
-            await callback(win);
-          }
-
-          let dialog = win.document.querySelector("dialog");
-          let button = dialog
-            ? dialog.getButton(whichButton)
-            : win.document.querySelector("wizard").getButton(whichButton);
-          EventUtils.synthesizeMouseAtCenter(button, {}, win);
-          resolve();
-        },
-      },
-      "toplevel-window-ready"
-    );
-  });
-  let triggerPromise = trigger();
-  return Promise.all([callbackPromise, triggerPromise]);
-}
-
 async function withMockPromptService(response, callback) {
   let realPrompt = Services.prompt;
   Services.prompt = {
@@ -63,20 +33,20 @@ add_task(async () => {
     for (let [key, expectedValue] of Object.entries(expected)) {
       switch (key) {
         case "id":
-          is(item.getAttribute("calendar-id"), expectedValue);
+          Assert.equal(item.getAttribute("calendar-id"), expectedValue);
           break;
         case "disabled":
-          is(item.querySelector(".calendar-displayed").disabled, expectedValue);
-          is(getComputedStyle(colorImage).filter != "none", expectedValue);
+          Assert.equal(item.querySelector(".calendar-displayed").disabled, expectedValue);
+          Assert.equal(getComputedStyle(colorImage).filter != "none", expectedValue);
           break;
         case "displayed":
-          is(item.querySelector(".calendar-displayed").checked, expectedValue);
+          Assert.equal(item.querySelector(".calendar-displayed").checked, expectedValue);
           break;
         case "color":
-          is(getComputedStyle(colorImage).backgroundColor, expectedValue);
+          Assert.equal(getComputedStyle(colorImage).backgroundColor, expectedValue);
           break;
         case "name":
-          is(item.querySelector(".calendar-name").value, expectedValue);
+          Assert.equal(item.querySelector(".calendar-name").value, expectedValue);
           break;
       }
     }
@@ -84,19 +54,22 @@ add_task(async () => {
 
   function checkDisplayed(...expected) {
     let calendarList = document.getElementById("calendar-list");
-    ok(calendarList.itemCount > Math.max(...expected));
+    Assert.ok(calendarList.itemCount > Math.max(...expected));
     for (let i = 0; i < calendarList.itemCount; i++) {
-      is(calendarList.itemChildren[i].querySelector("checkbox").checked, expected.includes(i));
+      Assert.equal(
+        calendarList.itemChildren[i].querySelector("checkbox").checked,
+        expected.includes(i)
+      );
     }
   }
 
   function checkSortOrder(...expected) {
     let orderPref = Services.prefs.getStringPref("calendar.list.sortOrder", "wrong");
-    isnot(orderPref, "wrong");
+    Assert.notEqual(orderPref, "wrong", "sort order pref has a value");
     let order = orderPref.split(" ");
-    is(order.length, expected.length);
+    Assert.equal(order.length, expected.length, "sort order length");
     for (let i = 0; i < expected.length; i++) {
-      is(order[i], calendars[expected[i]].id);
+      Assert.equal(order[i], calendars[expected[i]].id, "sort order ids");
     }
   }
 
@@ -109,8 +82,8 @@ add_task(async () => {
 
   // Check the default calendar.
   let calendars = manager.getCalendars();
-  is(calendars.length, 1);
-  is(calendarList.itemCount, 1);
+  Assert.equal(calendars.length, 1);
+  Assert.equal(calendarList.itemCount, 1);
   checkProperties(0, {
     color: "rgb(168, 194, 225)",
     name: "Home",
@@ -119,12 +92,14 @@ add_task(async () => {
 
   // Test adding calendars.
 
-  // Show the new calendar wizard. Don't use it, just prove the context menu works.
-  await withModalDialog(
-    () => calendarListContextMenu(calendarList, "list-calendars-context-new"),
-    undefined,
-    "cancel"
+  // Open and then cancel the 'create calendar' dialog, just to prove that the
+  // context menu works.
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    "cancel",
+    "chrome://calendar/content/calendar-creation.xhtml"
   );
+  calendarListContextMenu(calendarList, "list-calendars-context-menu");
+  await dialogPromise;
 
   // Add some new calendars, check their properties.
   let uri = Services.io.newURI("moz-memory-calendar://");
@@ -134,8 +109,8 @@ add_task(async () => {
     manager.registerCalendar(calendars[i]);
   }
 
-  is(manager.getCalendars().length, 4);
-  is(calendarList.itemCount, 4);
+  Assert.equal(manager.getCalendars().length, 4);
+  Assert.equal(calendarList.itemCount, 4);
 
   for (let i = 1; i <= 3; i++) {
     checkProperties(i, {
@@ -154,20 +129,26 @@ add_task(async () => {
   await new Promise(resolve => setTimeout(resolve));
   await calendarListContextMenu(calendarList.itemChildren[1]);
   await new Promise(resolve => setTimeout(resolve));
-  is(document.getElementById("list-calendars-context-togglevisible").label, "Hide Mochitest 1");
-  is(document.getElementById("list-calendars-context-showonly").label, "Show Only Mochitest 1");
+  Assert.equal(
+    document.getElementById("list-calendars-context-togglevisible").label,
+    "Hide Mochitest 1"
+  );
+  Assert.equal(
+    document.getElementById("list-calendars-context-showonly").label,
+    "Show Only Mochitest 1"
+  );
   contextMenu.hidePopup();
 
-  is(document.activeElement, calendarList);
-  is(calendarList.selectedItem, calendarList.itemChildren[1]);
+  Assert.equal(document.activeElement, calendarList);
+  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[1]);
 
   // Test show/hide.
   // TODO: Check events on calendars are hidden/shown.
 
   EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[2].querySelector("checkbox"), {});
-  is(document.activeElement, calendarList);
-  is(calendarList.selectedItem, calendarList.itemChildren[2]);
-  is(composite.getCalendarById(calendars[2].id), null);
+  Assert.equal(document.activeElement, calendarList);
+  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[2]);
+  Assert.equal(composite.getCalendarById(calendars[2].id), null);
   checkDisplayed(0, 1, 3);
 
   composite.removeCalendar(calendars[1]);
@@ -180,9 +161,9 @@ add_task(async () => {
   checkDisplayed(0);
 
   EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[2].querySelector("checkbox"), {});
-  is(composite.getCalendarById(calendars[2].id), calendars[2]);
-  is(document.activeElement, calendarList);
-  is(calendarList.selectedItem, calendarList.itemChildren[2]);
+  Assert.equal(composite.getCalendarById(calendars[2].id), calendars[2]);
+  Assert.equal(document.activeElement, calendarList);
+  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[2]);
   checkDisplayed(0, 2);
 
   composite.addCalendar(calendars[1]);
@@ -202,66 +183,78 @@ add_task(async () => {
 
   // Test editing calendars.
 
-  await withModalDialog(
-    () => {
-      EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], { clickCount: 2 });
-    },
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-properties-dialog.xhtml",
     win => {
       let doc = win.document;
       let nameElement = doc.getElementById("calendar-name");
       let colorElement = doc.getElementById("calendar-color");
-      is(nameElement.value, "Mochitest 1");
-      is(colorElement.value, "#a8c2e1");
+      Assert.equal(nameElement.value, "Mochitest 1");
+      Assert.equal(colorElement.value, "#a8c2e1");
       nameElement.value = "A New Calendar!";
       colorElement.value = "#009900";
-    },
-    "accept"
+      doc
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
+    }
   );
+  EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], { clickCount: 2 });
+  await dialogPromise;
 
-  is(document.activeElement, calendarList);
-  is(calendarList.selectedItem, calendarList.itemChildren[1]);
+  Assert.equal(document.activeElement, calendarList);
+  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[1]);
   checkProperties(1, {
     color: "rgb(0, 153, 0)",
     name: "A New Calendar!",
   });
 
-  await withModalDialog(
-    () => {
-      return calendarListContextMenu(calendarList.itemChildren[1], "list-calendars-context-edit");
-    },
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-properties-dialog.xhtml",
     win => {
       let doc = win.document;
       let nameElement = doc.getElementById("calendar-name");
       let colorElement = doc.getElementById("calendar-color");
-      is(nameElement.value, "A New Calendar!");
-      is(colorElement.value, "#009900");
+      Assert.equal(nameElement.value, "A New Calendar!");
+      Assert.equal(colorElement.value, "#009900");
       nameElement.value = "Mochitest 1";
-    },
-    "accept"
+      doc
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
+    }
   );
+  calendarListContextMenu(calendarList.itemChildren[1], "list-calendars-context-edit");
+  await dialogPromise;
 
-  is(document.activeElement, calendarList);
-  is(calendarList.selectedItem, calendarList.itemChildren[1]);
+  Assert.equal(document.activeElement, calendarList);
+  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[1]);
   checkProperties(1, {
     color: "rgb(0, 153, 0)",
     name: "Mochitest 1",
   });
 
-  await withModalDialog(
-    () => {
-      return calendarListContextMenu(calendarList.itemChildren[3], "list-calendars-context-edit");
-    },
+  dialogPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-properties-dialog.xhtml",
     win => {
       let doc = win.document;
       let enabledElement = doc.getElementById("calendar-enabled-checkbox");
-      ok(enabledElement.checked);
+      Assert.ok(enabledElement.checked);
       enabledElement.checked = false;
-    },
-    "accept"
+      doc
+        .querySelector("dialog")
+        .getButton("accept")
+        .click();
+    }
   );
+  calendarListContextMenu(calendarList.itemChildren[3], "list-calendars-context-edit");
+  await dialogPromise;
 
-  is(document.activeElement, calendarList);
-  is(calendarList.selectedItem, calendarList.itemChildren[1]);
+  Assert.equal(document.activeElement, calendarList);
+  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[1]);
   checkProperties(1, { disabled: true });
 
   calendars[1].setProperty("disabled", false);
@@ -271,6 +264,8 @@ add_task(async () => {
 
   let dragSession = Cc["@mozilla.org/widget/dragservice;1"].getService(Ci.nsIDragService);
   dragSession.startDragSessionForTests(Ci.nsIDragService.DRAGDROP_ACTION_MOVE);
+
+  await new Promise(resolve => window.setTimeout(resolve));
 
   let [result, dataTransfer] = EventUtils.synthesizeDragOver(
     calendarList.itemChildren[3],
@@ -291,15 +286,15 @@ add_task(async () => {
 
   checkSortOrder(3, 0, 1, 2);
 
-  is(document.activeElement, calendarList);
-  is(calendarList.selectedItem, calendarList.itemChildren[0]);
+  Assert.equal(document.activeElement, calendarList);
+  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[0]);
 
   // Test deleting calendars.
 
   // Delete a calendar by unregistering it.
   manager.unregisterCalendar(calendars[3]);
-  is(manager.getCalendars().length, 3);
-  is(calendarList.itemCount, 3);
+  Assert.equal(manager.getCalendars().length, 3);
+  Assert.equal(calendarList.itemCount, 3);
   checkSortOrder(0, 1, 2);
 
   // Start to remove a calendar. Cancel the prompt.
@@ -307,16 +302,16 @@ add_task(async () => {
   await withMockPromptService(1, () => {
     EventUtils.synthesizeKey("VK_DELETE");
   });
-  is(manager.getCalendars().length, 3);
-  is(calendarList.itemCount, 3);
+  Assert.equal(manager.getCalendars().length, 3, "three calendars left in the manager");
+  Assert.equal(calendarList.itemCount, 3, "three calendars left in the list");
   checkSortOrder(0, 1, 2);
 
   // Remove a calendar with the keyboard.
   await withMockPromptService(0, () => {
     EventUtils.synthesizeKey("VK_DELETE");
   });
-  is(manager.getCalendars().length, 2);
-  is(calendarList.itemCount, 2);
+  Assert.equal(manager.getCalendars().length, 2, "two calendars left in the manager");
+  Assert.equal(calendarList.itemCount, 2, "two calendars left in the list");
   checkSortOrder(0, 2);
 
   // Remove a calendar with the context menu.
@@ -324,11 +319,12 @@ add_task(async () => {
     EventUtils.synthesizeMouseAtCenter(calendarList.itemChildren[1], {});
     await calendarListContextMenu(calendarList.itemChildren[1], "list-calendars-context-delete");
   });
-  is(manager.getCalendars().length, 1);
-  is(calendarList.itemCount, 1);
+
+  Assert.equal(manager.getCalendars().length, 1, "one calendar left in the manager");
+  Assert.equal(calendarList.itemCount, 1, "one calendar left in the list");
   checkSortOrder(0);
 
-  is(composite.defaultCalendar.id, calendars[0].id);
-  is(calendarList.selectedItem, calendarList.itemChildren[0]);
+  Assert.equal(composite.defaultCalendar.id, calendars[0].id, "default calendar id check");
+  Assert.equal(calendarList.selectedItem, calendarList.itemChildren[0]);
   await closeCalendarTab();
 });
