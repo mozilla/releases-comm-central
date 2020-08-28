@@ -63,20 +63,38 @@ var CalICSProvider = {
       "attemptLocalFile",
     ]) {
       try {
-        cal.LOG(`[calICSProvider] Trying to detect calendar using ${method} method`);
+        cal.LOG(`[CalICSProvider] Trying to detect calendar using ${method} method`);
         let calendars = await detector[method](uri);
         if (calendars) {
           return calendars;
         }
       } catch (e) {
-        cal.WARN(
-          "[calICSProvider] Could not detect calendar using method " +
-            `${method} - ${e.filename || e.fileName}:${e.lineNumber}: ${e}`
-        );
+        // e may be an Error object or a response object like CalDavSimpleResponse.
+        let message = `[CalICSProvider] Could not detect calendar using method ${method}`;
+
+        let errorDetails = err =>
+          ` - ${err.fileName || err.filename}:${err.lineNumber}: ${err} - ${err.stack}`;
+
+        let responseDetails = response => ` - HTTP response status ${response.status}`;
 
         // We want to pass on any autodetect errors that will become results.
         if (e instanceof Autodetect.Error) {
+          cal.WARN(message + errorDetails(e));
           throw e;
+        }
+
+        // Sometimes e is a CalDavResponseBase that is an auth error, so throw it.
+        if (e.authError) {
+          cal.WARN(message + responseDetails(e));
+          throw new Autodetect.AuthFailedError();
+        }
+
+        if (e instanceof Error) {
+          cal.WARN(message + errorDetails(e));
+        } else if (typeof e.status == "number") {
+          cal.WARN(message + responseDetails(e));
+        } else {
+          cal.WARN(message);
         }
       }
     }
@@ -218,6 +236,8 @@ class ICSAutodetector {
   async attemptDAVLocation(location) {
     let props = ["D:getcontenttype", "D:resourcetype", "D:displayname", "A:calendar-color"];
     let request = new CalDavPropfindRequest(this.session, null, location, props);
+
+    // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
     let target = response.uri;
 
@@ -250,6 +270,8 @@ class ICSAutodetector {
    */
   async attemptLocation(location) {
     let request = new CalDavGenericRequest(this.session, null, "HEAD", location);
+
+    // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
     let target = response.uri;
 
@@ -277,6 +299,7 @@ class ICSAutodetector {
       "",
       "text/plain"
     );
+    // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
     let target = response.uri;
 
@@ -332,6 +355,8 @@ class ICSAutodetector {
   async handleDirectory(location) {
     let props = ["D:getcontenttype", "D:displayname", "A:calendar-color"];
     let request = new CalDavPropfindRequest(this.session, null, location, props, 1);
+
+    // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
     let target = response.uri;
 

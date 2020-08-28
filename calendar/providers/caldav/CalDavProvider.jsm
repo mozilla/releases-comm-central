@@ -71,19 +71,39 @@ var CalDavProvider = {
           return calendars;
         }
       } catch (e) {
-        cal.WARN(
-          "[CalDavProvider] Could not detect calendar using method " +
-            `${method} - ${e.fileName || e.filename}:${e.lineNumber}: ${e} - ${e.stack}`
-        );
+        // e may be an Error object or a response object like CalDavSimpleResponse.
+        // It can even be a string, as with the OAuth2 error below.
+        let message = `[CalDavProvider] Could not detect calendar using method ${method}`;
+
+        let errorDetails = err =>
+          ` - ${err.fileName || err.filename}:${err.lineNumber}: ${err} - ${err.stack}`;
+
+        let responseDetails = response => ` - HTTP response status ${response.status}`;
 
         // A special thing the OAuth2 code throws.
         if (e == '{ "error": "cancelled"}') {
-          throw new Autodetect.CanceledError("OAuth2 prompt canceled");
+          cal.WARN(message + ` - OAuth2 '${e}'`);
+          throw new Autodetect.CanceledError("OAuth2 prompt cancelled");
         }
 
         // We want to pass on any autodetect errors that will become results.
         if (e instanceof Autodetect.Error) {
+          cal.WARN(message + errorDetails(e));
           throw e;
+        }
+
+        // Sometimes e is a CalDavResponseBase that is an auth error, so throw it.
+        if (e.authError) {
+          cal.WARN(message + responseDetails(e));
+          throw new Autodetect.AuthFailedError();
+        }
+
+        if (e instanceof Error) {
+          cal.WARN(message + errorDetails(e));
+        } else if (typeof e.status == "number") {
+          cal.WARN(message + responseDetails(e));
+        } else {
+          cal.WARN(message);
         }
       }
     }
@@ -260,6 +280,8 @@ class CalDavAutodetector {
 
     cal.LOG(`[CalDavProvider] Checking collection type at ${location.spec}`);
     let request = new CalDavPropfindRequest(this.session, null, location, props);
+
+    // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
     let target = response.uri;
 
@@ -309,6 +331,7 @@ class CalDavAutodetector {
     let request = new CalDavPropfindRequest(this.session, null, location, props);
     cal.LOG(`[CalDavProvider] Checking collection type at ${location.spec}`);
 
+    // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
     let homeSet = response.firstProps["C:calendar-home-set"];
     let target = response.uri;
@@ -338,6 +361,8 @@ class CalDavAutodetector {
   async handleHomeSet(location) {
     let props = ["D:resourcetype", "D:displayname", "A:calendar-color"];
     let request = new CalDavPropfindRequest(this.session, null, location, props, 1);
+
+    // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
     let target = response.uri;
 
