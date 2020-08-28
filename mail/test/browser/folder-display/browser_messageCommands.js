@@ -35,9 +35,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -47,9 +44,7 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 var unreadFolder, shiftDeleteFolder, threadDeleteFolder;
 var archiveSrcFolder = null;
-var archiveURI;
 
-var acctMgr;
 var tagArray;
 var gAutoRead;
 
@@ -371,36 +366,26 @@ add_task(function test_mark_thread_as_read() {
   Services.prefs.setBoolPref("mailnews.mark_message_read.auto", true);
 }).__skipMe = true; // See bug 654362.
 
-add_task(function test_shift_delete_prompt() {
+add_task(async function test_shift_delete_prompt() {
   be_in_folder(shiftDeleteFolder);
   let curMessage = select_click_row(0);
 
   // First, try shift-deleting and then cancelling at the prompt.
   Services.prefs.setBoolPref("mail.warn_on_shift_delete", true);
-  plan_for_modal_dialog("commonDialogWindow", function(controller) {
-    controller.window.document
-      .querySelector("dialog")
-      .getButton("cancel")
-      .doCommand();
-  });
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   // We don't use press_delete here because we're not actually deleting this
   // time!
   SimpleTest.ignoreAllUncaughtExceptions(true);
   mc.keypress(null, "VK_DELETE", { shiftKey: true });
   SimpleTest.ignoreAllUncaughtExceptions(false);
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
   // Make sure we didn't actually delete the message.
   Assert.equal(curMessage, select_click_row(0));
 
   // Second, try shift-deleting and then accepting the deletion.
-  plan_for_modal_dialog("commonDialogWindow", function(controller) {
-    controller.window.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .doCommand();
-  });
+  dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   press_delete(mc, { shiftKey: true });
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, select_click_row(0));
 
@@ -408,14 +393,14 @@ add_task(function test_shift_delete_prompt() {
   Services.prefs.setBoolPref("mail.warn_on_shift_delete", false);
   curMessage = select_click_row(0);
   press_delete(mc, { shiftKey: true });
-  wait_for_modal_dialog("commonDialogWindow");
+
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, select_click_row(0));
 
   Services.prefs.clearUserPref("mail.warn_on_shift_delete");
 });
 
-add_task(function test_thread_delete_prompt() {
+add_task(async function test_thread_delete_prompt() {
   be_in_folder(threadDeleteFolder);
   make_display_threaded();
   collapse_all_threads();
@@ -423,30 +408,20 @@ add_task(function test_thread_delete_prompt() {
   let curMessage = select_click_row(0);
   // First, try deleting and then cancelling at the prompt.
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", true);
-  plan_for_modal_dialog("commonDialogWindow", function(controller) {
-    controller.window.document
-      .querySelector("dialog")
-      .getButton("cancel")
-      .doCommand();
-  });
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   // We don't use press_delete here because we're not actually deleting this
   // time!
   SimpleTest.ignoreAllUncaughtExceptions(true);
   mc.keypress(null, "VK_DELETE", {});
   SimpleTest.ignoreAllUncaughtExceptions(false);
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
   // Make sure we didn't actually delete the message.
   Assert.equal(curMessage, select_click_row(0));
 
   // Second, try deleting and then accepting the deletion.
-  plan_for_modal_dialog("commonDialogWindow", function(controller) {
-    controller.window.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .doCommand();
-  });
+  dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   press_delete(mc);
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, select_click_row(0));
 
@@ -454,7 +429,7 @@ add_task(function test_thread_delete_prompt() {
   Services.prefs.setBoolPref("mail.warn_on_collapsed_thread_operation", false);
   curMessage = select_click_row(0);
   press_delete(mc);
-  wait_for_modal_dialog("commonDialogWindow");
+
   // Make sure we really did delete the message.
   Assert.notEqual(curMessage, select_click_row(0));
 

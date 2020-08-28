@@ -31,12 +31,9 @@ var {
 var { MsgHdrToMimeMessage } = ChromeUtils.import(
   "resource:///modules/gloda/MimeMessage.jsm"
 );
-var {
-  plan_for_modal_dialog,
-  plan_for_window_close,
-  wait_for_modal_dialog,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -61,7 +58,7 @@ registerCleanupFunction(function teardownModule(module) {
   Services.prefs.clearUserPref("mail.compose.default_to_paragraph");
 });
 
-function forward_selected_messages_and_go_to_drafts_folder(f) {
+async function forward_selected_messages_and_go_to_drafts_folder(f) {
   const kText = "Hey check out this megalol link";
   // opening a new compose window
   cwc = f(mc);
@@ -72,18 +69,10 @@ function forward_selected_messages_and_go_to_drafts_folder(f) {
 
   plan_for_window_close(cwc);
   // mwc is modal window controller
-  plan_for_modal_dialog("commonDialogWindow", function click_save(mwc) {
-    // accept saving
-    mwc.window.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .doCommand();
-  });
-
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   // quit -> do you want to save ?
   cwc.window.goDoCommand("cmd_close");
-  // wait for the modal dialog to return
-  wait_for_modal_dialog();
+  await dialogPromise;
   // Actually quit the window.
   wait_for_window_close();
 
@@ -91,12 +80,14 @@ function forward_selected_messages_and_go_to_drafts_folder(f) {
   be_in_folder(gDrafts);
 }
 
-add_task(function test_forward_inline() {
+add_task(async function test_forward_inline() {
   be_in_folder(folder);
   // original message header
   let oMsgHdr = select_click_row(0);
 
-  forward_selected_messages_and_go_to_drafts_folder(open_compose_with_forward);
+  await forward_selected_messages_and_go_to_drafts_folder(
+    open_compose_with_forward
+  );
 
   // forwarded message header
   let fMsgHdr = select_click_row(0);
@@ -127,14 +118,14 @@ add_task(function test_forward_inline() {
   });
 });
 
-add_task(function test_forward_as_attachments() {
+add_task(async function test_forward_as_attachments() {
   be_in_folder(folder);
   // original message header
   let oMsgHdr0 = select_click_row(0);
   let oMsgHdr1 = select_click_row(1);
   select_shift_click_row(0);
 
-  forward_selected_messages_and_go_to_drafts_folder(
+  await forward_selected_messages_and_go_to_drafts_folder(
     open_compose_with_forward_as_attachments
   );
 

@@ -6,17 +6,11 @@
 
 "use strict";
 
-var controller = ChromeUtils.import(
-  "resource://testing-common/mozmill/controller.jsm"
-);
 var elementslib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
-);
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
 );
 
 var {
@@ -36,9 +30,6 @@ var {
   wait_for_popup_to_open,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
-);
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -186,7 +177,7 @@ add_task(function test_content_tab_default_favicon() {
   assert_content_tab_has_favicon(tab, "http://mochi.test:8888/favicon.ico");
 });
 
-add_task(function test_content_tab_onbeforeunload() {
+add_task(async function test_content_tab_onbeforeunload() {
   let count = mc.tabmail.tabContainer.allTabs.length;
   let tab = mc.tabmail.tabInfo[count - 1];
   tab.browser.contentWindow.addEventListener("beforeunload", function(event) {
@@ -196,14 +187,9 @@ add_task(function test_content_tab_onbeforeunload() {
   const interactionPref = "dom.require_user_interaction_for_beforeunload";
   Services.prefs.setBoolPref(interactionPref, false);
 
-  plan_for_modal_dialog("commonDialogWindow", function(controller) {
-    controller.window.document
-      .querySelector("dialog")
-      .getButton("accept")
-      .doCommand();
-  });
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   mc.tabmail.closeTab(tab);
-  wait_for_modal_dialog();
+  await dialogPromise;
 
   Services.prefs.clearUserPref(interactionPref);
 });

@@ -23,12 +23,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var {
-  plan_for_modal_dialog,
-  plan_for_window_close,
-  wait_for_modal_dialog,
-  wait_for_window_close,
-} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
+var { plan_for_window_close, wait_for_window_close } = ChromeUtils.import(
+  "resource://testing-common/mozmill/WindowHelpers.jsm"
+);
 
 var folderA, folderB;
 var curMessage;
@@ -110,30 +107,23 @@ add_task(function test_del_collapsed_thread() {
   }
 });
 
-function subtest_say_yes(cwc) {
-  cwc.window.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .doCommand();
-}
-
 /**
  * Hit n enough times to mark all messages in folder A read, and then accept the
  * modal dialog saying that we should move to the next folder. Then, assert that
  * the message displayed in the standalone message window is folder B's first
  * message (since all messages in folder B were unread).
  */
-add_task(function test_next_unread() {
+add_task(async function test_next_unread() {
   for (let i = 0; i < 3; ++i) {
     plan_for_message_display(msgc);
     msgc.keypress(null, "n", {});
     wait_for_message_display_completion(msgc, true);
   }
 
-  plan_for_modal_dialog("commonDialogWindow", subtest_say_yes);
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   msgc.keypress(null, "n", {});
   plan_for_message_display(msgc);
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
   wait_for_message_display_completion(msgc, true);
 
   // move to folder B

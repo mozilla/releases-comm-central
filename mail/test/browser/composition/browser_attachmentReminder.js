@@ -146,7 +146,7 @@ function get_reminder_keywords(aCwc) {
 /**
  * Test that the attachment reminder works, in general.
  */
-add_task(function test_attachment_reminder_appears_properly() {
+add_task(async function test_attachment_reminder_appears_properly() {
   let cwc = open_compose_new_mail();
 
   // There should be no notification yet.
@@ -182,9 +182,10 @@ add_task(function test_attachment_reminder_appears_properly() {
   assert_manual_reminder_state(cwc, true);
 
   // Now try to send, make sure we get the alert.
-  plan_for_modal_dialog("commonDialogWindow", click_oh_i_did);
+  // Click the "Oh, I Did!" button in the attachment reminder dialog.
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   cwc.click(cwc.eid("button-send"));
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
 
   // After confirming the reminder the menuitem should get disabled.
   assert_manual_reminder_state(cwc, false);
@@ -196,7 +197,7 @@ add_task(function test_attachment_reminder_appears_properly() {
  * Test that the alert appears normally, but not after closing the
  * notification.
  */
-add_task(function test_attachment_reminder_dismissal() {
+add_task(async function test_attachment_reminder_dismissal() {
   let cwc = open_compose_new_mail();
 
   // There should be no notification yet.
@@ -218,9 +219,10 @@ add_task(function test_attachment_reminder_dismissal() {
 
   // We didn't click the "Remind Me Later" - the alert should pop up
   // on send anyway.
-  plan_for_modal_dialog("commonDialogWindow", click_oh_i_did);
+  // Click the "Oh, I Did!" button in the attachment reminder dialog.
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   cwc.click(cwc.eid("button-send"));
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
 
   let notification = assert_automatic_reminder_state(cwc, true);
 
@@ -315,7 +317,7 @@ add_task(function test_attachment_reminder_aggressive_pref() {
  * Test that clicking "No, Send Now" in the attachment reminder alert
  * works.
  */
-add_task(function test_no_send_now_sends() {
+add_task(async function test_no_send_now_sends() {
   let cwc = open_compose_new_mail();
 
   setup_msg_contents(
@@ -328,9 +330,9 @@ add_task(function test_no_send_now_sends() {
   wait_for_reminder_state(cwc, true);
 
   // Click the send button again, this time choose "No, Send Now".
-  plan_for_modal_dialog("commonDialogWindow", click_no_send_now);
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   cwc.click(cwc.eid("button-send"));
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
 
   // After clicking "Send Now" sending is proceeding, just handle the error.
   click_send_and_handle_send_error(cwc, true);
@@ -366,7 +368,7 @@ function click_manual_reminder(aCwc, aExpectedState) {
  * Bug 521128
  * Test proper behaviour of the manual reminder.
  */
-add_task(function test_manual_attachment_reminder() {
+add_task(async function test_manual_attachment_reminder() {
   // Open a sample message with no attachment keywords.
   let cwc = open_compose_new_mail();
   setup_msg_contents(
@@ -415,9 +417,10 @@ add_task(function test_manual_attachment_reminder() {
   assert_automatic_reminder_state(cwc, false);
 
   // Now try to send, make sure we get the alert.
-  plan_for_modal_dialog("commonDialogWindow", click_oh_i_did);
+  // Click the "Oh, I Did!" button in the attachment reminder dialog.
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("extra1");
   cwc.click(cwc.eid("button-send"));
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
 
   // We were alerted once and the manual reminder is automatically turned off.
   assert_manual_reminder_state(cwc, false);
@@ -796,26 +799,6 @@ function click_send_and_handle_send_error(aController, aAlreadySending) {
     aController.click(aController.eid("button-send"));
   }
   wait_for_modal_dialog("commonDialogWindow");
-}
-
-/**
- * Click the "Oh, I Did!" button in the attachment reminder dialog.
- */
-function click_oh_i_did(controller) {
-  controller.window.document
-    .querySelector("dialog")
-    .getButton("extra1")
-    .doCommand();
-}
-
-/**
- * Click the "No, Send Now" button in the attachment reminder dialog.
- */
-function click_no_send_now(controller) {
-  controller.window.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .doCommand();
 }
 
 /**

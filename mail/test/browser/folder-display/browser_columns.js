@@ -29,9 +29,7 @@ var {
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
 var {
-  plan_for_modal_dialog,
   plan_for_observable_event,
-  wait_for_modal_dialog,
   wait_for_observable_event,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
@@ -422,18 +420,12 @@ add_task(function test_reset_to_inbox() {
   invoke_column_picker_option([{ anonid: "menuitem" }]);
 });
 
-function subtest_say_yes(cwc) {
-  cwc.window.document
-    .querySelector("dialog")
-    .getButton("accept")
-    .doCommand();
-}
-
-function _apply_to_folder_common(aChildrenToo, folder) {
+async function _apply_to_folder_common(aChildrenToo, folder) {
   if (aChildrenToo) {
     plan_for_observable_event("msg-folder-columns-propagated");
   }
-  plan_for_modal_dialog("commonDialogWindow", subtest_say_yes);
+
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
   invoke_column_picker_option([
     { class: "applyTo-menu" },
     {
@@ -445,7 +437,8 @@ function _apply_to_folder_common(aChildrenToo, folder) {
     { label: folder.name },
     { label: folder.name },
   ]);
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
+
   if (aChildrenToo) {
     wait_for_observable_event("msg-folder-columns-propagated");
   }
@@ -455,7 +448,7 @@ function _apply_to_folder_common(aChildrenToo, folder) {
  * Change settings in a folder, apply them to another folder that also has
  *  children.  Make sure the folder changes but the children do not.
  */
-add_task(function test_apply_to_folder_no_children() {
+add_task(async function test_apply_to_folder_no_children() {
   folderParent = create_folder("ColumnsApplyParent");
   folderParent.createSubfolder("Child1", null);
   folderChild1 = folderParent.getChildNamed("Child1");
@@ -473,7 +466,7 @@ add_task(function test_apply_to_folder_no_children() {
   assert_visible_columns(conExtra);
 
   // apply to the one dude
-  _apply_to_folder_common(false, folderParent);
+  await _apply_to_folder_common(false, folderParent);
 
   // make sure it copied to the parent
   be_in_folder(folderParent);
@@ -490,7 +483,7 @@ add_task(function test_apply_to_folder_no_children() {
  * Change settings in a folder, apply them to another folder and its children.
  *  Make sure the folder and its children change.
  */
-add_task(function test_apply_to_folder_and_children() {
+add_task(async function test_apply_to_folder_and_children() {
   // no need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
@@ -505,7 +498,7 @@ add_task(function test_apply_to_folder_and_children() {
   assert_visible_columns(conExtra);
 
   // apply to the dude and his offspring
-  _apply_to_folder_common(true, folderParent);
+  await _apply_to_folder_common(true, folderParent);
 
   // make sure it copied to the parent and his children
   be_in_folder(folderParent);
@@ -520,7 +513,7 @@ add_task(function test_apply_to_folder_and_children() {
  * Change settings in an incoming folder, apply them to an outgoing folder that
  * also has children. Make sure the folder changes but the children do not.
  */
-add_task(function test_apply_to_folder_no_children_swapped() {
+add_task(async function test_apply_to_folder_no_children_swapped() {
   folderParent = create_folder("ColumnsApplyParentOutgoing");
   folderParent.setFlag(Ci.nsMsgFolderFlags.SentMail);
   folderParent.createSubfolder("Child1", null);
@@ -550,7 +543,7 @@ add_task(function test_apply_to_folder_no_children_swapped() {
   assert_visible_columns(conExtra);
 
   // Apply to the one dude.
-  _apply_to_folder_common(false, folderParent);
+  await _apply_to_folder_common(false, folderParent);
 
   // Make sure it copied to the parent.
   let conExtraSwapped = [...SENT_DEFAULTS];
@@ -569,7 +562,7 @@ add_task(function test_apply_to_folder_no_children_swapped() {
  * Change settings in an incoming folder, apply them to an outgoing folder and
  * its children. Make sure the folder and its children change.
  */
-add_task(function test_apply_to_folder_and_children_swapped() {
+add_task(async function test_apply_to_folder_and_children_swapped() {
   // No need to throttle ourselves during testing.
   MailUtils.INTER_FOLDER_PROCESSING_DELAY_MS = 0;
 
@@ -591,7 +584,7 @@ add_task(function test_apply_to_folder_and_children_swapped() {
   assert_visible_columns(conExtra);
 
   // Apply to the dude and his offspring.
-  _apply_to_folder_common(true, folderParent);
+  await _apply_to_folder_common(true, folderParent);
 
   // Make sure it copied to the parent and his children.
   let conExtraSwapped = [...SENT_DEFAULTS];

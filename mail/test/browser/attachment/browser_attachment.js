@@ -47,7 +47,6 @@ var {
   close_window,
   plan_for_modal_dialog,
   wait_for_modal_dialog,
-  wait_for_new_window,
 } = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -521,7 +520,7 @@ add_task(function test_select_all_attachments_key() {
   );
 });
 
-add_task(function test_delete_attachment_key() {
+add_task(async function test_delete_attachment_key() {
   be_in_folder(folder);
 
   // First, select the message with two attachments.
@@ -535,18 +534,14 @@ add_task(function test_delete_attachment_key() {
   mc.click(firstAttachment, 5, 5);
 
   // Try deleting with the delete key
-  plan_for_modal_dialog("commonDialogWindow", function(cdc) {
-    cdc.window.document.documentElement.querySelector("dialog").cancelDialog();
-  });
+  let dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   mc.keypress(firstAttachment, "VK_DELETE", {});
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
 
   // Try deleting with the shift-delete key combo.
-  plan_for_modal_dialog("commonDialogWindow", function(cdc) {
-    cdc.window.document.documentElement.querySelector("dialog").cancelDialog();
-  });
+  dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
   mc.keypress(firstAttachment, "VK_DELETE", { shiftKey: true });
-  wait_for_modal_dialog("commonDialogWindow");
+  await dialogPromise;
 });
 
 add_task(function test_attachments_compose_menu() {
