@@ -11,16 +11,15 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  * provider.
  */
 function openLocalCalendar() {
-  const nsIFilePicker = Ci.nsIFilePicker;
-  let picker = Cc["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
-  picker.init(window, cal.l10n.getCalString("Open"), nsIFilePicker.modeOpen);
+  let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  picker.init(window, cal.l10n.getCalString("Open"), Ci.nsIFilePicker.modeOpen);
   let wildmat = "*.ics";
   let description = cal.l10n.getCalString("filterIcs", [wildmat]);
   picker.appendFilter(description, wildmat);
-  picker.appendFilters(nsIFilePicker.filterAll);
+  picker.appendFilters(Ci.nsIFilePicker.filterAll);
 
   picker.open(rv => {
-    if (rv != nsIFilePicker.returnOK || !picker.file) {
+    if (rv != Ci.nsIFilePicker.returnOK || !picker.file) {
       return;
     }
 
@@ -32,22 +31,18 @@ function openLocalCalendar() {
 
       // Strip ".ics" from filename for use as calendar name, taken from
       // calendarCreation.js
-      let fullPathRegex = new RegExp("([^/:]+)[.]ics$");
-      let prettyName = picker.fileURL.spec.match(fullPathRegex);
-      let name;
-
+      let prettyName = picker.fileURL.spec.match(/([^/:]+)\.ics$/);
       if (prettyName) {
-        name = decodeURIComponent(prettyName[1]);
+        calendar.name = decodeURIComponent(prettyName[1]);
       } else {
-        name = cal.l10n.getCalString("untitledCalendarName");
+        calendar.name = cal.l10n.getCalString("untitledCalendarName");
       }
-      calendar.name = name;
 
       calMgr.registerCalendar(calendar);
     }
 
-    let newListTree = document.getElementById("calendar-list");
-    let item = newListTree.getElementsByAttribute("calendar-id", calendar.id)[0];
-    newListTree.selectedItem = item;
+    let calendarList = document.getElementById("calendar-list");
+    let item = calendarList.getElementsByAttribute("calendar-id", calendar.id)[0];
+    calendarList.selectedItem = item;
   });
 }
