@@ -9,7 +9,7 @@
   color: var(--lwt-text-color);
 }
 
-#calendar-properties-table {
+:root[canDisable] #calendar-properties-table {
   margin-inline-start: 20px;
 }
 

@@ -4,6 +4,7 @@
 
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
 
@@ -784,4 +785,66 @@ var calprovider = {
       return false; // use outbound iTIP for all
     }
   },
+
+  // Provider Registration
+
+  /**
+   * Register a provider.
+   *
+   * @param {calICalendarProvider} provider     The provider object.
+   */
+  register(provider) {
+    this.providers.set(provider.type, provider);
+  },
+
+  /**
+   * Unregister a provider.
+   *
+   * @param {string} type     The type of the provider to unregister.
+   * @return {boolean}        True if the provider was unregistered, false if
+   *                            it was not registered in the first place.
+   */
+  unregister(type) {
+    return this.providers.delete(type);
+  },
+
+  /**
+   * Get a provider by its type property, e.g. "ics", "caldav".
+   *
+   * @param {string} type                         Type of the provider to get.
+   * @return {calICalendarProvider | undefined}   Provider or undefined if none
+   *                                                is registered for the type.
+   */
+  byType(type) {
+    return this.providers.get(type);
+  },
+
+  /**
+   * The built-in "ics" provider.
+   *
+   * @type {calICalendarProvider}
+   */
+  get ics() {
+    return this.byType("ics");
+  },
+
+  /**
+   * The built-in "caldav" provider.
+   *
+   * @type {calICalendarProvider}
+   */
+  get caldav() {
+    return this.byType("caldav");
+  },
 };
+
+// Initialize `cal.provider.providers` with the built-in providers.
+XPCOMUtils.defineLazyGetter(calprovider, "providers", () => {
+  const { CalICSProvider } = ChromeUtils.import("resource:///modules/CalICSProvider.jsm");
+  const { CalDavProvider } = ChromeUtils.import("resource:///modules/CalDavProvider.jsm");
+  return new Map([
+    ["ics", CalICSProvider],
+    ["caldav", CalDavProvider],
+  ]);
+});
+

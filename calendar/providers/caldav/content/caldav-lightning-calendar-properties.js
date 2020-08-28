@@ -9,18 +9,18 @@ var ltn_onChangeIdentity = onChangeIdentity;
 
 onLoad = function() {
   gCalendar = window.arguments[0].calendar; // eslint-disable-line no-global-assign
-  ltnInitMailIdentitiesRow();
+  ltnInitMailIdentitiesRow(gCalendar);
   caldavInitForceEmailScheduling();
   common_onLoad();
 };
 
 onAcceptDialog = function() {
-  ltnSaveMailIdentitySelection();
+  ltnSaveMailIdentitySelection(gCalendar);
   caldavSaveForceEmailScheduling();
   return common_onAcceptDialog();
 };
 
 onChangeIdentity = function(aEvent) {
-  ltn_onChangeIdentity();
+  ltn_onChangeIdentity(aEvent);
   caldavUpdateForceEmailSchedulingControl();
 };

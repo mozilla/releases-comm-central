@@ -10,7 +10,6 @@ lightning.jar:
     content/html-item-editing/lightning-item-iframe.html   (content/html-item-editing/lightning-item-iframe.html)
     content/html-item-editing/react-code.js                (content/html-item-editing/react-code.js)
     content/imip-bar.js                                    (content/imip-bar.js)
-    content/lightning-calendar-creation.js                 (content/lightning-calendar-creation.js)
     content/lightning-calendar-properties.js               (content/lightning-calendar-properties.js)
     content/lightning-invitation.xhtml                     (content/lightning-invitation.xhtml)
     content/lightning-item-panel.js                        (content/lightning-item-panel.js)
@@ -18,13 +17,10 @@ lightning.jar:
     content/lightning-item-iframe.js                       (content/lightning-item-iframe.js)
     content/lightning-utils.js                             (content/lightning-utils.js)
     content/messenger-overlay-preferences.js               (content/messenger-overlay-preferences.js)
-    content/caldav-lightning-calendar-creation.js          (../providers/caldav/content/caldav-lightning-calendar-creation.js)
     content/caldav-lightning-calendar-properties.js        (../providers/caldav/content/caldav-lightning-calendar-properties.js)
     content/caldav-lightning-utils.js                      (../providers/caldav/content/caldav-lightning-utils.js)
 
 calendar.jar:
-    content/calendarCreation.js                   (../resources/content/calendarCreation.js)
-    content/calendarCreation.xhtml                (../resources/content/calendarCreation.xhtml)
     content/datetimepickers/datetimepickers.js    (../resources/content/datetimepickers/datetimepickers.js)
     content/mouseoverPreviews.js                  (../resources/content/mouseoverPreviews.js)
     content/publish.js                            (../resources/content/publish.js)

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals createCalendarUsingDialog */
+
 var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 
 var {
@@ -9,7 +11,6 @@ var {
   EVENT_BOX,
   TIMEOUT_MODAL_DIALOG,
   deleteCalendars,
-  handleNewCalendarWizard,
   helpersForController,
   invokeNewEventDialog,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
@@ -34,12 +35,7 @@ calendarFile.append(calendarName + ".ics");
 
 add_task(async function testLocalICS() {
   await setCalendarView("day");
-
-  plan_for_modal_dialog("Calendar:NewCalendarWizard", wizard => {
-    handleNewCalendarWizard(wizard, calendarName, { network: { format: "ics" } });
-  });
-  controller.mainMenu.click("#calendar-new-calendar-menuitem");
-  wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
+  await createCalendarUsingDialog(calendarName, { network: {} });
 
   // Create new event.
   let box = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
@@ -60,9 +56,7 @@ add_task(async function testLocalICS() {
       null,
       1,
       null,
-      `
-        /{"tooltip":"itemTooltip","calendar":"${calendarName.toLowerCase()}"}
-    `
+      `/{"tooltip":"itemTooltip","calendar":"${calendarName.toLowerCase()}"}`
     )
   );
 

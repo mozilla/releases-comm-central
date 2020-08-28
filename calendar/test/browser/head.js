@@ -261,6 +261,110 @@ async function closeAddonsTab() {
   await new Promise(resolve => setTimeout(resolve));
 }
 
+/**
+ * Create a calendar using the "Create New Calendar" dialog.
+ *
+ * @param {string} name                     Name for the new calendar.
+ * @param {Object} [data]                   Data to enter into the dialog.
+ * @param {boolean} [data.showReminders]    False to disable reminders.
+ * @param {string} [data.email]             An email address.
+ * @param {Object} [data.network]           Data for network calendars.
+ * @param {string} [data.network.location]  A URI (leave undefined for local ICS file).
+ * @param {boolean} [data.network.offline]  False to disable the cache.
+ */
+async function createCalendarUsingDialog(name, data = {}) {
+  /**
+   * Callback function to interact with the dialog.
+   * @param {nsIDOMWindow} win - The dialog window.
+   */
+  async function useDialog(win) {
+    let doc = win.document;
+    let dialogElement = doc.querySelector("dialog");
+    let acceptButton = dialogElement.getButton("accept");
+
+    if (data.network) {
+      // Choose network calendar type.
+      doc.querySelector("#calendar-type [value='network']").click();
+      acceptButton.click();
+
+      // Enter a location.
+      if (data.network.location == undefined) {
+        let calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+        calendarFile.append(name + ".ics");
+        let fileURI = Services.io.newFileURI(calendarFile);
+        data.network.location = fileURI.prePath + fileURI.pathQueryRef;
+      }
+      EventUtils.synthesizeMouseAtCenter(doc.querySelector("#network-location-input"), {}, win);
+      EventUtils.sendString(data.network.location, win);
+
+      // Choose offline support.
+      if (data.network.offline == undefined) {
+        data.network.offline = true;
+      }
+      let offlineCheckbox = doc.querySelector("#network-cache-checkbox");
+      if (!offlineCheckbox.checked) {
+        EventUtils.synthesizeMouseAtCenter(offlineCheckbox, {}, win);
+      }
+      acceptButton.click();
+
+      // Set up an observer to wait for calendar(s) to be found, before
+      // clicking the accept button to subscribe to the calendar(s).
+      let observer = new MutationObserver(mutationList => {
+        mutationList.forEach(async mutation => {
+          if (mutation.type === "childList") {
+            acceptButton.click();
+          }
+        });
+      });
+      observer.observe(doc.querySelector("#network-calendar-list"), { childList: true });
+    } else {
+      // Choose local calendar type.
+      doc.querySelector("#calendar-type [value='local']").click();
+      acceptButton.click();
+
+      // Set calendar name.
+      // Setting the value does not activate the accept button on all platforms,
+      // so we need to type something in case the field is empty.
+      let nameInput = doc.querySelector("#local-calendar-name-input");
+      if (nameInput.value == "") {
+        EventUtils.synthesizeMouseAtCenter(nameInput, {}, win);
+        EventUtils.sendString(name, win);
+      }
+
+      // Set reminder option.
+      if (data.showReminders == undefined) {
+        data.showReminders = true;
+      }
+      let localFireAlarmsCheckbox = doc.querySelector("#local-fire-alarms-checkbox");
+      if (localFireAlarmsCheckbox.checked != data.showReminders) {
+        EventUtils.synthesizeMouseAtCenter(localFireAlarmsCheckbox, {}, win);
+      }
+
+      // Set email account.
+      if (data.email == undefined) {
+        data.email = "none";
+      }
+      let emailIdentityMenulist = doc.querySelector("#email-identity-menulist");
+      EventUtils.synthesizeMouseAtCenter(emailIdentityMenulist, {}, win);
+      emailIdentityMenulist.querySelector("menuitem[value='none']").click();
+
+      // Create the calendar.
+      acceptButton.click();
+    }
+  }
+
+  let dialogWindowPromise = BrowserTestUtils.promiseAlertDialog(
+    null,
+    "chrome://calendar/content/calendar-creation.xhtml",
+    useDialog
+  );
+  // Open the "create new calendar" dialog.
+  openCalendarTab();
+  // This double-click must be inside the calendar list but below the list items.
+  EventUtils.synthesizeMouseAtCenter(document.querySelector("#calendar-list"), { clickCount: 2 });
+  return dialogWindowPromise;
+}
+
 registerCleanupFunction(async () => {
   await closeCalendarTab();
   await closeTasksTab();

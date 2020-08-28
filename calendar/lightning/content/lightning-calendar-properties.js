@@ -12,17 +12,17 @@ var common_onAcceptDialog = onAcceptDialog;
 
 onLoad = function() {
   gCalendar = window.arguments[0].calendar; // eslint-disable-line no-global-assign
-  ltnInitMailIdentitiesRow();
-  ltnNotifyOnIdentitySelection();
+  ltnInitMailIdentitiesRow(gCalendar);
+  ltnNotifyOnIdentitySelection(gCalendar);
   common_onLoad();
 };
 
 onAcceptDialog = function() {
-  ltnSaveMailIdentitySelection();
+  ltnSaveMailIdentitySelection(gCalendar);
   return common_onAcceptDialog();
 };
 
 function onChangeIdentity(aEvent) {
-  ltnNotifyOnIdentitySelection();
+  ltnNotifyOnIdentitySelection(gCalendar);
   sizeToContent();
 }

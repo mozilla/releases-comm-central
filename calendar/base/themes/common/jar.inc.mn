@@ -9,7 +9,7 @@
 
     skin/classic/calendar/shared/calendar-alarms.css                             (../common/calendar-alarms.css)
     skin/classic/calendar/shared/calendar-attendees.css                          (../common/calendar-attendees.css)
-    skin/classic/calendar/shared/calendar-creation-wizard.css                    (../common/calendar-creation-wizard.css)
+    skin/classic/calendar/shared/calendar-creation.css                           (../common/calendar-creation.css)
     skin/classic/calendar/shared/calendar-daypicker.css                          (../common/calendar-daypicker.css)
     skin/classic/calendar/shared/calendar-itip-icons.svg                         (../common/calendar-itip-icons.svg)
     skin/classic/calendar/shared/calendar-occurrence-prompt.css                  (../common/calendar-occurrence-prompt.css)

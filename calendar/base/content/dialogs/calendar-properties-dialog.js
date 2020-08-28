@@ -15,13 +15,23 @@ var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm")
 var gCalendar;
 
 /**
- * This function gets called when the calendar properties dialog gets opened. To
- * open the window, use an object as argument. The object needs a 'calendar'
- * attribute that passes the calendar in question.
+ * Called when the calendar properties dialog gets opened. When opening the
+ * window, use an object as argument with a 'calendar' property for the
+ * calendar in question, and a `canDisable` property for whether to offer
+ * disabling/enabling the calendar.
  */
 function onLoad() {
-  gCalendar = window.arguments[0].calendar;
+  /** @type {{ calendar: calICalendar, canDisable: boolean}} */
+  let args = window.arguments[0];
+
+  gCalendar = args.calendar;
   let calColor = gCalendar.getProperty("color");
+
+  if (args.canDisable) {
+    document.documentElement.setAttribute("canDisable", "true");
+  } else {
+    document.getElementById("calendar-enabled-checkbox").hidden = true;
+  }
 
   document.getElementById("calendar-name").value = gCalendar.name;
   document.getElementById("calendar-color").value = calColor || "#A8C2E1";
@@ -61,7 +71,7 @@ function onLoad() {
 
   // Set up the disabled checkbox
   let calendarDisabled = false;
-  if (gCalendar.getProperty("force-disabled")) {
+  if (gCalendar.getProperty("force-disabled") && !args.canDisable) {
     document.getElementById("force-disabled-description").removeAttribute("hidden");
     document.getElementById("calendar-enabled-checkbox").setAttribute("disabled", "true");
   } else {

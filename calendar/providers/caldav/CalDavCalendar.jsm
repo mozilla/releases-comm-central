@@ -65,7 +65,6 @@ var CALDAV_DELETE_ITEM = "delete";
 
 var calDavCalendarClassID = Components.ID("{a35fc6ea-3d92-11d9-89f9-00045ace3b8d}");
 var calDavCalendarInterfaces = [
-  Ci.calICalendarProvider,
   Ci.nsIInterfaceRequestor,
   Ci.calIFreeBusyProvider,
   Ci.calIItipTransport,

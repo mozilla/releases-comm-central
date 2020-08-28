@@ -711,8 +711,7 @@ function openLocalCalendar() {
     if (!calendar) {
       calendar = calMgr.createCalendar("ics", picker.fileURL);
 
-      // Strip ".ics" from filename for use as calendar name, taken from
-      // calendarCreation.js
+      // Strip ".ics" from filename for use as calendar name.
       let prettyName = picker.fileURL.spec.match(/([^/:]+)\.ics$/);
       if (prettyName) {
         calendar.name = decodeURIComponent(prettyName[1]);

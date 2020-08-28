@@ -1,0 +1,620 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { Autodetect } = ChromeUtils.import("resource:///modules/calendar/calAutodetect.jsm");
+
+/* exported checkRequired, fillLocationPlaceholder, selectProvider, updateNoCredentials, */
+
+/* import-globals-from ../../../lightning/content/lightning-utils.js */
+
+/**
+ * For managing dialog button handler state. Stores the current handlers so we
+ * can remove them with removeEventListener. Provides a way to look up the
+ * button handler functions to be used with a given panel.
+ */
+var gButtonHandlers = {
+  accept: null,
+  extra2: null,
+
+  // Maps a panel DOM node ID to the button handlers to use for that panel.
+  forNodeId: {
+    "panel-select-calendar-type": {
+      accept: selectCalendarType,
+    },
+    "panel-local-calendar-settings": {
+      accept: registerLocalCalendar,
+      extra2: () => selectPanel("panel-select-calendar-type"),
+    },
+    "panel-network-calendar-settings": {
+      accept: event => {
+        event.preventDefault();
+        event.stopPropagation();
+        findCalendars();
+      },
+      extra2: () => selectPanel("panel-select-calendar-type"),
+    },
+    "panel-select-calendars": {
+      accept: createNetworkCalendars,
+      extra2: () => selectPanel("panel-network-calendar-settings"),
+    },
+  },
+};
+
+/** @type {calICalendar | null} */
+var gLocalCalendar = null;
+
+/**
+ * Tools for managing how providers are used for calendar detection. May be used
+ * by add-ons to modify which providers are used and which results are preferred.
+ */
+var gProviderUsage = {
+  /**
+   * A function that returns a list of provider types to filter out and not use
+   * to detect calendars, for a given location and username. The providers are
+   * filtered out before calendar detection. For example, the "Provider for
+   * Google Calendar" add-on might filter out the "caldav" provider:
+   *
+   *  (providers, location, username) => {
+   *    domain = username.split("@")[1];
+   *    if (providers.includes("gdata") && (domain == "googlemail.com" || domain == "gmail.com")) {
+   *      return ["caldav"];
+   *    }
+   *    return [];
+   *  }
+   *
+   * @callback ProviderFilter
+   * @param {string[]} providers - Array of provider types to be used (if not filtered out).
+   * @param {string} location - Location to use for calendar detection.
+   * @param {string} username - Username to use for calendar detection.
+   * @return {string[]} Array of provider types to be filtered out.
+   */
+
+  /** @type {ProviderFilter[]} */
+  _preDetectFilters: [],
+
+  /**
+   * @type {Map<string, string>}
+   * A mapping from a less preferred provider type to a more preferred provider
+   * type. When there are results from both types, prefer the more preferred
+   * type's results. Used after calendar detection.
+   */
+  _postDetectPreferences: new Map(),
+
+  get preDetectFilters() {
+    return this._preDetectFilters;
+  },
+
+  get postDetectPreferences() {
+    return this._postDetectPreferences;
+  },
+
+  /**
+   * Add a new provider filter function.
+   *
+   * @param {ProviderFilter} providerFilter
+   */
+  addPreDetectFilter(providerFilter) {
+    this._preDetectFilters.push(providerFilter);
+  },
+
+  /**
+   * Add a preference for one provider type over another provider type.
+   *
+   * @param {string} preferredType      The preferred provider type.
+   * @param {string} nonPreferredType   The non-preferred provider type.
+   */
+  addPostDetectPreference(preferredType, nonPreferredType) {
+    let prefs = this._postDetectPreferences;
+    prefs.set(nonPreferredType, preferredType);
+
+    if (
+      prefs.get(preferredType) == nonPreferredType &&
+      prefs.get(nonPreferredType) == preferredType
+    ) {
+      cal.WARN(`Cyclic preference between ${preferredType} and ${nonPreferredType}, removing both`);
+      prefs.delete(preferredType);
+      prefs.delete(nonPreferredType);
+    }
+  },
+};
+
+// If both ics and caldav results exist, prefer the caldav results.
+gProviderUsage.addPostDetectPreference("caldav", "ics");
+
+/**
+ * Select a specific panel in the dialog. Used to move from one panel to another.
+ *
+ * @param {string} id          The id of the panel node to select.
+ */
+function selectPanel(id) {
+  let panel = document.getElementById(id);
+  let deck = document.getElementById("calendar-creation-deck");
+  deck.selectedPanel = panel;
+
+  updateButton("accept", panel);
+  updateButton("extra2", panel);
+  selectNetworkStatus("none");
+  checkRequired();
+
+  let firstInput = panel.querySelector("input");
+  if (firstInput) {
+    firstInput.focus();
+  }
+}
+
+/**
+ * Set a specific network loading status for the network settings panel.
+ * See the CSS file for appropriate values to set.
+ *
+ * @param {string} status      The status to set.
+ */
+function selectNetworkStatus(status) {
+  for (let row of document.querySelectorAll(".network-status-row")) {
+    row.setAttribute("status", status);
+  }
+}
+
+/**
+ * Update the label, accesskey, and event listener for a dialog button.
+ *
+ * @param {string} name            The dialog button name, e.g. 'accept', 'extra2'.
+ * @param {Element} sourceNode     The source node to take attribute values from.
+ */
+function updateButton(name, sourceNode) {
+  let dialog = document.getElementById("calendar-creation-dialog");
+  let button = dialog.getButton(name);
+  let label = sourceNode.getAttribute("buttonlabel" + name);
+  let accesskey = sourceNode.getAttribute("buttonaccesskey" + name);
+
+  let handler = gButtonHandlers.forNodeId[sourceNode.id][name];
+
+  if (label) {
+    button.setAttribute("label", label);
+    button.hidden = false;
+  } else {
+    button.hidden = true;
+  }
+
+  button.setAttribute("accesskey", accesskey || "");
+
+  // 'dialogaccept', 'dialogextra2', etc.
+  let eventName = "dialog" + name;
+
+  document.removeEventListener(eventName, gButtonHandlers[name]);
+  if (handler) {
+    document.addEventListener(eventName, handler);
+    // Store a reference to the current handler, to allow removing it later.
+    gButtonHandlers[name] = handler;
+  }
+}
+
+/**
+ * Update the disabled state of the accept button by checking the values of
+ * required fields, based on the current panel.
+ */
+function checkRequired() {
+  let dialog = document.getElementById("calendar-creation-dialog");
+  let deck = document.getElementById("calendar-creation-deck");
+  if (!deck.selectedPanel) {
+    dialog.setAttribute("buttondisabledaccept", "true");
+    return;
+  }
+
+  let disabled = false;
+  switch (deck.selectedPanel.id) {
+    case "panel-local-calendar-settings":
+      disabled = !deck.selectedPanel.querySelector("form").checkValidity();
+      break;
+    case "panel-network-calendar-settings": {
+      let location = document.getElementById("network-location-input");
+      let username = document.getElementById("network-username-input");
+
+      disabled = !location.value && !username.value.split("@")[1];
+      break;
+    }
+  }
+
+  if (disabled) {
+    dialog.setAttribute("buttondisabledaccept", "true");
+  } else {
+    dialog.removeAttribute("buttondisabledaccept");
+  }
+}
+
+/**
+ * Update the placeholder text for the network location field. If the username
+ * is a valid email address use the domain part of the username, otherwise use
+ * the default placeholder.
+ */
+function fillLocationPlaceholder() {
+  let location = document.getElementById("network-location-input");
+  let userval = document.getElementById("network-username-input").value;
+  let parts = userval.split("@");
+  let domain = parts.length == 2 && parts[1] ? parts[1] : null;
+
+  if (domain) {
+    location.setAttribute("placeholder", domain);
+  } else {
+    location.setAttribute("placeholder", location.getAttribute("default-placeholder"));
+  }
+}
+
+/**
+ * Update the select network calendar panel to show or hide the provider
+ * selection dropdown.
+ *
+ * @param {boolean} isSingle     If true, there is just one matching provider.
+ */
+function setSingleProvider(isSingle) {
+  document.getElementById("network-selectcalendar-description-single").hidden = !isSingle;
+  document.getElementById("network-selectcalendar-description-multiple").hidden = isSingle;
+  document.getElementById("network-selectcalendar-providertype-box").hidden = isSingle;
+}
+
+/**
+ * Fill the providers menulist with the given provider types. The types must
+ * correspond to autodetect providers.
+ *
+ * @param {Iterable<string>} providerTypes   An iterable of provider types.
+ * @return {Element}                          The selected menuitem.
+ */
+function fillProviders(providerTypes) {
+  let menulist = document.getElementById("network-selectcalendar-providertype-menulist");
+  let popup = menulist.menupopup;
+  while (popup.lastChild) {
+    popup.removeChild(popup.lastChild);
+  }
+
+  let providers = Autodetect.providers;
+
+  for (let type of providerTypes) {
+    let provider = providers.get(type);
+    let menuitem = document.createElement("menuitem");
+    menuitem.value = type;
+    menuitem.setAttribute("label", provider.displayName || type);
+    popup.appendChild(menuitem);
+  }
+
+  // Select a provider menu item based on provider preferences.
+  let preferredTypes = new Set(providerTypes);
+  for (let [nonPreferredType, preferredType] of gProviderUsage.postDetectPreferences) {
+    if (preferredTypes.has(nonPreferredType) && preferredTypes.has(preferredType)) {
+      preferredTypes.delete(nonPreferredType);
+    }
+  }
+  let preferredIndex = [...providerTypes].findIndex(type => preferredTypes.has(type));
+  menulist.selectedIndex = preferredIndex == -1 ? 0 : preferredIndex;
+
+  return menulist.selectedItem;
+}
+
+/**
+ * Select the given provider and update the calendar list to fill the
+ * corresponding calendars. Will use the results from the last findCalendars
+ * response.
+ *
+ * @param {string} type        The provider type to select.
+ */
+function selectProvider(type) {
+  let providerMap = findCalendars.lastResult;
+  let calendarList = document.getElementById("network-calendar-list");
+
+  let calendars = providerMap.get(type) || [];
+  renderCalendarList(calendarList, calendars);
+}
+
+/**
+ * Empty a calendar list and then fill it with calendars.
+ *
+ * @param {Element} calendarList        A richlistbox element for listing calendars.
+ * @param {calICalendar[]} calendars    An array of calendars to display in the list.
+ */
+function renderCalendarList(calendarList, calendars) {
+  while (calendarList.hasChildNodes()) {
+    calendarList.lastChild.remove();
+  }
+  let propertiesButtonLabel = calendarList.getAttribute("propertiesbuttonlabel");
+  calendars.forEach((calendar, index) => {
+    let item = document.createXULElement("richlistitem");
+    item.calendar = calendar;
+
+    let checkbox = document.createXULElement("checkbox");
+    let checkboxId = "checkbox" + index;
+    checkbox.id = checkboxId;
+    checkbox.classList.add("calendar-selected");
+    item.appendChild(checkbox);
+
+    let colorImage = document.createXULElement("image");
+    colorImage.classList.add("calendar-color");
+    colorImage.style.backgroundColor = calendar.getProperty("color");
+    item.appendChild(colorImage);
+
+    let label = document.createXULElement("label");
+    label.classList.add("calendar-name");
+    label.value = calendar.name;
+    label.control = checkboxId;
+    item.appendChild(label);
+
+    let propertiesButton = document.createXULElement("button");
+    propertiesButton.classList.add("calendar-edit-button");
+    propertiesButton.label = propertiesButtonLabel;
+    propertiesButton.addEventListener("command", openCalendarPropertiesFromEvent);
+    item.appendChild(propertiesButton);
+
+    if (calendar.getProperty("disabled")) {
+      item.disabled = true;
+      item.setAttribute("calendar-disabled", "true");
+      checkbox.disabled = true;
+      propertiesButton.disabled = true;
+    } else {
+      checkbox.checked = true;
+    }
+    calendarList.appendChild(item);
+  });
+}
+
+/**
+ * Update dialog fields based on the value of the "no credentials" checkbox.
+ *
+ * @param {boolean} noCredentials   True, if "no credentials" is checked.
+ */
+function updateNoCredentials(noCredentials) {
+  if (noCredentials) {
+    document.getElementById("network-username-input").setAttribute("disabled", "true");
+    document.getElementById("network-username-input").value = "";
+  } else {
+    document.getElementById("network-username-input").removeAttribute("disabled");
+  }
+}
+
+/**
+ * The accept button event listener for the "select calendar type" panel.
+ *
+ * @param {Event} event
+ */
+function selectCalendarType(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  let radiogroup = document.getElementById("calendar-type");
+
+  if (radiogroup.value == "network") {
+    selectPanel("panel-network-calendar-settings");
+  } else if (radiogroup.value == "local") {
+    // Create a local calendar to use, so we can share code with the calendar
+    // preferences dialog.
+    if (!gLocalCalendar) {
+      gLocalCalendar = cal
+        .getCalendarManager()
+        .createCalendar("storage", Services.io.newURI("moz-storage-calendar://"));
+
+      ltnInitMailIdentitiesRow(gLocalCalendar);
+      ltnNotifyOnIdentitySelection(gLocalCalendar);
+    }
+    selectPanel("panel-local-calendar-settings");
+  }
+}
+
+/**
+ * Handle change of the email (identity) menu for local calendar creation.
+ * Show a notification when "none" is selected.
+ *
+ * @param {Event} event     The menu selection event.
+ */
+function onChangeIdentity(event) {
+  ltnNotifyOnIdentitySelection(gLocalCalendar);
+}
+
+/**
+ * Prepare the local storage calendar with the information from the dialog.
+ * This can be monkeypatched to add additional values.
+ *
+ * @param {calICalendar} calendar     The calendar to prepare.
+ * @return {calICalendar}             The same calendar, prepared with any
+ *                                      extra values.
+ */
+function prepareLocalCalendar(calendar) {
+  calendar.name = document.getElementById("local-calendar-name-input").value;
+  calendar.setProperty("color", document.getElementById("local-calendar-color-picker").value);
+
+  if (!document.getElementById("local-fire-alarms-checkbox").checked) {
+    calendar.setProperty("suppressAlarms", true);
+  }
+
+  ltnSaveMailIdentitySelection(calendar);
+  return calendar;
+}
+
+/**
+ * The accept button event listener for the "local calendar settings" panel.
+ * Registers the local storage calendar and closes the dialog.
+ */
+function registerLocalCalendar() {
+  cal.getCalendarManager().registerCalendar(prepareLocalCalendar(gLocalCalendar));
+}
+
+/**
+ * Start autodetection and find any calendars using the information from the
+ * network settings panel.
+ *
+ * @param {string} [password]       The password for this attempt, if any.
+ * @param {boolean} [savePassword]  Whether to save the password in the
+ *                                    password manager.
+ */
+function findCalendars(password, savePassword = false) {
+  selectNetworkStatus("loading");
+  let username = document.getElementById("network-username-input");
+  let location = document.getElementById("network-location-input");
+  let locationValue = location.value || username.value.split("@")[1] || "";
+
+  Autodetect.detect(
+    username.value,
+    password,
+    locationValue,
+    savePassword,
+    gProviderUsage.preDetectFilters,
+    {}
+  ).then(onAutodetectSuccess, onAutodetectError.bind(null, password, locationValue));
+}
+
+/**
+ * Called when autodetection successfully finds calendars. Displays the UI for
+ * selecting calendars to subscribe to.
+ *
+ * @param {Map<string, calICalendar[]>} providerMap   Map from provider type
+ *                                                    (e.g. "ics", "caldav")
+ *                                                    to an array of calendars.
+ */
+function onAutodetectSuccess(providerMap) {
+  // Disable the calendars the user has already subscribed to. In the future
+  // we should show a string when all calendars are already subscribed.
+  let existing = new Set(
+    cal
+      .getCalendarManager()
+      .getCalendars({})
+      .map(calendar => calendar.uri.spec)
+  );
+
+  for (let [provider, calendars] of providerMap.entries()) {
+    let newCalendars = calendars.map(calendar => {
+      let newCalendar = prepareNetworkCalendar(calendar);
+      if (existing.has(calendar.uri.spec)) {
+        newCalendar.setProperty("disabled", true);
+      }
+      return newCalendar;
+    });
+
+    providerMap.set(provider, newCalendars);
+  }
+
+  if (!providerMap.size) {
+    selectNetworkStatus("notfound");
+    return;
+  }
+
+  // Update the panel with the results from the provider map.
+  setSingleProvider(providerMap.size <= 1);
+  findCalendars.lastResult = providerMap;
+
+  let selectedItem = fillProviders(providerMap.keys());
+  selectProvider(selectedItem.value);
+
+  // Select the panel and validate the fields.
+  selectPanel("panel-select-calendars");
+  checkRequired();
+}
+
+/**
+ * Called when autodetection fails to find any calendars. Show an appropriate
+ * error message, or if the error is an authentication error and no password
+ * was entered for this attempt, prompt the user to enter a password.
+ *
+ * @param {string} [password]   The password entered, if any.
+ * @param {string} [location]   The location input from the dialog.
+ * @param {Error} error         An error object.
+ */
+function onAutodetectError(password, location, error) {
+  if (error instanceof Autodetect.AuthFailedError) {
+    if (password) {
+      selectNetworkStatus("authfail");
+    } else {
+      findCalendarsWithPassword(location);
+      return;
+    }
+  } else if (error instanceof Autodetect.CanceledError) {
+    selectNetworkStatus("none");
+  } else {
+    selectNetworkStatus("notfound");
+  }
+  cal.ERROR(
+    "Error during auto-detection: " +
+      `${error.fileName || error.filename}:${error.lineNumber}: ${error}\n${error.stack}`
+  );
+}
+
+/**
+ * Prompt the user for a password and attempt to find calendars with it.
+ *
+ * @param {string} location - The location input from the dialog.
+ */
+function findCalendarsWithPassword(location) {
+  let password = { value: "" };
+  let savePassword = { value: 1 };
+
+  let okWasClicked = Services.prompt.promptPassword(
+    window,
+    null,
+    cal.l10n.getAnyString("messenger-mapi", "mapi", "loginText", [location]),
+    password,
+    cal.l10n.getAnyString("passwordmgr", "passwordmgr", "rememberPassword"),
+    savePassword
+  );
+
+  if (okWasClicked) {
+    findCalendars(password.value, savePassword.value);
+  } else {
+    selectNetworkStatus("authfail");
+  }
+}
+
+/**
+ * Make preparations on the given calendar, for autodetected calendars. This
+ * function can be monkeypatched to make general preparations, e.g. for values
+ * from additional form fields.
+ *
+ * @param {calICalendar} calendar           The calendar to prepare.
+ * @return {calICalendar}                   The same calendar, prepared with
+ *                                            any extra values.
+ */
+function prepareNetworkCalendar(calendar) {
+  let cached = document.getElementById("network-cache-checkbox").checked;
+
+  if (!calendar.getProperty("cache.always")) {
+    let cacheSupported = calendar.getProperty("cache.supported") !== false;
+    calendar.setProperty("cache.enabled", cacheSupported ? cached : false);
+  }
+
+  return calendar;
+}
+
+/**
+ * The accept button handler for the 'select network calendars' panel.
+ * Subscribes to all of the selected network calendars and allows the dialog to
+ * close.
+ */
+function createNetworkCalendars() {
+  for (let listItem of document.getElementById("network-calendar-list").children) {
+    if (listItem.querySelector(".calendar-selected").checked) {
+      cal.getCalendarManager().registerCalendar(listItem.calendar);
+    }
+  }
+}
+
+/**
+ * Open the calendar properties dialog for a calendar in the calendar list.
+ *
+ * @param {Event} event        The triggering event.
+ */
+function openCalendarPropertiesFromEvent(event) {
+  let listItem = event.target.closest("richlistitem");
+  if (listItem) {
+    let calendar = listItem.calendar;
+    if (calendar && !calendar.getProperty("disabled")) {
+      cal.window.openCalendarProperties(window, calendar, false);
+
+      // Update the calendar list item.
+      listItem.querySelector(".calendar-name").value = calendar.name;
+      listItem.querySelector(".calendar-color").style.backgroundColor = calendar.getProperty(
+        "color"
+      );
+    }
+  }
+}
+
+window.addEventListener("load", () => {
+  fillLocationPlaceholder();
+  selectPanel("panel-select-calendar-type");
+});

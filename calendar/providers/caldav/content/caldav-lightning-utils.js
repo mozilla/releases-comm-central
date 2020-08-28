@@ -11,8 +11,8 @@
 
 /**
  * Initializing calendar creation wizard and properties dialog to display the
- * option to enforce email scheduling for outgoing scheduling operations
- * (shared between calendar creation wizard and properties dialog)
+ * option to enforce email scheduling for outgoing scheduling operations.
+ * Used in the calendar properties dialog.
  */
 function caldavInitForceEmailScheduling() {
   if (gCalendar && gCalendar.type == "caldav") {
@@ -33,8 +33,8 @@ function caldavInitForceEmailScheduling() {
 }
 
 /**
- * Persisting the calendar property to enforce email scheduling
- * (shared between calendar creation wizard and properties dialog)
+ * Persisting the calendar property to enforce email scheduling. Used in the
+ * calendar properties dialog.
  */
 function caldavSaveForceEmailScheduling() {
   if (gCalendar && gCalendar.type == "caldav") {
@@ -48,15 +48,14 @@ function caldavSaveForceEmailScheduling() {
 
 /**
  * Updates the forceEmailScheduling control based on the currently assigned
- * email identity to this calendar
- * (shared between calendar creation wizard and properties dialog)
+ * email identity to this calendar. Used in the calendar properties dialog.
  */
 function caldavUpdateForceEmailSchedulingControl() {
   let checkbox = document.getElementById("force-email-scheduling");
   if (
     gCalendar &&
     gCalendar.getProperty("capabilities.autoschedule.supported") &&
-    ltnGetMailIdentitySelection() != "none"
+    ltnGetMailIdentitySelection(gCalendar) != "none"
   ) {
     checkbox.removeAttribute("disable-capability");
     checkbox.removeAttribute("disabled");

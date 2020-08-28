@@ -9,7 +9,6 @@
 /* global MozElements */
 
 /* import-globals-from ../../base/content/calendar-ui-utils.js */
-/* globals gCalendar */
 
 var { fixIterator } = ChromeUtils.import("resource:///modules/iteratorUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
@@ -17,15 +16,17 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 /**
- * Initializing the email identity row
- * (shared between calendar creation wizard and properties dialog)
+ * Initialize the email identity row. Shared between the calendar creation
+ * dialog and the calendar properties dialog.
+ *
+ * @param {calICalendar} aCalendar    The calendar being created or edited.
  */
-function ltnInitMailIdentitiesRow() {
-  if (!gCalendar) {
+function ltnInitMailIdentitiesRow(aCalendar) {
+  if (!aCalendar) {
     document.getElementById("calendar-email-identity-row").toggleAttribute("hidden", true);
   }
 
-  let imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
+  let imipIdentityDisabled = aCalendar.getProperty("imip.identity.disabled");
   document
     .getElementById("calendar-email-identity-row")
     .toggleAttribute("hidden", imipIdentityDisabled);
@@ -50,8 +51,8 @@ function ltnInitMailIdentitiesRow() {
 
   addMenuItem(menuPopup, cal.l10n.getLtnString("imipNoIdentity"), "none");
   let identities;
-  if (gCalendar && gCalendar.aclEntry && gCalendar.aclEntry.hasAccessControl) {
-    identities = [...fixIterator(gCalendar.aclEntry.getOwnerIdentities(), Ci.nsIMsgIdentity)];
+  if (aCalendar && aCalendar.aclEntry && aCalendar.aclEntry.hasAccessControl) {
+    identities = [...fixIterator(aCalendar.aclEntry.getOwnerIdentities(), Ci.nsIMsgIdentity)];
   } else {
     identities = MailServices.accounts.allIdentities;
   }
@@ -59,7 +60,7 @@ function ltnInitMailIdentitiesRow() {
     addMenuItem(menuPopup, identity.identityName, identity.key);
   }
   try {
-    let sel = gCalendar.getProperty("imip.identity");
+    let sel = aCalendar.getProperty("imip.identity");
     if (sel) {
       sel = sel.QueryInterface(Ci.nsIMsgIdentity);
     }
@@ -70,15 +71,16 @@ function ltnInitMailIdentitiesRow() {
 }
 
 /**
- * Providing the selected email identity
- * (shared between calendar creation wizard and properties dialog)
+ * Returns the selected email identity. Shared between the calendar creation
+ * dialog and the calendar properties dialog.
  *
- * @returns {String}  the key of the selected nsIMsgIdentity or 'none'
+ * @param {calICalendar} aCalendar    The calendar for the identity selection.
+ * @returns {string}                  The key of the selected nsIMsgIdentity or 'none'.
  */
-function ltnGetMailIdentitySelection() {
+function ltnGetMailIdentitySelection(aCalendar) {
   let sel = "none";
-  if (gCalendar) {
-    let imipIdentityDisabled = gCalendar.getProperty("imip.identity.disabled");
+  if (aCalendar) {
+    let imipIdentityDisabled = aCalendar.getProperty("imip.identity.disabled");
     let selItem = document.getElementById("email-identity-menulist").selectedItem;
     if (!imipIdentityDisabled && selItem) {
       sel = selItem.getAttribute("value");
@@ -88,23 +90,28 @@ function ltnGetMailIdentitySelection() {
 }
 
 /**
- * Persisting the selected email identity
- * (shared between calendar creation wizard and properties dialog)
+ * Persists the selected email identity. Shared between the calendar creation
+ * dialog and the calendar properties dialog.
+ *
+ * @param {calICalendar} aCalendar    The calendar for the identity selection.
  */
-function ltnSaveMailIdentitySelection() {
-  if (gCalendar) {
-    let sel = ltnGetMailIdentitySelection();
+function ltnSaveMailIdentitySelection(aCalendar) {
+  if (aCalendar) {
+    let sel = ltnGetMailIdentitySelection(aCalendar);
     // no imip.identity.key will default to the default account/identity, whereas
     // an empty key indicates no imip; that identity will not be found
-    gCalendar.setProperty("imip.identity.key", sel == "none" ? "" : sel);
+    aCalendar.setProperty("imip.identity.key", sel == "none" ? "" : sel);
   }
 }
 
 /**
- * Displays a warning if the user doesn't assign an email identity to a calendar
- * (shared between calendar creation wizard and properties dialog)
+ * Displays a warning if the user doesn't assign an email identity to a
+ * calendar. Shared between the calendar creation dialog and the calendar
+ * properties dialog.
+ *
+ * @param {calICalendar} aCalendar    The calendar for the identity selection.
  */
-function ltnNotifyOnIdentitySelection() {
+function ltnNotifyOnIdentitySelection(aCalendar) {
   let notificationBox = document.getElementById("no-identity-notification");
   while (notificationBox.firstChild) {
     notificationBox.firstChild.remove();
@@ -118,7 +125,7 @@ function ltnNotifyOnIdentitySelection() {
   });
 
   let msg = cal.l10n.getLtnString("noIdentitySelectedNotification");
-  let sel = ltnGetMailIdentitySelection();
+  let sel = ltnGetMailIdentitySelection(aCalendar);
 
   if (sel == "none") {
     gNotification.notificationbox.appendNotification(

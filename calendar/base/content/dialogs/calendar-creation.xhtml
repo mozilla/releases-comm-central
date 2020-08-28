@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet type="text/css" href="chrome://global/skin/global.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/content/notification.css"?>
+<?xml-stylesheet type="text/css" href="chrome://calendar/skin/shared/calendar-creation.css"?>
+<?xml-stylesheet type="text/css" href="chrome://messenger/skin/input-fields.css"?>
+
+<!-- TODO: messenger.dtd is used for the "Next" button; some relocation is needed. -->
+<!DOCTYPE window [
+  <!ENTITY % dtd1 SYSTEM "chrome://calendar/locale/calendarCreation.dtd" > %dtd1;
+  <!ENTITY % dtd2 SYSTEM "chrome://calendar/locale/calendar.dtd" > %dtd2;
+  <!ENTITY % dtd3 SYSTEM "chrome://lightning/locale/lightning.dtd" > %dtd3;
+  <!ENTITY % dtd4 SYSTEM "chrome://messenger/locale/messenger.dtd" > %dtd4;
+]>
+
+<window id="calendar-creation-window"
+        title="&wizard.title;"
+        windowtype="Calendar:CreateCalendarDialog"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        minheight="380"
+        width="500"
+        persist="screenX screenY">
+  <linkset>
+    <html:link rel="localization" href="toolkit/global/wizard.ftl"/>
+  </linkset>
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://calendar/content/calendar-creation.js"/>
+  <script src="chrome://calendar/content/calendar-ui-utils.js"/>
+  <script src="chrome://lightning/content/lightning-utils.js"/>
+  <script src="chrome://lightning/content/caldav-lightning-utils.js"/>
+
+  <dialog id="calendar-creation-dialog"
+          buttons="accept,cancel">
+    <deck id="calendar-creation-deck" flex="1">
+
+      <!-- Panel: Select Calendar Type -->
+      <vbox id="panel-select-calendar-type"
+            buttonlabelaccept="&nextButton.label;"
+            buttonaccesskeyaccept="">
+        <description>&initialpage.description;</description>
+        <hbox class="indent">
+          <radiogroup id="calendar-type">
+            <radio value="local" label="&initialpage.computer.label;" selected="true"/>
+            <radio value="network" label="&initialpage.network.label;"/>
+          </radiogroup>
+        </hbox>
+      </vbox>
+
+      <!-- Panel: Local Calendar Settings -->
+      <vbox id="panel-local-calendar-settings"
+            buttonlabelaccept="&buttons.create.label;"
+            buttonaccesskeyaccept="&buttons.create.accesskey;"
+            buttonlabelextra2="&buttons.back.label;"
+            buttonaccesskeyextra2="&buttons.back.accesskey;">
+        <vbox id="no-identity-notification" class="notification-inline">
+          <!-- notificationbox will be added here lazily. -->
+        </vbox>
+        <html:form>
+          <html:table>
+            <html:tr>
+              <html:th>
+                <label value="&calendar.server.dialog.name.label;"
+                       control="local-calendar-name-input"/>
+              </html:th>
+              <html:td>
+                <html:input id="local-calendar-name-input"
+                            class="calendar-creation-text-input"
+                            flex="1"
+                            required="required"
+                            oninput="checkRequired()"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+                <label value="&calendarproperties.color.label;"
+                       control="local-calendar-color-picker"/>
+              </html:th>
+              <html:td>
+                <html:input id="local-calendar-color-picker"
+                            class="small-margin"
+                            type="color"
+                            value="#A8C2E1"/>
+              </html:td>
+            </html:tr>
+            <html:tr>
+              <html:th>
+              </html:th>
+              <html:td>
+                <checkbox id="local-fire-alarms-checkbox"
+                          label="&calendarproperties.firealarms.label;"
+                          checked="true"/>
+              </html:td>
+            </html:tr>
+            <html:tr id="calendar-email-identity-row">
+              <html:th>
+                <label value="&lightning.calendarproperties.email.label;"
+                       control="email-identity-menulist"/>
+              </html:th>
+              <html:td>
+                <menulist id="email-identity-menulist"
+                          oncommand="onChangeIdentity(event)">
+                  <menupopup id="email-identity-menupopup"/>
+                </menulist>
+              </html:td>
+            </html:tr>
+          </html:table>
+        </html:form>
+      </vbox>
+
+      <!-- Panel: Network Calendar Settings -->
+      <html:table id="panel-network-calendar-settings"
+                  flex="1"
+                  buttonlabelaccept="&buttons.find.label;"
+                  buttonaccesskeyaccept="&buttons.find.accesskey;"
+                  buttonlabelextra2="&buttons.back.label;"
+                  buttonaccesskeyextra2="&buttons.back.accesskey;">
+        <html:tr id="network-username-row">
+          <html:th>
+            <label value="&locationpage.username.label;"
+                   control="network-username-input"/>
+          </html:th>
+          <html:td>
+            <html:input id="network-username-input"
+                        class="calendar-creation-text-input"
+                        flex="1"
+                        oninput="fillLocationPlaceholder(); checkRequired()"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="network-location-row">
+          <html:th>
+            <label value="&location.label;"
+                   control="network-location-input"/>
+          </html:th>
+          <html:td>
+            <html:input id="network-location-input"
+                        class="calendar-creation-text-input"
+                        flex="1"
+                        oninput="checkRequired()"
+                        placeholder="&location.placeholder;"
+                        default-placeholder="&location.placeholder;"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="network-nocredentials-row">
+          <html:th>
+          </html:th>
+          <html:td>
+            <checkbox id="network-nocredentials-checkbox"
+                      label="&network.nocredentials.label;"
+                      oncommand="updateNoCredentials(this.checked)"/>
+          </html:td>
+        </html:tr>
+        <html:tr id="network-cache-row">
+          <html:th>
+          </html:th>
+          <html:td>
+            <checkbox id="network-cache-checkbox"
+                      label="&calendarproperties.cache3.label;"
+                      checked="true"/>
+          </html:td>
+        </html:tr>
+        <html:tr class="network-status-row" status="none">
+          <html:th>
+            <hbox class="network-status-image-container" pack="end" align="center">
+              <image class="network-status-image"/>
+            </hbox>
+          </html:th>
+          <html:td>
+            <description class="status-label network-loading-label">&network.loading.description;</description>
+            <description class="status-label network-notfound-label">&network.notfound.description;</description>
+            <description class="status-label network-authfail-label">&network.authfail.description;</description>
+          </html:td>
+        </html:tr>
+      </html:table>
+
+      <!-- Panel: Select Calendars -->
+      <vbox id="panel-select-calendars"
+            buttonlabelaccept="&buttons.subscribe.label;"
+            buttonaccesskeyaccept="&buttons.subscribe.accesskey;"
+            buttonlabelextra2="&buttons.back.label;"
+            buttonaccesskeyextra2="&buttons.back.accesskey;">
+        <description id="network-selectcalendar-description-single">&network.subscribe.single.description;</description>
+        <description id="network-selectcalendar-description-multiple"
+                     hidden="true">&network.subscribe.multiple.description;</description>
+        <hbox id="network-selectcalendar-providertype-box" align="center" hidden="true">
+          <label id="network-selectcalendar-providertype-label" value="&calendartype.label;"/>
+          <menulist id="network-selectcalendar-providertype-menulist"
+                    flex="1"
+                    onselect="selectProvider(this.selectedItem.value)">
+            <menupopup id="network-selectcalendar-providertype-menupopup"/>
+          </menulist>
+        </hbox>
+        <richlistbox id="network-calendar-list"
+                     propertiesbuttonlabel="&calendar.context.properties.label;"
+                     flex="1" />
+      </vbox>
+
+    </deck>
+  </dialog>
+</window>

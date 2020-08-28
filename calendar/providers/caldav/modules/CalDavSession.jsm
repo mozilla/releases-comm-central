@@ -12,7 +12,8 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  * Session and authentication tools for the caldav provider
  */
 
-const EXPORTED_SYMBOLS = ["CalDavSession"]; /* exported CalDavSession */
+const EXPORTED_SYMBOLS = ["CalDavAutodetectSession", "CalDavSession"];
+/* exported CalDavAutodetectSession, CalDavSession */
 
 const OAUTH_GRACE_TIME = 30 * 1000;
 
@@ -322,6 +323,95 @@ class CalDavSession {
    */
   async completeRequest(aResponse) {
     return this._callAdapter(aResponse.request.uri.host, "completeRequest", aResponse);
+  }
+}
+
+/**
+ * A session used to autodetect a caldav provider when subscribing to a network calendar.
+ *
+ * @implements {nsIAuthPrompt2}
+ * @implements {nsIAuthPromptProvider}
+ * @implements {nsIInterfaceRequestor}
+ */
+class CalDavAutodetectSession extends CalDavSession {
+  QueryInterface = ChromeUtils.generateQI([
+    Ci.nsIAuthPrompt2,
+    Ci.nsIAuthPromptProvider,
+    Ci.nsIInterfaceRequestor,
+  ]);
+
+  /**
+   * Create a new caldav autodetect session.
+   *
+   * @param {string} aSessionId       The session id, used in the password manager.
+   * @param {string} aName            The user-readable description of this session.
+   * @param {string} aPassword        The password for the session.
+   * @param {boolean} aSavePassword   Whether to save the password.
+   */
+  constructor(aSessionId, aUserName, aPassword, aSavePassword) {
+    super(aSessionId, aUserName);
+    this.password = aPassword;
+    this.savePassword = aSavePassword;
+  }
+
+  /**
+   * Returns a plain (non-autodect) caldav session based on this session.
+   *
+   * @return {CalDavSession}  A caldav session.
+   */
+  toBaseSession() {
+    return new CalDavSession(this.id, this.name);
+  }
+
+  /**
+   * @see {nsIAuthPromptProvider}
+   */
+  getAuthPrompt(aReason, aIID) {
+    try {
+      return this.QueryInterface(aIID);
+    } catch (e) {
+      throw Components.Exception("", Cr.NS_ERROR_NOT_AVAILABLE);
+    }
+  }
+
+  /**
+   * @see {nsIAuthPrompt2}
+   */
+  asyncPromptAuth(aChannel, aCallback, aContext, aLevel, aAuthInfo) {
+    setTimeout(() => {
+      if (this.promptAuth(aChannel, aLevel, aAuthInfo)) {
+        aCallback.onAuthAvailable(aContext, aAuthInfo);
+      } else {
+        aCallback.onAuthCancelled(aContext, true);
+      }
+    });
+  }
+
+  /**
+   * @see {nsIAuthPrompt2}
+   */
+  promptAuth(aChannel, aLevel, aAuthInfo) {
+    if ((aAuthInfo.flags & aAuthInfo.PREVIOUS_FAILED) == 0) {
+      aAuthInfo.username = this.name;
+      aAuthInfo.password = this.password;
+
+      if (this.savePassword) {
+        cal.auth.passwordManagerSave(
+          this.name,
+          this.password,
+          aChannel.URI.prePath,
+          aAuthInfo.realm
+        );
+      }
+      return true;
+    }
+
+    aAuthInfo.username = null;
+    aAuthInfo.password = null;
+    if (this.savePassword) {
+      cal.auth.passwordManagerRemove(this.name, aChannel.URI.prePath, aAuthInfo.realm);
+    }
+    return false;
   }
 }
 

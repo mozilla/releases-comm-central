@@ -23,7 +23,7 @@ var calwindow = {
   openCalendarWizard(aWindow, aCallback) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
-      "chrome://calendar/content/calendarCreation.xhtml",
+      "chrome://calendar/content/calendar-creation.xhtml",
       "caEditServer",
       "modal,chrome,titlebar,resizable,centerscreen",
       aCallback
@@ -31,18 +31,20 @@ var calwindow = {
   },
 
   /**
-   * Opens the calendar properties window for aCalendar
+   * Opens the calendar properties window for aCalendar.
    *
-   * @param aWindow    the window to open the dialog on, or null for the main calendar window
-   * @param aCalendar  the calendar whose properties should be displayed
+   * @param {ChromeWindow | null} aWindow   The window to open the dialog on,
+   *                                          or null for the main calendar window.
+   * @param {calICalendar} aCalendar  The calendar whose properties should be displayed.
+   * @param {boolean} [aCanDisable]   True if the calendar can be disabled, else false.
    */
-  openCalendarProperties(aWindow, aCalendar) {
+  openCalendarProperties(aWindow, aCalendar, aCanDisable = true) {
     let window = aWindow || calwindow.getCalendarWindow();
     window.openDialog(
       "chrome://calendar/content/calendar-properties-dialog.xhtml",
       "CalendarPropertiesDialog",
       "modal,chrome,titlebar,resizable,centerscreen",
-      { calendar: aCalendar }
+      { calendar: aCalendar, canDisable: aCanDisable }
     );
   },
 

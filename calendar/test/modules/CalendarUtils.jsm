@@ -42,7 +42,6 @@ const EXPORTED_SYMBOLS = [
   "closeAllEventDialogs",
   "deleteCalendars",
   "createCalendar",
-  "handleNewCalendarWizard",
   "findEventsInNode",
   "openLightningPrefs",
   "closeLightningPrefs",
@@ -646,97 +645,6 @@ function createCalendar(controller, name) {
 
   controller.click(lookup(`${CALENDARLIST}/{"calendar-id":"${calendar.id}"}`));
   return calendar.id;
-}
-
-/**
- * Handles the "Create New Calendar" Wizard.
- *
- * @param wizard            wizard dialog controller
- * @param name              calendar name
- * @param data              (optional) dataset object
- *                              showReminders - False to disable reminders.
- *                              eMail - id of eMail account
- *                              network.format - ics/caldav
- *                              network.location - URI (undefined for local ICS)
- *                              network.offline - False to disable cache.
- */
-function handleNewCalendarWizard(wizard, name, data = undefined) {
-  let { lookup: wizardlookup, eid: wizardId } = helpersForController(wizard);
-  let dlgButton = btn => wizard.window.document.querySelector("wizard").getButton(btn);
-  if (data == undefined) {
-    data = {};
-  }
-
-  // Choose network calendar if any network data is set.
-  if (data.network) {
-    let remoteOption = wizardlookup(`
-            /id("calendar-wizard-window")/id("calendar-wizard")/{"id":"initialPage"}/id("calendar-type")/{"value":"remote"}
-        `);
-    wizard.waitForElement(remoteOption);
-    wizard.radio(remoteOption);
-    dlgButton("next").doCommand();
-
-    // Choose format.
-    if (data.network.format == undefined) {
-      data.network.format = "ics";
-    }
-    let formatOption = wizardlookup(`
-            /id("calendar-wizard-window")/id("calendar-wizard")/{"id":"locationPage"}/[1]/[0]/[1]/
-            id("calendar-format")/{"value":"${data.network.format}"}
-        `);
-    wizard.waitForElement(formatOption);
-    wizard.radio(formatOption);
-
-    // Enter location.
-    if (data.network.location == undefined) {
-      let calendarFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
-      calendarFile.append(name + ".ics");
-      let fileURI = Services.io.newFileURI(calendarFile);
-      data.network.location = fileURI.prePath + fileURI.pathQueryRef;
-    }
-    wizard.type(
-      wizardlookup(`
-            /id("calendar-wizard-window")/id("calendar-wizard")/{"id":"locationPage"}/[1]/id("calendar-location-row")/
-            id("calendar-uri-td")/{"class":"input-container"}/id("calendar-uri")
-        `),
-      data.network.location
-    );
-
-    // Choose offline support.
-    if (data.network.offline == undefined) {
-      data.network.offline = true;
-    }
-    wizard.check(wizardId("cache"), data.network.offline);
-    wizard.waitFor(() => !dlgButton("next").disabled);
-    dlgButton("next").doCommand();
-  } else {
-    // Local calendar is default.
-    dlgButton("next").doCommand();
-  }
-  // Set calendar Name.
-  wizard.waitForElement(wizardId("calendar-name"));
-  // Not on all platforms setting the value activates the next button,
-  // so we need to type in case the field is empty.
-  if (wizardId("calendar-name").getNode().value == "") {
-    wizard.type(wizardId("calendar-name"), name);
-  } // Else the name is already filled in from URI.
-
-  // Set reminder Option.
-  if (data.showReminders == undefined) {
-    data.showReminders = true;
-  }
-  wizard.check(wizardId("fire-alarms"), data.showReminders);
-
-  // Set eMail Account.
-  if (data.eMail == undefined) {
-    data.eMail = "none";
-  }
-  menulistSelect(wizardId("email-identity-menulist"), data.eMail, wizard);
-  wizard.waitFor(() => !dlgButton("next").disabled);
-  dlgButton("next").doCommand();
-
-  // finish
-  dlgButton("finish").doCommand();
 }
 
 /**

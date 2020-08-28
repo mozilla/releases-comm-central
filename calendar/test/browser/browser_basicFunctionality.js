@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* globals createCalendarUsingDialog */
+
 var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 
 var {
@@ -13,7 +15,6 @@ var {
   MINIMONTH,
   TIMEOUT_MODAL_DIALOG,
   deleteCalendars,
-  handleNewCalendarWizard,
   helpersForController,
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
@@ -26,15 +27,9 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var controller = mozmill.getMail3PaneController();
 var { eid, lookup } = helpersForController(controller);
 
-add_task(function testBasicFunctionality() {
+add_task(async function testBasicFunctionality() {
   // Create test calendar.
-  plan_for_modal_dialog("Calendar:NewCalendarWizard", wizard => {
-    handleNewCalendarWizard(wizard, CALENDARNAME);
-  });
-  let calendarList = lookup(CALENDARLIST);
-  // This double-click must be inside the list but below the list items.
-  controller.doubleClick(calendarList);
-  wait_for_modal_dialog("Calendar:NewCalendarWizard", TIMEOUT_MODAL_DIALOG);
+  await createCalendarUsingDialog(CALENDARNAME);
 
   // Check for minimonth.
   controller.waitForElement(eid("calMinimonth"));

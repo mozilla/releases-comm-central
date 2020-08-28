@@ -1,0 +1,108 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+td {
+  width: 100%;
+}
+
+th {
+  font-weight: normal;
+  text-align: end;
+}
+
+/* Match row spacing of calendar properties dialog. */
+th,
+td {
+  min-height: 26px;
+}
+
+.calendar-creation-text-input {
+  width: -moz-available;
+}
+
+/* Network status messages and images. */
+
+.network-status-image-container {
+  width: -moz-available;
+}
+
+.network-status-image {
+  width: 16px;
+  height: 16px;
+}
+
+.network-status-row {
+  margin-top: 1ex;
+}
+
+.network-status-row .status-label {
+  display: none;
+}
+.network-status-row[status="loading"] .network-loading-label {
+  display: -moz-box;
+}
+.network-status-row[status="notfound"] .network-notfound-label {
+  display: -moz-box;
+}
+.network-status-row[status="authfail"] .network-authfail-label {
+  display: -moz-box;
+}
+
+.network-status-row[status="loading"] .network-status-image {
+  list-style-image: url(chrome://global/skin/icons/loading.png);
+}
+
+@media (min-resolution: 1.1dppx) {
+  .network-status-row[status="loading"] .network-status-image {
+    list-style-image: url(chrome://global/skin/icons/loading@2x.png);
+  }
+}
+
+/* Network Calendar List */
+
+#network-calendar-list {
+  appearance: none;
+  margin: 0;
+  border-style: none;
+  background-color: transparent;
+  color: inherit;
+}
+
+#network-calendar-list > richlistitem {
+  -moz-box-align: center;
+  background-color: transparent;
+  border: 1px transparent solid;
+  color: -moz-DialogText;
+}
+
+#network-calendar-list > richlistitem > checkbox > .checkbox-label-box {
+  display: none;
+}
+
+#network-calendar-list > richlistitem .calendar-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+}
+
+#network-calendar-list > richlistitem .calendar-name {
+  -moz-box-flex: 1;
+}
+
+#network-calendar-list > richlistitem .calendar-edit-button {
+  min-width: 0px;
+  font-size: 0.82em;
+}
+
+#network-calendar-list > richlistitem[calendar-disabled="true"] > .calendar-color {
+  filter: grayscale(1);
+}
+
+#network-calendar-list
+  > richlistitem[calendar-disabled="true"]:not([selected="true"])
+  > .calendar-name {
+  color: #808080;
+}
