@@ -4,85 +4,72 @@
 
 /* globals createCalendarUsingDialog */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
-var {
-  CALENDARLIST,
-  CALENDARNAME,
-  CALENDAR_PANEL,
-  DAYBOX,
-  DAY_VIEW,
-  MINIMONTH,
-  TIMEOUT_MODAL_DIALOG,
-  deleteCalendars,
-  helpersForController,
-  switchToView,
-} = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
-var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
-
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var controller = mozmill.getMail3PaneController();
-var { eid, lookup } = helpersForController(controller);
-
 add_task(async function testBasicFunctionality() {
-  // Create test calendar.
-  await createCalendarUsingDialog(CALENDARNAME);
+  const calendarName = "Mochitest";
+  let manager = cal.getCalendarManager();
 
-  // Check for minimonth.
-  controller.waitForElement(eid("calMinimonth"));
-  // Every month has a first.
-  controller.assertNode(
-    lookup(`
-        ${MINIMONTH}/{"class":"minimonth-calendar minimonth-cal-box"}/[1]/{"aria-label":"1"}
-    `)
+  registerCleanupFunction(() => {
+    for (let calendar of manager.getCalendars()) {
+      if (calendar.name == calendarName) {
+        manager.removeCalendar(calendar);
+      }
+    }
+    Services.focus.focusedWindow = window;
+  });
+
+  Services.focus.focusedWindow = window;
+
+  // Create test calendar.
+  await createCalendarUsingDialog(calendarName);
+
+  // Check for minimonth, every month has a day 1.
+  Assert.ok(
+    document.querySelector("#calMinimonth .minimonth-cal-box td[aria-label='1']"),
+    "day 1 exists in the minimonth"
   );
 
   // Check for calendar list.
-  controller.assertNode(eid("calendar-list-pane"));
-  controller.assertNode(lookup(CALENDARLIST));
+  Assert.ok(document.querySelector("#calendar-list-pane"), "calendar list pane exists");
+  Assert.ok(document.querySelector("#calendar-list"), "calendar list exists");
 
   // Check for event search.
-  controller.assertNode(eid("bottom-events-box"));
-  // There should be search field.
-  controller.assertNode(eid("unifinder-search-field"));
+  Assert.ok(document.querySelector("#bottom-events-box"), "event search box exists");
 
-  switchToView(controller, "day");
+  // There should be search field.
+  Assert.ok(document.querySelector("#unifinder-search-field"), "unifinded search field exists");
+
+  let dayViewButton = document.querySelector("#calendar-day-view-button");
+  dayViewButton.click();
+  Assert.ok(dayViewButton.selected, "day view button is selected");
 
   // Default view is day view which should have 09:00 label and box.
   let someTime = cal.createDateTime();
   someTime.resetTo(someTime.year, someTime.month, someTime.day, 9, 0, 0, someTime.timezone);
   let label = cal.dtz.formatter.formatTime(someTime);
-  controller.assertNode(
-    lookup(`
-        ${DAY_VIEW}/{"class":"mainbox"}/{"class":"scrollbox"}/
-        {"class":"timebar"}/{"class":"timebarboxstack"}/{"class":"topbox"}/[9]/
-        {"class":"calendar-time-bar-label","value":"${label}"}
-    `)
+  Assert.ok(
+    document.querySelector(`.calendar-time-bar-label[value='${label}']`),
+    "09:00 label exists"
   );
-  controller.assertNode(
-    lookup(`
-        ${DAY_VIEW}/${DAYBOX}/[0]/{"class":"multiday-column-box-stack"}/{"class":"multiday-column-bg-box"}/[9]
-    `)
+  Assert.ok(
+    document.querySelector("#day-view .daybox .multiday-column-bg-box").children[9],
+    "09:00 box exists"
   );
 
   // Open tasks view.
-  controller.click(eid("task-tab-button"));
-  // Should be possible to filter today's tasks.
-  controller.waitForElement(eid("opt_today_filter"));
-  // Check for task add button.
-  controller.assertNode(eid("calendar-add-task-button"));
-  // Check for filtered tasks list.
-  controller.assertNode(
-    lookup(`
-        ${CALENDAR_PANEL}/id("calendarDisplayDeck")/id("calendar-task-box")/[2]/
-        id("calendar-task-tree")/{"class":"calendar-task-treechildren"}
-    `)
-  );
-});
+  document.querySelector("#task-tab-button").click();
 
-registerCleanupFunction(function teardownModule() {
-  deleteCalendars(controller, CALENDARNAME);
+  // Should be possible to filter today's tasks.
+  Assert.ok(document.querySelector("#opt_today_filter"), "show today radio button exists");
+
+  // Check for task add button.
+  Assert.ok(document.querySelector("#calendar-add-task-button"), "task add button exists");
+
+  // Check for filtered tasks list.
+  Assert.ok(
+    document.querySelector("#calendar-task-tree .calendar-task-treechildren"),
+    "filtered tasks list exists"
+  );
 });
