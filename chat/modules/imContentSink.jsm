@@ -5,7 +5,7 @@
 const { Services } = ChromeUtils.import("resource:///modules/imServices.jsm");
 
 const EXPORTED_SYMBOLS = [
-  // cleanImMarkup is used to clean up incoming IMs. It will use the global
+  // cleanupImMarkup is used to clean up incoming IMs. It will use the global
   // ruleset of acceptable stuff except if another (custom one) is provided.
   "cleanupImMarkup",
   // createDerivedRuleset is used to create a ruleset that inherits from the
@@ -231,7 +231,7 @@ function removeGlobalAllowedStyleRule(aStyle) {
 }
 
 /**
- * A dynamic rule which decides if an attribute is allowed base on the
+ * A dynamic rule which decides if an attribute is allowed based on the
  * attribute's value.
  *
  * @callback  ValueRule
@@ -329,7 +329,7 @@ function cleanupNode(aNode, aRules, aTextModifiers) {
       // If the node is an element, check if the node is an allowed tag.
       let nodeName = node.localName;
       if (!(nodeName in aRules.tags)) {
-        // If the node is not allowed, either completely remove it completely (if
+        // If the node is not allowed, either remove it completely (if
         // it is forbidden) or replace it with its children.
         if (nodeName in kForbiddenTags) {
           Cu.reportError(
