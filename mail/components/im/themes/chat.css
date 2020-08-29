@@ -251,11 +251,6 @@ richlistitem[is="chat-imconv-richlistitem"]:not(:hover) > .closeConversationButt
 .convUnreadTargetedCount {
   color: hsl(0, 100%, 27%);
   background-color: hsl(0, 100%, 87%);
-%ifdef XP_WIN
-  padding: 0 7px;
-%else
-  padding: 2px 7px;
-%endif
   border-radius: 50px;
   margin: 1px 3px;
   margin-inline-start: 1ch;
@@ -555,41 +550,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
   transition-delay: 0s, 0s, 150ms;
 }
 
-.conv-textbox {
-  appearance: none;
-%ifdef XP_MACOSX
-  margin: 0;
-  padding: 3px;
-  border: none;
-}
-
-.conv-textbox[focused="true"] {
-  box-shadow: inset 0 0 2px 1px rgba(40, 120, 212, 0.9),
-                    0 0 2px 0px rgba(40, 120, 212, 0.6),
-              inset 0 1px 2px 0px rgba(0, 0, 0, 0.5);
-}
-
-.conv-textbox[invalidInput="true"] {
-  box-shadow: inset 0 0 2px 1px rgba(255, 0, 0, 0.9),
-                    0 0 2px 0px rgba(255, 0, 0, 0.6),
-              inset 0 1px 2px 0px rgba(0, 0, 0, 0.4);
-}
-
-%else
-  padding: 2px;
-  box-sizing: content-box;
-  border: 1px solid transparent;
-}
-
-.conv-textbox[invalidInput="true"] {
-  border-color: red;
-}
-
-.conv-textbox > .textbox-input-box {
-  background: inherit;
-}
-%endif
-
 :root[lwt-tree] .conv-textbox {
   background-color: var(--lwt-toolbar-field-background-color, hsla(0,0%,100%,.8));
   color: var(--lwt-toolbar-field-color, black);
@@ -634,25 +594,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
 .conv-counter[value^="-"] {
   color: red;
 }
-
-%ifndef XP_MACOSX
-.conv-counter[value^="-"] {
-  margin-bottom: 1px;
-  /* The 6px padding-end from .conv-counter is split into a 1px margin-end (to avoid the border) and 5px padding-end (as regular padding). */
-  margin-inline-end: 1px;
-  padding-top: 1px;
-  padding-bottom: 0;
-  padding-inline-end: 5px;
-}
-
-%else
-.conv-counter {
-  padding-bottom: 0;
-  padding-inline-end: 5px;
-  margin-inline-end: 2px;
-  margin-bottom: 2px !important; /* override 4px from description */
-}
-%endif
 
 .splitter[orient="vertical"],
 #logsSplitter {
@@ -714,9 +655,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
   pointer-events: none;
   font-weight: bold;
   padding-inline-start: 1px;
-%ifdef XP_MACOSX
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-%endif
 }
 
 .conv-nicklist > richlistitem > image {
@@ -732,39 +670,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
   padding-left: 3px;
 }
 
-%ifdef XP_MACOSX
-.conv-nicklist-header {
-  appearance: auto;
-  -moz-default-appearance: treeheadercell;
-  margin-right: -1px;
-}
-
-%endif
-.conv-nicklist-header-label {
-%ifdef XP_MACOSX
-  margin-inline-start: 3px !important;
-  margin-top: 1px !important;
-  margin-bottom: 0 !important;
-%else
-  font-weight: bold;
-  margin-inline-start: 0 !important;
-%endif
-  margin-inline-end: 2px !important;
-}
-
-%ifdef XP_MACOSX
-.conv-nicklist, #logTree {
-  appearance: none;
-  width: 250px;
-  border: 0px;
-}
-%endif
-%ifdef XP_WIN
-.splitter.conv-chat {
-  border-left: 1px solid rgba(0, 0, 0, 0.25);
-}
-%endif
-
 #nicklist > richlistitem[inactive] > image {
   opacity: 0.45;
 }
@@ -778,14 +683,6 @@ richlistitem[state="disconnected"] .accountStateIcon {
   font-weight: normal;
 }
 
-#nicklist > richlistitem[inactive][selected] > label {
-%ifdef MACOSX
-  color: -moz-DialogText !important;
-%else
-  color: -moz-cellhighlighttext !important;
-%endif
-}
-
 .conv-nicklist:focus > richlistitem[inactive][selected] > label {
   color: HighlightText !important;
 }
@@ -795,11 +692,6 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   padding-top: 1px;
   width: 10px;
   height: 10px;
-%ifndef XP_MACOSX
-  margin-inline-end: 3px;
-%else
-  margin-inline-end: 2px;
-%endif
   margin-inline-start: 5px;
   background: url("chrome://global/skin/icons/twisty-expanded.svg") no-repeat center;
   background-size: contain;

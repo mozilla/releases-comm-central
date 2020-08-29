@@ -1,10 +1,12 @@
-%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-%endif
 
-%include ../../../components/im/themes/chat.css
+@import url("chrome://messenger/skin/shared/chat.css");
+
+.convUnreadTargetedCount {
+  padding: 2px 7px;
+}
 
 .convUnreadCount,
 .contactDisplayName,
@@ -37,7 +39,26 @@
 }
 
 .conv-textbox {
+  appearance: none;
   margin: 0;
+  padding: 2px;
+  box-sizing: content-box;
+  border: 1px solid transparent;
+}
+
+.conv-textbox[invalidInput="true"] {
+  border-color: red;
+}
+
+.conv-textbox > .textbox-input-box {
+  background: inherit;
+}
+
+.conv-counter {
+  padding-bottom: 0;
+  padding-inline-end: 5px;
+  margin-inline-end: 2px;
+  margin-bottom: 2px !important; /* override 4px from description */
 }
 
 :root:not([lwt-tree]) #conv-top-info {
@@ -53,6 +74,19 @@
   padding-inline-start: 3px;
 }
 
+.conv-nicklist-header-label {
+  font-weight: bold;
+  margin-inline: 0 2px !important;
+}
+
+#nicklist > richlistitem[inactive][selected] > label {
+  color: -moz-cellhighlighttext !important;
+}
+
+richlistitem[is="chat-group-richlistitem"] .twisty {
+  margin-inline-end: 2px;
+}
+
 .startChatBubble > .button-box > .button-icon,
 .closeConversationButton > .button-box > .button-icon {
   margin-inline-end: 0;
@@ -64,7 +98,8 @@
 
 .statusMessageInput[editing] {
   color: -moz-dialogtext;
-  margin: 29px 0 -3px -4px;
+  margin-block: 29px -3px;
+  margin-inline: -4px 0;
 }
 
 #displayNameAndstatusMessageStack #statusMessageLabel, #statusMessageInput {
@@ -72,12 +107,12 @@
 }
 
 #displayNameAndstatusMessageStack #statusMessageInput[editing] {
-  margin: 30px -2px -2px -4px;
+  margin-block: 30px -2px;
+  margin-inline: -4px -2px;
 }
 
 #displayNameAndstatusMessageStack #displayNameInput[editing] {
-  margin-left: -4px;
-  margin-right: -2px;
+  margin-inline: -4px -2px;
   margin-bottom: 18px;
 }
 

@@ -1,10 +1,69 @@
-%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-%endif
 
-%include ../../../components/im/themes/chat.css
+@import url("chrome://messenger/skin/shared/chat.css");
+
+.convUnreadTargetedCount {
+  padding: 2px 7px;
+}
+
+.conv-textbox {
+  appearance: none;
+  margin: 0;
+  padding: 3px;
+  border: none;
+}
+
+.conv-textbox[focused="true"] {
+  box-shadow: inset 0 0 2px 1px rgba(40, 120, 212, 0.9),
+                    0 0 2px 0px rgba(40, 120, 212, 0.6),
+              inset 0 1px 2px 0px rgba(0, 0, 0, 0.5);
+}
+
+.conv-textbox[invalidInput="true"] {
+  box-shadow: inset 0 0 2px 1px rgba(255, 0, 0, 0.9),
+                    0 0 2px 0px rgba(255, 0, 0, 0.6),
+              inset 0 1px 2px 0px rgba(0, 0, 0, 0.4);
+}
+.conv-counter[value^="-"] {
+  margin-bottom: 1px;
+  /* The 6px padding-end from .conv-counter is split into a 1px margin-end
+     (to avoid the border) and 5px padding-end (as regular padding). */
+  margin-inline-end: 1px;
+  padding-top: 1px;
+  padding-bottom: 0;
+  padding-inline-end: 5px;
+}
+
+.conv-nicklist > richlistitem > label {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.conv-nicklist-header {
+  appearance: auto;
+  -moz-default-appearance: treeheadercell;
+  margin-right: -1px;
+}
+
+.conv-nicklist-header-label {
+  margin-inline: 3px 2px !important;
+  margin-block: 1px 0 !important;
+}
+
+.conv-nicklist, #logTree {
+  appearance: none;
+  width: 250px;
+  border: 0;
+}
+
+#nicklist > richlistitem[inactive][selected] > label {
+  color: -moz-DialogText !important;
+}
+
+richlistitem[is="chat-group-richlistitem"] .twisty {
+  margin-inline-end: 3px;
+}
 
 #chatPanel:-moz-lwtheme {
   color: -moz-DialogText;
@@ -103,7 +162,8 @@
 
 .statusMessageInput[editing] {
   color: -moz-dialogtext;
-  margin: 29px 0 -1px -4px;
+  margin-block: 29px -1px;
+  margin-inline: -4px 0;
 }
 
 #displayNameAndstatusMessageStack #statusMessageLabel, #statusMessageInput {
@@ -112,11 +172,11 @@
 }
 
 #displayNameAndstatusMessageStack #statusMessageInput[editing] {
-  margin: 29px 2px 0 -4px;
+  margin-block: 29px 0;
+  margin-inline: -4px 2px;
 }
 
 #displayNameAndstatusMessageStack #displayNameInput[editing] {
-  margin-left: -4px;
-  margin-right: -2px;
+  margin-inline: -4px -2px;
   margin-bottom: 18px;
 }

@@ -44,16 +44,14 @@
   font-size: 2em;
   font-weight: lighter;
   line-height: 1.2;
-  margin: 0;
-  margin-bottom: .3em;
+  margin: 0 0 .3em;
   padding-bottom: .2em;
   border-bottom: 1px solid var(--splitter-color);
 }
 
 #noAccountDesc {
   font-size: 110%;
-  margin-right: 0;
-  margin-left: 0;
+  margin-inline: 0;
 }
 
 #accountlist {
@@ -92,11 +90,6 @@ richlistitem .account-buttons button {
 
 richlistitem .account-buttons {
   margin-top: 2px;
-%ifdef XP_MACOSX
-  margin-left: 35px;
-%else
-  margin-left: 32px;
-%endif
 }
 
 richlistitem[dragover="down"] {
@@ -124,7 +117,7 @@ richlistitem[dragover="up"] {
 
 .error {
   color: #c80000;
-  margin-left: 6px;
+  margin-inline-start: 6px;
 }
 .accountName {
   font-weight: bold;
@@ -152,8 +145,8 @@ richlistitem[error="true"] .accountStateIcon {
 }
 
 #statusArea {
-  margin: 0 0;
-  padding: 0 0;
+  margin: 0;
+  padding: 0;
 }
 
 #displayName,
@@ -217,10 +210,3 @@ richlistitem[error="true"] .accountStateIcon {
 #statusTypeIcon dropmarker {
   display: none;
 }
-
-%ifdef XP_WIN
-#statusTypeIcon .button-box {
-  padding: 0 0;
-  border: none;
-}
-%endif

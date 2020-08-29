@@ -1,10 +1,12 @@
-%if 0
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-%endif
 
-%include ../../../components/im/themes/chat.css
+@import url("chrome://messenger/skin/shared/chat.css");
+
+.convUnreadTargetedCount {
+  padding: 0 7px;
+}
 
 /* Adaptation from #folderTree */
 :root:not([lwt-tree]) #listPaneBox {
@@ -24,13 +26,36 @@
 }
 
 .conv-textbox {
+  appearance: none;
   /* Right/left margins so the borders show up on all sides. */
   margin: 0 1px;
+  padding: 2px;
+  box-sizing: content-box;
+  border: 1px solid transparent;
+}
+
+.conv-textbox[invalidInput="true"] {
+  border-color: red;
+}
+
+.conv-textbox > .textbox-input-box {
+  background: inherit;
+}
+
+.conv-counter {
+  padding-bottom: 0;
+  padding-inline-end: 5px;
+  margin-inline-end: 2px;
+  margin-bottom: 2px !important; /* override 4px from description */
 }
 
 .conv-counter[value^="-"] {
   margin-inline-end: 2px;
   padding-inline-end: 4px;
+}
+
+.splitter.conv-chat {
+  border-left: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 #contextPane {
@@ -39,13 +64,13 @@
 }
 
 .userIcon {
-  border-width: 0px;
+  border-width: 0;
 }
 
 #logTree,
 .conv-nicklist {
   appearance: none;
-  border: none;
+  border-style: none;
   margin: 0;
 }
 
@@ -53,15 +78,20 @@
 .conv-logs-header-label {
   appearance: none;
   margin: 0;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding-block: 2px;
   border-bottom: 1px solid ThreeDShadow;
   background-color: -moz-Dialog;
 }
 
+.conv-nicklist-header-label {
+  font-weight: bold;
+  margin-inline: 0 2px !important;
+}
+
 .statusMessageInput[editing] {
   color: -moz-dialogtext;
-  margin: 28px 0 -1px -2px;
+  margin-block: 28px -1px;
+  margin-inline: -2px 0;
 }
 
 #displayNameAndstatusMessageStack #statusMessageLabel, #statusMessageInput {
@@ -69,7 +99,8 @@
 }
 
 #displayNameAndstatusMessageStack  #statusMessageInput[editing] {
-  margin: 30px 0 1px -2px;
+  margin-block: 30px 1px;
+  margin-inline: -2px 0;
 }
 
 #displayNameAndstatusMessageStack #displayNameInput[editing] {
@@ -98,6 +129,14 @@
   border-inline-start-width: 0;
 }
 
+#nicklist > richlistitem[inactive][selected] > label {
+  color: -moz-cellhighlighttext !important;
+}
+
+richlistitem[is="chat-group-richlistitem"] .twisty {
+  margin-inline-end: 2px;
+}
+
 @media (-moz-windows-default-theme) {
   .conv-status-container {
     border-bottom-color: #a9b7c9;
@@ -109,8 +148,7 @@
 
   #chat-status-selector > vbox > .statusMessageToolbarItem[editing] {
     appearance: none;
-    padding-inline-start: 2px;
-    padding-inline-end: 2px;
+    padding-inline: 2px;
   }
 
   #chat-status-selector:not(:-moz-lwtheme):hover > vbox > .statusMessageToolbarItem,
