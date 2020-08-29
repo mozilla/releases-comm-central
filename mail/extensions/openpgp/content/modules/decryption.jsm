@@ -28,9 +28,6 @@ const { EnigmailData } = ChromeUtils.import(
 const { EnigmailDialog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 );
-const { EnigmailHttpProxy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/httpProxy.jsm"
-);
 const { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 );
@@ -313,10 +310,7 @@ var EnigmailDecryption = {
 
     // limit output to 100 times message size to avoid DoS attack
     var maxOutput = pgpBlock.length * 100;
-    let keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
     let options = {
-      keyserver,
-      keyserverProxy: EnigmailHttpProxy.getHttpProxy(keyserver),
       fromAddr: EnigmailDecryption.getFromAddr(parent),
       verifyOnly,
       noOutput: false,

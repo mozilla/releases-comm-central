@@ -43,9 +43,6 @@ const { EnigmailDecryption } = ChromeUtils.import(
 const { EnigmailSingletons } = ChromeUtils.import(
   "chrome://openpgp/content/modules/singletons.jsm"
 );
-const { EnigmailHttpProxy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/httpProxy.jsm"
-);
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
@@ -553,10 +550,7 @@ MimeVerify.prototype = {
       let sigFileName = EnigmailFiles.getEscapedFilename(
         EnigmailFiles.getFilePath(this.sigFile)
       );
-      let keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
       let options = {
-        keyserver,
-        keyserverProxy: EnigmailHttpProxy.getHttpProxy(keyserver),
         fromAddr: EnigmailDecryption.getFromAddr(win),
         mimeSignatureFile: sigFileName,
       };

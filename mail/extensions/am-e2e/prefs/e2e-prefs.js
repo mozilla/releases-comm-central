@@ -53,9 +53,6 @@ pref("temp.openpgp.assignKeysManuallyIfMissing", true);
 // always srats manual dialog for keys
 pref("temp.openpgp.assignKeysManuallyAlways", false);
 
-// automatically download missing keys from keyserver
-pref("temp.openpgp.autoKeyRetrieve", "");
-
 // enable automatically decrypt/verify
 pref("temp.openpgp.autoDecrypt", true);
 

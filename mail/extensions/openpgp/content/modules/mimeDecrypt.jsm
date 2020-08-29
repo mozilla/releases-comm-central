@@ -43,9 +43,6 @@ const { EnigmailConstants } = ChromeUtils.import(
 const { EnigmailSingletons } = ChromeUtils.import(
   "chrome://openpgp/content/modules/singletons.jsm"
 );
-const { EnigmailHttpProxy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/httpProxy.jsm"
-);
 const { EnigmailCryptoAPI } = ChromeUtils.import(
   "chrome://openpgp/content/modules/cryptoAPI.jsm"
 );
@@ -547,10 +544,7 @@ MimeDecryptHandler.prototype = {
       EnigmailLog.DEBUG("mimeDecryp.jsm: starting decryption\n");
       //EnigmailLog.DEBUG(this.outQueue + "\n");
 
-      let keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
       let options = {
-        keyserver,
-        keyserverProxy: EnigmailHttpProxy.getHttpProxy(keyserver),
         fromAddr: EnigmailDecryption.getFromAddr(win),
         maxOutputLength: maxOutput,
       };
