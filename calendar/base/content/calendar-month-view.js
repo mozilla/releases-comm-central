@@ -304,7 +304,8 @@
                                style="margin: 0;">
                         </label>
                         <html:input class="plain calendar-event-name-textbox title-desc"
-                                    hidden="hidden"/>
+                                    hidden="hidden"
+                                    placeholder='${cal.l10n.getCalString("newEvent")}'/>
                         <spacer flex="1"></spacer>
                       </vbox>
                       <hbox class="category-container-box">

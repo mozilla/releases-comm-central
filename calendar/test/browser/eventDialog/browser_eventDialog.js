@@ -94,7 +94,7 @@ add_task(async function testEventDialog() {
 
     // Check standard title.
     let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
-    event.assertValue(eventid("item-title"), defTitle);
+    event.assertJSProperty(eventid("item-title"), "placeholder", defTitle);
 
     // Prepare category.
     let categories = cal.l10n.getAnyString("calendar", "categories", "categories2");

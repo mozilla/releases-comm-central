@@ -34,7 +34,6 @@ var calendarViewController = {
     if (startTime && endTime && !startTime.isDate && !endTime.isDate) {
       let item = cal.createEvent();
       setDefaultItemValues(item, calendar, startTime, endTime);
-      item.title = cal.l10n.getCalString("newEvent");
       doTransaction("add", item, item.calendar, null, null);
     } else {
       createEventWithDialog(calendar, startTime, null, null, null, forceAllday);

@@ -148,6 +148,7 @@
                         </label>
                         <html:input class="calendar-event-details-core title-desc"
                                     hidden="hidden"
+                                    placeholder='${cal.l10n.getCalString("newEvent")}'
                                     style="background: transparent !important;"/>
                         <label crop="end"
                                class="calendar-event-details-core location-desc">

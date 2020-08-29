@@ -289,7 +289,8 @@
                              crop="end">
                       </label>
                       <html:input class="plain calendar-event-details-core calendar-event-name-textbox title-desc"
-                                  hidden="hidden"/>
+                                  hidden="hidden"
+                                  placeholder='${cal.l10n.getCalString("newEvent")}'/>
                       <label class="calendar-event-details-core location-desc"
                              crop="end">
                       </label>

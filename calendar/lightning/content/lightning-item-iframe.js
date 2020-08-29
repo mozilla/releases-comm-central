@@ -361,13 +361,10 @@ function onLoad() {
     setDialogId(document.documentElement, "calendar-task-dialog-inner");
   }
 
-  // new items should have a non-empty title.
-  if (item.isMutable && (!item.title || item.title.length <= 0)) {
-    item.title = cal.l10n.getString(
-      "calendar-event-dialog",
-      cal.item.isEvent(item) ? "newEvent" : "newTask"
-    );
-  }
+  document.getElementById("item-title").placeholder = cal.l10n.getString(
+    "calendar-event-dialog",
+    cal.item.isEvent(item) ? "newEvent" : "newTask"
+  );
 
   window.onAcceptCallback = args.onOk;
   window.mode = args.mode;
@@ -455,7 +452,7 @@ function onLoad() {
   gMainWindow.setCursor("auto");
 
   if (!gNewItemUI) {
-    document.getElementById("item-title").focus();
+    document.getElementById("item-title").select();
   }
 
   // This causes the app to ask if the window should be closed when the
