@@ -2144,6 +2144,168 @@
             row.querySelector(".aw-firstColBox > label").focus();
           }
         });
+
+      this.addEventListener("dragstart", event => {
+        let targetPill = event.originalTarget.closest("mail-address-pill");
+        if (targetPill && !targetPill.hasAttribute("selected")) {
+          targetPill.toggleAttribute("selected");
+        }
+        let selectedPills = this.getAllSelectedPills();
+        // Interrupt if no address pill is being dragged.
+        if (!selectedPills.length || !targetPill) {
+          return;
+        }
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.dropEffect = "move";
+        event.dataTransfer.setData("text/pills", "pills");
+        event.dataTransfer.setDragImage(targetPill, 50, 12);
+      });
+
+      this.addEventListener("dragover", event => {
+        event.preventDefault();
+      });
+
+      this.addEventListener("dragenter", event => {
+        if (!event.dataTransfer.getData("text/pills")) {
+          return;
+        }
+
+        let targetPill = event.originalTarget.closest("mail-address-pill");
+        // Add the indicator style for the pill.
+        if (targetPill) {
+          targetPill.classList.add("drop-indicator");
+        }
+
+        // Add the indicator style for the address container.
+        let addressRow = event.originalTarget.closest(".address-row");
+        if (addressRow) {
+          addressRow
+            .querySelector(".address-container")
+            .classList.add("drag-address-container");
+        }
+      });
+
+      this.addEventListener("dragexit", event => {
+        if (!event.dataTransfer.getData("text/pills")) {
+          return;
+        }
+        // Remove the indicator style for the pill.
+        let targetPill = event.originalTarget.closest("mail-address-pill");
+        if (targetPill && targetPill.classList.contains("drop-indicator")) {
+          targetPill.classList.remove("drop-indicator");
+        }
+
+        // Remove the indicator style for the address container.
+        let addressRow = event.originalTarget.closest(".address-row");
+        if (addressRow) {
+          addressRow
+            .querySelector(".address-container")
+            .classList.remove("drag-address-container");
+        }
+      });
+
+      this.addEventListener("drop", event => {
+        if (!event.dataTransfer.getData("text/pills")) {
+          return;
+        }
+
+        // Remove the indicator style for the pill.
+        let targetPill = event.originalTarget.closest("mail-address-pill");
+        if (targetPill && targetPill.classList.contains("drop-indicator")) {
+          targetPill.classList.remove("drop-indicator");
+        }
+
+        // Used when drop is over the address input container.
+        let addressContainer = event.originalTarget.closest(
+          ".address-container"
+        );
+        if (addressContainer) {
+          this.createDNDPills(
+            addressContainer,
+            !!targetPill,
+            targetPill ? targetPill.fullAddress : null
+          );
+          addressContainer.classList.remove("drag-address-container");
+          return;
+        }
+
+        // Used when drop is over the label container.
+        addressContainer = event.originalTarget
+          .closest(".address-row")
+          .querySelector(".address-container");
+        if (addressContainer) {
+          this.createDNDPills(addressContainer, true, null);
+          addressContainer.classList.remove("drag-address-container");
+        }
+      });
+    }
+
+    /**
+     * Move the dragged pills to another addressing row.
+     *
+     * @param {string} addressContainer - The address container on which pills are dropped.
+     * @param {boolean} appendStart - If the selected addresses should be appended to the end
+     *   or the start of existing addresses.
+     * @param {string} targetAddress - The address before which all selected addresses should
+     *   be dropped.
+     */
+    createDNDPills(addressContainer, appendStart, targetAddress) {
+      let existingPills = addressContainer.querySelectorAll(
+        "mail-address-pill"
+      );
+      let existingAddresses = [...existingPills].map(pill => pill.fullAddress);
+      let selectedAddresses = [...this.getAllSelectedPills()].map(
+        pill => pill.fullAddress
+      );
+      let originalTargetIndex = existingAddresses.indexOf(targetAddress);
+
+      // Remove all the the duplicate existing addresses.
+      for (let address of selectedAddresses) {
+        let index = existingAddresses.indexOf(address);
+        if (index > -1) {
+          existingAddresses.splice(index, 1);
+        }
+      }
+
+      let combinedAddresses;
+      // Pills are dropped on another pill so selected pills should be inserted
+      // before that pill.
+      if (targetAddress) {
+        // Merge two arrays with right order. If the target addresse is removed
+        // then use the original index.
+        existingAddresses.splice(
+          existingAddresses.includes(targetAddress)
+            ? existingAddresses.indexOf(targetAddress)
+            : originalTargetIndex,
+          0,
+          ...selectedAddresses
+        );
+        combinedAddresses = existingAddresses;
+      } else {
+        combinedAddresses = appendStart
+          ? selectedAddresses.concat(existingAddresses)
+          : existingAddresses.concat(selectedAddresses);
+      }
+
+      this.removeSelectedPills(
+        this.getAllSelectedPills()[0],
+        "next",
+        false,
+        true
+      );
+      // Existing pills are removed before creating new ones with the right order.
+      for (let pill of existingPills) {
+        pill.remove();
+      }
+
+      // Create pills for all the combined addresses.
+      awAddRecipientsArray(
+        addressContainer
+          .querySelector(".address-input")
+          .getAttribute("recipienttype"),
+        combinedAddresses,
+        false
+      );
     }
 
     /**

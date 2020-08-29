@@ -807,6 +807,7 @@ label.extra-recipients-label {
 #msgIdentity:focus-within,
 #msgIdentity[focused="true"],
 #msgSubject:focus,
+.drag-address-container,
 .address-container[focused="true"] {
   border-color: Highlight !important;
   background-color: -moz-field;
@@ -819,6 +820,23 @@ label.extra-recipients-label {
 #MsgHeadersToolbar[brighttext] #msgSubject:focus,
 #MsgHeadersToolbar[brighttext] .address-container[focused="true"] {
   background-color: var(--lwt-toolbar-field-background-color);
+}
+
+.address-pill::before {
+  display: block;
+  content: '';
+  position: relative;
+  width: 3px;
+  background-color: Highlight;
+  height: 15px;
+  border-radius: 2px;
+  margin-inline: -10px 5px;
+  transition: all .2s ease;
+  transform: scaleY(0);
+}
+
+.drop-indicator::before {
+  transform: scaleY(1);
 }
 
 /* ..... format buttons ..... */

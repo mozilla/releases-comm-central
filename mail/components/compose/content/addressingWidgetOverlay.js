@@ -994,6 +994,23 @@ function showAddressRow(label, rowID) {
 }
 
 /**
+ * Move the selected pills to the container row of an hidden recipient (Cc, Bcc, etc.)
+ * in drag and drop operation.
+ *
+ * @param {XULElement} label - The clicked label to hide.
+ * @param {string} rowID - The ID of the container to reveal.
+ * @param {string} recipientType - The recipient type for dropped pills to move.
+ */
+function dropAddressPill(label, rowID, recipientType) {
+  let mailRecipientsArea = document.querySelector("mail-recipients-area");
+  mailRecipientsArea.moveSelectedPills(
+    mailRecipientsArea.getAllSelectedPills()[0],
+    recipientType
+  );
+  showAddressRow(label, rowID);
+}
+
+/**
  * Hide the container row of a recipient (Cc, Bcc, etc.).
  * The container can't be hidden if previously typed addresses are listed.
  *

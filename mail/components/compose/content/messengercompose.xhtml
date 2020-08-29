@@ -2165,6 +2165,8 @@
                          disableonsend="true"
                          class="mail-primary-label mail-label recipient-label"
                          onclick="showAddressRow(this, 'addressRowTo')"
+                         ondrop="dropAddressPill(this, 'addressRowTo', 'addr_to')"
+                         ondragover="event.preventDefault();"
                          onkeypress="showAddressRowKeyPress(event, 'addressRowTo')"
                          control="toAddrInput"
                          collapsed="true"/>
@@ -2172,12 +2174,16 @@
                          disableonsend="true"
                          class="mail-label recipient-label"
                          onclick="showAddressRow(this, 'addressRowCc')"
+                         ondrop="dropAddressPill(this, 'addressRowCc', 'addr_cc')"
+                         ondragover="event.preventDefault();"
                          onkeypress="showAddressRowKeyPress(event, 'addressRowCc')"
                          control="ccAddrInput"/>
                   <label id="addr_bcc" value="&bccAddr2.label;" role="button"
                          disableonsend="true"
                          class="mail-label recipient-label"
                          onclick="showAddressRow(this, 'addressRowBcc')"
+                         ondrop="dropAddressPill(this, 'addressRowBcc', 'addr_bcc')"
+                         ondragover="event.preventDefault();"
                          onkeypress="showAddressRowKeyPress(event, 'addressRowBcc')"
                          control="bccAddrInput"/>
                 </hbox>
