@@ -112,7 +112,6 @@ search-value {
   pointer-events: none;
 }
 
-%ifndef XP_MACOSX
 toolbar[type="menubar"][autohide="true"] {
   overflow: hidden;
 }
@@ -122,7 +121,6 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]:not([customizing="true
   height: 0 !important;
   appearance: none !important;
 }
-%endif
 
 /* Rules to help integrate WebExtension buttons */
 
