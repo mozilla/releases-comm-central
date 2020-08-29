@@ -86,8 +86,9 @@ scriptworker:
     scope-prefix: 'project:comm:thunderbird:releng'
 
 partner-urls:
-    release-partner-repack: {}
-    release-eme-free-repack: {}
+    release-partner-attribution: null
+    release-partner-repack: null
+    release-eme-free-repack: null
 
 task-priority:
     by-project:
