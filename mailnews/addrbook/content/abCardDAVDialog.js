@@ -174,7 +174,7 @@ async function check() {
       uiElements.availableBooks.lastChild.remove();
     }
 
-    let existing = [...MailServices.ab.directories].map(d =>
+    let existing = MailServices.ab.directories.map(d =>
       d.getStringValue("carddav.url", "")
     );
     let alreadyAdded = 0;

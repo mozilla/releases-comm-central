@@ -9,7 +9,6 @@ interface mozIDOMWindowProxy;
 interface nsIAbDirectory;
 interface nsIAbCard;
 interface nsIFile;
-interface nsISimpleEnumerator;
 interface nsIAbBooleanExpression;
 
 /**
@@ -28,10 +27,9 @@ interface nsIAbManager : nsISupports
   const unsigned long CARDDAV_DIRECTORY_TYPE = 102;
 
   /**
-   * Returns an enumerator containing all the top-level directories
-   * (non-recursive)
+   * Returns an array containing all the top-level directories.
    */
-  readonly attribute nsISimpleEnumerator directories;
+  readonly attribute Array<nsIAbDirectory> directories;
 
   /**
    * Returns the directory that represents the supplied URI.

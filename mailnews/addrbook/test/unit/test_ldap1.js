@@ -13,7 +13,7 @@ function run_test() {
     return;
   }
 
-  let abCountBeforeStart = [...MailServices.ab.directories].length;
+  let abCountBeforeStart = MailServices.ab.directories.length;
 
   // Test - Create an LDAP directory
   let abUri = MailServices.ab.newAddressBook(
@@ -22,7 +22,7 @@ function run_test() {
     Ci.nsIAbManager.LDAP_DIRECTORY_TYPE
   );
 
-  let abCountAfterCreate = [...MailServices.ab.directories].length;
+  let abCountAfterCreate = MailServices.ab.directories.length;
   Assert.equal(abCountAfterCreate, abCountBeforeStart + 1);
 
   // Test - Check we have the directory.
@@ -200,6 +200,6 @@ function run_test() {
 
   MailServices.ab.deleteAddressBook(abDir.URI);
 
-  let abCountAfterDelete = [...MailServices.ab.directories].length;
+  let abCountAfterDelete = MailServices.ab.directories.length;
   Assert.equal(abCountAfterDelete, abCountBeforeStart);
 }

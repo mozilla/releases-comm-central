@@ -10,7 +10,7 @@ var { MailServices } = ChromeUtils.import(
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 function getExistingDirectories() {
-  return Array.from(MailServices.ab.directories, d => d.dirPrefId);
+  return MailServices.ab.directories.map(d => d.dirPrefId);
 }
 
 add_task(async function clearPref() {

@@ -97,7 +97,7 @@ async function createAddressBookWithUI(abName) {
 
   await newAddressBookPromise;
 
-  let addressBook = [...MailServices.ab.directories].find(
+  let addressBook = MailServices.ab.directories.find(
     directory => directory.dirName == abName
   );
 

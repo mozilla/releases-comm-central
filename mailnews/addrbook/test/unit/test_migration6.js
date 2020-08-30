@@ -42,7 +42,7 @@ add_task(async function() {
 
   // Check the new address books.
 
-  let directories = [...MailServices.ab.directories];
+  let directories = MailServices.ab.directories;
   equal(directories.length, 4);
   equal(directories[0].URI, "jsaddrbook://abook-1.sqlite");
   equal(directories[1].URI, "jsaddrbook://abook-2.sqlite");

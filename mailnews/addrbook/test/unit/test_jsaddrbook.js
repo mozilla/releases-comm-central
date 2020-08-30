@@ -91,7 +91,7 @@ add_task(async function setUp() {
   let profileDir = do_get_profile();
   observer.setUp();
 
-  let dirs = [...MailServices.ab.directories];
+  let dirs = MailServices.ab.directories;
   // On Mac we might be loading the OS X Address Book. If we are, then we
   // need to take acccount of that here, so that the test still pass on
   // development machines.
@@ -163,7 +163,7 @@ add_task(async function createAddressBook() {
     FILE_NAME
   );
   equal(Services.prefs.getStringPref("ldap_2.servers.newbook.uid"), book.UID);
-  equal([...MailServices.ab.directories].length, baseAddressBookCount + 1);
+  equal(MailServices.ab.directories.length, baseAddressBookCount + 1);
 
   // Check the file was created.
   let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
@@ -367,7 +367,7 @@ add_task(async function deleteAddressBook() {
   let dbFile = Services.dirsvc.get("ProfD", Ci.nsIFile);
   dbFile.append(FILE_NAME);
   ok(!dbFile.exists());
-  equal([...MailServices.ab.directories].length, baseAddressBookCount);
+  equal(MailServices.ab.directories.length, baseAddressBookCount);
   Assert.throws(() => {
     MailServices.ab.getDirectory(`${SCHEME}://${FILE_NAME}`);
   }, /NS_ERROR_FAILURE/);

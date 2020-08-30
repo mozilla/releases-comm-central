@@ -44,7 +44,7 @@ add_task(async function() {
 
   // Check the new address books.
 
-  let directories = [...MailServices.ab.directories];
+  let directories = MailServices.ab.directories;
   equal(directories.length, 3);
   equal(directories[0].URI, "moz-abldapdirectory://ldap_2.servers.ldap_test");
   equal(directories[1].URI, "jsaddrbook://abook.sqlite");

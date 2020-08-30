@@ -17,7 +17,7 @@ add_task(async function() {
 
   await MailMigrator._migrateAddressBooks();
 
-  let [personalBook] = [...MailServices.ab.directories];
+  let [personalBook] = MailServices.ab.directories;
   let [firstCard, secondCard] = [...personalBook.childCards];
 
   // The first card should be copied unchanged.

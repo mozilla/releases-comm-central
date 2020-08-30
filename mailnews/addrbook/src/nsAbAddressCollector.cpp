@@ -45,30 +45,22 @@ already_AddRefed<nsIAbCard> nsAbAddressCollector::GetCardForAddress(
   nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
   NS_ENSURE_SUCCESS(rv, nullptr);
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  rv = abManager->GetDirectories(getter_AddRefs(enumerator));
+  nsTArray<RefPtr<nsIAbDirectory>> directories;
+  rv = abManager->GetDirectories(directories);
   NS_ENSURE_SUCCESS(rv, nullptr);
 
-  bool hasMore;
-  nsCOMPtr<nsISupports> supports;
-  nsCOMPtr<nsIAbDirectory> directory;
   nsCOMPtr<nsIAbCard> result;
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-    rv = enumerator->GetNext(getter_AddRefs(supports));
-    NS_ENSURE_SUCCESS(rv, nullptr);
-
-    directory = do_QueryInterface(supports, &rv);
-    if (NS_FAILED(rv)) continue;
-
+  uint32_t count = directories.Length();
+  for (uint32_t i = 0; i < count; i++) {
     // Some implementations may return NS_ERROR_NOT_IMPLEMENTED here,
     // so just catch the value and continue.
-    if (NS_FAILED(directory->GetCardFromProperty(
+    if (NS_FAILED(directories[i]->GetCardFromProperty(
             aProperty, aEmailAddress, false, getter_AddRefs(result)))) {
       continue;
     }
 
     if (result) {
-      if (aDirectory) directory.forget(aDirectory);
+      if (aDirectory) directories[i].forget(aDirectory);
       return result.forget();
     }
   }

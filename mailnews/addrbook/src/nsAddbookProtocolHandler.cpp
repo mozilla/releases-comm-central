@@ -286,22 +286,17 @@ nsresult nsAddbookProtocolHandler::BuildDirectoryXML(nsIAbDirectory* aDirectory,
     nsCOMPtr<nsIAbManager> abManager(
         do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
     NS_ENSURE_SUCCESS(rv, rv);
-    nsCOMPtr<nsISimpleEnumerator> enumerator;
-    rv = abManager->GetDirectories(getter_AddRefs(enumerator));
+
+    nsTArray<RefPtr<nsIAbDirectory>> directories;
+    rv = abManager->GetDirectories(directories);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    bool hasMore = false;
-    nsCOMPtr<nsISupports> support;
-    nsCOMPtr<nsIAbDirectory> directory;
-    while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-      rv = enumerator->GetNext(getter_AddRefs(support));
-      NS_ENSURE_SUCCESS(rv, rv);
-      directory = do_QueryInterface(support, &rv);
-
+    nsCOMPtr<nsIAbCard> result;
+    for (uint32_t i = 0; i < directories.Length(); i++) {
       // If, for some reason, we are unable to get a directory, we continue.
       if (NS_FAILED(rv)) continue;
 
-      rv = EnumerateCards(directory, cards, bundle);
+      rv = EnumerateCards(directories[i], cards, bundle);
       NS_ENSURE_SUCCESS(rv, rv);
     }
   }

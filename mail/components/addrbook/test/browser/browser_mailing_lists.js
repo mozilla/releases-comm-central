@@ -519,7 +519,7 @@ add_task(async () => {
 
   await Promise.all([mailingListWindowPromise, deletePromise]);
 
-  let addressBook = [...MailServices.ab.directories].find(
+  let addressBook = MailServices.ab.directories.find(
     directory => directory.dirName == inputs.abName
   );
 

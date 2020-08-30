@@ -62,7 +62,7 @@ function fillDirectoryList(aItem = null) {
   // Init the address book list
   let holdingArray = [];
   for (let ab of MailServices.ab.directories) {
-    if (ab instanceof Ci.nsIAbDirectory && ab.isRemote) {
+    if (ab.isRemote) {
       holdingArray.push(ab);
     }
   }

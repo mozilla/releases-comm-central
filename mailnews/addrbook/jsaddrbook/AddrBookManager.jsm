@@ -19,11 +19,6 @@ ChromeUtils.defineModuleGetter(
   "Services",
   "resource://gre/modules/Services.jsm"
 );
-ChromeUtils.defineModuleGetter(
-  this,
-  "SimpleEnumerator",
-  "resource:///modules/AddrBookUtils.jsm"
-);
 
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
@@ -190,7 +185,7 @@ AddrBookManager.prototype = {
       }
       return a.URI < b.URI ? -1 : 1;
     });
-    return new SimpleEnumerator(dirs);
+    return dirs;
   },
   getDirectory(uri) {
     if (uri.startsWith("moz-abdirectory://")) {

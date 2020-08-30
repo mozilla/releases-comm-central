@@ -277,27 +277,18 @@ static nsresult GetDisplayNameInAddressBook(const nsACString& emailAddress,
       do_GetService("@mozilla.org/abmanager;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISimpleEnumerator> enumerator;
-  rv = abManager->GetDirectories(getter_AddRefs(enumerator));
+  nsTArray<RefPtr<nsIAbDirectory>> directories;
+  rv = abManager->GetDirectories(directories);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsCOMPtr<nsISupports> supports;
-  nsCOMPtr<nsIAbDirectory> directory;
   nsCOMPtr<nsIAbCard> cardForAddress;
-  bool hasMore;
 
   // Scan the addressbook to find out the card of the email address
-  while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore &&
-         !cardForAddress) {
-    rv = enumerator->GetNext(getter_AddRefs(supports));
-    NS_ENSURE_SUCCESS(rv, rv);
-    directory = do_QueryInterface(supports);
-    if (directory) {
-      rv = directory->CardForEmailAddress(emailAddress,
-                                          getter_AddRefs(cardForAddress));
-      // The card is found,so stop looping.
-      if (NS_SUCCEEDED(rv) && cardForAddress) break;
-    }
+  for (uint32_t i = 0; i < directories.Length() && !cardForAddress; i++) {
+    rv = directories[i]->CardForEmailAddress(emailAddress,
+                                             getter_AddRefs(cardForAddress));
+    // The card is found, so stop looping.
+    if (NS_SUCCEEDED(rv) && cardForAddress) break;
   }
 
   if (cardForAddress) {

@@ -52,7 +52,7 @@ add_task(async function() {
 
   // Check the new address books.
 
-  let directories = [...MailServices.ab.directories];
+  let directories = MailServices.ab.directories;
   equal(directories.length, 2);
   equal(directories[0].dirType, Ci.nsIAbManager.JS_DIRECTORY_TYPE);
   equal(directories[1].dirType, Ci.nsIAbManager.JS_DIRECTORY_TYPE);

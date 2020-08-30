@@ -4286,44 +4286,36 @@ nsresult nsMsgCompose::GetABDirAndMailLists(
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (aDirUri.Equals(kAllDirectoryRoot)) {
-    nsCOMPtr<nsISimpleEnumerator> enumerator;
-    rv = abManager->GetDirectories(getter_AddRefs(enumerator));
+    nsTArray<RefPtr<nsIAbDirectory>> directories;
+    rv = abManager->GetDirectories(directories);
     NS_ENSURE_SUCCESS(rv, rv);
 
-    nsCOMPtr<nsISupports> supports;
-    nsCOMPtr<nsIAbDirectory> directory;
+    uint32_t count = directories.Length();
     nsCString uri;
-    bool hasMore;
-
-    while (NS_SUCCEEDED(enumerator->HasMoreElements(&hasMore)) && hasMore) {
-      rv = enumerator->GetNext(getter_AddRefs(supports));
+    for (uint32_t i = 0; i < count; i++) {
+      rv = directories[i]->GetURI(uri);
       NS_ENSURE_SUCCESS(rv, rv);
-      directory = do_QueryInterface(supports);
-      if (directory) {
-        nsCString uri;
-        rv = directory->GetURI(uri);
-        NS_ENSURE_SUCCESS(rv, rv);
 
-        int32_t pos;
-        if (uri.EqualsLiteral(kPersonalAddressbookUri))
-          pos = 0;
-        else {
-          uint32_t count = aDirArray.Count();
+      int32_t pos;
+      if (uri.EqualsLiteral(kPersonalAddressbookUri)) {
+        pos = 0;
+      } else {
+        uint32_t count = aDirArray.Count();
 
-          if (uri.EqualsLiteral(kCollectedAddressbookUri)) {
-            collectedAddressbookFound = true;
-            pos = count;
+        if (uri.EqualsLiteral(kCollectedAddressbookUri)) {
+          collectedAddressbookFound = true;
+          pos = count;
+        } else {
+          if (collectedAddressbookFound && count > 1) {
+            pos = count - 1;
           } else {
-            if (collectedAddressbookFound && count > 1)
-              pos = count - 1;
-            else
-              pos = count;
+            pos = count;
           }
         }
-
-        aDirArray.InsertObjectAt(directory, pos);
-        rv = GetABDirAndMailLists(uri, aDirArray, aMailListArray);
       }
+
+      aDirArray.InsertObjectAt(directories[i], pos);
+      rv = GetABDirAndMailLists(uri, aDirArray, aMailListArray);
     }
 
     return NS_OK;
