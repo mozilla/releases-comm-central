@@ -52,9 +52,6 @@ include $(moztopsrcdir)/config/rules.mk
 
 include $(moztopsrcdir)/toolkit/locales/l10n.mk
 
-$(DIST)/branding:
-	$(NSINSTALL) -D $@
-
 l10n-%: AB_CD=$*
 l10n-%:
 # merge if we're not en-US. Conditional function because
