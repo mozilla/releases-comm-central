@@ -111,41 +111,6 @@ MailGlue.prototype = {
     Services.obs.addObserver(this, "document-element-inserted");
     Services.obs.addObserver(this, "handlersvc-store-initialized");
 
-    // Inject scripts into some devtools windows.
-    function _setupBrowserConsole(domWindow) {
-      // Browser Console is an XHTML document.
-      domWindow.document.title = gMailBundle.GetStringFromName(
-        "errorConsoleTitle"
-      );
-      Services.scriptloader.loadSubScript(
-        "chrome://global/content/viewSourceUtils.js",
-        domWindow
-      );
-    }
-
-    ExtensionSupport.registerWindowListener(
-      "Thunderbird-internal-BrowserConsole",
-      {
-        chromeURLs: ["chrome://devtools/content/webconsole/index.html"],
-        onLoadWindow: _setupBrowserConsole,
-      }
-    );
-
-    function _setupToolbox(domWindow) {
-      // Defines openUILinkIn and openWebLinkIn
-      Services.scriptloader.loadSubScript(
-        "chrome://communicator/content/contentAreaClick.js",
-        domWindow
-      );
-    }
-
-    ExtensionSupport.registerWindowListener("Thunderbird-internal-Toolbox", {
-      chromeURLs: [
-        "chrome://devtools/content/framework/toolbox-process-window.xhtml",
-      ],
-      onLoadWindow: _setupToolbox,
-    });
-
     ActorManagerParent.addJSWindowActors(JSWINDOWACTORS);
     ActorManagerParent.flush();
   },
@@ -193,7 +158,7 @@ MailGlue.prototype = {
           Ci.nsIMsgFolderService
         );
         fs.initializeFolderStrings();
-        this._onProfileStartup();
+        this._beforeUIStartup();
         break;
       case "mail-startup-done":
         this._onFirstWindowLoaded();
@@ -250,7 +215,9 @@ MailGlue.prototype = {
     }
   },
 
-  _onProfileStartup() {
+  // Runs on startup, before the first command line handler is invoked
+  // (i.e. before the first window is opened).
+  _beforeUIStartup() {
     TBDistCustomizer.applyPrefDefaults();
 
     const UI_VERSION_PREF = "mail.ui-rdf.version";
@@ -262,6 +229,26 @@ MailGlue.prototype = {
     if (!Services.prefs.prefHasUserValue(PREF_PDFJS_ISDEFAULT_CACHE_STATE)) {
       PdfJs.checkIsDefault(this._isNewProfile);
     }
+
+    // Inject scripts into some devtools windows.
+    function _setupBrowserConsole(domWindow) {
+      // Browser Console is an XHTML document.
+      domWindow.document.title = gMailBundle.GetStringFromName(
+        "errorConsoleTitle"
+      );
+      Services.scriptloader.loadSubScript(
+        "chrome://global/content/viewSourceUtils.js",
+        domWindow
+      );
+    }
+
+    ExtensionSupport.registerWindowListener(
+      "Thunderbird-internal-BrowserConsole",
+      {
+        chromeURLs: ["chrome://devtools/content/webconsole/index.html"],
+        onLoadWindow: _setupBrowserConsole,
+      }
+    );
 
     // check if we're in safe mode
     if (Services.appinfo.inSafeMode) {

@@ -37,9 +37,6 @@ const startupPhases = {
         "resource://gre/modules/MainProcessSingleton.jsm",
         "resource://gre/modules/XPCOMUtils.jsm",
         "resource://gre/modules/Services.jsm",
-        // Bug 1660898 - ExtensionSupport startup should be delayed until
-        // later.
-        "resource:///modules/ExtensionSupport.jsm",
       ]),
     },
   },
