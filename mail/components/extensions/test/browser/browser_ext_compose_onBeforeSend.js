@@ -411,6 +411,107 @@ add_task(async function testChangeDetails() {
   });
 });
 
+add_task(async function testChangeAttachments() {
+  let files = {
+    "background.js": async () => {
+      // Add a listener that changes attachments. Sending should continue and
+      // the attachments should change.
+
+      let tab = await browser.compose.beginNew({
+        to: ["test@test.invalid"],
+        subject: "Test",
+        body: "Original body.",
+      });
+
+      await browser.compose.addAttachment(tab.id, {
+        file: new File(["remove"], "remove.txt"),
+      });
+      await browser.compose.addAttachment(tab.id, {
+        file: new File(["change"], "change.txt"),
+      });
+
+      let listener12 = async (tab, details) => {
+        let attachments = await browser.compose.listAttachments(tab.id);
+        browser.test.assertEq("remove.txt", attachments[0].name);
+        browser.test.assertEq("change.txt", attachments[1].name);
+
+        await browser.compose.removeAttachment(tab.id, attachments[0].id);
+        await browser.compose.updateAttachment(tab.id, attachments[1].id, {
+          name: "changed.txt",
+        });
+        await browser.compose.addAttachment(tab.id, {
+          file: new File(["added"], "added.txt"),
+        });
+
+        attachments = await browser.compose.listAttachments(tab.id);
+        browser.test.assertEq("changed.txt", attachments[0].name);
+        browser.test.assertEq("added.txt", attachments[1].name);
+
+        listener12.tab = tab;
+      };
+      browser.compose.onBeforeSend.addListener(listener12);
+
+      await window.sendMessage("beginSend");
+      browser.test.assertEq(tab.id, listener12.tab.id, "listener12 completed");
+      browser.compose.onBeforeSend.removeListener(listener12);
+
+      browser.test.notifyPass("finished");
+    },
+    "utils.js": await getUtilsJS(),
+  };
+  let extension = ExtensionTestUtils.loadExtension({
+    files,
+    manifest: {
+      background: { scripts: ["utils.js", "background.js"] },
+      permissions: ["accountsRead", "compose"],
+    },
+  });
+
+  extension.onMessage("beginSend", async () => {
+    let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
+    is(composeWindows.length, 1);
+
+    let sendPromise = BrowserTestUtils.waitForEvent(
+      composeWindows[0],
+      "aftersend"
+    );
+    composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+    await sendPromise;
+    extension.sendMessage();
+  });
+
+  await extension.startup();
+  await extension.awaitFinish("finished");
+  await extension.unload();
+
+  let outboxMessages = outbox.messages;
+  ok(outboxMessages.hasMoreElements());
+  let sentMessage12 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);
+
+  await new Promise(resolve => {
+    window.MsgHdrToMimeMessage(sentMessage12, null, (msgHdr, mimeMessage) => {
+      Assert.equal(mimeMessage.parts.length, 1);
+      Assert.equal(mimeMessage.parts[0].parts.length, 3);
+      Assert.equal(mimeMessage.parts[0].parts[1].name, "changed.txt");
+      Assert.equal(mimeMessage.parts[0].parts[2].name, "added.txt");
+      resolve();
+    });
+  });
+
+  ok(!outboxMessages.hasMoreElements());
+
+  await new Promise(resolve => {
+    outbox.deleteMessages(
+      toXPCOMArray([sentMessage12], Ci.nsIMutableArray),
+      null,
+      true,
+      false,
+      { OnStopCopy: resolve },
+      false
+    );
+  });
+});
+
 add_task(async function testListExpansion() {
   let files = {
     "background.js": async () => {

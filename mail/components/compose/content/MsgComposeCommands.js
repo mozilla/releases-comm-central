@@ -4604,6 +4604,8 @@ function CompleteGenericSendMessage(msgType) {
     msgType == Ci.nsIMsgCompDeliverMode.Later ||
     msgType == Ci.nsIMsgCompDeliverMode.Background
   ) {
+    window.dispatchEvent(new CustomEvent("aftersend"));
+
     let maxSize =
       Services.prefs.getIntPref("mail.compose.big_attachments.threshold_kb") *
       1024;

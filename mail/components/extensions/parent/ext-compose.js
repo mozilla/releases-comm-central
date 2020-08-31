@@ -274,7 +274,6 @@ var composeEventTracker = {
     let composeWindow = event.target;
 
     composeWindow.ToggleWindowLock(true);
-    let didSetDetails = false;
 
     for (let { handler, extension } of this.listeners) {
       let result = await handler(
@@ -290,14 +289,12 @@ var composeEventTracker = {
       }
       if (result.details) {
         await setComposeDetails(composeWindow, result.details, extension);
-        didSetDetails = true;
       }
     }
 
-    if (didSetDetails) {
-      // Load the new details into gMsgCompose.compFields for sending.
-      composeWindow.GetComposeDetails();
-    }
+    // Load the new details into gMsgCompose.compFields for sending.
+    composeWindow.GetComposeDetails();
+
     // Calling getComposeDetails collapses mailing lists. Expand them again.
     composeWindow.expandRecipients();
     composeWindow.ToggleWindowLock(false);
@@ -561,7 +558,7 @@ this.compose = class extends ExtensionAPI {
 
           tab.nativeTab.AddAttachments([attachment]);
 
-          return composeAttachmentTracker.convert(attachment);
+          return composeAttachmentTracker.convert(attachment, tab.nativeTab);
         },
         async updateAttachment(tabId, attachmentId, data) {
           let tab = tabManager.get(tabId);
