@@ -136,17 +136,19 @@ async function test_cookie_settings({
       `#${id} disabled status should match expected`
     );
   }
-  for (let id of [
-    "cookieExceptions",
-    "acceptThirdPartyMenu",
-    "keepCookiesUntil",
-  ]) {
+  for (let id of ["acceptThirdPartyMenu", "keepCookiesUntil"]) {
     is(
       contentDocument.getElementById(id).disabled,
       expectControlsDisabled,
       `#${id} disabled status should match expected`
     );
   }
+
+  is(
+    contentDocument.getElementById("cookieExceptions").disabled,
+    cookieJarSettingsLocked,
+    "#cookieExceptions disabled status should matched expected"
+  );
 
   let tabmail = document.getElementById("tabmail");
   tabmail.closeTab(window.gPrefTab);

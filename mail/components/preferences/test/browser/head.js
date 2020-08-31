@@ -105,6 +105,8 @@ async function closePrefsTab() {
  *                (optional, defaults to [false, true])
  *   enabledElements - an array of CSS selectors (optional)
  *   enabledInverted - if the elements should be disabled when the checkbox is checked (optional)
+ *   unaffectedElements - array of CSS selectors that should not be affected by
+ *                        the toggling of the checkbox.
  */
 async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
   for (let initiallyChecked of [true, false]) {
@@ -175,8 +177,20 @@ async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
       }
     };
 
+    let testUnaffected = function(ids, states) {
+      ids.forEach((sel, index) => {
+        let isOk = prefsDocument.querySelector(sel).disabled === states[index];
+        is(isOk, true, `Element "${sel}" is unaffected`);
+      });
+    };
+
     for (let test of tests) {
       info(`Checking ${test.checkboxID}`);
+
+      let unaffectedSelectors = test.unaffectedElements || [];
+      let unaffectedStates = unaffectedSelectors.map(
+        sel => prefsDocument.querySelector(sel).disabled
+      );
 
       let checkbox = prefsDocument.getElementById(test.checkboxID);
       checkbox.scrollIntoView(false);
@@ -184,9 +198,11 @@ async function testCheckboxes(paneID, scrollPaneTo, ...tests) {
 
       EventUtils.synthesizeMouseAtCenter(checkbox, {}, prefsWindow);
       testUIState(test, !initiallyChecked);
+      testUnaffected(unaffectedSelectors, unaffectedStates);
 
       EventUtils.synthesizeMouseAtCenter(checkbox, {}, prefsWindow);
       testUIState(test, initiallyChecked);
+      testUnaffected(unaffectedSelectors, unaffectedStates);
     }
 
     await closePrefsTab();
