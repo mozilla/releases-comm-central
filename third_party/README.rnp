@@ -36,3 +36,8 @@ Makefile.in
 moz.build
 module.ver
 rnp.symbols
+
+
+Modifications were made to RNP to disable obsolete ciphers. See bug 1641720.
+The changes are reapplied when update_rnp.sh is run from
+patches/rnp/disable_obsolete_ciphers.patch
