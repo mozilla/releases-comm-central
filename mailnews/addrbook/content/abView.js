@@ -270,8 +270,9 @@ ABView.prototype = {
         break;
       }
 
-      case "addrbook-list-deleted":
+      case "addrbook-list-deleted": {
         subject.QueryInterface(Ci.nsIAbDirectory);
+        let scrollPosition = this.tree?.getFirstVisibleRow();
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
           if (this._rowMap[i].card.UID == subject.UID) {
             this._rowMap.splice(i, 1);
@@ -283,14 +284,19 @@ ABView.prototype = {
         if (this.listener) {
           this.listener.onCountChanged(this.rowCount);
         }
+        if (this.tree && scrollPosition !== null) {
+          this.tree.scrollToRow(scrollPosition);
+        }
         break;
+      }
       case "addrbook-list-member-removed":
         if (!this.directory) {
           break;
         }
       // Falls through.
-      case "addrbook-contact-deleted":
+      case "addrbook-contact-deleted": {
         subject.QueryInterface(Ci.nsIAbCard);
+        let scrollPosition = this.tree?.getFirstVisibleRow();
         for (let i = this._rowMap.length - 1; i >= 0; i--) {
           if (this._rowMap[i].card.equals(subject)) {
             this._rowMap.splice(i, 1);
@@ -302,7 +308,11 @@ ABView.prototype = {
         if (this.listener) {
           this.listener.onCountChanged(this.rowCount);
         }
+        if (this.tree && scrollPosition !== null) {
+          this.tree.scrollToRow(scrollPosition);
+        }
         break;
+      }
     }
   },
 };
