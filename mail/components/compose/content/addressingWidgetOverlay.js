@@ -7,7 +7,6 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MimeParser } = ChromeUtils.import("resource:///modules/mimeParser.jsm");
-var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 var { DisplayNameUtils } = ChromeUtils.import(
   "resource:///modules/DisplayNameUtils.jsm"
 );
@@ -87,11 +86,7 @@ function Recipients2CompFields(msgCompFields) {
   )) {
     let headerValue = otherHeaderRow.querySelector("input").value.trim();
     if (headerValue) {
-      msgCompFields.setRawHeader(
-        otherHeaderRow.dataset.labelid,
-        headerValue,
-        null
-      );
+      msgCompFields.setRawHeader(otherHeaderRow.dataset.labelid, headerValue);
     }
   }
 

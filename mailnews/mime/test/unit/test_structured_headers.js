@@ -70,7 +70,7 @@ add_task(async function check_custom_header() {
   // The category manager doesn't fire until a later timestep.
   await promise;
   let headers = new StructuredHeaders();
-  headers.setRawHeader("X-Unusual", "10", null);
+  headers.setRawHeader("X-Unusual", "10");
   Assert.equal(headers.getHeader("X-Unusual"), 16);
   headers.setHeader("X-Unusual", 32);
   Assert.equal(headers.getRawHeader("X-Unusual"), "20");
@@ -98,7 +98,7 @@ add_task(async function check_raw() {
   Assert.equal(new Date(headers.getRawHeader("Date")).getTime(), day.getTime());
 
   // Otherwise, the string values should work.
-  headers.setRawHeader("Custom-Date", "1 Jan 2000 00:00:00 +0000", null);
+  headers.setRawHeader("Custom-Date", "1 Jan 2000 00:00:00 +0000");
   Assert.equal(
     headers.getRawHeader("Custom-Date"),
     "1 Jan 2000 00:00:00 +0000"
@@ -119,11 +119,7 @@ add_task(async function check_raw() {
 
   Assert.ok(!headers.hasHeader("Subject"));
   Assert.ok(headers.getUnstructuredHeader("Subject") === null);
-  headers.setRawHeader(
-    "Subject",
-    "=?UTF-8?B?56eB44Gv5Lu25ZCN5Y2I5YmN?=",
-    "US-ASCII"
-  );
+  headers.setRawHeader("Subject", "=?UTF-8?B?56eB44Gv5Lu25ZCN5Y2I5YmN?=");
   Assert.equal(
     headers.getHeader("Subject"),
     "\u79c1\u306f\u4ef6\u540d\u5348\u524d"

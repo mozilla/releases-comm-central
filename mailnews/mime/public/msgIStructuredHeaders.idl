@@ -165,14 +165,11 @@ interface msgIWritableStructuredHeaders : msgIStructuredHeaders {
 
   /**
    * Store the value of the header using a raw version as would be represented
-   * in MIME. So as to handle 8-bit headers properly, the charset needs to be
-   * specified, although it may be null.
+   * in MIME.
    *
    * @param aHeaderName     The name of the header to store.
    * @param aValue          The raw MIME header value to store.
-   * @param aCharset        The expected charset of aValue.
    */
-  void setRawHeader(in string aHeaderName, in AUTF8String aValue,
-                    in string aCharset);
+  void setRawHeader(in string aHeaderName, in AUTF8String aValue);
 
 };

@@ -711,7 +711,7 @@ NS_IMETHODIMP nsMsgTemplateReplyHelper::OnStopRunningUrl(nsIURI* aUrl,
   }
 
   compFields->SetSubject(subject);
-  compFields->SetRawHeader("Auto-Submitted", "auto-replied"_ns, nullptr);
+  compFields->SetRawHeader("Auto-Submitted", "auto-replied"_ns);
 
   nsCString charset;
   rv = mTemplateHdr->GetCharset(getter_Copies(charset));
