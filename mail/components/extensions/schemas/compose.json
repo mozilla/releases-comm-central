@@ -120,6 +120,26 @@
           "isPlainText": {
             "type": "boolean",
             "optional": true
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "The name, as displayed to the user, of this attachment. If not specified, the name of the ``file`` object is used.",
+                  "optional": true
+                },
+                "file": {
+                  "type": "object",
+                  "isInstanceOf": "File",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "description": "Attachments to add to the message. Only used in the begin* functions.",
+            "optional": true
           }
         }
       },
@@ -217,7 +237,9 @@
         "name": "onIdentityChanged",
         "type": "function",
         "description": "Fired when the user changes the identity that will be used to send a message being composed.",
-        "permissions": ["accountsRead"],
+        "permissions": [
+          "accountsRead"
+        ],
         "parameters": [
           {
             "name": "tab",

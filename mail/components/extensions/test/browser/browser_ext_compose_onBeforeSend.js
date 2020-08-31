@@ -421,13 +421,10 @@ add_task(async function testChangeAttachments() {
         to: ["test@test.invalid"],
         subject: "Test",
         body: "Original body.",
-      });
-
-      await browser.compose.addAttachment(tab.id, {
-        file: new File(["remove"], "remove.txt"),
-      });
-      await browser.compose.addAttachment(tab.id, {
-        file: new File(["change"], "change.txt"),
+        attachments: [
+          { file: new File(["remove"], "remove.txt") },
+          { file: new File(["change"], "change.txt") },
+        ],
       });
 
       let listener12 = async (tab, details) => {

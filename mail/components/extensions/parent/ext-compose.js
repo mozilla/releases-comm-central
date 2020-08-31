@@ -158,6 +158,19 @@ async function openComposeWindow(relatedMessageId, type, details, extension) {
       }
       composeFields.body = details.plainTextBody;
     }
+
+    if (details.attachments !== null) {
+      for (let data of details.attachments) {
+        let attachment = Cc[
+          "@mozilla.org/messengercompose/attachment;1"
+        ].createInstance(Ci.nsIMsgAttachment);
+        attachment.name = data.name || data.file.name;
+        attachment.size = data.file.size;
+        attachment.url = await writeTempFile(data.file);
+
+        composeFields.addAttachment(attachment);
+      }
+    }
   }
 
   params.composeFields = composeFields;
@@ -225,6 +238,8 @@ async function setComposeDetails(composeWindow, details, extension) {
 }
 
 async function writeTempFile(file) {
+  // TODO if the file represents a real file, just use that.
+
   let tempDir = OS.Constants.Path.tmpDir;
   let destFile = OS.Path.join(tempDir, file.name);
 

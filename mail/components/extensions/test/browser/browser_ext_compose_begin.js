@@ -385,3 +385,69 @@ add_task(async function testBody() {
   await extension.awaitFinish("finished");
   await extension.unload();
 });
+
+add_task(async function testAttachments() {
+  let extension = ExtensionTestUtils.loadExtension({
+    background: async () => {
+      let [account] = await browser.accounts.list();
+      let folder = account.folders.find(f => f.name == "test");
+      let { messages } = await browser.messages.list(folder);
+
+      let newTab = await browser.compose.beginNew({
+        attachments: [
+          { file: new File(["one"], "attachment1.txt") },
+          { file: new File(["two"], "attachment2.txt") },
+        ],
+      });
+
+      let attachments = await browser.compose.listAttachments(newTab.id);
+      browser.test.assertEq(2, attachments.length);
+      browser.test.assertEq("attachment1.txt", attachments[0].name);
+      browser.test.assertEq("attachment2.txt", attachments[1].name);
+
+      let replyTab = await browser.compose.beginReply(messages[0].id, {
+        attachments: [
+          { file: new File(["three"], "attachment3.txt") },
+          { file: new File(["four"], "attachment4.txt") },
+        ],
+      });
+
+      attachments = await browser.compose.listAttachments(replyTab.id);
+      browser.test.assertEq(2, attachments.length);
+      browser.test.assertEq("attachment3.txt", attachments[0].name);
+      browser.test.assertEq("attachment4.txt", attachments[1].name);
+
+      let forwardTab = await browser.compose.beginForward(
+        messages[1].id,
+        "forwardAsAttachment",
+        {
+          attachments: [
+            { file: new File(["five"], "attachment5.txt") },
+            { file: new File(["six"], "attachment6.txt") },
+          ],
+        }
+      );
+
+      attachments = await browser.compose.listAttachments(forwardTab.id);
+      browser.test.assertEq(3, attachments.length);
+      browser.test.assertEq("attachment5.txt", attachments[0].name);
+      browser.test.assertEq("attachment6.txt", attachments[1].name);
+      // This is the forwarded email. It really should be the first attachment,
+      // but it isn't.
+      browser.test.assertEq(`${messages[1].subject}.eml`, attachments[2].name);
+
+      await browser.tabs.remove(newTab.id);
+      await browser.tabs.remove(replyTab.id);
+      await browser.tabs.remove(forwardTab.id);
+
+      browser.test.notifyPass();
+    },
+    manifest: {
+      permissions: ["accountsRead", "messagesRead"],
+    },
+  });
+
+  await extension.startup();
+  await extension.awaitFinish();
+  await extension.unload();
+});
