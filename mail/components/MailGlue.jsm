@@ -15,7 +15,6 @@ const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { AppConstants } = ChromeUtils.import(
   "resource://gre/modules/AppConstants.jsm"
 );
-const { PdfJs } = ChromeUtils.import("resource://pdf.js/PdfJs.jsm");
 
 // lazy module getter
 
@@ -73,6 +72,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailMigrator: "resource:///modules/MailMigrator.jsm",
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.jsm",
+  PdfJs: "resource://pdf.js/PdfJs.jsm",
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",

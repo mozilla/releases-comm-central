@@ -31,6 +31,10 @@ TEST_DIRS += ['test']
 
 DIRS += ['build']
 
+EXTRA_COMPONENTS += [
+    'MailComponents.manifest',
+]
+
 EXTRA_JS_MODULES += [
     'AboutRedirector.jsm',
     'AppIdleManager.jsm',
@@ -41,4 +45,3 @@ EXTRA_JS_MODULES += [
 XPCOM_MANIFESTS += [
     'components.conf',
 ]
-

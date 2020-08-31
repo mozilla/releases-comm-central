@@ -182,6 +182,7 @@
 ; re-created at packaging time when linking the xpts that will actually
 ; go into the package, so the test related interfaces aren't included.
 @RESPATH@/components/msgMime.manifest
+@RESPATH@/components/MailComponents.manifest
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
 @RESPATH@/chrome/comm@JAREXT@
