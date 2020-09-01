@@ -26,21 +26,25 @@
 
 #include <rnp/rnp.h>
 
+#ifdef RNP_RUN_TESTS
+int keyring_LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+int
+keyring_LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+#else
 int
 LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+#endif
 {
     rnp_input_t  input = NULL;
-    rnp_input_t  keyfile = NULL;
     rnp_result_t ret = 0;
     rnp_ffi_t    ffi = NULL;
 
     ret = rnp_input_from_memory(&input, data, size, false);
 
     ret = rnp_ffi_create(&ffi, "GPG", "GPG");
-    ret = rnp_load_keys(
-      ffi, "GPG", keyfile, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS);
+    ret =
+      rnp_load_keys(ffi, "GPG", input, RNP_LOAD_SAVE_PUBLIC_KEYS | RNP_LOAD_SAVE_SECRET_KEYS);
 
-    rnp_input_destroy(keyfile);
     rnp_input_destroy(input);
     rnp_ffi_destroy(ffi);
 

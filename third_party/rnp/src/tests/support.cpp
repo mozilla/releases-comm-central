@@ -37,6 +37,7 @@
 #include <crypto.h>
 #include <pgp-key.h>
 #include <fstream>
+#include <vector>
 
 extern rng_t global_rng;
 
@@ -93,8 +94,18 @@ std::string
 file_to_str(const std::string &path)
 {
     std::ifstream infile(path);
+    assert_true(infile);
     return std::string(std::istreambuf_iterator<char>(infile),
                        std::istreambuf_iterator<char>());
+}
+
+std::vector<uint8_t>
+file_to_vec(const std::string &path)
+{
+    std::ifstream stream(path, std::ios::in | std::ios::binary);
+    assert_true(stream);
+    return std::vector<uint8_t>((std::istreambuf_iterator<char>(stream)),
+                                std::istreambuf_iterator<char>());
 }
 
 off_t

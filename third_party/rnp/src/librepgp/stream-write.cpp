@@ -49,6 +49,7 @@
 #include "fingerprint.h"
 #include "types.h"
 #include "crypto/signatures.h"
+#include "defaults.h"
 #include <time.h>
 #include <algorithm>
 
@@ -1101,11 +1102,8 @@ signed_fill_signature(pgp_dest_signed_param_t *param,
 
     /* destroy decrypted secret key */
     if (pgp_key_is_encrypted(signer->key)) {
-        free_key_pkt(deckey);
-        free(deckey);
-        deckey = NULL;
+        delete deckey;
     }
-
     return ret;
 }
 
@@ -1114,7 +1112,7 @@ signed_write_signature(pgp_dest_signed_param_t *param,
                        pgp_dest_signer_info_t * signer,
                        pgp_dest_t *             writedst)
 {
-    pgp_signature_t sig = {};
+    pgp_signature_t sig;
     rnp_result_t    ret;
 
     sig.version = (pgp_version_t) 4;
@@ -1927,5 +1925,82 @@ finish:
     for (int i = destc - 1; i >= 0; i--) {
         dst_close(&dests[i], ret != RNP_SUCCESS);
     }
+    return ret;
+}
+
+rnp_result_t
+rnp_compress_src(pgp_source_t &src, pgp_dest_t &dst, pgp_compression_type_t zalg, int zlevel)
+{
+    pgp_write_handler_t handler = {};
+    rnp_ctx_t           ctx = {};
+    ctx.zalg = zalg;
+    ctx.zlevel = zlevel;
+    handler.ctx = &ctx;
+
+    pgp_dest_t   compressed = {};
+    rnp_result_t ret = init_compressed_dst(&handler, &compressed, &dst);
+    if (ret) {
+        goto done;
+    }
+    ret = dst_write_src(&src, &compressed);
+done:
+    dst_close(&compressed, ret);
+    rnp_ctx_free(&ctx);
+    return ret;
+}
+
+rnp_result_t
+rnp_wrap_src(pgp_source_t &src, pgp_dest_t &dst, const std::string &filename, uint32_t modtime)
+{
+    pgp_write_handler_t handler = {};
+    rnp_ctx_t           ctx = {};
+    ctx.filename = strdup(filename.c_str());
+    ctx.filemtime = modtime;
+    handler.ctx = &ctx;
+
+    pgp_dest_t   literal = {};
+    rnp_result_t ret = init_literal_dst(&handler, &literal, &dst);
+    if (ret) {
+        goto done;
+    }
+
+    ret = dst_write_src(&src, &literal);
+done:
+    dst_close(&literal, ret);
+    rnp_ctx_free(&ctx);
+    return ret;
+}
+
+rnp_result_t
+rnp_raw_encrypt_src(pgp_source_t &src, pgp_dest_t &dst, const std::string &password)
+{
+    pgp_write_handler_t handler = {};
+    rnp_ctx_t           ctx = {};
+    rng_t               rng = {};
+
+    if (!rng_init(&rng, RNG_SYSTEM)) {
+        return RNP_ERROR_BAD_STATE;
+    }
+    ctx.rng = &rng;
+    ctx.ealg = DEFAULT_PGP_SYMM_ALG;
+    handler.ctx = &ctx;
+    pgp_dest_t encrypted = {};
+
+    rnp_result_t ret = rnp_ctx_add_encryption_password(
+      &ctx, password.c_str(), DEFAULT_PGP_HASH_ALG, DEFAULT_PGP_SYMM_ALG, 0);
+    if (ret) {
+        goto done;
+    }
+
+    ret = init_encrypted_dst(&handler, &encrypted, &dst);
+    if (ret) {
+        goto done;
+    }
+
+    ret = dst_write_src(&src, &encrypted);
+done:
+    dst_close(&encrypted, ret);
+    rnp_ctx_free(&ctx);
+    rng_destroy(&rng);
     return ret;
 }

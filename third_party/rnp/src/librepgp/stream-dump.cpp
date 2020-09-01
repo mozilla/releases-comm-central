@@ -873,7 +873,6 @@ stream_dump_key(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
         }
     }
 
-    free_key_pkt(&key);
     indent_dest_decrease(dst);
     return RNP_SUCCESS;
 }
@@ -915,7 +914,6 @@ stream_dump_userid(pgp_source_t *src, pgp_dest_t *dst)
     default:;
     }
 
-    free_userid_pkt(&uid);
     indent_dest_decrease(dst);
     return RNP_SUCCESS;
 }
@@ -1161,6 +1159,14 @@ stream_dump_packets_raw(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
         return RNP_SUCCESS;
     }
 
+    /* do not allow endless recursion */
+    if (++ctx->layers > MAXIMUM_NESTING_LEVEL) {
+        RNP_LOG("Too many OpenPGP nested layers during the dump.");
+        dst_printf(dst, ":too many OpenPGP packet layers, stopping.");
+        ret = RNP_SUCCESS;
+        goto finish;
+    }
+
     while (!src_eof(src)) {
         pgp_packet_hdr_t hdr = {};
         size_t           off = src->readb;
@@ -1297,6 +1303,7 @@ stream_dump_packets(rnp_dump_ctx_t *ctx, pgp_source_t *src, pgp_dest_t *dst)
     bool         indent = false;
     rnp_result_t ret = RNP_ERROR_GENERIC;
 
+    ctx->layers = 0;
     /* check whether source is cleartext - then skip till the signature */
     if (is_cleartext_source(src)) {
         dst_printf(dst, ":cleartext signed data\n");
@@ -1883,10 +1890,8 @@ stream_dump_key_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object *pkt)
             goto done;
         }
     }
-
     ret = RNP_SUCCESS;
 done:
-    free_key_pkt(&key);
     return ret;
 }
 
@@ -1904,23 +1909,17 @@ stream_dump_userid_json(pgp_source_t *src, json_object *pkt)
     case PGP_PKT_USER_ID:
         if (!obj_add_field_json(
               pkt, "userid", json_object_new_string_len((char *) uid.uid, uid.uid_len))) {
-            ret = RNP_ERROR_OUT_OF_MEMORY;
-            goto done;
+            return RNP_ERROR_OUT_OF_MEMORY;
         }
         break;
     case PGP_PKT_USER_ATTR:
         if (!obj_add_hex_json(pkt, "userattr", uid.uid, uid.uid_len)) {
-            ret = RNP_ERROR_OUT_OF_MEMORY;
-            goto done;
+            return RNP_ERROR_OUT_OF_MEMORY;
         }
         break;
     default:;
     }
-
-    ret = RNP_SUCCESS;
-done:
-    free_userid_pkt(&uid);
-    return ret;
+    return RNP_SUCCESS;
 }
 
 static rnp_result_t
@@ -2197,6 +2196,13 @@ stream_dump_raw_packets_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object
         goto done;
     }
 
+    /* do not allow endless recursion */
+    if (++ctx->layers > MAXIMUM_NESTING_LEVEL) {
+        RNP_LOG("Too many OpenPGP nested layers during the dump.");
+        ret = RNP_SUCCESS;
+        goto done;
+    }
+
     while (!src_eof(src)) {
         pgp_packet_hdr_t hdr = {};
 
@@ -2299,6 +2305,7 @@ stream_dump_packets_json(rnp_dump_ctx_t *ctx, pgp_source_t *src, json_object **j
     bool         armored = false;
     rnp_result_t ret = RNP_ERROR_GENERIC;
 
+    ctx->layers = 0;
     /* check whether source is cleartext - then skip till the signature */
     if (is_cleartext_source(src)) {
         if (!stream_skip_cleartext(src)) {

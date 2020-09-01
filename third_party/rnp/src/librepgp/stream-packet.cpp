@@ -409,8 +409,10 @@ add_packet_body_s2k(pgp_packet_body_t *body, const pgp_s2k_t *s2k)
             return false;
         }
         if (s2k->gpg_ext_num == PGP_S2K_GPG_SMARTCARD) {
+            static_assert(sizeof(s2k->gpg_serial) == 16, "invalid gpg serial length");
+            size_t slen = s2k->gpg_serial_len > 16 ? 16 : s2k->gpg_serial_len;
             return add_packet_body_byte(body, s2k->gpg_serial_len) &&
-                   add_packet_body(body, s2k->gpg_serial, s2k->gpg_serial_len);
+                   add_packet_body(body, s2k->gpg_serial, slen);
         }
         return true;
     }
@@ -693,6 +695,11 @@ stream_read_packet_body(pgp_source_t *src, pgp_packet_body_t *body)
 {
     size_t len = 0;
     memset(body, 0, sizeof(*body));
+
+    /* Make sure we have enough data for packet header */
+    if (!src_peek_eq(src, body->hdr, 2)) {
+        return RNP_ERROR_READ;
+    }
 
     /* Read the packet header and length */
     if (!stream_pkt_hdr_len(src, &len)) {
@@ -2234,52 +2241,9 @@ stream_parse_key(pgp_source_t *src, pgp_key_pkt_t *key)
 finish:
     free_packet_body(&pkt);
     if (res) {
-        free_key_pkt(key);
+        *key = pgp_key_pkt_t();
     }
     return res;
-}
-
-bool
-copy_key_pkt(pgp_key_pkt_t *dst, const pgp_key_pkt_t *src, bool pubonly)
-{
-    if (!is_key_pkt(src->tag)) {
-        return false;
-    }
-
-    memcpy(dst, src, sizeof(*src));
-    if (src->hashed_data) {
-        dst->hashed_data = (uint8_t *) malloc(src->hashed_len);
-        if (!dst->hashed_data) {
-            return false;
-        }
-        memcpy(dst->hashed_data, src->hashed_data, src->hashed_len);
-    }
-
-    if (!pubonly && src->sec_data) {
-        dst->sec_data = (uint8_t *) malloc(src->sec_len);
-        if (!dst->sec_data) {
-            free(dst->hashed_data);
-            return false;
-        }
-        memcpy(dst->sec_data, src->sec_data, src->sec_len);
-    }
-
-    if (!pubonly || is_public_key_pkt(src->tag)) {
-        return true;
-    }
-
-    if (src->tag == PGP_PKT_SECRET_KEY) {
-        dst->tag = PGP_PKT_PUBLIC_KEY;
-    } else {
-        dst->tag = PGP_PKT_PUBLIC_SUBKEY;
-    }
-
-    forget_secret_key_fields(&dst->material);
-    dst->sec_data = NULL;
-    dst->sec_len = 0;
-    memset(&dst->sec_protection, 0, sizeof(dst->sec_protection));
-
-    return true;
 }
 
 bool
@@ -2305,23 +2269,6 @@ key_pkt_equal(const pgp_key_pkt_t *key1, const pgp_key_pkt_t *key2, bool pubonly
 
     /* check key material */
     return key_material_equal(&key1->material, &key2->material);
-}
-
-void
-free_key_pkt(pgp_key_pkt_t *key)
-{
-    if (!key) {
-        return;
-    }
-    free(key->hashed_data);
-    if (key->sec_data) {
-        pgp_forget(key->sec_data, key->sec_len);
-        free(key->sec_data);
-    }
-    if (key->material.secret) {
-        pgp_forget(&key->material, sizeof(key->material));
-    }
-    memset(key, 0, sizeof(*key));
 }
 
 bool
@@ -2382,35 +2329,4 @@ stream_parse_userid(pgp_source_t *src, pgp_userid_pkt_t *userid)
     userid->uid = pkt.data; /* take ownership on data */
     userid->uid_len = pkt.len;
     return RNP_SUCCESS;
-}
-
-bool
-copy_userid_pkt(pgp_userid_pkt_t *dst, const pgp_userid_pkt_t *src)
-{
-    *dst = *src;
-    if (src->uid) {
-        dst->uid = (uint8_t *) malloc(src->uid_len);
-        if (!dst->uid) {
-            return false;
-        }
-        memcpy(dst->uid, src->uid, src->uid_len);
-    }
-
-    return true;
-}
-
-bool
-userid_pkt_equal(const pgp_userid_pkt_t *uid1, const pgp_userid_pkt_t *uid2)
-{
-    if ((uid1->tag != uid2->tag) || (uid1->uid_len != uid2->uid_len)) {
-        return false;
-    }
-
-    return !memcmp(uid1->uid, uid2->uid, uid1->uid_len);
-}
-
-void
-free_userid_pkt(pgp_userid_pkt_t *userid)
-{
-    free(userid->uid);
 }

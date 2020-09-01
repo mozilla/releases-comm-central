@@ -909,8 +909,8 @@ TEST_F(rnp_tests, test_generated_key_sigs)
 
     // primary
     {
-        pgp_key_t                 pub = {};
-        pgp_key_t                 sec = {};
+        pgp_key_t                 pub;
+        pgp_key_t                 sec;
         rnp_keygen_primary_desc_t desc;
         pgp_fingerprint_t         fp = {};
         pgp_sig_subpkt_t *        subpkt = NULL;
@@ -996,8 +996,11 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         psig->hashed_data[32] ^= 0xff;
         ssig->hashed_data[32] ^= 0xff;
         // ensure validation fails with incorrect uid
-        pgp_userid_pkt_t uid = {
-          .tag = PGP_PKT_USER_ID, .uid = (uint8_t *) "fake", .uid_len = 4};
+        pgp_userid_pkt_t uid;
+        uid.tag = PGP_PKT_USER_ID;
+        uid.uid = (uint8_t *) malloc(4);
+        uid.uid_len = 4;
+        memcpy(uid.uid, "fake", 4);
 
         assert_rnp_failure(
           signature_check_certification(&psiginfo, pgp_key_get_pkt(&pub), &uid));
@@ -1046,8 +1049,8 @@ TEST_F(rnp_tests, test_generated_key_sigs)
 
     // sub
     {
-        pgp_key_t                pub = {};
-        pgp_key_t                sec = {};
+        pgp_key_t                pub;
+        pgp_key_t                sec;
         rnp_keygen_subkey_desc_t desc;
         pgp_fingerprint_t        fp = {};
         pgp_sig_subpkt_t *       subpkt = NULL;
@@ -1085,8 +1088,8 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         // validate the binding sig
         psiginfo.sig = psig;
         psiginfo.signer = primary_pub;
-        assert_rnp_success(signature_check_binding(
-          &psiginfo, pgp_key_get_pkt(primary_pub), pgp_key_get_pkt(&pub)));
+        assert_rnp_success(
+          signature_check_binding(&psiginfo, pgp_key_get_pkt(primary_pub), &pub));
         assert_true(signature_get_keyfp(psig, fp));
         assert_true(fp == pgp_key_get_fp(primary_pub));
         // check subpackets and their contents
@@ -1107,8 +1110,8 @@ TEST_F(rnp_tests, test_generated_key_sigs)
 
         ssiginfo.sig = ssig;
         ssiginfo.signer = primary_pub;
-        assert_rnp_success(signature_check_binding(
-          &ssiginfo, pgp_key_get_pkt(primary_pub), pgp_key_get_pkt(&sec)));
+        assert_rnp_success(
+          signature_check_binding(&ssiginfo, pgp_key_get_pkt(primary_pub), &sec));
         assert_true(signature_get_keyfp(ssig, fp));
         assert_true(fp == pgp_key_get_fp(primary_sec));
 
@@ -1116,10 +1119,10 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         psig->hashed_data[10] ^= 0xff;
         ssig->hashed_data[10] ^= 0xff;
         // ensure validation fails
-        assert_rnp_failure(signature_check_binding(
-          &psiginfo, pgp_key_get_pkt(primary_pub), pgp_key_get_pkt(&pub)));
-        assert_rnp_failure(signature_check_binding(
-          &ssiginfo, pgp_key_get_pkt(primary_pub), pgp_key_get_pkt(&sec)));
+        assert_rnp_failure(
+          signature_check_binding(&psiginfo, pgp_key_get_pkt(primary_pub), &pub));
+        assert_rnp_failure(
+          signature_check_binding(&ssiginfo, pgp_key_get_pkt(primary_pub), &sec));
         // restore the original data
         psig->hashed_data[10] ^= 0xff;
         ssig->hashed_data[10] ^= 0xff;

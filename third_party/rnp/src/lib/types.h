@@ -190,6 +190,16 @@ typedef struct pgp_key_pkt_t {
     pgp_key_protection_t sec_protection;
     uint8_t *            sec_data;
     size_t               sec_len;
+
+    pgp_key_pkt_t()
+        : tag(PGP_PKT_RESERVED), version(PGP_VUNKNOWN), creation_time(0), alg(PGP_PKA_NOTHING),
+          v3_days(0), hashed_data(NULL), hashed_len(0), material({}), sec_protection({}),
+          sec_data(NULL), sec_len(0){};
+    pgp_key_pkt_t(const pgp_key_pkt_t &src, bool pubonly = false);
+    pgp_key_pkt_t(pgp_key_pkt_t &&src);
+    pgp_key_pkt_t &operator=(pgp_key_pkt_t &&src);
+    pgp_key_pkt_t &operator=(const pgp_key_pkt_t &src);
+    ~pgp_key_pkt_t();
 } pgp_key_pkt_t;
 
 typedef struct pgp_key_t pgp_key_t;
@@ -201,6 +211,15 @@ typedef struct pgp_userid_pkt_t {
     pgp_pkt_type_t tag;
     uint8_t *      uid;
     size_t         uid_len;
+
+    pgp_userid_pkt_t() : tag(PGP_PKT_RESERVED), uid(NULL), uid_len(0){};
+    pgp_userid_pkt_t(const pgp_userid_pkt_t &src);
+    pgp_userid_pkt_t(pgp_userid_pkt_t &&src);
+    pgp_userid_pkt_t &operator=(pgp_userid_pkt_t &&src);
+    pgp_userid_pkt_t &operator=(const pgp_userid_pkt_t &src);
+    bool              operator==(const pgp_userid_pkt_t &src) const;
+    bool              operator!=(const pgp_userid_pkt_t &src) const;
+    ~pgp_userid_pkt_t();
 } pgp_userid_pkt_t;
 
 typedef struct pgp_signature_t pgp_signature_t;
@@ -208,11 +227,11 @@ typedef struct pgp_signature_t pgp_signature_t;
 /* Signature subpacket, see 5.2.3.1 in RFC 4880 and RFC 4880 bis 02 */
 typedef struct pgp_sig_subpkt_t {
     pgp_sig_subpacket_type_t type;         /* type of the subpacket */
-    unsigned                 len;          /* length of the data */
+    size_t                   len;          /* length of the data */
     uint8_t *                data;         /* raw subpacket data, excluding the header */
-    unsigned                 critical : 1; /* critical flag */
-    unsigned                 hashed : 1;   /* whether subpacket is hashed or not */
-    unsigned                 parsed : 1;   /* whether subpacket was successfully parsed */
+    bool                     critical : 1; /* critical flag */
+    bool                     hashed : 1;   /* whether subpacket is hashed or not */
+    bool                     parsed : 1;   /* whether subpacket was successfully parsed */
     union {
         uint32_t create; /* 5.2.3.4.   Signature Creation Time */
         uint32_t expiry; /* 5.2.3.6.   Key Expiration Time */
@@ -287,7 +306,9 @@ typedef struct pgp_sig_subpkt_t {
         } issuer_fp; /* 5.2.3.28.  Issuer Fingerprint, RFC 4880 bis 04 */
     } fields;        /* parsed contents of the subpacket */
 
-    pgp_sig_subpkt_t();
+    pgp_sig_subpkt_t()
+        : type(PGP_SIG_SUBPKT_UNKNOWN), len(0), data(NULL), critical(false), hashed(false),
+          parsed(false), fields({}){};
     pgp_sig_subpkt_t(const pgp_sig_subpkt_t &src);
     pgp_sig_subpkt_t(pgp_sig_subpkt_t &&src);
     pgp_sig_subpkt_t &operator=(pgp_sig_subpkt_t &&src);
@@ -314,7 +335,10 @@ typedef struct pgp_signature_t {
     /* v4 - only fields */
     std::vector<pgp_sig_subpkt_t> subpkts;
 
-    pgp_signature_t() : hashed_data(NULL), material_buf(NULL){};
+    pgp_signature_t()
+        : version(PGP_VUNKNOWN), type(PGP_SIG_BINARY), palg(PGP_PKA_NOTHING),
+          halg(PGP_HASH_UNKNOWN), hashed_data(NULL), hashed_len(0), material_buf(NULL),
+          material_len(0), creation_time(0){};
     pgp_signature_t(const pgp_signature_t &src);
     pgp_signature_t(pgp_signature_t &&src);
     pgp_signature_t &operator=(pgp_signature_t &&src);
@@ -336,7 +360,6 @@ typedef struct pgp_rawpacket_t {
     pgp_rawpacket_t(const pgp_signature_t &sig);
     pgp_rawpacket_t(pgp_key_pkt_t &key);
     pgp_rawpacket_t(const pgp_userid_pkt_t &uid);
-    ~pgp_rawpacket_t();
 } pgp_rawpacket_t;
 
 typedef enum {
@@ -449,15 +472,6 @@ typedef struct pgp_userid_t {
     pgp_userid_pkt_t pkt;    /* User ID or User Attribute packet as it was loaded */
     pgp_rawpacket_t  rawpkt; /* Raw packet contents */
     std::string      str;    /* Human-readable representation of the userid */
-
-    pgp_userid_t() = default;
-    pgp_userid_t(const pgp_userid_t &src);
-    pgp_userid_t(pgp_userid_t &&src);
-    pgp_userid_t &operator=(const pgp_userid_t &src);
-    ~pgp_userid_t();
-
-    /* make sure we use only explicitly defined constructors/operators */
-    pgp_userid_t &operator=(pgp_userid_t &&) = delete;
 } pgp_userid_t;
 
 struct rnp_keygen_ecc_params_t {

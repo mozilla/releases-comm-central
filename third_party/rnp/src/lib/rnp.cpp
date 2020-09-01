@@ -414,6 +414,20 @@ get_map_value(const pgp_map_t *map, size_t msize, int val, char **res)
     return RNP_SUCCESS;
 }
 
+static rnp_result_t
+ret_str_value(const char *str, char **res)
+{
+    if (!str) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    char *strcp = strdup(str);
+    if (!strcp) {
+        return RNP_ERROR_OUT_OF_MEMORY;
+    }
+    *res = strcp;
+    return RNP_SUCCESS;
+}
+
 static uint32_t
 ffi_exception(FILE *fp, const char *func, const char *msg, uint32_t ret = RNP_ERROR_GENERIC)
 {
@@ -1137,7 +1151,7 @@ do_load_keys(rnp_ffi_t              ffi,
 {
     rnp_result_t     ret = RNP_ERROR_GENERIC;
     rnp_key_store_t *tmp_store = NULL;
-    pgp_key_t        keycp = {};
+    pgp_key_t        keycp;
     rnp_result_t     tmpret;
 
     // create a temporary key store to hold the keys
@@ -1182,8 +1196,11 @@ do_load_keys(rnp_ffi_t              ffi,
             continue;
         }
 
-        if ((tmpret = pgp_key_copy(keycp, key, true))) {
-            ret = tmpret;
+        try {
+            keycp = pgp_key_t(key, true);
+        } catch (const std::exception &e) {
+            RNP_LOG("Failed to copy public key part: %s", e.what());
+            ret = RNP_ERROR_GENERIC;
             goto done;
         }
 
@@ -2743,6 +2760,8 @@ rnp_op_verify_on_signatures(const std::vector<pgp_signature_info_t> &sigs, void 
     rnp_op_verify_t op = (rnp_op_verify_t) param;
 
     try {
+        /* in case we have multiple signed layers */
+        delete[] op->signatures;
         op->signatures = new rnp_op_verify_signature_st[sigs.size()];
     } catch (const std::exception &e) {
         FFI_LOG(op->ffi, "%s", e.what());
@@ -2833,6 +2852,10 @@ rnp_verify_on_recipients(const std::vector<pgp_pk_sesskey_t> &recipients,
                          void *                               param)
 {
     rnp_op_verify_t op = (rnp_op_verify_t) param;
+    /* store only top-level encrypted stream recipients info for now */
+    if (op->encrypted_layers++) {
+        return;
+    }
     if (!recipients.empty()) {
         op->recipients =
           (rnp_recipient_handle_t) calloc(recipients.size(), sizeof(*op->recipients));
@@ -2845,7 +2868,6 @@ rnp_verify_on_recipients(const std::vector<pgp_pk_sesskey_t> &recipients,
         }
     }
     op->recipient_count = recipients.size();
-
     if (!passwords.empty()) {
         op->symencs = (rnp_symenc_handle_t) calloc(passwords.size(), sizeof(*op->symencs));
         if (!op->symencs) {
@@ -2863,6 +2885,10 @@ static void
 rnp_verify_on_decryption_start(pgp_pk_sesskey_t *pubenc, pgp_sk_sesskey_t *symenc, void *param)
 {
     rnp_op_verify_t op = (rnp_op_verify_t) param;
+    /* store only top-level encrypted stream info */
+    if (op->encrypted_layers > 1) {
+        return;
+    }
     if (pubenc) {
         op->used_recipient = (rnp_recipient_handle_t) calloc(1, sizeof(*op->used_recipient));
         if (!op->used_recipient) {
@@ -2888,6 +2914,10 @@ static void
 rnp_verify_on_decryption_info(bool mdc, pgp_aead_alg_t aead, pgp_symm_alg_t salg, void *param)
 {
     rnp_op_verify_t op = (rnp_op_verify_t) param;
+    /* store only top-level encrypted stream info for now */
+    if (op->encrypted_layers > 1) {
+        return;
+    }
     op->mdc = mdc;
     op->aead = aead;
     op->salg = salg;
@@ -2898,6 +2928,9 @@ static void
 rnp_verify_on_decryption_done(bool validated, void *param)
 {
     rnp_op_verify_t op = (rnp_op_verify_t) param;
+    if (op->encrypted_layers > 1) {
+        return;
+    }
     op->validated = validated;
 }
 
@@ -2907,7 +2940,7 @@ rnp_op_verify_create(rnp_op_verify_t *op,
                      rnp_input_t      input,
                      rnp_output_t     output)
 try {
-    if (!op || !ffi || !input) {
+    if (!op || !ffi || !input || !output) {
         return RNP_ERROR_NULL_POINTER;
     }
 
@@ -2953,6 +2986,10 @@ FFI_GUARD
 rnp_result_t
 rnp_op_verify_execute(rnp_op_verify_t op)
 try {
+    if (!op) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+
     pgp_parse_handler_t handler;
 
     handler.password_provider = &op->ffi->pass_provider;
@@ -4339,10 +4376,10 @@ try {
     rnp_action_keygen_t keygen_desc = {};
     char *              identifier_type = NULL;
     char *              identifier = NULL;
-    pgp_key_t           primary_pub = {};
-    pgp_key_t           primary_sec = {};
-    pgp_key_t           sub_pub = {};
-    pgp_key_t           sub_sec = {};
+    pgp_key_t           primary_pub;
+    pgp_key_t           primary_sec;
+    pgp_key_t           sub_pub;
+    pgp_key_t           sub_sec;
     json_object *       jsoprimary = NULL;
     json_object *       jsosub = NULL;
     json_tokener_error  error;
@@ -5212,8 +5249,8 @@ try {
     }
 
     rnp_result_t            ret = RNP_ERROR_GENERIC;
-    pgp_key_t               pub = {};
-    pgp_key_t               sec = {};
+    pgp_key_t               pub;
+    pgp_key_t               sec;
     pgp_password_provider_t prov = {.callback = NULL};
 
     if (op->primary) {
@@ -5477,8 +5514,7 @@ try {
 
     ret = RNP_SUCCESS;
 done:
-    free_key_pkt(decrypted_seckey);
-    free(decrypted_seckey);
+    delete decrypted_seckey;
     return ret;
 }
 FFI_GUARD
@@ -6149,6 +6185,130 @@ try {
 FFI_GUARD
 
 rnp_result_t
+rnp_key_get_protection_type(rnp_key_handle_t key, char **type)
+try {
+    if (!key || !type) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (!key->sec) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    pgp_s2k_t & s2k = key->sec->pkt.sec_protection.s2k;
+    const char *res = NULL;
+    if (s2k.usage == PGP_S2KU_NONE) {
+        res = "None";
+    }
+    if ((s2k.usage == PGP_S2KU_ENCRYPTED) && (s2k.specifier != PGP_S2KS_EXPERIMENTAL)) {
+        res = "Encrypted";
+    }
+    if ((s2k.usage == PGP_S2KU_ENCRYPTED_AND_HASHED) &&
+        (s2k.specifier != PGP_S2KS_EXPERIMENTAL)) {
+        res = "Encrypted-Hashed";
+    }
+    if ((s2k.specifier == PGP_S2KS_EXPERIMENTAL) &&
+        (s2k.gpg_ext_num == PGP_S2K_GPG_NO_SECRET)) {
+        res = "GPG-None";
+    }
+    if ((s2k.specifier == PGP_S2KS_EXPERIMENTAL) &&
+        (s2k.gpg_ext_num == PGP_S2K_GPG_SMARTCARD)) {
+        res = "GPG-Smartcard";
+    }
+
+    return ret_str_value(res, type);
+}
+FFI_GUARD
+
+rnp_result_t
+rnp_key_get_protection_mode(rnp_key_handle_t key, char **mode)
+try {
+    if (!key || !mode) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (!key->sec) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    if (key->sec->pkt.sec_protection.s2k.usage == PGP_S2KU_NONE) {
+        return ret_str_value("None", mode);
+    }
+    if (key->sec->pkt.sec_protection.s2k.specifier == PGP_S2KS_EXPERIMENTAL) {
+        return ret_str_value("Unknown", mode);
+    }
+
+    return get_map_value(cipher_mode_map,
+                         ARRAY_SIZE(cipher_mode_map),
+                         key->sec->pkt.sec_protection.cipher_mode,
+                         mode);
+}
+FFI_GUARD
+
+static bool
+pgp_key_has_encryption_info(const pgp_key_t *key)
+{
+    return (key->pkt.sec_protection.s2k.usage != PGP_S2KU_NONE) &&
+           (key->pkt.sec_protection.s2k.specifier != PGP_S2KS_EXPERIMENTAL);
+}
+
+rnp_result_t
+rnp_key_get_protection_cipher(rnp_key_handle_t key, char **cipher)
+try {
+    if (!key || !cipher) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (!key->sec) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    if (!pgp_key_has_encryption_info(key->sec)) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    return get_map_value(
+      symm_alg_map, ARRAY_SIZE(symm_alg_map), key->sec->pkt.sec_protection.symm_alg, cipher);
+}
+FFI_GUARD
+
+rnp_result_t
+rnp_key_get_protection_hash(rnp_key_handle_t key, char **hash)
+try {
+    if (!key || !hash) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (!key->sec) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    if (!pgp_key_has_encryption_info(key->sec)) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    return get_map_value(
+      hash_alg_map, ARRAY_SIZE(hash_alg_map), key->sec->pkt.sec_protection.s2k.hash_alg, hash);
+}
+FFI_GUARD
+
+rnp_result_t
+rnp_key_get_protection_iterations(rnp_key_handle_t key, size_t *iterations)
+try {
+    if (!key || !iterations) {
+        return RNP_ERROR_NULL_POINTER;
+    }
+    if (!key->sec) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+    if (!pgp_key_has_encryption_info(key->sec)) {
+        return RNP_ERROR_BAD_PARAMETERS;
+    }
+
+    if (key->sec->pkt.sec_protection.s2k.specifier == PGP_S2KS_ITERATED_AND_SALTED) {
+        *iterations = pgp_s2k_decode_iterations(key->sec->pkt.sec_protection.s2k.iterations);
+    } else {
+        *iterations = 1;
+    }
+    return RNP_SUCCESS;
+}
+FFI_GUARD
+
+rnp_result_t
 rnp_key_is_locked(rnp_key_handle_t handle, bool *result)
 try {
     if (handle == NULL || result == NULL)
@@ -6273,8 +6433,7 @@ try {
     ret = RNP_SUCCESS;
 
 done:
-    free_key_pkt(decrypted_seckey);
-    free(decrypted_seckey);
+    delete decrypted_seckey;
     return ret;
 }
 FFI_GUARD

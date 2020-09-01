@@ -133,7 +133,13 @@ load_generated_g10_key(pgp_key_t *    dst,
     // if a primary key is provided, it should match the sub with regards to type
     assert(!primary_key ||
            (pgp_key_is_secret(primary_key) == pgp_key_is_secret(&key_store->keys.front())));
-    ok = !pgp_key_copy(*dst, key_store->keys.front(), false);
+    try {
+        *dst = pgp_key_t(key_store->keys.front());
+        ok = true;
+    } catch (const std::exception &e) {
+        RNP_LOG("Failed to copy key: %s", e.what());
+        ok = false;
+    }
 end:
     delete key_store;
     src_close(&memsrc);
@@ -350,8 +356,8 @@ pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
                          pgp_key_store_format_t     secformat)
 {
     bool                       ok = false;
-    pgp_transferable_key_t     tkeysec = {};
-    pgp_transferable_key_t     tkeypub = {};
+    pgp_transferable_key_t     tkeysec;
+    pgp_transferable_key_t     tkeypub;
     pgp_transferable_userid_t *uid = NULL;
 
     // validate args
@@ -390,8 +396,10 @@ pgp_generate_primary_key(rnp_keygen_primary_desc_t *desc,
         goto end;
     }
 
-    if (!transferable_key_copy(tkeypub, tkeysec, true)) {
-        RNP_LOG("failed to copy public key part");
+    try {
+        tkeypub = pgp_transferable_key_t(tkeysec, true);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to copy public key part: %s", e.what());
         goto end;
     }
 
@@ -463,8 +471,8 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
                     const pgp_password_provider_t *password_provider,
                     pgp_key_store_format_t         secformat)
 {
-    pgp_transferable_subkey_t tskeysec = {};
-    pgp_transferable_subkey_t tskeypub = {};
+    pgp_transferable_subkey_t tskeysec;
+    pgp_transferable_subkey_t tskeypub;
     const pgp_key_pkt_t *     primary_seckey = NULL;
     pgp_key_pkt_t *           decrypted_primary_seckey = NULL;
     pgp_password_ctx_t        ctx = {};
@@ -519,8 +527,10 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
         goto end;
     }
 
-    if (!transferable_subkey_copy(tskeypub, tskeysec, true)) {
-        RNP_LOG("failed to copy public subkey part");
+    try {
+        tskeypub = pgp_transferable_subkey_t(tskeysec, true);
+    } catch (const std::exception &e) {
+        RNP_LOG("failed to copy public subkey part: %s", e.what());
         goto end;
     }
 
@@ -553,8 +563,7 @@ pgp_generate_subkey(rnp_keygen_subkey_desc_t *     desc,
          pgp_subkey_refresh_data(subkey_sec, primary_sec);
 end:
     if (decrypted_primary_seckey) {
-        free_key_pkt(decrypted_primary_seckey);
-        free(decrypted_primary_seckey);
+        delete decrypted_primary_seckey;
     }
     return ok;
 }

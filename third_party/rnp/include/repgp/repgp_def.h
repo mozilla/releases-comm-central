@@ -149,7 +149,7 @@ typedef enum {
  * @brief OpenPGP packet tags. See section 4.3 of RFC4880 for the detailed description.
  *
  */
-typedef enum {
+typedef enum : uint8_t {
     PGP_PKT_RESERVED = 0,       /* Reserved - a packet tag must not have this value */
     PGP_PKT_PK_SESSION_KEY = 1, /* Public-Key Encrypted Session Key Packet */
     PGP_PKT_SIGNATURE = 2,      /* Signature Packet */
@@ -180,7 +180,7 @@ typedef enum {
  *
  * \see RFC4880 9.1
  */
-typedef enum {
+typedef enum : uint8_t {
     PGP_PKA_NOTHING = 0,                  /* No PKA */
     PGP_PKA_RSA = 1,                      /* RSA (Encrypt or Sign) */
     PGP_PKA_RSA_ENCRYPT_ONLY = 2,         /* RSA Encrypt-Only (deprecated -
@@ -287,7 +287,7 @@ typedef enum {
 
 /** s2k_specifier_t
  */
-typedef enum {
+typedef enum : uint8_t {
     PGP_S2KS_SIMPLE = 0,
     PGP_S2KS_SALTED = 1,
     PGP_S2KS_ITERATED_AND_SALTED = 3,
@@ -313,7 +313,7 @@ typedef enum {
  *
  * \see RFC4880 5.2.1
  */
-typedef enum {
+typedef enum : uint8_t {
     PGP_SIG_BINARY = 0x00,     /* Signature of a binary document */
     PGP_SIG_TEXT = 0x01,       /* Signature of a canonical text document */
     PGP_SIG_STANDALONE = 0x02, /* Standalone signature */
@@ -422,6 +422,7 @@ enum { PGP_SE_IP_DATA_VERSION = 1, PGP_PKSK_V3 = 3, PGP_SKSK_V4 = 4, PGP_SKSK_V5
  * \see RFC4880 5.2
  */
 typedef enum {
+    PGP_VUNKNOWN = 0,
     PGP_V2 = 2, /* Version 2 (essentially the same as v3) */
     PGP_V3 = 3, /* Version 3 */
     PGP_V4 = 4  /* Version 4 */
@@ -451,7 +452,7 @@ typedef enum pgp_op_t {
  *
  * \see RFC4880 9.4
  */
-typedef enum {
+typedef enum : uint8_t {
     PGP_HASH_UNKNOWN = 0, /* used to indicate errors */
     PGP_HASH_MD5 = 1,
     PGP_HASH_SHA1 = 2,
@@ -468,5 +469,12 @@ typedef enum {
     PGP_HASH_SM3 = 105,
     PGP_HASH_CRC24 = 106
 } pgp_hash_alg_t;
+
+typedef enum pgp_key_store_format_t {
+    PGP_KEY_STORE_UNKNOWN = 0,
+    PGP_KEY_STORE_GPG,
+    PGP_KEY_STORE_KBX,
+    PGP_KEY_STORE_G10,
+} pgp_key_store_format_t;
 
 #endif

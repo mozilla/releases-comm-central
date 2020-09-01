@@ -270,7 +270,7 @@ parse_sexp(s_exp_t *s_exp, const char **r_bytes, size_t *r_length)
 
     s_exp_t new_s_exp = {0};
 
-    if (bytes == NULL || length == 0) {
+    if (!bytes || !length) {
         RNP_LOG("empty s-exp");
         return true;
     }
@@ -283,7 +283,7 @@ parse_sexp(s_exp_t *s_exp, const char **r_bytes, size_t *r_length)
     length--;
 
     do {
-        if (length <= 0) { // unexpected end
+        if (!length) { // unexpected end
             RNP_LOG("s-exp finished before ')'");
             destroy_s_exp(&new_s_exp);
             return false;
@@ -301,40 +301,57 @@ parse_sexp(s_exp_t *s_exp, const char **r_bytes, size_t *r_length)
                 return false;
             }
 
+            if (!length) {
+                RNP_LOG("No space for closing ) left.");
+                destroy_s_exp(&new_s_exp);
+                return false;
+            }
             continue;
         }
 
-        char *next;
-        long  len = strtol(bytes, &next, 10);
+        size_t len = 0;
+        size_t chars = 0;
+        while (length > 1) {
+            if ((*bytes < '0') || (*bytes > '9')) {
+                break;
+            }
+            len = len * 10 + (long) (*bytes - '0');
+            length--;
+            bytes++;
+            /* no reason to read more then 8 chars */
+            if (++chars > 8) {
+                break;
+            }
+        }
 
-        if (*next != ':') { // doesn't contain :
+        if (!chars) {
+            RNP_LOG("s-exp contains empty len");
+            destroy_s_exp(&new_s_exp);
+            return false;
+        }
+
+        if (*bytes != ':') { // doesn't contain :
             RNP_LOG("s-exp doesn't contain ':'");
             destroy_s_exp(&new_s_exp);
             return false;
         }
 
-        next++;
+        bytes++;
+        length--;
 
-        length -= (next - bytes);
-        bytes = next;
-
-        if (len == LONG_MIN || len == LONG_MAX || len <= 0 || (size_t) len >= length) {
-            RNP_LOG(
-              "len over/under flow or bigger than remaining bytes, len: %ld, length: %zu",
-              len,
-              length);
+        if (!len || len >= length) {
+            RNP_LOG("zero or too large len, len: %zu, length: %zu", len, length);
             destroy_s_exp(&new_s_exp);
             return false;
         }
 
-        if (!add_block_to_sexp(&new_s_exp, (uint8_t *) bytes, (size_t) len)) {
+        if (!add_block_to_sexp(&new_s_exp, (uint8_t *) bytes, len)) {
             destroy_s_exp(&new_s_exp);
             return false;
         }
 
         bytes += len;
         length -= len;
-
     } while (*bytes != ')');
 
     bytes++;
@@ -1035,7 +1052,7 @@ g10_parse_seckey(pgp_key_pkt_t *seckey,
 done:
     destroy_s_exp(&s_exp);
     if (!ret) {
-        free_key_pkt(seckey);
+        *seckey = pgp_key_pkt_t();
     }
     return ret;
 }
@@ -1046,26 +1063,14 @@ g10_decrypt_seckey(const uint8_t *      data,
                    const pgp_key_pkt_t *pubkey,
                    const char *         password)
 {
-    pgp_key_pkt_t *seckey = NULL;
-    bool           ok = false;
-
     if (!password) {
         return NULL;
     }
 
-    seckey = (pgp_key_pkt_t *) calloc(1, sizeof(*seckey));
-    if (pubkey && !copy_key_pkt(seckey, pubkey, false)) {
-        goto done;
-    }
+    pgp_key_pkt_t *seckey = pubkey ? new pgp_key_pkt_t(*pubkey, false) : new pgp_key_pkt_t();
     if (!g10_parse_seckey(seckey, data, data_len, password)) {
-        goto done;
-    }
-    ok = true;
-
-done:
-    if (!ok) {
-        free(seckey);
-        seckey = NULL;
+        delete seckey;
+        return NULL;
     }
     return seckey;
 }
@@ -1112,8 +1117,8 @@ rnp_key_store_g10_from_src(rnp_key_store_t *         key_store,
                            const pgp_key_provider_t *key_provider)
 {
     const pgp_key_t *pubkey = NULL;
-    pgp_key_t        key = {};
-    pgp_key_pkt_t    seckey = {};
+    pgp_key_t        key;
+    pgp_key_pkt_t    seckey;
     pgp_source_t     memsrc = {};
     bool             ret = false;
 
@@ -1144,13 +1149,11 @@ rnp_key_store_g10_from_src(rnp_key_store_t *         key_store,
             goto done;
         }
 
-        if (pgp_key_copy_fields(key, *pubkey)) {
-            RNP_LOG("failed to copy key fields");
-            goto done;
-        }
-
         /* public key packet has some more info then the secret part */
-        if (!copy_key_pkt(&key.pkt, pgp_key_get_pkt(pubkey), false)) {
+        try {
+            key = pgp_key_t(*pubkey, true);
+        } catch (const std::exception &e) {
+            RNP_LOG("%s", e.what());
             goto done;
         }
 
@@ -1158,8 +1161,7 @@ rnp_key_store_g10_from_src(rnp_key_store_t *         key_store,
             goto done;
         }
     } else {
-        key.pkt = seckey;
-        memset(&seckey, 0, sizeof(seckey));
+        key.pkt = std::move(seckey);
     }
 
     try {
@@ -1176,9 +1178,6 @@ rnp_key_store_g10_from_src(rnp_key_store_t *         key_store,
     ret = true;
 done:
     src_close(&memsrc);
-    if (!ret) {
-        free_key_pkt(&seckey);
-    }
     return ret;
 }
 

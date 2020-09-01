@@ -321,6 +321,8 @@ void test_ffi_key_export_autocrypt(void **state);
 
 void test_ffi_decrypt_edge_cases(void **state);
 
+void test_ffi_key_get_protection_info(void **state);
+
 void test_dsa_roundtrip(void **state);
 
 void test_dsa_verify_negative(void **state);
@@ -352,6 +354,8 @@ void test_stream_z(void **state);
 void test_stream_verify_no_key(void **state);
 
 void test_stream_key_signature_validate(void **state);
+
+void test_stream_deep_packet_nesting(void **state);
 
 void test_key_validity(void **state);
 
@@ -406,6 +410,12 @@ void issue_1030_rnpkeys_secret_keys_unprotected(void **state);
 void test_issue_1171_key_import_and_remove(void **state);
 
 void test_log_switch(void **state);
+
+void test_fuzz_keyring(void **state);
+
+void test_fuzz_keyring_g10(void **state);
+
+void test_fuzz_keyring_kbx(void **state);
 
 #define assert_true(a) EXPECT_TRUE((a))
 #define assert_false(a) EXPECT_FALSE((a))

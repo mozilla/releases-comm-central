@@ -189,7 +189,7 @@ stdin_getpass(const char *prompt, char *buffer, size_t size, cli_rnp_t *rnp)
     bool  ok = false;
     FILE *in = NULL;
     FILE *out = NULL;
-    FILE *userio_in = (rnp ? rnp->userio_in : stdin);
+    FILE *userio_in = (rnp && rnp->userio_in) ? rnp->userio_in : stdin;
 
     // validate args
     if (!buffer) {
@@ -802,16 +802,18 @@ cli_rnp_print_key_info(FILE *fp, rnp_ffi_t ffi, rnp_key_handle_t key, bool psecr
             if (rnp_signature_get_keyid(sig, &keyid)) {
                 goto next;
             }
-            /* lowercase key id */
-            for (char *idptr = keyid; *idptr; ++idptr) {
-                *idptr = tolower(*idptr);
-            }
-            /* signer primary uid */
-            if (rnp_locate_key(ffi, "keyid", keyid, &signer)) {
-                goto next;
-            }
-            if (signer) {
-                (void) rnp_key_get_primary_uid(signer, &signer_uid);
+            if (keyid) {
+                /* lowercase key id */
+                for (char *idptr = keyid; *idptr; ++idptr) {
+                    *idptr = tolower(*idptr);
+                }
+                /* signer primary uid */
+                if (rnp_locate_key(ffi, "keyid", keyid, &signer)) {
+                    goto next;
+                }
+                if (signer) {
+                    (void) rnp_key_get_primary_uid(signer, &signer_uid);
+                }
             }
 
             /* signer key id */
@@ -1127,7 +1129,12 @@ key_matches_string(rnp_key_handle_t handle, const std::string &str)
         goto done;
     }
 #else
-    re.assign(str, std::regex_constants::extended | std::regex_constants::icase);
+    try {
+        re.assign(str, std::regex_constants::extended | std::regex_constants::icase);
+    } catch (const std::exception &e) {
+        ERR_MSG("Invalid regular expression : %s, error %s.", str.c_str(), e.what());
+        goto done;
+    }
 #endif
 
     for (size_t idx = 0; idx < uid_count; idx++) {

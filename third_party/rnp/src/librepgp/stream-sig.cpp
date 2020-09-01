@@ -866,15 +866,12 @@ signature_fill_hashed_data(pgp_signature_t *sig)
 bool
 signature_hash_key(const pgp_key_pkt_t *key, pgp_hash_t *hash)
 {
-    uint8_t       hdr[3] = {0x99, 0x00, 0x00};
-    pgp_key_pkt_t keycp = {};
-    bool          res = false;
-
     if (!key || !hash) {
         RNP_LOG("null key or hash");
         return false;
     }
 
+    uint8_t hdr[3] = {0x99, 0x00, 0x00};
     if (key->hashed_data) {
         write_uint16(hdr + 1, key->hashed_len);
         return !pgp_hash_add(hash, hdr, 3) &&
@@ -882,10 +879,13 @@ signature_hash_key(const pgp_key_pkt_t *key, pgp_hash_t *hash)
     }
 
     /* call self recursively if hashed data is not filled, to overcome const restriction */
-    res = copy_key_pkt(&keycp, key, true) && key_fill_hashed_data(&keycp) &&
-          signature_hash_key(&keycp, hash);
-    free_key_pkt(&keycp);
-    return res;
+    try {
+        pgp_key_pkt_t keycp(*key, true);
+        return key_fill_hashed_data(&keycp) && signature_hash_key(&keycp, hash);
+    } catch (const std::exception &e) {
+        RNP_LOG("%s", e.what());
+        return false;
+    }
 }
 
 bool
@@ -1091,12 +1091,12 @@ signature_check_certification(pgp_signature_info_t *  sinfo,
 rnp_result_t
 signature_check_binding(pgp_signature_info_t *sinfo,
                         const pgp_key_pkt_t * key,
-                        const pgp_key_pkt_t * subkey)
+                        pgp_key_t *           subkey)
 {
     pgp_hash_t   hash = {};
     rnp_result_t res = RNP_ERROR_SIGNATURE_INVALID;
 
-    if (!signature_hash_binding(sinfo->sig, key, subkey, &hash)) {
+    if (!signature_hash_binding(sinfo->sig, key, pgp_key_get_pkt(subkey), &hash)) {
         return RNP_ERROR_BAD_FORMAT;
     }
 
@@ -1127,10 +1127,15 @@ signature_check_binding(pgp_signature_info_t *sinfo,
         return res;
     }
 
-    if (!signature_hash_binding(subpkt->fields.sig, key, subkey, &hash)) {
+    if (!signature_hash_binding(subpkt->fields.sig, key, pgp_key_get_pkt(subkey), &hash)) {
         return RNP_ERROR_BAD_FORMAT;
     }
-    res = signature_validate(subpkt->fields.sig, &subkey->material, &hash);
+    pgp_signature_info_t bindinfo = {};
+    bindinfo.sig = subpkt->fields.sig;
+    bindinfo.signer = subkey;
+    bindinfo.signer_valid = true;
+    bindinfo.ignore_expiry = true;
+    res = signature_check(&bindinfo, &hash);
     sinfo->valid = !res;
     return res;
 }
@@ -1220,13 +1225,6 @@ finish:
         sigs.clear();
     }
     return ret;
-}
-
-pgp_sig_subpkt_t::pgp_sig_subpkt_t()
-{
-    type = PGP_SIG_SUBPKT_UNKNOWN;
-    data = NULL;
-    fields = {};
 }
 
 pgp_sig_subpkt_t::pgp_sig_subpkt_t(const pgp_sig_subpkt_t &src)
