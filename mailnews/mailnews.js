@@ -915,8 +915,6 @@ pref("ldap_2.servers.osx.description", "chrome://messenger/locale/addressbook/ad
 pref("ldap_2.servers.osx.dirType", 3);
 pref("mail.notification.sound",             "");
 pref("mail.notification.count.inbox_only", true);
-// Work around bug 482811 by disabling slow script warning for chrome scripts on Mac
-pref("dom.max_chrome_script_run_time", 0);
 #endif
 
 // For the Empty Junk/Trash confirmation dialogs.
