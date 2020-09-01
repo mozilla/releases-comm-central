@@ -142,6 +142,7 @@ SOURCES += [
     'src/lib/math/numbertheory/dsa_gen.cpp',
     'src/lib/math/numbertheory/jacobi.cpp',
     'src/lib/math/numbertheory/make_prm.cpp',
+    'src/lib/math/numbertheory/mod_inv.cpp',
     'src/lib/math/numbertheory/monty.cpp',
     'src/lib/math/numbertheory/monty_exp.cpp',
     'src/lib/math/numbertheory/mp_numth.cpp',

@@ -45,6 +45,14 @@ jobs:
       env:
        - TARGET="valgrind"
 
+#    - os: linux
+#      dist: bionic
+#      name: Linux s390x
+#      arch: s390x
+#      compiler: gcc
+#      env:
+#       - TARGET="shared"
+
     - os: linux
       dist: bionic
       name: Linux arm64
@@ -57,13 +65,6 @@ jobs:
       dist: bionic
       name: Linux ppc64le
       arch: ppc64le
-      compiler: gcc
-      env:
-       - TARGET="shared"
-
-    - os: linux
-      name: Linux s390x
-      arch: s390x
       compiler: gcc
       env:
        - TARGET="shared"
@@ -84,6 +85,7 @@ jobs:
 
     - os: linux
       dist: bionic
+      arch: arm64
       name: Linux arm32 cross
       compiler: gcc
       env:
@@ -134,10 +136,26 @@ jobs:
 
     - os: linux
       dist: bionic
+      name: Linux Clang 8
+      compiler: clang
+      env:
+       - TARGET="clang8"
+       - CXX="/usr/bin/clang++-8"
+
+    - os: linux
+      dist: bionic
       name: Minimized
       compiler: gcc
       env:
        - TARGET="mini-shared"
+
+    - os: linux
+      dist: bionic
+      arch: arm64
+      name: Baremetal
+      compiler: gcc
+      env:
+       - TARGET="baremetal"
 
     - os: linux
       dist: bionic

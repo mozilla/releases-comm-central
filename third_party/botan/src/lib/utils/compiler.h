@@ -31,6 +31,12 @@
 #define BOTAN_PUBLIC_API(maj,min) BOTAN_DLL
 
 /**
+* Used to annotate API exports which are public, but are now deprecated
+* and which will be removed in a future major release.
+*/
+#define BOTAN_DEPRECATED_API(msg) BOTAN_DLL BOTAN_DEPRECATED(msg)
+
+/**
 * Used to annotate API exports which are public and can be used by
 * applications if needed, but which are intentionally not documented,
 * and which may change incompatibly in a future major version.
@@ -103,7 +109,7 @@
     #define BOTAN_DEPRECATED(msg) __attribute__ ((deprecated(msg)))
     #define BOTAN_DEPRECATED_HEADER(hdr) _Pragma("message \"this header is deprecated\"")
 
-    #if !defined(BOTAN_IS_BEING_BUILT)
+    #if !defined(BOTAN_IS_BEING_BUILT) && !defined(BOTAN_AMALGAMATION_H_)
       #define BOTAN_FUTURE_INTERNAL_HEADER(hdr) _Pragma("message \"this header will be made internal in the future\"")
     #endif
 
@@ -111,7 +117,7 @@
     #define BOTAN_DEPRECATED(msg) __declspec(deprecated(msg))
     #define BOTAN_DEPRECATED_HEADER(hdr) __pragma(message("this header is deprecated"))
 
-    #if !defined(BOTAN_IS_BEING_BUILT)
+    #if !defined(BOTAN_IS_BEING_BUILT) && !defined(BOTAN_AMALGAMATION_H_)
       #define BOTAN_FUTURE_INTERNAL_HEADER(hdr) __pragma(message("this header will be made internal in the future"))
     #endif
 
@@ -120,7 +126,7 @@
     #define BOTAN_DEPRECATED(msg) __attribute__ ((deprecated(msg)))
     #define BOTAN_DEPRECATED_HEADER(hdr) _Pragma("GCC warning \"this header is deprecated\"")
 
-    #if !defined(BOTAN_IS_BEING_BUILT)
+    #if !defined(BOTAN_IS_BEING_BUILT) && !defined(BOTAN_AMALGAMATION_H_)
       #define BOTAN_FUTURE_INTERNAL_HEADER(hdr) _Pragma("GCC warning \"this header will be made internal in the future\"")
     #endif
   #endif

@@ -21,8 +21,8 @@
   #include <botan/internal/openssl.h>
 #endif
 
-#if defined(BOTAN_TARGET_OS_HAS_THREADS)
-  #include <future>
+#if defined(BOTAN_HAS_THREAD_UTILS)
+  #include <botan/internal/thread_pool.h>
 #endif
 
 namespace Botan {
@@ -298,11 +298,10 @@ RSA_PrivateKey::RSA_PrivateKey(RandomNumberGenerator& rng,
    const BigInt q_minus_1 = q - 1;
 
    const BigInt phi_n = lcm(p_minus_1, q_minus_1);
-   // FIXME: this uses binary ext gcd because phi_n is even
    d = inverse_mod(e, phi_n);
    d1 = ct_modulo(d, p_minus_1);
    d2 = ct_modulo(d, q_minus_1);
-   c = inverse_mod(q, p); // p odd, so uses const time algorithm
+   c = inverse_mod(q, p);
 
    RSA_PublicKey::init(std::move(n), std::move(e));
 
@@ -401,7 +400,7 @@ class RSA_Private_Operation
          // Compute this in main thread to avoid racing on the rng
          const BigInt d1_mask(m_blinder.rng(), m_blinding_bits);
 
-#if defined(BOTAN_TARGET_OS_HAS_THREADS) && !defined(BOTAN_HAS_VALGRIND)
+#if defined(BOTAN_HAS_THREAD_UTILS) && !defined(BOTAN_HAS_VALGRIND)
    #define BOTAN_RSA_USE_ASYNC
 #endif
 
@@ -413,7 +412,7 @@ class RSA_Private_Operation
          */
          m.sig_words();
 
-         auto future_j1 = std::async(std::launch::async, [this, &m, &d1_mask]() {
+         auto future_j1 = Thread_Pool::global_instance().run([this, &m, &d1_mask]() {
 #endif
             const BigInt masked_d1 = m_private->get_d1() + (d1_mask * (m_private->get_p() - 1));
             auto powm_d1_p = monty_precompute(m_private->m_monty_p, m_private->m_mod_p.reduce(m), powm_window);

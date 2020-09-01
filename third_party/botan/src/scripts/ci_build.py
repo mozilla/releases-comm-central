@@ -26,8 +26,27 @@ def get_concurrency():
     except ImportError:
         return def_concurrency
 
+def build_targets(target, target_os):
+    if target in ['shared', 'mini-shared', 'bsi', 'nist']:
+        yield 'shared'
+    elif target in ['static', 'mini-static', 'fuzzers', 'baremetal']:
+        yield 'static'
+    elif target_os in ['windows']:
+        yield 'shared'
+    elif target_os in ['ios', 'mingw']:
+        yield 'static'
+    else:
+        yield 'shared'
+        yield 'static'
+
+    yield 'cli'
+    yield 'tests'
+
+    if target in ['coverage']:
+        yield 'bogo_shim'
+
 def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
-                    ccache, root_dir, pkcs11_lib, use_gdb, disable_werror):
+                    ccache, root_dir, pkcs11_lib, use_gdb, disable_werror, extra_cxxflags):
     # pylint: disable=too-many-branches,too-many-statements,too-many-arguments,too-many-locals
 
     """
@@ -50,6 +69,9 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
     if target_os == 'windows' and target_cc == 'gcc':
         target_os = 'mingw'
 
+    if target == 'baremetal':
+        target_os = 'none'
+
     make_prefix = []
     test_prefix = []
     test_cmd = [os.path.join(root_dir, 'botan-test')]
@@ -62,10 +84,11 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
                        'cpuid', 'simd_32', 'os_utils', 'util', 'util_dates']
 
     install_prefix = os.path.join(tempfile.gettempdir(), 'botan-install')
+
     flags = ['--prefix=%s' % (install_prefix),
              '--cc=%s' % (target_cc),
-             '--os=%s' % (target_os)]
-    build_targets = ['cli', 'tests']
+             '--os=%s' % (target_os),
+             '--build-targets=%s' % ','.join(build_targets(target, target_os))]
 
     if not disable_werror:
         flags += ['--werror-mode']
@@ -73,11 +96,8 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
     if target_cpu is not None:
         flags += ['--cpu=%s' % (target_cpu)]
 
-    if target in ['shared', 'mini-shared']:
-        build_targets += ['shared']
-
-    if target in ['static', 'mini-static', 'fuzzers'] or target_os in ['ios', 'mingw']:
-        build_targets += ['static']
+    for flag in extra_cxxflags:
+        flags += ['--extra-cxxflags=%s' % (flag)]
 
     if target in ['mini-static', 'mini-shared']:
         flags += ['--minimized-build', '--enable-modules=system_rng,sha2_32,sha2_64,aes']
@@ -86,23 +106,23 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
         # Arbitrarily test amalgamation with the static lib builds
         flags += ['--amalgamation']
 
-        if target_cc == 'msvc':
-            flags += ['--single-amalgamation-file']
-
     if target in ['bsi', 'nist']:
         # Arbitrarily test disable static on module policy builds
         # tls is optional for bsi/nist but add it so verify tests work with these minimized configs
         flags += ['--module-policy=%s' % (target),
                   '--enable-modules=tls']
-        build_targets += ['shared']
 
     if target == 'docs':
         flags += ['--with-doxygen', '--with-sphinx', '--with-rst2man']
         test_cmd = None
 
+    if target == 'cross-win64':
+        # this test compiles under MinGW but fails when run under Wine
+        test_cmd += ['--skip-tests=certstor_system']
+
     if target == 'coverage':
         flags += ['--with-coverage-info', '--with-debug-info', '--test-mode']
-        build_targets += ['bogo_shim']
+
     if target == 'valgrind':
         # valgrind in 16.04 has a bug with rdrand handling
         flags += ['--with-valgrind', '--disable-rdrand']
@@ -110,15 +130,23 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
         # valgrind is single threaded anyway
         test_cmd += ['--test-threads=1']
         test_cmd += essential_tests
+
     if target == 'fuzzers':
         flags += ['--unsafe-fuzzer-mode']
 
     if target in ['fuzzers', 'coverage', 'valgrind']:
         flags += ['--with-debug-info']
+
     if target in ['fuzzers', 'coverage']:
         flags += ['--build-fuzzers=test']
+
     if target in ['fuzzers', 'sanitizer']:
-        flags += ['--with-sanitizers', '--with-debug-asserts']
+        flags += ['--with-debug-asserts']
+
+        if target_cc in ['clang', 'gcc']:
+            flags += ['--enable-sanitizers=address,undefined']
+        else:
+            flags += ['--with-sanitizers']
 
     if target in ['valgrind', 'sanitizer', 'fuzzers']:
         flags += ['--disable-modules=locking_allocator']
@@ -126,20 +154,10 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
     if target == 'parallel':
         flags += ['--with-openmp']
 
-    if target == 'sonar':
-        if target_os != 'linux' or target_cc != 'clang':
-            raise Exception('Only Linux/clang supported in Sonar target currently')
-
-        # Use of -Os here is a little odd, but the issue is that the build time
-        # is quite long (because ccache from Xenial doesn't work right with
-        # these profiling flags) but we can't use --no-optimizations as that
-        # will make running the tests too slow.
-        flags += ['--cc-abi-flags=-fprofile-instr-generate -fcoverage-mapping',
-                  '--optimize-for-size']
-        build_targets += ['static']
-
-        make_prefix = [os.path.join(root_dir, 'build-wrapper-linux-x86/build-wrapper-linux-x86-64'),
-                       '--out-dir', 'bw-outputs']
+    if target == 'baremetal':
+        cc_bin = 'arm-none-eabi-c++'
+        flags += ['--cpu=arm32', '--disable-neon', '--without-stack-protector', '--ldflags=-specs=nosys.specs']
+        test_cmd = None
 
     if is_cross_target:
         if target_os == 'ios':
@@ -181,6 +199,9 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
 
         elif target == 'cross-i386':
             flags += ['--cpu=x86_32']
+        elif target == 'cross-arm32':
+            flags += ['--cpu=armv7']
+            cc_bin = 'arm-linux-gnueabihf-g++'
 
         elif target == 'cross-win64':
             # MinGW in 16.04 is lacking std::mutex for unknown reason
@@ -193,11 +214,7 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
             # Build everything but restrict what is run
             test_cmd += essential_tests
 
-            if target == 'cross-arm32':
-                flags += ['--cpu=armv7']
-                cc_bin = 'arm-linux-gnueabihf-g++'
-                test_prefix = ['qemu-arm', '-L', '/usr/arm-linux-gnueabihf/']
-            elif target == 'cross-arm64':
+            if target == 'cross-arm64':
                 flags += ['--cpu=aarch64']
                 cc_bin = 'aarch64-linux-gnu-g++'
                 test_prefix = ['qemu-aarch64', '-L', '/usr/aarch64-linux-gnu/']
@@ -280,10 +297,6 @@ def determine_flags(target, target_os, target_cpu, target_cc, cc_bin,
         else:
             run_test_command = test_prefix + test_cmd
 
-    if 'static' not in build_targets and 'shared' not in build_targets:
-        build_targets += ['static', 'shared'] if target_os != 'windows' else ['shared']
-    flags += ['--build-targets=%s' % ','.join(build_targets)]
-
     return flags, run_test_command, make_prefix
 
 def run_cmd(cmd, root_dir):
@@ -298,6 +311,7 @@ def run_cmd(cmd, root_dir):
     cmd = [os.path.expandvars(elem) for elem in cmd]
     sub_env = os.environ.copy()
     sub_env['LD_LIBRARY_PATH'] = os.path.abspath(root_dir)
+    sub_env['DYLD_LIBRARY_PATH'] = os.path.abspath(root_dir)
     sub_env['PYTHONPATH'] = os.path.abspath(os.path.join(root_dir, 'src/python'))
     cwd = None
 
@@ -344,6 +358,9 @@ def parse_args(args):
 
     parser.add_option('--make-tool', metavar='TOOL', default='make',
                       help='Specify tool to run to build source (default %default)')
+
+    parser.add_option('--extra-cxxflags', metavar='FLAGS', default=[], action='append',
+                      help='Specify extra build flags')
 
     parser.add_option('--cpu', default=None,
                       help='Specify a target CPU platform')
@@ -488,6 +505,7 @@ def main(args=None):
             'src/scripts/install.py',
             'src/scripts/dist.py',
             'src/scripts/cleanup.py',
+            'src/scripts/check.py',
             'src/scripts/build_docs.py',
             'src/scripts/website.py',
             'src/scripts/bench.py',
@@ -509,7 +527,8 @@ def main(args=None):
         config_flags, run_test_command, make_prefix = determine_flags(
             target, options.os, options.cpu, options.cc,
             options.cc_bin, options.compiler_cache, root_dir,
-            options.pkcs11_lib, options.use_gdb, options.disable_werror)
+            options.pkcs11_lib, options.use_gdb, options.disable_werror,
+            options.extra_cxxflags)
 
         cmds.append([py_interp, os.path.join(root_dir, 'configure.py')] + config_flags)
 

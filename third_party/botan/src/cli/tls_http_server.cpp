@@ -28,6 +28,7 @@
 #include <botan/pkcs8.h>
 #include <botan/version.h>
 #include <botan/hex.h>
+#include <botan/rng.h>
 
 #if defined(BOTAN_HAS_TLS_SQLITE3_SESSION_MANAGER)
    #include <botan/tls_session_manager_sqlite.h>
@@ -291,7 +292,7 @@ class TLS_Asio_HTTP_Session final : public std::enable_shared_from_this<TLS_Asio
                {
                const std::string http_summary = summarize_request(request);
 
-               const std::string report = http_summary + m_session_summary + m_chello_summary;
+               const std::string report = m_session_summary + m_chello_summary + http_summary;
 
                response << "HTTP/1.0 200 OK\r\n";
                response << "Server: " << Botan::version_string() << "\r\n";

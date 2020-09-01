@@ -47,7 +47,6 @@ openbsd -> "$(CXX) -shared -fPIC"
 </so_link_commands>
 
 <binary_link_commands>
-linux         -> "$(LINKER) -Wl,-rpath=\$$ORIGIN"
 default       -> "$(LINKER)"
 </binary_link_commands>
 
@@ -80,7 +79,7 @@ arm64:neon    -> ""
 
 # Flags set here are included at compile and link time
 <mach_abi_linking>
-all!haiku,qnx -> "-pthread"
+all!haiku,qnx,none -> "-pthread"
 
 openmp  -> "-fopenmp"
 
