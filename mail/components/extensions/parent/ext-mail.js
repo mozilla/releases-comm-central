@@ -506,9 +506,11 @@ class TabTracker extends TabTrackerBase {
     let id = this._tabs.get(nativeTabInfo);
     if (id) {
       this._tabs.delete(nativeTabInfo);
-      this._browsers.delete(
-        `${nativeTabInfo.browser.id}#${nativeTabInfo.tabId}`
-      );
+      if (nativeTabInfo.browser) {
+        this._browsers.delete(
+          `${nativeTabInfo.browser.id}#${nativeTabInfo.tabId}`
+        );
+      }
       if (this._tabIds.get(id) === nativeTabInfo) {
         this._tabIds.delete(id);
       }
@@ -932,7 +934,9 @@ class Tab extends TabBase {
 
   /** Returns the loading status of the tab. */
   get status() {
-    return "complete";
+    return this.browser?.webProgress?.isLoadingDocument
+      ? "loading"
+      : "complete";
   }
 
   /** Returns the width of the tab. */
@@ -1008,16 +1012,6 @@ class TabmailTab extends Tab {
   /** Returns the active state of the tab. */
   get active() {
     return this.nativeTab == this.tabmail.selectedTab;
-  }
-
-  /** Returns the loading status of the tab. */
-  get status() {
-    if (this.browser && this.browser.webProgress) {
-      return this.browser.webProgress.isLoadingDocument
-        ? "loading"
-        : "complete";
-    }
-    return "complete";
   }
 
   /** Returns the title of the tab, without permission checks. */

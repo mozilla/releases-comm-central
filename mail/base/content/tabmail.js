@@ -804,11 +804,6 @@
 
         // Register browser progress listeners. For firstTab, it is the shared
         // #messagepane so only do it once.
-        firstTab.browser.webProgress.addProgressListener(
-          new TabProgressListener(firstTab.browser, this),
-          Ci.nsIWebProgress.NOTIFY_ALL
-        );
-        firstTab.browser._progressListenerAdded = true;
 
         for (let tabMonitor of this.tabMonitors) {
           try {
@@ -827,6 +822,15 @@
           detail: { tabInfo: firstTab, moving: false },
         });
         document.querySelector("#tabmail-tabs tab").dispatchEvent(evt);
+
+        firstTab.browser._progressListener = new TabProgressListener(
+          firstTab.browser,
+          this
+        );
+        firstTab.browser.webProgress.addProgressListener(
+          firstTab.browser._progressListener,
+          Ci.nsIWebProgress.NOTIFY_ALL
+        );
       }
     }
 
@@ -1030,15 +1034,15 @@
         delete tab.beforeTabOpen;
 
         // Register browser progress listeners
-        if (browser && browser.webProgress && !browser._progressListenerAdded) {
+        if (browser && browser.webProgress && !browser._progressListener) {
           // It would probably be better to have the tabs register this listener, since the
           // browser can change. This wasn't trivial to do while implementing basic WebExtension
           // support, so let's assume one browser only for now.
+          browser._progressListener = new TabProgressListener(browser, this);
           browser.webProgress.addProgressListener(
-            new TabProgressListener(browser, this),
+            browser._progressListener,
             Ci.nsIWebProgress.NOTIFY_ALL
           );
-          browser._progressListenerAdded = true;
         }
 
         return tab;

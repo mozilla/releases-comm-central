@@ -367,12 +367,6 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
       cloneToolboxPalette = hdrToolbox.palette.cloneNode(true);
     }
 
-    // See Bug 381992. The ctor for the browser element will fire again when we
-    // re-insert the messagePaneBoxWrapper back into the document.  But the dtor
-    // doesn't fire when the element is removed from the document.  Manually
-    // call destroy here to avoid a nasty leak.
-    document.getElementById("messagepane").destroy();
-    document.getElementById("FindToolbar").destroy();
     let footerBox = desiredParent.lastElementChild;
     if (footerBox && footerBox.id == "messenger-notification-footer") {
       desiredParent.insertBefore(messagePaneSplitter, footerBox);
@@ -381,6 +375,16 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
       desiredParent.appendChild(messagePaneSplitter);
       desiredParent.appendChild(messagePaneBoxWrapper);
     }
+
+    // Reconnect the message pane's web progress listener.
+    let messagePane = document.getElementById("messagepane");
+    if (messagePane._progressListener) {
+      messagePane.webProgress.addProgressListener(
+        messagePane._progressListener,
+        Ci.nsIWebProgress.NOTIFY_ALL
+      );
+    }
+
     if (msgWindow) {
       // Reassigning statusFeedback adds a progress listener to the new docShell.
       // eslint-disable-next-line no-self-assign

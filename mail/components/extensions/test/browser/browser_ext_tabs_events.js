@@ -34,6 +34,7 @@ add_task(async () => {
         },
         onUpdated(...args) {
           if (this.ignoringUpdated) {
+            browser.test.log(JSON.stringify(["onUpdated", ...args]));
             browser.test.log("Ignored an onUpdated event");
           } else {
             this.pushEvent("onUpdated", ...args);
@@ -103,7 +104,9 @@ add_task(async () => {
         },
       };
       browser.tabs.onCreated.addListener(listener.onCreated.bind(listener));
-      browser.tabs.onUpdated.addListener(listener.onUpdated.bind(listener));
+      browser.tabs.onUpdated.addListener(listener.onUpdated.bind(listener), {
+        properties: ["status"],
+      });
       browser.tabs.onActivated.addListener(listener.onActivated.bind(listener));
       browser.tabs.onRemoved.addListener(listener.onRemoved.bind(listener));
 
@@ -185,6 +188,7 @@ add_task(async () => {
       browser.test.log("Open a first message in a tab.");
 
       browser.test.sendMessage("openMessageTab", false);
+      listener.setIgnoringUpdated();
       let [{ id: messageTab1 }] = await listener.checkEvent("onCreated", {
         index: 6,
         windowId: initialWindow,
@@ -201,7 +205,7 @@ add_task(async () => {
           folderTab,
         ].includes(messageTab1)
       );
-      listener.setIgnoringUpdated();
+      await listener.pageLoad(messageTab1);
 
       browser.test.log(
         "Open a second message in a tab. In the background, just because."
@@ -241,11 +245,26 @@ add_task(async () => {
         contentTab2,
       ]) {
         await browser.tabs.update(tab, { active: true });
+        if ([messageTab1, messageTab2].includes(tab)) {
+          await listener.checkEvent(
+            "onUpdated",
+            tab,
+            { status: "loading" },
+            {
+              id: tab,
+              windowId: initialWindow,
+              active: true,
+              mailTab: false,
+            }
+          );
+        }
         await listener.checkEvent("onActivated", {
           tabId: tab,
           windowId: initialWindow,
         });
-        listener.setIgnoringUpdated();
+        if ([messageTab1, messageTab2].includes(tab)) {
+          await listener.pageLoad(tab);
+        }
       }
 
       browser.test.log(
@@ -299,6 +318,9 @@ add_task(async () => {
     files: {
       "page1.html": "<html><body>Page 1</body></html>",
       "page2.html": "<html><body>Page 2</body></html>",
+    },
+    manifest: {
+      permissions: ["tabs"],
     },
   });
 
