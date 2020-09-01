@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 function run_test() {
   do_calendar_startup(really_run_test);
 }
@@ -44,7 +50,7 @@ function test_aclmanager() {
     userCanViewDateAndTime: false,
   };
 
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.id = "withentry";
   event.calendar = mockCalendar;
 
@@ -53,7 +59,7 @@ function test_aclmanager() {
   equal(event.aclEntry.userCanViewAll, itemEntry.userCanViewAll);
   equal(event.aclEntry.userCanViewDateAndTime, itemEntry.userCanViewDateAndTime);
 
-  let parentEntry = cal.createEvent();
+  let parentEntry = new CalEvent();
   parentEntry.id = "parententry";
   parentEntry.calendar = mockCalendar;
   parentEntry.parentItem = event;
@@ -63,15 +69,15 @@ function test_aclmanager() {
   equal(parentEntry.aclEntry.userCanViewAll, itemEntry.userCanViewAll);
   equal(parentEntry.aclEntry.userCanViewDateAndTime, itemEntry.userCanViewDateAndTime);
 
-  event = cal.createEvent();
+  event = new CalEvent();
   event.id = "noentry";
   event.calendar = mockCalendar;
   equal(event.aclEntry, null);
 }
 
 function test_calendar() {
-  let event = cal.createEvent();
-  let parentEntry = cal.createEvent();
+  let event = new CalEvent();
+  let parentEntry = new CalEvent();
 
   let mockCalendar = {
     QueryInterface: ChromeUtils.generateQI(["calICalendar"]),
@@ -86,7 +92,7 @@ function test_calendar() {
 }
 
 function test_attachment() {
-  let e = cal.createEvent();
+  let e = new CalEvent();
 
   let a = cal.createAttachment();
   a.rawData = "horst";
@@ -108,7 +114,7 @@ function test_attachment() {
 }
 
 function test_attendee() {
-  let e = cal.createEvent();
+  let e = new CalEvent();
   equal(e.getAttendeeById("unknown"), null);
   equal(e.getAttendees().length, 0);
 
@@ -141,7 +147,7 @@ function test_attendee() {
 }
 
 function test_categories() {
-  let e = cal.createEvent();
+  let e = new CalEvent();
 
   equal(e.getCategories().length, 0);
 
@@ -162,7 +168,7 @@ function test_categories() {
 }
 
 function test_alarm() {
-  let e = cal.createEvent();
+  let e = new CalEvent();
   let alarm = cal.createAlarm();
 
   alarm.action = "DISPLAY";
@@ -188,7 +194,7 @@ function test_alarm() {
 }
 
 function test_immutable() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
 
   let date = cal.createDateTime();
   date.timezone = cal.getTimezoneService().getTimezone("Europe/Berlin");
@@ -250,7 +256,7 @@ function test_immutable() {
 }
 
 function test_lastack() {
-  let e = cal.createEvent();
+  let e = new CalEvent();
 
   e.alarmLastAck = cal.createDateTime("20120101T010101");
 

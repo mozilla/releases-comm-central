@@ -6,6 +6,11 @@ var EXPORTED_SYMBOLS = ["CalOutlookCSVImporter", "CalOutlookCSVExporter"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 var localeEn = {
   headTitle: "Subject",
@@ -282,7 +287,7 @@ CalOutlookCSVImporter.prototype = {
       // Create an event only if we have a startDate. No more checks
       // on sDate needed in the following process.
       if (sDate) {
-        let event = cal.createEvent();
+        let event = new CalEvent();
 
         // Use column head in brackets if event title misses in data.
         if (title) {

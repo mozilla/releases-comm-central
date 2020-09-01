@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 function run_test() {
   // Test handling for multiple double quotes leading/trailing to attendee CN for bug 1209399
@@ -51,7 +56,7 @@ function test_newAttendee() {
   ];
 
   let i = 0;
-  let event = cal.createEvent();
+  let event = new CalEvent();
   for (let test of data) {
     i++;
     let attendee = cal.createAttendee();

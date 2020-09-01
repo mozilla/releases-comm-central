@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 function run_test() {
   // Test attendee duplicate handling for bug 1204255
@@ -56,7 +61,7 @@ function test_newAttendee() {
     },
   ];
 
-  let event = cal.createEvent();
+  let event = new CalEvent();
   for (let test of data) {
     for (let input of test.input) {
       let attendee = cal.createAttendee();

@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 function run_test() {
   test_folding();
   test_icalProps();
@@ -131,7 +137,7 @@ function test_roundtrip() {
       onParsingComplete(rc, rootComp) {
         try {
           ok(Components.isSuccessCode(rc));
-          let event2 = cal.createEvent();
+          let event2 = new CalEvent();
           event2.icalComponent = rootComp;
           checkEvent(thisdata, event2);
           do_test_finished();
@@ -212,14 +218,14 @@ function checkRoundtrip(expectedProps, obj) {
 }
 
 function test_duration() {
-  let e = cal.createEvent();
+  let e = new CalEvent();
   e.startDate = cal.createDateTime();
   e.endDate = null;
   equal(e.duration.icalString, "PT0S");
 }
 
 function test_serialize() {
-  let e = cal.createEvent();
+  let e = new CalEvent();
   let prop = cal.getIcsService().createIcalComponent("VTODO");
 
   throws(() => {

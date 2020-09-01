@@ -2,13 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 function run_test() {
   test_get_item_sort_key();
   test_sort_items();
 }
 
 function test_get_item_sort_key() {
-  let event = cal.createEvent(dedent`
+  let event = new CalEvent(dedent`
         BEGIN:VEVENT
         PRIORITY:8
         SUMMARY:summary
@@ -65,7 +71,7 @@ function test_sort_items() {
   // string comparison
   let summaries = ["", "a", "b"];
   let items = summaries.map(summary => {
-    return cal.createEvent(dedent`
+    return new CalEvent(dedent`
             BEGIN:VEVENT
             SUMMARY:${summary}
             END:VEVENT
@@ -87,7 +93,7 @@ function test_sort_items() {
   // date comparison
   let dates = ["20180101T000002Z", "20180101T000000Z", "20180101T000001Z"];
   items = dates.map(date => {
-    return cal.createEvent(dedent`
+    return new CalEvent(dedent`
             BEGIN:VEVENT
             DTSTART:${date}
             END:VEVENT

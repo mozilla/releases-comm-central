@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 // tests for calItipUtils.jsm
 
@@ -118,7 +123,7 @@ function getSeqStampTestItems(aTest) {
       if ("xMsAptSeq" in input.item && input.item.xMsAptSeq.length) {
         xMsAptSeq = "X-MICROSOFT-CDO-APPT-SEQUENCE:" + input.item.xMsAptSeq;
       }
-      let testItem = cal.createEvent();
+      let testItem = new CalEvent();
       testItem.icalString = getSeqStampTestIcs([
         attendee,
         sequence,

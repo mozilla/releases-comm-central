@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 function run_test() {
   do_calendar_startup(really_run_test);
 }
@@ -83,7 +89,7 @@ function test_getDefaultStartDate() {
   equal(transform("20120101T230000", "20120202").icalString, "20120202T230000");
   equal(transform("20120101T235959", "20120202").icalString, "20120202T230000");
 
-  let event = cal.createEvent();
+  let event = new CalEvent();
   now = cal.createDateTime("20120101T015959");
   cal.dtz.setDefaultStartEndHour(event, cal.createDateTime("20120202"));
   equal(event.startDate.icalString, "20120202T020000");
@@ -98,8 +104,8 @@ function test_getDefaultStartDate() {
 }
 
 function test_getStartEndProps() {
-  equal(cal.dtz.startDateProp(cal.createEvent()), "startDate");
-  equal(cal.dtz.endDateProp(cal.createEvent()), "endDate");
+  equal(cal.dtz.startDateProp(new CalEvent()), "startDate");
+  equal(cal.dtz.endDateProp(new CalEvent()), "endDate");
   equal(cal.dtz.startDateProp(cal.createTodo()), "entryDate");
   equal(cal.dtz.endDateProp(cal.createTodo()), "dueDate");
 

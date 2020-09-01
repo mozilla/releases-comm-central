@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 function run_test() {
   do_calendar_startup(really_run_test);
 }
@@ -46,7 +52,7 @@ function really_run_test() {
   equal(date.timezoneOffset, 2 * 3600);
 
   // Bug 398724 - Problems with floating all-day items
-  let event = cal.createEvent(
+  let event = new CalEvent(
     "BEGIN:VEVENT\nUID:45674d53-229f-48c6-9f3b-f2b601e7ae4d\nSUMMARY:New Event\nDTSTART;VALUE=DATE:20071003\nDTEND;VALUE=DATE:20071004\nEND:VEVENT"
   );
   ok(event.startDate.timezone.isFloating);

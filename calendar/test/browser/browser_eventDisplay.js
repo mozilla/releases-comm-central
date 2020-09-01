@@ -5,6 +5,11 @@
 var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 var controller = mozmill.getMail3PaneController();
@@ -22,7 +27,7 @@ Services.prefs.setIntPref("calendar.week.start", 1);
  * Test an event that occurs within one day, in the day view.
  */
 add_task(async function testInsideDayView() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.title = "Test Event";
   event.startDate = cal.createDateTime("20190403T123400");
   event.endDate = cal.createDateTime("20190403T234500");
@@ -56,7 +61,7 @@ add_task(async function testInsideDayView() {
  * Test an event that spans multiple days, in the day view.
  */
 add_task(async function testOutsideDayView() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.title = "Test Event";
   event.startDate = cal.createDateTime("20190402T123400");
   event.endDate = cal.createDateTime("20190404T234500");
@@ -114,7 +119,7 @@ add_task(async function testOutsideDayView() {
  * Test an event that occurs within one week, in the week view.
  */
 add_task(async function testInsideWeekView() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.title = "Test Event";
   event.startDate = cal.createDateTime("20190102T123400");
   event.endDate = cal.createDateTime("20190104T234500");
@@ -162,7 +167,7 @@ add_task(async function testInsideWeekView() {
  * Test an event that spans multiple weeks, in the week view.
  */
 add_task(async function testOutsideWeekView() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.title = "Test Event";
   event.startDate = cal.createDateTime("20190403T123400");
   event.endDate = cal.createDateTime("20190419T234500");
@@ -245,7 +250,7 @@ add_task(async function testOutsideWeekView() {
  * Test an event that occurs fully within the multi-week view.
  */
 add_task(async function testInsideMultiweekView() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.title = "Test Event";
   event.startDate = cal.createDateTime("20190403T123400");
   event.endDate = cal.createDateTime("20190420T234500");
@@ -301,7 +306,7 @@ add_task(async function testInsideMultiweekView() {
  * Test an event that starts or ends outside the multi-week view.
  */
 add_task(async function testOutsideMultiweekView() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.title = "Test Event";
   event.startDate = cal.createDateTime("20190403T123400");
   event.endDate = cal.createDateTime("20190508T234500");
@@ -392,7 +397,7 @@ add_task(async function testOutsideMultiweekView() {
  * Test an event that occurs within one month, in the month view.
  */
 add_task(async function testInsideMonthView() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.title = "Test Event";
   event.startDate = cal.createDateTime("20190703T123400");
   event.endDate = cal.createDateTime("20190720T234500");
@@ -449,7 +454,7 @@ add_task(async function testInsideMonthView() {
  * Test an event that spans multiple months, in the month view.
  */
 add_task(async function testOutsideMonthView() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
   event.title = "Test Event";
   event.startDate = cal.createDateTime("20190321T123400");
   event.endDate = cal.createDateTime("20190508T234500");

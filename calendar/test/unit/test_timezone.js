@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 function run_test() {
   do_test_pending();
   cal
@@ -16,7 +22,7 @@ function run_test() {
 }
 
 function really_run_test() {
-  let event = cal.createEvent();
+  let event = new CalEvent();
 
   let str = [
     "BEGIN:VCALENDAR",

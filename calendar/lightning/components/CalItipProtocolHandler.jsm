@@ -5,6 +5,11 @@
 var EXPORTED_SYMBOLS = ["ItipChannel", "ItipProtocolHandler", "ItipContentHandler"];
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 var ITIP_HANDLER_MIMETYPE = "application/x-itip-internal";
 var ITIP_HANDLER_PROTOCOL = "moz-cal-handle-itip";
@@ -89,7 +94,7 @@ ItipContentHandler.prototype = {
       paramBlock[parts[0]] = unescape(unescape(parts[1]));
     });
     // dump("content-handler: have params " + paramBlock.toSource() + "\n");
-    let event = cal.createEvent(paramBlock.data);
+    let event = new CalEvent(paramBlock.data);
     dump(
       "Processing iTIP event '" +
         event.title +

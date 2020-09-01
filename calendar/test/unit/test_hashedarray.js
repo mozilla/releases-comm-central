@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calHashedArray.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 function run_test() {
   test_array_base();
@@ -18,7 +23,7 @@ function run_test() {
  * @return          The created item.
  */
 function hashedCreateItem(ident) {
-  let item = cal.createEvent();
+  let item = new CalEvent();
   item.calendar = { id: "test" };
   item.id = cal.getUUID();
   item.title = ident;

@@ -4,6 +4,11 @@
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 /**
  * Tests the calICalendarManager interface
@@ -251,7 +256,7 @@ add_test(function test_calobserver() {
   memory.addObserver(calobs);
 
   // Add an item
-  let item = cal.createEvent();
+  let item = new CalEvent();
   item.id = cal.getUUID();
   item.startDate = cal.dtz.now();
   item.endDate = cal.dtz.now();

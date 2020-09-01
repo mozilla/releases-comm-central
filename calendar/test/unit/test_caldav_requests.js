@@ -21,6 +21,11 @@ var {
 var { CalDavSession } = ChromeUtils.import("resource:///modules/caldav/CalDavSession.jsm");
 var { CalDavXmlns } = ChromeUtils.import("resource:///modules/caldav/CalDavUtils.jsm");
 var { Preferences } = ChromeUtils.import("resource://gre/modules/Preferences.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 class LowerMap extends Map {
   get(key) {
@@ -400,7 +405,7 @@ class CalDavServer {
           </D:multistatus>
         `);
       } else if (report == "calendar-multiget") {
-        let event = cal.createEvent();
+        let event = new CalEvent();
         event.startDate = cal.dtz.now();
         event.endDate = cal.dtz.now();
         response.write(dedent`
@@ -640,7 +645,7 @@ add_task(async function test_item_request() {
     gServer.session,
     gMockCalendar,
     uri,
-    cal.createEvent(icalString),
+    new CalEvent(icalString),
     "*"
   );
   let response = await request.commit();
@@ -662,7 +667,7 @@ add_task(async function test_item_request() {
     gServer.session,
     gMockCalendar,
     uri,
-    cal.createEvent(icalString),
+    new CalEvent(icalString),
     "123123"
   );
   response = await request.commit();
@@ -680,7 +685,7 @@ add_task(async function test_item_request() {
   // Now the same with 200 OK and no etag
   gServer.reset();
   uri = gServer.uri("/requests/item/200");
-  request = new CalDavItemRequest(gServer.session, gMockCalendar, uri, cal.createEvent(icalString));
+  request = new CalDavItemRequest(gServer.session, gMockCalendar, uri, new CalEvent(icalString));
   response = await request.commit();
 
   equal(response.status, 200);
@@ -827,7 +832,7 @@ add_task(async function test_outbox_request() {
     "xpcshell@example.com",
     ["recipient1@example.com", "recipient2@example.com"],
     "REPLY",
-    cal.createEvent(icalString)
+    new CalEvent(icalString)
   );
   let response = await request.commit();
 

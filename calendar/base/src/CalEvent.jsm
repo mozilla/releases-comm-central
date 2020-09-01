@@ -11,7 +11,14 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Services.scriptloader.loadSubScript("resource:///components/calItemBase.js");
 
-function CalEvent() {
+/**
+ * Constructor for `calIEvent` objects.
+ *
+ * @class
+ * @implements {calIEvent}
+ * @param {string} [icalString] - Optional iCal string for initializing existing events.
+ */
+function CalEvent(icalString) {
   this.initItemBase();
 
   this.eventPromotedProps = {
@@ -19,6 +26,10 @@ function CalEvent() {
     DTEND: true,
     __proto__: this.itemBasePromotedProps,
   };
+
+  if (icalString) {
+    this.icalString = icalString;
+  }
 }
 var calEventClassID = Components.ID("{974339d5-ab86-4491-aaaf-2b2ca177c12b}");
 var calEventInterfaces = [Ci.calIItemBase, Ci.calIEvent, Ci.calIInternalShallowCopy];

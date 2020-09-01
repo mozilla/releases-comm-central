@@ -10,6 +10,11 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 /* exported invokeEventDragSession, calendarViewDNDObserver,
  *          calendarMailButtonDNDObserver, calendarCalendarButtonDNDObserver,
@@ -138,7 +143,7 @@ var itemConversion = {
    * @return {Object} The resulting event.
    */
   eventFromTask(aTask) {
-    let item = cal.createEvent();
+    let item = new CalEvent();
 
     this.copyItemBase(aTask, item);
 
@@ -462,7 +467,7 @@ calCalendarButtonDNDObserver.prototype = {
    * @param {Object} aMessage - The message to handle.
    */
   onDropMessage(aMessage) {
-    let newItem = cal.createEvent();
+    let newItem = new CalEvent();
     itemConversion.calendarItemFromMessage(newItem, aMessage);
     createEventWithDialog(null, null, null, null, newItem);
   },
@@ -475,7 +480,7 @@ calCalendarButtonDNDObserver.prototype = {
    * @param {string} uri - The uri to handle.
    */
   onDropURL(uri) {
-    let newItem = cal.createEvent();
+    let newItem = new CalEvent();
     newItem.calendar = getSelectedCalendar();
     cal.dtz.setDefaultStartEndHour(newItem);
     cal.alarms.setDefaultValues(newItem);
@@ -518,7 +523,7 @@ calCalendarButtonDNDObserver.prototype = {
         attendee.commonName = commonName;
         return attendee;
       });
-    let newItem = cal.createEvent();
+    let newItem = new CalEvent();
     newItem.calendar = getSelectedCalendar();
     cal.dtz.setDefaultStartEndHour(newItem);
     cal.alarms.setDefaultValues(newItem);

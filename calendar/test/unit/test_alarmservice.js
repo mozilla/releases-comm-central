@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 var EXPECT_NONE = 0;
 var EXPECT_FIRED = 1;
@@ -172,7 +177,7 @@ function createAlarmFromDuration(aOffset) {
 
 function createEventWithAlarm(aCalendar, aStart, aEnd, aOffset, aRRule) {
   let alarm = null;
-  let item = cal.createEvent();
+  let item = new CalEvent();
 
   item.id = cal.getUUID();
   item.calendar = aCalendar;

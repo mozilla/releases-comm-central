@@ -7,6 +7,11 @@ var EXPORTED_SYMBOLS = ["CalIcsParser"];
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 function CalIcsParser() {
   this.wrappedJSObject = this;
@@ -70,7 +75,7 @@ CalIcsParser.prototype = {
 
         if (!parent) {
           // a parentless one, fake a master and override it's occurrence
-          parent = cal.item.isEvent(item) ? cal.createEvent() : cal.createTodo();
+          parent = cal.item.isEvent(item) ? new CalEvent() : cal.createTodo();
           parent.id = item.id;
           parent.setProperty("DTSTART", item.recurrenceId);
           parent.setProperty("X-MOZ-FAKED-MASTER", "1"); // this tag might be useful in the future
@@ -255,7 +260,7 @@ parserState.prototype = {
         let item = null;
         switch (subComp.componentType) {
           case "VEVENT":
-            item = cal.createEvent();
+            item = new CalEvent();
             item.icalComponent = subComp;
             self.checkTimezone(item, item.startDate);
             self.checkTimezone(item, item.endDate);

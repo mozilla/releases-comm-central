@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 function run_test() {
   // Test the graceful handling of attendee ids for bug 1199942
@@ -17,7 +22,7 @@ function createAttendee_test() {
     { input: "user3@example.net", expected: "mailto:user3@example.net" },
     { input: "urn:uuid:user4", expected: "urn:uuid:user4" },
   ];
-  let event = cal.createEvent();
+  let event = new CalEvent();
   for (let test of data) {
     let attendee = cal.createAttendee();
     attendee.id = test.input;

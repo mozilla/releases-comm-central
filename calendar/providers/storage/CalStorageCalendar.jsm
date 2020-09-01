@@ -11,6 +11,11 @@ var { upgradeDB } = ChromeUtils.import("resource:///modules/calendar/calStorageU
 var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"
 );
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 var USECS_PER_SECOND = 1000000;
 var kCalICalendar = Ci.calICalendar;
@@ -1823,7 +1828,7 @@ CalStorageCalendar.prototype = {
       return item;
     }
 
-    item = cal.createEvent();
+    item = new CalEvent();
     let flags = row.getResultByName("flags");
 
     if (row.getResultByName("event_start")) {

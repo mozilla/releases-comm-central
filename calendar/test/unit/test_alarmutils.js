@@ -4,6 +4,11 @@
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 function run_test() {
   do_calendar_startup(run_next_test);
@@ -15,7 +20,7 @@ add_task(async function test_setDefaultValues_events() {
   Services.prefs.setIntPref("calendar.alarms.onforevents", 1);
   Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "hours");
   Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 60);
-  item = cal.createEvent();
+  item = new CalEvent();
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
@@ -26,7 +31,7 @@ add_task(async function test_setDefaultValues_events() {
   Services.prefs.setIntPref("calendar.alarms.onforevents", 1);
   Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "yards");
   Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 20);
-  item = cal.createEvent();
+  item = new CalEvent();
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
@@ -35,7 +40,7 @@ add_task(async function test_setDefaultValues_events() {
   equal(alarm.offset.icalString, "-PT20M");
 
   Services.prefs.setIntPref("calendar.alarms.onforevents", 0);
-  item = cal.createEvent();
+  item = new CalEvent();
   cal.alarms.setDefaultValues(item);
   equal(item.getAlarms().length, 0);
 
@@ -48,7 +53,7 @@ add_task(async function test_setDefaultValues_events() {
   Services.prefs.setIntPref("calendar.alarms.onforevents", 1);
   Services.prefs.setStringPref("calendar.alarms.eventalarmunit", "hours");
   Services.prefs.setIntPref("calendar.alarms.eventalarmlen", 60);
-  item = cal.createEvent();
+  item = new CalEvent();
   item.calendar = mockCalendar;
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
@@ -124,7 +129,7 @@ add_task(async function test_setDefaultValues_tasks() {
 });
 
 add_task(async function test_calculateAlarmDate() {
-  let item = cal.createEvent();
+  let item = new CalEvent();
   item.startDate = cal.createDateTime("20150815T120000");
   item.endDate = cal.createDateTime("20150815T130000");
 
@@ -165,7 +170,7 @@ add_task(async function test_calculateAlarmDate() {
 });
 
 add_task(async function test_calculateAlarmOffset() {
-  let item = cal.createEvent();
+  let item = new CalEvent();
   item.startDate = cal.createDateTime("20150815T120000");
   item.endDate = cal.createDateTime("20150815T130000");
 

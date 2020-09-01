@@ -2,13 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 function run_test() {
   // Create Relation
   let relation1 = cal.createRelation();
 
   // Create Items
-  let event1 = cal.createEvent();
-  let event2 = cal.createEvent();
+  let event1 = new CalEvent();
+  let event2 = new CalEvent();
 
   // Testing relation set/get.
   let properties = {

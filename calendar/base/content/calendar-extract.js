@@ -9,6 +9,11 @@
 var { Extractor } = ChromeUtils.import("resource:///modules/calendar/calExtract.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 var calendarExtract = {
   onShowLocaleMenu(target) {
@@ -103,7 +108,7 @@ var calendarExtract = {
     }
 
     let item;
-    item = isEvent ? cal.createEvent() : cal.createTodo();
+    item = isEvent ? new CalEvent() : cal.createTodo();
     item.title = message.mime2DecodedSubject;
     item.calendar = getSelectedCalendar();
     item.setProperty("DESCRIPTION", content);

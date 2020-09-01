@@ -3,6 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 function run_test() {
   test_serialize();
@@ -36,7 +41,7 @@ function test_uriattach() {
   let attach = cal.createAttachment();
 
   // Attempt to set a property and check its values
-  let e = cal.createEvent();
+  let e = new CalEvent();
   // eslint-disable-next-line no-useless-concat
   e.icalString = "BEGIN:VEVENT\r\n" + "ATTACH;FMTTYPE=x-moz/test:http://hello\r\n" + "END:VEVENT";
   let prop = e.icalComponent.getFirstProperty("ATTACH");
@@ -51,7 +56,7 @@ function test_uriattach() {
 
 function test_binaryattach() {
   let attach = cal.createAttachment();
-  let e = cal.createEvent();
+  let e = new CalEvent();
 
   let attachString =
     "ATTACH;ENCODING=BASE64;FMTTYPE=x-moz/test2;VALUE=BINARY:aHR0cDovL2hlbGxvMg==\r\n";

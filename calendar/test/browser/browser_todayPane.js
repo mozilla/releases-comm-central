@@ -5,6 +5,11 @@
 /* globals agendaListbox */
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 add_task(async function testTodayPane() {
   // Add a calendar to work with.
@@ -51,14 +56,14 @@ add_task(async function testTodayPane() {
   }
 
   // Create some events.
-  let todaysEvent = cal.createEvent();
+  let todaysEvent = new CalEvent();
   todaysEvent.title = "Today's Event";
   todaysEvent.startDate = today.clone();
   todaysEvent.startDate.hour = Math.min(startHour + 6, 23);
   todaysEvent.endDate = todaysEvent.startDate.clone();
   todaysEvent.endDate.hour++;
 
-  let tomorrowsEvent = cal.createEvent();
+  let tomorrowsEvent = new CalEvent();
   tomorrowsEvent.title = "Tomorrow's Event";
   tomorrowsEvent.startDate = today.clone();
   tomorrowsEvent.startDate.day++;
@@ -66,7 +71,7 @@ add_task(async function testTodayPane() {
   tomorrowsEvent.endDate = tomorrowsEvent.startDate.clone();
   tomorrowsEvent.endDate.hour++;
 
-  let futureEvent = cal.createEvent();
+  let futureEvent = new CalEvent();
   futureEvent.id = "this is what we're waiting for";
   futureEvent.title = "Future Event";
   futureEvent.startDate = today.clone();

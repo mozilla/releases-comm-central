@@ -7,6 +7,11 @@
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 /* exported modifyEventWithDialog, undo, redo, setContextPartstat */
 
@@ -272,7 +277,7 @@ function createEventWithDialog(calendar, startDate, endDate, summary, event, aFo
       event.calendar = calendar || getSelectedCalendar();
     }
   } else {
-    event = cal.createEvent();
+    event = new CalEvent();
 
     let refDate = currentView().initialized && currentView().selectedDay.clone();
     setDefaultItemValues(event, calendar, startDate, endDate, refDate, aForceAllday);

@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
+
 function run_test() {
   do_calendar_startup(run_next_test);
 }
@@ -34,7 +40,7 @@ add_task(async function test_deleted_items() {
   let memory = calmgr.createCalendar("memory", Services.io.newURI("moz-storage-calendar://"));
   calmgr.registerCalendar(memory);
 
-  let item = cal.createEvent();
+  let item = new CalEvent();
   item.id = "test-item-1";
   item.startDate = cal.dtz.now();
   item.endDate = cal.dtz.now();
