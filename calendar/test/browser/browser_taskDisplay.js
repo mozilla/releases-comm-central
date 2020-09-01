@@ -5,6 +5,11 @@
 var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalTodo: "resource:///modules/CalTodo.jsm",
+});
 
 var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 var controller = mozmill.getMail3PaneController();
@@ -16,7 +21,7 @@ let tree = document.getElementById("calendar-task-tree");
 
 add_task(async () => {
   async function createTask(title, attributes = {}) {
-    let task = cal.createTodo();
+    let task = new CalTodo();
     task.title = title;
     for (let [key, value] of Object.entries(attributes)) {
       task[key] = value;
@@ -110,7 +115,7 @@ add_task(async () => {
     startsLater: await createTask("Starts later", { entryDate: later }),
   };
 
-  let repeatingTask = cal.createTodo();
+  let repeatingTask = new CalTodo();
   repeatingTask.title = "Repeating";
   repeatingTask.entryDate = yesterday;
   repeatingTask.recurrenceInfo = cal.createRecurrenceInfo(repeatingTask);

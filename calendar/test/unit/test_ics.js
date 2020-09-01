@@ -6,6 +6,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 function run_test() {
@@ -154,8 +155,8 @@ function test_folding() {
   // check folding
   const id =
     "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong-id-provoking-folding";
-  let todo = cal.createTodo(),
-    todo_ = cal.createTodo();
+  let todo = new CalTodo(),
+    todo_ = new CalTodo();
   todo.id = id;
   todo_.icalString = todo.icalString;
   equal(todo.id, todo_.id);

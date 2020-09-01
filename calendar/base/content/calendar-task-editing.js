@@ -8,6 +8,12 @@
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalTodo: "resource:///modules/CalTodo.jsm",
+});
+
 /**
  * Used by the "quick add" feature for tasks, for example in the task view or
  * the uniinder-todo.
@@ -110,7 +116,7 @@ var taskEdit = {
     if (aEvent.key == "Enter") {
       let edit = aEvent.target;
       if (edit.value && edit.value.length > 0) {
-        let item = cal.createTodo();
+        let item = new CalTodo();
         setDefaultItemValues(item);
         item.title = edit.value;
 

@@ -11,6 +11,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 /* exported modifyEventWithDialog, undo, redo, setContextPartstat */
@@ -322,7 +323,7 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
       todo.calendar = calendar || getSelectedCalendar();
     }
   } else {
-    todo = cal.createTodo();
+    todo = new CalTodo();
     setDefaultItemValues(todo, calendar, null, dueDate, initialDate);
 
     if (summary) {

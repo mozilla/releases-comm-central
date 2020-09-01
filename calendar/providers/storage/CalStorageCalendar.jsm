@@ -15,6 +15,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 var USECS_PER_SECOND = 1000000;
@@ -1867,7 +1868,7 @@ CalStorageCalendar.prototype = {
       return item;
     }
 
-    item = cal.createTodo();
+    item = new CalTodo();
 
     if (row.getResultByName("todo_entry")) {
       item.entryDate = newDateTime(

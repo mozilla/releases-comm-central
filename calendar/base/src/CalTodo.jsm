@@ -11,7 +11,14 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 Services.scriptloader.loadSubScript("resource:///components/calItemBase.js");
 
-function CalTodo() {
+/**
+ * Constructor for `calITodo` objects.
+ *
+ * @class
+ * @implements {calITodo}
+ * @param {string} [icalString] - Optional iCal string for initializing existing todos.
+ */
+function CalTodo(icalString) {
   this.initItemBase();
 
   this.todoPromotedProps = {
@@ -21,6 +28,10 @@ function CalTodo() {
     COMPLETED: true,
     __proto__: this.itemBasePromotedProps,
   };
+
+  if (icalString) {
+    this.icalString = icalString;
+  }
 
   // Set a default percentComplete if the icalString didn't already set it.
   if (!this.percentComplete) {

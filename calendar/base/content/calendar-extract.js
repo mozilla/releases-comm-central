@@ -13,6 +13,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 var calendarExtract = {
@@ -108,7 +109,7 @@ var calendarExtract = {
     }
 
     let item;
-    item = isEvent ? new CalEvent() : cal.createTodo();
+    item = isEvent ? new CalEvent() : new CalTodo();
     item.title = message.mime2DecodedSubject;
     item.calendar = getSelectedCalendar();
     item.setProperty("DESCRIPTION", content);

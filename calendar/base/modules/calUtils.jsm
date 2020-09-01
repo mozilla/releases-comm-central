@@ -27,7 +27,6 @@ const EXPORTED_SYMBOLS = ["cal"];
 var cal = {
   // These functions exist to reduce boilerplate code for creating instances
   // as well as getting services and other (cached) objects.
-  createTodo: _instance("@mozilla.org/calendar/todo;1", Ci.calITodo, "icalString"),
   createDateTime: _instance("@mozilla.org/calendar/datetime;1", Ci.calIDateTime, "icalString"),
   createDuration: _instance("@mozilla.org/calendar/duration;1", Ci.calIDuration, "icalString"),
   createAttendee: _instance("@mozilla.org/calendar/attendee;1", Ci.calIAttendee, "icalString"),

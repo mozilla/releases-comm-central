@@ -11,6 +11,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 function CalIcsParser() {
@@ -75,7 +76,7 @@ CalIcsParser.prototype = {
 
         if (!parent) {
           // a parentless one, fake a master and override it's occurrence
-          parent = cal.item.isEvent(item) ? new CalEvent() : cal.createTodo();
+          parent = cal.item.isEvent(item) ? new CalEvent() : new CalTodo();
           parent.id = item.id;
           parent.setProperty("DTSTART", item.recurrenceId);
           parent.setProperty("X-MOZ-FAKED-MASTER", "1"); // this tag might be useful in the future
@@ -266,7 +267,7 @@ parserState.prototype = {
             self.checkTimezone(item, item.endDate);
             break;
           case "VTODO":
-            item = cal.createTodo();
+            item = new CalTodo();
             item.icalComponent = subComp;
             self.checkTimezone(item, item.entryDate);
             self.checkTimezone(item, item.dueDate);

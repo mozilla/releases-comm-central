@@ -8,6 +8,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 function run_test() {
@@ -78,7 +79,7 @@ add_task(async function test_setDefaultValues_tasks() {
   Services.prefs.setIntPref("calendar.alarms.onfortodos", 1);
   Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "hours");
   Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 60);
-  item = cal.createTodo();
+  item = new CalTodo();
   equal(item.entryDate, null);
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
@@ -91,7 +92,7 @@ add_task(async function test_setDefaultValues_tasks() {
   Services.prefs.setIntPref("calendar.alarms.onfortodos", 1);
   Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "yards");
   Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 20);
-  item = cal.createTodo();
+  item = new CalTodo();
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
@@ -100,7 +101,7 @@ add_task(async function test_setDefaultValues_tasks() {
   equal(alarm.offset.icalString, "-PT20M");
 
   Services.prefs.setIntPref("calendar.alarms.onfortodos", 0);
-  item = cal.createTodo();
+  item = new CalTodo();
   cal.alarms.setDefaultValues(item);
   equal(item.getAlarms().length, 0);
 
@@ -113,7 +114,7 @@ add_task(async function test_setDefaultValues_tasks() {
   Services.prefs.setIntPref("calendar.alarms.onfortodos", 1);
   Services.prefs.setStringPref("calendar.alarms.todoalarmunit", "hours");
   Services.prefs.setIntPref("calendar.alarms.todoalarmlen", 60);
-  item = cal.createTodo();
+  item = new CalTodo();
   item.calendar = mockCalendar;
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];

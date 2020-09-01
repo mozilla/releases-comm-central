@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalTodo: "resource:///modules/CalTodo.jsm",
+});
+
 function run_test() {
   // Initialize the floating timezone without actually starting the service.
   cal.getTimezoneService().floating; // eslint-disable-line no-unused-expressions
@@ -646,12 +652,12 @@ function test_strings() {
   alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration();
   alarm.toString();
-  alarm.toString(cal.createTodo());
+  alarm.toString(new CalTodo());
 
   alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
   alarm.offset = cal.createDuration();
   alarm.toString();
-  alarm.toString(cal.createTodo());
+  alarm.toString(new CalTodo());
 
   alarm.offset = cal.createDuration("P1D");
   alarm.toString();

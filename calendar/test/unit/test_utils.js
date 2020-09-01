@@ -6,6 +6,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 function run_test() {
@@ -95,7 +96,7 @@ function test_getDefaultStartDate() {
   equal(event.startDate.icalString, "20120202T020000");
   equal(event.endDate.icalString, "20120202T030000");
 
-  let todo = cal.createTodo();
+  let todo = new CalTodo();
   now = cal.createDateTime("20120101T000000");
   cal.dtz.setDefaultStartEndHour(todo, cal.createDateTime("20120202"));
   equal(todo.entryDate.icalString, "20120202T010000");
@@ -106,8 +107,8 @@ function test_getDefaultStartDate() {
 function test_getStartEndProps() {
   equal(cal.dtz.startDateProp(new CalEvent()), "startDate");
   equal(cal.dtz.endDateProp(new CalEvent()), "endDate");
-  equal(cal.dtz.startDateProp(cal.createTodo()), "entryDate");
-  equal(cal.dtz.endDateProp(cal.createTodo()), "dueDate");
+  equal(cal.dtz.startDateProp(new CalTodo()), "entryDate");
+  equal(cal.dtz.endDateProp(new CalTodo()), "dueDate");
 
   throws(() => cal.dtz.startDateProp(null), /NS_ERROR_NOT_IMPLEMENTED/);
   throws(() => cal.dtz.endDateProp(null), /NS_ERROR_NOT_IMPLEMENTED/);

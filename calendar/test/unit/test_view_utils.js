@@ -6,6 +6,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 function run_test() {
@@ -30,7 +31,7 @@ function test_not_a_date() {
 
 function test_compare_event_and_todo() {
   let a = new CalEvent();
-  let b = cal.createTodo();
+  let b = new CalTodo();
 
   let result = cal.view.compareItems(a, b);
   equal(result, 1);
@@ -108,8 +109,8 @@ function test_compare_title() {
 }
 
 function test_compare_todo() {
-  let a = cal.createTodo();
-  let b = cal.createTodo();
+  let a = new CalTodo();
+  let b = new CalTodo();
 
   let cmp = cal.view.compareItems(a, b);
   equal(cmp, 0);

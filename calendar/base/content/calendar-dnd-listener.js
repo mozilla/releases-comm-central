@@ -14,6 +14,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 /* exported invokeEventDragSession, calendarViewDNDObserver,
@@ -105,7 +106,7 @@ var itemConversion = {
    * @return {Object} The resulting task.
    */
   taskFromEvent(aEvent) {
-    let item = cal.createTodo();
+    let item = new CalTodo();
 
     this.copyItemBase(aEvent, item);
 
@@ -574,7 +575,7 @@ calTaskButtonDNDObserver.prototype = {
    * @param {Object} aMessage - The message to handle.
    */
   onDropMessage(aMessage) {
-    let todo = cal.createTodo();
+    let todo = new CalTodo();
     itemConversion.calendarItemFromMessage(todo, aMessage);
     createTodoWithDialog(null, null, null, todo);
   },
@@ -587,7 +588,7 @@ calTaskButtonDNDObserver.prototype = {
    * @param {string} uri - The uri to handle.
    */
   onDropURL(uri) {
-    let todo = cal.createTodo();
+    let todo = new CalTodo();
     todo.calendar = getSelectedCalendar();
     cal.dtz.setDefaultStartEndHour(todo);
     cal.alarms.setDefaultValues(todo);

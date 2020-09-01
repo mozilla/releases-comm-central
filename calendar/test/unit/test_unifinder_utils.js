@@ -6,6 +6,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 function run_test() {
@@ -35,7 +36,7 @@ function test_get_item_sort_key() {
   equal(cal.unifinder.getItemSortKey(event, "location"), "location");
   equal(cal.unifinder.getItemSortKey(event, "status"), 1);
 
-  let task = cal.createTodo(dedent`
+  let task = new CalTodo(dedent`
         BEGIN:VTODO
         DTSTART:20180102T030405Z
         DUE:20180607T080910Z
@@ -54,7 +55,7 @@ function test_get_item_sort_key() {
   strictEqual(cal.unifinder.getItemSortKey(task, "location"), "");
   equal(cal.unifinder.getItemSortKey(task, "status"), 2);
 
-  let task2 = cal.createTodo(dedent`
+  let task2 = new CalTodo(dedent`
         BEGIN:VTODO
         STATUS:GETTIN' THERE
         END:VTODO
@@ -63,7 +64,7 @@ function test_get_item_sort_key() {
   equal(cal.unifinder.getItemSortKey(task2, "status"), -1);
 
   // Default CalTodo objects have the default percentComplete.
-  let task3 = cal.createTodo();
+  let task3 = new CalTodo();
   equal(cal.unifinder.getItemSortKey(task3, "percentComplete"), 0);
 }
 
@@ -115,7 +116,7 @@ function test_sort_items() {
   // number comparison
   let percents = [3, 1, 2];
   items = percents.map(percent => {
-    return cal.createTodo(dedent`
+    return new CalTodo(dedent`
             BEGIN:VTODO
             PERCENT-COMPLETE:${percent}
             END:VTODO
