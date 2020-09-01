@@ -823,9 +823,13 @@
 
         // The null value is a special indicator for 'none'
         if (groupValue == null) {
-          label.textContent = glodaFacetStrings.GetStringFromName(
-            "glodaFacetView.facets.noneLabel"
-          );
+          if ("noneLabel" in this.facetDef.strings) {
+            this.includeLabel.textContent = this.facetDef.strings.noneLabel;
+          } else {
+            label.textContent = glodaFacetStrings.GetStringFromName(
+              "glodaFacetView.facets.noneLabel"
+            );
+          }
         } else {
           // Otherwise stringify the group object
           let labelStr;

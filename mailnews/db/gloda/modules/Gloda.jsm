@@ -1782,6 +1782,7 @@ var Gloda = {
   _ATTR_LOCALIZED_STRINGS: {
     /* - Faceting */
     facetNameLabel: "facetNameLabel",
+    noneLabel: "noneLabel",
     includeLabel: "includeLabel",
     excludeLabel: "excludeLabel",
     remainderLabel: "remainderLabel",
