@@ -76,6 +76,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
+  XPIDatabase: "resource://gre/modules/addons/XPIDatabase.jsm",
+  ExtensionData: "resource://gre/modules/Extension.jsm",
+  XPIInternal: "resource://gre/modules/addons/XPIProvider.jsm",
 });
 
 /**
@@ -280,6 +283,53 @@ MailGlue.prototype = {
     }
   },
 
+  async _legacyCheck() {
+    // This is called twice, make sure we only patch once.
+    if (XPIDatabase._isDisabledLegacyPatched) {
+      return;
+    }
+    XPIDatabase._isDisabledLegacyPatched = true;
+    let origIsDisabledLegacy = XPIDatabase.isDisabledLegacy;
+    XPIDatabase.isDisabledLegacy = function(addon) {
+      let rv = origIsDisabledLegacy(addon);
+      // If it is already identified as legacy or system/builtin, return as usual.
+      if (rv || addon.location.isSystem || addon.location.isBuiltin) {
+        return rv;
+      }
+
+      // Check if add-on is legacy WebExtension.
+      // Step 1: Get the extension.
+      let extension = null;
+      try {
+        extension = new ExtensionData(
+          XPIInternal.maybeResolveURI(Services.io.newURI(addon.rootURI))
+        );
+      } catch (e) {
+        console.log(e);
+      }
+
+      // Step 2: Get the manifest.
+      let manifest = extension
+        ? XPIInternal.awaitPromise(extension.loadManifest())
+        : null;
+      return manifest && manifest.legacy != null;
+    };
+
+    // Use the patched function to test currently installed add-ons.
+    // We use the async function here.
+    let addons = await XPIDatabase.getAddonList(
+      a => !(a.location.isSystem || a.location.isBuiltin)
+    );
+    for (let addon of addons) {
+      if (XPIDatabase.isDisabledLegacy(addon)) {
+        // Enforce a "is not compatible" notification element.
+        addon.isCompatibleWith = () => false;
+        // appDisable add-on.
+        XPIDatabase.updateAddonDisabledState(addon);
+      }
+    }
+  },
+
   _onFirstWindowLoaded() {
     // On Windows 7 and above, initialize the jump list module.
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";
@@ -297,6 +347,8 @@ MailGlue.prototype = {
       "resource:///modules/ExtensionsUI.jsm"
     );
     ExtensionsUI.init();
+
+    this._legacyCheck();
 
     // If the application has been updated, look for any extensions that may
     // have been disabled by the update, and check for newer versions of those
