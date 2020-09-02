@@ -367,6 +367,10 @@ function UpdateMailPaneConfig(aMsgWindowInitialized) {
       cloneToolboxPalette = hdrToolbox.palette.cloneNode(true);
     }
 
+    // The find bar needs disconnecting before the browser it is attached to.
+    // Due to its position in the DOM, this doesn't happen.
+    document.getElementById("FindToolbar").destroy();
+
     let footerBox = desiredParent.lastElementChild;
     if (footerBox && footerBox.id == "messenger-notification-footer") {
       desiredParent.insertBefore(messagePaneSplitter, footerBox);
