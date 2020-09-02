@@ -2474,6 +2474,22 @@
         if (pill.hasAttribute("disabled")) {
           return;
         }
+        // Remove pills on middle mouse button click, but not with selection
+        // modifier keys.
+        if (
+          event.button == 1 &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.shiftKey
+        ) {
+          if (!pill.hasAttribute("selected")) {
+            this.clearSelected();
+            pill.setAttribute("selected", "selected");
+          }
+          this.removeSelectedPills(pill);
+          return;
+        }
+        // Handle selection, especially with Ctrl/Cmd and/or Shift modifiers.
         this.checkSelected(pill, event);
       });
       pill.addEventListener("dblclick", event => {
