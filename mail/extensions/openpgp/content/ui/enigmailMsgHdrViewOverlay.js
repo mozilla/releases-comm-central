@@ -567,7 +567,9 @@ Enigmail.hdrView = {
       }
       signedUINode.setAttribute("signed", val);
     } else if (statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) {
+      let val = "unknown";
       if (statusFlags & EnigmailConstants.INVALID_RECIPIENT) {
+        val = "mismatch";
         this.msgSignatureState =
           EnigmailConstants.MSG_SIG_UNCERTAIN_UID_MISMATCH;
       } else if (statusFlags & EnigmailConstants.NO_PUBKEY) {
@@ -578,7 +580,7 @@ Enigmail.hdrView = {
         this.msgSignatureState =
           EnigmailConstants.MSG_SIG_UNCERTAIN_KEY_NOT_ACCEPTED;
       }
-      signedUINode.setAttribute("signed", "mismatch");
+      signedUINode.setAttribute("signed", val);
     }
     // (statusFlags & EnigmailConstants.INLINE_KEY) ???
 
