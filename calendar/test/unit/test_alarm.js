@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
@@ -74,7 +75,7 @@ function test_display_alarm() {
 
   throws(() => {
     // DISPLAY alarm should not be able to save attachment
-    alarm.addAttachment(cal.createAttachment());
+    alarm.addAttachment(new CalAttachment());
   }, /Alarm type DISPLAY may not have attachments/);
 
   dump("Done\n");
@@ -171,23 +172,23 @@ function test_audio_alarm() {
   }
 
   // Test attachments
-  let sound = cal.createAttachment();
+  let sound = new CalAttachment();
   sound.uri = Services.io.newURI("file:///sound.wav");
-  let sound2 = cal.createAttachment();
+  let sound2 = new CalAttachment();
   sound2.uri = Services.io.newURI("file:///sound2.wav");
 
   // Adding an attachment should work
   alarm.addAttachment(sound);
   let addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 1);
-  equal(addedAttachments[0], sound);
+  equal(addedAttachments[0].wrappedJSObject, sound);
   ok(alarm.icalString.includes("ATTACH:file:///sound.wav"));
 
   // Adding twice shouldn't change anything
   alarm.addAttachment(sound);
   addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 1);
-  equal(addedAttachments[0], sound);
+  equal(addedAttachments[0].wrappedJSObject, sound);
 
   try {
     alarm.addAttachment(sound2);
@@ -259,9 +260,9 @@ function test_custom_alarm() {
   equal(alarm.getAttendees().length, 0);
 
   // Test for attachments
-  let attach1 = cal.createAttachment();
+  let attach1 = new CalAttachment();
   attach1.uri = Services.io.newURI("file:///example.txt");
-  let attach2 = cal.createAttachment();
+  let attach2 = new CalAttachment();
   attach2.uri = Services.io.newURI("file:///example2.txt");
 
   alarm.addAttachment(attach1);
@@ -269,8 +270,8 @@ function test_custom_alarm() {
 
   let addedAttachments = alarm.getAttachments();
   equal(addedAttachments.length, 2);
-  equal(addedAttachments[0], attach1);
-  equal(addedAttachments[1], attach2);
+  equal(addedAttachments[0].wrappedJSObject, attach1);
+  equal(addedAttachments[1].wrappedJSObject, attach2);
 
   alarm.deleteAttachment(attach1);
   addedAttachments = alarm.getAttachments();

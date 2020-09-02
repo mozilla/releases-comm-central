@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
@@ -95,10 +96,10 @@ function test_calendar() {
 function test_attachment() {
   let e = new CalEvent();
 
-  let a = cal.createAttachment();
+  let a = new CalAttachment();
   a.rawData = "horst";
 
-  let b = cal.createAttachment();
+  let b = new CalAttachment();
   b.rawData = "bruno";
 
   e.addAttachment(a);

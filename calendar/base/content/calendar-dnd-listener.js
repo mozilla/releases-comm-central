@@ -13,6 +13,7 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
@@ -486,7 +487,7 @@ calCalendarButtonDNDObserver.prototype = {
     newItem.calendar = getSelectedCalendar();
     cal.dtz.setDefaultStartEndHour(newItem);
     cal.alarms.setDefaultValues(newItem);
-    let attachment = cal.createAttachment();
+    let attachment = new CalAttachment();
     attachment.uri = uri;
     newItem.addAttachment(attachment);
     createEventWithDialog(null, null, null, null, newItem);
@@ -593,7 +594,7 @@ calTaskButtonDNDObserver.prototype = {
     todo.calendar = getSelectedCalendar();
     cal.dtz.setDefaultStartEndHour(todo);
     cal.alarms.setDefaultValues(todo);
-    let attachment = cal.createAttachment();
+    let attachment = new CalAttachment();
     attachment.uri = uri;
     todo.addAttachment(attachment);
     createTodoWithDialog(null, null, null, todo);

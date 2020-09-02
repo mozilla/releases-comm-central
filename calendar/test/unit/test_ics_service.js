@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
 });
 
@@ -49,7 +50,7 @@ function test_icalstring() {
   }
 
   let attach = checkComp(
-    cal.createAttachment.bind(cal),
+    icalString => new CalAttachment(icalString),
     "ATTACH;ENCODING=BASE64;FMTTYPE=text/calendar;FILENAME=test.ics:http://example.com/test.ics",
     { formatType: "text/calendar", encoding: "BASE64" },
     { FILENAME: "test.ics" }

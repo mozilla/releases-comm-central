@@ -33,6 +33,7 @@ var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm")
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
 });
 
@@ -2205,7 +2206,7 @@ function attachURL() {
     if (confirm) {
       try {
         // If something bogus was entered, Services.io.newURI may fail.
-        let attachment = cal.createAttachment();
+        let attachment = new CalAttachment();
         attachment.uri = Services.io.newURI(result.value);
         addAttachment(attachment);
         // we switch to the attachment tab if it is not already displayed
@@ -2278,7 +2279,7 @@ function attachFile(cloudProvider) {
         lastDirectory(uriSpec);
 
         // ... and add the attachment.
-        let attachment = cal.createAttachment();
+        let attachment = new CalAttachment();
         if (cloudProvider) {
           attachment.uri = Services.io.newURI(uriSpec);
         } else {

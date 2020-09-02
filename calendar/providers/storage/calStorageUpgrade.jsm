@@ -76,6 +76,7 @@ var { CAL_ITEM_FLAG, textToDate, getTimezone, newDateTime } = ChromeUtils.import
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
 });
 
@@ -1627,7 +1628,7 @@ upgrade.v22 = function(db, version) {
         try {
           let [aData, aFmtType, aEncoding] = mapStorageArgs(storArgs);
 
-          let attach = cal.createAttachment();
+          let attach = new CalAttachment();
           attach.uri = Services.io.newURI(aData);
           attach.formatType = aFmtType;
           attach.encoding = aEncoding;

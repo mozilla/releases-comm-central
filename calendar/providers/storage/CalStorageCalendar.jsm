@@ -14,6 +14,7 @@ var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
@@ -1798,7 +1799,7 @@ CalStorageCalendar.prototype = {
     await this.executeAsync(this.mSelectAllAttachments, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addAttachment(cal.createAttachment(row.getResultByName("icalString")));
+        item.addAttachment(new CalAttachment(row.getResultByName("icalString")));
       }
     });
 
@@ -2059,7 +2060,7 @@ CalStorageCalendar.prototype = {
         this.prepareStatement(selectAttachment);
         selectAttachment.params.item_id = item.id;
         await this.executeAsync(selectAttachment, row => {
-          item.addAttachment(cal.createAttachment(row.getResultByName("icalString")));
+          item.addAttachment(new CalAttachment(row.getResultByName("icalString")));
         });
       } catch (e) {
         this.logError(

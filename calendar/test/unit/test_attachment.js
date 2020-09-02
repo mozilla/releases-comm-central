@@ -6,6 +6,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
@@ -17,7 +18,7 @@ function run_test() {
 }
 
 function test_hashes() {
-  let attach = cal.createAttachment();
+  let attach = new CalAttachment();
 
   attach.rawData = "hello";
   let hash1 = attach.hashId;
@@ -38,7 +39,7 @@ function test_hashes() {
 }
 
 function test_uriattach() {
-  let attach = cal.createAttachment();
+  let attach = new CalAttachment();
 
   // Attempt to set a property and check its values
   let e = new CalEvent();
@@ -55,7 +56,7 @@ function test_uriattach() {
 }
 
 function test_binaryattach() {
-  let attach = cal.createAttachment();
+  let attach = new CalAttachment();
   let e = new CalEvent();
 
   let attachString =
@@ -88,12 +89,12 @@ function test_binaryattach() {
 }
 
 function test_serialize() {
-  let attach = cal.createAttachment();
+  let attach = new CalAttachment();
   attach.formatType = "x-moz/test2";
   attach.uri = Services.io.newURI("data:text/plain,");
   equal(attach.icalString, "ATTACH;FMTTYPE=x-moz/test2:data:text/plain,\r\n");
 
-  attach = cal.createAttachment();
+  attach = new CalAttachment();
   attach.encoding = "BASE64";
   attach.uri = Services.io.newURI("data:text/plain,");
   equal(attach.icalString, "ATTACH;ENCODING=BASE64:data:text/plain,\r\n");
@@ -102,7 +103,7 @@ function test_serialize() {
     attach.icalString = "X-STICKER:smiley";
   }, /Illegal value/);
 
-  attach = cal.createAttachment();
+  attach = new CalAttachment();
   attach.uri = Services.io.newURI("data:text/plain,");
   attach.setParameter("X-PROP", "VAL");
   equal(attach.icalString, "ATTACH;X-PROP=VAL:data:text/plain,\r\n");

@@ -9,6 +9,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
 });
 
@@ -524,7 +525,7 @@ CalAlarm.prototype = {
     // Set up attachments
     this.clearAttachments();
     for (let attachProp of cal.iterate.icalProperty(aComp, "ATTACH")) {
-      let attach = cal.createAttachment();
+      let attach = new CalAttachment();
       attach.icalProperty = attachProp;
       this.addAttachment(attach);
     }

@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
@@ -165,7 +166,7 @@ function test_folding() {
 }
 
 function test_icalProps() {
-  checkIcalProp("ATTACH", cal.createAttachment());
+  checkIcalProp("ATTACH", new CalAttachment());
   checkIcalProp("ATTENDEE", new CalAttendee());
   checkIcalProp("RELATED-TO", cal.createRelation());
 }

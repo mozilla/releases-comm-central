@@ -7,9 +7,19 @@ var EXPORTED_SYMBOLS = ["CalAttachment"];
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-function CalAttachment() {
+/**
+ * Constructor for `calIAttachment` objects.
+ *
+ * @class
+ * @implements {calIAttachment}
+ * @param {string} [icalString] - Optional iCal string for initializing existing attachments.
+ */
+function CalAttachment(icalString) {
   this.wrappedJSObject = this;
   this.mProperties = new Map();
+  if (icalString) {
+    this.icalString = icalString;
+  }
 }
 
 CalAttachment.prototype = {
