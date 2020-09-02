@@ -15,7 +15,7 @@ let whitelist = [
   // CodeMirror is imported as-is, see bug 1004423.
   { sourceName: /codemirror\.css$/i, isFromDevTools: true },
   {
-    sourceName: /devtools\/client\/debugger\/src\/components\/([A-z\/]+).css/i,
+    sourceName: /devtools\/content\/debugger\/src\/components\/([A-z\/]+).css/i,
     isFromDevTools: true,
   },
   // Highlighter CSS uses a UA-only pseudo-class, see bug 985597.
@@ -52,13 +52,6 @@ let whitelist = [
     errorMessage: /Unknown property.*overflow-clip-box/i,
     isFromDevTools: false,
   },
-  // System colors reserved to UA / chrome sheets
-  {
-    sourceName: /(?:res|gre-resources)\/forms\.css$/i,
-    errorMessage: /Expected color but found \u2018-moz.*/i,
-    platforms: ["linux"],
-    isFromDevTools: false,
-  },
   // These variables are declared somewhere else, and error when we load the
   // files directly. They're all marked intermittent because their appearance
   // in the error console seems to not be consistent.
@@ -83,24 +76,19 @@ if (
   });
 }
 
-if (
-  !Services.prefs.getBoolPref(
-    "layout.css.line-height-moz-block-height.content.enabled"
-  )
-) {
-  // -moz-block-height is used in form controls but not exposed to the web.
+if (Services.prefs.getBoolPref("layout.css.file-selector-button.enabled")) {
+  // System colors reserved to UA / chrome sheets
   whitelist.push({
     sourceName: /(?:res|gre-resources)\/forms\.css$/i,
-    errorMessage: /Error in parsing value for \u2018line-height\u2019/iu,
+    errorMessage: /Expected color but found \u2018-moz.*/i,
+    platforms: ["linux"],
     isFromDevTools: false,
   });
-}
-
-if (!Services.prefs.getBoolPref("layout.css.file-chooser-button.enabled")) {
+} else {
   // Reserved to UA sheets, behind a pref for content.
   whitelist.push({
     sourceName: /(?:res|gre-resources)\/forms\.css$/i,
-    errorMessage: /Unknown pseudo-.*file-chooser-button/i,
+    errorMessage: /Unknown pseudo-.*file-selector-button/i,
     isFromDevTools: false,
   });
 }
@@ -286,7 +274,7 @@ function processCSSRules(sheet) {
     // Note: CSSRule.cssText always has double quotes around URLs even
     //       when the original CSS file didn't.
     let urls = rule.cssText.match(/url\("[^"]*"\)/g);
-    // Extract props by searching all "--" preceded by "var(" or a non-word
+    // Extract props by searching all "--" preceeded by "var(" or a non-word
     // character.
     let props = rule.cssText.match(/(var\(|\W)(--[\w\-]+)/g);
     if (!urls && !props) {
