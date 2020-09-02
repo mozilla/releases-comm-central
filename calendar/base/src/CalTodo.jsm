@@ -21,6 +21,11 @@ function CalTodo() {
     COMPLETED: true,
     __proto__: this.itemBasePromotedProps,
   };
+
+  // Set a default percentComplete if the icalString didn't already set it.
+  if (!this.percentComplete) {
+    this.percentComplete = 0;
+  }
 }
 
 var calTodoClassID = Components.ID("{7af51168-6abe-4a31-984d-6f8a3989212d}");
@@ -242,10 +247,5 @@ CalTodo.prototype = {
   },
 };
 
-// var decl to prevent spurious error messages when loaded as component
-
-var makeMemberAttr;
-if (makeMemberAttr) {
-  makeMemberAttr(CalTodo, "COMPLETED", null, "completedDate", true);
-  makeMemberAttr(CalTodo, "PERCENT-COMPLETE", 0, "percentComplete", true);
-}
+makeMemberAttrProperty(CalTodo, "COMPLETED", "completedDate");
+makeMemberAttrProperty(CalTodo, "PERCENT-COMPLETE", "percentComplete");

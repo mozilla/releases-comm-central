@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exported makeMemberAttr, makeMemberAttrProperty */
+
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalAttendee } = ChromeUtils.import("resource:///modules/CalAttendee.jsm");
 var { CalRelation } = ChromeUtils.import("resource:///modules/CalRelation.jsm");
@@ -1054,40 +1056,56 @@ calItemBase.prototype = {
   },
 };
 
-makeMemberAttr(calItemBase, "CREATED", null, "creationDate", true);
-makeMemberAttr(calItemBase, "SUMMARY", null, "title", true);
-makeMemberAttr(calItemBase, "PRIORITY", 0, "priority", true);
-makeMemberAttr(calItemBase, "CLASS", "PUBLIC", "privacy", true);
-makeMemberAttr(calItemBase, "STATUS", null, "status", true);
-makeMemberAttr(calItemBase, "ALARMTIME", null, "alarmTime", true);
+makeMemberAttrProperty(calItemBase, "CREATED", "creationDate");
+makeMemberAttrProperty(calItemBase, "SUMMARY", "title");
+makeMemberAttrProperty(calItemBase, "PRIORITY", "priority");
+makeMemberAttrProperty(calItemBase, "CLASS", "privacy");
+makeMemberAttrProperty(calItemBase, "STATUS", "status");
+makeMemberAttrProperty(calItemBase, "ALARMTIME", "alarmTime");
 
-makeMemberAttr(calItemBase, "mProperties", null, "properties");
+makeMemberAttr(calItemBase, "mProperties", "properties", null);
 
 /**
- * Helper function to add a member attribute on the given prototype
+ * Adds a member attribute to the given prototype.
  *
- * @param ctor          The constructor function of the prototype
- * @param varname       The local variable name to get/set, or the property in
- *                        case asProperty is true.
- * @param dflt          The default value in case none is set
- * @param attr          The attribute name to be used
- * @param asProperty    If true, getProperty will be used to get/set the
- *                        member.
+ * @param {Function} ctor       The constructor function of the prototype.
+ * @param {string} varname      The variable name to get/set.
+ * @param {string} attr         The attribute name to be used.
+ * @param {*} dflt              The default value in case none is set.
  */
-function makeMemberAttr(ctor, varname, dflt, attr, asProperty) {
-  // XXX handle defaults!
+function makeMemberAttr(ctor, varname, attr, dflt) {
   let getter = function() {
-    if (asProperty) {
-      return this.getProperty(varname);
-    }
-    return varname in this ? this[varname] : undefined;
+    return varname in this ? this[varname] : dflt;
   };
   let setter = function(value) {
     this.modify();
-    if (asProperty) {
-      return this.setProperty(varname, value);
-    }
-    return (this[varname] = value);
+    this[varname] = value;
+    return value;
+  };
+
+  ctor.prototype.__defineGetter__(attr, getter);
+  ctor.prototype.__defineSetter__(attr, setter);
+}
+
+/**
+ * Adds a member attribute to the given prototype, using `getProperty` and
+ * `setProperty` for access.
+ *
+ * Default values are not handled here, but instead are set in constructors,
+ * which makes it possible to e.g. iterate through `mProperties` when cloning
+ * an object.
+ *
+ * @param {Function} ctor       The constructor function of the prototype.
+ * @param {string} name         The property name to get/set.
+ * @param {string} attr         The attribute name to be used.
+ */
+function makeMemberAttrProperty(ctor, name, attr) {
+  let getter = function() {
+    return this.getProperty(name);
+  };
+  let setter = function(value) {
+    this.modify();
+    return this.setProperty(name, value);
   };
   ctor.prototype.__defineGetter__(attr, getter);
   ctor.prototype.__defineSetter__(attr, setter);

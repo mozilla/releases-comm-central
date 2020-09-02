@@ -55,6 +55,10 @@ function test_get_item_sort_key() {
     `);
   equal(cal.unifinder.getItemSortKey(task2, "percentComplete"), 0);
   equal(cal.unifinder.getItemSortKey(task2, "status"), -1);
+
+  // Default CalTodo objects have the default percentComplete.
+  let task3 = cal.createTodo();
+  equal(cal.unifinder.getItemSortKey(task3, "percentComplete"), 0);
 }
 
 function test_sort_items() {

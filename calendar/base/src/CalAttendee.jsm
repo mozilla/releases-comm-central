@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* import-globals-from calItemBase.js */
+
 var EXPORTED_SYMBOLS = ["CalAttendee"];
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -195,11 +197,8 @@ CalAttendee.prototype = {
   },
 };
 
-var makeMemberAttr;
-if (makeMemberAttr) {
-  makeMemberAttr(CalAttendee, "mCommonName", null, "commonName");
-  makeMemberAttr(CalAttendee, "mRsvp", null, "rsvp");
-  makeMemberAttr(CalAttendee, "mRole", null, "role");
-  makeMemberAttr(CalAttendee, "mParticipationStatus", "NEEDS-ACTION", "participationStatus");
-  makeMemberAttr(CalAttendee, "mUserType", "INDIVIDUAL", "userType");
-}
+makeMemberAttr(CalAttendee, "mCommonName", "commonName", null);
+makeMemberAttr(CalAttendee, "mRsvp", "rsvp", null);
+makeMemberAttr(CalAttendee, "mRole", "role", null);
+makeMemberAttr(CalAttendee, "mParticipationStatus", "participationStatus", "NEEDS-ACTION");
+makeMemberAttr(CalAttendee, "mUserType", "userType", "INDIVIDUAL");
