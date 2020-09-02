@@ -13,6 +13,7 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
@@ -500,7 +501,7 @@ calCalendarButtonDNDObserver.prototype = {
    */
   onAddressDrop(addresses) {
     let parsedInput = MailServices.headerParser.makeFromDisplayAddress(addresses);
-    let attendee = cal.createAttendee();
+    let attendee = new CalAttendee();
     attendee.id = "";
     attendee.rsvp = "TRUE";
     attendee.role = "REQ-PARTICIPANT";

@@ -73,6 +73,11 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CAL_ITEM_FLAG, textToDate, getTimezone, newDateTime } = ChromeUtils.import(
   "resource:///modules/calendar/calStorageHelpers.jsm"
 );
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
+});
 
 // The current database version. Be sure to increment this when you create a new
 // updater.
@@ -1673,7 +1678,7 @@ upgrade.v22 = function(db, version) {
             aProperties,
           ] = mapStorageArgs(storArgs);
 
-          let attendee = cal.createAttendee();
+          let attendee = new CalAttendee();
 
           attendee.id = aAttendeeId;
           attendee.commonName = aCommonName;

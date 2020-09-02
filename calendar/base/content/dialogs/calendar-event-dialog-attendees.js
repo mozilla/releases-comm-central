@@ -8,6 +8,11 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
+});
 
 var freeBusyService = cal.getFreeBusyService();
 var timezoneService = cal.getTimezoneService();
@@ -564,7 +569,7 @@ function setLeftAndWidth(element, startTime, endTime) {
 
       let address = MailServices.headerParser.makeFromDisplayAddress(this.value)[0];
 
-      let attendee = cal.createAttendee();
+      let attendee = new CalAttendee();
       attendee.id = cal.email.prependMailTo(address.email);
       if (address.name && address.name != address.email) {
         attendee.commonName = address.name;

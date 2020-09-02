@@ -29,7 +29,6 @@ var cal = {
   // as well as getting services and other (cached) objects.
   createDateTime: _instance("@mozilla.org/calendar/datetime;1", Ci.calIDateTime, "icalString"),
   createDuration: _instance("@mozilla.org/calendar/duration;1", Ci.calIDuration, "icalString"),
-  createAttendee: _instance("@mozilla.org/calendar/attendee;1", Ci.calIAttendee, "icalString"),
   createAttachment: _instance(
     "@mozilla.org/calendar/attachment;1",
     Ci.calIAttachment,

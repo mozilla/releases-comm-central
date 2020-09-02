@@ -6,6 +6,11 @@ var EXPORTED_SYMBOLS = ["CalAlarm"];
 
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
+});
 
 var ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
 var ALARM_RELATED_START = Ci.calIAlarm.ALARM_RELATED_START;
@@ -511,7 +516,7 @@ CalAlarm.prototype = {
     // Set up attendees
     this.clearAttendees();
     for (let attendeeProp of cal.iterate.icalProperty(aComp, "ATTENDEE")) {
-      let attendee = cal.createAttendee();
+      let attendee = new CalAttendee();
       attendee.icalProperty = attendeeProp;
       this.addAttendee(attendee);
     }

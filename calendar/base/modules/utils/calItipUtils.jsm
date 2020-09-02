@@ -7,6 +7,11 @@ var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm"
 var { calendarDeactivator } = ChromeUtils.import(
   "resource:///modules/calendar/calCalendarDeactivator.jsm"
 );
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
+});
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
 
@@ -1433,7 +1438,7 @@ function createOrganizer(aCalendar) {
   if (!orgId) {
     return null;
   }
-  let organizer = cal.createAttendee();
+  let organizer = new CalAttendee();
   organizer.id = orgId;
   organizer.commonName = aCalendar.getProperty("organizerCN");
   organizer.role = "REQ-PARTICIPANT";

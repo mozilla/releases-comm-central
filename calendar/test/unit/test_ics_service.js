@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
+});
+
 function run_test() {
   do_calendar_startup(really_run_test);
 }
@@ -51,7 +57,7 @@ function test_icalstring() {
   equal(attach.uri.spec, "http://example.com/test.ics");
 
   checkComp(
-    cal.createAttendee.bind(cal),
+    icalString => new CalAttendee(icalString),
     "ATTENDEE;RSVP=TRUE;CN=Name;PARTSTAT=ACCEPTED;CUTYPE=RESOURCE;ROLE=REQ-PARTICIPANT;X-THING=BAR:mailto:test@example.com",
     {
       id: "mailto:test@example.com",

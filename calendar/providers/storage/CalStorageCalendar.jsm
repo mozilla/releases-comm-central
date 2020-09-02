@@ -14,6 +14,7 @@ var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
@@ -1711,7 +1712,7 @@ CalStorageCalendar.prototype = {
         return;
       }
 
-      let attendee = cal.createAttendee(row.getResultByName("icalString"));
+      let attendee = new CalAttendee(row.getResultByName("icalString"));
       if (attendee && attendee.id) {
         if (attendee.isOrganizer) {
           item.organizer = attendee;
@@ -1928,7 +1929,7 @@ CalStorageCalendar.prototype = {
         this.prepareStatement(selectItem);
         selectItem.params.item_id = item.id;
         await this.executeAsync(selectItem, row => {
-          let attendee = cal.createAttendee(row.getResultByName("icalString"));
+          let attendee = new CalAttendee(row.getResultByName("icalString"));
           if (attendee && attendee.id) {
             if (attendee.isOrganizer) {
               item.organizer = attendee;

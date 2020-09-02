@@ -5,6 +5,11 @@
 var { ltn } = ChromeUtils.import("resource:///modules/calendar/ltnInvitationUtils.jsm");
 var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
+});
 
 function run_test() {
   do_calendar_startup(run_next_test);
@@ -168,7 +173,7 @@ add_task(async function getItipHeader_test() {
       let attendees = test.input.attendees.filter(aAtt => !!aAtt).join("\r\n");
       item = item.replace(/(ATTENDEE.+(?:\r\n))/, attendees + "\r\n");
       if (test.input.attendees[0]) {
-        sender = cal.createAttendee();
+        sender = new CalAttendee();
         sender.icalString = test.input.attendees[0];
       }
     }

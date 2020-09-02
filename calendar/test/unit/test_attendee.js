@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
@@ -50,7 +51,7 @@ function test_values() {
   }
 
   // Create Attendee
-  let attendee1 = cal.createAttendee();
+  let attendee1 = new CalAttendee();
   // Testing attendee set/get.
   let properties = ["id", "commonName", "rsvp", "role", "participationStatus", "userType"];
   let values = ["myid", "mycn", "TRUE", "CHAIR", "DECLINED", "RESOURCE"];
@@ -69,7 +70,7 @@ function test_values() {
   event.addAttendee(attendee1);
 
   // Add 2nd attendee to event.
-  let attendee2 = cal.createAttendee();
+  let attendee2 = new CalAttendee();
   attendee2.id = "myid2";
   event.addAttendee(attendee2);
 
@@ -100,7 +101,7 @@ function test_values() {
   }
 
   // Make sure organizers are also cloned correctly
-  let attendee3 = cal.createAttendee();
+  let attendee3 = new CalAttendee();
   attendee3.id = "horst";
   attendee3.isOrganizer = true;
   let attendee4 = attendee3.clone();
@@ -111,7 +112,7 @@ function test_values() {
 }
 
 function test_serialize() {
-  let a = cal.createAttendee();
+  let a = new CalAttendee();
 
   throws(() => {
     // eslint-disable-next-line no-unused-expressions
@@ -154,7 +155,7 @@ function test_serialize() {
 }
 
 function test_properties() {
-  let a = cal.createAttendee();
+  let a = new CalAttendee();
 
   throws(() => {
     // eslint-disable-next-line no-unused-expressions

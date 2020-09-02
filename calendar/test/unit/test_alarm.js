@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
@@ -63,7 +64,7 @@ function test_display_alarm() {
   equal(alarm.summary, null);
 
   // No attendees allowed
-  let attendee = cal.createAttendee();
+  let attendee = new CalAttendee();
   attendee.id = "mailto:horst";
 
   throws(() => {
@@ -99,9 +100,9 @@ function test_email_alarm() {
   alarm.offset = cal.createDuration();
 
   // Check for at least one attendee
-  let attendee1 = cal.createAttendee();
+  let attendee1 = new CalAttendee();
   attendee1.id = "mailto:horst";
-  let attendee2 = cal.createAttendee();
+  let attendee2 = new CalAttendee();
   attendee2.id = "mailto:gustav";
 
   equal(alarm.getAttendees().length, 0);
@@ -112,8 +113,8 @@ function test_email_alarm() {
   alarm.addAttendee(attendee1);
   let addedAttendees = alarm.getAttendees();
   equal(addedAttendees.length, 2);
-  equal(addedAttendees[0], attendee2);
-  equal(addedAttendees[1], attendee1);
+  equal(addedAttendees[0].wrappedJSObject, attendee2);
+  equal(addedAttendees[1].wrappedJSObject, attendee1);
 
   ok(!!alarm.icalComponent.serializeToICS().match(/mailto:horst/));
   ok(!!alarm.icalComponent.serializeToICS().match(/mailto:gustav/));
@@ -159,7 +160,7 @@ function test_audio_alarm() {
   equal(alarm.summary, null);
 
   // No attendees allowed
-  let attendee = cal.createAttendee();
+  let attendee = new CalAttendee();
   attendee.id = "mailto:horst";
 
   try {
@@ -238,9 +239,9 @@ function test_custom_alarm() {
   equal(alarm.summary, "summary");
 
   // Test for attendees
-  let attendee1 = cal.createAttendee();
+  let attendee1 = new CalAttendee();
   attendee1.id = "mailto:horst";
-  let attendee2 = cal.createAttendee();
+  let attendee2 = new CalAttendee();
   attendee2.id = "mailto:gustav";
 
   equal(alarm.getAttendees().length, 0);
@@ -426,7 +427,7 @@ function test_immutable() {
   // Set up some extra props
   alarm.setProperty("X-FOO", "X-VAL");
   alarm.setProperty("X-DATEPROP", cal.createDateTime());
-  alarm.addAttendee(cal.createAttendee());
+  alarm.addAttendee(new CalAttendee());
 
   // Initial checks
   ok(alarm.isMutable);
@@ -471,7 +472,7 @@ function test_clone() {
   // Set up some extra props
   alarm.setProperty("X-FOO", "X-VAL");
   alarm.setProperty("X-DATEPROP", cal.createDateTime());
-  alarm.addAttendee(cal.createAttendee());
+  alarm.addAttendee(new CalAttendee());
 
   // Make a copy
   let newAlarm = alarm.clone();

@@ -32,6 +32,10 @@ var {
 var { PluralForm } = ChromeUtils.import("resource://gre/modules/PluralForm.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
+});
+
 var cloudFileAccounts;
 try {
   ({ cloudFileAccounts } = ChromeUtils.import("resource:///modules/cloudFileAccounts.jsm"));
@@ -397,7 +401,7 @@ function onLoad() {
     // previous versions of calendar may have filled ORGANIZER correctly on overridden instances:
     let orgId = item.calendar.getProperty("organizerId");
     if (orgId) {
-      let organizer = cal.createAttendee();
+      let organizer = new CalAttendee();
       organizer.id = orgId;
       organizer.commonName = item.calendar.getProperty("organizerCN");
       organizer.role = "REQ-PARTICIPANT";

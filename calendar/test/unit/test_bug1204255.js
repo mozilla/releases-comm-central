@@ -6,6 +6,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
@@ -64,7 +65,7 @@ function test_newAttendee() {
   let event = new CalEvent();
   for (let test of data) {
     for (let input of test.input) {
-      let attendee = cal.createAttendee();
+      let attendee = new CalAttendee();
       attendee.id = input.id;
       attendee.participationStatus = input.partstat;
       attendee.commonName = input.cname;

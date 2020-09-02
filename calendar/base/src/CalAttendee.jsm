@@ -11,9 +11,19 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 Services.scriptloader.loadSubScript("resource:///components/calItemBase.js");
 
-function CalAttendee() {
+/**
+ * Constructor for `calIAttendee` objects.
+ *
+ * @class
+ * @implements {calIAttendee}
+ * @param {string} [icalString] - Optional iCal string for initializing existing attendees.
+ */
+function CalAttendee(icalString) {
   this.wrappedJSObject = this;
   this.mProperties = new Map();
+  if (icalString) {
+    this.icalString = icalString;
+  }
 }
 
 CalAttendee.prototype = {

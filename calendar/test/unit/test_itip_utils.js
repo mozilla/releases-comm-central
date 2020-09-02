@@ -6,6 +6,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
@@ -94,7 +95,7 @@ function getSeqStampTestItems(aTest) {
       // in this case, we need to return an event
       let attendee = "";
       if ("attendee" in input.item && input.item.attendee != {}) {
-        let att = cal.createAttendee();
+        let att = new CalAttendee();
         att.id = input.item.attendee.id || "mailto:otherattendee@example.net";
         if ("receivedSeq" in input.item.attendee && input.item.attendee.receivedSeq.length) {
           att.setProperty("RECEIVED-SEQUENCE", input.item.attendee.receivedSeq);
@@ -135,7 +136,7 @@ function getSeqStampTestItems(aTest) {
       items.push(testItem);
     } else {
       // in this case, we need to return an attendee
-      let att = cal.createAttendee();
+      let att = new CalAttendee();
       att.id = input.attendee.id || "mailto:otherattendee@example.net";
       if (input.attendee.receivedSeq && input.attendee.receivedSeq.length) {
         att.setProperty("RECEIVED-SEQUENCE", input.attendee.receivedSeq);
@@ -540,7 +541,7 @@ function test_getAttendeesBySender() {
     let test = data[i - 1];
     let attendees = [];
     for (let att of test.input.attendees) {
-      let attendee = cal.createAttendee();
+      let attendee = new CalAttendee();
       attendee.id = att.id;
       if (att.sentBy) {
         attendee.setProperty("SENT-BY", att.sentBy);
@@ -662,11 +663,11 @@ function test_resolveDelegation() {
     i++;
     let attendees = [];
     for (let att of test.input.attendees) {
-      let attendee = cal.createAttendee();
+      let attendee = new CalAttendee();
       attendee.icalString = att;
       attendees.push(attendee);
     }
-    let attendee = cal.createAttendee();
+    let attendee = new CalAttendee();
     attendee.icalString = test.input.attendee;
     let result = cal.itip.resolveDelegation(attendee, attendees);
     equal(result.delegatees, test.expected.delegatees, "(test #" + i + " - delegatees)");

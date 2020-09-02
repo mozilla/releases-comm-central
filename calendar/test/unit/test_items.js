@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
@@ -118,10 +119,10 @@ function test_attendee() {
   equal(e.getAttendeeById("unknown"), null);
   equal(e.getAttendees().length, 0);
 
-  let a = cal.createAttendee();
+  let a = new CalAttendee();
   a.id = "mailto:horst";
 
-  let b = cal.createAttendee();
+  let b = new CalAttendee();
   b.id = "mailto:bruno";
 
   e.addAttendee(a);
@@ -200,7 +201,7 @@ function test_immutable() {
   date.timezone = cal.getTimezoneService().getTimezone("Europe/Berlin");
   event.alarmLastAck = date;
 
-  let org = cal.createAttendee();
+  let org = new CalAttendee();
   org.id = "one";
   event.organizer = org;
 

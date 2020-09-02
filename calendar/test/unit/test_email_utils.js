@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAttendee: "resource:///modules/CalAttendee.jsm",
+});
+
 function run_test() {
   test_prependMailTo();
   test_removeMailTo();
@@ -105,7 +111,7 @@ function test_getAttendeeEmail() {
     },
   ];
   for (let [i, test] of Object.entries(data)) {
-    let attendee = cal.createAttendee();
+    let attendee = new CalAttendee();
     attendee.id = test.input.id;
     if (test.input.cname) {
       attendee.commonName = test.input.cname;
@@ -174,7 +180,7 @@ function test_createRecipientList() {
     i++;
     let attendees = [];
     for (let att of test.input) {
-      let attendee = cal.createAttendee();
+      let attendee = new CalAttendee();
       attendee.id = att.id;
       if (att.cname) {
         attendee.commonName = att.cname;
@@ -247,12 +253,12 @@ function test_validateRecipientList() {
 }
 
 function test_attendeeMatchesAddresses() {
-  let a = cal.createAttendee("ATTENDEE:mailto:horst");
+  let a = new CalAttendee("ATTENDEE:mailto:horst");
   ok(cal.email.attendeeMatchesAddresses(a, ["HORST", "peter"]));
   ok(!cal.email.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
   ok(!cal.email.attendeeMatchesAddresses(a, ["peter"]));
 
-  a = cal.createAttendee('ATTENDEE;EMAIL="horst":urn:uuid:horst');
+  a = new CalAttendee('ATTENDEE;EMAIL="horst":urn:uuid:horst');
   ok(cal.email.attendeeMatchesAddresses(a, ["HORST", "peter"]));
   ok(!cal.email.attendeeMatchesAddresses(a, ["HORSTpeter", "peter"]));
   ok(!cal.email.attendeeMatchesAddresses(a, ["peter"]));
