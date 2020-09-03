@@ -80,12 +80,14 @@ NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsDeleted(
 NS_IMETHODIMP nsMsgFolderNotificationService::NotifyMsgsMoveCopyCompleted(
     bool aMove, const nsTArray<RefPtr<nsIMsgDBHdr>>& aSrcMsgs,
     nsIMsgFolder* aDestFolder, const nsTArray<RefPtr<nsIMsgDBHdr>>& aDestMsgs) {
-  uint32_t count = mListeners.Length();
+  if (mListeners.IsEmpty() || aSrcMsgs.IsEmpty()) {
+    return NS_OK;
+  }
 
   // IMAP delete model means that a "move" isn't really a move, it is a copy,
   // followed by storing the IMAP deleted flag on the message.
   bool isReallyMove = aMove;
-  if (count > 0 && aMove) {
+  if (aMove) {
     nsresult rv;
     // Assume that all the source messages are from the same server.
     nsCOMPtr<nsIMsgFolder> msgFolder;
