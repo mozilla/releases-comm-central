@@ -404,6 +404,7 @@ richlistitem menulist {
   background-color: var(--richlist-button-background);
   background-image: linear-gradient(var(--button-background),
                                     var(--button-background));
+  color: var(--field-text-color) !important;
 }
 
 richlistitem button:not([disabled="true"]):hover,
