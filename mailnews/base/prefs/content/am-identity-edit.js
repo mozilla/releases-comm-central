@@ -466,7 +466,7 @@ function editVCard() {
   // read vCard hidden value from UI
   parent.gSubDialog.open(
     "chrome://messenger/content/addressbook/abNewCardDialog.xhtml",
-    "resizable=no",
+    { features: "resizable=no" },
     args
   );
 }
@@ -526,8 +526,7 @@ function editCurrentSMTP() {
 
   parent.gSubDialog.open(
     "chrome://messenger/content/SmtpServerEdit.xhtml",
-    null,
-    args,
-    loadSMTPServerList
+    { closingCallback: loadSMTPServerList },
+    args
   );
 }

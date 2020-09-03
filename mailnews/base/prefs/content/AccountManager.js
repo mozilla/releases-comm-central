@@ -956,9 +956,11 @@ function onRemoveAccount(event) {
 
   gSubDialog.open(
     "chrome://messenger/content/removeAccount.xhtml",
-    "resizable=no",
-    removeArgs,
-    onCloseDialog
+    {
+      features: "resizable=no",
+      closingCallback: onCloseDialog,
+    },
+    removeArgs
   );
 }
 

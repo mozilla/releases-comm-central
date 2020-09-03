@@ -390,9 +390,8 @@ function onAdvanced() {
 
   parent.gSubDialog.open(
     "chrome://messenger/content/am-server-advanced.xhtml",
-    null,
-    serverSettings,
-    onCloseAdvanced
+    { closingCallback: onCloseAdvanced },
+    serverSettings
   );
 }
 

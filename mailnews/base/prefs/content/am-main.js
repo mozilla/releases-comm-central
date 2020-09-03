@@ -50,9 +50,8 @@ function manageIdentities() {
 
   parent.gSubDialog.open(
     "chrome://messenger/content/am-identities-list.xhtml",
-    null,
-    args,
-    onCloseIdentities
+    { closingCallback: onCloseIdentities },
+    args
   );
 
   function onCloseIdentities() {

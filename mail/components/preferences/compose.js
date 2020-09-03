@@ -85,7 +85,7 @@ var gComposePane = {
   attachmentReminderOptionsDialog() {
     gSubDialog.open(
       "chrome://messenger/content/preferences/attachmentReminder.xhtml",
-      "resizable=no"
+      { features: "resizable=no" }
     );
   },
 

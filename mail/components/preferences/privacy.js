@@ -207,7 +207,7 @@ var gPrivacyPane = {
     };
     gSubDialog.open(
       "chrome://messenger/content/preferences/permissions.xhtml",
-      null,
+      undefined,
       params
     );
   },
@@ -270,7 +270,7 @@ var gPrivacyPane = {
     };
     gSubDialog.open(
       "chrome://messenger/content/preferences/permissions.xhtml",
-      null,
+      undefined,
       params
     );
   },
@@ -354,12 +354,9 @@ var gPrivacyPane = {
       Services.prompt.alert(window, title, desc);
       this._initMasterPasswordUI();
     } else {
-      gSubDialog.open(
-        "chrome://mozapps/content/preferences/removemp.xhtml",
-        null,
-        null,
-        this._initMasterPasswordUI.bind(this)
-      );
+      gSubDialog.open("chrome://mozapps/content/preferences/removemp.xhtml", {
+        closingCallback: this._initMasterPasswordUI.bind(this),
+      });
     }
     this._initMasterPasswordUI();
   },
@@ -395,12 +392,9 @@ var gPrivacyPane = {
       }
     }
 
-    gSubDialog.open(
-      "chrome://mozapps/content/preferences/changemp.xhtml",
-      null,
-      null,
-      this._initMasterPasswordUI.bind(this)
-    );
+    gSubDialog.open("chrome://mozapps/content/preferences/changemp.xhtml", {
+      closingCallback: this._initMasterPasswordUI.bind(this),
+    });
   },
 
   /**

@@ -95,7 +95,7 @@ async function changeExpiry() {
   if (parent.gSubDialog) {
     parent.gSubDialog.open(
       "chrome://openpgp/content/ui/changeExpiryDlg.xhtml",
-      null,
+      undefined,
       args
     );
     return;

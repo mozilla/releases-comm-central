@@ -534,7 +534,7 @@ function ChangeArchiveHierarchy() {
 
   parent.gSubDialog.open(
     "chrome://messenger/content/am-archiveoptions.xhtml",
-    null,
+    undefined,
     arg
   );
 }

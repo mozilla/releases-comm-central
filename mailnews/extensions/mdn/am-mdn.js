@@ -159,6 +159,6 @@ function disableIfLocked(prefstrArray) {
 function showGlobalReceipts() {
   parent.gSubDialog.open(
     "chrome://messenger/content/preferences/receipts.xhtml",
-    "resizable=no"
+    { features: "resizable=no" }
   );
 }

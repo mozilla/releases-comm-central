@@ -611,7 +611,7 @@ function openKeyWizard() {
 
   parent.gSubDialog.open(
     "chrome://openpgp/content/ui/keyWizard.xhtml",
-    null,
+    undefined,
     args
   );
 }
@@ -1006,7 +1006,7 @@ function enigmailKeyDetails(keyId) {
 
   parent.gSubDialog.open(
     "chrome://openpgp/content/ui/keyDetailsDlg.xhtml",
-    null,
+    undefined,
     { keyId, modified: onDataModified }
   );
 }
@@ -1105,7 +1105,7 @@ async function enigmailEditKeyDate(key) {
 
   parent.gSubDialog.open(
     "chrome://openpgp/content/ui/changeExpiryDlg.xhtml",
-    null,
+    undefined,
     args
   );
 }

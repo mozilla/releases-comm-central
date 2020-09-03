@@ -266,9 +266,8 @@ function editSMTPServer(aServer) {
 
   parent.gSubDialog.open(
     "chrome://messenger/content/SmtpServerEdit.xhtml",
-    null,
-    args,
-    onCloseSMTPDialog
+    { closingCallback: onCloseSMTPDialog },
+    args
   );
 
   return args;

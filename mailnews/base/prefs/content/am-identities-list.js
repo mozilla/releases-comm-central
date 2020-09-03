@@ -87,9 +87,8 @@ function openIdentityEditor(identity) {
 
   parent.gSubDialog.open(
     "chrome://messenger/content/am-identity-edit.xhtml",
-    null,
-    args,
-    onCloseIdentity
+    { closingCallback: onCloseIdentity },
+    args
   );
 
   function onCloseIdentity() {

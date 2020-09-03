@@ -483,14 +483,14 @@ var gGeneralPane = {
   customizeMailAlert() {
     gSubDialog.open(
       "chrome://messenger/content/preferences/notifications.xhtml",
-      "resizable=no"
+      { features: "resizable=no" }
     );
   },
 
   configureDockOptions() {
     gSubDialog.open(
       "chrome://messenger/content/preferences/dockoptions.xhtml",
-      "resizable=no"
+      { features: "resizable=no" }
     );
   },
 
@@ -750,7 +750,7 @@ var gGeneralPane = {
     // otherwise, bring up the default client dialog
     gSubDialog.open(
       "chrome://messenger/content/systemIntegrationDialog.xhtml",
-      "resizable=no",
+      { features: "resizable=no" },
       "calledFromPrefs"
     );
   },
@@ -851,10 +851,9 @@ var gGeneralPane = {
    * configured.
    */
   configureFonts() {
-    gSubDialog.open(
-      "chrome://messenger/content/preferences/fonts.xhtml",
-      "resizable=no"
-    );
+    gSubDialog.open("chrome://messenger/content/preferences/fonts.xhtml", {
+      features: "resizable=no",
+    });
   },
 
   /**
@@ -862,10 +861,9 @@ var gGeneralPane = {
    * configured.
    */
   configureColors() {
-    gSubDialog.open(
-      "chrome://messenger/content/preferences/colors.xhtml",
-      "resizable=no"
-    );
+    gSubDialog.open("chrome://messenger/content/preferences/colors.xhtml", {
+      features: "resizable=no",
+    });
   },
 
   /**
@@ -1033,9 +1031,8 @@ var gGeneralPane = {
     let opts = { selected: gGeneralPane.selectedLocales, search };
     gSubDialog.open(
       "chrome://messenger/content/preferences/messengerLanguages.xhtml",
-      null,
-      opts,
-      this.messengerLanguagesClosed
+      { closingCallback: this.messengerLanguagesClosed },
+      opts
     );
   },
 
@@ -1205,7 +1202,7 @@ var gGeneralPane = {
       };
       gSubDialog.open(
         "chrome://messenger/content/newTagDialog.xhtml",
-        "resizable=no",
+        { features: "resizable=no" },
         args
       );
     }
@@ -1215,7 +1212,7 @@ var gGeneralPane = {
     var args = { result: "", okCallback: addTagCallback };
     gSubDialog.open(
       "chrome://messenger/content/newTagDialog.xhtml",
-      "resizable=no",
+      { features: "resizable=no" },
       args
     );
   },
@@ -1274,10 +1271,9 @@ var gGeneralPane = {
    * Display the return receipts configuration dialog.
    */
   showReturnReceipts() {
-    gSubDialog.open(
-      "chrome://messenger/content/preferences/receipts.xhtml",
-      "resizable=no"
-    );
+    gSubDialog.open("chrome://messenger/content/preferences/receipts.xhtml", {
+      features: "resizable=no",
+    });
   },
 
   showConfigEdit() {
@@ -1295,10 +1291,9 @@ var gGeneralPane = {
    * Display the the offline settings dialog.
    */
   showOffline() {
-    gSubDialog.open(
-      "chrome://messenger/content/preferences/offline.xhtml",
-      "resizable=no"
-    );
+    gSubDialog.open("chrome://messenger/content/preferences/offline.xhtml", {
+      features: "resizable=no",
+    });
   },
 
   /*
@@ -2082,9 +2077,8 @@ var gGeneralPane = {
 
     gSubDialog.open(
       "chrome://messenger/content/preferences/applicationManager.xhtml",
-      "resizable=no",
-      handlerInfo,
-      closingCallback
+      { features: "resizable=no", closingCallback },
+      handlerInfo
     );
   },
 
@@ -2143,9 +2137,8 @@ var gGeneralPane = {
 
       gSubDialog.open(
         "chrome://global/content/appPicker.xhtml",
-        "resizable=no",
-        params,
-        closingCallback
+        { features: "resizable=no", closingCallback },
+        params
       );
     } else {
       const nsIFilePicker = Ci.nsIFilePicker;

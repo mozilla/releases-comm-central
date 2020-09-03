@@ -114,7 +114,7 @@ var gCategoriesPane = {
       category: "",
       color: null,
     };
-    gSubDialog.open(this.mCategoryDialog, "resizable=no", params);
+    gSubDialog.open(this.mCategoryDialog, { features: "resizable=no" }, params);
   },
 
   /**
@@ -131,7 +131,7 @@ var gCategoriesPane = {
       color: currentColor,
     };
     if (list.selectedItem) {
-      gSubDialog.open(this.mCategoryDialog, "resizable=no", params);
+      gSubDialog.open(this.mCategoryDialog, { features: "resizable=no" }, params);
     }
   },
 

@@ -142,7 +142,7 @@ var account = {
     let otrAccount = { account: this.account };
     parent.gSubDialog.open(
       "chrome://chat/content/otr-finger.xhtml",
-      null,
+      undefined,
       otrAccount
     );
   },
