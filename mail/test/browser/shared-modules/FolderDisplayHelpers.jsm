@@ -2400,6 +2400,8 @@ function _internal_assert_displayed(trustSelection, troller, desiredIndices) {
   // - verify that the right thing is being displayed.
   // no selection means folder summary.
   if (desiredIndices.length == 0) {
+    wait_for_blank_content_pane(troller);
+
     // folder summary is not landed yet, just verify there is no message.
     if (troller.messageDisplay.displayedMessage != null) {
       throw new Error(
