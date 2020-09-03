@@ -174,6 +174,11 @@ pref("extensions.getAddons.discovery.api_url", "https://services.addons.thunderb
 pref("extensions.blocklist.detailsURL", "https://blocked.cdn.mozilla.net/");
 pref("extensions.blocklist.itemURL", "https://blocked.cdn.mozilla.net/%blockID%.html");
 
+// Remote settings preferences
+pref("services.settings.server", "https://thunderbird-settings.thunderbird.net/v1");
+pref("services.settings.default_bucket", "thunderbird");
+pref("security.content.signature.root_hash", "[CONTENT SIGNING DISABLED - see bug 1612380]");
+
 // Show new install UI with permission lists
 pref("extensions.webextPermissionPrompts", true);
 
