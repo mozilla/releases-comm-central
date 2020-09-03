@@ -281,14 +281,18 @@ mail-emailaddress[selected="true"] > .emailDisplayButton > .emailStar {
   display: none;
 }
 
+.emailPresence {
+  width: 1em;
+  height: 1em;
+  margin-inline-start: 2px;
+}
+
 .emailPresence[chatStatus="available"] {
-  list-style-image: url("chrome://messenger/skin/icons/status-small.png");
-  -moz-image-region: rect(0 10px 10px 0);
+  list-style-image: url("chrome://messenger/skin/icons/status-online.svg");
 }
 
 .emailPresence[chatStatus="away"] {
-  list-style-image: url("chrome://messenger/skin/icons/status-small.png");
-  -moz-image-region: rect(0 40px 10px 30px);
+  list-style-image: url("chrome://messenger/skin/icons/status-away.svg");
 }
 
 /* ::::: email address twisty ::::: */

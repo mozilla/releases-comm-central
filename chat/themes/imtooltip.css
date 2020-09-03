@@ -13,7 +13,7 @@
 }
 
 .statusTypeIcon[left][status="chat"] {
-  list-style-image: url('chrome://chat/skin/chat-left-16.png') !important;
+  list-style-image: url('chrome://chat/skin/chat-left.svg') !important;
 }
 
 .tooltipBuddies {

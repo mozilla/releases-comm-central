@@ -157,11 +157,6 @@ mail-headerfield.headerValue:focus {
   }
 }
 
-.emailPresence {
-  margin-inline-start: 2px;
-  -moz-image-region: rect(6px 16px 16px 6px);
-}
-
 @media (-moz-windows-default-theme: 0) {
   #displayDeck[collapsed="true"] + splitter + #messagepaneboxwrapper
   .main-header-area {

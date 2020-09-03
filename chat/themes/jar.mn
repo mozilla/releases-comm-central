@@ -4,29 +4,23 @@
 
 chat.jar:
 % skin chat classic/1.0 %skin/classic/chat/
-	skin/classic/chat/available.png
-	skin/classic/chat/away.png
-	skin/classic/chat/idle.png
-	skin/classic/chat/mobile-16.png
-	skin/classic/chat/mobile.png
-	skin/classic/chat/offline.png
-	skin/classic/chat/typing-16.png
-	skin/classic/chat/typed-16.png
-	skin/classic/chat/unknown.png
-	skin/classic/chat/unknown-16.png
-	skin/classic/chat/chat-16.png
-	skin/classic/chat/chat-left-16.png
-	skin/classic/chat/conv.css
-	skin/classic/chat/browserRequest.css
-	skin/classic/chat/imtooltip.css
-	skin/classic/chat/status.css
-	skin/classic/chat/otr.css
-	skin/classic/chat/otrFingerprintDialog.css
-	skin/classic/chat/prpl-generic/icon32.png	(icons/prpl-generic-32.png)
-	skin/classic/chat/prpl-generic/icon48.png	(icons/prpl-generic-48.png)
-	skin/classic/chat/prpl-generic/icon.png		(icons/prpl-generic.png)
-	skin/classic/chat/prpl-unknown/icon32.png	(icons/prpl-unknown-32.png)
-	skin/classic/chat/prpl-unknown/icon48.png	(icons/prpl-unknown-48.png)
-	skin/classic/chat/prpl-unknown/icon.png		(icons/prpl-unknown.png)
-	skin/classic/chat/otr-connection-encrypted.svg (icons/otr-connection-encrypted.svg)
-	skin/classic/chat/otr-connection-finished.svg  (icons/otr-connection-finished.svg)
+  skin/classic/chat/browserRequest.css
+  skin/classic/chat/chat.svg
+  skin/classic/chat/chat-left.svg
+  skin/classic/chat/conv.css
+  skin/classic/chat/imtooltip.css
+  skin/classic/chat/mobile.svg
+  skin/classic/chat/otr.css
+  skin/classic/chat/otrFingerprintDialog.css
+  skin/classic/chat/status.css
+  skin/classic/chat/typed.svg
+  skin/classic/chat/typing.svg
+  skin/classic/chat/unknown.svg
+  skin/classic/chat/otr-connection-encrypted.svg (icons/otr-connection-encrypted.svg)
+  skin/classic/chat/otr-connection-finished.svg  (icons/otr-connection-finished.svg)
+  skin/classic/chat/prpl-generic/icon.png        (icons/prpl-generic.png)
+  skin/classic/chat/prpl-generic/icon32.png      (icons/prpl-generic-32.png)
+  skin/classic/chat/prpl-generic/icon48.png      (icons/prpl-generic-48.png)
+  skin/classic/chat/prpl-unknown/icon.png        (icons/prpl-unknown.png)
+  skin/classic/chat/prpl-unknown/icon32.png      (icons/prpl-unknown-32.png)
+  skin/classic/chat/prpl-unknown/icon48.png      (icons/prpl-unknown-48.png)

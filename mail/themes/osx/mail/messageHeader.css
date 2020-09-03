@@ -298,28 +298,6 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
   outline-offset: -2px;
 }
 
-.emailPresence {
-  margin-inline-start: 2px;
-  -moz-image-region: rect(6px 16px 16px 6px);
-}
-
-@media (min-resolution: 2dppx) {
-  .emailPresence {
-    width: 10px;
-    height: 10px;
-  }
-
-  .emailPresence[chatStatus="available"] {
-    list-style-image: url("chrome://messenger/skin/icons/status-small@2x.png");
-    -moz-image-region: rect(0 20px 20px 0);
-  }
-
-  .emailPresence[chatStatus="away"] {
-    list-style-image: url("chrome://messenger/skin/icons/status-small@2x.png");
-    -moz-image-region: rect(0 80px 20px 60px);
-  }
-}
-
 .emailToggleHeaderfield {
   margin-inline: 1px 3px;
 }

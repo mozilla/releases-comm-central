@@ -6,14 +6,15 @@
   width: 20px;
   padding-right: 5px;
   background-repeat: no-repeat;
+  background-position: center;
 }
 
 #security-button[level="high"] {
-  background-image: url("chrome://messenger/skin/icons/secure.png");
+  background-image: url("chrome://messenger/skin/icons/status-online.svg");
 }
 
 #security-button[level="broken"] {
-  background-image: url("chrome://messenger/skin/icons/insecure.png");
+  background-image: url("chrome://messenger/skin/icons/status-idle.svg");
 }
 
 #security-button[loading="true"] {

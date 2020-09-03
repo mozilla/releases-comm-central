@@ -2,43 +2,48 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+.statusIcon {
+  background-size: 10px;
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+}
+
 .statusIcon[status="away"],
 .statusIcon[status="unavailable"] {
-  background-image: url('chrome://chat/skin/away.png');
+  background-image: url('chrome://messenger/skin/icons/status-away.svg');
 }
 
 .statusIcon[status="idle"] {
-  background-image: url('chrome://chat/skin/idle.png');
+  background-image: url('chrome://messenger/skin/icons/status-idle.svg');
 }
 
 .statusIcon[status="mobile"] {
-  background-image: url('chrome://chat/skin/mobile.png');
+  background-image: url('chrome://chat/skin/mobile.svg');
 }
 
 .statusIcon[status="offline"],
 .statusIcon[status="left"] {
-  background-image: url('chrome://chat/skin/offline.png');
+  background-image: url('chrome://messenger/skin/icons/status-offline.svg');
 }
 
 .statusIcon[status="joining"] {
   background-image: url('chrome://global/skin/icons/loading.png');
-  -moz-transform: scale(0.5) translate(50%, 50%);
 }
 
 .statusIcon[status="unknown"] {
-  background-image: url('chrome://chat/skin/unknown.png');
+  background-image: url('chrome://chat/skin/unknown.svg');
 }
 
 .statusTypeIcon[status="unknown"] {
-  list-style-image: url('chrome://chat/skin/unknown-16.png');
+  list-style-image: url('chrome://chat/skin/unknown.svg');
 }
 
 .statusTypeIcon[status="chat"] {
-  list-style-image: url('chrome://chat/skin/chat-16.png');
+  list-style-image: url('chrome://chat/skin/chat.svg');
 }
 
 .statusTypeIcon[status="mobile"] {
-  list-style-image: url('chrome://chat/skin/mobile-16.png');
+  list-style-image: url('chrome://chat/skin/mobile.svg');
 }
 
 .protoIcon[status="offline"],
