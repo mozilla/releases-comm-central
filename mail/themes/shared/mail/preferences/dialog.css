@@ -76,7 +76,7 @@ menulist label {
 }
 
 menulist,
-button:not([dlgtype]),
+button,
 html|input[type="number"] {
   margin-inline-end: 0;
 }
@@ -90,6 +90,12 @@ html|input[type="number"] {
    using :not(.tree-input) so the selector specifity doesn't change. */
 textbox.tree-input {
   font-size: unset;
+}
+
+/* Give some space in front of elements that follows a menulist, button or an
+   input in dialogs */
+.startSpacing {
+  margin-inline-start: 8px;
 }
 
 /* Adjust the Lightning Edit Category dialog */
