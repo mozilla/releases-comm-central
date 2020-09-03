@@ -7,14 +7,18 @@ var EXPORTED_SYMBOLS = ["CalRelation"];
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
 /**
- * calRelation prototype definition
+ * Constructor for `calIRelation` objects.
  *
- * @implements calIRelation
- * @constructor
+ * @class
+ * @implements {calIRelation}
+ * @param {string} [icalString] - Optional iCal string for initializing existing relations.
  */
-function CalRelation() {
+function CalRelation(icalString) {
   this.wrappedJSObject = this;
   this.mProperties = new Map();
+  if (icalString) {
+    this.icalString = icalString;
+  }
 }
 CalRelation.prototype = {
   QueryInterface: ChromeUtils.generateQI(["calIRelation"]),

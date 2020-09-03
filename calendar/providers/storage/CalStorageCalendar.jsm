@@ -18,6 +18,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalRelation: "resource:///modules/CalRelation.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
@@ -1808,7 +1809,7 @@ CalStorageCalendar.prototype = {
     await this.executeAsync(this.mSelectAllRelations, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addRelation(cal.createRelation(row.getResultByName("icalString")));
+        item.addRelation(new CalRelation(row.getResultByName("icalString")));
       }
     });
 
@@ -2081,7 +2082,7 @@ CalStorageCalendar.prototype = {
         this.prepareStatement(selectRelation);
         selectRelation.params.item_id = item.id;
         await this.executeAsync(selectRelation, row => {
-          item.addRelation(cal.createRelation(row.getResultByName("icalString")));
+          item.addRelation(new CalRelation(row.getResultByName("icalString")));
         });
       } catch (e) {
         this.logError(

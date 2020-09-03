@@ -11,6 +11,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.jsm",
+  CalRelation: "resource:///modules/CalRelation.jsm",
 });
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
@@ -1153,7 +1154,7 @@ var calitip = {
     // reset to a new UUID if applicable
     item.id = aUid || cal.getUUID();
     // add a relation to the original item
-    let relation = cal.createRelation();
+    let relation = new CalRelation();
     relation.relId = aItem.id;
     relation.relType = "SIBLING";
     item.addRelation(relation);

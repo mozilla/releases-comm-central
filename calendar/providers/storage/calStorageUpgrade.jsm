@@ -79,6 +79,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
+  CalRelation: "resource:///modules/CalRelation.jsm",
 });
 
 // The current database version. Be sure to increment this when you create a new
@@ -1653,7 +1654,7 @@ upgrade.v22 = function(db, version) {
       onFunctionCall(storArgs) {
         try {
           let [aRelType, aRelId] = mapStorageArgs(storArgs);
-          let relation = cal.createRelation();
+          let relation = new CalRelation();
           relation.relType = aRelType;
           relation.relId = aRelId;
           return relation.icalString;

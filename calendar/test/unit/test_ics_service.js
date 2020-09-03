@@ -7,6 +7,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
+  CalRelation: "resource:///modules/CalRelation.jsm",
 });
 
 function run_test() {
@@ -73,7 +74,7 @@ function test_icalstring() {
   );
 
   checkComp(
-    cal.createRelation.bind(cal),
+    icalString => new CalRelation(icalString),
     "RELATED-TO;RELTYPE=SIBLING;FOO=BAR:VALUE",
     { relType: "SIBLING", relId: "VALUE" },
     { FOO: "BAR" }

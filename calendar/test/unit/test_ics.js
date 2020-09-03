@@ -8,6 +8,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalRelation: "resource:///modules/CalRelation.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
@@ -168,7 +169,7 @@ function test_folding() {
 function test_icalProps() {
   checkIcalProp("ATTACH", new CalAttachment());
   checkIcalProp("ATTENDEE", new CalAttendee());
-  checkIcalProp("RELATED-TO", cal.createRelation());
+  checkIcalProp("RELATED-TO", new CalRelation());
 }
 
 /*

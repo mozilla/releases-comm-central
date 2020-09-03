@@ -6,11 +6,12 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalRelation: "resource:///modules/CalRelation.jsm",
 });
 
 function run_test() {
   // Create Relation
-  let relation1 = cal.createRelation();
+  let relation1 = new CalRelation();
 
   // Create Items
   let event1 = new CalEvent();
@@ -31,7 +32,7 @@ function run_test() {
   event1.addRelation(relation1);
 
   // Add 2nd relation to event.
-  let relation2 = cal.createRelation();
+  let relation2 = new CalRelation();
   relation2.relId = "myid2";
   event1.addRelation(relation2);
 
@@ -83,7 +84,7 @@ function modifyRelations(event, oldRel) {
 }
 
 function test_icalprop() {
-  let rel = cal.createRelation();
+  let rel = new CalRelation();
 
   rel.relType = "SIBLING";
   rel.setParameter("X-PROP", "VAL");
