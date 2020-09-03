@@ -222,12 +222,6 @@ function openLinkText(event, what) {
   }
 }
 
-function openWhatsNew() {
-  openLinkExternally(
-    Services.urlFormatter.formatURLPref("mailnews.start_page.override_url")
-  );
-}
-
 /**
  * Open a web search in the default browser for a given query.
  *

@@ -793,24 +793,7 @@ var specialTabs = {
     tabmail.registerTabType(this.contentTabType);
     tabmail.registerTabType(this.chromeTabType);
 
-    // If we've upgraded (note: always get these values so that we set
-    // the mstone preference for the new version):
-    let [fromVer, toVer] = this.getApplicationUpgradeVersions();
-
-    // Although this might not be really necessary because of the version checks, we'll
-    // check this pref anyway and clear it so that we are consistent with what Firefox
-    // actually does. It will help developers switching between branches without updating.
-    if (Services.prefs.prefHasUserValue("app.update.postupdate")) {
-      // Only show what's new tab if this is actually an upgraded version,
-      // not just a new installation/profile (and don't show if the major version
-      // hasn't changed).
-      if (fromVer && fromVer[0] != toVer[0]) {
-        // showWhatsNewPage checks the details of the update manager before
-        // showing the page.
-        this.showWhatsNewPage();
-      }
-      Services.prefs.clearUserPref("app.update.postupdate");
-    }
+    this.showWhatsNewPage();
 
     // Show the about rights notification if we need to.
     if (this.shouldShowAboutRightsNotification()) {
@@ -1047,80 +1030,67 @@ var specialTabs = {
   },
 
   /**
-   * Split a version number into a triple (major, minor, extension)
-   * For example, 7.0.1 => [7, 0, 1]
-   *             10.1a3 => [10, 1, a3]
-   *             10.0 => [10, 0, ""]
-   * This could be a static function, but no current reason for it to
-   * be available outside this object's scope; as a method, it doesn't
-   * pollute anyone else's namespace
-   */
-  splitVersion(version) {
-    let re = /^(\d+)\.(\d+)\.?(.*)$/;
-    let fields = re.exec(version);
-    if (fields === null) {
-      return null;
-    }
-    /* First element of the array from regex match is the entire string; drop that */
-    fields.shift();
-    return fields;
-  },
-
-  /**
-   * In the case of an upgrade, returns the version we're upgrading
-   * from, as well as the current version.  In the case of a fresh profile,
-   * or the pref being set to ignore - return null and the current version.
-   * In either case, updates the pref with the latest version.
-   */
-  getApplicationUpgradeVersions() {
-    let prefstring = "mailnews.start_page_override.mstone";
-    let savedAppVersion = Services.prefs.getCharPref(prefstring, "");
-
-    let currentApplicationVersion = Services.appinfo.version;
-
-    if (savedAppVersion == "ignore") {
-      return [null, this.splitVersion(currentApplicationVersion)];
-    }
-
-    if (savedAppVersion != currentApplicationVersion) {
-      Services.prefs.setCharPref(prefstring, currentApplicationVersion);
-    }
-
-    return [
-      this.splitVersion(savedAppVersion),
-      this.splitVersion(currentApplicationVersion),
-    ];
-  },
-
-  /**
-   * Shows the what's new page in a content tab.
+   * Shows the what's new page in the system browser if we should.
+   * Will update the mstone pref to a new version if needed.
+   * @see {BrowserContentHandler.needHomepageOverride}
    */
   showWhatsNewPage() {
-    let um = Cc["@mozilla.org/updates/update-manager;1"].getService(
-      Ci.nsIUpdateManager
+    let old_mstone = Services.prefs.getCharPref(
+      "mailnews.start_page_override.mstone",
+      ""
     );
-    let update;
-    // The active update should be present when this code is called. If for
-    // whatever reason it isn't fallback to the latest update in the update
-    // history.
-    if (um.activeUpdate) {
-      update = um.activeUpdate.QueryInterface(Ci.nsIWritablePropertyBag);
-    } else {
-      // If the updates.xml file is deleted then getUpdateAt will throw.
-      try {
-        update = um.getUpdateAt(0).QueryInterface(Ci.nsIPropertyBag);
-      } catch (e) {
-        Cu.reportError("Unable to find update: " + e);
-        return;
+
+    let mstone = Services.appinfo.version;
+    if (mstone != old_mstone) {
+      Services.prefs.setCharPref("mailnews.start_page_override.mstone", mstone);
+    }
+
+    let update = Cc["@mozilla.org/updates/update-manager;1"].getService(
+      Ci.nsIUpdateManager
+    ).activeUpdate;
+
+    if (update && Services.vc.compare(update.appVersion, old_mstone) > 0) {
+      let overridePage = Services.urlFormatter.formatURLPref(
+        "mailnews.start_page.override_url"
+      );
+      overridePage = this.getPostUpdateOverridePage(update, overridePage);
+      overridePage = overridePage.replace("%OLD_VERSION%", old_mstone);
+      if (overridePage) {
+        openLinkExternally(overridePage);
       }
     }
+  },
 
+  /**
+   * Gets the override page for the first run after the application has been
+   * updated.
+   * @param {nsIUpdate} update - The nsIUpdate for the update that has been applied.
+   * @param {string} defaultOverridePage - The default override page.
+   * @returns {string} The override page.
+   */
+  getPostUpdateOverridePage(update, defaultOverridePage) {
+    update = update.QueryInterface(Ci.nsIWritablePropertyBag);
     let actions = update.getProperty("actions");
-    if (actions && actions.includes("silent")) {
-      return;
+    // When the update doesn't specify actions fallback to the original behavior
+    // of displaying the default override page.
+    if (!actions) {
+      return defaultOverridePage;
     }
 
-    openWhatsNew();
+    // The existence of silent or the non-existence of showURL in the actions both
+    // mean that an override page should not be displayed.
+    if (actions.includes("silent") || !actions.includes("showURL")) {
+      return "";
+    }
+
+    // If a policy was set to not allow the update.xml-provided
+    // URL to be used, use the default fallback (which will also
+    // be provided by the policy).
+    if (!Services.policies.isAllowed("postUpdateCustomPage")) {
+      return defaultOverridePage;
+    }
+
+    return update.getProperty("openURL") || defaultOverridePage;
   },
 
   /**
