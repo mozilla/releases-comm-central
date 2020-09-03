@@ -207,7 +207,7 @@ nsresult nsMailboxService::FetchMessage(
   nsCOMPtr<nsIDocShell> docShell(do_QueryInterface(aDisplayConsumer, &rv));
   // if we were given a docShell, run the url in the docshell..otherwise just
   // run it normally.
-  if (NS_SUCCEEDED(rv) && docShell) {
+  if (NS_SUCCEEDED(rv) && docShell && url) {
     // DIRTY LITTLE HACK --> if we are opening an attachment we want the
     // docshell to treat this load as if it were a user click event. Then the
     // dispatching stuff will be much happier.
