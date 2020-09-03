@@ -584,7 +584,7 @@ async function openPgpKeygenConfirm() {
   EnigmailWindows.keyManReloadKeys();
 
   gKeygenRequest = null;
-  kGenerating = true;
+  kGenerating = false;
 
   // For wathever reason, the key wasn't generated. Show an error message and
   // hide the processing overlay.
@@ -846,6 +846,7 @@ async function openPgpImportStart() {
     document.getElementById("openPgpImportWarning").collapsed = false;
 
     resizeDialog();
+    kGenerating = false;
     return;
   }
 

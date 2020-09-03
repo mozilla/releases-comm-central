@@ -1500,6 +1500,10 @@ var RNP = {
     seckey = false,
     permissive = true
   ) {
+    if (!keyBlockStr) {
+      throw new Error("invalid data parameter");
+    }
+
     if (keyBlockStr.length > RNP.maxImportKeyBlockSize) {
       throw new Error("rejecting big keyblock");
     }
@@ -1676,7 +1680,11 @@ var RNP = {
             throw new Error("rnp_key_unprotect failed");
           }
 
-          recentPass = passCB(win, k.fpr, userFlags);
+          recentPass = passCB(
+            win,
+            `${k.fpr}, ${k.userId}, ${k.created}`,
+            userFlags
+          );
         }
       }
 

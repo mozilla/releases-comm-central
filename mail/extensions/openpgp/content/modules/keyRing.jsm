@@ -357,39 +357,50 @@ var EnigmailKeyRing = {
     let tryAgain;
     let permissive = false;
     do {
-      // strict on first attempt, permissive on optional second attempt
-      res = cApi.sync(
-        cApi.importKeyFromFileAPI(
-          win,
-          passCB,
-          inputFile,
-          pubkey,
-          seckey,
-          permissive
-        )
-      );
-
       tryAgain = false;
-      let failed = res.exitCode || !res.importedKeys.length;
-      if (failed && !permissive) {
-        let agreed = getDialog().confirmDlg(
-          win,
-          l10n.formatValueSync("confirm-permissive-import")
+      let failed = true;
+
+      try {
+        // strict on first attempt, permissive on optional second attempt
+        res = cApi.sync(
+          cApi.importKeyFromFileAPI(
+            win,
+            passCB,
+            inputFile,
+            pubkey,
+            seckey,
+            permissive
+          )
         );
-        if (agreed) {
-          permissive = true;
-          tryAgain = true;
+        failed =
+          !res || res.exitCode || !res.importedKeys || !res.importedKeys.length;
+      } catch (ex) {
+        getDialog().alert(win, ex);
+      }
+
+      if (failed) {
+        if (!permissive) {
+          let agreed = getDialog().confirmDlg(
+            win,
+            l10n.formatValueSync("confirm-permissive-import")
+          );
+          if (agreed) {
+            permissive = true;
+            tryAgain = true;
+          }
+        } else {
+          getDialog().alert(win, l10n.formatValueSync("import-keys-failed"));
         }
       }
     } while (tryAgain);
 
-    if (importedKeysObj) {
-      importedKeysObj.keys = res.importedKeys;
-    }
-    if (!res) {
+    if (!res || !res.importedKeys) {
       return 1;
     }
 
+    if (importedKeysObj) {
+      importedKeysObj.keys = res.importedKeys;
+    }
     if (res.importedKeys.length > 0) {
       EnigmailKeyRing.updateKeys(res.importedKeys);
     }

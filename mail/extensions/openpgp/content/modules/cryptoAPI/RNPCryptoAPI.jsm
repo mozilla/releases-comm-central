@@ -129,7 +129,15 @@ class RNPCryptoAPI extends CryptoAPI {
     seckey,
     permissive
   ) {
-    var contents = EnigmailFiles.readFile(inputFile);
+    let contents = null;
+    try {
+      contents = EnigmailFiles.readFile(inputFile);
+    } catch (ex) {
+      console.debug(ex);
+    }
+    if (!contents) {
+      return null;
+    }
     return RNP.importKeyBlockImpl(
       win,
       passCB,

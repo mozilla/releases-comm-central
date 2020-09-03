@@ -217,7 +217,7 @@ function enableRNPLibJS() {
 
       let output_to_path = new rnp_output_t();
       if (this.rnp_output_to_path(output_to_path.address(), pubNew.path)) {
-        throw new Error("rnp_output_to_path failed");
+        throw new Error("rnp_output_to_path failed: " + pubNew.path);
       }
       if (
         this.rnp_save_keys(
@@ -234,7 +234,7 @@ function enableRNPLibJS() {
       let out2 = new rnp_output_t();
 
       if (this.rnp_output_to_path(out2.address(), secNew.path)) {
-        throw new Error("rnp_output_to_path failed");
+        throw new Error("rnp_output_to_path failed: " + secNew.path);
       }
       if (
         this.rnp_save_keys(
