@@ -31,9 +31,7 @@ add_task(async function test_base64_display() {
 });
 
 add_task(async function test_base64_display2() {
-  let file = new FileUtils.File(
-    getTestFilePath("data/base64-bug1586890.eml")
-  );
+  let file = new FileUtils.File(getTestFilePath("data/base64-bug1586890.eml"));
   let msgc = await open_message_from_file(file);
   let bodyText = msgc.e("messagepane").contentDocument.querySelector("body")
     .textContent;
