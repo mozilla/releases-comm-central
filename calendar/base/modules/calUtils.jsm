@@ -39,11 +39,6 @@ var cal = {
     Ci.calIRecurrenceRule,
     "icalString"
   ),
-  createRecurrenceInfo: _instance(
-    "@mozilla.org/calendar/recurrence-info;1",
-    Ci.calIRecurrenceInfo,
-    "item"
-  ),
 
   getCalendarManager: _service("@mozilla.org/calendar/manager;1", "calICalendarManager"),
   getIcsService: _service("@mozilla.org/calendar/ics-service;1", "calIICSService"),

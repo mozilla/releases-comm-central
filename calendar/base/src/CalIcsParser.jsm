@@ -12,6 +12,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
 function CalIcsParser() {
@@ -80,7 +81,7 @@ CalIcsParser.prototype = {
           parent.id = item.id;
           parent.setProperty("DTSTART", item.recurrenceId);
           parent.setProperty("X-MOZ-FAKED-MASTER", "1"); // this tag might be useful in the future
-          parent.recurrenceInfo = cal.createRecurrenceInfo(parent);
+          parent.recurrenceInfo = new CalRecurrenceInfo(parent);
           fakedParents[item.id] = true;
           state.uid2parent[item.id] = parent;
           state.items.push(parent);

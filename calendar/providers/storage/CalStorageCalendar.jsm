@@ -18,6 +18,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
   CalRelation: "resource:///modules/CalRelation.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
@@ -1765,7 +1766,7 @@ CalStorageCalendar.prototype = {
 
       let recInfo = item.recurrenceInfo;
       if (!recInfo) {
-        recInfo = cal.createRecurrenceInfo(item);
+        recInfo = new CalRecurrenceInfo(item);
         item.recurrenceInfo = recInfo;
       }
 
@@ -1991,7 +1992,7 @@ CalStorageCalendar.prototype = {
         throw Components.Exception("", Cr.NS_ERROR_UNEXPECTED);
       }
 
-      let recInfo = cal.createRecurrenceInfo(item);
+      let recInfo = new CalRecurrenceInfo(item);
       item.recurrenceInfo = recInfo;
 
       try {

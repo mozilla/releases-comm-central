@@ -17,10 +17,20 @@ function getRidKey(date) {
   return date.icalString;
 }
 
-function CalRecurrenceInfo() {
+/**
+ * Constructor for `calIRecurrenceInfo` objects.
+ *
+ * @class
+ * @implements {calIRecurrenceInfo}
+ * @param {calIItemBase} [item] - Optional calendar item for which this recurrence applies.
+ */
+function CalRecurrenceInfo(item) {
   this.wrappedJSObject = this;
   this.mRecurrenceItems = [];
   this.mExceptionMap = {};
+  if (item) {
+    this.item = item;
+  }
 }
 
 CalRecurrenceInfo.prototype = {

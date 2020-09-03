@@ -11,6 +11,11 @@ var { splitRecurrenceRules } = ChromeUtils.import(
 );
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
+});
 
 var gIsReadOnly = false;
 var gStartTime = null;
@@ -622,7 +627,7 @@ function onSave(item) {
     }
     recurrenceInfo.item = item;
   } else {
-    recurrenceInfo = cal.createRecurrenceInfo(item);
+    recurrenceInfo = new CalRecurrenceInfo(item);
   }
 
   let recRule = cal.createRecurrenceRule();

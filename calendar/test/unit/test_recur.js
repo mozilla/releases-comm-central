@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
+});
+
 function makeEvent(str) {
   return createEventFromIcalString("BEGIN:VEVENT\n" + str + "END:VEVENT");
 }
@@ -1116,7 +1122,7 @@ function test_failures() {
     /Illegal value/,
     "Invalid Argument"
   );
-  throws(() => cal.createRecurrenceInfo().isFinite, /Component not initialized/);
+  throws(() => new CalRecurrenceInfo().isFinite, /Component not initialized/);
 
   // modifyException with a different parent item
   let occ = rinfo.getOccurrenceFor(cal.createDateTime("20120102T114500Z"));

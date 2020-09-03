@@ -8,6 +8,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
 var EXPECT_NONE = 0;
@@ -189,7 +190,7 @@ function createEventWithAlarm(aCalendar, aStart, aEnd, aOffset, aRRule) {
     item.addAlarm(alarm);
   }
   if (aRRule) {
-    item.recurrenceInfo = cal.createRecurrenceInfo(item);
+    item.recurrenceInfo = new CalRecurrenceInfo(item);
     item.recurrenceInfo.appendRecurrenceItem(cal.createRecurrenceRule(aRRule));
   }
   return [item, alarm];

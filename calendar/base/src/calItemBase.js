@@ -12,6 +12,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAlarm: "resource:///modules/CalAlarm.jsm",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
 /**
@@ -861,7 +862,7 @@ calItemBase.prototype = {
         ritem.icalProperty = recprop;
 
         if (!rec) {
-          rec = cal.createRecurrenceInfo(this);
+          rec = new CalRecurrenceInfo(this);
         }
         rec.appendRecurrenceItem(ritem);
       }

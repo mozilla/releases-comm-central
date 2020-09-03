@@ -35,6 +35,7 @@ var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm")
 XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
 var cloudFileAccounts;
@@ -2945,7 +2946,7 @@ function updateRepeat(aSuppressDialogs, aItemRepeatCall) {
       }
     } else {
       // New event proposes "forever" as default until date.
-      recurrenceInfo = cal.createRecurrenceInfo(item);
+      recurrenceInfo = new CalRecurrenceInfo(item);
       setElementValue("repeat-until-datepicker", "forever");
     }
 

@@ -8,10 +8,12 @@ var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
 
 var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
+
 var controller = mozmill.getMail3PaneController();
 
 var calendarId = createCalendar(controller, CALENDARNAME);
@@ -118,7 +120,7 @@ add_task(async () => {
   let repeatingTask = new CalTodo();
   repeatingTask.title = "Repeating";
   repeatingTask.entryDate = yesterday;
-  repeatingTask.recurrenceInfo = cal.createRecurrenceInfo(repeatingTask);
+  repeatingTask.recurrenceInfo = new CalRecurrenceInfo(repeatingTask);
   repeatingTask.recurrenceInfo.appendRecurrenceItem(
     cal.createRecurrenceRule("RRULE:FREQ=DAILY;COUNT=3")
   );
