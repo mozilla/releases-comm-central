@@ -1,0 +1,25 @@
+Date: Tue, 31 Aug 2018 16:33:00 +0200
+From: From <from@example.com>
+To: To <to@example.com>
+Subject: Bug 1586890 - BASE64 MIME body and attachment (UTF-16BE) with invalid charset
+MIME-Version: 1.0
+Message-ID: <1dcZe4@example.com>
+Content-Type: multipart/mixed;
+ boundary="------------DA562B250842CC7332F16476"
+
+This is a multi-part message in MIME format.
+--------------DA562B250842CC7332F16476
+Content-Type: text/plain; charset=BadCharset
+Content-Transfer-Encoding: base64
+
+AGEAYgBjAGQAZQBmAGcAaABpAGoAawBsAG0ADQAKAG4AbwBwAHEAcgBzAHQAdQB2AHcAeAB5
+AHo=
+--------------DA562B250842CC7332F16476
+Content-Type: text/plain; charset=BadCharset
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="test.txt"
+
+AGEAYgBjAGQAZQBmAGcAaABpAGoAawBsAG0ADQAKAG4AbwBwAHEAcgBzAHQAdQB2AHcAeAB5
+AHo=
+--------------DA562B250842CC7332F16476--

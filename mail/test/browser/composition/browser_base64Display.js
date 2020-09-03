@@ -26,6 +26,21 @@ add_task(async function test_base64_display() {
 
   Assert.ok(
     bodyText.includes("abcdefghijklmnopqrstuvwxyz"),
-    "Decoded base64 text not found in message."
+    "Decode base64 body from message."
+  );
+});
+
+add_task(async function test_base64_display2() {
+  let file = new FileUtils.File(
+    getTestFilePath("data/base64-bug1586890.eml")
+  );
+  let msgc = await open_message_from_file(file);
+  let bodyText = msgc.e("messagepane").contentDocument.querySelector("body")
+    .textContent;
+  close_window(msgc);
+
+  Assert.ok(
+    bodyText.includes("abcdefghijklm"),
+    "Decode base64 body from UTF-16 message with broken charset."
   );
 });

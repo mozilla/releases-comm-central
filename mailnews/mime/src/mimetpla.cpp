@@ -285,7 +285,7 @@ static int MimeInlineTextPlain_parse_line(const char* line, int32_t length,
   nsresult rv;
 
   if (!skipConversion) {
-    nsDependentCString inputStr(line, length);
+    nsDependentCSubstring inputStr(line, length);
     nsAutoString lineSourceStr;
 
     // For 'SaveAs', |line| is in |mailCharset|.
