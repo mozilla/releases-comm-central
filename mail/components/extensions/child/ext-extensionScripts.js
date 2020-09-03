@@ -9,17 +9,18 @@
 var { ExtensionError } = ExtensionUtils;
 
 /**
- * Represents (in the child extension process) a compose script registered
+ * Represents (in the child extension process) a script registered
  * programmatically (instead of being included in the addon manifest).
  *
  * @param {ExtensionPageContextChild} context
- *        The extension context which has registered the compose script.
+ *        The extension context which has registered the script.
  * @param {string} scriptId
- *        An unique id that represents the registered compose script
+ *        An unique id that represents the registered script
  *        (generated and used internally to identify it across the different processes).
  */
-class ComposeScriptChild {
-  constructor(context, scriptId) {
+class ExtensionScriptChild {
+  constructor(type, context, scriptId) {
+    this.type = type;
     this.context = context;
     this.scriptId = scriptId;
     this.unregistered = false;
@@ -27,13 +28,13 @@ class ComposeScriptChild {
 
   async unregister() {
     if (this.unregistered) {
-      throw new ExtensionError("compose script already unregistered");
+      throw new ExtensionError("script already unregistered");
     }
 
     this.unregistered = true;
 
     await this.context.childManager.callParentAsyncFunction(
-      "composeScripts.unregister",
+      "extensionScripts.unregister",
       [this.scriptId]
     );
 
@@ -51,25 +52,32 @@ class ComposeScriptChild {
   }
 }
 
-this.composeScripts = class extends ExtensionAPI {
+this.extensionScripts = class extends ExtensionAPI {
   getAPI(context) {
-    return {
-      composeScripts: {
-        register(options) {
-          return context.cloneScope.Promise.resolve().then(async () => {
-            const scriptId = await context.childManager.callParentAsyncFunction(
-              "composeScripts.register",
-              [options]
-            );
+    let api = {
+      register(options) {
+        return context.cloneScope.Promise.resolve().then(async () => {
+          const scriptId = await context.childManager.callParentAsyncFunction(
+            "extensionScripts.register",
+            [this.type, options]
+          );
 
-            const registeredScript = new ComposeScriptChild(context, scriptId);
+          const registeredScript = new ExtensionScriptChild(
+            this.type,
+            context,
+            scriptId
+          );
 
-            return Cu.cloneInto(registeredScript.api(), context.cloneScope, {
-              cloneFunctions: true,
-            });
+          return Cu.cloneInto(registeredScript.api(), context.cloneScope, {
+            cloneFunctions: true,
           });
-        },
+        });
       },
+    };
+
+    return {
+      composeScripts: { type: "compose", ...api },
+      messageDisplayScripts: { type: "messageDisplay", ...api },
     };
   }
 };

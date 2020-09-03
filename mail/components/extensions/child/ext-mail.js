@@ -10,10 +10,10 @@ extensions.registerModules({
     scopes: ["addon_child"],
     paths: [["compose"]],
   },
-  composeScripts: {
-    url: "chrome://messenger/content/child/ext-composeScripts.js",
+  extensionScripts: {
+    url: "chrome://messenger/content/child/ext-extensionScripts.js",
     scopes: ["addon_child"],
-    paths: [["composeScripts"]],
+    paths: [["composeScripts"], ["messageDisplayScripts"]],
   },
   identity: {
     url: "chrome://extensions/content/child/ext-identity.js",

@@ -1,0 +1,140 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, you can obtain one at http://mozilla.org/MPL/2.0/.
+
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "OptionalPermission",
+        "choices": [
+          {
+            "type": "string",
+            "enum": [
+              "messagesModify"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "composeScripts",
+    "permissions": [
+      "compose"
+    ],
+    "types": [
+      {
+        "id": "RegisteredComposeScriptOptions",
+        "type": "object",
+        "description": "Details of a compose script registered programmatically",
+        "properties": {
+          "css": {
+            "type": "array",
+            "optional": true,
+            "description": "The list of CSS files to inject",
+            "items": {
+              "$ref": "extensionTypes.ExtensionFileOrCode"
+            }
+          },
+          "js": {
+            "type": "array",
+            "optional": true,
+            "description": "The list of JavaScript files to inject",
+            "items": {
+              "$ref": "extensionTypes.ExtensionFileOrCode"
+            }
+          }
+        }
+      },
+      {
+        "id": "RegisteredComposeScript",
+        "type": "object",
+        "description": "An object that represents a compose script registered programmatically",
+        "functions": [
+          {
+            "name": "unregister",
+            "type": "function",
+            "description": "Unregister a compose script registered programmatically",
+            "async": true,
+            "parameters": []
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "register",
+        "type": "function",
+        "description": "Register a compose script programmatically",
+        "async": true,
+        "parameters": [
+          {
+            "name": "composeScriptOptions",
+            "$ref": "RegisteredComposeScriptOptions"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "namespace": "messageDisplayScripts",
+    "permissions": [
+      "messagesModify"
+    ],
+    "types": [
+      {
+        "id": "RegisteredMessageDisplayScriptOptions",
+        "type": "object",
+        "description": "Details of a message display script registered programmatically",
+        "properties": {
+          "css": {
+            "type": "array",
+            "optional": true,
+            "description": "The list of CSS files to inject",
+            "items": {
+              "$ref": "extensionTypes.ExtensionFileOrCode"
+            }
+          },
+          "js": {
+            "type": "array",
+            "optional": true,
+            "description": "The list of JavaScript files to inject",
+            "items": {
+              "$ref": "extensionTypes.ExtensionFileOrCode"
+            }
+          }
+        }
+      },
+      {
+        "id": "RegisteredMessageDisplayScript",
+        "type": "object",
+        "description": "An object that represents a message display script registered programmatically",
+        "functions": [
+          {
+            "name": "unregister",
+            "type": "function",
+            "description": "Unregister a message display script registered programmatically",
+            "async": true,
+            "parameters": []
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "register",
+        "type": "function",
+        "description": "Register a message display script programmatically",
+        "async": true,
+        "parameters": [
+          {
+            "name": "messageDisplayScriptOptions",
+            "$ref": "RegisteredMessageDisplayScriptOptions"
+          }
+        ]
+      }
+    ]
+  }
+]

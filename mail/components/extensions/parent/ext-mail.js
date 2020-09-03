@@ -80,12 +80,21 @@ const COMPOSE_WINDOW_URI =
     let { matchesWindowGlobal } = script;
     script.matchesWindowGlobal = function(windowGlobal) {
       let { browsingContext, windowContext } = windowGlobal;
+
       if (
         browsingContext.topChromeWindow?.location.href == COMPOSE_WINDOW_URI &&
         windowContext.documentPrincipal.isNullPrincipal &&
         windowContext.documentURI.spec == "about:blank?compose"
       ) {
         return script.extension.hasPermission("compose");
+      }
+
+      if (
+        ["imap", "mailbox", "news", "nntp", "snews"].includes(
+          windowContext.documentURI.scheme
+        )
+      ) {
+        return script.extension.hasPermission("messagesModify");
       }
 
       return matchesWindowGlobal.apply(script, arguments);

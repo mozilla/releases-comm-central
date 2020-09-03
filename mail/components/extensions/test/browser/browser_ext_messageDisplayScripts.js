@@ -2,23 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-addIdentity(createAccount());
+let account, messages;
 
-async function checkComposeBody(expected, waitForEvent) {
-  let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
-  Assert.equal(composeWindows.length, 1);
+add_task(async () => {
+  account = createAccount();
+  let rootFolder = account.incomingServer.rootFolder;
+  rootFolder.createSubfolder("messageDisplayScripts", null);
+  let folder = rootFolder.getChildNamed("messageDisplayScripts");
+  createMessages(folder, 10);
+  messages = [...folder.messages];
 
-  let composeWindow = composeWindows[0];
-  if (waitForEvent) {
-    await BrowserTestUtils.waitForEvent(
-      composeWindow,
-      "extension-scripts-added"
-    );
+  window.gFolderTreeView.selectFolder(folder);
+});
+
+async function checkMessageBody(expected, message, browser) {
+  if (message && "textContent" in expected) {
+    let body = await new Promise(resolve => {
+      window.MsgHdrToMimeMessage(message, null, (msgHdr, mimeMessage) => {
+        resolve(mimeMessage.parts[0].body);
+      });
+    });
+    expected.textContent = `\n${body}\n\n` + expected.textContent;
+  }
+  if (!browser) {
+    browser = document.getElementById("messagepane");
   }
 
-  let composeEditor = composeWindow.GetCurrentEditorElement();
-
-  checkContent(composeEditor, expected);
+  checkContent(browser, expected);
 }
 
 /** Tests browser.tabs.insertCSS and browser.tabs.removeCSS. */
@@ -26,7 +36,7 @@ add_task(async function testInsertRemoveCSS() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        let [tab] = await browser.tabs.query({ mailTab: true });
         await window.sendMessage();
 
         await browser.tabs.insertCSS(tab.id, {
@@ -53,42 +63,45 @@ add_task(async function testInsertRemoveCSS() {
     },
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose"],
+      permissions: ["messagesModify"],
     },
   });
+
+  window.gFolderDisplay.selectViewIndex(0);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
 
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkComposeBody({ backgroundColor: "rgba(0, 0, 0, 0)" });
+  await checkMessageBody({ backgroundColor: "rgba(0, 0, 0, 0)" }, messages[0]);
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody({ backgroundColor: "rgb(0, 255, 0)" });
+  await checkMessageBody({ backgroundColor: "rgb(0, 255, 0)" }, messages[0]);
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody({ backgroundColor: "rgba(0, 0, 0, 0)" });
+  await checkMessageBody({ backgroundColor: "rgba(0, 0, 0, 0)" }, messages[0]);
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody({ backgroundColor: "rgb(0, 128, 0)" });
+  await checkMessageBody({ backgroundColor: "rgb(0, 128, 0)" }, messages[0]);
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody({ backgroundColor: "rgba(0, 0, 0, 0)" });
+  await checkMessageBody({ backgroundColor: "rgba(0, 0, 0, 0)" }, messages[0]);
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
   await extension.unload();
 });
 
-/** Tests browser.tabs.insertCSS fails without the "compose" permission. */
+/** Tests browser.tabs.insertCSS fails without the "messagesModify" permission. */
 add_task(async function testInsertRemoveCSSNoPermissions() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        let [tab] = await browser.tabs.query({ mailTab: true });
 
         await browser.test.assertRejects(
           browser.tabs.insertCSS(tab.id, {
@@ -127,13 +140,19 @@ add_task(async function testInsertRemoveCSSNoPermissions() {
     },
   });
 
+  window.gFolderDisplay.selectViewIndex(1);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
+
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkComposeBody({
-    backgroundColor: "rgba(0, 0, 0, 0)",
-    textContent: "",
-  });
+  await checkMessageBody(
+    {
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      textContent: "",
+    },
+    messages[1]
+  );
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
@@ -145,7 +164,7 @@ add_task(async function testExecuteScript() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        let [tab] = await browser.tabs.query({ mailTab: true });
         await window.sendMessage();
 
         await browser.tabs.executeScript(tab.id, {
@@ -160,43 +179,49 @@ add_task(async function testExecuteScript() {
         browser.test.notifyPass("finished");
       },
       "test.js": () => {
-        document.body.textContent = "Hey look, the script ran!";
+        document.body.textContent += "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose"],
+      permissions: ["messagesModify"],
     },
   });
+
+  window.gFolderDisplay.selectViewIndex(2);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
 
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkComposeBody({ textContent: "" });
+  await checkMessageBody({ textContent: "" }, messages[2]);
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody({ foo: "bar" });
+  await checkMessageBody({ foo: "bar" }, messages[2]);
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody({
-    foo: "bar",
-    textContent: "Hey look, the script ran!",
-  });
+  await checkMessageBody(
+    {
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    messages[2]
+  );
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
   await extension.unload();
 });
 
-/** Tests browser.tabs.executeScript fails without the "compose" permission. */
+/** Tests browser.tabs.executeScript fails without the "messagesModify" permission. */
 add_task(async function testExecuteScriptNoPermissions() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        let [tab] = await browser.tabs.query({ mailTab: true });
 
         await browser.test.assertRejects(
           browser.tabs.executeScript(tab.id, {
@@ -227,7 +252,7 @@ add_task(async function testExecuteScriptNoPermissions() {
         browser.test.notifyPass("finished");
       },
       "test.js": () => {
-        document.body.textContent = "Hey look, the script ran!";
+        document.body.textContent += "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
@@ -237,10 +262,13 @@ add_task(async function testExecuteScriptNoPermissions() {
     },
   });
 
+  window.gFolderDisplay.selectViewIndex(3);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
+
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkComposeBody({ foo: null, textContent: "" });
+  await checkMessageBody({ foo: null, textContent: "" }, messages[3]);
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
@@ -252,11 +280,11 @@ add_task(async function testExecuteScriptAlias() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        let [tab] = await browser.tabs.query({ mailTab: true });
         await window.sendMessage();
 
         await browser.tabs.executeScript(tab.id, {
-          code: `document.body.textContent = messenger.runtime.getManifest().applications.gecko.id;`,
+          code: `document.body.textContent += messenger.runtime.getManifest().applications.gecko.id;`,
         });
         await window.sendMessage();
 
@@ -268,18 +296,21 @@ add_task(async function testExecuteScriptAlias() {
     manifest: {
       applications: { gecko: { id: "alias@mochitest" } },
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose"],
+      permissions: ["messagesModify"],
     },
   });
+
+  window.gFolderDisplay.selectViewIndex(4);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
 
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkComposeBody({ textContent: "" });
+  await checkMessageBody({ textContent: "" }, messages[4]);
   extension.sendMessage();
 
   await extension.awaitMessage();
-  await checkComposeBody({ textContent: "alias@mochitest" });
+  await checkMessageBody({ textContent: "alias@mochitest" }, messages[4]);
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
@@ -287,83 +318,15 @@ add_task(async function testExecuteScriptAlias() {
 });
 
 /**
- * Tests browser.composeScripts.register correctly adds CSS and JavaScript to
- * message composition windows opened after it was called. Also tests calling
- * `unregister` on the returned object.
+ * Tests browser.messageDisplayScripts.register correctly adds CSS and
+ * JavaScript to message display windows. Also tests calling `unregister`
+ * on the returned object.
  */
-add_task(async function testRegisterBeforeCompose() {
+add_task(async function testRegister() {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let registeredScript = await browser.composeScripts.register({
-          css: [{ code: "body { color: white }" }, { file: "test.css" }],
-          js: [
-            { code: `document.body.setAttribute("foo", "bar");` },
-            { file: "test.js" },
-          ],
-        });
-
-        let tab = await browser.compose.beginNew();
-        await window.sendMessage();
-
-        await registeredScript.unregister();
-        await window.sendMessage();
-
-        await browser.tabs.remove(tab.id);
-        browser.test.notifyPass("finished");
-      },
-      "test.css": "body { background-color: green; }",
-      "test.js": () => {
-        document.body.textContent = "Hey look, the script ran!";
-      },
-      "utils.js": await getUtilsJS(),
-    },
-    manifest: {
-      background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose"],
-    },
-  });
-
-  await extension.startup();
-
-  await extension.awaitMessage();
-  await checkComposeBody(
-    {
-      backgroundColor: "rgb(0, 128, 0)",
-      color: "rgb(255, 255, 255)",
-      foo: "bar",
-      textContent: "Hey look, the script ran!",
-    },
-    true
-  );
-  extension.sendMessage();
-
-  await extension.awaitMessage();
-  await checkComposeBody({
-    backgroundColor: "rgba(0, 0, 0, 0)",
-    color: "rgb(0, 0, 0)",
-    foo: "bar",
-    textContent: "Hey look, the script ran!",
-  });
-  extension.sendMessage();
-
-  await extension.awaitFinish("finished");
-  await extension.unload();
-});
-
-/**
- * Tests browser.composeScripts.register correctly adds CSS and JavaScript to
- * message composition windows already open when it was called. Also tests
- * calling `unregister` on the returned object.
- */
-add_task(async function testRegisterDuringCompose() {
-  let extension = ExtensionTestUtils.loadExtension({
-    files: {
-      "background.js": async () => {
-        let tab = await browser.compose.beginNew();
-        await window.sendMessage();
-
-        let registeredScript = await browser.composeScripts.register({
+        let registeredScript = await browser.messageDisplayScripts.register({
           css: [{ code: "body { color: white }" }, { file: "test.css" }],
           js: [
             { code: `document.body.setAttribute("foo", "bar");` },
@@ -376,61 +339,181 @@ add_task(async function testRegisterDuringCompose() {
         await registeredScript.unregister();
         await window.sendMessage();
 
-        await browser.tabs.remove(tab.id);
         browser.test.notifyPass("finished");
       },
       "test.css": "body { background-color: green; }",
       "test.js": () => {
-        document.body.textContent = "Hey look, the script ran!";
+        document.body.textContent += "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
     manifest: {
       background: { scripts: ["utils.js", "background.js"] },
-      permissions: ["compose"],
+      permissions: ["messagesModify", "<all_urls>"],
     },
   });
 
+  let messagePane = document.getElementById("messagepane");
+  let tabmail = document.getElementById("tabmail");
+  window.gFolderDisplay.selectViewIndex(5);
+  await awaitBrowserLoaded(messagePane);
+
   await extension.startup();
 
+  // Check a message that was already loaded.
   await extension.awaitMessage();
-  await checkComposeBody({
-    backgroundColor: "rgba(0, 0, 0, 0)",
-    textContent: "",
-  });
-  extension.sendMessage();
-
-  await extension.awaitMessage();
-  await checkComposeBody(
+  await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
+  await checkMessageBody(
     {
       backgroundColor: "rgb(0, 128, 0)",
       color: "rgb(255, 255, 255)",
       foo: "bar",
       textContent: "Hey look, the script ran!",
     },
-    true
+    messages[5]
+  );
+
+  // Load a new message and check it is modified.
+  window.gFolderDisplay.selectViewIndex(6);
+  await awaitBrowserLoaded(messagePane);
+  await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
+  await checkMessageBody(
+    {
+      backgroundColor: "rgb(0, 128, 0)",
+      color: "rgb(255, 255, 255)",
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    messages[6]
+  );
+
+  // Open the message in a new tab.
+  // First, sabotage the message pane so we can be sure it changed.
+  messagePane.contentDocument.body.style.backgroundColor = "red";
+  messagePane.contentDocument.body.textContent = "Nope.";
+
+  window.MsgOpenSelectedMessages();
+  Assert.equal(tabmail.tabInfo.length, 2);
+  await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
+  await checkMessageBody(
+    {
+      backgroundColor: "rgb(0, 128, 0)",
+      color: "rgb(255, 255, 255)",
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    messages[6]
+  );
+
+  // Open a content tab. The CSS and script shouldn't apply.
+  let newTab = window.openContentTab("http://mochi.test:8888/");
+  // Let's wait a while and see if anything happens:
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  await checkMessageBody(
+    {
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      color: "rgb(0, 0, 0)",
+      foo: null,
+    },
+    undefined,
+    newTab.browser
+  );
+  tabmail.closeTab(newTab);
+
+  // We should be back at the message opened in a tab.
+  await BrowserTestUtils.waitForEvent(window, "extension-scripts-added");
+  await checkMessageBody(
+    {
+      backgroundColor: "rgb(0, 128, 0)",
+      color: "rgb(255, 255, 255)",
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    messages[6]
+  );
+
+  // Open the message in a new window.
+  let newWindowPromise = BrowserTestUtils.domWindowOpenedAndLoaded();
+  window.MsgOpenNewWindowForMessage(messages[7]);
+  let newWindow = await newWindowPromise;
+  let newWindowMessagePane = newWindow.document.getElementById("messagepane");
+
+  await BrowserTestUtils.waitForEvent(newWindow, "extension-scripts-added");
+  await checkMessageBody(
+    {
+      backgroundColor: "rgb(0, 128, 0)",
+      color: "rgb(255, 255, 255)",
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    messages[7],
+    newWindowMessagePane
   );
   extension.sendMessage();
 
+  // Unregister.
+  extension.sendMessage();
   await extension.awaitMessage();
-  await checkComposeBody({
-    backgroundColor: "rgba(0, 0, 0, 0)",
-    color: "rgb(0, 0, 0)",
-    foo: "bar",
-    textContent: "Hey look, the script ran!",
-  });
+
+  // Check the CSS is unloaded from the message in a tab.
+  await checkMessageBody(
+    {
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      color: "rgb(0, 0, 0)",
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    messages[6]
+  );
+
+  // Close the new tab. The message reloads in the first tab, so the CSS
+  // should't be applied and the script shouldn't have run.
+  // Sabotage the message pane so we can be sure it changed.
+  messagePane.contentDocument.body.style.backgroundColor = "red";
+  messagePane.contentDocument.body.textContent = "Nope.";
+  tabmail.closeTab(tabmail.tabInfo[1]);
+
+  await awaitBrowserLoaded(messagePane);
+  // Let's wait a while and see if anything happens:
+  // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  await checkMessageBody(
+    {
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      color: "rgb(0, 0, 0)",
+      foo: null,
+      textContent: "",
+    },
+    messages[6]
+  );
+
+  // Check the CSS is unloaded from the message in a window.
+  await checkMessageBody(
+    {
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      color: "rgb(0, 0, 0)",
+      foo: "bar",
+      textContent: "Hey look, the script ran!",
+    },
+    messages[7],
+    newWindowMessagePane
+  );
+
+  await BrowserTestUtils.closeWindow(newWindow);
+
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
   await extension.unload();
 });
 
-/** Tests content_scripts in the manifest do not affect compose windows. */
-async function subtestContentScriptManifest(...permissions) {
+/** Tests content_scripts in the manifest do not affect message display. */
+async function subtestContentScriptManifest(message, ...permissions) {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
-        let tab = await browser.compose.beginNew();
+        let [tab] = await browser.tabs.query({ mailTab: true });
 
         await window.sendMessage();
 
@@ -439,7 +522,7 @@ async function subtestContentScriptManifest(...permissions) {
       },
       "test.css": "body { background-color: red; }",
       "test.js": () => {
-        document.body.textContent = "Hey look, the script ran!";
+        document.body.textContent += "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
@@ -464,10 +547,13 @@ async function subtestContentScriptManifest(...permissions) {
   ExtensionTestUtils.failOnSchemaWarnings(true);
 
   await extension.awaitMessage();
-  await checkComposeBody({
-    backgroundColor: "rgba(0, 0, 0, 0)",
-    textContent: "",
-  });
+  await checkMessageBody(
+    {
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      textContent: "",
+    },
+    message
+  );
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
@@ -475,14 +561,18 @@ async function subtestContentScriptManifest(...permissions) {
 }
 
 add_task(async function testContentScriptManifestNoPermission() {
-  await subtestContentScriptManifest();
+  window.gFolderDisplay.selectViewIndex(0);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await subtestContentScriptManifest(messages[0]);
 });
 add_task(async function testContentScriptManifest() {
-  await subtestContentScriptManifest("compose");
+  window.gFolderDisplay.selectViewIndex(1);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await subtestContentScriptManifest(messages[1], "messagesModify");
 });
 
-/** Tests registered content scripts do not affect compose windows. */
-async function subtestContentScriptRegister(...permissions) {
+/** Tests registered content scripts do not affect message display. */
+async function subtestContentScriptRegister(message, ...permissions) {
   let extension = ExtensionTestUtils.loadExtension({
     files: {
       "background.js": async () => {
@@ -493,7 +583,7 @@ async function subtestContentScriptRegister(...permissions) {
           matchAboutBlank: true,
         });
 
-        let tab = await browser.compose.beginNew();
+        let [tab] = await browser.tabs.query({ mailTab: true });
 
         await window.sendMessage();
 
@@ -502,7 +592,7 @@ async function subtestContentScriptRegister(...permissions) {
       },
       "test.css": "body { background-color: red; }",
       "test.js": () => {
-        document.body.textContent = "Hey look, the script ran!";
+        document.body.textContent += "Hey look, the script ran!";
       },
       "utils.js": await getUtilsJS(),
     },
@@ -515,10 +605,13 @@ async function subtestContentScriptRegister(...permissions) {
   await extension.startup();
 
   await extension.awaitMessage();
-  await checkComposeBody({
-    backgroundColor: "rgba(0, 0, 0, 0)",
-    textContent: "",
-  });
+  await checkMessageBody(
+    {
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      textContent: "",
+    },
+    message
+  );
   extension.sendMessage();
 
   await extension.awaitFinish("finished");
@@ -526,8 +619,16 @@ async function subtestContentScriptRegister(...permissions) {
 }
 
 add_task(async function testContentScriptRegisterNoPermission() {
-  await subtestContentScriptRegister("<all_urls>");
+  window.gFolderDisplay.selectViewIndex(2);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await subtestContentScriptRegister(messages[2], "<all_urls>");
 });
 add_task(async function testContentScriptRegister() {
-  await subtestContentScriptRegister("<all_urls>", "compose");
+  window.gFolderDisplay.selectViewIndex(3);
+  await awaitBrowserLoaded(document.getElementById("messagepane"));
+  await subtestContentScriptRegister(
+    messages[3],
+    "<all_urls>",
+    "messagesModify"
+  );
 });
