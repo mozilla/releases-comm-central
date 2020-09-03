@@ -3,8 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
+});
 
 /*
  * Helpers for manipulating calendar alarms
@@ -27,7 +32,7 @@ var calalarms = {
     let type = cal.item.isEvent(aItem) ? "event" : "todo";
     if (Services.prefs.getIntPref("calendar.alarms.onfor" + type + "s", 0) == 1) {
       let alarmOffset = cal.createDuration();
-      let alarm = cal.createAlarm();
+      let alarm = new CalAlarm();
       let units = Services.prefs.getStringPref("calendar.alarms." + type + "alarmunit", "minutes");
 
       // Make sure the alarm pref is valid, default to minutes otherwise
@@ -63,13 +68,13 @@ var calalarms = {
    * @return          The alarm date.
    */
   calculateAlarmDate(aItem, aAlarm) {
-    if (aAlarm.related == aAlarm.ALARM_RELATED_ABSOLUTE) {
+    if (aAlarm.related == Ci.calIAlarm.ALARM_RELATED_ABSOLUTE) {
       return aAlarm.alarmDate;
     }
     let returnDate;
-    if (aAlarm.related == aAlarm.ALARM_RELATED_START) {
+    if (aAlarm.related == Ci.calIAlarm.ALARM_RELATED_START) {
       returnDate = aItem[cal.dtz.startDateProp(aItem)];
-    } else if (aAlarm.related == aAlarm.ALARM_RELATED_END) {
+    } else if (aAlarm.related == Ci.calIAlarm.ALARM_RELATED_END) {
       returnDate = aItem[cal.dtz.endDateProp(aItem)];
     }
 
@@ -110,11 +115,11 @@ var calalarms = {
    */
   calculateAlarmOffset(aItem, aAlarm, aRelated) {
     let offset = aAlarm.offset;
-    if (aAlarm.related == aAlarm.ALARM_RELATED_ABSOLUTE) {
+    if (aAlarm.related == Ci.calIAlarm.ALARM_RELATED_ABSOLUTE) {
       let returnDate;
-      if (aRelated === undefined || aRelated == aAlarm.ALARM_RELATED_START) {
+      if (aRelated === undefined || aRelated == Ci.calIAlarm.ALARM_RELATED_START) {
         returnDate = aItem[cal.dtz.startDateProp(aItem)];
-      } else if (aRelated == aAlarm.ALARM_RELATED_END) {
+      } else if (aRelated == Ci.calIAlarm.ALARM_RELATED_END) {
         returnDate = aItem[cal.dtz.endDateProp(aItem)];
       }
 

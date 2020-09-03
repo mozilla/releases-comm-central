@@ -8,6 +8,11 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { CalAttendee } = ChromeUtils.import("resource:///modules/CalAttendee.jsm");
 var { CalRelation } = ChromeUtils.import("resource:///modules/CalRelation.jsm");
 var { CalAttachment } = ChromeUtils.import("resource:///modules/CalAttachment.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
+});
 
 /**
  * calItemBase prototype definition
@@ -865,7 +870,7 @@ calItemBase.prototype = {
 
     this.mAlarms = []; // don't inherit anything from parent
     for (let alarmComp of cal.iterate.icalSubcomponent(icalcomp, "VALARM")) {
-      let alarm = cal.createAlarm();
+      let alarm = new CalAlarm();
       try {
         alarm.icalComponent = alarmComp;
         this.addAlarm(alarm, true);

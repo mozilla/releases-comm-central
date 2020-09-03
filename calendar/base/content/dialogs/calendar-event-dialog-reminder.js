@@ -13,6 +13,10 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
+});
+
 var allowedActionsMap = {};
 var suppressListUpdate = false;
 
@@ -395,7 +399,7 @@ function onNewReminder() {
   let itemType = cal.item.isEvent(window.arguments[0].item) ? "event" : "todo";
   let listbox = document.getElementById("reminder-listbox");
 
-  let reminder = cal.createAlarm();
+  let reminder = new CalAlarm();
   let alarmlen = Services.prefs.getIntPref("calendar.alarms." + itemType + "alarmlen", 15);
   let alarmunit = Services.prefs.getStringPref(
     "calendar.alarms." + itemType + "alarmunit",
@@ -415,7 +419,7 @@ function onNewReminder() {
   }
   offset.normalize();
   offset.isNegative = true;
-  reminder.related = reminder.ALARM_RELATED_START;
+  reminder.related = Ci.calIAlarm.ALARM_RELATED_START;
   reminder.offset = offset;
   if ("DISPLAY" in allowedActionsMap) {
     reminder.action = "DISPLAY";

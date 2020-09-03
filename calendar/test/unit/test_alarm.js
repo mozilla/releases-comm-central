@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
@@ -33,7 +34,7 @@ function run_test() {
 
 function test_initial_creation() {
   dump("Testing initial creation...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
 
   let passed;
   try {
@@ -51,7 +52,7 @@ function test_initial_creation() {
 
 function test_display_alarm() {
   dump("Testing DISPLAY alarms...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   // Set ACTION to DISPLAY, make sure this was not rejected
   alarm.action = "DISPLAY";
   equal(alarm.action, "DISPLAY");
@@ -83,7 +84,7 @@ function test_display_alarm() {
 
 function test_email_alarm() {
   dump("Testing EMAIL alarms...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   // Set ACTION to DISPLAY, make sure this was not rejected
   alarm.action = "EMAIL";
   equal(alarm.action, "EMAIL");
@@ -145,7 +146,7 @@ function test_email_alarm() {
 
 function test_audio_alarm() {
   dump("Testing AUDIO alarms...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   alarm.alarmDate = cal.createDateTime();
   // Set ACTION to AUDIO, make sure this was not rejected
@@ -226,7 +227,7 @@ function test_audio_alarm() {
 
 function test_custom_alarm() {
   dump("Testing X-SMS (custom) alarms...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   // Set ACTION to a custom value, make sure this was not rejected
   alarm.action = "X-SMS";
   equal(alarm.action, "X-SMS");
@@ -285,7 +286,7 @@ function test_custom_alarm() {
 // Check if any combination of REPEAT and DURATION work as expected.
 function test_repeat() {
   dump("Testing REPEAT and DURATION properties...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
 
   // Check initial value
   equal(alarm.repeat, 0);
@@ -317,7 +318,7 @@ function test_repeat() {
   equal(alarm.repeatOffset, null);
 
   // Check repeatDate
-  alarm = cal.createAlarm();
+  alarm = new CalAlarm();
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   alarm.alarmDate = cal.createDateTime();
   alarm.repeat = 1;
@@ -333,7 +334,7 @@ function test_repeat() {
 
 function test_xprop() {
   dump("Testing X-Props...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   alarm.setProperty("X-PROP", "X-VALUE");
   ok(alarm.hasProperty("X-PROP"));
   equal(alarm.getProperty("X-PROP"), "X-VALUE");
@@ -359,7 +360,7 @@ function test_dates() {
   dump("Testing alarm dates...");
   let passed;
   // Initial value
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   equal(alarm.alarmDate, null);
   equal(alarm.offset, null);
 
@@ -419,7 +420,7 @@ var clonePropMap = {
 
 function test_immutable() {
   dump("Testing immutable alarms...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   // Set up each attribute
   for (let prop in propMap) {
     alarm[prop] = propMap[prop];
@@ -464,7 +465,7 @@ function test_immutable() {
 
 function test_clone() {
   dump("Testing cloning alarms...");
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   // Set up each attribute
   for (let prop in propMap) {
     alarm[prop] = propMap[prop];
@@ -528,7 +529,7 @@ function test_clone() {
 
 function test_serialize() {
   // most checks done by other tests, these don't fit into categories
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   let srv = cal.getIcsService();
 
   throws(
@@ -645,7 +646,7 @@ function test_serialize() {
 function test_strings() {
   // Serializing the string shouldn't throw, but we don't really care about
   // the string itself.
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   alarm.action = "DISPLAY";
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   alarm.alarmDate = cal.createDateTime();

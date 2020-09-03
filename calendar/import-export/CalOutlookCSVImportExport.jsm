@@ -9,6 +9,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
@@ -352,8 +353,8 @@ CalOutlookCSVImporter.prototype = {
             );
             // Only set the alarm if a date was parsed
             if (alarmDate) {
-              let alarm = cal.createAlarm();
-              alarm.related = alarm.ALARM_RELATED_ABSOLUTE;
+              let alarm = new CalAlarm();
+              alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
               alarm.alarmDate = alarmDate;
               event.addAlarm(alarm);
             } else {

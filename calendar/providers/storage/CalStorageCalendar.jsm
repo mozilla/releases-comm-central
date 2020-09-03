@@ -14,6 +14,7 @@ var { CAL_ITEM_FLAG, newDateTime } = ChromeUtils.import(
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
@@ -1815,7 +1816,7 @@ CalStorageCalendar.prototype = {
     await this.executeAsync(this.mSelectAllAlarms, row => {
       let item = itemsMap.get(row.getResultByName("item_id"));
       if (item) {
-        item.addAlarm(cal.createAlarm(row.getResultByName("icalString")));
+        item.addAlarm(new CalAlarm(row.getResultByName("icalString")));
       }
     });
 
@@ -2100,7 +2101,7 @@ CalStorageCalendar.prototype = {
         selectAlarm.params.item_id = item.id;
         this.prepareStatement(selectAlarm);
         await this.executeAsync(selectAlarm, row => {
-          item.addAlarm(cal.createAlarm(row.getResultByName("icalString")));
+          item.addAlarm(new CalAlarm(row.getResultByName("icalString")));
         });
       } catch (e) {
         this.logError("Error getting alarms for item '" + item.title + "' (" + item.id + ")!", e);

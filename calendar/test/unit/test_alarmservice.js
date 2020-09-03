@@ -6,6 +6,7 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
@@ -167,7 +168,7 @@ function initializeAlarmService() {
 }
 
 function createAlarmFromDuration(aOffset) {
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
 
   alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration(aOffset);

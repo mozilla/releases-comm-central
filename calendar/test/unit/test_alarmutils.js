@@ -7,6 +7,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
@@ -25,7 +26,7 @@ add_task(async function test_setDefaultValues_events() {
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
-  equal(alarm.related, alarm.ALARM_RELATED_START);
+  equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
   equal(alarm.offset.icalString, "-P2DT12H");
 
@@ -36,7 +37,7 @@ add_task(async function test_setDefaultValues_events() {
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
-  equal(alarm.related, alarm.ALARM_RELATED_START);
+  equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
   equal(alarm.offset.icalString, "-PT20M");
 
@@ -59,7 +60,7 @@ add_task(async function test_setDefaultValues_events() {
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
-  equal(alarm.related, alarm.ALARM_RELATED_START);
+  equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_START);
   equal(alarm.action, "SHOUT");
   equal(alarm.offset.icalString, "-P2DT12H");
 
@@ -84,7 +85,7 @@ add_task(async function test_setDefaultValues_tasks() {
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
-  equal(alarm.related, alarm.ALARM_RELATED_START);
+  equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
   equal(alarm.offset.icalString, "-P2DT12H");
   equal(item.entryDate, nowDate);
@@ -96,7 +97,7 @@ add_task(async function test_setDefaultValues_tasks() {
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
-  equal(alarm.related, alarm.ALARM_RELATED_START);
+  equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_START);
   equal(alarm.action, "DISPLAY");
   equal(alarm.offset.icalString, "-PT20M");
 
@@ -119,7 +120,7 @@ add_task(async function test_setDefaultValues_tasks() {
   cal.alarms.setDefaultValues(item);
   alarm = item.getAlarms()[0];
   ok(alarm);
-  equal(alarm.related, alarm.ALARM_RELATED_START);
+  equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_START);
   equal(alarm.action, "SHOUT");
   equal(alarm.offset.icalString, "-P2DT12H");
 
@@ -136,37 +137,37 @@ add_task(async function test_calculateAlarmDate() {
 
   let calculateAlarmDate = cal.alarms.calculateAlarmDate.bind(cal.alarms, item);
 
-  let alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_ABSOLUTE;
+  let alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   alarm.alarmDate = cal.createDateTime("20150815T110000");
   equal(calculateAlarmDate(alarm).icalString, "20150815T110000");
 
-  alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_START;
+  alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration("-PT1H");
   equal(calculateAlarmDate(alarm).icalString, "20150815T110000");
 
-  alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_END;
+  alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
   alarm.offset = cal.createDuration("-PT2H");
   equal(calculateAlarmDate(alarm).icalString, "20150815T110000");
 
   item.startDate.isDate = true;
-  alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_START;
+  alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration("-PT1H");
   equal(calculateAlarmDate(alarm).icalString, "20150814T230000");
   item.startDate.isDate = false;
 
   item.endDate.isDate = true;
-  alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_END;
+  alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
   alarm.offset = cal.createDuration("-PT2H");
   equal(calculateAlarmDate(alarm).icalString, "20150814T220000");
   item.endDate.isDate = false;
 
-  alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_END;
+  alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
   equal(calculateAlarmDate(alarm), null);
 });
 
@@ -177,20 +178,20 @@ add_task(async function test_calculateAlarmOffset() {
 
   let calculateAlarmOffset = cal.alarms.calculateAlarmOffset.bind(cal.alarms, item);
 
-  let alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_ABSOLUTE;
+  let alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
   alarm.alarmDate = cal.createDateTime("20150815T110000");
   equal(calculateAlarmOffset(alarm).icalString, "-PT1H");
-  equal(calculateAlarmOffset(alarm, alarm.ALARM_RELATED_START).icalString, "-PT1H");
-  equal(calculateAlarmOffset(alarm, alarm.ALARM_RELATED_END).icalString, "-PT2H");
+  equal(calculateAlarmOffset(alarm, Ci.calIAlarm.ALARM_RELATED_START).icalString, "-PT1H");
+  equal(calculateAlarmOffset(alarm, Ci.calIAlarm.ALARM_RELATED_END).icalString, "-PT2H");
 
-  alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_START;
+  alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration("-PT1H");
   equal(calculateAlarmOffset(alarm).icalString, "-PT1H");
 
-  alarm = cal.createAlarm();
-  alarm.related = alarm.ALARM_RELATED_END;
+  alarm = new CalAlarm();
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_END;
   alarm.offset = cal.createDuration("-PT1H");
   equal(calculateAlarmOffset(alarm).icalString, "-PT1H");
 });
@@ -199,7 +200,7 @@ add_task(async function test_addReminderImages() {
   function createReminders(actions) {
     let reminders = [];
     for (let action of actions) {
-      let reminder = cal.createAlarm();
+      let reminder = new CalAlarm();
       reminder.action = action;
       reminders.push(reminder);
     }

@@ -5,6 +5,7 @@
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
   CalEvent: "resource:///modules/CalEvent.jsm",
@@ -171,7 +172,7 @@ function test_categories() {
 
 function test_alarm() {
   let e = new CalEvent();
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
 
   alarm.action = "DISPLAY";
   alarm.related = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
@@ -206,10 +207,10 @@ function test_immutable() {
   org.id = "one";
   event.organizer = org;
 
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   alarm.action = "DISPLAY";
   alarm.description = "foo";
-  alarm.related = alarm.ALARM_RELATED_START;
+  alarm.related = Ci.calIAlarm.ALARM_RELATED_START;
   alarm.offset = cal.createDuration("PT1S");
   event.addAlarm(alarm);
 

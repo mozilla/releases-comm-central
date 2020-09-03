@@ -29,7 +29,6 @@ var cal = {
   // as well as getting services and other (cached) objects.
   createDateTime: _instance("@mozilla.org/calendar/datetime;1", Ci.calIDateTime, "icalString"),
   createDuration: _instance("@mozilla.org/calendar/duration;1", Ci.calIDuration, "icalString"),
-  createAlarm: _instance("@mozilla.org/calendar/alarm;1", Ci.calIAlarm, "icalString"),
   createRelation: _instance("@mozilla.org/calendar/relation;1", Ci.calIRelation, "icalString"),
   createRecurrenceDate: _instance(
     "@mozilla.org/calendar/recurrence-date;1",

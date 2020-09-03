@@ -76,6 +76,7 @@ var { CAL_ITEM_FLAG, textToDate, getTimezone, newDateTime } = ChromeUtils.import
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
   CalAttachment: "resource:///modules/CalAttachment.jsm",
   CalAttendee: "resource:///modules/CalAttendee.jsm",
 });
@@ -1275,7 +1276,7 @@ upgrade.v16 = function(db, version) {
         try {
           let [aOffset, aRelated, aAlarmTime, aTzId] = mapStorageArgs(storArgs);
 
-          let alarm = cal.createAlarm();
+          let alarm = new CalAlarm();
           if (aOffset) {
             alarm.related = parseInt(aRelated, 10) + 1;
             alarm.offset = cal.createDuration();

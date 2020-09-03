@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
+});
+
 function run_test() {
   // Check that the RELATED property is correctly set
   // after parsing the given VALARM component
@@ -77,7 +83,7 @@ function run_test() {
 }
 
 function check_relative(aIcalString, aRelated) {
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   alarm.icalString = aIcalString;
   equal(alarm.related, aRelated);
   equal(alarm.alarmDate, null);
@@ -85,7 +91,7 @@ function check_relative(aIcalString, aRelated) {
 }
 
 function check_absolute(aIcalString) {
-  let alarm = cal.createAlarm();
+  let alarm = new CalAlarm();
   alarm.icalString = aIcalString;
   equal(alarm.related, Ci.calIAlarm.ALARM_RELATED_ABSOLUTE);
   notEqual(alarm.alarmDate, null);

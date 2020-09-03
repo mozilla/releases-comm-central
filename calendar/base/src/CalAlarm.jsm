@@ -13,16 +13,26 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalAttendee: "resource:///modules/CalAttendee.jsm",
 });
 
-var ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
-var ALARM_RELATED_START = Ci.calIAlarm.ALARM_RELATED_START;
-var ALARM_RELATED_END = Ci.calIAlarm.ALARM_RELATED_END;
+const ALARM_RELATED_ABSOLUTE = Ci.calIAlarm.ALARM_RELATED_ABSOLUTE;
+const ALARM_RELATED_START = Ci.calIAlarm.ALARM_RELATED_START;
+const ALARM_RELATED_END = Ci.calIAlarm.ALARM_RELATED_END;
 
-function CalAlarm() {
+/**
+ * Constructor for `calIAlarm` objects.
+ *
+ * @class
+ * @implements {calIAlarm}
+ * @param {string} [icalString] - Optional iCal string for initializing existing alarms.
+ */
+function CalAlarm(icalString) {
   this.wrappedJSObject = this;
   this.mProperties = new Map();
   this.mPropertyParams = {};
   this.mAttendees = [];
   this.mAttachments = [];
+  if (icalString) {
+    this.icalString = icalString;
+  }
 }
 
 CalAlarm.prototype = {
@@ -209,7 +219,7 @@ CalAlarm.prototype = {
   },
 
   get repeat() {
-    if ((this.mRepeat != 0) ^ (this.mDuration != null)) {
+    if (!this.mDuration) {
       return 0;
     }
     return this.mRepeat || 0;
@@ -227,7 +237,7 @@ CalAlarm.prototype = {
   },
 
   get repeatOffset() {
-    if ((this.mRepeat != 0) ^ (this.mDuration != null)) {
+    if (!this.mRepeat) {
       return null;
     }
     return this.mDuration;

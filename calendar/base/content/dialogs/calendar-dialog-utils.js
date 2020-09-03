@@ -15,6 +15,11 @@
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalAlarm: "resource:///modules/CalAlarm.jsm",
+});
 
 // Variables related to whether we are in a tab or a window dialog.
 var gInTab = false;
@@ -106,7 +111,7 @@ function applyPersistedProperties(aDialog) {
  * @return                             The calIAlarm with information from the menuitem.
  */
 function createReminderFromMenuitem(aMenuitem, aCalendar) {
-  let reminder = aMenuitem.reminder || cal.createAlarm();
+  let reminder = aMenuitem.reminder || new CalAlarm();
   // clone immutable reminders if necessary to set default values
   let isImmutable = !reminder.isMutable;
   if (isImmutable) {
@@ -118,8 +123,8 @@ function createReminderFromMenuitem(aMenuitem, aCalendar) {
   offset.isNegative = aMenuitem.getAttribute("origin") == "before";
   reminder.related =
     aMenuitem.getAttribute("relation") == "START"
-      ? reminder.ALARM_RELATED_START
-      : reminder.ALARM_RELATED_END;
+      ? Ci.calIAlarm.ALARM_RELATED_START
+      : Ci.calIAlarm.ALARM_RELATED_END;
   reminder.offset = offset;
   reminder.action = getDefaultAlarmType(aCalendar);
   // make reminder immutable in case it was before
@@ -224,7 +229,7 @@ function updateReminderDetails(reminderDetails, reminderList, calendar) {
       // This is one of the predefined dropdown items. We should show a
       // single icon in the icons box to tell the user what kind of alarm
       // this will be.
-      let mockAlarm = cal.createAlarm();
+      let mockAlarm = new CalAlarm();
       mockAlarm.action = getDefaultAlarmType(calendar);
       cal.alarms.addReminderImages(iconBox, [mockAlarm]);
     }
@@ -249,7 +254,7 @@ function matchCustomReminderToMenuitem(reminder, reminderList, calendar) {
   ) {
     // Exactly one reminder that's not absolute, we may be able to match up
     // popup items.
-    let relation = reminder.related == reminder.ALARM_RELATED_START ? "START" : "END";
+    let relation = reminder.related == Ci.calIAlarm.ALARM_RELATED_START ? "START" : "END";
 
     // If the time duration for offset is 0, means the reminder is '0 minutes before'
     let origin = reminder.offset.inSeconds == 0 || reminder.offset.isNegative ? "before" : "after";
@@ -483,7 +488,7 @@ function commonUpdateReminder(
       let reminders = menuitem.reminders || [createReminderFromMenuitem(menuitem, calendar)];
 
       // If a reminder is related to the entry date...
-      if (reminders.some(x => x.related == x.ALARM_RELATED_START)) {
+      if (reminders.some(x => x.related == Ci.calIAlarm.ALARM_RELATED_START)) {
         // ...automatically check 'has entrydate'.
         if (!getElementValue("todo-has-entrydate", "checked")) {
           setElementValue("todo-has-entrydate", "true", "checked");
@@ -497,7 +502,7 @@ function commonUpdateReminder(
       }
 
       // If a reminder is related to the due date...
-      if (reminders.some(x => x.related == x.ALARM_RELATED_END)) {
+      if (reminders.some(x => x.related == Ci.calIAlarm.ALARM_RELATED_END)) {
         // ...automatically check 'has duedate'.
         if (!getElementValue("todo-has-duedate", "checked")) {
           setElementValue("todo-has-duedate", "true", "checked");
