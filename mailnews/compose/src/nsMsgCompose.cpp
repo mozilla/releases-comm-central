@@ -553,7 +553,7 @@ MOZ_CAN_RUN_SCRIPT void nsMsgCompose::InsertDivWrappedTextAtSelection(
     RefPtr<Selection> selection;
     m_editor->GetSelection(getter_AddRefs(selection));
 
-    if (selection) selection->Collapse(parent, offset + 1);
+    if (selection) selection->CollapseInLimiter(parent, offset + 1);
   }
   if (divElem) {
     RefPtr<Element> divElem2 = divElem;
@@ -795,7 +795,7 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
           // Position into the div, so out content goes there.
           RefPtr<Selection> selection;
           htmlEditor->GetSelection(getter_AddRefs(selection));
-          rv = selection->Collapse(divElem, 0);
+          rv = selection->CollapseInLimiter(divElem, 0);
           NS_ENSURE_SUCCESS(rv, rv);
         }
 
@@ -870,14 +870,14 @@ nsMsgCompose::ConvertAndLoadComposeWindow(nsString& aPrefix, nsString& aBuf,
         }
 
         // place selection after mailcite
-        selection->Collapse(parent, offset + 1);
+        selection->CollapseInLimiter(parent, offset + 1);
 
         // insert a break at current selection
         if (!paragraphMode || !aHTMLEditor) htmlEditor->InsertLineBreak();
 
         // i'm not sure if you need to move the selection back to before the
         // break. expirement.
-        selection->Collapse(parent, offset + 1);
+        selection->CollapseInLimiter(parent, offset + 1);
 
         break;
       }
@@ -2744,10 +2744,10 @@ MOZ_CAN_RUN_SCRIPT nsresult QuotingOutputStreamListener::InsertToCompose(
       aEditor->GetSelection(getter_AddRefs(selection));
       if (selection) {
         // place selection after mailcite
-        selection->Collapse(parent, offset + 1);
+        selection->CollapseInLimiter(parent, offset + 1);
         // insert a break at current selection
         aEditor->InsertLineBreak();
-        selection->Collapse(parent, offset + 1);
+        selection->CollapseInLimiter(parent, offset + 1);
       }
       nsCOMPtr<nsISelectionController> selCon;
       aEditor->GetSelectionController(getter_AddRefs(selCon));
@@ -5112,7 +5112,7 @@ nsresult nsMsgCompose::MoveToAboveQuote(void) {
   }
   RefPtr<Selection> selection;
   m_editor->GetSelection(getter_AddRefs(selection));
-  if (selection) rv = selection->Collapse(rootElement, offset);
+  if (selection) rv = selection->CollapseInLimiter(rootElement, offset);
 
   return rv;
 }
@@ -5131,7 +5131,7 @@ nsresult nsMsgCompose::MoveToBeginningOfDocument(void) {
 
   RefPtr<Selection> selection;
   m_editor->GetSelection(getter_AddRefs(selection));
-  if (selection) rv = selection->Collapse(rootElement, 0);
+  if (selection) rv = selection->CollapseInLimiter(rootElement, 0);
 
   return rv;
 }
@@ -5164,7 +5164,7 @@ nsresult nsMsgCompose::MoveToEndOfDocument(void) {
 
   RefPtr<Selection> selection;
   m_editor->GetSelection(getter_AddRefs(selection));
-  if (selection) rv = selection->Collapse(rootElement, offset + 1);
+  if (selection) rv = selection->CollapseInLimiter(rootElement, offset + 1);
 
   return rv;
 }
