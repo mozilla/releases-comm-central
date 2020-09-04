@@ -5,7 +5,6 @@
 
 /* import-globals-from ../../../../toolkit/modules/PageMenu.jsm */
 /* import-globals-from ../../../mailnews/base/prefs/content/accountUtils.js */
-/* import-globals-from ../../../mailnews/base/src/MailnewsMigrator.jsm */
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
@@ -35,9 +34,6 @@ var { JSTreeSelection } = ChromeUtils.import(
 var { MailConsts } = ChromeUtils.import("resource:///modules/MailConsts.jsm");
 var { MailInstrumentation } = ChromeUtils.import(
   "resource:///modules/MailInstrumentation.jsm"
-);
-var { migrateMailnews } = ChromeUtils.import(
-  "resource:///modules/MailnewsMigrator.jsm"
 );
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
@@ -584,8 +580,6 @@ var gMailInit = {
    */
   onLoad() {
     TagUtils.loadTagsIntoCSS(document);
-
-    migrateMailnews();
 
     // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
     // in delayedOnLoadMessenger...

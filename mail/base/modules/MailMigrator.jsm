@@ -16,11 +16,18 @@ ChromeUtils.defineModuleGetter(
   "fixIterator",
   "resource:///modules/iteratorUtils.jsm"
 );
+ChromeUtils.defineModuleGetter(
+  this,
+  "IOUtils",
+  "resource:///modules/IOUtils.jsm"
+);
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { IOUtils } = ChromeUtils.import("resource:///modules/IOUtils.jsm");
+var { migrateMailnews } = ChromeUtils.import(
+  "resource:///modules/MailnewsMigrator.jsm"
+);
 
 var MailMigrator = {
   /**
@@ -775,6 +782,7 @@ var MailMigrator = {
    * been loaded.
    */
   migrateAtProfileStartup() {
+    migrateMailnews();
     this._migrateUI();
     this._migrateRSS();
   },

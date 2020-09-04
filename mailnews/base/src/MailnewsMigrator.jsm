@@ -12,11 +12,20 @@
 
 const EXPORTED_SYMBOLS = ["migrateMailnews"];
 
-var { logException } = ChromeUtils.import("resource:///modules/ErrUtils.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "uuidGen",
+  "@mozilla.org/uuid-generator;1",
+  "nsIUUIDGenerator"
+);
+
 var kServerPrefVersion = 1;
 var kSmtpPrefVersion = 1;
 var kABRemoteContentPrefVersion = 1;
@@ -26,25 +35,25 @@ function migrateMailnews() {
   try {
     MigrateProfileClientid();
   } catch (e) {
-    logException(e);
+    console.error(e);
   }
 
   try {
     MigrateServerAuthPref();
   } catch (e) {
-    logException(e);
+    console.error(e);
   }
 
   try {
     MigrateABRemoteContentSettings();
   } catch (e) {
-    logException(e);
+    console.error(e);
   }
 
   try {
     MigrateDefaultCharsets();
   } catch (e) {
-    logException(e);
+    console.error(e);
   }
 }
 
@@ -53,9 +62,6 @@ function migrateMailnews() {
  * services with smtp services which are using the same username and hostname.
  */
 function MigrateProfileClientid() {
-  let uuidGen = Cc["@mozilla.org/uuid-generator;1"].getService(
-    Ci.nsIUUIDGenerator
-  );
   // Comma-separated list of all account ids.
   let accounts = Services.prefs.getCharPref("mail.accountmanager.accounts", "");
   // Comma-separated list of all smtp servers.
@@ -164,107 +170,97 @@ function MigrateProfileClientid() {
  * Migrates from pref useSecAuth to pref authMethod
  */
 function MigrateServerAuthPref() {
-  try {
-    // comma-separated list of all accounts.
-    var accounts = Services.prefs
-      .getCharPref("mail.accountmanager.accounts")
-      .split(",");
-    for (let i = 0; i < accounts.length; i++) {
-      let accountKey = accounts[i]; // e.g. "account1"
-      if (!accountKey) {
-        continue;
-      }
-      let serverKey = Services.prefs.getCharPref(
-        "mail.account." + accountKey + ".server"
-      );
-      let server = "mail.server." + serverKey + ".";
-      if (Services.prefs.prefHasUserValue(server + "authMethod")) {
-        continue;
-      }
-      if (
-        !Services.prefs.prefHasUserValue(server + "useSecAuth") &&
-        !Services.prefs.prefHasUserValue(server + "auth_login")
-      ) {
-        continue;
-      }
-      if (Services.prefs.prefHasUserValue(server + "migrated")) {
-        continue;
-      }
-      // auth_login = false => old-style auth
-      // else: useSecAuth = true => "secure auth"
-      // else: cleartext pw
-      let auth_login = Services.prefs.getBoolPref(server + "auth_login", true);
-      // old default, default pref now removed
-      let useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
+  // comma-separated list of all accounts.
+  var accounts = Services.prefs
+    .getCharPref("mail.accountmanager.accounts")
+    .split(",");
+  for (let i = 0; i < accounts.length; i++) {
+    let accountKey = accounts[i]; // e.g. "account1"
+    if (!accountKey) {
+      continue;
+    }
+    let serverKey = Services.prefs.getCharPref(
+      "mail.account." + accountKey + ".server"
+    );
+    let server = "mail.server." + serverKey + ".";
+    if (Services.prefs.prefHasUserValue(server + "authMethod")) {
+      continue;
+    }
+    if (
+      !Services.prefs.prefHasUserValue(server + "useSecAuth") &&
+      !Services.prefs.prefHasUserValue(server + "auth_login")
+    ) {
+      continue;
+    }
+    if (Services.prefs.prefHasUserValue(server + "migrated")) {
+      continue;
+    }
+    // auth_login = false => old-style auth
+    // else: useSecAuth = true => "secure auth"
+    // else: cleartext pw
+    let auth_login = Services.prefs.getBoolPref(server + "auth_login", true);
+    // old default, default pref now removed
+    let useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
 
-      if (auth_login) {
-        if (useSecAuth) {
-          Services.prefs.setIntPref(
-            server + "authMethod",
-            Ci.nsMsgAuthMethod.secure
-          );
-        } else {
-          Services.prefs.setIntPref(
-            server + "authMethod",
-            Ci.nsMsgAuthMethod.passwordCleartext
-          );
-        }
+    if (auth_login) {
+      if (useSecAuth) {
+        Services.prefs.setIntPref(
+          server + "authMethod",
+          Ci.nsMsgAuthMethod.secure
+        );
       } else {
         Services.prefs.setIntPref(
           server + "authMethod",
-          Ci.nsMsgAuthMethod.old
+          Ci.nsMsgAuthMethod.passwordCleartext
         );
       }
-      Services.prefs.setIntPref(server + "migrated", kServerPrefVersion);
+    } else {
+      Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.old);
     }
+    Services.prefs.setIntPref(server + "migrated", kServerPrefVersion);
+  }
 
-    // same again for SMTP servers
-    var smtpservers = Services.prefs.getCharPref("mail.smtpservers").split(",");
-    for (let i = 0; i < smtpservers.length; i++) {
-      if (!smtpservers[i]) {
-        continue;
-      }
-      let server = "mail.smtpserver." + smtpservers[i] + ".";
-      if (Services.prefs.prefHasUserValue(server + "authMethod")) {
-        continue;
-      }
-      if (
-        !Services.prefs.prefHasUserValue(server + "useSecAuth") &&
-        !Services.prefs.prefHasUserValue(server + "auth_method")
-      ) {
-        continue;
-      }
-      if (Services.prefs.prefHasUserValue(server + "migrated")) {
-        continue;
-      }
-      // auth_method = 0 => no auth
-      // else: useSecAuth = true => "secure auth"
-      // else: cleartext pw
-      let auth_method = Services.prefs.getIntPref(server + "auth_method", 1);
-      let useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
+  // same again for SMTP servers
+  var smtpservers = Services.prefs.getCharPref("mail.smtpservers").split(",");
+  for (let i = 0; i < smtpservers.length; i++) {
+    if (!smtpservers[i]) {
+      continue;
+    }
+    let server = "mail.smtpserver." + smtpservers[i] + ".";
+    if (Services.prefs.prefHasUserValue(server + "authMethod")) {
+      continue;
+    }
+    if (
+      !Services.prefs.prefHasUserValue(server + "useSecAuth") &&
+      !Services.prefs.prefHasUserValue(server + "auth_method")
+    ) {
+      continue;
+    }
+    if (Services.prefs.prefHasUserValue(server + "migrated")) {
+      continue;
+    }
+    // auth_method = 0 => no auth
+    // else: useSecAuth = true => "secure auth"
+    // else: cleartext pw
+    let auth_method = Services.prefs.getIntPref(server + "auth_method", 1);
+    let useSecAuth = Services.prefs.getBoolPref(server + "useSecAuth", false);
 
-      if (auth_method) {
-        if (useSecAuth) {
-          Services.prefs.setIntPref(
-            server + "authMethod",
-            Ci.nsMsgAuthMethod.secure
-          );
-        } else {
-          Services.prefs.setIntPref(
-            server + "authMethod",
-            Ci.nsMsgAuthMethod.passwordCleartext
-          );
-        }
+    if (auth_method) {
+      if (useSecAuth) {
+        Services.prefs.setIntPref(
+          server + "authMethod",
+          Ci.nsMsgAuthMethod.secure
+        );
       } else {
         Services.prefs.setIntPref(
           server + "authMethod",
-          Ci.nsMsgAuthMethod.none
+          Ci.nsMsgAuthMethod.passwordCleartext
         );
       }
-      Services.prefs.setIntPref(server + "migrated", kSmtpPrefVersion);
+    } else {
+      Services.prefs.setIntPref(server + "authMethod", Ci.nsMsgAuthMethod.none);
     }
-  } catch (e) {
-    logException(e);
+    Services.prefs.setIntPref(server + "migrated", kSmtpPrefVersion);
   }
 }
 
@@ -313,7 +309,7 @@ function MigrateABRemoteContentSettings() {
         }
       }
     } catch (e) {
-      logException(e);
+      console.error(e);
     }
   }
 
