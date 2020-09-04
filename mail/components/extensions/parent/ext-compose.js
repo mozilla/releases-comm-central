@@ -22,7 +22,14 @@ async function parseComposeRecipientList(list) {
     let recipients = [];
     for (let recipient of list) {
       if (typeof recipient == "string") {
-        recipients.push(recipient);
+        let addressObjects = MailServices.headerParser.makeFromDisplayAddress(
+          recipient
+        );
+        for (let ao of addressObjects) {
+          recipients.push(
+            MailServices.headerParser.makeMimeAddress(ao.name, ao.email)
+          );
+        }
         continue;
       }
       if (!("addressBookCache" in this)) {

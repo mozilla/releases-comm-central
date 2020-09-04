@@ -118,6 +118,17 @@ add_task(async function testHeaders() {
           expected: { to: ["John Watson <john@bakerstreet.invalid>"] },
         },
         {
+          // Name with a comma, not quoted per RFC 822. This is how
+          // getComposeDetails returns names with a comma.
+          input: { to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"] },
+          expected: { to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"] },
+        },
+        {
+          // Name with a comma, quoted per RFC 822. This should work too.
+          input: { to: [`"Holmes, Mycroft" <mycroft@bakerstreet.invalid>`] },
+          expected: { to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"] },
+        },
+        {
           // Empty array. Done here so we have something to clear.
           input: { to: [] },
           expected: {},
