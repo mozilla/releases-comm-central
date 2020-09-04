@@ -282,10 +282,14 @@
 @RESPATH@/defaults/pref/e2e-prefs.js
 @RESPATH@/defaults/pref/thunderbird-branding.js
 @RESPATH@/defaults/permissions
+@RESPATH@/greprefs.js
+
+; Remote Settings JSON dumps
 @RESPATH@/defaults/settings/blocklists
 @RESPATH@/defaults/settings/pinning
 @RESPATH@/defaults/settings/main
-@RESPATH@/greprefs.js
+@RESPATH@/defaults/settings/security-state
+@RESPATH@/defaults/settings/thunderbird
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; App extensions to Mail
