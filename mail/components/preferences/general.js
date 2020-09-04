@@ -632,38 +632,31 @@ var gGeneralPane = {
 
   updateWebSearch() {
     let self = this;
-    Services.search.init().then(
-      async () => {
-        let defaultEngine = await Services.search.getDefault();
-        let engineList = document.getElementById("defaultWebSearch");
-        for (let engine of await Services.search.getVisibleEngines()) {
-          let item = engineList.appendItem(engine.name);
-          item.engine = engine;
-          item.className = "menuitem-iconic";
-          item.setAttribute(
-            "image",
-            engine.iconURI
-              ? engine.iconURI.spec
-              : "resource://gre-resources/broken-image.png"
-          );
-          if (engine == defaultEngine) {
-            engineList.selectedItem = item;
-          }
-        }
-        self.defaultEngines = await Services.search.getDefaultEngines();
-        self.updateRemoveButton();
-
-        engineList.addEventListener("command", async () => {
-          await Services.search.setDefault(engineList.selectedItem.engine);
-          self.updateRemoveButton();
-        });
-      },
-      error => {
-        Cu.reportError(
-          new Components.Exception("Services.search failed to init()", error)
+    Services.search.init().then(async () => {
+      let defaultEngine = await Services.search.getDefault();
+      let engineList = document.getElementById("defaultWebSearch");
+      for (let engine of await Services.search.getVisibleEngines()) {
+        let item = engineList.appendItem(engine.name);
+        item.engine = engine;
+        item.className = "menuitem-iconic";
+        item.setAttribute(
+          "image",
+          engine.iconURI
+            ? engine.iconURI.spec
+            : "resource://gre-resources/broken-image.png"
         );
+        if (engine == defaultEngine) {
+          engineList.selectedItem = item;
+        }
       }
-    );
+      self.defaultEngines = await Services.search.getDefaultEngines();
+      self.updateRemoveButton();
+
+      engineList.addEventListener("command", async () => {
+        await Services.search.setDefault(engineList.selectedItem.engine);
+        self.updateRemoveButton();
+      });
+    });
   },
 
   // Caches the default engines so we only retrieve them once.
