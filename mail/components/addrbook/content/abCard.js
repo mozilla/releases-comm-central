@@ -609,8 +609,14 @@ function HideNonVcardFields() {
   chatNameLabel.classList.remove("text-link");
 
   for (let i = kPhoneticFields.length - 1; i >= 0; i--) {
-    document.getElementById(kPhoneticFields[i]).collapsed = true;
+    document.getElementById(kPhoneticFields[i]).hidden = true;
   }
+  document
+    .getElementById("NameField1Container")
+    .classList.remove("showingPhonetic");
+  document
+    .getElementById("NameField2Container")
+    .classList.remove("showingPhonetic");
 }
 
 /**
