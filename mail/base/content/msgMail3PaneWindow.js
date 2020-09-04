@@ -521,157 +521,209 @@ function initOpenPGPIfEnabled() {
   }
 }
 
-/**
- * Called on startup to initialize various parts of the main window
- */
-function OnLoadMessenger() {
-  TagUtils.loadTagsIntoCSS(document);
+var gMailInit = {
+  /**
+   * Called on startup to initialize various parts of the main window
+   */
+  onLoad() {
+    TagUtils.loadTagsIntoCSS(document);
 
-  migrateMailnews();
+    migrateMailnews();
 
-  // Rig up our TabsInTitlebar early so that we can catch any resize events.
-  TabsInTitlebar.init();
+    // Rig up our TabsInTitlebar early so that we can catch any resize events.
+    TabsInTitlebar.init();
 
-  // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
-  // in delayedOnLoadMessenger...
-  UpdateMailPaneConfig(false);
+    // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
+    // in delayedOnLoadMessenger...
+    UpdateMailPaneConfig(false);
 
-  if (AppConstants.platform == "win") {
-    // On Win8 set an attribute when the window frame color is too dark for black text.
-    if (
-      window.matchMedia("(-moz-os-version: windows-win8)").matches &&
-      window.matchMedia("(-moz-windows-default-theme)").matches
-    ) {
-      let { Windows8WindowFrameColor } = ChromeUtils.import(
-        "resource:///modules/Windows8WindowFrameColor.jsm"
-      );
-      let windowFrameColor = new Color(...Windows8WindowFrameColor.get());
-      // Default to black for foreground text.
-      if (!windowFrameColor.isContrastRatioAcceptable(new Color(0, 0, 0))) {
-        document.documentElement.setAttribute("darkwindowframe", "true");
-      }
-    } else if (AppConstants.isPlatformAndVersionAtLeast("win", "10")) {
-      // 17763 is the build number of Windows 10 version 1809
-      if (getWindowsVersionInfo().buildNumber < 17763) {
-        document.documentElement.setAttribute(
-          "always-use-accent-color-for-window-border",
-          ""
+    if (AppConstants.platform == "win") {
+      // On Win8 set an attribute when the window frame color is too dark for black text.
+      if (
+        window.matchMedia("(-moz-os-version: windows-win8)").matches &&
+        window.matchMedia("(-moz-windows-default-theme)").matches
+      ) {
+        let { Windows8WindowFrameColor } = ChromeUtils.import(
+          "resource:///modules/Windows8WindowFrameColor.jsm"
         );
+        let windowFrameColor = new Color(...Windows8WindowFrameColor.get());
+        // Default to black for foreground text.
+        if (!windowFrameColor.isContrastRatioAcceptable(new Color(0, 0, 0))) {
+          document.documentElement.setAttribute("darkwindowframe", "true");
+        }
+      } else if (AppConstants.isPlatformAndVersionAtLeast("win", "10")) {
+        // 17763 is the build number of Windows 10 version 1809
+        if (getWindowsVersionInfo().buildNumber < 17763) {
+          document.documentElement.setAttribute(
+            "always-use-accent-color-for-window-border",
+            ""
+          );
+        }
       }
     }
-  }
 
-  ToolbarIconColor.init();
+    ToolbarIconColor.init();
 
-  // Set a sane starting width/height for all resolutions on new profiles.
-  // Do this before the window loads.
-  if (!document.documentElement.hasAttribute("width")) {
-    // Prefer 1024xfull height.
-    let defaultHeight = screen.availHeight;
-    let defaultWidth = screen.availWidth <= 1024 ? screen.availWidth : 1024;
+    // Set a sane starting width/height for all resolutions on new profiles.
+    // Do this before the window loads.
+    if (!document.documentElement.hasAttribute("width")) {
+      // Prefer 1024xfull height.
+      let defaultHeight = screen.availHeight;
+      let defaultWidth = screen.availWidth <= 1024 ? screen.availWidth : 1024;
 
-    // On small screens, default to maximized state.
-    if (defaultHeight <= 600) {
-      document.documentElement.setAttribute("sizemode", "maximized");
+      // On small screens, default to maximized state.
+      if (defaultHeight <= 600) {
+        document.documentElement.setAttribute("sizemode", "maximized");
+      }
+
+      document.documentElement.setAttribute("width", defaultWidth);
+      document.documentElement.setAttribute("height", defaultHeight);
+      // Make sure we're safe at the left/top edge of screen
+      document.documentElement.setAttribute("screenX", screen.availLeft);
+      document.documentElement.setAttribute("screenY", screen.availTop);
     }
 
-    document.documentElement.setAttribute("width", defaultWidth);
-    document.documentElement.setAttribute("height", defaultHeight);
-    // Make sure we're safe at the left/top edge of screen
-    document.documentElement.setAttribute("screenX", screen.availLeft);
-    document.documentElement.setAttribute("screenY", screen.availTop);
-  }
+    Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver);
+    Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver);
+    Services.prefs.addObserver("mail.openpgp.enable", MailPrefObserver);
 
-  Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver);
-  Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver);
-  Services.prefs.addObserver("mail.openpgp.enable", MailPrefObserver);
+    MailOfflineMgr.init();
+    CreateMailWindowGlobals();
+    GetMessagePaneWrapper().collapsed = true;
+    msgDBCacheManager.init();
+    Services.search.init();
 
-  MailOfflineMgr.init();
-  CreateMailWindowGlobals();
-  GetMessagePaneWrapper().collapsed = true;
-  msgDBCacheManager.init();
-  Services.search.init();
-
-  // This needs to be before we throw up the account wizard on first run.
-  try {
-    MailInstrumentation.init();
-  } catch (ex) {
-    logException(ex);
-  }
-
-  if (!Services.policies.isAllowed("devtools")) {
-    let devtoolsMenu = document.getElementById("devtoolsMenu");
-    if (devtoolsMenu) {
-      devtoolsMenu.hidden = true;
+    // This needs to be before we throw up the account wizard on first run.
+    try {
+      MailInstrumentation.init();
+    } catch (ex) {
+      logException(ex);
     }
-    let appmenu_devtoolsMenu = document.getElementById("appmenu_devtoolsMenu");
-    if (appmenu_devtoolsMenu) {
-      appmenu_devtoolsMenu.hidden = true;
+
+    if (!Services.policies.isAllowed("devtools")) {
+      let devtoolsMenu = document.getElementById("devtoolsMenu");
+      if (devtoolsMenu) {
+        devtoolsMenu.hidden = true;
+      }
+      let appmenu_devtoolsMenu = document.getElementById(
+        "appmenu_devtoolsMenu"
+      );
+      if (appmenu_devtoolsMenu) {
+        appmenu_devtoolsMenu.hidden = true;
+      }
     }
-  }
 
-  // - initialize tabmail system
-  // Do this before LoadPostAccountWizard since that code selects the first
-  //  folder for display, and we want gFolderDisplay setup and ready to handle
-  //  that event chain.
-  // Also, we definitely need to register the tab type prior to the call to
-  //  specialTabs.openSpecialTabsOnStartup below.
-  let tabmail = document.getElementById("tabmail");
-  if (tabmail) {
-    // mailTabType is defined in mailTabs.js
-    tabmail.registerTabType(mailTabType);
-    // glodaFacetTab* in glodaFacetTab.js
-    tabmail.registerTabType(glodaFacetTabType);
-    QuickFilterBarMuxer._init();
-    tabmail.registerTabMonitor(GlodaSearchBoxTabMonitor);
-    tabmail.registerTabMonitor(statusMessageCountsMonitor);
-    tabmail.openFirstTab();
-  }
+    // - initialize tabmail system
+    // Do this before LoadPostAccountWizard since that code selects the first
+    //  folder for display, and we want gFolderDisplay setup and ready to handle
+    //  that event chain.
+    // Also, we definitely need to register the tab type prior to the call to
+    //  specialTabs.openSpecialTabsOnStartup below.
+    let tabmail = document.getElementById("tabmail");
+    if (tabmail) {
+      // mailTabType is defined in mailTabs.js
+      tabmail.registerTabType(mailTabType);
+      // glodaFacetTab* in glodaFacetTab.js
+      tabmail.registerTabType(glodaFacetTabType);
+      QuickFilterBarMuxer._init();
+      tabmail.registerTabMonitor(GlodaSearchBoxTabMonitor);
+      tabmail.registerTabMonitor(statusMessageCountsMonitor);
+      tabmail.openFirstTab();
+    }
 
-  // This also registers the contentTabType ("contentTab")
-  specialTabs.openSpecialTabsOnStartup();
-  preferencesTabType.initialize();
-  // accountProvisionerTabType is defined in accountProvisionerTab.js
-  tabmail.registerTabType(accountProvisionerTabType);
+    // This also registers the contentTabType ("contentTab")
+    specialTabs.openSpecialTabsOnStartup();
+    preferencesTabType.initialize();
+    // accountProvisionerTabType is defined in accountProvisionerTab.js
+    tabmail.registerTabType(accountProvisionerTabType);
 
-  // Hack to allow pdfjs to be able to access the tabmail details when it
-  // assumes gBrowser exists.
-  gBrowser = tabmail;
-  gBrowser.getCachedFindBar = tab => tab.findbar;
-  // Thunderbird doesn't yet support this, but we need it defined for tests
-  // to keep working.
-  gBrowser._insertBrowser = () => {};
+    // Hack to allow pdfjs to be able to access the tabmail details when it
+    // assumes gBrowser exists.
+    gBrowser = tabmail;
+    gBrowser.getCachedFindBar = tab => tab.findbar;
+    // Thunderbird doesn't yet support this, but we need it defined for tests
+    // to keep working.
+    gBrowser._insertBrowser = () => {};
 
-  // Set up the summary frame manager to handle loading pages in the
-  // multi-message pane
-  gSummaryFrameManager = new SummaryFrameManager(
-    document.getElementById("multimessage")
-  );
+    // Set up the summary frame manager to handle loading pages in the
+    // multi-message pane
+    gSummaryFrameManager = new SummaryFrameManager(
+      document.getElementById("multimessage")
+    );
 
-  window.addEventListener("AppCommand", HandleAppCommandEvent, true);
+    window.addEventListener("AppCommand", HandleAppCommandEvent, true);
 
-  // Set up the appmenus. (This has to happen after the DOM has loaded.)
-  PanelUI.init();
-  gExtensionsNotifications.init();
+    // Set up the appmenus. (This has to happen after the DOM has loaded.)
+    PanelUI.init();
+    gExtensionsNotifications.init();
 
-  // Load the periodic filter timer.
-  PeriodicFilterManager.setupFiltering();
+    // Load the periodic filter timer.
+    PeriodicFilterManager.setupFiltering();
 
-  let pService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
-    Ci.nsIToolkitProfileService
-  );
-  if (pService.createdAlternateProfile) {
-    // Show on a timeout so the main window has time to open. Otherwise
-    // the dialog would be confusingly showing out of context.
-    setTimeout(() => _showNewInstallModal());
-  } else if (verifyAccounts(LoadPostAccountWizard, false, AutoConfigWizard)) {
-    // verifyAccounts returns true if the callback won't be called
-    // We also don't want the account wizard to open if any sort of account exists
-    LoadPostAccountWizard();
-  }
+    let pService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
+      Ci.nsIToolkitProfileService
+    );
+    if (pService.createdAlternateProfile) {
+      // Show on a timeout so the main window has time to open. Otherwise
+      // the dialog would be confusingly showing out of context.
+      setTimeout(() => _showNewInstallModal());
+    } else if (verifyAccounts(LoadPostAccountWizard, false, AutoConfigWizard)) {
+      // verifyAccounts returns true if the callback won't be called
+      // We also don't want the account wizard to open if any sort of account exists
+      LoadPostAccountWizard();
+    }
 
-  initOpenPGPIfEnabled();
-}
+    initOpenPGPIfEnabled();
+  },
+
+  /**
+   * Called by messenger.xhtml:onunload, the 3-pane window inside of tabs window.
+   *  It's being unloaded!  Right now!
+   */
+  onUnload() {
+    Services.obs.notifyObservers(window, "mail-unloading-messenger");
+    accountManager.removeIncomingServerListener(
+      gThreePaneIncomingServerListener
+    );
+    Services.prefs.removeObserver("mail.pane_config.dynamic", MailPrefObserver);
+    Services.prefs.removeObserver(
+      "mail.showCondensedAddresses",
+      MailPrefObserver
+    );
+    Services.prefs.removeObserver("mail.openpgp.enable", MailPrefObserver);
+
+    if (gRightMouseButtonSavedSelection) {
+      // Avoid possible cycle leaks.
+      gRightMouseButtonSavedSelection.view = null;
+      gRightMouseButtonSavedSelection = null;
+    }
+
+    SessionStoreManager.unloadingWindow(window);
+
+    TabsInTitlebar.uninit();
+
+    ToolbarIconColor.uninit();
+
+    let tabmail = document.getElementById("tabmail");
+    tabmail._teardown();
+
+    MailServices.mailSession.RemoveFolderListener(folderListener);
+
+    gPhishingDetector.shutdown();
+
+    // FIX ME - later we will be able to use onload from the overlay
+    OnUnloadMsgHeaderPane();
+
+    UnloadPanes();
+
+    OnMailWindowUnload();
+    try {
+      MailInstrumentation.uninit();
+    } catch (ex) {
+      logException(ex);
+    }
+  },
+};
 
 function _showNewInstallModal() {
   Services.ww.openWindow(
@@ -958,52 +1010,6 @@ function FindOther3PaneWindow() {
     }
   }
   return null;
-}
-
-/**
- * Called by messenger.xhtml:onunload, the 3-pane window inside of tabs window.
- *  It's being unloaded!  Right now!
- */
-function OnUnloadMessenger() {
-  Services.obs.notifyObservers(window, "mail-unloading-messenger");
-  accountManager.removeIncomingServerListener(gThreePaneIncomingServerListener);
-  Services.prefs.removeObserver("mail.pane_config.dynamic", MailPrefObserver);
-  Services.prefs.removeObserver(
-    "mail.showCondensedAddresses",
-    MailPrefObserver
-  );
-  Services.prefs.removeObserver("mail.openpgp.enable", MailPrefObserver);
-
-  if (gRightMouseButtonSavedSelection) {
-    // Avoid possible cycle leaks.
-    gRightMouseButtonSavedSelection.view = null;
-    gRightMouseButtonSavedSelection = null;
-  }
-
-  SessionStoreManager.unloadingWindow(window);
-
-  TabsInTitlebar.uninit();
-
-  ToolbarIconColor.uninit();
-
-  let tabmail = document.getElementById("tabmail");
-  tabmail._teardown();
-
-  MailServices.mailSession.RemoveFolderListener(folderListener);
-
-  gPhishingDetector.shutdown();
-
-  // FIX ME - later we will be able to use onload from the overlay
-  OnUnloadMsgHeaderPane();
-
-  UnloadPanes();
-
-  OnMailWindowUnload();
-  try {
-    MailInstrumentation.uninit();
-  } catch (ex) {
-    logException(ex);
-  }
 }
 
 /**

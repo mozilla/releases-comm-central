@@ -62,8 +62,6 @@
         titlemodifier="&titledefault.label;@PRE_RELEASE_SUFFIX@"
         titlemenuseparator="&titleSeparator.label;"
         defaultTabTitle="&defaultTabTitle.label;"
-        onload="OnLoadMessenger()"
-        onunload="OnUnloadMessenger()"
         onresize="OnResizeExpandedHeaderView()"
         screenX="10" screenY="10"
         persist="width height screenX screenY sizemode"
@@ -248,6 +246,11 @@
 
 <!-- NEEDED FOR MIGRATION CHECK AT INSTALL -->
 <script src="chrome://calendar/content/calendar-migration.js"/>
+
+<script>
+  window.onload = gMailInit.onLoad.bind(gMailInit);
+  window.onunload = gMailInit.onUnload.bind(gMailInit);
+</script>
 
 <html:style id="folderColorsStyle" type="text/css"></html:style>
 <html:style id="folderColorsStylePreview" type="text/css"></html:style>
@@ -912,4 +915,3 @@
 #include ../../../calendar/lightning/content/calendar-status-bar.inc.xhtml
   </hbox>
 </window>
-
