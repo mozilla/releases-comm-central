@@ -138,6 +138,7 @@ toolbar[brighttext] {
 #compose-toolbox > toolbar[brighttext],
 #navigation-toolbox > toolbar[brighttext],
 :root[lwt-tree-brighttext] .otr-container,
+:root[lwt-tree-brighttext] .crypto-button,
 :root[lwt-tree-brighttext] #CardViewBox,
 :root[lwt-tree-brighttext] #searchTerms {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));

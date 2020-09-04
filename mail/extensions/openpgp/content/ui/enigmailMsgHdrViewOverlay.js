@@ -498,8 +498,9 @@ Enigmail.hdrView = {
 
     cryptoContainer.collapsed = false;
     cryptoContainer.setAttribute("tech", "OpenPGP");
-    signedUINode.collapsed = false;
-    encryptedUINode.collapsed = false;
+    document
+      .getElementById("encryptionTechBtn")
+      .querySelector("span").textContent = "OpenPGP";
 
     if (
       statusFlags &
@@ -529,6 +530,7 @@ Enigmail.hdrView = {
         }
       }
       this.msgSignatureState = EnigmailConstants.MSG_SIG_NONE;
+      encryptedUINode.hidden = false;
     } else if (statusFlags & EnigmailConstants.DECRYPTION_OKAY) {
       EnigmailURIs.rememberEncryptedUri(this.lastEncryptedMsgKey);
       encryptedUINode.setAttribute("encrypted", "ok");
@@ -538,6 +540,7 @@ Enigmail.hdrView = {
           await document.l10n.formatValue("decrypted-msg-with-format-error")
         );
       }
+      encryptedUINode.hidden = false;
     }
 
     if (
@@ -553,6 +556,7 @@ Enigmail.hdrView = {
         this.msgSignatureState = EnigmailConstants.MSG_SIG_INVALID;
       }
       signedUINode.setAttribute("signed", "notok");
+      signedUINode.hidden = false;
     } else if (statusFlags & EnigmailConstants.GOOD_SIGNATURE) {
       let val;
       if (statusFlags & EnigmailConstants.TRUSTED_IDENTITY) {
@@ -566,6 +570,7 @@ Enigmail.hdrView = {
         this.msgSignatureState = EnigmailConstants.MSG_SIG_VALID_KEY_UNVERIFIED;
       }
       signedUINode.setAttribute("signed", val);
+      signedUINode.hidden = false;
     } else if (statusFlags & EnigmailConstants.UNCERTAIN_SIGNATURE) {
       let val = "unknown";
       if (statusFlags & EnigmailConstants.INVALID_RECIPIENT) {
@@ -581,6 +586,7 @@ Enigmail.hdrView = {
           EnigmailConstants.MSG_SIG_UNCERTAIN_KEY_NOT_ACCEPTED;
       }
       signedUINode.setAttribute("signed", val);
+      signedUINode.hidden = false;
     }
     // (statusFlags & EnigmailConstants.INLINE_KEY) ???
 

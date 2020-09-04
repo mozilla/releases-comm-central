@@ -435,14 +435,19 @@
                                 <!-- perhaps this should be a customizable toolbar too -->
                                 <vbox id="otherActionsBox" align="end">
                                   <hbox id="dateValueBox" align="start">
-                                    <hbox id="cryptoBox" collapsed="true">
-                                      <image id="signedHdrIcon"
-                                             onclick="showMessageReadSecurityInfo();" collapsed="true"/>
-                                      <image id="encryptedHdrIcon"
-                                             onclick="showMessageReadSecurityInfo();" collapsed="true"/>
-                                    </hbox>
                                     <label id="dateLabel" class="dateLabel" flex="1" role="textbox"
                                            aria-readonly="true"/>
+                                  </hbox>
+                                  <hbox id="cryptoBox" class="crypto-container" align="center"
+                                        collapsed="true">
+                                    <html:button id="encryptionTechBtn"
+                                                 class="toolbarbutton-1 crypto-button"
+                                                 onclick="showMessageReadSecurityInfo();"
+                                                 onkeypress="if (event.key == 'Enter') { showMessageReadSecurityInfo(); }">
+                                      <html:span class="crypto-label"></html:span>
+                                      <image id="encryptedHdrIcon" hidden="true"/>
+                                      <image id="signedHdrIcon" hidden="true"/>
+                                    </html:button>
                                   </hbox>
                                 </vbox>
                               </hbox>

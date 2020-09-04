@@ -81,7 +81,10 @@ var smimeHeaderSink = {
 
     gCryptoContainer.collapsed = false;
     gCryptoContainer.setAttribute("tech", "S/MIME");
-    gSignedUINode.collapsed = false;
+    gSignedUINode.hidden = false;
+    document
+      .getElementById("encryptionTechBtn")
+      .querySelector("span").textContent = "S/MIME";
 
     switch (aSignatureStatus) {
       case Ci.nsICMSMessageErrors.SUCCESS:
@@ -172,7 +175,10 @@ var smimeHeaderSink = {
 
     gCryptoContainer.collapsed = false;
     gCryptoContainer.setAttribute("tech", "S/MIME");
-    gEncryptedUINode.collapsed = false;
+    gEncryptedUINode.hidden = false;
+    document
+      .getElementById("encryptionTechBtn")
+      .querySelector("span").textContent = "S/MIME";
 
     if (Ci.nsICMSMessageErrors.SUCCESS == aEncryptionStatus) {
       gEncryptedUINode.setAttribute("encrypted", "ok");
@@ -252,11 +258,11 @@ function onSMIMEStartHeaders() {
   gCryptoContainer.collapsed = true;
   gCryptoContainer.removeAttribute("tech");
 
-  gSignedUINode.collapsed = true;
+  gSignedUINode.hidden = true;
   gSignedUINode.removeAttribute("signed");
   gStatusBar.removeAttribute("signed");
 
-  gEncryptedUINode.collapsed = true;
+  gEncryptedUINode.hidden = true;
   gEncryptedUINode.removeAttribute("encrypted");
   gStatusBar.removeAttribute("encrypted");
 
@@ -336,8 +342,8 @@ function msgHdrViewSMIMEOnUnload(event) {
 
 function msgHdrViewSMIMEOnMessagePaneHide() {
   gCryptoContainer.collapsed = true;
-  gSignedUINode.collapsed = true;
-  gEncryptedUINode.collapsed = true;
+  gSignedUINode.hidden = true;
+  gEncryptedUINode.hidden = true;
 }
 
 function msgHdrViewSMIMEOnMessagePaneUnhide() {
@@ -345,11 +351,11 @@ function msgHdrViewSMIMEOnMessagePaneUnhide() {
     gCryptoContainer.collapsed = false;
 
     if (gSignatureStatus != -1) {
-      gSignedUINode.collapsed = false;
+      gSignedUINode.hidden = false;
     }
 
     if (gEncryptionStatus != -1) {
-      gEncryptedUINode.collapsed = false;
+      gEncryptedUINode.hidden = false;
     }
   }
 }

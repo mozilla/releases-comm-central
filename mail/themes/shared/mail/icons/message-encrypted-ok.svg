@@ -1,0 +1,7 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <path fill="#12bc00" d="M9.33 16a.83.83 0 01-.6-.24l-2.5-2.5a.83.83 0 011.18-1.18l1.8 1.8 5.28-7.53a.83.83 0 011.36.96l-5.84 8.34a.83.83 0 01-.68.36z"/>
+  <path fill="context-fill" d="M5.54 15l-.02-1c-1.76-1.76.76-4.3 2.6-2.6l.88.87 3-4.3c0-.56-.5-.97-1-.97h-1V5C10-.33 2-.33 2 5v2H1a1 1 0 00-1 1v6a1 1 0 001 1zM8 5v2H4V5c0-2.67 4-2.67 4 0z"/>
+</svg>

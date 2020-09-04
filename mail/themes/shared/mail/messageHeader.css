@@ -417,3 +417,65 @@ mail-headerfield:focus {
   border-color: transparent;
   outline: 1px solid var(--sidebar-highlight-background-color, hsla(0, 0%, 50%, .6));
 }
+
+/* OpenPGP and S/MIME encryption and signature status icons */
+
+.crypto-container {
+  margin-inline-end: 3px;
+}
+
+html|span.crypto-label {
+  font-weight: 600;
+  margin-inline-end: 5px;
+}
+
+html|button.crypto-button {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  margin-block: 0 3px;
+  fill: currentColor;
+  background-color: transparent;
+}
+
+#signedHdrIcon,
+#encryptedHdrIcon {
+  list-style-image: none;
+  visibility: visible;
+}
+
+#encryptedHdrIcon + #signedHdrIcon:not([hidden="true"]) {
+  margin-inline-start: 3px;
+}
+
+#signedHdrIcon[signed="verified"] {
+  list-style-image: url("chrome://messenger/skin/icons/message-signed-verified.svg");
+}
+
+#signedHdrIcon[signed="unverified"] {
+  list-style-image: url("chrome://messenger/skin/icons/message-signed-unverified.svg");
+}
+
+#signedHdrIcon[signed="ok"] {
+  list-style-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
+}
+
+#signedHdrIcon[signed="unknown"] {
+  list-style-image: url("chrome://messenger/skin/icons/message-signed-unknown.svg");
+}
+
+#signedHdrIcon[signed="mismatch"] {
+  list-style-image: url("chrome://messenger/skin/icons/message-signed-mismatch.svg");
+}
+
+#signedHdrIcon[signed="notok"] {
+  list-style-image: url("chrome://messenger/skin/icons/message-signed-mismatch.svg");
+}
+
+#encryptedHdrIcon[encrypted="ok"] {
+  list-style-image: url("chrome://messenger/skin/icons/message-encrypted-ok.svg");
+}
+
+#encryptedHdrIcon[encrypted="notok"] {
+  list-style-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
+}

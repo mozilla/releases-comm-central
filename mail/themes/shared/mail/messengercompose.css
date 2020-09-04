@@ -942,3 +942,21 @@ label.extra-recipients-label {
 #InsertTableItem {
   list-style-image: url("chrome://messenger/skin/icons/table.svg");
 }
+
+/* OpenPGP and S/MIME encryption and signature status icons */
+
+#signing-status,
+#encryption-status {
+  list-style-image: none;
+  visibility: collapse;
+}
+
+#signing-status.signing-msg {
+  list-style-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
+  visibility: visible;
+}
+
+#encryption-status.encrypting-msg {
+  list-style-image: url("chrome://messenger/skin/icons/connection-secure.svg");
+  visibility: visible;
+}

@@ -106,6 +106,7 @@ toolbar[brighttext] {
 #headers-box > toolbar[brighttext],
 #FormatToolbox > toolbar[brighttext],
 :root[lwt-tree-brighttext] .otr-container,
+:root[lwt-tree-brighttext] .crypto-button,
 :root[lwt-tree-brighttext] #searchTerms {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
