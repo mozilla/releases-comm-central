@@ -7823,22 +7823,12 @@ function SwitchElementFocus(event) {
     // Backwards focus ring: e.g. Ctrl+Shift+Tab | Shift+F6
     switch (focusedElement) {
       case document.getElementById("newsgroupsAddrInput"):
-        SetFocusOnPreviousAvailableElement(focusedElement);
-        break;
       case document.getElementById("followupAddrInput"):
-        SetFocusOnPreviousAvailableElement(focusedElement);
-        break;
       case document.getElementById("replyAddrInput"):
-        SetFocusOnPreviousAvailableElement(focusedElement);
-        break;
       case document.getElementById("bccAddrInput"):
-        SetFocusOnPreviousAvailableElement(focusedElement);
-        break;
       case document.getElementById("ccAddrInput"):
-        SetFocusOnPreviousAvailableElement(focusedElement);
-        break;
       case document.getElementById("toAddrInput"):
-        SetMsgIdentityElementFocus();
+        SetFocusOnPreviousAvailableElement(focusedElement);
         break;
       case document.getElementById("msgIdentity"):
         // Focus the search input of contacts side bar if that's available,
@@ -7874,21 +7864,20 @@ function SwitchElementFocus(event) {
 
   // Forwards focus ring: e.g. Ctrl+Tab | F6
   switch (focusedElement) {
+    case document.getElementById("msgIdentity"):
+      // Move the focus on the first available recipient field.
+      document
+        .getElementById("recipientsContainer")
+        .querySelector(
+          ".address-row:not(.hidden) .address-input[recipienttype]"
+        )
+        .focus();
+      break;
     case document.getElementById("toAddrInput"):
-      SetFocusOnNextAvailableElement(focusedElement);
-      break;
     case document.getElementById("ccAddrInput"):
-      SetFocusOnNextAvailableElement(focusedElement);
-      break;
     case document.getElementById("bccAddrInput"):
-      SetFocusOnNextAvailableElement(focusedElement);
-      break;
     case document.getElementById("replyAddrInput"):
-      SetFocusOnNextAvailableElement(focusedElement);
-      break;
     case document.getElementById("followupAddrInput"):
-      SetFocusOnNextAvailableElement(focusedElement);
-      break;
     case document.getElementById("newsgroupsAddrInput"):
       SetFocusOnNextAvailableElement(focusedElement);
       break;

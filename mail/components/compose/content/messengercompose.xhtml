@@ -2201,6 +2201,44 @@
 
           <mail-recipients-area id="recipientsContainer" orient="vertical"
                                 class="recipients-container" flex="1">
+            <hbox id="addressRowReply"
+                  class="addressingWidgetItem address-row hidden"
+                  data-labelid="addr_reply">
+              <hbox class="aw-firstColBox" align="top">
+                <label role="button"
+                       onclick="closeLabelOnClick(event);"
+                       onkeypress="closeLabelOnKeyPress(event);">
+                  <image class="close-icon"/>
+                </label>
+              </hbox>
+              <hbox class="address-label-container" align="top" pack="end"
+                    style="&headersSpace2.style;">
+                <label id="replyAddrLabel" value="&replyAddr2.label;"
+                       control="replyAddrInput"/>
+              </hbox>
+              <hbox id="replyAddrContainer" flex="1" align="center"
+                    class="input-container wrap-container address-container"
+                    onclick="focusAddressInput(event);">
+                <html:input is="autocomplete-input" id="replyAddrInput"
+                            type="text"
+                            class="plain address-input mail-input"
+                            disableonsend="true"
+                            autocompletesearch="mydomain addrbook ldap news"
+                            autocompletesearchparam="{}"
+                            timeout="300"
+                            maxrows="6"
+                            completedefaultindex="true"
+                            forcecomplete="true"
+                            completeselectedindex="true"
+                            minresultsforpopup="2"
+                            ignoreblurwhilesearching="true"
+                            onfocus="addressInputOnFocus(this);"
+                            onblur="addressInputOnBlur(this);"
+                            recipienttype="addr_reply"
+                            size="1"/>
+              </hbox>
+            </hbox>
+
             <hbox id="addressRowTo"
                   class="addressingWidgetItem address-row"
                   data-labelid="addr_to">
@@ -2312,44 +2350,6 @@
                             onfocus="addressInputOnFocus(this);"
                             onblur="addressInputOnBlur(this);"
                             recipienttype="addr_bcc"
-                            size="1"/>
-              </hbox>
-            </hbox>
-
-            <hbox id="addressRowReply"
-                  class="addressingWidgetItem address-row hidden"
-                  data-labelid="addr_reply">
-              <hbox class="aw-firstColBox" align="top">
-                <label role="button"
-                       onclick="closeLabelOnClick(event);"
-                       onkeypress="closeLabelOnKeyPress(event);">
-                  <image class="close-icon"/>
-                </label>
-              </hbox>
-              <hbox class="address-label-container" align="top" pack="end"
-                    style="&headersSpace2.style;">
-                <label id="replyAddrLabel" value="&replyAddr2.label;"
-                       control="replyAddrInput"/>
-              </hbox>
-              <hbox id="replyAddrContainer" flex="1" align="center"
-                    class="input-container wrap-container address-container"
-                    onclick="focusAddressInput(event);">
-                <html:input is="autocomplete-input" id="replyAddrInput"
-                            type="text"
-                            class="plain address-input mail-input"
-                            disableonsend="true"
-                            autocompletesearch="mydomain addrbook ldap news"
-                            autocompletesearchparam="{}"
-                            timeout="300"
-                            maxrows="6"
-                            completedefaultindex="true"
-                            forcecomplete="true"
-                            completeselectedindex="true"
-                            minresultsforpopup="2"
-                            ignoreblurwhilesearching="true"
-                            onfocus="addressInputOnFocus(this);"
-                            onblur="addressInputOnBlur(this);"
-                            recipienttype="addr_reply"
                             size="1"/>
               </hbox>
             </hbox>
