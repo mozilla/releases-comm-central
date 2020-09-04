@@ -449,6 +449,11 @@ function delayedOnLoadMessageWindow() {
     },
     onEndAttachments() {},
   });
+  // Run menubar initialization first, to avoid TabsInTitlebar code picking
+  // up mutations from it and causing a reflow.
+  if (AppConstants.platform != "macosx") {
+    AutoHideMenubar.init();
+  }
 
   InitMsgWindow();
 

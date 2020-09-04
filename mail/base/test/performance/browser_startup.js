@@ -65,9 +65,11 @@ const startupPhases = {
         // "resource://gre/modules/Promise.jsm", // imported by devtools during _delayedStartup
         // "resource://gre/modules/Preferences.jsm",
         // "resource://gre/modules/Sqlite.jsm",
+        // These can probably be pushed back even further.
+        "resource:///modules/MsgDBCacheManager.jsm",
+        "resource:///modules/PeriodicFilterManager.jsm",
       ]),
-      // Bug 1660904: Search Service initialization needs delaying.
-      // services: new Set(["@mozilla.org/browser/search-service;1"]),
+      services: new Set(["@mozilla.org/browser/search-service;1"]),
     },
   },
 

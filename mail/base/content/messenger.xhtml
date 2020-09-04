@@ -250,6 +250,9 @@
 <script>
   window.onload = gMailInit.onLoad.bind(gMailInit);
   window.onunload = gMailInit.onUnload.bind(gMailInit);
+
+  window.addEventListener("MozBeforeInitialXULLayout",
+   gMailInit.onBeforeInitialXULLayout.bind(gMailInit), { once: true });
 </script>
 
 <html:style id="folderColorsStyle" type="text/css"></html:style>

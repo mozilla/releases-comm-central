@@ -42,9 +42,6 @@ var { migrateMailnews } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { msgDBCacheManager } = ChromeUtils.import(
-  "resource:///modules/MsgDBCacheManager.jsm"
-);
 var { SessionStoreManager } = ChromeUtils.import(
   "resource:///modules/SessionStoreManager.jsm"
 );
@@ -61,12 +58,15 @@ var { MailConstants } = ChromeUtils.import(
 );
 var { Color } = ChromeUtils.import("resource://gre/modules/Color.jsm");
 var { TagUtils } = ChromeUtils.import("resource:///modules/TagUtils.jsm");
-var { PeriodicFilterManager } = ChromeUtils.import(
-  "resource:///modules/PeriodicFilterManager.jsm"
-);
+
 var { BondOpenPGP } = ChromeUtils.import(
   "chrome://openpgp/content/BondOpenPGP.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  msgDBCacheManager: "resource:///modules/MsgDBCacheManager.jsm",
+  PeriodicFilterManager: "resource:///modules/PeriodicFilterManager.jsm",
+});
 
 var gBrowser;
 // A stub for tests to avoid test failures caused by the harness expecting
@@ -522,20 +522,30 @@ function initOpenPGPIfEnabled() {
 }
 
 var gMailInit = {
-  /**
-   * Called on startup to initialize various parts of the main window
-   */
-  onLoad() {
-    TagUtils.loadTagsIntoCSS(document);
+  onBeforeInitialXULLayout() {
+    // Set a sane starting width/height for all resolutions on new profiles.
+    // Do this before the window loads.
+    if (!document.documentElement.hasAttribute("width")) {
+      // Prefer 1024xfull height.
+      let defaultHeight = screen.availHeight;
+      let defaultWidth = screen.availWidth <= 1024 ? screen.availWidth : 1024;
 
-    migrateMailnews();
+      // On small screens, default to maximized state.
+      if (defaultHeight <= 600) {
+        document.documentElement.setAttribute("sizemode", "maximized");
+      }
 
-    // Rig up our TabsInTitlebar early so that we can catch any resize events.
+      document.documentElement.setAttribute("width", defaultWidth);
+      document.documentElement.setAttribute("height", defaultHeight);
+      // Make sure we're safe at the left/top edge of screen
+      document.documentElement.setAttribute("screenX", screen.availLeft);
+      document.documentElement.setAttribute("screenY", screen.availTop);
+    }
+
+    // Run menubar initialization first, to avoid TabsInTitlebar code picking
+    // up mutations from it and causing a reflow.
+    AutoHideMenubar.init();
     TabsInTitlebar.init();
-
-    // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
-    // in delayedOnLoadMessenger...
-    UpdateMailPaneConfig(false);
 
     if (AppConstants.platform == "win") {
       // On Win8 set an attribute when the window frame color is too dark for black text.
@@ -562,36 +572,31 @@ var gMailInit = {
       }
     }
 
+    // Call this after we set attributes that might change toolbars' computed
+    // text color.
     ToolbarIconColor.init();
+  },
 
-    // Set a sane starting width/height for all resolutions on new profiles.
-    // Do this before the window loads.
-    if (!document.documentElement.hasAttribute("width")) {
-      // Prefer 1024xfull height.
-      let defaultHeight = screen.availHeight;
-      let defaultWidth = screen.availWidth <= 1024 ? screen.availWidth : 1024;
+  /**
+   * Called on startup to initialize various parts of the main window.
+   * Most of this should be moved out into _delayedStartup or only
+   * initialized when needed.
+   */
+  onLoad() {
+    TagUtils.loadTagsIntoCSS(document);
 
-      // On small screens, default to maximized state.
-      if (defaultHeight <= 600) {
-        document.documentElement.setAttribute("sizemode", "maximized");
-      }
+    migrateMailnews();
 
-      document.documentElement.setAttribute("width", defaultWidth);
-      document.documentElement.setAttribute("height", defaultHeight);
-      // Make sure we're safe at the left/top edge of screen
-      document.documentElement.setAttribute("screenX", screen.availLeft);
-      document.documentElement.setAttribute("screenY", screen.availTop);
-    }
+    // update the pane config before we exit onload otherwise the user may see a flicker if we poke the document
+    // in delayedOnLoadMessenger...
+    UpdateMailPaneConfig(false);
 
     Services.prefs.addObserver("mail.pane_config.dynamic", MailPrefObserver);
     Services.prefs.addObserver("mail.showCondensedAddresses", MailPrefObserver);
     Services.prefs.addObserver("mail.openpgp.enable", MailPrefObserver);
 
-    MailOfflineMgr.init();
     CreateMailWindowGlobals();
     GetMessagePaneWrapper().collapsed = true;
-    msgDBCacheManager.init();
-    Services.search.init();
 
     // This needs to be before we throw up the account wizard on first run.
     try {
@@ -653,27 +658,53 @@ var gMailInit = {
 
     window.addEventListener("AppCommand", HandleAppCommandEvent, true);
 
-    // Set up the appmenus. (This has to happen after the DOM has loaded.)
+    this._boundDelayedStartup = this._delayedStartup.bind(this);
+    window.addEventListener("MozAfterPaint", this._boundDelayedStartup);
+  },
+
+  _cancelDelayedStartup() {
+    window.removeEventListener("MozAfterPaint", this._boundDelayedStartup);
+    this._boundDelayedStartup = null;
+  },
+
+  /**
+   * Delayed startup happens after the first paint of the window. Anything
+   * that can be delayed until after paint, should be to help give the
+   * illusion that Thunderbird is starting faster.
+   *
+   * Note: this only runs for the main 3 pane window.
+   */
+  _delayedStartup() {
+    this._cancelDelayedStartup();
+
+    MailOfflineMgr.init();
+
+    initOpenPGPIfEnabled();
+
     PanelUI.init();
     gExtensionsNotifications.init();
 
-    // Load the periodic filter timer.
+    Services.search.init();
+
     PeriodicFilterManager.setupFiltering();
+    msgDBCacheManager.init();
+
+    this.delayedStartupFinished = true;
+    Services.obs.notifyObservers(window, "mail-delayed-startup-finished");
 
     let pService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
       Ci.nsIToolkitProfileService
     );
+
     if (pService.createdAlternateProfile) {
       // Show on a timeout so the main window has time to open. Otherwise
       // the dialog would be confusingly showing out of context.
-      setTimeout(() => _showNewInstallModal());
+      _showNewInstallModal();
     } else if (verifyAccounts(LoadPostAccountWizard, false, AutoConfigWizard)) {
       // verifyAccounts returns true if the callback won't be called
       // We also don't want the account wizard to open if any sort of account exists
       LoadPostAccountWizard();
     }
-
-    initOpenPGPIfEnabled();
   },
 
   /**
