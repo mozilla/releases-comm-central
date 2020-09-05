@@ -111,6 +111,19 @@ function enableExpiryInput() {
   document.querySelector("dialog").getButton("accept").disabled = disOk;
 }
 
+/**
+ * Resize the months menupopup in order to fit inside a dialog only if the
+ * Change Expiry dialog wasn't opened as subDialog from the Account Settings.
+ *
+ * @param {DOMEvent} event - The popup showing event.
+ */
+function resizeMonthsPopup(event) {
+  if (parent.gSubDialog) {
+    return;
+  }
+  event.originalTarget.sizeTo(event.originalTarget.clientWidth - 16, 200);
+}
+
 function onAccept() {
   let choice = gRadio.value;
   if (choice == "keep-existing") {

@@ -46,7 +46,8 @@
             <menulist id="expire-months" sizetopopup="always"
                       value="24"
                       disabled="true">
-              <menupopup id="monthsPopup">
+              <menupopup id="monthsPopup"
+                         onpopupshowing="resizeMonthsPopup(event);">
               </menupopup>
             </menulist>
             <label id="expire-months-label"
