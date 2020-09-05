@@ -8,7 +8,7 @@
          UpgradeCode="53ba97bb-f0fb-476d-baf5-e2d649f39a31" >
 
   <Package Id="*" InstallerVersion="200" Compressed="yes"
-           Platform="$(var.Architecture)" />
+           Platform="$(var.Architecture)" InstallScope ="perMachine"/>
 
   <!-- We need a CAB to avoid failing an ICE, even though we have no payload. -->
   <Media Id="1" Cabinet="setup.cab" EmbedCab="yes" />
