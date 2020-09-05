@@ -184,6 +184,7 @@ html|input[type="color"] {
 
 button:-moz-focusring,
 menulist:-moz-focusring,
+#resetColor:-moz-focusring,
 html|input[type="color"]:focus {
   border-color: var(--highlight-color);
   outline: none;
