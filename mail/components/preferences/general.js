@@ -2066,7 +2066,7 @@ var gGeneralPane = {
 
     var handlerInfo = this.selectedHandlerListItem.handlerInfoWrapper;
 
-    let closingCallback = () => {
+    let onComplete = () => {
       // Rebuild the actions menu so that we revert to the previous selection,
       // or "Always ask" if the previous default application has been removed.
       this.rebuildActionsMenu();
@@ -2077,7 +2077,7 @@ var gGeneralPane = {
 
     gSubDialog.open(
       "chrome://messenger/content/preferences/applicationManager.xhtml",
-      { features: "resizable=no", closingCallback },
+      { features: "resizable=no", closingCallback: onComplete },
       handlerInfo
     );
   },
@@ -2121,23 +2121,19 @@ var gGeneralPane = {
       params.filename = null;
       params.handlerApp = null;
 
-      function closingCallback() {
-        if (
-          params.handlerApp &&
-          params.handlerApp.executable &&
-          params.handlerApp.executable.isFile()
-        ) {
+      let onAppSelected = () => {
+        if (this.isValidHandlerApp(params.handlerApp)) {
           handlerApp = params.handlerApp;
 
           // Add the app to the type's list of possible handlers.
           handlerInfo.addPossibleApplicationHandler(handlerApp);
         }
         onSelectionDone();
-      }
+      };
 
       gSubDialog.open(
         "chrome://global/content/appPicker.xhtml",
-        { features: "resizable=no", closingCallback },
+        { features: "resizable=no", closingCallback: onAppSelected },
         params
       );
     } else {
