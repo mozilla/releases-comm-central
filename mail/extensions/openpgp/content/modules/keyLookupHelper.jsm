@@ -63,10 +63,21 @@ var KeyLookupHelper = {
     return somethingWasImported;
   },
 
-  async lookupAndImportByKeyID(window, keyId, giveFeedbackToUser, whenDoneCB) {
+  /**
+   * @param {string} searchTerm - The 0x prefxed keyId or email address to search for.
+   * @param {boolean} giveFeedbackToUser - Whether to show feedback to user or handle it silently.
+   * @param {Function} whenDoneCB - Callback function.
+   * @return {boolean} true if a key was imported
+   */
+  async lookupAndImportBySearchTerm(
+    window,
+    searchTerm,
+    giveFeedbackToUser,
+    whenDoneCB
+  ) {
     let somethingWasImported = await this.lookupAndImportOnKeyserver(
       window,
-      "0x" + keyId,
+      searchTerm,
       giveFeedbackToUser
     );
     if (somethingWasImported && whenDoneCB) {
@@ -77,6 +88,18 @@ var KeyLookupHelper = {
       EnigmailDialog.alert(window, value);
     }
     return somethingWasImported;
+  },
+
+  async lookupAndImportByKeyID(window, keyId, giveFeedbackToUser, whenDoneCB) {
+    if (!/^0x/i.test(keyId)) {
+      keyId = "0x" + keyId;
+    }
+    return this.lookupAndImportBySearchTerm(
+      window,
+      keyId,
+      giveFeedbackToUser,
+      whenDoneCB
+    );
   },
 
   async lookupAndImportByEmail(window, email, giveFeedbackToUser, whenDoneCB) {
@@ -109,7 +132,7 @@ var KeyLookupHelper = {
       }
     }
 
-    return this.lookupAndImportByKeyID(
+    return this.lookupAndImportBySearchTerm(
       window,
       email,
       giveFeedbackToUser,
