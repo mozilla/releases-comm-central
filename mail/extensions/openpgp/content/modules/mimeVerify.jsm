@@ -420,8 +420,6 @@ MimeVerify.prototype = {
     this.msgWindow = EnigmailVerify.lastMsgWindow;
     this.msgUriSpec = EnigmailVerify.lastMsgUri;
 
-    let url = {};
-
     this.backgroundJob = false;
 
     // don't try to verify if no message found
@@ -499,10 +497,6 @@ MimeVerify.prototype = {
           }
         }
 
-        if (this.msgUriSpec) {
-          url = EnigmailCompat.getUrlFromUriSpec(this.msgUriSpec);
-        }
-
         if (
           this.uri.spec.search(/[&?]header=[a-zA-Z0-9]*$/) < 0 &&
           this.uri.spec.search(/[&?]part=[.0-9]+/) < 0 &&
@@ -512,7 +506,11 @@ MimeVerify.prototype = {
             return;
           }
 
-          if (this.uri && url) {
+          let url = this.msgUriSpec
+            ? EnigmailCompat.getUrlFromUriSpec(this.msgUriSpec)
+            : null;
+
+          if (url) {
             let otherId = EnigmailURIs.msgIdentificationFromUrl(url);
             let thisId = EnigmailURIs.msgIdentificationFromUrl(this.uri);
 
