@@ -81,10 +81,17 @@ function checkMessageHeaders(msgData, expectedHeaders, partNum = "") {
       for (let header in expectedHeaders) {
         let expected = expectedHeaders[header];
         if (expected === undefined) {
-          Assert.ok(!headers.has(header));
+          Assert.ok(
+            !headers.has(header),
+            `Should not have header named "${header}"`
+          );
         } else {
           let value = headers.getRawHeader(header);
-          Assert.equal(value.length, 1);
+          Assert.equal(
+            value && value.length,
+            1,
+            `Should have exactly one header named "${header}"`
+          );
           value[0] = value[0].replace(/boundary=[^;]*(;|$)/, "boundary=.");
           Assert.equal(value[0], expected);
         }
@@ -351,7 +358,7 @@ async function testSendHeaders() {
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Custom-1": "A header value",
-    "X-Custom-2": "=?UTF-8?Q?_Enchant=c3=a9?=",
+    "X-Custom-2": "=?UTF-8?B?RW5jaGFudMOp?=",
     "Mail-Followup-To": "list@test.invalid, not-list@test.invalid",
     "Mail-Reply-To": undefined,
   });
@@ -362,7 +369,7 @@ async function testSendHeaders() {
   await richCreateMessage(fields, [], identity);
   checkDraftHeaders({
     "X-Custom-1": "A header value",
-    "X-Custom-2": "=?UTF-8?Q?_Enchant=c3=a9?=",
+    "X-Custom-2": "=?UTF-8?B?RW5jaGFudMOp?=",
     "Mail-Reply-To": "from@tinderbox.invalid",
     "Mail-Followup-To": undefined,
   });
@@ -431,13 +438,11 @@ async function testContentHeaders() {
   let httpAttachmentHeaders = {
     "Content-Type": "text/html; charset=UTF-8",
     "Content-Disposition": 'attachment; filename="attachment.html"',
-    "Content-Base": '"data:text/html,<html></html>"',
-    "Content-Location": '"data:text/html,<html></html>"',
+    "Content-Location": "data:text/html,<html></html>",
   };
   await richCreateMessage(fields, [httpAttachment], identity);
   checkDraftHeaders(
     {
-      "Content-Base": undefined,
       "Content-Location": undefined,
     },
     "1"
@@ -578,6 +583,7 @@ async function testSentMessage() {
       {},
       []
     );
+    server.performTest();
     checkMessageHeaders(daemon.post, {
       From: "test@tinderbox.invalid",
       To: "Nobody <nobody@tinderbox.invalid>",
@@ -589,10 +595,13 @@ async function testSentMessage() {
       "X-Mozilla-Draft-Info": undefined,
       Fcc: undefined,
     });
+    server.resetTest();
     await sendMessage({ bcc: "Somebody <test@tinderbox.invalid" }, identity);
+    server.performTest();
     checkMessageHeaders(daemon.post, {
       To: "undisclosed-recipients: ;",
     });
+    server.resetTest();
     await sendMessage(
       {
         to: "Somebody <test@tinderbox.invalid>",
@@ -601,10 +610,12 @@ async function testSentMessage() {
       },
       identity
     );
+    server.performTest();
     checkMessageHeaders(daemon.post, {
       "Disposition-Notification-To": "test@tinderbox.invalid",
       "Return-Receipt-To": "test@tinderbox.invalid",
     });
+    server.resetTest();
     let cloudAttachment = makeAttachment({
       url: Services.io.newFileURI(do_get_file("data/test-UTF-8.txt")).spec,
       sendViaCloud: true,
@@ -615,6 +626,7 @@ async function testSentMessage() {
     await sendMessage({ to: "test@tinderbox.invalid" }, identity, {}, [
       cloudAttachment,
     ]);
+    server.performTest();
     checkMessageHeaders(
       daemon.post,
       {

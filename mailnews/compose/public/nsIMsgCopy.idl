@@ -1,0 +1,32 @@
+/* -*- Mode: IDL; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "nsISupports.idl"
+#include "nsIMsgIdentity.idl"
+#include "nsIMsgSend.idl"
+
+/**
+ * The contract ID for this component is @mozilla.org/messengercompose/msgcopy;1.
+ */
+[scriptable, uuid(de03b16f-3a41-40d0-a487-ca21abcf2bee)]
+interface nsIMsgCopy : nsISupports {
+  /**
+   * Start the process of copying a message file to a message folder. The
+   * destinationfolder depends on pref and deliver mode.
+   *
+   * @param aUserIdentity The identity of the sender
+   * @param aFile         The message file
+   * @param aMode         The deliver mode
+   * @param aMsgSendObj   The nsIMsgSend instance that listens to copy events
+   * @param aSavePref     The folder uri on server
+   * @param aMsgToReplace The message to replace when copying
+   */
+  void startCopyOperation(in nsIMsgIdentity aUserIdentity,
+                          in nsIFile aFile,
+                          in nsMsgDeliverMode aMode,
+                          in nsIMsgSend aMsgSendObj,
+                          in AUTF8String aSavePref,
+                          in nsIMsgDBHdr aMsgToReplace);
+};

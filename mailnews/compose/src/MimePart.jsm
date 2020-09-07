@@ -4,48 +4,14 @@
 
 const EXPORTED_SYMBOLS = ["MimePart"];
 
+let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
+let { MsgUtils } = ChromeUtils.import(
+  "resource:///modules/MimeMessageUtils.jsm"
+);
 
 Cu.importGlobalProperties(["fetch"]);
-
-/**
- * Because ACString is 8-bit string, non-ASCII character takes multiple bytes.
- * For example, 世界 is represented as \xE4\xB8\x96\xE7\x95\x8C. This function
- * converts ACString to ArrayBuffer, which can then be passed to a TextDecoder
- * or OS.File.write.
- * @param {string} str - the string to convert to an ArrayBuffer
- * @returns {ArrayBuffer}
- */
-function byteStringToArrayBuffer(str) {
-  let strLen = str.length;
-  let buf = new ArrayBuffer(strLen);
-  let arr = new Uint8Array(buf);
-  for (let i = 0; i < strLen; i++) {
-    arr[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
-
-/**
- * Convert ArrayBuffer to 8-bit string.
- * @param {ArrayBuffer} buf - the ArrayBuffer to convert to a string
- * @returns {string}
- */
-function arrayBufferToByteString(buf) {
-  let CHUNK_SIZE = 65536;
-  let arr = new Uint8Array(buf);
-  let arrLen = arr.length;
-  if (arrLen < CHUNK_SIZE) {
-    return String.fromCharCode.apply(null, arr);
-  }
-  let result = "";
-  for (let i = 0; i < Math.ceil(arrLen / CHUNK_SIZE); i++) {
-    let chunk = arr.subarray(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
-    result += String.fromCharCode.apply(null, chunk);
-  }
-  return result;
-}
 
 /**
  * A class to represent a RFC2045 message. MimePart can be nested, each MimePart
@@ -56,13 +22,8 @@ class MimePart {
    * Init private properties, it's best not to access those properties directly
    * from the outside.
    */
-  constructor(
-    charset = "",
-    contentType = "",
-    forceMsgEncoding = false,
-    isMainBody = false
-  ) {
-    this._charset = charset;
+  constructor(contentType = "", forceMsgEncoding = false, isMainBody = false) {
+    this._charset = "UTF-8";
     this._contentType = contentType;
     this._forceMsgEncoding = forceMsgEncoding;
     this._isMainBody = isMainBody;
@@ -77,13 +38,28 @@ class MimePart {
 
   /**
    * Set a header.
-   * @param {string} name - The header name, e.g. "Content-Type"
-   * @param {string} content - The header content, e.g. "text/plain"
+   * @param {string} name - The header name, e.g. "Content-Type".
+   * @param {string} content - The header content, e.g. "text/plain".
    */
   setHeader(name, content) {
-    // _headers will be passed to jsmime, which requires header content to be an
-    // array.
-    this._headers.set(name, [content]);
+    if (!content) {
+      return;
+    }
+    // There is no Content-Type encoder in jsmime yet. If content is not string,
+    // assume it's already a structured header.
+    if (name == "content-type" || typeof content != "string") {
+      // _headers will be passed to jsmime, which requires header content to be
+      // an array.
+      this._headers.set(name, [content]);
+      return;
+    }
+    try {
+      this._headers.set(name, [
+        jsmime.headerparser.parseStructuredHeader(name, content),
+      ]);
+    } catch (e) {
+      this._headers.set(name, [content.trim()]);
+    }
   }
 
   /**
@@ -117,7 +93,7 @@ class MimePart {
   initMultipart(subtype) {
     this._separator = this._makePartSeparator();
     this.setHeader(
-      "Content-Type",
+      "content-type",
       `multipart/${subtype}; boundary="${this._separator}"`
     );
   }
@@ -146,27 +122,41 @@ class MimePart {
     let res = await fetch(this._bodyAttachment.url);
     this._contentType = res.headers.get("content-type");
 
-    // File name can contain non-ASCII chars, encode according to RFC 2047.
-    let encodedName = this._encodeHeaderParameter(
+    let parmFolding = Services.prefs.getIntPref(
+      "mail.strictly_mime.parm_folding",
+      2
+    );
+    // File name can contain non-ASCII chars, encode according to RFC 2231.
+    let encodedName = MsgUtils.rfc2231ParamFolding(
       "name",
       this._bodyAttachment.name
     );
-    let encodedFileName = this._encodeHeaderParameter(
+    let encodedFileName = MsgUtils.rfc2231ParamFolding(
       "filename",
       this._bodyAttachment.name
     );
-    this.setHeader(
-      "Content-Type",
-      `${this._contentType}; name="${encodedName}"`
-    );
-    this.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${encodedFileName}"`
-    );
 
-    // Determine Content-Transfer-Encoding and encode file content accordingly.
     let buf = await res.arrayBuffer();
-    return arrayBufferToByteString(buf);
+    let content = jsmime.mimeutils.typedArrayToString(new Uint8Array(buf));
+    this._charset = MsgUtils.pickCharset(this._contentType, content);
+
+    let contentTypeParams = "";
+    if (this._charset) {
+      contentTypeParams += `; charset=${this._charset}`;
+    }
+    if (parmFolding != 2) {
+      contentTypeParams += `; "${encodedName}"`;
+    }
+    this.setHeader("content-type", `${this._contentType}${contentTypeParams}`);
+    this.setHeader("content-disposition", `attachment; ${encodedFileName}`);
+    if (this._contentType == "text/html") {
+      let contentLocation = MsgUtils.getContentLocation(
+        this._bodyAttachment.url
+      );
+      this.setHeader("content-location", contentLocation);
+    }
+
+    return content;
   }
 
   /**
@@ -189,13 +179,17 @@ class MimePart {
         bodyString
       );
       encoder.pickEncoding();
-      this.setHeader("Content-Transfer-Encoding", encoder.encoding);
+      this.setHeader("content-transfer-encoding", encoder.encoding);
       bodyString = encoder.encode();
+    } else if (this._isMainBody) {
+      this.setHeader("content-transfer-encoding", "7bit");
     }
 
     // Write out headers.
     await this._writeString(
-      jsmime.headeremitter.emitStructuredHeaders(this._headers, {})
+      jsmime.headeremitter.emitStructuredHeaders(this._headers, {
+        useASCII: true,
+      })
     );
 
     // Recursively write out parts.
@@ -222,11 +216,11 @@ class MimePart {
   }
 
   /**
-   * Use TextEncoder.encode would be incorrect here since the argument is not
-   * UTF-8 string.
+   * Write a string to this._outFile.
+   * @param {string} str - The string to write.
    */
   async _writeString(str) {
-    await this._outFile.write(new DataView(byteStringToArrayBuffer(str)));
+    await this._outFile.write(new TextEncoder().encode(str));
   }
 
   /**
@@ -240,23 +234,6 @@ class MimePart {
           ...[...Array(18)].map(() => Math.floor(Math.random() * 256))
         )
       )
-    );
-  }
-
-  /**
-   * Use nsIMimeConverter to encode header parameter according to RFC 2047.
-   * @param {string} name - The parameter name, e.g. "filename"
-   * @param {string} value - The parameter value, e.g. "screen.png"
-   */
-  _encodeHeaderParameter(name, value) {
-    let converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
-      Ci.nsIMimeConverter
-    );
-    return converter.encodeMimePartIIStr_UTF8(
-      value,
-      false,
-      name.length,
-      Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
     );
   }
 }

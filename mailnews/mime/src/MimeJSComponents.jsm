@@ -219,7 +219,7 @@ MimeWritableStructuredHeaders.prototype = {
     } catch (e) {
       // This means we don't have a structured encoder. Just assume it's a raw
       // string value then.
-      this.setHeader(aHeaderName, aValue);
+      this.setHeader(aHeaderName, aValue.trim());
     }
   },
 };

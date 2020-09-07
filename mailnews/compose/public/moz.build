@@ -13,6 +13,7 @@ XPIDL_SOURCES += [
     'nsIMsgComposeSecure.idl',
     'nsIMsgComposeService.idl',
     'nsIMsgCompUtils.idl',
+    'nsIMsgCopy.idl',
     'nsIMsgQuote.idl',
     'nsIMsgQuotingOutputStreamListener.idl',
     'nsIMsgSend.idl',
@@ -32,4 +33,3 @@ EXPORTS += [
     'nsMsgAttachmentData.h',
     'nsMsgCompCID.h',
 ]
-

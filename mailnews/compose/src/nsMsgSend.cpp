@@ -4245,7 +4245,7 @@ nsresult nsMsgComposeAndSend::StartMessageCopyOperation(
   if (mListener) mListener->OnGetDraftFolderURI(m_folderName.get());
 
   rv = mCopyObj->StartCopyOperation(mUserIdentity, aFile, mode, this,
-                                    m_folderName.get(), mMsgToReplace);
+                                    m_folderName, mMsgToReplace);
   return rv;
 }
 

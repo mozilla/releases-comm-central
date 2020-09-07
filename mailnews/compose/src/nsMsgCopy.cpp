@@ -105,7 +105,7 @@ nsresult CopyListener::SetMsgComposeAndSendObject(nsIMsgSend* obj) {
 // class to listen for message copy completion and eventually notify the caller
 ////////////////////////////////////////////////////////////////////////////////////
 
-NS_IMPL_ISUPPORTS(nsMsgCopy, nsIUrlListener)
+NS_IMPL_ISUPPORTS(nsMsgCopy, nsIMsgCopy, nsIUrlListener)
 
 nsMsgCopy::nsMsgCopy() {
   mFile = nullptr;
@@ -115,11 +115,11 @@ nsMsgCopy::nsMsgCopy() {
 
 nsMsgCopy::~nsMsgCopy() { PR_Free(mSavePref); }
 
-nsresult nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity,
-                                       nsIFile* aFile, nsMsgDeliverMode aMode,
-                                       nsIMsgSend* aMsgSendObj,
-                                       const char* aSavePref,
-                                       nsIMsgDBHdr* aMsgToReplace) {
+NS_IMETHODIMP
+nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
+                              nsMsgDeliverMode aMode, nsIMsgSend* aMsgSendObj,
+                              const nsACString& aSavePref,
+                              nsIMsgDBHdr* aMsgToReplace) {
   nsCOMPtr<nsIMsgFolder> dstFolder;
   bool isDraft = false;
   bool waitForUrl = false;
@@ -128,7 +128,7 @@ nsresult nsMsgCopy::StartCopyOperation(nsIMsgIdentity* aUserIdentity,
   if (!aMsgSendObj) return NS_ERROR_INVALID_ARG;
 
   // Store away the server location...
-  if (aSavePref) mSavePref = PL_strdup(aSavePref);
+  if (!aSavePref.IsEmpty()) mSavePref = ToNewCString(aSavePref);
 
   //
   // Vars for implementation...

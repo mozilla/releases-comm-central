@@ -707,9 +707,9 @@ char* mime_generate_attachment_headers(
                          &useContentLocation);
 
     if (useContentLocation)
-      buf.AppendLiteral("Content-Location: \"");
+      buf.AppendLiteral("Content-Location: ");
     else
-      buf.AppendLiteral("Content-Base: \"");
+      buf.AppendLiteral("Content-Base: ");
     /* rhp - Pref for Content-Location usage */
 
   /* rhp: this is to work with the Content-Location stuff */
@@ -739,11 +739,11 @@ char* mime_generate_attachment_headers(
       s++;
       col += (buf.Length() - ot);
     }
-    buf.AppendLiteral("\"" CRLF);
+    buf.AppendLiteral(CRLF);
 
     // rhp: this is to try to get around this fun problem with Content-Location
     if (!useContentLocation) {
-      buf.AppendLiteral("Content-Location: \"");
+      buf.AppendLiteral("Content-Location: ");
       s = base_url;
       col = 0;
       useContentLocation = true;

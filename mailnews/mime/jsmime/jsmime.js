@@ -97,8 +97,8 @@
     /**
      * Converts a Uint8Array buffer to a binary string.
      *
-     * @param buffer {BinaryString} The string to convert.
-     * @returns {Uint8Array} The converted data.
+     * @param buffer {Uint8Array} The Uint8Array to convert.
+     * @returns {string} The converted string.
      */
     function typedArrayToString(buffer) {
       var string = "";
@@ -3648,6 +3648,7 @@
 
   def("jsmime", function(require) {
     return {
+      mimeutils: require("./mimeutils"),
       MimeParser: require("./mimeparser"),
       headerparser: require("./headerparser"),
       headeremitter: require("./headeremitter"),

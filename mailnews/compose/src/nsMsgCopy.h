@@ -12,12 +12,9 @@
 #include "nsMsgSend.h"
 #include "nsIMsgFolder.h"
 #include "nsITransactionManager.h"
+#include "nsIMsgCopy.h"
 #include "nsIMsgCopyServiceListener.h"
 #include "nsIMsgCopyService.h"
-
-// {0874C3B5-317D-11d3-8EFB-00A024A7D144}
-#define NS_IMSGCOPY_IID \
-  {0x874c3b5, 0x317d, 0x11d3, {0x8e, 0xfb, 0x0, 0xa0, 0x24, 0xa7, 0xd1, 0x44}};
 
 // Forward declarations...
 class nsMsgCopy;
@@ -56,23 +53,19 @@ class CopyListener : public nsIMsgCopyServiceListener {
 // This is a class that deals with processing remote attachments. It implements
 // an nsIStreamListener interface to deal with incoming data
 //
-class nsMsgCopy : public nsIUrlListener {
+class nsMsgCopy : public nsIMsgCopy, public nsIUrlListener {
  public:
   nsMsgCopy();
 
   // nsISupports interface
   NS_DECL_ISUPPORTS
+  NS_DECL_NSIMSGCOPY
   NS_DECL_NSIURLLISTENER
 
   //////////////////////////////////////////////////////////////////////
   // Object methods...
   //////////////////////////////////////////////////////////////////////
   //
-  nsresult StartCopyOperation(nsIMsgIdentity* aUserIdentity, nsIFile* aFile,
-                              nsMsgDeliverMode aMode, nsIMsgSend* aMsgSendObj,
-                              const char* aSavePref,
-                              nsIMsgDBHdr* aMsgToReplace);
-
   nsresult DoCopy(nsIFile* aDiskFile, nsIMsgFolder* dstFolder,
                   nsIMsgDBHdr* aMsgToReplace, bool aIsDraft,
                   nsIMsgWindow* msgWindow, nsIMsgSend* aMsgSendObj);

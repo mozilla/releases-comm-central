@@ -7,14 +7,17 @@ const EXPORTED_SYMBOLS = ["MimeMessage"];
 let { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { MimePart } = ChromeUtils.import("resource:///modules/MimePart.jsm");
+let { MsgUtils } = ChromeUtils.import(
+  "resource:///modules/MimeMessageUtils.jsm"
+);
 
 /**
- * A class to create a top MimePart and write to a tmp file.
- * Currently, only plain and/or html text without any attachments is
- * supported. It works like this:
- * 1. Collect top level MIME headers
- * 2. Construct a MimePart instance, which can be nested
- * 3. Write the MimePart to a tmp file, e.g. /tmp/nsemail.eml
+ * A class to create a top MimePart and write to a tmp file. It works like this:
+ * 1. collect top level MIME headers (_gatherMimeHeaders)
+ * 2. collect HTML/plain main body as MimePart[] (_gatherMainParts)
+ * 3. collect attachments as MimePart[] (_gatherAttachmentParts)
+ * 4. construct a top MimePart with above headers and MimePart[] (_initMimePart)
+ * 5. write the top MimePart to a tmp file (createMessageFile)
  * NOTE: It's possible we will want to replace nsIMsgSend with the interfaces of
  * MimeMessage. As a part of it, we will add a `send` method to this class.
  */
@@ -25,12 +28,30 @@ class MimeMessage {
    * @param {nsIMsgCompFields} compFields
    * @param {string} bodyType
    * @param {string} bodyText
+   * @param {nsMsgDeliverMode} deliverMode
+   * @param {string} originalMsgURI
+   * @param {MSG_ComposeType} compType
    */
-  constructor(userIdentity, compFields, bodyType, bodyText) {
+  constructor(
+    userIdentity,
+    compFields,
+    bodyType,
+    bodyText,
+    deliverMode,
+    originalMsgURI,
+    compType
+  ) {
     this._userIdentity = userIdentity;
     this._compFields = compFields;
+    this._fcc = MsgUtils.getFcc(
+      userIdentity,
+      compFields,
+      originalMsgURI,
+      compType
+    );
     this._bodyType = bodyType;
     this._bodyText = bodyText;
+    this._deliverMode = deliverMode;
   }
 
   /**
@@ -88,18 +109,18 @@ class MimeMessage {
    * Collect top level headers like From/To/Subject into a Map.
    */
   _gatherMimeHeaders() {
-    let messageId = this._compFields.getHeader("Message-Id");
+    let messageId = this._compFields.getHeader("message-id");
     if (!messageId) {
       messageId = Cc["@mozilla.org/messengercompose/computils;1"]
         .createInstance(Ci.nsIMsgCompUtils)
         .msgGenerateMessageId(this._userIdentity);
     }
     let headers = new Map([
-      ["Message-Id", messageId],
-      ["Date", new Date()],
-      ["MIME-Version", "1.0"],
+      ["message-id", messageId],
+      ["date", new Date()],
+      ["mime-version", "1.0"],
       [
-        "User-Agent",
+        "user-agent",
         Cc["@mozilla.org/network/protocol;1?name=http"].getService(
           Ci.nsIHttpProtocolHandler
         ).userAgent,
@@ -107,10 +128,118 @@ class MimeMessage {
     ]);
 
     for (let headerName of [...this._compFields.headerNames]) {
-      let headerContent = this._compFields.getHeader(headerName);
+      // The headerName is always lowercase.
+      if (
+        headerName == "bcc" &&
+        ![
+          Ci.nsIMsgSend.nsMsgQueueForLater,
+          Ci.nsIMsgSend.nsMsgSaveAsDraft,
+          Ci.nsIMsgSend.nsMsgSaveAsTemplate,
+        ].includes(this._deliverMode)
+      ) {
+        continue;
+      }
+      let headerContent = this._compFields.getRawHeader(headerName);
       if (headerContent) {
         headers.set(headerName, headerContent);
       }
+    }
+    let isDraft = [
+      Ci.nsIMsgSend.nsMsgQueueForLater,
+      Ci.nsIMsgSend.nsMsgDeliverBackground,
+      Ci.nsIMsgSend.nsMsgSaveAsDraft,
+      Ci.nsIMsgSend.nsMsgSaveAsTemplate,
+    ].includes(this._deliverMode);
+
+    let undisclosedRecipients = MsgUtils.getUndisclosedRecipients(
+      this._compFields,
+      this._deliverMode
+    );
+    if (undisclosedRecipients) {
+      headers.set("to", undisclosedRecipients);
+    }
+
+    if (isDraft) {
+      headers
+        .set(
+          "x-mozilla-draft-info",
+          MsgUtils.getXMozillaDraftInfo(this._compFields)
+        )
+        .set("x-identity-key", this._userIdentity.key)
+        .set("fcc", this._fcc);
+    }
+
+    if (messageId) {
+      // MDN request header requires to have MessageID header presented in the
+      // message in order to coorelate the MDN reports to the original message.
+      headers
+        .set(
+          "disposition-notification-to",
+          MsgUtils.getDispositionNotificationTo(
+            this._compFields,
+            this._deliverMode
+          )
+        )
+        .set(
+          "return-receipt-to",
+          MsgUtils.getReturnReceiptTo(this._compFields, this._deliverMode)
+        );
+    }
+
+    for (let { headerName, headerValue } of MsgUtils.getDefaultCustomHeaders(
+      this._userIdentity
+    )) {
+      headers.set(headerName, headerValue);
+    }
+
+    let rawMftHeader = headers.get("mail-followup-to");
+    // If there's already a Mail-Followup-To header, don't need to do anything.
+    if (!rawMftHeader) {
+      headers.set(
+        "mail-followup-to",
+        MsgUtils.getMailFollowupToHeader(this._compFields, this._userIdentity)
+      );
+    }
+
+    let rawMrtHeader = headers.get("mail-reply-to");
+    // If there's already a Mail-Reply-To header, don't need to do anything.
+    if (!rawMrtHeader) {
+      headers.set(
+        "mail-reply-to",
+        MsgUtils.getMailReplyToHeader(
+          this._compFields,
+          this._userIdentity,
+          rawMrtHeader
+        )
+      );
+    }
+
+    let rawPriority = headers.get("x-priority");
+    if (rawPriority) {
+      headers.set("x-priority", MsgUtils.getXPriority(rawPriority));
+    }
+
+    let rawReferences = headers.get("references");
+    if (rawReferences) {
+      let references = MsgUtils.getReferences(rawReferences);
+      // Don't reset "references" header if references is undefined.
+      if (references) {
+        headers.set("references", references);
+      }
+      headers.set("in-reply-to", MsgUtils.getInReplyTo(rawReferences));
+    }
+
+    let rawNewsgroups = headers.get("newsgroups");
+    if (rawNewsgroups) {
+      let { newsgroups, newshost } = MsgUtils.getNewsgroups(
+        this._deliverMode,
+        rawNewsgroups
+      );
+      // Don't reset "newsgroups" header if newsgroups is undefined.
+      if (newsgroups) {
+        headers.set("newsgroups", newsgroups);
+      }
+      headers.set("x-mozilla-news-host", newshost);
     }
 
     return headers;
@@ -121,28 +250,13 @@ class MimeMessage {
    * @returns {MimePart[]}
    */
   _gatherMainParts() {
-    let charset = this._compFields.characterSet;
     let formatFlowed = Services.prefs.getBoolPref(
       "mailnews.send_plaintext_flowed"
     );
-    let delsp = false;
-    let disallowBreaks = true;
-    if (charset.startsWith("ISO-2022-JP")) {
-      // Make sure we honour RFC 1468. For encoding in ISO-2022-JP we need to
-      // send short lines to allow 7bit transfer encoding.
-      disallowBreaks = false;
-      if (formatFlowed) {
-        delsp = true;
-      }
-    }
-    let charsetParams = `; charset=${charset}`;
-    let formatParams = "";
+    let formatParam = "";
     if (formatFlowed) {
       // Set format=flowed as in RFC 2646 according to the preference.
-      formatParams += "; format=flowed";
-    }
-    if (delsp) {
-      formatParams += "; delsp=yes";
+      formatParam += "; format=flowed";
     }
 
     // body is 8-bit string, save it directly in MimePart to avoid converting
@@ -153,23 +267,21 @@ class MimeMessage {
 
     if (this._bodyType === "text/html") {
       htmlPart = new MimePart(
-        charset,
         this._bodyType,
         this._compFields.forceMsgEncoding,
         true
       );
-      htmlPart.setHeader("Content-Type", `text/html${charsetParams}`);
+      htmlPart.setHeader("content-type", `text/html; charset=UTF-8`);
       htmlPart.bodyText = this._bodyText;
     } else if (this._bodyType === "text/plain") {
       plainPart = new MimePart(
-        charset,
         this._bodyType,
         this._compFields.forceMsgEncoding,
         true
       );
       plainPart.setHeader(
-        "Content-Type",
-        `text/plain${charsetParams}${formatParams}`
+        "content-type",
+        `text/plain; charset=UTF-8${formatParam}`
       );
       plainPart.bodyText = this._bodyText;
       parts.push(plainPart);
@@ -183,20 +295,17 @@ class MimeMessage {
       htmlPart !== null
     ) {
       plainPart = new MimePart(
-        charset,
         "text/plain",
         this._compFields.forceMsgEncoding,
         true
       );
       plainPart.setHeader(
-        "Content-Type",
-        `text/plain${charsetParams}${formatParams}`
+        "content-type",
+        `text/plain; charset=UTF-8${formatParam}`
       );
-      plainPart.bodyText = this._convertToPlainText(
+      plainPart.bodyText = MsgUtils.convertToPlainText(
         this._bodyText,
-        formatFlowed,
-        delsp,
-        disallowBreaks
+        formatFlowed
       );
 
       parts.push(plainPart);
@@ -221,60 +330,28 @@ class MimeMessage {
    * @returns {Array.<MimePart>}
    */
   _gatherAttachmentParts() {
-    let charset = this._compFields.characterSet;
     let attachments = [...this._compFields.attachments];
-    let parts = [];
+    let cloudParts = [];
+    let localParts = [];
+
     for (let attachment of attachments) {
       if (attachment.sendViaCloud) {
-        // TODO: handle cloud attachments.
+        let part = new MimePart();
+        let mozillaCloudPart = MsgUtils.getXMozillaCloudPart(
+          this._deliverMode,
+          attachment
+        );
+        part.setHeader("x-mozilla-cloud-part", mozillaCloudPart);
+        part.setHeader("content-type", "application/octet-stream");
+        cloudParts.push(part);
         continue;
       }
-      let part = new MimePart(
-        charset,
-        null,
-        this._compFields.forceMsgEncoding,
-        false
-      );
+      let part = new MimePart(null, this._compFields.forceMsgEncoding, false);
       part.bodyAttachment = attachment;
-      parts.push(part);
+      localParts.push(part);
     }
-    return parts;
-  }
-
-  /**
-   * Convert html to text to form a multipart/alternative message. The output
-   * depends on preference and message charset.
-   */
-  _convertToPlainText(
-    input,
-    formatFlowed,
-    delsp,
-    formatOutput,
-    disallowBreaks
-  ) {
-    let wrapWidth = Services.prefs.getIntPref("mailnews.wraplength", 72);
-    if (wrapWidth > 990) {
-      wrapWidth = 990;
-    } else if (wrapWidth < 10) {
-      wrapWidth = 10;
-    }
-
-    let flags =
-      Ci.nsIDocumentEncoder.OutputPersistNBSP |
-      Ci.nsIDocumentEncoder.OutputFormatted;
-    if (formatFlowed) {
-      flags |= Ci.nsIDocumentEncoder.OutputFormatFlowed;
-    }
-    if (delsp) {
-      flags |= Ci.nsIDocumentEncoder.OutputFormatDelSp;
-    }
-    if (disallowBreaks) {
-      flags |= Ci.nsIDocumentEncoder.OutputDisallowLineBreaking;
-    }
-
-    let parserUtils = Cc["@mozilla.org/parserutils;1"].getService(
-      Ci.nsIParserUtils
-    );
-    return parserUtils.convertToPlainText(input, flags, wrapWidth);
+    // Cloud attachments are handled before local attachments in the C++
+    // implementation. We follow it here so that no need to change tests.
+    return cloudParts.concat(localParts);
   }
 }

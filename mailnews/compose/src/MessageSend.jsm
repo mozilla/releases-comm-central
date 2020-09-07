@@ -9,6 +9,9 @@ let { MailServices } = ChromeUtils.import(
 );
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { MimeMessage } = ChromeUtils.import("resource:///modules/MimeMessage.jsm");
+let { MsgUtils } = ChromeUtils.import(
+  "resource:///modules/MimeMessageUtils.jsm"
+);
 
 /**
  * A work in progress rewriting of nsMsgSend.cpp.
@@ -29,7 +32,7 @@ MessageSend.prototype = {
     compFields,
     isDigest,
     dontDeliver,
-    mode,
+    deliverMode,
     msgToReplace,
     bodyType,
     body,
@@ -42,10 +45,12 @@ MessageSend.prototype = {
     originalMsgURI,
     type
   ) {
-    this._compFields = compFields;
     this._userIdentity = userIdentity;
+    this._compFields = compFields;
+    this._deliverMode = deliverMode;
+    this._msgToReplace = msgToReplace;
     this._sendProgress = progress;
-    this._smtpSmtpPassword = smtpPassword;
+    this._smtpPassword = smtpPassword;
     this._sendListener = listener;
 
     this._sendReport = Cc[
@@ -57,7 +62,7 @@ MessageSend.prototype = {
 
     // Initialize the error reporting mechanism.
     this.sendReport.reset();
-    this.sendReport.deliveryMode = mode;
+    this.sendReport.deliveryMode = deliverMode;
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMailInformation")
     );
@@ -66,7 +71,18 @@ MessageSend.prototype = {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessage")
     );
-    this._message = new MimeMessage(userIdentity, compFields, bodyType, body);
+    this._message = new MimeMessage(
+      userIdentity,
+      compFields,
+      bodyType,
+      body,
+      deliverMode,
+      originalMsgURI,
+      type
+    );
+
+    // nsMsgKey_None from MailNewsTypes.h.
+    this._messageKey = 0xffffffff;
     this._createAndSendMessage();
   },
 
@@ -104,10 +120,7 @@ MessageSend.prototype = {
   },
 
   getProgress() {
-    throw Components.Exception(
-      "getProgress not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
+    return this._sendProgress;
   },
 
   notifyListenerOnStartSending(msgId, msgSize) {
@@ -143,11 +156,18 @@ MessageSend.prototype = {
     );
   },
 
+  /**
+   * @type {nsMsgKey}
+   */
+  set messageKey(key) {
+    this._messageKey = key;
+  },
+
+  /**
+   * @type {nsMsgKey}
+   */
   get messageKey() {
-    throw Components.Exception(
-      "messageKey getter not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
+    return this._messageKey;
   },
 
   get sendReport() {
@@ -173,25 +193,64 @@ MessageSend.prototype = {
 
   /**
    * Deliver a message. Far from complete.
-   * TODO: implement saving to the Sent/Draft folder. Other details.
+   *
+   * @param {nsIFile} file - The message file to deliver.
    */
   _deliverMessage(file) {
+    if (
+      [
+        Ci.nsIMsgSend.nsMsgQueueForLater,
+        Ci.nsIMsgSend.nsMsgDeliverBackground,
+        Ci.nsIMsgSend.nsMsgSaveAsDraft,
+        Ci.nsIMsgSend.nsMsgSaveAsTemplate,
+      ].includes(this._deliverMode)
+    ) {
+      this._sendToMagicFolder(file);
+      return;
+    }
     this._deliverFileAsMail(file);
+    this._sendToMagicFolder(file);
+  },
+
+  /**
+   * Copy a message to Draft/Sent or other folder depending on pref and
+   * deliverMode.
+   *
+   * @param {nsIFile} file - The message file to copy.
+   */
+  _sendToMagicFolder(file) {
+    let folderUri = MsgUtils.getMsgFolderURIFromPrefs(
+      this._userIdentity,
+      this._deliverMode
+    );
+    let msgCopy = Cc["@mozilla.org/messengercompose/msgcopy;1"].createInstance(
+      Ci.nsIMsgCopy
+    );
+    // Notify nsMsgCompose about the saved folder.
+    this._sendListener.onGetDraftFolderURI(folderUri);
+    msgCopy.startCopyOperation(
+      this._userIdentity,
+      file,
+      this._deliverMode,
+      this,
+      folderUri,
+      this._msgToReplace
+    );
   },
 
   /**
    * Send a message file to smtp service. Far from complete.
-   * TODO: handle cc/bcc. Other details.
+   * TODO: actually send the message to cc/bcc.
    */
   _deliverFileAsMail(file) {
-    let to = this._compFields.to || "";
+    let to = this._compFields.to || this._compFields.bcc || "";
     let deliveryListener = new MsgDeliveryListener(this, false);
     MailServices.smtp.sendMailMessage(
       file,
       to,
       this._userIdentity,
       this._compFields.from,
-      this._smtpSmtpPassword,
+      this._smtpPassword,
       deliveryListener,
       null,
       null,

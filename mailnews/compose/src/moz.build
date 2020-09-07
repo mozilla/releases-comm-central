@@ -62,6 +62,7 @@ EXTRA_JS_MODULES += [
     'MessageSend.jsm',
     'MimeEncoder.jsm',
     'MimeMessage.jsm',
+    'MimeMessageUtils.jsm',
     'MimePart.jsm',
     'MsgSendModuleLoader.jsm',
     'SMTPProtocolHandler.jsm',
