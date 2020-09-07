@@ -248,15 +248,9 @@ async function initOpenPgpSettings() {
     }
   );
 
-  // Force deselect the currently selected first index fo the radiogroup if
-  // an OpenPGP Key is currently set. This is necessary to allow the selection
-  // of the currently used key.
-  if (gKeyId) {
-    document.getElementById("openPgpKeyListRadio").selectedIndex = -1;
-  }
-
   // Load the available keys.
   reloadOpenPgpUI();
+  closeNotification();
 
   // Listen for the preference changes.
   Preferences.get(`mail.identity.${gIdentity.key}.openpgp_key_id`).on(
@@ -688,14 +682,7 @@ async function reloadOpenPgpUI() {
   // Show the radiogroup container only if the current identity has keys.
   document.getElementById("openPgpKeyList").collapsed = !allKeys;
 
-  // Interrupt and udpate the UI accordingly if no Key is associated with the
-  // current identity.
-  if (!allKeys) {
-    gKeyId = null;
-    updateUIForSelectedOpenPgpKey();
-    return;
-  }
-
+  // Update the OpenPGP intro description with the current key count.
   document.l10n.setAttributes(
     document.getElementById("openPgpDescription"),
     "openpgp-description",
@@ -705,11 +692,25 @@ async function reloadOpenPgpUI() {
     }
   );
 
+  // Interrupt and udpate the UI accordingly if no Key is associated with the
+  // current identity.
+  if (!allKeys) {
+    gKeyId = null;
+    updateUIForSelectedOpenPgpKey();
+    return;
+  }
+
   let radiogroup = document.getElementById("openPgpKeyListRadio");
 
   // Remove all the previously generated radio options, except the first.
   while (radiogroup.lastChild.id != "openPgpOptionNone") {
     radiogroup.removeChild(radiogroup.lastChild);
+  }
+
+  // Force deselect the currently selected "None" first index fo the radiogroup.
+  // This is necessary to allow the selection of the currently used key.
+  if (gKeyId) {
+    radiogroup.selectedIndex = -1;
   }
 
   // Sort keys by create date from newest to oldest.
