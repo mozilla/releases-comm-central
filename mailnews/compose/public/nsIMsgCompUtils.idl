@@ -11,4 +11,15 @@ interface nsIMsgCompUtils : nsISupports {
   string mimeMakeSeparator(in string prefix);
   string msgGenerateMessageId(in nsIMsgIdentity identity);
   readonly attribute boolean msgMimeConformToStandard;
+
+  /**
+   * Detect the text encoding of an input string. This is a wrapper of
+   * mozilla::EncodingDetector to be used by JavaScript code. For C++, use
+   * MsgDetectCharsetFromFile from nsMsgUtils.cpp instead.
+   *
+   * @param aContent The string to detect charset.
+   *
+   * @returns Detected charset.
+   */
+  ACString detectCharset(in ACString aContent);
 };

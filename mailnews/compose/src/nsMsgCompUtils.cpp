@@ -31,7 +31,9 @@
 #include <ctype.h>
 #include "mozilla/dom/Element.h"
 #include "mozilla/mailnews/Services.h"
+#include "mozilla/EncodingDetector.h"
 #include "mozilla/Services.h"
+#include "mozilla/UniquePtr.h"
 #include "mozilla/Unused.h"
 #include "mozilla/ContentIterator.h"
 #include "mozilla/dom/Document.h"
@@ -66,6 +68,19 @@ NS_IMETHODIMP nsMsgCompUtils::MsgGenerateMessageId(nsIMsgIdentity* identity,
 NS_IMETHODIMP nsMsgCompUtils::GetMsgMimeConformToStandard(bool* _retval) {
   NS_ENSURE_ARG_POINTER(_retval);
   *_retval = nsMsgMIMEGetConformToStandard();
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgCompUtils::DetectCharset(const nsACString& aContent,
+                              nsACString& aCharset) {
+  mozilla::UniquePtr<mozilla::EncodingDetector> detector =
+      mozilla::EncodingDetector::Create();
+  mozilla::Span<const uint8_t> src = mozilla::AsBytes(
+      mozilla::Span(ToNewCString(aContent), aContent.Length()));
+  mozilla::Unused << detector->Feed(src, true);
+  auto encoding = detector->Guess(nullptr, true);
+  encoding->Name(aCharset);
   return NS_OK;
 }
 

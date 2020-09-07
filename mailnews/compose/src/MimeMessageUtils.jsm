@@ -299,6 +299,72 @@ var MsgUtils = {
   },
 
   /**
+   * Get the X-Mozilla-Status header value. The header value will be used to set
+   * some nsMsgMessageFlags. Including the Read flag for message in a local
+   * folder.
+   *
+   * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
+   * @returns {string}
+   */
+  getXMozillaStatus(deliverMode) {
+    if (
+      ![
+        Ci.nsIMsgSend.nsMsgQueueForLater,
+        Ci.nsIMsgSend.nsMsgSaveAsDraft,
+        Ci.nsIMsgSend.nsMsgSaveAsTemplate,
+        Ci.nsIMsgSend.nsMsgDeliverNow,
+        Ci.nsIMsgSend.nsMsgSendUnsent,
+        Ci.nsIMsgSend.nsMsgDeliverBackground,
+      ].includes(deliverMode)
+    ) {
+      return "";
+    }
+    let flags = 0;
+    if (deliverMode == Ci.nsIMsgSend.nsMsgQueueForLater) {
+      flags |= Ci.nsMsgMessageFlags.Queued;
+    } else if (
+      deliverMode != Ci.nsIMsgSend.nsMsgSaveAsDraft &&
+      deliverMode != Ci.nsIMsgSend.nsMsgDeliverBackground
+    ) {
+      flags |= Ci.nsMsgMessageFlags.Read;
+    }
+    return flags.toString().padStart(4, "0");
+  },
+
+  /**
+   * Get the X-Mozilla-Status2 header value. The header value will be used to
+   * set some nsMsgMessageFlags.
+   *
+   * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
+   * @returns {string}
+   */
+  getXMozillaStatus2(deliverMode) {
+    if (
+      ![
+        Ci.nsIMsgSend.nsMsgQueueForLater,
+        Ci.nsIMsgSend.nsMsgSaveAsDraft,
+        Ci.nsIMsgSend.nsMsgSaveAsTemplate,
+        Ci.nsIMsgSend.nsMsgDeliverNow,
+        Ci.nsIMsgSend.nsMsgSendUnsent,
+        Ci.nsIMsgSend.nsMsgDeliverBackground,
+      ].includes(deliverMode)
+    ) {
+      return "";
+    }
+    let flags = 0;
+    if (deliverMode == Ci.nsIMsgSend.nsMsgSaveAsTemplate) {
+      flags |= Ci.nsMsgMessageFlags.Template;
+    } else if (
+      deliverMode == Ci.nsIMsgSend.nsMsgDeliverNow ||
+      deliverMode == Ci.nsIMsgSend.nsMsgSendUnsent
+    ) {
+      flags &= ~Ci.nsMsgMessageFlags.MDNReportNeeded;
+      flags |= Ci.nsMsgMessageFlags.MDNReportSent;
+    }
+    return flags.toString().padStart(8, "0");
+  },
+
+  /**
    * Get the Disposition-Notification-To header value.
    * @param {nsIMsgCompFields} compFields - The compose fields.
    * @param {nsMsgDeliverMode} deliverMode - The deliver mode.
@@ -496,13 +562,39 @@ var MsgUtils = {
   },
 
   /**
-   * TODO: Pick the charset according to attachment content.
+   * Pick a charset according to content type and content.
+   * @param {string} contentType - The content type.
+   * @param {string} content - The content.
+   * @returns {string}
    */
   pickCharset(contentType, content) {
-    if (contentType.startsWith("text")) {
-      return "UTF-8";
+    if (!contentType.startsWith("text")) {
+      return "";
     }
-    return "";
+
+    // Check the BOM.
+    let charset = "";
+    if (content.length >= 2) {
+      let byte0 = content.charCodeAt(0);
+      let byte1 = content.charCodeAt(1);
+      let byte2 = content.charCodeAt(2);
+      if (byte0 == 0xfe && byte1 == 0xff) {
+        charset = "UTF-16BE";
+      } else if (byte0 == 0xff && byte1 == 0xfe) {
+        charset = "UTF-16LE";
+      } else if (byte0 == 0xef && byte1 == 0xbb && byte2 == 0xbf) {
+        charset = "UTF-8";
+      }
+    }
+    if (charset) {
+      return charset;
+    }
+
+    // Use mozilla::EncodingDetector.
+    let compUtils = Cc[
+      "@mozilla.org/messengercompose/computils;1"
+    ].createInstance(Ci.nsIMsgCompUtils);
+    return compUtils.detectCharset(content);
   },
 
   /**

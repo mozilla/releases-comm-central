@@ -4,12 +4,13 @@
 
 const EXPORTED_SYMBOLS = ["MessageSend"];
 
-let { MailServices } = ChromeUtils.import(
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-let { MimeMessage } = ChromeUtils.import("resource:///modules/MimeMessage.jsm");
-let { MsgUtils } = ChromeUtils.import(
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MimeMessage } = ChromeUtils.import("resource:///modules/MimeMessage.jsm");
+var { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
 
@@ -129,6 +130,20 @@ MessageSend.prototype = {
     }
   },
 
+  notifyListenerOnStartCopy() {
+    let copyListener = this._sendListener.QueryInterface(
+      Ci.nsIMsgCopyServiceListener
+    );
+    copyListener.OnStartCopy();
+  },
+
+  notifyListenerOnProgressCopy(progress, progressMax) {
+    let copyListener = this._sendListener.QueryInterface(
+      Ci.nsIMsgCopyServiceListener
+    );
+    copyListener.OnProgress(progress, progressMax);
+  },
+
   notifyListenerOnStopCopy(status) {
     if (this._sendListener) {
       let copyListener = this._sendListener.QueryInterface(
@@ -182,7 +197,7 @@ MessageSend.prototype = {
       this._composeBundle.GetStringFromName("creatingMailMessage")
     );
     let messageFile = await this._message.createMessageFile();
-    this._deliverMessage(messageFile);
+    await this._deliverMessage(messageFile);
   },
 
   _setStatusMessage(msg) {
@@ -196,7 +211,7 @@ MessageSend.prototype = {
    *
    * @param {nsIFile} file - The message file to deliver.
    */
-  _deliverMessage(file) {
+  async _deliverMessage(file) {
     if (
       [
         Ci.nsIMsgSend.nsMsgQueueForLater,
@@ -205,7 +220,7 @@ MessageSend.prototype = {
         Ci.nsIMsgSend.nsMsgSaveAsTemplate,
       ].includes(this._deliverMode)
     ) {
-      this._sendToMagicFolder(file);
+      await this._sendToMagicFolder(file);
       return;
     }
     this._deliverFileAsMail(file);
@@ -218,7 +233,7 @@ MessageSend.prototype = {
    *
    * @param {nsIFile} file - The message file to copy.
    */
-  _sendToMagicFolder(file) {
+  async _sendToMagicFolder(file) {
     let folderUri = MsgUtils.getMsgFolderURIFromPrefs(
       this._userIdentity,
       this._deliverMode
@@ -226,11 +241,36 @@ MessageSend.prototype = {
     let msgCopy = Cc["@mozilla.org/messengercompose/msgcopy;1"].createInstance(
       Ci.nsIMsgCopy
     );
+    let copyFile = file;
+    if (folderUri.startsWith("mailbox:")) {
+      // Add a `From -` line, so that nsLocalMailFolder.cpp won't add a dummy
+      // envelope.
+      let { path, file: fileWriter } = await OS.File.openUnique(
+        OS.Path.join(OS.Constants.Path.tmpDir, "nscopy.eml")
+      );
+      await fileWriter.write(new TextEncoder().encode("From -\r\n"));
+      let xMozillaStatus = MsgUtils.getXMozillaStatus(this._deliverMode);
+      let xMozillaStatus2 = MsgUtils.getXMozillaStatus2(this._deliverMode);
+      if (xMozillaStatus) {
+        await fileWriter.write(
+          new TextEncoder().encode(`X-Mozilla-Status: ${xMozillaStatus}\r\n`)
+        );
+      }
+      if (xMozillaStatus2) {
+        await fileWriter.write(
+          new TextEncoder().encode(`X-Mozilla-Status2: ${xMozillaStatus2}\r\n`)
+        );
+      }
+      await fileWriter.write(await OS.File.read(file.path));
+      await fileWriter.close();
+      copyFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+      copyFile.initWithPath(path);
+    }
     // Notify nsMsgCompose about the saved folder.
     this._sendListener.onGetDraftFolderURI(folderUri);
     msgCopy.startCopyOperation(
       this._userIdentity,
-      file,
+      copyFile,
       this._deliverMode,
       this,
       folderUri,

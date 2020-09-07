@@ -162,8 +162,9 @@ class MimePart {
   /**
    * Recursively write a MimePart and its parts to a file.
    * @param {OS.File} file - The output file to contain a RFC2045 message.
+   * @param {number} [depth=0] - Nested level of a part.
    */
-  async write(file) {
+  async write(file, depth = 0) {
     this._outFile = file;
     let bodyString = this._bodyText;
     // If this is an attachment part, use the attachment content as bodyString.
@@ -196,17 +197,23 @@ class MimePart {
     if (this._parts.length) {
       // single part message
       if (!this._separator && this._parts.length === 1) {
-        await this._parts[0].write(file);
+        await this._parts[0].write(file, depth + 1);
         await this._writeString(`${bodyString}\r\n`);
         return;
       }
 
       await this._writeString("\r\n");
+      if (depth == 0) {
+        // Current part is a top part and multipart container.
+        await this._writeString(
+          "This is a multi-part message in MIME format.\r\n"
+        );
+      }
 
       // multipart message
       for (let part of this._parts) {
         await this._writeString(`--${this._separator}\r\n`);
-        await part.write(file);
+        await part.write(file, depth + 1);
       }
       await this._writeString(`--${this._separator}--\r\n`);
     }
@@ -234,6 +241,9 @@ class MimePart {
           ...[...Array(18)].map(() => Math.floor(Math.random() * 256))
         )
       )
+        // Boundary is used to construct RegExp in tests, + would break those
+        // tests.
+        .replaceAll("+", "-")
     );
   }
 }
