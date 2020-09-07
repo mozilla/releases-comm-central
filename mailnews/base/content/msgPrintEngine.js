@@ -27,6 +27,9 @@ function OnLoadPrintEngine() {
 }
 
 function PrintEngineCreateGlobals() {
+  // This is needed so that we can handle OPEN_PRINT_BROWSER.
+  window.browserDOMWindow = window.opener.browserDOMWindow;
+
   /* get the print engine instance */
   printEngine = Cc[printEngineContractID].createInstance();
   printEngine = printEngine.QueryInterface(Ci.nsIMsgPrintEngine);

@@ -70,7 +70,6 @@ class nsMsgPrintEngine : public nsIMsgPrintEngine,
   nsTArray<nsString> mURIArray;
   int32_t mCurrentlyPrintingURI;
 
-  nsCOMPtr<nsIContentViewer> mContentViewer;
   nsCOMPtr<nsIStringBundle> mStringBundle;   // String bundles...
   nsCOMPtr<nsIMsgStatusFeedback> mFeedback;  // Tell the user something
   nsCOMPtr<nsIPrintSettings> mPrintSettings;

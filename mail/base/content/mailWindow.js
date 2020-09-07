@@ -31,6 +31,12 @@ var { XPCOMUtils } = ChromeUtils.import(
 var { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var { Gloda } = ChromeUtils.import("resource:///modules/gloda/GlodaPublic.jsm");
 
+XPCOMUtils.defineLazyScriptGetter(
+  this,
+  "PrintUtils",
+  "chrome://global/content/printUtils.js"
+);
+
 // This file stores variables common to mail windows
 var messenger;
 var statusFeedback;
@@ -744,6 +750,15 @@ nsBrowserAccess.prototype = {
     aSkipLoad
   ) {
     const nsIBrowserDOMWindow = Ci.nsIBrowserDOMWindow;
+
+    if (aWhere == nsIBrowserDOMWindow.OPEN_PRINT_BROWSER) {
+      let browser = PrintUtils.startPrintWindow(
+        aOpenWindowInfo.parent,
+        aOpenWindowInfo
+      );
+      return browser ? browser.browsingContext : null;
+    }
+
     let isExternal = !!(aFlags & nsIBrowserDOMWindow.OPEN_EXTERNAL);
     if (isExternal && aURI && aURI.schemeIs("chrome")) {
       Services.console.logStringMessage(

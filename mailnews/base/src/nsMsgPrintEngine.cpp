@@ -17,6 +17,7 @@
 
 #include "nsPIDOMWindow.h"
 #include "mozIDOMWindow.h"
+#include "nsGlobalWindowOuter.h"
 #include "nsIContentViewer.h"
 #include "nsIMsgMessageService.h"
 #include "nsMsgUtils.h"
@@ -521,57 +522,64 @@ void nsMsgPrintEngine::PrintMsgWindow() {
                             "PrintingContact",  "PrintPreviewContact",
                             "PrintingAddrBook", "PrintPreviewAddrBook"};
 
-  mDocShell->GetContentViewer(getter_AddRefs(mContentViewer));
-  if (mContentViewer) {
-    nsCOMPtr<nsIWebBrowserPrint> webBrowserPrint =
-        do_QueryInterface(mContentViewer);
-    if (webBrowserPrint) {
-      if (!mPrintSettings) {
-        nsresult rv;
-        nsCOMPtr<nsIPrintSettingsService> printSettingsService =
-            do_GetService("@mozilla.org/gfx/printsettings-service;1", &rv);
-        printSettingsService->GetGlobalPrintSettings(
-            getter_AddRefs(mPrintSettings));
+  if (RefPtr window = nsGlobalWindowOuter::Cast(mDocShell->GetWindow())) {
+    if (!mPrintSettings) {
+      nsCOMPtr<nsIPrintSettingsService> printSettingsService =
+          do_GetService("@mozilla.org/gfx/printsettings-service;1");
+      printSettingsService->GetGlobalPrintSettings(
+          getter_AddRefs(mPrintSettings));
+    }
+
+    // fix for bug #118887 and bug #176016
+    // don't show the actual url when printing mail messages or addressbook
+    // cards. for mail, it can review the salt.  for addrbook, it's a data://
+    // url, which means nothing to the end user. needs to be " " and not "" or
+    // nullptr, otherwise, we'll still print the url
+    mPrintSettings->SetDocURL(u" "_ns);
+
+    nsresult rv = NS_ERROR_FAILURE;
+    bool isPrintingCancelled = false;
+    if (mIsDoingPrintPreview) {
+      if (mStartupPPObs) {
+        rv = mStartupPPObs->Observe(nullptr, nullptr, nullptr);
       }
-
-      // fix for bug #118887 and bug #176016
-      // don't show the actual url when printing mail messages or addressbook
-      // cards. for mail, it can review the salt.  for addrbook, it's a data://
-      // url, which means nothing to the end user. needs to be " " and not "" or
-      // nullptr, otherwise, we'll still print the url
-      mPrintSettings->SetDocURL(u" "_ns);
-
-      nsresult rv = NS_ERROR_FAILURE;
-      if (mIsDoingPrintPreview) {
-        if (mStartupPPObs) {
-          rv = mStartupPPObs->Observe(nullptr, nullptr, nullptr);
-        }
+    } else {
+      if (mCurrentlyPrintingURI == 0) {
+        nsCOMPtr<nsIPrintingPromptService> svc =
+            do_GetService("@mozilla.org/embedcomp/printingprompt-service;1");
+        rv = svc->ShowPrintDialog(mParentWindow ? mParentWindow.get() : mWindow.get(), mPrintSettings);
+        isPrintingCancelled = rv == NS_ERROR_ABORT;
       } else {
-        mPrintSettings->SetPrintSilent(mCurrentlyPrintingURI != 0);
-        rv = webBrowserPrint->Print(mPrintSettings,
-                                    (nsIWebProgressListener*)this);
+        rv = NS_OK;
       }
+      if (NS_SUCCEEDED(rv)) {
+        mPrintSettings->SetPrintSilent(true);
+        mozilla::ErrorResult result;
+        window->Print(mPrintSettings, this, nullptr,
+                      nsGlobalWindowOuter::IsPreview::No,
+                      nsGlobalWindowOuter::BlockUntilDone::No, nullptr, result);
+        if (NS_WARN_IF(result.Failed())) {
+          rv = result.StealNSResult();
+        }
+      }
+    }
 
-      if (NS_FAILED(rv)) {
-        webBrowserPrint = nullptr;
-        mContentViewer = nullptr;
-        bool isPrintingCancelled = false;
-        if (mPrintSettings) {
-          mPrintSettings->GetIsCancelled(&isPrintingCancelled);
-        }
-        if (!isPrintingCancelled) {
-          StartNextPrintOperation();
-        } else {
-          if (mWindow) {
-            nsPIDOMWindowOuter::From(mWindow)->Close();
-          }
-        }
-      } else {
-        // Tell the user we started printing...
-        nsString msg;
-        GetString(NS_ConvertASCIItoUTF16(kMsgKeys[mMsgInx]).get(), msg);
-        SetStatusMessage(msg);
+    if (NS_FAILED(rv)) {
+      if (!isPrintingCancelled) {
+        mPrintSettings->GetIsCancelled(&isPrintingCancelled);
       }
+      if (!isPrintingCancelled) {
+        StartNextPrintOperation();
+      } else {
+        if (mWindow) {
+          nsPIDOMWindowOuter::From(mWindow)->Close();
+        }
+      }
+    } else {
+      // Tell the user we started printing...
+      nsString msg;
+      GetString(NS_ConvertASCIItoUTF16(kMsgKeys[mMsgInx]).get(), msg);
+      SetStatusMessage(msg);
     }
   }
 }
