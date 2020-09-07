@@ -266,7 +266,12 @@ var EnigmailDecryption = {
         pgpBlock,
         false,
         "",
-        errorMsgObj
+        errorMsgObj,
+        false,
+        [],
+        false,
+        false, // don't use prompt for permissive
+        null
       );
       if (exitCodeObj.value === 0) {
         statusFlagsObj.value |= EnigmailConstants.IMPORTED_KEY;
@@ -592,7 +597,12 @@ var EnigmailDecryption = {
                 byteData,
                 false,
                 "",
-                errorMsgObj
+                errorMsgObj,
+                false,
+                [],
+                false,
+                false, // don't use prompt for permissive
+                null
               );
               statusFlagsObj.value = EnigmailConstants.IMPORTED_KEY;
             } else {

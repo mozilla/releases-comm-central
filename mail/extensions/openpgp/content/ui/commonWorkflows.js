@@ -197,6 +197,7 @@ function EnigmailCommon_importObjectFromFile(what) {
         false, // minimize
         [], // filter
         isSecret,
+        true, // allow prompt for permissive
         passphrasePromptCallback
       );
 

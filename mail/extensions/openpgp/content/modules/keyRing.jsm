@@ -653,7 +653,7 @@ var EnigmailKeyRing = {
    * import key from provided key data (synchronous)
    *
    * @param parent          nsIWindow
-   * @param isInteractive   Boolean  - if true, display confirmation dialog
+   * @param askToConfirm    Boolean  - if true, display confirmation dialog
    * @param keyBlock        String   - data containing key
    * @param keyId           String   - key ID expected to import (no meaning)
    * @param errorMsgObj     Object   - o.value will contain error message from GnuPG
@@ -662,6 +662,9 @@ var EnigmailKeyRing = {
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
    * @param importSecret    Boolean  - By default and traditionally, function imports public, only.
    *                                   If true, will import secret, only.
+   * @param allowPermissiveFallbackWithPrompt Boolean - If true, and regular import attempt fails,
+   *                                                    the user is asked to allow an optional
+   *                                                    permissive import attempt.
    * @param passCB          Function - Password callback function
    *
    * @return Integer -  exit code:
@@ -671,7 +674,7 @@ var EnigmailKeyRing = {
    */
   importKey(
     parent,
-    isInteractive,
+    askToConfirm,
     keyBlock,
     isBinary,
     keyId,
@@ -680,13 +683,14 @@ var EnigmailKeyRing = {
     minimizeKey = false,
     limitedUids = [],
     importSecret = false, // by default and traditionally, function imports public, only
+    allowPermissiveFallbackWithPrompt = true,
     passCB = null // password callback function
   ) {
     const cApi = EnigmailCryptoAPI();
     return cApi.sync(
       this.importKeyAsync(
         parent,
-        isInteractive,
+        askToConfirm,
         keyBlock,
         isBinary,
         keyId,
@@ -695,7 +699,8 @@ var EnigmailKeyRing = {
         minimizeKey,
         limitedUids,
         importSecret,
-        passCB
+        passCB,
+        allowPermissiveFallbackWithPrompt
       )
     );
   },
@@ -704,7 +709,7 @@ var EnigmailKeyRing = {
    * import key from provided key data
    *
    * @param parent          nsIWindow
-   * @param isInteractive   Boolean  - if true, display confirmation dialog
+   * @param askToConfirm    Boolean  - if true, display confirmation dialog
    * @param keyBlock        String   - data containing key
    * @param keyId           String   - key ID expected to import (no meaning)
    * @param errorMsgObj     Object   - o.value will contain error message from GnuPG
@@ -713,6 +718,9 @@ var EnigmailKeyRing = {
    * @param limitedUids     Array<String> - [OPTIONAL] restrict importing the key(s) to a given set of UIDs
    * @param importSecret    Boolean  - By default and traditionally, function imports public, only.
    *                                   If true, will import secret, only.
+   * @param allowPermissiveFallbackWithPrompt Boolean - If true, and regular import attempt fails,
+   *                                                    the user is asked to allow an optional
+   *                                                    permissive import attempt.
    * @param passCB          Function - Password callback function
    *
    * @return Integer -  exit code:
@@ -722,7 +730,7 @@ var EnigmailKeyRing = {
    */
   async importKeyAsync(
     parent,
-    isInteractive,
+    askToConfirm,
     keyBlock,
     isBinary,
     keyId, // ignored
@@ -731,10 +739,11 @@ var EnigmailKeyRing = {
     minimizeKey = false,
     limitedUids = [],
     importSecret = false,
+    allowPermissiveFallbackWithPrompt = true,
     passCB = null
   ) {
     EnigmailLog.DEBUG(
-      `keyRing.jsm: EnigmailKeyRing.importKeyAsync('${keyId}', ${isInteractive}, ${minimizeKey})\n`
+      `keyRing.jsm: EnigmailKeyRing.importKeyAsync('${keyId}', ${askToConfirm}, ${minimizeKey})\n`
     );
 
     var pgpBlock;
@@ -765,7 +774,7 @@ var EnigmailKeyRing = {
       );
     }
 
-    if (isInteractive) {
+    if (askToConfirm) {
       if (
         !getDialog().confirmDlg(
           parent,
@@ -817,14 +826,19 @@ var EnigmailKeyRing = {
       tryAgain = false;
       let failed =
         result.exitCode || !result.importedKeys || !result.importedKeys.length;
-      if (failed && isInteractive && !permissive) {
-        let agreed = getDialog().confirmDlg(
-          parent,
-          l10n.formatValueSync("confirm-permissive-import")
-        );
-        if (agreed) {
-          permissive = true;
-          tryAgain = true;
+      if (failed) {
+        if (allowPermissiveFallbackWithPrompt && !permissive) {
+          let agreed = getDialog().confirmDlg(
+            parent,
+            l10n.formatValueSync("confirm-permissive-import")
+          );
+          if (agreed) {
+            permissive = true;
+            tryAgain = true;
+          }
+        } else if (askToConfirm) {
+          // if !askToConfirm the caller is responsible to handle the error
+          getDialog().alert(parent, l10n.formatValueSync("import-keys-failed"));
         }
       }
     } while (tryAgain);
