@@ -7,6 +7,8 @@ SOURCES += [
     'ImportCharSet.cpp',
     'ImportOutFile.cpp',
     'ImportTranslate.cpp',
+    'MorkImport.cpp',
+    'nsAddrDatabase.cpp',
     'nsImportABDescriptor.cpp',
     'nsImportAddressBooks.cpp',
     'nsImportEmbeddedImageData.cpp',

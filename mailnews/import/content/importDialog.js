@@ -87,7 +87,7 @@ function OnLoadImportDialog() {
 function OnUnloadImportDialog() {
   let nextButton = document.getElementById("forward");
   if (
-    ["addressbook", "settings"].includes(gImportType) &&
+    gImportType == "settings" &&
     !gErrorStr.data &&
     nextButton.label == nextButton.getAttribute("finishedval")
   ) {
@@ -861,6 +861,18 @@ async function ImportAddress(module, success, error) {
           filePicker.appendFilter(
             addressbookBundle.getString("VCFFiles"),
             "*.vcf"
+          );
+        } else if (
+          gSelectedModuleName ==
+          document
+            .getElementById("bundle_morkImportMsgs")
+            .getString("morkImportName")
+        ) {
+          filePicker.appendFilter(
+            document
+              .getElementById("bundle_morkImportMsgs")
+              .getString("MABFiles"),
+            "*.mab"
           );
         } else {
           filePicker.appendFilter(

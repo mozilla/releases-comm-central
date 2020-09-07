@@ -30,6 +30,13 @@ NS_DEFINE_NAMED_CID(NS_TEXTIMPORT_CID);
 NS_DEFINE_NAMED_CID(NS_VCARDIMPORT_CID);
 
 ////////////////////////////////////////////////////////////////////////////////
+// Mork import Include Files
+////////////////////////////////////////////////////////////////////////////////
+#include "MorkImport.h"
+
+NS_DEFINE_NAMED_CID(MORKIMPORT_CID);
+
+////////////////////////////////////////////////////////////////////////////////
 // Apple Mail import Include Files
 ////////////////////////////////////////////////////////////////////////////////
 #if defined(XP_MACOSX)
@@ -82,6 +89,11 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsTextImport)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsVCardImport)
 
 ////////////////////////////////////////////////////////////////////////////////
+// Mork import factories
+////////////////////////////////////////////////////////////////////////////////
+NS_GENERIC_FACTORY_CONSTRUCTOR(MorkImport)
+
+////////////////////////////////////////////////////////////////////////////////
 // apple mail import factories
 ////////////////////////////////////////////////////////////////////////////////
 #if defined(XP_MACOSX)
@@ -114,6 +126,8 @@ static const mozilla::Module::CategoryEntry kMailNewsImportCategories[] = {
      NS_IMPORT_ADDRESS_STR},
     {"mailnewsimport", "{0eb034a3-964a-4e2f-92eb-cc55d9ae9dd2}",
      NS_IMPORT_ADDRESS_STR},
+    {"mailnewsimport", "{54d48d9f-1bac-47be-9190-c4dc74e837e2}",
+     NS_IMPORT_ADDRESS_STR},
 #ifdef XP_WIN
     {"mailnewsimport", "{42bc82bc-8e9f-4597-8b6e-e529daaf3af1}",
      kWMSupportsString},
@@ -134,6 +148,7 @@ const mozilla::Module::CIDEntry kMailNewsImportCIDs[] = {
     {&kNS_IMPORTSERVICE_CID, false, NULL, nsImportServiceConstructor},
     {&kNS_TEXTIMPORT_CID, false, NULL, nsTextImportConstructor},
     {&kNS_VCARDIMPORT_CID, false, NULL, nsVCardImportConstructor},
+    {&kMORKIMPORT_CID, false, NULL, MorkImportConstructor},
 #if defined(XP_MACOSX)
     {&kNS_APPLEMAILIMPORT_CID, false, NULL, nsAppleMailImportModuleConstructor},
     {&kNS_APPLEMAILIMPL_CID, false, NULL, nsAppleMailImportMailConstructor},
@@ -152,6 +167,7 @@ const mozilla::Module::ContractIDEntry kMailNewsImportContracts[] = {
     {NS_IMPORTSERVICE_CONTRACTID, &kNS_IMPORTSERVICE_CID},
     {"@mozilla.org/import/import-text;1", &kNS_TEXTIMPORT_CID},
     {"@mozilla.org/import/import-vcard;1", &kNS_VCARDIMPORT_CID},
+    {"@mozilla.org/import/import-mork;1", &kMORKIMPORT_CID},
 #if defined(XP_MACOSX)
     {"@mozilla.org/import/import-applemail;1", &kNS_APPLEMAILIMPORT_CID},
     {NS_APPLEMAILIMPL_CONTRACTID, &kNS_APPLEMAILIMPL_CID},
