@@ -11,8 +11,9 @@
 #endif
 #endif
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://messenger/skin/activity/activity.css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css"?>
 
 <!DOCTYPE window [
 <!ENTITY % activityManagerDTD SYSTEM "chrome://messenger/locale/activity.dtd">
@@ -30,6 +31,7 @@
         width="&window.width2;" height="&window.height;"
         screenX="10" screenY="10"
         persist="width height screenX screenY sizemode"
+        lightweightthemes="true"
         onload="activityObject.startup();"
         onunload="activityObject.shutdown();"
         onclose="return closeWindow(false);">

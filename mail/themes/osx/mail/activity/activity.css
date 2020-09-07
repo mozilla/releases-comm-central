@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#activityManager[lwt-tree] {
+  background-color: var(--toolbar-bgcolor);
+  color: var(--lwt-text-color);
+}
+
 .activityview {
   appearance: none;
   margin: 0;
@@ -11,46 +16,23 @@
 
 #search {
   -moz-box-pack: end;
-  padding: 4px;
-  appearance: auto;
-  -moz-default-appearance: statusbar;
-}
-
-#clearListButton {
-  appearance: none;
-  border: 1px solid #5F5F5F;
-  border-radius: 4px;
-  background: #A09E9D;
-  min-height: 18px;
-  min-width: 0;
-  padding: 0 2px;
-  margin: 0 2px;
-  text-shadow: rgba(255, 255, 255, 0.4) 0 1px;
-  border: 1px solid rgba(0, 0, 0, 0.6);
-  border-radius: 3px;
-  box-shadow: inset 0 20px 11.5px -10px #FFF, 0 1px rgba(255, 255, 255, 0.4);
-}
-
-#clearListButton:hover:active:not([disabled="true"]) {
-  background: #B5B5B5;
-  text-shadow: rgba(255, 255, 255, 0.4) 0 1px;
-  box-shadow: inset rgba(0, 0, 0, 0.4) 0 -5px 8.5px,
-                   inset rgba(0, 0, 0, 1) 0 1px 2px,
-                   0 1px rgba(255, 255, 255, 0.4);
-
-}
-
-#clearListButton:-moz-window-inactive {
-  color: #7C7C7C !important; /* remove this when we support click-through */
-  border-color: rgba(0, 0, 0, 0.25);
-  background-color: #CCC;
 }
 
 /**
  * Images for buttons in the interface
  */
 
-richlistitem[is="activity-process-richlistitem"] button {
+richlistitem[is="activity-process-richlistitem"] button,
+richlistitem[is="activity-event-richlistitem"] button,
+richlistitem[is="activity-warning-richlistitem"] button,
+richlistitem[is="activity-group-richlistitem"] button {
+  appearance: none;
+  min-height: 16px;
+  min-width: 16px;
+  max-height: 16px;
+  max-width: 16px;
+  padding: 0;
+  margin: 0 1px;
   list-style-image: url(chrome://messenger/skin/activity/buttons.png);
 }
 
@@ -59,17 +41,17 @@ richlistitem[is="activity-process-richlistitem"]:not([selected="true"]) button {
 }
 
 .cancel {
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
+  -moz-image-region: rect(0, 16px, 16px, 0);
 }
 .cancel:hover {
-  -moz-image-region: rect(0px, 32px, 16px, 16px);
+  -moz-image-region: rect(0, 32px, 16px, 16px);
 }
 .cancel:hover:active {
-  -moz-image-region: rect(0px, 48px, 16px, 32px);
+  -moz-image-region: rect(0, 48px, 16px, 32px);
 }
 
 .pause {
-  -moz-image-region: rect(48px, 16px, 64px, 0px);
+  -moz-image-region: rect(48px, 16px, 64px, 0);
 }
 .pause:hover {
   -moz-image-region: rect(48px, 32px, 64px, 16px);
@@ -78,11 +60,11 @@ richlistitem[is="activity-process-richlistitem"]:not([selected="true"]) button {
   -moz-image-region: rect(48px, 48px, 64px, 32px);
 }
 .pause[disabled="true"] {
-  -moz-image-region: rect(48px, 16px, 64px, 0px);
+  -moz-image-region: rect(48px, 16px, 64px, 0);
 }
 
 .resume {
-  -moz-image-region: rect(16px, 16px, 32px, 0px);
+  -moz-image-region: rect(16px, 16px, 32px, 0);
 }
 .resume:hover {
   -moz-image-region: rect(16px, 32px, 32px, 16px);
@@ -92,7 +74,7 @@ richlistitem[is="activity-process-richlistitem"]:not([selected="true"]) button {
 }
 
 .retry {
-  -moz-image-region: rect(32px, 16px, 48px, 0px);
+  -moz-image-region: rect(32px, 16px, 48px, 0);
   display: none;
 }
 .retry:hover {
@@ -105,21 +87,8 @@ richlistitem[is="activity-process-richlistitem"]:not([selected="true"]) button {
   display: inline;
 }
 
-richlistitem[is="activity-process-richlistitem"] button {
-  appearance: none;
-  min-height: 16px;
-  min-width: 16px;
-  max-height: 16px;
-  max-width: 16px;
-  padding: 0;
-  margin: 0 1px;
-}
-
-richlistitem[is="activity-event-richlistitem"] button {
-  list-style-image: url(chrome://messenger/skin/activity/buttons.png);
-}
 .undo {
-  -moz-image-region: rect(32px, 16px, 48px, 0px);
+  -moz-image-region: rect(32px, 16px, 48px, 0);
 }
 .undo:hover {
   -moz-image-region: rect(32px, 32px, 48px, 16px);
@@ -128,21 +97,8 @@ richlistitem[is="activity-event-richlistitem"] button {
   -moz-image-region: rect(32px, 48px, 48px, 32px);
 }
 
-richlistitem[is="activity-event-richlistitem"] button {
-  appearance: none;
-  min-height: 16px;
-  min-width: 16px;
-  max-height: 16px;
-  max-width: 16px;
-  padding: 0;
-  margin: 0 1px;
-}
-
-richlistitem[is="activity-warning-richlistitem"] button {
-  list-style-image: url(chrome://messenger/skin/activity/buttons.png);
-}
 .recover {
-  -moz-image-region: rect(32px, 16px, 48px, 0px);
+  -moz-image-region: rect(32px, 16px, 48px, 0);
 }
 .recover:hover {
   -moz-image-region: rect(32px, 32px, 48px, 16px);
@@ -151,43 +107,20 @@ richlistitem[is="activity-warning-richlistitem"] button {
   -moz-image-region: rect(32px, 48px, 48px, 32px);
 }
 
-richlistitem[is="activity-warning-richlistitem"] button {
-  appearance: none;
-  min-height: 16px;
-  min-width: 16px;
-  max-height: 16px;
-  max-width: 16px;
-  padding: 0;
-  margin: 0 1px;
-}
-
 .activitygroupbox richlistitem[is="activity-event-richlistitem"],
 .activitygroupbox richlistitem[is="activity-warning-richlistitem"],
 .activitygroupbox richlistitem[is="activity-process-richlistitem"] {
   padding-inline-start: 3px;
 }
 
-richlistitem[is="activity-group-richlistitem"] button {
-  list-style-image: url(chrome://messenger/skin/activity/buttons.png);
-}
 .retry {
-  -moz-image-region: rect(32px, 16px, 48px, 0px);
+  -moz-image-region: rect(32px, 16px, 48px, 0);
 }
 .retry:hover {
   -moz-image-region: rect(32px, 32px, 48px, 16px);
 }
 .retry:hover:active {
   -moz-image-region: rect(32px, 48px, 48px, 32px);
-}
-
-richlistitem[is="activity-group-richlistitem"] button {
-  appearance: none;
-  min-height: 16px;
-  min-width: 16px;
-  max-height: 16px;
-  max-width: 16px;
-  padding: 0;
-  margin: 0 1px;
 }
 
 /* Specialized Activity Bindings */
@@ -197,23 +130,16 @@ richlistitem[is="activity-process-richlistitem"] {
   min-height: 40px !important;
 }
 
-richlistitem[is="activity-process-richlistitem"] .statusText {
+.dateTime,
+.statusText {
   font-size: smaller;
-  color: #555;
+  opacity: .6;
 }
 
-richlistitem[is="activity-event-richlistitem"] .dateTime,
-richlistitem[is="activity-event-richlistitem"] .statusText {
-  font-size: smaller;
-  color: #555;
+richlistbox:focus .activityitem[selected="true"] .dateTime,
+richlistbox:focus .activityitem[selected="true"] .statusText {
+  opacity: .8;
 }
-
-richlistitem[is="activity-warning-richlistitem"] .dateTime,
-richlistitem[is="activity-warning-richlistitem"] .statusText {
-  font-size: smaller;
-  color: #555;
-}
-
 
 .processIconBox image {
   list-style-image: url(chrome://messenger/skin/activity/defaultProcessIcon.png);
@@ -274,33 +200,9 @@ image.compactMail {
   padding-inline-end: 2px;
 }
 
-.activityitem:not([selected="true"]):nth-child(odd) {
-  background-color: -moz-oddtreerow;
-}
-
 /* these are copied from richlistbox.css, to give us a starting point on selection */
 
 .activityitem {
   padding: 6px 4px;
-  background-color: Field;
-  color: FieldText;
-}
-
-
-.activityitem[selected="true"] {
-  background-color: -moz-Dialog;
-  color: -moz-DialogText;
-}
-
-richlistbox:focus .activityitem[selected="true"],
-richlistbox:focus richlistitem[is="activity-group-richlistitem"][selected="true"] {
-  background-color: Highlight;
-  color: HighlightText;
-}
-
-richlistbox:focus .activityitem[selected="true"] .statusText,
-richlistbox:focus .activityitem[selected="true"] .dateTime,
-richlistbox:focus .activityitem[selected="true"] .displayText,
-richlistbox:focus .activityitem[selected="true"] .completionTime {
-  color: HighlightText;
+  border-bottom: 1px solid var(--field-border-color);
 }
