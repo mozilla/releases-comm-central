@@ -13,11 +13,6 @@ var EXPORTED_SYMBOLS = ["MailMigrator"];
 
 ChromeUtils.defineModuleGetter(
   this,
-  "fixIterator",
-  "resource:///modules/iteratorUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "IOUtils",
   "resource:///modules/IOUtils.jsm"
 );
@@ -785,70 +780,5 @@ var MailMigrator = {
     migrateMailnews();
     this._migrateUI();
     this._migrateRSS();
-  },
-
-  /**
-   * Migrate message filters that include address book URIs.
-   */
-  _migrateMailFilters78() {
-    // Have we already done this? Don't do it again.
-    if (Services.prefs.getBoolPref("mailnews.filters.migration78", false)) {
-      return;
-    }
-
-    // A set of nsIMsgFilterLists we've already seen. We may encounter a list
-    // multiple times, but should only migrate it once.
-    let seen = new Set();
-
-    let migrateFolder = function(folder) {
-      let list = folder.getFilterList(null);
-      if (!seen.has(list.listId)) {
-        for (let i = 0; i < list.filterCount; i++) {
-          let filter = list.getFilterAt(i);
-          let changed = false;
-
-          for (let term of filter.searchTerms.enumerate(Ci.nsIMsgSearchTerm)) {
-            if (
-              [Ci.nsMsgSearchOp.IsInAB, Ci.nsMsgSearchOp.IsntInAB].includes(
-                term.op
-              )
-            ) {
-              let value = term.value;
-              if (value.str.endsWith(".mab")) {
-                value.str = value.str
-                  .replace(/^moz-abmdbdirectory:/, "jsaddrbook:")
-                  .replace(/(\.na2)?\.mab$/, ".sqlite");
-                // Changes are only made on assignment to term.value.
-                term.value = value;
-                changed = true;
-              }
-            }
-          }
-
-          if (changed) {
-            list.saveToDefaultFile();
-          }
-        }
-        seen.add(list.listId);
-      }
-
-      for (let subFolder of fixIterator(folder.subFolders, Ci.nsIMsgFolder)) {
-        migrateFolder(subFolder);
-      }
-    };
-
-    for (let server of MailServices.accounts.allServers) {
-      migrateFolder(server.rootFolder);
-    }
-
-    Services.prefs.setBoolPref("mailnews.filters.migration78", true);
-  },
-
-  /**
-   * Perform any migration work that does not need to happen before the main
-   * window loads.
-   */
-  migrateAtStartupDone() {
-    this._migrateMailFilters78();
   },
 };

@@ -351,8 +351,6 @@ MailGlue.prototype = {
       }
     }
 
-    MailMigrator.migrateAtStartupDone();
-
     // Certificates revocation list, etc.
     Services.tm.idleDispatchToMainThread(() => {
       RemoteSecuritySettings.init();
