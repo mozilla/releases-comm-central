@@ -129,6 +129,11 @@ add_task(async function testHeaders() {
           expected: { to: ["Holmes, Mycroft <mycroft@bakerstreet.invalid>"] },
         },
         {
+          // Name and address with non-ASCII characters.
+          input: { to: ["Jïm Morïarty <morïarty@bakerstreet.invalid>"] },
+          expected: { to: ["Jïm Morïarty <morïarty@bakerstreet.invalid>"] },
+        },
+        {
           // Empty array. Done here so we have something to clear.
           input: { to: [] },
           expected: {},
