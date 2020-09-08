@@ -22,6 +22,8 @@ async function checkMessageBody(expected, message, browser) {
         resolve(mimeMessage.parts[0].body);
       });
     });
+    // Ignore Windows line-endings, they're not important here.
+    body = body.replace(/\r/g, "");
     expected.textContent = `\n${body}\n\n` + expected.textContent;
   }
   if (!browser) {
