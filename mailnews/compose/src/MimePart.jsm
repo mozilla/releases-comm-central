@@ -120,17 +120,16 @@ class MimePart {
    */
   async fetchFile() {
     let res = await fetch(this._bodyAttachment.url);
-    this._contentType = res.headers.get("content-type");
+    // Content-Type is sometimes text/plain;charset=US-ASCII, discard the
+    // charset.
+    this._contentType = res.headers.get("content-type").split(";")[0];
 
     let parmFolding = Services.prefs.getIntPref(
       "mail.strictly_mime.parm_folding",
       2
     );
     // File name can contain non-ASCII chars, encode according to RFC 2231.
-    let encodedName = MsgUtils.rfc2231ParamFolding(
-      "name",
-      this._bodyAttachment.name
-    );
+    let encodedName = MsgUtils.rfc2047EncodeParam(this._bodyAttachment.name);
     let encodedFileName = MsgUtils.rfc2231ParamFolding(
       "filename",
       this._bodyAttachment.name
@@ -145,7 +144,7 @@ class MimePart {
       contentTypeParams += `; charset=${this._charset}`;
     }
     if (parmFolding != 2) {
-      contentTypeParams += `; "${encodedName}"`;
+      contentTypeParams += `; name="${encodedName}"`;
     }
     this.setHeader("content-type", `${this._contentType}${contentTypeParams}`);
     this.setHeader("content-disposition", `attachment; ${encodedFileName}`);

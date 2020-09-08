@@ -15,7 +15,7 @@ var input0 =
 
 // ascii only
 var input1 =
-  " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_" +
+  "x!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_" +
   "`abcdefghijklmnopqrstuvwxyz{|}~.txt";
 
 var expectedCD0 = [
@@ -41,11 +41,11 @@ var expectedCD0 = [
 
 var expectedCD1 =
   "Content-Disposition: attachment;\r\n" +
-  ' filename*0=" !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";\r\n' +
+  ' filename*0="x!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ";\r\n' +
   ' filename*1="[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n';
 
 var ParamFoldingPref = {
-  RFC2047: 0,
+  // RFC2047: 0,
   RFC2047WithCRLF: 1,
   RFC2231: 2,
 };
@@ -77,11 +77,11 @@ var expectedCTList0 = {
 var expectedCTList1 = {
   RFC2047:
     "Content-Type: text/plain; charset=UTF-8;\r\n" +
-    ' name="!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
+    ' name="x!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 
   RFC2047WithCRLF:
     "Content-Type: text/plain; charset=UTF-8;\r\n" +
-    ' name="!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
+    ' name="x!\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.txt"\r\n',
 
   RFC2231: "Content-Type: text/plain; charset=UTF-8\r\n",
 };

@@ -633,6 +633,26 @@ var MsgUtils = {
   },
 
   /**
+   * Encode parameter value according to RFC 2047.
+   * @param {string} value - The parameter value.
+   * @returns {string}
+   */
+  rfc2047EncodeParam(value) {
+    let converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
+      Ci.nsIMimeConverter
+    );
+
+    let encoded = converter.encodeMimePartIIStr_UTF8(
+      value,
+      false,
+      0,
+      Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
+    );
+
+    return this.makeFilenameQtext(encoded, false);
+  },
+
+  /**
    * Encode parameter value according to RFC 2231.
    * @param {string} paramName - The parameter name.
    * @param {string} paramValue - The parameter value.
