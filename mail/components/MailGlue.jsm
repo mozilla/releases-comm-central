@@ -126,7 +126,6 @@ MailGlue.prototype = {
     Services.obs.removeObserver(this, "document-element-inserted");
     Services.obs.removeObserver(this, "handlersvc-store-initialized");
 
-    ExtensionSupport.unregisterWindowListener("Thunderbird-internal-Toolbox");
     ExtensionSupport.unregisterWindowListener(
       "Thunderbird-internal-BrowserConsole"
     );
