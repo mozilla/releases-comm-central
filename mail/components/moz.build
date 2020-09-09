@@ -27,12 +27,12 @@ DIRS += [
     'wintaskbar',
 ]
 
-TEST_DIRS += ['test']
-
 DIRS += ['build']
 
 EXTRA_COMPONENTS += [
     'MailComponents.manifest',
+    'test/startupRecorder.js',
+    'test/testComponents.manifest',
 ]
 
 EXTRA_JS_MODULES += [
@@ -44,4 +44,8 @@ EXTRA_JS_MODULES += [
 
 XPCOM_MANIFESTS += [
     'components.conf',
+]
+
+XPCSHELL_TESTS_MANIFESTS += [
+    'test/unit/xpcshell.ini'
 ]
