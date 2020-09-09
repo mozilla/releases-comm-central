@@ -677,7 +677,12 @@ async function reloadOpenPgpUI() {
     "last_entered_external_gnupg_key_id"
   );
 
-  let allKeys = result.all.length + (externalKey ? 1 : 0);
+  let allKeys =
+    result.all.length +
+    (externalKey &&
+    Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")
+      ? 1
+      : 0);
 
   // Show the radiogroup container only if the current identity has keys.
   document.getElementById("openPgpKeyList").collapsed = !allKeys;
@@ -718,8 +723,12 @@ async function reloadOpenPgpUI() {
     return b.keyCreated - a.keyCreated;
   });
 
-  // If the user has an external Key saved, we show it on top of the list.
-  if (externalKey) {
+  // If the user has an external Key saved, and the pref is TRUE,
+  // we show it on top of the list.
+  if (
+    externalKey &&
+    Services.prefs.getBoolPref("mail.openpgp.allow_external_gnupg")
+  ) {
     let container = document.createXULElement("vbox");
     container.id = `openPgpOption${externalKey}`;
     container.classList.add("content-blocking-category");
