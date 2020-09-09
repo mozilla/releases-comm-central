@@ -270,21 +270,25 @@ static int MimeMultipartAlternative_create_child(MimeObject* obj) {
   MimeMultipartAlternative_flush_children(obj, false, priority);
 
   mult->state = MimeMultipartPartFirstLine;
-  int32_t i = malt->pending_parts++;
+
+  int32_t pending_parts = malt->pending_parts;
+  int32_t max_parts = malt->max_parts;
+
+  int32_t i = pending_parts++;
 
   if (i == 0) {
     malt->buffered_priority = priority;
   }
 
-  if (malt->pending_parts > malt->max_parts) {
-    malt->max_parts = malt->pending_parts;
+  if (pending_parts > max_parts) {
+    max_parts = pending_parts;
     MimeHeaders** newBuf = (MimeHeaders**)PR_REALLOC(
-        malt->buffered_hdrs, malt->max_parts * sizeof(*malt->buffered_hdrs));
+        malt->buffered_hdrs, max_parts * sizeof(*malt->buffered_hdrs));
     NS_ENSURE_TRUE(newBuf, MIME_OUT_OF_MEMORY);
     malt->buffered_hdrs = newBuf;
 
     MimePartBufferData** newBuf2 = (MimePartBufferData**)PR_REALLOC(
-        malt->part_buffers, malt->max_parts * sizeof(*malt->part_buffers));
+        malt->part_buffers, max_parts * sizeof(*malt->part_buffers));
     NS_ENSURE_TRUE(newBuf2, MIME_OUT_OF_MEMORY);
     malt->part_buffers = newBuf2;
   }
@@ -295,6 +299,8 @@ static int MimeMultipartAlternative_create_child(MimeObject* obj) {
   malt->part_buffers[i] = MimePartBufferCreate();
   NS_ENSURE_TRUE(malt->part_buffers[i], MIME_OUT_OF_MEMORY);
 
+  malt->pending_parts = pending_parts;
+  malt->max_parts = max_parts;
   return 0;
 }
 
