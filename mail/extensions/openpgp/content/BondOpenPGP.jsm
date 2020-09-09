@@ -99,75 +99,92 @@ var BondOpenPGP = {
     console.debug(prot + " protected and " + unprot + " unprotected keys");
 
     if (!OpenPGPMasterpass.haveMasterPassword() && haveAtLeastOneSecretKey) {
-      let secFileName = OpenPGPMasterpass.getSecretKeyRingFile().path;
-      let title = "OpenPGP corruption detected";
+      // We couldn't read the OpenPGP password from file.
+      // This could either mean the file doesn't exist, which indicates
+      // either a corruption, or the condition after a failed migration
+      // from early Enigmail migrator versions.
+      // Or it could mean the user has a master password set,
+      // but the user failed to enter it correctly,
+      // or we are facing the consequences of multiple password prompts.
 
-      if (prot) {
-        let info;
-        if (!unprot) {
-          info =
-            "Your Thunderbird Profile contains inconsistent or corrupted OpenPGP data. You have secret keys that were previously protected with an automatic passphrase, " +
-            "but file encrypted-openpgp-passphrase.txt is missing. File " +
-            secFileName +
-            " that contains your secret keys cannot be accessed. " +
-            "You must manually repair this corruption by moving the file to a different folder. Then restart, then import your secret keys from a backup. " +
-            "The OpenPGP functionality will be disabled until repaired. ";
-        } else {
-          info =
-            "Your Thunderbird Profile contains inconsistent or corrupted OpenPGP data. You have secret keys that were previously protected with an automatic passphrase, " +
-            "but file encrypted-openpgp-passphrase.txt is missing. File " +
-            secFileName +
-            " contains secret keys cannot be accessed. However, it also contains unprotected keys, which you may continue to access. " +
-            "You must manually repair this corruption by moving the file to a different folder. Then restart, then import your secret keys from a backup. You may also try to import the corrupted file, to import the unprotected keys. " +
-            "The OpenPGP functionality will be disabled until repaired. ";
-        }
-        Services.prompt.alert(null, title, info);
-        throw new Error(
-          "Error, secring.gpg exists, but cannot obtain password from encrypted-openpgp-passphrase.txt"
-        );
-      } else {
-        // only unprotected keys
-        // maybe https://bugzilla.mozilla.org/show_bug.cgi?id=1656287
-        let info =
-          "Your Thunderbird Profile contains inconsistent or corrupted OpenPGP data. You have secret keys, " +
-          "but file encrypted-openpgp-passphrase.txt is missing. " +
-          "If you have recently used Enigmail version 2.2 to migrate your old keys, an incomplete migration is probably the cause of the corruption. " +
-          "An automatic repair can be attempted. " +
-          "The OpenPGP functionality will be disabled until repaired. " +
-          "Before repairing, you should make a backup of file " +
-          secFileName +
-          " that contains your secret keys. " +
-          "After repairing, you may run the Enigmail migration again, or use OpenPGP Key Manager to accept your keys as personal keys.";
+      if (!OpenPGPMasterpass.getPassPath().exists()) {
+        // corruption or bug 1656287
 
-        let button = "I confirm I created a backup. Perform automatic repair.";
+        let secFileName = OpenPGPMasterpass.getSecretKeyRingFile().path;
+        let title = "OpenPGP corruption detected";
 
-        let promptFlags =
-          Services.prompt.BUTTON_POS_0 *
-            Services.prompt.BUTTON_TITLE_IS_STRING +
-          Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
-          Services.prompt.BUTTON_POS_1_DEFAULT;
-
-        let confirm = Services.prompt.confirmEx(
-          null, // window
-          title,
-          info,
-          promptFlags,
-          button,
-          null,
-          null,
-          null,
-          {}
-        );
-
-        if (confirm != 0) {
+        if (prot) {
+          let info;
+          if (!unprot) {
+            info =
+              "Your Thunderbird Profile contains inconsistent or corrupted OpenPGP data. You have secret keys that were previously protected with an automatic passphrase, " +
+              "but file encrypted-openpgp-passphrase.txt is missing. File " +
+              secFileName +
+              " that contains your secret keys cannot be accessed. " +
+              "You must manually repair this corruption by moving the file to a different folder. Then restart, then import your secret keys from a backup. " +
+              "The OpenPGP functionality will be disabled until repaired. ";
+          } else {
+            info =
+              "Your Thunderbird Profile contains inconsistent or corrupted OpenPGP data. You have secret keys that were previously protected with an automatic passphrase, " +
+              "but file encrypted-openpgp-passphrase.txt is missing. File " +
+              secFileName +
+              " contains secret keys cannot be accessed. However, it also contains unprotected keys, which you may continue to access. " +
+              "You must manually repair this corruption by moving the file to a different folder. Then restart, then import your secret keys from a backup. You may also try to import the corrupted file, to import the unprotected keys. " +
+              "The OpenPGP functionality will be disabled until repaired. ";
+          }
+          Services.prompt.alert(null, title, info);
           throw new Error(
             "Error, secring.gpg exists, but cannot obtain password from encrypted-openpgp-passphrase.txt"
           );
-        }
+        } else {
+          // only unprotected keys
+          // maybe https://bugzilla.mozilla.org/show_bug.cgi?id=1656287
+          let info =
+            "Your Thunderbird Profile contains inconsistent or corrupted OpenPGP data. You have secret keys, " +
+            "but file encrypted-openpgp-passphrase.txt is missing. " +
+            "If you have recently used Enigmail version 2.2 to migrate your old keys, an incomplete migration is probably the cause of the corruption. " +
+            "An automatic repair can be attempted. " +
+            "The OpenPGP functionality will be disabled until repaired. " +
+            "Before repairing, you should make a backup of file " +
+            secFileName +
+            " that contains your secret keys. " +
+            "After repairing, you may run the Enigmail migration again, or use OpenPGP Key Manager to accept your keys as personal keys.";
 
-        OpenPGPMasterpass.ensureMasterPassword();
-        RNP.protectUnprotectedKeys();
-        RNP.saveKeyRings();
+          let button =
+            "I confirm I created a backup. Perform automatic repair.";
+
+          let promptFlags =
+            Services.prompt.BUTTON_POS_0 *
+              Services.prompt.BUTTON_TITLE_IS_STRING +
+            Services.prompt.BUTTON_POS_1 * Services.prompt.BUTTON_TITLE_CANCEL +
+            Services.prompt.BUTTON_POS_1_DEFAULT;
+
+          let confirm = Services.prompt.confirmEx(
+            null, // window
+            title,
+            info,
+            promptFlags,
+            button,
+            null,
+            null,
+            null,
+            {}
+          );
+
+          if (confirm != 0) {
+            throw new Error(
+              "Error, secring.gpg exists, but cannot obtain password from encrypted-openpgp-passphrase.txt"
+            );
+          }
+
+          OpenPGPMasterpass.ensureMasterPassword();
+          RNP.protectUnprotectedKeys();
+          RNP.saveKeyRings();
+        }
+      } else {
+        // We couldn't obtain the OpenPGP password from file,
+        // the file exists. That probably means the user didn't
+        // enter the master password.
       }
     } else {
       OpenPGPMasterpass.ensureMasterPassword();
