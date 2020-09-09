@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 ChromeUtils.defineModuleGetter(this, "cal", "resource:///modules/calendar/calUtils.jsm");
 
@@ -299,14 +300,33 @@ var calauth = {
         asyncprompter.queueAsyncAuthPrompt(hostKey, false, promptlistener);
       };
 
-      self.mWindow = cal.window.getCalendarWindow();
+      let finalSteps = function() {
+        // the prompt will fail if we are too early
+        if (self.mWindow.document.readyState == "complete") {
+          queuePrompt();
+        } else {
+          self.mWindow.addEventListener("load", queuePrompt, true);
+        }
+      };
 
-      // the prompt will fail if we are too early
-      if (self.mWindow.document.readyState == "complete") {
-        queuePrompt();
-      } else {
-        self.mWindow.addEventListener("load", queuePrompt, true);
-      }
+      let tryUntilReady = function() {
+        self.mWindow = cal.window.getCalendarWindow();
+        if (!self.mWindow) {
+          setTimeout(tryUntilReady, 1000);
+          return;
+        }
+
+        finalSteps();
+      };
+
+      // We might reach this code when cal.window.getCalendarWindow()
+      // returns null, which means the window obviously isn't yet
+      // in readyState complete, and we also cannot yet queue a prompt.
+      // It may happen if startup shows a blocking primary password
+      // prompt, which delays starting up the application windows.
+      // Use a timer to retry until we can access the calendar window.
+
+      tryUntilReady();
     }
   },
 
