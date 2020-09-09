@@ -323,15 +323,13 @@ NS_IMETHODIMP nsAbCardProperty::SetUID(const nsACString& aUID) {
     return NS_OK;
   }
 
-  int ampIndex = m_directoryUID.FindChar('&');
-  const nsACString& directoryUID = Substring(m_directoryUID, 0, ampIndex);
-
   nsCOMPtr<nsIAbManager> abManager =
       do_GetService(NS_ABMANAGER_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIAbDirectory> directory = nullptr;
-  rv = abManager->GetDirectoryFromId(directoryUID, getter_AddRefs(directory));
+  rv =
+      abManager->GetDirectoryFromUID(m_directoryUID, getter_AddRefs(directory));
   NS_ENSURE_SUCCESS(rv, rv);
 
   if (!directory) {
