@@ -76,6 +76,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
   TBDistCustomizer: "resource:///modules/TBDistCustomizer.jsm",
+  XPIDatabase: "resource://gre/modules/addons/XPIDatabase.jsm",
+  XPIInternal: "resource://gre/modules/addons/XPIProvider.jsm",
+  ExtensionData: "resource://gre/modules/Extension.jsm",
 });
 
 /**
@@ -292,6 +295,50 @@ MailGlue.prototype = {
         "resource:///modules/AppUpdateUI.jsm"
       );
       AppUpdateUI.init();
+    }
+
+    if (!this._isNewProfile) {
+      this._legacyCheck();
+    }
+  },
+
+  async _legacyCheck() {
+    // Check for user-installed legacy WebExtension.
+    let addons = await XPIDatabase.getAddonList(
+      a =>
+        a.isWebExtension &&
+        !a.location.isSystem &&
+        !a.location.isBuiltin &&
+        a.id != "{e2fda1a4-762b-4020-b5ad-a41df1933103}"
+    );
+    for (let addon of addons) {
+      // Step 1: Get the extension.
+      let extension = null;
+      try {
+        extension = new ExtensionData(
+          XPIInternal.maybeResolveURI(Services.io.newURI(addon.rootURI))
+        );
+      } catch (e) {
+        console.log(e);
+      }
+
+      if (!extension) {
+        continue;
+      }
+
+      // Step 2: Get the manifest.
+      let manifest = await extension.loadManifest();
+      if (manifest && manifest.legacy != null) {
+        // Enforce a "is not compatible" notification element.
+        // There is no compatible property we could store, so we really have
+        // to run this on each app start.
+        addon.isCompatibleWith = () => false;
+        // appDisable add-on if needed.
+        if (!addon.appDisabled) {
+          await XPIDatabase.updateAddonDisabledState(addon);
+          console.log(`Legacy WebExtension <${addon.id}> has been disabled.`);
+        }
+      }
     }
   },
 
