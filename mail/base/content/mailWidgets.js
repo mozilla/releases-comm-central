@@ -2309,13 +2309,13 @@
     }
 
     /**
-     * Create a new recipient row container with the input autocomplete.
+     * Create a new recipient row container with a row input.
      *
      * @param {Object} recipient - An object for various element attributes.
-     * @param {boolean} rawInput - A flag to disable pill and autocompletion.
+     * @param {boolean} rawInput - A flag to disable pills and autocompletion.
      * @return {Element} - The newly created recipient row.
      */
-    buildRecipientRows(recipient, rawInput = false) {
+    buildRecipientRow(recipient, rawInput = false) {
       let row = document.createXULElement("hbox");
       row.setAttribute("id", recipient.row);
       row.classList.add("addressingWidgetItem", "address-row");
@@ -2379,6 +2379,7 @@
       );
       inputContainer.addEventListener("click", focusAddressInput);
 
+      // Set up the row input for the row.
       let input = document.createElement(
         "input",
         rawInput
@@ -2388,51 +2389,45 @@
             }
       );
       input.setAttribute("id", recipient.id);
-
+      input.setAttribute("recipienttype", recipient.type);
+      input.setAttribute("size", 1);
       input.setAttribute("type", "text");
       input.classList.add("plain", "address-input");
       if (recipient.class) {
         input.classList.add(recipient.class);
       }
-      input.setAttribute("disableonsend", true);
-      input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
-      input.setAttribute("autocompletesearchparam", "{}");
-      input.setAttribute("timeout", 300);
-      input.setAttribute("maxrows", 6);
-      input.setAttribute("completedefaultindex", true);
-      input.setAttribute("forcecomplete", true);
-      input.setAttribute("completeselectedindex", true);
-      input.setAttribute("minresultsforpopup", 2);
-      input.setAttribute("ignoreblurwhilesearching", true);
 
+      if (!rawInput) {
+        // Regular autocomplete address input, not other header with raw input.
+        input.setAttribute("disableonsend", true);
+        input.setAttribute("autocompletesearch", "mydomain addrbook ldap news");
+        input.setAttribute("autocompletesearchparam", "{}");
+        input.setAttribute("timeout", 300);
+        input.setAttribute("maxrows", 6);
+        input.setAttribute("completedefaultindex", true);
+        input.setAttribute("forcecomplete", true);
+        input.setAttribute("completeselectedindex", true);
+        input.setAttribute("minresultsforpopup", 2);
+        input.setAttribute("ignoreblurwhilesearching", true);
+
+        setupAutocompleteInput(input, this.highlightNonMatches);
+
+        // Handle keydown event in autocomplete address input of row with pills.
+        // input.onBeforeHandleKeyDown() gets called by the toolkit autocomplete
+        // before going into autocompletion.
+        input.onBeforeHandleKeyDown = event => {
+          addressInputOnBeforeHandleKeyDown(event);
+        };
+      }
+
+      input.addEventListener("blur", () => {
+        addressInputOnBlur(input);
+      });
       input.addEventListener("focus", () => {
         addressInputOnFocus(input);
       });
-      input.addEventListener("blur", () => {
-        if (rawInput) {
-          input.closest(".address-container").removeAttribute("focused");
-        } else {
-          addressInputOnBlur(input);
-        }
-      });
-      input.onBeforeHandleKeyDown = event => {
-        addressInputOnBeforeHandleKeyDown(event);
-        if (event.key != "Tab" || !event.shiftKey) {
-          return;
-        }
-        event.preventDefault();
-        this.moveFocusToPreviousElement(input);
-      };
-
-      input.setAttribute("recipienttype", recipient.type);
-      input.setAttribute("size", 1);
-
-      if (!rawInput) {
-        setupAutocompleteInput(input, this.highlightNonMatches);
-      }
 
       inputContainer.appendChild(input);
-
       row.appendChild(inputContainer);
 
       return row;

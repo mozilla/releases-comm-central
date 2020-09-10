@@ -647,19 +647,26 @@ function addressInputOnBeforeHandleKeyDown(event) {
       // If no address entered, move focus to the next available element,
       // but not for Ctrl+[Shift]+Enter keyboard shortcuts for sending.
       if (!input.value.trim() && !event.ctrlKey) {
-        // Block the default focus ring change since we're handling it with a
-        // dedicated method.
+        // Prevent Enter from firing again on the element we move the focus to.
         event.preventDefault();
         SetFocusOnNextAvailableElement(input);
       }
       break;
 
     case "Tab":
-      // Trigger the autocomplete controller only if we have a value
+      // Trigger the autocomplete controller only if we have a value,
       // to prevent interfering with the natural change of focus on Tab.
       if (input.value.trim()) {
+        // Prevent Tab from firing again on address input after pill creation.
         event.preventDefault();
         input.handleEnter(event);
+      }
+
+      // Handle Shift+Tab, but not Ctrl+Shift+Tab for fast focus ring backwards.
+      if (event.shiftKey && !event.ctrlKey && !event.metaKey) {
+        // Prevent Shift+Tab from firing again where we move the focus to.
+        event.preventDefault();
+        input.closest("mail-recipients-area").moveFocusToPreviousElement(input);
       }
       break;
   }
@@ -751,17 +758,23 @@ function deselectAllPills() {
  * Handle blur event of address inputs: Remove focused styling from the closest
  * address container and create address pills if valid recipients were written.
  *
- * @param {HTMLElement} element - The input element losing focus.
+ * @param {Element} input - The input element losing focus.
  */
-function addressInputOnBlur(element) {
-  element.closest(".address-container").removeAttribute("focused");
+function addressInputOnBlur(input) {
+  input.closest(".address-container").removeAttribute("focused");
 
-  let address = element.value.trim();
+  if (input.getAttribute("is") != "autocomplete-input") {
+    // For other headers aka raw input, trim and we are done.
+    input.value = input.value.trim();
+    return;
+  }
+
+  let address = input.value.trim();
   if (!address) {
     // If input is empty or whitespace only, clear input to remove any leftover
     // whitespace, reset the input size, and return.
-    element.value = "";
-    element.setAttribute("size", 1);
+    input.value = "";
+    input.setAttribute("size", 1);
     return;
   }
 
@@ -777,14 +790,14 @@ function addressInputOnBlur(element) {
     address &&
     (isValidAddress(address) ||
       isMailingList ||
-      element.classList.contains("news-input"))
+      input.classList.contains("news-input"))
   ) {
-    recipientAddPill(element);
+    recipientAddPill(input);
   }
 
   // Trim any remaining input for which we didn't create a pill.
-  if (element.value.trim()) {
-    element.value = element.value.trim();
+  if (input.value.trim()) {
+    input.value = input.value.trim();
   }
 }
 
@@ -978,12 +991,10 @@ function showAddressRow(label, rowID) {
   }
 
   let container = document.getElementById(rowID);
-  let input =
-    container.querySelector(`input[is="autocomplete-input"]`) ||
-    container.querySelector("input");
   container.classList.remove("hidden");
   label.setAttribute("collapsed", "true");
-  input.focus();
+  // Focus the row input.
+  container.querySelector(".address-input[recipienttype]").focus();
 
   updateRecipientsPanelVisibility();
 }

@@ -3910,7 +3910,7 @@ function ComposeLoad() {
 
         extraRecipientsPanel.appendChild(createRecipientLabel(header));
         recipientsContainer.appendChild(
-          recipientsContainer.buildRecipientRows(recipient, true)
+          recipientsContainer.buildRecipientRow(recipient, true)
         );
       }
     }
@@ -4641,11 +4641,8 @@ function isValidAddress(aAddress) {
 function focusAddressInput(event) {
   let container = event.originalTarget;
   if (container.classList.contains("address-container")) {
-    let input =
-      container.querySelector(
-        `input[is="autocomplete-input"][recipienttype]`
-      ) || container.querySelector("input");
-    input.focus();
+    // Focus the row input with recipienttype attribute, i.e. not a pill input.
+    container.querySelector(".address-input[recipienttype]").focus();
   }
 }
 
