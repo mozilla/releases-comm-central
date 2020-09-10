@@ -2,11 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+.calendar-list-header {
+  background-color: var(--viewCalendarHeaderBackground);
+  padding-block: 2px;
+}
+
+.calendar-list-create {
+  list-style-image: url("chrome://messenger/skin/icons/new.svg");
+  margin-block: 0;
+  margin-inline: 3px;
+  padding: 3px !important;
+  border: none !important;
+  min-width: auto;
+}
+
+.calendar-list-create .toolbarbutton-text:not([value]) {
+  display: none;
+}
+
 checkbox.treenode-checkbox {
-  -moz-box-align: center;
-  padding-top: 4px;
-  padding-inline-start: 4px;
-  padding-inline-end: 4px;
+  margin-inline: 6px;
+  margin-block: 0;
   font-weight: bold;
 }
 
@@ -174,12 +190,40 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
-#calendar-list > richlistitem > checkbox > .checkbox-check {
+button.calendar-enable-button {
+  color: #fff !important;
+  background: #6b80a4;
+  padding: 1px 4px;
+  font-size: 0.75em;
+  text-transform: uppercase;
+  font-weight: 700;
+  border-radius: 12px;
+  min-width: auto;
+  height: auto;
+}
+
+button.calendar-enable-button:hover,
+button.calendar-enable-button:focus,
+button.calendar-enable-button:active {
+  background: #2c4c82;
+}
+
+checkbox.calendar-displayed {
+  margin-block: 0;
+}
+
+checkbox.calendar-displayed > .checkbox-check {
   appearance: none;
   list-style-image: url("chrome://messenger/skin/icons/hidden.svg");
   -moz-context-properties: fill;
   fill: currentColor;
   opacity: 0.7;
+  transition: opacity .2s ease;
+}
+
+checkbox.calendar-displayed:hover > .checkbox-check,
+checkbox.calendar-displayed:focus > .checkbox-check {
+  opacity: 0.9 !important;
 }
 
 #calendar-list > richlistitem > checkbox[checked="true"] > .checkbox-check {
@@ -199,10 +243,6 @@ checkbox.treenode-checkbox > .checkbox-label-center-box > .checkbox-label-box > 
   width: 10px;
   height: 10px;
   border-radius: 5px;
-}
-
-#calendar-list > richlistitem[calendar-disabled="true"] > .calendar-color {
-  filter: grayscale(1);
 }
 
 #calendar-list > richlistitem > .calendar-name {

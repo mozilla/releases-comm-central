@@ -16,6 +16,9 @@
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
+// Temporary bundle for 78 to get the "Enable" string from the addons.properties file.
+var bundle;
+
 /**
  * Get this window's currently selected calendar.
  *
@@ -148,9 +151,15 @@ function loadCalendarManager() {
     let image = document.createXULElement("image");
     image.classList.add("calendar-color");
     item.appendChild(image);
-    image.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;
+    if (calendar.getProperty("disabled")) {
+      image.style.backgroundColor = "transparent";
+      image.style.border = `2px solid var(--calendar-${cssSafeId}-backcolor)`;
+    } else {
+      image.style.backgroundColor = `var(--calendar-${cssSafeId}-backcolor)`;
+    }
 
     let label = document.createXULElement("label");
+    label.setAttribute("crop", "end");
     label.classList.add("calendar-name");
     label.value = calendar.name;
     item.appendChild(label);
@@ -160,13 +169,29 @@ function loadCalendarManager() {
     image.setAttribute("tooltip", "calendar-list-tooltip");
     item.appendChild(image);
 
-    let checkbox = document.createXULElement("checkbox");
-    checkbox.classList.add("calendar-displayed");
-    checkbox.checked = calendar.getProperty("calendar-main-in-composite");
+    let enable = document.createXULElement("button");
     if (calendar.getProperty("disabled")) {
-      checkbox.setAttribute("disabled", "true");
+      if (!bundle) {
+        bundle = Services.strings.createBundle("chrome://messenger/locale/addons.properties");
+      }
+      enable.label = bundle.GetStringFromName("webextPerms.sideloadEnable.label");
     }
-    item.appendChild(checkbox);
+    enable.classList.add("calendar-enable-button");
+    enable.hidden = !calendar.getProperty("disabled");
+    item.appendChild(enable);
+
+    let displayedCheckbox = document.createXULElement("checkbox");
+    displayedCheckbox.classList.add("calendar-displayed");
+    displayedCheckbox.checked = calendar.getProperty("calendar-main-in-composite");
+    displayedCheckbox.hidden = calendar.getProperty("disabled");
+    let stringName = cal.view.getCompositeCalendar(window).getCalendarById(calendar.id)
+      ? "hideCalendar"
+      : "showCalendar";
+    displayedCheckbox.setAttribute(
+      "tooltiptext",
+      cal.l10n.getCalString(stringName, [calendar.name])
+    );
+    item.appendChild(displayedCheckbox);
 
     calendarList.appendChild(item);
     if (calendar.getProperty("calendar-main-default")) {
@@ -185,6 +210,15 @@ function loadCalendarManager() {
   }
 
   calendarList.addEventListener("click", event => {
+    if (event.target.matches(".calendar-enable-button")) {
+      let calendar = calendarManager.getCalendarById(
+        event.target.closest("richlistitem").getAttribute("calendar-id")
+      );
+      calendar.setProperty("disabled", false);
+      calendarList.focus();
+      return;
+    }
+
     if (!event.target.matches("checkbox.calendar-displayed")) {
       return;
     }
@@ -198,10 +232,17 @@ function loadCalendarManager() {
     } else {
       compositeCalendar.removeCalendar(calendar);
     }
+
+    let stringName = event.target.checked ? "hideCalendar" : "showCalendar";
+    event.target.setAttribute("tooltiptext", cal.l10n.getCalString(stringName, [calendar.name]));
+
     calendarList.focus();
   });
   calendarList.addEventListener("dblclick", event => {
-    if (event.target.matches("checkbox.calendar-displayed")) {
+    if (
+      event.target.matches("checkbox.calendar-displayed") ||
+      event.target.matches(".calendar-enable-button")
+    ) {
       return;
     }
 
@@ -315,6 +356,12 @@ function loadCalendarManager() {
         } else {
           compositeCalendar.addCalendar(calendar);
         }
+        let stringName = item.querySelector(".calendar-displayed").checked
+          ? "hideCalendar"
+          : "showCalendar";
+        item
+          .querySelector(".calendar-displayed")
+          .setAttribute("tooltiptext", cal.l10n.getCalString(stringName, [calendar.name]));
         break;
       }
     }
@@ -347,7 +394,24 @@ function loadCalendarManager() {
       switch (name) {
         case "disabled":
           setBooleanAttribute(item, "calendar-disabled", value);
-          setBooleanAttribute(item.querySelector(".calendar-displayed"), "disabled", value);
+          setBooleanAttribute(item.querySelector(".calendar-displayed"), "hidden", value);
+          // Update the "ENABLE" button.
+          let enableButton = item.querySelector(".calendar-enable-button");
+          setBooleanAttribute(enableButton, "hidden", !value);
+          // We need to set the string if the button was hidden on creation.
+          if (value && enableButton.label == "") {
+            if (!bundle) {
+              bundle = Services.strings.createBundle("chrome://messenger/locale/addons.properties");
+            }
+            enableButton.label = bundle.GetStringFromName("webextPerms.sideloadEnable.label");
+          }
+          // Update the color preview.
+          let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
+          let image = item.querySelector(".calendar-color");
+          image.style.backgroundColor = value
+            ? "transparent"
+            : `var(--calendar-${cssSafeId}-backcolor)`;
+          image.style.border = value ? `2px solid var(--calendar-${cssSafeId}-backcolor)` : "none";
           break;
         case "calendar-main-default":
           if (value) {

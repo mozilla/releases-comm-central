@@ -104,6 +104,7 @@ toolbar[brighttext] {
 #navigation-toolbox > toolbar:-moz-lwtheme,
 :root[lwt-tree-brighttext] .otr-container,
 :root[lwt-tree-brighttext] .crypto-button,
+:root[lwt-tree-brighttext] .calendar-list-create,
 :root[lwt-tree-brighttext] #folderPane-toolbar {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 100%, .1));
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 0%, .2));

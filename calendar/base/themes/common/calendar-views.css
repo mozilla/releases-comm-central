@@ -8,6 +8,7 @@
     --viewColor: #000;
     --viewBackground: #fff;
     --viewBorderColor: #d2d2d2;
+    --viewCalendarHeaderBackground: rgba(0, 0, 0, 0.03);
     --viewHighlightBorderColor: #67acd8;
     --viewTodayBorderColor: #7fb9ee;
     --viewTodayColor: inherit;
@@ -63,6 +64,7 @@
 }
 
 :root[lwt-tree-brighttext] {
+    --viewCalendarHeaderBackground: rgba(255, 255, 255, 0.05);
     --viewHighlightBorderColor: #9fa3d9;
     --viewTodayColor: var(--sidebar-highlight-text-color, #fff);
     --viewTodayBorderColor: var(--sidebar-highlight-text-color, #9fa3d9);

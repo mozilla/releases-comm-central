@@ -10,6 +10,7 @@
 
 #calendar-list-pane #calendar-list richlistitem {
   padding-inline-start: 14px;
+  padding-block: 2px;
 }
 
 .toolbarbutton-icon-begin {

@@ -177,10 +177,16 @@
                            flex="1"
                            mode="calendar,task"
                            refcontrol="calendar_toggle_calendarlist_command">
-          <checkbox id="calendar-list-header"
-                           checked="true"
-                           class="treenode-checkbox"
-                           label="&calendar.list.header.label;"/>
+          <hbox align="center" class="calendar-list-header">
+            <checkbox id="calendar-list-header"
+                      checked="true"
+                      class="treenode-checkbox"
+                      flex="1"
+                      label="&calendar.list.header.label;"/>
+            <toolbarbutton class="toolbarbutton-1 calendar-list-create"
+                           command="calendar_new_calendar_command"
+                           tooltiptext="&calendar.context.newserver.label;"/>
+          </hbox>
           <calendar-modevbox id="calendar-list-inner-pane"
                              flex="1"
                              mode="calendar,task"

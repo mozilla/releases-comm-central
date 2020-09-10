@@ -10,6 +10,7 @@
 
 #calendar-list-pane #calendar-list richlistitem {
   padding-inline-start: 18px;
+  padding-block: 2px;
 }
 
 #calendar-list .calendar-color {

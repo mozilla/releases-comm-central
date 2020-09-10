@@ -36,14 +36,17 @@ add_task(async () => {
           Assert.equal(item.getAttribute("calendar-id"), expectedValue);
           break;
         case "disabled":
-          Assert.equal(item.querySelector(".calendar-displayed").disabled, expectedValue);
-          Assert.equal(getComputedStyle(colorImage).filter != "none", expectedValue);
+          Assert.equal(item.querySelector(".calendar-displayed").hidden, expectedValue);
           break;
         case "displayed":
           Assert.equal(item.querySelector(".calendar-displayed").checked, expectedValue);
           break;
         case "color":
-          Assert.equal(getComputedStyle(colorImage).backgroundColor, expectedValue);
+          if (item.getAttribute("calendar-disabled")) {
+            Assert.equal(getComputedStyle(colorImage).backgroundColor, "rgba(0, 0, 0, 0)");
+          } else {
+            Assert.equal(getComputedStyle(colorImage).backgroundColor, expectedValue);
+          }
           break;
         case "name":
           Assert.equal(item.querySelector(".calendar-name").value, expectedValue);
