@@ -31,7 +31,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     // If this directory is configured, start sync'ing with the server in 30s.
     // Don't do this immediately, as this code runs at start-up and could
     // impact performance if there are lots of changes to process.
-    if (this._serverURL) {
+    if (this._serverURL && this.getIntValue("carddav.syncinterval", 30) > 0) {
       this._syncTimer = setTimeout(() => this.updateAllFromServer(), 30000);
     }
   }
