@@ -143,7 +143,11 @@ classic.jar:
   skin/classic/communicator/brand/throbber16-single.png                 (communicator/brand/throbber16-single.png)
   skin/classic/communicator/dataman/dataman.css                         (communicator/dataman/dataman.css)
   skin/classic/communicator/dataman/datamanIcon-16.png                  (communicator/dataman/datamanIcon-16.png)
+#ifdef MOZ_WIDGET_GTK
+  skin/classic/communicator/feed-subscribe.css                          (linux/communicator/feed-subscribe.css)
+#else
   skin/classic/communicator/feed-subscribe.css                          (communicator/feed-subscribe.css)
+#endif
   skin/classic/communicator/feed-subscribe-ui.css                       (communicator/feed-subscribe-ui.css)
   skin/classic/communicator/fullscreen-video.css                        (communicator/fullscreen-video.css)
   skin/classic/communicator/downloads/dl-remove.png                     (communicator/downloads/dl-remove.png)
