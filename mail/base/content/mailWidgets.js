@@ -2148,6 +2148,11 @@
       this.addEventListener("dragstart", event => {
         let targetPill = event.originalTarget.closest("mail-address-pill");
         if (targetPill && !targetPill.hasAttribute("selected")) {
+          for (let pill of this.getAllSelectedPills()) {
+            // Deselect all previously selected pills if the drag action starts
+            // from a non selected pill.
+            pill.removeAttribute("selected");
+          }
           targetPill.toggleAttribute("selected");
         }
         let selectedPills = this.getAllSelectedPills();
@@ -2287,25 +2292,30 @@
           : existingAddresses.concat(selectedAddresses);
       }
 
-      this.removeSelectedPills(
-        this.getAllSelectedPills()[0],
-        "next",
-        false,
-        true
-      );
-      // Existing pills are removed before creating new ones with the right order.
+      // Remove all selected pills.
+      for (let pill of this.getAllSelectedPills()) {
+        pill.remove();
+      }
+
+      // Existing pills are removed before creating new ones in the right order.
       for (let pill of existingPills) {
         pill.remove();
       }
 
       // Create pills for all the combined addresses.
-      awAddRecipientsArray(
-        addressContainer
-          .querySelector(".address-input")
-          .getAttribute("recipienttype"),
-        combinedAddresses,
-        false
-      );
+      let recipientType = addressContainer
+        .querySelector(".address-input[recipienttype]")
+        .getAttribute("recipienttype");
+      for (let address of combinedAddresses) {
+        awAddRecipientsArray(
+          recipientType,
+          [address],
+          selectedAddresses.includes(address)
+        );
+      }
+
+      // Move the focus to the first selected pill.
+      this.getAllSelectedPills()[0].focus();
     }
 
     /**
