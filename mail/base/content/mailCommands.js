@@ -249,7 +249,7 @@ function ComposeMessage(type, format, folder, messageArray) {
           let useCatchAll = false;
           // Check if we are using catchAll on any identity. If current
           // folder has some customIdentity set, ignore catchAll settings.
-          if (!(hdr.folder && hdr.folder.customIdentity)) {
+          if (hdr.folder && !hdr.folder.customIdentity) {
             useCatchAll = MailServices.accounts.allIdentities.some(
               identity => identity.catchAll
             );

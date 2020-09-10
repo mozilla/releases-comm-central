@@ -159,3 +159,24 @@ add_task(async function test_forward_base64_eml() {
   close_compose_window(compWin);
   close_window(msgc);
 });
+
+/**
+ * Test that forwarding an opened .eml message works with catchAll enabled.
+ */
+add_task(async function test_forward_eml_catchall() {
+  // Open an .eml file.
+  let file = new FileUtils.File(getTestFilePath("data/testmsg.eml"));
+  let msgc = await open_message_from_file(file);
+
+  MailServices.accounts.defaultAccount.defaultIdentity.catchAll = true;
+
+  let replyWin = open_compose_with_forward(msgc);
+  let bodyText = get_compose_body(replyWin).textContent;
+  const message = "Because they're stupid, that's why";
+  Assert.ok(bodyText.includes(message), "Correct message body");
+
+  MailServices.accounts.defaultAccount.defaultIdentity.catchAll = false;
+
+  close_compose_window(replyWin); // close compose window
+  close_window(msgc); // close base .eml message
+});
