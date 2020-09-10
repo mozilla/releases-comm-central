@@ -843,25 +843,6 @@
     },
     {
       "webExtension": {
-        "id": "twitter@search.mozilla.org",
-        "version": "1.0"
-      },
-      "appliesTo": [{
-        "included": { "locales": { "matches": [
-          "default", "en-US", "ach", "an", "bs", "ca", "ca-valencia",
-          "crh", "en-CA", "ga-IE", "gn", "hr", "ia", "ka", "kk", "km",
-          "lo", "lt", "mai",  "ms", "my", "ne-NP", "oc", "pt-BR",
-          "sl", "tl", "tr", "ur", "uz", "wo"
-        ]}}
-      }, {
-        "included": { "locales": { "matches": ["ja-JP-macos", "ja"]}},
-        "webExtension": {
-          "locales": ["ja"]
-        }
-      }]
-    },
-    {
-      "webExtension": {
         "id": "tyda-sv-SE@search.mozilla.org",
         "version": "1.0"
       },
