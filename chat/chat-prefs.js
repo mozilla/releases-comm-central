@@ -1,6 +1,8 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+#filter dumbComments emptyLines substitution
+
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // What to do when starting up
 //  0 = do not connect / show the account manager
@@ -64,10 +66,12 @@ pref("messenger.options.messagesStyle.variant", "default");
 pref("messenger.options.messagesStyle.combineConsecutive", true);
 // if the time interval in seconds between two messages is longer than
 // this value, the messages will not be combined
-pref("messenger.options.messagesStyle.combineConsecutiveInterval", 300); // 5 minutes
+// default 5 minutes
+pref("messenger.options.messagesStyle.combineConsecutiveInterval", 300);
 
 pref("messenger.status.reportIdle", true);
-pref("messenger.status.timeBeforeIdle", 300); // 5 minutes
+// default 5 minutes
+pref("messenger.status.timeBeforeIdle", 300);
 pref("messenger.status.awayWhenIdle", true);
 pref("messenger.status.defaultIdleAwayMessage", "chrome://chat/locale/status.properties");
 pref("messenger.status.userIconFileName", "");

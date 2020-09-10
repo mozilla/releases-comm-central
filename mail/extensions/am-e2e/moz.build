@@ -11,6 +11,6 @@ XPCOM_MANIFESTS += [
     'components.conf',
 ]
 
-JS_PREFERENCE_FILES += [
+JS_PREFERENCE_PP_FILES += [
     'prefs/e2e-prefs.js',
 ]

@@ -1,27 +1,26 @@
-/* global pref: false */
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+#filter dumbComments emptyLines substitution
 
-/**
- * Prefs shared by OpenPGP and S/MIME
- */
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+//
+// Prefs shared by OpenPGP and S/MIME
+//
 
 pref("mail.identity.default.encryptionpolicy", 0);
 pref("mail.identity.default.sign_mail", false);
 
-/**
- * S/MIME prefs
-*/
+//
+// S/MIME prefs
+//
 
 pref("mail.identity.default.encryption_cert_name", "");
 pref("mail.identity.default.signing_cert_name", "");
 
-/**
- * OpenPGP prefs
- */
+//
+// OpenPGP prefs
+//
 
 // If false, hide and disable the OpenPGP functionality
 pref("mail.openpgp.enable", true);
@@ -231,10 +230,8 @@ pref("temp.openpgp.keyRefreshOn", false);
 pref("temp.openpgp.enableExperiments", false);
 
 
-/*
-   Default pref values for the enigmail per-identity
-   settings
-*/
+// Default pref values for the enigmail per-identity
+// settings
 
 pref("mail.identity.default.defaultSigningPolicy", 0);
 pref("mail.identity.default.defaultEncryptionPolicy", 0);
@@ -247,9 +244,9 @@ pref("mail.identity.default.warnWeakReply", false);
 // prefer S/MIME or PGP/MIME (0: S/MIME, 1: PGP/MIME)
 pref("mail.identity.default.mimePreferOpenPGP", 1);
 
-/*
-   Other settings (change Mozilla behaviour)
-*/
+//
+// Other settings (change Mozilla behaviour)
+//
 
 // disable flowed text by default
 // TODO: pref("mailnews.send_plaintext_flowed", false);

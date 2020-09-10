@@ -1,21 +1,22 @@
-/* -*- Mode: javascript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+#filter dumbComments emptyLines substitution
+
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // SpaceHit() function: whether spacebar advances to next unread message.
 pref("mail.advance_on_spacebar", true);
 
 pref("mailnews.logComposePerformance", false);
 
-pref("mail.wrap_long_lines",                true);
+pref("mail.wrap_long_lines", true);
 
 // Show attachments of supported types rendered directly in the message body view.
-pref("mail.inline_attachments",             true);
+pref("mail.inline_attachments", true);
 // When rendering attachments inline, show also text attachments (e.g. CSV, HTML,
 // plain text) which are potentially very long.
-pref("mail.inline_attachments.text",        false);
-pref("mail.reply_quote_inline",             false);
+pref("mail.inline_attachments.text", false);
+pref("mail.reply_quote_inline", false);
 // When in a message the List-Post header contains the content of the Reply-To
 // (which is called "Reply-To Munging") we override the Reply-To header with
 // the From header.
@@ -31,23 +32,23 @@ pref("mail.sanitize_date_header", false);
 
 // hidden pref for controlling if the user agent string
 // is displayed in the message pane or not...
-pref("mailnews.headers.showUserAgent",       false);
+pref("mailnews.headers.showUserAgent", false);
 
 // hidden pref for controlling if the organization string
 // is displayed in the message pane or not...
-pref("mailnews.headers.showOrganization",    false);
+pref("mailnews.headers.showOrganization", false);
 
 // hidden pref for controlling if the references header
 // is displayed in the message pane or not...
-pref("mailnews.headers.showReferences",      false);
+pref("mailnews.headers.showReferences", false);
 
 // hidden pref for controlling if the message-id header
 // is displayed in the message pane or not...
-pref("mailnews.headers.showMessageId",       false);
+pref("mailnews.headers.showMessageId", false);
 
 // hidden pref for controlling if the message to a message-id
 // is opened in a new window or in the same window
-pref("mailnews.messageid.openInNewWindow",   false);
+pref("mailnews.messageid.openInNewWindow", false);
 
 // hidden pref for url which will be used to open  message-ids
 // in browser (%mid ist replaced with the message-id)
@@ -70,10 +71,13 @@ pref("mailnews.headers.extraAddonHeaders", "");
 //   as defined in nsIMsgDBView.idl (ascending = 1, descending = 2)
 // sort_type is an int value reflecting nsMsgViewSortType values
 //   as defined in nsIMsgDBView.idl (byDate = 18, byId = 21 etc.)
-pref("mailnews.default_sort_order", 1); // for Mail/RSS/... (nsMsgDatabase)
-pref("mailnews.default_sort_type", 18); //
-pref("mailnews.default_news_sort_order", 1); // for News (nsNewsDatabase)
-pref("mailnews.default_news_sort_type", 21); //
+
+// for Mail/RSS/... (nsMsgDatabase)
+pref("mailnews.default_sort_order", 1);
+pref("mailnews.default_sort_type", 18);
+// for News (nsNewsDatabase)
+pref("mailnews.default_news_sort_order", 1);
+pref("mailnews.default_news_sort_type", 21);
 
 // hidden pref for whether "sort by date" and "sort by received date" in
 // threaded mode should be based on the newest message in the thread, or on
@@ -83,8 +87,11 @@ pref("mailnews.sort_threads_by_root", false);
 // default view flags for new folders
 // both flags are int values reflecting nsMsgViewFlagsType values
 // as defined in nsIMsgDBView.idl (kNone = 0, kThreadedDisplay = 1 etc.)
-pref("mailnews.default_view_flags", 0); // for Mail/RSS/... (nsMsgDatabase)
-pref("mailnews.default_news_view_flags", 1); // for News (nsNewsDatabase)
+
+// for Mail/RSS/... (nsMsgDatabase)
+pref("mailnews.default_view_flags", 0);
+// for News (nsNewsDatabase)
+pref("mailnews.default_news_view_flags", 1);
 
 // If true, delete will use the direction of the sort order
 // in determining the next message to select.
@@ -113,24 +120,27 @@ pref("mailnews.allowMboxOver4GB", true);
 // Note that the maximum size of a cache entry is limited by
 // max_entry_size and (capacity >> 3), so divided by 8.
 // Larger messages or attachments won't be cached.
-pref("browser.cache.memory.max_entry_size", 25000); //  25 MB
-pref("browser.cache.memory.capacity",      200000); // 200 MB = 8*25 MB
 
-pref("mail.imap.chunk_size",                65536);
-pref("mail.imap.min_chunk_size_threshold",  98304);
-pref("mail.imap.chunk_fast",                2);
-pref("mail.imap.chunk_ideal",               4);
-pref("mail.imap.chunk_add",                 8192);
-pref("mail.imap.hide_other_users",          false);
-pref("mail.imap.hide_unused_namespaces",    true);
-pref("mail.imap.auto_unsubscribe_from_noselect_folders",    true);
-pref("mail.imap.mime_parts_on_demand",      true);
+//  25 MB
+pref("browser.cache.memory.max_entry_size", 25000);
+// 200 MB = 8*25 MB
+pref("browser.cache.memory.capacity", 200000);
+
+pref("mail.imap.chunk_size", 65536);
+pref("mail.imap.min_chunk_size_threshold", 98304);
+pref("mail.imap.chunk_fast", 2);
+pref("mail.imap.chunk_ideal", 4);
+pref("mail.imap.chunk_add", 8192);
+pref("mail.imap.hide_other_users", false);
+pref("mail.imap.hide_unused_namespaces", true);
+pref("mail.imap.auto_unsubscribe_from_noselect_folders", true);
+pref("mail.imap.mime_parts_on_demand", true);
 pref("mail.imap.mime_parts_on_demand_threshold", 500000);
-pref("mail.imap.use_literal_plus",          true);
-pref("mail.imap.expunge_after_delete",      false);
+pref("mail.imap.use_literal_plus", true);
+pref("mail.imap.expunge_after_delete", false);
 pref("mail.imap.check_deleted_before_expunge", false);
-pref("mail.imap.expunge_option",            0);
-pref("mail.imap.expunge_threshold_number",  20);
+pref("mail.imap.expunge_option", 0);
+pref("mail.imap.expunge_threshold_number", 20);
 pref("mail.imap.hdr_chunk_size", 200);
 // Should we filter imap messages based on new messages since the previous
 // highest UUID seen instead of unread?
@@ -147,32 +157,44 @@ pref("mail.imap.tcp_keepalive.retry_interval", 5);
 // is acting as a delegate for that folder, and wishes to use the other users
 // identity when acting on messages in other users folders.
 pref("mail.imap.delegateOtherUsersFolders", false);
-pref("mail.thread_without_re",              false); // if false, only thread by subject if Re:
-pref("mail.strict_threading",               true);  // if true, don't thread by subject at all
-pref("mail.correct_threading",              true);  // if true, makes sure threading works correctly always (see bug 181446)
-pref("mail.pop3.deleteFromServerOnMove",    false);
-pref("mail.fixed_width_messages",           true);
+// if false, only thread by subject if Re:
+pref("mail.thread_without_re", false);
+// if true, don't thread by subject at all
+pref("mail.strict_threading", true);
+// if true, makes sure threading works correctly always (see bug 181446)
+pref("mail.correct_threading", true);
+pref("mail.pop3.deleteFromServerOnMove", false);
+pref("mail.fixed_width_messages", true);
 #ifdef MOZ_SUITE
-pref("mail.citation_color",                 "#000000"); // quoted color
+// quoted color
+pref("mail.citation_color", "#000000");
 #else
-pref("mail.citation_color",                 "#007cff"); // quoted color
+// quoted color
+pref("mail.citation_color", "#007cff");
 #endif
-pref("mail.strip_sig_on_reply", true); // If true, remove the everything after the "-- \n" signature delimiter when replying.
-pref("mail.quoted_style",                   0); // 0=plain, 1=bold, 2=italic, 3=bolditalic
-pref("mail.quoted_size",                    0); // 0=normal, 1=big, 2=small
-pref("mail.quoted_graphical",               true); // use HTML-style quoting for displaying plain text
-pref("mail.quoteasblock",                   true); // use HTML-style quoting for quoting plain text
-pref("mail.strictly_mime",                  false);
-pref("mail.strictly_mime_headers",          true);
-pref("mail.folder_widget.max_recent",       25); // The maximum number of entries in the "Recent" menu of the folder picker.
+// If true, remove the everything after the "-- \n" signature delimiter when replying.
+pref("mail.strip_sig_on_reply", true);
+// 0=plain, 1=bold, 2=italic, 3=bolditalic
+pref("mail.quoted_style", 0);
+// 0=normal, 1=big, 2=small
+pref("mail.quoted_size", 0);
+// use HTML-style quoting for displaying plain text
+pref("mail.quoted_graphical", true);
+// use HTML-style quoting for quoting plain text
+pref("mail.quoteasblock", true);
+pref("mail.strictly_mime", false);
+pref("mail.strictly_mime_headers", true);
+// The maximum number of entries in the "Recent" menu of the folder picker.
+pref("mail.folder_widget.max_recent", 25);
 // 0/1 (name param is encoded in a legacy way), 2(RFC 2231 only)
 // 0 the name param is never separated to multiple lines.
-pref("mail.strictly_mime.parm_folding",     1);
+pref("mail.strictly_mime.parm_folding", 1);
 pref("mail.label_ascii_only_mail_as_us_ascii", false);
-pref("mail.file_attach_binary",             false);
-pref("mail.show_headers",                   1); // some
-pref("mailnews.p7m_external", false);          // S/MIME parts are not external (but inline decrypted).
-pref("mail.pane_config.dynamic",            0);
+pref("mail.file_attach_binary", false);
+pref("mail.show_headers", 1);
+// some S/MIME parts are not external (but inline decrypted).
+pref("mailnews.p7m_external", false);
+pref("mail.pane_config.dynamic", 0);
 pref("mail.addr_book.mapit_url.format", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.1.name", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.1.format", "chrome://messenger-region/locale/region.properties");
@@ -232,7 +254,8 @@ pref("mail.html_compose",                   true);
 // examples: "X-Face" or "Approved,X-No-Archive"
 pref("mail.compose.other.header", "");
 pref("mail.compose.autosave", true);
-pref("mail.compose.autosaveinterval", 5); // in minutes
+// interval in minutes
+pref("mail.compose.autosaveinterval", 5);
 pref("mail.compose.default_to_paragraph", false);
 
 // true:  If the message has practically no HTML formatting, bypass recipient-centric
@@ -240,33 +263,44 @@ pref("mail.compose.default_to_paragraph", false);
 // false: Don't auto-downgrade; use recipient-centric auto-detection of best delivery format,
 //        including send options.
 pref("mailnews.sendformat.auto_downgrade", true);
-pref("mail.default_html_action", 0);          // 0=ask, 1=plain, 2=html, 3=both
-
-pref("mail.mdn.report.not_in_to_cc", 2);               // 0: Never 1: Always 2: Ask me
-pref("mail.mdn.report.outside_domain", 2);             // 0: Never 1: Always 2: Ask me
-pref("mail.mdn.report.other", 2);                      // 0: Never 1: Always 2: Ask me 3: Denial
-
-pref("mail.incorporate.return_receipt", 0);            // 0: Inbox/filter 1: Sent folder
-pref("mail.request.return_receipt", 2);                // 1: DSN 2: MDN 3: Both
-pref("mail.receipt.request_header_type", 0);           // 0: MDN-DNT header  1: RRT header 2: Both (MC)
+// 0=ask, 1=plain, 2=html, 3=both
+pref("mail.default_html_action", 0);
+// 0: Never 1: Always 2: Ask me
+pref("mail.mdn.report.not_in_to_cc", 2);
+// 0: Never 1: Always 2: Ask me
+pref("mail.mdn.report.outside_domain", 2);
+// 0: Never 1: Always 2: Ask me 3: Denial
+pref("mail.mdn.report.other", 2);
+// 0: Inbox/filter 1: Sent folder
+pref("mail.incorporate.return_receipt", 0);
+// 1: DSN 2: MDN 3: Both
+pref("mail.request.return_receipt", 2);
+// 0: MDN-DNT header  1: RRT header 2: Both (MC)
+pref("mail.receipt.request_header_type", 0);
 pref("mail.receipt.request_return_receipt_on", false);
-pref("mail.mdn.report.enabled", true);                 // false: Never send true: Send sometimes
+// false: Never send true: Send sometimes
+pref("mail.mdn.report.enabled", true);
 
 pref("mail.dsn.always_request_on", false);
-pref("mail.dsn.request_on_success_on", true);          // DSN request is sent with SUCCESS option
-pref("mail.dsn.request_on_failure_on", true);          // DSN request is sent with FAILURE option
-pref("mail.dsn.request_on_delay_on", true);            // DSN request is sent with DELAY option
-pref("mail.dsn.request_never_on", false);              // DSN request is not sent with NEVER option
-pref("mail.dsn.ret_full_on", true);                    // DSN request is sent with RET FULL option
+// DSN request is sent with SUCCESS option
+pref("mail.dsn.request_on_success_on", true);
+// DSN request is sent with FAILURE option
+pref("mail.dsn.request_on_failure_on", true);
+// DSN request is sent with DELAY option
+pref("mail.dsn.request_on_delay_on", true);
+// DSN request is not sent with NEVER option
+pref("mail.dsn.request_never_on", false);
+// DSN request is sent with RET FULL option
+pref("mail.dsn.ret_full_on", true);
 
-pref("news.show_size_in_lines",             true);
-pref("news.update_unread_on_expand",        true);
-pref("news.get_messages_on_select",         true);
+pref("news.show_size_in_lines", true);
+pref("news.update_unread_on_expand", true);
+pref("news.get_messages_on_select", true);
 
-pref("mailnews.wraplength",                 72);
+pref("mailnews.wraplength", 72);
 
 // 0=no header, 1="<author> wrote:", 2="On <date> <author> wrote:", 3="<author> wrote On <date>:", 4=user specified
-pref("mailnews.reply_header_type",          1);
+pref("mailnews.reply_header_type", 1);
 pref("mailnews.reply_header_authorwrotesingle", "chrome://messenger/locale/messengercompose/composeMsgs.properties");
 pref("mailnews.reply_header_ondateauthorwrote", "chrome://messenger/locale/messengercompose/composeMsgs.properties");
 pref("mailnews.reply_header_authorwroteondate", "chrome://messenger/locale/messengercompose/composeMsgs.properties");
@@ -275,9 +309,9 @@ pref("mailnews.forward_header_originalmessage", "chrome://messenger/locale/messe
 
 pref("mailnews.reply_to_self_check_all_ident", true);
 
-pref("mailnews.reply_quoting_selection",               true);
+pref("mailnews.reply_quoting_selection", true);
 pref("mailnews.reply_quoting_selection.only_if_chars", "");
-pref("mailnews.reply_quoting_selection.multi_word",    true);
+pref("mailnews.reply_quoting_selection.multi_word", true);
 
 pref("mail.operate_on_msgs_in_collapsed_threads", false);
 pref("mail.warn_on_collapsed_thread_operation", true);
@@ -285,17 +319,18 @@ pref("mail.warn_on_shift_delete", true);
 pref("news.warn_on_delete", true);
 pref("mail.warn_on_delete_from_trash", true);
 pref("mail.purge_threshhold_mb", 200);
-pref("mail.prompt_purge_threshhold",       true);
-pref("mail.purge.ask",                     true);
+pref("mail.prompt_purge_threshhold", true);
+pref("mail.purge.ask", true);
 
-pref("mailnews.offline_sync_mail",         false);
-pref("mailnews.offline_sync_news",         false);
-pref("mailnews.offline_sync_send_unsent",  true);
+pref("mailnews.offline_sync_mail", false);
+pref("mailnews.offline_sync_news", false);
+pref("mailnews.offline_sync_send_unsent", true);
 pref("mailnews.offline_sync_work_offline", false);
-pref("mailnews.force_ascii_search",        false);
+pref("mailnews.force_ascii_search", false);
 
-pref("mailnews.view_default_charset",       "chrome://messenger/locale/messenger.properties");
-pref("mailnews.force_charset_override",     false); // ignore specified MIME encoding and use the default encoding for display
+pref("mailnews.view_default_charset", "chrome://messenger/locale/messenger.properties");
+// ignore specified MIME encoding and use the default encoding for display
+pref("mailnews.force_charset_override", false);
 
 // AppleDouble is causing problems with some webmail clients and Microsoft mail servers
 // rejecting a MIME part of multipart/appledouble. Mac uses resource forks less and less
@@ -304,18 +339,18 @@ pref("mailnews.force_charset_override",     false); // ignore specified MIME enc
 // "*" - AppleDouble will always be used
 // Comma-separated list of extensions for which to use AppleDouble, for example "doc,xls" (not-case sensitive).
 pref("mailnews.extensions_using_appledouble", "");
-pref("mailnews.localizedRe",                "chrome://messenger-region/locale/region.properties");
+pref("mailnews.localizedRe", "chrome://messenger-region/locale/region.properties");
 
-pref("mailnews.search_date_format",        "chrome://messenger/locale/messenger.properties");
-pref("mailnews.search_date_separator",     "chrome://messenger/locale/messenger.properties");
+pref("mailnews.search_date_format", "chrome://messenger/locale/messenger.properties");
+pref("mailnews.search_date_separator", "chrome://messenger/locale/messenger.properties");
 pref("mailnews.search_date_leading_zeros", "chrome://messenger/locale/messenger.properties");
-
-pref("mailnews.quotingPrefs.version",       0);  // used to decide whether to migrate global quoting prefs
+// used to decide whether to migrate global quoting prefs
+pref("mailnews.quotingPrefs.version", 0);
 
 // the first time, we'll warn the user about the blind send, and they can disable the warning if they want.
-pref("mapi.blind-send.enabled",             true);
-
-pref("offline.autoDetect",                  false); // automatically move the user offline or online based on the network connection
+pref("mapi.blind-send.enabled", true);
+// automatically move the user offline or online based on the network connection
+pref("offline.autoDetect", false);
 
 pref("ldap_2.autoComplete.useDirectory", false);
 pref("ldap_2.autoComplete.directoryServer", "");
@@ -374,7 +409,8 @@ pref("ldap_2.servers.default.attrmap.PreferMailFormat", "mozillaUseHtmlMail,xmoz
 pref("ldap_2.servers.default.attrmap.LastModifiedDate", "modifytimestamp");
 
 pref("ldap_2.user_id", 0);
-pref("ldap_2.version", 3); /* Update kCurrentListVersion in include/dirprefs.h if you change this */
+// Update kCurrentListVersion in include/dirprefs.h if you change this
+pref("ldap_2.version", 3);
 
 pref("mailnews.confirm.moveFoldersToTrash", true);
 
@@ -387,9 +423,10 @@ pref("mail.close_message_window.on_delete", false);
 #ifdef MOZ_SUITE
 pref("mailnews.reuse_message_window", true);
 #endif
-
-pref("mailnews.open_window_warning", 10); // warn user if they attempt to open more than this many messages at once
-pref("mailnews.open_tab_warning", 20); // warn user if they attempt to open more than this many messages at once
+// warn user if they attempt to open more than this many messages at once
+pref("mailnews.open_window_warning", 10);
+// warn user if they attempt to open more than this many messages at once
+pref("mailnews.open_tab_warning", 20);
 
 pref("mailnews.start_page.enabled", true);
 
@@ -424,10 +461,14 @@ pref("mail.identity.default.stationery_folder", "mailbox://nobody@Local%20Folder
 pref("mail.identity.default.directoryServer", "");
 pref("mail.identity.default.overrideGlobal_Pref", false);
 pref("mail.identity.default.auto_quote", true);
-pref("mail.identity.default.reply_on_top", 0); // 0=bottom 1=top 2=select
-pref("mail.identity.default.sig_bottom", true); // true=below quoted false=above quoted
-pref("mail.identity.default.sig_on_fwd", false); // Include signature on fwd?
-pref("mail.identity.default.sig_on_reply", true); // Include signature on re?
+// 0=bottom 1=top 2=select
+pref("mail.identity.default.reply_on_top", 0);
+// true=below quoted false=above quoted
+pref("mail.identity.default.sig_bottom", true);
+// Include signature on fwd?
+pref("mail.identity.default.sig_on_fwd", false);
+// Include signature on re?
+pref("mail.identity.default.sig_on_reply", true);
 
 // Suppress double-dash signature separator
 pref("mail.identity.default.suppress_signature_separator", false);
@@ -482,8 +523,10 @@ pref("mail.server.default.delete_mail_left_on_server", false);
 pref("mail.server.default.valid", true);
 pref("mail.server.default.abbreviate", true);
 pref("mail.server.default.isSecure", false);
-pref("mail.server.default.authMethod", 3); // cleartext password. @see nsIMsgIncomingServer.authMethod.
-pref("mail.server.default.socketType", 0); // @see nsIMsgIncomingServer.socketType
+// cleartext password. @see nsIMsgIncomingServer.authMethod.
+pref("mail.server.default.authMethod", 3);
+// @see nsIMsgIncomingServer.socketType
+pref("mail.server.default.socketType", 0);
 pref("mail.server.default.override_namespaces", true);
 pref("mail.server.default.deferred_to_account", "");
 
@@ -521,18 +564,23 @@ pref("mail.server.default.use_condstore", false);
 // in case client or server has bugs in compress implementation
 pref("mail.server.default.use_compress_deflate", true);
 // for spam
-pref("mail.server.default.spamLevel", 100); // 0 off, 100 on.  not doing bool since we might have real levels one day.
+// 0 off, 100 on.  not doing bool since we might have real levels one day.
+pref("mail.server.default.spamLevel", 100);
 pref("mail.server.default.moveOnSpam", false);
-pref("mail.server.default.moveTargetMode", 0); // 0 == "Junk" on server, 1 == specific folder
+// 0 == "Junk" on server, 1 == specific folder
+pref("mail.server.default.moveTargetMode", 0);
 pref("mail.server.default.spamActionTargetAccount", "");
 pref("mail.server.default.spamActionTargetFolder", "");
 pref("mail.server.default.useWhiteList", true);
-pref("mail.server.default.whiteListAbURI", "jsaddrbook://abook.sqlite"); // the Personal addressbook.
+// the Personal addressbook.
+pref("mail.server.default.whiteListAbURI", "jsaddrbook://abook.sqlite");
 pref("mail.server.default.useServerFilter", false);
 pref("mail.server.default.serverFilterName", "SpamAssassin");
-pref("mail.server.default.serverFilterTrustFlags", 1); // 1 == trust positives, 2 == trust negatives, 3 == trust both
+// 1 == trust positives, 2 == trust negatives, 3 == trust both
+pref("mail.server.default.serverFilterTrustFlags", 1);
 pref("mail.server.default.purgeSpam", false);
-pref("mail.server.default.purgeSpamInterval", 14); // 14 days
+// 14 days
+pref("mail.server.default.purgeSpamInterval", 14);
 pref("mail.server.default.check_all_folders_for_new", false);
 // should we inhibit whitelisting of the email addresses for a server's identities?
 pref("mail.server.default.inhibitWhiteListingIdentityUser", true);
@@ -586,13 +634,16 @@ pref("mail.serverDefaultStoreContractID", "@mozilla.org/msgstore/berkeleystore;1
 // this number is divided by 100 before it is used. The classifier can be fine tuned
 // by changing this pref. Typical values are .99, .95, .90, .5, etc.
 pref("mail.adaptivefilters.junk_threshold", 90);
-pref("mail.spam.version", 0); // used to determine when to migrate global spam settings
+// used to determine when to migrate global spam settings
+pref("mail.spam.version", 0);
 pref("mail.spam.logging.enabled", false);
 pref("mail.spam.manualMark", false);
 pref("mail.spam.markAsReadOnSpam", false);
-pref("mail.spam.manualMarkMode", 0); // 0 == "move to junk folder", 1 == "delete"
+// 0 == "move to junk folder", 1 == "delete"
+pref("mail.spam.manualMarkMode", 0);
 pref("mail.spam.markAsNotJunkMarksUnRead", true);
-pref("mail.spam.display.sanitize", true); // display simple html for html junk messages
+// display simple html for html junk messages
+pref("mail.spam.display.sanitize", true);
 // the number of allowed bayes tokens before the database is shrunk
 pref("mailnews.bayesian_spam_filter.junk_maxtokens", 100000);
 
@@ -631,9 +682,10 @@ pref("mail.smtp.useMatchingHostNameServer", false);
 // MAIL FROM, which might become the return-path. If false
 // we use the identity email address, which is the old behaviour
 pref("mail.smtp.useSenderForSmtpMailFrom", true);
-
-pref("mail.smtpserver.default.authMethod", 3); // cleartext password. @see nsIMsgIncomingServer.authMethod.
-pref("mail.smtpserver.default.try_ssl", 0); // @see nsISmtpServer.socketType
+// cleartext password. @see nsIMsgIncomingServer.authMethod.
+pref("mail.smtpserver.default.authMethod", 3);
+// @see nsISmtpServer.socketType
+pref("mail.smtpserver.default.try_ssl", 0);
 
 // If true, SMTP LOGIN auth and POP3 USER/PASS auth, the last of the methods to try, will use Latin1.
 pref("mail.smtp_login_pop3_user_pass_auth_is_latin1", true);
@@ -642,27 +694,42 @@ pref("mail.smtp_login_pop3_user_pass_auth_is_latin1", true);
 pref("mail.html_sanitize.drop_conditional_css", true);
 
 // For the next 3 prefs, see <http://www.bucksch.org/1/projects/mozilla/16507>
-pref("mail.display_glyph", true);   // TXT->HTML :-) etc. in viewer
-pref("mail.display_struct", true);  // TXT->HTML *bold* etc. in viewer; ditto
-pref("mail.send_struct", false);   // HTML->HTML *bold* etc. during Send; ditto
+// TXT->HTML :-) etc. in viewer
+pref("mail.display_glyph", true);
+// TXT->HTML *bold* etc. in viewer; ditto
+pref("mail.display_struct", true);
+// HTML->HTML *bold* etc. during Send; ditto
+pref("mail.send_struct", false);
 // display time and date in message pane using senders timezone
 pref("mailnews.display.date_senders_timezone", false);
 // For the next 4 prefs, see <http://www.bucksch.org/1/projects/mozilla/108153>
-pref("mailnews.display.prefer_plaintext", false);  // Ignore HTML parts in multipart/alternative
-pref("mailnews.display.html_as", 0);  // How to display HTML/MIME parts. 0 = Render the sender's HTML; 1 = HTML->TXT->HTML; 2 = Show HTML source; 3 = Sanitize HTML; 4 = Show all body parts
-pref("mailnews.display.show_all_body_parts_menu", false); // Whether the View > Message body as > All body parts menu item is available
-pref("mailnews.display.html_sanitizer.drop_non_css_presentation", true); // whether to drop <font>, <center>, align='...', etc.
-pref("mailnews.display.html_sanitizer.drop_media", false); // whether to drop <img>, <video> and <audio>
-pref("mailnews.display.disallow_mime_handlers", 0);  /* Let only a few classes process incoming data. This protects from bugs (e.g. buffer overflows) and from security loopholes (e.g. allowing unchecked HTML in some obscure classes, although the user has html_as > 0).
-This option is mainly for the UI of html_as.
-0 = allow all available classes
-1 = Use hardcoded blacklist to avoid rendering (incoming) HTML
-2 = ... and inline images
-3 = ... and some other uncommon content types
-100 = Use hardcoded whitelist to avoid even more bugs(buffer overflows).
-      This mode will limit the features available (e.g. uncommon
-      attachment types and inline images) and is for paranoid users.
-*/
+// Ignore HTML parts in multipart/alternative
+pref("mailnews.display.prefer_plaintext", false);
+// How to display HTML/MIME parts.
+// 0 = Render the sender's HTML;
+// 1 = HTML->TXT->HTML;
+// 2 = Show HTML source;
+// 3 = Sanitize HTML;
+// 4 = Show all body parts
+pref("mailnews.display.html_as", 0);
+// Whether the View > Message body as > All body parts menu item is available
+pref("mailnews.display.show_all_body_parts_menu", false);
+// whether to drop <font>, <center>, align='...', etc.
+pref("mailnews.display.html_sanitizer.drop_non_css_presentation", true);
+// whether to drop <img>, <video> and <audio>
+pref("mailnews.display.html_sanitizer.drop_media", false);
+// Let only a few classes process incoming data. This protects from bugs (e.g. buffer overflows) and from security loopholes
+// (e.g. allowing unchecked HTML in some obscure classes, although the user has html_as > 0).
+pref("mailnews.display.disallow_mime_handlers", 0);
+// This option is mainly for the UI of html_as.
+// 0 = allow all available classes
+// 1 = Use hardcoded blacklist to avoid rendering (incoming) HTML
+// 2 = ... and inline images
+// 3 = ... and some other uncommon content types
+// 100 = Use hardcoded whitelist to avoid even more bugs(buffer overflows).
+//       This mode will limit the features available (e.g. uncommon
+//       attachment types and inline images) and is for paranoid users.
+
 // RSS rendering options, see prior 4 prefs above.
 pref("rss.display.prefer_plaintext", false);
 pref("rss.display.html_as", 0);
@@ -690,23 +757,29 @@ pref("rss.message.loadWebPageOnSelect", 0);
 // Feeds system logging, uses log4moz conventions.
 pref("Feeds.logging.console", "Info");
 
-pref("mail.forward_message_mode", 0); // 0=default as attachment 2=forward as inline with attachments, (obsolete 4.x value)1=forward as quoted (mapped to 2 in mozilla)
-pref("mail.forward_add_extension", true); // add .eml extension when forwarding as attachment
+// 0=default as attachment
+// 1=forward as quoted (mapped to 2 in mozilla)
+// 2=forward as inline with attachments, (obsolete 4.x value)
+pref("mail.forward_message_mode", 0);
+// add .eml extension when forwarding as attachment
+pref("mail.forward_add_extension", true);
 // Prefix of for mail forwards. E.g. "Fwd" -> subject will be Fwd: <subject>
 pref("mail.forward_subject_prefix", "Fwd");
 
 pref("mail.startup.enabledMailCheckOnce", false);
-
-pref("mailnews.send_plaintext_flowed", true); // RFC 2646=======
+// RFC 2646=======
+pref("mailnews.send_plaintext_flowed", true);
 pref("mailnews.display.disable_format_flowed_support", false);
-pref("mailnews.nav_crosses_folders", 1); // prompt user when crossing folders
+// prompt user when crossing folders
+pref("mailnews.nav_crosses_folders", 1);
 
 // these two news.cancel.* prefs are for use by QA for automated testing.  see bug #31057
 pref("news.cancel.confirm", true);
 pref("news.cancel.alert_on_success", true);
 pref("mail.SpellCheckBeforeSend", false);
 pref("mail.spellcheck.inline", true);
-pref("mail.phishing.detection.enabled", true); // enable / disable phishing detection for link clicks
+// enable / disable phishing detection for link clicks
+pref("mail.phishing.detection.enabled", true);
 pref("mail.warn_on_send_accel_key", true);
 pref("mail.enable_autocomplete", true);
 pref("mailnews.html_domains", "");
@@ -730,10 +803,12 @@ pref("mailnews.message_display.disable_remote_image", true);
 pref("mail.trusteddomains", "");
 
 pref("mail.imap.use_status_for_biff", true);
-
-pref("mail.quota.mainwindow_threshold.show", 75); // in percent. when the quota meter starts showing up at all. decrease this for it to be more than a warning.
-pref("mail.quota.mainwindow_threshold.warning", 80); // when it gets yellow
-pref("mail.quota.mainwindow_threshold.critical", 95); // when it gets red
+// in percent. when the quota meter starts showing up at all. decrease this for it to be more than a warning.
+pref("mail.quota.mainwindow_threshold.show", 75);
+// when it gets yellow
+pref("mail.quota.mainwindow_threshold.warning", 80);
+// when it gets red
+pref("mail.quota.mainwindow_threshold.critical", 95);
 
 // Pref controlling the updates on the pre-configured accounts.
 // In order to add new pre-configured accounts (after a version),
@@ -837,11 +912,16 @@ pref("mailnews.labels.description.2", "chrome://messenger/locale/messenger.prope
 pref("mailnews.labels.description.3", "chrome://messenger/locale/messenger.properties");
 pref("mailnews.labels.description.4", "chrome://messenger/locale/messenger.properties");
 pref("mailnews.labels.description.5", "chrome://messenger/locale/messenger.properties");
-pref("mailnews.labels.color.1", "#FF0000"); // default: red
-pref("mailnews.labels.color.2", "#FF9900"); // default: orange
-pref("mailnews.labels.color.3", "#009900"); // default: green
-pref("mailnews.labels.color.4", "#3333FF"); // default: blue
-pref("mailnews.labels.color.5", "#993399"); // default: purple
+// default: red
+pref("mailnews.labels.color.1", "#FF0000");
+// default: orange
+pref("mailnews.labels.color.2", "#FF9900");
+// default: green
+pref("mailnews.labels.color.3", "#009900");
+// default: blue
+pref("mailnews.labels.color.4", "#3333FF");
+// default: purple
+pref("mailnews.labels.color.5", "#993399");
 
 // Whether the colors from tags should be applied only to the message(s)
 // actually tagged, or also to any collapsed threads which contain tagged
@@ -853,13 +933,13 @@ pref("mailnews.display_reply_tag_colors_for_collapsed_threads", true);
 pref("mailnews.customHeaders", "");
 
 // default msg compose font prefs
-pref("msgcompose.font_face",                "");
-pref("msgcompose.font_size",                "medium");
+pref("msgcompose.font_face", "");
+pref("msgcompose.font_size", "medium");
 // If true, let the user agent use default colors (don't set text_color and
 // background_color on the message body).
-pref("msgcompose.default_colors",           true);
-pref("msgcompose.text_color",               "#000000");
-pref("msgcompose.background_color",         "#FFFFFF");
+pref("msgcompose.default_colors", true);
+pref("msgcompose.text_color", "#000000");
+pref("msgcompose.background_color", "#FFFFFF");
 
 // When there is no disclosed recipients (only bcc), we should address the message to empty group
 // to prevent some mail server to disclose the bcc recipients
@@ -886,11 +966,13 @@ pref("mailnews.mark_message_read.auto", true);
 // Set to true if viewing a message should mark it as read after the msg is
 // viewed in the message pane for a specified time interval in seconds.
 pref("mailnews.mark_message_read.delay", false);
-pref("mailnews.mark_message_read.delay.interval", 5); // measured in seconds
+// measured in seconds
+pref("mailnews.mark_message_read.delay.interval", 5);
 
 // delay after which messages are showed when moving through them with cursors
 // during thread pane navigation
-pref("mailnews.threadpane_select_delay", 250); // measured in milliseconds
+// measured in milliseconds
+pref("mailnews.threadpane_select_delay", 250);
 
 // require a password before showing imap or local headers in thread pane
 pref("mail.password_protect_local_cache", false);
@@ -913,7 +995,7 @@ pref("ldap_2.servers.oe.dirType", 3);
 pref("ldap_2.servers.osx.uri", "moz-abosxdirectory:///");
 pref("ldap_2.servers.osx.description", "chrome://messenger/locale/addressbook/addressBook.properties");
 pref("ldap_2.servers.osx.dirType", 3);
-pref("mail.notification.sound",             "");
+pref("mail.notification.sound", "");
 pref("mail.notification.count.inbox_only", true);
 #endif
 
