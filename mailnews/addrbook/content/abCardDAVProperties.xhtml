@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/cardDAV.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
+
+<!DOCTYPE window SYSTEM "chrome://messenger/locale/addressbook/abAddressBookNameDialog.dtd">
+
+<window minwidth="500"
+        lightweightthemes="true"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<dialog id="carddav-properties-dialog">
+
+  <linkset>
+    <html:link rel="localization" href="messenger/addressbook/abCardDAVProperties.ftl"/>
+  </linkset>
+
+  <script src="chrome://global/content/globalOverlay.js"/>
+  <script src="chrome://global/content/editMenuOverlay.js"/>
+  <script src="chrome://messenger/content/addressbook/abCardDAVProperties.js"/>
+  <script src="chrome://messenger/content/dialogShadowDom.js"/>
+
+  <div id="carddav-properties-table"
+       xmlns="http://www.w3.org/1999/xhtml">
+    <div>
+      <xul:label control="carddav-name"
+                 value="&name.label;"
+                 accesskey="&name.accesskey;"/>
+    </div>
+    <div class="input-container">
+      <input id="carddav-name"
+             type="text"
+             class="input-inline"/>
+    </div>
+    <div>
+      <xul:label data-l10n-id="carddav-url-label"
+                 data-l10n-attrs="value,accesskey"
+                 control="carddav-url"/>
+    </div>
+    <div class="input-container">
+      <input id="carddav-url"
+             type="url"
+             class="input-inline"
+             readonly="readonly"/>
+    </div>
+    <div id="carddav-refreshActive-cell">
+      <xul:checkbox id="carddav-refreshActive"
+                    data-l10n-id="carddav-refreshinterval-label"
+                    data-l10n-attrs="label,accesskey"
+                    control="carddav-refreshInterval"/>
+    </div>
+    <div id="carddav-refreshInterval-cell">
+      <xul:menulist id="carddav-refreshInterval">
+        <xul:menupopup>
+          <!-- This will be filled programmatically to reduce the number of needed strings -->
+        </xul:menupopup>
+      </xul:menulist>
+    </div>
+  </div>
+</dialog>
+</window>

@@ -4,8 +4,8 @@
    - file, you can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/dialogs.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/skin/menulist.css" type="text/css"?>
-<?xml-stylesheet href="chrome://messenger/content/addressbook/abCardDAVDialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/shared/cardDAV.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/themeableDialog.css" type="text/css"?>
 
 <window data-l10n-id="carddav-window"
@@ -34,34 +34,29 @@
     <description data-l10n-id="carddav-experimental-warning"/>
   </hbox>
 
-  <html:table>
-    <html:tr hidden="hidden">
-      <html:th>
-        <label control="carddav-provider"
-               data-l10n-id="carddav-provider-label"
-               data-l10n-attrs="value,accesskey"/>
-      </html:th>
-      <html:td class="input-container">
-        <html:select id="carddav-provider" onchange="handleChangeProvider(event);">
-        </html:select>
-      </html:td>
-    </html:tr>
-    <html:tr>
-      <html:th>
-        <label control="carddav-url"
-               data-l10n-id="carddav-url-label"
-               data-l10n-attrs="value,accesskey"/>
-      </html:th>
-
-      <html:td class="input-container">
-        <html:input id="carddav-url" type="url"
-                    placeholder="https://carddav.example.com/"
-                    required="required"
-                    onblur="handleCardDAVURLBlur(event);"
-                    oninput="handleCardDAVURLInput(event);"/>
-      </html:td>
-    </html:tr>
-  </html:table>
+  <html:div id="carddav-properties-table">
+    <!-- <html:div>
+      <label control="carddav-provider"
+             data-l10n-id="carddav-provider-label"
+             data-l10n-attrs="value,accesskey"/>
+    </html:div>
+    <html:div class="input-container">
+      <html:select id="carddav-provider" onchange="handleChangeProvider(event);">
+      </html:select>
+    </html:div> -->
+    <html:div>
+      <label control="carddav-url"
+             data-l10n-id="carddav-url-label"
+             data-l10n-attrs="value,accesskey"/>
+    </html:div>
+    <html:div class="input-container">
+      <html:input id="carddav-url" type="url"
+                  placeholder="https://carddav.example.com/"
+                  required="required"
+                  onblur="handleCardDAVURLBlur(event);"
+                  oninput="handleCardDAVURLInput(event);"/>
+    </html:div>
+  </html:div>
 
   <vbox id="carddav-statusArea"
         align="center"

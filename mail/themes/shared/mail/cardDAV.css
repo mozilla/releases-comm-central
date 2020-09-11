@@ -20,22 +20,6 @@
   width: 30em;
 }
 
-th {
-  font-weight: normal;
-  text-align: start;
-  width: 10%;
-}
-
-.input-container {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-}
-
-.input-container > * {
-  flex: 1;
-}
-
 #carddav-provider {
   height: 1.8em;
 }
@@ -84,4 +68,34 @@ th {
     background-image: url("chrome://global/skin/icons/loading@2x.png");
     background-size: 16px 16px;
   }
+}
+
+#carddav-properties-table {
+  display: grid;
+  grid-template-columns: min-content auto;
+  align-items: baseline;
+}
+
+.input-container {
+  display: flex;
+}
+
+.input-container > * {
+  flex: 1;
+}
+
+#carddav-refreshActive-cell {
+  /* This shouldn't be necessary, but there's no good combination of checkbox
+   * and label that play nicely with the align-items: baseline above. */
+  align-self: center;
+}
+
+#carddav-refreshInterval-cell {
+  display: flex;
+  align-items: baseline;
+}
+
+#carddav-refreshInterval {
+  flex: 1;
+  margin: 2px 4px;
 }

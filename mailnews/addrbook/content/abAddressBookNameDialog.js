@@ -64,7 +64,10 @@ function abNameOKButton(event) {
   let newDirName = gNameInput.value.trim();
 
   // Do not allow an already existing name.
-  if (MailServices.ab.directoryNameExists(newDirName)) {
+  if (
+    MailServices.ab.directoryNameExists(newDirName) &&
+    (!gDirectory || newDirName != gDirectory.dirName)
+  ) {
     const kAlertTitle = document
       .getElementById("bundle_addressBook")
       .getString("duplicateNameTitle");
