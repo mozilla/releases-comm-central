@@ -130,7 +130,7 @@ add_task(async function startup() {
       max: 355,
     },
     "toolkit.scrollbox.horizontalScrollDistance": {
-      min: 40,
+      min: 1,
       max: 130,
     },
     // Bug 1660692: Most of these (~90) are caused by Calendar's `inTimezone`.
