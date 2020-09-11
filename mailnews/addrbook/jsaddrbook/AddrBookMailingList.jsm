@@ -83,6 +83,123 @@ AddrBookMailingList.prototype = {
         return false;
       },
 
+      search(query, listener) {
+        if (!listener) {
+          return;
+        }
+        if (!query) {
+          listener.onSearchFinished(
+            Ci.nsIAbDirectoryQueryResultListener.queryResultStopped,
+            "No query specified."
+          );
+          return;
+        }
+        if (query[0] == "?") {
+          query = query.substring(1);
+        }
+
+        let results = Array.from(this.childCards);
+
+        // Process the query string into a tree of conditions to match.
+        let lispRegexp = /^\((and|or|not|([^\)]*)(\)+))/;
+        let index = 0;
+        let rootQuery = { children: [], op: "or" };
+        let currentQuery = rootQuery;
+
+        while (true) {
+          let match = lispRegexp.exec(query.substring(index));
+          if (!match) {
+            break;
+          }
+          index += match[0].length;
+
+          if (["and", "or", "not"].includes(match[1])) {
+            // For the opening bracket, step down a level.
+            let child = {
+              parent: currentQuery,
+              children: [],
+              op: match[1],
+            };
+            currentQuery.children.push(child);
+            currentQuery = child;
+          } else {
+            let [name, condition, value] = match[2].split(",");
+            currentQuery.children.push({
+              name,
+              condition,
+              value: decodeURIComponent(value).toLowerCase(),
+            });
+
+            // For each closing bracket except the first, step up a level.
+            for (let i = match[3].length - 1; i > 0; i--) {
+              currentQuery = currentQuery.parent;
+            }
+          }
+        }
+
+        results = results.filter(card => {
+          let properties = card._properties;
+          let matches = b => {
+            if ("condition" in b) {
+              let { name, condition, value } = b;
+              if (name == "IsMailList" && condition == "=") {
+                return value == "true";
+              }
+
+              if (!properties.has(name)) {
+                return condition == "!ex";
+              }
+              if (condition == "ex") {
+                return true;
+              }
+
+              let cardValue = properties.get(name).toLowerCase();
+              switch (condition) {
+                case "=":
+                  return cardValue == value;
+                case "!=":
+                  return cardValue != value;
+                case "lt":
+                  return cardValue < value;
+                case "gt":
+                  return cardValue > value;
+                case "bw":
+                  return cardValue.startsWith(value);
+                case "ew":
+                  return cardValue.endsWith(value);
+                case "c":
+                  return cardValue.includes(value);
+                case "!c":
+                  return !cardValue.includes(value);
+                case "~=":
+                case "regex":
+                default:
+                  return false;
+              }
+            }
+            if (b.op == "or") {
+              return b.children.some(bb => matches(bb));
+            }
+            if (b.op == "and") {
+              return b.children.every(bb => matches(bb));
+            }
+            if (b.op == "not") {
+              return !matches(b.children[0]);
+            }
+            return false;
+          };
+
+          return matches(rootQuery);
+        }, this);
+
+        for (let card of results) {
+          listener.onSearchFoundCard(card);
+        }
+        listener.onSearchFinished(
+          Ci.nsIAbDirectoryQueryResultListener.queryResultComplete,
+          ""
+        );
+      },
       addCard(card) {
         if (!card.primaryEmail) {
           return card;
