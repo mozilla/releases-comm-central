@@ -341,6 +341,23 @@ treechildren::-moz-tree-cell-text {
 }
 
 @media (-moz-windows-default-theme: 0) {
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row {
+    height: 1.8em;
+  }
+
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(hover),
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(dropOn),
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(selected) {
+    border-color: HighlightText !important;
+    background-color: Highlight !important;
+  }
+
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-twisty(selected),
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-cell-text(hover),
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-cell-text(dropOn),
+  :root:not(:-moz-lwtheme) treechildren::-moz-tree-cell-text(selected) {
+    color: HighlightText !important;
+  }
 
   treechildren::-moz-tree-cell-text {
     padding-inline-start: 4px !important;

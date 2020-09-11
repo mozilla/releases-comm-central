@@ -5,3 +5,10 @@
 #palette-box {
   margin: 0 4px 10px;
 }
+
+@media (-moz-windows-default-theme: 0) {
+  :root:not(:-moz-lwtheme) #palette-box {
+    background-color: transparent;
+    border-color: ThreeDShadow;
+  }
+}
