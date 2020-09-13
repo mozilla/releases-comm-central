@@ -174,15 +174,30 @@ MessageSend.prototype = {
 
   notifyListenerOnStopCopy(status) {
     if (this._sendListener) {
-      this._sendListener
-        .QueryInterface(Ci.nsIMsgCopyServiceListener)
-        .OnStopCopy(status);
+      try {
+        this._sendListener
+          .QueryInterface(Ci.nsIMsgCopyServiceListener)
+          .OnStopCopy(status);
+      } catch (e) {
+        // Ignore the return value of OnStopCopy. Non-zero nsresult will throw
+        // when going through XPConnect. In this case, we don't care about it.
+        console.warn(
+          `OnStopCopy failed with 0x${e.result.toString(16)}\n${e.stack}`
+        );
+      }
     }
   },
 
   notifyListenerOnStopSending(msgId, status, msg, returnFile) {
     if (this._sendListener) {
-      this._sendListener.onStopSending(msgId, status, msg, returnFile);
+      try {
+        this._sendListener.onStopSending(msgId, status, msg, returnFile);
+      } catch (e) {
+        // Ignore the return value of OnStopSending.
+        console.warn(
+          `OnStopSending failed with 0x${e.result.toString(16)}\n${e.stack}`
+        );
+      }
     }
   },
 
@@ -209,7 +224,6 @@ MessageSend.prototype = {
         break;
     }
     this.notifyListenerOnStopSending(null, newExitCode, null, null);
-    this.notifyListenerOnStopCopy(newExitCode);
     this._sendToMagicFolder();
   },
 
@@ -329,7 +343,11 @@ MessageSend.prototype = {
         this._msgToReplace
       );
     } catch (e) {
-      this.notifyListenerOnStopCopy(e.result);
+      // Ignore the nserror, just notify OnStopCopy.
+      this.notifyListenerOnStopCopy(0);
+      console.warn(
+        `startCopyOperation failed with 0x${e.result.toString(16)}\n${e.stack}`
+      );
     }
   },
 

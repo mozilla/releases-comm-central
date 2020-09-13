@@ -218,11 +218,23 @@ class MimePart {
     }
 
     // Write out body.
-    await this._writeString(`\r\n${bodyString}\r\n`);
+    await this._writeBinaryString(`\r\n${bodyString}\r\n`);
   }
 
   /**
-   * Write a string to this._outFile.
+   * Write a binary string to this._outFile, used only for part body, which
+   * is either from nsACString or from this.fetchFile.
+   *
+   * @param {string} str - The binary string to write.
+   */
+  async _writeBinaryString(str) {
+    await this._outFile.write(jsmime.mimeutils.stringToTypedArray(str));
+  }
+
+  /**
+   * Write a string to this._outFile, used for part headers, which are expected
+   * to be UTF-8.
+   *
    * @param {string} str - The string to write.
    */
   async _writeString(str) {

@@ -134,12 +134,13 @@ var MsgUtils = {
           Ci.nsIMsgCompType.ReplyWithTemplate,
         ].includes(compType)
       ) {
-        let msgHdr = MailServices.messenger
+        let msgHdr = Cc["@mozilla.org/messenger;1"]
+          .createInstance(Ci.nsIMessenger)
           .messageServiceFromURI(originalMsgURI)
           .messageURIToMsgHdr(originalMsgURI);
         let folder = msgHdr.folder;
-        // let canFileMessages = folder.canFileMessages
-        let incomingServerType = folder.incomingServer.getCharValue("type");
+        let incomingServerType =
+          folder.incomingServer && folder.incomingServer.getCharValue("type");
         if (folder.canFileMessages && incomingServerType != "rss") {
           fcc = folder.uri;
           useDefaultFcc = false;
@@ -506,7 +507,7 @@ var MsgUtils = {
   getInReplyTo(references) {
     // The In-Reply-To header is the last entry in the references header...
     let bracket = references.lastIndexOf("<");
-    if (bracket > 0) {
+    if (bracket >= 0) {
       return references.slice(bracket);
     }
     return "";
