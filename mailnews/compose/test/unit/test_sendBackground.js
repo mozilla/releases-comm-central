@@ -154,6 +154,9 @@ function run_test() {
   var msgSend = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
     Ci.nsIMsgSend
   );
+  var msgSend2 = Cc["@mozilla.org/messengercompose/send;1"].createInstance(
+    Ci.nsIMsgSend
+  );
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
@@ -184,7 +187,7 @@ function run_test() {
     // Send the unsent message in the background, because we have
     // mailnews.sendInBackground set, nsMsgSendLater should just send it for
     // us.
-    msgSend.sendMessageFile(
+    msgSend2.sendMessageFile(
       identity,
       "",
       compFields,

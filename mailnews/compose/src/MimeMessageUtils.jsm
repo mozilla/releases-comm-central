@@ -12,9 +12,28 @@ var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 /**
+ * Generate an NS_ERROR code from a MAILNEWS error code. See NS_ERROR_GENERATE
+ * in nsError.h and NS_MSG_GENERATE_FAILURE in nsComposeStrings.h.
+ *
+ * @param {number} code - The error code in MAILNEWS module.
+ * @returns {number}
+ */
+function generateNSError(code) {
+  return (1 << 31) | ((16 + 0x45) << 16) | code;
+}
+
+/**
  * Collection of helper functions for message sending process.
  */
 var MsgUtils = {
+  /**
+   * Error codes defined in nsComposeStrings.h
+   */
+  NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER: generateNSError(12589),
+  NS_ERROR_SMTP_SEND_FAILED_REFUSED: generateNSError(12590),
+  NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED: generateNSError(12591),
+  NS_ERROR_SMTP_SEND_FAILED_TIMEOUT: generateNSError(12592),
+
   /**
    * Convert html to text to form a multipart/alternative message. The output
    * depends on preference.
@@ -328,7 +347,7 @@ var MsgUtils = {
     ) {
       flags |= Ci.nsMsgMessageFlags.Read;
     }
-    return flags.toString().padStart(4, "0");
+    return flags.toString(16).padStart(4, "0");
   },
 
   /**
@@ -361,7 +380,7 @@ var MsgUtils = {
       flags &= ~Ci.nsMsgMessageFlags.MDNReportNeeded;
       flags |= Ci.nsMsgMessageFlags.MDNReportSent;
     }
-    return flags.toString().padStart(8, "0");
+    return flags.toString(16).padStart(8, "0");
   },
 
   /**

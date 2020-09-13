@@ -91,19 +91,45 @@ MessageSend.prototype = {
     userIdentity,
     accountKey,
     compFields,
-    sendIFile,
+    messageFile,
     deleteSendFileOnCompletion,
     digest,
-    mode,
+    deliverMode,
     msgToReplace,
     listener,
     statusFeedback,
     smtpPassword
   ) {
-    throw Components.Exception(
-      "sendMessageFile not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
+    this._userIdentity = userIdentity;
+    this._compFields = compFields;
+    this._deliverMode = deliverMode;
+    this._msgToReplace = msgToReplace;
+    this._smtpPassword = smtpPassword;
+    this._sendListener = listener;
+
+    this._sendReport = Cc[
+      "@mozilla.org/messengercompose/sendreport;1"
+    ].createInstance(Ci.nsIMsgSendReport);
+    this._composeBundle = Services.strings.createBundle(
+      "chrome://messenger/locale/messengercompose/composeMsgs.properties"
     );
+
+    // Initialize the error reporting mechanism.
+    this.sendReport.reset();
+    this.sendReport.deliveryMode = deliverMode;
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName("assemblingMailInformation")
+    );
+    this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_BuildMessage;
+
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName("assemblingMessage")
+    );
+
+    // nsMsgKey_None from MailNewsTypes.h.
+    this._messageKey = 0xffffffff;
+
+    this._deliverMessage(messageFile);
   },
 
   abort() {
@@ -131,25 +157,26 @@ MessageSend.prototype = {
   },
 
   notifyListenerOnStartCopy() {
-    let copyListener = this._sendListener.QueryInterface(
-      Ci.nsIMsgCopyServiceListener
-    );
-    copyListener.OnStartCopy();
+    if (this._sendListener) {
+      this._sendListener
+        .QueryInterface(Ci.nsIMsgCopyServiceListener)
+        .OnStartCopy();
+    }
   },
 
   notifyListenerOnProgressCopy(progress, progressMax) {
-    let copyListener = this._sendListener.QueryInterface(
-      Ci.nsIMsgCopyServiceListener
-    );
-    copyListener.OnProgress(progress, progressMax);
+    if (this._sendListener) {
+      this._sendListener
+        .QueryInterface(Ci.nsIMsgCopyServiceListener)
+        .OnProgress(progress, progressMax);
+    }
   },
 
   notifyListenerOnStopCopy(status) {
     if (this._sendListener) {
-      let copyListener = this._sendListener.QueryInterface(
-        Ci.nsIMsgCopyServiceListener
-      );
-      copyListener.OnStopCopy(status);
+      this._sendListener
+        .QueryInterface(Ci.nsIMsgCopyServiceListener)
+        .OnStopCopy(status);
     }
   },
 
@@ -160,8 +187,30 @@ MessageSend.prototype = {
   },
 
   sendDeliveryCallback(url, isNewsDelivery, exitCode) {
-    this.notifyListenerOnStopSending(null, exitCode, null, null);
-    this.notifyListenerOnStopCopy(exitCode);
+    let newExitCode = exitCode;
+    switch (exitCode) {
+      case Cr.NS_ERROR_UNKNOWN_HOST:
+      case Cr.NS_ERROR_UNKNOWN_PROXY_HOST:
+        newExitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER;
+        break;
+      case Cr.NS_ERROR_CONNECTION_REFUSED:
+      case Cr.NS_ERROR_PROXY_CONNECTION_REFUSED:
+        newExitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_REFUSED;
+        break;
+      case Cr.NS_ERROR_NET_INTERRUPT:
+      case Cr.NS_ERROR_ABORT:
+        newExitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED;
+        break;
+      case Cr.NS_ERROR_NET_TIMEOUT:
+      case Cr.NS_ERROR_NET_RESET:
+        newExitCode = MsgUtils.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT;
+        break;
+      default:
+        break;
+    }
+    this.notifyListenerOnStopSending(null, newExitCode, null, null);
+    this.notifyListenerOnStopCopy(newExitCode);
+    this._sendToMagicFolder();
   },
 
   get folderUri() {
@@ -212,6 +261,7 @@ MessageSend.prototype = {
    * @param {nsIFile} file - The message file to deliver.
    */
   async _deliverMessage(file) {
+    this._messageFile = file;
     if (
       [
         Ci.nsIMsgSend.nsMsgQueueForLater,
@@ -224,16 +274,13 @@ MessageSend.prototype = {
       return;
     }
     this._deliverFileAsMail(file);
-    this._sendToMagicFolder(file);
   },
 
   /**
    * Copy a message to Draft/Sent or other folder depending on pref and
    * deliverMode.
-   *
-   * @param {nsIFile} file - The message file to copy.
    */
-  async _sendToMagicFolder(file) {
+  async _sendToMagicFolder() {
     let folderUri = MsgUtils.getMsgFolderURIFromPrefs(
       this._userIdentity,
       this._deliverMode
@@ -241,14 +288,16 @@ MessageSend.prototype = {
     let msgCopy = Cc["@mozilla.org/messengercompose/msgcopy;1"].createInstance(
       Ci.nsIMsgCopy
     );
-    let copyFile = file;
+    let copyFile = this._messageFile;
     if (folderUri.startsWith("mailbox:")) {
-      // Add a `From -` line, so that nsLocalMailFolder.cpp won't add a dummy
-      // envelope.
       let { path, file: fileWriter } = await OS.File.openUnique(
         OS.Path.join(OS.Constants.Path.tmpDir, "nscopy.eml")
       );
-      await fileWriter.write(new TextEncoder().encode("From -\r\n"));
+      // Add a `From - Date` line, so that nsLocalMailFolder.cpp won't add a
+      // dummy envelope. The date string will be parsed by PR_ParseTimeString.
+      await fileWriter.write(
+        new TextEncoder().encode(`From - ${new Date().toUTCString()}\r\n`)
+      );
       let xMozillaStatus = MsgUtils.getXMozillaStatus(this._deliverMode);
       let xMozillaStatus2 = MsgUtils.getXMozillaStatus2(this._deliverMode);
       if (xMozillaStatus) {
@@ -261,21 +310,27 @@ MessageSend.prototype = {
           new TextEncoder().encode(`X-Mozilla-Status2: ${xMozillaStatus2}\r\n`)
         );
       }
-      await fileWriter.write(await OS.File.read(file.path));
+      await fileWriter.write(await OS.File.read(this._messageFile.path));
       await fileWriter.close();
       copyFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       copyFile.initWithPath(path);
     }
     // Notify nsMsgCompose about the saved folder.
-    this._sendListener.onGetDraftFolderURI(folderUri);
-    msgCopy.startCopyOperation(
-      this._userIdentity,
-      copyFile,
-      this._deliverMode,
-      this,
-      folderUri,
-      this._msgToReplace
-    );
+    if (this._sendListener) {
+      this._sendListener.onGetDraftFolderURI(folderUri);
+    }
+    try {
+      msgCopy.startCopyOperation(
+        this._userIdentity,
+        copyFile,
+        this._deliverMode,
+        this,
+        folderUri,
+        this._msgToReplace
+      );
+    } catch (e) {
+      this.notifyListenerOnStopCopy(e.result);
+    }
   },
 
   /**
