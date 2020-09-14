@@ -78,7 +78,6 @@ else:
     LOCAL_INCLUDES += ['../bzip2']
 
 if CONFIG['CC_TYPE'] == 'clang-cl':
-    ForceInclude('{}/../niwcompat/niw_compat.h'.format(SRCDIR))
     LOCAL_INCLUDES += [
         '../niwcompat',
     ]

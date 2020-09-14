@@ -1,4 +1,4 @@
-Directory ./niwcompat contains header files and some functionality used
+Directory ./niwcompat contains dirent.h from vcpkg and an empty getopt.h.
 to compile RNP with Clang-cl for Windows.
 
 niwcompat = wincompat where "win" is spelled backwards
