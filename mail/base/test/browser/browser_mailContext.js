@@ -32,7 +32,19 @@ function checkMenuitems(menu, ...expectedItems) {
   Assert.deepEqual(actualItems, expectedItems);
 }
 
-function checkABrowser(browser) {
+async function checkABrowser(browser) {
+  await ContentTask.spawn(browser, null, () => {
+    if (
+      content.document.readyState !== "complete" ||
+      content.document.documentURI === "about:blank"
+    ) {
+      return ContentTaskUtils.waitForEvent(this, "load", true, event => {
+        return content.document.documentURI !== "about:blank";
+      }).then(() => {});
+    }
+    return Promise.resolve();
+  });
+
   let { contentDocument, contentWindow, ownerDocument } = browser;
   let mailContext = ownerDocument.getElementById("mailContext");
 
@@ -115,8 +127,7 @@ add_task(async function testMessagePane() {
   // A web page is shown in the message pane.
 
   await BrowserTestUtils.loadURI(messagePane, TEST_DOCUMENT_URL);
-  await BrowserTestUtils.browserLoaded(messagePane);
-  checkABrowser(messagePane);
+  await checkABrowser(messagePane);
 
   let tree = window.gFolderDisplay.tree;
   let coords = tree.getCoordsForCellItem(6, tree.columns.subjectCol, "cell");
@@ -233,9 +244,7 @@ add_task(async function testMessagePane() {
 
 add_task(async function testContentTab() {
   let tab = window.openContentTab(TEST_DOCUMENT_URL);
-  await BrowserTestUtils.browserLoaded(tab.browser);
-
-  checkABrowser(tab.browser);
+  await checkABrowser(tab.browser);
 
   let tabmail = document.getElementById("tabmail");
   tabmail.closeTab(tab);
@@ -264,8 +273,7 @@ add_task(async function testExtensionPopupWindow() {
   await extension.unload();
 
   let extensionPopup = Services.wm.getMostRecentWindow("mail:extensionPopup");
-  await new Promise(resolve => extensionPopup.setTimeout(resolve));
-  checkABrowser(extensionPopup.document.getElementById("requestFrame"));
+  await checkABrowser(extensionPopup.document.getElementById("requestFrame"));
   await BrowserTestUtils.closeWindow(extensionPopup);
 });
 
@@ -304,7 +312,7 @@ add_task(async function testExtensionBrowserAction() {
   // The panel needs some time to decide how big it's going to be.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
-  checkABrowser(browser);
+  await checkABrowser(browser);
   panel.hidePopup();
 
   await extension.unload();
@@ -359,7 +367,7 @@ add_task(async function testExtensionComposeAction() {
   }
   // The panel needs some time to decide how big it's going to be.
   await new Promise(resolve => composeWindow.setTimeout(resolve, 500));
-  checkABrowser(browser);
+  await checkABrowser(browser);
   panel.hidePopup();
 
   await extension.unload();
@@ -410,7 +418,7 @@ add_task(async function testExtensionMessageDisplayAction() {
   // The panel needs some time to decide how big it's going to be.
   // eslint-disable-next-line mozilla/no-arbitrary-setTimeout
   await new Promise(resolve => setTimeout(resolve, 500));
-  checkABrowser(browser);
+  await checkABrowser(browser);
   panel.hidePopup();
 
   await extension.unload();
