@@ -127,6 +127,7 @@ with only_when('--enable-compile-environment'):
         'sys/resource.h',
         'sys/param.h',
         'sys/stat.h',
+        'sys/time.h',
         'sys/wait.h',
     )
 
