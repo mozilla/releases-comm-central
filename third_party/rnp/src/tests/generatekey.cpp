@@ -46,7 +46,7 @@ static bool
 generate_test_key(const char *keystore, const char *userid, const char *hash, const char *home)
 {
     cli_rnp_t rnp = {};
-    int       pipefd[2] = {0};
+    int       pipefd[2] = {-1, -1};
     bool      res = false;
     size_t    keycount = 0;
 
@@ -80,7 +80,9 @@ generate_test_key(const char *keystore, const char *userid, const char *hash, co
     }
     res = true;
 done:
-    close(pipefd[0]);
+    if (pipefd[0] != -1) {
+        close(pipefd[0]);
+    }
     clear_key_handles(keys);
     cli_rnp_end(&rnp);
     return res;
@@ -107,7 +109,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testSignature)
                              "sha512",
                              "sm3",
                              NULL};
-    int         pipefd[2];
+    int         pipefd[2] = {-1, -1};
     char        memToSign[] = "A simple test message";
     cli_rnp_t   rnp;
 
@@ -149,7 +151,10 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testSignature)
 
                 /* Sign the file */
                 assert_true(cli_rnp_protect_file(&rnp));
-                close(pipefd[0]);
+                if (pipefd[0] != -1) {
+                    close(pipefd[0]);
+                    pipefd[0] = -1;
+                }
 
                 /* Verify the file */
                 rnp_cfg_free(cfg);
@@ -201,7 +206,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testEncryption)
 
     cli_rnp_t   rnp = {};
     char        memToEncrypt[] = "A simple test message";
-    int         pipefd[2] = {0};
+    int         pipefd[2] = {-1, -1};
     const char *userid = "ciphertest";
 
     std::ofstream out("dummyfile.dat");
@@ -246,7 +251,9 @@ TEST_F(rnp_tests, rnpkeys_generatekey_testEncryption)
             rnp_cfg_setstr(cfg, CFG_OUTFILE, "dummyfile.decrypt");
             assert_true(cli_rnp_process_file(&rnp));
             cli_rnp_end(&rnp);
-            close(pipefd[0]);
+            if (pipefd[0] != -1) {
+                close(pipefd[0]);
+            }
 
             /* Ensure plaintext recovered */
             std::string decrypt = file_to_str("dummyfile.decrypt");
@@ -282,7 +289,6 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifySupportedHashAlg)
 
     for (size_t i = 0; i < ARRAY_SIZE(hashAlg); i++) {
         const char *keystore = keystores[i % ARRAY_SIZE(keystores)];
-        delete_recursively(".rnp");
         /* Setting up rnp again and decrypting memory */
         printf("keystore: %s\n", keystore);
         /* Generate key with specified hash algorithm */
@@ -303,6 +309,7 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifySupportedHashAlg)
         assert_non_null(handle);
         rnp_key_handle_destroy(handle);
         cli_rnp_end(&rnp);
+        delete_recursively(".rnp");
     }
 }
 
@@ -325,7 +332,6 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifyUserIdOption)
 
     for (size_t i = 0; i < ARRAY_SIZE(userIds); i++) {
         const char *keystore = keystores[i % ARRAY_SIZE(keystores)];
-        delete_recursively(".rnp");
         /* Generate key with specified hash algorithm */
         assert_true(generate_test_key(keystore, userIds[i], "SHA256", NULL));
 
@@ -345,13 +351,13 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifyUserIdOption)
         assert_non_null(handle);
         rnp_key_handle_destroy(handle);
         cli_rnp_end(&rnp);
+        delete_recursively(".rnp");
     }
 }
 
 TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyHomeDirOption)
 {
     /* Try to generate keypair in different home directories */
-    char      newhome[256];
     cli_rnp_t rnp = {};
 
     /* Initialize the rnp structure. */
@@ -387,23 +393,23 @@ TEST_F(rnp_tests, rnpkeys_generatekey_verifykeyHomeDirOption)
 
     /* Now we start over with a new home. When home is specified explicitly then it should
      * include .rnp as well */
-    strcpy(newhome, "newhome/.rnp");
+    std::string newhome = "newhome/.rnp";
     path_mkdir(0700, "newhome", NULL);
-    path_mkdir(0700, "newhome/.rnp", NULL);
+    path_mkdir(0700, newhome.c_str(), NULL);
 
     /* Initialize the rnp structure. */
-    assert_true(setup_cli_rnp_common(&rnp, RNP_KEYSTORE_GPG, newhome, NULL));
+    assert_true(setup_cli_rnp_common(&rnp, RNP_KEYSTORE_GPG, newhome.c_str(), NULL));
 
     /* Pubring and secring should not exist yet */
-    assert_false(path_file_exists(newhome, "pubring.gpg", NULL));
-    assert_false(path_file_exists(newhome, "secring.gpg", NULL));
+    assert_false(path_file_exists(newhome.c_str(), "pubring.gpg", NULL));
+    assert_false(path_file_exists(newhome.c_str(), "secring.gpg", NULL));
 
     /* Ensure the key was generated. */
-    assert_true(generate_test_key(RNP_KEYSTORE_GPG, "newhomekey", "SHA256", newhome));
+    assert_true(generate_test_key(RNP_KEYSTORE_GPG, "newhomekey", "SHA256", newhome.c_str()));
 
     /* Pubring and secring should now exist */
-    assert_true(path_file_exists(newhome, "pubring.gpg", NULL));
-    assert_true(path_file_exists(newhome, "secring.gpg", NULL));
+    assert_true(path_file_exists(newhome.c_str(), "pubring.gpg", NULL));
+    assert_true(path_file_exists(newhome.c_str(), "secring.gpg", NULL));
 
     /* Loading keyrings and checking whether they have correct key */
     assert_true(cli_rnp_load_keyrings(&rnp, true));
@@ -512,8 +518,8 @@ ask_expert_details(cli_rnp_t *ctx, rnp_cfg_t *ops, const char *rsp)
 {
     /* Run tests*/
     bool   ret = false;
-    int    pipefd[2] = {0};
-    int    user_input_pipefd[2] = {0};
+    int    pipefd[2] = {-1, -1};
+    int    user_input_pipefd[2] = {-1, -1};
     size_t rsp_len;
 
     if (pipe(pipefd) == -1) {
@@ -523,6 +529,7 @@ ask_expert_details(cli_rnp_t *ctx, rnp_cfg_t *ops, const char *rsp)
     write_pass_to_pipe(pipefd[1], 2);
     close(pipefd[1]);
     if (!rnpkeys_init(ctx, ops)) {
+        close(pipefd[0]); // otherwise will be closed via passfp
         goto end;
     }
 
@@ -548,9 +555,6 @@ end:
     /* Close & clean fd*/
     if (user_input_pipefd[0]) {
         close(user_input_pipefd[0]);
-    }
-    if (pipefd[0]) {
-        close(pipefd[0]);
     }
     return ret;
 }
@@ -923,7 +927,7 @@ TEST_F(rnp_tests, test_generated_key_sigs)
         desc.crypto.key_alg = PGP_PKA_RSA;
         desc.crypto.rsa.modulus_bit_len = 1024;
         desc.crypto.rng = &global_rng;
-        strcpy((char *) desc.cert.userid, "test");
+        memcpy(desc.cert.userid, "test", 5);
 
         // generate
         assert_true(pgp_generate_primary_key(&desc, true, &sec, &pub, PGP_KEY_STORE_GPG));

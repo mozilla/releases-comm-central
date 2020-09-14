@@ -46,7 +46,6 @@
 #define CFG_INFILE "infile"              /* name/path of the input file */
 #define CFG_RESULTS "results"            /* name/path for results, not used right now */
 #define CFG_KEYSTOREFMT "keystorefmt"    /* keyring format : GPG, G10, KBX */
-#define CFG_SUBDIRGPG "subdirgpg"        /* gpg/rnp files subdirectory: .rnp by default */
 #define CFG_COREDUMPS "coredumps"        /* enable/disable core dumps. 1 or 0. */
 #define CFG_NEEDSSECKEY "needsseckey"    /* needs secret key for the ongoing operation */
 #define CFG_USERID "userid"              /* userid for the ongoing operation */
@@ -193,7 +192,7 @@ const char *rnp_cfg_getstr(const rnp_cfg_t *cfg, const char *key);
  *
  *  @return stored string if item is found and has string value or empty string otherwise
  **/
-const std::string rnp_cfg_getstring(const rnp_cfg_t *cfg, const std::string &key);
+std::string rnp_cfg_getstring(const rnp_cfg_t *cfg, const std::string &key);
 
 /** @brief return integer value for the key if there is one
  *  @param cfg rnp config, must be allocated and initialized

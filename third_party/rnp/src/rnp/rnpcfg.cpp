@@ -28,7 +28,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
+#else
+#include "uniwin.h"
+#endif
 #include <sys/stat.h>
 #include <time.h>
 #include <errno.h>
@@ -82,7 +86,6 @@ rnp_cfg_load_defaults(rnp_cfg_t *cfg)
     rnp_cfg_setstr(cfg, CFG_ZALG, DEFAULT_Z_ALG);
     rnp_cfg_setint(cfg, CFG_ZLEVEL, DEFAULT_Z_LEVEL);
     rnp_cfg_setstr(cfg, CFG_CIPHER, DEFAULT_SYMM_ALG);
-    rnp_cfg_setstr(cfg, CFG_SUBDIRGPG, SUBDIRECTORY_RNP);
     rnp_cfg_setint(cfg, CFG_NUMTRIES, MAX_PASSWORD_ATTEMPTS);
     rnp_cfg_setint(cfg, CFG_S2K_MSEC, DEFAULT_S2K_MSEC);
 }
@@ -295,7 +298,7 @@ rnp_cfg_getstr(const rnp_cfg_t *cfg, const char *key)
     return NULL;
 }
 
-const std::string
+std::string
 rnp_cfg_getstring(const rnp_cfg_t *cfg, const std::string &key)
 {
     const char *val = rnp_cfg_getstr(cfg, key.c_str());

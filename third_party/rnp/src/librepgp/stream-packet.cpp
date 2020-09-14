@@ -28,7 +28,11 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#else
+#include "uniwin.h"
+#endif
 #include <string.h>
 #include <inttypes.h>
 #include <rnp/rnp_def.h>
@@ -1074,6 +1078,23 @@ stream_write_signature(const pgp_signature_t *sig, pgp_dest_t *dst)
 }
 
 rnp_result_t
+stream_parse_marker(pgp_source_t &src)
+{
+    pgp_packet_body_t pkt = {};
+    rnp_result_t      res = stream_read_packet_body(&src, &pkt);
+    if (res) {
+        return res;
+    }
+
+    if ((pkt.len != PGP_MARKER_LEN) || memcmp(pkt.data, PGP_MARKER_CONTENTS, PGP_MARKER_LEN)) {
+        res = RNP_ERROR_BAD_FORMAT;
+    }
+
+    free_packet_body(&pkt);
+    return res;
+}
+
+rnp_result_t
 stream_parse_sk_sesskey(pgp_source_t *src, pgp_sk_sesskey_t *skey)
 {
     uint8_t           bt;
@@ -1518,7 +1539,17 @@ signature_parse_subpacket(pgp_sig_subpkt_t &subpkt)
             subpkt.fields.issuer_fp.len = subpkt.len - 1;
         }
         break;
-    case PGP_SIG_SUBPKT_PRIVATE_FIRST ... PGP_SIG_SUBPKT_PRIVATE_LAST:
+    case PGP_SIG_SUBPKT_PRIVATE_100:
+    case PGP_SIG_SUBPKT_PRIVATE_101:
+    case PGP_SIG_SUBPKT_PRIVATE_102:
+    case PGP_SIG_SUBPKT_PRIVATE_103:
+    case PGP_SIG_SUBPKT_PRIVATE_104:
+    case PGP_SIG_SUBPKT_PRIVATE_105:
+    case PGP_SIG_SUBPKT_PRIVATE_106:
+    case PGP_SIG_SUBPKT_PRIVATE_107:
+    case PGP_SIG_SUBPKT_PRIVATE_108:
+    case PGP_SIG_SUBPKT_PRIVATE_109:
+    case PGP_SIG_SUBPKT_PRIVATE_110:
         oklen = true;
         checked = !subpkt.critical;
         if (!checked) {

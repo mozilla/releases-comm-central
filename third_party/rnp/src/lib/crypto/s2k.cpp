@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017,2018 [Ribose Inc](https://www.ribose.com).
+ * Copyright (c) 2017-2020 [Ribose Inc](https://www.ribose.com).
  * All rights reserved.
  *
  * This code is originally derived from software contributed to
@@ -30,7 +30,12 @@
 
 #include <botan/ffi.h>
 #include <stdio.h>
+#include "config.h"
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#else
+#include "uniwin.h"
+#endif
 
 #include "crypto/s2k.h"
 #include "defaults.h"
@@ -97,13 +102,16 @@ pgp_s2k_iterated(pgp_hash_alg_t alg,
     char s2k_algo_str[128];
     snprintf(s2k_algo_str, sizeof(s2k_algo_str), "OpenPGP-S2K(%s)", pgp_hash_name_botan(alg));
 
-    return botan_pbkdf(s2k_algo_str,
-                       out,
-                       output_len,
-                       password,
-                       salt,
-                       salt == NULL ? 0 : PGP_SALT_SIZE,
-                       iterations);
+    return botan_pwdhash(s2k_algo_str,
+                         iterations,
+                         0,
+                         0,
+                         out,
+                         output_len,
+                         password,
+                         0,
+                         salt,
+                         salt ? PGP_SALT_SIZE : 0);
 }
 
 size_t
@@ -145,10 +153,14 @@ pgp_s2k_encode_iterations(size_t iterations)
 static uint64_t
 get_timestamp_usec()
 {
-    // Consider clock_gettime
+#ifdef HAVE_SYS_TIME_H
+    // TODO: Consider clock_gettime
     struct timeval tv;
     ::gettimeofday(&tv, NULL);
     return (static_cast<uint64_t>(tv.tv_sec) * 1000000) + static_cast<uint64_t>(tv.tv_usec);
+#else
+    return GetTickCount64() * 1000;
+#endif
 }
 
 size_t
