@@ -1045,18 +1045,20 @@ var specialTabs = {
       Services.prefs.setCharPref("mailnews.start_page_override.mstone", mstone);
     }
 
-    let update = Cc["@mozilla.org/updates/update-manager;1"].getService(
-      Ci.nsIUpdateManager
-    ).activeUpdate;
+    if (AppConstants.MOZ_UPDATER) {
+      let update = Cc["@mozilla.org/updates/update-manager;1"].getService(
+        Ci.nsIUpdateManager
+      ).activeUpdate;
 
-    if (update && Services.vc.compare(update.appVersion, old_mstone) > 0) {
-      let overridePage = Services.urlFormatter.formatURLPref(
-        "mailnews.start_page.override_url"
-      );
-      overridePage = this.getPostUpdateOverridePage(update, overridePage);
-      overridePage = overridePage.replace("%OLD_VERSION%", old_mstone);
-      if (overridePage) {
-        openLinkExternally(overridePage);
+      if (update && Services.vc.compare(update.appVersion, old_mstone) > 0) {
+        let overridePage = Services.urlFormatter.formatURLPref(
+          "mailnews.start_page.override_url"
+        );
+        overridePage = this.getPostUpdateOverridePage(update, overridePage);
+        overridePage = overridePage.replace("%OLD_VERSION%", old_mstone);
+        if (overridePage) {
+          openLinkExternally(overridePage);
+        }
       }
     }
   },
