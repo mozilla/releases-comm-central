@@ -1071,12 +1071,14 @@ static LRESULT CALLBACK IconWindowProc(HWND msgWindow, UINT msg, WPARAM wp,
   if (msg == WM_USER && lp == WM_LBUTTONDOWN) {
     ::Shell_NotifyIconW(NIM_DELETE, &sMailIconData);
 
-    uint32_t count = sHiddenWindows.Length();
-    for (uint32_t i = 0; i < count; i++) {
+    for (uint32_t i = 0; i < sHiddenWindows.Length(); i++) {
       sHiddenWindows[i]->SetVisibility(true);
 
       nsCOMPtr<nsIWidget> widget;
       sHiddenWindows[i]->GetMainWidget(getter_AddRefs(widget));
+      if (!widget) {
+        continue;
+      }
 
       HWND hwnd = (HWND)(widget->GetNativeData(NS_NATIVE_WIDGET));
       ::ShowWindow(hwnd, SW_RESTORE);
@@ -1101,6 +1103,7 @@ WNDCLASS sClassStruct = {
     /* lpszClassName */ L"IconWindowClass"};
 
 nsresult nsMessengerWinIntegration::HideWindow(nsIBaseWindow* aWindow) {
+  NS_ENSURE_ARG(aWindow);
   aWindow->SetVisibility(false);
   sHiddenWindows.AppendElement(aWindow);
 
