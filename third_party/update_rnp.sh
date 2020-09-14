@@ -47,7 +47,7 @@ BUGREPORT="https://bugzilla.mozilla.org/enter_bug.cgi?product=Thunderbird"
 
 # Cleanup rnp checkout
 rm -rf ${RNPgit}/{.git,.github,.cirrus.yml,.clang-format,.gitignore}
-rm -rf ${RNPgit}/{_config.yml,docker.sh,ci,cmake,git-hooks,travis.sh}
+rm -rf ${RNPgit}/{_config.yml,docker.sh,ci,cmake,git-hooks,travis.sh,vcpkg.txt}
 rm -rf ${RNPgit}/{Brewfile,CMakeLists.txt}
 
 # Do the switch

@@ -27,6 +27,7 @@ git-hooks
 _config.yml
 docker.sh
 travis.sh
+vcpkg.txt
 Brewfile
 CMakeLists.txt
 
