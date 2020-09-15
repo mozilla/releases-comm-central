@@ -4940,8 +4940,10 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
         } else if (imapAction == nsIImapUrl::nsImapDeleteMsg) {
           // Stopgap. Build a parallel array of message headers while we
           // complete removal of nsIArray usage (Bug 1583030).
-          uint32_t messageCount;
-          m_copyState->m_messages->GetLength(&messageCount);
+          uint32_t messageCount = 0;
+          if (m_copyState->m_messages) {
+            m_copyState->m_messages->GetLength(&messageCount);
+          }
           nsTArray<RefPtr<nsIMsgDBHdr>> msgHeaders;
           msgHeaders.SetCapacity(messageCount);
           for (uint32_t i = 0; i < messageCount; ++i) {
@@ -7607,11 +7609,12 @@ nsresult nsImapMailFolder::InitCopyState(
     const nsACString& newMsgKeywords, nsIMsgCopyServiceListener* listener,
     nsIMsgWindow* msgWindow, bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcSupport);
+  NS_ENSURE_ARG_POINTER(messages);
+
   NS_ENSURE_TRUE(!m_copyState, NS_ERROR_FAILURE);
   nsresult rv;
 
   m_copyState = new nsImapMailCopyState();
-  NS_ENSURE_TRUE(m_copyState, NS_ERROR_OUT_OF_MEMORY);
 
   m_copyState->m_isCrossServerOp = acrossServers;
   m_copyState->m_srcSupport = do_QueryInterface(srcSupport, &rv);

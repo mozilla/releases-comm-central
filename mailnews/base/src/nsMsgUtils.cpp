@@ -1877,6 +1877,10 @@ void MsgRemoveQueryPart(nsCString& aSpec) {
 }
 
 void MsgHdrsToTArray(nsIArray* messages, nsTArray<RefPtr<nsIMsgDBHdr>>& out) {
+  if (!messages) {
+    out.Clear();
+    return;
+  }
   uint32_t count;
   messages->GetLength(&count);
   out.Clear();
