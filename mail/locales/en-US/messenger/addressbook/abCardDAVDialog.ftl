@@ -9,8 +9,6 @@ carddav-dialog =
     .buttonlabelaccept = Continue
     .buttonaccesskeyaccept = C
 
-carddav-experimental-warning = CardDAV address book support is experimental and could permanently damage your data. Use at your own risk.
-
 carddav-provider-label =
     .value = CardDAV Provider:
     .accesskey = P

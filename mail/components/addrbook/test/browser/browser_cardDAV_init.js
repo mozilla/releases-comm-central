@@ -21,32 +21,6 @@ const DEFAULT_BOOKS = [
   },
 ];
 
-/** Check that the menu item is hidden unless the pref is set. */
-add_task(async function testFileMenuItem() {
-  CardDAVServer.open("alice", "alice");
-
-  let abWindow = await openAddressBookWindow();
-  let abDocument = abWindow.document;
-
-  // We can't simulate opening the File menu, because it wouldn't work on OS X.
-  abWindow.onFileMenuInit();
-  Assert.ok(
-    abDocument.getElementById("menu_newCardDAVBook").hidden,
-    "CardDAV menu item should be hidden"
-  );
-
-  Services.prefs.setBoolPref("mail.addr_book.carddav.enabled", true);
-  abWindow.onFileMenuInit();
-  Assert.ok(
-    !abDocument.getElementById("menu_newCardDAVBook").hidden,
-    "CardDAV menu item should be shown"
-  );
-
-  await closeAddressBookWindow();
-  await CardDAVServer.close();
-  Services.prefs.clearUserPref("mail.addr_book.carddav.enabled");
-});
-
 async function wrappedTest(testInitCallback, ...attemptArgs) {
   Services.logins.removeAllLogins();
 

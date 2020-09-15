@@ -531,9 +531,6 @@ pref("toolbar.customization.usesheet", true);
 pref("toolbar.customization.usesheet", false);
 #endif
 
-// Whether to enable experimental CardDAV support.
-pref("mail.addr_book.carddav.enabled", false);
-
 // Number of recipient rows shown by default
 pref("mail.compose.addresswidget.numRowsShownDefault", 3);
 

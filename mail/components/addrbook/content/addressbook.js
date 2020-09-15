@@ -245,12 +245,6 @@ function onFileMenuInit() {
   if (osxMenuItem) {
     osxMenuItem.setAttribute("checked", AbOSXAddressBookExists());
   }
-  document.getElementById(
-    "menu_newCardDAVBook"
-  ).hidden = !Services.prefs.getBoolPref(
-    "mail.addr_book.carddav.enabled",
-    false
-  );
 }
 
 function CommandUpdate_AddressBook() {

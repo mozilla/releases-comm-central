@@ -2,24 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#bigScaryWarning {
-  background-color: #FFE900;
-  border-color: #F2D00F;
-  color: -moz-DialogText;
-  padding: 4px;
-  white-space: normal;
-}
-
-#bigScaryWarning image {
-  -moz-context-properties: fill;
-  fill: currentColor;
-  margin: 4px 8px;
-}
-
-#bigScaryWarning description {
-  width: 30em;
-}
-
 #carddav-provider {
   height: 1.8em;
 }
