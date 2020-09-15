@@ -808,44 +808,47 @@ MatrixAccount.prototype = {
 
     return chatFields;
   },
-  joinChat(aComponents) {
-    let roomIdOrAlias = aComponents.getValue("roomIdOrAlias").trim();
-    let domain = this._client.getDomain();
+  joinChat(components) {
     // For the format of room id and alias, see the matrix documentation:
-    // https://matrix.org/docs/spec/intro.html#room-structure
-    // https://matrix.org/docs/spec/intro.html#room-aliases
-    if (!roomIdOrAlias.endsWith(":" + domain)) {
-      roomIdOrAlias += ":" + domain;
+    // https://matrix.org/docs/spec/appendices#room-ids-and-event-ids
+    // https://matrix.org/docs/spec/appendices#room-aliases
+    let roomIdOrAlias = components.getValue("roomIdOrAlias").trim();
+
+    // If domain is missing, append the domain from the user's server.
+    if (!roomIdOrAlias.includes(":")) {
+      roomIdOrAlias += ":" + this._client.getDomain();
     }
-    if (!roomIdOrAlias.match(/^[!#]/)) {
+
+    // There will be following types of ids:
+    // !fubIsJzeAcCcjYTQvm:mozilla.org => General room id.
+    // #maildev:mozilla.org => Group Conversation room id.
+    // @clokep:mozilla.org => Direct Conversation room id.
+    if (roomIdOrAlias.startsWith("!")) {
+      // We create the group conversation initially. Then we check if the room
+      // is the direct messaging room or not.
+      let room = this._client.getRoom(roomIdOrAlias);
+      if (!room) {
+        return null;
+      }
+      let conv = new MatrixConversation(this, room.name, this.userId);
+      conv.init(room);
+      this.roomList.set(roomIdOrAlias, conv);
+      // It can be any type of room so update it according to direct conversation
+      // or group conversation.
+      this.checkRoomForUpdate(conv);
+      return conv;
+    }
+
+    // If the ID does not start with @ or #, assume it is a group conversation and append #.
+    if (!roomIdOrAlias.startsWith("@") && !roomIdOrAlias.startsWith("#")) {
       roomIdOrAlias = "#" + roomIdOrAlias;
     }
-
-    // TODO: Use getRoom to find existing conversation?
-    let conv = new MatrixConversation(this, roomIdOrAlias, this.userId);
-    conv.joining = true;
-    this._client
-      .joinRoom(roomIdOrAlias)
-      .then(room => {
-        this.roomList.set(room.roomId, conv);
-        conv.initRoom(room);
-        conv.joining = false;
-        conv.setTopic(
-          room.currentState.getStateEvents("m.room.topic", "").getContent()
-            .topic
-        );
-      })
-      .catch(error => {
-        // TODO: Handle errors?
-        // XXX We probably want to display an error in the open conversation
-        //     window.
-        this.ERROR(error);
-        conv.joining = false;
-        conv.left = true;
-
-        // TODO Perhaps we should call createRoom if the room doesn't exist.
-      });
-    return conv;
+    // If the ID starts with a @, it is a direct conversation.
+    if (roomIdOrAlias.startsWith("@")) {
+      return this.getDirectConversation(roomIdOrAlias);
+    }
+    // Otherwise, it is a group conversation.
+    return this.getGroupConversation(roomIdOrAlias);
   },
 
   createConversation(userId) {
