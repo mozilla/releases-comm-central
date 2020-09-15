@@ -97,11 +97,10 @@ async function check() {
     }
     url = new URL(url);
 
-    let response, href;
+    let response;
     let requestParams = {
       method: "PROPFIND",
       headers: {
-        "Content-Type": "text/xml",
         Depth: 0,
       },
       body: `<propfind xmlns="DAV:">
@@ -136,14 +135,14 @@ async function check() {
     if (!response) {
       throw new Components.Exception("Connection failure", Cr.NS_ERROR_FAILURE);
     }
-    href =
-      url.origin +
-      response.dom.querySelector("current-user-principal href").textContent;
+    url = new URL(
+      response.dom.querySelector("current-user-principal href").textContent,
+      url
+    );
 
-    response = await CardDAVDirectory.makeRequest(href, {
+    response = await CardDAVDirectory.makeRequest(url.href, {
       method: "PROPFIND",
       headers: {
-        "Content-Type": "text/xml",
         Depth: 0,
       },
       body: `<propfind xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
@@ -152,14 +151,14 @@ async function check() {
         </prop>
       </propfind>`,
     });
-    href =
-      url.origin +
-      response.dom.querySelector("addressbook-home-set href").textContent;
+    url = new URL(
+      response.dom.querySelector("addressbook-home-set href").textContent,
+      url
+    );
 
-    response = await CardDAVDirectory.makeRequest(href, {
+    response = await CardDAVDirectory.makeRequest(url.href, {
       method: "PROPFIND",
       headers: {
-        "Content-Type": "text/xml",
         Depth: 1,
       },
       body: `<propfind xmlns="DAV:" xmlns:cs="http://calendarserver.org/ns/">
@@ -180,8 +179,8 @@ async function check() {
     let alreadyAdded = 0;
     for (let r of response.dom.querySelectorAll("response")) {
       if (r.querySelector("resourcetype addressbook")) {
-        let bookURL = new URL(r.querySelector("href").textContent, url).href;
-        if (existing.includes(bookURL)) {
+        let bookURL = new URL(r.querySelector("href").textContent, url);
+        if (existing.includes(bookURL.href)) {
           alreadyAdded++;
           continue;
         }
@@ -193,7 +192,7 @@ async function check() {
           r.querySelector("displayname").textContent
         );
         checkbox.checked = true;
-        checkbox.value = bookURL;
+        checkbox.value = bookURL.href;
       }
     }
     if (uiElements.availableBooks.childElementCount == 0) {

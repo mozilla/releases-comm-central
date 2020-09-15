@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const { closeConnectionTo } = ChromeUtils.import(
+  "resource:///modules/AddrBookDirectory.jsm"
+);
 const { CardDAVDirectory } = ChromeUtils.import(
   "resource:///modules/CardDAVDirectory.jsm"
 );
@@ -44,16 +47,27 @@ function initDirectory() {
     "carddav.sqlite"
   );
 
-  // Save a username and password to the login manager.
-  let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
-    Ci.nsILoginInfo
-  );
-  loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
-  Services.logins.addLogin(loginInfo);
+  if (!Services.logins.findLogins(CardDAVServer.origin, null, "test").length) {
+    // Save a username and password to the login manager.
+    let loginInfo = Cc["@mozilla.org/login-manager/loginInfo;1"].createInstance(
+      Ci.nsILoginInfo
+    );
+    loginInfo.init(CardDAVServer.origin, null, "test", "bob", "bob", "", "");
+    Services.logins.addLogin(loginInfo);
+  }
 
   let directory = new CardDAVDirectory();
   directory.init("jscarddav://carddav.sqlite");
   return directory;
+}
+
+async function clearDirectory() {
+  let database = do_get_profile();
+  database.append("carddav.sqlite");
+  await closeConnectionTo(database);
+  database.remove(false);
+
+  CardDAVServer.reset();
 }
 
 async function checkCardsOnServer(expectedCards) {
@@ -83,6 +97,11 @@ let observer = {
   },
   pendingPromise: null,
   init() {
+    if (this.isInited) {
+      return;
+    }
+    this.isInited = true;
+
     for (let key of Object.keys(this.notifications)) {
       Services.obs.addObserver(observer, key);
     }

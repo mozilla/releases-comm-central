@@ -18,6 +18,15 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/iteratorUtils.jsm"
 );
 
+const PREFIX_BINDINGS = {
+  card: "urn:ietf:params:xml:ns:carddav",
+  cs: "http://calendarserver.org/ns/",
+  d: "DAV:",
+};
+const NAMESPACE_STRING = Object.entries(PREFIX_BINDINGS)
+  .map(([prefix, url]) => `xmlns:${prefix}="${url}"`)
+  .join(" ");
+
 /**
  * @extends AddrBookDirectory
  * @implements nsIAbDirectory
@@ -176,13 +185,13 @@ class CardDAVDirectory extends AddrBookDirectory {
     hrefsToFetch = hrefsToFetch.map(
       href => `      <d:href>${xmlEncode(href)}</d:href>`
     );
-    let data = `<addressbook-multiget xmlns="urn:ietf:params:xml:ns:carddav" xmlns:d="DAV:">
+    let data = `<card:addressbook-multiget ${NAMESPACE_STRING}>
       <d:prop>
-        <d:getetag/>
-        <address-data/>
+        <cs:getetag/>
+        <card:address-data/>
       </d:prop>
       ${hrefsToFetch.join("\n")}
-    </addressbook-multiget>`;
+    </card:addressbook-multiget>`;
 
     return this._makeRequest("", {
       method: "REPORT",
@@ -295,7 +304,7 @@ class CardDAVDirectory extends AddrBookDirectory {
   async fetchAllFromServer() {
     this._syncInProgress = true;
 
-    let data = `<propfind xmlns="DAV:" xmlns:cs="http://calendarserver.org/ns/">
+    let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
         <resourcetype/>
         <cs:getetag/>
@@ -317,34 +326,33 @@ class CardDAVDirectory extends AddrBookDirectory {
       }
     }
 
-    if (hrefsToFetch.length == 0) {
-      return;
-    }
+    if (hrefsToFetch.length > 0) {
+      response = await this._multigetRequest(hrefsToFetch);
 
-    response = await this._multigetRequest(hrefsToFetch);
+      let abCards = [];
 
-    let abCards = [];
+      for (let r of response.dom.querySelectorAll("response")) {
+        let etag = r.querySelector("getetag").textContent;
+        let href = r.querySelector("href").textContent;
+        let vCard = normalizeLineEndings(
+          r.querySelector("address-data").textContent
+        );
 
-    for (let r of response.dom.querySelectorAll("response")) {
-      let etag = r.querySelector("getetag").textContent;
-      let href = r.querySelector("href").textContent;
-      let vCard = normalizeLineEndings(
-        r.querySelector("address-data").textContent
-      );
-
-      try {
-        let abCard = VCardUtils.vCardToAbCard(vCard);
-        abCard.setProperty("_etag", etag);
-        abCard.setProperty("_href", href);
-        abCard.setProperty("_vCard", vCard);
-        abCards.push(abCard);
-      } catch (ex) {
-        console.error(`Error parsing: ${vCard}`);
-        Cu.reportError(ex);
+        try {
+          let abCard = VCardUtils.vCardToAbCard(vCard);
+          abCard.setProperty("_etag", etag);
+          abCard.setProperty("_href", href);
+          abCard.setProperty("_vCard", vCard);
+          abCards.push(abCard);
+        } catch (ex) {
+          console.error(`Error parsing: ${vCard}`);
+          Cu.reportError(ex);
+        }
       }
+
+      await this._bulkAddCards(abCards);
     }
 
-    await this._bulkAddCards(abCards);
     await this._getSyncToken();
 
     Services.obs.notifyObservers(this, "addrbook-directory-synced");
@@ -384,9 +392,9 @@ class CardDAVDirectory extends AddrBookDirectory {
    * directory to match what is on the server.
    */
   async updateAllFromServerV1() {
-    let data = `<addressbook-query xmlns="urn:ietf:params:xml:ns:carddav" xmlns:d="DAV:">
+    let data = `<addressbook-query xmlns="${PREFIX_BINDINGS.card}" ${NAMESPACE_STRING}>
       <d:prop>
-        <d:getetag/>
+        <cs:getetag/>
       </d:prop>
     </addressbook-query>`;
 
@@ -478,7 +486,7 @@ class CardDAVDirectory extends AddrBookDirectory {
    * @see RFC 6578
    */
   async _getSyncToken() {
-    let data = `<propfind xmlns="DAV:">
+    let data = `<propfind xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <prop>
          <displayname/>
          <sync-token/>
@@ -512,11 +520,13 @@ class CardDAVDirectory extends AddrBookDirectory {
       throw new Components.Exception("No sync token", Cr.NS_ERROR_UNEXPECTED);
     }
 
-    let data = `<sync-collection xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
+    let data = `<sync-collection xmlns="${
+      PREFIX_BINDINGS.d
+    }" ${NAMESPACE_STRING}>
       <sync-token>${xmlEncode(syncToken)}</sync-token>
       <sync-level>1</sync-level>
       <prop>
-        <getetag/>
+        <cs:getetag/>
         <card:address-data/>
       </prop>
     </sync-collection>`;
@@ -596,6 +606,7 @@ class CardDAVDirectory extends AddrBookDirectory {
     { method = "GET", headers = {}, body = null, contentType = "text/xml" }
   ) {
     uri = Services.io.newURI(uri);
+    headers["Content-Type"] = contentType;
 
     return new Promise((resolve, reject) => {
       let principal = Services.scriptSecurityManager.createContentPrincipal(

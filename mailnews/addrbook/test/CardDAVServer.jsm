@@ -4,8 +4,14 @@
 
 const EXPORTED_SYMBOLS = ["CardDAVServer"];
 
-const CARD_NS = "urn:ietf:params:xml:ns:carddav";
-const DAV_NS = "DAV:";
+const PREFIX_BINDINGS = {
+  card: "urn:ietf:params:xml:ns:carddav",
+  cs: "http://calendarserver.org/ns/",
+  d: "DAV:",
+};
+const NAMESPACE_STRING = Object.entries(PREFIX_BINDINGS)
+  .map(([prefix, url]) => `xmlns:${prefix}="${url}"`)
+  .join(" ");
 
 const { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 const { CommonUtils } = ChromeUtils.import(
@@ -21,10 +27,6 @@ var CardDAVServer = {
   isOpen: false,
 
   open(username, password) {
-    this.cards.clear();
-    this.deletedCards.clear();
-    this.changeCount = 0;
-
     this.server = new HttpServer();
     this.server.start(-1);
     this.isOpen = true;
@@ -32,6 +34,14 @@ var CardDAVServer = {
     this.username = username;
     this.password = password;
     this.server.registerPathHandler("/ping", this.ping);
+
+    this.reset();
+  },
+
+  reset() {
+    this.cards.clear();
+    this.deletedCards.clear();
+    this.changeCount = 0;
     this.resetHandlers();
   },
 
@@ -134,7 +144,7 @@ var CardDAVServer = {
 
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
-    response.write(`<multistatus xmlns="${DAV_NS}">
+    response.write(`<multistatus xmlns="${PREFIX_BINDINGS.d}">
         <response>
           <href>/principals/</href>
           <propstat>
@@ -156,7 +166,7 @@ var CardDAVServer = {
 
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
-    response.write(`<multistatus xmlns="${DAV_NS}" xmlns:card="${CARD_NS}">
+    response.write(`<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
         <response>
           <href>/principals/me/</href>
           <propstat>
@@ -178,7 +188,7 @@ var CardDAVServer = {
 
     response.setStatusLine("1.1", 207, "Multi-Status");
     response.setHeader("Content-Type", "text/xml");
-    response.write(`<multistatus xmlns="${DAV_NS}" xmlns:card="${CARD_NS}">
+    response.write(`<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
         <response>
           <href>/addressbooks/me/</href>
           <propstat>
@@ -186,14 +196,9 @@ var CardDAVServer = {
               <resourcetype>
                 <collection/>
               </resourcetype>
+              <displayname>#addressbooks</displayname>
             </prop>
             <status>HTTP/1.1 200 OK</status>
-          </propstat>
-          <propstat>
-            <prop>
-              <displayname/>
-            </prop>
-            <status>HTTP/1.1 404 Not Found</status>
           </propstat>
         </response>
         <response>
@@ -240,14 +245,17 @@ var CardDAVServer = {
     switch (input.documentElement.localName) {
       case "addressbook-query":
         Assert.equal(request.method, "REPORT");
+        Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.card);
         this.addressBookQuery(input, response);
         return;
       case "addressbook-multiget":
         Assert.equal(request.method, "REPORT");
+        Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.card);
         this.addressBookMultiGet(input, response);
         return;
       case "propfind":
         Assert.equal(request.method, "PROPFIND");
+        Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.d);
         this.propFind(
           input,
           request.hasHeader("Depth") ? request.getHeader("Depth") : 0,
@@ -256,6 +264,7 @@ var CardDAVServer = {
         return;
       case "sync-collection":
         Assert.equal(request.method, "REPORT");
+        Assert.equal(input.documentElement.namespaceURI, PREFIX_BINDINGS.d);
         this.syncCollection(input, response);
         return;
     }
@@ -267,10 +276,15 @@ var CardDAVServer = {
   },
 
   addressBookQuery(input, response) {
-    let includeVCard = input.querySelector("address-data");
-    let output = `<multistatus xmlns:card="${CARD_NS}" xmlns="${DAV_NS}">`;
+    if (this.mimicYahoo) {
+      response.setStatusLine("1.1", 400, "Bad Request");
+      return;
+    }
+
+    let propNames = this._inputProps(input);
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     for (let [href, card] of this.cards) {
-      output += this._cardResponse(href, card, includeVCard);
+      output += this._cardResponse(href, card, propNames);
     }
     output += `</multistatus>`;
 
@@ -280,12 +294,13 @@ var CardDAVServer = {
   },
 
   addressBookMultiGet(input, response) {
-    let output = `<multistatus xmlns:card="${CARD_NS}" xmlns="${DAV_NS}">`;
+    let propNames = this._inputProps(input);
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     for (let href of input.querySelectorAll("href")) {
       href = href.textContent;
       let card = this.cards.get(href);
       if (card) {
-        output += this._cardResponse(href, card, true);
+        output += this._cardResponse(href, card, propNames);
       }
     }
     output += `</multistatus>`;
@@ -296,20 +311,30 @@ var CardDAVServer = {
   },
 
   propFind(input, depth, response) {
-    let output = `<multistatus xmlns="${DAV_NS}">
+    let propNames = this._inputProps(input);
+
+    if (this.mimicYahoo && !propNames.includes("cs:getctag")) {
+      response.setStatusLine("1.1", 400, "Bad Request");
+      return;
+    }
+
+    let propValues = {
+      "cs:getctag": this.changeCount,
+      "d:displayname": "test",
+      "d:resourcetype": "<collection/><card:addressbook/>",
+    };
+    if (!this.mimicYahoo) {
+      propValues["d:sync-token"] = `http://mochi.test/sync/${this.changeCount}`;
+    }
+
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>
       <response>
         <href>${this.path}</href>
-        <propstat>
-          <prop>
-            <displayname>test</displayname>
-            <sync-token>http://mochi.test/sync/${this.changeCount}</sync-token>
-          </prop>
-          <status>HTTP/1.1 200 OK</status>
-        </propstat>
+        ${this._outputProps(propNames, propValues)}
       </response>`;
     if (depth == 1) {
       for (let [href, card] of this.cards) {
-        output += this._cardResponse(href, card, false);
+        output += this._cardResponse(href, card, propNames);
       }
     }
     output += `</multistatus>`;
@@ -323,12 +348,12 @@ var CardDAVServer = {
     let token = input
       .querySelector("sync-token")
       .textContent.replace(/\D/g, "");
-    let includeVCard = input.querySelector("address-data");
+    let propNames = this._inputProps(input);
 
-    let output = `<multistatus xmlns:card="${CARD_NS}" xmlns="${DAV_NS}">`;
+    let output = `<multistatus xmlns="${PREFIX_BINDINGS.d}" ${NAMESPACE_STRING}>`;
     for (let [href, card] of this.cards) {
       if (card.changed > token) {
-        output += this._cardResponse(href, card, includeVCard);
+        output += this._cardResponse(href, card, propNames);
       }
     }
     for (let [href, deleted] of this.deletedCards) {
@@ -351,20 +376,87 @@ var CardDAVServer = {
     response.write(output.replace(/>\s+</g, "><"));
   },
 
-  _cardResponse(href, card, includeVCard) {
+  _cardResponse(href, card, propNames) {
+    let propValues = {
+      "card:address-data": card.vCard,
+      "cs:getetag": card.etag,
+      "d:resourcetype": null,
+    };
+
     let outString = `<response>
       <href>${href}</href>
-      <propstat>
-        <prop>
-          <getetag>${card.etag}</getetag>`;
-    if (includeVCard) {
-      outString += `<card:address-data>${card.vCard}</card:address-data>`;
-    }
-    outString += `<status>HTTP/1.1 200 OK</status>
-        </prop>
-      </propstat>
+      ${this._outputProps(propNames, propValues)}
     </response>`;
     return outString;
+  },
+
+  _inputProps(input) {
+    let props = input.querySelectorAll("prop > *");
+    let propNames = [];
+
+    for (let p of props) {
+      Assert.equal(p.childElementCount, 0);
+      switch (p.localName) {
+        case "address-data":
+          Assert.equal(p.namespaceURI, PREFIX_BINDINGS.card);
+          propNames.push(`card:${p.localName}`);
+          break;
+        case "getctag":
+        case "getetag":
+          Assert.equal(p.namespaceURI, PREFIX_BINDINGS.cs);
+          propNames.push(`cs:${p.localName}`);
+          break;
+        case "displayname":
+        case "resourcetype":
+        case "sync-token":
+          Assert.equal(p.namespaceURI, PREFIX_BINDINGS.d);
+          propNames.push(`d:${p.localName}`);
+          break;
+        default:
+          Assert.report(
+            true,
+            undefined,
+            undefined,
+            `Unknown property requested: ${p.nodeName}`
+          );
+          break;
+      }
+    }
+
+    return propNames;
+  },
+
+  _outputProps(propNames, propValues) {
+    let output = "";
+
+    let found = [];
+    let notFound = [];
+    for (let p of propNames) {
+      if (p in propValues) {
+        found.push(`<${p}>${propValues[p]}</${p}>`);
+      } else {
+        notFound.push(`<${p}/>`);
+      }
+    }
+
+    if (found.length > 0) {
+      output += `<propstat>
+        <prop>
+          ${found.join("\n")}
+        </prop>
+        <status>HTTP/1.1 200 OK</status>
+      </propstat>`;
+    }
+    if (notFound.length > 0) {
+      output += `<propstat>
+        <prop>
+          ${notFound.join("\n")}
+        </prop>
+        <status>HTTP/1.1 404 Not Found</status>
+      </propstat>`;
+    }
+
+    return output;
   },
 
   /** Handle any requests to address book cards. */

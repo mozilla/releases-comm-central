@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-add_task(async () => {
+async function subtest() {
   // Put some cards on the server.
   CardDAVServer.putCardInternal(
     "keep-me.vcf",
@@ -226,4 +226,15 @@ add_task(async () => {
     "addrbook-contact-updated": [],
     "addrbook-contact-deleted": [],
   });
+
+  await clearDirectory();
+}
+
+add_task(async function testNormal() {
+  await subtest();
 });
+
+add_task(async function testYahoo() {
+  CardDAVServer.mimicYahoo = true;
+  await subtest();
+}).skip(); // To be enabled in bug 1662979.
