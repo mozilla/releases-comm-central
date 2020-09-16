@@ -50,18 +50,18 @@ msgListener.prototype = {
         Assert.equal(aStatus, 0);
         do_check_transaction(server.playTransaction(), [
           "EHLO test",
-          "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
+          "MAIL FROM:<" +
+            kSender +
+            "> BODY=8BITMIME SIZE=" +
+            originalData.length,
           "RCPT TO:<" + this.rcpt + ">",
           "DATA",
         ]);
         // Compare data file to what the server received
         Assert.equal(originalData, server._daemon.post);
-      }
-      else {
+      } else {
         Assert.equal(aStatus, NS_ERROR_BUT_DONT_SHOW_ALERT);
-        do_check_transaction(server.playTransaction(), [
-          "EHLO test",
-        ]);
+        do_check_transaction(server.playTransaction(), ["EHLO test"]);
         // Local address (before the @) has non-ascii char(s) or the @ is
         // missing from the address. An alert is triggered after the EHLO is
         // sent. Nothing else occurs so we "finish" the test to avoid
