@@ -186,33 +186,6 @@ Enigmail.hdrView = {
     }
   },
 
-  viewOpenpgpInfo() {
-    let params = {};
-    params.msgSignatureState = this.msgSignatureState;
-    params.msgEncryptionState = this.msgEncryptionState;
-    params.msgSignatureKeyId = this.msgSignatureKeyId;
-    params.msgEncryptionKeyId = this.msgEncryptionKeyId;
-    params.msgEncryptionAllKeyIds = this.msgEncryptionAllKeyIds;
-    params.from = "";
-
-    if ("from" in currentHeaderData) {
-      try {
-        params.from = EnigmailFuncs.stripEmail(
-          currentHeaderData.from.headerValue
-        ).toLowerCase();
-      } catch (ex) {
-        console.debug(ex);
-      }
-    }
-
-    window.openDialog(
-      "chrome://openpgp/content/ui/msgReadStatus.xhtml",
-      "",
-      "chrome,resizable,modal,dialog,centerscreen",
-      params
-    );
-  },
-
   updateHdrIcons(
     exitCode,
     statusFlags,
@@ -1199,14 +1172,12 @@ Enigmail.hdrView = {
       }
 
       if (uriSpec && uriSpec.search(/^enigmail:message\//) === 0) {
-        // display header for broken MS-Exchange message
+        // Display header for broken MS-Exchange message.
         document.getElementById("brokenExchangeBox").removeAttribute("hidden");
         document
           .getElementById("brokenExchangeRepairButton")
           .removeAttribute("hidden");
-        document
-          .getElementById("brokenExchangeWait")
-          .setAttribute("hidden", true);
+        document.getElementById("brokenExchangeWait").hidden = true;
       }
     },
 

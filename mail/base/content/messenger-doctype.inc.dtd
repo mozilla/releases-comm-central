@@ -26,8 +26,6 @@
 %charsetDTD;
 <!ENTITY % viewZoomOverlayDTD SYSTEM "chrome://messenger/locale/viewZoomOverlay.dtd">
 %viewZoomOverlayDTD;
-<!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
-%msgReadSMIMEDTD;
 <!ENTITY % msgViewPickerDTD SYSTEM "chrome://messenger/locale/msgViewPickerOverlay.dtd" >
 %msgViewPickerDTD;
 <!ENTITY % calendarGlobalDTD SYSTEM "chrome://calendar/locale/global.dtd">
@@ -46,3 +44,5 @@
 %globalDTD;
 <!ENTITY % mailOverlayDTD SYSTEM "chrome://messenger/locale/mailOverlay.dtd">
 %mailOverlayDTD;
+<!ENTITY % smimeDTD SYSTEM "chrome://messenger-smime/locale/msgReadSecurityInfo.dtd">
+%smimeDTD;

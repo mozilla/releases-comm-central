@@ -437,7 +437,7 @@ html|button.crypto-button {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  margin-block: 0 3px;
+  margin-block: 6px 3px;
   fill: currentColor;
   background-color: transparent;
 }
@@ -482,4 +482,104 @@ html|button.crypto-button {
 
 #encryptedHdrIcon[encrypted="notok"] {
   list-style-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
+}
+
+/* Encryption security pane */
+#messageSecurityPanel {
+  width: 34rem;
+}
+
+html|header.message-security-header {
+  display: flex;
+  flex-wrap: nowrap;
+  text-align: center;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+html|header.message-security-header html|h3 {
+  flex: 1;
+  margin-block: 0;
+}
+
+.message-security-body > description {
+  margin-bottom: 18px;
+}
+
+.message-security-label {
+  font-weight: 600;
+  font-size: 1.1em;
+  padding-inline-start: 21px;
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  margin-bottom: 6px;
+  fill: currentColor;
+  -moz-context-properties: fill;
+}
+
+.message-security-label.none,
+#encryptionLabel.none,
+#signatureLabel.none {
+  padding-inline-start: 0;
+}
+
+#signatureLabel.ok {
+  background-image: url("chrome://messenger/skin/icons/message-signed-ok.svg");
+}
+
+#signatureLabel.verified {
+  background-image: url("chrome://messenger/skin/icons/message-signed-verified.svg");
+}
+
+#signatureLabel.unverified {
+  background-image: url("chrome://messenger/skin/icons/message-signed-unverified.svg");
+}
+
+#signatureLabel.unknown {
+  background-image: url("chrome://messenger/skin/icons/message-signed-unknown.svg");
+}
+
+#signatureLabel.mismatch {
+  background-image: url("chrome://messenger/skin/icons/message-signed-mismatch.svg");
+}
+
+#encryptionLabel.ok {
+  background-image: url("chrome://messenger/skin/icons/message-encrypted-ok.svg");
+}
+
+#encryptionLabel.notok {
+  background-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
+}
+
+.message-security-container {
+  margin-bottom: 21px;
+}
+
+#signatureKeyId,
+#encryptionKeyId,
+.cert-label {
+  font-weight: 600;
+}
+
+#otherEncryptionKeysList {
+  margin: 9px 6px;
+  max-height: 30rem;
+  overflow-y: auto;
+}
+
+.other-key-row {
+  border-radius: 2px;
+  padding: 3px 2px;
+  border: 1px solid var(--button-border-color);
+  background-color: rgba(215, 215, 219, 0.2);
+  margin-bottom: 3px;
+}
+
+.openpgp-key-id {
+  font-weight: bold;
+}
+
+.openpgp-key-name {
+  font-size: 0.9em;
 }

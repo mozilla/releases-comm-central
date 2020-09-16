@@ -91,8 +91,6 @@ extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icon
 chrome/classic/skin/classic/communicator/icons/lock-insecure.png
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/icons/closeFullScreenVideo.png
 chrome/classic/skin/classic/communicator/icons/closeFullScreenVideo.png
-extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/smime/msgReadSecurityInfo.css
-chrome/classic/skin/classic/messenger/smime/msgReadSecurityInfo.css
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/communicator/fullscreen-video.css
 chrome/classic/skin/classic/communicator/fullscreen-video.css
 extensions/modern@themes.mozilla.org/chrome/modern/skin/modern/messenger/smime/msgReadSMIMEOverlay.css

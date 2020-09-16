@@ -18,9 +18,6 @@ chrome/classic/skin/classic/messenger/icons/new-mail-alert.png
 chrome/classic/skin/classic/messenger/icons/spelling.svg
 chrome/classic/skin/classic/messenger/icons/connection-insecure.svg
 chrome/classic/skin/classic/messenger/icons/message-encrypted-notok.svg
-chrome/classic/skin/classic/messenger/openpgp/composeKeyStatus.css
-chrome/classic/skin/classic/messenger/openpgp/oneRecipientStatus.css
-chrome/classic/skin/classic/messenger/smime/certFetchingStatus.css
 chrome/messenger/content/branding/icon48.png
 chrome/messenger/content/branding/icon64.png
 chrome/messenger/content/branding/icon128.png

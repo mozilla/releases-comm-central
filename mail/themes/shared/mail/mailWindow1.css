@@ -12,6 +12,10 @@
   color: -moz-DialogText;
 }
 
+#messagepaneboxwrapper {
+  overflow: hidden;
+}
+
 #folderUnreadCol,
 #folderTotalCol,
 #folderSizeCol {

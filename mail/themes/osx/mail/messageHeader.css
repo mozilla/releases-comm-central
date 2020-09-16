@@ -307,3 +307,8 @@ mail-emailaddress[selected="true"] > .emailDisplayButton {
 #header-view-toolbox {
   padding-top: 3px;
 }
+
+.message-security-label {
+  /* Necessary to not cut the background icon */
+  min-height: 16px;
+}

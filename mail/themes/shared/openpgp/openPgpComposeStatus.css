@@ -3,26 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 @import url("chrome://messenger/skin/messenger.css");
-
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-#techLabel {
-  font-weight: bold;
-  text-align: right;
-}
-
-#signatureLabel {
-  font-weight: bold;
-}
-
-#signatureKey {
-  margin: 5px;
-}
-
-#encryptionLabel {
-  font-weight: bold;
-}
-
-#encryptionKey {
-  margin: 5px;
+treecolpicker {
+  display: none;
 }

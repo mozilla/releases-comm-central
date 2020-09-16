@@ -1,0 +1,152 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+  <panel id="messageSecurityPanel" type="arrow" orient="vertical"
+         onpopuphidden="hideMessageReadSecurityInfo();"
+         position="bottomcenter topright"
+         tabindex="0">
+    <html:header class="message-security-header">
+      <html:h3>&status.label; <html:span id="techLabel"></html:span></html:h3>
+    </html:header>
+
+    <vbox class="message-security-body">
+      <!-- Notification container -->
+      <vbox>
+        <!-- Import OpenPGP key -->
+        <hbox id="openpgpKeyBox" hidden="true"
+              class="inline-notification-container info-container">
+          <hbox class="inline-notification-wrapper align-center">
+            <image class="notification-image notification-image-info"/>
+            <description>
+              <html:span data-l10n-id="openpgp-has-sender-key"></html:span>
+              <html:span id="hasConflictingKeyOpenPGP" hidden="hidden"></html:span>
+            </description>
+            <button id="openpgpImportButton"
+                    data-l10n-id="openpgp-import-sender-key"
+                    oncommand="Enigmail.msg.importAttachedSenderKey();"/>
+          </hbox>
+        </hbox>
+
+        <!-- Missing signature -->
+        <hbox id="signatureKeyBox" hidden="true"
+              class="inline-notification-container info-container">
+          <hbox class="inline-notification-wrapper align-center">
+            <image class="notification-image notification-image-info"/>
+            <description data-l10n-id="openpgp-missing-signature-key"/>
+            <button data-l10n-id="openpgp-search-signature-key"
+                    oncommand="Enigmail.msg.searchSignatureKey();"/>
+          </hbox>
+        </hbox>
+
+        <!-- Corrupted message by MS Exchange -->
+        <hbox id="brokenExchangeBox" hidden="true"
+              class="inline-notification-container info-container">
+          <hbox class="inline-notification-wrapper">
+            <image class="notification-image notification-image-info"/>
+            <description data-l10n-id="openpgp-broken-exchange-info"/>
+            <button id="brokenExchangeRepairButton"
+                    data-l10n-id="openpgp-broken-exchange-repair"
+                    oncommand="Enigmail.msg.fixBuggyExchangeMail();"/>
+            <label id="brokenExchangeWait" data-l10n-id="openpgp-broken-exchange-wait"/>
+          </hbox>
+        </hbox>
+
+        <!-- Unable to decrypt -->
+        <hbox id="cannotDecryptBox" hidden="true"
+              class="inline-notification-container error-container">
+          <hbox class="inline-notification-wrapper align-center">
+            <image class="notification-image notification-image-error"/>
+            <description id="cannot-decrypt-explanation"/>
+          </hbox>
+        </hbox>
+
+        <!-- Message partially encrypted -->
+        <hbox id="partialOpenPGPBox" hidden="true"
+              class="inline-notification-container info-container">
+          <hbox class="inline-notification-wrapper align-center">
+            <image class="notification-image notification-image-info"/>
+            <description id="preventedPartialExplanation"/>
+            <button id="openpgpProcessPartial"
+                    oncommand="Enigmail.msg.processOpenPGPSubset();"/>
+          </hbox>
+        </hbox>
+      </vbox>
+
+      <label id="signatureLabel" class="message-security-label"/>
+      <label id="signatureHeader" collapsed="true" />
+      <description id="signatureExplanation"/>
+
+      <vbox id="signatureCert" class="message-security-container"
+            collapsed="true">
+        <hbox>
+          <label id="signedByLabel" class="cert-label">&signer.name;</label>
+          <description id="signedBy" />
+        </hbox>
+        <hbox>
+          <label id="signerEmailLabel"
+                 class="cert-label">&email.address;</label>
+          <description id="signerEmail" />
+        </hbox>
+        <hbox>
+          <label id="sigCertIssuedByLabel"
+                 class="cert-label">&issuer.name;</label>
+          <description id="sigCertIssuedBy" />
+        </hbox>
+        <hbox pack="end">
+          <button id="signatureCertView" label="&signatureCert.label;"
+                  oncommand="viewSignatureCert()" />
+        </hbox>
+      </vbox>
+
+      <vbox id="signatureKey" class="message-security-container"
+            collapsed="true">
+        <hbox flex="1" align="center">
+          <label id="signatureKeyId" flex="1"/>
+          <button id="viewSignatureKey" data-l10n-id="openpgp-view-signer-key"
+                  oncommand="viewSignatureKey()" collapsed="true"/>
+        </hbox>
+      </vbox>
+
+      <label id="encryptionLabel" class="message-security-label"/>
+      <description id="encryptionExplanation"/>
+
+      <vbox id="encryptionCert" class="message-security-container"
+            collapsed="true">
+        <hbox>
+          <label id="encryptedForLabel"
+                 class="cert-label">&recipient.name;</label>
+          <description id="encryptedFor" />
+        </hbox>
+        <hbox>
+          <label id="recipientEmailLabel"
+                 class="cert-label">&email.address;</label>
+          <description id="recipientEmail" />
+        </hbox>
+        <hbox>
+          <label id="encCertIssuedByLabel"
+                 class="cert-label">&issuer.name;</label>
+          <description id="encCertIssuedBy" />
+        </hbox>
+        <hbox pack="end">
+          <button id="encryptionCertView" label="&encryptionCert.label;"
+                  oncommand="viewEncryptionCert()" />
+        </hbox>
+      </vbox>
+
+      <vbox id="encryptionKey" class="message-security-container"
+            collapsed="true">
+        <label id="encryptionKeyId"/>
+        <hbox pack="end">
+          <button id="viewEncryptionKey"
+                  data-l10n-id="openpgp-view-your-encryption-key"
+                  oncommand="viewEncryptionKey()"
+                  collapsed="true"/>
+        </hbox>
+      </vbox>
+
+      <vbox id="otherEncryptionKeys" collapsed="true">
+        <label id="otherLabel" class="message-security-label none"/>
+        <vbox id="otherEncryptionKeysList"/>
+      </vbox>
+    </vbox>
+  </panel>

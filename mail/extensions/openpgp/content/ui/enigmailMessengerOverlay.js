@@ -218,16 +218,6 @@ Enigmail.msg = {
 
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: Startup\n");
 
-    /*
-    // Override SMIME ui
-    overrideAttribute(
-      ["cmd_viewSecurityStatus"],
-      "Enigmail.msg.viewSecurityInfo(null, true);",
-      "",
-      ""
-    );
-    */
-
     // Override print command
     var printElementIds = [
       "cmd_print",
@@ -388,11 +378,11 @@ Enigmail.msg = {
 
     let element = document.getElementById("brokenExchangeBox");
     if (element) {
-      element.setAttribute("hidden", "true");
+      element.hidden = true;
     }
     element = document.getElementById("openpgpKeyBox");
     if (element) {
-      element.setAttribute("hidden", true);
+      element.hidden = true;
     }
     element = document.getElementById("hasConflictingKeyOpenPGP");
     if (element) {
@@ -400,16 +390,16 @@ Enigmail.msg = {
     }
     element = document.getElementById("signatureKeyBox");
     if (element) {
-      element.setAttribute("hidden", true);
+      element.hidden = true;
       element.removeAttribute("keyid");
     }
     element = document.getElementById("cannotDecryptBox");
     if (element) {
-      element.setAttribute("hidden", true);
+      element.hidden = true;
     }
     element = document.getElementById("partialOpenPGPBox");
     if (element) {
-      element.setAttribute("hidden", true);
+      element.hidden = true;
     }
     element = document.getElementById("openpgpProcessPartial");
     if (element) {
@@ -1806,7 +1796,7 @@ Enigmail.msg = {
     }
     if (!sigKeyIsAttached) {
       let b = document.getElementById("signatureKeyBox");
-      b.setAttribute("hidden", false);
+      b.removeAttribute("hidden");
       b.setAttribute("keyid", Enigmail.msg.missingSigKey);
     }
   },
@@ -1910,7 +1900,7 @@ Enigmail.msg = {
     document.getElementById("brokenExchangeWait").removeAttribute("hidden");
 
     function hideBrokenExchangePane() {
-      document.getElementById("brokenExchangeBox").setAttribute("hidden", true);
+      document.getElementById("brokenExchangeBox").hidden = true;
     }
 
     let msg = gFolderDisplay.messageDisplay.displayedMessage;
@@ -3289,24 +3279,39 @@ Enigmail.msg = {
     }
   },
 
+  /**
+   * Show the import key notification.
+   */
   async unhideImportKeyBox() {
-    let b = document.getElementById("openpgpKeyBox");
-    b.setAttribute("hidden", false);
+    // If the crypto button area is still collapsed it means the message wasn't
+    // encrypted and doesn't have a signature, but since we have an autocrypt
+    // header, we need to show the button to allow users to access the info.
+    let cryptoBox = document.getElementById("cryptoBox");
+    if (cryptoBox.collapsed) {
+      cryptoBox.collapsed = false;
+      cryptoBox.setAttribute("tech", "OpenPGP");
+      document
+        .getElementById("encryptionTechBtn")
+        .querySelector("span").textContent = "OpenPGP";
+    }
 
+    // Check if the proposed key to import was previously accepted.
     let hasAreadyAcceptedOther = await PgpSqliteDb2.hasAnyPositivelyAcceptedKeyForEmail(
       Enigmail.msg.authorEmail
     );
     if (hasAreadyAcceptedOther) {
-      let bc = document.getElementById("hasConflictingKeyOpenPGP");
-      if (bc) {
-        document.l10n.setAttributes(bc, "openpgp-be-careful-new-key", {
-          email: Enigmail.msg.authorEmail,
-          newFingerprint:
-            Enigmail.msg.attachedSenderEmailKeysIndex[0].keyInfo.fpr,
-        });
-        bc.setAttribute("hidden", false);
-      }
+      let conflictDescription = document.getElementById(
+        "hasConflictingKeyOpenPGP"
+      );
+      document.l10n.setAttributes(
+        conflictDescription,
+        "openpgp-be-careful-new-key",
+        { email: Enigmail.msg.authorEmail }
+      );
+      conflictDescription.setAttribute("hidden", false);
     }
+
+    document.getElementById("openpgpKeyBox").removeAttribute("hidden");
   },
 
   async processAfterAttachmentsAndDecrypt() {

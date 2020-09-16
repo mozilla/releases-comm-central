@@ -297,6 +297,4 @@
   skin/classic/messenger/openpgp/twisty-clsd.png              (../shared/openpgp/twisty-clsd.png)
   skin/classic/messenger/openpgp/twisty-open.png              (../shared/openpgp/twisty-open.png)
   skin/classic/messenger/openpgp/warning-16.png               (../shared/openpgp/warning-16.png)
-  skin/classic/messenger/openpgp/composeKeyStatus.css         (../shared/openpgp/composeKeyStatus.css)
-  skin/classic/messenger/openpgp/oneRecipientStatus.css       (../shared/openpgp/oneRecipientStatus.css)
-  skin/classic/messenger/openpgp/msgReadStatus.css            (../shared/openpgp/msgReadStatus.css)
+  skin/classic/messenger/openpgp/openPgpComposeStatus.css     (../shared/openpgp/openPgpComposeStatus.css)

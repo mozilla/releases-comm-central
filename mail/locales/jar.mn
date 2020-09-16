@@ -199,7 +199,6 @@
   locale/@AB_CD@/messenger-newsblog/am-newsblog.dtd                     (%chrome/messenger-newsblog/am-newsblog.dtd)
 % locale messenger-smime @AB_CD@ %locale/@AB_CD@/messenger-smime/
   locale/@AB_CD@/messenger-smime/msgCompSMIMEOverlay.dtd                (%chrome/messenger-smime/msgCompSMIMEOverlay.dtd)
-  locale/@AB_CD@/messenger-smime/msgReadSMIMEOverlay.dtd                (%chrome/messenger-smime/msgReadSMIMEOverlay.dtd)
   locale/@AB_CD@/messenger-smime/msgReadSMIMEOverlay.properties         (%chrome/messenger-smime/msgReadSMIMEOverlay.properties)
   locale/@AB_CD@/messenger-smime/msgCompSecurityInfo.dtd                (%chrome/messenger-smime/msgCompSecurityInfo.dtd)
   locale/@AB_CD@/messenger-smime/msgCompSecurityInfo.properties         (%chrome/messenger-smime/msgCompSecurityInfo.properties)

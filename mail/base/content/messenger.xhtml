@@ -21,6 +21,7 @@
 <?xml-stylesheet href="chrome://messenger/skin/searchBox.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/customizableui/panelUI.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/input-fields.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/openpgp/inlineNotification.css" type="text/css"?>
 
 <!-- Calendar CSS -->
 <?xml-stylesheet href="chrome://calendar/skin/lightning.css" type="text/css"?>
@@ -81,6 +82,7 @@
 <stringbundle id="bundle_editContact" src="chrome://messenger/locale/editContactOverlay.properties"/>
 <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
 <stringbundle id="bundle_read_smime" src="chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"/>
+<stringbundle id="bundle_smime_read_info" src="chrome://messenger-smime/locale/msgSecurityInfo.properties"/>
 
 <linkset>
   <html:link rel="localization" href="branding/brand.ftl"/>
@@ -90,6 +92,7 @@
   <html:link rel="localization" href="messenger/menubar.ftl"/>
   <html:link rel="localization" href="messenger/openpgp/openpgp-frontend.ftl"/>
   <html:link rel="localization" href="calendar/calendar-widgets.ftl"/>
+  <html:link rel="localization" href="messenger/openpgp/msgReadStatus.ftl"/>
 </linkset>
 
 <script src="chrome://global/content/globalOverlay.js"/>
@@ -755,9 +758,6 @@
 #include msgHdrView.inc.xhtml
                       </hbox>
 #include ../../../calendar/lightning/content/imip-bar-overlay.inc.xhtml
-#ifdef MOZ_OPENPGP
-#include msgOpenPGPKey.inc.xhtml
-#endif
                       <!-- The msgNotificationBar appears on top of the message
                            and displays information like: junk, contains remote
                            images, or is a suspected phishing URL. -->
@@ -798,6 +798,7 @@
                       <findbar id="FindToolbar" browserid="messagepane"/>
                     </vbox>
                   </vbox>
+#include msgSecurityPane.inc.xhtml
                 </hbox>
                 <hbox id="messenger-notification-footer">
                   <!-- notificationbox will be added here lazily. -->

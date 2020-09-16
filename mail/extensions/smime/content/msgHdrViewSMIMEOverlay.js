@@ -267,6 +267,7 @@ function onSMIMEStartHeaders() {
   gStatusBar.removeAttribute("encrypted");
 
   forgetEncryptedURI();
+  hideMessageReadSecurityInfo();
 }
 
 function onSMIMEEndHeaders() {}
