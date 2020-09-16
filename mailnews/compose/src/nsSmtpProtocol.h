@@ -64,8 +64,9 @@ typedef enum _SmtpState {
 #define SMTP_EHLO_DSN_ENABLED 0x00000004
 #define SMTP_EHLO_STARTTLS_ENABLED 0x00000008
 #define SMTP_EHLO_SIZE_ENABLED 0x00000010
-#define SMTP_EHLO_8BIT_ENABLED 0x00000020
+#define SMTP_EHLO_8BITMIME_ENABLED 0x00000020
 #define SMTP_EHLO_CLIENTID_ENABLED 0x00000040
+#define SMTP_EHLO_SMTPUTF8_ENABLED 0x00000080
 
 // insecure mechanisms follow
 #define SMTP_AUTH_LOGIN_ENABLED 0x00000100
@@ -164,6 +165,7 @@ class nsSmtpProtocol : public nsMsgAsyncWriteProtocol,
 
   int32_t m_originalContentLength; /* the content length at the time of calling
                                       graph progress */
+  bool m_DataCommandWasSent;
 
   // initialization function given a new url and transport layer
   nsresult Initialize(nsIURI* aURL);

@@ -46,15 +46,29 @@ msgListener.prototype = {
   onStatus(aMsgID, aMsg) {},
   onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {
     try {
-      Assert.equal(aStatus, 0);
-      do_check_transaction(server.playTransaction(), [
-        "EHLO test",
-        "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
-        "RCPT TO:<" + this.rcpt + ">",
-        "DATA",
-      ]);
-      // Compare data file to what the server received
-      Assert.equal(originalData, server._daemon.post);
+      if (test == kToValid || test == kToASCII) {
+        Assert.equal(aStatus, 0);
+        do_check_transaction(server.playTransaction(), [
+          "EHLO test",
+          "MAIL FROM:<" + kSender + "> BODY=8BITMIME SIZE=" + originalData.length,
+          "RCPT TO:<" + this.rcpt + ">",
+          "DATA",
+        ]);
+        // Compare data file to what the server received
+        Assert.equal(originalData, server._daemon.post);
+      }
+      else {
+        Assert.equal(aStatus, NS_ERROR_BUT_DONT_SHOW_ALERT);
+        do_check_transaction(server.playTransaction(), [
+          "EHLO test",
+        ]);
+        // Local address (before the @) has non-ascii char(s) or the @ is
+        // missing from the address. An alert is triggered after the EHLO is
+        // sent. Nothing else occurs so we "finish" the test to avoid
+        // NS_ERROR_ABORT test failure due to timeout waiting for the send
+        // (which doesn't occurs) to complete.
+        do_test_finished();
+      }
     } catch (e) {
       do_throw(e);
     } finally {
@@ -165,7 +179,7 @@ function run_test() {
     "chrome://messenger/locale/messengercompose/composeMsgs.properties"
   );
   expectedAlertMessage = composeProps
-    .GetStringFromName("errorIllegalLocalPart")
+    .GetStringFromName("errorIllegalLocalPart2")
     .replace("%s", kToInvalid);
 
   // Ensure we have at least one mail account
@@ -195,14 +209,10 @@ function run_test() {
   // message to the remaining - wrong! - address.
   // The new code will present an informational message box and deny sending.
   test = kToInvalid;
-  DoSendTest(kToInvalid, kToInvalid, NS_ERROR_BUT_DONT_SHOW_ALERT);
+  DoSendTest(kToInvalid, kToInvalid, 0);
 
   // Test 4:
   // Bug 856506. invalid char without '@' causes crash.
   test = kToInvalidWithoutDomain;
-  DoSendTest(
-    kToInvalidWithoutDomain,
-    kToInvalidWithoutDomain,
-    NS_ERROR_BUT_DONT_SHOW_ALERT
-  );
+  DoSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain, 0);
 }

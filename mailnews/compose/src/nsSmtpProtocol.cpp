@@ -272,6 +272,7 @@ nsresult nsSmtpProtocol::Initialize(nsIURI* aURL) {
 
   m_originalContentLength = 0;
   m_totalAmountRead = 0;
+  m_DataCommandWasSent = false;
 
   m_lineStreamBuffer = new nsMsgLineStreamBuffer(OUTPUT_BUFFER_SIZE, true);
   // ** may want to consider caching the server capability to save lots of
@@ -317,78 +318,6 @@ nsresult nsSmtpProtocol::Initialize(nsIURI* aURL) {
   if (postMessage) {
     m_nextState = SMTP_RESPONSE;
     m_nextStateAfterResponse = SMTP_EXTN_LOGIN_RESPONSE;
-
-    // compile a minimal list of valid target addresses by
-    // - looking only at mailboxes
-    // - dropping addresses with invalid localparts (until we implement RFC
-    // 6532)
-    // - using ACE for IDN domainparts
-    // - stripping duplicates
-    nsCString addresses;
-    m_runningURL->GetRecipients(getter_Copies(addresses));
-
-    ExtractEmails(EncodedHeader(addresses), UTF16ArrayAdapter<>(m_addresses));
-
-    nsCOMPtr<nsIIDNService> converter = do_GetService(NS_IDNSERVICE_CONTRACTID);
-    addresses.Truncate();
-    uint32_t count = m_addresses.Length();
-    for (uint32_t i = 0; i < count; i++) {
-      const char* start = m_addresses[i].get();
-      // Location of the @ character
-      const char* lastAt = nullptr;
-      const char* ch = start;
-      for (; *ch; ch++) {
-        if (*ch == '@') lastAt = ch;
-        // Check for first illegal character (outside 0x09,0x20-0x7e)
-        else if ((*ch < ' ' || *ch > '~') && (*ch != '\t')) {
-          break;
-        }
-      }
-      // validate the just parsed address
-      if (*ch || m_addresses[i].IsEmpty()) {
-        // Fortunately, we will always have an @ in each mailbox address.
-        // We try to fix illegal character in the domain part by converting
-        // that to ACE. Illegal characters in the local part are not fixable
-        // (which charset would it be anyway?), hence we error out in that
-        // case as well.
-        nsresult rv = NS_ERROR_FAILURE;  // anything but NS_OK
-        if (lastAt) {
-          // Illegal char in the domain part, hence use ACE
-          nsAutoCString domain;
-          domain.Assign(lastAt + 1);
-          rv = converter->ConvertUTF8toACE(domain, domain);
-          if (NS_SUCCEEDED(rv)) {
-            m_addresses[i].SetLength(lastAt - start + 1);
-            m_addresses[i] += domain;
-          }
-        }
-        if (NS_FAILED(rv)) {
-          // Throw an error, including the broken address
-          m_nextState = SMTP_ERROR_DONE;
-          ClearFlag(SMTP_PAUSE_FOR_READ);
-          // Unfortunately, nsExplainErrorDetails will show the error above
-          // the mailnews main window, because we don't necessarily get
-          // passed down a compose window - we might be sending in the
-          // background!
-          rv = nsExplainErrorDetails(m_runningURL, NS_ERROR_ILLEGAL_LOCALPART,
-                                     start, nullptr);
-          NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain illegal localpart");
-          m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
-          return NS_ERROR_BUT_DONT_SHOW_ALERT;
-        }
-      }
-    }
-
-    // final cleanup
-    m_addressesLeft = m_addresses.Length();
-
-    // hmm no addresses to send message to...
-    if (m_addressesLeft == 0) {
-      m_nextState = SMTP_ERROR_DONE;
-      ClearFlag(SMTP_PAUSE_FOR_READ);
-      m_urlErrorState = NS_MSG_NO_RECIPIENTS;
-      return NS_MSG_NO_RECIPIENTS;
-    }
   }  // if post message
 
   rv = MsgExamineForProxyAsync(this, this, getter_AddRefs(m_proxyRequest));
@@ -506,8 +435,10 @@ NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest* request,
       NS_SUCCEEDED(aStatus) && !m_sendDone &&
       (m_nextStateAfterResponse == SMTP_AUTH_LOGIN_STEP0_RESPONSE ||
        m_nextStateAfterResponse == SMTP_AUTH_LOGIN_RESPONSE);
-  // ignore errors handling the QUIT command so fcc can continue.
-  if (m_sendDone && NS_FAILED(aStatus)) {
+  // Ignore errors handling the QUIT command so fcc can continue. However, if
+  // QUIT occurred before DATA command even occurred, allow the error to still
+  // inhibit fcc (copy to Sent) since message send was never even attempted.
+  if (m_sendDone && NS_FAILED(aStatus) && m_DataCommandWasSent) {
     MOZ_LOG(SMTPLogModule, mozilla::LogLevel::Info,
             ("SMTP connection error quitting %" PRIx32 ", ignoring ",
              static_cast<uint32_t>(aStatus)));
@@ -703,6 +634,91 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream* inputStream,
   smtpUrl->GetVerifyLogon(&verifyingLogon);
   if (verifyingLogon) return SendQuit();
 
+  // Now that we know whether SMTPUTF8 capability is available
+  // compile a minimal list of valid target addresses by
+  // - looking only at mailboxes
+  // - dropping addresses with invalid localparts (until we implement RFC
+  // 6532)
+  // - using ACE for IDN domainparts
+  // - stripping duplicates
+  nsCString addresses;
+  m_runningURL->GetRecipients(getter_Copies(addresses));
+
+  ExtractEmails(EncodedHeader(addresses), UTF16ArrayAdapter<>(m_addresses));
+
+  nsCOMPtr<nsIIDNService> converter = do_GetService(NS_IDNSERVICE_CONTRACTID);
+  addresses.Truncate();
+  uint32_t count = m_addresses.Length();
+  for (uint32_t i = 0; i < count; i++) {
+    if (TestFlag(SMTP_EHLO_SMTPUTF8_ENABLED) &&
+        mozilla::IsUtf8(m_addresses[i])) {
+      // UTF-8 address string is allowed and string appears to be valid UTF-8.
+      // Skip checks below and use m_addresses[i] as-is.
+      continue;
+    }
+    const char* start = m_addresses[i].get();
+    // Location of the @ character
+    const char* lastAt = nullptr;
+    const char* ch = start;
+    for (; *ch; ch++) {
+      if (*ch == '@') lastAt = ch;
+      // Check for first illegal character (outside 0x09,0x20-0x7e)
+      else if ((*ch < ' ' || *ch > '~') && (*ch != '\t')) {
+        break;
+      }
+    }
+    // validate the just parsed address
+    if (*ch || m_addresses[i].IsEmpty()) {
+      // Fortunately, we will always have an @ in each mailbox address.
+      // We try to fix illegal character in the domain part by converting
+      // that to ACE. Illegal characters in the local part are not fixable
+      // (which charset would it be anyway?), hence we error out in that
+      // case as well.
+      nsresult rv = NS_ERROR_FAILURE;  // anything but NS_OK
+      if (lastAt) {
+        // Illegal char in the domain part, hence use ACE
+        nsAutoCString domain;
+        domain.Assign(lastAt + 1);
+        rv = converter->ConvertUTF8toACE(domain, domain);
+        if (NS_SUCCEEDED(rv)) {
+          m_addresses[i].SetLength(lastAt - start + 1);
+          m_addresses[i] += domain;
+        }
+      }
+      if (NS_FAILED(rv)) {
+        // Throw an error, including the broken address
+        m_nextState = SMTP_ERROR_DONE;
+        ClearFlag(SMTP_PAUSE_FOR_READ);
+        // Unfortunately, nsExplainErrorDetails will show the error above
+        // the mailnews main window, because we don't necessarily get
+        // passed down a compose window - we might be sending in the
+        // background!
+        rv = nsExplainErrorDetails(m_runningURL, NS_ERROR_ILLEGAL_LOCALPART,
+                                   start, nullptr);
+        NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain illegal localpart");
+        m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
+        // Note: This can also occur if the address does not contain the @.
+        // However, the UI (JavaScript) precludes this by disabling "Send" and
+        // "Send Later" when the recipient address is not of the form
+        // local@domain. However, this still occurs when running unit-test
+        // test_sendMailAddressIDN.js sub-test kToInvalidWithoutDomain since the
+        // UI is not involved. The test attempts to send to address børken.to
+        return NS_ERROR_BUT_DONT_SHOW_ALERT;
+      }
+    }
+  }
+
+  // final cleanup
+  m_addressesLeft = m_addresses.Length();
+
+  // hmm no addresses to send message to...
+  if (m_addressesLeft == 0) {
+    m_nextState = SMTP_ERROR_DONE;
+    ClearFlag(SMTP_PAUSE_FOR_READ);
+    m_urlErrorState = NS_MSG_NO_RECIPIENTS;
+    return NS_MSG_NO_RECIPIENTS;
+  }
+
   nsCOMPtr<nsIPrefService> prefs =
       do_GetService(NS_PREFSERVICE_CONTRACTID, &rv);
   NS_ENSURE_SUCCESS(rv, rv);
@@ -776,12 +792,14 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream* inputStream,
     }
   }
 
-  if (TestFlag(SMTP_EHLO_8BIT_ENABLED)) {
+  if (TestFlag(SMTP_EHLO_8BITMIME_ENABLED)) {
     bool strictlyMime = false;
     rv = prefBranch->GetBoolPref("mail.strictly_mime", &strictlyMime);
 
     if (!strictlyMime) buffer.AppendLiteral(" BODY=8BITMIME");
   }
+
+  if (TestFlag(SMTP_EHLO_SMTPUTF8_ENABLED)) buffer.AppendLiteral(" SMTPUTF8");
 
   if (TestFlag(SMTP_EHLO_SIZE_ENABLED)) {
     buffer.AppendLiteral(" SIZE=");
@@ -795,7 +813,6 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream* inputStream,
 
   m_nextStateAfterResponse = SMTP_SEND_MAIL_RESPONSE;
   SetFlag(SMTP_PAUSE_FOR_READ);
-
   return (status);
 }
 
@@ -906,7 +923,10 @@ nsresult nsSmtpProtocol::SendEhloResponse(nsIInputStream* inputStream,
       m_sizelimit = atol((responseLine.get()) + 4);
     } else if (StringBeginsWith(responseLine, "8BITMIME"_ns,
                                 nsCaseInsensitiveCStringComparator)) {
-      SetFlag(SMTP_EHLO_8BIT_ENABLED);
+      SetFlag(SMTP_EHLO_8BITMIME_ENABLED);
+    } else if (StringBeginsWith(responseLine, "SMTPUTF8"_ns,
+                                nsCaseInsensitiveCStringComparator)) {
+      SetFlag(SMTP_EHLO_SMTPUTF8_ENABLED);
     }
 
     startPos = endPos + 1;
@@ -1710,7 +1730,6 @@ nsresult nsSmtpProtocol::SendMailResponse() {
 
   bool requestOnNever = false;
   rv = prefBranch->GetBoolPref("mail.dsn.request_never_on", &requestOnNever);
-
   nsCString& address = m_addresses[m_addressesLeft - 1];
   if (TestFlag(SMTP_EHLO_DSN_ENABLED) && requestDSN &&
       (requestOnSuccess || requestOnFailure || requestOnDelay ||
@@ -1803,6 +1822,7 @@ nsresult nsSmtpProtocol::SendRecipientResponse() {
   m_nextStateAfterResponse = SMTP_SEND_DATA_RESPONSE;
   SetFlag(SMTP_PAUSE_FOR_READ);
 
+  m_DataCommandWasSent = true;
   return (status);
 }
 
