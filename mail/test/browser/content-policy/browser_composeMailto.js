@@ -66,25 +66,24 @@ add_task(function test_checkInsertImage() {
   wait_for_modal_dialog();
   wait_for_window_close();
 
-  //  gComposeWin.sleep(500);
-
   // Test that the image load has not been denied
   let childImages = gComposeWin
     .e("content-frame")
     .contentDocument.getElementsByTagName("img");
 
-  if (childImages.length != 1) {
-    throw new Error(
-      "Expecting one image in document, actually have " + childImages.length
-    );
-  }
+  Assert.equal(childImages.length, 1, "Should be one image in the document");
+
+  gComposeWin.waitFor(() => childImages[0].complete);
 
   // Should be the only image, so just check the first.
-  if (childImages[0].imageBlockingStatus != Ci.nsIContentPolicy.ACCEPT) {
-    throw new Error(
-      "Loading of image has been unexpectedly blocked in a mailto compose window"
-    );
-  }
+  Assert.ok(
+    !childImages[0].matches(":-moz-broken"),
+    "Loading of image in a mailto compose window should not be blocked"
+  );
+  Assert.ok(
+    childImages[0].naturalWidth > 0,
+    "Non blocked image should have naturalWidth"
+  );
 });
 
 add_task(function test_closeComposeWindowAndTab() {
