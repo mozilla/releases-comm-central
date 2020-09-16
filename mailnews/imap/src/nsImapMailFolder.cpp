@@ -7609,7 +7609,6 @@ nsresult nsImapMailFolder::InitCopyState(
     const nsACString& newMsgKeywords, nsIMsgCopyServiceListener* listener,
     nsIMsgWindow* msgWindow, bool allowUndo) {
   NS_ENSURE_ARG_POINTER(srcSupport);
-  NS_ENSURE_ARG_POINTER(messages);
 
   NS_ENSURE_TRUE(!m_copyState, NS_ERROR_FAILURE);
   nsresult rv;
