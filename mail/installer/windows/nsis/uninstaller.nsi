@@ -140,6 +140,11 @@ ShowUnInstDetails nevershow
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_RIGHT
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP wizWatermark.bmp
+; By default MUI_BGCOLOR is hardcoded to FFFFFF, which is only correct if the
+; the Windows theme or high-contrast mode hasn't changed it, so we need to
+; override that with GetSysColor(COLOR_WINDOW) (this string ends up getting
+; passed to SetCtlColors, which uses this custom syntax to mean that).
+!define MUI_BGCOLOR SYSCLR:WINDOW
 
 ; Use a right to left header image when the language is right to left
 !ifdef ${AB_CD}_rtl
@@ -153,6 +158,7 @@ ShowUnInstDetails nevershow
  */
 ; Welcome Page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE un.preWelcome
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.showWelcome
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE un.leaveWelcome
 !insertmacro MUI_UNPAGE_WELCOME
 
@@ -163,7 +169,7 @@ UninstPage custom un.preConfirm
 !insertmacro MUI_UNPAGE_INSTFILES
 
 ; Finish Page
-
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.showFinish
 !insertmacro MUI_UNPAGE_FINISH
 
 ; Use the default dialog for IDD_VERIFY for a simple Banner
@@ -478,6 +484,18 @@ Function un.preWelcome
 !endif
 FunctionEnd
 
+Function un.ShowWelcome
+  ; The welcome and finish pages don't get the correct colors for their labels
+  ; like the other pages do, presumably because they're built by filling in an
+  ; InstallOptions .ini file instead of from a dialog resource like the others.
+  ; Field 2 is the header and Field 3 is the body text.
+  ReadINIStr $0 "$PLUGINSDIR\ioSpecial.ini" "Field 2" "HWND"
+  SetCtlColors $0 SYSCLR:WINDOWTEXT SYSCLR:WINDOW
+
+  ReadINIStr $0 "$PLUGINSDIR\ioSpecial.ini" "Field 3" "HWND"
+  SetCtlColors $0 SYSCLR:WINDOWTEXT SYSCLR:WINDOW
+FunctionEnd
+
 Function un.leaveWelcome
   ${If} ${FileExists} "$INSTDIR\${FileMainEXE}"
     Banner::show /NOUNLOAD "$(BANNER_CHECK_EXISTING)"
@@ -508,6 +526,13 @@ Function un.leaveWelcome
 FunctionEnd
 
 Function un.preConfirm
+  ; The header and subheader on the wizard pages don't get the correct text
+  ; color by default for some reason, even though the other controls do.
+  GetDlgItem $0 $HWNDPARENT 1037
+  SetCtlColors $0 SYSCLR:WINDOWTEXT SYSCLR:WINDOW
+  GetDlgItem $0 $HWNDPARENT 1038
+  SetCtlColors $0 SYSCLR:WINDOWTEXT SYSCLR:WINDOW
+
   ${If} ${FileExists} "$INSTDIR\distribution\modern-header.bmp"
   ${AndIf} $hHeaderBitmap == ""
     Delete "$PLUGINSDIR\modern-header.bmp"
@@ -563,6 +588,28 @@ Function un.preConfirm
   ${MUI_INSTALLOPTIONS_READ} $1 "unconfirm.ini" "Field 2" "HWND"
   SendMessage $1 ${WM_SETTEXT} 0 "STR:$INSTDIR"
   !insertmacro MUI_INSTALLOPTIONS_SHOW
+FunctionEnd
+
+Function un.ShowFinish
+  ReadINIStr $0 "$PLUGINSDIR\ioSpecial.ini" "Field 2" "HWND"
+  SetCtlColors $0 SYSCLR:WINDOWTEXT SYSCLR:WINDOW
+
+  ReadINIStr $0 "$PLUGINSDIR\ioSpecial.ini" "Field 3" "HWND"
+  SetCtlColors $0 SYSCLR:WINDOWTEXT SYSCLR:WINDOW
+
+  ; Either Fields 4 and 5 are the reboot option radio buttons, or Field 4 is
+  ; the survey checkbox and Field 5 doesn't exist. Either way, we need to
+  ; clear the theme from them before we can set their background colors.
+  ReadINIStr $0 "$PLUGINSDIR\ioSpecial.ini" "Field 4" "HWND"
+  System::Call 'uxtheme::SetWindowTheme(i $0, w " ", w " ")'
+  SetCtlColors $0 SYSCLR:WINDOWTEXT SYSCLR:WINDOW
+
+  ClearErrors
+  ReadINIStr $0 "$PLUGINSDIR\ioSpecial.ini" "Field 5" "HWND"
+  ${IfNot} ${Errors}
+    System::Call 'uxtheme::SetWindowTheme(i $0, w " ", w " ")'
+    SetCtlColors $0 SYSCLR:WINDOWTEXT SYSCLR:WINDOW
+  ${EndIf}
 FunctionEnd
 
 ################################################################################
