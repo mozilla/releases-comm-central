@@ -1003,14 +1003,6 @@ nsresult nsNNTPProtocol::LoadUrl(nsIURI* aURL, nsISupports* aConsumer) {
     rv = NS_ERROR_FAILURE;
   }
 
-  // if this connection comes from the cache, we need to initialize the
-  // load group here, by generating the start request notification.
-  // nsMsgProtocol::OnStartRequest ignores the first parameter (which is
-  // supposed to be the channel) so we'll pass in null.
-  // XXX: After bug 1654922 this will cause a crash, so commented out.
-  //   See bug 1657493. May need a better fix???
-  // if (m_fromCache) nsMsgProtocol::OnStartRequest(nullptr);
-
   /* At this point, we're all done parsing the URL, and know exactly
   what we want to do with it.
 */
@@ -1970,6 +1962,14 @@ nsresult nsNNTPProtocol::BeginArticle() {
         pipe->GetInputStream(getter_AddRefs(mDisplayInputStream)));
     MOZ_ALWAYS_SUCCEEDS(
         pipe->GetOutputStream(getter_AddRefs(mDisplayOutputStream)));
+
+    if (m_loadGroup) {
+      m_loadGroup->AddRequest(this, nullptr);
+    }
+    // A bit sneaky, but we're pretending to be a newly-minted channel.
+    // The corresponding OnStopRequest() call is in CleanupAfterRunningUrl().
+    rv = m_channelListener->OnStartRequest(this);
+    NS_ENSURE_SUCCESS(rv, rv);
   }
 
   m_nextState = NNTP_READ_ARTICLE;
