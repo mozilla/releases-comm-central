@@ -122,6 +122,38 @@ add_task(async () => {
     SecondEmail: "other@invalid",
   });
 
+  // Address types. Multiple types are allowed, some we don't care about.
+  check("ADR:;;street;town;state", {
+    WorkAddress: "street",
+    WorkCity: "town",
+    WorkState: "state",
+  });
+  check("ADR;WORK:;;street;town;state", {
+    WorkAddress: "street",
+    WorkCity: "town",
+    WorkState: "state",
+  });
+  check("ADR;HOME:;;street;town;state", {
+    HomeAddress: "street",
+    HomeCity: "town",
+    HomeState: "state",
+  });
+  check("ADR;DOM:;;street;town;state", {
+    WorkAddress: "street",
+    WorkCity: "town",
+    WorkState: "state",
+  });
+  check("ADR;POSTAL;WORK:;;street;town;state", {
+    WorkAddress: "street",
+    WorkCity: "town",
+    WorkState: "state",
+  });
+  check("ADR;PARCEL;HOME:;;street;town;state", {
+    HomeAddress: "street",
+    HomeCity: "town",
+    HomeState: "state",
+  });
+
   // Quoted-printable handling.
   check("FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=74=C3=A9=24=74=20=23=31", {
     DisplayName: "té$t #1",
@@ -132,6 +164,9 @@ add_task(async () => {
       DisplayName: "test 💩",
     }
   );
+  check("ORG;QUOTED-PRINTABLE:=74=65=73=74 #3", {
+    Company: "test #3",
+  });
   check("N;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=C5=82ast;=C6=92irst", {
     FirstName: "ƒirst",
     LastName: "łast",

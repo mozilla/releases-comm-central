@@ -103,7 +103,7 @@ var VCardUtils = {
     // cards into a "good-enough" mimic of vCard 4.0 so that the parser will
     // read it without throwing an error.
     if (/\bVERSION:2.1\b/i.test(vCard)) {
-      vCard = vCard.replace(/\n((ADR|EMAIL|TEL)(;\w*)+):/gi, (match, key) => {
+      vCard = vCard.replace(/\n(([A-Z]+)(;[\w-]*)+):/gi, (match, key) => {
         let parts = key.split(";");
         let newParts = [parts[0]];
         for (let i = 1; i < parts.length; i++) {
@@ -111,21 +111,15 @@ var VCardUtils = {
             continue;
           }
           if (
-            [
-              "HOME",
-              "WORK",
-              "FAX",
-              "PAGER",
-              "CELL",
-              "VOICE",
-              "INTERNET",
-            ].includes(parts[i].toUpperCase())
+            ["HOME", "WORK", "FAX", "PAGER", "CELL"].includes(
+              parts[i].toUpperCase()
+            )
           ) {
             newParts.push(`TYPE=${parts[i]}`);
           } else if (parts[i].toUpperCase() == "PREF") {
             newParts.push("PREF=1");
-          } else {
-            newParts.push(parts[i]);
+          } else if (parts[i].toUpperCase() == "QUOTED-PRINTABLE") {
+            newParts.push("ENCODING=QUOTED-PRINTABLE");
           }
         }
         return "\n" + newParts.join(";") + ":";
