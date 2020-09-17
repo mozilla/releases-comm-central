@@ -808,6 +808,7 @@ class Tab extends TabBase {
     for (let key of [
       "attention",
       "audible",
+      "cookieStoreId",
       "discarded",
       "hidden",
       "incognito",
