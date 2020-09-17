@@ -20,6 +20,7 @@ interface nsIMsgFolder;
 interface nsIMsgHeaderSink;
 interface nsIMsgDBHdr;
 interface nsIDocShell;
+interface nsITransportSecurityInfo;
 
 [scriptable, builtinclass, uuid(995455ba-5bb4-4643-8d70-2b877a2e1320)]
 interface nsIMsgMailNewsUrl : nsIURL {
@@ -37,6 +38,9 @@ interface nsIMsgMailNewsUrl : nsIURL {
 
   [noscript,notxpcom,nostdcall]
   nsresult setUsernameInternal(in ACString aUsername);
+
+  [noscript,notxpcom,nostdcall]
+  nsresult setFailedSecInfoInternal(in nsITransportSecurityInfo secInfo);
 
   ///////////////////////////////////////////////////////////////////////////////
   // Eventually we'd like to push this type of functionality up into nsIURI.
@@ -56,6 +60,19 @@ interface nsIMsgMailNewsUrl : nsIURL {
   void GetUrlState(out boolean runningUrl);
 
   readonly attribute nsIMsgIncomingServer server;
+
+  /**
+   * Transport-level security information (if any), in the case of a security
+   * error having occurred.
+   * This value should be considered undefined if an NSS error has not
+   * occurred. Read it as: "the secInfo that was being used when a failure
+   * occurred", not: "the secInfo that failed".
+   * Seems a bit ugly adding more state here, but the idea is that a
+   * nsIUrlListener.OnStopRunningUrl() needs to be able to access a bad
+   * certificate, so as to have the option of adding an exemption (See
+   * Bug 1590473).
+   */
+  readonly attribute nsITransportSecurityInfo failedSecInfo;
 
   /**
    * The folder associated with this url.

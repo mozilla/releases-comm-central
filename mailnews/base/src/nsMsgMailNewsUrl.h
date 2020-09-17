@@ -28,6 +28,7 @@
 #include "nsIURIMutator.h"
 #include "nsISerializable.h"
 #include "nsIClassInfo.h"
+#include "nsITransportSecurityInfo.h"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Okay, I found that all of the mail and news url interfaces needed to support
@@ -132,6 +133,11 @@ class NS_MSG_BASE nsMsgMailNewsUrl : public nsIMsgMailNewsUrl,
   nsCString mAttachmentFileName;
 
   nsTObserverArray<nsCOMPtr<nsIUrlListener> > mUrlListeners;
+
+  // Security info from the socket transport (if any), after a failed operation.
+  // Here so that urlListeners can access and handle bad certificates in
+  // their OnStopRunningUrl() callback.
+  nsCOMPtr<nsITransportSecurityInfo> mFailedSecInfo;
 };
 
 #endif /* nsMsgMailNewsUrl_h___ */

@@ -1013,6 +1013,19 @@ NS_IMETHODIMP nsMsgMailNewsUrl::GetSaveAsListener(
                                         (void**)aSaveListener);
 }
 
+nsresult nsMsgMailNewsUrl::SetFailedSecInfoInternal(
+    nsITransportSecurityInfo* secInfo) {
+  mFailedSecInfo = secInfo;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgMailNewsUrl::GetFailedSecInfo(
+    nsITransportSecurityInfo** secInfo) {
+  NS_ENSURE_ARG_POINTER(secInfo);
+  NS_IF_ADDREF(*secInfo = mFailedSecInfo);
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgMailNewsUrl::SetFolder(nsIMsgFolder* /* aFolder */) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }

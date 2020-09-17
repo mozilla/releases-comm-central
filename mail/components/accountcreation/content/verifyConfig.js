@@ -236,13 +236,33 @@ urlListener.prototype = {
     if (Components.isSuccessCode(aExitCode)) {
       this._cleanup();
       this.mSuccessCallback(this.mConfig);
-    } else if (!this.mAlter) {
+      return;
+    }
+
+    try {
+      let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+        Ci.nsINSSErrorsService
+      );
+      let errorClass = nssErrorsService.getErrorClass(aExitCode);
+      if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
+        this.mCertError = true;
+      }
+    } catch (e) {
+      // It's not an NSS error.
+    }
+
+    if (this.mCertError) {
+      this._log.error("cert error");
+
+      let mailNewsUrl = aUrl.QueryInterface(Ci.nsIMsgMailNewsUrl);
+      let secInfo = mailNewsUrl.failedSecInfo;
+      this.informUserOfCertError(secInfo, aUrl.asciiHostPort);
+    } else if (this.mAlter) {
+      // Try other variations.
+      this.tryNextLogon(aUrl);
+    } else {
       // Logon failed, and we aren't supposed to try other variations.
       this._failed(aUrl);
-    } else if (!this.mCertError) {
-      // Try other variations, unless there's a cert error, in which
-      // case we'll see what the user chooses.
-      this.tryNextLogon(aUrl);
     }
   },
 
@@ -379,13 +399,12 @@ urlListener.prototype = {
     this.mErrorCallback(ex);
   },
 
-  // TODO: Add new error handling that uses this code. See bug 1547096.
-  informUserOfCertError(socketInfo, secInfo, targetSite) {
+  informUserOfCertError(secInfo, location) {
     var params = {
       exceptionAdded: false,
       securityInfo: secInfo,
       prefetchCert: true,
-      location: targetSite,
+      location,
     };
     window.openDialog(
       "chrome://pippki/content/exceptionDialog.xhtml",

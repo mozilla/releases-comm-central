@@ -38,6 +38,7 @@
 #include "nsMsgUtils.h"
 #include "nsISocketTransport.h"
 #include "nsISSLSocketControl.h"
+#include "nsITransportSecurityInfo.h"
 #include "nsILineInputStream.h"
 #include "nsIInterfaceRequestor.h"
 #include "nsICancelable.h"
@@ -865,6 +866,21 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest* aRequest,
   if (m_socketIsOpen) {
     nsCOMPtr<nsIMsgMailNewsUrl> msgUrl = do_QueryInterface(m_url);
 
+    if (NS_FAILED(aStatus)) {
+      // Stash the socket transport securityInfo on the url failedSecInfo
+      // attribute, so it'll be there for nsIUrlListener.OnStopRunningUrl().
+      nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
+      if (strans) {
+        nsCOMPtr<nsISupports> secInfo;
+        if (NS_SUCCEEDED(strans->GetSecurityInfo(getter_AddRefs(secInfo)))) {
+          if (nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
+                  do_QueryInterface(secInfo)) {
+            msgUrl->SetFailedSecInfoInternal(transportSecInfo);
+          }
+        }
+      }
+    }
+
     // Check if the connection was dropped before getting back an auth error.
     // If we got the auth error, the next state would be
     // POP3_OBTAIN_PASSWORD_EARLY.
@@ -888,6 +904,9 @@ NS_IMETHODIMP nsPop3Protocol::OnStopRequest(nsIRequest* aRequest,
       m_loadGroup->RemoveRequest(static_cast<nsIRequest*>(this), nullptr,
                                  aStatus);
     m_pop3ConData->next_state = POP3_ERROR_DONE;
+    if (NS_FAILED(aStatus)) {
+      m_pop3ConData->urlStatus = aStatus;
+    }
     ProcessProtocolState(nullptr, nullptr, 0, 0);
 
     if (NS_FAILED(aStatus) && aStatus != NS_BINDING_ABORTED)
@@ -3851,14 +3870,17 @@ nsresult nsPop3Protocol::ProcessProtocolState(nsIURI* url,
             m_pop3ConData->next_state = POP3_READ_PASSWORD;
             m_pop3ConData->command_succeeded = true;
             status = 0;
-            break;
-          } else
+          } else {
             /* Else we got a "real" error, so finish up. */
             m_pop3ConData->next_state = POP3_FREE;
+            // If we don't have a specific error already, set a generic one.
+            if (NS_SUCCEEDED(m_pop3ConData->urlStatus)) {
+              m_pop3ConData->urlStatus = NS_ERROR_FAILURE;
+            }
+            urlStatusSet = true;
+            m_pop3ConData->pause_for_read = false;
+          }
         }
-        m_pop3ConData->urlStatus = NS_ERROR_FAILURE;
-        urlStatusSet = true;
-        m_pop3ConData->pause_for_read = false;
         break;
 
       case POP3_FREE: {

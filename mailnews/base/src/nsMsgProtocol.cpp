@@ -47,8 +47,9 @@
 
 using namespace mozilla;
 
-NS_IMPL_ISUPPORTS_INHERITED(nsMsgProtocol, nsHashPropertyBag, nsIChannel, nsIStreamListener,
-                  nsIRequestObserver, nsIRequest, nsITransportEventSink)
+NS_IMPL_ISUPPORTS_INHERITED(nsMsgProtocol, nsHashPropertyBag, nsIChannel,
+                            nsIStreamListener, nsIRequestObserver, nsIRequest,
+                            nsITransportEventSink)
 
 static char16_t* FormatStringWithHostNameByName(const char16_t* stringName,
                                                 nsIMsgMailNewsUrl* msgUri);
@@ -638,9 +639,15 @@ NS_IMETHODIMP nsMsgProtocol::SetContentLength(int64_t aContentLength) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsMsgProtocol::GetSecurityInfo(nsISupports** aSecurityInfo) {
-  *aSecurityInfo = nullptr;
-  return NS_ERROR_NOT_IMPLEMENTED;
+NS_IMETHODIMP nsMsgProtocol::GetSecurityInfo(nsISupports** secInfo) {
+  if (m_transport) {
+    nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
+    if (strans) {
+      return strans->GetSecurityInfo(secInfo);
+    }
+  }
+  *secInfo = nullptr;
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsMsgProtocol::GetName(nsACString& result) {
