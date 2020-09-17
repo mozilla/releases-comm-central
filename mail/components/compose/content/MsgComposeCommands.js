@@ -187,21 +187,15 @@ const inputObserver = {
       let input = subject.QueryInterface(Ci.nsIAutoCompleteInput)
         .wrappedJSObject;
 
-      if (!input) {
-        return;
-      }
-
-      let element = document.getElementById(input.id);
-      // The observer is triggered also from within an already existing pill.
-      // Since the autocomplete-input inside a pill doesn't have an ID, we can
-      // interrupt this method if no element was selected, or the element has
-      // the .input-pill class.
-      if (!element || element.classList.contains("input-pill")) {
+      // Interrupt if there's no input proxy, or the input doesn't have an ID,
+      // the latter meaning that the autocomplete event was triggered within an
+      // already existing pill, so we don't want to create a new pill.
+      if (!input || !input.id) {
         return;
       }
 
       // Trigger the pill creation.
-      recipientAddPill(element);
+      recipientAddPill(document.getElementById(input.id));
     }
   },
 };
