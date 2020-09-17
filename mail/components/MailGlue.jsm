@@ -281,13 +281,13 @@ MailGlue.prototype = {
 
     AddonManager.maybeInstallBuiltinAddon(
       "thunderbird-compact-light@mozilla.org",
-      "1.0",
-      "resource:///modules/themes/light/"
+      "1.1",
+      "resource://builtin-themes/light/"
     );
     AddonManager.maybeInstallBuiltinAddon(
       "thunderbird-compact-dark@mozilla.org",
-      "1.0",
-      "resource:///modules/themes/dark/"
+      "1.1",
+      "resource://builtin-themes/dark/"
     );
 
     if (AppConstants.MOZ_UPDATER) {
