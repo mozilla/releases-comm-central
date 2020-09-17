@@ -27,6 +27,7 @@ BROWSER_CHROME_MANIFESTS += [
     'multiple-identities/browser.ini',
     'newmailaccount/browser.ini',
     'notification/browser.ini',
+    'openpgp/browser.ini',
     'override-main-menu-collapse/browser.ini',
     'pref-window/browser.ini',
     'quick-filter-bar/browser.ini',

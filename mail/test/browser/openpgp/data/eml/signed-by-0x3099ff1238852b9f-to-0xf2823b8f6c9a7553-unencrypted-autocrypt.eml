@@ -1,0 +1,197 @@
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+X-Mozilla-Keys:                                                                                 
+To: alice@example.com
+From: Carol <carol@example.com>
+Subject: Signed Unencrypted Autocrypt
+Autocrypt: addr=carol@example.com; keydata=
+ xsFNBF9GZTQBEACjK8Db1095rU74k/RwLhmp9rmFBZR6qyEHANlHSVwqARxa4aJPaNoLbqNP
+ efuFg9ib3J0rKcZfqgnqC4usPVSTdmC4w0MdmHvh+1tUoXcxnrjYNRRbP+lC7zaLRRnEEioi
+ mC0Mkh+ow1u4F2QFBjwcV9bD7i0T1DRfR5k5kh3kcaYFnGnwMjwjJzLtvu3OZbXYsofCw789
+ 0TP4LkqLEQVOw1OrxBnRd5QNBVojcQi6rnKOQ7AUBGRKSXI3QVrbP+x1oImXpQSqIyaRFbtx
+ 57QafDdkyHBEfChO9X96BtMndyry8XgYtcgmwKKWg8Js4TJgghus6Sng5dA7/87nRf/9//Np
+ tXh9mdW3AiHsqb+tBu7NJGk6pAPL4fUjXILjcm5ZXdlUeFVLmYmqTiOJcGFbqHEBGcwLKPob
+ a2JsBEpnRj0ZEmo2khT+9tXJK3FUANc4w/QfxTXMwV17yYvocDPEBkoKcbxE8b2sSK/L7Vi+
+ h21XX6fA6B3zKFQ3hetFvOjEGTCkhFD9asL8KnwQdJmYo4Bd45AVoMZFxBxpmuo9MxPdiF2A
+ GbKHgrKpqDw2pUfelFwMZIVQ4Ya1wdtLe8gEJAMq6YnuuQcq+jjGKubNRywld7xXIsxJCpHt
+ qbCQM9P+gqp1VDBnbsk4xGX0HgILXF2JfyceGMGy1Lku0QA+ywARAQABzRlDYXJvbCA8Y2Fy
+ b2xAZXhhbXBsZS5jb20+wsGJBBMBCAAzFiEEuPL29L060/gtxEaDMJn/EjiFK58FAl9GZTUC
+ GwMFCwkIBwIGFQgJCgsCBRYCAwEAAAoJEDCZ/xI4hSufjB0P/0+yaZknO8dS5o7Gp1ZuJwh6
+ +vgTGWrTxcBtsU1JR4BFobPKtMmw45FKsNIiK+AQ7ExCtqumGoTJ6hlclBFMlDQyyCxJG/Zp
+ PdrFUFyg6JUVf05/LWsd4Fwy/hQY1ha8R81QinSHqv9DJk6fKZG2rz7YUE47LFfjugbwUj9y
+ 8naTxj823Vm6v36J2wgl/1/PHoZTwi3vQRA70SoIDt4tSjqBzuclt2k/zlkJmOpBYtQb+xGw
+ pfnh2gBJdYurLwJO9rQlzYjy/+1qB0CZsE95WlkTrqQw8V5S6ULcnyACbETdF5HF/geHL367
+ p/iWULD907E4DJlQBOWjY6fdsJIBj96NfQiG+cXYTNGqaB/FgW8jyoS9vyg4PDOr0nGHLvzP
+ w7xTDUkuoJiWXMJ9kDYTZ+MsWreA885i1JSE32CsqqP3+kI7XQD3d3T3pIPhKOo0/bzbLY6y
+ WBXh809Ovi9fMxaZkrlrmA3lFcY+FbzDjZB+UYOXDB6TRu1jvISVMiXnYf4X21xWyl8AWv1q
+ ANMSXFKUwBSR88I06QZiJBmm9wHcyVtK/Hb6pgH10LydZvIfRDLrDBc2z31rswjNj9UhNp0Q
+ fGdNz/gXdxc8HP7Pf4kHkjIxLrWUNlDpYddX+iz1Z//VY9h2XTmSail5pMyyXdiGm90AGfVh
+ IcaOoeKK9UslzsFNBF9GZTUBEADWPef8E4OUoxU+vhwCxy/4nDfxzV4ZMFYkqp8QgpLzTVgT
+ v6xGVHFx/waNjwR6G34tD0aYhkDrumv9QsMdiQnMw9pLAoc3bnIkL8LkXnS8fVeiuzkXd4lg
+ vpxFlce7KYuXos9Ew7Nm2tOx4ovoygFikjliFTKn+QOVJoTr4pxJL9RdzYQ/pV/DI/fc2cmR
+ Wy0uivP+F+LBtYW6ZOMY1aXzsJEvun2i5ZxV2jqNDhXpD3m6/Y/28WItKbmT80hvTivxO2DS
+ Q1kqNcwB8Z0XWZJoz6iyYUu27dKB0L4S/x4UASlC6J2Db8bIL3Tdhuy+N0BN8sS1TDWb7Oi1
+ Ad8huVxfrRSyOYj4fkksvAEgDEDH6JEvJBU3CGQtfXCoX6d64db2cGp85GDfNHTREJ0mbRjL
+ AKL1RKrcKOG1790OZU2veF5qiN2eN08OLfJURL8+P4+mDWbaOcZasqNrg3YhYcPX3ZZzKfEI
+ vvTOdqMk00JU3zaUZhJvGOR9tJ27NBTrCEIOHz7yzOJltTDjdfNZNLqSYFp08+vR/IjSDv8h
+ l6PRjkomkbfdPdwPczKS0dG9Cf8cU+NZQrEgE0Un4tvb7p55j9R5OVgHUACLFTlDIRV4veD5
+ RnM2hUFRtBONymXEDjoPGZXaHhv16MckFpZ1IEAkMIZ3Ti/NIZcS7IA9jRgBUQARAQABwsF2
+ BBgBCAAgFiEEuPL29L060/gtxEaDMJn/EjiFK58FAl9GZTYCGwwACgkQMJn/EjiFK5/Q3hAA
+ mzMu7EOeWG0xAHAQ4b/ocCSlZqg/MSf6kJIkzUxdnX9T/ylEmrS8cEg5mdJMQMVvCecyDpNK
+ 9MgJPV7MTnR6x/4qgdVUTtknd6W7RrQ7Oai150nMH5U9M8GrFtbQjc/fOw17agoT06ZGV4um
+ IK41IIGwQZ2/Z/cElHkQZll9//hYS8/E8xOBlweVxsMZhfcLFrbx2hC2osRt0vMlGnYSnv29
+ ligVG+2PwwnHXB6Tn7eslzoowY78ANCTvA6Rc6zR+RIs/CIiaDNgWCRBJcueZVpA+JkyL6Km
+ C+JiiF6Hsm07DDDjgLVJ0s660GNe8sWw4IZ8wpvYq1goqXLu+CMqbCsBrEDwfguClxGSQnLw
+ AUIVxuyKprToLJ6hmuubsVcv9fzf/GoYFnT9hge1YZpptKi/zrQqy2CZuSZEHWpUZcwPE3Ow
+ qbHKty3UhZPJU50kmEOd/UQNJYNWxxxx5593X96jLLDOxm5M5jNNRvGZPgn8RbA1e7VC2XFg
+ V2KGJHq/gxCpwkWs8+0sYUtcFuu+RQWTKbJpFcxfAIEDKS+fyLRAFdYqUA3yQIA1UYco10l8
+ RYPLY0+IXiArqjql8+k8PBT0U4P59lfcKlY2GaJe4aoWLPOdNZAJgLzoxd5zgnz0vI3sn+3v
+ meCtpxz2PoYBJfxGPEzu9xTLV6k9wSVTCgE=
+Message-ID: <18d4c94f-3ea7-f395-473c-8ec5194988cc@example.com>
+Date: Wed, 26 Aug 2020 16:06:22 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:82.0) Gecko/20100101
+ Thunderbird/82.0a1
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="QMjI7ej1epbqHMDeowTnNtIMNu8p1QOU5"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--QMjI7ej1epbqHMDeowTnNtIMNu8p1QOU5
+Content-Type: multipart/mixed; boundary="v409QAVEbp4pNmR8ygSpOTQzwKAa5hx1l";
+ protected-headers="v1"
+From: Carol <carol@example.com>
+To: alice@example.com
+Message-ID: <18d4c94f-3ea7-f395-473c-8ec5194988cc@example.com>
+Subject: Signed Unencrypted Autocrypt
+
+--v409QAVEbp4pNmR8ygSpOTQzwKAa5hx1l
+Content-Type: multipart/mixed;
+ boundary="------------A24D0192B07AAD52D8F1DCB1"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------A24D0192B07AAD52D8F1DCB1
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+Sundays are nothing without callaloo.
+
+
+--------------A24D0192B07AAD52D8F1DCB1
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0x3099FF1238852B9F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0x3099FF1238852B9F.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsFNBF9GZTQBEACjK8Db1095rU74k/RwLhmp9rmFBZR6qyEHANlHSVwqARxa4aJPaNoLbqNPe=
+fuF
+g9ib3J0rKcZfqgnqC4usPVSTdmC4w0MdmHvh+1tUoXcxnrjYNRRbP+lC7zaLRRnEEioimC0Mk=
+h+o
+w1u4F2QFBjwcV9bD7i0T1DRfR5k5kh3kcaYFnGnwMjwjJzLtvu3OZbXYsofCw7890TP4LkqLE=
+QVO
+w1OrxBnRd5QNBVojcQi6rnKOQ7AUBGRKSXI3QVrbP+x1oImXpQSqIyaRFbtx57QafDdkyHBEf=
+ChO
+9X96BtMndyry8XgYtcgmwKKWg8Js4TJgghus6Sng5dA7/87nRf/9//NptXh9mdW3AiHsqb+tB=
+u7N
+JGk6pAPL4fUjXILjcm5ZXdlUeFVLmYmqTiOJcGFbqHEBGcwLKPoba2JsBEpnRj0ZEmo2khT+9=
+tXJ
+K3FUANc4w/QfxTXMwV17yYvocDPEBkoKcbxE8b2sSK/L7Vi+h21XX6fA6B3zKFQ3hetFvOjEG=
+TCk
+hFD9asL8KnwQdJmYo4Bd45AVoMZFxBxpmuo9MxPdiF2AGbKHgrKpqDw2pUfelFwMZIVQ4Ya1w=
+dtL
+e8gEJAMq6YnuuQcq+jjGKubNRywld7xXIsxJCpHtqbCQM9P+gqp1VDBnbsk4xGX0HgILXF2Jf=
+yce
+GMGy1Lku0QA+ywARAQABzRlDYXJvbCA8Y2Fyb2xAZXhhbXBsZS5jb20+wsGJBBMBCAAzFiEEu=
+PL2
+9L060/gtxEaDMJn/EjiFK58FAl9GZTUCGwMFCwkIBwIGFQgJCgsCBRYCAwEAAAoJEDCZ/xI4h=
+Suf
+jB0P/0+yaZknO8dS5o7Gp1ZuJwh6+vgTGWrTxcBtsU1JR4BFobPKtMmw45FKsNIiK+AQ7ExCt=
+qum
+GoTJ6hlclBFMlDQyyCxJG/ZpPdrFUFyg6JUVf05/LWsd4Fwy/hQY1ha8R81QinSHqv9DJk6fK=
+ZG2
+rz7YUE47LFfjugbwUj9y8naTxj823Vm6v36J2wgl/1/PHoZTwi3vQRA70SoIDt4tSjqBzuclt=
+2k/
+zlkJmOpBYtQb+xGwpfnh2gBJdYurLwJO9rQlzYjy/+1qB0CZsE95WlkTrqQw8V5S6ULcnyACb=
+ETd
+F5HF/geHL367p/iWULD907E4DJlQBOWjY6fdsJIBj96NfQiG+cXYTNGqaB/FgW8jyoS9vyg4P=
+DOr
+0nGHLvzPw7xTDUkuoJiWXMJ9kDYTZ+MsWreA885i1JSE32CsqqP3+kI7XQD3d3T3pIPhKOo0/=
+bzb
+LY6yWBXh809Ovi9fMxaZkrlrmA3lFcY+FbzDjZB+UYOXDB6TRu1jvISVMiXnYf4X21xWyl8AW=
+v1q
+ANMSXFKUwBSR88I06QZiJBmm9wHcyVtK/Hb6pgH10LydZvIfRDLrDBc2z31rswjNj9UhNp0Qf=
+GdN
+z/gXdxc8HP7Pf4kHkjIxLrWUNlDpYddX+iz1Z//VY9h2XTmSail5pMyyXdiGm90AGfVhIcaOo=
+eKK
+9UslzsFNBF9GZTUBEADWPef8E4OUoxU+vhwCxy/4nDfxzV4ZMFYkqp8QgpLzTVgTv6xGVHFx/=
+waN
+jwR6G34tD0aYhkDrumv9QsMdiQnMw9pLAoc3bnIkL8LkXnS8fVeiuzkXd4lgvpxFlce7KYuXo=
+s9E
+w7Nm2tOx4ovoygFikjliFTKn+QOVJoTr4pxJL9RdzYQ/pV/DI/fc2cmRWy0uivP+F+LBtYW6Z=
+OMY
+1aXzsJEvun2i5ZxV2jqNDhXpD3m6/Y/28WItKbmT80hvTivxO2DSQ1kqNcwB8Z0XWZJoz6iyY=
+Uu2
+7dKB0L4S/x4UASlC6J2Db8bIL3Tdhuy+N0BN8sS1TDWb7Oi1Ad8huVxfrRSyOYj4fkksvAEgD=
+EDH
+6JEvJBU3CGQtfXCoX6d64db2cGp85GDfNHTREJ0mbRjLAKL1RKrcKOG1790OZU2veF5qiN2eN=
+08O
+LfJURL8+P4+mDWbaOcZasqNrg3YhYcPX3ZZzKfEIvvTOdqMk00JU3zaUZhJvGOR9tJ27NBTrC=
+EIO
+Hz7yzOJltTDjdfNZNLqSYFp08+vR/IjSDv8hl6PRjkomkbfdPdwPczKS0dG9Cf8cU+NZQrEgE=
+0Un
+4tvb7p55j9R5OVgHUACLFTlDIRV4veD5RnM2hUFRtBONymXEDjoPGZXaHhv16MckFpZ1IEAkM=
+IZ3
+Ti/NIZcS7IA9jRgBUQARAQABwsF2BBgBCAAgFiEEuPL29L060/gtxEaDMJn/EjiFK58FAl9GZ=
+TYC
+GwwACgkQMJn/EjiFK5/Q3hAAmzMu7EOeWG0xAHAQ4b/ocCSlZqg/MSf6kJIkzUxdnX9T/ylEm=
+rS8
+cEg5mdJMQMVvCecyDpNK9MgJPV7MTnR6x/4qgdVUTtknd6W7RrQ7Oai150nMH5U9M8GrFtbQj=
+c/f
+Ow17agoT06ZGV4umIK41IIGwQZ2/Z/cElHkQZll9//hYS8/E8xOBlweVxsMZhfcLFrbx2hC2o=
+sRt
+0vMlGnYSnv29ligVG+2PwwnHXB6Tn7eslzoowY78ANCTvA6Rc6zR+RIs/CIiaDNgWCRBJcueZ=
+VpA
++JkyL6KmC+JiiF6Hsm07DDDjgLVJ0s660GNe8sWw4IZ8wpvYq1goqXLu+CMqbCsBrEDwfguCl=
+xGS
+QnLwAUIVxuyKprToLJ6hmuubsVcv9fzf/GoYFnT9hge1YZpptKi/zrQqy2CZuSZEHWpUZcwPE=
+3Ow
+qbHKty3UhZPJU50kmEOd/UQNJYNWxxxx5593X96jLLDOxm5M5jNNRvGZPgn8RbA1e7VC2XFgV=
+2KG
+JHq/gxCpwkWs8+0sYUtcFuu+RQWTKbJpFcxfAIEDKS+fyLRAFdYqUA3yQIA1UYco10l8RYPLY=
+0+I
+XiArqjql8+k8PBT0U4P59lfcKlY2GaJe4aoWLPOdNZAJgLzoxd5zgnz0vI3sn+3vmeCtpxz2P=
+oYB
+JfxGPEzu9xTLV6k9wSVTCgE=3D
+=3Dt/qV
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------A24D0192B07AAD52D8F1DCB1--
+
+--v409QAVEbp4pNmR8ygSpOTQzwKAa5hx1l--
+
+--QMjI7ej1epbqHMDeowTnNtIMNu8p1QOU5
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFqEEuPL29L060/gtxEaDMJn/EjiFK58Fgl9GwL4FgwAAAAAACgmQMJn/EjiFK597
+9g//X0bjOtB8xgvJ5Jf3sXw/vH0G0T+o90qNbGylDawWVLSPshPGBi8QfjlLurv0aKttLih8e2yy
+1Z5LFbQi0t6oEJe/hybo/sctZRt81HDHUKQoCzig0QHoIiAGMidGRB4nVVVTwmbhR4FxZb6/hIHf
+0E2r1MKihM4iN3NkHVNh7f1uB45TGvOSgNZpzhYefCzj8Hzh0mnfir03MExEEDtNxKxUSIFSjtaq
+P0n0/5mN/W3zgT86CBi9UFn3VQ2GMtqYc5RR90w/2a0DgKiR9Y/sE9hwCt0gVSXECwObichBPOff
+1i4Okc7dMHvm+rtc+FBeM9Mxc2O3c/cak5LKMeFnYJwnCaaXVVNbgso4sYut0ymnJj9dvD1FXGG6
+kmQqN4D/oDWgbVQ+64OEtiEkops3hbCWhUHRDlEAwGEv57G6We7knYdgrlc2jMdChpffR2gimM1f
+DCxLNQPiEUs7PeoNxehHN16c2xJVSxrtqZV9Ib2gHe9eo2RGrSK2GJT9bbCXc3vanDSefGOfd3n8
+t8zNY+jK6yyxAvM/esdjICxiS3ZGWA24a/fZNt7ZRj5O4VL1rrT3NQDMH2gPNWfZ859puquK4v+p
+IMNOVP3XeQKbwSnpV6T2faS6MOksiJP4G0rFH28s/0StD4NFmeAIYILPqPzGQ4atNUP363XoFPR7
++Dc=
+=iUjJ
+-----END PGP SIGNATURE-----
+
+--QMjI7ej1epbqHMDeowTnNtIMNu8p1QOU5--

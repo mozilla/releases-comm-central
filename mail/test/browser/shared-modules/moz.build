@@ -27,6 +27,7 @@ TESTING_JS_MODULES.mozmill += [
     'NewMailAccountHelpers.jsm',
     'NNTPHelpers.jsm',
     'NotificationBoxHelpers.jsm',
+    'OpenPGPTestUtils.jsm',
     'PrefTabHelpers.jsm',
     'PromptHelpers.jsm',
     'QuickFilterBarHelpers.jsm',
