@@ -76,13 +76,15 @@ var EnigmailMimeDecrypt = {
    *
    * @return {String}: MIME string (HTML text)
    */
-  async emptyAttachment() {
+  emptyAttachment() {
     EnigmailLog.DEBUG("mimeDecrypt.jsm: emptyAttachment()\n");
 
-    let [encPart, concealed] = await l10n.formatValues([
-      { id: "mime-decrypt-encrypted-part-attachment-label" },
-      { id: "mime-decrypt-encrypted-part-concealed-data" },
-    ]);
+    let encPart = l10n.formatValueSync(
+      "mime-decrypt-encrypted-part-attachment-label"
+    );
+    let concealed = l10n.formatValueSync(
+      "mime-decrypt-encrypted-part-concealed-data"
+    );
     let retData = `Content-Type: message/rfc822; name="${encPart}.eml"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment; filename="${encPart}.eml"
@@ -516,9 +518,7 @@ MimeDecryptHandler.prototype = {
       !EnigmailMime.isRegularMimeStructure(this.mimePartNumber, spec, false)
     ) {
       if (!this.isUrlEnigmailConvert()) {
-        EnigmailMimeDecrypt.emptyAttachment().then(value => {
-          this.returnData(value);
-        });
+        this.returnData(EnigmailMimeDecrypt.emptyAttachment());
       } else {
         throw new Error(
           "Cannot decrypt messages with mixed (encrypted/non-encrypted) content"
