@@ -43,7 +43,7 @@ var gUnifinderNeedsRefresh = true;
 function isUnifinderHidden() {
   let tabmail = document.getElementById("tabmail");
   return (
-    tabmail.currentTabInfo.mode.type != "calendar" ||
+    tabmail.currentTabInfo?.mode.type != "calendar" ||
     document.getElementById("bottom-events-box").hidden
   );
 }
