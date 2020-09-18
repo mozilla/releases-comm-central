@@ -196,6 +196,7 @@ static int MimePgpe_eof(void* output_closure, bool abort_p) {
 
   if (NS_FAILED(data->mimeDecrypt->Finish())) return -1;
 
+  data->mimeDecrypt->RemoveMimeCallback();
   data->mimeDecrypt = nullptr;
   return 0;
 }
@@ -208,7 +209,13 @@ static char* MimePgpe_generate(void* output_closure) {
   return msg;
 }
 
-static void MimePgpe_free(void* output_closure) {}
+static void MimePgpe_free(void* output_closure) {
+  MimePgpeData* data = (MimePgpeData*)output_closure;
+  if (data->mimeDecrypt) {
+    data->mimeDecrypt->RemoveMimeCallback();
+    data->mimeDecrypt = nullptr;
+  }
+}
 
 /* Returns a string describing the location of the part (like "2.5.3").
    This is not a full URL, just a part-number.
@@ -245,7 +252,16 @@ NS_IMPL_ISUPPORTS(nsPgpMimeProxy, nsIPgpMimeProxy, nsIRequestObserver,
 
 // nsPgpMimeProxy implementation
 nsPgpMimeProxy::nsPgpMimeProxy()
-    : mInitialized(false), mLoadFlags(LOAD_NORMAL), mCancelStatus(NS_OK) {}
+    : mInitialized(false),
+#ifdef DEBUG
+      mOutputWasRemoved(false),
+#endif
+      mOutputFun(nullptr),
+      mOutputClosure(nullptr),
+      mLoadFlags(LOAD_NORMAL),
+      mCancelStatus(NS_OK)
+{
+}
 
 nsPgpMimeProxy::~nsPgpMimeProxy() { Finalize(); }
 
@@ -266,6 +282,16 @@ nsPgpMimeProxy::SetMimeCallback(MimeDecodeCallbackFun outputFun,
 
   if (mDecryptor) return mDecryptor->OnStartRequest((nsIRequest*)this);
 
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsPgpMimeProxy::RemoveMimeCallback() {
+  mOutputFun = nullptr;
+  mOutputClosure = nullptr;
+#ifdef DEBUG
+  mOutputWasRemoved = true;
+#endif
   return NS_OK;
 }
 
@@ -386,6 +412,13 @@ nsPgpMimeProxy::OutputDecryptedData(const char* buf, uint32_t buf_size) {
   NS_ENSURE_TRUE(mInitialized, NS_ERROR_NOT_INITIALIZED);
 
   NS_ENSURE_ARG(buf);
+
+#ifdef DEBUG
+  // If this assertion is hit, there might be a bug related to object
+  // lifetime, e.g. a JS MIME handler might live longer than the
+  // corresponding MIME data, e.g. bug 1665475.
+  NS_ASSERTION(!mOutputWasRemoved, "MIME data already destroyed");
+#endif
 
   if (!mOutputFun) return NS_ERROR_FAILURE;
 

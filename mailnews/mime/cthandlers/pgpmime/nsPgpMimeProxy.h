@@ -47,6 +47,9 @@ class nsPgpMimeProxy : public nsIPgpMimeProxy,
   bool mInitialized;
   nsCOMPtr<nsIStreamListener> mDecryptor;
 
+#ifdef DEBUG
+  PRBool mOutputWasRemoved;
+#endif
   MimeDecodeCallbackFun mOutputFun;
   void* mOutputClosure;
 

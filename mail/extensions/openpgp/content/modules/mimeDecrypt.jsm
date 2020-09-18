@@ -799,11 +799,11 @@ MimeDecryptHandler.prototype = {
       proto = EnigmailMime.getProtocol(ct);
     }
 
-    try {
-      if (
-        proto &&
-        proto.search(/application\/(pgp|pkcs7|x-pkcs7)-signature/i) >= 0
-      ) {
+    if (
+      proto &&
+      proto.search(/application\/(pgp|pkcs7|x-pkcs7)-signature/i) >= 0
+    ) {
+      try {
         EnigmailLog.DEBUG(
           "mimeDecrypt.jsm: returnData: using direct verification\n"
         );
@@ -815,15 +815,23 @@ MimeDecryptHandler.prototype = {
         veri.onStartRequest(this.mimeSvc, this.uri);
         veri.onTextData(data);
         veri.onStopRequest(null, 0);
-      } else {
-        this.mimeSvc.outputDecryptedData(data, data.length);
+      } catch (ex) {
+        console.debug(ex);
+        EnigmailLog.ERROR(
+          "mimeDecrypt.jsm: returnData(): mimeSvc.onDataAvailable failed:\n" +
+            ex.toString()
+        );
       }
-    } catch (ex) {
-      console.debug(ex);
-      EnigmailLog.ERROR(
-        "mimeDecrypt.jsm: returnData(): mimeSvc.onDataAvailable failed:\n" +
-          ex.toString()
-      );
+    } else {
+      try {
+        this.mimeSvc.outputDecryptedData(data, data.length);
+      } catch (ex) {
+        console.debug(ex);
+        EnigmailLog.ERROR(
+          "mimeDecrypt.jsm: returnData(): cannot send decrypted data to MIME processing:\n" +
+            ex.toString()
+        );
+      }
     }
   },
 

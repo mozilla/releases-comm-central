@@ -33,6 +33,8 @@ interface nsIPgpMimeProxy : nsIStreamListener
                                   in voidPtr outputClosure,
                                   in nsIURI myUri);
 
+  [noscript] void removeMimeCallback();
+
   /**
    * init function
    */

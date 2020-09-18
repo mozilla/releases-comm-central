@@ -562,15 +562,20 @@ MimeVerify.prototype = {
       }
 
       this.returnStatus = cApi.sync(cApi.verifyMime(this.signedData, options));
-      this.exitCode = this.returnStatus.exitCode;
+      
+      if (!this.returnStatus) {
+        this.exitCode = -1;
+      } else {
+        this.exitCode = this.returnStatus.exitCode;
 
-      this.returnStatus.statusFlags |= EnigmailConstants.PGP_MIME_SIGNED;
+        this.returnStatus.statusFlags |= EnigmailConstants.PGP_MIME_SIGNED;
 
-      if (this.partiallySigned) {
-        this.returnStatus.statusFlags |= EnigmailConstants.PARTIALLY_PGP;
+        if (this.partiallySigned) {
+          this.returnStatus.statusFlags |= EnigmailConstants.PARTIALLY_PGP;
+        }
+
+        this.displayStatus();
       }
-
-      this.displayStatus();
 
       if (this.sigFile) {
         this.sigFile.remove(false);
