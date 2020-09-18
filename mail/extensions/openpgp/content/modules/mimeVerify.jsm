@@ -562,7 +562,7 @@ MimeVerify.prototype = {
       }
 
       this.returnStatus = cApi.sync(cApi.verifyMime(this.signedData, options));
-      
+
       if (!this.returnStatus) {
         this.exitCode = -1;
       } else {
