@@ -288,10 +288,7 @@ function async_delete_folder(aFolder, aViewWrapper, aDontEmptyTrash) {
     1
   );
   // deleting tries to be helpful and move the folder to the trash...
-  aFolder.parent.deleteSubFolders(
-    toXPCOMArray([aFolder], Ci.nsIMutableArray),
-    null
-  );
+  aFolder.deleteSelf(null);
 
   // ugh.  So we have the problem where that move above just triggered a
   //  re-computation of the view... which is an asynchronous operation

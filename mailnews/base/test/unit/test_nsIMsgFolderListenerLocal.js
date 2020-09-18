@@ -155,11 +155,9 @@ function renameFolder(folder, newName) {
 }
 
 function deleteFolder(folder, child) {
-  var array = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-  array.appendElement(folder);
   // We won't be getting any OnStopCopy notification at all
   // XXX delete to trash should get one, but we'll need to pass the listener
-  // somehow to deleteSubFolders
+  // somehow to deleteSelf
   gCurrStatus = kStatus.onStopCopyDone;
   // If ancestor is trash, expect a folderDeleted, otherwise expect
   // a folderMoveCopyCompleted.
@@ -183,7 +181,7 @@ function deleteFolder(folder, child) {
     ];
   }
 
-  folder.parent.deleteSubFolders(array, null);
+  folder.deleteSelf(null);
   gCurrStatus |= kStatus.functionCallDone;
   if (gCurrStatus == kStatus.everythingDone) {
     resetStatusAndProceed();

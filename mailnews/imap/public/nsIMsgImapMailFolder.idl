@@ -80,7 +80,11 @@ interface nsIMsgImapFolderProps : nsISupports {
 
 [scriptable, uuid(fea0f455-7adf-4683-bf2f-c95c3fff03df)]
 interface nsIMsgImapMailFolder : nsISupports {
-  void removeSubFolder(in nsIMsgFolder folder);
+  /**
+   * Remove the local version of this folder (used to clean up local folders
+   * which don't correspond to ones on the server).
+   */
+  void removeLocalSelf();
   void createClientSubfolderInfo(in ACString folderName, in char hierarchyDelimiter,
                                  in long flags, in boolean suppressNotification);
   void list();

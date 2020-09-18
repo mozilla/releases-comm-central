@@ -3262,15 +3262,13 @@ NS_IMETHODIMP nsMsgDBFolder::DeleteStorage() {
   return msgStore->DeleteFolder(this);
 }
 
-NS_IMETHODIMP nsMsgDBFolder::DeleteSubFolders(nsIArray* folders,
-                                              nsIMsgWindow* msgWindow) {
-  uint32_t count;
-  nsresult rv = folders->GetLength(&count);
-  for (uint32_t i = 0; i < count; i++) {
-    nsCOMPtr<nsIMsgFolder> folder(do_QueryElementAt(folders, i, &rv));
-    if (folder) PropagateDelete(folder, true, msgWindow);
+NS_IMETHODIMP nsMsgDBFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
+  nsCOMPtr<nsIMsgFolder> parent;
+  GetParent(getter_AddRefs(parent));
+  if (!parent) {
+    return NS_ERROR_FAILURE;
   }
-  return rv;
+  return parent->PropagateDelete(this, true, msgWindow);
 }
 
 NS_IMETHODIMP nsMsgDBFolder::CreateStorageIfMissing(

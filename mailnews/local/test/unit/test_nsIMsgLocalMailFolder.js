@@ -25,8 +25,7 @@ function subtest_folder_deletion(root) {
   Assert.ok(path.exists());
 
   // Delete "folder" into Trash.
-  let folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
-  root.deleteSubFolders(folderArray, null);
+  folder.deleteSelf(null);
   Assert.ok(!path.exists());
   Assert.equal(trash.numSubFolders, 1);
   trash.getChildNamed("folder");
@@ -34,8 +33,7 @@ function subtest_folder_deletion(root) {
   // Create another "folder" in root.
   folder = root.createLocalSubfolder("folder");
   // Delete "folder" into Trash again.
-  folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
-  root.deleteSubFolders(folderArray, null);
+  folder.deleteSelf(null);
   Assert.equal(trash.numSubFolders, 2);
   // The folder should be automatically renamed as the same name already is in Trash.
   trash.getChildNamed("folder(2)");
@@ -49,8 +47,7 @@ function subtest_folder_deletion(root) {
     .createLocalSubfolder("subfolder");
 
   // Delete folder into Trash again
-  folderArray = toXPCOMArray([folder], Ci.nsIMutableArray);
-  root.deleteSubFolders(folderArray, null);
+  folder.deleteSelf(null);
   Assert.equal(trash.numSubFolders, 3);
   // The folder should be automatically renamed as the same name already is in Trash
   // but the subfolder should be untouched.

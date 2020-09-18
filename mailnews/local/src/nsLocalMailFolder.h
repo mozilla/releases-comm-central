@@ -123,8 +123,7 @@ class nsMsgLocalMailFolder : public nsMsgDBFolder,
                         bool aCompactOfflineAlso) override;
   NS_IMETHOD EmptyTrash(nsIMsgWindow* msgWindow,
                         nsIUrlListener* aListener) override;
-  NS_IMETHOD DeleteSubFolders(nsIArray* folders,
-                              nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD DeleteSelf(nsIMsgWindow* msgWindow) override;
   NS_IMETHOD CreateStorageIfMissing(nsIUrlListener* urlListener) override;
   NS_IMETHOD Rename(const nsAString& aNewName,
                     nsIMsgWindow* msgWindow) override;

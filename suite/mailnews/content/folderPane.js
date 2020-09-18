@@ -191,9 +191,8 @@ var gFolderTreeController = {
       }
 
       // We can delete this folder.
-      let array = toXPCOMArray([folder], Ci.nsIMutableArray);
       try {
-        folder.parent.deleteSubFolders(array, msgWindow);
+        folder.deleteSelf(msgWindow);
       }
       // Ignore known errors from canceled warning dialogs.
       catch (ex) {

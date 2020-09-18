@@ -280,8 +280,7 @@ class nsImapMailFolder : public nsMsgDBFolder,
   NS_IMETHOD SetJunkScoreForMessages(
       const nsTArray<RefPtr<nsIMsgDBHdr>>& aMessages,
       const nsACString& aJunkScore) override;
-  NS_IMETHOD DeleteSubFolders(nsIArray* folders,
-                              nsIMsgWindow* msgWindow) override;
+  NS_IMETHOD DeleteSelf(nsIMsgWindow* msgWindow) override;
   NS_IMETHOD ReadFromFolderCacheElem(
       nsIMsgFolderCacheElement* element) override;
   NS_IMETHOD WriteToFolderCacheElem(nsIMsgFolderCacheElement* element) override;

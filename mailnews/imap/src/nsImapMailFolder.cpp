@@ -992,17 +992,9 @@ NS_IMETHODIMP nsImapMailFolder::List() {
   return imapService->ListFolder(this, this, nullptr);
 }
 
-NS_IMETHODIMP nsImapMailFolder::RemoveSubFolder(nsIMsgFolder* which) {
-  nsresult rv;
-  nsCOMPtr<nsIMutableArray> folders(
-      do_CreateInstance(NS_ARRAY_CONTRACTID, &rv));
-  NS_ENSURE_TRUE(folders, rv);
-  nsCOMPtr<nsISupports> folderSupport = do_QueryInterface(which, &rv);
-  NS_ENSURE_SUCCESS(rv, rv);
-  folders->AppendElement(folderSupport);
-  rv = nsMsgDBFolder::DeleteSubFolders(folders, nullptr);
-  which->DeleteStorage();
-  return rv;
+NS_IMETHODIMP nsImapMailFolder::RemoveLocalSelf() {
+  // Kill the local folder and its storage.
+  return nsMsgDBFolder::DeleteSelf(nullptr);
 }
 
 NS_IMETHODIMP nsImapMailFolder::CreateStorageIfMissing(
@@ -2160,38 +2152,20 @@ bool nsImapMailFolder::TrashOrDescendentOfTrash(nsIMsgFolder* folder) {
   return false;
 }
 NS_IMETHODIMP
-nsImapMailFolder::DeleteSubFolders(nsIArray* folders, nsIMsgWindow* msgWindow) {
-  nsCOMPtr<nsIMsgFolder> curFolder;
-  nsCOMPtr<nsIUrlListener> urlListener;
+nsImapMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   nsCOMPtr<nsIMsgFolder> trashFolder;
-  int32_t i;
-  uint32_t folderCount = 0;
   nsresult rv;
-  // "this" is the folder we're deleting from
-  bool deleteNoTrash = TrashOrDescendentOfTrash(this) || !DeleteIsMoveToTrash();
-  bool confirmed = false;
-  bool confirmDeletion = true;
+  uint32_t folderFlags;
 
-  nsCOMPtr<nsIMutableArray> foldersRemaining(
-      do_CreateInstance(NS_ARRAY_CONTRACTID));
-  folders->GetLength(&folderCount);
-
-  for (i = folderCount - 1; i >= 0; i--) {
-    curFolder = do_QueryElementAt(folders, i, &rv);
-    if (NS_SUCCEEDED(rv)) {
-      uint32_t folderFlags;
-      curFolder->GetFlags(&folderFlags);
-      if (folderFlags & nsMsgFolderFlags::Virtual) {
-        RemoveSubFolder(curFolder);
-        // since the folder pane only allows single selection, we can do this
-        deleteNoTrash = confirmed = true;
-        confirmDeletion = false;
-      } else
-        foldersRemaining->InsertElementAt(curFolder, 0);
-    }
+  // No IMAP shenanigans required for virtual folders.
+  GetFlags(&folderFlags);
+  if (folderFlags & nsMsgFolderFlags::Virtual) {
+    return nsMsgDBFolder::DeleteSelf(nullptr);
   }
 
-  foldersRemaining->GetLength(&folderCount);
+  // "this" is the folder we're deleting from
+  bool deleteNoTrash = TrashOrDescendentOfTrash(this) || !DeleteIsMoveToTrash();
+  bool confirmDeletion = true;
 
   nsCOMPtr<nsIImapService> imapService =
       do_GetService(NS_IMAPSERVICE_CONTRACTID, &rv);
@@ -2220,16 +2194,16 @@ nsImapMailFolder::DeleteSubFolders(nsIArray* folders, nsIMsgWindow* msgWindow) {
     prefBranch->GetBoolPref("mailnews.confirm.moveFoldersToTrash",
                             &confirmDeletion);
   }
-  if (!confirmed &&
-      (confirmDeletion || deleteNoTrash))  // let us alert the user if we are
-                                           // deleting folder immediately
-  {
+
+  // If we are deleting folder immediately, ask user for confirmation.
+  bool confirmed = false;
+  if (confirmDeletion || deleteNoTrash) {
     nsCOMPtr<nsIStringBundle> bundle;
     rv = IMAPGetStringBundle(getter_AddRefs(bundle));
     NS_ENSURE_SUCCESS(rv, rv);
 
     nsAutoString folderName;
-    rv = curFolder->GetName(folderName);
+    rv = GetName(folderName);
     NS_ENSURE_SUCCESS(rv, rv);
     AutoTArray<nsString, 1> formatStrings = {folderName};
 
@@ -2268,36 +2242,26 @@ nsImapMailFolder::DeleteSubFolders(nsIArray* folders, nsIMsgWindow* msgWindow) {
       NS_ENSURE_SUCCESS(rv, rv);
       confirmed = !buttonPressed;  // "ok" is in position 0
     }
-  } else
+  } else {
     confirmed = true;
+  }
 
   if (confirmed) {
-    for (i = 0; i < (int32_t)folderCount; i++) {
-      curFolder = do_QueryElementAt(foldersRemaining, i, &rv);
-      if (NS_SUCCEEDED(rv)) {
-        urlListener = do_QueryInterface(curFolder);
-        if (deleteNoTrash)
-          rv = imapService->DeleteFolder(curFolder, urlListener, msgWindow,
-                                         nullptr);
-        else {
-          bool confirm = false;
-          bool match = false;
-          rv =
-              curFolder->MatchOrChangeFilterDestination(nullptr, false, &match);
-          if (match) {
-            curFolder->ConfirmFolderDeletionForFilter(msgWindow, &confirm);
-            if (!confirm) return NS_OK;
-          }
-          rv = imapService->MoveFolder(curFolder, trashFolder, urlListener,
-                                       msgWindow, nullptr);
-        }
+    if (deleteNoTrash) {
+      rv = imapService->DeleteFolder(this, this, msgWindow, nullptr);
+      nsMsgDBFolder::DeleteSelf(msgWindow);
+    } else {
+      bool match = false;
+      rv = MatchOrChangeFilterDestination(nullptr, false, &match);
+      if (match) {
+        bool confirm = false;
+        ConfirmFolderDeletionForFilter(msgWindow, &confirm);
+        if (!confirm) return NS_OK;
       }
+      rv = imapService->MoveFolder(this, trashFolder, this, msgWindow, nullptr);
     }
   }
-  // delete subfolders only if you are  deleting things from trash
-  return confirmed && deleteNoTrash
-             ? nsMsgDBFolder::DeleteSubFolders(foldersRemaining, msgWindow)
-             : rv;
+  return rv;
 }
 
 // FIXME: helper function to know whether we should check all IMAP folders
@@ -5198,7 +5162,7 @@ nsImapMailFolder::OnStopRunningUrl(nsIURI* aUrl, nsresult aExitCode) {
               if (NS_SUCCEEDED(rv) && parent) {
                 nsCOMPtr<nsIMsgImapMailFolder> imapParent =
                     do_QueryInterface(parent);
-                if (imapParent) imapParent->RemoveSubFolder(this);
+                if (imapParent) this->RemoveLocalSelf();
               }
             }
           }

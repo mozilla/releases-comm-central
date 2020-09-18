@@ -137,10 +137,7 @@ this.folders = class extends ExtensionAPI {
                 MailServices.mfn.folderMoveCopyCompleted,
               uri
             );
-            folder.parent.deleteSubFolders(
-              toXPCOMArray([folder], Ci.nsIMutableArray),
-              null
-            );
+            folder.deleteSelf(null);
           }
 
           // This may return a folder but we don't want the caller to get it.

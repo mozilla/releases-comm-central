@@ -630,30 +630,25 @@ nsresult nsMsgLocalMailFolder::IsChildOfTrash(bool* result) {
   return rv;
 }
 
-NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSubFolders(nsIArray* folders,
-                                                     nsIMsgWindow* msgWindow) {
+NS_IMETHODIMP nsMsgLocalMailFolder::DeleteSelf(nsIMsgWindow* msgWindow) {
   nsresult rv;
   bool isChildOfTrash;
   IsChildOfTrash(&isChildOfTrash);
 
-  // we don't allow multiple folder selection so this is ok.
-  nsCOMPtr<nsIMsgFolder> folder = do_QueryElementAt(folders, 0);
   uint32_t folderFlags = 0;
-  if (folder) folder->GetFlags(&folderFlags);
+  GetFlags(&folderFlags);
   // when deleting from trash, or virtual folder, just delete it.
   if (isChildOfTrash || folderFlags & nsMsgFolderFlags::Virtual)
-    return nsMsgDBFolder::DeleteSubFolders(folders, msgWindow);
+    return nsMsgDBFolder::DeleteSelf(msgWindow);
 
   nsCOMPtr<nsIMsgFolder> trashFolder;
   rv = GetTrashFolder(getter_AddRefs(trashFolder));
   if (NS_SUCCEEDED(rv)) {
-    if (folder) {
-      nsCOMPtr<nsIMsgCopyService> copyService(
-          do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv));
-      NS_ENSURE_SUCCESS(rv, rv);
-      rv = copyService->CopyFolders({&*folder}, trashFolder, true, nullptr,
-                                    msgWindow);
-    }
+    nsCOMPtr<nsIMsgCopyService> copyService(
+        do_GetService(NS_MSGCOPYSERVICE_CONTRACTID, &rv));
+    NS_ENSURE_SUCCESS(rv, rv);
+    rv =
+        copyService->CopyFolders({this}, trashFolder, true, nullptr, msgWindow);
   }
   return rv;
 }

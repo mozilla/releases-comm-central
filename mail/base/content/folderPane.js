@@ -3201,9 +3201,8 @@ var gFolderTreeController = {
       }
     }
 
-    let array = toXPCOMArray([folder], Ci.nsIMutableArray);
     try {
-      folder.parent.deleteSubFolders(array, msgWindow);
+      folder.deleteSelf(msgWindow);
     } catch (ex) {
       // Ignore known errors from canceled warning dialogs.
       const NS_MSG_ERROR_COPY_FOLDER_ABORTED = 0x8055001a;

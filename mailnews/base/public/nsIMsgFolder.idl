@@ -185,12 +185,14 @@ interface nsIMsgFolder : nsISupports {
   void deleteStorage();
 
   /**
-   * Delete the given subfolders of this folder.
+   * Delete this folder and its children, if any.
+   * Note: this may mean moving it to trash and/or requesting confirmation
+   * from the user, depending on implementation.
+   * So the deletion may not take place immediately (or at all!)
    *
-   * @param folders    an array of subfolders to delete
    * @param msgWindow  msgWindow to display status feedback in
    */
-  void deleteSubFolders(in nsIArray folders, in nsIMsgWindow msgWindow);
+  void deleteSelf(in nsIMsgWindow msgWindow);
 
   /**
    * Delete the given subfolder of this folder.

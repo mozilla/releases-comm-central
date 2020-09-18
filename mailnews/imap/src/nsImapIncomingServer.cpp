@@ -1578,8 +1578,8 @@ nsresult nsImapIncomingServer::DeleteNonVerifiedFolders(
   rv = curFolder->GetParent(getter_AddRefs(parent));
 
   if (NS_SUCCEEDED(rv) && parent) {
-    nsCOMPtr<nsIMsgImapMailFolder> imapParent = do_QueryInterface(parent);
-    if (imapParent) imapParent->RemoveSubFolder(curFolder);
+    nsCOMPtr<nsIMsgImapMailFolder> imapFolder = do_QueryInterface(curFolder);
+    if (imapFolder) imapFolder->RemoveLocalSelf();
   }
 
   return rv;
