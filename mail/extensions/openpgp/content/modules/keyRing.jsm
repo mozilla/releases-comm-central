@@ -792,7 +792,7 @@ var EnigmailKeyRing = {
     }
 
     const cApi = EnigmailCryptoAPI();
-    let result;
+    let result = undefined;
     let tryAgain;
     let permissive = false;
     do {
@@ -825,7 +825,10 @@ var EnigmailKeyRing = {
 
       tryAgain = false;
       let failed =
-        result.exitCode || !result.importedKeys || !result.importedKeys.length;
+        !result ||
+        result.exitCode ||
+        !result.importedKeys ||
+        !result.importedKeys.length;
       if (failed) {
         if (allowPermissiveFallbackWithPrompt && !permissive) {
           let agreed = getDialog().confirmDlg(
@@ -843,12 +846,16 @@ var EnigmailKeyRing = {
       }
     } while (tryAgain);
 
-    if (importedKeysObj) {
-      importedKeysObj.value = result.importedKeys;
-    }
-
-    if (result.importedKeys.length > 0) {
-      EnigmailKeyRing.updateKeys(result.importedKeys);
+    if (!result) {
+      result = {};
+      result.exitCode = -1;
+    } else if (result.importedKeys) {
+      if (importedKeysObj) {
+        importedKeysObj.value = result.importedKeys;
+      }
+      if (result.importedKeys.length > 0) {
+        EnigmailKeyRing.updateKeys(result.importedKeys);
+      }
     }
 
     EnigmailKeyRing.clearCache();

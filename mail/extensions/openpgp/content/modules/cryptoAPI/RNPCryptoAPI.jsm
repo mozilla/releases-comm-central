@@ -290,7 +290,7 @@ class RNPCryptoAPI extends CryptoAPI {
 
   async genKey(userId, keyType, keySize, expiryTime, passphrase) {
     let id = RNP.genKey(userId, keyType, keySize, expiryTime, passphrase);
-    RNP.saveKeyRings();
+    await RNP.saveKeyRings();
     return id;
   }
 

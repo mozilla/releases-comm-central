@@ -59,7 +59,7 @@ var BondOpenPGP = {
   alreadyTriedInit: false,
   initiallyPrefEnabled: false,
 
-  init() {
+  async init() {
     if (!MailConstants.MOZ_OPENPGP) {
       return;
     }
@@ -87,7 +87,8 @@ var BondOpenPGP = {
     this.alreadyTriedInit = true;
 
     let RNP = getRNP();
-    if (!RNP.init({})) {
+    let initDone = await RNP.init({});
+    if (!initDone) {
       return;
     }
 
@@ -179,7 +180,7 @@ var BondOpenPGP = {
 
           OpenPGPMasterpass.ensureMasterPassword();
           RNP.protectUnprotectedKeys();
-          RNP.saveKeyRings();
+          await RNP.saveKeyRings();
         }
       } else {
         // We couldn't obtain the OpenPGP password from file,

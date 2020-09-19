@@ -551,7 +551,7 @@ function EnigChangeKeyPwd(keyId, userId) {
   throw new Error("Not implemented");
 }
 
-function EnigRevokeKey(keyObj, callbackFunc) {
+async function EnigRevokeKey(keyObj, callbackFunc) {
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
     return;
@@ -588,7 +588,7 @@ function EnigRevokeKey(keyObj, callbackFunc) {
     return;
   }
 
-  RNP.revokeKey(keyObj.fpr);
+  await RNP.revokeKey(keyObj.fpr);
   callbackFunc(true);
 
   Services.prompt.alert(

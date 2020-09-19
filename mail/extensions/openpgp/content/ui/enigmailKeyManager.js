@@ -536,7 +536,7 @@ function enigSignKey() {
 }
 */
 
-function enigmailRevokeKey() {
+async function enigmailRevokeKey() {
   var keyList = getSelectedKeys();
   let keyInfo = gKeyList[keyList[0]];
   EnigRevokeKey(keyInfo, function(success) {

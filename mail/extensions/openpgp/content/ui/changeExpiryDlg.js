@@ -124,7 +124,7 @@ function resizeMonthsPopup(event) {
   event.originalTarget.sizeTo(event.originalTarget.clientWidth - 16, 200);
 }
 
-function onAccept() {
+async function onAccept() {
   let choice = gRadio.value;
   if (choice == "keep-existing") {
     return true;

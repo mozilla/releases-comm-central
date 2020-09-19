@@ -969,7 +969,7 @@ async function reloadOpenPgpUI() {
     let revokeItem = document.createXULElement("menuitem");
     document.l10n.setAttributes(revokeItem, "openpgp-key-man-revoke-key");
     revokeItem.addEventListener("command", () => {
-      enigmailRevokeKey(key);
+      openPgpRevokeKey(key);
     });
 
     let deleteItem = document.createXULElement("menuitem");
@@ -1066,7 +1066,7 @@ async function enigmailDeleteKey(key) {
  *
  * @param {Object} key - The selected OpenPGP Key.
  */
-async function enigmailRevokeKey(key) {
+async function openPgpRevokeKey(key) {
   // Interrupt if the selected key is currently being used.
   if (key.keyId == gIdentity.getUnicharAttribute("openpgp_key_id")) {
     let [alertTitle, alertDescription] = await document.l10n.formatValues([

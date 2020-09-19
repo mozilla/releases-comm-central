@@ -42,14 +42,14 @@ var RNPLib;
 var RNP = {
   hasRan: false,
   libLoaded: false,
-  once() {
+  async once() {
     this.hasRan = true;
     try {
       RNPLib = RNPLibLoader.init();
       if (!RNPLib) {
         return;
       }
-      if (RNPLib && RNPLib.init()) {
+      if (await RNPLib.init()) {
         //this.initUiOps();
         RNP.libLoaded = true;
       }
@@ -58,11 +58,11 @@ var RNP = {
     }
   },
 
-  init(opts) {
+  async init(opts) {
     opts = opts || {};
 
     if (!this.hasRan) {
-      this.once();
+      await this.once();
     }
 
     return RNP.libLoaded;
@@ -1221,6 +1221,19 @@ var RNP = {
   },
 
   async verifyDetached(data, options) {
+    let result = {};
+    result.decryptedData = "";
+    result.statusFlags = 0;
+    result.exitCode = -1;
+    result.extStatusFlags = 0;
+    result.userId = "";
+    result.keyId = "";
+
+    let input_sig = await RNPLib.createInputFromPath(options.mimeSignatureFile);
+    if (!input_sig) {
+      return result;
+    }
+
     let input_from_memory = new RNPLib.rnp_input_t();
 
     var tmp_array = ctypes.char.array()(data);
@@ -1233,27 +1246,13 @@ var RNP = {
       false
     );
 
-    let input_from_file = new RNPLib.rnp_input_t();
-    RNPLib.rnp_input_from_path(
-      input_from_file.address(),
-      options.mimeSignatureFile
-    );
-
-    let result = {};
-    result.decryptedData = "";
-    result.statusFlags = 0;
-    result.extStatusFlags = 0;
-
-    result.userId = "";
-    result.keyId = "";
-
     let verify_op = new RNPLib.rnp_op_verify_t();
     if (
       RNPLib.rnp_op_verify_detached_create(
         verify_op.address(),
         RNPLib.ffi,
         input_from_memory,
-        input_from_file
+        input_sig
       )
     ) {
       throw new Error("rnp_op_verify_detached_create failed");
@@ -1276,7 +1275,7 @@ var RNP = {
     }
 
     RNPLib.rnp_input_destroy(input_from_memory);
-    RNPLib.rnp_input_destroy(input_from_file);
+    RNPLib.rnp_input_destroy(input_sig);
     RNPLib.rnp_op_verify_destroy(verify_op);
 
     return result;
@@ -1421,7 +1420,7 @@ var RNP = {
     return newKeyId;
   },
 
-  saveKeyRings() {
+  async saveKeyRings() {
     RNPLib.saveKeys();
   },
 
@@ -1560,7 +1559,7 @@ var RNP = {
 
     RNPLib.rnp_buffer_destroy(jsonInfo);
     RNPLib.rnp_input_destroy(input_from_memory);
-    this.saveKeyRings();
+    await this.saveKeyRings();
 
     return rv;
   },
@@ -1806,14 +1805,14 @@ var RNP = {
       }
 
       result.exitCode = 0;
-      this.saveKeyRings();
+      await this.saveKeyRings();
     }
 
     RNPLib.rnp_ffi_destroy(tempFFI);
     return result;
   },
 
-  deleteKey(keyFingerprint, deleteSecret) {
+  async deleteKey(keyFingerprint, deleteSecret) {
     let handle = new RNPLib.rnp_key_handle_t();
     if (
       RNPLib.rnp_locate_key(
@@ -1836,10 +1835,10 @@ var RNP = {
     }
 
     RNPLib.rnp_key_handle_destroy(handle);
-    this.saveKeyRings();
+    await this.saveKeyRings();
   },
 
-  revokeKey(keyFingerprint) {
+  async revokeKey(keyFingerprint) {
     let handle = new RNPLib.rnp_key_handle_t();
     if (
       RNPLib.rnp_locate_key(
@@ -1859,7 +1858,7 @@ var RNP = {
     }
 
     RNPLib.rnp_key_handle_destroy(handle);
-    this.saveKeyRings();
+    await this.saveKeyRings();
   },
 
   getKeyHandleByKeyIdOrFingerprint(ffi, id) {
@@ -2831,7 +2830,7 @@ var RNP = {
   // being changeed, the respective primary key is contained in the
   // array, too. If it isn't, the function will fail, because the
   // primary key must be unlocked, before changing a subkey works.
-  changeExpirationDate(fingerprintArray, newExpiry) {
+  async changeExpirationDate(fingerprintArray, newExpiry) {
     let handles = [];
 
     for (let fingerprint of fingerprintArray) {
@@ -2871,7 +2870,7 @@ var RNP = {
       RNPLib.rnp_key_handle_destroy(handle);
     }
 
-    this.saveKeyRings();
+    await this.saveKeyRings();
     return true;
   },
 

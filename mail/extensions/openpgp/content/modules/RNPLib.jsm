@@ -128,6 +128,70 @@ function enableRNPLibJS() {
 
     ffi: null,
 
+    // returns rnp_input_t, destroy using rnp_input_destroy
+    async createInputFromPath(path) {
+      let u8 = null;
+
+      try {
+        u8 = await OS.File.read(path);
+      } catch (err) {
+        console.debug(
+          "RNPLib.createInputFromPath failed for " + path + " - " + err
+        );
+      }
+
+      if (!u8 || u8.length == 0) {
+        return null;
+      }
+
+      let input_from_memory = new this.rnp_input_t();
+      try {
+        this.rnp_input_from_memory(
+          input_from_memory.address(),
+          u8,
+          u8.length,
+          false
+        );
+      } catch (ex) {
+        throw new Error("rnp_input_from_memory for file " + path + " failed");
+      }
+      return input_from_memory;
+    },
+
+    async writeOutputToPath(rnp_memory_output, path) {
+      let result_buf = new ctypes.uint8_t.ptr();
+      let result_len = new ctypes.size_t();
+      let u8 = null;
+
+      // if rnp_memory_output is null, we write an empty file
+      if (!rnp_memory_output) {
+        u8 = new Uint8Array();
+      } else if (
+        this.rnp_output_memory_get_buf(
+          rnp_memory_output,
+          result_buf.address(),
+          result_len.address(),
+          false
+        )
+      ) {
+        throw new Error("rnp_output_memory_get_buf failed");
+      } else {
+        let uint8_array = ctypes.cast(
+          result_buf,
+          ctypes.uint8_t.array(result_len.value).ptr
+        ).contents;
+        u8 = uint8_array.readTypedArray();
+      }
+
+      try {
+        await OS.File.writeAtomic(path, u8);
+      } catch (err) {
+        console.debug(
+          "RNPLib.writeOutputToPath failed for " + path + " - " + err
+        );
+      }
+    },
+
     getFilenames() {
       let names = {};
 
@@ -142,7 +206,7 @@ function enableRNPLibJS() {
       return names;
     },
 
-    init() {
+    async init() {
       this.ffi = new rnp_ffi_t();
       if (this.rnp_ffi_create(this.ffi.address(), "GPG", "GPG")) {
         throw new Error("Couldn't initialize librnp.");
@@ -163,27 +227,30 @@ function enableRNPLibJS() {
 
       let filenames = this.getFilenames();
 
-      let input_from_path = new rnp_input_t();
-      this.rnp_input_from_path(
-        input_from_path.address(),
-        filenames.pubring.path
-      );
-      this.rnp_load_keys(
-        this.ffi,
-        "GPG",
-        input_from_path,
-        this.RNP_LOAD_SAVE_PUBLIC_KEYS
-      );
-      this.rnp_input_destroy(input_from_path);
+      let in_pub = await this.createInputFromPath(filenames.pubring.path);
+      if (in_pub) {
+        this.rnp_load_keys(
+          this.ffi,
+          "GPG",
+          in_pub,
+          this.RNP_LOAD_SAVE_PUBLIC_KEYS
+        );
+        this.rnp_input_destroy(in_pub);
+      }
 
-      let in2 = new rnp_input_t();
+      let in_sec = await this.createInputFromPath(filenames.secring.path);
+      if (in_sec) {
+        this.rnp_load_keys(
+          this.ffi,
+          "GPG",
+          in_sec,
+          this.RNP_LOAD_SAVE_SECRET_KEYS
+        );
+        this.rnp_input_destroy(in_sec);
+      }
 
-      this.rnp_input_from_path(in2.address(), filenames.secring.path);
-      this.rnp_load_keys(this.ffi, "GPG", in2, this.RNP_LOAD_SAVE_SECRET_KEYS);
-      this.rnp_input_destroy(in2);
-
-      input_from_path = null;
-      in2 = null;
+      in_pub = null;
+      in_sec = null;
 
       let pubnum = new ctypes.size_t();
       this.rnp_get_public_key_count(this.ffi, pubnum.address());
@@ -203,7 +270,7 @@ function enableRNPLibJS() {
       return true;
     },
 
-    saveKeys() {
+    async saveKeys() {
       let filenames = this.getFilenames();
 
       // Start by writing to new, temporary files. This avoids the
@@ -215,41 +282,51 @@ function enableRNPLibJS() {
       let secNew = filenames.secring.clone();
       secNew.leafName += tmpNewSuffix;
 
-      let output_to_path = new rnp_output_t();
-      if (this.rnp_output_to_path(output_to_path.address(), pubNew.path)) {
-        throw new Error("rnp_output_to_path failed: " + pubNew.path);
+      let pubCount = new ctypes.size_t();
+      this.rnp_get_public_key_count(this.ffi, pubCount.address());
+      if (pubCount.value < 1) {
+        await this.writeOutputToPath(null, pubNew.path);
+      } else {
+        let out1 = new this.rnp_output_t();
+        if (this.rnp_output_to_memory(out1.address(), 0)) {
+          throw new Error("rnp_output_to_memory failed");
+        }
+        if (
+          this.rnp_save_keys(
+            this.ffi,
+            "GPG",
+            out1,
+            this.RNP_LOAD_SAVE_PUBLIC_KEYS
+          )
+        ) {
+          throw new Error("rnp_save_keys failed");
+        }
+        await this.writeOutputToPath(out1, pubNew.path);
+        this.rnp_output_destroy(out1);
       }
-      if (
-        this.rnp_save_keys(
-          this.ffi,
-          "GPG",
-          output_to_path,
-          this.RNP_LOAD_SAVE_PUBLIC_KEYS
-        )
-      ) {
-        throw new Error("rnp_save_keys failed");
-      }
-      this.rnp_output_destroy(output_to_path);
 
-      let out2 = new rnp_output_t();
-
-      if (this.rnp_output_to_path(out2.address(), secNew.path)) {
-        throw new Error("rnp_output_to_path failed: " + secNew.path);
+      let secCount = new ctypes.size_t();
+      this.rnp_get_secret_key_count(this.ffi, secCount.address());
+      if (secCount.value < 1) {
+        await this.writeOutputToPath(null, secNew.path);
+      } else {
+        let out2 = new this.rnp_output_t();
+        if (this.rnp_output_to_memory(out2.address(), 0)) {
+          throw new Error("rnp_output_to_memory failed");
+        }
+        if (
+          this.rnp_save_keys(
+            this.ffi,
+            "GPG",
+            out2,
+            this.RNP_LOAD_SAVE_SECRET_KEYS
+          )
+        ) {
+          throw new Error("rnp_save_keys failed");
+        }
+        await this.writeOutputToPath(out2, secNew.path);
+        this.rnp_output_destroy(out2);
       }
-      if (
-        this.rnp_save_keys(
-          this.ffi,
-          "GPG",
-          out2,
-          this.RNP_LOAD_SAVE_SECRET_KEYS
-        )
-      ) {
-        throw new Error("rnp_save_keys failed");
-      }
-      this.rnp_output_destroy(out2);
-
-      output_to_path = null;
-      out2 = null;
 
       // Now that saving to new filenames has finished, rename.
 
