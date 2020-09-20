@@ -6,6 +6,7 @@
  * Test that temporary files for draft are surely removed.
  */
 
+var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var gMsgCompose;
@@ -14,7 +15,7 @@ var gExpectedFiles;
 var progressListener = {
   onStateChange(aWebProgress, aRequest, aStateFlags, aStatus) {
     if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
-      do_timeout(0, check_result);
+      do_timeout(0, checkResult);
     }
   },
 
@@ -37,48 +38,59 @@ var progressListener = {
   ]),
 };
 
-function get_temporary_files_for(name) {
-  let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
-  file.append(name);
-  file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
-
-  file.remove(false);
-
-  return file;
-}
-
-function collect_expected_temporary_files() {
-  let files = [];
-
-  files.push(get_temporary_files_for("nsemail.html"));
-  files.push(get_temporary_files_for("nsemail.eml"));
-  files.push(get_temporary_files_for("nscopy.tmp"));
-
-  return files;
-}
-
-function check_files_not_exist(files) {
-  files.forEach(function(file) {
-    Assert.ok(!file.exists());
+/**
+ * Get the count of temporary files. Because OS.File.openUnique creates random
+ * file name, we iterate the tmp dir and count the files that match filename
+ * patterns.
+ */
+async function getTemporaryFilesCount() {
+  let tmpDir;
+  if (Services.prefs.getBoolPref("mailnews.send.jsmodule", false)) {
+    tmpDir = OS.Constants.Path.tmpDir;
+  } else {
+    tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
+  }
+  let iterator = new OS.File.DirectoryIterator(tmpDir);
+  let tempFiles = {
+    "nsemail.html": 0, // not actually used by MessageSend.jsm
+    "nsemail.eml": 0,
+    "nscopy.tmp": 0,
+  };
+  // DirectoryIterator is not actually iterable, so no for..of.
+  await iterator.forEach(entry => {
+    for (let pattern of Object.keys(tempFiles)) {
+      let [name, extName] = pattern.split(".");
+      if (
+        !entry.isDir &&
+        entry.name.startsWith(name) &&
+        entry.name.endsWith(extName)
+      ) {
+        tempFiles[pattern]++;
+      }
+    }
   });
+  iterator.close();
+  return tempFiles;
 }
 
-function check_result() {
-  // temp files should be deleted as soon as the draft is finished saving.
-  check_files_not_exist(gExpectedFiles);
-
+/**
+ * Temp files should be deleted as soon as the draft is finished saving, so the
+ * counts should be the same as before.
+ */
+async function checkResult() {
+  let filesCount = await getTemporaryFilesCount();
+  for (let [pattern, count] of Object.entries(filesCount)) {
+    Assert.equal(
+      count,
+      gExpectedFiles[pattern],
+      `${pattern} should not exists`
+    );
+  }
   do_test_finished();
 }
 
-function run_test() {
-  gExpectedFiles = collect_expected_temporary_files();
-  registerCleanupFunction(function() {
-    gExpectedFiles.forEach(function(file) {
-      if (file.exists()) {
-        file.remove(false);
-      }
-    });
-  });
+add_task(async function() {
+  gExpectedFiles = await getTemporaryFilesCount();
 
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
@@ -120,4 +132,4 @@ function run_test() {
     null,
     progress
   );
-}
+});

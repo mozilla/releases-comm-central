@@ -53,6 +53,7 @@ MessageSend.prototype = {
     this._sendProgress = progress;
     this._smtpPassword = smtpPassword;
     this._sendListener = listener;
+    this._shouldRemoveMessageFile = true;
 
     this._sendReport = Cc[
       "@mozilla.org/messengercompose/sendreport;1"
@@ -267,7 +268,7 @@ MessageSend.prototype = {
   },
 
   /**
-   * Deliver a message. Far from complete.
+   * Deliver a message.
    *
    * @param {nsIFile} file - The message file to deliver.
    */
@@ -302,7 +303,7 @@ MessageSend.prototype = {
     let copyFile = this._messageFile;
     if (this._folderUri.startsWith("mailbox:")) {
       let { path, file: fileWriter } = await OS.File.openUnique(
-        OS.Path.join(OS.Constants.Path.tmpDir, "nscopy.eml")
+        OS.Path.join(OS.Constants.Path.tmpDir, "nscopy.tmp")
       );
       // Add a `From - Date` line, so that nsLocalMailFolder.cpp won't add a
       // dummy envelope. The date string will be parsed by PR_ParseTimeString.
@@ -345,6 +346,13 @@ MessageSend.prototype = {
       console.warn(
         `startCopyOperation failed with 0x${e.result.toString(16)}\n${e.stack}`
       );
+    } finally {
+      if (copyFile != this._messageFile) {
+        copyFile.remove(false);
+      }
+      if (this._shouldRemoveMessageFile) {
+        this._messageFile.remove(false);
+      }
     }
   },
 
@@ -354,6 +362,17 @@ MessageSend.prototype = {
    */
   _deliverFileAsMail(file) {
     let to = this._compFields.to || this._compFields.bcc || "";
+    let converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
+      Ci.nsIMimeConverter
+    );
+    to = encodeURIComponent(
+      converter.encodeMimePartIIStr_UTF8(
+        to,
+        true,
+        0,
+        Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
+      )
+    );
     let deliveryListener = new MsgDeliveryListener(this, false);
     MailServices.smtp.sendMailMessage(
       file,
