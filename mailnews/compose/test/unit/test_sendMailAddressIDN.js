@@ -10,8 +10,6 @@ var server;
 var finished = false;
 
 var sentFolder;
-var originalData;
-var expectedAlertMessage;
 
 var kSender = "from@foo.invalid";
 var kToASCII = "to@foo.invalid";
@@ -29,17 +27,29 @@ function alert(aDialogText, aText) {
     return;
   }
 
+  var composeProps = Services.strings.createBundle(
+    "chrome://messenger/locale/messengercompose/composeMsgs.properties"
+  );
+  var expectedAlertMessage = composeProps
+    .GetStringFromName("errorIllegalLocalPart2")
+    .replace("%s", kToInvalid);
+
   // we should only get here for the kToInvalid test case
   Assert.equal(test, kToInvalid);
   Assert.equal(aText, expectedAlertMessage);
 }
 
 // message listener implementations
-function msgListener(aRecipient) {
+function MsgSendListener(aRecipient, originalData) {
   this.rcpt = aRecipient;
+  this.originalData = originalData;
 }
 
-msgListener.prototype = {
+/**
+ * @implements {nsIMsgSendListener}
+ * @implements {nsIMsgCopyServiceListener}
+ */
+MsgSendListener.prototype = {
   // nsIMsgSendListener
   onStartSending(aMsgID, aMsgSize) {},
   onProgress(aMsgID, aProgress, aProgressMax) {},
@@ -53,12 +63,12 @@ msgListener.prototype = {
           "MAIL FROM:<" +
             kSender +
             "> BODY=8BITMIME SIZE=" +
-            originalData.length,
+            this.originalData.length,
           "RCPT TO:<" + this.rcpt + ">",
           "DATA",
         ]);
         // Compare data file to what the server received
-        Assert.equal(originalData, server._daemon.post);
+        Assert.equal(this.originalData, server._daemon.post);
       } else {
         Assert.equal(aStatus, NS_ERROR_BUT_DONT_SHOW_ALERT);
         do_check_transaction(server.playTransaction(), ["EHLO test"]);
@@ -67,7 +77,6 @@ msgListener.prototype = {
         // sent. Nothing else occurs so we "finish" the test to avoid
         // NS_ERROR_ABORT test failure due to timeout waiting for the send
         // (which doesn't occurs) to complete.
-        do_test_finished();
       }
     } catch (e) {
       do_throw(e);
@@ -77,6 +86,7 @@ msgListener.prototype = {
       while (thread.hasPendingEvents()) {
         thread.processNextEvent(false);
       }
+      do_test_finished();
     }
   },
   onGetDraftFolderURI(aFolderURI) {},
@@ -99,12 +109,11 @@ msgListener.prototype = {
       var pos = msgData.indexOf("From:");
       Assert.notEqual(pos, -1);
       msgData = msgData.substr(pos);
-      Assert.equal(originalData, msgData);
+      Assert.equal(this.originalData, msgData);
     } catch (e) {
       do_throw(e);
     } finally {
       finished = true;
-      do_test_finished();
     }
   },
 
@@ -115,7 +124,9 @@ msgListener.prototype = {
   ]),
 };
 
-function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected) {
+function DoSendTest(aRecipient, aRecipientExpected) {
+  info(`Testing send to ${aRecipient} will get sent to ${aRecipientExpected}`);
+  test = aRecipient;
   server = setupServerDaemon();
   server.start();
   var smtpServer = getBasicSmtpServer(server.port);
@@ -124,11 +135,10 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected) {
 
   // Random test file with data we don't actually care about. ;-)
   var testFile = do_get_file("data/message1.eml");
-  originalData = IOUtils.loadFileToString(testFile);
+  var originalData = IOUtils.loadFileToString(testFile);
 
   // Handle the server in a try/catch/finally loop so that we always will stop
   // the server if something fails.
-  var exceptionCaught = 0;
   try {
     var compFields = Cc[
       "@mozilla.org/messengercompose/composefields;1"
@@ -148,21 +158,20 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected) {
       false,
       Ci.nsIMsgSend.nsMsgDeliverNow,
       null,
-      new msgListener(aRecipientExpected),
+      new MsgSendListener(aRecipientExpected, originalData),
       null,
       null
     );
 
     server.performTest();
-
+    do_test_pending();
     do_timeout(10000, function() {
       if (!finished) {
         do_throw("Notifications of message send/copy not received");
       }
     });
-    do_test_pending();
   } catch (e) {
-    exceptionCaught = e.result;
+    Assert.ok(false, "Send fail: " + e);
   } finally {
     server.stop();
     var thread = gThreadManager.currentThread;
@@ -170,28 +179,24 @@ function DoSendTest(aRecipient, aRecipientExpected, aExceptionExpected) {
       thread.processNextEvent(true);
     }
   }
-  Assert.equal(exceptionCaught, aExceptionExpected);
 }
 
-function run_test() {
+add_task(function setup() {
   registerAlertTestUtils();
-  var composeProps = Services.strings.createBundle(
-    "chrome://messenger/locale/messengercompose/composeMsgs.properties"
-  );
-  expectedAlertMessage = composeProps
-    .GetStringFromName("errorIllegalLocalPart2")
-    .replace("%s", kToInvalid);
 
   // Ensure we have at least one mail account
   localAccountUtils.loadLocalMailAccount();
   MailServices.accounts.setSpecialFolders();
   sentFolder = localAccountUtils.rootFolder.createLocalSubfolder("Sent");
+});
 
+add_task(function plainASCIIRecipient() {
   // Test 1:
   // Plain ASCII recipient address.
-  test = kToASCII;
-  DoSendTest(kToASCII, kToASCII, 0);
+  DoSendTest(kToASCII, kToASCII);
+});
 
+add_task(function domainContainsNonAscii() {
   // Test 2:
   // The recipient's domain part contains a non-ASCII character, hence the
   // address needs to be converted to ACE before sending.
@@ -199,20 +204,21 @@ function run_test() {
   // the message to the remaining - wrong! - address.
   // The new code will translate the domain part to ACE for the SMTP
   // transaction (only), i.e. the To: header will stay as stated by the sender.
-  test = kToValid;
-  DoSendTest(kToValid, kToValidACE, 0);
+  DoSendTest(kToValid, kToValidACE);
+});
 
+add_task(function localContainsNonAscii() {
   // Test 3:
   // The recipient's local part contains a non-ASCII character, which is not
   // allowed with unextended SMTP.
   // The old code would just strip the invalid character and try to send the
   // message to the remaining - wrong! - address.
   // The new code will present an informational message box and deny sending.
-  test = kToInvalid;
-  DoSendTest(kToInvalid, kToInvalid, 0);
+  DoSendTest(kToInvalid, kToInvalid);
+});
 
+add_task(function invalidCharNoAt() {
   // Test 4:
   // Bug 856506. invalid char without '@' causes crash.
-  test = kToInvalidWithoutDomain;
-  DoSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain, 0);
-}
+  DoSendTest(kToInvalidWithoutDomain, kToInvalidWithoutDomain);
+});

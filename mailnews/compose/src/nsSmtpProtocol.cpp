@@ -669,14 +669,16 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream* inputStream,
     }
     // validate the just parsed address
     if (*ch || m_addresses[i].IsEmpty()) {
-      // Fortunately, we will always have an @ in each mailbox address.
-      // We try to fix illegal character in the domain part by converting
-      // that to ACE. Illegal characters in the local part are not fixable
-      // (which charset would it be anyway?), hence we error out in that
-      // case as well.
+      // Fortunately, we will always have an @ in each mailbox address unless
+      // it is an empty string. (Attempts to send to addresses without the @
+      // arrive here as empty.)  We try to fix non-ascii characters in the
+      // domain part by converting that to ACE (a.k.a., punycode). Non-ascii
+      // characters in the local part are not fixable so we error out in that
+      // case as well. Note: non-ascii but legal UTF-8 characters on both side
+      // of the @ are OK when SMTPUTF8 is in effect (see above).
       nsresult rv = NS_ERROR_FAILURE;  // anything but NS_OK
       if (lastAt) {
-        // Illegal char in the domain part, hence use ACE
+        // Illegal char in the domain part, hence convert to ACE
         nsAutoCString domain;
         domain.Assign(lastAt + 1);
         rv = converter->ConvertUTF8toACE(domain, domain);
@@ -697,13 +699,7 @@ nsresult nsSmtpProtocol::SendHeloResponse(nsIInputStream* inputStream,
                                    start, nullptr);
         NS_ASSERTION(NS_SUCCEEDED(rv), "failed to explain illegal localpart");
         m_urlErrorState = NS_ERROR_BUT_DONT_SHOW_ALERT;
-        // Note: This can also occur if the address does not contain the @.
-        // However, the UI (JavaScript) precludes this by disabling "Send" and
-        // "Send Later" when the recipient address is not of the form
-        // local@domain. However, this still occurs when running unit-test
-        // test_sendMailAddressIDN.js sub-test kToInvalidWithoutDomain since the
-        // UI is not involved. The test attempts to send to address børken.to
-        return NS_ERROR_BUT_DONT_SHOW_ALERT;
+        return NS_OK;
       }
     }
   }
