@@ -21,6 +21,7 @@ var {
   switchToView,
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
 var { REC_DLG_ACCEPT, REC_DLG_DAYS } = ChromeUtils.import(
   "resource://testing-common/mozmill/ItemEditingHelpers.jsm"
 );
@@ -42,9 +43,10 @@ add_task(async function testWeeklyNRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeNewEventDialog(controller, eventBox, event => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
+    await setData(event, iframe, { title: "Event" });
     plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);
     event.waitForElement(eventid("item-repeat"));
     menulistSelect(eventid("item-repeat"), "custom", event);

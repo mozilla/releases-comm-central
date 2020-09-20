@@ -42,6 +42,7 @@ var { lookup, lookupEventBox } = helpersForController(controller);
 
 const HOUR = 8;
 const STARTDATE = new Date(2009, 0, 6);
+const TITLE = "Event";
 
 add_task(async function testWeeklyWithExceptionRecurrence() {
   createCalendar(controller, CALENDARNAME);
@@ -50,9 +51,10 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
 
   // Create weekly recurring event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeNewEventDialog(controller, eventBox, event => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
+    await setData(event, iframe, { title: TITLE });
     event.waitForElement(eventid("item-repeat"));
     plan_for_modal_dialog("Calendar:EventDialog:Recurrence", setRecurrence);
     menulistSelect(eventid("item-repeat"), "custom", event);
@@ -66,7 +68,7 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await invokeEditingRepeatEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
-    await setData(event, iframe, { startdate: STARTDATE, enddate: STARTDATE });
+    await setData(event, iframe, { title: TITLE, startdate: STARTDATE, enddate: STARTDATE });
     event.click(eventid("button-saveandclose"));
   });
 
@@ -76,10 +78,11 @@ add_task(async function testWeeklyWithExceptionRecurrence() {
   await invokeEditingRepeatEventDialog(
     controller,
     eventBox,
-    (event, iframe) => {
+    async (event, iframe) => {
       let { eid: eventid } = helpersForController(event);
       let { iframeLookup } = helpersForEditUI(iframe);
 
+      await setData(event, iframe, { title: "Event" });
       event.waitForElement(eventid("item-repeat"));
       plan_for_modal_dialog("Calendar:EventDialog:Recurrence", changeRecurrence);
       event.click(iframeLookup(REPEAT_DETAILS));

@@ -28,6 +28,7 @@ var controller = mozmill.getMail3PaneController();
 var { lookupEventBox } = helpersForController(controller);
 
 const HOUR = 8;
+const TITLE = "Event";
 
 add_task(async function testDailyRecurrence() {
   createCalendar(controller, CALENDARNAME);
@@ -39,7 +40,11 @@ add_task(async function testDailyRecurrence() {
   await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
-    await setData(event, iframe, { repeat: "daily", repeatuntil: new Date(2009, 2, 20) });
+    await setData(event, iframe, {
+      title: TITLE,
+      repeat: "daily",
+      repeatuntil: new Date(2009, 2, 20),
+    });
     event.click(eventid("button-saveandclose"));
   });
 

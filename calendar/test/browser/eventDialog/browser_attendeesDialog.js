@@ -325,7 +325,7 @@ function openEventWindow(calendar) {
     }
     return false;
   });
-  createEventWithDialog(calendar);
+  createEventWithDialog(calendar, null, null, "Event");
   return eventWindowPromise;
 }
 

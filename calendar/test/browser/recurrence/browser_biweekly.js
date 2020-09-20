@@ -21,6 +21,8 @@ var {
   viewForward,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 
+var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+
 var controller = mozmill.getMail3PaneController();
 var { lookupEventBox } = helpersForController(controller);
 
@@ -33,10 +35,11 @@ add_task(async function testBiweeklyRecurrence() {
 
   // Create biweekly event.
   let eventBox = lookupEventBox("day", CANVAS_BOX, null, 1, HOUR);
-  await invokeNewEventDialog(controller, eventBox, event => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "bi.weekly", event);
+    await setData(event, iframe, { title: "Event" });
     event.click(eventid("button-saveandclose"));
   });
 

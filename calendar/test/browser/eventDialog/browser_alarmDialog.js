@@ -30,6 +30,8 @@ var { lookupEventBox } = helpersForController(controller);
 add_task(async function testAlarmDialog() {
   let now = new Date();
 
+  const TITLE = "Event";
+
   createCalendar(controller, CALENDARNAME);
   switchToView(controller, "day");
   goToDate(controller, now.getFullYear(), now.getMonth() + 1, now.getDate());
@@ -45,6 +47,7 @@ add_task(async function testAlarmDialog() {
     await setData(event, iframe, {
       allday: true,
       reminder: "1day",
+      title: TITLE,
     });
 
     // Prepare to dismiss the alarm.
@@ -64,7 +67,7 @@ add_task(async function testAlarmDialog() {
   await invokeEditingEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
-    await setData(event, iframe, { reminder: "2days" });
+    await setData(event, iframe, { reminder: "2days", title: TITLE });
 
     // Prepare to snooze the alarm.
     plan_for_modal_dialog("Calendar:AlarmWindow", alarm => {

@@ -119,7 +119,7 @@ function receiveMessage(aEvent) {
       document.getElementById("cmd_status_none").removeAttribute("hidden");
       break;
     case "updateTitle":
-      updateTitle(aEvent.data.argument);
+      updateTitle(aEvent.data.prefix, aEvent.data.title);
       break;
     case "updateConfigState":
       updateItemTabState(aEvent.data.argument);
@@ -256,6 +256,12 @@ function onLoadLightningItemPanel(aIframeId, aUrl) {
     cancel.parentNode.setAttribute("collapsed", "true");
 
     document.addEventListener("dialogaccept", event => {
+      let itemTitle = iframe.contentDocument.documentElement.querySelector("#item-title");
+      // Prevent dialog from saving if title is empty.
+      if (!itemTitle.value) {
+        event.preventDefault();
+        return;
+      }
       sendMessage({ command: "onAccept" });
       event.preventDefault();
     });
@@ -437,16 +443,35 @@ function onCommandDeleteItem() {
 }
 
 /**
+ * Disable the saving options according to the item title.
+ *
+ * @param {boolean} disabled - True if the save options needs to be disabled else false.
+ */
+function disableSaving(disabled) {
+  let cmdSave = document.getElementById("cmd_save");
+  if (cmdSave) {
+    cmdSave.setAttribute("disabled", disabled);
+  }
+  let cmdAccept = document.getElementById("cmd_accept");
+  if (cmdAccept) {
+    cmdAccept.setAttribute("disabled", disabled);
+  }
+}
+
+/**
  * Update the title of the tab or window.
  *
- * @param {string} aNewTitle  The new title
+ * @param {string} prefix - The prefix string according to the item.
+ * @param {string} title - The item title.
  */
-function updateTitle(aNewTitle) {
+function updateTitle(prefix, title) {
+  disableSaving(!title);
+  let newTitle = prefix + ": " + title;
   if (gTabmail) {
-    gTabmail.currentTabInfo.title = aNewTitle;
+    gTabmail.currentTabInfo.title = newTitle;
     gTabmail.setTabTitle(gTabmail.currentTabInfo);
   } else {
-    document.title = aNewTitle;
+    document.title = newTitle;
   }
 }
 

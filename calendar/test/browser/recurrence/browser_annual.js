@@ -20,6 +20,8 @@ var {
   switchToView,
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 
+var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
+
 var controller = mozmill.getMail3PaneController();
 var { getEventBoxPath, lookup, lookupEventBox } = helpersForController(controller);
 
@@ -33,10 +35,11 @@ add_task(async function testAnnualRecurrence() {
 
   // Create yearly recurring all-day event.
   let eventBox = lookupEventBox("day", ALLDAY, null, 1, null);
-  await invokeNewEventDialog(controller, eventBox, event => {
+  await invokeNewEventDialog(controller, eventBox, async (event, iframe) => {
     let { eid: eventid } = helpersForController(event);
 
     menulistSelect(eventid("item-repeat"), "yearly", event);
+    await setData(event, iframe, { title: "Event" });
     event.click(eventid("button-saveandclose"));
   });
 

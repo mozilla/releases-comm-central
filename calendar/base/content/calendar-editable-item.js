@@ -429,7 +429,7 @@
           this.mOccurrence,
           null,
           null,
-          this.eventNameTextbox.value
+          this.eventNameTextbox.value || cal.l10n.getCalString("eventUntitled")
         );
 
         // Note that as soon as we do the modifyItem, this element ceases to exist,
