@@ -85,6 +85,7 @@ add_task(function test_open_draft_again() {
   // Type something and save, then check that we only have one draft.
   cwc.type(cwc.eid("content-frame"), "Hello!");
   cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(cwc);
   close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
 
@@ -148,10 +149,7 @@ function internal_check_delivery_format(editDraft) {
   }
 
   cwc.window.SaveAsDraft();
-  utils.waitFor(
-    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-    "Saving of draft did not finish"
-  );
+  waitForSaveOperation(cwc);
   wait_for_window_focused(cwc.window);
 
   close_compose_window(cwc);
@@ -240,10 +238,7 @@ add_task(function test_content_language_header() {
   );
 
   cwc.window.SaveAsDraft();
-  utils.waitFor(
-    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-    "Saving of draft did not finish"
-  );
+  waitForSaveOperation(cwc);
   wait_for_window_focused(cwc.window);
   close_compose_window(cwc);
 
@@ -281,10 +276,7 @@ add_task(function test_content_language_header_suppression() {
   );
 
   cwc.window.SaveAsDraft();
-  utils.waitFor(
-    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-    "Saving of draft did not finish"
-  );
+  waitForSaveOperation(cwc);
   wait_for_window_focused(cwc.window);
   close_compose_window(cwc);
 
@@ -324,10 +316,7 @@ add_task(function test_remove_space_stuffing_format_flowed() {
   );
 
   cwc.window.SaveAsDraft();
-  utils.waitFor(
-    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
-    "Saving of draft did not finish"
-  );
+  waitForSaveOperation(cwc);
   wait_for_window_focused(cwc.window);
 
   close_compose_window(cwc);

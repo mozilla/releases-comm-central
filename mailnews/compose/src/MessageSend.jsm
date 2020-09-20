@@ -228,10 +228,7 @@ MessageSend.prototype = {
   },
 
   get folderUri() {
-    throw Components.Exception(
-      "folderUri getter not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
+    return this._folderUri;
   },
 
   /**
@@ -295,7 +292,7 @@ MessageSend.prototype = {
    * deliverMode.
    */
   async _sendToMagicFolder() {
-    let folderUri = MsgUtils.getMsgFolderURIFromPrefs(
+    this._folderUri = MsgUtils.getMsgFolderURIFromPrefs(
       this._userIdentity,
       this._deliverMode
     );
@@ -303,7 +300,7 @@ MessageSend.prototype = {
       Ci.nsIMsgCopy
     );
     let copyFile = this._messageFile;
-    if (folderUri.startsWith("mailbox:")) {
+    if (this._folderUri.startsWith("mailbox:")) {
       let { path, file: fileWriter } = await OS.File.openUnique(
         OS.Path.join(OS.Constants.Path.tmpDir, "nscopy.eml")
       );
@@ -331,7 +328,7 @@ MessageSend.prototype = {
     }
     // Notify nsMsgCompose about the saved folder.
     if (this._sendListener) {
-      this._sendListener.onGetDraftFolderURI(folderUri);
+      this._sendListener.onGetDraftFolderURI(this._folderUri);
     }
     try {
       msgCopy.startCopyOperation(
@@ -339,7 +336,7 @@ MessageSend.prototype = {
         copyFile,
         this._deliverMode,
         this,
-        folderUri,
+        this._folderUri,
         this._msgToReplace
       );
     } catch (e) {

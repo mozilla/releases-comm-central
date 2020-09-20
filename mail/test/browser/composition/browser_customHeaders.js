@@ -42,7 +42,7 @@ add_task(async function test_customHeaders() {
   inputs[3].value = "<message-id-1234@tinderbox.com>";
 
   cwc.window.SaveAsDraft();
-  wait_for_window_focused(cwc.window);
+  waitForSaveOperation(cwc);
   close_compose_window(cwc);
 
   be_in_folder(draftsFolder);

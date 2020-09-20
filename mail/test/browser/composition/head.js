@@ -6,6 +6,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 registerCleanupFunction(() => {
   for (let book of MailServices.ab.directories) {
@@ -32,3 +33,10 @@ registerCleanupFunction(() => {
     }
   }
 });
+
+function waitForSaveOperation(cwc) {
+  utils.waitFor(
+    () => !cwc.window.gSaveOperationInProgress && !cwc.window.gWindowLock,
+    "Saving of draft did not finish"
+  );
+}
