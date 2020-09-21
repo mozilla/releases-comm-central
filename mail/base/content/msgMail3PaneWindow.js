@@ -914,9 +914,9 @@ function LoadPostAccountWizard() {
   //  faster if we let the event loop start doing things sooner.
 
   if (startMsgHdr) {
-    window.setTimeout(loadStartMsgHdr, 0, startMsgHdr);
+    Services.tm.dispatchToMainThread(() => loadStartMsgHdr(startMsgHdr));
   } else {
-    window.setTimeout(loadStartFolder, 0, startFolderURI);
+    Services.tm.dispatchToMainThread(() => loadStartFolder(startFolderURI));
   }
 
   setTimeout(reportAccountTypes, 0);
@@ -1070,7 +1070,7 @@ async function atStartupRestoreTabs(aDontRestoreFirstTab) {
   }
 
   // it's now safe to load extra Tabs.
-  setTimeout(loadExtraTabs, 0);
+  Services.tm.dispatchToMainThread(loadExtraTabs);
   SessionStoreManager._restored = true;
   Services.obs.notifyObservers(window, "mail-tabs-session-restored");
   return !!state;
