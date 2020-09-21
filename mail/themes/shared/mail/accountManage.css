@@ -296,10 +296,6 @@ treechildren::-moz-tree-image(folderNameCol, isServer-true, serverType-im) {
   background-color: transparent;
 }
 
-#archiveTree > treechildren {
-  background-color: -moz-Field;
-}
-
 /* ::::: dialog header ::::: */
 
 .dialogheader-title {

@@ -17,10 +17,6 @@ menulist > menupopup .menu-right {
   margin-inline: 0;
 }
 
-#archiveTree > treechildren {
-  background-color: #fff;
-}
-
 #accountActionsButton> .button-box > .button-menu-dropmarker {
   appearance: none;
   display: -moz-box;
