@@ -228,7 +228,6 @@ class nsNNTPProtocol : public nsMsgProtocol,
   // the nsINntpURL that is currently running
   nsCOMPtr<nsINntpUrl> m_runningURL;
   bool m_connectionBusy;
-  bool m_fromCache;  // is this connection from the cache?
   PRTime m_lastActiveTimeStamp;
   nsNewsAction m_newsAction;
   nsCOMPtr<nsISupports> m_consumer;

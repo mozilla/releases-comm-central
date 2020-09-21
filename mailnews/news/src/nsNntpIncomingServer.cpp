@@ -515,8 +515,8 @@ nsresult nsNntpIncomingServer::GetNntpConnection(
   }
 
   if (connection) {
+    // We've got a connection, ready to go.
     connection.forget(aNntpConnection);
-    (*aNntpConnection)->SetIsCachedConnection(true);
   } else if (cnt < maxConnections) {
     // We have room for another connection. Create this connection and return
     // it to the caller.

@@ -21,10 +21,9 @@ interface nsINNTPProtocol : nsISupports {
   void LoadNewsUrl(in nsIURI aUri, in nsISupports aConsumer);
   void Initialize(in nsIURI aURL, in nsIMsgWindow aMsgWindow);
 
-    // Get last active time stamp
-    void GetLastActiveTimeStamp(out PRTime aTimeStamp);
+  // Get last active time stamp
+  void GetLastActiveTimeStamp(out PRTime aTimeStamp);
 
-  attribute boolean isCachedConnection;
   readonly attribute nsIMsgFolder currentFolder;
 
   void CloseConnection();

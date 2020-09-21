@@ -273,7 +273,6 @@ nsNNTPProtocol::nsNNTPProtocol(nsINntpIncomingServer* aServer, nsIURI* aURL,
   }
 
   m_runningURL = nullptr;
-  m_fromCache = false;
   MOZ_LOG(NNTP, LogLevel::Info, ("(%p) creating", this));
   MOZ_LOG(NNTP, LogLevel::Info,
           ("(%p) initializing, so unset m_currentGroup", this));
@@ -433,17 +432,6 @@ NS_IMETHODIMP nsNNTPProtocol::SetIsBusy(bool aIsBusy) {
   // Maybe we could load another URI.
   if (!aIsBusy && m_nntpServer) m_nntpServer->PrepareForNextUrl(this);
 
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsNNTPProtocol::GetIsCachedConnection(bool* aIsCachedConnection) {
-  NS_ENSURE_ARG_POINTER(aIsCachedConnection);
-  *aIsCachedConnection = m_fromCache;
-  return NS_OK;
-}
-
-NS_IMETHODIMP nsNNTPProtocol::SetIsCachedConnection(bool aIsCachedConnection) {
-  m_fromCache = aIsCachedConnection;
   return NS_OK;
 }
 
