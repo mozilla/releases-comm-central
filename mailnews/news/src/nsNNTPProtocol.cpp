@@ -1977,6 +1977,11 @@ nsresult nsNNTPProtocol::BeginArticle() {
   return NS_OK;
 }
 
+/**
+ * Handler for NNTP_READ_ARTICLE state when being used as an nsIChannel
+ * (e.g. for displaying an article in a nsDocShell). The nsIChannel
+ * counterpart of ReadArticle().
+ */
 nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream* inputStream,
                                         uint32_t length) {
   uint32_t line_length = 0;
@@ -2034,6 +2039,11 @@ nsresult nsNNTPProtocol::DisplayArticle(nsIInputStream* inputStream,
   return NS_OK;
 }
 
+/**
+ * Handler for NNTP_READ_ARTICLE state.
+ * If we're running as an nsIChannel, defers handling to DisplayArticle()
+ * instead.
+ */
 nsresult nsNNTPProtocol::ReadArticle(nsIInputStream* inputStream,
                                      uint32_t length) {
   uint32_t status = 0;

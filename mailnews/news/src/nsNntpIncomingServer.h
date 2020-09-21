@@ -84,7 +84,11 @@ class nsNntpIncomingServer : public nsMsgIncomingServer,
   nsresult CreateProtocolInstance(nsINNTPProtocol** aNntpConnection,
                                   nsIURI* url, nsIMsgWindow* window);
   bool ConnectionTimeOut(nsINNTPProtocol* aNntpConnection);
+
+  // The pool of current connections (up to 'max_cached_connections').
   nsCOMArray<nsINNTPProtocol> mConnectionCache;
+
+  // Pending requests which couldn't immediately be handled by a connection.
   nsTArray<RefPtr<nsNntpMockChannel> > m_queuedChannels;
 
   /**

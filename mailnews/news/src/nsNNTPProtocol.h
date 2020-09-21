@@ -125,6 +125,16 @@ typedef enum _StatesEnum {
 
 class nsICacheEntry;
 
+/**
+ * nsNNTPProtocol handles an NNTP connection. It manages the socket
+ * communications and state machine for issuing NNTP commands and parsing the
+ * responses.
+ * For some operations it can also be used as a nsIChannel (for example, to
+ * directly feed an article out to a nsDocShell for display).
+ * It cooperates with nsNntpMockChannel. When a command is completed, it
+ * informs the nsNntpIncomingServer by calling PrepareForNextUrl(), which
+ * sets up the next queued nsNntpMockChannel.
+ */
 class nsNNTPProtocol : public nsMsgProtocol,
                        public nsINNTPProtocol,
                        public nsITimerCallback,
@@ -207,8 +217,11 @@ class nsNNTPProtocol : public nsMsgProtocol,
   nsCOMPtr<nsIMsgNewsFolder> m_newsFolder;
   nsCOMPtr<nsIMsgWindow> m_msgWindow;
 
+  // Pipe endpoints when nsNNTPProtocol is being used as an nsIChannel.
+  // Used to stream article data onward to the consumer (in m_channelListener).
   nsCOMPtr<nsIAsyncInputStream> mDisplayInputStream;
   nsCOMPtr<nsIAsyncOutputStream> mDisplayOutputStream;
+
   RefPtr<nsMsgLineStreamBuffer>
       m_lineStreamBuffer;  // used to efficiently extract lines from the
                            // incoming data stream

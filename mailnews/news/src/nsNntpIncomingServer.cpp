@@ -485,6 +485,11 @@ nsresult nsNntpIncomingServer::CreateProtocolInstance(
   return rv;
 }
 
+/**
+ * Find an available nsNNTPConnection. Can create new connections as long as
+ * we stay under the maximum connection limit.
+ * If none are available, returns NS_OK and nullptr.
+ */
 nsresult nsNntpIncomingServer::GetNntpConnection(
     nsIURI* aUri, nsIMsgWindow* aMsgWindow, nsINNTPProtocol** aNntpConnection) {
   int32_t maxConnections;
@@ -528,6 +533,11 @@ nsresult nsNntpIncomingServer::GetNntpConnection(
   return (*aNntpConnection)->Initialize(aUri, aMsgWindow);
 }
 
+/**
+ * Returns an nsIChannel to run the given URI.
+ * The returned channel might be either an nsNNTPProtocol or nsNntpMockChannel,
+ * representing a real connection or a queued command, respectively.
+ */
 NS_IMETHODIMP
 nsNntpIncomingServer::GetNntpChannel(nsIURI* aURI, nsIMsgWindow* aMsgWindow,
                                      nsIChannel** aChannel) {
@@ -547,6 +557,10 @@ nsNntpIncomingServer::GetNntpChannel(nsIURI* aURI, nsIMsgWindow* aMsgWindow,
   return NS_OK;
 }
 
+/**
+ * Submits a news URI to run. If no connections are free, the command will
+ * be queued to run when one becomes available.
+ */
 NS_IMETHODIMP
 nsNntpIncomingServer::LoadNewsUrl(nsIURI* aURI, nsIMsgWindow* aMsgWindow,
                                   nsISupports* aConsumer) {
@@ -578,6 +592,10 @@ nsNntpIncomingServer::LoadNewsUrl(nsIURI* aURI, nsIMsgWindow* aMsgWindow,
   return NS_OK;
 }
 
+/**
+ * Called when an nsNNTPProtocol finishes running a command and is ready to be
+ * assigned a new one.
+ */
 NS_IMETHODIMP
 nsNntpIncomingServer::PrepareForNextUrl(nsNNTPProtocol* aConnection) {
   NS_ENSURE_ARG(aConnection);

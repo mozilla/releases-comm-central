@@ -12,17 +12,21 @@
 #include "nsIInputStream.h"
 #include "nsContentSecurityManager.h"
 
-NS_IMPL_ISUPPORTS_INHERITED(nsNntpMockChannel, nsHashPropertyBag, nsIChannel, nsIRequest)
+NS_IMPL_ISUPPORTS_INHERITED(nsNntpMockChannel, nsHashPropertyBag, nsIChannel,
+                            nsIRequest)
 
+// For use as an nsIChannel.
 nsNntpMockChannel::nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow)
     : m_url(aUri),
       m_msgWindow(aMsgWindow),
+      // We'll be expecting the recipient to open us (via AsyncOpen()).
       m_channelState(CHANNEL_UNOPENED),
       m_protocol(nullptr),
       m_cancelStatus(NS_OK),
       m_loadFlags(0),
       m_contentLength(-1) {}
 
+// For LoadUrl() use.
 nsNntpMockChannel::nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow,
                                      nsISupports* aConsumer)
     : m_url(aUri),
@@ -282,6 +286,10 @@ NS_IMETHODIMP nsNntpMockChannel::AsyncOpen(nsIStreamListener* aListener) {
   return NS_OK;
 }
 
+/**
+ * The nsNntpIncomingServer calls this when a real connection (nsNNTPProtocol)
+ * becomes available.
+ */
 nsresult nsNntpMockChannel::AttachNNTPConnection(nsNNTPProtocol& protocol) {
   // First things first. Were we canceled? If so, tell the protocol.
   if (m_channelState == CHANNEL_CLOSED || m_channelState == CHANNEL_UNOPENED)

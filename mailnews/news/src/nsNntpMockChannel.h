@@ -15,14 +15,35 @@
 
 class nsNNTPProtocol;
 
-class nsNntpMockChannel : public nsIChannel,
-                          public nsHashPropertyBag {
+/**
+ * nsNntpMockChannel is used to queue up NNTP operations when no connection
+ * is available for immediate use.
+ * It handles two distinct types of queued operation:
+ * 1) non nsIChannel-based commands, issued via nsNNTPProtocol::LoadNewsUrl().
+ * 2) nsIChannel operations. These are a little trickier, as the recipient
+ *    expects the nsNntpMockChannel to follow the standard lifecycle of a
+ *    nsIChannel, even though the bulk of the work is being passed over
+ *    to a persistent, reusable nsNNTPProtocol object. So there is a degree
+ *    of faking OnStartRequest/OnStopRequest nsIStreamListener callbacks to
+ *    make this nsNntpMockChannel/nsNNTPProtocol amalgam act like a normal
+ *    nsIChannel.
+ *
+ *  The different uses are determined by which constructor is used.
+ */
+class nsNntpMockChannel : public nsIChannel, public nsHashPropertyBag {
  public:
   NS_DECL_ISUPPORTS_INHERITED
   NS_DECL_NSICHANNEL
   NS_DECL_NSIREQUEST
 
+  /**
+   * Create a mockchannel for use as a nsIChannel.
+   */
   nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow);
+
+  /**
+   * Create a mockchannel for deferred LoadUrl() use.
+   */
   nsNntpMockChannel(nsIURI* aUri, nsIMsgWindow* aMsgWindow,
                     nsISupports* aConsumer);
 
