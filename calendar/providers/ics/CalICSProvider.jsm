@@ -57,7 +57,8 @@ var CalICSProvider = {
 
     for (let method of [
       "attemptDAVLocation",
-      "attemptLocation",
+      "attemptHead",
+      "attemptGet",
       "attemptPut",
       "attemptLocalFile",
     ]) {
@@ -262,23 +263,35 @@ class ICSDetector {
 
   /**
    * Attempt to detect calendars at the given location using a CalDAV generic
-   * request and "HEAD".
+   * request and a method like "HEAD" or "GET".
    *
+   * @param {string} method                     The request method to use, e.g. "GET" or "HEAD".
    * @param {nsIURI} location                   The location to attempt.
    * @return {Promise<calICalendar[] | null>}   An array of calendars or null.
    */
-  async attemptLocation(location) {
-    let request = new CalDavGenericRequest(this.session, null, "HEAD", location);
+  async _attemptMethod(method, location) {
+    let request = new CalDavGenericRequest(this.session, null, method, location);
 
     // `request.commit()` can throw; errors should be caught by calling functions.
     let response = await request.commit();
-    let target = response.uri;
 
-    if (response.ok && response.getHeader("Content-Type") == "text/calendar") {
-      cal.LOG(`[calICSProvider] ${target.spec} has content type text/calendar`);
+    // The content type may be e.g. "text/calendar; charset=UTF-8" so use 'string.includes'.
+    if (response.ok && response.getHeader("Content-Type").includes("text/calendar")) {
+      let target = response.uri;
+      cal.LOG(
+        `[calICSProvider] ${target.spec} has content type text/calendar (via ${method} request)`
+      );
       return [this.handleCalendar(target)];
     }
     return null;
+  }
+
+  get attemptHead() {
+    return this._attemptMethod.bind(this, "HEAD");
+  }
+
+  get attemptGet() {
+    return this._attemptMethod.bind(this, "GET");
   }
 
   /**
