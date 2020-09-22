@@ -326,18 +326,8 @@ appUpdater.prototype = {
         return;
       }
 
-      if (!gAppUpdater.promiseAutoUpdateSetting) {
-        gAppUpdater.promiseAutoUpdateSetting = UpdateUtils.getAppUpdateAutoEnabled();
-      }
-      gAppUpdater.promiseAutoUpdateSetting.then(updateAuto => {
-        if (updateAuto) {
-          // automatically download and install
-          gAppUpdater.startDownload();
-        } else {
-          // ask
-          gAppUpdater.selectPanel("downloadAndInstall");
-        }
-      });
+      // when called from About dialog or preferences tab always ask!
+      gAppUpdater.selectPanel("downloadAndInstall");
     },
 
     /**
