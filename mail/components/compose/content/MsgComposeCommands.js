@@ -7913,9 +7913,7 @@ function SetFocusOnPreviousAvailableElement(element) {
 
     // If the last available address-row child is not hidden, grab the focus.
     if (!element.classList.contains("hidden")) {
-      element
-        .querySelector(`input[is="autocomplete-input"][recipienttype]`)
-        .focus();
+      element.querySelector(".address-input[recipienttype]").focus();
       return;
     }
   }
@@ -7925,9 +7923,7 @@ function SetFocusOnPreviousAvailableElement(element) {
   let previousRow = element.closest(".address-row").previousElementSibling;
   while (previousRow) {
     if (!previousRow.classList.contains("hidden")) {
-      previousRow
-        .querySelector(`input[is="autocomplete-input"][recipienttype]`)
-        .focus();
+      previousRow.querySelector(".address-input[recipienttype]").focus();
       return;
     }
     previousRow = previousRow.previousElementSibling;
@@ -7949,9 +7945,7 @@ function SetFocusOnNextAvailableElement(element) {
   let nextRow = element.closest(".address-row").nextElementSibling;
   while (nextRow) {
     if (!nextRow.classList.contains("hidden")) {
-      nextRow
-        .querySelector(`input[is="autocomplete-input"][recipienttype]`)
-        .focus();
+      nextRow.querySelector(".address-input[recipienttype]").focus();
       return;
     }
     nextRow = nextRow.nextElementSibling;

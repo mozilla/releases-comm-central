@@ -536,7 +536,60 @@ function getLoadContext() {
 }
 
 /**
+ * Handle keydown events for other header input fields in the compose window.
+ * Only applies to rows created from mail.compose.other.header pref; no pills.
+ * Keep behaviour in sync with addressInputOnBeforeHandleKeyDown().
+ *
+ * @param {Event} event - The DOM keydown event.
+ */
+function otherHeaderInputOnKeyDown(event) {
+  let input = event.target;
+
+  switch (event.key) {
+    case " ":
+      // If the existing input value is empty string or whitespace only,
+      // prevent entering space and clear whitespace-only input text.
+      if (!input.value.trim()) {
+        event.preventDefault();
+        input.value = "";
+      }
+      break;
+    case "Enter":
+      // Move focus to the next available element,
+      // but not for Ctrl/Cmd+[Shift]+Enter keyboard shortcuts for sending.
+      if (!event.ctrlKey && !event.metaKey) {
+        // Prevent Enter from firing again on the element we move the focus to.
+        event.preventDefault();
+        SetFocusOnNextAvailableElement(input);
+      }
+      break;
+    case "Backspace":
+    case "Delete":
+      if (
+        event.repeat ||
+        input.value.trim() ||
+        input.selectionStart + input.selectionEnd ||
+        input
+          .closest(".address-row")
+          .querySelector(".aw-firstColBox > label[collapsed]")
+      ) {
+        // Interrupt if repeated keydown from deleting text, input still has
+        // text, or cursor selection is not at position 0 while deleting
+        // whitespace, to allow regular text deletion before we remove the row.
+        // Also interrupt for non-removable rows with collapsed [x] button.
+        break;
+      }
+      // If "Backspace" or "Delete" was explicitly pressed on an empty row,
+      // hide it and focus previous or next row respectively.
+      hideAddressRow(input, event.key == "Backspace" ? "previous" : "next");
+      break;
+  }
+}
+
+/**
  * Handle keydown events for autocomplete address inputs in the compose window.
+ * Does not apply to rows created from mail.compose.other.header pref, which are
+ * handled with a subset of this function in otherHeaderInputOnKeyDown().
  *
  * @param {Event} event - The DOM keydown event.
  */
@@ -559,9 +612,11 @@ function addressInputOnBeforeHandleKeyDown(event) {
       break;
 
     case " ":
-      // Prevent the typing of a blank space as a first character.
+      // If the existing input value is empty string or whitespace only,
+      // prevent entering space and clear whitespace-only input text.
       if (!input.value.trim()) {
         event.preventDefault();
+        input.value = "";
       }
       break;
 
@@ -645,8 +700,8 @@ function addressInputOnBeforeHandleKeyDown(event) {
 
     case "Enter":
       // If no address entered, move focus to the next available element,
-      // but not for Ctrl+[Shift]+Enter keyboard shortcuts for sending.
-      if (!input.value.trim() && !event.ctrlKey) {
+      // but not for Ctrl/Cmd+[Shift]+Enter keyboard shortcuts for sending.
+      if (!input.value.trim() && !event.ctrlKey && !event.metaKey) {
         // Prevent Enter from firing again on the element we move the focus to.
         event.preventDefault();
         SetFocusOnNextAvailableElement(input);
