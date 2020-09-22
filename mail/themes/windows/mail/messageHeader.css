@@ -187,16 +187,13 @@ mail-headerfield.headerValue:focus {
 }
 
 @media (-moz-windows-default-theme: 0) {
-  .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
-  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-    appearance: auto;
-    -moz-default-appearance: button;
-    padding-block: 1px !important;
+  :root:not(:-moz-lwtheme) .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]),
+  :root:not(:-moz-lwtheme) .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
+  :root:not(:-moz-lwtheme) .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
     box-shadow: none !important;
   }
 
-  .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
+  :root:not(:-moz-lwtheme) .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
     padding-inline: 3px !important;
   }
 }

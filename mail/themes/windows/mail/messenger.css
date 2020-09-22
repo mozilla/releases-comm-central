@@ -153,6 +153,53 @@ toolbar[brighttext] {
   --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
 }
 
+@media (-moz-os-version: windows-win10) and (-moz-windows-default-theme: 0) {
+  :root {
+    --tabs-border-color: ThreeDShadow;
+    --tabline-color: Highlight;
+  }
+
+  :root:not(:-moz-lwtheme) .toolbar,
+  :root:not(:-moz-lwtheme) .contentTabToolbox,
+  :root:not(:-moz-lwtheme) #header-view-toolbar,
+  :root:not(:-moz-lwtheme) #ab-toolbox > toolbar,
+  :root:not(:-moz-lwtheme) .mail-toolbox > toolbar,
+  :root:not(:-moz-lwtheme) #event-toolbox > toolbar,
+  :root:not(:-moz-lwtheme) #compose-toolbox > toolbar,
+  :root:not(:-moz-lwtheme) #navigation-toolbox > toolbar,
+  :root:not(:-moz-lwtheme) .otr-container,
+  :root:not(:-moz-lwtheme) .crypto-button,
+  :root:not(:-moz-lwtheme) .calendar-list-create,
+  :root:not(:-moz-lwtheme) #CardViewBox,
+  :root:not(:-moz-lwtheme) #searchTerms {
+    --toolbarbutton-hover-background: Highlight;
+    --toolbarbutton-hover-bordercolor: HighlightText !important;
+
+    --toolbarbutton-active-background: Highlight;
+    --toolbarbutton-active-bordercolor: HighlightText;
+
+    --toolbarbutton-checkedhover-backgroundcolor: Highlight;
+    --toolbarbutton-icon-fill-attention: Highlight;
+  }
+
+  :root:not(:-moz-lwtheme) .toolbarbutton-1:not(.qfb-tag-button):hover,
+  :root:not(:-moz-lwtheme) .toolbarbutton-1[checked="true"],
+  :root:not(:-moz-lwtheme) .toolbarbutton-menubutton-button:hover {
+    color: HighlightText !important;
+  }
+
+  :root:not(:-moz-lwtheme)
+  treechildren::-moz-tree-image(folderNameCol, newMessages-true),
+  :root:not(:-moz-lwtheme)
+  treechildren::-moz-tree-cell-text(folderNameCol, isServer-true, biffState-NewMail),
+  :root:not(:-moz-lwtheme)
+  treechildren::-moz-tree-cell-text(folderNameCol, newMessages-true),
+  :root:not(:-moz-lwtheme)
+  treechildren::-moz-tree-cell-text(folderNameCol, specialFolder-Inbox, newMessages-true) {
+    color: Highlight !important;
+  }
+}
+
 .menu-iconic > .menu-iconic-left,
 .menuitem-iconic > .menu-iconic-left {
   display: -moz-box;
@@ -320,7 +367,7 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
 }
 
 treechildren::-moz-tree-row {
-  min-height: 18px;
+  min-height: 1.8em;
 }
 
 treechildren::-moz-tree-row(multicol, odd) {
@@ -341,10 +388,6 @@ treechildren::-moz-tree-cell-text {
 }
 
 @media (-moz-windows-default-theme: 0) {
-  :root:not(:-moz-lwtheme) treechildren::-moz-tree-row {
-    height: 1.8em;
-  }
-
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(hover),
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(dropOn),
   :root:not(:-moz-lwtheme) treechildren::-moz-tree-row(selected) {
@@ -390,7 +433,6 @@ treechildren::-moz-tree-indentation {
   }
 
   treechildren::-moz-tree-row {
-    height: 1.8em;
     color: -moz-FieldText;
     margin-inline-start: 1px;
     margin-inline-end: 1px;

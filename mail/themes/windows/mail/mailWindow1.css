@@ -513,6 +513,20 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   appearance: none;
 }
 
+@media (-moz-windows-default-theme: 0) {
+  :root:not(:-moz-lwtheme)
+    treechildren::-moz-tree-cell-text(untagged, unread) {
+    color: -moz-cellhighlighttext !important;
+  }
+
+  :root:not(:-moz-lwtheme)
+    treechildren::-moz-tree-cell-text(untagged, unread, hover),
+  :root:not(:-moz-lwtheme)
+    treechildren::-moz-tree-cell-text(selected, untagged, unread) {
+    color: HighlightText !important;
+  }
+}
+
 @media (-moz-windows-default-theme) {
   menulist,
   menulist[disabled="true"] {

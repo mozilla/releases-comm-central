@@ -51,8 +51,9 @@
 }
 
 @media (-moz-windows-default-theme: 0) {
-  .searchBox:not(:-moz-lwtheme):not([focused="true"]),
-  .themeableSearchBox:not(:-moz-lwtheme):not([focused="true"]) {
+  .gloda-search:not(:-moz-lwtheme),
+  .searchBox:not(:-moz-lwtheme),
+  .themeableSearchBox:not(:-moz-lwtheme) {
     border-color: ThreeDShadow;
   }
 }
