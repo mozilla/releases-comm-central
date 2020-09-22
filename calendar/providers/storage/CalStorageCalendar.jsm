@@ -1004,17 +1004,19 @@ CalStorageCalendar.prototype = {
       this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
 
       this.mSelectEvent = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_events " +
-          "WHERE id = :id AND cal_id = :cal_id " +
-          " AND recurrence_id IS NULL " +
-          "LIMIT 1"
+        `SELECT * FROM cal_events
+          WHERE id = :id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL
+          LIMIT 1`
       );
 
       this.mSelectTodo = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_todos " +
-          "WHERE id = :id AND cal_id = :cal_id " +
-          " AND recurrence_id IS NULL " +
-          "LIMIT 1"
+        `SELECT * FROM cal_todos
+          WHERE id = :id 
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL
+          LIMIT 1`
       );
 
       // The more readable version of the next where-clause is:
@@ -1030,42 +1032,24 @@ CalStorageCalendar.prototype = {
       let nonFloatingEventStart = "event_start_tz != 'floating' AND event_start";
       let floatingEventEnd = "event_end_tz = 'floating' AND event_end";
       let nonFloatingEventEnd = "event_end_tz != 'floating' AND event_end";
-      // The query needs to take both floating and non floating into account
+      // The query needs to take both floating and non floating into account.
       this.mSelectNonRecurringEventsByRange = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_events " +
-          "WHERE " +
-          " ((" +
-          floatingEventEnd +
-          " > :range_start + :start_offset) OR " +
-          "  (" +
-          nonFloatingEventEnd +
-          " > :range_start) OR " +
-          "  (((" +
-          floatingEventEnd +
-          " = :range_start + :start_offset) OR " +
-          "    (" +
-          nonFloatingEventEnd +
-          " = :range_start)) AND " +
-          "   ((" +
-          floatingEventStart +
-          " = :range_start + :start_offset) OR " +
-          "    (" +
-          nonFloatingEventStart +
-          " = :range_start)))) " +
-          " AND " +
-          "  ((" +
-          floatingEventStart +
-          " < :range_end + :end_offset) OR " +
-          "   (" +
-          nonFloatingEventStart +
-          " < :range_end)) " +
-          " AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL" +
-          " AND ((:offline_journal IS NULL " +
-          " AND  (offline_journal IS NULL " +
-          "  OR   offline_journal != " +
-          cICL.OFFLINE_FLAG_DELETED_RECORD +
-          ")) " +
-          "  OR (offline_journal == :offline_journal))"
+        `SELECT * FROM cal_events 
+         WHERE
+          ((${floatingEventEnd} > :range_start + :start_offset) OR 
+           (${nonFloatingEventEnd} > :range_start) OR
+           (((${floatingEventEnd} = :range_start + :start_offset) OR
+             (${nonFloatingEventEnd} = :range_start)) AND
+            ((${floatingEventStart} = :range_start + :start_offset) OR
+             (${nonFloatingEventStart} = :range_start)))) 
+          AND
+           ((${floatingEventStart} < :range_end + :end_offset) OR
+            (${nonFloatingEventStart} < :range_end))
+          AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL
+          AND ((:offline_journal IS NULL
+          AND  (offline_journal IS NULL
+           OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
+           OR (offline_journal == :offline_journal))`
       );
 
       //
@@ -1082,271 +1066,266 @@ CalStorageCalendar.prototype = {
       let nonFloatingCompleted = "todo_completed_tz != 'floating' AND todo_completed";
 
       this.mSelectNonRecurringTodosByRange = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_todos " +
-          "WHERE " +
-          "((((" +
-          floatingTodoDue +
-          " > :range_start + :start_offset) OR " +
-          "   (" +
-          nonFloatingTodoDue +
-          " > :range_start)) AND " +
-          "  ((todo_entry IS NULL) OR " +
-          "   ((" +
-          floatingTodoEntry +
-          " < :range_end + :end_offset) OR " +
-          "    (" +
-          nonFloatingTodoEntry +
-          " < :range_end)))) OR " +
-          " (((" +
-          floatingTodoDue +
-          " = :range_start + :start_offset) OR " +
-          "   (" +
-          nonFloatingTodoDue +
-          " = :range_start)) AND " +
-          "  ((todo_entry IS NULL) OR " +
-          "   ((" +
-          floatingTodoEntry +
-          " = :range_start + :start_offset) OR " +
-          "    (" +
-          nonFloatingTodoEntry +
-          " = :range_start)))) OR " +
-          " ((todo_due IS NULL) AND " +
-          "  (((" +
-          floatingTodoEntry +
-          " >= :range_start + :start_offset) OR " +
-          "    (" +
-          nonFloatingTodoEntry +
-          " >= :range_start)) AND " +
-          "   ((" +
-          floatingTodoEntry +
-          " < :range_end + :end_offset) OR " +
-          "    (" +
-          nonFloatingTodoEntry +
-          " < :range_end)))) OR " +
-          " ((todo_entry IS NULL) AND " +
-          "  (((" +
-          floatingCompleted +
-          " > :range_start + :start_offset) OR " +
-          "    (" +
-          nonFloatingCompleted +
-          " > :range_start)) OR " +
-          "   (todo_completed IS NULL)))) " +
-          " AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL " +
-          " AND ((:offline_journal IS NULL" +
-          " AND  (offline_journal IS NULL" +
-          "  OR   offline_journal != " +
-          cICL.OFFLINE_FLAG_DELETED_RECORD +
-          ")) " +
-          "  OR (offline_journal == :offline_journal))"
+        `SELECT * FROM cal_todos
+         WHERE
+          ((((${floatingTodoDue} > :range_start + :start_offset) OR
+             (${nonFloatingTodoDue} > :range_start)) AND
+            ((todo_entry IS NULL) OR
+             ((${floatingTodoEntry} < :range_end + :end_offset) OR
+              (${nonFloatingTodoEntry} < :range_end)))) OR
+           (((${floatingTodoDue} = :range_start + :start_offset) OR
+             (${nonFloatingTodoDue} = :range_start)) AND
+            ((todo_entry IS NULL) OR
+             ((${floatingTodoEntry} = :range_start + :start_offset) OR
+              (${nonFloatingTodoEntry} = :range_start)))) OR
+           ((todo_due IS NULL) AND
+            (((${floatingTodoEntry} >= :range_start + :start_offset) OR
+              (${nonFloatingTodoEntry} >= :range_start)) AND
+             ((${floatingTodoEntry} < :range_end + :end_offset) OR
+              (${nonFloatingTodoEntry} < :range_end)))) OR
+           ((todo_entry IS NULL) AND
+            (((${floatingCompleted} > :range_start + :start_offset) OR
+              (${nonFloatingCompleted} > :range_start)) OR
+             (todo_completed IS NULL))))
+          AND cal_id = :cal_id AND flags & 16 == 0 AND recurrence_id IS NULL
+          AND ((:offline_journal IS NULL
+          AND  (offline_journal IS NULL
+           OR   offline_journal != ${cICL.OFFLINE_FLAG_DELETED_RECORD}))
+           OR (offline_journal == :offline_journal))`
       );
 
       this.mSelectEventsWithRecurrence = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_events " +
-          " WHERE flags & 16 == 16 " +
-          "   AND cal_id = :cal_id AND recurrence_id is NULL"
+        `SELECT * FROM cal_events
+          WHERE flags & 16 == 16
+            AND cal_id = :cal_id 
+            AND recurrence_id is NULL`
       );
 
       this.mSelectTodosWithRecurrence = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_todos " +
-          " WHERE flags & 16 == 16 " +
-          "   AND cal_id = :cal_id AND recurrence_id IS NULL"
+        `SELECT * FROM cal_todos
+          WHERE flags & 16 == 16
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       this.mSelectEventExceptions = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_events " +
-          "WHERE id = :id AND cal_id = :cal_id" +
-          " AND recurrence_id IS NOT NULL"
+        `SELECT * FROM cal_events
+          WHERE id = :id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NOT NULL`
       );
       this.mSelectAllEventExceptions = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_events WHERE cal_id = :cal_id AND recurrence_id IS NOT NULL"
+        `SELECT * FROM cal_events
+          WHERE cal_id = :cal_id
+            AND recurrence_id IS NOT NULL`
       );
 
       this.mSelectTodoExceptions = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_todos " +
-          "WHERE id = :id AND cal_id = :cal_id" +
-          " AND recurrence_id IS NOT NULL"
+        `SELECT * FROM cal_todos
+          WHERE id = :id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NOT NULL`
       );
       this.mSelectAllTodoExceptions = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_todos WHERE cal_id = :cal_id AND recurrence_id IS NOT NULL"
+        `SELECT * FROM cal_todos 
+          WHERE cal_id = :cal_id
+            AND recurrence_id IS NOT NULL`
       );
 
       this.mSelectAttendeesForItem = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_attendees " +
-          "WHERE item_id = :item_id AND cal_id = :cal_id" +
-          " AND recurrence_id IS NULL"
+        `SELECT * FROM cal_attendees
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       this.mSelectAttendeesForItemWithRecurrenceId = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_attendees " +
-          "WHERE item_id = :item_id AND cal_id = :cal_id" +
-          " AND recurrence_id = :recurrence_id" +
-          " AND recurrence_id_tz = :recurrence_id_tz"
+        `SELECT * FROM cal_attendees
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id = :recurrence_id
+            AND recurrence_id_tz = :recurrence_id_tz`
       );
       this.mSelectAllAttendees = this.mDB.createAsyncStatement(
-        "SELECT item_id, icalString FROM cal_attendees " +
-          "WHERE cal_id = :cal_id" +
-          " AND recurrence_id IS NULL"
+        `SELECT item_id, icalString FROM cal_attendees
+          WHERE cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       this.mSelectPropertiesForItem = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_properties" +
-          " WHERE item_id = :item_id" +
-          "   AND cal_id = :cal_id" +
-          "   AND recurrence_id IS NULL"
+        `SELECT * FROM cal_properties
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       this.mSelectPropertiesForItemWithRecurrenceId = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_properties " +
-          "WHERE item_id = :item_id AND cal_id = :cal_id" +
-          "  AND recurrence_id = :recurrence_id" +
-          "  AND recurrence_id_tz = :recurrence_id_tz"
+        `SELECT * FROM cal_properties
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id = :recurrence_id
+            AND recurrence_id_tz = :recurrence_id_tz`
       );
       this.mSelectAllProperties = this.mDB.createAsyncStatement(
-        "SELECT item_id, key, value FROM cal_properties" +
-          " WHERE cal_id = :cal_id" +
-          "   AND recurrence_id IS NULL"
+        `SELECT item_id, key, value FROM cal_properties
+          WHERE cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       this.mSelectRecurrenceForItem = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_recurrence WHERE item_id = :item_id AND cal_id = :cal_id"
+        `SELECT * FROM cal_recurrence
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id`
       );
       this.mSelectAllRecurrences = this.mDB.createAsyncStatement(
-        "SELECT item_id, icalString FROM cal_recurrence WHERE cal_id = :cal_id"
+        `SELECT item_id, icalString FROM cal_recurrence
+          WHERE cal_id = :cal_id`
       );
 
       this.mSelectAttachmentsForItem = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_attachments " +
-          "WHERE item_id = :item_id AND cal_id = :cal_id" +
-          " AND recurrence_id IS NULL"
+        `SELECT * FROM cal_attachments
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
       this.mSelectAttachmentsForItemWithRecurrenceId = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_attachments" +
-          " WHERE item_id = :item_id AND cal_id = :cal_id" +
-          " AND recurrence_id = :recurrence_id" +
-          " AND recurrence_id_tz = :recurrence_id_tz"
+        `SELECT * FROM cal_attachments
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id = :recurrence_id
+            AND recurrence_id_tz = :recurrence_id_tz`
       );
       this.mSelectAllAttachments = this.mDB.createAsyncStatement(
-        "SELECT item_id, icalString FROM cal_attachments " +
-          "WHERE cal_id = :cal_id" +
-          " AND recurrence_id IS NULL"
+        `SELECT item_id, icalString FROM cal_attachments
+          WHERE cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       this.mSelectRelationsForItem = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_relations " +
-          "WHERE item_id = :item_id AND cal_id = :cal_id" +
-          " AND recurrence_id IS NULL"
+        `SELECT * FROM cal_relations
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
       this.mSelectRelationsForItemWithRecurrenceId = this.mDB.createAsyncStatement(
-        "SELECT * FROM cal_relations" +
-          " WHERE item_id = :item_id AND cal_id = :cal_id" +
-          " AND recurrence_id = :recurrence_id" +
-          " AND recurrence_id_tz = :recurrence_id_tz"
+        `SELECT * FROM cal_relations
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id = :recurrence_id
+            AND recurrence_id_tz = :recurrence_id_tz`
       );
       this.mSelectAllRelations = this.mDB.createAsyncStatement(
-        "SELECT item_id, icalString FROM cal_relations " +
-          "WHERE cal_id = :cal_id" +
-          " AND recurrence_id IS NULL"
+        `SELECT item_id, icalString FROM cal_relations
+          WHERE cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       this.mSelectMetaData = this.mDB.createStatement(
-        "SELECT * FROM cal_metadata WHERE item_id = :item_id AND cal_id = :cal_id"
+        `SELECT * FROM cal_metadata
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id`
       );
 
       this.mSelectAllMetaData = this.mDB.createStatement(
-        "SELECT * FROM cal_metadata WHERE cal_id = :cal_id"
+        `SELECT * FROM cal_metadata
+          WHERE cal_id = :cal_id`
       );
 
       this.mSelectAlarmsForItem = this.mDB.createAsyncStatement(
-        "SELECT icalString FROM cal_alarms" +
-          " WHERE item_id = :item_id AND cal_id = :cal_id" +
-          " AND recurrence_id IS NULL"
+        `SELECT icalString FROM cal_alarms
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       this.mSelectAlarmsForItemWithRecurrenceId = this.mDB.createAsyncStatement(
-        "SELECT icalString FROM cal_alarms" +
-          " WHERE item_id = :item_id AND cal_id = :cal_id" +
-          " AND recurrence_id = :recurrence_id" +
-          " AND recurrence_id_tz = :recurrence_id_tz"
+        `SELECT icalString FROM cal_alarms
+          WHERE item_id = :item_id
+            AND cal_id = :cal_id
+            AND recurrence_id = :recurrence_id
+            AND recurrence_id_tz = :recurrence_id_tz`
       );
       this.mSelectAllAlarms = this.mDB.createAsyncStatement(
-        "SELECT item_id, icalString FROM cal_alarms" +
-          " WHERE cal_id = :cal_id" +
-          " AND recurrence_id IS NULL"
+        `SELECT item_id, icalString FROM cal_alarms
+          WHERE cal_id = :cal_id
+            AND recurrence_id IS NULL`
       );
 
       // insert statements
       this.mInsertEvent = this.mDB.createAsyncStatement(
-        "INSERT INTO cal_events " +
-          "  (cal_id, id, time_created, last_modified, " +
-          "   title, priority, privacy, ical_status, flags, " +
-          "   event_start, event_start_tz, event_end, event_end_tz, event_stamp, " +
-          "   recurrence_id, recurrence_id_tz, alarm_last_ack) " +
-          "VALUES (:cal_id, :id, :time_created, :last_modified, " +
-          "        :title, :priority, :privacy, :ical_status, :flags, " +
-          "        :event_start, :event_start_tz, :event_end, :event_end_tz, :event_stamp, " +
-          "        :recurrence_id, :recurrence_id_tz, :alarm_last_ack)"
+        `INSERT INTO cal_events
+           (cal_id, id, time_created, last_modified,
+            title, priority, privacy, ical_status, flags,
+            event_start, event_start_tz, event_end, event_end_tz, event_stamp,
+            recurrence_id, recurrence_id_tz, alarm_last_ack)
+         VALUES (:cal_id, :id, :time_created, :last_modified,
+                 :title, :priority, :privacy, :ical_status, :flags,
+                 :event_start, :event_start_tz, :event_end, :event_end_tz, :event_stamp,
+                 :recurrence_id, :recurrence_id_tz, :alarm_last_ack)`
       );
 
       this.mInsertTodo = this.mDB.createAsyncStatement(
-        "INSERT INTO cal_todos " +
-          "  (cal_id, id, time_created, last_modified, " +
-          "   title, priority, privacy, ical_status, flags, " +
-          "   todo_entry, todo_entry_tz, todo_due, todo_due_tz, todo_stamp, " +
-          "   todo_completed, todo_completed_tz, todo_complete, " +
-          "   recurrence_id, recurrence_id_tz, alarm_last_ack)" +
-          "VALUES (:cal_id, :id, :time_created, :last_modified, " +
-          "        :title, :priority, :privacy, :ical_status, :flags, " +
-          "        :todo_entry, :todo_entry_tz, :todo_due, :todo_due_tz, :todo_stamp, " +
-          "        :todo_completed, :todo_completed_tz, :todo_complete, " +
-          "        :recurrence_id, :recurrence_id_tz, :alarm_last_ack)"
+        `INSERT INTO cal_todos
+           (cal_id, id, time_created, last_modified,
+            title, priority, privacy, ical_status, flags,
+            todo_entry, todo_entry_tz, todo_due, todo_due_tz, todo_stamp,
+            todo_completed, todo_completed_tz, todo_complete,
+            recurrence_id, recurrence_id_tz, alarm_last_ack)
+         VALUES (:cal_id, :id, :time_created, :last_modified,
+                 :title, :priority, :privacy, :ical_status, :flags,
+                 :todo_entry, :todo_entry_tz, :todo_due, :todo_due_tz, :todo_stamp,
+                 :todo_completed, :todo_completed_tz, :todo_complete,
+                 :recurrence_id, :recurrence_id_tz, :alarm_last_ack)`
       );
       this.mInsertProperty = this.mDB.createAsyncStatement(
-        "INSERT INTO cal_properties (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value) " +
-          "VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value)"
+        `INSERT INTO cal_properties (cal_id, item_id, recurrence_id, recurrence_id_tz, key, value)
+         VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :key, :value)`
       );
       this.mInsertAttendee = this.mDB.createAsyncStatement(
-        "INSERT INTO cal_attendees " +
-          "  (cal_id, item_id, recurrence_id, recurrence_id_tz, icalString) " +
-          "VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :icalString)"
+        `INSERT INTO cal_attendees
+           (cal_id, item_id, recurrence_id, recurrence_id_tz, icalString)
+         VALUES (:cal_id, :item_id, :recurrence_id, :recurrence_id_tz, :icalString)`
       );
       this.mInsertRecurrence = this.mDB.createAsyncStatement(
-        "INSERT INTO cal_recurrence " +
-          "  (cal_id, item_id, icalString) " +
-          "VALUES (:cal_id, :item_id, :icalString)"
+        `INSERT INTO cal_recurrence
+           (cal_id, item_id, icalString)
+         VALUES (:cal_id, :item_id, :icalString)`
       );
 
       this.mInsertAttachment = this.mDB.createAsyncStatement(
-        "INSERT INTO cal_attachments " +
-          " (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
-          "VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)"
+        `INSERT INTO cal_attachments
+           (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz)
+         VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)`
       );
 
       this.mInsertRelation = this.mDB.createAsyncStatement(
-        "INSERT INTO cal_relations " +
-          " (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
-          "VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)"
+        `INSERT INTO cal_relations
+           (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz)
+         VALUES (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)`
       );
 
       this.mInsertMetaData = this.mDB.createStatement(
-        "INSERT INTO cal_metadata" +
-          " (cal_id, item_id, value)" +
-          " VALUES (:cal_id, :item_id, :value)"
+        `INSERT INTO cal_metadata
+           (cal_id, item_id, value)
+         VALUES (:cal_id, :item_id, :value)`
       );
 
       this.mInsertAlarm = this.mDB.createAsyncStatement(
-        "INSERT INTO cal_alarms " +
-          "  (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz) " +
-          "VALUES  (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)  "
+        `INSERT INTO cal_alarms
+           (cal_id, item_id, icalString, recurrence_id, recurrence_id_tz)
+         VALUES  (:cal_id, :item_id, :icalString, :recurrence_id, :recurrence_id_tz)`
       );
       // Offline Operations
       this.mEditEventOfflineFlag = this.mDB.createStatement(
-        "UPDATE cal_events SET offline_journal = :offline_journal" +
-          " WHERE id = :id AND cal_id = :cal_id"
+        `UPDATE cal_events SET offline_journal = :offline_journal
+          WHERE id = :id
+            AND cal_id = :cal_id`
       );
 
       this.mEditTodoOfflineFlag = this.mDB.createStatement(
-        "UPDATE cal_todos SET offline_journal = :offline_journal" +
-          " WHERE id = :id AND cal_id = :cal_id"
+        `UPDATE cal_todos SET offline_journal = :offline_journal
+          WHERE id = :id
+            AND cal_id = :cal_id`
       );
 
       // delete statements
@@ -1394,18 +1373,16 @@ CalStorageCalendar.prototype = {
 
       for (let table in extrasTables) {
         this.mDeleteEventExtras[table] = this.mDB.createAsyncStatement(
-          "DELETE FROM " +
-            extrasTables[table] +
-            " WHERE item_id IN" +
-            "  (SELECT id FROM cal_events WHERE cal_id = :cal_id)" +
-            " AND cal_id = :cal_id"
+          `DELETE FROM ${extrasTables[table]}
+            WHERE item_id IN
+             (SELECT id FROM cal_events WHERE cal_id = :cal_id)
+            AND cal_id = :cal_id`
         );
         this.mDeleteTodoExtras[table] = this.mDB.createAsyncStatement(
-          "DELETE FROM " +
-            extrasTables[table] +
-            " WHERE item_id IN" +
-            "  (SELECT id FROM cal_todos WHERE cal_id = :cal_id)" +
-            " AND cal_id = :cal_id"
+          `DELETE FROM ${extrasTables[table]}
+            WHERE item_id IN
+             (SELECT id FROM cal_todos WHERE cal_id = :cal_id)
+            AND cal_id = :cal_id`
         );
       }
 
