@@ -33,6 +33,12 @@ var { calendarDeactivator } = ChromeUtils.import(
  * startup as the application window is loaded, before tabs are restored.
  */
 async function loadCalendarComponent() {
+  if (loadCalendarComponent.hasBeenCalled) {
+    cal.ERROR("loadCalendarComponent was called more than once for a single window");
+    return;
+  }
+  loadCalendarComponent.hasBeenCalled = true;
+
   await uninstallLightningAddon();
 
   document
