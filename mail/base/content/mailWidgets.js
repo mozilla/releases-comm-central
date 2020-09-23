@@ -2213,6 +2213,19 @@
 
       this.addEventListener("drop", event => {
         if (!event.dataTransfer.getData("text/pills")) {
+          // A text string was dropped inside the input field therefore we need
+          // to update its size to fit the new content.
+          let input = event.originalTarget.closest(
+            ".address-input[recipienttype]"
+          );
+          // Trigger this action only if the string was dropped exactly on the
+          // <div> inside the input field.
+          if (input) {
+            input.setAttribute(
+              "size",
+              event.dataTransfer.getData("text/plain").trim().length || 1
+            );
+          }
           return;
         }
 
