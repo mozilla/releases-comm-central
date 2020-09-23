@@ -566,7 +566,8 @@ nsMessenger::DetachAttachmentsWOPrompts(
     const nsTArray<nsCString>& aDisplayNameArray,
     const nsTArray<nsCString>& aMessageUriArray, nsIUrlListener* aListener) {
   NS_ENSURE_ARG_POINTER(aDestFolder);
-  MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() ==
+  MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() &&
+             aUrlArray.Length() ==  aDisplayNameArray.Length() &&
              aDisplayNameArray.Length() == aMessageUriArray.Length());
 
   if (!aContentTypeArray.Length()) return NS_OK;
@@ -2129,7 +2130,8 @@ nsresult nsAttachmentState::Init(const nsTArray<nsCString>& aContentTypeArray,
                                  const nsTArray<nsCString>& aDisplayNameArray,
                                  const nsTArray<nsCString>& aMessageUriArray) {
   MOZ_ASSERT(aContentTypeArray.Length() > 0);
-  MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() ==
+  MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() &&
+             aUrlArray.Length() ==  aDisplayNameArray.Length() &&
              aDisplayNameArray.Length() == aMessageUriArray.Length());
 
   uint32_t count = aContentTypeArray.Length();
@@ -2519,8 +2521,10 @@ nsresult nsDelAttachListener::StartProcessing(nsMessenger* aMessenger,
       if (detaching) detachToHeader.Append(',');
     }
     partId = GetAttachmentPartId(mAttach->mAttachmentArray[u].mUrl.get());
-    nextField = PL_strchr(partId, '&');
-    sHeader.Append(partId, nextField ? nextField - partId : -1);
+    if (partId) {
+      nextField = PL_strchr(partId, '&');
+      sHeader.Append(partId, nextField ? nextField - partId : -1);
+    }
     if (detaching) detachToHeader.Append(mDetachedFileUris[u]);
   }
 
@@ -2574,7 +2578,8 @@ nsMessenger::DetachAllAttachments(const nsTArray<nsCString>& aContentTypeArray,
                                   bool aSaveFirst,
                                   bool withoutWarning = false) {
   NS_ENSURE_ARG_MIN(aContentTypeArray.Length(), 1);
-  MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() ==
+  MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() &&
+             aUrlArray.Length() ==  aDisplayNameArray.Length() &&
              aDisplayNameArray.Length() == aMessageUriArray.Length());
 
   if (aSaveFirst)
