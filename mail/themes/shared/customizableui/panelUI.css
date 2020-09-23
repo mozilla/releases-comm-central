@@ -30,7 +30,7 @@
 /* In mozilla-central the following variables are defined, but they are simply
    inlined below because we aren't using a pre-processing step. */
 /* %define menuStateMenuActive :not([disabled])[_moz-menuactive] */
-/* %define inAnyPanel :-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) */
+/* %define inAnyPanel :is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) */
 
 :root:not([uidensity=compact]):not([chromehidden~="toolbar"]) #PanelUI-button {
   margin-inline-start: 3px;
@@ -102,7 +102,7 @@ panelview {
   -moz-box-flex: 1;
 }
 
-#wrapper-edit-controls:-moz-any([place="palette"],[place="menu-panel"]) > #edit-controls {
+#wrapper-edit-controls:is([place="palette"],[place="menu-panel"]) > #edit-controls {
   margin-inline-start: 0;
 }
 
@@ -151,7 +151,7 @@ panelview:not([mainview]) .toolbarbutton-text,
   padding-bottom: 0;
 }
 
-.toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) > toolbarbutton > .toolbarbutton-icon {
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton > .toolbarbutton-icon {
   min-width: 0;
   min-height: 0;
   margin: 0;
@@ -354,24 +354,24 @@ panelview .toolbarbutton-1 {
   margin-top: 6px;
 }
 
-panelview .toolbarbutton-1:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus),
-toolbarbutton.subviewbutton:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus),
-.navigable.subviewbutton:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus),
-menu.subviewbutton:not(:-moz-any([disabled],:active))[_moz-menuactive],
-menuitem.subviewbutton:not(:-moz-any([disabled],:active))[_moz-menuactive],
-.widget-overflow-list .toolbarbutton-1:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus),
-.toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) > toolbarbutton:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus) {
+panelview .toolbarbutton-1:not(:is([disabled],[open],:active)):is(:hover,:focus),
+toolbarbutton.subviewbutton:not(:is([disabled],[open],:active)):is(:hover,:focus),
+.navigable.subviewbutton:not(:is([disabled],[open],:active)):is(:hover,:focus),
+menu.subviewbutton:not(:is([disabled],:active))[_moz-menuactive],
+menuitem.subviewbutton:not(:is([disabled],:active))[_moz-menuactive],
+.widget-overflow-list .toolbarbutton-1:not(:is([disabled],[open],:active)):is(:hover,:focus),
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton:not(:is([disabled],[open],:active)):is(:hover,:focus) {
   color: inherit;
   background-color: var(--arrowpanel-dimmed);
 }
 
-panelview .toolbarbutton-1:not([disabled]):-moz-any([open],:hover:active),
-toolbarbutton.subviewbutton:not([disabled]):-moz-any([open],:hover:active),
-.navigable.subviewbutton:not([disabled]):-moz-any([open],:hover:active),
+panelview .toolbarbutton-1:not([disabled]):is([open],:hover:active),
+toolbarbutton.subviewbutton:not([disabled]):is([open],:hover:active),
+.navigable.subviewbutton:not([disabled]):is([open],:hover:active),
 menu.subviewbutton:not([disabled])[_moz-menuactive]:active,
 menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
-.widget-overflow-list .toolbarbutton-1:not([disabled]):-moz-any([open],:hover:active),
-.toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) > toolbarbutton:not([disabled]):-moz-any([open],:hover:active) {
+.widget-overflow-list .toolbarbutton-1:not([disabled]):is([open],:hover:active),
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton:not([disabled]):is([open],:hover:active) {
   color: inherit;
   background-color: var(--arrowpanel-dimmed-further);
   box-shadow: 0 1px 0 hsla(210,4%,10%,.03) inset;
@@ -384,13 +384,13 @@ menuitem.subviewbutton:not([disabled])[_moz-menuactive]:active,
   border-radius: 0;
 }
 
-menuitem.panel-subview-footer:not(:-moz-any([disabled],:active))[_moz-menuactive],
-.subviewbutton.panel-subview-footer:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus) {
+menuitem.panel-subview-footer:not(:is([disabled],:active))[_moz-menuactive],
+.subviewbutton.panel-subview-footer:not(:is([disabled],[open],:active)):is(:hover,:focus) {
   background-color: var(--arrowpanel-dimmed-further);
 }
 
 menuitem.panel-subview-footer:not([disabled])[_moz-menuactive]:active,
-.subviewbutton.panel-subview-footer:not([disabled]):-moz-any([open],:hover:active) {
+.subviewbutton.panel-subview-footer:not([disabled]):is([open],:hover:active) {
   background-color: var(--arrowpanel-dimmed-even-further);
   box-shadow: 0 1px 0 hsla(210,4%,10%,.05) inset;
 }
@@ -440,7 +440,7 @@ toolbarpaletteitem[place="palette"] > #search-container {
   max-height: 37px;
 }
 
-.toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) > toolbarbutton {
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton {
   border: 0;
   margin: 0;
   -moz-box-flex: 1;
@@ -454,13 +454,13 @@ toolbarpaletteitem[place="menu-panel"] > .toolbaritem-combined-buttons > toolbar
   max-width: var(--menu-panel-button-width);
 }
 
-.toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) > toolbarbutton:not(.toolbarbutton-1)[disabled] {
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > toolbarbutton:not(.toolbarbutton-1)[disabled] {
   opacity: 0.4;
   /* Override toolbarbutton.css which sets the color to GrayText */
   color: inherit;
 }
 
-.toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]) > separator {
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) > separator {
   appearance: none;
   -moz-box-align: stretch;
   margin: .5em 0;
@@ -472,7 +472,7 @@ toolbarpaletteitem[place="menu-panel"] > .toolbaritem-combined-buttons > toolbar
   transition-timing-function: ease;
 }
 
-.toolbaritem-combined-buttons:-moz-any(:not([cui-areatype="toolbar"]), [overflowedItem=true]):hover > separator {
+.toolbaritem-combined-buttons:is(:not([cui-areatype="toolbar"]),[overflowedItem=true]):hover > separator {
   margin: 0;
 }
 
@@ -537,14 +537,14 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   border: 1px solid transparent;
 }
 
-.subviewradio:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus) {
+.subviewradio:not(:is([disabled],[open],:active)):is(:hover,:focus) {
   background-color: var(--arrowpanel-dimmed);
   border-color: var(--panel-separator-color);
 }
 
 .subviewradio[selected],
 .subviewradio[selected]:hover,
-.subviewradio:not([disabled]):-moz-any([open],:hover:active) {
+.subviewradio:not([disabled]):is([open],:hover:active) {
   background-color: var(--arrowpanel-dimmed-further);
   border-color: var(--panel-separator-color);
   box-shadow: 0 1px 0 hsla(210,4%,10%,.03) inset;

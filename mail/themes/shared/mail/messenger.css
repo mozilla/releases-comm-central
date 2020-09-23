@@ -574,11 +574,11 @@ label.statusbarpanel {
   outline: 0;
 }
 
-.panelButton:not(:-moz-any([disabled],[open],:active)):-moz-any(:hover,:focus) {
+.panelButton:not(:is([disabled],[open],:active)):is(:hover,:focus) {
   background-color: var(--arrowpanel-dimmed);
 }
 
-.panelButton:not([disabled]):-moz-any([open],:hover:active) {
+.panelButton:not([disabled]):is([open],:hover:active) {
   background-color: var(--arrowpanel-dimmed-further);
   box-shadow: 0 1px 0 hsla(210, 4%, 10%, .03) inset;
 }

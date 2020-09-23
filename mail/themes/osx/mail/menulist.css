@@ -18,7 +18,7 @@ menulist[is="menulist-editable"][editable="true"] > menupopup > menucaption {
   appearance: none;
 }
 
-menulist[is="menulist-editable"][editable="true"] > menupopup > :-moz-any(menuitem, menucaption) > .menu-iconic-left {
+menulist[is="menulist-editable"][editable="true"] > menupopup > :is(menuitem,menucaption) > .menu-iconic-left {
   display: none;
 }
 

@@ -290,11 +290,11 @@ toolbar:not(.inline-toolbar):not(.contentTabToolbar):not(:-moz-lwtheme) {
  */
 .menulist-menupopup > menuitem > .menu-iconic-left,
 menulist > menupopup >
-  menuitem:-moz-any(.menuitem-iconic, [type="radio"], [type="checkbox"]) >
+  menuitem:is(.menuitem-iconic,[type="radio"],[type="checkbox"]) >
   .menu-iconic-left,
 .menulist-menupopup > menu > .menu-iconic-left,
 menulist > menupopup >
-  menu:-moz-any(.menuitem-iconic, [type="radio"], [type="checkbox"]) >
+  menu:is(.menuitem-iconic,[type="radio"],[type="checkbox"]) >
   .menu-iconic-left {
   display: -moz-box;
 }
@@ -382,8 +382,8 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
   border-inline-end: none;
 }
 
-.findbar-button:not(:-moz-any([checked="true"],[disabled="true"])):hover,
-.toolbarbutton-1:not([disabled="true"]):-moz-any(:hover,[open="true"]) >
+.findbar-button:not(:is([checked="true"],[disabled="true"])):hover,
+.toolbarbutton-1:not([disabled="true"]):is(:hover,[open="true"]) >
 .toolbarbutton-menubutton-button,
 .toolbarbutton-1:not([disabled="true"]):hover >
 .toolbarbutton-menubutton-dropmarker,
@@ -393,10 +393,10 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
   box-shadow: var(--toolbarbutton-hover-boxshadow);
 }
 
-.findbar-button:not([disabled=true]):-moz-any([checked="true"],:hover:active),
+.findbar-button:not([disabled=true]):is([checked="true"],:hover:active),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
 .toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]),
-.toolbarbutton-1:not([type="menu-button"]):not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
+.toolbarbutton-1:not([type="menu-button"]):not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);

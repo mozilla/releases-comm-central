@@ -102,9 +102,9 @@
   border-color: var(--toolbarbutton-header-bordercolor);
 }
 
-.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
+.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):is(:hover,[open]) >
 .toolbarbutton-menubutton-button,
-.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):-moz-any(:hover,[open]) >
+.toolbarbutton-1.msgHeaderView-button:not([disabled=true]):is(:hover,[open]) >
 .toolbarbutton-menubutton-dropmarker,
 .toolbarbutton-1.msgHeaderView-button:not([type="menu-button"]):not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
 .toolbarbutton-1.msgHeaderView-button:not([buttonover]):not([open]):not(:active):hover >

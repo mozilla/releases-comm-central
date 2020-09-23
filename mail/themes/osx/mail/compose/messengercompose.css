@@ -311,7 +311,7 @@ toolbarbutton.formatting-button:not([disabled="true"]):hover {
   border-color: var(--toolbarbutton-hover-bordercolor);
 }
 
-toolbarbutton.formatting-button:not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
+toolbarbutton.formatting-button:not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);

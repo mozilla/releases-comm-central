@@ -116,13 +116,13 @@ toolbar[brighttext] {
   --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 0%, .09));
 }
 
-:-moz-any(.chromeclass-toolbar, .chromeclass-menubar, #tabbar-toolbar)
+:is(.chromeclass-toolbar,.chromeclass-menubar,#tabbar-toolbar)
   .toolbarbutton-1:not([disabled="true"]):hover:-moz-lwtheme >
   .toolbarbutton-menubutton-dropmarker {
   background-color: var(--lwt-toolbarbutton-hover-background, hsla(0, 0%, 100%, .1)) !important;
 }
 
-:-moz-any(.chromeclass-toolbar, .chromeclass-menubar, #tabbar-toolbar)
+:is(.chromeclass-toolbar,.chromeclass-menubar,#tabbar-toolbar)
   .toolbarbutton-1[open="true"]:-moz-lwtheme >
   .toolbarbutton-menubutton-dropmarker:not([disabled="true"]) {
   background-color: var(--lwt-toolbarbutton-active-background, hsla(0, 0%, 0%, .02)) !important;
@@ -233,8 +233,8 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
   background-clip: padding-box;
 }
 
-.findbar-button:not(:-moz-any([checked="true"],[disabled="true"])):hover,
-.toolbarbutton-1:not([disabled="true"]):-moz-any(:hover,[open="true"]) >
+.findbar-button:not(:is([checked="true"],[disabled="true"])):hover,
+.toolbarbutton-1:not([disabled="true"]):is(:hover,[open="true"]) >
 .toolbarbutton-menubutton-button,
 .toolbarbutton-1:not([disabled="true"]):hover >
 .toolbarbutton-menubutton-dropmarker,
@@ -244,10 +244,10 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
   box-shadow: var(--toolbarbutton-hover-boxshadow);
 }
 
-.findbar-button:not([disabled=true]):-moz-any([checked="true"],:hover:active),
+.findbar-button:not([disabled=true]):is([checked="true"],:hover:active),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button:not([disabled="true"]):hover:active,
 .toolbarbutton-1[open="true"] > .toolbarbutton-menubutton-dropmarker:not([disabled="true"]),
-.toolbarbutton-1:not([type="menu-button"]):not([disabled="true"]):-moz-any([open="true"],[checked="true"],:hover:active) {
+.toolbarbutton-1:not([type="menu-button"]):not([disabled="true"]):is([open="true"],[checked="true"],:hover:active) {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);

@@ -191,7 +191,7 @@ p *:any-link img {
   color: hsl(0, 0%, 60%);
 }
 
-.hide-children > :-moz-any(p.event, hr):not(:first-of-type):not(:last-of-type):not(.no-collapse) {
+.hide-children > :is(p.event,hr):not(:first-of-type):not(:last-of-type):not(.no-collapse) {
   display: none;
 }
 

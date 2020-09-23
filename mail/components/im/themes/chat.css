@@ -134,12 +134,12 @@
 
 /* move the scrollbar to the left */
 #contactlistbox:-moz-locale-dir(ltr),
-#contactlistbox:-moz-locale-dir(rtl) > richlistitem:-moz-any([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]) {
+#contactlistbox:-moz-locale-dir(rtl) > richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
   direction: rtl;
 }
 
 #contactlistbox:-moz-locale-dir(rtl),
-#contactlistbox:-moz-locale-dir(ltr) > richlistitem:-moz-any([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]) {
+#contactlistbox:-moz-locale-dir(ltr) > richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
   direction: ltr;
 }
 
@@ -191,11 +191,11 @@ richlistitem[is="chat-contact-richlistitem"] > .box-line {
   background-color: var(--tabline-color);
 }
 
-richlistitem:-moz-any([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]) {
+richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]) {
   pointer-events: auto;
 }
 
-richlistitem:-moz-any([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected=true]):hover {
+richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]):not([selected=true]):hover {
   background-color: rgba(0,0,0,.1);
 }
 
@@ -213,13 +213,13 @@ richlistitem[is="chat-contact-richlistitem"][selected=true] {
 }
 
 :root[lwt-tree] richlistitem[is="chat-group-richlistitem"][selected],
-:root[lwt-tree] richlistitem:-moz-any([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected=true]):hover {
+:root[lwt-tree] richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]):not([selected=true]):hover {
   background-color: var(--sidebar-highlight-background-color, hsla(0,0%,80%,.3));
   color: var(--sidebar-highlight-text-color, var(--sidebar-text-color));
 }
 
 :root[lwt-tree-brighttext] richlistitem[is="chat-group-richlistitem"][selected],
-:root[lwt-tree-brighttext] richlistitem:-moz-any([is="chat-imconv-richlistitem"], [is="chat-contact-richlistitem"], [is="chat-group-richlistitem"]):not([selected=true]):hover {
+:root[lwt-tree-brighttext] richlistitem:is([is="chat-imconv-richlistitem"],[is="chat-contact-richlistitem"],[is="chat-group-richlistitem"]):not([selected=true]):hover {
   background-color: var(--sidebar-highlight-background-color, rgba(249,249,250,.1));
 }
 

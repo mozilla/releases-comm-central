@@ -256,7 +256,7 @@ input[type="submit"].search {
   transition: all 0.4s;
 }
 
-#results :-moz-any(div.selection) {
+#results :is(div.selection) {
   cursor: pointer;
 }
 

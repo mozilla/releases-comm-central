@@ -101,7 +101,7 @@
 
   /* End classic titlebar gradient */
 
-  :root[tabsintitlebar] :-moz-any(#tabs-toolbar, #mail-toolbar-menubar2)
+  :root[tabsintitlebar] :is(#tabs-toolbar,#mail-toolbar-menubar2)
   toolbarbutton:not(:-moz-lwtheme) {
     color: inherit;
   }
