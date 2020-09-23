@@ -301,6 +301,7 @@
       this.mItem = null;
       this.mCalendar = null;
       this.mReadOnly = true;
+      this.mIsInvitation = false;
 
       this.mAttendeesInRow = null;
       this.mMaxLabelWidth = null;
@@ -341,13 +342,12 @@
       // When used in places like the import dialog, there is no calendar (yet).
       if (item.calendar) {
         this.mCalendar = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
+        this.mIsInvitation = this.mCalendar?.isInvitation(item);
 
         this.mReadOnly = !(
           cal.acl.isCalendarWritable(this.mCalendar) &&
           (cal.acl.userCanModifyItem(item) ||
-            (this.mCalendar &&
-              this.mCalendar.isInvitation(item) &&
-              cal.acl.userCanRespondToInvitation(item)))
+            (this.mIsInvitation && cal.acl.userCanRespondToInvitation(item)))
         );
       }
     }
@@ -362,6 +362,10 @@
 
     get readOnly() {
       return this.mReadOnly;
+    }
+
+    get isInvitation() {
+      return this.mIsInvitation;
     }
 
     /**
@@ -415,23 +419,31 @@
         itemDateRowEndDate.textContent = cal.dtz.getStringForDateTime(itemDueDate);
       }
 
-      // Show reminder if this item is *not* readonly.
-      // This case happens for example if this is an invitation.
-      if (!this.readOnly) {
-        let argCalendar = item.calendar;
+      let alarms = item.getAlarms();
+      let hasAlarms = alarms && alarms.length;
+      let canShowReadOnlyReminders = hasAlarms && item.calendar;
+      let shouldShowReminderMenu =
+        !this.readOnly &&
+        this.isInvitation &&
+        item.calendar &&
+        item.calendar.getProperty("capabilities.alarms.oninvitations.supported") !== false;
 
-        let supportsReminders =
-          argCalendar.getProperty("capabilities.alarms.oninvitations.supported") !== false;
+      if (hasAlarms) {
+        this.mLastAlarmSelection = loadReminders(alarms, this.mAlarmsMenu, this.mItem.calendar);
+      }
 
-        if (supportsReminders) {
-          this.querySelector(".reminder-row").removeAttribute("hidden");
-          this.mLastAlarmSelection = loadReminders(
-            item.getAlarms(),
-            this.mAlarmsMenu,
-            this.mItem.calendar
-          );
-          this.updateReminder();
-        }
+      // For invitations where the reminders can be edited, show a menu to
+      // allow setting the reminder, because you can't edit an invitation in
+      // the edit item dialog. For all other cases, show a plain text
+      // representation of the reminders but only if there are any.
+      if (shouldShowReminderMenu) {
+        this.updateReminder();
+      } else if (canShowReadOnlyReminders) {
+        this.updateReminderReadOnly();
+      }
+
+      if (shouldShowReminderMenu || canShowReadOnlyReminders) {
+        this.querySelector(".reminder-row").removeAttribute("hidden");
       }
 
       let recurrenceDetails = recurrenceStringFromItem(
@@ -494,6 +506,33 @@
         null,
         false
       );
+    }
+
+    /**
+     * Updates the reminder to display the set reminders as read-only text.
+     * Depends on updateReminder() to get the text to display.
+     */
+    updateReminderReadOnly() {
+      this.updateReminder();
+
+      let item = this.mAlarmsMenu.getItemAtIndex(this.mAlarmsMenu.selectedIndex);
+      let txt = "";
+
+      if (item.value === "custom") {
+        let multiLabel = this.querySelector(".reminder-multiple-alarms-label");
+        let label = !multiLabel.hidden
+          ? multiLabel
+          : this.querySelector(".reminder-single-alarms-label");
+        txt = label.value;
+      } else {
+        txt = item.label;
+      }
+
+      let hbox = this.querySelector(".reminder-row > td > hbox");
+      while (hbox.firstChild) {
+        hbox.firstChild.remove();
+      }
+      hbox.appendChild(document.createTextNode(txt));
     }
 
     /**

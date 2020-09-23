@@ -28,8 +28,12 @@ var { ATTENDEES_ROW, EVENT_TABPANELS, helpersForEditUI, setData } = ChromeUtils.
 var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  CalEvent: "resource:///modules/CalEvent.jsm",
+});
 
 var controller = mozmill.getMail3PaneController();
 var { eid, lookup, lookupEventBox } = helpersForController(controller);
@@ -250,6 +254,122 @@ add_task(async function testOpenExistingEventDialog() {
   );
 
   Assert.ok(true, "Test ran to completion");
+});
+
+add_task(async function testEventReminderDisplay() {
+  let calId = createCalendar(controller, CALENDARNAME);
+
+  switchToView(controller, "day");
+  goToDate(controller, 2020, 1, 1);
+
+  let createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+
+  // Create an event without a reminder.
+  await invokeNewEventDialog(controller, createBox, async (event, iframe) => {
+    let { eid: eventid } = helpersForController(event);
+    await setData(event, iframe, {
+      title: EVENTTITLE,
+      location: EVENTLOCATION,
+      description: EVENTDESCRIPTION,
+    });
+    event.click(eventid("button-saveandclose"));
+  });
+
+  let eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  await invokeViewingEventDialog(
+    controller,
+    eventBox,
+    async event => {
+      let doc = event.window.document;
+      let row = doc.querySelector(".reminder-row");
+      Assert.ok(row.hidden, "reminder dropdown is not displayed");
+      event.keypress(null, "VK_ESCAPE", {});
+    },
+    "view"
+  );
+
+  goToDate(controller, 2020, 2, 1);
+  createBox = lookupEventBox("day", CANVAS_BOX, null, 1, 8);
+
+  // Create an event with a reminder.
+  await invokeNewEventDialog(controller, createBox, async (event, iframe) => {
+    let { eid: eventid } = helpersForController(event);
+    await setData(event, iframe, {
+      title: EVENTTITLE,
+      location: EVENTLOCATION,
+      description: EVENTDESCRIPTION,
+      reminder: "1week",
+    });
+    event.click(eventid("button-saveandclose"));
+  });
+
+  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+  await invokeViewingEventDialog(
+    controller,
+    eventBox,
+    async event => {
+      let doc = event.window.document;
+      let row = doc.querySelector(".reminder-row");
+
+      Assert.ok(row.querySelector("menulist") == null, "reminder dropdown is not available");
+      Assert.ok(
+        row.textContent.includes("1 week before"),
+        "the details are shown when a reminder is set"
+      );
+      event.keypress(null, "VK_ESCAPE", {});
+    },
+    "view"
+  );
+
+  // This is done so that calItemBase#isInvitation returns true.
+  let calendar = cal.getCalendarManager().getCalendarById(calId);
+  calendar.setProperty("organizerId", "mailto:pillow@example.com");
+
+  // Create an invitation.
+  let icalString =
+    "BEGIN:VCALENDAR\r\n" +
+    "PRODID:-//Mozilla.org/NONSGML Mozilla Calendar V1.1//EN\r\n" +
+    "VERSION:2.0\r\n" +
+    "BEGIN:VEVENT\r\n" +
+    "CREATED:20200301T152601Z\r\n" +
+    "DTSTAMP:20200301T192729Z\r\n" +
+    "UID:x137e\r\n" +
+    "SUMMARY:Nap Time\r\n" +
+    "ORGANIZER;CN=Papa Bois:mailto:papabois@example.com\r\n" +
+    "ATTENDEE;RSVP=TRUE;CN=pillow@example.com;PARTSTAT=NEEDS-ACTION;CUTY\r\n" +
+    " PE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;X-NUM-GUESTS=0:mailto:pillow@example.com\r\n" +
+    "DTSTART:20200301T153000Z\r\n" +
+    "DTEND:20200301T163000Z\r\n" +
+    "DESCRIPTION:Slumber In Lumber\r\n" +
+    "SEQUENCE:0\r\n" +
+    "TRANSP:OPAQUE\r\n" +
+    "BEGIN:VALARM\r\n" +
+    "TRIGGER:-PT30M\r\n" +
+    "REPEAT:2\r\n" +
+    "DURATION:PT15M\r\n" +
+    "ACTION:DISPLAY\r\n" +
+    "END:VALARM\r\n" +
+    "END:VEVENT\r\n" +
+    "END:VCALENDAR\r\n";
+
+  let calendarProxy = cal.async.promisifyCalendar(calendar);
+  await calendarProxy.addItem(new CalEvent(icalString));
+  goToDate(controller, 2020, 3, 1);
+  eventBox = lookupEventBox("day", EVENT_BOX, null, 1, null, EVENTPATH);
+
+  await invokeViewingEventDialog(
+    controller,
+    eventBox,
+    async event => {
+      let doc = event.window.document;
+      let row = doc.querySelector(".reminder-row");
+
+      Assert.ok(!row.hidden, "reminder row is displayed");
+      Assert.ok(row.querySelector("menulist") != null, "reminder dropdown is available");
+      event.keypress(null, "VK_ESCAPE", {});
+    },
+    "view"
+  );
 });
 
 function checkTooltip(row, col, startTime, endTime) {
