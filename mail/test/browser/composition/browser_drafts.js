@@ -214,6 +214,7 @@ add_task(function test_edit_as_new_in_draft() {
 
   cwc.type(cwc.eid("content-frame"), "Hello!");
   cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(cwc);
 
   close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 2);

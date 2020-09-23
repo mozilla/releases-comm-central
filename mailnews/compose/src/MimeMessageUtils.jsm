@@ -29,10 +29,62 @@ var MsgUtils = {
   /**
    * Error codes defined in nsComposeStrings.h
    */
+  NS_MSG_UNABLE_TO_OPEN_FILE: generateNSError(12500),
+  NS_MSG_UNABLE_TO_OPEN_TMP_FILE: generateNSError(12501),
+  NS_MSG_UNABLE_TO_SAVE_TEMPLATE: generateNSError(12502),
+  NS_MSG_UNABLE_TO_SAVE_DRAFT: generateNSError(12503),
+  NS_MSG_COULDNT_OPEN_FCC_FOLDER: generateNSError(12506),
+  NS_MSG_NO_SENDER: generateNSError(12510),
+  NS_MSG_NO_RECIPIENTS: generateNSError(12511),
+  NS_MSG_ERROR_WRITING_FILE: generateNSError(12512),
+  NS_ERROR_SENDING_FROM_COMMAND: generateNSError(12514),
+  NS_ERROR_SENDING_DATA_COMMAND: generateNSError(12516),
+  NS_ERROR_SENDING_MESSAGE: generateNSError(12517),
+  NS_ERROR_POST_FAILED: generateNSError(12518),
+  NS_ERROR_SMTP_SERVER_ERROR: generateNSError(12524),
+  NS_MSG_UNABLE_TO_SEND_LATER: generateNSError(12525),
+  NS_ERROR_COMMUNICATIONS_ERROR: generateNSError(12526),
+  NS_ERROR_BUT_DONT_SHOW_ALERT: generateNSError(12527),
+  NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS: generateNSError(12529),
+  NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY: generateNSError(12530),
+  NS_ERROR_MIME_MPART_ATTACHMENT_ERROR: generateNSError(12531),
+
+  // 12554 is taken by NS_ERROR_NNTP_NO_CROSS_POSTING.  use 12555 as the next one
+
+  // For message sending report
+  NS_MSG_ERROR_READING_FILE: generateNSError(12563),
+
+  NS_MSG_ERROR_ATTACHING_FILE: generateNSError(12570),
+
+  NS_ERROR_SMTP_GREETING: generateNSError(12572),
+
+  NS_ERROR_SENDING_RCPT_COMMAND: generateNSError(12575),
+
+  NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS: generateNSError(12582),
+
+  NS_ERROR_SMTP_PASSWORD_UNDEFINED: generateNSError(12584),
+  NS_ERROR_SMTP_SEND_NOT_ALLOWED: generateNSError(12585),
+  NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED: generateNSError(12586),
+  NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1: generateNSError(12587),
+  NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2: generateNSError(12588),
+
   NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER: generateNSError(12589),
   NS_ERROR_SMTP_SEND_FAILED_REFUSED: generateNSError(12590),
   NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED: generateNSError(12591),
   NS_ERROR_SMTP_SEND_FAILED_TIMEOUT: generateNSError(12592),
+  NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON: generateNSError(12593),
+
+  NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL: generateNSError(12594),
+  NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL: generateNSError(12595),
+  NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT: generateNSError(12596),
+  NS_ERROR_SMTP_AUTH_FAILURE: generateNSError(12597),
+  NS_ERROR_SMTP_AUTH_GSSAPI: generateNSError(12598),
+  NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED: generateNSError(12599),
+
+  NS_ERROR_ILLEGAL_LOCALPART: generateNSError(12601),
+
+  NS_ERROR_CLIENTID: generateNSError(12610),
+  NS_ERROR_CLIENTID_PERMISSION: generateNSError(12611),
 
   /**
    * Convert html to text to form a multipart/alternative message. The output
@@ -134,16 +186,27 @@ var MsgUtils = {
           Ci.nsIMsgCompType.ReplyWithTemplate,
         ].includes(compType)
       ) {
-        let msgHdr = Cc["@mozilla.org/messenger;1"]
-          .createInstance(Ci.nsIMessenger)
-          .messageServiceFromURI(originalMsgURI)
-          .messageURIToMsgHdr(originalMsgURI);
-        let folder = msgHdr.folder;
-        let incomingServerType =
-          folder.incomingServer && folder.incomingServer.getCharValue("type");
-        if (folder.canFileMessages && incomingServerType != "rss") {
-          fcc = folder.uri;
-          useDefaultFcc = false;
+        let msgHdr;
+        try {
+          msgHdr = Cc["@mozilla.org/messenger;1"]
+            .createInstance(Ci.nsIMessenger)
+            .messageServiceFromURI(originalMsgURI)
+            .messageURIToMsgHdr(originalMsgURI);
+        } catch (e) {
+          console.warn(
+            `messageServiceFromURI failed for ${originalMsgURI.spec}\n${e.stack}`
+          );
+        }
+        if (msgHdr) {
+          let folder = msgHdr.folder;
+          if (
+            folder.canFileMessages &&
+            folder.incomingServer &&
+            folder.incomingServer.getCharValue("type") != "rss"
+          ) {
+            fcc = folder.uri;
+            useDefaultFcc = false;
+          }
         }
       }
 
@@ -802,5 +865,131 @@ var MsgUtils = {
       return userIdentity.fccFolder;
     }
     return "";
+  },
+
+  /**
+   * Get the error string name of an exit code. The name will corresponds to an
+   * entry in composeMsgs.properties.
+   * @param {nsresult} exitCode - Exit code of sending mail process.
+   * @returns {string}
+   */
+  getErrorStringName(exitCode) {
+    let codeNameMap = {
+      [this.NS_MSG_UNABLE_TO_OPEN_FILE]: "unableToOpenFile",
+      [this.NS_MSG_UNABLE_TO_OPEN_TMP_FILE]: "unableToOpenTmpFile",
+      [this.NS_MSG_UNABLE_TO_SAVE_TEMPLATE]: "unableToSaveTemplate",
+      [this.NS_MSG_UNABLE_TO_SAVE_DRAFT]: "unableToSaveDraft",
+      [this.NS_MSG_COULDNT_OPEN_FCC_FOLDER]: "couldntOpenFccFolder",
+      [this.NS_MSG_NO_SENDER]: "noSender",
+      [this.NS_MSG_NO_RECIPIENTS]: "noRecipients",
+      [this.NS_MSG_ERROR_WRITING_FILE]: "errorWritingFile",
+      [this.NS_ERROR_SENDING_FROM_COMMAND]: "errorSendingFromCommand",
+      [this.NS_ERROR_SENDING_DATA_COMMAND]: "errorSendingDataCommand",
+      [this.NS_ERROR_SENDING_MESSAGE]: "errorSendingMessage",
+      [this.NS_ERROR_POST_FAILED]: "postFailed",
+      [this.NS_ERROR_SMTP_SERVER_ERROR]: "smtpServerError",
+      [this.NS_MSG_UNABLE_TO_SEND_LATER]: "unableToSendLater",
+      [this.NS_ERROR_COMMUNICATIONS_ERROR]: "communicationsError",
+      [this.NS_ERROR_BUT_DONT_SHOW_ALERT]: "dontShowAlert",
+      [this.NS_ERROR_COULD_NOT_GET_USERS_MAIL_ADDRESS]:
+        "couldNotGetUsersMailAddress2",
+      [this.NS_ERROR_COULD_NOT_GET_SENDERS_IDENTITY]:
+        "couldNotGetSendersIdentity",
+      [this.NS_ERROR_MIME_MPART_ATTACHMENT_ERROR]: "mimeMpartAttachmentError",
+      [this.NS_ERROR_NNTP_NO_CROSS_POSTING]: "nntpNoCrossPosting",
+      [this.NS_MSG_ERROR_READING_FILE]: "errorReadingFile",
+      [this.NS_MSG_ERROR_ATTACHING_FILE]: "errorAttachingFile",
+      [this.NS_ERROR_SMTP_GREETING]: "incorrectSmtpGreeting",
+      [this.NS_ERROR_SENDING_RCPT_COMMAND]: "errorSendingRcptCommand",
+      [this.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS]: "startTlsFailed",
+      [this.NS_ERROR_SMTP_PASSWORD_UNDEFINED]: "smtpPasswordUndefined",
+      [this.NS_ERROR_SMTP_SEND_NOT_ALLOWED]: "smtpSendNotAllowed",
+      [this.NS_ERROR_SMTP_TEMP_SIZE_EXCEEDED]: "smtpTempSizeExceeded",
+      [this.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_1]: "smtpPermSizeExceeded1",
+      [this.NS_ERROR_SMTP_PERM_SIZE_EXCEEDED_2]: "smtpPermSizeExceeded2",
+      [this.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER]:
+        "smtpSendFailedUnknownServer",
+      [this.NS_ERROR_SMTP_SEND_FAILED_REFUSED]: "smtpSendRequestRefused",
+      [this.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED]: "smtpSendInterrupted",
+      [this.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT]: "smtpSendTimeout",
+      [this.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_REASON]:
+        "smtpSendFailedUnknownReason",
+      [this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL]:
+        "smtpHintAuthEncryptToPlainNoSsl",
+      [this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL]:
+        "smtpHintAuthEncryptToPlainSsl",
+      [this.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT]:
+        "smtpHintAuthPlainToEncrypt",
+      [this.NS_ERROR_SMTP_AUTH_FAILURE]: "smtpAuthFailure",
+      [this.NS_ERROR_SMTP_AUTH_GSSAPI]: "smtpAuthGssapi",
+      [this.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED]: "smtpAuthMechNotSupported",
+      [this.NS_ERROR_ILLEGAL_LOCALPART]: "errorIllegalLocalPart2",
+      [this.NS_ERROR_CLIENTID]: "smtpClientid",
+      [this.NS_ERROR_CLIENTID_PERMISSION]: "smtpClientidPermission",
+    };
+    return codeNameMap[exitCode] || "sendFailed";
+  },
+
+  /**
+   * Get the error message that will be shown to the user.
+   * @param {nsIMsgIdentity} userIdentity - User identity.
+   * @param {nsIStringBundle} composeBundle - Localized string bundle.
+   * @param {nsresult} exit - The exit code of sending mail process.
+   * @retuns {string}
+   */
+  getErrorMessage(userIdentity, composeBundle, exitCode) {
+    let errorName = this.getErrorStringName(exitCode);
+    let smtpServer = {};
+    MailServices.smtp.getServerByIdentity(userIdentity, smtpServer);
+    let smtpHostname = smtpServer.value.hostname;
+    if (
+      [
+        this.NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER,
+        this.NS_ERROR_SMTP_SEND_FAILED_REFUSED,
+        this.NS_ERROR_SMTP_SEND_FAILED_INTERRUPTED,
+        this.NS_ERROR_SMTP_SEND_FAILED_TIMEOUT,
+        this.NS_ERROR_SMTP_PASSWORD_UNDEFINED,
+        this.NS_ERROR_SMTP_AUTH_FAILURE,
+        this.NS_ERROR_SMTP_AUTH_GSSAPI,
+        this.NS_ERROR_SMTP_AUTH_MECH_NOT_SUPPORTED,
+        this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_NO_SSL,
+        this.NS_ERROR_SMTP_AUTH_CHANGE_ENCRYPT_TO_PLAIN_SSL,
+        this.NS_ERROR_SMTP_AUTH_CHANGE_PLAIN_TO_ENCRYPT,
+        this.NS_ERROR_STARTTLS_FAILED_EHLO_STARTTLS,
+      ].includes(exitCode)
+    ) {
+      // Print basic SMTP error with the server name.
+      return composeBundle.formatStringFromName(errorName, [smtpHostname]);
+    }
+    let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+      Ci.nsINSSErrorsService
+    );
+    if (nssErrorsService.isNSSErrorCode(exitCode)) {
+      // This is a server security issue as determined by the Mozilla
+      // platform. To the Mozilla security message string, appended a string
+      // having additional information with the server name encoded.
+      let msg = nssErrorsService.getErrorMessage(exitCode);
+      msg +=
+        "\n" +
+        composeBundle.formatStringFromName("smtpSecurityIssue", [smtpHostname]);
+      return msg;
+    } else if (errorName == "sendFailed") {
+      // Not the default string. A mailnews error occurred that does not
+      // require the server name to be encoded. Just print the descriptive
+      // string.
+      return composeBundle.GetStringFromName(errorName);
+    }
+    // Encode the error code in first string. Then append a supplemental
+    // string that encodes the server name.
+    let msg = composeBundle.formatStringFromName(
+      "sendFailedUnexpected",
+      exitCode.toString(16)
+    );
+    msg +=
+      "\n" +
+      composeBundle.formatStringFromName("smtpSendFailedUnknownReason", [
+        smtpHostname,
+      ]);
+    return msg;
   },
 };

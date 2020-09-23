@@ -53,6 +53,7 @@ MessageSend.prototype = {
     this._sendProgress = progress;
     this._smtpPassword = smtpPassword;
     this._sendListener = listener;
+    this._parentWindow = parentWindow;
     this._shouldRemoveMessageFile = true;
 
     this._sendReport = Cc[
@@ -134,10 +135,62 @@ MessageSend.prototype = {
   },
 
   abort() {
-    throw Components.Exception(
-      "abort not implemented",
-      Cr.NS_ERROR_NOT_IMPLEMENTED
-    );
+    if (this._aborting) {
+      return;
+    }
+    this._aborting = true;
+    if (this._smtpRequest?.value) {
+      this._smtpRequest.value.cancel(Ci.NS_ERROR_ABORT);
+      this._smtpRequest = null;
+    }
+    if (this._msgCopy) {
+      MailServices.copy.NotifyCompletion(
+        this._copyFile,
+        this._msgCopy,
+        Ci.NS_ERROR_ABORT
+      );
+    }
+    this._cleanup();
+    this._aborting = false;
+  },
+
+  getDefaultPrompt() {
+    if (this._parentWindow) {
+      let prompter = Cc["@mozilla.org/prompter;1"].getService(
+        Ci.nsIPromptFactory
+      );
+      return prompter.getPrompt(this._parentWindow, Ci.nsIPrompt);
+    }
+    // If we cannot find a prompter, try the mail3Pane window.
+    let prompt;
+    try {
+      prompt = MailServices.mailSession.topmostMsgWindow.promptDialog;
+    } catch (e) {
+      console.warn(
+        `topmostMsgWindow.promptDialog failed with 0x${e.result.toString(
+          16
+        )}\n${e.stack}`
+      );
+    }
+    return prompt;
+  },
+
+  fail(exitCode, errorMsg) {
+    let prompt = this.getDefaultPrompt();
+    if (!Components.isSuccessCode(exitCode) && prompt) {
+      this._sendReport.setError(
+        Ci.nsIMsgSendReport.process_Current,
+        exitCode,
+        false
+      );
+      this._sendReport.setMessage(
+        Ci.nsIMsgSendReport.process_Current,
+        errorMsg,
+        false
+      );
+      this._sendReport.displayReport(prompt, true, true);
+    }
+    this.abort();
   },
 
   getPartForDomIndex(domIndex) {
@@ -174,6 +227,8 @@ MessageSend.prototype = {
   },
 
   notifyListenerOnStopCopy(status) {
+    this._msgCopy = null;
+
     if (this._sendListener) {
       try {
         this._sendListener
@@ -187,6 +242,8 @@ MessageSend.prototype = {
         );
       }
     }
+
+    this._cleanup();
   },
 
   notifyListenerOnStopSending(msgId, status, msg, returnFile) {
@@ -224,8 +281,20 @@ MessageSend.prototype = {
       default:
         break;
     }
+    if (!Components.isSuccessCode(newExitCode)) {
+      this.fail(
+        newExitCode,
+        MsgUtils.getErrorMessage(
+          this._userIdentity,
+          this._composeBundle,
+          newExitCode
+        )
+      );
+    }
     this.notifyListenerOnStopSending(null, newExitCode, null, null);
-    this._sendToMagicFolder();
+    if (Components.isSuccessCode(newExitCode)) {
+      this._sendToMagicFolder();
+    }
   },
 
   get folderUri() {
@@ -300,7 +369,8 @@ MessageSend.prototype = {
     let msgCopy = Cc["@mozilla.org/messengercompose/msgcopy;1"].createInstance(
       Ci.nsIMsgCopy
     );
-    let copyFile = this._messageFile;
+    this._msgCopy = msgCopy;
+    this._copyFile = this._messageFile;
     if (this._folderUri.startsWith("mailbox:")) {
       let { path, file: fileWriter } = await OS.File.openUnique(
         OS.Path.join(OS.Constants.Path.tmpDir, "nscopy.tmp")
@@ -324,8 +394,10 @@ MessageSend.prototype = {
       }
       await fileWriter.write(await OS.File.read(this._messageFile.path));
       await fileWriter.close();
-      copyFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-      copyFile.initWithPath(path);
+      this._copyFile = Cc["@mozilla.org/file/local;1"].createInstance(
+        Ci.nsIFile
+      );
+      this._copyFile.initWithPath(path);
     }
     // Notify nsMsgCompose about the saved folder.
     if (this._sendListener) {
@@ -334,7 +406,7 @@ MessageSend.prototype = {
     try {
       msgCopy.startCopyOperation(
         this._userIdentity,
-        copyFile,
+        this._copyFile,
         this._deliverMode,
         this,
         this._folderUri,
@@ -346,13 +418,15 @@ MessageSend.prototype = {
       console.warn(
         `startCopyOperation failed with 0x${e.result.toString(16)}\n${e.stack}`
       );
-    } finally {
-      if (copyFile != this._messageFile) {
-        copyFile.remove(false);
-      }
-      if (this._shouldRemoveMessageFile) {
-        this._messageFile.remove(false);
-      }
+    }
+  },
+
+  _cleanup() {
+    if (this._copyFile && this._copyFile != this._messageFile) {
+      this._copyFile.remove(false);
+    }
+    if (this._shouldRemoveMessageFile) {
+      this._messageFile.remove(false);
     }
   },
 
@@ -374,6 +448,7 @@ MessageSend.prototype = {
       )
     );
     let deliveryListener = new MsgDeliveryListener(this, false);
+    this._smtpRequest = {};
     MailServices.smtp.sendMailMessage(
       file,
       to,
@@ -385,7 +460,7 @@ MessageSend.prototype = {
       null,
       this._compFields.DSN,
       {},
-      {}
+      this._smtpRequest
     );
   },
 };

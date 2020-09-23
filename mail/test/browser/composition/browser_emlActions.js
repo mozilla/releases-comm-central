@@ -54,6 +54,7 @@ add_task(async function test_reply_to_eml_save_as_draft() {
 
   // Ctrl+S saves as draft.
   replyWin.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(replyWin);
 
   // Drafts folder should exist now.
   be_in_folder(gDrafts);
@@ -80,6 +81,7 @@ add_task(async function test_forward_eml_save_as_draft() {
 
   // Ctrl+S saves as draft.
   replyWin.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(replyWin);
 
   // Drafts folder should exist now.
   be_in_folder(gDrafts);

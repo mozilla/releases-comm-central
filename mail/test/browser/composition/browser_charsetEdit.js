@@ -112,6 +112,7 @@ add_task(function test_wrong_reply_charset() {
   let rwc = open_compose_with_reply();
   // Ctrl+S = save as draft.
   rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(rwc);
   close_compose_window(rwc);
 
   let draftMsg = select_click_row(1);
@@ -130,6 +131,7 @@ add_task(function test_wrong_reply_charset() {
   );
   rwc = wait_for_compose_window();
   rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(rwc);
   close_compose_window(rwc);
   msg = select_click_row(0);
   Assert.equal(getMsgHeaders(msg).get("").charset, "UTF-8");
@@ -161,6 +163,7 @@ add_task(function test_no_mojibake() {
   let rwc = open_compose_with_reply();
   // Ctrl+S = save as draft.
   rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(rwc);
   close_compose_window(rwc);
 
   let draftMsg = select_click_row(1);
@@ -189,6 +192,7 @@ add_task(function test_no_mojibake() {
   );
   rwc = wait_for_compose_window();
   rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(rwc);
   close_compose_window(rwc);
   msg = select_click_row(0);
   Assert.equal(

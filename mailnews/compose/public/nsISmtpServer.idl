@@ -28,7 +28,7 @@ interface nsISmtpServer : nsISupports {
   attribute AUTF8String description;
 
   /// The server's hostname.
-  attribute ACString hostname;
+  attribute AUTF8String hostname;
 
   /// The server's port.
   attribute int32_t port;

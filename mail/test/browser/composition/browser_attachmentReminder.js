@@ -683,6 +683,7 @@ add_task(function test_reminder_in_draft() {
   plan_for_modal_dialog("commonDialogWindow", click_save_message);
   cwc.window.goDoCommand("cmd_close");
   wait_for_modal_dialog("commonDialogWindow");
+  waitForSaveOperation(cwc);
 
   // The draft message was saved into Local Folders/Drafts.
   be_in_folder(gDrafts);
