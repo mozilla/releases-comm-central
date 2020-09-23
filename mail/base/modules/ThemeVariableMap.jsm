@@ -180,6 +180,7 @@ const ThemeVariableMap = [
 
         if (!rgbaChannels) {
           element.removeAttribute("lwt-tree");
+          element.removeAttribute("lwt-tree-brighttext");
 
           // We use the #tabmail element to determine the color contrast.
           // If the element is not present, it means a dialog or an unkown tab
