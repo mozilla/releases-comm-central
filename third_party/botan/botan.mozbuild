@@ -15,8 +15,7 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
     CXXFLAGS += [
         '-bigobj',
         '-clang:-fno-force-enable-int128',
-        '-Xclang',
-        '-fcxx-exceptions',
+        '/EHs',
     ]
 else:
     CXXFLAGS += [

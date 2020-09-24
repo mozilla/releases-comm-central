@@ -32,8 +32,7 @@ COMPILE_FLAGS['WARNINGS_CFLAGS'] += [
 
 if CONFIG['CC_TYPE'] == 'clang-cl':
     CXXFLAGS += [
-        '-Xclang',
-        '-fcxx-exceptions',
+        '/EHs',
     ]
 
 DEFINES['_GNU_SOURCE'] = True
