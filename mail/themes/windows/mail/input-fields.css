@@ -6,7 +6,7 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 html|input.input-inline {
-  padding: 0;
+  padding: 1px;
   padding-inline-start: 4px;
 }
 
