@@ -1911,11 +1911,16 @@ var RNP = {
   },
 
   getSuitableSubkey(primary, usage) {
-    let found_handle = null;
     let sub_count = new ctypes.size_t();
     if (RNPLib.rnp_key_get_subkey_count(primary, sub_count.address())) {
       throw new Error("rnp_key_get_subkey_count failed");
     }
+
+    // For compatibility with GnuPG, when encrypting to a single subkey,
+    // encrypt to the most recently created subkey. (Bug 1665281)
+    let newest_created = null;
+    let newest_handle = null;
+
     for (let i = 0; i < sub_count.value; i++) {
       let sub_handle = new RNPLib.rnp_key_handle_t();
       if (RNPLib.rnp_key_get_subkey_at(primary, i, sub_handle.address())) {
@@ -1933,21 +1938,28 @@ var RNP = {
           skip = true;
         }
       }
-      if (skip) {
-        RNPLib.rnp_key_handle_destroy(sub_handle);
-      } else {
-        found_handle = sub_handle;
 
-        let fingerprint = new ctypes.char.ptr();
-        if (RNPLib.rnp_key_get_fprint(found_handle, fingerprint.address())) {
-          throw new Error("rnp_key_get_fprint failed");
+      if (!skip) {
+        let key_creation = new ctypes.uint32_t();
+        if (RNPLib.rnp_key_get_creation(sub_handle, key_creation.address())) {
+          throw new Error("rnp_key_get_creation failed");
         }
-        RNPLib.rnp_buffer_destroy(fingerprint);
-        break;
+        if (!newest_handle || key_creation.value > newest_created) {
+          if (newest_handle) {
+            RNPLib.rnp_key_handle_destroy(newest_handle);
+          }
+          newest_handle = sub_handle;
+          sub_handle = null;
+          newest_created = key_creation.value;
+        }
+      }
+
+      if (sub_handle) {
+        RNPLib.rnp_key_handle_destroy(sub_handle);
       }
     }
 
-    return found_handle;
+    return newest_handle;
   },
 
   addSuitableEncryptKey(key, op) {
