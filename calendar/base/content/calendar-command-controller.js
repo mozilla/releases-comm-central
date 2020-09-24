@@ -138,7 +138,7 @@ var calendarController = {
       case "calendar_modify_focused_item_command":
         return this.item_selected;
       case "calendar_modify_event_command":
-        return this.item_selected;
+        return this.item_selected && canEditSelectedItems();
       case "calendar_view_event_command":
         return this.item_selected;
       case "calendar_delete_focused_item_command":
@@ -867,8 +867,23 @@ function setupContextItemType(aEvent, aItems) {
 
   let menu = document.getElementById("calendar-item-context-menu-attendance-menu");
   setupAttendanceMenu(menu, aItems);
-
   return true;
+}
+
+/**
+ * Tests whether the items currently selected can be edited in the event dialog.
+ * Invitations are not considered editable here.
+ */
+function canEditSelectedItems() {
+  let items = currentView().getSelectedItems();
+  return items.every(item => {
+    let schedSupport = cal.wrapInstance(item.calendar, Ci.calISchedulingSupport);
+    return (
+      cal.acl.isCalendarWritable(item.calendar) &&
+      cal.acl.userCanModifyItem(item) &&
+      !schedSupport.isInvitation(item)
+    );
+  });
 }
 
 /**

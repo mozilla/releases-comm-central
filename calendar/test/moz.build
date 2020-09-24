@@ -5,6 +5,7 @@
 
 BROWSER_CHROME_MANIFESTS += [
     'browser/browser.ini',
+    'browser/contextMenu/browser.ini',
     'browser/eventDialog/browser.ini',
     'browser/invitations/browser.ini',
     'browser/preferences/browser.ini',
