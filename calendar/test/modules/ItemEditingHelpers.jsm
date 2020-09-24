@@ -596,17 +596,23 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
     undefined,
     "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     async timezoneWindow => {
+      let focus = BrowserTestUtils.waitForEvent(timezoneWindow, "focus", true);
+      timezoneWindow.focus();
+      await focus;
+
       let timezoneDocument = timezoneWindow.document;
       let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
       let timezoneMenuitem = timezoneMenulist.querySelector(`[value="${timezone}"]`);
 
-      await sleep(timezoneWindow);
+      let popupshown = BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
       synthesizeMouseAtCenter(timezoneMenulist, {}, timezoneWindow);
-      await BrowserTestUtils.waitForEvent(timezoneMenulist, "popupshown");
+      await popupshown;
+
       timezoneMenuitem.scrollIntoView();
+
+      let popuphidden = BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
       synthesizeMouseAtCenter(timezoneMenuitem, {}, timezoneWindow);
-      await BrowserTestUtils.waitForEvent(timezoneMenulist, "popuphidden");
-      await sleep(timezoneWindow);
+      await popuphidden;
 
       synthesizeMouseAtCenter(
         timezoneDocument.querySelector("dialog").getButton("accept"),
