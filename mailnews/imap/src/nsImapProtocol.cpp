@@ -4810,10 +4810,11 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
     // Strictly speaking, we only need secInfo for NSS errors (to access bad
     // certificates), but the nssErrorsService we use to determine the
     // error class only works on the main thread.
-    {
+    if (m_runningUrl) {
       nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(m_runningUrl);
       nsCOMPtr<nsISupports> secInfo;
-      if (NS_SUCCEEDED(m_transport->GetSecurityInfo(getter_AddRefs(secInfo)))) {
+      if (mailNewsUrl &&
+          NS_SUCCEEDED(m_transport->GetSecurityInfo(getter_AddRefs(secInfo)))) {
         nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
             do_QueryInterface(secInfo);
         if (transportSecInfo) {
