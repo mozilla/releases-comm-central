@@ -57,6 +57,7 @@ class MimeMessage {
     this._bodyType = bodyType;
     this._bodyText = bodyText;
     this._deliverMode = deliverMode;
+    this._compType = compType;
     this._embeddedAttachments = embeddedAttachments;
   }
 
@@ -243,6 +244,15 @@ class MimeMessage {
         headers.set("references", references);
       }
       headers.set("in-reply-to", MsgUtils.getInReplyTo(rawReferences));
+    }
+    if (
+      rawReferences &&
+      [
+        Ci.nsIMsgCompType.ForwardInline,
+        Ci.nsIMsgCompType.ForwardAsAttachment,
+      ].includes(this._compType)
+    ) {
+      headers.set("x-forwarded-message-id", rawReferences);
     }
 
     let rawNewsgroups = headers.get("newsgroups");
