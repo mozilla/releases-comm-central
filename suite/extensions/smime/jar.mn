@@ -11,7 +11,5 @@ messenger.jar:
     content/messenger-smime/msgReadSMIMEOverlay.js                   (../../../mailnews/extensions/smime/msgReadSMIMEOverlay.js)
     content/messenger-smime/msgCompSecurityInfo.js                   (../../../mailnews/extensions/smime/msgCompSecurityInfo.js)
     content/messenger-smime/msgCompSecurityInfo.xhtml                (../../../mailnews/extensions/smime/msgCompSecurityInfo.xhtml)
-    content/messenger-smime/msgReadSecurityInfo.js                   (../../../mailnews/extensions/smime/msgReadSecurityInfo.js)
-    content/messenger-smime/msgReadSecurityInfo.xhtml                (../../../mailnews/extensions/smime/msgReadSecurityInfo.xhtml)
     content/messenger-smime/certFetchingStatus.js                    (../../../mailnews/extensions/smime/certFetchingStatus.js)
     content/messenger-smime/certFetchingStatus.xhtml                 (../../../mailnews/extensions/smime/certFetchingStatus.xhtml)
