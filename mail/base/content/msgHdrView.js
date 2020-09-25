@@ -389,7 +389,7 @@ var AddressBookListener = {
     "addrbook-directory-created",
     "addrbook-directory-deleted",
     "addrbook-contact-created",
-    "addrbook-contact-changed",
+    "addrbook-contact-updated",
     "addrbook-contact-deleted",
   ],
   register() {
@@ -420,7 +420,7 @@ var AddressBookListener = {
           subject
         );
         break;
-      case "addrbook-contact-changed":
+      case "addrbook-contact-updated":
         subject.QueryInterface(Ci.nsIAbCard);
         OnAddressBookDataChanged("itemChanged", null, subject);
         break;

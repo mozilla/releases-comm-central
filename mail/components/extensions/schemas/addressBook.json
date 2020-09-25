@@ -262,6 +262,38 @@
             ]
           }
         }
+      },
+      {
+        "id": "PropertyChange",
+        "type": "object",
+        "description": "A dictionary of changed properties. Keys are the property name that changed, values are an object containing ``oldValue`` and ``newValue``. Values can be either a string or null.",
+        "patternProperties": {
+          "^\\w+$": {
+            "type": "object",
+            "properties": {
+              "oldValue": {
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "newValue": {
+                "choices": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        }
       }
     ],
     "functions": [
@@ -287,7 +319,8 @@
             "type": "string",
             "optional": true,
             "description": "The ID of the address book to search. If not specified, all address books are searched."
-          }, {
+          },
+          {
             "name": "searchString",
             "type": "string",
             "description": "One or more space-separated terms to search for."
@@ -382,6 +415,10 @@
           {
             "name": "node",
             "$ref": "ContactNode"
+          },
+          {
+            "name": "changedProperties",
+            "$ref": "PropertyChange"
           }
         ]
       },

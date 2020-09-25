@@ -5,6 +5,17 @@
 // Functions for extensions to use, so that we avoid repeating ourselves.
 
 function assertDeepEqual(expected, actual) {
+  if (expected === null) {
+    browser.test.assertTrue(actual === null);
+    return;
+  }
+
+  if (["boolean", "number", "string"].includes(typeof expected)) {
+    browser.test.assertEq(typeof expected, typeof actual);
+    browser.test.assertEq(expected, actual);
+    return;
+  }
+
   if (Array.isArray(expected)) {
     browser.test.assertTrue(Array.isArray(actual));
     browser.test.assertEq(expected.length, actual.length);
@@ -21,15 +32,7 @@ function assertDeepEqual(expected, actual) {
 
   for (let key of expectedKeys) {
     browser.test.assertTrue(actualKeys.includes(key), `Key ${key} exists`);
-    if (expected[key] === null) {
-      browser.test.assertTrue(actual[key] === null);
-      continue;
-    }
-    if (["array", "object"].includes(typeof expected[key])) {
-      assertDeepEqual(expected[key], actual[key]);
-      continue;
-    }
-    browser.test.assertEq(expected[key], actual[key]);
+    assertDeepEqual(expected[key], actual[key]);
   }
 }
 

@@ -23,6 +23,7 @@ var observer = {
     "addrbook-directory-deleted",
     "addrbook-contact-created",
     "addrbook-contact-updated",
+    "addrbook-contact-properties-updated",
     "addrbook-contact-deleted",
     "addrbook-list-created",
     "addrbook-list-updated",
@@ -64,8 +65,12 @@ var observer = {
     );
     equal(observer.events.length, events.length);
 
-    for (let expectedEvent of events) {
-      let actualEvent = observer.events.shift();
+    let actualEvents = observer.events.slice();
+    observer.events.length = 0;
+
+    for (let j = 0; j < events.length; j++) {
+      let expectedEvent = events[j];
+      let actualEvent = actualEvents[j];
 
       for (let i = 0; i < expectedEvent.length; i++) {
         try {
@@ -82,6 +87,8 @@ var observer = {
         }
       }
     }
+
+    return actualEvents;
   },
 };
 
@@ -188,6 +195,7 @@ add_task(async function createContact() {
   contact.firstName = "new";
   contact.lastName = "contact";
   contact.primaryEmail = "test@invalid";
+  contact.setProperty("Notes", "This will be deleted later.");
   contact = book.addCard(contact);
   observer.checkEvents(["addrbook-contact-created", contact, book.UID]);
 
@@ -205,6 +213,7 @@ add_task(async function createContact() {
   equal(contact.lastName, "contact");
   equal(contact.displayName, "a new contact");
   equal(contact.primaryEmail, "test@invalid");
+  equal(contact.getProperty("Notes", ""), "This will be deleted later.");
   equal(contact.isMailList, false);
   let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
   Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
@@ -228,11 +237,38 @@ add_task(async function createContact() {
 add_task(async function editContact() {
   contact.firstName = "updated";
   contact.lastName = "contact";
+  contact.displayName = "updated contact";
+  contact.setProperty("Custom1", "a new property");
+  contact.setProperty("Notes", null);
   contact.setProperty("LastModifiedDate", 0);
   book.modifyCard(contact);
-  observer.checkEvents(["addrbook-contact-updated", contact, book.UID]);
+  let [, propertyEvent] = observer.checkEvents(
+    ["addrbook-contact-updated", contact, book.UID],
+    ["addrbook-contact-properties-updated", contact]
+  );
+  Assert.deepEqual(JSON.parse(propertyEvent[2]), {
+    DisplayName: {
+      oldValue: "a new contact",
+      newValue: "updated contact",
+    },
+    Notes: {
+      oldValue: "This will be deleted later.",
+      newValue: null,
+    },
+    FirstName: {
+      oldValue: "new",
+      newValue: "updated",
+    },
+    Custom1: {
+      oldValue: null,
+      newValue: "a new property",
+    },
+  });
   equal(contact.firstName, "updated");
   equal(contact.lastName, "contact");
+  equal(contact.displayName, "updated contact");
+  equal(contact.getProperty("Custom1", ""), "a new property");
+  equal(contact.getProperty("Notes", "empty"), "empty");
   let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
   Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
   Assert.greater(modifiedDate, Date.now() / 1000 - 10);

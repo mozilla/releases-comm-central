@@ -227,7 +227,7 @@ var addressBookCache = new (class extends EventEmitter {
     "addrbook-directory-updated",
     "addrbook-directory-deleted",
     "addrbook-contact-created",
-    "addrbook-contact-updated",
+    "addrbook-contact-properties-updated",
     "addrbook-contact-deleted",
     "addrbook-list-created",
     "addrbook-list-updated",
@@ -296,13 +296,14 @@ var addressBookCache = new (class extends EventEmitter {
         this.emit("contact-created", newNode);
         break;
       }
-      case "addrbook-contact-updated": {
+      case "addrbook-contact-properties-updated": {
         subject.QueryInterface(Ci.nsIAbCard);
 
-        let parent = MailServices.ab.getDirectoryFromUID(data);
+        let parentUID = subject.directoryUID;
+        let parent = MailServices.ab.getDirectoryFromUID(parentUID);
         let newNode = this._makeContactNode(subject, parent);
-        if (this._addressBooks.has(data)) {
-          let parentNode = this._addressBooks.get(data);
+        if (this._addressBooks.has(parentUID)) {
+          let parentNode = this._addressBooks.get(parentUID);
           if (parentNode.contacts) {
             parentNode.contacts.set(newNode.id, newNode);
             this._contacts.set(newNode.id, newNode);
@@ -319,7 +320,7 @@ var addressBookCache = new (class extends EventEmitter {
           }
         }
 
-        this.emit("contact-updated", newNode);
+        this.emit("contact-updated", newNode, JSON.parse(data));
         break;
       }
       case "addrbook-contact-deleted": {
@@ -665,8 +666,14 @@ this.addressBook = class extends ExtensionAPI {
           context,
           name: "contacts.onUpdated",
           register: fire => {
-            let listener = (event, node) => {
-              fire.sync(addressBookCache.convert(node));
+            let listener = (event, node, changes) => {
+              let filteredChanges = {};
+              for (let [key, value] of Object.entries(changes)) {
+                if (!hiddenProperties.includes(key) && key.match(/^\w+$/)) {
+                  filteredChanges[key] = value;
+                }
+              }
+              fire.sync(addressBookCache.convert(node), filteredChanges);
             };
 
             addressBookCache.on("contact-updated", listener);

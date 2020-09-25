@@ -66,23 +66,7 @@ add_task(async function test_addressBooks() {
           event.args.length,
           "Argument count is correct"
         );
-        for (let i = 0; i < expectedArgs.length; i++) {
-          if (typeof expectedArgs[i] == "object") {
-            for (let k of Object.keys(expectedArgs[i])) {
-              browser.test.assertEq(
-                expectedArgs[i][k],
-                event.args[i][k],
-                `Property ${k} is correct`
-              );
-            }
-          } else {
-            browser.test.assertEq(
-              expectedArgs[i],
-              event.args[i],
-              `Argument ${i + 1} is correct`
-            );
-          }
-        }
+        window.assertDeepEqual(expectedArgs, event.args);
         if (expectedEvents.length == 1) {
           return event.args;
         }
@@ -236,6 +220,10 @@ add_task(async function test_addressBooks() {
         "contacts",
         "onUpdated",
         { type: "contact", parentId: firstBookId, id: newContactId },
+        {
+          PrimaryEmail: { oldValue: null, newValue: "first@last" },
+          LastName: { oldValue: "last", newValue: null },
+        },
       ]);
 
       let updatedContact = await browser.contacts.get(newContactId);
@@ -576,6 +564,7 @@ add_task(async function test_addressBooks() {
         "contacts",
         "onUpdated",
         { type: "contact", parentId: parentId1, id: contactId },
+        { LastName: { oldValue: "add", newValue: "edit" } },
       ]);
       browser.test.assertEq("external", updatedContact.properties.FirstName);
       browser.test.assertEq("edit", updatedContact.properties.LastName);

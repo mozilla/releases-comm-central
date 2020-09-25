@@ -723,16 +723,41 @@ class AddrBookDirectory {
     return this.dropCard(card, false);
   }
   modifyCard(card) {
-    let newProperties = new Map();
+    let oldProperties = this._loadCardProperties(card.UID);
+    let changedProperties = new Set(oldProperties.keys());
+
     for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
-      newProperties.set(name, value);
+      if (!oldProperties.has(name)) {
+        changedProperties.add(name);
+      } else if (oldProperties.get(name) == value) {
+        changedProperties.delete(name);
+      }
     }
+    changedProperties.delete("LastModifiedDate");
+
     this._saveCardProperties(card);
+
+    if (changedProperties.size == 0) {
+      return;
+    }
+
     // Send the card as it is in this directory, not as passed to this function.
+    card = this._getCard(card.UID);
+    Services.obs.notifyObservers(card, "addrbook-contact-updated", this.UID);
+
+    let data = {};
+
+    for (let name of changedProperties) {
+      data[name] = {
+        oldValue: oldProperties.get(name) || null,
+        newValue: card.getProperty(name, null),
+      };
+    }
+
     Services.obs.notifyObservers(
-      this._getCard(card.UID),
-      "addrbook-contact-updated",
-      this.UID
+      card,
+      "addrbook-contact-properties-updated",
+      JSON.stringify(data)
     );
   }
   deleteCards(cards) {
