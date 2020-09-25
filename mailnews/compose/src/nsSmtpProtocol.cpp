@@ -10,6 +10,7 @@
 #include "nsIInputStream.h"
 #include "nsIOutputStream.h"
 #include "nsISocketTransport.h"
+#include "nsITransportSecurityInfo.h"
 #include "nsIMsgMailNewsUrl.h"
 #include "nsMsgBaseCID.h"
 #include "nsMsgCompCID.h"
@@ -431,6 +432,24 @@ void nsSmtpProtocol::AppendHelloArgument(nsACString& aResult) {
 // associated with aURL is going away.
 NS_IMETHODIMP nsSmtpProtocol::OnStopRequest(nsIRequest* request,
                                             nsresult aStatus) {
+  if (NS_FAILED(aStatus)) {
+    // Stash the socket transport's securityInfo on the url, in case we need
+    // it later (e.g. to help the user set up an exception for a self-signed
+    // certificate).
+    nsCOMPtr<nsIMsgMailNewsUrl> mailNewsUrl = do_QueryInterface(m_runningURL);
+    nsCOMPtr<nsISocketTransport> strans = do_QueryInterface(m_transport);
+    if (strans && mailNewsUrl) {
+      nsCOMPtr<nsISupports> secInfo;
+      if (NS_SUCCEEDED(strans->GetSecurityInfo(getter_AddRefs(secInfo)))) {
+        nsCOMPtr<nsITransportSecurityInfo> transportSecInfo =
+            do_QueryInterface(secInfo);
+        if (transportSecInfo) {
+          mailNewsUrl->SetFailedSecInfoInternal(transportSecInfo);
+        }
+      }
+    }
+  }
+
   bool connDroppedDuringAuth =
       NS_SUCCEEDED(aStatus) && !m_sendDone &&
       (m_nextStateAfterResponse == SMTP_AUTH_LOGIN_STEP0_RESPONSE ||
