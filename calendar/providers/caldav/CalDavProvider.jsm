@@ -403,6 +403,7 @@ class CalDavDetector {
     calendar.setProperty("color", color || cal.view.hashColor(uri.spec));
     calendar.name = displayName;
     calendar.id = cal.getUUID();
+    calendar.setProperty("sessionId", this.session.id);
     calendar.wrappedJSObject.session = this.session.toBaseSession();
     return calendar;
   }
