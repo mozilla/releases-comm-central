@@ -604,6 +604,11 @@ CalStorageCalendar.prototype = {
     if (!aListener) {
       return;
     }
+    if (this.getProperty("disabled")) {
+      // Get no items for disabled calendars.
+      this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
+      return;
+    }
 
     let self = this;
 
@@ -633,16 +638,17 @@ CalStorageCalendar.prototype = {
 
     let wantEvents = (aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_EVENT) != 0;
     let wantTodos = (aItemFilter & kCalICalendar.ITEM_FILTER_TYPE_TODO) != 0;
-    let asOccurrences = (aItemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
-    let wantOfflineDeletedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0;
-    let wantOfflineCreatedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0;
-    let wantOfflineModifiedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0;
 
     if (!wantEvents && !wantTodos) {
       // nothing to do
       this.notifyOperationComplete(aListener, Cr.NS_OK, Ci.calIOperationListener.GET, null, null);
       return;
     }
+
+    let asOccurrences = (aItemFilter & kCalICalendar.ITEM_FILTER_CLASS_OCCURRENCES) != 0;
+    let wantOfflineDeletedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_DELETED) != 0;
+    let wantOfflineCreatedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_CREATED) != 0;
+    let wantOfflineModifiedItems = (aItemFilter & kCalICalendar.ITEM_FILTER_OFFLINE_MODIFIED) != 0;
 
     // HACK because recurring offline events/todos objects don't have offline_journal information
     // Hence we need to update the mRecEventCacheOfflineFlags and  mRecTodoCacheOfflineFlags hash-tables

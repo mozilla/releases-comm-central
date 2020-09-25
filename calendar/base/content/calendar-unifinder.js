@@ -185,7 +185,7 @@ var unifinderObserver = {
 };
 
 /**
- * Called when the window is loaded to prepare the unifinder. This function is
+ * Called when calendar component is loaded to prepare the unifinder. This function is
  * used to add observers, event listeners, etc.
  */
 function prepareCalendarUnifinder() {
@@ -996,6 +996,3 @@ function toggleUnifinder() {
   }
   unifinderTreeView.setSelectedItems();
 }
-
-window.addEventListener("load", prepareCalendarUnifinder, { once: true });
-window.addEventListener("unload", finishCalendarUnifinder);

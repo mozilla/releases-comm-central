@@ -11,10 +11,11 @@
 /* import-globals-from ../../lightning/content/lightning-item-panel.js */
 /* import-globals-from calendar-command-controller.js */
 /* import-globals-from calendar-invitations-manager.js */
-/* import-globals-from today-pane.js */
 /* import-globals-from calendar-management.js */
+/* import-globals-from calendar-task-editing.js */
 /* import-globals-from calendar-ui-utils.js */
 /* import-globals-from calendar-views-utils.js */
+/* import-globals-from today-pane.js */
 
 /* globals calSwitchToMode, changeMode, PanelUI, setUpInvitationsManager,
  *         tearDownInvitationsManager,
@@ -117,7 +118,6 @@ async function loadCalendarComponent() {
 
   let filter = document.getElementById("task-tree-filtergroup");
   filter.value = filter.value || "all";
-  changeMode();
 
   // Set up customizeDone handlers for our toolbars.
   let toolbox = document.getElementById("calendar-toolbox");
@@ -130,6 +130,10 @@ async function loadCalendarComponent() {
   };
 
   updateTodayPaneButton();
+
+  prepareCalendarUnifinder();
+
+  taskEdit.onLoad();
 
   Services.obs.notifyObservers(window, "lightning-startup-done");
 }
@@ -148,6 +152,10 @@ function unloadCalendarComponent() {
 
   // Clean up window pref observers
   calendarWindowPrefs.cleanup();
+
+  finishCalendarUnifinder();
+
+  taskEdit.onUnload();
 }
 
 /**

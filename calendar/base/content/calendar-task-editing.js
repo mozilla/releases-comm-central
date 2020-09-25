@@ -127,7 +127,7 @@ var taskEdit = {
   },
 
   /**
-   * Window load function to set up all quick-add inputs. The input must
+   * Load function to set up all quick-add inputs. The input must
    * have the class "task-edit-field".
    */
   onLoad(aEvent) {
@@ -225,6 +225,3 @@ var taskEdit = {
     },
   },
 };
-
-window.addEventListener("load", taskEdit.onLoad, { capture: false, once: true });
-window.addEventListener("unload", taskEdit.onUnload, { capture: false, once: true });

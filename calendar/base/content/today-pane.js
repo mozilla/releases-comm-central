@@ -14,6 +14,7 @@ var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
  * Namespace object to hold functions related to the today pane.
  */
 var TodayPane = {
+  isLoaded: false,
   paneViews: null,
   start: null,
   cwlabel: null,
@@ -31,6 +32,7 @@ var TodayPane = {
    * Load Handler, sets up the today pane controls.
    */
   async onLoad() {
+    this.isLoaded = true;
     await agendaListbox.init();
 
     TodayPane.paneViews = [
@@ -73,6 +75,9 @@ var TodayPane = {
    * views. (event+task, task only, event only)
    */
   updateDisplay() {
+    if (!this.isLoaded) {
+      return;
+    }
     let agendaIsVisible = document.getElementById("agenda-panel").isVisible(gCurrentMode);
     let todoIsVisible = document.getElementById("todo-tab-panel").isVisible(gCurrentMode);
     let index = 2;
