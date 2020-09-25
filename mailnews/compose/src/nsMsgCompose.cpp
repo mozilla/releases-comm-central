@@ -3109,6 +3109,22 @@ NS_IMETHODIMP nsMsgCompose::OnStopSending(const char* aMsgID, nsresult aStatus,
   return NS_OK;
 }
 
+NS_IMETHODIMP
+nsMsgCompose::OnTransportSecurityError(const char* msgID, nsresult status,
+                                       nsITransportSecurityInfo* secInfo,
+                                       nsACString const& location) {
+  nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
+      mExternalSendListeners);
+  nsCOMPtr<nsIMsgSendListener> externalSendListener;
+
+  while (iter.HasMore()) {
+    externalSendListener = iter.GetNext();
+    externalSendListener->OnTransportSecurityError(msgID, status, secInfo,
+                                                   location);
+  }
+  return NS_OK;
+}
+
 NS_IMETHODIMP nsMsgCompose::OnSendNotPerformed(const char* aMsgID,
                                                nsresult aStatus) {
   nsTObserverArray<nsCOMPtr<nsIMsgSendListener>>::ForwardIterator iter(
@@ -3224,6 +3240,20 @@ nsresult nsMsgComposeSendListener::OnSendNotPerformed(const char* aMsgID,
     composeSendListener->OnSendNotPerformed(aMsgID, aStatus);
 
   return rv;
+}
+
+NS_IMETHODIMP
+nsMsgComposeSendListener::OnTransportSecurityError(
+    const char* msgID, nsresult status, nsITransportSecurityInfo* secInfo,
+    nsACString const& location) {
+  nsresult rv;
+  nsCOMPtr<nsIMsgSendListener> composeSendListener =
+      do_QueryReferent(mWeakComposeObj, &rv);
+  if (NS_SUCCEEDED(rv) && composeSendListener)
+    composeSendListener->OnTransportSecurityError(msgID, status, secInfo,
+                                                  location);
+
+  return NS_OK;
 }
 
 nsresult nsMsgComposeSendListener::OnStopSending(const char* aMsgID,

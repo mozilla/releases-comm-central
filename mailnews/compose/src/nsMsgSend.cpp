@@ -20,6 +20,7 @@
 #include "nsICharsetConverterManager.h"
 #include "nsIMsgSendListener.h"
 #include "nsIMsgCopyServiceListener.h"
+#include "nsITransportSecurityInfo.h"
 #include "nsIFile.h"
 #include "nsIURL.h"
 #include "nsNetUtil.h"
@@ -66,7 +67,7 @@
 #include "nsComposeStrings.h"
 #include "nsString.h"
 #include "nsMsgUtils.h"
-#include "nsIArray.h"
+#include "nsArray.h"
 #include "nsArrayUtils.h"
 #include "mozilla/Services.h"
 #include "mozilla/Attributes.h"
@@ -75,7 +76,6 @@
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLBodyElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
-#include "nsIMutableArray.h"
 #include "nsIMsgFilterService.h"
 #include "nsIMsgProtocolInfo.h"
 #include "mozIDOMWindow.h"
@@ -3085,6 +3085,7 @@ void nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI* aUri,
   // If we fail on the news delivery, no sense in going on so just notify
   // the user and exit.
   if (NS_FAILED(aExitCode)) {
+    bool isNSSError = false;
     const char* exitString = errorStringNameForErrorCode(aExitCode);
     nsString eMsg;
     if (aExitCode == NS_ERROR_SMTP_SEND_FAILED_UNKNOWN_SERVER ||
@@ -3112,6 +3113,12 @@ void nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI* aUri,
         FormatStringWithSMTPHostNameByName("smtpSecurityIssue", securityMsg);
         eMsg.Append('\n');
         eMsg.Append(securityMsg);
+
+        // Was it due to an NSS error (e.g. bad certificate?)
+        uint32_t errClass;
+        if (NS_SUCCEEDED(nsserr->GetErrorClass(aExitCode, &errClass))) {
+          isNSSError = true;
+        }
       } else if (PL_strcmp(exitString, "sendFailed")) {
         // Not the default string. A mailnews error occurred that does not
         // require the server name to be encoded. Just print the descriptive
@@ -3131,6 +3138,23 @@ void nsMsgComposeAndSend::DoDeliveryExitProcessing(nsIURI* aUri,
       }
     }
     Fail(aExitCode, eMsg.get(), &aExitCode);
+
+    if (isNSSError) {
+      // For NSS errors, we want to make sure the listener has access to
+      // the securityInfo and location, so an "add an exception" dialog box
+      // can be shown, if required.
+      // So we invoke OnTransportSecurityError() first, just before the usual
+      // OnStopSending().
+      nsCOMPtr<nsITransportSecurityInfo> secInfo;
+      nsCOMPtr<nsIMsgMailNewsUrl> u = do_QueryInterface(aUri);
+      if (u && NS_SUCCEEDED(u->GetFailedSecInfo(getter_AddRefs(secInfo)))) {
+        nsCString location;
+        u->GetAsciiHostPort(location);
+        NotifyListenerOnTransportSecurityError(nullptr, aExitCode, secInfo,
+                                               location);
+      }
+    }
+
     NotifyListenerOnStopSending(nullptr, aExitCode, nullptr, nullptr);
     return;
   }
@@ -3278,9 +3302,17 @@ nsMsgComposeAndSend::NotifyListenerOnStopSending(const char* aMsgID,
                                                  nsresult aStatus,
                                                  const char16_t* aMsg,
                                                  nsIFile* returnFile) {
-  if (mListener != nullptr)
-    mListener->OnStopSending(aMsgID, aStatus, aMsg, returnFile);
+  if (mListener) mListener->OnStopSending(aMsgID, aStatus, aMsg, returnFile);
 
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsMsgComposeAndSend::NotifyListenerOnTransportSecurityError(
+    const char* msgID, nsresult status, nsITransportSecurityInfo* secInfo,
+    nsACString const& location) {
+  if (mListener)
+    mListener->OnTransportSecurityError(msgID, status, secInfo, location);
   return NS_OK;
 }
 

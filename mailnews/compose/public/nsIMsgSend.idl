@@ -324,6 +324,7 @@ interface nsIMsgSend : nsISupports
     void notifyListenerOnProgress(in string aMsgID, in unsigned long aProgress, in unsigned long aProgressMax);
     void notifyListenerOnStatus(in string aMsgID, in wstring aMsg);
     void notifyListenerOnStopSending(in string aMsgID, in nsresult aStatus, in wstring aMsg, in nsIFile returnFile);
+    void notifyListenerOnTransportSecurityError(in string msgID, in nsresult status, in nsITransportSecurityInfo secInfo, in ACString location);
     void deliverAsMailExit(in nsIURI aUrl, in nsresult aExitCode);
     void deliverAsNewsExit(in nsIURI aUrl, in nsresult aExitCode);
 

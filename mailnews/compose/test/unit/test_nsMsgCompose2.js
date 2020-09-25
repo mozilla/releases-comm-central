@@ -7,7 +7,7 @@ var gMsgCompose = Cc["@mozilla.org/messengercompose/compose;1"].createInstance(
   Ci.nsIMsgCompose
 );
 
-var numSendListenerFunctions = 6;
+var numSendListenerFunctions = 7;
 
 var gSLAll = new Array(numSendListenerFunctions + 1);
 
@@ -53,6 +53,12 @@ sendListener.prototype = {
       gMsgCompose.removeMsgSendListener(this);
     }
   },
+  onTransportSecurityError(msgID, status, secInfo, location) {
+    this.mReceived |= 0x40;
+    if (this.mAutoRemoveItem == 0x40) {
+      gMsgCompose.removeMsgSendListener(this);
+    }
+  },
 };
 
 function NotifySendListeners() {
@@ -62,6 +68,7 @@ function NotifySendListeners() {
   gMsgCompose.onStopSending(null, null, null, null);
   gMsgCompose.onGetDraftFolderURI(null);
   gMsgCompose.onSendNotPerformed(null, null);
+  gMsgCompose.onTransportSecurityError(null, null, null, "");
 }
 
 function run_test() {
@@ -80,8 +87,9 @@ function run_test() {
 
   NotifySendListeners();
 
+  const bitMask = (1 << numSendListenerFunctions) - 1;
   for (i = 0; i < numSendListenerFunctions + 1; ++i) {
-    Assert.equal(gSLAll[i].mReceived, 0x3f);
+    Assert.equal(gSLAll[i].mReceived, bitMask);
     gSLAll[i].mReceived = 0;
 
     // And prepare for test 3.
@@ -111,7 +119,7 @@ function run_test() {
     if (i < numSendListenerFunctions) {
       Assert.equal(gSLAll[i].mReceived, 0);
     } else {
-      Assert.equal(gSLAll[i].mReceived, 0x3f);
+      Assert.equal(gSLAll[i].mReceived, bitMask);
     }
   }
 

@@ -410,6 +410,13 @@ SendOperationListener::OnStopSending(const char* aMsgID, nsresult aStatus,
   return NS_OK;
 }
 
+NS_IMETHODIMP
+SendOperationListener::OnTransportSecurityError(
+    const char* msgID, nsresult status, nsITransportSecurityInfo* secInfo,
+    nsACString const& location) {
+  return NS_OK;
+}
+
 // nsIMsgCopyServiceListener
 
 NS_IMETHODIMP

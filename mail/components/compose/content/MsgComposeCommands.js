@@ -754,6 +754,31 @@ var gSendListener = {
   },
   onGetDraftFolderURI(aFolderURI) {},
   onSendNotPerformed(aMsgID, aStatus) {},
+  onTransportSecurityError(msgID, status, secInfo, location) {
+    // We're only interested in Bad Cert errors here.
+    let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+      Ci.nsINSSErrorsService
+    );
+    let errorClass = nssErrorsService.getErrorClass(status);
+    if (errorClass != Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
+      return;
+    }
+
+    // Give the user the option of adding an exception for the bad cert.
+    let params = {
+      exceptionAdded: false,
+      securityInfo: secInfo,
+      prefetchCert: true,
+      location,
+    };
+    window.openDialog(
+      "chrome://pippki/content/exceptionDialog.xhtml",
+      "",
+      "chrome,centerscreen,modal",
+      params
+    );
+    // params.exceptionAdded will be set if the user added an exception.
+  },
 };
 
 // all progress notifications are done through the nsIWebProgressListener implementation...

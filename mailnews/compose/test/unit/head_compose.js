@@ -110,6 +110,7 @@ var copyListener = {
   onStopSending(aMsgID, aStatus, aMsg, aReturnFile) {},
   onGetDraftFolderURI(aFolderURI) {},
   onSendNotPerformed(aMsgID, aStatus) {},
+  onTransportSecurityError(msgID, status, secInfo, location) {},
 
   // nsIMsgCopyServiceListener
   OnStartCopy() {},

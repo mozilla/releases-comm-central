@@ -172,6 +172,7 @@ var EnigmailSend = {
           callbackFunc(false);
         }
       },
+      onTransportSecurityError(msgID, status, secInfo, location) {},
     };
 
     return this.sendMessage(body, fields, listener);

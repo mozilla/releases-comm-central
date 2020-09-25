@@ -6,6 +6,7 @@
 #include "nsISupports.idl"
 
 interface nsIFile;
+interface nsITransportSecurityInfo;
 
 [scriptable, uuid(D34DC178-5E78-45E8-8658-A8F52D9CCF5F)]
 interface nsIMsgSendListener : nsISupports {
@@ -53,5 +54,25 @@ interface nsIMsgSendListener : nsISupports {
      * eg : by closing the compose window without Send.
      */
     void onSendNotPerformed(in string aMsgID, in nsresult aStatus);
+
+    /**
+     * Notify that an NSS security error has occured during the send
+     * (e.g. Bad Certificate or SSL version failure).
+     * This callback is invoked before onStopSending(), in case a listener
+     * needs the securityInfo - most likely to get at a failed certificate,
+     * allowing the user to add an exception.
+     * onStopSending() will still be called after this, so a listener
+     * which doesn't need special NSS handling can just leave this callback as
+     * an empty function and leave the handling to onStopSending().
+     *
+     * @param {string} msgID      - The message ID.
+     * @param {nsresult} status   - The error code (it will be in the NSS error
+     *                              code range).
+     * @param {nsITransportSecurityInfo} secInfo
+     *                            - Security info for the failed operation.
+     * @param {ACString} location - The location of the failed operation
+     *                              ("<host>:<port>")
+     */
+    void onTransportSecurityError(in string msgID, in nsresult status, in nsITransportSecurityInfo secInfo, in ACString location);
 
 };

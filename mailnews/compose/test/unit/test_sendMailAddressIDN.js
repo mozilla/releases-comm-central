@@ -91,6 +91,7 @@ MsgSendListener.prototype = {
   },
   onGetDraftFolderURI(aFolderURI) {},
   onSendNotPerformed(aMsgID, aStatus) {},
+  onTransportSecurityError(msgID, status, secInfo, location) {},
 
   // nsIMsgCopyServiceListener
   OnStartCopy() {},

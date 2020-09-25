@@ -81,6 +81,14 @@ class MAPISendListener : public nsIMsgSendListener,
     return NS_OK;
   }
 
+  /* void OnTransportSecurityError( in string msgID, in nsresult status, in
+   * nsITransportSecurityInfo secInfo, in ACString location); */
+  NS_IMETHOD OnTransportSecurityError(const char* msgID, nsresult status,
+                                      nsITransportSecurityInfo* secInfo,
+                                      nsACString const& location) {
+    return NS_OK;
+  }
+
   /* void OnSendNotPerformed */
   NS_IMETHOD OnSendNotPerformed(const char* aMsgID, nsresult aStatus) {
     return OnStopSending(aMsgID, aStatus, nullptr, nullptr);
