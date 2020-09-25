@@ -992,4 +992,59 @@ var MsgUtils = {
       ]);
     return msg;
   },
+
+  /**
+   * Generate random printable string.
+   * @param {number} size - The length of generated string.
+   * @returns {string}
+   */
+  randomString(size) {
+    let length = Math.round((size * 3) / 4);
+    return btoa(
+      String.fromCharCode(
+        ...[...Array(length)].map(() => Math.floor(Math.random() * 256))
+      )
+    ).slice(0, size);
+  },
+
+  /**
+   * Generate a content id to be used by embedded images.
+   * @param {nsIMsgIdentity} userIdentity - User identity.
+   * @param {number} partNum - The number of embedded MimePart.
+   * @returns {string}
+   */
+  makeContentId(userIdentity, partNum) {
+    let domain = userIdentity.email.split("@")[1];
+    return `part${partNum}.${this.randomString(8)}.${this.randomString(
+      8
+    )}@${domain}`;
+  },
+
+  /**
+   * Pick a file name from the file URL.
+   * @param {string} url - The file URL.
+   * @returns {string}
+   */
+  pickFileNameFromUrl(url) {
+    if (/^(news|snews|imap|mailbox):/i.test(url)) {
+      // No sensible file name in it,
+      return "";
+    }
+    if (/^data:/i.test(url)) {
+      let matches = /filename=(.*);/.exec(url);
+      if (matches && matches[1]) {
+        return matches[1];
+      }
+    }
+    // Take the part after the last / or \.
+    let lastSlash = url.lastIndexOf("\\");
+    if (lastSlash == -1) {
+      lastSlash = url.lastIndexOf("/");
+    }
+    // Strip any search or anchor.
+    return url
+      .slice(lastSlash + 1)
+      .split("?")[0]
+      .split("#")[0];
+  },
 };

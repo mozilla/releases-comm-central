@@ -6,7 +6,9 @@ const EXPORTED_SYMBOLS = ["MimeMessage"];
 
 let { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-let { MimePart } = ChromeUtils.import("resource:///modules/MimePart.jsm");
+let { MimeMultiPart, MimePart } = ChromeUtils.import(
+  "resource:///modules/MimePart.jsm"
+);
 let { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
@@ -27,10 +29,12 @@ class MimeMessage {
    * @param {nsIMsgIdentity} userIdentity
    * @param {nsIMsgCompFields} compFields
    * @param {string} bodyType
-   * @param {string} bodyText
+   * @param {BinaryString} bodyText - This is ensured to be a 8-bit string, to
+   * be handled the same as attachment content.
    * @param {nsMsgDeliverMode} deliverMode
    * @param {string} originalMsgURI
    * @param {MSG_ComposeType} compType
+   * @param {nsIMsgAttachment[]} embeddedAttachments - Usually Embedded images.
    */
   constructor(
     userIdentity,
@@ -39,7 +43,8 @@ class MimeMessage {
     bodyText,
     deliverMode,
     originalMsgURI,
-    compType
+    compType,
+    embeddedAttachments
   ) {
     this._userIdentity = userIdentity;
     this._compFields = compFields;
@@ -52,6 +57,7 @@ class MimeMessage {
     this._bodyType = bodyType;
     this._bodyText = bodyText;
     this._deliverMode = deliverMode;
+    this._embeddedAttachments = embeddedAttachments;
   }
 
   /**
@@ -76,18 +82,24 @@ class MimeMessage {
    * @returns {MimePart}
    */
   _initMimePart() {
-    let topPart = new MimePart();
-    topPart.setHeaders(this._gatherMimeHeaders());
-    let mainParts = this._gatherMainParts();
+    let [plainPart, htmlPart] = this._gatherMainParts();
+    let embeddedParts = this._gatherEmbeddedParts();
     let attachmentParts = this._gatherAttachmentParts();
 
+    let relatedPart = htmlPart;
+    if (htmlPart && embeddedParts.length > 0) {
+      relatedPart = new MimeMultiPart("related");
+      relatedPart.addPart(htmlPart);
+      relatedPart.addParts(embeddedParts);
+    }
+    let mainParts = [plainPart, relatedPart].filter(Boolean);
+    let topPart;
     if (attachmentParts.length > 0) {
       // Use multipart/mixed as long as there is at least one attachment.
-      topPart.initMultipart("mixed");
-      if (mainParts.length > 1) {
+      topPart = new MimeMultiPart("mixed");
+      if (plainPart && relatedPart) {
         // Wrap mainParts inside a multipart/alternative MimePart.
-        let alternativePart = new MimePart();
-        alternativePart.initMultipart("alternative");
+        let alternativePart = new MimeMultiPart("alternative");
         alternativePart.addParts(mainParts);
         topPart.addPart(alternativePart);
       } else {
@@ -97,10 +109,14 @@ class MimeMessage {
     } else {
       if (mainParts.length > 1) {
         // Mark the topPart as multipart/alternative.
-        topPart.initMultipart("alternative");
+        topPart = new MimeMultiPart("alternative");
+      } else {
+        topPart = new MimePart();
       }
       topPart.addParts(mainParts);
     }
+
+    topPart.setHeaders(this._gatherMimeHeaders());
 
     return topPart;
   }
@@ -259,8 +275,6 @@ class MimeMessage {
       formatParam += "; format=flowed";
     }
 
-    // body is 8-bit string, save it directly in MimePart to avoid converting
-    // back and forth.
     let htmlPart = null;
     let plainPart = null;
     let parts = [];
@@ -271,7 +285,7 @@ class MimeMessage {
         this._compFields.forceMsgEncoding,
         true
       );
-      htmlPart.setHeader("content-type", `text/html; charset=UTF-8`);
+      htmlPart.setHeader("content-type", "text/html; charset=UTF-8");
       htmlPart.bodyText = this._bodyText;
     } else if (this._bodyType === "text/plain") {
       plainPart = new MimePart(
@@ -327,7 +341,7 @@ class MimeMessage {
 
   /**
    * Collect local attachments.
-   * @returns {Array.<MimePart>}
+   * @returns {MimePart[]}
    */
   _gatherAttachmentParts() {
     let attachments = [...this._compFields.attachments];
@@ -347,11 +361,23 @@ class MimeMessage {
         continue;
       }
       let part = new MimePart(null, this._compFields.forceMsgEncoding, false);
-      part.bodyAttachment = attachment;
+      part.setBodyAttachment(attachment);
       localParts.push(part);
     }
     // Cloud attachments are handled before local attachments in the C++
     // implementation. We follow it here so that no need to change tests.
     return cloudParts.concat(localParts);
+  }
+
+  /**
+   * Collect embedded objects as attachments.
+   * @returns {MimePart[]}
+   */
+  _gatherEmbeddedParts() {
+    return this._embeddedAttachments.map(attachment => {
+      let part = new MimePart(null, this._compFields.forceMsgEncoding, false);
+      part.setBodyAttachment(attachment);
+      return part;
+    });
   }
 }

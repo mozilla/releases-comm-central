@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const EXPORTED_SYMBOLS = ["MimePart"];
+const EXPORTED_SYMBOLS = ["MimePart", "MimeMultiPart"];
 
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
@@ -15,12 +15,15 @@ Cu.importGlobalProperties(["fetch"]);
 
 /**
  * A class to represent a RFC2045 message. MimePart can be nested, each MimePart
- * can contain a list of MimePart. HTML and plain text are parts as well.
+ * can contain a list of MimePart. HTML and plain text are parts as well. Use
+ * class MimeMultiPart for multipart/*, that's why this class doesn't expose an
+ * addPart method
  */
 class MimePart {
   /**
-   * Init private properties, it's best not to access those properties directly
-   * from the outside.
+   * @param {string} contentType - Content type of the part, e.g. text/plain.
+   * @param {boolean} forceMsgEncoding - A flag used to determine Content-Transfer-Encoding.
+   * @param {boolean} isMainBody - The part is main part or an attachment part.
    */
   constructor(contentType = "", forceMsgEncoding = false, isMainBody = false) {
     this._charset = "UTF-8";
@@ -32,6 +35,8 @@ class MimePart {
     // 8-bit string to avoid converting back and forth.
     this._bodyText = "";
     this._bodyAttachment = null;
+    this._contentDisposition = null;
+    this._contentId = null;
     this._separator = "";
     this._parts = [];
   }
@@ -73,29 +78,26 @@ class MimePart {
   }
 
   /**
-   * @type {string} text - The string to use as body
+   * @type {BinaryString} text - The string to use as body.
    */
   set bodyText(text) {
     this._bodyText = text;
   }
 
   /**
-   * @type {nsIMsgAttachment} attachment - The attachment to use as body
+   * Set an attachment as body, with optional contentDisposition and contentId.
+   * @param {nsIMsgAttachment} attachment - The attachment to use as body.
+   * @param {string} [contentDisposition=attachment] - "attachment" or "inline".
+   * @param {string} [contentId] - The url of an embedded object is cid:contentId.
    */
-  set bodyAttachment(attachment) {
+  setBodyAttachment(
+    attachment,
+    contentDisposition = "attachment",
+    contentId = null
+  ) {
     this._bodyAttachment = attachment;
-  }
-
-  /**
-   * Set the content type to multipart/<subtype>.
-   * @param {string} subtype - usually "alternative" or "mixed".
-   */
-  initMultipart(subtype) {
-    this._separator = this._makePartSeparator();
-    this.setHeader(
-      "content-type",
-      `multipart/${subtype}; boundary="${this._separator}"`
-    );
+    this._contentDisposition = contentDisposition;
+    this._contentId = contentId;
   }
 
   /**
@@ -147,7 +149,13 @@ class MimePart {
       contentTypeParams += `; name="${encodedName}"`;
     }
     this.setHeader("content-type", `${this._contentType}${contentTypeParams}`);
-    this.setHeader("content-disposition", `attachment; ${encodedFileName}`);
+    this.setHeader(
+      "content-disposition",
+      `${this._contentDisposition}; ${encodedFileName}`
+    );
+    if (this._contentId) {
+      this.setHeader("content-id", `<${this._contentId}>`);
+    }
     if (this._contentType == "text/html") {
       let contentLocation = MsgUtils.getContentLocation(
         this._bodyAttachment.url
@@ -240,6 +248,23 @@ class MimePart {
   async _writeString(str) {
     await this._outFile.write(new TextEncoder().encode(str));
   }
+}
+
+/**
+ * A class to represent a multipart/* part inside a RFC2045 message.
+ */
+class MimeMultiPart extends MimePart {
+  /**
+   * @param {string} subtype - The multipart subtype, e.g. "alternative" or "mixed".
+   */
+  constructor(subtype) {
+    super();
+    this._separator = this._makePartSeparator();
+    this.setHeader(
+      "content-type",
+      `multipart/${subtype}; boundary="${this._separator}"`
+    );
+  }
 
   /**
    * Use 12 hyphen characters and 24 random base64 characters as separator.
@@ -247,11 +272,7 @@ class MimePart {
   _makePartSeparator() {
     return (
       "------------" +
-      btoa(
-        String.fromCharCode(
-          ...[...Array(18)].map(() => Math.floor(Math.random() * 256))
-        )
-      )
+      MsgUtils.randomString(24)
         // Boundary is used to construct RegExp in tests, + would break those
         // tests.
         .replaceAll("+", "-")

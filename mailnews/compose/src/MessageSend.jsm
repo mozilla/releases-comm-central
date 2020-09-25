@@ -9,6 +9,7 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 var { MimeMessage } = ChromeUtils.import("resource:///modules/MimeMessage.jsm");
 var { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
@@ -74,14 +75,22 @@ MessageSend.prototype = {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessage")
     );
+
+    let {
+      embeddedAttachments,
+      embeddedObjects,
+    } = this._gatherEmbeddedAttachments(editor);
+    let bodyText = this._getBodyFromEditor(editor) || body;
+    this._restoreEditorContent(embeddedObjects);
     this._message = new MimeMessage(
       userIdentity,
       compFields,
       bodyType,
-      body,
+      bodyText,
       deliverMode,
       originalMsgURI,
-      type
+      type,
+      embeddedAttachments
     );
 
     // nsMsgKey_None from MailNewsTypes.h.
@@ -423,10 +432,12 @@ MessageSend.prototype = {
 
   _cleanup() {
     if (this._copyFile && this._copyFile != this._messageFile) {
-      this._copyFile.remove(false);
+      OS.File.remove(this._copyFile.path);
+      this._copyFile = null;
     }
-    if (this._shouldRemoveMessageFile) {
-      this._messageFile.remove(false);
+    if (this._messageFile && this._shouldRemoveMessageFile) {
+      OS.File.remove(this._messageFile.path);
+      this._messageFile = null;
     }
   },
 
@@ -461,6 +472,154 @@ MessageSend.prototype = {
       this._compFields.DSN,
       {},
       this._smtpRequest
+    );
+  },
+
+  /**
+   * Collect embedded objects as attachments.
+   * @returns {{embeddedAttachments: nsIMsgAttachment[], embeddedObjects: []}}
+   */
+  _gatherEmbeddedAttachments(editor) {
+    let embeddedAttachments = [];
+    let embeddedObjects = [];
+
+    if (!editor || !editor.document) {
+      return { embeddedAttachments, embeddedObjects };
+    }
+    let nodes = [];
+    nodes.push(...editor.document.querySelectorAll("img"));
+    nodes.push(...editor.document.querySelectorAll("a"));
+    let body = editor.document.querySelector("body[background]");
+    if (body) {
+      nodes.push(body);
+    }
+
+    let urlCidCache = {};
+    for (let element of nodes) {
+      let isImage = false;
+      let url;
+      let name;
+      let mozDoNotSend = element.getAttribute("moz-do-not-send");
+      if (mozDoNotSend && mozDoNotSend.toLowerCase() != "false") {
+        // Only empty or moz-do-not-send="false" may be accepted later.
+        continue;
+      }
+      if (element.tagName == "BODY" && element.background) {
+        isImage = true;
+        url = element.background;
+      } else if (element.tagName == "IMG" && element.src) {
+        isImage = true;
+        url = element.src;
+        name = element.name;
+      } else if (element.tagName == "A" && element.href) {
+        url = element.href;
+        name = element.name;
+      } else {
+        continue;
+      }
+      let acceptObject = false;
+      // Before going further, check what scheme we're dealing with. Files need to
+      // be converted to data URLs during composition. "Attaching" means
+      // sending as a cid: part instead of original URL.
+      if (/^https?:\/\//i.test(url)) {
+        acceptObject =
+          isImage &&
+          Services.prefs.getBoolPref("mail.compose.attach_http_images", false);
+      }
+      if (/^(data|news|snews|nntp):/i.test(url)) {
+        acceptObject = true;
+      }
+      if (!acceptObject) {
+        continue;
+      }
+
+      let cid;
+      if (urlCidCache[url]) {
+        // If an url has already been inserted as MimePart, just reuse the cid.
+        cid = urlCidCache[url];
+      } else {
+        cid = MsgUtils.makeContentId(
+          this._userIdentity,
+          embeddedAttachments.length + 1
+        );
+        urlCidCache[url] = cid;
+
+        let attachment = Cc[
+          "@mozilla.org/messengercompose/attachment;1"
+        ].createInstance(Ci.nsIMsgAttachment);
+        attachment.name = name || MsgUtils.pickFileNameFromUrl(url);
+        attachment.url = url;
+        embeddedAttachments.push(attachment);
+      }
+      embeddedObjects.push({
+        element,
+        url,
+      });
+
+      let newUrl = `cid:${cid}`;
+      if (element.tagName == "BODY") {
+        element.background = newUrl;
+      } else if (element.tagName == "IMG") {
+        element.src = newUrl;
+      } else if (element.tagName == "A") {
+        element.href = newUrl;
+      }
+    }
+    return { embeddedAttachments, embeddedObjects };
+  },
+
+  /**
+   * Restore embedded objects in editor to their original urls.
+   * @param {{element: Element, url: string}[]} - An array of embedded objects.
+   */
+  _restoreEditorContent(embeddedObjects) {
+    for (let { element, url } of embeddedObjects) {
+      if (element.tagName == "BODY") {
+        element.background = url;
+      } else if (element.tagName == "IMG") {
+        element.src = url;
+      } else if (element.tagName == "A") {
+        element.href = url;
+      }
+    }
+  },
+
+  /**
+   * Get the message body from an editor. This returns a BinaryString because:
+   * 1. The body argument of createAndSendMessage is BinaryString.
+   * 2. An attachment content is BinaryString.
+   * 3. Body text and attachment contents are handled in the same way by
+   * MimeEncoder to pick encoding and encode.
+   * @param {nsIEditor} editor - The editor instance.
+   * @returns {BinaryString}
+   */
+  _getBodyFromEditor(editor) {
+    if (!editor) {
+      return "";
+    }
+
+    let flags =
+      Ci.nsIDocumentEncoder.OutputFormatted |
+      Ci.nsIDocumentEncoder.OutputNoFormattingInPre |
+      Ci.nsIDocumentEncoder.OutputDisallowLineBreaking;
+    // bodyText is UTF-16 string.
+    let bodyText = editor.outputToString("text/html", flags);
+
+    // No need to do conversion if forcing plain text.
+    if (!this._compFields.forcePlainText) {
+      let cs = Cc["@mozilla.org/txttohtmlconv;1"].getService(
+        Ci.mozITXTToHTMLConv
+      );
+      let csFlags = Ci.mozITXTToHTMLConv.kURLs;
+      if (Services.prefs.getBoolPref("mail.send_struct", false)) {
+        csFlags |= Ci.mozITXTToHTMLConv.kStructPhrase;
+      }
+      bodyText = cs.scanHTML(bodyText, csFlags);
+    }
+
+    // Convert UTF-16 string to byte string.
+    return jsmime.mimeutils.typedArrayToString(
+      new TextEncoder().encode(bodyText)
     );
   },
 };
