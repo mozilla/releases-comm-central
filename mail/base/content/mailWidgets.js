@@ -2149,7 +2149,10 @@
 
       this.addEventListener("dragstart", event => {
         let targetPill = event.originalTarget.closest("mail-address-pill");
-        if (targetPill && !targetPill.hasAttribute("selected")) {
+        if (!targetPill) {
+          return;
+        }
+        if (!targetPill.hasAttribute("selected")) {
           for (let pill of this.getAllSelectedPills()) {
             // Deselect all previously selected pills if the drag action starts
             // from a non selected pill.
@@ -2158,8 +2161,7 @@
           targetPill.toggleAttribute("selected");
         }
         let selectedPills = this.getAllSelectedPills();
-        // Interrupt if no address pill is being dragged.
-        if (!selectedPills.length || !targetPill) {
+        if (!selectedPills.length) {
           return;
         }
         event.dataTransfer.effectAllowed = "move";
@@ -2213,6 +2215,13 @@
 
       this.addEventListener("drop", event => {
         if (!event.dataTransfer.getData("text/pills")) {
+          // Bail out if the dropped data comes from the contacts sidebar.
+          // Those addresses will be added immediately added as pills and
+          // not go through the input field.
+          if (event.dataTransfer.types.includes("moz/abcard")) {
+            return;
+          }
+
           // A text string was dropped inside the input field therefore we need
           // to update its size to fit the new content.
           let input = event.originalTarget.closest(
