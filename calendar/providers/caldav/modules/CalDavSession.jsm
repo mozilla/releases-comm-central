@@ -47,6 +47,7 @@ class CalDavGoogleOAuth extends OAuth2 {
       [name]
     );
 
+    this.extraAuthParams = [["login_hint", name]];
     this.requestWindowFeatures = "chrome,private,centerscreen,width=430,height=600";
   }
 
