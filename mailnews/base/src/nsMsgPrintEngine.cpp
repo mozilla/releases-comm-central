@@ -547,7 +547,9 @@ void nsMsgPrintEngine::PrintMsgWindow() {
       if (mCurrentlyPrintingURI == 0) {
         nsCOMPtr<nsIPrintingPromptService> svc =
             do_GetService("@mozilla.org/embedcomp/printingprompt-service;1");
-        rv = svc->ShowPrintDialog(mParentWindow ? mParentWindow.get() : mWindow.get(), mPrintSettings);
+        rv = svc->ShowPrintDialog(
+            mParentWindow ? mParentWindow.get() : mWindow.get(),
+            mPrintSettings);
         isPrintingCancelled = rv == NS_ERROR_ABORT;
       } else {
         rv = NS_OK;
