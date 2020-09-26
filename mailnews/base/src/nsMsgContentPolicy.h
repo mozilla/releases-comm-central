@@ -87,8 +87,8 @@ class nsMsgContentPolicy : public nsIContentPolicy,
                                      nsIDocShell** aDocShell);
   nsresult GetOriginatingURIForContext(nsISupports* aRequestingContext,
                                        nsIURI** aURI);
-  nsresult SetDisableItemsOnMailNewsUrlDocshells(
-      nsIURI* aContentLocation, nsISupports* aRequestingContext);
+  nsresult SetDisableItemsOnMailNewsUrlDocshells(nsIURI* aContentLocation,
+                                                 nsILoadInfo* aLoadInfo);
 
   nsTArray<nsCString> mCustomExposedProtocols;
 };

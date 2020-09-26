@@ -803,17 +803,14 @@ already_AddRefed<nsIMsgCompose> nsMsgContentPolicy::GetMsgComposeForContext(
 }
 
 nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
-    nsIURI* aContentLocation, nsISupports* aLoadInfo) {
+    nsIURI* aContentLocation, nsILoadInfo* aLoadInfo) {
   // XXX if this class changes so that this method can be called from
   // ShouldProcess, and if it's possible for this to be null when called from
   // ShouldLoad, but not in the corresponding ShouldProcess call,
   // we need to re-think the assumptions underlying this code.
 
-  // If there's no docshell to get to, there's nowhere for the JavaScript to
-  // run, so we're already safe and don't need to disable anything.
-  if (!aLoadInfo) {
-    return NS_OK;
-  }
+  NS_ENSURE_ARG_POINTER(aContentLocation);
+  NS_ENSURE_ARG_POINTER(aLoadInfo);
 
   nsresult rv;
   bool isAllowedContent = !ShouldBlockUnexposedProtocol(aContentLocation);
@@ -825,15 +822,18 @@ nsresult nsMsgContentPolicy::SetDisableItemsOnMailNewsUrlDocshells(
     return NS_OK;
   }
 
-  RefPtr<nsILoadInfo> loadInfo = do_QueryObject(aLoadInfo);
-  NS_ENSURE_TRUE(loadInfo, NS_ERROR_INVALID_POINTER);
-
   RefPtr<mozilla::dom::BrowsingContext> browsingContext =
-      loadInfo->GetTargetBrowsingContext();
-  NS_ENSURE_TRUE(browsingContext, NS_OK);
+      aLoadInfo->GetTargetBrowsingContext();
+  if (!browsingContext) {
+    return NS_OK;
+  }
 
   nsCOMPtr<nsIDocShell> docShell = browsingContext->GetDocShell();
-  NS_ENSURE_TRUE(docShell, NS_ERROR_INVALID_POINTER);
+  if (!docShell) {
+    // If there's no docshell to get to, there's nowhere for the JavaScript to
+    // run, so we're already safe and don't need to disable anything.
+    return NS_OK;
+  }
 
   // We're only worried about policy settings in content docshells.
   if (!browsingContext->IsContent()) {
