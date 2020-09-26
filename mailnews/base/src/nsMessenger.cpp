@@ -567,7 +567,7 @@ nsMessenger::DetachAttachmentsWOPrompts(
     const nsTArray<nsCString>& aMessageUriArray, nsIUrlListener* aListener) {
   NS_ENSURE_ARG_POINTER(aDestFolder);
   MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() &&
-             aUrlArray.Length() ==  aDisplayNameArray.Length() &&
+             aUrlArray.Length() == aDisplayNameArray.Length() &&
              aDisplayNameArray.Length() == aMessageUriArray.Length());
 
   if (!aContentTypeArray.Length()) return NS_OK;
@@ -2131,7 +2131,7 @@ nsresult nsAttachmentState::Init(const nsTArray<nsCString>& aContentTypeArray,
                                  const nsTArray<nsCString>& aMessageUriArray) {
   MOZ_ASSERT(aContentTypeArray.Length() > 0);
   MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() &&
-             aUrlArray.Length() ==  aDisplayNameArray.Length() &&
+             aUrlArray.Length() == aDisplayNameArray.Length() &&
              aDisplayNameArray.Length() == aMessageUriArray.Length());
 
   uint32_t count = aContentTypeArray.Length();
@@ -2579,7 +2579,7 @@ nsMessenger::DetachAllAttachments(const nsTArray<nsCString>& aContentTypeArray,
                                   bool withoutWarning = false) {
   NS_ENSURE_ARG_MIN(aContentTypeArray.Length(), 1);
   MOZ_ASSERT(aContentTypeArray.Length() == aUrlArray.Length() &&
-             aUrlArray.Length() ==  aDisplayNameArray.Length() &&
+             aUrlArray.Length() == aDisplayNameArray.Length() &&
              aDisplayNameArray.Length() == aMessageUriArray.Length());
 
   if (aSaveFirst)
