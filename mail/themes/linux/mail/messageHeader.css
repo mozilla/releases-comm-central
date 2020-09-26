@@ -160,10 +160,6 @@
   list-style-image: url("chrome://messenger/skin/icons/save.svg");
 }
 
-#openpgpImportButton {
-  list-style-image: url("chrome://messenger/skin/icons/encryption-key.svg");
-}
-
 .headerName {
   color: #888a85; /* lower contrast */
   text-align: right;

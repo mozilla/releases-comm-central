@@ -949,6 +949,8 @@ label.extra-recipients-label {
 #encryption-status {
   list-style-image: none;
   visibility: collapse;
+  -moz-context-properties: fill;
+  fill: currentColor;
 }
 
 #signing-status.signing-msg {

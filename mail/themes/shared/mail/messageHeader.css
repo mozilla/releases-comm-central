@@ -552,6 +552,16 @@ html|header.message-security-header html|h3 {
   background-image: url("chrome://messenger/skin/icons/message-encrypted-notok.svg");
 }
 
+#openpgpImportButton {
+  list-style-image: url("chrome://messenger/skin/icons/encryption-key.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+#openpgpImportButton .button-icon {
+  margin-inline-end: 2px;
+}
+
 .message-security-container {
   margin-bottom: 21px;
 }
