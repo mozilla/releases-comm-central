@@ -259,8 +259,7 @@ nsPgpMimeProxy::nsPgpMimeProxy()
       mOutputFun(nullptr),
       mOutputClosure(nullptr),
       mLoadFlags(LOAD_NORMAL),
-      mCancelStatus(NS_OK)
-{
+      mCancelStatus(NS_OK) {
 }
 
 nsPgpMimeProxy::~nsPgpMimeProxy() { Finalize(); }
