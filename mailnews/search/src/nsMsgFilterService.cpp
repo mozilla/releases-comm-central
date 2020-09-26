@@ -749,7 +749,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
 
           if (uri.Equals(actionTargetFolderUri)) {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-                    ("(Post) Target folder is the same as source folder, skipping"));
+                    ("(Post) Target folder is the same as source folder, "
+                     "skipping"));
             break;
           }
 

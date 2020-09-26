@@ -1954,7 +1954,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
             }
           } else {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-                    ("(Local) Target folder is the same as source folder, skipping"));
+                    ("(Local) Target folder is the same as source folder, "
+                     "skipping"));
             rv = NS_OK;
           }
           *applyMore = false;
@@ -1998,7 +1999,8 @@ NS_IMETHODIMP nsParseNewMailState::ApplyFilterHit(nsIMsgFilter* filter,
               m_msgCopiedByFilter = true;
           } else {
             MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
-                    ("(Local) Target folder is the same as source folder, skipping"));
+                    ("(Local) Target folder is the same as source folder, "
+                     "skipping"));
             break;
           }
         } break;
