@@ -310,6 +310,7 @@ function MsgAccountManager(selectPage, aServer) {
   let onLoad = function(event, browser) {
     browser.contentDocument.documentElement.server = aServer;
     browser.contentDocument.documentElement.selectPage = selectPage;
+    browser.contentDocument.getElementById("accounttree").focus();
   };
   tabmail.openTab("contentTab", {
     contentPage: "about:accountsettings",
