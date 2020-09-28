@@ -606,7 +606,8 @@ toolbarpaletteitem toolbarspring {
   font: menu;
 }
 
-/* autocomplete labels */
+/* Autocomplete labels
+ * These styles match those in chrome://calendar/content/calendar-event-dialog-attendees.css. */
 
 html|span.ac-emphasize-text {
   font-weight: bold;

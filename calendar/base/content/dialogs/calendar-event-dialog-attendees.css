@@ -31,6 +31,34 @@ event-attendee > input {
   background-color: transparent;
 }
 
+/* Autocomplete labels
+ * These styles match those in chrome://messenger/skin/shared/messenger.css. */
+
+html|span.ac-emphasize-text {
+  font-weight: bold;
+}
+
+.autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-url,
+.autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-separator {
+  display: -moz-box;
+}
+
+.autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-url {
+  -moz-box-ordinal-group: 1;
+}
+
+.autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-separator {
+  -moz-box-ordinal-group: 2;
+}
+
+.autocomplete-richlistitem[type$="-abook"]:not([ac-comment=""]) > .ac-title {
+  -moz-box-ordinal-group: 3;
+}
+
+.ac-url-text {
+  max-width: unset !important;
+}
+
 splitter {
   border: none;
 }
