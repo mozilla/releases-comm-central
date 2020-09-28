@@ -215,6 +215,7 @@ add_task(async function test_addressBooks() {
       await browser.contacts.update(newContactId, {
         PrimaryEmail: "first@last",
         LastName: null,
+        Notes: "",
       });
       checkEvents([
         "contacts",
@@ -235,6 +236,7 @@ add_task(async function test_addressBooks() {
         updatedContact.properties.PrimaryEmail
       );
       browser.test.assertTrue(!("LastName" in updatedContact.properties));
+      browser.test.assertTrue(!("Notes" in updatedContact.properties));
 
       let fixedContactId = await browser.contacts.create(
         firstBookId,

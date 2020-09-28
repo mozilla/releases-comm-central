@@ -727,7 +727,7 @@ class AddrBookDirectory {
     let changedProperties = new Set(oldProperties.keys());
 
     for (let { name, value } of fixIterator(card.properties, Ci.nsIProperty)) {
-      if (!oldProperties.has(name)) {
+      if (!oldProperties.has(name) && ![null, undefined, ""].includes(value)) {
         changedProperties.add(name);
       } else if (oldProperties.get(name) == value) {
         changedProperties.delete(name);

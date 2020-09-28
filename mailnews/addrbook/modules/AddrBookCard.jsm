@@ -186,7 +186,7 @@ AddrBookCard.prototype = {
     );
   },
   setProperty(name, value) {
-    if (value === null || value === undefined) {
+    if ([null, undefined, ""].includes(value)) {
       this._properties.delete(name);
       return;
     }

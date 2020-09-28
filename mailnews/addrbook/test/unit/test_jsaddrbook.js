@@ -239,6 +239,7 @@ add_task(async function editContact() {
   contact.lastName = "contact";
   contact.displayName = "updated contact";
   contact.setProperty("Custom1", "a new property");
+  contact.setProperty("Custom2", "");
   contact.setProperty("Notes", null);
   contact.setProperty("LastModifiedDate", 0);
   book.modifyCard(contact);
@@ -268,6 +269,7 @@ add_task(async function editContact() {
   equal(contact.lastName, "contact");
   equal(contact.displayName, "updated contact");
   equal(contact.getProperty("Custom1", ""), "a new property");
+  equal(contact.getProperty("Custom2", "no value"), "no value");
   equal(contact.getProperty("Notes", "empty"), "empty");
   let modifiedDate = parseInt(contact.getProperty("LastModifiedDate", ""), 10);
   Assert.lessOrEqual(modifiedDate, Date.now() / 1000);
