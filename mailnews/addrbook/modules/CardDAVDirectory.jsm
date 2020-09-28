@@ -158,7 +158,7 @@ class CardDAVDirectory extends AddrBookDirectory {
    * @param {Object} details - See makeRequest.
    * @return {Promise<Object>} - See makeRequest.
    */
-  _makeRequest(path, details = {}) {
+  async _makeRequest(path, details = {}) {
     let serverURI = Services.io.newURI(this._serverURL);
     let uri = serverURI.resolve(path);
 
@@ -177,7 +177,17 @@ class CardDAVDirectory extends AddrBookDirectory {
       details.username
     );
 
-    return CardDAVDirectory.makeRequest(uri, details);
+    let response = await CardDAVDirectory.makeRequest(uri, details);
+    if (
+      details.expectedStatuses &&
+      !details.expectedStatuses.includes(response.status)
+    ) {
+      throw Components.Exception(
+        `Incorrect response from server: ${response.status} ${response.statusText}`,
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+    return response;
   }
 
   /**
@@ -214,8 +224,51 @@ class CardDAVDirectory extends AddrBookDirectory {
       headers: {
         Depth: 1,
       },
+      expectedStatuses: [207],
     });
   }
+
+  /**
+   * Reads a multistatus response, yielding once for each response element.
+   *
+   * @param {Document} dom - as returned by makeRequest.
+   * @yields {Object} - An object representing a single <response> element
+   *     from the document:
+   *     - href, the href of the object represented
+   *     - notFound, if a 404 status applies to this response
+   *     - properties, the <prop> element, if any, containing properties
+   *         of the object represented
+   */
+  _readResponse = function*(dom) {
+    if (!dom || dom.documentElement.localName != "multistatus") {
+      throw Components.Exception(
+        `Expected a multistatus response, but didn't get one`,
+        Cr.NS_ERROR_FAILURE
+      );
+    }
+
+    for (let r of dom.querySelectorAll("response")) {
+      let response = {
+        href: r.querySelector("href")?.textContent,
+      };
+
+      let responseStatus = r.querySelector("response > status");
+      if (responseStatus?.textContent.startsWith("HTTP/1.1 404")) {
+        response.notFound = true;
+        yield response;
+        continue;
+      }
+
+      for (let p of r.querySelectorAll("response > propstat")) {
+        let status = p.querySelector("propstat > status").textContent;
+        if (status == "HTTP/1.1 200 OK") {
+          response.properties = p.querySelector("propstat > prop");
+        }
+      }
+
+      yield response;
+    }
+  };
 
   /**
    * Converts the card to a vCard and performs a PUT request to store it on the
@@ -262,11 +315,14 @@ class CardDAVDirectory extends AddrBookDirectory {
 
     response = await this._multigetRequest([href]);
 
-    for (let r of response.dom.querySelectorAll("response")) {
-      let etag = r.querySelector("getetag").textContent;
-      let href = r.querySelector("href").textContent;
+    for (let { href, properties } of this._readResponse(response.dom)) {
+      if (!properties) {
+        continue;
+      }
+
+      let etag = properties.querySelector("getetag")?.textContent;
       let vCard = normalizeLineEndings(
-        r.querySelector("address-data").textContent
+        properties.querySelector("address-data")?.textContent
       );
 
       card.setProperty("_etag", etag);
@@ -332,12 +388,13 @@ class CardDAVDirectory extends AddrBookDirectory {
       headers: {
         Depth: 1,
       },
+      expectedStatuses: [207],
     });
 
     let hrefsToFetch = [];
-    for (let r of response.dom.querySelectorAll("response")) {
-      if (!r.querySelector("resourcetype collection")) {
-        hrefsToFetch.push(r.querySelector("href").textContent);
+    for (let { href, properties } of this._readResponse(response.dom)) {
+      if (properties && !properties.querySelector("resourcetype collection")) {
+        hrefsToFetch.push(href);
       }
     }
 
@@ -346,11 +403,14 @@ class CardDAVDirectory extends AddrBookDirectory {
 
       let abCards = [];
 
-      for (let r of response.dom.querySelectorAll("response")) {
-        let etag = r.querySelector("getetag").textContent;
-        let href = r.querySelector("href").textContent;
+      for (let { href, properties } of this._readResponse(response.dom)) {
+        if (!properties) {
+          continue;
+        }
+
+        let etag = properties.querySelector("getetag")?.textContent;
         let vCard = normalizeLineEndings(
-          r.querySelector("address-data").textContent
+          properties.querySelector("address-data")?.textContent
         );
 
         try {
@@ -419,13 +479,16 @@ class CardDAVDirectory extends AddrBookDirectory {
       headers: {
         Depth: 1,
       },
+      expectedStatuses: [207],
     });
 
     let hrefMap = new Map();
-    for (let r of response.dom.querySelectorAll("response")) {
-      let etag = r.querySelector("getetag").textContent;
-      let href = r.querySelector("href").textContent;
+    for (let { href, properties } of this._readResponse(response.dom)) {
+      if (!properties) {
+        continue;
+      }
 
+      let etag = properties.querySelector("getetag").textContent;
       hrefMap.set(href, etag);
     }
 
@@ -473,11 +536,14 @@ class CardDAVDirectory extends AddrBookDirectory {
 
     response = await this._multigetRequest(hrefsToFetch);
 
-    for (let r of response.dom.querySelectorAll("response")) {
-      let etag = r.querySelector("getetag").textContent;
-      let href = r.querySelector("href").textContent;
+    for (let { href, properties } of this._readResponse(response.dom)) {
+      if (!properties) {
+        continue;
+      }
+
+      let etag = properties.querySelector("getetag")?.textContent;
       let vCard = normalizeLineEndings(
-        r.querySelector("address-data").textContent
+        properties.querySelector("address-data")?.textContent
       );
 
       let abCard = VCardUtils.vCardToAbCard(vCard);
@@ -516,9 +582,13 @@ class CardDAVDirectory extends AddrBookDirectory {
       },
     });
     if (response.status == 207) {
-      this._syncToken = response.dom.querySelector("sync-token").textContent;
-    } else {
-      this._syncToken = "";
+      for (let { properties } of this._readResponse(response.dom)) {
+        let token = properties?.querySelector("prop sync-token");
+        if (token) {
+          this._syncToken = token.textContent;
+          return;
+        }
+      }
     }
   }
 
@@ -549,26 +619,27 @@ class CardDAVDirectory extends AddrBookDirectory {
     let response = await this._makeRequest("", {
       method: "REPORT",
       body: data,
+      expectedStatuses: [207],
     });
     let dom = response.dom;
     this._syncToken = dom.querySelector("sync-token").textContent;
 
     let cardsToDelete = [];
-    for (let response of dom.querySelectorAll("response")) {
-      let href = response.querySelector("href").textContent;
-      let status = response.querySelector("response > status");
-
+    for (let { href, notFound, properties } of this._readResponse(dom)) {
       let card = this.getCardFromProperty("_href", href, true);
-      if (status && status.textContent == "HTTP/1.1 404 Not Found") {
+      if (notFound) {
         if (card) {
           cardsToDelete.push(card);
         }
         continue;
       }
+      if (!properties) {
+        continue;
+      }
 
-      let etag = response.querySelector("getetag").textContent;
+      let etag = properties.querySelector("getetag").textContent;
       let vCard = normalizeLineEndings(
-        response.querySelector("address-data").textContent
+        properties.querySelector("address-data").textContent
       );
 
       let abCard = VCardUtils.vCardToAbCard(vCard);
