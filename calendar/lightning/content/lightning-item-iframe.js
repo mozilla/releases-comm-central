@@ -484,6 +484,8 @@ function onLoad() {
   // title is empty.
   updateTitle();
 
+  cal.view.colorTracker.registerWindow(window);
+
   onLoad.hasLoaded = true;
 }
 // Set a variable to allow or prevent actions before the dialog is done loading.
@@ -2657,6 +2659,11 @@ function removeNotification(aValue) {
 function updateCalendar() {
   let item = window.calendarItem;
   let calendar = getCurrentCalendar();
+
+  let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
+  document
+    .getElementById("item-calendar")
+    .style.setProperty("--item-color", `var(--calendar-${cssSafeId}-backcolor)`);
 
   gIsReadOnly = calendar.readOnly;
 

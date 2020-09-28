@@ -262,6 +262,9 @@ function appendCalendarItems(aItem, aCalendarMenuParent, aCalendarToUse, aOnComm
       if (calendarToUse && calendarToUse.id == calendar.id) {
         indexToSelect = index;
       }
+      let cssSafeId = cal.view.formatStringForCSSRule(calendar.id);
+      menuitem.style.setProperty("--item-color", `var(--calendar-${cssSafeId}-backcolor)`);
+      menuitem.classList.add("menuitem-iconic");
     }
   }
   return indexToSelect;

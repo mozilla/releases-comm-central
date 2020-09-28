@@ -196,6 +196,17 @@ label.label {
   flex: 1;
 }
 
+#item-calendar::part(icon) {
+  margin-inline: 7px 3px;
+}
+#item-calendar::part(icon),
+#item-calendar > menupopup > menuitem .menu-iconic-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: var(--item-color);
+}
+
 #event-grid-item-calendar-td,
 #event-grid-category-color-td,
 .event-input-td {
