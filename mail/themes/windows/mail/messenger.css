@@ -367,7 +367,7 @@ treecol[sortDirection="descending"]:not([hideheader="true"]) > .treecol-sortdire
 }
 
 treechildren::-moz-tree-row {
-  min-height: 1.8em;
+  height: 1.8em;
 }
 
 treechildren::-moz-tree-row(multicol, odd) {
