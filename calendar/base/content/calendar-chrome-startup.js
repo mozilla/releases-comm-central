@@ -119,6 +119,9 @@ async function loadCalendarComponent() {
   let filter = document.getElementById("task-tree-filtergroup");
   filter.value = filter.value || "all";
 
+  // Set up mode-switching menu items and mode[v]box elements for the initial mode.
+  changeMode();
+
   // Set up customizeDone handlers for our toolbars.
   let toolbox = document.getElementById("calendar-toolbox");
   toolbox.customizeDone = function(aEvent) {
