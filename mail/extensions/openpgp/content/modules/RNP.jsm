@@ -1963,15 +1963,12 @@ var RNP = {
   },
 
   addSuitableEncryptKey(key, op) {
-    let use_sub = null;
+    // Prefer usable subkeys, because they are always newer
+    // (or same age) as primary key.
 
-    // looks like this will be unnecessary ???
-
-    if (!this.isKeyUsableFor(key, str_encrypt)) {
-      use_sub = this.getSuitableSubkey(key, str_encrypt);
-      if (!use_sub) {
-        throw new Error("no suitable subkey found for " + str_encrypt);
-      }
+    let use_sub = this.getSuitableSubkey(key, str_encrypt);
+    if (!use_sub && !this.isKeyUsableFor(key, str_encrypt)) {
+      throw new Error("no suitable subkey found for " + str_encrypt);
     }
 
     if (
@@ -2101,13 +2098,14 @@ var RNP = {
         this.addSuitableEncryptKey(senderKey, op);
       }
       if (args.sign) {
-        let use_sub = null;
-        if (!this.isKeyUsableFor(senderKey, str_sign)) {
-          use_sub = this.getSuitableSubkey(senderKey, str_sign);
-          if (!use_sub) {
-            throw new Error("no suitable subkey found for " + str_sign);
-          }
+        // Prefer usable subkeys, because they are always newer
+        // (or same age) as primary key.
+
+        let use_sub = this.getSuitableSubkey(senderKey, str_sign);
+        if (!use_sub && !this.isKeyUsableFor(senderKey, str_sign)) {
+          throw new Error("no suitable subkey found for " + str_sign);
         }
+
         if (args.encrypt) {
           if (
             RNPLib.rnp_op_encrypt_add_signature(
