@@ -1,4 +1,4 @@
-.TH @MOZ_APP_NAME@ 1 "March 28, 2005" @MOZ_APP_NAME@ "Linux User's Manual"
+.TH @MOZ_APP_NAME@ 1 "August 05, 2020" @MOZ_APP_NAME@ "Linux User's Manual"
 .SH NAME
 @MOZ_APP_NAME@ \- an internet application suite (browser, mail, etc.)
 
@@ -6,34 +6,14 @@
 .B @MOZ_APP_NAME@
 [\fIOPTIONS\fR] [\fIURL\fR]
 
-.B @MOZ_APP_NAME@-bin
-[\fIOPTIONS\fR] [\fIURL\fR]
-
 .SH DESCRIPTION
-\fB@MOZ_APP_DISPLAYNAME@\fR is an open-source web browser, designed for standards compliance,
-performance and portability.
-
-.SH USAGE
-\fB@MOZ_APP_DISPLAYNAME@\fR can be started using the command \fB@MOZ_APP_NAME@\fR or \fB@MOZ_APP_NAME@-bin\fR.
+\fB@MOZ_APP_DISPLAYNAME@\fR is an all-in-one Internet application suite (previously made popular by Netscape and Mozilla).
+It includes an Internet browser, advanced e-mail, newsgroup and feed client, a calendar, IRC client,
+HTML editor and a tool to inspect the DOM for web pages.
+It is derived from the application formerly known as Mozilla Application Suite.
 
 .SH OPTIONS
 A summary of the options supported by \fB@MOZ_APP_NAME@\fR is included below.
-
-.SS "GTK options"
-\fB\-\-gdk-debug=\fR\fIFLAGS\fR
-Gdk debugging flags to set
-.TP
-\fB\-\-gdk-no-debug=\fR\fIFLAGS\fR
-Gdk debugging flags to unset
-.TP
-\fB\-\-gtk-debug=\fR\fIFLAGS\fR
-Gtk+ debugging flags to set
-.TP
-\fB\-\-gtk-no-debug=\fR\fIFLAGS\fR
-Gtk+ debugging flags to unset
-.TP
-\fB\-\-gtk-module=\fR\fIMODULE\fR
-Load an additional Gtk module
 
 .SS "X11 options"
 .TP
@@ -43,83 +23,126 @@ X display to use
 .B \--sync
 Make X calls synchronous
 .TP
-.B \-\-no-xshm
-Don't use X shared memory extension
-.TP
-.BI \-\-xim-preedit= STYLE
-.TP
-.BI \-\-xim-status= STYLE
-.TP
 .B \-\-g-fatal-warnings
 Make all warnings fatal
 
 .SS "@MOZ_APP_DISPLAYNAME@ options"
 .TP
-\fB\-height\fR \fIvalue\fR
-Set height of startup window to \fIvalue\fR.
-.TP
 .B \-h, \-help
 Show summary of options.
 .TP
-.B \-installer
-Start with 4.x migration window.
-.TP
-\fB\-width\fR \fIvalue\fR
-Set width of startup window to \fIvalue\fR.
-.TP
 .B \-v, \-version
-Print \fB@MOZ_APP_NAME@-bin\fR version.
-.TP
-\fB\-CreateProfile\fR \fIprofile\fR
-Create \fIprofile\fR.
+Print \fB@MOZ_APP_NAME@\fR version.
 .TP
 \fB\-P\fR \fIprofile\fR
 Start with \fIprofile\fR.
 .TP
-.B \-ProfileWizard
-Start with profile wizard.
+\fB\-profile\fR \fIpath\fR
+Start with profile at \fIpath\fR.
+.TP
+\fB\-CreateProfile\fR \fIprofile_name\fR
+Create a new profile in the default directory, but do not start the application.
+The profile will be named \fIprofile_name\fR in the profile manager,
+the \fIprofile_name\fR must not contain spaces. Do not run \fIprofile_name\fR while running
+an instance of the application, you can use the \fB-no-remote\fR option to avoid connecting
+to a running instance.
+.TP
+\fB\-CreateProfile\fR "\fIprofile_name profile_dir\fR"
+The same, but creates a new profile in the \fIprofile_dir\fR directory.
+Note \fIprofile_name\fR and \fIprofile_dir\fR are quoted together, and are separated
+by exactly 1 space.
+.TP
+.B \-migration
+Start with import wizard (if you have proper import sources).
 .TP
 .B \-ProfileManager
 Start with profile manager.
 .TP
-.B \-SelectProfile
-Start with profile selection dialog.
+.B \-no-remote
+Do not accept or send remote commands. Implies \fB-new-instance\fR.
 .TP
-\fB\-lang\fR \fIlang-region\fR
-Start with \fIlang-region\fR resources.
+.B \-new-instance
+Open new instance, not a new window in running instance,
+which allows multiple copies of application to be open at a time.
+.TP
+.B \-safe-mode
+Launches the application with all extensions disabled, for that launch only
+(extensions are not loaded, but are not permanently disabled in the extension manager data source).
+.TP
+.B \-headless
+Runs @MOZ_APP_DISPLAYNAME@ in headless mode, which is very useful for purposes such as
+debugging and automated testing.
+.TP
+.B \-addressbook
+Open the address book at startup.
+.TP
+\fB\-compose\fR [\fIurl\fR]
+Compose a mail or news message. Options are specified as string
+\fB"option='\fIvalue,...\fB',option=\fIvalue\fR,\fI...\fB"\fR
+and include: \fIfrom\fR, \fIto\fR, \fIcc\fR, \fIbcc\fR, \fInewsgroups\fR, \fIsubject\fR, \fIbody\fR, \fImessage \fR(\fIfile\fR), \fIattachment\fR (\fIfile\fR), \fIformat\fR (\fIhtml\fR | \fItext\fR).
+Example:
+.B "to=\fIjohn@example.com\fB,subject=\fI'Dinner tonight?'\fB"
+.TP
+.B \-jsconsole
+Open the Browser Console.
+.TP
+.B \-purgecaches
+Gecko (layout engine) has a JavaScript cache, which is not reset on startup, this clears it.
+.TP
+\fB\-edit\fR [\fIurl\fR]
+Start with editor (composer) for the given \fIurl\fR (optional).
+.TP
+.B \-mail, \-news
+Open the Mail&News folder view.
+.TP
+\fB\-mail\fR \fIurl\fR
+Open the message specified by this \fIurl\fR.
+.TP
+.B \-offline
+Start with the offline mode.
+This option will only work if @MOZ_APP_DISPLAYNAME@ is set to "detect
+automatically" the online/offline status on startup. To set this, go
+to Edit -> Preferences -> Mail & Newsgroups -> Network & Storage and
+in the "Offline" group choose "Detect automatically (if available)" in
+the "When starting up:" drop-down box.
+.TP
+.B \-suiteconsole
+Open the Error Console.
+.TP
+.B \-browser
+Open a browser window.
+.TP
+.B \-private
+Open a private browsing window.
+.TP
+\fB\-new-window\fR \fIurl\fR
+Open \fIurl\fR in a new browser window.
+.TP
+\fB\-new-tab\fR \fIurl\fR
+Open \fIurl\fR in a new browser tab.
+.TP
+\fB\-url\fR \fIurl\fR
+Open the specified \fIurl\fR.
+.TP
+\fB\-chrome\fR \fIchrome_url\fR
+Load the specified chrome.
+.TP
+\fB\-register\fR \fIchrome_url\fR
+Register the specified chrome, but do not start application.
+.TP
+\fB\-search\fR \fIterm\fR
+Search \fIterm\fR with your default search engine.
+.TP
+.B \-preferences
+Open Preferences window.
 .TP
 \fB\-remote\fR \fIcommand\fR
 Execute \fIcommand\fR in an already running @MOZ_APP_DISPLAYNAME@ process.  For more info,
 see: \fIhttp://www.mozilla.org/unix/remote.html\fR
 .TP
-.B \-splash
-Enable splash screen.
-.TP
-.B \-addressbook
-Start with the addressbook.
-.TP
-.B \-news
-Start with news.
-.TP
-.B \-jsconsole
-Start with Javascript Console
-.TP
-\fB\-edit\fR \fIurl\fR
-Start with editor.
-.TP
-\fB\-chrome\fR \fIurl\fR
-Load the specified chrome.
-.TP
-.B \-mail
-Start with mail.
-.TP
-\fB\-compose\fR \fIurl\fR
-Start with mail compose.
-
-.SH FILES
-\fI@bindir@/@MOZ_APP_NAME@\fR - shell script wrapping \fB@MOZ_APP_NAME@\fR
-.br
-\fI@mozappdir@/@MOZ_APP_NAME@-bin\fR - \fB@MOZ_APP_NAME@\fR executable
+.B \-silent
+Don't open default windows. Useful with those command-line arguments that open
+their own windows but don't already prevent default windows from opening.
 
 .SH VERSION
 @MOZ_APP_VERSION@
@@ -128,9 +151,10 @@ Start with mail compose.
 To report a bug, please visit \fIhttps://bugzilla.mozilla.org/\fR
 
 .SH "SEE ALSO"
-.BR galeon(1)
+.BR firefox (1),
+.BR thunderbird (1)
 
 .SH AUTHORS
 .TP
-.B The Mozilla Organization
-.I http://www.mozilla.org/about.html
+.B The @MOZ_APP_DISPLAYNAME@ Team.
+.I https://www.seamonkey-project.org
