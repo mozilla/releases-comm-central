@@ -34,7 +34,7 @@ event-attendee > input {
 /* Autocomplete labels
  * These styles match those in chrome://messenger/skin/shared/messenger.css. */
 
-html|span.ac-emphasize-text {
+span.ac-emphasize-text {
   font-weight: bold;
 }
 
