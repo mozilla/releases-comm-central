@@ -82,6 +82,11 @@ interface nsIMsgAttachment : nsISupports {
   attribute string    contentTypeParam;
 
   /**
+   * Content-ID for embedded attachments inside a multipart/related container.
+   */
+  attribute AUTF8String contentId;
+
+  /**
    * charset attribute
    *
    * @Specify the charset of the attachment. It will be added to the content-type during the

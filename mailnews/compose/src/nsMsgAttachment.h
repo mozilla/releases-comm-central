@@ -29,6 +29,7 @@ class nsMsgAttachment : public nsIMsgAttachment {
   nsCString mContentLocation;
   nsCString mContentType;
   nsCString mContentTypeParam;
+  nsCString mContentId;
   nsCString mCharset;
   nsCString mMacType;
   nsCString mMacCreator;

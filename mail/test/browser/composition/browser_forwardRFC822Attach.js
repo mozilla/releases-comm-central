@@ -47,6 +47,7 @@ async function forwardDirect(aFilePath, aExpectedText) {
 
   // Ctrl+S saves as draft.
   cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(cwc);
 
   close_compose_window(cwc);
   close_window(msgc);

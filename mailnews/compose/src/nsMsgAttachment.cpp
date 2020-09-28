@@ -143,6 +143,16 @@ NS_IMETHODIMP nsMsgAttachment::SetContentTypeParam(
   return NS_OK;
 }
 
+NS_IMETHODIMP nsMsgAttachment::GetContentId(nsACString& aContentId) {
+  aContentId = mContentId;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsMsgAttachment::SetContentId(const nsACString& aContentId) {
+  mContentId = aContentId;
+  return NS_OK;
+}
+
 /* attribute string charset; */
 NS_IMETHODIMP nsMsgAttachment::GetCharset(char** aCharset) {
   NS_ENSURE_ARG_POINTER(aCharset);

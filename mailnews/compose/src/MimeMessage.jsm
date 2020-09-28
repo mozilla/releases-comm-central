@@ -83,7 +83,7 @@ class MimeMessage {
    * @returns {MimePart}
    */
   _initMimePart() {
-    let [plainPart, htmlPart] = this._gatherMainParts();
+    let { plainPart, htmlPart } = this._gatherMainParts();
     let embeddedParts = this._gatherEmbeddedParts();
     let attachmentParts = this._gatherAttachmentParts();
 
@@ -273,7 +273,7 @@ class MimeMessage {
 
   /**
    * Determine if the message should include an HTML part, a plain part or both.
-   * @returns {MimePart[]}
+   * @returns {{plainPart: MimePart, htmlPart: MimePart}}
    */
   _gatherMainParts() {
     let formatFlowed = Services.prefs.getBoolPref(
@@ -287,7 +287,7 @@ class MimeMessage {
 
     let htmlPart = null;
     let plainPart = null;
-    let parts = [];
+    let parts = {};
 
     if (this._bodyType === "text/html") {
       htmlPart = new MimePart(
@@ -308,7 +308,7 @@ class MimeMessage {
         `text/plain; charset=UTF-8${formatParam}`
       );
       plainPart.bodyText = this._bodyText;
-      parts.push(plainPart);
+      parts.plainPart = plainPart;
     }
 
     // Assemble a multipart/alternative message.
@@ -332,7 +332,7 @@ class MimeMessage {
         formatFlowed
       );
 
-      parts.push(plainPart);
+      parts.plainPart = plainPart;
     }
 
     // If useMultipartAlternative is true, send multipart/alternative message.
@@ -342,7 +342,7 @@ class MimeMessage {
         (plainPart && this._compFields.useMultipartAlternative) ||
         !plainPart
       ) {
-        parts.push(htmlPart);
+        parts.htmlPart = htmlPart;
       }
     }
 
@@ -386,7 +386,7 @@ class MimeMessage {
   _gatherEmbeddedParts() {
     return this._embeddedAttachments.map(attachment => {
       let part = new MimePart(null, this._compFields.forceMsgEncoding, false);
-      part.setBodyAttachment(attachment);
+      part.setBodyAttachment(attachment, "inline", attachment.contentId);
       return part;
     });
   }

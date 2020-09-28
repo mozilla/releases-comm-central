@@ -254,6 +254,7 @@ add_task(function test_display_of_identities() {
   // Bug 1152045, check that the email address from the selected identity
   // is properly used for the From field in the created message.
   cwc.window.SaveAsDraft();
+  waitForSaveOperation(cwc);
   close_compose_window(cwc);
 
   be_in_folder(gDrafts);

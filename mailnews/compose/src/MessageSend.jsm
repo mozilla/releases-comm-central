@@ -548,6 +548,7 @@ MessageSend.prototype = {
           "@mozilla.org/messengercompose/attachment;1"
         ].createInstance(Ci.nsIMsgAttachment);
         attachment.name = name || MsgUtils.pickFileNameFromUrl(url);
+        attachment.contentId = cid;
         attachment.url = url;
         embeddedAttachments.push(attachment);
       }

@@ -112,6 +112,7 @@ add_task(function test_basic_multipart_related() {
 
   // Ctrl+S = save as draft.
   compWin.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(compWin);
   close_compose_window(compWin);
 
   // Make sure that the headers are right on this one.

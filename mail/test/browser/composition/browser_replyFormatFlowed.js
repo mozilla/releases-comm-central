@@ -51,6 +51,7 @@ async function subtest_reply_format_flowed(aFlowed) {
 
   // Now save the message as a draft.
   cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  waitForSaveOperation(cwc);
   close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.
