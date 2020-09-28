@@ -112,6 +112,14 @@ class EnigmailKeyObj {
       this.expiryTime = keyData.expiryTime;
       this.expiry = EnigmailTime.getDateTime(keyData.expiryTime, true, false);
     }
+    if ("effectiveExpiryTime" in keyData) {
+      this.effectiveExpiryTime = keyData.effectiveExpiryTime;
+      this.effectiveExpiry = EnigmailTime.getDateTime(
+        keyData.effectiveExpiryTime,
+        true,
+        false
+      );
+    }
 
     const ATTRS = [
       "created",

@@ -981,6 +981,82 @@ var EnigmailKeyRing = {
     throw new Error("Not implemented");
   },
 
+  // returns an acceptanceLevel from -1 to 3,
+  // or -2 for "doesn't match email" or "not usable"
+  async isValidKeyForRecipient(keyObj, emailAddr) {
+    switch (keyObj.keyTrust) {
+      case "e":
+      case "r":
+        return -2;
+    }
+
+    let uidMatch = false;
+    for (let uid of keyObj.userIds) {
+      if (uid.type !== "uid") {
+        continue;
+      }
+      let split = {};
+      if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
+        let uidEmail = split.email.toLowerCase();
+        if (uidEmail === emailAddr) {
+          uidMatch = true;
+          break;
+        }
+      }
+    }
+    if (!uidMatch) {
+      return -2;
+    }
+    // key valid for encryption?
+    if (!keyObj.keyUseFor.includes("E")) {
+      return -2;
+    }
+
+    let acceptanceLevel;
+    if (keyObj.secretAvailable) {
+      let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
+      if (isPersonal) {
+        acceptanceLevel = 3;
+      } else {
+        acceptanceLevel = -1; // rejected
+      }
+    } else {
+      acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
+        keyObj,
+        emailAddr
+      );
+    }
+
+    if (acceptanceLevel < 1) {
+      return acceptanceLevel;
+    }
+
+    // Ensure we have at least one key usable for encryption
+    // that is not expired/revoked.
+
+    // We already checked above, the primary key is not revoked/expired
+    let foundGoodEnc = keyObj.keyUseFor.match(/e/);
+    if (!foundGoodEnc) {
+      for (let aSub of keyObj.subKeys) {
+        switch (aSub.keyTrust) {
+          case "e":
+          case "r":
+            continue;
+        }
+        if (aSub.keyUseFor.match(/e/)) {
+          foundGoodEnc = true;
+          break;
+        }
+      }
+    }
+
+    if (!foundGoodEnc) {
+      return -2;
+    }
+
+    return acceptanceLevel;
+  },
+
   /**
    * try to find valid key for encryption to passed email address
    *
@@ -1002,60 +1078,20 @@ var EnigmailKeyRing = {
     let k = this.getAllKeys(null, null);
     let keyList = k.keyList;
 
-    for (var idx = 0; idx < keyList.length; idx++) {
-      var keyObj = keyList[idx];
+    for (let keyObj of keyList) {
+      let acceptanceLevel = await this.isValidKeyForRecipient(
+        keyObj,
+        emailAddr
+      );
 
-      switch (keyObj.keyTrust) {
-        case "e":
-        case "r":
-          continue;
-      }
-
-      let uidMatch = false;
-      for (let uid of keyObj.userIds) {
-        if (uid.type !== "uid") {
-          continue;
-        }
-        let split = {};
-        if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
-          let uidEmail = split.email.toLowerCase();
-          if (uidEmail === emailAddr) {
-            uidMatch = true;
-            break;
-          }
-        }
-      }
-      if (!uidMatch) {
-        continue;
-      }
-      // key valid for encryption?
-      if (!keyObj.keyUseFor.includes("E")) {
-        //EnigmailLog.DEBUG("keyRing.jsm: getValidKeyForRecipient():  skip key " + keyObj.keyId + " (not provided for encryption)\n");
-        continue; // not valid for encryption => **** CONTINUE the LOOP
-      }
-
-      let acceptanceLevel;
-      if (keyObj.secretAvailable) {
-        let isPersonal = await PgpSqliteDb2.isAcceptedAsPersonalKey(keyObj.fpr);
-        if (isPersonal) {
-          acceptanceLevel = 3;
-        } else {
-          acceptanceLevel = -1; // rejected
-        }
-      } else {
-        acceptanceLevel = await this.getKeyAcceptanceLevelForEmail(
-          keyObj,
-          emailAddr
-        );
+      // immediately return as best match, if a fully or ultimately
+      // trusted key is found
+      if (acceptanceLevel >= FULLTRUSTLEVEL) {
+        return keyObj.keyId;
       }
 
       if (acceptanceLevel < 1) {
         continue;
-      }
-
-      // immediately return if a fully or ultimately trusted key is found
-      if (acceptanceLevel >= FULLTRUSTLEVEL) {
-        return keyObj.keyId;
       }
 
       if (foundKeyId != keyObj.keyId) {
@@ -1074,18 +1110,37 @@ var EnigmailKeyRing = {
       if (details) {
         details.msg = "ProblemNoKey";
       }
-      let msg = "no key with enough trust level for '" + emailAddr + "' found";
+      let msg =
+        "no valid encryption key with enough trust level for '" +
+        emailAddr +
+        "' found";
       EnigmailLog.DEBUG(
         "keyRing.jsm: getValidKeyForRecipient():  " + msg + "\n"
       );
     } else {
       EnigmailLog.DEBUG(
         "keyRing.jsm: getValidKeyForRecipient():  key=" +
-          keyObj.keyId +
+          foundKeyId +
           '" found\n'
       );
     }
     return foundKeyId;
+  },
+
+  getAcceptanceStringFromAcceptanceLevel(level) {
+    switch (level) {
+      case 3:
+        return "personal";
+      case 2:
+        return "verified";
+      case 1:
+        return "unverified";
+      case -1:
+        return "rejected";
+      case 0:
+      default:
+        return "undecided";
+    }
   },
 
   async getKeyAcceptanceLevelForEmail(keyObj, email) {
@@ -1231,43 +1286,17 @@ var EnigmailKeyRing = {
     let k = this.getAllKeys(null, null);
     let keyList = k.keyList;
 
-    for (var idx = 0; idx < keyList.length; idx++) {
-      var keyObj = keyList[idx];
-
-      switch (keyObj.keyTrust) {
-        case "e":
-        case "r":
-          continue;
-        default:
-          break;
-      }
-
-      let uidMatch = false;
-      for (let uid of keyObj.userIds) {
-        if (uid.type !== "uid") {
-          continue;
-        }
-        let split = {};
-        if (uidHelper.getPartsFromUidStr(uid.userId, split)) {
-          let uidEmail = split.email.toLowerCase();
-          if (uidEmail === emailAddr) {
-            uidMatch = true;
-            break;
-          }
-        }
-      }
-      if (!uidMatch) {
+    for (let keyObj of keyList) {
+      let acceptanceLevel = await this.isValidKeyForRecipient(
+        keyObj,
+        emailAddr
+      );
+      if (acceptanceLevel < 1) {
         continue;
       }
-      // key valid for encryption?
-      if (!keyObj.keyUseFor.includes("E")) {
-        //EnigmailLog.DEBUG("keyRing.jsm: getValidKeyForRecipient():  skip key " + keyObj.keyId + " (not provided for encryption)\n");
-        continue; // not valid for encryption => **** CONTINUE the LOOP
-      }
       if (!keyObj.secretAvailable) {
-        keyObj.acceptance = await this.getKeyAcceptanceForEmail(
-          keyObj,
-          emailAddr
+        keyObj.acceptance = this.getAcceptanceStringFromAcceptanceLevel(
+          acceptanceLevel
         );
       }
       found.push(keyObj);

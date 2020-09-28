@@ -172,7 +172,8 @@ async function reloadData(firstLoad) {
   setLabel("keyCreated", keyObj.created);
 
   let keyIsExpired =
-    keyObj.expiryTime && keyObj.expiryTime < Math.floor(Date.now() / 1000);
+    keyObj.effectiveExpiryTime &&
+    keyObj.effectiveExpiryTime < Math.floor(Date.now() / 1000);
 
   let expiryInfo;
   let expireArgument = null;
@@ -181,11 +182,11 @@ async function reloadData(firstLoad) {
     expiryInfoKey = "key-revoked-simple";
   } else if (keyObj.keyTrust == "e" || keyIsExpired) {
     expiryInfoKey = "key-expired-date";
-    expireArgument = keyObj.expiry;
-  } else if (keyObj.expiry.length === 0) {
+    expireArgument = keyObj.effectiveExpiry;
+  } else if (keyObj.effectiveExpiry.length === 0) {
     expiryInfoKey = "key-does-not-expire";
   } else {
-    expiryInfo = keyObj.expiry;
+    expiryInfo = keyObj.effectiveExpiry;
   }
   if (expiryInfoKey) {
     expiryInfo = l10n.formatValueSync(expiryInfoKey, {

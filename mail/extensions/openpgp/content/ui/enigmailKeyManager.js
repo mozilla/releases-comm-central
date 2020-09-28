@@ -1467,7 +1467,7 @@ var gKeyListView = {
           case "keyCol":
             return keyObj.keyId;
           case "expCol":
-            return keyObj.expiry;
+            return keyObj.effectiveExpiry;
           case "fprCol":
             return keyObj.fprFormatted;
         }

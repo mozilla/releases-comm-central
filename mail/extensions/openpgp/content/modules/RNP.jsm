@@ -137,6 +137,24 @@ var RNP = {
       return;
     }
 
+    let key_revoked = new ctypes.bool();
+    if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
+      throw new Error("rnp_key_is_revoked failed");
+    }
+
+    if (key_revoked.value) {
+      keyObj.keyTrust = "r";
+      if (forListing) {
+        keyObj.revoke = true;
+      }
+    } else if (this.isExpiredTime(keyObj.expiryTime)) {
+      keyObj.keyTrust = "e";
+    } else if (keyObj.secretAvailable) {
+      keyObj.keyTrust = "u";
+    } else {
+      keyObj.keyTrust = "o";
+    }
+
     if (RNPLib.rnp_key_allows_usage(handle, str_encrypt, allowed.address())) {
       throw new Error("rnp_key_allows_usage failed");
     }
@@ -277,7 +295,7 @@ var RNP = {
 
         let keyObj = {};
         try {
-          // Skip if it is a primary key, it will be processed together with primary key later.
+          // Skip if it is a sub key, it will be processed together with primary key later.
           let ok = this.getKeyInfoFromHandle(
             ffi,
             handle,
@@ -325,7 +343,7 @@ var RNP = {
 
         let keyObj = {};
         try {
-          // Skip if it is a primary key, it will be processed together with primary key later.
+          // Skip if it is a sub key, it will be processed together with primary key later.
           let ok = this.getKeyInfoFromHandle(
             ffi,
             handle,
@@ -482,23 +500,7 @@ var RNP = {
     };
     this.addKeyAttributes(handle, meta, keyObj, false, forListing);
 
-    let key_revoked = new ctypes.bool();
-    if (RNPLib.rnp_key_is_revoked(handle, key_revoked.address())) {
-      throw new Error("rnp_key_is_revoked failed");
-    }
-
-    if (key_revoked.value) {
-      keyObj.keyTrust = "r";
-      if (forListing) {
-        keyObj.revoke = true;
-      }
-    } else if (this.isExpiredTime(keyObj.expiryTime)) {
-      keyObj.keyTrust = "e";
-    } else if (keyObj.secretAvailable) {
-      keyObj.keyTrust = "u";
-    } else {
-      keyObj.keyTrust = "o";
-    }
+    let hasAnySecretKey = keyObj.secretAvailable;
 
     /* The remaining actions are done for primary keys, only. */
     if (!is_subkey.value) {
@@ -572,11 +574,125 @@ var RNP = {
         }
 
         let subKeyObj = {};
-        subKeyObj.keyTrust = keyObj.keyTrust;
         this.addKeyAttributes(sub_handle, meta, subKeyObj, true, forListing);
         keyObj.subKeys.push(subKeyObj);
 
         RNPLib.rnp_key_handle_destroy(sub_handle);
+
+        hasAnySecretKey = hasAnySecretKey || subKeyObj.secretAvailable;
+      }
+
+      let haveNonExpiringEncryptionKey = false;
+      let haveNonExpiringSigningKey = false;
+
+      let effectiveEncryptionExpiry = keyObj.expiry;
+      let effectiveSigningExpiry = keyObj.expiry;
+      let effectiveEncryptionExpiryTime = keyObj.expiryTime;
+      let effectiveSigningExpiryTime = keyObj.expiryTime;
+
+      if (keyObj.keyUseFor.match(/e/) && !keyObj.expiryTime) {
+        haveNonExpiringEncryptionKey = true;
+      }
+
+      if (keyObj.keyUseFor.match(/s/) && !keyObj.expiryTime) {
+        haveNonExpiringSigningKey = true;
+      }
+
+      let mostFutureEncExpiryTime = 0;
+      let mostFutureSigExpiryTime = 0;
+      let mostFutureEncExpiry = "";
+      let mostFutureSigExpiry = "";
+
+      for (let aSub of keyObj.subKeys) {
+        if (aSub.keyTrust == "r") {
+          continue;
+        }
+
+        // Expiring subkeys may shorten the effective expiry,
+        // unless the primary key is non-expiring and can be used
+        // for a purpose.
+        // Subkeys cannot extend the expiry beyond the primary key's.
+
+        // Strategy: If we don't have a non-expiring usable primary key,
+        // then find the usable subkey that has the most future
+        // expiration date. Stop searching is a non-expiring subkey
+        // is found. Then compare with primary key expiry.
+
+        if (!haveNonExpiringEncryptionKey && aSub.keyUseFor.match(/e/)) {
+          if (!aSub.expiryTime) {
+            haveNonExpiringEncryptionKey = true;
+          } else if (!mostFutureEncExpiryTime) {
+            mostFutureEncExpiryTime = aSub.expiryTime;
+            mostFutureEncExpiry = aSub.expiry;
+          } else if (aSub.expiryTime > mostFutureEncExpiryTime) {
+            mostFutureEncExpiryTime = aSub.expiryTime;
+            mostFutureEncExpiry = aSub.expiry;
+          }
+        }
+
+        // We only need to calculate the effective signing expiration
+        // if it's about a personal key (we require both signing and
+        // encryption capability).
+        if (
+          hasAnySecretKey &&
+          !haveNonExpiringSigningKey &&
+          aSub.keyUseFor.match(/s/)
+        ) {
+          if (!aSub.expiryTime) {
+            haveNonExpiringSigningKey = true;
+          } else if (!mostFutureSigExpiryTime) {
+            mostFutureSigExpiryTime = aSub.expiryTime;
+            mostFutureSigExpiry = aSub.expiry;
+          } else if (aSub.expiryTime > mostFutureEncExpiryTime) {
+            mostFutureSigExpiryTime = aSub.expiryTime;
+            mostFutureSigExpiry = aSub.expiry;
+          }
+        }
+      }
+
+      if (
+        !haveNonExpiringEncryptionKey &&
+        mostFutureEncExpiryTime &&
+        (!keyObj.expiryTime || mostFutureEncExpiryTime < keyObj.expiryTime)
+      ) {
+        effectiveEncryptionExpiryTime = mostFutureEncExpiryTime;
+        effectiveEncryptionExpiry = mostFutureEncExpiry;
+      }
+
+      if (
+        !haveNonExpiringSigningKey &&
+        mostFutureSigExpiryTime &&
+        (!keyObj.expiryTime || mostFutureSigExpiryTime < keyObj.expiryTime)
+      ) {
+        effectiveSigningExpiryTime = mostFutureSigExpiryTime;
+        effectiveSigningExpiry = mostFutureSigExpiry;
+      }
+
+      if (!hasAnySecretKey) {
+        keyObj.effectiveExpiryTime = effectiveEncryptionExpiryTime;
+        keyObj.effectiveExpiry = effectiveEncryptionExpiry;
+      } else {
+        let effectiveSignOrEncExpiry = "";
+        let effectiveSignOrEncExpiryTime = 0;
+
+        if (!effectiveEncryptionExpiryTime) {
+          if (effectiveSigningExpiryTime) {
+            effectiveSignOrEncExpiryTime = effectiveSigningExpiryTime;
+            effectiveSignOrEncExpiry = effectiveSigningExpiry;
+          }
+        } else if (!effectiveSigningExpiryTime) {
+          effectiveSignOrEncExpiryTime = effectiveEncryptionExpiryTime;
+          effectiveSignOrEncExpiry = effectiveEncryptionExpiry;
+        } else if (effectiveSigningExpiryTime < effectiveEncryptionExpiryTime) {
+          effectiveSignOrEncExpiryTime = effectiveSigningExpiryTime;
+          effectiveSignOrEncExpiry = effectiveSigningExpiry;
+        } else {
+          effectiveSignOrEncExpiryTime = effectiveEncryptionExpiryTime;
+          effectiveSignOrEncExpiry = effectiveEncryptionExpiry;
+        }
+
+        keyObj.effectiveExpiryTime = effectiveSignOrEncExpiryTime;
+        keyObj.effectiveExpiry = effectiveSignOrEncExpiry;
       }
 
       if (meta.s) {
