@@ -162,6 +162,21 @@ class CardDAVDirectory extends AddrBookDirectory {
     let serverURI = Services.io.newURI(this._serverURL);
     let uri = serverURI.resolve(path);
 
+    details.username = this.getStringValue("carddav.username", "");
+    if (!details.username && !this.warnedAboutUsername) {
+      console.error(
+        `CardDAV username not set. This probably means you set up CardDAV ` +
+          `before Thunderbird 82. Remove the directory and set it up again, ` +
+          `or set pref ${this.dirPrefId}.carddav.username with your username.`
+      );
+      this.warnedAboutUsername = true;
+      // Don't throw an error here, because it's possible that a username and
+      // password aren't required. Weird, but possible.
+    }
+    details.privateBrowsingId = CardDAVDirectory._contextForUsername(
+      details.username
+    );
+
     return CardDAVDirectory.makeRequest(uri, details);
   }
 
@@ -585,6 +600,30 @@ class CardDAVDirectory extends AddrBookDirectory {
     return undefined;
   }
 
+  static _contextMap = new Map();
+  /**
+   * Returns the id of a unique private context for each username. When the
+   * privateBrowsingId is set on a principal, this allows the use of multiple
+   * usernames on the same server without the networking code causing issues.
+   *
+   * @param {String} username
+   * @return {integer}
+   */
+  static _contextForUsername(username) {
+    if (!username) {
+      return Ci.nsIScriptSecurityManager.DEFAULT_PRIVATE_BROWSING_ID;
+    }
+
+    if (CardDAVDirectory._contextMap.has(username)) {
+      return CardDAVDirectory._contextMap.get(username);
+    }
+
+    // This could be any 32-bit integer, as long as it isn't already in use.
+    let nextId = 25000 + CardDAVDirectory._contextMap.size;
+    CardDAVDirectory._contextMap.set(username, nextId);
+    return nextId;
+  }
+
   /**
    * Make an HTTP request. If the request needs a username and password, the
    * given authPrompt is called.
@@ -595,6 +634,12 @@ class CardDAVDirectory extends AddrBookDirectory {
    * @param {String} details.header
    * @param {String} details.body
    * @param {String} details.contentType
+   * @param {String} details.username - Used to pre-fill any auth dialogs.
+   * @param {boolean} details.shouldSaveAuth - If false, defers saving
+   *     username/password data to the password manager. Otherwise this
+   *     happens immediately after a successful request, where applicable.
+   * @param {integer} details.privateBrowsingId - See _contextForUsername.
+   *
    * @return {Promise<Object>} - Resolves to an object with getters for:
    *    - status, the HTTP response code
    *    - statusText, the HTTP response message
@@ -603,7 +648,16 @@ class CardDAVDirectory extends AddrBookDirectory {
    */
   static async makeRequest(
     uri,
-    { method = "GET", headers = {}, body = null, contentType = "text/xml" }
+    {
+      method = "GET",
+      headers = {},
+      body = null,
+      contentType = "text/xml",
+      username = null,
+      shouldSaveAuth = false,
+      privateBrowsingId = Ci.nsIScriptSecurityManager
+        .DEFAULT_PRIVATE_BROWSING_ID,
+    }
   ) {
     uri = Services.io.newURI(uri);
     headers["Content-Type"] = contentType;
@@ -611,8 +665,9 @@ class CardDAVDirectory extends AddrBookDirectory {
     return new Promise((resolve, reject) => {
       let principal = Services.scriptSecurityManager.createContentPrincipal(
         uri,
-        {}
+        { privateBrowsingId }
       );
+
       let channel = Services.io.newChannelFromURI(
         uri,
         null,
@@ -625,7 +680,6 @@ class CardDAVDirectory extends AddrBookDirectory {
       for (let [name, value] of Object.entries(headers)) {
         channel.setRequestHeader(name, value, false);
       }
-      channel.notificationCallbacks = notificationCallbacks;
       if (body !== null) {
         let converter = Cc[
           "@mozilla.org/intl/scriptableunicodeconverter"
@@ -637,6 +691,9 @@ class CardDAVDirectory extends AddrBookDirectory {
         channel.setUploadStream(stream, contentType, -1);
       }
       channel.requestMethod = method; // Must go after setUploadStream.
+
+      let callbacks = new NotificationCallbacks(username);
+      channel.notificationCallbacks = callbacks;
 
       let listener = Cc["@mozilla.org/network/stream-loader;1"].createInstance(
         Ci.nsIStreamLoader
@@ -656,7 +713,13 @@ class CardDAVDirectory extends AddrBookDirectory {
                 Cr.NS_ERROR_FAILURE
               )
             );
+            return;
           }
+
+          if (shouldSaveAuth) {
+            callbacks.saveAuth();
+          }
+
           resolve({
             get status() {
               return finalChannel.responseStatus;
@@ -679,6 +742,14 @@ class CardDAVDirectory extends AddrBookDirectory {
                 }
               }
               return this._dom;
+            },
+            get authInfo() {
+              return {
+                username: callbacks.authInfo?.username,
+                save() {
+                  callbacks.saveAuth();
+                },
+              };
             },
           });
         },
@@ -714,34 +785,40 @@ function xmlEncode(string) {
     .replace(/>/g, "&gt;");
 }
 
-let notificationCallbacks = {
-  QueryInterface: ChromeUtils.generateQI([
+class NotificationCallbacks {
+  constructor(username) {
+    this.username = username;
+  }
+  QueryInterface = ChromeUtils.generateQI([
     "nsIInterfaceRequestor",
     "nsIAuthPrompt2",
     "nsIChannelEventSink",
-  ]),
-  getInterface: ChromeUtils.generateQI([
+  ]);
+  getInterface = ChromeUtils.generateQI([
     "nsIAuthPrompt2",
     "nsIChannelEventSink",
-  ]),
+  ]);
   promptAuth(channel, level, authInfo) {
     if (authInfo.flags & Ci.nsIAuthInformation.PREVIOUS_FAILED) {
       return false;
     }
     let logins = Services.logins.findLogins(channel.URI.prePath, null, "");
     for (let l of logins) {
-      authInfo.username = l.username;
-      authInfo.password = l.password;
-      return true;
+      if (l.username == this.username) {
+        authInfo.username = l.username;
+        authInfo.password = l.password;
+        return true;
+      }
     }
 
     let savePasswordLabel = null;
+    let savePassword = {};
     if (Services.prefs.getBoolPref("signon.rememberSignons", true)) {
       savePasswordLabel = Services.strings
         .createBundle("chrome://passwordmgr/locale/passwordmgr.properties")
         .GetStringFromName("rememberPassword");
+      savePassword.value = true;
     }
-    let savePassword = {};
     let returnValue = Services.prompt.promptAuth(
       null,
       channel,
@@ -750,23 +827,34 @@ let notificationCallbacks = {
       savePasswordLabel,
       savePassword
     );
-    if (savePassword.value) {
+    if (returnValue) {
+      this.shouldSaveAuth = savePassword.value;
+      this.origin = channel.URI.prePath;
+    }
+    this.authInfo = authInfo;
+    return returnValue;
+  }
+  saveAuth() {
+    if (this.shouldSaveAuth) {
       let newLoginInfo = Cc[
         "@mozilla.org/login-manager/loginInfo;1"
       ].createInstance(Ci.nsILoginInfo);
       newLoginInfo.init(
-        channel.URI.prePath,
+        this.origin,
         null,
-        authInfo.realm,
-        authInfo.username,
-        authInfo.password,
+        this.authInfo.realm,
+        this.authInfo.username,
+        this.authInfo.password,
         "",
         ""
       );
-      Services.logins.addLogin(newLoginInfo);
+      try {
+        Services.logins.addLogin(newLoginInfo);
+      } catch (ex) {
+        Cu.reportError(ex);
+      }
     }
-    return returnValue;
-  },
+  }
   asyncOnChannelRedirect(oldChannel, newChannel, flags, callback) {
     /**
      * Copy the given header from the old channel to the new one, ignoring missing headers
@@ -803,5 +891,5 @@ let notificationCallbacks = {
 
     newChannel.requestMethod = oldChannel.requestMethod;
     callback.onRedirectVerifyCallback(Cr.NS_OK);
-  },
-};
+  }
+}

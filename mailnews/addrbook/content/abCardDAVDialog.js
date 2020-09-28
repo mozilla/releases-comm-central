@@ -13,6 +13,8 @@ var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var console = new ConsoleAPI();
 console.prefix = "CardDAV setup";
+
+var authInfo = null;
 var uiElements = {};
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -89,6 +91,12 @@ async function check() {
   }
 
   setStatus("loading", "carddav-loading");
+  while (uiElements.availableBooks.lastChild) {
+    uiElements.availableBooks.lastChild.remove();
+  }
+
+  // Use a unique context for each attempt, so a prompt is always shown.
+  let privateBrowsingID = Math.floor(Date.now() / 1000);
 
   try {
     let url = uiElements.url.value;
@@ -96,25 +104,39 @@ async function check() {
       url = "https://" + url;
     }
     url = new URL(url);
+    authInfo = null;
 
     let response;
+
     let requestParams = {
       method: "PROPFIND",
+      privateBrowsingID,
       headers: {
         Depth: 0,
       },
       body: `<propfind xmlns="DAV:">
           <prop>
-            <current-user-principal/>
+            <resourcetype/>
+            <displayname/>
           </prop>
         </propfind>`,
+      shouldSaveAuth: false,
     };
 
+    let triedURLs = new Set();
     async function tryURL(url) {
+      if (triedURLs.has(url)) {
+        return;
+      }
+      triedURLs.add(url);
+
       console.log(`Attempting to connect to ${url}`);
       response = await CardDAVDirectory.makeRequest(url, requestParams);
       if (response.status == 207 && response.dom) {
         console.log(`${url} ... success`);
+        // The first successful response should have the username and password
+        // that the user entered. Save these for later.
+        authInfo = authInfo || response.authInfo;
       } else {
         console.log(
           `${url} ... response was "${response.status} ${response.statusText}"`
@@ -124,77 +146,91 @@ async function check() {
     }
 
     if (url.pathname != "/") {
+      // This might be the full URL of an address book.
       await tryURL(url.href);
+      if (!response?.dom?.querySelector("resourcetype addressbook")) {
+        response = null;
+      }
     }
     if (!response || !response.dom) {
+      // Auto-discovery using a magic URL.
+      requestParams.body = `<propfind xmlns="DAV:">
+        <prop>
+          <current-user-principal/>
+        </prop>
+      </propfind>`;
       await tryURL(`${url.origin}/.well-known/carddav`);
     }
     if (!response) {
+      // Auto-discovery at the root of the domain.
       await tryURL(`${url.origin}/`);
     }
     if (!response) {
-      throw new Components.Exception("Connection failure", Cr.NS_ERROR_FAILURE);
+      // We've run out of ideas.
+      throw new Components.Exception(
+        "Address book discovery failed",
+        Cr.NS_ERROR_FAILURE
+      );
     }
-    url = new URL(
-      response.dom.querySelector("current-user-principal href").textContent,
-      url
-    );
 
-    response = await CardDAVDirectory.makeRequest(url.href, {
-      method: "PROPFIND",
-      headers: {
-        Depth: 0,
-      },
-      body: `<propfind xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
+    if (!response.dom.querySelector("resourcetype addressbook")) {
+      // Steps two and three of auto-discovery. If the entered URL did point
+      // to an address book, we won't get here.
+      url = new URL(
+        response.dom.querySelector("current-user-principal href").textContent,
+        url
+      );
+      requestParams.body = `<propfind xmlns="DAV:" xmlns:card="urn:ietf:params:xml:ns:carddav">
         <prop>
           <card:addressbook-home-set/>
         </prop>
-      </propfind>`,
-    });
-    url = new URL(
-      response.dom.querySelector("addressbook-home-set href").textContent,
-      url
-    );
+      </propfind>`;
+      await tryURL(url.href);
 
-    response = await CardDAVDirectory.makeRequest(url.href, {
-      method: "PROPFIND",
-      headers: {
-        Depth: 1,
-      },
-      body: `<propfind xmlns="DAV:" xmlns:cs="http://calendarserver.org/ns/">
+      url = new URL(
+        response.dom.querySelector("addressbook-home-set href").textContent,
+        url
+      );
+      requestParams.headers.Depth = 1;
+      requestParams.body = `<propfind xmlns="DAV:">
         <prop>
           <resourcetype/>
           <displayname/>
         </prop>
-      </propfind>`,
-    });
-
-    while (uiElements.availableBooks.lastChild) {
-      uiElements.availableBooks.lastChild.remove();
+      </propfind>`;
+      await tryURL(url.href);
     }
+
+    // Find any directories in the response and add them to the UI.
 
     let existing = MailServices.ab.directories.map(d =>
       d.getStringValue("carddav.url", "")
     );
     let alreadyAdded = 0;
     for (let r of response.dom.querySelectorAll("response")) {
-      if (r.querySelector("resourcetype addressbook")) {
-        let bookURL = new URL(r.querySelector("href").textContent, url);
-        if (existing.includes(bookURL.href)) {
-          alreadyAdded++;
-          continue;
-        }
-        let checkbox = uiElements.availableBooks.appendChild(
-          document.createXULElement("checkbox")
-        );
-        checkbox.setAttribute(
-          "label",
-          r.querySelector("displayname").textContent
-        );
-        checkbox.checked = true;
-        checkbox.value = bookURL.href;
+      if (r.querySelector("status")?.textContent != "HTTP/1.1 200 OK") {
+        continue;
       }
+      if (!r.querySelector("resourcetype addressbook")) {
+        continue;
+      }
+
+      let bookURL = new URL(r.querySelector("href").textContent, url);
+      if (existing.includes(bookURL.href)) {
+        alreadyAdded++;
+        continue;
+      }
+      let checkbox = uiElements.availableBooks.appendChild(
+        document.createXULElement("checkbox")
+      );
+      checkbox.setAttribute(
+        "label",
+        r.querySelector("displayname").textContent
+      );
+      checkbox.checked = true;
+      checkbox.value = bookURL.href;
     }
+
     if (uiElements.availableBooks.childElementCount == 0) {
       if (alreadyAdded > 0) {
         setStatus("error", "carddav-already-added");
@@ -247,6 +283,11 @@ window.addEventListener("dialogaccept", event => {
       book = MailServices.ab.getDirectoryFromId(dirPrefId);
       book.setStringValue("carddav.url", checkbox.value);
       window.arguments[0].newDirectoryURI = book.URI;
+
+      if (authInfo?.username) {
+        book.setStringValue("carddav.username", authInfo.username);
+        authInfo.save();
+      }
 
       let dir = CardDAVDirectory.forFile(book.fileName);
       dir.fetchAllFromServer();

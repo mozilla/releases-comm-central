@@ -31,12 +31,12 @@ function initDirectory() {
     CardDAVServer.url
   );
   Services.prefs.setStringPref(
-    "ldap_2.servers.carddav.description",
-    "CardDAV Test"
+    "ldap_2.servers.carddav.carddav.username",
+    "bob"
   );
   Services.prefs.setStringPref(
-    "ldap_2.servers.carddav.carddav.url",
-    CardDAVServer.url
+    "ldap_2.servers.carddav.description",
+    "CardDAV Test"
   );
   Services.prefs.setIntPref(
     "ldap_2.servers.carddav.dirType",

@@ -320,7 +320,7 @@ var CardDAVServer = {
 
     let propValues = {
       "cs:getctag": this.changeCount,
-      "d:displayname": "test",
+      "d:displayname": "CardDAV Test",
       "d:resourcetype": "<collection/><card:addressbook/>",
     };
     if (!this.mimicYahoo) {

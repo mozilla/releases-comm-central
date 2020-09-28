@@ -60,6 +60,9 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
     "chrome://messenger/content/addressbook/abCardDAVDialog.xhtml",
     async dialogWindow => {
       for (let args of attemptArgs) {
+        if (args.url?.startsWith("/")) {
+          args.url = CardDAVServer.origin + args.url;
+        }
         await attemptInit(dialogWindow, args);
       }
       dialogWindow.document
@@ -74,6 +77,9 @@ async function wrappedTest(testInitCallback, ...attemptArgs) {
 
   await closeAddressBookWindow();
   await CardDAVServer.close();
+
+  let logins = Services.logins.getAllLogins();
+  Assert.equal(logins.length, 0, "no faulty logins were saved");
 }
 
 async function attemptInit(
@@ -141,6 +147,10 @@ function handlePasswordPrompt(password) {
     }
     prompt.document.getElementById("loginTextbox").value = "alice";
     prompt.document.getElementById("password1Textbox").value = password;
+
+    let checkbox = prompt.document.getElementById("checkbox");
+    Assert.greater(checkbox.getBoundingClientRect().width, 0);
+    Assert.ok(checkbox.checked);
     prompt.document
       .querySelector("dialog")
       .getButton("accept")
@@ -195,6 +205,16 @@ add_task(function testBadPassword() {
       expectedBooks: DEFAULT_BOOKS,
     }
   );
+});
+
+/** Test that entering the full URL of a book links to (only) that book. */
+add_task(function testDirectLink() {
+  return wrappedTest(null, {
+    url: "/addressbooks/me/test/",
+    password: "alice",
+    expectedStatus: "",
+    expectedBooks: [DEFAULT_BOOKS[1]],
+  });
 });
 
 /**
@@ -255,7 +275,16 @@ add_task(async function testEveryThingOK() {
     Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.token`, ""),
     "http://mochi.test/sync/0"
   );
+  Assert.equal(
+    Services.prefs.getStringPref(`${directory.dirPrefId}.carddav.username`, ""),
+    "alice"
+  );
   Assert.notEqual(davDirectory._syncTimer, null, "sync scheduled");
+
+  let logins = Services.logins.findLogins(CardDAVServer.origin, null, "");
+  Assert.equal(logins.length, 1, "login was saved");
+  Assert.equal(logins[0].username, "alice");
+  Assert.equal(logins[0].password, "alice");
 
   Assert.equal(dirTree.view.rowCount, 4);
   Assert.equal(dirTree.view.getCellText(2, dirTree.columns[0]), "CardDAV Test");
