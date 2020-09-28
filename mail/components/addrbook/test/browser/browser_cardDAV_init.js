@@ -48,6 +48,8 @@ add_task(async function testFileMenuItem() {
 });
 
 async function wrappedTest(testInitCallback, ...attemptArgs) {
+  Services.logins.removeAllLogins();
+
   CardDAVServer.open("alice", "alice");
   if (testInitCallback) {
     testInitCallback();
@@ -86,6 +88,7 @@ async function attemptInit(
   dialogWindow,
   {
     url = CardDAVServer.origin,
+    certError,
     password,
     expectedStatus = "carddav-connection-error",
     expectedBooks = [],
@@ -101,6 +104,8 @@ async function attemptInit(
   urlInput.select();
   EventUtils.sendString(url, dialogWindow);
 
+  let certPromise =
+    certError === undefined ? Promise.resolve() : handleCertError();
   let promptPromise =
     password === undefined ? Promise.resolve() : handlePasswordPrompt(password);
 
@@ -112,6 +117,7 @@ async function attemptInit(
     "Correct status message"
   );
 
+  await certPromise;
   await promptPromise;
   await BrowserTestUtils.waitForEvent(dialogWindow, "status-changed");
 
@@ -134,6 +140,13 @@ async function attemptInit(
     );
     Assert.ok(availableBooks.children[i].checked);
   }
+}
+
+function handleCertError() {
+  return BrowserTestUtils.promiseAlertDialog(
+    "cancel",
+    "chrome://pippki/content/exceptionDialog.xhtml"
+  );
 }
 
 function handlePasswordPrompt(password) {
@@ -166,6 +179,14 @@ add_task(function testBadURLs() {
     { url: "http://mochi.test:8888" },
     { url: "https://mochi.test:8888" }
   );
+});
+
+/** Test a server with a certificate problem. */
+add_task(function testBadSSL() {
+  return wrappedTest(null, {
+    url: "https://expired.example.com/",
+    certError: true,
+  });
 });
 
 /** Test an ordinary HTTP server that doesn't support CardDAV. */

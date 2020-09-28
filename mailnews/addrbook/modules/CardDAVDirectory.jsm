@@ -12,10 +12,20 @@ const { clearInterval, setInterval, setTimeout } = ChromeUtils.import(
   "resource://gre/modules/Timer.jsm"
 );
 const { VCardUtils } = ChromeUtils.import("resource:///modules/VCardUtils.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 ChromeUtils.defineModuleGetter(
   this,
   "fixIterator",
   "resource:///modules/iteratorUtils.jsm"
+);
+
+XPCOMUtils.defineLazyServiceGetter(
+  this,
+  "nssErrorsService",
+  "@mozilla.org/nss_errors_service;1",
+  "nsINSSErrorsService"
 );
 
 const PREFIX_BINDINGS = {
@@ -717,9 +727,11 @@ class CardDAVDirectory extends AddrBookDirectory {
    *    - text, the returned data as a String
    *    - dom, the returned data parsed into a Document
    */
-  static async makeRequest(
-    uri,
-    {
+  static async makeRequest(uri, details) {
+    if (typeof uri == "string") {
+      uri = Services.io.newURI(uri);
+    }
+    let {
       method = "GET",
       headers = {},
       body = null,
@@ -728,9 +740,7 @@ class CardDAVDirectory extends AddrBookDirectory {
       shouldSaveAuth = false,
       privateBrowsingId = Ci.nsIScriptSecurityManager
         .DEFAULT_PRIVATE_BROWSING_ID,
-    }
-  ) {
-    uri = Services.io.newURI(uri);
+    } = details;
     headers["Content-Type"] = contentType;
 
     return new Promise((resolve, reject) => {
@@ -773,6 +783,46 @@ class CardDAVDirectory extends AddrBookDirectory {
         onStreamComplete(loader, context, status, resultLength, result) {
           let finalChannel = loader.request.QueryInterface(Ci.nsIHttpChannel);
           if (!Components.isSuccessCode(status)) {
+            let isCertError = false;
+            try {
+              let errorType = nssErrorsService.getErrorClass(status);
+              if (errorType == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
+                isCertError = true;
+              }
+            } catch (ex) {
+              // nsINSSErrorsService.getErrorClass throws if given a non-TLS,
+              // non-cert error, so ignore this.
+            }
+
+            if (isCertError && finalChannel.securityInfo) {
+              let secInfo = finalChannel.securityInfo.QueryInterface(
+                Ci.nsITransportSecurityInfo
+              );
+              let params = {
+                exceptionAdded: false,
+                securityInfo: secInfo,
+                prefetchCert: true,
+                location: finalChannel.originalURI.displayHost,
+              };
+              Services.wm
+                .getMostRecentWindow("")
+                .openDialog(
+                  "chrome://pippki/content/exceptionDialog.xhtml",
+                  "",
+                  "chrome,centerscreen,modal",
+                  params
+                );
+
+              if (params.exceptionAdded) {
+                // Try again now that an exception has been added.
+                CardDAVDirectory.makeRequest(uri, details).then(
+                  resolve,
+                  reject
+                );
+                return;
+              }
+            }
+
             reject(new Components.Exception("Connection failure", status));
             return;
           }
@@ -891,7 +941,7 @@ class NotificationCallbacks {
       savePassword.value = true;
     }
     let returnValue = Services.prompt.promptAuth(
-      null,
+      Services.wm.getMostRecentWindow(""),
       channel,
       level,
       authInfo,
