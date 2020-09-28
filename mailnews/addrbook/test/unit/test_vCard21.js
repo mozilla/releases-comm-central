@@ -171,4 +171,20 @@ add_task(async () => {
     FirstName: "ƒirst",
     LastName: "łast",
   });
+  check(
+    "NOTE;QUOTED-PRINTABLE:line 1=0D=0A=\nline 2=0D=0A=\nline 3\r\nNICKNAME:foo=\r\nTITLE:bar=",
+    {
+      Notes: "line 1\r\nline 2\r\nline 3",
+      NickName: "foo=",
+      JobTitle: "bar=",
+    }
+  );
+  check(
+    "NOTE;QUOTED-PRINTABLE:line 1=0D=0A=\r\nline 2=0D=0A=\r\nline 3\r\nNICKNAME:foo=\r\nTITLE:bar=",
+    {
+      Notes: "line 1\r\nline 2\r\nline 3",
+      NickName: "foo=",
+      JobTitle: "bar=",
+    }
+  );
 });

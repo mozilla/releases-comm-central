@@ -103,6 +103,7 @@ var VCardUtils = {
     // cards into a "good-enough" mimic of vCard 4.0 so that the parser will
     // read it without throwing an error.
     if (/\bVERSION:2.1\b/i.test(vCard)) {
+      // Convert known type parameters to valid vCard 4.0, ignore unknown ones.
       vCard = vCard.replace(/\n(([A-Z]+)(;[\w-]*)+):/gi, (match, key) => {
         let parts = key.split(";");
         let newParts = [parts[0]];
@@ -124,6 +125,13 @@ var VCardUtils = {
         }
         return "\n" + newParts.join(";") + ":";
       });
+
+      // Join quoted-printable wrapped lines together. This regular expression
+      // only matches lines that are quoted-printable and end with `=`.
+      let quotedNewLineRegExp = /(;ENCODING=QUOTED-PRINTABLE[;:][^\r\n]*)=\r?\n/i;
+      while (vCard.match(quotedNewLineRegExp)) {
+        vCard = vCard.replace(quotedNewLineRegExp, "$1");
+      }
     }
 
     let [, vProps] = ICAL.parse(vCard);
