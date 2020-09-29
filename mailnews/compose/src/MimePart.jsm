@@ -221,6 +221,10 @@ class MimePart {
     await this._writeString(
       jsmime.headeremitter.emitStructuredHeaders(this._headers, {
         useASCII: true,
+        sanitizeDate: Services.prefs.getBoolPref(
+          "mail.sanitize_date_header",
+          false
+        ),
       })
     );
 

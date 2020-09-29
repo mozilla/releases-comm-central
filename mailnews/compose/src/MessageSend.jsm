@@ -8,6 +8,7 @@ var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
+var { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 var { MimeMessage } = ChromeUtils.import("resource:///modules/MimeMessage.jsm");
@@ -238,6 +239,13 @@ MessageSend.prototype = {
   notifyListenerOnStopCopy(status) {
     this._msgCopy = null;
 
+    let statusMsg;
+    if (Components.isSuccessCode(status)) {
+      statusMsg = this._composeBundle.GetStringFromName("copyMessageComplete");
+    } else {
+      statusMsg = this._composeBundle.GetStringFromName("copyMessageFailed");
+    }
+    this._setStatusMessage(statusMsg);
     if (this._sendListener) {
       try {
         this._sendListener
@@ -336,6 +344,9 @@ MessageSend.prototype = {
       this._composeBundle.GetStringFromName("creatingMailMessage")
     );
     let messageFile = await this._message.createMessageFile();
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName("assemblingMessageDone")
+    );
     await this._deliverMessage(messageFile);
   },
 
@@ -412,6 +423,12 @@ MessageSend.prototype = {
     if (this._sendListener) {
       this._sendListener.onGetDraftFolderURI(this._folderUri);
     }
+    let folder = MailUtils.getOrCreateFolder(this._folderUri);
+    let statusMsg = this._composeBundle.formatStringFromName(
+      "copyMessageStart",
+      [folder?.name || "?"]
+    );
+    this._setStatusMessage(statusMsg);
     try {
       msgCopy.startCopyOperation(
         this._userIdentity,
@@ -442,17 +459,25 @@ MessageSend.prototype = {
   },
 
   /**
-   * Send a message file to smtp service. Far from complete.
-   * TODO: actually send the message to cc/bcc.
+   * Send a message file to smtp service.
+   * @param {nsIFile} file - The message file to send.
    */
   _deliverFileAsMail(file) {
-    let to = this._compFields.to || this._compFields.bcc || "";
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName("sendingMessage")
+    );
+    let recipients = [
+      this._compFields.to,
+      this._compFields.cc,
+      this._compFields.bcc,
+    ].filter(Boolean);
+    this._collectAddressesToAddressBook(recipients);
     let converter = Cc["@mozilla.org/messenger/mimeconverter;1"].getService(
       Ci.nsIMimeConverter
     );
-    to = encodeURIComponent(
+    let encodedRecipients = encodeURIComponent(
       converter.encodeMimePartIIStr_UTF8(
-        to,
+        recipients.join(","),
         true,
         0,
         Ci.nsIMimeConverter.MIME_ENCODED_WORD_SIZE
@@ -462,7 +487,7 @@ MessageSend.prototype = {
     this._smtpRequest = {};
     MailServices.smtp.sendMailMessage(
       file,
-      to,
+      encodedRecipients,
       this._userIdentity,
       this._compFields.from,
       this._smtpPassword,
@@ -473,6 +498,25 @@ MessageSend.prototype = {
       {},
       this._smtpRequest
     );
+  },
+
+  /**
+   * Collect outgoing addresses to address book.
+   * @param {string[]} recipients - Outgoing addresses including to/cc/bcc.
+   */
+  _collectAddressesToAddressBook(recipients) {
+    let createCard = Services.prefs.getBoolPref(
+      "mail.collect_email_address_outgoing",
+      false
+    );
+    let sendFormat = Ci.nsIAbPreferMailFormat.unknown;
+
+    let addressCollector = Cc[
+      "@mozilla.org/addressbook/services/addressCollector;1"
+    ].getService(Ci.nsIAbAddressCollector);
+    for (let recipient of recipients) {
+      addressCollector.collectAddress(recipient, createCard, sendFormat);
+    }
   },
 
   /**
