@@ -132,14 +132,14 @@ nsresult nsAddrDatabase::GetMDBFactory(nsIMdbFactory** aMdbFactory) {
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAddrDatabase::SetDbPath(nsIFile* aDbPath) {
+nsresult nsAddrDatabase::SetDbPath(nsIFile* aDbPath) {
   return aDbPath->Clone(getter_AddRefs(m_dbName));
 }
 
 // Open the MDB database synchronously. If successful, this routine
 // will set up the m_mdbStore and m_mdbEnv of the database object
 // so other database calls can work.
-NS_IMETHODIMP nsAddrDatabase::OpenMDB(nsIFile* dbName, bool create) {
+nsresult nsAddrDatabase::OpenMDB(nsIFile* dbName, bool create) {
   nsCOMPtr<nsIMdbFactory> mdbFactory;
   nsresult ret = GetMDBFactory(getter_AddRefs(mdbFactory));
   NS_ENSURE_SUCCESS(ret, ret);
@@ -221,7 +221,7 @@ NS_IMETHODIMP nsAddrDatabase::OpenMDB(nsIFile* dbName, bool create) {
   return ret;
 }
 
-NS_IMETHODIMP nsAddrDatabase::CloseMDB(bool commit) {
+nsresult nsAddrDatabase::CloseMDB(bool commit) {
   if (commit) return NS_ERROR_NOT_IMPLEMENTED;
   //???    RemoveFromCache(this);  // if we've closed it, better not leave it in
   // the cache.
@@ -232,7 +232,7 @@ NS_IMETHODIMP nsAddrDatabase::CloseMDB(bool commit) {
 // a database without having a listener!
 // This is evil in the com world, but there are times we need to delete the
 // file.
-NS_IMETHODIMP nsAddrDatabase::ForceClosed() {
+nsresult nsAddrDatabase::ForceClosed() {
   nsresult err = NS_OK;
 
   // make sure someone has a reference so object won't get deleted out from
@@ -247,7 +247,7 @@ NS_IMETHODIMP nsAddrDatabase::ForceClosed() {
   return err;
 }
 
-NS_IMETHODIMP nsAddrDatabase::Close(bool forceCommit /* = TRUE */) {
+nsresult nsAddrDatabase::Close(bool forceCommit /* = TRUE */) {
   return CloseMDB(forceCommit);
 }
 
@@ -768,12 +768,12 @@ nsListAddressEnumerator::GetNext(nsISupports** aResult) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NS_IMETHODIMP nsAddrDatabase::EnumerateCards(nsISimpleEnumerator** result) {
+nsresult nsAddrDatabase::EnumerateCards(nsISimpleEnumerator** result) {
   NS_ADDREF(*result = new nsAddrDBEnumerator(this));
   return NS_OK;
 }
 
-NS_IMETHODIMP nsAddrDatabase::EnumerateListAddresses(
+nsresult nsAddrDatabase::EnumerateListAddresses(
     uint32_t listRowID, nsISimpleEnumerator** result) {
   NS_ADDREF(*result = new nsListAddressEnumerator(this, listRowID));
   return NS_OK;
