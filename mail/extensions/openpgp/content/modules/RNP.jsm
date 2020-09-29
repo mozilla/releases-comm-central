@@ -237,11 +237,11 @@ var RNP = {
     return [prot, unprot];
   },
 
-  protectUnprotectedKeys() {
+  async protectUnprotectedKeys() {
     let iter = new RNPLib.rnp_identifier_iterator_t();
     let grip = new ctypes.char.ptr();
 
-    let newPass = OpenPGPMasterpass.retrieveOpenPGPPassword();
+    let newPass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
 
     if (
       RNPLib.rnp_identifier_iterator_create(RNPLib.ffi, iter.address(), "grip")
@@ -1724,7 +1724,7 @@ var RNP = {
       throw new Error("rejecting big keyblock");
     }
 
-    let newPass = OpenPGPMasterpass.retrieveOpenPGPPassword();
+    let newPass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
     /* Explicit comparison, because empty string might potentially
      * be allowed. */
     if (newPass == null || newPass == undefined) {
@@ -2709,7 +2709,7 @@ var RNP = {
       throw new Error("Couldn't initialize librnp.");
     }
 
-    let internalPassword = OpenPGPMasterpass.retrieveOpenPGPPassword();
+    let internalPassword = await OpenPGPMasterpass.retrieveOpenPGPPassword();
 
     let exportFlags =
       RNPLib.RNP_KEY_EXPORT_SUBKEYS | RNPLib.RNP_KEY_EXPORT_SECRET;
@@ -2981,12 +2981,8 @@ var RNP = {
     }
 
     for (let handle of handles) {
-      if (
-        RNPLib.rnp_key_unlock(
-          handle,
-          OpenPGPMasterpass.retrieveOpenPGPPassword()
-        )
-      ) {
+      let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
+      if (RNPLib.rnp_key_unlock(handle, pass)) {
         throw new Error("rnp_key_unlock failed");
       }
     }

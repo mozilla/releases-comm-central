@@ -239,14 +239,9 @@ async function enigmailKeygenStart() {
   try {
     let newId = null;
     cApi = EnigmailCryptoAPI();
+    let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
     newId = cApi.sync(
-      cApi.genKey(
-        idString,
-        keyType,
-        keySize,
-        expiryTime,
-        OpenPGPMasterpass.retrieveOpenPGPPassword()
-      )
+      cApi.genKey(idString, keyType, keySize, expiryTime, pass)
     );
     console.log("created new key with id: " + newId);
     gGeneratedKey = newId;

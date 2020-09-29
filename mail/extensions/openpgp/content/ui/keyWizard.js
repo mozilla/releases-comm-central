@@ -563,6 +563,7 @@ async function openPgpKeygenConfirm() {
   try {
     let newId = null;
     cApi = EnigmailCryptoAPI();
+    let pass = await OpenPGPMasterpass.retrieveOpenPGPPassword();
     newId = cApi.sync(
       cApi.genKey(
         `${gIdentity.fullName} <${gIdentity.email}>`,
@@ -572,7 +573,7 @@ async function openPgpKeygenConfirm() {
           ? 0
           : Number(document.getElementById("expireInput").value) *
               Number(document.getElementById("timeScale").value),
-        OpenPGPMasterpass.retrieveOpenPGPPassword()
+        pass
       )
     );
     console.log("created new key with id: " + newId);

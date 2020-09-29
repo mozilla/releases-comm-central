@@ -12,6 +12,9 @@ var abi = ctypes.default_abi;
 var { EnigmailApp } = ChromeUtils.import(
   "chrome://openpgp/content/modules/app.jsm"
 );
+var { EnigmailCryptoAPI } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/cryptoAPI.jsm"
+);
 var { OpenPGPMasterpass } = ChromeUtils.import(
   "chrome://openpgp/content/modules/masterpass.jsm"
 );
@@ -362,7 +365,8 @@ function enableRNPLibJS() {
     keep_password_cb_alive: null,
 
     password_cb(ffi, app_ctx, key, pgp_context, buf, buf_len) {
-      let pass = OpenPGPMasterpass.retrieveOpenPGPPassword();
+      const cApi = EnigmailCryptoAPI();
+      let pass = cApi.sync(OpenPGPMasterpass.retrieveOpenPGPPassword());
       var passCTypes = ctypes.char.array()(pass); // UTF-8
       let passLen = passCTypes.length;
 
