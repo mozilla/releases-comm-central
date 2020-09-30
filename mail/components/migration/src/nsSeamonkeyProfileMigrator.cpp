@@ -23,6 +23,11 @@
 #include "mozilla/ArrayUtils.h"
 #include "nsIFile.h"
 
+#include "nsAbBaseCID.h"
+#include "nsIAbManager.h"
+#include "nsIAbDirectory.h"
+#include "../../../../mailnews/import/src/MorkImport.h"
+
 // Mail specific folder paths
 #define MAIL_DIR_50_NAME u"Mail"_ns
 #define IMAP_MAIL_DIR_50_NAME u"ImapMail"_ns
@@ -326,8 +331,9 @@ nsresult nsSeamonkeyProfileMigrator::TransformPreferences(
 
   static const char* branchNames[] = {
       // Keep the three below first, or change the indexes below
-      "mail.identity.",   "mail.server.",     "ldap_2.",       "mail.account.",
-      "mail.smtpserver.", "mailnews.labels.", "mailnews.tags."};
+      "mail.identity.", "mail.server.",     "ldap_2.servers.",
+      "mail.account.",  "mail.smtpserver.", "mailnews.labels.",
+      "mailnews.tags."};
 
   // read in the various pref branch trees for accounts, identities, servers,
   // etc.
@@ -346,7 +352,7 @@ nsresult nsSeamonkeyProfileMigrator::TransformPreferences(
   // the new prefs.js
   CopyMailFolders(branches[1], psvc);
 
-  CopyAddressBookDirectories(branches[2], psvc);
+  TransformAddressbooksForImport(psvc, branches[2], true);
 
   // Now that we have all the pref data in memory, load the target pref file,
   // and write it back out.
@@ -364,95 +370,6 @@ nsresult nsSeamonkeyProfileMigrator::TransformPreferences(
   mTargetProfile->Clone(getter_AddRefs(targetPrefsFile));
   targetPrefsFile->Append(aTargetPrefFileName);
   psvc->SavePrefFile(targetPrefsFile);
-
-  return NS_OK;
-}
-
-/**
- * Copy .mab (Mork files) from Seamonkey profile to Thunderbird profile. The
- * restarting after migration will convert .mab to .sqlite, so we don't need to
- * read and convert the .mab here.
- */
-nsresult nsSeamonkeyProfileMigrator::CopyAddressBookDirectories(
-    PBStructArray& aLdapServers, nsIPrefService* aPrefService) {
-  // each server has a pref ending with .filename. The value of that pref points
-  // to a profile which we need to migrate.
-  nsAutoString index;
-  index.AppendInt(nsIMailProfileMigrator::ADDRESSBOOK_DATA);
-  NOTIFY_OBSERVERS(MIGRATION_ITEMBEFOREMIGRATE, index.get());
-
-  for (auto pref : aLdapServers) {
-    nsDependentCString prefName(pref->prefName);
-
-    if (StringEndsWith(prefName, nsDependentCString(".filename"))) {
-      nsCString fileName(pref->stringValue);
-      nsCString newFileName(pref->stringValue);
-      if (StringBeginsWith(prefName, nsDependentCString("pab")) ||
-          StringBeginsWith(prefName, nsDependentCString("history"))) {
-        // By default, ldap_2.servers.pab.filename is abook.mab on Seamonkey,
-        // but when read from Thunderbird, pref->prefName becomes abook.sqlite.
-        // It's because Seamonkey and Thunderbird have different default values.
-        // CopyFile won't work since abook.sqlite doesn't exist in Seamonkey's
-        // profile.
-        nsCOMPtr<nsIFile> sourceAddrbook;
-        mSourceProfile->Clone(getter_AddRefs(sourceAddrbook));
-        sourceAddrbook->Append(NS_ConvertUTF8toUTF16(fileName));
-        bool exists;
-        sourceAddrbook->Exists(&exists);
-
-        if (StringEndsWith(fileName, nsDependentCString(".sqlite"))) {
-          if (exists) {
-            // This means Seamonkey has started using SQLite for addressbook, to
-            // prevent overwriting pab.sqlite and history.sqlite, do nothing.
-            continue;
-          } else {
-            // If abook.sqlite doesn't exist in Seamonkey's profile, but
-            // abook.mab does, we copy abook.mab into Thunderbird's profile, and
-            // on restarting, abook.mab will be merged into abook.sqlite.
-            fileName.Cut(fileName.Length() - strlen("sqlite"),
-                         strlen("sqlite"));
-            fileName.Append("mab");
-            mSourceProfile->Clone(getter_AddRefs(sourceAddrbook));
-            sourceAddrbook->Append(NS_ConvertUTF8toUTF16(fileName));
-            sourceAddrbook->Exists(&exists);
-            if (exists) {
-              newFileName = fileName;
-            }
-          }
-        }
-      } else if (StringEndsWith(newFileName, nsDependentCString(".mab"))) {
-        // For user created addressbook, say "abook-1.mab" in Seamonkey, it's
-        // possible there is a "abook-1.sqlite" in Thunderbird. To avoid
-        // overwriting, we start from abook-1.sqlite, then use CreateUnique to
-        // get a unique filename, say "abook-N.sqlite", then change the file
-        // extension to get "abook-N.mab" and use it in pref->stringValue and
-        // CopyFile.
-        newFileName.Cut(newFileName.Length() - strlen("mab"), strlen("mab"));
-        newFileName.Append("sqlite");
-        nsCOMPtr<nsIFile> targetAddrbook;
-        mTargetProfile->Clone(getter_AddRefs(targetAddrbook));
-        targetAddrbook->Append(NS_ConvertUTF8toUTF16(newFileName));
-        nsresult rv =
-            targetAddrbook->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
-        NS_ENSURE_SUCCESS(rv, rv);
-
-        nsString leafName;
-        targetAddrbook->GetLeafName(leafName);
-        newFileName.Assign(NS_ConvertUTF16toUTF8(leafName));
-        newFileName.Cut(newFileName.Length() - strlen("sqlite"),
-                        strlen("sqlite"));
-        newFileName.Append("mab");
-        targetAddrbook->RenameTo(mTargetProfile,
-                                 NS_ConvertUTF8toUTF16(newFileName));
-        pref->stringValue = moz_xstrdup(newFileName.get());
-      }
-
-      CopyFile(NS_ConvertUTF8toUTF16(fileName),
-               NS_ConvertUTF8toUTF16(newFileName));
-    }
-  }
-
-  NOTIFY_OBSERVERS(MIGRATION_ITEMAFTERMIGRATE, index.get());
 
   return NS_OK;
 }
@@ -744,10 +661,8 @@ nsresult nsSeamonkeyProfileMigrator::ImportPreferences(uint16_t aItems) {
   WriteBranch(branchNames[1], psvc, sourceBranches[1], false);
   CopyMailFolders(sourceBranches[1], psvc);
 
-  TransformAddressbooksForImport(psvc, sourceBranches[6]);
-  // CopyAddressBookDirectories requires ldap_2.servers.newName branch exists.
-  WriteBranch(branchNames[6], psvc, sourceBranches[6], false);
-  CopyAddressBookDirectories(sourceBranches[6], psvc);
+  // TransformAddressbooksForImport writes the branch and migrates the files.
+  TransformAddressbooksForImport(psvc, sourceBranches[6], false);
 
   for (uint32_t i = 0; i < MOZ_ARRAY_LENGTH(branchNames); i++)
     WriteBranch(branchNames[i], psvc, sourceBranches[i]);
@@ -981,44 +896,50 @@ nsresult nsSeamonkeyProfileMigrator::TransformSmtpServersForImport(
  * Transform ldap_2.servers branch.
  */
 nsresult nsSeamonkeyProfileMigrator::TransformAddressbooksForImport(
-    nsIPrefService* aPrefService, PBStructArray& aAddressbooks) {
+    nsIPrefService* aPrefService, PBStructArray& aAddressbooks, bool aReplace) {
   nsDataHashtable<nsCStringHashKey, nsCString> keyHashTable;
+  nsDataHashtable<nsCStringHashKey, nsCString> pendingMigrations;
   nsTArray<nsCString> newKeys;
+  nsresult rv;
+
+  nsCOMPtr<nsIPrefBranch> branch;
+  rv = aPrefService->GetBranch("ldap_2.servers.", getter_AddRefs(branch));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   for (auto pref : aAddressbooks) {
     nsDependentCString prefName(pref->prefName);
     nsTArray<nsCString> keys;
     ParseString(prefName, '.', keys);
     auto key = keys[0];
-    if (key == "default" || key == "pab" || key == "history") {
+    if (key == "default") {
       continue;
     }
 
-    // For every addressbook, create a new one to avoid conflicts.
     nsCString newKey;
-    if (!keyHashTable.Get(key, &newKey)) {
-      nsCOMPtr<nsIPrefBranch> branch;
-      nsresult rv =
-          aPrefService->GetBranch("ldap_2.servers.", getter_AddRefs(branch));
-      NS_ENSURE_SUCCESS(rv, rv);
-      uint32_t uniqueCount = 0;
+    if (aReplace) {
+      newKey.Assign(key);
+    } else {
+      // For every addressbook, create a new one to avoid conflicts.
+      if (!keyHashTable.Get(key, &newKey)) {
+        uint32_t uniqueCount = 0;
 
-      while (true) {
-        nsAutoCString filenameKey;
-        nsAutoCString filename;
-        filenameKey.Assign(key);
-        filenameKey.AppendInt(++uniqueCount);
-        filenameKey.AppendLiteral(".filename");
-        nsresult rv = branch->GetCharPref(filenameKey.get(), filename);
-        if (NS_FAILED(rv)) {
-          newKey.Assign(key);
-          newKey.AppendInt(uniqueCount);
-          (void)branch->SetCharPref(filenameKey.get(),
-                                    nsDependentCString("placeholder"));
-          break;
+        while (true) {
+          nsAutoCString filenameKey;
+          nsAutoCString filename;
+          filenameKey.Assign(key);
+          filenameKey.AppendInt(++uniqueCount);
+          filenameKey.AppendLiteral(".filename");
+          nsresult rv = branch->GetCharPref(filenameKey.get(), filename);
+          if (NS_FAILED(rv)) {
+            newKey.Assign(key);
+            newKey.AppendInt(uniqueCount);
+            (void)branch->SetCharPref(filenameKey.get(),
+                                      nsDependentCString("placeholder"));
+            break;
+          }
         }
+        keyHashTable.Put(key, newKey);
       }
-      keyHashTable.Put(key, newKey);
     }
 
     // Replace the prefName with the new key.
@@ -1026,9 +947,119 @@ nsresult nsSeamonkeyProfileMigrator::TransformAddressbooksForImport(
     for (uint32_t j = 1; j < keys.Length(); j++) {
       prefName.Append('.');
       prefName.Append(keys[j]);
+
+      if (j == 1) {
+        if (keys[j].Equals("dirType")) {
+          // Make sure we have the right type of directory.
+          pref->intValue = 101;
+        } else if (!aReplace && keys[j].Equals("description") &&
+                   !strcmp(pref->stringValue,
+                           "chrome://messenger/locale/addressbook/"
+                           "addressBook.properties")) {
+          // We're importing the default directories, which have localized
+          // names. The names are tied to the pref's name, which we are
+          // changing, so the localization will fail. Instead, do the
+          // localization here and assign it to the directory being copied.
+          nsCOMPtr<nsIPrefLocalizedString> localizedString;
+          rv = branch->GetComplexValue(pref->prefName,
+                                       NS_GET_IID(nsIPrefLocalizedString),
+                                       getter_AddRefs(localizedString));
+          if (NS_SUCCEEDED(rv)) {
+            nsString localizedValue;
+            localizedString->GetData(localizedValue);
+            pref->stringValue =
+                moz_xstrdup(NS_ConvertUTF16toUTF8(localizedValue).get());
+          }
+        } else if (keys[j].Equals("filename")) {
+          // Update the prefs for the new filename of the directory.
+          nsCString oldFileName(pref->stringValue);
+          nsCString newFileName(pref->stringValue);
+
+          if (StringEndsWith(newFileName, nsCString("mab"))) {
+            newFileName.Cut(newFileName.Length() - strlen("mab"),
+                            strlen("mab"));
+            newFileName.Append("sqlite");
+            pref->stringValue = moz_xstrdup(newFileName.get());
+          }
+
+          if (!aReplace) {
+            // Find an unused filename in the destination directory.
+            nsCOMPtr<nsIFile> targetAddrbook;
+            mTargetProfile->Clone(getter_AddRefs(targetAddrbook));
+            targetAddrbook->Append(NS_ConvertUTF8toUTF16(newFileName));
+            nsresult rv =
+                targetAddrbook->CreateUnique(nsIFile::NORMAL_FILE_TYPE, 0600);
+            NS_ENSURE_SUCCESS(rv, rv);
+
+            nsString leafName;
+            targetAddrbook->GetLeafName(leafName);
+
+            pref->stringValue =
+                moz_xstrdup(NS_ConvertUTF16toUTF8(leafName).get());
+          }
+
+          if (StringEndsWith(oldFileName, nsCString("sqlite"))) {
+            nsCOMPtr<nsIFile> oldFile;
+            mSourceProfile->Clone(getter_AddRefs(oldFile));
+            oldFile->Append(NS_ConvertUTF8toUTF16(oldFileName));
+            bool exists = false;
+            oldFile->Exists(&exists);
+            if (exists) {
+              // The source directory already has SQLite directories.
+              // Just copy them.
+              CopyFile(NS_ConvertUTF8toUTF16(oldFileName),
+                       NS_ConvertUTF8toUTF16(newFileName));
+              continue;
+            }
+
+            oldFileName.Cut(oldFileName.Length() - strlen("sqlite"),
+                            strlen("sqlite"));
+            oldFileName.Append("mab");
+          }
+
+          // Store the directories to be migrated for later.
+          pendingMigrations.Put(newKey, oldFileName);
+        }
+      }
     }
     pref->prefName = moz_xstrdup(prefName.get());
   }
+
+  // Write out the preferences and ask the address book manager to reload.
+  // This initializes the directories using the new prefs we've just set up.
+  WriteBranch("ldap_2.servers.", aPrefService, aAddressbooks, false);
+  NOTIFY_OBSERVERS("addrbook-reload", nullptr);
+
+  // Do the migration.
+  for (auto iter = pendingMigrations.Iter(); !iter.Done(); iter.Next()) {
+    nsCString dirPrefId = "ldap_2.servers."_ns;
+    dirPrefId.Append(iter.Key());
+    MigrateMABFile(dirPrefId, iter.UserData());
+  }
+
+  return NS_OK;
+}
+
+nsresult nsSeamonkeyProfileMigrator::MigrateMABFile(
+    const nsCString& aDirPrefId, const nsCString& aSourceFileName) {
+  nsCOMPtr<nsIFile> sourceFile;
+  mSourceProfile->Clone(getter_AddRefs(sourceFile));
+
+  sourceFile->Append(NS_ConvertUTF8toUTF16(aSourceFileName));
+  bool exists = false;
+  sourceFile->Exists(&exists);
+  if (!exists) return NS_OK;
+
+  nsresult rv;
+
+  nsCOMPtr<nsIAbManager> abManager(do_GetService(NS_ABMANAGER_CONTRACTID, &rv));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIAbDirectory> directory;
+  rv = abManager->GetDirectoryFromId(aDirPrefId, getter_AddRefs(directory));
+  NS_ENSURE_SUCCESS(rv, NS_OK);
+
+  rv = ReadMABToDirectory(sourceFile, directory);
 
   return NS_OK;
 }

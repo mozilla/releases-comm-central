@@ -35,6 +35,9 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
   nsresult FillProfileDataFromSeamonkeyRegistry();
   nsresult GetSourceProfile(const char16_t* aProfile);
 
+  nsresult MigrateMABFile(const nsCString& aDirPrefId,
+                          const nsCString& aSourceFileName);
+
   nsresult CopyPreferences(bool aReplace);
   nsresult ImportPreferences(uint16_t aItems);
   nsresult TransformPreferences(const nsAString& aSourcePrefFileName,
@@ -45,8 +48,6 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
   nsresult CopyPasswords(bool aReplace);
   nsresult CopyMailFolders(PBStructArray& aMailServers,
                            nsIPrefService* aPrefBranch);
-  nsresult CopyAddressBookDirectories(PBStructArray& aLdapServers,
-                                      nsIPrefService* aPrefService);
   nsresult CopySignatureFiles(PBStructArray& aIdentities,
                               nsIPrefService* aPrefBranch);
 
@@ -68,7 +69,8 @@ class nsSeamonkeyProfileMigrator : public nsNetscapeProfileMigratorBase {
   nsresult TransformSmtpServersForImport(PBStructArray& aServers,
                                          PrefKeyHashTable& keyHashTable);
   nsresult TransformAddressbooksForImport(nsIPrefService* aPrefService,
-                                          PBStructArray& aAddressbooks);
+                                          PBStructArray& aAddressbooks,
+                                          bool aReplace);
 
   void ReadBranch(const char* branchName, nsIPrefService* aPrefService,
                   PBStructArray& aPrefs);

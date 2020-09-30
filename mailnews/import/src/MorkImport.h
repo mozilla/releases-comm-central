@@ -11,12 +11,17 @@
 #include "nsCOMPtr.h"
 #include "nsIStringBundle.h"
 
+#include "nsIFile.h"
+#include "nsIAbDirectory.h"
+
 #define MORKIMPORT_CID                               \
   { /* 54d48d9f-1bac-47be-9190-c4dc74e837e2 */       \
     0x54d48d9f, 0x1bac, 0x47be, {                    \
       0x91, 0x90, 0xc4, 0xdc, 0x74, 0xe8, 0x37, 0xe2 \
     }                                                \
   }
+
+nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory);
 
 class MorkImport : public nsIImportModule {
  public:

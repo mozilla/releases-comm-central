@@ -219,9 +219,18 @@ MorkImportAddressImpl::ImportAddressBook(
   NS_ENSURE_ARG_POINTER(pDestination);
   NS_ENSURE_ARG_POINTER(fatalError);
 
-  nsresult rv;
   nsCOMPtr<nsIFile> oldFile;
   pSource->GetAbFile(getter_AddRefs(oldFile));
+
+  nsresult rv = ReadMABToDirectory(oldFile, pDestination);
+
+  *pSuccessLog =
+      nsImportStringBundle::GetStringByName("morkImportSuccess", mStringBundle);
+  return rv;
+}
+
+nsresult ReadMABToDirectory(nsIFile* oldFile, nsIAbDirectory* newDirectory) {
+  nsresult rv;
 
   nsAddrDatabase database = nsAddrDatabase();
   database.SetDbPath(oldFile);
@@ -249,7 +258,7 @@ MorkImportAddressImpl::ImportAddressBook(
     cardMap.Put(rowId, card);
 
     nsIAbCard* outCard;
-    pDestination->AddCard(card, &outCard);
+    newDirectory->AddCard(card, &outCard);
   }
 
   database.EnumerateCards(getter_AddRefs(enumerator));
@@ -283,7 +292,7 @@ MorkImportAddressImpl::ImportAddressBook(
     }
 
     nsIAbDirectory* outList;
-    pDestination->AddMailList(mailList, &outList);
+    newDirectory->AddMailList(mailList, &outList);
 
     uint32_t listRowId;
     card->GetPropertyAsUint32(kRowIDProperty, &listRowId);
@@ -310,8 +319,6 @@ MorkImportAddressImpl::ImportAddressBook(
   database.CloseMDB(false);
   database.ForceClosed();
 
-  *pSuccessLog =
-      nsImportStringBundle::GetStringByName("morkImportSuccess", mStringBundle);
   return NS_OK;
 }
 
