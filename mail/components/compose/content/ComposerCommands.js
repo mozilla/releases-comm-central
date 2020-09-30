@@ -1689,11 +1689,7 @@ var nsSetSmiley = {
     try {
       let editor = GetCurrentEditor();
       let smileyCode = aParams.getStringValue("state_attribute");
-      let smileyElement = editor.createElementWithDefaults("span");
-      // eslint-disable-next-line no-unsanitized/property
-      smileyElement.innerHTML = smileyCode;
-
-      editor.insertElementAtSelection(smileyElement, true);
+      editor.insertHTML(smileyCode);
       window.content.focus();
     } catch (e) {
       dump("Exception occurred in smiley InsertElementAtSelection\n");
