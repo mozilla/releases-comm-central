@@ -605,7 +605,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
 
         let previous = input.previousElementSibling;
         if (previous && previous.tagName == "mail-address-pill") {
-          document.getElementById("recipientsContainer").selectPills(previous);
+          input.closest("mail-recipients-area").selectPills(previous);
           previous.focus();
         }
       }
@@ -646,12 +646,14 @@ function addressInputOnBeforeHandleKeyDown(event) {
       if (
         event.repeat ||
         input.value.trim() ||
-        input.selectionStart + input.selectionEnd
+        input.selectionStart + input.selectionEnd ||
+        event.altKey
       ) {
         break;
       }
-      // If unrepeated keydown, empty input or whitespace-only, and cursor at
-      // position 0, navigate into pills. We'll sanitize whitespace on blur.
+      // If unrepeated keydown, empty input or whitespace-only, cursor at
+      // position 0, and Alt-key not used (prevent Alt+Backspace from deleting
+      // pills), navigate into pills. We'll sanitize whitespace on blur.
 
       // Prevent a pill keypress event when the focus moves on it.
       event.preventDefault();
