@@ -21,6 +21,7 @@ job-defaults:
             - --application=thunderbird
             - --test-manifest=../../../../../comm/testing/marionette/unit-tests.ini
     run-on-projects: built-projects
+    test-manifest-loader: null  # don't load tests in the taskgraph
 
 marionette:
     description: "Marionette unittest run"

@@ -28,5 +28,6 @@ gtest:
         by-test-platform:
             macosx1014-.*: []  # currently fails on macOS
             default: built-projects
+    test-manifest-loader: null  # don't load tests in the taskgraph
     target: null
     tier: default
