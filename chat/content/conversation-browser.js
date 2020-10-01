@@ -61,11 +61,6 @@
             return;
           }
 
-          if (!this._loadState) {
-            this._loadState = 1;
-            return;
-          }
-
           if (this.currentURI.spec != "chrome://chat/content/conv.html") {
             return;
           }
@@ -204,11 +199,14 @@
     }
 
     connectedCallback() {
+      if (this.hasConnected) {
+        return;
+      }
+      this.hasConnected = true;
+
       super.connectedCallback();
 
       this._theme = null;
-
-      this._loadState = 0;
 
       this.autoCopyEnabled = false;
 
@@ -315,10 +313,6 @@
 
       // Prevent ongoing asynchronous message display from continuing.
       this._messageDisplayPending = false;
-
-      // _loadState is 0 while loading conv.html and 1 while
-      // loading the real conversation HTML.
-      this._loadState = 0;
 
       this.docShell.charset = "UTF-8";
       const URI = "chrome://chat/content/conv.html";
