@@ -675,8 +675,7 @@ function UpdateFullZoomMenu() {
   cmdItem.setAttribute("checked", !ZoomManager.useFullZoom);
 }
 
-// TODO: Add new error handling that uses this code. See bug 1547096.
-function InformUserOfCertError(socketInfo, secInfo, targetSite) {
+function InformUserOfCertError(secInfo, targetSite) {
   let params = {
     exceptionAdded: false,
     securityInfo: secInfo,

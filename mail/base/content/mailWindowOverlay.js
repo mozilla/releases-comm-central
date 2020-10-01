@@ -2908,8 +2908,37 @@ function GetNewMsgs(server, folder) {
   // Whenever we do get new messages, clear the old new messages.
   folder.biffState = nsIMsgFolder.nsMsgBiffState_NoMail;
   folder.clearNewMessages();
-  server.getNewMessages(folder, msgWindow, null);
+  server.getNewMessages(folder, msgWindow, new TransportErrorUrlListener());
 }
+
+/**
+ * A listener to be passed to the url object of the server request being issued
+ * to detect the bad server certificates.
+ *
+ * @implements {nsIUrlListener}
+ */
+function TransportErrorUrlListener() {}
+
+TransportErrorUrlListener.prototype = {
+  OnStopRunningUrl(url, exitCode) {
+    let nssErrorsService = Cc["@mozilla.org/nss_errors_service;1"].getService(
+      Ci.nsINSSErrorsService
+    );
+    try {
+      let errorClass = nssErrorsService.getErrorClass(exitCode);
+      if (errorClass == Ci.nsINSSErrorsService.ERROR_CLASS_BAD_CERT) {
+        let mailNewsUrl = url.QueryInterface(Ci.nsIMsgMailNewsUrl);
+        let secInfo = mailNewsUrl.failedSecInfo;
+        InformUserOfCertError(secInfo, url.asciiHostPort);
+      }
+    } catch (e) {
+      // It's not an NSS error.
+    }
+  },
+
+  // nsISupports
+  QueryInterface: ChromeUtils.generateQI(["nsIUrlListener"]),
+};
 
 function SendUnsentMessages() {
   let msgSendlater = Cc["@mozilla.org/messengercompose/sendlater;1"].getService(
