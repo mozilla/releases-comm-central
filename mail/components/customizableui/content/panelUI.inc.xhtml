@@ -517,7 +517,9 @@
         <toolbarbutton id="appmenu_renameFolder"
                        class="subviewbutton subviewbutton-iconic"
                        label="&renameFolder.label;"
+#ifndef XP_MACOSX
                        key="key_renameFolder"
+#endif
                        command="cmd_renameFolder"/>
         <toolbarseparator id="appmenu_fileMenuAfterRenameSeparator"/>
         <toolbarbutton id="appmenu_compactFolder"
