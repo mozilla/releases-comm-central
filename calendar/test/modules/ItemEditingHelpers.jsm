@@ -18,6 +18,7 @@ const EXPORTED_SYMBOLS = [
   "setData",
 ];
 
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var elementslib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
@@ -596,9 +597,11 @@ async function setTimezone(dialogWindow, iframeWindow, timezone) {
     undefined,
     "chrome://calendar/content/calendar-event-dialog-timezone.xhtml",
     async timezoneWindow => {
-      let focus = BrowserTestUtils.waitForEvent(timezoneWindow, "focus", true);
-      timezoneWindow.focus();
-      await focus;
+      if (Services.focus.activeWindow != timezoneWindow) {
+        let focus = BrowserTestUtils.waitForEvent(timezoneWindow, "focus", true);
+        timezoneWindow.focus();
+        await focus;
+      }
 
       let timezoneDocument = timezoneWindow.document;
       let timezoneMenulist = timezoneDocument.getElementById("timezone-menulist");
