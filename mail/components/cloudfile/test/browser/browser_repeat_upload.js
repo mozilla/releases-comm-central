@@ -8,6 +8,10 @@ const { BrowserTestUtils } = ChromeUtils.import(
   "resource://testing-common/BrowserTestUtils.jsm"
 );
 
+let { cloudFileAccounts } = ChromeUtils.import(
+  "resource:///modules/cloudFileAccounts.jsm"
+);
+
 const ICON_URL = getRootDirectory(gTestPath) + "files/icon.svg";
 const MANAGEMENT_URL = getRootDirectory(gTestPath) + "files/management.html";
 
@@ -26,10 +30,6 @@ function getFileFromChromeURL(leafName) {
 }
 
 add_task(async () => {
-  let { cloudFileAccounts } = ChromeUtils.import(
-    "resource:///modules/cloudFileAccounts.jsm"
-  );
-
   let uploadedFiles = [];
   let provider = {
     type: "Mochitest",
@@ -57,8 +57,20 @@ add_task(async () => {
       };
     },
   };
-  cloudFileAccounts.registerProvider("Mochitest", provider);
+
+  Assert.equal(
+    cloudFileAccounts.configuredAccounts.length,
+    0,
+    "Should have no cloudfile accounts starting off."
+  );
+
+  cloudFileAccounts.registerProvider(provider.type, provider);
   let account = cloudFileAccounts.createAccount(provider.type);
+  Assert.equal(
+    cloudFileAccounts.configuredAccounts.length,
+    1,
+    "Should have only the one account we created."
+  );
 
   let composeWindow = await new Promise(resolve => {
     function onWindowOpen(win) {
@@ -98,8 +110,16 @@ add_task(async () => {
     "button-attachPopup_attachCloudMenu"
   );
   ok(!BrowserTestUtils.is_hidden(menu));
+
+  let popupshown = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(menu, { clickCount: 1 }, composeWindow);
-  await promiseAnimationFrame(composeWindow);
+  await popupshown;
+
+  Assert.equal(
+    cloudFileAccounts.configuredAccounts.length,
+    1,
+    "Should still have one registered account."
+  );
 
   let menuitems = menu.menupopup.children;
   is(menuitems.length, 1);
@@ -187,5 +207,13 @@ add_task(async () => {
     "https://mochi.test/green_eggs.txt"
   );
 
+  // clean up
+  cloudFileAccounts.removeAccount(account);
+  cloudFileAccounts.unregisterProvider(provider.type);
+  Assert.equal(
+    cloudFileAccounts.configuredAccounts.length,
+    0,
+    "Should leave no cloudfile accounts when done"
+  );
   composeWindow.close();
 });
