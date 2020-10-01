@@ -7,6 +7,9 @@
   border-radius: 3px;
   padding: 6px 8px;
   margin: 10px 3px;
+}
+
+.inline-notification-container {
   color: inherit;
 }
 
