@@ -578,12 +578,15 @@ function hideMessageReadSecurityInfo() {
   }
 }
 
-function viewSignatureKey() {
+async function viewSignatureKey() {
   if (!gSigKeyId) {
     return;
   }
 
-  EnigmailWindows.openKeyDetails(window, gSigKeyId, false);
+  // If the signature acceptance was edited, reload the current message.
+  if (await EnigmailWindows.openKeyDetails(window, gSigKeyId, false)) {
+    gDBView.reloadMessageWithAllParts();
+  }
 }
 
 function viewSignatureCert() {
