@@ -732,7 +732,7 @@ function addressInputOnBeforeHandleKeyDown(event) {
 /**
  * Add a new "address-pill" to the parent recipient container.
  *
- * @param {HTMLElement} element - The element that triggered the keypress event.
+ * @param {Element} element - The element that triggered the keypress event.
  * @param {boolean} [automatic=false] - Set to true if the change of recipients
  *   was invoked programmatically and should not be considered a change of
  *   message content.
@@ -1211,35 +1211,39 @@ function closeLabelOnKeyPress(event) {
 }
 
 /**
- * Calculate the height of the composer header area every time a pill is
- * created. If the height is bigger than 2/3 of the compose window height,
- * enable overflow.
+ * Calculate the height of the composer header area when pills are created or
+ * removed in order to automatically add or remove the scrollable overflow.
  */
 function calculateHeaderHeight() {
+  let header = document.getElementById("headers-box");
   let container = document.getElementById("recipientsContainer");
+
+  // Interrupt if the container scrolling area is taller than its clientHeight.
   if (
     container.classList.contains("overflow") &&
-    container.scrollHeight >= window.outerHeight * 0.7
+    container.scrollHeight > container.clientHeight
   ) {
     return;
   }
 
-  let header = document.getElementById("headers-box");
+  // Remove the overflow if the container scrolling area shrinks below its
+  // clientHeight.
   if (
     container.classList.contains("overflow") &&
-    container.scrollHeight < window.outerHeight * 0.7
+    container.scrollHeight <= container.clientHeight
   ) {
     container.classList.remove("overflow");
     header.removeAttribute("height");
     return;
   }
 
-  if (container.clientHeight >= window.outerHeight * 0.7) {
-    container.classList.add("overflow");
-
+  // Add overflow if the header height grows above 30% of the window height.
+  let maxHeaderHeight = window.outerHeight * 0.3;
+  if (header.clientHeight > maxHeaderHeight) {
     if (!header.hasAttribute("height")) {
-      header.setAttribute("height", 300);
+      header.setAttribute("height", maxHeaderHeight);
     }
+    container.classList.add("overflow");
   }
 }
 
