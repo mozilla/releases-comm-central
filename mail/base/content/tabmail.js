@@ -1943,15 +1943,19 @@
     }
 
     _callTabListeners(aMethod, aArgs) {
+      let rv = true;
       for (let listener of this.mTabsProgressListeners.values()) {
         if (aMethod in listener) {
           try {
-            listener[aMethod](...aArgs);
+            if (!listener[aMethod](...aArgs)) {
+              rv = false;
+            }
           } catch (e) {
             Cu.reportError(e);
           }
         }
       }
+      return rv;
     }
 
     disconnectedCallback() {
@@ -2002,7 +2006,7 @@
     }
 
     onRefreshAttempted(...args) {
-      this._callTabListeners("onRefreshAttempted", args);
+      return this._callTabListeners("onRefreshAttempted", args);
     }
   }
   TabProgressListener.prototype.QueryInterface = ChromeUtils.generateQI([

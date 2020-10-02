@@ -257,13 +257,14 @@ tabProgressListener.prototype = {
   },
   onRefreshAttempted(aWebProgress, aURI, aDelay, aSameURI) {
     if (this.mProgressListener) {
-      this.mProgressListener.onRefreshAttempted(
+      return this.mProgressListener.onRefreshAttempted(
         aWebProgress,
         aURI,
         aDelay,
         aSameURI
       );
     }
+    return true;
   },
   QueryInterface: ChromeUtils.generateQI([
     "nsIWebProgressListener",
