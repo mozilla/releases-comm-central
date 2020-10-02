@@ -5,6 +5,7 @@
 
 /* import-globals-from am-addressing.js */
 /* import-globals-from am-copies.js */
+/* import-globals-from ../../../../mail/extensions/am-e2e/am-e2e.js */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -204,6 +205,7 @@ function onOk(event) {
   saveIdentitySettings(gIdentity);
   saveCopiesAndFolderSettings(gIdentity);
   saveAddressingAndCompositionSettings(gIdentity);
+  e2eOnAcceptEditor(event);
 
   window.arguments[0].result = true;
 }
