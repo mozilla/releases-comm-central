@@ -774,7 +774,7 @@ nsresult nsMsgComposeSecure::MimeCryptoHackCerts(const char* aRecipients,
                                                  bool aEncrypt, bool aSign,
                                                  nsIMsgIdentity* aIdentity) {
   nsCOMPtr<nsIX509CertDB> certdb = do_GetService(NS_X509CERTDB_CONTRACTID);
-  nsresult res;
+  nsresult res = NS_OK;
 
   PR_ASSERT(aEncrypt || aSign);
 
