@@ -61,14 +61,15 @@ var ToolbarIconColor = {
       return;
     }
 
-    // Interrupt if the main tabmail is not present.
-    let tabmail = document.getElementById("tabmail");
-    if (!tabmail) {
+    // Interrupt if no toolbar is currently present, meaning we don't have any
+    // toolbar to update.
+    let toolbox = document.querySelector("toolbox");
+    if (!toolbox) {
       return;
     }
 
-    // Interrupt if the tabmail color didn't change from the previous iteration.
-    let color = getComputedStyle(tabmail).color;
+    // Interrupt if the toolbox color didn't change from the previous iteration.
+    let color = getComputedStyle(toolbox).color;
     if (kCurrentColor && kCurrentColor == color) {
       return;
     }
