@@ -72,6 +72,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   MailMigrator: "resource:///modules/MailMigrator.jsm",
   LightweightThemeConsumer:
     "resource://gre/modules/LightweightThemeConsumer.jsm",
+  OsEnvironment: "resource://gre/modules/OsEnvironment.jsm",
   PdfJs: "resource://pdf.js/PdfJs.jsm",
   RemoteSecuritySettings:
     "resource://gre/modules/psm/RemoteSecuritySettings.jsm",
@@ -81,6 +82,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionData: "resource://gre/modules/Extension.jsm",
 });
 
+// Seconds of idle time before the late idle tasks will be scheduled.
+const LATE_TASKS_IDLE_TIME_SEC = 20;
+
 /**
  * Glue code that should be executed before any windows are opened. Any
  * window-independent helper methods (a la nsBrowserGlue.js) should go in
@@ -88,6 +92,12 @@ XPCOMUtils.defineLazyModuleGetters(this, {
  */
 
 function MailGlue() {
+  XPCOMUtils.defineLazyServiceGetter(
+    this,
+    "_userIdleService",
+    "@mozilla.org/widget/useridleservice;1",
+    "nsIUserIdleService"
+  );
   Services.obs.addObserver(this, "command-line-startup");
 }
 
@@ -129,6 +139,14 @@ MailGlue.prototype = {
     ExtensionSupport.unregisterWindowListener(
       "Thunderbird-internal-BrowserConsole"
     );
+
+    if (this._lateTasksIdleObserver) {
+      this._userIdleService.removeIdleObserver(
+        this._lateTasksIdleObserver,
+        LATE_TASKS_IDLE_TIME_SEC
+      );
+      delete this._lateTasksIdleObserver;
+    }
   },
 
   // nsIObserver implementation
@@ -398,17 +416,122 @@ MailGlue.prototype = {
       }
     }
 
-    // Certificates revocation list, etc.
-    Services.tm.idleDispatchToMainThread(() => {
-      RemoteSecuritySettings.init();
-    });
+    this._scheduleStartupIdleTasks();
+    this._lateTasksIdleObserver = (idleService, topic, data) => {
+      if (topic == "idle") {
+        idleService.removeIdleObserver(
+          this._lateTasksIdleObserver,
+          LATE_TASKS_IDLE_TIME_SEC
+        );
+        delete this._lateTasksIdleObserver;
+        this._scheduleBestEffortUserIdleTasks();
+      }
+    };
+    this._userIdleService.addIdleObserver(
+      this._lateTasksIdleObserver,
+      LATE_TASKS_IDLE_TIME_SEC
+    );
+  },
 
-    // TODO: Kick off startup idle tasks here, handle this after the tasks are
-    // complete.
-    ChromeUtils.idleDispatch(() => {
-      Services.obs.notifyObservers(null, "mail-startup-idle-tasks-finished");
-      Services.obs.notifyObservers(null, "marionette-startup-requested");
-    });
+  /**
+   * Use this function as an entry point to schedule tasks that
+   * need to run only once after startup, and can be scheduled
+   * by using an idle callback.
+   *
+   * The functions scheduled here will fire from idle callbacks
+   * once every window has finished being restored by session
+   * restore, and it's guaranteed that they will run before
+   * the equivalent per-window idle tasks
+   * (from _schedulePerWindowIdleTasks in browser.js).
+   *
+   * If you have something that can wait even further than the
+   * per-window initialization, and is okay with not being run in some
+   * sessions, please schedule them using
+   * _scheduleBestEffortUserIdleTasks.
+   * Don't be fooled by thinking that the use of the timeout parameter
+   * will delay your function: it will just ensure that it potentially
+   * happens _earlier_ than expected (when the timeout limit has been reached),
+   * but it will not make it happen later (and out of order) compared
+   * to the other ones scheduled together.
+   */
+  _scheduleStartupIdleTasks() {
+    const idleTasks = [
+      // Marionette needs to be initialized as very last step.
+      {
+        task: () => {
+          // Use idleDispatch a second time to run this after the per-window
+          // idle tasks.
+          ChromeUtils.idleDispatch(() => {
+            Services.obs.notifyObservers(
+              null,
+              "mail-startup-idle-tasks-finished"
+            );
+            Services.obs.notifyObservers(null, "marionette-startup-requested");
+          });
+        },
+      },
+      // Do NOT add anything after marionette initialization.
+    ];
+
+    for (let task of idleTasks) {
+      if ("condition" in task && !task.condition) {
+        continue;
+      }
+
+      ChromeUtils.idleDispatch(
+        () => {
+          if (!Services.startup.shuttingDown) {
+            let startTime = Cu.now();
+            try {
+              task.task();
+            } catch (ex) {
+              Cu.reportError(ex);
+            } finally {
+              ChromeUtils.addProfilerMarker("startupIdleTask", startTime);
+            }
+          }
+        },
+        task.timeout ? { timeout: task.timeout } : undefined
+      );
+    }
+  },
+
+  /**
+   * Use this function as an entry point to schedule tasks that we hope
+   * to run once per session, at any arbitrary point in time, and which we
+   * are okay with sometimes not running at all.
+   *
+   * This function will be called from an idle observer. Check the value of
+   * LATE_TASKS_IDLE_TIME_SEC to see the current value for this idle
+   * observer.
+   *
+   * Note: this function may never be called if the user is never idle for the
+   * requisite time (LATE_TASKS_IDLE_TIME_SEC). Be certain before adding
+   * something here that it's okay that it never be run.
+   */
+  _scheduleBestEffortUserIdleTasks() {
+    const idleTasks = [
+      () => {
+        // Certificates revocation list, etc.
+        RemoteSecuritySettings.init();
+      },
+      () => OsEnvironment.reportAllowedAppSources(),
+    ];
+
+    for (let task of idleTasks) {
+      ChromeUtils.idleDispatch(async () => {
+        if (!Services.startup.shuttingDown) {
+          let startTime = Cu.now();
+          try {
+            await task();
+          } catch (ex) {
+            Cu.reportError(ex);
+          } finally {
+            ChromeUtils.addProfilerMarker("startupLateIdleTask", startTime);
+          }
+        }
+      });
+    }
   },
 
   _handleLink(aSubject, aData) {
