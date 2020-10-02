@@ -773,6 +773,10 @@ pref("privacy.sanitize.timeSpan", 1);
 // Enable Contextual Identity Containers
 pref("privacy.userContext.enabled", false);
 
+// Set to true to add toggles to the WebRTC indicator for globally
+// muting the camera and microphone.
+pref("privacy.webrtc.globalMuteToggles", false);
+
 // If set to true, Thunderbird will collapse the main menu for new profiles
 // (or, more precisely, profiles that start with no accounts created).
 pref("mail.main_menu.collapse_by_default", true);
