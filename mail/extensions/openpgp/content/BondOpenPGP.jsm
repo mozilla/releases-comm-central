@@ -51,32 +51,40 @@ var BondOpenPGP = {
     } catch (x) {}
   },
 
-  _isEnabled: null, // bool; null means: not yet set
+  // if null, we haven't yet read the pref
+  // if true, pref was enabled and we already triggered init
+  _isEnabled: null,
 
-  alreadyTriedInit: false,
+  _alreadyTriedInit: false, // if already true, we will not try again
+
+  setIsEnabledFromPref() {
+    this._isEnabled = Services.prefs.getBoolPref("mail.openpgp.enable");
+  },
 
   async init() {
     if (!MailConstants.MOZ_OPENPGP) {
       return;
     }
 
-    // we never shut off after pref change, disabling requires restart
-    if (this.isEnabled()) {
-      return;
+    // We never shut off after pref change, disabling requires restart.
+    // If null, it means we're here for the first time, read the pref.
+    // If false, it could mean the pref was now turned on at runtime.
+    // In both scenarios, null and false, we reread the pref to check
+    // if now we may try to init.
+
+    if (!this._isEnabled) {
+      this.setIsEnabledFromPref();
+      if (!this._isEnabled) {
+        return;
+      }
     }
 
-    if (this.alreadyTriedInit) {
+    if (this._alreadyTriedInit) {
       // We have previously attempted to init, don't try again.
       return;
     }
 
-    let nowEnabled = Services.prefs.getBoolPref("mail.openpgp.enable");
-    if (!nowEnabled) {
-      return;
-    }
-
-    this._isEnabled = true;
-    this.alreadyTriedInit = true;
+    this._alreadyTriedInit = true;
 
     let RNP = getRNP();
     let initDone = await RNP.init({});
@@ -94,7 +102,7 @@ var BondOpenPGP = {
 
   isEnabled() {
     if (this._isEnabled == null) {
-      this._isEnabled = Services.prefs.getBoolPref("mail.openpgp.enable");
+      this.setIsEnabledFromPref();
     }
     return this._isEnabled;
   },
