@@ -46,7 +46,7 @@ MessageSend.prototype = {
     listener,
     smtpPassword,
     originalMsgURI,
-    type
+    compType
   ) {
     this._userIdentity = userIdentity;
     this._compFields = compFields;
@@ -77,6 +77,12 @@ MessageSend.prototype = {
       this._composeBundle.GetStringFromName("assemblingMessage")
     );
 
+    this._fcc = MsgUtils.getFcc(
+      userIdentity,
+      compFields,
+      originalMsgURI,
+      compType
+    );
     let {
       embeddedAttachments,
       embeddedObjects,
@@ -86,11 +92,12 @@ MessageSend.prototype = {
     this._message = new MimeMessage(
       userIdentity,
       compFields,
+      this._fcc,
       bodyType,
       bodyText,
       deliverMode,
       originalMsgURI,
-      type,
+      compType,
       embeddedAttachments
     );
 
@@ -136,6 +143,13 @@ MessageSend.prototype = {
 
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessage")
+    );
+
+    this._fcc = MsgUtils.getFcc(
+      userIdentity,
+      compFields,
+      null,
+      Ci.nsIMsgCompType.New
     );
 
     // nsMsgKey_None from MailNewsTypes.h.
@@ -239,40 +253,97 @@ MessageSend.prototype = {
   notifyListenerOnStopCopy(status) {
     this._msgCopy = null;
 
-    let statusMsg;
+    let statusMsgEntry = Components.isSuccessCode(status)
+      ? "copyMessageComplete"
+      : "copyMessageFailed";
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName(statusMsgEntry)
+    );
     if (Components.isSuccessCode(status)) {
-      statusMsg = this._composeBundle.GetStringFromName("copyMessageComplete");
-    } else {
-      statusMsg = this._composeBundle.GetStringFromName("copyMessageFailed");
-    }
-    this._setStatusMessage(statusMsg);
-    if (this._sendListener) {
-      try {
-        this._sendListener
-          .QueryInterface(Ci.nsIMsgCopyServiceListener)
-          .OnStopCopy(status);
-      } catch (e) {
-        // Ignore the return value of OnStopCopy. Non-zero nsresult will throw
-        // when going through XPConnect. In this case, we don't care about it.
-        console.warn(
-          `OnStopCopy failed with 0x${e.result.toString(16)}\n${e.stack}`
-        );
-      }
+      return this._doFcc2();
     }
 
-    this._cleanup();
+    let localFoldersAccountName =
+      MailServices.accounts.localFoldersServer.prettyName;
+    let folder = MailUtils.getOrCreateFolder(this._folderUri);
+    let accountName = folder?.server.prettyName;
+    if (!this._fcc || !localFoldersAccountName || !accountName) {
+      return this._doFcc2();
+    }
+
+    let params = [folder.name, accountName, localFoldersAccountName];
+    let promptMsg;
+    switch (this._deliverMode) {
+      case Ci.nsIMsgSend.nsMsgDeliverNow:
+      case Ci.nsIMsgSend.nsMsgSendUnsent:
+        promptMsg = this._composeBundle.formatStringFromName(
+          "promptToSaveSentLocally2",
+          params
+        );
+        break;
+      case Ci.nsIMsgSend.nsMsgSaveAsDraft:
+        promptMsg = this._composeBundle.formatStringFromName(
+          "promptToSaveDraftLocally2",
+          params
+        );
+        break;
+      case Ci.nsIMsgSend.nsMsgSaveAsTemplate:
+        promptMsg = this._composeBundle.formatStringFromName(
+          "promptToSaveTemplateLocally2",
+          params
+        );
+        break;
+    }
+    if (promptMsg) {
+      let showCheckBox = { value: false };
+      let buttonFlags =
+        Ci.nsIPrompt.BUTTON_POS_0 * Ci.nsIPrompt.BUTTON_TITLE_IS_STRING +
+        Ci.nsIPrompt.BUTTON_POS_1 * Ci.nsIPrompt.BUTTON_TITLE_DONT_SAVE +
+        Ci.nsIPrompt.BUTTON_POS_2 * Ci.nsIPrompt.BUTTON_TITLE_SAVE;
+      let dialogTitle = this._composeBundle.GetStringFromName(
+        "SaveDialogTitle"
+      );
+      let buttonLabelRety = this._composeBundle.GetStringFromName(
+        "buttonLabelRetry2"
+      );
+      let prompt = this.getDefaultPrompt();
+      let buttonPressed = prompt.confirmEx(
+        dialogTitle,
+        promptMsg,
+        buttonFlags,
+        buttonLabelRety,
+        null,
+        null,
+        null,
+        showCheckBox
+      );
+      if (buttonPressed == 0) {
+        // retry button clicked
+        return this._doFcc();
+      } else if (buttonPressed == 2) {
+        try {
+          // Try to save to Local Folders/<account name>. Pass null to save
+          // to local folders and not the configured fcc.
+          return this._doFcc(null, true);
+        } catch (e) {
+          prompt.alert(
+            null,
+            this._composeBundle.GetStringFromName("saveToLocalFoldersFailed")
+          );
+        }
+      }
+    }
+    return this._doFcc2();
   },
 
   notifyListenerOnStopSending(msgId, status, msg, returnFile) {
-    if (this._sendListener) {
-      try {
-        this._sendListener.onStopSending(msgId, status, msg, returnFile);
-      } catch (e) {
-        // Ignore the return value of OnStopSending.
-        console.warn(
-          `OnStopSending failed with 0x${e.result.toString(16)}\n${e.stack}`
-        );
-      }
+    try {
+      this._sendListener?.onStopSending(msgId, status, msg, returnFile);
+    } catch (e) {
+      // Ignore the return value of OnStopSending.
+      console.warn(
+        `OnStopSending failed with 0x${e.result.toString(16)}\n${e.stack}`
+      );
     }
   },
 
@@ -348,7 +419,7 @@ MessageSend.prototype = {
     }
     this.notifyListenerOnStopSending(null, newExitCode, null, null);
     if (Components.isSuccessCode(newExitCode)) {
-      this._sendToMagicFolder();
+      this._doFcc();
     }
   },
 
@@ -409,21 +480,76 @@ MessageSend.prototype = {
         Ci.nsIMsgSend.nsMsgSaveAsTemplate,
       ].includes(this._deliverMode)
     ) {
-      await this._sendToMagicFolder(file);
+      await this._doFcc();
       return;
     }
     this._deliverFileAsMail(file);
   },
 
   /**
-   * Copy a message to Draft/Sent or other folder depending on pref and
-   * deliverMode.
+   * Copy a message to a folder, or fallback to a folder depending on pref and
+   * deliverMode, usually Drafts/Sent.
+   * @param {string} [fccHeader=this._fcc] - The target folder uri to copy the
+   * message to.
+   * @param {boolean} [throwOnError=false] - By default notifyListenerOnStopCopy
+   * is called on error. When throwOnError is true, the caller can handle the
+   * error by itself.
+   * @param {nsMsgDeliverMode} [deliverMode=this._deliverMode] - The deliver mode.
    */
-  async _sendToMagicFolder() {
-    this._folderUri = MsgUtils.getMsgFolderURIFromPrefs(
-      this._userIdentity,
-      this._deliverMode
-    );
+  async _doFcc(
+    fccHeader = this._fcc,
+    throwOnError = false,
+    deliverMode = this._deliverMode
+  ) {
+    let folder;
+    let folderUri;
+    if (fccHeader) {
+      folder = MailUtils.getExistingFolder(fccHeader);
+    }
+    if (
+      [Ci.nsIMsgSend.nsMsgDeliverNow, Ci.nsIMsgSend.nsMsgSendUnsent].includes(
+        deliverMode
+      ) &&
+      folder
+    ) {
+      this._folderUri = fccHeader;
+    } else if (fccHeader == null) {
+      // Set fcc_header to a special folder in Local Folders "account" since can't
+      // save to Sent mbox, typically because imap connection is down. This
+      // folder is created if it doesn't yet exist.
+      let rootFolder = MailServices.accounts.localFoldersServer.rootMsgFolder;
+      folderUri = rootFolder.URI + "/";
+
+      // Now append the special folder name folder to the local folder uri.
+      if (
+        [
+          Ci.nsIMsgSend.nsMsgDeliverNow,
+          Ci.nsIMsgSend.nsMsgSendUnsent,
+          Ci.nsIMsgSend.nsMsgSaveAsDraft,
+          Ci.nsIMsgSend.nsMsgSaveAsTemplate,
+        ].includes(this._deliverMode)
+      ) {
+        // Typically, this appends "Sent-", "Drafts-" or "Templates-" to folder
+        // and then has the account name appended, e.g., .../Sent-MyImapAccount.
+        let folder = MailUtils.getOrCreateFolder(this._folderUri);
+        folderUri += folder.name + "-";
+      }
+      if (this._fcc) {
+        // Get the account name where the "save to" failed.
+        let accountName = MailUtils.getOrCreateFolder(this._fcc).server
+          .prettyName;
+
+        // Now append the imap account name (escaped) to the folder uri.
+        folderUri += accountName;
+        this._folderUri = folderUri;
+      }
+    } else {
+      this._folderUri = MsgUtils.getMsgFolderURIFromPrefs(
+        this._userIdentity,
+        this._deliverMode
+      );
+    }
+
     let msgCopy = Cc["@mozilla.org/messengercompose/msgcopy;1"].createInstance(
       Ci.nsIMsgCopy
     );
@@ -461,7 +587,7 @@ MessageSend.prototype = {
     if (this._sendListener) {
       this._sendListener.onGetDraftFolderURI(this._folderUri);
     }
-    let folder = MailUtils.getOrCreateFolder(this._folderUri);
+    folder = MailUtils.getOrCreateFolder(this._folderUri);
     let statusMsg = this._composeBundle.formatStringFromName(
       "copyMessageStart",
       [folder?.name || "?"]
@@ -477,12 +603,40 @@ MessageSend.prototype = {
         this._msgToReplace
       );
     } catch (e) {
-      // Ignore the nserror, just notify OnStopCopy.
-      this.notifyListenerOnStopCopy(0);
+      if (throwOnError) {
+        throw Components.Exception("startCopyOperation failed", e.result);
+      }
+      this.notifyListenerOnStopCopy(e.result);
       console.warn(
         `startCopyOperation failed with 0x${e.result.toString(16)}\n${e.stack}`
       );
     }
+  },
+
+  /**
+   * Handle the fcc2 field. Then notify OnStopCopy and clean up.
+   */
+  _doFcc2() {
+    // Handle fcc2 only once.
+    if (!this._fcc2Handled && this._compFields.fcc2) {
+      this._fcc2Handled = true;
+      this._doFcc(this._compFields.fcc2, false, Ci.nsIMsgSend.nsMsgDeliverNow);
+      return;
+    }
+
+    // Time to clean up.
+    try {
+      this._sendListener
+        ?.QueryInterface(Ci.nsIMsgCopyServiceListener)
+        .OnStopCopy(0);
+    } catch (e) {
+      // Ignore the return value of OnStopCopy. Non-zero nsresult will throw
+      // when going through XPConnect. In this case, we don't care about it.
+      console.warn(
+        `OnStopCopy failed with 0x${e.result.toString(16)}\n${e.stack}`
+      );
+    }
+    this._cleanup();
   },
 
   _cleanup() {

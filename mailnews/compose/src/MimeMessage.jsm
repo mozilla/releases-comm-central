@@ -28,6 +28,7 @@ class MimeMessage {
    * Construct a MimeMessage.
    * @param {nsIMsgIdentity} userIdentity
    * @param {nsIMsgCompFields} compFields
+   * @param {string} fcc - The FCC header value.
    * @param {string} bodyType
    * @param {BinaryString} bodyText - This is ensured to be a 8-bit string, to
    * be handled the same as attachment content.
@@ -39,6 +40,7 @@ class MimeMessage {
   constructor(
     userIdentity,
     compFields,
+    fcc,
     bodyType,
     bodyText,
     deliverMode,
@@ -48,12 +50,7 @@ class MimeMessage {
   ) {
     this._userIdentity = userIdentity;
     this._compFields = compFields;
-    this._fcc = MsgUtils.getFcc(
-      userIdentity,
-      compFields,
-      originalMsgURI,
-      compType
-    );
+    this._fcc = fcc;
     this._bodyType = bodyType;
     this._bodyText = bodyText;
     this._deliverMode = deliverMode;
