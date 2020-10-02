@@ -68,10 +68,6 @@ var RNP = {
     return RNP.libLoaded;
   },
 
-  allDependenciesLoaded() {
-    return RNP.libLoaded;
-  },
-
   isAllowedPublicKeyAlgo(algo) {
     // see rnp/src/lib/rnp.cpp pubkey_alg_map
     switch (algo) {

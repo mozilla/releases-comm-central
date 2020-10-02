@@ -174,7 +174,7 @@ Enigmail.msg = {
   messageDecryptDone: false,
 
   messengerStartup() {
-    if (!BondOpenPGP.allDependenciesLoaded()) {
+    if (!BondOpenPGP.isEnabled()) {
       return;
     }
 
@@ -2459,7 +2459,7 @@ Enigmail.msg = {
 
   // handle a selected attachment (decrypt & open or save)
   handleAttachmentSel(actionType, selectedItem = null) {
-    if (!BondOpenPGP.allDependenciesLoaded()) {
+    if (!BondOpenPGP.isEnabled()) {
       return;
     }
 
