@@ -8,6 +8,7 @@
 /* import-globals-from ../../components/customizableui/content/panelUI.js */
 /* import-globals-from ../../components/newmailaccount/content/accountProvisionerTab.js */
 /* import-globals-from ../../components/preferences/preferencesTab.js */
+/* import-globals-from ../../extensions/openpgp/content/BondOpenPGP.jsm */
 /* import-globals-from commandglue.js */
 /* import-globals-from folderDisplay.js */
 /* import-globals-from folderPane.js */
@@ -466,10 +467,7 @@ var MailPrefObserver = {
         // refresh the thread pane
         threadTree.invalidate();
       } else if (prefName == "mail.openpgp.enable") {
-        if (MailConstants.MOZ_OPENPGP && Services.prefs.getBoolPref("mail.openpgp.enable")) {
-          BondOpenPGP.init(); // library init
-          initOpenPGPIfEnabled(); // mail window related init
-        }
+        initOpenPGPIfEnabled();
       }
     }
   },
@@ -503,7 +501,7 @@ function initOpenPGPIfEnabled() {
   let hideItems = true;
 
   try {
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       Enigmail.msg.messengerStartup.bind(Enigmail.msg);
       Enigmail.msg.messengerStartup();
       Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);

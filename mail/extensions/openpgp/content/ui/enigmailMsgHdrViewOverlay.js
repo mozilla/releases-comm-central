@@ -730,7 +730,7 @@ Enigmail.hdrView = {
     var importMenu = document.getElementById("enigmail_ctxImportKey");
     var verifyMenu = document.getElementById("enigmail_ctxVerifyAtt");
 
-    if (BondOpenPGP.isEnabled() && selectedAttachments.length > 0) {
+    if (BondOpenPGP.allDependenciesLoaded() && selectedAttachments.length > 0) {
       this.enableContextMenuEntries(
         selectedAttachments[0],
         decryptOpenMenu,

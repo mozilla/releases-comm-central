@@ -33,6 +33,9 @@ var { GlodaUtils } = ChromeUtils.import(
 var { Status: statusUtils } = ChromeUtils.import(
   "resource:///modules/imStatusUtils.jsm"
 );
+var { BondOpenPGP } = ChromeUtils.import(
+  "chrome://openpgp/content/BondOpenPGP.jsm"
+);
 
 XPCOMUtils.defineLazyServiceGetter(
   this,
@@ -322,6 +325,12 @@ function OnLoadMsgHeaderPane() {
   );
 
   top.controllers.appendController(AttachmentMenuController);
+
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
+    for (let item of document.querySelectorAll(".openpgp-item")) {
+      item.hidden = true;
+    }
+  }
 }
 
 function OnUnloadMsgHeaderPane() {
@@ -686,7 +695,7 @@ var messageHeaderSink = {
     currentAttachments.push(newAttachment);
     this.skipAttachment = false;
 
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       if (newAttachment.contentType == "application/pgp-keys") {
         Enigmail.msg.autoProcessPgpKeyAttachment(newAttachment);
       }
@@ -765,7 +774,7 @@ var messageHeaderSink = {
   },
 
   onEndAllAttachments() {
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
       Enigmail.msg.notifyEndAllAttachments();
     }
 
@@ -2364,7 +2373,7 @@ function onShowAttachmentItemContextMenu() {
   openFolderMenu.hidden = !allSelectedFile;
   openFolderMenu.disabled = allSelectedDeleted;
 
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
     Enigmail.hdrView.onShowAttachmentContextMenu();
   }
 }

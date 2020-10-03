@@ -151,7 +151,7 @@ Enigmail.msg = {
   /* timeout when entering something into the address field */
 
   async composeStartup() {
-    if (!BondOpenPGP.isEnabled()) {
+    if (!BondOpenPGP.allDependenciesLoaded()) {
       return;
     }
 

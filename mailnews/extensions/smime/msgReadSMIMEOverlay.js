@@ -65,7 +65,7 @@ function showMessageReadSecurityInfo() {
   // OpenPGP.
   if (
     MailConstants.MOZ_OPENPGP &&
-    BondOpenPGP.isEnabled() &&
+    BondOpenPGP.allDependenciesLoaded() &&
     document.getElementById("cryptoBox").getAttribute("tech") === "OpenPGP"
   ) {
     loadOpenPgpMessageSecurityInfo();
