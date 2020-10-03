@@ -466,10 +466,7 @@ var MailPrefObserver = {
         // refresh the thread pane
         threadTree.invalidate();
       } else if (prefName == "mail.openpgp.enable") {
-        if (
-          MailConstants.MOZ_OPENPGP &&
-          Services.prefs.getBoolPref("mail.openpgp.enable")
-        ) {
+        if (MailConstants.MOZ_OPENPGP && Services.prefs.getBoolPref("mail.openpgp.enable")) {
           BondOpenPGP.init(); // library init
           initOpenPGPIfEnabled(); // mail window related init
         }
