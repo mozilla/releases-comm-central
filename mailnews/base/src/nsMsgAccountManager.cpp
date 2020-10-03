@@ -1278,53 +1278,57 @@ nsMsgAccountManager::SetSpecialFolders() {
   nsTArray<RefPtr<nsIMsgIdentity>> identities;
   GetAllIdentities(identities);
 
-  for (auto thisIdentity : identities) {
+  for (auto identity : identities) {
     nsresult rv;
+    nsCString folderUri;
+    nsCOMPtr<nsIMsgFolder> folder;
 
-    if (thisIdentity) {
-      nsCString folderUri;
-      nsCOMPtr<nsIMsgFolder> folder;
-
-      thisIdentity->GetFccFolder(folderUri);
-      if (!folderUri.IsEmpty() &&
-          NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
-        nsCOMPtr<nsIMsgFolder> parent;
-        rv = folder->GetParent(getter_AddRefs(parent));
-        if (NS_SUCCEEDED(rv) && parent)
-          rv = folder->SetFlag(nsMsgFolderFlags::SentMail);
+    identity->GetFccFolder(folderUri);
+    if (!folderUri.IsEmpty() &&
+        NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
+      nsCOMPtr<nsIMsgFolder> parent;
+      rv = folder->GetParent(getter_AddRefs(parent));
+      if (NS_SUCCEEDED(rv) && parent) {
+        rv = folder->SetFlag(nsMsgFolderFlags::SentMail);
+        NS_ENSURE_SUCCESS(rv, rv);
       }
+    }
 
-      thisIdentity->GetDraftFolder(folderUri);
-      if (!folderUri.IsEmpty() &&
-          NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
-        nsCOMPtr<nsIMsgFolder> parent;
-        rv = folder->GetParent(getter_AddRefs(parent));
-        if (NS_SUCCEEDED(rv) && parent)
-          rv = folder->SetFlag(nsMsgFolderFlags::Drafts);
+    identity->GetDraftFolder(folderUri);
+    if (!folderUri.IsEmpty() &&
+        NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
+      nsCOMPtr<nsIMsgFolder> parent;
+      rv = folder->GetParent(getter_AddRefs(parent));
+      if (NS_SUCCEEDED(rv) && parent) {
+        rv = folder->SetFlag(nsMsgFolderFlags::Drafts);
+        NS_ENSURE_SUCCESS(rv, rv);
       }
+    }
 
-      thisIdentity->GetArchiveFolder(folderUri);
-      if (!folderUri.IsEmpty() &&
-          NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
-        nsCOMPtr<nsIMsgFolder> parent;
-        rv = folder->GetParent(getter_AddRefs(parent));
-        if (NS_SUCCEEDED(rv) && parent) {
-          bool archiveEnabled;
-          thisIdentity->GetArchiveEnabled(&archiveEnabled);
-          if (archiveEnabled)
-            rv = folder->SetFlag(nsMsgFolderFlags::Archive);
-          else
-            rv = folder->ClearFlag(nsMsgFolderFlags::Archive);
-        }
+    identity->GetArchiveFolder(folderUri);
+    if (!folderUri.IsEmpty() &&
+        NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
+      nsCOMPtr<nsIMsgFolder> parent;
+      rv = folder->GetParent(getter_AddRefs(parent));
+      if (NS_SUCCEEDED(rv) && parent) {
+        bool archiveEnabled;
+        identity->GetArchiveEnabled(&archiveEnabled);
+        if (archiveEnabled)
+          rv = folder->SetFlag(nsMsgFolderFlags::Archive);
+        else
+          rv = folder->ClearFlag(nsMsgFolderFlags::Archive);
+        NS_ENSURE_SUCCESS(rv, rv);
       }
+    }
 
-      thisIdentity->GetStationeryFolder(folderUri);
-      if (!folderUri.IsEmpty() &&
-          NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
-        nsCOMPtr<nsIMsgFolder> parent;
-        rv = folder->GetParent(getter_AddRefs(parent));
-        if (NS_SUCCEEDED(rv) && parent)
-          folder->SetFlag(nsMsgFolderFlags::Templates);
+    identity->GetStationeryFolder(folderUri);
+    if (!folderUri.IsEmpty() &&
+        NS_SUCCEEDED(GetOrCreateFolder(folderUri, getter_AddRefs(folder)))) {
+      nsCOMPtr<nsIMsgFolder> parent;
+      rv = folder->GetParent(getter_AddRefs(parent));
+      if (NS_SUCCEEDED(rv) && parent) {
+        folder->SetFlag(nsMsgFolderFlags::Templates);
+        NS_ENSURE_SUCCESS(rv, rv);
       }
     }
   }
