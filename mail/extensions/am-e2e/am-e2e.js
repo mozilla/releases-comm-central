@@ -23,7 +23,7 @@ var { EnigmailFiles } = ChromeUtils.import(
   "chrome://openpgp/content/modules/files.jsm"
 );
 
-if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
   var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
   var { EnigmailKey } = ChromeUtils.import(
     "chrome://openpgp/content/modules/key.jsm"
@@ -68,7 +68,7 @@ var gTechPrefOpenPGP = null;
 var gTechPrefSMIME = null;
 
 function onInit() {
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
     for (let item of document.querySelectorAll(".openpgp-item")) {
       item.hidden = true;
     }
@@ -91,7 +91,7 @@ function e2eInitializeFields() {
   gBundle = document.getElementById("bundle_e2e");
   gBrandBundle = document.getElementById("bundle_brand");
 
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
     document
       .getElementById("openPgpKeyListRadio")
       .setAttribute(
@@ -132,7 +132,7 @@ function e2eInitializeFields() {
 
     // If the user doesn't have an identity defined but OpenPGP is available,
     // we hide the entire section to avoid issues and edge cases.
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       document
         .getElementById("openpgpOptions")
         .setAttribute("hidden", "hidden");
@@ -144,7 +144,7 @@ function e2eInitializeFields() {
 
     gSignMessages.checked = false;
     gEncryptionChoices.value = 0;
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       gTechChoices.value = 0;
     }
   } else {
@@ -173,12 +173,12 @@ function e2eInitializeFields() {
     } catch (e) {}
 
     gEncryptionChoices.value = gIdentity.getIntAttribute("encryptionpolicy");
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       gTechChoices.value = gIdentity.getIntAttribute("e2etechpref");
     }
 
     let enableEnc = !!gEncryptionCertName.value;
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       enableEnc = enableEnc || !!gKeyId;
     }
 
@@ -205,7 +205,7 @@ function e2eInitializeFields() {
     gSignMessages.checked = gIdentity.getBoolAttribute("sign_mail");
 
     let enableSig = gSignCertName.value;
-    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+    if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
       enableSig = enableSig || !!gKeyId;
     }
 
@@ -226,7 +226,7 @@ function e2eInitializeFields() {
  * Initialize the OpenPGP settings, apply strings, and load the key radio UI.
  */
 async function initOpenPgpSettings() {
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
     return;
   }
 
@@ -274,7 +274,7 @@ function e2eSave() {
   gHiddenEncryptionPolicy.setAttribute("value", newValue);
   gIdentity.setIntAttribute("encryptionpolicy", newValue);
 
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
     newValue = gTechChoices.value;
     gHiddenTechPref.setAttribute("value", newValue);
     gIdentity.setIntAttribute("e2etechpref", newValue);
@@ -510,7 +510,7 @@ function smimeClearCert(smime_cert) {
   certInfo.dbKey = "";
 
   let stillHaveOther = false;
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
     stillHaveOther = gKeyId != "";
   }
 
@@ -528,7 +528,7 @@ function smimeClearCert(smime_cert) {
 }
 
 function updateTechPref() {
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
     return;
   }
 
@@ -589,7 +589,7 @@ function openKeyManager() {
  * Open the subdialog to create or import an OpenPGP key.
  */
 function openKeyWizard() {
-  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.allDependenciesLoaded()) {
+  if (!MailConstants.MOZ_OPENPGP || !BondOpenPGP.isEnabled()) {
     return;
   }
 

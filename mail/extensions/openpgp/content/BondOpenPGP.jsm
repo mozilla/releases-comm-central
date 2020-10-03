@@ -51,35 +51,31 @@ var BondOpenPGP = {
     } catch (x) {}
   },
 
-  isEnabled: false,
+  _isEnabled: null, // bool; null means: not yet set
+
   alreadyTriedInit: false,
-  initiallyPrefEnabled: false,
 
   async init() {
     if (!MailConstants.MOZ_OPENPGP) {
       return;
     }
 
-    if (this.isEnabled) {
-      // we never shut it off after pref change, requires restart
+    // we never shut off after pref change, disabling requires restart
+    if (this.isEnabled()) {
       return;
     }
 
-    if (this.alreadyTriedInit && this.initiallyPrefEnabled) {
+    if (this.alreadyTriedInit) {
       // We have previously attempted to init, don't try again.
       return;
     }
 
     let nowEnabled = Services.prefs.getBoolPref("mail.openpgp.enable");
-
-    if (!this.alreadyTriedInit) {
-      this.initiallyPrefEnabled = nowEnabled;
-    }
-
     if (!nowEnabled) {
       return;
     }
 
+    this._isEnabled = true;
     this.alreadyTriedInit = true;
 
     let RNP = getRNP();
@@ -93,20 +89,25 @@ var BondOpenPGP = {
     }
 
     // trigger service init
-    let svc = getEnigmailCore().getService();
-    this.isEnabled = !!svc;
+    getEnigmailCore().getService();
   },
 
-  allDependenciesLoaded() {
-    this.init();
-    if (!this.isEnabled) {
-      return false;
+  isEnabled() {
+    if (this._isEnabled == null) {
+      this._isEnabled = Services.prefs.getBoolPref("mail.openpgp.enable");
     }
-    return getRNP().allDependenciesLoaded();
+    return this._isEnabled;
+  },
+
+  // We don't support a blocking wait for all OpenPGP dependencies to
+  // be loaded. But we keep this API for backwards compatibility with
+  // the Enigmail migrator Add-on.
+  allDependenciesLoaded() {
+    return this.isEnabled();
   },
 
   openKeyManager(window) {
-    if (this.allDependenciesLoaded()) {
+    if (this.isEnabled()) {
       getEnigmailWindows().openKeyManager(window);
     }
   },

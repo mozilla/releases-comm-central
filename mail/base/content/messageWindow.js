@@ -400,7 +400,7 @@ function OnLoadMessageWindow() {
   ToolbarIconColor.init();
   setTimeout(delayedOnLoadMessageWindow, 0); // when debugging, set this to 5000, so you can see what happens after the window comes up.
 
-  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.allDependenciesLoaded()) {
+  if (MailConstants.MOZ_OPENPGP && BondOpenPGP.isEnabled()) {
     Enigmail.msg.messengerStartup.bind(Enigmail.msg);
     Enigmail.msg.messengerStartup();
     Enigmail.hdrView.hdrViewLoad.bind(Enigmail.hdrView);
