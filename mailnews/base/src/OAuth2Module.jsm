@@ -34,7 +34,7 @@ OAuth2Module.prototype = {
   initFromMail(aServer) {
     return this._initPrefs(
       "mail.server." + aServer.key + ".",
-      aServer.username,
+      aServer.realUsername,
       aServer.realHostName
     );
   },
