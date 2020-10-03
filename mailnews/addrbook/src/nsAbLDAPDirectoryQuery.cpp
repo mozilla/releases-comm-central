@@ -58,7 +58,6 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
 
   nsCOMPtr<nsILDAPURL> mSearchUrl;
   nsIAbDirectoryQueryResultListener* mResultListener;
-  int32_t mContextID;
   nsCOMPtr<nsIAbDirectoryQueryArguments> mQueryArguments;
   int32_t mResultLimit;
 
