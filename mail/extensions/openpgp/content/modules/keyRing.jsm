@@ -8,43 +8,33 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailKeyRing"];
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
-const { EnigmailTrust } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/trust.jsm"
-);
-const { EnigmailArmor } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/armor.jsm"
-);
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
-);
-const { newEnigmailKeyObj } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyObj.jsm"
-);
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
-);
-const { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
-);
-const { uidHelper } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/uidHelper.jsm"
-);
-var { RNP } = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
+  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
+  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
+  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
+  newEnigmailKeyObj: "chrome://openpgp/content/modules/keyObj.jsm",
+  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+  RNP: "chrome://openpgp/content/modules/RNP.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  uidHelper: "chrome://openpgp/content/modules/uidHelper.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 const getWindows = EnigmailLazy.loader(
   "enigmail/windows.jsm",
   "EnigmailWindows"
 );
-
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 const DEFAULT_FILE_PERMS = 0o600;
 

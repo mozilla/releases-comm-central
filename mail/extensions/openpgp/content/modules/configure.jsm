@@ -8,44 +8,24 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailConfigure"];
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-/*
-const { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
-const { EnigmailApp } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/app.jsm"
-);
-const { EnigmailLocale } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/locale.jsm"
-);
-const { EnigmailDialog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/dialog.jsm"
-);
-const { EnigmailWindows } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/windows.jsm"
-);
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-);
-const { EnigmailCore } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
-);
-const { EnigmailStdlib } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/stdlib.jsm"
-);
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
-);
-const { EnigmailAutoSetup } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/autoSetup.jsm"
-);
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
-*/
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  // EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
+  // EnigmailAutoSetup: "chrome://openpgp/content/modules/autoSetup.jsm",
+  // EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  // EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  // EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
+  // EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
+  // EnigmailLocale: "chrome://openpgp/content/modules/locale.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  // EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
+  // EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+  // EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  // MailServices: "resource:///modules/MailServices.jsm",
+});
 
 var EnigmailConfigure = {
   /**

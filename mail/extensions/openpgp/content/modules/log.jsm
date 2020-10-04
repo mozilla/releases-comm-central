@@ -10,17 +10,16 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailLog"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-const { EnigmailConsole } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/pipeConsole.jsm"
-);
-const { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
-const { EnigmailOS } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/os.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailConsole: "chrome://openpgp/content/modules/pipeConsole.jsm",
+  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
+  EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 const MAX_LOG_LEN = 2500;
 

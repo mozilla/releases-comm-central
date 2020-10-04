@@ -8,11 +8,17 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailGpg"];
 
-const { EnigmailVersioning } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/versioning.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailVersioning: "chrome://openpgp/content/modules/versioning.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 const MINIMUM_GPG_VERSION = "2.0.14";
 

@@ -8,10 +8,14 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailPrefs"];
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 const ENIGMAIL_PREFS_ROOT = "temp.openpgp.";
 

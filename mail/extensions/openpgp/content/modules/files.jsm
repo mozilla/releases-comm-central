@@ -8,18 +8,20 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailFiles"];
 
-const { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailOS } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/os.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailOS: "chrome://openpgp/content/modules/os.jsm",
+  OS: "resource://gre/modules/osfile.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
+
 const { EnigmailLazy } = ChromeUtils.import(
   "chrome://openpgp/content/modules/lazy.jsm"
 );
-
-const { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm", {});
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const lazyStream = EnigmailLazy.loader(
   "enigmail/streams.jsm",

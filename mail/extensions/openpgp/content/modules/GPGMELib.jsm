@@ -4,10 +4,17 @@
 
 const EXPORTED_SYMBOLS = ["GPGMELibLoader"];
 
-var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  ctypes: "resource://gre/modules/ctypes.jsm",
+  OS: "resource://gre/modules/osfile.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
+
 var systemOS = Services.appinfo.OS.toLowerCase();
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var abi = ctypes.default_abi;
 
 // Default libary paths to look for on macOS

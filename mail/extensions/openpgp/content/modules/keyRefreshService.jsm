@@ -8,26 +8,19 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailKeyRefreshService"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-);
-const { EnigmailRNG } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/rng.jsm"
-);
-const { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
-const { EnigmailKeyServer } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserver.jsm"
-);
-const { EnigmailKeyserverURIs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserverUris.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.jsm",
+  EnigmailKeyserverURIs: "chrome://openpgp/content/modules/keyserverUris.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  EnigmailRNG: "chrome://openpgp/content/modules/rng.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 const ONE_HOUR_IN_MILLISEC = 60 * 60 * 1000;
 

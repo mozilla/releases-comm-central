@@ -8,50 +8,35 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailFilters"];
 
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailCore } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
-);
-const { EnigmailPersistentCrypto } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/persistentCrypto.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-);
-const { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-);
-const { EnigmailStreams } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/streams.jsm"
-);
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-);
-const { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
-);
-const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
-const { EnigmailMime } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mime.jsm"
-);
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
+  EnigmailPersistentCrypto:
+    "chrome://openpgp/content/modules/persistentCrypto.jsm",
+  EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
+  jsmime: "resource:///modules/jsmime.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+  NetUtil: "resource://gre/modules/NetUtil.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 var gNewMailListenerInitiated = false;
-
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 /**
  * filter action for creating a decrypted version of the mail and

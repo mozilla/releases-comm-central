@@ -4,13 +4,15 @@
 
 const EXPORTED_SYMBOLS = ["GPGME"];
 
-var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-var { GPGMELibLoader } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/GPGMELib.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  ctypes: "resource://gre/modules/ctypes.jsm",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  GPGMELibLoader: "chrome://openpgp/content/modules/GPGMELib.jsm",
+});
 
 var GPGMELib;
 

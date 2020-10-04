@@ -12,18 +12,16 @@ var EXPORTED_SYMBOLS = ["EnigmailMsgRead"];
  * Message-reading related functions
  */
 
-const { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-);
-const { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-);
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+});
 
 const ExtraHeaders = ["autocrypt", "openpgp"];
 

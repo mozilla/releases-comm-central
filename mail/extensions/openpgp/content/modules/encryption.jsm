@@ -8,40 +8,27 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailEncryption"];
 
-const { EnigmailCore } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
-const { EnigmailDialog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/dialog.jsm"
-);
-const { EnigmailErrorHandling } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/errorHandling.jsm"
-);
-const { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-);
-const { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-);
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-);
-const { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
-);
-var { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
-);
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
+  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
+  EnigmailErrorHandling: "chrome://openpgp/content/modules/errorHandling.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 const gMimeHashAlgorithms = [
   null,

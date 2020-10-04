@@ -8,10 +8,14 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailURIs"];
 
-const { EnigmailLog } = ChromeUtils.import(
+ChromeUtils.defineModuleGetter(
+  this,
+  "EnigmailLog",
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailData } = ChromeUtils.import(
+ChromeUtils.defineModuleGetter(
+  this,
+  "EnigmailData",
   "chrome://openpgp/content/modules/data.jsm"
 );
 

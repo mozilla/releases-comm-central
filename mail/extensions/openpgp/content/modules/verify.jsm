@@ -8,15 +8,15 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailVerifyAttachment"];
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
-const { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
+  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+});
 
 var EnigmailVerifyAttachment = {
   attachment(verifyFile, sigFile) {

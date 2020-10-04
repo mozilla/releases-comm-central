@@ -8,7 +8,11 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailTime"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Services",
+  "resource://gre/modules/Services.jsm"
+);
 
 const DATE_2DIGIT = "2-digit";
 const DATE_4DIGIT = "numeric";

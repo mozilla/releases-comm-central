@@ -11,44 +11,25 @@ var EXPORTED_SYMBOLS = ["EnigmailVerify"];
  *  implemented as JS module
  */
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-const { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailFiles } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/files.jsm"
-);
-const { EnigmailMime } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mime.jsm"
-);
-const { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
-);
-const { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-);
-const { EnigmailDecryption } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/decryption.jsm"
-);
-const { EnigmailSingletons } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/singletons.jsm"
-);
-const { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
-);
-const { EnigmailURIs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/uris.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
+  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
+  EnigmailFiles: "chrome://openpgp/content/modules/files.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
+  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 const PGPMIME_PROTO = "application/pgp-signature";
 

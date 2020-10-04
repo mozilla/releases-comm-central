@@ -9,9 +9,14 @@
 const { manager: Cm } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 // load all modules lazily to avoid possible cross-reference errors
 const getEnigmailConsole = EnigmailLazy.loader(
@@ -79,7 +84,6 @@ const getPgpSqlite2 = EnigmailLazy.loader(
   "enigmail/sqliteDb.jsm",
   "PgpSqliteDb2"
 );
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var EXPORTED_SYMBOLS = ["EnigmailCore"];
 

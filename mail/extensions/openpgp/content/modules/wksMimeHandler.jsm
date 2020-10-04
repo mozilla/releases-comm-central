@@ -6,32 +6,27 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailWksMimeHandler"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailDecryption: "chrome://openpgp/content/modules/decryption.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
+  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 /**
  *  Module for handling response messages from OpenPGP Web Key Service
  */
-
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-const { EnigmailVerify } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mimeVerify.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailDecryption } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/decryption.jsm"
-);
-const { EnigmailSingletons } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/singletons.jsm"
-);
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-);
-
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
 
 var gDebugLog = false;
 

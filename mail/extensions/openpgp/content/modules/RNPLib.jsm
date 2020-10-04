@@ -4,20 +4,21 @@
 
 const EXPORTED_SYMBOLS = ["RNPLibLoader"];
 
-var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailApp: "chrome://openpgp/content/modules/app.jsm",
+  EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
+  ctypes: "resource://gre/modules/ctypes.jsm",
+  OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
+  OS: "resource://gre/modules/osfile.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
+
 var systemOS = Services.appinfo.OS.toLowerCase();
-var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 var abi = ctypes.default_abi;
-var { EnigmailApp } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/app.jsm"
-);
-var { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
-);
-var { OpenPGPMasterpass } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/masterpass.jsm"
-);
 
 // Open librnp. Determine the path to the chrome directory and look for it
 // there first. If not, fallback to searching the standard locations.

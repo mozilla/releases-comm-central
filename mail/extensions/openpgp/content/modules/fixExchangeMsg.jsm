@@ -8,23 +8,18 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailFixExchangeMsg"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-const { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailStreams } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/streams.jsm"
-);
-const { EnigmailMime } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mime.jsm"
-);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
+  EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 /*
  *  Fix a broken message from MS-Exchange and replace it with the original message

@@ -16,26 +16,26 @@ Services.scriptloader.loadSubScript(
   "UTF-8"
 ); /* global CryptoAPI */
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  getGpgKeyData: "chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm",
+  getPhotoFileFromGnuPG:
+    "chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm",
+  GnuPG_importKeyFromFile:
+    "chrome://openpgp/content/modules/cryptoAPI/gnupg-key.jsm",
+  GnuPG_extractSecretKey:
+    "chrome://openpgp/content/modules/cryptoAPI/gnupg-key.jsm",
+  obtainKeyList: "chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm",
+});
 
-const {
-  obtainKeyList,
-  getPhotoFileFromGnuPG,
-  getGpgKeyData,
-} = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI/gnupg-keylist.jsm"
-);
-
-const { GnuPG_importKeyFromFile, GnuPG_extractSecretKey } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI/gnupg-key.jsm"
-);
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 /**
  * GnuPG implementation of CryptoAPI

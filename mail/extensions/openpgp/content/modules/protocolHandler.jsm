@@ -8,27 +8,20 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailProtocolHandler"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
 
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-const { EnigmailCore } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
-);
-const { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailStreams } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/streams.jsm"
-);
-const { EnigmailURIs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/uris.jsm"
-);
-const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
+  EnigmailURIs: "chrome://openpgp/content/modules/uris.jsm",
+  NetUtil: "resource://gre/modules/NetUtil.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 const NS_ENIGMAILPROTOCOLHANDLER_CONTRACTID =
   "@mozilla.org/network/protocol;1?name=enigmail";

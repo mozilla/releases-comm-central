@@ -10,11 +10,17 @@ var EXPORTED_SYMBOLS = ["EnigmailFiltersWrapper"];
 
 var gEnigmailFilters = null;
 
-let { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
+
+const { EnigmailConstants } = ChromeUtils.import(
+  "chrome://openpgp/content/modules/constants.jsm"
+);
 
 /**
  * filter action for creating a decrypted version of the mail and

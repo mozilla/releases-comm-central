@@ -13,41 +13,23 @@ var EXPORTED_SYMBOLS = ["EnigmailAutocrypt"];
 
 //Cu.importGlobalProperties(["crypto"]);
 
-const { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-);
-const { EnigmailMime } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mime.jsm"
-);
-const { EnigmailSqliteDb } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
-);
-/*
-const { PromiseUtils } = ChromeUtils.import(
-  "resource://gre/modules/PromiseUtils.jsm"
-);
-const { EnigmailKeyRing } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-);
-*/
-const { EnigmailStreams } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/streams.jsm"
-);
-const { EnigmailArmor } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/armor.jsm"
-);
-/*
-const { EnigmailStdlib } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/stdlib.jsm"
-);
-const { EnigmailCryptoAPI } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/cryptoAPI.jsm"
-);
-*/
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailArmor: "chrome://openpgp/content/modules/armor.jsm",
+  // EnigmailCryptoAPI: "chrome://openpgp/content/modules/cryptoAPI.jsm",
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  // EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
+  // EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
+  EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
+  EnigmailSqliteDb: "chrome://openpgp/content/modules/sqliteDb.jsm",
+  // PromiseUtils: "resource://gre/modules/PromiseUtils.jsm",
+  jsmime: "resource:///modules/jsmime.jsm",
+});
 
 var gCreatedSetupIds = [];
 

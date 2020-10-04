@@ -8,22 +8,21 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailDialog"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailWindows } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/windows.jsm"
-);
-const { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-const l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  EnigmailWindows: "chrome://openpgp/content/modules/windows.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 const LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";
 

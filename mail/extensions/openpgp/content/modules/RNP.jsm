@@ -4,32 +4,22 @@
 
 const EXPORTED_SYMBOLS = ["RNP"];
 
-var { AppConstants } = ChromeUtils.import(
-  "resource://gre/modules/AppConstants.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { ctypes } = ChromeUtils.import("resource://gre/modules/ctypes.jsm");
-var { RNPLibLoader } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/RNPLib.jsm"
-);
-var { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
-);
-var { EnigmailTime } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/time.jsm"
-);
-var { OpenPGPMasterpass } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/masterpass.jsm"
-);
-var { PgpSqliteDb2 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
-);
-var { uidHelper } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/uidHelper.jsm"
-);
-var { GPGME } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/GPGME.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  AppConstants: "resource://gre/modules/AppConstants.jsm",
+  ctypes: "resource://gre/modules/ctypes.jsm",
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailTime: "chrome://openpgp/content/modules/time.jsm",
+  GPGME: "chrome://openpgp/content/modules/GPGME.jsm",
+  OpenPGPMasterpass: "chrome://openpgp/content/modules/masterpass.jsm",
+  PgpSqliteDb2: "chrome://openpgp/content/modules/sqliteDb.jsm",
+  RNPLibLoader: "chrome://openpgp/content/modules/RNPLib.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  uidHelper: "chrome://openpgp/content/modules/uidHelper.jsm",
+});
 
 const str_encrypt = "encrypt";
 const str_sign = "sign";

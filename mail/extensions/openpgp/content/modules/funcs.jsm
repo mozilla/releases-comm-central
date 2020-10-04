@@ -13,15 +13,15 @@ var EXPORTED_SYMBOLS = ["EnigmailFuncs"];
  *
  */
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailPrefs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/prefs.jsm"
-);
-const { MailServices } = ChromeUtils.import(
-  "resource:///modules/MailServices.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailPrefs: "chrome://openpgp/content/modules/prefs.jsm",
+  MailServices: "resource:///modules/MailServices.jsm",
+});
 
 var gTxtConverter = null;
 

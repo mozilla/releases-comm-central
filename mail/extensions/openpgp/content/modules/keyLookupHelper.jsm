@@ -8,26 +8,22 @@
 
 const EXPORTED_SYMBOLS = ["KeyLookupHelper"];
 
-var EnigmailDialog = ChromeUtils.import(
-  "chrome://openpgp/content/modules/dialog.jsm"
-).EnigmailDialog;
-var { EnigmailKey } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/key.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-var EnigmailKeyRing = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
-var EnigmailKeyServer = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserver.jsm"
-).EnigmailKeyServer;
-var { EnigmailKeyserverURIs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyserverUris.jsm"
-);
-var EnigmailWkdLookup = ChromeUtils.import(
-  "chrome://openpgp/content/modules/wkdLookup.jsm"
-).EnigmailWkdLookup;
 
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailDialog: "chrome://openpgp/content/modules/dialog.jsm",
+  EnigmailKey: "chrome://openpgp/content/modules/key.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailKeyServer: "chrome://openpgp/content/modules/keyserver.jsm",
+  EnigmailKeyserverURIs: "chrome://openpgp/content/modules/keyserverUris.jsm",
+  EnigmailWkdLookup: "chrome://openpgp/content/modules/wkdLookup.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 var KeyLookupHelper = {
   async lookupAndImportOnKeyserver(window, identifier, giveFeedbackToUser) {

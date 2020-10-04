@@ -11,22 +11,18 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailWkdLookup"];
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailZBase32 } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/zbase32.jsm"
-);
-const { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
-);
-const { EnigmailSqliteDb } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/sqliteDb.jsm"
-);
-var EnigmailKeyRing = ChromeUtils.import(
-  "chrome://openpgp/content/modules/keyRing.jsm"
-).EnigmailKeyRing;
-var { DNS } = ChromeUtils.import("resource:///modules/DNS.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  DNS: "resource:///modules/DNS.jsm",
+  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailKeyRing: "chrome://openpgp/content/modules/keyRing.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailSqliteDb: "chrome://openpgp/content/modules/sqliteDb.jsm",
+  EnigmailZBase32: "chrome://openpgp/content/modules/zbase32.jsm",
+});
 
 Cu.importGlobalProperties(["fetch"]);
 

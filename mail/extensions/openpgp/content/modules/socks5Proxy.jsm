@@ -8,19 +8,19 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailSocks5Proxy"];
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailLazy: "chrome://openpgp/content/modules/lazy.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 const CC = Components.Constructor;
 
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailLazy } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/lazy.jsm"
-);
 const getEnigmailPrefs = EnigmailLazy.loader(
   "enigmail/prefs.jsm",
   "EnigmailPrefs"

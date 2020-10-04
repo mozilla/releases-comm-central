@@ -8,12 +8,14 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailArmor"];
 
-const { EnigmailConstants } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/constants.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailConstants: "chrome://openpgp/content/modules/constants.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+});
 
 // Locates STRing in TEXT occurring only at the beginning of a line
 function indexOfArmorDelimiter(text, str, offset) {

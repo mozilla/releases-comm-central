@@ -12,34 +12,23 @@
 const { manager: Cm } = Components;
 Cm.QueryInterface(Ci.nsIComponentRegistrar);
 
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
+);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailCore: "chrome://openpgp/content/modules/core.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
+  EnigmailMimeDecrypt: "chrome://openpgp/content/modules/mimeDecrypt.jsm",
+  EnigmailSingletons: "chrome://openpgp/content/modules/singletons.jsm",
+  EnigmailVerify: "chrome://openpgp/content/modules/mimeVerify.jsm",
+  EnigmailWksMimeHandler: "chrome://openpgp/content/modules/wksMimeHandler.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+});
 
 var EXPORTED_SYMBOLS = ["EnigmailPgpmimeHander"];
-
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
-);
-const { EnigmailCore } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/core.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailMimeDecrypt } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mimeDecrypt.jsm"
-);
-const { EnigmailVerify } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mimeVerify.jsm"
-);
-const { EnigmailWksMimeHandler } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/wksMimeHandler.jsm"
-);
-const { EnigmailMime } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/mime.jsm"
-);
-const { EnigmailSingletons } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/singletons.jsm"
-);
 
 const PGPMIME_JS_DECRYPTOR_CONTRACTID =
   "@mozilla.org/mime/pgp-mime-js-decrypt;1";

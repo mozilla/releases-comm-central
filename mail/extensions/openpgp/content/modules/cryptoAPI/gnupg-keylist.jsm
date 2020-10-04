@@ -17,20 +17,20 @@ var EXPORTED_SYMBOLS = [
   "getGpgKeyData",
 ];
 
-const { EnigmailTime } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/time.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailTrust } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/trust.jsm"
-);
-const { EnigmailData } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/data.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
 
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailData: "chrome://openpgp/content/modules/data.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailTime: "chrome://openpgp/content/modules/time.jsm",
+  EnigmailTrust: "chrome://openpgp/content/modules/trust.jsm",
+});
+
+XPCOMUtils.defineLazyGetter(this, "l10n", () => {
+  return new Localization(["messenger/openpgp/openpgp.ftl"], true);
+});
 
 // field ID's of key list (as described in the doc/DETAILS file in the GnuPG distribution)
 const ENTRY_ID = 0;
@@ -230,7 +230,7 @@ function appendUnkownSecretKey(keyId, aKeyList, startIndex, keyList) {
 
 /**
  * Extract a photo ID from a key, store it as file and return the file object.
- 
+
  * @param {String} keyId:       Key ID / fingerprint
  * @param {Number} photoNumber: number of the photo on the key, starting with 0
  *

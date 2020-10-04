@@ -8,7 +8,7 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailTrust"];
 
-var l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+var l10n;
 
 // trust flags according to GPG documentation:
 // - https://www.gnupg.org/documentation/manuals/gnupg.pdf
@@ -69,6 +69,9 @@ var EnigmailTrust = {
   },
 
   getTrustLabel(trustCode) {
+    if (!l10n) {
+      l10n = new Localization(["messenger/openpgp/openpgp.ftl"], true);
+    }
     let keyTrust;
     switch (trustCode) {
       case "q":

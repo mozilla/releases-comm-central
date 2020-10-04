@@ -10,9 +10,11 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailCompat"];
 
-var MailUtils;
-
-MailUtils = ChromeUtils.import("resource:///modules/MailUtils.jsm").MailUtils;
+ChromeUtils.defineModuleGetter(
+  this,
+  "MailUtils",
+  "resource:///modules/MailUtils.jsm"
+);
 
 var EnigmailCompat = {
   generateQI(aCid) {

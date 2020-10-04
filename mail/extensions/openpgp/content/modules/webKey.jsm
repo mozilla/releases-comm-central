@@ -14,15 +14,15 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailWks"];
 
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailStdlib } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/stdlib.jsm"
-);
-const { EnigmailFuncs } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/funcs.jsm"
-);
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailFuncs: "chrome://openpgp/content/modules/funcs.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
+});
 
 var EnigmailWks = {
   wksClientPath: null,
