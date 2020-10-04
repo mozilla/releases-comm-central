@@ -78,9 +78,6 @@ var EnigmailPersistentCrypto = ChromeUtils.import(
 var EnigmailStreams = ChromeUtils.import(
   "chrome://openpgp/content/modules/streams.jsm"
 ).EnigmailStreams;
-var EnigmailEvents = ChromeUtils.import(
-  "chrome://openpgp/content/modules/events.jsm"
-).EnigmailEvents;
 var EnigmailKeyRing = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 ).EnigmailKeyRing;
@@ -2403,26 +2400,22 @@ Enigmail.msg = {
         "'\n"
     );
 
-    var f = function(argList) {
-      var msgText = argList[0];
-      var cb = argList[1];
-      cb.callbackFunction(
+    setTimeout(() => {
+      callbackArg.callbackFunction(
         msgText,
-        cb.contentEncoding,
-        cb.charset,
-        cb.interactive,
-        cb.importOnly,
-        cb.messageUrl,
-        cb.signature,
+        callbackArg.contentEncoding,
+        callbackArg.charset,
+        callbackArg.interactive,
+        callbackArg.importOnly,
+        callbackArg.messageUrl,
+        callbackArg.signature,
         3,
-        cb.head,
-        cb.tail,
-        cb.msgUriSpec,
-        cb.isAuto
+        callbackArg.head,
+        callbackArg.tail,
+        callbackArg.msgUriSpec,
+        callbackArg.isAuto
       );
-    };
-
-    EnigmailEvents.dispatchEvent(f, 0, [msgText, callbackArg]);
+    }, 0);
   },
 
   revealAttachments(index) {

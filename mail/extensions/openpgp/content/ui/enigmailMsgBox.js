@@ -15,9 +15,6 @@ var { EnigmailOS } = ChromeUtils.import(
 var EnigmailLocale = ChromeUtils.import(
   "chrome://openpgp/content/modules/locale.jsm"
 ).EnigmailLocale;
-var EnigmailEvents = ChromeUtils.import(
-  "chrome://openpgp/content/modules/events.jsm"
-).EnigmailEvents;
 
 function onLoad() {
   var dlg = document.getElementById("enigmailMsgBox");
@@ -94,7 +91,7 @@ function onLoad() {
   textbox.appendChild(textbox.ownerDocument.createTextNode(msgtext));
 
   window.addEventListener("keypress", onKeyPress);
-  EnigmailEvents.dispatchEvent(resizeDlg, 0);
+  setTimeout(resizeDlg, 0);
 }
 
 function resizeDlg() {

@@ -16,9 +16,6 @@ var EnigmailKeyRing = ChromeUtils.import(
 var EnigmailDialog = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 ).EnigmailDialog;
-var EnigmailEvents = ChromeUtils.import(
-  "chrome://openpgp/content/modules/events.jsm"
-).EnigmailEvents;
 var EnigmailData = ChromeUtils.import(
   "chrome://openpgp/content/modules/data.jsm"
 ).EnigmailData;
@@ -95,12 +92,12 @@ function onLoad() {
   } else {
     document.l10n.formatValue("import-info-no-keys").then(value => {
       EnigmailDialog.alert(window, value);
-      EnigmailEvents.dispatchEvent(window.close, 0);
+      setTimeout(window.close, 0);
     });
     return;
   }
 
-  EnigmailEvents.dispatchEvent(resizeDlg, 0);
+  setTimeout(resizeDlg, 0);
 }
 
 function buildKeyGroupBox(keyObj) {

@@ -71,9 +71,6 @@ var EnigmailErrorHandling = ChromeUtils.import(
 var EnigmailKeyServer = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyserver.jsm"
 ).EnigmailKeyServer;
-var EnigmailEvents = ChromeUtils.import(
-  "chrome://openpgp/content/modules/events.jsm"
-).EnigmailEvents;
 var { EnigmailGpg } = ChromeUtils.import(
   "chrome://openpgp/content/modules/gpg.jsm"
 );

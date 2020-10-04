@@ -17,7 +17,7 @@
 /* global PgpSqliteDb2: false */
 
 // imported packages
-/* global EnigmailLog: false, EnigmailEvents: false, EnigmailKeyRing: false, EnigmailKeyEditor: false */
+/* global EnigmailLog: false, EnigmailKeyRing: false, EnigmailKeyEditor: false */
 /* global EnigmailKey: false, EnigmailLocale: false, EnigmailPrefs: false, EnigmailConstants: false */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
@@ -105,7 +105,7 @@ function enigmailKeyManagerLoad() {
     "key-man-loading-keys"
   );
   document.getElementById("progressBar").style.visibility = "visible";
-  EnigmailEvents.dispatchEvent(loadkeyList, 100, null);
+  setTimeout(loadkeyList, 100);
 
   gUserList.view = gKeyListView;
   gSearchInput.focus();
