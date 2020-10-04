@@ -83,7 +83,7 @@ function smimeComposeOnUnload()
 function showNeedSetupInfo()
 {
   let compSmimeBundle = document.getElementById("bundle_comp_smime");
-  let brandBundle = document.getElementById("bundle_brand");
+  let brandBundle = document.getElementById("brandBundle");
   if (!compSmimeBundle || !brandBundle)
     return;
 

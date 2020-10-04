@@ -7,6 +7,8 @@
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
 <?xml-stylesheet href="chrome://editor/skin/editorFormatToolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/addressingWidget.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/smime/msgCompSMIMEOverlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
 
 <?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/tasksOverlay.xul"?>
@@ -27,6 +29,8 @@
 %brandDTD;
 <!ENTITY % utilityDTD SYSTEM "chrome://communicator/locale/utilityOverlay.dtd">
 %utilityDTD;
+<!ENTITY % msgCompSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgCompSMIMEOverlay.dtd">
+%msgCompSMIMEDTD;
 ]>
 
 <window id="msgcomposeWindow"
@@ -52,6 +56,7 @@
     <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
     <stringbundle id="languageBundle" src="chrome://global/locale/languageNames.properties"/>
     <stringbundle id="brandBundle" src="chrome://branding/locale/brand.properties"/>
+    <stringbundle id="bundle_comp_smime" src="chrome://messenger-smime/locale/msgCompSMIMEOverlay.properties"/>
   </stringbundleset>
 
   <script type="application/javascript" src="chrome://communicator/content/contentAreaClick.js"/>
@@ -62,10 +67,9 @@
   <script type="application/javascript" src="chrome://editor/content/editor.js"/>
   <script type="application/javascript" src="chrome://messenger/content/messengercompose/MsgComposeCommands.js"/>
   <script type="application/javascript" src="chrome://messenger/content/messengercompose/addressingWidgetOverlay.js"/>
-
-  <!-- drag and drop -->
   <script type="application/javascript" src="chrome://global/content/nsDragAndDrop.js"/>
   <script type="application/javascript" src="chrome://messenger/content/addressbook/abDragDrop.js"/>
+  <script type="application/javascript" src="chrome://messenger-smime/content/msgCompSMIMEOverlay.js"/>
 
   <commandset id="composeCommands">
     <commandset id="msgComposeCommandUpdate"
@@ -114,12 +118,17 @@
     <command id="cmd_selectAddress" oncommand="goDoCommand('cmd_selectAddress')"/>
     <command id="cmd_outputFormat" oncommand="OutputFormatMenuSelect(event.target)"/>
     <command id="cmd_quoteMessage" oncommand="goDoCommand('cmd_quoteMessage')"/>
+    <command id="cmd_viewSecurityStatus" oncommand="showMessageComposeSecurityStatus();"/>
   </commandset>
 
   <broadcasterset id="composeBroadcasters">
     <broadcaster id="Communicator:WorkMode"/>
     <broadcaster id="args" value="editorType=default"/>
+    <broadcaster id="securityStatus" crypto="" signing=""/>
   </broadcasterset>
+
+  <observes element="securityStatus" attribute="crypto"/>
+  <observes element="securityStatus" attribute="signing"/>
 
   <broadcasterset id="mainBroadcasterSet"/>
 
@@ -290,6 +299,11 @@
                   <menuitem id="menu_showTaskbar"/>
                 </menupopup>
               </menu>
+              <menuseparator id="viewMenuBeforeSecurityStatusSeparator"/>
+              <menuitem id="menu_viewSecurityStatus"
+                        label="&menu_viewSecurityStatus.label;"
+                        accesskey="&menu_viewSecurityStatus.accesskey;"
+                        command="cmd_viewSecurityStatus"/>
             </menupopup>
           </menu>
 
@@ -311,7 +325,8 @@
           <menu id="optionsMenu"
                 label="&optionsMenu.label;"
                 accesskey="&optionsMenu.accesskey;">
-            <menupopup id="optionsMenuPopup">
+            <menupopup id="optionsMenuPopup"
+                       onpopupshowing="setSecuritySettings(1);">
               <menuitem id="menu_selectAddress"
                         label="&selectAddressCmd.label;"
                         accesskey="&selectAddressCmd.accesskey;"
@@ -422,7 +437,17 @@
                   </rule>
                 </template>
               </menu>
-
+              <menuseparator id="smimeOptionsSeparator"/>
+              <menuitem id="menu_securityEncryptRequire1"
+                        type="checkbox"
+                        label="&menu_securityEncryptRequire.label;"
+                        accesskey="&menu_securityEncryptRequire.accesskey;"
+                        oncommand="toggleEncryptMessage();"/>
+              <menuitem id="menu_securitySign1"
+                        type="checkbox"
+                        label="&menu_securitySign.label;"
+                        accesskey="&menu_securitySign.accesskey;"
+                        oncommand="toggleSignMessage();"/>
             </menupopup>
           </menu>
           <menu id="tasksMenu"/>
@@ -663,6 +688,30 @@
       <toolbarbutton id="print-button"
                      label="&printButton.label;"
                      tooltiptext="&printButton.tooltip;"/>
+      <toolbarbutton id="button-security"
+                     type="menu-button"
+                     class="toolbarbutton-1"
+                     label="&securityButton.label;"
+                     tooltiptext="&securityButton.tooltip;"
+                     oncommand="doSecurityButton();">
+        <menupopup onpopupshowing="setSecuritySettings(2);">
+          <menuitem id="menu_securityEncryptRequire2"
+                    type="checkbox"
+                    label="&menu_securityEncryptRequire.label;"
+                    accesskey="&menu_securityEncryptRequire.accesskey;"
+                    oncommand="setNextCommand('encryptMessage');"/>
+          <menuitem id="menu_securitySign2"
+                    type="checkbox"
+                    label="&menu_securitySign.label;"
+                    accesskey="&menu_securitySign.accesskey;"
+                    oncommand="setNextCommand('signMessage');"/>
+          <menuseparator id="smimeToolbarButtonSeparator"/>
+          <menuitem id="menu_securityStatus2"
+                    label="&menu_securityStatus.label;"
+                    accesskey="&menu_securityStatus.accesskey;"
+                    oncommand="setNextCommand('show');"/>
+        </menupopup>
+      </toolbarbutton>
     </toolbarpalette>
 
   </toolbox>
@@ -701,13 +750,30 @@
                      notificationside="bottom"/>
   </hbox>
 
-  <statusbar id="status-bar" class="chromeclass-status">
+  <statusbar id="status-bar"
+             class="chromeclass-status">
     <statusbarpanel id="component-bar"/>
-    <statusbarpanel id="statusText" flex="1"/>
-    <statusbarpanel id="statusbar-progresspanel" class="statusbarpanel-progress" collapsed="true">
-      <progressmeter id="compose-progressmeter" class="progressmeter-statusbar" mode="normal" value="0"/>
+    <statusbarpanel id="statusText"
+                    flex="1"/>
+    <statusbarpanel id="statusbar-progresspanel"
+                    class="statusbarpanel-progress"
+                    collapsed="true">
+      <progressmeter id="compose-progressmeter"
+                     class="progressmeter-statusbar"
+                     mode="normal"
+                     value="0"/>
     </statusbarpanel>
-    <statusbarpanel id="offline-status" class="statusbarpanel-iconic" checkfunc="MailCheckBeforeOfflineChange()"/>
+    <statusbarpanel id="signing-status"
+                    class="statusbarpanel-iconic"
+                    collapsed="true"
+                    oncommand="showMessageComposeSecurityStatus();"/>
+    <statusbarpanel id="encryption-status"
+                    class="statusbarpanel-iconic"
+                    collapsed="true"
+                    oncommand="showMessageComposeSecurityStatus();"/>
+    <statusbarpanel id="offline-status"
+                    class="statusbarpanel-iconic"
+                    checkfunc="MailCheckBeforeOfflineChange();"/>
   </statusbar>
 
 </window>
