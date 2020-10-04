@@ -6,14 +6,12 @@ messenger.jar:
 % content messenger-smime %content/messenger-smime/
 % overlay chrome://messenger/content/messengercompose/messengercompose.xul     chrome://messenger-smime/content/msgCompSMIMEOverlay.xul
 % overlay chrome://messenger/content/msgHdrViewOverlay.xul                     chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.xul
-% overlay chrome://messenger/content/mailWindowOverlay.xul                     chrome://messenger-smime/content/msgReadSMIMEOverlay.xul
     content/messenger/certpicker.js                                  (../../../mailnews/extensions/smime/certpicker.js)
     content/messenger/certpicker.xhtml                               (../../../mailnews/extensions/smime/certpicker.xhtml)
     content/messenger-smime/msgHdrViewSMIMEOverlay.js                (content/msgHdrViewSMIMEOverlay.js)
     content/messenger-smime/msgHdrViewSMIMEOverlay.xul               (content/msgHdrViewSMIMEOverlay.xul)
     content/messenger-smime/msgCompSMIMEOverlay.js                   (content/msgCompSMIMEOverlay.js)
     content/messenger-smime/msgCompSMIMEOverlay.xul                  (content/msgCompSMIMEOverlay.xul)
-    content/messenger-smime/msgReadSMIMEOverlay.xul                  (content/msgReadSMIMEOverlay.xul)
     content/messenger-smime/msgReadSMIMEOverlay.js                   (../../../mailnews/extensions/smime/msgReadSMIMEOverlay.js)
     content/messenger-smime/msgCompSecurityInfo.js                   (../../../mailnews/extensions/smime/msgCompSecurityInfo.js)
     content/messenger-smime/msgCompSecurityInfo.xhtml                (../../../mailnews/extensions/smime/msgCompSecurityInfo.xhtml)

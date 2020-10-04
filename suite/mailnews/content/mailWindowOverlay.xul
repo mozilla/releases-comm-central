@@ -5,6 +5,9 @@
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
 <?xml-stylesheet href="chrome://messenger/skin/folderMenus.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/smime/msgReadSMIMEOverlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/content/bindings.css" type="text/css"?>
+
 
 <?xul-overlay href="chrome://communicator/content/charsetOverlay.xul"?>
 <?xul-overlay href="chrome://communicator/content/contentAreaContextOverlay.xul"?>
@@ -31,6 +34,8 @@
   %contentAreaCommandsDTD;
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
   %brandDTD;
+  <!ENTITY % msgReadSMIMEDTD SYSTEM "chrome://messenger-smime/locale/msgReadSMIMEOverlay.dtd">
+  %msgReadSMIMEDTD;
 ]>
 
 <overlay
@@ -46,6 +51,7 @@
 <script type="application/javascript" src="chrome://communicator/content/findUtils.js"/>
 <script type="application/javascript" src="chrome://global/content/printUtils.js"/>
 <script type="application/javascript" src="chrome://messenger/content/folderDisplay.js"/>
+<script type="application/javascript" src="chrome://messenger-smime/content/msgReadSMIMEOverlay.js"/>
 <script type="application/javascript"><![CDATA[
   ChromeUtils.import("resource://gre/modules/PlacesUtils.jsm");
   ChromeUtils.import("resource:///modules/PlacesUIUtils.jsm");
@@ -54,6 +60,8 @@
 <stringbundleset id="stringbundleset">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
   <stringbundle id="bundle_offlinePrompts" src="chrome://messenger/locale/offline.properties"/>
+  <stringbundle id="bundle_read_smime"
+                src="chrome://messenger-smime/locale/msgReadSMIMEOverlay.properties"/>
   <stringbundle id="bundle_viewZoom"/>
   <stringbundle id="bundle_viewApplyTheme"/>
   <stringbundle id="findBundle" src="chrome://global/locale/finddialog.properties"/>
@@ -133,6 +141,7 @@
    <!-- Needed to support the Lightning Task filter See Bug 316916 -->
    <command id="cmd_showQuickFilterBar" oncommand="goDoCommand('cmd_showQuickFilterBar');"/>
    <commandset id="viewZoomCommands"/>
+   <command id="cmd_viewSecurityStatus" oncommand="showMessageReadSecurityInfo();" disabled="true"/>
 </commandset>
 
 <commandset id="mailEditMenuItems"
@@ -1202,6 +1211,10 @@
             oncommand="MailSetCharacterSet(event);"/>
       <menuseparator id="viewAfterCharsetSeparator"/>
       <menuitem id="pageSourceMenuItem" label="&pageSourceCmd.label;" key="key_viewPageSource" accesskey="&pageSourceCmd.accesskey;" command="cmd_viewPageSource"/>
+      <menuitem id="appmenu_securityStatus"
+                label="&menu_securityStatus.label;"
+                accesskey="&menu_securityStatus.accesskey;"
+                command="cmd_viewSecurityStatus"/>
       <menuseparator observes="mailHideMenus"/>
       <!-- overlayed from viewApplyThemeOverlay.xul -->
       <menu id="menu_viewApplyTheme" observes="mailHideMenus"/>
@@ -1852,15 +1865,36 @@
 
 </toolbox>
 
-<statusbar class="chromeclass-status" id="status-bar">
+<statusbar id="status-bar"
+           class="chromeclass-status" >
   <statusbarpanel id="component-bar"/>
-  <statusbarpanel id="statusText" label="&statusText.label;" crop="right" flex="1"/>
-  <statusbarpanel class="statusbarpanel-progress" id="statusbar-progresspanel" collapsed="true">
-    <progressmeter class="progressmeter-statusbar" id="statusbar-icon" mode="normal" value="0"/>
+  <statusbarpanel id="statusText"
+                  label="&statusText.label;"
+                  crop="right"
+                  flex="1"/>
+  <statusbarpanel id="statusbar-progresspanel"
+                  class="statusbarpanel-progress"
+                  collapsed="true">
+    <progressmeter id="statusbar-icon" 
+                   class="progressmeter-statusbar"
+                   mode="normal"
+                   value="0"/>
   </statusbarpanel>
-  <statusbarpanel id="unreadMessageCount" hidden="true"/>
-  <statusbarpanel id="totalMessageCount" hidden="true"/>
-  <statusbarpanel checkfunc="MailCheckBeforeOfflineChange()" id="offline-status" class="statusbarpanel-iconic"/>
+  <statusbarpanel id="unreadMessageCount"
+                  hidden="true"/>
+  <statusbarpanel id="totalMessageCount"
+                  hidden="true"/>
+  <statusbarpanel id="signed-status"
+                  class="statusbarpanel-iconic" 
+                  collapsed="true"
+                  oncommand="showMessageReadSecurityInfo();"/>
+  <statusbarpanel id="encrypted-status"
+                  class="statusbarpanel-iconic" 
+                  collapsed="true"
+                  oncommand="showMessageReadSecurityInfo();"/>
+  <statusbarpanel id="offline-status"
+                  class="statusbarpanel-iconic"
+                  checkfunc="MailCheckBeforeOfflineChange();" />
 </statusbar>
 
 </overlay>
