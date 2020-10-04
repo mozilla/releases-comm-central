@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
 var {
   CALENDARLIST,
   CALENDARNAME,
   TASK_VIEW,
   closeAllEventDialogs,
+  controller,
   createCalendar,
   deleteCalendars,
   helpersForController,
@@ -16,7 +15,6 @@ var {
 } = ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
 
-var controller = mozmill.getMail3PaneController();
 var { eid, lookup, sleep } = helpersForController(controller);
 
 const TITLE = "Task";

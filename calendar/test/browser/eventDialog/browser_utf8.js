@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
 var {
   CANVAS_BOX,
   EVENT_BOX,
   closeAllEventDialogs,
+  controller,
   createCalendar,
   deleteCalendars,
   helpersForController,
@@ -19,7 +18,6 @@ var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEdit
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var controller = mozmill.getMail3PaneController();
 var { lookupEventBox } = helpersForController(controller);
 
 var UTF8STRING = " 💣 💥  ☣  ";

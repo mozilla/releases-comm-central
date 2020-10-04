@@ -9,13 +9,6 @@
 
 "use strict";
 
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
-
-var composeHelper = ChromeUtils.import(
-  "resource://testing-common/mozmill/ComposeHelpers.jsm"
-);
 var { open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"
 );
@@ -35,11 +28,9 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var { async_plan_for_new_window, wait_for_new_window } = ChromeUtils.import(
+var { async_plan_for_new_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
-
-var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 var folder = null;
 var gMsgNo = 0;
@@ -134,10 +125,7 @@ function addMsgToFolderAndCheckContent(loadAllowed) {
   mc.sleep(1000);
 
   // Now check that the content hasn't been loaded
-  if (
-    isPluginLoaded(mozmill.getMail3PaneController().window.content.document) !=
-    loadAllowed
-  ) {
+  if (isPluginLoaded(mc.window.content.document) != loadAllowed) {
     throw new Error(
       loadAllowed
         ? "Plugin has been unexpectedly blocked in message content"
@@ -185,14 +173,11 @@ add_task(function test_checkPluginsInNonMessageContent() {
   select_none();
 
   // load something non-message-like in the message pane
-  mozmill.getMail3PaneController().window.GetMessagePaneFrame().location.href =
-    url + "plugin.html";
+  mc.window.GetMessagePaneFrame().location.href = url + "plugin.html";
 
   wait_for_message_display_completion();
 
-  if (
-    isPluginLoaded(mozmill.getMail3PaneController().window.content.document)
-  ) {
+  if (isPluginLoaded(mc.window.content.document)) {
     throw new Error(
       "Plugin is turned on in content in message pane - it should not be."
     );
@@ -205,9 +190,7 @@ add_task(function test_3paneWindowDeniedAgain() {
   assert_selected_and_displayed(0);
 
   // Now check that the content hasn't been loaded
-  if (
-    isPluginLoaded(mozmill.getMail3PaneController().window.content.document)
-  ) {
+  if (isPluginLoaded(mc.window.content.document)) {
     throw new Error("Plugin has not been blocked in message as expected");
   }
 });

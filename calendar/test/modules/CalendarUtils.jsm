@@ -46,19 +46,22 @@ const EXPORTED_SYMBOLS = [
   "openLightningPrefs",
   "closeLightningPrefs",
   "menulistSelect",
+  "controller",
 ];
 
 var elementslib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
-var controller = ChromeUtils.import("resource://testing-common/mozmill/controller.jsm");
+var { MozMillController } = ChromeUtils.import("resource://testing-common/mozmill/controller.jsm");
 
 var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/PrefTabHelpers.jsm"
 );
-var { close_window, plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+var {
+  close_window,
+  plan_for_modal_dialog,
+  wait_for_existing_window,
+  wait_for_modal_dialog,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
@@ -125,12 +128,14 @@ var ALARM_ICON_PATH = `
     {"class":"alarm-icons-box"}/{"class":"reminder-icon"}
 `;
 
+var controller;
+
 function setupModule() {
   // For our tests, we assume that Sunday is start of week.
   Services.prefs.setIntPref("calendar.week.start", 0);
 
   // We are in calendarTests, so we make sure, calendar-tab with day-view is displayed.
-  let controller = mozmill.getMail3PaneController();
+  controller = wait_for_existing_window("mail:3pane");
   let { eid } = helpersForController(controller);
   controller.click(eid("calendar-tab-button"));
   switchToView(controller, "day");
@@ -358,7 +363,7 @@ async function invokeNewEventDialog(mWController, clickBox, callback) {
 async function invokeViewingEventDialog(mWController, clickBox, callback) {
   doubleClickOptionalEventBox(mWController, clickBox);
   let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
-  let eventController = new controller.MozMillController(eventWindow);
+  let eventController = new MozMillController(eventWindow);
   eventController.sleep(MID_SLEEP);
 
   await callback(eventController);
@@ -380,7 +385,7 @@ async function invokeViewingEventDialog(mWController, clickBox, callback) {
 async function invokeEditingEventDialog(mWController, clickBox, callback) {
   doubleClickOptionalEventBox(mWController, clickBox);
   let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
-  let eventController = new controller.MozMillController(eventWindow);
+  let eventController = new MozMillController(eventWindow);
   eventController.sleep(MID_SLEEP);
 
   let dialog = eventController.window.document.querySelector("dialog");
@@ -406,7 +411,7 @@ async function invokeEditingEventDialog(mWController, clickBox, callback) {
 async function invokeEditingRepeatEventDialog(mWController, clickBox, callback, editAll = false) {
   doubleClickOptionalEventBox(mWController, clickBox);
   let eventWindow = waitForEventDialogWindow(mWController, EVENT_SUMMARY_DIALOG_NAME);
-  let eventController = new controller.MozMillController(eventWindow);
+  let eventController = new MozMillController(eventWindow);
   eventController.sleep(MID_SLEEP);
 
   let target = editAll
@@ -429,7 +434,7 @@ function doubleClickOptionalEventBox(mWController, clickBox) {
 
 async function execEventDialogCallback(mWController, callback) {
   let eventWindow = waitForEventDialogWindow(mWController, EVENT_DIALOG_NAME);
-  let eventController = new controller.MozMillController(eventWindow);
+  let eventController = new MozMillController(eventWindow);
   let iframe = waitForItemPanelIframe(eventController);
 
   // We can't use a full mozmill controller on an iframe, but we need

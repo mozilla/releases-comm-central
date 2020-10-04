@@ -3,11 +3,10 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-const { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
+const { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
-const mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
 const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -15,7 +14,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
-const controller = mozmill.getMail3PaneController();
 const calendarId = createCalendar(controller, CALENDARNAME);
 const calendar = cal.async.promisifyCalendar(cal.getCalendarManager().getCalendarById(calendarId));
 

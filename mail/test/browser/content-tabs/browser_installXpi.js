@@ -10,9 +10,6 @@ var controller = ChromeUtils.import(
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
 
 var { content_tab_eid, open_content_tab_with_url } = ChromeUtils.import(
   "resource://testing-common/mozmill/ContentTabHelpers.jsm"

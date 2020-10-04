@@ -44,9 +44,6 @@ var {
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
 var { close_window } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
@@ -56,7 +53,6 @@ var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
 
-var controller = mozmill.getMail3PaneController();
 var kUploadedFile = "attachment-uploaded";
 var kHtmlPrefKey = "mail.identity.default.compose_html";
 var kReplyOnTopKey = "mail.identity.default.reply_on_top";

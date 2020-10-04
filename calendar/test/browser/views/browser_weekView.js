@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
 var {
   CALENDARNAME,
   CANVAS_BOX,
@@ -11,6 +9,7 @@ var {
   EVENT_BOX,
   WEEK_VIEW,
   closeAllEventDialogs,
+  controller,
   createCalendar,
   deleteCalendars,
   getEventDetails,
@@ -26,7 +25,6 @@ var { helpersForEditUI, setData } = ChromeUtils.import(
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 
-var controller = mozmill.getMail3PaneController();
 var { lookup, lookupEventBox } = helpersForController(controller);
 
 var TITLE1 = "Week View Event";

@@ -4,9 +4,6 @@
 
 "use strict";
 
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
 var controller = ChromeUtils.import(
   "resource://testing-common/mozmill/controller.jsm"
 );

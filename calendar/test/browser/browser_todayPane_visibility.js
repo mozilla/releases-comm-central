@@ -7,12 +7,9 @@
    openTasksTab, selectCalendarEventTab, selectCalendarTaskTab,
    selectFolderTab */
 
-var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
+var { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
-
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-var controller = mozmill.getMail3PaneController();
 
 // Test that today pane is visible/collapsed correctly for various tab types.
 // In all cases today pane should not be visible in preferences or addons tab.

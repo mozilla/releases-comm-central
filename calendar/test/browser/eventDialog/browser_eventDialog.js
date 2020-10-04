@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
 var {
   CALENDARNAME,
   CANVAS_BOX,
@@ -12,6 +10,7 @@ var {
   TIMEOUT_MODAL_DIALOG,
   checkAlarmIcon,
   closeAllEventDialogs,
+  controller,
   createCalendar,
   deleteCalendars,
   goToDate,
@@ -35,7 +34,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalEvent: "resource:///modules/CalEvent.jsm",
 });
 
-var controller = mozmill.getMail3PaneController();
 var { eid, lookup, lookupEventBox } = helpersForController(controller);
 
 const EVENTTITLE = "Event";

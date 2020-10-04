@@ -22,9 +22,6 @@
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
 var {
   close_compose_window,
   open_compose_with_forward,

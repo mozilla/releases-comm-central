@@ -842,8 +842,6 @@ function _wait_for_generic_load(aDetails, aURLOrPredicate) {
   // Lie to mozmill to convince it to not explode because these frames never
   // get a mozmillDocumentLoaded attribute (bug 666438).
   let contentWindow = aDetails.contentWindow;
-  let windowId = contentWindow.windowUtils.outerWindowID;
-  controller.windowMap.update(windowId, "loaded", true);
   let cwc = new controller.MozMillController(contentWindow);
   return augment_controller(cwc);
 }

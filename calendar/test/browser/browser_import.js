@@ -7,15 +7,12 @@
 
 /* globals loadEventsFromFile */
 
-var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
+var { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
 
 const { MockFilePicker } = ChromeUtils.import("resource://specialpowers/MockFilePicker.jsm");
 const ChromeRegistry = Cc["@mozilla.org/chrome/chrome-registry;1"].getService(Ci.nsIChromeRegistry);
-
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-var controller = mozmill.getMail3PaneController();
 
 add_task(async () => {
   let chromeUrl = Services.io.newURI(getRootDirectory(gTestPath) + "data/import.ics");

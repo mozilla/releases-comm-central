@@ -23,7 +23,6 @@ TESTING_JS_MODULES.mozmill += [
     'KeyboardHelpers.jsm',
     'MockObjectHelpers.jsm',
     'MouseEventHelpers.jsm',
-    'mozmill.jsm',
     'NewMailAccountHelpers.jsm',
     'NNTPHelpers.jsm',
     'NotificationBoxHelpers.jsm',

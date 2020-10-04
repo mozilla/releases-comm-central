@@ -38,7 +38,7 @@
 //
 // ***** END LICENSE BLOCK *****
 
-var EXPORTED_SYMBOLS = ["MozMillController", "sleep", "windowMap"];
+var EXPORTED_SYMBOLS = ["MozMillController", "sleep"];
 
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
@@ -52,41 +52,6 @@ var elementslib = ChromeUtils.import(
 var frame = ChromeUtils.import("resource://testing-common/mozmill/frame.jsm");
 frame.log = function(obj) {
   frame.events.fireEvent("log", obj);
-};
-
-// The window map which is used to store information e.g. loaded state of each
-// open chrome and content window.
-var windowMap = {
-  _windows: {},
-
-  contains(aWindowId) {
-    return aWindowId in this._windows;
-  },
-
-  getValue(aWindowId, aProperty) {
-    if (!this.contains(aWindowId)) {
-      return undefined;
-    }
-
-    var win = this._windows[aWindowId];
-    return aProperty in win ? win[aProperty] : undefined;
-  },
-
-  remove(aWindowId) {
-    if (this.contains(aWindowId)) {
-      delete this._windows[aWindowId];
-    }
-    // dump("* current map: " + JSON.stringify(this._windows) + "\n");
-  },
-
-  update(aWindowId, aProperty, aValue) {
-    if (!this.contains(aWindowId)) {
-      this._windows[aWindowId] = {};
-    }
-
-    this._windows[aWindowId][aProperty] = aValue;
-    // dump("* current map: " + JSON.stringify(this._windows) + "\n");
-  },
 };
 
 // Declare most used utils functions in the controller namespace
@@ -343,10 +308,6 @@ var MenuTree = function(aWindow, aMenu) {
 var MozMillController = function(window) {
   this.window = window;
 
-  this.mozmillModule = ChromeUtils.import(
-    "resource://testing-common/mozmill/mozmill.jsm"
-  );
-
   utils.waitFor(
     function() {
       return window != null && this.isLoaded();
@@ -428,22 +389,6 @@ MozMillController.prototype.type = function(aTarget, aText, aExpectedEvent) {
 
   frame.events.pass({ function: "Controller.type()" });
   return true;
-};
-
-// Open the specified url in the current tab
-MozMillController.prototype.open = function(url) {
-  switch (this.mozmillModule.Application) {
-    case "Firefox":
-      this.window.gBrowser.loadURI(url);
-      break;
-    case "SeaMonkey":
-      this.window.getBrowser().loadURI(url);
-      break;
-    default:
-      throw new Error("MozMillController.open not supported.");
-  }
-
-  frame.events.pass({ function: "Controller.open()" });
 };
 
 /**
@@ -760,8 +705,9 @@ MozMillController.prototype.radio = function(el) {
 MozMillController.prototype.isLoaded = function(window) {
   var win = window || this.window;
 
-  var id = utils.getWindowId(win);
-  return windowMap.contains(id) && windowMap.getValue(id, "loaded");
+  return (
+    win.document.readyState == "complete" && win.location.href != "about:blank"
+  );
 };
 
 MozMillController.prototype.waitFor = function(

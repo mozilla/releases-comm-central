@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
 var {
   ALLDAY,
   CALENDARNAME,
   CANVAS_BOX,
   EVENTPATH,
   closeAllEventDialogs,
+  controller,
   createCalendar,
   deleteCalendars,
   goToDate,
@@ -22,7 +21,6 @@ var {
 
 var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEditingHelpers.jsm");
 
-var controller = mozmill.getMail3PaneController();
 var { getEventBoxPath, lookup, lookupEventBox } = helpersForController(controller);
 
 const STARTYEAR = 1950;

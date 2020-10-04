@@ -11,10 +11,6 @@
 
 "use strict";
 
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
-
 var {
   assert_nothing_selected,
   assert_selected_and_displayed,

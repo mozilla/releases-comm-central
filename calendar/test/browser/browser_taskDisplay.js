@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var { CALENDARNAME, createCalendar, deleteCalendars } = ChromeUtils.import(
+var { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
@@ -11,10 +11,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
   CalTodo: "resource:///modules/CalTodo.jsm",
 });
-
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
-var controller = mozmill.getMail3PaneController();
 
 var calendarId = createCalendar(controller, CALENDARNAME);
 var calendar = cal.async.promisifyCalendar(cal.getCalendarManager().getCalendarById(calendarId));

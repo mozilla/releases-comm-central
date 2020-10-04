@@ -27,9 +27,6 @@ var {
 var { mc } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
 var {
   assert_notification_displayed,
   close_notification,
@@ -43,11 +40,7 @@ var { gMockPromptService } = ChromeUtils.import(
 );
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-var { cloudFileAccounts } = ChromeUtils.import(
-  "resource:///modules/cloudFileAccounts.jsm"
-);
 
-var controller = mozmill.getMail3PaneController();
 var maxSize, oldInsertNotificationPref;
 
 var kOfferThreshold = "mail.compose.big_attachments.threshold_kb";

@@ -4,13 +4,12 @@
 
 requestLongerTimeout(3);
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
 var {
   CALENDARNAME,
   CANVAS_BOX,
   createCalendar,
   DAY_VIEW,
+  controller,
   deleteCalendars,
   helpersForController,
   invokeNewEventDialog,
@@ -24,7 +23,6 @@ var { setData } = ChromeUtils.import("resource://testing-common/mozmill/ItemEdit
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var controller = mozmill.getMail3PaneController();
 var { eid, lookupEventBox } = helpersForController(controller);
 
 var DATES = [

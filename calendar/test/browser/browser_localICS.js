@@ -4,12 +4,11 @@
 
 /* globals createCalendarUsingDialog */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
 var {
   CANVAS_BOX,
   EVENT_BOX,
   TIMEOUT_MODAL_DIALOG,
+  controller,
   deleteCalendars,
   helpersForController,
   invokeNewEventDialog,
@@ -21,7 +20,6 @@ var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
-var controller = mozmill.getMail3PaneController();
 var { lookupEventBox } = helpersForController(controller);
 
 const HOUR = 8;

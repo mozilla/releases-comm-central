@@ -15,9 +15,6 @@ var controller = ChromeUtils.import(
 var EventUtils = ChromeUtils.import(
   "resource://testing-common/mozmill/EventUtils.jsm"
 );
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
 var {

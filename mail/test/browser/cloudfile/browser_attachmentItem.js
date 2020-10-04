@@ -8,10 +8,6 @@
 
 "use strict";
 
-var mozmill = ChromeUtils.import(
-  "resource://testing-common/mozmill/mozmill.jsm"
-);
-
 var {
   gMockFilePicker,
   gMockFilePickReg,

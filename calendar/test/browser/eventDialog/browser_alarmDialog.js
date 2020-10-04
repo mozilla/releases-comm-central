@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var mozmill = ChromeUtils.import("resource://testing-common/mozmill/mozmill.jsm");
-
 var {
   ALLDAY,
   CALENDARNAME,
   EVENTPATH,
   TIMEOUT_MODAL_DIALOG,
   closeAllEventDialogs,
+  controller,
   createCalendar,
   deleteCalendars,
   goToDate,
@@ -24,7 +23,6 @@ var { plan_for_modal_dialog, wait_for_modal_dialog } = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
-var controller = mozmill.getMail3PaneController();
 var { lookupEventBox } = helpersForController(controller);
 
 add_task(async function testAlarmDialog() {
