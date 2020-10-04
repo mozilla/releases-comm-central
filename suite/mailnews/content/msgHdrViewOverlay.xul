@@ -12,6 +12,7 @@
 
 <?xml-stylesheet href="chrome://messenger/skin/messageHeader.css" type="text/css"?>
 <?xml-stylesheet href="chrome://messenger/skin/messageKeywords.css" type="text/css"?>
+<?xml-stylesheet href="chrome://messenger/skin/smime/msgHdrViewSMIMEOverlay.css" type="text/css"?>
 
 <overlay xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -22,6 +23,8 @@
 <!-- drag and drop -->
 <script type="application/javascript"
         src="chrome://global/content/nsDragAndDrop.js"/>
+<script type="application/javascript"
+        src="chrome://messenger-smime/content/msgHdrViewSMIMEOverlay.js"/>
 
 <stringbundleset id="stringbundleset">
   <stringbundle id="bundle_messenger" src="chrome://messenger/locale/messenger.properties"/>
@@ -216,6 +219,17 @@
     <mail-headerfield id="expandeduser-agentBox"
                       label="&userAgentField.label;"
                       collapsed="true"/>
+  </vbox>
+
+  <vbox id="smimeBox" collapsed="true">
+    <spacer flex="1"/>
+    <image id="signedHdrIcon"
+           onclick="showMessageReadSecurityInfo();"
+           collapsed="true"/>
+    <image id="encryptedHdrIcon"
+           onclick="showMessageReadSecurityInfo();"
+           collapsed="true"/>
+    <spacer flex="1"/>
   </vbox>
 
   <vbox id="expandedKeywordBox">
