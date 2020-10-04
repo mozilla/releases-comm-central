@@ -10,12 +10,18 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailSqliteDb", "PgpSqliteDb2"];
 
-const { Sqlite } = ChromeUtils.import("resource://gre/modules/Sqlite.jsm");
+ChromeUtils.defineModuleGetter(
+  this,
+  "Sqlite",
+  "resource://gre/modules/Sqlite.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "EnigmailLog",
+  "chrome://openpgp/content/modules/log.jsm"
+);
 const { EnigmailTimer } = ChromeUtils.import(
   "chrome://openpgp/content/modules/timer.jsm"
-);
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
 );
 
 var PgpSqliteDb2 = {

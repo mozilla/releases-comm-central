@@ -8,17 +8,17 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailStreams"];
 
-const { EnigmailCompat } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/compat.jsm"
+const { XPCOMUtils } = ChromeUtils.import(
+  "resource://gre/modules/XPCOMUtils.jsm"
 );
-const { EnigmailLog } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/log.jsm"
-);
-const { EnigmailTimer } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/timer.jsm"
-);
-const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
-const { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
+
+XPCOMUtils.defineLazyModuleGetters(this, {
+  EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
+  EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
+  EnigmailTimer: "chrome://openpgp/content/modules/timer.jsm",
+  Services: "resource://gre/modules/Services.jsm",
+  NetUtil: "resource://gre/modules/NetUtil.jsm",
+});
 
 const NS_STRING_INPUT_STREAM_CONTRACTID =
   "@mozilla.org/io/string-input-stream;1";
