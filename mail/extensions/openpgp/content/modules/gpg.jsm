@@ -13,7 +13,7 @@ const { XPCOMUtils } = ChromeUtils.import(
 );
 
 XPCOMUtils.defineLazyModuleGetters(this, {
-  EnigmailVersioning: "chrome://openpgp/content/modules/versioning.jsm",
+  Services: "resource://gre/modules/Services.jsm",
 });
 
 XPCOMUtils.defineLazyGetter(this, "l10n", () => {
@@ -84,45 +84,42 @@ var EnigmailGpg = {
 
     switch (featureName) {
       case "version-supported":
-        return EnigmailVersioning.greaterThanOrEqual(
-          gpgVersion,
-          MINIMUM_GPG_VERSION
-        );
+        return Services.vc.compare(gpgVersion, MINIMUM_GPG_VERSION) >= 0;
       case "supports-gpg-agent":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.16");
+        return Services.vc.compare(gpgVersion, "2.0.16") >= 0;
       case "keygen-passphrase":
         return (
-          EnigmailVersioning.lessThan(gpgVersion, "2.1") ||
-          EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.2")
+          Services.vc.compare(gpgVersion, "2.1") < 0 ||
+          Services.vc.compare(gpgVersion, "2.1.2") >= 0
         );
       case "genkey-no-protection":
-        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
+        return Services.vc.compare(gpgVersion, "2.1") > 0;
       case "windows-photoid-bug":
-        return EnigmailVersioning.lessThan(gpgVersion, "2.0.16");
+        return Services.vc.compare(gpgVersion, "2.0.16") < 0;
       case "supports-ecc-keys":
-        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
+        return Services.vc.compare(gpgVersion, "2.1") > 0;
       case "socks-on-windows":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.20");
+        return Services.vc.compare(gpgVersion, "2.0.20") >= 0;
       case "search-keys-cmd":
         // returns a string
-        if (EnigmailVersioning.greaterThan(gpgVersion, "2.1")) {
+        if (Services.vc.compare(gpgVersion, "2.1") > 0) {
           return "save";
         }
         return "quit";
       case "supports-sender":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.15");
+        return Services.vc.compare(gpgVersion, "2.1.15") >= 0;
       case "export-result":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.10");
+        return Services.vc.compare(gpgVersion, "2.1.10") >= 0;
       case "decryption-info":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.19");
+        return Services.vc.compare(gpgVersion, "2.0.19") >= 0;
       case "supports-wkd":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.19");
+        return Services.vc.compare(gpgVersion, "2.1.19") >= 0;
       case "export-specific-uid":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.2.9");
+        return Services.vc.compare(gpgVersion, "2.2.9") >= 0;
       case "supports-show-only":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.14");
+        return Services.vc.compare(gpgVersion, "2.1.14") >= 0;
       case "handles-huge-keys":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.2.17");
+        return Services.vc.compare(gpgVersion, "2.2.17") >= 0;
     }
 
     return undefined;

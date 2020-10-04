@@ -24,7 +24,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
-  GlodaUtils: "chrome://openpgp/content/modules/glodaUtils.jsm",
+  GlodaUtils: "resource:///modules/gloda/GlodaUtils.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   setTimeout: "resource://gre/modules/Timer.jsm",
 });
