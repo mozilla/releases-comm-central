@@ -37,8 +37,8 @@ loader.lazyRequireGetter(
 );
 loader.lazyRequireGetter(
   this,
-  "WorkerTargetActorList",
-  "devtools/server/actors/worker/worker-target-actor-list",
+  "WorkerDescriptorActorList",
+  "devtools/server/actors/worker/worker-descriptor-actor-list",
   true
 );
 loader.lazyRequireGetter(
@@ -64,7 +64,7 @@ exports.createRootActor = function(aConnection) {
   let parameters = {
     tabList: new TBTabList(aConnection),
     addonList: new BrowserAddonList(aConnection),
-    workerList: new WorkerTargetActorList(aConnection, {}),
+    workerList: new WorkerDescriptorActorList(aConnection, {}),
     serviceWorkerRegistrationList: new ServiceWorkerRegistrationActorList(
       aConnection
     ),
