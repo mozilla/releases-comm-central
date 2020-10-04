@@ -15,9 +15,6 @@ const { EnigmailLog } = ChromeUtils.import(
 const { EnigmailPrefs } = ChromeUtils.import(
   "chrome://openpgp/content/modules/prefs.jsm"
 );
-const { EnigmailTimer } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/timer.jsm"
-);
 const { EnigmailApp } = ChromeUtils.import(
   "chrome://openpgp/content/modules/app.jsm"
 );

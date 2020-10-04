@@ -26,10 +26,10 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailStreams: "chrome://openpgp/content/modules/streams.jsm",
-  EnigmailTimer: "chrome://openpgp/content/modules/timer.jsm",
   EnigmailWks: "chrome://openpgp/content/modules/webKey.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
 const { EnigmailConstants } = ChromeUtils.import(
@@ -314,7 +314,7 @@ var EnigmailAutoSetup = {
     EnigmailLog.DEBUG("autoSetup.jsm: createKeyForAllAccounts()\n");
     let self = this;
 
-    EnigmailTimer.setTimeout(async function() {
+    setTimeout(async function() {
       let createdKeys = [];
 
       for (let account of MailServices.accounts.accounts) {

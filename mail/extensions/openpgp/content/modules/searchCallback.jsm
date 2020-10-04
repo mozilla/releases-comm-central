@@ -8,8 +8,15 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailSearchCallback"];
 
-const { EnigmailTimer } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/timer.jsm"
+ChromeUtils.defineModuleGetter(
+  this,
+  "setTimeout",
+  "resource://gre/modules/Timer.jsm"
+);
+ChromeUtils.defineModuleGetter(
+  this,
+  "clearTimeout",
+  "resource://gre/modules/Timer.jsm"
 );
 
 var EnigmailSearchCallback = {
@@ -25,7 +32,7 @@ var EnigmailSearchCallback = {
   setup(targetObj, timeoutObj, actionCallback, timeoutMs = 200) {
     function applyActionImmediately() {
       if (timeoutObj.value) {
-        EnigmailTimer.clearTimeout(timeoutObj.value);
+        clearTimeout(timeoutObj.value);
         timeoutObj.value = null;
       }
       applyAction();
@@ -59,7 +66,7 @@ var EnigmailSearchCallback = {
         }
 
         if (!timeoutObj.value) {
-          timeoutObj.value = EnigmailTimer.setTimeout(function() {
+          timeoutObj.value = setTimeout(function() {
             timeoutObj.value = null;
             applyAction();
           }, timeoutMs);

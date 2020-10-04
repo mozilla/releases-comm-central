@@ -57,9 +57,6 @@ var { EnigmailApp } = ChromeUtils.import(
 var EnigmailDialog = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 ).EnigmailDialog;
-var EnigmailTimer = ChromeUtils.import(
-  "chrome://openpgp/content/modules/timer.jsm"
-).EnigmailTimer;
 var EnigmailWindows = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
 ).EnigmailWindows;
@@ -3267,7 +3264,7 @@ Enigmail.composeStateListener = {
     Enigmail.msg.fixMessageSubject();
 
     if (!Enigmail.msg.timeoutId && !Enigmail.msg.dirty) {
-      Enigmail.msg.timeoutId = EnigmailTimer.setTimeout(function() {
+      Enigmail.msg.timeoutId = setTimeout(function() {
         Enigmail.msg.decryptQuote(false);
       }, 0);
     }

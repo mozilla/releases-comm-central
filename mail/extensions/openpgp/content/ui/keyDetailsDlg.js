@@ -10,7 +10,7 @@
 /* global GetEnigmailSvc: false, EnigAlert: false, EnigConvertGpgToUnicode: false */
 /* global EnigCleanGuiList: false, EnigGetTrustLabel: false, EnigShowPhoto: false, EnigSignKey: false */
 /* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false */
-/* global EnigCreateRevokeCert: false, EnigmailTimer: false, EnigmailCryptoAPI: false */
+/* global EnigCreateRevokeCert: false, EnigmailCryptoAPI: false */
 /* global PgpSqliteDb2: false, l10n: false, EnigmailDialog: false */
 
 // from enigmailKeyManager.js:

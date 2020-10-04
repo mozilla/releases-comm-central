@@ -66,9 +66,6 @@ var { EnigmailApp } = ChromeUtils.import(
 var EnigmailDialog = ChromeUtils.import(
   "chrome://openpgp/content/modules/dialog.jsm"
 ).EnigmailDialog;
-var EnigmailTimer = ChromeUtils.import(
-  "chrome://openpgp/content/modules/timer.jsm"
-).EnigmailTimer;
 var EnigmailWindows = ChromeUtils.import(
   "chrome://openpgp/content/modules/windows.jsm"
 ).EnigmailWindows;
@@ -245,7 +242,7 @@ Enigmail.msg = {
       "button-enigmail-decrypt"
     );
 
-    EnigmailTimer.setTimeout(function() {
+    setTimeout(function() {
       // if nothing happened, then load all keys after 1 hour
       // to trigger the key check
       EnigmailKeyRing.getAllKeys();
@@ -1919,7 +1916,7 @@ Enigmail.msg = {
         let index = gFolderDisplay.view.dbView.findIndexFromKey(msgKey, true);
         EnigmailLog.DEBUG("  ** index = " + index + "\n");
 
-        EnigmailTimer.setTimeout(function() {
+        setTimeout(function() {
           gFolderDisplay.view.dbView.selectMsgByKey(msgKey);
         }, 750);
       }

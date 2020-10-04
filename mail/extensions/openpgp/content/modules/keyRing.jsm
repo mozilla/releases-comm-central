@@ -1673,7 +1673,7 @@ function createAndSortKeyList(
 function runKeyUsabilityCheck() {
   EnigmailLog.DEBUG("keyRing.jsm: runKeyUsabilityCheck()\n");
 
-  EnigmailTimer.setTimeout(function() {
+  setTimeout(function() {
     try {
       let msg = getKeyUsability().keyExpiryCheck();
 

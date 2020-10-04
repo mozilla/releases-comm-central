@@ -20,8 +20,10 @@ ChromeUtils.defineModuleGetter(
   "EnigmailLog",
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailTimer } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/timer.jsm"
+ChromeUtils.defineModuleGetter(
+  this,
+  "setTimeout",
+  "resource://gre/modules/Timer.jsm"
 );
 
 var PgpSqliteDb2 = {
@@ -351,7 +353,7 @@ function openDatabaseConn(filename, resolve, reject, waitms, maxtime) {
         reject(error);
         return;
       }
-      EnigmailTimer.setTimeout(function() {
+      setTimeout(function() {
         openDatabaseConn(filename, resolve, reject, waitms, maxtime);
       }, waitms);
     });

@@ -56,9 +56,6 @@ var EnigmailWindows = ChromeUtils.import(
 var EnigmailTime = ChromeUtils.import(
   "chrome://openpgp/content/modules/time.jsm"
 ).EnigmailTime;
-var EnigmailTimer = ChromeUtils.import(
-  "chrome://openpgp/content/modules/timer.jsm"
-).EnigmailTimer;
 var EnigmailKeyRing = ChromeUtils.import(
   "chrome://openpgp/content/modules/keyRing.jsm"
 ).EnigmailKeyRing;

@@ -24,9 +24,9 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
   EnigmailMime: "chrome://openpgp/content/modules/mime.jsm",
   EnigmailStdlib: "chrome://openpgp/content/modules/stdlib.jsm",
-  EnigmailTimer: "chrome://openpgp/content/modules/timer.jsm",
   GlodaUtils: "chrome://openpgp/content/modules/glodaUtils.jsm",
   jsmime: "resource:///modules/jsmime.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
 });
 
 const { EnigmailLazy } = ChromeUtils.import(
@@ -1183,5 +1183,5 @@ function deleteOriginalMail(msgHdr) {
     }
   };
 
-  EnigmailTimer.setTimeout(delMsg, 500);
+  setTimeout(delMsg, 500);
 }

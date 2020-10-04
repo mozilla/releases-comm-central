@@ -15,8 +15,8 @@ const { XPCOMUtils } = ChromeUtils.import(
 XPCOMUtils.defineLazyModuleGetters(this, {
   EnigmailCompat: "chrome://openpgp/content/modules/compat.jsm",
   EnigmailLog: "chrome://openpgp/content/modules/log.jsm",
-  EnigmailTimer: "chrome://openpgp/content/modules/timer.jsm",
   Services: "resource://gre/modules/Services.jsm",
+  setTimeout: "resource://gre/modules/Timer.jsm",
   NetUtil: "resource://gre/modules/NetUtil.jsm",
 });
 
@@ -74,9 +74,9 @@ var EnigmailStreams = {
         var cbFunc = this._onStopCallback;
         var cbData = this.data;
 
-        EnigmailTimer.setTimeout(function() {
+        setTimeout(function() {
           cbFunc(cbData);
-        });
+        }, 0);
       },
     };
 

@@ -11,9 +11,7 @@ var EXPORTED_SYMBOLS = ["EnigmailEvents"];
 const { EnigmailLog } = ChromeUtils.import(
   "chrome://openpgp/content/modules/log.jsm"
 );
-const { EnigmailTimer } = ChromeUtils.import(
-  "chrome://openpgp/content/modules/timer.jsm"
-);
+const { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 
 /**** DEPRECATED - use EnigmailTimer instead *****/
 
@@ -31,7 +29,7 @@ var EnigmailEvents = {
       "enigmailCommon.jsm: dispatchEvent f=" + callbackFunction.name + "\n"
     );
 
-    return EnigmailTimer.setTimeout(() => {
+    return setTimeout(() => {
       callbackFunction(arrayOfArgs);
     }, sleepTimeMs);
   },
