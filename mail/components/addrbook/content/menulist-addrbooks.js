@@ -44,6 +44,11 @@ if (!customElements.get("menulist")) {
         ]),
 
         observe: (subject, topic, data) => {
+          if (topic == "addrbook-reloaded") {
+            this._rebuild();
+            return;
+          }
+
           subject.QueryInterface(Ci.nsIAbDirectory);
 
           switch (topic) {
@@ -101,6 +106,7 @@ if (!customElements.get("menulist")) {
         "addrbook-directory-created",
         "addrbook-directory-updated",
         "addrbook-directory-deleted",
+        "addrbook-reloaded",
       ]) {
         Services.obs.addObserver(this.addressBookListener, topic, true);
       }

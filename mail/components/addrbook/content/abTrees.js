@@ -193,6 +193,7 @@ directoryTreeView.prototype = {
     "addrbook-list-created",
     "addrbook-list-updated",
     "addrbook-list-deleted",
+    "addrbook-reloaded",
   ],
 
   init(aTree, aJSONFile) {
@@ -362,6 +363,11 @@ directoryTreeView.prototype = {
   },
 
   observe(subject, topic, data) {
+    if (topic == "addrbook-reloaded") {
+      this._rebuild();
+      selectStartupViewDirectory();
+      return;
+    }
     if (!this._tree) {
       return;
     }

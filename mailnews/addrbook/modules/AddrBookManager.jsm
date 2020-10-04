@@ -158,6 +158,7 @@ function ensureInitialized() {
 Services.obs.addObserver(() => {
   // Clear the store. The next call to ensureInitialized will recreate it.
   store = null;
+  Services.obs.notifyObservers(null, "addrbook-reloaded");
 }, "addrbook-reload");
 
 /**
