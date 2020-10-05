@@ -232,7 +232,9 @@ var MsgUtils = {
    * @returns {string}
    */
   getUndisclosedRecipients(compFields, deliverMode) {
-    let hasDisclosedRecipient = compFields.to || compFields.cc;
+    // Newsgroups count as recipients.
+    let hasDisclosedRecipient =
+      compFields.to || compFields.cc || compFields.newsgroups;
     // If we are saving the message as a draft, don't bother inserting the
     // undisclosed recipients field. We'll take care of that when we really send
     // the message.

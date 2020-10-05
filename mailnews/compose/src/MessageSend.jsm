@@ -16,6 +16,9 @@ var { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
 
+// nsMsgKey_None from MailNewsTypes.h.
+const nsMsgKey_None = 0xffffffff;
+
 /**
  * A work in progress rewriting of nsMsgSend.cpp.
  * Set `user_pref("mailnews.send.jsmodule", true);` to use this module.
@@ -49,6 +52,7 @@ MessageSend.prototype = {
     compType
   ) {
     this._userIdentity = userIdentity;
+    this._accountKey = accountKey;
     this._compFields = compFields;
     this._deliverMode = deliverMode;
     this._msgToReplace = msgToReplace;
@@ -101,8 +105,7 @@ MessageSend.prototype = {
       embeddedAttachments
     );
 
-    // nsMsgKey_None from MailNewsTypes.h.
-    this._messageKey = 0xffffffff;
+    this._messageKey = nsMsgKey_None;
     this._createAndSendMessage();
   },
 
@@ -120,6 +123,7 @@ MessageSend.prototype = {
     smtpPassword
   ) {
     this._userIdentity = userIdentity;
+    this._accountKey = accountKey;
     this._compFields = compFields;
     this._deliverMode = deliverMode;
     this._msgToReplace = msgToReplace;
@@ -333,6 +337,7 @@ MessageSend.prototype = {
         }
       }
     }
+
     return this._doFcc2();
   },
 
@@ -364,6 +369,25 @@ MessageSend.prototype = {
         `OnTransportSecurityError failed with 0x${e.result.toString(16)}\n${
           e.stack
         }`
+      );
+    }
+  },
+
+  /**
+   * Called by nsIMsgFilterService.
+   */
+  onStopOperation(status) {
+    if (Components.isSuccessCode(status)) {
+      this._setStatusMessage(
+        this._composeBundle.GetStringFromName("filterMessageComplete")
+      );
+    } else {
+      this._setStatusMessage(
+        this._composeBundle.GetStringFromName("filterMessageFailed")
+      );
+      this.getDefaultPrompt().alert(
+        null,
+        this._composeBundle.GetStringFromName("errorFilteringMsg")
       );
     }
   },
@@ -416,6 +440,13 @@ MessageSend.prototype = {
           newExitCode
         )
       );
+    }
+    if (
+      isNewsDelivery &&
+      (this._compFields.to || this._compFields.cc || this._compFields.bcc)
+    ) {
+      this._deliverFileAsMail();
+      return;
     }
     this.notifyListenerOnStopSending(null, newExitCode, null, null);
     if (Components.isSuccessCode(newExitCode)) {
@@ -483,7 +514,11 @@ MessageSend.prototype = {
       await this._doFcc();
       return;
     }
-    this._deliverFileAsMail(file);
+    if (this._compFields.newsgroups) {
+      this._deliverFileAsNews();
+      return;
+    }
+    this._deliverFileAsMail();
   },
 
   /**
@@ -617,6 +652,16 @@ MessageSend.prototype = {
    * Handle the fcc2 field. Then notify OnStopCopy and clean up.
    */
   _doFcc2() {
+    if (
+      !this._fcc2Handled &&
+      this._messageKey != nsMsgKey_None &&
+      [Ci.nsIMsgSend.nsMsgDeliverNow, Ci.nsIMsgSend.nsMsgSendUnsent].includes(
+        this._deliverMode
+      )
+    ) {
+      this._filterSentMessage();
+    }
+
     // Handle fcc2 only once.
     if (!this._fcc2Handled && this._compFields.fcc2) {
       this._fcc2Handled = true;
@@ -639,6 +684,23 @@ MessageSend.prototype = {
     this._cleanup();
   },
 
+  /**
+   * Run filters on the just sent message.
+   */
+  _filterSentMessage() {
+    this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_Filter;
+    let folder = MailUtils.getExistingFolder(this._folderUri);
+    let msgHdr = folder.GetMessageHeader(this._messageKey);
+    let msgWindow = this._sendProgress?.msgWindow;
+    return MailServices.filters.applyFilters(
+      Ci.nsMsgFilterType.PostOutgoing,
+      [msgHdr],
+      folder,
+      msgWindow,
+      this
+    );
+  },
+
   _cleanup() {
     if (this._copyFile && this._copyFile != this._messageFile) {
       OS.File.remove(this._copyFile.path);
@@ -651,10 +713,10 @@ MessageSend.prototype = {
   },
 
   /**
-   * Send a message file to smtp service.
-   * @param {nsIFile} file - The message file to send.
+   * Send this._messageFile to smtp service.
    */
-  _deliverFileAsMail(file) {
+  _deliverFileAsMail() {
+    this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_SMTP;
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("sendingMessage")
     );
@@ -678,7 +740,7 @@ MessageSend.prototype = {
     let deliveryListener = new MsgDeliveryListener(this, false);
     this._smtpRequest = {};
     MailServices.smtp.sendMailMessage(
-      file,
+      this._messageFile,
       encodedRecipients,
       this._userIdentity,
       this._compFields.from,
@@ -689,6 +751,25 @@ MessageSend.prototype = {
       this._compFields.DSN,
       {},
       this._smtpRequest
+    );
+  },
+
+  /**
+   * Send this._messageFile to nntp service.
+   */
+  _deliverFileAsNews() {
+    this.sendReport.currentProcess = Ci.nsIMsgSendReport.process_NNTP;
+    let deliveryListener = new MsgDeliveryListener(this, true);
+    let msgWindow =
+      this._sendProgress?.msgWindow ||
+      MailServices.mailSession.topmostMsgWindow;
+    MailServices.nntp.postMessage(
+      this._messageFile,
+      this._compFields.newsgroups,
+      this._accountKey,
+      deliveryListener,
+      msgWindow,
+      null
     );
   },
 
