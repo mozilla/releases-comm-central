@@ -6,8 +6,8 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 #chatTabPanel {
-  --imbox-selected-text-color: -moz-FieldText;
-  --imbox-selected-background-color: -moz-Field;
+  --imbox-selected-text-color: FieldText;
+  --imbox-selected-background-color: Field;
   --imgroup-selected-background-color: ThreeDLightShadow;
 }
 
@@ -17,8 +17,8 @@
 }
 
 .im-placeholder-screen {
-  color: -moz-FieldText;
-  background-color: -moz-Field;
+  color: FieldText;
+  background-color: Field;
   overflow: auto;
   font-size: 15px;
   font-weight: normal;
@@ -77,10 +77,10 @@
   /* override forms.css */
   font: inherit;
   min-height: 30px;
-  color: -moz-FieldText;
-  border: 1px solid -moz-FieldText;
+  color: FieldText;
+  border: 1px solid FieldText;
   border-radius: 2px;
-  background-color: -moz-Field;
+  background-color: Field;
 }
 
 .im-placeholder-button-box> button:hover {
@@ -685,7 +685,7 @@ toolbar[mode="text"] #statusTypeIcon > .toolbarbutton-icon {
   padding-inline-start: 4px;
   padding-inline-end: 4px;
   border-color: ThreeDShadow;
-  background-color: -moz-field;
+  background-color: Field;
 }
 
 #chat-status-selector:-moz-lwtheme > vbox > .statusMessageToolbarItem[editing] {

@@ -93,12 +93,12 @@
 
 :root[systemcolors] {
     --viewColor: WindowText;
-    --viewBackground: -moz-Field;
+    --viewBackground: Field;
     --viewBorderColor: ThreeDShadow;
     --viewHighlightBorderColor: Highlight;
     --viewTodayColor: inherit;
     --viewTodayBorderColor: Highlight;
-    --viewTodayBackground: -moz-Field;
+    --viewTodayBackground: Field;
     --viewTodayLabelColor: Highlight;
     --viewTodayLabelBackground: rgba(0, 0, 0, .2);
     --viewTodayLabelSelectedColor: HighlightText;
@@ -108,10 +108,10 @@
     --viewTodayWeekendBackground: ButtonFace;
     --viewWeekendBackground: rgba(0, 0, 0, .1);
     --viewHeaderSelectedBackground: ButtonFace;
-    --viewDayBoxSelectedBackground: -moz-Field;
+    --viewDayBoxSelectedBackground: Field;
     --viewDayBoxOffSelectedBackground: rgba(0, 0, 0, .2);
     --viewDayBoxOtherSelectedBackground: rgba(0, 0, 0, .2);
-    --viewMonthCurrentBackground: -moz-Field;
+    --viewMonthCurrentBackground: Field;
     --viewMonthOtherBackground: ButtonFace;
     --viewMonthDayBoxSelectedColor: HighlightText;
     --viewMonthDayBoxSelectedBackground: Highlight;
@@ -1006,7 +1006,7 @@ richlistitem[is="agenda-richlistitem"][status="CANCELLED"] .agenda-event-start {
 }
 
 :root[systemcolors] #view-deck {
-  background-color: -moz-Field;
+  background-color: Field;
 }
 
 .navigation-inner-box {

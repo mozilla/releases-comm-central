@@ -51,7 +51,7 @@ menulist[is="menulist-editable"][editable="true"]::part(dropmarker) {
 }
 
 menulist[is="menulist-editable"][editable="true"]::part(text-input) {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
   padding-inline-end: 3px;
 }

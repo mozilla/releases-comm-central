@@ -262,8 +262,8 @@ image.compactMail {
 
 .activityitem {
   padding: 7px 4px;
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
 }
 
 .activityitem[selected="true"] {

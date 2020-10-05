@@ -13,8 +13,8 @@
 }
 
 #invitations-listbox {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
   border: 1px solid #7F9DB9;
   display: flex;
   flex-direction: column;

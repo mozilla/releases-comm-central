@@ -120,7 +120,7 @@
 }
 
 #today-minimonth-box {
-  background-color: -moz-field;
+  background-color: Field;
 }
 
 :root[lwt-tree] #today-minimonth-box {

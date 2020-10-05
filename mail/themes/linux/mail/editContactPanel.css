@@ -57,7 +57,7 @@ html|input.editContactTextbox {
   appearance: none;
   cursor: text;
   margin: 1px 4px;
-  background-color: -moz-Field;
+  background-color: Field;
   border-radius: 3px;
   border: 1px solid ThreeDShadow;
   padding: 3px 6px;

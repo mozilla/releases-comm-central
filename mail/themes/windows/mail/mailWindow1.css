@@ -411,7 +411,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
     @media (-moz-windows-default-theme: 0) {
       .titlebar-button {
         stroke: ButtonText;
-        background-color: -moz-field;
+        background-color: Field;
       }
       .titlebar-button:hover {
         stroke: HighlightText;
@@ -601,7 +601,7 @@ treechildren::-moz-tree-row(dummy, selected, focus) {
   }
 
   #folderTree treechildren::-moz-tree-cell-text(dropOn) {
-    color: -moz-FieldText;
+    color: FieldText;
   }
 
   treechildren::-moz-tree-line(selected, focus),

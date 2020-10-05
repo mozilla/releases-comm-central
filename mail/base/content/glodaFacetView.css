@@ -13,8 +13,8 @@ html {
 
 #gloda-facet-view {
   display: flex;
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
   min-height: 100%;
   align-items: stretch;
 }
@@ -213,7 +213,7 @@ html[dir="rtl"] .facet-date-zoom-out {
 .facetious[type="date"][zoomedout="false"] .facet-date-zoom-out:hover {
   fill: HighlightText;
   background-color: Highlight;
-  border-color: -moz-Field;
+  border-color: Field;
 }
 
 .date-vis-frame {

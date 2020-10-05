@@ -11,8 +11,8 @@
 /* Adaptation from #folderTree */
 :root:not([lwt-tree]) #listPaneBox {
   appearance: none;
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
 }
 
 #listPaneBox > * {
@@ -59,8 +59,8 @@
 }
 
 #contextPane {
-  background-color: -moz-field;
-  color: -moz-fieldtext;
+  background-color: Field;
+  color: FieldText;
 }
 
 .userIcon {
@@ -160,7 +160,7 @@ richlistitem[is="chat-group-richlistitem"] .twisty {
   #chat-status-selector:not(:-moz-lwtheme) > vbox > .statusMessageToolbarItem[editing] {
     border-color: hsla(206, 100%, 60%, .65) hsla(206, 100%, 55%, .65)
                   hsla(206, 100%, 50%, .65);
-    background-color: -moz-field;
+    background-color: Field;
   }
 
   #nicklist > richlistitem[selected] > label,

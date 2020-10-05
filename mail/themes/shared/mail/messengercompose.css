@@ -559,7 +559,7 @@ menulist::part(description) {
   appearance: none;
   margin-top: 0;
   margin-inline: 4px 8px;
-  background-color: -moz-field;
+  background-color: Field;
   border: 1px solid var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--toolbarbutton-border-radius);
   padding-block: 0;
@@ -606,7 +606,7 @@ menulist::part(description) {
   margin-inline-end: 0;
   border: solid 1px var(--toolbarbutton-hover-bordercolor);
   border-radius: var(--toolbarbutton-border-radius);
-  background-color: -moz-field;
+  background-color: Field;
   transition: border .2s, box-shadow .2s;
   cursor: text;
 }
@@ -793,7 +793,7 @@ label.extra-recipients-label {
 #msgSubject:hover,
 .address-container:hover  {
   border-color: rgba(0,0,0,0.5);
-  background-color: -moz-field;
+  background-color: Field;
 }
 
 #MsgHeadersToolbar[brighttext] #msgIdentity:hover,
@@ -810,7 +810,7 @@ label.extra-recipients-label {
 .drag-address-container,
 .address-container[focused="true"] {
   border-color: Highlight !important;
-  background-color: -moz-field;
+  background-color: Field;
   outline: none;
 }
 

@@ -15,8 +15,8 @@
 }
 
 #noAccountScreen {
-  color: -moz-FieldText;
-  background-color: -moz-Field;
+  color: FieldText;
+  background-color: Field;
   overflow: auto;
   border-block: 1px solid var(--splitter-color);
 }

@@ -27,7 +27,7 @@
 .themeableSearchBox {
   appearance: none;
   background-clip: padding-box;
-  background-color: -moz-field;
+  background-color: Field;
   border: 1px solid ThreeDShadow;
   border-radius: 2px;
   outline: none;

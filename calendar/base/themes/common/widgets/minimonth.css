@@ -60,7 +60,7 @@ calendar-minimonth {
 
 :root[systemcolors] calendar-minimonth {
   --mmMainColor: -moz-DialogText;
-  --mmMainBackground: -moz-field;
+  --mmMainBackground: Field;
   --mmBoxBackground: -moz-Dialog;
   --mmBoxBorderColor: ThreeDShadow;
   --mmDayColor: WindowText;
@@ -70,7 +70,7 @@ calendar-minimonth {
   --mmDayOtherBackground: ButtonFace;
   --mmDayOtherBorderColor: Transparent;
   --mmDayTodayColor: -moz-DialogText;
-  --mmDayTodayBackground: -moz-field;
+  --mmDayTodayBackground: Field;
   --mmDayTodayBorderColor: Highlight;
   --mmDaySelectedColor: HighlightText;
   --mmDaySelectedBackground: Highlight;

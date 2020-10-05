@@ -85,7 +85,7 @@ treechildren::-moz-tree-cell-text(dummy) {
 }
 
 #multimessage {
-  background-color: -moz-Field;
+  background-color: Field;
 }
 
 @media (prefers-color-scheme: dark) {

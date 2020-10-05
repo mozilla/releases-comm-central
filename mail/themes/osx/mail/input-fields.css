@@ -11,7 +11,7 @@ html|input.input-inline {
 
 html|input.input-filefield {
   padding: 2px 4px;
-  background: center left 2px / 16px no-repeat -moz-field;
+  background: center left 2px / 16px no-repeat Field;
 }
 
 html|input[type="number"] {

@@ -17,7 +17,7 @@
 
   .attachmentList:focus .attachmentItem[selected="true"],
   #attachmentList:focus > .attachmentItem[selected="true"] {
-    color: -moz-FieldText;
+    color: FieldText;
   }
 
   .attachmentlist[orient="horizontal"] {

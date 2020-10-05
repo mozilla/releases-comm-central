@@ -256,7 +256,7 @@ html|span.ac-emphasize-text {
     }
 
     :root:not([lwt-tree]) #calendar-event-dialog-inner .item-attendees-cell:focus {
-        color: -moz-FieldText;
+        color: FieldText;
         background-color: transparent;
         border-color: var(--attendees-focusBorder);
         background-image: var(--attendees-focusImage);

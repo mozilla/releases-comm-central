@@ -12,8 +12,8 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 #attachmentBucket {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
 }
 
 #attachments-box[empty] > #attachmentBucket:focus {

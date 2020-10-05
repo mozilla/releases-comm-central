@@ -22,8 +22,8 @@
   --box-text-color: MenuText;
   --box-background-color: Menu;
   --box-border-color: ThreeDShadow;
-  --field-text-color: -moz-FieldText;
-  --field-background-color: -moz-Field;
+  --field-text-color: FieldText;
+  --field-background-color: Field;
   --field-border-color: rgba(128, 128, 128, .6);
   --field-border-hover-color: rgba(128, 128, 128, .8);
   --highlight-color: Highlight;

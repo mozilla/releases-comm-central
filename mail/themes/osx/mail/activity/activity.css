@@ -282,8 +282,8 @@ image.compactMail {
 
 .activityitem {
   padding: 6px 4px;
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
 }
 
 

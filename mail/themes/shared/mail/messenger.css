@@ -6,8 +6,8 @@
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 :root {
-  --autocomplete-popup-background: -moz-field;
-  --autocomplete-popup-color: -moz-fieldtext;
+  --autocomplete-popup-background: Field;
+  --autocomplete-popup-color: FieldText;
   --autocomplete-popup-border-color: ThreeDShadow;
   --autocomplete-popup-highlight-background: Highlight;
   --autocomplete-popup-highlight-color: HighlightText;

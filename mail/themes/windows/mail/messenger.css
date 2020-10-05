@@ -433,7 +433,7 @@ treechildren::-moz-tree-indentation {
   }
 
   treechildren::-moz-tree-row {
-    color: -moz-FieldText;
+    color: FieldText;
     margin-inline-start: 1px;
     margin-inline-end: 1px;
     border-width: 1px;
@@ -491,7 +491,7 @@ treechildren::-moz-tree-indentation {
   }
 
   treechildren::-moz-tree-cell-text(primary, dropOn) {
-    color: -moz-FieldText;
+    color: FieldText;
   }
 
   treechildren::-moz-tree-cell-text {

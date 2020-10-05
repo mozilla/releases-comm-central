@@ -31,7 +31,7 @@
 
 /* Lightning sidebar background in calendar and task mode */
 #ltnSidebar {
-  background-color: -moz-field;
+  background-color: Field;
 }
 
 /* Today pane button in status bar */

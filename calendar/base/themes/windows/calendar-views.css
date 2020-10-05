@@ -14,7 +14,7 @@
 }
 
 #view-deck {
-    background-color: -moz-Field;
+    background-color: Field;
     border-width: 0;
     border-inline-start: 1px;
 }
@@ -24,7 +24,7 @@
 }
 
 radio.calview[selected="true"] {
-    background-color: -moz-Field;
+    background-color: Field;
 }
 
 .navigation-inner-box > hbox {
@@ -32,7 +32,7 @@ radio.calview[selected="true"] {
 }
 
 .navigation-bottombox {
-    background-color: -moz-Field;
+    background-color: Field;
 }
 
 .view-navigation-button {

@@ -6,8 +6,8 @@
   by theme specific files */
 
 :root {
-  --body-background-color: -moz-Field;
-  --body-text-color: -moz-FieldText;
+  --body-background-color: Field;
+  --body-text-color: FieldText;
   --header-background-color: Highlight;
   --head-text-color: HighlightText;
   --info-text-color: GrayText;

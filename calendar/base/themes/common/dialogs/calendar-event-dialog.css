@@ -492,8 +492,8 @@ label.label {
   appearance: none;
   margin: 0px 0px;
   border: 1px solid var(--eventBorderColor);
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
 }
 
 #timebar {

@@ -28,5 +28,5 @@ menulist[is="menulist-editable"][editable="true"]::part(text-input) {
 }
 
 menulist[open="true"]::part(text-input) {
-  color: -moz-FieldText;
+  color: FieldText;
 }

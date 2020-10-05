@@ -46,8 +46,8 @@
 /* ::::: attachment view ::::: */
 
 #attachmentList {
-  background-color: -moz-Field;
-  color: -moz-FieldText;
+  background-color: Field;
+  color: FieldText;
 }
 
 #attachmentName:hover,

@@ -216,7 +216,7 @@ menulist:-moz-locale-dir(rtl)::part(label-box) {
 }
 
 #msgIdentity[open="true"] {
-  color: -moz-FieldText;
+  color: FieldText;
 }
 
 :root[lwt-tree] #msgIdentity[open="true"] {
