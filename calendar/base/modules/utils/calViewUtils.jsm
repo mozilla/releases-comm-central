@@ -452,7 +452,12 @@ calview.colorTracker = {
     }
 
     let style = aDocument.documentElement.style;
-    let color = this.categoryBranch.getStringPref(aCategoryName, "transparent");
+    let color = this.categoryBranch.getStringPref(aCategoryName, "");
+    if (color == "") {
+      // Don't use the getStringPref default, the value might actually be ""
+      // and we don't want that.
+      color = "transparent";
+    }
     style.setProperty(`--category-${aCategoryName}-color`, color);
   },
   _addAllCategoriesToDocument(aDocument) {

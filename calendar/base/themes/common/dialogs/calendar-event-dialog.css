@@ -194,17 +194,37 @@ label.label {
 .item-calendar,
 #item-categories {
   flex: 1;
+  width: 100%;
 }
 
 #item-calendar::part(icon) {
   margin-inline: 7px 3px;
 }
+
 #item-calendar::part(icon),
-#item-calendar > menupopup > menuitem .menu-iconic-icon {
+#item-calendar > menupopup > menuitem .menu-iconic-icon,
+#item-categories::part(color),
+#item-categories > menupopup > menuitem .menu-iconic-icon {
   width: 10px;
   height: 10px;
   border-radius: 5px;
   background-color: var(--item-color);
+}
+
+#item-categories::part(color) {
+  margin-inline-end: 1px;
+}
+
+#item-categories::part(color first) {
+  margin-inline-start: 7px;
+}
+
+#item-categories::part(color last) {
+  margin-inline-end: 3px !important;
+}
+
+#item-categories-textbox {
+  margin: 0 8px;
 }
 
 #event-grid-item-calendar-td,
@@ -259,16 +279,6 @@ label.label {
 #event-grid-enddate-row td,
 #event-grid-enddate-row th {
   padding: 0;
-}
-
-#item-categories-textbox {
-  margin: 0 8px;
-}
-
-#item-calendar,
-.item-calendar,
-#item-categories {
-  width: 100%;
 }
 
 .datepicker-menulist {

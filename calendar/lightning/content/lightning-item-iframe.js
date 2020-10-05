@@ -970,6 +970,8 @@ function loadCategories(aItem) {
     if (itemCategories.includes(cat)) {
       item.setAttribute("checked", "true");
     }
+    let cssSafeId = cal.view.formatStringForCSSRule(cat);
+    item.style.setProperty("--item-color", `var(--category-${cssSafeId}-color)`);
     categoryPopup.appendChild(item);
   }
 
@@ -1006,6 +1008,26 @@ function updateCategoryMenulist() {
     label = cal.l10n.getCalString("None");
   }
   categoryMenulist.setAttribute("label", label);
+
+  let labelBox = categoryMenulist.shadowRoot.querySelector("#label-box");
+  let labelLabel = labelBox.querySelector("#label");
+  for (let box of labelBox.querySelectorAll("box")) {
+    box.remove();
+  }
+  for (let i = 0; i < categoryList.length; i++) {
+    let box = labelBox.insertBefore(document.createXULElement("box"), labelLabel);
+    // Normal CSS selectors like :first-child don't work on shadow DOM items,
+    // so we have to set up something they do work on.
+    let parts = ["color"];
+    if (i == 0) {
+      parts.push("first");
+    }
+    if (i == categoryList.length - 1) {
+      parts.push("last");
+    }
+    box.setAttribute("part", parts.join(" "));
+    box.style.setProperty("--item-color", categoryList[i].style.getPropertyValue("--item-color"));
+  }
 }
 
 /**
