@@ -2122,7 +2122,7 @@
               event.key
             )
           ) {
-            input.setAttribute("size", input.value.trim().length || 1);
+            this.resizeInputField(input, input.value.trim().length);
           }
         });
       }
@@ -2230,9 +2230,9 @@
           // Trigger this action only if the string was dropped exactly on the
           // <div> inside the input field.
           if (input) {
-            input.setAttribute(
-              "size",
-              event.dataTransfer.getData("text/plain").trim().length || 1
+            this.resizeInputField(
+              input,
+              event.dataTransfer.getData("text/plain").trim().length
             );
           }
           return;
@@ -2267,6 +2267,31 @@
           addressContainer.classList.remove("drag-address-container");
         }
       });
+    }
+
+    /**
+     * Check if the current size of the recipient input field doesn't exceed its
+     * container width. This might happen if the user pastes a very long string
+     * with multiple addresses when pills are already present.
+     *
+     * @param {Element} input - The HTML input field.
+     * @param {integer} length - The amount of characters in the input field.
+     */
+    resizeInputField(input, length) {
+      // Set a minimum size of 1 in case no characters were written in the field
+      // in order to force the smallest size possible and avoid blank rows when
+      // multiple pills fill the entire recipient row.
+      input.setAttribute("size", length || 1);
+
+      // If the previously set size causes the input field to grow beyond 80% of
+      // its parent container, we remove the size attribute to let the CSS flex
+      // attribute let it grow naturally to fill the available space.
+      if (
+        input.clientWidth >
+        input.closest(".address-container").clientWidth * 0.8
+      ) {
+        input.removeAttribute("size");
+      }
     }
 
     /**
