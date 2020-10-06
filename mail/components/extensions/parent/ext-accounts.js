@@ -9,11 +9,6 @@ ChromeUtils.defineModuleGetter(
 );
 ChromeUtils.defineModuleGetter(
   this,
-  "fixIterator",
-  "resource:///modules/iteratorUtils.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
   "toXPCOMArray",
   "resource:///modules/iteratorUtils.jsm"
 );
@@ -25,15 +20,10 @@ function convertAccount(account) {
     return null;
   }
 
-  let traverse = function(folder) {
-    let f = convertFolder(folder, account.key);
-    f.subFolders = [];
-    for (let subFolder of fixIterator(folder.subFolders, Ci.nsIMsgFolder)) {
-      f.subFolders.push(traverse(subFolder));
-    }
-    return f;
-  };
-  let folders = traverse(account.incomingServer.rootFolder).subFolders;
+  let folders = traverseSubfolders(
+    account.incomingServer.rootFolder,
+    account.key
+  ).subFolders;
 
   return {
     id: account.key,

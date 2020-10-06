@@ -675,7 +675,7 @@ function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
   }
   for (let folderType of ["displayedFolder", "selectedFolder"]) {
     if (contextData[folderType] && extension.hasPermission("accountsRead")) {
-      info[folderType] = convertFolder(contextData[folderType]);
+      info[folderType] = traverseSubfolders(contextData[folderType]);
     }
   }
 }

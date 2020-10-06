@@ -23,6 +23,7 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   ExtensionContent: "resource://gre/modules/ExtensionContent.jsm",
   MailServices: "resource:///modules/MailServices.jsm",
   Schemas: "resource://gre/modules/Schemas.jsm",
+  fixIterator: "resource:///modules/iteratorUtils.jsm",
 });
 
 XPCOMUtils.defineLazyPreferenceGetter(
@@ -1532,6 +1533,19 @@ function convertFolder(folder, accountId) {
   }
 
   return folderObject;
+}
+
+/**
+ * Traverses a nsIMsgFolder to get all subfolders.
+ * @return {Array}
+ */
+function traverseSubfolders(folder) {
+  let f = convertFolder(folder);
+  f.subFolders = [];
+  for (let subFolder of fixIterator(folder.subFolders, Ci.nsIMsgFolder)) {
+    f.subFolders.push(traverseSubfolders(subFolder));
+  }
+  return f;
 }
 
 class FolderManager {

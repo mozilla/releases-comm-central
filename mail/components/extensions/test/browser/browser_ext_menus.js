@@ -111,6 +111,7 @@ add_task(async function test_folder_pane() {
   );
   is(info.selectedFolder.accountId, gAccount.key);
   is(info.selectedFolder.path, "/Trash");
+  ok(Array.isArray(info.selectedFolder.subFolders));
   ok(!info.displayedFolder);
   ok(!info.selectedMessages);
 
@@ -137,7 +138,9 @@ add_task(async function test_thread_pane() {
   );
   is(info.displayedFolder.accountId, gAccount.key);
   is(info.displayedFolder.path, "/Trash");
-  is(info.selectedMessages.cursor, undefined);
+  ok(Array.isArray(info.displayedFolder.subFolders));
+  is(info.selectedMessages.id, null);
+  is(info.selectedMessages.messages.length, 1);
   ok(!info.selectedFolder);
 
   await extension.unload();
