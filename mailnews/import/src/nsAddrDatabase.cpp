@@ -773,8 +773,8 @@ nsresult nsAddrDatabase::EnumerateCards(nsISimpleEnumerator** result) {
   return NS_OK;
 }
 
-nsresult nsAddrDatabase::EnumerateListAddresses(
-    uint32_t listRowID, nsISimpleEnumerator** result) {
+nsresult nsAddrDatabase::EnumerateListAddresses(uint32_t listRowID,
+                                                nsISimpleEnumerator** result) {
   NS_ADDREF(*result = new nsListAddressEnumerator(this, listRowID));
   return NS_OK;
 }
