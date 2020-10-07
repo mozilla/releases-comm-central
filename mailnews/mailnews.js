@@ -616,6 +616,9 @@ pref("mail.server.default.autosync_max_age_days", -1);
 // Can we change the store type without conversion? (=has the store been used)
 pref("mail.server.default.canChangeStoreType", false);
 
+// Enable use of imap capability UTF8=ACCEPT described in RFC 6855.
+pref("mail.server.default.allow_utf8_accept", true);
+
 // Store conversion (mbox <-> maildir)
 #ifndef RELEASE_OR_BETA
 pref("mail.store_conversion_enabled", true);

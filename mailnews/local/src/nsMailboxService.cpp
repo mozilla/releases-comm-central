@@ -370,20 +370,21 @@ nsMailboxService::SaveMessageToDisk(const char* aMessageURI, nsIFile* aFile,
   return rv;
 }
 
-NS_IMETHODIMP nsMailboxService::GetUrlForUri(const char* aMessageURI,
+NS_IMETHODIMP nsMailboxService::GetUrlForUri(const nsACString& aMessageURI,
                                              nsIURI** aURL,
                                              nsIMsgWindow* aMsgWindow) {
   NS_ENSURE_ARG_POINTER(aURL);
-  if (!strncmp(aMessageURI, "file:", 5) ||
-      PL_strstr(aMessageURI, "type=application/x-message-display") ||
-      !strncmp(aMessageURI, "mailbox:", 8))
-    return NS_NewURI(aURL, aMessageURI);
+  if (!strncmp(PromiseFlatCString(aMessageURI).get(), "file:", 5) ||
+      PL_strstr(PromiseFlatCString(aMessageURI).get(),
+                "type=application/x-message-display") ||
+      !strncmp(PromiseFlatCString(aMessageURI).get(), "mailbox:", 8))
+    return NS_NewURI(aURL, PromiseFlatCString(aMessageURI).get());
 
   nsresult rv = NS_OK;
   nsCOMPtr<nsIMailboxUrl> mailboxurl;
-  rv =
-      PrepareMessageUrl(aMessageURI, nullptr, nsIMailboxUrl::ActionFetchMessage,
-                        getter_AddRefs(mailboxurl), aMsgWindow);
+  rv = PrepareMessageUrl(PromiseFlatCString(aMessageURI).get(), nullptr,
+                         nsIMailboxUrl::ActionFetchMessage,
+                         getter_AddRefs(mailboxurl), aMsgWindow);
   if (NS_SUCCEEDED(rv) && mailboxurl) rv = CallQueryInterface(mailboxurl, aURL);
   return rv;
 }

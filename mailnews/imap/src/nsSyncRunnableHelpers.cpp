@@ -453,6 +453,7 @@ NS_SYNCRUNNABLEMETHOD1(ImapServerSink, GetServerShuttingDown, bool*)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, ResetServerConnection, const nsACString&)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerDoingLsub, bool)
 NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerForceSelect, const nsACString&)
+NS_SYNCRUNNABLEMETHOD1(ImapServerSink, SetServerUtf8AcceptEnabled, bool)
 
 namespace mozilla {
 namespace mailnews {

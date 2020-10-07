@@ -36,9 +36,9 @@ interface nsIMsgComposeService : nsISupports {
                                 new compose window.
    */
   [can_run_script]
-  void OpenComposeWindow(in string msgComposeWindowURL,
+  void OpenComposeWindow(in AUTF8String msgComposeWindowURL,
                          in nsIMsgDBHdr msgHdr,
-                         in string originalMsgURI,
+                         in AUTF8String originalMsgURI,
                          in MSG_ComposeType type,
                          in MSG_ComposeFormat format,
                          in nsIMsgIdentity identity,

@@ -477,6 +477,7 @@ nsImapProtocol::nsImapProtocol()
   m_hostSessionList = nullptr;
   m_isGmailServer = false;
   m_fetchingWholeMessage = false;
+  m_allowUTF8Accept = false;
 
   nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID));
   NS_ASSERTION(prefBranch, "FAILED to create the preference service");
@@ -628,6 +629,7 @@ nsImapProtocol::Initialize(nsIImapHostSessionList* aHostSessionList,
   aServer->GetForceSelect(m_forceSelectValue);
   aServer->GetUseCondStore(&m_useCondStore);
   aServer->GetUseCompressDeflate(&m_useCompressDeflate);
+  aServer->GetAllowUTF8Accept(&m_allowUTF8Accept);
 
   m_hostSessionList = aHostSessionList;
   m_parser.SetHostSessionList(aHostSessionList);
@@ -863,8 +865,12 @@ nsresult nsImapProtocol::SetupWithUrl(nsIURI* aURL, nsISupports* aConsumer) {
     imapServer->GetSendID(&m_sendID);
 
     nsAutoString trashFolderPath;
-    if (NS_SUCCEEDED(imapServer->GetTrashFolderName(trashFolderPath)))
-      CopyUTF16toMUTF7(trashFolderPath, m_trashFolderPath);
+    if (NS_SUCCEEDED(imapServer->GetTrashFolderName(trashFolderPath))) {
+      if (m_allowUTF8Accept)
+        CopyUTF16toUTF8(trashFolderPath, m_trashFolderPath);
+      else
+        CopyUTF16toMUTF7(trashFolderPath, m_trashFolderPath);
+    }
 
     nsCOMPtr<nsIPrefBranch> prefBranch(
         do_GetService(NS_PREFSERVICE_CONTRACTID));
@@ -5376,6 +5382,15 @@ void nsImapProtocol::ID() {
   if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
 }
 
+void nsImapProtocol::EnableUTF8Accept() {
+  IncrementCommandTagNumber();
+  nsCString command(GetServerCommandTag());
+  command.AppendLiteral(" ENABLE UTF8=ACCEPT" CRLF);
+
+  nsresult rv = SendData(command.get());
+  if (NS_SUCCEEDED(rv)) ParseIMAPandCheckForNewMail();
+}
+
 void nsImapProtocol::EnableCondStore() {
   IncrementCommandTagNumber();
   nsCString command(GetServerCommandTag());
@@ -6024,7 +6039,10 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
 
       command.Append(dateStr);
     }
-    command.AppendLiteral(" {");
+    if (m_allowUTF8Accept)
+      command.AppendLiteral(" UTF8 (~{");
+    else
+      command.AppendLiteral(" {");
 
     dataBuffer = (char*)PR_CALLOC(COPY_BUFFER_SIZE + 1);
     if (!dataBuffer) goto done;
@@ -6069,8 +6087,11 @@ void nsImapProtocol::UploadMessageFromFile(nsIFile* file,
         PercentProgressUpdateEvent(nullptr, fileSize - totalSize, fileSize);
       }
     }
-    if (NS_SUCCEEDED(rv)) {
-      rv = SendData(CRLF);  // complete the append
+    if (NS_SUCCEEDED(rv)) {  // complete the append
+      if (m_allowUTF8Accept)
+        rv = SendData(")" CRLF);
+      else
+        rv = SendData(CRLF);
       ParseIMAPandCheckForNewMail(command.get());
 
       nsImapAction imapAction;
@@ -6929,6 +6950,15 @@ void nsImapProtocol::OnRenameFolder(const char* sourceMailbox) {
   if (destinationMailbox) {
     bool renamed = RenameHierarchyByHand(sourceMailbox, destinationMailbox);
     if (renamed) FolderRenamed(sourceMailbox, destinationMailbox);
+
+    // Cause a LIST and re-discovery when slash and/or ^ are escaped. Also
+    // needed when folder renamed to non-ASCII UTF8 when UTF8=ACCEPT in
+    // effect.
+    m_hierarchyNameState = kListingForCreate;
+    nsCString mailboxWODelim(destinationMailbox);
+    RemoveHierarchyDelimiter(mailboxWODelim);
+    List(mailboxWODelim.get(), false);
+    m_hierarchyNameState = kNoOperationInProgress;
 
     PR_Free(destinationMailbox);
   } else
@@ -7931,6 +7961,21 @@ void nsImapProtocol::ProcessAfterAuthenticated() {
       default:
         m_forceSelect = false;
     }
+  }
+  bool utf8AcceptAllowed = m_allowUTF8Accept;
+  m_allowUTF8Accept = false;
+  if (utf8AcceptAllowed &&
+      (GetServerStateParser().GetCapabilityFlag() & kHasEnableCapability)) {
+    if (m_imapServerSink) {
+      EnableUTF8Accept();
+      m_allowUTF8Accept = GetServerStateParser().fUtf8AcceptEnabled;
+      // m_allowUTF8Accept affects imap append handling. See
+      // UploadMessageFromFile().
+      m_imapServerSink->SetServerUtf8AcceptEnabled(m_allowUTF8Accept);
+      GetServerStateParser().fUtf8AcceptEnabled = false;
+    } else if (GetServerStateParser().GetCapabilityFlag() &
+               kHasUTF8AcceptCapability)
+      NS_WARNING("UTF8=ACCEPT not enabled due to null m_imapServerSink");
   }
 }
 

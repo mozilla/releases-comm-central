@@ -71,6 +71,7 @@ nsImapIncomingServer::nsImapIncomingServer()
   m_canHaveFilters = true;
   m_userAuthenticated = false;
   m_shuttingDown = false;
+  mUtf8AcceptEnabled = false;
 }
 
 nsImapIncomingServer::~nsImapIncomingServer() {
@@ -299,6 +300,9 @@ NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, UseCompressDeflate,
 NS_IMPL_SERVERPREF_INT(nsImapIncomingServer, AutoSyncMaxAgeDays,
                        "autosync_max_age_days")
 
+NS_IMPL_SERVERPREF_BOOL(nsImapIncomingServer, AllowUTF8Accept,
+                        "allow_utf8_accept")
+
 NS_IMETHODIMP
 nsImapIncomingServer::GetShuttingDown(bool* retval) {
   NS_ENSURE_ARG_POINTER(retval);
@@ -335,24 +339,23 @@ nsImapIncomingServer::SetDeleteModel(int32_t ivalue) {
     nsAutoString trashFolderName;
     nsresult rv = GetTrashFolderName(trashFolderName);
     if (NS_SUCCEEDED(rv)) {
-      nsAutoCString trashFolderNameUtf7;
-      rv = CopyUTF16toMUTF7(trashFolderName, trashFolderNameUtf7);
-      if (NS_SUCCEEDED(rv)) {
-        nsCOMPtr<nsIMsgFolder> trashFolder;
-        // 'trashFolderName' being a path here works well since this is appended
-        // to the server's root folder in GetFolder().
-        rv = GetFolder(trashFolderNameUtf7, getter_AddRefs(trashFolder));
-        NS_ENSURE_SUCCESS(rv, rv);
-        nsCString trashURI;
-        trashFolder->GetURI(trashURI);
-        GetMsgFolderFromURI(trashFolder, trashURI, getter_AddRefs(trashFolder));
-        if (NS_SUCCEEDED(rv) && trashFolder) {
-          // If the trash folder is used, set the flag, otherwise clear it.
-          if (ivalue == nsMsgImapDeleteModels::MoveToTrash)
-            trashFolder->SetFlag(nsMsgFolderFlags::Trash);
-          else
-            trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
-        }
+      nsAutoCString trashFolderNameUtf8;
+      CopyUTF16toUTF8(trashFolderName, trashFolderNameUtf8);
+      nsCOMPtr<nsIMsgFolder> trashFolder;
+      // 'trashFolderName' being a path here works well since this is appended
+      // to the server's root folder in GetFolder().
+      rv = GetFolder(trashFolderNameUtf8, getter_AddRefs(trashFolder));
+      NS_ENSURE_SUCCESS(rv, rv);
+      nsCString trashURI;
+      trashFolder->GetURI(trashURI);
+      rv = GetMsgFolderFromURI(trashFolder, trashURI,
+                               getter_AddRefs(trashFolder));
+      if (NS_SUCCEEDED(rv) && trashFolder) {
+        // If the trash folder is used, set the flag, otherwise clear it.
+        if (ivalue == nsMsgImapDeleteModels::MoveToTrash)
+          trashFolder->SetFlag(nsMsgFolderFlags::Trash);
+        else
+          trashFolder->ClearFlag(nsMsgFolderFlags::Trash);
       }
     }
   }
@@ -1101,8 +1104,11 @@ NS_IMETHODIMP nsImapIncomingServer::PossibleImapMailbox(
       else if (onlineName.IsEmpty() || !onlineName.Equals(dupFolderPath))
         imapFolder->SetOnlineName(dupFolderPath);
 
-      if (hierarchyDelimiter != '/')
+      if (hierarchyDelimiter != '/') {
         nsImapUrl::UnescapeSlashes(folderName.BeginWriting());
+        // Set length to preclude showing a null "box" symbol.
+        folderName.SetLength(strlen(folderName.BeginWriting()));
+      }
       if (NS_SUCCEEDED(CopyMUTF7toUTF16(folderName, unicodeName)))
         child->SetPrettyName(unicodeName);
     }
@@ -2266,12 +2272,7 @@ nsImapIncomingServer::AddTo(const nsACString& aName, bool addAsSubscribed,
   // If it's not UTF-8, it cannot be MUTF7, either. We just ignore it.
   // (otherwise we'll crash. see #63186)
   if (!mozilla::IsUtf8(aName)) return NS_OK;
-
-  if (!NS_IsAscii(aName.BeginReading(), aName.Length())) {
-    nsAutoCString name;
-    CopyUTF16toMUTF7(NS_ConvertUTF8toUTF16(aName), name);
-    return mInner->AddTo(name, addAsSubscribed, aSubscribable, changeIfExists);
-  }
+  // Now handle subscription folder names as UTF-8 so don't convert to mUTF7.
   return mInner->AddTo(aName, addAsSubscribed, aSubscribable, changeIfExists);
 }
 
@@ -2306,7 +2307,10 @@ NS_IMETHODIMP
 nsImapIncomingServer::Subscribe(const char16_t* aName) {
   NS_ENSURE_ARG_POINTER(aName);
 
-  return SubscribeToFolder(nsDependentString(aName), true, nullptr);
+  // Extra step here prevents chars flagged as invalid, don't know why.
+  nsAutoString temp;
+  temp.Assign(nsDependentString(aName));
+  return SubscribeToFolder(temp, true, nullptr);
 }
 
 NS_IMETHODIMP
@@ -2332,22 +2336,18 @@ nsImapIncomingServer::SubscribeToFolder(const nsAString& aName, bool subscribe,
   // folder pathnames, otherwise root's (ie, '^') is used and this is wrong.
 
   // aName is not a genuine UTF-16 but just a zero-padded modified UTF-7
-  NS_LossyConvertUTF16toASCII folderCName(aName);
+  NS_ConvertUTF16toUTF8 folderCName(aName);
   nsCOMPtr<nsIMsgFolder> msgFolder;
   if (rootMsgFolder && !aName.IsEmpty())
     rv = rootMsgFolder->FindSubFolder(folderCName, getter_AddRefs(msgFolder));
 
   nsCOMPtr<nsIThread> thread(do_GetCurrentThread());
 
-  nsAutoString unicodeName;
-  rv = CopyMUTF7toUTF16(folderCName, unicodeName);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   if (subscribe)
-    rv = imapService->SubscribeFolder(msgFolder, unicodeName, nullptr, aUri);
+    rv = imapService->SubscribeFolder(msgFolder, aName, nullptr, aUri);
   else
-    rv = imapService->UnsubscribeFolder(msgFolder, unicodeName, nullptr,
-                                        nullptr);
+    rv = imapService->UnsubscribeFolder(msgFolder, aName, nullptr, nullptr);
+
   return rv;
 }
 
@@ -2361,6 +2361,19 @@ NS_IMETHODIMP
 nsImapIncomingServer::GetDoingLsub(bool* doingLsub) {
   NS_ENSURE_ARG_POINTER(doingLsub);
   *doingLsub = mDoingLsub;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::SetUtf8AcceptEnabled(bool enabled) {
+  mUtf8AcceptEnabled = enabled;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsImapIncomingServer::GetUtf8AcceptEnabled(bool* enabled) {
+  NS_ENSURE_ARG_POINTER(enabled);
+  *enabled = mUtf8AcceptEnabled;
   return NS_OK;
 }
 
@@ -2951,16 +2964,14 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(
   nsAutoString oldTrashName;
   nsresult rv = GetTrashFolderName(oldTrashName);
   if (NS_SUCCEEDED(rv)) {
-    nsAutoCString oldTrashNameUtf7;
-    rv = CopyUTF16toMUTF7(oldTrashName, oldTrashNameUtf7);
-    if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIMsgFolder> oldFolder;
-      // 'trashFolderName' being a path here works well since this is appended
-      // to the server's root folder in GetFolder().
-      rv = GetFolder(oldTrashNameUtf7, getter_AddRefs(oldFolder));
-      if (NS_SUCCEEDED(rv) && oldFolder)
-        oldFolder->ClearFlag(nsMsgFolderFlags::Trash);
-    }
+    nsAutoCString oldTrashNameUtf8;
+    nsCOMPtr<nsIMsgFolder> oldFolder;
+    // 'trashFolderName' being a path here works well since this is appended
+    // to the server's root folder in GetFolder().
+    CopyUTF16toUTF8(oldTrashName, oldTrashNameUtf8);
+    rv = GetFolder(oldTrashNameUtf8, getter_AddRefs(oldFolder));
+    if (NS_SUCCEEDED(rv) && oldFolder)
+      oldFolder->ClearFlag(nsMsgFolderFlags::Trash);
   }
 
   // If the user configured delete mode (model) is currently "move to trash",
@@ -2969,14 +2980,12 @@ NS_IMETHODIMP nsImapIncomingServer::SetTrashFolderName(
   int32_t deleteModel;
   rv = GetDeleteModel(&deleteModel);
   if (NS_SUCCEEDED(rv) && (deleteModel == nsMsgImapDeleteModels::MoveToTrash)) {
-    nsAutoCString newTrashNameUtf7;
-    rv = CopyUTF16toMUTF7(PromiseFlatString(chvalue), newTrashNameUtf7);
-    if (NS_SUCCEEDED(rv)) {
-      nsCOMPtr<nsIMsgFolder> newTrashFolder;
-      rv = GetFolder(newTrashNameUtf7, getter_AddRefs(newTrashFolder));
-      if (NS_SUCCEEDED(rv) && newTrashFolder)
-        newTrashFolder->SetFlag(nsMsgFolderFlags::Trash);
-    }
+    nsAutoCString newTrashNameUtf8;
+    CopyUTF16toUTF8(PromiseFlatString(chvalue), newTrashNameUtf8);
+    nsCOMPtr<nsIMsgFolder> newTrashFolder;
+    rv = GetFolder(newTrashNameUtf8, getter_AddRefs(newTrashFolder));
+    if (NS_SUCCEEDED(rv) && newTrashFolder)
+      newTrashFolder->SetFlag(nsMsgFolderFlags::Trash);
   }
 
   return SetUnicharValue(PREF_TRASH_FOLDER_PATH, chvalue);
@@ -3096,11 +3105,16 @@ nsImapIncomingServer::ResetServerConnection(const nsACString& aFolderName) {
 }
 
 NS_IMETHODIMP
+nsImapIncomingServer::SetServerForceSelect(const nsACString& aForceSelect) {
+  return SetForceSelect(aForceSelect);
+}
+
+NS_IMETHODIMP
 nsImapIncomingServer::SetServerDoingLsub(bool aDoingLsub) {
   return SetDoingLsub(aDoingLsub);
 }
 
 NS_IMETHODIMP
-nsImapIncomingServer::SetServerForceSelect(const nsACString& aForceSelect) {
-  return SetForceSelect(aForceSelect);
+nsImapIncomingServer::SetServerUtf8AcceptEnabled(bool enabled) {
+  return SetUtf8AcceptEnabled(enabled);
 }

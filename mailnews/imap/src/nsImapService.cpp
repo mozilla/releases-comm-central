@@ -216,13 +216,13 @@ NS_IMETHODIMP nsImapService::LiteSelectFolder(nsIMsgFolder* aImapMailFolder,
                        nsIImapUrl::nsImapLiteSelectFolder, aMsgWindow, aURL);
 }
 
-NS_IMETHODIMP nsImapService::GetUrlForUri(const char* aMessageURI,
+NS_IMETHODIMP nsImapService::GetUrlForUri(const nsACString& aMessageURI,
                                           nsIURI** aURL,
                                           nsIMsgWindow* aMsgWindow) {
   nsAutoCString messageURI(aMessageURI);
 
   if (messageURI.Find("&type=application/x-message-display"_ns) != kNotFound)
-    return NS_NewURI(aURL, aMessageURI);
+    return NS_NewURI(aURL, PromiseFlatCString(aMessageURI).get());
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsAutoCString msgKey;
@@ -2164,7 +2164,20 @@ NS_IMETHODIMP nsImapService::RenameLeaf(nsIMsgFolder* srcFolder,
       }
 
       nsAutoCString utfNewName;
-      CopyUTF16toMUTF7(PromiseFlatString(newLeafName), utfNewName);
+      utfNewName.Append(NS_ConvertUTF16toUTF8(newLeafName));
+      if (!NS_IsAscii(utfNewName.get())) {
+        // Convert to MUTF7 if UTF8=ACCEPT not enabled by server.
+        nsCOMPtr<nsIMsgIncomingServer> server;
+        rv = srcFolder->GetServer(getter_AddRefs(server));
+        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<nsIImapIncomingServer> imapServer =
+            do_QueryInterface(server, &rv);
+        NS_ENSURE_SUCCESS(rv, rv);
+        bool utf8AcceptEnabled = false;
+        imapServer->GetUtf8AcceptEnabled(&utf8AcceptEnabled);
+        if (!utf8AcceptEnabled)
+          CopyUTF16toMUTF7(PromiseFlatString(newLeafName), utfNewName);
+      }
       nsCString escapedNewName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH, escapedNewName);
       nsCString escapedSlashName;
@@ -2212,8 +2225,20 @@ NS_IMETHODIMP nsImapService::CreateFolder(nsIMsgFolder* parent,
       }
 
       nsAutoCString utfNewName;
-      rv = CopyUTF16toMUTF7(PromiseFlatString(newFolderName), utfNewName);
-      NS_ENSURE_SUCCESS(rv, rv);
+      utfNewName.Append(NS_ConvertUTF16toUTF8(newFolderName));
+      if (!NS_IsAscii(utfNewName.get())) {
+        // Convert to MUTF7 if UTF8=ACCEPT not enabled by server.
+        nsCOMPtr<nsIMsgIncomingServer> server;
+        rv = parent->GetServer(getter_AddRefs(server));
+        NS_ENSURE_SUCCESS(rv, rv);
+        nsCOMPtr<nsIImapIncomingServer> imapServer =
+            do_QueryInterface(server, &rv);
+        NS_ENSURE_SUCCESS(rv, rv);
+        bool utf8AcceptEnabled = false;
+        imapServer->GetUtf8AcceptEnabled(&utf8AcceptEnabled);
+        if (!utf8AcceptEnabled)
+          CopyUTF16toMUTF7(PromiseFlatString(newFolderName), utfNewName);
+      }
       nsCString escapedFolderName;
       MsgEscapeString(utfNewName, nsINetUtil::ESCAPE_URL_PATH,
                       escapedFolderName);
@@ -2868,7 +2893,10 @@ nsresult nsImapService::ChangeFolderSubscription(nsIMsgFolder* folder,
       urlSpec.Append(command);
       urlSpec.Append(hierarchyDelimiter);
       nsAutoCString utfFolderName;
-      rv = CopyUTF16toMUTF7(PromiseFlatString(folderName), utfFolderName);
+      // folderName is already mutf7 at this point with not utf8=accept. When
+      // utf8=accept in effect it is utf8. So change to mutf7 not needed at
+      // all it seems.
+      utfFolderName.Append(NS_ConvertUTF16toUTF8(folderName));
       NS_ENSURE_SUCCESS(rv, rv);
       nsCString escapedFolderName;
       MsgEscapeString(utfFolderName, nsINetUtil::ESCAPE_URL_PATH,

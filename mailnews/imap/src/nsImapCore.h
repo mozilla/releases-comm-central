@@ -144,6 +144,7 @@ const eIMAPCapabilityFlag kHasSpecialUseCapability =      0x200000000LL;  /* RFC
 const eIMAPCapabilityFlag kGmailImapCapability =          0x400000000LL;  /* X-GM-EXT-1 capability extension for gmail */
 const eIMAPCapabilityFlag kHasXOAuth2Capability =         0x800000000LL;  /* AUTH XOAUTH2 extension */
 const eIMAPCapabilityFlag kHasClientIDCapability =        0x1000000000LL; /* ClientID capability */
+const eIMAPCapabilityFlag kHasUTF8AcceptCapability =      0x2000000000LL; /* RFC 6855: UTF8=ACCEPT */
 
 
 // this used to be part of the connection object class - maybe we should move it into

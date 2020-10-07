@@ -353,7 +353,8 @@ nsMsgMailSession::ConvertMsgURIToMsgURL(const char* aURI,
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NULL_POINTER);
 
   nsCOMPtr<nsIURI> tURI;
-  rv = msgService->GetUrlForUri(aURI, getter_AddRefs(tURI), aMsgWindow);
+  rv = msgService->GetUrlForUri(nsDependentCString(aURI), getter_AddRefs(tURI),
+                                aMsgWindow);
   NS_ENSURE_SUCCESS(rv, NS_ERROR_NULL_POINTER);
 
   nsAutoCString urlString;

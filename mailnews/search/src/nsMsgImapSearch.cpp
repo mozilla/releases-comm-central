@@ -12,6 +12,8 @@
 #include "prmem.h"
 #include "nsIArray.h"
 #include "nsArrayUtils.h"
+#include "nsImapCore.h"
+#include "nsIImapIncomingServer.h"
 // Implementation of search for IMAP mail folders
 
 nsMsgSearchOnlineMail::nsMsgSearchOnlineMail(nsMsgSearchScopeTerm* scope,
@@ -30,7 +32,7 @@ nsresult nsMsgSearchOnlineMail::ValidateTerms() {
     GetSearchCharsets(srcCharset, dstCharset);
 
     // do IMAP specific validation
-    err = Encode(m_encoding, m_searchTerms, dstCharset.get());
+    err = Encode(m_encoding, m_searchTerms, dstCharset.get(), m_scope);
     NS_ASSERTION(NS_SUCCEEDED(err), "failed to encode imap search");
   }
 
@@ -67,7 +69,8 @@ nsresult nsMsgSearchOnlineMail::Search(bool* aDone) {
 
 nsresult nsMsgSearchOnlineMail::Encode(nsCString& pEncoding,
                                        nsIArray* searchTerms,
-                                       const char16_t* destCharset) {
+                                       const char16_t* destCharset,
+                                       nsIMsgSearchScopeTerm* scope) {
   nsCString imapTerms;
 
   // check if searchTerms are ascii only
@@ -118,7 +121,23 @@ nsresult nsMsgSearchOnlineMail::Encode(nsCString& pEncoding,
       asciiOnly ? usAsciiCharSet : destCharset, false);
   if (NS_SUCCEEDED(err)) {
     pEncoding.AppendLiteral("SEARCH");
-    if (csname) pEncoding.Append(csname);
+    if (csname) {
+      // We have a "CHARSET <name>" string which is typically appended to
+      // "SEARCH". But don't append it if server has UTF8=ACCEPT and ENABLE
+      // capabilities and if pref AllowUTF8Accept is true
+      nsCOMPtr<nsIMsgFolder> imapFolder;
+      err = scope->GetFolder(getter_AddRefs(imapFolder));
+      NS_ENSURE_SUCCESS(err, err);
+      nsCOMPtr<nsIMsgIncomingServer> server;
+      err = imapFolder->GetServer(getter_AddRefs(server));
+      NS_ENSURE_SUCCESS(err, err);
+      nsCOMPtr<nsIImapIncomingServer> imapServer =
+          do_QueryInterface(server, &err);
+      NS_ENSURE_SUCCESS(err, err);
+      bool utf8AcceptEnabled = false;
+      imapServer->GetUtf8AcceptEnabled(&utf8AcceptEnabled);
+      if (!utf8AcceptEnabled) pEncoding.Append(csname);
+    }
     pEncoding.Append(imapTerms);
   }
   PR_FREEIF(csname);

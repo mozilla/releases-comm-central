@@ -10,10 +10,10 @@
 interface nsIMsgFolderCacheElement : nsISupports
 {
   attribute ACString key;
-  ACString getStringProperty(in string propertyName);
+  AUTF8String getStringProperty(in string propertyName);
   long getInt32Property(in string propertyName);
   long long getInt64Property(in string propertyName);
-  void setStringProperty(in string propertyName, in ACString propertyValue);
+  void setStringProperty(in string propertyName, in AUTF8String propertyValue);
   void setInt32Property(in string propertyName, in long propertyValue);
   void setInt64Property(in string propertyName, in long long propertyValue);
 };

@@ -57,7 +57,8 @@ nsImapServerResponseParser::nsImapServerResponseParser(
   fStatusNextUID = nsMsgKey_None;
   fStatusExistingMessages = 0;
   fReceivedHeaderOrSizeForUID = nsMsgKey_None;
-  fCondStoreEnabled = false;
+  fCondStoreEnabled = false;  // Seems to be unused!
+  fUtf8AcceptEnabled = false;
   fStdJunkNotJunkUseOk = false;
 }
 
@@ -2007,6 +2008,10 @@ void nsImapServerResponseParser::capability_data() {
         fCapabilityFlag |= kHasHighestModSeqCapability;
       else if (token.Equals("CLIENTID", nsCaseInsensitiveCStringComparator))
         fCapabilityFlag |= kHasClientIDCapability;
+      else if (token.Equals("UTF8=ACCEPT",
+                            nsCaseInsensitiveCStringComparator) ||
+               token.Equals("UTF8=ONLY", nsCaseInsensitiveCStringComparator))
+        fCapabilityFlag |= kHasUTF8AcceptCapability;
     }
   } while (fNextToken && endToken < 0 && !fAtEndOfLine && ContinueParse());
 
@@ -2064,7 +2069,10 @@ void nsImapServerResponseParser::enable_data() {
     // eat each enable response;
     AdvanceToNextToken();
     if (!strcmp("CONDSTORE", fNextToken)) fCondStoreEnabled = true;
+    if (!PL_strcasecmp("UTF8=ACCEPT", fNextToken)) fUtf8AcceptEnabled = true;
   } while (fNextToken && !fAtEndOfLine && ContinueParse());
+  // fCondStoreEnabled is not used. Also, an imap extension is not truly enabled
+  // unless there is an untagged response detected here.
 }
 
 void nsImapServerResponseParser::language_data() {

@@ -166,4 +166,6 @@ interface nsIImapServerSink : nsISupports {
   void setServerDoingLsub(in boolean aDoingLsub);
   /// set force select string
   void SetServerForceSelect(in ACString forceSelect);
+  /// set whether UTF8=ACCEPT enabled or not
+  void setServerUtf8AcceptEnabled(in boolean aEnabled);
 };

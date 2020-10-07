@@ -112,7 +112,8 @@ nsresult nsMsgQuote::QuoteMessage(
     rv = GetMessageServiceFromURI(nsDependentCString(msgURI),
                                   getter_AddRefs(msgService));
     if (NS_FAILED(rv)) return rv;
-    rv = msgService->GetUrlForUri(msgURI, getter_AddRefs(newURI), nullptr);
+    rv = msgService->GetUrlForUri(nsDependentCString(msgURI),
+                                  getter_AddRefs(newURI), nullptr);
   }
   if (NS_FAILED(rv)) return rv;
 

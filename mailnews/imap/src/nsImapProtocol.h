@@ -562,6 +562,7 @@ class nsImapProtocol : public nsIImapProtocol,
   // All of these methods actually issue protocol
   void Capability();  // query host for capabilities.
   void ID();          // send RFC 2971 app info to server
+  void EnableUTF8Accept();
   void EnableCondStore();
   void StartCompressDeflate();
   nsresult BeginCompressing();
@@ -678,6 +679,7 @@ class nsImapProtocol : public nsIImapProtocol,
   int32_t mFolderTotalMsgCount;
   uint32_t mFolderHighestUID;
   uint32_t mFolderNumDeleted;
+  bool m_allowUTF8Accept;
 
   bool m_isGmailServer;
   nsTArray<nsCString> mCustomDBHeaders;

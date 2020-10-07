@@ -354,10 +354,10 @@ nsMsgComposeService::GetOrigWindowSelection(MSG_ComposeType type,
 
 MOZ_CAN_RUN_SCRIPT_FOR_DEFINITION NS_IMETHODIMP
 nsMsgComposeService::OpenComposeWindow(
-    const char* msgComposeWindowURL, nsIMsgDBHdr* origMsgHdr,
-    const char* originalMsgURI, MSG_ComposeType type, MSG_ComposeFormat format,
-    nsIMsgIdentity* aIdentity, const nsACString& from, nsIMsgWindow* aMsgWindow,
-    bool suppressReplyQuote) {
+    const nsACString& msgComposeWindowURL, nsIMsgDBHdr* origMsgHdr,
+    const nsACString& originalMsgURI, MSG_ComposeType type,
+    MSG_ComposeFormat format, nsIMsgIdentity* aIdentity, const nsACString& from,
+    nsIMsgWindow* aMsgWindow, bool suppressReplyQuote) {
   nsresult rv;
 
   nsCOMPtr<nsIMsgIdentity> identity = aIdentity;
@@ -390,7 +390,7 @@ nsMsgComposeService::OpenComposeWindow(
         type == nsIMsgCompType::ForwardInline || type == nsIMsgCompType::Draft
             ? nsMimeOutput::nsMimeMessageDraftOrTemplate
             : nsMimeOutput::nsMimeMessageEditorTemplate,
-        identity, originalMsgURI, origMsgHdr,
+        identity, PromiseFlatCString(originalMsgURI).get(), origMsgHdr,
         type == nsIMsgCompType::ForwardInline,
         format == nsIMsgCompFormat::OppositeOfDefault, aMsgWindow);
   }
@@ -418,7 +418,7 @@ nsMsgComposeService::OpenComposeWindow(
           pMsgComposeParams->SetHtmlToQuote(selHTML);
       }
 
-      if (originalMsgURI && *originalMsgURI) {
+      if (!originalMsgURI.IsEmpty()) {
         if (type == nsIMsgCompType::NewsPost) {
           nsAutoCString newsURI(originalMsgURI);
           nsAutoCString group;
@@ -441,7 +441,8 @@ nsMsgComposeService::OpenComposeWindow(
           pMsgCompFields->SetNewsgroups(NS_ConvertUTF8toUTF16(unescapedName));
           pMsgCompFields->SetNewspostUrl(host.get());
         } else {
-          pMsgComposeParams->SetOriginalMsgURI(originalMsgURI);
+          pMsgComposeParams->SetOriginalMsgURI(
+              PromiseFlatCString(originalMsgURI).get());
           pMsgComposeParams->SetOrigMsgHdr(origMsgHdr);
           pMsgCompFields->SetFrom(NS_ConvertUTF8toUTF16(from));
         }
@@ -454,14 +455,16 @@ nsMsgComposeService::OpenComposeWindow(
         // ducarroz, properly fix this in the case of new message (not a reply)
         if (type != nsIMsgCompType::NewsPost) {
           char buff[256];
-          sprintf(buff, "Start opening the window, message size = %d",
-                  GetMessageSizeFromURI(originalMsgURI));
+          sprintf(
+              buff, "Start opening the window, message size = %d",
+              GetMessageSizeFromURI(PromiseFlatCString(originalMsgURI).get()));
           TimeStamp(buff, true);
         }
 #endif
       }  // end if(mLogComposePerformance)
 
-      rv = OpenComposeWindowWithParams(msgComposeWindowURL, pMsgComposeParams);
+      rv = OpenComposeWindowWithParams(
+          PromiseFlatCString(msgComposeWindowURL).get(), pMsgComposeParams);
     }
   }
   return rv;
@@ -1264,8 +1267,7 @@ nsresult nsMsgComposeService::RunMessageThroughMimeDraft(
                      "&type=application/x-message-display") >= 0)
     rv = NS_NewURI(getter_AddRefs(url), mailboxUri);
   else
-    rv = messageService->GetUrlForUri(PromiseFlatCString(aMsgURI).get(),
-                                      getter_AddRefs(url), aMsgWindow);
+    rv = messageService->GetUrlForUri(aMsgURI, getter_AddRefs(url), aMsgWindow);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCOMPtr<nsIMsgMailNewsUrl> mailnewsurl = do_QueryInterface(url);

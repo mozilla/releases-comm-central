@@ -138,16 +138,20 @@ nsresult CopyUTF16toMUTF7(const nsAString& aSrc, nsACString& aDest) {
 }
 
 nsresult CopyMUTF7toUTF16(const nsACString& aSrc, nsAString& aDest) {
-  // UTF-7 encoding size cannot be larger than the size in UTF-16.
-  nsMUTF7ToUnicode converter;
-  int32_t inLen = aSrc.Length();
-  int32_t outLen = inLen;
-  aDest.SetLength(outLen);
-  converter.ConvertNoBuff(aSrc.BeginReading(), &inLen, aDest.BeginWriting(),
-                          &outLen);
-  MOZ_ASSERT(inLen == (int32_t)aSrc.Length(),
-             "UTF-7 should not produce a longer output");
-  aDest.SetLength(outLen);
+  if (NS_IsAscii(aSrc.BeginReading(), aSrc.Length())) {
+    // MUTF-7 encoding size cannot be larger than the size in UTF-16.
+    nsMUTF7ToUnicode converter;
+    int32_t inLen = aSrc.Length();
+    int32_t outLen = inLen;
+    aDest.SetLength(outLen);
+    converter.ConvertNoBuff(aSrc.BeginReading(), &inLen, aDest.BeginWriting(),
+                            &outLen);
+    MOZ_ASSERT(inLen == (int32_t)aSrc.Length(),
+               "MUTF-7 should not produce a longer output");
+    aDest.SetLength(outLen);
+  } else {
+    CopyUTF8toUTF16(aSrc, aDest);
+  }
   return NS_OK;
 }
 

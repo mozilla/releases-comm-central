@@ -22,7 +22,8 @@ class nsMsgSearchOnlineMail : public nsMsgSearchAdapter {
   NS_IMETHOD AddResultElement(nsIMsgDBHdr*) override;
 
   static nsresult Encode(nsCString& ppEncoding, nsIArray* searchTerms,
-                         const char16_t* destCharset);
+                         const char16_t* destCharset,
+                         nsIMsgSearchScopeTerm* scope);
 
  protected:
   nsCString m_encoding;

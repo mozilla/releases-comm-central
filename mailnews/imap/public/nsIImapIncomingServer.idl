@@ -74,6 +74,11 @@ interface nsIImapIncomingServer : nsISupports {
   /// Max age of messages we will autosync to, or keep in offline store.
   attribute long autoSyncMaxAgeDays;
 
+  /**
+   * See IMAP RFC 6855
+   */
+  attribute boolean allowUTF8Accept;
+
   void GetImapConnectionAndLoadUrl(in nsIImapUrl aImapUrl,
                                    in nsISupports aConsumer);
 
@@ -106,4 +111,5 @@ interface nsIImapIncomingServer : nsISupports {
 
   ACString getUriWithNamespacePrefixIfNecessary(in long namespaceType, in ACString originalUri);
   attribute boolean shuttingDown;
+  attribute boolean utf8AcceptEnabled;
 };

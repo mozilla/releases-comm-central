@@ -1987,7 +1987,7 @@ extern "C" void* mime_bridge_create_draft_stream(
   rv = GetMessageServiceFromURI(turl, getter_AddRefs(msgService));
   if (NS_FAILED(rv)) goto FAIL;
 
-  rv = msgService->GetUrlForUri(turl.get(), getter_AddRefs(aURL), nullptr);
+  rv = msgService->GetUrlForUri(turl, getter_AddRefs(aURL), nullptr);
   if (NS_FAILED(rv)) goto FAIL;
 
   if (NS_SUCCEEDED(aURL->GetSpec(urlString))) {

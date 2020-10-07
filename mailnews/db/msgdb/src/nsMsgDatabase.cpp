@@ -3391,7 +3391,7 @@ nsresult nsMsgDatabase::RowCellColumnToCharPtr(nsIMdbRow* row,
 /* static */ struct mdbYarn* nsMsgDatabase::nsStringToYarn(
     struct mdbYarn* yarn, const nsAString& str) {
   yarn->mYarn_Buf = ToNewCString(NS_ConvertUTF16toUTF8(str));
-  yarn->mYarn_Size = str.Length() + 1;
+  yarn->mYarn_Size = strlen((const char*)yarn->mYarn_Buf) + 1;
   yarn->mYarn_Fill = yarn->mYarn_Size - 1;
   yarn->mYarn_Form =
       0;  // what to do with this? we're storing csid in the msg hdr...

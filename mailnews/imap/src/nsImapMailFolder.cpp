@@ -342,7 +342,7 @@ NS_IMETHODIMP nsImapMailFolder::AddSubfolder(const nsAString& aName,
 
   nsCOMPtr<nsIMsgImapMailFolder> imapChild = do_QueryInterface(*aChild);
   if (imapChild) {
-    imapChild->SetOnlineName(NS_LossyConvertUTF16toASCII(aName));
+    imapChild->SetOnlineName(NS_ConvertUTF16toUTF8(aName));
     imapChild->SetHierarchyDelimiter(m_hierarchyDelimiter);
   }
   NotifyItemAdded(*aChild);
@@ -489,7 +489,7 @@ nsresult nsImapMailFolder::CreateSubFolders(nsIFile* path) {
           if (leafPos > 0) currentFolderNameStr.Cut(0, leafPos + 1);
 
           // take the utf7 full online name, and determine the utf7 leaf name
-          CopyASCIItoUTF16(onlineFullUtf7Name, utf7LeafName);
+          CopyUTF8toUTF16(onlineFullUtf7Name, utf7LeafName);
           leafPos = utf7LeafName.RFindChar(delimiter);
           if (leafPos > 0) utf7LeafName.Cut(0, leafPos + 1);
         }
@@ -862,7 +862,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
   rv = CreateDirectoryForFolder(getter_AddRefs(path));
   if (NS_FAILED(rv)) return rv;
 
-  NS_ConvertASCIItoUTF16 leafName(folderName);
+  NS_ConvertUTF8toUTF16 leafName(folderName);
   nsAutoString folderNameStr;
   nsAutoString parentName = leafName;
   // use RFind, because folder can start with a delimiter and
@@ -877,14 +877,14 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
     rv = CreateDirectoryForFolder(getter_AddRefs(path));
     NS_ENSURE_SUCCESS(rv, rv);
     uri.Append('/');
-    uri.Append(NS_LossyConvertUTF16toASCII(parentName));
+    uri.Append(NS_ConvertUTF16toUTF8(parentName));
     nsCOMPtr<nsIMsgFolder> folder;
     rv = GetOrCreateFolder(uri, getter_AddRefs(folder));
     NS_ENSURE_SUCCESS(rv, rv);
     imapFolder = do_QueryInterface(folder, &rv);
     NS_ENSURE_SUCCESS(rv, rv);
     nsAutoCString leafnameC;
-    LossyCopyUTF16toASCII(leafName, leafnameC);
+    CopyUTF16toUTF8(leafName, leafnameC);
     return imapFolder->CreateClientSubfolderInfo(leafnameC, hierarchyDelimiter,
                                                  flags, suppressNotification);
   }
@@ -921,7 +921,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
     if (NS_SUCCEEDED(rv)) {
       nsAutoCString onlineName(m_onlineFolderName);
       if (!onlineName.IsEmpty()) onlineName.Append(hierarchyDelimiter);
-      onlineName.Append(NS_LossyConvertUTF16toASCII(folderNameStr));
+      onlineName.Append(NS_ConvertUTF16toUTF8(folderNameStr));
       imapFolder->SetVerifiedAsOnlineFolder(true);
       imapFolder->SetOnlineName(onlineName);
       imapFolder->SetHierarchyDelimiter(hierarchyDelimiter);
@@ -960,7 +960,7 @@ NS_IMETHODIMP nsImapMailFolder::CreateClientSubfolderInfo(
       // I don't think anyone uses the mailbox name, so we'll use it
       // to restore the online name when blowing away an imap db.
       if (folderInfo)
-        folderInfo->SetMailboxName(NS_ConvertASCIItoUTF16(onlineName));
+        folderInfo->SetMailboxName(NS_ConvertUTF8toUTF16(onlineName));
     }
 
     unusedDB->SetSummaryValid(true);
@@ -1769,7 +1769,9 @@ NS_IMETHODIMP nsImapMailFolder::ReadFromFolderCacheElem(
       hierarchyDelimiter != kOnlineHierarchySeparatorUnknown)
     m_hierarchyDelimiter = (char)hierarchyDelimiter;
   rv = element->GetStringProperty("onlineName", onlineName);
-  if (NS_SUCCEEDED(rv) && !onlineName.IsEmpty())
+  // Set m_onlineFolderName only if it's empty too. Avoids replacement chars in
+  // onlineName
+  if (NS_SUCCEEDED(rv) && m_onlineFolderName.IsEmpty() && !onlineName.IsEmpty())
     m_onlineFolderName.Assign(onlineName);
 
   m_aclFlags = kAclInvalid;  // init to invalid value.
@@ -1847,7 +1849,7 @@ NS_IMETHODIMP nsImapMailFolder::SetOnlineName(
   m_onlineFolderName = aOnlineFolderName;
   if (NS_SUCCEEDED(rv) && folderInfo) {
     nsAutoString onlineName;
-    CopyASCIItoUTF16(aOnlineFolderName, onlineName);
+    CopyUTF8toUTF16(aOnlineFolderName, onlineName);
     rv = folderInfo->SetProperty("onlineName", onlineName);
     rv = folderInfo->SetMailboxName(onlineName);
     // so, when are we going to commit this? Definitely not every time!
@@ -1900,10 +1902,16 @@ nsImapMailFolder::GetDBFolderInfoAndDB(nsIDBFolderInfo** folderInfo,
       nsCString onlineCName;
       rv = nsImapURI2FullName(kImapRootURI, hostname.get(), uri.get(),
                               getter_Copies(onlineCName));
-      if (m_hierarchyDelimiter != '/')
+      // Note: check for unknown separator '^' only became needed
+      // with UTF8=ACCEPT modification and haven't found why. Online name
+      // contained the '^' delimiter and gmail said "NO" when folder under
+      // [Gmail] is created and selected.
+      if ((m_hierarchyDelimiter != '/') &&
+          (m_hierarchyDelimiter != kOnlineHierarchySeparatorUnknown))
         onlineCName.ReplaceChar('/', m_hierarchyDelimiter);
+      // XXX: What if online name contains slashes? Breaks?
       m_onlineFolderName.Assign(onlineCName);
-      CopyASCIItoUTF16(onlineCName, autoOnlineName);
+      CopyUTF8toUTF16(onlineCName, autoOnlineName);
     }
     (*folderInfo)->SetProperty("onlineName", autoOnlineName);
   }
@@ -3435,7 +3443,7 @@ NS_IMETHODIMP nsImapMailFolder::ApplyFilterHit(nsIMsgFilter* filter,
                 do_GetService(NS_MSGCOMPOSESERVICE_CONTRACTID, &rv);
             if (NS_FAILED(rv)) break;
             rv = compService->ForwardMessage(
-                NS_ConvertASCIItoUTF16(forwardTo), msgHdr, msgWindow, server,
+                NS_ConvertUTF8toUTF16(forwardTo), msgHdr, msgWindow, server,
                 nsIMsgComposeService::kForwardAsDefault);
           }
         } break;
@@ -5629,7 +5637,7 @@ nsImapMailFolder::FillInFolderProps(nsIMsgImapFolderProps* aFolderProps) {
       NS_ASSERTION(false, "couldn't get owner name for other user's folder");
     } else {
       // is this right? It doesn't leak, does it?
-      CopyASCIItoUTF16(owner, uniOwner);
+      CopyUTF8toUTF16(owner, uniOwner);
     }
     AutoTArray<nsString, 1> params = {uniOwner};
     rv = bundle->FormatStringFromName("imapOtherUsersFolderTypeDescription",
@@ -8034,7 +8042,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
   oldImapFolder->GetBoxFlags(&boxflags);
 
   nsAutoString newLeafName;
-  NS_ConvertASCIItoUTF16 newNameString(newName);
+  NS_ConvertUTF8toUTF16 newNameString(newName);
   NS_ENSURE_SUCCESS(rv, rv);
   newLeafName = newNameString;
   nsAutoString folderNameStr;
@@ -8079,15 +8087,14 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
     rv = AddSubfolderWithPath(folderNameStr, dbFile, getter_AddRefs(child));
     if (!child || NS_FAILED(rv)) return rv;
     nsAutoString unicodeName;
-    rv = CopyMUTF7toUTF16(NS_LossyConvertUTF16toASCII(folderNameStr),
-                          unicodeName);
+    rv = CopyMUTF7toUTF16(NS_ConvertUTF16toUTF8(folderNameStr), unicodeName);
     if (NS_SUCCEEDED(rv)) child->SetPrettyName(unicodeName);
     imapFolder = do_QueryInterface(child);
     if (imapFolder) {
       nsAutoCString onlineName(m_onlineFolderName);
 
       if (!onlineName.IsEmpty()) onlineName.Append(hierarchyDelimiter);
-      onlineName.Append(NS_LossyConvertUTF16toASCII(folderNameStr));
+      onlineName.Append(NS_ConvertUTF16toUTF8(folderNameStr));
       imapFolder->SetVerifiedAsOnlineFolder(true);
       imapFolder->SetOnlineName(onlineName);
       imapFolder->SetHierarchyDelimiter(hierarchyDelimiter);
@@ -8097,7 +8104,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameClient(nsIMsgWindow* msgWindow,
       // to restore the online name when blowing away an imap db.
       if (folderInfo) {
         nsAutoString unicodeOnlineName;
-        CopyASCIItoUTF16(onlineName, unicodeOnlineName);
+        CopyUTF8toUTF16(onlineName, unicodeOnlineName);
         folderInfo->SetMailboxName(unicodeOnlineName);
       }
       bool changed = false;
@@ -8187,7 +8194,7 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow* msgWindow,
 
     // XXX : Fix this non-sense by fixing AddSubfolderWithPath
     nsAutoString unicodeLeafName;
-    CopyASCIItoUTF16(utf7LeafName, unicodeLeafName);
+    CopyUTF8toUTF16(utf7LeafName, unicodeLeafName);
 
     rv = AddSubfolderWithPath(unicodeLeafName, dbFilePath,
                               getter_AddRefs(child));
@@ -8572,8 +8579,7 @@ NS_IMETHODIMP nsImapMailFolder::FetchMsgPreviewText(
     nsCString messageUri;
     rv = GetUriForMsg(msgHdr, messageUri);
     NS_ENSURE_SUCCESS(rv, rv);
-    rv = msgService->GetUrlForUri(messageUri.get(), getter_AddRefs(url),
-                                  nullptr);
+    rv = msgService->GetUrlForUri(messageUri, getter_AddRefs(url), nullptr);
     NS_ENSURE_SUCCESS(rv, rv);
 
     // Lets look in the offline store.

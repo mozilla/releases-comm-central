@@ -444,22 +444,21 @@ NS_IMETHODIMP nsNntpService::OpenAttachment(
   return NS_OK;
 }
 
-NS_IMETHODIMP nsNntpService::GetUrlForUri(const char* aMessageURI,
+NS_IMETHODIMP nsNntpService::GetUrlForUri(const nsACString& aMessageURI,
                                           nsIURI** aURL,
                                           nsIMsgWindow* aMsgWindow) {
   nsresult rv = NS_OK;
-
-  NS_ENSURE_ARG_POINTER(aMessageURI);
+  const nsCString& temp = PromiseFlatCString(aMessageURI);
 
   // double check that it is a news-message:/ uri
-  if (PL_strncmp(aMessageURI, kNewsMessageRootURI, kNewsMessageRootURILen)) {
+  if (PL_strncmp(temp.get(), kNewsMessageRootURI, kNewsMessageRootURILen)) {
     rv = NS_ERROR_UNEXPECTED;
     NS_ENSURE_SUCCESS(rv, rv);
   }
 
   nsCOMPtr<nsIMsgFolder> folder;
   nsMsgKey key = nsMsgKey_None;
-  rv = DecomposeNewsMessageURI(aMessageURI, getter_AddRefs(folder), &key);
+  rv = DecomposeNewsMessageURI(temp.get(), getter_AddRefs(folder), &key);
   NS_ENSURE_SUCCESS(rv, rv);
 
   nsCString messageIdURL;
@@ -467,7 +466,7 @@ NS_IMETHODIMP nsNntpService::GetUrlForUri(const char* aMessageURI,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // this is only called by view message source
-  rv = ConstructNntpUrl(messageIdURL.get(), nullptr, aMsgWindow, aMessageURI,
+  rv = ConstructNntpUrl(messageIdURL.get(), nullptr, aMsgWindow, temp.get(),
                         nsINntpUrl::ActionFetchArticle, aURL);
   NS_ENSURE_SUCCESS(rv, rv);
   if (folder && *aURL) {

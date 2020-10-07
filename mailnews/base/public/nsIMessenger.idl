@@ -120,8 +120,8 @@ interface nsIMessenger : nsISupports {
 
     readonly attribute ACString lastDisplayedMessageUri;
 
-    nsIMsgMessageService messageServiceFromURI(in ACString aUri);
-    nsIMsgDBHdr msgHdrFromURI(in ACString aUri);
+    nsIMsgMessageService messageServiceFromURI(in AUTF8String aUri);
+    nsIMsgDBHdr msgHdrFromURI(in AUTF8String aUri);
     // For back forward history, we need a list of visited messages,
     // and where we are in the list.
 

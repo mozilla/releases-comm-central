@@ -138,7 +138,7 @@ interface nsIMsgMessageService : nsISupports {
    * @param aURL URL which can be run through necko.
    * @param aMsgWindow
    */
-  void GetUrlForUri(in string aMessageURI, out nsIURI aURL, in nsIMsgWindow aMsgWindow);
+  void GetUrlForUri(in AUTF8String aMessageURI, out nsIURI aURL, in nsIMsgWindow aMsgWindow);
 
   /**
    * When you want a message displayed in a format that is suitable for printing....
