@@ -14,6 +14,7 @@ var gSearchFolderURIs = "";
 var gMessengerBundle = null;
 var kCurrentColor = "";
 var kDefaultColor = "#363959";
+var gNeedToRestoreFolderSelection = false;
 
 var nsMsgSearchScope = Ci.nsMsgSearchScope;
 
@@ -242,8 +243,11 @@ function onOK(event) {
     if (window.arguments[0].onOKCallback) {
       window.arguments[0].onOKCallback(virtualFolderWrapper.virtualFolder.URI);
     }
+
+    restoreFolderSelection();
     return;
   }
+
   var uri = gPickedFolder.URI;
   if (name && uri) {
     // create a new virtual folder
@@ -291,6 +295,22 @@ function onCancel(event) {
       window.arguments[0].folder,
       kCurrentColor
     );
+  }
+
+  restoreFolderSelection();
+}
+
+/**
+ * If the user interacted with the color picker, it means the folder was
+ * deselected to ensure a proper preview of the color, so we need to re-select
+ * the folder when done.
+ */
+function restoreFolderSelection() {
+  if (
+    gNeedToRestoreFolderSelection &&
+    window.arguments[0].selectFolderCallback
+  ) {
+    window.arguments[0].selectFolderCallback(window.arguments[0].folder);
   }
 }
 
@@ -351,10 +371,12 @@ function onEnterInSearchTerm() {
 }
 
 /**
- * Clear the tree selection if the user opens the color picker.
+ * Clear the tree selection if the user opens the color picker in order to
+ * guarantee a proper color preview of the highlighted tree item.
  */
 function inputColorClicked() {
   window.arguments[0].clearFolderSelectionCallback();
+  gNeedToRestoreFolderSelection = true;
 }
 
 /**

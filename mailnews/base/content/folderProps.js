@@ -13,6 +13,7 @@ var gMsgFolder;
 var gLockedPref = null;
 var kCurrentColor = "";
 var kDefaultColor = "#363959";
+var gNeedToRestoreFolderSelection = false;
 
 document.addEventListener("dialogaccept", folderPropsOKButton);
 document.addEventListener("dialogcancel", folderCancelButton);
@@ -120,10 +121,12 @@ function doEnabling() {
 }
 
 /**
- * Clear the tree selection if the user opens the color picker.
+ * Clear the tree selection if the user opens the color picker in order to
+ * guarantee a proper color preview of the highlighted tree item.
  */
 function inputColorClicked() {
   window.arguments[0].clearFolderSelectionCallback();
+  gNeedToRestoreFolderSelection = true;
 }
 
 /**
@@ -200,6 +203,8 @@ function folderPropsOKButton(event) {
     ) {
       window.arguments[0].updateColorCallback(gMsgFolder);
     }
+
+    restoreFolderSelection();
   }
 
   try {
@@ -218,6 +223,22 @@ function folderCancelButton(event) {
   // Restore the icon to the previous color and discard edits.
   if (gMsgFolder && window.arguments[0].previewSelectedColorCallback) {
     window.arguments[0].previewSelectedColorCallback(gMsgFolder, kCurrentColor);
+  }
+
+  restoreFolderSelection();
+}
+
+/**
+ * If the user interacted with the color picker, it means the folder was
+ * deselected to ensure a proper preview of the color, so we need to re-select
+ * the folder when done.
+ */
+function restoreFolderSelection() {
+  if (
+    gNeedToRestoreFolderSelection &&
+    window.arguments[0].selectFolderCallback
+  ) {
+    window.arguments[0].selectFolderCallback(gMsgFolder);
   }
 }
 
