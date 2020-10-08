@@ -11,6 +11,9 @@ preferences-title =
         *[other] Preferences
     }
 
+category-list =
+    .aria-label = Categories
+
 pane-general-title = General
 category-general =
     .tooltiptext = { pane-general-title }
