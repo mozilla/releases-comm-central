@@ -189,6 +189,30 @@ toolbar[type="menubar"][autohide="true"][inactive="true"]:not([customizing="true
   }
 }
 
+panelmultiview[transitioning] {
+  pointer-events: none;
+}
+
+.panel-viewcontainer {
+  overflow: hidden;
+}
+
+.panel-viewcontainer[panelopen] {
+  transition-property: height;
+  transition-timing-function: var(--animation-easing-function);
+  transition-duration: var(--panelui-subview-transition-duration);
+  will-change: height;
+}
+
+.panel-viewcontainer.offscreen {
+  display: block;
+}
+
+.panel-viewstack {
+  overflow: visible;
+  transition: height var(--panelui-subview-transition-duration);
+}
+
 /* Status panel */
 
 statuspanel {
