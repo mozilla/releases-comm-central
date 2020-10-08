@@ -238,6 +238,13 @@
             label="&newmsgButton.label;"
             accesskey="&newmsgButton.accesskey;"
             command="cmd_newMessage"/>
+  <menu id="abResultsTreeContext-newmessageMultiple"
+        label="&newmsgButton.label;"
+        accesskey="&newmsgButton.accesskey;">
+    <menupopup>
+      <!-- This popup is filled dynamically if a contact with multiple addresses is selected. -->
+    </menupopup>
+  </menu>
   <menuitem id="abResultsTreeContext-newim"
             label="&newIM.label;"
             accesskey="&newIM.accesskey;"
@@ -344,6 +351,13 @@
                                 accesskey="&newMessageCmd.accesskey;"
                                 command="cmd_newMessage"
                                 class="menuitem-iconic"/>
+                      <menu id="menu_newMessageMultiple"
+                            label="&newmsgButton.label;"
+                            accesskey="&newmsgButton.accesskey;">
+                        <menupopup>
+                          <!-- This popup is filled dynamically if a contact with multiple addresses is selected. -->
+                        </menupopup>
+                      </menu>
                     </menupopup>
                 </menu>
                 <menuseparator/>
@@ -658,7 +672,14 @@
                      valueAddressBookTooltipText="&editAbPropertiesButton.tooltip;"
                      valueContactTooltipText="&editContactPropertiesButton.tooltip;"
                      valueMailingListTooltipText="&editMailingListPropertiesButton.tooltip;"/>
-      <toolbarbutton class="toolbarbutton-1" id="button-newmessage" label="&newmsgButton.label;" tooltiptext="&newmsgButton.tooltip;" command="cmd_newMessage"/>
+      <toolbarbutton class="toolbarbutton-1" id="button-newmessage"
+                     label="&newmsgButton.label;"
+                     tooltiptext="&newmsgButton.tooltip;"
+                     command="cmd_newMessage">
+        <menupopup>
+          <!-- This popup is filled dynamically if a contact with multiple addresses is selected. -->
+        </menupopup>
+      </toolbarbutton>
       <toolbarbutton class="toolbarbutton-1" id="button-newim" label="&newIM.label;" tooltiptext="&newIM.tooltip;" command="cmd_chatWithCard"/>
       <toolbarbutton class="toolbarbutton-1" id="button-abdelete"
                      label="&deleteButton2.label;"

@@ -267,6 +267,76 @@ function CommandUpdate_AddressBook() {
 
 function ResultsPaneSelectionChanged() {
   UpdateCardView();
+
+  let contextSingle = document.getElementById(
+    "abResultsTreeContext-newmessage"
+  );
+  if (!contextSingle) {
+    // Give up, this isn't the main address book window.
+    return;
+  }
+  let contextMultiple = document.getElementById(
+    "abResultsTreeContext-newmessageMultiple"
+  );
+  let menuSingle = document.getElementById("menu_newMessage");
+  let menuMultiple = document.getElementById("menu_newMessageMultiple");
+  let toolbarButton = document.getElementById("button-newmessage");
+
+  let selectedCards = GetSelectedAbCards();
+  if (selectedCards.length == 1) {
+    let first = selectedCards[0].primaryEmail;
+    let second = selectedCards[0].getProperty("SecondEmail", "");
+    if (first && second) {
+      // Set the menus and toolbar button to display a list of addresses.
+      contextSingle.hidden = true;
+      contextMultiple.hidden = false;
+      menuSingle.hidden = true;
+      menuMultiple.hidden = false;
+      toolbarButton.setAttribute("type", "menu");
+
+      while (contextMultiple.menupopup.lastChild) {
+        contextMultiple.menupopup.lastChild.remove();
+      }
+      while (menuMultiple.menupopup.lastChild) {
+        menuMultiple.menupopup.lastChild.remove();
+      }
+      while (toolbarButton.menupopup.lastChild) {
+        toolbarButton.menupopup.lastChild.remove();
+      }
+
+      for (let address of [first, second]) {
+        let callAbNewMessage = function(event) {
+          AbNewMessage(
+            MailServices.headerParser.makeMimeAddress(
+              selectedCards[0].displayName,
+              address
+            )
+          );
+          event.stopPropagation();
+        };
+
+        let menuitem = contextMultiple.menupopup.appendChild(
+          document.createXULElement("menuitem")
+        );
+        menuitem.label = address;
+        menuitem.addEventListener("command", callAbNewMessage);
+        menuMultiple.menupopup
+          .appendChild(menuitem.cloneNode(false))
+          .addEventListener("command", callAbNewMessage);
+        toolbarButton.menupopup
+          .appendChild(menuitem.cloneNode(false))
+          .addEventListener("command", callAbNewMessage);
+      }
+      return;
+    }
+  }
+
+  // Set the menus and toolbar button to start a new message.
+  contextSingle.hidden = false;
+  contextMultiple.hidden = true;
+  menuSingle.hidden = false;
+  menuMultiple.hidden = true;
+  toolbarButton.removeAttribute("type");
 }
 
 function UpdateCardView() {

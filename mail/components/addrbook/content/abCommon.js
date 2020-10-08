@@ -572,7 +572,7 @@ function AbEditCard(card) {
   }
 }
 
-function AbNewMessage() {
+function AbNewMessage(address) {
   let params = Cc[
     "@mozilla.org/messengercompose/composeparams;1"
   ].createInstance(Ci.nsIMsgComposeParams);
@@ -582,7 +582,9 @@ function AbNewMessage() {
     "@mozilla.org/messengercompose/composefields;1"
   ].createInstance(Ci.nsIMsgCompFields);
 
-  if (DirPaneHasFocus()) {
+  if (address) {
+    params.composeFields.to = address;
+  } else if (DirPaneHasFocus()) {
     let selectedDir = getSelectedDirectory();
     let hidesRecipients = false;
     try {
@@ -893,7 +895,7 @@ function makeMimeAddressFromCard(card) {
     let directory = GetDirectoryFromURI(card.mailListURI);
     email = directory.description || card.displayName;
   } else {
-    email = card.primaryEmail;
+    email = card.primaryEmail || card.getProperty("SecondEmail", "");
   }
   return MailServices.headerParser.makeMimeAddress(card.displayName, email);
 }
