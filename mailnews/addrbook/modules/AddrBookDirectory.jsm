@@ -191,6 +191,13 @@ class AddrBookDirectory {
     let file = FileUtils.getFile("ProfD", [this.fileName]);
     let connection = openConnectionTo(file);
 
+    // SQLite cache size can be set by the cacheSize preference, in KiB.
+    // The default is 5 MiB but this can be lowered to 1 MiB if wanted.
+    // There is no maximum size.
+    let cacheSize = this.getIntValue("cacheSize", 5120); // 5 MiB
+    cacheSize = Math.max(cacheSize, 1024); // 1 MiB
+    connection.executeSimpleSQL(`PRAGMA cache_size=-${cacheSize}`);
+
     Object.defineProperty(this, "_dbConnection", {
       enumerable: true,
       value: connection,
