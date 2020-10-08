@@ -128,9 +128,6 @@
   margin: 0;
   margin-inline-start: 4px;
   vertical-align: middle;
-  border: 1px solid var(--toolbarbutton-header-bordercolor);
-  border-radius: 3px;
-  background: var(--toolbarbutton-hover-background);
 }
 
 .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
@@ -141,15 +138,6 @@
   background-image: none;
   border-style: none;
   margin-bottom: 1px;
-}
-
-.toolbarbutton-1.msgHeaderView-button:hover,
-.toolbarbutton-1.msgHeaderView-button[type="menu-button"][open] {
-  background-color: rgba(230, 230, 230, .7) !important;
-}
-
-.toolbarbutton-1.msgHeaderView-button[type="menu-button"][buttondown="true"] {
-  background: var(--toolbarbutton-active-background);
 }
 
 .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-icon,

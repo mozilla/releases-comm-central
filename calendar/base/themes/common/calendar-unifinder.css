@@ -2,14 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+:root[lwt-tree-brighttext] #unifinder-searchBox {
+    --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
+    --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .5));
+    --toolbarbutton-header-bordercolor: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .25));
+    --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4));
+    --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .7));
+    --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background, rgba(255, 255, 255, .4)) inset;
+    --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background, rgba(255, 255, 255, .3));
+}
+
 /* only format Unifinder lists */
 #unifinder-search-results-tree > treechildren::-moz-tree-cell-text(highpriority) {
-   font-weight: bold;
+    font-weight: bold;
 }
 
 #unifinder-search-results-tree > treechildren::-moz-tree-cell-text(lowpriority) {
-   font-style: italic;
-   opacity: 0.6;
+    font-style: italic;
+    opacity: 0.6;
 }
 
 /* workaround to avoid Window Flick */

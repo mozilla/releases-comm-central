@@ -37,21 +37,17 @@
 /* :::: Filter Buttons :::: */
 
 #quick-filter-bar toolbarbutton {
-  margin-right: 1px;
-  margin-left: 1px;
+  margin-inline: 1px;
 }
 
 #quick-filter-bar-tab-bar > .qfb-tag-button {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-block: 0;
 }
 
 #quick-filter-bar-filter-text-bar > toolbarbutton {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-block: 0;
 }
 
 #qfb-boolean-mode {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-block: 0;
 }

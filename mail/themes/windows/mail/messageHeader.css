@@ -198,26 +198,6 @@ mail-headerfield.headerValue:focus {
   }
 }
 
-@media (-moz-windows-default-theme) {
-  .toolbarbutton-1.msgHeaderView-button,
-  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-    background: var(--toolbarbutton-hover-background);
-    border-color: var(--toolbarbutton-header-bordercolor);
-  }
-
-  .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):is(:hover,[open]) >
-  .toolbarbutton-menubutton-button,
-  .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):is(:hover,[open]) >
-  .toolbarbutton-menubutton-dropmarker,
-  .toolbarbutton-1.msgHeaderView-button:not([disabled=true]):not([checked=true]):not([open]):not(:active):hover,
-  .toolbarbutton-1.msgHeaderView-button:not([buttonover]):not([open]):not(:active):hover >
-  .toolbarbutton-menubutton-dropmarker:not([disabled]) {
-    background: var(--toolbarbutton-active-background);
-    border-color: var(--toolbarbutton-active-bordercolor);
-  }
-}
-
 .msgHeaderView-button > .toolbarbutton-icon,
 .msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-button
 > .toolbarbutton-icon {
@@ -324,19 +304,6 @@ mail-headerfield.headerValue:focus {
 
   findbar {
     background-color: #eef3fa;
-  }
-
-  .toolbarbutton-1.msgHeaderView-button,
-  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-  .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker {
-    box-shadow: 0 1px hsla(0, 0%, 100%, .3) inset,
-                0 1px hsla(210, 54%, 20%, .03),
-                0 0 2px hsla(210, 54%, 20%, .1);
-  }
-
-  .msgHeaderView-button:not([type="menu-button"]):not([disabled="true"]):not([checked="true"]):not([open="true"]):not(:active):hover {
-    box-shadow: 0 0 1px hsla(210, 54%, 20%, .1),
-                0 0 2px hsla(210, 54%, 20%, .1);
   }
 }
 

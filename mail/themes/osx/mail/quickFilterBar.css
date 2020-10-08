@@ -88,18 +88,15 @@
 
 @media (-moz-mac-yosemite-theme) {
   #qfb-qs-textbox {
-    margin-top: 3px;
-    margin-bottom: 2px;
+    margin-block: 3px 2px;
   }
 }
 
 #qfb-qs-label {
-  margin-top: 0;
-  margin-bottom: 3px;
+  margin-block: 0 3px;
   color: #6b6b6b;
 }
 
 #qfb-boolean-mode {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-block: 0;
 }

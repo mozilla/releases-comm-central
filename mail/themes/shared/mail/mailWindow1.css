@@ -104,11 +104,11 @@ treechildren::-moz-tree-cell-text(dummy) {
   --toolbarbutton-hover-background: var(--lwt-toolbarbutton-hover-background);
   --toolbarbutton-hover-bordercolor: var(--lwt-toolbarbutton-hover-background);
 
-  --toolbarbutton-checkedhover-backgroundcolor: var(--lwt-toolbarbutton-hover-background);
+  --toolbarbutton-checked-background: var(--lwt-toolbarbutton-hover-background);
 
   --toolbarbutton-active-background: var(--lwt-toolbarbutton-active-background);
   --toolbarbutton-active-bordercolor: var(--lwt-toolbarbutton-active-background);
-  --toolbarbutton-active-boxshadow: 0 0 0 1px var(--lwt-toolbarbutton-active-background) inset;
+  --toolbarbutton-active-boxshadow: none;
 }
 
 :root[lwt-tree] #qfb-qs-textbox {
