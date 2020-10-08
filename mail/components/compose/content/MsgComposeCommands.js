@@ -195,7 +195,7 @@ const inputObserver = {
       }
 
       // Trigger the pill creation.
-      recipientAddPill(document.getElementById(input.id));
+      recipientAddPills(document.getElementById(input.id));
     }
   },
 };
@@ -5011,7 +5011,13 @@ function OutputFormatMenuSelect(target) {
   }
 }
 
-// walk through the recipients list and add them to the inline spell checker ignore list
+/**
+ * Walk through a plain text list of recipients and add them to the inline spell
+ * checker ignore list, e.g. to avoid that known recipient names get marked
+ * wrong in message body.
+ *
+ * @param {string} aAddressesToAdd - A (comma-separated) recipient(s) string.
+ */
 function addRecipientsToIgnoreList(aAddressesToAdd) {
   if (gSpellChecker.enabled) {
     // break the list of potentially many recipients back into individual names

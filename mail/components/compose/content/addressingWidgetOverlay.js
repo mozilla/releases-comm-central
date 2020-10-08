@@ -123,7 +123,7 @@ function CompFields2Recipients(msgCompFields) {
         );
         input.focus();
         input.value = msgReplyTo.join(", ");
-        recipientAddPill(input, true);
+        recipientAddPills(input, true);
       }
     }
 
@@ -140,7 +140,7 @@ function CompFields2Recipients(msgCompFields) {
         }
         input.focus();
         input.value = msgTo.join(", ");
-        recipientAddPill(input, true);
+        recipientAddPills(input, true);
       }
     }
 
@@ -155,7 +155,7 @@ function CompFields2Recipients(msgCompFields) {
         showAddressRow(document.getElementById("addr_cc"), "addressRowCc");
         input.focus();
         input.value = msgCC.join(", ");
-        recipientAddPill(input, true);
+        recipientAddPills(input, true);
       }
     }
 
@@ -170,7 +170,7 @@ function CompFields2Recipients(msgCompFields) {
         showAddressRow(document.getElementById("addr_bcc"), "addressRowBcc");
         input.focus();
         input.value = msgBCC.join(", ");
-        recipientAddPill(input, true);
+        recipientAddPills(input, true);
       }
     }
 
@@ -185,7 +185,7 @@ function CompFields2Recipients(msgCompFields) {
         );
         input.focus();
         input.value = msgCompFields.newsgroups;
-        recipientAddPill(input, true);
+        recipientAddPills(input, true);
       }
     }
 
@@ -203,7 +203,7 @@ function CompFields2Recipients(msgCompFields) {
         );
         input.focus();
         input.value = msgFollowupTo.join(", ");
-        recipientAddPill(input, true);
+        recipientAddPills(input, true);
       }
     }
 
@@ -730,75 +730,74 @@ function addressInputOnBeforeHandleKeyDown(event) {
 }
 
 /**
- * Add a new "address-pill" to the parent recipient container.
+ * Add one or more <mail-address-pill> elements to the containing address row.
  *
- * @param {Element} element - The element that triggered the keypress event.
+ * @param {Element} input - Address input where "autocomplete-did-enter-text"
+ *   was observed, and/or to whose containing address row pill(s) will be added.
  * @param {boolean} [automatic=false] - Set to true if the change of recipients
  *   was invoked programmatically and should not be considered a change of
  *   message content.
  */
-function recipientAddPill(element, automatic = false) {
-  if (!element.value.trim()) {
+function recipientAddPills(input, automatic = false) {
+  if (!input.value.trim()) {
     return;
   }
 
-  let addresses = MailServices.headerParser.makeFromDisplayAddress(
-    element.value
-  );
+  let addresses = MailServices.headerParser.makeFromDisplayAddress(input.value);
   let recipientArea = document.getElementById("recipientsContainer");
 
   for (let address of addresses) {
-    recipientArea.createRecipientPill(element, address);
-
-    // Be sure to add the user add recipient to our ignore list
-    // when the user hits enter in an autocomplete widget...
-    addRecipientsToIgnoreList(element.value);
+    recipientArea.createRecipientPill(input, address);
   }
 
+  // Add the just added recipient address(es) to the spellcheck ignore list.
+  addRecipientsToIgnoreList(input.value.trim());
+
   // Reset the input element.
-  element.removeAttribute("nomatch");
-  element.setAttribute("size", 1);
-  element.value = "";
+  input.removeAttribute("nomatch");
+  input.setAttribute("size", 1);
+  input.value = "";
 
   // We need to detach the autocomplete Controller to prevent the input
   // to be filled with the previously selected address when the "blur" event
   // gets triggered.
-  element.detachController();
+  input.detachController();
   // Attach it again to enable autocomplete.
-  element.attachController();
+  input.attachController();
 
   if (!automatic) {
-    element
+    input
       .closest(".address-container")
       .classList.add("addressing-field-edited");
     onRecipientsChanged();
   }
 
   calculateHeaderHeight();
-  udpateAddressingInputAriaLabel(element.closest(".address-row"));
+  udpateAddressingInputAriaLabel(input.closest(".address-row"));
 }
 
 /**
- * Remove existing "address-pill" elements from the parent recipient container.
+ * Remove all <mail-address-pill> elements from the containing address row.
  *
- * @param {HTMLElement} element - The input element in the container to clear.
+ * @param {Element} input - The address input element in the container to clear.
  */
-function recipientClearPills(element) {
-  let container = element.closest(".address-container");
-  for (let pill of container.querySelectorAll("mail-address-pill")) {
+function recipientClearPills(input) {
+  for (let pill of input
+    .closest(".address-container")
+    .querySelectorAll("mail-address-pill")) {
     pill.remove();
   }
-  udpateAddressingInputAriaLabel(element.closest(".address-row"));
+  udpateAddressingInputAriaLabel(input.closest(".address-row"));
 }
 
 /**
  * Handle focus event of address inputs: Force a focused styling on the closest
  * address container of the currently focused input element.
  *
- * @param {HTMLElement} element - The input element receiving focus.
+ * @param {Element} input - The address input element receiving focus.
  */
-function addressInputOnFocus(element) {
-  element.closest(".address-container").setAttribute("focused", "true");
+function addressInputOnFocus(input) {
+  input.closest(".address-container").setAttribute("focused", "true");
   deselectAllPills();
 }
 
@@ -849,7 +848,7 @@ function addressInputOnBlur(input) {
       isMailingList ||
       input.classList.contains("news-input"))
   ) {
-    recipientAddPill(input);
+    recipientAddPills(input);
   }
 
   // Trim any remaining input for which we didn't create a pill.
