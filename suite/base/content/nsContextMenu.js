@@ -1130,14 +1130,16 @@ nsContextMenu.prototype = {
   viewMedia(e) {
     let doc = this.target.ownerDocument;
     let where = whereToOpenLink(e);
+
     if (this.onCanvas) {
-      let blobUrl = URL.createObjectURL(this.target);
       let systemPrincipal = Services.scriptSecurityManager
                                     .getSystemPrincipal();
-      openUILinkIn(blobUrl, where,
-                   { referrerURI: doc.documentURIObject,
-                     triggeringPrincipal: systemPrincipal,
-                   });
+      this.target.toBlob((blob) => {
+        openUILinkIn(URL.createObjectURL(blob), where,
+                     { referrerURI: doc.documentURIObject,
+                       triggeringPrincipal: systemPrincipal,
+                     });
+     });
     } else {
       urlSecurityCheck(this.mediaURL,
                        this.target.nodePrincipal,
