@@ -662,11 +662,13 @@ var GlodaFundAttr = {
     if (isFromMe) {
       aGlodaMessage.notability += this.NOTABILITY_FROM_ME;
     } else {
-      let authorCard = authorIdentity.abCard;
-      if (authorCard) {
+      let authorDisplayName = GlodaUtils.getDisplayNameForEmail(
+        authorIdentity.value
+      );
+      if (authorDisplayName !== null) {
         aGlodaMessage.notability += this.NOTABILITY_FROM_IN_ADDR_BOOK;
         // @testpoint gloda.noun.message.attr.authorMatches
-        aGlodaMessage._indexAuthor += " " + authorCard.displayName;
+        aGlodaMessage._indexAuthor += " " + authorDisplayName;
       }
     }
 
@@ -680,11 +682,11 @@ var GlodaFundAttr = {
         involves.push(toIdentity);
         recipients.push(toIdentity);
         involvesIdentities[toIdentity.id] = true;
-        let toCard = toIdentity.abCard;
-        if (toCard) {
+        let toDisplayName = GlodaUtils.getDisplayNameForEmail(toIdentity.value);
+        if (toDisplayName !== null) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch
-          aGlodaMessage._indexRecipients += " " + toCard.displayName;
+          aGlodaMessage._indexRecipients += " " + toDisplayName;
         }
       }
 
@@ -709,11 +711,11 @@ var GlodaFundAttr = {
         involves.push(ccIdentity);
         recipients.push(ccIdentity);
         involvesIdentities[ccIdentity.id] = true;
-        let ccCard = ccIdentity.abCard;
-        if (ccCard) {
+        let ccDisplayName = GlodaUtils.getDisplayNameForEmail(ccIdentity.value);
+        if (ccDisplayName !== null) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch
-          aGlodaMessage._indexRecipients += " " + ccCard.displayName;
+          aGlodaMessage._indexRecipients += " " + ccDisplayName;
         }
       }
       // optimization attribute cc-me ('I' am the parameter)
@@ -739,11 +741,13 @@ var GlodaFundAttr = {
         involves.push(bccIdentity);
         recipients.push(bccIdentity);
         involvesIdentities[bccIdentity.id] = true;
-        let bccCard = bccIdentity.abCard;
-        if (bccCard) {
+        let bccDisplayName = GlodaUtils.getDisplayNameForEmail(
+          bccIdentity.value
+        );
+        if (bccDisplayName !== null) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch
-          aGlodaMessage._indexRecipients += " " + bccCard.displayName;
+          aGlodaMessage._indexRecipients += " " + bccDisplayName;
         }
       }
       // optimization attribute cc-me ('I' am the parameter)
