@@ -1,6 +1,5 @@
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
-. "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/win32/common-win32"
 
 ac_add_options --enable-update-channel="${MOZ_UPDATE_CHANNEL}"

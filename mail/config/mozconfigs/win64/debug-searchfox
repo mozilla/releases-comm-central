@@ -3,7 +3,6 @@ MOZ_AUTOMATION_CHECK=0
 
 . "$topsrcdir/build/mozconfig.win-common"
 . "$topsrcdir/build/mozconfig.common"
-. "$topsrcdir/build/mozconfig.stylo"
 . "$topsrcdir/comm/mail/config/mozconfigs/common"
 . "$topsrcdir/comm/mail/config/mozconfigs/win64/common-win64"
 

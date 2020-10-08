@@ -1,6 +1,5 @@
 . "$topsrcdir/comm/build/mozconfig.comm-sccache"
 . "$topsrcdir/build/macosx/mozconfig.common"
-. "$topsrcdir/build/mozconfig.stylo"
 
 ac_add_options --enable-debug
 
