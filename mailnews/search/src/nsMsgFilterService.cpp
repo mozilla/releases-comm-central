@@ -639,24 +639,28 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
   MOZ_LOG(FILTERLOGMODULE, LogLevel::Debug,
           ("(Post) nsMsgFilterAfterTheFact::ApplyFilter"));
   nsresult rv;
-  do {  // error management block, break if unable to continue with filter.
+  do {
+    // Error management block, break if unable to continue with filter.
+
+    BREAK_IF_FALSE(m_searchHitHdrs, "No search headers object");
+    if (!m_curFilter)
+      break;  // Maybe not an error, we just need to call RunNextFilter();
+    if (!m_curFolder)
+      break;  // Maybe not an error, we just need to call AdvanceToNextFolder();
+
     // 'm_curFolder' can be reset asynchronously by the copy service
     // calling OnStopCopy(). So take a local copy here and use it throughout the
     // function.
     nsCOMPtr<nsIMsgFolder> curFolder = m_curFolder;
-    if (!m_curFilter)
-      break;  // Maybe not an error, we just need to call RunNextFilter();
-    if (!curFolder)
-      break;  // Maybe not an error, we just need to call AdvanceToNextFolder();
+    nsCOMPtr<nsIMsgFilter> curFilter = m_curFilter;
 
-    BREAK_IF_FALSE(m_searchHitHdrs, "No search headers object");
-    // we're going to log the filter actions before firing them because some
-    // actions are async
+    // We're going to log the filter actions before firing them because some
+    // actions are async.
     bool loggingEnabled = false;
     if (m_filters) (void)m_filters->GetLoggingEnabled(&loggingEnabled);
 
     nsTArray<RefPtr<nsIMsgRuleAction>> actionList;
-    rv = m_curFilter->GetSortedActionList(actionList);
+    rv = curFilter->GetSortedActionList(actionList);
     BREAK_IF_FAILURE(rv, "Could not get action list for filter");
 
     uint32_t numActions = actionList.Length();
@@ -706,7 +710,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
 
       if (loggingEnabled) {
         for (auto msgHdr : hitHdrs) {
-          (void)m_curFilter->LogRuleHit(filterAction, msgHdr);
+          (void)curFilter->LogRuleHit(filterAction, msgHdr);
         }
       }
 
@@ -764,7 +768,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
           destIFolder->GetParent(getter_AddRefs(parentFolder));
           if (parentFolder) destIFolder->GetCanFileMessages(&canFileMessages);
           if (!parentFolder || !canFileMessages) {
-            m_curFilter->SetEnabled(false);
+            curFilter->SetEnabled(false);
             destIFolder->ThrowAlertMsg("filterDisabled", m_msgWindow);
             // we need to explicitly save the filter file.
             m_filters->SaveToDefaultFile();
@@ -905,11 +909,11 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                                                 m_msgWindow, server);
             if (NS_FAILED(rv)) {
               if (rv == NS_ERROR_ABORT) {
-                (void)m_curFilter->LogRuleHitFail(
+                (void)curFilter->LogRuleHitFail(
                     filterAction, msgHdr, rv,
                     "filterFailureSendingReplyAborted"_ns);
               } else {
-                (void)m_curFilter->LogRuleHitFail(
+                (void)curFilter->LogRuleHitFail(
                     filterAction, msgHdr, rv,
                     "filterFailureSendingReplyError"_ns);
               }
@@ -983,7 +987,7 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
 
         case nsMsgFilterAction::Custom: {
           nsMsgFilterTypeType filterType;
-          m_curFilter->GetFilterType(&filterType);
+          curFilter->GetFilterType(&filterType);
           nsCOMPtr<nsIMsgFilterCustomAction> customAction;
           rv = filterAction->GetCustomAction(getter_AddRefs(customAction));
           BREAK_ACTION_IF_FAILURE(rv, "Could not get custom action");
@@ -1015,8 +1019,8 @@ nsresult nsMsgFilterAfterTheFact::ApplyFilter() {
                  static_cast<uint32_t>(mFinalResult)));
         if (loggingEnabled) {
           nsCOMPtr<nsIMsgDBHdr> msgHdr = do_QueryElementAt(m_searchHitHdrs, 0);
-          (void)m_curFilter->LogRuleHitFail(filterAction, msgHdr, mFinalResult,
-                                            "filterActionFailed"_ns);
+          (void)curFilter->LogRuleHitFail(filterAction, msgHdr, mFinalResult,
+                                          "filterActionFailed"_ns);
         }
       } else {
         MOZ_LOG(FILTERLOGMODULE, LogLevel::Info,
