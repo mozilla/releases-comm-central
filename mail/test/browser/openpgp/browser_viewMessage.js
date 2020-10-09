@@ -11,9 +11,11 @@
 const { open_message_from_file } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
-const { close_window } = ChromeUtils.import(
-  "resource://testing-common/mozmill/WindowHelpers.jsm"
-);
+const {
+  close_window,
+  plan_for_modal_dialog,
+  wait_for_modal_dialog,
+} = ChromeUtils.import("resource://testing-common/mozmill/WindowHelpers.jsm");
 const { OpenPGPTestUtils } = ChromeUtils.import(
   "resource://testing-common/mozmill/OpenPGPTestUtils.jsm"
 );
@@ -234,6 +236,62 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
   Assert.ok(
     OpenPGPTestUtils.hasEncryptedIconState(mc.window.document, "ok"),
     "encrypted icon is displayed"
+  );
+  close_window(mc);
+});
+
+/**
+ * Test that the message is properly reloaded and the message security icon is
+ * updated if the user changes the signature acceptance level.
+ */
+add_task(async function testUpdateMessageSignature() {
+  // Setup the message.
+  let mc = await open_message_from_file(
+    new FileUtils.File(
+      getTestFilePath(
+        "data/eml/signed-by-0x4b6454a0c3cb51d0-to-0xf2823b8f6c9a7553-unencrypted.eml"
+      )
+    )
+  );
+
+  // Verify current signature acceptance.
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "verified"),
+    "signed verified icon is displayed"
+  );
+
+  let popupshown = BrowserTestUtils.waitForEvent(
+    mc.e("messageSecurityPanel"),
+    "popupshown"
+  );
+  mc.click(mc.eid("encryptionTechBtn"));
+  // Wait for the popup panel and signature button to become visible otherwise
+  // we can't click on it.
+  await popupshown;
+
+  // Open the Key Properties dialog and change the signature acceptance.
+  plan_for_modal_dialog("KeyDetailsDialog", dlg => {
+    dlg.click(dlg.eid("acceptUnverified"));
+    // Wait for all the conditions to run on dialogaccept.
+    dlg.waitFor(
+      dlg.window.document.documentElement.querySelector("dialog").acceptDialog()
+    );
+  });
+
+  mc.click(mc.eid("viewSignatureKey"));
+  wait_for_modal_dialog("KeyDetailsDialog");
+
+  // Wait for the icon to reload.
+  await BrowserTestUtils.waitForAttribute(
+    "signed",
+    mc.window.document.getElementById("signedHdrIcon"),
+    "unverified"
+  );
+
+  // Verify the new acceptance level is correct.
+  Assert.ok(
+    OpenPGPTestUtils.hasSignedIconState(mc.window.document, "unverified"),
+    "signed unverified icon is displayed"
   );
   close_window(mc);
 });

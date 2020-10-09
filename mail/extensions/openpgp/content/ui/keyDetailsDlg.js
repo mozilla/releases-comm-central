@@ -701,30 +701,40 @@ SubkeyListView.prototype = {
 
 function sigHandleDblClick(event) {}
 
-async function onAccept() {
+document.addEventListener("dialogaccept", async function(event) {
+  // Prevent the closing of the dialog to wait until all the SQLite operations
+  // have properly been executed.
+  event.preventDefault();
+
+  // The user's personal OpenPGP key acceptance was edited.
   if (gModePersonal) {
     if (gUpdateAllowed && gPersonalRadio.value != gOriginalPersonal) {
-      enableRefresh();
-
       if (gPersonalRadio.value == "personal") {
         await PgpSqliteDb2.acceptAsPersonalKey(gFingerprint);
       } else {
         await PgpSqliteDb2.deletePersonalKeyAcceptance(gFingerprint);
       }
-    }
-  } else if (gUpdateAllowed) {
-    if (gAcceptanceRadio.value != gOriginalAcceptance) {
-      enableRefresh();
 
-      await PgpSqliteDb2.updateAcceptance(
-        gFingerprint,
-        gAllEmails,
-        gAcceptanceRadio.value
-      );
+      enableRefresh();
     }
+    window.close();
+    return;
   }
-  return true;
-}
+
+  // If the recipient's key hasn't been revoked or invalidated, and the
+  // signature acceptance was edited.
+  if (gUpdateAllowed && gAcceptanceRadio.value != gOriginalAcceptance) {
+    await PgpSqliteDb2.updateAcceptance(
+      gFingerprint,
+      gAllEmails,
+      gAcceptanceRadio.value
+    );
+
+    enableRefresh();
+  }
+
+  window.close();
+});
 
 /**
  * Resize the dialog to account for the newly visible sections.
@@ -741,10 +751,3 @@ function resizeDialog() {
     }
   }, 230);
 }
-
-document.addEventListener("dialogaccept", async function(event) {
-  let result = await onAccept();
-  if (!result) {
-    event.preventDefault();
-  } // Prevent the dialog closing.
-});

@@ -403,7 +403,7 @@ var EnigmailWindows = {
     };
     win.openDialog(
       "chrome://openpgp/content/ui/keyDetailsDlg.xhtml",
-      "",
+      "KeyDetailsDialog",
       "dialog,modal,centerscreen,resizable",
       { keyId, modified: EnigmailKeyRing.clearCache },
       resultObj
