@@ -4,6 +4,9 @@
 
 const EXPORTED_SYMBOLS = ["GlodaFundAttr"];
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 const { GlodaUtils } = ChromeUtils.import(
@@ -662,9 +665,9 @@ var GlodaFundAttr = {
     if (isFromMe) {
       aGlodaMessage.notability += this.NOTABILITY_FROM_ME;
     } else {
-      let authorDisplayName = GlodaUtils.getDisplayNameForEmail(
+      let authorDisplayName = MailServices.ab.cardForEmailAddress(
         authorIdentity.value
-      );
+      )?.displayName;
       if (authorDisplayName !== null) {
         aGlodaMessage.notability += this.NOTABILITY_FROM_IN_ADDR_BOOK;
         // @testpoint gloda.noun.message.attr.authorMatches
@@ -682,7 +685,9 @@ var GlodaFundAttr = {
         involves.push(toIdentity);
         recipients.push(toIdentity);
         involvesIdentities[toIdentity.id] = true;
-        let toDisplayName = GlodaUtils.getDisplayNameForEmail(toIdentity.value);
+        let toDisplayName = MailServices.ab.cardForEmailAddress(
+          toIdentity.value
+        )?.displayName;
         if (toDisplayName !== null) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch
@@ -711,7 +716,9 @@ var GlodaFundAttr = {
         involves.push(ccIdentity);
         recipients.push(ccIdentity);
         involvesIdentities[ccIdentity.id] = true;
-        let ccDisplayName = GlodaUtils.getDisplayNameForEmail(ccIdentity.value);
+        let ccDisplayName = MailServices.ab.cardForEmailAddress(
+          ccIdentity.value
+        )?.displayName;
         if (ccDisplayName !== null) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch
@@ -741,9 +748,9 @@ var GlodaFundAttr = {
         involves.push(bccIdentity);
         recipients.push(bccIdentity);
         involvesIdentities[bccIdentity.id] = true;
-        let bccDisplayName = GlodaUtils.getDisplayNameForEmail(
+        let bccDisplayName = MailServices.ab.cardForEmailAddress(
           bccIdentity.value
-        );
+        )?.displayName;
         if (bccDisplayName !== null) {
           involvedAddrBookCount++;
           // @testpoint gloda.noun.message.attr.recipientsMatch

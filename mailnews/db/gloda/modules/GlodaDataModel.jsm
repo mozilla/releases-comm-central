@@ -13,13 +13,12 @@ const EXPORTED_SYMBOLS = [
   "GlodaAttachment",
 ];
 
+const { MailServices } = ChromeUtils.import(
+  "resource:///modules/MailServices.jsm"
+);
 const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 var LOG = Log4Moz.repository.getLogger("gloda.datamodel");
-
-const { GlodaUtils } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaUtils.jsm"
-);
 
 // Make it lazy.
 var gMessenger;
@@ -1004,7 +1003,7 @@ GlodaIdentity.prototype = {
     if (this._kind != "email") {
       return false;
     }
-    let card = GlodaUtils.getCardForEmail(this._value);
+    let card = MailServices.ab.cardForEmailAddress(this._value);
     this._hasAddressBookCard = card != null;
     return card;
   },

@@ -20,6 +20,9 @@ ChromeUtils.defineModuleGetter(
   "resource://gre/modules/Services.jsm"
 );
 
+const { clearTimeout, setTimeout } = ChromeUtils.import(
+  "resource://gre/modules/Timer.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import(
   "resource://gre/modules/XPCOMUtils.jsm"
 );
@@ -183,6 +186,10 @@ Services.obs.addObserver(() => {
   store = null;
   Services.obs.notifyObservers(null, "addrbook-reloaded");
 }, "addrbook-reload");
+
+/** Cache for the cardForEmailAddress function, and timer to clear it. */
+let addressCache = new Map();
+let addressCacheTimer = null;
 
 /**
  * @implements nsIAbManager
@@ -494,6 +501,38 @@ AddrBookManager.prototype = {
       }
     }
     return false;
+  },
+  cardForEmailAddress(emailAddress) {
+    if (!emailAddress) {
+      return null;
+    }
+
+    if (addressCacheTimer) {
+      clearTimeout(addressCacheTimer);
+    }
+    addressCacheTimer = setTimeout(() => {
+      addressCacheTimer = null;
+      addressCache.clear();
+    }, 60000);
+
+    if (addressCache.has(emailAddress)) {
+      return addressCache.get(emailAddress);
+    }
+
+    for (let directory of sortedDirectoryList) {
+      try {
+        let card = directory.cardForEmailAddress(emailAddress);
+        if (card) {
+          addressCache.set(emailAddress, card);
+          return card;
+        }
+      } catch (ex) {
+        // Directories can throw, that's okay.
+      }
+    }
+
+    addressCache.set(emailAddress, null);
+    return null;
   },
 
   /* nsICommandLineHandler */

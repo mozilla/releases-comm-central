@@ -277,19 +277,10 @@ static nsresult GetDisplayNameInAddressBook(const nsACString& emailAddress,
       do_GetService("@mozilla.org/abmanager;1", &rv));
   NS_ENSURE_SUCCESS(rv, rv);
 
-  nsTArray<RefPtr<nsIAbDirectory>> directories;
-  rv = abManager->GetDirectories(directories);
-  NS_ENSURE_SUCCESS(rv, rv);
-
   nsCOMPtr<nsIAbCard> cardForAddress;
-
-  // Scan the addressbook to find out the card of the email address
-  for (uint32_t i = 0; i < directories.Length() && !cardForAddress; i++) {
-    rv = directories[i]->CardForEmailAddress(emailAddress,
-                                             getter_AddRefs(cardForAddress));
-    // The card is found, so stop looping.
-    if (NS_SUCCEEDED(rv) && cardForAddress) break;
-  }
+  rv = abManager->CardForEmailAddress(emailAddress,
+                                      getter_AddRefs(cardForAddress));
+  NS_ENSURE_SUCCESS(rv, rv);
 
   if (cardForAddress) {
     bool preferDisplayName = true;

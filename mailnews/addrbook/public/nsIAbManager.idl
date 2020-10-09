@@ -94,4 +94,23 @@ interface nsIAbManager : nsISupports
    * @return            True if a directory called name already exists.
    */
   boolean directoryNameExists(in wstring name);
+
+  /**
+   * Returns an address book card for the specified email address if found, in
+   * any directory. The first matching card found is returned.
+   *
+   * *** Results of this function are cached! ***
+   * This function is for where speed is more important than accuracy. Results
+   * are stored in a cache until 60s passes without this function being called.
+   * The address book *could* change in this time, in a way that produces a
+   * different result, but probably won't.
+   *
+   * @see    nsIAbCard.cardForEmailAddress
+   * @param  emailAddress The email address to find in any of the email address
+   *                      fields. If emailAddress is empty, the directories
+   *                      won't be searched and the function will return as if
+   *                      no card was found.
+   * @return              An nsIAbCard if one was found, else returns NULL.
+   */
+  nsIAbCard cardForEmailAddress(in AUTF8String emailAddress);
 };

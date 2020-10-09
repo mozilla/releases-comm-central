@@ -460,7 +460,7 @@ var Gloda = {
       this._log.debug(" creating contact for '" + name + "' (" + address + ")");
 
       // try and find an existing address book contact.
-      let card = GlodaUtils.getCardForEmail(address);
+      let card = MailServices.ab.cardForEmailAddress(address);
       // XXX when we have the address book GUID stuff, we need to use that to
       //  find existing contacts... (this will introduce a new query phase
       //  where we batch all the GUIDs for an async query)

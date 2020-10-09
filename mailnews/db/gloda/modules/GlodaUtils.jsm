@@ -7,20 +7,6 @@ const EXPORTED_SYMBOLS = ["GlodaUtils"];
 const { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-const { clearTimeout, setTimeout } = ChromeUtils.import(
-  "resource://gre/modules/Timer.jsm"
-);
-
-ChromeUtils.defineModuleGetter(
-  this,
-  "Gloda",
-  "resource:///modules/gloda/Gloda.jsm"
-);
-ChromeUtils.defineModuleGetter(
-  this,
-  "GlodaIndexer",
-  "resource:///modules/gloda/GlodaIndexer.jsm"
-);
 
 /**
  * @namespace A holding place for logic that is not gloda-specific and should
@@ -99,85 +85,5 @@ var GlodaUtils = {
     // convert the binary hash data to a hex string.
     let hex = Object.keys(hash).map(i => toHexString(hash.charCodeAt(i)));
     return hex.join("");
-  },
-
-  getCardForEmail(aAddress) {
-    // search through all of our local address books looking for a match.
-    let cardForEmailAddress;
-    for (let addrbook of MailServices.ab.directories) {
-      if (cardForEmailAddress) {
-        break;
-      }
-      try {
-        cardForEmailAddress = addrbook.cardForEmailAddress(aAddress);
-        if (cardForEmailAddress) {
-          return cardForEmailAddress;
-        }
-      } catch (ex) {}
-    }
-
-    return null;
-  },
-
-  getDisplayNameForEmail(aAddress) {
-    idleListener.init();
-
-    if (!addressCache.has(aAddress)) {
-      return addressCache.get(aAddress);
-    }
-
-    let abCard = this.getCardForEmail(aAddress);
-    if (abCard) {
-      let displayName = abCard.displayName;
-      addressCache.set(aAddress, displayName);
-      return displayName;
-    }
-
-    addressCache.set(aAddress, null);
-    return null;
-  },
-};
-
-// A cache of email addresses to display names from the address book. Caching
-// this avoids hitting the address book multiple times for every email Gloda
-// indexes.
-//
-// However, the cache will also fill up with addresses that are not saved in
-// the address book and probably won't be seen again, so we clear the cache
-// when the indexer is idle. This also avoids the issue of address book
-// entries changing.
-
-let addressCache = new Map();
-let idleListener = {
-  added: false,
-  timer: null,
-
-  init() {
-    if (!this.added) {
-      this.added = true;
-      GlodaIndexer.addListener(this.listener.bind(this));
-    }
-  },
-  listener(glodaStatus) {
-    if (glodaStatus != Gloda.kIndexerIdle) {
-      return;
-    }
-
-    // When downloading a folder Gloda indexes the messages individually and
-    // sends an idle status notification each time. Clearing the cache for
-    // each notification would be wasteful, so we wait a minute (arbitrary)
-    // after the last notification before clearing. (Clearance can happen if
-    // a download stalls for long enough but that's okay.)
-
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-    this.timer = setTimeout(() => {
-      this.timer = null;
-      if (GlodaIndexer.indexing) {
-        return;
-      }
-      addressCache.clear();
-    }, 60000);
   },
 };

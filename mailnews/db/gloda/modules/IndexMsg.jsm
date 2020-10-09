@@ -24,9 +24,6 @@ const { MailUtils } = ChromeUtils.import("resource:///modules/MailUtils.jsm");
 
 const { Log4Moz } = ChromeUtils.import("resource:///modules/gloda/Log4moz.jsm");
 
-const { GlodaUtils } = ChromeUtils.import(
-  "resource:///modules/gloda/GlodaUtils.jsm"
-);
 const { GlodaDatastore } = ChromeUtils.import(
   "resource:///modules/gloda/GlodaDatastore.jsm"
 );
@@ -1814,7 +1811,7 @@ var GlodaMsgIndexer = {
         }
 
         let info = identityContactInfos[i],
-          card = GlodaUtils.getCardForEmail(info.email),
+          card = MailServices.ab.cardForEmailAddress(info.email),
           contact = new GlodaContact(
             GlodaDatastore,
             info.contactId,
