@@ -31,10 +31,6 @@ var glodaFacetTabType = {
     aTab.panel.appendChild(clone);
     aTab.iframe = aTab.panel.querySelector("iframe");
 
-    // Wire up the search input icon click event
-    let searchInput = aTab.panel.querySelector(".remote-gloda-search");
-    searchInput.focus();
-
     if ("query" in aArgs) {
       aTab.query = aArgs.query;
       aTab.collection = aTab.query.getCollection();
@@ -74,6 +70,10 @@ var glodaFacetTabType = {
         "src",
         "chrome://messenger/content/glodaFacetView.xhtml"
       );
+
+      // Wire up the search input icon click event
+      let searchInput = aTab.panel.querySelector(".remote-gloda-search");
+      searchInput.focus();
     }
 
     aTab.iframe.contentWindow.addEventListener("load", xulLoadHandler, {
