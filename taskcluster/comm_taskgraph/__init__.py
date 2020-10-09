@@ -25,7 +25,8 @@ def register(graph_config):
     the process.
     """
     logger.info("{} path registered".format(__name__))
-    _import_modules(['documentation', 'actions', 'target_tasks', 'transforms.job.toolchain'])
+    _import_modules(['documentation', 'util.docker', 'actions', 'target_tasks',
+                     'transforms.job.toolchain'])
 
 
 def _import_modules(modules):
