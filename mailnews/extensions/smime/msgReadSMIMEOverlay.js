@@ -163,7 +163,7 @@ function loadSmimeMessageSecurityInfo() {
       sigInfoLabel = "SIInvalidLabel";
       sigInfoHeader = "SIInvalidHeader";
       sigInfo = "SIUntrustedCA";
-      sigClass = "unverified";
+      sigClass = "notok";
       // XXX Need to extend to communicate better errors
       // might also be:
       // SIExpired SIRevoked SINotYetValid SIUnknownCA SIExpiredCA SIRevokedCA SINotYetValidCA
@@ -503,9 +503,6 @@ async function loadOpenPgpMessageSecurityInfo() {
     }
   }
 
-  // Show extra keys if present in the message.
-  document.getElementById("otherEncryptionKeys").collapsed = !Enigmail.hdrView
-    .msgEncryptionAllKeyIds;
   document.getElementById("otherLabel").textContent = myl10n.formatValueSync(
     myIdToSkipInList
       ? "openpgp-other-enc-all-key-ids"
@@ -517,12 +514,12 @@ async function loadOpenPgpMessageSecurityInfo() {
   }
 
   let keyList = document.getElementById("otherEncryptionKeysList");
-
   // Remove all the previously populated keys.
   while (keyList.lastChild) {
     keyList.removeChild(keyList.lastChild);
   }
 
+  let showExtraKeysList = false;
   for (let key of Enigmail.hdrView.msgEncryptionAllKeyIds) {
     if (key.keyId == myIdToSkipInList) {
       continue;
@@ -553,7 +550,11 @@ async function loadOpenPgpMessageSecurityInfo() {
     container.appendChild(id);
 
     keyList.appendChild(container);
+    showExtraKeysList = true;
   }
+
+  // Show extra keys if present in the message.
+  document.getElementById("otherEncryptionKeys").collapsed = !showExtraKeysList;
 }
 
 function hideMessageReadSecurityInfo() {
@@ -563,6 +564,7 @@ function hideMessageReadSecurityInfo() {
 
   // Hide the UI elements.
   document.getElementById("signatureHeader").collapsed = true;
+  document.getElementById("encryptionHeader").collapsed = true;
   document.getElementById("signatureCert").collapsed = true;
   document.getElementById("signatureKey").collapsed = true;
   document.getElementById("viewSignatureKey").collapsed = true;

@@ -3298,7 +3298,7 @@ Enigmail.msg = {
         "openpgp-be-careful-new-key",
         { email: Enigmail.msg.authorEmail }
       );
-      conflictDescription.setAttribute("hidden", false);
+      conflictDescription.removeAttribute("hidden");
     }
 
     document.getElementById("openpgpKeyBox").removeAttribute("hidden");

@@ -464,7 +464,7 @@ html|button.crypto-button {
   visibility: visible;
 }
 
-#encryptedHdrIcon + #signedHdrIcon:not([hidden="true"]) {
+#encryptedHdrIcon:not([hidden="true"]) + #signedHdrIcon:not([hidden="true"]) {
   margin-inline-start: 3px;
 }
 
