@@ -19,6 +19,12 @@
     "Alaskan Standard Time": {
       "aliasTo": "America/Anchorage"
     },
+    "Aleutian Standard Time": {
+      "aliasTo": "America/Adak"
+    },
+    "Altai Standard Time": {
+      "aliasTo": "Asia/Barnaul"
+    },
     "America/Argentina/ComodRivadavia": {
       "aliasTo": "America/Argentina/Catamarca"
     },
@@ -49,6 +55,12 @@
     "Argentina Standard Time": {
       "aliasTo": "America/Argentina/Buenos_Aires"
     },
+    "Armenian Standard Time": {
+      "aliasTo": "Asia/Yerevan"
+    },
+    "Astrakhan Standard Time": {
+      "aliasTo": "Europe/Astrakhan"
+    },
     "Asia/Calcutta": {
       "aliasTo": "Asia/Kolkata"
     },
@@ -70,6 +82,9 @@
     "Atlantic/Jan_Mayen": {
       "aliasTo": "Europe/Oslo"
     },
+    "Aus Central W. Standard Time": {
+      "aliasTo": "Australia/Eucla"
+    },
     "Azerbaijan Standard Time": {
       "aliasTo": "Asia/Baku"
     },
@@ -82,8 +97,14 @@
     "Bangladesh Standard Time": {
       "aliasTo": "Asia/Dhaka"
     },
+    "Bangkok Standard Time": {
+      "aliasTo": "Asia/Bangkok"
+    },
     "Belarus Standard Time": {
       "aliasTo": "Europe/Minsk"
+    },
+    "Bougainville Standard Time": {
+      "aliasTo": "Pacific/Bougainville"
     },
     "Canada Central Standard Time": {
       "aliasTo": "America/Regina"
@@ -121,8 +142,14 @@
     "Central Standard Time (Mexico)": {
       "aliasTo": "America/Mexico_City"
     },
+    "Chatham Islands Standard Time": {
+      "aliasTo": "Pacific/Chatham"
+    },
     "China Standard Time": {
       "aliasTo": "Asia/Shanghai"
+    },
+    "Cuba Standard Time": {
+      "aliasTo": "America/Havana"
     },
     "E. Africa Standard Time": {
       "aliasTo": "Africa/Nairobi"
@@ -130,11 +157,20 @@
     "E. Australia Standard Time": {
       "aliasTo": "Australia/Brisbane"
     },
+    "E. Europe Standard Time": {
+      "aliasTo": "Europe/Chisinau"
+    },
     "E. South America Standard Time": {
       "aliasTo": "America/Sao_Paulo"
     },
+    "Easter Island Standard Time": {
+      "aliasTo": "Pacific/Easter"
+    },
     "Eastern Standard Time": {
       "aliasTo": "America/New_York"
+    },
+    "Eastern Standard Time (Mexico)": {
+      "aliasTo": "America/Cancun"
     },
     "Egypt Standard Time": {
       "aliasTo": "Africa/Cairo"
@@ -169,6 +205,9 @@
     "Fiji Standard Time": {
       "aliasTo": "Pacific/Fiji"
     },
+    "GFT Standard Time": {
+      "aliasTo": "Europe/Athens"
+    },
     "GMT": {
       "aliasTo": "UTC"
     },
@@ -195,6 +234,9 @@
     },
     "Greenwich Standard Time": {
       "aliasTo": "Atlantic/Reykjavik"
+    },
+    "Haiti Standard Time": {
+      "aliasTo": "America/Port-au-Prince"
     },
     "Hawaiian Standard Time": {
       "aliasTo": "Pacific/Honolulu"
@@ -223,11 +265,26 @@
     "Line Islands Standard Time": {
       "aliasTo": "Pacific/Kiritimati"
     },
+    "Lord Howe Standard Time": {
+      "aliasTo": "Australia/Lord_Howe"
+    },
     "Magadan Standard Time": {
       "aliasTo": "Asia/Magadan"
     },
+    "Magallanes Standard Time": {
+      "aliasTo": "America/Punta_Arenas"
+    },
+    "Marquesas Standard Time": {
+      "aliasTo": "Pacific/Marquesas"
+    },
     "Mauritius Standard Time": {
       "aliasTo": "Indian/Mauritius"
+    },
+    "Mexico Standard Time": {
+      "aliasTo": "America/Mexico_City"
+    },
+    "Mid-Atlantic Standard Time": {
+      "aliasTo": "Atlantic/South_Georgia"
     },
     "Middle East Standard Time": {
       "aliasTo": "Asia/Beirut"
@@ -262,11 +319,20 @@
     "Newfoundland Standard Time": {
       "aliasTo": "America/St_Johns"
     },
+    "Norfolk Standard Time": {
+      "aliasTo": "Pacific/Norfolk"
+    },
     "North Asia East Standard Time": {
       "aliasTo": "Asia/Irkutsk"
     },
     "North Asia Standard Time": {
       "aliasTo": "Asia/Krasnoyarsk"
+    },
+    "North Korea Standard Time": {
+      "aliasTo": "Asia/Pyongyang"
+    },
+    "Omsk Standard Time": {
+      "aliasTo": "Asia/Omsk"
     },
     "Pacific SA Standard Time": {
       "aliasTo": "America/Santiago"
@@ -313,8 +379,23 @@
     "SE Asia Standard Time": {
       "aliasTo": "Asia/Bangkok"
     },
+    "Saint Pierre Standard Time": {
+      "aliasTo": "America/Miquelon"
+    },
+    "Sakhalin Standard Time": {
+      "aliasTo": "Asia/Sakhalin"
+    },
     "Samoa Standard Time": {
       "aliasTo": "Pacific/Apia"
+    },
+    "Sao Tome Standard Time": {
+      "aliasTo": "Africa/Sao_Tome"
+    },
+    "Saratov Standard Time": {
+      "aliasTo": "Europe/Saratov"
+    },
+    "Saudi Arabia Standard Time": {
+      "aliasTo": "Asia/Riyadh"
     },
     "Singapore Standard Time": {
       "aliasTo": "Asia/Singapore"
@@ -325,6 +406,12 @@
     "Sri Lanka Standard Time": {
       "aliasTo": "Asia/Colombo"
     },
+    "Sudan Standard Time": {
+      "aliasTo": "Africa/Khartoum"
+    },
+    "Sydney Standard Time": {
+      "aliasTo": "Australia/Sydney"
+    },
     "Syria Standard Time": {
       "aliasTo": "Asia/Damascus"
     },
@@ -334,14 +421,26 @@
     "Tasmania Standard Time": {
       "aliasTo": "Australia/Hobart"
     },
+    "Tocantins Standard Time": {
+      "aliasTo": "America/Araguaina"
+    },
     "Tokyo Standard Time": {
       "aliasTo": "Asia/Tokyo"
+    },
+    "Tomsk Standard Time": {
+      "aliasTo": "Asia/Tomsk"
     },
     "Tonga Standard Time": {
       "aliasTo": "Pacific/Tongatapu"
     },
+    "Transbaikal Standard Time": {
+      "aliasTo": "Asia/Chita"
+    },
     "Turkey Standard Time": {
       "aliasTo": "Europe/Istanbul"
+    },
+    "Turks And Caicos Standard Time": {
+      "aliasTo": "America/Grand_Turk"
     },
     "UCT": {
       "aliasTo": "UTC"
@@ -388,11 +487,20 @@
     "W. Europe Standard Time": {
       "aliasTo": "Europe/Berlin"
     },
+    "W. Mongolia Standard Time": {
+      "aliasTo": "Asia/Hovd"
+    },
     "West Asia Standard Time": {
       "aliasTo": "Asia/Tashkent"
     },
+    "West Bank Standard Time": {
+      "aliasTo": "Asia/Hebron"
+    },
     "West Pacific Standard Time": {
       "aliasTo": "Pacific/Port_Moresby"
+    },
+    "Western Brazilian Standard Time": {
+      "aliasTo": "America/Rio_Branco"
     },
     "Yakutsk Standard Time": {
       "aliasTo": "Asia/Yakutsk"

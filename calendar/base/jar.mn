@@ -98,4 +98,3 @@ calendar.jar:
     content/calendar-subscriptions-list.js                      (content/widgets/calendar-subscriptions-list.js)
     content/calApplicationUtils.js                              (src/calApplicationUtils.js)
     content/calFilter.js                                        (src/calFilter.js)
-    content/WindowsNTToZoneInfoTZId.properties                  (src/WindowsNTToZoneInfoTZId.properties)

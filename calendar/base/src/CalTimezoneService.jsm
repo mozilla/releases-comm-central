@@ -9,6 +9,7 @@ var EXPORTED_SYMBOLS = ["CalTimezoneService"];
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+var { AppConstants } = ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { ICAL, unwrapSingle } = ChromeUtils.import("resource:///modules/calendar/Ical.jsm");
@@ -607,11 +608,7 @@ function guessSystemTimezone() {
   let zoneInfoIdFromOSUserTimeZone = null;
   let osUserTimeZone = null;
   try {
-    let handler = Cc["@mozilla.org/network/protocol;1?name=http"].getService(
-      Ci.nsIHttpProtocolHandler
-    );
-
-    if (handler.oscpu.match(/^Windows/)) {
+    if (AppConstants.platform == "win") {
       let wrk = Cc["@mozilla.org/windows-registry-key;1"].createInstance(Ci.nsIWindowsRegKey);
       wrk.open(
         wrk.ROOT_KEY_LOCAL_MACHINE,
@@ -619,49 +616,11 @@ function guessSystemTimezone() {
         wrk.ACCESS_READ
       );
       if (wrk.hasValue("TimeZoneKeyName")) {
-        // Windows Vista and later have this key.
         // Clear trailing garbage on this key, see bug 1129712.
         osUserTimeZone = wrk.readStringValue("TimeZoneKeyName").split("\0")[0];
-      } else {
-        // If on Windows XP, current timezone only lists its localized name,
-        // so to find its registry key name, match localized name to
-        // localized names of each windows timezone listed in registry.
-        // Then use the registry key name to see if this timezone has a
-        // known ZoneInfo name.
-        let currentTZStandardName = wrk.readStringValue("StandardName");
-        wrk.close();
-
-        wrk.open(
-          wrk.ROOT_KEY_LOCAL_MACHINE,
-          "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones",
-          wrk.ACCESS_READ
-        );
-
-        // Linear search matching localized name of standard timezone
-        // to find the non-localized registry key.
-        // (Registry keys are sorted by subkeyName, not by localized name
-        //  nor offset, so cannot use binary search.)
-        for (let i = 0; i < wrk.childCount; i++) {
-          let subkeyName = wrk.getChildName(i);
-          let subkey = wrk.openChild(subkeyName, wrk.ACCESS_READ);
-          let std = subkey.readStringValue("Std");
-          subkey.close();
-          if (std == currentTZStandardName) {
-            osUserTimeZone = subkeyName;
-            break;
-          }
-        }
+        zoneInfoIdFromOSUserTimeZone = osUserTimeZone;
       }
       wrk.close();
-
-      if (osUserTimeZone != null) {
-        // Lookup timezone registry key in table of known tz keys
-        // to convert to ZoneInfo timezone id.
-        const regKeyToZoneInfoBundle = Services.strings.createBundle(
-          "chrome://calendar/content/WindowsNTToZoneInfoTZId.properties"
-        );
-        zoneInfoIdFromOSUserTimeZone = regKeyToZoneInfoBundle.GetStringFromName(osUserTimeZone);
-      }
     } else {
       // Else look for ZoneInfo timezone id in
       // - TZ environment variable value
