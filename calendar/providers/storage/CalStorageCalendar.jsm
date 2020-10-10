@@ -1008,6 +1008,7 @@ CalStorageCalendar.prototype = {
 
     try {
       this.mDB.executeSimpleSQL("PRAGMA journal_mode=WAL");
+      this.mDB.executeSimpleSQL("PRAGMA cache_size=-10240"); // 10 MiB
 
       this.mSelectEvent = this.mDB.createAsyncStatement(
         `SELECT * FROM cal_events
