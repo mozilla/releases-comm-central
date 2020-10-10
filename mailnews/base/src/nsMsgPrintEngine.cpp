@@ -558,7 +558,7 @@ void nsMsgPrintEngine::PrintMsgWindow() {
         mozilla::ErrorResult result;
         window->Print(mPrintSettings, this, nullptr,
                       nsGlobalWindowOuter::IsPreview::No,
-                      nsGlobalWindowOuter::BlockUntilDone::No, nullptr, result);
+                      nsGlobalWindowOuter::IsForWindowDotPrint::No, nullptr, result);
         if (NS_WARN_IF(result.Failed())) {
           rv = result.StealNSResult();
         }
