@@ -233,7 +233,7 @@ panelview .toolbarbutton-1,
 }
 
 .subviewbutton[disabled="true"] {
-  color: var(--panel-disabled-color);
+  color: var(--panel-description-color);
 }
 
 .subviewbutton > .toolbarbutton-text {
@@ -347,7 +347,7 @@ panelmultiview .toolbaritem-combined-buttons > spacer.after-label {
 }
 
 .subview-subheader {
-  color: var(--panel-disabled-color);
+  color: var(--panel-description-color);
 }
 
 panelview .toolbarbutton-1 {
@@ -620,7 +620,7 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .subviewbutton.download > .toolbarbutton-text > .status-text {
-  color: var(--panel-disabled-color);
+  color: var(--panel-description-color);
   font-size: .9em;
 }
 
