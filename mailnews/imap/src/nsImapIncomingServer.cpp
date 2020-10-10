@@ -420,7 +420,6 @@ nsImapIncomingServer::GetImapConnectionAndLoadUrl(nsIImapUrl* aImapUrl,
     // terminated by some unforeseen problems let's give it a second chance
     // to run the url
     if (NS_FAILED(rv) && rv != NS_ERROR_ILLEGAL_VALUE) {
-      NS_ASSERTION(false, "shouldn't get an error loading url");
       rv = aProtocol->LoadImapUrl(mailnewsurl, aConsumer);
     }
   } else {  // unable to get an imap connection to run the url; add to the url
@@ -476,7 +475,6 @@ nsImapIncomingServer::RetryUrl(nsIImapUrl* aImapUrl,
       nsImapProtocol::LogImapUrl("retrying  url", aImapUrl);
       rv = protocolInstance->LoadImapUrl(
           url, nullptr);  // ### need to save the display consumer.
-      NS_ASSERTION(NS_SUCCEEDED(rv), "failed running queued url");
     }
   }
   return rv;
@@ -519,12 +517,15 @@ nsImapIncomingServer::LoadNextQueuedUrl(nsIImapProtocol* aProtocol,
           if (NS_SUCCEEDED(rv) && url) {
             nsImapProtocol::LogImapUrl("playing queued url", aImapUrl);
             rv = protocolInstance->LoadImapUrl(url, aConsumer);
-            NS_ASSERTION(NS_SUCCEEDED(rv), "failed running queued url");
-            bool isInbox;
-            protocolInstance->IsBusy(&urlRun, &isInbox);
-            if (!urlRun)
-              nsImapProtocol::LogImapUrl("didn't need to run", aImapUrl);
-            removeUrlFromQueue = true;
+            if (NS_SUCCEEDED(rv)) {
+              bool isInbox;
+              protocolInstance->IsBusy(&urlRun, &isInbox);
+              if (!urlRun)
+                nsImapProtocol::LogImapUrl("didn't need to run", aImapUrl);
+              removeUrlFromQueue = true;
+            } else {
+              nsImapProtocol::LogImapUrl("playing queued url failed", aImapUrl);
+            }
           }
         } else {
           nsImapProtocol::LogImapUrl(
