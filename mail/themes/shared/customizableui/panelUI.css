@@ -282,14 +282,14 @@ panelview .toolbarbutton-1,
 
 .PanelUI-subView .subviewbutton-nav::after {
   -moz-context-properties: fill, fill-opacity;
-  content: url("chrome://messenger/skin/icons/back-12.svg");
+  content: url("chrome://messenger/skin/customizableui/menu-arrow.svg");
   fill: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
   transform: translateY(1px);
 }
 
-.PanelUI-subView .subviewbutton-nav:-moz-locale-dir(ltr)::after {
+.PanelUI-subView .subviewbutton-nav:-moz-locale-dir(rtl)::after {
   transform: scaleX(-1) translateY(1px);
 }
 
@@ -505,14 +505,14 @@ toolbaritem[overflowedItem=true],
   -moz-box-orient: horizontal;
 }
 
-.widget-overflow-list .subviewbutton-nav:-moz-locale-dir(ltr)::after {
+.widget-overflow-list .subviewbutton-nav:-moz-locale-dir(rtl)::after {
   transform: scaleX(-1);
 }
 
 .widget-overflow-list .subviewbutton-nav::after {
   margin-inline-start: 10px;
   -moz-context-properties: fill, fill-opacity;
-  content: url(chrome://messenger/skin/icons/back-12.svg);
+  content: url(chrome://messenger/skin/customizableui/menu-arrow.svg);
   fill: currentColor;
   fill-opacity: 0.6;
   float: inline-end;
