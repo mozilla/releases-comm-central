@@ -29,8 +29,10 @@ function(element)
   if (linkElement.isIgnored()) return;
 
   for (var i = 0; i < linkElement.relValues.length; i++) {
-    if (linkElement.relValues.length > 1 && rel == "alternate")
-      continue; // skip "alternate" when we have "alternate XXX"
+    // Skip "alternate" when we have e.g. "alternate XXX".
+    if (linkElement.relValues.length > 1 &&
+        linkElement.relValues[i] == "alternate")
+      continue; 
 
     var linkType = LinkToolbarHandler.getLinkType(linkElement.relValues[i], element);
     if (linkType) {
