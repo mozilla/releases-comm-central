@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-%filter substitution
-
 :root {
   --menu-panel-width: 22.35em;
   --wide-menu-panel-width: 29em;
-  --standalone-subview-width: 30em;
   --panel-palette-icon-size: 16px;
 
   /* XXXgijs This is the ugliest bit of code I think I've ever written for Mozilla.
@@ -16,21 +13,19 @@
   https://bugzilla.mozilla.org/show_bug.cgi?id=963365#c11 */
   --menu-panel-button-width: calc(--menu-panel-width / 3 - 1.1px);
 
-  --appmenu-warning-background-color: #FFEFBF;
-  --appmenu-warning-background-color-hover: #FFE8A2;
-  --appmenu-warning-background-color-active: #FFE38F;
+  --appmenu-warning-background-color: #ffefbf;
+  --appmenu-warning-background-color-hover: #ffe8a2;
+  --appmenu-warning-background-color-active: #ffe38f;
   --appmenu-warning-color: black;
-  --appmenu-warning-border-color: hsl(45,100%,77%);
-  --appmenu-warning-background-color-bright-text: hsla(55,100%,50%,.1);
-  --appmenu-warning-backgound-color-hover-bright-text: hsla(55,100%,50%,.15);
-  --appmenu-warning-background-color-active-bright-text: hsla(55,100%,50%,.2);
-  --appmenu-warning-color-bright-text: #F9F9FA;
+  --appmenu-warning-border-color: hsl(45, 100%, 77%);
 }
 
-/* In mozilla-central the following variables are defined, but they are simply
-   inlined below because we aren't using a pre-processing step. */
-/* %define menuStateMenuActive :not([disabled])[_moz-menuactive] */
-/* %define inAnyPanel :is(:not([cui-areatype="toolbar"]),[overflowedItem=true]) */
+:root[lwt-popup-brighttext] {
+  --appmenu-warning-background-color: hsla(55, 100%, 50%, .1);
+  --appmenu-warning-backgound-color-hover: hsla(55, 100%, 50%, .15);
+  --appmenu-warning-background-color-active: hsla(55, 100%, 50%, .2);
+  --appmenu-warning-color: #f9f9fa;
+}
 
 :root:not([uidensity=compact]):not([chromehidden~="toolbar"]) #PanelUI-button {
   margin-inline-start: 3px;
@@ -624,18 +619,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   font-size: .9em;
 }
 
-%define menuPanelWidth 22.35em
-%define appmenuWarningBackgroundColor #FFEFBF
-%define appmenuWarningBackgroundColorHover #FFE8A2
-%define appmenuWarningBackgroundColorActive #FFE38F
-%define appmenuWarningColor black
-%define appmenuWarningBorderColor hsl(45,100%,77%)
-
-%define appmenuWarningBackgroundColorBrightText hsla(55,100%,50%,.1)
-%define appmenuWarningBackgroundColorHoverBrightText hsla(55,100%,50%,.15)
-%define appmenuWarningBackgroundColorActiveBrightText hsla(55,100%,50%,.2)
-%define appmenuWarningColorBrightText #F9F9FA
-
 .button-appmenu[badge-status] > .toolbarbutton-badge-stack > .toolbarbutton-badge {
   display: -moz-box;
   height: 10px;
@@ -672,29 +655,34 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
 }
 
 .addon-banner-item {
-  background-color: @appmenuWarningBackgroundColor@;
-  color: @appmenuWarningColor@;
+  background-color: var(--appmenu-warning-background-color);
+  color: var(--appmenu-warning-color);
   /* Force border to override `.addon-banner-item` selector below */
-  border-top: 1px solid @appmenuWarningBorderColor@ !important;
+  border-top: 1px solid var(--appmenu-warning-border-color) !important;
   display: flex;
   flex: 1 1 0%;
-  width: calc(@menuPanelWidth@ + 30px);
+  width: calc(var(--menu-panel-width) + 30px);
   padding-inline-start: 15px;
   border-inline-start-style: none;
   -moz-image-region: rect(0, 16px, 16px, 0);
 }
 
 .addon-banner-item:last-child {
-  border-bottom: 1px solid @appmenuWarningBorderColor@;
+  border-bottom: 1px solid var(--appmenu-warning-border-color);
 }
 
 .addon-banner-item:focus,
 .addon-banner-item:hover {
-  background-color: @appmenuWarningBackgroundColorHover@;
+  background-color: var(--appmenu-warning-background-color-hover);
 }
 
 .addon-banner-item:hover:active {
-  background-color: @appmenuWarningBackgroundColorActive@;
+  background-color: var(--appmenu-warning-background-color-active);
+}
+
+:root[lwt-popup-brighttext] .addon-banner-item {
+  /* override `.addon-banner-item` border-top !important defined above */
+  border: 0 !important;
 }
 
 .addon-banner-item > .toolbarbutton-icon {
@@ -743,23 +731,6 @@ toolbarpaletteitem[place="menu-panel"] > .subviewbutton-nav::after {
   flex: 1;
   padding-inline-start: 15px;
   border-inline-start-style: none;
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item {
-  color: @appmenuWarningColorBrightText@;
-  background: @appmenuWarningBackgroundColorBrightText@;
-  /* override `.addon-banner-item` border-top !important defined above */
-  border: 0 !important;
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item:hover,
-:root[lwt-popup-brighttext] .addon-banner-item:focus {
-  background: @appmenuWarningBackgroundColorHoverBrightText@;
-}
-
-:root[lwt-popup-brighttext] .addon-banner-item:hover:active,
-:root[lwt-popup-brighttext] .addon-banner-item:focus:active {
-  background: @appmenuWarningBackgroundColorActiveBrightText@;
 }
 
 .addon-banner-item > .toolbarbutton-text {
