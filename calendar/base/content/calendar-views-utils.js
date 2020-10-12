@@ -96,7 +96,7 @@ var calendarViewController = {
 
       doTransaction("modify", instance, instance.calendar, occurrence, null);
     } else {
-      modifyEventWithDialog(occurrence, null, true);
+      modifyEventWithDialog(occurrence, true);
     }
   },
 
@@ -585,7 +585,7 @@ function viewSelectedEvents() {
 function editSelectedEvents() {
   let selectedItems = currentView().getSelectedItems();
   if (selectedItems && selectedItems.length >= 1) {
-    modifyEventWithDialog(selectedItems[0], null, true);
+    modifyEventWithDialog(selectedItems[0], true);
   }
 }
 

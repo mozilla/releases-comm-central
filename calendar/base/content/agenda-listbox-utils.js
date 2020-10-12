@@ -222,7 +222,7 @@ agendaListbox.onKeyPress = function(aEvent) {
 agendaListbox.editSelectedItem = function() {
   let listItem = document.getElementById("agenda-listbox").selectedItem;
   if (listItem) {
-    modifyEventWithDialog(listItem.occurrence, null, true);
+    modifyEventWithDialog(listItem.occurrence, true);
   }
 };
 

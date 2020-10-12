@@ -109,9 +109,9 @@ function onItemDetails(event) {
   // it using our window.
   let calWindow = cal.window.getCalendarWindow();
   if (calWindow) {
-    calWindow.modifyEventWithDialog(event.target.item, null, true);
+    calWindow.modifyEventWithDialog(event.target.item, true);
   } else {
-    modifyEventWithDialog(event.target.item, null, true);
+    modifyEventWithDialog(event.target.item, true);
   }
 }
 

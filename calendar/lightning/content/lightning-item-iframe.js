@@ -334,30 +334,6 @@ function onLoad() {
     gTabInfoObject = gTabmail.currentTabInfo;
   }
 
-  // The calling entity provides us with an object that is responsible
-  // for recording details about the initiated modification. the 'finalize'
-  // property is our hook in order to receive a notification in case the
-  // operation needs to be terminated prematurely. This function will be
-  // called if the calling entity needs to immediately terminate the pending
-  // modification. In this case we serialize the item and close the window.
-  if (args.job) {
-    // keep the iframe id so we can close the right tab...
-    let iframeId = window.frameElement.id;
-
-    // store the 'finalize'-functor in the provided job-object.
-    args.job.finalize = () => {
-      // store any pending modifications...
-      this.onAccept();
-
-      let item = window.calendarItem;
-
-      // ...and close the window.
-      sendMessage({ command: "closeWindowOrTab", iframeId });
-
-      return item;
-    };
-  }
-
   // the most important attribute we expect from the
   // arguments is the item we'll edit in the dialog.
   let item = args.calendarEvent;

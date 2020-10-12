@@ -34,27 +34,6 @@ function onLoad() {
 
   document.title = item.title;
 
-  // the calling entity provides us with an object that is responsible
-  // for recording details about the initiated modification. the 'finalize'-property
-  // is our hook in order to receive a notification in case the operation needs
-  // to be terminated prematurely. this function will be called if the calling
-  // entity needs to immediately terminate the pending modification. in this
-  // case we serialize the item and close the window.
-  if (args.job) {
-    // store the 'finalize'-functor in the provided job-object.
-    args.job.finalize = () => {
-      // store any pending modifications...
-      this.onAccept();
-
-      let calendarItem = window.calendarItem;
-
-      // ...and close the window.
-      window.close();
-
-      return calendarItem;
-    };
-  }
-
   // set the dialog-id to enable the right window-icon to be loaded.
   if (cal.item.isEvent(item)) {
     setDialogId(dialog, "calendar-event-summary-dialog");
@@ -297,7 +276,7 @@ function onEditAllOccurrences() {
  */
 function useEditDialog(item) {
   window.addEventListener("unload", () => {
-    window.opener.modifyEventWithDialog(item, null, false);
+    window.opener.modifyEventWithDialog(item, false);
   });
   window.close();
 }

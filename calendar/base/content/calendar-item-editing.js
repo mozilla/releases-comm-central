@@ -17,18 +17,6 @@ XPCOMUtils.defineLazyModuleGetters(this, {
 /* exported modifyEventWithDialog, undo, redo, setContextPartstat */
 
 /**
- * Takes a job and makes sure the dispose function on it is called. If there is
- * no dispose function or the job is null, ignore it.
- *
- * @param job       The job to dispose.
- */
-function disposeJob(job) {
-  if (job && job.dispose) {
-    job.dispose();
-  }
-}
-
-/**
  * Sets the default values for new items, taking values from either the passed
  * parameters or the preferences
  *
@@ -331,7 +319,7 @@ function createTodoWithDialog(calendar, dueDate, summary, todo, initialDate) {
     }
   }
 
-  openEventDialog(todo, calendar, "new", onNewItem, null, initialDate);
+  openEventDialog(todo, calendar, "new", onNewItem, initialDate);
 }
 
 /**
@@ -351,8 +339,6 @@ function openEventDialogForViewing(item) {
  * Modifies the passed event in the event dialog.
  *
  * @param aItem                 The item to modify.
- * @param job                   (optional) The job object that controls this
- *                                           modification.
  * @param aPromptOccurrence     If the user should be prompted to select if the
  *                                parent item or occurrence should be modified.
  * @param initialDate           (optional) The initial date for new task datepickers
@@ -370,17 +356,10 @@ function openEventDialogForViewing(item) {
  *            }]
  *        }
  */
-function modifyEventWithDialog(
-  aItem,
-  job = null,
-  aPromptOccurrence,
-  initialDate = null,
-  aCounterProposal
-) {
+function modifyEventWithDialog(aItem, aPromptOccurrence, initialDate = null, aCounterProposal) {
   let dlg = cal.item.findWindow(aItem);
   if (dlg) {
     dlg.focus();
-    disposeJob(job);
     return;
   }
 
@@ -395,17 +374,7 @@ function modifyEventWithDialog(
   }
 
   if (item && (response || response === undefined)) {
-    openEventDialog(
-      item,
-      item.calendar,
-      "modify",
-      onModifyItem,
-      job,
-      initialDate,
-      aCounterProposal
-    );
-  } else {
-    disposeJob(job);
+    openEventDialog(item, item.calendar, "modify", onModifyItem, initialDate, aCounterProposal);
   }
 }
 
@@ -428,7 +397,6 @@ function modifyEventWithDialog(
  *                                       ("new", "view", "modify").
  * @param {onDialogComplete} callback    The callback to call when the dialog
  *                                       has completed.
- * @param {?Object} job                  The job object for the modification.
  * @param {?calIDateTime} initialDate    The initial date for new task
  *                                       datepickers.
  * @param {?Object} counterProposal      An object representing the
@@ -440,14 +408,12 @@ function openEventDialog(
   calendar,
   mode,
   callback,
-  job = null,
   initialDate = null,
   counterProposal
 ) {
   let dlg = cal.item.findWindow(calendarItem);
   if (dlg) {
     dlg.focus();
-    disposeJob(job);
     return;
   }
 
@@ -500,7 +466,6 @@ function openEventDialog(
     if (calendars.length < 1) {
       // There are no writable calendars or no calendar supports the given
       // item. Don't show the dialog.
-      disposeJob(job);
       return;
     }
     // Pick the first calendar that supports the item and is writable
@@ -519,7 +484,6 @@ function openEventDialog(
   args.calendar = calendar;
   args.mode = mode;
   args.onOk = callback;
-  args.job = job;
   args.initialStartDateValue = initialDate || cal.dtz.getDefaultStartDate();
   args.counterProposal = counterProposal;
   args.inTab = Services.prefs.getBoolPref("calendar.item.editInTab", false);

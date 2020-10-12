@@ -474,13 +474,7 @@ var ltnImipBar = {
         }
         // if this a rescheduling operation, we suppress the occurrence
         // prompt here
-        modifyEventWithDialog(
-          item,
-          null,
-          aParticipantStatus != "X-RESCHEDULE",
-          null,
-          counterProposal
-        );
+        modifyEventWithDialog(item, aParticipantStatus != "X-RESCHEDULE", null, counterProposal);
       }
     } else {
       let response;

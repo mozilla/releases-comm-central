@@ -427,7 +427,7 @@ class CalendarTaskTreeView {
       // and `item` holds the checkbox state toggled by the first click. So, to make sure the
       // user notices that the state changed, don't call modifyEventWithDialog.
       if (itemProperty != "completed") {
-        modifyEventWithDialog(item, null, true, initialDate);
+        modifyEventWithDialog(item, true, initialDate);
       }
     } else {
       createTodoWithDialog(null, null, null, null, initialDate);

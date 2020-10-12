@@ -275,7 +275,7 @@ function contextPostponeTask(aEvent, aDuration) {
 function modifyTaskFromContext(aEvent, initialDate) {
   let tasks = getSelectedTasks(aEvent);
   for (let task of tasks) {
-    modifyEventWithDialog(task, null, true, initialDate);
+    modifyEventWithDialog(task, true, initialDate);
   }
 }
 
