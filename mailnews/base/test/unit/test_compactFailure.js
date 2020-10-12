@@ -1,8 +1,8 @@
 const { toXPCOMArray } = ChromeUtils.import(
   "resource:///modules/iteratorUtils.jsm"
 );
-const { MockFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MockFactory.jsm"
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
 );
 
 /* import-globals-from ../../../test/resources/logHelper.js */
@@ -18,7 +18,7 @@ Services.prefs.setCharPref(
 );
 
 var gTargetFolder;
-var gUuid;
+var gCid;
 
 // Allow certain xpcom errors.
 logHelperAllowedErrors.push("NS_ERROR_FILE_IS_LOCKED");
@@ -76,25 +76,25 @@ var MsgDBServiceFailure = {
 };
 
 function setup_output_stream_stub() {
-  gUuid = MockFactory.register(
+  gCid = MockRegistrar.register(
     "@mozilla.org/network/file-output-stream;1",
     LockedFileOutputStream
   );
 }
 
 function teardown_output_stream_stub() {
-  MockFactory.unregister(gUuid);
+  MockRegistrar.unregister(gCid);
 }
 
 function setup_db_service_mock() {
-  gUuid = MockFactory.register(
+  gCid = MockRegistrar.register(
     "@mozilla.org/msgDatabase/msgDBService;1",
     MsgDBServiceFailure
   );
 }
 
 function teardown_db_service_mock() {
-  MockFactory.unregister(gUuid);
+  MockRegistrar.unregister(gCid);
 }
 
 function generate_messages() {

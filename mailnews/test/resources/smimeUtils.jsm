@@ -8,8 +8,8 @@
 
 var EXPORTED_SYMBOLS = ["SmimeUtils"];
 
-var { MockFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MockFactory.jsm"
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
 );
 
 const gCertDialogs = {
@@ -50,7 +50,7 @@ var SmimeUtils = {
       // empty).
     }
 
-    MockFactory.register("@mozilla.org/nsCertificateDialogs;1", gCertDialogs);
+    MockRegistrar.register("@mozilla.org/nsCertificateDialogs;1", gCertDialogs);
   },
 
   loadPEMCertificate(file, certType, loadKey = false) {

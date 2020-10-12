@@ -11,8 +11,8 @@ var { alertHook } = ChromeUtils.import(
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
-var { MockFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MockFactory.jsm"
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
 );
 alertHook.init();
 
@@ -50,12 +50,12 @@ var mailnewsURL = {
 
 function run_test() {
   // First register the mock alerts service
-  let uuid = MockFactory.register(
+  let cid = MockRegistrar.register(
     "@mozilla.org/alerts-service;1",
     mockAlertsService
   );
   registerCleanupFunction(function() {
-    MockFactory.unregister(uuid);
+    MockRegistrar.unregister(cid);
   });
 
   // Just text, no url or window => expect no error shown to user

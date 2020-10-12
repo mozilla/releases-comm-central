@@ -5,6 +5,9 @@
 /* Provides methods to make sure our test shuts down mailnews properly. */
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
+);
 
 // Notifies everyone that the we're shutting down. This is needed to make sure
 // that e.g. the account manager closes and cleans up correctly. It is semi-fake
@@ -37,9 +40,7 @@ function postShutdownNotifications() {
   // finally, the xpcom-shutdown notification is handled by XPCOM itself.
 }
 
-if ("MockFactory" in this) {
-  this.MockFactory.unregisterAll();
-}
+MockRegistrar.unregisterAll();
 
 // First do a gc to let anything not being referenced be cleaned up.
 gc();

@@ -1,8 +1,8 @@
-const { MockFactory } = ChromeUtils.import(
-  "resource://testing-common/mailnews/MockFactory.jsm"
+var { MockRegistrar } = ChromeUtils.import(
+  "resource://testing-common/MockRegistrar.jsm"
 );
 
-var gUuid;
+var gCid;
 
 function MockWindowsRegKey(registryData) {
   this._registryData = registryData;
@@ -73,13 +73,13 @@ MockWindowsRegKey.prototype = {
 
 /* exported setup_mock_registry, teardown_mock_registry */
 function setup_mock_registry(mockRegistry) {
-  gUuid = MockFactory.register(
+  gCid = MockRegistrar.register(
     "@mozilla.org/windows-registry-key;1",
     MockWindowsRegKey,
-    mockRegistry
+    [mockRegistry]
   );
 }
 
 function teardown_mock_registry() {
-  MockFactory.unregister(gUuid);
+  MockRegistrar.unregister(gCid);
 }
