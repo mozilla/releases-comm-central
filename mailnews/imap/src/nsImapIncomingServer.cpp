@@ -662,8 +662,6 @@ nsresult nsImapIncomingServer::GetImapConnection(
   *aImapConnection = nullptr;
   // iterate through the connection cache for a connection that can handle this
   // url.
-  bool userCancelled = false;
-
   // loop until we find a connection that can run the url, or doesn't have to
   // wait?
   for (int32_t i = cnt - 1; i >= 0 && !canRunUrlImmediately && !canRunButBusy;
@@ -736,8 +734,6 @@ nsresult nsImapIncomingServer::GetImapConnection(
     connection.forget(aImapConnection);
   } else if (canRunButBusy) {
     // do nothing; return NS_OK; for queuing
-  } else if (userCancelled) {
-    rv = NS_BINDING_ABORTED;  // user cancelled
   }
   // CanHandleUrl will pretend that some types of urls require a selected state
   // url (e.g., a folder delete or msg append) but we shouldn't create new
