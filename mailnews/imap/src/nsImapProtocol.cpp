@@ -7016,10 +7016,12 @@ void nsImapProtocol::DiscoverAllAndSubscribedBoxes() {
 
   for (uint32_t i = 0; i < count; i++) {
     nsIMAPNamespace* ns = nullptr;
-
     m_hostSessionList->GetNamespaceNumberForHost(GetImapServerKey(), i, ns);
-    if (ns && gHideOtherUsersFromList ? (ns->GetType() != kOtherUsersNamespace)
-                                      : true) {
+    if (!ns) {
+      continue;
+    }
+    if ((gHideOtherUsersFromList && (ns->GetType() != kOtherUsersNamespace)) ||
+        !gHideOtherUsersFromList) {
       const char* prefix = ns->GetPrefix();
       if (prefix) {
         nsAutoCString inboxNameWithDelim("INBOX");
