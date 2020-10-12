@@ -6720,13 +6720,15 @@ bool nsImapProtocol::RenameHierarchyByHand(const char* oldParentMailboxName,
       // the imap parser has already converted to a non UTF7 string in the
       // canonical format so convert it back
       char* currentName = m_deletableChildren->ElementAt(childIndex);
-      if (currentName) {
-        char* serverName = nullptr;
-        m_runningUrl->AllocateServerPath(currentName, onlineDirSeparator,
-                                         &serverName);
-        PR_FREEIF(currentName);
-        currentName = serverName;
+      if (!currentName) {
+        renameSucceeded = false;
+        break;
       }
+      char* serverName = nullptr;
+      m_runningUrl->AllocateServerPath(currentName, onlineDirSeparator,
+                                       &serverName);
+      PR_FREEIF(currentName);
+      currentName = serverName;
 
       // calculate the new name and do the rename
       nsCString newChildName(newParentMailboxName);
