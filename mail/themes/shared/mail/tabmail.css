@@ -406,10 +406,13 @@
 
 .contentTabUrlbar {
   max-width: 100%;
+}
+
+.contentTabSecurity:not([hidden="true"]) + .contentTabUrlbar {
   margin-inline-start: -30px;
 }
 
-.contentTabUrlbar > .input-inline {
+.contentTabSecurity:not([hidden="true"]) + .contentTabUrlbar > .input-inline {
   padding-inline-start: 25px;
 }
 
