@@ -271,6 +271,9 @@ prldap_poll(LDAP_X_PollFD fds[], int nfds, int timeout,
           pds[i].in_flags |= prldap_eventmap[j].evm_nspr;
         }
       }
+      // We want to hear about out-of-band/high priority packets.
+      // We need this to hear about security layer errors (e.g. bad certs).
+      pds[i].in_flags |= PR_POLL_EXCEPT;
     }
     fds[i].lpoll_revents = 0; /* clear revents */
   }
