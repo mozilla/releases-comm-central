@@ -98,7 +98,7 @@
         <checkbox wsm_persist="true" id="offline.notDownload" hidefor="imap"
                   label="&offlineNotDownload.label;"
                   accesskey="&offlineNotDownload.accesskey;"
-                  oncommand="onCheckItem('offline.notDownloadMin', 'offline.notDownload');"/>
+                  oncommand="onCheckItem('offline.notDownloadMin', [this.id]);"/>
         <checkbox wsm_persist="true" id="autosyncNotDownload" hidefor="pop3,nntp,movemail"
                   label="&autosyncNotDownload.label;"
                   accesskey="&autosyncNotDownload.accesskey;"
@@ -115,7 +115,7 @@
         <checkbox wsm_persist="true" id="nntp.downloadMsg"
                   label="&nntpDownloadMsg.label;"
                   accesskey="&nntpDownloadMsg.accesskey;"
-                  oncommand="onCheckItem('nntp.downloadMsgMin', 'nntp.downloadMsg');"/>
+                  oncommand="onCheckItem('nntp.downloadMsgMin', [this.id]);"/>
         <html:input id="nntp.downloadMsgMin" type="number"
                     class="size2 input-inline" min="1" value="30"
                     wsm_persist="true"
@@ -161,7 +161,7 @@
     </hbox>
     <hbox align="center" class="indent" hidefor="movemail,pop3,imap,none,rss">
         <checkbox id="nntp.removeBody" accesskey="&nntpRemoveMsgBody.accesskey;"
-                  label="&nntpRemoveMsgBody.label;" oncommand="onCheckItem('nntp.removeBodyMin', 'nntp.removeBody');"/>
+                  label="&nntpRemoveMsgBody.label;" oncommand="onCheckItem('nntp.removeBodyMin', [this.id]);"/>
         <html:input id="nntp.removeBodyMin" type="number"
                     class="size2 input-inline" min="1" value="30"
                     aria-labelledby="nntp.removeBody nntp.removeBodyMin daysOldMsg"/>

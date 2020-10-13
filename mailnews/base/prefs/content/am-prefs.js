@@ -82,12 +82,11 @@ function getAccountValueIsLocked(aElement) {
  * Enables/disables element (slave) according to the checked state
  * of another elements (masters).
  *
- * @param aChangeElementId  Slave element which should be enabled
- *                          if all the checkElementIDs are checked.
- *                          Otherwise it gets disabled.
- * @param aCheckElementIds  An array of IDs of the master elements.
+ * @param {string} aChangeElementId - Slave element which should be enabled
+ *   if all the checkElementIDs are checked. Otherwise it gets disabled.
+ * @param {string[]} aCheckElementIds - An array of IDs of the master elements.
  *
- * See bug 728681 for the pattern on how this is used.
+ * @see bug 728681 for the pattern on how this is used.
  */
 function onCheckItem(aChangeElementId, aCheckElementIds) {
   let elementToControl = document.getElementById(aChangeElementId);
