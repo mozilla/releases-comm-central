@@ -174,11 +174,8 @@ var abDirTreeObserver = {
     }
 
     // If target directory is a mailing list, then only allow copies.
-    if (
-      targetDirectory.isMailList &&
-      dragSession.dragAction != Ci.nsIDragService.DRAGDROP_ACTION_COPY
-    ) {
-      return false;
+    if (targetDirectory.isMailList) {
+      dragSession.dragAction = Ci.nsIDragService.DRAGDROP_ACTION_COPY;
     }
 
     // Go through the cards checking to see if one of them is a mailing list

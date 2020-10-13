@@ -242,7 +242,7 @@ AddrBookMailingList.prototype = {
       },
       dropCard(card, needToCopyCard) {
         if (needToCopyCard) {
-          card = this._parent.dropCard(card, true);
+          card = self._parent.dropCard(card, true);
         }
         this.addCard(card);
         Services.obs.notifyObservers(
