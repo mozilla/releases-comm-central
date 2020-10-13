@@ -69,7 +69,7 @@ class MimeEncoder {
 
     // Allow users to override our percentage-wise guess on whether
     // the file is text or binary.
-    let forceB64 = Services.prefs.getBoolPref("mailnews.send_plaintext_flowed");
+    let forceB64 = Services.prefs.getBoolPref("mail.file_attach_binary");
 
     // If the content-type is "image/" or something else known to be binary or
     // several flavors of newlines are present, use base64 unless we're attaching
@@ -85,7 +85,6 @@ class MimeEncoder {
     } else {
       // Otherwise, we need to pick an encoding based on the contents of the
       // document.
-      // let encodeP = true;
       let encodeP = false;
 
       // Force quoted-printable if the sender does not allow conversion to 7bit.

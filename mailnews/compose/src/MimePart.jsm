@@ -4,6 +4,7 @@
 
 const EXPORTED_SYMBOLS = ["MimePart", "MimeMultiPart"];
 
+let { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 let { MimeEncoder } = ChromeUtils.import("resource:///modules/MimeEncoder.jsm");
@@ -42,8 +43,36 @@ class MimePart {
   }
 
   /**
+   * @type {BinaryString} text - The string to use as body.
+   */
+  set bodyText(text) {
+    this._bodyText = text;
+  }
+
+  /**
+   * @type {MimePart[]} - The child parts.
+   */
+  get parts() {
+    return this._parts;
+  }
+
+  /**
+   * @type {MimePart[]} parts - The child parts.
+   */
+  set parts(parts) {
+    this._parts = parts;
+  }
+
+  /**
+   * @type {string} - The separator string.
+   */
+  get separator() {
+    return this._separator;
+  }
+
+  /**
    * Set a header.
-   * @param {string} name - The header name, e.g. "Content-Type".
+   * @param {string} name - The header name, e.g. "content-type".
    * @param {string} content - The header content, e.g. "text/plain".
    */
   setHeader(name, content) {
@@ -68,6 +97,14 @@ class MimePart {
   }
 
   /**
+   * Delete a header.
+   * @param {string} name - The header name to delete, e.g. "content-type".
+   */
+  deleteHeader(name) {
+    this._headers.delete(name);
+  }
+
+  /**
    * Set headers by an iterable.
    * @param {Iterable.<string, string>} entries - The header entries.
    */
@@ -75,13 +112,6 @@ class MimePart {
     for (let [name, content] of entries) {
       this.setHeader(name, content);
     }
-  }
-
-  /**
-   * @type {BinaryString} text - The string to use as body.
-   */
-  set bodyText(text) {
-    this._bodyText = text;
   }
 
   /**
@@ -117,10 +147,52 @@ class MimePart {
   }
 
   /**
+   * Pick an encoding according to _bodyText or _bodyAttachment content. Set
+   * content-transfer-encoding header, then return the encoded value.
+   * @returns {BinaryString}
+   */
+  async getEncodedBodyString() {
+    let bodyString = this._bodyText;
+    // If this is an attachment part, use the attachment content as bodyString.
+    if (this._bodyAttachment) {
+      bodyString = await this._fetchFile();
+    }
+    if (bodyString) {
+      let encoder = new MimeEncoder(
+        this._charset,
+        this._contentType,
+        this._forceMsgEncoding,
+        this._isMainBody,
+        bodyString
+      );
+      encoder.pickEncoding();
+      this.setHeader("content-transfer-encoding", encoder.encoding);
+      bodyString = encoder.encode();
+    } else if (this._isMainBody) {
+      this.setHeader("content-transfer-encoding", "7bit");
+    }
+    return bodyString;
+  }
+
+  /**
+   * Use jsmime to convert _headers to string.
+   * @returns {string}
+   */
+  getHeaderString() {
+    return jsmime.headeremitter.emitStructuredHeaders(this._headers, {
+      useASCII: true,
+      sanitizeDate: Services.prefs.getBoolPref(
+        "mail.sanitize_date_header",
+        false
+      ),
+    });
+  }
+
+  /**
    * Fetch the attachment file to get its content type and content.
    * @returns {string}
    */
-  async fetchFile() {
+  async _fetchFile() {
     let url = this._bodyAttachment.url;
     let headers = {};
 
@@ -148,7 +220,9 @@ class MimePart {
     });
     // Content-Type is sometimes text/plain;charset=US-ASCII, discard the
     // charset.
-    this._contentType = res.headers.get("content-type").split(";")[0];
+    this._contentType =
+      this._bodyAttachment.contentType ||
+      res.headers.get("content-type").split(";")[0];
 
     let parmFolding = Services.prefs.getIntPref(
       "mail.strictly_mime.parm_folding",
@@ -187,94 +261,15 @@ class MimePart {
       this.setHeader("content-location", contentLocation);
     }
 
+    if (this._bodyAttachment.temporary) {
+      let handler = Services.io
+        .getProtocolHandler("file")
+        .QueryInterface(Ci.nsIFileProtocolHandler);
+      // Get an nsIFile from file:///tmp/key.asc.
+      let file = handler.getFileFromURLSpec(this._bodyAttachment.url);
+      OS.File.remove(file.path);
+    }
     return content;
-  }
-
-  /**
-   * Recursively write a MimePart and its parts to a file.
-   * @param {OS.File} file - The output file to contain a RFC2045 message.
-   * @param {number} [depth=0] - Nested level of a part.
-   */
-  async write(file, depth = 0) {
-    this._outFile = file;
-    let bodyString = this._bodyText;
-    // If this is an attachment part, use the attachment content as bodyString.
-    if (this._bodyAttachment) {
-      bodyString = await this.fetchFile();
-    }
-    if (bodyString) {
-      let encoder = new MimeEncoder(
-        this._charset,
-        this._contentType,
-        this._forceMsgEncoding,
-        this._isMainBody,
-        bodyString
-      );
-      encoder.pickEncoding();
-      this.setHeader("content-transfer-encoding", encoder.encoding);
-      bodyString = encoder.encode();
-    } else if (this._isMainBody) {
-      this.setHeader("content-transfer-encoding", "7bit");
-    }
-
-    // Write out headers.
-    await this._writeString(
-      jsmime.headeremitter.emitStructuredHeaders(this._headers, {
-        useASCII: true,
-        sanitizeDate: Services.prefs.getBoolPref(
-          "mail.sanitize_date_header",
-          false
-        ),
-      })
-    );
-
-    // Recursively write out parts.
-    if (this._parts.length) {
-      // single part message
-      if (!this._separator && this._parts.length === 1) {
-        await this._parts[0].write(file, depth + 1);
-        await this._writeString(`${bodyString}\r\n`);
-        return;
-      }
-
-      await this._writeString("\r\n");
-      if (depth == 0) {
-        // Current part is a top part and multipart container.
-        await this._writeString(
-          "This is a multi-part message in MIME format.\r\n"
-        );
-      }
-
-      // multipart message
-      for (let part of this._parts) {
-        await this._writeString(`--${this._separator}\r\n`);
-        await part.write(file, depth + 1);
-      }
-      await this._writeString(`--${this._separator}--\r\n`);
-    }
-
-    // Write out body.
-    await this._writeBinaryString(`\r\n${bodyString}\r\n`);
-  }
-
-  /**
-   * Write a binary string to this._outFile, used only for part body, which
-   * is either from nsACString or from this.fetchFile.
-   *
-   * @param {string} str - The binary string to write.
-   */
-  async _writeBinaryString(str) {
-    await this._outFile.write(jsmime.mimeutils.stringToTypedArray(str));
-  }
-
-  /**
-   * Write a string to this._outFile, used for part headers, which are expected
-   * to be UTF-8.
-   *
-   * @param {string} str - The string to write.
-   */
-  async _writeString(str) {
-    await this._outFile.write(new TextEncoder().encode(str));
   }
 }
 

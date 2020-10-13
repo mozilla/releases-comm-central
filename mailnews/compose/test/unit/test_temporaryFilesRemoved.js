@@ -44,12 +44,7 @@ var progressListener = {
  * patterns.
  */
 async function getTemporaryFilesCount() {
-  let tmpDir;
-  if (Services.prefs.getBoolPref("mailnews.send.jsmodule", false)) {
-    tmpDir = OS.Constants.Path.tmpDir;
-  } else {
-    tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
-  }
+  let tmpDir = Services.dirsvc.get("TmpD", Ci.nsIFile).path;
   let iterator = new OS.File.DirectoryIterator(tmpDir);
   let tempFiles = {
     "nsemail.html": 0, // not actually used by MessageSend.jsm

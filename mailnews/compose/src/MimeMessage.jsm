@@ -4,7 +4,6 @@
 
 const EXPORTED_SYMBOLS = ["MimeMessage"];
 
-let { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
 let { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 let { MimeMultiPart, MimePart } = ChromeUtils.import(
   "resource:///modules/MimePart.jsm"
@@ -12,6 +11,7 @@ let { MimeMultiPart, MimePart } = ChromeUtils.import(
 let { MsgUtils } = ChromeUtils.import(
   "resource:///modules/MimeMessageUtils.jsm"
 );
+let { jsmime } = ChromeUtils.import("resource:///modules/jsmime.jsm");
 
 /**
  * A class to create a top MimePart and write to a tmp file. It works like this:
@@ -36,6 +36,7 @@ class MimeMessage {
    * @param {string} originalMsgURI
    * @param {MSG_ComposeType} compType
    * @param {nsIMsgAttachment[]} embeddedAttachments - Usually Embedded images.
+   * @param {nsIMsgSendReport} sendReport - Used by _startCryptoEncapsulation.
    */
   constructor(
     userIdentity,
@@ -46,7 +47,8 @@ class MimeMessage {
     deliverMode,
     originalMsgURI,
     compType,
-    embeddedAttachments
+    embeddedAttachments,
+    sendReport
   ) {
     this._userIdentity = userIdentity;
     this._compFields = compFields;
@@ -56,6 +58,7 @@ class MimeMessage {
     this._deliverMode = deliverMode;
     this._compType = compType;
     this._embeddedAttachments = embeddedAttachments;
+    this._sendReport = sendReport;
   }
 
   /**
@@ -64,14 +67,30 @@ class MimeMessage {
    */
   async createMessageFile() {
     let topPart = this._initMimePart();
-    let { path, file: fileWriter } = await OS.File.openUnique(
-      OS.Path.join(OS.Constants.Path.tmpDir, "nsemail.eml")
-    );
-    await topPart.write(fileWriter);
-    await fileWriter.close();
+    let file = Services.dirsvc.get("TmpD", Ci.nsIFile);
+    file.append("nsemail.eml");
+    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
-    let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-    file.initWithPath(path);
+    let fstream = Cc[
+      "@mozilla.org/network/file-output-stream;1"
+    ].createInstance(Ci.nsIFileOutputStream);
+    this._fstream = Cc[
+      "@mozilla.org/network/buffered-output-stream;1"
+    ].createInstance(Ci.nsIBufferedOutputStream);
+    fstream.init(file, -1, -1, 0);
+    this._fstream.init(fstream, 16 * 1024);
+
+    this._composeSecure = this._getComposeSecure();
+    if (this._composeSecure) {
+      await this._writePart(topPart);
+      this._composeSecure.finishCryptoEncapsulation(false, this._sendReport);
+    } else {
+      await this._writePart(topPart);
+    }
+
+    this._fstream.close();
+    fstream.close();
+
     return file;
   }
 
@@ -123,11 +142,19 @@ class MimeMessage {
    * Collect top level headers like From/To/Subject into a Map.
    */
   _gatherMimeHeaders() {
-    let messageId = this._compFields.getHeader("message-id");
-    if (!messageId) {
+    let messageId = this._compFields.messageId;
+    if (
+      !messageId &&
+      (this._compFields.to ||
+        this._compFields.cc ||
+        this._compFields.bcc ||
+        !this._compFields.newsgroups ||
+        this._userIdentity.getBoolAttribute("generate_news_message_id"))
+    ) {
       messageId = Cc["@mozilla.org/messengercompose/computils;1"]
         .createInstance(Ci.nsIMsgCompUtils)
         .msgGenerateMessageId(this._userIdentity);
+      this._compFields.messageId = messageId;
     }
     let headers = new Map([
       ["message-id", messageId],
@@ -386,5 +413,128 @@ class MimeMessage {
       part.setBodyAttachment(attachment, "inline", attachment.contentId);
       return part;
     });
+  }
+
+  /**
+   * If crypto encaspsulation is required, returns an nsIMsgComposeSecure instance.
+   * @returns {nsIMsgComposeSecure}
+   */
+  _getComposeSecure() {
+    let secureCompose = this._compFields.composeSecure;
+    if (!secureCompose) {
+      return null;
+    }
+    if (
+      !secureCompose.requiresCryptoEncapsulation(
+        this._userIdentity,
+        this._compFields
+      )
+    ) {
+      return null;
+    }
+    return secureCompose;
+  }
+
+  /**
+   * Pass a stream and other params to this._composeSecure to start crypto
+   * encaspsulation.
+   * @param {nsIOutputStream} stream - The stream to write to.
+   */
+  _startCryptoEncapsulation() {
+    let recipients = [
+      this._compFields.to,
+      this._compFields.cc,
+      this._compFields.bcc,
+      this._compFields.newsgroups,
+    ]
+      .filter(Boolean)
+      .join(",");
+
+    this._composeSecure.beginCryptoEncapsulation(
+      this._fstream,
+      recipients,
+      this._compFields,
+      this._userIdentity,
+      this._sendReport,
+      this._deliverMode == Ci.nsIMsgSend.nsMsgSaveAsDraft
+    );
+    this._cryptoEncapsulationStarted = true;
+  }
+
+  /**
+   * Recursively write an MimePart and its parts to a this._fstream.
+   * @param {MimePart} curPart - The MimePart to write out.
+   * @param {number} [depth=0] - Nested level of a part.
+   */
+  async _writePart(curPart, depth = 0) {
+    let bodyString = await curPart.getEncodedBodyString();
+
+    if (depth == 0 && this._composeSecure) {
+      // Crypto encaspsulation will add a new content-type header.
+      curPart.deleteHeader("content-type");
+      if (curPart.parts.length > 1) {
+        // Move child parts one layer deeper so that the message is still well
+        // formed after crypto encaspsulation.
+        let newChild = new MimeMultiPart("mixed");
+        newChild.parts = curPart._parts;
+        curPart.parts = [newChild];
+      }
+    }
+
+    // Write out headers.
+    this._writeString(curPart.getHeaderString());
+
+    // Start crypto encaspsulation if needed.
+    if (depth == 0 && this._composeSecure) {
+      this._startCryptoEncapsulation();
+    }
+
+    // Recursively write out parts.
+    if (curPart.parts.length) {
+      // single part message
+      if (curPart.parts.length === 1) {
+        await this._writePart(curPart.parts[0], depth + 1);
+        this._writeString(`${bodyString}\r\n`);
+        return;
+      }
+
+      this._writeString("\r\n");
+      if (depth == 0) {
+        // Current part is a top part and multipart container.
+        this._writeString("This is a multi-part message in MIME format.\r\n");
+      }
+
+      // multipart message
+      for (let part of curPart.parts) {
+        this._writeString(`--${curPart.separator}\r\n`);
+        await this._writePart(part, depth + 1);
+      }
+      this._writeString(`--${curPart.separator}--\r\n`);
+    }
+
+    // Write out body.
+    this._writeBinaryString(`\r\n${bodyString}\r\n`);
+  }
+
+  /**
+   * Write a binary string to this._fstream.
+   *
+   * @param {BinaryString} str - The binary string to write.
+   */
+  _writeBinaryString(str) {
+    this._cryptoEncapsulationStarted
+      ? this._composeSecure.mimeCryptoWriteBlock(str, str.length)
+      : this._fstream.write(str, str.length);
+  }
+
+  /**
+   * Write a string to this._fstream.
+   *
+   * @param {string} str - The string to write.
+   */
+  _writeString(str) {
+    this._writeBinaryString(
+      jsmime.mimeutils.typedArrayToString(new TextEncoder().encode(str))
+    );
   }
 }

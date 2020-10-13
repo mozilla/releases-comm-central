@@ -102,7 +102,8 @@ MessageSend.prototype = {
       deliverMode,
       originalMsgURI,
       compType,
-      embeddedAttachments
+      embeddedAttachments,
+      this.sendReport
     );
 
     this._messageKey = nsMsgKey_None;
@@ -591,9 +592,10 @@ MessageSend.prototype = {
     this._msgCopy = msgCopy;
     this._copyFile = this._messageFile;
     if (this._folderUri.startsWith("mailbox:")) {
-      let { path, file: fileWriter } = await OS.File.openUnique(
-        OS.Path.join(OS.Constants.Path.tmpDir, "nscopy.tmp")
-      );
+      this._copyFile = Services.dirsvc.get("TmpD", Ci.nsIFile);
+      this._copyFile.append("nscopy.tmp");
+      this._copyFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
+      let fileWriter = await OS.File.open(this._copyFile.path, { write: true });
       // Add a `From - Date` line, so that nsLocalMailFolder.cpp won't add a
       // dummy envelope. The date string will be parsed by PR_ParseTimeString.
       await fileWriter.write(
@@ -613,10 +615,6 @@ MessageSend.prototype = {
       }
       await fileWriter.write(await OS.File.read(this._messageFile.path));
       await fileWriter.close();
-      this._copyFile = Cc["@mozilla.org/file/local;1"].createInstance(
-        Ci.nsIFile
-      );
-      this._copyFile.initWithPath(path);
     }
     // Notify nsMsgCompose about the saved folder.
     if (this._sendListener) {
