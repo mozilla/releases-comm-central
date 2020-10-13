@@ -107,7 +107,12 @@ MessageSend.prototype = {
     );
 
     this._messageKey = nsMsgKey_None;
-    this._createAndSendMessage();
+
+    // nsMsgCompose will do some cleanups depending if the return value of
+    // createAndSendMessage is not 0, this required createAndSendMessage to run
+    // synchonously.
+    // TODO: update nsIMsgSend.idl to return Promise.
+    this._runPromise(this._createAndSendMessage());
   },
 
   sendMessageFile(
@@ -160,7 +165,7 @@ MessageSend.prototype = {
     // nsMsgKey_None from MailNewsTypes.h.
     this._messageKey = 0xffffffff;
 
-    this._deliverMessage(messageFile);
+    this._runPromise(this._deliverMessage(messageFile));
   },
 
   abort() {
@@ -488,7 +493,7 @@ MessageSend.prototype = {
     this._setStatusMessage(
       this._composeBundle.GetStringFromName("assemblingMessageDone")
     );
-    await this._deliverMessage(messageFile);
+    return this._deliverMessage(messageFile);
   },
 
   _setStatusMessage(msg) {
@@ -515,6 +520,28 @@ MessageSend.prototype = {
       await this._doFcc();
       return;
     }
+
+    let warningSize = Services.prefs.getIntPref(
+      "mailnews.message_warning_size"
+    );
+    if (warningSize > 0 && file.fileSize > warningSize) {
+      let messenger = Cc["@mozilla.org/messenger;1"].createInstance(
+        Ci.nsIMessenger
+      );
+      let msg = this._composeBundle.formatStringFromName(
+        "largeMessageSendWarning",
+        [messenger.formatFileSize(file.fileSize)]
+      );
+      let prompt = this.getDefaultPrompt();
+      if (!prompt.confirm(null, msg)) {
+        this.fail(MsgUtils.NS_ERROR_BUT_DONT_SHOW_ALERT, msg);
+        throw Components.Exception(
+          "Cancelled sending large message",
+          Cr.NS_ERROR_FAILURE
+        );
+      }
+    }
+
     if (this._compFields.newsgroups) {
       this._deliverFileAsNews();
       return;
@@ -937,6 +964,18 @@ MessageSend.prototype = {
     return jsmime.mimeutils.typedArrayToString(
       new TextEncoder().encode(bodyText)
     );
+  },
+
+  /**
+   * A wrapper of MsgUtils.syncPromise to run a promise synchonously.
+   * @param {Promise} promise - the promise to run
+   */
+  _runPromise(promise) {
+    let e = MsgUtils.syncPromise(promise);
+    if (e && e.result != 0) {
+      this._sendReport.setError(Ci.nsIMsgSendReport.process_Current, e, false);
+      throw Components.Exception("_runPromise failed", e.result);
+    }
   },
 };
 

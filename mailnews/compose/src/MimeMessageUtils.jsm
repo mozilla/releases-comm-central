@@ -1049,4 +1049,34 @@ var MsgUtils = {
       .split("?")[0]
       .split("#")[0];
   },
+
+  /**
+   * Synchronize a promise: wait synchonously until a promise has completed and
+   * return the value that the promise returned. This is a temporary workaround,
+   * avoid using it if possible.
+   * TODO: remove this hack by returning Promise in nsIMsgSend.idl.
+   * @param {Promise} promise - the promise to wait for
+   *
+   * @return {Variant} whatever the promise returns
+   */
+  syncPromise(promise) {
+    let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(
+      Ci.nsIJSInspector
+    );
+
+    let res = null;
+    promise
+      .then(gotResult => {
+        res = gotResult;
+        inspector.exitNestedEventLoop();
+      })
+      .catch(gotResult => {
+        console.log("syncPromise failed result: %o", gotResult);
+        res = gotResult;
+        inspector.exitNestedEventLoop();
+      });
+
+    inspector.enterNestedEventLoop(0);
+    return res;
+  },
 };

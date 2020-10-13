@@ -266,3 +266,7 @@ function getAttachmentFromContent(aContent) {
 registerCleanupFunction(function() {
   load(gDEPTH + "mailnews/resources/mailShutdown.js");
 });
+
+// Trigger the loading of nsMsgSend.cpp or MessageSend.jsm according to
+// mailnews.send.jsmodule pref.
+Cc["@mozilla.org/messengercompose/send-module-loader;1"].getService();
