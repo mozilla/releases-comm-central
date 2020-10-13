@@ -33,12 +33,14 @@ typedef struct {
 //
 typedef struct {
   nsLDAPSSLSessionClosure* sessionClosure; /* session info */
+  nsISupports* securityInfo;               /* manual refcounting! */
 } nsLDAPSSLSocketClosure;
 
 // free the per-socket data structure as necessary
 //
 static void nsLDAPSSLFreeSocketClosure(nsLDAPSSLSocketClosure** aClosure) {
   if (aClosure && *aClosure) {
+    NS_IF_RELEASE((*aClosure)->securityInfo);
     free(*aClosure);
     *aClosure = nullptr;
   }
@@ -155,6 +157,7 @@ extern "C" int LDAP_CALLBACK nsLDAPSSLConnect(
   }
   memset(socketClosure, 0, sizeof(nsLDAPSSLSocketClosure));
   socketClosure->sessionClosure = sessionClosure;
+  socketClosure->securityInfo = nullptr;
 
   // Add the NSPR layer for SSL provided by PSM to this socket.
   sps = nsSocketProviderService::GetOrCreate();
@@ -200,8 +203,9 @@ extern "C" int LDAP_CALLBACK nsLDAPSSLConnect(
     }
   }
 
-  // Attach our closure to the socketInfo.
-  //
+  // Attach our closure to the socketInfo, making sure to stash the
+  // securityInfo so we can get at it later during error handling.
+  socketClosure->securityInfo = securityInfo;
   socketInfo.soinfo_appdata =
       reinterpret_cast<prldap_socket_private*>(socketClosure);
   if (prldap_set_socket_info(intfd, *socketargp, &socketInfo) != LDAP_SUCCESS) {
@@ -329,5 +333,26 @@ nsresult nsLDAPInstallSSL(LDAP* ld, const char* aHostName) {
     return NS_ERROR_UNEXPECTED;
   }
 
+  return NS_OK;
+}
+
+// Fetch the securityInfo associated with a secure ldap connection.
+// Fails if no securityInfo is found (e.g. if called on an ldap connection
+// which wasn't augmented with nsLDAPInstallSSL()).
+nsresult nsLDAPGetSecInfo(LDAP* ld, nsISupports** secInfo) {
+  NS_ENSURE_ARG_POINTER(secInfo);
+
+  PRLDAPSocketInfo soinfo;
+  soinfo.soinfo_size = PRLDAP_SOCKETINFO_SIZE;
+  int code = prldap_get_default_socket_info(ld, &soinfo);
+  if (code != LDAP_SUCCESS) {
+    return NS_ERROR_FAILURE;
+  }
+  nsLDAPSSLSocketClosure* socketClosure =
+      reinterpret_cast<nsLDAPSSLSocketClosure*>(soinfo.soinfo_appdata);
+  if (!socketClosure) {
+    return NS_ERROR_FAILURE;
+  }
+  NS_IF_ADDREF(*secInfo = socketClosure->securityInfo);
   return NS_OK;
 }

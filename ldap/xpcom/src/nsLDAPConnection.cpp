@@ -11,6 +11,7 @@
 #include "nsIDNSRecord.h"
 #include "nsLDAPConnection.h"
 #include "nsLDAPMessage.h"
+#include "nsLDAPSecurityGlue.h"
 #include "nsThreadUtils.h"
 #include "nsIConsoleService.h"
 #include "nsIDNSService.h"
@@ -550,9 +551,6 @@ nsLDAPConnection::OnLookupComplete(nsICancelable* aRequest,
       // This code sets up the current connection to use PSM for SSL
       // functionality.  Making this use libssldap instead for
       // non-browser user shouldn't be hard.
-
-      extern nsresult nsLDAPInstallSSL(LDAP * ld, const char* aHostName);
-
       if (mSSL) {
         if (ldap_set_option(mConnectionHandle, LDAP_OPT_SSL, LDAP_OPT_ON) !=
             LDAP_SUCCESS) {
