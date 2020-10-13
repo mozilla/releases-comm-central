@@ -756,8 +756,8 @@ nsresult nsMimeBaseEmitter::WriteHeaderFieldHTML(const char* field,
     mHTMLHeaders.Append(field);
   else {
     mHTMLHeaders.Append(l10nTagName);
-    PR_FREEIF(l10nTagName);
   }
+  PR_FREEIF(l10nTagName);
 
   mHTMLHeaders.AppendLiteral(": ");
   if (mFormat == nsMimeOutput::nsMimeMessageSaveAs)
