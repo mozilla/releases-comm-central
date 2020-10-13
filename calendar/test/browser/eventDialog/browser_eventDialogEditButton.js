@@ -1,11 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, you can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
-  "resource://testing-common/mozmill/CalendarUtils.jsm"
-);
+ChromeUtils.import("resource://testing-common/mozmill/CalendarUtils.jsm");
+
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
@@ -14,8 +12,14 @@ XPCOMUtils.defineLazyModuleGetters(this, {
   CalRecurrenceInfo: "resource:///modules/CalRecurrenceInfo.jsm",
 });
 
-const calendarId = createCalendar(controller, CALENDARNAME);
-const calendar = cal.async.promisifyCalendar(cal.getCalendarManager().getCalendarById(calendarId));
+const manager = cal.getCalendarManager();
+const _calendar = manager.createCalendar("storage", Services.io.newURI("moz-storage-calendar://"));
+_calendar.name = "eventDialogEditButton";
+manager.registerCalendar(_calendar);
+registerCleanupFunction(() => {
+  manager.unregisterCalendar(_calendar);
+});
+const calendar = cal.async.promisifyCalendar(_calendar);
 
 let originalTimezone = Services.prefs.getStringPref("calendar.timezone.local");
 Services.prefs.setStringPref("calendar.timezone.local", "UTC");
@@ -32,6 +36,10 @@ async function getEventBox(attrSelector) {
 }
 
 async function openEventFromBox(eventBox) {
+  if (Services.focus.activeWindow != window) {
+    await BrowserTestUtils.waitForEvent(window, "focus");
+  }
+
   let promise = BrowserTestUtils.domWindowOpened(null, async win => {
     await BrowserTestUtils.waitForEvent(win, "load");
     return win.document.documentURI == "chrome://calendar/content/calendar-summary-dialog.xhtml";
