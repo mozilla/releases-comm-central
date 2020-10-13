@@ -187,6 +187,7 @@ add_task(function test_display_about_support() {
     "sandbox-syscalls-tbody",
     "crashes-tbody",
     "processes-tbody",
+    "support-printing-prefs-tbody",
   ]; // some tables may be empty
   for (let table of tables) {
     if (!emptyTables.includes(table.id)) {
