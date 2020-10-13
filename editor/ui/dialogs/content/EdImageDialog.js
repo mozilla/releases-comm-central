@@ -494,10 +494,10 @@ function ValidateImage() {
     var checkbox = document.getElementById("MakeRelativeCheckbox");
     try {
       if (checkbox && !checkbox.checked) {
-        src = Services.uriFixup.createFixupURI(
+        src = Services.uriFixup.getFixupURIInfo(
           src,
           Ci.nsIURIFixup.FIXUP_FLAG_NONE
-        ).spec;
+        ).preferredURI.spec;
       }
     } catch (e) {}
 

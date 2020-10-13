@@ -33,7 +33,7 @@ function resolveURIInternal(aCmdLine, aArgument) {
   // doesn't exist. Try URI fixup heuristics: see bug 290782.
 
   try {
-    uri = Services.uriFixup.createFixupURI(aArgument, 0);
+    uri = Services.uriFixup.getFixupURIInfo(aArgument, 0).preferredURI;
   } catch (e) {
     Cu.reportError(e);
   }

@@ -604,8 +604,8 @@ function loadStartPage(aForce) {
   );
   if (startpage) {
     try {
-      let uri = Services.uriFixup.createFixupURI(startpage, 0);
-      GetMessagePaneFrame().location.href = uri.spec;
+      let { preferredURI } = Services.uriFixup.getFixupURIInfo(startpage, 0);
+      GetMessagePaneFrame().location.href = preferredURI.spec;
     } catch (e) {
       Cu.reportError(e);
     }
