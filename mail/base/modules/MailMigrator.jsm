@@ -118,7 +118,7 @@ var MailMigrator = {
   _migrateUI() {
     // The code for this was ported from
     // mozilla/browser/components/nsBrowserGlue.js
-    const UI_VERSION = 22;
+    const UI_VERSION = 23;
     const MESSENGER_DOCURL = "chrome://messenger/content/messenger.xhtml";
     const MESSENGERCOMPOSE_DOCURL =
       "chrome://messenger/content/messengercompose/messengercompose.xhtml";
@@ -507,27 +507,14 @@ var MailMigrator = {
       // Migrate Yahoo users to OAuth2, since "normal password" is going away
       // on October 20, 2020.
       if (currentUIVersion < 22) {
-        // Loop through all the currently stored accounts.
-        for (let account of MailServices.accounts.accounts) {
-          // Skip if not a Yahoo account.
-          if (!account.incomingServer.hostName.endsWith("mail.yahoo.com")) {
-            continue;
-          }
-
-          // Change Incoming server to OAuth2.
-          account.incomingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
-        }
-
-        // Loop through all the currently stored servers.
-        for (let server of MailServices.smtp.servers) {
-          // Skip if not a Yahoo server.
-          if (!server.hostname.endsWith("mail.yahoo.com")) {
-            continue;
-          }
-
-          // Change Outgoing SMTP server to OAuth2.
-          server.authMethod = Ci.nsMsgAuthMethod.OAuth2;
-        }
+        this._migrateIncomingToOAuth2("mail.yahoo.com");
+        this._migrateSMTPToOAuth2("mail.yahoo.com");
+      }
+      // ... and same thing for AOL users.
+      if (currentUIVersion < 23) {
+        this._migrateIncomingToOAuth2("imap.aol.com");
+        this._migrateIncomingToOAuth2("pop.aol.com");
+        this._migrateSMTPToOAuth2("smtp.aol.com");
       }
 
       // Update the migration version.
@@ -546,6 +533,40 @@ var MailMigrator = {
     }
   },
   /* eslint-enable complexity */
+
+  /**
+   * Migrate incoming server to using OAuth2 as authMethod.
+   *
+   * @param {string} hostnameHint - What the hostname should end with.
+   */
+  _migrateIncomingToOAuth2(hostnameHint) {
+    for (let account of MailServices.accounts.accounts) {
+      // Skip if not a matching account.
+      if (!account.incomingServer.hostName.endsWith(hostnameHint)) {
+        continue;
+      }
+
+      // Change Incoming server to OAuth2.
+      account.incomingServer.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+    }
+  },
+
+  /**
+   * Migrate outgoing server to using OAuth2 as authMethod.
+   *
+   * @param {string} hostnameHint - What the hostname should end with.
+   */
+  _migrateSMTPToOAuth2(hostnameHint) {
+    for (let server of MailServices.smtp.servers) {
+      // Skip if not a matching server.
+      if (!server.hostname.endsWith(hostnameHint)) {
+        continue;
+      }
+
+      // Change Outgoing SMTP server to OAuth2.
+      server.authMethod = Ci.nsMsgAuthMethod.OAuth2;
+    }
+  },
 
   /**
    * RSS subscriptions and items used to be stored in .rdf files, but now

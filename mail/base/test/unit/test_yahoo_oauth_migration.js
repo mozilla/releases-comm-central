@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Test migrating Yahoo users to OAuth2, since "normal password" is going away
+ * Test migrating Yahoo/AOL users to OAuth2, since "normal password" is going away
  * on October 20, 2020.
  */
 
@@ -100,6 +100,48 @@ var gAccountList = [
       },
     ],
   },
+  // AOL IMAP account.
+  {
+    type: "imap",
+    port: 993,
+    user: "aolimap",
+    password: "imap2password",
+    hostname: "imap.aol.com",
+    socketType: Ci.nsMsgSocketType.SSL,
+    authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    smtpServers: [
+      {
+        port: 465,
+        user: "imapout2",
+        password: "imapoutpassword2",
+        isDefault: false,
+        hostname: "smtp.aol.com",
+        socketType: Ci.nsMsgSocketType.SSL,
+        authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+      },
+    ],
+  },
+  // AOL POP3 account.
+  {
+    type: "pop3",
+    port: 995,
+    user: "aolpop3",
+    password: "abc",
+    hostname: "pop.aol.com",
+    socketType: Ci.nsMsgSocketType.SSL,
+    authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+    smtpServers: [
+      {
+        port: 465,
+        user: "popout",
+        password: "aaa",
+        isDefault: false,
+        hostname: "smtp.aol.com",
+        socketType: Ci.nsMsgSocketType.SSL,
+        authMethod: Ci.nsMsgAuthMethod.passwordCleartext,
+      },
+    ],
+  },
 ];
 
 // An array of the incoming servers created from the setup_accounts() method.
@@ -180,12 +222,15 @@ function test_yahoo_oauth_migration() {
   MailMigrator._migrateUI();
 
   for (let server of gIncomingServers) {
-    // Confirm only the Yahoo incoming servers are using OAuth2 after migration.
-    if (!server.hostName.endsWith("mail.yahoo.com")) {
+    // Confirm only the correct incoming servers are using OAuth2 after migration.
+    if (
+      !server.hostName.endsWith("mail.yahoo.com") &&
+      !server.hostName.endsWith("aol.com")
+    ) {
       Assert.notEqual(
         server.authMethod,
         Ci.nsMsgAuthMethod.OAuth2,
-        "Incoming server doesn't use OAuth2 after migration"
+        `Incoming server ${server.hostName} doesn't use OAuth2 after migration`
       );
       continue;
     }
@@ -193,17 +238,20 @@ function test_yahoo_oauth_migration() {
     Assert.equal(
       server.authMethod,
       Ci.nsMsgAuthMethod.OAuth2,
-      "Incoming server uses OAuth2 after migration"
+      `Incoming server ${server.hostName} should use OAuth2 after migration`
     );
   }
 
   for (let server of gOutgoingServers) {
-    // Confirm only the Yahoo outgoing servers are using OAuth2 after migration.
-    if (!server.hostname.endsWith("mail.yahoo.com")) {
+    // Confirm only the correct outgoing servers are using OAuth2 after migration.
+    if (
+      !server.hostname.endsWith("mail.yahoo.com") &&
+      !server.hostname.endsWith("aol.com")
+    ) {
       Assert.notEqual(
         server.authMethod,
         Ci.nsMsgAuthMethod.OAuth2,
-        "Outgoing server doesn't use OAuth2 after migration"
+        `Outgoing server ${server.hostname} doesn't use OAuth2 after migration`
       );
       continue;
     }
@@ -211,7 +259,7 @@ function test_yahoo_oauth_migration() {
     Assert.equal(
       server.authMethod,
       Ci.nsMsgAuthMethod.OAuth2,
-      "Outgoing server uses OAuth2 after migration"
+      `Outgoing server ${server.hostname} should use OAuth2 after migration`
     );
   }
 
