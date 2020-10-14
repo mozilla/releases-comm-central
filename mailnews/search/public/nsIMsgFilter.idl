@@ -7,7 +7,6 @@
 #include "nsISupports.idl"
 #include "nsMsgFilterCore.idl"
 
-interface nsIArray;
 interface nsIMutableArray;
 interface nsIOutputStream;
 interface nsIMsgFilterCustomAction;

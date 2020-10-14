@@ -5,14 +5,12 @@
 
 #include "nsISupports.idl"
 
-interface nsIFile;
 interface nsIMsgFolder;
 interface nsIMsgCopyServiceListener;
 interface nsIMsgDBHdr;
 interface nsIMsgWindow;
 interface nsIOutputStream;
 interface nsIInputStream;
-interface nsIArray;
 interface nsIUrlListener;
 interface nsIMsgDatabase;
 interface nsITransaction;

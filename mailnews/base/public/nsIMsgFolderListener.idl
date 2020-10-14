@@ -7,7 +7,6 @@
 
 interface nsIMsgDBHdr;
 interface nsIMsgFolder;
-interface nsIArray;
 
 /**
  * This is similar to nsIFolderListener, but with slightly different semantics,
