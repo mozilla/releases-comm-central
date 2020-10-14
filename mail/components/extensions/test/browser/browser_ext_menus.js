@@ -60,6 +60,11 @@ async function checkShownEvent(extension, expectedInfo, expectedTab) {
     }
   }
 
+  Assert.equal(!!info.pageUrl, !!expectedInfo.pageUrl, "pageUrl in info");
+  if (expectedInfo.pageUrl) {
+    Assert.ok(info.pageUrl.match(expectedInfo.pageUrl));
+  }
+
   Assert.equal(tab.active, expectedTab.active, "tab is active");
   Assert.equal(tab.index, expectedTab.index, "tab index");
   Assert.equal(tab.mailTab, expectedTab.mailTab, "tab is mailTab");
@@ -242,6 +247,7 @@ async function subtest_message_panes(...permissions) {
     {
       menuIds: ["page"],
       contexts: ["page", "all"],
+      pageUrl: permissions.includes("messagesRead") ? /^mailbox\:/ : undefined,
     },
     { active: true, index: 0, mailTab: true }
   );
@@ -264,6 +270,7 @@ async function subtest_message_panes(...permissions) {
     {
       menuIds: ["page"],
       contexts: ["page", "all"],
+      pageUrl: permissions.includes("messagesRead") ? /^mailbox\:/ : undefined,
     },
     { active: true, index: 1, mailTab: false }
   );
@@ -271,7 +278,44 @@ async function subtest_message_panes(...permissions) {
   let tabmail = document.getElementById("tabmail");
   tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
 
+  // Test the message pane in a separate window.
+
+  let displayWindowPromise = BrowserTestUtils.domWindowOpened();
+  window.MsgOpenNewWindowForMessage();
+  let displayWindow = await displayWindowPromise;
+  await BrowserTestUtils.waitForEvent(displayWindow, "load");
+  let displayDocument = displayWindow.document;
+  await focusWindow(displayWindow);
+
+  menu = displayDocument.getElementById("mailContext");
+  messagePane = displayDocument.getElementById("messagepane");
+  await awaitBrowserLoaded(messagePane);
+
+  EventUtils.synthesizeMouseAtCenter(messagePane, {}, displayWindow);
+  shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(
+    messagePane,
+    { type: "contextmenu" },
+    displayWindow
+  );
+
+  await shownPromise;
+  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_page"));
+  menu.hidePopup();
+
+  await checkShownEvent(
+    extension,
+    {
+      menuIds: ["page"],
+      contexts: ["page", "all"],
+      pageUrl: permissions.includes("messagesRead") ? /^mailbox\:/ : undefined,
+    },
+    { active: true, index: 0, mailTab: false }
+  );
+
   await extension.unload();
+
+  await BrowserTestUtils.closeWindow(displayWindow);
 }
 add_task(async function test_message_panes() {
   return subtest_message_panes("accountsRead", "messagesRead");

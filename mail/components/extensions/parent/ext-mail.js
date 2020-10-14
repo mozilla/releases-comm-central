@@ -41,6 +41,7 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
 const COMPOSE_WINDOW_URI =
   "chrome://messenger/content/messengercompose/messengercompose.xhtml";
+const MESSAGE_PROTOCOLS = ["imap", "mailbox", "news", "nntp", "snews"];
 
 // Inject the |messenger| object as an alias to |browser| in all known contexts. This is a bit
 // fragile since it uses monkeypatching. If a test fails, the best way to debug is to search for
@@ -90,11 +91,7 @@ const COMPOSE_WINDOW_URI =
         return script.extension.hasPermission("compose");
       }
 
-      if (
-        ["imap", "mailbox", "news", "nntp", "snews"].includes(
-          windowContext.documentURI.scheme
-        )
-      ) {
+      if (MESSAGE_PROTOCOLS.includes(windowContext.documentURI.scheme)) {
         return script.extension.hasPermission("messagesModify");
       }
 

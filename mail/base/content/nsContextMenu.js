@@ -133,7 +133,7 @@ nsContextMenu.prototype = {
         subject.principal = this.target.ownerDocument.nodePrincipal;
       }
       if (
-        window.gFolderDisplay &&
+        window.gFolderDisplay?.tree &&
         target.closest("tree") == gFolderDisplay.tree
       ) {
         subject.displayedFolder = gFolderDisplay.view.displayedFolder;

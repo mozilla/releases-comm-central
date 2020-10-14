@@ -34,6 +34,7 @@ module.exports = {
 
     // These are defined in ext-mail.js.
     COMPOSE_WINDOW_URI: true,
+    MESSAGE_PROTOCOLS: true,
     ExtensionError: true,
     Tab: true,
     TabmailTab: true,

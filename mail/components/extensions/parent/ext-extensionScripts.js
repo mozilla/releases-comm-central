@@ -147,7 +147,7 @@ class ExtensionScriptParent {
     }
     if (
       type == "messageDisplay" &&
-      !["imap", "mailbox", "news"].includes(activeURL.scheme)
+      !MESSAGE_PROTOCOLS.includes(activeURL.scheme)
     ) {
       return;
     }
