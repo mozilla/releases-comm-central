@@ -241,7 +241,7 @@ const PanelUI = {
     // This works for now, but in the long run, if we're showing badges etc.
     // then the current menuButton needs to be set when the app's view/tab
     // changes, not just when the menu is toggled.
-    this.menuButton = event.target;
+    this.menuButton = event.originalTarget;
 
     this._ensureEventListenersAdded();
     if (this.panel.state == "open") {
@@ -275,7 +275,12 @@ const PanelUI = {
         domEvent = aEvent;
       }
 
-      let anchor = this._getPanelAnchor(this.menuButton);
+      // We try to use the event.originalTarget to account for clicks triggered
+      // from the #button-chat-appmenu. In case the opening of the menu isn't
+      // triggered by a click event, fallback to the main menu button as anchor.
+      let anchor = this._getPanelAnchor(
+        aEvent ? aEvent.originalTarget : this.menuButton
+      );
       await PanelMultiView.openPopup(this.panel, anchor, {
         triggerEvent: domEvent,
       });

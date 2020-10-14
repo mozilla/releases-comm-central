@@ -2031,9 +2031,13 @@ var CustomizableUIInternal = {
             ? closemenuVal
             : "auto";
       }
-      // Break out of the loop immediately for disabled items, as we need to
-      // keep the menu open in that case.
-      if (target.getAttribute("disabled") == "true") {
+
+      // Keep the menu open and break out of the loop if the click happened on
+      // the ShadowRoot or a disabled menu item.
+      if (
+        target.nodeType == target.DOCUMENT_FRAGMENT_NODE ||
+        target.getAttribute("disabled") == "true"
+      ) {
         return true;
       }
 
