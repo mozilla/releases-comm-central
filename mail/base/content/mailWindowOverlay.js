@@ -819,7 +819,7 @@ function InitAppMessageMenu() {
     Ci.nsMsgFolderFlags.Templates
   );
 
-  // Initialize the Open Message menuitem
+  // Initialize the Open Message menuitem.
   let winType = document.documentElement.getAttribute("windowtype");
   if (winType == "mail:3pane") {
     document.getElementById(
@@ -827,14 +827,16 @@ function InitAppMessageMenu() {
     ).hidden = isFeed;
   }
 
-  // Initialize the Open Feed Message handler menu
+  // Initialize the Open Feed Message handler menu.
   const openFeedView = document
     .getElementById("appMenu-messageOpenFeedView")
     .querySelector(".panel-subview-body");
 
-  openFeedView.children.forEach(node => node.removeAttribute("checked"));
-  let index = FeedMessageHandler.onOpenPref;
-  openFeedView.children[index].setAttribute("checked", true);
+  openFeedView.childNodes.forEach(node => node.removeAttribute("checked"));
+  openFeedView.childNodes[FeedMessageHandler.onOpenPref].setAttribute(
+    "checked",
+    true
+  );
 
   let openRssMenu = document.getElementById("appmenu_openFeedMessage");
   openRssMenu.hidden = !isFeed;
