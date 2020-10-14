@@ -588,6 +588,7 @@ const contextsMap = {
 
   selectedMessages: "message_list",
   selectedFolder: "folder_pane",
+  attachments: "compose_attachments",
 };
 
 const getMenuContexts = contextData => {
@@ -673,10 +674,21 @@ function addMenuEventInfo(info, contextData, extension, includeSensitiveData) {
       extension
     );
   }
-  for (let folderType of ["displayedFolder", "selectedFolder"]) {
-    if (contextData[folderType] && extension.hasPermission("accountsRead")) {
-      info[folderType] = traverseSubfolders(contextData[folderType]);
+  if (extension.hasPermission("accountsRead")) {
+    for (let folderType of ["displayedFolder", "selectedFolder"]) {
+      if (contextData[folderType]) {
+        info[folderType] = traverseSubfolders(contextData[folderType]);
+      }
     }
+  }
+  if (contextData.attachments && extension.hasPermission("compose")) {
+    if (!("composeAttachmentTracker" in global)) {
+      extensions.loadModule("compose");
+    }
+
+    info.attachments = contextData.attachments.map(a =>
+      global.composeAttachmentTracker.convert(a, contextData.menu.ownerGlobal)
+    );
   }
 }
 
@@ -942,7 +954,11 @@ MenuItem.prototype = {
 // While any extensions are active, this Tracker registers to observe/listen
 // for menu events from both Tools and context menus, both content and chrome.
 const menuTracker = {
-  menuIds: ["tabContextMenu", "folderPaneContext"],
+  menuIds: [
+    "tabContextMenu",
+    "folderPaneContext",
+    "msgComposeAttachmentItemContext",
+  ],
 
   register() {
     Services.obs.addObserver(this, "on-build-contextmenu");
@@ -985,25 +1001,38 @@ const menuTracker = {
 
   handleEvent(event) {
     const menu = event.target;
-    if (menu.id === "tabContextMenu") {
-      let trigger = menu.triggerNode;
-      while (trigger && trigger.localName != "tab") {
-        trigger = trigger.parentNode;
+    switch (menu.id) {
+      case "tabContextMenu": {
+        let trigger = menu.triggerNode.closest("tab");
+        const tab = trigger || tabTracker.activeTab;
+        const pageUrl = tab.linkedBrowser.currentURI.spec;
+        gMenuBuilder.build({ menu, tab, pageUrl, onTab: true });
+        break;
       }
-      const tab = trigger || tabTracker.activeTab;
-      const pageUrl = tab.linkedBrowser.currentURI.spec;
-      gMenuBuilder.build({ menu, tab, pageUrl, onTab: true });
-    }
-    if (menu.id === "folderPaneContext") {
-      const trigger = menu.triggerNode;
-      const tab = trigger.localName === "tab" ? trigger : tabTracker.activeTab;
-      const pageUrl = tab.linkedBrowser.currentURI.spec;
-      gMenuBuilder.build({
-        menu,
-        tab,
-        pageUrl,
-        selectedFolder: trigger.ownerGlobal.gFolderTreeView.getSelectedFolders()[0],
-      });
+      case "folderPaneContext": {
+        const trigger = menu.triggerNode;
+        const tab =
+          trigger.localName === "tab" ? trigger : tabTracker.activeTab;
+        const pageUrl = tab.linkedBrowser.currentURI.spec;
+        gMenuBuilder.build({
+          menu,
+          tab,
+          pageUrl,
+          selectedFolder: trigger.ownerGlobal.gFolderTreeView.getSelectedFolders()[0],
+        });
+        break;
+      }
+      case "msgComposeAttachmentItemContext": {
+        let bucket = menu.ownerDocument.getElementById("attachmentBucket");
+        let attachments = [];
+        for (let item of bucket.itemChildren) {
+          if (item.selected) {
+            attachments.push(item.attachment);
+          }
+        }
+        gMenuBuilder.build({ menu, tab: menu.ownerGlobal, attachments });
+        break;
+      }
     }
   },
 };

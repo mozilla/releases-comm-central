@@ -48,6 +48,7 @@ function createExtension() {
         "video",
         "message_list",
         "folder_pane",
+        "compose_attachments",
       ]) {
         browser.menus.create({
           id: context,
@@ -57,10 +58,30 @@ function createExtension() {
       }
 
       browser.menus.onShown.addListener((...args) => {
+        // Test the getFile function here, we can't pass it to sendMessage.
+        if ("attachments" in args[0]) {
+          for (let attachment of args[0].attachments) {
+            browser.test.assertEq(
+              "function",
+              typeof attachment.getFile,
+              "attachment has a getFile function"
+            );
+          }
+        }
         browser.test.sendMessage("onShown", args);
       });
 
       browser.menus.onClicked.addListener((...args) => {
+        // Test the getFile function here, we can't pass it to sendMessage.
+        if ("attachments" in args[0]) {
+          for (let attachment of args[0].attachments) {
+            browser.test.assertEq(
+              "function",
+              typeof attachment.getFile,
+              "attachment has a getFile function"
+            );
+          }
+        }
         browser.test.sendMessage("onClicked", args);
       });
     },
@@ -70,7 +91,7 @@ function createExtension() {
           id: "test1@mochi.test",
         },
       },
-      permissions: ["accountsRead", "menus", "messagesRead"],
+      permissions: ["accountsRead", "compose", "menus", "messagesRead"],
     },
   });
 }
@@ -79,6 +100,7 @@ add_task(async function set_up() {
   await Services.search.init();
 
   gAccount = createAccount();
+  addIdentity(gAccount);
   gFolders = [...gAccount.incomingServer.rootFolder.subFolders];
   createMessages(gFolders[0], 10);
 
@@ -114,6 +136,7 @@ add_task(async function test_folder_pane() {
   ok(Array.isArray(info.selectedFolder.subFolders));
   ok(!info.displayedFolder);
   ok(!info.selectedMessages);
+  ok(!info.attachments);
 
   await extension.unload();
 });
@@ -142,6 +165,7 @@ add_task(async function test_thread_pane() {
   is(info.selectedMessages.id, null);
   is(info.selectedMessages.messages.length, 1);
   ok(!info.selectedFolder);
+  ok(!info.attachments);
 
   await extension.unload();
 });
@@ -162,6 +186,7 @@ add_task(async function test_tab() {
     ok(!info.selectedFolder);
     ok(!info.displayedFolder);
     ok(!info.selectedMessages);
+    ok(!info.attachments);
     is(tab.active, active);
     is(tab.index, index);
     is(tab.mailTab, mailTab);
@@ -266,4 +291,96 @@ add_task(async function test_selection() {
 
   await extension.unload();
   Services.prefs.setStringPref("mailnews.start_page.url", oldPref);
+});
+
+add_task(async function test_compose() {
+  let extension = createExtension();
+  await extension.startup();
+
+  let params = Cc[
+    "@mozilla.org/messengercompose/composeparams;1"
+  ].createInstance(Ci.nsIMsgComposeParams);
+  params.composeFields = Cc[
+    "@mozilla.org/messengercompose/composefields;1"
+  ].createInstance(Ci.nsIMsgCompFields);
+
+  for (let ordinal of ["first", "second", "third", "fourth"]) {
+    let attachment = Cc[
+      "@mozilla.org/messengercompose/attachment;1"
+    ].createInstance(Ci.nsIMsgAttachment);
+    attachment.name = `${ordinal}.txt`;
+    attachment.url = `data:text/plain,I'm the ${ordinal} attachment!`;
+    attachment.size = attachment.url.length - 16;
+    params.composeFields.addAttachment(attachment);
+  }
+
+  let composeWindowPromise = BrowserTestUtils.domWindowOpened();
+  MailServices.compose.OpenComposeWindowWithParams(null, params);
+  let composeWindow = await composeWindowPromise;
+  await BrowserTestUtils.waitForEvent(composeWindow, "load");
+  let composeDocument = composeWindow.document;
+  await focusWindow(composeWindow);
+
+  composeWindow.toggleAttachmentPane("show");
+  let menu = composeDocument.getElementById("msgComposeAttachmentItemContext");
+  let attachmentBucket = composeDocument.getElementById("attachmentBucket");
+
+  EventUtils.synthesizeMouseAtCenter(
+    attachmentBucket.itemChildren[0],
+    {},
+    composeWindow
+  );
+  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
+  EventUtils.synthesizeMouseAtCenter(
+    attachmentBucket.itemChildren[0],
+    { type: "contextmenu" },
+    composeWindow
+  );
+  await shownPromise;
+  Assert.ok(
+    menu.querySelector("#test1_mochi_test-menuitem-_compose_attachments")
+  );
+  menu.hidePopup();
+
+  let [info] = await checkShownEvent(
+    extension,
+    ["compose_attachments"],
+    ["compose_attachments", "all"]
+  );
+  Assert.ok(!info.selectedFolder);
+  Assert.ok(!info.displayedFolder);
+  Assert.ok(!info.selectedMessages);
+  Assert.ok(Array.isArray(info.attachments));
+  Assert.equal(info.attachments.length, 1);
+  Assert.equal(info.attachments[0].name, "first.txt");
+
+  attachmentBucket.addItemToSelection(attachmentBucket.itemChildren[2]);
+  shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
+  EventUtils.synthesizeMouseAtCenter(
+    attachmentBucket.itemChildren[0],
+    { type: "contextmenu" },
+    composeWindow
+  );
+  await shownPromise;
+  Assert.ok(
+    menu.querySelector("#test1_mochi_test-menuitem-_compose_attachments")
+  );
+  menu.hidePopup();
+
+  [info] = await checkShownEvent(
+    extension,
+    ["compose_attachments"],
+    ["compose_attachments", "all"]
+  );
+  Assert.ok(!info.selectedFolder);
+  Assert.ok(!info.displayedFolder);
+  Assert.ok(!info.selectedMessages);
+  Assert.ok(Array.isArray(info.attachments));
+  Assert.equal(info.attachments.length, 2);
+  Assert.equal(info.attachments[0].name, "first.txt");
+  Assert.equal(info.attachments[1].name, "third.txt");
+
+  await extension.unload();
+
+  await BrowserTestUtils.closeWindow(composeWindow);
 });

@@ -370,7 +370,7 @@ var composeAttachmentTracker = {
     }
   },
 
-  async convert(attachment, window) {
+  convert(attachment, window) {
     return {
       id: this.getId(attachment, window),
       name: attachment.name,
@@ -440,7 +440,7 @@ this.compose = class extends ExtensionAPI {
               for (let attachment of event.detail.enumerate(
                 Ci.nsIMsgAttachment
               )) {
-                attachment = await composeAttachmentTracker.convert(
+                attachment = composeAttachmentTracker.convert(
                   attachment,
                   event.target.ownerGlobal
                 );
@@ -561,10 +561,7 @@ this.compose = class extends ExtensionAPI {
           let attachments = [];
           for (let item of bucket.itemChildren) {
             attachments.push(
-              await composeAttachmentTracker.convert(
-                item.attachment,
-                tab.nativeTab
-              )
+              composeAttachmentTracker.convert(item.attachment, tab.nativeTab)
             );
           }
           return attachments;
