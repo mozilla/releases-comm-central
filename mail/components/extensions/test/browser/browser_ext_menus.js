@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-let gAccount, gFolders;
+let gAccount, gFolders, gMessages;
 
 const { mailTestUtils } = ChromeUtils.import(
   "resource://testing-common/mailnews/MailTestUtils.jsm"
@@ -10,28 +10,72 @@ const { mailTestUtils } = ChromeUtils.import(
 
 const treeClick = mailTestUtils.treeClick.bind(null, EventUtils, window);
 
-async function checkShownEvent(extension, menuIds, contexts) {
+async function checkShownEvent(extension, expectedInfo, expectedTab) {
   let [info, tab] = await extension.awaitMessage("onShown");
-  is(info.menuIds.length, menuIds.length);
-  for (let i = 0; i < menuIds.length; i++) {
-    is(info.menuIds[i], menuIds[i]);
+  Assert.deepEqual(info.menuIds, expectedInfo.menuIds);
+  Assert.deepEqual(info.contexts, expectedInfo.contexts);
+
+  Assert.equal(
+    !!info.attachments,
+    !!expectedInfo.attachments,
+    "attachments in info"
+  );
+  if (expectedInfo.attachments) {
+    Assert.equal(info.attachments.length, expectedInfo.attachments.length);
+    for (let i = 0; i < expectedInfo.attachments.length; i++) {
+      Assert.equal(info.attachments[i].name, expectedInfo.attachments[i].name);
+      Assert.equal(info.attachments[i].size, expectedInfo.attachments[i].size);
+    }
   }
-  is(info.contexts.length, contexts.length);
-  for (let i = 0; i < contexts.length; i++) {
-    is(info.contexts[i], contexts[i]);
+
+  for (let infoKey of ["displayedFolder", "selectedFolder"]) {
+    Assert.equal(
+      !!info[infoKey],
+      !!expectedInfo[infoKey],
+      `${infoKey} in info`
+    );
+    if (expectedInfo[infoKey]) {
+      Assert.equal(info[infoKey].accountId, expectedInfo[infoKey].accountId);
+      Assert.equal(info[infoKey].path, expectedInfo[infoKey].path);
+      Assert.ok(Array.isArray(info[infoKey].subFolders));
+    }
   }
+
+  Assert.equal(
+    !!info.selectedMessages,
+    !!expectedInfo.selectedMessages,
+    "selectedMessages in info"
+  );
+  if (expectedInfo.selectedMessages) {
+    Assert.equal(info.selectedMessages.id, null);
+    Assert.equal(
+      info.selectedMessages.messages.length,
+      expectedInfo.selectedMessages.messages.length
+    );
+    for (let i = 0; i < expectedInfo.selectedMessages.messages.length; i++) {
+      Assert.equal(
+        info.selectedMessages.messages[i].subject,
+        expectedInfo.selectedMessages.messages[i].subject
+      );
+    }
+  }
+
+  Assert.equal(tab.active, expectedTab.active, "tab is active");
+  Assert.equal(tab.index, expectedTab.index, "tab index");
+  Assert.equal(tab.mailTab, expectedTab.mailTab, "tab is mailTab");
+
   return [info, tab];
 }
 
 async function checkClickedEvent(extension, properties) {
   let [info, tab] = await extension.awaitMessage("onClicked");
   for (let [name, value] of Object.entries(properties)) {
-    is(info[name], value);
+    Assert.equal(info[name], value);
   }
   return [info, tab];
 }
 
-function createExtension() {
+function createExtension(...permissions) {
   return ExtensionTestUtils.loadExtension({
     async background() {
       for (let context of [
@@ -91,7 +135,7 @@ function createExtension() {
           id: "test1@mochi.test",
         },
       },
-      permissions: ["accountsRead", "compose", "menus", "messagesRead"],
+      permissions: [...permissions, "menus"],
     },
   });
 }
@@ -103,6 +147,7 @@ add_task(async function set_up() {
   addIdentity(gAccount);
   gFolders = [...gAccount.incomingServer.rootFolder.subFolders];
   createMessages(gFolders[0], 10);
+  gMessages = [...gFolders[0].messages];
 
   window.gFolderTreeView.selectFolder(gAccount.incomingServer.rootFolder);
   if (
@@ -113,83 +158,152 @@ add_task(async function set_up() {
   }
 });
 
-add_task(async function test_folder_pane() {
-  let extension = createExtension();
+async function subtest_folder_pane(...permissions) {
+  let extension = createExtension(...permissions);
   await extension.startup();
 
   let folderTree = document.getElementById("folderTree");
+  let menu = document.getElementById("folderPaneContext");
   treeClick(folderTree, 1, 0, {});
+  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   treeClick(folderTree, 1, 0, { type: "contextmenu" });
 
-  let menu = document.getElementById("folderPaneContext");
-  await BrowserTestUtils.waitForEvent(menu, "popupshown");
-  ok(menu.querySelector("#test1_mochi_test-menuitem-_folder_pane"));
+  await shownPromise;
+  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_folder_pane"));
   menu.hidePopup();
 
-  let [info] = await checkShownEvent(
+  await checkShownEvent(
     extension,
-    ["folder_pane"],
-    ["folder_pane", "all"]
+    {
+      menuIds: ["folder_pane"],
+      contexts: ["folder_pane", "all"],
+      selectedFolder: permissions.length
+        ? { accountId: gAccount.key, path: "/Trash" }
+        : undefined,
+    },
+    { active: true, index: 0, mailTab: true }
   );
-  is(info.selectedFolder.accountId, gAccount.key);
-  is(info.selectedFolder.path, "/Trash");
-  ok(Array.isArray(info.selectedFolder.subFolders));
-  ok(!info.displayedFolder);
-  ok(!info.selectedMessages);
-  ok(!info.attachments);
 
   await extension.unload();
+}
+add_task(async function test_folder_pane() {
+  return subtest_folder_pane("accountsRead");
+});
+add_task(async function test_folder_pane_no_permissions() {
+  return subtest_folder_pane();
 });
 
-add_task(async function test_thread_pane() {
-  let extension = createExtension();
+async function subtest_message_panes(...permissions) {
+  let extension = createExtension(...permissions);
   await extension.startup();
+
+  // Test the thread pane in the 3-pane tab.
 
   let threadTree = document.getElementById("threadTree");
   treeClick(threadTree, 1, 1, {});
+  let menu = document.getElementById("mailContext");
+  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   treeClick(threadTree, 1, 1, { type: "contextmenu" });
 
-  let menu = document.getElementById("mailContext");
-  await BrowserTestUtils.waitForEvent(menu, "popupshown");
-  ok(menu.querySelector("#test1_mochi_test-menuitem-_message_list"));
+  await shownPromise;
+  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_message_list"));
   menu.hidePopup();
 
-  let [info] = await checkShownEvent(
+  await checkShownEvent(
     extension,
-    ["message_list"],
-    ["message_list", "all"]
+    {
+      menuIds: ["message_list"],
+      contexts: ["message_list", "all"],
+      displayedFolder: permissions.includes("accountsRead")
+        ? { accountId: gAccount.key, path: "/Trash" }
+        : undefined,
+      selectedMessages: permissions.includes("messagesRead")
+        ? { id: null, messages: [{ subject: gMessages[1].subject }] }
+        : undefined,
+    },
+    { active: true, index: 0, mailTab: true }
   );
-  is(info.displayedFolder.accountId, gAccount.key);
-  is(info.displayedFolder.path, "/Trash");
-  ok(Array.isArray(info.displayedFolder.subFolders));
-  is(info.selectedMessages.id, null);
-  is(info.selectedMessages.messages.length, 1);
-  ok(!info.selectedFolder);
-  ok(!info.attachments);
+
+  // Test the message pane in the 3-pane tab.
+
+  let messagePane = document.getElementById("messagepane");
+  await awaitBrowserLoaded(messagePane);
+
+  EventUtils.synthesizeMouseAtCenter(messagePane, {});
+  shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(messagePane, { type: "contextmenu" });
+
+  await shownPromise;
+  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_page"));
+  menu.hidePopup();
+
+  await checkShownEvent(
+    extension,
+    {
+      menuIds: ["page"],
+      contexts: ["page", "all"],
+    },
+    { active: true, index: 0, mailTab: true }
+  );
+
+  // Test the message pane in a tab.
+
+  window.MsgOpenSelectedMessages();
+  await awaitBrowserLoaded(messagePane);
+
+  EventUtils.synthesizeMouseAtCenter(messagePane, {});
+  shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
+  EventUtils.synthesizeMouseAtCenter(messagePane, { type: "contextmenu" });
+
+  await shownPromise;
+  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_page"));
+  menu.hidePopup();
+
+  await checkShownEvent(
+    extension,
+    {
+      menuIds: ["page"],
+      contexts: ["page", "all"],
+    },
+    { active: true, index: 1, mailTab: false }
+  );
+
+  let tabmail = document.getElementById("tabmail");
+  tabmail.closeOtherTabs(tabmail.tabModes.folder.tabs[0]);
 
   await extension.unload();
+}
+add_task(async function test_message_panes() {
+  return subtest_message_panes("accountsRead", "messagesRead");
+});
+add_task(async function test_message_panes_no_accounts_permission() {
+  return subtest_message_panes("messagesRead");
+});
+add_task(async function test_message_panes_no_messages_permission() {
+  return subtest_message_panes("accountsRead");
+});
+add_task(async function test_message_panes_no_permissions() {
+  return subtest_message_panes();
 });
 
 add_task(async function test_tab() {
   async function checkTabEvent(index, active, mailTab) {
+    let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
     EventUtils.synthesizeMouseAtCenter(
       tabs[index],
       { type: "contextmenu" },
       window
     );
 
-    await BrowserTestUtils.waitForEvent(menu, "popupshown");
-    ok(menu.querySelector("#test1_mochi_test-menuitem-_tab"));
+    await shownPromise;
+    Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_tab"));
     menu.hidePopup();
 
-    let [info, tab] = await checkShownEvent(extension, ["tab"], ["tab"]);
-    ok(!info.selectedFolder);
-    ok(!info.displayedFolder);
-    ok(!info.selectedMessages);
-    ok(!info.attachments);
-    is(tab.active, active);
-    is(tab.index, index);
-    is(tab.mailTab, mailTab);
+    await checkShownEvent(
+      extension,
+      { menuIds: ["tab"], contexts: ["tab"] },
+      { active, index, mailTab }
+    );
   }
 
   let extension = createExtension();
@@ -241,15 +355,20 @@ add_task(async function test_selection() {
   let text = contentDocument.querySelector("p");
   EventUtils.synthesizeMouseAtCenter(text, {}, contentWindow);
   contentWindow.getSelection().selectAllChildren(text);
+  let shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     text,
     { type: "contextmenu" },
     contentWindow
   );
 
-  await BrowserTestUtils.waitForEvent(menu, "popupshown");
-  ok(menu.querySelector("#test1_mochi_test-menuitem-_selection"));
-  await checkShownEvent(extension, ["selection"], ["selection", "all"]);
+  await shownPromise;
+  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_selection"));
+  await checkShownEvent(
+    extension,
+    { menuIds: ["selection"], contexts: ["selection", "all"] },
+    { active: true, index: 0, mailTab: true }
+  );
 
   EventUtils.synthesizeMouseAtCenter(
     menu.querySelector("#test1_mochi_test-menuitem-_selection"),
@@ -260,25 +379,27 @@ add_task(async function test_selection() {
   });
 
   let link = contentDocument.querySelector("a");
+  shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     link,
     { type: "contextmenu" },
     contentWindow
   );
 
-  await BrowserTestUtils.waitForEvent(menu, "popupshown");
-  ok(menu.querySelector("#test1_mochi_test-menuitem-_selection"));
+  await shownPromise;
+  Assert.ok(menu.querySelector("#test1_mochi_test-menuitem-_selection"));
   await checkShownEvent(
     extension,
-    ["link", "selection"],
-    ["link", "selection", "all"]
+    { menuIds: ["link", "selection"], contexts: ["link", "selection", "all"] },
+    { active: true, index: 0, mailTab: true }
   );
 
+  shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshown");
   EventUtils.synthesizeMouseAtCenter(
     menu.querySelector(`menu[id^="test1_mochi_test-menuitem"]`),
     {}
   );
-  await BrowserTestUtils.waitForEvent(menu, "popupshown");
+  await shownPromise;
   EventUtils.synthesizeMouseAtCenter(
     menu.querySelector("#test1_mochi_test-menuitem-_link"),
     {}
@@ -293,8 +414,8 @@ add_task(async function test_selection() {
   Services.prefs.setStringPref("mailnews.start_page.url", oldPref);
 });
 
-add_task(async function test_compose() {
-  let extension = createExtension();
+async function subtest_compose(...permissions) {
+  let extension = createExtension(...permissions);
   await extension.startup();
 
   let params = Cc[
@@ -342,18 +463,17 @@ add_task(async function test_compose() {
   );
   menu.hidePopup();
 
-  let [info] = await checkShownEvent(
+  await checkShownEvent(
     extension,
-    ["compose_attachments"],
-    ["compose_attachments", "all"]
+    {
+      menuIds: ["compose_attachments"],
+      contexts: ["compose_attachments", "all"],
+      attachments: permissions.length
+        ? [{ name: "first.txt", size: 25 }]
+        : undefined,
+    },
+    { active: true, index: 0, mailTab: false }
   );
-  Assert.ok(!info.selectedFolder);
-  Assert.ok(!info.displayedFolder);
-  Assert.ok(!info.selectedMessages);
-  Assert.ok(Array.isArray(info.attachments));
-  Assert.equal(info.attachments.length, 1);
-  Assert.equal(info.attachments[0].name, "first.txt");
-  Assert.equal(info.attachments[0].size, 25);
 
   attachmentBucket.addItemToSelection(attachmentBucket.itemChildren[3]);
   shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
@@ -368,22 +488,28 @@ add_task(async function test_compose() {
   );
   menu.hidePopup();
 
-  [info] = await checkShownEvent(
+  await checkShownEvent(
     extension,
-    ["compose_attachments"],
-    ["compose_attachments", "all"]
+    {
+      menuIds: ["compose_attachments"],
+      contexts: ["compose_attachments", "all"],
+      attachments: permissions.length
+        ? [
+            { name: "first.txt", size: 25 },
+            { name: "fourth.txt", size: 26 },
+          ]
+        : undefined,
+    },
+    { active: true, index: 0, mailTab: false }
   );
-  Assert.ok(!info.selectedFolder);
-  Assert.ok(!info.displayedFolder);
-  Assert.ok(!info.selectedMessages);
-  Assert.ok(Array.isArray(info.attachments));
-  Assert.equal(info.attachments.length, 2);
-  Assert.equal(info.attachments[0].name, "first.txt");
-  Assert.equal(info.attachments[0].size, 25);
-  Assert.equal(info.attachments[1].name, "fourth.txt");
-  Assert.equal(info.attachments[1].size, 26);
 
   await extension.unload();
 
   await BrowserTestUtils.closeWindow(composeWindow);
+}
+add_task(async function test_compose() {
+  return subtest_compose("compose");
+});
+add_task(async function test_compose_no_permissions() {
+  return subtest_compose();
 });
