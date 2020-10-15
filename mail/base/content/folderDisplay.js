@@ -2312,8 +2312,10 @@ FolderDisplayWidget.prototype = {
    * unread message.
    */
   get canMarkThreadAsRead() {
-    let hasUnread = this.displayedFolder.getNumUnread(false) > 0;
-    if (this.displayedFolder && hasUnread) {
+    if (
+      (this.displayedFolder && this.displayedFolder.getNumUnread(false) > 0) ||
+      this.view._underlyingData === this.view.kUnderlyingSynthetic
+    ) {
       // If the messages limit is exceeded we bail out early and return true.
       if (this.selectedIndices.length > this.MAX_COUNT_FOR_MARK_THREAD) {
         return true;
