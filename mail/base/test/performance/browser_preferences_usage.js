@@ -180,7 +180,7 @@ add_task(async function startup() {
     ]) {
       knownProblematicPrefs[pref] = {
         min: 2800,
-        max: 3100,
+        max: 3200,
       };
     }
     for (let pref of [
@@ -212,7 +212,7 @@ add_task(async function startup() {
     ]) {
       knownProblematicPrefs[pref] = {
         min: 0,
-        max: 70,
+        max: 75,
       };
     }
   }
