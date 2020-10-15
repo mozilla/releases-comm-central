@@ -29,6 +29,7 @@
 #include "nsIMsgLocalMailFolder.h"
 #include "nsIMsgDatabase.h"
 #include "nsMsgMessageFlags.h"
+#include "mozilla/dom/Promise.h"
 #include "mozilla/Services.h"
 #include "nsArrayUtils.h"
 
@@ -502,6 +503,7 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
   // Create the listener for the send operation...
   RefPtr<SendOperationListener> sendListener = new SendOperationListener(this);
 
+  RefPtr<mozilla::dom::Promise> promise;
   rv = pMsgSend->SendMessageFile(
       identity, mAccountKey,
       compFields,                   // nsIMsgCompFields *fields,
@@ -510,7 +512,7 @@ nsresult nsMsgSendLater::CompleteMailFileSend() {
       false,                        // bool digest_p,
       nsIMsgSend::nsMsgSendUnsent,  // nsMsgDeliverMode mode,
       nullptr,                      // nsIMsgDBHdr *msgToReplace,
-      sendListener, mFeedback, nullptr);
+      sendListener, mFeedback, nullptr, getter_AddRefs(promise));
   return rv;
 }
 

@@ -120,7 +120,7 @@ add_task(async function() {
 
   do_test_pending();
 
-  gMsgCompose.SendMsg(
+  gMsgCompose.sendMsg(
     Ci.nsIMsgSend.nsMsgSaveAsDraft,
     identity,
     "",

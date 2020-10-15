@@ -52,7 +52,7 @@ function sendMessage(fieldParams, identity, opts = {}, attachments = []) {
     progressListener.reject = reject;
   });
   progress.registerListener(progressListener);
-  msgCompose.SendMsg(
+  msgCompose.sendMsg(
     Ci.nsIMsgSend.nsMsgDeliverNow,
     identity,
     "",
