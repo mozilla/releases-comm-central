@@ -2110,7 +2110,9 @@ EmailConfigWizard.prototype = {
         let msg = e.message || e.toString();
         // For an Exchange server, some known configurations can
         // be disabled (per user or domain or server).
+        // Warn the user if the open protocol we tried didn't work.
         if (
+          ["imap", "pop3"].includes(configFilledIn.incoming.type) &&
           configFilledIn.incomingAlternatives.some(i => i.type == "exchange")
         ) {
           msg = gStringsBundle.getString("exchange_config_unverifiable");
