@@ -1,0 +1,57 @@
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+X-Mozilla-Keys:                                                                                 
+To: alice@openpgp.example
+From: Carol <carol@example.com>
+Subject: Signed Unencrypted
+Message-ID: <d9c78fbc-8373-4596-d806-20857e15a1af@example.com>
+Date: Wed, 14 Oct 2020 14:36:08 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101
+ Thunderbird/83.0a1
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="hUAWHTUaWZ5wnWnHjj7a4qhWdRkydquhh"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--hUAWHTUaWZ5wnWnHjj7a4qhWdRkydquhh
+Content-Type: multipart/mixed; boundary="oIVAE9YPgX7lo5koqmIMk4gv1QFBbuMEk";
+ protected-headers="v1"
+From: Carol <carol@example.com>
+To: alice@openpgp.example
+Message-ID: <d9c78fbc-8373-4596-d806-20857e15a1af@example.com>
+Subject: Signed Unencrypted
+
+--oIVAE9YPgX7lo5koqmIMk4gv1QFBbuMEk
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+
+Sundays are nothing without callaloo.
+
+
+
+--oIVAE9YPgX7lo5koqmIMk4gv1QFBbuMEk--
+
+--hUAWHTUaWZ5wnWnHjj7a4qhWdRkydquhh
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEEuPL29L060/gtxEaDMJn/EjiFK58FAl+HRRgFAwAAAAAACgkQMJn/EjiFK59T
+xRAAoG7+tqzXKQH2S511jRudl0HaKs+AE7kfyqbqBpWsCzcuxWIvCY3cX9ypIEhLllYWTs15aQq+
+f0GCXIK6PFGukhoQ/m49MmiGh4D7oGYxmPQyn9yZVcijqmzF5f4s7oiSKVl9/4y8H0JCHaWuelkN
+fizcAyXUWdPdefL8pIQkng+EtBM1sZ25HBJYFU6du88u0LuA3A7SNRPcRc+LhrGticIPBsDcRntm
+41bcf9QKo36EnltJjSGv3Rtp/PacyMqsmlR/UDHzVP7yWNvPboPCIB2CHVN9J1URxE2S3hjfrbY0
+fuNTgA3TlJ7crTCztIrqugZT4RxhyP3orDhp5TKYLO8q9bof6C1Zo8VbvGzVrl4eVgP0YRNN19vm
+mPeH7rF7wTPhvht0sLKcFMFTXU458SokWZW94EpTBIGNWjCKlzE8TtQPyhViVpo1RUpJQx/tr6Pb
+9r81aKJ0hnrAcDqL+PMd4UWSAONCpr9YpOEY6hj4ppqI09b0HGnBDMvLwsm+PdZ1cLsRlqzCsYfj
+tsU9QpMBV4lJoAnMkGM7pqucovyHSNcgXU/z+OLH1LmPOfPeG3kCGlbRyaQPOt2ZhQZH2f0C6Dnh
+wvmVUqGG8GWDnfVP4hzKzMQQOyWHa/F+J1nwFlbdEBH640jxPdz80/uACXwkhdn+rssEfCeB7SDP
+Cfc=
+=Q8yQ
+-----END PGP SIGNATURE-----
+
+--hUAWHTUaWZ5wnWnHjj7a4qhWdRkydquhh--

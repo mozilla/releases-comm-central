@@ -44,11 +44,11 @@ add_task(async function setupTest() {
   aliceAcct = MailServices.accounts.createAccount();
   aliceAcct.incomingServer = MailServices.accounts.createIncomingServer(
     "alice",
-    "example.com",
+    "openpgp.example",
     "pop3"
   );
   aliceIdentity = MailServices.accounts.createIdentity();
-  aliceIdentity.email = "alice@example.com";
+  aliceIdentity.email = "alice@openpgp.example";
   aliceAcct.addIdentity(aliceIdentity);
 
   // Set up the alice's private key.
@@ -56,7 +56,7 @@ add_task(async function setupTest() {
     window,
     new FileUtils.File(
       getTestFilePath(
-        "data/keys/alice@example.com-0xf2823b8f6c9a7553-secret.asc"
+        "data/keys/alice@openpgp.example-0xf231550c4f47e38e-secret.asc"
       )
     )
   );
@@ -68,7 +68,9 @@ add_task(async function setupTest() {
   await OpenPGPTestUtils.importPublicKey(
     window,
     new FileUtils.File(
-      getTestFilePath("data/keys/bob@example.com-0x4b6454a0c3cb51d0-pub.asc")
+      getTestFilePath(
+        "data/keys/bob@openpgp.example-0xfbfcc82a015e7330-pub.asc"
+      )
     )
   );
 });
@@ -102,7 +104,7 @@ add_task(async function testOpenSignedByVerifiedUnencrypted() {
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
-        "data/eml/signed-by-0x4b6454a0c3cb51d0-to-0xf2823b8f6c9a7553-unencrypted.eml"
+        "data/eml/signed-by-0xfbfcc82a015e7330-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );
@@ -126,7 +128,7 @@ add_task(async function testOpenVerifiedUnsignedEncrypted() {
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
-        "data/eml/unsigned-encrypted-to-0xf2823b8f6c9a7553-from-0x4b6454a0c3cb51d0.eml"
+        "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0xfbfcc82a015e7330.eml"
       )
     )
   );
@@ -150,7 +152,7 @@ add_task(async function testOpenSignedByVerifiedEncrypted() {
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
-        "data/eml/signed-by-0x4b6454a0c3cb51d0-encrypted-to-0xf2823b8f6c9a7553.eml"
+        "data/eml/signed-by-0xfbfcc82a015e7330-encrypted-to-0xf231550c4f47e38e.eml"
       )
     )
   );
@@ -174,7 +176,7 @@ add_task(async function testOpenSignedByUnverifiedUnencrypted() {
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
-        "data/eml/signed-by-0x3099ff1238852b9f-to-0xf2823b8f6c9a7553-unencrypted.eml"
+        "data/eml/signed-by-0x3099ff1238852b9f-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );
@@ -198,7 +200,7 @@ add_task(async function testOpenUnverifiedUnsignedEncrypted() {
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
-        "data/eml/unsigned-encrypted-to-0xf2823b8f6c9a7553-from-0x3099ff1238852b9f.eml"
+        "data/eml/unsigned-encrypted-to-0xf231550c4f47e38e-from-0x3099ff1238852b9f.eml"
       )
     )
   );
@@ -223,7 +225,7 @@ add_task(async function testOpenSignedByUnverifiedEncrypted() {
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
-        "data/eml/signed-by-0x3099ff1238852b9f-encrypted-to-0xf2823b8f6c9a7553.eml"
+        "data/eml/signed-by-0x3099ff1238852b9f-encrypted-to-0xf231550c4f47e38e.eml"
       )
     )
   );
@@ -249,7 +251,7 @@ add_task(async function testUpdateMessageSignature() {
   let mc = await open_message_from_file(
     new FileUtils.File(
       getTestFilePath(
-        "data/eml/signed-by-0x4b6454a0c3cb51d0-to-0xf2823b8f6c9a7553-unencrypted.eml"
+        "data/eml/signed-by-0xfbfcc82a015e7330-to-0xf231550c4f47e38e-unencrypted.eml"
       )
     )
   );

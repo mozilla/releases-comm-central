@@ -1,9 +1,9 @@
 X-Mozilla-Status: 0001
 X-Mozilla-Status2: 00800000
 X-Mozilla-Keys:                                                                                 
-To: alice@example.com
+To: alice@openpgp.example
 From: Carol <carol@example.com>
-Subject: Signed Unencrypted Autocrypt
+Subject: Signed Unencrypted With Key
 Autocrypt: addr=carol@example.com; keydata=
  xsFNBF9GZTQBEACjK8Db1095rU74k/RwLhmp9rmFBZR6qyEHANlHSVwqARxa4aJPaNoLbqNP
  efuFg9ib3J0rKcZfqgnqC4usPVSTdmC4w0MdmHvh+1tUoXcxnrjYNRRbP+lC7zaLRRnEEioi
@@ -47,38 +47,38 @@ Autocrypt: addr=carol@example.com; keydata=
  V2KGJHq/gxCpwkWs8+0sYUtcFuu+RQWTKbJpFcxfAIEDKS+fyLRAFdYqUA3yQIA1UYco10l8
  RYPLY0+IXiArqjql8+k8PBT0U4P59lfcKlY2GaJe4aoWLPOdNZAJgLzoxd5zgnz0vI3sn+3v
  meCtpxz2PoYBJfxGPEzu9xTLV6k9wSVTCgE=
-Message-ID: <18d4c94f-3ea7-f395-473c-8ec5194988cc@example.com>
-Date: Wed, 26 Aug 2020 16:06:22 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:82.0) Gecko/20100101
- Thunderbird/82.0a1
+Message-ID: <b4609461-36e8-0371-1b9d-7ce6864ec66d@example.com>
+Date: Wed, 14 Oct 2020 14:38:44 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101
+ Thunderbird/83.0a1
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="QMjI7ej1epbqHMDeowTnNtIMNu8p1QOU5"
+ boundary="vrdqJBVucR4QNMOtZVYVRGIjyNweikpUw"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---QMjI7ej1epbqHMDeowTnNtIMNu8p1QOU5
-Content-Type: multipart/mixed; boundary="v409QAVEbp4pNmR8ygSpOTQzwKAa5hx1l";
+--vrdqJBVucR4QNMOtZVYVRGIjyNweikpUw
+Content-Type: multipart/mixed; boundary="hZdstSX9kVVgqQC8ECJGhlR1aVjuEMpuI";
  protected-headers="v1"
 From: Carol <carol@example.com>
-To: alice@example.com
-Message-ID: <18d4c94f-3ea7-f395-473c-8ec5194988cc@example.com>
-Subject: Signed Unencrypted Autocrypt
+To: alice@openpgp.example
+Message-ID: <b4609461-36e8-0371-1b9d-7ce6864ec66d@example.com>
+Subject: Signed Unencrypted With Key
 
---v409QAVEbp4pNmR8ygSpOTQzwKAa5hx1l
+--hZdstSX9kVVgqQC8ECJGhlR1aVjuEMpuI
 Content-Type: multipart/mixed;
- boundary="------------A24D0192B07AAD52D8F1DCB1"
+ boundary="------------83F8BA9FCE9C945124B915CA"
 Content-Language: en-US
 
 This is a multi-part message in MIME format.
---------------A24D0192B07AAD52D8F1DCB1
+--------------83F8BA9FCE9C945124B915CA
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
 Sundays are nothing without callaloo.
 
 
---------------A24D0192B07AAD52D8F1DCB1
+--------------83F8BA9FCE9C945124B915CA
 Content-Type: application/pgp-keys;
  name="OpenPGP_0x3099FF1238852B9F.asc"
 Content-Transfer-Encoding: quoted-printable
@@ -169,29 +169,29 @@ JfxGPEzu9xTLV6k9wSVTCgE=3D
 =3Dt/qV
 -----END PGP PUBLIC KEY BLOCK-----
 
---------------A24D0192B07AAD52D8F1DCB1--
+--------------83F8BA9FCE9C945124B915CA--
 
---v409QAVEbp4pNmR8ygSpOTQzwKAa5hx1l--
+--hZdstSX9kVVgqQC8ECJGhlR1aVjuEMpuI--
 
---QMjI7ej1epbqHMDeowTnNtIMNu8p1QOU5
+--vrdqJBVucR4QNMOtZVYVRGIjyNweikpUw
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFqEEuPL29L060/gtxEaDMJn/EjiFK58Fgl9GwL4FgwAAAAAACgmQMJn/EjiFK597
-9g//X0bjOtB8xgvJ5Jf3sXw/vH0G0T+o90qNbGylDawWVLSPshPGBi8QfjlLurv0aKttLih8e2yy
-1Z5LFbQi0t6oEJe/hybo/sctZRt81HDHUKQoCzig0QHoIiAGMidGRB4nVVVTwmbhR4FxZb6/hIHf
-0E2r1MKihM4iN3NkHVNh7f1uB45TGvOSgNZpzhYefCzj8Hzh0mnfir03MExEEDtNxKxUSIFSjtaq
-P0n0/5mN/W3zgT86CBi9UFn3VQ2GMtqYc5RR90w/2a0DgKiR9Y/sE9hwCt0gVSXECwObichBPOff
-1i4Okc7dMHvm+rtc+FBeM9Mxc2O3c/cak5LKMeFnYJwnCaaXVVNbgso4sYut0ymnJj9dvD1FXGG6
-kmQqN4D/oDWgbVQ+64OEtiEkops3hbCWhUHRDlEAwGEv57G6We7knYdgrlc2jMdChpffR2gimM1f
-DCxLNQPiEUs7PeoNxehHN16c2xJVSxrtqZV9Ib2gHe9eo2RGrSK2GJT9bbCXc3vanDSefGOfd3n8
-t8zNY+jK6yyxAvM/esdjICxiS3ZGWA24a/fZNt7ZRj5O4VL1rrT3NQDMH2gPNWfZ859puquK4v+p
-IMNOVP3XeQKbwSnpV6T2faS6MOksiJP4G0rFH28s/0StD4NFmeAIYILPqPzGQ4atNUP363XoFPR7
-+Dc=
-=iUjJ
+wsF5BAABCAAjFiEEuPL29L060/gtxEaDMJn/EjiFK58FAl+HRbQFAwAAAAAACgkQMJn/EjiFK58u
+hhAAmMd8eBmmgXm/qLv1XrOsVOrV5wV39BgdrP0KNHN1Rd0jJmr5HWS81DbV4Yk3UPiOH0Ncj/Cg
+1EFwio+QLnn4SUMTijClTb9V9MyNPIx3IL9Vuh4VOtJb7Yk3skuTqYTk5uExwlwRxRiU40N7pO3z
+nvu/YKPHJZzndWP+p0PuEql8t+Hy5Qm/ibz/364TreLpL3lAKOS11LDQqV4HnzI4YznSlqA8E8LE
+aYJPNJb/ycWyyNohJcMqbNmPxA+V5razCeLlFJyaXw8kykctKOfvFJ2K8WtOBYfAP2/echKGeVQ9
+v0Z2/XH1Ons5vJvc+IB466CYIMAkwHS+1Yq5O/esAAvt/FVY3YBGQIOowZOy1396lykrXhKkKKoG
+Mcp1jU0Bvhyv95sqRbpRfQixGZjvmPnIcpcX8jJz+/mvKpqcFTWjDrxJX3bbeuw0nGQ9ncJD10sZ
+XB77OUyT9ye0iNxvrj6EJ4LWs96Ofq6V4Szdcn+iUHHMXdkLXoONDoF3CIt13BrIWs3p8h+hxfo3
++9gMPREXS8P9yHOX4rNT2I6hIQMNXXa7U4AV5+hn46fvgRdYLz7YHmIdD6QDhFKRujD9TqdgyYSP
+kaQTxLw0WsVXbh6mBlfyvoMREhHpCszoCFls+eIkFfxQilY5EwQffFqVDR72yTE8+AkQCw8/Es1h
+LBU=
+=dmTh
 -----END PGP SIGNATURE-----
 
---QMjI7ej1epbqHMDeowTnNtIMNu8p1QOU5--
+--vrdqJBVucR4QNMOtZVYVRGIjyNweikpUw--

@@ -1,0 +1,167 @@
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+X-Mozilla-Keys:                                                                                 
+To: alice@openpgp.example
+From: Bob Babbage <bob@openpgp.example>
+Subject: Signed Unencrypted With Key
+Autocrypt: addr=bob@openpgp.example; keydata=
+ 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
+ NEJd3XZRzaXZE2aAMQ==
+Message-ID: <62904db5-6147-c67f-502c-c24b396d5688@openpgp.example>
+Date: Wed, 14 Oct 2020 14:23:58 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101
+ Thunderbird/83.0a1
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="SnZKl30WhaDQBele2hNh7m1E1rjNUzy75"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--SnZKl30WhaDQBele2hNh7m1E1rjNUzy75
+Content-Type: multipart/mixed; boundary="zMuh5ZSCGRiyd3u4jmAM5Q7pZNJ1JNY0i";
+ protected-headers="v1"
+From: Bob Babbage <bob@openpgp.example>
+To: alice@openpgp.example
+Message-ID: <62904db5-6147-c67f-502c-c24b396d5688@openpgp.example>
+Subject: Signed Unencrypted With Key
+
+--zMuh5ZSCGRiyd3u4jmAM5Q7pZNJ1JNY0i
+Content-Type: multipart/mixed;
+ boundary="------------64A7DAE7CD7D84EBF8E46B7E"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------64A7DAE7CD7D84EBF8E46B7E
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+Sundays are nothing without callaloo.
+
+
+--------------64A7DAE7CD7D84EBF8E46B7E
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xFBFCC82A015E7330.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0xFBFCC82A015E7330.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsDNBF2lnPIBDAC5cL9PQoQLTMuhjbYvb4Ncuuo0bfmgPRFywX53jPhoFf4Zg6mv/seOXpgec=
+TdO
+cVttfzC8ycIKrt3aQTiwOG/ctaR4Bk/t6ayNFfdUNxHWk4WCKzdz/56fW2O0F23qIRd8UUJp5=
+IIl
+N4RDdRCtdhVQIAuzvp2oVy/LaS2kxQoKvph/5pQ/5whqsyroEWDJoSV0yOb25B/iwk/pLUFoy=
+hDG
+9bj0kIzDxrEqW+7Ba8nocQlecMF3X5KMN5kp2zraLv9dlBBpWW43XktjcCZgMy20SouraVma8=
+Je/
+ECwUWYUiAZxLIlMv9CurEOtxUw6N3RdOtLmYZS9uEnn5y1UkF88o8Nku890uk6BrewFzJyLAx=
+5wR
+Z4F0qV/yq36UWQ0JB/AUGhHVPdFf6pl6eaxBwT5GXvbBUibtf8YI2og5RsgTWtXfU7ebSGXrl=
+5ZM
+pbA6mbfhd0R8aPxWfmDWiIOhBufhMCvUHh1sApMKVZnvIff9/0Dca3wbvLIwa3T4CyshfT0AE=
+QEA
+Ac0hQm9iIEJhYmJhZ2UgPGJvYkBvcGVucGdwLmV4YW1wbGU+wsEOBBMBCgA4AhsDBQsJCAcCB=
+hUK
+CQgLAgQWAgMBAh4BAheAFiEE0aZuGiOxgsmYD3iM+/zIKgFeczAFAl2lnvoACgkQ+/zIKgFec=
+zBv
+bAv/VNk90a6hG8Od9xTzXxH5YRFUSGfIA1yjPIVOnKqhMwps2U+sWE3urL+MvjyQRlyRV8oY9=
+IOh
+Q5Esm6DOZYrTnE7qVETm1ajIAP2OFChEc55uH88x/anpPOXOJY7S8jbn3naC9qad75BrZ+3g9=
+EBU
+Wiy5p8TykP05WSnSxNRt7vFKLfEB4nGkehpwHXOVF0CRNwYle42bg8lpmdXFDcCZCi+qEbafm=
+TQz
+kAqyzS3nCh3IAqq6Y0kBuaKLm2tSNUOlZbD+OHYQNZ5Jix7cZUzs6Xh4+I55NRWl5smrLq66y=
+OQo
+FPy9jot/Qxikx/wP3MsAzeGaZSEPc0fHp5G16rlGbxQ3vl8/usUV7W+TMEMljgwd5x8POR6HC=
+8Ea
+CDfVnUBCPi/Gv+egLjsIbPJZZEroiE40e6/UoCiQtlpQB5exPJYSd1Q1txCwueih99PHepsDh=
+mUQ
+KiACszNU+RRozAYau2VdHqnRJ7QYdxHDiH49jPK4NTMyb/tJh2TiIwcmsIpGzsDNBF2lnPIBD=
+ADW
+ML9cbGMrp12CtF9b2P6z9TTT74S8iyBOzaSvdGDQY/sUtZXRg21HWamXnn9sSXvIDEINOQ6A9=
+Qxd
+xoqWdCHrOuW3ofneYXoG+zeKc4dC86wa1TR2q9vW+RMXSO4uImA+Uzula/6k1DogDf28qhCxM=
+wG/
+i/m9g1c/0aApuDyKdQ1PXsHHNlgd/Dn6rrd5y2AObaifV7wIhEJnvqgFXDN2RXGjLeCOHV4Q2=
+WTY
+Pg/S4k1nMXVDwZXrvIsA0YwIMgIT86Rafp1qKlgPNbiIlC1g9RY/iFaGN2b4Ir6GDohBQSfZW=
+2+L
+XoPZuVE/wGlQ01rh827KVZW4lXvqsge+wtnWlszcselGATyzqOK9LdHPdZGzROZYI2e8c+paL=
+NDd
+VPL6vdRBUnkCaEkOtl1mr2JpQi5nTU+gTX4IeInC7E+1a9UDF/Y85ybUz8XV8rUnR76UqVC7K=
+idN
+epdHbZjjXCt8/Zo+Tec9JNbYNQB/e9ExmDntmlHEsSEQzFwzj8sxH48AEQEAAcLA9gQYAQoAI=
+BYh
+BNGmbhojsYLJmA94jPv8yCoBXnMwBQJdpZzyAhsMAAoJEPv8yCoBXnMw6f8L/26C34dkjBffT=
+zMj
+5Bdzm8MtF67OYneJ4TQMw7+41IL4rVcSKhIhk/3Ud5knaRtP2ef1+5F66h9/RPQOJ5+tvBwhB=
+AcU
+WSupKnUrdVaZQanYmtSxcVV2PL9+QEiNN3tzluhaWO//rACxJ+K/ZXQlIzwQVTpNhfGzAaMVV=
+9zp
+f3u0k14itcv6alKY8+rLZvO1wIIeRZLmU0tZDD5HtWDvUV7rIFI1WuoLb+KZgbYn3OWjCPHVd=
+Trd
+Z2CqnZbG3SXw6awH9bzRLV9EXkbhIMez0deCVdeo+wFFklh8/5VK2b0vk/+wqMJxfpa1lHvJL=
+obz
+OP9fvrswsr92MA2+k901WeISR7qEzcI0Fdg8AyFAExaEK6VyjP7SXGLwvfisw34OxuZr3qmx1=
+Suf
+u4toH3XrB7QJN8XyqqbsGxUCBqWif9RSK4xjzRTe56iPeiSJJOIciMP9i2ldI+KgLycyeDvGo=
+Bj0
+HCLO3gVaBe4ubVrj5KjhX2PVNEJd3XZRzaXZE2aAMQ=3D=3D
+=3DF9yX
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------64A7DAE7CD7D84EBF8E46B7E--
+
+--zMuh5ZSCGRiyd3u4jmAM5Q7pZNJ1JNY0i--
+
+--SnZKl30WhaDQBele2hNh7m1E1rjNUzy75
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsD5BAABCAAjFiEE0aZuGiOxgsmYD3iM+/zIKgFeczAFAl+HQj4FAwAAAAAACgkQ+/zIKgFeczCg
+Cwv/SjU90dImzX5R7jbdaU/VwjUfPJ8XyAfmsVIaE3UXrNxgTQ1bsDIqqHdkPSkU5FCR1k34P/Kz
+kmqXvZPpdd+3aoxuUZPPqUd7e0uVWGBRiR70IyvgLLNP5ixh6Ct/tbc+Tf6lpg0jw1w06GW9rUxm
+VpzVt3tEty70P3kD6dlf4eNpswT7PgqWuQGKNRA0xylEfDXOKRTDG8VIX+AGZI0tlpmm3FtJ3XKG
+tvvj9L2ENz4GGWNHUZBAvjLiRfkEX3uKywELX/F1wVZDZGjOEBMVHEy8m5ZkLP1F+pw4GvOVNgIa
+lUPT0q7U5kw9/P6T1NEE1nxpOcqnfNTJvXt1rOr1vDLSoDk+9JlMUn68jT95XwGEoflq6WEuXSwp
+Iu+S3MwKL4un7dLW7xRjdBkORSQD6QOVpoXlUiGzqpFQm4XQT8Jw7HcyIPWfZdVtwJJKd3+uCvGu
+tWEXqmIdXaDGRd4oHlGBjqSPaZ20PzfrWk7VqLp5locKAO32Zkm+fEBxmN/p
+=AeKW
+-----END PGP SIGNATURE-----
+
+--SnZKl30WhaDQBele2hNh7m1E1rjNUzy75--

@@ -1,13 +1,13 @@
 X-Mozilla-Status: 0001
 X-Mozilla-Status2: 00800000
 X-Mozilla-Keys:                                                                                 
-To: alice@example.com
-From: Bob <bob@example.com>
+To: alice@openpgp.example
+From: Bob Babbage <bob@openpgp.example>
 Subject: Unsigned Unencrypted
-Message-ID: <991bd097-ed3a-7a97-0d59-f5602316e1a7@example.com>
-Date: Wed, 26 Aug 2020 15:54:15 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:82.0) Gecko/20100101
- Thunderbird/82.0a1
+Message-ID: <838593be-05d6-0579-8112-30f2f82b798e@openpgp.example>
+Date: Wed, 14 Oct 2020 15:01:06 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101
+ Thunderbird/83.0a1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit

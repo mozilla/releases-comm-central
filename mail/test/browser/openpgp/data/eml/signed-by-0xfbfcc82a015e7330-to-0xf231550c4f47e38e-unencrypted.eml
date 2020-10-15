@@ -1,0 +1,54 @@
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+X-Mozilla-Keys:                                                                                 
+To: alice@openpgp.example
+From: Bob Babbage <bob@openpgp.example>
+Subject: Signed Unencrypted
+Message-ID: <de411532-9bd9-a30b-37a5-294171a0e1f5@openpgp.example>
+Date: Wed, 14 Oct 2020 14:21:06 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:83.0) Gecko/20100101
+ Thunderbird/83.0a1
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="rj47z8rbyl2MhEfaEZQptaxOOrVHArWV4"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--rj47z8rbyl2MhEfaEZQptaxOOrVHArWV4
+Content-Type: multipart/mixed; boundary="PNIE8wtZaKiN071KjiT0rwF4fNeu8GK6i";
+ protected-headers="v1"
+From: Bob Babbage <bob@openpgp.example>
+To: alice@openpgp.example
+Message-ID: <de411532-9bd9-a30b-37a5-294171a0e1f5@openpgp.example>
+Subject: Signed Unencrypted
+
+--PNIE8wtZaKiN071KjiT0rwF4fNeu8GK6i
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+
+Sundays are nothing without callaloo.
+
+
+
+--PNIE8wtZaKiN071KjiT0rwF4fNeu8GK6i--
+
+--rj47z8rbyl2MhEfaEZQptaxOOrVHArWV4
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsD5BAABCAAjFiEE0aZuGiOxgsmYD3iM+/zIKgFeczAFAl+HQZIFAwAAAAAACgkQ+/zIKgFeczBX
+Pgv8D77zOWXaX3xsREJr6KNHkD6Gj52illymZBY1Km5+WMW0JmEdt5T0UOpAoVTbxHr/1z+G7iw6
+vgoBRNdzMoFTGYHy6wqW+2A3pKiGc2CD/789GYL/c3dVEIJuBr0FzDRMO8VQhjq/56s0FnaFjm7L
+JtEUjBZzaafQaxzmbnSXjSZLfCLh1YRRmgxeOA5CcyMY1HlgsvvSfdNH32o+ZPgSG4C7s4z2iinH
+uZFE2SbQ/qvyBWnslr1+2/r8YFhtknLsK14memZb8bIAtrh8Hxq9BRg3A4+spD4uR7C+1hcLbWRD
+x5b46ehcULzoTcnDLmQ34/zymIANCzSdww7Ofmhw7c/5sK9BL/fjgiT4qKxFOr/12/Ym6cXqtUgN
+Eh9XsQt10ZP707BodH9ga9rIR5NIZr6xYZx0iX7FPKxXw8Kf8ovxiI+ATYb4B6fv6PRxyD6yYfLx
+ZKBnZfk5UOe/GqktKFFHO2EVe3z8eYgS8k1hWXuvkKlXDb6PqDRUE42K6yAD
+=/kuV
+-----END PGP SIGNATURE-----
+
+--rj47z8rbyl2MhEfaEZQptaxOOrVHArWV4--
