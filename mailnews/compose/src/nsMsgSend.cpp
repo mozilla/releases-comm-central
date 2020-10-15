@@ -3647,10 +3647,10 @@ nsMsgComposeAndSend::CreateAndSendMessage(
     nsIMsgCompFields* fields, bool digest_p, bool dont_deliver_p,
     nsMsgDeliverMode mode, nsIMsgDBHdr* msgToReplace,
     const char* attachment1_type, const nsACString& attachment1_body,
+    nsIArray* attachments, nsIArray* preloaded_attachments,
     mozIDOMWindowProxy* parentWindow, nsIMsgProgress* progress,
     nsIMsgSendListener* aListener, const nsAString& password,
-    const nsACString& aOriginalMsgURI, MSG_ComposeType aType,
-    Promise** aPromise) {
+    const nsACString& aOriginalMsgURI, MSG_ComposeType aType) {
   nsCOMPtr<nsIMsgSend> kungFuDeathGrip(this);
 
   nsresult rv;
@@ -3667,27 +3667,13 @@ nsMsgComposeAndSend::CreateAndSendMessage(
 
   rv = Init(aUserIdentity, aAccountKey, (nsMsgCompFields*)fields, nullptr,
             digest_p, dont_deliver_p, mode, msgToReplace, attachment1_type,
-            attachment1_body, nullptr, nullptr, password, aOriginalMsgURI,
-            aType);
+            attachment1_body, attachments, preloaded_attachments, password,
+            aOriginalMsgURI, aType);
 
   if (NS_FAILED(rv) && mSendReport)
     mSendReport->SetError(nsIMsgSendReport::process_Current, rv, false);
 
-  nsCOMPtr<nsIGlobalObject> global =
-      xpc::NativeGlobal(xpc::PrivilegedJunkScope());
-  ErrorResult er;
-  RefPtr<Promise> retPromise = Promise::Create(global, er);
-  nsresult rv2 = er.StealNSResult();
-  NS_ENSURE_SUCCESS(rv2, rv2);
-
-  if (NS_SUCCEEDED(rv)) {
-    retPromise->MaybeResolve(0);
-  } else {
-    retPromise->MaybeReject(rv);
-  }
-  retPromise.forget(aPromise);
-
-  return rv2;
+  return rv;
 }
 
 NS_IMETHODIMP
@@ -3726,8 +3712,7 @@ nsresult nsMsgComposeAndSend::SendMessageFile(
     nsIMsgCompFields* fields, nsIFile* sendIFile,
     bool deleteSendFileOnCompletion, bool digest_p, nsMsgDeliverMode mode,
     nsIMsgDBHdr* msgToReplace, nsIMsgSendListener* aListener,
-    nsIMsgStatusFeedback* aStatusFeedback, const char16_t* password,
-    Promise** aPromise) {
+    nsIMsgStatusFeedback* aStatusFeedback, const char16_t* password) {
   NS_ENSURE_ARG_POINTER(fields);
   NS_ENSURE_ARG_POINTER(sendIFile);
 
@@ -3762,20 +3747,6 @@ nsresult nsMsgComposeAndSend::SendMessageFile(
 
   if (NS_FAILED(rv) && mSendReport)
     mSendReport->SetError(nsIMsgSendReport::process_Current, rv, false);
-
-  nsCOMPtr<nsIGlobalObject> global =
-      xpc::NativeGlobal(xpc::PrivilegedJunkScope());
-  ErrorResult er;
-  RefPtr<Promise> retPromise = Promise::Create(global, er);
-  nsresult rv2 = er.StealNSResult();
-  NS_ENSURE_SUCCESS(rv2, rv2);
-
-  if (NS_SUCCEEDED(rv)) {
-    retPromise->MaybeResolve(0);
-  } else {
-    retPromise->MaybeReject(rv);
-  }
-  retPromise.forget(aPromise);
 
   return rv;
 }

@@ -194,6 +194,8 @@ interface nsIMsgSend : nsISupports
    * @param aMsgToReplace e.g., when saving a draft over an old draft. May be 0
    * @param aBodyType content type of message body
    * @param aBody message body text (should have native line endings)
+   * @param aAttachments Array of nsIMsgAttachmentData
+   * @param aPreloadedAttachments Array of nsIMsgAttachedFile
    * @param aParentWindow compose window; may be null.
    * @param aProgress where to send progress info; may be null.
    * @param aListener optional listener for send progress
@@ -201,22 +203,24 @@ interface nsIMsgSend : nsISupports
    * @param aOriginalMsgURI may be null.
    * @param aType see nsIMsgComposeParams.idl
    */
-  Promise createAndSendMessage(in nsIEditor aEditor,
-                               in nsIMsgIdentity aUserIdentity,
-                               in string aAccountKey,
-                               in nsIMsgCompFields aFields,
-                               in boolean aIsDigest,
-                               in boolean aDontDeliver,
-                               in nsMsgDeliverMode aMode,
-                               in nsIMsgDBHdr aMsgToReplace,
-                               in string aBodyType,
-                               in ACString aBody,
-                               in mozIDOMWindowProxy aParentWindow,
-                               in nsIMsgProgress aProgress,
-                               in nsIMsgSendListener aListener,
-                               in AString aPassword,
-                               in AUTF8String aOriginalMsgURI,
-                               in MSG_ComposeType aType);
+    void createAndSendMessage(in nsIEditor aEditor,
+                              in nsIMsgIdentity aUserIdentity,
+                              in string aAccountKey,
+                              in nsIMsgCompFields aFields,
+                              in boolean aIsDigest,
+                              in boolean aDontDeliver,
+                              in nsMsgDeliverMode aMode,
+                              in nsIMsgDBHdr aMsgToReplace,
+                              in string aBodyType,
+                              in ACString aBody,
+                              in nsIArray aAttachments,
+                              in nsIArray aPreloadedAttachments,
+                              in mozIDOMWindowProxy aParentWindow,
+                              in nsIMsgProgress aProgress,
+                              in nsIMsgSendListener aListener,
+                              in AString aPassword,
+                              in AUTF8String aOriginalMsgURI,
+                              in MSG_ComposeType aType);
 
   /**
    * Creates a file containing an rfc822 message, using the passed information.
@@ -260,7 +264,7 @@ interface nsIMsgSend : nsISupports
    * @param aDeleteSendFileOnCompletion
    *                         Set to true if you want the send file deleted once
    *                         the message has been sent.
-   * @param aDigest          If this is a multipart message, this param
+   * @param aDigest_p        If this is a multipart message, this param
    *                         specifies whether the message is in digest or mixed
    *                         format.
    * @param aMode            The delivery mode for sending the message (see
@@ -278,18 +282,18 @@ interface nsIMsgSend : nsISupports
    * @param aPassword        Pass this in to prevent a dialog if the password
    *                         is needed for secure transmission.
    */
-  Promise sendMessageFile(in nsIMsgIdentity       aUserIdentity,
-                          in string               aAccountKey,
-                          in nsIMsgCompFields     aFields,
-                          in nsIFile              aSendIFile,
-                          in boolean              aDeleteSendFileOnCompletion,
-                          in boolean              aDigest,
-                          in nsMsgDeliverMode     aMode,
-                          in nsIMsgDBHdr          aMsgToReplace,
-                          in nsIMsgSendListener   aListener,
-                          in nsIMsgStatusFeedback aStatusFeedback,
-                          in wstring              aPassword
-                          );
+  void sendMessageFile(in nsIMsgIdentity       aUserIdentity,
+                       in string               aAccountKey,
+                       in nsIMsgCompFields     aFields,
+                       in nsIFile              aSendIFile,
+                       in boolean              aDeleteSendFileOnCompletion,
+                       in boolean              aDigest_p,
+                       in nsMsgDeliverMode     aMode,
+                       in nsIMsgDBHdr          aMsgToReplace,
+                       in nsIMsgSendListener   aListener,
+                       in nsIMsgStatusFeedback aStatusFeedback,
+                       in wstring              aPassword
+                       );
 
     /* Abort current send/save operation */
     void abort();

@@ -225,7 +225,7 @@ function richCreateMessage(
     progressListener.reject = reject;
   });
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
+  msgCompose.SendMsg(
     Ci.nsIMsgSend.nsMsgSaveAsDraft,
     identity,
     account ? account.key : "",

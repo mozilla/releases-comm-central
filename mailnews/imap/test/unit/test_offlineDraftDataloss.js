@@ -82,7 +82,7 @@ function* saveDraft() {
     Ci.nsIMsgProgress
   );
   progress.registerListener(progressListener);
-  msgCompose.sendMsg(
+  msgCompose.SendMsg(
     Ci.nsIMsgSend.nsMsgSaveAsDraft,
     identity,
     "",

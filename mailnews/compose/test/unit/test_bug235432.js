@@ -158,6 +158,8 @@ function send_message_later(aMessageHeaderKeys, aStatus) {
     "bodyText\n",
     null,
     null,
+    null,
+    null,
     copyListener,
     null,
     "",

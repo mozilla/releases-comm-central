@@ -4553,7 +4553,7 @@ function GenericSendMessage(msgType) {
  * GenericSendMessage, or if GenericSendMessage was interrupted by your code.
  * @param msgType nsIMsgCompDeliverMode of the operation.
  */
-async function CompleteGenericSendMessage(msgType) {
+function CompleteGenericSendMessage(msgType) {
   // hook for extra compose pre-processing
   Services.obs.notifyObservers(window, "mail:composeOnSend");
 
@@ -4606,7 +4606,7 @@ async function CompleteGenericSendMessage(msgType) {
     }
     msgWindow.domWindow = window;
     msgWindow.rootDocShell.allowAuth = true;
-    await gMsgCompose.sendMsg(
+    gMsgCompose.SendMsg(
       msgType,
       getCurrentIdentity(),
       getCurrentAccountKey(),

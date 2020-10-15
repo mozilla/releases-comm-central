@@ -48,7 +48,6 @@
 #include "nsIMsgAccountManager.h"
 #include "nsMsgBaseCID.h"
 #include "modmimee.h"  // for MimeConverterOutputCallback
-#include "mozilla/dom/Promise.h"
 #include "mozilla/mailnews/MimeHeaderParser.h"
 
 using namespace mozilla::mailnews;
@@ -287,9 +286,8 @@ nsresult ForwardMsgInline(nsIMsgCompFields* compFields,
   rv = pMsgCompose->Initialize(pMsgComposeParams, nullptr, nullptr);
   NS_ENSURE_SUCCESS(rv, rv);
 
-  RefPtr<mozilla::dom::Promise> promise;
   rv = pMsgCompose->SendMsg(nsIMsgSend::nsMsgDeliverNow, identity, nullptr,
-                            nullptr, nullptr, getter_AddRefs(promise));
+                            nullptr, nullptr);
   if (NS_SUCCEEDED(rv)) {
     nsCOMPtr<nsIMsgFolder> origFolder;
     origMsgHdr->GetFolder(getter_AddRefs(origFolder));
