@@ -556,7 +556,8 @@ html|header.message-security-header html|h3 {
   background-image: url("chrome://messenger/skin/icons/message-signed-unknown.svg");
 }
 
-#signatureLabel.mismatch {
+#signatureLabel.mismatch,
+#signatureLabel.notok {
   background-image: url("chrome://messenger/skin/icons/message-signed-mismatch.svg");
 }
 
