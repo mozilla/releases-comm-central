@@ -155,6 +155,10 @@
           "name": {
             "type": "string",
             "description": "The name, as displayed to the user, of this attachment. This is usually but not always the filename of the attached file."
+          },
+          "size": {
+            "type": "integer",
+            "description": "The size in bytes of this attachment."
           }
         },
         "functions": [

@@ -374,6 +374,7 @@ var composeAttachmentTracker = {
     return {
       id: this.getId(attachment, window),
       name: attachment.name,
+      size: attachment.size,
     };
   },
 

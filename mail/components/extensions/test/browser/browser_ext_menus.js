@@ -353,8 +353,9 @@ add_task(async function test_compose() {
   Assert.ok(Array.isArray(info.attachments));
   Assert.equal(info.attachments.length, 1);
   Assert.equal(info.attachments[0].name, "first.txt");
+  Assert.equal(info.attachments[0].size, 25);
 
-  attachmentBucket.addItemToSelection(attachmentBucket.itemChildren[2]);
+  attachmentBucket.addItemToSelection(attachmentBucket.itemChildren[3]);
   shownPromise = BrowserTestUtils.waitForEvent(menu, "popupshowing");
   EventUtils.synthesizeMouseAtCenter(
     attachmentBucket.itemChildren[0],
@@ -378,7 +379,9 @@ add_task(async function test_compose() {
   Assert.ok(Array.isArray(info.attachments));
   Assert.equal(info.attachments.length, 2);
   Assert.equal(info.attachments[0].name, "first.txt");
-  Assert.equal(info.attachments[1].name, "third.txt");
+  Assert.equal(info.attachments[0].size, 25);
+  Assert.equal(info.attachments[1].name, "fourth.txt");
+  Assert.equal(info.attachments[1].size, 26);
 
   await extension.unload();
 

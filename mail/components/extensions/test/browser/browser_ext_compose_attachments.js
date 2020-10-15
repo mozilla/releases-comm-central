@@ -82,6 +82,7 @@ add_task(async function() {
         file: file1,
       });
       browser.test.assertEq("file1.txt", attachment1.name);
+      browser.test.assertEq(16, attachment1.size);
       await checkData(attachment1, file1.size);
 
       let [, added1] = await listener.checkEvent(
@@ -104,6 +105,7 @@ add_task(async function() {
         name: "this is file2.txt",
       });
       browser.test.assertEq("this is file2.txt", attachment2.name);
+      browser.test.assertEq(41, attachment2.size);
       await checkData(attachment2, file2.size);
 
       let [, added2] = await listener.checkEvent(
@@ -126,6 +128,7 @@ add_task(async function() {
         { name: "file2 with a new name.txt" }
       );
       browser.test.assertEq("file2 with a new name.txt", changed2.name);
+      browser.test.assertEq(41, changed2.size);
       await checkData(changed2, file2.size);
 
       await checkUI(
@@ -143,6 +146,7 @@ add_task(async function() {
         { file: file3 }
       );
       browser.test.assertEq("file2 with a new name.txt", changed3.name);
+      browser.test.assertEq(30, changed3.size);
       await checkData(changed3, file3.size);
 
       await checkUI(

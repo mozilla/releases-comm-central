@@ -32,6 +32,7 @@ class ComposeAttachment {
     return {
       id: this.attachment.id,
       name: this.attachment.name,
+      size: this.attachment.size,
       getFile: () => {
         return this.context.wrapPromise(this.getFile());
       },
