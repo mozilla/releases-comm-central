@@ -36,6 +36,7 @@
 #include "nsThreadUtils.h"
 #include "nsMsgUtils.h"
 #include "nsNetUtil.h"
+#include "mozilla/dom/Promise.h"
 #include "mozilla/ReentrantMonitor.h"
 #include "mozilla/Services.h"
 #include "nsIArray.h"
@@ -335,9 +336,11 @@ nsresult nsMapiHook::BlindSendMail(unsigned long aSession,
   NS_ENSURE_SUCCESS(rv, rv);
 
   // If we're in offline mode, we'll need to queue it for later.
+  RefPtr<mozilla::dom::Promise> promise;
   rv = pMsgCompose->SendMsg(WeAreOffline() ? nsIMsgSend::nsMsgQueueForLater
                                            : nsIMsgSend::nsMsgDeliverNow,
-                            pMsgId, nullptr, nullptr, nullptr);
+                            pMsgId, nullptr, nullptr, nullptr,
+                            getter_AddRefs(promise));
   NS_ENSURE_SUCCESS(rv, rv);
 
   // We need to wait to make sure that we only return when the send is

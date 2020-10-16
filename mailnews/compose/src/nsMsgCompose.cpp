@@ -70,6 +70,7 @@
 #include "mozilla/dom/HTMLAnchorElement.h"
 #include "mozilla/dom/HTMLImageElement.h"
 #include "mozilla/dom/Selection.h"
+#include "mozilla/dom/PromiseNativeHandler.h"
 #include "mozilla/Utf8.h"
 #include "nsStreamConverter.h"
 #include "nsIObserverService.h"
@@ -1090,8 +1091,8 @@ NS_IMETHODIMP nsMsgCompose::RemoveMsgSendListener(
 
 NS_IMETHODIMP
 nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
-                              nsIMsgIdentity* identity,
-                              const char* accountKey) {
+                              nsIMsgIdentity* identity, const char* accountKey,
+                              Promise** aPromise) {
   nsresult rv = NS_OK;
 
   // clear saved message id if sending, so we don't send out the same
@@ -1182,19 +1183,18 @@ nsMsgCompose::SendMsgToServer(MSG_DeliverMode deliverMode,
       //
       nsCOMPtr<nsIMsgSendListener> sendListener =
           do_QueryInterface(composeSendListener);
+      RefPtr<mozilla::dom::Promise> promise;
       rv = mMsgSend->CreateAndSendMessage(
           m_composeHTML ? m_editor.get() : nullptr, identity, accountKey,
           m_compFields, false, false, (nsMsgDeliverMode)deliverMode, nullptr,
-          m_composeHTML ? TEXT_HTML : TEXT_PLAIN, bodyString, nullptr, nullptr,
-          m_window, mProgress, sendListener, mSmtpPassword, mOriginalMsgURI,
-          mType);
+          m_composeHTML ? TEXT_HTML : TEXT_PLAIN, bodyString, m_window,
+          mProgress, sendListener, mSmtpPassword, mOriginalMsgURI, mType,
+          getter_AddRefs(promise));
+      promise.forget(aPromise);
     } else
       rv = NS_ERROR_FAILURE;
   } else
     rv = NS_ERROR_NOT_INITIALIZED;
-
-  if (NS_FAILED(rv))
-    NotifyStateListeners(nsIMsgComposeNotificationType::ComposeProcessDone, rv);
 
   return rv;
 }
@@ -1203,7 +1203,8 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
                                     nsIMsgIdentity* identity,
                                     const char* accountKey,
                                     nsIMsgWindow* aMsgWindow,
-                                    nsIMsgProgress* progress) {
+                                    nsIMsgProgress* progress,
+                                    Promise** aPromise) {
   NS_ENSURE_TRUE(m_compFields, NS_ERROR_NOT_INITIALIZED);
   nsresult rv = NS_OK;
   nsCOMPtr<nsIPrompt> prompt;
@@ -1346,8 +1347,12 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
   // Save the identity being sent for later use.
   m_identity = identity;
 
-  rv = SendMsgToServer(deliverMode, identity, accountKey);
-  if (NS_FAILED(rv)) {
+  RefPtr<mozilla::dom::Promise> promise;
+  rv = SendMsgToServer(deliverMode, identity, accountKey,
+                       getter_AddRefs(promise));
+
+  auto handleFailure = [&](nsresult rv) {
+    NotifyStateListeners(nsIMsgComposeNotificationType::ComposeProcessDone, rv);
     nsCOMPtr<nsIMsgSendReport> sendReport;
     if (mMsgSend) mMsgSend->GetSendReport(getter_AddRefs(sendReport));
     if (sendReport) {
@@ -1373,8 +1378,14 @@ NS_IMETHODIMP nsMsgCompose::SendMsg(MSG_DeliverMode deliverMode,
           break;
       }
     }
-
-    if (progress) progress->CloseProgressDialog(true);
+    if (mProgress) mProgress->CloseProgressDialog(true);
+  };
+  if (promise) {
+    new DomPromiseListener(
+        promise, [](JSContext*, JS::Handle<JS::Value>) {}, handleFailure);
+    promise.forget(aPromise);
+  } else if (NS_FAILED(rv)) {
+    handleFailure(rv);
   }
 
   return rv;

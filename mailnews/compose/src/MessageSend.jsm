@@ -31,7 +31,7 @@ MessageSend.prototype = {
   QueryInterface: ChromeUtils.generateQI(["nsIMsgSend"]),
   classID: Components.ID("{028b9c1e-8d0a-4518-80c2-842e07846eaa}"),
 
-  createAndSendMessage(
+  async createAndSendMessage(
     editor,
     userIdentity,
     accountKey,
@@ -42,8 +42,6 @@ MessageSend.prototype = {
     msgToReplace,
     bodyType,
     body,
-    attachments,
-    preloadedAttachments,
     parentWindow,
     progress,
     listener,
@@ -108,11 +106,15 @@ MessageSend.prototype = {
 
     this._messageKey = nsMsgKey_None;
 
-    // nsMsgCompose will do some cleanups depending if the return value of
-    // createAndSendMessage is not 0, this required createAndSendMessage to run
-    // synchonously.
-    // TODO: update nsIMsgSend.idl to return Promise.
-    this._runPromise(this._createAndSendMessage());
+    // Create a local file from MimeMessage, then pass it to _deliverMessage.
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName("creatingMailMessage")
+    );
+    let messageFile = await this._message.createMessageFile();
+    this._setStatusMessage(
+      this._composeBundle.GetStringFromName("assemblingMessageDone")
+    );
+    return this._deliverMessage(messageFile);
   },
 
   sendMessageFile(
@@ -165,7 +167,7 @@ MessageSend.prototype = {
     // nsMsgKey_None from MailNewsTypes.h.
     this._messageKey = 0xffffffff;
 
-    this._runPromise(this._deliverMessage(messageFile));
+    return this._deliverMessage(messageFile);
   },
 
   abort() {
@@ -480,20 +482,6 @@ MessageSend.prototype = {
 
   get sendReport() {
     return this._sendReport;
-  },
-
-  /**
-   * Create a local file from MimeMessage, then pass it to _deliverMessage.
-   */
-  async _createAndSendMessage() {
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("creatingMailMessage")
-    );
-    let messageFile = await this._message.createMessageFile();
-    this._setStatusMessage(
-      this._composeBundle.GetStringFromName("assemblingMessageDone")
-    );
-    return this._deliverMessage(messageFile);
   },
 
   _setStatusMessage(msg) {
@@ -964,18 +952,6 @@ MessageSend.prototype = {
     return jsmime.mimeutils.typedArrayToString(
       new TextEncoder().encode(bodyText)
     );
-  },
-
-  /**
-   * A wrapper of MsgUtils.syncPromise to run a promise synchonously.
-   * @param {Promise} promise - the promise to run
-   */
-  _runPromise(promise) {
-    let e = MsgUtils.syncPromise(promise);
-    if (e && e.result != 0) {
-      this._sendReport.setError(Ci.nsIMsgSendReport.process_Current, e, false);
-      throw Components.Exception("_runPromise failed", e.result);
-    }
   },
 };
 
