@@ -2111,7 +2111,7 @@ QuotingOutputStreamListener::QuotingOutputStreamListener(
             }
             if ((placeholderIndex = mCitePrefix.Find("#3")) != kNotFound) {
               rv = mozilla::DateTimeFormat::FormatPRTime(
-                  kDateFormatNone, kTimeFormatNoSeconds, originalMsgDate,
+                  kDateFormatNone, kTimeFormatShort, originalMsgDate,
                   citeDatePart);
               if (NS_SUCCEEDED(rv))
                 mCitePrefix.Replace(placeholderIndex, 2, citeDatePart);

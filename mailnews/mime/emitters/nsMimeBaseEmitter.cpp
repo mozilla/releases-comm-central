@@ -649,7 +649,7 @@ nsresult nsMimeBaseEmitter::GenerateDateString(const char* dateString,
   nsAutoString formattedDateString;
 
   rv = mozilla::DateTimeFormat::FormatPRExplodedTime(
-      dateFormat, mozilla::kTimeFormatNoSeconds, &explodedCompTime,
+      dateFormat, mozilla::kTimeFormatShort, &explodedCompTime,
       formattedDateString);
 
   if (NS_SUCCEEDED(rv)) {

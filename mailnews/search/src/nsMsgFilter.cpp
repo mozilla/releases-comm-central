@@ -452,7 +452,7 @@ nsresult nsMsgFilter::LogRuleHitGeneric(nsIMsgRuleAction* aFilterAction,
   PR_ExplodeTime(date, PR_LocalTimeParameters, &exploded);
 
   mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                mozilla::kTimeFormatSeconds,
+                                                mozilla::kTimeFormatLong,
                                                 &exploded, dateValue);
 
   (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);

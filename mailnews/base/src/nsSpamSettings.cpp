@@ -610,7 +610,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkHit(nsIMsgDBHdr* aMsgHdr,
   PR_ExplodeTime(date, PR_LocalTimeParameters, &exploded);
 
   mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                mozilla::kTimeFormatSeconds,
+                                                mozilla::kTimeFormatLong,
                                                 &exploded, dateValue);
 
   (void)aMsgHdr->GetMime2DecodedAuthor(authorValue);
@@ -675,7 +675,7 @@ NS_IMETHODIMP nsSpamSettings::LogJunkString(const char* string) {
   PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
 
   mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                mozilla::kTimeFormatSeconds,
+                                                mozilla::kTimeFormatLong,
                                                 &exploded, dateValue);
 
   nsCString timestampString(LOG_ENTRY_TIMESTAMP);

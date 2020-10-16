@@ -594,7 +594,7 @@ nsresult nsMsgDBView::FetchDate(nsIMsgDBHdr* aHdr, nsAString& aDateString,
 
   if (NS_SUCCEEDED(rv))
     rv = mozilla::DateTimeFormat::FormatPRTime(
-        dateFormat, mozilla::kTimeFormatNoSeconds, dateOfMsg, aDateString);
+        dateFormat, mozilla::kTimeFormatShort, dateOfMsg, aDateString);
 
   return rv;
 }
@@ -7390,7 +7390,7 @@ static void getDateFormatPref(nsIPrefBranch *_prefBranch,
     mozilla::nsDateFormatSelector res;
     res = static_cast<mozilla::nsDateFormatSelector>(nFormatSetting);
     // Transfer if valid.
-    if (res >= mozilla::kDateFormatNone && res <= mozilla::kDateFormatWeekday)
+    if (res >= mozilla::kDateFormatNone && res <= mozilla::kDateFormatShort)
       _format = res;
   }
 }

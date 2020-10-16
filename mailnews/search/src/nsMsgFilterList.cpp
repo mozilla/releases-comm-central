@@ -1189,7 +1189,7 @@ NS_IMETHODIMP nsMsgFilterList::LogFilterMessage(const nsAString& message,
   nsString dateValue;
   PR_ExplodeTime(PR_Now(), PR_LocalTimeParameters, &exploded);
   mozilla::DateTimeFormat::FormatPRExplodedTime(mozilla::kDateFormatShort,
-                                                mozilla::kTimeFormatSeconds,
+                                                mozilla::kTimeFormatLong,
                                                 &exploded, dateValue);
 
   // HTML-escape the log for security reasons.
