@@ -19,7 +19,13 @@ interface nsILDAPConnection;
 interface nsILDAPMessageListener : nsISupports
 {
     /**
-     * Messages received are passed back via this function.
+     * Invoked when Init has completed successfully LDAP operations can
+     * proceed.
+     */
+    void onLDAPInit();
+
+    /**
+     * Messages from LDAP operations are passed back via this function.
      *
      * @arg aMessage  The message that was returned, NULL if none was.
      *
@@ -27,14 +33,15 @@ interface nsILDAPMessageListener : nsISupports
      */
     void onLDAPMessage(in nsILDAPMessage aMessage);
 
+
     /**
-     * Notify the listener that the Init has completed, passing
-     * in the results from the connection initialization. The
-     * Reason for this is to allow us to do asynchronous DNS
-     * lookups, preresolving hostnames.
+     * Indicates that an error has occured - either during init, or due to
+     * an LDAP operation.
      *
-     * @arg aConn     The LDAP connection in question
-     * @arg aStatus   The result from the LDAP connection init
+     * @arg status   The error code.
+     * @arg secInfo  The securityInfo object for the connection, if status
+     *               is a security (NSS) error. Null otherwise.
      */
-    void onLDAPInit(in nsILDAPConnection aConn, in nsresult aStatus);
+    void onLDAPError(in nsresult status, in nsISupports secInfo);
 };
+

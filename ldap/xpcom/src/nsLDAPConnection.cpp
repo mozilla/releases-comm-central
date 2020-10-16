@@ -24,6 +24,7 @@
 #include "nsILDAPURL.h"
 #include "nsIObserverService.h"
 #include "mozilla/Services.h"
+#include "NSSErrorsService.h"
 #include "nsMemory.h"
 #include "nsLDAPUtils.h"
 #include "nsProxyRelease.h"
@@ -366,6 +367,7 @@ nsresult nsLDAPConnection::RemovePendingOperation(uint32_t aOperationID) {
   return NS_OK;
 }
 
+// Helper to invoke the OnLDAPMessage() callback on the main thread.
 class nsOnLDAPMessageRunnable : public Runnable {
  public:
   nsOnLDAPMessageRunnable(nsLDAPMessage* aMsg, bool aClear)
@@ -398,6 +400,8 @@ NS_IMETHODIMP nsOnLDAPMessageRunnable::Run() {
   return listener->OnLDAPMessage(m_msg);
 }
 
+// This is called from the STS thread, to invoke the listeners
+// OnLDAPMessage() callback out on the main thread.
 nsresult nsLDAPConnection::InvokeMessageCallback(LDAPMessage* aMsgHandle,
                                                  nsILDAPMessage* aMsg,
                                                  int32_t aOperation,
@@ -439,6 +443,27 @@ nsresult nsLDAPConnection::InvokeMessageCallback(LDAPMessage* aMsgHandle,
   }
 
   return NS_OK;
+}
+
+// Called on the STS thread, to signal errors to the listener on the main
+// thread.
+void nsLDAPConnection::InvokeErrorCallback(int32_t opID, nsresult status,
+                                           nsISupports* secInfo) {
+  nsCOMPtr<nsILDAPMessageListener> listener;
+  {
+    nsCOMPtr<nsILDAPOperation> operation;
+    MutexAutoLock lock(mPendingOperationsMutex);
+    mPendingOperations.Get((uint32_t)opID, getter_AddRefs(operation));
+    operation->GetMessageListener(getter_AddRefs(listener));
+  }
+  if (!listener) {
+    return;
+  }
+  nsCOMPtr<nsISupports> refCountedSecInfo(secInfo);
+  NS_DispatchToMainThread(NS_NewRunnableFunction(
+      "InvokeErrorCallback", [listener, status, refCountedSecInfo]() {
+        listener->OnLDAPError(status, refCountedSecInfo);
+      }));
 }
 
 NS_IMETHODIMP
@@ -579,7 +604,11 @@ nsLDAPConnection::OnLookupComplete(nsICancelable* aRequest,
 
   // Call the listener, and then we can release our reference to it.
   //
-  mInitListener->OnLDAPInit(this, rv);
+  if (NS_SUCCEEDED(rv)) {
+    mInitListener->OnLDAPInit();
+  } else {
+    mInitListener->OnLDAPError(rv, nullptr);
+  }
   mInitListener = nullptr;
 
   return rv;
@@ -620,12 +649,33 @@ NS_IMETHODIMP nsLDAPConnectionRunnable::Run() {
       // XXX do we need a timer?
       return thread->Dispatch(this, nsIEventTarget::DISPATCH_NORMAL);
     case -1: {
-      int errCode;
+      // An error occurred.
+      int errLDAP;
       ldap_get_option(mConnection->mConnectionHandle, LDAP_OPT_ERROR_NUMBER,
-                      &errCode);
+                      &errLDAP);
       MOZ_LOG(gLDAPLogModule, mozilla::LogLevel::Error,
               ("ldap_result() failed (on id=%d): %s", mOperationID,
-               ldap_err2string(errCode)));
+               ldap_err2string(errLDAP)));
+
+      // All the LDAP codes can be mapped to nsresult.
+      // But we also want to know specifically about recoverable security
+      // errors (self-signed cert etc...). LDAP has no concept of these, so
+      // we have to break the abstraction and delve into some lower layers
+      // to get what we want.
+      nsresult status =
+          NS_ERROR_GENERATE_FAILURE(NS_ERROR_MODULE_LDAP, errLDAP);
+      nsCOMPtr<nsISupports> secInfo;
+      // We know we're using libprldap, so there'll be an NSPR error code.
+      PRErrorCode errPR = PR_GetError();
+      if (mozilla::psm::IsNSSErrorCode(errPR)) {
+        // It's a security error. So we also want the associated security
+        // info (which is in the nsLDAPSecurityGlue layer).
+        status = mozilla::psm::GetXPCOMFromNSSError(errPR);
+        nsLDAPGetSecInfo(mConnection->mConnectionHandle,
+                         getter_AddRefs(secInfo));
+      }
+      mConnection->InvokeErrorCallback(mOperationID, status, secInfo);
+
       // Remove operation from the Pending table.
       mConnection->RemovePendingOperation((uint32_t)mOperationID);
       return NS_ERROR_FAILURE;

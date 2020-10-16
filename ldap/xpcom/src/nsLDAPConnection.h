@@ -96,6 +96,7 @@ class nsLDAPConnection : public nsILDAPConnection,
    */
   nsresult InvokeMessageCallback(LDAPMessage* aMsgHandle, nsILDAPMessage* aMsg,
                                  int32_t aOperation, bool aRemoveOpFromConnQ);
+  void InvokeErrorCallback(int32_t opID, nsresult status, nsISupports* secInfo);
 
   /**
    * Dispatch an operation to the socket thread. This is intended for use by

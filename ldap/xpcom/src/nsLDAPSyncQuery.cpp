@@ -84,10 +84,8 @@ nsLDAPSyncQuery::OnLDAPMessage(nsILDAPMessage* aMessage) {
   }
 }
 
-// void onLDAPInit (in nsresult aStatus);
-//
 NS_IMETHODIMP
-nsLDAPSyncQuery::OnLDAPInit(nsILDAPConnection* aConn, nsresult aStatus) {
+nsLDAPSyncQuery::OnLDAPInit() {
   nsresult rv;  // temp for xpcom return values
   // create and initialize an LDAP operation (to be used for the bind)
   //
@@ -114,6 +112,11 @@ nsLDAPSyncQuery::OnLDAPInit(nsILDAPConnection* aConn, nsresult aStatus) {
   }
 
   return NS_OK;
+}
+
+NS_IMETHODIMP
+nsLDAPSyncQuery::OnLDAPError(nsresult status, nsISupports* secInfo) {
+  return NS_ERROR_NOT_IMPLEMENTED;
 }
 
 nsresult nsLDAPSyncQuery::OnLDAPBind(nsILDAPMessage* aMessage) {

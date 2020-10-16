@@ -50,21 +50,9 @@ nsresult nsAbLDAPListenerBase::Initiate() {
 // If something fails in this function, we must call InitFailed() so that the
 // derived class (and listener) knows to cancel what its doing as there is
 // a problem.
-NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit(nsILDAPConnection* aConn,
-                                               nsresult aStatus) {
-  if (!mConnection || !mDirectoryUrl) {
-    InitFailed();
-    return NS_ERROR_NULL_POINTER;
-  }
-
+NS_IMETHODIMP nsAbLDAPListenerBase::OnLDAPInit() {
   nsresult rv;
   nsString passwd;
-
-  // Make sure that the Init() worked properly
-  if (NS_FAILED(aStatus)) {
-    InitFailed();
-    return NS_OK;
-  }
 
   // If mLogin is set, we're expected to use it to get a password.
   //
@@ -321,7 +309,7 @@ nsresult nsAbLDAPListenerBase::OnLDAPMessageBind(nsILDAPMessage* aMessage) {
       // the user that the login failed here, rather than just bringing
       // up the password dialog again, which is what calling OnLDAPInit()
       // does.
-      return OnLDAPInit(nullptr, NS_OK);
+      return OnLDAPInit();
     }
 
     // Don't know how to handle this, so use the message error code in

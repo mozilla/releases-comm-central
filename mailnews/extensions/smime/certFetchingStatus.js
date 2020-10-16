@@ -209,6 +209,10 @@ boundListener.prototype.onLDAPInit = function(aConn, aStatus) {
   kickOffBind();
 };
 
+boundListener.prototype.onLDAPError = function(aStatus, aSecInfo) {
+  window.close();
+};
+
 function ldapMessageListener() {}
 
 ldapMessageListener.prototype.QueryInterface = ChromeUtils.generateQI([

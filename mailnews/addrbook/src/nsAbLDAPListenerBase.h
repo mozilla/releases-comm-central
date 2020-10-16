@@ -25,7 +25,7 @@ class nsAbLDAPListenerBase : public nsILDAPMessageListener {
                        const int32_t timeOut = 0);
   virtual ~nsAbLDAPListenerBase();
 
-  NS_IMETHOD OnLDAPInit(nsILDAPConnection* aConn, nsresult aStatus) override;
+  NS_IMETHOD OnLDAPInit() override;
 
  protected:
   nsresult OnLDAPMessageBind(nsILDAPMessage* aMessage);

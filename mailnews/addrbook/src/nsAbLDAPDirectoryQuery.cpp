@@ -44,6 +44,7 @@ class nsAbQueryLDAPMessageListener : public nsAbLDAPListenerBase {
 
   // nsILDAPMessageListener
   NS_IMETHOD OnLDAPMessage(nsILDAPMessage* aMessage) override;
+  NS_IMETHOD OnLDAPError(nsresult status, nsISupports* secInfo) override;
 
  protected:
   virtual ~nsAbQueryLDAPMessageListener();
@@ -94,6 +95,16 @@ nsresult nsAbQueryLDAPMessageListener::Cancel() {
   if (mFinished || mCanceled) return NS_OK;
 
   mCanceled = true;
+  return NS_OK;
+}
+
+NS_IMETHODIMP nsAbQueryLDAPMessageListener::OnLDAPError(nsresult status,
+                                                        nsISupports* secInfo) {
+  if (mResultListener) {
+    mResultListener->OnQueryResult(
+        nsIAbDirectoryQueryResultListener::queryResultError,
+        nsILDAPErrors::OTHER);
+  }
   return NS_OK;
 }
 

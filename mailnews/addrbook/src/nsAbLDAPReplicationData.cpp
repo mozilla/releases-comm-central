@@ -110,6 +110,13 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::OnLDAPMessage(
   return rv;
 }
 
+NS_IMETHODIMP nsAbLDAPProcessReplicationData::OnLDAPError(
+    nsresult status, nsISupports* secInfo) {
+  // (See also InitFailed() for error handling during init phase).
+  // Just call Done() which will ensure everything is tidied up nicely.
+  Done(false);
+}
+
 NS_IMETHODIMP nsAbLDAPProcessReplicationData::Abort() {
   if (!mInitialized) return NS_ERROR_NOT_INITIALIZED;
 

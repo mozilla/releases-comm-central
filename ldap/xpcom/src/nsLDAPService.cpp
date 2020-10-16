@@ -527,10 +527,10 @@ nsLDAPService::OnLDAPMessage(nsILDAPMessage* aMessage) {
   return NS_OK;
 }
 
-// void onLDAPInit (in nsILDAPConnection aConn, in nsresult aStatus); */
-//
+NS_IMETHODIMP nsLDAPService::OnLDAPInit() { return NS_ERROR_NOT_IMPLEMENTED; }
+
 NS_IMETHODIMP
-nsLDAPService::OnLDAPInit(nsILDAPConnection* aConn, nsresult aStatus) {
+nsLDAPService::OnLDAPError(nsresult status, nsISupports* secInfo) {
   return NS_ERROR_NOT_IMPLEMENTED;
 }
 
