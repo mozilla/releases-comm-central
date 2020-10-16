@@ -4748,9 +4748,10 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
 
   if (m_mockChannel) {
     nsImapMockChannel* imapChannel =
-      static_cast<nsImapMockChannel*>(m_mockChannel.get());
+        static_cast<nsImapMockChannel*>(m_mockChannel.get());
 
-    MOZ_LOG(IMAP, LogLevel::Debug, ("Waiting until [imapChannel=%p] is resumed.", imapChannel));
+    MOZ_LOG(IMAP, LogLevel::Debug,
+            ("Waiting until [imapChannel=%p] is resumed.", imapChannel));
 
     mozilla::MonitorAutoLock lock(imapChannel->mSuspendedMonitor);
 
@@ -4758,7 +4759,8 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
       lock.Wait();
     }
 
-    MOZ_LOG(IMAP, LogLevel::Debug, ("Done waiting, [imapChannel=%p] has been resumed.", imapChannel));
+    MOZ_LOG(IMAP, LogLevel::Debug,
+            ("Done waiting, [imapChannel=%p] has been resumed.", imapChannel));
   }
 
   do {
@@ -8664,7 +8666,8 @@ NS_IMPL_ISUPPORTS_INHERITED(nsImapMockChannel, nsHashPropertyBag,
                             nsICacheEntryOpenCallback, nsITransportEventSink,
                             nsISupportsWeakReference)
 
-nsImapMockChannel::nsImapMockChannel() : mSuspendedMonitor("nsImapMockChannel"), mSuspended(false) {
+nsImapMockChannel::nsImapMockChannel()
+    : mSuspendedMonitor("nsImapMockChannel"), mSuspended(false) {
   m_cancelStatus = NS_OK;
   mLoadFlags = 0;
   mChannelClosed = false;
@@ -9702,19 +9705,19 @@ NS_IMETHODIMP nsImapMockChannel::GetCanceled(bool* aCanceled) {
 }
 
 /**
-  * Suspends the current request.  This may have the effect of closing
-  * any underlying transport (in order to free up resources), although
-  * any open streams remain logically opened and will continue delivering
-  * data when the transport is resumed.
-  *
-  * Calling cancel() on a suspended request must not send any
-  * notifications (such as onstopRequest) until the request is resumed.
-  *
-  * NOTE: some implementations are unable to immediately suspend, and
-  * may continue to deliver events already posted to an event queue. In
-  * general, callers should be capable of handling events even after
-  * suspending a request.
-  */
+ * Suspends the current request.  This may have the effect of closing
+ * any underlying transport (in order to free up resources), although
+ * any open streams remain logically opened and will continue delivering
+ * data when the transport is resumed.
+ *
+ * Calling cancel() on a suspended request must not send any
+ * notifications (such as onstopRequest) until the request is resumed.
+ *
+ * NOTE: some implementations are unable to immediately suspend, and
+ * may continue to deliver events already posted to an event queue. In
+ * general, callers should be capable of handling events even after
+ * suspending a request.
+ */
 NS_IMETHODIMP nsImapMockChannel::Suspend() {
   MOZ_LOG(IMAP, LogLevel::Debug, ("Suspending [this=%p].", this));
 
@@ -9728,10 +9731,10 @@ NS_IMETHODIMP nsImapMockChannel::Suspend() {
 }
 
 /**
-  * Resumes the current request.  This may have the effect of re-opening
-  * any underlying transport and will resume the delivery of data to
-  * any open streams.
-  */
+ * Resumes the current request.  This may have the effect of re-opening
+ * any underlying transport and will resume the delivery of data to
+ * any open streams.
+ */
 NS_IMETHODIMP nsImapMockChannel::Resume() {
   MOZ_LOG(IMAP, LogLevel::Debug, ("Resuming [this=%p].", this));
 
