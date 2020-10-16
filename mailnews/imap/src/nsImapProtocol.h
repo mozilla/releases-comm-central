@@ -51,6 +51,8 @@
 #include "nsIStringBundle.h"
 #include "nsHashPropertyBag.h"
 
+#include "mozilla/Monitor.h"
+
 class nsIMAPMessagePartID;
 class nsIPrefBranch;
 
@@ -825,6 +827,11 @@ class nsImapMockChannel : public nsIImapMockChannel,
   bool mReadingFromCache;
   bool mTryingToReadPart;
   int64_t mContentLength;
+
+  mozilla::Monitor mSuspendedMonitor;
+  bool mSuspended;
+
+  nsresult ResumeAndNotifyOne();
 
   // cache related helper methods
   nsresult OpenCacheEntry();  // makes a request to the cache service for a
