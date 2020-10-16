@@ -324,7 +324,7 @@ var composeEventTracker = {
     // Calling getComposeDetails collapses mailing lists. Expand them again.
     composeWindow.expandRecipients();
     composeWindow.ToggleWindowLock(false);
-    composeWindow.CompleteGenericSendMessage(msgType);
+    await composeWindow.CompleteGenericSendMessage(msgType);
   },
 };
 
