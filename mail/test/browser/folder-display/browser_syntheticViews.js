@@ -11,7 +11,6 @@ const {
   be_in_folder,
   create_folder,
   create_thread,
-  right_click_on_folder,
 } = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
