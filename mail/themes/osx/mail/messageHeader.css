@@ -127,17 +127,6 @@
   max-height: 22px;
   margin: 0;
   margin-inline-start: 4px;
-  vertical-align: middle;
-}
-
-.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-button,
-.toolbarbutton-1.msgHeaderView-button > .toolbarbutton-menubutton-dropmarker,
-.toolbarbutton-1.msgHeaderView-button:hover > .toolbarbutton-menubutton-button,
-.toolbarbutton-1.msgHeaderView-button:hover > .toolbarbutton-menubutton-dropmarker {
-  background-color: transparent;
-  background-image: none;
-  border-style: none;
-  margin-bottom: 1px;
 }
 
 .toolbarbutton-1.msgHeaderView-button > .toolbarbutton-icon,
@@ -148,21 +137,14 @@
 
 /* primaryToolbar.css makes the dropmarker padding wide; make it smaller. */
 .msgHeaderView-button[type="menu-button"] > .toolbarbutton-menubutton-dropmarker {
-  padding-right: 2px;
-  padding-left: 2px;
+  padding-inline: 2px;
 }
 
 /* Separator between menu and split type buttons */
 .toolbarbutton-1.msgHeaderView-button >
 .toolbarbutton-menubutton-dropmarker::before {
-  content: "";
-  display: -moz-box;
-  width: 1px;
-  height: 18px;
   margin-inline: -4px 3px !important;
   margin-bottom: 0 !important;
-  background: hsla(0, 0%, 0%, .3) padding-box;
-  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
 }
 
 .hdrReplyToSenderButton,

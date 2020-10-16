@@ -237,29 +237,25 @@
 }
 
 #todaypane-new-event-button {
+  appearance: none;
   -moz-user-focus: normal;
+  border: 1px solid transparent;
+  border-radius: var(--toolbarbutton-border-radius);
+  margin: 2px 3px 1px;
   list-style-image: url(chrome://calendar/skin/shared/icons/newevent.svg);
   -moz-context-properties: fill, fill-opacity;
   fill: currentColor;
   fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-:root[lwt-tree] #todaypane-new-event-button {
-  appearance: none;
-  -moz-user-focus: normal;
-  border: 1px solid transparent;
-  border-radius: var(--toolbarbutton-border-radius);
-  margin: 2px 3px 1px;
-}
-
-:root[lwt-tree] #todaypane-new-event-button:not([disabled="true"]):hover {
+#todaypane-new-event-button:not([disabled="true"]):hover {
   background: var(--toolbarbutton-hover-background);
   border-color: var(--toolbarbutton-hover-bordercolor);
   box-shadow: var(--toolbarbutton-hover-boxshadow);
   color: inherit;
 }
 
-:root[lwt-tree] #todaypane-new-event-button:not([disabled="true"]):hover:active {
+#todaypane-new-event-button:not([disabled="true"]):hover:active {
   background: var(--toolbarbutton-active-background);
   border-color: var(--toolbarbutton-active-bordercolor);
   box-shadow: var(--toolbarbutton-active-boxshadow);

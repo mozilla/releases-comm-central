@@ -96,12 +96,14 @@
 
   :root:not(:-moz-lwtheme) .toolbar,
   :root:not(:-moz-lwtheme) .contentTabToolbox,
+  :root:not(:-moz-lwtheme) #task-addition-box,
   :root:not(:-moz-lwtheme) #header-view-toolbar,
   :root:not(:-moz-lwtheme) #ab-toolbox > toolbar,
   :root:not(:-moz-lwtheme) .mail-toolbox > toolbar,
   :root:not(:-moz-lwtheme) #event-toolbox > toolbar,
   :root:not(:-moz-lwtheme) #compose-toolbox > toolbar,
   :root:not(:-moz-lwtheme) #navigation-toolbox > toolbar,
+  :root:not(:-moz-lwtheme) #todaypane-new-event-button,
   :root:not(:-moz-lwtheme) .otr-container,
   :root:not(:-moz-lwtheme) .crypto-button,
   :root:not(:-moz-lwtheme) .calendar-list-create,
@@ -119,6 +121,8 @@
   }
 
   :root:not(:-moz-lwtheme) .toolbarbutton-1:not(.qfb-tag-button):hover,
+  :root:not(:-moz-lwtheme) #calendar-add-task-button:hover,
+  :root:not(:-moz-lwtheme) #todaypane-new-event-button:hover,
   :root:not(:-moz-lwtheme) .toolbarbutton-1[checked="true"],
   :root:not(:-moz-lwtheme) .toolbarbutton-menubutton-button:hover {
     color: HighlightText !important;
@@ -186,19 +190,6 @@ toolbarpaletteitem[place="toolbar"] > toolbarspacer {
 }
 
 /* ::::: toolbarbutton ::::: */
-
-.toolbarbutton-1 {
-  -moz-box-orient: vertical;
-  -moz-context-properties: fill, fill-opacity;
-  fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-}
-
-toolbox[labelalign="end"] .toolbarbutton-1,
-toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
-  > .toolbarbutton-menubutton-button {
-  -moz-box-orient: horizontal;
-}
 
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button {
@@ -627,17 +618,7 @@ toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1
 .toolbarbutton-menubutton-dropmarker::before,
 .toolbarbutton-1[disabled="true"] >
 .toolbarbutton-menubutton-dropmarker::before {
-  content: "";
-  display: -moz-box;
-  width: 1px;
-  height: 18px;
-  margin-inline-start: -4px;
-  margin-inline-end: 3px;
-  background-image: linear-gradient(currentColor 0, currentColor 100%);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 1px 18px;
-  opacity: .2;
+  margin-inline: -4px 3px;
 }
 
 .toolbarbutton-1[type="menu-button"] {
@@ -669,10 +650,6 @@ toolbar[mode="icons"] .toolbarbutton-1:not([type="menu-button"]) {
   -moz-box-align: center;
 }
 
-.toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button {
-  border-inline-end: none;
-}
-
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   padding: 1px 3px !important;
 }
@@ -691,20 +668,6 @@ menulist > menupopup:not([is="folder-menupopup"]) > menuseparator {
   padding-top: 0;
   padding-bottom: 0;
   border-top-color: #d7d7d7;
-}
-
-@media (-moz-os-version: windows-win7) {
-  .toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
-  .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  .toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),
-  .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
 }
 
 @media (-moz-windows-compositor) {

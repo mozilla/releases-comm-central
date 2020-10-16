@@ -148,8 +148,6 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
 .toolbarbutton-menubutton-dropmarker {
   appearance: none;
   border: none;
-  background-color: transparent !important;
-  width: auto;
   padding: 0 5px;
 }
 
@@ -161,9 +159,6 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
 
 .toolbarbutton-1 {
   margin: 5px 2px;
-  -moz-context-properties: fill, fill-opacity;
-  fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
 .toolbarbutton-1:-moz-lwtheme {
@@ -173,11 +168,6 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
 .toolbarbutton-1[open],
 .toolbarbutton-1[open] > .toolbarbutton-menubutton-button {
   text-shadow: none;
-}
-
-.toolbarbutton-1:not([type="menu-button"]),
-.toolbarbutton-1 > .toolbarbutton-menubutton-button {
-  -moz-box-orient: vertical;
 }
 
 .toolbarbutton-1:not([type="menu-button"]),
@@ -193,22 +183,6 @@ toolbarbutton[type="menu-button"][disabled="true"]:hover:active {
     border-color: var(--toolbarbutton-inactive-bordercolor);
     background: transparent !important;
   }
-}
-
-.toolbarbutton-1 > .toolbarbutton-menubutton-button {
-  border-inline-end: none;
-}
-
-.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
 }
 
 .toolbarbutton-1[type="menu-button"] {
@@ -258,15 +232,7 @@ toolbar:not([mode="icons"]) .toolbarbutton-1 > .toolbarbutton-menubutton-button 
 .toolbarbutton-menubutton-dropmarker::before,
 .toolbarbutton-1[disabled="true"] >
 .toolbarbutton-menubutton-dropmarker::before {
-  content: "";
-  display: -moz-box;
-  width: 1px;
-  height: 18px;
-  margin-inline-start: -5px;
-  margin-inline-end: 4px;
-  margin-bottom: 2px;
-  background: hsla(0, 0%, 0%, .3) padding-box;
-  box-shadow: 0 0 0 1px hsla(0, 0%, 100%, .2);
+  margin-inline: -5px 4px;
 }
 
 .toolbarbutton-1[disabled="true"] .toolbarbutton-icon,

@@ -40,6 +40,14 @@
   border-color: var(--toolbarbutton-active-bordercolor);
 }
 
+/* Separator between menu and split type buttons */
+.toolbarbutton-1.msgHeaderView-button:not(:hover):not(:active):not([open]):not([checked]) >
+.toolbarbutton-menubutton-dropmarker::before,
+.toolbarbutton-1.msgHeaderView-button[disabled="true"] >
+.toolbarbutton-menubutton-dropmarker::before {
+  background-image: none;
+}
+
 /* ::::: msg header toolbars ::::: */
 
 #expandedHeadersTopBox {

@@ -181,7 +181,6 @@ mail-headerfield.headerValue:focus {
   min-width: 1em;
   margin-inline: 2px !important;
   margin-block: 1px 2px;
-  vertical-align: middle;
   /* important required to override primaryToolbar.css rules */
   padding-inline: 3px !important;
 }

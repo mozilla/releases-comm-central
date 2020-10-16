@@ -160,6 +160,10 @@
 /* ::::: task actions toolbar ::::: */
 
 #calendar-add-task-button {
+    appearance: none;
+    -moz-user-focus: normal;
+    border: 1px solid transparent;
+    border-radius: var(--toolbarbutton-border-radius);
     margin-inline-start: 5px;
     list-style-image: url(chrome://calendar/skin/shared/icons/newtask.svg);
     -moz-image-region: rect(0 16px 16px 0);
@@ -168,36 +172,18 @@
     fill-opacity: var(--toolbarbutton-icon-fill-opacity);
 }
 
-:root[lwt-tree] #calendar-add-task-button {
-    appearance: none;
-    -moz-user-focus: normal;
-    border: 1px solid transparent;
-    border-radius: var(--toolbarbutton-border-radius);
-}
-
-:root[lwt-tree] #calendar-add-task-button:not([disabled="true"]):hover {
+#calendar-add-task-button:not([disabled="true"]):hover {
     background: var(--toolbarbutton-hover-background);
     border-color: var(--toolbarbutton-hover-bordercolor);
     box-shadow: var(--toolbarbutton-hover-boxshadow);
     color: inherit;
 }
 
-:root[lwt-tree-brighttext] #calendar-add-task-button:not([disabled="true"]):hover {
-    background: rgba(255, 255, 255, .25);
-    border-color: rgba(255, 255, 255, .5);
-}
-
-:root[lwt-tree] #calendar-add-task-button:not([disabled="true"]):hover:active {
+#calendar-add-task-button:not([disabled="true"]):hover:active {
     background: var(--toolbarbutton-active-background);
     border-color: var(--toolbarbutton-active-bordercolor);
     box-shadow: var(--toolbarbutton-active-boxshadow);
     transition-duration: 10ms;
-}
-
-:root[lwt-tree-brighttext] #calendar-add-task-button:not([disabled="true"]):hover:active {
-    background: rgba(255, 255, 255, .4);
-    border-color: rgba(255, 255, 255, .7);
-    box-shadow: 0 0 rgba(255, 255, 255, .4) inset;
 }
 
 #calendar-add-task-button > .toolbarbutton-text {

@@ -278,19 +278,6 @@ toolbarbutton[type="menu-button"] {
 
 /* ::::: toolbarbutton ::::: */
 
-.toolbarbutton-1 {
-  -moz-box-orient: vertical;
-  -moz-context-properties: fill, fill-opacity;
-  fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
-  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
-}
-
-toolbox[labelalign="end"] .toolbarbutton-1,
-toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
-  > .toolbarbutton-menubutton-button {
-  -moz-box-orient: horizontal;
-}
-
 .toolbarbutton-1,
 .toolbarbutton-menubutton-button {
   appearance: none;
@@ -309,30 +296,11 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
   padding: 5px;
 }
 
-.toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button {
-  min-height: 0;
-  margin: 0;
-  border-inline-end: none;
-}
-
-.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),
-.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker,
 .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {
   appearance: none !important;
   list-style-image: none;
-  margin-left: 0;
-  margin-right: 0;
+  margin-inline: 0;
 }
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker::part(icon),
@@ -349,27 +317,17 @@ toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
   width: 9px;
 }
 
-.toolbarbutton-1:not(:hover):not(:active):not([open]) > .toolbarbutton-menubutton-dropmarker::before {
-  content: "";
-  display: -moz-box;
-  width: 1px;
-  height: 18px;
+/* Separator between menu and split type buttons */
+.toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked="true"]) >
+.toolbarbutton-menubutton-dropmarker::before,
+.toolbarbutton-1[disabled="true"] >
+.toolbarbutton-menubutton-dropmarker::before {
   margin-inline-start: -1px;
-  background-image: linear-gradient(currentColor 0, currentColor 100%);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 1px 18px;
-  opacity: .2;
-}
-
-toolbar[brighttext] .toolbarbutton-1:not(:hover):not(:active):not([open]) > .toolbarbutton-menubutton-dropmarker::before {
-  opacity: .3;
 }
 
 toolbox:not([labelalign="end"]) toolbar[mode="full"] .toolbarbutton-1 {
   padding-bottom: 0;
 }
-
 
 .toolbarbutton-1 .toolbarbutton-menu-dropmarker {
   margin-inline-start: 3px;

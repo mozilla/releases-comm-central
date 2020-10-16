@@ -90,10 +90,8 @@
 .msgHeaderView-button {
   margin-block: 0;
   margin-inline-start: 2px;
-  vertical-align: middle;
   min-width: 28px;
   padding-block: 0;
-  list-style-image: none; /* overrides the rule from primaryToolbar.css */
 }
 
 /* For unclear reasons, toolkit's toolbarbutton.css forces a margin of 0,

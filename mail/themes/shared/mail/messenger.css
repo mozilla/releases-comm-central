@@ -94,6 +94,7 @@ toolbar[brighttext] {
 
 #FindToolbar:-moz-lwtheme,
 .contentTabToolbox:-moz-lwtheme,
+#task-addition-box:-moz-lwtheme,
 #ab-toolbox > toolbar:-moz-lwtheme,
 .mail-toolbox > toolbar:-moz-lwtheme,
 #compose-toolbox > toolbar:-moz-lwtheme,
@@ -116,6 +117,7 @@ toolbar[brighttext] {
 
 .toolbar[brighttext],
 .contentTabToolbox[brighttext],
+#task-addition-box[brighttext],
 #header-view-toolbar[brighttext],
 #ab-toolbox > toolbar[brighttext],
 .mail-toolbox > toolbar[brighttext],
@@ -211,6 +213,19 @@ treechildren::-moz-tree-row(selected, focus) {
   color: inherit !important;
 }
 
+.toolbarbutton-1 {
+  -moz-box-orient: vertical;
+  -moz-context-properties: fill, fill-opacity;
+  fill: var(--lwt-toolbarbutton-icon-fill, currentColor);
+  fill-opacity: var(--toolbarbutton-icon-fill-opacity);
+}
+
+toolbox[labelalign="end"] .toolbarbutton-1,
+toolbox[labelalign="end"] .toolbarbutton-1[type="menu-button"]
+  > .toolbarbutton-menubutton-button {
+  -moz-box-orient: horizontal;
+}
+
 .findbar-button,
 .toolbarbutton-1:not([type="menu-button"]),
 .toolbarbutton-1 > .toolbarbutton-menubutton-button,
@@ -247,6 +262,23 @@ treechildren::-moz-tree-row(selected, focus) {
   background: var(--toolbarbutton-active-background) !important;
 }
 
+.toolbarbutton-1[type="menu-button"] > .toolbarbutton-menubutton-button {
+  border-inline-end: none;
+  margin: 0;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(ltr),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(rtl) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.toolbarbutton-1 > .toolbarbutton-menubutton-button:-moz-locale-dir(rtl),
+.toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker:-moz-locale-dir(ltr) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 toolbox[labelalign="end"] > toolbar[mode="full"] .toolbarbutton-1 .toolbarbutton-text {
   padding-inline-start: 2px;
 }
@@ -258,6 +290,27 @@ toolbox[labelalign="end"] > toolbar[mode="full"] deck .toolbarbutton-text {
 .toolbarbutton-1 .toolbarbutton-icon {
   width: 18px;
   height: 18px;
+}
+
+/* Separator between menu and split type buttons */
+.toolbarbutton-1:not(:hover):not(:active):not([open]):not([checked]) >
+.toolbarbutton-menubutton-dropmarker::before,
+.toolbarbutton-1[disabled="true"] >
+.toolbarbutton-menubutton-dropmarker::before {
+  content: "";
+  display: -moz-box;
+  width: 1px;
+  height: 18px;
+  background-image: linear-gradient(currentColor 0, currentColor 100%);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 1px 18px;
+  opacity: .2;
+}
+
+toolbar[brighttext] .toolbarbutton-1:not(:hover):not(:active):not([open]) >
+  .toolbarbutton-menubutton-dropmarker::before {
+  opacity: .3;
 }
 
 description.error {
