@@ -4,7 +4,7 @@
 
 <SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/">
 <ShortName>Startpage</ShortName>
-<Description>Prywatne wyszukiwanie za pomocą Startpage.com</Description>
+<Description>Private search with Startpage.com</Description>
 <InputEncoding>UTF-8</InputEncoding>
 <Image width="16" height="16">resource://search-plugins/images/startpage.ico</Image>
 <Url type="text/html"
