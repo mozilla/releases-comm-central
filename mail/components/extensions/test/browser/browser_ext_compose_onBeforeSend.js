@@ -338,12 +338,10 @@ add_task(async function testChangeDetails() {
     },
   });
 
-  let sendPromise;
   extension.onMessage("beginSend", async () => {
     let composeWindows = [...Services.wm.getEnumerator("msgcompose")];
     is(composeWindows.length, 1);
 
-    sendPromise = BrowserTestUtils.waitForEvent(composeWindows[0], "aftersend");
     composeWindows[0].GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
     extension.sendMessage();
   });
@@ -380,8 +378,6 @@ add_task(async function testChangeDetails() {
       resolve();
     });
   });
-
-  await sendPromise;
 
   ok(outboxMessages.hasMoreElements());
   let sentMessage6 = outboxMessages.getNext().QueryInterface(Ci.nsIMsgDBHdr);

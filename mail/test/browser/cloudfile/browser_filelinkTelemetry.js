@@ -112,7 +112,6 @@ add_task(async function test_filelink_ignored() {
   add_attachments(cwc, "http://www.example.com/2", maxSize + 10);
   add_attachments(cwc, "http://www.example.com/3", maxSize - 1);
   cwc.click(cwc.eid("button-send"));
-  await BrowserTestUtils.waitForEvent(cwc.window, "aftersend");
   let scalars = TelemetryTestUtils.getProcessScalars("parent");
   Assert.equal(
     scalars["tb.filelink.ignored"],

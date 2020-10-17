@@ -40,3 +40,7 @@ function waitForSaveOperation(cwc) {
     "Saving of draft did not finish"
   );
 }
+
+// Trigger the loading of nsMsgSend.cpp or MessageSend.jsm according to
+// mailnews.send.jsmodule pref.
+Cc["@mozilla.org/messengercompose/send-module-loader;1"].getService();

@@ -494,7 +494,7 @@ class MimeMessage {
       // single part message
       if (curPart.parts.length === 1) {
         await this._writePart(curPart.parts[0], depth + 1);
-        this._writeString(`${bodyString}`);
+        this._writeString(`${bodyString}\r\n`);
         return;
       }
 
@@ -513,7 +513,7 @@ class MimeMessage {
     }
 
     // Write out body.
-    this._writeBinaryString(`\r\n${bodyString}`);
+    this._writeBinaryString(`\r\n${bodyString}\r\n`);
   }
 
   /**
