@@ -5092,7 +5092,7 @@ nsMsgCompose::GetIdentity(nsIMsgIdentity** aIdentity) {
  * <div class="moz-cite-prefix"> or <div class="moz-forward-container">
  * in an inline-forwarded message.
  */
-nsresult nsMsgCompose::MoveToAboveQuote(void) {
+MOZ_CAN_RUN_SCRIPT nsresult nsMsgCompose::MoveToAboveQuote(void) {
   RefPtr<Element> rootElement;
   nsresult rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
   if (NS_FAILED(rv) || !rootElement) {
@@ -5162,7 +5162,7 @@ nsresult nsMsgCompose::MoveToAboveQuote(void) {
  * document before the first editable element. It will position into a
  * container. We need to be at the very front.
  */
-nsresult nsMsgCompose::MoveToBeginningOfDocument(void) {
+MOZ_CAN_RUN_SCRIPT nsresult nsMsgCompose::MoveToBeginningOfDocument(void) {
   RefPtr<Element> rootElement;
   nsresult rv = m_editor->GetRootElement(getter_AddRefs(rootElement));
   if (NS_FAILED(rv) || !rootElement) {
@@ -5182,7 +5182,7 @@ nsresult nsMsgCompose::MoveToBeginningOfDocument(void) {
  * after the last container so we don't accidentally position into a
  * <blockquote>. That's why we use our own function.
  */
-nsresult nsMsgCompose::MoveToEndOfDocument(void) {
+MOZ_CAN_RUN_SCRIPT nsresult nsMsgCompose::MoveToEndOfDocument(void) {
   int32_t offset;
   RefPtr<Element> rootElement;
   nsCOMPtr<nsINode> lastNode;
