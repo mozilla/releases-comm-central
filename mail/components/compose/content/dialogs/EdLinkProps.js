@@ -186,9 +186,10 @@ function Startup() {
   // Set initial focus
   if (insertLinkAtCaret) {
     // We will be using the HREF inputbox, so text message
-    SetTextboxFocus(gDialog.linkTextInput);
+    gDialog.linkTextInput.focus();
   } else {
-    SetTextboxFocus(gDialog.hrefInput);
+    gDialog.hrefInput.select();
+    gDialog.hrefInput.focus();
 
     // We will not insert a new link at caret, so remove link text input field
     gDialog.linkTextInput.hidden = true;
