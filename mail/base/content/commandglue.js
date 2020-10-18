@@ -144,7 +144,18 @@ function UpdateStatusQuota(folder) {
   let quotaUsagePercentage = q =>
     Number((100n * BigInt(q.usage)) / BigInt(q.limit));
 
-  let folderQuota = folder.getQuota();
+  // For display on main window panel only include quota names containing
+  // "STORAGE" or "MESSAGE". This will exclude unusual quota names containing
+  // items like "MAILBOX" and "LEVEL" from the panel bargraph. All quota names
+  // will still appear on the folder properties quota window.
+  // Note: Quota name is typically something like "User Quota / STORAGE".
+  let folderQuota = folder
+    .getQuota()
+    .filter(
+      quota =>
+        quota.name.toUpperCase().includes("STORAGE") ||
+        quota.name.toUpperCase().includes("MESSAGE")
+    );
   // If folderQuota not empty, find the index of the element with highest
   //  percent usage and determine if it is above the panel display threshold.
   if (folderQuota.length > 0) {
