@@ -117,7 +117,7 @@ async function setupWindowAndTest(hotkeyToHit, hotkeyModifiers) {
   wait_for_message_display_completion(msgWin, false);
 
   newWindowPromise = async_plan_for_new_window("msgcompose");
-  msgWin.keypress(null, hotkeyToHit, hotkeyModifiers);
+  EventUtils.synthesizeKey(hotkeyToHit, hotkeyModifiers, msgWin.window);
   let compWin = await async_wait_for_compose_window(msgWin, newWindowPromise);
 
   let bodyText = get_compose_body(compWin).textContent;

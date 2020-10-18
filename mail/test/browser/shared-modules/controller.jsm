@@ -305,49 +305,6 @@ var MozMillController = function(window) {
 MozMillController.prototype.sleep = utils.sleep;
 
 /**
- * Synthesize a keypress event on the given element
- *
- * @param {ElemBase} aTarget
- *        Element which will receive the keypress event
- * @param {string} aKey
- *        Key to use for synthesizing the keypress event. It can be a simple
- *        character like "k" or a string like "VK_ESCAPE" for command keys
- * @param {object} aModifiers
- *        Information about the modifier keys to send
- *        Elements: accelKey   - Hold down the accelerator key (ctrl/meta)
- *                               [optional - default: false]
- *                  altKey     - Hold down the alt key
- *                              [optional - default: false]
- *                  ctrlKey    - Hold down the ctrl key
- *                               [optional - default: false]
- *                  metaKey    - Hold down the meta key (command key on Mac)
- *                               [optional - default: false]
- *                  shiftKey   - Hold down the shift key
- *                               [optional - default: false]
- * @param {object} aExpectedEvent
- *        Information about the expected event to occur
- *        Elements: target     - Element which should receive the event
- *                               [optional - default: current element]
- *                  type       - Type of the expected key event
- */
-MozMillController.prototype.keypress = function(
-  aTarget,
-  aKey,
-  aModifiers,
-  aExpectedEvent
-) {
-  var element = aTarget == null ? this.window : aTarget.getNode();
-  if (!element) {
-    throw new Error("Could not find element " + aTarget.getInfo());
-  }
-
-  events.triggerKeyEvent(element, "keypress", aKey, aModifiers, aExpectedEvent);
-
-  frame.events.pass({ function: "Controller.keypress()" });
-  return true;
-};
-
-/**
  * Synthesize keypress events for each character on the given element
  *
  * @param {ElemBase} aTarget
