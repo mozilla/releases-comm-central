@@ -97,7 +97,8 @@ add_task(async function testWeekView() {
 
   // Delete event.
   controller.click(eventBox);
-  controller.keypress(eventBox, "VK_DELETE", {});
+  eventBox.getNode().focus();
+  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
   controller.waitForElementNotPresent(eventBox);
 
   Assert.ok(true, "Test ran to completion");

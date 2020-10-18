@@ -37,6 +37,9 @@ var folderDisplayHelper = ChromeUtils.import(
 var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
 
 var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
 var { MailServices } = ChromeUtils.import(
@@ -113,7 +116,11 @@ function open_address_book_window(aController) {
   }
 
   windowHelper.plan_for_new_window("mail:addressbook");
-  aController.keypress(null, "b", { shiftKey: true, accelKey: true });
+  EventUtils.synthesizeKey(
+    "b",
+    { shiftKey: true, accelKey: true },
+    aController.window
+  );
 
   // XXX this should probably be changed to making callers pass in which address
   // book they want to work with, just like ComposeHelpers.

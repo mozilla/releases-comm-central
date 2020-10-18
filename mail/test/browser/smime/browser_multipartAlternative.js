@@ -64,7 +64,11 @@ add_task(async function test_multipart_alternative() {
   close_window(msgc);
 
   // Now save the message as a draft.
-  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    cwc.window
+  );
   close_compose_window(cwc);
 
   // Now check the message content in the drafts folder.

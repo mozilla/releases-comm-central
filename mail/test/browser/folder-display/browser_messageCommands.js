@@ -222,7 +222,7 @@ add_task(function test_toggle_read() {
   let curMessage = select_click_row(0);
 
   curMessage.markRead(false);
-  mc.keypress(null, "m", {});
+  EventUtils.synthesizeKey("m", {});
   check_read_status([curMessage], true);
 });
 
@@ -231,7 +231,7 @@ add_task(function test_toggle_unread() {
   let curMessage = select_click_row(0);
 
   curMessage.markRead(true);
-  mc.keypress(null, "m", {});
+  EventUtils.synthesizeKey("m", {});
   check_read_status([curMessage], false);
 });
 
@@ -242,12 +242,12 @@ add_task(function test_toggle_mixed() {
 
   curMessages[0].markRead(false);
   curMessages[1].markRead(true);
-  mc.keypress(null, "m", {});
+  EventUtils.synthesizeKey("m", {});
   check_read_status(curMessages, true);
 
   curMessages[0].markRead(true);
   curMessages[1].markRead(false);
-  mc.keypress(null, "m", {});
+  EventUtils.synthesizeKey("m", {});
   check_read_status(curMessages, false);
 });
 
@@ -376,7 +376,7 @@ add_task(async function test_shift_delete_prompt() {
   // We don't use press_delete here because we're not actually deleting this
   // time!
   SimpleTest.ignoreAllUncaughtExceptions(true);
-  mc.keypress(null, "VK_DELETE", { shiftKey: true });
+  EventUtils.synthesizeKey("VK_DELETE", { shiftKey: true });
   SimpleTest.ignoreAllUncaughtExceptions(false);
   await dialogPromise;
   // Make sure we didn't actually delete the message.
@@ -412,7 +412,7 @@ add_task(async function test_thread_delete_prompt() {
   // We don't use press_delete here because we're not actually deleting this
   // time!
   SimpleTest.ignoreAllUncaughtExceptions(true);
-  mc.keypress(null, "VK_DELETE", {});
+  EventUtils.synthesizeKey("VK_DELETE", {});
   SimpleTest.ignoreAllUncaughtExceptions(false);
   await dialogPromise;
   // Make sure we didn't actually delete the message.
@@ -595,7 +595,7 @@ add_task(function test_disabled_archive() {
 
   // test single message
   let current = select_click_row(0);
-  mc.keypress(null, "a", {});
+  EventUtils.synthesizeKey("a", {});
   assert_selected_and_displayed(current);
 
   Assert.ok(
@@ -606,7 +606,7 @@ add_task(function test_disabled_archive() {
   // test message summaries
   select_click_row(0);
   current = select_shift_click_row(2);
-  mc.keypress(null, "a", {});
+  EventUtils.synthesizeKey("a", {});
   assert_selected_and_displayed(current);
 
   let htmlframe = mc.e("multimessage");
@@ -621,7 +621,7 @@ add_task(function test_disabled_archive() {
   mc.folderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 1;
   select_click_row(0);
   current = select_shift_click_row(2);
-  mc.keypress(null, "a", {});
+  EventUtils.synthesizeKey("a", {});
   assert_selected_and_displayed(current);
   mc.folderDisplay.MAX_COUNT_FOR_CAN_ARCHIVE_CHECK = 100;
 
@@ -650,14 +650,14 @@ add_task(function test_tag_keys() {
   be_in_folder(unreadFolder);
   let curMessage = select_click_row(0);
 
-  mc.keypress(null, "1", {});
+  EventUtils.synthesizeKey("1", {});
   check_tag_in_message(curMessage, tagArray[0], true);
 
-  mc.keypress(null, "2", {});
+  EventUtils.synthesizeKey("2", {});
   check_tag_in_message(curMessage, tagArray[0], true);
   check_tag_in_message(curMessage, tagArray[1], true);
 
-  mc.keypress(null, "0", {});
+  EventUtils.synthesizeKey("0", {});
   check_tag_in_message(curMessage, tagArray[0], false);
   check_tag_in_message(curMessage, tagArray[1], false);
 });
@@ -674,7 +674,7 @@ add_task(function test_tag_keys_disabled_in_content_tab() {
 
   // Make sure pressing the "1" key in a content tab doesn't tag a message
   check_tag_in_message(curMessage, tagArray[0], false);
-  mc.keypress(null, "1", {});
+  EventUtils.synthesizeKey("1", {});
   check_tag_in_message(curMessage, tagArray[0], false);
 
   mc.tabmail.closeTab(tab);

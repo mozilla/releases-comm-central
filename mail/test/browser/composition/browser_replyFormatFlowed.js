@@ -50,7 +50,11 @@ async function subtest_reply_format_flowed(aFlowed) {
   close_window(msgc);
 
   // Now save the message as a draft.
-  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    cwc.window
+  );
   waitForSaveOperation(cwc);
   close_compose_window(cwc);
 

@@ -130,33 +130,41 @@ function checkCompIdentity(cwc, aIdentityKey, aIdentityAlias, aIdentityValue) {
 add_task(function test_compose_from_composer() {
   be_in_folder(gInbox);
 
-  let mainCompWin = open_compose_new_mail();
-  checkCompIdentity(mainCompWin, account.defaultIdentity.key);
+  let cwc = open_compose_new_mail();
+  checkCompIdentity(cwc, account.defaultIdentity.key);
 
   // Compose a new message from the compose window.
   plan_for_new_window("msgcompose");
-  mainCompWin.keypress(null, "n", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "n",
+    { shiftKey: false, accelKey: true },
+    cwc.window
+  );
   let newCompWin = wait_for_compose_window();
   checkCompIdentity(newCompWin, account.defaultIdentity.key);
   close_compose_window(newCompWin);
 
   // Switch to identity2 in the main compose window, new compose windows
   // starting from here should use the same identity as its "parent".
-  mainCompWin.click(mainCompWin.eid("msgIdentity"));
-  mainCompWin.click_menus_in_sequence(mainCompWin.e("msgIdentityPopup"), [
+  cwc.click(cwc.eid("msgIdentity"));
+  cwc.click_menus_in_sequence(cwc.e("msgIdentityPopup"), [
     { identitykey: identityKey2 },
   ]);
-  checkCompIdentity(mainCompWin, identityKey2);
+  checkCompIdentity(cwc, identityKey2);
 
   // Compose a second new message from the compose window.
   plan_for_new_window("msgcompose");
-  mainCompWin.keypress(null, "n", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "n",
+    { shiftKey: false, accelKey: true },
+    cwc.window
+  );
   let newCompWin2 = wait_for_compose_window();
   checkCompIdentity(newCompWin2, identityKey2);
 
   close_compose_window(newCompWin2);
 
-  close_compose_window(mainCompWin);
+  close_compose_window(cwc);
 });
 
 /**

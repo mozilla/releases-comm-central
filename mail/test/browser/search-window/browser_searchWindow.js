@@ -318,7 +318,7 @@ add_task(function test_close_search_window() {
   swc.window.focus();
   // now close the search window
   plan_for_window_close(swc);
-  swc.keypress(null, "VK_ESCAPE", {});
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, swc.window);
   wait_for_window_close(swc);
   swc = null;
 });

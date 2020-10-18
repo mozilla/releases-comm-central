@@ -1719,7 +1719,8 @@ function close_popup(aController, eid) {
     ]);
   } else {
     // Actually push escape because it's not closing/closed.
-    aController.keypress(eid, "VK_ESCAPE", {});
+    elem.focus();
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, aController.window);
   }
   utils.waitFor(() => elem.state == "closed", "Popup did not close!", 1000, 50);
 }
@@ -1749,11 +1750,8 @@ function press_delete(aController, aModifiers) {
       aController.describeFocus()
     )
   );
-  aController.keypress(
-    aController == mc ? mc.eThreadTree : null,
-    "VK_DELETE",
-    aModifiers || {}
-  );
+
+  EventUtils.synthesizeKey("VK_DELETE", aModifiers || {}, aController.window);
   wait_for_folder_events();
 }
 
@@ -1807,7 +1805,7 @@ function archive_selected_messages(aController) {
   if (expectedCount && aController.messageDisplay.visible) {
     plan_for_message_display(aController);
   }
-  aController.keypress(null, "a", {});
+  EventUtils.synthesizeKey("a", {}, aController.window);
 
   // Wait for the view rowCount to decrease by the number of selected messages.
   let messagesDeletedFromView = function() {
@@ -1849,11 +1847,7 @@ function press_enter(aController) {
       aController.describeFocus()
     )
   );
-  aController.keypress(
-    aController == mc ? mc.eThreadTree : null,
-    "VK_RETURN",
-    {}
-  );
+  EventUtils.synthesizeKey("VK_RETURN", {}, aController.window);
   // The caller's going to have to wait for message display completion
 }
 
@@ -2243,7 +2237,7 @@ function toggle_message_pane() {
   if (expectMessageDisplay) {
     plan_for_message_display(mc);
   }
-  mc.keypress(null, "VK_F8", {});
+  EventUtils.synthesizeKey("VK_F8", {}, mc.window);
   if (expectMessageDisplay) {
     wait_for_message_display_completion(mc, true);
   }

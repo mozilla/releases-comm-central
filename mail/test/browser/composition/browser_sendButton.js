@@ -124,7 +124,7 @@ add_task(function test_send_enabled_manual_address() {
   // Select the newly generated pill.
   cwc.click(get_first_pill(cwc));
   // Delete the selected pill.
-  cwc.keypress(null, "VK_DELETE", {});
+  EventUtils.synthesizeKey("VK_DELETE", {}, cwc.window);
   // Confirm the address row is now empty.
   Assert.ok(!get_first_pill(cwc).length);
   // Confirm the send button is disabled.

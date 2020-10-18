@@ -146,8 +146,10 @@ function setRecurrence(recurrence) {
 
   // Delete previous date.
   let untilInput = reclookup(REC_DLG_UNTIL_INPUT);
-  recurrence.keypress(untilInput, "a", { accelKey: true });
-  recurrence.keypress(untilInput, "VK_DELETE", {});
+  untilInput.getNode().focus();
+  EventUtils.synthesizeKey("a", { accelKey: true }, recurrence.window);
+  untilInput.getNode().focus();
+  EventUtils.synthesizeKey("VK_DELETE", {}, recurrence.window);
 
   let endDateString = cal.dtz.formatter.formatDateShort(
     cal.dtz.jsDateToDateTime(ENDDATE, cal.dtz.floating)
@@ -157,7 +159,8 @@ function setRecurrence(recurrence) {
 
   recsleep(SHORT_SLEEP);
   // Move focus to ensure the date is selected.
-  recurrence.keypress(untilInput, "VK_TAB", {});
+  untilInput.getNode().focus();
+  EventUtils.synthesizeKey("VK_TAB", {}, recurrence.window);
 
   // Close dialog.
   recurrence.click(reclookup(REC_DLG_ACCEPT));

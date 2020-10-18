@@ -819,8 +819,8 @@ function subtest_search_button_disabled_cases(w) {
   // Empty any strings in the search input.  Select all of the input with
   // Ctrl-A, and then hit backspace.
   searchInput.getNode().focus();
-  w.keypress(null, "a", { accelKey: true });
-  w.keypress(null, "VK_BACK_SPACE", {});
+  EventUtils.synthesizeKey("a", { accelKey: true }, w.window);
+  EventUtils.synthesizeKey("VK_BACK_SPACE", {}, w.window);
 
   // Make sure at least one provider is checked
   let input = w.window.document.querySelector('input[type="checkbox"]:checked');
@@ -867,8 +867,8 @@ function subtest_search_button_disabled_cases(w) {
   // selected.
 
   // Clear out the search input
-  w.keypress(null, "a", { accelKey: true });
-  w.keypress(null, "VK_BACK_SPACE", {});
+  EventUtils.synthesizeKey("a", { accelKey: true }, w.window);
+  EventUtils.synthesizeKey("VK_BACK_SPACE", {}, w.window);
   input = w.window.document.querySelector('input[type="checkbox"]:checked');
   w.click(new elib.Elem(input));
 

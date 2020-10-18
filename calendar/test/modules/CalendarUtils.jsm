@@ -52,10 +52,10 @@ const EXPORTED_SYMBOLS = [
 var elementslib = ChromeUtils.import("resource://testing-common/mozmill/elementslib.jsm");
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 var { MozMillController } = ChromeUtils.import("resource://testing-common/mozmill/controller.jsm");
-
 var { close_pref_tab, open_pref_tab } = ChromeUtils.import(
   "resource://testing-common/mozmill/PrefTabHelpers.jsm"
 );
+var EventUtils = ChromeUtils.import("resource://testing-common/mozmill/EventUtils.jsm");
 var {
   close_window,
   plan_for_modal_dialog,
@@ -158,7 +158,8 @@ function helpersForController(controller) {
       return new elementslib.Lookup(controller.window.document, selector(path + extra));
     },
     replaceText: (textbox, text) => {
-      controller.keypress(textbox, "a", { accelKey: true });
+      textbox.getNode().focus();
+      EventUtils.synthesizeKey("a", { accelKey: true }, controller.window);
       controller.type(textbox, text);
     },
   };
@@ -205,7 +206,8 @@ function handleOccurrencePrompt(controller, element, mode, selectParent) {
   };
   if (mode == "delete") {
     plan_for_modal_dialog("Calendar:OccurrencePrompt", handleOccurrenceDialog);
-    controller.keypress(element, "VK_DELETE", {});
+
+    EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
     wait_for_modal_dialog("Calendar:OccurrencePrompt", TIMEOUT_MODAL_DIALOG);
   } else if (mode == "modify") {
     plan_for_modal_dialog(EVENT_SUMMARY_DIALOG_NAME, handleSummaryDialog);

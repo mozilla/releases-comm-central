@@ -46,6 +46,10 @@ var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
 
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
+
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 
 var kTextNodeType = 3;
@@ -68,7 +72,11 @@ function open_compose_new_mail(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.keypress(null, "n", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "n",
+    { shiftKey: false, accelKey: true },
+    aController.window
+  );
 
   return wait_for_compose_window();
 }
@@ -86,7 +94,11 @@ function open_compose_with_reply(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.keypress(null, "r", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "r",
+    { shiftKey: false, accelKey: true },
+    aController.window
+  );
 
   return wait_for_compose_window();
 }
@@ -104,7 +116,11 @@ function open_compose_with_reply_to_all(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.keypress(null, "R", { shiftKey: true, accelKey: true });
+  EventUtils.synthesizeKey(
+    "R",
+    { shiftKey: true, accelKey: true },
+    aController.window
+  );
 
   return wait_for_compose_window();
 }
@@ -122,7 +138,11 @@ function open_compose_with_reply_to_list(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.keypress(null, "l", { shiftKey: true, accelKey: true });
+  EventUtils.synthesizeKey(
+    "l",
+    { shiftKey: true, accelKey: true },
+    aController.window
+  );
 
   return wait_for_compose_window();
 }
@@ -176,7 +196,11 @@ function open_compose_with_forward(aController) {
   }
 
   windowHelper.plan_for_new_window("msgcompose");
-  aController.keypress(null, "l", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "l",
+    { shiftKey: false, accelKey: true },
+    aController.window
+  );
 
   return wait_for_compose_window();
 }
@@ -342,7 +366,8 @@ function setup_msg_contents(
   inputID = "toAddrInput"
 ) {
   aCwc.type(aCwc.eid(inputID), aAddr);
-  aCwc.keypress(aCwc.eid(inputID), "VK_RETURN", {});
+  aCwc.window.document.getElementById(inputID).focus();
+  EventUtils.synthesizeKey("VK_RETURN", {}, aCwc.window);
   aCwc.type(aCwc.eid("msgSubject"), aSubj);
   aCwc.type(aCwc.eid("content-frame"), aBody);
 
@@ -542,7 +567,8 @@ function type_in_composer(aController, aText) {
   for (let [i, aLine] of aText.entries()) {
     aController.type(frame, aLine);
     if (i < aText.length - 1) {
-      aController.keypress(frame, "VK_RETURN", {});
+      frame.getNode().focus();
+      EventUtils.synthesizeKey("VK_RETURN", {}, aController.window);
     }
   }
 }

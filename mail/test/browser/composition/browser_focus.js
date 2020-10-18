@@ -45,45 +45,65 @@ function check_element_cycling(controller, attachmentsExpanded, ctrlTab) {
 
   // We start on the addressing widget and go from there.
 
-  controller.keypress(null, key, { ctrlKey: ctrlTab });
+  EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
   Assert.equal(subjectElement, controller.window.WhichElementHasFocus());
   if (attachmentsExpanded) {
-    controller.keypress(null, key, { ctrlKey: ctrlTab });
+    EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
     Assert.equal(attachmentElement, controller.window.WhichElementHasFocus());
   }
-  controller.keypress(null, key, { ctrlKey: ctrlTab });
+  EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
   Assert.equal(editorElement, controller.window.WhichElementHasFocus());
-  controller.keypress(null, key, { ctrlKey: ctrlTab });
+  EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
   Assert.equal(identityElement, controller.window.WhichElementHasFocus());
-  controller.keypress(null, key, { ctrlKey: ctrlTab });
+  EventUtils.synthesizeKey(key, { ctrlKey: ctrlTab }, controller.window);
   mc.sleep(0); // Focusing the addressing element happens in a timeout...
   Assert.equal(addressingElement, controller.window.WhichElementHasFocus());
 
-  controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
+  EventUtils.synthesizeKey(
+    key,
+    { ctrlKey: ctrlTab, shiftKey: true },
+    controller.window
+  );
 
   if (ctrlTab) {
     Assert.equal(
       extraRecipientsLabel,
       controller.window.WhichElementHasFocus()
     );
-    controller.keypress(null, key, { shiftKey: true });
+    EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
     Assert.equal(bccLabel, controller.window.WhichElementHasFocus());
-    controller.keypress(null, key, { shiftKey: true });
+    EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
     Assert.equal(ccLabel, controller.window.WhichElementHasFocus());
 
-    controller.keypress(null, key, { shiftKey: true });
+    EventUtils.synthesizeKey(key, { shiftKey: true }, controller.window);
   }
 
   Assert.equal(identityElement, controller.window.WhichElementHasFocus());
-  controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
+  EventUtils.synthesizeKey(
+    key,
+    { ctrlKey: ctrlTab, shiftKey: true },
+    controller.window
+  );
   Assert.equal(editorElement, controller.window.WhichElementHasFocus());
   if (attachmentsExpanded) {
-    controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
+    EventUtils.synthesizeKey(
+      key,
+      { ctrlKey: ctrlTab, shiftKey: true },
+      controller.window
+    );
     Assert.equal(attachmentElement, controller.window.WhichElementHasFocus());
   }
-  controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
+  EventUtils.synthesizeKey(
+    key,
+    { ctrlKey: ctrlTab, shiftKey: true },
+    controller.window
+  );
   Assert.equal(subjectElement, controller.window.WhichElementHasFocus());
-  controller.keypress(null, key, { ctrlKey: ctrlTab, shiftKey: true });
+  EventUtils.synthesizeKey(
+    key,
+    { ctrlKey: ctrlTab, shiftKey: true },
+    controller.window
+  );
   mc.sleep(0); // Focusing the addressing element happens in a timeout...
   Assert.equal(addressingElement, controller.window.WhichElementHasFocus());
 

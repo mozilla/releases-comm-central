@@ -111,7 +111,11 @@ add_task(function test_basic_multipart_related() {
   wait_for_window_close();
 
   // Ctrl+S = save as draft.
-  compWin.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    compWin.window
+  );
   waitForSaveOperation(compWin);
   close_compose_window(compWin);
 

@@ -105,7 +105,11 @@ add_task(function test_paste_file_urls() {
 
       cwc.e("content-frame").focus();
       // Ctrl+V = Paste
-      cwc.keypress(null, "v", { shiftKey: false, accelKey: true });
+      EventUtils.synthesizeKey(
+        "v",
+        { shiftKey: false, accelKey: true },
+        cwc.window
+      );
     })
     .catch(function(err) {
       throw new Error("Setting up img file FAILED: " + err);

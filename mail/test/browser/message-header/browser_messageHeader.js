@@ -183,7 +183,8 @@ add_task(function test_add_tag_with_really_long_label() {
   }
 
   // Add the first tag, and make sure that the label are the same length.
-  mc.keypress(mc.eid("expandedfromTableHeader"), "1", {});
+  mc.window.document.getElementById("expandedfromTableHeader").focus();
+  EventUtils.synthesizeKey("1", {});
   if (topColumn.clientWidth != bottomColumn.clientWidth) {
     tagsLabel.value = oldTagsValue;
     throw new Error(
@@ -206,8 +207,10 @@ add_task(function test_add_tag_with_really_long_label() {
   // Remove the tag and put it back so that the a11y label gets regenerated
   // with the normal value rather than "taaaaaaaags"
   tagsLabel.value = oldTagsValue;
-  mc.keypress(mc.eid("expandedfromTableHeader"), "1", {});
-  mc.keypress(mc.eid("expandedfromTableHeader"), "1", {});
+  mc.window.document.getElementById("expandedfromTableHeader").focus();
+  EventUtils.synthesizeKey("1", {});
+  mc.window.document.getElementById("expandedfromTableHeader").focus();
+  EventUtils.synthesizeKey("1", {});
 });
 
 /**

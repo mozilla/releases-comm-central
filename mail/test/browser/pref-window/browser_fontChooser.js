@@ -99,7 +99,7 @@ add_task(function setupModule(module) {
   gTodayPane = mc.e("today-pane-panel");
   if (gTodayPane) {
     if (!gTodayPane.collapsed) {
-      mc.keypress(null, "VK_F11", {});
+      EventUtils.synthesizeKey("VK_F11", {});
     } else {
       gTodayPane = null;
     }
@@ -338,7 +338,7 @@ function teardownTest() {
 registerCleanupFunction(function teardownModule() {
   Services.prefs.clearUserPref("font.language.group");
   if (gTodayPane && gTodayPane.collapsed) {
-    mc.keypress(null, "VK_F11", {});
+    EventUtils.synthesizeKey("VK_F11", {});
   }
 
   Assert.report(

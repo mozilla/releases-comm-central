@@ -47,7 +47,8 @@ add_task(async function setupModule(module) {
         ${TASK_VIEW}/id("task-addition-box")/[0]/[1]/id("view-task-edit-field")
     `);
   controller.type(taskInput, TITLE);
-  controller.keypress(taskInput, "VK_RETURN", {});
+  taskInput.getNode().focus();
+  EventUtils.synthesizeKey("VK_RETURN", {}, controller.window);
 
   // Verify added.
   controller.waitFor(() => taskTreeNode.mTaskArray.length == 1, "Added Task did not appear");

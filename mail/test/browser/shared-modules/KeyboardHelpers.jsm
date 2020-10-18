@@ -10,6 +10,10 @@ const EXPORTED_SYMBOLS = [
   "delete_all_existing",
 ];
 
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
+
 /**
  * Emulates manual input
  *
@@ -18,8 +22,11 @@ const EXPORTED_SYMBOLS = [
  * @param aElement    (optional) Element on which to perform the input
  */
 function input_value(aController, aStr, aElement) {
+  if (aElement) {
+    aElement.getNode().focus();
+  }
   for (let i = 0; i < aStr.length; i++) {
-    aController.keypress(aElement || null, aStr.charAt(i), {});
+    EventUtils.synthesizeKey(aStr.charAt(i), {}, aController.window);
   }
 }
 
@@ -32,7 +39,8 @@ function input_value(aController, aStr, aElement) {
  */
 function delete_existing(aController, aElement, aNumber) {
   for (let i = 0; i < aNumber; ++i) {
-    aController.keypress(aElement, "VK_BACK_SPACE", {});
+    aElement.getNode().focus();
+    EventUtils.synthesizeKey("VK_BACK_SPACE", {}, aController.window);
   }
 }
 
@@ -43,6 +51,8 @@ function delete_existing(aController, aElement, aNumber) {
  * @param aElement    The element in which to delete characters
  */
 function delete_all_existing(aController, aElement) {
-  aController.keypress(aElement, "a", { accelKey: true });
-  aController.keypress(aElement, "VK_DELETE", {});
+  aElement.getNode().focus();
+  EventUtils.synthesizeKey("a", { accelKey: true }, aController.window);
+  aElement.getNode().focus();
+  EventUtils.synthesizeKey("VK_DELETE", {}, aController.window);
 }

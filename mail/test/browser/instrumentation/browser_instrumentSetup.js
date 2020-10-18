@@ -52,7 +52,7 @@ add_task(function test_mail_account_setup() {
     // Input user's account information
     awc.e("realname").focus();
     input_value(awc, user.name);
-    awc.keypress(null, "VK_TAB", {});
+    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
     input_value(awc, user.email);
 
     // Load the autoconfig file from http://localhost:433**/autoconfig/example.com

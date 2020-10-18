@@ -21,6 +21,9 @@ const EXPORTED_SYMBOLS = [
 var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
 
 var dh = ChromeUtils.import("resource://testing-common/mozmill/DOMHelpers.jsm");
 var fdh = ChromeUtils.import(
@@ -159,8 +162,8 @@ function remove_email_account(aAddress) {
  */
 function type_in_search_name(aController, aName) {
   aController.e("name").focus();
-  aController.keypress(null, "a", { accelKey: true });
-  aController.keypress(null, "VK_BACK_SPACE", {});
+  EventUtils.synthesizeKey("a", { accelKey: true }, aController.window);
+  EventUtils.synthesizeKey("VK_BACK_SPACE", {}, aController.window);
 
   input_value(aController, aName);
 }

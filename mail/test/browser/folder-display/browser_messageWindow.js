@@ -66,10 +66,10 @@ add_task(async function test_open_message_window() {
  */
 add_task(function test_toggle_read() {
   curMessage.markRead(false);
-  msgc.keypress(null, "m", {});
+  EventUtils.synthesizeKey("m", {}, msgc.window);
   Assert.ok(curMessage.isRead, "Message should have been marked read!");
 
-  msgc.keypress(null, "m", {});
+  EventUtils.synthesizeKey("m", {}, msgc.window);
   Assert.ok(!curMessage.isRead, "Message should have been marked unread!");
 });
 
@@ -79,7 +79,7 @@ add_task(function test_toggle_read() {
  */
 add_task(function test_navigate_to_next_message() {
   plan_for_message_display(msgc);
-  msgc.keypress(null, "f", {});
+  EventUtils.synthesizeKey("f", {}, msgc.window);
   wait_for_message_display_completion(msgc, true);
   assert_selected_and_displayed(msgc, 1);
 });
@@ -119,7 +119,7 @@ add_task(function test_del_collapsed_thread() {
 add_task(async function test_next_unread() {
   for (let i = 0; i < 3; ++i) {
     plan_for_message_display(msgc);
-    msgc.keypress(null, "n", {});
+    EventUtils.synthesizeKey("n", {}, msgc.window);
     wait_for_message_display_completion(msgc, true);
   }
 
@@ -128,7 +128,7 @@ add_task(async function test_next_unread() {
   }
 
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("accept");
-  msgc.keypress(null, "n", {});
+  EventUtils.synthesizeKey("n", {}, msgc.window);
   plan_for_message_display(msgc);
   await dialogPromise;
   wait_for_message_display_completion(msgc, true);
@@ -148,6 +148,6 @@ add_task(async function test_next_unread() {
  */
 add_task(function test_close_message_window() {
   plan_for_window_close(msgc);
-  msgc.keypress(null, "VK_ESCAPE", {});
+  EventUtils.synthesizeKey("VK_ESCAPE", {}, msgc.window);
   wait_for_window_close(msgc);
 });

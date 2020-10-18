@@ -118,7 +118,7 @@ add_task(function test_sidebar_contact_delete() {
   );
   click_tree_row(abTree, 0, cwc);
 
-  cwc.keypress(sidebarController.eid("abResultsTree"), "VK_DELETE", {});
+  EventUtils.synthesizeKey("VK_DELETE", {}, cwc.window);
   Assert.notEqual(
     null,
     gMockPromptService.promptState,

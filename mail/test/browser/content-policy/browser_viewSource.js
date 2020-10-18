@@ -76,7 +76,7 @@ add_task(function test_view_source_reload() {
   Assert.ok(msg == selMsg, "Selected msg isn't the same as the generated one.");
 
   plan_for_new_window("navigator:view-source");
-  mc.keypress(null, "U", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey("U", { shiftKey: false, accelKey: true });
   let vsc = wait_for_new_window("navigator:view-source");
 
   vsc.waitFor(

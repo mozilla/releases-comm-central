@@ -50,6 +50,7 @@ add_task(function test_re_test_config() {
   // unwind before opening the next one, so do that here.
   mc.sleep(0);
   open_mail_account_setup_wizard(function(awc) {
+    dump("xxxmagnus opened!\n");
     // Input user's account information
     awc.click(awc.eid("realname"));
     if (awc.e("realname").value) {
@@ -57,7 +58,7 @@ add_task(function test_re_test_config() {
       delete_all_existing(awc, awc.eid("realname"));
     }
     input_value(awc, user.name);
-    awc.keypress(null, "VK_TAB", {});
+    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
     input_value(awc, user.email);
 
     // Click "continue" button
@@ -92,10 +93,10 @@ add_task(function test_re_test_config() {
     // There used to be a "start over" button (line commented out below). Now just
     // changing the value of the email field does the trick.
     awc.e("realname").focus();
-    awc.keypress(null, "VK_TAB", {});
+    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
     awc.e("email").focus();
     input_value(awc, user.altEmail);
-    awc.keypress(null, "VK_TAB", {});
+    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
 
     // Wait for the "continue" button to be back, which means we're back to the
     // original state.

@@ -53,7 +53,11 @@ add_task(async function test_reply_to_eml_save_as_draft() {
   let replyWin = open_compose_with_reply(msgc);
 
   // Ctrl+S saves as draft.
-  replyWin.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    replyWin.window
+  );
   waitForSaveOperation(replyWin);
 
   // Drafts folder should exist now.
@@ -80,7 +84,11 @@ add_task(async function test_forward_eml_save_as_draft() {
   let replyWin = open_compose_with_forward(msgc);
 
   // Ctrl+S saves as draft.
-  replyWin.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    replyWin.window
+  );
   waitForSaveOperation(replyWin);
 
   // Drafts folder should exist now.

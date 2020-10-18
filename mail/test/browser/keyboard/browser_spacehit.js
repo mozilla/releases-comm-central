@@ -51,7 +51,7 @@ function subtest_advance_on_spacebar(aAdvance, aShift) {
   let oldmessage = select_click_row(1);
   wait_for_message_display_completion(mc);
   // Press [Shift-]Space
-  mc.keypress(null, " ", { shiftKey: aShift });
+  EventUtils.synthesizeKey(" ", { shiftKey: aShift });
   // Check that message focus changes iff aAdvance is true
   let newmessage = mc.folderDisplay.selectedMessage;
   aAdvance

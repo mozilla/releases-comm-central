@@ -392,16 +392,13 @@ function subtest_reordering_panel_keyboard(aCwc, aActions) {
   let panel = aCwc.e("reorderAttachmentsPanel");
 
   for (let action of aActions) {
-    aCwc.keypress(
-      new elib.Elem(action.focusEl),
-      action.key,
-      action.key_modifiers
-    );
+    action.focusEl.focus();
+    EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc.window);
     wait_for_popup_to_open(panel);
     aCwc.sleep(0);
 
     // Press ESC which should close the panel.
-    aCwc.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, aCwc.window);
     aCwc.sleep(0);
     aCwc.waitFor(
       () => panel.state == "closed",
@@ -463,7 +460,7 @@ function subtest_reordering(
     if ("button" in action) {
       aCwc.click(aCwc.eid(action.button));
     } else if ("key" in action) {
-      aCwc.keypress(null, action.key, action.key_modifiers);
+      EventUtils.synthesizeKey(action.key, action.key_modifiers, aCwc.window);
     }
     aCwc.sleep(0);
     // Check result.

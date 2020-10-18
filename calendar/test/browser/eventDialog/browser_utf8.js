@@ -61,7 +61,7 @@ add_task(async function testUTF8() {
     );
 
     // Escape the event window.
-    event.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
   });
 
   Assert.ok(true, "Test ran to completion");

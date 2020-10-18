@@ -81,18 +81,18 @@ function check_pane_cycling(multimessage) {
 
   folderPane.focus();
 
-  mc.keypress(null, "VK_F6", {});
+  EventUtils.synthesizeKey("VK_F6", {}, mc.window);
   Assert.equal(threadPane, get_focused_pane());
-  mc.keypress(null, "VK_F6", {});
+  EventUtils.synthesizeKey("VK_F6", {}, mc.window);
   Assert.equal(messagePane, get_focused_pane());
-  mc.keypress(null, "VK_F6", {});
+  EventUtils.synthesizeKey("VK_F6", {}, mc.window);
   Assert.equal(folderPane, get_focused_pane());
 
-  mc.keypress(null, "VK_F6", { shiftKey: true });
+  EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
   Assert.equal(messagePane, get_focused_pane());
-  mc.keypress(null, "VK_F6", { shiftKey: true });
+  EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
   Assert.equal(threadPane, get_focused_pane());
-  mc.keypress(null, "VK_F6", { shiftKey: true });
+  EventUtils.synthesizeKey("VK_F6", { shiftKey: true }, mc.window);
   Assert.equal(folderPane, get_focused_pane());
 }
 

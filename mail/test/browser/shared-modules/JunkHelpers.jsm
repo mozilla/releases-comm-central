@@ -14,6 +14,10 @@ var elib = ChromeUtils.import(
 );
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
 
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
+
 var folderDisplayHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/FolderDisplayHelpers.jsm"
 );
@@ -32,7 +36,10 @@ function mark_selected_messages_as_junk(aController) {
   if (aController === undefined) {
     aController = mc;
   }
-  aController.keypress(aController == mc ? mc.eThreadTree : null, "j", {});
+  if (aController == mc) {
+    mc.e("threadTree").focus();
+  }
+  EventUtils.synthesizeKey("j", {}, aController.window);
 }
 
 /**

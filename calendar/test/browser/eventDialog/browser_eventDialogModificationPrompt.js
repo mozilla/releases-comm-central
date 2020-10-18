@@ -54,7 +54,7 @@ add_task(async function testEventDialogModificationPrompt() {
   // Open, but change nothing.
   await invokeEditingEventDialog(controller, eventbox, (event, iframe) => {
     // Escape the event window, there should be no prompt to save event.
-    event.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
     // Wait to see if the prompt appears.
     controller.sleep(2000);
   });
@@ -68,14 +68,15 @@ add_task(async function testEventDialogModificationPrompt() {
     await setData(event, iframe, data[0]);
 
     // Escape the event window, there should be no prompt to save event.
-    event.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
     // Wait to see if the prompt appears.
     controller.sleep(2000);
   });
 
   // Delete event.
   controller.click(eventbox);
-  controller.keypress(eid("day-view"), "VK_DELETE", {});
+  controller.window.document.getElementById("day-view").focus();
+  EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
   controller.waitForElementNotPresent(eventbox);
 });
 
@@ -95,7 +96,7 @@ add_task(async function testDescriptionWhitespace() {
     // Open and close.
     await invokeEditingEventDialog(controller, eventbox, async (event, iframe) => {
       await setData(event, iframe, newlines[i]);
-      event.keypress(null, "VK_ESCAPE", {});
+      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
       // Wait to see if the prompt appears.
       controller.sleep(2000);
     });
@@ -103,7 +104,8 @@ add_task(async function testDescriptionWhitespace() {
     // Delete it.
     // XXX Somehow the event is selected at this point, this didn't use to
     // be the case and can't be reproduced manually.
-    controller.keypress(eid("day-view"), "VK_DELETE", {});
+    controller.window.document.getElementById("day-view").focus();
+    EventUtils.synthesizeKey("VK_DELETE", {}, controller.window);
     controller.waitForElementNotPresent(eventbox);
   }
 

@@ -64,6 +64,7 @@ add_task(async function test_quoteMessage() {
     cwc.click_menus_in_sequence(cwc.e("optionsMenuPopup"), [
       { id: "menu_quoteMessage" },
     ]);
+    cwc.sleep(50);
   } else {
     // Native menubar is used on macOS, didn't find a way to click it.
     cwc.window.goDoCommand("cmd_quoteMessage");

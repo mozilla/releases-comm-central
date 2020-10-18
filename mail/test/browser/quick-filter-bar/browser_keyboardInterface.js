@@ -68,17 +68,17 @@ add_task(function test_escape_rules() {
     assert_quick_filter_bar_visible(true);
 
     // hit escape, should clear addrbook
-    mc.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {});
     assert_quick_filter_bar_visible(true);
     assert_constraints_expressed({ unread: true, starred: true });
 
     // hit escape, should clear both remaining ones
-    mc.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {});
     assert_quick_filter_bar_visible(true);
     assert_constraints_expressed({});
 
     // hit escape, bar should disappear
-    mc.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {});
     assert_quick_filter_bar_visible(false);
 
     // bring the bar back for the next dude
@@ -102,13 +102,13 @@ add_task(function test_escape_rules() {
   //  and is not falling through to the cmd_popQuickFilterBarStack case so we
   //  end up with a situation where the _lastFilterAttr is the textbox but the
   //  textbox does not actually have any active filter.
-  mc.keypress(null, "VK_ESCAPE", {});
+  EventUtils.synthesizeKey("VK_ESCAPE", {});
   assert_quick_filter_bar_visible(true);
   assert_constraints_expressed({});
   assert_filter_text("");
 
   // Next escape should close the box
-  mc.keypress(null, "VK_ESCAPE", {});
+  EventUtils.synthesizeKey("VK_ESCAPE", {});
   assert_quick_filter_bar_visible(false);
   teardownTest();
 });
@@ -125,7 +125,7 @@ add_task(function test_escape_does_not_reach_us_from_gloda_search() {
     glodaSearchWidget.removeAttribute("hidden");
     glodaSearchWidget.focus();
 
-    mc.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {});
 
     assert_quick_filter_bar_visible(true);
   } finally {
@@ -148,7 +148,7 @@ add_task(function test_control_shift_k_shows_quick_filter_bar() {
   select_click_row(0);
 
   // hit control-shift-k to get in the quick filter box
-  mc.keypress(null, "k", { accelKey: true, shiftKey: true });
+  EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
   if (dispatcha.focusedElement != qfbTextbox.inputField) {
     throw new Error("control-shift-k did not focus quick filter textbox");
   }
@@ -156,7 +156,7 @@ add_task(function test_control_shift_k_shows_quick_filter_bar() {
   set_filter_text("search string");
 
   // hit control-shift-k to select the text in the quick filter box
-  mc.keypress(null, "k", { accelKey: true, shiftKey: true });
+  EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
   if (dispatcha.focusedElement != qfbTextbox.inputField) {
     throw new Error(
       "second control-shift-k did not keep focus on filter textbox"
@@ -173,13 +173,13 @@ add_task(function test_control_shift_k_shows_quick_filter_bar() {
 
   // hit escape and make sure the text is cleared, but the quick filter bar is
   // still open.
-  mc.keypress(null, "VK_ESCAPE", {});
+  EventUtils.synthesizeKey("VK_ESCAPE", {});
   assert_quick_filter_bar_visible(true);
   assert_filter_text("");
 
   // hit escape one more time and make sure we finally collapsed the quick
   // filter bar.
-  mc.keypress(null, "VK_ESCAPE", {});
+  EventUtils.synthesizeKey("VK_ESCAPE", {});
   assert_quick_filter_bar_visible(false);
   teardownTest();
 });

@@ -46,7 +46,11 @@ async function forwardDirect(aFilePath, aExpectedText) {
   let cwc = open_compose_with_forward_as_attachments(msgc);
 
   // Ctrl+S saves as draft.
-  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    cwc.window
+  );
   waitForSaveOperation(cwc);
 
   close_compose_window(cwc);

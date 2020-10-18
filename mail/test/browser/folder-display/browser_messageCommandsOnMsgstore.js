@@ -230,10 +230,15 @@ function reply_forward_message(aMsgRow, aReply) {
   // Send it later.
   plan_for_window_close(cwc);
   // Ctrl+Shift+Return = Send Later
-  cwc.keypress(cwc.eid("content-frame"), "VK_RETURN", {
-    shiftKey: true,
-    accelKey: true,
-  });
+  cwc.window.document.getElementById("content-frame").focus();
+  EventUtils.synthesizeKey(
+    "VK_RETURN",
+    {
+      shiftKey: true,
+      accelKey: true,
+    },
+    cwc.window
+  );
   wait_for_window_close(cwc);
 
   subtest_check_queued_message();

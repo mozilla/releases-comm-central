@@ -17,6 +17,9 @@ var folderDisplayHelper = ChromeUtils.import(
 var windowHelper = ChromeUtils.import(
   "resource://testing-common/mozmill/WindowHelpers.jsm"
 );
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
 
 var mc = folderDisplayHelper.mc;
 
@@ -27,7 +30,7 @@ var mc = folderDisplayHelper.mc;
  */
 function open_search_window() {
   windowHelper.plan_for_new_window("mailnews:search");
-  mc.keypress(null, "f", { shiftKey: true, accelKey: true });
+  EventUtils.synthesizeKey("f", { shiftKey: true, accelKey: true }, mc.window);
   return windowHelper.wait_for_new_window("mailnews:search");
 }
 

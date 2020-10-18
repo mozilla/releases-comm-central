@@ -61,7 +61,7 @@ add_task(function test_ignore_thread() {
   assert_selected_and_displayed(t1second);
 
   // Ignore this thread.
-  mc.keypress(null, "K", { shiftKey: false, accelKey: false });
+  EventUtils.synthesizeKey("K", { shiftKey: false, accelKey: false });
 
   // The first msg in the next thread should now be selected.
   let t2root = thread2.getMsgHdr(0);
@@ -107,7 +107,7 @@ add_task(function test_watch_thread() {
   assert_selected_and_displayed(t2second);
 
   // Watch this thread.
-  mc.keypress(null, "W", { shiftKey: false, accelKey: false });
+  EventUtils.synthesizeKey("W", { shiftKey: false, accelKey: false });
 
   // Choose "Watched Threads with Unread".
   clickViewMessagesItem("appmenu_viewWatchedThreadsWithUnreadMenuItem");

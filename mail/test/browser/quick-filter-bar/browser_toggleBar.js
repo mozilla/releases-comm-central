@@ -73,7 +73,7 @@ add_task(function test_control_shift_k_triggers_display() {
   mc.e("threadTree").focus();
 
   // hit control-shift-k
-  mc.keypress(null, "k", { accelKey: true, shiftKey: true });
+  EventUtils.synthesizeKey("k", { accelKey: true, shiftKey: true });
 
   // now we should be visible again!
   assert_quick_filter_bar_visible(true);

@@ -164,8 +164,8 @@ Menu.prototype = {
    */
   close() {
     var menu = this._menu.getNode();
-
-    this._controller.keypress(this._menu, "VK_ESCAPE", {});
+    menu.focus();
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, this._controller.window);
     this._controller.waitFor(function() {
       return menu.state == "closed";
     }, "Context menu has been closed.");
@@ -201,23 +201,6 @@ Menu.prototype = {
    */
   click(itemSelector) {
     this._controller.click(this.getItem(itemSelector));
-
-    return this;
-  },
-
-  /**
-   * Synthesize a keypress against the menu
-   *
-   * @param {string} key
-   *        Key to press
-   * @param {object} modifier
-   *        Key modifiers
-   * @see MozMillController#keypress
-   *
-   * @returns {Menu} The Menu instance
-   */
-  keypress(key, modifier) {
-    this._controller.keypress(this._menu, key, modifier);
 
     return this;
   },

@@ -246,7 +246,7 @@ add_task(async function testOpenExistingEventDialog() {
         "textContent",
         EVENTDESCRIPTION
       );
-      event.keypress(null, "VK_ESCAPE", {});
+      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
     },
     "view"
   );
@@ -281,7 +281,7 @@ add_task(async function testEventReminderDisplay() {
       let doc = event.window.document;
       let row = doc.querySelector(".reminder-row");
       Assert.ok(row.hidden, "reminder dropdown is not displayed");
-      event.keypress(null, "VK_ESCAPE", {});
+      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
     },
     "view"
   );
@@ -314,7 +314,7 @@ add_task(async function testEventReminderDisplay() {
         row.textContent.includes("1 week before"),
         "the details are shown when a reminder is set"
       );
-      event.keypress(null, "VK_ESCAPE", {});
+      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
     },
     "view"
   );
@@ -364,7 +364,7 @@ add_task(async function testEventReminderDisplay() {
 
       Assert.ok(!row.hidden, "reminder row is displayed");
       Assert.ok(row.querySelector("menulist") != null, "reminder dropdown is available");
-      event.keypress(null, "VK_ESCAPE", {});
+      EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
     },
     "view"
   );

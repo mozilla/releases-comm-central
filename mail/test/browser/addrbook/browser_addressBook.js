@@ -203,7 +203,7 @@ add_task(function test_deleting_contact_causes_confirm_prompt() {
 
   // Now attempt to delete the contact
   select_contacts(toDelete);
-  abController.keypress(null, "VK_DELETE", {});
+  EventUtils.synthesizeKey("VK_DELETE", {}, abController.window);
 
   let promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
@@ -220,7 +220,7 @@ add_task(function test_deleting_contact_causes_confirm_prompt() {
   // the contact is deleted.
   gMockPromptService.returnValue = true;
   select_contacts(toDelete);
-  abController.keypress(null, "VK_DELETE", {});
+  EventUtils.synthesizeKey("VK_DELETE", {}, abController.window);
 
   promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
@@ -276,7 +276,7 @@ add_task(function test_deleting_contacts_causes_confirm_prompt() {
 
   // Now attempt to delete the contact
   select_contacts(toDelete);
-  abController.keypress(null, "VK_DELETE", {});
+  EventUtils.synthesizeKey("VK_DELETE", {}, abController.window);
 
   let promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");
@@ -293,7 +293,7 @@ add_task(function test_deleting_contacts_causes_confirm_prompt() {
   // the contact is deleted.
   gMockPromptService.returnValue = true;
   select_contacts(toDelete);
-  abController.keypress(null, "VK_DELETE", {});
+  EventUtils.synthesizeKey("VK_DELETE", {}, abController.window);
 
   promptState = gMockPromptService.promptState;
   Assert.notEqual(null, promptState, "Expected a prompt state");

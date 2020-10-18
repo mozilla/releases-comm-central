@@ -84,7 +84,11 @@ add_task(function test_open_draft_again() {
 
   // Type something and save, then check that we only have one draft.
   cwc.type(cwc.eid("content-frame"), "Hello!");
-  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    cwc.window
+  );
   waitForSaveOperation(cwc);
   close_compose_window(cwc);
   Assert.equal(draftsFolder.getTotalMessages(false), 1);
@@ -174,7 +178,11 @@ function internal_check_delivery_format(editDraft) {
     mc.click(mc.eid(kBoxId, { tagName: "button", label: "Edit" }));
   } else {
     // Trigger "edit as new" resulting in template processing.
-    mc.keypress(null, "e", { shiftKey: false, accelKey: true });
+    EventUtils.synthesizeKey(
+      "e",
+      { shiftKey: false, accelKey: true },
+      mc.window
+    );
   }
   cwc = wait_for_compose_window();
 
@@ -209,11 +217,15 @@ add_task(function test_edit_as_new_in_draft() {
   wait_for_notification_to_show(mc, kBoxId, "draftMsgContent");
 
   plan_for_new_window("msgcompose");
-  mc.keypress(null, "e", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey("e", { shiftKey: false, accelKey: true });
   let cwc = wait_for_compose_window();
 
   cwc.type(cwc.eid("content-frame"), "Hello!");
-  cwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    cwc.window
+  );
   waitForSaveOperation(cwc);
 
   close_compose_window(cwc);

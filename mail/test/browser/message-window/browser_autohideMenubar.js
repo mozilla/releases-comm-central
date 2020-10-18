@@ -74,7 +74,8 @@ function help_test_autohide(controller, menubar) {
   set_autohide_menubar(controller, menubar, true);
   controller.waitFor(hiddenChecker(true), "Menubar should be hidden!");
 
-  controller.keypress(new elib.Elem(menubar), "VK_ALT", {});
+  document.getElementById(menubar).focus();
+  EventUtils.synthesizeKey("VK_ALT", {}, controller.window);
   controller.waitFor(
     hiddenChecker(false),
     "Menubar should be shown after pressing alt!"

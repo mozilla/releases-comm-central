@@ -31,7 +31,7 @@ add_task(async function testEventDialog() {
     event.window.resizeTo(650, 690);
     checkWithinTolerance(event.window.outerWidth, 650);
     checkWithinTolerance(event.window.outerHeight, 690);
-    event.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
   });
 
   checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
@@ -63,7 +63,7 @@ add_task(async function testEventDialog() {
       eventDocEl.getAttribute("height"),
       "minimum height attribute set"
     );
-    event.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
   });
 
   info("#calendar-new-event-menuitem click");
@@ -75,7 +75,7 @@ add_task(async function testEventDialog() {
     event.window.resizeTo(650, 690);
     checkWithinTolerance(event.window.outerWidth, 650);
     checkWithinTolerance(event.window.outerHeight, 690);
-    event.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);
   });
 
   checkWithinTolerance(getPersistedValue("width"), 650, LARGE_TOLERANCE);
@@ -96,7 +96,7 @@ add_task(async function testTaskDialog() {
     task.window.resizeTo(680, 700);
     checkWithinTolerance(task.window.outerWidth, 680);
     checkWithinTolerance(task.window.outerHeight, 700);
-    task.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, task.window);
   });
 
   checkWithinTolerance(getPersistedValue("width"), 680, LARGE_TOLERANCE);
@@ -128,7 +128,7 @@ add_task(async function testTaskDialog() {
       taskDocEl.getAttribute("height"),
       "minimum height attribute set"
     );
-    task.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, task.window);
   });
 
   info("#calendar-new-task-menuitem click");
@@ -140,7 +140,7 @@ add_task(async function testTaskDialog() {
     task.window.resizeTo(680, 700);
     checkWithinTolerance(task.window.outerWidth, 680);
     checkWithinTolerance(task.window.outerHeight, 700);
-    task.keypress(null, "VK_ESCAPE", {});
+    EventUtils.synthesizeKey("VK_ESCAPE", {}, task.window);
   });
 });
 

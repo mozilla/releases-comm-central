@@ -80,9 +80,9 @@ add_task(function test_mail_account_setup() {
       delete_all_existing(awc, awc.eid("realname"));
     }
     input_value(awc, user.name);
-    awc.keypress(null, "VK_TAB", {});
+    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
     input_value(awc, user.email);
-    awc.keypress(null, "VK_TAB", {});
+    EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
     input_value(awc, user.password);
 
     // Load the autoconfig file from http://localhost:433**/autoconfig/example.com
@@ -194,9 +194,9 @@ add_task(function test_bad_password_uses_old_settings() {
         delete_all_existing(awc, awc.eid("realname"));
       }
       input_value(awc, user.name);
-      awc.keypress(null, "VK_TAB", {});
+      EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
       input_value(awc, user.email);
-      awc.keypress(null, "VK_TAB", {});
+      EventUtils.synthesizeKey("VK_TAB", {}, awc.window);
       input_value(awc, user.password);
 
       // Load the autoconfig file from http://localhost:433**/autoconfig/example.com

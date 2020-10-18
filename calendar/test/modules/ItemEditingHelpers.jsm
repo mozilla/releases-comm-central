@@ -27,6 +27,7 @@ var { sendString, synthesizeKey, synthesizeMouseAtCenter } = ChromeUtils.import(
 var { helpersForController, menulistSelect } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
 );
+var EventUtils = ChromeUtils.import("resource://testing-common/mozmill/EventUtils.jsm");
 
 var { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
@@ -397,7 +398,8 @@ async function setData(dialog, iframe, data) {
       for (let attachment of attachments) {
         if (attachment.tooltipText.includes(data.attachment.remove)) {
           dialog.click(new elementslib.Elem(attachment));
-          dialog.keypress(attachmentBox, "VK_DELETE", {});
+          //attachmentBox.getNode().focus();
+          EventUtils.synthesizeKey("VK_DELETE", {}, dialog.window);
         }
       }
     }

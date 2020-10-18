@@ -670,7 +670,11 @@ function subtest_insertImageIntoReplyForward(aReplyType) {
   putHTMLOnClipboard("<img id='tmp-img' src='" + url + "pass.png' />");
 
   // Ctrl+V = Paste
-  replyWindow.keypress(null, "v", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "v",
+    { shiftKey: false, accelKey: true },
+    replyWindow.window
+  );
 
   // Now wait for the paste.
   replyWindow.waitFor(function() {

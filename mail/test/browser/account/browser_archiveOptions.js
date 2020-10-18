@@ -133,7 +133,7 @@ function subtest_save_state(identity, granularity, kfs) {
   plan_for_modal_dialog("Mailnews:archiveOptions", function(ac) {
     ac.e("archiveGranularity").selectedIndex = granularity;
     ac.e("archiveKeepFolderStructure").checked = kfs;
-    ac.keypress(null, "VK_RETURN", {});
+    EventUtils.synthesizeKey("VK_RETURN", {}, ac.window);
     ac.window.document.querySelector("dialog").acceptDialog();
   });
   mc.window.openDialog(

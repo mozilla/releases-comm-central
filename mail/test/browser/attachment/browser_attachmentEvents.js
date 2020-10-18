@@ -440,22 +440,15 @@ add_task(function test_attachments_pane_toggle() {
   let cw = open_compose_new_mail(mc);
 
   // Use the hotkey to toggle attachments-box open.
-
-  cw.keypress(
-    null,
-    "m",
-    AppConstants.platform == "macosx" ? { ctrlKey: true } : { altKey: true }
-  );
+  let opts =
+    AppConstants.platform == "macosx" ? { ctrlKey: true } : { altKey: true };
+  EventUtils.synthesizeKey("m", opts, cw.window);
   let attachmentsBox = cw.window.document.getElementById("attachments-box");
   cw.waitFor(() => !attachmentsBox.collapsed);
   Assert.ok(!attachmentsBox.collapsed);
 
   // Press again, should toggle to closed.
-  cw.keypress(
-    null,
-    "m",
-    AppConstants.platform == "macosx" ? { ctrlKey: true } : { altKey: true }
-  );
+  EventUtils.synthesizeKey("m", opts, cw.window);
   cw.waitFor(() => attachmentsBox.collapsed);
   Assert.ok(attachmentsBox.collapsed);
 

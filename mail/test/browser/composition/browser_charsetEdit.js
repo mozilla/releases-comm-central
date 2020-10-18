@@ -111,7 +111,11 @@ add_task(function test_wrong_reply_charset() {
 
   let rwc = open_compose_with_reply();
   // Ctrl+S = save as draft.
-  rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    rwc.window
+  );
   waitForSaveOperation(rwc);
   close_compose_window(rwc);
 
@@ -130,7 +134,11 @@ add_task(function test_wrong_reply_charset() {
     mc.eid("mail-notification-top", { tagName: "button", label: "Edit" })
   );
   rwc = wait_for_compose_window();
-  rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    rwc.window
+  );
   waitForSaveOperation(rwc);
   close_compose_window(rwc);
   msg = select_click_row(0);
@@ -162,7 +170,11 @@ add_task(function test_no_mojibake() {
 
   let rwc = open_compose_with_reply();
   // Ctrl+S = save as draft.
-  rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    rwc.window
+  );
   waitForSaveOperation(rwc);
   close_compose_window(rwc);
 
@@ -191,7 +203,11 @@ add_task(function test_no_mojibake() {
     mc.eid("mail-notification-top", { tagName: "button", label: "Edit" })
   );
   rwc = wait_for_compose_window();
-  rwc.keypress(null, "s", { shiftKey: false, accelKey: true });
+  EventUtils.synthesizeKey(
+    "s",
+    { shiftKey: false, accelKey: true },
+    rwc.window
+  );
   waitForSaveOperation(rwc);
   close_compose_window(rwc);
   msg = select_click_row(0);

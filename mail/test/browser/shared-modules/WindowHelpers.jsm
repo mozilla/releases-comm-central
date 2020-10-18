@@ -36,6 +36,9 @@ var elib = ChromeUtils.import(
   "resource://testing-common/mozmill/elementslib.jsm"
 );
 var utils = ChromeUtils.import("resource://testing-common/mozmill/utils.jsm");
+var EventUtils = ChromeUtils.import(
+  "resource://testing-common/mozmill/EventUtils.jsm"
+);
 
 var { Assert } = ChromeUtils.import("resource://testing-common/Assert.jsm");
 var { NetUtil } = ChromeUtils.import("resource://gre/modules/NetUtil.jsm");
@@ -1125,7 +1128,8 @@ var AugmentEverybodyWith = {
       while (aCloseStack.length) {
         let curPopup = aCloseStack.pop();
         if (curPopup.state == "open") {
-          this.keypress(new elib.Elem(curPopup), "VK_ESCAPE", {});
+          curPopup.focus();
+          EventUtils.synthesizeKey("VK_ESCAPE", {}, this.window);
         }
         utils.waitFor(
           () => curPopup.state == "closed",

@@ -511,8 +511,9 @@ add_task(function test_select_all_attachments_key() {
   // Expand the attachment list.
   mc.click(mc.eid("attachmentToggle"));
 
-  let attachmentList = mc.e("attachmentList");
-  mc.keypress(new elib.Elem(attachmentList), "a", { accelKey: true });
+  let attachmentList = mc.window.document.getElementById("attachmentList");
+  attachmentList.focus();
+  EventUtils.synthesizeKey("a", { accelKey: true }, mc.window);
   Assert.equal(
     attachmentList.selectedItems.length,
     2,
@@ -535,12 +536,14 @@ add_task(async function test_delete_attachment_key() {
 
   // Try deleting with the delete key
   let dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-  mc.keypress(firstAttachment, "VK_DELETE", {});
+  firstAttachment.getNode().focus();
+  EventUtils.synthesizeKey("VK_DELETE", {}, mc.window);
   await dialogPromise;
 
   // Try deleting with the shift-delete key combo.
   dialogPromise = BrowserTestUtils.promiseAlertDialog("cancel");
-  mc.keypress(firstAttachment, "VK_DELETE", { shiftKey: true });
+  firstAttachment.getNode().focus();
+  EventUtils.synthesizeKey("VK_DELETE", { shiftKey: true }, mc.window);
   await dialogPromise;
 });
 
