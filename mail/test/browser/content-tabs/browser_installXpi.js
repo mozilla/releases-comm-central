@@ -121,9 +121,9 @@ add_task(function test_xpinstall_webext_actually_install() {
     ".popup-notification-primary-button",
     () => {
       let intro = new elib.ID(gDocument, "addon-webext-perm-intro");
-      mc.assertNotDOMProperty(intro, "hidden", "true");
+      Assert.ok(intro.getNode().getAttribute("hidden") != "true");
       let permissionList = new elib.ID(gDocument, "addon-webext-perm-list");
-      mc.assertNotDOMProperty(permissionList, "hidden", "true");
+      Assert.ok(permissionList.getNode().getAttribute("hidden") != "true");
       mc.assert(() => permissionList.getNode().childElementCount == 1);
     }
   );

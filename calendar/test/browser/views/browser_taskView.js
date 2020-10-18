@@ -112,8 +112,12 @@ add_task(async function setupModule(module) {
     )
   );
   sleep();
-  let priorityNode = eid("calendar-task-details-priority-high");
-  controller.assertNotDOMProperty(priorityNode, "hidden");
+
+  Assert.ok(
+    !eid("calendar-task-details-priority-high")
+      .getNode()
+      .hasAttribute("hidden")
+  );
 
   // Verify that tooltip shows status, priority and percent complete.
   let toolTipNode = lookup(toolTip).getNode();
