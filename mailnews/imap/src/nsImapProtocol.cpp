@@ -4750,17 +4750,19 @@ char* nsImapProtocol::CreateNewLineFromSocket() {
     nsImapMockChannel* imapChannel =
         static_cast<nsImapMockChannel*>(m_mockChannel.get());
 
-    MOZ_LOG(IMAP, LogLevel::Debug,
-            ("Waiting until [imapChannel=%p] is resumed.", imapChannel));
-
     mozilla::MonitorAutoLock lock(imapChannel->mSuspendedMonitor);
 
+    bool suspended = imapChannel->mSuspended;
+    if (suspended)
+      MOZ_LOG(IMAP, LogLevel::Debug,
+              ("Waiting until [imapChannel=%p] is resumed.", imapChannel));
     while (imapChannel->mSuspended) {
       lock.Wait();
     }
-
-    MOZ_LOG(IMAP, LogLevel::Debug,
-            ("Done waiting, [imapChannel=%p] has been resumed.", imapChannel));
+    if (suspended)
+      MOZ_LOG(
+          IMAP, LogLevel::Debug,
+          ("Done waiting, [imapChannel=%p] has been resumed.", imapChannel));
   }
 
   do {
