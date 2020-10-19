@@ -81,7 +81,7 @@ add_task(async () => {
   let manager = cal.getCalendarManager();
   let composite = cal.view.getCompositeCalendar(window);
 
-  await openCalendarTab();
+  await CalendarTestUtils.openCalendarTab(window);
 
   // Check the default calendar.
   let calendars = manager.getCalendars();
@@ -329,5 +329,5 @@ add_task(async () => {
 
   Assert.equal(composite.defaultCalendar.id, calendars[0].id, "default calendar id check");
   Assert.equal(calendarList.selectedItem, calendarList.itemChildren[0]);
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
 });

@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* globals openAddonsTab, openCalendarTab, openChatTab,
-   openNewCalendarEventTab, openNewCalendarTaskTab, openPreferencesTab,
-   openTasksTab, selectCalendarEventTab, selectCalendarTaskTab,
-   selectFolderTab */
+/* globals openAddonsTab, openChatTab, openNewCalendarEventTab,
+ * openNewCalendarTaskTab, openPreferencesTab, openTasksTab,
+ * selectCalendarEventTab, selectCalendarTaskTab, selectFolderTab */
 
 var { CALENDARNAME, controller, createCalendar, deleteCalendars } = ChromeUtils.import(
   "resource://testing-common/mozmill/CalendarUtils.jsm"
@@ -49,7 +48,7 @@ add_task(async () => {
 
     await selectFolderTab();
     check("folder");
-    await openCalendarTab();
+    await CalendarTestUtils.openCalendarTab(window);
     check("calendar");
     await openTasksTab();
     check("tasks");
@@ -70,7 +69,7 @@ add_task(async () => {
   if (!BrowserTestUtils.is_visible(todayPane)) {
     await clickTodayPaneButton();
   }
-  await openCalendarTab();
+  await CalendarTestUtils.openCalendarTab(window);
   if (BrowserTestUtils.is_visible(todayPane)) {
     await clickTodayPaneButton();
   }
@@ -98,14 +97,14 @@ add_task(async () => {
   await selectFolderTab();
   await clickTodayPaneButton();
   // Show it in calendar tab.
-  await openCalendarTab();
+  await CalendarTestUtils.openCalendarTab(window);
   await clickTodayPaneButton();
 
   await checkTodayPaneVisibility(["calendar"]);
 
   // Show today pane in tasks tab, but not in other tabs.
   // Hide it in calendar tab.
-  await openCalendarTab();
+  await CalendarTestUtils.openCalendarTab(window);
   await clickTodayPaneButton();
   // Show it in tasks tab.
   await openTasksTab();
@@ -147,7 +146,7 @@ add_task(async () => {
   const button = document.getElementById("calendar-status-todaypane-button");
   await selectFolderTab();
   ok(BrowserTestUtils.is_visible(button), "today pane button is visible in folder tab");
-  await openCalendarTab();
+  await CalendarTestUtils.openCalendarTab(window);
   ok(BrowserTestUtils.is_visible(button), "today pane button is visible in calendar tab");
   await openTasksTab();
   ok(BrowserTestUtils.is_visible(button), "today pane button is visible in tasks tab");

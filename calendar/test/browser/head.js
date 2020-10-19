@@ -6,46 +6,9 @@
 
 /* globals openOptionsDialog, openAddonsMgr */
 
-async function openCalendarTab() {
-  let tabmail = document.getElementById("tabmail");
-  let calendarMode = tabmail.tabModes.calendar;
-
-  if (calendarMode.tabs.length == 1) {
-    tabmail.selectedTab = calendarMode.tabs[0];
-  } else {
-    let calendarTabButton = document.getElementById("calendar-tab-button");
-    EventUtils.synthesizeMouseAtCenter(calendarTabButton, { clickCount: 1 });
-  }
-
-  is(calendarMode.tabs.length, 1, "calendar tab is open");
-  is(tabmail.selectedTab, calendarMode.tabs[0], "calendar tab is selected");
-
-  await new Promise(resolve => setTimeout(resolve));
-}
-
-async function setCalendarView(viewName) {
-  await openCalendarTab();
-
-  let viewTabButton = document.getElementById(`calendar-${viewName}-view-button`);
-  EventUtils.synthesizeMouseAtCenter(viewTabButton, { clickCount: 1 });
-
-  is(currentView().id, `${viewName}-view`);
-
-  await new Promise(resolve => setTimeout(resolve));
-}
-
-async function closeCalendarTab() {
-  let tabmail = document.getElementById("tabmail");
-  let calendarMode = tabmail.tabModes.calendar;
-
-  if (calendarMode.tabs.length == 1) {
-    tabmail.closeTab(calendarMode.tabs[0]);
-  }
-
-  is(calendarMode.tabs.length, 0, "calendar tab is not open");
-
-  await new Promise(resolve => setTimeout(resolve));
-}
+const { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+);
 
 async function openTasksTab() {
   let tabmail = document.getElementById("tabmail");
@@ -133,7 +96,7 @@ async function _openNewCalendarItemTab(tabMode) {
   let previousTabCount = itemTabs.length;
 
   Services.prefs.setBoolPref("calendar.item.editInTab", true);
-  openCalendarTab();
+  CalendarTestUtils.openCalendarTab(window);
   let buttonId = tabMode == "calendarTask" ? "calendar-newtask-button" : "calendar-newevent-button";
 
   let newItemButton = document.getElementById(buttonId);
@@ -359,14 +322,14 @@ async function createCalendarUsingDialog(name, data = {}) {
     useDialog
   );
   // Open the "create new calendar" dialog.
-  openCalendarTab();
+  CalendarTestUtils.openCalendarTab(window);
   // This double-click must be inside the calendar list but below the list items.
   EventUtils.synthesizeMouseAtCenter(document.querySelector("#calendar-list"), { clickCount: 2 });
   return dialogWindowPromise;
 }
 
 registerCleanupFunction(async () => {
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await closeTasksTab();
   await closeChatTab();
   await closePreferencesTab();

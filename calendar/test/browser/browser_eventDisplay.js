@@ -30,7 +30,7 @@ add_task(async function testInsideDayView() {
   event.endDate = cal.createDateTime("20190403T234500");
   event = await calendar.addItem(event);
 
-  await setCalendarView("day");
+  await CalendarTestUtils.setCalendarView(window, "day");
   let dayView = document.getElementById("day-view");
   let dayBoxes = [...dayView.querySelectorAll("calendar-event-column")];
   is(dayBoxes.length, 1);
@@ -50,7 +50,7 @@ add_task(async function testInsideDayView() {
   is(item.querySelector(".event-name-label").textContent, "Test Event");
   is(item.getAttribute("gripBars"), "both");
 
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
 });
 
@@ -64,7 +64,7 @@ add_task(async function testOutsideDayView() {
   event.endDate = cal.createDateTime("20190404T234500");
   event = await calendar.addItem(event);
 
-  await setCalendarView("day");
+  await CalendarTestUtils.setCalendarView(window, "day");
   let dayView = document.getElementById("day-view");
   let dayBoxes = [...dayView.querySelectorAll("calendar-event-column")];
   is(dayBoxes.length, 1);
@@ -108,7 +108,7 @@ add_task(async function testOutsideDayView() {
   is(item.querySelector(".event-name-label").textContent, "Test Event");
   is(item.getAttribute("gripBars"), "end");
 
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
 });
 
@@ -122,7 +122,7 @@ add_task(async function testInsideWeekView() {
   event.endDate = cal.createDateTime("20190104T234500");
   event = await calendar.addItem(event);
 
-  await setCalendarView("week");
+  await CalendarTestUtils.setCalendarView(window, "week");
   let weekView = document.getElementById("week-view");
   let dayBoxes = [...weekView.querySelectorAll("calendar-event-column")];
   is(dayBoxes.length, 7);
@@ -156,7 +156,7 @@ add_task(async function testInsideWeekView() {
     ok(!dayBoxes[i].querySelector("stack calendar-event-box"), "No event shown");
   }
 
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
 });
 
@@ -170,7 +170,7 @@ add_task(async function testOutsideWeekView() {
   event.endDate = cal.createDateTime("20190419T234500");
   event = await calendar.addItem(event);
 
-  await setCalendarView("week");
+  await CalendarTestUtils.setCalendarView(window, "week");
   let weekView = document.getElementById("week-view");
   let dayBoxes = [...weekView.querySelectorAll("calendar-event-column")];
   is(dayBoxes.length, 7);
@@ -239,7 +239,7 @@ add_task(async function testOutsideWeekView() {
     ok(!dayBoxes[i].querySelector("stack calendar-event-box"), "No event shown");
   }
 
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
 });
 
@@ -253,7 +253,7 @@ add_task(async function testInsideMultiweekView() {
   event.endDate = cal.createDateTime("20190420T234500");
   event = await calendar.addItem(event);
 
-  await setCalendarView("multiweek");
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
   let multiweekView = document.getElementById("multiweek-view");
   let dayBoxes = [...multiweekView.querySelectorAll("calendar-month-day-box")];
   is(dayBoxes.length, 42);
@@ -295,7 +295,7 @@ add_task(async function testInsideMultiweekView() {
     ok(!dayBoxes[i].querySelector("calendar-month-day-box-item"), "No event shown");
   }
 
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
 });
 
@@ -309,7 +309,7 @@ add_task(async function testOutsideMultiweekView() {
   event.endDate = cal.createDateTime("20190508T234500");
   event = await calendar.addItem(event);
 
-  await setCalendarView("multiweek");
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
   let multiweekView = document.getElementById("multiweek-view");
   let dayBoxes = [...multiweekView.querySelectorAll("calendar-month-day-box")];
   is(dayBoxes.length, 42);
@@ -386,7 +386,7 @@ add_task(async function testOutsideMultiweekView() {
     ok(!dayBoxes[i].querySelector("calendar-month-day-box-item"), "No event shown");
   }
 
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
 });
 
@@ -400,7 +400,7 @@ add_task(async function testInsideMonthView() {
   event.endDate = cal.createDateTime("20190720T234500");
   event = await calendar.addItem(event);
 
-  await setCalendarView("month");
+  await CalendarTestUtils.setCalendarView(window, "month");
   let monthView = document.getElementById("month-view");
   let dayBoxes = [...monthView.querySelectorAll("calendar-month-day-box")];
   is(dayBoxes.length, 42);
@@ -443,7 +443,7 @@ add_task(async function testInsideMonthView() {
     ok(!dayBoxes[i].querySelector("calendar-month-day-box-item"), "No event shown");
   }
 
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
 });
 
@@ -457,7 +457,7 @@ add_task(async function testOutsideMonthView() {
   event.endDate = cal.createDateTime("20190508T234500");
   event = await calendar.addItem(event);
 
-  await setCalendarView("month");
+  await CalendarTestUtils.setCalendarView(window, "month");
   let monthView = document.getElementById("month-view");
   let dayBoxes = [...monthView.querySelectorAll("calendar-month-day-box")];
   is(dayBoxes.length, 42);
@@ -538,7 +538,7 @@ add_task(async function testOutsideMonthView() {
     ok(!dayBoxes[i].querySelector("calendar-month-day-box-item"), "No event shown");
   }
 
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await calendar.deleteItem(event);
 });
 

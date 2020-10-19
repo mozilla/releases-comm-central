@@ -4,23 +4,23 @@
 
 add_task(async () => {
   // Test the calendar tab opens and closes.
-  await openCalendarTab();
-  await closeCalendarTab();
+  await CalendarTestUtils.openCalendarTab(window);
+  await CalendarTestUtils.closeCalendarTab(window);
 
   // Test the tasks tab opens and closes.
   await openTasksTab();
   await closeTasksTab();
 
   // Test the calendar and tasks tabs at the same time.
-  await openCalendarTab();
+  await CalendarTestUtils.openCalendarTab(window);
   await openTasksTab();
-  await closeCalendarTab();
+  await CalendarTestUtils.closeCalendarTab(window);
   await closeTasksTab();
 
   // Test calendar view selection.
-  await setCalendarView("day");
-  await setCalendarView("week");
-  await setCalendarView("multiweek");
-  await setCalendarView("month");
-  await closeCalendarTab();
+  await CalendarTestUtils.setCalendarView(window, "day");
+  await CalendarTestUtils.setCalendarView(window, "week");
+  await CalendarTestUtils.setCalendarView(window, "multiweek");
+  await CalendarTestUtils.setCalendarView(window, "month");
+  await CalendarTestUtils.closeCalendarTab(window);
 });

@@ -3,6 +3,9 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { cal } = ChromeUtils.import("resource:///modules/calendar/calUtils.jsm");
+const { CalendarTestUtils } = ChromeUtils.import(
+  "resource://testing-common/mozmill/CalendarTestUtils.jsm"
+);
 const { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 XPCOMUtils.defineLazyModuleGetters(this, {
@@ -30,9 +33,8 @@ async function getDayBoxItem(attrSelector) {
 /**
  * Switches to the view to the calendar.
  */
-add_task(async function setUp() {
-  EventUtils.synthesizeMouseAtCenter(document.querySelector("#calendar-tab-button"), {});
-  window.switchToView("month");
+add_task(function setUp() {
+  return CalendarTestUtils.setCalendarView(window, "month");
 });
 
 /**
@@ -45,6 +47,7 @@ add_task(async function testEditEditableItem() {
   let calendarProxy = cal.async.promisifyCalendar(calendar);
   calendar.name = "Editable";
   manager.registerCalendar(calendar);
+
   registerCleanupFunction(() => manager.removeCalendar(calendar));
 
   let title = "Editable Event";
@@ -99,6 +102,7 @@ add_task(async function testEditNonEditableItem() {
   let calendarProxy = cal.async.promisifyCalendar(calendar);
   calendar.name = "Non-Editable";
   manager.registerCalendar(calendar);
+
   registerCleanupFunction(() => manager.removeCalendar(calendar));
 
   let event = new CalEvent();
@@ -141,23 +145,25 @@ add_task(async function testInvitation() {
   calendar.name = "Invitation";
   calendar.setProperty("organizerId", "mailto:attendee@example.com");
   manager.registerCalendar(calendar);
+
   registerCleanupFunction(() => manager.removeCalendar(calendar));
 
-  let icalString =
-    "BEGIN:VEVENT\r\n" +
-    "CREATED:20200103T152601Z\r\n" +
-    "DTSTAMP:20200103T192729Z\r\n" +
-    "UID:x131e\r\n" +
-    "SUMMARY:Invitation\r\n" +
-    "ORGANIZER;CN=Org:mailto:organizer@example.com\r\n" +
-    "ATTENDEE;RSVP=TRUE;CN=attendee@example.com;PARTSTAT=NEEDS-ACTION;CUTY\r\n" +
-    " PE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;X-NUM-GUESTS=0:mailto:attendee@example.com\r\n" +
-    "DTSTART:20200103T153000Z\r\n" +
-    "DTEND:20200103T163000Z\r\n" +
-    "DESCRIPTION:Just a Test\r\n" +
-    "SEQUENCE:0\r\n" +
-    "TRANSP:OPAQUE\r\n" +
-    "END:VEVENT\r\n";
+  let icalString = CalendarTestUtils.dedent`
+    BEGIN:VEVENT
+    CREATED:20200103T152601Z
+    DTSTAMP:20200103T192729Z
+    UID:x131e
+    SUMMARY:Invitation
+    ORGANIZER;CN=Org:mailto:organizer@example.com
+    ATTENDEE;RSVP=TRUE;CN=attendee@example.com;PARTSTAT=NEEDS-ACTION;CUTY
+     PE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;X-NUM-GUESTS=0:mailto:attendee@example.com
+    DTSTART:20200103T153000Z
+    DTEND:20200103T163000Z
+    DESCRIPTION:Just a Test
+    SEQUENCE:0
+    TRANSP:OPAQUE
+    END:VEVENT
+  `;
 
   let invitation = new CalEvent(icalString);
   await calendarProxy.addItem(invitation);
@@ -183,6 +189,7 @@ add_task(async function testCalendarReadOnly() {
   let calendarProxy = cal.async.promisifyCalendar(calendar);
   calendar.name = "ReadOnly";
   manager.registerCalendar(calendar);
+
   registerCleanupFunction(() => manager.removeCalendar(calendar));
 
   let event = new CalEvent();
@@ -205,4 +212,5 @@ add_task(async function testCalendarReadOnly() {
 
 registerCleanupFunction(() => {
   Services.prefs.setStringPref("calendar.timezone.local", originalTimezone);
+  return CalendarTestUtils.closeCalendarTab(window);
 });
