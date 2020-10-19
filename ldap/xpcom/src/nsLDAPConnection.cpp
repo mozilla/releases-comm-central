@@ -454,6 +454,9 @@ void nsLDAPConnection::InvokeErrorCallback(int32_t opID, nsresult status,
     nsCOMPtr<nsILDAPOperation> operation;
     MutexAutoLock lock(mPendingOperationsMutex);
     mPendingOperations.Get((uint32_t)opID, getter_AddRefs(operation));
+    if (!operation) {
+      return;
+    }
     operation->GetMessageListener(getter_AddRefs(listener));
   }
   if (!listener) {
