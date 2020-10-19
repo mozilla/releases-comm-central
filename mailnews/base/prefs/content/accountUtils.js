@@ -294,11 +294,7 @@ function MsgAccountManager(selectPage, aServer) {
   // and the selected page, reload the tab and switch to the tab.
   for (let tabInfo of tabmail.tabInfo) {
     let tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (
-      tab &&
-      tab.urlbar &&
-      tab.urlbar.textContent == "about:accountsettings"
-    ) {
+    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsettings") {
       tab.browser.contentDocument.documentElement.server = aServer;
       tab.browser.contentDocument.documentElement.selectPage = selectPage;
       tab.browser.contentWindow.onLoad();
@@ -320,11 +316,7 @@ function MsgAccountManager(selectPage, aServer) {
 
   for (let tabInfo of tabmail.tabInfo) {
     let tab = tabmail.getTabForBrowser(tabInfo.browser);
-    if (
-      tab &&
-      tab.urlbar &&
-      tab.urlbar.textContent == "about:accountsettings"
-    ) {
+    if (tab && tab.urlbar && tab.urlbar.value == "about:accountsettings") {
       tab.tabNode.setAttribute("type", "accountManager");
       break;
     }
