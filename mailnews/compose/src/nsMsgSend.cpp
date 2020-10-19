@@ -3673,21 +3673,7 @@ nsMsgComposeAndSend::CreateAndSendMessage(
   if (NS_FAILED(rv) && mSendReport)
     mSendReport->SetError(nsIMsgSendReport::process_Current, rv, false);
 
-  nsCOMPtr<nsIGlobalObject> global =
-      xpc::NativeGlobal(xpc::PrivilegedJunkScope());
-  ErrorResult er;
-  RefPtr<Promise> retPromise = Promise::Create(global, er);
-  nsresult rv2 = er.StealNSResult();
-  NS_ENSURE_SUCCESS(rv2, rv2);
-
-  if (NS_SUCCEEDED(rv)) {
-    retPromise->MaybeResolve(0);
-  } else {
-    retPromise->MaybeReject(rv);
-  }
-  retPromise.forget(aPromise);
-
-  return rv2;
+  return rv;
 }
 
 NS_IMETHODIMP
@@ -3762,20 +3748,6 @@ nsresult nsMsgComposeAndSend::SendMessageFile(
 
   if (NS_FAILED(rv) && mSendReport)
     mSendReport->SetError(nsIMsgSendReport::process_Current, rv, false);
-
-  nsCOMPtr<nsIGlobalObject> global =
-      xpc::NativeGlobal(xpc::PrivilegedJunkScope());
-  ErrorResult er;
-  RefPtr<Promise> retPromise = Promise::Create(global, er);
-  nsresult rv2 = er.StealNSResult();
-  NS_ENSURE_SUCCESS(rv2, rv2);
-
-  if (NS_SUCCEEDED(rv)) {
-    retPromise->MaybeResolve(0);
-  } else {
-    retPromise->MaybeReject(rv);
-  }
-  retPromise.forget(aPromise);
 
   return rv;
 }

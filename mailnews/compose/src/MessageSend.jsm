@@ -5,6 +5,7 @@
 const EXPORTED_SYMBOLS = ["MessageSend"];
 
 var { OS } = ChromeUtils.import("resource://gre/modules/osfile.jsm");
+var { setTimeout } = ChromeUtils.import("resource://gre/modules/Timer.jsm");
 var { MailServices } = ChromeUtils.import(
   "resource:///modules/MailServices.jsm"
 );
@@ -682,18 +683,22 @@ MessageSend.prototype = {
       return;
     }
 
-    // Time to clean up.
-    try {
-      this._sendListener
-        ?.QueryInterface(Ci.nsIMsgCopyServiceListener)
-        .OnStopCopy(0);
-    } catch (e) {
-      // Ignore the return value of OnStopCopy. Non-zero nsresult will throw
-      // when going through XPConnect. In this case, we don't care about it.
-      console.warn(
-        `OnStopCopy failed with 0x${e.result.toString(16)}\n${e.stack}`
-      );
-    }
+    // NOTE: When nsMsgCompose receives OnStopCopy, it will release nsIMsgSend
+    // instance and close the compose window, which prevents the Promise from
+    // resolving in MsgComposeCommands.js. Use setTimeout to work around it.
+    setTimeout(() => {
+      try {
+        this._sendListener
+          ?.QueryInterface(Ci.nsIMsgCopyServiceListener)
+          .OnStopCopy(0);
+      } catch (e) {
+        // Ignore the return value of OnStopCopy. Non-zero nsresult will throw
+        // when going through XPConnect. In this case, we don't care about it.
+        console.warn(
+          `OnStopCopy failed with 0x${e.result.toString(16)}\n${e.stack}`
+        );
+      }
+    });
     this._cleanup();
   },
 
