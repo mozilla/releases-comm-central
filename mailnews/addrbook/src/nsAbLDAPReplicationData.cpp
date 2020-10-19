@@ -115,6 +115,7 @@ NS_IMETHODIMP nsAbLDAPProcessReplicationData::OnLDAPError(
   // (See also InitFailed() for error handling during init phase).
   // Just call Done() which will ensure everything is tidied up nicely.
   Done(false);
+  return NS_OK;
 }
 
 NS_IMETHODIMP nsAbLDAPProcessReplicationData::Abort() {
