@@ -876,17 +876,3 @@ MozMillController.prototype.refresh = function() {
   frame.events.pass({ function: "Controller.refresh()" });
   return true;
 };
-
-MozMillController.prototype.assertText = function(el, text) {
-  // this.window.focus();
-  var n = el.getNode();
-
-  if (n && n.innerHTML == text) {
-    frame.events.pass({ function: "Controller.assertText()" });
-    return true;
-  }
-
-  throw new Error(
-    "could not validate element " + el.getInfo() + " with text " + text
-  );
-};

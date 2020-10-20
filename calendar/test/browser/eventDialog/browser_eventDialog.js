@@ -239,8 +239,8 @@ add_task(async function testOpenExistingEventDialog() {
     eventBox,
     async event => {
       let { eid } = helpersForController(event);
-      event.assertText(eid("calendar-item-summary-item-title"), EVENTTITLE);
-      event.assertText(eid("calendar-item-summary-item-location"), EVENTLOCATION);
+      Assert.equal(eid("calendar-item-summary-item-title").getNode().textContent, EVENTTITLE);
+      Assert.equal(eid("calendar-item-summary-item-location").getNode().textContent, EVENTLOCATION);
       Assert.equal(
         eid("calendar-item-summary-item-description").getNode().textContent,
         EVENTDESCRIPTION
