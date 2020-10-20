@@ -31,7 +31,7 @@
                 "type": "string",
                 "format": "relativeUrl",
                 "preprocess": "localize",
-                "description": "A page for configuring accounts, to be displayed in the preferences UI."
+                "description": "A page for configuring accounts, to be displayed in the preferences UI. **Note:** Within this UI only a limited subset of the WebExtension APIs is available: cloudFile, extension, i18n, runtime, storage, test."
               },
               "data_format": {
                 "type": "string",

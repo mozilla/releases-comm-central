@@ -209,7 +209,7 @@
               "title": {
                 "type": "string",
                 "optional": true,
-                "description": "The text to be displayed in the item; this is <em>required</em> unless <code>type</code> is 'separator'. When the context is 'selection', you can use <code>%s</code> within the string to show the selected text. For example, if this parameter's value is \"Translate '%s' to Pig Latin\" and the user selects the word \"cool\", the context menu item for the selection is \"Translate 'cool' to Pig Latin\"."
+                "description": "The text to be displayed in the item; this is *required* unless ``type`` is 'separator'. When the context is 'selection', you can use ``%s`` within the string to show the selected text. For example, if this parameter's value is \"Translate '%s' to Pig Latin\" and the user selects the word \"cool\", the context menu item for the selection is \"Translate 'cool' to Pig Latin\". To specify an access key for the new menu entry, include a ``&`` before the desired letter in the title. For example \"&Help\"."
               },
               "checked": {
                 "type": "boolean",
@@ -564,6 +564,13 @@
               "targetElementId": {
                 "type": "integer",
                 "optional": true
+              },
+              "attachments": {
+                "type": "array",
+                "optional": true,
+                "items": {
+                  "$ref": "compose.ComposeAttachment"
+                }
               }
             }
           },

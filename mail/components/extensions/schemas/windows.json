@@ -219,6 +219,11 @@
             "optional": true,
             "description": "Specifies properties used to filter the :ref:`windows.Window` returned and to determine whether they should contain a list of the :ref:`tabs.Tab` objects.",
             "properties": {
+              "populate": {
+                "type": "boolean",
+                "optional": true,
+                "description": "If true, each :ref:`windows.Window` object will have a ``tabs`` property that contains a list of the :ref:`tabs.Tab` objects for that window. The ``Tab`` objects only contain the ``url``, ``title`` and ``favIconUrl`` properties if the extension's manifest file includes the ``\"tabs\"`` permission."
+              },
               "windowTypes": {
                 "type": "array",
                 "items": { "$ref": "WindowType" },
