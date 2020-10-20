@@ -932,16 +932,3 @@ MozMillController.prototype.assertValue = function(el, value) {
     "could not validate element " + el.getInfo() + " with value " + value
   );
 };
-
-/**
- * Check if the callback function evaluates to true
- */
-MozMillController.prototype.assert = function(callback, message, thisObject) {
-  if (!callback.call(thisObject)) {
-    throw new Error(message || "assert: Failed for '" + callback + "'");
-  }
-
-  frame.events.pass({ function: ": controller.assert('" + callback + "')" });
-  return true;
-};
-

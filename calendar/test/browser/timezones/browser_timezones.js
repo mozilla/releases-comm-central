@@ -886,7 +886,7 @@ function verify(dates, timezones, times) {
         viewForward(controller, 1);
       }
 
-      controller.assert(() => eventNodes.some(node => Math.abs(timeY - node) < allowedDifference));
+      Assert.ok(eventNodes.some(node => Math.abs(timeY - node) < allowedDifference));
     }
   }
 }

@@ -77,7 +77,7 @@ add_task(async function testLocalICS() {
   cstream.readString(-1, str);
   cstream.close();
 
-  controller.assert(() => str.value.includes("SUMMARY:" + calendarName));
+  Assert.ok(str.value.includes("SUMMARY:" + calendarName));
 });
 
 registerCleanupFunction(function teardownModule(module) {

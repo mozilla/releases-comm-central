@@ -379,7 +379,7 @@ function checkTooltip(row, col, startTime, endTime) {
   // Check title.
   let toolTipTable = toolTip + '/{"class":"tooltipBox"}/{"class":"tooltipHeaderTable"}/';
   let eventName = lookup(`${toolTipTable}/[0]/[1]`);
-  controller.assert(() => eventName.getNode().textContent == EVENTTITLE);
+  Assert.equal(eventName.getNode().textContent, EVENTTITLE);
 
   // Check date and time.
   let dateTime = lookup(`${toolTipTable}/[2]/[1]`);
@@ -388,14 +388,10 @@ function checkTooltip(row, col, startTime, endTime) {
   currDate.addDuration(cal.createDuration(`P${7 * (row - 1) + (col - 1)}D`));
   let startDate = cal.dtz.formatter.formatDate(currDate);
 
-  controller.assert(() => {
-    let text = dateTime.getNode().textContent;
-    dump(`${text} / ${startDate} ${startTime} -\n`);
-    return text.includes(`${startDate} ${startTime} – `);
-  });
+  Assert.ok(dateTime.getNode().textContent.includes(`${startDate} ${startTime} – `));
 
   // This could be on the next day if it is 00:00.
-  controller.assert(() => dateTime.getNode().textContent.endsWith(endTime));
+  Assert.ok(dateTime.getNode().textContent.endsWith(endTime));
 }
 
 registerCleanupFunction(function teardownModule(module) {

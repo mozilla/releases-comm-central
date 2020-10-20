@@ -40,7 +40,7 @@ add_task(async function setupModule(module) {
   controller.click(lookup(`${CALENDARLIST}/{"calendar-id":"${CALENDARID}"}`));
 
   let taskTreeNode = lookup(taskTree).getNode();
-  controller.assert(() => taskTreeNode.mTaskArray.length == 0);
+  Assert.equal(taskTreeNode.mTaskArray.length, 0);
 
   // Add task.
   let taskInput = lookup(`
@@ -77,14 +77,8 @@ add_task(async function setupModule(module) {
     task.click(taskid("button-saveandclose"));
   });
 
-  controller.assert(
-    () => taskTreeNode.mTaskArray.length < 2,
-    "Task added but should not have been"
-  );
-  controller.assert(
-    () => taskTreeNode.mTaskArray.length > 0,
-    "Task removed but should not have been"
-  );
+  Assert.less(taskTreeNode.mTaskArray.length, 2, "Should not have added task");
+  Assert.greater(taskTreeNode.mTaskArray.length, 0, "Should not have removed task");
 
   // Verify description and status in details pane.
   controller.waitFor(

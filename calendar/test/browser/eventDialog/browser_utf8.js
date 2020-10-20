@@ -54,7 +54,7 @@ add_task(async function testUTF8() {
     event.assertValue(iframeId("item-title"), UTF8STRING);
     event.assertValue(iframeId("item-location"), UTF8STRING);
     event.assertValue(iframeId("item-description"), UTF8STRING);
-    event.assert(() =>
+    Assert.ok(
       iframeId("item-categories").getNode().querySelector(`
             menuitem[label="${UTF8STRING}"][checked]
         `)
