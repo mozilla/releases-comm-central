@@ -65,7 +65,7 @@ add_task(async function setupModule(module) {
     let { eid: iframeId } = helpersForController(iframe);
 
     // Verify calendar.
-    controller.assertValue(iframeId("item-calendar"), CALENDARNAME);
+    Assert.equal(iframeId("item-calendar").getNode().value, CALENDARNAME);
 
     await setData(task, iframe, {
       status: "needs-action",

@@ -918,17 +918,3 @@ MozMillController.prototype.assertNodeNotExist = function(el) {
   frame.events.pass({ function: "Controller.assertNodeNotExist()" });
   return true;
 };
-
-// Assert that a form element contains the expected value
-MozMillController.prototype.assertValue = function(el, value) {
-  // this.window.focus();
-  var n = el.getNode();
-
-  if (n && n.value == value) {
-    frame.events.pass({ function: "Controller.assertValue()" });
-    return true;
-  }
-  throw new Error(
-    "could not validate element " + el.getInfo() + " with value " + value
-  );
-};

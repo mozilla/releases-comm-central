@@ -57,8 +57,8 @@ add_task(async function testWeekView() {
     event.waitForElement(startTimeInput);
     let someDate = cal.createDateTime();
     someDate.resetTo(2009, 0, 1, 8, 0, 0, cal.dtz.floating);
-    event.assertValue(startTimeInput, cal.dtz.formatter.formatTime(someDate));
-    event.assertValue(startDateInput, cal.dtz.formatter.formatDateShort(someDate));
+    Assert.equal(startTimeInput.getNode().value, cal.dtz.formatter.formatTime(someDate));
+    Assert.equal(startDateInput.getNode().value, cal.dtz.formatter.formatDateShort(someDate));
 
     // Fill in title, description and calendar.
     await setData(event, iframe, {

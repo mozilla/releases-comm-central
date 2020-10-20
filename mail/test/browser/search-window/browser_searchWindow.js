@@ -291,7 +291,7 @@ function subtest_save_search(savc) {
   searchVal0 = new elib.Elem(searchVal0.children[index]);
 
   savc.assertNode(searchVal0);
-  savc.assertValue(searchVal0, "foo");
+  Assert.equal(searchVal0.getNode().value, "foo");
 
   let searchVal1 = swc.window.document.getElementById("searchVal1");
   index = 0;
@@ -303,7 +303,7 @@ function subtest_save_search(savc) {
   searchVal1 = new elib.Elem(searchVal1.children[index]);
 
   savc.assertNode(searchVal1);
-  savc.assertValue(searchVal1, "bar");
+  Assert.equal(searchVal1.getNode().value, "bar");
 
   // - name the search
   savc.type(savc.eid("name"), "SearchSaved");

@@ -71,7 +71,10 @@ add_task(function test_save_view_as_folder() {
 
 function subtest_save_mail_view(savc) {
   // - make sure the name is right
-  savc.assertValue(savc.eid("name"), baseFolder.prettyName + "-Important");
+  Assert.equal(
+    savc.eid("name").getNode().value,
+    baseFolder.prettyName + "-Important"
+  );
 
   let elem = savc.window.document.getElementById("searchVal0");
   let index = 0;
@@ -83,7 +86,7 @@ function subtest_save_mail_view(savc) {
   elem = elem.children[index];
 
   // - make sure the constraint is right
-  savc.assertValue(new elib.Elem(elem), "$label1");
+  Assert.equal(elem.value, "$label1");
 
   // - save it
   savc.window.onOK();

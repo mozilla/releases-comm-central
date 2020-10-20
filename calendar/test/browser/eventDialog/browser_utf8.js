@@ -51,9 +51,9 @@ add_task(async function testUTF8() {
     let { eid: iframeId } = helpersForController(iframe);
 
     // Check values.
-    event.assertValue(iframeId("item-title"), UTF8STRING);
-    event.assertValue(iframeId("item-location"), UTF8STRING);
-    event.assertValue(iframeId("item-description"), UTF8STRING);
+    Assert.equal(iframeId("item-title").getNode().value, UTF8STRING);
+    Assert.equal(iframeId("item-location").getNode().value, UTF8STRING);
+    Assert.equal(iframeId("item-description").getNode().value, UTF8STRING);
     Assert.ok(
       iframeId("item-categories").getNode().querySelector(`
             menuitem[label="${UTF8STRING}"][checked]

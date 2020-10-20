@@ -89,10 +89,10 @@ add_task(async function testEventDialog() {
     let startTimeInput = getDateTimePicker("STARTTIME");
 
     event.waitForElement(startTimeInput);
-    event.assertValue(startTimeInput, startTime);
+    Assert.equal(startTimeInput.getNode().value, startTime);
 
     // Check selected calendar.
-    event.assertValue(iframeId("item-calendar"), CALENDARNAME);
+    Assert.equal(iframeId("item-calendar").getNode().value, CALENDARNAME);
 
     // Check standard title.
     let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
@@ -127,7 +127,7 @@ add_task(async function testEventDialog() {
 
     event.click(eventid("event-grid-tab-attendees"));
     event.waitForElement(attendeeLabel);
-    event.assertValue(attendeeLabel, EVENTATTENDEE);
+    Assert.equal(attendeeLabel.getNode().value, EVENTATTENDEE);
     event.waitFor(() => !iframeId("notify-attendees-checkbox").getNode().checked);
 
     // Verify private label visible.
