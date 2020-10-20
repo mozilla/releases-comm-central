@@ -130,13 +130,8 @@ function setRecurrence(recurrence) {
   let wed = cal.l10n.getDateFmtString("day.4.Mmm");
   let fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
-  // Starting from Monday so it should be checked. We have to wait a little,
-  // because the checkedstate is set in background by JS.
-  recurrence.waitFor(() => {
-    return recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`));
-  }, 30000);
   // Starting from Monday so it should be checked.
-  recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`));
+  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`).getNode().checked, "mon checked");
   // Check Wednesday and Friday too.
   recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`));
   recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`));

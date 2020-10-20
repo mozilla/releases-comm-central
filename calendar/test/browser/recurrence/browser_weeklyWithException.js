@@ -198,16 +198,14 @@ function setRecurrence(recurrence) {
   let wed = cal.l10n.getDateFmtString("day.4.Mmm");
   let fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
-  // Starting from Monday so it should be checked. We have to wait a little,
-  // because the checkedstate is set in background by JS.
-  recurrence.waitFor(() => {
-    return recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`));
-  }, 10000);
+  // Starting from Monday so it should be checked.
+  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`).getNode().checked, "mon checked");
+
   // Check Wednesday and Friday too.
   recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`));
-  recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`));
+  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`).getNode().checked, "wed checked");
   recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`));
-  recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`));
+  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`).getNode().checked, "fri checked");
 
   // Close dialog.
   recurrence.click(reclookup(REC_DLG_ACCEPT));
@@ -225,17 +223,14 @@ function changeRecurrence(recurrence) {
   let fri = cal.l10n.getDateFmtString("day.6.Mmm");
 
   // Check old rule.
-  // Starting from Monday so it should be checked. We have to wait a little,
-  // because the checkedstate is set in background by JS.
-  recurrence.waitFor(() => {
-    return recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`));
-  }, 10000);
-  recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`));
-  recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`));
+  // Starting from Monday so it should be checked.
+  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${mon}"}`).getNode().checked, "mon checked");
+  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${wed}"}`).getNode().checked, "wed checked");
+  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${fri}"}`).getNode().checked, "fri checked");
 
   // Check Tuesday.
   recurrence.click(reclookup(`${REC_DLG_DAYS}/{"label":"${tue}"}`));
-  recurrence.assertChecked(reclookup(`${REC_DLG_DAYS}/{"label":"${tue}"}`));
+  Assert.ok(reclookup(`${REC_DLG_DAYS}/{"label":"${tue}"}`).getNode().checked, "tue checked");
 
   // Close dialog.
   recurrence.click(reclookup(REC_DLG_ACCEPT));

@@ -296,11 +296,7 @@ function remember_password_test(aPrefValue) {
       input_value(awc, "testing");
 
       Assert.ok(rememberPassword.getNode().disabled != aPrefValue);
-      if (aPrefValue) {
-        awc.assertChecked(rememberPassword);
-      } else {
-        awc.assertNotChecked(rememberPassword);
-      }
+      Assert.equal(rememberPassword.getNode().checked, aPrefValue);
 
       // empty the password field
       delete_all_existing(awc, password);
