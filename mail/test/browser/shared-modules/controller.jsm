@@ -989,35 +989,3 @@ MozMillController.prototype.assertNotChecked = function(el) {
   }
   throw new Error("assert failed for not checked element " + el.getInfo());
 };
-
-/**
- * Assert that an element's javascript property exists or has a particular value
- *
- * if val is undefined, will return true if the property exists.
- * if val is specified, will return true if the property exists and has the correct value
- */
-MozMillController.prototype.assertJSProperty = function(el, attrib, val) {
-  var element = el.getNode();
-  if (!element) {
-    throw new Error("could not find element " + el.getInfo());
-  }
-  var value = element[attrib];
-  var res =
-    value !== undefined &&
-    (val === undefined ? true : String(value) == String(val));
-  if (res) {
-    frame.events.pass({
-      function: 'Controller.assertJSProperty("' + el.getInfo() + '") : ' + val,
-    });
-  } else {
-    throw new Error(
-      "Controller.assertJSProperty(" +
-        el.getInfo() +
-        ") : " +
-        (val === undefined
-          ? "property '" + attrib + "' doesn't exist"
-          : val + " == " + value)
-    );
-  }
-  return res;
-};

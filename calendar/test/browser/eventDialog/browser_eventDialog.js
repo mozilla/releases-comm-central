@@ -96,7 +96,7 @@ add_task(async function testEventDialog() {
 
     // Check standard title.
     let defTitle = cal.l10n.getAnyString("calendar", "calendar", "newEvent");
-    event.assertJSProperty(eventid("item-title"), "placeholder", defTitle);
+    Assert.equal(eventid("item-title").getNode().placeholder, defTitle);
 
     // Prepare category.
     let categories = cal.l10n.getAnyString("calendar", "categories", "categories2");
@@ -241,9 +241,8 @@ add_task(async function testOpenExistingEventDialog() {
       let { eid } = helpersForController(event);
       event.assertText(eid("calendar-item-summary-item-title"), EVENTTITLE);
       event.assertText(eid("calendar-item-summary-item-location"), EVENTLOCATION);
-      controller.assertJSProperty(
-        eid("calendar-item-summary-item-description"),
-        "textContent",
+      Assert.equal(
+        eid("calendar-item-summary-item-description").getNode().textContent,
         EVENTDESCRIPTION
       );
       EventUtils.synthesizeKey("VK_ESCAPE", {}, event.window);

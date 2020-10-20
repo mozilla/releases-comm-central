@@ -54,7 +54,7 @@ add_task(async function setupModule(module) {
   controller.waitFor(() => taskTreeNode.mTaskArray.length == 1, "Added Task did not appear");
 
   // Last added task is automatically selected so verify detail window data.
-  controller.assertJSProperty(eid("calendar-task-details-title"), "textContent", TITLE);
+  Assert.equal(eid("calendar-task-details-title").getNode().textContent, TITLE);
 
   // Open added task
   // Double-click on completion checkbox is ignored as opening action, so don't
@@ -94,7 +94,7 @@ add_task(async function setupModule(module) {
     id("calendar-task-details-description")
   `).getNode().value == DESCRIPTION
   );
-  controller.assertJSProperty(eid("calendar-task-details-status"), "textContent", "Needs Action");
+  Assert.equal(eid("calendar-task-details-status").getNode().textContent, "Needs Action");
 
   // This is a hack.
   taskTreeNode.getTaskAtRow(0).calendar.setProperty("capabilities.priority.supported", true);
@@ -129,18 +129,18 @@ add_task(async function setupModule(module) {
   let toolTipStatus = lookup(toolTipTable + "[3]/[1]");
   let toolTipComplete = lookup(toolTipTable + "[4]/[1]");
 
-  controller.assertJSProperty(toolTipName, "textContent", TITLE);
-  controller.assertJSProperty(toolTipCalendar, "textContent", CALENDARNAME);
-  controller.assertJSProperty(toolTipPriority, "textContent", "High");
-  controller.assertJSProperty(toolTipStatus, "textContent", "Needs Action");
-  controller.assertJSProperty(toolTipComplete, "textContent", PERCENTCOMPLETE + "%");
+  Assert.equal(toolTipName.getNode().textContent, TITLE);
+  Assert.equal(toolTipCalendar.getNode().textContent, CALENDARNAME);
+  Assert.equal(toolTipPriority.getNode().textContent, "High");
+  Assert.equal(toolTipStatus.getNode().textContent, "Needs Action");
+  Assert.equal(toolTipComplete.getNode().textContent, PERCENTCOMPLETE + "%");
 
   // Mark completed, verify.
   controller.click(eid("task-actions-markcompleted"));
   sleep();
 
   toolTipNode.ownerGlobal.showToolTip(toolTipNode, taskTreeNode.getTaskAtRow(0));
-  controller.assertJSProperty(toolTipStatus, "textContent", "Completed");
+  Assert.equal(toolTipStatus.getNode().textContent, "Completed");
 
   // Delete task and verify.
   controller.click(eid("calendar-delete-task-button"));
