@@ -379,7 +379,8 @@ var MsgUtils = {
       value += `; provider=${attachment.cloudFileAccountKey}`;
       value += `; file=${attachment.url}`;
     }
-    value += `; name=${attachment.name}`;
+    value += "; ";
+    value += this.rfc2231ParamFolding("name", attachment.name);
     return value;
   },
 

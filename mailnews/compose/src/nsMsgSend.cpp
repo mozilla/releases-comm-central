@@ -987,9 +987,11 @@ int32_t nsMsgComposeAndSend::PreProcessPart(
       draftInfo.AppendLiteral("; file=");
       draftInfo.Append(urlSpec.get());
     }
-    draftInfo.AppendLiteral("; name=");
-    draftInfo.Append(ma->m_realName.get());
+    char* encodedRealName = RFC2231ParmFolding("name", ma->m_realName.get());
+    draftInfo.AppendLiteral("; ");
+    draftInfo.Append(encodedRealName);
     draftInfo.Append(CRLF);
+    PR_Free(encodedRealName);
     part->AppendOtherHeaders(draftInfo.get());
     part->SetType("application/octet-stream");
     part->SetBuffer("");

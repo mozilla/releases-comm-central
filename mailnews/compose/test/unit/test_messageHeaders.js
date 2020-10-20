@@ -463,7 +463,27 @@ async function testContentHeaders() {
       "provider=akey; " +
       "file=" +
       cloudAttachment.url +
-      "; name=attachment.html",
+      '; name="attachment.html"',
+  };
+  await richCreateMessage(fields, [cloudAttachment], identity);
+  checkDraftHeaders(cloudAttachmentHeaders, "2");
+
+  // Cloud attachment with non-ascii file name.
+  cloudAttachment = makeAttachment({
+    url: Services.io.newFileURI(do_get_file("data/test-UTF-8.txt")).spec,
+    sendViaCloud: true,
+    cloudFileAccountKey: "akey",
+    name: "ファイル.txt",
+    contentLocation: "http://localhost.invalid/",
+  });
+  cloudAttachmentHeaders = {
+    "Content-Type": "application/octet-stream",
+    "X-Mozilla-Cloud-Part":
+      "cloudFile; url=http://localhost.invalid/; " +
+      "provider=akey; " +
+      "file=" +
+      cloudAttachment.url +
+      "; name*=UTF-8''%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%2E%74%78%74",
   };
   await richCreateMessage(fields, [cloudAttachment], identity);
   checkDraftHeaders(cloudAttachmentHeaders, "2");
@@ -632,7 +652,7 @@ async function testSentMessage() {
       {
         "Content-Type": "application/octet-stream",
         "X-Mozilla-Cloud-Part":
-          "cloudFile; url=http://localhost.invalid/; name=attachment.html",
+          'cloudFile; url=http://localhost.invalid/; name="attachment.html"',
       },
       "2"
     );

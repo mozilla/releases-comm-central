@@ -492,8 +492,6 @@ char* mime_make_separator(const char* prefix) {
       rand_buf[10], rand_buf[11]);
 }
 
-static char* RFC2231ParmFolding(const char* parmName, const char* parmValue);
-
 static char* LegacyParmFolding(const nsCString& aCharset,
                                const nsCString& aFileName,
                                int32_t aParmFolding);
